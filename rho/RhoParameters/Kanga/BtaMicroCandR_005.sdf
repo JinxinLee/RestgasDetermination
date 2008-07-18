@@ -1,0 +1,17 @@
+_fitParams._q                _fitParams._q                  9 
+_fitParams._params[5]        _fitParams._params[5]         11 
+_fitParams._diag[15]         _fitParams._diag[15]          12
+_fitParams._corr[10]         _fitParams._corr[10]          13
+_pidInfo._Cons[25]           _pidInfo._Cons[25]            14 
+_pidInfo._status[25]         _pidInfo._status[25]          15 
+_calQual.bytes[11]           _calQual.bytes[11]            16 
+_calQual.shorts[8]           _calQual.shorts[8]            17 
+_ifrQual.bytes[10]           _ifrQual.bytes[10]            18 
+_ifrQual._IfrPattern[11]     _ifrQual._IfrPattern[11]      19 
+_trkQual.bytes[7]            _trkQual.bytes[7]             31 
+_trkQual.shorts[2]           _trkQual.shorts[2]            32 
+_pidQual.bytes[9]            _pidQual.bytes[9]             35 
+_pidQual.shorts[7]           _pidQual.shorts[7]            36 
+_subObjStatus                _subObjStatus                100 
+fUniqueID                    fUniqueID                    120 
+fBits                        fBits                        121 

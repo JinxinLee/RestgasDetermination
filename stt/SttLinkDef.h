@@ -1,0 +1,34 @@
+#ifdef __CINT__
+
+#pragma link off all globals;
+#pragma link off all classes;
+#pragma link off all functions;
+#pragma link C++ class PndGeoStt+;           
+#pragma link C++ class PndGeoSttPar;
+#pragma link C++ class PndSttDigiPar;
+#pragma link C++ class PndSttParAsciiFileIo;
+#pragma link C++ class PndSttParRootFileIo;
+#pragma link C++ class PndSttContFact;
+#pragma link C++ class PndSttHitInfo+;           
+#pragma link C++ class PndSttPoint+;
+#pragma link C++ class PndSttHitProducerIdeal+;   
+#pragma link C++ class PndSttTrack+;
+#pragma link C++ class PndStt+;             
+#pragma link C++ class PndSttTrackFinder+;
+#pragma link C++ class PndSttFindTracks+;   
+#pragma link C++ class PndSttTrackFinderIdeal+;
+#pragma link C++ class PndSttTrackFitter+;
+#pragma link C++ class PndSttFitTracks+;    
+#pragma link C++ class PndSttMatchTracks+;      
+#pragma link C++ class PndSttTrackMatch+;
+#pragma link C++ class PndSttHit+;        
+#pragma link C++ class PndSttSingleStraw+;
+#pragma link C++ class PndSttHitProducerReal+;
+#pragma link C++ class PndSttHelixTrackFitter+;
+#pragma link C++ class PndSttGeomPoint+;
+#pragma link C++ class PndSttHitProducerRealFast+;
+#pragma link C++ class PndSttHitProducerRealFull+;
+
+
+#endif
+

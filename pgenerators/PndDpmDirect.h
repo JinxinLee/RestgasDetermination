@@ -1,0 +1,67 @@
+// -------------------------------------------------------------------------
+// -----                 PndDpmDirect header file                  -----
+// -----               Created 11/04/08  by M.Al-Turany              -----
+// -------------------------------------------------------------------------
+
+/** PndDpmDirect.h
+ *@author M.Al-Turany <m.al-turany@gsi.de>
+ *
+ The PndDpmDirect generates DPM event using the DPM fortran code
+ and inserts the tracks into the CbmStack via the CbmPrimaryGenerator.
+ Derived from CbmGenerator.
+**/
+
+#ifndef PND_DPMDIRECT_H
+#define PND_DPMDIRECT_H
+
+#include "CbmGenerator.h"
+
+class TVirtualMCStack;
+class CbmPrimaryGenerator;
+
+
+
+class PndDpmDirect : public CbmGenerator
+{
+
+ public: 
+
+  /** Default constructor (should not be used) **/
+  PndDpmDirect();
+
+
+  /** Standard constructor
+   *  @param Mom in GeV/C
+   *  @param Mode = 0. - No elastic scattering, only inelastic
+   *  @param Mode = 1. - Elastic and inelastic interactions
+   *  @param Mode = 2. - Only elastic scattering, no inelastic one
+   **/
+  PndDpmDirect(Double_t Mom, Int_t Mode);
+
+  /** Destructor **/
+  virtual ~PndDpmDirect();
+
+  /** Generate one event using DPM
+   ** @param primGen  pointer to the CbmPrimaryGenerator
+   **/
+  virtual Bool_t ReadEvent(CbmPrimaryGenerator* primGen);
+	
+ private:
+
+  /**
+   * P_lab(GeV/c)
+  */
+  float fMom; 
+  /** 
+  * 0. - No elastic scattering, only inelastic
+  * 1. - Elastic and inelastic interactions
+  * 2. - Only elastic scattering, no inelastic one
+  */
+  float  fMode;    
+  double fSeed;
+  
+  ClassDef(PndDpmDirect,1);
+
+};
+
+#endif

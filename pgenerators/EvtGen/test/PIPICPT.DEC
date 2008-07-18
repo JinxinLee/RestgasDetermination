@@ -1,0 +1,19 @@
+Alias MYB B0
+Decay UPS4
+0.5 MYB B0B                               VSS;
+0.5 MYB B0                                VSS;
+Enddecay
+Decay MYB
+1.000 pi+   pi-                   SSS_CPT 0.0 0.51e12 1.0 0.0 1.0 0.0 0.1 -0.4;
+Enddecay
+Decay B0B
+1.000 D*+     e-   nueb                 ISGW2;
+Enddecay
+Decay B0
+1.000 D*-     e+   nue                  ISGW2;
+Enddecay
+Decay D*+
+Enddecay
+Decay D*-
+Enddecay
+End

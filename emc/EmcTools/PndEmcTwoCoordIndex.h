@@ -1,0 +1,83 @@
+//======================================================================
+// File and Version Information:
+// 	$Id:$
+//
+// Class PndEmcTwoCoordIndex
+//
+//	 Software developed for the BaBar Detector at the SLAC B-Factory.
+// Adapted for the PANDA experiment at GSI		
+//		
+// Class to hold coordinate and index information
+// for system in which two co-ordinates specifies a channel uniquely.
+// (Simplified version of class taken from BABAR framework)
+// It is convenient to use 2-coordinate index to describe barel part of EMC
+// to search for neigbour crystals in clustering algorithms
+// 
+//
+//  Author List:
+//
+//         Phil Strother                         Imperial College
+//         Stephen J. Gowdy                      University of Edinburgh
+// Dima Melnichuk - adaption for PANDA							
+// 
+//======================================================================
+
+#ifndef PNDEMCTWOCOORDINDEX_HH
+#define PNDEMCTWOCOORDINDEX_HH
+
+//---------------
+// C++ Headers --
+//---------------
+#include "iostream"
+#include "stdlib.h"
+//#include <vector>
+#include "TObject.h"
+#include "PndEmcNeighbourStore.h"
+
+using std::cout;
+using std::endl;
+
+class PndEmcTwoCoordIndex: public TObject
+{
+public:
+
+	// Constructors
+	PndEmcTwoCoordIndex();
+	PndEmcTwoCoordIndex( long theXcoord, long theYcoord, long theIndex );
+	
+	// Destructors
+	
+	// destructor in base class
+	virtual ~PndEmcTwoCoordIndex();
+	
+	
+	// Operators
+	bool operator==( const PndEmcTwoCoordIndex& c ) const { return fIndex==c.fIndex; }
+	bool operator!=( const PndEmcTwoCoordIndex& c ) const { return fIndex!=c.fIndex; }
+  
+	virtual const PndEmcNeighbourStore GetNeighbours() const;
+	 
+	long XCoord() const      {return fCoords[0];}
+	long YCoord() const      {return fCoords[1];}
+	long Index() const       {return fIndex;}
+	
+	virtual void AddToNeighbourList(PndEmcTwoCoordIndex *);
+	
+	//check if 2 tci are neigbour or not
+	bool IsNeighbour(PndEmcTwoCoordIndex* _tci);
+
+
+protected:
+	long fCoords[2];
+	long fIndex;
+	PndEmcNeighbourStore fNeighbours; 
+
+private:
+      
+   ClassDef(PndEmcTwoCoordIndex,1)
+};
+
+#endif // PNDEMCTWOCOORDINDEX_HH
+
+
+

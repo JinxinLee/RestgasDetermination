@@ -1,0 +1,7 @@
+#
+# JOB Multiplicity Input Output NrOfPars NrOfEvts Part. Mom_min Mom_max Theta_min Theta_max Phi_min Phi_max Transp.
+##
+RUNID 0
+#JOB 10 $HOME/scripts/runemc.sh NULL $HOME/output 9 100 gamma 0.0 2.0 0. 180. 0. 360. TGeant3
+JOB 5 $HOME/scripts/runemc.sh NULL $HOME/output 9 1000 gamma 0.0 2.0 0. 180. 0. 360. TGeant3
+JOB 5 $HOME/scripts/runemc.sh NULL $HOME/output 9 1000 gamma 0.0 2.0 0. 180. 0. 360. TGeant4

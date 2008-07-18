@@ -1,0 +1,211 @@
+//-----------------------------------------------------------
+// File and Version Information:
+// $Id$
+//
+// Description:
+//      Implementation of class PndTpcClusterizerTask
+//      see PndTpcClusterizerTask.hh for details
+//
+// Environment:
+//      Software developed for the PANDA Detector at FAIR.
+//
+// Author List:
+//      Sebastian Neubert    TUM            (original author)
+//
+//
+//-----------------------------------------------------------
+
+// Panda Headers ----------------------
+
+// This Class' Header ------------------
+#include "PndTpcClusterizerTask.h"
+
+// C/C++ Headers ----------------------
+
+
+// Collaborating Class Headers --------
+#include "CbmRootManager.h"
+#include "TClonesArray.h"
+#include "PndTpcPoint.h"
+#include "PndTpcGas.h"
+#include "TRandom.h"
+#include "PndTpcPrimaryCluster.h"
+#include "LinearInterpolPolicy.h"
+#include "CbmRunAna.h"
+#include "CbmRuntimeDb.h"
+#include "PndTpcDigiPar.h"
+
+#include <iostream>
+#include <cmath>
+
+using std::cout;
+using std::endl;
+using std::fabs;
+using std::floor;
+
+// Class Member definitions -----------
+
+
+PndTpcClusterizerTask::PndTpcClusterizerTask()
+  : CbmTask("TPC Clusterizer"), _persistence(kFALSE),_mereChargeConversion(kFALSE)
+{
+  _pointBranchName = "PndTpcPoint";
+}
+
+
+PndTpcClusterizerTask::~PndTpcClusterizerTask()
+{}
+
+void
+PndTpcClusterizerTask::SetParContainers() {
+
+  std::cout<<"PndTpcClusterizerTask::SetParContainers"<<std::endl;
+  std::cout.flush();
+
+  // Get run and runtime database
+  CbmRunAna* run = CbmRunAna::Instance();
+  if ( ! run ) Fatal("SetParContainers", "No analysis run");
+
+  CbmRuntimeDb* db = run->GetRuntimeDb();
+  if ( ! db ) Fatal("SetParContainers", "No runtime database");
+
+  // Get PndTpc digitisation parameter container
+  _par= (PndTpcDigiPar*) db->getContainer("PndTpcDigiPar");
+  if (! _par ) Fatal("SetParContainers", "PndTpcDigiPar not found");
+}
+
+
+
+InitStatus
+PndTpcClusterizerTask::Init()
+{
+  //Get ROOT Manager
+  CbmRootManager* ioman= CbmRootManager::Instance();
+
+  if(ioman==0)
+    {
+      Error("PndTpcClusterizerTask::Init","RootManager not instantiated!");
+      return kERROR;
+    }
+  
+  // Get input collection
+  _pointArray=(TClonesArray*) ioman->GetObject(_pointBranchName);
+  
+  if(_pointArray==0)
+    {
+      Error("PndTpcClusterizerTask::Init","Point-array not found!");
+      return kERROR;
+    }
+  
+  // create and register output array
+  _primArray = new TClonesArray("PndTpcPrimaryCluster"); 
+  ioman->Register("PndTpcPrimaryCluster","PndTpc",_primArray,_persistence);
+
+  _gas=_par->getGas();
+
+  return kSUCCESS;
+}
+
+void
+PndTpcClusterizerTask::Exec(Option_t* opt)
+{
+  // Reset output Array
+  if(_primArray==0) Fatal("PndTpcPrimCluster::Exec)","No PrimClusterArray");
+  _primArray->Delete();
+
+  Int_t np=_pointArray->GetEntriesFast();
+  if(np<2){
+    Warning("PndTpcClusterizerTask::Exec","Not enough Hits in PndTpc for Digitization (<2)");
+    return;
+  }
+  
+  if(_mereChargeConversion)	{
+  	ChargeConversion();
+  	return; //goodbye, you wretched world!
+  }
+  
+  PndTpcPoint* point;
+  PndTpcPoint* theLastPoint;
+  Int_t icluster=0; 
+  theLastPoint= (PndTpcPoint*)_pointArray->At(0);
+
+  for(int ip=1;ip<np;++ip){
+    point=(PndTpcPoint*) _pointArray->At(ip);
+    //point->Print();
+
+    // check if points are not too far from each other
+    TVector3 p1;point->Position(p1);
+    TVector3 p2;theLastPoint->Position(p2);
+
+    TVector3 d=p1-p2;
+    if(d.Mag()>1){
+      theLastPoint=point;
+      continue;
+    }
+
+    //check if hits ly on the same track
+    if(point->GetTrackID()==theLastPoint->GetTrackID()){
+      double dE=point->GetEnergyLoss()*1E9; //convert from GeV to eV
+
+      //Step 0: calculate the overall ammount of charge, produced
+      if(dE<0){
+        Error("PndTpcClusterizerTask::Exec","Note: particle:: negative Energy loss!");
+	theLastPoint=point;
+        continue;
+      }
+      unsigned int q_total =(unsigned int)floor(fabs(dE / _gas->W()));
+      unsigned int q_cluster=0;
+      unsigned int ncluster=0;
+      //Step 1: Create Clusters
+
+      //while still charge not used-up distribute charge into next cluster
+
+      while(q_total>0){
+        //roll dice for next clustersize
+        q_cluster=_gas->GetRandomCS(gRandom->Uniform());
+        if(q_cluster>q_total)q_cluster=q_total;
+        q_total-=q_cluster;
+        // create cluster
+	Int_t size = _primArray->GetEntriesFast();
+	new((*_primArray)[size]) PndTpcPrimaryCluster(point->GetTime(),
+						   q_cluster,
+						   TVector3(0,0,0),
+						   point->GetTrackID(),
+						   ip);
+	
+        ++ncluster;
+     }// finish loop for cluster creation
+
+      //Step 2: Distribute Clusters along track segment
+      LinearInterpolPolicy().Interpolate(theLastPoint,point,_primArray,icluster,ncluster);
+      icluster+=ncluster;
+      }//end check for same track
+    theLastPoint=point;
+  } // finish loop over GHits
+
+  std::cout<<"PndTpcClusterizer:: "<<_primArray->GetEntriesFast()<<" clusters created"<<std::endl;
+
+  return;
+}
+
+void PndTpcClusterizerTask::ChargeConversion()
+{
+  const Float_t poti = 20.77e-9; // first ionization potential for Ne/CO2
+  const Float_t w_ion = 35.97e-9; // energy for the ion-electron pair creation 
+  Int_t np=_pointArray->GetEntriesFast();	
+  for(int ip=1;ip<np;++ip)
+  {
+  	PndTpcPoint* point=(PndTpcPoint*) _pointArray->At(ip);
+	//Do no clustering just convert energy deposition to ionisation
+  	Int_t nel = (Int_t)(((point->GetEnergyLoss())-poti)/w_ion) + 1;	//imported from ALICE
+  	nel=TMath::Min(nel,300); // 300 electrons corresponds to 10 keV
+	Int_t size = _primArray->GetEntriesFast();
+	new((*_primArray)[size]) PndTpcPrimaryCluster(point->GetTime(),
+						   nel,
+						   TVector3(point->GetX(),point->GetY(),point->GetZ()),
+						   point->GetTrackID(),
+						   ip);
+  }
+}
+
+ClassImp(PndTpcClusterizerTask)

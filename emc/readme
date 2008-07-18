@@ -1,0 +1,12 @@
+1. Digitization starts from CbmEmcHit produced without energy treshold and at the end produces object EmcDigi. 
+The sequence for digitizationis the following
+
+CbmEmcHit ->EmcWaveform (via EmcHitToWaveform)-> EmcDigi (via EmcWaveformToDigi)
+
+Reconstruction should start from EmcDigi.
+
+2. EmcMapper. Class which provides mapping between unique index of crystal and TwoCoordinateIndex. If geometry is implemented in different way correspondent mapping should be implemented in EmcMapper. Mapping for Forward endcup is not implemented yet.
+		
+3. TwoCoordinateIndex. Object which contains 2 dimensional index of crystal and reference to its the neigbours. It simplify clustering algorithms.
+		
+4. NeighbourStore.h - typedef NeighbourStore which is set of TwoCoordinateIndex for neigbours of crystal

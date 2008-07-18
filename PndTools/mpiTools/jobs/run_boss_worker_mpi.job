@@ -1,0 +1,80 @@
+#!/bin/bash
+#
+# To run this script, make use of the PBS system. For example:
+#
+#  qsub run_boss_worker_mpi.job -q long -N PandaRootEMC -l nodes=5:ppn=2 -v NWORKERS=10,JOBFILE="/home/rugkvi04/jobs/jobs.in,LOGFILE="/home/rugkvi04/johan/jobs/logs/jobs.log" 
+#
+# will run this job in the "long" queue (max. 24 hours), allocating 5 computing nodes and
+# for each node two cpus (ppn). The name of the process will be called "PandaRootEMC". You can set
+# a couple of environmental variables, which are passed to this script using the "-v" option.
+# A description of the variables can be found below:
+# 
+# JOBFILE  = MANDATORY: the directory and filename containing the job descriptions.
+# NWORKERS = OPTIONAL: number of workers, preferably take at least (nodes*ppn-1). If not defined,
+#            this script will automatically set it for you to (nodes*ppn-1).
+# LOGFILE  = OPTIONAL: directory and filename in which the output streams are dumped.
+#            This option allows you to monitor the output while the program is running.
+# RUNID    = OPTIONAL: the starting runid.
+#
+
+#
+# Load stuff needed to find MPI
+#
+
+#export MPI=/opt/mpi/openmpi-gcc
+export MPI=/opt/mpi/mpich-gcc
+export LD_LIBRARY_PATH=$MPI/lib:$LD_LIBRARY_PATH
+export PATH=$MPI/bin:$PATH
+
+#
+# Calculate the number of workers in case not defined by user
+# NWORKERS will be the number of nodes * ncpus reserved in the batch process
+#
+
+if [ "$NWORKERS" = "" ]; then
+    NNODES=`qstat -f $PBS_JOBID |  grep "Resource_List.nodes" | sed 's/:ppn=/ /' | awk '{print $3}'`
+    NPPN=`qstat -f $PBS_JOBID |  grep "Resource_List.nodes" | sed 's/:ppn=/ /' | awk '{print $4}'`
+    if [ "$NPPN" = "" ]; then
+	NPPN=1
+    fi
+    NWORKERS=`expr $NNODES \* $NPPN`
+#    NWORKERS=`expr $NWORKERS - 1`
+    echo "Number of nodes   is $NNODES"
+    echo "Number of cpus    is $NPPN"
+fi
+
+echo "Number of workers is $NWORKERS"
+
+#
+# NPROCS   = represents the number of processes, e.g. NWORKERS + 1 BOSS, 
+#            this variable is calculated automatically by this script. 
+#
+
+NPROCS=`expr $NWORKERS + 1`
+
+#
+# Check whether the starting runid is set. If not, use "date".
+#
+
+if [ "$RUNID" = "" ]; then
+    RUNID=`date +%N`
+fi
+
+#
+# Run the MPI-based program...
+#
+
+ARGS="-j $JOBFILE -m $HOME/bin/movefiles -s /tmp -r $RUNID"
+
+if [ "$LOGFILE" = "" ]; then
+    mpirun -np $NPROCS $HOME/bin/boss_worker_mpi $ARGS
+else
+    if  [ "$LOGFILE" = "/dev/null" ]; then
+	mpirun -np $NPROCS $HOME/bin/boss_worker_mpi $ARGS 1> $LOGFILE 2> $LOGFILE 
+    else
+	JOBID=`echo $PBS_JOBID | sed 's/\./ /' | awk '{print $1}'`
+	mpirun -np $NPROCS $HOME/bin/boss_worker_mpi $ARGS 1> $LOGFILE\_$JOBID 2> $LOGFILE\_$JOBID 
+    fi
+fi
+
+exit 1

@@ -1,0 +1,5 @@
+#
+# JOB Multiplicity Input Output NrOfPars NrOfEvts pT
+##
+RUNID 0
+JOB 10 $HOME/scripts/run_full_dc1.sh NULL $HOME/output 2 100 1.0 

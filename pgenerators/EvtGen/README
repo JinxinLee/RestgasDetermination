@@ -1,0 +1,98 @@
+This is the README file for the EvtGen package
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Please send questions to:
+David Lange lange@slac.stanford.edu
+Anders Ryd ryd@hep.caltech.edu
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+This is release alpha-00-09-42
+It is known to compile/link on Linux/gcc321. Other unix
+platforms should be straight forward, in the past we have 
+run his code on SunOS, OSF, AIX and HP-UX also, but it is not tested for
+this release.  
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+The package is documented on the WWW page:
+
+http://www.slac.stanford.edu/~lange/EvtGen/
+
+The documentation is maintained in the directory doc in this
+package. Please see doc/README for further information.
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+To get started with EvtGen:
+
+  - Have a look at the pitfalls section below.
+
+  - Set a few envvars to tell EvtGen where you have
+    installed CERNLIB, ROOT, and CLHEP. For me these  
+    variables are 
+  
+1.    CERN_ROOT = /cern/pro
+2.    ROOT_SYS = /home/lange/root
+3.    CLHEP_BASE_DIR = /home/lange
+         (CLHEP in /home/lange/CLHEP and
+          CLHEP libs in /home/lange/lib)
+
+  - Run the "configure" script in this directory.  
+
+  - "make" will compile the EvtGen source code and create
+    libEvtGen.a
+
+  - "make bin" will build the executable testEvtGen which
+    can be run from the "test" subdirectory with the command
+    "../testEvtGen test1 1000" this executable has a C++ driver.
+
+  - Additional information can be found in the documentation.
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Pitfalls
+
+Depending on the details of your setup, there are various problems
+that you might have while setting up EvtGen.  These primarily are
+due to the interfaces with the PYTHIA and PHOTOS packages.  Below we
+list the ones we know about.  We are trying to handle some of these in
+the configure script, but have not done so in this version of the code.
+
+The default code are tested against cernlib2002 and CLHEP 1.8.0.
+
+Things you might need to change:
+
+1. The names of the pythia and pdflib libraries are different in
+different cernlib versions.  The error will be that "make bin"
+will fail with "/usr/bin/ld: cannot find -lpythia6205", for
+example. These may need to be changed in the Makefile.  For example, 
+for cernlib 2001, pythia6205 will need to be changed to pythia6152
+
+
+2. The pydat3 common block size may not be correct. If so, you will
+get a warning during when building the binary. For example, for
+if you are using cernlib 2001, you will see:
+
+/usr/bin/ld: Warning: size of symbol `pydat3_' changed from 294000 to 150000 in pydata.o
+
+to remove this warning, edit EvtGenModels/Pythia.F in two places.
+
+      COMMON/PYDAT3/MDCY(500,3),MDME(8000,2),BRAT(8000),KFDP(8000,5)
+
+should instead be
+
+      COMMON/PYDAT3/MDCY(500,3),MDME(4000,2),BRAT(4000),KFDP(4000,5)
+
+
+3. Using versions of cernlib before 2002, we get the error
+     
+ EvtGen:Pythia can not decay:Xu-
+testEvtGen: EvtPythia.cc:210: virtual void EvtPythia::decay(EvtParticle*): Assertion `0' failed.
+
+which is due to the Xu- particle being unknown to pythia.
+(despite the Xu0 and Xu+ being defined).  We believe this can
+be fixed by adding code to pycomp.F, but recommend commending out
+the lines involving Xu- in DECAY.DEC if you can not use cernlib2002
+

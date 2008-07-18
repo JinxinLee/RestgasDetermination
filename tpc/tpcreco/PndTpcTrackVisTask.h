@@ -1,0 +1,86 @@
+//-----------------------------------------------------------
+// File and Version Information:
+// $Id$
+//
+// Description:
+//      example task for the usage of the genfit tracking farmework
+//      inside FAIRRoot
+//
+// Environment:
+//      Software developed for the PANDA Detector at FAIR.
+//
+// Author List:
+//      Sebastian Neubert    TUM            (original author)
+//
+//
+//-----------------------------------------------------------
+
+#ifndef TRACKVISTASK_HH
+#define TRACKVISTASK_HH
+
+// Base Class Headers ----------------
+#include "CbmTask.h"
+
+// Collaborating Class Headers -------
+#include "Track.h"
+
+#include "TApplication.h"
+
+// Collaborating Class Declarations --
+class TClonesArray;
+class TGeoManager;
+
+class PndTpcTrackVisTask : public CbmTask {
+public:
+
+  // Constructors/Destructors ---------
+  PndTpcTrackVisTask();
+  virtual ~PndTpcTrackVisTask();
+
+  // Operators
+  
+
+  // Accessors -----------------------
+
+
+  // Modifiers -----------------------
+  void SetPersistence(Bool_t opt=kTRUE) {_persistence=opt;}
+
+  // Operations ----------------------
+  
+  virtual InitStatus Init();
+
+  virtual void Exec(Option_t* opt);
+
+  void SetTrackBranchName(const TString& name) {_trackBranchName=name;}
+  void drawFits(bool flag=true){_fitFlag=flag;}
+
+private:
+
+  void drawHitsAndTracks(std::vector<Track*> tracks);
+  void drawLSLHitsAndTracks(std::vector<Track*> tracks);
+  void doDraw(std::vector<Track*> tracks);
+
+  // Private Data Members ------------
+  //TApplication app;
+  TString _trackBranchName;
+  TClonesArray* _trackArray;
+  TClonesArray* _clusterArray;
+
+  Bool_t _persistence;
+  TGeoManager* _geom;
+
+  bool _fitFlag;
+
+  // Private Methods -----------------
+
+public:
+  ClassDef(PndTpcTrackVisTask,1)
+
+};
+
+#endif
+
+//--------------------------------------------------------------
+// $Log$
+//--------------------------------------------------------------

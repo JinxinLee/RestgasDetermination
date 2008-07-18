@@ -1,0 +1,10 @@
+#
+Decay B0
+1.0000   K_3*0   gamma       HELAMP  1.0 0.0 1.0 0.0;
+Enddecay
+#
+Decay    K_3*0
+1.000    K-  pi+             HELAMP  1.0 0.0;
+Enddecay
+#
+End

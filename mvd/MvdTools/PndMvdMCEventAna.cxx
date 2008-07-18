@@ -1,0 +1,55 @@
+#include "PndMvdMCEventAna.h"
+#include "PndMvdMCPoint.h"
+#include "TVector3.h"
+#include "TH3.h"
+
+ ClassImp(PndMvdMCEventAna)
+
+PndMvdMCEventAna::PndMvdMCEventAna(TString fileName):PndMvdEventAna(fileName)
+{
+  Init(fileName);
+  fMCTrackArray = new TClonesArray("CbmMCTrack");
+  fTree->SetBranchAddress("MCTrack", &fMCTrackArray);
+  fGeoH = new PndMvdGeoHandling(gGeoManager);
+}
+
+void PndMvdMCEventAna::InitBranch()
+{
+  fClassName = "PndMvdMCPoint";
+  fBranchName = "MVDPoint";
+}
+
+void PndMvdMCEventAna::InitHistos()
+{
+  if (fHistos["hisxy"]!= 0) delete (fHistos["hisxy"]);
+  fHistos["hisxy"] = new TH2D("hisxy","MVD MC Points, xy view",400,-15.,15.,400,-15.,15.);
+  fDrawOption["hisxy"] = "";
+  if (fHistos["hisrz"]!= 0) delete (fHistos["hisrz"]);
+  fHistos["hisrz"] = new TH2D("hisrz","MVD MC Points, rz view",400,-20.,20.,400,0.,40.);
+  fDrawOption["hisrz"] = "";
+//  if (fHistos["hisxyz"]!= 0) delete (fHistos["hisxyz"]);
+//  fHistos["hisxyz"] = new TH3D("hisxyz","MVD MC Points xyz view",200,-15.,15.,200,-15.,15.,200,-20.,20.);
+//  fDrawOption["hisxyz"] = "";
+  if (fHistos["hisde"] != 0) delete (fHistos["hisde"]);
+  fHistos["hisde"] = new TH1D("hisde","MVD MC Points, Energyloss",500,0.,0.002);
+  fDrawOption["hisde"] = "B";
+}
+
+void PndMvdMCEventAna::AnaHitNr(Int_t Nr)
+{
+  TVector3 vecs;
+
+  fHitArray->Clear();
+  fTree->GetEntry(fActiveEvent);
+  PndMvdMCPoint *hit=(PndMvdMCPoint*)fHitArray->At(Nr);
+  if (hit->GetDetName().Contains(fSelection)){
+    vecs.SetXYZ(hit->GetX(), hit->GetY(), hit->GetZ());
+    fHistos["hisxy"]->Fill(vecs.x(),vecs.y());
+    fHistos["hisrz"]->Fill(vecs.z(),vecs.Perp());
+    fHistos["hisde"]->Fill(hit->GetEnergyLoss());
+    //TH3D* histo3D = (TH3D*)(fHistos["hisxyz"]);
+    //histo3D->Fill(hit->GetX(), hit->GetY(), hit->GetZ());
+  }
+  
+}
+

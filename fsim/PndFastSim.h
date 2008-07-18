@@ -1,0 +1,131 @@
+// -------------------------------------------------------------------------
+// -----                 PndFastSim header file                        -----
+// -----                 Created 20/11/07  by K. Goetzen               -----
+// -------------------------------------------------------------------------
+
+#ifndef PNDFASTSIM_H
+#define PNDFASTSIM_H 1
+
+
+#include "CbmTask.h"
+#include "TVector3.h"
+#include "TMatrixD.h"
+#include <string>
+#include <list>
+
+class TClonesArray;
+class TObjectArray;
+class PndFsmTrack;
+class TRandom3;
+class TLorentzVector;
+class PndFsmAbsDet;
+class PndFsmResponse;
+class PndFsmDetFactory;
+class TF1;
+class TDatabasePDG;
+
+typedef std::list<PndFsmAbsDet*> FsmAbsDetList;
+typedef std::list<PndFsmResponse*> FsmResponseList;
+
+class PndFastSim : public CbmTask
+{
+
+ public:
+    //typedef std::map<Int_t, Float_t> mapper;
+
+  /** Default constructor **/  
+  PndFastSim();
+
+
+  /** Destructor **/
+  ~PndFastSim();
+
+  void  Register();                 //
+
+
+  /** Virtual method Init **/
+  virtual InitStatus Init();
+
+
+  /** Virtual method Exec **/
+  virtual void Exec(Option_t* opt);
+
+  bool AddDetector(std::string name, std::string params="");
+  bool AddDetector(PndFsmAbsDet* det);
+  void SetVerbosity(int vb) {fVb=vb;}
+  bool EnableSplitoffs(std::string fname="splitpars.dat");
+  void EnablePropagation(bool propagate=true);
+
+  //void CreateStructure();
+  
+  //get access to global detector response in order to plot sth.
+  bool SmearTrack(PndFsmTrack* t);
+
+ private: 
+
+  PndFsmResponse* sumResponse(FsmResponseList respList);
+
+  bool cutAndSmear(PndFsmTrack *t, PndFsmResponse *r);
+  bool cutAndSmear(PndFsmTrack *t);
+  
+  void smearEnergy(PndFsmTrack *t, double dE);
+  void smearMomentum(PndFsmTrack *t, double dp);
+  void smearTheta(PndFsmTrack *t, double dtheta);
+  void smearPhi(PndFsmTrack *t, double dphi);
+  void smearVertex(PndFsmTrack *t, TVector3 dV);
+  void smearM(PndFsmTrack *t, double dm);
+  void smearM2(PndFsmTrack *t, double m2);
+  void smearMvddEdx(PndFsmTrack *t, double dedx);
+  void smearTpcdEdx(PndFsmTrack *t, double dedx);
+  void smearSttdEdx(PndFsmTrack *t, double dedx);
+   
+  /** Output array of Candidates **/
+  TClonesArray* fMcCandidates;
+  TClonesArray* fChargedCandidates;
+  TClonesArray* fNeutralCandidates; 
+  TClonesArray* fMicroCandidates;
+  
+  //output array EventInfo
+  TClonesArray* fEventInfo;
+  
+  TRandom3  *fRand;
+  int       fVb;   //verbosity level
+  int       evtcnt; //event counter for output
+  TF1       *fspo[5][4];
+  bool      fGenSplitOffs;
+  bool      fPropagate;
+
+  PndFsmDetFactory *fDetFac;
+  std::string fAddedDets;
+  FsmAbsDetList fDetList;
+  
+  TDatabasePDG* fdbPdg;
+
+
+	/** Get parameter containers **/
+  virtual void SetParContainers();
+  
+ 
+  bool smearTrack(PndFsmTrack *t);
+
+  static TMatrixD fRho;
+  static TMatrixD fEta;
+
+  // estimates the variance of a weighted sum of gaussian 
+  // distributed quantities that hold the same mean value
+  class dX {
+  public:
+    dX();
+    void operator+= (double variance);
+    void operator = (double value);
+    operator double();
+  private:
+    char n;
+    double b;
+  };
+
+  ClassDef(PndFastSim,1);
+
+};
+
+#endif

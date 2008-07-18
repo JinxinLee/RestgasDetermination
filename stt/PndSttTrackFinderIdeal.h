@@ -1,0 +1,97 @@
+// -------------------------------------------------------------------------
+// -----                 PndSttTrackFinderIdeal header file            -----
+// -----                  Created 28/03/06  by R. Castelijns           -----
+// -------------------------------------------------------------------------
+
+
+/** PndSttTrackFinderIdeal
+ *@author R.Castelijns <r.castelijns@fz-juelich.de>
+ **
+ ** Ideal track finder in the STT for simulated data. 
+ ** For each MCTrack having at least 3 SttPoints, a SttTrack is created
+ ** and the corresponding SttHits are attached using the correspondence
+ ** between SttHit and SttPoint.
+ **/
+
+
+#ifndef PNDSTTTRACKFINDERIDEAL
+#define PNDSTTTRACKFINDERIDEAL 1
+
+#include "PndSttTrackFinder.h"
+#include "CbmMCTrack.h"
+
+#include "TList.h"
+#include "TClonesArray.h"
+
+class PndSttTrack;
+class PndSttHit;
+class CbmMCPoint;
+//class TClonesArray;
+
+
+class PndSttTrackFinderIdeal : public PndSttTrackFinder
+{
+
+ public:
+    void GetTrackletCircular(Double_t firstX, Double_t firstY, Double_t firstR, 
+			     Double_t secondX, Double_t secondY, Double_t secondR, 
+			     Double_t thirdX, Double_t thirdY, Double_t thirdR, 
+			     Double_t *circleRadii, Double_t *circleCentersX, 
+			     Double_t *circleCentersY) const;
+    
+    void ZoomTrack(Double_t &dSeed, Double_t &phiSeed, Double_t &rSeed, PndSttTrack *track);
+    void GetTrack(Double_t &dSeed, Double_t &phiSeed, Double_t &rSeed, Int_t mcTrackNo);
+  
+  /** Default constructor **/
+  PndSttTrackFinderIdeal();
+
+
+  /** Standard constructor **/
+  PndSttTrackFinderIdeal(Int_t verbose);
+
+
+  /** Destructor **/
+  virtual ~PndSttTrackFinderIdeal();
+
+
+  /** Initialisation **/
+  virtual void Init();
+
+
+  /** Track finding algorithm
+   ** This just reads MC truth (MCTracks and MCPoints), creates
+   ** one StsTrack for each MCTrack and attaches the hits according
+   ** to the MCTrack of the corresponding MCPoint
+   **
+   *@param mHitArray   Array of MAPS hits
+   *@param trackArray  Array of CbmStsTrack
+   **
+   *@value Number of tracks created
+   **/
+ virtual Int_t DoFind(TClonesArray* mHitArray);
+ virtual void AddHitCollection(TClonesArray* mHitArray, TClonesArray* mPointArray) {fHitCollectionList.Add(mHitArray); fPointCollectionList.Add(mPointArray);}
+ void plotAllStraws();
+ Bool_t putStraw(Double_t xpos, Double_t ypos, Double_t radius);
+
+
+
+ private:
+
+  /** Arrays of MC information **/
+  TClonesArray* fMCTrackArray;
+
+  Bool_t rootoutput;
+
+  /** Verbosity level **/
+  Int_t fVerbose;
+
+  TList fHitCollectionList;
+  TList fPointCollectionList;
+  PndSttHit* GetHitFromCollections(Int_t hitCounter);
+  CbmMCPoint* GetPointFromCollections(Int_t hitCounter);
+
+  ClassDef(PndSttTrackFinderIdeal,1);
+};
+
+
+#endif

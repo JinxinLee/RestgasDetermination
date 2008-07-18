@@ -1,0 +1,248 @@
+# Makefile for WIN32
+PACKAGE  = RhoTools
+COMPILER = cl
+
+ObjSuf        = obj
+SrcSuf        = cxx
+ExeSuf        = .exe
+DllSuf        = dll
+OutPutOpt     = /out:
+ 
+# Win32 system with Microsoft Visual C/C++
+!include <win32.mak>
+CC            = $(COMPILER)
+CXX           = $(COMPILER)
+CXXDEBUG      = -Fd$*.pdb
+CXXFLAGS      = -DANSISTREAM $(cvarsdll) $(CXXDEBUG) -EHsc /O2 /TP /Z7 -DWIN32 -D_WINDOWS -I.. -I$(ROOTSYS)/include -DRHOFRAMEWORK
+
+LD            = $(link)
+LDFLAGS       = $(conlflags)
+LDDEBUG       = -DEBUG -PDB:$*.pdb
+SOFLAGS       = -DLL $(LDDEBUG)
+
+ROOTLIBS      = $(ROOTSYS)\lib\libCint.lib \
+				$(ROOTSYS)\lib\libCore.lib \
+				$(ROOTSYS)\lib\libEG.lib \
+				$(ROOTSYS)\lib\libHist.lib \
+				$(ROOTSYS)\lib\libMatrix.lib \
+				$(ROOTSYS)\lib\libPhysics.lib \
+				$(ROOTSYS)\lib\libTree.lib \
+				$(ROOTSYS)\lib\libTreePlayer.lib \
+				$(ROOTSYS)\lib\libWin32gdk.lib
+
+LIBS          = ..\lib\RhoConditions.lib ..\lib\RhoBase.lib ..\lib\RhoMath.lib \
+                                $(ROOTLIBS) $(guilibsdll)
+LIBSALL       = $(ROOTLIBS)
+LIBRARY       = $(PACKAGE).lib
+ 
+ 
+#------------------------------------------------------------------------------
+ 
+HEADERS	=	TBooster.h \
+			TBVariables.h \
+			TCandPtr.h \
+			TCandListSort.h \
+			TCones.h \
+			TConeMomFlow.h \
+			TDecayTree.h \
+			TDiagVertex.h \
+			TEventShape.h \
+			TFindOmittedParticle.h \
+			TCandReader.h \
+			TAdd4Vertexer.h \
+			TFoxWolfMom.h \
+			TFWMoments.h \
+			TMomTensor.h \
+			TLgndrMomFlow.h \
+			TOpAdd4.h \
+			TOperator.h \
+			TOperatorBase.h \
+			TOpMakeTree.h \
+			TPrintTree.h \
+			TReadTree.h \
+			TSphericity.h \
+			TThrust.h \
+			TThrustVector.h \
+			TTotalMomentum.h \
+			TTreeNavigator.h \
+			TUnaryOperator.h \
+			TOpClone.h \
+			TDecayMode.h \
+			TFastCombiner.h \
+			VAbsFitter.h \
+			TDummyFitter.h
+
+
+OBJECTS	=	$(PACKAGE)Cint.$(ObjSuf) \
+			TBooster.$(ObjSuf) \
+			TBVariables.$(ObjSuf) \
+			TCandPtr.$(ObjSuf) \
+			TCandListSort.$(ObjSuf) \
+			TCones.$(ObjSuf) \
+			TConeMomFlow.$(ObjSuf) \
+			TDecayTree.$(ObjSuf) \
+			TDiagVertex.$(ObjSuf) \
+			TEventShape.$(ObjSuf) \
+			TFindOmittedParticle.$(ObjSuf) \
+			TCandReader.$(ObjSuf) \
+			TAdd4Vertexer.$(ObjSuf) \
+			TFoxWolfMom.$(ObjSuf) \
+			TFWMoments.$(ObjSuf) \
+			TMomTensor.$(ObjSuf) \
+			TLgndrMomFlow.$(ObjSuf) \
+			TOpAdd4.$(ObjSuf) \
+			TOperator.$(ObjSuf) \
+			TOperatorBase.$(ObjSuf) \
+			TOpMakeTree.$(ObjSuf) \
+			TPrintTree.$(ObjSuf) \
+			TReadTree.$(ObjSuf) \
+			TSphericity.$(ObjSuf) \
+			TThrust.$(ObjSuf) \
+			TThrustVector.$(ObjSuf) \
+			TTotalMomentum.$(ObjSuf) \
+			TTreeNavigator.$(ObjSuf) \
+			TUnaryOperator.$(ObjSuf) \
+			TOpClone.$(ObjSuf) \
+			TDecayMode.$(ObjSuf) \
+			TFastCombiner.$(ObjSuf) \
+			VAbsFitter.$(ObjSuf) \
+			TDummyFitter.$(ObjSuf)
+                
+SHLIB	=	$(PACKAGE).$(DllSuf)
+ 
+PROGRAMS	= 
+ 
+all: $(SHLIB)
+
+lib: $(OBJECTS)
+	BINDEXPLIB  $(PACKAGE) $(OBJECTS) > $(PACKAGE).def
+	lib /nologo /MACHINE:IX86 $(OBJECTS) /def:$(PACKAGE).def $(OutPutOpt)$(LIBRARY)	
+	copy $(LIBRARY) ..\lib
+ 
+$(SHLIB): $(OBJECTS)
+	BINDEXPLIB  $* $(OBJECTS) > $*.def
+	lib /nologo /MACHINE:IX86 $(OBJECTS) /def:$*.def      $(OutPutOpt)$(LIBRARY)
+	$(LD) $(SOFLAGS) $(OBJECTS) $*.exp $(LIBS) $(OutPutOpt)$(SHLIB)
+	mt.exe -manifest $(SHLIB).manifest -outputresource:$(SHLIB);2
+	copy $(LIBRARY) ..\lib
+	copy $(SHLIB) ..\lib
+	copy $(PACKAGE).pdb ..\lib
+ 
+ 
+clean:
+	@del $(OBJECTS) *.pdb $(PACKAGE)Cint.* $(PACKAGE).lib $(PACKAGE).dll $(PACKAGE).def $(PACKAGE).exp $(PACKAGE).pdb
+ 
+###
+
+$(PACKAGE)Cint.$(SrcSuf): $(HEADERS) $(PACKAGE)_LinkDef.h
+	@echo "Generating dictionary ..."
+	@$(ROOTSYS)\bin\rootcint -f $(PACKAGE)Cint.$(SrcSuf) -c -I.. $(HEADERS) $(PACKAGE)_LinkDef.h
+ 
+.$(SrcSuf).$(ObjSuf):
+	$(CXX) $(CXXFLAGS) -c $<
+ 
+# Dependencies
+
+$(PACKAGE)Cint.$(ObjSuf): $(PACKAGE)Cint.$(SrcSuf)
+	$(CXX) $(CXXFLAGS) -c $(PACKAGE)Cint.$(SrcSuf)
+
+# The core tools
+
+TBooster.$(ObjSuf): TBooster.$(SrcSuf) TBooster.h
+	$(CXX) $(CXXFLAGS) -c TBooster.$(SrcSuf)
+
+TBVariables.$(ObjSuf): TBVariables.$(SrcSuf) TBVariables.h
+	$(CXX) $(CXXFLAGS) -c TBVariables.$(SrcSuf)
+
+TCandPtr.$(ObjSuf): TCandPtr.$(SrcSuf) TCandPtr.h
+	$(CXX) $(CXXFLAGS) -c TCandPtr.$(SrcSuf)
+
+TCones.$(ObjSuf): TCones.$(SrcSuf) TCones.h
+	$(CXX) $(CXXFLAGS) -c TCones.$(SrcSuf)
+
+TConeMomFlow.$(ObjSuf): TConeMomFlow.$(SrcSuf) TConeMomFlow.h
+	$(CXX) $(CXXFLAGS) -c TConeMomFlow.$(SrcSuf)
+
+TDecayTree.$(ObjSuf): TDecayTree.$(SrcSuf) TDecayTree.h
+	$(CXX) $(CXXFLAGS) -c TDecayTree.$(SrcSuf)
+
+TDiagVertex.$(ObjSuf): TDiagVertex.$(SrcSuf) TDiagVertex.h
+	$(CXX) $(CXXFLAGS) -c TDiagVertex.$(SrcSuf)
+
+TEventShape.$(ObjSuf): TEventShape.$(SrcSuf) TEventShape.h
+	$(CXX) $(CXXFLAGS) -c TEventShape.$(SrcSuf)
+
+TFindOmittedParticle.$(ObjSuf): TFindOmittedParticle.$(SrcSuf) TFindOmittedParticle.h
+	$(CXX) $(CXXFLAGS) -c TFindOmittedParticle.$(SrcSuf)
+
+TCandReader.$(ObjSuf): TCandReader.$(SrcSuf) TCandReader.h
+	$(CXX) $(CXXFLAGS) -c TCandReader.$(SrcSuf)
+
+TAdd4Vertexer.$(ObjSuf): TAdd4Vertexer.$(SrcSuf) TAdd4Vertexer.h
+	$(CXX) $(CXXFLAGS) -c TAdd4Vertexer.$(SrcSuf)
+
+TFoxWolfMom.$(ObjSuf): TFoxWolfMom.$(SrcSuf) TFoxWolfMom.h
+	$(CXX) $(CXXFLAGS) -c TFoxWolfMom.$(SrcSuf)
+
+TFWMoments.$(ObjSuf): TFWMoments.$(SrcSuf) TFWMoments.h
+	$(CXX) $(CXXFLAGS) -c TFWMoments.$(SrcSuf)
+
+TCandListSort.$(ObjSuf): TCandListSort.$(SrcSuf) TCandListSort.h
+	$(CXX) $(CXXFLAGS) -c TCandListSort.$(SrcSuf)
+
+TMomTensor.$(ObjSuf): TMomTensor.$(SrcSuf) TMomTensor.h
+	$(CXX) $(CXXFLAGS) -c TMomTensor.$(SrcSuf)
+
+TLgndrMomFlow.$(ObjSuf): TLgndrMomFlow.$(SrcSuf) TLgndrMomFlow.h
+	$(CXX) $(CXXFLAGS) -c TLgndrMomFlow.$(SrcSuf)
+
+TOpAdd4.$(ObjSuf): TOpAdd4.$(SrcSuf) TOpAdd4.h
+	$(CXX) $(CXXFLAGS) -c TOpAdd4.$(SrcSuf)
+
+TOperator.$(ObjSuf): TOperator.$(SrcSuf) TOperator.h
+	$(CXX) $(CXXFLAGS) -c TOperator.$(SrcSuf)
+
+TOperatorBase.$(ObjSuf): TOperatorBase.$(SrcSuf) TOperatorBase.h
+	$(CXX) $(CXXFLAGS) -c TOperatorBase.$(SrcSuf)
+
+TOpMakeTree.$(ObjSuf): TOpMakeTree.$(SrcSuf) TOpMakeTree.h
+	$(CXX) $(CXXFLAGS) -c TOpMakeTree.$(SrcSuf)
+
+TPrintTree.$(ObjSuf): TPrintTree.$(SrcSuf) TPrintTree.h
+	$(CXX) $(CXXFLAGS) -c TPrintTree.$(SrcSuf)
+
+TReadTree.$(ObjSuf): TReadTree.$(SrcSuf) TReadTree.h
+	$(CXX) $(CXXFLAGS) -c TReadTree.$(SrcSuf)
+
+TSphericity.$(ObjSuf): TSphericity.$(SrcSuf) TSphericity.h
+	$(CXX) $(CXXFLAGS) -c TSphericity.$(SrcSuf)
+
+TThrust.$(ObjSuf): TThrust.$(SrcSuf) TThrust.h
+	$(CXX) $(CXXFLAGS) -c TThrust.$(SrcSuf)
+
+TThrustVector.$(ObjSuf): TThrustVector.$(SrcSuf) TThrustVector.h
+	$(CXX) $(CXXFLAGS) -c TThrustVector.$(SrcSuf)
+
+TTotalMomentum.$(ObjSuf): TTotalMomentum.$(SrcSuf) TTotalMomentum.h
+	$(CXX) $(CXXFLAGS) -c TTotalMomentum.$(SrcSuf)
+
+TTreeNavigator.$(ObjSuf): TTreeNavigator.$(SrcSuf) TTreeNavigator.h
+	$(CXX) $(CXXFLAGS) -c TTreeNavigator.$(SrcSuf)
+
+TUnaryOperator.$(ObjSuf): TUnaryOperator.$(SrcSuf) TUnaryOperator.h
+	$(CXX) $(CXXFLAGS) -c TUnaryOperator.$(SrcSuf)
+
+TOpClone.$(ObjSuf): TOpClone.$(SrcSuf) TOpClone.h
+	$(CXX) $(CXXFLAGS) -c TOpClone.$(SrcSuf)
+
+TDecayMode.$(ObjSuf): TDecayMode.$(SrcSuf) TDecayMode.h
+	$(CXX) $(CXXFLAGS) -c TDecayMode.$(SrcSuf)
+
+TFastCombiner.$(ObjSuf): TFastCombiner.$(SrcSuf) TFastCombiner.h
+	$(CXX) $(CXXFLAGS) -c TFastCombiner.$(SrcSuf)
+
+VAbsFitter.$(ObjSuf): VAbsFitter.$(SrcSuf) VAbsFitter.h
+	$(CXX) $(CXXFLAGS) -c VAbsFitter.$(SrcSuf)
+
+TDummyFitter.$(ObjSuf): TDummyFitter.$(SrcSuf) TDummyFitter.h
+	$(CXX) $(CXXFLAGS) -c TDummyFitter.$(SrcSuf)

@@ -1,0 +1,28 @@
+EMC track following example, based on "GeaneEx" tutorial from the Pavia group
+
+To run the example
+
+1) Make a softlink in the pandaroot directory (VMCWORKDIR)
+
+> cd $VMCWORKDIR
+> ln -s tutorials/geane/GeaneExEmc/src/ ./GeaneExEmc
+
+2) Add in $VMCWORKDIR/CMakeLists.txt file the following lines
+
+add_subdirectory (geane)
+add_subdirectory (GeaneExEmc)
+
+3) Build the libs
+
+> cd <your build directory of pandaroot>
+> cmake $VMCWORKDIR
+> make install
+
+4) Run the macros (1000 e- events with 2.0 GeV/c momentum)
+
+> cd $VMCWORKDIR/tutorials/geane/GeaneExEmc/macro
+> root -l -b -q "runMC.C(1000,2.0,\"e-\")"
+> root -l -b -q runGEANE.C
+> root -l runPULL.C
+
+JGM, 28/03/2008

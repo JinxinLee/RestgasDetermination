@@ -1,0 +1,59 @@
+// Task for the exercise 1 of the GEANE tutorial
+// Authors A. Fontana & P. Genova, Sept. 2007
+
+#ifndef PND_GEANETRTPCEMC_H
+#define PND_GEANETRTPCEMC_H 1
+
+
+#include "CbmTask.h"
+#include "TVector3.h"
+#include "CbmGeanePro.h"
+#include "PndEmcPoint.h"
+#include "PndEmcCluster.h"
+#include "PndTpcPoint.h"
+#include "CbmMCTrack.h"
+
+class TGeant3;
+class TClonesArray;
+class TTree;
+class TFile;
+
+class PndGeaneTrTpcEmc : public CbmTask
+{
+ public:
+  /** Default constructor **/  
+  PndGeaneTrTpcEmc();
+
+  /** Destructor **/
+  ~PndGeaneTrTpcEmc();
+
+  /** Virtual method Init **/
+  virtual InitStatus Init();
+
+  /** Virtual method Exec **/
+  virtual void Exec(Option_t* opt);
+ private:
+  /** Input array of Points **/
+  TClonesArray* fPointArray1;
+  TClonesArray* fPointArray2;
+  TClonesArray* fClusterArray;
+  //  CbmPlanePoint	 *fPoint1;
+//  CbmMCTrack	 *fPoint1;
+  PndTpcPoint	 *fPoint1;
+  PndEmcPoint	 *fPoint2;
+  PndEmcCluster	 *fCluster;
+  void destroy(void);
+  TTree *t;
+  TFile *f;
+  /** Output array of Hits **/
+  TClonesArray* fTrackParIni;  
+  TClonesArray* fTrackParGeane;  
+  TClonesArray* fTrackParFinal;  
+
+  TGeant3 *gMC3;
+  ClassDef(PndGeaneTrTpcEmc,1);
+  Int_t fEvent;
+  CbmGeanePro *fPro;
+};
+
+#endif

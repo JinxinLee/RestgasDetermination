@@ -1,0 +1,171 @@
+#################################################################
+# Digitisation and reconstruction parameters for EMC
+# Format:
+# parameter_name:parameter_type(i-integer, d-double) parameter_value
+# PndEmcDigiPar
+# Description of parameters
+# EnergyHitThreshold - energy threshold used in PndEmcHitProducer.cxx, with following full digitization should be 0.
+# EnergyDigiThreshold - treshold for EmcDigi energy in PndEmcWaveformToDigi.cxx
+# EmcClusterPosMethod: lilo, linear
+#################################################################
+[PndEmcDigiPar]
+EnergyHitThreshold:d 0.000001
+NBits:i 14
+DetectedPhotonsPerMeV:d 80
+EnergyRange:d 15
+ExcessNoiseFactor:d 1.38
+FirstSamplePhase:d 0
+Number_of_samples_in_waveform:i 64
+Shaping_diff_time:d 100e-9
+Shaping_int_time:d 500e-9
+Crystal_time_constant:d 12e-9
+Incoherent_elec_noise_width_GeV:d 1.0e-3
+SampleRate:d 80e6
+Use_shaped_noise:i 1
+Use_photon_statistic:i 1
+EnergyDigiThreshold:d 3.0e-3
+MapperVersion:i 1
+#################################################################
+# Reconstruction parameter for EMC
+# PndEmcRecoPar
+#################################################################
+[PndEmcRecoPar]
+EnergyThresholdBarrel:d 3.0e-3
+EnergyThresholdFWD:d 3.0e-3
+EnergyThresholdBWD:d 3.0e-3
+EnergyThresholdShashlyk:d 3.0e-3
+EmcClusterPosMethod:s lilo
+OffsetParmA:d 3.6
+OffsetParmB:d 1.594
+OffsetParmC:d 2.543
+EmcDigiPositionDepth:d 6.2
+MaxECut:d 0.02
+NeighbourECut:d 0.002
+CutSlope:d 0.5
+CutOffset:d 2.5
+ERatioCorr:d 0.0
+TheNeighbourLevel:i 0
+MoliereRadius:d 2.0
+ExponentialConstant:d 2.5
+MaxIterations:i 10
+CentroidShift:d 0.1
+MaxBumps:i 8
+MinDigiEnergy:d 20.e-6
+#################################################################
+# Digitisation and reconstruction parameters for TPC
+# Format:
+# parameter_name:parameter_type(i-integer, d-double) parameter_value
+# TPCDigiPar
+# Description of parameters
+#################################################################
+[PndTpcDigiPar]
+PndTpcGasFile:i 0
+EField:d 400
+AttachFlag:i 0
+LogitudinaldiffusionFlag:i 1
+TransversediffusionFlag:i 1
+DriftDistortionFlag:i 0
+zGem:d -40
+Gain:d 5000
+Spread:d 0.02
+MinSignalAmp:d 10
+rMin:d 15
+rMax:d 42
+PadPlaneFile:i 17
+PadShapeFile:i 7
+PadShapeRange:d 0.5
+PadShapeStep:d 0.02
+PadShapeIntStep:d 0.01
+ADCThreshold:i 10
+ADCMax:i 100000
+ADCBits:i 12
+SamplingFreq:d 40
+T0_wallclock:d -60000
+TimeBits:i 28
+PSAThreshold:i 50
+Shaper_tDiff:d 50
+Shaper_tInt:d 50
+Shaper_tSig:d 2
+TOTPSA:i 1
+#################################################################
+# Correlation Parameter for LHEtrack
+# Format:
+# parameter_name:parameter_type(i-integer, d-double) parameter_value
+#################################################################
+[PndLheCorrPar]
+TofRadius:f 43.6
+TofPhi0:f 0.
+TofZ0:f 0.
+TofSigmaPhi:f 0.024
+TofSigmaZ:f 1.
+TofCut:f 5.
+Emc12Radius:f 63.
+Emc12Phi0:f 0.
+Emc12Z0:f 0.
+Emc12SigmaPhi:f 0.008
+Emc12SigmaZ:f 0.8
+Emc12Cut:f 5.
+MdtRadius:f 155.
+MdtPhi0:f 0.
+MdtZ0:f 2.1
+MdtSigmaPhi:f 0.024
+MdtSigmaZ:f 3.1
+MdtCut:f 10.
+#################################################################
+#################################################################
+# Digitization parameters for MVD
+# Format:
+# parameter_name:parameter_type(i-integer, d-double) parameter_value
+# PndMvdDigiPar
+# Description of parameters:
+#################################################################
+#################################################################
+# Digitization parameters for RECTANGULAR Mvd strip sensors
+#################################################################
+[MVDStripDigiParRect]
+top_pitch:d 0.0120
+bot_pitch:d 0.0130
+orient:d 0
+skew:d 1.570796327
+top_anchor_x:d -3.0780
+top_anchor_y:d 1.6705
+bot_anchor_x:d -3.0780
+bot_anchor_y:d 1.6705
+nr_fe_channels:i 128
+nr_fe_top:i 10
+nr_fe_bottom:i 10
+charge_threshold:d 3000
+charge_noise:d 1000
+sens_Type:s Rect
+fe_Type:s APV25
+#################################################################
+# Digitization parameters for TRAPEZOID Mvd strip sensors
+#################################################################
+[MVDStripDigiParTrap]
+top_pitch:d 0.0073
+bot_pitch:d 0.0073
+orient:d 1.439896633
+skew:d 0.261799388
+top_anchor_x:d -1.944
+top_anchor_y:d 3.28861
+bot_anchor_x:d -1.944
+bot_anchor_y:d 3.28861
+nr_fe_channels:i 128
+nr_fe_top:i 10
+nr_fe_bottom:i 10
+charge_threshold:d 3000
+charge_noise:d 1000
+sens_Type:s Trap
+fe_Type:s APV25
+#################################################################
+# Digitization Parameters for MVD Pixel
+#################################################################
+[MVDPixelDigiPar]
+dimX:d 0.01
+dimY:d 0.01
+threshold:d 600
+noise:d 200
+FECols:i 100
+FERows:i 100
+#################################################################
+

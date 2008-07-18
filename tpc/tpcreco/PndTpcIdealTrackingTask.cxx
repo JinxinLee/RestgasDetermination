@@ -1,0 +1,231 @@
+//-----------------------------------------------------------
+// File and Version Information:
+// $Id$
+//
+// Description:
+//      Implementation of class PndTpcIdealTrackingTask
+//      see PndTpcIdealTrackingTask.hh for details
+//
+// Environment:
+//      Software developed for the PANDA Detector at FAIR.
+//
+// Author List:
+//      Sebastian Neubert    TUM            (original author)
+//
+//
+//-----------------------------------------------------------
+
+// Panda Headers ----------------------
+
+// This Class' Header ------------------
+#include "PndTpcIdealTrackingTask.h"
+
+// C/C++ Headers ----------------------
+#include <vector>
+#include <map>
+#include <algorithm>
+
+// Collaborating Class Headers --------
+#include "CbmRootManager.h"
+#include "TClonesArray.h"
+#include "RecoHitFactory.h"
+#include "FitterExceptions.h"
+#include "PndTpcCluster.h"
+#include "PndTpcClusterZ.h"
+#include "TrackCand.h"
+#include "Track.h"
+#include "LSLTrackRep.h"
+#include "GeaneTrackRep.h"
+#include "CbmGeanePro.h"
+#include "TH1I.h"
+#include "TH1D.h"
+#include "McIdCollection.h"
+#include "TVector3.h"
+#include "CbmMCTrack.h"
+
+//#include "AbsBFieldIfc.h"
+//#include "CbmFieldAdaptor.h"
+
+#include <cmath>
+
+using std::fabs;
+
+// Class Member definitions -----------
+
+ClassImp(PndTpcIdealTrackingTask)
+
+PndTpcIdealTrackingTask::PndTpcIdealTrackingTask()
+  : CbmTask("PndTpc Ideal Pattern Reco"),
+    _persistence(kFALSE),_useGeane(kFALSE),_geanePro(NULL)
+{
+  _clusterBranchName = "PndTpcCluster";
+}
+
+PndTpcIdealTrackingTask::~PndTpcIdealTrackingTask()
+{
+  if(_multiplicityHisto!=NULL)delete _multiplicityHisto;
+  if(_trackPurityH!=NULL)delete _trackPurityH;
+  if(_trackSizeH!=NULL)delete _trackSizeH;
+}
+
+
+InitStatus
+PndTpcIdealTrackingTask::Init()
+{
+//Get ROOT Manager
+  CbmRootManager* ioman= CbmRootManager::Instance();
+
+  if(ioman==0)
+    {
+      Error("PndTpcIdealTrackingTask::Init","RootManager not instantiated!");
+      return kERROR;
+    }
+
+  // Get input collection
+  _clusterArray=(TClonesArray*) ioman->GetObject(_clusterBranchName);
+
+  if(_clusterArray==0)
+    {
+      Error("PndTpcIdealTrackingTask::Init","Cluster-array not found!");
+      return kERROR;
+    }
+  _mcTrackArray=(TClonesArray*) ioman->GetObject("MCTrack");
+
+  if(_mcTrackArray==0)
+    {
+      Error("PndTpcIdealTrackingTask::Init","MCTrack-array not found!");
+      return kERROR;
+    }
+  // create and register output array
+  _trackArray = new TClonesArray("Track");
+  ioman->Register("TrackPreFit","GenFit",_trackArray,_persistence);
+ // GeanePro will get Geometry and BField from the Run
+  if(_useGeane)_geanePro=new CbmGeanePro();
+  
+  // init histos
+  _multiplicityHisto=new TH1I("multipl","# track candidates",20,0,20);
+  _trackSizeH=new TH1I("trksize","# hits in track",100,0,100);
+  _trackPurityH=new TH1D("trkpurity","trackPurity",25,0,1.01);
+  _trackMcIdsH=new TH1D("trkmcids","# mcids in track",25,0,25);
+
+  return kSUCCESS;
+}
+
+void
+PndTpcIdealTrackingTask::Exec(Option_t* opt)
+{
+  std::cout<<"PndTpcIdealTrackingTask::Exec"<<std::endl;
+  // Reset output Arrays
+  if(_trackArray==0) Fatal("PndTpcIdealTracking::Exec)","No TrackArray");
+  _trackArray->Delete();
+  
+  // copy into vector
+  std::vector<PndTpcCluster*> cll;
+  unsigned int n=_clusterArray->GetEntriesFast();
+  for(unsigned int i=0;i<n;++i){ // loop over clusters
+    PndTpcCluster* cl=(PndTpcCluster*)_clusterArray->At(i);
+    cl->SetIndex(i);
+    cll.push_back(cl);
+  }
+  
+  // sort dir=false -> forward sorting
+  std::sort(cll.begin(),cll.end(),PndTpcClusterZ(false)); 
+
+  // build trackcands
+  std::map<unsigned int,TrackCand*> candlist;
+  for(unsigned int i=0;i<n;++i){ // loop over clusters
+    PndTpcCluster* cl=cll[i];
+    unsigned int trackid=cl->mcId().DominantID().mctrackID();
+    TrackCand* cand=candlist[trackid];
+    if(cand==NULL){
+      cand=new TrackCand();
+      candlist[trackid]=cand;
+      // get starting values from monta carlo truth
+      CbmMCTrack* trk=(CbmMCTrack*)_mcTrackArray->At(trackid);
+      TVector3 mom=trk->GetMomentum();
+      double curv=0.3*2.0/mom.Perp(); // 1/R=0.3*B/pt   pt in GeV, B in Tesla
+      cand->setCurv(curv);
+      cand->setDip(mom.Theta());
+    }
+    cand->addHit(2,cl->index());
+  }// end loop over clusters
+
+  std::cout<<"PndTpcIdealTrackingTask::Exec:: "
+	   <<candlist.size()<<" track candidates found."<<std::endl;
+  _multiplicityHisto->Fill(candlist.size());
+
+  //loop over track candidates
+  std::map<unsigned int,TrackCand*>::iterator candit=candlist.begin();
+  while(candit!=candlist.end()){
+    TrackCand* cand=candit->second;
+    unsigned int trackid=candit->first;
+    CbmMCTrack* mc=(CbmMCTrack*)_mcTrackArray->At(trackid);
+    int pdg=mc->GetPdgCode();
+    double q=TDatabasePDG::Instance()->GetParticle(pdg)->Charge()/3.;
+  
+    TVector3 pos=mc->GetStartVertex()+TVector3(0.001,0.001,0.001);
+    TVector3 mom=mc->GetMomentum();
+    TVector3 poserr(1.,1.,1.);
+    TVector3 momerr=0.3*mom; //  10% error
+    momerr+=TVector3(0.1,0.1,0.1);
+  
+    TVector3 u(1.,0.,0.);//=mom.Orthogonal();
+    //u.SetMag(1.);
+    TVector3 v(0.,1.,0.);//=mom.Cross(u);
+    //v.SetMag(1.);
+    
+    // create track-representation object and initialize with start values
+    AbsTrackRep* rep=0;
+    if(_useGeane){
+      DetPlane pl(pos,u,v);
+      GeaneTrackRep* grep=new GeaneTrackRep(_geanePro,pl,mom,poserr,momerr,q,pdg);
+      grep->setPropDir(1); // propagate in flight direction!
+      rep=grep;
+    }
+    else { // use LSLTrackRep
+      // calc momentum projections
+      TVector3 dir=mom.Unit();
+      double dxdz=dir.X()/dir.Z();
+      double dydz=dir.Y()/dir.Z();
+      double qp=q/mom.Mag();
+      rep=new LSLTrackRep(pos.Z(),pos.X(),pos.Y(),dxdz,dydz,qp,
+			  poserr.X(),poserr.Y(),0.1,0.1,0.1,NULL);
+      
+    }
+    
+    
+    // create track object
+    Track* trk=new((*_trackArray)[_trackArray->GetEntriesFast()]) Track(rep);
+    trk->setCandidate(*cand); // here the candidate is copied! 
+    ++candit;
+  
+  } // end loop over track candidates
+  
+
+  std::cout<<_trackArray->GetEntriesFast()<<" tracks created"<<std::endl;
+  return;
+}
+
+
+void
+PndTpcIdealTrackingTask::WriteHistograms(const TString& filename) {
+  TFile* file=CbmRootManager::Instance()->GetOutFile();
+  file->mkdir("IdealTracking");
+  file->cd("IdealTracking");
+
+  _multiplicityHisto->Write();
+  delete _multiplicityHisto;
+  _multiplicityHisto=NULL;
+
+  _trackSizeH->Write();
+  delete _trackSizeH;
+  _trackSizeH=NULL;
+
+  _trackPurityH->Write();
+  delete _trackPurityH;
+  _trackPurityH=NULL;
+
+  _trackMcIdsH->Write();
+  delete _trackMcIdsH;
+  _trackMcIdsH=NULL;
+}

@@ -1,0 +1,25 @@
+Alias B1 B0
+Decay UPS4
+0.500 B1 B0B                VSS;
+0.500 B1 B0                 VSS;
+Enddecay
+Decay B1
+1.000 PSI  K*0              SVV_CP 0.51e12 0.4 1.0 0.0 0.0 1.0 0.0 0.0 0.0;
+Enddecay
+Decay PSI
+1.000 E+   E-               VLL;
+Enddecay
+Decay K*0
+1.000 K0   pi0              VSS;
+Enddecay
+Decay B0B
+1.000 D+     e-   nueb      ISGW2;
+Enddecay
+Decay D+
+Enddecay
+Decay B0
+1.000 D-     e+   nue       ISGW2;
+Enddecay
+Decay D-
+Enddecay
+End

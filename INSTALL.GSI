@@ -1,0 +1,65 @@
+Installation Instructionsfor CbmRoot at GSI
+*******************************************
+
+There are two different ways to produce the required Makefiles for
+the project. The first one makes use of the autotools (autoconf/automake).
+The second and new way is to use cmake to produce the required Makefiles
+for the project.
+
+1. Using Autoconf/Automake
+==========================
+
+a) configure the required packages (at GSI)
+
+    >  .   /misc/cbmsoft/config/CbmEnv.sh new
+
+   On different systems you have to create a similar file on your own. 
+
+b) create a build directory
+
+    It is more convenient to have a separate build directory for the the 
+    different systems at the GSI (i.e build_woody, build_32 or build_64).
+
+    > mkdir MyBuild_32
+ 
+c) create the configure script for CbmRoot
+   
+    > cd  <CbmRoot_top_directory>
+    > ./reconf
+
+d) build the framework
+
+    >  cd   MyBuild_32
+    >  <CbmRoot_top_directory>/configure  --prefix=$PWD --enable-geant3  --enable-geant4
+         (configure have to be called from the source directory)
+    > .  ./config.sh
+    > make
+    > make install
+
+2. Using cmake
+==============
+
+a) Set the environment variable for the root of the external packages
+   (GEANT3, GEANT4, ROOT etc.)
+
+    > export SIMPATH=<path_to_external_packages>
+
+b) create a seperate build directory
+
+    > mkdir MyBuild
+    > cd MyBuild
+
+c) run cmake to create the Makefiles
+
+    > cmake <Path_to_CbmRoot_top_directory>
+
+d) execute the config script to export all necessary environment variables
+   
+    > . ./config.sh
+
+e) create and install the framework
+
+    > make
+    > make install
+
+f) have a lot of fun with the framework

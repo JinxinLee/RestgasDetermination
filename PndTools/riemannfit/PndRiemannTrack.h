@@ -1,0 +1,108 @@
+//-----------------------------------------------------------
+// File and Version Information:
+// $Id$
+//
+// Description:
+//      Track on Riemann Sphere
+//      Circle parameters can be calculated from plane parameters
+//      plane(c,nx,ny,nz);
+//
+//
+// Environment:
+//      Software developed for the PANDA Detector at FAIR.
+//
+// Author List:
+//      Sebastian Neubert    TUM            (original author)
+//
+//
+//-----------------------------------------------------------
+
+#ifndef PNDRIEMANNTRACK_HH
+#define PNDRIEMANNTRACK_HH
+
+// Base Class Headers ----------------
+#include "TObject.h"
+
+// Collaborating Class Headers -------
+#include <vector>
+#include "TVectorD.h"
+#include "TMatrixD.h"
+
+// Collaborating Class Declarations --
+class PndRiemannHit;
+
+
+class PndRiemannTrack : public TObject{
+public:
+
+  // Constructors/Destructors ---------
+  PndRiemannTrack();
+  ~PndRiemannTrack(){;}
+
+  
+  // Accessors -----------------------
+  const TVectorD& n() const {return fn;}
+  double c() const {return fc;}
+  const TVectorD& av() const {return fav;}
+
+  TVectorD orig() const;
+  double r() const;
+  double dip() const;
+  double sign() const;
+  unsigned int getNumHits() const {return fHits.size();}
+  PndRiemannHit* getHit(unsigned int i) {PndRiemannHit* myHit = &(fHits[i]); return myHit;}
+  PndRiemannHit* getLastHit() {return getHit(getNumHits()-1);}
+
+  double m() const {return fm;}
+  double t() const {return ft;}
+
+  // Modifiers -----------------------
+  void addHit(PndRiemannHit* hit);
+  void init(double x0, double y0, double R, 
+	    double dip, double z0);
+
+  // Operations ----------------------
+  void refit();
+  double dist(PndRiemannHit* hit);
+  void szFit();
+  void szFit(PndRiemannHit* hit);
+  double szDist(PndRiemannHit* hit);
+  double szError(PndRiemannHit* hit);
+  double szChi2(){return fChi2;};
+
+private:
+
+  // Private Data Members ------------
+  TVectorD fn;  		///< normal vector to plane;
+  double fc;     		///< distance of plane to origin
+
+  double fm; 			///< parameters of sz-fit
+  double ft;
+  double fmError;		///< Error of fit
+  double ftError;		///< Error of fit
+  double fChi2;			///< Chisquare of sz fit
+
+  std::vector<PndRiemannHit> fHits;
+  TVectorD fav;  		///< average over all hits
+  double fweight; 		///< sum over all weights (1/(sigmaXY*sigmaXY))
+  TMatrixD fcovPlane; 	///< full covarince matrix of the plane;
+  TMatrixD fjacRXY;  	///< jacobian matrix to transform from c,n1,n2,n2 to r,x,y
+  TMatrixD fcovRXY;
+  int fVerbose;
+  
+  void calcJacRXY(); 	///< calcualtes fjacRXY
+
+
+  // Private Methods -----------------
+ 
+
+public:
+  ClassDef(PndRiemannTrack,1)
+
+};
+
+#endif
+
+//--------------------------------------------------------------
+// $Log$
+//--------------------------------------------------------------

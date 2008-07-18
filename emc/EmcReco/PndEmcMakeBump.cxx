@@ -1,0 +1,229 @@
+//--------------------------------------------------------------------------
+// File and Version Information:
+// 	$Id:$
+//
+// Description:
+//      This module takes Clusters (Connected Regions) and slits them
+//      up into Bumps. There are defined by local maxima
+//
+// Environment:
+//	Software developed for the BaBar Detector at the SLAC B-Factory.
+// Adapted for the PANDA experiment at GSI
+//
+// Author List:
+//	Stephen J. Gowdy           University of Edinburgh
+//      Phil Strother              Imperial College 
+// 
+// Dima Melnychuk, adaption for PANDA
+//------------------------------------------------------------------------
+
+//-----------------------
+// This Class's Header --
+//-----------------------
+#include "PndEmcMakeBump.h"
+
+//-------------------------------
+// Collaborating Class Headers --
+//-------------------------------
+
+#include "PndEmcStructure.h"
+#include "PndEmcMapper.h"
+#include "PndEmcDigiPar.h"
+#include "PndEmcRecoPar.h"
+#include "PndEmcBump.h"
+#include "PndEmcCluster.h"
+#include "PndEmcDigi.h"
+#include "PndEmc2DLocMaxFinder.h"
+#include "PndEmcExpClusterSplitter.h"
+#include "PndEmcTwoCoordIndex.h"
+
+#include "CbmRootManager.h"
+#include "CbmRunAna.h"
+#include "CbmRuntimeDb.h"
+
+#include "TClonesArray.h"
+#include "TROOT.h"
+
+//---------------
+// C++ Headers --
+//---------------
+#include <iostream>
+#include <set>
+#include <vector>
+
+using std::endl;
+using std::cout;
+
+Int_t PndEmcMakeBump::fEventCounter=1;
+
+//----------------
+// Constructors --
+//----------------
+PndEmcMakeBump::PndEmcMakeBump(Int_t verbose) 
+{
+	fVerbose=verbose; 
+}
+
+//--------------
+// Destructor --
+//--------------
+PndEmcMakeBump::~PndEmcMakeBump()
+{
+}
+
+// -----   Public method Init   -------------------------------
+InitStatus PndEmcMakeBump::Init() {
+ 
+  	// Get RootManager
+	CbmRootManager* ioman = CbmRootManager::Instance();
+	if ( ! ioman )
+	{
+		cout << "-E- PndEmcMakeBump::Init: "
+		<< "RootManager not instantiated!" << endl;
+		return kFATAL;
+	}
+	
+	// Geometry loading
+	TGeoManager *geoMan = (TGeoManager*) gROOT->FindObject("CBMGeom");
+	fMapVersion=fDigiPar->GetMapperVersion();
+	PndEmcMapper::Instance(fMapVersion);
+	PndEmcStructure::Instance(geoMan);
+	
+	// Get input array
+	fClusterArray = (TClonesArray*) ioman->GetObject("EmcCluster");
+	if ( ! fClusterArray ) {
+		cout << "-W- PndEmcMakeBump::Init: "
+		<< "No PndEmcCluster array!" << endl;
+		return kERROR;
+	}
+	
+	// Create and register output array
+	fBumpArray = new TClonesArray("PndEmcBump");
+	ioman->Register("EmcBump","Emc",fBumpArray,kTRUE);
+	
+// 	fSharedDigiArray = new TClonesArray("PndEmcDigi");
+// 	ioman->Register("EmcSharedDigi","Emc",fSharedDigiArray,kTRUE);
+
+	// Fill structure with parameters from RunTime DB for local maximum finder
+	PndEmc2DLocMaxFinderData locMaxData;
+	locMaxData.MaxECut=fRecoPar->GetMaxECut();
+	locMaxData.NeighbourECut=fRecoPar->GetNeighbourECut();
+	locMaxData.CutSlope=fRecoPar->GetCutSlope();
+	locMaxData.CutOffset=fRecoPar->GetCutOffset();
+	locMaxData.ERatioCorr=fRecoPar->GetERatioCorr();
+	locMaxData.TheNeighbourLevel=fRecoPar->GetTheNeighbourLevel();
+	// Create PndEmc2DLocMaxFinder object with correspondent parameters
+	theLocalMaxFinder = new PndEmc2DLocMaxFinder(locMaxData,fVerbose);
+	
+	// Fill structure with parameters from RunTime DB for bump splitter
+	PndEmcExpClusterSplitterData  expClusterSplitterData;
+	expClusterSplitterData.MoliereRadius=fRecoPar->GetMoliereRadius();
+	expClusterSplitterData.ExponentialConstant=fRecoPar->GetExponentialConstant();
+	expClusterSplitterData.MaxIterations=fRecoPar->GetMaxIterations();
+	expClusterSplitterData.CentroidShift=fRecoPar->GetCentroidShift();
+	expClusterSplitterData.MaxBumps=fRecoPar->GetMaxBumps();
+	expClusterSplitterData.MinDigiEnergy=fRecoPar->GetMinDigiEnergy();
+
+	// Create PndEmcExpClusterSplitter object with correspondent parameters
+	theClusterSplitter = new PndEmcExpClusterSplitter(expClusterSplitterData,fVerbose);
+	
+	cout << "-I- PndEmcMakeBump: Intialization successfull" << endl;
+
+	return kSUCCESS;
+}
+
+void PndEmcMakeBump::Exec(Option_t* opt) 
+{
+	// Reset output array
+	if ( ! fBumpArray ) Fatal("Exec", "No Bump Array");
+	fBumpArray->Delete();
+//	if ( ! fSharedDigiArray ) Fatal("Exec", "No SharedDigi Array");
+//	fSharedDigiArray->Delete();
+
+	std::cout<<"***************** PndEmcMakeBump, event: "<<fEventCounter<<" **************"<<endl;
+
+  	Int_t nClusters = fClusterArray->GetEntriesFast();
+	
+	//loop over Clusters
+	for (Int_t iCluster=0; iCluster<nClusters; iCluster++)
+	{
+		PndEmcCluster* theCluster = (PndEmcCluster*) fClusterArray->At(iCluster);
+		theCluster->ValidateDigiMap(); // we need it since fMemberDigiMap is transient element
+	
+		Int_t NDigis = theCluster->numberOfDigis();
+
+		std::vector<PndEmcBump*> theBumps;
+
+		const EmcCoordIndexSet &
+		emcMaxDigis(theLocalMaxFinder->findMaxima(theCluster));
+		
+		theClusterSplitter->splitCluster(emcMaxDigis, theCluster, theBumps);
+	
+		if (fVerbose>=1)
+		{		
+			std::cout<<"Energy of the cluster = "<<theCluster->energy()<<" Number of bumps = "<<theBumps.size()<<endl;
+		}
+		for (Int_t i=0; i<theBumps.size() ; i++) {
+
+			Int_t size_ba = fBumpArray->GetEntriesFast();
+			PndEmcBump* theNextBump = new((*fBumpArray)[size_ba]) PndEmcBump(*(theBumps[i]));
+			
+			if ((fVerbose>=1)&&(theBumps.size()>1)){
+				std::cout<<"bump energy = "<<theBumps[i]->energy()<<endl;
+				std::cout<<"bump position: theta = "<<theBumps[i]->where().Theta()*TMath::RadToDeg()<<", phi = "<<theBumps[i]->where().Phi()*TMath::RadToDeg()<<endl;
+			}
+			
+			// Add all the shared digis into the shared digi list
+			std::vector<PndEmcDigi*> bumpDigis = theNextBump->DigiList();
+			
+			// The following should produce array of shared digis
+///			Int_t j=0, numSharedDigis = bumpDigis.size();
+///			for ( j=0; j<numSharedDigis; j++ ){
+///				Int_t size_sda = fSharedDigiArray->GetEntriesFast();
+///				PndEmcDigi* theDigi = new((*fSharedDigiArray)[size_sda]) PndEmcDigi((bumpDigis)[j]);
+///			}
+		}
+	}
+	
+	// At that moment internal state fEnergy and fWhere of Clusters are not initialized, the following make it possible to see energy and position from output root file
+	Int_t nBump = fBumpArray->GetEntriesFast();
+	for (Int_t i=0; i<nBump; i++)
+	{
+		PndEmcBump *tmpbump = (PndEmcBump*) fBumpArray->At(i);
+		tmpbump->energy();
+		tmpbump->where();
+		
+		// Double check of bump energy
+		if (fVerbose>=2){
+			std::cout<<"No "<<i<<", energy = "<<tmpbump->energy()<<", theta = "<<tmpbump->where().Theta()*TMath::RadToDeg()<<", phi = "<<tmpbump->where().Phi()*TMath::RadToDeg()<<std::endl;
+		}
+	}
+
+	if (fVerbose>=1)
+	{
+		std::cout<<"PndEmcMakeBump:: Number of clusters = "<<nClusters<<std::endl;
+		std::cout<<"PndEmcMakeBump:: Number of bumps = "<<nBump<<std::endl;
+	}
+	
+	fEventCounter++;
+
+}
+
+
+void PndEmcMakeBump::SetParContainers() {
+
+  // Get run and runtime database
+  CbmRunAna* run = CbmRunAna::Instance();
+  if ( ! run ) Fatal("SetParContainers", "No analysis run");
+
+  CbmRuntimeDb* db = run->GetRuntimeDb();
+  if ( ! db ) Fatal("SetParContainers", "No runtime database");
+
+  // Get Emc digitisation parameter container
+  fDigiPar = (PndEmcDigiPar*) db->getContainer("PndEmcDigiPar");
+ 
+  // Get Emc reconstruction parameter container
+  fRecoPar = (PndEmcRecoPar*) db->getContainer("PndEmcRecoPar");
+}
+
+ClassImp(PndEmcMakeBump)

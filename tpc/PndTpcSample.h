@@ -1,0 +1,89 @@
+//-----------------------------------------------------------
+// File and Version Information:
+// $Id$
+//
+// Description:
+//      TPC digitization:
+//      Output of ADC
+//
+// Environment:
+//      Software developed for the PANDA Detector at FAIR.
+//
+// Author List:
+//      Sebastian Neubert    TUM            (original author)
+//
+//
+//-----------------------------------------------------------
+
+#ifndef TPCSAMPLE_HH
+#define TPCSAMPLE_HH
+
+// Base Class Headers ----------------
+#include "TObject.h"
+
+// Collaborating Class Headers -------
+#include <ostream> // remove if you do not need streaming op
+#include "McIdCollection.h"
+
+// Collaborating Class Declarations --
+
+
+class PndTpcSample : public TObject{
+public:
+
+  // Constructors/Destructors ---------
+  PndTpcSample();
+  PndTpcSample(const int t, 
+	    const int Amp, 
+	    const unsigned int PadID, 
+	    const McIdCollection& mcid);
+  ~PndTpcSample();
+
+  // Operators
+  friend bool operator== (const PndTpcSample& lhs, const PndTpcSample& rhs);
+  friend bool operator< (const PndTpcSample& lhs, const PndTpcSample& rhs);
+  friend std::ostream& operator<< (std::ostream& s, const PndTpcSample& me);
+
+  // Accessors -----------------------
+  int amp() const {return _amp;}
+  int t() const {return _t;}
+  unsigned int padId() const {return _padId;}
+  const McIdCollection& mcId() const {return _mcId;}
+
+  // Modifiers -----------------------
+
+
+  // Operations ----------------------
+
+private:
+
+  // Private Data Members ------------
+  int _amp;
+  int _t;
+  unsigned int _padId;
+
+  McIdCollection _mcId;
+  // Private Methods -----------------
+
+public:
+  ClassDef(PndTpcSample,2)
+
+};
+
+#endif
+
+//--------------------------------------------------------------
+// $Log: PndTpcSample.hh,v $
+// Revision 1.4  2006/02/24 14:39:34  sneubert
+// moved McIds to package MciData
+//
+// Revision 1.3  2006/02/24 13:38:00  sneubert
+// Code revision done
+//
+// Revision 1.2  2006/01/29 20:26:30  sneubert
+// initial creation
+//
+// Revision 1.1  2005/09/14 22:31:35  sneubert
+// added PndTpcSample
+//
+//--------------------------------------------------------------

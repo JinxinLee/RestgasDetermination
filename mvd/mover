@@ -1,0 +1,15 @@
+#!/bin/bash
+for i in $( ls ); do
+    c=${i#MvdDet}   
+    #d=${i%%CbmTst*}   
+    x="PndMvdDet"$c
+if [ "$c" != "$i" ] #Achtung! Die Leerzeichen muessen sein!
+then
+  echo $i
+  echo $x
+  svn --force mv $i $x
+#else
+  #echo $i
+  #echo $c
+fi
+done

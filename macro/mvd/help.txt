@@ -1,0 +1,18 @@
+Directory contents:
+-----
+./
+  Hopefully usable "official" macros 
+-----
+./Test
+  testing macros
+-----
+./Ralf
+  testing macros from ralfk
+----------------------------
+
+
+Kalman testing (24.01.08)
+runMvdSim.C               (and anaMvdSim.C)
+runMvdIdealClustering.C   (and anaMvdIdealReco.C)
+runMvdIdealTracking.C
+runMvdKalman.C

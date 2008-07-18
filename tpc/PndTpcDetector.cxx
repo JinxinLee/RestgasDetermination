@@ -1,0 +1,282 @@
+//-----------------------------------------------------------
+// File and Version Information:
+// $Id$
+//
+// Description:
+//      Implementation of class PndTpcDetector
+//      see PndTpcDetector.hh for details
+//
+// Environment:
+//      Software developed for the PANDA Detector at FAIR.
+//
+// Author List:
+//      Sebastian Neubert    TUM            (original author)
+//
+//
+//-----------------------------------------------------------
+
+// Panda Headers ----------------------
+
+// This Class' Header ------------------
+#include "PndTpcDetector.h"
+
+// C/C++ Headers ----------------------
+
+
+// Collaborating Class Headers --------
+#include "TClonesArray.h"
+#include "CbmRootManager.h"
+#include "PndTpcPoint.h"
+#include "TVirtualMC.h"
+#include "TLorentzVector.h"
+#include "PndTpcGeo.h"
+#include "CbmGeoLoader.h"
+#include "CbmGeoInterface.h"
+#include "TList.h"
+#include "CbmRun.h"
+#include "CbmRuntimeDb.h"
+#include "PndTpcGeoPar.h"
+#include "TObjArray.h"
+#include "CbmGeoNode.h"
+#include "CbmGeoVolume.h"
+#include "CbmVolume.h"
+#include "TParticle.h"
+#include "CbmStack.h"
+#include "TVirtualMC.h"
+
+#include "CbmGeoMedia.h"
+#include "TRandom.h"
+
+// Class Member definitions -----------
+
+
+PndTpcDetector::PndTpcDetector(const char * Name, Bool_t Active)
+  : CbmDetector(Name, Active),fAliMC(kFALSE)
+{
+  fPndTpcPointCollection= new TClonesArray("PndTpcPoint");
+}
+
+PndTpcDetector::PndTpcDetector()
+{
+  fPndTpcPointCollection= new TClonesArray("PndTpcPoint");
+}
+
+PndTpcDetector::~PndTpcDetector()
+{
+  if (fPndTpcPointCollection) {
+      fPndTpcPointCollection->Delete();
+      delete fPndTpcPointCollection;
+   }
+}
+
+void PndTpcDetector::EndOfEvent() 
+{
+
+  //fPndTpcPointCollection->Clear();
+  
+}
+
+void PndTpcDetector::Register() {
+
+/** This will create a branch in the output tree called  PndTpcDetectorPoint, setting the last parameter to kFALSE means:
+
+    this collection will not be written to the file, it will exist only during the simulation. */
+ 
+   CbmRootManager::Instance()->Register("PndTpcPoint", "PndTpc", fPndTpcPointCollection, kTRUE);
+}
+
+Bool_t 
+PndTpcDetector::ProcessHits( CbmVolume *v)
+{
+  Double_t q= gMC->TrackCharge();
+  if(q==0)return kTRUE;
+  // create Hit for every MC step where energy is deposited
+  Double_t eLoss = gMC->Edep();
+  if(eLoss<=0)return kTRUE;	// if you want to have no energy loss but still have hits
+  						// changeing this might help
+						
+  Double_t time   = gMC->TrackTime() * 1.0e09;
+  Double_t length = gMC->TrackStep();
+  TLorentzVector pos;
+  gMC->TrackPosition(pos);
+  //pos.Print();
+  TLorentzVector mom;
+  gMC->TrackMomentum(mom);
+  //mom.Print();
+  
+  Int_t trackID  = gMC->GetStack()->GetCurrentTrackNumber();
+  Int_t volumeID = v->getMCid();
+
+  if(fAliMC)	{
+  	AliTPCv3_SetStepToNextCollision(); 
+  }
+  
+#ifdef DO_UNCANNY_STUFF
+  //std::cout<<"CurrentID="<<trackID<<std::endl;
+  // if this is a low momentum particle (e.g. delta) assign mother id
+  if(mom.E()<10.*1E-6){ // E<10keV
+    TParticle* mother=gMC->GetStack()->GetCurrentTrack();
+    while(!mother->IsPrimary()){
+      trackID=mother->GetFirstMother();
+      mother=dynamic_cast<CbmStack*>(gMC->GetStack())->GetParticle(trackID);
+      //std::cout<<"Fetching mother id="<<trackID<<std::endl;
+    }
+  }
+#endif
+
+  PndTpcPoint* p=AddHit(trackID, volumeID, pos.Vect(), mom.Vect(), time, length, eLoss);
+
+  //p->Print("");
+
+  return kTRUE;
+}
+
+
+void PndTpcDetector::AliTPCv3_SetStepToNextCollision()
+{
+  const Float_t prim = 14.35; // number of primary collisions per 1 cm
+
+  Double_t charge= gMC->TrackCharge();
+  Float_t pp;
+  TLorentzVector mom;
+  gMC->TrackMomentum(mom);
+  Float_t ptot=mom.Rho();
+  Float_t beta_gamma = ptot/gMC->TrackMass();
+  
+  if(gMC->IdFromPDG(gMC->TrackPid()) <= 3 && ptot > 0.002)
+    { 
+      pp = prim*1.58; // electrons above 20 MeV/c are on the plateau!
+    }
+  else
+    {
+      pp=prim*AliTPCv3_BetheBloch(beta_gamma);    
+      if(TMath::Abs(charge) > 1.) pp *= (charge*charge);
+    }
+  
+  Float_t random[1];
+  TRandom * rGenerator=gMC->GetRandom();
+  Double_t rnd=rGenerator->Rndm();
+  
+  gMC->SetMaxStep(-TMath::Log(rnd)/pp);
+}
+
+ Float_t PndTpcDetector::AliTPCv3_BetheBloch(Float_t bg)
+{
+  //
+  // Bethe-Bloch energy loss formula
+  //
+  const Double_t p1=0.76176e-1;
+  const Double_t p2=10.632;
+  const Double_t p3=0.13279e-4;
+  const Double_t p4=1.8631;
+  const Double_t p5=1.9479;
+
+  Double_t dbg = (Double_t) bg;
+
+  Double_t beta = dbg/TMath::Sqrt(1.+dbg*dbg);
+
+  Double_t aa = TMath::Power(beta,p4);
+  Double_t bb = TMath::Power(1./dbg,p5);
+
+  bb=TMath::Log(p3+bb);
+  
+  return ((Float_t)((p2-aa-bb)*p1/aa));
+}
+
+Float_t PndTpcDetector::AliTPCv3_InitDetector()
+{
+	//
+	// Initialises the TPC after that it has been built
+	//
+	CbmGeoLoader*geoLoad = CbmGeoLoader::Instance();
+	CbmGeoInterface *geoFace = geoLoad->getGeoInterface();
+	CbmGeoMedia *Media =  geoFace->getMedia();
+	
+	CbmGeoMedium *TPCmixture  = Media->getMedium("TPCmixture");
+	Int_t mediumId=TPCmixture->getMediumIndex();
+	std::cout << "mediumId: " << mediumId << std::endl;
+	gMC->Gstpar(mediumId,"LOSS",5);	//5 -> new geant3 option for ALICE TPC see gphys/gfluct.F
+}
+
+TClonesArray* PndTpcDetector::GetCollection(Int_t iColl) const {
+  if (iColl == 0) return fPndTpcPointCollection;
+  else return NULL;
+}
+
+
+PndTpcPoint* PndTpcDetector::AddHit(Int_t trackID, Int_t detID, TVector3 pos,
+    TVector3 mom, Double_t time, Double_t length,
+    Double_t eLoss) {
+  TClonesArray& clref = *fPndTpcPointCollection;
+  Int_t size = clref.GetEntriesFast();
+  return new(clref[size]) PndTpcPoint(trackID, detID, pos, mom,
+      time, length, eLoss);
+}
+
+
+void PndTpcDetector::BeginEvent() {
+  //std::cout<<"PndTpcDetector::BeginEvent()"<<std::endl;
+  fPndTpcPointCollection->Delete();
+}
+
+void PndTpcDetector::Reset() {
+  
+  //std::cout<<"PndTpcDetector::Reset()"<<std::endl;
+  fPndTpcPointCollection->Delete();
+  //ResetParameters();
+}
+
+
+void 
+PndTpcDetector::ConstructGeometry() {
+  /** If you are using the standard ASCII input for the geometry just copy this and use it for your detector, otherwise you can
+      
+  implement here you own way of constructing the geometry. */
+  
+  std::cout<<" --- Building TPC Geometry ---"<<std::endl;
+
+  
+  CbmGeoLoader*    geoLoad = CbmGeoLoader::Instance();
+  CbmGeoInterface* geoFace = geoLoad->getGeoInterface();
+  PndTpcGeo*       Geo  = new PndTpcGeo();
+  Geo->setGeomFile(GetGeometryFileName());
+  geoFace->addGeoModule(Geo);
+
+  Bool_t rc = geoFace->readSet(Geo);
+  if (rc) Geo->create(geoLoad->getGeoBuilder());
+  else std::cerr<<"PndTpcDetector:: geometry could not be read!"<<std::endl;
+
+  TList* volList = Geo->getListOfVolumes();
+
+  // store geo parameter
+  CbmRun *fRun = CbmRun::Instance();
+  CbmRuntimeDb *rtdb= CbmRun::Instance()->GetRuntimeDb();
+  PndTpcGeoPar* par=(PndTpcGeoPar*)(rtdb->getContainer("PndTpcGeoPar"));
+  TObjArray *fSensNodes = par->GetGeoSensitiveNodes();
+  TObjArray *fPassNodes = par->GetGeoPassiveNodes();
+
+  TListIter iter(volList);
+  CbmGeoNode* node   = NULL;
+  CbmGeoVolume *aVol=NULL;
+  
+  
+  while( (node = (CbmGeoNode*)iter.Next()) ) {
+      aVol = dynamic_cast<CbmGeoVolume*> ( node );
+       if ( node->isSensitive()  ) {
+           fSensNodes->AddLast( aVol );
+       }else{
+           fPassNodes->AddLast( aVol );
+       }
+  }
+  par->setChanged();
+  par->setInputVersion(fRun->GetRunId(),1);
+
+  ProcessNodes ( volList );
+ // AliTPCv3_InitDetector(); crashes
+}
+
+
+
+
+
+ClassImp(PndTpcDetector)

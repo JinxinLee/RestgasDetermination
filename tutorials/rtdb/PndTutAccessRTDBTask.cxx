@@ -1,0 +1,48 @@
+#include "PndTutAccessRTDBTask.h"
+
+#include "CbmRuntimeDb.h"
+#include "CbmRunAna.h"
+
+ClassImp(PndTutAccessRTDBTask);
+
+void PndTutAccessRTDBTask::SetParContainers()
+{
+  CbmRunAna* ana = CbmRunAna::Instance();
+  CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+  fTutParDef = (PndTutPar*)(rtdb->getContainer("TUTParDefault"));
+  fTutParAlt = (PndTutPar*)(rtdb->getContainer("TUTParAlternative"));
+}
+
+InitStatus PndTutAccessRTDBTask::Init()
+{
+  if (!fTutParDef){
+     std::cout<<"-E- PndTutAccessRTDBTask: fTutParDef Container does not exist!"<<std::endl;
+     return kERROR;
+  }
+  if (!fTutParAlt){
+     std::cout<<"-E- PndTutAccessRTDBTask: fTutParAlt Container does not exist!"<<std::endl;
+     return kERROR;
+  }
+    return kSUCCESS;
+
+}
+
+InitStatus PndTutAccessRTDBTask::ReInit()
+{
+  SetParContainers();
+  return kSUCCESS;
+}
+
+void
+PndTutAccessRTDBTask::Exec(Option_t* opt)
+{
+  return;
+}
+
+void
+PndTutAccessRTDBTask::Finish()
+{
+  fTutParDef->Print();
+  fTutParAlt->Print();
+  return;
+}

@@ -1,0 +1,73 @@
+# Create a library called "libgenfit" which includes the source files given in
+# the array .
+# The extension is already found.  Any number of sources could be listed here.
+
+set(INCLUDE_DIRECTORIES
+${ROOT_INCLUDE_DIR} 
+${CLHEP_INCLUDE_DIR}
+${CMAKE_SOURCE_DIR}/genfit
+${CMAKE_SOURCE_DIR}/genfit/test
+)
+
+include_directories( ${INCLUDE_DIRECTORIES})
+
+set(LINK_DIRECTORIES
+${ROOT_LIBRARY_DIR}
+)
+
+link_directories( ${LINK_DIRECTORIES})
+
+set(GENFIT_SRCS
+AbsRecoHit.cxx 		 
+RecoHitFactory.cxx 		 
+RecoHitProducer.cxx 		 
+AbsTrackRep.cxx 		 
+Track.cxx 			 
+Kalman.cxx 			 
+LSLEQM.cxx
+LSLTrackRep.cxx 		 
+Nystrom.cxx 			 
+FitParams.cxx 		 
+FitterExceptions.cxx           
+TrackCand.cxx
+DetPlane.cxx
+PlanarHitPolicy.cxx
+SpacepointHitPolicy.cxx
+test/GenfitTester.cxx
+test/TestRecoHit.cxx
+MatrixChi2.cxx
+ExtrapolateToPCA.cxx
+VirtSpacePointRecoHit.cxx
+#poca.cxx
+StdoutKiller.cxx
+)
+
+if(RULE_CHECKER_FOUND)
+  CHECK_RULES("${GENFIT_SRCS}" "${INCLUDE_DIRECTORIES}" GENFIT_RULES)
+endif(RULE_CHECKER_FOUND)
+
+# fill list of header files from list of source files
+# by exchanging the file extension
+CHANGE_FILE_EXTENSION(*.cxx *.h GENFIT_HEADERS "${GENFIT_SRCS}")
+
+#set(GENFIT_SRCS ${GENFIT_SRCS} statTreeAnalyzer_auto.C) 	 
+
+
+set(GENFIT_HEADERS ${GENFIT_HEADERS} statTreeAnalyzer_auto.h)
+
+set(GENFIT_LINKDEF  genfitLinkDef.h)
+set(GENFIT_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/genfitDict.cxx) 
+
+#########
+set(GENFIT_HEADERS  FitParams.h AbsRecoHit.h AbsTrackRep.h LSLTrackRep.h Track.h TrackCand.h VirtSpacePointRecoHit.h test/GenfitTester.h)
+#########
+
+ROOT_GENERATE_DICTIONARY("${GENFIT_HEADERS}" "${GENFIT_LINKDEF}" "${GENFIT_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
+
+SET(GENFIT_SRCS ${GENFIT_SRCS} ${GENFIT_DICTIONARY})
+
+add_library(genfit SHARED ${GENFIT_SRCS})
+target_link_libraries(genfit ${ROOT_LIBRARIES})
+set_target_properties(genfit PROPERTIES ${CBMROOT_LIBRARY_PROPERTIES})
+################ install ###################
+install(TARGETS genfit DESTINATION ${CMAKE_BINARY_DIR}/lib)

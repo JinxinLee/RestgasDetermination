@@ -1,0 +1,90 @@
+#################################################################
+# Digitisation and reconstruction parameters for EMC
+# Format:
+# parameter_name:parameter_type(i-integer, d-double) parameter_value
+# PndEmcDigiPar
+# Description of parameters
+# EnergyHitThreshold - energy threshold used in PndEmcHitProducer.cxx, with following full digitization should be 0.
+# EnergyDigiThreshold - treshold for EmcDigi energy in PndEmcWaveformToDigi.cxx
+# EmcClusterPosMethod: lilo, linear
+#################################################################
+[PndEmcDigiPar]
+EnergyHitThreshold:d 0.000001
+NBits:i 14
+DetectedPhotonsPerMeV:d 80
+EnergyRange:d 15
+ExcessNoiseFactor:d 1.38
+FirstSamplePhase:d 0
+Number_of_samples_in_waveform:i 64
+Shaping_diff_time:d 100e-9
+Shaping_int_time:d 500e-9
+Crystal_time_constant:d 12e-9
+Incoherent_elec_noise_width_GeV:d 1.0e-3
+SampleRate:d 80e6
+Use_shaped_noise:i 1
+Use_photon_statistic:i 1
+EnergyDigiThreshold:d 3.0e-3
+MapperVersion:i 1
+#################################################################
+# Reconstruction parameter for EMC
+# PndEmcRecoPar
+#################################################################
+[PndEmcRecoPar]
+EnergyThresholdBarrel:d 3.0e-3
+EnergyThresholdFWD:d 3.0e-3
+EnergyThresholdBWD:d 3.0e-3
+EnergyThresholdShashlyk:d 3.0e-3
+EmcClusterPosMethod:s lilo
+OffsetParmA:d 3.6
+OffsetParmB:d 1.594
+OffsetParmC:d 2.543
+EmcDigiPositionDepth:d 6.2
+MaxECut:d 0.02
+NeighbourECut:d 0.002
+CutSlope:d 0.5
+CutOffset:d 2.5
+ERatioCorr:d 0.0
+TheNeighbourLevel:i 0
+MoliereRadius:d 2.0
+ExponentialConstant:d 2.5
+MaxIterations:i 10
+CentroidShift:d 0.1
+MaxBumps:i 8
+MinDigiEnergy:d 20.e-6
+#################################################################
+# Digitisation and reconstruction parameters for TPC
+# Format:
+# parameter_name:parameter_type(i-integer, d-double) parameter_value
+# TPCDigiPar
+# Description of parameters
+#################################################################
+[PndTpcDigiPar]
+PndTpcGasFile:i 0
+EField:d 400
+AttachFlag:i 0
+LogitudinaldiffusionFlag:i 1
+TransversediffusionFlag:i 1
+DriftDistortionFlag:i 0
+zGem:d -40
+Gain:d 5000
+Spread:d 0.02
+MinSignalAmp:d 10
+rMin:d 15
+rMax:d 42
+PadPlaneFile:i 1
+PadShapeFile:i 2
+PadShapeRange:d 0.5
+PadShapeStep:d 0.02
+PadShapeIntStep:d 0.01
+ADCThreshold:i 10
+ADCMax:i 100000
+ADCBits:i 12
+SamplingFreq:d 40
+T0_wallclock:d -60000
+TimeBits:i 28
+PSAThreshold:i 50
+Shaper_tDiff:d 50
+Shaper_tInt:d 50
+Shaper_tSig:d 2
+TOTPSA:i 1
+#################################################################

@@ -1,0 +1,73 @@
+// -------------------------------------------------------------------------
+// -----                PndMvdPidIdealTask header file                 -----
+// -----                Created 20/03/07  by R.Kliemt                  -----
+// -------------------------------------------------------------------------
+
+
+/** PndMvdPidIdealTask.h
+ *@author R.Kliemt <r.kliemt@physik.tu-dresden.de>
+ **
+ ** The ideal tracking produces tracks of type PndMvdHit by using MC information
+ ** directly, but with the correct data interface.
+ **/
+
+
+#ifndef PNDMVDPIDIDEALTASK_H
+#define PNDMVDPIDIDEALTASK_H
+
+// Root includes
+#include "TVector3.h"
+#include "TGeoPolygon.h"
+#include "TRandom.h"
+#include "TObject.h"
+#include "TH1.h"
+#include "TH2.h"
+#include "TCanvas.h"
+
+
+// framework includes
+#include "CbmTask.h"
+#include "CbmField.h"
+#include "PndMvdPidCand.h"
+
+class TClonesArray;
+
+class PndMvdPidIdealTask : public CbmTask  
+{
+ public:
+
+  /** Default constructor **/  
+  PndMvdPidIdealTask(const TString algoName="ideal");
+
+  /** Virtual method Init **/
+  virtual void SetParContainers();
+  virtual InitStatus Init();
+
+
+  /** Virtual method Exec **/
+  virtual void Exec(Option_t* opt);
+
+
+ private:
+  
+  TString fBranchName;
+  TString fAlgoName;
+  
+  /** Input array of Points **/
+  TClonesArray* fPointArray;
+  TClonesArray* fMcArray;
+  /** Output array of Hits **/
+  TClonesArray* fTrackOutputArray;
+
+  void Register();
+  
+  void Reset();
+  
+  void ProduceHits();
+
+  ClassDef(PndMvdPidIdealTask,1);
+
+};
+
+#endif
+

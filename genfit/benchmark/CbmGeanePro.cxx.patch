@@ -1,0 +1,59 @@
+--- ../pandaroot/geane/CbmGeanePro.cxx	2008-06-18 17:06:32.000000000 +0200
++++ geane/CbmGeanePro.cxx	2008-06-18 11:21:30.000000000 +0200
+@@ -57,7 +57,8 @@
+   Float_t ch=1;   //        CHARGE OF PARTICLE
+ 
+   Double_t fCov[15], fCovOut[15];
+-  TParam->GetCovQ(fCov);
++  //  TParam->GetCovQ(fCov);
++  TParam->GetCov(fCov);
+   
+   Init(TParam);
+   Double_t Q = TParam->GetQ();
+@@ -134,7 +135,8 @@
+   // Propagate a parabola track (SD system) and return a parabola (SD system) (not used nor implemented)
+   Float_t ch=1;   //        CHARGE OF PARTICLE
+   Double_t fCov[15], fCovOut[15];
+-  TStart->GetCovQ(fCov);
++  //  TStart->GetCovQ(fCov);
++  TStart->GetCov(fCov);
+   
+   Init(TStart);
+   Double_t Q = TStart->GetQ() ;
+@@ -198,7 +200,7 @@
+ 	}
+ 	wiredirection.SetMag(1.);
+ 	// check orthogonality	   
+-	if(fabs(fromwiretoextr * wiredirection) > 1e-3) {
++	if(fabs(fromwiretoextr * wiredirection) > 1e-10) {
+ 	  return kFALSE; // throw away the event
+ 	  // wiredirection = (fromwiretoextr.Cross(wiredirection)).Cross(fromwiretoextr);
+ 	  // wiredirection.SetMag(1.);
+@@ -1018,13 +1020,13 @@
+ 
+   x31 = x3-x1;
+   e3 = e1.Cross(x31);
+-
++  if(fabs(e3.Mag())<1.E-30) throw 23;
+   // if the points are on the same line
+-  if(e3.Mag() < 1e-8) 
+-    {
+-      Iflag = 1;
+-      return;
+-    }
++  //if(e3.Mag() < 1e-8) 
++  //  {
++  //    Iflag = 1;
++  //    return;
++  //  }
+ 
+   m3 = 1./e3.Mag();
+   e3 = m3*e3;
+@@ -1058,6 +1060,7 @@
+ 
+   xp32= xp3 - xp2;
+   xpR[0] = 0.5*xp2[0];
++  if(fabs(xp3[1])<1.E-30) throw 24;
+   xpR[1] = 0.5*(xp32[0]*xp3[0]/xp3[1]+ xp3[1]);
+   xpR[2] = 0.;
+  

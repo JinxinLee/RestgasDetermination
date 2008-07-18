@@ -1,0 +1,115 @@
+/******************************************************
+
+JPsi->e+e-
+Reads the TPC tracks and reconstruct the InvariantMass 
+of J/Psi: Dipak
+*******************************************************/ 
+
+#include "TClonesArray.h"
+
+#include "CbmRootManager.h"
+#include "CbmRunAna.h"
+#include "CbmRuntimeDb.h"
+#include "PndTpcLheTrack.h"
+
+#include "TVector3.h"
+#include "CbmRun.h"
+#include "CbmRuntimeDb.h"
+#include "PndJPsiExample.h"
+#include <string>
+		
+// -----   Default constructor   -------------------------------------------
+PndJPsiExample::PndJPsiExample() :
+  CbmTask("FastSim Dump") { 
+}
+// -------------------------------------------------------------------------
+
+// -----   Destructor   ----------------------------------------------------
+PndJPsiExample::~PndJPsiExample() { }
+// -------------------------------------------------------------------------
+
+
+
+// -----   Public method Init   --------------------------------------------
+InitStatus PndJPsiExample::Init() {
+ 
+  cout << " Inside the Init function****" << endl;
+  
+  //CbmDetector::Initialize();
+  //CbmRun* sim = CbmRun::Instance();
+  //CbmRuntimeDb* rtdb=sim->GetRuntimeDb();
+  
+  // Get RootManager
+  CbmRootManager* ioman = CbmRootManager::Instance();
+  if ( ! ioman ) {
+    cout << "-E- PndEmcHitProducer::Init: "
+	 << "RootManager not instantiated!" << endl;
+    return kFATAL;
+  }
+  // Get input array
+  fTrArray = (TClonesArray*) ioman->GetObject("TpcLheTrack");
+  if ( ! fTrArray) {
+    cout << "-W- PndJPsiExample::Init: "
+	 << "No TpcTrack array!" << endl;
+    return kERROR;
+  }
+
+  // Create and register output array
+  cout << "-I- PndJPsiExample: Intialization successfull" << endl;
+
+  fInvMass = new TH1D("invmass","",100,0.0,4.0);
+  
+  return kSUCCESS;
+
+}
+
+void PndJPsiExample::SetParContainers() {
+
+  // Get run and runtime database
+  CbmRunAna* run = CbmRunAna::Instance();
+  if ( ! run ) Fatal("SetParContainers", "No analysis run");
+
+  CbmRuntimeDb* db = run->GetRuntimeDb();
+  if ( ! db ) Fatal("SetParContainers", "No runtime database");
+
+ 
+}
+
+// -------------------------------------------------------------------------
+
+// -----   Public method Exec   --------------------------------------------
+void PndJPsiExample::Exec(Option_t* opt) {
+  
+  // Reset output array
+  Int_t nTracks = fTrArray->GetEntriesFast();
+
+  //  cout <<"number of tracks **** "<< nTracks <<endl;
+  
+  for (Int_t i1=0; i1<nTracks; i1++){
+    
+    // Get the Tpc Track information
+    PndTpcLheTrack *tr1 = (PndTpcLheTrack*)fTrArray->At(i1);    
+    track1.SetXYZM(tr1->GetPx(), tr1->GetPy(), tr1->GetPz(), 0.000511);
+
+    for (Int_t i2=0; i2<nTracks; i2++){
+      PndTpcLheTrack *tr2 = (PndTpcLheTrack*)fTrArray->At(i2);    
+
+      track2.SetXYZM(tr2->GetPx(), tr2->GetPy(), tr2->GetPz(), 0.000511);
+      
+      TLorentzVector sumTrack = track1 + track2;
+
+     fInvMass->Fill(sumTrack.M());
+
+    }
+    
+  }
+
+}
+// -------------------------------------------------------------------------
+
+void PndJPsiExample::Finish()
+{
+  fInvMass->Write();
+}
+
+ClassImp(PndJPsiExample)

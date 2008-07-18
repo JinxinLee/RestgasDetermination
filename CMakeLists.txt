@@ -1,0 +1,143 @@
+# The name of our project is "PANDAROOT".  CMakeLists files in this project can
+# refer to the root source directory of the project as ${PANDAROOT_SOURCE_DIR} 
+# or as ${CMAKE_SOURCE_DIR} and to the root binary directory of the project as 
+# ${PANDAROOT_BINARY_DIR} or ${CMAKE_BINARY_DIR}.
+# This difference is important for the base classes which are in CBMROOT 
+# and PANDAROOT.
+
+# Check if cmake has the required version
+CMAKE_MINIMUM_REQUIRED(VERSION 2.4.3 FATAL_ERROR)
+
+# Set name of our project to "PANDAROOT". Has to be done
+# after check of cmake version since this is a new feature                  
+project(PANDAROOT)
+ENABLE_LANGUAGE(Fortran)
+
+# where to look first for cmake modules, before ${CMAKE_ROOT}/Modules/ 
+# is checked
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
+
+# Load some basic macros which are needed later on
+include(CbmMacros)
+include(WriteConfigFile)
+include(Dart)
+include(CheckCompiler)
+
+#Check the compiler and set the compile and link flags
+set(CMAKE_BUILD_TYPE Debug)
+Check_Compiler()
+
+# Check if the user wants to build the project in the source
+# directory
+CHECK_OUT_OF_SOURCE_BUILD()
+
+# Check if we are on an UNIX system. If not stop with an error
+# message
+IF(NOT UNIX)
+  MESSAGE(FATAL_ERROR "You're not on an UNIX system. The project was up to now only tested on UNIX systems, so we break here. If you want to go on please edit the CMakeLists.txt in the source directory.")
+ENDIF(NOT UNIX)  
+
+# Check if we are at GSI
+# If we are GSI set some variables
+CHECK_GSI()
+IF(NOT GSI)
+  IF(NOT DEFINED ENV{SIMPATH})
+    MESSAGE(FATAL_ERROR "You did not define the environment variable SIMPATH which is nedded to find the external packages. Please set this variable and execute cmake again.")
+  ENDIF(NOT DEFINED ENV{SIMPATH})
+ENDIF(NOT GSI)
+
+# Check if the installation of the needed external packages is as at GSI
+CHECK_EXTERNAL_PACKAGES_INSTALLATION()
+
+# Check for gcc version, since for gcc 4 one has to add friend-injection
+# as option to compile CbmPlutoGenerator
+EXEC_PROGRAM( gcc ARGS "-dumpversion" OUTPUT_VARIABLE GCC_VERSION )
+STRING(REGEX REPLACE "^([0-9]+)\\.[0-9]+\\.[0-9]" "\\1" req_gcc_major_vers "${GCC_VERSION}")
+STRING(REGEX REPLACE "^[0-9]+\\.([0-9]+)\\.[0-9]" "\\1" req_gcc_minor_vers "${GCC_VERSION}")
+IF(${req_gcc_major_vers} MATCHES "4" AND NOT ${req_gcc_minor_vers} MATCHES "0")
+ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffriend-injection")
+ENDIF(${req_gcc_major_vers} MATCHES "4" AND NOT ${req_gcc_minor_vers} MATCHES "0")
+
+# Set the build type. Possibilities are None, Debug, Release, 
+# RelWithDebInfo and MinSizeRel 
+#SET(CMAKE_BUILD_TYPE Debug)
+
+# searches for needed packages
+# REQUIRED means that cmake will stop if this packages are not found
+# For example the framework can run without GEANT4, but ROOT is
+# mandatory
+find_package(ROOT REQUIRED)
+find_package(PLUTO REQUIRED)
+find_package(GENERATORS REQUIRED)
+find_package(GEANT3 REQUIRED)
+find_package(GEANT4)
+find_package(GEANT4VMC)
+find_package(CLHEP)
+
+find_package(RuleChecker)
+
+# Set the library version in the main CMakeLists.txt
+SET(CBMROOT_MAJOR_VERSION 0)
+SET(CBMROOT_MINOR_VERSION 0)
+SET(CBMROOT_PATCH_VERSION 0)
+SET(CBMROOT_VERSION "${CBMROOT_MAJOR_VERSION}.${CBMROOT_MINOR_VERSION}.${CBMROOT_PATCH_VERSION}")
+SET(CBMROOT_LIBRARY_PROPERTIES ${CBMROOT_LIBRARY_PROPERTIES}
+    VERSION "${CBMROOT_VERSION}"
+    SOVERSION "${CBMROOT_MAJOR_VERSION}"
+    SUFFIX ".so"
+)
+
+
+# Recurse into the given subdirectories.  This does not actually
+# cause another cmake executable to run.  The same process will walk through
+# the project's entire directory structure.
+add_subdirectory (base)
+add_subdirectory (geobase)
+add_subdirectory (parbase) 
+add_subdirectory (mcstack)
+add_subdirectory (passive)
+add_subdirectory (field)  
+add_subdirectory (generators)
+add_subdirectory (pgenerators)
+add_subdirectory (pgenerators/DpmEvtGen)
+add_subdirectory (stt)
+add_subdirectory (tpc)
+add_subdirectory (tpc/tpcreco)
+add_subdirectory (mvd)
+add_subdirectory (mdt)
+add_subdirectory (emc)
+add_subdirectory (drc)
+add_subdirectory (drc/drcprop)
+add_subdirectory (hyp)
+add_subdirectory (genfit)
+add_subdirectory (recotasks)
+add_subdirectory (dch)
+add_subdirectory (tof)
+add_subdirectory (lhetrack)
+add_subdirectory (macro)
+add_subdirectory (trackbase)
+add_subdirectory (geane)
+add_subdirectory (trackrep)
+#add_subdirectory(hypGe)
+add_subdirectory(tutorials/charmtask)
+add_subdirectory (fsim)
+add_subdirectory(rho)
+add_subdirectory(eventdisplay)
+add_subdirectory (rpc) 
+
+if(GEANT4_FOUND AND GEANT4VMC_FOUND AND CLHEP_FOUND)  
+  add_subdirectory (cbmg4)
+endif(GEANT4_FOUND AND GEANT4VMC_FOUND AND CLHEP_FOUND)  
+
+if(RULE_CHECKER_FOUND)
+
+  ADD_CUSTOM_TARGET(RULES 
+     COMMAND ${RULE_CHECKER_SCRIPT1} ${CMAKE_BINARY_DIR} viol > violations.html
+     DEPENDS $ENV{ALL_RULES})
+
+endif(RULE_CHECKER_FOUND)
+
+WRITE_CONFIG_FILE(config.sh)
+ 
+
+

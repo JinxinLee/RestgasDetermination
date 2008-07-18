@@ -1,0 +1,68 @@
+//--------------------------------------------------------------------------
+// File and Version Information:
+//
+// Description:
+//	Class PndEmcClusterDistances.
+//
+// Environment:
+//	Software developed for the BaBar Detector at the SLAC B-Factory.
+//
+// Author List:
+//	Phil Strother   	Originator
+//
+// Copyright Information:
+//	Copyright (C) 1998	University of Edinburgh
+//
+// Dima Melnichuk, adaption for pandaroot
+//------------------------------------------------------------------------
+
+#ifndef PNDEMCCLUSTERDISTANCES_HH
+#define PNDEMCCLUSTERDISTANCES_HH
+
+#include "PndEmcAbsClusterProperty.h"
+#include "TObject.h"
+
+class TVector3;
+class PndEmcXtal;
+class PndEmcDigi;
+
+class PndEmcClusterDistances: public PndEmcAbsClusterProperty
+{
+
+public:
+
+  // Constructors
+  PndEmcClusterDistances( const PndEmcCluster& );
+  PndEmcClusterDistances( const PndEmcClusterDistances &);
+
+  // Destructor
+  virtual ~PndEmcClusterDistances();
+
+  Double_t RadialDistance(const PndEmcDigi * const) const;
+  // This is the radial distance (in cm) of the digi from the cluster
+  // centroid in a plane containing the estimated shower max (assumed EM) 
+  // whose normal points back to the IP.
+
+  Double_t AngularDistance(const PndEmcDigi * const) const;
+  // Just sqrt( dTheta**2 + dPhi**2).  In mr.
+
+  Double_t AngularSeparation(const PndEmcDigi * const) const;
+
+  // The angle between the cluster centroid and the digi in question, in mr.
+
+
+private:
+
+	// Data members
+	TVector3 *fShowerMaxLocation;
+	TVector3 *fClusterLocation;
+	PndEmcXtal *fTheGeom;
+	TVector3 *fTheNormalToFrontFace;
+	Double_t fDistanceOfPlane;
+	Double_t fClusPhi;
+	Double_t fClusTheta;
+
+	ClassDef(PndEmcClusterDistances,1)
+};
+
+#endif // PNDEMCCLUSTERDISTANCES_HH

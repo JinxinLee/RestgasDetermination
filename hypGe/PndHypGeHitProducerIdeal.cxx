@@ -1,0 +1,153 @@
+// -------------------------------------------------------------------------
+// -----                CbmStsHitProducerIdeal source file             -----
+// -----                  Created 10/01/06  by V. Friese               -----
+// -------------------------------------------------------------------------
+
+
+#include "TClonesArray.h"
+
+#include "CbmRootManager.h"
+#include "PndHypGeHitProducerIdeal.h"
+#include "PndHypGeHit.h"
+//#include "PndHypGeHitInfo.h"
+#include "PndHypGePoint.h"
+#include "CbmRunAna.h"
+#include "CbmRuntimeDb.h"
+
+
+// -----   Default constructor   -------------------------------------------
+PndHypGeHitProducerIdeal::PndHypGeHitProducerIdeal() :
+  CbmTask("Ideal HYPGE Hit Producer") 
+{//
+	fBranchName 	= "HypGePoint";
+}
+// -------------------------------------------------------------------------
+
+
+
+// -----   Destructor   ----------------------------------------------------
+PndHypGeHitProducerIdeal::~PndHypGeHitProducerIdeal() 
+{ 
+}
+
+// -----   Public method Init   --------------------------------------------
+InitStatus PndHypGeHitProducerIdeal::Init() 
+{
+  // Get RootManager
+  CbmRootManager* ioman = CbmRootManager::Instance();
+  
+  if ( ! ioman ) 
+    {
+      cout << "-E- PndHypGeHitProducerIdeal::Init: "
+	   << "RootManager not instantiated!" << endl;
+      return kFATAL;
+    }
+
+  // Get input array
+  fPointArray = (TClonesArray*) ioman->GetObject(fBranchName);
+
+  if ( ! fPointArray ) 
+    {
+      cout << "-W- PndHypGeHitProducerIdeal::Init: "
+	   << "No HYPGEPoint array!" << endl;
+      return kERROR;
+  }
+
+  // Create and register output array
+  fHitArray = new TClonesArray("PndHypGeHit");
+  ioman->Register("HypGeHit", "HypGe", fHitArray, kTRUE);
+
+  cout << "-I- PndHypGeHitProducerIdeal: Intialisation successfull" << endl;
+  return kSUCCESS;
+}
+// -------------------------------------------------------------------------
+void PndHypGeHitProducerIdeal::SetParContainers()
+{
+  // Get Base Container
+  CbmRunAna* ana = CbmRunAna::Instance();
+  CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+  fGeoPar = (PndGeoHypGePar*)(rtdb->getContainer("PndGeoHypGePar"));
+
+}
+
+
+// -----   Public method Exec   --------------------------------------------
+void PndHypGeHitProducerIdeal::Exec(Option_t* opt) 
+{
+  // Reset output array
+  if ( ! fHitArray ) 
+    Fatal("Exec", "No HitArray");
+  
+  fHitArray->Clear();
+  
+  // Declare some variables
+  PndHypGePoint *point = 0;
+
+  Int_t 
+    detID = 0,       // Detector ID
+    trackID = 0;     // Track index
+
+  Double_t 
+    ener, den;       // Position and error vectors
+
+  // Loop over HypGePoints
+  Int_t 
+    nPoints = fPointArray->GetEntriesFast();
+
+  for (Int_t iPoint = 0; iPoint < nPoints; iPoint++) 
+    {
+      point = (PndHypGePoint*) fPointArray->At(iPoint);
+	cout << " Ideal Hit Producer -Point-: " << point << endl;
+      if ( ! point) 
+	continue;
+
+      // Detector ID
+      detID = point->GetDetectorID();
+
+      // MCTrack ID
+      trackID = point->GetTrackID();
+      ener=point->GetEnergyLoss();
+      den=0.000003; ///energy resolution of 3 keV
+      smear(ener,den);
+      
+ 
+      // Create new hit
+      new ((*fHitArray)[iPoint]) PndHypGeHit(trackID, detID, ener, den);
+	cout << "Hit created for module: "<< std::endl;
+      
+      
+      
+    }   // Loop over MCPoints
+
+  // Event summary
+  cout << "-I- PndHypGeHitProducerIdeal: " << nPoints << " HypGePoints, "
+       << nPoints << " Hits created." << endl;
+
+}
+// -------------------------------------------------------------------------
+void PndHypGeHitProducerIdeal::smear(Double_t& ener, Double_t& den)
+{
+/// smear a 3d vector
+
+  Double_t e = ener;
+  
+  //y=pos.y(),
+  //z=pos.z(),
+   Double_t sige = den;
+  
+  //sigy=dpos.y();
+  //sigz=dpos.z();
+
+  sige=gRandom->Gaus(0,sige);
+  //	sigy=gRandom->Gaus(0,sigy);
+  //sigz=gRandom->Gaus(0,sigz);
+
+ 	e += sige;
+ 	//y += sigy;
+ 	//z += sigz;
+
+	ener = e;
+	return ;
+}
+
+ClassImp(PndHypGeHitProducerIdeal)

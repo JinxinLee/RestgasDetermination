@@ -1,0 +1,13 @@
+*The lines have to be like:
+*
+*type_of_padShape ID required_data
+*
+*with type_of_padShape: p for TpcPadShapePolygon or s for TpcPadShapeSquare
+*examples(without leading *)
+*s 0 1
+*means a TpcPadShapeSquare with ID=0 and width=1 (and for a square that's all)
+*p 0 0.5 0.5 0.5 -0.5 -0.5 -0.5 -0.5 0.5
+*means a TpcPadShapePolygon with the same measure.
+*Note that a line may not have more than 255 characters.
+p 0 0.14 0 0.07 0.121244 -0.07 0.121244 -0.14 0 -0.07 -0.121244 0.07 -0.121244 0.14 0
+

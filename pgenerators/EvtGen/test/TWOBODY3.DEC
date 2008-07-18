@@ -1,0 +1,7 @@
+Decay B0
+1.0 K_2*0 gamma    VERBOSE  HELAMP 0.0 0.0 1.0 0.0;
+Enddecay
+Decay K_2*0 
+1.0   K+ pi-  VERBOSE  HELAMP 1.0 0.0 ;
+Enddecay
+End

@@ -1,0 +1,141 @@
+
+#!/bin/bash
+#
+# USAGE: movefiles [arg1] [arg2] [arg3] [arg4]
+#
+# with
+#
+# [arg1] ($1): source directory
+# [arg2] ($2): destination
+# [arg3] ($3): in case you want to copy files, set to "1"
+# [arg4] ($4): in case you want to delete the source files after copying, set to "1"
+#
+
+if [ ! "$#" = "4" ]; then
+   echo
+   echo "<E> Not enough or too many arguments supplied."
+   echo 
+   echo "    Usage: movefiles [source] [destination] [copy files (0/1)] [delete source (0/1)]"
+   echo
+   exit 1
+fi
+
+RETVAL=0                  # Default return value (0=OK, anything else is ERROR)
+NROFTRIES=100             # Maximum number of attempts for data transfer
+BACKUP="no"               # Set to "yes" if you want old data to be kept
+SCPPROG="/usr/bin/scp"    # path and filename of scp program
+XRDPROG="$HOME/bin/xrdcp" # path and filename of xrdcp program
+COMPROT="/usr/bin/ssh"    # Use ssh for communication
+
+#
+# Return if source and destination are the same
+#
+
+if [ ${1%/} = ${2%/} ]; then
+   exit $RETVAL
+fi
+
+#
+# Analyze the destination
+#
+
+arg=$2
+dir=${arg#*:}
+host=${arg%%:*}
+argsrc=$1
+dirsrc=${argsrc#*:}
+hostsrc=${argsrc%%:*}
+
+prot="$COMPROT -n $host"     # Use ssh for communication
+if [ $host = $dir ]; then
+  host="localhost"
+  prot=""                    # In case of localhost
+fi
+
+#
+# Check whether xrdcp is going to be used
+#
+
+if [ $hostsrc = "root" ] || [ $host = "root" ]; then
+ CPPROT="$XRDPROG -R -s"
+else
+ CPPROT="$SCPPROG -r"  
+fi
+
+#
+# Check whether output directory exists
+# If so, remove or rename it, depending on BACKUP
+# Note that this only works in case SCPPROG is used as CPPROT 
+#
+
+if [ ! $host = "root" ]; then
+ isthere="yes"
+ $prot ls $dir 2>&1 | grep -i "No such file or directory" > /dev/null 2>&1 && isthere="no"
+
+ if [ $dir = "." ] || [ $dir = "./" ] || [ $dir = `pwd` ]; then
+   isthere="no"
+ fi
+
+ if [ $isthere = "yes" ]; then
+   if [ $BACKUP = "yes" ]; then
+     date=`date +%d_%m_%y`
+     newdir="${dir%/*}/oldstuff_$date"
+     isthere="yes"
+     $prot ls $newdir 2>&1 | grep -i "No such file or directory" > /dev/null 2>&1 && isthere="no"
+     if [ $isthere = "no" ]; then
+       $prot mkdir $newdir > /dev/null 2>&1
+     else
+       checkdir="$newdir/${dir##*/}"	
+       $prot rm -rf $checkdir > /dev/null 2>&1
+     fi
+     $prot mv $dir $newdir/ > /dev/null 2>&1
+   else
+     $prot rm -rf $dir > /dev/null 2>&1
+  fi
+ fi
+fi
+
+#
+# Copy files if $3 set
+#
+
+if [ "$3" = "1" ];
+then
+    FAILURE=1
+    while [ $FAILURE != 0 ]
+    do
+      if [ $NROFTRIES == 0 ] ; then
+	  FAILURE=0
+	  RETVAL=1
+      else
+	  $CPPROT $1 $2 > /dev/null 2>&1
+	  FAILURE=$?
+	  let NROFTRIES=NROFTRIES-1
+       fi
+    done
+fi
+
+#
+# In case of failure, make an error mark
+#
+
+if [ $RETVAL != 0 ] ; then
+    exit $RETVAL
+fi
+
+#
+# Remove files in $4 set
+#
+
+if [ "$4" = "1" ];
+then
+   prot="$COMPROT -n $hostsrc"
+   if [ $hostsrc = $dirsrc ]; then
+     hostsrc="localhost"
+     prot=""
+   fi
+   $prot rm -rf $dirsrc > /dev/null 2>&1
+   RETVAL=$?
+fi
+
+exit $RETVAL

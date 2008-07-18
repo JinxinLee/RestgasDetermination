@@ -1,0 +1,57 @@
+13.03.08
+--------
+ 1.  New Flags for simulation (can be set from macro):
+
+     SetPythiaDecayer(Bool_t decayer) : /**switch On/Off external decayer (Pythia) */   
+     SetUserDecay(Bool_t decay)       : /**switch On/Off user defined decay. If true 
+                                         gconfig/UserDecay.C macro will be called  */
+     SetRadLenRegister(Bool_t value)  : /** switch on/off the radiatin length register module*/
+    
+ 2.  New mode for fast simulation:
+     in a simulation macro setting this flag will prevent the transport in Geant3/4 a  
+      primGen->DoTracking(kFALSE);	
+     transport is parametrized via tasks (see pandaroot/fsim) 
+ 
+ 3.  New variable GEOMPATH  
+     setting this variable, the framework will look for the detector geometry specified in detector ctor first in this path 
+     and then in the input directory (pandaroot/geometry or cbmroot/geometry)
+     
+ 19.03.08
+ --------
+ 
+ 1.  new method  CbmMCApplication::AddIons()
+ 	 addition of ions and particls has been sperated in Geant4 VMC 
+ 
+ 02.04.08
+ --------
+ 1. Move ConstructRootGeometry to CbmModule	
+ 2. Read TGeoVolumes or TGeoManager from root files 
+ 	
+ 
+ 15.05.08
+ --------
+ 1. Geane, trackbase and eventdisplay are moved to the external directories in SVN
+ 
+ 2. Time stamps are now implimented in CbmPrimeryGenerator and CbmMCEventHeader
+    to set the time for event one should call:
+       primGen->SetEventTimeInterval ( minTime, maxTime) ; 
+
+    the event time will be a random number between minTime and maxTime 
+    in nano secounds, it will also be added for each event, i.e: 
+    each event will have the time of all previous events+ its own one!
+ 
+ 3. SetEventMeanTime(Double_t) to the CbmPrimaryGenerator,
+    setting this value will create a TF1 function:
+
+    TF1 *f1 = TF1("f1", "1/meanTime * Exp (-t/meanTime)", 0, meanTime*10 ) 
+
+    Then the event time is taken randomly from this distribution (f1->GetRandom())
+    and will be added for each event!
+ 
+ 	 
+//TODO//
+
+  PandaRoot:
+  Change mcstack->PandaBase
+  Run more macros nightly 
+      	 

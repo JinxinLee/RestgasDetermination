@@ -1,0 +1,62 @@
+//-----------------------------------------------------------
+// File and Version Information:
+// $Id$
+//
+// Description:
+//      Pulseshape from an CR2RC-Shaper
+//
+//-----------------------------------------------------------
+
+#ifndef PNDEMCCR2RCPULSESHAPE_HH
+#define PNDEMCCR2RCPULSESHAPE_HH
+
+// Base Class Headers ----------------
+#include "PndEmcAbsPulseshape.h"
+
+// Collaborating Class Headers -------
+#include <ostream> 
+
+class PndEmcCR2RCPulseshape  : public PndEmcAbsPulseshape
+{
+public:
+
+  // Constructors/Destructors ---------
+  PndEmcCR2RCPulseshape(){;}
+  PndEmcCR2RCPulseshape(double Tint, double Tdif, double Tsig);
+  virtual ~PndEmcCR2RCPulseshape(){;}
+
+  // Operators
+  
+  // Accessors -----------------------
+
+
+  // Modifiers -----------------------
+
+
+  // Operations ----------------------
+  virtual double operator() (const double t, 
+			     const double amp, 
+			     const double toffset) const;
+
+private:
+
+  // Private Data Members ------------
+  double _Tint;
+  double _Tdif;
+  double _Tsig;
+ 
+
+  // Private Methods -----------------
+  
+  double general_solution(const double t, 
+		     const double amp, 
+		     const double toffset) const;
+  double degenerate_solution(const double t,  // for Tdif=Tint
+		     const double amp, 
+		     const double toffset) const; 
+
+  ClassDef(PndEmcCR2RCPulseshape,1)
+};
+
+#endif
+

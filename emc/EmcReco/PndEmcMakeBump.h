@@ -1,0 +1,90 @@
+//--------------------------------------------------------------------------
+// File and Version Information:
+// 	$Id:$
+//
+// Description:
+//	Class Template
+//
+// Environment:
+//	Software developed for the BaBar Detector at the SLAC B-Factory.
+// Adapted for the PANDA experiment at GSI
+//
+// Author List:
+//	Xiaorong Shi            Lawrence Livermore National Lab
+//	Steve Playfer           University of Edinburgh
+//	Stephen Gowdy           University of Edinburgh
+//      Phil Strother           Imperial College
+//
+// Dima Melnychuk, adaption for PANDA
+//------------------------------------------------------------------------
+
+#ifndef PNDEMCMAKEBUMP_HH
+#define PNDEMCMAKEBUMP_HH
+
+#include "CbmTask.h"
+
+#include <set>
+		
+class TClonesArray;
+class TObjectArray;
+class PndEmcDigiPar;
+class PndEmcRecoPar;
+
+class PndEmcCluster;
+class PndEmcDigi;
+class PndEmcSharedDigi;
+class PndEmcBump;
+class PndEmcTwoCoordIndex;
+class PndEmc2DLocMaxFinder;
+class PndEmcExpClusterSplitter;
+
+class PndEmcMakeBump  : public CbmTask
+{
+	
+	typedef std::set<PndEmcTwoCoordIndex*> EmcCoordIndexSet;
+	
+public:
+
+  // Constructors
+  PndEmcMakeBump(Int_t verbose=0);
+
+  // Destructor
+  virtual ~PndEmcMakeBump( );
+  
+    /** Virtual method Init **/
+  virtual InitStatus Init();
+
+
+  /** Virtual method Exec **/
+  virtual void Exec(Option_t* opt);
+
+
+protected:
+
+private:
+	
+	/** Input array of PndEmcClusters **/
+	TClonesArray* fClusterArray;
+	
+	/** Output array of PndEmcBumps **/
+	TClonesArray* fBumpArray;
+	TClonesArray* fSharedDigiArray;
+
+	PndEmc2DLocMaxFinder *theLocalMaxFinder;
+	PndEmcExpClusterSplitter *theClusterSplitter;
+	
+	Int_t fMapVersion;
+	PndEmcDigiPar*    fDigiPar;      /** Digitisation parameter container **/
+	PndEmcRecoPar*    fRecoPar;      /** Reconstruction parameter container **/
+	/** Get parameter containers **/
+	virtual void SetParContainers();
+	
+	/** Verbosity level **/
+	Int_t fVerbose;
+	
+	static Int_t fEventCounter;
+	
+	ClassDef(PndEmcMakeBump,1)
+
+};
+#endif //PNDEMCMAKEBUMP_HH

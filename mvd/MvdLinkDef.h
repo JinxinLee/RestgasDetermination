@@ -1,0 +1,60 @@
+// $Id: MvdLinkDef.h,v 1.0 Ralf Kliemt 08.Jan.2007 $
+
+#ifdef __CINT__
+
+#pragma link off all globals;
+#pragma link off all classes;
+#pragma link off all functions;
+
+
+//data
+#pragma link C++ class PndMvdMCPoint+;
+#pragma link C++ class PndMvdDigi+;
+#pragma link C++ class PndMvdDigiPixel+;
+#pragma link C++ class PndMvdDigiStrip+;
+#pragma link C++ class PndMvdPixel+;
+#pragma link C++ class PndMvdStrip+;
+
+//mc
+#pragma link C++ class PndMvdGeo+;
+#pragma link C++ class PndMvdGeoPar+;
+#pragma link C++ class PndMvdContFact+;
+#pragma link C++ class PndMvdDetector+;
+#pragma link C++ class PndMvdMaterialDet+;
+
+//digi
+#pragma link C++ class PndMvdHybridHitProducer+;
+#pragma link C++ class PndMvdStripHitProducer+;
+#pragma link C++ class PndMvdCalcPixel;
+#pragma link C++ class PndMvdCalcFePixel;
+#pragma link C++ class PndMvdCalcStrip;
+#pragma link C++ class PndMvdDigiTask+;
+#pragma link C++ class PndMvdPixelDigiPar+;
+#pragma link C++ class PndMvdStripDigiPar+;
+#pragma link C++ class PndMvdDigiAna+;
+#pragma link C++ class PndMvdHitProducerIdeal+;
+
+
+#pragma link C++ class PndMvdGeoHandling+;
+#pragma link C++ class PndMvdCalcFePixel+;
+
+#pragma link C++ class PndMvdMCEventAna+;
+#pragma link C++ class PndMvdEventAna+;
+#pragma link C++ class PndMvdDigiEventAna+;
+#pragma link C++ class PndMvdEventAna+;
+#pragma link C++ class PndMvdMCEventAna+;
+#pragma link C++ class PndMvdDigiEventAna+;
+#pragma link C++ class PndMvdAllDataEventAna+;
+#pragma link C++ class PndMvdFileNameCreator+;
+#pragma link C++ class PndMvdAccessRTDBTask+;
+
+#pragma link C++ class PndGeoHitList+;
+#pragma link C++ class PndEventDisplay+;
+
+
+// #pragma link C++ class PndMvdGeoHandling+;
+
+
+
+#endif
+

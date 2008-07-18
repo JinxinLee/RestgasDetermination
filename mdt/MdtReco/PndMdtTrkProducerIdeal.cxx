@@ -1,0 +1,158 @@
+// -------------------------------------------------------------------------
+// -----                PndMdtTrkProducerIdeal source file             -----
+// -----                  Created 12/06/08  by  S.Spataro              -----
+// -------------------------------------------------------------------------
+
+#include "PndMdtTrkProducerIdeal.h"
+
+#include "PndMdtTrk.h"
+#include "PndMdtHit.h"
+#include "PndMdtPoint.h"
+
+#include "CbmRootManager.h"
+#include "CbmDetector.h"
+#include "CbmRun.h"
+#include "CbmRuntimeDb.h"
+#include "CbmMCTrack.h"
+
+#include "TClonesArray.h"
+#include "TGeoManager.h"
+#include "TGeoVolume.h"
+#include "TGeoNode.h"
+#include "TGeoMatrix.h"
+#include "TVector3.h"
+#include "TRandom.h"
+
+#include <iostream>
+
+using std::cout;
+using std::endl;
+
+// -----   Default constructor   -------------------------------------------
+PndMdtTrkProducerIdeal::PndMdtTrkProducerIdeal() :
+  CbmTask("Ideal MDT Tracklet Producer") { 
+ 
+}
+// -------------------------------------------------------------------------
+
+// -----   Destructor   ----------------------------------------------------
+PndMdtTrkProducerIdeal::~PndMdtTrkProducerIdeal() { }
+// -------------------------------------------------------------------------
+
+
+
+// -----   Public method Init   --------------------------------------------
+InitStatus PndMdtTrkProducerIdeal::Init() {
+  
+  cout << "-I- PndMdtTrkProducerIdeal::Init: "
+       << "INITIALIZATION *********************" << endl;
+  
+  CbmRun* sim = CbmRun::Instance();
+  CbmRuntimeDb* rtdb=sim->GetRuntimeDb();
+    
+  // Get RootManager
+  CbmRootManager* ioman = CbmRootManager::Instance();
+  if ( ! ioman ) {
+    cout << "-E- PndMdtTrkProducerIdeal::Init: "
+	 << "RootManager not instantiated!" << endl;
+    return kFATAL;
+  }
+  
+  // Get input array 
+  fMCArray = (TClonesArray*) ioman->GetObject("MCTrack");
+  if ( ! fMCArray ) {
+    cout << "-W- PndMdtTrkProducerIdeal::Init: "
+	 << "No MCTrack array!" << endl;
+    return kERROR;
+  }
+
+  fPointArray = (TClonesArray*) ioman->GetObject("MdtPoint");
+  if ( ! fPointArray ) {
+    cout << "-W- PndMdtTrkProducerIdeal::Init: "
+	 << "No MdtPoint array!" << endl;
+    return kERROR;
+  }
+  
+  fHitArray = (TClonesArray*) ioman->GetObject("MdtHit");
+  if ( ! fHitArray ) {
+    cout << "-W- PndMdtTrkProducerIdeal::Init: "
+	 << "No MdtHit array!" << endl;
+    return kERROR;
+  }
+
+  // Create and register output array
+  fTrkArray = new TClonesArray("PndMdtTrk");
+  
+  ioman->Register("MdtTrk","Mdt",fTrkArray,kTRUE);
+     
+  cout << "-I- PndMdtTrkProducerIdeal: Intialization successfull" << endl;
+  
+  return kSUCCESS;
+
+}
+// -------------------------------------------------------------------------
+
+
+
+// -----   Public method Exec   --------------------------------------------
+void PndMdtTrkProducerIdeal::Exec(Option_t* opt) {
+  
+  // Reset output array
+  if ( ! fTrkArray ) Fatal("Exec", "No TrkArray");
+  
+  fTrkArray->Clear();
+  
+  Int_t nHits = fHitArray->GetEntriesFast();
+  if (nHits==0) return; // exit if the event contains no Mdt hits
+  
+  CbmMCTrack   *mcTrack = NULL;
+  PndMdtHit    *mdtHit = NULL;
+  PndMdtPoint  *mdtPoint = NULL;
+  
+  // Loop over MCTrack 
+  Int_t nMCTrack = fMCArray->GetEntriesFast();
+  
+  for (Int_t iMc=0; iMc<nMCTrack; iMc++) {
+    mcTrack = (CbmMCTrack*) fMCArray->At(iMc);
+    if (mcTrack->GetMdtPoints()==0) continue;
+    
+    PndMdtTrk *mdtTrk = new PndMdtTrk();
+    Int_t mdtCount = 0;
+    for (Int_t iHit=0; iHit<nHits; iHit++) {
+      mdtHit  = (PndMdtHit*) fHitArray->At(iHit);
+      mdtPoint = (PndMdtPoint*)fPointArray->At(mdtHit->GetRefIndex());
+      if (mdtPoint->GetTrackID()!= iMc) continue;
+      
+      mdtTrk->SetHitNumber(mdtHit->GetLayerID(), iHit);
+      if (mdtTrk->GetModule()==0)
+	{
+	  mdtTrk->SetModule(mdtHit->GetModule());
+	}
+      else if (mdtHit->GetModule()!= mdtTrk->GetModule())
+	{
+	  mdtTrk->SetModule(10);
+	}
+      
+      mdtCount++;
+    } // end of MdtHit loop
+    
+    mdtTrk->SetHitCount(mdtCount);
+    if (mdtCount>0)  AddTrk(mdtTrk);
+    
+  } // end of MCTrack loop
+  
+}
+// -------------------------------------------------------------------------
+
+// -----   Private method AddTrk   --------------------------------------------
+PndMdtTrk* PndMdtTrkProducerIdeal::AddTrk(PndMdtTrk* track) {
+  // Creates a new hit in the TClonesArray.
+  
+  TClonesArray& trkRef = *fTrkArray;
+  Int_t size = trkRef.GetEntriesFast();
+  return new(trkRef[size]) PndMdtTrk(*track);
+}
+// ----
+
+
+ClassImp(PndMdtTrkProducerIdeal)

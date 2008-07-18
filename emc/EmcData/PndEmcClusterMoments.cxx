@@ -1,0 +1,344 @@
+//--------------------------------------------------------------------------
+// File and Version Information:
+// 	$Id: PndEmcClusterMoments.cc,v 1.3 2005/11/15 01:20:20 steinke Exp $
+//
+// Description:
+//	Class PndEmcClusterMoments
+//
+// Environment:
+//	Software developed for the BaBar Detector at the SLAC B-Factory.
+//
+// Author List:
+//	Stephen J. Gowdy	Originator
+//
+// Copyright Information:
+//	Copyright (C) 1998	University of Edinburgh
+//
+// Dima Melnichuk, adaption for pandaroot
+//------------------------------------------------------------------------
+
+#include "PndEmcClusterMoments.h"
+
+#include "PndEmcTwoCoordIndex.h"
+#include "PndEmcCluster.h"
+#include "PndEmcDigi.h"
+#include <iostream>
+#include <cmath>
+
+using std::endl;
+using std::ostream;
+
+//----------------
+// Constructors --
+//----------------
+
+PndEmcClusterMoments::PndEmcClusterMoments( const PndEmcCluster& toUse ):
+	PndEmcAbsClusterProperty( toUse )		
+{
+}
+
+PndEmcClusterMoments::PndEmcClusterMoments(const PndEmcClusterMoments& other):
+	PndEmcAbsClusterProperty( other )
+{}
+
+//--------------
+// Destructor --
+//--------------
+
+PndEmcClusterMoments::~PndEmcClusterMoments()
+{}
+
+//-------------
+// Methods   --
+//-------------
+
+Double_t
+PndEmcClusterMoments::SecondMoment() const
+{
+	Double_t sum=0;
+	
+	PndEmcDigiPtrDict::iterator iter = Members().begin();
+	
+	TVector3 clusterLocation( MyCluster().where() );
+	while ( iter != Members().end() ) {
+		TVector3 digiLocation( iter->second->where() );
+		Double_t dx = digiLocation.x() - clusterLocation.x();
+		Double_t dy = digiLocation.y() - clusterLocation.y();
+		Double_t dz = digiLocation.z() - clusterLocation.z();    
+		sum+=iter->second->GetEnergy()*(dx*dx + dy*dy + dz*dz);
+		++iter;
+	}
+
+	sum/=MyCluster().energy();
+	return sum;
+}
+
+Double_t 
+PndEmcClusterMoments::SecondMomentTP() const
+{
+	TVector3 cluster = MyCluster().where();
+	
+	Double_t sum =0;
+	PndEmcDigiPtrDict::iterator iter = Members().begin();
+	while ( iter != Members().end() ) {
+		Double_t da = cluster.Angle(iter->second->where());
+		sum+=iter->second->GetEnergy()*da*da;
+		++iter;
+	}
+
+	sum/=MyCluster().energy();
+	return sum;
+}
+    
+Double_t
+PndEmcClusterMoments::Theta1() const
+{
+	Double_t t=0;
+	
+	PndEmcDigiPtrDict::iterator iter = Members().begin();
+	
+	Double_t clusterTheta(MyCluster().theta());
+	
+	while ( iter != Members().end() ) {
+		t+=iter->second->GetEnergy()*(iter->second->GetTheta()- clusterTheta);
+		++iter;
+	}
+	
+	t/=MyCluster().energy();
+	
+	return t;
+ 
+}
+
+
+Double_t
+PndEmcClusterMoments::Phi1() const
+{
+	Double_t p=0;
+	Double_t clus_phi=MyCluster().phi();
+	
+	PndEmcDigiPtrDict::iterator iter = Members().begin();
+	
+	while ( iter != Members().end() ) {
+		p+=iter->second->GetEnergy()*PndEmcCluster::FindPhiDiff(iter->second->GetPhi(),clus_phi);
+		++iter;
+	}
+	
+	p/=MyCluster().energy();
+	
+	return(p);
+}
+
+Double_t
+PndEmcClusterMoments::Theta2() const
+{
+	Double_t t=0;
+	
+	PndEmcDigiPtrDict::iterator iter = Members().begin();
+	Double_t clusterTheta(MyCluster().theta());
+	
+	while ( iter != Members().end() ) {
+		Double_t theta_diff=iter->second->GetTheta()-clusterTheta;
+		t+=iter->second->GetEnergy()*theta_diff*theta_diff;
+		++iter;
+	}
+
+	t/=MyCluster().energy();
+	
+	return(t);
+ 
+}
+
+Double_t
+PndEmcClusterMoments::Phi2() const
+{
+	Double_t p=0;
+	Double_t clus_phi=MyCluster().phi();
+	
+	PndEmcDigiPtrDict::iterator iter = Members().begin();
+	
+	while ( iter != Members().end() ) {
+		Double_t phi_diff=PndEmcCluster::FindPhiDiff(iter->second->GetPhi(),clus_phi);
+		p+=iter->second->GetEnergy()*phi_diff*phi_diff;
+		++iter;
+	}
+	
+	p/=MyCluster().energy();
+	
+	return(p);
+ 
+}
+
+Double_t
+PndEmcClusterMoments::Major1() const
+{
+	Double_t moment=0;
+	Double_t axis=MyCluster().Major_axis();
+	Double_t clusT=MyCluster().theta(),clusP=MyCluster().phi();
+	TVector3 maj(2);
+	
+	if ( axis==-999. ) return ( 0. );
+	
+	maj(1)=cos( axis );
+	maj(2)=sin( axis );
+	
+	PndEmcDigiPtrDict::iterator iter = Members().begin();
+	
+	while ( iter != Members().end() ) {
+		TVector3 coord(2);
+
+		coord(1)=PndEmcCluster::FindPhiDiff(iter->second->GetPhi(),clusP);
+		coord(2)=iter->second->GetTheta()-clusT;
+
+		moment += fabs( coord.Dot(maj) ) * iter->second->GetEnergy();
+		++iter;
+	}
+
+	moment/=MyCluster().energy();
+	
+	return( moment );
+}
+
+
+Double_t
+PndEmcClusterMoments::Major2() const
+{
+	Double_t moment=0;
+	Double_t axis=MyCluster().Major_axis();
+	Double_t clusT=MyCluster().theta(),clusP=MyCluster().phi();
+	TVector3 maj(2);
+	
+	if ( axis==-999. ) return ( 0. );
+	
+	maj(1)=cos( axis );
+	maj(2)=sin( axis );
+	
+	PndEmcDigiPtrDict::iterator iter = Members().begin();
+	
+	while ( iter != Members().end() ) {
+		TVector3 coord(2);
+
+		coord(1)=PndEmcCluster::FindPhiDiff(iter->second->GetPhi(),clusP);
+		coord(2)=iter->second->GetTheta()-clusT;
+
+		moment+=coord.Dot(maj)*coord.Dot(maj)*iter->second->GetEnergy();
+		++iter;
+	}
+
+	moment/=MyCluster().energy();
+	
+	return( moment );
+}
+
+Double_t
+PndEmcClusterMoments::Minor1() const
+{
+	Double_t moment=0;
+	Double_t axis=MyCluster().Major_axis();
+	Double_t clusT=MyCluster().theta(),clusP=MyCluster().phi();
+	TVector3 min(2);
+	
+	if ( axis==-999. ) return ( 0. );
+	
+	axis+=TMath::Pi()/2.0;
+	min(1)=cos( axis );
+	min(2)=sin( axis );
+	
+	PndEmcDigiPtrDict::iterator iter = Members().begin();
+	
+	while ( iter != Members().end() ) {
+		TVector3 coOrd(2);
+
+		coOrd(1)=PndEmcCluster::FindPhiDiff(iter->second->GetPhi(),clusP);
+		coOrd(2)=iter->second->GetTheta()-clusT;
+
+		moment+=fabs( coOrd.Dot(min) )*iter->second->GetEnergy();
+		++iter;
+	}
+	
+	moment/=MyCluster().energy();
+	
+	return( moment );
+}
+
+
+Double_t
+PndEmcClusterMoments::Minor2() const
+{
+  Double_t moment=0;
+  Double_t axis=MyCluster().Major_axis();
+  Double_t clusT=MyCluster().theta(),clusP=MyCluster().phi();
+  TVector3 min(2);
+
+  if ( axis==-999. ) return ( 0. );
+
+  axis+=TMath::Pi()/2.0;
+  min(1)=cos( axis );
+  min(2)=sin( axis );
+
+  PndEmcDigiPtrDict::iterator iter = Members().begin();
+
+  while ( iter != Members().end() ) {
+		TVector3 coOrd(2);
+	
+		coOrd(1)=PndEmcCluster::FindPhiDiff(iter->second->GetPhi(),clusP);
+		coOrd(2)=iter->second->GetTheta()-clusT;
+	
+		moment+=coOrd.Dot(min)*coOrd.Dot(min)*iter->second->GetEnergy();
+		iter++;
+	}
+	
+	moment/=MyCluster().energy();
+	
+	return( moment );
+}
+
+TVector3
+PndEmcClusterMoments::Centre1() const
+{
+	TVector3 aVector(0,0,0);
+	TVector3 clusterCentre( MyCluster().where() );
+	
+	PndEmcDigiPtrDict::iterator iter = Members().begin();
+	while ( iter != Members().end() ) {
+		aVector += ( iter->second->where() - clusterCentre ) * iter->second->GetEnergy();
+		++iter;
+	}
+	aVector *= 1./MyCluster().energy();
+	
+	return aVector;
+}
+
+TVector3
+PndEmcClusterMoments::Centre2() const
+{
+	TVector3 aVector(0,0,0);
+	TVector3 clusterCentre( MyCluster().where() );
+	
+	PndEmcDigiPtrDict::iterator iter = Members().begin();
+	while ( iter != Members().end() ) {
+		TVector3 displacement( iter->second->where() - clusterCentre );
+		aVector += displacement * displacement * iter->second->GetEnergy();
+		++iter;
+	}
+	aVector *= 1./MyCluster().energy();
+	
+	return aVector;
+}
+
+void
+PndEmcClusterMoments::Print(const Option_t* opt) const
+{
+//  std::cout << " centre1=" << Centre1() << ", centre2=" << Centre2();
+//  std::cout << endl;
+//  std::cout << " theta1=" << Theta1() << ", phi1=" << Phi1();
+//  std::cout << ", theta2=" << Theta2() << ", phi2=" << Phi2();
+//  std::cout << endl;
+//  std::cout << " major1=" << Major1() << ", minor1=" << Minor1();
+//  std::cout << ", major2=" << Major2() << ", minor2=" << Minor2();
+//  std::cout << endl;
+//  std::cout << " secondMoment=" << SecondMoment() << ", secondMomentTP=" << SecondMomentTP();
+//  std::cout << endl;
+}
+
+ClassImp(PndEmcClusterMoments)

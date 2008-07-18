@@ -1,0 +1,128 @@
+// -------------------------------------------------------------------------
+// -----                PndMdtHitProducerIdeal source file             -----
+// -----                  Created 11/06/08  by  S.Spataro              -----
+// -------------------------------------------------------------------------
+
+#include "PndMdtHitProducerIdeal.h"
+
+#include "PndMdtHit.h"
+#include "PndMdtPoint.h"
+
+#include "CbmRootManager.h"
+#include "CbmDetector.h"
+#include "CbmRun.h"
+#include "CbmRuntimeDb.h"
+
+#include "TClonesArray.h"
+#include "TGeoManager.h"
+#include "TGeoVolume.h"
+#include "TGeoNode.h"
+#include "TGeoMatrix.h"
+#include "TVector3.h"
+#include "TRandom.h"
+
+#include <iostream>
+
+using std::cout;
+using std::endl;
+
+// -----   Default constructor   -------------------------------------------
+PndMdtHitProducerIdeal::PndMdtHitProducerIdeal() :
+  CbmTask("Ideal MDT Hit Producer") { 
+  fPosResolution = -1.;
+}
+// -------------------------------------------------------------------------
+
+// -----   Destructor   ----------------------------------------------------
+PndMdtHitProducerIdeal::~PndMdtHitProducerIdeal() { }
+// -------------------------------------------------------------------------
+
+
+
+// -----   Public method Init   --------------------------------------------
+InitStatus PndMdtHitProducerIdeal::Init() {
+  
+  cout << "-I- PndMdtHitProducerIdeal::Init: "
+       << "INITIALIZATION *********************" << endl;
+  
+  CbmRun* sim = CbmRun::Instance();
+  CbmRuntimeDb* rtdb=sim->GetRuntimeDb();
+    
+  // Get RootManager
+  CbmRootManager* ioman = CbmRootManager::Instance();
+  if ( ! ioman ) {
+    cout << "-E- PndMdtHitProducerIdeal::Init: "
+	 << "RootManager not instantiated!" << endl;
+    return kFATAL;
+  }
+  
+  // Get input array
+  fPointArray = (TClonesArray*) ioman->GetObject("MdtPoint");
+  if ( ! fPointArray ) {
+    cout << "-W- PndMdtHitProducerIdeal::Init: "
+	 << "No MdtPoint array!" << endl;
+    return kERROR;
+  }
+
+  // Create and register output array
+  fHitArray = new TClonesArray("PndMdtHit");
+  
+  ioman->Register("MdtHit","Mdt",fHitArray,kTRUE);
+ 
+  if (fPosResolution>0.)
+     cout << "-I- PndMdtHitProducerIdeal::Init: "
+	  << "Hit Position smearing: " << fPosResolution << " [cm]" << endl;
+  
+  cout << "-I- PndMdtHitProducerIdeal: Intialization successfull" << endl;
+  
+  return kSUCCESS;
+
+}
+// -------------------------------------------------------------------------
+
+
+
+// -----   Public method Exec   --------------------------------------------
+void PndMdtHitProducerIdeal::Exec(Option_t* opt) {
+  
+  // Reset output array
+  if ( ! fHitArray ) Fatal("Exec", "No HitArray");
+  
+  fHitArray->Clear();
+  
+  // Loop over MdtPoints
+  Int_t nPoints = fPointArray->GetEntriesFast();
+  PndMdtPoint *point = 0;
+  TVector3 pos;
+  TVector3 sig(0., 0., 0.);
+  
+  for (Int_t iPoint=0; iPoint<nPoints; iPoint++) {
+    point  = (PndMdtPoint*) fPointArray->At(iPoint);
+    if ( (point->GetModule()==1) && (TMath::Odd(point->GetDetectorID())) ) continue;
+    point->Position(pos);
+    if (fPosResolution>0.)
+      {
+	pos.SetX(gRandom->Gaus(pos.X(),fPosResolution));
+	pos.SetY(gRandom->Gaus(pos.Y(),fPosResolution));
+	pos.SetZ(gRandom->Gaus(pos.Z(),fPosResolution));
+      }
+    AddHit(point->GetDetectorID(), pos, sig, iPoint);
+    
+  } // Loop over MCPoints
+  
+}
+// -------------------------------------------------------------------------
+
+
+// -----   Private method AddHit   --------------------------------------------
+PndMdtHit* PndMdtHitProducerIdeal::AddHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t index){
+  // It fills the PndMdtHit category
+ 
+  TClonesArray& clref = *fHitArray;
+  Int_t size = clref.GetEntriesFast();
+  return new(clref[size]) PndMdtHit(detID, pos, dpos, index);
+}
+// ----
+
+
+ClassImp(PndMdtHitProducerIdeal)

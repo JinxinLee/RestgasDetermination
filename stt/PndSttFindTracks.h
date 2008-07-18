@@ -1,0 +1,101 @@
+// -------------------------------------------------------------------------
+// -----                   PndSttFindTracks header file                -----
+// -----                  Created 29/03/06  by V. Friese               -----
+// -------------------------------------------------------------------------
+
+
+/** PndSttFindTracks
+ *@author V.Friese <v.friese@gsi.de>
+ **
+ ** Task class for track finding in the STT. 
+ ** Input: TClonesArray of PndSttHit 
+ ** Output: TClonesArray of PndSttTrack
+ **
+ ** Uses as track finding algorithm classes derived from PndSttTrackFinder.
+ **/
+
+
+#ifndef PNDSTTFINDTRACKS
+#define PNDSTTFINDTRACKS 1
+
+#include "CbmTask.h"
+
+#include <string>
+#include <vector>
+
+class PndSttTrackFinder;
+class TClonesArray;
+
+class PndSttFindTracks : public CbmTask
+{
+
+ public:
+
+  /** Default constructor **/
+  PndSttFindTracks();
+
+
+  /** Standard constructor
+   *@param finder   Pointer to STT track finder concrete class
+   *@param verbose  Verbosity level
+   **/
+  PndSttFindTracks(PndSttTrackFinder* finder, Int_t verbose = 1);
+
+
+  /** Constructor with name and title
+   *@param name     Name of class
+   *@param title    Task title
+   *@param finder   Pointer to STT track finder concrete class
+   *@param verbose  Verbosity level
+   **/
+  PndSttFindTracks(const char* name, const char* title = "CbmTask", 
+		   PndSttTrackFinder* finder = NULL, Int_t verbose = 1);
+
+
+  /** Destructor **/
+  virtual ~PndSttFindTracks();
+
+
+  /** Initialisation at beginning of each event **/
+  virtual InitStatus Init();
+
+
+  /** Task execution **/
+  virtual void Exec(Option_t* opt);
+
+
+  /** Finish at the end of each event **/
+  virtual void Finish();
+
+
+  /** Accessors **/
+  PndSttTrackFinder* GetFinder() { return fFinder; };
+  Int_t GetNofTracks()           { return fNofTracks; };
+
+
+  /** Set concrete track finder **/
+  void UseFinder(PndSttTrackFinder* finder) { fFinder = finder; };
+
+  /** Add an hit collection to perform trackfinding on */
+  void AddHitCollectionName(char *hitCollectionName, char *pointCollectionName);
+
+
+ private:
+  void AddAllCollections(); 
+  void AddHitCollection(char const *collectionName, char const *pointCollectionName);
+
+  PndSttTrackFinder* fFinder;    // Pointer to TrackFinder concrete class
+  TClonesArray* fTrackArray;     // Output array of PndSttTracks 
+
+  Int_t fNofTracks;              // Number of tracks created
+  Int_t fVerbose;                // Verbosity level
+
+  std::vector<std::string> fHitCollectionNames;
+  std::vector<std::string> fPointCollectionNames;
+
+  Bool_t fCollectionsComplete;
+
+  ClassDef(PndSttFindTracks,1);
+};
+
+#endif
