@@ -10,7 +10,7 @@
 class TCcluster : public TObject{
 
  public:
-  TCcluster(TVector3 p,TVector3 e,int id);
+  TCcluster(TVector3 p,TVector3 e,double a,int id);
   TCcluster(const PndTpcCluster& _c,int id);
   TCcluster(const PndTpcDigi& _d,int id);
   TCcluster();//just for ROOT
@@ -46,9 +46,17 @@ class TCcluster : public TObject{
     return raw.at(i);
   }
 
+  void setAmp(double _d){
+    amp=_d;
+  }
+  double getAmp(){
+    return amp;
+  }
+
  private:
   int detId;
   TVector3 pos,err,res;
+  double amp;
   bool fit;
 
   std::vector<TCcluster> raw;

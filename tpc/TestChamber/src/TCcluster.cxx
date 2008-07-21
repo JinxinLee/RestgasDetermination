@@ -6,7 +6,7 @@
 #include"TMath.h"
 #include"TMatrixD.h"
 
-TCcluster::TCcluster(TVector3 p,TVector3 e,int id):pos(p),err(e),detId(id),fit(false){}
+TCcluster::TCcluster(TVector3 p,TVector3 e,double a,int id):pos(p),err(e),amp(a),detId(id),fit(false){}
 TCcluster::TCcluster(const PndTpcCluster& _c,int id) : detId(id),fit(false){
   pos=_c.pos();
   err=_c.sig();
@@ -15,19 +15,46 @@ TCcluster::TCcluster(const PndTpcCluster& _c,int id) : detId(id),fit(false){
     TCcluster cRaw(_d,id);
     raw.push_back(cRaw);
   }
+  amp=_c.amp();
 }
 TCcluster::TCcluster():fit(false){
   TVector3 def(-1.E10,-1.E10,-1.E10);
   pos=def;
   err=def;
   detId=-1;
+  amp=-1.E10;
 }
 
 TCcluster::TCcluster(const PndTpcDigi& _d,int id) : detId(id),fit(false){//for raw clusters
   PndTpcDigiMapper::getInstance()->map(&_d,pos);
-  TVector3 theOne(1.,1.,1.);
-  err=theOne;
+  amp=_d.amp();
+
+  McId dummyID(1,1);
+  McIdCollection dummyColl;
+  dummyColl.AddID(dummyID);
+
+  static float dx(0.62);
+  static float dy(0.1);
+
+  //this block is to define the z jitter
+  TVector3 zDiff1,zDiff2;
+  PndTpcDigi zDiffDigi1(1,1,1,dummyColl),zDiffDigi2(1,2,1,dummyColl);
+  PndTpcDigiMapper::getInstance()->map(&zDiffDigi1,zDiff1);
+  PndTpcDigiMapper::getInstance()->map(&zDiffDigi2,zDiff2);
+  double zDiff = zDiff2.z() - zDiff1.z();
+  //end of z jitter
+  
+  double Dl = PndTpcDigiMapper::getInstance()->getGas()->Dl();
+  double Dt = PndTpcDigiMapper::getInstance()->getGas()->Dt();
+  
+  double diffSigmaL = Dl * sqrt(pos.z());
+  double diffSigmaT = Dt * sqrt(pos.z());
+  err.SetX(TMath::Sqrt(dx*dx/12. + diffSigmaT*diffSigmaT));
+  err.SetY(TMath::Sqrt(dy*dy/12. + diffSigmaT*diffSigmaT));
+  err.SetZ(TMath::Sqrt(zDiff*zDiff/12. + diffSigmaL*diffSigmaL));
+
 }
+
 void TCcluster::print(){
   std::cout << "========== TCcluster::print()" << std::endl;
   printf("pos:   (%10.10f,%10.10f,%10.10f)\n",pos.X(),pos.Y(),pos.Z());

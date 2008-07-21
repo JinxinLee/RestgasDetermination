@@ -7,6 +7,7 @@
 #include"TRandom.h"
 #include"TCanvas.h"
 #include"TGraph.h"
+#include"TGraphErrors.h"
 #include"TAxis.h"
 #include"TApplication.h"
 #include"TSystem.h"
@@ -138,15 +139,41 @@ void TCtrack::draw(bool stop,int _x,int _y,int _w,int _h){
   double x[cl.size()];
   double y[cl.size()];
   double z[cl.size()];
+  double xerr[cl.size()];
+  double yerr[cl.size()];
+  double zerr[cl.size()];
   double xf[cl.size()];
   double yf[cl.size()];
   double zf[cl.size()];
   int index=0;
+
+  TGraph *ampGxz[cl.size()];
+  TGraph *ampGyz[cl.size()];
+  double singleX[1];
+  double singleY[1];
+  double singleZ[1];
+
+  char buf[10];
+
   for(int i=0;i<cl.size();++i){
     TVector3 point = cl.at(i).posXYZ();
     x[i]=point.X();
     y[i]=point.Y();
     z[i]=point.Z();
+    TVector3 pointErr = cl.at(i).getErr();//still in det coordinates
+    xerr[i]=pointErr.X();
+    yerr[i]=pointErr.Y();
+    zerr[i]=pointErr.Z();
+    singleX[0]=point.X();
+    singleY[0]=point.Y();
+    singleZ[0]=point.Z();
+    ampGxz[i]=new TGraph(1,singleZ,singleX);
+    sprintf(buf,"c%5.5f",globRand.Uniform());
+    ampGxz[i]->SetName(buf);
+    ampGyz[i]=new TGraph(1,singleZ,singleY);
+    sprintf(buf,"c%5.5f",globRand.Uniform());
+    ampGyz[i]->SetName(buf);
+
     if(cl.at(i).getFit()){
       xf[index]=point.X();
       yf[index]=point.Y();
@@ -155,18 +182,33 @@ void TCtrack::draw(bool stop,int _x,int _y,int _w,int _h){
     }
   }
 
+  double minAmp=1.E10;
+  double maxAmp=-1.E10;
+  for(int i=0;i<cl.size();++i){
+    if(cl.at(i).getAmp()>maxAmp) maxAmp=cl.at(i).getAmp();
+    if(cl.at(i).getAmp()<minAmp) minAmp=cl.at(i).getAmp();
+  }
+  double maxMarkerSize = 4.;
+  double minMarkerSize = 1.5;
+
+  for(int i=0;i<cl.size();++i){
+    ampGxz[i]->SetMarkerStyle(24);
+    ampGyz[i]->SetMarkerStyle(24);
+    ampGxz[i]->SetMarkerSize(minMarkerSize+(maxMarkerSize-minMarkerSize)*(cl.at(i).getAmp()-minAmp)/(maxAmp-minAmp));
+    ampGyz[i]->SetMarkerSize(minMarkerSize+(maxMarkerSize-minMarkerSize)*(cl.at(i).getAmp()-minAmp)/(maxAmp-minAmp));
+  }
+
   //TRandom r((UInt_t)((this))+nCl()+(int)(gRandom->Uniform()*1000.));
-  char buf[10];
   char bufFormula[50];
   sprintf(buf,"c%5.5f",globRand.Uniform());
   delete canvDraw;
   canvDraw = new TCanvas(buf,"TCtrack visualization",_x,_y,_w,_h);
   //  new TCanvas(buf,,_x,_y,_w,_h);
 
-  TGraph* gxz = new TGraph(cl.size(),z,x);
+  TGraphErrors* gxz = new TGraphErrors(cl.size(),z,x,zerr,xerr);
   sprintf(buf,"c%5.5f",globRand.Uniform());
   gxz->SetName(buf);
-  TGraph* gyz = new TGraph(cl.size(),z,y);
+  TGraphErrors* gyz = new TGraphErrors(cl.size(),z,y,zerr,yerr);
   sprintf(buf,"c%5.5f",globRand.Uniform());
   gyz->SetName(buf);
   TGraph* gfxz = new TGraph(nClFit(),zf,xf);
@@ -207,16 +249,19 @@ void TCtrack::draw(bool stop,int _x,int _y,int _w,int _h){
     gxz->GetYaxis()->SetTitle("x in cm");
     gxz->GetXaxis()->SetTitle("z in cm");
   }
-  gxz->SetMarkerStyle(24);
-  gxz->SetMarkerSize(2.);
+  gxz->SetMarkerStyle(20);
+  gxz->SetMarkerSize(1.);
   gfxz->SetMarkerStyle(20);
-  gfxz->SetMarkerSize(1.);
+  gfxz->SetMarkerSize(.8);
   gfxz->SetMarkerColor(kGreen);
   if(customRange){
     gxz->Draw("P");
   }
   else{
     gxz->Draw("AP");
+  }
+  for(int i=0;i<cl.size();++i){
+    ampGxz[i]->Draw("P");
   }
   gfxz->Draw("P");
   fxz->SetLineWidth(1.);
@@ -232,16 +277,19 @@ void TCtrack::draw(bool stop,int _x,int _y,int _w,int _h){
     gyz->GetYaxis()->SetTitle("y in cm");
     gyz->GetXaxis()->SetTitle("z in cm");
   }
-  gyz->SetMarkerStyle(24);
-  gyz->SetMarkerSize(2.);
+  gyz->SetMarkerStyle(20);
+  gyz->SetMarkerSize(1.);
   gfyz->SetMarkerStyle(20);
-  gfyz->SetMarkerSize(1.);
+  gfyz->SetMarkerSize(.8);
   gfyz->SetMarkerColor(kGreen);
   if(customRange){
     gyz->Draw("P");
   }
   else{
     gyz->Draw("AP");
+  }
+  for(int i=0;i<cl.size();++i){
+    ampGyz[i]->Draw("P");
   }
   gfyz->Draw("P");
   fyz->SetLineWidth(1.);
