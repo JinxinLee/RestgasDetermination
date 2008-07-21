@@ -121,12 +121,13 @@ private:
   double           _SttdEdX;
   PndFsmResponse*     _detResponse;
   // adding helix representation for some realism
-  Float_t fPar5[5]; // helix fit parameters: d0, phi0, omega, z0, tandip
+  double fPar5[5]; // helix fit parameters: d0, phi0, omega, z0, tandip
   TMatrixD fCov5;
   TMatrixD fCov7; 
+  double delta;
 
 public:
-  Float_t *GetHelixParams() { return fPar5; }
+  double *GetHelixParams() { return fPar5; }
   TMatrixD& GetHelixCov() {return fCov5; }
   TMatrixD& Cov7() {return fCov7;}
 

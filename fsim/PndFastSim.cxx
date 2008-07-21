@@ -599,11 +599,6 @@ PndFastSim::cutAndSmear(PndFsmTrack *t, PndFsmResponse *r)
   if( !(r->detected()) ) return false;
 
   double charge = t->charge();
-  double theta = t->p4().Theta();
-  double p2 = t->p4().Mag2();
-  double omega = t->GetHelixOmega();
-  double tandip = t->GetHelixTanDip();
-
   double dE     = r->dE();
   double dp     = r->dp();
   double dtheta = r->dtheta();
@@ -621,12 +616,17 @@ PndFastSim::cutAndSmear(PndFsmTrack *t, PndFsmResponse *r)
     
   // now produce some correlated errors 
   if (fPropagate && fabs(charge)>1e-6) {
+    double p2 = t->p4().Mag2();
+    double omega = t->GetHelixOmega();
+    double tandip = t->GetHelixTanDip();
+    double theta = t->p4().Theta();
+
     static TVectorD gaus(5);
     for (char p=0;p<5;p++)
       gaus(p)=fRand->Gaus();
-//  gaus*=fEta;
+    gaus*=fEta;
     // calculate track par errors
-    Float_t err[5];
+    double err[5];
     // d0 (guessed), phi0, z0 
     err[0] = 0.5*(dV.X()+dV.Y());
     err[1] = dphi;
@@ -641,15 +641,8 @@ PndFastSim::cutAndSmear(PndFsmTrack *t, PndFsmResponse *r)
     // write scaled cov matrix
     for (char r=0;r<5;r++)
     for (char c=0;c<5;c++) 
-      t->GetHelixCov()(r,c) = fRho(r,c)*fabs(err[r]*err[c]) * (r==c);
+      t->GetHelixCov()(r,c) = fRho(r,c)*fabs(err[r]*err[c]);
     t->Propagate();
-    //debug
-//  TMatrixD rho7(7,7);
-//  for (char r=0;r<7;r++)
-//  for (char c=0;c<7;c++) 
-//    rho7(r,c)=t->Cov7()(r,c)/sqrt(t->Cov7()(r,r)*t->Cov7()(c,c));
-//  t->print(std::cout);
-//  rho7.Print();
     // uncharged particles remain uncorrelated
   } else {
     if (dE != 0.0)     smearEnergy(t,dE);

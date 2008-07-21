@@ -99,24 +99,23 @@ PndFsmTrack::PndFsmTrack(TLorentzVector const p4, TVector3 start, TVector3 stop,
     // construct helix center (1/omega=R)
     TVector3 center = start + (1/omega)*(TVector3( -p4.Y(), p4.X(), 0).Unit());
     // construct propagation length
-    double delta = (center-start).Phi() - center.Phi();
+    delta = (center-start).Phi() - center.Phi();
     double cosrs=cos(delta);
     double sinrs=sin(delta);
 
     TVector3 p(p4.Vect());
-    TVector3 r;
     
     p.SetZ( p4.Pz() );
     p.SetPhi( p4.Phi() - delta );
     
-    r.SetX( start.X() - p.X()/a*sinrs + p.Y()/a*(1-cosrs) );
-    r.SetY( start.Y() - p.Y()/a*sinrs - p.X()/a*(1-cosrs) );
-    r.SetZ( start.Z() - tandip*delta/omega );
+    start.SetX( start.X() - p.X()/a*sinrs + p.Y()/a*(1-cosrs) );
+    start.SetY( start.Y() - p.Y()/a*sinrs - p.X()/a*(1-cosrs) );
+    start.SetZ( start.Z() - tandip*delta/omega );
     
-    fPar5[0]=r.Cross(p).Z()<0 ? r.Perp() : -r.Perp();
+    fPar5[0]=start.Cross(p).Z()<0 ? start.Perp() : -start.Perp();
     fPar5[1]=p.Phi();
     fPar5[2]=omega;
-    fPar5[3]=r.Z();
+    fPar5[3]=start.Z();
     fPar5[4]=tandip;
   } else {
     fPar5[0]=p4.X();
@@ -128,42 +127,49 @@ PndFsmTrack::PndFsmTrack(TLorentzVector const p4, TVector3 start, TVector3 stop,
 
 void PndFsmTrack::Propagate() {
 
-  // for now, calculate p4 and startvertex at doca
+  // for now, calculate p4 and start vertex
+  // at (approximately) the point of creation
   double a=2.99792458e-3*TRho::Instance()->GetMagnetField();
-  double pt=-a*charge()/GetHelixOmega();
-  double s=sin(GetHelixPhi0());
-  double c=cos(GetHelixPhi0());
-	const static double mass = TDatabasePDG::Instance()->GetParticle("pi-")->Mass();
+  double R=1/GetHelixOmega();
+  double pt=-a*R*charge();
+  double s0=sin(GetHelixPhi0());
+  double c0=cos(GetHelixPhi0());
+  double s1=sin(GetHelixPhi0()+delta);
+  double c1=cos(GetHelixPhi0()+delta);
 	// momentum setup
-  _p4.SetX( pt*c );
-  _p4.SetY( pt*s );
+  _p4.SetX( pt*c1 );
+  _p4.SetY( pt*s1 );
   _p4.SetZ( pt*GetHelixTanDip() );
-  _p4.SetVectMag(_p4.Vect(), mass);
+  _p4.SetVectMag(_p4.Vect(), TDatabasePDG::Instance()->GetParticle("pi-")->Mass());
   // vertex setup
-  _startVtx.SetX(-s*GetHelixD0() );
-  _startVtx.SetY( c*GetHelixD0() );
-  _startVtx.SetZ( GetHelixZ0() );
+  _startVtx.SetX(-s0*(GetHelixD0()+R)+s1*R );
+  _startVtx.SetY( c0*(GetHelixD0()+R)-c1*R );
+  _startVtx.SetZ( GetHelixZ0()+GetHelixTanDip()*R*delta );
 
   // calculate jacobian
   TMatrixD J(7,5);
-  J(0,0)=-s;
+  J(0,0)=-s0;
   J(0,1)=-_startVtx.Y();
+  J(0,2)=-R*R*(s1-s0);
 
-  J(1,0)=+c;
+  J(1,0)=+c0;
   J(1,1)=+_startVtx.X();
+  J(1,2)=+R*R*(c1-c0);
 
-  J(2,3)=1;
+  J(2,2)=-delta*GetHelixTanDip()*R*R;
+  J(2,3)=+1;
+  J(2,4)=+delta*R;
 
   J(3,1)=-_p4.Y();
-  J(3,2)=-_p4.X()/GetHelixOmega();
+  J(3,2)=-_p4.X()*R;
 
   J(4,1)=+_p4.X();
-  J(4,2)=-_p4.Y()/GetHelixOmega();
+  J(4,2)=-_p4.Y()*R;
 
-  J(5,2)=-_p4.Z()/GetHelixOmega();
+  J(5,2)=-_p4.Z()*R;
   J(5,4)=+pt;
 
-  J(6,2)=-_p4.Vect().Mag2()/_p4.T()/GetHelixOmega();
+  J(6,2)=-_p4.Vect().Mag2()*R/_p4.T();
   J(6,4)=+pt*pt*GetHelixTanDip()/_p4.T();
   // calculate fCov7 = J * fCov5 * J.T
   TMatrixD tmp(J, TMatrixD::kMult, fCov5);
