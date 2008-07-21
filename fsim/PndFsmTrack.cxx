@@ -26,8 +26,9 @@
 #include "RhoBase/TRho.h"
 //#include "FastSimApp/FsmHitMap.hh"
 //#include "FsmDetTypes.hh"
-
-
+#include "TDatabasePDG.h"
+#include "TParticlePDG.h"
+#include "TMatrixD.h"
 //-------------
 // C Headers --
 //-------------
@@ -56,8 +57,7 @@ using std::ostream;
 //----------------
 
 
-PndFsmTrack::PndFsmTrack() 
-{
+PndFsmTrack::PndFsmTrack() {
   setP4(TLorentzVector(0.,0.,0.,0.));
   setStartVtx(TVector3(0.,0.,0.));
   setStopVtx(TVector3(0.,0.,0.));
@@ -69,14 +69,16 @@ PndFsmTrack::PndFsmTrack()
   setCharge(0); 
   setGTrackId(0);
   setDetResponse(0);
+  for (char i=0;i<15;i++)
+    fCov5[i]=0;
   for (char i=0;i<5;i++)
-    fCov[i]=0;
-  for (char i=0;i<5;i++)
-    fPar[i]=0;
+    fPar5[i]=0;
+  for (char i=0;i<28;i++)
+    fCov7[i]=0;
 }
 
-PndFsmTrack::PndFsmTrack(TLorentzVector p4, TVector3 start, TVector3 stop, double charge, int pdt, signed long trackId) 
-{
+PndFsmTrack::PndFsmTrack(TLorentzVector const p4, TVector3 start, TVector3 stop, double charge, int pdt, signed long trackId) 
+: fCov5(5,5), fCov7(7,7) {
   setP4(p4);
   setStartVtx(start);
   setStopVtx(stop);
@@ -111,17 +113,61 @@ PndFsmTrack::PndFsmTrack(TLorentzVector p4, TVector3 start, TVector3 stop, doubl
     r.SetY( start.Y() - p.Y()/a*sinrs - p.X()/a*(1-cosrs) );
     r.SetZ( start.Z() - tandip*delta/omega );
     
-    fPar[0]=r.Cross(p).Z()<0 ? r.Perp() : -r.Perp();
-    fPar[1]=p.Phi();
-    fPar[2]=omega;
-    fPar[3]=r.Z();
-    fPar[4]=tandip;
+    fPar5[0]=r.Cross(p).Z()<0 ? r.Perp() : -r.Perp();
+    fPar5[1]=p.Phi();
+    fPar5[2]=omega;
+    fPar5[3]=r.Z();
+    fPar5[4]=tandip;
   } else {
-    fPar[0]=p4.X();
-    fPar[1]=p4.Y();
-    fPar[2]=p4.Z();
-    fPar[3]=p4.T();
+    fPar5[0]=p4.X();
+    fPar5[1]=p4.Y();
+    fPar5[2]=p4.Z();
+    fPar5[3]=p4.T();
   }
+}
+
+void PndFsmTrack::Propagate() {
+
+  // for now, calculate p4 and startvertex at doca
+  double a=2.99792458e-3*TRho::Instance()->GetMagnetField();
+  double pt=-a*charge()/GetHelixOmega();
+  double s=sin(GetHelixPhi0());
+  double c=cos(GetHelixPhi0());
+	const static double mass = TDatabasePDG::Instance()->GetParticle("pi-")->Mass();
+	// momentum setup
+  _p4.SetX( pt*c );
+  _p4.SetY( pt*s );
+  _p4.SetZ( pt*GetHelixTanDip() );
+  _p4.SetVectMag(_p4.Vect(), mass);
+  // vertex setup
+  _startVtx.SetX(-s*GetHelixD0() );
+  _startVtx.SetY( c*GetHelixD0() );
+  _startVtx.SetZ( GetHelixZ0() );
+
+  // calculate jacobian
+  TMatrixD J(7,5);
+  J(0,0)=-s;
+  J(0,1)=-_startVtx.Y();
+
+  J(1,0)=+c;
+  J(1,1)=+_startVtx.X();
+
+  J(2,3)=1;
+
+  J(3,1)=-_p4.Y();
+  J(3,2)=-_p4.X()/GetHelixOmega();
+
+  J(4,1)=+_p4.X();
+  J(4,2)=-_p4.Y()/GetHelixOmega();
+
+  J(5,2)=-_p4.Z()/GetHelixOmega();
+  J(5,4)=+pt;
+
+  J(6,2)=-_p4.Vect().Mag2()/_p4.T()/GetHelixOmega();
+  J(6,4)=+pt*pt*GetHelixTanDip()/_p4.T();
+  // calculate fCov7 = J * fCov5 * J.T
+  TMatrixD tmp(J, TMatrixD::kMult, fCov5);
+  fCov7.MultT(tmp, J);
 }
 
 //--------------
@@ -137,18 +183,6 @@ PndFsmTrack::~PndFsmTrack()
 //--------------
 // Operations --
 //--------------
-
-void
-PndFsmTrack::SetHelixParms(float *p) 
-{
-    for (int i=0; i<5;i++) fPar[i] = p[i];
-}
-
-void 
-PndFsmTrack::SetHelixCov(float *p)
-{
-    for (int i=0; i<15;i++) fCov[i] = p[i];
-}
 
 void
 PndFsmTrack::setP4(TLorentzVector l)

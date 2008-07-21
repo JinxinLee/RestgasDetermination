@@ -226,6 +226,8 @@ PndFsmCmpDet::respond(PndFsmTrack *t) {
         dVy = eval(_d0[pid], theta) * _d0Scale[pid]->Eval(p);
         dVz = eval(_z0[pid], theta) * _z0Scale[pid]->Eval(p);
 
+        dtheta*=M_PI/180; // parfile contains dtheta[deg]
+        dphi*=M_PI/180; // parfile contains dphi[deg]
         dp*=p; // parfile contains dp/p
       }
     }

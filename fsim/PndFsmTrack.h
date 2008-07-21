@@ -30,6 +30,7 @@
 //-------------------------------
 #include "TLorentzVector.h"
 #include "TVector3.h"
+#include "TMatrixD.h" 
 
 //#include "CLHEP/Vector/LorentzVector.h"
 //#include "CLHEP/Geometry/HepPoint.h"
@@ -120,20 +121,22 @@ private:
   double           _SttdEdX;
   PndFsmResponse*     _detResponse;
   // adding helix representation for some realism
-  Float_t fPar[5]; // helix fit parameters: d0, phi0, omega, z0, tandip
-  Float_t fCov[15]; // helix error matrix
+  Float_t fPar5[5]; // helix fit parameters: d0, phi0, omega, z0, tandip
+  TMatrixD fCov5;
+  TMatrixD fCov7; 
 
 public:
-  Float_t *GetHelixParams() { return fPar; }
-  Float_t *GetHelixCov() { return fCov; }
-  Double_t GetHelixD0() const {return fPar[0];}
-  Double_t GetHelixPhi0() const    {return fPar[1];}
-  Double_t GetHelixOmega() const {return fPar[2];}
-  Double_t GetHelixZ0() const {return fPar[3];}
-  Double_t GetHelixTanDip() const {return fPar[4];}
+  Float_t *GetHelixParams() { return fPar5; }
+  TMatrixD& GetHelixCov() {return fCov5; }
+  TMatrixD& Cov7() {return fCov7;}
 
-  void SetHelixParms(Float_t *p);
-  void SetHelixCov(Float_t *p);
+  Double_t GetHelixD0() const {return fPar5[0];}
+  Double_t GetHelixPhi0() const    {return fPar5[1];}
+  Double_t GetHelixOmega() const {return fPar5[2];}
+  Double_t GetHelixZ0() const {return fPar5[3];}
+  Double_t GetHelixTanDip() const {return fPar5[4];}
+
+  void Propagate();
 
 };
 

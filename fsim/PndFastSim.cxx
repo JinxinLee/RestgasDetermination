@@ -148,7 +148,6 @@ InitStatus PndFastSim::Init() {
   fRho(0,0)= 1.0; fRho(0,1)=-0.9; fRho(0,2)= 0.2; // d0
   fRho(1,0)=-0.9; fRho(1,1)= 1.0; fRho(1,2)=-0.4; // phi0
   fRho(2,0)= 0.2; fRho(2,1)=-0.4; fRho(2,2)= 1.0; // omega
-
   //z0            tandip 
   fRho(3,3)= 1.0; fRho(3,4)=-0.9; // z0
   fRho(4,3)=-0.9; fRho(4,4)= 1.0; // tandip
@@ -158,11 +157,10 @@ InitStatus PndFastSim::Init() {
   fEta(0,0)= 1.0;                                       // d0
   fEta(1,0)=-0.9; fEta(1,1)= 0.4359;                    // phi0
   fEta(2,0)= 0.2; fEta(2,1)=-0.5047; fEta(2,2)= 0.8398; // omega
-
   //z0            tandip 
   fEta(3,3)= 1.0;                    // z0
   fEta(4,3)=-0.9; fEta(4,4)= 0.4359; // tandip
-  
+
   // Create and register output array
   cout << "-I- PndFastSim: Intialization successfull" << endl;
   return kSUCCESS;
@@ -456,13 +454,8 @@ void PndFastSim::Exec(Option_t* opt)
       tcand->SetType(ft->pdt());
       
       if (fPropagate && fabs(charge)>1e-6) {
-        // TFitParams does the parameter conversion
-        tcand->Set( tcand->Charge(), ft->GetHelixParams(), ft->GetHelixCov() );
-        // and copy that to micro
-        TVector3 v;
-        micro->SetPosition( v=tcand->GetPosition() );
-        micro->SetMomentum( v=tcand->GetMomentum() );
-        micro->SetCov7( tcand->Cov7() );
+        tcand->SetCov7( ft->Cov7() );
+        micro->SetCov7( ft->Cov7() );
       }
 
       // as default set pion mass for charged tracks and 0 for neutral cands
@@ -631,7 +624,7 @@ PndFastSim::cutAndSmear(PndFsmTrack *t, PndFsmResponse *r)
     static TVectorD gaus(5);
     for (char p=0;p<5;p++)
       gaus(p)=fRand->Gaus();
-    gaus*=fEta;
+//  gaus*=fEta;
     // calculate track par errors
     Float_t err[5];
     // d0 (guessed), phi0, z0 
@@ -643,15 +636,20 @@ PndFastSim::cutAndSmear(PndFsmTrack *t, PndFsmResponse *r)
     // as well as tandip
     err[4] = dtheta/pow(sin(theta),2);
     // smear track pars
-
-    Float_t* par=t->GetHelixParams();
     for (char p=0;p<5;p++)
-      par[p]+= err[p] * gaus(p);
+      t->GetHelixParams()[p] += err[p] * gaus(p);
     // write scaled cov matrix
-    Float_t* cov=t->GetHelixCov();
     for (char r=0;r<5;r++)
-    for (char c=0;c<=r;c++) 
-      cov[r*(r+1)/2+c] = fRho(r,c)*fabs(err[r]*err[c]);
+    for (char c=0;c<5;c++) 
+      t->GetHelixCov()(r,c) = fRho(r,c)*fabs(err[r]*err[c]) * (r==c);
+    t->Propagate();
+    //debug
+//  TMatrixD rho7(7,7);
+//  for (char r=0;r<7;r++)
+//  for (char c=0;c<7;c++) 
+//    rho7(r,c)=t->Cov7()(r,c)/sqrt(t->Cov7()(r,r)*t->Cov7()(c,c));
+//  t->print(std::cout);
+//  rho7.Print();
     // uncharged particles remain uncorrelated
   } else {
     if (dE != 0.0)     smearEnergy(t,dE);
