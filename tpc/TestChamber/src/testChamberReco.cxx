@@ -97,10 +97,11 @@ int main(int argc, char* argv[]) {
   std::vector<PndTpcDigi*> digis;
 
   int clust_choice;  
-  int timewindow_chr,timewindow_seb;
+  int timewindow_chr,timewindow_seb,detId;
   if(!(cf.readInto(clust_choice , "CLUSTERING") )) failedConf("CLUSTERING");
   if(!(cf.readInto( timewindow_chr, "TIMEWINDOW_CLUST_CHR") )) failedConf("TIMEWINDOW_CLUST_CHR");
   if(!(cf.readInto( timewindow_seb, "TIMEWINDOW_CLUST_SEB") )) failedConf("TIMEWINDOW_CLUST_CHR");
+  if(!(cf.readInto( detId, "TPCDETID") )) failedConf("TPCDETID");
 
   std::vector<PndTpcCluster*> *clusters = new std::vector<PndTpcCluster*>;
   PndTpcAbsClusterFinder *clusterfinder;
@@ -120,7 +121,7 @@ int main(int argc, char* argv[]) {
   clusterfinder->checkConsistency();
   
   double ellipse_ay,ellipse_by;
-  int minselhits,visflag,mounting;
+  int minselhits,visflag;
   if(!(cf.readInto( ellipse_ay, "ELLIPSE_AY") )) failedConf("ELLIPSE_AY");
   if(!(cf.readInto( ellipse_by, "ELLIPSE_BY") )) failedConf("ELLIPSE_BY");
   
@@ -204,7 +205,7 @@ int main(int argc, char* argv[]) {
 
     std::vector<TCcluster> TCc;
     for(int i=0;i<nclust;++i){
-      TCcluster _c(*(clusters->at(i)),200);
+      TCcluster _c(*(clusters->at(i)),detId);
       TCc.push_back(_c);
     }
 
@@ -216,7 +217,7 @@ int main(int argc, char* argv[]) {
 
     outputTrack->addClusters(TCc);
 
-    outputTrack->fit(200);
+    outputTrack->fit(detId);
     //outputTrack->draw();
     rootOutfile->cd();
     outTree->Fill();
