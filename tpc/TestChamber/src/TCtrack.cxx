@@ -18,6 +18,7 @@ std::vector<TCcluster> glob_clusters;
 TRandom globRand(0);
 
 TCtrack::TCtrack(){
+  clear();
   canvDraw=NULL;canvDrawClust=NULL;
 }
 

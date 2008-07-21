@@ -77,9 +77,9 @@ class TCtrack : public TObject{
   void drawClustering(bool stop=true,int _x=50,int _y=50,int _w=600,int _h=600);
   void clear(){
     cl.clear();
-    ax=-1.;bx=-1.;ay=-1.;by=-1.;
-    dax=-1.;dbx=-1.;day=-1.;dby=-1.;
-    chi2=-1.;
+    ax=-1.E10;bx=-1.E10;ay=-1.E10;by=-1.E10;
+    dax=-1.E10;dbx=-1.E10;day=-1.E10;dby=-1.E10;
+    chi2=-1.E10;
   }
 
   void useTrivialClustering();
