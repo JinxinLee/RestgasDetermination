@@ -325,7 +325,7 @@ Bool_t PndDrc::ProcessHits(CbmVolume* vol) {
       //cout << "energy = "<< fEnergy << endl;
 
       Double_t fThetaC;
-      if (abs(1/(1.47*(fP/fEnergy))) > 1.) {
+      if (fabs(1./(1.47*(fP/fEnergy))) > 1. || fP == 0. || fEnergy == 0.){
 	fThetaC = -1.;
 	  }
       else{
@@ -346,11 +346,11 @@ Bool_t PndDrc::ProcessHits(CbmVolume* vol) {
       
     }
 
-  if (nam.BeginsWith("bar") && gMC->IsTrackExiting()==1 &&  fPdgCode == 50000050 && fPos.Z()>-149.) 
+  if (nam.BeginsWith("bar") && gMC->IsTrackExiting()==1 &&  fPdgCode == 50000050 && fPos.Z() > -148.0 ) 
  
     {
-      gMC->StopTrack();
-      if (fVerboseLevel >0) cout<< "Photon killed" << endl;
+       gMC->StopTrack();
+       if (fVerboseLevel >0) cout<< "Photon killed" << endl;
 
 }
 
@@ -510,7 +510,7 @@ void PndDrc::ConstructGeometry()
 
   
   // Create base volume 
-  TGeoPgon* basePol = new TGeoPgon("basePol",1.125, 360., 16, 2);
+  TGeoPgon* basePol = new TGeoPgon("basePol",11.25, 360., 16, 2);
   basePol->DefineSection(0, -130., 45., 53.8);
   basePol->DefineSection(1, 130., 45., 53.8);
   TGeoVolume *baseVol = new TGeoVolume("baseVol",basePol,gGeoManager->GetMedium("DIRCairNoSens"));
@@ -519,7 +519,7 @@ void PndDrc::ConstructGeometry()
 
   //Create the sides
   Double_t lside = 18.7286709135483108; //side length (cm)
-  TGeoBBox* logicSide = new TGeoBBox("logicSide", lside/2, 0.85, 130);
+  TGeoBBox* logicSide = new TGeoBBox("logicSide", lside/2, 0.85, 130.);
   TGeoVolume *side = new TGeoVolume("side",logicSide, gGeoManager->GetMedium("DIRCairNoSens"));
   baseVol->AddNode(side, 1, new TGeoCombiTrans(0., 48.85, 0., new TGeoRotation(0))); 
   Int_t n = 1;
@@ -550,12 +550,12 @@ void PndDrc::ConstructGeometry()
   Double_t r = 15.29; // first lens radius (cm)
   Double_t alpha = TMath::ASin(0.85/r); // 8.5 mm - half height of the bar
   Double_t a = r - r*TMath::Cos(alpha);
-  Double_t b = a + 5; // box dimension
+  Double_t b = a + .5; // box dimension
 
   Double_t r2 = 3.6; // radius second lens (cm)
   Double_t alpha2 = TMath::ASin(0.85/r2); // 8.5 mm - half height of the bar
   Double_t a2 = r2 - r2*TMath::Cos(alpha2);
-  Double_t b2 = 5. + a2;
+  Double_t b2 = .5 + a2;
  
   Double_t l = 0.5+ 0.2+ 0.5+ a2; // dimension of the box containing both lenses
 
@@ -581,7 +581,7 @@ void PndDrc::ConstructGeometry()
 
  
   // SOB
-  TGeoPgon* baseSOB = new TGeoPgon("baseSOB",1.125, 360., 16, 3);
+  TGeoPgon* baseSOB = new TGeoPgon("baseSOB",11.25, 360., 16, 3);
   baseSOB->DefineSection(0, 0., 48., 88.);
   baseSOB->DefineSection(1, 10., 48., 88.);
   baseSOB->DefineSection(2, 30., 48., 49.7);
@@ -589,9 +589,9 @@ void PndDrc::ConstructGeometry()
   cave->AddNode(sob, 1,new TGeoCombiTrans(0., 0., -180., new TGeoRotation (0)));
 
   // Photodetector
-  TGeoPgon* logicPD = new TGeoPgon("logicPD",1.125, 360., 16, 2);
+  TGeoPgon* logicPD = new TGeoPgon("logicPD",11.25, 360., 16, 2);
   logicPD->DefineSection(0, 0., 48., 88.);
-  logicPD->DefineSection(1, 1., 48., 88.);
+  logicPD->DefineSection(1, 0.1, 48., 88.);
   TGeoVolume *pd = new TGeoVolume("pd", logicPD, gGeoManager->GetMedium("DIRCair"));
   sob->AddNode(pd, 1,new TGeoCombiTrans(0., 0., 0., new TGeoRotation (0)));
   AddSensitiveVolume(pd); 
@@ -608,7 +608,7 @@ void PndDrc::ConstructGeometry()
   TGeoVolume *lens1 = new TGeoVolume("LENS1",cs, gGeoManager->GetMedium("FusedSil"));
  //  TGeoRotation rot2;
 //   rot2.RotateX(180.);
-  barContainer->AddNode(lens1, 1,new TGeoCombiTrans(0., 0., -129.9 +r +a2 + 5 +2 - a , new TGeoRotation (0)));
+  barContainer->AddNode(lens1, 1,new TGeoCombiTrans(0., 0., -129.9 +r +a2 + 0.5 + 0.2 - a , new TGeoRotation (0)));
   
 
    //Lens 2
