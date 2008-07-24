@@ -302,7 +302,7 @@ PndEmcCluster::invalidateCache()
   }
 }
 
-//check if a digi belong to this cluester
+//check if a digi belong to this cluster
 bool 
 PndEmcCluster::isInCluster( PndEmcDigi* theDigi )
 {

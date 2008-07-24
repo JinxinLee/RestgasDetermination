@@ -288,12 +288,12 @@ void PndEmcDigi::Streamer(TBuffer &R__b)
 
    if (R__b.IsReading()) {
       PndEmcDigi::Class()->ReadBuffer(R__b, this);
-// 		PndEmcMapper *fEmcMap=PndEmcMapper::Instance(0);
-// 		if (fEmcMap!=0) {
-// 			fTCI=fEmcMap->GetTCI(fDetectorId);
-// 		} else {
-// 			fTCI=0;
-// 		}
+		PndEmcMapper *fEmcMap=PndEmcMapper::Instance(0);
+		if (fEmcMap!=0) {
+			fTCI=fEmcMap->GetTCI(fDetectorId);
+		} else {
+			fTCI=0;
+		}
 
    } else {
       PndEmcDigi::Class()->WriteBuffer(R__b, this);
