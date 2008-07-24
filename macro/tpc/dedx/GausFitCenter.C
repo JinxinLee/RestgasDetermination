@@ -87,9 +87,10 @@ void GausFitCenter::CreateBBGraphs()
 	map<double, map<string, GausFit*> >::const_iterator itGausFitMap;
 	map<double, map<string, GausFit*> >::const_iterator end=fGausFitMap.end();
 	
-	int iPoint=0;
+	map< string, unsigned int> GraphPoints;	//count points in graphs separetly
 	for(itGausFitMap=fGausFitMap.begin();itGausFitMap!=end;++itGausFitMap)
 	{	//i assume that GausFitMap is sorted in P
+	 	
 		map< string, GausFit*> ParticleMap;
 		ParticleMap=itGausFitMap->second;
 		
@@ -102,21 +103,20 @@ void GausFitCenter::CreateBBGraphs()
 			map<string, TGraphErrors*>::const_iterator pGraph=fBBGraphs.find(Particle);
 			
 			TGraphErrors *TheGraphToFill=NULL;			
-			if(pGraph==fBBGraphs.end() )	{
-				TGraphErrors *p=new TGraphErrors;	//(fGausFitMap.size());
+			if(pGraph==fBBGraphs.end() )	{	// a new particle
+				TGraphErrors *p=new TGraphErrors;
 				fBBGraphs[Particle]=p;
+				GraphPoints[Particle]=0;
 			}
 			TheGraphToFill=fBBGraphs[Particle];
 			assert(TheGraphToFill);
-			TheGraphToFill->SetPoint(iPoint, fit->GetP(), fit->GetMean());
-			TheGraphToFill->SetPointError(iPoint, 0.02, fit->GetSigma()/std::sqrt((float)fit->GetN()));
-			/*
-			cout << "GausFitCenter::CreateBBGraphs: fill Point Nr ";
-			cout << iPoint << "(" << fit->GetP() << "," << fit->GetMean() << ")" 
-			<< "<- " << fit->GetN() << endl;
-			*/
+			if(fit->GetMean() > 0.000001)	{ //don' t insert missing
+										//the missing point will be inserted at (0.0)
+				TheGraphToFill->SetPoint(GraphPoints[Particle], fit->GetP(), fit->GetMean());
+				TheGraphToFill->SetPointError(GraphPoints[Particle], 0.02, fit->GetSigma()/std::sqrt((float)fit->GetN()));
+				GraphPoints[Particle]=GraphPoints[Particle]+1;
+			}
 		}
-		iPoint++;
 	}
 }
 
@@ -163,7 +163,8 @@ void GausFitCenter::CreateResolutionGraphs()
 
 	map<double, map< string, GausFit*> >::const_iterator end=fGausFitMap.end();
 	map<double, map< string, GausFit*> >::const_iterator cit;
-	int iPoint=0;
+	
+	map< string, unsigned int> GraphPoints;	//count points in graphs separetly
 	for(cit=fGausFitMap.begin(); cit!=end; ++cit)
 	{
 		//double P=cit->first;
@@ -182,18 +183,22 @@ void GausFitCenter::CreateResolutionGraphs()
 			
 			TGraph *TheGraphToFill=NULL;			
 			if(pGraph==fResolutionGraphs.end() )	{
-				TGraph *p=new TGraph(fGausFitMap.size());
+				TGraph *p=new TGraph;
 				p->SetMarkerColor(fPDGMap->GetParticleColor(Particle));
 				p->SetLineColor(fPDGMap->GetParticleColor(Particle));
 				p->SetMarkerStyle(20);
 				p->SetMarkerSize(0.6);
 				fResolutionGraphs[Particle]=p;
+				GraphPoints[Particle]=0;
 			}
 			TheGraphToFill=fResolutionGraphs[Particle];
 			assert(TheGraphToFill);
-			TheGraphToFill->SetPoint(iPoint, fit->GetP(), fit->GetResolution()); 
+			if( fit->GetResolution() >0.000001 )	{
+				TheGraphToFill->SetPoint(GraphPoints[Particle], fit->GetP(), fit->GetResolution()); 
+				//cout << "ADDING " << fit->GetP() << " , "  << fit->GetResolution() << " TO RESOLUTION GRAPH " << endl;
+				GraphPoints[Particle]=GraphPoints[Particle]+1;
+			}
 		}
-		iPoint++;
 	}
 }
 
@@ -216,7 +221,7 @@ void GausFitCenter::CreateSeparationPowerGraphs()
 	}
 	map<double, map< string, GausFit*> >::const_iterator end=fGausFitMap.end();
 	map<double, map< string, GausFit*> >::const_iterator cit;
-	int iPoint=0;
+	map< string, unsigned int> GraphPoints;	//count points in graphs separetly
 	for(cit=fGausFitMap.begin(); cit!=end; ++cit)
 	{
 		//double P=cit->first;
@@ -244,26 +249,29 @@ void GausFitCenter::CreateSeparationPowerGraphs()
 				assert(fit2);
 				string Particle1=itParticleMap->first;
 				string Particle2=itParticleMap2->first;
-				
+				string Seppo=Particle1+Particle2;
 				
 				map<pair<string,string> , TGraph*>::const_iterator pGraph=fSeppoGraphs.find(pair<string, string>(Particle1, Particle2));
 				
 				TGraph *TheGraphToFill=NULL;			
 				if(pGraph==fSeppoGraphs.end() )	{
-					TGraph *p=new TGraph(fGausFitMap.size());
+					TGraph *p=new TGraph;
 					p->SetMarkerColor(fPDGMap->GetSeparationPowerColor(Particle1, Particle2 ));
 					p->SetLineColor(fPDGMap->GetSeparationPowerColor(Particle1, Particle2));
 					p->SetMarkerStyle(20);
 					p->SetMarkerSize(0.6);
 					fSeppoGraphs[pair<string, string>(Particle1, Particle2)]=p;
+					GraphPoints[Seppo]=0;
 				}
 				TheGraphToFill=fSeppoGraphs[pair<string, string>(Particle1, Particle2)];
 				assert(TheGraphToFill);
-				TheGraphToFill->SetPoint(iPoint, fit->GetP(), fit->GetSeparationPower(*fit2)); 
-				
+				if(fit->GetSeparationPower(*fit2) > 0.000001 && fit->GetResolution() >0.000001 && fit2->GetResolution() >0.000001 )	{
+					TheGraphToFill->SetPoint(GraphPoints[Seppo], fit->GetP(), fit->GetSeparationPower(*fit2)); 
+					GraphPoints[Seppo]=GraphPoints[Seppo]+1;
+					//cout << "ADDING " << fit->GetP() << " , "  << fit->GetSeparationPower(*fit2) << " TO SEPPO GRAPH " << endl;
+				}
 			}	
 		}
-		iPoint++;	//next Momentum
 	}
 }
 
@@ -322,7 +330,9 @@ void GausFitCenter::Draw() const
 			assert(pCurHisto);
 			pCurHisto->Draw();
 			TF1 *pCurFit=fit->GetGausFit();
-			assert(pCurFit);
+			if(!pCurFit)	{
+				continue;
+			}
 			pCurFit->Draw("SAME");
 			
 			TLegend *legend=new TLegend(0.39,0.6,1.1,0.8);

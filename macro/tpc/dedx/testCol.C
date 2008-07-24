@@ -11,6 +11,8 @@
 #include "TF1.h"
 #include "TClonesArray.h"
 #include "TCanvas.h"
+#include "TH3F.h"
+#include "TPaletteAxis.h"
 
 #include "PndTpcRawDEdxCollection.h"
 #include "DEDX.h"
@@ -138,7 +140,7 @@ void testTruncation()
 }
 
 
-void FillTruncatedDE(TH1F *pHisto, PndTpcRawDEdxCollection *Col, double min, double max)
+void FillTruncatedDE(TH1F *pHisto, PndTpcRawDEdxCollection *Col, double min, double max, double factor=1.)
 {
 	std::vector<DEDx> Truncated;
 	if(Col)	{
@@ -147,7 +149,7 @@ void FillTruncatedDE(TH1F *pHisto, PndTpcRawDEdxCollection *Col, double min, dou
 	std::vector<DEDx>::const_iterator cit;
 	for(cit=Truncated.begin();cit!=Truncated.end();cit++)
 	{
-		pHisto->Fill(cit->fDE*1000*1000);
+		pHisto->Fill(cit->fDE*factor);
 	}
 }
 
@@ -183,10 +185,10 @@ void testWithTree(std::string filename)
 	TClonesArray *pRawDEdxArray=NULL;
 	pTree->SetBranchAddress("PndTpcRawDEdx", &pRawDEdxArray);
 	
-	TH1F *pDEHisto=new TH1F("raw", "raw", 200, 0, 40);	
-	TH1F *pDEHisto2=new TH1F("raw2", "raw2", 200, 0, 40);	
-	TH1F *pDEDXHisto=new TH1F("raw3", "raw3", 200, 0, 40);	
-	TH1F *pDEDXHisto2=new TH1F("raw4", "raw4", 200, 0, 40);	
+	TH1F *pDEHisto=new TH1F("raw", "raw", 400, 0, 10);	
+	TH1F *pDEHisto2=new TH1F("raw2", "raw2", 400, 0,10);	
+	TH1F *pDEDXHisto=new TH1F("raw3", "raw3", 400, 0, 10);	
+	TH1F *pDEDXHisto2=new TH1F("raw4", "raw4", 400, 0, 10);	
 		
 	Long64_t nTreeEntries=pTree->GetEntriesFast();
 	printf("nTreeEntries: %lld\nPlease wait...\n", nTreeEntries);
@@ -195,23 +197,23 @@ void testWithTree(std::string filename)
 		pTree->GetEntry(i);
 		if(!pRawDEdxArray)	{ cout << "No DEdxArray!" << endl; break;}
 		PndTpcRawDEdxCollection *Col=(PndTpcRawDEdxCollection*)pRawDEdxArray->At(0);
-		FillTruncatedDE(pDEHisto, Col, 0, 1);
-		FillTruncatedDE(pDEHisto2, Col, 0, 0.6);
-		FillTruncatedDEDX(pDEDXHisto,Col, 0, 1);
-		FillTruncatedDEDX(pDEDXHisto2,Col, 0, 0.6);
+		FillTruncatedDE(pDEHisto, Col, 0, 1,1000*1000);
+		FillTruncatedDE(pDEHisto2, Col, 0, 0.6,1000*1000);
+		FillTruncatedDEDX(pDEDXHisto,Col, 0, 1,1000*1000);
+		FillTruncatedDEDX(pDEDXHisto2,Col, 0, 0.6,1000*1000);
 	}
 	TCanvas *pCanvasDE=new TCanvas("DE","DE");
 	pCanvasDE->cd();
-	pDEHisto->SetLineColor(kRed);
+	pDEHisto->SetLineColor(kBlue);
 	pDEHisto->Draw();
-	pDEHisto2->SetLineColor(kBlue);
+	pDEHisto2->SetLineColor(kRed);
 	pDEHisto2->Draw("SAME");	
 	
 	TCanvas *pCanvasDEDX=new TCanvas("DEDX","DEDX");
 	pCanvasDEDX->cd();
-	pDEDXHisto->SetLineColor(kRed);
+	pDEDXHisto->SetLineColor(kBlue);
 	pDEDXHisto->Draw();
-	pDEDXHisto2->SetLineColor(kBlue);
+	pDEDXHisto2->SetLineColor(kRed);
 	pDEDXHisto2->Draw("SAME");		
 	
 }
@@ -241,14 +243,14 @@ void Truncation(TTree *pTree, bool bReco, double min, double max, double &resolu
 	}
 	else	{
 		r_mean_min=0;
-		r_mean_max=10;	
+		r_mean_max=15;	
 		pTree->SetBranchAddress("PndTpcRawDEdx", &pRawDEdxArray);
 		string name="trdedx"+Add_On;		
-		pDEDXHisto=new TH1F(name.c_str(), name.c_str(), 200, 0, 40);
+		pDEDXHisto=new TH1F(name.c_str(), name.c_str(), 2000, 0, 40);
 		name="dedx"+Add_On;
-		pDEDXHisto2=new TH1F(name.c_str(),name.c_str(), 200, 0, 40);	
+		pDEDXHisto2=new TH1F(name.c_str(),name.c_str(), 2000, 0, 40);	
 		name="dedxmeans"+Add_On;	
-		pDEDXMeans=new TH1F(name.c_str(),name.c_str(), 200, r_mean_min,r_mean_max);
+		pDEDXMeans=new TH1F(name.c_str(),name.c_str(), 2000, r_mean_min,r_mean_max);
 		factor=1000.*1000.;
 	}
 	Long64_t nTreeEntries=pTree->GetEntriesFast();
@@ -264,6 +266,7 @@ void Truncation(TTree *pTree, bool bReco, double min, double max, double &resolu
 		FillTruncatedDEDX(pDEDXHisto,Col, min, max, factor);
 		FillTruncatedDEDX(pDEDXHisto2,Col, 0., 1., factor);
 		pDEDXMeans->Fill(Col->TruncateAndMean(min,max)*factor);
+		//pDEDXMeans->Fill(Col->TruncateAndMeanAlternative(min,max)*factor);
 		
 	}
 	string name="DEDX"+Add_On;
@@ -309,19 +312,35 @@ void testTruncation(std::string filename, bool bReco=true)
 	double chi2, resolution, sigma;
 	float min_first=0.;
 	float min_last=0.5;
-	float max_first=0.5;
+	float max_first=0.6;
 	float max_last=0.9;
+	
+	//TH3F *histo=new TH3F("truncation","truncation",10,0.,1.,10,0.,1.,100,0.,1.);
+	TH2F *trunchisto=new TH2F("truncation","truncation",10,0.,1.,10,0.,1.);
 	for(float i=max_first; i<=max_last; i+=0.1)
 	{
 		for(float j=min_first; j<=min_last; j+=0.1)
 		{
+			if(j<i)	{	//avoid unneccessary output
 			Truncation(pTree, bReco, j,i,resolution,sigma, chi2);
 			output << j << "-" << i << "R: " << resolution << " sigma: " << sigma
 			<< " --- chi2: " << chi2 << endl;
+			trunchisto->Fill(j,i,resolution);
+			}
 		}
 	}
 	
-
+	TCanvas *truncation=new TCanvas;
+	truncation->SetTheta(33.03571);
+	truncation->SetPhi(48.10345);
+	trunchisto->GetZaxis()->SetNoExponent();
+	
+     trunchisto->GetXaxis()->SetTitle("lower cut");
+     trunchisto->GetXaxis()->SetTitleOffset(1.5);
+     trunchisto->GetYaxis()->SetTitle("upper cut");
+     trunchisto->GetYaxis()->SetTitleOffset(1.5);
+	
+     trunchisto->Draw("lego2ZFB");
 	
 	cout << output.str() << endl;
 	
