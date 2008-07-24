@@ -26,7 +26,9 @@
 #include "TrackCand.h"
 #include "TrackFitStat.h"
 #include "PndTpcDEDXFits.h"
+#include "PndTpcDEDXStorageHelper.h"
 #include "PndTpcClusterTrack.h"
+//#include "dedxStoreage.h"
 
 // This Class' Header ------------------
 #include "PndTpcRecoDEdxTask.h"
@@ -113,7 +115,7 @@ bool TFSInfo::CheckPdg(int TrackNr) const
 
 // Class Member definitions -----------
 PndTpcRecoDEdxTask::PndTpcRecoDEdxTask()
-  : CbmTask("dEdx"), _persistence(kFALSE), _spatialSorting(kFALSE), _diagnosticOutput(kFALSE),  _pdgselect(false), _pdgId(0), _mcIDselect(false), _mcID(0), _pmin(0.0001), _pmax(100.0), _thetamin(0), _thetamax(TMath::TwoPi()), _minTpcHits(0), _maxTpcHits(100000), _pid(NULL)
+  : CbmTask("dEdx"), _persistence(kFALSE), _spatialSorting(kFALSE), _diagnosticOutput(kFALSE),  _pdgselect(false), _pdgId(0), _mcIDselect(false), _mcID(0), _pmin(0.0001), _pmax(100.0), _thetamin(0), _thetamax(TMath::TwoPi()), _minTpcHits(0), _maxTpcHits(100000), _pid(NULL), nEvent(0)
 {
 	//these Branches store the inforamtion for calculating dedx
 	_trackBranchName = "TrackPreFit";
@@ -255,6 +257,7 @@ double CalculateLengthAlongTrack(Track *track, int nHit1, int nHit2)
 	rep->extrapolate(previousHit->getDetPlane(rep));
 	double length=rep->extrapolate(thisHit->getDetPlane(rep));
 	cout << "Hit1: " << nHit1 << " Hit2: " << nHit2 << " Length along Track: " << length << endl;
+	delete rep;
 	return length;
 }
 
@@ -274,7 +277,7 @@ void PndTpcRecoDEdxTask::PrepareClusterList(vector<PndTpcCluster *> &PreparedClu
 		}
 		if(!CheckDetector(DetId))	{ continue;	}
 		PndTpcCluster *cl=(PndTpcCluster*)_clusterArray->At(HitId);	//get Cluster
-		cl->SetIndexInTrack(ih);	//needed for sorting
+		cl->SetIndexInTrack(ih);	//needed for sorting and dx calculation
 		if(!CheckClusterMCID(*cl))	{ continue;	}
 		PreparedClusterList.push_back(cl);
 	}
@@ -309,6 +312,8 @@ PndTpcRecoDEdxTask::Exec(Option_t* opt)
 	int nTpcCluster = _clusterArray->GetEntriesFast();
 	cout << "PndTpcRecoDEdxTask::Exec: " << "Number of Tracks: " << nTrack << endl;
 	PndTpcDEDXDiagnosticPoint point;
+	++nEvent;
+	cout << " -------- ******** nEvent: " << nEvent << endl;
 	for(Int_t i=0; i<nTrack; i++)	
 	{
 		cout << "TrackNr.: " << i << endl; 
@@ -337,17 +342,15 @@ PndTpcRecoDEdxTask::Exec(Option_t* opt)
 		Double_t last_y=0;
 		Double_t last_z=0;
 		
-		vector<dedxStoreage> data;
+		//vector<dedxStoreage> data;
+		vector <PndTpcDEDXStorageHelper> data;
 		
 		vector<Double_t> vzs;
+		
 		PndTpcDXCalculator Calx(track);
 		
 		vector<PndTpcCluster *> SortedClusterList;
 		PrepareClusterList(SortedClusterList, track);
-		
-		TVector3 prev;
-		double debugLength_old=0.;
-		double debugLength=0.;
 		
 		vector<PndTpcCluster *>::const_iterator cit;
 		vector<PndTpcCluster *>::const_iterator end=SortedClusterList.end();
@@ -356,36 +359,25 @@ PndTpcRecoDEdxTask::Exec(Option_t* opt)
 		cout << "PndTpcRecoDEdxTask::Exec: " << "Starting real work... " << endl;
 		for(cit=SortedClusterList.begin();cit!=end; ++cit)
 		{
-			//cout << "Sortded: " << (*cit)->GetIndexInTrack() << endl;
 			PndTpcCluster *cl=*cit;
-			
+			assert(cl);
 			Double_t amp=cl->amp();
 			TVector3 pos=cl->pos();
-			Double_t x=pos.x();
-			Double_t y=pos.y();
-			Double_t z=pos.z();
+			Double_t x=pos.x(); Double_t y=pos.y();Double_t z=pos.z();
 			vzs.push_back(z);
 			
 			unsigned int currentIndex=cl->GetIndexInTrack();
-			Calx.SetNextPoint(x,y,z,amp,currentIndex);
-			dedxStoreage d;
-			Calx.GetDEDX(d.de,d.dx);
-
-			data.push_back(d);
-			SetMCTrackNR(GetClusterMCID(*cl));
 			
-			TVector3 p(x,y,z);
-			/*
-			if(ih>0)	{
-				cout << "old length: " << (prev-p).Mag() << endl;
-				debugLength_old+=(prev-p).Mag();
-				debugLength+= CalculateLengthAlongTrack(track,0,currentIndex);			
-			}
-			*/
-			prev.SetX(x);
-			prev.SetY(y);
-			prev.SetZ(z);
+			Calx.SetNextPoint(x,y,z,amp,currentIndex);
+			double de;
+			double dx;
+			Calx.GetDEDX(de,dx);
+
+			data.push_back( PndTpcDEDXStorageHelper(de,dx) );
+			SetMCTrackNR(GetClusterMCID(*cl)); 
+	
 			prevIndex=cl->GetIndexInTrack();
+			
 			if(_diagnosticOutput)	{
 				point.SetCoordinates(x,y,z,amp);
 				point.SetHitNumber(ih);
@@ -394,13 +386,14 @@ PndTpcRecoDEdxTask::Exec(Option_t* opt)
 			}
 			++ih;
 		}//end over hits of track
-		
+		cout << "PndTpcRecoDEdxTask::Exec: " << "Ending real work... " << endl;
 		
 		bSorted=CheckOrder(vzs);
 		if(!CheckHits(data.size()))	{continue;}	//hits in the track could have been skipped
 
-		double ret= CalculateLengthAlongTrack(track,0, nh-1);	
-			
+		//double ret= CalculateLengthAlongTrack(track,0, nh-1);	
+		
+		cout << "PndTpcRecoDEdxTask::Exec: " << "storing work... " << endl;
 		//Create output object, store inforamtion
 		Int_t size=_dEdxArray->GetEntriesFast();
 		PndTpcRawDEdxCollection* dedxinf=new ((*_dEdxArray)[size]) PndTpcRawDEdxCollection();
@@ -417,7 +410,7 @@ PndTpcRecoDEdxTask::Exec(Option_t* opt)
 }
 
 
-void PndTpcRecoDEdxTask::FillData(const vector<dedxStoreage> &data, PndTpcRawDEdxCollection* Col) const
+void PndTpcRecoDEdxTask::FillData(const vector<PndTpcDEDXStorageHelper> &data, PndTpcRawDEdxCollection* Col) const
 {
 	if(Col)	{
 		Col->SetTrackNr(TrackNR);
@@ -428,11 +421,11 @@ void PndTpcRecoDEdxTask::FillData(const vector<dedxStoreage> &data, PndTpcRawDEd
 		Col->SetSorted(bSorted);
 		Col->SetMCTrackId(MCTrackNR);
 	//	Col->MakeTruncatedMeans();
-		vector<dedxStoreage>::const_iterator cit;
+		vector<PndTpcDEDXStorageHelper>::const_iterator cit;
 		for(cit=data.begin(); cit!=data.end(); cit++)
 		{
 			//cout << "in: " << (*cit).de << " " << (*cit).dx << endl;
-			Col->SetRawDEdx((*cit).de, (*cit).dx);
+			Col->SetRawDEdx(cit->GetEnergyLoss(), cit->GetLength());
 		}
 		Col->Close();
 		double measuredDEDX=Col->TruncateAndMean(0.,0.6);
@@ -540,13 +533,21 @@ bool PndTpcRecoDEdxTask::CheckOrder(const std::vector<Double_t> &check) const
 {
 	vector<Double_t> cvzs(check);
 	std::sort(cvzs.begin(), cvzs.end());
+	
 	/*
 	vector<Double_t>::const_iterator cit;
 	for(cit=cvzs.begin();cit!=cvzs.end();cit++)
 	{
 		cout << *cit << " - ";
 	}
+	cout << endl;
+	for(cit=check.begin();cit!=check.end();cit++)
+	{
+		cout << *cit << " - ";
+	}	
 	*/
+	
+	cout << endl;
 	if( cvzs != check )	{
 		cout << "PndTpcRecoDEdxTask::Exec: not sorted in z" << endl;
 		return false;

@@ -11,7 +11,7 @@ class PndTpcAdvancedDxEvalPoint:public PndTpcDxEvalPoint
 public:
 	PndTpcAdvancedDxEvalPoint( Track *track, PndTpcCluster *cl);
 	PndTpcAdvancedDxEvalPoint( Track *track, TVector3 *pos, unsigned int IndexInTrack, double dE);
-	~PndTpcAdvancedDxEvalPoint();
+	virtual ~PndTpcAdvancedDxEvalPoint();
 	double CalculateDX(PndTpcDxEvalPoint *p);
 	unsigned int GetIndexInTrack() const { return _IndexInTrack; }
 	double GetDE() const { return _EnergyLoss; }

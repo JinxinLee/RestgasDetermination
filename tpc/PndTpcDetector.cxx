@@ -103,10 +103,13 @@ PndTpcDetector::ProcessHits( CbmVolume *v)
   TLorentzVector mom;
   gMC->TrackMomentum(mom);
   //mom.Print();
-  
+  if(mom.Rho()<0.001)	{
+  	return kTRUE; // i do this to avoid crashes in Alice stuff 
+  }
   Int_t trackID  = gMC->GetStack()->GetCurrentTrackNumber();
   Int_t volumeID = v->getMCid();
 
+  
   if(fAliMC)	{
   	AliTPCv3_SetStepToNextCollision(); 
   }

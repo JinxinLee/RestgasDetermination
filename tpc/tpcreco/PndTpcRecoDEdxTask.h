@@ -22,21 +22,14 @@
 #include <vector>
 
 // Collaborating Class Headers -------
-//#include "TApplication.h"
-//#include "PndTpcDEXCut.h"
+
 // Collaborating Class Declarations --
 class TClonesArray;
 class TH2F;
 class PndTpcCluster;
 class PndTpcRawDEdxCollection;
 class PndTpcDEDXFits;
-
-struct dedxStoreage		
-{
-	Double_t de;
-	Double_t dx;	
-};
-
+class PndTpcDEDXStorageHelper;
 
 class PndTpcRecoDEdxTask : public CbmTask {
 public:
@@ -134,6 +127,8 @@ private:
   //PIDFiles
    TString BBFitFile;
    TString ResoFile;
+   
+   int nEvent;
   
   // Private Methods -----------------
   void ValidateArrays() const;
@@ -148,7 +143,7 @@ private:
   
   void SetMCTrackNR(Int_t nMCTrackNR);
   void ResetOutputInfo();
-  void FillData(const std::vector<dedxStoreage> &data, PndTpcRawDEdxCollection* Col) const;
+  void FillData(const std::vector<PndTpcDEDXStorageHelper> &data, PndTpcRawDEdxCollection* Col) const;
   void PrepareClusterList(std::vector<PndTpcCluster *> &PreparedClusterList, Track *track) const;
 public:
   ClassDef(PndTpcRecoDEdxTask,1)

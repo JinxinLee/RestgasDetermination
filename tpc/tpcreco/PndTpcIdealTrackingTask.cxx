@@ -161,7 +161,15 @@ PndTpcIdealTrackingTask::Exec(Option_t* opt)
     unsigned int trackid=candit->first;
     CbmMCTrack* mc=(CbmMCTrack*)_mcTrackArray->At(trackid);
     int pdg=mc->GetPdgCode();
-    double q=TDatabasePDG::Instance()->GetParticle(pdg)->Charge()/3.;
+    double q=1.;
+	if(TDatabasePDG::Instance()->GetParticle(mc->GetPdgCode()))	{
+		q=TDatabasePDG::Instance()->GetParticle(mc->GetPdgCode())->Charge()/3.;
+	}
+	else	{
+		std::cout << "PndTpcIdealTrackingTask: Can' t get Particle for PDG " << mc->GetPdgCode() <<
+		"q just set to 1" << std::endl;
+	}
+    
   
     TVector3 pos=mc->GetStartVertex()+TVector3(0.001,0.001,0.001);
     TVector3 mom=mc->GetMomentum();

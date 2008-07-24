@@ -122,6 +122,7 @@ PndTpcMCDEdxTask.cxx
 PndTpcRawDEdxCollection.cxx
 PndTpcDEDXFits.cxx
 PndTpcHitMerger.cxx
+PndTpcDEDXStorageHelper.cxx
 )
 
 SET(TPC_SRCS ${TPC_SRCS_RULECHECKER} PndTpcAbsField.cxx PndTpcFieldCylGrid.cxx 		    

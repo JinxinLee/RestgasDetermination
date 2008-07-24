@@ -24,12 +24,15 @@ PndTpcDXCalculator::~PndTpcDXCalculator()
 {
 	vector<PndTpcDxEvalPoint*>::iterator it;
 	vector<PndTpcDxEvalPoint*>::iterator end=_points.end();
+	int i=0;
 	for(it=_points.begin();it!=end; ++it)
 	{
-		delete (*it);
-		*it=NULL;
+		if(*it)	{
+			delete (*it);
+			*it=NULL;
+		}
+		i++;
 	}
-	
 }
 
 void PndTpcDXCalculator::SetNextPoint(double x, double y, double z, double de, unsigned int i)
@@ -47,11 +50,19 @@ void PndTpcDXCalculator::SetNextPoint(double x, double y, double z, double de, u
 void PndTpcDXCalculator::GetDEDX(double &de, double &dx)
 {
 	if( _points.size()>1 )	{
-		double distance=(_points[_points.size()-1])->CalculateDX((_points[_points.size()-2]));
-		dx=distance;
-		de=(_points[_points.size()-1])->GetDE();
-		//cout << "NEW PndTpcDXCalculator de: " << de << " dx " << dx << endl;
-		RemoveUnusedPoint();
+		try	{
+			assert(_points[_points.size()-1]);
+			assert(_points[_points.size()-2]);
+			double distance=(_points[_points.size()-1])->CalculateDX((_points[_points.size()-2]));
+			dx=distance;
+			de=(_points[_points.size()-1])->GetDE();
+			RemoveUnusedPoint();
+		}
+		catch(...)	{
+			cout << "Caught a stupid exception!" << endl;
+			de=0.;
+			dx=0.;
+		}
 	}
 	else	{
 		de=0.;
@@ -78,9 +89,11 @@ void PndTpcDXCalculator::GetCenteredDEDX(double &de, double &dx)
 void PndTpcDXCalculator::RemoveUnusedPoint()
 {
 	if(_points.size()>0)	{
-		delete _points[0];
-		_points[0]=NULL;
-		_points.erase(_points.begin());
+		if(_points[0])	{
+			delete _points[0];
+			_points[0]=NULL;
+			_points.erase(_points.begin());
+		}
 	}
 }
 
