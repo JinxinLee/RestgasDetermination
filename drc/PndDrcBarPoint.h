@@ -7,8 +7,6 @@
 /**  PndDrcBarPoint.h
   **/
 
-
-
 #ifndef PNDDRCBARPOINT_H
 #define PNDDRCBARPOINT_H
 
@@ -47,34 +45,19 @@ class PndDrcBarPoint : public CbmMCPoint
 
 
   /** Accessors **/
-  Int_t    GetTrackID()    const { return fTrackID; };
-  Int_t    GetDetectorID() const { return fCopyNo; };
-  Double_t GetX()          const { return fX; };
-  Double_t GetY()          const { return fY; };
-  Double_t GetZ()          const { return fZ; };
-  Double_t GetPx()         const { return fPx; };
-  Double_t GetPy()         const { return fPy; };
-  Double_t GetPz()         const { return fPz; };
-  Double_t GetTime()       const { return fTime; };
-  Double_t GetLength()     const { return fLength; };
   Int_t    GetEventID()    const { return fEventID;};
   Int_t    GetPdgCode()    const { return fPdgCode;};
   Double_t GetAngIn()      const { return fAngIn; };
   Double_t GetThetaC()     const { return fThetaC; };
   Int_t    GetNBar()       const { return fNBar;};
-  void Position(TVector3& pos) { pos.SetXYZ(fX, fY, fZ); };
-  void Momentum(TVector3& mom) { mom.SetXYZ(fPx, fPy, fPz); };
-
-
-
-  /** Modifiers **
-/*   void SetTrackID(Int_t id)          { fTrackID = id; }; */
-/*   void SetDetectorID(Int_t id)       { fCopyNo = id; }; */
-/*   void SetTime(Double_t time)        { fTime = time; }; */
-/*   void SetLength(Double_t length)    { fLength = length; }; */
-  void SetPosition(TVector3 pos);
-  void SetMomentum(TVector3 mom);
-
+ 
+  /** Modifiers ** **/
+  void SetEventID(Int_t id)          { fEventID = id; }; 
+  void SetPdgCode(Int_t id)          { fPdgCode = id; }; 
+  void SetAngIn(Double_t ang)        { fAngIn= ang; }; 
+  void SetThetaC(Double_t theta)     { fThetaC = theta; }; 
+  void SetNBar(Int_t bar)            { fNBar = bar; };
+  
 
   /** Output to screen **/
   //  virtual void Print(const Option_t* opt = 0) const = 0;
@@ -83,38 +66,16 @@ class PndDrcBarPoint : public CbmMCPoint
 		   
  protected:
 
-  Int_t fTrackID;               // Track index
-  Int_t fCopyNo;                // Detector ID
-  Double32_t fX, fY, fZ;        // Point coordinates [cm]
-  Double32_t fPx, fPy, fPz;     // Momentum components [GeV]
-  Double32_t fTime;             // Time since event start [ns]
-  Double32_t fLength;           // Track length since creation [cm]
-  Int_t fPdgCode;
-  Double_t fAngIn;
-  Double_t fThetaC;
-  Int_t fNBar;
-  Int_t fEventID;
+  Int_t fPdgCode;               // PDG code
+  Double_t fAngIn;              // Incident Angle
+  Double_t fThetaC;             // Cherenkov Angle
+  Int_t fNBar;                  // Rod number
+  Int_t fEventID;               // Event ID
 
 
 
-  ClassDef(PndDrcBarPoint,1)
+  ClassDef(PndDrcBarPoint,2)
 
 };
-
-
-
-inline void PndDrcBarPoint::SetPosition(TVector3 pos) {
-  fX = pos.X();
-  fY = pos.Y();
-  fZ = pos.Z();
-}
-
-
-inline void PndDrcBarPoint::SetMomentum(TVector3 mom) {
-  fPx = mom.Px();
-  fPy = mom.Py();
-  fPz = mom.Pz();
-}
-
 
 #endif

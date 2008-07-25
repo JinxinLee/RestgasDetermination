@@ -132,9 +132,11 @@ class PndDrc : public CbmDetector
 			    Int_t eventID);
 
 
+  void SetRunCherenkov(Bool_t ch) { fRunCherenkov = ch; };
 
  private:
-  
+
+  Bool_t fRunCherenkov;            //!  Switch ON/OGG Cherenkov propagation
   Int_t          fTrackID;         //!  track index
   Int_t          fCopyNo;         //!  volume id
   TLorentzVector fPos;    //!  position

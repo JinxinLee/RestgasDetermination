@@ -48,7 +48,8 @@
   Cave->SetGeometryFileName("cave.geo");
   fRun->AddModule(Cave);
       
-  CbmDetector *Drc = new PndDrc("DIRC", kTRUE);
+  PndDrc *Drc = new PndDrc("DIRC", kTRUE);
+  //Drc->SetRunCherenkov(kFALSE);
   // Drc->SetGeometryFileName("dirc.geo"); 
   fRun->AddModule(Drc);
 

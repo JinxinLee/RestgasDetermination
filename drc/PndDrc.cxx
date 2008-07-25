@@ -65,6 +65,7 @@ PndDrc::PndDrc() {
   fPosIndex   = 0;
   // fflag = 0;
   volDetector = 0;
+  fRunCherenkov = kTRUE;
   //  fListOfSensitives.push_back("Photodetector");
   //fListOfSensitives.push_back("Bars");
 
@@ -84,6 +85,7 @@ PndDrc::PndDrc(const char* name, Bool_t active)
     fSenId1 =0;
     fSenId2 =0;
     fSenIdBar = 0;
+    fRunCherenkov = kTRUE;
 }
 // -------------------------------------------------------------------------
 
@@ -269,7 +271,11 @@ void PndDrc::Initialize() {
 
 
 
-	}
+	} 
+
+  if (fRunCherenkov==kFALSE) cout << " -I- PndDrc: Switching OFF Cherenkov Propagation" << endl;
+  cout << " -I- PndDrc: Intialization successfull" << endl;
+  
   // print out for debugging all names and pointers stored in manager
   // manager->Print();
 }
@@ -287,10 +293,17 @@ void PndDrc::BeginEvent(){
 Bool_t PndDrc::ProcessHits(CbmVolume* vol) {
 
   if (fVerboseLevel >0) cout << "PndDrc::ProcessHits " << vol->GetName() << endl;
-
+ 
   //Register points in the barrel (PndDrcBarPoints)
   Int_t  fEventID = gMC->CurrentEvent();
   Int_t  fPdgCode = gMC->TrackPid(); 
+  
+  if (fRunCherenkov==kFALSE && fPdgCode == 50000050) 
+    {
+      gMC->StopTrack();
+      if (fVerboseLevel >0) cout<< "Photon killed" << endl;
+    }
+  
   TLorentzVector fPos, fMom;
   gMC->TrackPosition(fPos);
   TString nam = gMC->CurrentVolName();
