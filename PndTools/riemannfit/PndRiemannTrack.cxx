@@ -47,7 +47,7 @@ void MatrixOutput(TMatrixD mat)
 ClassImp(PndRiemannTrack)
 
 PndRiemannTrack::PndRiemannTrack()
-  : fn(3),fav(3), fc(0), fcovPlane(4,4), fjacRXY(3,4), fcovRXY(3,3), fVerbose(1)
+  : fn(3),fav(3), fc(0), fcovPlane(4,4), fjacRXY(3,4), fcovRXY(3,3), fVerbose(0)
 {}
 
 
@@ -311,7 +311,7 @@ PndRiemannTrack::szFit(){
     g.SetPoint(i,fHits[i].s(),fHits[i].z());
   }
   int errorcode;
-  std::cout << "Before Fit!" << std::endl;
+ // std::cout << "Before Fit!" << std::endl;
 //  Int_t failure;
 //  g.LeastSquareLinearFit(n, ft,fm, failure);
 //  std::cout << "GetN(): " << g.GetN() << " " << ft << " " << fm  << std::endl;
@@ -321,9 +321,10 @@ PndRiemannTrack::szFit(){
 //  }
 
  // std::cout << "chis: " << chis << std::endl;
-  std::cout << "Fit Status: " << g.Fit("pol1","Q0") << std::endl;
+ // std::cout << "Fit Status: " << 
+  g.Fit("pol1","Q0"); // << std::endl;
   TF1* f = g.GetFunction("pol1");
-  std::cout << "f: " << f << std::endl;
+  //std::cout << "f: " << f << std::endl;
   ft = f->GetParameter(0);
   fm = f->GetParameter(1);
   ftError = f->GetParError(0);

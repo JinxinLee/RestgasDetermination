@@ -3,9 +3,9 @@
 #include <math.h>
 #include "../../mvd/MvdData/PndMvdHit.h"
 
-ClassImp(PndRiemannTrackFinder)
+ClassImp(PndRiemannTrackFinder);
 
-PndRiemannTrackFinder::PndRiemannTrackFinder(): fMaxPlaneDist(0.1), fMaxSZDist(1), fMaxSZChi2(1),
+PndRiemannTrackFinder::PndRiemannTrackFinder(): fMaxPlaneDist(0.7), fMaxSZDist(1), fMaxSZChi2(1),
 fMinPointDist(0.5), fMaxTheta(0.4), fMaxPhi(0.4), fUseZeroPos(true), fVerbose(1)
 {
 	if (fUseZeroPos){
@@ -54,17 +54,20 @@ void PndRiemannTrackFinder::FindTracks(double maxdist, double maxszdist)
 	
 	TVector3 vec1, vec2, vec3;
 	
+	fHitsTooClose.resize(3,-1);
+	
 	if (fVerbose > 0) std::cout << "fHits.size(): " << fHits.size() << std::endl;
 	std::vector<Int_t> actCandidates;
 	
 	if (fHits.size() > 4){
 		for (int l = 0; l < fHits.size()-3; l++){				//take three points and create a riemann plane
 			for (int i = l+1; i < fHits.size()-2; i++){
+				
 				if (HitDistance(fHits[l], fHits[i]) < fMinPointDist)
 				{
 					if (fVerbose > 0)
 						std::cout << "Hits: " << l << " " << i << " too close" << std::endl;
-					if (fVerbose > 0)
+					if (fVerbose > 1)
 						std::cout << "HitsTooClose at " << 0 << " set to: "	<< i << std::endl;
 
 					fHitsTooClose[0] = i;
@@ -76,24 +79,24 @@ void PndRiemannTrackFinder::FindTracks(double maxdist, double maxszdist)
 					if (fabs(vec1.Theta()-vec2.Theta()) > fMaxTheta && fabs(vec1.Phi()-vec2.Phi()) > fMaxPhi) continue;
 				}
 				for (int j = i+1; j < fHits.size()-1; j++){
+					if (fVerbose > 0) std::cout << "Checking Points: " << l << " " << i << " " << j << std::endl;
 					fHits[j]->Position(vec3);
 					if (fabs(vec3.Theta()-vec2.Theta()) > fMaxTheta && fabs(vec3.Phi()-vec2.Phi()) > fMaxPhi){
 						if (fVerbose > 0){
-							std::cout << "Theta: " << vec3.Theta() - vec2.Theta() << " above MaxTheta: " << fMaxTheta << " or " << std::endl;
-							std::cout << "Phi: " << vec3.Phi() - vec2.Phi() << " above MaxPhi: " << fMaxPhi << std::endl;
+							std::cout << "Theta: " << vec3.Theta() - vec2.Theta() << " > max: " << fMaxTheta << " or ";
+							std::cout << "Phi: " << vec3.Phi() - vec2.Phi() << " > max: " << fMaxPhi << std::endl;
 						}
 						continue;
 					}
 					actCandidates.clear();
 					actCandidates.push_back(l);
 					actCandidates.push_back(i);				
-					if (fVerbose > 0) std::cout << "Checking Points: " << l << " " << i << " " << j << std::endl;
 					
-					int tooCloseIndex = HitTooClose(&actCandidates, fHits[j], fMinPointDist);
-					if (tooCloseIndex > -1){
+					int tooCloseIndex = HitTooClose(actCandidates, fHits[j], fMinPointDist);
+					if (tooCloseIndex > -1 && tooCloseIndex < 3){
 						fHitsTooClose[tooCloseIndex]=j;
 						if (fVerbose > 0) std::cout << "Hit: " << j << " too close to hit: " << tooCloseIndex << std::endl;
-						if (fVerbose > 0) std::cout << "HitsTooClose at " << tooCloseIndex << " set to: " << j << std::endl;
+						if (fVerbose > 1) std::cout << "HitsTooClose at " << tooCloseIndex << " set to: " << j << std::endl;
 														
 						continue;
 					}
@@ -117,11 +120,11 @@ void PndRiemannTrackFinder::FindTracks(double maxdist, double maxszdist)
 							continue;
 						}
 						for (int k = j+1; k < fHits.size(); k++){
-							tooCloseIndex = HitTooClose(&actCandidates, fHits[k], fMinPointDist);
-							if ( tooCloseIndex > -1){
+							tooCloseIndex = HitTooClose(actCandidates, fHits[k], fMinPointDist);
+							if ( tooCloseIndex > -1 && tooCloseIndex < 3){
 								if (fVerbose > 0) std::cout << "Hit: " << k << " too close to hit: " << fHitsTooClose[tooCloseIndex] << std::endl;
 								fHitsTooClose[tooCloseIndex] = k;
-								if (fVerbose > 0) std::cout << "HitsTooClose at " << tooCloseIndex << " set to: " << k << std::endl;
+								if (fVerbose > 1) std::cout << "HitsTooClose at " << tooCloseIndex << " set to: " << k << std::endl;
 								//delete(actTrack);
 								continue;
 							}
@@ -132,7 +135,18 @@ void PndRiemannTrackFinder::FindTracks(double maxdist, double maxszdist)
 							double szChi2 = actTrack.szChi2();
 							
 							if (fVerbose > 0) std::cout << "Point " << k << ": dist " << actTrack.dist(&actHit) << " szDist " << szDist << " szChi2 " << szChi2 << std::endl;
-														
+							if (fVerbose > 0){
+								bool reject = false;
+								if (fabs(actTrack.dist(&actHit)) > fMaxPlaneDist){
+									std::cout << "dist larger than " << fMaxPlaneDist;
+									reject = true;
+								}
+								if (szChi2 > fMaxSZChi2){
+									std::cout << " SZ Chi2 too big! Cut at: " << fMaxSZChi2;		
+									reject = true;
+								}
+								if (reject) std::cout << std::endl;
+							}
 							//if (fVerbose > 0) std::cout << "sz-error: " << szError << std::endl;
 							if ((fabs(actTrack.dist(&actHit)) < fMaxPlaneDist) && (szChi2 < fMaxSZChi2)){
 								actTrack.addHit(&actHit);
@@ -146,8 +160,8 @@ void PndRiemannTrackFinder::FindTracks(double maxdist, double maxszdist)
 						if (actTrack.getNumHits() > 3)
 						{
 							for (int m = 0; m < fHitsTooClose.size(); m++){
-								if (fVerbose > 0) std::cout << "HitsTooClose " << m << ": " << fHitsTooClose[m] << std::endl;
 								if (fHitsTooClose[m] > -1){
+									if (fVerbose > 0) std::cout << "HitsTooClose Array " << m << ": " << fHitsTooClose[m] << std::endl;
 									PndRiemannHit actHit2(fHits[fHitsTooClose[m]]);
 									actTrack.szFit(&actHit2);
 									double szChi2 = actTrack.szChi2();
@@ -163,11 +177,15 @@ void PndRiemannTrackFinder::FindTracks(double maxdist, double maxszdist)
 								}
 								
 							}
+							actTrack.refit();
+							actTrack.szFit();
 							fTracks.push_back(actTrack);
 							fHitsInTracks.push_back(actCandidates);
 							if (fVerbose > 0) std::cout << "Track added! " << l << " " << i
 									<< " " << j << " r: " << actTrack.r()
 									<< " orig: " << orig[0] << " " << orig[1]
+									<< " sz-m: " << actTrack.getSZm() << " sz-t: " << actTrack.getSZt()
+									<< " dip: " << actTrack.dip()
 									<< std::endl;
 
 							if (fVerbose > -1) std::cout << "Hits in Track: ";
@@ -190,6 +208,7 @@ void PndRiemannTrackFinder::FindTracks(double maxdist, double maxszdist)
 		}	
 	}
 	for (int n = 0; n < fHitsInTracks.size(); n++){
+//		fTracks[n].szfit();
 		TrackCand myTrackCand;
 		myTrackCand.setCurv(1/fTracks[n].r());
 		myTrackCand.setDip(fTracks[n].dip());
@@ -214,11 +233,11 @@ bool PndRiemannTrackFinder::TrackExists(std::vector<Int_t> hitsInTrack){
 	bool result = true;
 	bool oneNumberEqual = false;
 	
-	if (fVerbose > 0) std::cout << "TrackExists: fHitsInTrack.size: " << fHitsInTracks.size() << std::endl;
-	for (int i = 0; (i < fHitsInTracks.size()); i++){
-		for (int k = 0; (k < hitsInTrack.size()&&(result == true)); k++){
-			for (int j = 0; (j < fHitsInTracks[i].size()) && (oneNumberEqual == false); j++){
-				if (fVerbose > 0) std::cout << hitsInTrack[k] << " ?= " << fHitsInTracks[i][j] << std::endl;
+	if (fVerbose > 1) std::cout << "TrackExists: fHitsInTrack.size: " << fHitsInTracks.size() << std::endl;
+	for (int i = 0; (i < fHitsInTracks.size()); i++){														//run through tracks in trackList
+		for (int k = 0; (k < hitsInTrack.size()&&(result == true)); k++){									//run through all hits in test track	
+			for (int j = 0; (j < fHitsInTracks[i].size()) && (oneNumberEqual == false); j++){				//run through all hits in selected track
+				if (fVerbose > 1) std::cout << hitsInTrack[k] << " ?= " << fHitsInTracks[i][j] << std::endl;
 				if (hitsInTrack[k] == fHitsInTracks[i][j])
 					oneNumberEqual = true;
 				else oneNumberEqual = false;
@@ -245,11 +264,11 @@ double PndRiemannTrackFinder::HitDistance(CbmHit* h1, CbmHit* h2)
 	return result.Mag();
 }
 
-int PndRiemannTrackFinder::HitTooClose(std::vector<Int_t>* hitsInUse, CbmHit* newHit, double threshold)
+int PndRiemannTrackFinder::HitTooClose(std::vector<Int_t> hitsInUse, CbmHit* newHit, double threshold)
 {
-	for (int i = 0; i < hitsInUse->size(); i++){
-		CbmHit* h1 = fHits[hitsInUse->at(i)];
-		if (fVerbose > 0) std::cout << "Point Distance: " << HitDistance(h1, newHit) << std::endl;
+	for (int i = 0; i < hitsInUse.size(); i++){
+		CbmHit* h1 = fHits[hitsInUse.at(i)];
+		if (fVerbose > 1) std::cout << "Point Distance: " << HitDistance(h1, newHit) << std::endl;
 		if (fabs(HitDistance(h1, newHit)) < threshold)
 			return i;
 	}

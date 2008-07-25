@@ -27,9 +27,12 @@
 class PndMvdHit : public CbmHit
 {
   friend std::ostream& operator<< (std::ostream& out, const PndMvdHit& hit){
-    out << "Mvd hit in detector " << hit.GetDetName() << " at ("
-            << hit.GetX() << ", " << hit.GetY() << ", " << hit.GetZ() << ") cm "
-      << " with " << hit.GetCharge() << " e" << ", Cluster No. " << hit.GetRefIndex() << std::endl;
+    out << "Mvd hit in " << hit.GetDetName() << " at" << std::endl;
+    out << "(" << hit.GetX() << ", " << hit.GetY() << ", " << hit.GetZ() << ") cm "
+        << " with " << hit.GetCharge() << " e" << ", Cluster No. " << hit.GetRefIndex();
+    if (hit.GetBotIndex() > -1)
+    	out << " " << hit.GetBotIndex();
+     out << std::endl;
 
     return out;
   }

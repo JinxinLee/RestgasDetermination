@@ -24,11 +24,18 @@ public:
     
     void PrintResult();
     void SetVerbose(Int_t verbose){ fVerbose = verbose;};
+    void SetMaxDist(double val){fMaxDist = val;}
+    void SetMinPointDist(double val){fMinPointDist = val;}
+    void SetMaxXZChi2(double val){fMaxSZChi2 = val;}
     
 private:
 	TString fHitBranch;
 	TString fHitBranch2;
     TString fTrackBranch;
+    
+    double fMaxDist;
+    double fMinPointDist;
+    double fMaxSZChi2;
     
     int fEventNr;
 

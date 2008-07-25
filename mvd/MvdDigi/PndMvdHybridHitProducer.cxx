@@ -48,8 +48,8 @@ PndMvdHybridHitProducer::PndMvdHybridHitProducer(Double_t lx, Double_t ly, Doubl
   fnoise = noise;
   pixelHits = 0;
   event_Nr = 0;
-  fcols = 100;
-  frows = 100;
+  fcols = 104;
+  frows = 104;
   fOverwriteParams = kTRUE;
 	std::cout << "MVD Hybrid Digi Producer initiated" << std::endl;
 }
@@ -107,7 +107,6 @@ InitStatus PndMvdHybridHitProducer::Init()
   // Create and register output array
   fPixelArray = new TClonesArray("PndMvdDigiPixel");
   ioman->Register("MVDPixelDigis", "MVD", fPixelArray, kTRUE);
-  
   
 
   if(fOverwriteParams==kTRUE){
@@ -174,16 +173,15 @@ void PndMvdHybridHitProducer::Exec(Option_t* opt)
       GetLocalHitPoints(point, posInL, posOutL);
       
       if (fVerbose > 1){  
-        std::cout << "Local Hits: " << std::endl;
-        posInL.Print();
-        posOutL.Print();
+        std::cout << "posOutL: " << std::endl;
+        std::cout << posInL.X() << " " << posInL.Y() << " " << posInL.Z() << std::endl;
+        std::cout << posOutL.X() << " " << posOutL.Y() << " " << posOutL.Z() << std::endl;
       }
       meanPosL = posInL + posOutL;
       meanPosL /= 2;
       if (fVerbose > 1){
         meanPosL.Print();
         std::cout << "Energy: " << point->GetEnergyLoss() << std::endl;
-	//PndMvdGeoHandling *GeoH = new PndMvdGeoHandling(gGeoManager);
         std::cout << point->GetDetName() << std::endl;
         std::cout << fGeoH->GetPath(point->GetDetName()) << std::endl;
       }
@@ -294,6 +292,11 @@ void PndMvdHybridHitProducer::GetLocalHitPoints(PndMvdMCPoint* myPoint, CbmGeoVe
   //typically sensors have their coordinate system centered at the lower left corner
   
   TVector3 offset = GetSensorDimensions(myPoint->GetDetName().Data());
+  
+  if (fVerbose > 1){
+	  std::cout << "SensorDimension for: " << myPoint->GetDetName().Data() << std::endl;
+	  std::cout << offset.X() << " " << offset.Y() << " " << offset.Z() << std::endl;
+  }
   
   posInLocal[0] += offset.x();
   posInLocal[1] += offset.y();

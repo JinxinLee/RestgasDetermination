@@ -51,5 +51,5 @@ dimX:d 0.01
 dimY:d 0.01
 threshold:d 600
 noise:d 200
-FECols:i 100
-FERows:i 100
+FECols:i 104
+FERows:i 104

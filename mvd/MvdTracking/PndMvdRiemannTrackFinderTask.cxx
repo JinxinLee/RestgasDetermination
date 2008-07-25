@@ -26,7 +26,8 @@
 #include "PndMvdDigi.h"
 #include "PndRiemannTrackFinder.h"
 
-PndMvdRiemannTrackFinderTask::PndMvdRiemannTrackFinderTask() : CbmTask("MVD Riemann Track Finder")
+PndMvdRiemannTrackFinderTask::PndMvdRiemannTrackFinderTask() : CbmTask("MVD Riemann Track Finder"),
+	fMaxDist(0.1), fMinPointDist(0.5), fMaxSZChi2(1)
 {
 	fHitBranch = "MVDHitsPixel";
 	fHitBranch2 = "MVDHitsStrip";
@@ -107,13 +108,19 @@ void PndMvdRiemannTrackFinderTask::Exec(Option_t* opt)
   fTrackCandArray->Clear();
 
   PndRiemannTrackFinder trackFinder;
+  trackFinder.SetVerbose(fVerbose);
+  
   trackFinder.AddHits(fHitArray);
   trackFinder.AddHits(fHitArray2);
+  trackFinder.SetMinPointDist(fMinPointDist);
+  trackFinder.SetMaxSZChi2(fMaxSZChi2);
   
-  trackFinder.FindTracks(0.1);
+  trackFinder.FindTracks(fMaxDist);
   std::cout << "Found Tracks: " << trackFinder.NTracks() << " in event no. " << fEventNr++ << std::endl;
  // std::vector<TrackCand> myCand = trackFinder.GetTrackCand();
   for (int i = 0; i < trackFinder.NTracks(); i++){
+	  TrackCand myCand = trackFinder.GetTrackCand(i);
+	  std::cout << myCand;
 	  new ((*fTrackCandArray)[i])TrackCand(trackFinder.GetTrackCand(i));    
   }
 }

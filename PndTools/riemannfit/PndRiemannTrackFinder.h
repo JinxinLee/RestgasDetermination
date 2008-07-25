@@ -22,14 +22,22 @@ public:
 	void AddHits(std::vector<CbmHit*> hits);				///< Appends the new array of hits to the existing one
 	void AddHits(TClonesArray* hits);						///< Appends the new array of hits to the existing one
 	void AddHit(CbmHit* hit){fHits.push_back(hit);};		///< Adds one new hit to the array of hits
-	
+	void SetVerbose (int val){fVerbose = val;}
 	int NTracks(){return fTracks.size();};					///< Returns the number of found tracks
 	PndRiemannTrack GetTrack(int i){return fTracks[i];};	///< Returns the track with the index i
 	std::vector<Int_t> GetTrackCandidates(int i){return fHitsInTracks[i];};	///< Returns the hits belonging to track i
 	std::vector<TrackCand> GetTrackCand(){return fTrackCand;}
 	TrackCand GetTrackCand(int i) {return fTrackCand[i];}
 	double HitDistance(CbmHit* h1, CbmHit* h2);				///< Calculates the distance between two hits
-	int HitTooClose(std::vector<Int_t>* hitsInUse, CbmHit* newHit, double threshold); ///< returns if and which hit was too close to the hit which is tested
+	int HitTooClose(std::vector<Int_t> hitsInUse, CbmHit* newHit, double threshold); ///< returns if and which hit was too close to the hit which is tested
+	
+	void SetMaxPlaneDistance(double val){fMaxPlaneDist = val;}
+	void SetMaxSZDist(double val){fMaxSZDist = val;}
+	void SetMaxSZChi2(double val){fMaxSZChi2 = val;}
+	void SetMinPointDist(double val){fMinPointDist = val;}
+	void SetMaxTheta(double val){fMaxTheta = val;}
+	void SetMaxPhi(double val){fMaxPhi = val;}
+	void SetUseZeroPos(bool val){fUseZeroPos = val;}
 	
 private:
 	std::vector<CbmHit*> fHits;							///< Vector of CbmHits used for track finding (fitting)

@@ -27,6 +27,19 @@ class PndMvdDigiStrip : public PndMvdDigi
     PndMvdDigiStrip(Int_t index, Int_t detID, TString detName, Int_t fe,
                     Int_t chan, Double_t charge);
     ~PndMvdDigiStrip(){};
+    
+    friend std::ostream& operator<< (std::ostream& out, PndMvdDigiStrip& digi){
+           out << "PndMvd DigiStrip in: " << digi.GetDetName() << " FE: "
+           << digi.GetFE() << " Channel " << digi.GetChannel()
+           << " charge " << digi.GetCharge() << " e"
+           << ", from Point(s) ";
+           std::vector<Int_t>indices = digi.GetIndices();
+           for (int i = 0; i < indices.size(); i++){
+           	std::cout << indices[i] << " " << std::endl;
+           }
+           
+           return out;
+         }
 
 //     Int_t GetIndex() const { return fIndex; }
 //     Int_t GetDetID() const { return fDetID;}
@@ -48,6 +61,9 @@ class PndMvdDigiStrip : public PndMvdDigi
 
     Bool_t operator==(const PndMvdDigiStrip& d2) const;
 //     Bool_t const HasNeighbour(const PndMvdDigiStrip& d2);
+    void Print(){
+          std::cout << *this;
+        }
 
   private :
 //    Int_t fIndex;   /// MC Point index

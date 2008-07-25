@@ -49,6 +49,8 @@ public:
   double r() const;
   double dip() const;
   double sign() const;
+  double getSZm() const {return fm;}
+  double getSZt() const {return ft;}
   unsigned int getNumHits() const {return fHits.size();}
   PndRiemannHit* getHit(unsigned int i) {PndRiemannHit* myHit = &(fHits[i]); return myHit;}
   PndRiemannHit* getLastHit() {return getHit(getNumHits()-1);}
@@ -69,6 +71,8 @@ public:
   double szDist(PndRiemannHit* hit);
   double szError(PndRiemannHit* hit);
   double szChi2(){return fChi2;};
+  
+  void SetVerbose(int i){fVerbose = i;}
 
 private:
 
