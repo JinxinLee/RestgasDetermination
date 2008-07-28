@@ -12,11 +12,30 @@ using std::endl;
 #include "PndDrcHit.h"
 
 // -----   Default constructor   -------------------------------------------
-PndDrcHit::PndDrcHit(): CbmHit() {
-
+PndDrcHit::PndDrcHit(){
+  fThetaC = -999.;
+fErrThetaC = -999.;
 }
 // -------------------------------------------------------------------------
 
+
+// -----   Standard constructor   ------------------------------------------
+
+PndDrcHit::PndDrcHit(Int_t copyNo, 
+		     TVector3 pos, 
+		     TVector3 dpos,
+		     Double_t thetaC,
+		     Double_t errThetaC){
+  fCopyNo     = copyNo;
+  fX          = pos.X();
+  fY          = pos.Y();
+  fZ          = pos.Z();
+  fDx         = dpos.Px();
+  fDy         = dpos.Py();
+  fDz         = dpos.Pz();
+  fThetaC     = thetaC;
+  fErrThetaC  = errThetaC;
+}
 
 // -----   Destructor   ----------------------------------------------------
 PndDrcHit::~PndDrcHit(){}
@@ -25,7 +44,7 @@ PndDrcHit::~PndDrcHit(){}
 
 // -----   Public method Print   -------------------------------------------
 void PndDrcHit::Print(const Option_t* opt) const {
-  cout << "DIRC hit: TrackID= " << fTrackID << endl;
+  cout << "DIRC hit: ThetaC = " << fThetaC << endl;
 }
 // -------------------------------------------------------------------------
 
