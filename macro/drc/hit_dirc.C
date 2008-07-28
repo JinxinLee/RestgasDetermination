@@ -16,9 +16,12 @@
   // Output file
   TString outFile = "hit_drc.root";
 
-  
+    
   
   // ----  Load libraries   -------------------------------------------------
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
+  basiclibs();
+
   gSystem->Load("libGeoBase");
   gSystem->Load("libParBase");
   gSystem->Load("libBase");
