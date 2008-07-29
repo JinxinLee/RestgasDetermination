@@ -254,21 +254,21 @@ Bool_t  PndStt::ProcessHits(CbmVolume* vol)
 	  TObjArray *fPassNodes = par->GetGeoPassiveNodes();
 	  
 	  CbmGeoNode 
-	    *vol = dynamic_cast<CbmGeoNode*> (fPassNodes->FindObject(fullName.c_str()));
+	    *volnode = dynamic_cast<CbmGeoNode*> (fPassNodes->FindObject(fullName.c_str()));
 	    
 	  if(number=="0") {
-	    vol = dynamic_cast<CbmGeoNode*> (fPassNodes->FindObject(specialname.c_str()));
+	    volnode = dynamic_cast<CbmGeoNode*> (fPassNodes->FindObject(specialname.c_str()));
 	    //cout<<">>>>"<<endl;
 	    //cout<<"special "<<specialname.c_str()<<endl;
 	  }
 	    
-	  if (!vol)
+	  if (!volnode)
 	    {
 	      cout << "-I- PndStt: No volume " << fullName.c_str() << " found in geometry container."  << endl;
 	      return kFALSE;
 	    }
 	    
-	  //CbmGeoRotation
+	  //CbmGeoRotation  // check if vol is the CbmGeoVolume or the CbmGeoNode before using this!
 	  //  rotation = vol->getLabTransform()->getRotMatrix();
 	    
 	  //CbmGeoVector
