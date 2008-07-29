@@ -110,6 +110,9 @@ void PndSttHitProducerRealFast::Exec(Option_t* opt) {
   for (Int_t iPoint = 0; iPoint < nPoints; iPoint++) {
     point  = (PndSttPoint*) fPointArray->At(iPoint);
     if (point == NULL) continue;
+
+    detID = point->GetDetectorID();
+
     double InOut[6];
     memset(InOut, 0, sizeof(InOut));
 
