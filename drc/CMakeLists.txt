@@ -28,7 +28,7 @@ PndGeoDrcPar.cxx
 PndDrcContFact.cxx 
 PndDrcPDPoint.cxx 
 PndDrcBarPoint.cxx
-PndDrcHitProducer.cxx 
+PndDrcHitProducerIdeal.cxx 
 PndDrcHit.cxx
 )
 

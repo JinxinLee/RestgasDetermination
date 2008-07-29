@@ -1,5 +1,5 @@
 // -------------------------------------------------------------------------
-// -----                   PndDrcHitProducer source file               -----
+// -----                   PndDrcHitProducerIdeal source file               -----
 // -----               Created 11/10/06  by Annalisa Cecchi            -----
 // -----                                                               -----
 // -----                                                               -----
@@ -8,7 +8,7 @@
 #include <iostream>
 #include "stdio.h"
 
-#include "PndDrcHitProducer.h"
+#include "PndDrcHitProducerIdeal.h"
 #include "CbmRootManager.h"
 #include "CbmMCTrack.h"
 #include "PndDrcBarPoint.h"
@@ -35,17 +35,17 @@ using std::endl;
 using std::cout;
 
 // -----   Default constructor   -------------------------------------------
-//PndDrcHitProducer::PndDrcHitProducer() 
-PndDrcHitProducer::PndDrcHitProducer() 
-:CbmTask("PndDrcHitProducer")
+//PndDrcHitProducerIdeal::PndDrcHitProducerIdeal() 
+PndDrcHitProducerIdeal::PndDrcHitProducerIdeal() 
+:CbmTask("PndDrcHitProducerIdeal")
 {
 }
 // -------------------------------------------------------------------------
 
 // -----   Standard constructor with verbosity level  -------------------------------------------
 
-PndDrcHitProducer::PndDrcHitProducer(Int_t verbose) 
-  :CbmTask("PndDrcHitProducer")
+PndDrcHitProducerIdeal::PndDrcHitProducerIdeal(Int_t verbose) 
+  :CbmTask("PndDrcHitProducerIdeal")
 {
    fVerbose = verbose;  
  }
@@ -53,7 +53,7 @@ PndDrcHitProducer::PndDrcHitProducer(Int_t verbose)
 
 
 // -----   Destructor   ----------------------------------------------------
-PndDrcHitProducer::~PndDrcHitProducer()
+PndDrcHitProducerIdeal::~PndDrcHitProducerIdeal()
 {
 }
 // -------------------------------------------------------------------------
@@ -61,7 +61,7 @@ PndDrcHitProducer::~PndDrcHitProducer()
 
 
 // -----   Initialization of parameter Containers  ------------------------------------------------
-void PndDrcHitProducer::SetParContainers() {
+void PndDrcHitProducerIdeal::SetParContainers() {
 
   // Get run and runtime database
   CbmRunAna* run = CbmRunAna::Instance();
@@ -78,14 +78,14 @@ void PndDrcHitProducer::SetParContainers() {
 
 // -----   Initialization   -----------------------------------------------
 // -------------------------------------------------------------------------
-InitStatus PndDrcHitProducer::Init()
+InitStatus PndDrcHitProducerIdeal::Init()
 {
   cout << " ---------- INITIALIZATION ------------" << endl;
 
   // Get RootManager
   CbmRootManager* ioman = CbmRootManager::Instance();
   if ( ! ioman ) {
-    cout << "-E- PndDrcHitProducer::Init: "
+    cout << "-E- PndDrcHitProducerIdeal::Init: "
          << "RootManager not instantiated!" << endl;
     return kFATAL;
   }
@@ -93,14 +93,14 @@ InitStatus PndDrcHitProducer::Init()
   // Get input array
   fBarPointArray = (TClonesArray*) ioman->GetObject("DrcBarPoint");
    if ( ! fBarPointArray ) {
-    cout << "-W- PndDrcHitProducer::Init: "
+    cout << "-W- PndDrcHitProducerIdeal::Init: "
          << "No DrcBarPoint array!" << endl;
     return kERROR;
   }
 
   fListStack = (TClonesArray *)ioman->GetObject("MCTrack"); 
    if ( ! fListStack ) {
-    cout << "-W- PndDrcDigiProducer::Init: "
+    cout << "-W- PndDrcHitProducerIdeal::Init: "
          << "No MCTrack array!" << endl;
     return kERROR;
   }
@@ -114,7 +114,7 @@ InitStatus PndDrcHitProducer::Init()
    TGeoManager *geoMan = (TGeoManager*) drcfile->Get("CBMGeom");
    fVolumeArray = geoMan->GetListOfVolumes();
    //fVolumeArray = gGeoManager->GetListOfVolumes();
-   cout << "-I- PndDrcHitProducer: Intialization successfull" << endl;
+   cout << "-I- PndDrcHitProducerIdeal: Intialization successfull" << endl;
 
    return kSUCCESS;
    
@@ -123,7 +123,7 @@ InitStatus PndDrcHitProducer::Init()
 
 // -----   Execution of Task   ---------------------------------------------
 // -------------------------------------------------------------------------
-void PndDrcHitProducer::Exec(Option_t* option)
+void PndDrcHitProducerIdeal::Exec(Option_t* option)
 {
   if ( ! fHitArray ) Fatal("Exec", "No HitArray");
   //  fHitArray->Clear();
@@ -148,8 +148,7 @@ void PndDrcHitProducer::Exec(Option_t* option)
     pt = (PndDrcBarPoint*)fBarPointArray->At(j);
     
     fDetectorID = pt->GetNBar();
-    // Int_t fDetID = 20;
-
+   
     TVector3 fPosPoint;
     pt->Position(fPosPoint);   
     Double_t fXHit = fPosPoint.X();
@@ -163,7 +162,7 @@ void PndDrcHitProducer::Exec(Option_t* option)
     TVector3 fDPosHit(fDPosXHit,fDPosYHit,fDPosZHit);
     
     Double_t fThetaC = pt->GetThetaC();
-    Double_t fErrThetaC = 0.;
+    Double_t fErrThetaC = 0.008; //rad
 
     Int_t fRefIndex = j;
 
@@ -184,7 +183,7 @@ void PndDrcHitProducer::Exec(Option_t* option)
 
 
 // -----   Add Hit to HitCollection   --------------------------------------
-PndDrcHit* PndDrcHitProducer::AddHit(Int_t detID, 
+PndDrcHit* PndDrcHitProducerIdeal::AddHit(Int_t detID, 
 				     TVector3 posHit, 
 				     TVector3 dPosHit, 
 				     Double_t thetaC,
@@ -204,11 +203,11 @@ PndDrcHit* PndDrcHitProducer::AddHit(Int_t detID,
 
 
 // -----   Finish Task   ---------------------------------------------------
-void PndDrcHitProducer::Finish()
+void PndDrcHitProducerIdeal::Finish()
 {
    fHitArray->Clear();
  }
 // -------------------------------------------------------------------------
 
 
-ClassImp(PndDrcHitProducer)
+ClassImp(PndDrcHitProducerIdeal)

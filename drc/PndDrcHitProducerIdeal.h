@@ -13,8 +13,8 @@
  **/
 
 
-#ifndef PNDDRCHITPRODUCER_H
-#define PNDDRCHITPRODUCER_H
+#ifndef PNDDRCHITPRODUCERIDEAL_H
+#define PNDDRCHITPRODUCERIDEAL_H
 
 #include "CbmTask.h"
 #include "TClonesArray.h"
@@ -34,18 +34,18 @@
 #endif
 
 
-class PndDrcHitProducer : public CbmTask {
+class PndDrcHitProducerIdeal : public CbmTask {
 
 public:
 
   /** Default constructor **/
-  PndDrcHitProducer();
+  PndDrcHitProducerIdeal();
 
   /** Constructor with verbosity **/
-  PndDrcHitProducer(Int_t verbose);
+  PndDrcHitProducerIdeal(Int_t verbose);
 
    /** Destructor **/
-  virtual ~PndDrcHitProducer();
+  virtual ~PndDrcHitProducerIdeal();
 
   /** Initialization of the task **/  
   virtual void SetParContainers();
@@ -94,7 +94,7 @@ public:
   
   Int_t nevents;
 
-  ClassDef(PndDrcHitProducer,1)
+  ClassDef(PndDrcHitProducerIdeal,1)
 
 };
 

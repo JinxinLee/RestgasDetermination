@@ -12,11 +12,11 @@ libDrc_la_LDFLAGS 	= -version-info 0:0:0
 
 libDrc_la_LIBADD	= -L$(ROOTLIBDIR) $(ROOTLIBS)
 
-include_HEADERS		= PndGeoDrc.h PndDrc.h PndGeoDrcPar.h PndDrcContFact.h PndDrcPDPoint.h PndDrcHitProducer.h PndDrcHit.h 
+include_HEADERS		= PndGeoDrc.h PndDrc.h PndGeoDrcPar.h PndDrcContFact.h PndDrcPDPoint.h PndDrcHitProducerIdeal.h PndDrcHit.h 
 
 noinst_HEADERS		= DrcLinkDef.h 
 
-libDrc_la_SOURCES	= PndGeoDrc.cxx PndDrc.cxx PndGeoDrcPar.cxx PndDrcContFact.cxx PndDrcPoint.cxx PndDrcHitProducer.cxx PndDrcHit.cxx  PndDrcDict.cxx
+libDrc_la_SOURCES	= PndGeoDrc.cxx PndDrc.cxx PndGeoDrcPar.cxx PndDrcContFact.cxx PndDrcPoint.cxx PndDrcHitProducerIdeal.cxx PndDrcHit.cxx  PndDrcDict.cxx
 
 CLEANFILES		= PndDrcDict.cxx PndDrcDict.h *~ libDrc.la
 
