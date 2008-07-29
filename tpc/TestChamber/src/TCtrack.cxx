@@ -173,11 +173,11 @@ void TCtrack::draw(bool stop,int _x,int _y,int _w,int _h){
     rotTransp.T();
     TVector3 pointErr = cl.at(i).getErr();//still in det coordinates
     TMatrixT<double> UVWerrors(3,3);
-    UVWerrors[0][0]=pow(pointErr.X(),2.)
-    UVWerrors[1][1]=pow(pointErr.Y(),2.)
-    UVWerrors[2][2]=pow(pointErr.Z(),2.)
+    UVWerrors[0][0]=pow(pointErr.X(),2.);
+    UVWerrors[1][1]=pow(pointErr.Y(),2.);
+    UVWerrors[2][2]=pow(pointErr.Z(),2.);
     TMatrixT<double> XYZerrors(3,3);
-?????????????
+    //?????????????
     XYZerrors = rotTransp*(UVWerrors*rot);//????????????????????
     
     xerr[i]=pointErr.X();
