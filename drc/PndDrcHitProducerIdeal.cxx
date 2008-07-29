@@ -61,18 +61,18 @@ PndDrcHitProducerIdeal::~PndDrcHitProducerIdeal()
 
 
 // -----   Initialization of parameter Containers  ------------------------------------------------
-void PndDrcHitProducerIdeal::SetParContainers() {
+// void PndDrcHitProducerIdeal::SetParContainers() {
 
-  // Get run and runtime database
-  CbmRunAna* run = CbmRunAna::Instance();
-  if ( ! run ) Fatal("SetParContainers", "No analysis run");
+//   // Get run and runtime database
+//   CbmRunAna* run = CbmRunAna::Instance();
+//   if ( ! run ) Fatal("SetParContainers", "No analysis run");
 
-  CbmRuntimeDb* db = run->GetRuntimeDb();
-  if ( ! db ) Fatal("SetParContainers", "No runtime database");
+//   CbmRuntimeDb* db = run->GetRuntimeDb();
+//   if ( ! db ) Fatal("SetParContainers", "No runtime database");
 
   // Get Drc digitisation parameter container
-  fPar = (PndGeoDrcPar*) db->getContainer("PndGeoDrcPar");  
-}
+  //  fPar = (PndGeoDrcPar*) db->getContainer("PndGeoDrcPar");  
+//}
 // -------------------------------------------------------------------------
 
 
@@ -98,22 +98,22 @@ InitStatus PndDrcHitProducerIdeal::Init()
     return kERROR;
   }
 
-  fListStack = (TClonesArray *)ioman->GetObject("MCTrack"); 
-   if ( ! fListStack ) {
-    cout << "-W- PndDrcHitProducerIdeal::Init: "
-         << "No MCTrack array!" << endl;
-    return kERROR;
-  }
+//   fListStack = (TClonesArray *)ioman->GetObject("MCTrack"); 
+//    if ( ! fListStack ) {
+//     cout << "-W- PndDrcHitProducerIdeal::Init: "
+//          << "No MCTrack array!" << endl;
+//     return kERROR;
+//   }
  
    // Create and register output array
    fHitArray = new TClonesArray("PndDrcHit");
    ioman->Register("DrcHit","Drc",fHitArray, kTRUE);
     
-  // Geometry loading
-   TFile *drcfile = ioman->GetInFile();
-   TGeoManager *geoMan = (TGeoManager*) drcfile->Get("CBMGeom");
-   fVolumeArray = geoMan->GetListOfVolumes();
-   //fVolumeArray = gGeoManager->GetListOfVolumes();
+ //  // Geometry loading
+//    TFile *drcfile = ioman->GetInFile();
+//    TGeoManager *geoMan = (TGeoManager*) drcfile->Get("CBMGeom");
+//    fVolumeArray = geoMan->GetListOfVolumes();
+//    //fVolumeArray = gGeoManager->GetListOfVolumes();
    cout << "-I- PndDrcHitProducerIdeal: Intialization successfull" << endl;
 
    return kSUCCESS;
@@ -153,12 +153,12 @@ void PndDrcHitProducerIdeal::Exec(Option_t* option)
     pt->Position(fPosPoint);   
     Double_t fXHit = fPosPoint.X();
     Double_t fYHit = fPosPoint.Y();
-    Double_t fZHit = fPosPoint.Z();
+    Double_t fZHit = 0.;
     TVector3 fPosHit(fXHit,fYHit,fZHit);
 
     Double_t fDPosXHit = 0.5; //mm
     Double_t fDPosYHit = 0.5;
-    Double_t fDPosZHit = 0.5;
+    Double_t fDPosZHit = 0.;
     TVector3 fDPosHit(fDPosXHit,fDPosYHit,fDPosZHit);
     
     Double_t fThetaC = pt->GetThetaC();
@@ -167,7 +167,7 @@ void PndDrcHitProducerIdeal::Exec(Option_t* option)
     Int_t fRefIndex = j;
 
     CbmMCTrack* tr = NULL;
-    tr = (CbmMCTrack*)fListStack->At(pt->GetTrackID());
+    //    tr = (CbmMCTrack*)fListStack->At(pt->GetTrackID());
   
     AddHit(fDetectorID, 
 	   fPosHit, 

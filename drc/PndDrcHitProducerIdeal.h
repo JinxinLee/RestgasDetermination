@@ -48,7 +48,7 @@ public:
   virtual ~PndDrcHitProducerIdeal();
 
   /** Initialization of the task **/  
-  virtual void SetParContainers();
+  //  virtual void SetParContainers();
   virtual InitStatus Init();
 
   /** Executed task **/ 
@@ -81,8 +81,8 @@ public:
 
   TClonesArray* fBarPointArray; // DRC MC points in the bars
   TClonesArray* fHitArray; // DRC hits
-  TObjArray *fVolumeArray;
-  TClonesArray* fListStack;     // Tracks
+  // TObjArray *fVolumeArray;
+  // TClonesArray* fListStack;     // Tracks
   
   PndGeoDrcPar *fPar;           //!
 

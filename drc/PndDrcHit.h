@@ -41,13 +41,13 @@ public:
   virtual Double_t GetThetaC()  {return fThetaC;}
   virtual Double_t GetErrThetaC()  {return fErrThetaC;}
 
-  virtual void DetID(Int_t detID) {fDetectorID = detID; }
-  virtual void Position(TVector3& pos) { pos.SetXYZ(fX,fY,fZ); }
-  virtual void DPosition(TVector3& dpos) { dpos.SetXYZ(fDx,fDy,fDz); }
+  // virtual void DetID(Int_t detID) {fDetectorID = detID; }
+  // virtual void Position(TVector3& pos) { pos.SetXYZ(fX,fY,fZ); }
+  //virtual void Position(TVector3& dpos) { dpos.SetXYZ(fDx,fDy,fDz); }
 
  protected:
   
-  TVector3 fPos, fDPos;
+  //  TVector3 fPos, fDPos;
   Double_t fThetaC, fErrThetaC;
   
   ClassDef(PndDrcHit,1)
