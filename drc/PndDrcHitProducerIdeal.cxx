@@ -26,10 +26,12 @@
 #include "CbmGeoNode.h"
 #include "PndGeoDrcPar.h"
 #include "TFormula.h"
+#include "TMath.h"
 #include "TParticlePDG.h"
 #include "TDatabasePDG.h"
 #include "TPDGCode.h"
 #include "TGeoManager.h"
+
 
 using std::endl;
 using std::cout;
@@ -126,10 +128,9 @@ InitStatus PndDrcHitProducerIdeal::Init()
 void PndDrcHitProducerIdeal::Exec(Option_t* option)
 {
   if ( ! fHitArray ) Fatal("Exec", "No HitArray");
-  //  fHitArray->Clear();
+  fHitArray->Clear();
 
   PndDrcBarPoint* pt=NULL;
-  CbmMCTrack* track=NULL; // Stefano
   nevents++;
    
   if (fVerbose > 0) {
@@ -146,13 +147,26 @@ void PndDrcHitProducerIdeal::Exec(Option_t* option)
     if (fVerbose > 0) printf("\n\n=====> Event No. %d\n", nevents); 
     
     pt = (PndDrcBarPoint*)fBarPointArray->At(j);
-    
+  
+    if (pt->GetThetaC() != -1){  
     fDetectorID = pt->GetNBar();
+  
+    // calculate the center of the bars from teh detectorID
+    Int_t s = ((fDetectorID % 1000 - fDetectorID % 10)/10)-1;
+    Int_t b =  (fDetectorID % 10)-1;
+
+    Double_t rad = TMath::Pi()/180.;
+    Double_t lside = 18.7286709135483108; //side length (cm) 
+    Double_t r = 48.85;
+    Double_t phis = s*22.5*rad; // 22.5 degrees are 360/16
+    Double_t Xs =  r*cos(phis);
+    Double_t Ys = r*sin(phis);
+    Double_t thts = phis - TMath::Pi()/2 ;
+    Double_t Xb =  (-5*lside/12 + (lside/6)*(b))*cos(thts);
+    Double_t Yb =  (-5*lside/12 + (lside/6)*(b))*sin(thts);
    
-    TVector3 fPosPoint;
-    pt->Position(fPosPoint);   
-    Double_t fXHit = fPosPoint.X();
-    Double_t fYHit = fPosPoint.Y();
+    Double_t fXHit = Xs+Xb;
+    Double_t fYHit = Ys+Yb;
     Double_t fZHit = 0.;
     TVector3 fPosHit(fXHit,fYHit,fZHit);
 
@@ -160,22 +174,21 @@ void PndDrcHitProducerIdeal::Exec(Option_t* option)
     Double_t fDPosYHit = 0.5;
     Double_t fDPosZHit = 0.;
     TVector3 fDPosHit(fDPosXHit,fDPosYHit,fDPosZHit);
-    
-    Double_t fThetaC = pt->GetThetaC();
-    Double_t fErrThetaC = 0.008; //rad
+
+    Double_t fThetaC = gRandom->Gaus(pt->GetThetaC(),0.008);
+    Double_t fErrThetaC = 0.; //rad
 
     Int_t fRefIndex = j;
 
     CbmMCTrack* tr = NULL;
-    //    tr = (CbmMCTrack*)fListStack->At(pt->GetTrackID());
-  
+
     AddHit(fDetectorID, 
 	   fPosHit, 
 	   fDPosHit,
 	   fThetaC,
 	   fErrThetaC,
 	   fRefIndex);
-    
+    }
   }
 }
 
@@ -205,7 +218,8 @@ PndDrcHit* PndDrcHitProducerIdeal::AddHit(Int_t detID,
 // -----   Finish Task   ---------------------------------------------------
 void PndDrcHitProducerIdeal::Finish()
 {
-   fHitArray->Clear();
+
+  cout << "-I- PndDrcHitProducerIdeal: Finish" << endl;
  }
 // -------------------------------------------------------------------------
 
