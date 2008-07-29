@@ -92,7 +92,26 @@ int main(int argc, char* argv[]) {
 
   gROOT->Macro("macro/christian_style.C");
 
-  PndTpcDigiMapper* mapper = PndTpcDigiMapper::getInstance();
+  PndTpcGas * _gas= new PndTpcGas("ARGON-70_CO2-30_B0.1_PRES1013.asc",250);
+
+  PndTpcGem *_gem=new PndTpcGem(5000,           // Gain
+				0.02);          // Spread
+
+  PndTpcPadShapePool *_padShapes = new PndTpcPadShapePool("TestChamberPad.dat",
+							  *_gem,
+							  0.5, // lookup range
+							  0.02, // Lookup Step
+							  0.01); // LookupIntegrationStep
+
+  PndTpcPadPlane *_padPlane= new PndTpcPadPlane("padplane.dat", _padShapes);
+
+
+
+  PndTpcDigiMapper* mapper = PndTpcDigiMapper::getInstance(false);
+  double _zGem=0.;
+  double _t0=0.;
+  double _sampleFreq = 10.;
+  mapper->init(_padPlane,_gem,_gas,_zGem,_t0,_sampleFreq);
 
   std::vector<PndTpcDigi*> digis;
 
