@@ -160,10 +160,32 @@ void TCtrack::draw(bool stop,int _x,int _y,int _w,int _h){
     x[i]=point.X();
     y[i]=point.Y();
     z[i]=point.Z();
+
+    double r1XZ,r1YZ,r2XZ,r2YZ;//Halbachsen r1 lang, r2 kurz
+    double corrXZ,corrYZ;//correlation of error ellipse
+
+    TMatrixT<double> rot(3,3);
+    TVector3 dummyV;
+    double dummyD;
+    TCalign::getInstance()->getConv(cl.at(i).getId(),dummyV,rot,dummyD);
+    rot.Print();
+    TMatrixT<double> rotTransp = rot;
+    rotTransp.T();
     TVector3 pointErr = cl.at(i).getErr();//still in det coordinates
+    TMatrixT<double> UVWerrors(3,3);
+    UVWerrors[0][0]=pow(pointErr.X(),2.)
+    UVWerrors[1][1]=pow(pointErr.Y(),2.)
+    UVWerrors[2][2]=pow(pointErr.Z(),2.)
+    TMatrixT<double> XYZerrors(3,3);
+?????????????
+    XYZerrors = rotTransp*(UVWerrors*rot);//????????????????????
+    
     xerr[i]=pointErr.X();
     yerr[i]=pointErr.Y();
     zerr[i]=pointErr.Z();
+
+
+
     singleX[0]=point.X();
     singleY[0]=point.Y();
     singleZ[0]=point.Z();

@@ -15,7 +15,8 @@
 #include "../src/TCcluster.h"
 
 
-#include "consecCut.C"
+//#include "consecCut.C"
+#include "clusterSplit1.C"
 
 
 void plots(TString files){
@@ -75,9 +76,15 @@ void plots(TString files){
     //    intr->draw();
     if(tr.nClFit()<7)continue;
 
-    tr.drawClustering(false);
-    tr.useTrivialClustering();
-    tr.draw(true,650,50,500,500);
+    //TCtrack trSplit = clusterSplit1(tr);
+
+    //tr.drawClustering(false,20,20,400,400);
+    //tr.useTrivialClustering();
+    tr.draw(true,650,20,400,400);
+
+
+    //trSplit.drawClustering(false,20,250,400,400);
+    //trSplit.draw(true,700,250,400,400);
 
     //    tr.draw();
     //tr.setCustomRange(true,0,9,0,1,0,8);

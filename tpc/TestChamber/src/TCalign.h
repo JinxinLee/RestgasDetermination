@@ -31,7 +31,8 @@ class TCalign{
 	P[id]=new double(pitch);
   }
 
-  TVector3 dirXYZtoUVW(int id,TVector3 xyz);
+  TVector3 notranslXYZtoUVW(int id,TVector3 xyz);
+  TVector3 notranslUVWtoXYZ(int id,TVector3 uvw);
   TVector3 XYZtoUVW(int id,TVector3 xyz);
   TVector3 UVWtoXYZ(int id,TVector3 uvw);
 

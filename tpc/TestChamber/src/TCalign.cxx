@@ -17,10 +17,16 @@ TVector3 TCalign::XYZtoUVW(int id,TVector3 xyz){
   return uvw;
 }
 
-TVector3 TCalign::dirXYZtoUVW(int id,TVector3 xyz){
+TVector3 TCalign::notranslXYZtoUVW(int id,TVector3 xyz){
   if(R[id]==NULL) quit(id);
-  TVector3 uvw = (*(R[id]))*xyz;
-  return uvw;
+  return (*(R[id]))*xyz;
+}
+
+TVector3 TCalign::notranslUVWtoXYZ(int id,TVector3 uvw){
+  if(R[id]==NULL) quit(id);
+  TMatrixT<double> M = (*(R[id]));
+  M.T();
+  return  M*uvw;
 }
 
 

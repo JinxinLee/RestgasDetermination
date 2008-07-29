@@ -46,12 +46,6 @@ TCtrack clusterSplit1(TCtrack t){
 
     
 
-    std::cout << "@@@@@" << std::endl;
-    for(int i=0;i<raw.size();++i){
-      raw.at(i).print();
-    }
-    std::cout << "@@@@@%%%%%%%" << std::endl;
-
     std::vector<TCcluster> buf;
     buf.push_back( raw.at(0) );
     if(raw.size()>1){//more than one raw cluster, so sort in padrows
@@ -84,10 +78,6 @@ TCtrack clusterSplit1(TCtrack t){
     }
     for(unsigned int isplit=0;isplit<split.size();++isplit){
       TCcluster arow(split.at(isplit) );
-      std::cout << "####################################" << std::endl;
-      for(int i=0;i<arow.nRaw();++i){
-	arow.getRaw(i).print();
-      }
       arow.setFit(tpc.at(icl).getFit());
       output.push_back(arow);
     }

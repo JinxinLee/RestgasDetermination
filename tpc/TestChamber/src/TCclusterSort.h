@@ -7,6 +7,10 @@ class TCclusterSortUVW{
  public:
   bool operator()(TCcluster c1, TCcluster c2);
 };
+class TCclusterSortU{
+ public:
+  bool operator()(TCcluster c1, TCcluster c2);
+};
 
 class TCclusterSortXYZ{
  public:

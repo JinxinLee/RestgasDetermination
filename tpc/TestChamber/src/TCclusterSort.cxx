@@ -1,6 +1,11 @@
 #include"TCclusterSort.h"
 #include<cmath>
 
+bool TCclusterSortU::operator()(TCcluster c1, TCcluster c2){
+  return c1.posUVW().X() < c2.posUVW().X();
+}
+
+
 bool TCclusterSortUVW::operator()(TCcluster c1, TCcluster c2){
   unsigned char u=0,v=0,w=0;
   static const double eps =1.E-10;

@@ -14,6 +14,7 @@ class TCcluster : public TObject{
   TCcluster(const PndTpcCluster& _c,int id);
   TCcluster(const PndTpcDigi& _d,int id);
   TCcluster();//just for ROOT
+  TCcluster(std::vector<TCcluster>& _raw);
 
   void setResid(double *par);
   TVector3 getResid(double *par);
@@ -52,13 +53,16 @@ class TCcluster : public TObject{
   double getAmp(){
     return amp;
   }
+  double getPedestalRMS(){
+    return pedestalRMS;
+  }
 
  private:
   int detId;
   TVector3 pos,err,res;
   double amp;
   bool fit;
-
+  double pedestalRMS;//for trivial clusters
   std::vector<TCcluster> raw;
 
   TVector3 residStrip(const TVector3& p, const TVector3& d);
