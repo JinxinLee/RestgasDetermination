@@ -13,13 +13,6 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndDrcBarPoint::PndDrcBarPoint() {
-  // fTrackID    = -1;
-  //fDetectorID = -1;
-  //fX          = fY  = fZ =  0.;
-  //fPx         = fPy = fPz = 0.;
-  //fTime       =  0.;
-  //fLength     =  0.;
-  //fELoss      =  0.;
   fPdgCode      = 0;
   fEventID      = 0;
   fAngIn        = 0;

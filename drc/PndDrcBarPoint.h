@@ -23,15 +23,7 @@ class PndDrcBarPoint : public CbmMCPoint
   PndDrcBarPoint();
 
 
-  /** Constructor with arguments
-   *@param trackID  Index of MCTrack
-   *@param detID    Detector ID
-   *@param pos      Point coordinates [cm]
-   *@param mom      Momentum of track at MCPoint [GeV]
-   *@param tof      Time since event start [ns]
-   *@param length   Track length since creation [cm]
-   *@param eLoss    Energy deposit [GeV]
-   **/
+  /** Constructor with arguments **/
   PndDrcBarPoint(Int_t trackID, Int_t detID, TVector3 pos, TVector3 mom,
 		 Double_t tof, Double_t length, Int_t pdgCode, Double_t angIn, Double_t thetaC, Int_t nBar, Int_t eventID);
 

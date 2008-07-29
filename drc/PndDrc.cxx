@@ -58,17 +58,11 @@ using std::cout;
 
 // -----   Default constructor   -------------------------------------------
 PndDrc::PndDrc() {
-
-
   fDrcPDCollection = new TClonesArray("PndDrcPDPoint");
   fDrcBarCollection = new TClonesArray("PndDrcBarPoint");
   fPosIndex   = 0;
-  // fflag = 0;
   volDetector = 0;
   fRunCherenkov = kTRUE;
-  //  fListOfSensitives.push_back("Photodetector");
-  //fListOfSensitives.push_back("Bars");
-
 }
 // -------------------------------------------------------------------------
 
@@ -410,8 +404,8 @@ void PndDrc::EndOfEvent() {
 
 // -----   Public method Register   -------------------------------------------
 void PndDrc::Register() {
-  CbmRootManager::Instance()->Register("PndDrcBarPoint","drc", fDrcBarCollection, kTRUE);
-  CbmRootManager::Instance()->Register("PndDrcPDPoint","drc", fDrcPDCollection, kTRUE);
+  CbmRootManager::Instance()->Register("DrcBarPoint","Drc", fDrcBarCollection, kTRUE);
+  CbmRootManager::Instance()->Register("DrcPDPoint","Drc", fDrcPDCollection, kTRUE);
 
 }
 // ----------------------------------------------------------------------------

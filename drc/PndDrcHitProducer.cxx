@@ -37,7 +37,7 @@ using std::cout;
 // -----   Default constructor   -------------------------------------------
 //PndDrcHitProducer::PndDrcHitProducer() 
 PndDrcHitProducer::PndDrcHitProducer() 
-:CbmTask("DrcHitProducer")
+:CbmTask("PndDrcHitProducer")
 {
 }
 // -------------------------------------------------------------------------
@@ -45,7 +45,7 @@ PndDrcHitProducer::PndDrcHitProducer()
 // -----   Standard constructor with verbosity level  -------------------------------------------
 
 PndDrcHitProducer::PndDrcHitProducer(Int_t verbose) 
-  :CbmTask("DrcHitProducer")
+  :CbmTask("PndDrcHitProducer")
 {
    fVerbose = verbose;  
  }
@@ -91,10 +91,10 @@ InitStatus PndDrcHitProducer::Init()
   }
 
   // Get input array
-  fBarPointArray = (TClonesArray*) ioman->GetObject("PndDrcBarPoint");
+  fBarPointArray = (TClonesArray*) ioman->GetObject("DrcBarPoint");
    if ( ! fBarPointArray ) {
     cout << "-W- PndDrcHitProducer::Init: "
-         << "No PndDrcBarPoint array!" << endl;
+         << "No DrcBarPoint array!" << endl;
     return kERROR;
   }
 
@@ -107,7 +107,7 @@ InitStatus PndDrcHitProducer::Init()
  
    // Create and register output array
    fHitArray = new TClonesArray("PndDrcHit");
-   ioman->Register("PndDrcHit","Drc",fHitArray, kTRUE);
+   ioman->Register("DrcHit","Drc",fHitArray, kTRUE);
     
   // Geometry loading
    TFile *drcfile = ioman->GetInFile();
@@ -147,7 +147,9 @@ void PndDrcHitProducer::Exec(Option_t* option)
     
     pt = (PndDrcBarPoint*)fBarPointArray->At(j);
     
-    Int_t fCopyNo = pt->GetNBar();
+    fDetectorID = pt->GetNBar();
+    // Int_t fDetID = 20;
+
     TVector3 fPosPoint;
     pt->Position(fPosPoint);   
     Double_t fXHit = fPosPoint.X();
@@ -163,14 +165,17 @@ void PndDrcHitProducer::Exec(Option_t* option)
     Double_t fThetaC = pt->GetThetaC();
     Double_t fErrThetaC = 0.;
 
+    Int_t fRefIndex = j;
+
     CbmMCTrack* tr = NULL;
     tr = (CbmMCTrack*)fListStack->At(pt->GetTrackID());
   
-    AddHit(fCopyNo, 
+    AddHit(fDetectorID, 
 	   fPosHit, 
 	   fDPosHit,
 	   fThetaC,
-	   fErrThetaC);
+	   fErrThetaC,
+	   fRefIndex);
     
   }
 }
@@ -179,18 +184,20 @@ void PndDrcHitProducer::Exec(Option_t* option)
 
 
 // -----   Add Hit to HitCollection   --------------------------------------
-PndDrcHit* PndDrcHitProducer::AddHit(Int_t copyNo, 
+PndDrcHit* PndDrcHitProducer::AddHit(Int_t detID, 
 				     TVector3 posHit, 
 				     TVector3 dPosHit, 
 				     Double_t thetaC,
-				     Double_t errThetaC){
+				     Double_t errThetaC,
+				     Int_t index){
   TClonesArray& clref = *fHitArray;
   Int_t size = clref.GetEntriesFast();
-  return new(clref[size]) PndDrcHit(copyNo, 
+  return new(clref[size]) PndDrcHit(detID, 
 				    posHit, 
 				    dPosHit, 
 				    thetaC,
-				    errThetaC);
+				    errThetaC,
+				    index);
 }
 
 // -------------------------------------------------------------------------

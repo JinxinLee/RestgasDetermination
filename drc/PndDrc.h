@@ -136,7 +136,7 @@ class PndDrc : public CbmDetector
 
  private:
 
-  Bool_t fRunCherenkov;            //!  Switch ON/OGG Cherenkov propagation
+  Bool_t fRunCherenkov;            //!  Switch ON/OFF Cherenkov propagation
   Int_t          fTrackID;         //!  track index
   Int_t          fCopyNo;         //!  volume id
   TLorentzVector fPos;    //!  position

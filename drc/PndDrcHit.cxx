@@ -14,19 +14,20 @@ using std::endl;
 // -----   Default constructor   -------------------------------------------
 PndDrcHit::PndDrcHit(){
   fThetaC = -999.;
-fErrThetaC = -999.;
+  fErrThetaC = -999.;
 }
 // -------------------------------------------------------------------------
 
 
 // -----   Standard constructor   ------------------------------------------
 
-PndDrcHit::PndDrcHit(Int_t copyNo, 
+PndDrcHit::PndDrcHit(Int_t detID, 
 		     TVector3 pos, 
 		     TVector3 dpos,
 		     Double_t thetaC,
-		     Double_t errThetaC){
-  fCopyNo     = copyNo;
+		     Double_t errThetaC,
+		     Int_t index){
+  fDetectorID = detID;
   fX          = pos.X();
   fY          = pos.Y();
   fZ          = pos.Z();
@@ -35,6 +36,7 @@ PndDrcHit::PndDrcHit(Int_t copyNo,
   fDz         = dpos.Pz();
   fThetaC     = thetaC;
   fErrThetaC  = errThetaC;
+  fRefIndex   = index;
 }
 
 // -----   Destructor   ----------------------------------------------------

@@ -55,27 +55,29 @@ public:
   virtual void Exec(Option_t* option);
 
   /** Finish task **/ 
-  //  virtual void Finish();
+  virtual void Finish();
 
   /** method AddHit
    **
    ** Adds a DrcHit to the HitCollection
    **/
-  PndDrcHit* AddHit(Int_t copyNo, 
+  PndDrcHit* AddHit(Int_t detID, 
 		    TVector3 posHit, 
 		    TVector3 dPosHit, 
 		    Double_t thetaC,
-		    Double_t errThetaC);
+		    Double_t errThetaC,
+		    Int_t index);
 
-  void Finish();
 
  protected:
   
  private:
   
+  Int_t fDetectorID;
   TVector3 fPosHit;
   TVector3 fDPosHit;
   Double_t fThetaC, fErrThetaC;
+  Int_t fRefIndex;
 
   TClonesArray* fBarPointArray; // DRC MC points in the bars
   TClonesArray* fHitArray; // DRC hits
