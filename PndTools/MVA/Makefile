@@ -21,4 +21,4 @@ clean:
 	rm -f $(BINS) *~
 
 cleanall:
-	rm -f $(BINS) *~ *.so *.d  *.pdf *.ps
+	rm -f $(BINS) *~ *.so *.d  *.pdf *.ps *.root

@@ -113,7 +113,7 @@ void PndKnnTrain::Train(const std::vector<float> &EvtData,
  * ******************************************
  */
 int main(int argc, char** argv){
-  int totEvtNum = 1000000;
+  int totEvtNum = 100000;
   
   std::vector<std::string> clas;
   std::vector<std::string> nam;

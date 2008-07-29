@@ -9,7 +9,7 @@
 #include <algorithm>
 
 //OPENMP header
-#include <omp.h>
+//#include <omp.h>
 
 // Root includes
 #include "TFile.h"

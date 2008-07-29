@@ -133,7 +133,7 @@ void PndKnnClassify::Classify(std::vector<float> &EvtData,
     perClsExamples.push_back(numExamples);
   }
 
-  //// Initialize results
+  // Initialize results
   for(unsigned int id = 0; id < m_ClassNames.size(); id++){
     result.insert( make_pair( m_ClassNames[id], 0.0 ) ); 
   }
@@ -159,12 +159,12 @@ void PndKnnClassify::Classify(std::vector<float> &EvtData,
       begin += chunk;
       
       float dist = ComputeDist(EvtData,vals);
-      DistObject* ds = new DistObject(dist,m_ClassNames[cls]);
+      DistObject* ds = new DistObject(dist, m_ClassNames[cls]);
       m_dists.push_back(ds);
     }// WHILE
-  }//For CLS
+  }// For CLS
   
-  //All distances are determined, now we can classify
+  // All distances are determined, now we can classify
   sort(m_dists.begin(), m_dists.end(), LessFunct);
   
   if (Neighbours > m_dists.size()){
@@ -180,7 +180,7 @@ void PndKnnClassify::Classify(std::vector<float> &EvtData,
     result[clas] += 1.0;
   }
   
-  //Normalizing the results
+  // Normalizing the results
   float Psum = 0.0;
   for(unsigned int icl = 0; icl < result.size(); icl++){
     int num = perClsExamples[icl];
@@ -235,6 +235,6 @@ int main(int argc, char** argv)
 
   std::map<std::string,float> res;
   
-  cls.Classify(evt,1500000,res);
+  cls.Classify(evt,150000,res);
   return 0;
 }

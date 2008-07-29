@@ -2,8 +2,8 @@
 #define PndKnnTrain_H
 
 // Standard C++ libraries
+//#include <sstream>
 #include <iostream>
-#include <sstream>
 #include <vector>
 
 // Root includes
