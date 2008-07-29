@@ -82,7 +82,7 @@
   
   // -----    DRC hit producer   --------------------------------------------
  
-  PndDrcHitProducer* drchit = new PndDrcHitProducer();
+  PndDrcHitProducerIdeal* drchit = new PndDrcHitProducerIdeal();
   drchit->SetVerbose(iVerbose);
   fRun->AddTask(drchit);
  
