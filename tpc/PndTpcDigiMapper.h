@@ -44,7 +44,7 @@ class PndTpcDigiMapper {
   void map(const PndTpcDigi* const _dig, TVector3& _vec);
   
   double t_from_z(double z);
-  double z_from_tick(double t);
+  double z_from_tick(double t,double vdr=-1.);
 
   PndTpcPadPlane* getPadPlane() {return _padPlane;}
 
