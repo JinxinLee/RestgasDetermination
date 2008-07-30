@@ -25,7 +25,8 @@ class PndDrcBarPoint : public CbmMCPoint
 
   /** Constructor with arguments **/
   PndDrcBarPoint(Int_t trackID, Int_t detID, TVector3 pos, TVector3 mom,
-		 Double_t tof, Double_t length, Int_t pdgCode, Double_t angIn, Double_t thetaC, Int_t nBar, Int_t eventID);
+		 Double_t tof, Double_t length, Int_t pdgCode, Double_t angIn, 
+		 Double_t thetaC, Int_t nBar, Int_t eventID, Double_t mass, Double_t charge);
 
 
  /** Copy constructor **/
@@ -42,7 +43,9 @@ class PndDrcBarPoint : public CbmMCPoint
   Double_t GetAngIn()      const { return fAngIn; };
   Double_t GetThetaC()     const { return fThetaC; };
   Int_t    GetNBar()       const { return fNBar;};
- 
+  Double_t GetMass()       const { return fMass;};
+  Double_t GetCharge()     const { return fCharge;}; 
+
   /** Modifiers ** **/
   void SetEventID(Int_t id)          { fEventID = id; }; 
   void SetPdgCode(Int_t id)          { fPdgCode = id; }; 
@@ -63,8 +66,8 @@ class PndDrcBarPoint : public CbmMCPoint
   Double_t fThetaC;             // Cherenkov Angle
   Int_t fNBar;                  // Rod number
   Int_t fEventID;               // Event ID
-
-
+  Double_t fMass;               // Mass 
+  Double_t fCharge;             // Charge
 
   ClassDef(PndDrcBarPoint,2)
 

@@ -37,7 +37,6 @@ using std::endl;
 using std::cout;
 
 // -----   Default constructor   -------------------------------------------
-//PndDrcHitProducerIdeal::PndDrcHitProducerIdeal() 
 PndDrcHitProducerIdeal::PndDrcHitProducerIdeal() 
 :CbmTask("PndDrcHitProducerIdeal")
 {
@@ -58,23 +57,6 @@ PndDrcHitProducerIdeal::PndDrcHitProducerIdeal(Int_t verbose)
 PndDrcHitProducerIdeal::~PndDrcHitProducerIdeal()
 {
 }
-// -------------------------------------------------------------------------
-
-
-
-// -----   Initialization of parameter Containers  ------------------------------------------------
-// void PndDrcHitProducerIdeal::SetParContainers() {
-
-//   // Get run and runtime database
-//   CbmRunAna* run = CbmRunAna::Instance();
-//   if ( ! run ) Fatal("SetParContainers", "No analysis run");
-
-//   CbmRuntimeDb* db = run->GetRuntimeDb();
-//   if ( ! db ) Fatal("SetParContainers", "No runtime database");
-
-  // Get Drc digitisation parameter container
-  //  fPar = (PndGeoDrcPar*) db->getContainer("PndGeoDrcPar");  
-//}
 // -------------------------------------------------------------------------
 
 
@@ -100,22 +82,10 @@ InitStatus PndDrcHitProducerIdeal::Init()
     return kERROR;
   }
 
-//   fListStack = (TClonesArray *)ioman->GetObject("MCTrack"); 
-//    if ( ! fListStack ) {
-//     cout << "-W- PndDrcHitProducerIdeal::Init: "
-//          << "No MCTrack array!" << endl;
-//     return kERROR;
-//   }
- 
    // Create and register output array
    fHitArray = new TClonesArray("PndDrcHit");
    ioman->Register("DrcHit","Drc",fHitArray, kTRUE);
     
- //  // Geometry loading
-//    TFile *drcfile = ioman->GetInFile();
-//    TGeoManager *geoMan = (TGeoManager*) drcfile->Get("CBMGeom");
-//    fVolumeArray = geoMan->GetListOfVolumes();
-//    //fVolumeArray = gGeoManager->GetListOfVolumes();
    cout << "-I- PndDrcHitProducerIdeal: Intialization successfull" << endl;
 
    return kSUCCESS;
@@ -148,7 +118,23 @@ void PndDrcHitProducerIdeal::Exec(Option_t* option)
     
     pt = (PndDrcBarPoint*)fBarPointArray->At(j);
   
-    if (pt->GetThetaC() != -1){  
+    Double_t Px= pt->GetPx();
+    Double_t Py= pt->GetPy();
+    Double_t Pz= pt->GetPz();
+    Double_t P = sqrt(Px*Px + Py*Py +Pz*Pz);
+    Double_t mass = pt->GetMass();
+    Double_t energy = TMath::Sqrt(P*P + mass*mass); 
+
+    Double_t beta;
+    if(energy != 0) {
+      beta = P/energy;
+    }
+    else {
+      beta = -1.;
+      if (fVerbose >0) cout << "Beta not calculated " << endl; 
+    }
+
+    if (pt->GetThetaC() != -1. && beta > 1/1.47 && pt->GetCharge() != 0){  
     fDetectorID = pt->GetNBar();
   
     // calculate the center of the bars from teh detectorID
