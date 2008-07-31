@@ -13,7 +13,7 @@
   Int_t nEvents = 0;
   
   // Parameter file
-  TString parFile = "parfiles/testparams.root";
+  TString parFile = "testparams.root";
   
   // Output file
   TString outFile = "testreco.root";
@@ -59,11 +59,18 @@
   sttFitTracks->AddHitCollectionName("STTHit");
   fRun->AddTask(sttFitTracks);
 
+  // helix hit production ....
+  //  PndSttHelixHitProducer* sttHHProducer = new PndSttHelixHitProducer();
+  //  fRun->AddTask(sttHHProducer);
+
+
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
   fRun->Run(0, nEvents);
   // fRun->Run(15, 20);
   // ------------------------------------------------------------------------
+
+  //  sttHHProducer->WriteHistograms();
 
   // -----   Finish   -------------------------------------------------------
   timer.Stop();

@@ -10,7 +10,7 @@
   Int_t nEvents = 0;
 
   // Parameter file
-  TString parFile = "params.root";
+  TString parFile = "testparams.root";
 
   // Output file
   TString outFile = "testdigi.root";
