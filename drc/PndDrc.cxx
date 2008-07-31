@@ -260,13 +260,9 @@ void PndDrc::Initialize() {
 	  opt_system.SetNameCopyNumber(name_clone.Data(),inode);
 	  manager->AddDeviceSystem(opt_system);
 
-	  
-	  }
-
-
-
-	} 
-
+	}
+    } 
+  
   if (fRunCherenkov==kFALSE) cout << " -I- PndDrc: Switching OFF Cherenkov Propagation" << endl;
   cout << " -I- PndDrc: Intialization successfull" << endl;
   
@@ -276,7 +272,7 @@ void PndDrc::Initialize() {
 
 // -------------------------------------------------------------------------
 void PndDrc::BeginEvent(){
-
+  
   if (fVerboseLevel >0) cout<<" \n\n>>>>>>>>>>>>>>>>>>>>new event in the Barrel DIRC" <<endl;
   fEventID++;
 }
@@ -285,7 +281,7 @@ void PndDrc::BeginEvent(){
 
 // -----   Public method ProcessHits  --------------------------------------
 Bool_t PndDrc::ProcessHits(CbmVolume* vol) {
-
+  
   if (fVerboseLevel >0) cout << "PndDrc::ProcessHits " << vol->GetName() << endl;
  
   //Register points in the barrel (PndDrcBarPoints)
@@ -303,10 +299,8 @@ Bool_t PndDrc::ProcessHits(CbmVolume* vol) {
   gMC->TrackPosition(fPos);
   TString nam = gMC->CurrentVolName();
   
-  if (nam.BeginsWith("bar") && gMC->IsTrackEntering()==1 &&  fPdgCode != 50000050) 
+  if (nam.BeginsWith("bar") && gMC->IsTrackEntering()==1 &&  fPdgCode != 50000050 && fCharge !=0.) 
   {
-//     Int_t  indexDau = gMC->GetStack()->GetCurrentTrack()->GetFirstDaughter();
-//     Int_t  pdgDau =  gMC->PDGFromId();
     Int_t  fTrackID = gMC->GetStack()->GetCurrentTrackNumber();
     Double_t fTime    = gMC->TrackTime() * 1.0e09;
     Double_t fLength = gMC->TrackLength();
@@ -320,8 +314,13 @@ Bool_t PndDrc::ProcessHits(CbmVolume* vol) {
     
     Int_t fNBar = s*10 +b;
     gMC->TrackMomentum(fMom); // GeV/c
-    
-    
+
+ //    Double_t r = 49.7;
+//     Double_t phi = acos(fPos.X()/r);
+//     Double_t tht;
+//     if (fPos.Z() !=0) tht = atan(fPos.Y()/fPos.Z());
+    //  cout << "hit phi: "<< phi <<";   theta = " << tht << endl;
+
     Double_t Px= fMom.Px();
     Double_t Py= fMom.Py();
     Double_t Pz= fMom.Pz();
@@ -329,9 +328,13 @@ Bool_t PndDrc::ProcessHits(CbmVolume* vol) {
     Double_t fMass = gMC->TrackMass();
     Double_t fEnergy = TMath::Sqrt(fP*fP + fMass*fMass); 
     
-    Double_t fAngIn =  acos(Pz/fP);
-    //      cout << "momentum = " << fP << endl;
-    //cout << "energy = "<< fEnergy << endl;
+    Double_t fAngIn;
+ if ( fabs(Pz/fP) > 1. || fP == 0.){
+      fAngIn = -1.;
+    }
+    else{
+      fAngIn = acos(Pz/fP);
+    }
     
     Double_t fThetaC;
     if (fabs(1./(1.47*(fP/fEnergy))) > 1. || fP == 0. || fEnergy == 0.){
@@ -352,8 +355,7 @@ Bool_t PndDrc::ProcessHits(CbmVolume* vol) {
 	      fThetaC,
 	      fNBar,
 	      fEventID,
-	      fMass,
-	      fCharge);
+	      fMass);
     
   }
   
@@ -672,7 +674,7 @@ PndDrcPDPoint* PndDrc::AddHit(Int_t trackID, Int_t copyNo, TVector3 pos, TVector
 }
 
 
-PndDrcBarPoint* PndDrc::AddBarHit(Int_t trackID, Int_t copyNo, TVector3 pos, TVector3 mom, Double_t time, Double_t length, Int_t pdgCode, Double_t angIn, Double_t thetaC, Int_t nBar, Int_t eventID, Double_t mass, Double_t charge) {
+PndDrcBarPoint* PndDrc::AddBarHit(Int_t trackID, Int_t copyNo, TVector3 pos, TVector3 mom, Double_t time, Double_t length, Int_t pdgCode, Double_t angIn, Double_t thetaC, Int_t nBar, Int_t eventID, Double_t mass) {
  
   TClonesArray& clrefBar = *fDrcBarCollection;
   Int_t size = clrefBar.GetEntriesFast();
@@ -691,8 +693,7 @@ PndDrcBarPoint* PndDrc::AddBarHit(Int_t trackID, Int_t copyNo, TVector3 pos, TVe
 					    thetaC,
 					    nBar,
 					    eventID, 
-					    mass,
-					    charge);
+					    mass);
   
 }
 

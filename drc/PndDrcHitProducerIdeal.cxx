@@ -99,7 +99,7 @@ void PndDrcHitProducerIdeal::Exec(Option_t* option)
 {
   if ( ! fHitArray ) Fatal("Exec", "No HitArray");
   fHitArray->Clear();
-
+  nevents= 0;
   PndDrcBarPoint* pt=NULL;
   nevents++;
    
@@ -114,7 +114,7 @@ void PndDrcHitProducerIdeal::Exec(Option_t* option)
 
   // Loop over PndDrcPoints
   for(Int_t j=0; j<fBarPointArray->GetEntriesFast(); j++) {
-    if (fVerbose > 0) printf("\n\n=====> Event No. %d\n", nevents); 
+    if (fVerbose > 1) printf("\n\n=====> Event No. %d\n", nevents); 
     
     pt = (PndDrcBarPoint*)fBarPointArray->At(j);
   
@@ -134,7 +134,7 @@ void PndDrcHitProducerIdeal::Exec(Option_t* option)
       if (fVerbose >0) cout << "Beta not calculated " << endl; 
     }
 
-    if (pt->GetThetaC() != -1. && beta > 1/1.47 && pt->GetCharge() != 0){  
+    if (pt->GetThetaC() != -1. && beta > 1/1.47){  
     fDetectorID = pt->GetNBar();
   
     // calculate the center of the bars from teh detectorID
@@ -144,16 +144,19 @@ void PndDrcHitProducerIdeal::Exec(Option_t* option)
     Double_t rad = TMath::Pi()/180.;
     Double_t lside = 18.7286709135483108; //side length (cm) 
     Double_t r = 48.85;
-    Double_t phis = s*22.5*rad; // 22.5 degrees are 360/16
+    Double_t phis = (s*22.5 +270-22.5)*rad; // 22.5 degrees are 360/16
     Double_t Xs =  r*cos(phis);
     Double_t Ys = r*sin(phis);
-    Double_t thts = phis - TMath::Pi()/2 ;
+    Double_t thts = phis- TMath::Pi()/2;
     Double_t Xb =  (-5*lside/12 + (lside/6)*(b))*cos(thts);
     Double_t Yb =  (-5*lside/12 + (lside/6)*(b))*sin(thts);
    
     Double_t fXHit = Xs+Xb;
     Double_t fYHit = Ys+Yb;
     Double_t fZHit = 0.;
+ 
+    //  cout << "hit phi: "<< acos(fXHit/r) << endl;
+    
     TVector3 fPosHit(fXHit,fYHit,fZHit);
 
     Double_t fDPosXHit = 0.5; //mm

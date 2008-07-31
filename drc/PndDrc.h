@@ -130,8 +130,7 @@ class PndDrc : public CbmDetector
 			    Double_t thetaC,
 			    Int_t nBar, 
 			    Int_t eventID,
-			    Double_t mass,
-			    Double_t charge);
+			    Double_t mass);
 
 
   void SetRunCherenkov(Bool_t ch) { fRunCherenkov = ch; };
@@ -150,7 +149,6 @@ class PndDrc : public CbmDetector
   Int_t fPosIndex;      //! 
   Int_t volDetector;    //!  MC volume ID of drc
   Double_t fMass;
-  Double_t fCharge;
 
   Int_t fPdgCode;
   Double_t fThetaC;
@@ -182,7 +180,6 @@ inline void PndDrc::ResetParameters() {
   fNBar = -999;
   fEventID = -999;
   fMass = -999;
-  fCharge = -999;
 }
 
 
