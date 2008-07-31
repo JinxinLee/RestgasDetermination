@@ -545,10 +545,12 @@ void PndDrc::ConstructGeometry()
     Double_t tht=theta* TMath::Pi()/180.;
     dx=rad*sin(tht);
     dy=rad*cos(tht);
-    dz=-0.;
+    dz=0.;
     TGeoRotation rot1;
     rot1.RotateZ(-22.5*(n-1));
-    baseVol->AddNode(side, n+1,new TGeoCombiTrans(dx, dy, dz, new TGeoRotation (rot1)) );
+    baseVol->AddNode(side, n,new TGeoCombiTrans(dx, dy, dz, new TGeoRotation (rot1)) );
+
+
   }
 
   // Box contains 6 bars 

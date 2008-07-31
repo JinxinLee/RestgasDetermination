@@ -65,7 +65,7 @@ PndDrcHitProducerIdeal::~PndDrcHitProducerIdeal()
 InitStatus PndDrcHitProducerIdeal::Init()
 {
   cout << " ---------- INITIALIZATION ------------" << endl;
-
+  nevents = 0;
   // Get RootManager
   CbmRootManager* ioman = CbmRootManager::Instance();
   if ( ! ioman ) {
@@ -99,7 +99,8 @@ void PndDrcHitProducerIdeal::Exec(Option_t* option)
 {
   if ( ! fHitArray ) Fatal("Exec", "No HitArray");
   fHitArray->Clear();
-  nevents= 0;
+
+
   PndDrcBarPoint* pt=NULL;
   nevents++;
    
@@ -144,12 +145,12 @@ void PndDrcHitProducerIdeal::Exec(Option_t* option)
     Double_t rad = TMath::Pi()/180.;
     Double_t lside = 18.7286709135483108; //side length (cm) 
     Double_t r = 48.85;
-    Double_t phis = (s*22.5 +270-22.5)*rad; // 22.5 degrees are 360/16
+    Double_t phis = (s*22.5+270 )*rad; // 22.5 degrees are 360/16
     Double_t Xs =  r*cos(phis);
     Double_t Ys = r*sin(phis);
     Double_t thts = phis- TMath::Pi()/2;
-    Double_t Xb =  (-5*lside/12 + (lside/6)*(b))*cos(thts);
-    Double_t Yb =  (-5*lside/12 + (lside/6)*(b))*sin(thts);
+    Double_t Xb =  (5*lside/12 - (lside/6)*(b))*cos(thts);
+    Double_t Yb =  (5*lside/12 - (lside/6)*(b))*sin(thts);
    
     Double_t fXHit = Xs+Xb;
     Double_t fYHit = Ys+Yb;
