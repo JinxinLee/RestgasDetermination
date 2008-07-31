@@ -46,6 +46,8 @@ PndSttHelixTrackFitter.cxx
 PndSttGeomPoint.cxx     
 PndSttHitProducerRealFast.cxx
 PndSttHitProducerRealFull.cxx            
+PndSttHelixHit.cxx
+PndSttHelixHitProducer.cxx
 )
 
 if(RULE_CHECKER_FOUND)

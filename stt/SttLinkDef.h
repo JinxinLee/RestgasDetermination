@@ -28,6 +28,8 @@
 #pragma link C++ class PndSttGeomPoint+;
 #pragma link C++ class PndSttHitProducerRealFast+;
 #pragma link C++ class PndSttHitProducerRealFull+;
+#pragma link C++ class PndSttHelixHit+;
+#pragma link C++ class PndSttHelixHitProducer+;
 
 
 #endif
