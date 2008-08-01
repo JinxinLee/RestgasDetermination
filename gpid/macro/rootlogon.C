@@ -15,6 +15,7 @@
   gSystem->AddIncludePath("-I$VMCWORKDIR/mcstack");
   gSystem->AddIncludePath("-I$VMCWORKDIR/base");
   gSystem->AddIncludePath("-I$VMCWORKDIR/trackbase");
+  gSystem->AddIncludePath("-I/home/vanni/TMVA/include");
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
   basiclibs();
   gSystem->Load("libGeoBase");
@@ -42,7 +43,14 @@
   gSystem->Load("libRho");
   gSystem->Load("libGpid");
   gSystem->Load("libGeane");
- gStyle->SetPalette(1);
+  gSystem->Load("libTMVA");
+  gStyle->SetPalette(1);
+  gStyle->SetTitleStyle(0);
+  gStyle->SetTitleXSize(0.06);
+  gStyle->SetTitleYSize(0.06);
+  gStyle->SetCanvasColor(kWhite);
+  gStyle->SetFrameFillColor(kWhite);
+  gStyle->SetOptStat(0);
   delete gRandom;
   gRandom=new TRandom3(0);
 }

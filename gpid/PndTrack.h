@@ -1,5 +1,5 @@
 #ifndef PND_TRACK_HH
-#define PND_TRACK_HH
+#define PND_TRACK_HH 1
 #include "TObject.h"
 /*
 any pointer data member here has to be deleted by destroy func

@@ -1,5 +1,5 @@
 #ifndef PND_PID_CAND_HH
-#define PND_PID_CAND_HH
+#define PND_PID_CAND_HH 1
 #include "TCandidate.h"
 #include <map>
 #include <string>

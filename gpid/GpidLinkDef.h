@@ -1,5 +1,3 @@
-// $Id: LHETrackLinkDef.h,v 1.3 2005/02/04 16:24:01 roleg Exp $
-
 #ifdef __CINT__
 
 #pragma link off all globals;
@@ -10,8 +8,12 @@
 #pragma link C++ class  PndGeaneTrTpcTof+;
 #pragma link C++ class  PndGeaneTrTpcIdealTof+;
 #pragma link C++ class  PndGpidCollTask+;
-
+#pragma link C++ class  MultiClassBdtTrain+;
+#pragma link C++ class  MultiClassMVA+;
+#pragma link C++ class  Event+;
+#pragma link C++ class  EvtGenTask+;
+#pragma link C++ class  PndGpidTask+;
+#pragma link C++ class  test+;
 
 
 #endif
-
