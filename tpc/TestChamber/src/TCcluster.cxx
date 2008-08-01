@@ -61,7 +61,7 @@ TCcluster::TCcluster(const PndTpcDigi& _d,int id) : detId(id),fit(false){//for r
 }
 
 
-TCcluster::TCcluster(std::vector<TCcluster>& _raw){
+void TCcluster::ctorTCcluster(std::vector<TCcluster>& _raw){
   pedestalRMS=-1.E10;
   pos.SetXYZ(0,0,0);
   amp=0;

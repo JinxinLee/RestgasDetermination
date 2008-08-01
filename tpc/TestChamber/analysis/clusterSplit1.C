@@ -77,7 +77,8 @@ TCtrack clusterSplit1(TCtrack t){
       buf.clear();
     }
     for(unsigned int isplit=0;isplit<split.size();++isplit){
-      TCcluster arow(split.at(isplit) );
+      TCcluster arow;
+      arow.ctorTCcluster(split.at(isplit) );
       arow.setFit(tpc.at(icl).getFit());
       output.push_back(arow);
     }

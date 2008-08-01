@@ -13,8 +13,9 @@ class TCcluster : public TObject{
   TCcluster(TVector3 p,TVector3 e,double a,int id);
   TCcluster(const PndTpcCluster& _c,int id);
   TCcluster(const PndTpcDigi& _d,int id);
-  TCcluster();//just for ROOT
-  TCcluster(std::vector<TCcluster>& _raw);
+  TCcluster();
+  //I had this as a normal constructor, but then rootcint segmented :-(
+  void ctorTCcluster(std::vector<TCcluster>& _raw);
 
   void setResid(double *par);
   TVector3 getResid(double *par);
