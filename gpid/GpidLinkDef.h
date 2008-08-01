@@ -8,12 +8,10 @@
 #pragma link C++ class  PndGeaneTrTpcTof+;
 #pragma link C++ class  PndGeaneTrTpcIdealTof+;
 #pragma link C++ class  PndGpidCollTask+;
-#pragma link C++ class  MultiClassBdtTrain+;
 #pragma link C++ class  MultiClassMVA+;
 #pragma link C++ class  Event+;
 #pragma link C++ class  EvtGenTask+;
 #pragma link C++ class  PndGpidTask+;
-#pragma link C++ class  test+;
 
 
 #endif
