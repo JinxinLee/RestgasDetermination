@@ -146,7 +146,7 @@ InitStatus PndTpcLheHitsMaker::Init() {
       break;
       
     case 2:
-      fSttInput   = (TClonesArray *)fManager->GetObject("SttHit");
+      fSttInput   = (TClonesArray *)fManager->GetObject("STTHit");
       if ( ! fSttInput ) 
 	{
 	  cout << "-W- PndTpcLheHitsMaker::Init: No SttCluster array! Switching STT OFF" << endl;
@@ -154,7 +154,7 @@ InitStatus PndTpcLheHitsMaker::Init() {
 	}
       else
 	{
-	  cout << "-I- PndTpcLheHitsMaker::Init: Using PndSttCluster" << endl;
+	  cout << "-I- PndTpcLheHitsMaker::Init: Using PndSttHit" << endl;
 	}
       break;
 
@@ -531,9 +531,9 @@ void PndTpcLheHitsMaker::GetSttPoints() {
 			   << hit->GetZ() << " RADIUS " 
 			   << sqrt((hit->GetX()*hit->GetX())+(hit->GetY()*hit->GetY())) << "\n";
 	
-	hit->SetXerr(1.);
-	hit->SetYerr(1.);
-	hit->SetZerr(1.);
+	hit->SetXerr(.5);
+	hit->SetYerr(.5);
+	hit->SetZerr(.5);
       }
     else
       {
@@ -583,9 +583,9 @@ void PndTpcLheHitsMaker::GetSttHit() {
 		       << hit->GetZ() << " RADIUS " 
 		       << sqrt((hit->GetX()*hit->GetX())+(hit->GetY()*hit->GetY())) << "\n";
     
-    hit->SetXerr(1.);  
-    hit->SetYerr(1.);
-    hit->SetZerr(1.);
+    hit->SetXerr(.5);  
+    hit->SetYerr(.5);
+    hit->SetZerr(.5);
 
     hit->SetDetectorId(kSttHit);
     //hit->SetTrackID(point->GetTrackID());

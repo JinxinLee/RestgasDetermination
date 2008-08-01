@@ -8,6 +8,7 @@
 #include "PndEmcDigi.h"
 #include "PndMvdHit.h"
 #include "PndMdtHit.h"
+#include "PndDrcHit.h"
 #include "CbmTrackParH.h"
 #include "CbmMCApplication.h"
 #include "CbmRunAna.h"
@@ -44,12 +45,14 @@ PndLhePidMaker::PndLhePidMaker() {
   fMvdMode = 0;
   fTofMode = 0;
   fEmcMode = 0;
-  fMdtMode = 0;
+  fMdtMode = 0; 
+  fDrcMode = 0;
   fVerbose = kFALSE;
   fSimulation = kFALSE;
   if( !ftInstance ) ftInstance = this;
   tofCorr = 0;
-  emcCorr = 0;
+  emcCorr = 0; 
+  drcCorr = 0;
   sDir = "./";
   sFile = "./lhepidmaker.root";
   Reset();
@@ -64,11 +67,13 @@ PndLhePidMaker::PndLhePidMaker(const char *name, const char *title)
   fTofMode = 0;
   fEmcMode = 0;
   fMdtMode = 0;
+  fDrcMode = 0;
   fVerbose = kFALSE;
   fSimulation = kFALSE;
   if( !ftInstance ) ftInstance = this; 
   tofCorr = 0;
   emcCorr = 0;
+  drcCorr = 0;
   sDir = "./";
   sFile = "./lhepidmaker.root";
   Reset();
@@ -157,18 +162,36 @@ InitStatus PndLhePidMaker::Init() {
       cout << "-I- PndLhePidMaker::Init: Using MdtHit" << endl;
       fMdtMode = 2;
     }
+
+  // *** DRC ***
+  fDrcHit = (TClonesArray*) fManager->GetObject("DrcHit");
+  if ( ! fDrcHit ) 
+    {
+      cout << "-W- PndLhePidMaker::Init: No DrcHit array!" << endl;
+      fDrcMode = 0;
+    }
+  else  
+    {
+      cout << "-I- PndLhePidMaker::Init: Using DrcHit" << endl;
+      fDrcMode = 2;
+    }
+
   Register();
    
   fCorrPar->printParams();
   
   if (fDebugMode)
     {
+      r = TFile::Open(sDir+sFile,"RECREATE");
+      
       tofCorr = new TNtuple("tofCorr","TRACK-TOF Correlation",
-			    "track_x:track_y:track_z:track_phi:tof_x:tof_y:tof_z:tof_phi:chi2");
+			    "track_x:track_y:track_z:track_phi:tof_x:tof_y:tof_z:tof_phi:chi2:dphi:len");
       emcCorr = new TNtuple("emcCorr","TRACK-EMC Correlation",
-			    "track_x:track_y:track_z:track_phi:emc_x:emc_y:emc_z:emc_phi:chi2");
+			    "track_x:track_y:track_z:track_phi:emc_x:emc_y:emc_z:emc_phi:chi2:dphi:emc_ene");
       mdtCorr = new TNtuple("mdtCorr","TRACK-MDT Correlation",
-			    "track_x:track_y:track_z:track_phi:mdt_x:mdt_y:mdt_z:mdt_phi:chi2:mdt_mod");
+			    "track_x:track_y:track_z:track_phi:mdt_x:mdt_y:mdt_z:mdt_phi:chi2:mdt_mod:dphi");
+      drcCorr = new TNtuple("drcCorr","TRACK-DRC Correlation",
+			    "track_x:track_y:track_z:track_phi:drc_x:drc_y:drc_phi:chi2:drc_thetac:drc_nphot:dphi");
       cout << "-I- PndLhePidMaker::Init: Filling Debug histograms" << endl;
       
     }
@@ -230,7 +253,8 @@ void PndLhePidMaker::Exec(Option_t * option) {
     
     if (fTofMode==2) GetTofInfo(pidTrack);
     if (fEmcMode>0)  GetEmcInfo(pidTrack);
-    if (fMdtMode>0)  GetMdtInfo(pidTrack);
+    if (fMdtMode>0)  GetMdtInfo(pidTrack);  
+    if (fDrcMode>0)  GetDrcInfo(pidTrack);
     
     AddTrack(pidTrack);
     
@@ -267,11 +291,13 @@ void PndLhePidMaker::GetMvdInfo(const PndTpcLheHit* hit, const PndLhePidTrack* t
 
 //_________________________________________________________________
 void PndLhePidMaker::GetTofInfo(PndLhePidTrack* track) {
+
+  if ((track->GetMomentum().Theta()*TMath::RadToDeg())<20.) return;
   //---
   PndTofHit *tofHit = NULL;
   Int_t tofEntries = fTofHit->GetEntriesFast();
   Int_t tofIndex = -1;
-  Float_t tofTof = 0., tofDz = -1000, tofDphi = -1000;;
+  Float_t tofTof = 0., tofDz = -1000, tofDphi = -1000, tofLength = -1000;
   Float_t tofQuality = 1000000;
   
   Float_t chi2 = 0;
@@ -284,10 +310,10 @@ void PndLhePidMaker::GetTofInfo(PndLhePidTrack* track) {
       tofHit->Position(tofPos);
       Float_t phi = track->ExtrapolateToR(&momentum, &vertex, fCorrPar->GetTofRadius());
       Float_t dzs = (vertex.Z()-tofHit->GetZ()-fCorrPar->GetTofZ0()) / fCorrPar->GetTofSigmaZ();
-      Float_t dphi = (vertex.Phi()-tofPos.Phi()-fCorrPar->GetTofPhi0()) / fCorrPar->GetEmc12SigmaPhi();
+      Float_t dphi = (vertex.DeltaPhi(tofPos)-fCorrPar->GetTofPhi0()) / fCorrPar->GetTofSigmaPhi();
  
-      //Float_t chi2 = dphi * dphi + dzs * dzs;
-      Float_t chi2 = dzs * dzs;
+      Float_t chi2 = dphi * dphi + dzs * dzs;
+      //Float_t chi2 = dzs * dzs;
       
       if ( tofQuality > chi2)
 	{
@@ -295,12 +321,13 @@ void PndLhePidMaker::GetTofInfo(PndLhePidTrack* track) {
 	  tofQuality = chi2;
 	  tofTof = tofHit->GetTime();
 	  tofDz = vertex.Z()- tofHit->GetZ() - fCorrPar->GetTofZ0();
-	  tofDphi = vertex.Phi()-tofPos.Phi()-fCorrPar->GetTofPhi0();
+	  tofDphi = vertex.DeltaPhi(tofPos)-fCorrPar->GetTofPhi0();
+	  tofLength = fabs(phi * track->GetRadius() / TMath::Sin(track->GetMomentum().Theta()));
 	}
       if (fDebugMode)
 	tofCorr->Fill(vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(),
 		      tofPos.X(), tofPos.Y(), tofPos.Z(), tofPos.Phi(),
-		      chi2);
+		      chi2, vertex.DeltaPhi(tofPos), tofLength);
     }
   
   if (tofQuality<fCorrPar->GetTofCut())
@@ -310,12 +337,14 @@ void PndLhePidMaker::GetTofInfo(PndLhePidTrack* track) {
       track->SetTofDeltaZ(tofDz);
       track->SetTofQuality(tofQuality);
       track->SetTof(tofTof);
+      track->SetTofPathLength(tofLength);
     }
   
 }
 
 //_________________________________________________________________
-void PndLhePidMaker::GetEmcInfo(PndLhePidTrack* track) {
+void PndLhePidMaker::GetEmcInfo(PndLhePidTrack* track) {  
+  if ((track->GetMomentum().Theta()*TMath::RadToDeg())<20.) return;
   //---
   PndEmcCluster *emcHit = NULL;
   Int_t emcEntries = fEmcCluster->GetEntriesFast();
@@ -325,30 +354,34 @@ void PndLhePidMaker::GetEmcInfo(PndLhePidTrack* track) {
   
   Float_t chi2 = 0;
   TVector3 vertex(0., 0., 0.);
+  TVector3 emcPos(0., 0., 0.);
   TVector3 momentum(0., 0., 0.);
   for (Int_t ee = 0; ee<emcEntries; ee++)
     {
       emcHit = (PndEmcCluster*)fEmcCluster->At(ee);
+      
       if (((PndEmcDigi*)emcHit->Maxima())->GetModule()>2) continue;
-      if (emcHit->energy()<0.05) continue;
+      if (emcHit->energy() < fCorrPar->GetEmc12Thr()) continue;
+      
+      emcPos = emcHit->where();
       Float_t phi = track->ExtrapolateToR(&momentum, &vertex, fCorrPar->GetEmc12Radius());
       Float_t dzs = (vertex.Z()-emcHit->z()-fCorrPar->GetEmc12Z0()) / fCorrPar->GetEmc12SigmaZ();
-      Float_t dphi = (vertex.Phi()-emcHit->phi()-fCorrPar->GetEmc12Phi0()) / fCorrPar->GetEmc12SigmaPhi();
-      //Float_t chi2 = dphi * dphi + dzs * dzs;
-      Float_t chi2 = dzs * dzs;
+      Float_t dphi = (vertex.DeltaPhi(emcPos)-fCorrPar->GetEmc12Phi0()) / fCorrPar->GetEmc12SigmaPhi();
+      Float_t chi2 = dphi * dphi + dzs * dzs;
+      //Float_t chi2 = dzs * dzs;
       if ( emcQuality > chi2 ) 
 	{
 	  emcIndex = ee;
 	  emcQuality = chi2;
 	  emcEloss = emcHit->energy();
-	  emcDphi = vertex.Phi()-emcHit->phi()-fCorrPar->GetEmc12Phi0();
+	  emcDphi = vertex.DeltaPhi(emcPos)-fCorrPar->GetEmc12Phi0();
 	  emcDz = vertex.Z() - emcHit->z() - fCorrPar->GetEmc12Z0();
 	}
 
       if (fDebugMode)
 	emcCorr->Fill(vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(),
 		      emcHit->x(), emcHit->y(), emcHit->z(), emcHit->phi(),
-		      chi2);
+		      chi2, vertex.DeltaPhi(emcPos), emcHit->energy());
     }
   
   if (emcQuality < fCorrPar->GetEmc12Cut())
@@ -384,7 +417,7 @@ void PndLhePidMaker::GetMdtInfo(PndLhePidTrack* track) {
       mdtHit->Position(mdtPos);
       Float_t phi = track->ExtrapolateToR(&momentum, &vertex, fCorrPar->GetMdtRadius());
       Float_t dzs = (vertex.Z()-mdtHit->GetZ()-fCorrPar->GetMdtZ0()) / fCorrPar->GetMdtSigmaZ();
-      Float_t dphi = (vertex.Phi()-mdtPos.Phi()-fCorrPar->GetMdtPhi0()) / fCorrPar->GetEmc12SigmaPhi();
+      Float_t dphi = (vertex.DeltaPhi(mdtPos)-fCorrPar->GetMdtPhi0()) / fCorrPar->GetMdtSigmaPhi();
  
       //Float_t chi2 = dphi * dphi + dzs * dzs;
       Float_t chi2 = dzs * dzs;
@@ -394,13 +427,13 @@ void PndLhePidMaker::GetMdtInfo(PndLhePidTrack* track) {
 	  mdtIndex = mm;
 	  mdtQuality = chi2;
 	  mdtDz = vertex.Z()- mdtHit->GetZ() - fCorrPar->GetMdtZ0();
-	  mdtDphi = vertex.Phi()-mdtPos.Phi()-fCorrPar->GetMdtPhi0();
+	  mdtDphi = vertex.DeltaPhi(mdtPos)-fCorrPar->GetMdtPhi0();
 	  mdtMod = mdtHit->GetModule();
 	}
       if (fDebugMode)
 	mdtCorr->Fill(vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(),
 		      mdtPos.X(), mdtPos.Y(), mdtPos.Z(), mdtPos.Phi(),
-		      chi2, mdtHit->GetModule());
+		      chi2, mdtHit->GetModule(), vertex.DeltaPhi(mdtPos));
     }
   
   if (mdtQuality<fCorrPar->GetMdtCut())
@@ -411,7 +444,56 @@ void PndLhePidMaker::GetMdtInfo(PndLhePidTrack* track) {
       track->SetMdtQuality(mdtQuality);
       track->SetMdtModule(mdtMod);
       track->SetMdtLayerCount(1);
-      track->SetMdtLayerCount(-1);
+    }
+  
+}
+
+//_________________________________________________________________
+void PndLhePidMaker::GetDrcInfo(PndLhePidTrack* track) {
+if ((track->GetMomentum().Theta()*TMath::RadToDeg())<20.) return;
+
+  //---
+  PndDrcHit *drcHit = NULL;
+  Int_t drcEntries = fDrcHit->GetEntriesFast();
+  Int_t drcIndex = -1, drcPhot = 0;
+  Float_t drcThetaC = -1000, drcThetaCErr = 0, drcDphi = -1000;;
+  Float_t drcQuality = 1000000;
+  
+  TVector3 vertex(0., 0., 0.);
+  TVector3 drcPos(0., 0., 0.);
+  TVector3 momentum(0., 0., 0.);
+  for (Int_t dd = 0; dd<drcEntries; dd++)
+    {
+      drcHit = (PndDrcHit*)fDrcHit->At(dd);
+           
+      drcHit->Position(drcPos);
+      Float_t phi = track->ExtrapolateToR(&momentum, &vertex, fCorrPar->GetDrcRadius());
+      Float_t dphi = (vertex.DeltaPhi(drcPos)-fCorrPar->GetDrcPhi0()) / fCorrPar->GetDrcSigmaPhi();
+ 
+      Float_t chi2 = dphi * dphi;
+      
+      if ( drcQuality > chi2)
+	{
+	  drcIndex = dd;
+	  drcQuality = chi2;
+	  drcDphi = vertex.DeltaPhi(drcPos)-fCorrPar->GetDrcPhi0();
+	  drcThetaC = drcHit->GetThetaC();
+	  drcThetaCErr = drcHit->GetErrThetaC();
+	  drcPhot = 0; // ** to be filled **
+	}
+      if (fDebugMode)
+	drcCorr->Fill(vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(),
+		      drcPos.X(), drcPos.Y(), drcPos.Phi(), chi2, drcHit->GetThetaC(), 0., vertex.DeltaPhi(drcPos));
+    }
+  
+  if (drcQuality<fCorrPar->GetDrcCut())
+    {
+      track->SetDrcIndex(drcIndex);
+      track->SetDrcDeltaPhi(drcDphi);
+      track->SetDrcQuality(drcQuality);
+      track->SetDrcThetaC(drcThetaC);
+      track->SetDrcThetaCErr(drcThetaCErr);
+      track->SetDrcNPhotons(drcPhot);
     }
   
 }
@@ -428,17 +510,27 @@ void PndLhePidMaker::Finish() {
   //---
   if (fDebugMode)
     {
-      TFile *r = TFile::Open(sDir+sFile,"RECREATE");
+      //TFile *r = TFile::Open(sDir+sFile,"RECREATE");
+      r->cd();
       tofCorr->Write();
       emcCorr->Write(); 
-      mdtCorr->Write();
+      mdtCorr->Write();  
+      drcCorr->Write();
 
       r->Save();
+      
+      tofCorr->Delete();
+      emcCorr->Delete(); 
+      mdtCorr->Delete();
+      drcCorr->Delete();
+      
+      tofCorr = 0;
+      emcCorr = 0; 
+      mdtCorr = 0;
+      drcCorr = 0;
+
       r->Close();
       r->Delete();
-
-      tofCorr->Delete();
-      emcCorr->Delete();
     }
   
 }

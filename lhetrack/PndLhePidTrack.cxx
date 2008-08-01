@@ -34,6 +34,13 @@ PndLhePidTrack::PndLhePidTrack () {
   fMdtModule = 0;
   fMdtLayerCount = 0;
   fMdtChi2 = -1.;
+  fDrcIndex = -1;
+  fDrcDeltaPhi = -1000.;
+  fDrcQuality = -1;
+  fDrcThetaC = -10.;
+  fDrcThetaCErr = 0;
+  fDrcNPhotons = 0;
+  
 }
 
 //______________________________________________________________
@@ -60,7 +67,13 @@ PndLhePidTrack::PndLhePidTrack (const PndTpcLheTrack& track) : PndTpcLheTrack(tr
   fMdtQuality = -1;
   fMdtModule = 0;
   fMdtLayerCount = 0;
-  fMdtChi2 = -1.;
+  fMdtChi2 = -1.; 
+  fDrcIndex = -1;
+  fDrcDeltaPhi = -1000.;
+  fDrcQuality = -1;
+  fDrcThetaC = -10.;
+  fDrcThetaCErr = 0;
+  fDrcNPhotons = 0;
 }
 
 //______________________________________________________________
@@ -89,6 +102,12 @@ PndLhePidTrack::PndLhePidTrack (const PndLhePidTrack& track) : PndTpcLheTrack((P
   fMdtModule     = track.fMdtModule;
   fMdtLayerCount = track.fMdtLayerCount;
   fMdtChi2       = track.fMdtChi2;
+  fDrcIndex      = track.fDrcIndex;
+  fDrcDeltaPhi   = track.fDrcDeltaPhi; 
+  fDrcQuality    = track.fDrcQuality;
+  fDrcThetaC     = track.fDrcThetaC;
+  fDrcThetaCErr  = track.fDrcThetaCErr;
+  fDrcNPhotons   = track.fDrcNPhotons;
 }
 //______________________________________________________________
 PndLhePidTrack ::~PndLhePidTrack () {

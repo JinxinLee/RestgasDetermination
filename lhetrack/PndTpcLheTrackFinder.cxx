@@ -164,6 +164,8 @@ void PndTpcLheTrackFinder::AddTrackForFit(PndTpcLheCMTrack *track_in) {
       track->AddHit(hit);
       if ( (hit->GetDetectorId() == kTpcPoint)     ||
 	   (hit->GetDetectorId() == kTpcCluster)     )   tpcHits++;
+      if ( (hit->GetDetectorId() == kSttPoint)     ||
+	   (hit->GetDetectorId() == kSttHit)         )   tpcHits++; // for the moment
       if ( (hit->GetDetectorId() == kMVDPoint)     || 
 	   (hit->GetDetectorId() == kMVDHitsStrip) ||
 	   (hit->GetDetectorId() == kMVDHitsPixel)   )   mvdHits++;

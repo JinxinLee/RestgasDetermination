@@ -39,7 +39,14 @@ protected:
   Int_t   fMdtModule;               // MDT module number (1 barrel, 2 endcup)
   Int_t   fMdtLayerCount;           // Number of fired layers
   Float_t fMdtChi2;                 // MDT chi2 
-  
+   
+  Int_t   fDrcIndex;                // Index of PndDrcHit object
+  Float_t fDrcDeltaPhi;             // phi (TRACK-DRC)  
+  Float_t fDrcQuality;              // chi2 TRACK-DRC correlation
+  Float_t fDrcThetaC;               // DRC Cherenkov angle
+  Float_t fDrcThetaCErr;            // Error on DRC Cherenkov angle
+  Int_t   fDrcNPhotons;             // Number of photons in the photodetector
+ 
   Float_t fTimeOfFlight;            // time-of-flight
   Float_t fEmcELoss;                // EMC energy loss
   
@@ -77,10 +84,17 @@ public:
   Int_t GetMdtModule()                { return fMdtModule; }
   Int_t GetMdtLayerCount()            { return fMdtLayerCount; }
   Float_t GetMdtChi2()                { return fMdtChi2; }
-
+ 
+  Int_t GetDrcIndex()                 { return fDrcIndex; }
+  Float_t GetDrcDeltaPhi()            { return fDrcDeltaPhi; } 
+  Float_t GetDrcQuality()             { return fDrcQuality; }
+  Float_t GetDrcThetaC()              { return fDrcThetaC; }
+  Float_t GetDrcThetaCErr()           { return fDrcThetaCErr; }
+  Float_t GetDrcNPhotons()            { return fDrcNPhotons; }
+  
   Float_t GetTof()                    { return fTimeOfFlight; }
   Float_t GetEmcELoss()               { return fEmcELoss; }
-  Float_t GetBeta()                   { return fTimeOfFlight>0. ? fTofPathLength/fTimeOfFlight : 0.; }
+  Float_t GetBeta()                   { return fTimeOfFlight>0. ? fTofPathLength/(300. * fTimeOfFlight) : -1.; }
   
   void SetMvdELoss(Double_t eloss)    { fMvdELoss = eloss;    };
   void SetMvdHitCounts(Int_t nhit)    { fMvdHitCount = nhit;  };
@@ -107,13 +121,19 @@ public:
   void SetMdtLayerCount(Int_t lay)    { fMdtLayerCount = lay; };
   void SetMdtChi2(Float_t chi2)       { fMdtChi2 = chi2; };
 
+  void SetDrcIndex(Int_t ind)         { fDrcIndex = ind; };
+  void SetDrcDeltaPhi(Float_t dphi)   { fDrcDeltaPhi = dphi; }; 
+  void SetDrcQuality(Float_t qq)      { fDrcQuality = qq; };
+  void SetDrcThetaC(Float_t theta)    { fDrcThetaC = theta; };
+  void SetDrcThetaCErr(Float_t err)   { fDrcThetaCErr = err; };
+  void SetDrcNPhotons(Int_t phot)     { fDrcNPhotons = phot; };
 
   void SetTof(Float_t tof)            { fTimeOfFlight = tof; };
   void SetEmcELoss(Float_t eloss)     { fEmcELoss = eloss; };
   
   virtual  ~PndLhePidTrack ();
   
-  ClassDef(PndLhePidTrack , 3)   
+  ClassDef(PndLhePidTrack , 4)   
 
     };
 

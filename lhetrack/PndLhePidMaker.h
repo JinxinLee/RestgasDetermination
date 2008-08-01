@@ -34,6 +34,7 @@ protected:
   TClonesArray* fTofHit;            //! PndTofHit TCA
   TClonesArray* fEmcCluster;        //! PndEmcCluster TCA
   TClonesArray* fMdtHit;            //! PndMdtHit TCA
+  TClonesArray* fDrcHit;            //! PndDrcHit TCA
  
   PndLheCorrPar* fCorrPar;          //! Correlation parameters
   
@@ -41,7 +42,8 @@ protected:
   Short_t fMvdMode;                 // MVD Mode: 0 no MVD, 1 MvdPoint, (2) MvdHit
   Short_t fTofMode;                 // TOF Mode: 0 no TOF, 1 -empty-,  (2) TofHit
   Short_t fEmcMode;                 // EMC Mode: 0 no EMC, 1 -empty-,  (2) EmcCluster, 3 EmcBumps
-  Short_t fMdtMode;                 // MDT Mode: 0 no MDT, 1 -empty-,  (2) MdtHit
+  Short_t fMdtMode;                 // MDT Mode: 0 no MDT, 1 -empty-,  (2) MdtHit 
+  Short_t fDrcMode;                 // DRC Mode: (0) no DRC, 1 -empty-,  2 DrcHit
  
   Double_t fMvdELoss;               // Energy Loss in MVD 
   Double_t fMvdPath;                // MVD path crossed by the particle
@@ -51,9 +53,11 @@ protected:
   Bool_t fVerbose;          // Switch ON/OFF debug messages 
   Bool_t fSimulation;       // Switch simulation diagnostic
 
-  TNtuple *tofCorr;                  // Debud ntuple for tof correlation
-  TNtuple *emcCorr;                  // Debud ntuple for emc correlation 
-  TNtuple *mdtCorr;                  // Debud ntuple for mdt correlation
+  TFile *r;                          // File for debug ntuples
+  TNtuple *tofCorr;                  // Debug ntuple for tof correlation
+  TNtuple *emcCorr;                  // Debug ntuple for emc correlation 
+  TNtuple *mdtCorr;                  // Debug ntuple for mdt correlation 
+  TNtuple *drcCorr;                  // Debug ntuple for drc correlation
   TString sDir;                      // Ntuple output directory
   TString sFile;                     // Ntuple output file
   
@@ -76,7 +80,8 @@ public:
   void GetMvdInfo(const PndTpcLheHit* hit, const PndLhePidTrack* track); 
   void GetTofInfo(PndLhePidTrack* track); 
   void GetEmcInfo(PndLhePidTrack* track); 
-  void GetMdtInfo(PndLhePidTrack* track); 
+  void GetMdtInfo(PndLhePidTrack* track);   
+  void GetDrcInfo(PndLhePidTrack* track); 
    
   void SetOption(Option_t *option=" ") {fOption = option;  fOption.ToLower();}
   void SetDebugMode(Bool_t debug){ fDebugMode = debug; };

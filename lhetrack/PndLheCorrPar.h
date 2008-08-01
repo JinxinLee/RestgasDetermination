@@ -13,7 +13,8 @@ class PndLheCorrPar : public CbmParGenericSet
   Float_t GetTofZ0()         { return fTofZ0; };
   Float_t GetTofSigmaPhi()   { return fTofSigmaPhi; };
   Float_t GetTofSigmaZ()     { return fTofSigmaZ; };
-  Float_t GetTofCut()        { return fTofCut; }; 
+  Float_t GetTofCut()        { return fTofCut; };  
+  Float_t GetEmc12Thr()      { return fEmc12Thr; };
   Float_t GetEmc12Radius()   { return fEmc12Radius; };
   Float_t GetEmc12Phi0()     { return fEmc12Phi0; };
   Float_t GetEmc12Z0()       { return fEmc12Z0; };
@@ -26,6 +27,10 @@ class PndLheCorrPar : public CbmParGenericSet
   Float_t GetMdtSigmaPhi()   { return fMdtSigmaPhi; };
   Float_t GetMdtSigmaZ()     { return fMdtSigmaZ; };
   Float_t GetMdtCut()        { return fMdtCut; }; 
+  Float_t GetDrcRadius()     { return fDrcRadius; };
+  Float_t GetDrcPhi0()       { return fDrcPhi0; };
+  Float_t GetDrcSigmaPhi()   { return fDrcSigmaPhi; };
+  Float_t GetDrcCut()        { return fDrcCut; }; 
   
   PndLheCorrPar (const char* name="PndLheCorrPar",
 		 const char* title="Lhe correlation parameter",
@@ -43,6 +48,7 @@ class PndLheCorrPar : public CbmParGenericSet
   Float_t fTofSigmaPhi;    // sigma    phi(TRACK-TOF)
   Float_t fTofSigmaZ;      // sigma    Z(TRACK-TOF)
   Float_t fTofCut;         // cut chi2 for TOF 
+  Float_t fEmc12Thr;       // EMC12 cluster energy threshold (barrel)
   Float_t fEmc12Radius;    // radius EMC12 detector (barrel)
   Float_t fEmc12Phi0;      // centroid phi(TRACK-EMC12)
   Float_t fEmc12Z0;        // centroid Z(TRACK-EMC12)
@@ -54,9 +60,13 @@ class PndLheCorrPar : public CbmParGenericSet
   Float_t fMdtZ0;          // centroid Z(TRACK-MDT)
   Float_t fMdtSigmaPhi;    // sigma    phi(TRACK-MDT)
   Float_t fMdtSigmaZ;      // sigma    Z(TRACK-MDT)
-  Float_t fMdtCut;         // cut chi2 for MDT 
+  Float_t fMdtCut;         // cut chi2 for MDT  
+  Float_t fDrcRadius;      // radius DRC detector
+  Float_t fDrcPhi0;        // centroid phi(TRACK-DRC)
+  Float_t fDrcSigmaPhi;    // sigma    phi(TRACK-DRC)
+  Float_t fDrcCut;         // cut chi2 for DRC 
  
-  ClassDef(PndLheCorrPar,2);
+  ClassDef(PndLheCorrPar,3);
 };
 
 #endif

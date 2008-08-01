@@ -29,6 +29,7 @@ void PndLheCorrPar::putParams(CbmParamList* list)
 	list->add("TofSigmaPhi",   fTofSigmaPhi);
 	list->add("TofSigmaZ",     fTofSigmaZ);
 	list->add("TofCut",        fTofCut);	
+	list->add("Emc12Thr",      fEmc12Thr);
 	list->add("Emc12Radius",   fEmc12Radius);
 	list->add("Emc12Phi0",     fEmc12Phi0);
 	list->add("Emc12Z0",       fEmc12Z0);
@@ -41,6 +42,10 @@ void PndLheCorrPar::putParams(CbmParamList* list)
 	list->add("MdtSigmaPhi",   fMdtSigmaPhi);
 	list->add("MdtSigmaZ",     fMdtSigmaZ);
 	list->add("MdtCut",        fMdtCut);
+	list->add("DrcRadius",     fDrcRadius);
+	list->add("DrcPhi0",       fDrcPhi0);
+	list->add("DrcSigmaPhi",   fDrcSigmaPhi);
+	list->add("DrcCut",        fDrcCut);
 }
 
 Bool_t PndLheCorrPar::getParams(CbmParamList* list)
@@ -52,6 +57,7 @@ Bool_t PndLheCorrPar::getParams(CbmParamList* list)
 	if (!list->fill("TofSigmaPhi",   &fTofSigmaPhi))   return kFALSE;
 	if (!list->fill("TofSigmaZ",     &fTofSigmaZ))     return kFALSE;
 	if (!list->fill("TofCut",        &fTofCut))        return kFALSE;
+	if (!list->fill("Emc12Thr",      &fEmc12Thr))      return kFALSE;
 	if (!list->fill("Emc12Radius",   &fEmc12Radius))   return kFALSE;
 	if (!list->fill("Emc12Phi0",     &fEmc12Phi0))     return kFALSE;
 	if (!list->fill("Emc12Z0",       &fEmc12Z0))       return kFALSE;
@@ -64,7 +70,11 @@ Bool_t PndLheCorrPar::getParams(CbmParamList* list)
 	if (!list->fill("MdtSigmaPhi",   &fMdtSigmaPhi))   return kFALSE;
 	if (!list->fill("MdtSigmaZ",     &fMdtSigmaZ))     return kFALSE;
 	if (!list->fill("MdtCut",        &fMdtCut))        return kFALSE;
-	
+	if (!list->fill("DrcRadius",     &fDrcRadius))     return kFALSE;
+	if (!list->fill("DrcPhi0",       &fDrcPhi0))       return kFALSE;
+	if (!list->fill("DrcSigmaPhi",   &fDrcSigmaPhi))   return kFALSE;
+	if (!list->fill("DrcCut",        &fDrcCut))        return kFALSE;
+
 	return kTRUE;
 }
 

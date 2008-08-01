@@ -18,6 +18,7 @@ ${CMAKE_SOURCE_DIR}/emc/EmcTools
 ${CMAKE_SOURCE_DIR}/tof
 ${CMAKE_SOURCE_DIR}/mdt
 ${CMAKE_SOURCE_DIR}/mdt/MdtData
+${CMAKE_SOURCE_DIR}/drc
 ${CMAKE_SOURCE_DIR}/lhetrack
 
 
