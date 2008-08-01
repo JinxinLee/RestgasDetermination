@@ -62,7 +62,7 @@
 
 
   CbmModule *Pipe= new PndPipe("PIPE");
-  Pipe->SetGeometryFileName("pipebeamtarget.geo");
+  //Pipe->SetGeometryFileName("pipebeamtarget.geo");
   fRun->AddModule(Pipe);
 
   /*
@@ -89,7 +89,7 @@
   fRun->AddModule(Emc);
   
   CbmDetector *Tof = new PndTof("TOF",kTRUE);
-  Tof->SetGeometryFileName("tofSciF.geo");
+  Tof->SetGeometryFileName("tofbarrel.geo");
   fRun->AddModule(Tof);
 
   CbmDetector *Drc = new PndDrc("DIRC", kTRUE);
