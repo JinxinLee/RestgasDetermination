@@ -7,6 +7,54 @@
 #include"TMath.h"
 #include"TMatrixD.h"
 
+TCcluster cogTCcluster(std::vector<TCcluster>& _raw){
+  TCcluster rclust;
+  int rdetId = -1;
+  TVector3 rpos(0.,0.,0.);
+  TVector3 rerr(0.,0.,0.);
+  double ramp=0.;
+  unsigned int firstId=_raw.at(0).getId();
+  unsigned int nraw=_raw.size();
+  for(unsigned int i=0;i<nraw;++i){
+    assert(firstId == _raw.at(i).getId());
+    double a=_raw.at(i).getAmp();
+    TVector3 thispos=_raw.at(i).posUVW();
+    TVector3 thissig=_raw.at(i).getErr();
+    thissig.SetX(pow(thissig.X(),2.));
+    thissig.SetY(pow(thissig.Y(),2.));
+    thissig.SetZ(pow(thissig.Z(),2.));
+    rerr+=a*a*thissig;
+    rpos+=a*thispos;
+    ramp+=a;
+    rclust.addRaw(_raw.at(i));
+  }
+  rpos*=1./ramp;
+  rdetId=firstId;
+  
+  for(unsigned int i=0;i<nraw;++i){
+    TVector3 thispos=_raw.at(i).posUVW();
+    double sigmaAi = _raw.at(i).getPedestalRMS();
+    TVector3 temp(pow(thispos.X()-rpos.X(),2.),
+		  pow(thispos.Y()-rpos.Y(),2.),
+		  pow(thispos.Z()-rpos.Z(),2.));
+    temp *= sigmaAi*sigmaAi;
+    rerr += temp;
+  }
+
+
+  rerr.SetX(sqrt(rerr.X())/ramp);
+  rerr.SetY(sqrt(rerr.Y())/ramp);
+  rerr.SetZ(sqrt(rerr.Z())/ramp);
+  
+  rclust.posUVW(rpos);
+  rclust.setErr(rerr);
+  rclust.setAmp(ramp);
+  rclust.setId(rdetId);
+  return rclust;
+
+}
+
+
 TCcluster::TCcluster(TVector3 p,TVector3 e,double a,int id):pos(p),err(e),amp(a),detId(id),fit(false){}
 TCcluster::TCcluster(const PndTpcCluster& _c,int id) : detId(id),fit(false){
   pos=_c.pos();
@@ -61,45 +109,6 @@ TCcluster::TCcluster(const PndTpcDigi& _d,int id) : detId(id),fit(false){//for r
 }
 
 
-void TCcluster::ctorTCcluster(std::vector<TCcluster>& _raw){
-  pedestalRMS=-1.E10;
-  pos.SetXYZ(0,0,0);
-  amp=0;
-  err.SetXYZ(0,0,0);
-  unsigned int firstId=_raw.at(0).getId();
-  unsigned int nraw=_raw.size();
-  for(unsigned int i=0;i<nraw;++i){
-    assert(firstId == _raw.at(i).getId());
-    double a=_raw.at(i).getAmp();
-    TVector3 thispos=_raw.at(i).posUVW();
-    TVector3 thissig=_raw.at(i).getErr();
-    thissig.SetX(pow(thissig.X(),2.));
-    thissig.SetY(pow(thissig.Y(),2.));
-    thissig.SetZ(pow(thissig.Z(),2.));
-    err+=a*a*thissig;
-    pos+=a*thispos;
-    amp+=a;
-    raw.push_back(_raw.at(i));
-  }
-  pos*=1./amp;
-  detId=firstId;
-  
-  for(unsigned int i=0;i<nraw;++i){
-    TVector3 thispos=_raw.at(i).posUVW();
-    double sigmaAi = _raw.at(i).getPedestalRMS();
-    TVector3 temp(pow(thispos.X()-pos.X(),2.),
-		  pow(thispos.Y()-pos.Y(),2.),
-		  pow(thispos.Z()-pos.Z(),2.));
-    temp *= sigmaAi*sigmaAi;
-    err += temp;
-  }
-
-
-  err.SetX(sqrt(err.X())/amp);
-  err.SetY(sqrt(err.Y())/amp);
-  err.SetZ(sqrt(err.Z())/amp);
-  
-}
 
 void TCcluster::print(){
   std::cout << "========== TCcluster::print()" << std::endl;

@@ -7,6 +7,7 @@
 #include "TCalign.h"
 #include "../../PndTpcCluster.h"
 
+
 class TCcluster : public TObject{
 
  public:
@@ -14,8 +15,8 @@ class TCcluster : public TObject{
   TCcluster(const PndTpcCluster& _c,int id);
   TCcluster(const PndTpcDigi& _d,int id);
   TCcluster();
-  //I had this as a normal constructor, but then rootcint segmented :-(
-  void ctorTCcluster(std::vector<TCcluster>& _raw);
+
+
 
   void setResid(double *par);
   TVector3 getResid(double *par);
@@ -26,6 +27,12 @@ class TCcluster : public TObject{
   int getId(){return detId;}
   void setId(int _i){detId=_i;}
 
+  void posUVW(TVector3& v){
+    pos=v;
+  }
+  void posUVW(double u,double v,double w){
+    pos.SetXYZ(u,v,w);
+  }
   TVector3 posUVW(){return pos;}
   TVector3 posXYZ(){return TCalign::getInstance()->UVWtoXYZ(detId,pos);}
 
@@ -34,7 +41,12 @@ class TCcluster : public TObject{
   bool getFit(){return fit;}
   TVector3 getRes(){return res;}
   TVector3 getErr(){return err;}
-
+  void setErr(TVector3 v){
+    err=v;
+  }
+  void setErr(double ue,double ve,double we){
+    err.SetXYZ(ue,ve,we);
+  }
   unsigned int nRaw(){
     return raw.size();
   }
@@ -58,6 +70,10 @@ class TCcluster : public TObject{
     return pedestalRMS;
   }
 
+  void setPedestalRMS(double d){
+    pedestalRMS=d;
+  }
+
  private:
   int detId;
   TVector3 pos,err,res;
@@ -75,6 +91,8 @@ class TCcluster : public TObject{
   ClassDef(TCcluster,1)
 };
 
+//I had this as a normal constructor, but then rootcint segmented :-(
+TCcluster cogTCcluster(std::vector<TCcluster>& _raw);
 
 
 #endif
