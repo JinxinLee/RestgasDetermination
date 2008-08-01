@@ -67,8 +67,7 @@ public:
   
   // Methods
   
-  virtual void splitCluster(const std::set<PndEmcTwoCoordIndex*> &, const PndEmcCluster * const,
-			    std::vector<PndEmcBump*> &) const;
+  virtual void splitCluster(const std::set<PndEmcTwoCoordIndex*> &, const PndEmcCluster * const, Int_t clusterIndex, std::vector<PndEmcBump*> &) const;
   
 private:
   

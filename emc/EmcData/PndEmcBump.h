@@ -42,12 +42,14 @@ public:
 	PndEmcBump(const PndEmcBump &);
 
 	// Modifiers
-	virtual void madeFrom( PndEmcCluster* thisCluster );
-	virtual double energy() const;
+	virtual void MadeFrom( Int_t clusterIndex );
+	virtual Double_t energy() const;
+	virtual Int_t NumberOfDigis() const;
+	virtual Double_t RnumberOfDigis() const;
 
 protected:
   // Data members
-  const PndEmcCluster *_madeFrom; //! transient element
+  Int_t  fClusterIndex; // Index of cluster the bump is made in TClonesArray
 
 
 	ClassDef(PndEmcBump,1)

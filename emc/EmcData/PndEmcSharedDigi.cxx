@@ -27,18 +27,20 @@
 //----------------
 PndEmcSharedDigi::PndEmcSharedDigi( const PndEmcDigi &theDigi, const double weight )
   : PndEmcDigi( theDigi ),
-    _weight( weight ),
-    _digi( (PndEmcDigi*)&theDigi )
+    fWeight( weight ),
+    fDigi( (PndEmcDigi*)&theDigi )
 {
 }
 
 PndEmcSharedDigi::PndEmcSharedDigi( const PndEmcSharedDigi &theDigi )
   : PndEmcDigi( theDigi ),
-    _weight( theDigi._weight ),
-    _digi( theDigi._digi )
+    fWeight( theDigi.fWeight ),
+    fDigi( theDigi.fDigi )
 {
 }
 
+PndEmcSharedDigi::PndEmcSharedDigi()
+{}
 //--------------
 // Destructor --
 //--------------
@@ -59,7 +61,7 @@ PndEmcSharedDigi::clone() const
 void
 PndEmcSharedDigi::weight( double newWeight )
 {
-  _weight = newWeight;
+  fWeight = newWeight;
 }
 
 //-------------
@@ -77,3 +79,5 @@ PndEmcSharedDigi::dynamic_cast_PndEmcSharedDigi() const
 {
   return this;
 }
+
+ClassImp(PndEmcSharedDigi)

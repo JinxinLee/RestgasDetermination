@@ -37,8 +37,9 @@ class PndEmcSharedDigi : public PndEmcDigi
 public:
 
   // Constructors
-  PndEmcSharedDigi( const PndEmcDigi &theDigi, const Double_t weight );
-  PndEmcSharedDigi( const PndEmcSharedDigi &theDigi );
+	PndEmcSharedDigi( const PndEmcDigi &theDigi, const Double_t weight );
+	PndEmcSharedDigi( const PndEmcSharedDigi &theDigi );
+	PndEmcSharedDigi();
 
   // Destructor
 
@@ -51,8 +52,8 @@ public:
   virtual void weight( Double_t newWeight );
 
   // Selectors (const)
-  virtual Double_t GetEnergy() const {return _digi->GetEnergy()*weight();}
-  virtual Double_t weight() const {return _weight;}
+  virtual Double_t GetEnergy() const {return fDigi->GetEnergy()*weight();}
+  virtual Double_t weight() const {return fWeight;}
 
     // Dynamic Cast methods
   virtual PndEmcSharedDigi* dynamic_cast_PndEmcSharedDigi();
@@ -61,13 +62,13 @@ public:
 
 private:
 
-  Double_t _weight;
-  PndEmcDigi* _digi;
+  Double_t fWeight;
+  PndEmcDigi* fDigi;
 
-  // not implemented
-  PndEmcSharedDigi();
+  
   PndEmcSharedDigi& operator=(const PndEmcSharedDigi&);
 
+  ClassDef(PndEmcSharedDigi,1);
 };
 
 #endif // PNDEMCSHAREDDIGI_HH

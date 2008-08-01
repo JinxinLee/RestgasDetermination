@@ -47,7 +47,7 @@ PndEmcDigi::~PndEmcDigi() {}
   
 PndEmcDigi::PndEmcDigi(Int_t trackid, Int_t id, Float_t energy, Float_t time, Int_t hitIndex):fEnergy(energy),fTrackId(trackid),fDetectorId(id),fTime(time),fHitIndex(hitIndex),fWhere(0,0,0)
 {
-	PndEmcMapper *emcMap=PndEmcMapper::Instance(1);
+	PndEmcMapper *emcMap=PndEmcMapper::Instance(0);
 	fTCI=emcMap->GetTCI(id);
 	fThetaInd=fTCI->XCoord();
 	fPhiInd=fTCI->YCoord();
@@ -70,7 +70,7 @@ PndEmcDigi::PndEmcDigi( const PndEmcDigi& other )
   fDetectorId( other.fDetectorId),
   fHitIndex( other.fHitIndex)
 {
-	PndEmcMapper *emcMap=PndEmcMapper::Instance(1);
+	PndEmcMapper *emcMap=PndEmcMapper::Instance(0);
 	fTCI=emcMap->GetTCI(fDetectorId);
 	fThetaInd=fTCI->XCoord();
 	fPhiInd=fTCI->YCoord();

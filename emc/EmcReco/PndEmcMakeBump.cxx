@@ -33,6 +33,7 @@
 #include "PndEmcBump.h"
 #include "PndEmcCluster.h"
 #include "PndEmcDigi.h"
+#include "PndEmcSharedDigi.h"
 #include "PndEmc2DLocMaxFinder.h"
 #include "PndEmcExpClusterSplitter.h"
 #include "PndEmcTwoCoordIndex.h"
@@ -84,10 +85,9 @@ InitStatus PndEmcMakeBump::Init() {
 	}
 	
 	// Geometry loading
-	TGeoManager *geoMan = (TGeoManager*) gROOT->FindObject("CBMGeom");
 	fMapVersion=fDigiPar->GetMapperVersion();
 	PndEmcMapper::Instance(fMapVersion);
-	PndEmcStructure::Instance(geoMan);
+	PndEmcStructure::Instance();
 	
 	// Get input array
 	fClusterArray = (TClonesArray*) ioman->GetObject("EmcCluster");
@@ -101,8 +101,8 @@ InitStatus PndEmcMakeBump::Init() {
 	fBumpArray = new TClonesArray("PndEmcBump");
 	ioman->Register("EmcBump","Emc",fBumpArray,kTRUE);
 	
-// 	fSharedDigiArray = new TClonesArray("PndEmcDigi");
-// 	ioman->Register("EmcSharedDigi","Emc",fSharedDigiArray,kTRUE);
+	fSharedDigiArray = new TClonesArray("PndEmcSharedDigi");
+	ioman->Register("EmcSharedDigi","Emc",fSharedDigiArray,kTRUE);
 
 	// Fill structure with parameters from RunTime DB for local maximum finder
 	PndEmc2DLocMaxFinderData locMaxData;
@@ -137,8 +137,8 @@ void PndEmcMakeBump::Exec(Option_t* opt)
 	// Reset output array
 	if ( ! fBumpArray ) Fatal("Exec", "No Bump Array");
 	fBumpArray->Delete();
-//	if ( ! fSharedDigiArray ) Fatal("Exec", "No SharedDigi Array");
-//	fSharedDigiArray->Delete();
+	if ( ! fSharedDigiArray ) Fatal("Exec", "No SharedDigi Array");
+	fSharedDigiArray->Delete();
 
 	std::cout<<"***************** PndEmcMakeBump, event: "<<fEventCounter<<" **************"<<endl;
 
@@ -150,14 +150,16 @@ void PndEmcMakeBump::Exec(Option_t* opt)
 		PndEmcCluster* theCluster = (PndEmcCluster*) fClusterArray->At(iCluster);
 		theCluster->ValidateDigiMap(); // we need it since fMemberDigiMap is transient element
 	
-		Int_t NDigis = theCluster->numberOfDigis();
+		Int_t NDigis = theCluster->NumberOfDigis();
 
 		std::vector<PndEmcBump*> theBumps;
 
 		const EmcCoordIndexSet &
 		emcMaxDigis(theLocalMaxFinder->findMaxima(theCluster));
 		
-		theClusterSplitter->splitCluster(emcMaxDigis, theCluster, theBumps);
+		theClusterSplitter->splitCluster(emcMaxDigis, theCluster, iCluster, theBumps);
+		
+		theCluster->SetNBumps(theBumps.size());
 	
 		if (fVerbose>=1)
 		{		
@@ -177,11 +179,12 @@ void PndEmcMakeBump::Exec(Option_t* opt)
 			std::vector<PndEmcDigi*> bumpDigis = theNextBump->DigiList();
 			
 			// The following should produce array of shared digis
-///			Int_t j=0, numSharedDigis = bumpDigis.size();
-///			for ( j=0; j<numSharedDigis; j++ ){
-///				Int_t size_sda = fSharedDigiArray->GetEntriesFast();
-///				PndEmcDigi* theDigi = new((*fSharedDigiArray)[size_sda]) PndEmcDigi((bumpDigis)[j]);
-///			}
+			Int_t j=0;
+			std::vector<PndEmcDigi*>::iterator digiIter;
+			for (digiIter=bumpDigis.begin();digiIter!=bumpDigis.end();++digiIter){
+				Int_t size_sda = fSharedDigiArray->GetEntriesFast();
+				PndEmcSharedDigi* theDigi = new((*fSharedDigiArray)[size_sda]) PndEmcSharedDigi(*(*digiIter)->dynamic_cast_PndEmcSharedDigi());
+			}
 		}
 	}
 	

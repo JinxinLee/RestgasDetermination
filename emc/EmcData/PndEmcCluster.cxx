@@ -202,14 +202,40 @@ PndEmcCluster::addDigi( PndEmcDigi* theDigi )
 
 
 Int_t
-PndEmcCluster::numberOfDigis() const
+PndEmcCluster::NumberOfDigis() const
 {
   return fDigiList.size();
 }
 
+Int_t PndEmcCluster::NBumps() const
+{
+	return fNbumps;
+}
+
+Double_t PndEmcCluster::Mass() const
+{
+	Double_t mass;
+	TVector3 clusterMomentum(0,0,0);
+	vector<PndEmcDigi*>::const_iterator digi_iter;
+	TVector3 digiDirection;
+	Double_t digiEnergy;
+	for (digi_iter=fDigiList.begin();digi_iter!=fDigiList.end();++digi_iter)
+	{
+		digiDirection=(*digi_iter)->where().Unit();
+		digiEnergy=(*digi_iter)->GetEnergy();
+		clusterMomentum=clusterMomentum+digiDirection*digiEnergy;
+	}
+	
+	Double_t clEnergy=energy();
+	
+	mass=sqrt(clEnergy*clEnergy-clusterMomentum.Mag2());
+
+	return mass;
+}
+
 void
-PndEmcCluster::setNBumps(unsigned nbumps) {
-  _nbumps = nbumps;
+PndEmcCluster::SetNBumps(unsigned nbumps) {
+  fNbumps = nbumps;
 }
 
 void

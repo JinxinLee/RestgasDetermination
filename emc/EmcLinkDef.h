@@ -22,6 +22,7 @@
 #pragma link C++ class  PndEmcStructure+;
 #pragma link C++ class  PndEmcWaveform-;
 #pragma link C++ class  PndEmcDigi-;
+#pragma link C++ class  PndEmcSharedDigi;
 #pragma link C++ class  PndEmcHitsToWaveform+;
 #pragma link C++ class  PndEmcWaveformToDigi+;
 #pragma link C++ class  PndEmcAbsPulseshape+;

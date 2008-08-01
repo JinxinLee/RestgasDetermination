@@ -55,7 +55,7 @@ PndEmcClusterEnergySums::energy( Int_t n ) const
 	std::vector<PndEmcDigi*>::iterator digipos;
 
   // If asked for too many digis summed return the whole energy
-	if ( n > MyCluster().numberOfDigis() ) return ( MyCluster().energy() );
+	if ( n > MyCluster().NumberOfDigis() ) return ( MyCluster().energy() );
 
 	for (digipos=fDigiList.begin();digipos<fDigiList.end();++digipos){
 		sum += (*digipos)->GetEnergy();

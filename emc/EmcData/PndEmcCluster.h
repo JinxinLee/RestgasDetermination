@@ -93,9 +93,9 @@ public:
 	// z co-ordinate of clus
 	Double_t z() const;
 	
-	Int_t numberOfDigis() const;
+	Int_t NumberOfDigis() const;
 	
-	unsigned nBumps() const;
+	Int_t NBumps() const;
 	
 	bool isInCluster(PndEmcDigi* theDigi);
 
@@ -107,7 +107,7 @@ public:
 	
 	virtual void addDigi( PndEmcDigi* d );
 	void addCluster( PndEmcCluster* c);
-	virtual void setNBumps( unsigned nbumps);
+	virtual void SetNBumps( unsigned nbumps);
 	
 	//  virtual const EmcClusterLogPos& logPositions() const;
 	virtual const PndEmcClusterLiloPos& liloPositions() const;
@@ -131,6 +131,8 @@ public:
 	// Error Matrix for Cluster
 	TMatrixD GetErrorMatrix() const; // 4x4 matrix in E, theta, phi, R
 	TMatrixD Get4MomentumErrorMatrix() const; // 4x4 matrix in (px, py, pz, E)
+	
+	virtual Double_t Mass() const; // Claster mass
 
 private:
 	
@@ -139,7 +141,7 @@ private:
 	void invalidateCache();
 
 protected:
-	unsigned _nbumps;
+	unsigned fNbumps;
   
 	std::vector<PndEmcDigi*> fLocalMaxList;
 	std::vector<PndEmcDigi*> fDigiList;

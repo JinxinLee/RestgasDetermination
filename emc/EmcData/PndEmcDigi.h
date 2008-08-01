@@ -41,6 +41,7 @@ class PndEmcDigi : public TObject
 	PndEmcDigi();
 	
 	PndEmcDigi(Int_t trackid, Int_t id, Float_t energy, Float_t time, Int_t hitIndex=-1);
+	PndEmcDigi(const PndEmcDigi&);
 		
 	/** Destructor **/
 	virtual ~PndEmcDigi();    
@@ -108,8 +109,6 @@ class PndEmcDigi : public TObject
 	PndEmcTwoCoordIndex* fTCI; //! transient data
 	Int_t fHitIndex; //  Index of hit which is converted to digi
   
-	PndEmcDigi(const PndEmcDigi&);
-	
 private:
 
 	friend class PndEmcWaveformToDigi;

@@ -58,7 +58,7 @@ PndEmcMakeCluster::~PndEmcMakeCluster()
 
 // -----   Public method Init   -------------------------------
 InitStatus PndEmcMakeCluster::Init() {
- 
+	
   	// Get RootManager
 	CbmRootManager* ioman = CbmRootManager::Instance();
 	if ( ! ioman )
@@ -81,13 +81,10 @@ InitStatus PndEmcMakeCluster::Init() {
 	
 	ioman->Register("EmcCluster","Emc",fClusterArray,kTRUE);
 	
-	// Geometry loading
-	TGeoManager *geoMan = (TGeoManager*) gROOT->FindObject("CBMGeom");
-	
-	fMapVersion=fDigiPar->GetMapperVersion();
+	fMapVersion=fDigiPar->GetMapperVersion();  
 	PndEmcMapper::Instance(fMapVersion);
-	PndEmcStructure::Instance(geoMan);
-	
+	PndEmcStructure::Instance();
+
 	fDigiEnergyTresholdBarrel=fRecoPar->GetEnergyThresholdBarrel();
 	fDigiEnergyTresholdFWD=fRecoPar->GetEnergyThresholdFWD();
 	fDigiEnergyTresholdBWD=fRecoPar->GetEnergyThresholdBWD();

@@ -89,8 +89,7 @@ PndEmcExpClusterSplitter::~PndEmcExpClusterSplitter()
 {
 }
 
-void PndEmcExpClusterSplitter::splitCluster(const std::set<PndEmcTwoCoordIndex*> &theMaximaDigis, 
-	const PndEmcCluster * const theCluster,
+void PndEmcExpClusterSplitter::splitCluster(const std::set<PndEmcTwoCoordIndex*> &theMaximaDigis, const PndEmcCluster * const theCluster, Int_t clusterIndex,
 	std::vector<PndEmcBump*> &theBumpList) const
 {
 
@@ -115,7 +114,7 @@ void PndEmcExpClusterSplitter::splitCluster(const std::set<PndEmcTwoCoordIndex*>
 			theCluster->MemberDigiMap()->begin();
 
 		PndEmcBump* theNewBump = new PndEmcBump; 
-		theNewBump->madeFrom((PndEmcCluster*)theCluster);
+		theNewBump->MadeFrom(clusterIndex);
     
 		while (theDigiIterator != theCluster->MemberDigiMap()->end()){
 			PndEmcDigi *theCurrentDigi = theDigiIterator->second;
@@ -216,7 +215,7 @@ void PndEmcExpClusterSplitter::splitCluster(const std::set<PndEmcTwoCoordIndex*>
 		
 			// Create the bump which will correspond the this digi maxima
 			PndEmcBump* theNewBump = new PndEmcBump;
-			theNewBump->madeFrom((PndEmcCluster*)theCluster);
+			theNewBump->MadeFrom(clusterIndex);
 	
 			theIndexedBumps.insert(std::map<PndEmcTwoCoordIndex*, PndEmcBump*>::value_type(theCurrentMaximaTCI, theNewBump));
 	
