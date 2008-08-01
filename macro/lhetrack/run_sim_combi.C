@@ -59,7 +59,7 @@ void run_sim_combi(Int_t nEvents=1000, Float_t pT=1.0){
   fRun->AddModule(Dipole);
  
   CbmModule *Pipe= new PndPipe("PIPE");
-  Pipe->SetGeometryFileName("pipebeamtarget.geo");
+  //Pipe->SetGeometryFileName("pipebeamtarget.geo");
   fRun->AddModule(Pipe);
 
   CbmDetector *Tpc = new PndTpcDetector("TPC", kTRUE);
@@ -75,14 +75,15 @@ void run_sim_combi(Int_t nEvents=1000, Float_t pT=1.0){
   fRun->AddModule(Emc);   
   
   CbmDetector *Tof = new PndTof("TOF",kTRUE);
-  Tof->SetGeometryFileName("tofSciF.geo");
+  Tof->SetGeometryFileName("tofbarrel.geo");
   fRun->AddModule(Tof);
  
   CbmDetector *Muo = new PndMdt("MDT",kTRUE);
   Muo->SetGeometryFileName("muopars.root");
   fRun->AddModule(Muo);
  
-  CbmDetector *Drc = new PndDrc("DIRC", kTRUE);
+  PndDrc *Drc = new PndDrc("DIRC", kTRUE);
+  Drc->SetRunCherenkov(kFALSE);
   Drc->SetGeometryFileName("dirc.geo"); 
   fRun->AddModule(Drc); 
   
@@ -143,7 +144,7 @@ void run_sim_combi(Int_t nEvents=1000, Float_t pT=1.0){
    
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
-  exit(0);
+  //exit(0);
    
 }  
   

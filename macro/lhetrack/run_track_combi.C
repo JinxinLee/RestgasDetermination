@@ -56,7 +56,7 @@
   // ------------------------------------------------------------------------
 
   // -----  Parameter database   --------------------------------------------
-  TString allDigiFile = "./all.par";
+  TString allDigiFile = "../params/all.par";
 
   CbmRuntimeDb* rtdb = fRun->GetRuntimeDb();
   CbmParRootFileIo* parInput1 = new CbmParRootFileIo();
@@ -190,7 +190,12 @@
   PndMdtTrkProducerIdeal* mdtTrkProd = new PndMdtTrkProducerIdeal();
   fRun->AddTask(mdtTrkProd);
 
-  // -----   LHETRACK  ---------------------------------
+  // -----   DRC hit producers   ---------------------------------
+  PndDrcHitProducerIdeal* drchit = new PndDrcHitProducerIdeal();
+  drchit->SetVerbose(iVerbose);
+  fRun->AddTask(drchit);
+
+// -----   LHETRACK  ---------------------------------
 
   PndTpcLheHitsMaker* trackMS = new PndTpcLheHitsMaker("Tracking routine");
   trackMS->SetTpcMode(2);  // 0 OFF, 1 TpcPoint, 2 TpcCluster // TpcPoint smearing [cm], if negative no smearing
@@ -204,7 +209,7 @@
   fRun->AddTask(trackFitter);
 
   PndLhePidMaker* pidMaker    = new PndLhePidMaker("pid");
-  //pidMaker->SetDebugMode(kTRUE);
+  pidMaker->SetDebugMode(kTRUE);
   fRun->AddTask(pidMaker);
 
   // -----   Intialise and run   --------------------------------------------
