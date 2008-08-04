@@ -153,7 +153,7 @@ void PndDrcHitProducerIdeal::Exec(Option_t* option)
     Double_t Yb =  (5*lside/12 - (lside/6)*(b))*sin(thts);
    
     Double_t fXHit = Xs+Xb;
-    Double_t fYHit = Ys+Yb;
+    Double_t fYHit = -(Ys+Yb);
     Double_t fZHit = 0.;
  
     //  cout << "hit phi: "<< acos(fXHit/r) << endl;
