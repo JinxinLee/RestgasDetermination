@@ -29,7 +29,7 @@
 #include "TMatrixD.h"
 
 // Collaborating Class Declarations --
-class PndRiemannHit;
+#include "PndRiemannHit.h"
 
 
 class PndRiemannTrack : public TObject{
@@ -37,7 +37,7 @@ public:
 
   // Constructors/Destructors ---------
   PndRiemannTrack();
-  ~PndRiemannTrack(){;}
+  ~PndRiemannTrack(){};
 
   
   // Accessors -----------------------
@@ -47,11 +47,11 @@ public:
 
   TVectorD orig() const;
   double r() const;
-  double dip() const;
+  double dip();
   double sign() const;
   double getSZm() const {return fm;}
   double getSZt() const {return ft;}
-  unsigned int getNumHits() const {return fHits.size();}
+  unsigned int getNumHits() {return fHits.size();}
   PndRiemannHit* getHit(unsigned int i) {PndRiemannHit* myHit = &(fHits[i]); return myHit;}
   PndRiemannHit* getLastHit() {return getHit(getNumHits()-1);}
 
@@ -67,7 +67,7 @@ public:
   void refit();
   double dist(PndRiemannHit* hit);
   void szFit();
-  void szFit(PndRiemannHit* hit);
+  double calcSZChi2(PndRiemannHit* hit); //calculates the chi2 of the track plus the additional hit
   double szDist(PndRiemannHit* hit);
   double szError(PndRiemannHit* hit);
   double szChi2(){return fChi2;};
@@ -85,6 +85,8 @@ private:
   double fmError;		///< Error of fit
   double ftError;		///< Error of fit
   double fChi2;			///< Chisquare of sz fit
+  bool fFitDone;
+  bool fSZFitDone;
 
   std::vector<PndRiemannHit> fHits;
   TVectorD fav;  		///< average over all hits

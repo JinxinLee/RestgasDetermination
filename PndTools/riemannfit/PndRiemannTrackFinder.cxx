@@ -6,7 +6,8 @@
 ClassImp(PndRiemannTrackFinder);
 
 PndRiemannTrackFinder::PndRiemannTrackFinder(): fMaxPlaneDist(0.7), fMaxSZDist(1), fMaxSZChi2(1),
-fMinPointDist(0.5), fMaxTheta(0.4), fMaxPhi(0.4), fUseZeroPos(true), fCurvDiff(0.02), fDipDiff(0.02), fVerbose(2)
+fMinPointDist(0.5), fMaxTheta(0.4), fMaxPhi(0.4), fUseZeroPos(true), fCurvDiff(0.02), fDipDiff(0.02),
+fMinNumberOfHits(4), fVerbose(1)
 {
 	if (fUseZeroPos){
 		TVector3 pos(0.0,0.0,0.0);
@@ -14,7 +15,6 @@ fMinPointDist(0.5), fMaxTheta(0.4), fMaxPhi(0.4), fUseZeroPos(true), fCurvDiff(0
 		PndMvdHit* ZeroHit = new PndMvdHit(1, "", pos, dpos, 0, 0, 0);
 		fHits.push_back(ZeroHit);
 	}
-	fHitsTooClose.resize(3,-1);
 }
 
 PndRiemannTrackFinder::~PndRiemannTrackFinder()
@@ -41,13 +41,116 @@ void PndRiemannTrackFinder::AddHits(TClonesArray* hits)
 	}
 }
 
-void PndRiemannTrackFinder::FindTracks(double maxdist, double maxszdist)
+void PndRiemannTrackFinder::FindTracks()
 {
-	fMaxPlaneDist = maxdist;
-	fMaxSZDist = maxszdist;
+	std::vector<std::vector<Int_t> > Tracks = GetStartTracks();				//Get the possible track seeds
 	
+	for (int trackId = 0; trackId < Tracks.size(); trackId++){				//Go through all track seeds and search for additional points
+		
+		if (Tracks[trackId].size() != 3)
+			std::cout << "-E- PndRiemannTrackFinder::FindTracks: Start points: " << Tracks[trackId].size()
+			          << " in Track: " << trackId << std::endl;
+		
+		std::vector<Int_t> StartTrack = Tracks[trackId];
+		
+		if (fVerbose > 1){
+			std::cout << "------------------------------------" << std::endl;
+			std::cout << "Start Plane from Points: " << StartTrack[0] << " "
+					  << StartTrack[1] << " " << StartTrack[2] << std::endl;
+		}
+		if (TrackExists(StartTrack) == true){
+			if (fVerbose > 1) std::cout << "Track exists already!" << std::endl;
+			continue;
+		}
+		PndRiemannTrack actTrack = CreateRiemannTrack(StartTrack);				
+		int startHit = StartTrack[2];		
+		for (int testHit = startHit+1; testHit < fHits.size(); testHit++){
+			
+			if (CheckHitDistance(StartTrack[0], testHit)!= true){fHitsTooClose[trackId].push_back(testHit); continue;}
+			if (CheckHitDistance(StartTrack[1], testHit)!= true){fHitsTooClose[trackId].push_back(testHit); continue;}
+			if (CheckHitDistance(StartTrack[2], testHit)!= true){fHitsTooClose[trackId].push_back(testHit); continue;}
+			
+			PndRiemannHit actHit(fHits[testHit]);
+			
+			if (fVerbose > 1) std::cout << "Point " << testHit ;
+			if (CheckRiemannHit(&actTrack, &actHit) != true) continue;
+			
+			
+			StartTrack.push_back(testHit);
+			
+			actTrack.addHit(&actHit);
+			actTrack.refit();
+			actTrack.szFit();
+			
+			TVectorD orig = actTrack.orig();
+			if (fVerbose > 1) std::cout << "actHit added: " << testHit  << " r: " << actTrack.r()
+										<< " orig: " << orig[0] << " " << orig[1] << std::endl;
+		}
+		
+		if (actTrack.getNumHits() > (fMinNumberOfHits-1))		//if you have a track match
+		{
+			std::vector<int> hits = fHitsTooClose[trackId];
+			for (int ind = 0; ind < hits.size(); ind++){
+				PndRiemannHit actHit(fHits[hits[ind]]);
+				if (CheckRiemannHit(&actTrack, &actHit)!= true) continue;
+				StartTrack.push_back(hits[ind]);
+				
+				actTrack.addHit(&actHit);
+				actTrack.refit();
+				actTrack.szFit();
+			}
+
+			fTracks.push_back(actTrack);
+			fHitsInTracks.push_back(StartTrack);
+			if (fVerbose > 1){
+				TVectorD orig = actTrack.orig();
+				std::cout << "Track added! " << StartTrack[0] << " " << StartTrack[1]
+					<< " " << StartTrack[2] << " r: " << actTrack.r()
+					<< " orig: " << orig[0] << " " << orig[1]
+					<< " sz-m: " << actTrack.getSZm() << " sz-t: " << actTrack.getSZt()
+					<< " dip: " << actTrack.dip()
+					<< std::endl;
+			}
+
+			if (fVerbose > 0) std::cout << "Hits in Track: ";
+			for (int i = 0; i < StartTrack.size(); i++)
+			{
+				if (fVerbose > 0)
+					std::cout << " " << fMapHitToID[StartTrack[i]].first << "/" << fMapHitToID[StartTrack[i]].second;
+			}
+			if (fVerbose > 0) {
+				TVectorD myOrig = actTrack.orig();
+				std::cout << " numHits: " << actTrack.getNumHits();
+				std::cout << " curv: " << 1/actTrack.r() << " dip: " << actTrack.dip() << " orig: " << myOrig[0] << " " << myOrig[1] << std::endl;
+			}
+		}
+	}
+	for (int n = 0; n < fHitsInTracks.size(); n++)
+	{
+		//		fTracks[n].szfit();
+		TrackCand myTrackCand;
+		myTrackCand.setCurv(1/fTracks[n].r());
+		myTrackCand.setDip(fTracks[n].dip());
+		myTrackCand.setInverted(fTracks[n].sign());
+		for (int o = 0; o < fHitsInTracks[n].size(); o++)
+		{
+			myTrackCand.addHit(fMapHitToID[fHitsInTracks[n][o]].first,
+					fMapHitToID[fHitsInTracks[n][o]].second);
+		}
+		fTrackCand.push_back(myTrackCand);
+	}
+	
+	MergeTracks();
+	fTrackCand.clear();
+	fTrackCand = fMergedTrackCand;
+	if (fVerbose > 0) {
+		std::cout << "Tracks after merging:" << std::endl;
+		for (int p = 0; p < fTrackCand.size(); p++){
+			PrintTrackCand(&fTrackCand[p], true);
+		}
+	}
 //	PndRiemannTrack* actTrack;
-	Int_t hitsInTrack = 0;
+/*	Int_t hitsInTrack = 0;
 	PndRiemannHit zeroPos;
 	zeroPos.setXYZ(0,0,0);
 	zeroPos.setDXYZ(0.1,0.1,0.1);
@@ -230,7 +333,139 @@ void PndRiemannTrackFinder::FindTracks(double maxdist, double maxszdist)
 		for (int p = 0; p < fTrackCand.size(); p++){
 			PrintTrackCand(&fTrackCand[p], true);
 		}
+	}*/
+}
+
+std::vector< std::vector<Int_t> > PndRiemannTrackFinder::GetStartTracks()
+{
+	std::vector<Int_t> actCandidates;
+	std::vector<std::vector<Int_t> > Tracks;
+	std::vector<int> tooCloseFirst;
+	std::vector<int> tooCloseSecond;
+	if (fHits.size() > 4){
+		for (int first = 0; first < fHits.size()-3; first++){				//take three points and create a riemann plane - get first hit
+			tooCloseFirst.clear();
+			for (int second = first+1; second < fHits.size()-2; second++){				// get second hit
+				tooCloseSecond.clear();
+				if (CheckHitDistance(first, second) != true){ tooCloseFirst.push_back(second); continue;}				
+				if (CheckThetaPhi(first, second) != true) continue; 
+
+				for (int third = second+1; third < fHits.size()-1; third++){
+					if (fVerbose > 1) std::cout << "Checking Points: " << first << " " << second << " " << third << std::endl;
+					if (CheckThetaPhi(second, third) != true) continue;
+					if (CheckHitDistance(first, third)!= true){tooCloseFirst.push_back(third); continue;}
+					if (CheckHitDistance(second, third)!= true){tooCloseFirst.push_back(third); continue;}
+					
+					actCandidates.clear();
+					actCandidates.push_back(first);
+					actCandidates.push_back(second);				
+					actCandidates.push_back(third);
+					
+					if (!TrackExists(actCandidates)){			//checks if the combination of three points was used before in a track
+						PndRiemannTrack actTrack;// = new PndRiemannTrack();
+						PndRiemannHit hit1(fHits[first]);
+						PndRiemannHit hit2(fHits[second]);
+						PndRiemannHit hit3(fHits[third]);
+						actTrack.addHit(&hit1);
+						actTrack.addHit(&hit2);
+						actTrack.addHit(&hit3);
+						actTrack.refit();
+						if (CheckSZ(actTrack)!= true) continue;
+						TVectorT<double> orig = actTrack.orig();
+						if (fVerbose > 1) std::cout << "Base plane from Points: " << first << " " << second << " " << third << " r: " << actTrack.r() << " orig: " << orig[0] << " " << orig[1] << std::endl;
+						Tracks.push_back(actCandidates);
+						std::vector<int> combHits = tooCloseFirst;
+						combHits.insert(combHits.begin(), tooCloseSecond.begin(), tooCloseSecond.end());
+						fHitsTooClose.push_back(combHits);
+					}
+				}
+			}
+		}
 	}
+	if (fVerbose > 1) {
+		std::cout << "Start Tracks are: " << std::endl;
+		for (int i = 0; i < Tracks.size(); i++){
+			std::vector<int> aTrack = Tracks[i];
+			for (int j = 0; j < aTrack.size(); j++){
+				std::cout << aTrack[j] << " ";
+			}
+			std::cout << std::endl;
+		}
+	}
+	return Tracks;
+}
+
+bool PndRiemannTrackFinder::CheckThetaPhi(int hit1, int hit2)
+{
+	TVector3 vec1, vec2;
+	fHits[hit1]->Position(vec1);
+	fHits[hit2]->Position(vec2);
+	
+	if (vec1.Theta() > 0 && vec2.Theta() > 0)
+		if (fabs(vec1.Theta()-vec2.Theta()) > fMaxTheta && fabs(vec1.Phi()-vec2.Phi()) > fMaxPhi){
+			if (fVerbose > 1){
+				std::cout << "Theta: " << vec1.Theta() - vec2.Theta() << " > max: " << fMaxTheta << " or ";
+				std::cout << "Phi: " << vec1.Phi() - vec2.Phi() << " > max: " << fMaxPhi << std::endl;
+			}
+			return false;
+		}
+	return true;
+}
+
+bool PndRiemannTrackFinder::CheckHitDistance(int hit1, int hit2)
+{
+	double dist = HitDistance(fHits[hit1], fHits[hit2]);
+	if (dist < fMinPointDist)
+	{
+		if (fVerbose > 1) std::cout << "Hits: " << hit1 << " " << hit2 << " too close " << dist << std::endl;
+		return false;
+	}
+	return true;
+}
+
+bool PndRiemannTrackFinder::CheckSZ(PndRiemannTrack aTrack)
+{	
+	aTrack.szFit();
+	if (aTrack.szChi2() > fMaxSZChi2){
+		if (fVerbose > 1) std::cout << "sz-Fit does not match, Chi2: " << aTrack.szChi2() << std::endl;
+		return false;
+	}
+	return true;
+}
+
+PndRiemannTrack PndRiemannTrackFinder::CreateRiemannTrack(std::vector<Int_t> aHits)
+{
+	PndRiemannTrack result;
+	for (int i = 0; i < aHits.size(); i++)
+	{
+		result.addHit(new PndRiemannHit(fHits[aHits[i]]));
+	}
+	result.refit();
+	result.szFit();
+	return result;
+}
+
+bool PndRiemannTrackFinder::CheckRiemannHit(PndRiemannTrack* track, PndRiemannHit* hit)
+{
+	double dist = track->dist(hit);
+	double szDist = track->szDist(hit);
+	double szChi2 = track->calcSZChi2(hit);
+											
+	if (fVerbose > 1) std::cout << ": dist " << dist << " szDist " << szDist << " szChi2 " << szChi2 << std::endl;
+				
+	if (fabs(dist) > fMaxPlaneDist){
+		if (fVerbose > 1) std::cout << "dist larger than " << fMaxPlaneDist << std::endl;
+		return false;
+	}
+	if (szChi2 > fMaxSZChi2){
+		if (fVerbose > 1) std::cout << " SZ Chi2 too big! Cut at: " << fMaxSZChi2 << std::endl;		
+		return false;
+	}
+	if (szDist > fMaxSZDist){
+		if (fVerbose > 1) std::cout << " SZ Dist too big! Cut at: " << fMaxSZDist << std::endl;
+		return false;
+	}
+	return true;
 }
 
 void PndRiemannTrackFinder::MergeTracks()

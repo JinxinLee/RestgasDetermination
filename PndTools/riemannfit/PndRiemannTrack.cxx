@@ -44,10 +44,11 @@ void MatrixOutput(TMatrixD mat)
 	}
 }
 
-ClassImp(PndRiemannTrack)
+ClassImp(PndRiemannTrack);
 
-PndRiemannTrack::PndRiemannTrack()
-  : fn(3),fav(3), fc(0), fcovPlane(4,4), fjacRXY(3,4), fcovRXY(3,3), fVerbose(0)
+PndRiemannTrack::PndRiemannTrack() :
+	fn(3),fav(3), fc(0), fcovPlane(4,4), fjacRXY(3,4), fcovRXY(3,3),
+	fVerbose(0), fFitDone(false), fSZFitDone(false)
 {}
 
 
@@ -93,7 +94,8 @@ PndRiemannTrack::addHit(PndRiemannHit* hit){
   fav[2]+=hit->x().Z() /(hit->sigmaXY()*hit->sigmaXY());;
   //fav*=1./(double)(nbefore+1);
   fweight += 1/(hit->sigmaXY()*hit->sigmaXY());
-  
+  fFitDone = false;
+  fSZFitDone = false;
 }
 
 double
@@ -266,6 +268,9 @@ PndRiemannTrack::refit()
   
   if (fVerbose > 1) std::cout << "covRXY: " << std::endl;
   if (fVerbose > 1) MatrixOutput(fcovRXY);
+  
+  fFitDone = true;
+  fSZFitDone = false;
 }
 
 
@@ -299,6 +304,8 @@ PndRiemannTrack::r() const {
 
 void
 PndRiemannTrack::szFit(){
+	if (fFitDone == false)
+		refit();
   unsigned int n=getNumHits();  
   if (fVerbose > 0) std::cout << "szFit() for " << n << " Points!" << std::endl;
   
@@ -310,18 +317,7 @@ PndRiemannTrack::szFit(){
     if (fVerbose > 0) std::cout << fHits[i].s() << " " << fHits[i].z() << std::endl;
     g.SetPoint(i,fHits[i].s(),fHits[i].z());
   }
-  int errorcode;
- // std::cout << "Before Fit!" << std::endl;
-//  Int_t failure;
-//  g.LeastSquareLinearFit(n, ft,fm, failure);
-//  std::cout << "GetN(): " << g.GetN() << " " << ft << " " << fm  << std::endl;
-//  double chis = 0;
-//  for (unsigned int j = 0; j < n; j++){
-//	  chis += TMath::Power((fHits[j].s()*fm + ft) - fHits[j].z(),2);
-//  }
 
- // std::cout << "chis: " << chis << std::endl;
- // std::cout << "Fit Status: " << 
   g.Fit("pol1","Q0"); // << std::endl;
   TF1* f = g.GetFunction("pol1");
   //std::cout << "f: " << f << std::endl;
@@ -330,14 +326,15 @@ PndRiemannTrack::szFit(){
   ftError = f->GetParError(0);
   fmError = f->GetParError(1);
   fChi2   = f->GetChisquare();
- // fChi2 = chis;
+  fSZFitDone = true;
+  
   if (fVerbose > 0) std::cout << "t, m: " << ft << " +/- " << ftError << " / " << fm << " +/- " << fmError << " Chi2: " << fChi2 << std::endl;
-//  delete(f);
+
   return;
 }
 
-void
-PndRiemannTrack::szFit(PndRiemannHit* hit){
+double
+PndRiemannTrack::calcSZChi2(PndRiemannHit* hit){
   // get s'es and zs
   unsigned int n=getNumHits();
   if (fVerbose > 0) std::cout << "szFit(hit) for " << n+1 << " Points!" << std::endl;
@@ -352,32 +349,22 @@ PndRiemannTrack::szFit(PndRiemannHit* hit){
   hit->calcPosOnTrk(this);
   if (fVerbose > 0) std::cout << hit->s() << " " << hit->z() << std::endl;
   g.SetPoint(n, hit->s(), hit->z());
-/*  Int_t failure;
-  g.LeastSquareLinearFit(n+1, ft,fm, failure);
-  std::cout << "GetN(): " << g.GetN() << " " << ft << " " << fm  << std::endl;
-  double chis = 0;
-  for (unsigned int j = 0; j < n; j++){
-	  chis += TMath::Power((fHits[j].s()*fm + ft) - fHits[j].z(),2);
-  }
-  chis+= TMath::Power((hit->s()*fm + ft) - hit->z(),2);
-  std::cout << "chis: " << chis << std::endl;*/
   g.Fit("pol1","Q0");
   TF1* f = g.GetFunction("pol1");
-  ft = f->GetParameter(0);
-  fm = f->GetParameter(1);
-  ftError = f->GetParError(0);
-  fmError = f->GetParError(1);
-  fChi2   = f->GetChisquare();
 
 //  fChi2 = chis;
-  if (fVerbose > 0) std::cout << "t, m: " << ft << " +/- " << ftError << " / " << fm << " +/- " << fmError << "Chi2: " << fChi2 << std::endl;
+  if (fVerbose > 0) std::cout << "t, m: " << f->GetParameter(0) << " +/- " << f->GetParError(0)
+  							  << " / "    << f->GetParameter(1) << " +/- " << f->GetParError(1)
+  							  << "Chi2: " << f->GetChisquare()  << std::endl;
 //  delete(f);
-  return;
+  return f->GetChisquare();
 }
 
 double
 PndRiemannTrack::szDist(PndRiemannHit* hit){
-  szFit();
+	
+  if (fSZFitDone == false)
+		szFit();
   hit->calcPosOnTrk(this);
   double hits=hit->s();
   double predz=hits*fm+ft;
@@ -385,7 +372,8 @@ PndRiemannTrack::szDist(PndRiemannHit* hit){
 }
 
 double PndRiemannTrack::szError(PndRiemannHit* hit){
-	szFit();
+	if (fSZFitDone == false)
+		szFit();
 	hit->calcPosOnTrk(this);
 	double hits=hit->s();
 	double result = TMath::Sqrt(TMath::Power((hits*fmError),2)+TMath::Power(ftError,2));
@@ -395,8 +383,10 @@ double PndRiemannTrack::szError(PndRiemannHit* hit){
 
 // only after szFit!
 double
-PndRiemannTrack::dip() const {
-  return cos(atan(fm));
+PndRiemannTrack::dip() {
+	if (fSZFitDone == false)
+		szFit();
+	return cos(atan(fm)); 
 }
 
 

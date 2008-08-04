@@ -17,7 +17,7 @@ public:
 	PndRiemannTrackFinder();
 	virtual ~PndRiemannTrackFinder();
 	
-	void FindTracks(double maxdist, double maxszdist = 1);						///< Main function to start the riemann track finding
+	void FindTracks();										///< Main function to start the riemann track finding
 	void MergeTracks();
 	void SetHits(std::vector<CbmHit*> hits){fHits = hits;};	///< Replaces the existing array of hits with a new one
 	void AddHits(std::vector<CbmHit*> hits);				///< Appends the new array of hits to the existing one
@@ -50,7 +50,9 @@ private:
 	std::vector<std::vector<Int_t> > fHitsInTracks;		///< Vector of indizes which hits where used in which track
 	std::vector<TrackCand> fTrackCand;
 	std::vector<TrackCand> fMergedTrackCand;
-	std::vector<int> fHitsTooClose; 					///< vector of size 4 which contains the hits which are too close to either one of the three base points of a circle or to the fourth hit
+	std::vector< std::vector<int> > fHitsTooClose;		///< matrix of TrackNr and hits which are too close to one of the three starting points
+//	std::vector<int> fTooCloseFirst;
+//	std::vector<int> fTooCloseSecond;
 	std::map<int, std::pair<int,int> > fMapHitToID;		///< map to convert the list of hits back into a detID and hitID
 	std::map<std::pair<unsigned int, unsigned int>, int > fMapIDtoHit; ///<map to convert the list of detID/hitID hits into the list of hits for track finding
 	double fMaxPlaneDist;								///< Distance cut between new point and riemann plane
@@ -59,13 +61,21 @@ private:
 	double fMaxSZChi2;									///< Maximum allowed Chi2 in an sz fit
 	double fMaxTheta;									///< Maximum theta difference between the points
 	double fMaxPhi;										///< Maximum phi difference between the points
-	
+	int    fMinNumberOfHits;							///< Minimum number of hits in track necessary for a match
 	double fCurvDiff;									///< TrackMerger parameter
 	double fDipDiff;									///< TrackMerger parameter
 	
 	int fVerbose;
 	bool fUseZeroPos;
 	
+	std::vector<std::vector<Int_t> >  GetStartTracks();
+	bool CheckThetaPhi(int hit1, int hit2);				///< Tests if the theta, phi difference between the two hits is within the boundaries
+	bool CheckHitDistance(int hit1, int hit2);	///< Tests if the distance is larger than fMinPointDistance
+	bool CheckSZ(PndRiemannTrack aTrack);				///< Tests the results of the sz fit
+	bool CheckRiemannHit(PndRiemannTrack* track, PndRiemannHit* hit);
+	
+	PndRiemannTrack CreateRiemannTrack(std::vector<Int_t> aHits); ///< Creates a PndRiemannTrack from an array of indices of Hits
+		
 	bool TrackExists(std::vector<Int_t> hitsInTrack);
 	std::vector<int> FindTracksWithSimilarParameters(int TrackInd, std::vector<int>& TracksToTest, double curvDiff, double dipDiff);
 	std::vector<int> FindTracksWithSimilarHits(std::vector<int>& TracksToTest);
