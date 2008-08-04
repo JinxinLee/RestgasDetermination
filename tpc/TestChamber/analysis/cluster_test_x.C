@@ -45,49 +45,52 @@ void plots(TString files){
    xclustw->SetXTitle("cluster x with cut");
    //xclustw->SetFillColor(2);
 
-   TCanvas *x = new TCanvas();
-
-  myChain.SetBranchAddress("track", &intr);
-
-  for (Int_t iev=0;iev<nevent;iev++){
-
-    myChain.GetEntry(iev);
-    TCtrack tr(*intr);
 
 
-      for(int i=0;i<tr.nCl();++i){
-	TCcluster c = tr.getCl(i);
-	if(c.getFit()){//was used in fit
-	  xclust->Fill(c.getRes().X());
-
+   myChain.SetBranchAddress("track", &intr);
+   
+   for (Int_t iev=0;iev<nevent;iev++){
+     
+     myChain.GetEntry(iev);
+     TCtrack tr(*intr);
+     
+     
+     for(int i=0;i<tr.nCl();++i){
+       TCcluster c = tr.getCl(i);
+       if(c.getFit()){//was used in fit
+	 xclust->Fill(c.getRes().X());
+	 
        }
      }
-  }
+   }
+   
+   for (Int_t iev=0;iev<nevent;iev++){
+     
+     myChain.GetEntry(iev);
+     TCtrack tr(*intr);
+     TCtrack trSplit = clusterSplit1(tr);
+     trSplit.fit(200);
+     for(int i=0;i<trSplit.nCl();++i){
+       //if(tr.nClFit()<5) continue;
+       //std::cout << clusterSplit1(tr) << std::endl;
+       TCcluster d = trSplit.getCl(i);
+       
+       if(d.getFit()){//was used in fit
+	 xclustw->Fill(d.getRes().X());
+	 
+	 
+       }
+     }
+     
+   }
+   
 
-  for (Int_t iev=0;iev<nevent;iev++){
-
-    myChain.GetEntry(iev);
-    TCtrack tr(*intr);
-    TCtrack trSplit = clusterSplit1(tr);
-
-      for(int i=0;i<trSplit.nCl();++i){
-          //if(tr.nClFit()<5) continue;
-          //std::cout << clusterSplit1(tr) << std::endl;
-	  TCcluster d = trSplit.getCl(i);
-	  if(d.getFit()){//was used in fit
-	  xclustw->Fill(d.getRes().X());
- 
-
-      }
-    }
-
-  }
-
-
-  xclustw->Draw();
-  xclust->Draw("same");
-  x->Update();
-  //chi2->Draw();
-
+   TCanvas *x = new TCanvas("canv1","");   
+   xclustw->Draw();
+   TCanvas *c3 = new TCanvas("canv2","");   
+   xclust->Draw();
+   x->Update();
+   //chi2->Draw();
+   
 }
 
