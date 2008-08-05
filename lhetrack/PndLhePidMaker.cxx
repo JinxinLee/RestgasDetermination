@@ -18,6 +18,8 @@
 #include "TObjArray.h"
 #include "TVector3.h"
 
+#include <cmath>
+
 // ---------------------------------------------------------------
 // --- Interface with PidMaker and output ---
 
