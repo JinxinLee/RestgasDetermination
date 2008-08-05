@@ -152,6 +152,7 @@ int main(int argc, char* argv[]) {
   while(1) {
     outputTrack->clear();
     event = myReader.readEvent();
+    //event->Print();
     if(event == NULL) {
       break;
     }
@@ -184,10 +185,9 @@ int main(int argc, char* argv[]) {
       std::vector<PndTpcSample*> samplelist;
       int nsamp=0;
       for(int iSample=0;iSample<150;iSample++) {
-	if(event->time[iPad][iSample]>0 && 
-	   event->charge[iPad][iSample] < 100000 && 
+	if(event->charge[iPad][iSample] < 100000 && 
 	   event->charge[iPad][iSample]>=0) {
-	  PndTpcSample* aSample = new PndTpcSample(event->time[iPad][iSample],event->charge[iPad][iSample],iPad,dummyID);
+	  PndTpcSample* aSample = new PndTpcSample(iSample,event->charge[iPad][iSample],iPad,dummyID);
 	  samplelist.push_back(aSample);
 	  if(event->charge[iPad][iSample] > ped_s[iPad]*4.) nsamp++;
 	}

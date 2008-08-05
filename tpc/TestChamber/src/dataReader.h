@@ -17,16 +17,16 @@
 class TCevt {
  public:
   UInt_t          trigger;
-  UInt_t          runtime;
-  Int_t           nchan;
-  Int_t           chan[128];   //[nchan]
-  Int_t           nslice[128];   //[nchan]
+  //UInt_t          runtime;
+  //Int_t           nchan;
+  //Int_t           chan[128];   //[nchan]
+  //Int_t           nslice[128];   //[nchan]
   Int_t           charge[128][150];   //[nchan]
-  Int_t           time[128][150];   //[nchan]
-  Float_t         mc_intercept_x;
-  Float_t         mc_slope_x;
-  Float_t         mc_intercept_z;
-  Float_t         mc_slope_z;
+  //Int_t           time[128][150];   //[nchan]
+  //Float_t         mc_intercept_x;
+  //Float_t         mc_slope_x;
+  //Float_t         mc_intercept_z;
+  //Float_t         mc_slope_z;
 
 
   void Print(); 
@@ -44,29 +44,29 @@ public :
 
    // Declaration of leave types
    UInt_t          trigger;
-   UInt_t          runtime;
-   Int_t           nchan;
-   Int_t           chan[128];   //[nchan]
-   Int_t           nslice[128];   //[nchan]
+   //UInt_t          runtime;
+   //Int_t           nchan;
+   //Int_t           chan[128];   //[nchan]
+   //Int_t           nslice[128];   //[nchan]
    Int_t           charge[128][150];   //[nchan]
-   Int_t           time[128][150];   //[nchan]
-   Float_t         mc_intercept_x;
-   Float_t         mc_slope_x;
-   Float_t         mc_intercept_z;
-   Float_t         mc_slope_z;
+   //Int_t           time[128][150];   //[nchan]
+   //Float_t         mc_intercept_x;
+   //Float_t         mc_slope_x;
+   //Float_t         mc_intercept_z;
+   //Float_t         mc_slope_z;
 
    // List of branches
    TBranch        *b_trigger;   //!
-   TBranch        *b_runtime;   //!
-   TBranch        *b_nchan;   //!
-   TBranch        *b_chan;   //!
-   TBranch        *b_nslice;   //!
+   //TBranch        *b_runtime;   //!
+   //TBranch        *b_nchan;   //!
+   //TBranch        *b_chan;   //!
+   //TBranch        *b_nslice;   //!
    TBranch        *b_charge;   //!
-   TBranch        *b_time;   //!
-   TBranch        *b_mc_intercept_x;   //!
+   //TBranch        *b_time;   //!
+   //TBranch        *b_mc_intercept_x;   //!
    TBranch        *b_mc_slope_x;   //!
-   TBranch        *b_mc_intercept_z;   //!
-   TBranch        *b_mc_slope_z;   //!
+   //TBranch        *b_mc_intercept_z;   //!
+   //TBranch        *b_mc_slope_z;   //!
 
    dataReader(TTree *tree=0);
    virtual ~dataReader();
@@ -146,16 +146,16 @@ void dataReader::Init(TTree *tree)
    fChain->SetMakeClass(1);
 
    fChain->SetBranchAddress("trigger", &trigger, &b_trigger);
-   fChain->SetBranchAddress("runtime", &runtime, &b_runtime);
-   fChain->SetBranchAddress("nchan", &nchan, &b_nchan);
-   fChain->SetBranchAddress("chan", chan, &b_chan);
-   fChain->SetBranchAddress("nslice", nslice, &b_nslice);
+   //fChain->SetBranchAddress("runtime", &runtime, &b_runtime);
+   //fChain->SetBranchAddress("nchan", &nchan, &b_nchan);
+   //fChain->SetBranchAddress("chan", chan, &b_chan);
+   //fChain->SetBranchAddress("nslice", nslice, &b_nslice);
    fChain->SetBranchAddress("charge", charge, &b_charge);
-   fChain->SetBranchAddress("time", time, &b_time);
-   fChain->SetBranchAddress("mc_intercept_x", &mc_intercept_x, &b_mc_intercept_x);
-   fChain->SetBranchAddress("mc_slope_x", &mc_slope_x, &b_mc_slope_x);
-   fChain->SetBranchAddress("mc_intercept_z", &mc_intercept_z, &b_mc_intercept_z);
-   fChain->SetBranchAddress("mc_slope_z", &mc_slope_z, &b_mc_slope_z);
+   //fChain->SetBranchAddress("time", time, &b_time);
+   //fChain->SetBranchAddress("mc_intercept_x", &mc_intercept_x, &b_mc_intercept_x);
+   //fChain->SetBranchAddress("mc_slope_x", &mc_slope_x, &b_mc_slope_x);
+   //fChain->SetBranchAddress("mc_intercept_z", &mc_intercept_z, &b_mc_intercept_z);
+   //fChain->SetBranchAddress("mc_slope_z", &mc_slope_z, &b_mc_slope_z);
    Notify();
 }
 

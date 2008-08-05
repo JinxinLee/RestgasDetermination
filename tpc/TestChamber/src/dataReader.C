@@ -57,18 +57,18 @@ TCevt* dataReader::readEvent() {
 	Long64_t nb = fChain->GetEntry(lastEvent);
 	lastEvent++;
 	returnData->trigger = trigger;
-	returnData->runtime = runtime;
-	returnData->nchan = nchan;
-	returnData->mc_intercept_x = mc_intercept_x;
-	returnData->mc_slope_x = mc_slope_x;
-	returnData->mc_intercept_z = mc_intercept_z;
-	returnData->mc_slope_z = mc_slope_z;
+	//returnData->runtime = runtime;
+	//returnData->nchan = nchan;
+	//returnData->mc_intercept_x = mc_intercept_x;
+	//returnData->mc_slope_x = mc_slope_x;
+	//returnData->mc_intercept_z = mc_intercept_z;
+	//returnData->mc_slope_z = mc_slope_z;
 	for(int i=0; i< 128; i++) {
-	  returnData->nslice[i] = nslice[i];
-	  returnData->chan[i] = chan[i];
+	  //returnData->nslice[i] = nslice[i];
+	  //returnData->chan[i] = chan[i];
 	  for(int j=0; j< 150; j++) {
 		returnData->charge[i][j] = charge[i][j];
-		returnData->time[i][j] = time[i][j];
+		//returnData->time[i][j] = time[i][j];
 	  }
 	}
 	return returnData;
@@ -81,25 +81,26 @@ TCevt* dataReader::readEvent() {
 
 
 void TCevt::Print(){
+  cout << "====================================" << endl;
   cout << "trigger: " << trigger << endl;
-  cout << "nchan: " << nchan << endl;
-  cout << "mc_intercept_x: " << mc_intercept_x << endl;
-  cout << "mc_intercept_z: " << mc_intercept_z << endl;
-  cout << "mc_slope_x: " << mc_slope_x << endl;
-  cout << "mc_slope_z: " << mc_slope_z << endl;
+  //cout << "nchan: " << nchan << endl;
+  //cout << "mc_intercept_x: " << mc_intercept_x << endl;
+  //cout << "mc_intercept_z: " << mc_intercept_z << endl;
+  //cout << "mc_slope_x: " << mc_slope_x << endl;
+  //cout << "mc_slope_z: " << mc_slope_z << endl;
 
-  /*
+  
 	cout << "chan: ";
 	for(int i=0;i<128;i++) {
-	cout << chan << " ";
+	  //cout << chan << " ";
 	}
-	cout << endl;
+	//cout << endl;
 	
 	cout << "nslice: ";
 	for(int i=0;i<128;i++) {
-	  cout << nslice << " ";
+	  //cout << nslice << " ";
 	}
-	cout << endl;
+	//cout << endl;
 	
 	for(int i=0;i<128;i++) {
 	  cout << "charge" << i << ": ";
@@ -107,13 +108,13 @@ void TCevt::Print(){
 		cout << charge[i][j] << " "; 
 	  }
 	  cout << endl;
-	  cout << "time" << i << ": ";
+	  //cout << "time" << i << ": ";
 	  for(int j=0;j<150;j++) {
-		cout << time[i][j] << " "; 
+	    //cout << time[i][j] << " "; 
 	  }
-	  cout << endl;
+	  //cout << endl;
 	}
-  */
+  
 }
 
 void TCevt::Print(int pad){
@@ -125,11 +126,11 @@ void TCevt::Print(int pad){
 	cout << charge[pad][j] << " "; 
   }
   cout << endl;
-  cout << "time" << pad << ": ";
+  //cout << "time" << pad << ": ";
   for(int j=0;j<150;j++) {
-	cout << time[pad][j] << " "; 
+    //cout << time[pad][j] << " "; 
   }
-  cout << endl;
+  //cout << endl;
 }
 
 int TCevt::Nchan(std::map<int,double>& _ped_s) {
