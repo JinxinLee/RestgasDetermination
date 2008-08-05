@@ -185,13 +185,13 @@ InitStatus PndLhePidMaker::Init() {
       r = TFile::Open(sDir+sFile,"RECREATE");
       
       tofCorr = new TNtuple("tofCorr","TRACK-TOF Correlation",
-			    "track_x:track_y:track_z:track_phi:tof_x:tof_y:tof_z:tof_phi:chi2:dphi:len");
+			    "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:tof_x:tof_y:tof_z:tof_phi:chi2:dphi:len");
       emcCorr = new TNtuple("emcCorr","TRACK-EMC Correlation",
-			    "track_x:track_y:track_z:track_phi:emc_x:emc_y:emc_z:emc_phi:chi2:dphi:emc_ene");
+			    "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:emc_x:emc_y:emc_z:emc_phi:chi2:dphi:emc_ene");
       mdtCorr = new TNtuple("mdtCorr","TRACK-MDT Correlation",
-			    "track_x:track_y:track_z:track_phi:mdt_x:mdt_y:mdt_z:mdt_phi:chi2:mdt_mod:dphi");
+			    "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:mdt_x:mdt_y:mdt_z:mdt_phi:chi2:mdt_mod:dphi");
       drcCorr = new TNtuple("drcCorr","TRACK-DRC Correlation",
-			    "track_x:track_y:track_z:track_phi:drc_x:drc_y:drc_phi:chi2:drc_thetac:drc_nphot:dphi");
+			    "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:drc_x:drc_y:drc_phi:chi2:drc_thetac:drc_nphot:dphi");
       cout << "-I- PndLhePidMaker::Init: Filling Debug histograms" << endl;
       
     }
@@ -292,7 +292,9 @@ void PndLhePidMaker::GetMvdInfo(const PndTpcLheHit* hit, const PndLhePidTrack* t
 //_________________________________________________________________
 void PndLhePidMaker::GetTofInfo(PndLhePidTrack* track) {
 
-  if ((track->GetMomentum().Theta()*TMath::RadToDeg())<20.) return;
+  if ((track->GetMomentum().Theta()*TMath::RadToDeg())<20.) return; 
+  if ((track->GetMomentum().Theta()*TMath::RadToDeg())>150.) return;
+
   //---
   PndTofHit *tofHit = NULL;
   Int_t tofEntries = fTofHit->GetEntriesFast();
@@ -325,9 +327,13 @@ void PndLhePidMaker::GetTofInfo(PndLhePidTrack* track) {
 	  tofLength = fabs(phi * track->GetRadius() / TMath::Sin(track->GetMomentum().Theta()));
 	}
       if (fDebugMode)
-	tofCorr->Fill(vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(),
-		      tofPos.X(), tofPos.Y(), tofPos.Z(), tofPos.Phi(),
-		      chi2, vertex.DeltaPhi(tofPos), tofLength);
+	{
+	  Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(),
+			      track->GetMomentum().Mag(), track->GetCharge(), track->GetMomentum().Theta(), track->GetZ0(),
+			      tofPos.X(), tofPos.Y(), tofPos.Z(), tofPos.Phi(),
+			      chi2, vertex.DeltaPhi(tofPos), tofLength};
+	  tofCorr->Fill(ntuple);
+	}
     }
   
   if (tofQuality<fCorrPar->GetTofCut())
@@ -345,6 +351,7 @@ void PndLhePidMaker::GetTofInfo(PndLhePidTrack* track) {
 //_________________________________________________________________
 void PndLhePidMaker::GetEmcInfo(PndLhePidTrack* track) {  
   if ((track->GetMomentum().Theta()*TMath::RadToDeg())<20.) return;
+  if ((track->GetMomentum().Theta()*TMath::RadToDeg())>145.) return;
   //---
   PndEmcCluster *emcHit = NULL;
   Int_t emcEntries = fEmcCluster->GetEntriesFast();
@@ -379,11 +386,14 @@ void PndLhePidMaker::GetEmcInfo(PndLhePidTrack* track) {
 	}
 
       if (fDebugMode)
-	emcCorr->Fill(vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(),
-		      emcHit->x(), emcHit->y(), emcHit->z(), emcHit->phi(),
-		      chi2, vertex.DeltaPhi(emcPos), emcHit->energy());
+	{
+	  Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(),
+			      track->GetMomentum().Mag(), track->GetCharge(), track->GetMomentum().Theta(), track->GetZ0(),
+			      emcHit->x(), emcHit->y(), emcHit->z(), emcHit->phi(),
+			      chi2, vertex.DeltaPhi(emcPos), emcHit->energy()};
+	  emcCorr->Fill(ntuple);
+	}
     }
-  
   if (emcQuality < fCorrPar->GetEmc12Cut())
     {
       track->SetEmcIndex(emcIndex);
@@ -431,9 +441,13 @@ void PndLhePidMaker::GetMdtInfo(PndLhePidTrack* track) {
 	  mdtMod = mdtHit->GetModule();
 	}
       if (fDebugMode)
-	mdtCorr->Fill(vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(),
-		      mdtPos.X(), mdtPos.Y(), mdtPos.Z(), mdtPos.Phi(),
-		      chi2, mdtHit->GetModule(), vertex.DeltaPhi(mdtPos));
+	{
+	  Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(), 
+			      track->GetMomentum().Mag(), track->GetCharge(), track->GetMomentum().Theta(), track->GetZ0(),
+			      mdtPos.X(), mdtPos.Y(), mdtPos.Z(), mdtPos.Phi(),
+			      chi2, mdtHit->GetModule(), vertex.DeltaPhi(mdtPos)};
+	  mdtCorr->Fill(ntuple);
+	}
     }
   
   if (mdtQuality<fCorrPar->GetMdtCut())
@@ -482,8 +496,12 @@ if ((track->GetMomentum().Theta()*TMath::RadToDeg())<20.) return;
 	  drcPhot = 0; // ** to be filled **
 	}
       if (fDebugMode)
-	drcCorr->Fill(vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(),
-		      drcPos.X(), drcPos.Y(), drcPos.Phi(), chi2, drcHit->GetThetaC(), 0., vertex.DeltaPhi(drcPos));
+	{
+	  Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(),  
+			      track->GetMomentum().Mag(), track->GetCharge(), track->GetMomentum().Theta(), track->GetZ0(),
+			      drcPos.X(), drcPos.Y(), drcPos.Phi(), chi2, drcHit->GetThetaC(), 0., vertex.DeltaPhi(drcPos)};
+	  drcCorr->Fill(ntuple);
+	}
     }
   
   if (drcQuality<fCorrPar->GetDrcCut())

@@ -73,8 +73,8 @@ Float_t PndTpcLheTrack ::ExtrapolateToZ(TVector3 *mom, TVector3 *vertex, const F
   
   Double_t sign = GetMomentum().Z() / (Q*alpha*rad*lam);
   
-  //Double_t phi = - (z - z0) / (rad*lam*sign); // calulates phi from Z
-  Double_t phi = - (z - z0) / (rad*lam); // calulates phi from Z
+  Double_t phi = - (z - z0) / (rad*lam*sign); // calulates phi from Z
+  //Double_t phi = - (z - z0) * / (rad*lam); // calulates phi from Z
 
   Double_t x = d0*TMath::Cos(fi0) + rad *(TMath::Cos(fi0) - TMath::Cos(fi0 + phi));   
   Double_t y = d0*TMath::Sin(fi0) + rad *(TMath::Sin(fi0) - TMath::Sin(fi0 + phi));   
@@ -101,7 +101,7 @@ Float_t PndTpcLheTrack ::ExtrapolateToR(TVector3 *mom, TVector3 *vertex, const F
   
   if (TMath::Tan(GetMomentum().Theta()==0)) return 0;
   
-  Float_t zproj = R / TMath::Tan(GetMomentum().Theta());
+  Float_t zproj = R / TMath::Tan(GetMomentum().Theta()) + GetZ0();
 
   return ExtrapolateToZ(mom, vertex, zproj);
 }
