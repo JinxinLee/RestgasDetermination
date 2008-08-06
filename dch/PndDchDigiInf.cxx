@@ -15,7 +15,8 @@
 
 #include <iostream>
 #include <fstream>
-#include <string>
+#include "string.h"
+#include <algorithm>
 
 using std::cout;
 using std::cerr;

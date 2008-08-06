@@ -28,6 +28,7 @@
 // C/C++ Headers ----------------------
 #include <iostream>
 #include <fstream>
+#include <algorithm>
 using std::string;
 // Class Member definitions -----------
 

@@ -145,7 +145,7 @@ class PndStt : public CbmDetector
    ** Adds a CbmTrdPoint to the HitCollection
    **/
   PndSttPoint* AddHit(Int_t trackID, Int_t detID, TVector3 pos,
-		      TVector3 posInLocal, TVector3 posInLocal,
+		      TVector3 posInLocal, TVector3 posOutLocal,
 		      TVector3 momIn, TVector3 momOut, TVector3 wireDir,
 		      Double_t time, Double_t length, Double_t eLoss, Double_t mass, TVector3 postot); // da cancellare postot
 

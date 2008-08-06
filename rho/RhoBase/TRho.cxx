@@ -11,7 +11,7 @@
 // Copyright (C) 1999-2001, Ruhr-University Bochum.			//
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
-
+#include "stdlib.h"
 #include "TSystem.h"
 #include "TROOT.h"
 #include "TNetFile.h"

@@ -31,6 +31,7 @@
 #include "assert.h"
 #include <limits>
 #include <iostream>
+#include <algorithm>
 using std::numeric_limits;
 using std::vector;
 
@@ -45,7 +46,7 @@ PndTpcDigitizationPolicy::Digitize(vector< PndTpcSignal* >* Signals,
   // TODO: Refactorize the PadID out of this function!
   // Sort Signals according to PadID while preserving time order in one Pad
   
-  sort(Signals->begin(),Signals->end(),PndTpcSignalComparePadID()); 
+  std::sort(Signals->begin(),Signals->end(),PndTpcSignalComparePadID()); 
   // when using PndTpcElectronicsTask this should not be necessary
 
   double tstep=Frontend->dt();

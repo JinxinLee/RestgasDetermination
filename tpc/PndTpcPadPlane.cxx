@@ -22,8 +22,8 @@
 #include <iostream>
 #include <exception>
 #include <fstream>
-#include <string>
-
+#include "string.h"
+#include "stdlib.h"
 // Collaborating Class Headers --------
 #include "TError.h"
 #include "PndTpcPadShapePool.h"

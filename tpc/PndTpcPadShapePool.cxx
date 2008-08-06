@@ -21,6 +21,9 @@
 // C/C++ Headers ----------------------
 #include <iostream>
 #include <fstream>
+#include "string.h"
+#include "stdlib.h"
+
 // Collaborating Class Headers --------
 #include "PndTpcAbsPadShape.h"
 #include "PndTpcPadShapeSquare.h"

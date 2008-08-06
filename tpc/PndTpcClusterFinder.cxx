@@ -23,7 +23,7 @@
 // C/C++ Headers ----------------------
 #include <iostream>
 #include "assert.h"
-
+#include <algorithm>
 // Collaborating Class Headers --------
 #include "PndTpcPadPlane.h"
 #include "PndTpcSectorProcessor.h"

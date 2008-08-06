@@ -24,7 +24,7 @@
 #include <sstream>
 #include <algorithm>
 #include <fstream>
-
+#include "string.h"
 using std::streambuf;
 using std::string;
 using std::istream;

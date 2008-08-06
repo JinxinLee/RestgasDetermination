@@ -12,7 +12,7 @@
 #include <fstream>
 #include <string>
 #include "TString.h"
-
+#include <algorithm>
 
 #include "PndEmcReader.h"
 
