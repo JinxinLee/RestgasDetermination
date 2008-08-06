@@ -94,7 +94,7 @@ public:
   
   Float_t GetTof()                    { return fTimeOfFlight; }
   Float_t GetEmcELoss()               { return fEmcELoss; }
-  Float_t GetBeta()                   { return fTimeOfFlight>0. ? fTofPathLength/(300. * fTimeOfFlight) : -1.; }
+  Float_t GetBeta()                   { return fTimeOfFlight>0. ? fTofPathLength/(30. * fTimeOfFlight) : -1.; }
   
   void SetMvdELoss(Double_t eloss)    { fMvdELoss = eloss;    };
   void SetMvdHitCounts(Int_t nhit)    { fMvdHitCount = nhit;  };
