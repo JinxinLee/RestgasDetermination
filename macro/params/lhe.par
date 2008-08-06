@@ -7,24 +7,24 @@
 TofRadius:f 43.6
 TofPhi0:f 0.
 TofZ0:f 0.
-TofSigmaPhi:f 0.032
-TofSigmaZ:f  1.7
-TofCut:f 10.
+TofSigmaPhi:f 0.0346
+TofSigmaZ:f  1.43
+TofCut:f 20.
 Emc12Thr: f 0.02
 Emc12Radius:f 63.
 Emc12Phi0:f 0.
 Emc12Z0:f 0.
-Emc12SigmaPhi:f 0.045
-Emc12SigmaZ:f 3.3 
-Emc12Cut:f 10.
+Emc12SigmaPhi:f 0.0486
+Emc12SigmaZ:f 2.88
+Emc12Cut:f 20.
 MdtRadius:f 155.
 MdtPhi0:f 0.
 MdtZ0:f 2.1
 MdtSigmaPhi:f 0.024
 MdtSigmaZ:f 3.1
-MdtCut:f 10.
+MdtCut:f 20.
 DrcRadius:f 49.
 DrcPhi0:f 0.
-DrcSigmaPhi:f 0.45
-DrcCut:f 10.
+DrcSigmaPhi:f 0.0474
+DrcCut:f 20.
 #################################################################
