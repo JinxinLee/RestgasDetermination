@@ -7,12 +7,17 @@
 #include"TRandom.h"
 #include"TCanvas.h"
 #include"TGraph.h"
-#include"TGraphErrors.h"
+#include"TEllipse.h"
+#include"TMatrixT.h"
+#include"TVectorT.h"
 #include"TAxis.h"
 #include"TApplication.h"
 #include"TSystem.h"
 #include"TF1.h"
 #include"TH2.h"
+
+#define PRINTF(X) printf("%s=%10.10f\n",#X,(X));
+
 
 std::set<int> glob_id;
 std::vector<TCcluster> glob_clusters;
@@ -139,9 +144,6 @@ void TCtrack::draw(bool stop,int _x,int _y,int _w,int _h){
   double x[cl.size()];
   double y[cl.size()];
   double z[cl.size()];
-  double xerr[cl.size()];
-  double yerr[cl.size()];
-  double zerr[cl.size()];
   double xf[cl.size()];
   double yf[cl.size()];
   double zf[cl.size()];
@@ -149,6 +151,8 @@ void TCtrack::draw(bool stop,int _x,int _y,int _w,int _h){
 
   TGraph *ampGxz[cl.size()];
   TGraph *ampGyz[cl.size()];
+  TEllipse *ellXZ[cl.size()];
+  TEllipse *ellYZ[cl.size()];
   double singleX[1];
   double singleY[1];
   double singleZ[1];
@@ -161,14 +165,12 @@ void TCtrack::draw(bool stop,int _x,int _y,int _w,int _h){
     y[i]=point.Y();
     z[i]=point.Z();
 
-    double r1XZ,r1YZ,r2XZ,r2YZ;//Halbachsen r1 lang, r2 kurz
-    double corrXZ,corrYZ;//correlation of error ellipse
 
     TMatrixT<double> rot(3,3);
     TVector3 dummyV;
     double dummyD;
     TCalign::getInstance()->getConv(cl.at(i).getId(),dummyV,rot,dummyD);
-    rot.Print();
+    //    rot.Print();
     TMatrixT<double> rotTransp = rot;
     rotTransp.T();
     TVector3 pointErr = cl.at(i).getErr();//still in det coordinates
@@ -177,14 +179,95 @@ void TCtrack::draw(bool stop,int _x,int _y,int _w,int _h){
     UVWerrors[1][1]=pow(pointErr.Y(),2.);
     UVWerrors[2][2]=pow(pointErr.Z(),2.);
     TMatrixT<double> XYZerrors(3,3);
-    //?????????????
-    XYZerrors = rotTransp*(UVWerrors*rot);//????????????????????
+
+    XYZerrors = rotTransp*(UVWerrors*rot);
+
+    TMatrixT<double> XZerrors(2,2);
+    TMatrixT<double> YZerrors(2,2);
+    XZerrors[0][0] = XYZerrors[0][0];//sigmaXX^2
+    XZerrors[1][1] = XYZerrors[2][2];//sigmaZZ^2
+    XZerrors[0][1] = XYZerrors[0][2];//sigmaXZ^2
+    XZerrors[1][0] = XZerrors[0][1];
+    YZerrors[0][0] = XYZerrors[1][1];//sigmaYY^2
+    YZerrors[1][1] = XYZerrors[2][2];//sigmaZZ^2
+    YZerrors[0][1] = XYZerrors[1][2];//sigmaYZ^2
+    YZerrors[1][0] = YZerrors[0][1];
+
+
+    //calculate eigenvalues and eigenvectors
+    TVectorT<double> EVAXZ(2);
+    TMatrixT<double> EVEXZ(2,2);
+    EVEXZ=XZerrors.EigenVectors(EVAXZ);
+    TVectorT<double> EVAYZ(2);
+    TMatrixT<double> EVEYZ(2,2);
+    EVEYZ=XZerrors.EigenVectors(EVAYZ);
+    double thetaXZ,thetaYZ;
+
+    //find which eigenvalue comes first/second
+    int indexZerr=-1;
+    if(fabs(UVWerrors[2][2]-EVAXZ[0])<1.E-4*EVAXZ[0]){
+      indexZerr=0;
+    }
+    else if(fabs(UVWerrors[2][2]-EVAXZ[1])<1.E-4*EVAXZ[1]){
+      indexZerr=1;
+    }
+    assert(indexZerr>=0);
+    if(i==0){
+      PRINTF(EVEXZ[indexZerr][0]);
+      PRINTF(EVEXZ[indexZerr][1]);
+    }
+    if(fabs(EVEXZ[indexZerr][1])>1.E-10){
+      thetaXZ=180./TMath::Pi() * TMath::ATanH(EVEXZ[indexZerr][0]/EVEXZ[indexZerr][1]);
+    }
+    else{
+      thetaXZ=180.;
+    }
+    //calculate ellipse radii
+    double rE1XZ=EVAXZ[indexZerr];
+    double rE2XZ;
+    if(indexZerr==0) rE2XZ=EVAXZ[1];
+    if(indexZerr==1) rE2XZ=EVAXZ[0];
+
+    indexZerr=-1;
+    if(fabs(UVWerrors[2][2]-EVAYZ[0])<1.E-4*EVAYZ[0]){
+      indexZerr=0;
+    }
+    else if(fabs(UVWerrors[2][2]-EVAYZ[1])<1.E-4*EVAYZ[1]){
+      indexZerr=1;
+    }
+    assert(indexZerr>=0);
+    if(fabs(EVEYZ[indexZerr][1])>1.E-10){
+      thetaYZ=180./TMath::Pi() * TMath::ATanH(EVEYZ[indexZerr][0]/EVEYZ[indexZerr][1]);
+    }
+    else{
+      thetaYZ=180.;
+    }
+
+    //calculate ellipse radii
+    double rE1YZ=EVAYZ[indexZerr];
+    double rE2YZ;
+    if(indexZerr==0) rE2YZ=EVAYZ[1];
+    if(indexZerr==1) rE2YZ=EVAYZ[0];
     
-    xerr[i]=pointErr.X();
-    yerr[i]=pointErr.Y();
-    zerr[i]=pointErr.Z();
-
-
+    
+    if(i==0){
+      std::cout << "======" << std::endl;
+      PRINTF(point.Z());
+      PRINTF(point.X());
+      PRINTF(rE1XZ);
+      PRINTF(rE2XZ);
+      PRINTF(thetaXZ);
+    }
+    ellXZ[i] = new TEllipse(point.Z(),point.X(),rE1XZ,rE2XZ,0.,360.,thetaXZ);
+    //sprintf(buf,"c%5.5f",globRand.Uniform());
+    //ellXZ[i]->SetName(buf);
+    ellXZ[i]->SetLineColor(12);
+    ellXZ[i]->SetFillStyle(0);
+    ellYZ[i] = new TEllipse(point.Z(),point.Y(),rE1YZ,rE2YZ,0.,360.,thetaYZ);
+    //sprintf(buf,"c%5.5f",globRand.Uniform());
+    //ellYZ[i]->SetName(buf);
+    ellYZ[i]->SetLineColor(12);
+    ellYZ[i]->SetFillStyle(0);
 
     singleX[0]=point.X();
     singleY[0]=point.Y();
@@ -227,10 +310,10 @@ void TCtrack::draw(bool stop,int _x,int _y,int _w,int _h){
   canvDraw = new TCanvas(buf,"TCtrack visualization",_x,_y,_w,_h);
   //  new TCanvas(buf,,_x,_y,_w,_h);
 
-  TGraphErrors* gxz = new TGraphErrors(cl.size(),z,x,zerr,xerr);
+  TGraph* gxz = new TGraph(cl.size(),z,x);
   sprintf(buf,"c%5.5f",globRand.Uniform());
   gxz->SetName(buf);
-  TGraphErrors* gyz = new TGraphErrors(cl.size(),z,y,zerr,yerr);
+  TGraph* gyz = new TGraph(cl.size(),z,y);
   sprintf(buf,"c%5.5f",globRand.Uniform());
   gyz->SetName(buf);
   TGraph* gfxz = new TGraph(nClFit(),zf,xf);
@@ -282,12 +365,17 @@ void TCtrack::draw(bool stop,int _x,int _y,int _w,int _h){
   else{
     gxz->Draw("AP");
   }
+  
   for(int i=0;i<cl.size();++i){
     ampGxz[i]->Draw("P");
   }
   gfxz->Draw("P");
   fxz->SetLineWidth(1.);
   fxz->Draw("same");
+  for(int i=0;i<cl.size();++i){
+    ellXZ[i]->Draw();
+  }
+
   canvDraw->cd(2);
   gyz->SetTitle("");
   if(customRange){
@@ -310,8 +398,10 @@ void TCtrack::draw(bool stop,int _x,int _y,int _w,int _h){
   else{
     gyz->Draw("AP");
   }
+  
   for(int i=0;i<cl.size();++i){
     ampGyz[i]->Draw("P");
+    //ellYZ[i]->Draw("same");
   }
   gfyz->Draw("P");
   fyz->SetLineWidth(1.);
