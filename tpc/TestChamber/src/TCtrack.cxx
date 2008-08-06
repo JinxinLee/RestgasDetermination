@@ -174,6 +174,7 @@ void TCtrack::draw(bool stop,int _x,int _y,int _w,int _h){
     TMatrixT<double> rotTransp = rot;
     rotTransp.T();
     TVector3 pointErr = cl.at(i).getErr();//still in det coordinates
+    //    pointErr.SetXYZ(1.,1.5,2.);
     TMatrixT<double> UVWerrors(3,3);
     UVWerrors[0][0]=pow(pointErr.X(),2.);
     UVWerrors[1][1]=pow(pointErr.Y(),2.);
@@ -401,11 +402,13 @@ void TCtrack::draw(bool stop,int _x,int _y,int _w,int _h){
   
   for(int i=0;i<cl.size();++i){
     ampGyz[i]->Draw("P");
-    //ellYZ[i]->Draw("same");
   }
   gfyz->Draw("P");
   fyz->SetLineWidth(1.);
   fyz->Draw("same");
+  for(int i=0;i<cl.size();++i){
+    ellYZ[i]->Draw();
+  }
 
 
   gApplication->SetReturnFromRun(kTRUE);
