@@ -35,11 +35,13 @@ protected:
   TClonesArray* fEmcCluster;        //! PndEmcCluster TCA
   TClonesArray* fMdtHit;            //! PndMdtHit TCA
   TClonesArray* fDrcHit;            //! PndDrcHit TCA
+  TClonesArray* fSttHit;            //! PndSttHit/PndSttHelixHit TCA
  
   PndLheCorrPar* fCorrPar;          //! Correlation parameters
   
   Short_t fDebugMode;               // Fill ntuples for debug
   Short_t fMvdMode;                 // MVD Mode: 0 no MVD, 1 MvdPoint, (2) MvdHit
+  Short_t fSttMode;                 // STT Mode: 0 no STT, 1 SttPoint,  2  SttHit, (3) SttHelixHit
   Short_t fTofMode;                 // TOF Mode: 0 no TOF, 1 -empty-,  (2) TofHit
   Short_t fEmcMode;                 // EMC Mode: 0 no EMC, 1 -empty-,  (2) EmcCluster, 3 EmcBumps
   Short_t fMdtMode;                 // MDT Mode: 0 no MDT, 1 -empty-,  (2) MdtHit 
@@ -48,6 +50,10 @@ protected:
   Double_t fMvdELoss;               // Energy Loss in MVD 
   Double_t fMvdPath;                // MVD path crossed by the particle
   Int_t fMvdHitCount;               // Number of mvd hits
+  
+  Double_t fSttELoss;               // Energy Loss in STT 
+  Double_t fSttPath;                // STT path crossed by the particle
+  Int_t fSttHitCount;               // Number of stt hits
   
   TString fOption;          //  options to choose branches
   Bool_t fVerbose;          // Switch ON/OFF debug messages 
@@ -78,6 +84,7 @@ public:
   PndLhePidTrack* AddTrack(PndLhePidTrack* track);
  
   void GetMvdInfo(const PndTpcLheHit* hit, const PndLhePidTrack* track); 
+  void GetSttInfo(const PndTpcLheHit* hit, const PndLhePidTrack* track); 
   void GetTofInfo(PndLhePidTrack* track); 
   void GetEmcInfo(PndLhePidTrack* track); 
   void GetMdtInfo(PndLhePidTrack* track);   

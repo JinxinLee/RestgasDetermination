@@ -7,6 +7,8 @@
 #include "PndEmcBump.h"
 #include "PndEmcDigi.h"
 #include "PndMvdHit.h"
+#include "PndSttHit.h"
+#include "PndSttHelixHit.h"
 #include "PndMdtHit.h"
 #include "PndDrcHit.h"
 #include "CbmTrackParH.h"
@@ -45,6 +47,7 @@ PndLhePidMaker::PndLhePidMaker() {
   fPidTrackCand = new TClonesArray("PndLhePidTrack");
   fDebugMode = kFALSE;
   fMvdMode = 0;
+  fSttMode = 0;
   fTofMode = 0;
   fEmcMode = 0;
   fMdtMode = 0; 
@@ -66,6 +69,7 @@ PndLhePidMaker::PndLhePidMaker(const char *name, const char *title)
   //---
   fPidTrackCand = new TClonesArray("PndLhePidTrack");
   fMvdMode = 0;  
+  fSttMode = 0;
   fTofMode = 0;
   fEmcMode = 0;
   fMdtMode = 0;
@@ -94,6 +98,42 @@ InitStatus PndLhePidMaker::Init() {
     return kERROR;
   }
   
+   // *** STT ***
+  fSttHit = (TClonesArray*) fManager->GetObject("SttHelixHit");
+  if ( fSttHit ) 
+    {
+      cout << "-I- PndLhePidMaker::Init: Using SttHelixHit" << endl;
+      fSttMode = 3;
+    }
+  else
+    {
+      fSttHit = (TClonesArray*) fManager->GetObject("SttHit");
+      if ( fSttHit ) 
+	{
+	  cout << "-I- PndLhePidMaker::Init: Using SttHit" << endl;
+	  fSttMode = 2;
+	}
+    }
+  if (fSttMode ==0)
+    {
+      cout << "-W- PndLhePidMaker::Init: No STT hits array! Switching STT OFF" << endl;
+    }
+  
+  fMvdHitsPixel = (TClonesArray*) fManager->GetObject("MVDHitsPixel");
+  if ( ! fMvdHitsPixel ) 
+    {
+      cout << "-W- PndLhePidMaker::Init: No MVDHitsPixel array!" << endl;
+    }
+  else fMvdMode = 2;
+  if (( ! fMvdHitsStrip ) &&  ( ! fMvdHitsPixel ))
+    {
+      cout << "-W- PndLhePidMaker::Init: No MDC hits array! Switching MVD OFF" << endl;
+      fMvdMode = 0;
+    }
+  else
+    {
+	cout << "-I- PndLhePidMaker::Init: Using MVDHit" << endl;
+    }
   // *** MVD ***
   fMvdHitsStrip = (TClonesArray*) fManager->GetObject("MVDHitsStrip");
   if ( ! fMvdHitsStrip ) 
@@ -248,10 +288,17 @@ void PndLhePidMaker::Exec(Option_t * option) {
 	if ((fMvdMode==2) &&
 	    ((lhit->GetDetectorId()==kMVDHitsStrip) || (lhit->GetDetectorId()==kMVDHitsPixel)))
 	  GetMvdInfo(lhit, pidTrack);
+	if ((fSttMode==3) &&
+	    ((lhit->GetDetectorId()==kSttHelixHit)))
+	  GetSttInfo(lhit, pidTrack);
+	
       }
     
     pidTrack->SetMvdELoss(fMvdELoss);
     pidTrack->SetMvdHitCounts(fMvdHitCount);
+    
+    pidTrack->SetSttELoss(fSttELoss);
+    pidTrack->SetSttHitCounts(fSttHitCount);
     
     if (fTofMode==2) GetTofInfo(pidTrack);
     if (fEmcMode>0)  GetEmcInfo(pidTrack);
@@ -289,6 +336,19 @@ void PndLhePidMaker::GetMvdInfo(const PndTpcLheHit* hit, const PndLhePidTrack* t
   
   fMvdELoss += mvdHit->GetEloss();
   fMvdHitCount++;
+}
+
+//_________________________________________________________________
+void PndLhePidMaker::GetSttInfo(const PndTpcLheHit* hit, const PndLhePidTrack* track) {
+  //---
+  PndSttHelixHit *sttHit = NULL;
+  
+  if (hit->GetDetectorId()==kSttHelixHit) sttHit = (PndSttHelixHit*)fSttHit->At(hit->GetRefIndex());
+  
+  //if (fVerbose) cout << sttHit->GetDetName() << "\t" << sttHit->GetEloss() << endl;
+  
+  //fSttELoss += sttHit->GetEloss();
+  fSttHitCount++;
 }
 
 //_________________________________________________________________
@@ -560,6 +620,9 @@ void PndLhePidMaker::Reset() {
   fMvdPath = 1.;
   fMvdELoss = 0.;
   fMvdHitCount = 0;
+  fSttPath = 1.;
+  fSttELoss = 0.;
+  fSttHitCount = 0;
 }
 
 //_________________________________________________________________
