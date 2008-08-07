@@ -61,7 +61,7 @@ void plots(TString files){
       for(int i=0;i<tr.nCl();++i){
 	TCcluster c = tr.getCl(i);
 	if(c.getFit()){//was used in fit
-	  zresid->Fill(c.getRes().X());
+	  zresid->Fill(c.getRes().Z());
  	}
       }
 
@@ -71,7 +71,7 @@ void plots(TString files){
           if(!consecCut(tr)) continue;
           TCcluster c = tr.getCl(i);
 	  if(c.getFit()){//was used in fit
-	    zresidw->Fill(c.getRes().X());
+	    zresidw->Fill(c.getRes().Z());
           }
 
     }
