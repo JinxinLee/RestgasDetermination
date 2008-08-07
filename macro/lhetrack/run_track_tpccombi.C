@@ -4,13 +4,13 @@
   Int_t iVerbose = 0;
 
   // Input file (MC events)
-  TString inFile = "points_tpcmvd.root";
+  TString inFile = "points_tpccombi.root";
 
   // Parameter file
-  TString parFile = "testparams.root";
+  TString parFile = "params_tpccombi.root";
 
   // Output file
-  TString outFile = "tracks_tpcmvd.root";
+  TString outFile = "tracks_tpccombi.root";
 
   // Number of events to process
   Int_t nEvents = 0;
@@ -18,7 +18,14 @@
   // ----  Load libraries   -------------------------------------------------
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
-  
+  // ------------------------------------------------------------------------
+
+  // ---  Now choose concrete engines for the different tasks   -------------
+  // ------------------------------------------------------------------------
+
+  // In general, the following parts need not be touched
+  // ========================================================================
+
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
   timer.Start();
@@ -126,12 +133,55 @@
   //PndMvdIdealTrackingTask* mvdmctrk = new PndMvdIdealTrackingTask();
   //mvdmctrk->SetVerbose(iVerbose);
   //fRun->AddTask(mvdmctrk);
-  
-  // -----   LHETRACK  ---------------------------------
+
+  // -----   EMC hit producers   ---------------------------------
+  PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
+  fRun->AddTask(emcHitProd); // hit production 
+
+  PndEmcMakeDigi* emcMakeDigi=new PndEmcMakeDigi();
+  //fRun->AddTask(emcMakeDigi); // fast digitization
+
+  PndEmcHitsToWaveform* emcHitsToWaveform= new PndEmcHitsToWaveform(iVerbose);
+  PndEmcWaveformToDigi* emcWaveformToDigi=new PndEmcWaveformToDigi(iVerbose);
+  fRun->AddTask(emcHitsToWaveform);  // full digitization
+  fRun->AddTask(emcWaveformToDigi);  // full digitization
+
+  PndEmcMakeCluster* emcMakeCluster= new PndEmcMakeCluster(iVerbose);
+  fRun->AddTask(emcMakeCluster);
+
+  PndEmcHdrFiller* emcHdrFiller = new PndEmcHdrFiller();
+  fRun->AddTask(emcHdrFiller); // ECM header
+
+  PndEmcMakeBump* emcMakeBump= new PndEmcMakeBump();
+  fRun->AddTask(emcMakeBump);
+
+  PndEmcMakeRecoHit* emcMakeRecoHit= new PndEmcMakeRecoHit();
+  fRun->AddTask(emcMakeRecoHit);
+
+  // -----   TOF hit producers   ---------------------------------
+
+  PndTofHitProducerIdeal* tofhit = new PndTofHitProducerIdeal();
+  tofhit->SetVerbose(iVerbose);
+  fRun->AddTask(tofhit);
+ 
+  // -----   MDT hit producers   ---------------------------------
+  PndMdtHitProducerIdeal* mdtHitProd = new PndMdtHitProducerIdeal();
+  mdtHitProd->SetPositionSmearing(0.2); // position smearing [cm]
+  fRun->AddTask(mdtHitProd);
+ 
+  PndMdtTrkProducerIdeal* mdtTrkProd = new PndMdtTrkProducerIdeal();
+  fRun->AddTask(mdtTrkProd);
+
+  // -----   DRC hit producers   ---------------------------------
+  PndDrcHitProducerIdeal* drchit = new PndDrcHitProducerIdeal();
+  drchit->SetVerbose(iVerbose);
+  fRun->AddTask(drchit);
+
+// -----   LHETRACK  ---------------------------------
 
   PndTpcLheHitsMaker* trackMS = new PndTpcLheHitsMaker("Tracking routine");
-  trackMS->SetTpcMode(2, -1);  // 0 OFF, 1 TpcPoint, 2 TpcCluster // TpcPoint smearing [cm], if negative no smearing
-  trackMS->SetMvdMode(2, -1);  // 0 OFF, 1 MVDPoint, 2 MVDHit     // MVDPoint smearing [cm], if negative no smearing
+  trackMS->SetTpcMode(2);  // 0 OFF, 1 TpcPoint, 2 TpcCluster // TpcPoint smearing [cm], if negative no smearing
+  trackMS->SetMvdMode(2);  // 0 OFF, 1 MVDPoint, 2 MVDHit     // MVDPoint smearing [cm], if negative no smearing
   fRun->AddTask(trackMS);
 
   PndTpcLheTrackFinder* trackFinder    = new PndTpcLheTrackFinder();
@@ -141,11 +191,16 @@
   fRun->AddTask(trackFitter);
 
   PndLhePidMaker* pidMaker    = new PndLhePidMaker("pid");
+  pidMaker->SetDebugMode(kTRUE);
   fRun->AddTask(pidMaker);
 
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
   fRun->Run(0, nEvents);
+
+  rtdb->saveOutput();
+  rtdb->print();
+
   // ------------------------------------------------------------------------
 
   // -----   Finish   -------------------------------------------------------

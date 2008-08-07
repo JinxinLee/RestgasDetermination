@@ -1,31 +1,15 @@
 {
 
-gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-basiclibs();
-gSystem->Load("libGeoBase");
-gSystem->Load("libParBase");
-gSystem->Load("libBase");
-gSystem->Load("libMCStack");
-gSystem->Load("libField");
-gSystem->Load("libPassive");
-gSystem->Load("libGen");  
-gSystem->Load("libEmc"); 
-gSystem->Load("libgenfit");
-gSystem->Load("libtpc"); 
-gSystem->Load("libtpcreco");
-gSystem->Load("libtrackrep");
-gSystem->Load("librecotasks");
-gSystem->Load("libMvd");
-gSystem->Load("libMvdReco");
-gSystem->Load("libLHETrack");
-   
+gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+rootlogon();
+ 
 
-TFile* f = new TFile("tracks_tpcmvdemc.root");
+TFile* f = new TFile("tracks_tpccombi.root");
 TTree *t=f->Get("cbmsim") ;
 TClonesArray *fTr=new TClonesArray("PndTpcLheTrack");
 t->SetBranchAddress("PndTpcLheTrack",&fTr) ;
 PndTpcLheTrack  *tr1;
-TFile* fsim = new TFile("points_tpcmvdemc.root");
+TFile* fsim = new TFile("points_tpccombi.root");
 PndEmcMapper *emcMap=PndEmcMapper::Instance(1);
 
 TFile *out = TFile::Open("pT_histo.root","RECREATE");

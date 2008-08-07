@@ -1,32 +1,12 @@
-void run_sim_combi(Int_t nEvents=1000, Float_t pT=1.0){
+void run_sim_sttcombi(Int_t nEvents=1000, Float_t pT=1.0){
   
   TStopwatch timer;
   timer.Start();
   gDebug=0;
   // Load basic libraries
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-  basiclibs();
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  rootlogon();
 
-  // Load this example libraries
-  gSystem->Load("libGeoBase");
-  gSystem->Load("libParBase");
-  gSystem->Load("libBase");
-  gSystem->Load("libMCStack");
-  gSystem->Load("libField");
-  gSystem->Load("libPassive");
-  gSystem->Load("libGen");  
-  gSystem->Load("libEmc"); 
-  gSystem->Load("libgenfit");
-  gSystem->Load("libtpc"); 
-  gSystem->Load("libtpcreco");
-  gSystem->Load("libtrackrep");
-  gSystem->Load("librecotasks");
-  gSystem->Load("libMvd");
-  gSystem->Load("libMvdReco");
-  gSystem->Load("libMdt");
-  gSystem->Load("libLHETrack");
-
- 
   CbmRunSim *fRun = new CbmRunSim();
   
   // set the MC version used
@@ -36,7 +16,7 @@ void run_sim_combi(Int_t nEvents=1000, Float_t pT=1.0){
   // Choose the Geant Navigation System
   // fRun->SetGeoModel("G3Native");
   
-  fRun->SetOutputFile("points_combi.root");
+  fRun->SetOutputFile("points_sttcombi.root");
 
   // Set Material file Name
   //-----------------------
@@ -62,9 +42,9 @@ void run_sim_combi(Int_t nEvents=1000, Float_t pT=1.0){
   //Pipe->SetGeometryFileName("pipebeamtarget.geo");
   fRun->AddModule(Pipe);
 
-  CbmDetector *Tpc = new PndTpcDetector("TPC", kTRUE);
-  Tpc->SetGeometryFileName("tpc.geo");
-  fRun->AddModule(Tpc);
+  CbmDetector *Stt= new PndStt("STT", kTRUE);
+  Stt->SetGeometryFileName("straws_skewed_blocks.geo");
+  fRun->AddModule(Stt);
 
   CbmDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
   Mvd->SetGeometryFileName("MVD_v1.0_woPassiveTraps.root");
@@ -84,19 +64,19 @@ void run_sim_combi(Int_t nEvents=1000, Float_t pT=1.0){
  
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
   Drc->SetRunCherenkov(kFALSE);
-  Drc->SetGeometryFileName("dirc.geo"); 
+  //Drc->SetGeometryFileName("dirc.geo"); 
   fRun->AddModule(Drc); 
   
   CbmDetector *Dch = new PndDchDetector("DCH", kTRUE);
   Dch->SetGeometryFileName("dch.root"); 
-  fRun->AddModule(Dch);
+  //fRun->AddModule(Dch);
   
   // Create and Set Event Generator
   //-------------------------------
 
   CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
   fRun->SetGenerator(primGen);
-
+ 
   // Box Generator
   CbmBoxGenerator* boxGen = new CbmBoxGenerator(13, 1); // 13 = muon; 1 = multipl.
   boxGen->SetPRange(pT,pT); // GeV/c
@@ -104,7 +84,7 @@ void run_sim_combi(Int_t nEvents=1000, Float_t pT=1.0){
   boxGen->SetThetaRange(20., 140.); // Polar angle in lab system range [degree]
   boxGen->SetXYZ(0., 0., 0.); // mm o cm ??
   primGen->AddGenerator(boxGen);
-
+ 
   fRun->SetStoreTraj(kTRUE);
   
   PndMultiField *fField= new PndMultiField();
@@ -129,7 +109,7 @@ void run_sim_combi(Int_t nEvents=1000, Float_t pT=1.0){
   Par->setChanged();
 
   CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
-  output->open("testparams.root");
+  output->open("params_sttcombi.root");
   rtdb->setOutput(output);
   rtdb->saveOutput();
   rtdb->print();

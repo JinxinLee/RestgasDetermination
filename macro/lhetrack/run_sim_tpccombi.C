@@ -1,4 +1,4 @@
-void run_sim_tpcmvd(Int_t nEvents=1000, Float_t pT=1.0){
+void run_sim_tpccombi(Int_t nEvents=1000, Float_t pT=1.0){
   
   TStopwatch timer;
   timer.Start();
@@ -6,7 +6,7 @@ void run_sim_tpcmvd(Int_t nEvents=1000, Float_t pT=1.0){
   // Load basic libraries
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
-  
+
   CbmRunSim *fRun = new CbmRunSim();
   
   // set the MC version used
@@ -16,7 +16,7 @@ void run_sim_tpcmvd(Int_t nEvents=1000, Float_t pT=1.0){
   // Choose the Geant Navigation System
   // fRun->SetGeoModel("G3Native");
   
-  fRun->SetOutputFile("points_tpcmvd.root");
+  fRun->SetOutputFile("points_tpccombi.root");
 
   // Set Material file Name
   //-----------------------
@@ -25,6 +25,7 @@ void run_sim_tpcmvd(Int_t nEvents=1000, Float_t pT=1.0){
   
   // Create and add detectors
   //-------------------------
+
   CbmModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave); 
@@ -33,9 +34,14 @@ void run_sim_tpcmvd(Int_t nEvents=1000, Float_t pT=1.0){
   Magnet->SetGeometryFileName("FullSolenoid.root");
   fRun->AddModule(Magnet);
 
+  CbmModule *Dipole= new PndMagnet("MAGNET");
+  Dipole->SetGeometryFileName("dipole.geo");
+  fRun->AddModule(Dipole);
+ 
   CbmModule *Pipe= new PndPipe("PIPE");
   //Pipe->SetGeometryFileName("pipebeamtarget.geo");
   fRun->AddModule(Pipe);
+
   CbmDetector *Tpc = new PndTpcDetector("TPC", kTRUE);
   Tpc->SetGeometryFileName("tpc.geo");
   fRun->AddModule(Tpc);
@@ -47,6 +53,23 @@ void run_sim_tpcmvd(Int_t nEvents=1000, Float_t pT=1.0){
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
   Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root");
   fRun->AddModule(Emc);   
+  
+  CbmDetector *Tof = new PndTof("TOF",kTRUE);
+  Tof->SetGeometryFileName("tofbarrel.geo");
+  fRun->AddModule(Tof);
+ 
+  CbmDetector *Muo = new PndMdt("MDT",kTRUE);
+  Muo->SetGeometryFileName("muopars.root");
+  fRun->AddModule(Muo);
+ 
+  PndDrc *Drc = new PndDrc("DIRC", kTRUE);
+  Drc->SetRunCherenkov(kFALSE);
+  //Drc->SetGeometryFileName("dirc.geo"); 
+  fRun->AddModule(Drc); 
+  
+  CbmDetector *Dch = new PndDchDetector("DCH", kTRUE);
+  Dch->SetGeometryFileName("dch.root"); 
+  //fRun->AddModule(Dch);
   
   // Create and Set Event Generator
   //-------------------------------
@@ -76,38 +99,17 @@ void run_sim_tpcmvd(Int_t nEvents=1000, Float_t pT=1.0){
   fRun->SetField(fField);
   
   fRun->Init();
- 
-  // Fill the Parameter containers for this run
-  //-------------------------------------------
   
   CbmRuntimeDb *rtdb=fRun->GetRuntimeDb();
   Bool_t kParameterMerged=kTRUE;
      
-  //if a field is used save the parameters in the RTDB
-  /*    
-	PndSolenoidPar* Par1 = (PndSolenoidPar*) rtdb->getContainer("PndSolenoidPar");
-	if ( map2 ) {  Par1->SetParameters(map2); }
-	Par1->setChanged();
-	Par1->setInputVersion(fRun->GetRunId(),1);
- 
-	PndDipolePar* Par2 = (PndDipolePar*) rtdb->getContainer("PndDipolePar");
-	if (map1 ) {  Par2->SetParameters(map1); }
-	Par2->setInputVersion(fRun->GetRunId(),1);
-	Par2->setChanged();
-  
-	PndTransPar* Par3 = (PndTransPar*) rtdb->getContainer("PndTransPar");
-	if (map ) {  Par3->SetParameters(map); }
-	Par3->setInputVersion(fRun->GetRunId(),1);
-	Par3->setChanged();
-  */
-
   PndMultiFieldPar* Par = (PndMultiFieldPar*) rtdb->getContainer("PndMultiFieldPar");
   if (fField) {  Par->SetParameters(fField); }
   Par->setInputVersion(fRun->GetRunId(),1);
   Par->setChanged();
 
   CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
-  output->open("testparams.root");
+  output->open("params_tpccombi.root");
   rtdb->setOutput(output);
   rtdb->saveOutput();
   rtdb->print();
@@ -122,7 +124,7 @@ void run_sim_tpcmvd(Int_t nEvents=1000, Float_t pT=1.0){
    
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
-  exit(0);
+  //exit(0);
    
 }  
   

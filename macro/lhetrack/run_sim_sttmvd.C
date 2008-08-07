@@ -1,4 +1,4 @@
-void run_sim_tpcmvd(Int_t nEvents=1000, Float_t pT=1.0){
+void run_sim_sttmvd(Int_t nEvents=1000, Float_t pT=1.0){
   
   TStopwatch timer;
   timer.Start();
@@ -16,7 +16,7 @@ void run_sim_tpcmvd(Int_t nEvents=1000, Float_t pT=1.0){
   // Choose the Geant Navigation System
   // fRun->SetGeoModel("G3Native");
   
-  fRun->SetOutputFile("points_tpcmvd.root");
+  fRun->SetOutputFile("points_sttmvd.root");
 
   // Set Material file Name
   //-----------------------
@@ -36,24 +36,21 @@ void run_sim_tpcmvd(Int_t nEvents=1000, Float_t pT=1.0){
   CbmModule *Pipe= new PndPipe("PIPE");
   //Pipe->SetGeometryFileName("pipebeamtarget.geo");
   fRun->AddModule(Pipe);
-  CbmDetector *Tpc = new PndTpcDetector("TPC", kTRUE);
-  Tpc->SetGeometryFileName("tpc.geo");
-  fRun->AddModule(Tpc);
 
+  CbmDetector *Stt= new PndStt("STT", kTRUE);
+  Stt->SetGeometryFileName("straws_skewed_blocks.geo");
+  fRun->AddModule(Stt);
+  
   CbmDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
   Mvd->SetGeometryFileName("MVD_v1.0_woPassiveTraps.root");
   fRun->AddModule(Mvd);
-  
-  PndEmc *Emc = new PndEmc("EMC",kTRUE);
-  Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root");
-  fRun->AddModule(Emc);   
   
   // Create and Set Event Generator
   //-------------------------------
 
   CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
   fRun->SetGenerator(primGen);
-
+  
   // Box Generator
   CbmBoxGenerator* boxGen = new CbmBoxGenerator(13, 1); // 13 = muon; 1 = multipl.
   boxGen->SetPRange(pT,pT); // GeV/c
@@ -76,7 +73,7 @@ void run_sim_tpcmvd(Int_t nEvents=1000, Float_t pT=1.0){
   fRun->SetField(fField);
   
   fRun->Init();
- 
+  
   // Fill the Parameter containers for this run
   //-------------------------------------------
   
