@@ -20,16 +20,17 @@
 class PndTpcLheTrack;
 
  enum fDetectorType {
-    kUnknown      = 0,
-    kTpcPoint     = 1,
-    kTpcCluster   = 2,
-    kMVDPoint     = 3,
-    kMVDHitsStrip = 4,
-    kMVDHitsPixel = 5,
-    kEmcCluster   = 6,
-    kEmcBump      = 7,
-    kSttPoint     = 8,
-    kSttHit       = 9,
+    kUnknown      =  0,
+    kTpcPoint     =  1,
+    kTpcCluster   =  2,
+    kMVDPoint     =  3,
+    kMVDHitsStrip =  4,
+    kMVDHitsPixel =  5,
+    kEmcCluster   =  6,
+    kEmcBump      =  7,
+    kSttPoint     =  8,
+    kSttHit       =  9,
+    kSttHelixHit  = 10,
  };
 
 class PndTpcLheHit : public TObject {

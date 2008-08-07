@@ -8,6 +8,7 @@
 #include "PndTpcCluster.h"
 #include "PndSttPoint.h"
 #include "PndSttHit.h"
+#include "PndSttHelixHit.h"
 #include "PndMvdMCPoint.h"
 #include "PndMvdHit.h"
 #include "PndEmcCluster.h"
@@ -149,7 +150,7 @@ InitStatus PndTpcLheHitsMaker::Init() {
       fSttInput   = (TClonesArray *)fManager->GetObject("STTHit");
       if ( ! fSttInput ) 
 	{
-	  cout << "-W- PndTpcLheHitsMaker::Init: No SttCluster array! Switching STT OFF" << endl;
+	  cout << "-W- PndTpcLheHitsMaker::Init: No STTHit array! Switching STT OFF" << endl;
 	  fSttMode = 0;
 	}
       else
@@ -157,7 +158,20 @@ InitStatus PndTpcLheHitsMaker::Init() {
 	  cout << "-I- PndTpcLheHitsMaker::Init: Using PndSttHit" << endl;
 	}
       break;
-
+      
+    case 3:
+      fSttInput   = (TClonesArray *)fManager->GetObject("SttHelixHit");
+      if ( ! fSttInput ) 
+	{
+	  cout << "-W- PndTpcLheHitsMaker::Init: No SttHelixHit array! Switching STT OFF" << endl;
+	  fSttMode = 0;
+	}
+      else
+	{
+	  cout << "-I- PndTpcLheHitsMaker::Init: Using PndSttHelixHit" << endl;
+	}
+      break;
+      
     default:
       cout << "-E- PndTpcLheHitsMaker::Init: Wrong STT mode. Switching STT OFF" << endl;
       fSttMode = 0;
@@ -598,6 +612,41 @@ void PndTpcLheHitsMaker::GetSttHit() {
 } 
 
 //_________________________________________________________________
+void PndTpcLheHitsMaker::GetSttHelixHit() {
+   // Taking points from PndSttHelixHit
+
+  for (int j=0; j < fSttInput->GetEntries(); j++ ) {
+    PndSttHelixHit* sttHit = (PndSttHelixHit*) fSttInput->At(j);
+    
+    PndTpcLheHit* hit = AddHit();
+    hit->SetHitNumber(fNHit++);
+    
+    hit->SetX(sttHit->GetX());  
+    hit->SetY(sttHit->GetY());
+    hit->SetZ(sttHit->GetZ());
+  
+    
+    if (fVerbose) cout << "STT HELIX HIT " 
+		       << hit->GetX() << " " 
+		       << hit->GetY() << " " 
+		       << hit->GetZ() << " RADIUS " 
+		       << sqrt((hit->GetX()*hit->GetX())+(hit->GetY()*hit->GetY())) << "\n";
+    
+    hit->SetXerr(.5);  
+    hit->SetYerr(.5);
+    hit->SetZerr(.5);
+
+    hit->SetDetectorId(kSttHelixHit);
+    //hit->SetTrackID(point->GetTrackID());
+    hit->SetTrackID(-1);
+    hit->SetRefIndex(j);
+    
+    if (fVerbose)  hit->Print();
+    
+  }  // end of SttHelixHit loop  
+} 
+
+//_________________________________________________________________
 void PndTpcLheHitsMaker::GetEmcClusters() {
    // Taking points from PndEmcCluster
 
@@ -683,7 +732,8 @@ void PndTpcLheHitsMaker::Exec(Option_t * option) {
 
   if ((fSttMode==1) && (fSttInput->GetEntries()>0))  GetSttPoints();
   if ((fSttMode==2) && (fSttInput->GetEntries()>0))  GetSttHit();
-
+  if ((fSttMode==3) && (fSttInput->GetEntries()>0))  GetSttHelixHit();
+  
   if ((fEmcMode==2) && (fEmcInput->GetEntries()>0))  GetEmcClusters();
   if ((fEmcMode==3) && (fEmcInput->GetEntries()>0))  GetEmcBumps();
   

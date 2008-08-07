@@ -48,7 +48,7 @@ protected:
 
   Short_t fMvdMode;            // MVD Mode: 0 no MVD, (1) MvdPoint, 2 MvdHit
   Short_t fTpcMode;            // TPC Mode: 0 no TPC, (1) TpcPoint, 2 TpcCluster
-  Short_t fSttMode;            // STT Mode: (0) no STT, 1  SttPoint,  2 SttHit
+  Short_t fSttMode;            // STT Mode: (0) no STT, 1  SttPoint,  2 SttHit, 3 SttHelixHit
   Short_t fEmcMode;            // EMC Mode: (0) no EMC, 2 EmcCluster, 3 EmcBumps
   Bool_t fVerbose;             // Switch ON/OFF debug messages        (defaulf OFF)
   Bool_t fSimulation;          // Switch ON/OFF simulation mode       (default ON)
@@ -81,6 +81,7 @@ public:
   void GetTpcClusters();
   void GetSttPoints();
   void GetSttHit();
+  void GetSttHelixHit();
   void GetEmcClusters();
   void GetEmcBumps();
   void SetOption(Option_t *option=" ") {fOption = option;  fOption.ToLower();}
