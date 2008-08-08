@@ -1,5 +1,4 @@
 /*
- *  
  *  S.Vanniarajan  V.Suyam.Jothi@kvi.nl
  *
  *  This is the Mutivariate Event classification tool
@@ -150,12 +149,17 @@ void PndGpidTask::Exec(Option_t* opt)
    string varName;
    varName = fVarNameArray.at(i);
    varArray[i]=events->Get(varName);
-   cout<<varArray[i]<<" "<<varName<<endl;
+  // cout<<varArray[i]<<" "<<varName<<endl;
    }
 
    for (int i = 0 ; i < fNCLASS; i++)
    {
-   cout<<reader[i].EvaluateMVA(fClassifier)<<endl;
+   string className;
+   Float_t mvaValue;
+   className = fClassNameArray.at(i);
+   mvaValue = reader[i].EvaluateMVA(fClassifier);
+ //  cout<<mvaValue<<endl;
+   events->Set(className,mvaValue);
    }
   }
 }

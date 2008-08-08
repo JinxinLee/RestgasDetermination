@@ -43,10 +43,12 @@ PndPidCand.cxx
 PndGeaneTrTpcTof.cxx
 PndGeaneTrTpcIdealTof.cxx
 PndGpidCollTask.cxx
-MultiClassMVA.cxx
+PndMultiClassMVA.cxx
+PndMakeTrainData.cxx
 Event.cxx
 EvtGenTask.cxx
 PndGpidTask.cxx
+PndGpidTaskP.cxx
 )
 CHANGE_FILE_EXTENSION(*.cxx *.h Gpid_HEADERS "${Gpid_SRCS}")
 

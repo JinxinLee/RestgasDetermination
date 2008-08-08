@@ -1,5 +1,4 @@
 /*
- *  
  *  S.Vanniarajan  V.Suyam.Jothi@kvi.nl
  *
  *  This is the Mutivariate Event classification tool
@@ -11,12 +10,13 @@
  *  Event Classification in High Energy Physics Experiments.
  *         
  *       This tool here is Designed from TMVA, for Multiclass 
- * Classification purpose. 
+ * Classification purpose. This part is the learning  part of 
+ * classifier. The learning will be done for the methods KNN,
+ * MLP and BDT.This Implementation has function calls
+ * to do the configuration for different algorithem. 
  *
  *                  S.Vanniarajan  01-08-08
  */
-
-
 
 #ifndef MULTI_CLASS_MVA_H
 #define MULTI_CLASS_MVA_H 1 
@@ -31,10 +31,11 @@
 #include <fstream>
 #include <vector>
 #include <string>
+#include <map>
 #include "Factory.h" 
 using namespace std;
 
-class MultiClassMVA
+class PndMultiClassMVA
 {
  private:
        Int_t fNCLASS;
@@ -53,12 +54,15 @@ class MultiClassMVA
        TString fConfigFileName;
        vector <string> fVarNameArray;
        vector <string> fClassNameArray;
+       map <string, vector<pair<string,string> > > fInFileNameArray;
        TFile fINPUT;
  public:
-       MultiClassMVA();
-       ~MultiClassMVA();
+       PndMultiClassMVA();
+       ~PndMultiClassMVA();
        void AddVar(string varName); 
        void AddClass(string className);
+       void GenerateTree();
+       void AddInFile(string className,string simFileName,string recoFileName);
        void WriteConfigFile();
 //       void SetNCLASS(Int_t NoClass ) { fNCLASS = NoClass;}
 //       void SetNVAR(Int_t NoPar ) { fNVAR = NoPar;}

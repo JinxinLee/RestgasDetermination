@@ -17,9 +17,9 @@
  */
 
 
-#include "MultiClassMVA.h"
+#include "PndMultiClassMVA.h"
 using namespace std;
-MultiClassMVA::MultiClassMVA()
+PndMultiClassMVA::PndMultiClassMVA()
 {
  fNCLASS = 0;
  fNVAR   = 0;
@@ -34,7 +34,7 @@ MultiClassMVA::MultiClassMVA()
  fNKNN     = "40";
 }
 /*
-MultiClassMVA::MultiClassMVA( Int_t NoClass, Int_t NoPar, TString fname,TString anaName )
+PndMultiClassMVA::PndMultiClassMVA( Int_t NoClass, Int_t NoPar, TString fname,TString anaName )
 {
   fNCLASS   = NoClass;
   fNVAR     = NoPar;
@@ -42,24 +42,66 @@ MultiClassMVA::MultiClassMVA( Int_t NoClass, Int_t NoPar, TString fname,TString 
   fAPPNAME  = anaName;
 }
 */
-MultiClassMVA::~MultiClassMVA()
+PndMultiClassMVA::~PndMultiClassMVA()
 {
 }
 
 
-void MultiClassMVA::AddVar(string varName)
+void PndMultiClassMVA::AddVar(string varName)
 {
   fVarNameArray.push_back(varName);
   fNVAR = fNVAR +1;
 }
 
-void MultiClassMVA::AddClass(string className)
+void PndMultiClassMVA::AddClass(string className)
 {
+  vector<pair<string,string> > stringVec;
   fClassNameArray.push_back(className);
+  fInFileNameArray.insert(pair<string,vector<pair<string,string> > >(className,stringVec));
   fNCLASS = fNCLASS +1;
 }
 
-void MultiClassMVA::WriteConfigFile()
+void PndMultiClassMVA::AddInFile(string className,string simFileName,string recoFileName)
+{
+ pair<string,string> stringPair;
+ stringPair.first = simFileName;
+ stringPair.second = recoFileName;
+ cout<<"  -I-  Adding Input files for the class"<<className<<endl;
+ if (fInFileNameArray.find(className) == fInFileNameArray.end()) 
+  {
+   cout<<"  -E- This class named "<<className<<" is not a part of your problem"<<endl;
+   return; 
+  }
+  else
+  {
+   (fInFileNameArray.find(className)->second).push_back(stringPair); 
+  }
+
+}
+
+void PndMultiClassMVA::GenerateTree()
+{
+ cout<<"  -I-  Generating the Input Tree"<<endl;
+ system("sleep 2");
+ for(int i=0; i <fNCLASS; i++)
+ {
+  string className;
+  vector < pair<string,string> > fileNameVec;
+  className = fClassNameArray[i];
+  fileNameVec = fInFileNameArray.find(className)->second;
+  for(int j = 0; j < fileNameVec.size();j++ )
+   {
+    string simFile,recoFile;
+    pair<string,string> filePair;
+    filePair = fileNameVec.at(j);
+    cout<<filePair.first<<"  "<<filePair.second<<endl;   
+   }  
+  
+ }
+}
+
+
+void PndMultiClassMVA::WriteConfigFile()
 {
   TString fileName = fAPPNAME + ".dat";
   TString varString = ":";
@@ -83,7 +125,7 @@ void MultiClassMVA::WriteConfigFile()
   config.close(); 
 }
 
-void MultiClassMVA::TrainTest()
+void PndMultiClassMVA::TrainTest()
 {
  TFile *input(0);
   if (fNCLASS < 2 ) {
@@ -170,4 +212,4 @@ void MultiClassMVA::TrainTest()
     WriteConfigFile();
 }
 
-ClassImp(MultiClassMVA)
+ClassImp(PndMultiClassMVA)
