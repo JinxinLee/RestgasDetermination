@@ -67,37 +67,38 @@ class CbmMCTrack : public TObject
 						    fStartZ); }
   Double_t GetStartTime()   const { return fStartT; }
   TVector3 GetMomentum()    const { return TVector3(fPx, fPy, fPz); }
+
   /*
   Int_t GetStsPoints()  const { return   (fPoints &  15        )        ; }
-  Int_t GetRichPoints() const { return ( (fPoints & (15 <<  4) ) >>  4 ); }
   */
+  Int_t GetDrcPoints()  const { return ( (fPoints & (15 <<  2) ) >>  2 ); }
   Int_t GetMdtPoints()  const { return ( (fPoints & (15 <<  6) ) >>  6 ); }
   Int_t GetDchPoints()  const { return ( (fPoints & (63 << 10) ) >> 10 ); }
   Int_t GetEmcPoints()  const { return ( (fPoints & (15 << 16) ) >> 16 ); }
   Int_t GetSttPoints()  const { return ( (fPoints & (15 << 20) ) >> 20 ); }
-
+    
   /**  Modifiers  **/
 
   void SetMotherID(Int_t id) { fMotherID = id; }
   /*
   void SetStsPoints(Int_t np);
-  void SetRichPoints(Int_t np);
-  */
+  */ 
+  void SetDrcPoints(Int_t np);
   void SetMdtPoints(Int_t np);
   void SetDchPoints(Int_t np);
   void SetEmcPoints(Int_t np);
   void SetSttPoints(Int_t np);
-
+  
   /**  Add one detector point to the fPoint variable  **/
  /*
   void AddStsPoint()  { SetStsPoints(  GetStsPoints()  + 1 ); }
-  void AddRichPoint() { SetRichPoints( GetRichPoints() + 1 ); }
- */
+ */ 
+  void AddDrcPoint()  { SetDrcPoints(  GetDrcPoints()  + 1 ); }
   void AddMdtPoint()  { SetMdtPoints(  GetMdtPoints()  + 1 ); }
   void AddDchPoint()  { SetDchPoints(  GetDchPoints()  + 1 ); }
   void AddEmcPoint()  { SetEmcPoints(  GetEmcPoints()  + 1 ); }
-  void AddSttPoint()  { SetSttPoints(  GetSttPoints()  + 1 ); }
-
+  void AddSttPoint()  { SetSttPoints(  GetSttPoints()  + 1 ); } 
+  
   TLorentzVector Get4Momentum() const;
 
 
@@ -119,8 +120,8 @@ private:
   /**  Bitvector representing the number of MCPoints for this track in 
    **  each subdetector. The detectors are represented by
    **  xxx:  Bit  0 -  3
-   **  xxx: Bit  4 -  7
-   **  MDT:  Bit  6 - 9
+   **  DRC:  Bit  2 -  5
+   **  MDT:  Bit  6 -  9
    **  DCH:  Bit 10 - 15
    **  EMC:  Bit 16 - 19
    **  STT:  Bit 20 - 23
@@ -140,11 +141,11 @@ private:
 inline void CbmMCTrack::SetStsPoints(Int_t np) {
   if (np >= 0) fPoints = ( fPoints & ( ~ 15      ) ) |   np;
 }
-
-inline void CbmMCTrack::SetRichPoints(Int_t np) {
-  if (np >= 0) fPoints = ( fPoints & ( ~(15<< 4) ) ) | ( np <<  4 );
-}
 */
+
+inline void CbmMCTrack::SetDrcPoints(Int_t np) {
+  if (np >= 0) fPoints = ( fPoints & ( ~(15<< 2) ) ) | ( np <<  2 );
+}
 
 inline void CbmMCTrack::SetMdtPoints(Int_t np) {
   if (np >= 0) fPoints = ( fPoints & ( ~(15<< 6) ) ) | ( np <<  6 );
