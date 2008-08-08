@@ -9,5 +9,6 @@
 #pragma link C++ class  PndBoxGenerator+;
 #pragma link C++ class  PndUrqmdSmmGenerator+;
 #pragma link C++ class  PndJRGenerator+;
+#pragma link C++ class  PndPythiaGenerator+;
 
 #endif

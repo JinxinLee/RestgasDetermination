@@ -25,6 +25,7 @@ PndDpmDirect.cxx
 PndBoxGenerator.cxx
 PndUrqmdSmmGenerator.cxx
 PndJRGenerator.cxx
+PndPythiaGenerator.cxx
 
 )
 
