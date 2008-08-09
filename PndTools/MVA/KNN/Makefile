@@ -8,7 +8,7 @@ CXX       = g++
 CCFLAGS   = -Wall -O3 -fopenmp
 
 # Define binary file name.
-BINS = PndKnnClassify PndKnnTrain # PlotEventData
+BINS = PndKnnClassify PndKnnTrain 
 
 # Define targets
 all: $(BINS)
