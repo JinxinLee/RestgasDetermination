@@ -197,37 +197,37 @@ TVector3 TCcluster::residStrip(const TVector3& p,const TVector3& d){//these trac
 }
 
   unsigned int TCcluster::nPadX(){
-   unsigned int nRows;
+   unsigned int nRowsx=0;
 
-    raw.push_back( raw.at(0) );
+    //raw.push_back( raw.at(0) );
       for(int iraw=1;iraw<raw.size();++iraw){
 	if(fabs(raw.at(0).posUVW().X()-raw.at(iraw).posUVW().X())<1.E-5){//same U pad row
-        nRows == nRows;
-        raw.push_back(raw.at(iraw));
+        nRowsx;
+        //raw.push_back(raw.at(iraw));
 	}
 	else{//next U pad row
-	  nRows == nRows + 1;
-	  raw.push_back(raw.at(iraw));
+	  ++nRowsx;
+	  //raw.push_back(raw.at(iraw));
 	}
       }
-   return nRows;
+   return nRowsx;
   }
 
   unsigned int TCcluster::nPadY(){
-   unsigned int nRows;
+   unsigned int nRowsy=0;
 
-    raw.push_back( raw.at(0) );
+    //raw.push_back( raw.at(0) );
       for(int iraw=1;iraw<raw.size();++iraw){
 	if(fabs(raw.at(0).posUVW().Y()-raw.at(iraw).posUVW().Y())<1.E-5){//same U pad row
-        nRows == nRows;
-        raw.push_back(raw.at(iraw));
+        nRowsy;
+        //raw.push_back(raw.at(iraw));
 	}
 	else{//next U pad row
-	  nRows == nRows + 1;
-	  raw.push_back(raw.at(iraw));
+	  ++nRowsy;
+	  //raw.push_back(raw.at(iraw));
 	}
       }
-   return nRows;
+   return nRowsy;
   }
 void TCcluster::convertPar(double *par,TVector3& p,TVector3& d){
 
