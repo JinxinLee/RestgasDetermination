@@ -357,7 +357,7 @@ void PndMicroWriter::Exec(Option_t* opt)
 	micro->SetEmcRawEnergy(clus->energy());
 	micro->SetEmcCalEnergy(clus->energy()*calFactor);
 	//micro->SetEmcNumberOfBumps(clus->nBumps());
-	micro->SetEmcNumberOfCrystals(clus->numberOfDigis());
+	micro->SetEmcNumberOfCrystals(clus->NumberOfDigis());
 	
   }
   
