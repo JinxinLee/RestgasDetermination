@@ -197,38 +197,33 @@ TVector3 TCcluster::residStrip(const TVector3& p,const TVector3& d){//these trac
 }
 
   unsigned int TCcluster::nPadX(){
-   unsigned int nRowsx=0;
+   unsigned int nRowsx=1;
 
-    //raw.push_back( raw.at(0) );
       for(int iraw=1;iraw<raw.size();++iraw){
 	if(fabs(raw.at(0).posUVW().X()-raw.at(iraw).posUVW().X())<1.E-5){//same U pad row
         nRowsx;
-        //raw.push_back(raw.at(iraw));
 	}
 	else{//next U pad row
 	  ++nRowsx;
-	  //raw.push_back(raw.at(iraw));
 	}
       }
    return nRowsx;
   }
 
   unsigned int TCcluster::nPadY(){
-   unsigned int nRowsy=0;
+   unsigned int nRowsy=1;
 
-    //raw.push_back( raw.at(0) );
       for(int iraw=1;iraw<raw.size();++iraw){
-	if(fabs(raw.at(0).posUVW().Y()-raw.at(iraw).posUVW().Y())<1.E-5){//same U pad row
+	if(fabs(raw.at(0).posUVW().Y()-raw.at(iraw).posUVW().Y())<1.E-6){//same U pad row
         nRowsy;
-        //raw.push_back(raw.at(iraw));
 	}
 	else{//next U pad row
 	  ++nRowsy;
-	  //raw.push_back(raw.at(iraw));
 	}
       }
    return nRowsy;
   }
+
 void TCcluster::convertPar(double *par,TVector3& p,TVector3& d){
 
   //extract point and direction vector from par
