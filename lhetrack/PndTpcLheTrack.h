@@ -44,6 +44,7 @@ protected:
   
   PndTpcLhePoint fVertex;              // track vertex
   PndTpcLhePoint fLastHit;             // last track hit
+  PndTpcLhePoint fFirstHit;            // first track hit
   PndTpcLhePoint fCircle;              // circle x,y,R
 
 
@@ -94,6 +95,7 @@ public:
   
   PndTpcLhePoint   GetVertex()        const { return fVertex;  }
   PndTpcLhePoint   GetLastHit()       const { return fLastHit; }
+  PndTpcLhePoint   GetFirstHit()       const { return fFirstHit; }
   PndTpcLhePoint   GetCircle()        const { return fCircle;  }
   Int_t   GetCharge()               const { return fQ; }
 
@@ -127,6 +129,7 @@ public:
 
   void   SetVertex(Double_t vx, Double_t vy, Double_t vz); 
   void   SetLastHit(Double_t vx, Double_t vy, Double_t vz);
+  void   SetFirstHit(Double_t vx, Double_t vy, Double_t vz);
   void   SetCircle(Double_t vx, Double_t vy, Double_t vz);
 
   void   SetCharge(Int_t f) {fQ = f; }
@@ -137,7 +140,7 @@ public:
   virtual void   Print(); //
   void   PrintHits();
 
-  ClassDef(PndTpcLheTrack , 1)    // STS track class  
+  ClassDef(PndTpcLheTrack , 2)    // LHE track class  
 
     };
 

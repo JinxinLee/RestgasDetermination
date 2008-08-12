@@ -212,6 +212,7 @@ void PndTpcLheTrackFitter::Info4Fit(PndTpcLheTrack *track) {
     track->SetPy(py);
     track->SetPz(pz);
     
+    if (ih==0) track->SetFirstHit(hit->GetX(),hit->GetY(),hit->GetZ());
     track->SetLastHit(hit->GetX(),hit->GetY(),hit->GetZ());
 
     if (fVerbose) cout <<  " Fitted x, y, z: " << x << " " << y << " " << z

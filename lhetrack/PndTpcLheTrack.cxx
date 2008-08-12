@@ -126,6 +126,14 @@ void PndTpcLheTrack ::SetDefaults() {
   fVertex.SetX(0.);
   fVertex.SetY(0.);
   fVertex.SetZ(0.);
+  
+  fLastHit.SetX(0.);
+  fLastHit.SetY(0.);
+  fLastHit.SetZ(0.);
+
+  fFirstHit.SetX(0.);
+  fFirstHit.SetY(0.);
+  fFirstHit.SetZ(0.);
 
   fQ = 0;
   fZ0 = 0.;
@@ -158,6 +166,14 @@ void PndTpcLheTrack::SetLastHit(Double_t vx, Double_t vy, Double_t vz) {
    fLastHit.SetX(vx);
    fLastHit.SetY(vy);
    fLastHit.SetZ(vz);
+}
+
+//______________________________________________________________
+void PndTpcLheTrack::SetFirstHit(Double_t vx, Double_t vy, Double_t vz) {
+
+   fFirstHit.SetX(vx);
+   fFirstHit.SetY(vy);
+   fFirstHit.SetZ(vz);
 }
 //______________________________________________________________
 void PndTpcLheTrack::SetCircle(Double_t x, Double_t y, Double_t r) {
