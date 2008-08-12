@@ -41,7 +41,6 @@ void plots(TString files){
 
   TCtrack *intr=0;
 
-
    TH1D *nHits = new TH1D("nHits","",500,0,30);
    nHits->SetXTitle("Distance between two clusters [cm]");
    //nHits->SetFillColor(2);
@@ -66,9 +65,13 @@ void plots(TString files){
 
   myChain.SetBranchAddress("track", &intr);
 
+  //displays time before starting the event loop
+
   time_t rawtime;
   time ( &rawtime );
   std::cout<< "The current time is " << ctime(&rawtime) << std::endl;
+
+  //event loop
 
   for (Int_t iev=0;iev<nevent;iev++){
 
@@ -83,21 +86,32 @@ void plots(TString files){
          for(int j=0;j<tr.nCl();++j){
          TCcluster d = tr.getCl(j);
 	 if(d.getFit()){//was used in fit
+
+         //calculate distances in X,Y and Z.
+         //Fill this information in one histogram.
+
          nHits->Fill(fabs(c.posUVW().X()-d.posUVW().X()));
          nHits1->Fill(fabs(c.posUVW().Y()-d.posUVW().Y()));
          nHits2->Fill(fabs(c.posUVW().Z()-d.posUVW().Z()));
+
+        //for the tracklength the X information only is used.
+
          double a = (fabs(c.posUVW().X()-d.posUVW().X()));
+
+        //calculate maximum distance between two clusters in one Event
+
           for(int m=1;m<tr.nCl()-1;++m){
           TCcluster k = tr.getCl(m);
-          if(k.getFit()){
+          if(k.getFit()){//was used in fit
           double l = (fabs(c.posUVW().X()-k.posUVW().X()));
+
+       //define n as maximum distance
+
          if(a<l){
           n = (fabs(c.posUVW().X()-k.posUVW().X()));
-          //return n;
           }
          else{
           n = (fabs(c.posUVW().X()-d.posUVW().X()));
-          //return n;
           }
             }
            }
@@ -106,15 +120,19 @@ void plots(TString files){
  	}
       }
 
-    //return n;
+    //Fill the two missing histograms
 
     clustersperlength->Fill(tr.nClFit()/n);
     nSelHits->Fill(tr.nClFit());
 
   }
 
+  //displays time after finishing the event loop
+
   time ( &rawtime );
   std::cout<< "The current time is " << ctime(&rawtime) << std::endl;
+
+  //draw the histograms
 
   TCanvas *x = new TCanvas();
   nHits1->Draw();
@@ -124,7 +142,6 @@ void plots(TString files){
   nSelHits->Draw();
   TCanvas *z = new TCanvas();
   clustersperlength->Draw();
-  //x->Update();
 
 }
 
