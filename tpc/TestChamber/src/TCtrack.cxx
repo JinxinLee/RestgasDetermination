@@ -171,7 +171,7 @@ void TCtrack::draw(bool stop,int _x,int _y,int _w,int _h){
     TVector3 dummyV;
     double dummyD;
     TCalign::getInstance()->getConv(cl.at(i).getId(),dummyV,rot,dummyD);
-    rot.Print();
+    //rot.Print();
     TMatrixT<double> rotTransp = rot;
     rotTransp.T();
     TVector3 pointErr = cl.at(i).getErr();//still in det coordinates
@@ -186,23 +186,19 @@ void TCtrack::draw(bool stop,int _x,int _y,int _w,int _h){
 
     TMatrixT<double> XZerrors(2,2);
     TMatrixT<double> YZerrors(2,2);
-    XZerrors[0][0] = XYZerrors[0][0];//sigmaXX^2
-    XZerrors[1][1] = XYZerrors[2][2];//sigmaZZ^2
-    XZerrors[0][1] = XYZerrors[0][2];//sigmaXZ^2
+    XZerrors[0][0] = XYZerrors[0][0];
+    XZerrors[1][1] = XYZerrors[2][2];
+    XZerrors[0][1] = XYZerrors[0][2];
     XZerrors[1][0] = XZerrors[0][1];
 
-    UVWerrors.Print();
-    XYZerrors.Print();
-    XZerrors.Print();
-    PRINTF(XZerrors[1][0]);
-    PRINTF(XYZerrors[2][0]);
-    assert(fabs(XZerrors[1][0]-XYZerrors[2][0])<=1.E-7*XZerrors[1][0]);
+    assert(fabs(XZerrors[1][0]-XYZerrors[2][0])<=1.E-7*fabs(XZerrors[1][0]));
 
-    YZerrors[0][0] = XYZerrors[1][1];//sigmaYY^2
-    YZerrors[1][1] = XYZerrors[2][2];//sigmaZZ^2
-    YZerrors[0][1] = XYZerrors[1][2];//sigmaYZ^2
+    YZerrors[0][0] = XYZerrors[1][1];
+    YZerrors[1][1] = XYZerrors[2][2];
+    YZerrors[0][1] = XYZerrors[1][2];
     YZerrors[1][0] = YZerrors[0][1];
 
+    assert(fabs(YZerrors[1][0]-XYZerrors[2][1])<=1.E-7*fabs(YZerrors[1][0]));
 
     //calculate eigenvalues and eigenvectors
     TVectorT<double> EVAXZ(2);
@@ -220,8 +216,6 @@ void TCtrack::draw(bool stop,int _x,int _y,int _w,int _h){
     double rE1XZ=pow(EVAXZ[0],-0.5);
     double rE2XZ=pow(EVAXZ[1],-0.5);
 
-    PRINTF(EVEYZ[0][0]);
-    PRINTF(EVEYZ[0][1]);
     thetaYZ=180./TMath::Pi() * TMath::ATan2(EVEYZ[0][0],EVEYZ[0][1]);
 
 
@@ -231,15 +225,6 @@ void TCtrack::draw(bool stop,int _x,int _y,int _w,int _h){
     
     
 
-    std::cout << "======" << std::endl;
-    PRINTF(rE1XZ);
-    PRINTF(rE2XZ);
-    PRINTF(thetaXZ);
-    PRINTF(rE1YZ);
-    PRINTF(rE2YZ);
-    PRINTF(thetaYZ);
-    EVAYZ.Print();
-    EVEYZ.Print();
     ellXZ[i] = new TEllipse(point.Z(),point.X(),rE1XZ,rE2XZ,0.,360.,thetaXZ);
     //sprintf(buf,"c%5.5f",globRand.Uniform());
     //ellXZ[i]->SetName(buf);

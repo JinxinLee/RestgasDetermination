@@ -13,6 +13,9 @@
 #include "TCcluster.h"
 #include "TCclusterSort.h"
 
+#define PRINTF(X) printf("%s=%10.10E\n",#X,(X));
+#define PRINTI(X) printf("%s=%d\n",#X,(X));
+
 class TCtrack : public TObject{
  public:
   TCtrack(); 
@@ -92,6 +95,13 @@ class TCtrack : public TObject{
 		      double y2=0.,double z1=0.,double z2=0.){
     rangeX1=x1;rangeX2=x2,rangeY1=y1,rangeY2=y2;rangeZ1=z1;rangeZ2=z2;
     customRange=flag;
+  }
+
+  void print(){
+    std::cout << "--------TCtrack::print()-------" << std::endl;
+    for(unsigned int i=0;i<nCl();++i) cl.at(i).print();
+    PRINTF(ax);PRINTF(bx);PRINTF(ay);PRINTF(by);PRINTF(dax);PRINTF(dbx);PRINTF(day);PRINTF(dby);PRINTF(chi2);PRINTI(NDF);PRINTF(getTh());PRINTF(getThX());PRINTF(getThY());
+    std::cout << "--------================-------" << std::endl;
   }
 
  private:
