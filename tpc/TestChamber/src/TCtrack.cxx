@@ -16,7 +16,7 @@
 #include"TF1.h"
 #include"TH2.h"
 
-#define PRINTF(X) printf("%s=%10.10f\n",#X,(X));
+
 
 
 std::set<int> glob_id;
@@ -160,6 +160,7 @@ void TCtrack::draw(bool stop,int _x,int _y,int _w,int _h){
   char buf[10];
 
   for(int i=0;i<cl.size();++i){
+    if(i>0) throw;
     TVector3 point = cl.at(i).posXYZ();
     x[i]=point.X();
     y[i]=point.Y();
@@ -170,7 +171,7 @@ void TCtrack::draw(bool stop,int _x,int _y,int _w,int _h){
     TVector3 dummyV;
     double dummyD;
     TCalign::getInstance()->getConv(cl.at(i).getId(),dummyV,rot,dummyD);
-    //    rot.Print();
+    rot.Print();
     TMatrixT<double> rotTransp = rot;
     rotTransp.T();
     TVector3 pointErr = cl.at(i).getErr();//still in det coordinates
@@ -181,7 +182,7 @@ void TCtrack::draw(bool stop,int _x,int _y,int _w,int _h){
     UVWerrors[2][2]=pow(pointErr.Z(),2.);
     TMatrixT<double> XYZerrors(3,3);
 
-    XYZerrors = rotTransp*(UVWerrors*rot);
+    XYZerrors = rot*(UVWerrors*rotTransp);
 
     TMatrixT<double> XZerrors(2,2);
     TMatrixT<double> YZerrors(2,2);
@@ -212,13 +213,20 @@ void TCtrack::draw(bool stop,int _x,int _y,int _w,int _h){
     else if(fabs(UVWerrors[2][2]-EVAXZ[1])<1.E-4*EVAXZ[1]){
       indexZerr=1;
     }
-    assert(indexZerr>=0);
+
+    
+    UVWerrors.Print();
+    XYZerrors.Print();
+    XZerrors.Print();
     if(i==0){
-      PRINTF(EVEXZ[indexZerr][0]);
-      PRINTF(EVEXZ[indexZerr][1]);
+      PRINTF(EVAXZ[0]);
+      PRINTF(EVAXZ[1]);
     }
+
+    assert(indexZerr>=0);
+    
     if(fabs(EVEXZ[indexZerr][1])>1.E-10){
-      thetaXZ=180./TMath::Pi() * TMath::ATanH(EVEXZ[indexZerr][0]/EVEXZ[indexZerr][1]);
+      thetaXZ=180./TMath::Pi() * TMath::ATan(EVEXZ[indexZerr][0]/EVEXZ[indexZerr][1]);
     }
     else{
       thetaXZ=180.;
@@ -238,7 +246,7 @@ void TCtrack::draw(bool stop,int _x,int _y,int _w,int _h){
     }
     assert(indexZerr>=0);
     if(fabs(EVEYZ[indexZerr][1])>1.E-10){
-      thetaYZ=180./TMath::Pi() * TMath::ATanH(EVEYZ[indexZerr][0]/EVEYZ[indexZerr][1]);
+      thetaYZ=180./TMath::Pi() * TMath::ATan(EVEYZ[indexZerr][0]/EVEYZ[indexZerr][1]);
     }
     else{
       thetaYZ=180.;
@@ -374,7 +382,7 @@ void TCtrack::draw(bool stop,int _x,int _y,int _w,int _h){
   fxz->SetLineWidth(1.);
   fxz->Draw("same");
   for(int i=0;i<cl.size();++i){
-    ellXZ[i]->Draw();
+    ellXZ[i]->Draw("same");
   }
 
   canvDraw->cd(2);
@@ -407,7 +415,7 @@ void TCtrack::draw(bool stop,int _x,int _y,int _w,int _h){
   fyz->SetLineWidth(1.);
   fyz->Draw("same");
   for(int i=0;i<cl.size();++i){
-    ellYZ[i]->Draw();
+    ellYZ[i]->Draw("same");
   }
 
 
