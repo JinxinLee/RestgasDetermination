@@ -160,7 +160,7 @@ void TCtrack::draw(bool stop,int _x,int _y,int _w,int _h){
   char buf[10];
 
   for(int i=0;i<cl.size();++i){
-    if(i>0) throw;
+    //if(i>0) throw;
     TVector3 point = cl.at(i).posXYZ();
     x[i]=point.X();
     y[i]=point.Y();
@@ -177,12 +177,12 @@ void TCtrack::draw(bool stop,int _x,int _y,int _w,int _h){
     TVector3 pointErr = cl.at(i).getErr();//still in det coordinates
     //    pointErr.SetXYZ(1.,1.5,2.);
     TMatrixT<double> UVWerrors(3,3);
-    UVWerrors[0][0]=pow(pointErr.X(),2.);
-    UVWerrors[1][1]=pow(pointErr.Y(),2.);
-    UVWerrors[2][2]=pow(pointErr.Z(),2.);
+    UVWerrors[0][0]=pow(pointErr.X(),-2.);
+    UVWerrors[1][1]=pow(pointErr.Y(),-2.);
+    UVWerrors[2][2]=pow(pointErr.Z(),-2.);
     TMatrixT<double> XYZerrors(3,3);
 
-    XYZerrors = rot*(UVWerrors*rotTransp);
+    XYZerrors = rotTransp*(UVWerrors*rot);
 
     TMatrixT<double> XZerrors(2,2);
     TMatrixT<double> YZerrors(2,2);
@@ -190,6 +190,14 @@ void TCtrack::draw(bool stop,int _x,int _y,int _w,int _h){
     XZerrors[1][1] = XYZerrors[2][2];//sigmaZZ^2
     XZerrors[0][1] = XYZerrors[0][2];//sigmaXZ^2
     XZerrors[1][0] = XZerrors[0][1];
+
+    UVWerrors.Print();
+    XYZerrors.Print();
+    XZerrors.Print();
+    PRINTF(XZerrors[1][0]);
+    PRINTF(XYZerrors[2][0]);
+    assert(fabs(XZerrors[1][0]-XYZerrors[2][0])<=1.E-7*XZerrors[1][0]);
+
     YZerrors[0][0] = XYZerrors[1][1];//sigmaYY^2
     YZerrors[1][1] = XYZerrors[2][2];//sigmaZZ^2
     YZerrors[0][1] = XYZerrors[1][2];//sigmaYZ^2
@@ -202,71 +210,36 @@ void TCtrack::draw(bool stop,int _x,int _y,int _w,int _h){
     EVEXZ=XZerrors.EigenVectors(EVAXZ);
     TVectorT<double> EVAYZ(2);
     TMatrixT<double> EVEYZ(2,2);
-    EVEYZ=XZerrors.EigenVectors(EVAYZ);
+    EVEYZ=YZerrors.EigenVectors(EVAYZ);
     double thetaXZ,thetaYZ;
 
-    //find which eigenvalue comes first/second
-    int indexZerr=-1;
-    if(fabs(UVWerrors[2][2]-EVAXZ[0])<1.E-4*EVAXZ[0]){
-      indexZerr=0;
-    }
-    else if(fabs(UVWerrors[2][2]-EVAXZ[1])<1.E-4*EVAXZ[1]){
-      indexZerr=1;
-    }
-
     
-    UVWerrors.Print();
-    XYZerrors.Print();
-    XZerrors.Print();
-    if(i==0){
-      PRINTF(EVAXZ[0]);
-      PRINTF(EVAXZ[1]);
-    }
+    thetaXZ=180./TMath::Pi() * TMath::ATan2(EVEXZ[0][0],EVEXZ[0][1]);
 
-    assert(indexZerr>=0);
-    
-    if(fabs(EVEXZ[indexZerr][1])>1.E-10){
-      thetaXZ=180./TMath::Pi() * TMath::ATan(EVEXZ[indexZerr][0]/EVEXZ[indexZerr][1]);
-    }
-    else{
-      thetaXZ=180.;
-    }
-    //calculate ellipse radii
-    double rE1XZ=EVAXZ[indexZerr];
-    double rE2XZ;
-    if(indexZerr==0) rE2XZ=EVAXZ[1];
-    if(indexZerr==1) rE2XZ=EVAXZ[0];
+    //calculate ellipse radii (Halbachsen)
+    double rE1XZ=pow(EVAXZ[0],-0.5);
+    double rE2XZ=pow(EVAXZ[1],-0.5);
 
-    indexZerr=-1;
-    if(fabs(UVWerrors[2][2]-EVAYZ[0])<1.E-4*EVAYZ[0]){
-      indexZerr=0;
-    }
-    else if(fabs(UVWerrors[2][2]-EVAYZ[1])<1.E-4*EVAYZ[1]){
-      indexZerr=1;
-    }
-    assert(indexZerr>=0);
-    if(fabs(EVEYZ[indexZerr][1])>1.E-10){
-      thetaYZ=180./TMath::Pi() * TMath::ATan(EVEYZ[indexZerr][0]/EVEYZ[indexZerr][1]);
-    }
-    else{
-      thetaYZ=180.;
-    }
+    PRINTF(EVEYZ[0][0]);
+    PRINTF(EVEYZ[0][1]);
+    thetaYZ=180./TMath::Pi() * TMath::ATan2(EVEYZ[0][0],EVEYZ[0][1]);
+
 
     //calculate ellipse radii
-    double rE1YZ=EVAYZ[indexZerr];
-    double rE2YZ;
-    if(indexZerr==0) rE2YZ=EVAYZ[1];
-    if(indexZerr==1) rE2YZ=EVAYZ[0];
+    double rE1YZ=pow(EVAYZ[0],-0.5);
+    double rE2YZ=pow(EVAYZ[1],-0.5);
     
     
-    if(i==0){
-      std::cout << "======" << std::endl;
-      PRINTF(point.Z());
-      PRINTF(point.X());
-      PRINTF(rE1XZ);
-      PRINTF(rE2XZ);
-      PRINTF(thetaXZ);
-    }
+
+    std::cout << "======" << std::endl;
+    PRINTF(rE1XZ);
+    PRINTF(rE2XZ);
+    PRINTF(thetaXZ);
+    PRINTF(rE1YZ);
+    PRINTF(rE2YZ);
+    PRINTF(thetaYZ);
+    EVAYZ.Print();
+    EVEYZ.Print();
     ellXZ[i] = new TEllipse(point.Z(),point.X(),rE1XZ,rE2XZ,0.,360.,thetaXZ);
     //sprintf(buf,"c%5.5f",globRand.Uniform());
     //ellXZ[i]->SetName(buf);
