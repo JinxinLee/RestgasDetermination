@@ -7,7 +7,13 @@
 #include"TMath.h"
 #include"TMatrixD.h"
 
-
+class padRow_t{
+private:
+  double pos;
+public:
+  padRow_t(double d){pos=d;};
+  bool isSame(double d){return (fabs(d-pos)<1.E-6);}
+};
 
 TCcluster cogTCcluster(std::vector<TCcluster>& _raw){
   TCcluster rclust;
@@ -208,6 +214,43 @@ void TCcluster::convertPar(double *par,TVector3& p,TVector3& d){
   //convert them to detector coordinates
   d = TCalign::getInstance()->notranslXYZtoUVW(detId,dir);
   p = TCalign::getInstance()->XYZtoUVW(detId,point);
+}
+
+unsigned int TCcluster::nPadX(){
+  std::vector<padRow_t> padRows;
+  for(int iraw=0;iraw<nRaw();++iraw){
+    double pos = getRaw(iraw).posUVW().X();
+    bool found=false;
+    for(int irow=0;irow<padRows.size();++irow){
+      if(padRows.at(irow).isSame(pos)) {
+	found = true;
+	break;
+      }
+    }
+    if(!found){
+      padRow_t p(pos);
+      padRows.push_back(p);
+    }
+  }
+  return padRows.size();
+}
+unsigned int TCcluster::nPadY(){
+  std::vector<padRow_t> padRows;
+  for(int iraw=0;iraw<nRaw();++iraw){
+    double pos = getRaw(iraw).posUVW().Y();
+    bool found=false;
+    for(int irow=0;irow<padRows.size();++irow){
+      if(padRows.at(irow).isSame(pos)) {
+	found = true;
+	break;
+      }
+    }
+    if(!found){
+      padRow_t p(pos);
+      padRows.push_back(p);
+    }
+  }
+  return padRows.size();
 }
 
 ClassImp(TCcluster)
