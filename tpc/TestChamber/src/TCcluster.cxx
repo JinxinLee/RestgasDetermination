@@ -7,6 +7,8 @@
 #include"TMath.h"
 #include"TMatrixD.h"
 
+
+
 TCcluster cogTCcluster(std::vector<TCcluster>& _raw){
   TCcluster rclust;
   int rdetId = -1;
@@ -195,34 +197,6 @@ TVector3 TCcluster::residStrip(const TVector3& p,const TVector3& d){//these trac
   TVector3 ret((p.X()-(p.Z()/d.Z())*d.X()) - pos.X() ,0.,0.);
   return ret;
 }
-
-  unsigned int TCcluster::nPadX(){
-   unsigned int nRowsx=1;
-
-      for(int iraw=1;iraw<raw.size();++iraw){
-	if(fabs(raw.at(0).posUVW().X()-raw.at(iraw).posUVW().X())<1.E-5){//same U pad row
-        nRowsx;
-	}
-	else{//next U pad row
-	  ++nRowsx;
-	}
-      }
-   return nRowsx;
-  }
-
-  unsigned int TCcluster::nPadY(){
-   unsigned int nRowsy=1;
-
-      for(int iraw=1;iraw<raw.size();++iraw){
-	if(fabs(raw.at(0).posUVW().Y()-raw.at(iraw).posUVW().Y())<1.E-6){//same U pad row
-        nRowsy;
-	}
-	else{//next U pad row
-	  ++nRowsy;
-	}
-      }
-   return nRowsy;
-  }
 
 void TCcluster::convertPar(double *par,TVector3& p,TVector3& d){
 
