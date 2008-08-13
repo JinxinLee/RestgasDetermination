@@ -21,13 +21,13 @@ int main(int argc,char **argv){
 
   for(int iev=0;iev<nev;++iev){
     TVector3 pos,mom;
-    pos.SetX(ran.Uniform(-10.,10.));
-    pos.SetY(ran.Uniform(-10.,10.));
-    pos.SetZ(-10.);
+    pos.SetX(ran.Uniform(-10.,20.));
+    pos.SetY(ran.Uniform(-1.,2.));
+    pos.SetZ(-5.);
 
     mom.SetZ(1.);
-    mom.SetX(ran.Gaus(0.,0.1));
-    mom.SetY(ran.Gaus(0.,0.1));
+    mom.SetX(ran.Gaus(0.,.7));
+    mom.SetY(ran.Gaus(0.,.7));
 
     f << "1 " << iev << " " << pos.X() << " "
       << pos.Y() << " " << pos.Z() << std::endl;

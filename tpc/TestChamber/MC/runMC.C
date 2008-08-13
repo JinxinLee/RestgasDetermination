@@ -29,14 +29,14 @@
 
   gSystem->ListLibraries();
 
-  Int_t nEvents = 5;
+  Int_t nEvents = 5000;
 
   CbmRunSim *fRun = new CbmRunSim();
   
   // set the MC version used
   // ------------------------
 
-  fRun->SetName("TGeant3");
+  fRun->SetName("TGeant4");
   // Choose the Geant Navigation System
   // fRun->SetGeoModel("G3Native");
   
