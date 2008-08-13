@@ -24,7 +24,7 @@
 #include "clusterSplit1.C"
 
 
-void plots(TString files){
+void clusterperlength(TString files){
 
   //gSystem->Load("libtestChamber"); 
 
@@ -41,27 +41,27 @@ void plots(TString files){
 
   TCtrack *intr=0;
 
-   TH1D *nHits = new TH1D("nHits","",500,0,30);
-   nHits->SetXTitle("Distance between two clusters [cm]");
-   //nHits->SetFillColor(2);
+  TH1D *Distancex = new TH1D("Distancex","",500,0,30);
+  Distancex->SetXTitle("Distance between two clusters [cm]");
+  //Distancex->SetFillColor(2);
 
-   TH1D *nHits1 = new TH1D("nHits1","",500,0,30);
-   nHits1->SetXTitle("Distance between two clusters [cm]");
-   nHits1->SetLineColor(6);
-   //nHits1->SetFillColor(2);
+  TH1D *Distancey = new TH1D("Distancey","",500,0,30);
+  Distancey->SetXTitle("Distance between two clusters [cm]");
+  Distancey->SetLineColor(6);
+  //Distancey->SetFillColor(2);
 
-   TH1D *nHits2 = new TH1D("nHits2","",500,0,30);
-   nHits2->SetXTitle("distance between two clusters [cm]");
-   nHits2->SetLineColor(7);
-   //nHits2->SetFillColor(2);
+  TH1D *Distancez = new TH1D("Distancez","",500,0,30);
+  Distancez->SetXTitle("Distance between two clusters [cm]");
+  Distancez->SetLineColor(7);
+  //Distancez->SetFillColor(2);
 
-   TH1D *nSelHits = new TH1D("nSelHits","",30,0,30);
-   nSelHits->SetXTitle("Number of Clusters on track");
-   //nSelHits->SetFillColor(6);
+  TH1D *nSelHits = new TH1D("nSelHits","",30,0,30);
+  nSelHits->SetXTitle("Number of Clusters on track");
+  //nSelHits->SetFillColor(6);
 
-   TH1D *clustersperlength = new TH1D("clustersperlength","",250,0,100);
-   clustersperlength->SetXTitle("Number of Clusters per unit length [1/cm]");
-   clustersperlength->SetFillColor(6);
+  TH1D *clustersperlength = new TH1D("clustersperlength","",250,0,30);
+  clustersperlength->SetXTitle("Number of Clusters per unit length [1/cm]");
+  clustersperlength->SetFillColor(6);
 
   myChain.SetBranchAddress("track", &intr);
 
@@ -78,51 +78,41 @@ void plots(TString files){
     myChain.GetEntry(iev);
     TCtrack tr(*intr);
 
-    double n=0;
+    double maxDist=-1;
+    double maxDistI=-1;
+    double maxDistJ=-1;
 
     for(int i=0;i<tr.nCl();++i){
-	TCcluster c = tr.getCl(i);
-	if(c.getFit()){//was used in fit
-         for(int j=0;j<tr.nCl();++j){
-         TCcluster d = tr.getCl(j);
-	 if(d.getFit()){//was used in fit
+      TCcluster c = tr.getCl(i);
+      if(c.getFit()){//was used in fit
+	for(int j=i+1;j<tr.nCl();++j){
+	  TCcluster d = tr.getCl(j);
+	  if(d.getFit()){//was used in fit
 
-         //calculate distances in X,Y and Z.
-         //Fill this information in one histogram.
+	    //calculate distances in X,Y and Z.
+	    //Fill this information in one histogram.
 
-         nHits->Fill(fabs(c.posUVW().X()-d.posUVW().X()));
-         nHits1->Fill(fabs(c.posUVW().Y()-d.posUVW().Y()));
-         nHits2->Fill(fabs(c.posUVW().Z()-d.posUVW().Z()));
+	    Distancex->Fill(fabs(c.posUVW().X()-d.posUVW().X()));
+	    Distancey->Fill(fabs(c.posUVW().Y()-d.posUVW().Y()));
+	    Distancez->Fill(fabs(c.posUVW().Z()-d.posUVW().Z()));
 
-        //for the tracklength the X information only is used.
+	    //calculate distance between two Clusters using TVector3.
 
-         double a = (fabs(c.posUVW().X()-d.posUVW().X()));
-
-        //calculate maximum distance between two clusters in one Event
-
-          for(int m=1;m<tr.nCl()-1;++m){
-          TCcluster k = tr.getCl(m);
-          if(k.getFit()){//was used in fit
-          double l = (fabs(c.posUVW().X()-k.posUVW().X()));
-
-       //define n as maximum distance
-
-         if(a<l){
-          n = (fabs(c.posUVW().X()-k.posUVW().X()));
-          }
-         else{
-          n = (fabs(c.posUVW().X()-d.posUVW().X()));
-          }
-            }
-           }
-          }
-         }
- 	}
+	    TVector3 distanceVector = c.posUVW()-d.posUVW();
+	    double a = distanceVector.Mag();
+	    if(a>maxDist){
+	      maxDist=a;
+	      maxDistI = i;
+	      maxDistJ = j;
+	    }
+	  }
+	}
       }
+    }
 
     //Fill the two missing histograms
 
-    clustersperlength->Fill(tr.nClFit()/n);
+    clustersperlength->Fill(tr.nClFit()/maxDist);
     nSelHits->Fill(tr.nClFit());
 
   }
@@ -135,9 +125,9 @@ void plots(TString files){
   //draw the histograms
 
   TCanvas *x = new TCanvas();
-  nHits1->Draw();
-  nHits2->Draw("same");
-  nHits->Draw("same");
+  Distancey->Draw();
+  Distancex->Draw("same");
+  Distancez->Draw("same");
   TCanvas *y = new TCanvas();
   nSelHits->Draw();
   TCanvas *z = new TCanvas();
