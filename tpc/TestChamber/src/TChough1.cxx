@@ -8,9 +8,9 @@
 #include"TRandom.h"
 #include"TEllipse.h"
 
-TChough1::TChough1(const TVector3& _yp,const TVector3& _zp) : TCabsHough(_yp,_zp){
-  r1Y=0.2;
-  r2Y=0.35;
+TChough1::TChough1(const TVector3& _yp,const TVector3& _zp,double _r1,double _r2) : TCabsHough(_yp,_zp){
+  r1Y=_r1;
+  r2Y=_r2;
 
 
   minAY = -5.;
@@ -79,7 +79,13 @@ void TChough1::draw(bool stop,int _x,int _y,int _w,int _h){
 
   c->cd(2);
   houghHistoYZ->Draw("colz");
-  TEllipse* ell = new TEllipse(aymax,bymax,r1Y,r2Y);
+
+  double r1=getScaleA()*r1Y;
+  double r2=getScaleB()*r2Y;
+
+
+  TEllipse* ell = new TEllipse(aymax,bymax,r1,r2);
+  ell->SetFillStyle(0);
   ell->SetLineWidth(4);
   ell->Draw("same");
   for(int i=0;i<NumberOfHits;++i){
@@ -127,8 +133,12 @@ bool TChough1::hot(int index){
   offset -= bymax;
   offset += slope*aymax;
   //	cout << a0 << " " << b0 <<  endl;
+
+  double r1=getScaleA()*r1Y;
+  double r2=getScaleB()*r2Y;
+
   
-  discr = r1Y*r1Y*slope*slope + r2Y*r2Y - offset*offset;
+  discr = r1*r1*slope*slope + r2*r2 - offset*offset;
   if(discr>=0) {
 	return true;
   }

@@ -13,7 +13,7 @@ class TChough1 : public TCabsHough{
 
   virtual void doHough();
 
-  TChough1(const TVector3& _yp,const TVector3& _zp);
+  TChough1(const TVector3& _yp,const TVector3& _zp,double _r1,double _r2);
 
   virtual bool hot(int index);
 

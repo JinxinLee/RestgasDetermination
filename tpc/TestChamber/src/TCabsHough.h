@@ -35,9 +35,12 @@ class TCabsHough{
 	return ypHit.size();
   }
   
-  
+  double getScaleA(){return scaleA;}
+  double getScaleB(){return scaleB;}
+
  protected:
   TVector3 yp,zp;
+  double scaleA,scaleB;
   std::vector<double> ypHit;
   std::vector<double> zpHit;
 };

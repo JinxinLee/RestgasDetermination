@@ -12,8 +12,8 @@ void TChoughPatternReco::process(std::vector<TCcluster>& _c){
     TVector3 Y(0.,1.,0.);
     TVector3 Z(0.,0.,1.);
 
-    hXZ=new TChough1(X,Z);
-    hYZ=new TChough1(Y,Z);
+    hXZ=new TChough1(X,Z,0.3,0.35);
+    hYZ=new TChough1(Y,Z,0.3,0.35);
   }
   hXZ->make(_c);
   hYZ->make(_c);

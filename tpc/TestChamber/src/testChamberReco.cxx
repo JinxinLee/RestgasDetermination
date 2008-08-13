@@ -139,10 +139,7 @@ int main(int argc, char* argv[]) {
   clusterfinder->saveRaw();
   clusterfinder->checkConsistency();
   
-  double ellipse_ay,ellipse_by;
   int minselhits,visflag;
-  if(!(cf.readInto( ellipse_ay, "ELLIPSE_AY") )) failedConf("ELLIPSE_AY");
-  if(!(cf.readInto( ellipse_by, "ELLIPSE_BY") )) failedConf("ELLIPSE_BY");
   
   TFile* rootOutfile = new TFile(outfile.c_str(),"RECREATE");
   rootOutfile->cd();
