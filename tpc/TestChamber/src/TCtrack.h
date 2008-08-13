@@ -16,6 +16,7 @@
 #define PRINTF(X) printf("%s=%10.10E\n",#X,(X));
 #define PRINTI(X) printf("%s=%d\n",#X,(X));
 
+
 class TCtrack : public TObject{
  public:
   TCtrack(); 
@@ -60,15 +61,31 @@ class TCtrack : public TObject{
   double getTh(){
 	return  180.*atan(sqrt(ay*ay+ax*ax))/TMath::Pi();
   }
+  double getMCThX(){
+	return 180.*atan(MCax)/TMath::Pi();
+  }
+  double getMCThY(){
+	return 180.*atan(MCay)/TMath::Pi();
+  }
+  double getMCTh(){
+	return  180.*atan(sqrt(MCay*MCay+MCax*MCax))/TMath::Pi();
+  }
 
   void setPar(double _ax,double _bx,double _ay,double _by){
-	ax=_ax;ay=_ay;bx=_bx;by=_by;
+    ax=_ax;bx=_bx;ay=_ay;by=_by;
+  }
+  void setMCPar(double _ax,double _bx,double _ay,double _by){
+	MCax=_ax;MCbx=_bx;MCay=_ay;MCby=_by;
   }
 
   double getAx(){return ax;}
   double getBx(){return bx;}
   double getAy(){return ay;}
   double getBy(){return by;}
+  double getMCAx(){return MCax;}
+  double getMCBx(){return MCbx;}
+  double getMCAy(){return MCay;}
+  double getMCBy(){return MCby;}
   double getDax(){return dax;}
   double getDbx(){return dbx;}
   double getDay(){return day;}
@@ -81,6 +98,7 @@ class TCtrack : public TObject{
   void clear(){
     cl.clear();
     ax=-1.E10;bx=-1.E10;ay=-1.E10;by=-1.E10;
+    MCax=-1.E10;MCbx=-1.E10;MCay=-1.E10;MCby=-1.E10;
     dax=-1.E10;dbx=-1.E10;day=-1.E10;dby=-1.E10;
     chi2=-1.E10;
   }
@@ -108,6 +126,7 @@ class TCtrack : public TObject{
   TCanvas *canvDraw;
   TCanvas *canvDrawClust;
   double ax,bx,ay,by,dax,day,dbx,dby;
+  double MCax,MCbx,MCay,MCby;
   double chi2;
   int NDF;
   std::vector<TCcluster> cl;

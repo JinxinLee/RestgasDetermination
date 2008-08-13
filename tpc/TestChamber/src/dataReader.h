@@ -23,10 +23,10 @@ class TCevt {
   //Int_t           nslice[128];   //[nchan]
   Int_t           charge[128][150];   //[nchan]
   //Int_t           time[128][150];   //[nchan]
-  //Float_t         mc_intercept_x;
-  //Float_t         mc_slope_x;
-  //Float_t         mc_intercept_z;
-  //Float_t         mc_slope_z;
+  Double_t         MCTax;
+  Double_t         MCTbx;
+  Double_t         MCTay;
+  Double_t         MCTby;
 
 
   void Print(); 
@@ -50,6 +50,11 @@ public :
    //Int_t           nslice[128];   //[nchan]
    Int_t           charge[128][150];   //[nchan]
    //Int_t           time[128][150];   //[nchan]
+   Double_t         MCTax;
+   Double_t         MCTbx;
+   Double_t         MCTay;
+   Double_t         MCTby;
+   
    //Float_t         mc_intercept_x;
    //Float_t         mc_slope_x;
    //Float_t         mc_intercept_z;
@@ -64,11 +69,14 @@ public :
    TBranch        *b_charge;   //!
    //TBranch        *b_time;   //!
    //TBranch        *b_mc_intercept_x;   //!
-   TBranch        *b_mc_slope_x;   //!
+   TBranch        *b_MCTax;   //!
+   TBranch        *b_MCTbx;   //!
+   TBranch        *b_MCTay;   //!
+   TBranch        *b_MCTby;   //!
    //TBranch        *b_mc_intercept_z;   //!
    //TBranch        *b_mc_slope_z;   //!
 
-   dataReader(TTree *tree=0);
+   dataReader(TTree *tree=0,int _mcFlag=0);
    virtual ~dataReader();
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    GetEntry(Long64_t entry);
@@ -81,13 +89,15 @@ public :
    
  private:
    int lastEvent;
+   int mcFlag;
 };
 
 #endif
 
 #ifdef dataReader_cxx
-dataReader::dataReader(TTree *tree)
+dataReader::dataReader(TTree *tree,int _mcFlag)
 {
+  mcFlag=_mcFlag;
   lastEvent = 0;
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
@@ -151,6 +161,12 @@ void dataReader::Init(TTree *tree)
    //fChain->SetBranchAddress("chan", chan, &b_chan);
    //fChain->SetBranchAddress("nslice", nslice, &b_nslice);
    fChain->SetBranchAddress("charge", charge, &b_charge);
+   if(mcFlag==1){
+     fChain->SetBranchAddress("MCTax", &MCTax, &b_MCTax);
+     fChain->SetBranchAddress("MCTbx", &MCTbx, &b_MCTbx);
+     fChain->SetBranchAddress("MCTay", &MCTay, &b_MCTay);
+     fChain->SetBranchAddress("MCTby", &MCTby, &b_MCTby);
+   }
    //fChain->SetBranchAddress("time", time, &b_time);
    //fChain->SetBranchAddress("mc_intercept_x", &mc_intercept_x, &b_mc_intercept_x);
    //fChain->SetBranchAddress("mc_slope_x", &mc_slope_x, &b_mc_slope_x);

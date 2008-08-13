@@ -81,7 +81,7 @@ int main(int argc, char* argv[]) {
   //PndTpcAbsPSAStrategy*_psa= new PndTpcSimplePSAStrategy(10); // threshold (in adc channels)
   PndTpcAbsPSAStrategy*_psa= new PndTpcPSA_TOT1();
   
-  dataReader myReader(intree);
+
 
   TCevt* event;
   McIdCollection dummyID;
@@ -117,10 +117,15 @@ int main(int argc, char* argv[]) {
 
   int clust_choice;  
   int timewindow_chr,timewindow_seb,detId;
+  int mcFlag;
   if(!(cf.readInto(clust_choice , "CLUSTERING") )) failedConf("CLUSTERING");
+  if(!(cf.readInto(mcFlag , "MC") )) failedConf("MC");
   if(!(cf.readInto( timewindow_chr, "TIMEWINDOW_CLUST_CHR") )) failedConf("TIMEWINDOW_CLUST_CHR");
   if(!(cf.readInto( timewindow_seb, "TIMEWINDOW_CLUST_SEB") )) failedConf("TIMEWINDOW_CLUST_CHR");
   if(!(cf.readInto( detId, "TPCDETID") )) failedConf("TPCDETID");
+
+  assert(mcFlag==0 || mcFlag==1);
+  dataReader myReader(intree,mcFlag);
 
   std::vector<PndTpcCluster*> *clusters = new std::vector<PndTpcCluster*>;
   PndTpcAbsClusterFinder *clusterfinder;
@@ -234,6 +239,9 @@ int main(int argc, char* argv[]) {
     outputTrack->addClusters(TCc);
 
     outputTrack->fit(detId);
+    if(mcFlag==1){
+      outputTrack->setMCPar(event->MCTax,event->MCTbx,event->MCTay,event->MCTby);
+    }
     //outputTrack->draw();
     rootOutfile->cd();
     outTree->Fill();

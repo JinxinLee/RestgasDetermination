@@ -51,32 +51,38 @@ TCevt* dataReader::readEvent() {
   TCevt* returnData;
 
   if(lastEvent<nentries) {
-
-	returnData = new TCevt();
-
-	Long64_t nb = fChain->GetEntry(lastEvent);
-	lastEvent++;
-	returnData->trigger = trigger;
-	//returnData->runtime = runtime;
-	//returnData->nchan = nchan;
-	//returnData->mc_intercept_x = mc_intercept_x;
-	//returnData->mc_slope_x = mc_slope_x;
-	//returnData->mc_intercept_z = mc_intercept_z;
-	//returnData->mc_slope_z = mc_slope_z;
-	for(int i=0; i< 128; i++) {
-	  //returnData->nslice[i] = nslice[i];
-	  //returnData->chan[i] = chan[i];
-	  for(int j=0; j< 150; j++) {
-		returnData->charge[i][j] = charge[i][j];
-		//returnData->time[i][j] = time[i][j];
-	  }
-	}
-	return returnData;
+    
+    returnData = new TCevt();
+    
+    Long64_t nb = fChain->GetEntry(lastEvent);
+    lastEvent++;
+    returnData->trigger = trigger;
+    //returnData->runtime = runtime;
+    //returnData->nchan = nchan;
+    //returnData->mc_intercept_x = mc_intercept_x;
+    //returnData->mc_slope_x = mc_slope_x;
+    //returnData->mc_intercept_z = mc_intercept_z;
+    //returnData->mc_slope_z = mc_slope_z;
+    for(int i=0; i< 128; i++) {
+      //returnData->nslice[i] = nslice[i];
+      //returnData->chan[i] = chan[i];
+      for(int j=0; j< 150; j++) {
+	returnData->charge[i][j] = charge[i][j];
+	//returnData->time[i][j] = time[i][j];
+      }
+    }
+    if(mcFlag==1){
+      returnData->MCTax=MCTax;
+      returnData->MCTbx=MCTbx;
+      returnData->MCTay=MCTay;
+      returnData->MCTby=MCTby;
+    }
+    return returnData;
   }
   else {
-	return NULL;
+    return NULL;
   }
-
+  
 }
 
 
