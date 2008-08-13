@@ -1,0 +1,37 @@
+#################################################################
+# Digitisation and reconstruction parameters for TPC
+# Format:
+# parameter_name:parameter_type(i-integer, d-double) parameter_value
+# TPCDigiPar
+# Description of parameters
+#################################################################
+[PndTpcDigiPar]
+PndTpcGasFile:i 25
+EField:d 250
+AttachFlag:i 0
+LogitudinaldiffusionFlag:i 1
+TransversediffusionFlag:i 1
+DriftDistortionFlag:i 0
+zGem:d 0.
+Gain:d 5000
+Spread:d 0.02
+MinSignalAmp:d 0.
+rMin:d 0.
+rMax:d 20.
+PadPlaneFile:i 26
+PadShapeFile:i 27
+PadShapeRange:d 0.5
+PadShapeStep:d 0.02
+PadShapeIntStep:d 0.01
+ADCThreshold:i 0
+ADCMax:i 100000
+ADCBits:i 12
+SamplingFreq:d 10
+T0_wallclock:d 0.
+TimeBits:i 28
+PSAThreshold:i 0
+Shaper_tDiff:d 100
+Shaper_tInt:d 100
+Shaper_tSig:d 5
+TOTPSA:i 1
+#################################################################
