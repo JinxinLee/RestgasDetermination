@@ -45,8 +45,7 @@ public:
   
 
   // Accessors -----------------------
-  TrackCand* GetTrackCand(const PndTpcLheTrack *track);
-
+  
   // Modifiers -----------------------
   void SetTrackBranchName(const TString& name)   { fTrackBranchName = name; }
   void SetPersistence(Bool_t opt = kTRUE)        { fPersistence = opt;      }

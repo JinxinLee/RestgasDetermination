@@ -18,6 +18,8 @@
 
 #include "Riostream.h"
 
+class TrackCand;
+
 class PndTpcLheTrack: public TObject {
   
   //  using namespace std;
@@ -47,6 +49,7 @@ protected:
   PndTpcLhePoint fFirstHit;            // first track hit
   PndTpcLhePoint fCircle;              // circle x,y,R
 
+  Int_t fFitTrackIndex;                // Index of TCA Track (genfit)
 
   //  ---  the code below is needed only for testing with Geant
 
@@ -93,6 +96,8 @@ public:
   Int_t      GetMvdHits()           const { return fMvdHits; }
   Int_t      GetTpcHits()           const { return fTpcHits; }
   
+  TrackCand* GetTrackCand();
+  
   PndTpcLhePoint   GetVertex()        const { return fVertex;  }
   PndTpcLhePoint   GetLastHit()       const { return fLastHit; }
   PndTpcLhePoint   GetFirstHit()       const { return fFirstHit; }
@@ -102,6 +107,8 @@ public:
   Float_t ExtrapolateToZ(TVector3 *mom, TVector3 *vertex, const Float_t z = 0.); // extrapolate momentum and vertex at z=...
   Float_t ExtrapolateToR(TVector3 *mom, TVector3 *vertex, const Float_t R);      // extrapolate momentum and vertex at sqrt(x*x+y*y)=...
   
+  Int_t GetFitTrackIndex()              const { return fFitTrackIndex; }
+
   // setters   
 
   Double_t  GetRadius()           const { return  fCircle.GetZ(); }
@@ -135,6 +142,7 @@ public:
   void   SetCharge(Int_t f) {fQ = f; }
   void   SetPid(Int_t f) {fPid = f; }
 
+  void   SetFitTrackIndex(Int_t ind) { fFitTrackIndex = ind; };
   void   ComesFromMainVertex(Bool_t f) { fFromMainVertex = f; }
 
   virtual void   Print(); //

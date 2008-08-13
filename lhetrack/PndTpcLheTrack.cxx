@@ -1,5 +1,6 @@
 #include "PndTpcLheHit.h"
 #include "PndTpcLheTrack.h"
+#include "TrackCand.h"
 #include "TClonesArray.h"
 
 #include "Riostream.h"
@@ -106,6 +107,58 @@ Float_t PndTpcLheTrack ::ExtrapolateToR(TVector3 *mom, TVector3 *vertex, const F
   return ExtrapolateToZ(mom, vertex, zproj);
 }
 
+TrackCand* PndTpcLheTrack::GetTrackCand()
+{
+  TrackCand *trackCand = new TrackCand();
+    
+  TObjArray* lheList = GetRHits();
+  //if (fVerbose) cout << lheList->GetEntries() << " " << GetNumberOfHits() << endl;
+  
+  for (Int_t lh=0; lh < lheList->GetEntries(); lh++)
+    {
+      PndTpcLheHit* lhit = (PndTpcLheHit*)lheList->At(lh);
+      //if (fVerbose) cout << lhit->GetX() << "\t" << lhit->GetY() << "\t" <<lhit->GetZ() << endl;
+      if (NULL==lhit) break;
+      Int_t detId;
+      
+      switch (lhit->GetDetectorId())
+	{
+	case kTpcCluster:
+	  detId = 2;
+	  break;
+	  
+	case kMVDHitsStrip:
+	  detId = 4;
+	  break;
+	  
+	case kMVDHitsPixel:
+	  detId = 3;
+	  break;
+	  
+	default:
+	  cout << "-E- PndTpcLheTrack::GetTrackCand: Wrong Detector ID" << endl;
+	  detId = 0;
+	}
+      
+      trackCand->addHit(detId, lhit->GetRefIndex());
+      if (GetRadius()>0.)  
+	{
+	  trackCand->setCurv(1./GetRadius());
+	}
+      else
+	{
+	  return 0;
+	}
+      
+      trackCand->setDip(TMath::ATan(GetTanDipAngle()));
+      trackCand->setInverted(true);
+    }
+  
+  
+  return trackCand;
+   
+}
+
 //___________________________________________________________
 void PndTpcLheTrack ::SetDefaults() {
   // Default setup for the track.
@@ -143,6 +196,7 @@ void PndTpcLheTrack ::SetDefaults() {
   fTanDipAngleErr = 0.;
   fMvdHits = 0;
   fTpcHits = 0;
+  fFitTrackIndex = -1;
 }
 
 //______________________________________________________________

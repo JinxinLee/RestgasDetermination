@@ -148,7 +148,7 @@ PndLheKalmanTask::Init()
 
 void PndLheKalmanTask::Exec(Option_t* opt)
 {
-  std::cout<<"PndLheKalmanTask::Exec"<<std::endl;
+  if (fVerbose>0) std::cout<<"PndLheKalmanTask::Exec"<<std::endl;
   // Reset output Array
   //if(fTrackArray==0) Fatal("Kalman::Exec)","No TrackArray");
   
@@ -176,15 +176,18 @@ void PndLheKalmanTask::Exec(Option_t* opt)
   for(Int_t itr=0;itr<ntracks;++itr){
     if (fVerbose>1) std::cout<<"starting track"<<itr<<std::endl;
     PndTpcLheTrack *lheTrack = (PndTpcLheTrack*)fTrackArray->At(itr);
-    //     AbsTrackRep* rep = new LSLTrackRep();
+    
+    TVector3 StartPos(0., 0., 0.); 
+    //TVector3 StartPos    = lheTrack->GetFirstHit().GetCoord();
+    //TVector3 StartPosErr = lheTrack->GetFirstHit().GetError();
+    TVector3 StartPosErr(0.5, 0.5, 0.5);
+    TVector3 StartMom(0., 0., 0.);
+    //TVector3 StartMom = lheTrack->GetMomentum();
+    TVector3 StartMomErr = TVector3(0.1*StartMom);
+    Float_t phi = lheTrack->ExtrapolateToZ(&StartMom, &StartPos, 0.);
     
     // Starting values for guessing
     Int_t PDGCode= 211;
-    TVector3 StartPos    = lheTrack->GetFirstHit().GetCoord();
-    TVector3 StartPosErr = lheTrack->GetFirstHit().GetError();
-    
-    TVector3 StartMom = lheTrack->GetMomentum();
-    TVector3 StartMomErr = TVector3(0.1*lheTrack->GetMomentum());
     TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
     TParticlePDG *fParticle= fdbPDG->GetParticle(PDGCode);
     Double_t  fCharge= lheTrack->GetCharge();
@@ -214,13 +217,13 @@ void PndLheKalmanTask::Exec(Option_t* opt)
       }
     
     Track* trk= new Track(rep);
-    trk->setCandidate(*(TrackCand*)GetTrackCand(lheTrack));
+    trk->setCandidate(*(TrackCand*)lheTrack->GetTrackCand());
          
     // Load RecoHits
     try {
       trk->addHitVector(fTheRecoHitFactory->createMany(trk->getCand()));
-      std::cout<<trk->getNumHits()<<" hits in track "
-               <<itr<<std::endl;
+      if (fVerbose>0) std::cout<<trk->getNumHits()<<" hits in track "
+			       <<itr<<std::endl;
     }
     catch(FitterException& e) {
       std::cout << e.what() << std::endl;
@@ -252,7 +255,7 @@ void PndLheKalmanTask::Exec(Option_t* opt)
 
     }
 
-    std::cout<<"SUCESSFULL FIT!"<<std::endl;
+    if (fVerbose>0) std::cout<<"SUCESSFULL FIT!"<<std::endl;
 
 
     // Print Track Parameters after fit
@@ -269,19 +272,21 @@ void PndLheKalmanTask::Exec(Option_t* opt)
       signs.push_back((Int_t)trk->getTrackRep(0)->getCharge());
 
       Double_t chi2=trk->getChiSqu();
-      std::cout<<"ChiSq="<<chi2<<std::endl;
+      if (fVerbose>0) std::cout<<"ChiSq="<<chi2<<std::endl;
       fChi2H->Fill(chi2);
-    }
+      }
 
+      
     AddTrack(trk);
+    lheTrack->SetFitTrackIndex(fFitTrackArray->GetEntriesFast()-1);
     
   }
 
-  std::cout<<"Fitting done"<<std::endl;
+  if (fVerbose>0) std::cout<<"Fitting done"<<std::endl;
 
   // --- ANALYSIS ---
   if(particles.size()>20)return;
-  std::cout<<"Starting Analysis"<<std::endl;
+  if (fVerbose>0) std::cout<<"Starting Analysis"<<std::endl;
 
   // --- "standard" analysis plots
    for(Int_t i=0;i<particles.size();++i){
@@ -295,57 +300,6 @@ void PndLheKalmanTask::Exec(Option_t* opt)
   return;
 }
 
-TrackCand* PndLheKalmanTask::GetTrackCand(const PndTpcLheTrack *track)
-{
-  TrackCand *trackCand = new TrackCand();
-    
-  TObjArray* lheList = track->GetRHits();
-  if (fVerbose) cout << lheList->GetEntries() << " " << track->GetNumberOfHits() << endl;
-  
-  for (Int_t lh=0; lh < lheList->GetEntries(); lh++)
-    {
-      PndTpcLheHit* lhit = (PndTpcLheHit*)lheList->At(lh);
-      if (fVerbose) cout << lhit->GetX() << "\t" << lhit->GetY() << "\t" <<lhit->GetZ() << endl;
-      if (NULL==lhit) break;
-      Int_t detId;
-      
-      switch (lhit->GetDetectorId())
-	{
-	case kTpcCluster:
-	  detId = 2;
-	  break;
-	  
-	case kMVDHitsStrip:
-	  detId = 4;
-	  break;
-	  
-	case kMVDHitsPixel:
-	  detId = 3;
-	  break;
-	  
-	default:
-	  cout << "-E- PndLheKalmanTask::GetTrackCan: Wrong Detector ID" << endl;
-	  detId = 0;
-	}
-      
-      trackCand->addHit(detId, lhit->GetRefIndex());
-      if (track->GetRadius()>0.)  
-	{
-	  trackCand->setCurv(1./track->GetRadius());
-	}
-      else
-	{
-	  return 0;
-	}
-      
-      trackCand->setDip(TMath::ATan(track->GetTanDipAngle()));
-      trackCand->setInverted(true);
-    }
-  
-  
-  return trackCand;
-   
-}
 
 void 
 PndLheKalmanTask::WriteHistograms(const TString& filename){
