@@ -38,8 +38,8 @@ class PndLheKalmanTask : public CbmTask {
 public:
 
   // Constructors/Destructors ---------
-  PndLheKalmanTask();
-  ~PndLheKalmanTask();
+  PndLheKalmanTask(const char* name = "LheGenfit", Int_t iVerbose = 0);
+    ~PndLheKalmanTask();
 
   // Operators
   

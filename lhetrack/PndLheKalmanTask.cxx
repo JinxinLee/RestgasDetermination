@@ -58,8 +58,8 @@
 // Class Member definitions -----------
 
 
-PndLheKalmanTask::PndLheKalmanTask()
-  : CbmTask("Kalman Filter"), fPersistence(kFALSE)
+PndLheKalmanTask::PndLheKalmanTask(const char* name, Int_t iVerbose)
+  : CbmTask(name, iVerbose), fPersistence(kFALSE)
 {
   fTrackBranchName = "PndTpcLheTrack";
   fFitTrackArray = new TClonesArray("Track");
