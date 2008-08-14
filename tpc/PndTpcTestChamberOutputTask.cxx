@@ -2,6 +2,7 @@
 
 // C/C++ Headers ----------------------
 #include <iostream>
+#include <assert.h>
 
 // Collaborating Class Headers --------
 #include "CbmRootManager.h"
