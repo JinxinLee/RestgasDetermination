@@ -57,7 +57,7 @@
 PndMvdKalmanTask::PndMvdKalmanTask()
   : CbmTask("Kalman Filter"), fPersistence(kFALSE)
 {
-  fTrackBranchName = "MVDTrackCand";
+  fTrackBranchName = "MVDIdealTrackCand";
 }
 
 
