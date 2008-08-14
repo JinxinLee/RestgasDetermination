@@ -53,5 +53,6 @@
 #pragma link C++ class PndTpcRawDEdxCollection+;
 #pragma link C++ class PndTpcDEDXFits+;
 #pragma link C++ class PndTpcHitMerger+;
+#pragma link C++ class PndTpcTestChamberOutputTask+;
 #endif
 
