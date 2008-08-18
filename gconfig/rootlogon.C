@@ -29,4 +29,5 @@ rootlogon()
 	gSystem->Load("libMdt");
 	gSystem->Load("libDch");
         gSystem->Load("libLHETrack");
+	gSystem->Load("libGeane");
 }
