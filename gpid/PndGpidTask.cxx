@@ -101,6 +101,7 @@ void PndGpidTask::AddVar()
  {
   TString varName,s;
   varName = fVarNameArray.at(i);
+  cout<<varName<<endl;
    for ( int j = 0; j < fNCLASS ; j++)
    {
     reader[j].AddVariable(varName, &(varArray[i]));  
@@ -158,6 +159,15 @@ void PndGpidTask::Exec(Option_t* opt)
    Float_t mvaValue;
    className = fClassNameArray.at(i);
    mvaValue = reader[i].EvaluateMVA(fClassifier);
+   switch (fMVAmode)
+     {
+      case BDT:
+       mvaValue = (mvaValue - (-0.92))/1.72;
+      case KNN:
+       mvaValue = mvaValue; 
+      case MLP:
+       mvaValue = (mvaValue - (-1.1))/2.2;
+     }
  //  cout<<mvaValue<<endl;
    events->Set(className,mvaValue);
    }

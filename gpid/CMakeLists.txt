@@ -28,6 +28,7 @@ ${CMAKE_SOURCE_DIR}/rho/RhoMath
 ${CMAKE_SOURCE_DIR}/rho/RhoFitter
 ${CMAKE_SOURCE_DIR}/myobj
 ${CMAKE_SOURCE_DIR}/geane
+#/usr/lib/gcc/i486-linux-gnu/4.2/include
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -48,7 +49,6 @@ PndMakeTrainData.cxx
 Event.cxx
 EvtGenTask.cxx
 PndGpidTask.cxx
-PndGpidTaskP.cxx
 )
 CHANGE_FILE_EXTENSION(*.cxx *.h Gpid_HEADERS "${Gpid_SRCS}")
 

@@ -38,21 +38,24 @@ class Reader;
 class PndGpidTask : public CbmTask
 {
  public:
-
+ // enum type for the type of classifier 
+ // task is going to use
   enum MVAType{
        KNN = 1,
        BDT = 2,
        MLP = 3,
        };
 
-  void SetMVA(MVAType mode) { fMVAmode = mode; } 
+
   /** Default constructor **/  
   PndGpidTask();
 
   /** Destructor **/
   virtual ~PndGpidTask();
+  // Data modifiers
   void SetAPPNAME(TString anaName)  { fAPPNAME = anaName; }
   void SetDIR(string dir) {fDIR = dir;}
+  void SetMVA(MVAType mode) { fMVAmode = mode; } 
 
   /** Virtual method Init **/
   virtual InitStatus Init();
@@ -60,9 +63,11 @@ class PndGpidTask : public CbmTask
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
 private:
+  // Private fuction members called by init during Initialization
   void Config();
   void AddVar();
   void BookingMVA();
+  // MVAType booked 
   MVAType fMVAmode;
   std::string fAPPNAME;
   std::string fDIR;
