@@ -18,7 +18,7 @@ TCtrack clusterSplit1(TCtrack t){
   std::vector<TCcluster> output;
   for(int i=0;i<t.nCl();++i){
     TCcluster c = t.getCl(i);
-    if(c.getId()<=200&&c.getId()<=299){
+    if(c.getId()>=200&&c.getId()<=299){
       tpc.push_back(c);
     }
     else{
