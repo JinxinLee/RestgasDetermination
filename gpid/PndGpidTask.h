@@ -64,15 +64,30 @@ class PndGpidTask : public CbmTask
   virtual void Exec(Option_t* opt);
 private:
   // Private fuction members called by init during Initialization
-  void Config();
-  void AddVar();
-  void BookingMVA();
+
+  void Config();      // function to configure the Classifier with proper class names and variable names
+
+  void AddVar();      // function adding the variables for classification 
+  
+  void BookingMVA();  // Book the MVA Set by the usr.
+ 
   // MVAType booked 
   MVAType fMVAmode;
+
+  // Name of the application for which one does the classification used to pickup
+  // the correct configuration file and weight file.
   std::string fAPPNAME;
+ 
+  // locate the directory for the weight files
   std::string fDIR;
+ 
+  // string internally used to select the methed
   std::string fClassifier;
+ 
+  // Array of Variable names for classification names 
   vector<string> fVarNameArray;
+
+  // Array of Class names for classification names 
   vector<string> fClassNameArray;
   
   TMVA::Reader reader[10]; 
