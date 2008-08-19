@@ -38,23 +38,23 @@ using namespace std;
 class PndMultiClassMVA
 {
  private:
-       Int_t fNCLASS;
-       Int_t fNVAR;
-       TString fNSigTrain;
-       TString fNSigTest;
-       TString fNBkgTrain;
-       TString fNBkgTest;
-       TString fPruneStrengthBDT;
-       TString fBoostTypeBDT;
-       TString fNCutsBDT;
-       TString fNTreeBDT;
-       TString fINFILENAME;
-       TString fNKNN;
-       TString fAPPNAME;
-       TString fConfigFileName;
-       vector <string> fVarNameArray;
-       vector <string> fClassNameArray;
-       map <string, vector<pair<string,string> > > fInFileNameArray;
+       Int_t fNCLASS;        //  number of classes 
+       Int_t fNVAR;          //  number of Variables
+       TString fNSigTrain;   //  number of signals for training
+       TString fNSigTest;    //  number of signals for testing
+       TString fNBkgTrain;   //  number of background for Training
+       TString fNBkgTest;    //  number of background for testing
+       TString fPruneStrengthBDT; //  pruning strength for BDT (removing statistically insignificant nodes)
+       TString fBoostTypeBDT;     //  boost type (Ada boost or bagging)   
+       TString fNCutsBDT;         //  number of cuts to create a tree
+       TString fNTreeBDT;         //  number of trees to create a forest
+       TString fINFILENAME;       //  input file containing trees of all the signals
+       TString fNKNN;             //  number of nearest neighbours
+       TString fAPPNAME;          //  name of the application 
+       TString fConfigFileName;   //  name of the configuration file
+       vector <string> fVarNameArray;      // array of Variable names 
+       vector <string> fClassNameArray;    // array of class names
+     //  map <string, vector<pair<string,string> > > fInFileNameArray;  // map from class names the the corresponding 
        TFile fINPUT;
  public:
        PndMultiClassMVA();
@@ -64,8 +64,7 @@ class PndMultiClassMVA
 //       void GenerateTree();
 //       void AddInFile(string className,string simFileName,string recoFileName);
        void WriteConfigFile();
-//       void SetNCLASS(Int_t NoClass ) { fNCLASS = NoClass;}
-//       void SetNVAR(Int_t NoPar ) { fNVAR = NoPar;}
+//  data modifiers
        void SetINFILENAME(TString fname)  { fINFILENAME = fname; }
        void SetConfigFileName(TString fname)  { fConfigFileName = fname; }
        void SetAPPNAME(TString anaName)  { fAPPNAME = anaName; }
@@ -78,6 +77,7 @@ class PndMultiClassMVA
        void SetBoostTypeBDT(TString boostType) {fBoostTypeBDT = boostType; }
        void SetNCutsBDT(TString nCuts) { fNCutsBDT = nCuts; }
        void SetNKNN(TString kNN) { fNKNN = kNN; }
+//data accessers
        Int_t GetNCLASS() {return fNCLASS; }
        Int_t GetNVAR() {return fNVAR; }
        void TrainTest();       

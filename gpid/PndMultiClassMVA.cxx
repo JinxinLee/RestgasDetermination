@@ -55,9 +55,9 @@ void PndMultiClassMVA::AddVar(string varName)
 
 void PndMultiClassMVA::AddClass(string className)
 {
-  vector<pair<string,string> > stringVec;
+//  vector<pair<string,string> > stringVec;
   fClassNameArray.push_back(className);
-  fInFileNameArray.insert(pair<string,vector<pair<string,string> > >(className,stringVec));
+//  fInFileNameArray.insert(pair<string,vector<pair<string,string> > >(className,stringVec));
   fNCLASS = fNCLASS +1;
 }
 /*
