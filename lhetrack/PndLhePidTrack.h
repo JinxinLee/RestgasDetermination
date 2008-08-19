@@ -16,6 +16,7 @@ class PndLhePidTrack: public PndTpcLheTrack {
 protected:
 
   Double_t fMvdELoss;               // Energy Loss in MVD
+  Double_t fMvdPath;                // Thickness crossed inside MVD
   Int_t fMvdHitCount;               // Number of mvd hits
 
   Double_t fSttELoss;               // Energy Loss in  STT
@@ -60,10 +61,12 @@ public:
   PndLhePidTrack (const PndTpcLheTrack& track);
   PndLhePidTrack (const PndLhePidTrack& track);
  
-  Double_t GetMvdELoss()              { return fMvdELoss;    };
+  Float_t GetMvdELoss()               { return fMvdELoss;    };
+  Float_t GetMvdPath()                { return fMvdPath;    }; 
+  Float_t GetMvdDEDX()                { return fMvdPath>0. ? (fMvdELoss/fMvdPath) : -1.; }
   Int_t GetMvdHitCounts()             { return fMvdHitCount; };
 
-  Double_t GetSttELoss()              { return fSttELoss;    };
+  Float_t GetSttELoss()               { return fSttELoss;    };
   Int_t GetSttHitCounts()             { return fSttHitCount; };
 
   Int_t GetTofIndex()                 { return fTofIndex; }
@@ -96,10 +99,11 @@ public:
   Float_t GetEmcELoss()               { return fEmcELoss; }
   Float_t GetBeta()                   { return fTimeOfFlight>0. ? fTofPathLength/(30. * fTimeOfFlight) : -1.; }
   
-  void SetMvdELoss(Double_t eloss)    { fMvdELoss = eloss;    };
+  void SetMvdELoss(Float_t eloss)     { fMvdELoss = eloss;    };
+  void SetMvdPath(Float_t len)        { fMvdPath = len;    };
   void SetMvdHitCounts(Int_t nhit)    { fMvdHitCount = nhit;  };
  
-  void SetSttELoss(Double_t eloss)    { fSttELoss = eloss;    };
+  void SetSttELoss(Float_t eloss)     { fSttELoss = eloss;    };
   void SetSttHitCounts(Int_t nhit)    { fSttHitCount = nhit;  };
 
   void SetTofIndex(Int_t ind)         { fTofIndex = ind; };

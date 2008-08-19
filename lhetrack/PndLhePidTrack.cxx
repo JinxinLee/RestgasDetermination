@@ -13,6 +13,7 @@ PndLhePidTrack::PndLhePidTrack () {
   // Default constructor.  
   SetDefaults();
   fMvdELoss = 0;
+  fMvdPath = 0;
   fMvdHitCount = 0;
   fSttELoss = 0;
   fSttHitCount = 0;
@@ -47,6 +48,7 @@ PndLhePidTrack::PndLhePidTrack () {
 PndLhePidTrack::PndLhePidTrack (const PndTpcLheTrack& track) : PndTpcLheTrack(track){
   // Default constructor.
   fMvdELoss = 0;
+  fMvdELoss = 0;
   fMvdHitCount = 0;
   fSttELoss = 0;
   fSttHitCount = 0;
@@ -80,7 +82,8 @@ PndLhePidTrack::PndLhePidTrack (const PndTpcLheTrack& track) : PndTpcLheTrack(tr
 PndLhePidTrack::PndLhePidTrack (const PndLhePidTrack& track) : PndTpcLheTrack((PndTpcLheTrack)track)
 {
   // Default constructor.
-  fMvdELoss = track.fMvdELoss;
+  fMvdELoss      = track.fMvdELoss; 
+  fMvdPath       = track.fMvdPath;
   fMvdHitCount = track.fMvdHitCount;
   fSttELoss = track.fSttELoss;
   fSttHitCount = track.fSttHitCount;

@@ -17,11 +17,14 @@
 #include "CbmTask.h"
 #include "CbmField.h"
 #include "CbmTrackParH.h"
-
+#include "CbmGeanePro.h"
+#include "CbmGeane.h"
 #include "PndTpcLheTrack.h"
+#include "PndMvdGeoHandling.h"
 #include "PndLhePidTrack.h"
 #include "PndLheCorrPar.h"
 
+class TGeant3;
 class PndLhePidMaker : public CbmTask {
 
 protected:
@@ -58,6 +61,13 @@ protected:
   TString fOption;          //  options to choose branches
   Bool_t fVerbose;          // Switch ON/OFF debug messages 
   Bool_t fSimulation;       // Switch simulation diagnostic
+  Bool_t fGeanePro;         // Use GEANE propagation
+
+  TGeant3 *gMC3;          
+  CbmGeane *fGeane;
+  CbmGeanePro *fPro;
+
+  PndMvdGeoHandling* geoH;           // Object to retrieve MVD geometry
 
   TFile *r;                          // File for debug ntuples
   TNtuple *tofCorr;                  // Debug ntuple for tof correlation
@@ -93,7 +103,8 @@ public:
   void SetOption(Option_t *option=" ") {fOption = option;  fOption.ToLower();}
   void SetDebugMode(Bool_t debug){ fDebugMode = debug; };
   void SetVerbose(Bool_t verb)   { fVerbose = verb  ;};
-  void SetSimulation(Bool_t sim) { fSimulation = sim; };
+  void SetSimulation(Bool_t sim)         { fSimulation = sim; };
+  void SetGeanePro(Bool_t gea = kTRUE)   { fGeanePro = gea; };
 
   static PndLhePidMaker* Instance();
 

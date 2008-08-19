@@ -19,6 +19,8 @@
 
 #include "TObjArray.h"
 #include "TVector3.h"
+#include "TGeoBBox.h"
+#include "TGeoManager.h"
 
 #include <cmath>
 
@@ -221,7 +223,16 @@ InitStatus PndLhePidMaker::Init() {
   Register();
    
   fCorrPar->printParams();
-  
+
+  geoH = new PndMvdGeoHandling(gGeoManager);
+
+  if (fGeanePro)
+    {
+      fGeane = new CbmGeane();
+      fPro = new CbmGeanePro();
+      fPro->PropagateToVolume("tofB01",0,1);
+      cout << "-I- PndLhePidMaker::Init: Using Geane for Track propagation" << endl;
+    }
   if (fDebugMode)
     {
       r = TFile::Open(sDir+sFile,"RECREATE");
@@ -295,6 +306,7 @@ void PndLhePidMaker::Exec(Option_t * option) {
       }
     
     pidTrack->SetMvdELoss(fMvdELoss);
+    pidTrack->SetMvdPath(fMvdPath);
     pidTrack->SetMvdHitCounts(fMvdHitCount);
     
     pidTrack->SetSttELoss(fSttELoss);
@@ -332,9 +344,22 @@ void PndLhePidMaker::GetMvdInfo(const PndTpcLheHit* hit, const PndLhePidTrack* t
   if (hit->GetDetectorId()==kMVDHitsPixel) mvdHit = (PndMvdHit*)fMvdHitsPixel->At(hit->GetRefIndex());
   if (hit->GetDetectorId()==kMVDHitsStrip) mvdHit = (PndMvdHit*)fMvdHitsStrip->At(hit->GetRefIndex());
   
+  /*
+  TString mvdName = mvdHit->GetDetName();
+  TString mvdPath = geoH->GetPath(mvdHit->GetDetName());
+  cout << "mvdName " << mvdName << " mvdPath " << mvdPath << endl;
+
+  TGeoVolume *mvdVol = (TGeoVolume*)gGeoManager->FindVolumeFast(mvdPath.Data());
+  cout << "path " << gGeoManager->CheckPath(mvdPath.Data()) << endl;
+  cout << "vol " << mvdVol->GetName()<<endl;
+
+   TGeoBBox* actBox = (TGeoBBox*)(mvdVol->GetShape());
+  Float_t thickness = actBox->GetDZ();
+  */
   if (fVerbose) cout << mvdHit->GetDetName() << "\t" << mvdHit->GetEloss() << endl;
   
   fMvdELoss += mvdHit->GetEloss();
+  //fMvdPath += thickness;
   fMvdHitCount++;
 }
 
@@ -372,7 +397,18 @@ void PndLhePidMaker::GetTofInfo(PndLhePidTrack* track) {
     {
       tofHit = (PndTofHit*)fTofHit->At(tt);
       tofHit->Position(tofPos);
-      Float_t phi = track->ExtrapolateToR(&momentum, &vertex, fCorrPar->GetTofRadius());
+
+      Float_t phi = track->ExtrapolateToR(&momentum, &vertex, fCorrPar->GetTofRadius()); // Important even to calculate phi for path length
+      
+      if (fGeanePro) // Overwrites vertex if Geane is used
+	{
+	  
+	  CbmTrackParH *fStart= new CbmTrackParH(track->GetLastHit().GetCoord(), track->GetMomentum(), track->GetLastHit().GetError(), (TVector3)(track->GetMomentum()*0.1), track->GetCharge());
+	  CbmTrackParH *fRes= new CbmTrackParH();
+	  Bool_t rc =  fPro->Propagate(fStart, fRes,211);
+	  vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
+	}
+      
       Float_t dzs = (vertex.Z()-tofHit->GetZ()-fCorrPar->GetTofZ0()) / fCorrPar->GetTofSigmaZ();
       Float_t dphi = (vertex.DeltaPhi(tofPos)-fCorrPar->GetTofPhi0()) / fCorrPar->GetTofSigmaPhi();
  
@@ -617,7 +653,7 @@ void PndLhePidMaker::Finish() {
 //_________________________________________________________________
 void PndLhePidMaker::Reset() {
   //---
-  fMvdPath = 1.;
+  fMvdPath = 0.;
   fMvdELoss = 0.;
   fMvdHitCount = 0;
   fSttPath = 1.;
