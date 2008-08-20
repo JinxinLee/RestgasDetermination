@@ -19,6 +19,7 @@
 
 #include "TObjArray.h"
 #include "TVector3.h"
+#include "TGeoMatrix.h"
 #include "TGeoBBox.h"
 #include "TGeoManager.h"
 
@@ -338,29 +339,38 @@ void PndLhePidMaker::Exec(Option_t * option) {
 }
 
 //_________________________________________________________________
-void PndLhePidMaker::GetMvdInfo(const PndTpcLheHit* hit, const PndLhePidTrack* track) {
+void PndLhePidMaker::GetMvdInfo(const PndTpcLheHit* hit, PndLhePidTrack* track) {
   //---
   PndMvdHit *mvdHit = NULL;
   if (hit->GetDetectorId()==kMVDHitsPixel) mvdHit = (PndMvdHit*)fMvdHitsPixel->At(hit->GetRefIndex());
   if (hit->GetDetectorId()==kMVDHitsStrip) mvdHit = (PndMvdHit*)fMvdHitsStrip->At(hit->GetRefIndex());
   
-  /*
-  TString mvdName = mvdHit->GetDetName();
-  TString mvdPath = geoH->GetPath(mvdHit->GetDetName());
-  cout << "mvdName " << mvdName << " mvdPath " << mvdPath << endl;
-
-  TGeoVolume *mvdVol = (TGeoVolume*)gGeoManager->FindVolumeFast(mvdPath.Data());
-  cout << "path " << gGeoManager->CheckPath(mvdPath.Data()) << endl;
-  cout << "vol " << mvdVol->GetName()<<endl;
-
-   TGeoBBox* actBox = (TGeoBBox*)(mvdVol->GetShape());
-  Float_t thickness = actBox->GetDZ();
-  */
-  if (fVerbose) cout << mvdHit->GetDetName() << "\t" << mvdHit->GetEloss() << endl;
+  TGeoNode *mvdNode = (TGeoNode*)gGeoManager->FindNode(mvdHit->GetX(), mvdHit->GetY(), mvdHit->GetZ());
+  TGeoVolume *mvdVol = (TGeoVolume*)mvdNode->GetVolume();
+  TGeoBBox* actBox = (TGeoBBox*)(mvdVol->GetShape()); // volume of the MVD strip/pixel
+  TGeoMatrix* mvdGeoRot = (TGeoMatrix*)mvdNode->GetMatrix();
+  const Double_t *rotM = mvdGeoRot->GetRotationMatrix();
+  TVector3 zaxis(rotM[2], rotM[5], rotM[8]); // Z axis in the detector frame
+  TVector3 vertex(0., 0., 0.);
+  TVector3 momentum(0., 0., 0.);
+  Float_t phi = track->ExtrapolateToZ(&momentum, &vertex, mvdHit->GetZ()); // track momentum at the strip/pixel
+  Double_t cos = TMath::Cos(momentum.Angle(zaxis)); // cos of the angle between the track and the strip/pixel normal axis
+  Float_t thickness = 0.;
   
-  fMvdELoss += mvdHit->GetEloss();
-  //fMvdPath += thickness;
-  fMvdHitCount++;
+  if (fabs(cos)<0.000001)
+    {
+      cout << "-W- PndLhePidMaker::GetMvdInfo: Track perpendicular to MVD strip/pixel! Not added to MVD eloss" << endl;     
+    }
+  else
+    {
+      thickness = actBox->GetDZ()*2./fabs(cos);
+      fMvdELoss += mvdHit->GetEloss();
+      fMvdPath += thickness;
+      fMvdHitCount++;
+    }
+  
+  if (fVerbose) cout << mvdHit->GetDetName() << "\t" << mvdHit->GetEloss() << "\t" << thickness << endl;
+  
 }
 
 //_________________________________________________________________
