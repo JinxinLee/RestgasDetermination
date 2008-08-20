@@ -1,4 +1,5 @@
 #include "PndMakeTrainData.h"
+#include "TChain.h"
 
 PndMakeTrainData::PndMakeTrainData()
 {
@@ -55,35 +56,34 @@ void PndMakeTrainData::GenerateTree()
   string className;
   vector < pair<string,string> > fileNameVec;
   className = fClassNameArray[i];
+  ntuple->SetNameTitle(className.c_str(),className.c_str());
   fileNameVec = fInFileNameArray.find(className)->second;
- cout<<"                                       "<<fileNameVec.size()<<endl;
+  TChain *simChain = new TChain("cbmsim");
+  TChain *recoChain = new TChain("cbmsim");
+  cout<<"                                       "<<fileNameVec.size()<<endl;
   for(int j = 0; j < fileNameVec.size();j++ )
    {
-    string simFile,recoFile;
     pair<string,string> filePair;
     filePair = fileNameVec.at(j);
-    simFile = filePair.first;
-    recoFile = filePair.second;
+    simChain->Add((filePair.first).c_str());
+    recoChain->Add((filePair.second).c_str());
     cout<<filePair.first<<"  "<<filePair.second<<"  "<<j<<endl;  
-    ntuple->SetNameTitle(className.c_str(),className.c_str());
-    FillNTuple(simFile,recoFile,*ntuple);
- //    for (int k=0; k<1000; k++)
-   //        ntuple->Fill(0,0,0,0);
-
-
    }
+    FillNTuple(*simChain,*recoChain,*ntuple);
     cout<<"No of entries in the class "<<className<<" is "<<ntuple->GetEntriesFast()<<endl;
     dir->cd(); 
-   ntuple->Write();
+    ntuple->Write();
     outfile->Write();
     ntuple->Reset();
+    delete simChain;
+    delete recoChain;
  }
  outfile->Close();
 }
 
-
-void PndMakeTrainData::FillNTuple(string const inf1,string const inf2, TNtuple &ntuple)
+void PndMakeTrainData::FillNTuple(TChain  &simChain ,TChain  &recoChain, TNtuple &ntuple)
 {
+/*
   TFile *fsim1 = new TFile(inf1.c_str());
   TTree *tsim1 = ( TTree* )fsim1->Get("cbmsim");
 
@@ -111,11 +111,23 @@ void PndMakeTrainData::FillNTuple(string const inf1,string const inf2, TNtuple &
   TClonesArray *ArrPndPidCand1 = new TClonesArray("PndPidCand");
   treco1->SetBranchAddress("PndPidCand",&ArrPndPidCand1);
 cout<<tsim1->GetEntries()<<" no of Events from "<<inf1<<"  "<<inf2<<endl;
+*/
 
-  for (Int_t i =0; i < tsim1->GetEntries();i++)     
+  TClonesArray *ArrMCTrack1 = new TClonesArray("CbmMCTrack");
+  simChain.SetBranchAddress("MCTrack",&ArrMCTrack1);
+
+  TClonesArray *ArrTpc1 = new TClonesArray("PndTpcPoint");
+  simChain.SetBranchAddress("PndTpcPoint",&ArrTpc1);
+
+  TClonesArray *ArrMvd1 = new TClonesArray("PndMvdMCPoint");
+  simChain.SetBranchAddress("MVDPoint",&ArrMvd1);
+
+  TClonesArray *ArrPndPidCand1 = new TClonesArray("PndPidCand");
+  recoChain.SetBranchAddress("PndPidCand",&ArrPndPidCand1);
+  for (Int_t i =0; i < simChain.GetEntries();i++)     
   {
-     tsim1->GetEntry(i);
-     treco1->GetEntry(i);
+     simChain.GetEntry(i);
+     recoChain.GetEntry(i);
  //    PndTofPoint *tof = (PndTofPoint *) ArrTof1->At(0);
      PndPidCand *track = (PndPidCand *) ArrPndPidCand1->At(0);
 //     CbmTrackParH *trackpar = (CbmTrackParH *) ArrTrackPar1->At(0);
@@ -159,8 +171,6 @@ Double_t mvd = de_mvd/dx_mvd*1000000;
 //cout<<p<<" "<<tpc<<"  "<<mvd<<" "<<s<<"  "<<m2<<endl;
 ntuple.Fill(p,tpc,mvd,s,m2);
 }
-delete fsim1;
-delete freco1;
 delete ArrMCTrack1;
 delete ArrTpc1;
 delete ArrMvd1;

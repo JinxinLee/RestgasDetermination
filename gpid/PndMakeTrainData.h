@@ -22,6 +22,7 @@
 #include "TFile.h"
 #include "PndPidCand.h"
 #include "TDirectory.h"
+#include "TChain.h"
 
 using namespace std;
 
@@ -31,7 +32,7 @@ class PndMakeTrainData  {
     string outFileName;         // file name of the tree file containing all the class signals
     map <string, vector<pair<string,string> > > fInFileNameArray; //  map from class name to the corresponding input files
     vector <string> fClassNameArray;  // array of class names
-    void FillNTuple(string const inf1,string const inf1, TNtuple &ntuple);  // function which fills the  class ntuples from corresponding files
+    void FillNTuple(TChain  &simChain,TChain  &recoChain, TNtuple &ntuple);  // function which fills the  class ntuples from corresponding files
   public:
     // constructor
     PndMakeTrainData();
