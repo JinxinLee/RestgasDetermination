@@ -29,7 +29,7 @@
 
   gSystem->ListLibraries();
 
-  Int_t nEvents = 5000;
+  Int_t nEvents = 300;
 
   CbmRunSim *fRun = new CbmRunSim();
   
