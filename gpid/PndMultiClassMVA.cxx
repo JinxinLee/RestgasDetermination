@@ -130,12 +130,12 @@ void PndMultiClassMVA::TrainTest()
  TFile *input(0);
   if (fNCLASS < 2 ) {
         std::cout<< " you need atleast two classes for the classification "<<endl;
-        exit(0);
+        return; //exit(0);
       }
 
   else if (fNVAR < 2 ) {
         std::cout<< " you need atleast two variables for the Multivariate Analysis "<<endl;
-        exit(0);
+        return; //exit(0);
       }
 
   else if (!gSystem->AccessPathName( fINFILENAME )) {
@@ -144,7 +144,7 @@ void PndMultiClassMVA::TrainTest()
       } 
   else if (!input) {
          std::cout << "ERROR: could not open data file" << std::endl;
-        exit(0);
+        return; //exit(0);
       }
    {
 
