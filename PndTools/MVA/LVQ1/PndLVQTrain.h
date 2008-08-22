@@ -48,7 +48,8 @@ class PndLVQTrain{
   float ComputeDist(std::vector<float> &EvtData, 
 		    std::vector<float> &Example);
   
-  void UpdateProto( std::vector<float> &EvtData, std::vector<float> &proto, int delta, double ethaT);
+  void UpdateProto( std::vector<float> &EvtData, std::vector<float> &proto, 
+		    int delta, double ethaT);
 
  // Private functions and variables
  private:

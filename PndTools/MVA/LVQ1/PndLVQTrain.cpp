@@ -116,6 +116,7 @@ void PndLVQTrain::CompClsCondMean(std::string clsName)
   // Add to the Class Conditional Means container
   m_ClassCondMeans.push_back(std::make_pair(clsName,vec));
 }
+
 void PndLVQTrain::Train(int numProto, const char* outPut)
 {
   // Initialize LVQ-prototypes according to the classconditional means
@@ -137,9 +138,10 @@ void PndLVQTrain::Train(int numProto, const char* outPut)
 	//std::cout << index << " \n";// DEBUG DEBUG DEBUG
       }
       if(index > maxIdx){
-	std::cout << "\n\n=========================================================\n"
-		  << "\t <ERROR> Index out of bound "<< index <<" and cls = "<< cl
-		  << "\n==========================================================\n"
+	std::cout << "\n\n======================================\n"
+		  << "\t<ERROR> Index out of bound "
+		  << index <<" and cls = "<< cl
+		  << "\n=========================================\n"
 		  << std::endl;
 	return;
       }
@@ -229,12 +231,41 @@ float PndLVQTrain::ComputeDist(std::vector<float> &EvtData,
 
 void PndLVQTrain::WriteToFile(const char* outPut)
 {
-  /* Open out put file to write the coordinates of prototypes */
+  /* Open out put file and write coordinates of the prototypes */
   TFile* out = new TFile(outPut,"RECREATE");
-  // Write the proto types
 
-  /* Write the file to the output */
-  
+  for(unsigned int cls = 0; cls < m_ClassNames.size(); cls++){
+    std::vector<float> vars(m_VarNames.size(),0.0);
+
+    std::string name = m_ClassNames[cls];
+    std::string desc = "Description Of " + name;
+    const char* treeName = name.c_str();
+    const char* treeDesc = desc.c_str();
+
+    //Create a tree
+    TTree sig (treeName, treeDesc);
+    
+    //Create branches and bind the variables
+    for(unsigned int j = 0; j < m_VarNames.size(); j++){
+      std::string vname = m_VarNames[j];
+      std::string leaf  = vname + "/F" ;
+      const char* bname = vname.c_str();
+      const char* lname = leaf.c_str();
+      //Bind the parameters to the tree elements.
+      sig.Branch(bname,&vars[j],lname);
+    }
+    //Fill The tree
+    for(unsigned int i = 0; i< m_LVQProtos.size(); i++){
+      if(m_LVQProtos[i].first == name){
+	for(unsigned int k = 0; k < vars.size(); k++){
+	  vars[k] = (m_LVQProtos[i].second)->at(k);
+	}
+	sig.Fill();
+      }
+    }
+    //Write the created tree
+    sig.Write();
+  }  
   // We are done. We can close the open file and delete the pointer
   out->Close();
   delete out;
@@ -258,8 +289,8 @@ int main(int argc, char** argv)
   nam.push_back("p");  nam.push_back("f"); nam.push_back("d");
   nam.push_back("a");  nam.push_back("b"); nam.push_back("c");
   
-  PndLVQTrain bla("TestInput100.root",clas,nam);
-  bla.Train(10,"OutTestPut.root");
+  PndLVQTrain bla("TestInput10000.root",clas,nam);
+  bla.Train(30,"OutTestPut.root");
   bla.PrintIndex();
   // =============================
   
