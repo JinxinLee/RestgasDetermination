@@ -21,6 +21,7 @@
 #include "TNtuple.h"
 #include "TFile.h"
 #include "PndPidCand.h"
+#include "PndLhePidTrack.h"
 #include "TDirectory.h"
 #include "TChain.h"
 

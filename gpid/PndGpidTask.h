@@ -20,6 +20,7 @@
 #define PNDGPIDTASK_HH 1 
 
 #include "CbmTask.h"
+#include "PndLhePidTrack.h"
 #include "TVector3.h"
 #include <algorithm>
 #include <vector>
@@ -28,6 +29,10 @@
 #include "TClonesArray.h"
 #include "CbmRootManager.h"
 #include "TMVA/Reader.h"
+#include "PndMvdMCPoint.h"
+#include "PndTpcPoint.h"
+#include "PndPidCand.h"
+
 using namespace std;
 
 class TObjectArray;
@@ -96,7 +101,10 @@ private:
   float varArray[100];
 //  std::vector <float> varArray;
 //  std::vector <float>::iterator FlIt;  
-  TClonesArray* fEvtArray;   
+ // TClonesArray* fPidTrackCand;  
+  TClonesArray* fArrTpc; 
+  TClonesArray* fArrMvd;
+  TClonesArray* fArrPid; 
 ClassDef(PndGpidTask,1);
 };
 

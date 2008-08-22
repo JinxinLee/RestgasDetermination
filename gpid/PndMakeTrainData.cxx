@@ -48,7 +48,7 @@ void PndMakeTrainData::GenerateTree()
  TFile *outfile = new TFile(outFileName.c_str(),"recreate");
  TDirectory *dir = outfile->mkdir("out");
   
- TNtuple *ntuple = new TNtuple("dummy","dummy","PMag:dEdxTPC:dEdxMVD:speed:msquare");
+ TNtuple *ntuple = new TNtuple("dummy","dummy","PMag:tpc:mvd:beta:msquare");
  cout<<outfile<<endl;
  system("sleep 2");
  for(int i=0; i <fNCLASS; i++)
@@ -124,6 +124,14 @@ cout<<tsim1->GetEntries()<<" no of Events from "<<inf1<<"  "<<inf2<<endl;
 
   TClonesArray *ArrPndPidCand1 = new TClonesArray("PndPidCand");
   recoChain.SetBranchAddress("PndPidCand",&ArrPndPidCand1);
+  
+  TClonesArray *ArrEmc = new TClonesArray("PndEmcCluster");
+  recoChain.SetBranchAddress("EmcCluster",&ArrEmc);
+
+  TClonesArray *ArrTof = new TClonesArray("PndTofHit");
+  recoChain.SetBranchAddress("PndTofHit",&ArrTof);
+
+
   for (Int_t i =0; i < simChain.GetEntries();i++)     
   {
      simChain.GetEntry(i);
@@ -161,13 +169,18 @@ if (track == NULL) continue;
 //if (tofHit == NULL) continue;
 //if (tof == NULL) continue;
 //if (trackpar == NULL) continue;
-
+Double_t tpc = 0;
+Double_t mvd = 0;
+Double_t gama2 = 0;
 Double_t s = track->Get("speed");
 Double_t p = track->Get("PMag");
-Double_t gama2 = 1.0/(1-s*s);
+if(gama2 !=1)
+ gama2 = 1.0/(1.0-s*s);
 Double_t m2 = p*p/(s*s*gama2);
-Double_t tpc = de_tpc/dx_tpc*1000000;
-Double_t mvd = de_mvd/dx_mvd*1000000;
+if(dx_tpc != 0) 
+  tpc = (de_tpc/dx_tpc)*1000/0.00173;    //Mev cm**2 /g
+if(dx_mvd != 0) 
+  mvd = (de_mvd/dx_mvd)*1000/2.33;
 //cout<<p<<" "<<tpc<<"  "<<mvd<<" "<<s<<"  "<<m2<<endl;
 ntuple.Fill(p,tpc,mvd,s,m2);
 }

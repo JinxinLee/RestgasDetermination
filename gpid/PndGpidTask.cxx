@@ -38,11 +38,30 @@ InitStatus PndGpidTask::Init()
          << "RootManager not instantised!" << std::endl;
     return kFATAL;
   }
-
-  fEvtArray = (TClonesArray*) ioman->GetObject("Event");
-  if ( ! fEvtArray ) {
+/*
+  fPidTrackCand = (TClonesArray*) ioman->GetObject("LhePidTrack");
+  if ( ! fPidTrackCand ) {
     cout << "-W- PndGpidTask::Init: "
          << "No SamEvt array!" << endl;
+    return kERROR;
+  }
+*/
+  fArrTpc = (TClonesArray*) ioman->GetObject("PndTpcPoint");
+  if (!fArrTpc){
+    cout << "-W- PndGpidTask::Init: "
+         << "No TpcPoint array!" << endl;
+    return kERROR;
+  }
+  fArrMvd = (TClonesArray*) ioman->GetObject("PndMvdMCPoint");
+  if (!fArrTpc){
+    cout << "-W- PndGpidTask::Init: "
+         << "No MvdPoint array!" << endl;
+    return kERROR;
+  }
+  fArrPid = (TClonesArray*) ioman->GetObject("PndPidCand");
+  if (!fArrPid){
+    cout << "-W- PndGpidTask::Init: "
+         << "No PidCand array!" << endl;
     return kERROR;
   }
 Config();
@@ -141,17 +160,52 @@ void PndGpidTask::BookingMVA()
 
 void PndGpidTask::Exec(Option_t* opt)
 {
-  for (Int_t i=0; i<fEvtArray->GetEntriesFast(); i++)
-  {
-  Event*  events = (Event *) fEvtArray->At(i);
-   
+  
+   float s,p,gamma2;
+   PndPidCand *pid = (PndPidCand *) fArrPid->At(0);
+  
  for (int i = 0 ; i< fNVAR; i++)
    {
    string varName;
+   float de_tpc=0;
+   float dx_tpc=0;
+   float de_mvd=0;
+   float dx_mvd=0;
+
    varName = fVarNameArray.at(i);
-   varArray[i]=events->Get(varName);
+   if (varName == "tpc"){
+     for (Int_t j = 0; j < fArrTpc->GetEntriesFast(); j++ )
+     {
+       PndTpcPoint *tpc = (PndTpcPoint *) fArrTpc->At(j);
+       if(tpc == 0)continue;
+       de_tpc += tpc->GetEnergyLoss();
+       dx_tpc += tpc->GetLength();
+     }
+     }
+   if (varName == "mvd"){
+     for (Int_t j = 0; j < fArrMvd->GetEntriesFast(); j++ )
+     {
+       PndMvdMCPoint *mvd = (PndMvdMCPoint *) fArrMvd->At(j);
+       if(mvd == 0)continue;
+       de_mvd += mvd->GetEnergyLoss();
+       dx_mvd += mvd->GetLength();
+     }
+     }
+
+   if (varName == "beta"){
+    varArray[i]=pid->Get("speed");
+   }
+     
+   if (varName == "PMag"){
+    varArray[i]=pid->Get("PMag");
+   }
+     
+   if (varName == "msquare")
+   varArray[i]=pid->Get("msquare");
   // cout<<varArray[i]<<" "<<varName<<endl;
    }
+
+
 
    for (int i = 0 ; i < fNCLASS; i++)
    {
@@ -168,9 +222,10 @@ void PndGpidTask::Exec(Option_t* opt)
       case MLP:
        mvaValue = (mvaValue - (-1.1))/2.2;
      }
+   pid->Set(className,mvaValue);
  //  cout<<mvaValue<<endl;
-   events->Set(className,mvaValue);
+  // events->Set(className,mvaValue);
    }
-  }
+  
 }
 ClassImp(PndGpidTask);

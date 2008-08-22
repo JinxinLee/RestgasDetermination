@@ -223,8 +223,14 @@ if (fPoint2 == 0 )continue;
  Double_t t2=fPoint2->GetTime();
 fTrack->Set("tof",t2-t1);
 fTrack->Set("PMag",StartMom.Mag());
-Double_t speed = gMC->TrackLength()/(30.0*(t2-t1));
-fTrack->Set("speed",speed);
+double p = StartMom.Mag();
+Double_t s = gMC->TrackLength()/(30.0*(t2-t1));
+double gamma2;
+gamma2 =  1.0/(1-s*s);
+Double_t m2 = p*p/(s*s*gamma2);
+fTrack->Set("speed",s);
+fTrack->Set("msquare",m2);
+
 //fTrack->SetLen(fPro->GetTrkLength());
 fTrack->Set("length",gMC->TrackLength());
 fTrack->Set("PDG",PDGCode);
