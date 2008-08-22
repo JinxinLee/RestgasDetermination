@@ -1,4 +1,4 @@
-void run_sim_tpcmvd(Int_t nEvents=10, Float_t pT=1.0, UInt_t seed=0){
+void run_sim_tpcmvd(Int_t nEvents=10,Int_t pdg=11,TString outFile ="sim_ele.root" ,  UInt_t seed=0){
 
   gRandom->SetSeed(seed);
   
@@ -38,7 +38,7 @@ void run_sim_tpcmvd(Int_t nEvents=10, Float_t pT=1.0, UInt_t seed=0){
   // Choose the Geant Navigation System
   // fRun->SetGeoModel("G3Native");
   
-  fRun->SetOutputFile("points_tpcmvdemc.root");
+  fRun->SetOutputFile(outFile);
 
   // Set Material file Name
   //-----------------------
@@ -80,9 +80,9 @@ void run_sim_tpcmvd(Int_t nEvents=10, Float_t pT=1.0, UInt_t seed=0){
   //  Muo->SetGeometryFileName("muon_newmag.geo"); 
   //  fRun->AddModule(Muo);
   
-  //  CbmDetector *Drc = new PndDrc("DIRC", kTRUE);
-  //  Drc->SetGeometryFileName("dirc.geo"); 
-  //  fRun->AddModule(Drc); 
+    CbmDetector *Drc = new PndDrc("DIRC", kTRUE);
+    Drc->SetGeometryFileName("dirc.geo"); 
+    fRun->AddModule(Drc); 
   
   //  CbmDetector *Dch = new PndDchDetector("DCH", kTRUE);
   //  Dch->SetGeometryFileName("dch.root"); 
@@ -95,7 +95,7 @@ void run_sim_tpcmvd(Int_t nEvents=10, Float_t pT=1.0, UInt_t seed=0){
   fRun->SetGenerator(primGen);
 
   // Box Generator
-  CbmBoxGenerator* boxGen = new CbmBoxGenerator(-13, 1); // 13 = muon; 1 = multipl.
+  CbmBoxGenerator* boxGen = new CbmBoxGenerator(pdg, 1); // 13 = muon; 1 = multipl.
   
 //  boxGen->SetPRange(1.,1.1); // GeV/c
   boxGen->SetPtRange(0.5,2.0); // GeV/c

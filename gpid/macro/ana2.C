@@ -149,7 +149,6 @@ double momentum(Double_t *v, Double_t *m)
 
 void ana2()
 {
-
  TH2F  *h1 = new TH2F("h1p","P vs Speed",11000,0,3,60,0,2);
  TH2F  *h2 = new TH2F("h2p","P vs lambda",11000,0,3,60,-1,1);
  TH2F  *h3 = new TH2F("h3p","P vs tpc DEdx",11000,0,3,60,0,10);
@@ -249,8 +248,6 @@ pvsmvdP4->SetMarkerColor(12);
  histFill(simFile,recoFile,*pvss,*pvslam,*pvstpcDEdx,*pvsmvdDEdx,*pvsMass,211);
  cout<<" piplus "<<endl;
 
-
-
  simFile="points_tpcmvdemc_muminus.root";
  recoFile="tracks_tpcmvdemc_muminus.root";
  histFill(simFile,recoFile,*pvss1,*pvslam1,*pvstpcDEdx1,*pvsmvdDEdx1,*pvsMass1,13);
@@ -258,20 +255,20 @@ pvsmvdP4->SetMarkerColor(12);
 
 */
 
- simFile="points_tpcmvdemc_eminus.root";
- recoFile="tracks_tpcmvdemc_eminus.root";
+ simFile="/daq/dtbina/vanni/pid/points_tpcmvdemc_eminus.root";
+ recoFile="/daq/dtbina/vanni/pid/tracks_tpcmvdemc_eminus.root";
  histFill(simFile,recoFile,*pvss2,*pvslam2,*pvstpcDEdx2,*pvsmvdDEdx2,*pvsMass2,*pvsSinv2,*pvsmvdP2,11);
  cout<<" eminus "<<endl;
 
 
- simFile="points_tpcmvdemc_kplus.root";
- recoFile="tracks_tpcmvdemc_kplus.root";
+ simFile="/daq/dtbina/vanni/pid/points_tpcmvdemc_kplus.root";
+ recoFile="/daq/dtbina/vanni/pid/tracks_tpcmvdemc_kplus.root";
  histFill(simFile,recoFile,*pvss3,*pvslam3,*pvstpcDEdx3,*pvsmvdDEdx3,*pvsMass3,*pvsSinv3,*pvsmvdP3,321);
  cout<<" kplus "<<endl;
 
 
- simFile="points_tpcmvdemc_proton.root";
- recoFile="tracks_tpcmvdemc_proton.root";
+ simFile="/daq/dtbina/vanni/pid/points_tpcmvdemc_proton.root";
+ recoFile="/daq/dtbina/vanni/pid/tracks_tpcmvdemc_proton.root";
  histFill(simFile,recoFile,*pvss4,*pvslam4,*pvstpcDEdx4,*pvsmvdDEdx4,*pvsMass4,*pvsSinv4,*pvsmvdP4,2212);
  cout<<" proton "<<endl;
 

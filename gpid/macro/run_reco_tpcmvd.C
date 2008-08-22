@@ -1,4 +1,4 @@
-pid_reco1(TString inFile = "inFile.root", TString outFile = "outFile.root")
+run_reco_tpcmvd(TString inFile = "inFile.root", TString outFile = "outFile.root")
 {
 // ========================================================================
 // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
@@ -127,9 +127,6 @@ fRun->AddTask(trackFitter);
 
   PndGeaneTrTpcTof *tr= new PndGeaneTrTpcTof();
   fRun->AddTask(tr);
-
-PndGpidTask *pid = new PndGpidTask()
-fRun->AddTask(pid);
  
 //  PndLheEmcCatcher *ca = new PndLheEmcCatcher();
 //  fRun->AddTask(ca);
