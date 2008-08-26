@@ -526,7 +526,7 @@ void PndDrc::ConstructGeometry()
   TGeoPgon* basePol = new TGeoPgon("basePol",11.25, 360., 16, 2);
   basePol->DefineSection(0, -130., 45., 53.8);
   basePol->DefineSection(1, 130., 45., 53.8);
-  TGeoVolume *baseVol = new TGeoVolume("baseVol",basePol,gGeoManager->GetMedium("DIRCairNoSens"));
+  TGeoVolume *baseVol = new TGeoVolume("DrcBase",basePol,gGeoManager->GetMedium("DIRCairNoSens"));
   cave->AddNode(baseVol, 1, new TGeoCombiTrans(0, 0, -20., new TGeoRotation(0)));
 
 
@@ -600,7 +600,7 @@ void PndDrc::ConstructGeometry()
   baseSOB->DefineSection(0, 0., 48., 88.);
   baseSOB->DefineSection(1, 10., 48., 88.);
   baseSOB->DefineSection(2, 30., 48., 49.7);
-  TGeoVolume *sob = new TGeoVolume("sob",baseSOB, gGeoManager->GetMedium("DIRCairNoSens"));
+  TGeoVolume *sob = new TGeoVolume("DrcSob",baseSOB, gGeoManager->GetMedium("DIRCairNoSens"));
   cave->AddNode(sob, 1,new TGeoCombiTrans(0., 0., -180., new TGeoRotation (0)));
 
   // Photodetector
