@@ -101,8 +101,8 @@ InitStatus PndEmcMakeBump::Init() {
 	fBumpArray = new TClonesArray("PndEmcBump");
 	ioman->Register("EmcBump","Emc",fBumpArray,kTRUE);
 	
-	fSharedDigiArray = new TClonesArray("PndEmcSharedDigi");
-	ioman->Register("EmcSharedDigi","Emc",fSharedDigiArray,kTRUE);
+///	fSharedDigiArray = new TClonesArray("PndEmcSharedDigi");
+///	ioman->Register("EmcSharedDigi","Emc",fSharedDigiArray,kTRUE);
 
 	// Fill structure with parameters from RunTime DB for local maximum finder
 	PndEmc2DLocMaxFinderData locMaxData;
@@ -137,8 +137,8 @@ void PndEmcMakeBump::Exec(Option_t* opt)
 	// Reset output array
 	if ( ! fBumpArray ) Fatal("Exec", "No Bump Array");
 	fBumpArray->Delete();
-	if ( ! fSharedDigiArray ) Fatal("Exec", "No SharedDigi Array");
-	fSharedDigiArray->Delete();
+/// 	if ( ! fSharedDigiArray ) Fatal("Exec", "No SharedDigi Array");
+/// 	fSharedDigiArray->Delete();
 
 	std::cout<<"***************** PndEmcMakeBump, event: "<<fEventCounter<<" **************"<<endl;
 
@@ -179,12 +179,12 @@ void PndEmcMakeBump::Exec(Option_t* opt)
 			std::vector<PndEmcDigi*> bumpDigis = theNextBump->DigiList();
 			
 			// The following should produce array of shared digis
-			Int_t j=0;
-			std::vector<PndEmcDigi*>::iterator digiIter;
-			for (digiIter=bumpDigis.begin();digiIter!=bumpDigis.end();++digiIter){
-				Int_t size_sda = fSharedDigiArray->GetEntriesFast();
-				PndEmcSharedDigi* theDigi = new((*fSharedDigiArray)[size_sda]) PndEmcSharedDigi(*(*digiIter)->dynamic_cast_PndEmcSharedDigi());
-			}
+///			Int_t j=0;
+///			std::vector<PndEmcDigi*>::iterator digiIter;
+///			for (digiIter=bumpDigis.begin();digiIter!=bumpDigis.end();++digiIter){
+///				Int_t size_sda = fSharedDigiArray->GetEntriesFast();
+///				PndEmcSharedDigi* theDigi = new((*fSharedDigiArray)[size_sda]) PndEmcSharedDigi(*(*digiIter)->dynamic_cast_PndEmcSharedDigi());
+///			}
 		}
 	}
 	
