@@ -229,11 +229,10 @@ InitStatus PndLhePidMaker::Init() {
 
   if (fGeanePro)
     {
-      fGeane = new CbmGeane();
       fPro = new CbmGeanePro();
-      fPro->PropagateToVolume("tofB01",0,1);
       cout << "-I- PndLhePidMaker::Init: Using Geane for Track propagation" << endl;
     }
+  
   if (fDebugMode)
     {
       r = TFile::Open(sDir+sFile,"RECREATE");
@@ -391,7 +390,8 @@ void PndLhePidMaker::GetTofInfo(PndLhePidTrack* track) {
 
   if ((track->GetMomentum().Theta()*TMath::RadToDeg())<20.) return; 
   if ((track->GetMomentum().Theta()*TMath::RadToDeg())>150.) return;
-
+  if (fGeanePro) fPro->PropagateToVolume("tofB01",0,1);
+  
   //---
   PndTofHit *tofHit = NULL;
   Int_t tofEntries = fTofHit->GetEntriesFast();
@@ -412,11 +412,17 @@ void PndLhePidMaker::GetTofInfo(PndLhePidTrack* track) {
       
       if (fGeanePro) // Overwrites vertex if Geane is used
 	{
-	  
-	  CbmTrackParH *fStart= new CbmTrackParH(track->GetLastHit().GetCoord(), track->GetMomentum(), track->GetLastHit().GetError(), (TVector3)(track->GetMomentum()*0.1), track->GetCharge());
+	  CbmTrackParH *fStart= new CbmTrackParH(track->GetLastHit().GetCoord(), track->GetMomentum(), track->GetLastHit().GetError(), (TVector3)(track->GetMomentum()*0.), track->GetCharge());
 	  CbmTrackParH *fRes= new CbmTrackParH();
-	  Bool_t rc =  fPro->Propagate(fStart, fRes,211);
-	  vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
+	  Bool_t rc =  fPro->Propagate(fStart, fRes, 13);	
+	  if (rc)
+	    {
+	      vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
+	    }
+	  else
+	    {
+	      vertex.SetXYZ(-10000., -10000., -10000.);
+	    }
 	}
       
       Float_t dzs = (vertex.Z()-tofHit->GetZ()-fCorrPar->GetTofZ0()) / fCorrPar->GetTofSigmaZ();
@@ -460,6 +466,8 @@ void PndLhePidMaker::GetTofInfo(PndLhePidTrack* track) {
 void PndLhePidMaker::GetEmcInfo(PndLhePidTrack* track) {  
   if ((track->GetMomentum().Theta()*TMath::RadToDeg())<20.) return;
   if ((track->GetMomentum().Theta()*TMath::RadToDeg())>145.) return;
+  if (fGeanePro) fPro->PropagateToVolume("Emc12",0,1);
+  
   //---
   PndEmcCluster *emcHit = NULL;
   Int_t emcEntries = fEmcCluster->GetEntriesFast();
@@ -480,6 +488,22 @@ void PndLhePidMaker::GetEmcInfo(PndLhePidTrack* track) {
       
       emcPos = emcHit->where();
       Float_t phi = track->ExtrapolateToR(&momentum, &vertex, fCorrPar->GetEmc12Radius());
+      
+      if (fGeanePro) // Overwrites vertex if Geane is used
+	{
+	  CbmTrackParH *fStart= new CbmTrackParH(track->GetLastHit().GetCoord(), track->GetMomentum(), track->GetLastHit().GetError(), (TVector3)(track->GetMomentum()*0.), track->GetCharge());
+	  CbmTrackParH *fRes= new CbmTrackParH();
+	  Bool_t rc =  fPro->Propagate(fStart, fRes, 13);
+	  if (rc)
+	    {
+	      vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
+	    }
+	  else
+	    {
+	      vertex.SetXYZ(-10000, -10000, -10000);
+	    }
+	}
+      
       Float_t dzs = (vertex.Z()-emcHit->z()-fCorrPar->GetEmc12Z0()) / fCorrPar->GetEmc12SigmaZ();
       Float_t dphi = (vertex.DeltaPhi(emcPos)-fCorrPar->GetEmc12Phi0()) / fCorrPar->GetEmc12SigmaPhi();
       Float_t chi2 = dphi * dphi + dzs * dzs;
@@ -499,6 +523,10 @@ void PndLhePidMaker::GetEmcInfo(PndLhePidTrack* track) {
 			      track->GetMomentum().Mag(), track->GetCharge(), track->GetMomentum().Theta(), track->GetZ0(),
 			      emcHit->x(), emcHit->y(), emcHit->z(), emcHit->phi(),
 			      chi2, vertex.DeltaPhi(emcPos), emcHit->energy()};
+	  cout << vertex.X() << "\t" <<  vertex.Y() << "\t" <<  vertex.Z() << "\t" <<  vertex.Phi() << "\t" << 
+			      track->GetMomentum().Mag() << "\t" <<  track->GetCharge() << "\t" <<  track->GetMomentum().Theta() << "\t" <<  track->GetZ0() << "\t" << 
+			      emcHit->x() << "\t" <<  emcHit->y() << "\t" <<  emcHit->z() << "\t" <<  emcHit->phi() << "\t" << 
+	    chi2 << "\t" <<  vertex.DeltaPhi(emcPos) << "\t" <<  emcHit->energy() << endl;
 	  emcCorr->Fill(ntuple);
 	}
     }
@@ -515,6 +543,8 @@ void PndLhePidMaker::GetEmcInfo(PndLhePidTrack* track) {
 //_________________________________________________________________
 void PndLhePidMaker::GetMdtInfo(PndLhePidTrack* track) {
   //---
+  if (fGeanePro) fPro->PropagateToVolume("MdtBarrel",0,1);
+  
   PndMdtHit *mdtHit = NULL;
   Int_t mdtEntries = fMdtHit->GetEntriesFast();
   Int_t mdtIndex = -1, mdtMod = 0;
@@ -534,6 +564,22 @@ void PndLhePidMaker::GetMdtInfo(PndLhePidTrack* track) {
       
       mdtHit->Position(mdtPos);
       Float_t phi = track->ExtrapolateToR(&momentum, &vertex, fCorrPar->GetMdtRadius());
+
+      if (fGeanePro) // Overwrites vertex if Geane is used
+	{
+	  CbmTrackParH *fStart= new CbmTrackParH(track->GetLastHit().GetCoord(), track->GetMomentum(), track->GetLastHit().GetError(), (TVector3)(track->GetMomentum()*0.), track->GetCharge());
+	  CbmTrackParH *fRes= new CbmTrackParH();
+	  Bool_t rc =  fPro->Propagate(fStart, fRes, 13); 
+	  if (rc)
+	    {
+	      vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
+	    }
+	  else
+	    {
+	      vertex.SetXYZ(-10000., -10000.,-10000.);
+	    }
+	}
+      
       Float_t dzs = (vertex.Z()-mdtHit->GetZ()-fCorrPar->GetMdtZ0()) / fCorrPar->GetMdtSigmaZ();
       Float_t dphi = (vertex.DeltaPhi(mdtPos)-fCorrPar->GetMdtPhi0()) / fCorrPar->GetMdtSigmaPhi();
  
@@ -572,8 +618,8 @@ void PndLhePidMaker::GetMdtInfo(PndLhePidTrack* track) {
 
 //_________________________________________________________________
 void PndLhePidMaker::GetDrcInfo(PndLhePidTrack* track) {
-if ((track->GetMomentum().Theta()*TMath::RadToDeg())<20.) return;
-
+  if ((track->GetMomentum().Theta()*TMath::RadToDeg())<20.) return;
+  if (fGeanePro) fPro->PropagateToVolume("DrcBase",0,1);
   //---
   PndDrcHit *drcHit = NULL;
   Int_t drcEntries = fDrcHit->GetEntriesFast();
@@ -590,8 +636,23 @@ if ((track->GetMomentum().Theta()*TMath::RadToDeg())<20.) return;
            
       drcHit->Position(drcPos);
       Float_t phi = track->ExtrapolateToR(&momentum, &vertex, fCorrPar->GetDrcRadius());
+
+      if (fGeanePro) // Overwrites vertex if Geane is used
+	{
+	  CbmTrackParH *fStart= new CbmTrackParH(track->GetLastHit().GetCoord(), track->GetMomentum(), track->GetLastHit().GetError(), (TVector3)(track->GetMomentum()*0.), track->GetCharge());
+	  CbmTrackParH *fRes= new CbmTrackParH();
+	  Bool_t rc =  fPro->Propagate(fStart, fRes, 13); 	
+	  if (rc)
+	    {
+	      vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
+	    }
+	  else
+	    {
+	      vertex.SetXYZ(-10000., -10000., -10000.);
+	    }
+	}
+      
       Float_t dphi = (vertex.DeltaPhi(drcPos)-fCorrPar->GetDrcPhi0()) / fCorrPar->GetDrcSigmaPhi();
- 
       Float_t chi2 = dphi * dphi;
       
       if ( drcQuality > chi2)

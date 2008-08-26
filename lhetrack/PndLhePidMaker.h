@@ -63,10 +63,8 @@ protected:
   Bool_t fSimulation;       // Switch simulation diagnostic
   Bool_t fGeanePro;         // Use GEANE propagation
 
-  TGeant3 *gMC3;          
-  CbmGeane *fGeane;
-  CbmGeanePro *fPro;
-
+  CbmGeanePro *fPro;     // Geane Propagator
+  
   PndMvdGeoHandling* geoH;           // Object to retrieve MVD geometry
 
   TFile *r;                          // File for debug ntuples

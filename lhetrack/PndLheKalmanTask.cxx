@@ -152,7 +152,8 @@ void PndLheKalmanTask::Exec(Option_t* opt)
   // Reset output Array
   //if(fTrackArray==0) Fatal("Kalman::Exec)","No TrackArray");
   
-  fFitTrackArray->Delete();
+  //fFitTrackArray->Delete();
+  fFitTrackArray->Clear();
   
   Int_t ntracks=fTrackArray->GetEntriesFast();
 
