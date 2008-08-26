@@ -299,7 +299,7 @@ Bool_t PndDrc::ProcessHits(CbmVolume* vol) {
   gMC->TrackPosition(fPos);
   TString nam = gMC->CurrentVolName();
   
-  if (nam.BeginsWith("bar") && gMC->IsTrackEntering()==1 &&  fPdgCode != 50000050 && fCharge !=0.) 
+  if (nam.BeginsWith("DrcBar") && gMC->IsTrackEntering()==1 &&  fPdgCode != 50000050 && fCharge !=0.) 
   {
     Int_t  fTrackID = gMC->GetStack()->GetCurrentTrackNumber();
     Double_t fTime    = gMC->TrackTime() * 1.0e09;
@@ -310,7 +310,7 @@ Bool_t PndDrc::ProcessHits(CbmVolume* vol) {
     TString path = gMC->CurrentVolPath();     
     if (fVerboseLevel >0) cout<< "Volume: " << gMC->CurrentVolPath() << endl;
     
-    sscanf(path, "/cave_1/baseVol_1/side_%d/box_1/barContainer_%d/bar_1", &s, &b);
+    sscanf(path, "/cave_1/DrcBaseVol_1/DrcSide_%d/DrcBox_1/DrcBarContainer_%d/DrcBar_1", &s, &b);
     
     Int_t fNBar = s*10 +b;
     gMC->TrackMomentum(fMom); // GeV/c
@@ -359,7 +359,7 @@ Bool_t PndDrc::ProcessHits(CbmVolume* vol) {
     
   }
   
-  if (nam.BeginsWith("bar") && gMC->IsTrackExiting()==1 &&  fPdgCode == 50000050 && fPos.Z() > -148.0 ) 
+  if (nam.BeginsWith("DrcBar") && gMC->IsTrackExiting()==1 &&  fPdgCode == 50000050 && fPos.Z() > -148.0 ) 
     
     {
       gMC->StopTrack();
@@ -368,7 +368,7 @@ Bool_t PndDrc::ProcessHits(CbmVolume* vol) {
     }
   
   
-  if (nam.BeginsWith("pd") && gMC->IsTrackEntering()==1 && fPdgCode == 50000050) 
+  if (nam.BeginsWith("DrcPd") && gMC->IsTrackEntering()==1 && fPdgCode == 50000050) 
     {
       Int_t  fCopyNo = vol->getCopyNo();
       Int_t  fTrackID = gMC->GetStack()->GetCurrentTrackNumber(); //track ID     
