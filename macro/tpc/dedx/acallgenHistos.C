@@ -1,5 +1,7 @@
 //it needs the directory where the raw or reco file lies and the JobSumName of this file
 //FileExtension is ".raw.root" or ".reco.root"
+//e.g:  Dir=/nfs/data/panda-mc/nMCnDX/nMCnDX/nMCnDX/
+// JobSumName=nMCnDX,  FileExtension=".reco.root"
 bool acallgenHistos(string Dir, string JobSumName, string FileExtension, int i)
 {
 	gROOT->ProcessLine(".L macro/tpc/dedx/DEDXHistoProcessing.C");
