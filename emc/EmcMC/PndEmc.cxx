@@ -412,7 +412,7 @@ void PndEmc::ConstructRootGeometry() {
   }
 
   
-  TGeoVolume *FwEmc=(TGeoVolume *)f->Get("top");
+  TGeoVolume *FwEmc=(TGeoVolume *)f->Get("Emc3");
   TGeoVolume *Cave = gGeoManager->GetTopVolume();
   TGeoNode *n=FwEmc->GetNode(0); 
   
