@@ -144,7 +144,7 @@ bool PndEmcStructure::crystal_name_analysis(TString node_path,int &module,int &c
         // The following code extract information about module, copy, row and crystal number from the path name of the TGeoNode which corresponds to emc crystal
 	// Name convention is according to PndEmc.cxx
 	if (!(node_path.Contains("emc") || node_path.Contains("Crystal"))) return false;
-
+	
 	// Case of Fsc
 	if (node_path.Contains("Fsc")){
 		//at the moment all the layers of module in Fsc are not taken into account, only the whole block is selected
@@ -186,7 +186,7 @@ bool PndEmcStructure::crystal_name_analysis(TString node_path,int &module,int &c
 
    	//case new version of forward end-cap (from "emc_module3new.root" file)
    else if (node_path.Contains("QuarterVol")) { 
-      TObjArray *subStrL = TPRegexp("^cave/top_0/QuarterVol_(\\d+)/SubunitVol_(\\d+)/BoxVol_(\\d+)/CrystalVol_(\\d+)$").MatchS(node_path);
+      TObjArray *subStrL = TPRegexp("^cave/Emc3_0/QuarterVol_(\\d+)/SubunitVol_(\\d+)/BoxVol_(\\d+)/CrystalVol_(\\d+)$").MatchS(node_path);
       if(subStrL->GetLast()<4){
 	 cout<<"crystal name in NEW FwEndCap Emc: "<<node_path<<" missmatch pattern"<<endl;
 	 return false;
