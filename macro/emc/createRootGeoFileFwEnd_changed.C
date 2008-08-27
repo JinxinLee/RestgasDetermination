@@ -111,8 +111,7 @@
   }
 
   //--------------------------------------------------------------------
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-  basiclibs();
+  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   
   // Load this example libraries
   gSystem->Load("libGeoBase");
@@ -126,7 +125,7 @@
   
   CbmGeoLoader* geoLoad = new CbmGeoLoader("TGeo","CbmGeoLoader");
   CbmGeoInterface *geoFace = geoLoad->getGeoInterface();
-  geoFace->setMediaFile("../../../pandaroot/geometry/media_pnd.geo");
+  geoFace->setMediaFile("../../geometry/media_pnd.geo");
   geoFace->readMedia();
   geoFace->print();
 
@@ -150,7 +149,7 @@
                                  // size of one Subunit (back side): 10.688*9 = 96.192 (cm)
 //  TGeoVolume *top = gGeoMan->MakeTube("top",gGeoMan->GetMedium("air"),0,98,22.5);//cm
 
-  TGeoVolume *top = new TGeoVolumeAssembly("top");
+  TGeoVolume *top = new TGeoVolumeAssembly("Emc3");
                     
   gGeoMan->SetTopVolume(top);
   
