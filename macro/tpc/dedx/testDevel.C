@@ -37,10 +37,10 @@ void testGausFitCenterInitiation()
 
 void testResolutionGraph()
 {
-	gROOT->ProcessLine(".L macro/tpc/dedx/PDGMap.C+");
-	gROOT->ProcessLine(".L macro/tpc/dedx/GausFit.C+");
-	gROOT->ProcessLine(".L macro/tpc/dedx/GausFitCenter.C+");
-	gROOT->ProcessLine(".L macro/tpc/dedx/GausFitCenterInitiator.C+");	
+	gROOT->ProcessLine(".L macro/tpc/dedx/PDGMap.C++");
+	gROOT->ProcessLine(".L macro/tpc/dedx/GausFit.C++");
+	gROOT->ProcessLine(".L macro/tpc/dedx/GausFitCenter.C++");
+	gROOT->ProcessLine(".L macro/tpc/dedx/GausFitCenterInitiator.C++");	
 
 	GausFitCenterInitiator *test=new GausFitCenterInitiator;
 	TH2F *histo=(TH2F*)gDirectory->Get("P211");

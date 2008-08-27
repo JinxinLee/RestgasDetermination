@@ -2,18 +2,20 @@
 //FileExtension is ".raw.root" or ".reco.root"
 bool acallgenHistos(string Dir, string JobSumName, string FileExtension, int i)
 {
-	gROOT->ProcessLine(".L macro/tpc/dedx/CChainGetter.C++");
-	gROOT->ProcessLine(".L macro/tpc/dedx/PDGMap.C++");	
-	gROOT->ProcessLine(".L macro/tpc/dedx/HistogramSet.C++");		
-	gROOT->ProcessLine(".L macro/tpc/dedx/DEDXFitCreator.C++");
-	gROOT->ProcessLine(".L macro/tpc/dedx/GausFit.C++");
-	gROOT->ProcessLine(".L macro/tpc/dedx/GausFitCenter.C++");
-	gROOT->ProcessLine(".L macro/tpc/dedx/FitServices.C++");
-	gROOT->ProcessLine(".L macro/tpc/dedx/PDGHistos.C++");
-	gROOT->ProcessLine(".L macro/tpc/dedx/genHistos.C++");
+	gROOT->ProcessLine(".L macro/tpc/dedx/DEDXHistoProcessing.C");
+	LoadClasses();
 
 	cout << "calling Histo gen..." << endl;
 
+	//bool ret=callgenHistos(Dir, JobSumName,"DEDX", 0.3, 0.7, FileExtension);
+	//bool ret=callgenHistos(Dir, JobSumName,"DEDX", 0.3, 0.6, FileExtension);
+	//bool ret=callgenHistos(Dir, JobSumName,"DEDX", 0.3, 0.8, FileExtension);
+	//bool ret=callgenHistos(Dir, JobSumName,"DEDX", 0.2, 0.8, FileExtension);	
 	bool ret=callgenHistos(Dir, JobSumName,"DEDX", 0., 0.6, FileExtension);
+	//bool ret=callgenHistos(Dir, JobSumName,"DEDX", 0.1, 0.6, FileExtension);
+	//bool ret=callgenHistos(Dir, JobSumName,"DEDX", 0.1, 0.7, FileExtension);
+	//bool ret=callgenHistos(Dir, JobSumName,"DEDX", 0.1, 0.8, FileExtension);	
+	//bool ret=callgenHistos(Dir, JobSumName,"DEDX", 0.1, 0.9, FileExtension);	
+
 	return ret;
 }

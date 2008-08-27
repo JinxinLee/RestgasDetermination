@@ -17,12 +17,13 @@
 using namespace std;
 
 void GetChainFiles(string Dir, string JobSumName, map<string, int> &vChainFiles);
-void GetTreesFile(string Dir, string JobSumName, string &FileListFile);
+//void GetTreesFile(string Dir, string JobSumName, string &FileListFile);
 
 //this is a compiled script
 //will be called by acallgenHistos, that loads the necessary librarys
 ///generates a vector where files are stored that belong to a Particle
 ///assembles the draw command
+//it should be in a macro
 bool callgenHistos(string Dir, string JobSumName, string Prefix, double from, double to, string FileExtension=".reco.root")
 {
 	std::cout << "...callgenHistos!" << std::endl; 
@@ -76,7 +77,7 @@ bool callgenHistos(string Dir, string JobSumName, string Prefix, double from, do
 	AssembleInfoString << from << "-" << to;
 	string InfoString=Prefix+AssembleInfoString.str();
 	
-	string SaveTo=Dir + InfoString + myObject + "_" + JobSumName + "_" + "scaledHistos.root"; //TODO
+	string SaveTo=Dir + InfoString + myObject + "_" + JobSumName + "_" + "scaledHistos.root"; //TODO - tollerer Namen
 	cout << "Saving Histos to " << SaveTo.c_str() << endl;
 	
 	ostringstream DrawC;
@@ -135,6 +136,7 @@ void GetChainFiles(string Dir, string JobSumName, map<string, int> &vChainFiles)
 {
 	string AddOn="Gesamt";
 	//.gen files have to be generated first by the AtJobEnd Script  
+	//these files contain all the jobs that belong to a particle 
 	string file1=Dir+JobSumName+AddOn+"P321.gen";
 	cout << file1.c_str() << endl;
 	vChainFiles[file1.c_str()]=321;
@@ -153,7 +155,9 @@ void GetChainFiles(string Dir, string JobSumName, map<string, int> &vChainFiles)
 	
 }
 
+/*
 void GetTreesFile(string Dir, string JobSumName, string &FileListFile)
 {
 	FileListFile=Dir+JobSumName+"ALL"+".gen";
 }
+*/

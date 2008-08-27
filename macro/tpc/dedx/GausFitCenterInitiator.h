@@ -18,6 +18,8 @@ public:
 	GausFitCenter *GetGausFitCenter() const { return ParticleFitCreator;	}
 	void SetMomenta();
 	void SetMomentaV2();
+	void ClearMomenta();
+	void AddMomentum(double P);	//interpreter does not like vector
 	void SetPDGMap(PDGMap *pPDGMap);
 private:
 	std::vector<TH2F *> fParticleHistos;

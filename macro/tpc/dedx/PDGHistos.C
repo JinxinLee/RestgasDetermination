@@ -47,8 +47,6 @@ bool PDGHistos::Add(TH2F *pHisto,const string &HistogramName)
 	}
 	//cout << "Setting Name of " << pHisto->GetName() << " to " << HistogramName << endl;
 	pHisto->SetNameTitle(HistogramName.c_str(), HistogramName.c_str());
-	//m_vpHistos.push_back(pHisto);
-	//m_HistoMap[HistogramName]=pHisto;
 	return true;
 }
 
@@ -60,7 +58,6 @@ std::string PDGHistos::GetParticleName(Int_t PDGCode)
 void PDGHistos::Save(const string &strPathFilename)
 {
 	TObjArray Histos(0);
-	//map<string, TH2F*>::const_iterator cit;
 	std::vector<HistogramSet*>::const_iterator cit;
 	for(cit=fHistoSets.begin(); cit!=fHistoSets.end(); ++cit)
 	{
@@ -95,6 +92,29 @@ void PDGHistos::Scale()
 	double ScalingFactor=1.;
 	if( CurrentHistograms->Has(GetParticleName(211)) )	{
 		FitServices *PionFit = new FitServices;	
+		PionFit->ClearMomenta();
+		PionFit->AddMomentum(0.3);
+		PionFit->AddMomentum(0.35);
+		PionFit->AddMomentum(0.4);
+		PionFit->AddMomentum(0.45);
+		PionFit->AddMomentum(0.5);
+		PionFit->AddMomentum(0.6);
+		PionFit->AddMomentum(0.7);
+		PionFit->AddMomentum(0.8);
+		PionFit->AddMomentum(0.9);
+		PionFit->AddMomentum(1.);
+		PionFit->AddMomentum(1.0);
+		PionFit->AddMomentum(1.2);
+		PionFit->AddMomentum(1.4);
+		PionFit->AddMomentum(1.6);
+		PionFit->AddMomentum(1.8);
+		PionFit->AddMomentum(2.0);
+		PionFit->AddMomentum(2.2);
+		PionFit->AddMomentum(2.4);
+		PionFit->AddMomentum(2.6);
+		PionFit->AddMomentum(2.8);
+		PionFit->AddMomentum(2.9);
+
 		PionFit->SetParticleHistogram( CurrentHistograms->Get(GetParticleName(211)) );
 		ScalingFactor=PionFit->GetBBMinimum();
 		cout << "Got " << ScalingFactor << " from PionFit" << endl;

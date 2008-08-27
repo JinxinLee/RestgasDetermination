@@ -94,6 +94,6 @@ double GausFit::GetSeparationPower(const GausFit &gausFit) const
 	double otherMean=gausFit.GetMean();
 	double otherSigma=gausFit.GetSigma();
 	
-	double seppo=abs(fMean-otherMean)/(fSigma+otherSigma);
+	double seppo=fabs(fMean-otherMean)/(fSigma+otherSigma);
 	return seppo;
 }

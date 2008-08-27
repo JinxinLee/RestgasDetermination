@@ -91,6 +91,17 @@ bool GausFitCenterInitiator::IsInVector(Double_t momentum, const vector<Double_t
 	return false;
 } 
 
+
+void GausFitCenterInitiator::ClearMomenta()
+{
+	vP_set.clear();
+}
+
+void GausFitCenterInitiator::AddMomentum(double P)
+{
+	vP_set.push_back(P);
+}
+
 void GausFitCenterInitiator::SetMomenta()
 {
 	vP_set.clear();

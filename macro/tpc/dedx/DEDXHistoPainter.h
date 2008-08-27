@@ -12,6 +12,9 @@ public:
 	~DEDXHistoPainter();
 	void SetPDGMap(PDGMap *pPDGMap);
 	void SetMomentaV2();
+	void ClearMomenta();
+	void AddMomentum(double P);
+
 	void LoadHistograms();
 	void DrawSeparationPower();
 	void DrawResolution();
