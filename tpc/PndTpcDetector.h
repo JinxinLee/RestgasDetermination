@@ -46,10 +46,12 @@ public:
 		WARNING:	
    	    1. geant3 has to be used!
    	    2. LOSS = 5 has to be set!
-	    3. For Digitaization: PndTpcClusterizerTask
+	    3. DCUTE und DCUTM should be set to 10 keV.	
+	    4. For Digitaization: PndTpcClusterizerTask
 	    		tpcClusterizer->SetMereChargeConversion() has to be set!
-	    4. if you do not use this option make sure 2., 3. are not set!
-		:-(
+	    5. if you do not use this option make sure 2., 4. are not set!
+		:-(	
+	    6. SetMaxNStep should be set to a high value
    */ 
   void SetAliMC(Bool_t opt=kTRUE) {fAliMC=opt;}
   

@@ -49,6 +49,8 @@ PndTpcClustershapeCorrelator.cxx
 PndTpcRiemannTrackingTask.cxx
 PndTpcIdealTrackingTask.cxx
 PndTpcRiemannMCTask.cxx
+PndTpcRiemannMCResidual.cxx
+##############################
 PndTpcRecoDEdxTask.cxx
 PndTpcDEDXDiagnosticPoint.cxx
 PndTpcDEDXDiagnostics.cxx
@@ -57,7 +59,7 @@ PndTpcAdvancedDxEvalPoint.cxx
 PndTpcSimpleDxEvalPoint.cxx
 PndTpcDXCalculator.cxx
 PndTpcClusterTrack.cxx
-PndTpcRiemannMCResidual.cxx
+PndTpcTFSInfo.cxx
 )
 
 if(RULE_CHECKER_FOUND)

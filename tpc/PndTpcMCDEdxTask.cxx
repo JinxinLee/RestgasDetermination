@@ -37,13 +37,14 @@
 #include "TH2F.h"
 #include "TClonesArray.h"
 
+
 using namespace std;
 
 
 // Class Member definitions -----------
 
 PndTpcMCDEdxTask::PndTpcMCDEdxTask()
-  : CbmTask("dEdx"), _persistence(kFALSE), _combineHitsLength(false),_combineHitsNumber(false), _catchRemaining(kFALSE),_combineLength(0.5),_combineNumber(10), _pdgselect(false), _pdgId(0), _pmin(0.00001), _pmax(100.0), _thetamin(0), 
+  : CbmTask("dEdx"), _persistence(kFALSE), _combineHitsLength(false),_combineHitsNumber(false), _catchRemaining(kFALSE),_combineLength(0.5),_combineNumber(10),_startHit(0), _pdgselect(false), _pdgId(0), _pmin(0.00001), _pmax(100.0), _thetamin(0), 
     _thetamax(TMath::TwoPi()), _minTpcHits(0), _maxTpcHits(100000)
 {
 	//these Branches store the inforamtion for calculating dedx
@@ -136,7 +137,7 @@ PndTpcMCDEdxTask::Exec(Option_t* opt)
 	vector<PndTpcDEDXStorageHelper> DEDXPoints;
 	for(int imc=0; imc<nmctrks;++imc) 
 	{
-		cout << "TrackNr: " << imc << endl;
+		//cout << "TrackNr: " << imc << endl;
 		CbmMCTrack *mc=(CbmMCTrack*)_mcTrackArray->At(imc);
 
 		Int_t nPDG = mc->GetPdgCode();
@@ -153,7 +154,8 @@ PndTpcMCDEdxTask::Exec(Option_t* opt)
 		HitMerger.ConvertHits(HitsInTrack, DEDXInTrack);
 		HitMerger.CatchRemaining(_catchRemaining);
 		if(_combineHitsLength)	{
-			HitMerger.CombineHitsInTrack( _combineLength, DEDXInTrack,DEDXPoints );
+			DEDXPoints.clear();
+			HitMerger.MaxDxMerging( _combineLength, DEDXInTrack,DEDXPoints );
 			cout << "Merging Hits by Length active!" << endl;
 		}
 		else if(_combineHitsNumber)	{
@@ -171,7 +173,7 @@ PndTpcMCDEdxTask::Exec(Option_t* opt)
 		std::sort(DEDXPoints.begin(), DEDXPoints.end());
 	
 		vector<PndTpcDEDXStorageHelper>::const_iterator cit;
-		/*
+		
 		for(cit=DEDXPoints.begin(); cit!=DEDXPoints.end(); cit++)
 		{
 			cout << "DE: " << cit->GetEnergyLoss() << " dx: " << cit->GetLength();
@@ -180,7 +182,7 @@ PndTpcMCDEdxTask::Exec(Option_t* opt)
 			}		
 			cout << endl;
 		}
-		*/
+		
 		if(DEDXPoints.size())	{
 		PndTpcRawDEdxCollection* dedxinf=new ((*_dEdxArray)[size]) PndTpcRawDEdxCollection;
 		if(dedxinf)	{
@@ -216,7 +218,8 @@ PndTpcMCDEdxTask::Exec(Option_t* opt)
 void PndTpcMCDEdxTask::GetHitsInTrack(int nTrackNr, std::vector<PndTpcPoint*> &Hits) const
 {
 	int ntpcMChits=_mcTpcHitArray->GetEntriesFast();
-	for(int jmc=0; jmc<ntpcMChits; ++jmc)
+	int startHit=_startHit;
+	for(int jmc=startHit; jmc<ntpcMChits; ++jmc)
 	{
 		PndTpcPoint *pPoint=(PndTpcPoint*)_mcTpcHitArray->At(jmc);
 		assert(pPoint);
@@ -239,7 +242,7 @@ bool PndTpcMCDEdxTask::CheckPDG(Int_t nPDG) const
 
 bool PndTpcMCDEdxTask::CheckMomentum(Double_t P) const
 {
-	cout << "P: - " << P << endl;	
+	//cout << "P: - " << P << endl;	
 	if( P >  _pmax || P < _pmin )	{
 		cout <<  "PndTpcMCDEdxTask::Exec: " <<  "Skipping Track" << "!" << endl;
 		cout <<  "...Reason: Momentum P: " << P << " out of Range" << endl;
@@ -250,10 +253,10 @@ bool PndTpcMCDEdxTask::CheckMomentum(Double_t P) const
 
 bool PndTpcMCDEdxTask::CheckHits(unsigned int nHits) const
 {
-	cout << "nHits: " << nHits << endl;
+	//cout << "nHits: " << nHits << endl;
 	if(nHits < _minTpcHits || nHits > _maxTpcHits)	{	
-		cout <<  "PndTpcMCDEdxTask::Exec: " <<  "Skipping Track" << "!" << endl;
-		cout <<  "...Reason: Number of TpcHits: " << nHits << " out of Range" << endl;			
+		//cout <<  "PndTpcMCDEdxTask::Exec: " <<  "Skipping Track" << "!" << endl;
+		//cout <<  "...Reason: Number of TpcHits: " << nHits << " out of Range" << endl;			
 		return false;
 	}
 	return true;

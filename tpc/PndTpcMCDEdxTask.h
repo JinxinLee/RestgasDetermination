@@ -55,6 +55,10 @@ public:
   void SetHitCombineLength(Bool_t opt=kTRUE, double length=0.5, Bool_t CatchRemaining=kFALSE) {_combineHitsLength=opt; _combineLength=length; _catchRemaining=CatchRemaining; }
   void SetHitCombineNumber(Bool_t opt=kTRUE, unsigned int number=10, Bool_t CatchRemaining=kFALSE) { _combineHitsNumber=opt; _combineNumber=number; _catchRemaining=CatchRemaining;	}
   
+  // it is useful for the ALICE-MC because the step max in the PndTpcDetector is
+  // called not for the first hit
+  void SetStartHit(int StartHit) {_startHit=StartHit;}	// useful values are 0 or 1
+
   void SetMCTrackBranchName(const TString& name) {_mcTrackBranchName=name;}
   void SetClusterBranchName(const TString& name) {_mcPointBranchName=name;}
   void SetPmin(const Double_t& pmin)	{_pmin=pmin;}
@@ -77,6 +81,7 @@ private:
   Bool_t _catchRemaining;
   double _combineLength;
   unsigned int _combineNumber;
+  int _startHit;	
   
    //requiered inforamtion for dEdx
   TString _mcTrackBranchName;

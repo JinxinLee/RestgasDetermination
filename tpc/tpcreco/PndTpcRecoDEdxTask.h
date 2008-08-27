@@ -3,8 +3,9 @@
 // $Id$
 //
 // Description:
-//      store dedx for reconstructed tracks
-// 
+//      store dedx for reconstructed tracks, do a lot
+//	   of debugging things 
+//
 // Environment:
 //      Software developed for the PANDA Detector at FAIR.
 //
@@ -45,9 +46,10 @@ public:
 
   
   // Modifiers -----------------------
-  void SetPersistence(Bool_t opt=kTRUE) {_persistence=opt;}
-  void SetSpatialSorting(Bool_t opt=kTRUE) {_spatialSorting=opt;}
+  void SetPersistence(Bool_t opt=kTRUE) 	{_persistence=opt;}
+  void SetSpatialSorting(Bool_t opt=kTRUE) 	{_spatialSorting=opt;}
   void SetDiagnosticOutput(Bool_t opt=kTRUE) {_diagnosticOutput=opt;}
+  void SetNonCenteredDX(Bool_t opt=kTRUE) 	{_nonCenteredDX=opt;}
   
   void SetTrackBranchName(const TString& name) {_trackBranchName=name;}
   void SetClusterBranchName(const TString& name) {_clusterBranchName=name;}
@@ -76,6 +78,7 @@ private:
   Bool_t _persistence;
   Bool_t _spatialSorting;	// PrepareClusterList will try to sort clusters along track if true
   Bool_t _diagnosticOutput;	// an additional output class will be created
+  Bool_t _nonCenteredDX;		// only use distance between 2 adjacent hits for dx calculation 
   
    //requiered inforamtion for dEdx
   TString _trackBranchName;
@@ -93,9 +96,11 @@ private:
   
    //Output Array
   TClonesArray* _dEdxArray;
+
   //optional output array for debbuging
   TClonesArray* _diaArray;
-  
+
+  //PID inforamtion
   PndTpcDEDXFits *_pid;
   
    //some cuts
@@ -125,10 +130,11 @@ private:
   bool bSorted;	//flag indicates, if clusters are sorted in z
   
   //PIDFiles
-   TString BBFitFile;
-   TString ResoFile;
-   
-   int nEvent;
+  TString BBFitFile;
+  TString ResoFile;
+
+  //debug info    
+  int nEvent;
   
   // Private Methods -----------------
   void ValidateArrays() const;

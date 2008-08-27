@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <iostream>
 #include <map>
+#include "TRandom.h"
 
 using namespace std;
 
@@ -27,7 +28,7 @@ void PndTpcHitMerger::ConvertHits(const std::vector<PndTpcPoint*> &Hits, std::ve
 void PndTpcHitMerger::CombineHitsInTrack(double SegmentLength, const vector<PndTpcDEDXStorageHelper> &Hits, vector<PndTpcDEDXStorageHelper> &CombinedHits)
 {
 	fSegmentLength=SegmentLength;
-	
+
 	vector<PndTpcDEDXStorageHelper>::const_iterator it;
 	vector<PndTpcDEDXStorageHelper>::const_iterator end=Hits.end();
 	
@@ -42,29 +43,19 @@ void PndTpcHitMerger::CombineHitsInTrack(double SegmentLength, const vector<PndT
 		PndTpcDEDXStorageHelper Hit=*it;
 		TrackLength+=Hit.GetLength();
 		
-		// produce empty hits if needed 
-		int nSegments=static_cast<int> (TrackLength/(fSegmentLength+segmentedDistance));
-		//cout << "nSegments: " << nSegments << endl;
-		for(int i=0; i<nSegments-2; ++i)	//one empty segment will be handeled in loop below
-		{	//produce empty segments if necessary, if nSegment is one it is not needed
-			cout << "producing empty segments... " << endl;
-			//ProduceEmptyHit(CombinedHits);
-			CombinedHits.push_back(PndTpcDEDXStorageHelper(0,fSegmentLength));
-			segmentedDistance+=fSegmentLength;
-		}
-		if(TrackLength>fSegmentLength+segmentedDistance)	{
+		while(TrackLength>fSegmentLength+segmentedDistance)	{
 			double de=0.;	//if there are no hits in this segment a hit with eloss=0 will be produced
 			for(colHits=segmentCollector.begin();colHits!=segmentCollector.end();++colHits)
 			{
 				de+=(*colHits).GetEnergyLoss();
 			}
-			//ProduceHit(de, fSegmentLength, CombinedHits);
 			CombinedHits.push_back(PndTpcDEDXStorageHelper(de,fSegmentLength));
 			segmentedDistance+=fSegmentLength;
 			segmentCollector.clear();
 		}
 		//cout << "segmentedDistance: " << segmentedDistance << endl;
 		segmentCollector.push_back(Hit);
+
 	}//end loop over hits
 	
 	if(fCatchRemaining)	{
@@ -74,7 +65,6 @@ void PndTpcHitMerger::CombineHitsInTrack(double SegmentLength, const vector<PndT
 			{
 				de+=(*colHits).GetEnergyLoss();
 			}
-			//ProduceHit(de, fSegmentLength, CombinedHits);
 			CombinedHits.push_back(PndTpcDEDXStorageHelper(de,fSegmentLength));
 			segmentedDistance+=fSegmentLength;
 		}
@@ -86,7 +76,7 @@ void PndTpcHitMerger::CombineHitsInTrack(double SegmentLength, const vector<PndT
 
 void PndTpcHitMerger::CombineHitsInTrack2(double SegmentLength, const vector<PndTpcDEDXStorageHelper> &Hits,
 	vector<PndTpcDEDXStorageHelper> &CombinedHits)
-{
+{	//this does the same as CombineHitsInTrack, for me this version was easier to understand
 	fSegmentLength=SegmentLength;
 
 	vector<PndTpcDEDXStorageHelper>::const_iterator it;
@@ -135,12 +125,10 @@ void PndTpcHitMerger::CombineHitsInTrack2(double SegmentLength, const vector<Pnd
 				++n;
 			}
 			//cout << n << "hits in " << SegmentedLength << "cm" << endl;
-			//ProduceHit(de, fSegmentLength, CombinedHits);	
 			CombinedHits.push_back(PndTpcDEDXStorageHelper(de,fSegmentLength));
 		}
 		else	{
 			//cout << "Produceing empty hit" << endl;
-			//ProduceEmptyHit(CombinedHits);
 			CombinedHits.push_back(PndTpcDEDXStorageHelper(0,fSegmentLength));
 		}
 		SegmentedLength+=fSegmentLength;
@@ -181,4 +169,117 @@ void PndTpcHitMerger::CombineHits(unsigned int nHits, const std::vector<PndTpcDE
 		}
 	}
 }
+
+void PndTpcHitMerger::MaxDxMerging(double SegmentLength, const vector<PndTpcDEDXStorageHelper> &Hits,
+	vector<PndTpcDEDXStorageHelper> &CombinedHits)	//das soll heiﬂen dx ist maximal SegmentLength lang(auﬂer
+											//es gibt keine hits in einem Bereich
+{											//es werden keine 0 hits hergestellt
+	fSegmentLength=SegmentLength;
+
+	vector<PndTpcDEDXStorageHelper>::const_iterator it;
+	vector<PndTpcDEDXStorageHelper>::const_iterator end=Hits.end();
+	
+	vector<PndTpcDEDXStorageHelper>::const_iterator colHits;
+	vector<PndTpcDEDXStorageHelper> segmentCollector;
+	
+	double segmentedDistance=0.;	//summing up the lengths of the already treated hits 
+	double TrackLength=0.;		//summing up the length from hit to hit
+	
+	for(it=Hits.begin(); it!=end; ++it)
+	{
+		PndTpcDEDXStorageHelper Hit=*it;
+		TrackLength+=Hit.GetLength();
+
+		if(TrackLength>=(fSegmentLength+segmentedDistance))	{	//the hits that had been collected till now
+			double de=0.;
+			double dx=0.;
+			segmentedDistance+=fSegmentLength;
+			if(segmentCollector.size()==0)	{	//nothing had been collected
+				continue;
+			}
+			for(colHits=segmentCollector.begin();colHits!=segmentCollector.end();++colHits)
+			{
+				de+=(*colHits).GetEnergyLoss();
+                    dx+=(*colHits).GetLength();
+			}
+			CombinedHits.push_back(PndTpcDEDXStorageHelper(de,dx));
+			segmentedDistance-=fSegmentLength;
+			segmentedDistance+=dx;
+			segmentCollector.clear();
+		}
+		//cout << "segmentedDistance: " << segmentedDistance << endl;
+		segmentCollector.push_back(Hit);
+
+	}//end loop over hits
+	
+	if(fCatchRemaining)	{
+		if(segmentCollector.size())	{	//catch the remaining
+			double de=0.;
+			double dx=0.;
+			for(colHits=segmentCollector.begin();colHits!=segmentCollector.end();++colHits)
+			{
+				de+=(*colHits).GetEnergyLoss();
+				dx+=(*colHits).GetLength();
+			}
+			CombinedHits.push_back(PndTpcDEDXStorageHelper(de,dx));
+			segmentedDistance+=fSegmentLength;
+		}
+	}
+	cout << "summed up length between hits: " << TrackLength << endl;
+	cout << "segmentedDistance: " << segmentedDistance << endl;
+}
+
+void PndTpcHitMerger::MinDxMerging(double SegmentLength, const vector<PndTpcDEDXStorageHelper> &Hits,
+	vector<PndTpcDEDXStorageHelper> &CombinedHits)//das soll heiﬂen dx ist minimal SegmentLength lang,
+{											//bis auf eventuell der letzte hit
+	fSegmentLength=SegmentLength;					//es gibt keine eloss==0 hits
+	
+	vector<PndTpcDEDXStorageHelper>::const_iterator it;
+	vector<PndTpcDEDXStorageHelper>::const_iterator end=Hits.end();
+	
+	vector<PndTpcDEDXStorageHelper>::const_iterator colHits;
+	vector<PndTpcDEDXStorageHelper> segmentCollector;
+	
+	double segmentedDistance=0.;	//summing up the lengths of the already treated hits 
+	double TrackLength=0.;		//summing up the length from hit to hit
+	
+	for(it=Hits.begin(); it!=end; ++it)
+	{
+		PndTpcDEDXStorageHelper Hit=*it;
+		TrackLength+=Hit.GetLength();
+		segmentCollector.push_back(Hit);
+		if(TrackLength>fSegmentLength+segmentedDistance)	{
+			double de=0.;	//if there are no hits in this segment a hit with eloss=0 will be produced
+			double dx=0.;
+			assert(segmentCollector.size());
+			for(colHits=segmentCollector.begin();colHits!=segmentCollector.end();++colHits)
+			{
+				de+=(*colHits).GetEnergyLoss();
+                    dx+=(*colHits).GetLength();
+			}
+			CombinedHits.push_back(PndTpcDEDXStorageHelper(de,dx));
+			segmentedDistance+=dx;
+			segmentCollector.clear();
+		}
+		//cout << "segmentedDistance: " << segmentedDistance << endl;
+		
+	}//end loop over hits
+	
+	if(fCatchRemaining)	{
+		if(segmentCollector.size())	{	//catch the remaining
+			double de=0.;
+			double dx=0.;
+			for(colHits=segmentCollector.begin();colHits!=segmentCollector.end();++colHits)
+			{
+				de+=(*colHits).GetEnergyLoss();
+				dx+=(*colHits).GetLength();
+			}
+			CombinedHits.push_back(PndTpcDEDXStorageHelper(de,dx));
+			segmentedDistance+=dx;
+		}
+	}
+	cout << "summed up length between hits: " << TrackLength << endl;
+	cout << "segmentedDistance: " << segmentedDistance << endl;
+}
+
 

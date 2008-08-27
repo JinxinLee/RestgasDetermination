@@ -24,7 +24,8 @@
 #include "CbmRootManager.h"
 #include "DetPlane.h"
 #include "TrackCand.h"
-#include "TrackFitStat.h"
+//#include "TrackFitStat.h"
+#include "PndTpcTFSInfo.h"
 #include "PndTpcDEDXFits.h"
 #include "PndTpcDEDXStorageHelper.h"
 #include "PndTpcClusterTrack.h"
@@ -55,67 +56,9 @@
 
 using namespace std;
 
-struct TFSInfo
-{
-	TFSInfo(TClonesArray *trackArray, TClonesArray *trackFitStatArray):_trackArray(trackArray), _trackFitStatArray(trackFitStatArray), bTrackFitStatInfoAvailable(false), _pdgselect(false) {}
-	void LoadTrackFitStatInfo();	
-	bool CheckPdg(int TrackNr) const;
-	int GetPdg(int TrackNr) const	{ return ( isPDGokay.size()>TrackNr ? isPDGokay[TrackNr] : 0 ); }
-	int GetMotherID(int TrackNr) const	{ return ( MotherIds.size()>TrackNr ? MotherIds[TrackNr] : -2 ); }
-	double GetMCP(int TrackNr) const	{ return ( mcps.size()>TrackNr ? mcps[TrackNr] : -100. ); }
-private:
-     TClonesArray *_trackArray;
-	TClonesArray *_trackFitStatArray;
-	bool bTrackFitStatInfoAvailable;
-	bool _pdgselect;
-	vector<int> isPDGokay;
-	vector<int> MotherIds;
-	vector<double> mcps; 	
-};
-
-void TFSInfo::LoadTrackFitStatInfo()
-{
-	//Get inforamtion out of TrackFitStat
-	int nTrack=_trackArray->GetEntriesFast();
-	if(_trackFitStatArray != 0 )	{
-		int nStat=_trackFitStatArray->GetEntriesFast();
-		cout << "PndTpcRecoDEdxTask::Exec: " << "_trackFitStatArray - Number of Tracks: " << nStat << endl;
-		for(int i=0; i<nStat; i++)
-		{
-			TrackFitStat *pFitStat=(TrackFitStat*)_trackFitStatArray->At(i);
-			isPDGokay.push_back(pFitStat->GetPdgCode());
-			MotherIds.push_back(pFitStat->GetMotherID());
-			mcps.push_back(pFitStat->GetMCP());
-		}
-		bTrackFitStatInfoAvailable = true;
-	}
-	else	 {
-		cout << "PndTpcRecoDEdxTask::Exec: " << "TrackFitStat not available!" << endl;
-		bTrackFitStatInfoAvailable = false;
-	}
-	if(!(isPDGokay.size()==nTrack))	{
-		cout << "PndTpcRecoDEdxTask::Exec: " << "Error: Number of tracks doesn't match number of FitStats" << endl;
-		if(_pdgselect)	{
-			cout << "PndTpcRecoDEdxTask::Exec: " << "No PDG Selection will be performed!" << endl;
-		}
-		bTrackFitStatInfoAvailable = false;
-	}
-}
-
-bool TFSInfo::CheckPdg(int TrackNr) const
-{
-	if(bTrackFitStatInfoAvailable)	{
-		assert(isPDGokay.size()>TrackNr);
-		if(!isPDGokay[TrackNr] && _pdgselect )	{
-			return false;
-		}
-	}
-	return true;
-}
-
 // Class Member definitions -----------
 PndTpcRecoDEdxTask::PndTpcRecoDEdxTask()
-  : CbmTask("dEdx"), _persistence(kFALSE), _spatialSorting(kFALSE), _diagnosticOutput(kFALSE),  _pdgselect(false), _pdgId(0), _mcIDselect(false), _mcID(0), _pmin(0.0001), _pmax(100.0), _thetamin(0), _thetamax(TMath::TwoPi()), _minTpcHits(0), _maxTpcHits(100000), _pid(NULL), nEvent(0)
+  : CbmTask("dEdx"), _persistence(kFALSE), _spatialSorting(kFALSE), _diagnosticOutput(kFALSE),  _pdgselect(kFALSE),_nonCenteredDX(kFALSE), _pdgId(0), _mcIDselect(false), _mcID(0), _pmin(0.0001), _pmax(100.0), _thetamin(0), _thetamax(TMath::TwoPi()), _minTpcHits(0), _maxTpcHits(100000), _pid(NULL), nEvent(0)
 {
 	//these Branches store the inforamtion for calculating dedx
 	_trackBranchName = "TrackPreFit";
@@ -183,7 +126,7 @@ PndTpcRecoDEdxTask::Init()
 	_trackFitStatArray=(TClonesArray*) ioman->GetObject(_trackFitStatBranchName);
   	if(_trackFitStatArray==0)	{
       	Error("PndTpcRecoDEdxTask::Init","TrackFitStat not found!");
-      	return kERROR;
+      	//return kERROR;	//go on even with no Fit Stat Info
     }
 	
  	 // create and register output array
@@ -242,11 +185,6 @@ void PndTpcRecoDEdxTask::ValidateArrays() const
 			Fatal("PndTpcRecoDEdxTask::Exec","No dia Output Array");
 		}		
 	}
-	/*
-	if(_dEdxAlt==0)	{
-		Fatal("PndTpcRecoDEdxTask::Exec","No Alternative DEdx Output Array");
-	}
-	*/
 }
 
 double CalculateLengthAlongTrack(Track *track, int nHit1, int nHit2)
@@ -264,9 +202,10 @@ double CalculateLengthAlongTrack(Track *track, int nHit1, int nHit2)
 
 void PndTpcRecoDEdxTask::PrepareClusterList(vector<PndTpcCluster *> &PreparedClusterList, Track *track ) const
 {
-	unsigned int nh=track->getNumHits();
+	
 	TrackCand cand=track->getCand();		//get list of hits
 	int nTpcCluster = _clusterArray->GetEntriesFast();
+	unsigned int nh=cand.getNHits();
 	for(unsigned int ih=0; ih<nh; ++ih)
 	{ 
 		unsigned int DetId=0;
@@ -304,7 +243,7 @@ PndTpcRecoDEdxTask::Exec(Option_t* opt)
 	ResetOutputInfo();
 	
 	//Get inforamtion out of TrackFitStat
-	TFSInfo TFS(_trackArray, _trackFitStatArray);
+	PndTpcTFSInfo TFS(_trackArray, _trackFitStatArray);
 	TFS.LoadTrackFitStatInfo(); 
 		
 	//loop over tracks
@@ -328,8 +267,6 @@ PndTpcRecoDEdxTask::Exec(Option_t* opt)
 		
 		Double_t TrackMometum = track->getMom().Mag();
 		if(!CheckRecoMomentum(TrackMometum))	{	continue;}
-		unsigned int nh=track->getNumHits();
-		if(!CheckHits(nh))	{continue;}
 		
 		PDG=TFS.GetPdg(i);	
 		MotherID=TFS.GetMotherID(i);
@@ -351,6 +288,8 @@ PndTpcRecoDEdxTask::Exec(Option_t* opt)
 		
 		vector<PndTpcCluster *> SortedClusterList;
 		PrepareClusterList(SortedClusterList, track);
+          unsigned int nh=SortedClusterList.size();
+		if(!CheckHits(nh))	{continue;}
 		
 		vector<PndTpcCluster *>::const_iterator cit;
 		vector<PndTpcCluster *>::const_iterator end=SortedClusterList.end();
@@ -371,7 +310,12 @@ PndTpcRecoDEdxTask::Exec(Option_t* opt)
 			Calx.SetNextPoint(x,y,z,amp,currentIndex);
 			double de;
 			double dx;
-			Calx.GetDEDX(de,dx);
+			if(_nonCenteredDX)	{
+				Calx.GetDEDX(de,dx);
+			}
+			else	{
+				Calx.GetCenteredDEDX(de,dx);
+			}
 
 			data.push_back( PndTpcDEDXStorageHelper(de,dx) );
 			SetMCTrackNR(GetClusterMCID(*cl)); 

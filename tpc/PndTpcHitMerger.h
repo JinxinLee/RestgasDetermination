@@ -36,6 +36,12 @@ public:
 	
 	void CombineHits(unsigned int nHits, const std::vector<PndTpcDEDXStorageHelper> &Hits, std::vector<PndTpcDEDXStorageHelper> &CombinedHits);
 	
+	void MaxDxMerging(double SegmentLength, const std::vector<PndTpcDEDXStorageHelper> &Hits,
+	std::vector<PndTpcDEDXStorageHelper> &CombinedHits);
+
+	void MinDxMerging(double SegmentLength, const std::vector<PndTpcDEDXStorageHelper> &Hits,
+	std::vector<PndTpcDEDXStorageHelper> &CombinedHits);
+
 	void ConvertHits(const std::vector<PndTpcPoint*> &Hits, std::vector<PndTpcDEDXStorageHelper> &ConvertedHits) const;
 private:
 	std::vector<PndTpcPoint*> fCombinedHits;
