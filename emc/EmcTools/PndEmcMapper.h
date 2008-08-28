@@ -17,13 +17,14 @@
 
 #include "PndEmcTwoCoordIndex.h"
 #include "TObject.h"
+#include "TString.h"
 #include <map>
 	 
 class PndEmcMapper: public TObject
 {
 
 public:
-	static PndEmcMapper* Instance(Int_t);
+  static PndEmcMapper* Instance(Int_t, TString geoName="");
 	const std::map<Int_t,PndEmcTwoCoordIndex* >& GetTciMap();
 
 	/** Destructor **/
