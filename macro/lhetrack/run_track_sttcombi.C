@@ -80,7 +80,7 @@
   PndSttHelixHitProducer* sttHHProducer = new PndSttHelixHitProducer();
   fRun->AddTask(sttHHProducer);
   
-  // -----   MDV digi producers   --------------------------------- 
+  // -----   MDV digi producers   ---------------------------------
   // DIGI
   // double   topPitch=0.015,//cm
   //   botPitch=0.015,//cm
@@ -95,36 +95,29 @@
 
   // PndMvdStripHitProducer* mvdHitProd
   // = new PndMvdStripHitProducer(topPitch, botPitch,
-  // 			     orient, skew,
-  // 			     topAnchor,botAnchor,
-  // 			     topFE, botFE, nrFEChannels,
-  // 			     threshold, noise);
+  //                         orient, skew,
+  //                         topAnchor,botAnchor,
+  //                         topFE, botFE, nrFEChannels,
+  //                         threshold, noise);
   PndMvdStripHitProducer* mvdHitProd = new PndMvdStripHitProducer();
   mvdHitProd->SetVerbose(iVerbose);
   fRun->AddTask(mvdHitProd);
 
-  Double_t  lx=0.01, ly=0.01, threshold=600, noise=200;
-  PndMvdHybridHitProducer* mvdPixProd = new PndMvdHybridHitProducer(lx,ly,threshold,noise);
+  PndMvdHybridHitProducer* mvdPixProd = new PndMvdHybridHitProducer();
   mvdPixProd->SetVerbose(iVerbose);
   fRun->AddTask(mvdPixProd);
- 
+
   // CLUST
   // Cluster finding for strip detectors
-  Double_t noise = 1000.; // put such stuff inside the task
-  Double_t chargecut = 3. * noise;
+  Double_t chargecut = 5000.;
   PndMvdStripClusterTask* mvdmccls = new PndMvdStripClusterTask(chargecut, inFile);
   mvdmccls->SetVerbose(iVerbose);
   fRun->AddTask(mvdmccls);
-  
+
   // Cluster finder for pixel detectors
-  PndMvdPixelClusterTask* mvdClusterizer = new PndMvdPixelClusterTask(1.8,76,84, inFile);
+  PndMvdPixelClusterTask* mvdClusterizer = new PndMvdPixelClusterTask(1.8, inFile);
   mvdClusterizer->SetVerbose(iVerbose);
   fRun->AddTask(mvdClusterizer);
- 
-  // TRACKFINDER
-  //PndMvdIdealTrackingTask* mvdmctrk = new PndMvdIdealTrackingTask();
-  //mvdmctrk->SetVerbose(iVerbose);
-  //fRun->AddTask(mvdmctrk);
 
   // -----   EMC hit producers   ---------------------------------
   PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();

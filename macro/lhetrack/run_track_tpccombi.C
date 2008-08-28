@@ -35,6 +35,8 @@
   CbmRunAna *fRun= new CbmRunAna();
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
+//  CbmGeane *Geane = new CbmGeane(inFile.Data());
+
   // ------------------------------------------------------------------------
 
   // -----  Parameter database   --------------------------------------------
@@ -111,29 +113,22 @@
   mvdHitProd->SetVerbose(iVerbose);
   fRun->AddTask(mvdHitProd);
 
-  Double_t  lx=0.01, ly=0.01, threshold=600, noise=200;
-  PndMvdHybridHitProducer* mvdPixProd = new PndMvdHybridHitProducer(lx,ly,threshold,noise);
+  PndMvdHybridHitProducer* mvdPixProd = new PndMvdHybridHitProducer();
   mvdPixProd->SetVerbose(iVerbose);
   fRun->AddTask(mvdPixProd);
  
   // CLUST
   // Cluster finding for strip detectors
-  Double_t noise = 1000.; // put such stuff inside the task
-  Double_t chargecut = 3. * noise;
+  Double_t chargecut = 5000.;
   PndMvdStripClusterTask* mvdmccls = new PndMvdStripClusterTask(chargecut, inFile);
   mvdmccls->SetVerbose(iVerbose);
   fRun->AddTask(mvdmccls);
   
   // Cluster finder for pixel detectors
-  PndMvdPixelClusterTask* mvdClusterizer = new PndMvdPixelClusterTask(1.8,76,84, inFile);
+  PndMvdPixelClusterTask* mvdClusterizer = new PndMvdPixelClusterTask(1.8, inFile);
   mvdClusterizer->SetVerbose(iVerbose);
   fRun->AddTask(mvdClusterizer);
- 
-  // TRACKFINDER
-  //PndMvdIdealTrackingTask* mvdmctrk = new PndMvdIdealTrackingTask();
-  //mvdmctrk->SetVerbose(iVerbose);
-  //fRun->AddTask(mvdmctrk);
-
+  
   // -----   EMC hit producers   ---------------------------------
   PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
   fRun->AddTask(emcHitProd); // hit production 
@@ -191,7 +186,7 @@
   fRun->AddTask(trackFitter);
 
   PndLhePidMaker* pidMaker    = new PndLhePidMaker("pid");
-  pidMaker->SetDebugMode(kTRUE);
+  //pidMaker->SetDebugMode(kTRUE);
   fRun->AddTask(pidMaker);
 
   // -----   Intialise and run   --------------------------------------------
