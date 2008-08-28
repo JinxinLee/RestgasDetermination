@@ -21,6 +21,7 @@
 #include "TRandom.h"
 #include "TGeoMatrix.h"
 #include "TGeoBBox.h"
+#include "TH2F.h"
 #include "PndMvdHybridHitProducer.h"
 #include "PndMvdStripHitProducer.h"
 
@@ -49,6 +50,8 @@ class PndMvdStripClusterTask : public CbmTask
 
     /** Virtual method Exec **/
     virtual void Exec(Option_t* opt);
+    /** Virtual method Finish **/
+    virtual void Finish();
 
 
   private:
@@ -83,6 +86,11 @@ class PndMvdStripClusterTask : public CbmTask
 
     PndMvdGeoHandling* fGeoH;      //! Geometry name handling
     PndMvdGeoPar* fGeoPar;
+
+//     TH1F* fHChgDiff;
+//     TH1F* fHChgMC;
+//     TH1F* fHChgFake;
+//     TH1F* fHChgGhost;
 
   ClassDef(PndMvdStripClusterTask,1);
 

@@ -45,6 +45,7 @@ class PndMvdStripClusterBuilder {
   PndMvdCluster GetBotCluster(Int_t i);
   std::vector< Int_t > GetTopClusterIDs() const {return fTopclusters;}
   std::vector< Int_t > GetBotClusterIDs() const {return fBotclusters;}
+  std::vector< Int_t > GetLeftDigiIDs() const {return fLeftDigis;}
 
 private:
 
@@ -52,6 +53,7 @@ private:
   Fullmap fSortedDigis;
   std::vector< Int_t > fTopclusters;// contains index to fClusterArray
   std::vector< Int_t > fBotclusters;// contains index to fClusterArray
+  std::vector< Int_t > fLeftDigis;  // contains index to the not assigned digis
   std::vector< PndMvdCluster > fClusters;
 
 

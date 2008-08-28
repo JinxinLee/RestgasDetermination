@@ -51,6 +51,7 @@ class PndMvdDigi : public TObject
 		Double_t GetCharge()	 const { return fCharge; }
 		Int_t GetDetID() const { return fDetID;}
 		std::vector<Int_t> GetIndices() const { return fIndex;}
+		int GetNIndices() {return fIndex.size();}
 		Int_t GetIndex(int i = 0) const{ return fIndex[i];}
 		Int_t GetNIndices() const { return fIndex.size();}
 		

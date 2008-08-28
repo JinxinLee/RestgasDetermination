@@ -1,15 +1,15 @@
 {
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
-  Int_t iVerbose = 1;
+  Int_t iVerbose = 3;
   // Input file (MC events)
-  TString MCFile = "Mvd_Test.root";
+  TString MCFile = "Mvd_TestNewVersion.root";
   // Parameter file
   TString parFile = "MvdParams.root";
   // Parameter output file
   TString parOutFile = "MvdParams.root";
   // Number of events to process
-  Int_t nEvents = 100;
+  Int_t nEvents = 10;
   // ----  Load libraries   -------------------------------------------------
   gROOT->Macro("Libs.C");
   // ------------------------------------------------------------------------
@@ -17,8 +17,8 @@
     PndMvdFileNameCreator creator(MCFile.Data());
     TString DigiFile = creator.GetDigiFileName(false).c_str();
     TString RecoFile = creator.GetRecoFileName(false).c_str();
-    TString outFile  = creator.GetTrackFindingFileName(false).c_str();
-    
+  //  TString outFile  = creator.GetTrackFindingFileName(false).c_str();
+    TString outFile = "Mvd_TestNewVersion_IdealTrackF.root";
     std::cout << "DigiFile: " << DigiFile.Data()<< std::endl;
     std::cout << "RecoFile: " << RecoFile.Data()<< std::endl;
     std::cout << "TrackFinderFile: " << outFile.Data()<< std::endl;
@@ -38,7 +38,7 @@
   // -----   Reconstruction run   -------------------------------------------
   CbmRunAna *fRun= new CbmRunAna();
   fRun->SetInputFile(MCFile);
-//   fRun->AddFriend(DigiFile);
+  fRun->AddFriend(DigiFile);
   fRun->AddFriend(RecoFile);
   
   fRun->SetOutputFile(outFile);
@@ -48,8 +48,8 @@
 
   // -----  Parameter database   --------------------------------------------
   CbmRuntimeDb* rtdb = fRun->GetRuntimeDb();
-//  CbmParRootFileIo* parInput1 = new CbmParRootFileIo();
-  CbmParAsciiFileIo* parInput1 = new CbmParAsciiFileIo();
+  CbmParRootFileIo* parInput1 = new CbmParRootFileIo();
+//  CbmParAsciiFileIo* parInput1 = new CbmParAsciiFileIo();
   parInput1->open(parFile.Data(),"in");
   rtdb->setFirstInput(parInput1);
   /*Bool_t kParameterMerged=kTRUE;
@@ -68,7 +68,7 @@
   // -----    MVD hit producer   --------------------------------------------
  
   PndMvdIdealTrackFinderTask* mvdTrackFinder = new PndMvdIdealTrackFinderTask();
- // mvdTrackFinder->SetVerbose(iVerbose);
+  mvdTrackFinder->SetVerbose(iVerbose);
   fRun->AddTask(mvdTrackFinder);
 
  CbmParRootFileIo* output=new CbmParRootFileIo(kTRUE);

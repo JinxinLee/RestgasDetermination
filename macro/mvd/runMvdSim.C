@@ -22,7 +22,7 @@
   // set the MC version used
   // ------------------------
 
-  fRun->SetName("TGeant3");
+  fRun->SetName("TGeant4");
   // Choose the Geant Navigation System
 
   fRun->SetOutputFile(simOutput);
@@ -86,17 +86,17 @@
 
   // Box Generator
   //Pions
-//  CbmBoxGenerator *fBox = new CbmBoxGenerator(211, 1);
-//     fBox->SetPRange(0.1,2.5);
-//     fBox->SetThetaRange(5,150);
-//     fBox->SetPhiRange(0.,360);
-//      fBox->SetCosTheta();
-//     primGen->AddGenerator(fBox);
+ CbmBoxGenerator *fBox = new CbmBoxGenerator(211, 1);
+    fBox->SetPRange(0.1,2.5);
+    fBox->SetThetaRange(5,150);
+    fBox->SetPhiRange(0.,360);
+    fBox->SetCosTheta();
+    primGen->AddGenerator(fBox);
 
   //EvtGen Generator
-   CbmEvtGenGenerator* evtGen = new
-     CbmEvtGenGenerator("/home/ralfk/Pandaroot/pandaroot/macro/mvd/output.evt");
-   primGen->AddGenerator(evtGen);  
+//    CbmEvtGenGenerator* evtGen = new
+//      CbmEvtGenGenerator("/home/ralfk/Pandaroot/pandaroot/macro/mvd/output.evt");
+//    primGen->AddGenerator(evtGen);  
 
   // Urqmd  Generator
   //    CbmUrqmdGenerator* urqmdGen = new CbmUrqmdGenerator("../../input/00-03fm.100ev.f14");

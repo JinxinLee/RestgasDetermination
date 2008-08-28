@@ -33,6 +33,7 @@ void PndMvdStripClusterBuilder::Reinit()
   fClusters.clear();
   fTopclusters.clear();
   fBotclusters.clear();
+  fLeftDigis.clear();
 }
 
 void PndMvdStripClusterBuilder::AddDigi(std::string detName, SensorSide side, Int_t strip, Int_t iPoint)
@@ -45,12 +46,11 @@ std::vector< PndMvdCluster >  PndMvdStripClusterBuilder::SearchClusters()
 {
   ///  -----  search for clusters  -----
   ///  Take neighbouring fired strips.
-  ///  use that std::map is a SORTED object
   fClusters.clear();
   fTopclusters.clear();
   fBotclusters.clear();
   std::vector< Int_t > onecluster;
-
+  Indexpair::iterator tempStrip;
   //fSortedDigis[sensor][side][stripnr]=digiindex 
   for (Fullmap::iterator itSensors = fSortedDigis.begin();
         itSensors != fSortedDigis.end(); ++itSensors)
@@ -70,14 +70,15 @@ std::vector< PndMvdCluster >  PndMvdStripClusterBuilder::SearchClusters()
       for (Indexpair::iterator itStrip = (itSide->second).begin();
             itStrip!= (itSide->second).end();itStrip++)
       {
+        tempStrip=itStrip;
         if( !(1==flagmap[itStrip->second]) ) continue;
         for(Indexpair::iterator itStrip3 = itStrip; itStrip3 != (itSide->second).end(); ++itStrip3)
         {
           if( !(1==flagmap[itStrip3->second]) ) continue;
-          if( fabs(itStrip->first - itStrip3->first) > 1) continue;
+          if( fabs(tempStrip->first - itStrip3->first) > 1) continue; // TODO parametrize this?
           onecluster.push_back(itStrip3->second);
           flagmap[itStrip3->second]=-1;//do not reuse this digi
-          itStrip=itStrip3;
+          tempStrip=itStrip3;
 //           std::cout<<"add strip "<<itStrip3->first << " from digi "<<itStrip3->second <<std::endl;
         }
 //         std::cout<<" --- "<<std::endl; 
@@ -89,6 +90,10 @@ std::vector< PndMvdCluster >  PndMvdStripClusterBuilder::SearchClusters()
           std::cout<<"mvd strip clusterfinder: cluster hangover? "<<onecluster.size()<<std::endl;
           AddCluster(onecluster,itSide->first);
           onecluster.clear();
+      }
+      for (Indexpair::iterator itflag = flagmap.begin(); itflag!= flagmap.end(); ++itflag)
+      {
+        if (1==itflag->second) fLeftDigis.push_back(itflag->first);
       }
     }// end loop it Side
   }// end loop sensor
@@ -135,6 +140,7 @@ void PndMvdStripClusterBuilder::AddCluster(const std::vector< Int_t >& onecluste
 
 
 ClassImp(PndMvdStripClusterBuilder);
+
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------

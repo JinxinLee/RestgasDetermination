@@ -17,6 +17,10 @@
 #include "TROOT.h"
 #include "TGeoManager.h"
 #include "TGeoMatrix.h"
+#include "TGeoVolume.h"
+#include "TGeoShape.h"
+#include "TGeoBBox.h"
+
 #include <math.h>
 #include "stdlib.h"
 
@@ -179,6 +183,28 @@ void PndMvdGeoHandling::GetOUVId(TString id, TVector3& o, TVector3& u, TVector3&
 }
 
 
+TVector3 PndMvdGeoHandling::GetSensorDimensionsPath(TString path)
+{
+  TVector3 dim;
+  TString actPath = fGeoMan->GetPath();
+  fGeoMan->cd(path);
+
+  TGeoVolume* actVolume = gGeoManager->GetCurrentVolume();
+  TGeoBBox* actBox = (TGeoBBox*)(actVolume->GetShape());
+  dim.SetX(actBox->GetDX());
+  dim.SetY(actBox->GetDY());
+  dim.SetZ(actBox->GetDZ());
+
+  if(actPath!="" && actPath!=" ") fGeoMan->cd(actPath);
+  return dim;
+}
+
+TVector3 PndMvdGeoHandling::GetSensorDimensionsID(TString id)
+{
+return GetSensorDimensionsPath(GetPath(id));
+}
+
+
 //  ----- conversions of POINTS (not vectors) here -----
 TVector3 PndMvdGeoHandling::MasterToLocalId(const TVector3& master, const TString& id)
 { return MasterToLocalPath(master, GetPath(id) ); }
@@ -232,28 +258,15 @@ TVector3 PndMvdGeoHandling::MasterToLocalErrorsPath(const TVector3& master, cons
   Double_t temp[3];
   TString actPath = fGeoMan->GetPath();
   fGeoMan->cd(path);
-  TGeoHMatrix* currMatrix = fGeoMan->GetCurrentMatrix();
-
-  // rotate from global into the sensor system
-  Double_t* rotation = currMatrix->GetRotationMatrix();
   
   temp[0] = master.X();
   temp[1] = master.Y();
   temp[2] = master.Z();
 
-//   std::cout<<"Rotation of error values:"<<std::endl;
-//   std::cout<<"temp[3] = {"<<temp[0]<<", "<<temp[1]<<", "<<temp[2]<<"}"<<std::endl; 
-//   std::cout<<"Rotation[3][3] = {"<<std::endl; 
-  for(Int_t ii=0;ii<3;ii++) 
-  {
-//     std::cout<<rotation[3*ii+0]<<", "<<rotation[3*ii+1]<<", "<<rotation[3*ii+2]<<std::endl;
-    result[ii] = fabs(   rotation[3*ii+0] * temp[0]
-                       + rotation[3*ii+1] * temp[1]
-                       + rotation[3*ii+2] * temp[2] 
-                               );
-  }
-//   std::cout<<"}"<<std::endl; 
-//   std::cout<<"result[3] = {"<<result[0]<<", "<<result[1]<<", "<<result[2]<<"}"<<std::endl; 
+  // rotate "error vector"
+  fGeoMan->MasterToLocalVect(temp,result);
+  // positive error values
+  for(Int_t i=0;i<3;i++) result[i]=fabs(result[i]);
 
   if(actPath != "" && actPath != " ") fGeoMan->cd(actPath);
   return TVector3(result[0],result[1],result[2]);
@@ -269,32 +282,18 @@ TVector3 PndMvdGeoHandling::LocalToMasterErrorsId(const TVector3& local, const T
 TVector3 PndMvdGeoHandling::LocalToMasterErrorsPath(const TVector3& local, const TString& path)
 {
   Double_t result[3];
-  Double_t tmp[3];
+  Double_t temp[3];
   TString actPath = fGeoMan->GetPath();
   fGeoMan->cd(path);
-  TGeoHMatrix* currMatrix = fGeoMan->GetCurrentMatrix();
 
-  // rotation back from sensor to lab
-  const Double_t* rotation = (currMatrix->Inverse()).GetRotationMatrix();
+  temp[0] = local.X();
+  temp[1] = local.Y();
+  temp[2] = local.Z();
 
-
-  tmp[0] = local.X();
-  tmp[1] = local.Y();
-  tmp[2] = local.Z();
-
-//   std::cout<<"Rotation of error values:"<<std::endl;
-//   std::cout<<"tmp[3] = {"<<tmp[0]<<", "<<tmp[1]<<", "<<tmp[2]<<"}"<<std::endl; 
-//   std::cout<<"Rotation[3][3] = {"<<std::endl; 
-  for(Int_t ii=0;ii<3;ii++) 
-  {
-//     std::cout<<rotation[3*ii+0]<<", "<<rotation[3*ii+1]<<", "<<rotation[3*ii+2]<<std::endl;
-    result[ii] = fabs(   rotation[3*ii+0] * tmp[0]
-                       + rotation[3*ii+1] * tmp[1]
-                       + rotation[3*ii+2] * tmp[2] 
-                               );
-  }
-//   std::cout<<"}"<<std::endl; 
-//   std::cout<<"result[3] = {"<<result[0]<<", "<<result[1]<<", "<<result[2]<<"}"<<std::endl; 
+  // rotate "error vector"
+  fGeoMan->LocalToMasterVect(temp,result);
+  // positive error values
+  for(Int_t i=0;i<3;i++) result[i]=fabs(result[i]);
 
   if(actPath != "" && actPath != " ") fGeoMan->cd(actPath);
   return TVector3(result[0],result[1],result[2]);

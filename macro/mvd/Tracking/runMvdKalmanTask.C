@@ -2,14 +2,15 @@
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 3;
-  Int_t nEvents = 1000;
+  Int_t nEvents = 100;
   // ----  Load libraries   -------------------------------------------------
-  gROOT->Macro("../Libs.C");
-  gSystem->Load("libGeane");
+  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+//   gSystem->Load("libGeane");
   // ------------------------------------------------------------------------
   // Output file
     TString parFile = "../data/MvdTrackingParams.root";
     PndMvdFileNameCreator namecreator("../data/MvdTracking.root");
+    namecreator.SetVerbose(1);
     TString MCFile = namecreator.GetSimFileName(false).c_str();
     TString DigiFile = namecreator.GetDigiFileName(false).c_str();
     TString RecoFile = namecreator.GetRecoFileName(false).c_str();
@@ -48,52 +49,32 @@
   // ------------------------------------------------------------------------
 
   // THIS IS STRONGLY NEEDED
-  CbmGeane *Geane = new CbmGeane(MCFile);
-
-//   PndMultiField *fField= new PndMultiField();
-//   PndTransMap *map= new PndTransMap("TransMap", "R");
-//   PndDipoleMap *map1= new PndDipoleMap("DipoleMap", "R");
-//   PndSolenoidMap *map2= new PndSolenoidMap("SolenoidMap", "R");
-//   fField->AddField(map);
-//   fField->AddField(map1);
-//   fField->AddField(map2);
-//   Geane->SetField(fField);
-
-      PndConstField *fMagField=new PndConstField();
-      fMagField->SetField(0, 0 ,20. ); // values are in kG
-      // MinX=-75, MinY=-40,MinZ=-12 ,MaxX=75, MaxY=40 ,MaxZ=124 );  // values are in cm
-      fMagField->SetFieldRegion(-500, 500,-500, 500, -200, 200);
-      Geane->SetField(fMagField);
+  CbmGeane *Geane = new CbmGeane(MCFile.Data());
+  Geane->SetField(fRun->GetField());
 
 
   // -----  Parameter database   --------------------------------------------
   CbmRuntimeDb* rtdb = fRun->GetRuntimeDb();
-//  CbmParRootFileIo* parInput1 = new CbmParRootFileIo();
-  CbmParAsciiFileIo* parInput1 = new CbmParAsciiFileIo();
+  CbmParRootFileIo* parInput1 = new CbmParRootFileIo();
   parInput1->open(parFile.Data(),"in");
   rtdb->setFirstInput(parInput1);
-  /*Bool_t kParameterMerged=kTRUE;
-  CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
-  output->open(parOutFile);
-  rtdb->setOutput(output);
-*/  fRun->LoadGeometry();
+  fRun->LoadGeometry();
   // ------------------------------------------------------------------------
 
 
-
-  // =========================================================================
-  // ======                       Hit Producers                         ======
-  // =========================================================================
-  
-  // -----    MVD hit producer   --------------------------------------------
  
-  PndMvdKalmanTask* mvdKalman = new PndMvdKalmanTask();
-  mvdKalman->SetVerbose(iVerbose);
-  fRun->AddTask(mvdKalman);
+//   PndMvdKalmanTask* mvdKalman = new PndMvdKalmanTask();
+//   mvdKalman->SetVerbose(iVerbose);
+//   fRun->AddTask(mvdKalman);
 
-//  CbmParRootFileIo* output=new CbmParRootFileIo(kTRUE);
-//  output->open(parOutFile.Data());
-//  rtdb->setOutput(output);
+  PndLheKalmanTask* lheKalman = new PndLheKalmanTask();
+  lheKalman->SetVerbose(iVerbose);
+  //lheKalman->SetGeane(kTRUE);
+  lheKalman->SetSmooth(kTRUE);
+  lheKalman->SetNumIterations(3);
+  fRun->AddTask(lheKalman);
+
+
  rtdb->print();
   // =====                 End of HitProducers                           =====
   // =========================================================================
@@ -104,7 +85,7 @@
 
   fRun->Run(0,nEvents);
   // ------------------------------------------------------------------------
-  mvdKalman->WriteHistograms("MvdKalmanHistos.root");
+//   mvdKalman->WriteHistograms("MvdKalmanHistos.root");
 
   TFile histos("MvdKalmanHistos.root","READ");
 

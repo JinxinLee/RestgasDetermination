@@ -8,25 +8,27 @@
 #################################################################
 # Digitization parameters for RECTANGULAR Mvd strip sensors
 #################################################################
+# threshold set to 5 sigma (noise rate ~ DPM signals rate)
 [MVDStripDigiParRect]
 top_pitch:d 0.0120
 bot_pitch:d 0.0130
-orient:d 0
-skew:d 1.570796327
+orient:d 1.570796327
+skew:d -1.570796327
 top_anchor_x:d -3.0780
 top_anchor_y:d 1.6705
 bot_anchor_x:d -3.0780
 bot_anchor_y:d 1.6705
 nr_fe_channels:i 128
-nr_fe_top:i 10
-nr_fe_bottom:i 10
-charge_threshold:d 3000
+nr_fe_top:i 4
+nr_fe_bottom:i 2
+charge_threshold:d 5000
 charge_noise:d 1000
 sens_Type:s Rect
 fe_Type:s APV25
 #################################################################
 # Digitization parameters for TRAPEZOID Mvd strip sensors
 #################################################################
+# threshold set to 5 sigma (noise rate ~ DPM signals rate)
 [MVDStripDigiParTrap]
 top_pitch:d 0.0073
 bot_pitch:d 0.0073
@@ -37,19 +39,20 @@ top_anchor_y:d 3.28861
 bot_anchor_x:d -1.944
 bot_anchor_y:d 3.28861
 nr_fe_channels:i 128
-nr_fe_top:i 10
-nr_fe_bottom:i 10
-charge_threshold:d 3000
+nr_fe_top:i 4
+nr_fe_bottom:i 4
+charge_threshold:d 5000
 charge_noise:d 1000
 sens_Type:s Trap
 fe_Type:s APV25
 #################################################################
 # Digitization Parameters for MVD Pixel
 #################################################################
+# threshold set to 6 sigma (noise rate ~ DPM signals rate)
 [MVDPixelDigiPar]
 dimX:d 0.01
 dimY:d 0.01
-threshold:d 600
+threshold:d 1100
 noise:d 200
 FECols:i 104
 FERows:i 104

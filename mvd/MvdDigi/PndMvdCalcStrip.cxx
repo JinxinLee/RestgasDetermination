@@ -64,7 +64,7 @@ PndMvdCalcStrip::PndMvdCalcStrip(const PndMvdStripDigiPar* digipar, SensorSide s
   fOrthoDir.Set(sin(fOrient),-cos(fOrient));
   fVerboseLevel = 0;
   fRNG = new TRandom3();
-  Print();
+  if (fVerboseLevel > 0) Print();
 
 }
 

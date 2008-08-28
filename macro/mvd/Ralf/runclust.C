@@ -1,10 +1,10 @@
 {
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0;
-  Int_t nEvents = 100;
+  Int_t nEvents = 10000;
 
   // ----  Load libraries   -------------------------------------------------
-  gROOT->Macro("../Libs.C");
+  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 
 
   // -----   Timer   --------------------------------------------------------
@@ -13,10 +13,10 @@
 
   // Number of events to process
   // Parameter file
-//   TString parFile = "../data/mvddpm6GeV_digipar.root";
-//   PndMvdFileNameCreator namecreator("../data/mvddpm6GeV.root");
-  TString parFile = "../data/mvdStrip_digipar.root";
-  PndMvdFileNameCreator namecreator("../data/mvdStrip.root");
+  TString parFile = "../data/mvddpm6GeV_digipar.root";
+  PndMvdFileNameCreator namecreator("../data/mvddpm6GeV.root");
+//   TString parFile = "../data/mvdStrip_digipar.root";
+//   PndMvdFileNameCreator namecreator("../data/mvdStrip.root");
   // Input file (MC events)
   std::string simFile = namecreator.GetSimFileName();
   // Input data: digis
@@ -41,18 +41,16 @@
   fRun->LoadGeometry();
 
   // Cluster finding for strip detectors
-  Double_t noise = 1000.; /// put such stuff inside the task
-  Double_t chargecut = 3. * noise;
+  Double_t chargecut = 5000.;
   PndMvdStripClusterTask* mvdmccls = new PndMvdStripClusterTask(chargecut,simFile.c_str());
   mvdmccls->SetVerbose(iVerbose);
-	fRun->AddTask(mvdmccls);
+  fRun->AddTask(mvdmccls);
 
-  // Cluster finder for pixel detectors
-//                   (radius, FEcol, FErow, geofile)
-//   PndMvdPixelClusterTask* mvdClusterizer = new
-//     PndMvdPixelClusterTask(1.8,76,84, namecreator.GetSimFileName(true));
-//   mvdClusterizer->SetVerbose(iVerbose);
-//   fRun->AddTask(mvdClusterizer);
+  // Cluster finder for pixel detectors (radius, geofile)
+  PndMvdPixelClusterTask* mvdClusterizer = new
+    PndMvdPixelClusterTask(1.8,namecreator.GetSimFileName(true));
+  mvdClusterizer->SetVerbose(iVerbose);
+  fRun->AddTask(mvdClusterizer);
 
   fRun->AddTask(new PndMvdAccessRTDBTask());
 

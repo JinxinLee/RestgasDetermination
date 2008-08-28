@@ -1,7 +1,7 @@
 {
 
   // ----  Load libraries   -------------------------------------------------
-  gROOT->Macro("../Libs.C");
+  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 
 
   // -----   Timer   --------------------------------------------------------
@@ -11,16 +11,16 @@
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0;
   // Number of events to process
-  Int_t nEvents = 100;
+  Int_t nEvents = 10000;
   // Parameter file
-//   TString parFile = "../data/mvddpm6GeV_par.root";
-//   TString parOutFile = "../data/mvddpm6GeV_digipar.root";
-  TString parFile = "../data/mvdStrip_par.root";
-  TString parOutFile = "../data/mvdStrip_digipar.root";
+  TString parFile = "../data/mvddpm6GeV_par.root";
+  TString parOutFile = "../data/mvddpm6GeV_digipar.root";
+//   TString parFile = "../data/mvdStrip_par.root";
+//   TString parOutFile = "../data/mvdStrip_digipar.root";
   TString digiparFile = gSystem->Getenv("VMCWORKDIR");
   digiparFile += "/mvd/MvdTools/mvd.digi.par";
-//   PndMvdFileNameCreator namecreator("../data/mvddpm6GeV.root");
-  PndMvdFileNameCreator namecreator("../data/mvdStrip.root");
+  PndMvdFileNameCreator namecreator("../data/mvddpm6GeV.root");
+//   PndMvdFileNameCreator namecreator("../data/mvdStrip.root");
   // Input file (MC events)
   std::string inFile = namecreator.GetSimFileName();
   // Output file
@@ -46,9 +46,9 @@
   fRun->LoadGeometry();
 
   // -----   Digitization   ---------------------------------------
-// 	PndMvdDigiTask* mvddigi = new PndMvdDigiTask();
+//  PndMvdDigiTask* mvddigi = new PndMvdDigiTask();
 //   mvddigi->SetVerbose(iVerbose);
-// 	fRun->AddTask(mvddigi);
+//  fRun->AddTask(mvddigi);
   // =========================================================================
   // ======                       Hit Producers                         ======
   // =========================================================================
@@ -59,13 +59,17 @@
   fRun->AddTask(mvdHitProd2);
 
   // -----    MVD Pixel hit producer   ---------------------------------------
-//   Double_t  lx=0.01, ly=0.01, threshold=600, noise=200;
-//   PndMvdHybridHitProducer* mvdPixProd = new PndMvdHybridHitProducer(lx,ly,threshold,noise);
-//   mvdPixProd->SetVerbose(iVerbose);
-//   fRun->AddTask(mvdPixProd);
+  PndMvdHybridHitProducer* mvdPixProd = new PndMvdHybridHitProducer();
+  mvdPixProd->SetVerbose(iVerbose);
+  fRun->AddTask(mvdPixProd);
   // =====                 End of HitProducers                           =====
   // =========================================================================
-  fRun->AddTask(new PndMvdAccessRTDBTask());
+//   fRun->AddTask(new PndMvdAccessRTDBTask());
+
+  PndMvdNoiseProducer* mvdNoiseMaker = new PndMvdNoiseProducer();
+  mvdNoiseMaker->SetVerbose(iVerbose);
+  fRun->AddTask(mvdNoiseMaker);
+
 
      
   // -----   Intialise and run   --------------------------------------------

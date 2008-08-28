@@ -36,7 +36,7 @@ void DrawNice2DHisto(TH2* h,const char* opt="")
 {
   // Draw a 2D histo with the rainbow colors and the palette besides 
   TString options = "colz"; options += opt;
-  if(h->GetMaximum()<10.) h->SetAxisRange(0.,10.,"Z");
+  if(gPad->GetLogz() == 0 && h->GetMaximum()<10.) h->SetAxisRange(0.,10.,"Z");
   h->SetStats(kFALSE);
   h->SetTitleOffset(0.5,"T");
   gPad->SetRightMargin(0.10);
@@ -160,11 +160,15 @@ void LoadPandaStyle(void)
   pandaStyle->SetPadLeftMargin(0.12);
 
   // use large Times-Roman fonts
-  pandaStyle->SetTextFont(132);
+//   pandaStyle->SetTextFont(132);
+//   pandaStyle->SetLabelFont(132,"x");
+//   pandaStyle->SetLabelFont(132,"y");
+//   pandaStyle->SetLabelFont(132,"z");
+  pandaStyle->SetTextFont(22);//changed to bold (R.K.)
   pandaStyle->SetTextSize(0.08);
-  pandaStyle->SetLabelFont(132,"x");
-  pandaStyle->SetLabelFont(132,"y");
-  pandaStyle->SetLabelFont(132,"z");
+  pandaStyle->SetLabelFont(22,"x");//changed to bold (R.K.)
+  pandaStyle->SetLabelFont(22,"y");//changed to bold (R.K.)
+  pandaStyle->SetLabelFont(22,"z");//changed to bold (R.K.)
   pandaStyle->SetLabelSize(0.05,"x");
   pandaStyle->SetTitleSize(0.06,"x");
   pandaStyle->SetLabelSize(0.05,"y");
@@ -185,6 +189,9 @@ void LoadPandaStyle(void)
   // put tick marks on top and RHS of plots
   pandaStyle->SetPadTickX(1);
   pandaStyle->SetPadTickY(1);
+
+  //R.K. avoid clumsy axis lables
+  pandaStyle->SetNdivisions(509); // default root value is 510
 
   //cout <<"    For approved plots use: gROOT->SetStyle(\"PANDA\");"<< endl;
 

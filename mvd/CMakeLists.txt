@@ -25,6 +25,8 @@ ${CMAKE_SOURCE_DIR}/PndTools/riemannfit
 ${CMAKE_SOURCE_DIR}/trackbase
 ${CMAKE_SOURCE_DIR}/trackrep
 ${CMAKE_SOURCE_DIR}/geane
+${CMAKE_SOURCE_DIR}/PndTools/riemannfit
+${CMAKE_SOURCE_DIR}/tpc
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -52,6 +54,7 @@ MvdDigi/PndMvdHybridHitProducer.cxx
 MvdDigi/PndMvdStripHitProducer.cxx
 MvdDigi/PndMvdHitProducerIdeal.cxx
 MvdDigi/PndMvdDigiTask.cxx
+MvdDigi/PndMvdNoiseProducer.cxx
 
 MvdMC/PndMvdDetector.cxx
 MvdMC/PndMvdGeo.cxx
@@ -71,6 +74,7 @@ MvdTools/PndMvdAllDataEventAna.cxx
 MvdTools/PndMvdFileNameCreator.cxx
 MvdTools/PndGeoHitList.cxx
 MvdTools/PndEventDisplay.cxx
+MvdTools/PndMvdEventAnaTask.cxx
 
 )
 set (MVD_RULECHECKER_SRCS ${MVD_SRCS})
@@ -117,10 +121,11 @@ MvdReco/PndMvdStripClusterTask.cxx
 MvdReco/PndMvdIdealRecoTask.cxx
 
 MvdTracking/PndMvdIdealTrackFinderTask.cxx
-# MvdTracking/PndMvdIdealTrackingTask.cxx
 MvdTracking/PndMvdKalmanTask.cxx
-#MvdTracking/PndMvdRiemannTrackFinderTask.cxx
-#MvdTracking/PndMvdTrackFinderAnaTask.cxx
+MvdTracking/PndMvdRiemannTrackFinderTask.cxx
+MvdTracking/PndMvdTrackFinderAnaTask.cxx
+# MvdTracking/PndMvdTpcRiemannCorrelatorTask.cxx
+
 
 )
 set (MVD_RULECHECKER_SRCS ${MVD_RULECHECKER_SRCS} ${MVDRECO_SRCS})

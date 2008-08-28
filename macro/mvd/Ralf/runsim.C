@@ -5,20 +5,22 @@
   timer.Start();
   gDebug=0;
   int verboseLevel = 0;
-  Int_t nEvents = 100;
+  Int_t nEvents = 10000;
   // ----  Load libraries   -------------------------------------------------
-  gROOT->Macro("../Libs.C");
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  rootlogon();
+//   gROOT->Macro("../Libs.C");
 
   CbmRunSim *fRun = new CbmRunSim();
 
   // set the MC version used
   // ------------------------
 
-  fRun->SetName("TGeant3");
+  fRun->SetName("TGeant4");
   // Choose the Geant Navigation System
 
-//   PndMvdFileNameCreator namecreator("../data/mvddpm6GeV.root");
-  PndMvdFileNameCreator namecreator("../data/mvdStrip.root");
+  PndMvdFileNameCreator namecreator("../data/mvddpm6GeV.root");
+//   PndMvdFileNameCreator namecreator("../data/mvdStrip.root");
   std::string filename = namecreator.GetSimFileName();
   fRun->SetOutputFile(filename.c_str());
 
@@ -46,7 +48,7 @@
   Mvd->SetGeometryFileName("MVD_v1.0_woPassiveTraps.root");
   //Mvd->SetGeometryFileName("MVD14.root");
   Mvd->SetVerboseLevel(verboseLevel);
-  Mvd->SetExclusiveSensorType("StripActive");
+//   Mvd->SetExclusiveSensorType("StripActive");
   fRun->AddModule(Mvd);
 // fRun->AddModule((CbmDetector*)Mvd);
 
@@ -73,12 +75,12 @@
  //    primGen->AddGenerator(fIongen);
 
  // Box Generator
-    PndBoxGenerator *fBox = new PndBoxGenerator(2212, 5);
+/*    PndBoxGenerator *fBox = new PndBoxGenerator(2212, 5);
     fBox->SetPRange(0.5,0.5);
-    fBox->SetThetaRange(135,150); 
+    fBox->SetThetaRange(135,150); */
 //     fBox->SetThetaRange(15,150); //all
 //     fBox->SetCosTheta();
-    primGen->AddGenerator(fBox);
+//     primGen->AddGenerator(fBox);
 
   //EvtGen Generator
 // CbmEvtGenGenerator* evtGen = new
@@ -93,8 +95,8 @@
 
 
  // DPM Generator
-//  PndDpmGenerator* dpmGen = new PndDpmGenerator("../data/Events/dpm6GeV.root");
-//  primGen->AddGenerator(dpmGen);
+ PndDpmGenerator* dpmGen = new PndDpmGenerator("../data/Events/dpm6GeV.root");
+ primGen->AddGenerator(dpmGen);
 
 
   //K+
@@ -167,7 +169,8 @@
   CbmRuntimeDb *rtdb=fRun->GetRuntimeDb();
   Bool_t kParameterMerged=kTRUE;
   CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
-  output->open("../data/mvdStrip_par.root");
+//   output->open("../data/mvdStrip_par.root");
+  output->open("../data/mvddpm6GeV_par.root");
   rtdb->setOutput(output);
   rtdb->saveOutput();
   rtdb->print();

@@ -77,8 +77,7 @@
   //----------------------------------------------------------------------//
   // CLUST
   // Cluster finding for strip detectors
-  Double_t noise = 1000.; /// put such stuff inside the task
-  Double_t chargecut = 3. * noise;
+  Double_t chargecut = 1.e5;
   PndMvdStripClusterTask* mvdmccls = new PndMvdStripClusterTask(chargecut,namecreator.GetSimFileName(true));
   mvdmccls->SetVerbose(iVerbose);
   fRun->AddTask(mvdmccls);

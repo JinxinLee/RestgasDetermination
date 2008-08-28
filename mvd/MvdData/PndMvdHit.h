@@ -74,16 +74,19 @@ class PndMvdHit : public CbmHit
   Int_t     GetBotIndex()  const { return fBotIndex;}
   Double_t  GetEloss()     const { return (fCharge * 3.61e-9);}  // 3.6 eV/Electron in Silicon
 
-  Double_t GetDxLocal() const { return fDx;};
-  Double_t GetDyLocal() const { return fDy;};
-  Double_t GetDzLocal() const { return fDz;};
-  void PositionErrorLocal(TVector3& dpos) const;
 
-  /** overloaded accessors **/
-  Double_t GetDx() {return GetD(0);};
-  Double_t GetDy() {return GetD(1);};
-  Double_t GetDz() {return GetD(2);};
-  void PositionError(TVector3& dpos);
+//   // CAUTION The errors in the MvdHit are LOCAL, but the coordinates are in the LAB
+// 
+//   Double_t GetDxLocal() const { return fDx;};
+//   Double_t GetDyLocal() const { return fDy;};
+//   Double_t GetDzLocal() const { return fDz;};
+//   void PositionErrorLocal(TVector3& dpos) const;
+
+//   /** overloaded accessors **/
+//   Double_t GetDx() {return GetD(0);};
+//   Double_t GetDy() {return GetD(1);};
+//   Double_t GetDz() {return GetD(2);};
+//   void PositionError(TVector3& dpos);
 
 
 
@@ -92,7 +95,7 @@ class PndMvdHit : public CbmHit
   virtual void Print(const Option_t* opt = 0) const;
 
  private:
-  Double_t GetD(Int_t i);
+//   Double_t GetD(Int_t i);
 
   TString fDetName;  // Detector name
   Double_t fCharge; /// deposited Charge
@@ -103,12 +106,12 @@ class PndMvdHit : public CbmHit
 
 };
 
-inline void PndMvdHit::PositionErrorLocal(TVector3& dpos) const {
-  dpos.SetXYZ(fDx, fDy, fDz); 
-}
-
-inline void PndMvdHit::PositionError(TVector3& dpos) {
-  dpos.SetXYZ(GetDx(), GetDy(), GetDz()); 
-}
+// inline void PndMvdHit::PositionErrorLocal(TVector3& dpos) const {
+//   dpos.SetXYZ(fDx, fDy, fDz); 
+// }
+// 
+// inline void PndMvdHit::PositionError(TVector3& dpos) {
+//   dpos.SetXYZ(GetDx(), GetDy(), GetDz()); 
+// }
 
 #endif

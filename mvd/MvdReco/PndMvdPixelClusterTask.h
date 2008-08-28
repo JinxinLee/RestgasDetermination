@@ -46,7 +46,7 @@ class PndMvdPixelClusterTask : public CbmTask
     /** Default constructor **/  
     PndMvdPixelClusterTask();
   
-    PndMvdPixelClusterTask(Double_t radius, Int_t FEcolumns, Int_t FErows, TString geoFile = "");
+    PndMvdPixelClusterTask(Double_t radius, TString geoFile = "");
 
     /** Destructor **/
     virtual ~PndMvdPixelClusterTask();
@@ -80,8 +80,6 @@ class PndMvdPixelClusterTask : public CbmTask
   void ProduceHits();
 
   Double_t fRadius;
-  Int_t fFEcolumns;
-  Int_t fFErows;
   TString fGeoFile;
 	
   std::vector<Double_t> fParams;

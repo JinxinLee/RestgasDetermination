@@ -81,8 +81,8 @@ PndMvdHit PndMvdChargeWeightedPixelMapping::GetCluster()
   TVector3 locpos( col*fParams[2] - offset.X(), row*fParams[3] - offset.Y(), 0);
   TVector3 pos = fGeoH->LocalToMasterId(locpos,fDigiArray[0].GetDetName().Data());
 
-  TVector3 locdpos(fParams[2]/TMath::Sqrt(12.0),fParams[3]/TMath::Sqrt(12.0),0);
-//   TVector3 dpos = fGeoH->LocalToMasterId(locdpos,fDigiArray[0].GetDetName().Data());
+  Double_t errZ = 2.*fGeoH->GetSensorDimensionsID(fDigiArray[0].GetDetName()).Z()/TMath::Sqrt(12.0);
+  TVector3 locdpos(fParams[2]/TMath::Sqrt(12.0),fParams[3]/TMath::Sqrt(12.0),errZ);
   TVector3 dpos = fGeoH->LocalToMasterErrorsId(locdpos,fDigiArray[0].GetDetName().Data());
   
             

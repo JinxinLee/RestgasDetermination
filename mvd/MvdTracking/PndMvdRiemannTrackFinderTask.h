@@ -32,6 +32,13 @@ private:
     
     int fEventNr;
 
+  double fMaxSZChi2;
+  double fMaxSZDist;
+  double fMinPointDist;
+  double fMaxDist;
+
+
+
 	TClonesArray* fHitArray;
 	TClonesArray* fHitArray2;	
 	TClonesArray* fTrackCandArray;

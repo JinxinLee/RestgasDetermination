@@ -16,10 +16,11 @@ runMvdCombi()
   // Parameter file
   TString parFile = "../data/MvdTrackingParams.root";
   PndMvdFileNameCreator namecreator("../data/MvdTracking.root");
+  namecreator.SetVerbose(1);
   std::string simFile = namecreator.GetSimFileName();
   std::string outFile = namecreator.GetRecoFileName();
-  TString digiparFile = gSystem->Getenv("VMCWORKDIR");
-  digiparFile += "/mvd/MvdTools/mvd.digi.par";
+  TString allDigiFile = gSystem->Getenv("VMCWORKDIR");
+  allDigiFile += "/macro/params/all.par";
 
   // -----   Reconstruction run   -------------------------------------------
   CbmRunAna *fRun= new CbmRunAna();
@@ -33,76 +34,58 @@ runMvdCombi()
   rtdb->setFirstInput(parInput1);
 
   CbmParAsciiFileIo* parInput2 = new CbmParAsciiFileIo();
-  parInput2->open(digiparFile.Data(),"in");
+  parInput2->open(allDigiFile.Data(),"in");
   rtdb->setSecondInput(parInput2);
 
   fRun->LoadGeometry();
 
 
-
-  //----------------------------------------------------------------------//
-  // DIGI
-//   double   topPitch=0.015,//cm
-//            botPitch=0.015,//cm
-//            orient=TMath::Pi()*(0.5),
-//            skew=TMath::Pi()*(0.5);
-//   TVector2 topAnchor(0.,0.);
-//   TVector2 botAnchor(0.,0.);
-//   int      topFE = 10,
-//            botFE = 4,
-//            nrFEChannels = 128;
-//   double   threshold=3000., noise=1000.;
-//   PndMvdStripHitProducer* mvdHitProd
-//     = new PndMvdStripHitProducer(topPitch, botPitch,
-//                               orient, skew,
-//                               topAnchor,botAnchor,
-//                               topFE, botFE, nrFEChannels,
-//                               threshold, noise);
-
+  // ----- Mvd digi producers -------------------------------------
   PndMvdStripHitProducer* mvdHitProd = new PndMvdStripHitProducer();
   mvdHitProd->SetVerbose(iVerbose);
   fRun->AddTask(mvdHitProd);
 
-  Double_t  lx=0.01, ly=0.01, threshold=600, noise=200;
-  PndMvdHybridHitProducer* mvdPixProd = new PndMvdHybridHitProducer(lx,ly,threshold,noise);
+  PndMvdHybridHitProducer* mvdPixProd = new PndMvdHybridHitProducer();
   mvdPixProd->SetVerbose(iVerbose);
   fRun->AddTask(mvdPixProd);
-  //----------------------------------------------------------------------//
-  //----------------------------------------------------------------------//
-
-
-
-
-  //----------------------------------------------------------------------//
-  // CLUST
+ 
   // Cluster finding for strip detectors
-  Double_t noise = 1000.; /// put such stuff inside the parameter lists
-  Double_t chargecut = 3. * noise;
-  PndMvdStripClusterTask* mvdmccls = new PndMvdStripClusterTask(chargecut,namecreator.GetSimFileName(true));
+  PndMvdStripClusterTask* mvdmccls = new PndMvdStripClusterTask(5000., simFile);
   mvdmccls->SetVerbose(iVerbose);
   fRun->AddTask(mvdmccls);
+  
   // Cluster finder for pixel detectors
-  PndMvdPixelClusterTask* mvdClusterizer = new
-    PndMvdPixelClusterTask(1.8,76,84, namecreator.GetSimFileName(true));
+  PndMvdPixelClusterTask* mvdClusterizer = new PndMvdPixelClusterTask(1.8, simFile);
   mvdClusterizer->SetVerbose(iVerbose);
   fRun->AddTask(mvdClusterizer);
-  //----------------------------------------------------------------------//
-  //----------------------------------------------------------------------//
 
+  // -----   TPC digi producers   ---------------------------------
+  PndTpcClusterizerTask* tpcClusterizer = new PndTpcClusterizerTask();
+  //tpcClusterizer->SetPersistence();
+  fRun->AddTask(tpcClusterizer);
+ 
+  PndTpcDriftTask* tpcDrifter = new PndTpcDriftTask();
+  // tpcDrifter->SetPersistence();
+  tpcDrifter->SetDistort(false);
+  fRun->AddTask(tpcDrifter);
 
+  PndTpcGemTask* tpcGem = new PndTpcGemTask();
+  //tpcGem->SetPersistence();
+  fRun->AddTask(tpcGem);
 
-  //----------------------------------------------------------------------//
-  // TRACKFINDER
-  PndMvdIdealTrackFinderTask* mvdTrackFinder = new PndMvdIdealTrackFinderTask();
-  mvdTrackFinder->SetVerbose(iVerbose);
-  fRun->AddTask(mvdTrackFinder);
-  //----------------------------------------------------------------------//
+  PndTpcPadResponseTask* tpcPadResponse = new PndTpcPadResponseTask();
+  tpcPadResponse->SetPersistence();
+  fRun->AddTask(tpcPadResponse);
 
+  PndTpcElectronicsTask* tpcElec = new PndTpcElectronicsTask();
+  tpcElec->SetPersistence();
+  fRun->AddTask(tpcElec);
 
-  // KALMAN
-//   PndMvdKalmanTask* mvdKalman = new PndMvdKalmanTask();
-//   mvdKalman->SetVerbose(3);
-//   fRun->AddTask(mvdKalman);
+  PndTpcClusterFinderTask* tpcCF = new PndTpcClusterFinderTask();
+  tpcCF->SetPersistence();
+  tpcCF->timeslice(20); // = 4 sample times = 100ns @ 40MHz
+  fRun->AddTask(tpcCF);
+
 
 
   // -----   Intialise and run   --------------------------------------------

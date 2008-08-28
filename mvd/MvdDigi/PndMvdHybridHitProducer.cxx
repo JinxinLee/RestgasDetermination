@@ -234,7 +234,8 @@ void PndMvdHybridHitProducer::Exec(Option_t* opt)
 
     }   // Loop over MCPoints
   for (int iPix = 0; iPix < fPixelList.size(); iPix++){
-	if (fVerbose > 1)  std::cout << fPixelList[iPix] << std::endl;
+    if (fPixelList[iPix].GetCharge()<=fthreshold) continue;
+	  if (fVerbose > 1)  std::cout << fPixelList[iPix] << std::endl;
     new ((*fPixelArray)[iFePixel++])
           PndMvdDigiPixel( fPixelList[iPix].GetFirstMCIndex(), detID, fPixelList[iPix].GetDetName() ,fPixelList[iPix].GetFE(),
                        fPixelList[iPix].GetCol(), fPixelList[iPix].GetRow(),

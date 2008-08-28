@@ -38,7 +38,7 @@ ClassImp(PndMvdRecoHit);
 
 PndMvdRecoHit::~PndMvdRecoHit()
 {
-//   if(fGeoH!=0) 
+  if(fGeoH!=0)
   delete (fGeoH);
 }
 
@@ -54,30 +54,43 @@ PndMvdRecoHit::PndMvdRecoHit(PndMvdMCPoint* point)
 {
   std::cout<<" -I- PndMvdRecoHit::PndMvdRecoHit(PndMvdMCPoint*) called."<<std::endl;
  
-  TVector3 o, u, v, p;
-//   if(fGeoH==0) 
-  fGeoH = new PndMvdGeoHandling(gGeoManager);
-  fGeoH->GetOUVId(point->GetDetName(),o,u,v);
+  _hitCoord[0][0] =  point->GetX();
+  _hitCoord[1][0] =  point->GetY();
+
+  _hitCov[0][0] = 0.1;
+  _hitCov[1][1] = 0.1;
+
+  TVector3  o(0.,0.,point->GetZ()),
+            u(1.,0.,0.),
+            v(0.,1.,0.);
+
   setDetPlane(DetPlane(o,u,v));
 
-  //  convert from global to local frame, use the middle of the sensor
-  p = fGeoH->MasterToLocalId( 
-        0.5*(point->GetPosition() + point->GetPositionOut()) , 
-        point->GetDetName());
+// // // //   TVector3 o, u, v, p;
+// // // // //   if(fGeoH==0) 
+// // // //   fGeoH = new PndMvdGeoHandling(gGeoManager);
+// // // //   fGeoH->GetOUVId(point->GetDetName(),o,u,v);
+// // // //   setDetPlane(DetPlane(o,u,v));
+// // // // 
+// // // //   //  convert from global to local frame, use the middle of the sensor
+// // // //   p = fGeoH->MasterToLocalId( 
+// // // //         0.5*(point->GetPosition() + point->GetPositionOut()) , 
+// // // //         point->GetDetName());
+// // // // 
+// // // //   _hitCoord[0][0] = p.X();
+// // // //   _hitCoord[1][0] = p.Y();
+// // // //   _hitCoord[2][0] = 0.; // local point!
+// // // // 
+// // // //   Double_t sigx=0.1/TMath::Sqrt(12);
+// // // //   Double_t sigy=0.1/TMath::Sqrt(12);
+// // // // 
+// // // //   Double_t cost=1., sint=0.;
+// // // // 
+// // // //   _hitCov[0][0] = cost*sigx*sigx;
+// // // //   _hitCov[0][1] = sint*sigx*sigy;
+// // // //   _hitCov[1][0] = sint*sigy*sigx;
+// // // //   _hitCov[1][1] = cost*sigy*sigy;
 
-  _hitCoord[0][0] = p.X();
-  _hitCoord[1][0] = p.Y();
-  _hitCoord[2][0] = 0.; // local point!
-
-  Double_t sigx=0.1/TMath::Sqrt(12);
-  Double_t sigy=0.1/TMath::Sqrt(12);
-
-  Double_t cost=1., sint=0.;
-
-  _hitCov[0][0] = cost*sigx*sigx;
-  _hitCov[0][1] = sint*sigx*sigy;
-  _hitCov[1][0] = sint*sigy*sigx;
-  _hitCov[1][1] = cost*sigy*sigy;
 }
 
 PndMvdRecoHit::PndMvdRecoHit(PndMvdHit* hit)
@@ -86,28 +99,46 @@ PndMvdRecoHit::PndMvdRecoHit(PndMvdHit* hit)
 
   std::cout<<" -I- PndMvdRecoHit::PndMvdRecoHit(PndMvdHit*) called."<<std::endl;
   std::cout<<*hit<<std::endl;
-//   if(fGeoH==0) 
-  fGeoH = new PndMvdGeoHandling(gGeoManager);
 
-  TVector3 o, u, v, p;
-  fGeoH->GetOUVId(hit->GetDetName(),o,u,v);
-  setDetPlane(DetPlane(o,u,v));
-  std::cout << "o: " << o.X() << " " << o.Y() << " " << o.Z() << std::endl;
-  std::cout << "u: " << u.X() << " " << u.Y() << " " << u.Z() << std::endl;
-  std::cout << "v: " << v.X() << " " << v.Y() << " " << v.Z() << std::endl;
-  setDetPlane(DetPlane(o,u,v));
+  _hitCoord[0][0] =  hit->GetX();
+  _hitCoord[1][0] =  hit->GetY();
 
-  // get local hit values
-  //  convert from global to local frame, use the middle of the sensor
-  p = fGeoH->MasterToLocalId(hit->GetPosition() , hit->GetDetName());
-  _hitCoord[0][0] = p.X();
-  _hitCoord[1][0] = p.Y();
-  _hitCoord[2][0] = 0.; // local point!
-
-  // get covarianve values 
   _hitCov[0][0] = hit->GetDx();
   _hitCov[1][1] = hit->GetDy();
-  _hitCov[2][2] = hit->GetDz();
+
+  TVector3  o(0.,0.,hit->GetZ()),
+            u(1.,0.,0.),
+            v(0.,1.,0.);
+
+  setDetPlane(DetPlane(o,u,v));
+
+// // // //   if(fGeoH==0) 
+// // //   fGeoH = new PndMvdGeoHandling(gGeoManager);
+// // // 
+// // //   TVector3 o, u, v, p;
+// // //   fGeoH->GetOUVId(hit->GetDetName(),o,u,v);
+// // //   setDetPlane(DetPlane(o,u,v));
+// // //   std::cout << "o: " << o.X() << " " << o.Y() << " " << o.Z() << std::endl;
+// // //   std::cout << "u: " << u.X() << " " << u.Y() << " " << u.Z() << std::endl;
+// // //   std::cout << "v: " << v.X() << " " << v.Y() << " " << v.Z() << std::endl;
+// // //   setDetPlane(DetPlane(o,u,v));
+// // // 
+// // //   // get local hit values
+// // //   //  convert from global to local frame, use the middle of the sensor
+// // //   p = fGeoH->MasterToLocalId(hit->GetPosition() , hit->GetDetName());
+// // //   _hitCoord[0][0] = p.X();
+// // //   _hitCoord[1][0] = p.Y();
+// // //   _hitCoord[2][0] = 0.; // local point!
+// // // 
+// // //   // get covarianve values 
+// // //   _hitCov[0][0] = 0.012/TMath::Sqrt(12.);
+// // //   _hitCov[1][1] = 0.012/TMath::Sqrt(12.);
+// // //   _hitCov[2][2] = 0.;
+// // // //   _hitCov[0][0] = hit->GetDxLocal();
+// // // //   _hitCov[1][1] = hit->GetDyLocal();
+// // // //   _hitCov[2][2] = hit->GetDzLocal();
+// // // // 
+// // // //   std::cout<<"hit: ["<<p.X()<<","<<p.Y()<<",0.]   error: ["<<_hitCov[0][0]<<","<<_hitCov[1][1]<<","<<_hitCov[2][2]<<"]"<<std::cout;
 
 }
 
@@ -167,55 +198,54 @@ PndMvdRecoHit::setHMatrix(const AbsTrackRep* stateVector,
     //I know, since this is the same everytime, it could be done in the
     //the constructor, but I do it here anyway, to make clear that in the
     //case of several track-reps per hit, it would have to be done here
-    // LSLTrackRep (x,y,x',y',q/p)
+    // LSLTrackRep (x,y,x',y',q/p) recohits are (Xloc,Yloc,0.)
+    // The virtual detector plane in LSL is perpendicular to Zlab
     _HMatrix.ResizeTo(fNparHitRep,5);
-    //       x
-    _HMatrix[0][0] = getDetPlane(0).getU().X(); 
-    _HMatrix[0][1] = getDetPlane(0).getV().X();
+    _HMatrix[0][0] = 1.;
+    _HMatrix[0][1] = 0.;
     _HMatrix[0][2] = 0.;
     _HMatrix[0][3] = 0.;
     _HMatrix[0][4] = 0.;
-    //       y
-    _HMatrix[1][0] = getDetPlane(0).getU().Y(); 
-    _HMatrix[1][1] = getDetPlane(0).getV().Y();
+
+    _HMatrix[1][0] = 0.;
+    _HMatrix[1][1] = 1.;
     _HMatrix[1][2] = 0.;
     _HMatrix[1][3] = 0.;
     _HMatrix[1][4] = 0.;
-    //       z
-    _HMatrix[2][0] = getDetPlane(0).getU().Z(); 
-    _HMatrix[2][1] = getDetPlane(0).getV().Z();
-    _HMatrix[2][2] = 0.; 
-    _HMatrix[2][3] = 0.;
-    _HMatrix[2][4] = 0.;
-    //Set shifting vector to coordinates
-    //avoid division with a small number)
-    if(state[0][0] > 1E-4) {
-      _HMatrix[0][0] += getDetPlane(0).getO().X() / state[0][0] ;
-      _HMatrix[1][0] += getDetPlane(0).getO().Y() / state[0][0] ;
-      _HMatrix[2][0] += getDetPlane(0).getO().Z() / state[0][0] ;
-    } else {
-      _HMatrix[0][1] += getDetPlane(0).getO().X() / state[1][0] ;
-      _HMatrix[1][1] += getDetPlane(0).getO().Y() / state[1][0] ;
-      _HMatrix[2][1] += getDetPlane(0).getO().Z() / state[1][0] ;
-    }
 
-//     _HMatrix[0][0] = 1.;
-//     _HMatrix[0][1] = 0.;
-//     _HMatrix[0][2] = 0.;
-//     _HMatrix[0][3] = 0.;
-//     _HMatrix[0][4] = 0.;
-// 
-//     _HMatrix[1][0] = 0.;
-//     _HMatrix[1][1] = 1.;
-//     _HMatrix[1][2] = 0.;
-//     _HMatrix[1][3] = 0.;
-//     _HMatrix[1][4] = 0.;
-//     
-//     _HMatrix[2][0] = 0.;
-//     _HMatrix[2][1] = 0.;
-//     _HMatrix[2][2] = 1.;
-//     _HMatrix[2][3] = 0.;
-//     _HMatrix[2][4] = 0.;
+// // // // //     //       x
+// // // // //     _HMatrix[0][0] = getDetPlane(0).getU().X(); 
+// // // // //     _HMatrix[0][1] = getDetPlane(0).getV().X();
+// // // // //     _HMatrix[0][2] = 0.;
+// // // // //     _HMatrix[0][3] = 0.;
+// // // // //     _HMatrix[0][4] = 0.;
+// // // // //     //       y
+// // // // //     _HMatrix[1][0] = getDetPlane(0).getU().Y(); 
+// // // // //     _HMatrix[1][1] = getDetPlane(0).getV().Y();
+// // // // //     _HMatrix[1][2] = 0.;
+// // // // //     _HMatrix[1][3] = 0.;
+// // // // //     _HMatrix[1][4] = 0.;
+// // // // //     //       z
+// // // // //     _HMatrix[2][0] = getDetPlane(0).getU().Z();
+// // // // //     _HMatrix[2][1] = getDetPlane(0).getV().Z();
+// // // // //     _HMatrix[2][2] = 0.;
+// // // // //     _HMatrix[2][3] = 0.;
+// // // // //     _HMatrix[2][4] = 0.;
+// // // // //     //Set shifting vector to coordinates
+// // // // //     //avoid division with a small number)
+// // // // //     if(fabs(state[0][0]) > 1E-4 && fabs(state[0][0]) > fabs(state[1][0])) {
+// // // // //       _HMatrix[0][0] += getDetPlane(0).getO().X() / state[0][0] ;
+// // // // //       _HMatrix[1][0] += getDetPlane(0).getO().Y() / state[0][0] ;
+// // // // //       _HMatrix[2][0] += getDetPlane(0).getO().Z() / state[0][0] ;
+// // // // //     } else if(fabs(state[1][0]) > 1E-4) {
+// // // // //       _HMatrix[0][1] += getDetPlane(0).getO().X() / state[1][0] ;
+// // // // //       _HMatrix[1][1] += getDetPlane(0).getO().Y() / state[1][0] ;
+// // // // //       _HMatrix[2][1] += getDetPlane(0).getO().Z() / state[1][0] ;
+// // // // //     } else {
+// // // // //       std::cerr<<" -E- PndMvdRecoHit::setHMatrix(): State vector is strange. --> abort now"<<std::endl;
+// // // // //       std::cerr<<"["<<state[0][0]<<","<<state[1][0]<<"]"<<std::endl;
+// // // // //       abort();
+// // // // //     }
 
   }
   else {

@@ -43,7 +43,6 @@ class CbmVolume;
 PndMvdDetector::PndMvdDetector() {
   fPndMvdCollection = new TClonesArray("PndMvdMCPoint");
   fPosIndex = 0;
-  fVerboseLevel = 1;
   fListOfSensitives.push_back("Disk-Sensor");//Root_Test.root
   fListOfSensitives.push_back("Barrel-Sensor");//Root_Test.root
   fListOfSensitives.push_back("PixelActive");//Root_Test.root
@@ -67,7 +66,6 @@ PndMvdDetector::PndMvdDetector(const char* name, Bool_t active)
   : CbmDetector(name, active) {
   fPndMvdCollection = new TClonesArray("PndMvdMCPoint");
   fPosIndex = 0;
-  fVerboseLevel = 1;
   fListOfSensitives.push_back("Disk-Sensor");//Root_Test.root
   fListOfSensitives.push_back("Barrel-Sensor");//Root_Test.root
   fListOfSensitives.push_back("PixelActive");

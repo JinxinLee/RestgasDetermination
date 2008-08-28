@@ -1,36 +1,71 @@
 {
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
-  Int_t iVerbose = 0;
+  Int_t iVerbose = 1;
   // Input file (MC events)
-  TString MCFile = "Mvd_Test.root";
+//  TString MCFile = "Mvd_TestNewVersion.root";
   // Parameter file
-  TString parFile = "MvdParams.root";
+//  TString parFile = "MvdParamsNewVersion.root";
   // Parameter output file
-  // TString parOutFile = "MvdParams.root";
+  TString parOutFile = "MvdParamsNewVersion.root";
   // Number of events to process
-  Int_t nEvents = 10;
+  Int_t nEvents = 100;
   // ----  Load libraries   -------------------------------------------------
-//   gROOT->Macro("Libs.C");
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+  //gROOT->Macro("Libs.C");
+
+ // gSystem->Load("libriemann");
+
   // ------------------------------------------------------------------------
-  // Output file
-    PndMvdFileNameCreator creator(MCFile.Data());
-    TString DigiFile = creator.GetDigiFileName(false).c_str();
-    TString outFile = creator.GetRecoFileName(false).c_str();
-    
-    std::cout << "MCFile  : " << MCFile.Data()<< std::endl;
-    std::cout << "DigiFile: " << DigiFile.Data()<< std::endl;
-    std::cout << "RecoFile: " << outFile.Data()<< std::endl;
+  TString inFile="$SIMPATH/pandaroot/macro/data/MvdTpc_D+D-_2Disks/digiMVD/recoMVD/Combined.reco.root";
+  TString jobname="riemannMVD";
+
+  TString mcFile="$SIMPATH/pandaroot/macro/data/MvdTpc_D+D-_2Disks/Combined.mc.root";
+  
+  TString SIMPATH = gSystem->Getenv("SIMPATH");
+  
+  inFile.ReplaceAll("$SIMPATH",SIMPATH);
+  mcFile.ReplaceAll("$SIMPATH",SIMPATH);
+
+  TString inDir=inFile(0,inFile.Last('/')+1);
+  // make new subdir
+  TString jobDir=inDir; jobDir+=jobname; jobDir+="/";
+  TString cmd="mkdir ";
+  cmd+=jobDir; 
+  if(gSystem->Exec(cmd)){
+    std::cout<<"Could not create Job-Directory "<<jobDir
+	     <<". Aborting."<<std::endl;
+    return;
+  }
+  
+  TString outFile = inFile; 
+  outFile.ReplaceAll(inDir,jobDir);
+  outFile.ReplaceAll(".reco.root",".riemann.root");
+
+  TString paramIn = inFile;
+  paramIn.ReplaceAll(".reco.root",".param.root");
+  TString paramOut = outFile;
+  paramOut.ReplaceAll(".riemann.root",".param.root");
+
+/*
+  TString mcDir = inDir;
+  mcDir=mcDir(0,mcDir.Last('/')); // remove last /
+  mcDir=mcDir(0,mcDir.Last('/')+1); // one directory up
+  TString mcFile= inFile;
+  mcFile.ReplaceAll(inDir,mcDir);
+  mcFile.ReplaceAll(".raw.root",".mc.root");
+  */
+  
+  std::cout<<"Input: "<<inFile<<std::endl;
+  std::cout<<"Output: "<<outFile<<std::endl;
+  std::cout<<"MCFile: "<<mcFile<<std::endl;
+  std::cout<<"ParamIn: "<<paramIn<<std::endl;
+  std::cout<<"ParamOut: "<<paramOut<<std::endl;
+
   // ---  Now choose concrete engines for the different tasks   -------------
   // ------------------------------------------------------------------------
-
-
   // In general, the following parts need not be touched
   // ========================================================================
-
-
-
 
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
@@ -41,8 +76,8 @@
 
   // -----   Reconstruction run   -------------------------------------------
   CbmRunAna *fRun= new CbmRunAna();
-  fRun->SetInputFile(DigiFile);
-  fRun->AddFriend(MCFile);
+  fRun->SetInputFile(inFile);
+  
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
 
@@ -50,17 +85,16 @@
 
   // -----  Parameter database   --------------------------------------------
   CbmRuntimeDb* rtdb = fRun->GetRuntimeDb();
+
   CbmParRootFileIo* parInput1 = new CbmParRootFileIo(kTRUE);
-  parInput1->open(parFile.Data(),"UPDATE");
+  parInput1->open(paramIn.Data(),"UPDATE");
 //   CbmParAsciiFileIo* parInput1 = new CbmParAsciiFileIo();
 //   parInput1->open(parFile.Data(),"in");
+
   rtdb->setFirstInput(parInput1);
-  /*Bool_t kParameterMerged=kTRUE;
-  CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
-  output->open(parOutFile);
-  rtdb->setOutput(output);
-*/  
-// fRun->LoadGeometry();
+  Bool_t kParameterMerged=kTRUE;
+//  CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
+//  output->open(parOutFile.Data(),"RECREATE");
   // ------------------------------------------------------------------------
 
 
@@ -71,28 +105,26 @@
   
   // -----    MVD hit producer   --------------------------------------------
  
-  Double_t chargecut = 1.e5;
-  PndMvdStripClusterTask* mvdmccls = new PndMvdStripClusterTask(chargecut,creator.GetSimFileName(true));
-  mvdmccls->SetVerbose(iVerbose);
-  fRun->AddTask(mvdmccls);
+  PndMvdRiemannTrackFinderTask* mvdTrackFinder = new PndMvdRiemannTrackFinderTask();
+  mvdTrackFinder->SetVerbose(iVerbose);
+  mvdTrackFinder->SetMaxDist(0.7);
+  mvdTrackFinder->SetMaxSZChi2(1);
+  mvdTrackFinder->SetMaxSZDist(1);
+  fRun->AddTask(mvdTrackFinder);
 
-  PndMvdPixelClusterTask* mvdClusterizer = new PndMvdPixelClusterTask(1.8,76,84, creator.GetSimFileName(true));//, slx, sly, sthreshold, snoise);
-  mvdClusterizer->SetVerbose(iVerbose);
-  fRun->AddTask(mvdClusterizer);
-
-//   CbmParRootFileIo* output=new CbmParRootFileIo(kTRUE);
-//   output->open(parOutFile.Data());
-//   rtdb->setOutput(output);
-  rtdb->setOutput(parInput1);
-  rtdb->print();
+ CbmParRootFileIo* output=new CbmParRootFileIo(kTRUE);
+ output->open(paramOut.Data());
+ rtdb->setOutput(parInput1);
+ rtdb->print();
   // =====                 End of HitProducers                           =====
   // =========================================================================
-//   PndMvdGeoPar* geoPar  = (PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar")); 
+     PndMvdGeoPar* geoPar  = (PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar")); 
   
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
 
   fRun->Run(0,nEvents);
+ // fRun->Run(96,97);
   // ------------------------------------------------------------------------
 
  rtdb->saveOutput();
@@ -104,7 +136,7 @@
   cout << endl << endl;
   cout << "Macro finished succesfully." << endl;
   cout << "Output file is "    << outFile << endl;
-  cout << "Parameter file is " << parFile << endl;
+  cout << "Parameter file is " << paramOut << endl;
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
   cout << endl;
   // ------------------------------------------------------------------------

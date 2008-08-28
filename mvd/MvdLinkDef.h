@@ -33,6 +33,7 @@
 #pragma link C++ class PndMvdStripDigiPar+;
 #pragma link C++ class PndMvdDigiAna+;
 #pragma link C++ class PndMvdHitProducerIdeal+;
+#pragma link C++ class PndMvdNoiseProducer+;
 
 
 #pragma link C++ class PndMvdGeoHandling+;
@@ -50,6 +51,8 @@
 
 #pragma link C++ class PndGeoHitList+;
 #pragma link C++ class PndEventDisplay+;
+#pragma link C++ class PndMvdEventAnaTask+;
+
 
 
 // #pragma link C++ class PndMvdGeoHandling+;

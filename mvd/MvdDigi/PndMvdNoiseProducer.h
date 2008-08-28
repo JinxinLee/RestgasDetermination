@@ -1,6 +1,6 @@
 // -------------------------------------------------------------------------
-// -----                 CbmStsHitProducerIdel header file             -----
-// -----                  Created 10/01/06  by V. Friese               -----
+// -----                PndMvdNoiseProducer header file                -----
+// -----                  Created 01.07.08  by R.Kliemt                -----
 // -------------------------------------------------------------------------
 
 
@@ -24,7 +24,8 @@
 #include "PndMvdGeoHandling.h"
 #include "PndMvdStripDigiPar.h"
 #include "PndMvdPixelDigiPar.h"
- 
+#include "TString.h"
+
 class TClonesArray;
 
 class PndMvdNoiseProducer : public CbmTask
@@ -47,8 +48,11 @@ class PndMvdNoiseProducer : public CbmTask
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
 
-  Int_t CalcChanWhite(Int_t chanleft, Double_t spread, Double_t level, Double_t threshold);
-
+  Double_t CalcDistFraction(Double_t spread, Double_t threshold);
+//   Int_t CalcChanWhite(Int_t chanleft, Double_t frac);
+  Int_t CalcChargeAboveThreshold(Double_t spread, Double_t threshold);
+  void DiveDownNode(TGeoNode *fN);
+//   void Finish();
  private:
   
   TString fBranchName;
@@ -65,19 +69,23 @@ class PndMvdNoiseProducer : public CbmTask
 
   PndMvdGeoHandling* fGeoH;      //! Geometry name handling
 
-  std::vector<Int_t> fPixelIds;
-  std::vector<Int_t> fStripRectIds;
-  std::vector<Int_t> fStripTrapIds;
+  std::vector<TString> fPixelIds4;
+  std::vector<TString> fPixelIds6;
+  std::vector<TString> fPixelIds8;
+  std::vector<TString> fPixelIds12;
+  std::vector<TString> fStripRectIds;
+  std::vector<TString> fStripTrapIds;
 
-  Int_t fNoiseLevel;
+
   Int_t fNoiseSpread;
   Int_t fThreshold;
 
-  void Register();
+//   void Register();
   
-  void Reset();
+//   void Reset();
   
-  void ProduceHits();
+//   void ProduceHits();
+
 
   ClassDef(PndMvdNoiseProducer,1);
 

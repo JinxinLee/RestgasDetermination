@@ -39,23 +39,17 @@ PndMvdPixelClusterTask::PndMvdPixelClusterTask() :
 }
 // -------------------------------------------------------------------------
 
-PndMvdPixelClusterTask::PndMvdPixelClusterTask(Double_t radius, Int_t FEcolumns, Int_t FErows, TString geoFile) :
+PndMvdPixelClusterTask::PndMvdPixelClusterTask(Double_t radius, TString geoFile) :
   CbmTask("MVD Pixel Clustertization Task") 
 {
   fBranchName   = "MVDPixelDigis";
 //  fDigiArray  = new TClonesArray("PndMvdDigiPixel");
 //  fClusterArray  = new TClonesArray("PndMvdClusterPixel");
-
   fRadius = radius;
-  fFEcolumns = FEcolumns;
-  fFErows    = FErows;
   fParams.push_back(radius);
-//  fParams.push_back(FEcolumns);
-//  fParams.push_back(FErows);
   fGeoFile = geoFile;
 }
 // -------------------------------------------------------------------------
-
 
 // -----   Destructor   ----------------------------------------------------
 PndMvdPixelClusterTask::~PndMvdPixelClusterTask() 
@@ -118,7 +112,7 @@ InitStatus PndMvdPixelClusterTask::Init()
   
   fParams.push_back(fDigiPar->GetFECols());
   fParams.push_back(fDigiPar->GetFERows());
-  
+
   fDigiPar->Print();
 
   std::cout << "-I- PndMvdPixelClusterTask: Initialisation successfull" << std::endl;
@@ -162,8 +156,10 @@ void PndMvdPixelClusterTask::Exec(Option_t* opt)
   std::vector<Double_t> mappingPar;
   mappingPar.push_back(fParams[1]);
   mappingPar.push_back(fParams[2]);
-  mappingPar.push_back(0.01);
-  mappingPar.push_back(0.01);
+//   mappingPar.push_back(0.01);
+//   mappingPar.push_back(0.01);
+  mappingPar.push_back(fDigiPar->GetXPitch());
+  mappingPar.push_back(fDigiPar->GetYPitch());
 
   // do the backmapping with charge-weight
   for (Int_t i = 0; i < clusters.size(); i++)

@@ -45,6 +45,9 @@ public:
   void GetOUVPath(TString path, TVector3& o, TVector3& u, TVector3& v); ///< for a volume given by its path the o, u, v vectors for the plane are returned
   void GetOUVId(TString id, TVector3& o, TVector3& u, TVector3& v); ///< for a volume given by its ID the o, u, v vectors for the plane are returned
 
+  TVector3 GetSensorDimensionsID(TString id);
+  TVector3 GetSensorDimensionsPath(TString path);
+
   TVector3 MasterToLocalId(const TVector3& master, const TString& id);
   TVector3 MasterToLocalPath(const TVector3& master, const TString& id);
   TVector3 LocalToMasterId(const TVector3& local, const TString& id);

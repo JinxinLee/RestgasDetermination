@@ -9,6 +9,7 @@
 #include "TGeoManager.h"
 #include "TGeoNode.h"
 #include "TGeoVolume.h"
+#include "TGeoMatrix.h"
 
 
 // -----   Default constructor   -------------------------------------------
@@ -58,20 +59,29 @@ void PndMvdHit::Print(const Option_t* opt) const {
 }
 
 
-Double_t PndMvdHit::GetD(Int_t i) 
-{
-  if(!gGeoManager){
-    std::cout<<" -E- in PndMvdHit::GetD(): No gGeoManager there. Please use "<<std::endl;
-    abort();
-  }
-  // TODO: Caution! if there is a point reconstructed OuTSIDE its volume, 
-  // then the returned stuff is WRONG!
-  ((TGeoNode*)(gGeoManager->FindNode(fX,fY,fZ)))->cd();
-  Double_t local[3]={fDx,fDy,fDz};
-  Double_t master[3];
-  gGeoManager->LocalToMasterVect(local,master);
-  return master[i];
-}
+// Double_t PndMvdHit::GetD(Int_t i) 
+// {
+//   if(!gGeoManager){
+//     std::cout<<" -E- in PndMvdHit::GetD(): No gGeoManager there. Please use "<<std::endl;
+//     abort();
+//   }
+// 
+//   // TODO: Caution! if there is a point reconstructed OuTSIDE its volume,
+//   // then the returned stuff is WRONG!
+//   ((TGeoNode*)(gGeoManager->FindNode(fX,fY,fZ)))->cd();
+//   TGeoHMatrix* currMatrix = gGeoManager->GetCurrentMatrix();
+// 
+//   const Double_t* rotation = (currMatrix->Inverse()).GetRotationMatrix();
+//   Double_t local[3]={fDx,fDy,fDz};
+// 
+//   Double_t result = fabs(rotation[3*i+0]*local[0]) + fabs(rotation[3*i+1]*local[1]) + fabs(rotation[3*i+2]*local[2]);
+// std::cout"PndMvdHit::GetD("<<i<<"): dLocal={"<<fDx<<","<<fDy<<","<<fDz<<"} dLab("<<i<<"="<<result<<std::endl;
+// return result;
+// //   Double_t master[3];
+// //   gGeoManager->LocalToMasterVect(local,master);
+// //   return master[i];
+// 
+// }
 
 // -------------------------------------------------------------------------
 ClassImp(PndMvdHit);

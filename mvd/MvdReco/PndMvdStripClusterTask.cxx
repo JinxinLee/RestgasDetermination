@@ -9,7 +9,7 @@
 #include "TArrayD.h"
 #include "TGeoManager.h"
 #include "TGeoMatrix.h"
-
+#include "TCanvas.h"
 #include "CbmRootManager.h"
 #include "CbmRunAna.h"
 #include "CbmRuntimeDb.h"
@@ -37,7 +37,7 @@
 PndMvdStripClusterTask::PndMvdStripClusterTask() :
   CbmTask("MVD Strip Clustertisation Task")
 {
-  fChargeCut = 1.e6; // this ist really large and shall have no effect
+  fChargeCut = 1.e8; // this ist really large and shall have no effect
   fGeoFile = "";
 }
 // -------------------------------------------------------------------------
@@ -147,6 +147,14 @@ InitStatus PndMvdStripClusterTask::Init()
   fStripCalcTopTrap->SetVerboseLevel(fVerbose);
   fStripCalcBotTrap->SetVerboseLevel(fVerbose);
 
+  // QA histogram on cluster merging
+//   int bins = 150;
+//   double max = 15000.;
+//   fHChgDiff = new TH1F("hchgdiff","Hit #DeltaQ to MC: #color[2]{correct}, #color[4]{fake}, #color[3]{noise}, #color[1]{total};#DeltaC/e^{-};",bins,0.,max);
+//   fHChgMC = new TH1F("hchgmc",";#DeltaC/e^{-} MC;",bins,0.,max);
+//   fHChgFake = new TH1F("hchgfake",";#DeltaC/e^{-} fake;",bins,0.,max);
+//   fHChgGhost = new TH1F("hchgghost",";#DeltaC/e^{-} ghost;",bins,0.,max);
+
   std::cout << "-I- PndMvdStripClusterTask: Initialisation successfull" << std::endl;
   return kSUCCESS;
 }
@@ -158,7 +166,7 @@ InitStatus PndMvdStripClusterTask::Init()
 void PndMvdStripClusterTask::Exec(Option_t* opt)
 {
   if (fVerbose > 2)
-    std::cout<<"Sarting PndMvdStripClusterTask::Exec()"<<std::endl;
+    std::cout<<" **Sarting PndMvdStripClusterTask::Exec()**"<<std::endl;
   std::vector<PndMvdDigiStrip> digiStripArray;
   // Reset output array
   if ( ! fClusterArray ) Fatal("Exec", "No ClusterArray");
@@ -172,6 +180,7 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
   Int_t strip;
   SensorSide side;
   PndMvdDigiStrip* myDigi=0;
+  PndMvdDigiStrip* myDigi2=0;
   PndMvdCluster* myCandTop=0;
   PndMvdCluster* myCandBot=0;
 
@@ -198,6 +207,7 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
   std::vector< Int_t > botclusters;// contains index to fClusterArray
   std::vector< Int_t > oneclustertop;
   std::vector< Int_t > oneclusterbot;
+  std::vector< Int_t > leftDigis; 
   TVector2 topDirection, botDirection;
 //   TGeoVolume* actVolume;
 //   TGeoBBox* actBox;
@@ -215,7 +225,18 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
   // fetch ids in 'clusters' to the top and bot side
   topclusters = clusterbuilder.GetTopClusterIDs();
   botclusters = clusterbuilder.GetBotClusterIDs();
-
+  if(fVerbose > 2) {
+    leftDigis = clusterbuilder.GetLeftDigiIDs();
+    if (0<leftDigis.size()){
+      std::cout << "There are "<<leftDigis.size()<<" Digis not assigned to"
+                << " clusters:\n";
+      for(int s=0;s<leftDigis.size();s++)
+      {
+        std::cout<<leftDigis[s]<<"|";
+      }
+      std::cout<<std::endl;
+    } else std::cout<<"All Digis assigned to clusters"<<std::endl;
+  }
   // Fill the ClonesArray for output TODO: do this better, don't copy objects around
   for(std::vector< PndMvdCluster >::iterator clit= clusters.begin();
         clit!=clusters.end(); ++clit)
@@ -256,9 +277,11 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
   for (std::vector< Int_t>::iterator itTop = topclusters.begin();
           itTop!=topclusters.end(); ++itTop)
   {
-    Double_t topcharge = 0., meantopstrip=0.;
+    Double_t topcharge = 0., meantopstrip=0.,meantoperr=0. ;
     oneclustertop = (clusters[*itTop]).GetClusterList();
+    if(oneclustertop.size()<1) continue;
     TString detnametop = ((PndMvdDigiStrip*)fDigiArray->At(oneclustertop[0]))->GetDetName();
+    Double_t errZ = 2.*fGeoH->GetSensorDimensionsID(detnametop).Z()/TMath::Sqrt(12.0);
 
     SelectSensorParams(detnametop);
     topDirection = fStripCalcTop->GetStripDirection();
@@ -272,24 +295,31 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
     {// I use the temp. variables from the top of this method again
      // calculate the mean charge and stripnumber
       myDigi = (PndMvdDigiStrip*)fDigiArray->At(*itTopDigi);
+      myDigi2 = myDigi;//(PndMvdDigiStrip*)fDigiArray->At(*itTopDigi);
       fStripCalcTop->CalcFeChToStrip(myDigi->GetFE(), myDigi->GetChannel(), strip, side);
       topcharge += myDigi->GetCharge();
       meantopstrip += myDigi->GetCharge() * strip;
+      meantoperr += strip*strip/12.;
       if(fVerbose > 2)std::cout<<"FE no: "<<myDigi->GetFE()<<" | channel no: "
-        <<myDigi->GetChannel()<<" | topstrip no: "<<strip<<" side="<<side<<std::endl;
+        <<myDigi->GetChannel()<<" | topstrip no: "<<strip<<" side="<<side
+        <<" MCid ="<<myDigi->GetIndex(0)
+        <<"\tin detector "<<detnametop.Data()<<std::endl;
     }
+    if(oneclustertop.size()==1 && topcharge < 5200) continue;
 
     if(topcharge>0)
     {
       meantopstrip = meantopstrip/topcharge;
+      meantoperr = sqrt(meantoperr)/topcharge;
       fStripCalcTop->CalcStripPointOnLine(meantopstrip, meantopPoint);
       // loop on bottom side
       for (std::vector< Int_t>::iterator itBot = botclusters.begin();
             itBot!=botclusters.end(); ++itBot)
       {
         botIndex = *itBot;
-        Double_t botcharge = 0., meanbotstrip=0.;
+        Double_t botcharge = 0., meanbotstrip=0., meanboterr=0.;
         oneclusterbot = (clusters[*itBot]).GetClusterList();
+        if(oneclusterbot.size()<1)continue;
         TString detnamebot = ((PndMvdDigiStrip*)fDigiArray->At(oneclusterbot[0]))->GetDetName();
 
         //go to the next cluster if we didn't hit the same sensor
@@ -305,17 +335,34 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
           fStripCalcTop->CalcFeChToStrip(myDigi->GetFE(), myDigi->GetChannel(), strip, side);
           botcharge += myDigi->GetCharge();
           meanbotstrip += myDigi->GetCharge() * strip;
-          if(fVerbose > 2)std::cout<<"FE no: "<<myDigi->GetFE()<<" | channel no: "
-            <<myDigi->GetChannel()<<" | botstrip no: "<<strip<<" side="<<side<<std::endl;
-        }
+          meanboterr += strip*strip/12.;
 
+          if(fVerbose > 2)std::cout<<"FE no: "<<myDigi->GetFE()<<" | channel no: "
+            <<myDigi->GetChannel()<<" | botstrip no: "<<strip<<" side="<<side
+            <<" MCid ="<<myDigi->GetIndex(0)
+            <<"\tin detector "<<detnametop.Data()<<std::endl;
+        }
+        if(oneclusterbot.size() == 1 && botcharge < 5200)continue;
         if(botcharge>0)
         {
           meanbotstrip = meanbotstrip/botcharge;
+          meanboterr = sqrt(meanboterr)/botcharge;
           if(fVerbose > 2)  {
             std::cout<<"Charges: Ctop = "<<topcharge<<" | Cbot = "<<botcharge
                   <<" | difference bot-top = "<<botcharge-topcharge<<std::endl;
           }
+
+//   // Histogramming for studies
+//   fHChgDiff->Fill(fabs(topcharge-botcharge));
+//   if( myDigi2->GetIndex() == myDigi->GetIndex() && myDigi2->GetIndex()!=-1)
+//   {
+//     fHChgMC->Fill(fabs(topcharge-botcharge));
+//   } else if (myDigi2->GetIndex()!=-1){
+//     fHChgFake->Fill(fabs(topcharge-botcharge));
+//   } else  {
+//     fHChgGhost->Fill(fabs(topcharge-botcharge));
+//   }
+//   //
 
           if(fabs(botcharge-topcharge)<fChargeCut)
           {// look if the charges are not too differently
@@ -327,7 +374,7 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
             if (fVerbose > 2){
               std::cout<<"Strip no. top: "<<meantopstrip
                        <<" | bot: "<<meanbotstrip
-                       <<" | Mean Top side: ("<<meantopPoint.X()<<" ; "
+                       <<"\n"<<"Mean Top side: ("<<meantopPoint.X()<<" ; "
                        <<meantopPoint.Y()<<")"<<"\n"<<"Mean Bot side: ("
                        <<meanbotPoint.X()<<" ; "<<meanbotPoint.Y()<<")"<<"\n"
                        <<"On Sensor Hit: ("<<onsensorPoint.X()<<" ; "
@@ -336,20 +383,23 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
             // here we assume the sensor system to be in the _Middle_ of the volume
             localpos.SetXYZ( onsensorPoint.X(), onsensorPoint.Y(), 0.);
 
+            // let's see if we're still on the sensor (cut combinations with noise off)
+            if(fabs(localpos.X()) > fabs(fCurrentDigiPar->GetTopAnchor().X())) continue;
+            if(fabs(localpos.Y()) > fabs(fCurrentDigiPar->GetTopAnchor().Y())) continue;
+
             //do the transformation from sensor to lab frame
             hitPos = fGeoH->LocalToMasterId(localpos,detnametop.Data());
 
             // calculate the errors corresponding to a skewed system!
-            // TODO: how tot treat the errors correctly?
-            // if(clustersize == 1) { "1/sqrt(12)" }
-            t = fCurrentDigiPar->GetTopPitch()*cos(fCurrentDigiPar->GetOrient());
-            b = fCurrentDigiPar->GetBotPitch()*cos(fCurrentDigiPar->GetOrient()+fCurrentDigiPar->GetSkew());
-            locDpos.SetX( sqrt((t*t+b*b)/12.) );
-            t = fCurrentDigiPar->GetTopPitch()*sin(fCurrentDigiPar->GetOrient());
-            b = fCurrentDigiPar->GetBotPitch()*sin(fCurrentDigiPar->GetOrient()+fCurrentDigiPar->GetSkew());
-            locDpos.SetY( sqrt((t*t+b*b)/12.) );
-            locDpos.SetZ( 0. );
+            t = meantoperr*fCurrentDigiPar->GetTopPitch()*cos(fCurrentDigiPar->GetOrient());
+            b = meanboterr*fCurrentDigiPar->GetBotPitch()*cos(fCurrentDigiPar->GetOrient()+fCurrentDigiPar->GetSkew());
+            locDpos.SetX( sqrt(t*t+b*b) );
+            t = meantoperr*fCurrentDigiPar->GetTopPitch()*sin(fCurrentDigiPar->GetOrient());
+            b = meanboterr*fCurrentDigiPar->GetBotPitch()*sin(fCurrentDigiPar->GetOrient()+fCurrentDigiPar->GetSkew());
+            locDpos.SetY( sqrt(t*t+b*b) );
+            locDpos.SetZ( errZ );
 
+            // CAUTION The errors in the MvdHit are LOCAL, but the coordinates are in the LAB
             hitErr = fGeoH->LocalToMasterErrorsId(locDpos,detnametop.Data());
 
             // --- add hit to list ---
@@ -370,8 +420,6 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
             << " out of " <<fDigiArray->GetEntriesFast()<< " Digis"<< std::endl;
   return;
 }
-
-
 
 TVector2 PndMvdStripClusterTask::CalcLineCross(
               TVector2 point1, TVector2 dir1,
@@ -421,6 +469,23 @@ void PndMvdStripClusterTask::SelectSensorParams(TString detname)
   }
 //   fChargeCut = fCurrentDigiPar->GetThreshold(); ??
 //   fChargeCut = factor * fCurrentDigiPar->GetNoise(); ??
+}
+
+void PndMvdStripClusterTask::Finish()
+{
+/*  TCanvas* can1 = new TCanvas("MvdClustPlot","",2);
+  fHChgDiff->DrawCopy();
+  fHChgFake->SetLineColor(kBlue);
+  fHChgFake->DrawCopy("same");
+  fHChgGhost->SetLineColor(kGreen);
+  fHChgGhost->DrawCopy("same");
+  fHChgMC->SetLineColor(kRed);
+  fHChgMC->DrawCopy("same");
+
+  gPad->SetLogy();
+  can1->Print("clustertask-plots.ps");
+//   delete can1;
+*/
 }
 
 

@@ -48,7 +48,7 @@ PndMvdClusterTask::PndMvdClusterTask(Double_t radius, Int_t FEcolumns, Int_t FEr
 //  fDigiArray  = new TClonesArray("PndMvdDigiPixel");
 //  fClusterArray  = new TClonesArray("PndMvdClusterPixel");
 
-  this->Add(new PndMvdPixelClusterTask(radius,FEcolumns,FErows,geoFile));
+  this->Add(new PndMvdPixelClusterTask(radius,geoFile));
   this->Add(new PndMvdStripClusterTask(1e6,geoFile)); //TODO: fix cargecut hardcoded
 }
 // -------------------------------------------------------------------------

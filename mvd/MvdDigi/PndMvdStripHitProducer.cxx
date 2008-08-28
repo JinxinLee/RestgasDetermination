@@ -176,8 +176,8 @@ InitStatus PndMvdStripHitProducer::Init()
   }
   
   
-  fDigiParRect->Print();
-  fDigiParTrap->Print();
+  if(fVerbose>0) fDigiParRect->Print();
+  if(fVerbose>0) fDigiParTrap->Print();
 
   fStripCalcTopRect = new PndMvdCalcStrip(fDigiParRect, kTOP);
   fStripCalcBotRect = new PndMvdCalcStrip(fDigiParRect, kBOTTOM);

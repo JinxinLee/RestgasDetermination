@@ -5,19 +5,47 @@
 
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0;
-  Int_t nEvents  = 10;
+
+  Int_t nEvents  = 100;
+
 //   gROOT->Macro("Libs.C");
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 
   // Input file (MC events)
   //TString inFile = "Mvd_DPMfixed_4GeV_10000.root"; //"MvdG4_DPM405_Mag_5000.root";
   //TString inFile = "data/mvdparams.root";
-  TString inFile = "Mvd_Test.root";
+//  TString inFile = "Mvd_D+D-withTPC.root";
   // Parameter file
-  TString parFile = "MvdParams.root";
+//  TString parFile = "MvdParamsNewVersion.root";
   //TString parFile = "data/mvdparams.root";
   // Parameter output file
+
 //   TString parOutFile = "Test/testParamsOutput.root";
+
+  // Input file (MC events)
+  TString inFile="/home/stockman/fairroot/cbmsoft/pandaroot/macro/data/MvdTpc_D+D-_2Disks/Combined.mc.root";
+  TString jobname="digiMVD";
+
+  TString inDir=inFile(0,inFile.Last('/')+1);
+  // make new subdir
+  TString jobDir=inDir; jobDir+=jobname; jobDir+="/";
+  TString cmd="mkdir ";
+  cmd+=jobDir; 
+  if(gSystem->Exec(cmd)){
+    std::cout<<"Could not create Job-Directory "<<jobDir
+	     <<". Aborting."<<std::endl;
+    return;
+  }
+  
+  TString outFile = inFile; 
+  outFile.ReplaceAll(inDir,jobDir);
+  outFile.ReplaceAll(".mc.root",".raw.root");
+
+  TString paramIn = inFile;
+  paramIn.ReplaceAll(".mc.root",".param.root");
+  TString paramOut = outFile;
+  paramOut.ReplaceAll(".raw.root",".param.root");
+  
   TString digiparFile = gSystem->Getenv("VMCWORKDIR");
   digiparFile += "/mvd/MvdTools/mvd.digi.par";
 
@@ -25,11 +53,14 @@
   // In general, the following parts need not be touched
   // ========================================================================
   // Output file
-  PndMvdFileNameCreator creator(inFile.Data());
-  TString outFile = creator.GetDigiFileName().c_str(); //"MvdG4_DPM405_Mag_5000_digi.root";
-  std::cout << "DigiFileName: " << outFile.Data() << std::endl;
+  
 
-  // -----   Reconstruction run   -------------------------------------------
+//     
+//     PndMvdFileNameCreator creator(inFile.Data());
+//       TString outFile = creator.GetDigiFileName().c_str(); //"MvdG4_DPM405_Mag_5000_digi.root";
+//       std::cout << "DigiFileName: " << outFile.Data() << std::endl;
+     
+     // -----   Reconstruction run   -------------------------------------------
   CbmRunAna *fRun= new CbmRunAna();
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
@@ -37,13 +68,11 @@
 
   // -----  Parameter database   --------------------------------------------
   CbmRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  CbmParRootFileIo* parInput1 = new CbmParRootFileIo(kTRUE);
-  parInput1->open(parFile.Data(),"UPDATE");
-  rtdb->setFirstInput(parInput1);
-//   Bool_t kParameterMerged=kTRUE;
-//   CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
-//   output->open(parOutFile);
-//   rtdb->setOutput(output);
+ // CbmParRootFileIo* parInput1 = new CbmParRootFileIo(kTRUE);
+ // parInput1->open(parFile.Data(),"UPDATE");
+ // rtdb->setFirstInput(parInput1);
+//  Bool_t kParameterMerged=kTRUE;
+
   CbmParAsciiFileIo* parInput2 = new CbmParAsciiFileIo();
   parInput2->open(digiparFile.Data(),"in");
   rtdb->setSecondInput(parInput2);
@@ -60,6 +89,7 @@
   // =========================================================================
   
   // -----    MVD Strip hit producer   ---------------------------------------
+
 //   double   topPitch=0.015,
 //            botPitch=0.015,
 //            orient=TMath::Pi()*(0.5),
@@ -79,6 +109,9 @@
 
   PndMvdStripHitProducer* mvdStripProd = new PndMvdStripHitProducer();
   mvdStripProd->SetVerbose(iVerbose);
+
+
+
   fRun->AddTask(mvdStripProd);
   // -----    MVD Pixel hit producer   ---------------------------------------
 //   Double_t  lx=0.01, ly=0.01, threshold=600, noise=200;
@@ -87,15 +120,54 @@
   mvdPixProd->SetVerbose(iVerbose);
   fRun->AddTask(mvdPixProd);
 
-  PndMvdNoiseProducer* mvdNoiseMaker = new PndMvdNoiseProducer();
-  mvdNoiseMaker->SetVerbose(iVerbose);
-  fRun->AddTask(mvdNoiseMaker);
 
 
+   CbmParRootFileIo* output=new CbmParRootFileIo(kTRUE);
+   output->open(paramOut.Data());
+   rtdb->setOutput(output);
+//  rtdb->setOutput(parInput1);
+
+//  PndMvdNoiseProducer* mvdNoiseMaker = new PndMvdNoiseProducer();
+//  mvdNoiseMaker->SetVerbose(iVerbose);
+//  fRun->AddTask(mvdNoiseMaker);
+   
+ //  PndTpcClusterizerTask* tpcClusterizer = new PndTpcClusterizerTask();
+    //tpcClusterizer->SetPersistence();
+ //   fRun->AddTask(tpcClusterizer);
+   
+ /*   PndTpcDriftTask* tpcDrifter = new PndTpcDriftTask();
+    tpcDrifter->SetPersistence();
+    tpcDrifter->SetDistort(false);
+    double deg=TMath::Pi()/180;
+    //tpcDrifter->SetPhiCut(-15*deg,15*deg);
+    //tpcDrifter->SetQAPlotCol(qa);
+    fRun->AddTask(tpcDrifter);
+
+    PndTpcGemTask* tpcGem = new PndTpcGemTask();
+  //tpcGem->SetPersistence();
+    fRun->AddTask(tpcGem);
+
+    PndTpcPadResponseTask* tpcPadResponse = new PndTpcPadResponseTask();
+    tpcPadResponse->SetPersistence();
+    //tpcPadResponse->SetQAPlotCol(qa);
+    fRun->AddTask(tpcPadResponse);
+
+
+  //PndTpcEvtMixTask* evtmixer = new PndTpcEvtMixTask();
+  //  evtmixer->SetBkgFileName("bkg2.raw.root");
+  //  evtmixer->SetNBkgEvts(500);
+  //  evtmixer->SetEvtRate(1E7);
+  //fRun->AddTask(evtmixer);
+
+    PndTpcElectronicsTask* tpcElec = new PndTpcElectronicsTask();
+    tpcElec->SetPersistence();
+    //tpcElec->SetQAPlotCol(qa);
+    fRun->AddTask(tpcElec);
+*/
 //   CbmParRootFileIo* output=new CbmParRootFileIo(kTRUE);
 //   output->open(parOutFile.Data());
 //   rtdb->setOutput(output);
-  rtdb->setOutput(parInput1);
+
   rtdb->print();
   // =====                 End of HitProducers                           =====
   // =========================================================================
@@ -116,7 +188,7 @@
   cout << endl << endl;
   cout << "Macro finished succesfully." << endl;
   cout << "Output file is "    << outFile << endl;
-  cout << "Parameter file is " << parFile << endl;
+  cout << "Parameter file is " << paramOut << endl;
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s\a\a" << endl;
   cout << endl;
 

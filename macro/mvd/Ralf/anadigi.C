@@ -1,10 +1,11 @@
 // root macro to analyze the clusterization output
 {
-  int  nEvents = 100;
+  int  nEvents = 10000;
   bool verbose = false;
 
   // -----  Load libraries   ------------------------------------------------
-  gROOT->Macro("../Libs.C");
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  rootlogon();
   gROOT->LoadMacro("../Tools.C");
   LoadPandaStyle();
 
@@ -14,10 +15,10 @@
   // ------------------------------------------------------------------------
 
 
-//   PndMvdFileNameCreator namecreator("../data/mvddpm6GeV.root");
-  PndMvdFileNameCreator namecreator("../data/mvdStrip.root");
+  PndMvdFileNameCreator namecreator("../data/mvddpm6GeV.root");
   std::string inFile = namecreator.GetSimFileName(false);
   std::string digiFile = namecreator.GetDigiFileName(false);
+  std::string parfile = "../data/mvddpm6GeV_digipar.root";
   TString picture = namecreator.GetDigiFileName(false);
   picture.ReplaceAll(".root",".ps");
 
@@ -35,17 +36,18 @@
   t->SetBranchAddress("MVDStripDigis",&digiStrip_array);//Branch names
 
   TGeoManager *geoMan = (TGeoManager*) gDirectory->Get("CBMGeom");
-  PndMvdGeoHandling* fGeoH = new PndMvdGeoHandling(geoMan);
-
 
 
   // ---------  HISTOS ---------
-  Int_t nbins = 200;
-  Double_t rim = 22.5;
-  TH2D* hisxymc = new TH2D("xymc","MVD MC Points, xy view;x / cm;y / cm",nbins,-rim,rim,nbins,-rim,rim);
-  TH2D* hisrzmc = new TH2D("rzmc","MVD MC Points, rz view;z / cm;r/ cm",nbins,-rim,rim,nbins,-rim,rim);
-  TH1D* hisde = new TH1D("de","MVD MC Points, Energyloss;E / GeV;",nbins,0.,0.002);
-  TH2D* hisLocalXYMC = new TH2D("LocalxyMC","Local MC Point XY;x_{L} / cm;y_{L} / cm",nbins,-5.,5.,nbins,-5.,5.);
+  TH2D* hisxy = new TH2D("hisxy","",400,-15.,15.,400,-15.,15.);
+  hisxy->SetTitle("MVD MC Point, xy view;x / cm;y / cm");
+
+  TH2D* hisrz = new TH2D("hisrz","",400,-20.,20.,400,-15.,25.);
+  hisrz->SetTitle("MVD MC Point, rz view;z / cm;r/ cm");
+
+  TH1D* hisde = new TH1D("hisde","MVD MC Points, Energyloss",100,0.,0.002);
+
+  TH1D* hismom = new TH1D("hismom","MVD MC Points, momentum",100,0.,1.5);
 
   int n = 100;  int low = 0;
 
@@ -55,9 +57,9 @@
 
   TH1I* hisPixelFE = new TH1I("hispixelfe","Pixel FE number",n,low,low+n);
 
-  TH1I* hisCol = new TH1I("hiscol","column number",1001,0,1000);
+  TH1I* hisCol = new TH1I("hiscol","column number",1200,0,1200);
 
-  TH1I* hisRow = new TH1I("hisrow","row number",1001,0,1000);
+  TH1I* hisRow = new TH1I("hisrow","row number",1200,0,1200);
 
   TH1D* hisPixelCharge = new TH1D("hispixelcharge","Pixel Charge content",100,0.,1e5);
 
@@ -73,26 +75,30 @@
   hisStripChargeTop->SetLineColor(kBlue);
 
   TH1D* hisStripChargeBot = new TH1D("hisstripchargebot","Strip Charge content",100,0.,1e5);
+
+  TH1F* fHChgDiff = new TH1F("hchgdiff","#color[2]{StripMC}, #color[6]{PixelMC},\
+   #color[4]{StripNoise}, #color[30]{PixelNoise}, #color[1]{All};C/e^{-};",150,0.,1e4);
+  TH1F* fHChgMC = new TH1F("hchgmc",";#DeltaC/e^{-} MC;",150,0.,1e4);
+  TH1F* fHChgFake = new TH1F("hchgfake",";#DeltaC/e^{-} fake;",150,0.,1e4);
+  TH1F* fHChgMCPix = new TH1F("hchgmcPix",";#DeltaC/e^{-} MC;",150,0.,1e4);
+  TH1F* fHChgFakePix = new TH1F("hchgfakePix",";#DeltaC/e^{-} fake;",150,0.,1e4);
+
   hisStripChargeBot->SetLineColor(kRed);
   // ---------  HISTOS ---------
 
 
-  TVector3 vecmc, vecmcloc;
+  TVector3 vecmc, mommc;
   Double_t tmpx,tmpy,tmpz;
   TVector2 locals, localmc, localdiff;
   int col, row, fe;
   double x,y;
 
-  PndMvdCalcFePixel pixelcalc(76, 84, 10);
+  TFile* parDB = new TFile(parfile.c_str()); 
+  PndMvdStripDigiPar* par = (PndMvdStripDigiPar*)gROOT->FindObject("MVDStripDigiParRect");
+  PndMvdCalcFePixel pixelcalc(100, 100, 10);
 
-  double pitch=0.004921;
-  double orient=TMath::Pi()*(0.5);
-  int nrFeChannels=128;
-  int nrStrips=10*nrFeChannels;
-  TVector2 Anchor(0.,0.);
-  double offset=0.;
-  double noise=0.;
-//   PndMvdCalcStrip stripcalc(pitch,orient,nrStrips,nrFeChannels,Anchor,offset,noise)
+  int nrFeChannels=par->GetNrFECh();
+  int nrStrips=par->GetNrTopFE()*nrFeChannels;
 
   for (Int_t j=0; j<nEvents && j<t->GetEntriesFast(); j++)
   {
@@ -105,11 +111,12 @@
       if(verbose) cout<<"Point No "<<i<<endl;
       PndMvdMCPoint *point=(PndMvdMCPoint*)mc_array->At(i);
       vecmc.SetXYZ(point->GetX(),point->GetY(),point->GetZ());
-      hisxymc->Fill(vecmc.x(),vecmc.y());
-      hisrzmc->Fill(vecmc.z(),((vecmc.y()>0.)?1.:-1.)*vecmc.Perp());
+      mommc.SetXYZ(point->GetPx(),point->GetPy(),point->GetPz());
+      hisxy->Fill(vecmc.x(),vecmc.y());
+      if(vecmc.y() > 0.) hisrz->Fill(vecmc.z(),vecmc.Perp());
+      else hisrz->Fill(vecmc.z(),-1.*vecmc.Perp());
       hisde->Fill(point->GetEnergyLoss());
-      vecmcloc = fGeoH->MasterToLocalId(vecmc, point->GetDetName());
-      hisLocalXYMC->Fill(vecmcloc.x(),vecmcloc.y());
+      hismom->Fill(mommc.Mag());
     }
 
     // ----- PIXEL DIGIS -----
@@ -126,6 +133,9 @@
       pixelcalc.CalcSensorColRow(col,row,fe);
       hisCol->Fill(col);
       hisRow->Fill(row);
+      fHChgDiff->Fill(pixeldigi->GetCharge());
+      if( pixeldigi->GetIndex() == -1 ) fHChgFakePix->Fill(pixeldigi->GetCharge());
+      else fHChgMCPix->Fill(pixeldigi->GetCharge());
     }
 
     // ----- STRIP DIGIS -----
@@ -145,33 +155,38 @@
         hisStripBot->Fill(fe,col);
         hisStripChargeBot->Fill(stripdigi->GetCharge());
       }
+      fHChgDiff->Fill(stripdigi->GetCharge());
+      if( stripdigi->GetIndex() == -1 ) fHChgFake->Fill(stripdigi->GetCharge());
+      else fHChgMC->Fill(stripdigi->GetCharge());
     }
 
   }// end for j (events)
 
-Int_t a = 2, b = 2;
 
-TCanvas* can1 = new TCanvas("MvdTestPlot","MCHit view in MVD",0,0,a*400,b*400);
+Int_t a = 2, b = 2, res=475;
+TCanvas* can1 = new TCanvas("MvdTestPlot","MCHit view in MVD",0,0,a*res,b*res);
 can1->Divide(a,b);
 TPad* mypad=0;
 
 can1->cd(1);
 mypad=gPad;
 mypad.Divide(2,2);
-mypad->cd(1);DrawNice2DHisto(hisxymc);
-mypad->cd(2);DrawNice2DHisto(hisrzmc);
-mypad->cd(3);DrawNice2DHisto(hisLocalXYMC);
-mypad->cd(4);gPad->SetLogy();hisde->DrawCopy();
+mypad->cd(1);DrawNice2DHisto(hisxy);
+mypad->cd(2);DrawNice2DHisto(hisrz);
+mypad->cd(3);gPad->SetLogy();hisde->DrawCopy();
+mypad->cd(4);hismom->DrawCopy();
 
 can1->cd(2);
-mypad=gPad;
-mypad.Divide(2,3);
-mypad->cd(1);hisPixelCol->DrawCopy();
-mypad->cd(2);hisPixelRow->DrawCopy();
-mypad->cd(3);hisCol->DrawCopy();
-mypad->cd(4);hisRow->DrawCopy();
-mypad->cd(5);hisPixelFE->DrawCopy();
-mypad->cd(6);hisPixelCharge->DrawCopy();
+gPad->SetLogy();
+fHChgDiff->DrawCopy();
+fHChgMC->SetLineColor(kRed);
+fHChgMC->DrawCopy("same");
+fHChgFake->SetLineColor(kBlue);
+fHChgFake->DrawCopy("same");
+fHChgMCPix->SetLineColor(6);
+fHChgMCPix->DrawCopy("same");
+fHChgFakePix->SetLineColor(30);
+fHChgFakePix->DrawCopy("same");
 
 
 can1->cd(3);
@@ -180,29 +195,21 @@ mypad.Divide(2,2);
 mypad->cd(1);DrawNice2DHisto(hisStripTop);
 mypad->cd(2);DrawNice2DHisto(hisStripBot);
 mypad->cd(3);hisStripStrip->DrawCopy();
-mypad->cd(4);hisStripCharge->DrawCopy();
+mypad->cd(4);gPad->SetLogy();
+hisStripCharge->DrawCopy();
 hisStripChargeTop->DrawCopy("sames");
 hisStripChargeBot->DrawCopy("sames");
 can1->Update();mypad=(TPad*)gPad; BetterStatBox(mypad);
 
 can1->cd(4);
 mypad=gPad;
-mypad.Divide(2,2);
-mypad->cd(1);
-mypad->cd(2);
-mypad->cd(3);
-mypad->cd(4);
-
-
-// can1->cd(5);
-// can1->cd(6);
-// can1->cd(7);
-// can1->cd(8);
-// can1->cd(9);
-// can1->cd(10);
-// can1->cd(11);
-// can1->cd(12);
-
+mypad.Divide(2,3);
+mypad->cd(1);hisPixelCol->DrawCopy();
+mypad->cd(2);hisPixelRow->DrawCopy();
+mypad->cd(3);hisCol->DrawCopy();
+mypad->cd(4);hisRow->DrawCopy();
+mypad->cd(5);hisPixelFE->DrawCopy();
+mypad->cd(6);gPad->SetLogy();hisPixelCharge->DrawCopy();
 
 // can1->Update();
 can1->Print(picture.Data());
