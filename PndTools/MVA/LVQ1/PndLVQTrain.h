@@ -17,27 +17,25 @@
 
 class PndLVQTrain{
  public:
+  /* Constructor
+   * @param InPut, Input file name.
+   * @param ClassNames, class names.
+   * @param VarNames, variable names of the features.
+   */
   PndLVQTrain(const char *InPut,
 	      const std::vector<std::string>& ClassNames, 
 	      const std::vector<std::string>& VarNames);
-
+  /*
+   * Destructor
+   */
   virtual ~PndLVQTrain();
-  
+  /*
+   *@param numProto, number of LVQ1 prototypes. Current implementation
+   * considers an equal number of prototypes for each class. 
+   * @param OutPut, the nameof the out-put file, where the weights are 
+   * stored in.
+   */
   void Train(int numProto, const char* OutPut);
-
-  // +++++++++++++ =======================  
-  /// TEST ZOOOOIIII MAG WEG 
-  void PrintIndex(){
-    for(unsigned int id = 0; id < m_ClassIndex.size(); id++){
-      std::cout << "min index = " << m_ClassIndex[id].first
-		<< " max index = "<< m_ClassIndex[id].second
-		<< std::endl;
-    }
-    std::cout << "Total length is " << m_EventsData.size() << std::endl;
-    std::cout << "The length of proto is " << m_LVQProtos.size() << std::endl;
-  }
-  /// TEST ZOOOOIIII MAG WEG 
-  // +++++++++++++ =======================  
 
  // Protected functions and variables
  protected:
@@ -47,7 +45,8 @@ class PndLVQTrain{
    */
   float ComputeDist(std::vector<float> &EvtData, 
 		    std::vector<float> &Example);
-  
+
+  /* Updates the LVQ1 prototypes */
   void UpdateProto( std::vector<float> &EvtData, std::vector<float> &proto, 
 		    int delta, double ethaT);
 
@@ -58,7 +57,8 @@ class PndLVQTrain{
    * that in the class conditional means container
    */
   void CompClsCondMean(std::string clsName);
-  
+
+  /* Write the prototypes to the out-put file */
   void WriteToFile(const char* outFile);
 
   // Class names

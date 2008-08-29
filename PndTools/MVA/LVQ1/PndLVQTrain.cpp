@@ -1,5 +1,10 @@
 #include "PndLVQTrain.h"
 
+/* Constructor
+ * @param InPut, Input file name.
+ * @param ClassNames, class names.
+ * @param VarNames, variable names of the features.
+ */
 PndLVQTrain::PndLVQTrain(const char* InPut,
 			 const std::vector<std::string>& ClassNames, 
 			 const std::vector<std::string>& VarNames)
@@ -68,6 +73,9 @@ PndLVQTrain::PndLVQTrain(const char* InPut,
   
 }// End of constructor
 
+/*
+ * Destructor
+ */
 PndLVQTrain::~PndLVQTrain()
 {
   // Clean up the container for class Conditional means
@@ -94,6 +102,10 @@ PndLVQTrain::~PndLVQTrain()
   m_ClassIndex.clear();
 }
 
+/* 
+ * Compute the class conditional mean for a given class and store
+ * that in the class conditional means container
+ */
 void PndLVQTrain::CompClsCondMean(std::string clsName)
 {
   std::vector <float>* vec = new std::vector <float> (m_VarNames.size(),0.0);
@@ -117,6 +129,12 @@ void PndLVQTrain::CompClsCondMean(std::string clsName)
   m_ClassCondMeans.push_back(std::make_pair(clsName,vec));
 }
 
+/*
+ *@param numProto, number of LVQ1 prototypes. Current implementation
+ * considers an equal number of prototypes for each class. 
+ *@param OutPut, the nameof the out-put file, where the weights are 
+ * stored in.
+ */
 void PndLVQTrain::Train(int numProto, const char* outPut)
 {
   // Initialize LVQ-prototypes according to the classconditional means
@@ -207,6 +225,9 @@ void PndLVQTrain::Train(int numProto, const char* outPut)
   WriteToFile(outPut);
 }
 
+/* 
+ * Updates the LVQ1 prototypes 
+ */
 void PndLVQTrain::UpdateProto( std::vector<float> &EvtData, std::vector<float> &proto, 
 			       int delta, double ethaT )
 {
@@ -214,6 +235,7 @@ void PndLVQTrain::UpdateProto( std::vector<float> &EvtData, std::vector<float> &
     proto[i] = proto[i] + ethaT * (1.0 - 2.0 * (double)delta) * (EvtData[i] - proto[i]);
   }
 }
+
 /* 
  * Computes the Euclidean distance between two given vectors of
  * event features.
@@ -229,6 +251,9 @@ float PndLVQTrain::ComputeDist(std::vector<float> &EvtData,
   return dist;
 }
 
+/* 
+ * Write the prototypes to the out-put file 
+ */
 void PndLVQTrain::WriteToFile(const char* outPut)
 {
   /* Open out put file and write coordinates of the prototypes */
@@ -271,6 +296,7 @@ void PndLVQTrain::WriteToFile(const char* outPut)
   delete out;
 }
 
+// Only for testing, you want to delete this before using this class
 int main(int argc, char** argv)
 {
   TStopwatch timer;
@@ -291,7 +317,6 @@ int main(int argc, char** argv)
   
   PndLVQTrain bla("TestInput10000.root",clas,nam);
   bla.Train(30,"OutTestPut.root");
-  bla.PrintIndex();
   // =============================
   
   timer.Stop();
