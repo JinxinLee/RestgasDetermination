@@ -616,6 +616,7 @@ PndFastSim::cutAndSmear(PndFsmTrack *t, PndFsmResponse *r)
     
   // now produce some correlated errors 
   if (fPropagate && fabs(charge)>1e-6) {
+    t->HelixRep(t->startVtx());
     double p2 = t->p4().Mag2();
     double omega = t->GetHelixOmega();
     double tandip = t->GetHelixTanDip();
@@ -642,7 +643,7 @@ PndFastSim::cutAndSmear(PndFsmTrack *t, PndFsmResponse *r)
     for (char r=0;r<5;r++)
     for (char c=0;c<5;c++) 
       t->GetHelixCov()(r,c) = fRho(r,c)*fabs(err[r]*err[c]);
-    t->Propagate();
+    t->Propagate(t->startVtx());
     // uncharged particles remain uncorrelated
   } else {
     if (dE != 0.0)     smearEnergy(t,dE);
@@ -783,10 +784,10 @@ PndFastSim::sumResponse(FsmResponseList respList)
   
   bool detected=false;
 
-  dX dE;
-  dX dp;
-  dX dtheta;
-  dX dphi;
+  double dE=0.0;
+  double dp=0.0;
+  double dtheta=0.0;
+  double dphi=0.0;
   double dt=0.0;
   double dm=0.0;
 
@@ -806,9 +807,9 @@ PndFastSim::sumResponse(FsmResponseList respList)
   double DrcBarrelThtcErr=0;
   double RichThtcErr=0;
 
-  dX dVx;
-  dX dVy;
-  dX dVz;
+  double dVx;
+  double dVy;
+  double dVz;
   
   double LH_e=1.0;
   double LH_mu=1.0;
@@ -832,10 +833,10 @@ PndFastSim::sumResponse(FsmResponseList respList)
     
     if (resp->detected())
     {
-      if (fabs(val = resp->dE()) > 1e-8)     dE += val;
-      if (fabs(val = resp->dp()) > 1e-8)      dp += val;
-      if (fabs(val = resp->dtheta())> 1e-8) dtheta += val;
-      if (fabs(val = resp->dphi()) > 1e-8)   dphi += val;
+      if (fabs(val = resp->dE()) > 1e-8)     dE += 1/(val*val);
+      if (fabs(val = resp->dp()) > 1e-8)      dp += 1/(val*val);
+      if (fabs(val = resp->dtheta())> 1e-8) dtheta += 1/(val*val);
+      if (fabs(val = resp->dphi()) > 1e-8)   dphi += 1/(val*val);
       if (fabs(val = resp->dt()) > 1e-8)     dt += val*val;
       if (fabs(val = resp->dm()) > 1e-8)     dm +=val;
       if (fabs (val = resp->m2()) > 1e-11)    m2+=val;
@@ -854,9 +855,9 @@ PndFastSim::sumResponse(FsmResponseList respList)
       if (fabs (val = resp->DrcBarrelThtcErr()) > 1e-11)    DrcBarrelThtcErr+=val;
       if (fabs (val = resp->RichThtcErr()) > 1e-11)    RichThtcErr+=val;
 
-      if (fabs (val = resp->dV().X()) > 1e-11) dVx += val;
-      if (fabs (val = resp->dV().Y()) > 1e-11) dVy += val;
-      if (fabs (val = resp->dV().Z()) > 1e-11) dVz += val;
+      if (fabs (val = resp->dV().X()) > 1e-11) dVx += 1/(val*val);
+      if (fabs (val = resp->dV().Y()) > 1e-11) dVy += 1/(val*val);
+      if (fabs (val = resp->dV().Z()) > 1e-11) dVz += 1/(val*val);
 
       double rawLHe  = resp->LHElectron();
       double rawLHmu = resp->LHMuon();
@@ -867,16 +868,16 @@ PndFastSim::sumResponse(FsmResponseList respList)
       double sumRaw = rawLHe+rawLHmu+rawLHpi+rawLHK+rawLHp;
 
       if (sumRaw>0) {
-	rawLHe  /= sumRaw;
-	rawLHmu /= sumRaw;
-	rawLHpi /= sumRaw;
-	rawLHK  /= sumRaw;
-	rawLHp  /= sumRaw;
-	LH_e  *= rawLHe; 
-	LH_mu *= rawLHmu; 
-	LH_pi *= rawLHpi; 
-	LH_K  *= rawLHK; 
-	LH_p  *= rawLHp; 
+        rawLHe  /= sumRaw;
+        rawLHmu /= sumRaw;
+        rawLHpi /= sumRaw;
+        rawLHK  /= sumRaw;
+        rawLHp  /= sumRaw;
+        LH_e  *= rawLHe; 
+        LH_mu *= rawLHmu; 
+        LH_pi *= rawLHpi; 
+        LH_K  *= rawLHK; 
+        LH_p  *= rawLHp; 
       }
 
       //here a weighted Likelihood evaluation has to be done
@@ -900,10 +901,10 @@ PndFastSim::sumResponse(FsmResponseList respList)
   LH_p  /= sumLH;
   
   allResponse->setDetected(detected);
-  allResponse->setdE( dE );
-  allResponse->setdp( dp );
-  allResponse->setdtheta( dtheta );
-  allResponse->setdphi( dphi );
+  allResponse->setdE( dE>0. ? 1/sqrt(dE) : 0.0 );
+  allResponse->setdp( dp>0. ? 1/sqrt(dp) : 0.0 );
+  allResponse->setdtheta( dtheta>0. ? 1/sqrt(dtheta) : 0.0 );
+  allResponse->setdphi( dphi>0. ? 1/sqrt(dphi) : 0.0 );
   allResponse->setdt( sqrt(dt) );
   allResponse->setdm(dm);
 
@@ -916,6 +917,10 @@ PndFastSim::sumResponse(FsmResponseList respList)
   allResponse->setDrcBarrelThtc(DrcBarrelThtc,DrcBarrelThtcErr);
   allResponse->setRichThtc(RichThtc,RichThtcErr);
   
+  if (dVx > 0.) dVx=1./sqrt(dVx); else dVx = 0.0;
+  if (dVy > 0.) dVy=1./sqrt(dVy); else dVy = 0.0;
+  if (dVz > 0.) dVz=1./sqrt(dVz); else dVz = 0.0;
+
   allResponse->setdV( dVx , dVy , dVz );
   
   allResponse->setLHElectron(LH_e);
@@ -936,24 +941,5 @@ PndFastSim::sumResponse(FsmResponseList respList)
 
 TMatrixD PndFastSim::fRho(5,5);
 TMatrixD PndFastSim::fEta(5,5);
-
-PndFastSim::dX::dX() {
-  n=0;
-  b=0;
-}
-
-void PndFastSim::dX::operator += (double v) {
-  n++;
-  b+=1/v;
-}
-
-void PndFastSim::dX::operator = (double v) {
-  n=1;
-  b=1/v;
-}
-
-PndFastSim::dX::operator double() {
-  return b>0 ? sqrt(n)/b : 0;
-}
 
 ClassImp(PndFastSim)

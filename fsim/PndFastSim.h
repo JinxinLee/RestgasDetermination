@@ -111,19 +111,6 @@ class PndFastSim : public CbmTask
   static TMatrixD fRho;
   static TMatrixD fEta;
 
-  // estimates the variance of a weighted sum of gaussian 
-  // distributed quantities that hold the same mean value
-  class dX {
-  public:
-    dX();
-    void operator+= (double variance);
-    void operator = (double value);
-    operator double();
-  private:
-    char n;
-    double b;
-  };
-
   ClassDef(PndFastSim,1);
 
 };

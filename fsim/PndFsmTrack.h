@@ -122,22 +122,23 @@ private:
   PndFsmResponse*     _detResponse;
   // adding helix representation for some realism
   double fPar5[5]; // helix fit parameters: d0, phi0, omega, z0, tandip
+  TVector3 fReference; // reference point to helix rep
   TMatrixD fCov5;
   TMatrixD fCov7; 
-  double delta;
 
 public:
   double *GetHelixParams() { return fPar5; }
   TMatrixD& GetHelixCov() {return fCov5; }
   TMatrixD& Cov7() {return fCov7;}
 
-  Double_t GetHelixD0() const {return fPar5[0];}
-  Double_t GetHelixPhi0() const    {return fPar5[1];}
-  Double_t GetHelixOmega() const {return fPar5[2];}
-  Double_t GetHelixZ0() const {return fPar5[3];}
+  Double_t GetHelixD0()     const {return fPar5[0];}
+  Double_t GetHelixPhi0()   const {return fPar5[1];}
+  Double_t GetHelixOmega()  const {return fPar5[2];}
+  Double_t GetHelixZ0()     const {return fPar5[3];}
   Double_t GetHelixTanDip() const {return fPar5[4];}
 
-  void Propagate();
+  void HelixRep(TVector3 reference);
+  void Propagate(TVector3 origin);
 
 };
 

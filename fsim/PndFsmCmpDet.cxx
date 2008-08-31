@@ -114,10 +114,10 @@ PndFsmCmpDet::respond(PndFsmTrack *t) {
 
   bool detected=false;
 
-  dX dE;
-  dX dp;
-  dX dtheta;
-  dX dphi;
+  double dE=0.0;
+  double dp=0.0;
+  double dtheta=0.0;
+  double dphi=0.0;
   double dt=0.0;
   double dm=0.0;
 
@@ -137,9 +137,9 @@ PndFsmCmpDet::respond(PndFsmTrack *t) {
   double DrcBarrelThtcErr=0;
   double RichThtcErr=0;
 
-  dX dVx;
-  dX dVy;
-  dX dVz;
+  double dVx;
+  double dVy;
+  double dVz;
   
   double LH_e=1.0;
   double LH_mu=1.0;
@@ -155,10 +155,10 @@ PndFsmCmpDet::respond(PndFsmTrack *t) {
     detected |= resp->detected();
 
     if (resp->detected()) {
-      if (fabs(val = resp->dE()) > 1e-8)    dE+=val;
-      if (fabs(val = resp->dp()) > 1e-8)     dp+=val;
-      if (fabs(val = resp->dtheta())> 1e-8)    dtheta+=val;
-      if (fabs(val = resp->dphi()) > 1e-8)  dphi+=val;
+      if (fabs(val = resp->dE()) > 1e-8)    dE+=1/(val*val);
+      if (fabs(val = resp->dp()) > 1e-8)     dp+=1/(val*val);
+      if (fabs(val = resp->dtheta())> 1e-8)    dtheta+=1/(val*val);
+      if (fabs(val = resp->dphi()) > 1e-8)  dphi+=1/(val*val);
       if (fabs(val = resp->dt()) > 1e-8)     dt += val*val;
       if (fabs(val = resp->dm()) > 1e-8)     dm +=val;
       if (fabs (val = resp->m2()) > 1e-11)    m2+=val;
@@ -177,9 +177,9 @@ PndFsmCmpDet::respond(PndFsmTrack *t) {
       if (fabs (val = resp->DrcBarrelThtcErr()) > 1e-11)    DrcBarrelThtcErr+=val;
       if (fabs (val = resp->RichThtcErr()) > 1e-11)    RichThtcErr+=val;
 
-      if (fabs (val = resp->dV().X()) > 1e-11) dVx+=val;
-      if (fabs (val = resp->dV().Y()) > 1e-11) dVy+=val;
-      if (fabs (val = resp->dV().Z()) > 1e-11) dVz+=val;
+      if (fabs (val = resp->dV().X()) > 1e-11) dVx+=1/(val*val);
+      if (fabs (val = resp->dV().Y()) > 1e-11) dVy+=1/(val*val);
+      if (fabs (val = resp->dV().Z()) > 1e-11) dVz+=1/(val*val);
 
       double rawLHe  = resp->LHElectron();
       double rawLHmu = resp->LHMuon();
@@ -204,7 +204,44 @@ PndFsmCmpDet::respond(PndFsmTrack *t) {
     } 
   }
   
+  double sumLH = LH_e + LH_mu + LH_pi + LH_K + LH_p;
+
+  LH_e  /= sumLH;
+  LH_mu /= sumLH;
+  LH_pi /= sumLH;
+  LH_K  /= sumLH;
+  LH_p  /= sumLH;
+  
+  result->setdE( dE>0. ? 1/sqrt(dE) : 0.0 );
+  result->setdp( dp>0. ? 1/sqrt(dp) : 0.0 );
+  result->setdtheta( dtheta>0. ? 1/sqrt(dtheta) : 0.0 );
+  result->setdphi( dphi>0. ? 1/sqrt(dphi) : 0.0 );
+  result->setdt( sqrt(dt) );
+  result->setdm(dm);
+
+  result->setm2(m2, m2Err);
+  result->setMvddEdx(MvddEdx,MvddEdxErr);
+  result->setTpcdEdx(TpcdEdx,TpcdEdxErr);
+  result->setSttdEdx(SttdEdx,SttdEdxErr);
+  
+  result->setDrcDiscThtc(DrcDiscThtc,DrcDiscThtcErr);
+  result->setDrcBarrelThtc(DrcBarrelThtc,DrcBarrelThtcErr);
+  result->setRichThtc(RichThtc,RichThtcErr);
+  
+  if (dVx > 0.) dVx=1./sqrt(dVx); else dVx = 0.0;
+  if (dVy > 0.) dVy=1./sqrt(dVy); else dVy = 0.0;
+  if (dVz > 0.) dVz=1./sqrt(dVz); else dVz = 0.0;
+
+  result->setdV( dVx , dVy , dVz );
+  
+  result->setLHElectron(LH_e);
+  result->setLHMuon(LH_mu);
+  result->setLHPion(LH_pi);
+  result->setLHKaon(LH_K);
+  result->setLHProton(LH_p);	  
+  
   // invoke parameterised vertex/momentum resolution 
+  // (this will overwrite dp, dtheta, dphi and dV)
   double p=t->p4().Vect().Mag();
   double theta=t->p4().Vect().Theta()*180/M_PI;
   int pid=abs(t->pdt());
@@ -214,7 +251,7 @@ PndFsmCmpDet::respond(PndFsmTrack *t) {
       // cut off slow and out of theta range particles
       // (this avoids floating point exceptions)
       detected &= ( p > _mom0[pid]->GetVal() );
-      detected &= ( _tht0->GetVal() <= theta );
+      detected &= ( theta >= _tht0->GetVal() );
       detected &= ( theta <= _tht1->GetVal() );
 
       if (detected) {
@@ -228,43 +265,16 @@ PndFsmCmpDet::respond(PndFsmTrack *t) {
 
         dtheta*=M_PI/180; // parfile contains dtheta[deg]
         dphi*=M_PI/180; // parfile contains dphi[deg]
-        dp*=p; // parfile contains dp/p
+        dp*=p*_momResMulti; // parfile contains dp/p
+
+        result->setdp(dp);
+        result->setdphi(dphi);
+        result->setdtheta(dtheta);
+        result->setdV(dVx,dVy,dVz);
       }
     }
-
-  double sumLH = LH_e + LH_mu + LH_pi + LH_K + LH_p;
-
-  LH_e  /= sumLH;
-  LH_mu /= sumLH;
-  LH_pi /= sumLH;
-  LH_K  /= sumLH;
-  LH_p  /= sumLH;
-  
   result->setDetected(detected);
-  result->setdE( dE );
-  result->setdp( dp );
-  result->setdtheta( dtheta );
-  result->setdphi( dphi );
-  result->setdt( sqrt(dt) );
-  result->setdm(dm);
 
-  result->setm2(m2, m2Err);
-  result->setMvddEdx(MvddEdx,MvddEdxErr);
-  result->setTpcdEdx(TpcdEdx,TpcdEdxErr);
-  result->setSttdEdx(SttdEdx,SttdEdxErr);
-  
-  result->setDrcDiscThtc(DrcDiscThtc,DrcDiscThtcErr);
-  result->setDrcBarrelThtc(DrcBarrelThtc,DrcBarrelThtcErr);
-  result->setRichThtc(RichThtc,RichThtcErr);
-  
-  result->setdV( dVx, dVy, dVz );
-  
-  result->setLHElectron(LH_e);
-  result->setLHMuon(LH_mu);
-  result->setLHPion(LH_pi);
-  result->setLHKaon(LH_K);
-  result->setLHProton(LH_p);	  
-  
   return result;
 }
 
@@ -296,7 +306,12 @@ bool PndFsmCmpDet::setParameter(std::string &name, double value) {
   // include here all float parameters which should be settable
   // *****************
       
-  bool knownName=false;
+  bool knownName=true;
+
+  if (name == "momResMulti")
+    _momResMulti=value;
+  else 
+    knownName=false;
 
   return knownName;
 }
@@ -405,6 +420,7 @@ void PndFsmCmpDet::initParameters() {
   _detName = "CmpDet";
   _parFileName = "$VMCWORKDIR/fsim/cmpdetparams.root";
   _parFile=false;
+  _momResMulti=1.0;
  }
 
 // TSpline3::Eval returns bogus values when outside the 
@@ -419,27 +435,4 @@ double PndFsmCmpDet::eval(TSpline3* s, double x) {
   else
     return s->Eval(x); 
 } 
-
-PndFsmCmpDet::dX::dX() {
-  n=0;
-  b=0;
-}
-
-void PndFsmCmpDet::dX::operator += (double v) {
-  n++;
-  b+=1/v;
-}
-
-void PndFsmCmpDet::dX::operator = (double v) {
-  n=1;
-  b=1/v;
-}
-
-void PndFsmCmpDet::dX::operator *= (double v) {
-  b/=v;
-}
-
-PndFsmCmpDet::dX::operator double() {
-  return b>0 ? sqrt(n)/b : 0;
-}
 

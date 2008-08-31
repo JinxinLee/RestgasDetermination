@@ -66,6 +66,7 @@ private:
 
   TString _parFileName;
   bool _parFile;
+  double _momResMulti;
 
   std::map<int, TSpline3*> _d0;
   std::map<int, TSpline3*> _z0;
@@ -82,20 +83,6 @@ private:
   std::map<int, TF1*> _momScale;
 
   double eval(TSpline3* spline, double theta);
-
-  // estimates the variance of a weighted sum of gaussian 
-  // distributed quantities that hold the same mean value
-  class dX {
-  public:
-    dX();
-    void operator+= (double variance);
-    void operator = (double value);
-    void operator*= (double value);
-    operator double();
-  private:
-    char n;
-    double b;
-  };
 };
 
 #endif
