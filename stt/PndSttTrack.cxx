@@ -108,5 +108,14 @@ Bool_t PndSttTrack::AlreadyHasHit(Int_t iHit)
     
     return retval;
 }
+// -------------------------------------------------------------------------
+
+
+void PndSttTrack::AddHelixHit(Int_t size, Int_t index, Int_t helixhitindex) 
+{
+  //  fHelixHits.Reset();
+    fHelixHits.Set(size);
+    fHelixHits[index] = helixhitindex;
+}
 
 ClassImp(PndSttTrack)

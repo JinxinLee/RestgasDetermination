@@ -158,8 +158,9 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
       helixhit = new(clref[size]) PndSttHelixHit();
       helixhit->CopyHitToHelixHit(currenthit, iHit);
 
+      pTrack->AddHelixHit(hitcounter, k, size);
+      
       //      helixhit->Print();
-
      
       TVector3 wiredirection = currenthit->GetWireDirection();
       

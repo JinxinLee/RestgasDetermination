@@ -55,8 +55,10 @@ class PndSttTrack : public TObject
 
   /** Accessors  **/
   Int_t GetNofHits()                  const { return fHits.GetSize(); };
+  Int_t GetNofHelixHits()             const { return fHelixHits.GetSize(); };
   Int_t GetNHits()                    const;
   Int_t GetHitIndex(Int_t iHit)       const { return fHits.At(iHit); };
+  Int_t GetHelixHitIndex(Int_t iHit)  const { return fHelixHits.At(iHit); };
   Int_t GetPidHypo()                  const { return fPidHypo; };
   Int_t GetFlag()                     const { return fFlag; };
   Double_t GetChi2Long()              const { return fChi2Long; };
@@ -80,12 +82,16 @@ class PndSttTrack : public TObject
   void SetNDF(Int_t ndf)                    { fNDF        = ndf;  };
   // stt1
   //  void SetHOT(TClonesArray *hotarray) {fHotArray = hotarray;}
+  void AddHelixHit(Int_t size, Int_t index, Int_t helixhitindex);
 
  private:
   Double_t fRefAngle;
 
   /** Arrays containg the indices of the hits attached to the track **/
   TArrayI fHits;
+
+  /** Arrays containg the indices of the helixhits attached to the track **/
+  TArrayI fHelixHits;
 
   /** PID hypothesis used by the track fitter **/
   Int_t fPidHypo;
