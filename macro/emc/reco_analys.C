@@ -55,7 +55,7 @@
 		{
 			PndEmcCluster *cluster=(PndEmcCluster*)cluster_array->At(i);
 			cluster_energy=cluster->energy();
-			if ((cluster->numberOfDigis()>1)&&(cluster_energy>0.02))
+			if ((cluster->NumberOfDigis()>1)&&(cluster_energy>0.02))
 			h3->Fill(cluster_energy);
 			PndEmcClusterEnergySums* esum = (PndEmcClusterEnergySums*)cluster->Esums();
 			hE1->Fill(esum->E1());

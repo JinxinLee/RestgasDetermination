@@ -42,7 +42,7 @@
 		{
 			PndEmcCluster *cluster=(PndEmcCluster*)cluster_array->At(i);
 			cluster_energy=cluster->energy();
-			if ((cluster->numberOfDigis()>1)&&(cluster_energy>0.02)) {
+			if ((cluster->NumberOfDigis()>1)&&(cluster_energy>0.02)) {
 				h->Fill(cluster_energy);
 				PndEmcClusterEnergySums esums = cluster->Esums();
 				e1=esums.E1();

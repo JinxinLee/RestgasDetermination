@@ -14,7 +14,8 @@
 	gSystem->Load("libEmc");	 
 	gSystem->Load("libGeom.so");
 	
-	TFile* f = new TFile("cluster_emc.root"); //file you want to analyse
+	TFile* f = new TFile("full_emc.root"); //file you want to analyse
+        PndEmcMapper::Instance(2, "sim_emc.root");
 	TTree *t=(TTree *) f->Get("cbmsim") ;
 	
 	TClonesArray* cluster_array=new TClonesArray("PndEmcCluster");
