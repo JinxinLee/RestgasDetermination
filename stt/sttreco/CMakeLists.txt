@@ -28,8 +28,10 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(STT_SRCS
 SttPatternRecoTask.cxx
+SttPatternRecoTask2.cxx
 SttRecoHit.cxx
 SttKalmanTask.cxx
+SttKalmanTask2.cxx
 WirepointHitPolicy.cxx
 )
 

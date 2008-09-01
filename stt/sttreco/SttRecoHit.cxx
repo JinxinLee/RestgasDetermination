@@ -23,6 +23,7 @@
 #include "GeaneTrackRep.h"
 #include "DetPlane.h"
 #include "PndSttHit.h"
+#include "PndSttHelixHit.h"
 #include "CbmGeanePro.h"
 #include "CbmGeaneUtil.h"
 #include "FitterExceptions.h"
@@ -47,6 +48,35 @@ SttRecoHit::SttRecoHit(PndSttHit *currenthit) : WirepointRecoHit(NparHitRep){
   TVector3 wiredirection = currenthit->GetWireDirection();
   TVector3 wiredirection2 = 75. * wiredirection;                     // CHECK for short tubes
   TVector3 cenposition(currenthit->GetX(), currenthit->GetY(), currenthit->GetZ());  // CHECK! z = 35
+  TVector3 wire1, wire2;
+  wire1 = cenposition - wiredirection2;
+  wire2 = cenposition + wiredirection2;
+//   cout << "Wiredirection, wire1, wire2 " << endl;
+//   wiredirection.Print();
+//   wire1.Print();
+//   wire2.Print();
+  _hitCoord[0][0] = wire1.X();
+  _hitCoord[1][0] = wire1.Y();
+  _hitCoord[2][0] = wire1.Z();
+  _hitCoord[3][0] = wire2.X();
+  _hitCoord[4][0] = wire2.Y();
+  _hitCoord[5][0] = wire2.Z();
+  _hitCoord[6][0] = currenthit->GetIsochrone();
+  _hitCoord[7][0] = 0.; // currenthit->GetZ(); // to be changed into Zreco! CHECK
+
+  // errors on drift radius and z (by hand)
+  for(int i = 0; i < NparHitRep; i++) for(int j = 0; j < NparHitRep; j++) _hitCov[i][j] = 0.;
+  _hitCov[6][6] = 0.0150 * 0.0150; // currenthit->GetIsochroneError(); CHECK
+  _hitCov[7][7] = 1.5 * 1.5;
+ 
+}
+
+SttRecoHit::SttRecoHit(PndSttHelixHit *currenthit) : WirepointRecoHit(NparHitRep){
+
+  // wire1(3), wire2(3), rdrift, zreco
+  TVector3 wiredirection = currenthit->GetWireDirection();
+  TVector3 wiredirection2 = 75. * wiredirection;                     // CHECK for short tubes
+  TVector3 cenposition(currenthit->GetXcen(), currenthit->GetYcen(), currenthit->GetZcen());  // CHECK! z = 35
   TVector3 wire1, wire2;
   wire1 = cenposition - wiredirection2;
   wire2 = cenposition + wiredirection2;

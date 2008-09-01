@@ -5,12 +5,14 @@
 #include "RecoHitIfc.h"
 #include "WirepointHitPolicy.h"
 #include "PndSttHit.h"
+#include "PndSttHelixHit.h"
 
 // Collaborating Class Headers -------
 #include <ostream> // remove if you do not need streaming op
 
 // Collaborating Class Declarations --
 class PndSttHit;
+class PndSttHelixHit;
 
 typedef RecoHitIfc<WirepointHitPolicy> WirepointRecoHit;
 
@@ -20,6 +22,7 @@ public:
   // Constructors/Destructors ---------
   SttRecoHit();
   SttRecoHit(PndSttHit *currenthit); 
+  SttRecoHit(PndSttHelixHit *currenthit); 
 
   virtual ~SttRecoHit();
 
