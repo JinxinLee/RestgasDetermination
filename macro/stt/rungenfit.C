@@ -58,12 +58,30 @@
 
   // ------------------------------------------------------------------------
   // -----  Reco Sequence   --------------------------------------------
+  int whichhit = 1; // 1 = use hit; 2 = use helixhit 
 
-  SttPatternRecoTask* STTPR = new SttPatternRecoTask();
+  if(whichhit == 1){
+    // use hit
+    SttPatternRecoTask* STTPR = new SttPatternRecoTask();
+  }
+  else if(whichhit == 2){
+    // use helixhit
+    SttPatternRecoTask2* STTPR = new SttPatternRecoTask2();
+  }
+
   fRun->AddTask(STTPR);
   
-  SttKalmanTask* RecoHitPro = new SttKalmanTask();
-  RecoHitPro->AddHitBranch(3,"STTHit");
+  if(whichhit == 1){
+    // use hit
+    SttKalmanTask* RecoHitPro = new SttKalmanTask();
+    RecoHitPro->AddHitBranch(3,"STTHit");
+   }
+  else if(whichhit == 2){
+    // use helixhit
+    SttKalmanTask2*RecoHitPro = new SttKalmanTask2();
+    RecoHitPro->AddHitBranch(3,"SttHelixHit");
+   }
+  
   fRun->AddTask(RecoHitPro); 
 
   // -----   Intialise and run   --------------------------------------------
