@@ -97,7 +97,7 @@ SttKalmanTask2::Exec(Option_t* opt)
 	std::cout<<trk->getNumHits()<<" hits in track " <<itr<<std::endl;
 	Kalman k;
         k.setLazy(1);
-	k.setNumIterations(1);
+	//	k.setNumIterations(1);
 	k.processTrack(trk);
       }
     }
