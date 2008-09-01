@@ -11,10 +11,10 @@ PndLVQClassify::PndLVQClassify(const char* InPut,
   TFile* InPutFile = new TFile(InPut,"READ");
   
   //Read the proto types and store. 
-  for(unsigned int cls; cls < m_ClassNames.size(); cls++){
+  for(unsigned int cls = 0; cls < m_ClassNames.size(); cls++){
     // Tree name
     const char *name = m_ClassNames[cls].c_str();
-    
+
     //Get the tree object
     TTree *t = (TTree*) InPutFile->Get(name);
     
@@ -43,7 +43,7 @@ PndLVQClassify::PndLVQClassify(const char* InPut,
       //Store the event and its class name
       m_protoContainer.push_back(std::make_pair(m_ClassNames[cls], EvtDat));
     }//End of tree loop
-    
+
     delete t;
   }// End of for cls
 
@@ -91,14 +91,20 @@ void PndLVQClassify::Classify(std::vector<float> &EvtData,
   result.clear();
   // Initialize results
   for(unsigned int id = 0; id < m_ClassNames.size(); id++){
-    result.insert( make_pair( m_ClassNames[id], 0.0 ) );
+    result.insert( make_pair( m_ClassNames[id], 100000.0 ) );
   }
   
   //Loop trough the prototypes list and compute the distances
   for(unsigned int i = 0; i < m_protoContainer.size(); i++){
+    std::string clsName = m_protoContainer[i].first;
     std::vector<float>* ev = (m_protoContainer[i]).second;
+   
     dist = ComputeDist(*ev, EvtData);
-  }//FIXME FIXME
+    
+    if(dist < result[clsName]){
+      result[clsName] = dist;
+    }
+  }
 }
 
 // Just for testing. You may want to remove this before use.
@@ -134,8 +140,14 @@ int main(int argc, char** argv){
   std::map<std::string,float> res;
 
   //timer.Start();
-  bla.Classify(evt,res);
 
+  bla.Classify(evt,res);
+  std::map<std::string,float>::iterator iter;
+  for( iter = res.begin(); iter != res.end(); ++iter ) {
+    std::cout << "Key: '" << iter->first 
+	      << "', Value: " << iter->second 
+	      << std::endl;
+  }
   //================================
   timer.Stop();
   double rtime = timer.RealTime();

@@ -315,7 +315,7 @@ int main(int argc, char** argv)
   nam.push_back("p");  nam.push_back("f"); nam.push_back("d");
   nam.push_back("a");  nam.push_back("b"); nam.push_back("c");
   
-  PndLVQTrain bla("TestInput10000.root",clas,nam);
+  PndLVQTrain bla("TestInput100.root",clas,nam);
   bla.Train(30,"OutTestPut.root");
   // =============================
   
