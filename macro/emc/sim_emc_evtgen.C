@@ -43,9 +43,9 @@
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave); 
   
-  CbmDetector *Emc = new PndEmc("EMC",kTRUE);
-  Emc->SetGeometryFileName("emc_module12345.dat"); 
-  fRun->AddModule(Emc);
+  PndEmc *Emc = new PndEmc("EMC",kTRUE);
+  Emc->SetGeometryFileNameDouble("emc_module124.dat","emc_module3new.root");
+  fRun->AddModule(Emc); 
 
   // Create and Set Event Generator
   //-------------------------------
