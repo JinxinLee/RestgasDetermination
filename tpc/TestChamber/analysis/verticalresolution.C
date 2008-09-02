@@ -370,7 +370,7 @@ void resolution(TString files){
   err_yres_01  = (1./(inty01_1+inty01_2));
   err_yres_01 *= sqrt(inty01_1*inty01_1*pow((y01_f1->GetParError(2)),2)+inty01_2*inty01_2*pow(y01_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution: "<<yres_01<<" +- " <<err_yres_01<<endl<<endl;
+  cout<<endl<<"resolution y01: "<<yres_01<<" +- " <<err_yres_01<<endl<<endl;
 
 
   //y02
@@ -401,7 +401,7 @@ void resolution(TString files){
   err_yres_all  = (1./(inty02_1+inty02_2));
   err_yres_all *= sqrt(inty02_1*inty02_1*pow((y02_f1->GetParError(2)),2)+inty02_2*inty02_2*pow(y02_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution: "<<yres_02<<" +- " <<err_yres_02<<endl<<endl;
+  cout<<endl<<"resolution y12: "<<yres_02<<" +- " <<err_yres_02<<endl<<endl;
 
   //y03
 
@@ -431,7 +431,7 @@ void resolution(TString files){
   err_yres_03  = (1./(inty03_1+inty03_2));
   err_yres_03 *= sqrt(inty03_1*inty03_1*pow((y03_f1->GetParError(2)),2)+inty03_2*inty03_2*pow(y03_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution: "<<yres_03<<" +- " <<err_yres_03<<endl<<endl;
+  cout<<endl<<"resolution y23: "<<yres_03<<" +- " <<err_yres_03<<endl<<endl;
 
   //y04
 
@@ -461,7 +461,7 @@ void resolution(TString files){
   err_yres_04  = (1./(inty04_1+inty04_2));
   err_yres_04 *= sqrt(inty04_1*inty04_1*pow((y04_f1->GetParError(2)),2)+inty04_2*inty04_2*pow(y04_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution: "<<yres_04<<" +- " <<err_yres_04<<endl<<endl;
+  cout<<endl<<"resolution y34: "<<yres_04<<" +- " <<err_yres_04<<endl<<endl;
 
   //y05
 
@@ -491,7 +491,7 @@ void resolution(TString files){
   err_yres_all  = (1./(inty05_1+inty05_2));
   err_yres_all *= sqrt(inty05_1*inty05_1*pow((y05_f1->GetParError(2)),2)+inty05_2*inty05_2*pow(y05_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution: "<<yres_05<<" +- " <<err_yres_05<<endl<<endl;
+  cout<<endl<<"resolution y45: "<<yres_05<<" +- " <<err_yres_05<<endl<<endl;
 
   //y06
 
@@ -521,7 +521,7 @@ void resolution(TString files){
   err_yres_06  = (1./(inty06_1+inty06_2));
   err_yres_06 *= sqrt(inty06_1*inty06_1*pow((y06_f1->GetParError(2)),2)+inty06_2*inty06_2*pow(y06_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution: "<<yres_06<<" +- " <<err_yres_06<<endl<<endl;
+  cout<<endl<<"resolution y56: "<<yres_06<<" +- " <<err_yres_06<<endl<<endl;
 
   //y07
 
@@ -551,7 +551,7 @@ void resolution(TString files){
   err_yres_07  = (1./(inty07_1+inty07_2));
   err_yres_07 *= sqrt(inty07_1*inty07_1*pow((y07_f1->GetParError(2)),2)+inty07_2*inty07_2*pow(y07_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution: "<<yres_07<<" +- " <<err_yres_07<<endl<<endl;
+  cout<<endl<<"resolution y67: "<<yres_07<<" +- " <<err_yres_07<<endl<<endl;
 
   //y08
 
@@ -581,7 +581,7 @@ void resolution(TString files){
   err_yres_08  = (1./(inty08_1+inty08_2));
   err_yres_08 *= sqrt(inty08_1*inty08_1*pow((y08_f1->GetParError(2)),2)+inty08_2*inty08_2*pow(y08_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution: "<<yres_08<<" +- " <<err_yres_08<<endl<<endl;
+  cout<<endl<<"resolution y78: "<<yres_08<<" +- " <<err_yres_08<<endl<<endl;
 
   //z without
   //zall
@@ -644,7 +644,7 @@ void resolution(TString files){
   err_zres_01  = (1./(intz01_1+intz01_2));
   err_zres_01 *= sqrt(intz01_1*intz01_1*pow((z01_f1->GetParError(2)),2)+intz01_2*intz01_2*pow(z01_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution: "<<zres_01<<" +- " <<err_zres_01<<endl<<endl;
+  cout<<endl<<"resolution z01: "<<zres_01<<" +- " <<err_zres_01<<endl<<endl;
 
 
   //z02
@@ -675,7 +675,7 @@ void resolution(TString files){
   err_zres_all  = (1./(intz02_1+intz02_2));
   err_zres_all *= sqrt(intz02_1*intz02_1*pow((z02_f1->GetParError(2)),2)+intz02_2*intz02_2*pow(z02_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution: "<<zres_02<<" +- " <<err_zres_02<<endl<<endl;
+  cout<<endl<<"resolution z12: "<<zres_02<<" +- " <<err_zres_02<<endl<<endl;
 
   //z03
 
@@ -705,7 +705,7 @@ void resolution(TString files){
   err_zres_03  = (1./(intz03_1+intz03_2));
   err_zres_03 *= sqrt(intz03_1*intz03_1*pow((z03_f1->GetParError(2)),2)+intz03_2*intz03_2*pow(z03_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution: "<<zres_03<<" +- " <<err_zres_03<<endl<<endl;
+  cout<<endl<<"resolution z23: "<<zres_03<<" +- " <<err_zres_03<<endl<<endl;
 
   //z04
 
@@ -735,7 +735,7 @@ void resolution(TString files){
   err_zres_04  = (1./(intz04_1+intz04_2));
   err_zres_04 *= sqrt(intz04_1*intz04_1*pow((z04_f1->GetParError(2)),2)+intz04_2*intz04_2*pow(z04_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution: "<<zres_04<<" +- " <<err_zres_04<<endl<<endl;
+  cout<<endl<<"resolution z34: "<<zres_04<<" +- " <<err_zres_04<<endl<<endl;
 
   //z05
 
@@ -765,7 +765,7 @@ void resolution(TString files){
   err_zres_all  = (1./(intz05_1+intz05_2));
   err_zres_all *= sqrt(intz05_1*intz05_1*pow((z05_f1->GetParError(2)),2)+intz05_2*intz05_2*pow(z05_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution: "<<zres_05<<" +- " <<err_zres_05<<endl<<endl;
+  cout<<endl<<"resolution z45: "<<zres_05<<" +- " <<err_zres_05<<endl<<endl;
 
   //z06
 
@@ -795,7 +795,7 @@ void resolution(TString files){
   err_zres_06  = (1./(intz06_1+intz06_2));
   err_zres_06 *= sqrt(intz06_1*intz06_1*pow((z06_f1->GetParError(2)),2)+intz06_2*intz06_2*pow(z06_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution: "<<zres_06<<" +- " <<err_zres_06<<endl<<endl;
+  cout<<endl<<"resolution z56: "<<zres_06<<" +- " <<err_zres_06<<endl<<endl;
 
   //z07
 
@@ -825,7 +825,7 @@ void resolution(TString files){
   err_zres_07  = (1./(intz07_1+intz07_2));
   err_zres_07 *= sqrt(intz07_1*intz07_1*pow((z07_f1->GetParError(2)),2)+intz07_2*intz07_2*pow(z07_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution: "<<zres_07<<" +- " <<err_zres_07<<endl<<endl;
+  cout<<endl<<"resolution z67: "<<zres_07<<" +- " <<err_zres_07<<endl<<endl;
 
   //z08
 
@@ -855,7 +855,7 @@ void resolution(TString files){
   err_zres_08  = (1./(intz08_1+intz08_2));
   err_zres_08 *= sqrt(intz08_1*intz08_1*pow((z08_f1->GetParError(2)),2)+intz08_2*intz08_2*pow(z08_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution: "<<zres_08<<" +- " <<err_zres_08<<endl<<endl;
+  cout<<endl<<"resolution z78: "<<zres_08<<" +- " <<err_zres_08<<endl<<endl;
 
   //y using clusterSplit1.C
   //yallw
@@ -916,7 +916,7 @@ void resolution(TString files){
   err_yres_01w  = (1./(inty01w_1+inty01w_2));
   err_yres_01w *= sqrt(inty01w_1*inty01w_1*pow((y01w_f1->GetParError(2)),2)+inty01w_2*inty01w_2*pow(y01w_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution: "<<yres_01w<<" +- " <<err_yres_01w<<endl<<endl;
+  cout<<endl<<"resolution yw01: "<<yres_01w<<" +- " <<err_yres_01w<<endl<<endl;
 
   //y02w
 
@@ -946,7 +946,7 @@ void resolution(TString files){
   err_yres_02w  = (1./(inty02w_1+inty02w_2));
   err_yres_02w *= sqrt(inty02w_1*inty02w_1*pow((y02w_f1->GetParError(2)),2)+inty02w_2*inty02w_2*pow(y02w_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution: "<<yres_02w<<" +- " <<err_yres_02w<<endl<<endl;
+  cout<<endl<<"resolution yw12: "<<yres_02w<<" +- " <<err_yres_02w<<endl<<endl;
 
   //y03w
 
@@ -976,7 +976,7 @@ void resolution(TString files){
   err_yres_03w  = (1./(inty03w_1+inty03w_2));
   err_yres_03w *= sqrt(inty03w_1*inty03w_1*pow((y03w_f1->GetParError(2)),2)+inty03w_2*inty03w_2*pow(y03w_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution: "<<yres_03w<<" +- " <<err_yres_03w<<endl<<endl;
+  cout<<endl<<"resolution yw23: "<<yres_03w<<" +- " <<err_yres_03w<<endl<<endl;
 
   //y04w
 
@@ -1006,7 +1006,7 @@ void resolution(TString files){
   err_yres_04w  = (1./(inty04w_1+inty04w_2));
   err_yres_04w *= sqrt(inty04w_1*inty04w_1*pow((y04w_f1->GetParError(2)),2)+inty04w_2*inty04w_2*pow(y04w_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution: "<<yres_04w<<" +- " <<err_yres_04w<<endl<<endl;
+  cout<<endl<<"resolution yw34: "<<yres_04w<<" +- " <<err_yres_04w<<endl<<endl;
 
   //y05w
 
@@ -1036,7 +1036,7 @@ void resolution(TString files){
   err_yres_05w  = (1./(inty05w_1+inty05w_2));
   err_yres_05w *= sqrt(inty05w_1*inty05w_1*pow((y05w_f1->GetParError(2)),2)+inty05w_2*inty05w_2*pow(y05w_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution: "<<yres_05w<<" +- " <<err_yres_05w<<endl<<endl;
+  cout<<endl<<"resolution yw45: "<<yres_05w<<" +- " <<err_yres_05w<<endl<<endl;
 
   //y06w
 
@@ -1066,7 +1066,7 @@ void resolution(TString files){
   err_yres_06w  = (1./(inty06w_1+inty06w_2));
   err_yres_06w *= sqrt(inty06w_1*inty06w_1*pow((y06w_f1->GetParError(2)),2)+inty06w_2*inty06w_2*pow(y06w_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution: "<<yres_06w<<" +- " <<err_yres_06w<<endl<<endl;
+  cout<<endl<<"resolution yw56: "<<yres_06w<<" +- " <<err_yres_06w<<endl<<endl;
 
   //y07w
 
@@ -1096,7 +1096,7 @@ void resolution(TString files){
   err_yres_07w  = (1./(inty07w_1+inty07w_2));
   err_yres_07w *= sqrt(inty07w_1*inty07w_1*pow((y07w_f1->GetParError(2)),2)+inty07w_2*inty07w_2*pow(y07w_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution: "<<yres_07w<<" +- " <<err_yres_07w<<endl<<endl;
+  cout<<endl<<"resolution yw67: "<<yres_07w<<" +- " <<err_yres_07w<<endl<<endl;
 
   //y08w
 
@@ -1126,7 +1126,7 @@ void resolution(TString files){
   err_yres_08w  = (1./(inty08w_1+inty08w_2));
   err_yres_08w *= sqrt(inty08w_1*inty08w_1*pow((y08w_f1->GetParError(2)),2)+inty08w_2*inty08w_2*pow(y08w_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution: "<<yres_08w<<" +- " <<err_yres_08w<<endl<<endl;
+  cout<<endl<<"resolution yw78: "<<yres_08w<<" +- " <<err_yres_08w<<endl<<endl;
 
   //z using clusterSplit1.C
   //zallw
@@ -1187,7 +1187,7 @@ void resolution(TString files){
   err_zres_01w  = (1./(intz01w_1+intz01w_2));
   err_zres_01w *= sqrt(intz01w_1*intz01w_1*pow((z01w_f1->GetParError(2)),2)+intz01w_2*intz01w_2*pow(z01w_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution: "<<zres_01w<<" +- " <<err_zres_01w<<endl<<endl;
+  cout<<endl<<"resolution zw01: "<<zres_01w<<" +- " <<err_zres_01w<<endl<<endl;
 
   //z02w
 
@@ -1217,7 +1217,7 @@ void resolution(TString files){
   err_zres_02w  = (1./(intz02w_1+intz02w_2));
   err_zres_02w *= sqrt(intz02w_1*intz02w_1*pow((z02w_f1->GetParError(2)),2)+intz02w_2*intz02w_2*pow(z02w_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution: "<<zres_02w<<" +- " <<err_zres_02w<<endl<<endl;
+  cout<<endl<<"resolution zw12: "<<zres_02w<<" +- " <<err_zres_02w<<endl<<endl;
 
   //z03w
 
@@ -1247,7 +1247,7 @@ void resolution(TString files){
   err_zres_03w  = (1./(intz03w_1+intz03w_2));
   err_zres_03w *= sqrt(intz03w_1*intz03w_1*pow((z03w_f1->GetParError(2)),2)+intz03w_2*intz03w_2*pow(z03w_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution: "<<zres_03w<<" +- " <<err_zres_03w<<endl<<endl;
+  cout<<endl<<"resolution zw23: "<<zres_03w<<" +- " <<err_zres_03w<<endl<<endl;
 
   //z04w
 
@@ -1277,7 +1277,7 @@ void resolution(TString files){
   err_zres_04w  = (1./(intz04w_1+intz04w_2));
   err_zres_04w *= sqrt(intz04w_1*intz04w_1*pow((z04w_f1->GetParError(2)),2)+intz04w_2*intz04w_2*pow(z04w_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution: "<<zres_04w<<" +- " <<err_zres_04w<<endl<<endl;
+  cout<<endl<<"resolution zw34: "<<zres_04w<<" +- " <<err_zres_04w<<endl<<endl;
 
   //z05w
 
@@ -1307,7 +1307,7 @@ void resolution(TString files){
   err_zres_05w  = (1./(intz05w_1+intz05w_2));
   err_zres_05w *= sqrt(intz05w_1*intz05w_1*pow((z05w_f1->GetParError(2)),2)+intz05w_2*intz05w_2*pow(z05w_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution: "<<zres_05w<<" +- " <<err_zres_05w<<endl<<endl;
+  cout<<endl<<"resolution zw45: "<<zres_05w<<" +- " <<err_zres_05w<<endl<<endl;
 
   //z06w
 
@@ -1337,7 +1337,7 @@ void resolution(TString files){
   err_zres_06w  = (1./(intz06w_1+intz06w_2));
   err_zres_06w *= sqrt(intz06w_1*intz06w_1*pow((z06w_f1->GetParError(2)),2)+intz06w_2*intz06w_2*pow(z06w_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution: "<<zres_06w<<" +- " <<err_zres_06w<<endl<<endl;
+  cout<<endl<<"resolution zw56: "<<zres_06w<<" +- " <<err_zres_06w<<endl<<endl;
 
   //z07w
 
@@ -1367,7 +1367,7 @@ void resolution(TString files){
   err_zres_07w  = (1./(intz07w_1+intz07w_2));
   err_zres_07w *= sqrt(intz07w_1*intz07w_1*pow((z07w_f1->GetParError(2)),2)+intz07w_2*intz07w_2*pow(z07w_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution: "<<zres_07w<<" +- " <<err_zres_07w<<endl<<endl;
+  cout<<endl<<"resolution zw67: "<<zres_07w<<" +- " <<err_zres_07w<<endl<<endl;
 
   //z08w
 
@@ -1397,7 +1397,7 @@ void resolution(TString files){
   err_zres_08w  = (1./(intz08w_1+intz08w_2));
   err_zres_08w *= sqrt(intz08w_1*intz08w_1*pow((z08w_f1->GetParError(2)),2)+intz08w_2*intz08w_2*pow(z08w_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution: "<<zres_08w<<" +- " <<err_zres_08w<<endl<<endl;
+  cout<<endl<<"resolution zw78: "<<zres_08w<<" +- " <<err_zres_08w<<endl<<endl;
 
 
   //Draw
@@ -1599,37 +1599,214 @@ void resolution(TString files){
 
   //y without
 
-  double x[8] = {1, 2, 3, 4, 5, 6, 7, 8};
-  double xx[8] = {5, 15, 25, 35, 45, 55, 65, 73.5};
-  double ex[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-  double exx[8] = {5, 5, 5, 5, 5, 5, 5, 3.5};
-  double y[8] = {yres_all*10000, yres_01*10000, yres_02*10000, yres_03*10000,
-		 yres_04*10000, yres_05*10000, yres_06*10000, yres_07*10000};
-  double yy[8] = {yres_all*10, yres_01*10, yres_02*10, yres_03*10,
-		  yres_04*10, yres_05*10, yres_06*10, yres_07*10};
-  double ey[8] = {err_yres_all*10000, err_yres_01*10000,
-		  err_yres_02*10000, err_yres_03*10000,
-		  err_yres_04*10000, err_yres_05*10000,
-		  err_yres_06*10000, err_yres_07*10000};
-  double eyy[8] = {err_yres_all*10, err_yres_01*10,
-		   err_yres_02*10, err_yres_03*10,
-		   err_yres_04*10, err_yres_05*10,
-		   err_yres_06*10, err_yres_07*10};
+  double yx[8] = {1, 2, 3, 4, 5, 6, 7, 8};
+  double yxx[8] = {5, 15, 25, 35, 45, 55, 65, 73.5};
+  double yex[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+  double yexx[8] = {5, 5, 5, 5, 5, 5, 5, 3.5};
+  double yy[8] = {yres_all*10000, yres_01*10000, yres_02*10000, yres_03*10000,
+		  yres_04*10000, yres_05*10000, yres_06*10000, yres_07*10000};
+  double yyy[8] = {yres_all*10, yres_01*10, yres_02*10, yres_03*10,
+		   yres_04*10, yres_05*10, yres_06*10, yres_07*10};
+  double yey[8] = {err_yres_all*10000, err_yres_01*10000,
+		   err_yres_02*10000, err_yres_03*10000,
+		   err_yres_04*10000, err_yres_05*10000,
+		   err_yres_06*10000, err_yres_07*10000};
+  double yeyy[8] = {err_yres_all*10, err_yres_01*10,
+		    err_yres_02*10, err_yres_03*10,
+		    err_yres_04*10, err_yres_05*10,
+		    err_yres_06*10, err_yres_07*10};
 
-  TGraphErrors *yres_vs_z = new TGraphErrors(8, x, y, ex, ey);
+  TH2D *hr1y = new TH2D("hr1y","hr1y",8,0.5,8.5, 10,0,500);
+  hr1y->SetStats(kFALSE);
+  hr1y->SetTitle("");
+  hr1y->SetYTitle("Spatial Resolution y (#mum)");
+  hr1y->SetLabelOffset(0.01, "X");
+  hr1y->SetLabelSize(0.05, "X");
+
+  TAxis *y_xaxis = hr1y->GetXaxis();
+  y_xaxis->SetBinLabel(1," 0 < z < 10mm");
+  y_xaxis->SetBinLabel(2,"10 < z < 20mm");
+  y_xaxis->SetBinLabel(3,"20 < z < 30mm");
+  y_xaxis->SetBinLabel(4,"30 < z < 40mm");
+  y_xaxis->SetBinLabel(5,"40 < z < 50mm");
+  y_xaxis->SetBinLabel(6,"50 < z < 60mm");
+  y_xaxis->SetBinLabel(7,"60 < z < 70mm");
+  y_xaxis->SetBinLabel(8,"70 < z < 80mm");
+
+  TGraphErrors *yres_vs_z = new TGraphErrors(8, yx, yy, yex, yey);
   yres_vs_z->SetTitle("");
   yres_vs_z->SetMarkerStyle(21);
   yres_vs_z->SetMarkerColor(2);
   yres_vs_z->SetMarkerSize(1);
   canvas = new TCanvas();
-  yres_vs_z->Draw();
+  hr1y->Draw();
+  yres_vs_z->Draw("p");
 
-  TGraphErrors *yres_vs_z2 = new TGraphErrors(8, xx, yy, exx, eyy);
+  TGraphErrors *yres_vs_z2 = new TGraphErrors(8, yxx, yyy, yexx, yeyy);
   yres_vs_z2->SetTitle("");
   yres_vs_z2->SetMarkerStyle(21);
   yres_vs_z2->SetMarkerColor(2);
   yres_vs_z2->SetMarkerSize(1);
   canvas = new TCanvas();
-  yres_vs_z2->Draw();
+  yres_vs_z2->Draw("ap");
+
+
+  //z without
+
+  double zx[8] = {1, 2, 3, 4, 5, 6, 7, 8};
+  double zxx[8] = {5, 15, 25, 35, 45, 55, 65, 73.5};
+  double zex[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+  double zexx[8] = {5, 5, 5, 5, 5, 5, 5, 3.5};
+  double zy[8] = {zres_all*10000, zres_01*10000, zres_02*10000, zres_03*10000,
+		  zres_04*10000, zres_05*10000, zres_06*10000, zres_07*10000};
+  double zyy[8] = {zres_all*10, zres_01*10, zres_02*10, zres_03*10,
+		   zres_04*10, zres_05*10, zres_06*10, zres_07*10};
+  double zey[8] = {err_zres_all*10000, err_zres_01*10000,
+		   err_zres_02*10000, err_zres_03*10000,
+		   err_zres_04*10000, err_zres_05*10000,
+		   err_zres_06*10000, err_zres_07*10000};
+  double zeyy[8] = {err_zres_all*10, err_zres_01*10,
+		    err_zres_02*10, err_zres_03*10,
+		    err_zres_04*10, err_zres_05*10,
+		    err_zres_06*10, err_zres_07*10};
+
+  TH2D *hr1z = new TH2D("hr1z","hr1z",8,0.5,8.5, 10,0,500);
+  hr1z->SetStats(kFALSE);
+  hr1z->SetTitle("");
+  hr1z->SetYTitle("Spatial Resolution z (#mum)");
+  hr1z->SetLabelOffset(0.01, "X");
+  hr1z->SetLabelSize(0.05, "X");
+
+  TAxis *z_xaxis = hr1z->GetXaxis();
+  z_xaxis->SetBinLabel(1," 0 < z < 10mm");
+  z_xaxis->SetBinLabel(2,"10 < z < 20mm");
+  z_xaxis->SetBinLabel(3,"20 < z < 30mm");
+  z_xaxis->SetBinLabel(4,"30 < z < 40mm");
+  z_xaxis->SetBinLabel(5,"40 < z < 50mm");
+  z_xaxis->SetBinLabel(6,"50 < z < 60mm");
+  z_xaxis->SetBinLabel(7,"60 < z < 70mm");
+  z_xaxis->SetBinLabel(8,"70 < z < 80mm");
+
+  TGraphErrors *zres_vs_z = new TGraphErrors(8, zx, zy, zex, zey);
+  zres_vs_z->SetTitle("");
+  zres_vs_z->SetMarkerStyle(21);
+  zres_vs_z->SetMarkerColor(2);
+  zres_vs_z->SetMarkerSize(1);
+  canvas = new TCanvas();
+  hr1z->Draw();
+  zres_vs_z->Draw("p");
+
+  TGraphErrors *zres_vs_z2 = new TGraphErrors(8, zxx, zyy, zexx, zeyy);
+  zres_vs_z2->SetTitle("");
+  zres_vs_z2->SetMarkerStyle(21);
+  zres_vs_z2->SetMarkerColor(2);
+  zres_vs_z2->SetMarkerSize(1);
+  canvas = new TCanvas();
+  zres_vs_z2->Draw("ap");
+
+
+  //y using clusterSplit1.C
+
+  double ywx[8] = {1, 2, 3, 4, 5, 6, 7, 8};
+  double ywxx[8] = {5, 15, 25, 35, 45, 55, 65, 73.5};
+  double ywex[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+  double ywexx[8] = {5, 5, 5, 5, 5, 5, 5, 3.5};
+  double ywy[8] = {yres_allw*10000, yres_01w*10000, yres_02w*10000, yres_03w*10000, yres_04w*10000, yres_05w*10000, yres_06w*10000, yres_07w*10000};
+  double ywyy[8] = {yres_allw*10, yres_01w*10, yres_02w*10, yres_03w*10, yres_04w*10, yres_05w*10, yres_06w*10, yres_07w*10};
+  double ywey[8] = {err_yres_allw*10000, err_yres_01w*10000,
+		    err_yres_02w*10000, err_yres_03w*10000,
+		    err_yres_04w*10000, err_yres_05w*10000,
+		    err_yres_06w*10000, err_yres_07w*10000};
+  double yweyy[8] = {err_yres_allw*10, err_yres_01w*10,
+		     err_yres_02w*10, err_yres_03w*10,
+		     err_yres_04w*10, err_yres_05w*10,
+		     err_yres_06w*10, err_yres_07w*10};
+
+  TH2D *hr1yw = new TH2D("hr1yw","hr1yw",8,0.5,8.5, 10,0,500);
+  hr1yw->SetStats(kFALSE);
+  hr1yw->SetTitle("");
+  hr1yw->SetYTitle("Spatial Resolution y using clusterSplit1.C (#mum)");
+  hr1yw->SetLabelOffset(0.01, "X");
+  hr1yw->SetLabelSize(0.05, "X");
+
+  TAxis *yw_xaxis = hr1yw->GetXaxis();
+  yw_xaxis->SetBinLabel(1," 0 < z < 10mm");
+  yw_xaxis->SetBinLabel(2,"10 < z < 20mm");
+  yw_xaxis->SetBinLabel(3,"20 < z < 30mm");
+  yw_xaxis->SetBinLabel(4,"30 < z < 40mm");
+  yw_xaxis->SetBinLabel(5,"40 < z < 50mm");
+  yw_xaxis->SetBinLabel(6,"50 < z < 60mm");
+  yw_xaxis->SetBinLabel(7,"60 < z < 70mm");
+  yw_xaxis->SetBinLabel(8,"70 < z < 80mm");
+
+  TGraphErrors *yresw_vs_z = new TGraphErrors(8, ywx,ywy, ywex, ywey);
+  yresw_vs_z->SetTitle("");
+  yresw_vs_z->SetMarkerStyle(21);
+  yresw_vs_z->SetMarkerColor(2);
+  yresw_vs_z->SetMarkerSize(1);
+  canvas = new TCanvas();
+  hr1yw->Draw();
+  yresw_vs_z->Draw("p");
+
+  TGraphErrors *yresw_vs_z2 = new TGraphErrors(8, ywxx, ywyy, ywexx, yweyy);
+  yresw_vs_z2->SetTitle("");
+  yresw_vs_z2->SetMarkerStyle(21);
+  yresw_vs_z2->SetMarkerColor(2);
+  yresw_vs_z2->SetMarkerSize(1);
+  canvas = new TCanvas();
+  yresw_vs_z2->Draw("ap");
+
+
+  //z using clusterSplit1.C
+
+  double zwx[8] = {1, 2, 3, 4, 5, 6, 7, 8};
+  double zwxx[8] = {5, 15, 25, 35, 45, 55, 65, 73.5};
+  double zwex[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+  double zwexx[8] = {5, 5, 5, 5, 5, 5, 5, 3.5};
+  double zwy[8] = {zres_allw*10000, zres_01w*10000, zres_02w*10000, zres_03w*10000, zres_04w*10000, zres_05w*10000, zres_06w*10000, zres_07w*10000};
+  double zwyy[8] = {zres_allw*10, zres_01w*10, zres_02w*10, zres_03w*10, zres_04w*10, zres_05w*10, zres_06w*10, zres_07w*10};
+  double zwey[8] = {err_zres_allw*10000, err_zres_01w*10000,
+		    err_zres_02w*10000, err_zres_03w*10000,
+		    err_zres_04w*10000, err_zres_05w*10000,
+		    err_zres_06w*10000, err_zres_07w*10000};
+  double zweyy[8] = {err_zres_allw*10, err_zres_01w*10,
+		     err_zres_02w*10, err_zres_03w*10,
+		     err_zres_04w*10, err_zres_05w*10,
+		     err_zres_06w*10, err_zres_07w*10};
+
+  TH2D *hr1zw = new TH2D("hr1zw","hr1zw",8,0.5,8.5, 10,0,500);
+  hr1zw->SetStats(kFALSE);
+  hr1zw->SetTitle("");
+  hr1zw->SetYTitle("Spatial Resolution z using clusterSplit1.C (#mum)");
+  hr1zw->SetLabelOffset(0.01, "X");
+  hr1zw->SetLabelSize(0.05, "X");
+
+  TAxis *zw_xaxis = hr1zw->GetXaxis();
+  zw_xaxis->SetBinLabel(1," 0 < z < 10mm");
+  zw_xaxis->SetBinLabel(2,"10 < z < 20mm");
+  zw_xaxis->SetBinLabel(3,"20 < z < 30mm");
+  zw_xaxis->SetBinLabel(4,"30 < z < 40mm");
+  zw_xaxis->SetBinLabel(5,"40 < z < 50mm");
+  zw_xaxis->SetBinLabel(6,"50 < z < 60mm");
+  zw_xaxis->SetBinLabel(7,"60 < z < 70mm");
+  zw_xaxis->SetBinLabel(8,"70 < z < 80mm");
+
+  TGraphErrors *zresw_vs_z = new TGraphErrors(8, zwx,zwy, zwex, zwey);
+  zresw_vs_z->SetTitle("");
+  zresw_vs_z->SetMarkerStyle(21);
+  zresw_vs_z->SetMarkerColor(2);
+  zresw_vs_z->SetMarkerSize(1);
+  canvas = new TCanvas();
+  hr1zw->Draw();
+  zresw_vs_z->Draw("p");
+
+  TGraphErrors *zresw_vs_z2 = new TGraphErrors(8, zwxx, zwyy, zwexx, zweyy);
+  zresw_vs_z2->SetTitle("");
+  zresw_vs_z2->SetMarkerStyle(21);
+  zresw_vs_z2->SetMarkerColor(2);
+  zresw_vs_z2->SetMarkerSize(1);
+  canvas = new TCanvas();
+  zresw_vs_z2->Draw("ap");
 
 }
+
