@@ -149,7 +149,7 @@ void PndTpcLheTrackFinder::AddTrackForFit(PndTpcLheCMTrack *track_in) {
   Int_t size = tracks.GetEntriesFast();
 
   TObjArray *rhits = (TObjArray* )track_in->GetCMHits();
-  cout << "PndTpcLheTrackFinder::AddTrackForFit "<<  rhits << endl;
+  if (fVerbose) cout << "PndTpcLheTrackFinder::AddTrackForFit "<<  rhits << endl;
   Int_t NHits = 0;
   if (rhits){ 
     NHits = rhits->GetEntriesFast();
