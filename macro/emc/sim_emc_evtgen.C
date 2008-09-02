@@ -44,7 +44,7 @@
   fRun->AddModule(Cave); 
   
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
-  Emc->SetGeometryFileNameDouble("emc_module124.dat","emc_module3new.root");
+  Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root");
   fRun->AddModule(Emc); 
 
   // Create and Set Event Generator
