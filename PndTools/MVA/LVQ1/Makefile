@@ -5,7 +5,7 @@
 INCLUDE   = $(shell root-config --cflags)
 LIBS      = $(shell root-config --libs) 
 CXX       = g++
-CCFLAGS   = -Wall -g # -O2 -fopenmp
+CCFLAGS   = -Wall -g # -O2 # -fopenmp
 
 # Define binary file name.
 BINS = PndLVQClassify  PndLVQTrain

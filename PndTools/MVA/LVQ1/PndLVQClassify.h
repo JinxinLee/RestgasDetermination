@@ -32,7 +32,9 @@ class PndLVQClassify{
   
   /*
    *@param EvtData. Event data to be classified.
-   *@param result.  Classification results.
+   *
+   *@param result.  Classification results. Currently the shortest
+   * distance for each class is stored in result.
    */
   void Classify(std::vector<float> &EvtData, std::map<std::string,float>& result);
 
@@ -44,9 +46,10 @@ class PndLVQClassify{
   float ComputeDist(std::vector<float> &EvtData, std::vector<float> &proto);
 
  private:
+  // Holds the class Names
   std::vector<std::string> m_ClassNames;
+  // Holds the Variable Names
   std::vector<std::string> m_VarNames;
-
   // Holds the LVQ proto-types
   std::vector< std::pair<std::string, std::vector<float>*> > m_protoContainer;
 };

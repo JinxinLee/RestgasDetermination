@@ -1,5 +1,10 @@
 #include "PndLVQClassify.h"
 
+/* Constructor
+ * @param InPut, Input file name (Weights).
+ * @param ClassNames, class names.
+ * @param VarNames, variable names of the features.
+ */
 PndLVQClassify::PndLVQClassify(const char* InPut,
 			       const std::vector<std::string>& ClassNames, 
 			       const std::vector<std::string>& VarNames)
@@ -82,7 +87,8 @@ float PndLVQClassify::ComputeDist(std::vector<float> &EvtData,
 
 /*
  *@param EvtData. Event data to be classified.
- *@param result.  Classification results.
+ *@param result.  Classification results. Currently the shortest
+ *     distance for each class is stored in result.
  */
 void PndLVQClassify::Classify(std::vector<float> &EvtData, 
 			      std::map<std::string,float>& result)
@@ -110,7 +116,6 @@ void PndLVQClassify::Classify(std::vector<float> &EvtData,
 // Just for testing. You may want to remove this before use.
 int main(int argc, char** argv){
   TStopwatch timer;
-  timer.Start();
   //================================
   std::vector<std::string> clas;
   std::vector<std::string> nam;
@@ -137,12 +142,31 @@ int main(int argc, char** argv){
   evt.push_back(15.0);
   evt.push_back(5.0);
 
+  std::vector<float> evt1;
+  evt1.push_back(1.0);
+  evt1.push_back(2.0);
+  evt1.push_back(32.0);
+  evt1.push_back(14.0);
+  evt1.push_back(5.0);
+  evt1.push_back(6.0);
+  evt1.push_back(7.0);
+  evt1.push_back(8.0);
+  evt1.push_back(9.0);
+
   std::map<std::string,float> res;
 
-  //timer.Start();
-
+  timer.Start();
+  std::cout << "\n======== FIRST EVENT ==========\n"<< std::endl;
   bla.Classify(evt,res);
   std::map<std::string,float>::iterator iter;
+  for( iter = res.begin(); iter != res.end(); ++iter ) {
+    std::cout << "Key: '" << iter->first 
+	      << "', Value: " << iter->second 
+	      << std::endl;
+  }
+
+  bla.Classify(evt1,res);
+  std::cout << "\n======== SECOND EVENT ==========\n"<< std::endl;
   for( iter = res.begin(); iter != res.end(); ++iter ) {
     std::cout << "Key: '" << iter->first 
 	      << "', Value: " << iter->second 
