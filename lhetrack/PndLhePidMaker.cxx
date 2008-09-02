@@ -288,6 +288,8 @@ void PndLhePidMaker::Exec(Option_t * option) {
     Reset();
     
     PndTpcLheTrack* track = (PndTpcLheTrack*) fTrackCand->At(i);
+    if (track->IsGood()==kFALSE) continue;
+    
     PndLhePidTrack* pidTrack = 	new PndLhePidTrack(*track);
         
     if (fVerbose) cout << "\n\n Track " << i << "\n"; 
@@ -398,7 +400,7 @@ void PndLhePidMaker::GetTofInfo(PndLhePidTrack* track) {
   PndTofHit *tofHit = NULL;
   Int_t tofEntries = fTofHit->GetEntriesFast();
   Int_t tofIndex = -1;
-  Float_t tofTof = 0., tofDz = -1000, tofDphi = -1000, tofLength = -1000;
+  Float_t tofTof = 0., tofDz = -1000, tofDphi = -1000, tofLength = -1000, tofGLength = -1000;
   Float_t tofQuality = 1000000;
   
   Float_t chi2 = 0;
@@ -420,6 +422,7 @@ void PndLhePidMaker::GetTofInfo(PndLhePidTrack* track) {
 	  if (rc)
 	    {
 	      vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
+	      tofGLength = fPro->GetLengthAtPCA();
 	    }
 	  else
 	    {
@@ -447,7 +450,7 @@ void PndLhePidMaker::GetTofInfo(PndLhePidTrack* track) {
 	  Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(),
 			      track->GetMomentum().Mag(), track->GetCharge(), track->GetMomentum().Theta(), track->GetZ0(),
 			      tofPos.X(), tofPos.Y(), tofPos.Z(), tofPos.Phi(),
-			      chi2, vertex.DeltaPhi(tofPos), tofLength, fPro->GetLengthAtPCA()};
+			      chi2, vertex.DeltaPhi(tofPos), tofLength, tofGLength};
 	  tofCorr->Fill(ntuple);
 	}
     }
@@ -474,7 +477,7 @@ void PndLhePidMaker::GetEmcInfo(PndLhePidTrack* track) {
   PndEmcCluster *emcHit = NULL;
   Int_t emcEntries = fEmcCluster->GetEntriesFast();
   Int_t emcIndex = -1;
-  Float_t emcEloss = 0., emcDz = -1000, emcDphi = -1000;
+  Float_t emcEloss = 0., emcDz = -1000, emcDphi = -1000, emcGLength = -1000;
   Float_t emcQuality = 1000000;
   
   Float_t chi2 = 0;
@@ -499,6 +502,7 @@ void PndLhePidMaker::GetEmcInfo(PndLhePidTrack* track) {
 	  if (rc)
 	    {
 	      vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
+	      emcGLength = fPro->GetLengthAtPCA();
 	    }
 	  else
 	    {
@@ -529,7 +533,7 @@ void PndLhePidMaker::GetEmcInfo(PndLhePidTrack* track) {
 	  Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(),
 			      track->GetMomentum().Mag(), track->GetCharge(), track->GetMomentum().Theta(), track->GetZ0(),
 			      emcPos.X(), emcPos.Y(), emcPos.Z(), emcPos.Phi(),
-			      chi2, vertex.DeltaPhi(emcPos), emcHit->energy(), fPro->GetLengthAtPCA()};
+			      chi2, vertex.DeltaPhi(emcPos), emcHit->energy(), emcGLength};
 	  emcCorr->Fill(ntuple);
 	}
     }
@@ -551,7 +555,7 @@ void PndLhePidMaker::GetMdtInfo(PndLhePidTrack* track) {
   PndMdtHit *mdtHit = NULL;
   Int_t mdtEntries = fMdtHit->GetEntriesFast();
   Int_t mdtIndex = -1, mdtMod = 0;
-  Float_t mdtDz = -1000, mdtDphi = -1000;;
+  Float_t mdtDz = -1000, mdtDphi = -1000, mdtGLength = -1000;
   Float_t mdtQuality = 1000000;
   
   Float_t chi2 = 0;
@@ -576,6 +580,7 @@ void PndLhePidMaker::GetMdtInfo(PndLhePidTrack* track) {
 	  if (rc)
 	    {
 	      vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
+	      mdtGLength = fPro->GetLengthAtPCA();
 	    }
 	  else
 	    {
@@ -602,7 +607,7 @@ void PndLhePidMaker::GetMdtInfo(PndLhePidTrack* track) {
 	  Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(), 
 			      track->GetMomentum().Mag(), track->GetCharge(), track->GetMomentum().Theta(), track->GetZ0(),
 			      mdtPos.X(), mdtPos.Y(), mdtPos.Z(), mdtPos.Phi(),
-			      chi2, mdtHit->GetModule(), vertex.DeltaPhi(mdtPos), fPro->GetLengthAtPCA()};
+			      chi2, mdtHit->GetModule(), vertex.DeltaPhi(mdtPos), mdtGLength};
 	  mdtCorr->Fill(ntuple);
 	}
     }
@@ -627,7 +632,7 @@ void PndLhePidMaker::GetDrcInfo(PndLhePidTrack* track) {
   PndDrcHit *drcHit = NULL;
   Int_t drcEntries = fDrcHit->GetEntriesFast();
   Int_t drcIndex = -1, drcPhot = 0;
-  Float_t drcThetaC = -1000, drcThetaCErr = 0, drcDphi = -1000;;
+  Float_t drcThetaC = -1000, drcThetaCErr = 0, drcDphi = -1000, drcGLength = -1000;
   Float_t drcQuality = 1000000;
   
   TVector3 vertex(0., 0., 0.);
@@ -648,6 +653,7 @@ void PndLhePidMaker::GetDrcInfo(PndLhePidTrack* track) {
 	  if (rc)
 	    {
 	      vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
+	      drcGLength = fPro->GetLengthAtPCA();
 	    }
 	  else
 	    {
@@ -671,7 +677,7 @@ void PndLhePidMaker::GetDrcInfo(PndLhePidTrack* track) {
 	{
 	  Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(),  
 			      track->GetMomentum().Mag(), track->GetCharge(), track->GetMomentum().Theta(), track->GetZ0(),
-			      drcPos.X(), drcPos.Y(), drcPos.Phi(), chi2, drcHit->GetThetaC(), 0., vertex.DeltaPhi(drcPos), fPro->GetLengthAtPCA()};
+			      drcPos.X(), drcPos.Y(), drcPos.Phi(), chi2, drcHit->GetThetaC(), 0., vertex.DeltaPhi(drcPos), drcGLength};
 	  drcCorr->Fill(ntuple);
 	}
     }

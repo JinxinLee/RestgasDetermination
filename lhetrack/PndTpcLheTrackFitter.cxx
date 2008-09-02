@@ -131,10 +131,15 @@ void PndTpcLheTrackFitter::Exec(Option_t * option) {
     Int_t size1 = clref1.GetEntriesFast();
     fTrFit= new(clref1[size1]) TGeoTrack();
 
-    HelixFit(track);
-   
-    Info4Fit(track);
-
+    if (HelixFit(track)>1)
+      {   
+	Info4Fit(track);
+      }
+    else
+      {
+	track->SetGood(kFALSE);
+      }
+    
   }
 
 #if 0
@@ -357,6 +362,8 @@ Int_t PndTpcLheTrackFitter::CircleFit(PndTpcLheTrack *track) {
 
   GAM = - Mz - xnew - xnew;
   DET = xnew*xnew - xnew*Mz + Cov_xy;
+  if (DET==0) return 0;
+
   Xcenter = (Mxz*(Myy-xnew) - Myz*Mxy)/DET/2.;
   Ycenter = (Myz*(Mxx-xnew) - Mxz*Mxy)/DET/2.;
   Radius = sqrt(Xcenter*Xcenter+Ycenter*Ycenter-GAM);
@@ -578,7 +585,7 @@ Int_t PndTpcLheTrackFitter::DeepFit(PndTpcLheTrack *track) {
 
   if (fVerbose) cout << "soeren track " << track->GetPx() << "\n";
 
-  return 0 ;
+  return 1;
 
 }
 
@@ -586,10 +593,10 @@ Int_t PndTpcLheTrackFitter::DeepFit(PndTpcLheTrack *track) {
 Int_t PndTpcLheTrackFitter::HelixFit(PndTpcLheTrack *track) {
   //---  Create helix as fit of array of points
 
-    CircleFit(track);
-    DeepFit(track);
+    Int_t isCircle = CircleFit(track);
+    Int_t isDip = DeepFit(track);
 
-  return 1;
+    return (isCircle+isDip);
 
 }
 
