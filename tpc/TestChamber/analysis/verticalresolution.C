@@ -1603,18 +1603,18 @@ void resolution(TString files){
   double yxx[8] = {5, 15, 25, 35, 45, 55, 65, 73.5};
   double yex[8] = {0, 0, 0, 0, 0, 0, 0, 0};
   double yexx[8] = {5, 5, 5, 5, 5, 5, 5, 3.5};
-  double yy[8] = {yres_all*10000, yres_01*10000, yres_02*10000, yres_03*10000,
-		  yres_04*10000, yres_05*10000, yres_06*10000, yres_07*10000};
-  double yyy[8] = {yres_all*10, yres_01*10, yres_02*10, yres_03*10,
-		   yres_04*10, yres_05*10, yres_06*10, yres_07*10};
-  double yey[8] = {err_yres_all*10000, err_yres_01*10000,
-		   err_yres_02*10000, err_yres_03*10000,
-		   err_yres_04*10000, err_yres_05*10000,
-		   err_yres_06*10000, err_yres_07*10000};
-  double yeyy[8] = {err_yres_all*10, err_yres_01*10,
-		    err_yres_02*10, err_yres_03*10,
-		    err_yres_04*10, err_yres_05*10,
-		    err_yres_06*10, err_yres_07*10};
+  double yy[8] = {yres_01*10000, yres_02*10000, yres_03*10000, yres_04*10000, 
+                  yres_05*10000, yres_06*10000, yres_07*10000, yres_08*10000};
+  double yyy[8] = {yres_01*10, yres_02*10, yres_03*10, yres_04*10, 
+                   yres_05*10, yres_06*10, yres_07*10, yres_08*10};
+  double yey[8] = {err_yres_01*10000, err_yres_02*10000, 
+                   err_yres_03*10000, err_yres_04*10000, 
+                   err_yres_05*10000, err_yres_06*10000, 
+                   err_yres_07*10000, err_yres_08*10000};
+  double yeyy[8] = {err_yres_01*10, err_yres_02*10, 
+                    err_yres_03*10, err_yres_04*10, 
+                    err_yres_05*10, err_yres_06*10, 
+                    err_yres_07*10, err_yres_08*10};
 
   TH2D *hr1y = new TH2D("hr1y","hr1y",8,0.5,8.5, 10,0,500);
   hr1y->SetStats(kFALSE);
@@ -1657,18 +1657,18 @@ void resolution(TString files){
   double zxx[8] = {5, 15, 25, 35, 45, 55, 65, 73.5};
   double zex[8] = {0, 0, 0, 0, 0, 0, 0, 0};
   double zexx[8] = {5, 5, 5, 5, 5, 5, 5, 3.5};
-  double zy[8] = {zres_all*10000, zres_01*10000, zres_02*10000, zres_03*10000,
-		  zres_04*10000, zres_05*10000, zres_06*10000, zres_07*10000};
-  double zyy[8] = {zres_all*10, zres_01*10, zres_02*10, zres_03*10,
-		   zres_04*10, zres_05*10, zres_06*10, zres_07*10};
-  double zey[8] = {err_zres_all*10000, err_zres_01*10000,
-		   err_zres_02*10000, err_zres_03*10000,
-		   err_zres_04*10000, err_zres_05*10000,
-		   err_zres_06*10000, err_zres_07*10000};
-  double zeyy[8] = {err_zres_all*10, err_zres_01*10,
-		    err_zres_02*10, err_zres_03*10,
-		    err_zres_04*10, err_zres_05*10,
-		    err_zres_06*10, err_zres_07*10};
+  double zy[8] = {zres_01*10000, zres_02*10000, zres_03*10000, zres_04*10000, 
+                  zres_05*10000, zres_06*10000, zres_07*10000, zres_08*10000};
+  double zyy[8] = {zres_01*10, zres_02*10, zres_03*10, zres_04*10, 
+                   zres_05*10, zres_06*10, zres_07*10, zres_08*10};
+  double zey[8] = {err_zres_01*10000, err_zres_02*10000,  
+                   err_zres_03*10000, err_zres_04*10000, 
+                   err_zres_05*10000, err_zres_06*10000, 
+                   err_zres_07*10000, err_zres_08*10000};
+  double zeyy[8] = {err_zres_01*10, err_zres_02*10, 
+                    err_zres_03*10, err_zres_04*10, 
+                    err_zres_05*10, err_zres_06*10, 
+                    err_zres_07*10, err_zres_08*10};
 
   TH2D *hr1z = new TH2D("hr1z","hr1z",8,0.5,8.5, 10,0,500);
   hr1z->SetStats(kFALSE);
@@ -1711,16 +1711,18 @@ void resolution(TString files){
   double ywxx[8] = {5, 15, 25, 35, 45, 55, 65, 73.5};
   double ywex[8] = {0, 0, 0, 0, 0, 0, 0, 0};
   double ywexx[8] = {5, 5, 5, 5, 5, 5, 5, 3.5};
-  double ywy[8] = {yres_allw*10000, yres_01w*10000, yres_02w*10000, yres_03w*10000, yres_04w*10000, yres_05w*10000, yres_06w*10000, yres_07w*10000};
-  double ywyy[8] = {yres_allw*10, yres_01w*10, yres_02w*10, yres_03w*10, yres_04w*10, yres_05w*10, yres_06w*10, yres_07w*10};
-  double ywey[8] = {err_yres_allw*10000, err_yres_01w*10000,
-		    err_yres_02w*10000, err_yres_03w*10000,
-		    err_yres_04w*10000, err_yres_05w*10000,
-		    err_yres_06w*10000, err_yres_07w*10000};
-  double yweyy[8] = {err_yres_allw*10, err_yres_01w*10,
-		     err_yres_02w*10, err_yres_03w*10,
-		     err_yres_04w*10, err_yres_05w*10,
-		     err_yres_06w*10, err_yres_07w*10};
+  double ywy[8] = {yres_01w*10000, yres_02w*10000, yres_03w*10000, yres_04w*10000,
+                   yres_05w*10000, yres_06w*10000, yres_07w*10000, yres_08w*10000};
+  double ywyy[8] = {yres_01w*10, yres_02w*10, yres_03w*10, yres_04w*10, 
+		    yres_05w*10, yres_06w*10, yres_07w*10, yres_08w*10};
+  double ywey[8] = {err_yres_01w*10000, err_yres_02w*10000,
+		    err_yres_03w*10000, err_yres_04w*10000,
+		    err_yres_05w*10000, err_yres_06w*10000,
+		    err_yres_07w*10000, err_yres_08w*10000};
+  double yweyy[8] = {err_yres_01w*10, err_yres_02w*10,
+		     err_yres_03w*10, err_yres_04w*10,
+		     err_yres_05w*10, err_yres_06w*10,
+		     err_yres_07w*10, err_yres_08w*10};
 
   TH2D *hr1yw = new TH2D("hr1yw","hr1yw",8,0.5,8.5, 10,0,500);
   hr1yw->SetStats(kFALSE);
@@ -1763,16 +1765,18 @@ void resolution(TString files){
   double zwxx[8] = {5, 15, 25, 35, 45, 55, 65, 73.5};
   double zwex[8] = {0, 0, 0, 0, 0, 0, 0, 0};
   double zwexx[8] = {5, 5, 5, 5, 5, 5, 5, 3.5};
-  double zwy[8] = {zres_allw*10000, zres_01w*10000, zres_02w*10000, zres_03w*10000, zres_04w*10000, zres_05w*10000, zres_06w*10000, zres_07w*10000};
-  double zwyy[8] = {zres_allw*10, zres_01w*10, zres_02w*10, zres_03w*10, zres_04w*10, zres_05w*10, zres_06w*10, zres_07w*10};
-  double zwey[8] = {err_zres_allw*10000, err_zres_01w*10000,
-		    err_zres_02w*10000, err_zres_03w*10000,
-		    err_zres_04w*10000, err_zres_05w*10000,
-		    err_zres_06w*10000, err_zres_07w*10000};
-  double zweyy[8] = {err_zres_allw*10, err_zres_01w*10,
-		     err_zres_02w*10, err_zres_03w*10,
-		     err_zres_04w*10, err_zres_05w*10,
-		     err_zres_06w*10, err_zres_07w*10};
+  double zwy[8] = {zres_01w*10000, zres_02w*10000, zres_03w*10000, zres_04w*10000,
+                   zres_05w*10000, zres_06w*10000, zres_07w*10000, zres_08w*10000};
+  double zwyy[8] = {zres_01w*10, zres_02w*10, zres_03w*10, zres_04w*10, 
+		    zres_05w*10, zres_06w*10, zres_07w*10, zres_08w*10};
+  double zwey[8] = {err_zres_01w*10000, err_zres_02w*10000,
+		    err_zres_03w*10000, err_zres_04w*10000,
+		    err_zres_05w*10000, err_zres_06w*10000,
+		    err_zres_07w*10000, err_zres_08w*10000};
+  double zweyy[8] = {err_zres_01w*10, err_zres_02w*10,
+		     err_zres_03w*10, err_zres_04w*10,
+		     err_zres_05w*10, err_zres_06w*10,
+		     err_zres_07w*10, err_zres_08w*10};
 
   TH2D *hr1zw = new TH2D("hr1zw","hr1zw",8,0.5,8.5, 10,0,500);
   hr1zw->SetStats(kFALSE);
