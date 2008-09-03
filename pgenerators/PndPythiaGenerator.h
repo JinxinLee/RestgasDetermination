@@ -88,7 +88,7 @@ class PndPythiaGenerator : public CbmGenerator
 
   //ifstream* fInputFile;               //! Input file stream
   const Char_t * fFileName;           //! Input file Name
-  FILE *fInputFile;
+  FILE *fInputFile;                   //! File
   Int_t fVerbose;                     //! Verbose Level
 
   /** Private method CloseInput. Just for convenience. Closes the 
