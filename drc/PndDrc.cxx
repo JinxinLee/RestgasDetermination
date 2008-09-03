@@ -309,11 +309,14 @@ Bool_t PndDrc::ProcessHits(CbmVolume* vol) {
     Int_t s, b; //side and bar
     TString path = gMC->CurrentVolPath();     
     if (fVerboseLevel >0) cout<< "Volume: " << gMC->CurrentVolPath() << endl;
-    
-    sscanf(path, "/cave_1/DrcBaseVol_1/DrcSide_%d/DrcBox_1/DrcBarContainer_%d/DrcBar_1", &s, &b);
+
+    //  cout << path << endl;    
+    sscanf(path, "/cave_1/DrcBase_1/DrcSide_%d/DrcBox_1/DrcBarContainer_%d/DrcBar_1", &s, &b);
     
     Int_t fNBar = s*10 +b;
     gMC->TrackMomentum(fMom); // GeV/c
+
+
 
  //    Double_t r = 49.7;
 //     Double_t phi = acos(fPos.X()/r);
