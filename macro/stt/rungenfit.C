@@ -62,23 +62,23 @@
 
   if(whichhit == 1){
     // use hit
-    SttPatternRecoTask* STTPR = new SttPatternRecoTask();
+    PndSttPatternRecoTask* STTPR = new PndSttPatternRecoTask();
   }
   else if(whichhit == 2){
     // use helixhit
-    SttPatternRecoTask2* STTPR = new SttPatternRecoTask2();
+    PndSttPatternRecoTask2* STTPR = new PndSttPatternRecoTask2();
   }
 
   fRun->AddTask(STTPR);
   
   if(whichhit == 1){
     // use hit
-    SttKalmanTask* RecoHitPro = new SttKalmanTask();
+    PndSttKalmanTask* RecoHitPro = new PndSttKalmanTask();
     RecoHitPro->AddHitBranch(3,"STTHit");
    }
   else if(whichhit == 2){
     // use helixhit
-    SttKalmanTask2*RecoHitPro = new SttKalmanTask2();
+    PndSttKalmanTask2*RecoHitPro = new PndSttKalmanTask2();
     RecoHitPro->AddHitBranch(3,"SttHelixHit");
    }
   
