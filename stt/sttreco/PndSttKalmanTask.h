@@ -1,5 +1,5 @@
-#ifndef STTKALMANTASK_HH
-#define STTKALMANTASK_HH
+#ifndef PNDSTTKALMANTASK_HH
+#define PNDSTTKALMANTASK_HH
 
 // Base Class Headers ----------------
 #include "CbmTask.h"
@@ -13,12 +13,12 @@ class TClonesArray;
 class RecoHitFactory;
 class TGeoManager; 
 
-class SttKalmanTask : public CbmTask {
+class PndSttKalmanTask : public CbmTask {
 public:
 
   // Constructors/Destructors ---------
-  SttKalmanTask();
-  ~SttKalmanTask();
+  PndSttKalmanTask();
+  ~PndSttKalmanTask();
 
   // Operators
   
@@ -50,7 +50,7 @@ private:
   // Private Methods -----------------
 
 public:
-  ClassDef(SttKalmanTask,1)
+  ClassDef(PndSttKalmanTask,1)
 
 };
 
