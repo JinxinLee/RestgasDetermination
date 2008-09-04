@@ -1,4 +1,6 @@
-#include "SttPatternRecoTask.h"
+// USE THIS to use helixhits
+
+#include "PndSttPatternRecoTask2.h"
 #include "PndSttTrackMatch.h"
 #include "PndSttTrack.h"
 #include "Track.h"
@@ -11,8 +13,9 @@
 #include "GeaneTrackRep.h"
 #include "TDatabasePDG.h"
 #include "TParticlePDG.h"
-#include "SttRecoHit.h"
-#include "PndSttHit.h"
+#include "PndSttRecoHit.h"
+// #include "PndSttHit.h"
+#include "PndSttHelixHit.h"
 #include "Kalman.h"
 #include "FitterExceptions.h"
 #include "CbmGeanePro.h"
@@ -25,14 +28,14 @@ using std::endl;
 using std::string;
 
 // -----   Default constructor   -------------------------------------------
-SttPatternRecoTask::SttPatternRecoTask() : CbmTask("STT Pattern Reco Task") 
+PndSttPatternRecoTask2::PndSttPatternRecoTask2() : CbmTask("STT Pattern Reco Task") 
 {
   
 }
 // -------------------------------------------------------------------------
 
 // -----   Destructor   ----------------------------------------------------
-SttPatternRecoTask::~SttPatternRecoTask() 
+PndSttPatternRecoTask2::~PndSttPatternRecoTask2() 
 {
   /*
     fTrackArray->Delete();
@@ -43,7 +46,7 @@ SttPatternRecoTask::~SttPatternRecoTask()
 // -------------------------------------------------------------------------
 
 // -----   Public method Init (abstract in base class)  --------------------
-InitStatus SttPatternRecoTask::Init() 
+InitStatus PndSttPatternRecoTask2::Init() 
 {
   //   cout << "SttPRTask::Init()" << endl;
   
@@ -51,7 +54,7 @@ InitStatus SttPatternRecoTask::Init()
   
   if (!ioman) 
     {
-      cout << "-E- SttPatternRecoTask: "
+      cout << "-E- PndSttPatternRecoTask2: "
 	   << "RootManager not instantised!" << endl;
       return kFATAL;
     }
@@ -74,10 +77,17 @@ InitStatus SttPatternRecoTask::Init()
     Error("SttPRTask::Init","stt track-array not found!");
     return kERROR;
   }
-  // open STTTrack array
-  fSttHitArray=(TClonesArray*) ioman->GetObject("STTHit");
-  if(fSttHitArray==0){
-    Error("SttPRTask::Init","stt hit-array not found!");
+  // open SttHit array
+  //  fSttHitArray=(TClonesArray*) ioman->GetObject("STTHit");
+  //   if(fSttHitArray==0){
+  //     Error("SttPRTask::Init","stt hit-array not found!");
+  //     return kERROR;
+  //   }
+
+  // open SttHelixHit array
+  fSttHelixHitArray=(TClonesArray*) ioman->GetObject("SttHelixHit");
+  if(fSttHelixHitArray==0){
+    Error("SttPRTask::Init","stt helixhit-array not found!");
     return kERROR;
   }
   
@@ -91,7 +101,7 @@ InitStatus SttPatternRecoTask::Init()
 
 // ------------------------------------------------------------------
 
-void SttPatternRecoTask:: Exec(Option_t* opt) 
+void PndSttPatternRecoTask2:: Exec(Option_t* opt) 
 { 
   //   cout << "SttPRTask::Exec()" << endl;
   fTrackArray->Delete();
@@ -179,11 +189,12 @@ void SttPatternRecoTask:: Exec(Option_t* opt)
 
       TrackCand *cand = new TrackCand();
 
-      for(int iPoint = 0; iPoint < track->GetNofHits(); iPoint++)
+      for(int iPoint = 0; iPoint < track->GetNofHelixHits(); iPoint++)
  	{
+	  Int_t iHit = track->GetHelixHitIndex(iPoint);
+	  //  PndSttHit *currenthit = (PndSttHit*) fSttHitArray->At(iHit);
+	  PndSttHelixHit *currenthit = (PndSttHelixHit*) fSttHelixHitArray->At(iHit);
 
-	  Int_t iHit = track->GetHitIndex(iPoint);
- 	  PndSttHit *currenthit = (PndSttHit*) fSttHitArray->At(iHit);
 	  if(!currenthit) continue;
 	  if(currenthit->GetDetectorID() != 3) continue;  // to be well defined CHECK!!
 	  
@@ -200,10 +211,10 @@ void SttPatternRecoTask:: Exec(Option_t* opt)
 	
       trk->setCandidate(*cand); // here the candidate is copied! 
       
-      //      cout <<"end of track " << iTrack << " " << cand->getNHits() << " " << trk->getNumHits() << endl;
-      //      cout << fTrackArray->GetEntriesFast()<<" tracks created"<< endl;
+            cout <<"end of track " << iTrack << " " << cand->getNHits() << " " << trk->getNumHits() << endl;
+            cout << fTrackArray->GetEntriesFast()<<" tracks created"<< endl;
       
     }
   
 }
-ClassImp(SttPatternRecoTask)
+ClassImp(PndSttPatternRecoTask2)

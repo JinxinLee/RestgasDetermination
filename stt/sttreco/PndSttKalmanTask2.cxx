@@ -3,7 +3,7 @@
 // Panda Headers ----------------------
 
 // This Class' Header ------------------
-#include "SttKalmanTask2.h"
+#include "PndSttKalmanTask2.h"
 
 // C/C++ Headers ----------------------
 #include <algorithm>
@@ -17,7 +17,7 @@
 #include "RecoHitFactory.h"
 #include "TGeoTrack.h"
 #include "TGeoManager.h"
-#include "SttRecoHit.h"
+#include "PndSttRecoHit.h"
 #include "PndSttHelixHit.h"
 #include "GeaneTrackRep.h"
 #include "FitterExceptions.h"
@@ -28,20 +28,20 @@ using namespace std;
 // Class Member definitions -----------
 
 
-SttKalmanTask2::SttKalmanTask2(){}
+PndSttKalmanTask2::PndSttKalmanTask2(){}
 
-SttKalmanTask2::~SttKalmanTask2(){}
+PndSttKalmanTask2::~PndSttKalmanTask2(){}
 
 InitStatus
-SttKalmanTask2::Init()
+PndSttKalmanTask2::Init()
 {
-  cout << "SttKalmanTask2::Init()" << endl;
+  cout << "PndSttKalmanTask2::Init()" << endl;
 
   CbmRootManager *ioman = CbmRootManager::Instance();
   
   if (!ioman) 
   {
-      cout << "-E- SttRecoHirProducer: "
+      cout << "-E- PndSttRecoHirProducer: "
 	   << "RootManager not instantised!" << endl;
       return kFATAL;
   }
@@ -49,14 +49,14 @@ SttKalmanTask2::Init()
   // open STTTrack array
   fTrackArray=(TClonesArray*) ioman->GetObject("Track");
   if(fTrackArray==0){
-    Error("SttKalmanTask2::Init","track-array not found!");
+    Error("PndSttKalmanTask2::Init","track-array not found!");
     return kERROR;
   }
 
 //   // open SttHelixHit array
 //   fSttHelixHitArray=(TClonesArray*) ioman->GetObject("SttHelixHit");
 //   if(fSttHelixHitArray==0){
-//     Error("SttKalmanTask2::Init","stt helixhit-array not found!");
+//     Error("PndSttKalmanTask2::Init","stt helixhit-array not found!");
 //     return kERROR;
 //   }
   
@@ -68,11 +68,11 @@ SttKalmanTask2::Init()
   while(iter!=_hitBranchMap.end()){
     TClonesArray* ar=(TClonesArray*) ioman->GetObject(iter->second);
     if(ar==0){
-      Error("SttKalmanTask2::Init","point-array %s not found!",iter->second.Data());
+      Error("PndSttKalmanTask2::Init","point-array %s not found!",iter->second.Data());
     }
     else{ 
       // use helix hit
-      _theRecoHitFactory->addProducer(iter->first,new RecoHitProducer<PndSttHelixHit,SttRecoHit>(ar));
+      _theRecoHitFactory->addProducer(iter->first,new RecoHitProducer<PndSttHelixHit,PndSttRecoHit>(ar));
     }
     ++iter;
   }//end loops over hit types
@@ -82,9 +82,9 @@ SttKalmanTask2::Init()
 
 
 void
-SttKalmanTask2::Exec(Option_t* opt)
+PndSttKalmanTask2::Exec(Option_t* opt)
 {
-//   std::cout<<"SttKalmanTask2::Exec"<<  std::endl;
+//   std::cout<<"PndSttKalmanTask2::Exec"<<  std::endl;
   if(fTrackArray)
     {
 
@@ -97,7 +97,7 @@ SttKalmanTask2::Exec(Option_t* opt)
 	std::cout<<trk->getNumHits()<<" hits in track " <<itr<<std::endl;
 	Kalman k;
         k.setLazy(1);
-	//	k.setNumIterations(1);
+	k.setNumIterations(1);
 	k.processTrack(trk);
       }
     }
@@ -105,11 +105,11 @@ SttKalmanTask2::Exec(Option_t* opt)
 }
 
 void 
-SttKalmanTask2::AddHitBranch(unsigned int detId, const TString& m){
+PndSttKalmanTask2::AddHitBranch(unsigned int detId, const TString& m){
   
   std::cout << "hit branch " << m << " " << detId  << std::endl;
   _hitBranchMap[detId]=m;
 }
 
 
-ClassImp(SttKalmanTask2)
+ClassImp(PndSttKalmanTask2)

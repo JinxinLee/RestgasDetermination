@@ -1,5 +1,5 @@
-#ifndef STTPATTERNRECOTASK2_HH
-#define STTPATTERNRECOTASK2_HH
+#ifndef PNDSTTPATTERNRECOTASK_HH
+#define PNDSTTPATTERNRECOTASK_HH
 
 // Base Class Headers ----------------
 #include "CbmTask.h"
@@ -12,12 +12,12 @@ class TClonesArray;
 class CbmGeanePro;
 class CbmMCPoint;
 
-class SttPatternRecoTask2 : public CbmTask {
+class PndSttPatternRecoTask : public CbmTask {
 public:
 
   // Constructors/Destructors ---------
-  SttPatternRecoTask2();
-  ~SttPatternRecoTask2();
+  PndSttPatternRecoTask();
+  ~PndSttPatternRecoTask();
 
   // Operators
   
@@ -43,12 +43,11 @@ private:
   TClonesArray* fMatchArray;
   TClonesArray* fSttTrackArray;
   TClonesArray* fSttHitArray;
-  TClonesArray* fSttHelixHitArray;
   CbmGeanePro *fPro;
   // Private Methods -----------------
 
 public:
-  ClassDef(SttPatternRecoTask2,1)
+  ClassDef(PndSttPatternRecoTask,1)
 
 };
 

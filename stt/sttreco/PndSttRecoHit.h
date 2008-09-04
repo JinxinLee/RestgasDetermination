@@ -1,5 +1,5 @@
-#ifndef STTRECOHIT_HH
-#define STTRECOHIT_HH
+#ifndef PNDSTTRECOHIT_HH
+#define PNDSTTRECOHIT_HH
 
 // Base Class Headers ----------------
 #include "RecoHitIfc.h"
@@ -16,17 +16,17 @@ class PndSttHelixHit;
 
 typedef RecoHitIfc<WirepointHitPolicy> WirepointRecoHit;
 
-class SttRecoHit : public WirepointRecoHit {
+class PndSttRecoHit : public WirepointRecoHit {
 public:
 
   // Constructors/Destructors ---------
-  SttRecoHit();
-  SttRecoHit(PndSttHit *currenthit); 
-  SttRecoHit(PndSttHelixHit *currenthit); 
+  PndSttRecoHit();
+  PndSttRecoHit(PndSttHit *currenthit); 
+  PndSttRecoHit(PndSttHelixHit *currenthit); 
 
-  virtual ~SttRecoHit();
+  virtual ~PndSttRecoHit();
 
-  virtual AbsRecoHit* clone(){return new SttRecoHit(*this);};
+  virtual AbsRecoHit* clone(){return new PndSttRecoHit(*this);};
 
   // Operations ----------------------
   virtual void setHMatrix(const AbsTrackRep* stateVector,
@@ -47,7 +47,7 @@ private:
   // Private Methods -----------------
 
 public:
-  ClassDef(SttRecoHit,1)
+  ClassDef(PndSttRecoHit,1)
 
 };
 

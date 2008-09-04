@@ -14,7 +14,7 @@
 // 7     ==> reconstructed z coordinate (0 for now!)
 
 // This Class' Header ------------------
-#include "SttRecoHit.h"
+#include "PndSttRecoHit.h"
 
 // C/C++ Headers ----------------------
 
@@ -31,18 +31,18 @@
 // Class Member definitions -----------
 using namespace std;
 
-ClassImp(SttRecoHit)
+ClassImp(PndSttRecoHit)
 
 
-SttRecoHit::~SttRecoHit()
+PndSttRecoHit::~PndSttRecoHit()
 {}
 
-SttRecoHit::SttRecoHit()
+PndSttRecoHit::PndSttRecoHit()
   : WirepointRecoHit(NparHitRep)
 {}
 
 
-SttRecoHit::SttRecoHit(PndSttHit *currenthit) : WirepointRecoHit(NparHitRep){
+PndSttRecoHit::PndSttRecoHit(PndSttHit *currenthit) : WirepointRecoHit(NparHitRep){
 
   // wire1(3), wire2(3), rdrift, zreco
   TVector3 wiredirection = currenthit->GetWireDirection();
@@ -71,7 +71,7 @@ SttRecoHit::SttRecoHit(PndSttHit *currenthit) : WirepointRecoHit(NparHitRep){
  
 }
 
-SttRecoHit::SttRecoHit(PndSttHelixHit *currenthit) : WirepointRecoHit(NparHitRep){
+PndSttRecoHit::PndSttRecoHit(PndSttHelixHit *currenthit) : WirepointRecoHit(NparHitRep){
 
   // wire1(3), wire2(3), rdrift, zreco
   TVector3 wiredirection = currenthit->GetWireDirection();
@@ -101,7 +101,7 @@ SttRecoHit::SttRecoHit(PndSttHelixHit *currenthit) : WirepointRecoHit(NparHitRep
 }
 
 void 
-SttRecoHit::setHMatrix(const AbsTrackRep* stateVector,
+PndSttRecoHit::setHMatrix(const AbsTrackRep* stateVector,
 		       const TMatrixT<double>& state)
 {
   if (dynamic_cast<const GeaneTrackRep*>(stateVector) != NULL) {
@@ -123,7 +123,7 @@ SttRecoHit::setHMatrix(const AbsTrackRep* stateVector,
     _HMatrix[1][4] = 1.;
   }
   else {
-    std::cerr << "SttRecoHit can only handle state"
+    std::cerr << "PndSttRecoHit can only handle state"
               << " vectors of type GeaneTrackRep -> abort" << std::endl;
     throw;
   }
@@ -131,14 +131,14 @@ SttRecoHit::setHMatrix(const AbsTrackRep* stateVector,
 }
 
 double 
-SttRecoHit::residualScalar(AbsTrackRep* stateVector,
+PndSttRecoHit::residualScalar(AbsTrackRep* stateVector,
 			   const TMatrixT<double>& state)
 {
   throw;
 }
 
 const DetPlane& 
-SttRecoHit::detPlane(AbsRecoHit* hit, AbsTrackRep* rep)
+PndSttRecoHit::detPlane(AbsRecoHit* hit, AbsTrackRep* rep)
 {
    
   if (dynamic_cast<const GeaneTrackRep*>(rep) != NULL) {
@@ -238,7 +238,7 @@ SttRecoHit::detPlane(AbsRecoHit* hit, AbsTrackRep* rep)
     return _detPlane;
   }
   else {
-    std::cerr << "SttRecoHit can only handle state"
+    std::cerr << "PndSttRecoHit can only handle state"
               << " vectors of type GeaneTrackRep -> abort" << std::endl;
     throw;
   }
@@ -246,7 +246,7 @@ SttRecoHit::detPlane(AbsRecoHit* hit, AbsTrackRep* rep)
 }
 
 const DetPlane&
-SttRecoHit::getDetPlane(AbsTrackRep* rep){
+PndSttRecoHit::getDetPlane(AbsTrackRep* rep){
 
   AbsRecoHit* thishit = clone();
   _detPlane = detPlane(thishit, rep);
