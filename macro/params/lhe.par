@@ -20,8 +20,8 @@ Emc12Cut:f 20.
 MdtRadius:f 155.
 MdtPhi0:f 0.
 MdtZ0:f 2.1
-MdtSigmaPhi:f 0.024
-MdtSigmaZ:f 3.1
+MdtSigmaPhi:f 0.097
+MdtSigmaZ:f 15.
 MdtCut:f 20.
 DrcRadius:f 49.
 DrcPhi0:f 0.
