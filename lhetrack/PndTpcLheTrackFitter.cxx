@@ -341,6 +341,7 @@ Int_t PndTpcLheTrackFitter::CircleFit(PndTpcLheTrack *track) {
     xold = xnew;
     xnew = xold - ynew/Dy;
     
+    if (fabs(xnew) < epsilon) break;  
     if (fabs((xnew-xold)/xnew) < epsilon) break;
   }
 
