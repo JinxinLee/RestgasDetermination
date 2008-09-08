@@ -23,3 +23,6 @@ tpc/Hexagons0.18.dat
 tpc/hexplane0.23.dat
 tpc/Hexagons0.23.dat
 tpc/pndhexplane0.15.dat
+tpc/TestChamber/ARGON-70_CO2-30_B0.1_PRES1013.asc
+tpc/TestChamber/padplane.dat
+tpc/TestChamber/TestChamberPad.dat
