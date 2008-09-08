@@ -16,7 +16,7 @@
 
   c1.cd(3);
   TH1F *mdtz = new TH1F("mdtz","mdtz",100,-100,100);
-  mdtCorr->Draw("track_z-mdt_z>>mdtz(100,-100,100)","","");
+  mdtCorr->Draw("track_z-mdt_z>>mdtz","","");
   mdtz->GetXaxis()->SetTitle("Z_{LHE} - Z_{MDT} [cm]"); 
 
   c1.cd(5);
@@ -29,7 +29,7 @@
 
   c1.cd(7);
   TH1F *mdtphi = new TH1F("mdtphi","mdtphi",100,-50,50);
-  mdtCorr->Draw("dphi*TMath::RadToDeg()>>mdtphi(100,-50,50)","");
+  mdtCorr->Draw("dphi*TMath::RadToDeg()>>mdtphi","");
   mdtphi->GetXaxis()->SetTitle("#phi_{LHE} - #phi_{MDT} [°]");
 
   c1.cd(8);
