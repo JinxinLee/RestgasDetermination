@@ -29,6 +29,7 @@
 // C/C++ Headers ----------------------
 #include <iostream>
 #include <vector>
+#include <algorithm>
 #include <functional>
 #include "assert.h"
 
