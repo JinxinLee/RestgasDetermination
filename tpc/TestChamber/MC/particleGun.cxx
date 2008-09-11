@@ -191,7 +191,7 @@ int main(int argc,char **argv){
 
     f << "1 " << iev << " " << pos.X() << " "
       << pos.Y() << " " << pos.Z() << std::endl;
-    f << confD["PDG"]  << " " << mom.X() << " "
+    f << confI["PDG"]  << " " << mom.X() << " "
       << mom.Y() << " " << mom.Z() << std::endl;
 
   }
