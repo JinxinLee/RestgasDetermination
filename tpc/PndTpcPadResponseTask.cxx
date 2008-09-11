@@ -44,7 +44,7 @@
 
 PndTpcPadResponseTask::PndTpcPadResponseTask()
   : CbmTask("TPC PadResponse"), _persistence(kFALSE), _minSignalAmp(0),
-    _rmin(15.), _rmax(42.), _selected(false), _initialized(kFALSE), _qa(NULL),_gaussianNoiseAmp(0),_gaussianNoise(kFALSE)
+    _rmin(15.), _rmax(42.), _selected(false), _initialized(kFALSE), _qa(NULL)
 {
   _avalancheBranchName = "PndTpcAvalanche";
 }
@@ -164,8 +164,8 @@ PndTpcPadResponseTask::Exec(Option_t* opt)
 		if(it==_secids.end())continue;
       }
       double Amp=Aval->amp()*pad->GetValue(xAv,yAv);
-      if(_gaussianNoise){
-	Amp+=gRandom->Gaus(0.,_gaussianNoiseAmp);
+      if(_par->getGaussianNoise()){
+	Amp+=gRandom->Gaus(0.,_par->getGaussianNoiseAmp());
       }
       //Fill Histograms with these Values
 

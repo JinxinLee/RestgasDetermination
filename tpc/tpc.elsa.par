@@ -33,4 +33,6 @@ PSAThreshold:i 10
 Shaper_tDiff:d 50
 Shaper_tInt:d 50
 Shaper_tSig:d 5
+GAUSSIANNOISE:i 0
+GAUSSIANNOISEAMP:i 0
 #################################################################

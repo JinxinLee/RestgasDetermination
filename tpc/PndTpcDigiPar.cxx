@@ -70,6 +70,8 @@ void PndTpcDigiPar::putParams(CbmParamList* list)
 	list->add("Shaper_tInt",_tint);
 	list->add("Shaper_tSig",_tsig);
 	list->add("TOTPSA",_psa);
+	list->add("GAUSSIANNOISE",_gaussianNoise);
+	list->add("GAUSSIANNOISEAMP",_gaussianNoiseAmp);
 }
 
 Bool_t PndTpcDigiPar::getParams(CbmParamList* list)
@@ -131,6 +133,10 @@ Bool_t PndTpcDigiPar::getParams(CbmParamList* list)
 	  {std::cout<<"par: Shaper_tSig not found"<<std::endl; return kFALSE;}
 	if(!list->fill("TOTPSA",&_psa)) 
 	  {std::cout<<"par: TOTPSA not found"<<std::endl; return kFALSE;}
+	if(!list->fill("GAUSSIANNOISE",&_gaussianNoise)) 
+	  {std::cout<<"par: GAUSSIANNOISE not found"<<std::endl; return kFALSE;}
+	if(!list->fill("GAUSSIANNOISEAMP",&_gaussianNoiseAmp)) 
+	  {std::cout<<"par: GAUSSIANNOISEAMP not found"<<std::endl; return kFALSE;}
 	  
 	// read strings
 	_tpcGasFileName=readString(_tpcGasFile);

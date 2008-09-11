@@ -42,6 +42,8 @@ public :
   PndTpcPadPlane* getPadPlane();
   const PndTpcFrontend* getFrontend();
 
+  bool getGaussianNoise() const {return _gaussianNoise != 0;}
+  int getGaussianNoiseAmp() const {return _gaussianNoiseAmp;}
 
 private :
   Int_t _tpcGasFile;
@@ -78,6 +80,9 @@ private :
   double _tsig; // pulseshape: signal risetime
   
   int _psa;	//0 -> Simple PSA, 1 -> TOTPSA
+
+  int _gaussianNoise;
+  int _gaussianNoiseAmp;
 
   // interface pointers (will be created on the fly):
   PndTpcGas* _gas; //!

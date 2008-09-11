@@ -34,5 +34,7 @@ Shaper_tDiff:d 300
 Shaper_tInt:d 300
 Shaper_tSig:d 5
 TOTPSA:i 1
+GAUSSIANNOISE:i 1
+GAUSSIANNOISEAMP:i 2000
 #################################################################
 #Spread:d 0.02
