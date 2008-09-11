@@ -93,24 +93,26 @@ TString outFile = input; outFile.Append(".digi.root");
 
     // -----    Digi Sequence  --------------------------------------------
   PndTpcClusterizerTask* tpcClusterizer = new PndTpcClusterizerTask();
-  //tpcClusterizer->SetPersistence();
+  tpcClusterizer->SetPersistence();
   fRun->AddTask(tpcClusterizer);
  
   PndTpcDriftTask* tpcDrifter = new PndTpcDriftTask();
-  //tpcDrifter->SetPersistence();
-//tpcDrifter->SetTransverseDiffuse(true);
-//tpcDrifter->SetLongitudinalDiffuse(true);
+  tpcDrifter->SetPersistence();
+  //tpcDrifter->SetTransverseDiffuse(true);
+  //tpcDrifter->SetLongitudinalDiffuse(true);
   tpcDrifter->SetDistort(false);
   fRun->AddTask(tpcDrifter);
 
   PndTpcGemTask* tpcGem = new PndTpcGemTask();
   //tpcGem->SetGainFluctuations();
-  //tpcGem->SetPersistence();
+  tpcGem->SetPersistence();
   fRun->AddTask(tpcGem);
 
 
   PndTpcPadResponseTask* tpcPadResponse = new PndTpcPadResponseTask();
-  //tpcPadResponse->SetPersistence();
+  tpcPadResponse->SetPersistence();
+  tpcPadResponse->SetGaussianNoise();
+  tpcPadResponse->SetGaussianNoiseAmp(2000);
   fRun->AddTask(tpcPadResponse);
 
 
@@ -122,11 +124,10 @@ TString outFile = input; outFile.Append(".digi.root");
 
   PndTpcElectronicsTask* tpcElec = new PndTpcElectronicsTask();
   tpcElec->SetSamplePersistence();
-  //tpcElec->SetPersistence();
+  tpcElec->SetPersistence();
   fRun->AddTask(tpcElec);
 
   PndTpcTestChamberOutputTask* out = new PndTpcTestChamberOutputTask();
-  //tpcClusterizer->SetPersistence();
   out->SetOutfileName("dreggn2.root");
   fRun->AddTask(out);
 

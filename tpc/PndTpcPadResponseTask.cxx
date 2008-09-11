@@ -44,7 +44,7 @@
 
 PndTpcPadResponseTask::PndTpcPadResponseTask()
   : CbmTask("TPC PadResponse"), _persistence(kFALSE), _minSignalAmp(0),
-    _rmin(15.), _rmax(42.), _selected(false), _initialized(kFALSE), _qa(NULL)
+    _rmin(15.), _rmax(42.), _selected(false), _initialized(kFALSE), _qa(NULL),_gaussianNoiseAmp(0),_gaussianNoise(kFALSE)
 {
   _avalancheBranchName = "PndTpcAvalanche";
 }
@@ -155,7 +155,7 @@ PndTpcPadResponseTask::Exec(Option_t* opt)
     // Build Signals
     int nHits=hitPads.size();
     //std::cout<<nHits<<" Pads hit by avalanche"<<std::endl;
-    
+
     for(int iHit=0; iHit<nHits; ++iHit){
       PndTpcPad* pad=hitPads[iHit];
       if(_selected){
@@ -164,7 +164,9 @@ PndTpcPadResponseTask::Exec(Option_t* opt)
 		if(it==_secids.end())continue;
       }
       double Amp=Aval->amp()*pad->GetValue(xAv,yAv);
-
+      if(_gaussianNoise){
+	Amp+=gRandom->Gaus(0.,_gaussianNoiseAmp);
+      }
       //Fill Histograms with these Values
 
       FillHistograms(xAv, yAv, pad->x(), pad->y() );      

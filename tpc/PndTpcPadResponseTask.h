@@ -63,6 +63,8 @@ public:
   void FillHistograms(double, double, double, double);
   void WriteHistograms();
 
+  void SetGaussianNoiseAmp(Int_t a) {_gaussianNoiseAmp=a;}
+  void SetGaussianNoise(Bool_t b=kTRUE) {_gaussianNoise=b;}
 
 private:
 
@@ -70,6 +72,9 @@ private:
   TString _avalancheBranchName;
   TClonesArray* _avalancheArray;
   TClonesArray* _signalArray;
+
+  Bool_t _gaussianNoise;
+  Int_t _gaussianNoiseAmp;
   
   Bool_t _persistence;
   Double_t _minSignalAmp;
