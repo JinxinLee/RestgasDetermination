@@ -16,9 +16,9 @@ rootlogon()
 	gSystem->Load("libStt");
 	gSystem->Load("libEmc"); 
         gSystem->Load("libgenfit");
+	gSystem->Load("libtrackrep");
         gSystem->Load("libtpc"); 
         gSystem->Load("libtpcreco");
-        gSystem->Load("libtrackrep");
 	gSystem->Load("libTrkBase");
         gSystem->Load("librecotasks");
         gSystem->Load("libMvd");
