@@ -75,6 +75,7 @@ class TCtrack : public TObject{
     ax=_ax;bx=_bx;ay=_ay;by=_by;
   }
   void setMCPar(double _ax,double _bx,double _ay,double _by){
+    isMC=true;
 	MCax=_ax;MCbx=_bx;MCay=_ay;MCby=_by;
   }
 
@@ -96,6 +97,7 @@ class TCtrack : public TObject{
   void draw(bool stop=true,int _x=50,int _y=50,int _w=600,int _h=600);
   void drawClustering(bool stop=true,int _x=50,int _y=50,int _w=600,int _h=600);
   void clear(){
+    isMC=false;
     cl.clear();
     ax=-1.E10;bx=-1.E10;ay=-1.E10;by=-1.E10;
     MCax=-1.E10;MCbx=-1.E10;MCay=-1.E10;MCby=-1.E10;
@@ -127,6 +129,7 @@ class TCtrack : public TObject{
   TCanvas *canvDrawClust;
   double ax,bx,ay,by,dax,day,dbx,dby;
   double MCax,MCbx,MCay,MCby;
+  bool isMC;
   double chi2;
   int NDF;
   std::vector<TCcluster> cl;

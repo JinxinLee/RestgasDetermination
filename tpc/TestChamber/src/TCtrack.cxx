@@ -293,10 +293,27 @@ void TCtrack::draw(bool stop,int _x,int _y,int _w,int _h){
   sprintf(buf,"c%5.5f",globRand.Uniform());
   sprintf(bufFormula,"%f*x+%f",ax,bx);
   TF1 *fxz = new TF1(buf,bufFormula,-10000.,10000.);
-
+  TF1 *MCfxz;
+  if(isMC){
+    sprintf(buf,"c%5.5f",globRand.Uniform());
+    sprintf(bufFormula,"%f*x+%f",MCax,MCbx);
+    MCfxz = new TF1(buf,bufFormula,-10000.,10000.);
+    MCfxz->SetLineColor(kBlue);
+    MCfxz->SetLineWidth(2);
+    MCfxz->SetLineStyle(3);
+  }
   sprintf(buf,"c%5.5f",globRand.Uniform());
   sprintf(bufFormula,"%f*x+%f",ay,by);
   TF1 *fyz = new TF1(buf,bufFormula,-10000.,10000.);
+  TF1 *MCfyz;
+  if(isMC){
+    sprintf(buf,"c%5.5f",globRand.Uniform());
+    sprintf(bufFormula,"%f*x+%f",MCay,MCby);
+    MCfyz = new TF1(buf,bufFormula,-10000.,10000.);
+    MCfyz->SetLineColor(kBlue);
+    MCfyz->SetLineWidth(2);
+    MCfyz->SetLineStyle(3);
+  }
 
   TH2D *hxz;
   TH2D *hyz;
@@ -339,6 +356,7 @@ void TCtrack::draw(bool stop,int _x,int _y,int _w,int _h){
   gfxz->Draw("P");
   fxz->SetLineWidth(1.);
   fxz->Draw("same");
+  if(isMC)MCfxz->Draw("same");
   for(int i=0;i<cl.size();++i){
     ellXZ[i]->Draw("same");
   }
@@ -372,6 +390,7 @@ void TCtrack::draw(bool stop,int _x,int _y,int _w,int _h){
   gfyz->Draw("P");
   fyz->SetLineWidth(1.);
   fyz->Draw("same");
+  if(isMC)MCfyz->Draw("same");
   for(int i=0;i<cl.size();++i){
     ellYZ[i]->Draw("same");
   }
