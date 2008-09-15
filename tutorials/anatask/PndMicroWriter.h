@@ -61,8 +61,11 @@ class PndMicroWriter : public CbmTask
  private: 
   int       evtcnt; //event counter for output
    
-  /** Input array of TpcLheTrack **/
+  /** Input array of Genfit Tracks **/
   TClonesArray* fTrArray;
+  
+  /** Input array of LHE Tracks **/
+  TClonesArray* fLheTrArray;
   
   /** Input array of EmcCandidates **/
   TClonesArray* fEmcArray;
@@ -80,7 +83,8 @@ class PndMicroWriter : public CbmTask
   TClonesArray* fEventInfo;
 
   bool fStoreNeutral;
-  bool fStoreCharged;
+  bool fStoreTrack;
+  bool fStoreLheTrack;
   bool fStoreMC;
   
   Int_t mvd_hitidx[1000];

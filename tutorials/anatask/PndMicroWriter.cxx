@@ -21,8 +21,10 @@ Author: K.Goetzen, GSI, 06/2008
 #include "CbmRuntimeDb.h"
 #include "PndTpcLheTrack.h"
 #include "PndTpcLhePoint.h"
+#include "PndLhePidTrack.h"
 #include "CbmStack.h"
 #include "CbmMCTrack.h"
+#include "CbmMCPoint.h"
 
 #include "Track.h"
 #include "LSLTrackRep.h"
@@ -71,9 +73,10 @@ PndMicroWriter::~PndMicroWriter() {
 InitStatus PndMicroWriter::Init() 
 {
  
-  fStoreNeutral=true;
-  fStoreCharged=true;
-  fStoreMC=true;
+  fStoreNeutral=false;
+  fStoreTrack=false;
+  fStoreLheTrack=false;
+  fStoreMC=false;
  
   //TDatabasePDG *dbpdg=TDatabasePDG::Instance();
   
@@ -92,32 +95,44 @@ InitStatus PndMicroWriter::Init()
 	 << "RootManager not instantiated!" << endl;
     return kFATAL;
   }
+  
   // Get input array
   fTrArray = (TClonesArray*) ioman->GetObject("Track");
   if ( ! fTrArray) {
     cout << "-W- PndMicroWriter::Init: "
-	 << "No TpcTrack array!" << endl;
+	 << "No Track array!" << endl;
     fTrArray=new TClonesArray("Track");
-    fStoreCharged=false;
+ 
     //return kERROR;
-  }
+  } else    fStoreTrack=true;
+  
+  // Get input array
+  fLheTrArray = (TClonesArray*) ioman->GetObject("LhePidTrack");
+  if ( ! fLheTrArray) {
+    cout << "-W- PndMicroWriter::Init: "
+	 << "No LhePidTrack array!" << endl;
+    fLheTrArray=new TClonesArray("PndLhePidTrack");
+    //return kERROR;
+  } else 
+     fStoreLheTrack=true;
+ 
   fEmcArray = (TClonesArray*) ioman->GetObject("EmcCluster");
   if ( ! fEmcArray) {
     cout << "-W- PndMicroWriter::Init: "
 	 << "No EmcCluster array!" << endl;
 	 fEmcArray = new TClonesArray("EmcCluster");
-    fStoreNeutral=false;
     //return kERROR;
-  }
+  } else 
+      fStoreNeutral=true;
+
   
   fMCTrack = (TClonesArray*) ioman->GetObject("MCTrack");
   if ( ! fMCTrack) {
     cout << "-W- PndMicroWriter::Init: "
 	 << "No MCTrack array!" << endl;
 	 fMCTrack = new TClonesArray("MCTrack");
-    fStoreMC=false;
-    //return kERROR;
-  }
+  } else
+    fStoreMC=true;
   
   fChargedCandidates = new TClonesArray("TCandidate");
   CbmRootManager::Instance()->Register("PndChargedCandidates","FullSim", fChargedCandidates, kTRUE);
@@ -167,7 +182,10 @@ void PndMicroWriter::Exec(Option_t* opt)
   
   // find # in input array
   Int_t nTracks = 0;
-  if (fStoreCharged) nTracks=fTrArray->GetEntriesFast();
+  if (fStoreTrack) nTracks=fTrArray->GetEntriesFast();
+  
+  Int_t nLheTracks = 0;
+  if (fStoreLheTrack) nLheTracks=fLheTrArray->GetEntriesFast();
   
   Int_t nCluster = 0;
   if (fStoreNeutral) nCluster=fEmcArray->GetEntriesFast();
@@ -233,12 +251,54 @@ void PndMicroWriter::Exec(Option_t* opt)
   
   //  cout <<"number of tracks **** "<< nTracks <<endl;
   //PndTpcLheTrack *tr1;
+  
   Track *tr1;
   PndEmcCluster *clus;
+  PndLhePidTrack *lhetr;
+    
+   // *************************
+  // Loop over the charged LHE tracks
+  // ************************
   
+  for (Int_t i=0; i<nLheTracks; i++)
+  {
+    Int_t chcandsize = chrgCandidates.GetEntriesFast();
+	Int_t micsize = microCandidates.GetEntriesFast();
+	
+	lhetr = (PndLhePidTrack *)fLheTrArray->At(i);  
+	
+	TVector3 mom(0,0,0);
+	TVector3 pos(0,0,0);
+	
+	lhetr->ExtrapolateToZ(&mom,&pos);
+	
+	TLorentzVector lv(0,0,0,0);
+	lv.SetVectM(mom,0.13957);
+	
+	// create the PndMicroCandidate
+	PndMicroCandidate *micro=new (microCandidates[micsize])	PndMicroCandidate((Int_t)lhetr->GetCharge(),pos,lv);
+	
+	if ( lhetr->GetMvdHitCounts()>0 ) 
+		micro->SetMvdMeanDEdx(lhetr->GetMvdELoss()/lhetr->GetMvdHitCounts());
+	else 
+		micro->SetMvdMeanDEdx(-1.0);
+		
+	micro->SetEmcRawEnergy(lhetr->GetEmcELoss());
+	
+	if (lhetr->GetEmcIndex()!=-1) 
+		micro->SetEmcNumberOfCrystals( ((PndEmcCluster*)fEmcArray->At(lhetr->GetEmcIndex()))->NumberOfDigis() );
+	
+	micro->SetTofStopTime(lhetr->GetTof());
+
+	micro->SetBarrelDrcThetaC(lhetr->GetDrcThetaC());
+	micro->SetBarrelDrcThetaCErr(lhetr->GetDrcThetaCErr());
+	micro->SetBarrelDrcNumberOfPhotons(lhetr->GetDrcNPhotons());
+
+	micro->SetMvdMeanDEdx(lhetr->GetMvdDEDX());
+  }
   
   // *************************
-  // Loop over the charged tracks
+  // Loop over the charged genfit tracks
   // ************************
   
   std::vector<TVector3>       posCache;
