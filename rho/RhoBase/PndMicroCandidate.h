@@ -83,6 +83,7 @@ class PndMicroCandidate : public VAbsMicroCandidate
 	const Int_t* GetTpcHitIndexArray() {return fTpcHitIndexArray.GetArray();}
 	
 	// TOF
+    Float_t		GetTofStopTime() const{return fTofStopTime;}
     Float_t		GetTofM2() const{return fTofM2;}
 	Float_t		GetTofM2Err() const{return fTofM2Err;}
 	
@@ -173,6 +174,7 @@ class PndMicroCandidate : public VAbsMicroCandidate
 	void	SetTpcHitIndexArray(Int_t n, Int_t* arr) { fTpcHits=n; fTpcHitIndexArray.Set(n,arr);}
 	
 	// TOF
+    void	SetTofStopTime(Double_t val) { fTofStopTime=(Float_t) val;}
     void	SetTofM2(Double_t val) { fTofM2=(Float_t) val;}
 	void	SetTofM2Err(Double_t val) { fTofM2Err=(Float_t) val;}
 	
@@ -262,6 +264,7 @@ protected:
 	TArrayI		fTpcHitIndexArray;
 	
 	// TOF
+	Float_t     fTofStopTime;
     Float_t 	fTofM2;
 	Float_t 	fTofM2Err;
 	

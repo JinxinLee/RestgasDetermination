@@ -77,6 +77,7 @@ class VAbsMicroCandidate : public TObject
 	virtual const Int_t* GetTpcHitIndexArray() =0;
 	
 	// TOF
+    virtual Float_t		GetTofStopTime() const =0;
     virtual Float_t		GetTofM2() const =0;
 	virtual Float_t		GetTofM2Err() const =0;
 	
