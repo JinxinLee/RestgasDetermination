@@ -416,10 +416,10 @@ void resolution(TString files){
   Double_t inty02_1 = y02_f1->Integral(-.1,.1);
   Double_t inty02_2 = y02_f2->Integral(-.1,.1);
   
-  yres_all = (inty02_1*fabs(y02_f1->GetParameter(2))+ inty02_2*fabs(y02_f2->GetParameter(2)))/(inty02_1 + inty02_2);
+  yres_02 = (inty02_1*fabs(y02_f1->GetParameter(2))+ inty02_2*fabs(y02_f2->GetParameter(2)))/(inty02_1 + inty02_2);
 
-  err_yres_all  = (1./(inty02_1+inty02_2));
-  err_yres_all *= sqrt(inty02_1*inty02_1*pow((y02_f1->GetParError(2)),2)+inty02_2*inty02_2*pow(y02_f2->GetParError(2),2));
+  err_yres_02  = (1./(inty02_1+inty02_2));
+  err_yres_02 *= sqrt(inty02_1*inty02_1*pow((y02_f1->GetParError(2)),2)+inty02_2*inty02_2*pow(y02_f2->GetParError(2),2));
 
   cout<<endl<<"resolution y12: "<<yres_02<<" +- " <<err_yres_02<<endl<<endl;
 
@@ -524,10 +524,10 @@ void resolution(TString files){
   Double_t inty05_1 = y05_f1->Integral(-.1,.1);
   Double_t inty05_2 = y05_f2->Integral(-.1,.1);
   
-  yres_all = (inty05_1*fabs(y05_f1->GetParameter(2))+ inty05_2*fabs(y05_f2->GetParameter(2)))/(inty05_1 + inty05_2);
+  yres_05 = (inty05_1*fabs(y05_f1->GetParameter(2))+ inty05_2*fabs(y05_f2->GetParameter(2)))/(inty05_1 + inty05_2);
 
-  err_yres_all  = (1./(inty05_1+inty05_2));
-  err_yres_all *= sqrt(inty05_1*inty05_1*pow((y05_f1->GetParError(2)),2)+inty05_2*inty05_2*pow(y05_f2->GetParError(2),2));
+  err_yres_05 = (1./(inty05_1+inty05_2));
+  err_yres_05 *= sqrt(inty05_1*inty05_1*pow((y05_f1->GetParError(2)),2)+inty05_2*inty05_2*pow(y05_f2->GetParError(2),2));
 
   cout<<endl<<"resolution y45: "<<yres_05<<" +- " <<err_yres_05<<endl<<endl;
 
@@ -729,10 +729,10 @@ void resolution(TString files){
   Double_t intz02_1 = z02_f1->Integral(-.1,.1);
   Double_t intz02_2 = z02_f2->Integral(-.1,.1);
   
-  zres_all = (intz02_1*fabs(z02_f1->GetParameter(2))+ intz02_2*fabs(z02_f2->GetParameter(2)))/(intz02_1 + intz02_2);
+  zres_02 = (intz02_1*fabs(z02_f1->GetParameter(2))+ intz02_2*fabs(z02_f2->GetParameter(2)))/(intz02_1 + intz02_2);
 
-  err_zres_all  = (1./(intz02_1+intz02_2));
-  err_zres_all *= sqrt(intz02_1*intz02_1*pow((z02_f1->GetParError(2)),2)+intz02_2*intz02_2*pow(z02_f2->GetParError(2),2));
+  err_zres_02  = (1./(intz02_1+intz02_2));
+  err_zres_02 *= sqrt(intz02_1*intz02_1*pow((z02_f1->GetParError(2)),2)+intz02_2*intz02_2*pow(z02_f2->GetParError(2),2));
 
   cout<<endl<<"resolution z12: "<<zres_02<<" +- " <<err_zres_02<<endl<<endl;
 
@@ -822,10 +822,10 @@ void resolution(TString files){
   Double_t intz05_1 = z05_f1->Integral(-.1,.1);
   Double_t intz05_2 = z05_f2->Integral(-.1,.1);
   
-  zres_all = (intz05_1*fabs(z05_f1->GetParameter(2))+ intz05_2*fabs(z05_f2->GetParameter(2)))/(intz05_1 + intz05_2);
+  zres_05 = (intz05_1*fabs(z05_f1->GetParameter(2))+ intz05_2*fabs(z05_f2->GetParameter(2)))/(intz05_1 + intz05_2);
 
-  err_zres_all  = (1./(intz05_1+intz05_2));
-  err_zres_all *= sqrt(intz05_1*intz05_1*pow((z05_f1->GetParError(2)),2)+intz05_2*intz05_2*pow(z05_f2->GetParError(2),2));
+  err_zres_05  = (1./(intz05_1+intz05_2));
+  err_zres_05 *= sqrt(intz05_1*intz05_1*pow((z05_f1->GetParError(2)),2)+intz05_2*intz05_2*pow(z05_f2->GetParError(2),2));
 
   cout<<endl<<"resolution z45: "<<zres_05<<" +- " <<err_zres_05<<endl<<endl;
 
