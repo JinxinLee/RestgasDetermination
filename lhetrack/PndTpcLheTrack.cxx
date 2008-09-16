@@ -5,6 +5,12 @@
 
 #include "Riostream.h"
 #include <iomanip>
+#include <map>
+
+//using std::map;
+using std::vector;
+using std::sort;
+
 
 ////////////////////////////////////////////////////////////////////////
 //                                                                    //
@@ -107,19 +113,34 @@ Float_t PndTpcLheTrack ::ExtrapolateToR(TVector3 *mom, TVector3 *vertex, const F
   return ExtrapolateToZ(mom, vertex, zproj);
 }
 
+//______________________________________________________________
 TrackCand* PndTpcLheTrack::GetTrackCand()
 {
+  Int_t fVerbose = 0;
   TrackCand *trackCand = new TrackCand();
-    
   TObjArray* lheList = GetRHits();
-  //if (fVerbose) cout << lheList->GetEntries() << " " << GetNumberOfHits() << endl;
+  if (fVerbose) cout << lheList->GetEntries() << " " << GetNumberOfHits() << endl;
   
+  map<Float_t, Int_t> fPointList;
+  Int_t hit_counter = 0;
+  vector<Float_t> hit_dist;
   for (Int_t lh=0; lh < lheList->GetEntries(); lh++)
     {
       PndTpcLheHit* lhit = (PndTpcLheHit*)lheList->At(lh);
-      //if (fVerbose) cout << lhit->GetX() << "\t" << lhit->GetY() << "\t" <<lhit->GetZ() << endl;
-      if (NULL==lhit) break;
-      Int_t detId;
+      if (NULL==lhit) break; 
+
+      if (fVerbose) cout << "before:\t" << lhit->GetX() << "\t" << lhit->GetY() << "\t" <<lhit->GetZ() << endl;
+      hit_dist.push_back(TMath::Sqrt(lhit->GetX()*lhit->GetX()+lhit->GetY()*lhit->GetY()+lhit->GetZ()*lhit->GetZ()));
+      fPointList[TMath::Sqrt(lhit->GetX()*lhit->GetX()+lhit->GetY()*lhit->GetY()+lhit->GetZ()*lhit->GetZ())] = lh;
+    }
+  
+  sort(hit_dist.begin(), hit_dist.end());
+  
+  Int_t detId = 0;
+  for (Int_t ii=0; ii< hit_dist.size(); ++ii)
+    {
+      PndTpcLheHit* lhit = (PndTpcLheHit*)lheList->At(fPointList[hit_dist[ii]]);
+      if (fVerbose) cout << "after:\t" << lhit->GetX() << "\t" << lhit->GetY() << "\t" <<lhit->GetZ() << endl;
       
       switch (lhit->GetDetectorId())
 	{
@@ -153,7 +174,7 @@ TrackCand* PndTpcLheTrack::GetTrackCand()
       trackCand->setDip(TMath::ATan(GetTanDipAngle()));
       trackCand->setInverted(true);
     }
-  
+  hit_dist.clear();
   
   return trackCand;
    
