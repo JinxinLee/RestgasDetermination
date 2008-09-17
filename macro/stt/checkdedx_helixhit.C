@@ -1,0 +1,176 @@
+{
+  gROOT->Reset();
+ #include <vector>
+ TStopwatch timer;
+  timer.Start();
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
+  basiclibs();
+  
+  // Load this example libraries
+  gSystem->Load("libGeoBase");
+  gSystem->Load("libParBase");
+  gSystem->Load("libBase");
+  gSystem->Load("libMCStack");
+  gSystem->Load("libField");
+  gSystem->Load("libPassive");
+  //gSystem->Load("libMvd");
+  gSystem->Load("libEmc");
+  gSystem->Load("libDrcProp");
+  gSystem->Load("libDrc");
+  gSystem->Load("libGen");
+  //   gSystem->Load("libTrkBase");
+  //   gSystem->Load("libGeane");
+  //   //  gSystem->Load("libPGen");
+  gSystem->Load("libStt");
+  //   gSystem->Load("libgenfit");
+  //   gSystem->Load("libtrackrep");
+  //   gSystem->Load("libSttReco");
+  
+  // MCpoints
+  TFile filerun("testrun.root");
+  TTree *treemc = (TTree*) filerun.Get("cbmsim");
+  TClonesArray *pnt = new TClonesArray("PndSttPoint");
+  treemc->SetBranchAddress("STTPoint",&pnt);
+  TClonesArray *mctrack = new TClonesArray("CbmMCTrack");
+  treemc->SetBranchAddress("MCTrack",&mctrack);
+    
+  // Hits
+  TFile filedigi("testdigi.root");
+  TTree *treedigi = (TTree*) filedigi.Get("cbmsim");
+  TClonesArray *digi = new TClonesArray("PndSttHit");
+  treedigi->SetBranchAddress("STTHit",&digi);
+
+  // HelixHits
+  TFile filehelix("testreco.root");
+  TTree *treereco = (TTree*) filehelix.Get("cbmsim");
+  TClonesArray *hh = new TClonesArray("PndSttHelixHit");
+  treereco->SetBranchAddress("SttHelixHit",&hh);
+  
+  // Helix Tracks
+  TClonesArray *track = new TClonesArray("PndSttTrack");
+  treereco->SetBranchAddress("STTTrack",&track);
+  TClonesArray *matchtrack = new TClonesArray("PndSttTrackMatch");
+  treereco->SetBranchAddress("STTTrackMatch",&matchtrack);
+
+  TCanvas *c = new TCanvas("c", "c", 0, 0, 600, 600);
+  c->Divide(1,2);
+  TH1F *samplenum = new TH1F("samplenum","number of sampling",50,0.,50.);
+  TH2F *hdedxvsp = new TH2F("hdedxvsp","dedx vs p",100,0.,3., 100,0.,40.);
+  
+  TCanvas *c1 = new TCanvas("c1", "c1", 0, 0, 600, 600);
+  c1->Divide(2,2);
+  TH2F *hdedxvsp_p = new TH2F("hdedxvsp_p","dedx vs p for p",100,0.,3., 100,0.,40.);
+  TH2F *hdedxvsp_pi = new TH2F("hdedxvsp_pi","dedx vs p for #pi",100,0.,3., 100,0.,40.);
+  TH2F *hdedxvsp_e = new TH2F("hdedxvsp_e","dedx vs p for e",100,0.,3., 100,0.,40.);
+  TH2F *hdedxvsp_k = new TH2F("hdedxvsp_k","dedx vs p for K",100,0.,3., 100,0.,40.);
+  TH2F *hdedxvsp_mu = new TH2F("hdedxvsp_mu","dedx vs p for #mu",100,0.,3., 100,0.,40.);
+
+  TCanvas *c2 = new TCanvas("c2", "c2", 0, 0, 600, 600);
+  TH2F *hdedxvsp_reco = new TH2F("hdedxvsp_reco","dedx vs reco p",100,0.,3., 100,0.,40.);
+
+ cout << treereco->GetEntriesFast() << " events" << endl;
+ 
+  // loop on evts
+  for(Int_t evt = 0; evt < treereco->GetEntriesFast(); evt++) {
+    if(evt%100 == 0) cout << evt << endl;
+    
+    treemc->GetEntry(evt);
+    treedigi->GetEntry(evt);
+    treereco->GetEntry(evt);
+  
+    // tracks loop
+    for (Int_t k = 0; k < track->GetEntriesFast(); k++) {
+
+      PndSttTrack *stttrack = (PndSttTrack*) track->At(k);
+      if(!stttrack) continue;
+      PndSttTrackMatch *mtrack = (PndSttTrackMatch *) matchtrack->At(k);
+      CbmMCTrack *MCtrack = (CbmMCTrack*) mctrack->At(mtrack->GetMCTrackID());
+      Int_t PDGcode = MCtrack->GetPdgCode();
+
+      Double_t d0 = stttrack->GetParamLast()->GetX();
+      Double_t phi0 = stttrack->GetParamLast()->GetY();
+      Double_t R = stttrack->GetParamLast()->GetTx();
+      Double_t z0 = stttrack->GetParamLast()->GetZ();
+      Double_t tanl = stttrack->GetParamLast()->GetTy();
+      Double_t h = -(Int_t) stttrack->GetParamLast()->GetQp(); 
+      Double_t ptran = 0.003 * 2 * R;
+
+      Double_t plong = ptran * tanl;
+      Double_t ptot = sqrt(plong*plong + ptran*ptran);
+
+      Double_t x0 = (d0 + R) * cos(phi0);
+      Double_t y0 = (d0 + R) * sin(phi0);
+
+      Int_t hitcounter = stttrack->GetNofHelixHits();
+      std::vector<double> dedxvec;
+      dedxvec.clear();
+      TVector3 momentum = MCtrack->GetMomentum();
+
+      for (Int_t j = 0; j < hitcounter; j++) {
+	Int_t iHHit = stttrack->GetHelixHitIndex(j);
+	PndSttHelixHit *helixhit = (PndSttHelixHit*) hh->At(iHHit);
+
+	Int_t hitindex = helixhit->GetHitIndex();
+	PndSttHit* hit = (PndSttHit*) digi->At(hitindex);
+	PndSttPoint *point = (PndSttPoint*) pnt->At(hit->GetRefIndex());
+	
+	dedxvec.push_back(hit->GetdEdx());
+      }
+
+      if(hitcounter > 0) {
+	// truncated mean
+	Double_t perc = 0.50;
+	// sort
+	std::sort(dedxvec.begin(), dedxvec.end());
+
+	//truncated mean
+	Double_t sum = 0;
+	Int_t endnum = floor(hitcounter * perc);
+	
+	for(Int_t m = 0; m < endnum; m++) sum += dedxvec[m];
+	Double_t tmean;
+	if(endnum > 0) {
+	  tmean = sum/(Double_t) endnum;
+	  hdedxvsp->Fill(momentum->Mag(), tmean);
+	  hdedxvsp_reco->Fill(ptot, tmean);
+
+	  samplenum->Fill(hitcounter);
+	  
+ 	  if(abs(PDGcode) == 11)       { hdedxvsp_e->Fill(momentum->Mag(), tmean);}
+	  else if(abs(PDGcode) == 13)  { hdedxvsp_mu->Fill(momentum->Mag(), tmean);}
+	  else if(abs(PDGcode) == 211) { hdedxvsp_pi->Fill(momentum->Mag(), tmean);}
+     	  else if(abs(PDGcode) == 321) { hdedxvsp_k->Fill(momentum->Mag(), tmean); }
+    	  else if(abs(PDGcode) == 2212){ hdedxvsp_p->Fill(momentum->Mag(), tmean);}
+
+
+	}
+      }
+    }
+  }
+  
+  c->cd(1);
+  hdedxvsp->Draw();
+  c->cd(2);
+  samplenum->Draw();
+
+  c1->cd(1);
+  hdedxvsp_e->SetMarkerColor(2); // red = electron
+  hdedxvsp_e->Draw("SAME");
+  c1->cd(2);
+  hdedxvsp_k->SetMarkerColor(3); // green = kaon
+  hdedxvsp_k->Draw("SAME");
+  c1->cd(3);
+  hdedxvsp_pi->SetMarkerColor(4); // blue = pion
+  hdedxvsp_mu->SetMarkerColor(7); // light blue = muon
+  hdedxvsp_pi->Draw("SAME");
+  hdedxvsp_mu->Draw("SAME");
+  c1->cd(4);
+  hdedxvsp_p->SetMarkerColor(5); // yellow = proton
+  hdedxvsp_p->Draw("SAME");
+
+  c2->cd();
+  hdedxvsp_reco->Draw();
+
+
+
+}
