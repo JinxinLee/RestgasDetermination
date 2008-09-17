@@ -288,49 +288,5 @@ Double_t PndSttHitProducerRealFast::GetError(Double_t TrueDcm) {
   return resmic*0.0001;
 }
 
-// void PndSttHitProducerRealFast::WriteHistograms(){
-//   TFile* file = CbmRootManager::Instance()->GetOutFile();
-//   file->cd();
-//   file->mkdir("PndSttHitProducerRealFast");
-//   file->cd("PndSttHitProducerRealFast");
-  
-//   dedxvsp->Write();
-//   delete dedxvsp;
-// }
-
-
-Double_t PndSttHitProducerRealFast::TruncatedMean(Double_t vec[], Double_t perc, Int_t totalnum){
-
-  Int_t i;
-  // sorting
-  Double_t a;
-
-  for(Int_t j=1; j < totalnum; j++){
-    a = vec[j]; 
-    i = j-1;
-    while(i >= 0 && vec[i] > a){
-      vec[i+1] = vec[i];
-      i--;
-    }
-    vec[i+1] = a;
-  }
-
- cout << "ordinati: "<< endl; 
-  for(Int_t j=1; j < totalnum; j++) cout << " " << vec[j] << endl;
-  cout << endl;
- 
-
-  //truncated mean
-  Double_t sum = 0;
-  Int_t endnum = ceil(totalnum * perc);
-  for(Int_t m = 0; m < endnum; m++) sum += vec[m];
- cout <<" totale " << totalnum << " endnum " <<  endnum <<endl;
-  
-  cout << "somma " << sum << " media " << sum/(Double_t) endnum << endl;
-
-
-  return sum/(Double_t) endnum;
- }
-
 
 ClassImp(PndSttHitProducerRealFast)

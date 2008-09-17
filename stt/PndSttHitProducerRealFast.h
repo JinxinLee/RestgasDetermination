@@ -43,8 +43,6 @@ class PndSttHitProducerRealFast : public CbmTask
   void FoldZPosWithResolution(Double_t &zpos, Double_t &zposError, TVector3 localInPos, TVector3 localOutPos);
   
   Double_t GetError(Double_t);
-  //  void WriteHistograms();
-  Double_t TruncatedMean(Double_t vec[], Double_t perc, Int_t totalnum);
 
   private: 
 
