@@ -72,6 +72,9 @@ void PndSttHit::Clear()
   fRadial = 0.;
   fWireDirection.SetXYZ(0., 0., 0.);
   fAssigned = kFALSE;
+  fDepCharge = 0.;
+  fELoss = 0.;
+  fdEdx = 0.;
 }  
 
  

@@ -36,7 +36,7 @@ class PndSttHitProducerRealFull : public CbmTask
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
 
-  PndSttHit* AddHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t iPoint, Int_t trackID, Double_t p, Double_t rsim, Double_t rtrue, Double_t closestDistanceError, TVector3 wireDirection);
+  PndSttHit* AddHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t iPoint, Int_t trackID, Double_t p, Double_t rsim, Double_t rtrue, Double_t closestDistanceError, TVector3 wireDirection, Double_t halflength, Double_t depcharge, Double_t dedx);
 
   PndSttHitInfo* AddHitInfo(Int_t fileNumber, Int_t eventNumber, Int_t trackID, Int_t pointID, Int_t nMerged, Bool_t isFake);
 

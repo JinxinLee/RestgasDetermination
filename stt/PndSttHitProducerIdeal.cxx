@@ -160,6 +160,8 @@ void PndSttHitProducerIdeal::Exec(Option_t* opt)
       closestDistance  = stt.TrueDist(InOut);
       closestDistanceError =0.;
 
+      Double_t eloss = point->GetEnergyLoss();
+      Double_t halflength = point->GetTubeHalfLength();
       //---------------------
 
       Double_t
@@ -184,7 +186,16 @@ void PndSttHitProducerIdeal::Exec(Option_t* opt)
       hit = new ((*fHitArray)[counter]) PndSttHit(detID, pos, dpos, iPoint, 0,
 				     closestDistance, closestDistanceError, wireDirection);;
       hit->SetTrackID(trackID);
-      
+      hit->SetEnergyLoss(eloss); // CHECK
+      hit->SetDepCharge(0.);     // CHECK no charge simulation
+      // dedx
+      TVector3 diff3(InOut[0] - InOut[3], InOut[1] - InOut[4], InOut[2] - InOut[5]); 
+      double distance = diff3.Mag(); //
+      Double_t dedx = 999;
+      if (distance != 0)  dedx = eloss/(distance);  // in GeV/cm (I guess) CHECK
+      hit->SetdEdx(dedx);                 // CHECK
+      hit->SetTubeHalfLength(halflength); // CHECK
+
       new ((*fHitInfoArray)[counter]) PndSttHitInfo(0, 0, trackID, iPoint,
 						   0, kFALSE);
       counter++;

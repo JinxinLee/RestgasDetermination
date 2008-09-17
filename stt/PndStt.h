@@ -131,7 +131,8 @@ class PndStt : public CbmDetector
   Double_t     fELoss;             //!  energy loss
   Double_t     fMass;              //!  particle mass
   Bool_t         fIsInitialized;
-
+  Double_t fHalfLength;            //! tube half length
+  
   Int_t fPosIndex;                   //!
   TClonesArray* fSttCollection;      //! Hit collection
   TLorentzVector fpostot;   // global frame hit position (in)// da cancellare
@@ -147,7 +148,8 @@ class PndStt : public CbmDetector
   PndSttPoint* AddHit(Int_t trackID, Int_t detID, TVector3 pos,
 		      TVector3 posInLocal, TVector3 posOutLocal,
 		      TVector3 momIn, TVector3 momOut, TVector3 wireDir,
-		      Double_t time, Double_t length, Double_t eLoss, Double_t mass, TVector3 postot); // da cancellare postot
+		      Double_t time, Double_t length, Double_t eLoss, 
+		      Double_t mass, Double_t halflength, TVector3 postot); // da cancellare postot
 
   std::string GetStringPart(std::string &aSrc, Int_t part, char aDelim);
   bool Split(std::string &aDest, std::string &aSrc, char aDelim);
@@ -185,7 +187,7 @@ inline void PndStt::ResetParameters() {
   fPosIn.SetXYZM(0.0, 0.0, 0.0, 0.0);
   fPosOut.SetXYZM(0.0, 0.0, 0.0, 0.0);
   fMass = 0;
-
+  fHalfLength = 0.;
 };
 
 

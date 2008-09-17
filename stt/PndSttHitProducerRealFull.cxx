@@ -154,14 +154,17 @@ void PndSttHitProducerRealFull::Exec(Option_t* opt) {
     double true_rad = stt.TrueDist(InOut);
 
     // dE calculation
-    //  double depCharge = stt.PartToADC();
+    double depCharge = stt.PartToADC();
       
     // dE/dx calculation
-    //TVector3 diff3=point1->Get
-    //double distance =diff3.Mag(); //
-    //double dedx = 999;
-    //if (distance != 0)  dedx = depCharge/(1000000 * distance);  // in arbitrary units
+    TVector3 diff3(InOut[0] - InOut[3], InOut[1] - InOut[4], InOut[2] - InOut[5]);
+    double distance =diff3.Mag(); //
+    double dedx = 999;
+    if (distance != 0)  dedx = depCharge/(1000000 * distance);  // in arbitrary units
     
+    Double_t halflength = point->GetTubeHalfLength(); 
+
+
     // stt2: detID, pos, dpos, index come from --------------
     // stt2 (CbmHit):
     Double_t closestDistanceError = 0.0150; // per adesso (stessa che in Ideal: 
@@ -195,7 +198,7 @@ void PndSttHitProducerRealFull::Exec(Option_t* opt) {
     // --------------------------------------------------------
 
     // create hit
-    AddHit(detID, pos, dpos, iPoint, point->GetTrackID(), pulset, radius, true_rad, closestDistanceError, wireDirection);
+    AddHit(detID, pos, dpos, iPoint, point->GetTrackID(), pulset, radius, true_rad, closestDistanceError, wireDirection, halflength, depCharge, dedx);
 
     AddHitInfo(0, 0, point->GetTrackID(), iPoint, 0, kFALSE);
 
@@ -223,13 +226,21 @@ void PndSttHitProducerRealFull::FoldZPosWithResolution(Double_t &zpos, Double_t 
 
 
 // -----   Private method AddHit   --------------------------------------------
-PndSttHit* PndSttHitProducerRealFull::AddHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t iPoint, Int_t trackID, Double_t p, Double_t rsim, Double_t rtrue, Double_t closestDistanceError, TVector3 wireDirection){
+PndSttHit* PndSttHitProducerRealFull::AddHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t iPoint, Int_t trackID, Double_t p, Double_t rsim, Double_t rtrue, Double_t closestDistanceError, TVector3 wireDirection, Double_t halflength, Double_t depcharge, Double_t dedx){
   // see PndSttHit for hit description
   TClonesArray& clref = *fHitArray;
   Int_t size = clref.GetEntriesFast();
   //cout << "-I- PndSttHitProducerRealFull: Adding Hit: track"<<trackID<<" event: "<<eventID<<" pulse = " << p << ", rsim = " << rsim 
   //     << ", rtrue = " << rtrue <<" name "<<nam<<"center.X "<<center.X()<< endl;
-  return new(clref[size]) PndSttHit(detID, pos, dpos, iPoint, trackID, p, rsim, rtrue, closestDistanceError, wireDirection);
+
+  PndSttHit *hitnew =  new(clref[size]) PndSttHit(detID, pos, dpos, iPoint, trackID, p, rsim, rtrue, closestDistanceError, wireDirection);
+  hitnew->SetDepCharge(depcharge); // CHECK
+  hitnew->SetEnergyLoss(depcharge/1e6);  // eloss in arbitrary units CHECK
+  hitnew->SetdEdx(dedx);                 // CHECK
+  hitnew->SetTubeHalfLength(halflength); // CHECK
+  return hitnew;
+
+  //return new(clref[size]) PndSttHit(detID, pos, dpos, iPoint, trackID, p, rsim, rtrue, closestDistanceError, wireDirection);
 }
 // ----
 

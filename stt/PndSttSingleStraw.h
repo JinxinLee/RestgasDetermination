@@ -52,6 +52,10 @@ class PndSttSingleStraw : public TNamed {
   Double_t GetpSTP(){return pSTP;};
   Double_t GetPulseTime(){return PulseTime;};
   Double_t GetbPolya(){return bPolya;};
+  Double_t GetSigUrb(){return SigUrb;};
+  Double_t GetNUrban(){return NUrban;};
+  Double_t GetEup(){return Eup;};
+  Double_t GetAvUrb(){return AvUrb;};
 
            // coordinates
   Double_t GetXin() {return Xin;};
@@ -89,8 +93,11 @@ class PndSttSingleStraw : public TNamed {
   // ADC signal corresponding to the energy loss of StrawCharge
   Double_t PartToADC();        
 
- // fast reconstructed distance in cm 
-  Double_t FastRec(Double_t TrueDcm, Int_t Flag);                 
+  // fast reconstructed distance in cm 
+  Double_t FastRec(Double_t TrueDcm, Int_t Flag);   
+
+  //  ADC signal charge fast simulation
+  Double_t FastPartToADC();                 
                                         
   // ----------------------------------------------------------------------------
                            // standard calls
@@ -111,6 +118,8 @@ class PndSttSingleStraw : public TNamed {
                                         // return number of primary electrons
   Int_t StrawTime();                    // output time of the straw (ns) & 
                                         // PulseTime[Int_t] in ns
+  Int_t StrawTot();                     // Time over threshold time of the straw (ns)  
+
   Double_t TimnsToDiscm(Double_t time); // from time (ns) to  radius in cm
                                         
   //-----------------------------------------------------------------------------
@@ -118,7 +127,7 @@ class PndSttSingleStraw : public TNamed {
 
   void TDirCos();                          // track director cosines
   Double_t TrueDist(Double_t Point[]);     // true distance wire-track
-  Double_t DiffLong(Double_t distcm);      // longituinal dffusion in microns
+  Double_t DiffLong(Double_t distcm);      // longituinal diffusion in microns
   Double_t DiffTran(Double_t distcm);      // transverse diffusion in microns
   void Polya(Double_t bpar);               // Polya cumulative calculation
   Double_t PolyaSamp();                    // sampling from Polya distribution
@@ -128,6 +137,7 @@ class PndSttSingleStraw : public TNamed {
   TVector3 WDistCalc(Double_t d);          // distance electron-wire
   Double_t Signal(Double_t t, Double_t t0);// signal functional form
   Double_t STEloss();                      // Landau energy loss
+  Double_t STUrban();                      // Urban energy loss
   Int_t TimeEle();                         // arrivals times of all the electrons
   Double_t DistEle(Double_t tns);          // distance of all the electrons
 
@@ -168,7 +178,7 @@ private:
   Double_t CsiAr;
   Double_t IAr;     // ionization potential  (188 eV)
   Double_t WiAr;    // energy to reate an ion pair in Argon
-  Double_t Ncl;     // mean number of cluster in Argon
+  Double_t Ncl;     // mean number of cluster in the mixture
   Double_t Ecl;     // electron per cluster
   Double_t Lcl;     // mean free path between clusters
   Double_t Ntote;   // mean total number of eletrons
@@ -237,6 +247,10 @@ private:
   Double_t Xmax;
   Double_t bPolya;
   Double_t Calpha, Cbeta, Cgamma;
+  Double_t NUrban;  // total number of collision in the Urban model
+  Double_t SigUrb;  // std dev of the Urban distribution (routine STUrban)
+  Double_t Eup;    // upper limit  of the Urban distribution (routine STUrban)
+  Double_t AvUrb;  // average of the Urban distribution (routine STUrban)
 
   // --------------------------------------------------------------
   // for the straws

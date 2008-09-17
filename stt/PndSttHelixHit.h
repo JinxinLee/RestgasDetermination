@@ -66,7 +66,10 @@ class PndSttHelixHit : public CbmHit
   Double_t GetDYcen()             const { return fDycen;       };
   Double_t GetDZcen()             const { return fDzcen;       };
 
-  Double_t GetHalfLength()       const { return fhl;                       };
+  Double_t GetdEdx()             const { return fdEdx;                      };
+  Double_t GetDepCharge()        const { return fDepCharge;                 };
+  Double_t GetEnergyLoss()       const { return fELoss;                     };
+  Double_t GetTubeHalfLength()   const { return fHalfLength ;               };
 
   /** Modifiers **/
   void SetHitIndex(Int_t hitindex) {fHitIndex = hitindex;} 
@@ -82,14 +85,21 @@ class PndSttHelixHit : public CbmHit
   void SetDYcen(Double_t dy) { fDycen = dy; }
   void SetDZcen(Double_t dz) { fDzcen = dz; }
  
+  void SetDepCharge(Double_t depcharge)       { fDepCharge = depcharge; }
+  void SetEnergyLoss(Double_t eloss)          { fELoss = eloss; }
+  void SetdEdx(Double_t dedx)                 { fdEdx = dedx; }
+  void SetTubeHalfLength(Double_t halflength) { fHalfLength = halflength; }
+
   void Print();
 
  protected:
  
   /** This variable contains the hit index **/    
   Int_t fHitIndex;
-  /** This variable contains the energy **/
-  Double_t fEdep;
+  /** This variables contain the charge, dedx, energy **/
+  Double_t fDepCharge; 
+  Double_t fdEdx;      
+  Double_t fELoss;   
   /** Position of the center **/ 
   Double32_t fXcen, fYcen, fZcen; 
   Double32_t fDxcen, fDycen, fDzcen;
@@ -98,7 +108,7 @@ class PndSttHelixHit : public CbmHit
   /** isochrone **/
   Double_t fIsochrone, fIsochroneError;
   /** half length **/
-  Double_t fhl;
+  Double_t fHalfLength; 
 
   ClassDef(PndSttHelixHit,1);
 };

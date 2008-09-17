@@ -21,7 +21,6 @@
 #include "TClonesArray.h"
 #include "TVector3.h"
 #include "TRandom.h"
-
 #include <iostream>
 #include <cmath>
 
@@ -45,7 +44,8 @@ PndSttHitProducerRealFast::~PndSttHitProducerRealFast() { }
 // -----   Public method Init   --------------------------------------------
 InitStatus PndSttHitProducerRealFast::Init() {
   fevtn=0;
-  // Get RootManager
+ 
+ // Get RootManager
   CbmRootManager* ioman = CbmRootManager::Instance();
   if ( ! ioman ) {
     cout << "-E- PndSttHitProducerRealFast-wintz::Init: "
@@ -105,8 +105,12 @@ void PndSttHitProducerRealFast::Exec(Option_t* opt) {
   // Declare some variables
   PndSttPoint* point  = NULL;
    
+ 
   // Loop over SttPoints
   Int_t nPoints = fPointArray->GetEntriesFast();
+
+  //  cout << "------------ " << nPoints << endl;
+
   for (Int_t iPoint = 0; iPoint < nPoints; iPoint++) {
     point  = (PndSttPoint*) fPointArray->At(iPoint);
     if (point == NULL) continue;
@@ -147,6 +151,9 @@ void PndSttHitProducerRealFast::Exec(Option_t* opt) {
     Double_t pulset =-1;
     //pulset = stt.PartToTime(point->GetMass()/GeV, momentum.Mag()/GeV, InOut);
      
+    // constant initialization
+    stt.TInit(point->GetMass()/GeV, momentum.Mag()/GeV, InOut);
+     
     // true radius (cm)
     Double_t true_rad = stt.TrueDist(InOut);
    
@@ -156,17 +163,21 @@ void PndSttHitProducerRealFast::Exec(Option_t* opt) {
     //if(radius <0. ||radius==0.) radius =-999;
     
     // fast simulation 
-
     Double_t radius= stt.FastRec(true_rad,1) ; //,0) standard curve ,1) Juelich exp curve
                                                //Juelich is at 2 bar pressure
     // dE calculation
     //  double depCharge = stt.PartToADC();
       
+     // dE calculation ------- check
+    // charge calculation
+    Double_t depcharge = stt.FastPartToADC(); // CHECK   arbitrary units!
     // dE/dx calculation
-    //TVector3 diff3=point1->Get
-    //double distance =diff3.Mag(); //
-    //double dedx = 999;
-    //if (distance != 0)  dedx = depCharge/(1000000 * distance);  // in arbitrary units
+    TVector3 diff3(InOut[0] - InOut[3], InOut[1] - InOut[4], InOut[2] - InOut[5]);
+    double distance = diff3.Mag(); //
+    Double_t dedx = 999;
+    if (distance != 0)  dedx = depcharge/(1000000 * distance);  // in arbitrary units
+  
+    Double_t halflength = point->GetTubeHalfLength(); 
     
     // stt2: detID, pos, dpos, index come from --------------
     // stt2 (CbmHit):
@@ -203,12 +214,13 @@ void PndSttHitProducerRealFast::Exec(Option_t* opt) {
     //    cout << "r: " << radius << " err: " << closestDistanceError << endl;
     //cout<<" radius "<<radius<<endl;
     // create hit
-    AddHit(detID, pos, dpos, iPoint, point->GetTrackID(), pulset, radius, true_rad, closestDistanceError, wireDirection);
+    AddHit(detID, pos, dpos, iPoint, point->GetTrackID(), pulset, radius, true_rad, closestDistanceError, wireDirection, halflength, depcharge, dedx);
 
     AddHitInfo(0, 0, point->GetTrackID(), iPoint, 0, kFALSE);
 
   }// Loop over MCPoints
-  
+
+
   // Event summary
   //cout << "-I- PndSttHitProducerRealFast: " << nPoints << " SttPoints, "
   //     << nPoints << " Hits created." << endl;
@@ -231,13 +243,21 @@ void PndSttHitProducerRealFast::FoldZPosWithResolution(Double_t &zpos, Double_t 
 
 
 // -----   Private method AddHit   --------------------------------------------
-PndSttHit* PndSttHitProducerRealFast::AddHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t iPoint, Int_t trackID, Double_t p, Double_t rsim, Double_t rtrue, Double_t closestDistanceError, TVector3 wireDirection){
+PndSttHit* PndSttHitProducerRealFast::AddHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t iPoint, Int_t trackID, Double_t p, Double_t rsim, Double_t rtrue, Double_t closestDistanceError, TVector3 wireDirection, Double_t halflength, Double_t depcharge, Double_t dedx){
   // see PndSttHit for hit description
   TClonesArray& clref = *fHitArray;
   Int_t size = clref.GetEntriesFast();
   //cout << "-I- PndSttHitProducerRealFast: Adding Hit: track"<<trackID<<" event: "<<eventID<<" pulse = " << p << ", rsim = " << rsim 
   //     << ", rtrue = " << rtrue <<" name "<<nam<<"center.X "<<center.X()<< endl;
-  return new(clref[size]) PndSttHit(detID, pos, dpos, iPoint, trackID, p, rsim, rtrue, closestDistanceError, wireDirection);
+ 
+  PndSttHit *hitnew = new(clref[size]) PndSttHit(detID, pos, dpos, iPoint, trackID, p, rsim, rtrue, closestDistanceError, wireDirection);
+  hitnew->SetDepCharge(depcharge);       // CHECK
+  hitnew->SetEnergyLoss(depcharge/1e6);  // eloss in arbitrary units CHECK
+  hitnew->SetdEdx(dedx);                 // CHECK
+  hitnew->SetTubeHalfLength(halflength); // CHECK
+  return hitnew;
+
+  // return new(clref[size]) PndSttHit(detID, pos, dpos, iPoint, trackID, p, rsim, rtrue, closestDistanceError, wireDirection);
 }
 // ----
 
@@ -268,7 +288,49 @@ Double_t PndSttHitProducerRealFast::GetError(Double_t TrueDcm) {
   return resmic*0.0001;
 }
 
+// void PndSttHitProducerRealFast::WriteHistograms(){
+//   TFile* file = CbmRootManager::Instance()->GetOutFile();
+//   file->cd();
+//   file->mkdir("PndSttHitProducerRealFast");
+//   file->cd("PndSttHitProducerRealFast");
+  
+//   dedxvsp->Write();
+//   delete dedxvsp;
+// }
 
+
+Double_t PndSttHitProducerRealFast::TruncatedMean(Double_t vec[], Double_t perc, Int_t totalnum){
+
+  Int_t i;
+  // sorting
+  Double_t a;
+
+  for(Int_t j=1; j < totalnum; j++){
+    a = vec[j]; 
+    i = j-1;
+    while(i >= 0 && vec[i] > a){
+      vec[i+1] = vec[i];
+      i--;
+    }
+    vec[i+1] = a;
+  }
+
+ cout << "ordinati: "<< endl; 
+  for(Int_t j=1; j < totalnum; j++) cout << " " << vec[j] << endl;
+  cout << endl;
+ 
+
+  //truncated mean
+  Double_t sum = 0;
+  Int_t endnum = ceil(totalnum * perc);
+  for(Int_t m = 0; m < endnum; m++) sum += vec[m];
+ cout <<" totale " << totalnum << " endnum " <<  endnum <<endl;
+  
+  cout << "somma " << sum << " media " << sum/(Double_t) endnum << endl;
+
+
+  return sum/(Double_t) endnum;
+ }
 
 
 ClassImp(PndSttHitProducerRealFast)

@@ -25,10 +25,10 @@ PndSttHelixHit::PndSttHelixHit(Int_t detID,
   : CbmHit(detID, pos, dpos, mcindex) 
 {
   fHitIndex = hitindex;
-  fEdep = edep;
+  fELoss = edep;
 }
 
-// DONT USE THIS! add hl to make it OK
+// DONT USE THIS! add halflength to make it OK
 PndSttHelixHit::PndSttHelixHit(Int_t detID, 
 			       TVector3& pos, TVector3& dpos, 
 			       Int_t mcindex, Int_t hitindex, Double_t edep,
@@ -39,7 +39,7 @@ PndSttHelixHit::PndSttHelixHit(Int_t detID,
 {
 
   fHitIndex = hitindex;
-  fEdep = edep;
+  fELoss = edep;
 
   fXcen = cpos.X();  fYcen = cpos.Y();  fZcen = cpos.Z(); 
   fDxcen = dcpos.X();   fDycen = dcpos.Y();   fDzcen = dcpos.Z(); 
@@ -58,19 +58,21 @@ void PndSttHelixHit::CopyHitToHelixHit(PndSttHit *aHit, Int_t hitindex)
   CbmHit::SetRefIndex(aHit->GetRefIndex());
 
   fHitIndex = hitindex;
-  // fEdep = aHit->GetEdep(); // CHECK uncomment!
+  fELoss = aHit->GetEnergyLoss();
+  fDepCharge = aHit->GetDepCharge();
+  fdEdx = aHit->GetdEdx();
+  
   TVector3 centerPosition, centerPositionError;
   aHit->Position(centerPosition);
   aHit->PositionError(centerPositionError);
 
-  fXcen = centerPosition.X(); fYcen = centerPosition.Y(); fZcen = centerPosition.Z(); 
+  fXcen  = centerPosition.X(); fYcen = centerPosition.Y(); fZcen = centerPosition.Z(); 
   fDxcen = centerPositionError.X(); fDycen = centerPositionError.Y(); fDzcen = centerPositionError.Z(); 
 
-
-  fIsochrone = aHit->GetIsochrone();
+  fIsochrone      = aHit->GetIsochrone();
   fIsochroneError = aHit->GetIsochroneError();
-  fWireDirection = aHit->GetWireDirection();
-  fhl = 75.; // aHit->GetHalfLength(); // CHECK to be added
+  fWireDirection  = aHit->GetWireDirection();
+  fHalfLength     = aHit->GetTubeHalfLength();
 }
 
 
@@ -78,8 +80,21 @@ void PndSttHelixHit::CopyHitToHelixHit(PndSttHit *aHit, Int_t hitindex)
 /** Public method Clear **/
 void PndSttHelixHit::Clear() 
 {
-  fEdep = 0.;
   fHitIndex = 0;
+  fDepCharge = 0.; 
+  fdEdx = 0.;      
+  fELoss = 0.;   
+  fXcen = 0.;
+  fYcen = 0.;
+  fZcen = 0.; 
+  fDxcen = 0.; 
+  fDycen = 0.; 
+  fDzcen = 0.;
+  fWireDirection = TVector3(0., 0., 0.);
+  fIsochrone = 0.; 
+  fIsochroneError = 0.;
+  fHalfLength = 0.; 
+ 
 }  
 
  
@@ -102,7 +117,7 @@ void PndSttHelixHit::Print()
 
   // wire
   cout << "wire dir " << GetWireDirection().X() << " " << GetWireDirection().Y() << " " << GetWireDirection().Z() << endl;
-  cout << "wire half length " << GetHalfLength() << endl;
+  cout << "wire half length " << GetTubeHalfLength() << endl;
 }
 
 

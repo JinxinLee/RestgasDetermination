@@ -60,30 +60,39 @@ class PndSttHit : public CbmHit
 
 
   /** Accessors **/
-  Double_t GetIsochrone() const { return fIsochrone; }; 
-  Double_t GetIsochroneError() const { return fIsochroneError; }; 
-  Double_t GetRadial() const { return fRadial; };
-  TVector3 GetWireDirection() const { return fWireDirection; };
+  Double_t GetIsochrone()        const { return fIsochrone;                 }; 
+  Double_t GetIsochroneError()   const { return fIsochroneError;            }; 
+  Double_t GetRadial()           const { return fRadial;                    };
+  TVector3 GetWireDirection()    const { return fWireDirection;             };
 
-  Double_t GetPulse() const {return fPulse;}
+  Double_t GetPulse()            const {return fPulse;                      };
   Double_t GetXint()             const { return fXint;                      };
   Double_t GetYint()             const { return fYint;                      };
   Double_t GetZint()             const { return fZint;                      };
+  Double_t GetdEdx()             const { return fdEdx;                      };
+  Double_t GetDepCharge()        const { return fDepCharge;                 };
+  Double_t GetEnergyLoss()       const { return fELoss;                     };
+  Double_t GetTubeHalfLength()   const { return fHalfLength ;               };
 
   /** Modifiers **/
-  void SetIsochrone(Double_t isochrone) { fIsochrone = isochrone; };
+  void SetIsochrone(Double_t isochrone)           { fIsochrone = isochrone; };
   void SetIsochroneError(Double_t isochroneError) { fIsochroneError = isochroneError; };
-  void SetRadial(Double_t newRadial) { fRadial = newRadial; };
-  void SetWireDirection(TVector3 newWire) { fWireDirection = newWire; }
+  void SetRadial(Double_t newRadial)              { fRadial = newRadial; };
+  void SetWireDirection(TVector3 newWire)         { fWireDirection = newWire; }
 
-  void SetAssigned() {fAssigned = kTRUE;} 
+  void SetAssigned()  {fAssigned = kTRUE;} 
   Bool_t IsAssigned() const {return fAssigned;}
  
   void SetXint(Double_t x) { fXint = x; }
   void SetYint(Double_t y) { fYint = y; }
   void SetZint(Double_t z) { fZint = z; }
 
-  void SetTrackID(Int_t trackid) { fTrackID = trackid;}
+  void SetTrackID(Int_t trackid)     { fTrackID = trackid;}
+
+  void SetDepCharge(Double_t depcharge)       { fDepCharge = depcharge; }
+  void SetEnergyLoss(Double_t eloss)          { fELoss = eloss; }
+  void SetdEdx(Double_t dedx)                 { fdEdx = dedx; }
+  void SetTubeHalfLength(Double_t halflength) { fHalfLength = halflength; }
 
  protected:
  
@@ -111,8 +120,14 @@ class PndSttHit : public CbmHit
   /*   tube_min;  */
   Double_t fXint, fYint, fZint;      // Position of intersections (will work in reco)
 
+  Double_t fDepCharge;  // deposit charge (arbitrary units)
+  Double_t fdEdx;       // hit dEdx
+  Double_t fHalfLength; // tube half length
+  Double_t fELoss;      // hit energy loss 
 
-  ClassDef(PndSttHit,1);
+
+
+ ClassDef(PndSttHit,1);
 };
 
 

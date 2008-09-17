@@ -24,6 +24,7 @@
 #include "TVirtualMC.h"
 #include "TGeoMatrix.h"
 #include "TObjArray.h"
+#include "TGeoTube.h"
 
 #include <iostream>
 
@@ -187,7 +188,7 @@ Bool_t  PndStt::ProcessHits(CbmVolume* vol)
       if (gMC->IsTrackExiting())
 	{
 	  fTrackID  = gMC->GetStack()->GetCurrentTrackNumber();
-	  fVolumeID = vol->getMCid();
+	  fVolumeID = 3;//vol->getMCid();
 	  fMass = gMC->TrackMass();   // mass (GeV)
 	  gMC->TrackPosition(fPosOut);
 	  gMC->TrackMomentum(fMomOut);
@@ -312,6 +313,8 @@ Bool_t  PndStt::ProcessHits(CbmVolume* vol)
 	  // 	    cout << "tot: " << fpostot.X() << " " << fpostot.Y() << " " << fpostot.Z() << endl;
 	  // 	    cout << (fpostotin.X() +  fpostotout.X())/2. << " " << (fpostotin.Y() + fpostotout.Y())/2. << " " << (fpostotin.Z() + fpostotout.Z())/2. << endl;
 
+	TGeoTube *tube = (TGeoTube*) vol->getGeoNode()->getRootVolume()->GetShape();
+        fHalfLength = tube->GetDz();
 
 
 	  AddHit(fTrackID, fVolumeID,
@@ -321,7 +324,7 @@ Bool_t  PndStt::ProcessHits(CbmVolume* vol)
 		 TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),
 		 TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
 		 TVector3(rotatedVector.getX(), rotatedVector.getY(), rotatedVector.getZ()),
-		 fTime, fLength, fELoss, fMass, TVector3(fpostot.X(), fpostot.Y(), fpostot.Z())); // da cancellare fpostot
+		 fTime, fLength, fELoss, fMass, fHalfLength, TVector3(fpostot.X(), fpostot.Y(), fpostot.Z())); // da cancellare fpostot
 	    
 	  // Increment number of stt points for TParticle
 	  Int_t 
@@ -487,7 +490,7 @@ void PndStt::ConstructGeometry()
 PndSttPoint* PndStt::AddHit(Int_t trackID, Int_t detID, TVector3 pos,
 			    TVector3 posInLocal, TVector3 posOutLocal, 
 			    TVector3 momIn, TVector3 momOut, TVector3 wireDir,
-			    Double_t time, Double_t length, Double_t eLoss,  Double_t mass, TVector3 postot)   // da cancellare postot
+			    Double_t time, Double_t length, Double_t eLoss,  Double_t mass, Double_t halflength, TVector3 postot)   // da cancellare postot
 {
   TClonesArray& 
       clref = *fSttCollection;
@@ -495,8 +498,13 @@ PndSttPoint* PndStt::AddHit(Int_t trackID, Int_t detID, TVector3 pos,
   Int_t 
       size = clref.GetEntriesFast();
 
-  return new(clref[size]) PndSttPoint(trackID, detID, pos, posInLocal, posOutLocal,
-				      momIn, momOut, wireDir, time, length, eLoss, mass, postot);
+  PndSttPoint *pointnew = new(clref[size]) PndSttPoint(trackID, detID, pos, posInLocal, posOutLocal,
+						       momIn, momOut, wireDir, time, 
+						       length, eLoss, mass, postot);
+  pointnew->SetTubeHalfLength(halflength);
+  
+  //  return new(clref[size]) PndSttPoint(trackID, detID, pos, posInLocal, posOutLocal,
+  //				      momIn, momOut, wireDir, time, length, eLoss, mass, postot);
 }
 // -------------------------------------------------------------------------
 

@@ -84,6 +84,8 @@ class PndSttPoint : public CbmMCPoint
   Double_t GetZWireDirection() const { return fZ_wire_dir; }
 
   Double_t GetMass() const {return fMass;}
+ 
+  Double_t GetTubeHalfLength()   const { return fHalfLength;               };
 
   void PositionOutLocal(TVector3& pos) { pos.SetXYZ(fX_out_local,fY_out_local,fZ_out_local); }
   void PositionInLocal(TVector3& pos)  { pos.SetXYZ(fX_in_local,fY_in_local,fZ_in_local); }
@@ -95,6 +97,7 @@ class PndSttPoint : public CbmMCPoint
   void SetPositionInLocal(TVector3 pos);
   void SetMomentumOut(TVector3 mom);
   void SetWireDirection(TVector3 wire);
+  void SetTubeHalfLength(Double_t halflength) { fHalfLength = halflength; }
 
   /** Output to screen **/
   virtual void Print(const Option_t* opt) const;
@@ -116,12 +119,16 @@ class PndSttPoint : public CbmMCPoint
 
   // da cancellare
   Double_t fxtot, fytot, fztot; 
- Double_t fpxtot, fpytot, fpztot; 
-  //////
+  Double_t fpxtot, fpytot, fpztot; 
+ 
+  Double_t fHalfLength; // tube half length
+
+
+ //////
 
   ClassDef(PndSttPoint,1)
 
-};
+    };
 
 
 
