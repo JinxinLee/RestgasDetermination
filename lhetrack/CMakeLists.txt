@@ -52,6 +52,7 @@ PndTpcLhePoint.cxx
 PndLhePidMaker.cxx
 PndLhePidTrack.cxx
 PndLheKalmanTask.cxx
+PndLheTpcPlanarRecoHit.cxx
 PndLheCorrPar.cxx
 PndLheContFact.cxx
 )
@@ -75,6 +76,7 @@ PndTpcLhePoint.h
 PndLhePidMaker.h
 PndLhePidTrack.h
 PndLheKalmanTask.h
+PndLheTpcPlanarRecoHit.h
 PndLheCorrPar.h
 PndLheContFact.h
 )

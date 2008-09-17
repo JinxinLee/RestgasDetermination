@@ -19,6 +19,7 @@
 #pragma link C++ class  PndLhePidMaker+;
 #pragma link C++ class  PndLhePidTrack+;
 #pragma link C++ class  PndLheKalmanTask+;
+#pragma link C++ class  PndLheTpcPlanarRecoHit+;
 #pragma link C++ class  PndLheCorrPar+;
 #pragma link C++ class  PndLheContFact+;
 #endif

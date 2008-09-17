@@ -35,7 +35,7 @@
 #include "CbmMCPoint.h"
 
 #include "PndMvdRecoHit.h"
-#include "PndTpcPlanarRecoHit.h"
+#include "PndLheTpcPlanarRecoHit.h"
 #include "PndTpcLheTrack.h"
 #include "PndTpcLheHit.h"
 
@@ -127,7 +127,7 @@ PndLheKalmanTask::Init()
     }
   else
     {
-      fTheRecoHitFactory->addProducer(2,new RecoHitProducer<PndTpcCluster,PndTpcPlanarRecoHit>(ar));
+      fTheRecoHitFactory->addProducer(2,new RecoHitProducer<PndTpcCluster,PndLheTpcPlanarRecoHit>(ar));
     }
   
   if (fUseGeane)  fPro = new CbmGeanePro();
@@ -197,14 +197,16 @@ void PndLheKalmanTask::Exec(Option_t* opt)
     TVector3 V(0.,1.,0.);
     DetPlane start_pl(StartPos,U,V);
 
-    AbsTrackRep* rep;
+    AbsTrackRep* rep = 0;
     
     if (fUseGeane)
       {
-	rep = new GeaneTrackRep(fPro,
-				start_pl,StartMom,
+	GeaneTrackRep *grep = new GeaneTrackRep(fPro,
+			   	start_pl,StartMom,
 				StartPosErr,StartMomErr,
 				fCharge,PDGCode);
+       // grep->setPropDir(1);
+        rep = grep;
       }
     else
       {
