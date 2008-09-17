@@ -518,6 +518,8 @@ void PndDrc::ConstructGeometry()
   Int_t nAirNoSens = geobuild->createMedium(airNoSens);
   CbmGeoMedium *mirror  = Media->getMedium("Mirror");
   Int_t nMirror = geobuild->createMedium(mirror);
+  CbmGeoMedium *marcol82  = Media->getMedium("Marcol82");
+  Int_t nMarcol82 = geobuild->createMedium(marcol82);
 
   TGeoVolume *cave = gGeoManager->GetTopVolume();
  
@@ -603,17 +605,20 @@ void PndDrc::ConstructGeometry()
   baseSOB->DefineSection(0, 0., 48., 88.);
   baseSOB->DefineSection(1, 10., 48., 88.);
   baseSOB->DefineSection(2, 30., 48., 49.7);
-  TGeoVolume *sob = new TGeoVolume("DrcSob",baseSOB, gGeoManager->GetMedium("DIRCairNoSens"));
+ 
+  TGeoVolume *sob = new TGeoVolume("DrcSob",baseSOB, gGeoManager->GetMedium("Marcol82"));
   cave->AddNode(sob, 1,new TGeoCombiTrans(0., 0., -180., new TGeoRotation (0)));
 
   // Photodetector
   TGeoPgon* logicPD = new TGeoPgon("logicPD",11.25, 360., 16, 2);
   logicPD->DefineSection(0, 0., 48., 88.);
   logicPD->DefineSection(1, 0.1, 48., 88.);
-  TGeoVolume *pd = new TGeoVolume("DrcPd", logicPD, gGeoManager->GetMedium("DIRCair"));
-  sob->AddNode(pd, 1,new TGeoCombiTrans(0., 0., 0., new TGeoRotation (0)));
+  TGeoVolume *pd = new TGeoVolume("DrcPd", logicPD, gGeoManager->GetMedium("Marcol82"));
+  sob->AddNode(pd, 1,new TGeoCombiTrans(0., 0., 1., new TGeoRotation (0)));
   AddSensitiveVolume(pd); 
   
+
+
   // Lenses
  
   // Lens 1
