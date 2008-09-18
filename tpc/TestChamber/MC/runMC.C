@@ -29,7 +29,7 @@
 
   gSystem->ListLibraries();
 
-  Int_t nEvents = 300;
+  Int_t nEvents = 2999;
 
   CbmRunSim *fRun = new CbmRunSim();
   
@@ -78,7 +78,7 @@
   char * cPath;
   cPath = getenv ("VMCWORKDIR");
   std::string sPath(cPath);
-  sPath+="/tpc/TestChamber/MC/prim.txt";
+  sPath+="/../workdir/prim.txt";
 
   CbmAsciiGenerator *asciiGen = new CbmAsciiGenerator(sPath.c_str());
 

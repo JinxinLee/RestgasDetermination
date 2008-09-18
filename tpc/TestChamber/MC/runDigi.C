@@ -111,8 +111,8 @@ TString outFile = input; outFile.Append(".digi.root");
 
   PndTpcPadResponseTask* tpcPadResponse = new PndTpcPadResponseTask();
   tpcPadResponse->SetPersistence();
-  tpcPadResponse->SetGaussianNoise();
-  tpcPadResponse->SetGaussianNoiseAmp(2000);
+  //tpcPadResponse->SetGaussianNoise();
+  //tpcPadResponse->SetGaussianNoiseAmp(2000);
   fRun->AddTask(tpcPadResponse);
 
 
