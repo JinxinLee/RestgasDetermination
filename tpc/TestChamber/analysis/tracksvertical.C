@@ -73,10 +73,10 @@ void tracks(TString files){
     myChain.GetEntry(i);
     TCtrack tr(*intr);
 
-    //Ay->Fill(tr.getAy());
-    //By->Fill(tr.getBy());
-    //Ax->Fill(tr.getAx());
-    //Bx->Fill(tr.getBx());
+    if (fabs(tr.getAx()) > 1.E3) continue;
+    if (fabs(tr.getAy()) > 1.E3) continue;
+    if (tr.getChi2()/tr.getNDF()>1) continue;
+    if (tr.nCl()<2) continue;
 
     Double_t x1 = tr.getBx();
     Double_t x2 = 10*tr.getAx() + tr.getBx();
