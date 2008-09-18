@@ -40,93 +40,93 @@ void resolution(TString files){
   TChain myChain("at");
 
   //define the histograms
-  //y without 
+  //v without 
 
-  TH1D *yall = new TH1D("yall","",500,-0.1,0.1);
-  yall->SetXTitle("Residual y [cm]");
+  TH1D *vall = new TH1D("vall","",500,-0.1,0.1);
+  vall->SetXTitle("Residual v [cm]");
 
-  TH1D *y01 = new TH1D("y01","0mm < z < 10mm",500,-0.1,0.1);
-  y01->SetXTitle("Residual y [cm]");
-  TH1D *y02 = new TH1D("y02","10mm < z < 20mm",500,-0.1,0.1);
-  y02->SetXTitle("Residual y [cm]");
-  TH1D *y03 = new TH1D("y03","20mm < z < 30mm",500,-0.1,0.1);
-  y03->SetXTitle("Residual y [cm]");
-  TH1D *y04 = new TH1D("y04","30mm < z < 40mm",500,-0.1,0.1);
-  y04->SetXTitle("Residual y [cm]");
-  TH1D *y05 = new TH1D("y05","40mm < z < 50mm",500,-0.1,0.1);
-  y05->SetXTitle("Residual y [cm]");
-  TH1D *y06 = new TH1D("y06","50mm < z < 60mm",500,-0.1,0.1);
-  y06->SetXTitle("Residual y [cm]");
-  TH1D *y07 = new TH1D("y07","60mm < z < 70mm",500,-0.1,0.1);
-  y07->SetXTitle("Residual y [cm]");
-  TH1D *y08 = new TH1D("y08","70mm < z < 80mm",500,-0.1,0.1);
-  y08->SetXTitle("Residual y [cm]");
+  TH1D *v01 = new TH1D("v01","0mm < w < 10mm",500,-0.1,0.1);
+  v01->SetXTitle("Residual v [cm]");
+  TH1D *v02 = new TH1D("v02","10mm < w < 20mm",500,-0.1,0.1);
+  v02->SetXTitle("Residual v [cm]");
+  TH1D *v03 = new TH1D("v03","20mm < w < 30mm",500,-0.1,0.1);
+  v03->SetXTitle("Residual v [cm]");
+  TH1D *v04 = new TH1D("v04","30mm < w < 40mm",500,-0.1,0.1);
+  v04->SetXTitle("Residual v [cm]");
+  TH1D *v05 = new TH1D("v05","40mm < w < 50mm",500,-0.1,0.1);
+  v05->SetXTitle("Residual v [cm]");
+  TH1D *v06 = new TH1D("v06","50mm < w < 60mm",500,-0.1,0.1);
+  v06->SetXTitle("Residual v [cm]");
+  TH1D *v07 = new TH1D("v07","60mm < w < 70mm",500,-0.1,0.1);
+  v07->SetXTitle("Residual v [cm]");
+  TH1D *v08 = new TH1D("v08","70mm < w < 80mm",500,-0.1,0.1);
+  v08->SetXTitle("Residual v [cm]");
 
-  //z without
+  //w without
 
-  TH1D *zall = new TH1D("zall","",500,-0.1,0.1);
-  zall->SetXTitle("Residual z [cm]");
+  TH1D *wall = new TH1D("wall","",500,-0.1,0.1);
+  wall->SetXTitle("Residual w [cm]");
 
-  TH1D *z01 = new TH1D("z01","0mm < z < 10mm",500,-0.1,0.1);
-  z01->SetXTitle("Residual z [cm]");
-  TH1D *z02 = new TH1D("z02","10mm < z < 20mm",500,-0.1,0.1);
-  z02->SetXTitle("Residual z [cm]");
-  TH1D *z03 = new TH1D("z03","20mm < z < 30mm",500,-0.1,0.1);
-  z03->SetXTitle("Residual z [cm]");
-  TH1D *z04 = new TH1D("z04","30mm < z < 40mm",500,-0.1,0.1);
-  z04->SetXTitle("Residual z [cm]");
-  TH1D *z05 = new TH1D("z05","40mm < z < 50mm",500,-0.1,0.1);
-  z05->SetXTitle("Residual z [cm]");
-  TH1D *z06 = new TH1D("z06","50mm < z < 60mm",500,-0.1,0.1);
-  z06->SetXTitle("Residual z [cm]");
-  TH1D *z07 = new TH1D("z07","60mm < z < 70mm",500,-0.1,0.1);
-  z07->SetXTitle("Residual z [cm]");
-  TH1D *z08 = new TH1D("z08","70mm < z < 80mm",500,-0.1,0.1);
-  z08->SetXTitle("Residual z [cm]");
+  TH1D *w01 = new TH1D("w01","0mm < w < 10mm",500,-0.1,0.1);
+  w01->SetXTitle("Residual w [cm]");
+  TH1D *w02 = new TH1D("w02","10mm < w < 20mm",500,-0.1,0.1);
+  w02->SetXTitle("Residual w [cm]");
+  TH1D *w03 = new TH1D("w03","20mm < w < 30mm",500,-0.1,0.1);
+  w03->SetXTitle("Residual w [cm]");
+  TH1D *w04 = new TH1D("w04","30mm < w < 40mm",500,-0.1,0.1);
+  w04->SetXTitle("Residual w [cm]");
+  TH1D *w05 = new TH1D("w05","40mm < w < 50mm",500,-0.1,0.1);
+  w05->SetXTitle("Residual w [cm]");
+  TH1D *w06 = new TH1D("w06","50mm < w < 60mm",500,-0.1,0.1);
+  w06->SetXTitle("Residual w [cm]");
+  TH1D *w07 = new TH1D("w07","60mm < w < 70mm",500,-0.1,0.1);
+  w07->SetXTitle("Residual w [cm]");
+  TH1D *w08 = new TH1D("w08","70mm < w < 80mm",500,-0.1,0.1);
+  w08->SetXTitle("Residual w [cm]");
 
-  //y using clusterSplit1.C
+  //v using clusterSplit1.C
 
-  TH1D *yallw = new TH1D("yallw","",500,-0.1,0.1);
-  yallw->SetXTitle("Residual y using clusterSplit1.C [cm]");
+  TH1D *vallw = new TH1D("vallw","",500,-0.1,0.1);
+  vallw->SetXTitle("Residual v using clusterSplit1.C [cm]");
 
-  TH1D *y01w = new TH1D("y01w","0mm < z < 10mm",500,-0.1,0.1);
-  y01w->SetXTitle("Residual y using clusterSplit1.C [cm]");
-  TH1D *y02w = new TH1D("y02w","10mm < z < 20mm",500,-0.1,0.1);
-  y02w->SetXTitle("Residual y using clusterSplit1.C [cm]");
-  TH1D *y03w = new TH1D("y03w","20mm < z < 30mm",500,-0.1,0.1);
-  y03w->SetXTitle("Residual y using clusterSplit1.C [cm]");
-  TH1D *y04w = new TH1D("y04w","30mm < z < 40mm",500,-0.1,0.1);
-  y04w->SetXTitle("Residual y using clusterSplit1.C [cm]");
-  TH1D *y05w = new TH1D("y05w","40mm < z < 50mm",500,-0.1,0.1);
-  y05w->SetXTitle("Residual y using clusterSplit1.C [cm]");
-  TH1D *y06w = new TH1D("y06w","50mm < z < 60mm",500,-0.1,0.1);
-  y06w->SetXTitle("Residual y using clusterSplit1.C [cm]");
-  TH1D *y07w = new TH1D("y07w","60mm < z < 70mm",500,-0.1,0.1);
-  y07w->SetXTitle("Residual y using clusterSplit1.C [cm]");
-  TH1D *y08w = new TH1D("y08w","70mm < z < 80mm",500,-0.1,0.1);
-  y08w->SetXTitle("Residual y using clusterSplit1.C [cm]");
+  TH1D *v01w = new TH1D("v01w","0mm < w < 10mm",500,-0.1,0.1);
+  v01w->SetXTitle("Residual v using clusterSplit1.C [cm]");
+  TH1D *v02w = new TH1D("v02w","10mm < w < 20mm",500,-0.1,0.1);
+  v02w->SetXTitle("Residual v using clusterSplit1.C [cm]");
+  TH1D *v03w = new TH1D("v03w","20mm < w < 30mm",500,-0.1,0.1);
+  v03w->SetXTitle("Residual v using clusterSplit1.C [cm]");
+  TH1D *v04w = new TH1D("v04w","30mm < w < 40mm",500,-0.1,0.1);
+  v04w->SetXTitle("Residual v using clusterSplit1.C [cm]");
+  TH1D *v05w = new TH1D("v05w","40mm < w < 50mm",500,-0.1,0.1);
+  v05w->SetXTitle("Residual v using clusterSplit1.C [cm]");
+  TH1D *v06w = new TH1D("v06w","50mm < w < 60mm",500,-0.1,0.1);
+  v06w->SetXTitle("Residual v using clusterSplit1.C [cm]");
+  TH1D *v07w = new TH1D("v07w","60mm < w < 70mm",500,-0.1,0.1);
+  v07w->SetXTitle("Residual v using clusterSplit1.C [cm]");
+  TH1D *v08w = new TH1D("v08w","70mm < w < 80mm",500,-0.1,0.1);
+  v08w->SetXTitle("Residual v using clusterSplit1.C [cm]");
 
-  //z using clusterSplit1.C
+  //w using clusterSplit1.C
 
-  TH1D *zallw = new TH1D("zallw","",500,-0.1,0.1);
-  zallw->SetXTitle("Residual z using clustersplit1.C [cm]");
+  TH1D *wallw = new TH1D("wallw","",500,-0.1,0.1);
+  wallw->SetXTitle("Residual w using clustersplit1.C [cm]");
 
-  TH1D *z01w = new TH1D("z01w","0mm < z < 10mm",500,-0.1,0.1);
-  z01w->SetXTitle("Residual z using clusterSplit1.C [cm]");
-  TH1D *z02w = new TH1D("z02w","10mm < z < 20mm",500,-0.1,0.1);
-  z02w->SetXTitle("Residual z using clusterSplit1.C [cm]");
-  TH1D *z03w = new TH1D("z03w","20mm < z < 30mm",500,-0.1,0.1);
-  z03w->SetXTitle("Residual z using clustersplit1.C [cm]");
-  TH1D *z04w = new TH1D("z04w","30mm < z < 40mm",500,-0.1,0.1);
-  z04w->SetXTitle("Residual z using clusterSplit1.C [cm]");
-  TH1D *z05w = new TH1D("z05w","40mm < z < 50mm",500,-0.1,0.1);
-  z05w->SetXTitle("Residual z using clusterSplit1.C [cm]");
-  TH1D *z06w = new TH1D("z06w","50mm < z < 60mm",500,-0.1,0.1);
-  z06w->SetXTitle("Residual z using clusterSplit1.C [cm]");
-  TH1D *z07w = new TH1D("z07w","60mm < z < 70mm",500,-0.1,0.1);
-  z07w->SetXTitle("Residual z using clusterSplit1.C [cm]");
-  TH1D *z08w = new TH1D("z08w","70mm < z < 80mm",500,-0.1,0.1);
-  z08w->SetXTitle("Residual z using clusterSPlit1.C [cm]");
+  TH1D *w01w = new TH1D("w01w","0mm < w < 10mm",500,-0.1,0.1);
+  w01w->SetXTitle("Residual w using clusterSplit1.C [cm]");
+  TH1D *w02w = new TH1D("w02w","10mm < w < 20mm",500,-0.1,0.1);
+  w02w->SetXTitle("Residual w using clusterSplit1.C [cm]");
+  TH1D *w03w = new TH1D("w03w","20mm < w < 30mm",500,-0.1,0.1);
+  w03w->SetXTitle("Residual w using clustersplit1.C [cm]");
+  TH1D *w04w = new TH1D("w04w","30mm < w < 40mm",500,-0.1,0.1);
+  w04w->SetXTitle("Residual w using clusterSplit1.C [cm]");
+  TH1D *w05w = new TH1D("w05w","40mm < w < 50mm",500,-0.1,0.1);
+  w05w->SetXTitle("Residual w using clusterSplit1.C [cm]");
+  TH1D *w06w = new TH1D("w06w","50mm < w < 60mm",500,-0.1,0.1);
+  w06w->SetXTitle("Residual w using clusterSplit1.C [cm]");
+  TH1D *w07w = new TH1D("w07w","60mm < w < 70mm",500,-0.1,0.1);
+  w07w->SetXTitle("Residual w using clusterSplit1.C [cm]");
+  TH1D *w08w = new TH1D("w08w","70mm < w < 80mm",500,-0.1,0.1);
+  w08w->SetXTitle("Residual w using clusterSPlit1.C [cm]");
 
   cout << "Adding " <<  myChain.Add(files) << " to the chain" << endl;
 
@@ -156,28 +156,28 @@ void resolution(TString files){
 	if (tr.getChi2()/tr.getNDF()<0.01) continue;
 	if (tr.nCl()<2) continue;
 
-	yall->Fill(c.getRes().Y());
-	zall->Fill(c.getRes().Z());
+	vall->Fill(c.getRes().Y());
+	wall->Fill(c.getRes().Z());
 
-	double z = c.posUVW().Z();
+	double w = c.posUVW().Z();
 
-	if(z>0&&z<1) y01->Fill(c.getRes().Y());
-	if(z>1&&z<2) y02->Fill(c.getRes().Y());
-	if(z>2&&z<3) y03->Fill(c.getRes().Y());
-	if(z>3&&z<4) y04->Fill(c.getRes().Y());
-	if(z>4&&z<5) y05->Fill(c.getRes().Y());
-	if(z>5&&z<6) y06->Fill(c.getRes().Y());
-	if(z>6&&z<7) y07->Fill(c.getRes().Y());
-	if(z>7&&z<8) y08->Fill(c.getRes().Y());
+	if(w>0&&w<1) v01->Fill(c.getRes().Y());
+	if(w>1&&w<2) v02->Fill(c.getRes().Y());
+	if(w>2&&w<3) v03->Fill(c.getRes().Y());
+	if(w>3&&w<4) v04->Fill(c.getRes().Y());
+	if(w>4&&w<5) v05->Fill(c.getRes().Y());
+	if(w>5&&w<6) v06->Fill(c.getRes().Y());
+	if(w>6&&w<7) v07->Fill(c.getRes().Y());
+	if(w>7&&w<8) v08->Fill(c.getRes().Y());
 
-	if(z>0&&z<1) z01->Fill(c.getRes().Z());
-	if(z>1&&z<2) z02->Fill(c.getRes().Z());
-	if(z>2&&z<3) z03->Fill(c.getRes().Z());
-	if(z>3&&z<4) z04->Fill(c.getRes().Z());
-	if(z>4&&z<5) z05->Fill(c.getRes().Z());
-	if(z>5&&z<6) z06->Fill(c.getRes().Z());
-	if(z>6&&z<7) z07->Fill(c.getRes().Z());
-	if(z>7&&z<8) z08->Fill(c.getRes().Z());
+	if(w>0&&w<1) w01->Fill(c.getRes().Z());
+	if(w>1&&w<2) w02->Fill(c.getRes().Z());
+	if(w>2&&w<3) w03->Fill(c.getRes().Z());
+	if(w>3&&w<4) w04->Fill(c.getRes().Z());
+	if(w>4&&w<5) w05->Fill(c.getRes().Z());
+	if(w>5&&w<6) w06->Fill(c.getRes().Z());
+	if(w>6&&w<7) w07->Fill(c.getRes().Z());
+	if(w>7&&w<8) w08->Fill(c.getRes().Z());
       }
     }
 
@@ -187,1738 +187,1758 @@ void resolution(TString files){
       TCcluster d = trSplit.getCl(i);
       if(d.getFit()){ 
 
+	
 	if (fabs(trSplit.getAx()) > 1.E3) continue;
 	if (fabs(trSplit.getAy()) > 1.E3) continue;
 	if (trSplit.getChi2()/trSplit.getNDF()>2) continue;
 	if (trSplit.getChi2()/trSplit.getNDF()<0.01) continue;
 	if (trSplit.nCl()<2) continue;
+	
 
-	yallw->Fill(d.getRes().Y());
-	zallw->Fill(d.getRes().Z());
+	vallw->Fill(d.getRes().Y());
+	wallw->Fill(d.getRes().Z());
 
-	double z = d.posUVW().Z();
+	double w = d.posUVW().Z();
 
-	if(z>0&&z<1) y01w->Fill(d.getRes().Y());
-	if(z>1&&z<2) y02w->Fill(d.getRes().Y());
-	if(z>2&&z<3) y03w->Fill(d.getRes().Y());
-	if(z>3&&z<4) y04w->Fill(d.getRes().Y());
-	if(z>4&&z<5) y05w->Fill(d.getRes().Y());
-	if(z>5&&z<6) y06w->Fill(d.getRes().Y());
-	if(z>6&&z<7) y07w->Fill(d.getRes().Y());
-	if(z>7&&z<8) y08w->Fill(d.getRes().Y());
+	if(w>0&&w<1) v01w->Fill(d.getRes().Y());
+	if(w>1&&w<2) v02w->Fill(d.getRes().Y());
+	if(w>2&&w<3) v03w->Fill(d.getRes().Y());
+	if(w>3&&w<4) v04w->Fill(d.getRes().Y());
+	if(w>4&&w<5) v05w->Fill(d.getRes().Y());
+	if(w>5&&w<6) v06w->Fill(d.getRes().Y());
+	if(w>6&&w<7) v07w->Fill(d.getRes().Y());
+	if(w>7&&w<8) v08w->Fill(d.getRes().Y());
 
-	if(z>0&&z<1) z01w->Fill(d.getRes().Z());
-	if(z>1&&z<2) z02w->Fill(d.getRes().Z());
-	if(z>2&&z<3) z03w->Fill(d.getRes().Z());
-	if(z>3&&z<4) z04w->Fill(d.getRes().Z());
-	if(z>4&&z<5) z05w->Fill(d.getRes().Z());
-	if(z>5&&z<6) z06w->Fill(d.getRes().Z());
-	if(z>6&&z<7) z07w->Fill(d.getRes().Z());
-	if(z>7&&z<8) z08w->Fill(d.getRes().Z());
+	if(w>0&&w<1) w01w->Fill(d.getRes().Z());
+	if(w>1&&w<2) w02w->Fill(d.getRes().Z());
+	if(w>2&&w<3) w03w->Fill(d.getRes().Z());
+	if(w>3&&w<4) w04w->Fill(d.getRes().Z());
+	if(w>4&&w<5) w05w->Fill(d.getRes().Z());
+	if(w>5&&w<6) w06w->Fill(d.getRes().Z());
+	if(w>6&&w<7) w07w->Fill(d.getRes().Z());
+	if(w>7&&w<8) w08w->Fill(d.getRes().Z());
       }
     }
   }
 
   //end of event loop
   
-  //y without
-
-  Double_t yres_all = -1;
-  Double_t yres_01 = -1; 
-  Double_t yres_02 = -1;
-  Double_t yres_03 = -1;
-  Double_t yres_04 = -1;
-  Double_t yres_05 = -1;
-  Double_t yres_06 = -1;
-  Double_t yres_07 = -1;
-  Double_t yres_08 = -1;
-
-  Double_t err_yres_all = -1;
-  Double_t err_yres_01 = -1;
-  Double_t err_yres_02 = -1;
-  Double_t err_yres_03 = -1;
-  Double_t err_yres_04 = -1;
-  Double_t err_yres_05 = -1;
-  Double_t err_yres_06 = -1;
-  Double_t err_yres_07 = -1;
-  Double_t err_yres_08 = -1;
-
-  //z without
-
-  Double_t zres_all = -1;
-  Double_t zres_01 = -1; 
-  Double_t zres_02 = -1;
-  Double_t zres_03 = -1;
-  Double_t zres_04 = -1;
-  Double_t zres_05 = -1;
-  Double_t zres_06 = -1;
-  Double_t zres_07 = -1;
-  Double_t zres_08 = -1;
-
-  Double_t err_zres_all = -1;
-  Double_t err_zres_01 = -1;
-  Double_t err_zres_02 = -1;
-  Double_t err_zres_03 = -1;
-  Double_t err_zres_04 = -1;
-  Double_t err_zres_05 = -1;
-  Double_t err_zres_06 = -1;
-  Double_t err_zres_07 = -1;
-  Double_t err_zres_08 = -1;
-
-  //y using clusterSplit1.C
-
-  Double_t yres_allw = -1;
-  Double_t yres_01w = -1; 
-  Double_t yres_02w = -1;
-  Double_t yres_03w = -1;
-  Double_t yres_04w = -1;
-  Double_t yres_05w = -1;
-  Double_t yres_06w = -1;
-  Double_t yres_07w = -1;
-  Double_t yres_08w = -1;
-
-  Double_t err_yres_allw = -1;
-  Double_t err_yres_01w = -1;
-  Double_t err_yres_02w = -1;
-  Double_t err_yres_03w = -1;
-  Double_t err_yres_04w = -1;
-  Double_t err_yres_05w = -1;
-  Double_t err_yres_06w = -1;
-  Double_t err_yres_07w = -1;
-  Double_t err_yres_08w = -1;
-
-  //z using clusterSplit1.C
-
-  Double_t zres_allw = -1;
-  Double_t zres_01w = -1; 
-  Double_t zres_02w = -1;
-  Double_t zres_03w = -1;
-  Double_t zres_04w = -1;
-  Double_t zres_05w = -1;
-  Double_t zres_06w = -1;
-  Double_t zres_07w = -1;
-  Double_t zres_08w = -1;
-
-  Double_t err_zres_allw = -1;
-  Double_t err_zres_01w = -1;
-  Double_t err_zres_02w = -1;
-  Double_t err_zres_03w = -1;
-  Double_t err_zres_04w = -1;
-  Double_t err_zres_05w = -1;
-  Double_t err_zres_06w = -1;
-  Double_t err_zres_07w = -1;
-  Double_t err_zres_08w = -1;
-  
-
-  //y without
-  //yall
-
-  TF1 *doublegaus_yall = new TF1("doublegaus_yall",doublegausf,-.1,.1,6);
-
-  doublegaus_yall->SetParLimits(0,0,100);
-  doublegaus_yall->SetParLimits(2,0.005,0.05);
-  doublegaus_yall->SetParLimits(3,0,100);
-  doublegaus_yall->SetParLimits(5,0.005,0.05);
-
-   doublegaus_yall->SetParameters(20,yall->GetMean(),yall->GetRMS(),5,yall->GetMean(),yall->GetRMS());
-  yall->Fit("doublegaus_yall","R");
+  //v without
+
+  Double_t vres_all = -1;
+  Double_t vres_01 = -1; 
+  Double_t vres_02 = -1;
+  Double_t vres_03 = -1;
+  Double_t vres_04 = -1;
+  Double_t vres_05 = -1;
+  Double_t vres_06 = -1;
+  Double_t vres_07 = -1;
+  Double_t vres_08 = -1;
+
+  Double_t err_vres_all = -1;
+  Double_t err_vres_01 = -1;
+  Double_t err_vres_02 = -1;
+  Double_t err_vres_03 = -1;
+  Double_t err_vres_04 = -1;
+  Double_t err_vres_05 = -1;
+  Double_t err_vres_06 = -1;
+  Double_t err_vres_07 = -1;
+  Double_t err_vres_08 = -1;
+
+  //w without
+
+  Double_t wres_all = -1;
+  Double_t wres_01 = -1; 
+  Double_t wres_02 = -1;
+  Double_t wres_03 = -1;
+  Double_t wres_04 = -1;
+  Double_t wres_05 = -1;
+  Double_t wres_06 = -1;
+  Double_t wres_07 = -1;
+  Double_t wres_08 = -1;
+
+  Double_t err_wres_all = -1;
+  Double_t err_wres_01 = -1;
+  Double_t err_wres_02 = -1;
+  Double_t err_wres_03 = -1;
+  Double_t err_wres_04 = -1;
+  Double_t err_wres_05 = -1;
+  Double_t err_wres_06 = -1;
+  Double_t err_wres_07 = -1;
+  Double_t err_wres_08 = -1;
+
+  //v using clusterSplit1.C
+
+  Double_t vres_allw = -1;
+  Double_t vres_01w = -1; 
+  Double_t vres_02w = -1;
+  Double_t vres_03w = -1;
+  Double_t vres_04w = -1;
+  Double_t vres_05w = -1;
+  Double_t vres_06w = -1;
+  Double_t vres_07w = -1;
+  Double_t vres_08w = -1;
+
+  Double_t err_vres_allw = -1;
+  Double_t err_vres_01w = -1;
+  Double_t err_vres_02w = -1;
+  Double_t err_vres_03w = -1;
+  Double_t err_vres_04w = -1;
+  Double_t err_vres_05w = -1;
+  Double_t err_vres_06w = -1;
+  Double_t err_vres_07w = -1;
+  Double_t err_vres_08w = -1;
+
+  //w using clusterSplit1.C
+
+  Double_t wres_allw = -1;
+  Double_t wres_01w = -1; 
+  Double_t wres_02w = -1;
+  Double_t wres_03w = -1;
+  Double_t wres_04w = -1;
+  Double_t wres_05w = -1;
+  Double_t wres_06w = -1;
+  Double_t wres_07w = -1;
+  Double_t wres_08w = -1;
+
+  Double_t err_wres_allw = -1;
+  Double_t err_wres_01w = -1;
+  Double_t err_wres_02w = -1;
+  Double_t err_wres_03w = -1;
+  Double_t err_wres_04w = -1;
+  Double_t err_wres_05w = -1;
+  Double_t err_wres_06w = -1;
+  Double_t err_wres_07w = -1;
+  Double_t err_wres_08w = -1;
+  
+
+  //v without
+  //vall
+
+  TF1 *doublegaus_vall = new TF1("doublegaus_vall",doublegausf,-.1,.1,6);
+
+  doublegaus_vall->SetParLimits(0,0,100);
+  doublegaus_vall->SetParLimits(2,0.005,0.05);
+  doublegaus_vall->SetParLimits(3,0,100);
+  doublegaus_vall->SetParLimits(5,0.005,0.05);
+
+  doublegaus_vall->SetParameters(20,vall->GetMean(),vall->GetRMS(),5,vall->GetMean(),vall->GetRMS());
+  vall->Fit("doublegaus_vall","R");
 
-  TF1 *yall_f1 = new TF1("yall_f1","gaus",-0.1,0.1);
-  TF1 *yall_f2 = new TF1("yall_f2","gaus",-0.1,0.1);
+  TF1 *vall_f1 = new TF1("vall_f1","gaus",-0.1,0.1);
+  TF1 *vall_f2 = new TF1("vall_f2","gaus",-0.1,0.1);
 
-  yall_f1->SetParameter(0,doublegaus_yall->GetParameter(0));
-  yall_f1->SetParameter(1,doublegaus_yall->GetParameter(1));
-  yall_f1->SetParameter(2,doublegaus_yall->GetParameter(2));
-  yall_f1->SetParError(2,doublegaus_yall->GetParError(2));
-  yall_f1->SetLineColor(kRed);
-  yall_f2->SetParameter(0,doublegaus_yall->GetParameter(3));
-  yall_f2->SetParameter(1,doublegaus_yall->GetParameter(4));
-  yall_f2->SetParameter(2,doublegaus_yall->GetParameter(5));
-  yall_f2->SetParError(2,doublegaus_yall->GetParError(5));
-  yall_f2->SetLineColor(kBlue);
+  vall_f1->SetParameter(0,doublegaus_vall->GetParameter(0));
+  vall_f1->SetParameter(1,doublegaus_vall->GetParameter(1));
+  vall_f1->SetParameter(2,doublegaus_vall->GetParameter(2));
+  vall_f1->SetParError(2,doublegaus_vall->GetParError(2));
+  vall_f1->SetLineColor(kRed);
+  vall_f2->SetParameter(0,doublegaus_vall->GetParameter(3));
+  vall_f2->SetParameter(1,doublegaus_vall->GetParameter(4));
+  vall_f2->SetParameter(2,doublegaus_vall->GetParameter(5));
+  vall_f2->SetParError(2,doublegaus_vall->GetParError(5));
+  vall_f2->SetLineColor(kBlue);
   
-  Double_t intyall_1 = yall_f1->Integral(-.1,.1);
-  Double_t intyall_2 = yall_f2->Integral(-.1,.1);
+  Double_t intvall_1 = vall_f1->Integral(-.1,.1);
+  Double_t intvall_2 = vall_f2->Integral(-.1,.1);
   
-  yres_all = (intyall_1*fabs(yall_f1->GetParameter(2))+ intyall_2*fabs(yall_f2->GetParameter(2)))/(intyall_1 + intyall_2);
+  vres_all = (intvall_1*fabs(vall_f1->GetParameter(2))+ intvall_2*fabs(vall_f2->GetParameter(2)))/(intvall_1 + intvall_2);
 
-  err_yres_all  = (1./(intyall_1+intyall_2));
-  err_yres_all *= sqrt(intyall_1*intyall_1*pow((yall_f1->GetParError(2)),2)+intyall_2*intyall_2*pow(yall_f2->GetParError(2),2));
+  err_vres_all  = (1./(intvall_1+intvall_2));
+  err_vres_all *= sqrt(intvall_1*intvall_1*pow((vall_f1->GetParError(2)),2)+intvall_2*intvall_2*pow(vall_f2->GetParError(2),2));
 
-  cout<<endl<<"Overall resolution y without: "<<yres_all<<" +- " <<err_yres_all<<endl<<endl;
+  cout<<endl<<"Overall resolution v without: "<<vres_all<<" +- " <<err_vres_all<<endl<<endl;
 
 
-  //y01
+  //v01
 
-  TF1 *doublegaus_y01 = new TF1("doublegaus_y01",doublegausf,-.1,.1,6);
+  TF1 *doublegaus_v01 = new TF1("doublegaus_v01",doublegausf,-.1,.1,6);
 
-  doublegaus_y01->SetParLimits(0,0,100);
-  doublegaus_y01->SetParLimits(2,0.005,0.05);
-  doublegaus_y01->SetParLimits(3,0,100);
-  doublegaus_y01->SetParLimits(5,0.005,0.05);
+  doublegaus_v01->SetParLimits(0,0,100);
+  doublegaus_v01->SetParLimits(2,0.005,0.05);
+  doublegaus_v01->SetParLimits(3,0,100);
+  doublegaus_v01->SetParLimits(5,0.005,0.05);
 
-  doublegaus_y01->SetParameters(20,y01->GetMean(),y01->GetRMS(),5,y01->GetMean(),y01->GetRMS());
-  y01->Fit("doublegaus_y01","R");
+  doublegaus_v01->SetParameters(20,v01->GetMean(),v01->GetRMS(),5,v01->GetMean(),v01->GetRMS());
+  v01->Fit("doublegaus_v01","R");
 
-  TF1 *y01_f1 = new TF1("y01_f1","gaus",-0.1,0.1);
-  TF1 *y01_f2 = new TF1("y01_f2","gaus",-0.1,0.1);
+  TF1 *v01_f1 = new TF1("v01_f1","gaus",-0.1,0.1);
+  TF1 *v01_f2 = new TF1("v01_f2","gaus",-0.1,0.1);
 
-  y01_f1->SetParameter(0,doublegaus_y01->GetParameter(0));
-  y01_f1->SetParameter(1,doublegaus_y01->GetParameter(1));
-  y01_f1->SetParameter(2,doublegaus_y01->GetParameter(2));
-  y01_f1->SetParError(2,doublegaus_y01->GetParError(2));
-  y01_f1->SetLineColor(kRed);
-  y01_f2->SetParameter(0,doublegaus_y01->GetParameter(3));
-  y01_f2->SetParameter(1,doublegaus_y01->GetParameter(4));
-  y01_f2->SetParameter(2,doublegaus_y01->GetParameter(5));
-  y01_f2->SetParError(2,doublegaus_y01->GetParError(5));
-  y01_f2->SetLineColor(kBlue);
+  v01_f1->SetParameter(0,doublegaus_v01->GetParameter(0));
+  v01_f1->SetParameter(1,doublegaus_v01->GetParameter(1));
+  v01_f1->SetParameter(2,doublegaus_v01->GetParameter(2));
+  v01_f1->SetParError(2,doublegaus_v01->GetParError(2));
+  v01_f1->SetLineColor(kRed);
+  v01_f2->SetParameter(0,doublegaus_v01->GetParameter(3));
+  v01_f2->SetParameter(1,doublegaus_v01->GetParameter(4));
+  v01_f2->SetParameter(2,doublegaus_v01->GetParameter(5));
+  v01_f2->SetParError(2,doublegaus_v01->GetParError(5));
+  v01_f2->SetLineColor(kBlue);
   
-  Double_t inty01_1 = y01_f1->Integral(-.1,.1);
-  Double_t inty01_2 = y01_f2->Integral(-.1,.1);
+  Double_t intv01_1 = v01_f1->Integral(-.1,.1);
+  Double_t intv01_2 = v01_f2->Integral(-.1,.1);
   
-  yres_01 = (inty01_1*fabs(y01_f1->GetParameter(2))+ inty01_2*fabs(y01_f2->GetParameter(2)))/(inty01_1 + inty01_2);
+  vres_01 = (intv01_1*fabs(v01_f1->GetParameter(2))+ intv01_2*fabs(v01_f2->GetParameter(2)))/(intv01_1 + intv01_2);
 
-  err_yres_01  = (1./(inty01_1+inty01_2));
-  err_yres_01 *= sqrt(inty01_1*inty01_1*pow((y01_f1->GetParError(2)),2)+inty01_2*inty01_2*pow(y01_f2->GetParError(2),2));
+  err_vres_01  = (1./(intv01_1+intv01_2));
+  err_vres_01 *= sqrt(intv01_1*intv01_1*pow((v01_f1->GetParError(2)),2)+intv01_2*intv01_2*pow(v01_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution y01: "<<yres_01<<" +- " <<err_yres_01<<endl<<endl;
+  cout<<endl<<"resolution v01: "<<vres_01<<" +- " <<err_vres_01<<endl<<endl;
 
 
-  //y02
+  //v02
 
-  TF1 *doublegaus_y02 = new TF1("doublegaus_y02",doublegausf,-.1,.1,6);
+  TF1 *doublegaus_v02 = new TF1("doublegaus_v02",doublegausf,-.1,.1,6);
 
-  doublegaus_y02->SetParLimits(0,0,100);
-  doublegaus_y02->SetParLimits(2,0.005,0.05);
-  doublegaus_y02->SetParLimits(3,0,100);
-  doublegaus_y02->SetParLimits(5,0.005,0.05);
+  doublegaus_v02->SetParLimits(0,0,100);
+  doublegaus_v02->SetParLimits(2,0.005,0.05);
+  doublegaus_v02->SetParLimits(3,0,100);
+  doublegaus_v02->SetParLimits(5,0.005,0.05);
 
-  doublegaus_y02->SetParameters(20,y02->GetMean(),y02->GetRMS(),5,y02->GetMean(),y02->GetRMS());
-  y02->Fit("doublegaus_y02","R");
+  doublegaus_v02->SetParameters(20,v02->GetMean(),v02->GetRMS(),5,v02->GetMean(),v02->GetRMS());
+  v02->Fit("doublegaus_v02","R");
 
-  TF1 *y02_f1 = new TF1("y02_f1","gaus",-0.1,0.1);
-  TF1 *y02_f2 = new TF1("y02_f2","gaus",-0.1,0.1);
+  TF1 *v02_f1 = new TF1("v02_f1","gaus",-0.1,0.1);
+  TF1 *v02_f2 = new TF1("v02_f2","gaus",-0.1,0.1);
 
-  y02_f1->SetParameter(0,doublegaus_y02->GetParameter(0));
-  y02_f1->SetParameter(1,doublegaus_y02->GetParameter(1));
-  y02_f1->SetParameter(2,doublegaus_y02->GetParameter(2));
-  y02_f1->SetParError(2,doublegaus_y02->GetParError(2));
-  y02_f1->SetLineColor(kRed);
-  y02_f2->SetParameter(0,doublegaus_y02->GetParameter(3));
-  y02_f2->SetParameter(1,doublegaus_y02->GetParameter(4));
-  y02_f2->SetParameter(2,doublegaus_y02->GetParameter(5));
-  y02_f2->SetParError(2,doublegaus_y02->GetParError(5));
-  y02_f2->SetLineColor(kBlue);
+  v02_f1->SetParameter(0,doublegaus_v02->GetParameter(0));
+  v02_f1->SetParameter(1,doublegaus_v02->GetParameter(1));
+  v02_f1->SetParameter(2,doublegaus_v02->GetParameter(2));
+  v02_f1->SetParError(2,doublegaus_v02->GetParError(2));
+  v02_f1->SetLineColor(kRed);
+  v02_f2->SetParameter(0,doublegaus_v02->GetParameter(3));
+  v02_f2->SetParameter(1,doublegaus_v02->GetParameter(4));
+  v02_f2->SetParameter(2,doublegaus_v02->GetParameter(5));
+  v02_f2->SetParError(2,doublegaus_v02->GetParError(5));
+  v02_f2->SetLineColor(kBlue);
   
-  Double_t inty02_1 = y02_f1->Integral(-.1,.1);
-  Double_t inty02_2 = y02_f2->Integral(-.1,.1);
+  Double_t intv02_1 = v02_f1->Integral(-.1,.1);
+  Double_t intv02_2 = v02_f2->Integral(-.1,.1);
   
-  yres_02 = (inty02_1*fabs(y02_f1->GetParameter(2))+ inty02_2*fabs(y02_f2->GetParameter(2)))/(inty02_1 + inty02_2);
+  vres_02 = (intv02_1*fabs(v02_f1->GetParameter(2))+ intv02_2*fabs(v02_f2->GetParameter(2)))/(intv02_1 + intv02_2);
 
-  err_yres_02  = (1./(inty02_1+inty02_2));
-  err_yres_02 *= sqrt(inty02_1*inty02_1*pow((y02_f1->GetParError(2)),2)+inty02_2*inty02_2*pow(y02_f2->GetParError(2),2));
+  err_vres_02  = (1./(intv02_1+intv02_2));
+  err_vres_02 *= sqrt(intv02_1*intv02_1*pow((v02_f1->GetParError(2)),2)+intv02_2*intv02_2*pow(v02_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution y12: "<<yres_02<<" +- " <<err_yres_02<<endl<<endl;
+  cout<<endl<<"resolution v12: "<<vres_02<<" +- " <<err_vres_02<<endl<<endl;
 
-  //y03
+  //v03
 
-  TF1 *doublegaus_y03 = new TF1("doublegaus_y03",doublegausf,-.1,.1,6);
+  TF1 *doublegaus_v03 = new TF1("doublegaus_v03",doublegausf,-.1,.1,6);
 
-  doublegaus_y03->SetParLimits(0,0,100);
-  doublegaus_y03->SetParLimits(2,0.005,0.05);
-  doublegaus_y03->SetParLimits(3,0,100);
-  doublegaus_y03->SetParLimits(5,0.005,0.05);
+  doublegaus_v03->SetParLimits(0,0,100);
+  doublegaus_v03->SetParLimits(2,0.005,0.05);
+  doublegaus_v03->SetParLimits(3,0,100);
+  doublegaus_v03->SetParLimits(5,0.005,0.05);
 
-  doublegaus_y03->SetParameters(20,y03->GetMean(),y03->GetRMS(),5,y03->GetMean(),y03->GetRMS());
-  y03->Fit("doublegaus_y03","R");
+  doublegaus_v03->SetParameters(20,v03->GetMean(),v03->GetRMS(),5,v03->GetMean(),v03->GetRMS());
+  v03->Fit("doublegaus_v03","R");
 
-  TF1 *y03_f1 = new TF1("y03_f1","gaus",-0.1,0.1);
-  TF1 *y03_f2 = new TF1("y03_f2","gaus",-0.1,0.1);
+  TF1 *v03_f1 = new TF1("v03_f1","gaus",-0.1,0.1);
+  TF1 *v03_f2 = new TF1("v03_f2","gaus",-0.1,0.1);
 
-  y03_f1->SetParameter(0,doublegaus_y03->GetParameter(0));
-  y03_f1->SetParameter(1,doublegaus_y03->GetParameter(1));
-  y03_f1->SetParameter(2,doublegaus_y03->GetParameter(2));
-  y03_f1->SetParError(2,doublegaus_y03->GetParError(2));
-  y03_f1->SetLineColor(kRed);
-  y03_f2->SetParameter(0,doublegaus_y03->GetParameter(3));
-  y03_f2->SetParameter(1,doublegaus_y03->GetParameter(4));
-  y03_f2->SetParameter(2,doublegaus_y03->GetParameter(5));
-  y03_f2->SetParError(2,doublegaus_y03->GetParError(5));
-  y03_f2->SetLineColor(kBlue);
+  v03_f1->SetParameter(0,doublegaus_v03->GetParameter(0));
+  v03_f1->SetParameter(1,doublegaus_v03->GetParameter(1));
+  v03_f1->SetParameter(2,doublegaus_v03->GetParameter(2));
+  v03_f1->SetParError(2,doublegaus_v03->GetParError(2));
+  v03_f1->SetLineColor(kRed);
+  v03_f2->SetParameter(0,doublegaus_v03->GetParameter(3));
+  v03_f2->SetParameter(1,doublegaus_v03->GetParameter(4));
+  v03_f2->SetParameter(2,doublegaus_v03->GetParameter(5));
+  v03_f2->SetParError(2,doublegaus_v03->GetParError(5));
+  v03_f2->SetLineColor(kBlue);
   
-  Double_t inty03_1 = y03_f1->Integral(-.1,.1);
-  Double_t inty03_2 = y03_f2->Integral(-.1,.1);
+  Double_t intv03_1 = v03_f1->Integral(-.1,.1);
+  Double_t intv03_2 = v03_f2->Integral(-.1,.1);
   
-  yres_03 = (inty03_1*fabs(y03_f1->GetParameter(2))+ inty03_2*fabs(y03_f2->GetParameter(2)))/(inty03_1 + inty03_2);
+  vres_03 = (intv03_1*fabs(v03_f1->GetParameter(2))+ intv03_2*fabs(v03_f2->GetParameter(2)))/(intv03_1 + intv03_2);
 
-  err_yres_03  = (1./(inty03_1+inty03_2));
-  err_yres_03 *= sqrt(inty03_1*inty03_1*pow((y03_f1->GetParError(2)),2)+inty03_2*inty03_2*pow(y03_f2->GetParError(2),2));
+  err_vres_03  = (1./(intv03_1+intv03_2));
+  err_vres_03 *= sqrt(intv03_1*intv03_1*pow((v03_f1->GetParError(2)),2)+intv03_2*intv03_2*pow(v03_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution y23: "<<yres_03<<" +- " <<err_yres_03<<endl<<endl;
+  cout<<endl<<"resolution v23: "<<vres_03<<" +- " <<err_vres_03<<endl<<endl;
 
-  //y04
+  //v04
 
-  TF1 *doublegaus_y04 = new TF1("doublegaus_y04",doublegausf,-.1,.1,6);
+  TF1 *doublegaus_v04 = new TF1("doublegaus_v04",doublegausf,-.1,.1,6);
 
-  doublegaus_y04->SetParLimits(0,0,100);
-  doublegaus_y04->SetParLimits(2,0.005,0.05);
-  doublegaus_y04->SetParLimits(3,0,100);
-  doublegaus_y04->SetParLimits(5,0.005,0.05);
+  doublegaus_v04->SetParLimits(0,0,100);
+  doublegaus_v04->SetParLimits(2,0.005,0.05);
+  doublegaus_v04->SetParLimits(3,0,100);
+  doublegaus_v04->SetParLimits(5,0.005,0.05);
 
-  doublegaus_y04->SetParameters(20,y04->GetMean(),y04->GetRMS(),5,y04->GetMean(),y04->GetRMS());
-  y04->Fit("doublegaus_y04","R");
+  doublegaus_v04->SetParameters(20,v04->GetMean(),v04->GetRMS(),5,v04->GetMean(),v04->GetRMS());
+  v04->Fit("doublegaus_v04","R");
 
-  TF1 *y04_f1 = new TF1("y04_f1","gaus",-0.1,0.1);
-  TF1 *y04_f2 = new TF1("y04_f2","gaus",-0.1,0.1);
+  TF1 *v04_f1 = new TF1("v04_f1","gaus",-0.1,0.1);
+  TF1 *v04_f2 = new TF1("v04_f2","gaus",-0.1,0.1);
 
-  y04_f1->SetParameter(0,doublegaus_y04->GetParameter(0));
-  y04_f1->SetParameter(1,doublegaus_y04->GetParameter(1));
-  y04_f1->SetParameter(2,doublegaus_y04->GetParameter(2));
-  y04_f1->SetParError(2,doublegaus_y04->GetParError(2));
-  y04_f1->SetLineColor(kRed);
-  y04_f2->SetParameter(0,doublegaus_y04->GetParameter(3));
-  y04_f2->SetParameter(1,doublegaus_y04->GetParameter(4));
-  y04_f2->SetParameter(2,doublegaus_y04->GetParameter(5));
-  y04_f2->SetParError(2,doublegaus_y04->GetParError(5));
-  y04_f2->SetLineColor(kBlue);
+  v04_f1->SetParameter(0,doublegaus_v04->GetParameter(0));
+  v04_f1->SetParameter(1,doublegaus_v04->GetParameter(1));
+  v04_f1->SetParameter(2,doublegaus_v04->GetParameter(2));
+  v04_f1->SetParError(2,doublegaus_v04->GetParError(2));
+  v04_f1->SetLineColor(kRed);
+  v04_f2->SetParameter(0,doublegaus_v04->GetParameter(3));
+  v04_f2->SetParameter(1,doublegaus_v04->GetParameter(4));
+  v04_f2->SetParameter(2,doublegaus_v04->GetParameter(5));
+  v04_f2->SetParError(2,doublegaus_v04->GetParError(5));
+  v04_f2->SetLineColor(kBlue);
   
-  Double_t inty04_1 = y04_f1->Integral(-.1,.1);
-  Double_t inty04_2 = y04_f2->Integral(-.1,.1);
+  Double_t intv04_1 = v04_f1->Integral(-.1,.1);
+  Double_t intv04_2 = v04_f2->Integral(-.1,.1);
   
-  yres_04 = (inty04_1*fabs(y04_f1->GetParameter(2))+ inty04_2*fabs(y04_f2->GetParameter(2)))/(inty04_1 + inty04_2);
+  vres_04 = (intv04_1*fabs(v04_f1->GetParameter(2))+ intv04_2*fabs(v04_f2->GetParameter(2)))/(intv04_1 + intv04_2);
 
-  err_yres_04  = (1./(inty04_1+inty04_2));
-  err_yres_04 *= sqrt(inty04_1*inty04_1*pow((y04_f1->GetParError(2)),2)+inty04_2*inty04_2*pow(y04_f2->GetParError(2),2));
+  err_vres_04  = (1./(intv04_1+intv04_2));
+  err_vres_04 *= sqrt(intv04_1*intv04_1*pow((v04_f1->GetParError(2)),2)+intv04_2*intv04_2*pow(v04_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution y34: "<<yres_04<<" +- " <<err_yres_04<<endl<<endl;
+  cout<<endl<<"resolution v34: "<<vres_04<<" +- " <<err_vres_04<<endl<<endl;
 
-  //y05
+  //v05
 
-  TF1 *doublegaus_y05 = new TF1("doublegaus_y05",doublegausf,-.1,.1,6);
+  TF1 *doublegaus_v05 = new TF1("doublegaus_v05",doublegausf,-.1,.1,6);
 
-  doublegaus_y05->SetParLimits(0,0,100);
-  doublegaus_y05->SetParLimits(2,0.005,0.05);
-  doublegaus_y05->SetParLimits(3,0,100);
-  doublegaus_y05->SetParLimits(5,0.005,0.05);
+  doublegaus_v05->SetParLimits(0,0,100);
+  doublegaus_v05->SetParLimits(2,0.005,0.05);
+  doublegaus_v05->SetParLimits(3,0,100);
+  doublegaus_v05->SetParLimits(5,0.005,0.05);
 
-  doublegaus_y05->SetParameters(20,y05->GetMean(),y05->GetRMS(),5,y05->GetMean(),y05->GetRMS());
-  y05->Fit("doublegaus_y05","R");
+  doublegaus_v05->SetParameters(20,v05->GetMean(),v05->GetRMS(),5,v05->GetMean(),v05->GetRMS());
+  v05->Fit("doublegaus_v05","R");
 
-  TF1 *y05_f1 = new TF1("y05_f1","gaus",-0.1,0.1);
-  TF1 *y05_f2 = new TF1("y05_f2","gaus",-0.1,0.1);
+  TF1 *v05_f1 = new TF1("v05_f1","gaus",-0.1,0.1);
+  TF1 *v05_f2 = new TF1("v05_f2","gaus",-0.1,0.1);
 
-  y05_f1->SetParameter(0,doublegaus_y05->GetParameter(0));
-  y05_f1->SetParameter(1,doublegaus_y05->GetParameter(1));
-  y05_f1->SetParameter(2,doublegaus_y05->GetParameter(2));
-  y05_f1->SetParError(2,doublegaus_y05->GetParError(2));
-  y05_f1->SetLineColor(kRed);
-  y05_f2->SetParameter(0,doublegaus_y05->GetParameter(3));
-  y05_f2->SetParameter(1,doublegaus_y05->GetParameter(4));
-  y05_f2->SetParameter(2,doublegaus_y05->GetParameter(5));
-  y05_f2->SetParError(2,doublegaus_y05->GetParError(5));
-  y05_f2->SetLineColor(kBlue);
+  v05_f1->SetParameter(0,doublegaus_v05->GetParameter(0));
+  v05_f1->SetParameter(1,doublegaus_v05->GetParameter(1));
+  v05_f1->SetParameter(2,doublegaus_v05->GetParameter(2));
+  v05_f1->SetParError(2,doublegaus_v05->GetParError(2));
+  v05_f1->SetLineColor(kRed);
+  v05_f2->SetParameter(0,doublegaus_v05->GetParameter(3));
+  v05_f2->SetParameter(1,doublegaus_v05->GetParameter(4));
+  v05_f2->SetParameter(2,doublegaus_v05->GetParameter(5));
+  v05_f2->SetParError(2,doublegaus_v05->GetParError(5));
+  v05_f2->SetLineColor(kBlue);
   
-  Double_t inty05_1 = y05_f1->Integral(-.1,.1);
-  Double_t inty05_2 = y05_f2->Integral(-.1,.1);
+  Double_t intv05_1 = v05_f1->Integral(-.1,.1);
+  Double_t intv05_2 = v05_f2->Integral(-.1,.1);
   
-  yres_05 = (inty05_1*fabs(y05_f1->GetParameter(2))+ inty05_2*fabs(y05_f2->GetParameter(2)))/(inty05_1 + inty05_2);
+  vres_05 = (intv05_1*fabs(v05_f1->GetParameter(2))+ intv05_2*fabs(v05_f2->GetParameter(2)))/(intv05_1 + intv05_2);
 
-  err_yres_05  = (1./(inty05_1+inty05_2));
-  err_yres_05 *= sqrt(inty05_1*inty05_1*pow((y05_f1->GetParError(2)),2)+inty05_2*inty05_2*pow(y05_f2->GetParError(2),2));
+  err_vres_05 = (1./(intv05_1+intv05_2));
+  err_vres_05 *= sqrt(intv05_1*intv05_1*pow((v05_f1->GetParError(2)),2)+intv05_2*intv05_2*pow(v05_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution y45: "<<yres_05<<" +- " <<err_yres_05<<endl<<endl;
+  cout<<endl<<"resolution v45: "<<vres_05<<" +- " <<err_vres_05<<endl<<endl;
 
-  //y06
+  //v06
 
-  TF1 *doublegaus_y06 = new TF1("doublegaus_y06",doublegausf,-.1,.1,6);
+  TF1 *doublegaus_v06 = new TF1("doublegaus_v06",doublegausf,-.1,.1,6);
 
-  doublegaus_y06->SetParLimits(0,0,100);
-  doublegaus_y06->SetParLimits(2,0.005,0.05);
-  doublegaus_y06->SetParLimits(3,0,100);
-  doublegaus_y06->SetParLimits(5,0.005,0.05);
+  doublegaus_v06->SetParLimits(0,0,100);
+  doublegaus_v06->SetParLimits(2,0.005,0.05);
+  doublegaus_v06->SetParLimits(3,0,100);
+  doublegaus_v06->SetParLimits(5,0.005,0.05);
 
-  doublegaus_y06->SetParameters(20,y06->GetMean(),y06->GetRMS(),5,y06->GetMean(),y06->GetRMS());
-  y06->Fit("doublegaus_y06","R");
+  doublegaus_v06->SetParameters(20,v06->GetMean(),v06->GetRMS(),5,v06->GetMean(),v06->GetRMS());
+  v06->Fit("doublegaus_v06","R");
 
-  TF1 *y06_f1 = new TF1("y06_f1","gaus",-0.1,0.1);
-  TF1 *y06_f2 = new TF1("y06_f2","gaus",-0.1,0.1);
+  TF1 *v06_f1 = new TF1("v06_f1","gaus",-0.1,0.1);
+  TF1 *v06_f2 = new TF1("v06_f2","gaus",-0.1,0.1);
 
-  y06_f1->SetParameter(0,doublegaus_y06->GetParameter(0));
-  y06_f1->SetParameter(1,doublegaus_y06->GetParameter(1));
-  y06_f1->SetParameter(2,doublegaus_y06->GetParameter(2));
-  y06_f1->SetParError(2,doublegaus_y06->GetParError(2));
-  y06_f1->SetLineColor(kRed);
-  y06_f2->SetParameter(0,doublegaus_y06->GetParameter(3));
-  y06_f2->SetParameter(1,doublegaus_y06->GetParameter(4));
-  y06_f2->SetParameter(2,doublegaus_y06->GetParameter(5));
-  y06_f2->SetParError(2,doublegaus_y06->GetParError(5));
-  y06_f2->SetLineColor(kBlue);
+  v06_f1->SetParameter(0,doublegaus_v06->GetParameter(0));
+  v06_f1->SetParameter(1,doublegaus_v06->GetParameter(1));
+  v06_f1->SetParameter(2,doublegaus_v06->GetParameter(2));
+  v06_f1->SetParError(2,doublegaus_v06->GetParError(2));
+  v06_f1->SetLineColor(kRed);
+  v06_f2->SetParameter(0,doublegaus_v06->GetParameter(3));
+  v06_f2->SetParameter(1,doublegaus_v06->GetParameter(4));
+  v06_f2->SetParameter(2,doublegaus_v06->GetParameter(5));
+  v06_f2->SetParError(2,doublegaus_v06->GetParError(5));
+  v06_f2->SetLineColor(kBlue);
   
-  Double_t inty06_1 = y06_f1->Integral(-.1,.1);
-  Double_t inty06_2 = y06_f2->Integral(-.1,.1);
+  Double_t intv06_1 = v06_f1->Integral(-.1,.1);
+  Double_t intv06_2 = v06_f2->Integral(-.1,.1);
   
-  yres_06 = (inty06_1*fabs(y06_f1->GetParameter(2))+ inty06_2*fabs(y06_f2->GetParameter(2)))/(inty06_1 + inty06_2);
+  vres_06 = (intv06_1*fabs(v06_f1->GetParameter(2))+ intv06_2*fabs(v06_f2->GetParameter(2)))/(intv06_1 + intv06_2);
 
-  err_yres_06  = (1./(inty06_1+inty06_2));
-  err_yres_06 *= sqrt(inty06_1*inty06_1*pow((y06_f1->GetParError(2)),2)+inty06_2*inty06_2*pow(y06_f2->GetParError(2),2));
+  err_vres_06  = (1./(intv06_1+intv06_2));
+  err_vres_06 *= sqrt(intv06_1*intv06_1*pow((v06_f1->GetParError(2)),2)+intv06_2*intv06_2*pow(v06_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution y56: "<<yres_06<<" +- " <<err_yres_06<<endl<<endl;
+  cout<<endl<<"resolution v56: "<<vres_06<<" +- " <<err_vres_06<<endl<<endl;
 
-  //y07
+  //v07
 
-  TF1 *doublegaus_y07 = new TF1("doublegaus_y07",doublegausf,-.1,.1,6);
+  TF1 *doublegaus_v07 = new TF1("doublegaus_v07",doublegausf,-.1,.1,6);
 
-  doublegaus_y07->SetParLimits(0,0,100);
-  doublegaus_y07->SetParLimits(2,0.005,0.05);
-  doublegaus_y07->SetParLimits(3,0,100);
-  doublegaus_y07->SetParLimits(5,0.005,0.05);
+  doublegaus_v07->SetParLimits(0,0,100);
+  doublegaus_v07->SetParLimits(2,0.005,0.05);
+  doublegaus_v07->SetParLimits(3,0,100);
+  doublegaus_v07->SetParLimits(5,0.005,0.05);
 
-  doublegaus_y07->SetParameters(20,y07->GetMean(),y07->GetRMS(),5,y07->GetMean(),y07->GetRMS());
-  y07->Fit("doublegaus_y07","R");
+  doublegaus_v07->SetParameters(20,v07->GetMean(),v07->GetRMS(),5,v07->GetMean(),v07->GetRMS());
+  v07->Fit("doublegaus_v07","R");
 
-  TF1 *y07_f1 = new TF1("y07_f1","gaus",-0.1,0.1);
-  TF1 *y07_f2 = new TF1("y07_f2","gaus",-0.1,0.1);
+  TF1 *v07_f1 = new TF1("v07_f1","gaus",-0.1,0.1);
+  TF1 *v07_f2 = new TF1("v07_f2","gaus",-0.1,0.1);
 
-  y07_f1->SetParameter(0,doublegaus_y07->GetParameter(0));
-  y07_f1->SetParameter(1,doublegaus_y07->GetParameter(1));
-  y07_f1->SetParameter(2,doublegaus_y07->GetParameter(2));
-  y07_f1->SetParError(2,doublegaus_y07->GetParError(2));
-  y07_f1->SetLineColor(kRed);
-  y07_f2->SetParameter(0,doublegaus_y07->GetParameter(3));
-  y07_f2->SetParameter(1,doublegaus_y07->GetParameter(4));
-  y07_f2->SetParameter(2,doublegaus_y07->GetParameter(5));
-  y07_f2->SetParError(2,doublegaus_y07->GetParError(5));
-  y07_f2->SetLineColor(kBlue);
+  v07_f1->SetParameter(0,doublegaus_v07->GetParameter(0));
+  v07_f1->SetParameter(1,doublegaus_v07->GetParameter(1));
+  v07_f1->SetParameter(2,doublegaus_v07->GetParameter(2));
+  v07_f1->SetParError(2,doublegaus_v07->GetParError(2));
+  v07_f1->SetLineColor(kRed);
+  v07_f2->SetParameter(0,doublegaus_v07->GetParameter(3));
+  v07_f2->SetParameter(1,doublegaus_v07->GetParameter(4));
+  v07_f2->SetParameter(2,doublegaus_v07->GetParameter(5));
+  v07_f2->SetParError(2,doublegaus_v07->GetParError(5));
+  v07_f2->SetLineColor(kBlue);
   
-  Double_t inty07_1 = y07_f1->Integral(-.1,.1);
-  Double_t inty07_2 = y07_f2->Integral(-.1,.1);
+  Double_t intv07_1 = v07_f1->Integral(-.1,.1);
+  Double_t intv07_2 = v07_f2->Integral(-.1,.1);
   
-  yres_07 = (inty07_1*fabs(y07_f1->GetParameter(2))+ inty07_2*fabs(y07_f2->GetParameter(2)))/(inty07_1 + inty07_2);
+  vres_07 = (intv07_1*fabs(v07_f1->GetParameter(2))+ intv07_2*fabs(v07_f2->GetParameter(2)))/(intv07_1 + intv07_2);
 
-  err_yres_07  = (1./(inty07_1+inty07_2));
-  err_yres_07 *= sqrt(inty07_1*inty07_1*pow((y07_f1->GetParError(2)),2)+inty07_2*inty07_2*pow(y07_f2->GetParError(2),2));
+  err_vres_07  = (1./(intv07_1+intv07_2));
+  err_vres_07 *= sqrt(intv07_1*intv07_1*pow((v07_f1->GetParError(2)),2)+intv07_2*intv07_2*pow(v07_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution y67: "<<yres_07<<" +- " <<err_yres_07<<endl<<endl;
+  cout<<endl<<"resolution v67: "<<vres_07<<" +- " <<err_vres_07<<endl<<endl;
 
-  //y08
+  //v08
 
-  TF1 *doublegaus_y08 = new TF1("doublegaus_y08",doublegausf,-.1,.1,6);
+  TF1 *doublegaus_v08 = new TF1("doublegaus_v08",doublegausf,-.1,.1,6);
 
-  doublegaus_y08->SetParLimits(0,0,100);
-  doublegaus_y08->SetParLimits(2,0.005,0.05);
-  doublegaus_y08->SetParLimits(3,0,100);
-  doublegaus_y08->SetParLimits(5,0.005,0.05);
+  doublegaus_v08->SetParLimits(0,0,100);
+  doublegaus_v08->SetParLimits(2,0.005,0.05);
+  doublegaus_v08->SetParLimits(3,0,100);
+  doublegaus_v08->SetParLimits(5,0.005,0.05);
 
-  doublegaus_y08->SetParameters(20,y08->GetMean(),y08->GetRMS(),5,y08->GetMean(),y08->GetRMS());
-  y08->Fit("doublegaus_y08","R");
+  doublegaus_v08->SetParameters(20,v08->GetMean(),v08->GetRMS(),5,v08->GetMean(),v08->GetRMS());
+  v08->Fit("doublegaus_v08","R");
 
-  TF1 *y08_f1 = new TF1("y08_f1","gaus",-0.1,0.1);
-  TF1 *y08_f2 = new TF1("y08_f2","gaus",-0.1,0.1);
+  TF1 *v08_f1 = new TF1("v08_f1","gaus",-0.1,0.1);
+  TF1 *v08_f2 = new TF1("v08_f2","gaus",-0.1,0.1);
 
-  y08_f1->SetParameter(0,doublegaus_y08->GetParameter(0));
-  y08_f1->SetParameter(1,doublegaus_y08->GetParameter(1));
-  y08_f1->SetParameter(2,doublegaus_y08->GetParameter(2));
-  y08_f1->SetParError(2,doublegaus_y08->GetParError(2));
-  y08_f1->SetLineColor(kRed);
-  y08_f2->SetParameter(0,doublegaus_y08->GetParameter(3));
-  y08_f2->SetParameter(1,doublegaus_y08->GetParameter(4));
-  y08_f2->SetParameter(2,doublegaus_y08->GetParameter(5));
-  y08_f2->SetParError(2,doublegaus_y08->GetParError(5));
-  y08_f2->SetLineColor(kBlue);
+  v08_f1->SetParameter(0,doublegaus_v08->GetParameter(0));
+  v08_f1->SetParameter(1,doublegaus_v08->GetParameter(1));
+  v08_f1->SetParameter(2,doublegaus_v08->GetParameter(2));
+  v08_f1->SetParError(2,doublegaus_v08->GetParError(2));
+  v08_f1->SetLineColor(kRed);
+  v08_f2->SetParameter(0,doublegaus_v08->GetParameter(3));
+  v08_f2->SetParameter(1,doublegaus_v08->GetParameter(4));
+  v08_f2->SetParameter(2,doublegaus_v08->GetParameter(5));
+  v08_f2->SetParError(2,doublegaus_v08->GetParError(5));
+  v08_f2->SetLineColor(kBlue);
   
-  Double_t inty08_1 = y08_f1->Integral(-.1,.1);
-  Double_t inty08_2 = y08_f2->Integral(-.1,.1);
+  Double_t intv08_1 = v08_f1->Integral(-.1,.1);
+  Double_t intv08_2 = v08_f2->Integral(-.1,.1);
   
-  yres_08 = (inty08_1*fabs(y08_f1->GetParameter(2))+ inty08_2*fabs(y08_f2->GetParameter(2)))/(inty08_1 + inty08_2);
+  vres_08 = (intv08_1*fabs(v08_f1->GetParameter(2))+ intv08_2*fabs(v08_f2->GetParameter(2)))/(intv08_1 + intv08_2);
 
-  err_yres_08  = (1./(inty08_1+inty08_2));
-  err_yres_08 *= sqrt(inty08_1*inty08_1*pow((y08_f1->GetParError(2)),2)+inty08_2*inty08_2*pow(y08_f2->GetParError(2),2));
+  err_vres_08  = (1./(intv08_1+intv08_2));
+  err_vres_08 *= sqrt(intv08_1*intv08_1*pow((v08_f1->GetParError(2)),2)+intv08_2*intv08_2*pow(v08_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution y78: "<<yres_08<<" +- " <<err_yres_08<<endl<<endl;
+  cout<<endl<<"resolution v78: "<<vres_08<<" +- " <<err_vres_08<<endl<<endl;
 
-  //z without
-  //zall
+  //w without
+  //wall
 
 
-  TF1 *doublegaus_zall = new TF1("doublegaus_zall",doublegausf,-.1,.1,6);
-  doublegaus_zall->SetParameters(20,zall->GetMean(),zall->GetRMS(),5,zall->GetMean(),zall->GetRMS());
-  zall->Fit("doublegaus_zall","R");
+  TF1 *doublegaus_wall = new TF1("doublegaus_wall",doublegausf,-.1,.1,6);
 
-  TF1 *zall_f1 = new TF1("zall_f1","gaus",-0.1,0.1);
-  TF1 *zall_f2 = new TF1("zall_f2","gaus",-0.1,0.1);
+  doublegaus_wall->SetParameters(20,wall->GetMean(),wall->GetRMS(),5,wall->GetMean(),wall->GetRMS());
+  wall->Fit("doublegaus_wall","R");
 
-  zall_f1->SetParameter(0,doublegaus_zall->GetParameter(0));
-  zall_f1->SetParameter(1,doublegaus_zall->GetParameter(1));
-  zall_f1->SetParameter(2,doublegaus_zall->GetParameter(2));
-  zall_f1->SetParError(2,doublegaus_zall->GetParError(2));
-  zall_f1->SetLineColor(kRed);
-  zall_f2->SetParameter(0,doublegaus_zall->GetParameter(3));
-  zall_f2->SetParameter(1,doublegaus_zall->GetParameter(4));
-  zall_f2->SetParameter(2,doublegaus_zall->GetParameter(5));
-  zall_f2->SetParError(2,doublegaus_zall->GetParError(5));
-  zall_f2->SetLineColor(kBlue);
+  TF1 *wall_f1 = new TF1("wall_f1","gaus",-0.1,0.1);
+  TF1 *wall_f2 = new TF1("wall_f2","gaus",-0.1,0.1);
+
+  wall_f1->SetParameter(0,doublegaus_wall->GetParameter(0));
+  wall_f1->SetParameter(1,doublegaus_wall->GetParameter(1));
+  wall_f1->SetParameter(2,doublegaus_wall->GetParameter(2));
+  wall_f1->SetParError(2,doublegaus_wall->GetParError(2));
+  wall_f1->SetLineColor(kRed);
+  wall_f2->SetParameter(0,doublegaus_wall->GetParameter(3));
+  wall_f2->SetParameter(1,doublegaus_wall->GetParameter(4));
+  wall_f2->SetParameter(2,doublegaus_wall->GetParameter(5));
+  wall_f2->SetParError(2,doublegaus_wall->GetParError(5));
+  wall_f2->SetLineColor(kBlue);
   
-  Double_t intzall_1 = zall_f1->Integral(-.1,.1);
-  Double_t intzall_2 = zall_f2->Integral(-.1,.1);
+  Double_t intwall_1 = wall_f1->Integral(-.1,.1);
+  Double_t intwall_2 = wall_f2->Integral(-.1,.1);
   
-  zres_all = (intzall_1*fabs(zall_f1->GetParameter(2))+ intzall_2*fabs(zall_f2->GetParameter(2)))/(intzall_1 + intzall_2);
+  wres_all = (intwall_1*fabs(wall_f1->GetParameter(2))+ intwall_2*fabs(wall_f2->GetParameter(2)))/(intwall_1 + intwall_2);
+
+  err_wres_all  = (1./(intwall_1+intwall_2));
+  err_wres_all *= sqrt(intwall_1*intwall_1*pow((wall_f1->GetParError(2)),2)+intwall_2*intwall_2*pow(wall_f2->GetParError(2),2));
 
-  err_zres_all  = (1./(intzall_1+intzall_2));
-  err_zres_all *= sqrt(intzall_1*intzall_1*pow((zall_f1->GetParError(2)),2)+intzall_2*intzall_2*pow(zall_f2->GetParError(2),2));
+  cout<<endl<<"Overall resolution w without: "<<wres_all<<" +- " <<err_wres_all<<endl<<endl;
 
-  cout<<endl<<"Overall resolution z without: "<<zres_all<<" +- " <<err_zres_all<<endl<<endl;
 
+  //w01
 
-  //z01
+  TF1 *doublegaus_w01 = new TF1("doublegaus_w01",doublegausf,-.1,.1,6);
 
-  TF1 *doublegaus_z01 = new TF1("doublegaus_z01",doublegausf,-.1,.1,6);
-  doublegaus_z01->SetParameters(20,z01->GetMean(),z01->GetRMS(),5,z01->GetMean(),z01->GetRMS());
-  z01->Fit("doublegaus_z01","R");
+  doublegaus_w01->SetParameters(20,w01->GetMean(),w01->GetRMS(),5,w01->GetMean(),w01->GetRMS());
+  w01->Fit("doublegaus_w01","R");
 
-  TF1 *z01_f1 = new TF1("z01_f1","gaus",-0.1,0.1);
-  TF1 *z01_f2 = new TF1("z01_f2","gaus",-0.1,0.1);
+  TF1 *w01_f1 = new TF1("w01_f1","gaus",-0.1,0.1);
+  TF1 *w01_f2 = new TF1("w01_f2","gaus",-0.1,0.1);
 
-  z01_f1->SetParameter(0,doublegaus_z01->GetParameter(0));
-  z01_f1->SetParameter(1,doublegaus_z01->GetParameter(1));
-  z01_f1->SetParameter(2,doublegaus_z01->GetParameter(2));
-  z01_f1->SetParError(2,doublegaus_z01->GetParError(2));
-  z01_f1->SetLineColor(kRed);
-  z01_f2->SetParameter(0,doublegaus_z01->GetParameter(3));
-  z01_f2->SetParameter(1,doublegaus_z01->GetParameter(4));
-  z01_f2->SetParameter(2,doublegaus_z01->GetParameter(5));
-  z01_f2->SetParError(2,doublegaus_z01->GetParError(5));
-  z01_f2->SetLineColor(kBlue);
+  w01_f1->SetParameter(0,doublegaus_w01->GetParameter(0));
+  w01_f1->SetParameter(1,doublegaus_w01->GetParameter(1));
+  w01_f1->SetParameter(2,doublegaus_w01->GetParameter(2));
+  w01_f1->SetParError(2,doublegaus_w01->GetParError(2));
+  w01_f1->SetLineColor(kRed);
+  w01_f2->SetParameter(0,doublegaus_w01->GetParameter(3));
+  w01_f2->SetParameter(1,doublegaus_w01->GetParameter(4));
+  w01_f2->SetParameter(2,doublegaus_w01->GetParameter(5));
+  w01_f2->SetParError(2,doublegaus_w01->GetParError(5));
+  w01_f2->SetLineColor(kBlue);
   
-  Double_t intz01_1 = z01_f1->Integral(-.1,.1);
-  Double_t intz01_2 = z01_f2->Integral(-.1,.1);
+  Double_t intw01_1 = w01_f1->Integral(-.1,.1);
+  Double_t intw01_2 = w01_f2->Integral(-.1,.1);
   
-  zres_01 = (intz01_1*fabs(z01_f1->GetParameter(2))+ intz01_2*fabs(z01_f2->GetParameter(2)))/(intz01_1 + intz01_2);
+  wres_01 = (intw01_1*fabs(w01_f1->GetParameter(2))+ intw01_2*fabs(w01_f2->GetParameter(2)))/(intw01_1 + intw01_2);
 
-  err_zres_01  = (1./(intz01_1+intz01_2));
-  err_zres_01 *= sqrt(intz01_1*intz01_1*pow((z01_f1->GetParError(2)),2)+intz01_2*intz01_2*pow(z01_f2->GetParError(2),2));
+  err_wres_01  = (1./(intw01_1+intw01_2));
+  err_wres_01 *= sqrt(intw01_1*intw01_1*pow((w01_f1->GetParError(2)),2)+intw01_2*intw01_2*pow(w01_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution z01: "<<zres_01<<" +- " <<err_zres_01<<endl<<endl;
+  cout<<endl<<"resolution w01: "<<wres_01<<" +- " <<err_wres_01<<endl<<endl;
 
 
-  //z02
+  //w02
 
-  TF1 *doublegaus_z02 = new TF1("doublegaus_z02",doublegausf,-.1,.1,6);
-  doublegaus_z02->SetParameters(20,z02->GetMean(),z02->GetRMS(),5,z02->GetMean(),z02->GetRMS());
-  z02->Fit("doublegaus_z02","R");
+  TF1 *doublegaus_w02 = new TF1("doublegaus_w02",doublegausf,-.1,.1,6);
 
-  TF1 *z02_f1 = new TF1("z02_f1","gaus",-0.1,0.1);
-  TF1 *z02_f2 = new TF1("z02_f2","gaus",-0.1,0.1);
+  doublegaus_w02->SetParameters(20,w02->GetMean(),w02->GetRMS(),5,w02->GetMean(),w02->GetRMS());
+  w02->Fit("doublegaus_w02","R");
 
-  z02_f1->SetParameter(0,doublegaus_z02->GetParameter(0));
-  z02_f1->SetParameter(1,doublegaus_z02->GetParameter(1));
-  z02_f1->SetParameter(2,doublegaus_z02->GetParameter(2));
-  z02_f1->SetParError(2,doublegaus_z02->GetParError(2));
-  z02_f1->SetLineColor(kRed);
-  z02_f2->SetParameter(0,doublegaus_z02->GetParameter(3));
-  z02_f2->SetParameter(1,doublegaus_z02->GetParameter(4));
-  z02_f2->SetParameter(2,doublegaus_z02->GetParameter(5));
-  z02_f2->SetParError(2,doublegaus_z02->GetParError(5));
-  z02_f2->SetLineColor(kBlue);
+  TF1 *w02_f1 = new TF1("w02_f1","gaus",-0.1,0.1);
+  TF1 *w02_f2 = new TF1("w02_f2","gaus",-0.1,0.1);
+
+  w02_f1->SetParameter(0,doublegaus_w02->GetParameter(0));
+  w02_f1->SetParameter(1,doublegaus_w02->GetParameter(1));
+  w02_f1->SetParameter(2,doublegaus_w02->GetParameter(2));
+  w02_f1->SetParError(2,doublegaus_w02->GetParError(2));
+  w02_f1->SetLineColor(kRed);
+  w02_f2->SetParameter(0,doublegaus_w02->GetParameter(3));
+  w02_f2->SetParameter(1,doublegaus_w02->GetParameter(4));
+  w02_f2->SetParameter(2,doublegaus_w02->GetParameter(5));
+  w02_f2->SetParError(2,doublegaus_w02->GetParError(5));
+  w02_f2->SetLineColor(kBlue);
   
-  Double_t intz02_1 = z02_f1->Integral(-.1,.1);
-  Double_t intz02_2 = z02_f2->Integral(-.1,.1);
+  Double_t intw02_1 = w02_f1->Integral(-.1,.1);
+  Double_t intw02_2 = w02_f2->Integral(-.1,.1);
   
-  zres_02 = (intz02_1*fabs(z02_f1->GetParameter(2))+ intz02_2*fabs(z02_f2->GetParameter(2)))/(intz02_1 + intz02_2);
+  wres_02 = (intw02_1*fabs(w02_f1->GetParameter(2))+ intw02_2*fabs(w02_f2->GetParameter(2)))/(intw02_1 + intw02_2);
+
+  err_wres_02  = (1./(intw02_1+intw02_2));
+  err_wres_02 *= sqrt(intw02_1*intw02_1*pow((w02_f1->GetParError(2)),2)+intw02_2*intw02_2*pow(w02_f2->GetParError(2),2));
 
-  err_zres_02  = (1./(intz02_1+intz02_2));
-  err_zres_02 *= sqrt(intz02_1*intz02_1*pow((z02_f1->GetParError(2)),2)+intz02_2*intz02_2*pow(z02_f2->GetParError(2),2));
+  cout<<endl<<"resolution w12: "<<wres_02<<" +- " <<err_wres_02<<endl<<endl;
 
-  cout<<endl<<"resolution z12: "<<zres_02<<" +- " <<err_zres_02<<endl<<endl;
+  //w03
 
-  //z03
+  TF1 *doublegaus_w03 = new TF1("doublegaus_w03",doublegausf,-.1,.1,6);
 
-  TF1 *doublegaus_z03 = new TF1("doublegaus_z03",doublegausf,-.1,.1,6);
-  doublegaus_z03->SetParameters(20,z03->GetMean(),z03->GetRMS(),5,z03->GetMean(),z03->GetRMS());
-  z03->Fit("doublegaus_z03","R");
+  doublegaus_w03->SetParameters(20,w03->GetMean(),w03->GetRMS(),5,w03->GetMean(),w03->GetRMS());
+  w03->Fit("doublegaus_w03","R");
 
-  TF1 *z03_f1 = new TF1("z03_f1","gaus",-0.1,0.1);
-  TF1 *z03_f2 = new TF1("z03_f2","gaus",-0.1,0.1);
+  TF1 *w03_f1 = new TF1("w03_f1","gaus",-0.1,0.1);
+  TF1 *w03_f2 = new TF1("w03_f2","gaus",-0.1,0.1);
 
-  z03_f1->SetParameter(0,doublegaus_z03->GetParameter(0));
-  z03_f1->SetParameter(1,doublegaus_z03->GetParameter(1));
-  z03_f1->SetParameter(2,doublegaus_z03->GetParameter(2));
-  z03_f1->SetParError(2,doublegaus_z03->GetParError(2));
-  z03_f1->SetLineColor(kRed);
-  z03_f2->SetParameter(0,doublegaus_z03->GetParameter(3));
-  z03_f2->SetParameter(1,doublegaus_z03->GetParameter(4));
-  z03_f2->SetParameter(2,doublegaus_z03->GetParameter(5));
-  z03_f2->SetParError(2,doublegaus_z03->GetParError(5));
-  z03_f2->SetLineColor(kBlue);
+  w03_f1->SetParameter(0,doublegaus_w03->GetParameter(0));
+  w03_f1->SetParameter(1,doublegaus_w03->GetParameter(1));
+  w03_f1->SetParameter(2,doublegaus_w03->GetParameter(2));
+  w03_f1->SetParError(2,doublegaus_w03->GetParError(2));
+  w03_f1->SetLineColor(kRed);
+  w03_f2->SetParameter(0,doublegaus_w03->GetParameter(3));
+  w03_f2->SetParameter(1,doublegaus_w03->GetParameter(4));
+  w03_f2->SetParameter(2,doublegaus_w03->GetParameter(5));
+  w03_f2->SetParError(2,doublegaus_w03->GetParError(5));
+  w03_f2->SetLineColor(kBlue);
   
-  Double_t intz03_1 = z03_f1->Integral(-.1,.1);
-  Double_t intz03_2 = z03_f2->Integral(-.1,.1);
+  Double_t intw03_1 = w03_f1->Integral(-.1,.1);
+  Double_t intw03_2 = w03_f2->Integral(-.1,.1);
   
-  zres_03 = (intz03_1*fabs(z03_f1->GetParameter(2))+ intz03_2*fabs(z03_f2->GetParameter(2)))/(intz03_1 + intz03_2);
+  wres_03 = (intw03_1*fabs(w03_f1->GetParameter(2))+ intw03_2*fabs(w03_f2->GetParameter(2)))/(intw03_1 + intw03_2);
 
-  err_zres_03  = (1./(intz03_1+intz03_2));
-  err_zres_03 *= sqrt(intz03_1*intz03_1*pow((z03_f1->GetParError(2)),2)+intz03_2*intz03_2*pow(z03_f2->GetParError(2),2));
+  err_wres_03  = (1./(intw03_1+intw03_2));
+  err_wres_03 *= sqrt(intw03_1*intw03_1*pow((w03_f1->GetParError(2)),2)+intw03_2*intw03_2*pow(w03_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution z23: "<<zres_03<<" +- " <<err_zres_03<<endl<<endl;
+  cout<<endl<<"resolution w23: "<<wres_03<<" +- " <<err_wres_03<<endl<<endl;
 
-  //z04
+  //w04
 
-  TF1 *doublegaus_z04 = new TF1("doublegaus_z04",doublegausf,-.1,.1,6);
-  doublegaus_z04->SetParameters(20,z04->GetMean(),z04->GetRMS(),5,z04->GetMean(),z04->GetRMS());
-  z04->Fit("doublegaus_z04","R");
+  TF1 *doublegaus_w04 = new TF1("doublegaus_w04",doublegausf,-.1,.1,6);
 
-  TF1 *z04_f1 = new TF1("z04_f1","gaus",-0.1,0.1);
-  TF1 *z04_f2 = new TF1("z04_f2","gaus",-0.1,0.1);
+  doublegaus_w04->SetParameters(20,w04->GetMean(),w04->GetRMS(),5,w04->GetMean(),w04->GetRMS());
+  w04->Fit("doublegaus_w04","R");
 
-  z04_f1->SetParameter(0,doublegaus_z04->GetParameter(0));
-  z04_f1->SetParameter(1,doublegaus_z04->GetParameter(1));
-  z04_f1->SetParameter(2,doublegaus_z04->GetParameter(2));
-  z04_f1->SetParError(2,doublegaus_z04->GetParError(2));
-  z04_f1->SetLineColor(kRed);
-  z04_f2->SetParameter(0,doublegaus_z04->GetParameter(3));
-  z04_f2->SetParameter(1,doublegaus_z04->GetParameter(4));
-  z04_f2->SetParameter(2,doublegaus_z04->GetParameter(5));
-  z04_f2->SetParError(2,doublegaus_z04->GetParError(5));
-  z04_f2->SetLineColor(kBlue);
+  TF1 *w04_f1 = new TF1("w04_f1","gaus",-0.1,0.1);
+  TF1 *w04_f2 = new TF1("w04_f2","gaus",-0.1,0.1);
+
+  w04_f1->SetParameter(0,doublegaus_w04->GetParameter(0));
+  w04_f1->SetParameter(1,doublegaus_w04->GetParameter(1));
+  w04_f1->SetParameter(2,doublegaus_w04->GetParameter(2));
+  w04_f1->SetParError(2,doublegaus_w04->GetParError(2));
+  w04_f1->SetLineColor(kRed);
+  w04_f2->SetParameter(0,doublegaus_w04->GetParameter(3));
+  w04_f2->SetParameter(1,doublegaus_w04->GetParameter(4));
+  w04_f2->SetParameter(2,doublegaus_w04->GetParameter(5));
+  w04_f2->SetParError(2,doublegaus_w04->GetParError(5));
+  w04_f2->SetLineColor(kBlue);
   
-  Double_t intz04_1 = z04_f1->Integral(-.1,.1);
-  Double_t intz04_2 = z04_f2->Integral(-.1,.1);
+  Double_t intw04_1 = w04_f1->Integral(-.1,.1);
+  Double_t intw04_2 = w04_f2->Integral(-.1,.1);
   
-  zres_04 = (intz04_1*fabs(z04_f1->GetParameter(2))+ intz04_2*fabs(z04_f2->GetParameter(2)))/(intz04_1 + intz04_2);
+  wres_04 = (intw04_1*fabs(w04_f1->GetParameter(2))+ intw04_2*fabs(w04_f2->GetParameter(2)))/(intw04_1 + intw04_2);
+
+  err_wres_04  = (1./(intw04_1+intw04_2));
+  err_wres_04 *= sqrt(intw04_1*intw04_1*pow((w04_f1->GetParError(2)),2)+intw04_2*intw04_2*pow(w04_f2->GetParError(2),2));
 
-  err_zres_04  = (1./(intz04_1+intz04_2));
-  err_zres_04 *= sqrt(intz04_1*intz04_1*pow((z04_f1->GetParError(2)),2)+intz04_2*intz04_2*pow(z04_f2->GetParError(2),2));
+  cout<<endl<<"resolution w34: "<<wres_04<<" +- " <<err_wres_04<<endl<<endl;
 
-  cout<<endl<<"resolution z34: "<<zres_04<<" +- " <<err_zres_04<<endl<<endl;
+  //w05
 
-  //z05
+  TF1 *doublegaus_w05 = new TF1("doublegaus_w05",doublegausf,-.1,.1,6);
 
-  TF1 *doublegaus_z05 = new TF1("doublegaus_z05",doublegausf,-.1,.1,6);
-  doublegaus_z05->SetParameters(20,z05->GetMean(),z05->GetRMS(),5,z05->GetMean(),z05->GetRMS());
-  z05->Fit("doublegaus_z05","R");
+  doublegaus_w05->SetParameters(20,w05->GetMean(),w05->GetRMS(),5,w05->GetMean(),w05->GetRMS());
+  w05->Fit("doublegaus_w05","R");
 
-  TF1 *z05_f1 = new TF1("z05_f1","gaus",-0.1,0.1);
-  TF1 *z05_f2 = new TF1("z05_f2","gaus",-0.1,0.1);
+  TF1 *w05_f1 = new TF1("w05_f1","gaus",-0.1,0.1);
+  TF1 *w05_f2 = new TF1("w05_f2","gaus",-0.1,0.1);
 
-  z05_f1->SetParameter(0,doublegaus_z05->GetParameter(0));
-  z05_f1->SetParameter(1,doublegaus_z05->GetParameter(1));
-  z05_f1->SetParameter(2,doublegaus_z05->GetParameter(2));
-  z05_f1->SetParError(2,doublegaus_z05->GetParError(2));
-  z05_f1->SetLineColor(kRed);
-  z05_f2->SetParameter(0,doublegaus_z05->GetParameter(3));
-  z05_f2->SetParameter(1,doublegaus_z05->GetParameter(4));
-  z05_f2->SetParameter(2,doublegaus_z05->GetParameter(5));
-  z05_f2->SetParError(2,doublegaus_z05->GetParError(5));
-  z05_f2->SetLineColor(kBlue);
+  w05_f1->SetParameter(0,doublegaus_w05->GetParameter(0));
+  w05_f1->SetParameter(1,doublegaus_w05->GetParameter(1));
+  w05_f1->SetParameter(2,doublegaus_w05->GetParameter(2));
+  w05_f1->SetParError(2,doublegaus_w05->GetParError(2));
+  w05_f1->SetLineColor(kRed);
+  w05_f2->SetParameter(0,doublegaus_w05->GetParameter(3));
+  w05_f2->SetParameter(1,doublegaus_w05->GetParameter(4));
+  w05_f2->SetParameter(2,doublegaus_w05->GetParameter(5));
+  w05_f2->SetParError(2,doublegaus_w05->GetParError(5));
+  w05_f2->SetLineColor(kBlue);
   
-  Double_t intz05_1 = z05_f1->Integral(-.1,.1);
-  Double_t intz05_2 = z05_f2->Integral(-.1,.1);
+  Double_t intw05_1 = w05_f1->Integral(-.1,.1);
+  Double_t intw05_2 = w05_f2->Integral(-.1,.1);
   
-  zres_05 = (intz05_1*fabs(z05_f1->GetParameter(2))+ intz05_2*fabs(z05_f2->GetParameter(2)))/(intz05_1 + intz05_2);
+  wres_05 = (intw05_1*fabs(w05_f1->GetParameter(2))+ intw05_2*fabs(w05_f2->GetParameter(2)))/(intw05_1 + intw05_2);
 
-  err_zres_05  = (1./(intz05_1+intz05_2));
-  err_zres_05 *= sqrt(intz05_1*intz05_1*pow((z05_f1->GetParError(2)),2)+intz05_2*intz05_2*pow(z05_f2->GetParError(2),2));
+  err_wres_05  = (1./(intw05_1+intw05_2));
+  err_wres_05 *= sqrt(intw05_1*intw05_1*pow((w05_f1->GetParError(2)),2)+intw05_2*intw05_2*pow(w05_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution z45: "<<zres_05<<" +- " <<err_zres_05<<endl<<endl;
+  cout<<endl<<"resolution w45: "<<wres_05<<" +- " <<err_wres_05<<endl<<endl;
 
-  //z06
+  //w06
 
-  TF1 *doublegaus_z06 = new TF1("doublegaus_z06",doublegausf,-.1,.1,6);
-  doublegaus_z06->SetParameters(20,z06->GetMean(),z06->GetRMS(),5,z06->GetMean(),z06->GetRMS());
-  z06->Fit("doublegaus_z06","R");
+  TF1 *doublegaus_w06 = new TF1("doublegaus_w06",doublegausf,-.1,.1,6);
 
-  TF1 *z06_f1 = new TF1("z06_f1","gaus",-0.1,0.1);
-  TF1 *z06_f2 = new TF1("z06_f2","gaus",-0.1,0.1);
+  doublegaus_w06->SetParameters(20,w06->GetMean(),w06->GetRMS(),5,w06->GetMean(),w06->GetRMS());
+  w06->Fit("doublegaus_w06","R");
 
-  z06_f1->SetParameter(0,doublegaus_z06->GetParameter(0));
-  z06_f1->SetParameter(1,doublegaus_z06->GetParameter(1));
-  z06_f1->SetParameter(2,doublegaus_z06->GetParameter(2));
-  z06_f1->SetParError(2,doublegaus_z06->GetParError(2));
-  z06_f1->SetLineColor(kRed);
-  z06_f2->SetParameter(0,doublegaus_z06->GetParameter(3));
-  z06_f2->SetParameter(1,doublegaus_z06->GetParameter(4));
-  z06_f2->SetParameter(2,doublegaus_z06->GetParameter(5));
-  z06_f2->SetParError(2,doublegaus_z06->GetParError(5));
-  z06_f2->SetLineColor(kBlue);
+  TF1 *w06_f1 = new TF1("w06_f1","gaus",-0.1,0.1);
+  TF1 *w06_f2 = new TF1("w06_f2","gaus",-0.1,0.1);
+
+  w06_f1->SetParameter(0,doublegaus_w06->GetParameter(0));
+  w06_f1->SetParameter(1,doublegaus_w06->GetParameter(1));
+  w06_f1->SetParameter(2,doublegaus_w06->GetParameter(2));
+  w06_f1->SetParError(2,doublegaus_w06->GetParError(2));
+  w06_f1->SetLineColor(kRed);
+  w06_f2->SetParameter(0,doublegaus_w06->GetParameter(3));
+  w06_f2->SetParameter(1,doublegaus_w06->GetParameter(4));
+  w06_f2->SetParameter(2,doublegaus_w06->GetParameter(5));
+  w06_f2->SetParError(2,doublegaus_w06->GetParError(5));
+  w06_f2->SetLineColor(kBlue);
   
-  Double_t intz06_1 = z06_f1->Integral(-.1,.1);
-  Double_t intz06_2 = z06_f2->Integral(-.1,.1);
+  Double_t intw06_1 = w06_f1->Integral(-.1,.1);
+  Double_t intw06_2 = w06_f2->Integral(-.1,.1);
   
-  zres_06 = (intz06_1*fabs(z06_f1->GetParameter(2))+ intz06_2*fabs(z06_f2->GetParameter(2)))/(intz06_1 + intz06_2);
+  wres_06 = (intw06_1*fabs(w06_f1->GetParameter(2))+ intw06_2*fabs(w06_f2->GetParameter(2)))/(intw06_1 + intw06_2);
 
-  err_zres_06  = (1./(intz06_1+intz06_2));
-  err_zres_06 *= sqrt(intz06_1*intz06_1*pow((z06_f1->GetParError(2)),2)+intz06_2*intz06_2*pow(z06_f2->GetParError(2),2));
+  err_wres_06  = (1./(intw06_1+intw06_2));
+  err_wres_06 *= sqrt(intw06_1*intw06_1*pow((w06_f1->GetParError(2)),2)+intw06_2*intw06_2*pow(w06_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution z56: "<<zres_06<<" +- " <<err_zres_06<<endl<<endl;
+  cout<<endl<<"resolution w56: "<<wres_06<<" +- " <<err_wres_06<<endl<<endl;
 
-  //z07
+  //w07
 
-  TF1 *doublegaus_z07 = new TF1("doublegaus_z07",doublegausf,-.1,.1,6);
-  doublegaus_z07->SetParameters(20,z07->GetMean(),z07->GetRMS(),5,z07->GetMean(),z07->GetRMS());
-  z07->Fit("doublegaus_z07","R");
+  TF1 *doublegaus_w07 = new TF1("doublegaus_w07",doublegausf,-.1,.1,6);
 
-  TF1 *z07_f1 = new TF1("z07_f1","gaus",-0.1,0.1);
-  TF1 *z07_f2 = new TF1("z07_f2","gaus",-0.1,0.1);
+  doublegaus_w07->SetParameters(20,w07->GetMean(),w07->GetRMS(),5,w07->GetMean(),w07->GetRMS());
+  w07->Fit("doublegaus_w07","R");
 
-  z07_f1->SetParameter(0,doublegaus_z07->GetParameter(0));
-  z07_f1->SetParameter(1,doublegaus_z07->GetParameter(1));
-  z07_f1->SetParameter(2,doublegaus_z07->GetParameter(2));
-  z07_f1->SetParError(2,doublegaus_z07->GetParError(2));
-  z07_f1->SetLineColor(kRed);
-  z07_f2->SetParameter(0,doublegaus_z07->GetParameter(3));
-  z07_f2->SetParameter(1,doublegaus_z07->GetParameter(4));
-  z07_f2->SetParameter(2,doublegaus_z07->GetParameter(5));
-  z07_f2->SetParError(2,doublegaus_z07->GetParError(5));
-  z07_f2->SetLineColor(kBlue);
+  TF1 *w07_f1 = new TF1("w07_f1","gaus",-0.1,0.1);
+  TF1 *w07_f2 = new TF1("w07_f2","gaus",-0.1,0.1);
+
+  w07_f1->SetParameter(0,doublegaus_w07->GetParameter(0));
+  w07_f1->SetParameter(1,doublegaus_w07->GetParameter(1));
+  w07_f1->SetParameter(2,doublegaus_w07->GetParameter(2));
+  w07_f1->SetParError(2,doublegaus_w07->GetParError(2));
+  w07_f1->SetLineColor(kRed);
+  w07_f2->SetParameter(0,doublegaus_w07->GetParameter(3));
+  w07_f2->SetParameter(1,doublegaus_w07->GetParameter(4));
+  w07_f2->SetParameter(2,doublegaus_w07->GetParameter(5));
+  w07_f2->SetParError(2,doublegaus_w07->GetParError(5));
+  w07_f2->SetLineColor(kBlue);
   
-  Double_t intz07_1 = z07_f1->Integral(-.1,.1);
-  Double_t intz07_2 = z07_f2->Integral(-.1,.1);
+  Double_t intw07_1 = w07_f1->Integral(-.1,.1);
+  Double_t intw07_2 = w07_f2->Integral(-.1,.1);
   
-  zres_07 = (intz07_1*fabs(z07_f1->GetParameter(2))+ intz07_2*fabs(z07_f2->GetParameter(2)))/(intz07_1 + intz07_2);
+  wres_07 = (intw07_1*fabs(w07_f1->GetParameter(2))+ intw07_2*fabs(w07_f2->GetParameter(2)))/(intw07_1 + intw07_2);
+
+  err_wres_07  = (1./(intw07_1+intw07_2));
+  err_wres_07 *= sqrt(intw07_1*intw07_1*pow((w07_f1->GetParError(2)),2)+intw07_2*intw07_2*pow(w07_f2->GetParError(2),2));
 
-  err_zres_07  = (1./(intz07_1+intz07_2));
-  err_zres_07 *= sqrt(intz07_1*intz07_1*pow((z07_f1->GetParError(2)),2)+intz07_2*intz07_2*pow(z07_f2->GetParError(2),2));
+  cout<<endl<<"resolution w67: "<<wres_07<<" +- " <<err_wres_07<<endl<<endl;
 
-  cout<<endl<<"resolution z67: "<<zres_07<<" +- " <<err_zres_07<<endl<<endl;
+  //w08
 
-  //z08
+  TF1 *doublegaus_w08 = new TF1("doublegaus_w08",doublegausf,-.1,.1,6);
 
-  TF1 *doublegaus_z08 = new TF1("doublegaus_z08",doublegausf,-.1,.1,6);
-  doublegaus_z08->SetParameters(20,z08->GetMean(),z08->GetRMS(),5,z08->GetMean(),z08->GetRMS());
-  z08->Fit("doublegaus_z08","R");
+  doublegaus_w08->SetParameters(20,w08->GetMean(),w08->GetRMS(),5,w08->GetMean(),w08->GetRMS());
+  w08->Fit("doublegaus_w08","R");
 
-  TF1 *z08_f1 = new TF1("z08_f1","gaus",-0.1,0.1);
-  TF1 *z08_f2 = new TF1("z08_f2","gaus",-0.1,0.1);
+  TF1 *w08_f1 = new TF1("w08_f1","gaus",-0.1,0.1);
+  TF1 *w08_f2 = new TF1("w08_f2","gaus",-0.1,0.1);
 
-  z08_f1->SetParameter(0,doublegaus_z08->GetParameter(0));
-  z08_f1->SetParameter(1,doublegaus_z08->GetParameter(1));
-  z08_f1->SetParameter(2,doublegaus_z08->GetParameter(2));
-  z08_f1->SetParError(2,doublegaus_z08->GetParError(2));
-  z08_f1->SetLineColor(kRed);
-  z08_f2->SetParameter(0,doublegaus_z08->GetParameter(3));
-  z08_f2->SetParameter(1,doublegaus_z08->GetParameter(4));
-  z08_f2->SetParameter(2,doublegaus_z08->GetParameter(5));
-  z08_f2->SetParError(2,doublegaus_z08->GetParError(5));
-  z08_f2->SetLineColor(kBlue);
+  w08_f1->SetParameter(0,doublegaus_w08->GetParameter(0));
+  w08_f1->SetParameter(1,doublegaus_w08->GetParameter(1));
+  w08_f1->SetParameter(2,doublegaus_w08->GetParameter(2));
+  w08_f1->SetParError(2,doublegaus_w08->GetParError(2));
+  w08_f1->SetLineColor(kRed);
+  w08_f2->SetParameter(0,doublegaus_w08->GetParameter(3));
+  w08_f2->SetParameter(1,doublegaus_w08->GetParameter(4));
+  w08_f2->SetParameter(2,doublegaus_w08->GetParameter(5));
+  w08_f2->SetParError(2,doublegaus_w08->GetParError(5));
+  w08_f2->SetLineColor(kBlue);
   
-  Double_t intz08_1 = z08_f1->Integral(-.1,.1);
-  Double_t intz08_2 = z08_f2->Integral(-.1,.1);
+  Double_t intw08_1 = w08_f1->Integral(-.1,.1);
+  Double_t intw08_2 = w08_f2->Integral(-.1,.1);
   
-  zres_08 = (intz08_1*fabs(z08_f1->GetParameter(2))+ intz08_2*fabs(z08_f2->GetParameter(2)))/(intz08_1 + intz08_2);
+  wres_08 = (intw08_1*fabs(w08_f1->GetParameter(2))+ intw08_2*fabs(w08_f2->GetParameter(2)))/(intw08_1 + intw08_2);
 
-  err_zres_08  = (1./(intz08_1+intz08_2));
-  err_zres_08 *= sqrt(intz08_1*intz08_1*pow((z08_f1->GetParError(2)),2)+intz08_2*intz08_2*pow(z08_f2->GetParError(2),2));
+  err_wres_08  = (1./(intw08_1+intw08_2));
+  err_wres_08 *= sqrt(intw08_1*intw08_1*pow((w08_f1->GetParError(2)),2)+intw08_2*intw08_2*pow(w08_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution z78: "<<zres_08<<" +- " <<err_zres_08<<endl<<endl;
+  cout<<endl<<"resolution w78: "<<wres_08<<" +- " <<err_wres_08<<endl<<endl;
 
-  //y using clusterSplit1.C
-  //yallw
+  //v using clusterSplit1.C
+  //vallw
 
-  TF1 *doublegaus_yallw = new TF1("doublegaus_yallw",doublegausf,-.1,.1,6);
+  TF1 *doublegaus_vallw = new TF1("doublegaus_vallw",doublegausf,-.1,.1,6);
 
-  doublegaus_yallw->SetParLimits(0,0,100);
-  doublegaus_yallw->SetParLimits(2,0.005,0.05);
-  doublegaus_yallw->SetParLimits(3,0,100);
-  doublegaus_yallw->SetParLimits(5,0.005,0.05);
+  doublegaus_vallw->SetParLimits(0,0,10000);
+  doublegaus_vallw->SetParLimits(2,0.005,0.05);
+  doublegaus_vallw->SetParLimits(3,0,10000);
+  doublegaus_vallw->SetParLimits(5,0.005,0.05);
 
-  doublegaus_yallw->SetParameters(20,yallw->GetMean(),yallw->GetRMS(),5,yallw->GetMean(),yallw->GetRMS());
-  yallw->Fit("doublegaus_yallw","R");
+  doublegaus_vallw->SetParameters(20,vallw->GetMean(),vallw->GetRMS(),5,vallw->GetMean(),vallw->GetRMS());
+  vallw->Fit("doublegaus_vallw","R");
 
-  TF1 *yallw_f1 = new TF1("yallw_f1","gaus",-0.1,0.1);
-  TF1 *yallw_f2 = new TF1("yallw_f2","gaus",-0.1,0.1);
+  TF1 *vallw_f1 = new TF1("vallw_f1","gaus",-0.1,0.1);
+  TF1 *vallw_f2 = new TF1("vallw_f2","gaus",-0.1,0.1);
 
-  yallw_f1->SetParameter(0,doublegaus_yallw->GetParameter(0));
-  yallw_f1->SetParameter(1,doublegaus_yallw->GetParameter(1));
-  yallw_f1->SetParameter(2,doublegaus_yallw->GetParameter(2));
-  yallw_f1->SetParError(2,doublegaus_yallw->GetParError(2));
-  yallw_f1->SetLineColor(kRed);
-  yallw_f2->SetParameter(0,doublegaus_yallw->GetParameter(3));
-  yallw_f2->SetParameter(1,doublegaus_yallw->GetParameter(4));
-  yallw_f2->SetParameter(2,doublegaus_yallw->GetParameter(5));
-  yallw_f2->SetParError(2,doublegaus_yallw->GetParError(5));
-  yallw_f2->SetLineColor(kBlue);
+  vallw_f1->SetParameter(0,doublegaus_vallw->GetParameter(0));
+  vallw_f1->SetParameter(1,doublegaus_vallw->GetParameter(1));
+  vallw_f1->SetParameter(2,doublegaus_vallw->GetParameter(2));
+  vallw_f1->SetParError(2,doublegaus_vallw->GetParError(2));
+  vallw_f1->SetLineColor(kRed);
+  vallw_f2->SetParameter(0,doublegaus_vallw->GetParameter(3));
+  vallw_f2->SetParameter(1,doublegaus_vallw->GetParameter(4));
+  vallw_f2->SetParameter(2,doublegaus_vallw->GetParameter(5));
+  vallw_f2->SetParError(2,doublegaus_vallw->GetParError(5));
+  vallw_f2->SetLineColor(kBlue);
   
-  Double_t intyallw_1 = yallw_f1->Integral(-.1,.1);
-  Double_t intyallw_2 = yallw_f2->Integral(-.1,.1);
+  Double_t intvallw_1 = vallw_f1->Integral(-.1,.1);
+  Double_t intvallw_2 = vallw_f2->Integral(-.1,.1);
   
-  yres_allw = (intyallw_1*fabs(yallw_f1->GetParameter(2))+ intyallw_2*fabs(yallw_f2->GetParameter(2)))/(intyallw_1 + intyallw_2);
+  vres_allw = (intvallw_1*fabs(vallw_f1->GetParameter(2))+ intvallw_2*fabs(vallw_f2->GetParameter(2)))/(intvallw_1 + intvallw_2);
 
-  err_yres_allw  = (1./(intyallw_1+intyallw_2));
-  err_yres_allw *= sqrt(intyallw_1*intyallw_1*pow((yallw_f1->GetParError(2)),2)+intyallw_2*intyallw_2*pow(yallw_f2->GetParError(2),2));
+  err_vres_allw  = (1./(intvallw_1+intvallw_2));
+  err_vres_allw *= sqrt(intvallw_1*intvallw_1*pow((vallw_f1->GetParError(2)),2)+intvallw_2*intvallw_2*pow(vallw_f2->GetParError(2),2));
 
-  cout<<endl<<"Overall resolution y using clusterSplit1.C: "<<yres_allw<<" +- " <<err_yres_allw<<endl<<endl;
+  cout<<endl<<"Overall resolution v using clusterSplit1.C: "<<vres_allw<<" +- " <<err_vres_allw<<endl<<endl;
 
-  //y01w
+  //v01w
 
-  TF1 *doublegaus_y01w = new TF1("doublegaus_y01w",doublegausf,-.1,.1,6);
+  TF1 *doublegaus_v01w = new TF1("doublegaus_v01w",doublegausf,-.1,.1,6);
 
-  doublegaus_y01w->SetParLimits(0,0,100);
-  doublegaus_y01w->SetParLimits(2,0.005,0.05);
-  doublegaus_y01w->SetParLimits(3,0,100);
-  doublegaus_y01w->SetParLimits(5,0.005,0.05);
+  doublegaus_v01w->SetParLimits(0,0,100);
+  doublegaus_v01w->SetParLimits(2,0.005,0.05);
+  doublegaus_v01w->SetParLimits(3,0,100);
+  doublegaus_v01w->SetParLimits(5,0.005,0.05);
 
-  doublegaus_y01w->SetParameters(20,y01w->GetMean(),y01w->GetRMS(),5,y01w->GetMean(),y01w->GetRMS());
-  y01w->Fit("doublegaus_y01w","R");
+  doublegaus_v01w->SetParameters(20,v01w->GetMean(),v01w->GetRMS(),5,v01w->GetMean(),v01w->GetRMS());
+  v01w->Fit("doublegaus_v01w","R");
 
-  TF1 *y01w_f1 = new TF1("y01w_f1","gaus",-0.1,0.1);
-  TF1 *y01w_f2 = new TF1("y01w_f2","gaus",-0.1,0.1);
+  TF1 *v01w_f1 = new TF1("v01w_f1","gaus",-0.1,0.1);
+  TF1 *v01w_f2 = new TF1("v01w_f2","gaus",-0.1,0.1);
 
-  y01w_f1->SetParameter(0,doublegaus_y01w->GetParameter(0));
-  y01w_f1->SetParameter(1,doublegaus_y01w->GetParameter(1));
-  y01w_f1->SetParameter(2,doublegaus_y01w->GetParameter(2));
-  y01w_f1->SetParError(2,doublegaus_y01w->GetParError(2));
-  y01w_f1->SetLineColor(kRed);
-  y01w_f2->SetParameter(0,doublegaus_y01w->GetParameter(3));
-  y01w_f2->SetParameter(1,doublegaus_y01w->GetParameter(4));
-  y01w_f2->SetParameter(2,doublegaus_y01w->GetParameter(5));
-  y01w_f2->SetParError(2,doublegaus_y01w->GetParError(5));
-  y01w_f2->SetLineColor(kBlue);
+  v01w_f1->SetParameter(0,doublegaus_v01w->GetParameter(0));
+  v01w_f1->SetParameter(1,doublegaus_v01w->GetParameter(1));
+  v01w_f1->SetParameter(2,doublegaus_v01w->GetParameter(2));
+  v01w_f1->SetParError(2,doublegaus_v01w->GetParError(2));
+  v01w_f1->SetLineColor(kRed);
+  v01w_f2->SetParameter(0,doublegaus_v01w->GetParameter(3));
+  v01w_f2->SetParameter(1,doublegaus_v01w->GetParameter(4));
+  v01w_f2->SetParameter(2,doublegaus_v01w->GetParameter(5));
+  v01w_f2->SetParError(2,doublegaus_v01w->GetParError(5));
+  v01w_f2->SetLineColor(kBlue);
   
-  Double_t inty01w_1 = y01w_f1->Integral(-.1,.1);
-  Double_t inty01w_2 = y01w_f2->Integral(-.1,.1);
+  Double_t intv01w_1 = v01w_f1->Integral(-.1,.1);
+  Double_t intv01w_2 = v01w_f2->Integral(-.1,.1);
   
-  yres_01w = (inty01w_1*fabs(y01w_f1->GetParameter(2))+ inty01w_2*fabs(y01w_f2->GetParameter(2)))/(inty01w_1 + inty01w_2);
+  vres_01w = (intv01w_1*fabs(v01w_f1->GetParameter(2))+ intv01w_2*fabs(v01w_f2->GetParameter(2)))/(intv01w_1 + intv01w_2);
 
-  err_yres_01w  = (1./(inty01w_1+inty01w_2));
-  err_yres_01w *= sqrt(inty01w_1*inty01w_1*pow((y01w_f1->GetParError(2)),2)+inty01w_2*inty01w_2*pow(y01w_f2->GetParError(2),2));
+  err_vres_01w  = (1./(intv01w_1+intv01w_2));
+  err_vres_01w *= sqrt(intv01w_1*intv01w_1*pow((v01w_f1->GetParError(2)),2)+intv01w_2*intv01w_2*pow(v01w_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution yw01: "<<yres_01w<<" +- " <<err_yres_01w<<endl<<endl;
+  cout<<endl<<"resolution vw01: "<<vres_01w<<" +- " <<err_vres_01w<<endl<<endl;
 
-  //y02w
+  //v02w
 
-  TF1 *doublegaus_y02w = new TF1("doublegaus_y02w",doublegausf,-.1,.1,6);
+  TF1 *doublegaus_v02w = new TF1("doublegaus_v02w",doublegausf,-.1,.1,6);
 
-  doublegaus_y02w->SetParLimits(0,0,100);
-  doublegaus_y02w->SetParLimits(2,0.005,0.05);
-  doublegaus_y02w->SetParLimits(3,0,100);
-  doublegaus_y02w->SetParLimits(5,0.005,0.05);
+  doublegaus_v02w->SetParLimits(0,0,100);
+  doublegaus_v02w->SetParLimits(2,0.005,0.05);
+  doublegaus_v02w->SetParLimits(3,0,100);
+  doublegaus_v02w->SetParLimits(5,0.005,0.05);
 
-  doublegaus_y02w->SetParameters(20,y02w->GetMean(),y02w->GetRMS(),5,y02w->GetMean(),y02w->GetRMS());
-  y02w->Fit("doublegaus_y02w","R");
+  doublegaus_v02w->SetParameters(20,v02w->GetMean(),v02w->GetRMS(),5,v02w->GetMean(),v02w->GetRMS());
+  v02w->Fit("doublegaus_v02w","R");
 
-  TF1 *y02w_f1 = new TF1("y02w_f1","gaus",-0.1,0.1);
-  TF1 *y02w_f2 = new TF1("y02w_f2","gaus",-0.1,0.1);
+  TF1 *v02w_f1 = new TF1("v02w_f1","gaus",-0.1,0.1);
+  TF1 *v02w_f2 = new TF1("v02w_f2","gaus",-0.1,0.1);
 
-  y02w_f1->SetParameter(0,doublegaus_y02w->GetParameter(0));
-  y02w_f1->SetParameter(1,doublegaus_y02w->GetParameter(1));
-  y02w_f1->SetParameter(2,doublegaus_y02w->GetParameter(2));
-  y02w_f1->SetParError(2,doublegaus_y02w->GetParError(2));
-  y02w_f1->SetLineColor(kRed);
-  y02w_f2->SetParameter(0,doublegaus_y02w->GetParameter(3));
-  y02w_f2->SetParameter(1,doublegaus_y02w->GetParameter(4));
-  y02w_f2->SetParameter(2,doublegaus_y02w->GetParameter(5));
-  y02w_f2->SetParError(2,doublegaus_y02w->GetParError(5));
-  y02w_f2->SetLineColor(kBlue);
+  v02w_f1->SetParameter(0,doublegaus_v02w->GetParameter(0));
+  v02w_f1->SetParameter(1,doublegaus_v02w->GetParameter(1));
+  v02w_f1->SetParameter(2,doublegaus_v02w->GetParameter(2));
+  v02w_f1->SetParError(2,doublegaus_v02w->GetParError(2));
+  v02w_f1->SetLineColor(kRed);
+  v02w_f2->SetParameter(0,doublegaus_v02w->GetParameter(3));
+  v02w_f2->SetParameter(1,doublegaus_v02w->GetParameter(4));
+  v02w_f2->SetParameter(2,doublegaus_v02w->GetParameter(5));
+  v02w_f2->SetParError(2,doublegaus_v02w->GetParError(5));
+  v02w_f2->SetLineColor(kBlue);
   
-  Double_t inty02w_1 = y02w_f1->Integral(-.1,.1);
-  Double_t inty02w_2 = y02w_f2->Integral(-.1,.1);
+  Double_t intv02w_1 = v02w_f1->Integral(-.1,.1);
+  Double_t intv02w_2 = v02w_f2->Integral(-.1,.1);
   
-  yres_02w = (inty02w_1*fabs(y02w_f1->GetParameter(2))+ inty02w_2*fabs(y02w_f2->GetParameter(2)))/(inty02w_1 + inty02w_2);
+  vres_02w = (intv02w_1*fabs(v02w_f1->GetParameter(2))+ intv02w_2*fabs(v02w_f2->GetParameter(2)))/(intv02w_1 + intv02w_2);
 
-  err_yres_02w  = (1./(inty02w_1+inty02w_2));
-  err_yres_02w *= sqrt(inty02w_1*inty02w_1*pow((y02w_f1->GetParError(2)),2)+inty02w_2*inty02w_2*pow(y02w_f2->GetParError(2),2));
+  err_vres_02w  = (1./(intv02w_1+intv02w_2));
+  err_vres_02w *= sqrt(intv02w_1*intv02w_1*pow((v02w_f1->GetParError(2)),2)+intv02w_2*intv02w_2*pow(v02w_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution yw12: "<<yres_02w<<" +- " <<err_yres_02w<<endl<<endl;
+  cout<<endl<<"resolution vw12: "<<vres_02w<<" +- " <<err_vres_02w<<endl<<endl;
 
-  //y03w
+  //v03w
 
-  TF1 *doublegaus_y03w = new TF1("doublegaus_y03w",doublegausf,-.1,.1,6);
+  TF1 *doublegaus_v03w = new TF1("doublegaus_v03w",doublegausf,-.1,.1,6);
 
-  doublegaus_y03w->SetParLimits(0,0,100);
-  doublegaus_y03w->SetParLimits(2,0.005,0.05);
-  doublegaus_y03w->SetParLimits(3,0,100);
-  doublegaus_y03w->SetParLimits(5,0.005,0.05);
+  doublegaus_v03w->SetParLimits(0,0,100);
+  doublegaus_v03w->SetParLimits(2,0.005,0.05);
+  doublegaus_v03w->SetParLimits(3,0,100);
+  doublegaus_v03w->SetParLimits(5,0.005,0.05);
 
-  doublegaus_y03w->SetParameters(20,y03w->GetMean(),y03w->GetRMS(),5,y03w->GetMean(),y03w->GetRMS());
-  y03w->Fit("doublegaus_y03w","R");
+  doublegaus_v03w->SetParameters(20,v03w->GetMean(),v03w->GetRMS(),5,v03w->GetMean(),v03w->GetRMS());
+  v03w->Fit("doublegaus_v03w","R");
 
-  TF1 *y03w_f1 = new TF1("y03w_f1","gaus",-0.1,0.1);
-  TF1 *y03w_f2 = new TF1("y03w_f2","gaus",-0.1,0.1);
+  TF1 *v03w_f1 = new TF1("v03w_f1","gaus",-0.1,0.1);
+  TF1 *v03w_f2 = new TF1("v03w_f2","gaus",-0.1,0.1);
 
-  y03w_f1->SetParameter(0,doublegaus_y03w->GetParameter(0));
-  y03w_f1->SetParameter(1,doublegaus_y03w->GetParameter(1));
-  y03w_f1->SetParameter(2,doublegaus_y03w->GetParameter(2));
-  y03w_f1->SetParError(2,doublegaus_y03w->GetParError(2));
-  y03w_f1->SetLineColor(kRed);
-  y03w_f2->SetParameter(0,doublegaus_y03w->GetParameter(3));
-  y03w_f2->SetParameter(1,doublegaus_y03w->GetParameter(4));
-  y03w_f2->SetParameter(2,doublegaus_y03w->GetParameter(5));
-  y03w_f2->SetParError(2,doublegaus_y03w->GetParError(5));
-  y03w_f2->SetLineColor(kBlue);
+  v03w_f1->SetParameter(0,doublegaus_v03w->GetParameter(0));
+  v03w_f1->SetParameter(1,doublegaus_v03w->GetParameter(1));
+  v03w_f1->SetParameter(2,doublegaus_v03w->GetParameter(2));
+  v03w_f1->SetParError(2,doublegaus_v03w->GetParError(2));
+  v03w_f1->SetLineColor(kRed);
+  v03w_f2->SetParameter(0,doublegaus_v03w->GetParameter(3));
+  v03w_f2->SetParameter(1,doublegaus_v03w->GetParameter(4));
+  v03w_f2->SetParameter(2,doublegaus_v03w->GetParameter(5));
+  v03w_f2->SetParError(2,doublegaus_v03w->GetParError(5));
+  v03w_f2->SetLineColor(kBlue);
   
-  Double_t inty03w_1 = y03w_f1->Integral(-.1,.1);
-  Double_t inty03w_2 = y03w_f2->Integral(-.1,.1);
+  Double_t intv03w_1 = v03w_f1->Integral(-.1,.1);
+  Double_t intv03w_2 = v03w_f2->Integral(-.1,.1);
   
-  yres_03w = (inty03w_1*fabs(y03w_f1->GetParameter(2))+ inty03w_2*fabs(y03w_f2->GetParameter(2)))/(inty03w_1 + inty03w_2);
+  vres_03w = (intv03w_1*fabs(v03w_f1->GetParameter(2))+ intv03w_2*fabs(v03w_f2->GetParameter(2)))/(intv03w_1 + intv03w_2);
 
-  err_yres_03w  = (1./(inty03w_1+inty03w_2));
-  err_yres_03w *= sqrt(inty03w_1*inty03w_1*pow((y03w_f1->GetParError(2)),2)+inty03w_2*inty03w_2*pow(y03w_f2->GetParError(2),2));
+  err_vres_03w  = (1./(intv03w_1+intv03w_2));
+  err_vres_03w *= sqrt(intv03w_1*intv03w_1*pow((v03w_f1->GetParError(2)),2)+intv03w_2*intv03w_2*pow(v03w_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution yw23: "<<yres_03w<<" +- " <<err_yres_03w<<endl<<endl;
+  cout<<endl<<"resolution vw23: "<<vres_03w<<" +- " <<err_vres_03w<<endl<<endl;
 
-  //y04w
+  //v04w
 
-  TF1 *doublegaus_y04w = new TF1("doublegaus_y04w",doublegausf,-.1,.1,6);
+  TF1 *doublegaus_v04w = new TF1("doublegaus_v04w",doublegausf,-.1,.1,6);
 
-  doublegaus_y04w->SetParLimits(0,0,100);
-  doublegaus_y04w->SetParLimits(2,0.005,0.05);
-  doublegaus_y04w->SetParLimits(3,0,100);
-  doublegaus_y04w->SetParLimits(5,0.005,0.05);
+  doublegaus_v04w->SetParLimits(0,0,100);
+  doublegaus_v04w->SetParLimits(2,0.005,0.05);
+  doublegaus_v04w->SetParLimits(3,0,100);
+  doublegaus_v04w->SetParLimits(5,0.005,0.05);
 
-  doublegaus_y04w->SetParameters(20,y04w->GetMean(),y04w->GetRMS(),5,y04w->GetMean(),y04w->GetRMS());
-  y04w->Fit("doublegaus_y04w","R");
+  doublegaus_v04w->SetParameters(20,v04w->GetMean(),v04w->GetRMS(),5,v04w->GetMean(),v04w->GetRMS());
+  v04w->Fit("doublegaus_v04w","R");
 
-  TF1 *y04w_f1 = new TF1("y04w_f1","gaus",-0.1,0.1);
-  TF1 *y04w_f2 = new TF1("y04w_f2","gaus",-0.1,0.1);
+  TF1 *v04w_f1 = new TF1("v04w_f1","gaus",-0.1,0.1);
+  TF1 *v04w_f2 = new TF1("v04w_f2","gaus",-0.1,0.1);
 
-  y04w_f1->SetParameter(0,doublegaus_y04w->GetParameter(0));
-  y04w_f1->SetParameter(1,doublegaus_y04w->GetParameter(1));
-  y04w_f1->SetParameter(2,doublegaus_y04w->GetParameter(2));
-  y04w_f1->SetParError(2,doublegaus_y04w->GetParError(2));
-  y04w_f1->SetLineColor(kRed);
-  y04w_f2->SetParameter(0,doublegaus_y04w->GetParameter(3));
-  y04w_f2->SetParameter(1,doublegaus_y04w->GetParameter(4));
-  y04w_f2->SetParameter(2,doublegaus_y04w->GetParameter(5));
-  y04w_f2->SetParError(2,doublegaus_y04w->GetParError(5));
-  y04w_f2->SetLineColor(kBlue);
+  v04w_f1->SetParameter(0,doublegaus_v04w->GetParameter(0));
+  v04w_f1->SetParameter(1,doublegaus_v04w->GetParameter(1));
+  v04w_f1->SetParameter(2,doublegaus_v04w->GetParameter(2));
+  v04w_f1->SetParError(2,doublegaus_v04w->GetParError(2));
+  v04w_f1->SetLineColor(kRed);
+  v04w_f2->SetParameter(0,doublegaus_v04w->GetParameter(3));
+  v04w_f2->SetParameter(1,doublegaus_v04w->GetParameter(4));
+  v04w_f2->SetParameter(2,doublegaus_v04w->GetParameter(5));
+  v04w_f2->SetParError(2,doublegaus_v04w->GetParError(5));
+  v04w_f2->SetLineColor(kBlue);
   
-  Double_t inty04w_1 = y04w_f1->Integral(-.1,.1);
-  Double_t inty04w_2 = y04w_f2->Integral(-.1,.1);
+  Double_t intv04w_1 = v04w_f1->Integral(-.1,.1);
+  Double_t intv04w_2 = v04w_f2->Integral(-.1,.1);
   
-  yres_04w = (inty04w_1*fabs(y04w_f1->GetParameter(2))+ inty04w_2*fabs(y04w_f2->GetParameter(2)))/(inty04w_1 + inty04w_2);
+  vres_04w = (intv04w_1*fabs(v04w_f1->GetParameter(2))+ intv04w_2*fabs(v04w_f2->GetParameter(2)))/(intv04w_1 + intv04w_2);
 
-  err_yres_04w  = (1./(inty04w_1+inty04w_2));
-  err_yres_04w *= sqrt(inty04w_1*inty04w_1*pow((y04w_f1->GetParError(2)),2)+inty04w_2*inty04w_2*pow(y04w_f2->GetParError(2),2));
+  err_vres_04w  = (1./(intv04w_1+intv04w_2));
+  err_vres_04w *= sqrt(intv04w_1*intv04w_1*pow((v04w_f1->GetParError(2)),2)+intv04w_2*intv04w_2*pow(v04w_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution yw34: "<<yres_04w<<" +- " <<err_yres_04w<<endl<<endl;
+  cout<<endl<<"resolution vw34: "<<vres_04w<<" +- " <<err_vres_04w<<endl<<endl;
 
-  //y05w
+  //v05w
 
-  TF1 *doublegaus_y05w = new TF1("doublegaus_y05w",doublegausf,-.1,.1,6);
+  TF1 *doublegaus_v05w = new TF1("doublegaus_v05w",doublegausf,-.1,.1,6);
 
-  doublegaus_y05w->SetParLimits(0,0,100);
-  doublegaus_y05w->SetParLimits(2,0.005,0.05);
-  doublegaus_y05w->SetParLimits(3,0,100);
-  doublegaus_y05w->SetParLimits(5,0.005,0.05);
+  doublegaus_v05w->SetParLimits(0,0,100);
+  doublegaus_v05w->SetParLimits(2,0.005,0.05);
+  doublegaus_v05w->SetParLimits(3,0,100);
+  doublegaus_v05w->SetParLimits(5,0.005,0.05);
 
-  doublegaus_y05w->SetParameters(20,y05w->GetMean(),y05w->GetRMS(),5,y05w->GetMean(),y05w->GetRMS());
-  y05w->Fit("doublegaus_y05w","R");
+  doublegaus_v05w->SetParameters(20,v05w->GetMean(),v05w->GetRMS(),5,v05w->GetMean(),v05w->GetRMS());
+  v05w->Fit("doublegaus_v05w","R");
 
-  TF1 *y05w_f1 = new TF1("y05w_f1","gaus",-0.1,0.1);
-  TF1 *y05w_f2 = new TF1("y05w_f2","gaus",-0.1,0.1);
+  TF1 *v05w_f1 = new TF1("v05w_f1","gaus",-0.1,0.1);
+  TF1 *v05w_f2 = new TF1("v05w_f2","gaus",-0.1,0.1);
 
-  y05w_f1->SetParameter(0,doublegaus_y05w->GetParameter(0));
-  y05w_f1->SetParameter(1,doublegaus_y05w->GetParameter(1));
-  y05w_f1->SetParameter(2,doublegaus_y05w->GetParameter(2));
-  y05w_f1->SetParError(2,doublegaus_y05w->GetParError(2));
-  y05w_f1->SetLineColor(kRed);
-  y05w_f2->SetParameter(0,doublegaus_y05w->GetParameter(3));
-  y05w_f2->SetParameter(1,doublegaus_y05w->GetParameter(4));
-  y05w_f2->SetParameter(2,doublegaus_y05w->GetParameter(5));
-  y05w_f2->SetParError(2,doublegaus_y05w->GetParError(5));
-  y05w_f2->SetLineColor(kBlue);
+  v05w_f1->SetParameter(0,doublegaus_v05w->GetParameter(0));
+  v05w_f1->SetParameter(1,doublegaus_v05w->GetParameter(1));
+  v05w_f1->SetParameter(2,doublegaus_v05w->GetParameter(2));
+  v05w_f1->SetParError(2,doublegaus_v05w->GetParError(2));
+  v05w_f1->SetLineColor(kRed);
+  v05w_f2->SetParameter(0,doublegaus_v05w->GetParameter(3));
+  v05w_f2->SetParameter(1,doublegaus_v05w->GetParameter(4));
+  v05w_f2->SetParameter(2,doublegaus_v05w->GetParameter(5));
+  v05w_f2->SetParError(2,doublegaus_v05w->GetParError(5));
+  v05w_f2->SetLineColor(kBlue);
   
-  Double_t inty05w_1 = y05w_f1->Integral(-.1,.1);
-  Double_t inty05w_2 = y05w_f2->Integral(-.1,.1);
+  Double_t intv05w_1 = v05w_f1->Integral(-.1,.1);
+  Double_t intv05w_2 = v05w_f2->Integral(-.1,.1);
   
-  yres_05w = (inty05w_1*fabs(y05w_f1->GetParameter(2))+ inty05w_2*fabs(y05w_f2->GetParameter(2)))/(inty05w_1 + inty05w_2);
+  vres_05w = (intv05w_1*fabs(v05w_f1->GetParameter(2))+ intv05w_2*fabs(v05w_f2->GetParameter(2)))/(intv05w_1 + intv05w_2);
 
-  err_yres_05w  = (1./(inty05w_1+inty05w_2));
-  err_yres_05w *= sqrt(inty05w_1*inty05w_1*pow((y05w_f1->GetParError(2)),2)+inty05w_2*inty05w_2*pow(y05w_f2->GetParError(2),2));
+  err_vres_05w  = (1./(intv05w_1+intv05w_2));
+  err_vres_05w *= sqrt(intv05w_1*intv05w_1*pow((v05w_f1->GetParError(2)),2)+intv05w_2*intv05w_2*pow(v05w_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution yw45: "<<yres_05w<<" +- " <<err_yres_05w<<endl<<endl;
+  cout<<endl<<"resolution vw45: "<<vres_05w<<" +- " <<err_vres_05w<<endl<<endl;
 
-  //y06w
+  //v06w
 
-  TF1 *doublegaus_y06w = new TF1("doublegaus_y06w",doublegausf,-.1,.1,6);
+  TF1 *doublegaus_v06w = new TF1("doublegaus_v06w",doublegausf,-.1,.1,6);
 
-  doublegaus_y06w->SetParLimits(0,0,100);
-  doublegaus_y06w->SetParLimits(2,0.005,0.05);
-  doublegaus_y06w->SetParLimits(3,0,100);
-  doublegaus_y06w->SetParLimits(5,0.005,0.05);
+  doublegaus_v06w->SetParLimits(0,0,100);
+  doublegaus_v06w->SetParLimits(2,0.005,0.05);
+  doublegaus_v06w->SetParLimits(3,0,100);
+  doublegaus_v06w->SetParLimits(5,0.005,0.05);
 
-  doublegaus_y06w->SetParameters(20,y06w->GetMean(),y06w->GetRMS(),5,y06w->GetMean(),y06w->GetRMS());
-  y06w->Fit("doublegaus_y06w","R");
+  doublegaus_v06w->SetParameters(20,v06w->GetMean(),v06w->GetRMS(),5,v06w->GetMean(),v06w->GetRMS());
+  v06w->Fit("doublegaus_v06w","R");
 
-  TF1 *y06w_f1 = new TF1("y06w_f1","gaus",-0.1,0.1);
-  TF1 *y06w_f2 = new TF1("y06w_f2","gaus",-0.1,0.1);
+  TF1 *v06w_f1 = new TF1("v06w_f1","gaus",-0.1,0.1);
+  TF1 *v06w_f2 = new TF1("v06w_f2","gaus",-0.1,0.1);
 
-  y06w_f1->SetParameter(0,doublegaus_y06w->GetParameter(0));
-  y06w_f1->SetParameter(1,doublegaus_y06w->GetParameter(1));
-  y06w_f1->SetParameter(2,doublegaus_y06w->GetParameter(2));
-  y06w_f1->SetParError(2,doublegaus_y06w->GetParError(2));
-  y06w_f1->SetLineColor(kRed);
-  y06w_f2->SetParameter(0,doublegaus_y06w->GetParameter(3));
-  y06w_f2->SetParameter(1,doublegaus_y06w->GetParameter(4));
-  y06w_f2->SetParameter(2,doublegaus_y06w->GetParameter(5));
-  y06w_f2->SetParError(2,doublegaus_y06w->GetParError(5));
-  y06w_f2->SetLineColor(kBlue);
+  v06w_f1->SetParameter(0,doublegaus_v06w->GetParameter(0));
+  v06w_f1->SetParameter(1,doublegaus_v06w->GetParameter(1));
+  v06w_f1->SetParameter(2,doublegaus_v06w->GetParameter(2));
+  v06w_f1->SetParError(2,doublegaus_v06w->GetParError(2));
+  v06w_f1->SetLineColor(kRed);
+  v06w_f2->SetParameter(0,doublegaus_v06w->GetParameter(3));
+  v06w_f2->SetParameter(1,doublegaus_v06w->GetParameter(4));
+  v06w_f2->SetParameter(2,doublegaus_v06w->GetParameter(5));
+  v06w_f2->SetParError(2,doublegaus_v06w->GetParError(5));
+  v06w_f2->SetLineColor(kBlue);
   
-  Double_t inty06w_1 = y06w_f1->Integral(-.1,.1);
-  Double_t inty06w_2 = y06w_f2->Integral(-.1,.1);
+  Double_t intv06w_1 = v06w_f1->Integral(-.1,.1);
+  Double_t intv06w_2 = v06w_f2->Integral(-.1,.1);
   
-  yres_06w = (inty06w_1*fabs(y06w_f1->GetParameter(2))+ inty06w_2*fabs(y06w_f2->GetParameter(2)))/(inty06w_1 + inty06w_2);
+  vres_06w = (intv06w_1*fabs(v06w_f1->GetParameter(2))+ intv06w_2*fabs(v06w_f2->GetParameter(2)))/(intv06w_1 + intv06w_2);
 
-  err_yres_06w  = (1./(inty06w_1+inty06w_2));
-  err_yres_06w *= sqrt(inty06w_1*inty06w_1*pow((y06w_f1->GetParError(2)),2)+inty06w_2*inty06w_2*pow(y06w_f2->GetParError(2),2));
+  err_vres_06w  = (1./(intv06w_1+intv06w_2));
+  err_vres_06w *= sqrt(intv06w_1*intv06w_1*pow((v06w_f1->GetParError(2)),2)+intv06w_2*intv06w_2*pow(v06w_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution yw56: "<<yres_06w<<" +- " <<err_yres_06w<<endl<<endl;
+  cout<<endl<<"resolution vw56: "<<vres_06w<<" +- " <<err_vres_06w<<endl<<endl;
 
-  //y07w
+  //v07w
 
-  TF1 *doublegaus_y07w = new TF1("doublegaus_y07w",doublegausf,-.1,.1,6);
+  TF1 *doublegaus_v07w = new TF1("doublegaus_v07w",doublegausf,-.1,.1,6);
 
-  doublegaus_y07w->SetParLimits(0,0,100);
-  doublegaus_y07w->SetParLimits(2,0.005,0.05);
-  doublegaus_y07w->SetParLimits(3,0,100);
-  doublegaus_y07w->SetParLimits(5,0.005,0.05);
+  doublegaus_v07w->SetParLimits(0,0,100);
+  doublegaus_v07w->SetParLimits(2,0.005,0.05);
+  doublegaus_v07w->SetParLimits(3,0,100);
+  doublegaus_v07w->SetParLimits(5,0.005,0.05);
 
-  doublegaus_y07w->SetParameters(20,y07w->GetMean(),y07w->GetRMS(),5,y07w->GetMean(),y07w->GetRMS());
-  y07w->Fit("doublegaus_y07w","R");
+  doublegaus_v07w->SetParameters(20,v07w->GetMean(),v07w->GetRMS(),5,v07w->GetMean(),v07w->GetRMS());
+  v07w->Fit("doublegaus_v07w","R");
 
-  TF1 *y07w_f1 = new TF1("y07w_f1","gaus",-0.1,0.1);
-  TF1 *y07w_f2 = new TF1("y07w_f2","gaus",-0.1,0.1);
+  TF1 *v07w_f1 = new TF1("v07w_f1","gaus",-0.1,0.1);
+  TF1 *v07w_f2 = new TF1("v07w_f2","gaus",-0.1,0.1);
 
-  y07w_f1->SetParameter(0,doublegaus_y07w->GetParameter(0));
-  y07w_f1->SetParameter(1,doublegaus_y07w->GetParameter(1));
-  y07w_f1->SetParameter(2,doublegaus_y07w->GetParameter(2));
-  y07w_f1->SetParError(2,doublegaus_y07w->GetParError(2));
-  y07w_f1->SetLineColor(kRed);
-  y07w_f2->SetParameter(0,doublegaus_y07w->GetParameter(3));
-  y07w_f2->SetParameter(1,doublegaus_y07w->GetParameter(4));
-  y07w_f2->SetParameter(2,doublegaus_y07w->GetParameter(5));
-  y07w_f2->SetParError(2,doublegaus_y07w->GetParError(5));
-  y07w_f2->SetLineColor(kBlue);
+  v07w_f1->SetParameter(0,doublegaus_v07w->GetParameter(0));
+  v07w_f1->SetParameter(1,doublegaus_v07w->GetParameter(1));
+  v07w_f1->SetParameter(2,doublegaus_v07w->GetParameter(2));
+  v07w_f1->SetParError(2,doublegaus_v07w->GetParError(2));
+  v07w_f1->SetLineColor(kRed);
+  v07w_f2->SetParameter(0,doublegaus_v07w->GetParameter(3));
+  v07w_f2->SetParameter(1,doublegaus_v07w->GetParameter(4));
+  v07w_f2->SetParameter(2,doublegaus_v07w->GetParameter(5));
+  v07w_f2->SetParError(2,doublegaus_v07w->GetParError(5));
+  v07w_f2->SetLineColor(kBlue);
   
-  Double_t inty07w_1 = y07w_f1->Integral(-.1,.1);
-  Double_t inty07w_2 = y07w_f2->Integral(-.1,.1);
+  Double_t intv07w_1 = v07w_f1->Integral(-.1,.1);
+  Double_t intv07w_2 = v07w_f2->Integral(-.1,.1);
   
-  yres_07w = (inty07w_1*fabs(y07w_f1->GetParameter(2))+ inty07w_2*fabs(y07w_f2->GetParameter(2)))/(inty07w_1 + inty07w_2);
+  vres_07w = (intv07w_1*fabs(v07w_f1->GetParameter(2))+ intv07w_2*fabs(v07w_f2->GetParameter(2)))/(intv07w_1 + intv07w_2);
 
-  err_yres_07w  = (1./(inty07w_1+inty07w_2));
-  err_yres_07w *= sqrt(inty07w_1*inty07w_1*pow((y07w_f1->GetParError(2)),2)+inty07w_2*inty07w_2*pow(y07w_f2->GetParError(2),2));
+  err_vres_07w  = (1./(intv07w_1+intv07w_2));
+  err_vres_07w *= sqrt(intv07w_1*intv07w_1*pow((v07w_f1->GetParError(2)),2)+intv07w_2*intv07w_2*pow(v07w_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution yw67: "<<yres_07w<<" +- " <<err_yres_07w<<endl<<endl;
+  cout<<endl<<"resolution vw67: "<<vres_07w<<" +- " <<err_vres_07w<<endl<<endl;
 
-  //y08w
+  //v08w
 
-  TF1 *doublegaus_y08w = new TF1("doublegaus_y08w",doublegausf,-.1,.1,6);
+  TF1 *doublegaus_v08w = new TF1("doublegaus_v08w",doublegausf,-.1,.1,6);
 
-  doublegaus_y08w->SetParLimits(0,0,100);
-  doublegaus_y08w->SetParLimits(2,0.005,0.05);
-  doublegaus_y08w->SetParLimits(3,0,100);
-  doublegaus_y08w->SetParLimits(5,0.005,0.05);
+  doublegaus_v08w->SetParLimits(0,0,100);
+  doublegaus_v08w->SetParLimits(2,0.005,0.05);
+  doublegaus_v08w->SetParLimits(3,0,100);
+  doublegaus_v08w->SetParLimits(5,0.005,0.05);
 
-  doublegaus_y08w->SetParameters(20,y08w->GetMean(),y08w->GetRMS(),5,y08w->GetMean(),y08w->GetRMS());
-  y08w->Fit("doublegaus_y08w","R");
+  doublegaus_v08w->SetParameters(20,v08w->GetMean(),v08w->GetRMS(),5,v08w->GetMean(),v08w->GetRMS());
+  v08w->Fit("doublegaus_v08w","R");
 
-  TF1 *y08w_f1 = new TF1("y08w_f1","gaus",-0.1,0.1);
-  TF1 *y08w_f2 = new TF1("y08w_f2","gaus",-0.1,0.1);
+  TF1 *v08w_f1 = new TF1("v08w_f1","gaus",-0.1,0.1);
+  TF1 *v08w_f2 = new TF1("v08w_f2","gaus",-0.1,0.1);
 
-  y08w_f1->SetParameter(0,doublegaus_y08w->GetParameter(0));
-  y08w_f1->SetParameter(1,doublegaus_y08w->GetParameter(1));
-  y08w_f1->SetParameter(2,doublegaus_y08w->GetParameter(2));
-  y08w_f1->SetParError(2,doublegaus_y08w->GetParError(2));
-  y08w_f1->SetLineColor(kRed);
-  y08w_f2->SetParameter(0,doublegaus_y08w->GetParameter(3));
-  y08w_f2->SetParameter(1,doublegaus_y08w->GetParameter(4));
-  y08w_f2->SetParameter(2,doublegaus_y08w->GetParameter(5));
-  y08w_f2->SetParError(2,doublegaus_y08w->GetParError(5));
-  y08w_f2->SetLineColor(kBlue);
+  v08w_f1->SetParameter(0,doublegaus_v08w->GetParameter(0));
+  v08w_f1->SetParameter(1,doublegaus_v08w->GetParameter(1));
+  v08w_f1->SetParameter(2,doublegaus_v08w->GetParameter(2));
+  v08w_f1->SetParError(2,doublegaus_v08w->GetParError(2));
+  v08w_f1->SetLineColor(kRed);
+  v08w_f2->SetParameter(0,doublegaus_v08w->GetParameter(3));
+  v08w_f2->SetParameter(1,doublegaus_v08w->GetParameter(4));
+  v08w_f2->SetParameter(2,doublegaus_v08w->GetParameter(5));
+  v08w_f2->SetParError(2,doublegaus_v08w->GetParError(5));
+  v08w_f2->SetLineColor(kBlue);
   
-  Double_t inty08w_1 = y08w_f1->Integral(-.1,.1);
-  Double_t inty08w_2 = y08w_f2->Integral(-.1,.1);
+  Double_t intv08w_1 = v08w_f1->Integral(-.1,.1);
+  Double_t intv08w_2 = v08w_f2->Integral(-.1,.1);
   
-  yres_08w = (inty08w_1*fabs(y08w_f1->GetParameter(2))+ inty08w_2*fabs(y08w_f2->GetParameter(2)))/(inty08w_1 + inty08w_2);
+  vres_08w = (intv08w_1*fabs(v08w_f1->GetParameter(2))+ intv08w_2*fabs(v08w_f2->GetParameter(2)))/(intv08w_1 + intv08w_2);
 
-  err_yres_08w  = (1./(inty08w_1+inty08w_2));
-  err_yres_08w *= sqrt(inty08w_1*inty08w_1*pow((y08w_f1->GetParError(2)),2)+inty08w_2*inty08w_2*pow(y08w_f2->GetParError(2),2));
+  err_vres_08w  = (1./(intv08w_1+intv08w_2));
+  err_vres_08w *= sqrt(intv08w_1*intv08w_1*pow((v08w_f1->GetParError(2)),2)+intv08w_2*intv08w_2*pow(v08w_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution yw78: "<<yres_08w<<" +- " <<err_yres_08w<<endl<<endl;
+  cout<<endl<<"resolution vw78: "<<vres_08w<<" +- " <<err_vres_08w<<endl<<endl;
 
-  //z using clusterSplit1.C
-  //zallw
+  //w using clusterSplit1.C
+  //wallw
 
-  TF1 *doublegaus_zallw = new TF1("doublegaus_zallw",doublegausf,-.1,.1,6);
-  doublegaus_zallw->SetParameters(20,zallw->GetMean(),zallw->GetRMS(),5,zallw->GetMean(),zallw->GetRMS());
-  zallw->Fit("doublegaus_zallw","R");
+  TF1 *doublegaus_wallw = new TF1("doublegaus_wallw",doublegausf,-.1,.1,6);
 
-  TF1 *zallw_f1 = new TF1("zallw_f1","gaus",-0.1,0.1);
-  TF1 *zallw_f2 = new TF1("zallw_f2","gaus",-0.1,0.1);
+  doublegaus_wallw->SetParameters(20,wallw->GetMean(),wallw->GetRMS(),5,wallw->GetMean(),wallw->GetRMS());
+  wallw->Fit("doublegaus_wallw","R");
 
-  zallw_f1->SetParameter(0,doublegaus_zallw->GetParameter(0));
-  zallw_f1->SetParameter(1,doublegaus_zallw->GetParameter(1));
-  zallw_f1->SetParameter(2,doublegaus_zallw->GetParameter(2));
-  zallw_f1->SetParError(2,doublegaus_zallw->GetParError(2));
-  zallw_f1->SetLineColor(kRed);
-  zallw_f2->SetParameter(0,doublegaus_zallw->GetParameter(3));
-  zallw_f2->SetParameter(1,doublegaus_zallw->GetParameter(4));
-  zallw_f2->SetParameter(2,doublegaus_zallw->GetParameter(5));
-  zallw_f2->SetParError(2,doublegaus_zallw->GetParError(5));
-  zallw_f2->SetLineColor(kBlue);
+  TF1 *wallw_f1 = new TF1("wallw_f1","gaus",-0.1,0.1);
+  TF1 *wallw_f2 = new TF1("wallw_f2","gaus",-0.1,0.1);
+
+  wallw_f1->SetParameter(0,doublegaus_wallw->GetParameter(0));
+  wallw_f1->SetParameter(1,doublegaus_wallw->GetParameter(1));
+  wallw_f1->SetParameter(2,doublegaus_wallw->GetParameter(2));
+  wallw_f1->SetParError(2,doublegaus_wallw->GetParError(2));
+  wallw_f1->SetLineColor(kRed);
+  wallw_f2->SetParameter(0,doublegaus_wallw->GetParameter(3));
+  wallw_f2->SetParameter(1,doublegaus_wallw->GetParameter(4));
+  wallw_f2->SetParameter(2,doublegaus_wallw->GetParameter(5));
+  wallw_f2->SetParError(2,doublegaus_wallw->GetParError(5));
+  wallw_f2->SetLineColor(kBlue);
   
-  Double_t intzallw_1 = zallw_f1->Integral(-.1,.1);
-  Double_t intzallw_2 = zallw_f2->Integral(-.1,.1);
+  Double_t intwallw_1 = wallw_f1->Integral(-.1,.1);
+  Double_t intwallw_2 = wallw_f2->Integral(-.1,.1);
   
-  zres_allw = (intzallw_1*fabs(zallw_f1->GetParameter(2))+ intzallw_2*fabs(zallw_f2->GetParameter(2)))/(intzallw_1 + intzallw_2);
+  wres_allw = (intwallw_1*fabs(wallw_f1->GetParameter(2))+ intwallw_2*fabs(wallw_f2->GetParameter(2)))/(intwallw_1 + intwallw_2);
+
+  err_wres_allw  = (1./(intwallw_1+intwallw_2));
+  err_wres_allw *= sqrt(intwallw_1*intwallw_1*pow((wallw_f1->GetParError(2)),2)+intwallw_2*intwallw_2*pow(wallw_f2->GetParError(2),2));
 
-  err_zres_allw  = (1./(intzallw_1+intzallw_2));
-  err_zres_allw *= sqrt(intzallw_1*intzallw_1*pow((zallw_f1->GetParError(2)),2)+intzallw_2*intzallw_2*pow(zallw_f2->GetParError(2),2));
+  cout<<endl<<"Overall resolution w using clusterSplit1.C: "<<wres_allw<<" +- " <<err_wres_allw<<endl<<endl;
 
-  cout<<endl<<"Overall resolution z using clusterSplit1.C: "<<zres_allw<<" +- " <<err_zres_allw<<endl<<endl;
+  //w01w
 
-  //z01w
+  TF1 *doublegaus_w01w = new TF1("doublegaus_w01w",doublegausf,-.1,.1,6);
 
-  TF1 *doublegaus_z01w = new TF1("doublegaus_z01w",doublegausf,-.1,.1,6);
-  doublegaus_z01w->SetParameters(20,z01w->GetMean(),z01w->GetRMS(),5,z01w->GetMean(),z01w->GetRMS());
-  z01w->Fit("doublegaus_z01w","R");
+  doublegaus_w01w->SetParameters(20,w01w->GetMean(),w01w->GetRMS(),5,w01w->GetMean(),w01w->GetRMS());
+  w01w->Fit("doublegaus_w01w","R");
 
-  TF1 *z01w_f1 = new TF1("z01w_f1","gaus",-0.1,0.1);
-  TF1 *z01w_f2 = new TF1("z01w_f2","gaus",-0.1,0.1);
+  TF1 *w01w_f1 = new TF1("w01w_f1","gaus",-0.1,0.1);
+  TF1 *w01w_f2 = new TF1("w01w_f2","gaus",-0.1,0.1);
 
-  z01w_f1->SetParameter(0,doublegaus_z01w->GetParameter(0));
-  z01w_f1->SetParameter(1,doublegaus_z01w->GetParameter(1));
-  z01w_f1->SetParameter(2,doublegaus_z01w->GetParameter(2));
-  z01w_f1->SetParError(2,doublegaus_z01w->GetParError(2));
-  z01w_f1->SetLineColor(kRed);
-  z01w_f2->SetParameter(0,doublegaus_z01w->GetParameter(3));
-  z01w_f2->SetParameter(1,doublegaus_z01w->GetParameter(4));
-  z01w_f2->SetParameter(2,doublegaus_z01w->GetParameter(5));
-  z01w_f2->SetParError(2,doublegaus_z01w->GetParError(5));
-  z01w_f2->SetLineColor(kBlue);
+  w01w_f1->SetParameter(0,doublegaus_w01w->GetParameter(0));
+  w01w_f1->SetParameter(1,doublegaus_w01w->GetParameter(1));
+  w01w_f1->SetParameter(2,doublegaus_w01w->GetParameter(2));
+  w01w_f1->SetParError(2,doublegaus_w01w->GetParError(2));
+  w01w_f1->SetLineColor(kRed);
+  w01w_f2->SetParameter(0,doublegaus_w01w->GetParameter(3));
+  w01w_f2->SetParameter(1,doublegaus_w01w->GetParameter(4));
+  w01w_f2->SetParameter(2,doublegaus_w01w->GetParameter(5));
+  w01w_f2->SetParError(2,doublegaus_w01w->GetParError(5));
+  w01w_f2->SetLineColor(kBlue);
   
-  Double_t intz01w_1 = z01w_f1->Integral(-.1,.1);
-  Double_t intz01w_2 = z01w_f2->Integral(-.1,.1);
+  Double_t intw01w_1 = w01w_f1->Integral(-.1,.1);
+  Double_t intw01w_2 = w01w_f2->Integral(-.1,.1);
   
-  zres_01w = (intz01w_1*fabs(z01w_f1->GetParameter(2))+ intz01w_2*fabs(z01w_f2->GetParameter(2)))/(intz01w_1 + intz01w_2);
+  wres_01w = (intw01w_1*fabs(w01w_f1->GetParameter(2))+ intw01w_2*fabs(w01w_f2->GetParameter(2)))/(intw01w_1 + intw01w_2);
 
-  err_zres_01w  = (1./(intz01w_1+intz01w_2));
-  err_zres_01w *= sqrt(intz01w_1*intz01w_1*pow((z01w_f1->GetParError(2)),2)+intz01w_2*intz01w_2*pow(z01w_f2->GetParError(2),2));
+  err_wres_01w  = (1./(intw01w_1+intw01w_2));
+  err_wres_01w *= sqrt(intw01w_1*intw01w_1*pow((w01w_f1->GetParError(2)),2)+intw01w_2*intw01w_2*pow(w01w_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution zw01: "<<zres_01w<<" +- " <<err_zres_01w<<endl<<endl;
+  cout<<endl<<"resolution ww01: "<<wres_01w<<" +- " <<err_wres_01w<<endl<<endl;
 
-  //z02w
+  //w02w
 
-  TF1 *doublegaus_z02w = new TF1("doublegaus_z02w",doublegausf,-.1,.1,6);
-  doublegaus_z02w->SetParameters(20,z02w->GetMean(),z02w->GetRMS(),5,z02w->GetMean(),z02w->GetRMS());
-  z02w->Fit("doublegaus_z02w","R");
+  TF1 *doublegaus_w02w = new TF1("doublegaus_w02w",doublegausf,-.1,.1,6);
 
-  TF1 *z02w_f1 = new TF1("z02w_f1","gaus",-0.1,0.1);
-  TF1 *z02w_f2 = new TF1("z02w_f2","gaus",-0.1,0.1);
+  doublegaus_w02w->SetParameters(20,w02w->GetMean(),w02w->GetRMS(),5,w02w->GetMean(),w02w->GetRMS());
+  w02w->Fit("doublegaus_w02w","R");
 
-  z02w_f1->SetParameter(0,doublegaus_z02w->GetParameter(0));
-  z02w_f1->SetParameter(1,doublegaus_z02w->GetParameter(1));
-  z02w_f1->SetParameter(2,doublegaus_z02w->GetParameter(2));
-  z02w_f1->SetParError(2,doublegaus_z02w->GetParError(2));
-  z02w_f1->SetLineColor(kRed);
-  z02w_f2->SetParameter(0,doublegaus_z02w->GetParameter(3));
-  z02w_f2->SetParameter(1,doublegaus_z02w->GetParameter(4));
-  z02w_f2->SetParameter(2,doublegaus_z02w->GetParameter(5));
-  z02w_f2->SetParError(2,doublegaus_z02w->GetParError(5));
-  z02w_f2->SetLineColor(kBlue);
+  TF1 *w02w_f1 = new TF1("w02w_f1","gaus",-0.1,0.1);
+  TF1 *w02w_f2 = new TF1("w02w_f2","gaus",-0.1,0.1);
+
+  w02w_f1->SetParameter(0,doublegaus_w02w->GetParameter(0));
+  w02w_f1->SetParameter(1,doublegaus_w02w->GetParameter(1));
+  w02w_f1->SetParameter(2,doublegaus_w02w->GetParameter(2));
+  w02w_f1->SetParError(2,doublegaus_w02w->GetParError(2));
+  w02w_f1->SetLineColor(kRed);
+  w02w_f2->SetParameter(0,doublegaus_w02w->GetParameter(3));
+  w02w_f2->SetParameter(1,doublegaus_w02w->GetParameter(4));
+  w02w_f2->SetParameter(2,doublegaus_w02w->GetParameter(5));
+  w02w_f2->SetParError(2,doublegaus_w02w->GetParError(5));
+  w02w_f2->SetLineColor(kBlue);
   
-  Double_t intz02w_1 = z02w_f1->Integral(-.1,.1);
-  Double_t intz02w_2 = z02w_f2->Integral(-.1,.1);
+  Double_t intw02w_1 = w02w_f1->Integral(-.1,.1);
+  Double_t intw02w_2 = w02w_f2->Integral(-.1,.1);
   
-  zres_02w = (intz02w_1*fabs(z02w_f1->GetParameter(2))+ intz02w_2*fabs(z02w_f2->GetParameter(2)))/(intz02w_1 + intz02w_2);
+  wres_02w = (intw02w_1*fabs(w02w_f1->GetParameter(2))+ intw02w_2*fabs(w02w_f2->GetParameter(2)))/(intw02w_1 + intw02w_2);
+
+  err_wres_02w  = (1./(intw02w_1+intw02w_2));
+  err_wres_02w *= sqrt(intw02w_1*intw02w_1*pow((w02w_f1->GetParError(2)),2)+intw02w_2*intw02w_2*pow(w02w_f2->GetParError(2),2));
 
-  err_zres_02w  = (1./(intz02w_1+intz02w_2));
-  err_zres_02w *= sqrt(intz02w_1*intz02w_1*pow((z02w_f1->GetParError(2)),2)+intz02w_2*intz02w_2*pow(z02w_f2->GetParError(2),2));
+  cout<<endl<<"resolution ww12: "<<wres_02w<<" +- " <<err_wres_02w<<endl<<endl;
 
-  cout<<endl<<"resolution zw12: "<<zres_02w<<" +- " <<err_zres_02w<<endl<<endl;
+  //w03w
 
-  //z03w
+  TF1 *doublegaus_w03w = new TF1("doublegaus_w03w",doublegausf,-.1,.1,6);
 
-  TF1 *doublegaus_z03w = new TF1("doublegaus_z03w",doublegausf,-.1,.1,6);
-  doublegaus_z03w->SetParameters(20,z03w->GetMean(),z03w->GetRMS(),5,z03w->GetMean(),z03w->GetRMS());
-  z03w->Fit("doublegaus_z03w","R");
+   doublegaus_w03w->SetParameters(20,w03w->GetMean(),w03w->GetRMS(),5,w03w->GetMean(),w03w->GetRMS());
+  w03w->Fit("doublegaus_w03w","R");
 
-  TF1 *z03w_f1 = new TF1("z03w_f1","gaus",-0.1,0.1);
-  TF1 *z03w_f2 = new TF1("z03w_f2","gaus",-0.1,0.1);
+  TF1 *w03w_f1 = new TF1("w03w_f1","gaus",-0.1,0.1);
+  TF1 *w03w_f2 = new TF1("w03w_f2","gaus",-0.1,0.1);
 
-  z03w_f1->SetParameter(0,doublegaus_z03w->GetParameter(0));
-  z03w_f1->SetParameter(1,doublegaus_z03w->GetParameter(1));
-  z03w_f1->SetParameter(2,doublegaus_z03w->GetParameter(2));
-  z03w_f1->SetParError(2,doublegaus_z03w->GetParError(2));
-  z03w_f1->SetLineColor(kRed);
-  z03w_f2->SetParameter(0,doublegaus_z03w->GetParameter(3));
-  z03w_f2->SetParameter(1,doublegaus_z03w->GetParameter(4));
-  z03w_f2->SetParameter(2,doublegaus_z03w->GetParameter(5));
-  z03w_f2->SetParError(2,doublegaus_z03w->GetParError(5));
-  z03w_f2->SetLineColor(kBlue);
+  w03w_f1->SetParameter(0,doublegaus_w03w->GetParameter(0));
+  w03w_f1->SetParameter(1,doublegaus_w03w->GetParameter(1));
+  w03w_f1->SetParameter(2,doublegaus_w03w->GetParameter(2));
+  w03w_f1->SetParError(2,doublegaus_w03w->GetParError(2));
+  w03w_f1->SetLineColor(kRed);
+  w03w_f2->SetParameter(0,doublegaus_w03w->GetParameter(3));
+  w03w_f2->SetParameter(1,doublegaus_w03w->GetParameter(4));
+  w03w_f2->SetParameter(2,doublegaus_w03w->GetParameter(5));
+  w03w_f2->SetParError(2,doublegaus_w03w->GetParError(5));
+  w03w_f2->SetLineColor(kBlue);
   
-  Double_t intz03w_1 = z03w_f1->Integral(-.1,.1);
-  Double_t intz03w_2 = z03w_f2->Integral(-.1,.1);
+  Double_t intw03w_1 = w03w_f1->Integral(-.1,.1);
+  Double_t intw03w_2 = w03w_f2->Integral(-.1,.1);
   
-  zres_03w = (intz03w_1*fabs(z03w_f1->GetParameter(2))+ intz03w_2*fabs(z03w_f2->GetParameter(2)))/(intz03w_1 + intz03w_2);
+  wres_03w = (intw03w_1*fabs(w03w_f1->GetParameter(2))+ intw03w_2*fabs(w03w_f2->GetParameter(2)))/(intw03w_1 + intw03w_2);
 
-  err_zres_03w  = (1./(intz03w_1+intz03w_2));
-  err_zres_03w *= sqrt(intz03w_1*intz03w_1*pow((z03w_f1->GetParError(2)),2)+intz03w_2*intz03w_2*pow(z03w_f2->GetParError(2),2));
+  err_wres_03w  = (1./(intw03w_1+intw03w_2));
+  err_wres_03w *= sqrt(intw03w_1*intw03w_1*pow((w03w_f1->GetParError(2)),2)+intw03w_2*intw03w_2*pow(w03w_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution zw23: "<<zres_03w<<" +- " <<err_zres_03w<<endl<<endl;
+  cout<<endl<<"resolution ww23: "<<wres_03w<<" +- " <<err_wres_03w<<endl<<endl;
 
-  //z04w
+  //w04w
 
-  TF1 *doublegaus_z04w = new TF1("doublegaus_z04w",doublegausf,-.1,.1,6);
-  doublegaus_z04w->SetParameters(20,z04w->GetMean(),z04w->GetRMS(),5,z04w->GetMean(),z04w->GetRMS());
-  z04w->Fit("doublegaus_z04w","R");
+  TF1 *doublegaus_w04w = new TF1("doublegaus_w04w",doublegausf,-.1,.1,6);
 
-  TF1 *z04w_f1 = new TF1("z04w_f1","gaus",-0.1,0.1);
-  TF1 *z04w_f2 = new TF1("z04w_f2","gaus",-0.1,0.1);
+  doublegaus_w04w->SetParameters(20,w04w->GetMean(),w04w->GetRMS(),5,w04w->GetMean(),w04w->GetRMS());
+  w04w->Fit("doublegaus_w04w","R");
 
-  z04w_f1->SetParameter(0,doublegaus_z04w->GetParameter(0));
-  z04w_f1->SetParameter(1,doublegaus_z04w->GetParameter(1));
-  z04w_f1->SetParameter(2,doublegaus_z04w->GetParameter(2));
-  z04w_f1->SetParError(2,doublegaus_z04w->GetParError(2));
-  z04w_f1->SetLineColor(kRed);
-  z04w_f2->SetParameter(0,doublegaus_z04w->GetParameter(3));
-  z04w_f2->SetParameter(1,doublegaus_z04w->GetParameter(4));
-  z04w_f2->SetParameter(2,doublegaus_z04w->GetParameter(5));
-  z04w_f2->SetParError(2,doublegaus_z04w->GetParError(5));
-  z04w_f2->SetLineColor(kBlue);
+  TF1 *w04w_f1 = new TF1("w04w_f1","gaus",-0.1,0.1);
+  TF1 *w04w_f2 = new TF1("w04w_f2","gaus",-0.1,0.1);
+
+  w04w_f1->SetParameter(0,doublegaus_w04w->GetParameter(0));
+  w04w_f1->SetParameter(1,doublegaus_w04w->GetParameter(1));
+  w04w_f1->SetParameter(2,doublegaus_w04w->GetParameter(2));
+  w04w_f1->SetParError(2,doublegaus_w04w->GetParError(2));
+  w04w_f1->SetLineColor(kRed);
+  w04w_f2->SetParameter(0,doublegaus_w04w->GetParameter(3));
+  w04w_f2->SetParameter(1,doublegaus_w04w->GetParameter(4));
+  w04w_f2->SetParameter(2,doublegaus_w04w->GetParameter(5));
+  w04w_f2->SetParError(2,doublegaus_w04w->GetParError(5));
+  w04w_f2->SetLineColor(kBlue);
   
-  Double_t intz04w_1 = z04w_f1->Integral(-.1,.1);
-  Double_t intz04w_2 = z04w_f2->Integral(-.1,.1);
+  Double_t intw04w_1 = w04w_f1->Integral(-.1,.1);
+  Double_t intw04w_2 = w04w_f2->Integral(-.1,.1);
   
-  zres_04w = (intz04w_1*fabs(z04w_f1->GetParameter(2))+ intz04w_2*fabs(z04w_f2->GetParameter(2)))/(intz04w_1 + intz04w_2);
+  wres_04w = (intw04w_1*fabs(w04w_f1->GetParameter(2))+ intw04w_2*fabs(w04w_f2->GetParameter(2)))/(intw04w_1 + intw04w_2);
+
+  err_wres_04w  = (1./(intw04w_1+intw04w_2));
+  err_wres_04w *= sqrt(intw04w_1*intw04w_1*pow((w04w_f1->GetParError(2)),2)+intw04w_2*intw04w_2*pow(w04w_f2->GetParError(2),2));
 
-  err_zres_04w  = (1./(intz04w_1+intz04w_2));
-  err_zres_04w *= sqrt(intz04w_1*intz04w_1*pow((z04w_f1->GetParError(2)),2)+intz04w_2*intz04w_2*pow(z04w_f2->GetParError(2),2));
+  cout<<endl<<"resolution ww34: "<<wres_04w<<" +- " <<err_wres_04w<<endl<<endl;
 
-  cout<<endl<<"resolution zw34: "<<zres_04w<<" +- " <<err_zres_04w<<endl<<endl;
+  //w05w
 
-  //z05w
+  TF1 *doublegaus_w05w = new TF1("doublegaus_w05w",doublegausf,-.1,.1,6);
 
-  TF1 *doublegaus_z05w = new TF1("doublegaus_z05w",doublegausf,-.1,.1,6);
-  doublegaus_z05w->SetParameters(20,z05w->GetMean(),z05w->GetRMS(),5,z05w->GetMean(),z05w->GetRMS());
-  z05w->Fit("doublegaus_z05w","R");
+  doublegaus_w05w->SetParameters(20,w05w->GetMean(),w05w->GetRMS(),5,w05w->GetMean(),w05w->GetRMS());
+  w05w->Fit("doublegaus_w05w","R");
 
-  TF1 *z05w_f1 = new TF1("z05w_f1","gaus",-0.1,0.1);
-  TF1 *z05w_f2 = new TF1("z05w_f2","gaus",-0.1,0.1);
+  TF1 *w05w_f1 = new TF1("w05w_f1","gaus",-0.1,0.1);
+  TF1 *w05w_f2 = new TF1("w05w_f2","gaus",-0.1,0.1);
 
-  z05w_f1->SetParameter(0,doublegaus_z05w->GetParameter(0));
-  z05w_f1->SetParameter(1,doublegaus_z05w->GetParameter(1));
-  z05w_f1->SetParameter(2,doublegaus_z05w->GetParameter(2));
-  z05w_f1->SetParError(2,doublegaus_z05w->GetParError(2));
-  z05w_f1->SetLineColor(kRed);
-  z05w_f2->SetParameter(0,doublegaus_z05w->GetParameter(3));
-  z05w_f2->SetParameter(1,doublegaus_z05w->GetParameter(4));
-  z05w_f2->SetParameter(2,doublegaus_z05w->GetParameter(5));
-  z05w_f2->SetParError(2,doublegaus_z05w->GetParError(5));
-  z05w_f2->SetLineColor(kBlue);
+  w05w_f1->SetParameter(0,doublegaus_w05w->GetParameter(0));
+  w05w_f1->SetParameter(1,doublegaus_w05w->GetParameter(1));
+  w05w_f1->SetParameter(2,doublegaus_w05w->GetParameter(2));
+  w05w_f1->SetParError(2,doublegaus_w05w->GetParError(2));
+  w05w_f1->SetLineColor(kRed);
+  w05w_f2->SetParameter(0,doublegaus_w05w->GetParameter(3));
+  w05w_f2->SetParameter(1,doublegaus_w05w->GetParameter(4));
+  w05w_f2->SetParameter(2,doublegaus_w05w->GetParameter(5));
+  w05w_f2->SetParError(2,doublegaus_w05w->GetParError(5));
+  w05w_f2->SetLineColor(kBlue);
   
-  Double_t intz05w_1 = z05w_f1->Integral(-.1,.1);
-  Double_t intz05w_2 = z05w_f2->Integral(-.1,.1);
+  Double_t intw05w_1 = w05w_f1->Integral(-.1,.1);
+  Double_t intw05w_2 = w05w_f2->Integral(-.1,.1);
   
-  zres_05w = (intz05w_1*fabs(z05w_f1->GetParameter(2))+ intz05w_2*fabs(z05w_f2->GetParameter(2)))/(intz05w_1 + intz05w_2);
+  wres_05w = (intw05w_1*fabs(w05w_f1->GetParameter(2))+ intw05w_2*fabs(w05w_f2->GetParameter(2)))/(intw05w_1 + intw05w_2);
 
-  err_zres_05w  = (1./(intz05w_1+intz05w_2));
-  err_zres_05w *= sqrt(intz05w_1*intz05w_1*pow((z05w_f1->GetParError(2)),2)+intz05w_2*intz05w_2*pow(z05w_f2->GetParError(2),2));
+  err_wres_05w  = (1./(intw05w_1+intw05w_2));
+  err_wres_05w *= sqrt(intw05w_1*intw05w_1*pow((w05w_f1->GetParError(2)),2)+intw05w_2*intw05w_2*pow(w05w_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution zw45: "<<zres_05w<<" +- " <<err_zres_05w<<endl<<endl;
+  cout<<endl<<"resolution ww45: "<<wres_05w<<" +- " <<err_wres_05w<<endl<<endl;
 
-  //z06w
+  //w06w
 
-  TF1 *doublegaus_z06w = new TF1("doublegaus_z06w",doublegausf,-.1,.1,6);
-  doublegaus_z06w->SetParameters(20,z06w->GetMean(),z06w->GetRMS(),5,z06w->GetMean(),z06w->GetRMS());
-  z06w->Fit("doublegaus_z06w","R");
+  TF1 *doublegaus_w06w = new TF1("doublegaus_w06w",doublegausf,-.1,.1,6);
 
-  TF1 *z06w_f1 = new TF1("z06w_f1","gaus",-0.1,0.1);
-  TF1 *z06w_f2 = new TF1("z06w_f2","gaus",-0.1,0.1);
+  doublegaus_w06w->SetParameters(20,w06w->GetMean(),w06w->GetRMS(),5,w06w->GetMean(),w06w->GetRMS());
+  w06w->Fit("doublegaus_w06w","R");
 
-  z06w_f1->SetParameter(0,doublegaus_z06w->GetParameter(0));
-  z06w_f1->SetParameter(1,doublegaus_z06w->GetParameter(1));
-  z06w_f1->SetParameter(2,doublegaus_z06w->GetParameter(2));
-  z06w_f1->SetParError(2,doublegaus_z06w->GetParError(2));
-  z06w_f1->SetLineColor(kRed);
-  z06w_f2->SetParameter(0,doublegaus_z06w->GetParameter(3));
-  z06w_f2->SetParameter(1,doublegaus_z06w->GetParameter(4));
-  z06w_f2->SetParameter(2,doublegaus_z06w->GetParameter(5));
-  z06w_f2->SetParError(2,doublegaus_z06w->GetParError(5));
-  z06w_f2->SetLineColor(kBlue);
+  TF1 *w06w_f1 = new TF1("w06w_f1","gaus",-0.1,0.1);
+  TF1 *w06w_f2 = new TF1("w06w_f2","gaus",-0.1,0.1);
+
+  w06w_f1->SetParameter(0,doublegaus_w06w->GetParameter(0));
+  w06w_f1->SetParameter(1,doublegaus_w06w->GetParameter(1));
+  w06w_f1->SetParameter(2,doublegaus_w06w->GetParameter(2));
+  w06w_f1->SetParError(2,doublegaus_w06w->GetParError(2));
+  w06w_f1->SetLineColor(kRed);
+  w06w_f2->SetParameter(0,doublegaus_w06w->GetParameter(3));
+  w06w_f2->SetParameter(1,doublegaus_w06w->GetParameter(4));
+  w06w_f2->SetParameter(2,doublegaus_w06w->GetParameter(5));
+  w06w_f2->SetParError(2,doublegaus_w06w->GetParError(5));
+  w06w_f2->SetLineColor(kBlue);
   
-  Double_t intz06w_1 = z06w_f1->Integral(-.1,.1);
-  Double_t intz06w_2 = z06w_f2->Integral(-.1,.1);
+  Double_t intw06w_1 = w06w_f1->Integral(-.1,.1);
+  Double_t intw06w_2 = w06w_f2->Integral(-.1,.1);
   
-  zres_06w = (intz06w_1*fabs(z06w_f1->GetParameter(2))+ intz06w_2*fabs(z06w_f2->GetParameter(2)))/(intz06w_1 + intz06w_2);
+  wres_06w = (intw06w_1*fabs(w06w_f1->GetParameter(2))+ intw06w_2*fabs(w06w_f2->GetParameter(2)))/(intw06w_1 + intw06w_2);
 
-  err_zres_06w  = (1./(intz06w_1+intz06w_2));
-  err_zres_06w *= sqrt(intz06w_1*intz06w_1*pow((z06w_f1->GetParError(2)),2)+intz06w_2*intz06w_2*pow(z06w_f2->GetParError(2),2));
+  err_wres_06w  = (1./(intw06w_1+intw06w_2));
+  err_wres_06w *= sqrt(intw06w_1*intw06w_1*pow((w06w_f1->GetParError(2)),2)+intw06w_2*intw06w_2*pow(w06w_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution zw56: "<<zres_06w<<" +- " <<err_zres_06w<<endl<<endl;
+  cout<<endl<<"resolution ww56: "<<wres_06w<<" +- " <<err_wres_06w<<endl<<endl;
 
-  //z07w
+  //w07w
 
-  TF1 *doublegaus_z07w = new TF1("doublegaus_z07w",doublegausf,-.1,.1,6);
-  doublegaus_z07w->SetParameters(20,z07w->GetMean(),z07w->GetRMS(),5,z07w->GetMean(),z07w->GetRMS());
-  z07w->Fit("doublegaus_z07w","R");
+  TF1 *doublegaus_w07w = new TF1("doublegaus_w07w",doublegausf,-.1,.1,6);
 
-  TF1 *z07w_f1 = new TF1("z07w_f1","gaus",-0.1,0.1);
-  TF1 *z07w_f2 = new TF1("z07w_f2","gaus",-0.1,0.1);
+  doublegaus_w07w->SetParameters(20,w07w->GetMean(),w07w->GetRMS(),5,w07w->GetMean(),w07w->GetRMS());
+  w07w->Fit("doublegaus_w07w","R");
 
-  z07w_f1->SetParameter(0,doublegaus_z07w->GetParameter(0));
-  z07w_f1->SetParameter(1,doublegaus_z07w->GetParameter(1));
-  z07w_f1->SetParameter(2,doublegaus_z07w->GetParameter(2));
-  z07w_f1->SetParError(2,doublegaus_z07w->GetParError(2));
-  z07w_f1->SetLineColor(kRed);
-  z07w_f2->SetParameter(0,doublegaus_z07w->GetParameter(3));
-  z07w_f2->SetParameter(1,doublegaus_z07w->GetParameter(4));
-  z07w_f2->SetParameter(2,doublegaus_z07w->GetParameter(5));
-  z07w_f2->SetParError(2,doublegaus_z07w->GetParError(5));
-  z07w_f2->SetLineColor(kBlue);
+  TF1 *w07w_f1 = new TF1("w07w_f1","gaus",-0.1,0.1);
+  TF1 *w07w_f2 = new TF1("w07w_f2","gaus",-0.1,0.1);
+
+  w07w_f1->SetParameter(0,doublegaus_w07w->GetParameter(0));
+  w07w_f1->SetParameter(1,doublegaus_w07w->GetParameter(1));
+  w07w_f1->SetParameter(2,doublegaus_w07w->GetParameter(2));
+  w07w_f1->SetParError(2,doublegaus_w07w->GetParError(2));
+  w07w_f1->SetLineColor(kRed);
+  w07w_f2->SetParameter(0,doublegaus_w07w->GetParameter(3));
+  w07w_f2->SetParameter(1,doublegaus_w07w->GetParameter(4));
+  w07w_f2->SetParameter(2,doublegaus_w07w->GetParameter(5));
+  w07w_f2->SetParError(2,doublegaus_w07w->GetParError(5));
+  w07w_f2->SetLineColor(kBlue);
   
-  Double_t intz07w_1 = z07w_f1->Integral(-.1,.1);
-  Double_t intz07w_2 = z07w_f2->Integral(-.1,.1);
+  Double_t intw07w_1 = w07w_f1->Integral(-.1,.1);
+  Double_t intw07w_2 = w07w_f2->Integral(-.1,.1);
   
-  zres_07w = (intz07w_1*fabs(z07w_f1->GetParameter(2))+ intz07w_2*fabs(z07w_f2->GetParameter(2)))/(intz07w_1 + intz07w_2);
+  wres_07w = (intw07w_1*fabs(w07w_f1->GetParameter(2))+ intw07w_2*fabs(w07w_f2->GetParameter(2)))/(intw07w_1 + intw07w_2);
+
+  err_wres_07w  = (1./(intw07w_1+intw07w_2));
+  err_wres_07w *= sqrt(intw07w_1*intw07w_1*pow((w07w_f1->GetParError(2)),2)+intw07w_2*intw07w_2*pow(w07w_f2->GetParError(2),2));
 
-  err_zres_07w  = (1./(intz07w_1+intz07w_2));
-  err_zres_07w *= sqrt(intz07w_1*intz07w_1*pow((z07w_f1->GetParError(2)),2)+intz07w_2*intz07w_2*pow(z07w_f2->GetParError(2),2));
+  cout<<endl<<"resolution ww67: "<<wres_07w<<" +- " <<err_wres_07w<<endl<<endl;
 
-  cout<<endl<<"resolution zw67: "<<zres_07w<<" +- " <<err_zres_07w<<endl<<endl;
+  //w08w
 
-  //z08w
+  TF1 *doublegaus_w08w = new TF1("doublegaus_w08w",doublegausf,-.1,.1,6);
 
-  TF1 *doublegaus_z08w = new TF1("doublegaus_z08w",doublegausf,-.1,.1,6);
-  doublegaus_z08w->SetParameters(20,z08w->GetMean(),z08w->GetRMS(),5,z08w->GetMean(),z08w->GetRMS());
-  z08w->Fit("doublegaus_z08w","R");
+  doublegaus_w08w->SetParameters(20,w08w->GetMean(),w08w->GetRMS(),5,w08w->GetMean(),w08w->GetRMS());
+  w08w->Fit("doublegaus_w08w","R");
 
-  TF1 *z08w_f1 = new TF1("z08w_f1","gaus",-0.1,0.1);
-  TF1 *z08w_f2 = new TF1("z08w_f2","gaus",-0.1,0.1);
+  TF1 *w08w_f1 = new TF1("w08w_f1","gaus",-0.1,0.1);
+  TF1 *w08w_f2 = new TF1("w08w_f2","gaus",-0.1,0.1);
 
-  z08w_f1->SetParameter(0,doublegaus_z08w->GetParameter(0));
-  z08w_f1->SetParameter(1,doublegaus_z08w->GetParameter(1));
-  z08w_f1->SetParameter(2,doublegaus_z08w->GetParameter(2));
-  z08w_f1->SetParError(2,doublegaus_z08w->GetParError(2));
-  z08w_f1->SetLineColor(kRed);
-  z08w_f2->SetParameter(0,doublegaus_z08w->GetParameter(3));
-  z08w_f2->SetParameter(1,doublegaus_z08w->GetParameter(4));
-  z08w_f2->SetParameter(2,doublegaus_z08w->GetParameter(5));
-  z08w_f2->SetParError(2,doublegaus_z08w->GetParError(5));
-  z08w_f2->SetLineColor(kBlue);
+  w08w_f1->SetParameter(0,doublegaus_w08w->GetParameter(0));
+  w08w_f1->SetParameter(1,doublegaus_w08w->GetParameter(1));
+  w08w_f1->SetParameter(2,doublegaus_w08w->GetParameter(2));
+  w08w_f1->SetParError(2,doublegaus_w08w->GetParError(2));
+  w08w_f1->SetLineColor(kRed);
+  w08w_f2->SetParameter(0,doublegaus_w08w->GetParameter(3));
+  w08w_f2->SetParameter(1,doublegaus_w08w->GetParameter(4));
+  w08w_f2->SetParameter(2,doublegaus_w08w->GetParameter(5));
+  w08w_f2->SetParError(2,doublegaus_w08w->GetParError(5));
+  w08w_f2->SetLineColor(kBlue);
   
-  Double_t intz08w_1 = z08w_f1->Integral(-.1,.1);
-  Double_t intz08w_2 = z08w_f2->Integral(-.1,.1);
+  Double_t intw08w_1 = w08w_f1->Integral(-.1,.1);
+  Double_t intw08w_2 = w08w_f2->Integral(-.1,.1);
   
-  zres_08w = (intz08w_1*fabs(z08w_f1->GetParameter(2))+ intz08w_2*fabs(z08w_f2->GetParameter(2)))/(intz08w_1 + intz08w_2);
+  wres_08w = (intw08w_1*fabs(w08w_f1->GetParameter(2))+ intw08w_2*fabs(w08w_f2->GetParameter(2)))/(intw08w_1 + intw08w_2);
 
-  err_zres_08w  = (1./(intz08w_1+intz08w_2));
-  err_zres_08w *= sqrt(intz08w_1*intz08w_1*pow((z08w_f1->GetParError(2)),2)+intz08w_2*intz08w_2*pow(z08w_f2->GetParError(2),2));
+  err_wres_08w  = (1./(intw08w_1+intw08w_2));
+  err_wres_08w *= sqrt(intw08w_1*intw08w_1*pow((w08w_f1->GetParError(2)),2)+intw08w_2*intw08w_2*pow(w08w_f2->GetParError(2),2));
 
-  cout<<endl<<"resolution zw78: "<<zres_08w<<" +- " <<err_zres_08w<<endl<<endl;
+  cout<<endl<<"resolution ww78: "<<wres_08w<<" +- " <<err_wres_08w<<endl<<endl;
 
 
   //Draw
 
-  //y without
+  //v without
 
   TCanvas *canvas = new TCanvas();
-  yall->Draw();
-  doublegaus_yall->Draw("same");
-  yall_f1->Draw("same");
-  yall_f2->Draw("same");
+  vall->Draw();
+  doublegaus_vall->Draw("same");
+  vall_f1->Draw("same");
+  vall_f2->Draw("same");
   canvas = new TCanvas();
-  y01->Draw();
-  doublegaus_y01->Draw("same");
-  y01_f1->Draw("same");
-  y01_f2->Draw("same");
+  v01->Draw();
+  doublegaus_v01->Draw("same");
+  v01_f1->Draw("same");
+  v01_f2->Draw("same");
   canvas = new TCanvas();
-  y02->Draw();
-  doublegaus_y02->Draw("same");
-  y02_f1->Draw("same");
-  y02_f2->Draw("same");
+  v02->Draw();
+  doublegaus_v02->Draw("same");
+  v02_f1->Draw("same");
+  v02_f2->Draw("same");
   canvas = new TCanvas();
-  y03->Draw();
-  doublegaus_y03->Draw("same");
-  y03_f1->Draw("same");
-  y03_f2->Draw("same");
+  v03->Draw();
+  doublegaus_v03->Draw("same");
+  v03_f1->Draw("same");
+  v03_f2->Draw("same");
   canvas = new TCanvas();
-  y04->Draw();
-  doublegaus_y04->Draw("same");
-  y04_f1->Draw("same");
-  y04_f2->Draw("same");
+  v04->Draw();
+  doublegaus_v04->Draw("same");
+  v04_f1->Draw("same");
+  v04_f2->Draw("same");
   canvas = new TCanvas();
-  y05->Draw();
-  doublegaus_y05->Draw("same");
-  y05_f1->Draw("same");
-  y05_f2->Draw("same");
+  v05->Draw();
+  doublegaus_v05->Draw("same");
+  v05_f1->Draw("same");
+  v05_f2->Draw("same");
   canvas = new TCanvas();
-  y06->Draw();
-  doublegaus_y06->Draw("same");
-  y06_f1->Draw("same");
-  y06_f2->Draw("same");
+  v06->Draw();
+  doublegaus_v06->Draw("same");
+  v06_f1->Draw("same");
+  v06_f2->Draw("same");
   canvas = new TCanvas();
-  y07->Draw();
-  doublegaus_y07->Draw("same");
-  y07_f1->Draw("same");
-  y07_f2->Draw("same");
+  v07->Draw();
+  doublegaus_v07->Draw("same");
+  v07_f1->Draw("same");
+  v07_f2->Draw("same");
   canvas = new TCanvas();
-  y08->Draw();
-  doublegaus_y08->Draw("same");
-  y08_f1->Draw("same");
-  y08_f2->Draw("same");
+  v08->Draw();
+  doublegaus_v08->Draw("same");
+  v08_f1->Draw("same");
+  v08_f2->Draw("same");
 
-  //z without
-
-  canvas = new TCanvas();
-  zall->Draw();
-  doublegaus_zall->Draw("same");
-  zall_f1->Draw("same");
-  zall_f2->Draw("same");
-  canvas = new TCanvas();
-  z01->Draw();
-  doublegaus_z01->Draw("same");
-  z01_f1->Draw("same");
-  z01_f2->Draw("same");
-  canvas = new TCanvas();
-  z02->Draw();
-  doublegaus_z02->Draw("same");
-  z02_f1->Draw("same");
-  z02_f2->Draw("same");
-  canvas = new TCanvas();
-  z03->Draw();
-  doublegaus_z03->Draw("same");
-  z03_f1->Draw("same");
-  z03_f2->Draw("same");
-  canvas = new TCanvas();
-  z04->Draw();
-  doublegaus_z04->Draw("same");
-  z04_f1->Draw("same");
-  z04_f2->Draw("same");
-  canvas = new TCanvas();
-  z05->Draw();
-  doublegaus_z05->Draw("same");
-  z05_f1->Draw("same");
-  z05_f2->Draw("same");
-  canvas = new TCanvas();
-  z06->Draw();
-  doublegaus_z06->Draw("same");
-  z06_f1->Draw("same");
-  z06_f2->Draw("same");
-  canvas = new TCanvas();
-  z07->Draw();
-  doublegaus_z07->Draw("same");
-  z07_f1->Draw("same");
-  z07_f2->Draw("same");
-  canvas = new TCanvas();
-  z08->Draw();
-  doublegaus_z08->Draw("same");
-  z08_f1->Draw("same");
-  z08_f2->Draw("same");
-
-  //y using clusterSplit1.C
+  //w without
 
   canvas = new TCanvas();
-  yallw->Draw();
-  doublegaus_yallw->Draw("same");
-  yallw_f1->Draw("same");
-  yallw_f2->Draw("same");
+  wall->Draw();
+  doublegaus_wall->Draw("same");
+  wall_f1->Draw("same");
+  wall_f2->Draw("same");
   canvas = new TCanvas();
-  y01w->Draw();
-  doublegaus_y01w->Draw("same");
-  y01w_f1->Draw("same");
-  y01w_f2->Draw("same");
+  w01->Draw();
+  doublegaus_w01->Draw("same");
+  w01_f1->Draw("same");
+  w01_f2->Draw("same");
   canvas = new TCanvas();
-  y02w->Draw();
-  doublegaus_y02w->Draw("same");
-  y02w_f1->Draw("same");
-  y02w_f2->Draw("same");
+  w02->Draw();
+  doublegaus_w02->Draw("same");
+  w02_f1->Draw("same");
+  w02_f2->Draw("same");
   canvas = new TCanvas();
-  y03w->Draw();
-  doublegaus_y03w->Draw("same");
-  y03w_f1->Draw("same");
-  y03w_f2->Draw("same");
+  w03->Draw();
+  doublegaus_w03->Draw("same");
+  w03_f1->Draw("same");
+  w03_f2->Draw("same");
   canvas = new TCanvas();
-  y04w->Draw();
-  doublegaus_y04w->Draw("same");
-  y04w_f1->Draw("same");
-  y04w_f2->Draw("same");
+  w04->Draw();
+  doublegaus_w04->Draw("same");
+  w04_f1->Draw("same");
+  w04_f2->Draw("same");
   canvas = new TCanvas();
-  y05w->Draw();
-  doublegaus_y05w->Draw("same");
-  y05w_f1->Draw("same");
-  y05w_f2->Draw("same");
+  w05->Draw();
+  doublegaus_w05->Draw("same");
+  w05_f1->Draw("same");
+  w05_f2->Draw("same");
   canvas = new TCanvas();
-  y06w->Draw();
-  doublegaus_y06w->Draw("same");
-  y06w_f1->Draw("same");
-  y06w_f2->Draw("same");
+  w06->Draw();
+  doublegaus_w06->Draw("same");
+  w06_f1->Draw("same");
+  w06_f2->Draw("same");
   canvas = new TCanvas();
-  y07w->Draw();
-  doublegaus_y07w->Draw("same");
-  y07w_f1->Draw("same");
-  y07w_f2->Draw("same");
+  w07->Draw();
+  doublegaus_w07->Draw("same");
+  w07_f1->Draw("same");
+  w07_f2->Draw("same");
   canvas = new TCanvas();
-  y08w->Draw();
-  doublegaus_y08w->Draw("same");
-  y08w_f1->Draw("same");
-  y08w_f2->Draw("same");
+  w08->Draw();
+  doublegaus_w08->Draw("same");
+  w08_f1->Draw("same");
+  w08_f2->Draw("same");
 
-  //z using clusterSplit1.C
+  //v using clusterSplit1.C
 
   canvas = new TCanvas();
-  zallw->Draw();
-  doublegaus_zallw->Draw("same");
-  zallw_f1->Draw("same");
-  zallw_f2->Draw("same");
+  vallw->Draw();
+  doublegaus_vallw->Draw("same");
+  vallw_f1->Draw("same");
+  vallw_f2->Draw("same");
   canvas = new TCanvas();
-  z01w->Draw();
-  doublegaus_z01w->Draw("same");
-  z01w_f1->Draw("same");
-  z01w_f2->Draw("same");
+  v01w->Draw();
+  doublegaus_v01w->Draw("same");
+  v01w_f1->Draw("same");
+  v01w_f2->Draw("same");
   canvas = new TCanvas();
-  z02w->Draw();
-  doublegaus_z02w->Draw("same");
-  z02w_f1->Draw("same");
-  z02w_f2->Draw("same");
+  v02w->Draw();
+  doublegaus_v02w->Draw("same");
+  v02w_f1->Draw("same");
+  v02w_f2->Draw("same");
   canvas = new TCanvas();
-  z03w->Draw();
-  doublegaus_z03w->Draw("same");
-  z03w_f1->Draw("same");
-  z03w_f2->Draw("same");
+  v03w->Draw();
+  doublegaus_v03w->Draw("same");
+  v03w_f1->Draw("same");
+  v03w_f2->Draw("same");
   canvas = new TCanvas();
-  z04w->Draw();
-  doublegaus_z04w->Draw("same");
-  z04w_f1->Draw("same");
-  z04w_f2->Draw("same");
+  v04w->Draw();
+  doublegaus_v04w->Draw("same");
+  v04w_f1->Draw("same");
+  v04w_f2->Draw("same");
   canvas = new TCanvas();
-  z05w->Draw();
-  doublegaus_z05w->Draw("same");
-  z05w_f1->Draw("same");
-  z05w_f2->Draw("same");
+  v05w->Draw();
+  doublegaus_v05w->Draw("same");
+  v05w_f1->Draw("same");
+  v05w_f2->Draw("same");
   canvas = new TCanvas();
-  z06w->Draw();
-  doublegaus_z06w->Draw("same");
-  z06w_f1->Draw("same");
-  z06w_f2->Draw("same");
+  v06w->Draw();
+  doublegaus_v06w->Draw("same");
+  v06w_f1->Draw("same");
+  v06w_f2->Draw("same");
   canvas = new TCanvas();
-  z07w->Draw();
-  doublegaus_z07w->Draw("same");
-  z07w_f1->Draw("same");
-  z07w_f2->Draw("same");
+  v07w->Draw();
+  doublegaus_v07w->Draw("same");
+  v07w_f1->Draw("same");
+  v07w_f2->Draw("same");
   canvas = new TCanvas();
-  z08w->Draw();
-  doublegaus_z08w->Draw("same");
-  z08w_f1->Draw("same");
-  z08w_f2->Draw("same");
+  v08w->Draw();
+  doublegaus_v08w->Draw("same");
+  v08w_f1->Draw("same");
+  v08w_f2->Draw("same");
+
+  //w using clusterSplit1.C
+
+  canvas = new TCanvas();
+  wallw->Draw();
+  doublegaus_wallw->Draw("same");
+  wallw_f1->Draw("same");
+  wallw_f2->Draw("same");
+  canvas = new TCanvas();
+  w01w->Draw();
+  doublegaus_w01w->Draw("same");
+  w01w_f1->Draw("same");
+  w01w_f2->Draw("same");
+  canvas = new TCanvas();
+  w02w->Draw();
+  doublegaus_w02w->Draw("same");
+  w02w_f1->Draw("same");
+  w02w_f2->Draw("same");
+  canvas = new TCanvas();
+  w03w->Draw();
+  doublegaus_w03w->Draw("same");
+  w03w_f1->Draw("same");
+  w03w_f2->Draw("same");
+  canvas = new TCanvas();
+  w04w->Draw();
+  doublegaus_w04w->Draw("same");
+  w04w_f1->Draw("same");
+  w04w_f2->Draw("same");
+  canvas = new TCanvas();
+  w05w->Draw();
+  doublegaus_w05w->Draw("same");
+  w05w_f1->Draw("same");
+  w05w_f2->Draw("same");
+  canvas = new TCanvas();
+  w06w->Draw();
+  doublegaus_w06w->Draw("same");
+  w06w_f1->Draw("same");
+  w06w_f2->Draw("same");
+  canvas = new TCanvas();
+  w07w->Draw();
+  doublegaus_w07w->Draw("same");
+  w07w_f1->Draw("same");
+  w07w_f2->Draw("same");
+  canvas = new TCanvas();
+  w08w->Draw();
+  doublegaus_w08w->Draw("same");
+  w08w_f1->Draw("same");
+  w08w_f2->Draw("same");
 
 
   //overview graphs
 
-  //y without
+  //v without
 
-  double yx[8] = {1, 2, 3, 4, 5, 6, 7, 8};
-  double yxx[8] = {5, 15, 25, 35, 45, 55, 65, 73.5};
-  double yex[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-  double yexx[8] = {5, 5, 5, 5, 5, 5, 5, 3.5};
-  double yy[8] = {yres_01*10000, yres_02*10000, yres_03*10000, yres_04*10000, 
-                  yres_05*10000, yres_06*10000, yres_07*10000, yres_08*10000};
-  double yyy[8] = {yres_01*10, yres_02*10, yres_03*10, yres_04*10, 
-                   yres_05*10, yres_06*10, yres_07*10, yres_08*10};
-  double yey[8] = {err_yres_01*10000, err_yres_02*10000, 
-                   err_yres_03*10000, err_yres_04*10000, 
-                   err_yres_05*10000, err_yres_06*10000, 
-                   err_yres_07*10000, err_yres_08*10000};
-  double yeyy[8] = {err_yres_01*10, err_yres_02*10, 
-                    err_yres_03*10, err_yres_04*10, 
-                    err_yres_05*10, err_yres_06*10, 
-                    err_yres_07*10, err_yres_08*10};
+  double vx[8] = {1, 2, 3, 4, 5, 6, 7, 8};
+  double vxx[8] = {5, 15, 25, 35, 45, 55, 65, 73.5};
+  double vex[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+  double vexx[8] = {5, 5, 5, 5, 5, 5, 5, 3.5};
+  double vy[8] = {vres_01*10000, vres_02*10000, vres_03*10000, vres_04*10000, 
+                  vres_05*10000, vres_06*10000, vres_07*10000, vres_08*10000};
+  double vyy[8] = {vres_01*10, vres_02*10, vres_03*10, vres_04*10, 
+                   vres_05*10, vres_06*10, vres_07*10, vres_08*10};
+  double vey[8] = {err_vres_01*10000, err_vres_02*10000, 
+                   err_vres_03*10000, err_vres_04*10000, 
+                   err_vres_05*10000, err_vres_06*10000, 
+                   err_vres_07*10000, err_vres_08*10000};
+  double veyy[8] = {err_vres_01*10, err_vres_02*10, 
+                    err_vres_03*10, err_vres_04*10, 
+                    err_vres_05*10, err_vres_06*10, 
+                    err_vres_07*10, err_vres_08*10};
 
-  TH2D *hr1y = new TH2D("hr1y","hr1y",8,0.5,8.5, 10,0,500);
-  hr1y->SetStats(kFALSE);
-  hr1y->SetTitle("");
-  hr1y->SetYTitle("Spatial Resolution y (#mum)");
-  hr1y->SetLabelOffset(0.01, "X");
-  hr1y->SetLabelSize(0.05, "X");
+  TH2D *hr1v = new TH2D("hr1v","hr1v",8,0.5,8.5, 10,0,500);
+  hr1v->SetStats(kFALSE);
+  hr1v->SetTitle("");
+  hr1v->SetYTitle("Spatial Resolution v (#mum)");
+  hr1v->SetLabelOffset(0.01, "X");
+  hr1v->SetLabelSize(0.05, "X");
 
-  TAxis *y_xaxis = hr1y->GetXaxis();
-  y_xaxis->SetBinLabel(1," 0 < z < 10mm");
-  y_xaxis->SetBinLabel(2,"10 < z < 20mm");
-  y_xaxis->SetBinLabel(3,"20 < z < 30mm");
-  y_xaxis->SetBinLabel(4,"30 < z < 40mm");
-  y_xaxis->SetBinLabel(5,"40 < z < 50mm");
-  y_xaxis->SetBinLabel(6,"50 < z < 60mm");
-  y_xaxis->SetBinLabel(7,"60 < z < 70mm");
-  y_xaxis->SetBinLabel(8,"70 < z < 80mm");
+  TAxis *v_xaxis = hr1v->GetXaxis();
+  v_xaxis->SetBinLabel(1," 0 < w < 10mm");
+  v_xaxis->SetBinLabel(2,"10 < w < 20mm");
+  v_xaxis->SetBinLabel(3,"20 < w < 30mm");
+  v_xaxis->SetBinLabel(4,"30 < w < 40mm");
+  v_xaxis->SetBinLabel(5,"40 < w < 50mm");
+  v_xaxis->SetBinLabel(6,"50 < w < 60mm");
+  v_xaxis->SetBinLabel(7,"60 < w < 70mm");
+  v_xaxis->SetBinLabel(8,"70 < w < 80mm");
 
-  TGraphErrors *yres_vs_z = new TGraphErrors(8, yx, yy, yex, yey);
-  yres_vs_z->SetTitle("");
-  yres_vs_z->SetMarkerStyle(21);
-  yres_vs_z->SetMarkerColor(2);
-  yres_vs_z->SetMarkerSize(1);
+  TGraphErrors *vres_vs_w = new TGraphErrors(8, vx, vy, vex, vey);
+  vres_vs_w->SetTitle("");
+  vres_vs_w->SetMarkerStyle(21);
+  vres_vs_w->SetMarkerColor(2);
+  vres_vs_w->SetMarkerSize(1);
   canvas = new TCanvas();
-  hr1y->Draw();
-  yres_vs_z->Draw("p");
+  hr1v->Draw();
+  vres_vs_w->Draw("p");
 
-  TGraphErrors *yres_vs_z2 = new TGraphErrors(8, yxx, yyy, yexx, yeyy);
-  yres_vs_z2->SetTitle("");
-  yres_vs_z2->SetMarkerStyle(21);
-  yres_vs_z2->SetMarkerColor(2);
-  yres_vs_z2->SetMarkerSize(1);
+  TGraphErrors *vres_vs_w2 = new TGraphErrors(8, vxx, vyy, vexx, veyy);
+  vres_vs_w2->SetTitle("");
+  vres_vs_w2->SetMarkerStyle(21);
+  vres_vs_w2->SetMarkerColor(2);
+  vres_vs_w2->SetMarkerSize(1);
   canvas = new TCanvas();
-  yres_vs_z2->Draw("ap");
+  vres_vs_w2->Draw("ap");
 
 
-  //z without
+  //w without
 
-  double zx[8] = {1, 2, 3, 4, 5, 6, 7, 8};
-  double zxx[8] = {5, 15, 25, 35, 45, 55, 65, 73.5};
-  double zex[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-  double zexx[8] = {5, 5, 5, 5, 5, 5, 5, 3.5};
-  double zy[8] = {zres_01*10000, zres_02*10000, zres_03*10000, zres_04*10000, 
-                  zres_05*10000, zres_06*10000, zres_07*10000, zres_08*10000};
-  double zyy[8] = {zres_01*10, zres_02*10, zres_03*10, zres_04*10, 
-                   zres_05*10, zres_06*10, zres_07*10, zres_08*10};
-  double zey[8] = {err_zres_01*10000, err_zres_02*10000,  
-                   err_zres_03*10000, err_zres_04*10000, 
-                   err_zres_05*10000, err_zres_06*10000, 
-                   err_zres_07*10000, err_zres_08*10000};
-  double zeyy[8] = {err_zres_01*10, err_zres_02*10, 
-                    err_zres_03*10, err_zres_04*10, 
-                    err_zres_05*10, err_zres_06*10, 
-                    err_zres_07*10, err_zres_08*10};
+  double wx[8] = {1, 2, 3, 4, 5, 6, 7, 8};
+  double wxx[8] = {5, 15, 25, 35, 45, 55, 65, 73.5};
+  double wex[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+  double wexx[8] = {5, 5, 5, 5, 5, 5, 5, 3.5};
+  double wy[8] = {wres_01*10000, wres_02*10000, wres_03*10000, wres_04*10000, 
+                  wres_05*10000, wres_06*10000, wres_07*10000, wres_08*10000};
+  double wyy[8] = {wres_01*10, wres_02*10, wres_03*10, wres_04*10, 
+                   wres_05*10, wres_06*10, wres_07*10, wres_08*10};
+  double wey[8] = {err_wres_01*10000, err_wres_02*10000,  
+                   err_wres_03*10000, err_wres_04*10000, 
+                   err_wres_05*10000, err_wres_06*10000, 
+                   err_wres_07*10000, err_wres_08*10000};
+  double weyy[8] = {err_wres_01*10, err_wres_02*10, 
+                    err_wres_03*10, err_wres_04*10, 
+                    err_wres_05*10, err_wres_06*10, 
+                    err_wres_07*10, err_wres_08*10};
 
-  TH2D *hr1z = new TH2D("hr1z","hr1z",8,0.5,8.5, 10,0,500);
-  hr1z->SetStats(kFALSE);
-  hr1z->SetTitle("");
-  hr1z->SetYTitle("Spatial Resolution z (#mum)");
-  hr1z->SetLabelOffset(0.01, "X");
-  hr1z->SetLabelSize(0.05, "X");
+  TH2D *hr1w = new TH2D("hr1w","hr1w",8,0.5,8.5, 10,0,500);
+  hr1w->SetStats(kFALSE);
+  hr1w->SetTitle("");
+  hr1w->SetYTitle("Spatial Resolution w (#mum)");
+  hr1w->SetLabelOffset(0.01, "X");
+  hr1w->SetLabelSize(0.05, "X");
 
-  TAxis *z_xaxis = hr1z->GetXaxis();
-  z_xaxis->SetBinLabel(1," 0 < z < 10mm");
-  z_xaxis->SetBinLabel(2,"10 < z < 20mm");
-  z_xaxis->SetBinLabel(3,"20 < z < 30mm");
-  z_xaxis->SetBinLabel(4,"30 < z < 40mm");
-  z_xaxis->SetBinLabel(5,"40 < z < 50mm");
-  z_xaxis->SetBinLabel(6,"50 < z < 60mm");
-  z_xaxis->SetBinLabel(7,"60 < z < 70mm");
-  z_xaxis->SetBinLabel(8,"70 < z < 80mm");
+  TAxis *w_xaxis = hr1w->GetXaxis();
+  w_xaxis->SetBinLabel(1," 0 < w < 10mm");
+  w_xaxis->SetBinLabel(2,"10 < w < 20mm");
+  w_xaxis->SetBinLabel(3,"20 < w < 30mm");
+  w_xaxis->SetBinLabel(4,"30 < w < 40mm");
+  w_xaxis->SetBinLabel(5,"40 < w < 50mm");
+  w_xaxis->SetBinLabel(6,"50 < w < 60mm");
+  w_xaxis->SetBinLabel(7,"60 < w < 70mm");
+  w_xaxis->SetBinLabel(8,"70 < w < 80mm");
 
-  TGraphErrors *zres_vs_z = new TGraphErrors(8, zx, zy, zex, zey);
-  zres_vs_z->SetTitle("");
-  zres_vs_z->SetMarkerStyle(21);
-  zres_vs_z->SetMarkerColor(2);
-  zres_vs_z->SetMarkerSize(1);
+  TGraphErrors *wres_vs_w = new TGraphErrors(8, wx, wy, wex, wey);
+  wres_vs_w->SetTitle("");
+  wres_vs_w->SetMarkerStyle(21);
+  wres_vs_w->SetMarkerColor(2);
+  wres_vs_w->SetMarkerSize(1);
   canvas = new TCanvas();
-  hr1z->Draw();
-  zres_vs_z->Draw("p");
+  hr1w->Draw();
+  wres_vs_w->Draw("p");
 
-  TGraphErrors *zres_vs_z2 = new TGraphErrors(8, zxx, zyy, zexx, zeyy);
-  zres_vs_z2->SetTitle("");
-  zres_vs_z2->SetMarkerStyle(21);
-  zres_vs_z2->SetMarkerColor(2);
-  zres_vs_z2->SetMarkerSize(1);
+  TGraphErrors *wres_vs_w2 = new TGraphErrors(8, wxx, wyy, wexx, weyy);
+  wres_vs_w2->SetTitle("");
+  wres_vs_w2->SetMarkerStyle(21);
+  wres_vs_w2->SetMarkerColor(2);
+  wres_vs_w2->SetMarkerSize(1);
   canvas = new TCanvas();
-  zres_vs_z2->Draw("ap");
+  wres_vs_w2->Draw("ap");
 
 
-  //y using clusterSplit1.C
+  //v using clusterSplit1.C
 
-  double ywx[8] = {1, 2, 3, 4, 5, 6, 7, 8};
-  double ywxx[8] = {5, 15, 25, 35, 45, 55, 65, 73.5};
-  double ywex[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-  double ywexx[8] = {5, 5, 5, 5, 5, 5, 5, 3.5};
-  double ywy[8] = {yres_01w*10000, yres_02w*10000, yres_03w*10000, yres_04w*10000,
-                   yres_05w*10000, yres_06w*10000, yres_07w*10000, yres_08w*10000};
-  double ywyy[8] = {yres_01w*10, yres_02w*10, yres_03w*10, yres_04w*10, 
-		    yres_05w*10, yres_06w*10, yres_07w*10, yres_08w*10};
-  double ywey[8] = {err_yres_01w*10000, err_yres_02w*10000,
-		    err_yres_03w*10000, err_yres_04w*10000,
-		    err_yres_05w*10000, err_yres_06w*10000,
-		    err_yres_07w*10000, err_yres_08w*10000};
-  double yweyy[8] = {err_yres_01w*10, err_yres_02w*10,
-		     err_yres_03w*10, err_yres_04w*10,
-		     err_yres_05w*10, err_yres_06w*10,
-		     err_yres_07w*10, err_yres_08w*10};
+  double vwx[8] = {1, 2, 3, 4, 5, 6, 7, 8};
+  double vwxx[8] = {5, 15, 25, 35, 45, 55, 65, 73.5};
+  double vwex[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+  double vwexx[8] = {5, 5, 5, 5, 5, 5, 5, 3.5};
+  double vwy[8] = {vres_01w*10000, vres_02w*10000, vres_03w*10000, vres_04w*10000,
+                   vres_05w*10000, vres_06w*10000, vres_07w*10000, vres_08w*10000};
+  double vwyy[8] = {vres_01w*10, vres_02w*10, vres_03w*10, vres_04w*10, 
+		    vres_05w*10, vres_06w*10, vres_07w*10, vres_08w*10};
+  double vwey[8] = {err_vres_01w*10000, err_vres_02w*10000,
+		    err_vres_03w*10000, err_vres_04w*10000,
+		    err_vres_05w*10000, err_vres_06w*10000,
+		    err_vres_07w*10000, err_vres_08w*10000};
+  double vweyy[8] = {err_vres_01w*10, err_vres_02w*10,
+		     err_vres_03w*10, err_vres_04w*10,
+		     err_vres_05w*10, err_vres_06w*10,
+		     err_vres_07w*10, err_vres_08w*10};
 
-  TH2D *hr1yw = new TH2D("hr1yw","hr1yw",8,0.5,8.5, 10,0,500);
-  hr1yw->SetStats(kFALSE);
-  hr1yw->SetTitle("");
-  hr1yw->SetYTitle("Spatial Resolution y using clusterSplit1.C (#mum)");
-  hr1yw->SetLabelOffset(0.01, "X");
-  hr1yw->SetLabelSize(0.05, "X");
+  TH2D *hr1vw = new TH2D("hr1vw","hr1vw",8,0.5,8.5, 10,0,500);
+  hr1vw->SetStats(kFALSE);
+  hr1vw->SetTitle("");
+  hr1vw->SetYTitle("Spatial Resolution v using clusterSplit1.C (#mum)");
+  hr1vw->SetLabelOffset(0.01, "X");
+  hr1vw->SetLabelSize(0.05, "X");
 
-  TAxis *yw_xaxis = hr1yw->GetXaxis();
-  yw_xaxis->SetBinLabel(1," 0 < z < 10mm");
-  yw_xaxis->SetBinLabel(2,"10 < z < 20mm");
-  yw_xaxis->SetBinLabel(3,"20 < z < 30mm");
-  yw_xaxis->SetBinLabel(4,"30 < z < 40mm");
-  yw_xaxis->SetBinLabel(5,"40 < z < 50mm");
-  yw_xaxis->SetBinLabel(6,"50 < z < 60mm");
-  yw_xaxis->SetBinLabel(7,"60 < z < 70mm");
-  yw_xaxis->SetBinLabel(8,"70 < z < 80mm");
+  TAxis *vw_xaxis = hr1vw->GetXaxis();
+  vw_xaxis->SetBinLabel(1," 0 < w < 10mm");
+  vw_xaxis->SetBinLabel(2,"10 < w < 20mm");
+  vw_xaxis->SetBinLabel(3,"20 < w < 30mm");
+  vw_xaxis->SetBinLabel(4,"30 < w < 40mm");
+  vw_xaxis->SetBinLabel(5,"40 < w < 50mm");
+  vw_xaxis->SetBinLabel(6,"50 < w < 60mm");
+  vw_xaxis->SetBinLabel(7,"60 < w < 70mm");
+  vw_xaxis->SetBinLabel(8,"70 < w < 80mm");
 
-  TGraphErrors *yresw_vs_z = new TGraphErrors(8, ywx,ywy, ywex, ywey);
-  yresw_vs_z->SetTitle("");
-  yresw_vs_z->SetMarkerStyle(21);
-  yresw_vs_z->SetMarkerColor(2);
-  yresw_vs_z->SetMarkerSize(1);
+  TGraphErrors *vresw_vs_w = new TGraphErrors(8, vwx,vwy, vwex, vwey);
+  vresw_vs_w->SetTitle("");
+  vresw_vs_w->SetMarkerStyle(21);
+  vresw_vs_w->SetMarkerColor(2);
+  vresw_vs_w->SetMarkerSize(1);
   canvas = new TCanvas();
-  hr1yw->Draw();
-  yresw_vs_z->Draw("p");
+  hr1vw->Draw();
+  vresw_vs_w->Draw("p");
 
-  TGraphErrors *yresw_vs_z2 = new TGraphErrors(8, ywxx, ywyy, ywexx, yweyy);
-  yresw_vs_z2->SetTitle("");
-  yresw_vs_z2->SetMarkerStyle(21);
-  yresw_vs_z2->SetMarkerColor(2);
-  yresw_vs_z2->SetMarkerSize(1);
+  TGraphErrors *vresw_vs_w2 = new TGraphErrors(8, vwxx, vwyy, vwexx, vweyy);
+  vresw_vs_w2->SetTitle("");
+  vresw_vs_w2->SetMarkerStyle(21);
+  vresw_vs_w2->SetMarkerColor(2);
+  vresw_vs_w2->SetMarkerSize(1);
   canvas = new TCanvas();
-  yresw_vs_z2->Draw("ap");
+  vresw_vs_w2->Draw("ap");
 
 
-  //z using clusterSplit1.C
+  //w using clusterSplit1.C
 
-  double zwx[8] = {1, 2, 3, 4, 5, 6, 7, 8};
-  double zwxx[8] = {5, 15, 25, 35, 45, 55, 65, 73.5};
-  double zwex[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-  double zwexx[8] = {5, 5, 5, 5, 5, 5, 5, 3.5};
-  double zwy[8] = {zres_01w*10000, zres_02w*10000, zres_03w*10000, zres_04w*10000,
-                   zres_05w*10000, zres_06w*10000, zres_07w*10000, zres_08w*10000};
-  double zwyy[8] = {zres_01w*10, zres_02w*10, zres_03w*10, zres_04w*10, 
-		    zres_05w*10, zres_06w*10, zres_07w*10, zres_08w*10};
-  double zwey[8] = {err_zres_01w*10000, err_zres_02w*10000,
-		    err_zres_03w*10000, err_zres_04w*10000,
-		    err_zres_05w*10000, err_zres_06w*10000,
-		    err_zres_07w*10000, err_zres_08w*10000};
-  double zweyy[8] = {err_zres_01w*10, err_zres_02w*10,
-		     err_zres_03w*10, err_zres_04w*10,
-		     err_zres_05w*10, err_zres_06w*10,
-		     err_zres_07w*10, err_zres_08w*10};
+  double wwx[8] = {1, 2, 3, 4, 5, 6, 7, 8};
+  double wwxx[8] = {5, 15, 25, 35, 45, 55, 65, 73.5};
+  double wwex[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+  double wwexx[8] = {5, 5, 5, 5, 5, 5, 5, 3.5};
+  double wwy[8] = {wres_01w*10000, wres_02w*10000, wres_03w*10000, wres_04w*10000,
+                   wres_05w*10000, wres_06w*10000, wres_07w*10000, wres_08w*10000};
+  double wwyy[8] = {wres_01w*10, wres_02w*10, wres_03w*10, wres_04w*10, 
+		    wres_05w*10, wres_06w*10, wres_07w*10, wres_08w*10};
+  double wwey[8] = {err_wres_01w*10000, err_wres_02w*10000,
+		    err_wres_03w*10000, err_wres_04w*10000,
+		    err_wres_05w*10000, err_wres_06w*10000,
+		    err_wres_07w*10000, err_wres_08w*10000};
+  double wweyy[8] = {err_wres_01w*10, err_wres_02w*10,
+		     err_wres_03w*10, err_wres_04w*10,
+		     err_wres_05w*10, err_wres_06w*10,
+		     err_wres_07w*10, err_wres_08w*10};
 
-  TH2D *hr1zw = new TH2D("hr1zw","hr1zw",8,0.5,8.5, 10,0,500);
-  hr1zw->SetStats(kFALSE);
-  hr1zw->SetTitle("");
-  hr1zw->SetYTitle("Spatial Resolution z using clusterSplit1.C (#mum)");
-  hr1zw->SetLabelOffset(0.01, "X");
-  hr1zw->SetLabelSize(0.05, "X");
+  TH2D *hr1ww = new TH2D("hr1ww","hr1ww",8,0.5,8.5, 10,0,500);
+  hr1ww->SetStats(kFALSE);
+  hr1ww->SetTitle("");
+  hr1ww->SetYTitle("Spatial Resolution w using clusterSplit1.C (#mum)");
+  hr1ww->SetLabelOffset(0.01, "X");
+  hr1ww->SetLabelSize(0.05, "X");
 
-  TAxis *zw_xaxis = hr1zw->GetXaxis();
-  zw_xaxis->SetBinLabel(1," 0 < z < 10mm");
-  zw_xaxis->SetBinLabel(2,"10 < z < 20mm");
-  zw_xaxis->SetBinLabel(3,"20 < z < 30mm");
-  zw_xaxis->SetBinLabel(4,"30 < z < 40mm");
-  zw_xaxis->SetBinLabel(5,"40 < z < 50mm");
-  zw_xaxis->SetBinLabel(6,"50 < z < 60mm");
-  zw_xaxis->SetBinLabel(7,"60 < z < 70mm");
-  zw_xaxis->SetBinLabel(8,"70 < z < 80mm");
+  TAxis *ww_xaxis = hr1ww->GetXaxis();
+  ww_xaxis->SetBinLabel(1," 0 < w < 10mm");
+  ww_xaxis->SetBinLabel(2,"10 < w < 20mm");
+  ww_xaxis->SetBinLabel(3,"20 < w < 30mm");
+  ww_xaxis->SetBinLabel(4,"30 < w < 40mm");
+  ww_xaxis->SetBinLabel(5,"40 < w < 50mm");
+  ww_xaxis->SetBinLabel(6,"50 < w < 60mm");
+  ww_xaxis->SetBinLabel(7,"60 < w < 70mm");
+  ww_xaxis->SetBinLabel(8,"70 < w < 80mm");
 
-  TGraphErrors *zresw_vs_z = new TGraphErrors(8, zwx,zwy, zwex, zwey);
-  zresw_vs_z->SetTitle("");
-  zresw_vs_z->SetMarkerStyle(21);
-  zresw_vs_z->SetMarkerColor(2);
-  zresw_vs_z->SetMarkerSize(1);
+  TGraphErrors *wresw_vs_w = new TGraphErrors(8, wwx,wwy, wwex, wwey);
+  wresw_vs_w->SetTitle("");
+  wresw_vs_w->SetMarkerStyle(21);
+  wresw_vs_w->SetMarkerColor(2);
+  wresw_vs_w->SetMarkerSize(1);
   canvas = new TCanvas();
-  hr1zw->Draw();
-  zresw_vs_z->Draw("p");
+  hr1ww->Draw();
+  wresw_vs_w->Draw("p");
 
-  TGraphErrors *zresw_vs_z2 = new TGraphErrors(8, zwxx, zwyy, zwexx, zweyy);
-  zresw_vs_z2->SetTitle("");
-  zresw_vs_z2->SetMarkerStyle(21);
-  zresw_vs_z2->SetMarkerColor(2);
-  zresw_vs_z2->SetMarkerSize(1);
+  TGraphErrors *wresw_vs_w2 = new TGraphErrors(8, wwxx, wwyy, wwexx, wweyy);
+  wresw_vs_w2->SetTitle("");
+  wresw_vs_w2->SetMarkerStyle(21);
+  wresw_vs_w2->SetMarkerColor(2);
+  wresw_vs_w2->SetMarkerSize(1);
   canvas = new TCanvas();
-  zresw_vs_z2->Draw("ap");
+  wresw_vs_w2->Draw("ap");
 
 }
 
