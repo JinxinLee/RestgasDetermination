@@ -47,41 +47,44 @@ void plots(TString files){
   TCtrack *intr=0;
 
 
-   TH1D *xclustp = new TH1D("xclustp","",500,-1,1);
-   xclustp->SetXTitle("residual x [cm]");
-   //xclustp->SetFillColor(2);
+   TH1D *uresidp = new TH1D("uresidp","",500,-1,1);
+   uresidp->SetXTitle("residual u [cm]");
+   //uresidp->SetFillColor(2);
 
-   TH1D *xclust = new TH1D("xclust","",500,-1,1);
-   xclust->SetXTitle("residual x [cm]");
-   xclust->SetFillColor(2);
+   TH1D *uresid = new TH1D("uresid","",500,-1,1);
+   uresid->SetXTitle("residual u [cm]");
+   uresid->SetFillColor(2);
+   uresid->SetLineColor(2);
 
-   TH1D *xclustw = new TH1D("xclustw","",500,-1,1);
-   xclustw->SetXTitle("residual x [cm]");
-   //xclustw->SetFillColor(2);
+   TH1D *uresidw = new TH1D("uresidw","",500,-1,1);
+   uresidw->SetXTitle("residual u [cm]");
+   //uresidw->SetFillColor(2);
 
-   TH1D *yclustp = new TH1D("yclustp","",500,-1,1);
-   yclustp->SetXTitle("residual y [cm]");
-   //yclustp->SetFillColor(2);
+   TH1D *vresidp = new TH1D("vresidp","",500,-0.1,0.1);
+   vresidp->SetXTitle("residual v [cm]");
+   //vresidp->SetFillColor(2);
 
-   TH1D *yclust = new TH1D("yclust","",500,-1,1);
-   yclust->SetXTitle("residual y [cm]");
-   yclust->SetFillColor(2);
+   TH1D *vresid = new TH1D("vresid","",500,-0.2,0.2);
+   vresid->SetXTitle("residual v [cm]");
+   vresid->SetFillColor(2);
+   vresid->SetLineColor(2);
 
-   TH1D *yclustw = new TH1D("yclustw","",500,-1,1);
-   yclustw->SetXTitle("residual y [cm]");
-   //yclustw->SetFillColor(2);
+   TH1D *vresidw = new TH1D("vresidw","",500,-0.2,0.2);
+   vresidw->SetXTitle("residual v [cm]");
+   //vresidw->SetFillColor(2);
 
-   TH1D *zclustp = new TH1D("zclustp","",500,-1,1);
-   zclustp->SetXTitle("residual z [cm]");
-   //zclustp->SetFillColor(2);
+   TH1D *wresidp = new TH1D("wresidp","",500,-0.1,0.1);
+   wresidp->SetXTitle("residual w [cm]");
+   //wresidp->SetFillColor(2);
 
-   TH1D *zclust = new TH1D("zclust","",500,-1,1);
-   zclust->SetXTitle("residual z [cm]");
-   zclust->SetFillColor(2);
+   TH1D *wresid = new TH1D("wresid","",500,-0.2,0.2);
+   wresid->SetXTitle("residual w [cm]");
+   wresid->SetFillColor(2);
+   wresid->SetLineColor(2);
 
-   TH1D *zclustw = new TH1D("zclustw","",500,-1,1);
-   zclustw->SetXTitle("residual z [cm]");
-   //zclustw->SetFillColor(2);
+   TH1D *wresidw = new TH1D("wresidw","",500,-0.2,0.2);
+   wresidw->SetXTitle("residual w [cm]");
+   //wresidw->SetFillColor(2);
 
 
 
@@ -104,12 +107,12 @@ void plots(TString files){
      for(int i=0;i<tr.nCl();++i){
        TCcluster c = tr.getCl(i);
        if(c.getFit()){//was used in fit
-	 xclust->Fill(c.getRes().X());
-	 yclust->Fill(c.getRes().Y());
-	 zclust->Fill(c.getRes().Z());
-	 xclustp->Fill(c.getRes().X());
-	 yclustp->Fill(c.getRes().Y());
-	 zclustp->Fill(c.getRes().Z());
+	 uresid->Fill(c.getRes().X());
+	 vresid->Fill(c.getRes().Y());
+	 wresid->Fill(c.getRes().Z());
+	 uresidp->Fill(c.getRes().X());
+	 vresidp->Fill(c.getRes().Y());
+	 wresidp->Fill(c.getRes().Z());
        }
      }
    }
@@ -133,9 +136,9 @@ void plots(TString files){
        TCcluster d = trSplit.getCl(i);
        
        if(d.getFit()){//was used in fit
-	 xclustw->Fill(d.getRes().X());
-	 yclustw->Fill(d.getRes().Y());
-	 zclustw->Fill(d.getRes().Z());
+	 uresidw->Fill(d.getRes().X());
+	 vresidw->Fill(d.getRes().Y());
+	 wresidw->Fill(d.getRes().Z());
 	 
 	 
        }
@@ -144,37 +147,37 @@ void plots(TString files){
    }
 
   TF1 *doublegaus_f = new TF1("doublegaus_f",doublegausf,-1,1,6);
-  doublegaus_f->SetParameters(200,yclustp->GetMean(),yclustp->GetRMS(),
-							 50,yclustp->GetMean(),yclustp->GetRMS());
+  doublegaus_f->SetParameters(200,vresidp->GetMean(),vresidp->GetRMS(),
+							 50,vresidp->GetMean(),vresidp->GetRMS());
   
-  yclustp->Fit("doublegaus_f","R");
+  vresidp->Fit("doublegaus_f","R");
 
   TF1 *zdoublegaus_f = new TF1("zdoublegaus_f",doublegausf,-1,1,6);
-  zdoublegaus_f->SetParameters(200,zclustp->GetMean(),zclustp->GetRMS(),
-							 50,zclustp->GetMean(),zclustp->GetRMS());
+  zdoublegaus_f->SetParameters(200,wresidp->GetMean(),wresidp->GetRMS(),
+							 50,wresidp->GetMean(),wresidp->GetRMS());
   
-  zclustp->Fit("zdoublegaus_f","R");
+  wresidp->Fit("zdoublegaus_f","R");
 
   time ( &rawtime );
   std::cout<< "The current time is " << ctime(&rawtime) << std::endl;
 
 
    TCanvas *xw = new TCanvas("canv1","");   
-   xclustw->Draw();
-   xclust->Draw("same");
+   uresidw->Draw();
+   uresid->Draw("same");
    TCanvas *x = new TCanvas("canv2","");   
-   xclustp->Draw();
+   uresidp->Draw();
    TCanvas *yw = new TCanvas("canv3","");   
-   yclustw->Draw();
-   yclust->Draw("same");
+   vresidw->Draw();
+   vresid->Draw("same");
    TCanvas *y = new TCanvas("canv4","");   
-   yclustp->Draw();
+   vresidp->Draw();
    doublegaus_f->Draw("same");
    TCanvas *zw = new TCanvas("canv5","");   
-   zclustw->Draw();
-   zclust->Draw("same");
+   wresidw->Draw();
+   wresid->Draw("same");
    TCanvas *z = new TCanvas("canv6","");   
-   zclustp->Draw();
+   wresidp->Draw();
    zdoublegaus_f->Draw("same");
    
 }
