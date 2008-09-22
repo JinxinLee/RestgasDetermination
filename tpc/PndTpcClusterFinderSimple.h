@@ -36,7 +36,7 @@ class PndTpcPrelimCluster{
   PndTpcPrelimCluster(PndTpcPadPlane*, double, int);
   virtual ~PndTpcPrelimCluster();
 
-  void addHit(const PndTpcDigi&);
+  void addHit(const PndTpcDigi&,bool noXclust=false);
 
   bool isInCluster(const PndTpcDigi* const);
 
@@ -57,11 +57,12 @@ public:
   virtual void reset();
   virtual void checkConsistency();
 
+  void setNoXclust(bool b=true){noXclust=b;}
 
 private:
   PndTpcPadPlane* _padplane;
   std::vector<PndTpcCluster*>* _output_buffer;
-
+  bool noXclust;
   unsigned int _dt; // time slice in units of sample time
 
 

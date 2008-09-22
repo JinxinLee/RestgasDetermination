@@ -118,11 +118,13 @@ int main(int argc, char* argv[]) {
   int clust_choice;  
   int timewindow_chr,timewindow_seb,detId;
   int mcFlag;
+  int noXclustChr;
   if(!(cf.readInto(clust_choice , "CLUSTERING") )) failedConf("CLUSTERING");
   if(!(cf.readInto(mcFlag , "MC") )) failedConf("MC");
   if(!(cf.readInto( timewindow_chr, "TIMEWINDOW_CLUST_CHR") )) failedConf("TIMEWINDOW_CLUST_CHR");
   if(!(cf.readInto( timewindow_seb, "TIMEWINDOW_CLUST_SEB") )) failedConf("TIMEWINDOW_CLUST_CHR");
   if(!(cf.readInto( detId, "TPCDETID") )) failedConf("TPCDETID");
+  if(!(cf.readInto( noXclustChr, "NO_X_CLUST_CHR") )) failedConf("NO_X_CLUST_CHR");
 
   assert(mcFlag==0 || mcFlag==1);
   dataReader myReader(intree,mcFlag);
@@ -131,6 +133,9 @@ int main(int argc, char* argv[]) {
   PndTpcAbsClusterFinder *clusterfinder;
   if(clust_choice == 1) {
     clusterfinder = new PndTpcClusterFinderSimple(PndTpcDigiMapper::getInstance()->getPadPlane(),clusters,timewindow_chr);
+    if(noXclustChr){
+      ((PndTpcClusterFinderSimple*)clusterfinder)->setNoXclust();
+    }
   }
   else {
     if(clust_choice == 2) {
@@ -242,6 +247,7 @@ int main(int argc, char* argv[]) {
     if(mcFlag==1){
       outputTrack->setMCPar(event->MCTax,event->MCTbx,event->MCTay,event->MCTby);
     }
+    //outputTrack->drawClustering();
     //outputTrack->draw();
     rootOutfile->cd();
     outTree->Fill();
