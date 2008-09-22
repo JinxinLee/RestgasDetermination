@@ -19,3 +19,6 @@ SET(ROOT_LIBS -L${ROOT_LIB} -lMinuit -lCore -lCint -lRIO -lNet -lHist -lGraf -lG
 ADD_EXECUTABLE(particleGun particleGun.cxx ../src/ConfigFile.cpp)
 TARGET_LINK_LIBRARIES(particleGun ${ROOT_LIBS})
 
+ADD_EXECUTABLE(zDistrGeom zDistrGeom.cxx ../src/ConfigFile.cpp)
+TARGET_LINK_LIBRARIES(zDistrGeom ${ROOT_LIBS})
+
