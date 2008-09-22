@@ -171,7 +171,7 @@
   c2->cd();
   hdedxvsp_reco->Draw();
 
-  TFile *out_dedx = new TFile("out_dedx_helixhit2.root", "RECREATE");
+  TFile *out_dedx = new TFile("out_dedx_helixhit.root", "RECREATE");
   hdedxvsp->Write();
   hdedxvsp_e->Write();
   hdedxvsp_mu->Write();
