@@ -114,12 +114,12 @@
 	PndSttHit* hit = (PndSttHit*) digi->At(hitindex);
 	PndSttPoint *point = (PndSttPoint*) pnt->At(hit->GetRefIndex());
 	
-	dedxvec.push_back(hit->GetdEdx());
+	dedxvec.push_back(helixhit->GetdEdx());
       }
 
       if(hitcounter > 0) {
 	// truncated mean
-	Double_t perc = 0.50;
+	Double_t perc = 0.60;
 	// sort
 	std::sort(dedxvec.begin(), dedxvec.end());
 
@@ -170,6 +170,17 @@
 
   c2->cd();
   hdedxvsp_reco->Draw();
+
+  TFile *out_dedx = new TFile("out_dedx_helixhit2.root", "RECREATE");
+  hdedxvsp->Write();
+  hdedxvsp_e->Write();
+  hdedxvsp_mu->Write();
+  hdedxvsp_pi->Write();
+  hdedxvsp_k->Write();
+  hdedxvsp_p->Write();
+  hdedxvsp_reco->Write();
+  out_dedx->Write();
+  out_dedx->Close();
 
 
 
