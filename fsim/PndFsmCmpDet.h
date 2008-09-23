@@ -66,6 +66,10 @@ private:
 
   TString _parFileName;
   bool _parFile;
+  double _d0ResMulti;
+  double _z0ResMulti;
+  double _thtResMulti;
+  double _phiResMulti;
   double _momResMulti;
 
   std::map<int, TSpline3*> _d0;

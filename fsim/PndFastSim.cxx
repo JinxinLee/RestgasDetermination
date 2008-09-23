@@ -144,22 +144,20 @@ InitStatus PndFastSim::Init() {
 
   // for the time being, this is the matrix of correlation 
   // coefficients, it is later scaled by the track errors
-  //d0            phi0            omega          
-  fRho(0,0)= 1.0; fRho(0,1)=-0.9; fRho(0,2)= 0.2; // d0
-  fRho(1,0)=-0.9; fRho(1,1)= 1.0; fRho(1,2)=-0.4; // phi0
-  fRho(2,0)= 0.2; fRho(2,1)=-0.4; fRho(2,2)= 1.0; // omega
-  //z0            tandip 
-  fRho(3,3)= 1.0; fRho(3,4)=-0.9; // z0
-  fRho(4,3)=-0.9; fRho(4,4)= 1.0; // tandip
+  //d0                 phi0                omega               z0                  dandip
+  fRho(0,0)= 1;        fRho(0,1)=-0.9243;  fRho(0,2)= 0.3087;  fRho(0,3)=-0.01743; fRho(0,4)= 0.009165; // d0
+  fRho(1,0)=-0.9243;   fRho(1,1)= 1;       fRho(1,2)=-0.4189;  fRho(1,3)=-0.00552; fRho(1,4)=-0.00873;  // phi0
+  fRho(2,0)= 0.3087;   fRho(2,1)=-0.4189;  fRho(2,2)= 1;       fRho(2,3)= 0.02094; fRho(2,4)=-0.01742;  // omega
+  fRho(3,0)=-0.01743;  fRho(3,1)=-0.00552; fRho(3,2)= 0.02094; fRho(3,3)= 1;       fRho(3,4)=-0.9327;   // z0
+  fRho(4,0)= 0.009165; fRho(4,1)=-0.00873; fRho(4,2)=-0.01742; fRho(4,3)=-0.9327;  fRho(4,4)= 1;        // tandip
   // and this is the square root of fRho 
   // needed to correlate the track params
-  //d0            phi0               omega          
-  fEta(0,0)= 1.0;                                       // d0
-  fEta(1,0)=-0.9; fEta(1,1)= 0.4359;                    // phi0
-  fEta(2,0)= 0.2; fEta(2,1)=-0.5047; fEta(2,2)= 0.8398; // omega
-  //z0            tandip 
-  fEta(3,3)= 1.0;                    // z0
-  fEta(4,3)=-0.9; fEta(4,4)= 0.4359; // tandip
+  //d0                 phi0                 omega                z0                  dandip
+  fEta(0,0)= 1;                                                                                       // d0
+  fEta(1,0)=-0.9243;   fEta(1,1)= 0.3817;                                                             // phi0
+  fEta(2,0)= 0.3087;   fEta(2,1)=-0.35;     fEta(2,2)= 0.8844;                                        // omega
+  fEta(3,0)=-0.01743;  fEta(3,1)=-0.05667;  fEta(3,2)= 0.007335; fEta(3,3)= 0.9982;                   // z0
+  fEta(4,0)= 0.009165; fEta(4,1)=-6.781e-4; fEta(4,2)=-0.02316;  fEta(4,3)=-0.9341; fEta(4,4)=0.3562; // tandip
 
   // Create and register output array
   cout << "-I- PndFastSim: Intialization successfull" << endl;
