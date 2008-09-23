@@ -82,10 +82,10 @@ int main(int argc, char *argv[])
 
   //int ioption = 1; // parallel beam (0 deg)
   //int ioption = 2; // 0,  +- 20,  +-40 deg
-  //int ioption = 3; // C-cone
+  int ioption = 3; // C-cone
   //int ioption = 4; // random in front of lens.
   //int ioption = 5; // single photon for debugging.
-  int ioption = 6; // grid 5 deg
+  //int ioption = 6; // grid 5 deg
 
   double pi=3.1415926535;
 
@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
   PndDrcOptReflNone    refl_none;
   double            lambda=500;
 
-  double slab_width  = 17;
+  double slab_width  = 34;
   double slab_height = 17;
 
 
@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
   lens_sphere.AddPoint(q1);
   lens_sphere.AddPoint(q2);
   lens_sphere.AddPoint(q3);
-  lens_sphere.SetRadius(95); // f = R/(n-1) = 200 mm
+  lens_sphere.SetRadius(75); // f = R/(n-1) = 200 mm
   lens_sphere.SetPrintColor(3);
   lens_sphere.SetConicalConstant(conical_const);
   lens_sphere.SetName("lens_sphere");
@@ -191,10 +191,10 @@ int main(int argc, char *argv[])
   //                                             /  /        /  /
   //                                            /  /        /  /
   //                                           /  /        /  /
-  XYZPoint p5(-300.0, +300.0, +300); // p1-s1--s2---p4 /
-  XYZPoint p6(-300.0, -300.0, +300); // | /s5--s6   | /
-  XYZPoint p7(+300.0, -300.0, +300); // |/ s7--s8   |/
-  XYZPoint p8(+300.0, +300.0, +300); // p2-s3--s4--p3 
+  XYZPoint p5(-300.0, +300.0, +200); // p1-s1--s2---p4 /
+  XYZPoint p6(-300.0, -300.0, +200); // | /s5--s6   | /
+  XYZPoint p7(+300.0, -300.0, +200); // |/ s7--s8   |/
+  XYZPoint p8(+300.0, +300.0, +200); // p2-s3--s4--p3 
 
   PndDrcSurfPolyFlat box_side1;
   box_side1.AddPoint(p1);
@@ -435,10 +435,14 @@ int main(int argc, char *argv[])
     }
   if (ioption==3)
     {
-      XYZPoint pos(0,-10,-45.0);
-      XYZVector dir(0.0,1,-3); 
-      double   beta = 0.80;
-      photons_exist = manager->Cerenkov(pos,dir,beta,100,200); // generate photons
+      // -50 close to lens (0)
+      // -900 close to far end (1000)
+      XYZPoint  pos(0,-20,-150);
+      XYZVector dir(0,1,1); // 45 degree
+      double    beta = 0.97; // the 3.5 GeV proton beam
+      int       photon_number = 2000;
+      float     range = 70;
+      photons_exist = manager->Cerenkov(pos,dir,beta,photon_number,range); 
     }
   if (ioption==4)  
     {
@@ -490,14 +494,14 @@ int main(int argc, char *argv[])
 	{
 
 	  cout<<" angle = "<<angle<<endl;
-	  for (double lambda1=630; lambda1>329; lambda1-=10)
+	  for (double lambda1=630; lambda1>329; lambda1-=100)
 	    {
 	      //double lambda1=lambda;
 	      // go in x dir
 	      double y1 = tan(angle*pi/180);
 	      double x1 = y1;
 	      double scale = 3/angle;
-		for (double y=-y1; y<= y1; y+= 2*y1/50*scale)
+		for (double y=-y1; y<= y1; y+= 2*y1/3*scale)
 		{
 		double xx=ran.Uniform(-0.5*slab_width,0.5*slab_width);
 		double yy=ran.Uniform(-0.5*slab_height,0.5*slab_height);
@@ -511,7 +515,7 @@ int main(int argc, char *argv[])
 		list_photon.push_back(ph);
 		}
 	      
-	      for (double x=-x1; x<= x1; x+= 2*y1/20*scale)
+	      for (double x=-x1; x<= x1; x+= 2*y1/3*scale)
 		{
 		  double xx=ran.Uniform(-0.5*slab_width,0.5*slab_width);
 		  double yy=ran.Uniform(-0.5*slab_height,0.5*slab_height);
