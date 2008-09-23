@@ -62,6 +62,9 @@
   boxGen->SetPRange(1.,1.); // GeV/c //setPRange vs setPtRange
   boxGen->SetPhiRange(0, 360); // Azimuth angle range [degree]
   boxGen->SetThetaRange(0, 180); // Polar angle in lab system range [degree]
+  boxGen->SetCosTheta();//uniform generation on all the solid angle(default)
+
+
   // boxGen->SetXYZ(0., 0.37, 0.); 
   primGen->AddGenerator(boxGen);
   
