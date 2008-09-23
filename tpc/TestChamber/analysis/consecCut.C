@@ -13,10 +13,11 @@
 
 bool consecCut(TCtrack t){
 
+  //  std::vector<int> vecInt;
   std::vector<TCcluster> tpc;//will hold clusters in TPC
   for(int i=0;i<t.nCl();++i){
     TCcluster c = t.getCl(i);
-    if(c.getId()==200){
+    if(c.getId()>=200 && c.getId()<=299){
       for(int j=0;j<c.nRaw();++j){
 	tpc.push_back(c.getRaw(j));
       }
@@ -24,6 +25,9 @@ bool consecCut(TCtrack t){
   }
   //std::sort(tpc.begin(),tpc.end(),TCclusterSortUVW());
 
+
+  //work with integers, since equality for floating point numbers is poorly define in C
+  //multiply float wih 10000 before casting
   std::set<int> uvals;
   std::set<int> vvals;
 
