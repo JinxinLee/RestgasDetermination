@@ -17,9 +17,9 @@
 
 
 #include "consecCut.C"
+#include "clusterSplit1.C"
 
-
-void Hits(TString files){
+void plots(TString files){
 
   //gSystem->Load("libtestChamber"); 
 
@@ -37,18 +37,20 @@ void Hits(TString files){
   TCtrack *intr=0;
 
 
-   TH1D *nHits = new TH1D("nHits","",31,0,30);
-   nHits->SetXTitle("Number of Clusters");
-   //xresid->SetFillColor(2);
+  TH1D *nHits = new TH1D("nHits","",30,0,30);
+  nHits->SetXTitle("Number of Clusters");
+  //xresid->SetFillColor(2);
 
-   TH1D *nSelHits = new TH1D("nSelHits","",31,0,30);
-   nSelHits->SetXTitle("Number of Clusters on track");
-   nSelHits->SetLineColor(2);
-   //nSelHits->SetFillColor(6);
+  TH1D *nSelHits = new TH1D("nSelHits","",30,0,30);
+  nSelHits->SetXTitle("Number of Clusters on track");
+  nSelHits->SetLineColor(6);
 
-   TH1D *difference = new TH1D("nSelHits-nHits","",31,0,30);
-   difference->SetXTitle("# Clusters - # Clusters on track");
-   //nSelHits->SetFillColor(6);
+  TH1D *diffnhits = new TH1D("diffnhits","",30,0,30);
+  diffnhits->SetXTitle("Number of Hits - Number of Hits on Track");
+
+  TH1D *diffnhits3 = new TH1D("diffnhits3","",30,0,30);
+  diffnhits3->SetXTitle("");
+  diffnhits3->SetLineColor(5);
 
   myChain.SetBranchAddress("track", &intr);
 
@@ -63,21 +65,24 @@ void Hits(TString files){
 
     nSelHits->Fill(tr.nClFit());
     nHits->Fill(tr.nCl());
-    difference->Fill(tr.nCl() - tr.nClFit());
+    diffnhits->Add(nHits, nSelHits, 1, -1);
+    diffnhits3->Add(nHits, nSelHits, 1, -1);
   }
+
 
   time ( &rawtime );
   std::cout<< "The current time is " << ctime(&rawtime) << std::endl;
 
-  TCanvas *both = new TCanvas();
-  nSelHits->Draw();
-  nHits->Draw("same");
-  TCanvas *selhits = new TCanvas();
-  nSelHits->Draw();
-  TCanvas *hits = new TCanvas();
+  TCanvas *x = new TCanvas();
   nHits->Draw();
+  nSelHits->Draw("same");
   TCanvas *diff = new TCanvas();
-  difference->Draw();
+  diffnhits->Draw();
+  TCanvas *diff3 = new TCanvas();
+  nHits->Draw();
+  nSelHits->Draw("same");
+  diffnhits3->Draw("same");
+
 
 }
 

@@ -93,7 +93,7 @@ void plots(TString files){
     myChain.GetEntry(iev);
     TCtrack tr(*intr);
     TCtrack trSplit = clusterSplit1(tr);
-    trSplit.fit(260);
+    trSplit.fit(200);
 
     nSelHitsw->Fill(trSplit.nClFit());
     nHitsw->Fill(trSplit.nCl());
