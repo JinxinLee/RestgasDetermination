@@ -49,17 +49,6 @@ void position(TString files){
   v_vs_w->SetXTitle("Position v [cm]");
   v_vs_w->SetYTitle("Position w [cm]");
 
-  //without using clusterSplit1.C
-
-  TH1D *uposw = new TH1D("uposw","",500,0,10);
-  uposw->SetXTitle("Position u [cm] using clusterSplit1.C");
-  TH1D *vposw = new TH1D("vposw","",500,0,1);
-  vposw->SetXTitle("Position v [cm] using clusterSplit1.C");
-  TH1D *wposw = new TH1D("wposw","",500,0,9);
-  wposw->SetXTitle("Position w [cm] using clusterSplit1.C");
-  TH2D *v_vs_ww = new TH2D("v_vs_ww","",500,0,1,500,0,9);
-  v_vs_ww->SetXTitle("Position v [cm]");
-  v_vs_ww->SetYTitle("Position w [cm]");
  
   myChain.SetBranchAddress("track", &intr);
 
@@ -80,25 +69,6 @@ void position(TString files){
     }
   }
    
-  for (Int_t iev=0;iev<nevent;iev++){
-     
-    myChain.GetEntry(iev);
-    TCtrack tr(*intr);
-    TCtrack trSplit = clusterSplit1(tr);
-    trSplit.fit(260);
-     
-    for(int i=0;i<trSplit.nCl();++i){
-      TCcluster c = trSplit.getCl(i);
-      if(c.getFit()){//was used in fit
-
-	uposw->Fill(c.posUVW().X());
-	vposw->Fill(c.posUVW().Y());
-	wposw->Fill(c.posUVW().Z());
-	v_vs_ww->Fill(c.posUVW().Y(),c.posUVW().Z());
-
-      }
-    }
-  }
 
   //end of event loop
 
@@ -109,14 +79,7 @@ void position(TString files){
   canvas = new TCanvas();
   wpos->Draw();
   canvas = new TCanvas();
-  uposw->Draw();
-  canvas = new TCanvas();
-  vposw->Draw();
-  canvas = new TCanvas();
-  wposw->Draw();
-  canvas = new TCanvas();
   v_vs_w->Draw();
-  canvas = new TCanvas();
-  v_vs_ww->Draw();
+
 
 }

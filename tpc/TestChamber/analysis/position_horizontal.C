@@ -39,21 +39,27 @@ void position(TString files){
   //define the histograms
   //without using clusterSplit1.C
 
-  TH1D *upos = new TH1D("upos","",500,0,11);
+  TH1D *upos = new TH1D("upos","",500,0,10);
   upos->SetXTitle("Position u [cm]");
   TH1D *vpos = new TH1D("vpos","",500,0,1);
   vpos->SetXTitle("Position v [cm]");
   TH1D *wpos = new TH1D("wpos","",500,0,9);
   wpos->SetXTitle("Position w [cm]");
+  TH2D *v_vs_w = new TH2D("v_vs_w","",500,0,1,500,0,9);
+  v_vs_w->SetXTitle("Position v [cm]");
+  v_vs_w->SetYTitle("Position w [cm]");
 
   //without using clusterSplit1.C
 
-  TH1D *uposw = new TH1D("uposw","",500,0,11);
+  TH1D *uposw = new TH1D("uposw","",500,0,10);
   uposw->SetXTitle("Position u [cm] using clusterSplit1.C");
   TH1D *vposw = new TH1D("vposw","",500,0,1);
   vposw->SetXTitle("Position v [cm] using clusterSplit1.C");
   TH1D *wposw = new TH1D("wposw","",500,0,9);
   wposw->SetXTitle("Position w [cm] using clusterSplit1.C");
+  TH2D *v_vs_ww = new TH2D("v_vs_ww","",500,0,1,500,0,9);
+  v_vs_ww->SetXTitle("Position v [cm]");
+  v_vs_ww->SetYTitle("Position w [cm]");
  
   myChain.SetBranchAddress("track", &intr);
 
@@ -69,6 +75,7 @@ void position(TString files){
 	upos->Fill(d.posUVW().X());
 	vpos->Fill(d.posUVW().Y());
 	wpos->Fill(d.posUVW().Z());
+	v_vs_w->Fill(d.posUVW().Y(),d.posUVW().Z());
       }
     }
   }
@@ -87,6 +94,7 @@ void position(TString files){
 	uposw->Fill(c.posUVW().X());
 	vposw->Fill(c.posUVW().Y());
 	wposw->Fill(c.posUVW().Z());
+	v_vs_ww->Fill(c.posUVW().Y(),c.posUVW().Z());
 
       }
     }
@@ -106,5 +114,9 @@ void position(TString files){
   vposw->Draw();
   canvas = new TCanvas();
   wposw->Draw();
+  canvas = new TCanvas();
+  v_vs_w->Draw();
+  canvas = new TCanvas();
+  v_vs_ww->Draw();
 
 }
