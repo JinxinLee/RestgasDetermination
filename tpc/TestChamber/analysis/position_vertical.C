@@ -95,16 +95,16 @@ void position(TString files){
   //end of event loop
 
   TCanvas *canvas = new TCanvas();
-  xpos->Draw();
+  upos->Draw();
   canvas = new TCanvas();
-  ypos->Draw();
+  vpos->Draw();
   canvas = new TCanvas();
-  zpos->Draw();
+  wpos->Draw();
   canvas = new TCanvas();
-  xposw->Draw();
+  uposw->Draw();
   canvas = new TCanvas();
-  yposw->Draw();
+  vposw->Draw();
   canvas = new TCanvas();
-  zposw->Draw();
+  wposw->Draw();
 
 }
