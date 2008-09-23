@@ -19,7 +19,7 @@ protected:
   Double_t fMvdPath;                // Thickness crossed inside MVD
   Int_t fMvdHitCount;               // Number of mvd hits
 
-  Double_t fSttELoss;               // Energy Loss in  STT
+  Double_t fSttdEdx;                // Energy Loss/dx in  STT (a.u.)
   Int_t fSttHitCount;               // Number of STT hits
 
   Int_t   fTofIndex;                // Index of PndTofHit object
@@ -66,7 +66,7 @@ public:
   Float_t GetMvdDEDX()                { return fMvdPath>0. ? (fMvdELoss/fMvdPath) : -1.; }
   Int_t GetMvdHitCounts()             { return fMvdHitCount; };
 
-  Float_t GetSttELoss()               { return fSttELoss;    };
+  Float_t GetSttDEDX()                { return fSttdEdx;    };
   Int_t GetSttHitCounts()             { return fSttHitCount; };
 
   Int_t GetTofIndex()                 { return fTofIndex; }
@@ -103,7 +103,7 @@ public:
   void SetMvdPath(Float_t len)        { fMvdPath = len;    };
   void SetMvdHitCounts(Int_t nhit)    { fMvdHitCount = nhit;  };
  
-  void SetSttELoss(Float_t eloss)     { fSttELoss = eloss;    };
+  void SetSttDEDX(Float_t eloss)      { fSttdEdx = eloss;    };
   void SetSttHitCounts(Int_t nhit)    { fSttHitCount = nhit;  };
 
   void SetTofIndex(Int_t ind)         { fTofIndex = ind; };
@@ -137,7 +137,7 @@ public:
   
   virtual  ~PndLhePidTrack ();
   
-  ClassDef(PndLhePidTrack , 4)   
+  ClassDef(PndLhePidTrack , 5)   
 
     };
 

@@ -53,11 +53,7 @@ protected:
   Double_t fMvdELoss;               // Energy Loss in MVD 
   Double_t fMvdPath;                // MVD path crossed by the particle
   Int_t fMvdHitCount;               // Number of mvd hits
-  
-  Double_t fSttELoss;               // Energy Loss in STT 
-  Double_t fSttPath;                // STT path crossed by the particle
-  Int_t fSttHitCount;               // Number of stt hits
-  
+    
   TString fOption;          //  options to choose branches
   Bool_t fVerbose;          // Switch ON/OFF debug messages 
   Bool_t fSimulation;       // Switch simulation diagnostic
@@ -92,7 +88,7 @@ public:
   PndLhePidTrack* AddTrack(PndLhePidTrack* track);
  
   void GetMvdInfo(const PndTpcLheHit* hit, PndLhePidTrack* track); 
-  void GetSttInfo(const PndTpcLheHit* hit, const PndLhePidTrack* track); 
+  void GetSttInfo(PndLhePidTrack* track); 
   void GetTofInfo(PndLhePidTrack* track); 
   void GetEmcInfo(PndLhePidTrack* track); 
   void GetMdtInfo(PndLhePidTrack* track);   

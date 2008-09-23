@@ -15,7 +15,7 @@ PndLhePidTrack::PndLhePidTrack () {
   fMvdELoss = 0;
   fMvdPath = 0;
   fMvdHitCount = 0;
-  fSttELoss = 0;
+  fSttdEdx = 0;
   fSttHitCount = 0;
   fTofIndex   = -1;
   fTofDeltaPhi = -1000.;
@@ -50,7 +50,7 @@ PndLhePidTrack::PndLhePidTrack (const PndTpcLheTrack& track) : PndTpcLheTrack(tr
   fMvdELoss = 0;
   fMvdELoss = 0;
   fMvdHitCount = 0;
-  fSttELoss = 0;
+  fSttdEdx = 0;
   fSttHitCount = 0;
   fTofIndex   = -1;
   fTofDeltaPhi = -1000.;
@@ -84,13 +84,13 @@ PndLhePidTrack::PndLhePidTrack (const PndLhePidTrack& track) : PndTpcLheTrack((P
   // Default constructor.
   fMvdELoss      = track.fMvdELoss; 
   fMvdPath       = track.fMvdPath;
-  fMvdHitCount = track.fMvdHitCount;
-  fSttELoss = track.fSttELoss;
-  fSttHitCount = track.fSttHitCount;
-  fTofIndex   = track.fTofIndex;
-  fTofDeltaPhi = track.fTofDeltaPhi;
-  fTofDeltaZ = track.fTofDeltaZ;
-  fTofQuality = track.fTofQuality;
+  fMvdHitCount   = track.fMvdHitCount;
+  fSttdEdx       = track.fSttdEdx;
+  fSttHitCount   = track.fSttHitCount;
+  fTofIndex      = track.fTofIndex;
+  fTofDeltaPhi   = track.fTofDeltaPhi;
+  fTofDeltaZ     = track.fTofDeltaZ;
+  fTofQuality    = track.fTofQuality;
   fTofPathLength = track.fTofPathLength;
   fEmcIndex      = track.fEmcIndex;
   fEmcDeltaPhi   = track.fEmcDeltaPhi;

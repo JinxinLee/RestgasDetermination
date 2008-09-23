@@ -303,23 +303,17 @@ void PndLhePidMaker::Exec(Option_t * option) {
 	if ((fMvdMode==2) &&
 	    ((lhit->GetDetectorId()==kMVDHitsStrip) || (lhit->GetDetectorId()==kMVDHitsPixel)))
 	  GetMvdInfo(lhit, pidTrack);
-	if ((fSttMode==3) &&
-	    ((lhit->GetDetectorId()==kSttHelixHit)))
-	  GetSttInfo(lhit, pidTrack);
-	
       }
     
     pidTrack->SetMvdELoss(fMvdELoss);
     pidTrack->SetMvdPath(fMvdPath);
     pidTrack->SetMvdHitCounts(fMvdHitCount);
     
-    pidTrack->SetSttELoss(fSttELoss);
-    pidTrack->SetSttHitCounts(fSttHitCount);
-    
-    if (fTofMode==2) GetTofInfo(pidTrack);
-    if (fEmcMode>0)  GetEmcInfo(pidTrack);
-    if (fMdtMode>0)  GetMdtInfo(pidTrack);  
-    if (fDrcMode>0)  GetDrcInfo(pidTrack);
+    if (fSttMode==3)  GetSttInfo(pidTrack);
+    if (fTofMode==2)  GetTofInfo(pidTrack);
+    if (fEmcMode>0)   GetEmcInfo(pidTrack);
+    if (fMdtMode>0)   GetMdtInfo(pidTrack);  
+    if (fDrcMode>0)   GetDrcInfo(pidTrack);
     
     AddTrack(pidTrack);
     
@@ -377,16 +371,42 @@ void PndLhePidMaker::GetMvdInfo(const PndTpcLheHit* hit, PndLhePidTrack* track) 
 }
 
 //_________________________________________________________________
-void PndLhePidMaker::GetSttInfo(const PndTpcLheHit* hit, const PndLhePidTrack* track) {
-  //---
+void PndLhePidMaker::GetSttInfo(PndLhePidTrack* track) {
+
   PndSttHelixHit *sttHit = NULL;
+  std::vector<Double_t> dedxvec;
+  dedxvec.clear();
   
-  if (hit->GetDetectorId()==kSttHelixHit) sttHit = (PndSttHelixHit*)fSttHit->At(hit->GetRefIndex());
+  Int_t sttCounts = 0;
+  TObjArray* lheList = track->GetRHits();
+  for (Int_t lh=0; lh < lheList->GetEntries(); lh++)
+    {
+      PndTpcLheHit* lhit = (PndTpcLheHit*)lheList->At(lh);
+      if (lhit->GetDetectorId()==kSttHelixHit) {
+	sttHit = (PndSttHelixHit*)fSttHit->At(lhit->GetRefIndex());
+	dedxvec.push_back(sttHit->GetdEdx());
+	sttCounts++;
+      }
+    }
   
-  //if (fVerbose) cout << sttHit->GetDetName() << "\t" << sttHit->GetEloss() << endl;
+  if( sttCounts > 0) {
+    // truncated mean
+    Double_t perc = 0.60;
+    // sort
+    std::sort(dedxvec.begin(), dedxvec.end());
+    
+    //truncated mean
+    Double_t sum = 0;
+    Int_t endnum = floor(sttCounts * perc);
+    
+    for(Int_t m = 0; m < endnum; m++) sum += dedxvec[m];
+    
+    if(endnum > 0) {
+      track->SetSttDEDX(sum/(Double_t) endnum);
+      track->SetSttHitCounts(sttCounts);
+    }
+  }
   
-  //fSttELoss += sttHit->GetEloss();
-  fSttHitCount++;
 }
 
 //_________________________________________________________________
@@ -736,9 +756,6 @@ void PndLhePidMaker::Reset() {
   fMvdPath = 0.;
   fMvdELoss = 0.;
   fMvdHitCount = 0;
-  fSttPath = 1.;
-  fSttELoss = 0.;
-  fSttHitCount = 0;
 }
 
 //_________________________________________________________________
