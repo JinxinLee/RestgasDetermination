@@ -78,7 +78,8 @@ void runsim(Int_t nEvents=1000, Float_t pT=1.0)
   CbmBoxGenerator* boxGen = new CbmBoxGenerator(13, 1); // 13 = muon; 1 = multipl.
   boxGen->SetPtRange(pT,pT); // GeV/c //setPRange vs setPtRange
   boxGen->SetPhiRange(0, 360); // Azimuth angle range [degree]
-  boxGen->SetThetaRange(0, 90); // Polar angle in lab system range [degree]
+  boxGen->SetThetaRange(0, 180); // Polar angle in lab system range [degree]
+  boxGen->SetCosTheta();//uniform generation on all the solid angle (default)
   primGen->AddGenerator(boxGen);
   
   fRun->SetStoreTraj(kTRUE);
