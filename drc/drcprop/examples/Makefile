@@ -21,7 +21,7 @@ CFLAGS = -O2 -DNDEBUG -Wall
 all:			test_simple_bar test_simple_bar2 test_disk test_sheet test_cylinder \
 			test_focus test_focus2 test_absorption test_test test_titti \
 			test_top test_air_lens test_hook test_barrel1 test_barrel1a test_barrel2  \
-			test_barrel2a  test_lens
+			test_lens
 
 test_simple_bar:	$(OBJECTS) test_simple_bar.o
 			g++ -o test_simple_bar test_simple_bar.o $(OBJECTS) $(LDLIBS)
@@ -139,12 +139,6 @@ test_barrel2.o:		test_barrel2.cc
 			g++ $(CFLAGS) $(INCLFLAGS) -o test_barrel2.o \
 			-c test_barrel2.cc
 
-test_barrel2a:		$(OBJECTS) test_barrel2a.o
-			g++ -o test_barrel2a test_barrel2a.o $(OBJECTS) $(LDLIBS)
-
-test_barrel2a.o:	test_barrel2a.cc
-			g++ $(CFLAGS) $(INCLFLAGS) -o test_barrel2a.o \
-			-c test_barrel2a.cc
 
 test_lens:		$(OBJECTS) test_lens.o
 			g++ -o test_lens test_lens.o $(OBJECTS) $(LDLIBS)
