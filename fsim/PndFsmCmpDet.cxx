@@ -384,7 +384,7 @@ void PndFsmCmpDet::readParameters() {
     _tht[321]=(TSpline3*)f.Get("thtK-");
     _phi[321]=(TSpline3*)f.Get("phiK-");
     _mom[321]=(TSpline3*)f.Get("momK-");
-    if (_mom0[321]) _mom0[321]=(TParameter<double>*)f.Get("mom0K-");
+    if (!_mom0[321]) _mom0[321]=(TParameter<double>*)f.Get("mom0K-");
     _d0Scale[321]=(TF1*)f.Get("d0ScaleK-");
     _z0Scale[321]=(TF1*)f.Get("z0ScaleK-");
     _thtScale[321]=(TF1*)f.Get("thtScaleK-");
@@ -396,7 +396,7 @@ void PndFsmCmpDet::readParameters() {
     _tht[2212]=(TSpline3*)f.Get("thtP+");
     _phi[2212]=(TSpline3*)f.Get("phiP+");
     _mom[2212]=(TSpline3*)f.Get("momP+");
-    if (_mom0[2212]) _mom0[2212]=(TParameter<double>*)f.Get("mom0P+");
+    if (!_mom0[2212]) _mom0[2212]=(TParameter<double>*)f.Get("mom0P+");
     _d0Scale[2212]=(TF1*)f.Get("d0ScaleP+");
     _z0Scale[2212]=(TF1*)f.Get("z0ScaleP+");
     _thtScale[2212]=(TF1*)f.Get("thtScaleP+");
