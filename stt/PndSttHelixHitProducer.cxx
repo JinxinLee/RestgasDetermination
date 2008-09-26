@@ -26,6 +26,9 @@
 #include "TCanvas.h"
 #include <iostream>
 #include <cmath>
+#include "TGeoVolume.h"
+#include "TGeoTube.h"
+
 
 using namespace std;
 
@@ -266,10 +269,10 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
 
 
 	  // 	  cout << "hit on helix " << helixhit->GetX() << " " << helixhit->GetY() << " " << helixhit->GetZ() << endl;
-// 	  cout << "mc point     " << iPoint->GetXtot() << " "<< iPoint->GetYtot() << " " << iPoint->GetZtot() << endl;
-
-//	  helixhit->Print();
-
+	  // 	  cout << "mc point     " << iPoint->GetXtot() << " "<< iPoint->GetYtot() << " " << iPoint->GetZtot() << endl;
+	  
+	  //	  helixhit->Print();
+	  
 
 	}
       else { // =========== SKEWED TUBE ==================
@@ -493,6 +496,41 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
       }
       
 
+      // dE/dx calculation ================== 
+      if(currenthit->GetdEdx() != -999) helixhit->SetdEdx(currenthit->GetdEdx()); // if MC is used
+      else {
+	TString tubename; 
+	TGeoVolume *gastube;
+	TObjArray *volumeArray = gGeoManager->GetListOfVolumes();
+
+	for(int i = 0; i < volumeArray->GetEntriesFast() ; i++)
+	  {
+	    tubename = volumeArray->At(i)->GetName();
+	    if(tubename.Contains("stt") && tubename.Contains("gas")) 
+	      {  
+		gastube = (TGeoVolume*) volumeArray->At(i);
+		break;
+	      }
+	  }
+	TGeoTube *tube = (TGeoTube*) gastube->GetShape();
+	Double_t tuberadius = tube->GetRmax();
+	Double_t distance = 2 * sqrt(tuberadius * tuberadius - radius * radius); // cm
+	    
+	Double_t coslam = TMath::Cos(TMath::ATan(zslope));
+	distance = distance / coslam;    
+	  
+	// just to check, delete it!
+	TVector3 diff3(iPoint->GetXInLocal() - iPoint->GetXOutLocal(),
+		       iPoint->GetYInLocal() - iPoint->GetYOutLocal(),
+		       iPoint->GetZInLocal() - iPoint->GetZOutLocal());
+	//	cout << "true " << diff3.Mag() << " sim " << distance << endl;
+
+	Double_t dedx = 0.;
+	if (distance != 0)  dedx = currenthit->GetDepCharge()/(1000000 * distance);  // in arbitrary units
+  
+	helixhit->SetdEdx(dedx);
+      }
+	  
       hotcounter++;
     }
     

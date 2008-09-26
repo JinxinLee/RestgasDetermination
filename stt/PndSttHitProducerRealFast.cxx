@@ -171,12 +171,9 @@ void PndSttHitProducerRealFast::Exec(Option_t* opt) {
      // dE calculation ------- check
     // charge calculation
     Double_t depcharge = stt.FastPartToADC(); // CHECK   arbitrary units!
-    // dE/dx calculation
-    TVector3 diff3(InOut[0] - InOut[3], InOut[1] - InOut[4], InOut[2] - InOut[5]);
-    double distance = diff3.Mag(); //
-    Double_t dedx = 999;
-    if (distance != 0)  dedx = depcharge/(1000000 * distance);  // in arbitrary units
-  
+    // dE/dx calculation postponed
+    Double_t dedx = -999;
+    
     Double_t halflength = point->GetTubeHalfLength(); 
     
     // stt2: detID, pos, dpos, index come from --------------

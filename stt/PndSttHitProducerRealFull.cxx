@@ -157,10 +157,7 @@ void PndSttHitProducerRealFull::Exec(Option_t* opt) {
     double depCharge = stt.PartToADC();
       
     // dE/dx calculation
-    TVector3 diff3(InOut[0] - InOut[3], InOut[1] - InOut[4], InOut[2] - InOut[5]);
-    double distance =diff3.Mag(); //
-    double dedx = 999;
-    if (distance != 0)  dedx = depCharge/(1000000 * distance);  // in arbitrary units
+    double dedx = -999;
     
     Double_t halflength = point->GetTubeHalfLength(); 
 

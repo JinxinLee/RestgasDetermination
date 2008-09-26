@@ -60,7 +60,7 @@ void PndSttHelixHit::CopyHitToHelixHit(PndSttHit *aHit, Int_t hitindex)
   fHitIndex = hitindex;
   fELoss = aHit->GetEnergyLoss();
   fDepCharge = aHit->GetDepCharge();
-  fdEdx = aHit->GetdEdx();
+  //  fdEdx = aHit->GetdEdx();
   
   TVector3 centerPosition, centerPositionError;
   aHit->Position(centerPosition);
