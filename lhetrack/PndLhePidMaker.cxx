@@ -384,8 +384,11 @@ void PndLhePidMaker::GetSttInfo(PndLhePidTrack* track) {
       PndTpcLheHit* lhit = (PndTpcLheHit*)lheList->At(lh);
       if (lhit->GetDetectorId()==kSttHelixHit) {
 	sttHit = (PndSttHelixHit*)fSttHit->At(lhit->GetRefIndex());
-	dedxvec.push_back(sttHit->GetdEdx());
-	sttCounts++;
+	if (sttHit->GetdEdx() != 0.) 
+	  {
+	    dedxvec.push_back(sttHit->GetdEdx());
+	    sttCounts++;
+	  }
       }
     }
   
