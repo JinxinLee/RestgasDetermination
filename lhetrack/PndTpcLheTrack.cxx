@@ -147,7 +147,11 @@ TrackCand* PndTpcLheTrack::GetTrackCand()
 	case kTpcCluster:
 	  detId = 2;
 	  break;
-	  
+
+	case kSttHelixHit:
+	  detId = 5;
+	  break;
+
 	case kMVDHitsStrip:
 	  detId = 4;
 	  break;

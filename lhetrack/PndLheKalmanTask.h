@@ -30,7 +30,6 @@ class TClonesArray;
 class PndTpcLheTrack;
 class RecoHitFactory;
 class TrackCand;
-class TH1D;
 class Track;
 class TGeoManager; 
 
@@ -59,9 +58,6 @@ public:
 
   virtual void Exec(Option_t* opt);
   
-  void WriteHistograms(const TString& filename);
-
- 
   
 private:
 
@@ -75,16 +71,9 @@ private:
 
   RecoHitFactory* fTheRecoHitFactory;
   
-
-  TH1D* fPH; // momentum histo;
-  TH1D* fChi2H; // chi2 histo;
-  TH1D* fMassV0; // chi2 histo;
-  TH1D* fMassETAC; // chi2 histo;
-  TH1D* fMasses; // all particle histo;
-
   Int_t fTrackcount;
   Int_t fEvent;
-  TGeant3 *gMC3;
+
   CbmGeanePro *fPro;
 
   Bool_t fUseGeane;     //! Flag to use Geane 

@@ -397,7 +397,7 @@ void PndLhePidMaker::GetSttInfo(PndLhePidTrack* track) {
     
     //truncated mean
     Double_t sum = 0;
-    Int_t endnum = floor(sttCounts * perc);
+    Int_t endnum = int(floor(sttCounts * perc));
     
     for(Int_t m = 0; m < endnum; m++) sum += dedxvec[m];
     

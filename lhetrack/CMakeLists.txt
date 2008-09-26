@@ -12,8 +12,6 @@ ${CMAKE_SOURCE_DIR}/mcstack
 ${CMAKE_SOURCE_DIR}/passive
 ${CMAKE_SOURCE_DIR}/tpc
 ${CMAKE_SOURCE_DIR}/tpc/tpcreco
-${CMAKE_SOURCE_DIR}/stt
-${CMAKE_SOURCE_DIR}/stt/sttreco
 ${CMAKE_SOURCE_DIR}/mvd/MvdData
 ${CMAKE_SOURCE_DIR}/mvd/MvdTools
 ${CMAKE_SOURCE_DIR}/emc/EmcData
@@ -24,6 +22,8 @@ ${CMAKE_SOURCE_DIR}/mdt
 ${CMAKE_SOURCE_DIR}/mdt/MdtData
 ${CMAKE_SOURCE_DIR}/drc
 ${CMAKE_SOURCE_DIR}/genfit
+${CMAKE_SOURCE_DIR}/stt
+${CMAKE_SOURCE_DIR}/stt/sttreco
 ${CMAKE_SOURCE_DIR}/geane
 ${CMAKE_SOURCE_DIR}/trackrep
 ${CMAKE_SOURCE_DIR}/lhetrack
