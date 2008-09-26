@@ -1,4 +1,4 @@
-void run_sim_tpccombi_dpm(Int_t nEvents=100, Float_t pbarP=4.0){
+void run_sim_sttcombi_dpm(Int_t nEvents=100, Float_t pbarP=4.0){
   
   TStopwatch timer;
   timer.Start();
