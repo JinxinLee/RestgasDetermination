@@ -57,7 +57,7 @@
   PndLheKalmanTask* lheKalman = new PndLheKalmanTask();
   lheKalman->SetVerbose(iVerbose);
   lheKalman->SetGeane(kTRUE);
-  lheKalman->SetSmooth(kFALSE);
+  lheKalman->SetSmooth(kTRUE);
   lheKalman->SetNumIterations(3);
   fRun->AddTask(lheKalman);
   

@@ -2,8 +2,8 @@
   gStyle->SetOptTitle(0);
   gStyle->SetTitleOffset(.9,"X");gStyle->SetTitleOffset(.9,"Y");
   
-  TFile *inFile1 = TFile::Open("reco_tpccombi.root");
-  TFile *inFile2 = TFile::Open("fit_tpccombi.root");
+  TFile *inFile1 = TFile::Open("reco_sttcombi.root");
+  TFile *inFile2 = TFile::Open("fit_sttcombi.root");
 
   TNtuple *lhe = (TTree*)inFile1->Get("cbmsim");
   TNtuple *fit = (TTree*)inFile2->Get("cbmsim");
