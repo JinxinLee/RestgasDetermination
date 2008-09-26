@@ -182,6 +182,11 @@ void PndLheKalmanTask::Exec(Option_t* opt)
     //TVector3 StartMom = lheTrack->GetMomentum();
     TVector3 StartMomErr = TVector3(0.1*StartMom);
     Float_t phi = lheTrack->ExtrapolateToZ(&StartMom, &StartPos, 0.);
+    if (phi==-100000)
+      {
+	std::cout<<" -I- PndLheKalmanTask::Exec: Evil Track (lam==0)! skipping" << std::endl;
+	continue; // not valid track
+      }
     
     // Starting values for guessing
     Int_t PDGCode= 211;

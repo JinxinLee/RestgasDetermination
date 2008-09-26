@@ -308,12 +308,20 @@ void PndLhePidMaker::Exec(Option_t * option) {
     pidTrack->SetMvdELoss(fMvdELoss);
     pidTrack->SetMvdPath(fMvdPath);
     pidTrack->SetMvdHitCounts(fMvdHitCount);
-    
     if (fSttMode==3)  GetSttInfo(pidTrack);
-    if (fTofMode==2)  GetTofInfo(pidTrack);
-    if (fEmcMode>0)   GetEmcInfo(pidTrack);
-    if (fMdtMode>0)   GetMdtInfo(pidTrack);  
-    if (fDrcMode>0)   GetDrcInfo(pidTrack);
+    
+    if ((TMath::Tan(track->GetMomentum().Theta()==0)) ||
+	(track->GetTanDipAngle()==0))
+      {
+	cout << "-W-  PndLhePidMaker ::Exec: lam==0 || theta==0 -> No PID Extrapolation" << endl;
+      }
+    else
+      {
+    	if (fTofMode==2)  GetTofInfo(pidTrack);
+	if (fEmcMode>0)   GetEmcInfo(pidTrack);
+	if (fMdtMode>0)   GetMdtInfo(pidTrack);  
+	if (fDrcMode>0)   GetDrcInfo(pidTrack);
+      }
     
     AddTrack(pidTrack);
     

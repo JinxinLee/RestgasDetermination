@@ -72,7 +72,7 @@ Float_t PndTpcLheTrack ::ExtrapolateToZ(TVector3 *mom, TVector3 *vertex, const F
   Double_t lam = GetTanDipAngle();
   if (lam==0) {
     cout << "-W-  PndTpcLheTrack ::ExtrapolateToZ: lam==0 - skipped track" << endl;
-    return 0;
+    return -100000;
   }
   
   // now suppose that all tracks 
@@ -106,7 +106,10 @@ Float_t PndTpcLheTrack ::ExtrapolateToZ(TVector3 *mom, TVector3 *vertex, const F
 //______________________________________________________________
 Float_t PndTpcLheTrack ::ExtrapolateToR(TVector3 *mom, TVector3 *vertex, const Float_t R) {
   
-  if (TMath::Tan(GetMomentum().Theta()==0)) return 0;
+  if (TMath::Tan(GetMomentum().Theta()==0)) {
+    cout << "-W-  PndTpcLheTrack ::ExtrapolateToR: theta==0 - skipped track" << endl;
+    return -100000;
+  }
   
   Float_t zproj = R / TMath::Tan(GetMomentum().Theta()) + GetZ0();
 
