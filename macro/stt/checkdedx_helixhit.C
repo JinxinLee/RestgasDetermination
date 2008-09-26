@@ -55,23 +55,23 @@
   TCanvas *c = new TCanvas("c", "c", 0, 0, 600, 600);
   c->Divide(1,2);
   TH1F *samplenum = new TH1F("samplenum","number of sampling",50,0.,50.);
-  TH2F *hdedxvsp = new TH2F("hdedxvsp","dedx vs p",100,0.,3., 100,0.,40.);
+  TH2F *hdedxvsp = new TH2F("hdedxvsp","dedx vs p",100,0.,1.5, 100,0.,40.);
   
   TCanvas *c1 = new TCanvas("c1", "c1", 0, 0, 600, 600);
   c1->Divide(2,2);
-  TH2F *hdedxvsp_p = new TH2F("hdedxvsp_p","dedx vs p for p",100,0.,3., 100,0.,40.);
-  TH2F *hdedxvsp_pi = new TH2F("hdedxvsp_pi","dedx vs p for #pi",100,0.,3., 100,0.,40.);
-  TH2F *hdedxvsp_e = new TH2F("hdedxvsp_e","dedx vs p for e",100,0.,3., 100,0.,40.);
-  TH2F *hdedxvsp_k = new TH2F("hdedxvsp_k","dedx vs p for K",100,0.,3., 100,0.,40.);
-  TH2F *hdedxvsp_mu = new TH2F("hdedxvsp_mu","dedx vs p for #mu",100,0.,3., 100,0.,40.);
+  TH2F *hdedxvsp_p = new TH2F("hdedxvsp_p","dedx vs p for p",100,0.,1.5, 100,0.,40.);
+  TH2F *hdedxvsp_pi = new TH2F("hdedxvsp_pi","dedx vs p for #pi",100,0.,1.5, 100,0.,40.);
+  TH2F *hdedxvsp_e = new TH2F("hdedxvsp_e","dedx vs p for e",100,0.,1.5, 100,0.,40.);
+  TH2F *hdedxvsp_k = new TH2F("hdedxvsp_k","dedx vs p for K",100,0.,1.5, 100,0.,40.);
+  TH2F *hdedxvsp_mu = new TH2F("hdedxvsp_mu","dedx vs p for #mu",100,0.,1.5, 100,0.,40.);
 
   TCanvas *c2 = new TCanvas("c2", "c2", 0, 0, 600, 600);
-  TH2F *hdedxvsp_reco = new TH2F("hdedxvsp_reco","dedx vs reco p",100,0.,3., 100,0.,40.);
+  TH2F *hdedxvsp_reco = new TH2F("hdedxvsp_reco","dedx vs reco p",100,0.,1.5, 100,0.,40.);
 
  cout << treereco->GetEntriesFast() << " events" << endl;
  
   // loop on evts
-  for(Int_t evt = 0; evt < treereco->GetEntriesFast(); evt++) {
+ for(Int_t evt = 0; evt < treereco->GetEntriesFast(); evt++) {
     if(evt%100 == 0) cout << evt << endl;
     
     treemc->GetEntry(evt);
@@ -84,7 +84,9 @@
       PndSttTrack *stttrack = (PndSttTrack*) track->At(k);
       if(!stttrack) continue;
       PndSttTrackMatch *mtrack = (PndSttTrackMatch *) matchtrack->At(k);
+      if(!mtrack) continue;
       CbmMCTrack *MCtrack = (CbmMCTrack*) mctrack->At(mtrack->GetMCTrackID());
+      if(!MCtrack) continue;
       Int_t PDGcode = MCtrack->GetPdgCode();
 
       Double_t d0 = stttrack->GetParamLast()->GetX();
@@ -105,17 +107,21 @@
       std::vector<double> dedxvec;
       dedxvec.clear();
       TVector3 momentum = MCtrack->GetMomentum();
-
+      Int_t losthit = 0;
       for (Int_t j = 0; j < hitcounter; j++) {
 	Int_t iHHit = stttrack->GetHelixHitIndex(j);
 	PndSttHelixHit *helixhit = (PndSttHelixHit*) hh->At(iHHit);
+	if(!helixhit) continue;
 
 	Int_t hitindex = helixhit->GetHitIndex();
-	PndSttHit* hit = (PndSttHit*) digi->At(hitindex);
-	PndSttPoint *point = (PndSttPoint*) pnt->At(hit->GetRefIndex());
+// 	PndSttHit* hit = (PndSttHit*) digi->At(hitindex);
+// 	PndSttPoint *point = (PndSttPoint*) pnt->At(hit->GetRefIndex());
 	
-	dedxvec.push_back(helixhit->GetdEdx());
+	if(helixhit->GetdEdx() != 0) dedxvec.push_back(helixhit->GetdEdx());
+	else losthit++;
       }
+
+      hitcounter -= losthit;
 
       if(hitcounter > 0) {
 	// truncated mean
@@ -126,7 +132,8 @@
 	//truncated mean
 	Double_t sum = 0;
 	Int_t endnum = floor(hitcounter * perc);
-	
+
+
 	for(Int_t m = 0; m < endnum; m++) sum += dedxvec[m];
 	Double_t tmean;
 	if(endnum > 0) {
@@ -141,7 +148,6 @@
 	  else if(abs(PDGcode) == 211) { hdedxvsp_pi->Fill(momentum->Mag(), tmean);}
      	  else if(abs(PDGcode) == 321) { hdedxvsp_k->Fill(momentum->Mag(), tmean); }
     	  else if(abs(PDGcode) == 2212){ hdedxvsp_p->Fill(momentum->Mag(), tmean);}
-
 
 	}
       }
@@ -179,6 +185,7 @@
   hdedxvsp_k->Write();
   hdedxvsp_p->Write();
   hdedxvsp_reco->Write();
+  samplenum->Write();
   out_dedx->Write();
   out_dedx->Close();
 
