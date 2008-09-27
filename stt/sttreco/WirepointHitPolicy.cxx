@@ -7,6 +7,7 @@
 #include "assert.h"
 #include "TMath.h"
 #include "TVector3.h"
+#include <cmath>
 
 // Collaborating Class Headers --------
 #include "AbsRecoHit.h"

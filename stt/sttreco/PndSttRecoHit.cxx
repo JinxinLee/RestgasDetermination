@@ -18,6 +18,7 @@
 
 // C/C++ Headers ----------------------
 #include <assert.h>
+#include <cmath>
 
 // Collaborating Class Headers --------
 #include "GeaneTrackRep.h"
