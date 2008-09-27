@@ -17,7 +17,7 @@
 #include "PndSttRecoHit.h"
 
 // C/C++ Headers ----------------------
-
+#include <assert.h>
 
 // Collaborating Class Headers --------
 #include "GeaneTrackRep.h"
