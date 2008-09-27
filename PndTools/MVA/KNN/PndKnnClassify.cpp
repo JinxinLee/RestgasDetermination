@@ -194,12 +194,16 @@ void PndKnnClassify::Classify(std::vector<float> &EvtData,
     result[className] = result[className]/Psum;
   }
   
+  /*
   std::cout << Psum << std::endl;
   for( std::map<std::string,float>::iterator ii=result.begin(); 
        ii != result.end(); ++ii){
     std::cout << (*ii).first << ": " << (*ii).second << std::endl;
     
   }
+  */
+
+
 }
 
 /* *********************************************
