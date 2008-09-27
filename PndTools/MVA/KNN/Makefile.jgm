@@ -8,7 +8,7 @@ CXX       = g++
 CCFLAGS   = -Wall -O3 -fopenmp
 
 # Define binary file name.
-BINS = train 
+BINS = train classify
 
 # Define targets
 all: train classify 
