@@ -72,9 +72,14 @@ ADD_LIBRARY(testChamber SHARED ${SOURCES})
 
 
 #add ROOT lib
-SET(ROOT_LIB $ENV{ROOTSYS}/lib)
-SET(ROOT_LIBS -L${ROOT_LIB} -lMinuit -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lGui -pthread -lm -ldl -rdynamic)
-
+#SET(ROOT_LIB $ENV{ROOTSYS}/lib)
+#SET(ROOT_LIBS -L${ROOT_LIB} -lMinuit -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lGui -pthread -lm -ldl -rdynamic)
+EXEC_PROGRAM(
+                $ENV{ROOTSYS}/bin/root-config
+                ARGS --glibs --cflags
+                OUTPUT_VARIABLE ROOTCONFIG)
+                
+SET(ROOT_LIBS ${ROOTCONFIG} -lMinuit)
 
 TARGET_LINK_LIBRARIES(testChamber ${ROOT_LIBS})
 
