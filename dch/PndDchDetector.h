@@ -4,9 +4,9 @@
 // -------------------------------------------------------------------------
 
 /** \class PndDchDetector
- *  \author P.Hawranek, A.Wronska <wronska@if.uj.edu.pl>
+ *  \author P.Hawranek, A.Wronska <aleksandra.wronska@uj.edu.pl>
  *  \date
- *  \brief Class for conversion digis to spatial cylinder hits
+ *  \brief Class describing physical detector of the dch type
  * 
  * This class represents a physical detector: defines how to construct
  * its geometry, action to be undertaken when particles pass its volumes,

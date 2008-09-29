@@ -1,3 +1,8 @@
+// -------------------------------------------------------------------------
+// -----          PndDchPrepareKalmanTracks source file                -----
+// -----            Created 15.05.2008  by A. Wronska                  -----
+// -----        based on the recotasks/demo code  by S.Neubert         -----
+// -------------------------------------------------------------------------
 
 // Panda Headers ----------------------
 #include "CbmRootManager.h"
@@ -11,6 +16,7 @@
 #include "CbmGeanePro.h"
 #include "CbmTrackParP.h"
 #include "PndDchPrepareKalmanTracks.h"
+#include "PndDchPoint.h"
 #include "PndDchTrack.h"
 #include "PndDchTrackMatch.h"
 #include "PndDchCylinderHit.h"
@@ -53,7 +59,7 @@ PndDchPrepareKalmanTracks::Init()
   while(iter!=fHitBranchNameMap.end()){
    TClonesArray* ar=(TClonesArray*) ioman->GetObject(iter->second);
    if(ar==0){
-     Error("DemoPRTask::Init","point-array %s not found!",iter->second.Data());
+     Error("DemoPRTask::Init","hit-array %s not found!",iter->second.Data());
    }
    else{ 
 	 fHitBranchMap[iter->first] = ar;
@@ -67,6 +73,12 @@ PndDchPrepareKalmanTracks::Init()
   fMcArray=(TClonesArray*) ioman->GetObject("MCTrack");
   if(fMcArray==0){
     Error("PndDchPrepareKalmanTracks::Init","mctrack-array not found!");
+    return kERROR;
+  } 
+  // open point array
+  fDchPointArray=(TClonesArray*) ioman->GetObject("PndDchPoint");
+  if(fDchPointArray==0){
+    Error("PndDchPrepareKalmanTracks::Init","dchpoint-array not found!");
     return kERROR;
   } 
   // open input array of PndDchTracks
@@ -119,6 +131,7 @@ PndDchPrepareKalmanTracks::Exec(Option_t* opt)
      Int_t tridx = dchtrmatch->GetRecTrackID();
      PndDchTrack* dchtrack = (PndDchTrack*) fDchTrackArray->At(tridx);
      Int_t nuOfChits = dchtrack->GetNofDchCylinderHits();
+     std::cout<<"PndDchPrepareKalmanTracks::Exec(): I found here "<<nuOfChits<<" cyl hits \n";
 
      if(candmap[id]==NULL){ 
        candmap[id]=new TrackCand;
@@ -157,21 +170,30 @@ PndDchPrepareKalmanTracks::Exec(Option_t* opt)
 
      int pdg=mc->GetPdgCode();
      double q=TDatabasePDG::Instance()->GetParticle(pdg)->Charge()/3.;
-     
-     Double_t startPosAccuracy=2.*0.2;
-     TVector3 pos=mc->GetStartVertex()+TVector3(gRandom->Uniform(-startPosAccuracy, startPosAccuracy),
-						gRandom->Uniform(-startPosAccuracy, startPosAccuracy),
-						gRandom->Uniform(-startPosAccuracy, startPosAccuracy));
-     TVector3 poserr(startPosAccuracy,startPosAccuracy,startPosAccuracy);
 
+     Int_t pointidx = 0;
+     TVector3 pos;
+     TVector3 mom;
+     while(pointidx<fDchPointArray->GetEntries()){
+       PndDchPoint* pnt=(PndDchPoint*)fDchPointArray->At(pointidx);
+       if(pnt->GetTrackID()==mcTrId){
+	 pnt->Position(pos);
+	 pnt->Momentum(mom);
+	 break;
+       }
+     }
+
+     // pos=mc->GetStartVertex();
+     Double_t startPosAccuracy = 0.2;
+     TVector3 poserr(startPosAccuracy,startPosAccuracy,startPosAccuracy);
      TVector3 startMomAccuracy(0.1,0.1,0.1);
      TVector3 mcMom = mc->GetMomentum();
-     TVector3 mom=TVector3(gRandom->Gaus(mcMom.X(),mcMom.X()*startMomAccuracy.X()),
-			   gRandom->Gaus(mcMom.Y(),mcMom.Y()*startMomAccuracy.Y()),
-			   gRandom->Gaus(mcMom.Z(),mcMom.Z()*startMomAccuracy.Z()));
-     TVector3 momerr(mcMom.X()*startMomAccuracy.X(),
-		     mcMom.Y()*startMomAccuracy.Y(),
-		     mcMom.Z()*startMomAccuracy.Z());
+     // mom.SetXYZ(gRandom->Gaus(mom.X(),mom.X()*startMomAccuracy.X()),
+// 		gRandom->Gaus(mom.Y(),mom.Y()*startMomAccuracy.Y()),
+// 		gRandom->Gaus(mom.Z(),mom.Z()*startMomAccuracy.Z()));
+     TVector3 momerr(mom.X()*startMomAccuracy.X(),
+ 		     mom.Y()*startMomAccuracy.Y(),
+ 		     mom.Z()*startMomAccuracy.Z());
      
      TVector3 u(1.,0.,0.);
      TVector3 v(0.,1.,0.);
@@ -189,6 +211,9 @@ PndDchPrepareKalmanTracks::Exec(Option_t* opt)
        double qp=q/mom.Mag();
        rep=new LSLTrackRep(pos.Z(),pos.X(),pos.Y(),dxdz,dydz,qp,
      			   poserr.X(),poserr.Y(),0.1,0.1,0.1,NULL);
+       std::cout<<" ^^^^^^^^^^^^^I prepare the following LSLTrackRep:"<<std::endl;
+       rep->Print();
+       std::cout<<" ^^^^^^^^^^^^^End of LSLTrackRep printout"<<std::endl;
      }
 
      std::cout<<" Momentum\n\t";

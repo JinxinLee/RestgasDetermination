@@ -4,7 +4,7 @@
 // -------------------------------------------------------------------------
 
 /** \class PndDchCylinderHit
- *  \author A.Wronska <wronska@if.uj.edu.pl>
+ *  \author A.Wronska <aleksandra.wronska@uj.edu.pl>
  *  \date 20.03.2008
  *  \brief Class for spatial dch hit description as a cylinder
  **/
@@ -32,7 +32,7 @@ class PndDchCylinderHit : public TObject{
   virtual ~PndDchCylinderHit();
   
   /** Public method Print **/
-  void Print();
+  void Print() const;
   
   /** Accessors  **/
   Int_t    GetDigiIndex()        const {return fDigiIndex;}  
@@ -50,7 +50,7 @@ class PndDchCylinderHit : public TObject{
   Double_t fWireZcoordGlobal;  ///< z coordinate (cm) of the fired wire in the global ref.frame
   Double_t fDistance;          ///< distance from the wire (cm) calculated from drift time (=radius)
   Double_t fDistanceError;     ///< uncertainty (=resolution) of distance from the wire (cm) 
-  Double_t fAlpha;             ///< inclination angle (rad) of the wire w.r.t the y axis (y:fAlpha=0)
+  Double_t fAlpha;             ///< inclination angle (rad) of the wire w.r.t the y axis (y:fAlpha=0) 
   
   ClassDef(PndDchCylinderHit,1);
   

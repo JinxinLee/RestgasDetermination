@@ -116,7 +116,7 @@ void PndDchCylinderHitProducer::Exec(Option_t* opt) {
 		fDchDrifter->CalculateDistance(drTime,dist);
 		dist *= cellSize;
 		distErr = (ch==1? 0.005 : 0.02); //hard-coded exp. values
-		dist += gRandom->Gaus(0.0, distErr); //smear distance
+		//dist += gRandom->Gaus(0.0, distErr); //smear distance
 
 		alpha = fDchStructure->GetTransMatrix(detID)->GetRotation()->GetPhiRotation();
 		alpha *= TMath::DegToRad();

@@ -4,7 +4,7 @@
 // -------------------------------------------------------------------------
 
 /** \class PndDchStructure
- *  \author A.Wronska<wronska@if.uj.edu.pl>
+ *  \author A.Wronska<aleksandra.wronska@uj.edu.pl>
  *  \date 31/07/07
  *  \brief Class for keeping info about the geometry of dch
  * 

@@ -72,6 +72,7 @@ Bool_t PndDchDetector::ProcessHits(CbmVolume* vol) {
   TParticle* particle =  gMC->GetStack()->GetCurrentTrack();
   fTrackID  = gMC->GetStack()->GetCurrentTrackNumber(); 
   fEvent    = gMC->CurrentEvent(); 
+  Bool_t  valid = kFALSE;
 
   gMC->CurrentVolID(fPlane);
 
@@ -88,13 +89,14 @@ Bool_t PndDchDetector::ProcessHits(CbmVolume* vol) {
   //Increment number of dch points
   //if entering
   if ( gMC->IsTrackEntering() ) {	
-	  Int_t points = gMC->GetStack()->GetCurrentTrack()->GetMother(1);
-	  Int_t nDchPoints = (points & (63<<10)) >> 10;
-	  nDchPoints++;
-	  if (nDchPoints <= 63) {
-		  points = ( points & ( ~ (63<<10) ) ) | (nDchPoints << 10);
-		  gMC->GetStack()->GetCurrentTrack()->SetMother(1,points);
-	  }
+    valid=kTRUE;
+    Int_t points = gMC->GetStack()->GetCurrentTrack()->GetMother(1);
+    Int_t nDchPoints = (points & (63<<10)) >> 10;
+    nDchPoints++;
+    if (nDchPoints <= 63) {
+      points = ( points & ( ~ (63<<10) ) ) | (nDchPoints << 10);
+      gMC->GetStack()->GetCurrentTrack()->SetMother(1,points);
+    }
   }
    
   fELoss = gMC->Edep();
@@ -102,7 +104,7 @@ Bool_t PndDchDetector::ProcessHits(CbmVolume* vol) {
   fLength = gMC->TrackLength();
   gMC->TrackPosition(fPos);  // cm
   gMC->TrackMomentum(fMom); // GeV
-  if (particle->Energy()>0.01 && fabs(particle->GetPDG()->Charge())>0.5 )
+  if (particle->Energy()>0.01 && fabs(particle->GetPDG()->Charge())>0.5  && valid)
   AddPoint(fTrackID, fEvent, fChamber, fPlane, 
 	 TVector3(fPos.X(), fPos.Y(), fPos.Z()) , TVector3(fMom.Px(), fMom.Py(), fMom.Pz()),  
 	 fTime, fLength, fELoss);

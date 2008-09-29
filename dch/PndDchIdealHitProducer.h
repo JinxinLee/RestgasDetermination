@@ -4,7 +4,7 @@
 // -------------------------------------------------------------------------
 
 /** \class PndDchIdealHitProducer
- *  \author A.Wronska <wronska@if.uj.edu.pl>
+ *  \author A.Wronska <aleksandra.wronska@uj.edu.pl>
  *  \date 26/10/07
  *  \brief Class for conversion points to hits
  * 

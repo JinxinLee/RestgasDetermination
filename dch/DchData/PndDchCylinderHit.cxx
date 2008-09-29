@@ -44,7 +44,7 @@ PndDchCylinderHit::~PndDchCylinderHit() {}
 
 
 // -----   Public method Print   -------------------------------------------
-void PndDchCylinderHit::Print() {
+void PndDchCylinderHit::Print() const {
 	cout << " Hit at  zGlobal =  "<< fWireZcoordGlobal <<
 	  " cm, wire's xLocal = "<<fWireXcoordLocal<<
 	  " cm, at a distance of "<<fDistance<<

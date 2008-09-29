@@ -4,7 +4,7 @@
 // -------------------------------------------------------------------------
 
 /** \class PndDchMapper
- *  \author A.Wronska <wronska@if.uj.edu.pl>
+ *  \author A.Wronska <aleksandra.wronska@uj.edu.pl>
  *  \date 01/08/07
  *  \brief Class mapping positions (x,y,z) to set of dch data
  * 

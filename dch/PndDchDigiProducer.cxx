@@ -50,16 +50,18 @@ InitStatus PndDchDigiProducer::Init() {
 	 << "RootManager not instantiated!" << endl;
     return kFATAL;
   }
-
+  cout<<"Picking up the mapper...";
   fMapper     = PndDchMapper::Instance();
+  cout<< fMapper <<"\n Picking up the drifter..."<<endl;
   fDrifter    = PndDchDrifter::Instance("d2t_rtdb.dat",1.);
+  cout<<fDrifter<<endl;
 
 
   // Get input array
   fPointArray = (TClonesArray*) ioman->GetObject("PndDchPoint");
   if ( ! fPointArray ) {
     cout << "-W- PndDchDigiProducer::Init(): "
-	 << "No EmcPoint array!" << endl;
+	 << "No PndDchPoint array!" << endl;
     return kERROR;
   }
 
@@ -111,24 +113,23 @@ Int_t PndDchDigiProducer::AddDigis(PndDchPoint* point, Int_t refIndex) {
 	Double_t driftTime;
 	vector<Int_t> wires;
 	vector<Double_t> distances;
-	Int_t nDigis = fMapper->GetFiredWires(wires, distances, point);
-	for(Int_t i = 0; i < nDigis; i++){
-		Int_t wire = wires[i];
-		if(fDrifter->CalculateDriftTime(driftTime,distances[i])){
-
-			PndDchDigi* digi = new(clref[size]) PndDchDigi( timeStamp, plane, chamber,
-					wire, driftTime, refIndex);
-			if(fVerbose>1) digi->Print("");
-
-			// Filling histograms
-			fhDriftTime[chamber]->Fill(driftTime);
-
-			size++;
-		} else {
-			cout<< "caution: wrong drift time"<<endl;
-		}
+	Int_t nAdded = 0;
+	Int_t nWires = fMapper->GetFiredWires(wires, distances, point);
+	for(Int_t i = 0; i < nWires; i++){
+	  if(nAdded!=0) break;
+	  Int_t wire = wires[i];
+	  if(fDrifter->CalculateDriftTime(driftTime,distances[i])){
+	    PndDchDigi* digi = new(clref[size]) PndDchDigi( timeStamp, plane, chamber,
+							    wire, driftTime, refIndex);
+	    nAdded++;
+	    if(fVerbose>1) digi->Print("");
+	    fhDriftTime[chamber]->Fill(driftTime);
+	    size++;
+	  } else {
+	    cout<< "caution: wrong drift time"<<endl;
+	  }
 	}
-	return nDigis;
+	return nAdded;
 }
 
 // Private method ToBeOrNotToBe digitised

@@ -4,7 +4,7 @@
 // -------------------------------------------------------------------------
 
 /** \class PndDchCylinderHitProducer
- *  \author A.Wronska <wronska@if.uj.edu.pl>
+ *  \author A.Wronska <aleksandra.wronska@uj.edu.pl>
  *  \date 26/03/08
  *  \brief Class for conversion digis to spatial cylinder hits
  * 

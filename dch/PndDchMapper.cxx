@@ -69,6 +69,9 @@ Bool_t PndDchMapper::TransformToLocal(Double_t* localPosition,
     return kFALSE;
   trans->MasterToLocal(globalPosition, localPosition);
   trans->MasterToLocalVect(globalMomentum, localMomentum);
+  std::cout<<"ch = "<<point->GetChamber()<<"\t pl= "<<point->GetPlane()<<std::endl;
+  std::cout<<"global pos=("<<globalPosition[0]<<" , "<<globalPosition[1]<<" , "<<globalPosition[2]<<" , "<<std::endl;
+  std::cout<<"local pos=("<<localPosition[0]<<" , "<<localPosition[1]<<" , "<<localPosition[2]<<" , "<<std::endl;
   return kTRUE;
 }
 
@@ -82,9 +85,10 @@ Int_t PndDchMapper::GetFiredWires(std::vector<Int_t> &wireID,
   Double_t localPosition[3];
   Double_t localMomentum[3];
   if(!TransformToLocal(localPosition,localMomentum,point)){
-    cout<<" PndDchMapper::GetFiredWires(...)\n\t No transformation matrix found for this point!\n";
+    cout<<" PndDchMapper::GetFiredWires(...)\n\t No transformation matrix found for this point!\n"; 
     return 0;
   }
+  
   //ph todo !!!!
   if (localMomentum[0] == 0 || localMomentum[2] == 0) { 
     Int_t numWire = WhichWire(detID,localPosition[0]);

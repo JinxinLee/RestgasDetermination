@@ -4,7 +4,7 @@
 // -------------------------------------------------------------------------
 
 /** \class PndDchPreFitter
- *  \author A.Wronska <wronska@if.uj.edu.pl>
+ *  \author A.Wronska <aleksandra.wronska@uj.edu.pl>
  *  \date 06.02.2008
  *  \brief Task for momentum reconstruction in the dipole
  * 

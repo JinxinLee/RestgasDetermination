@@ -4,7 +4,7 @@
 // -------------------------------------------------------------------------
 
 /** \class PndDchPoint
- *  \author P.Hawranek, A.Wronska <wronska@if.uj.edu.pl>
+ *  \author P.Hawranek, A.Wronska <aleksandra.wronska@uj.edu.pl>
  *  \date 15.05.2007
  *  \brief Class for keeping MCpoints registered in dch
  **/

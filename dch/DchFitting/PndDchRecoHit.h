@@ -1,20 +1,16 @@
-//-----------------------------------------------------------
-// File and Version Information:
-// $Id$
-//
-// Description:
-//      an xyz reco hit (z being considered as a free parameter)
-//      hitCoord=(x,y)^T
-//      s=z
-//
-// Environment:
-//      Software developed for the PANDA Detector at FAIR.
-//
-// Author List:
-//      Sebastian Neubert    TUM            (original author)
-//
-//
-//-----------------------------------------------------------
+// -------------------------------------------------------------------------
+// -----                   PndDchRecoHit header file                   -----
+// -----                 Created 5.03.2008  by S.Neubert, A. Wronska   -----
+// -------------------------------------------------------------------------
+
+/** \class PndDchRecoHit
+ *  \author S.Neubert, A.Wronska 
+ *  \date 5.03.2008
+ *  \brief PndDchRecoHit is a representation of reconstructed dch hits used by genfit;
+ *         an xyz reco hit (z being considered as a free parameter)
+ *         hitCoord=(x,y)^T
+ *         s=z
+ **/
 
 #ifndef PNDDCHRECOHIT_H
 #define PNDDCHRECOHIT_H 1
@@ -51,11 +47,14 @@ public:
   virtual void setHMatrix(const AbsTrackRep* stateVector,
                           const TMatrixT<double>& state);
 
-  virtual TMatrixT<double> residualVector(const AbsTrackRep* stateVector,
+  virtual TMatrixT<double> residualVector(AbsTrackRep* stateVector,
                                 const TMatrixT<double>& state);
   
   virtual Double_t residualScalar(AbsTrackRep* stateVector,
 		                        const TMatrixT<Double_t>& state) { return 0;}
+
+  virtual void  Print();
+
 private:
 
   static const int NparHitRep = 1;

@@ -296,9 +296,9 @@ Int_t PndDchTrackFinderIdealCylHit::DoFind(TClonesArray* cylHitArray,
 			continue;
 		}
 
-		if(dchDigi->GetChamber() > 2) {// Only Dch chamber in forward spectrometer
+		//if(dchDigi->GetChamber() > 2) {// Only Dch chamber in forward spectrometer
 			dchTrack->AddCylinderHit(dchCylHit, iCylHit);
-		}
+			//}
 
 		if(fVerbose > 3) {
 			cout << "DCH cylHit " << iCylHit << " from DCH point "

@@ -4,7 +4,7 @@
 // -------------------------------------------------------------------------
 
 /** \class PndDchHit
- *  \author A.Wronska <wronska@if.uj.edu.pl>
+ *  \author A.Wronska <aleksandra.wronska@uj.edu.pl>
  *  \date 26.10.2007
  *  \brief Class for 3d hits reconstructed in dch
  **/

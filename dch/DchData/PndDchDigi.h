@@ -4,7 +4,7 @@
 // -------------------------------------------------------------------------
 
 /** \class PndDchDigi
- *  \author P.Hawranek, A.Wronska <wronska@if.uj.edu.pl>
+ *  \author P.Hawranek, A.Wronska <aleksandra.wronska@uj.edu.pl>
  *  \date 31.07.2007
  *  \brief Storage class for digis from dch
  **/
