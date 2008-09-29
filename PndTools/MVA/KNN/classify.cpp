@@ -1,5 +1,6 @@
 #include "PndKnnClassify.h"
 #include "TRandom3.h"
+#include "TStopwatch.h"
 
 int main(int argc, char** argv)
 {
@@ -44,6 +45,9 @@ int main(int argc, char** argv)
   std::vector<float> evt;
   std::map<std::string, float> res;
 
+  TStopwatch timer;
+  timer.Start();
+
   for (int i=0; i<totEvtNum; i++)
     {
       evt.clear();
@@ -62,6 +66,8 @@ int main(int argc, char** argv)
 	  std::cout << (*ii).first << ": " << (*ii).second << std::endl;
 	} 
     }
+  timer.Stop();
+  std::cout << "Cpu Time=" << timer.CpuTime() << " Real Time=" << timer.RealTime() << std::endl;
   return 0;
 }
 

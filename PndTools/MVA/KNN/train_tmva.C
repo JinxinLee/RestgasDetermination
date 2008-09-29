@@ -6,7 +6,7 @@
 #include "TTree.h"
 #include "TRandom3.h"
 
-void train_tmva(Int_t nrOfEvents=1000000, Int_t nrOfFeatures=4, Int_t nrOfNeighbours=100, Char_t outputFilename[]="blah.root") 
+void train_tmva(Int_t nrOfEvents=10000000, Int_t nrOfFeatures=4, Int_t nrOfNeighbours=100, Char_t outputFilename[]="blah.root") 
 {
   std::cout << "Start Test TMVAnalysis" << std::endl
 	    << "======================" << std::endl

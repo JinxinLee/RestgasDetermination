@@ -27,6 +27,9 @@ void classify_tmva( Int_t nrOfEvents=1000, Int_t nrOfFeatures=4 )
 
    reader->BookMVA( "KNN method",           dir + prefix + "_KNN.weights.txt" );
 
+   TStopwatch timer;
+
+   timer.Start();
    for (Int_t i=0; i<nrOfEvents; i++)
      {
        for (Int_t j=0; j<nrOfFeatures; j++)
@@ -37,6 +40,9 @@ void classify_tmva( Int_t nrOfEvents=1000, Int_t nrOfFeatures=4 )
        std::cout << std::endl;
        std::cout << reader->EvaluateMVA( "KNN method" ) << std::endl;
      }
+   timer.Stop();
+   std::cout << "CPU time=" << timer.CpuTime() << " Real time=" << timer.RealTime() << std::endl;
+
    delete reader;
     
    cout << "==> TMVApplication is done!" << endl << endl;
