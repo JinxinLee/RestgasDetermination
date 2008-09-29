@@ -186,12 +186,14 @@ void PndKnnClassify::Classify(std::vector<float> &EvtData,
     result[className] = result[className]/Psum;
   }
   
-  std::cout << Psum << std::endl;
-  for( std::map<std::string,float>::iterator ii=result.begin(); 
-       ii != result.end(); ++ii){
+  /*
+    std::cout << Psum << std::endl;
+    for( std::map<std::string,float>::iterator ii=result.begin(); 
+    ii != result.end(); ++ii){
     std::cout << (*ii).first << ": " << (*ii).second << std::endl;
-    
-  }
+    }
+  */
+  
   // Clear the m_dists list, for the next classification. This needs
   // to be reimplemented in order to do object reuse.
   for(unsigned int i = 0; i < m_dists.size(); i++){
