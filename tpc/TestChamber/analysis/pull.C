@@ -30,10 +30,14 @@ void pull(TString files){
 
   TChain myChain("at");
 
-  TH1D *pullv = new TH1D("pullv","",500,-10,100);
+
+  TH1D *pullu = new TH1D("pullu","",500,0,1000);
+  pullu->SetXTitle("pull u");
+
+  TH1D *pullv = new TH1D("pullv","",500,0,1000);
   pullv->SetXTitle("pull v");
 
-  TH1D *pullw = new TH1D("pullw","",500,-10,1000);
+  TH1D *pullw = new TH1D("pullw","",500,0,100000);
   pullw->SetXTitle("pull w");
 
   cout << "Adding " <<  myChain.Add(files) << " to the chain" << endl;
@@ -51,14 +55,16 @@ void pull(TString files){
     myChain.GetEntry(iev);
     TCtrack tr(*intr);
     if (tr.nClFit()<4) continue;
+    if (tr.getThX()<1) continue;
 
     for(Int_t i=0;i<tr.nCl();i++){
 
       TCcluster c = tr.getCl(i);
       if(c.getFit()){ 
 
-	pullv->Fill((c.posUVW().Y()-c.getRes().Y())/c.getErr().Y());
-	pullw->Fill((c.posUVW().Z()-c.getRes().Z())/c.getErr().Z());
+	pullu->Fill(((c.posUVW().X()-c.getRes().X())*(c.posUVW().X()-c.getRes().X()))/(c.getErr().X()*c.getErr().X()));
+	pullv->Fill(((c.posUVW().Y()-c.getRes().Y())*(c.posUVW().Y()-c.getRes().Y()))/(c.getErr().Y()*c.getErr().Y()));
+	pullw->Fill(((c.posUVW().Z()-c.getRes().Z())*(c.posUVW().Z()-c.getRes().Z()))/(c.getErr().Z()*c.getErr().Z()));
 
       }
     }
@@ -67,5 +73,7 @@ void pull(TString files){
   pullv->Draw();
   canvas = new TCanvas();
   pullw->Draw();
+  canvas = new TCanvas();
+  pullu->Draw();
 
 }
