@@ -9,14 +9,14 @@ int main(int argc, char** argv)
 {
   char name[64];
 
-  TRandom3 myran(0);
-
-  if (!(argc==6))
+  if (!(argc==7))
     {
       std::cout << "Please specify the arguments: " << std::endl;
-      std::cout << argv[0] << " <nrofevents> <nrofclasses> <nroffeatures> <nrofneighbours> <inputfile>" << std::endl;
+      std::cout << argv[0] << " <nrofevents> <nrofclasses> <nroffeatures> <nrofneighbours> <inputfile> <seed>" << std::endl;
       exit(-1);
     }
+
+  TRandom3 myran(atoi(argv[6]));
 
   int totEvtNum = atoi(argv[1]);
   int nrOfClasses = atoi(argv[2]);
