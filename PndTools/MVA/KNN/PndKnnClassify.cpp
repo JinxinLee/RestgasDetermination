@@ -68,14 +68,6 @@ PndKnnClassify::PndKnnClassify(const char *InputPutFile,
     delete t;
   } // Values from the trees are inserted into the container
   
-  /*
-    std::pair< std::string, std::vector<float>* > bla = m_EventVarCont[0];
-    std::cout << "Class name is " << bla.first
-    << " and the length is " << (bla.second)->size()
-    << std::endl;
-    std::cout << m_EventVarCont.size() << std::endl;
-  */
-
   // Close the open file.
   m_InPutF->Close();
   delete m_InPutF;
@@ -133,7 +125,7 @@ void PndKnnClassify::Classify(std::vector<float> &EvtData,
     perClsExamples.push_back(numExamples);
   }
 
-  // Initialize results
+  //// Initialize results
   for(unsigned int id = 0; id < m_ClassNames.size(); id++){
     result.insert( make_pair( m_ClassNames[id], 0.0 ) ); 
   }
@@ -159,12 +151,12 @@ void PndKnnClassify::Classify(std::vector<float> &EvtData,
       begin += chunk;
       
       float dist = ComputeDist(EvtData,vals);
-      DistObject* ds = new DistObject(dist, m_ClassNames[cls]);
+      DistObject* ds = new DistObject(dist,m_ClassNames[cls]);
       m_dists.push_back(ds);
     }// WHILE
-  }// For CLS
+  }//For CLS
   
-  // All distances are determined, now we can classify
+  //All distances are determined, now we can classify
   sort(m_dists.begin(), m_dists.end(), LessFunct);
   
   if (Neighbours > m_dists.size()){
@@ -180,7 +172,7 @@ void PndKnnClassify::Classify(std::vector<float> &EvtData,
     result[clas] += 1.0;
   }
   
-  // Normalizing the results
+  //Normalizing the results
   float Psum = 0.0;
   for(unsigned int icl = 0; icl < result.size(); icl++){
     int num = perClsExamples[icl];
@@ -194,23 +186,24 @@ void PndKnnClassify::Classify(std::vector<float> &EvtData,
     result[className] = result[className]/Psum;
   }
   
-  /*
   std::cout << Psum << std::endl;
   for( std::map<std::string,float>::iterator ii=result.begin(); 
        ii != result.end(); ++ii){
     std::cout << (*ii).first << ": " << (*ii).second << std::endl;
     
   }
-  */
-
-
+  // Clear the m_dists list, for the next classification. This needs
+  // to be reimplemented in order to do object reuse.
+  for(unsigned int i = 0; i < m_dists.size(); i++){
+    delete m_dists[i];
+  }
+  m_dists.clear();
 }
 
 /* *********************************************
  * Testing routine, can be deleted afterwards. *
  * *********************************************
  */
-
 /*
   int main(int argc, char** argv)
   {
@@ -239,9 +232,8 @@ void PndKnnClassify::Classify(std::vector<float> &EvtData,
   evt.push_back(15.0);
   evt.push_back(5.0);
   
-  std::map<std::string, float> res;
+  std::map<std::string,float> res;
   
-  cls.Classify(evt,150000,res);
+  cls.Classify(evt,1500000,res);
   return 0;
-  }
-*/
+  }*/

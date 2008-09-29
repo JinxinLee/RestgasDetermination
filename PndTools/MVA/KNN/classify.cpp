@@ -1,6 +1,7 @@
 #include "PndKnnClassify.h"
 #include "TRandom3.h"
 #include "TStopwatch.h"
+#include <stdlib.h>
 
 int main(int argc, char** argv)
 {
