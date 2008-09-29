@@ -26,14 +26,14 @@
 #include "consecCut.C"
 #include "clusterSplit1.C"
 
-void resolution(TString files){
+void pull(TString files){
 
   TChain myChain("at");
 
-  TH1D *pullv = new TH1D("pullv","",500,-0.1,0.1);
+  TH1D *pullv = new TH1D("pullv","",500,-10,100);
   pullv->SetXTitle("pull v");
 
-  TH1D *pullw = new TH1D("pullw","",500,-0.1,0.1);
+  TH1D *pullw = new TH1D("pullw","",500,-10,1000);
   pullw->SetXTitle("pull w");
 
   cout << "Adding " <<  myChain.Add(files) << " to the chain" << endl;
@@ -57,8 +57,8 @@ void resolution(TString files){
       TCcluster c = tr.getCl(i);
       if(c.getFit()){ 
 
-	pullv->Fill((c.posUVW().Y - c.getRes().Y()) / c.getErr().Y());
-	pullw->Fill((c.posUVW().Z - c.getRes().Z()) / c.getErr().Z());
+	pullv->Fill((c.posUVW().Y()-c.getRes().Y())/c.getErr().Y());
+	pullw->Fill((c.posUVW().Z()-c.getRes().Z())/c.getErr().Z());
 
       }
     }
