@@ -9,7 +9,7 @@ int main(int argc, char** argv)
 {
   char name[64];
 
-  TRandom3 myran(NULL);
+  TRandom3 myran(0);
 
   if (!(argc==6))
     {

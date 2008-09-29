@@ -3,7 +3,7 @@
 void classify_tmva( Int_t nrOfEvents=1000, Int_t nrOfFeatures=4 ) 
 {
   Char_t name[256];
-  TRandom3 myran(NULL);
+  TRandom3 myran(0);
 
    cout << endl;
    cout << "==> Start TMVApplication" << endl;

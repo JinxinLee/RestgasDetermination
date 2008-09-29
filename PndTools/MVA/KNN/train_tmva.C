@@ -21,7 +21,7 @@ void train_tmva(Int_t nrOfEvents=10000000, Int_t nrOfFeatures=4, Int_t nrOfNeigh
 					      Form("!V:!Silent:%sColor", gROOT->IsBatch()?"!":"") );
   
   Char_t name[256];
-  TRandom3 myran(NULL);
+  TRandom3 myran(0);
 
   for (Int_t i=0; i<nrOfFeatures; i++)
     {
