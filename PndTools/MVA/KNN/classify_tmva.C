@@ -27,6 +27,9 @@ void classify_tmva( Int_t nrOfEvents=1000, Int_t nrOfFeatures=4 )
 
    reader->BookMVA( "KNN method",           dir + prefix + "_KNN.weights.txt" );
 
+   TFile *f=new TFile("output_histo_tmva.root","recreate");
+   TH1D *h=new TH1D("h0","",100,0,1);
+
    TStopwatch timer;
 
    timer.Start();
@@ -35,15 +38,20 @@ void classify_tmva( Int_t nrOfEvents=1000, Int_t nrOfFeatures=4 )
        for (Int_t j=0; j<nrOfFeatures; j++)
 	 {
 	   var[j]=myran.Uniform(0,1);
-	   std::cout << var[j] << " ";
+	   //	   std::cout << var[j] << " ";
 	 }
-       std::cout << std::endl;
-       std::cout << reader->EvaluateMVA( "KNN method" ) << std::endl;
+       Double_t val=reader->EvaluateMVA( "KNN method") ;
+       h->Fill(val);
+
+       //       std::cout << std::endl;
+       //       std::cout << val << std::endl;       
      }
    timer.Stop();
    std::cout << "CPU time=" << timer.CpuTime() << " Real time=" << timer.RealTime() << std::endl;
 
    delete reader;
+   h->Write();
+   f->Write();
     
    cout << "==> TMVApplication is done!" << endl << endl;
 } 

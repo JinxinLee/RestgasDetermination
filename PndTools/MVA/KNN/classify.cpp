@@ -1,6 +1,8 @@
 #include "PndKnnClassify.h"
 #include "TRandom3.h"
 #include "TStopwatch.h"
+#include "TFile.h"
+#include "TH1.h"
 #include <stdlib.h>
 
 int main(int argc, char** argv)
@@ -46,6 +48,15 @@ int main(int argc, char** argv)
   std::vector<float> evt;
   std::map<std::string, float> res;
 
+  TFile *f=new TFile("output_histo.root","recreate");
+  TH1D *h[64];
+
+  for (Int_t i=0; i<nrOfClasses; i++)
+    {
+      sprintf(name,"h%d",i);
+      h[i]=new TH1D(name,"",100,0,1);
+    }
+
   TStopwatch timer;
   timer.Start();
 
@@ -56,19 +67,28 @@ int main(int argc, char** argv)
       for (int j=0; j<nrOfFeatures; j++)
 	{
 	  evt.push_back(myran.Uniform(0,1));
-	  std::cout << evt[j] << " " ;
+	  //	  std::cout << evt[j] << " " ;
 	}
-      std::cout << std::endl;
+      //      std::cout << std::endl;
 
       cls.Classify(evt,nrOfNeighbours,res);
 
+      int cnt=0;
       for( std::map<std::string,float>::iterator ii=res.begin();ii != res.end(); ++ii)
 	{                                                            
-	  std::cout << (*ii).first << ": " << (*ii).second << std::endl;
+	  //	  std::cout << (*ii).first << ": " << (*ii).second << std::endl;
+	  h[cnt++]->Fill((*ii).second);
 	} 
     }
   timer.Stop();
   std::cout << "Cpu Time=" << timer.CpuTime() << " Real Time=" << timer.RealTime() << std::endl;
+
+  for (Int_t i=0; i<nrOfClasses; i++)
+    {
+      h[i]->Write();
+    }
+  f->Write();
+  f->Close();
   return 0;
 }
 
