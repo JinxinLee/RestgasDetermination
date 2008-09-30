@@ -1,0 +1,17 @@
+#
+#
+#
+TIMEOUT 10000
+#
+RUNID 0
+JOB 1 $HOME/scripts/trainknn.sh NULL $HOME/output/knn/train 4 1000000 2 1 knn.root
+#
+BARRIER
+#
+RUNID 40
+JOB 100 $HOME/scripts/classifyknn.sh $HOME/output/knn/train/0/knn.root $HOME/output/knn/parts 5 1000 2 1 1000 knn.root
+#
+BARRIER
+#
+RUNID 1000
+JOB 1 $HOME/scripts/addhisto.sh $HOME/output/knn/parts $HOME/output/knn/sum 2 output_histo.root sum_2.root
