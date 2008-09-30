@@ -101,7 +101,7 @@ private:
 // detector
     Bool_t fVerboseLevel; 
 
-    PndGeoMdtPar* par;    
+    PndGeoMdtPar* par;   //! 
 
     TString fVolumeName;  
     Int_t lEventID;       
