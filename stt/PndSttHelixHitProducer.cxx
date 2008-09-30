@@ -128,7 +128,7 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
     pTrack = (PndSttTrack *) fTrackArray->At(j);
     if(!pTrack) continue;
 
-    //    if(pTrack->GetFlag() < 3) continue; // only prefit-fit-zfit CHECK
+    if(pTrack->GetFlag() < 3) continue; // only prefit-fit-zfit CHECK
     // --------------------------- THE TRACK ----------------------------
     // xy
     Int_t hh = -(Int_t) pTrack->GetParamLast()->GetQp(); // CHECK in realta' dovrebbe essere q/p e non solo q
