@@ -63,7 +63,7 @@ void plots(TString files){
     myChain.GetEntry(iev);
     TCtrack tr(*intr);
     if (tr.nClFit()<4) continue;
-    if(tr.getThX()<1)continue;
+    if(fabs(tr.getThX())<1)continue;
 
     chi2NDF_4clust->Fill(tr.getChi2()/tr.getNDF());
 
@@ -75,7 +75,7 @@ void plots(TString files){
     myChain.GetEntry(iev);
     TCtrack tr(*intr);
     if (tr.nClFit()<6) continue;
-    if(tr.getThX()<1)continue;
+    if(fabs(tr.getThX())<1)continue;
 
     chi2NDF_6clust->Fill(tr.getChi2()/tr.getNDF());
 
@@ -86,7 +86,7 @@ void plots(TString files){
     myChain.GetEntry(iev);
     TCtrack tr(*intr);
     if (tr.nClFit()<8) continue;
-    if(tr.getThX()<1)continue;
+    if(fabs(tr.getThX())<1)continue;
 
     chi2NDF_8clust->Fill(tr.getChi2()/tr.getNDF());
 
@@ -98,7 +98,7 @@ void plots(TString files){
     myChain.GetEntry(iev);
     TCtrack tr(*intr);
     if (tr.nClFit()<10) continue;
-    if(tr.getThX()<1)continue;
+    if(fabs(tr.getThX())<1)continue;
 
     chi2NDF_10clust->Fill(tr.getChi2()/tr.getNDF());
 
@@ -110,7 +110,7 @@ void plots(TString files){
     myChain.GetEntry(iev);
     TCtrack tr(*intr);
     if (tr.nClFit()<12) continue;
-    if(tr.getThX()<1)continue;
+    if(fabs(tr.getThX())<1)continue;
 
     chi2NDF_12clust->Fill(tr.getChi2()/tr.getNDF());
 
