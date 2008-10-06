@@ -65,9 +65,10 @@ void pull(TString files){
     TCtrack tr(*intr);
     if (tr.nClFit()<5) continue;
     if (fabs(tr.getThX())<1) continue;
+    if (fabs(tr.getThY())<1) continue;
     if (fabs(tr.getTh())<1) continue;
-    if (fabs(tr.getTh())>85) continue;
-    if(tr.getChi2()/tr.getNDF()<0.1) continue;
+    if (fabs(tr.getTh())>30) continue;
+    if (tr.getChi2()/tr.getNDF()<0.1) continue;
 
     for(Int_t i=0;i<tr.nCl();i++){
 
