@@ -12,6 +12,7 @@
 
 // C/C++ Headers 
 #include <assert.h>
+#include "math.h"
 
 //ROOT includes
 #include "TMath.h"
