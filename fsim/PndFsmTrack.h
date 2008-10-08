@@ -138,7 +138,7 @@ public:
   Double_t GetHelixTanDip() const {return fPar5[4];}
 
   void HelixRep(TVector3 reference);
-  void Propagate(TVector3 origin);
+  void Propagate(TVector3 origin, double deltaError=2.5);
 
 };
 

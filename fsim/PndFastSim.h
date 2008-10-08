@@ -54,7 +54,7 @@ class PndFastSim : public CbmTask
   bool AddDetector(PndFsmAbsDet* det);
   void SetVerbosity(int vb) {fVb=vb;}
   bool EnableSplitoffs(std::string fname="splitpars.dat");
-  void EnablePropagation(bool propagate=true);
+  void EnablePropagation(bool propagate=true, bool tostartvtx=true, bool usecovmatrix=true, double tolerance=0.0);
 
   //void CreateStructure();
   
@@ -94,6 +94,9 @@ class PndFastSim : public CbmTask
   TF1       *fspo[5][4];
   bool      fGenSplitOffs;
   bool      fPropagate;
+  bool      fTostartVtx;
+  bool      fUseCovMatrix;
+  double    fTolerance;
 
   PndFsmDetFactory *fDetFac;
   std::string fAddedDets;

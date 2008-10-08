@@ -129,7 +129,7 @@ void PndFsmTrack::HelixRep(TVector3 reference) {
   }
 }
 
-void PndFsmTrack::Propagate(TVector3 origin) {
+void PndFsmTrack::Propagate(TVector3 origin, double deltaError) {
   origin-=fReference;
   // calculate p4 and start vertex at point
   // on helix track closest to origin
@@ -138,22 +138,35 @@ void PndFsmTrack::Propagate(TVector3 origin) {
   double pt=-a*R*charge();
   double s0=sin(GetHelixPhi0());
   double c0=cos(GetHelixPhi0());
+  // add some helix revolutions to get somewhere near origin
+  if (fabs(GetHelixTanDip()*R)>1e-9) {
+    double dz=2*M_PI*fabs(R*GetHelixTanDip());
+    fPar5[3]-=dz*floor((fPar5[3]-origin.Z())/dz+0.5);
+  }
   // use gradient method to find POCA to origin
   double s1;
   double c1;
   double ds=0;
   double delta=0;
+  double alpha=1;
+  double distance2=1e150;
   do {
-    delta+=ds*GetHelixOmega();
+    delta+=ds;
     s1=sin(GetHelixPhi0()+delta);
     c1=cos(GetHelixPhi0()+delta);
     // vertex setup
     _startVtx.SetX(-s0*(GetHelixD0()+R)+s1*R );
     _startVtx.SetY( c0*(GetHelixD0()+R)-c1*R );
     _startVtx.SetZ( GetHelixZ0()+GetHelixTanDip()*R*delta );
+    TVector3 distance(_startVtx-origin);
+    if (distance2<distance.Mag2()) {
+      alpha*=0.5;
+      delta-=ds;
+    }
+    distance2=distance.Mag2();
     // construct helix tangent at delta
     TVector3 u(c1,s1,GetHelixTanDip());
-    ds=u.Dot(origin-_startVtx)/(1+GetHelixTanDip()*GetHelixTanDip());
+    ds=-u.Dot(distance)/(1+GetHelixTanDip()*GetHelixTanDip())*alpha*GetHelixOmega();
   } while (fabs(ds)>1e-9);
 
 	// momentum setup
@@ -188,23 +201,26 @@ void PndFsmTrack::Propagate(TVector3 origin) {
   J_alpha(6,2)=-_p4.Vect().Mag2()*R/_p4.T();
   J_alpha(6,4)=+pt*pt*GetHelixTanDip()/_p4.T();
 
-  // calculate jacobian wrt delta to allow fitter 
-  // to move 1deg along the linearized trajectory
-  double covDelta=0.01*0.01;
-  TMatrixD J_delta(7,1);
-  J_delta(0,0)=+R*c1;
-  J_delta(1,0)=+R*s1;
-  J_delta(2,0)=+GetHelixTanDip()*R;
-  J_delta(3,0)=-pt*s1;
-  J_delta(4,0)=+pt*c1;
+  if (deltaError>=0.001) {
+    // calculate jacobian wrt delta to allow fitter 
+    // to move 1deg along the linearized trajectory
+    deltaError*=3.1416/180;
+    double covDelta=deltaError*deltaError;
+    TMatrixD J_delta(7,1);
+    J_delta(0,0)=+R*c1;
+    J_delta(1,0)=+R*s1;
+    J_delta(2,0)=+GetHelixTanDip()*R;
+    J_delta(3,0)=-pt*s1;
+    J_delta(4,0)=+pt*c1;
+    TMatrixD tmp2(J_delta, TMatrixD::kMultTranspose, J_delta);
+    tmp2*=covDelta;
+    fCov7+=tmp2;
+  }
 
   // calculate fCov7 = J_alpha * fCov5 * J_alpha.T + 
   // covDelta * J_delta * J_delta.T (covDelta is scalar)
   TMatrixD tmp1(J_alpha, TMatrixD::kMult, fCov5);
   fCov7.MultT(tmp1, J_alpha);
-  TMatrixD tmp2(J_delta, TMatrixD::kMultTranspose, J_delta);
-  tmp2*=covDelta;
-  fCov7+=tmp2;
 
   _startVtx+=fReference;
 }
@@ -301,7 +317,7 @@ void PndFsmTrack::print(ostream &o)
   o<<"  Vtx2 : < "<< _stopVtx.X() <<" / "         <<_stopVtx.Y() <<" / "           <<_stopVtx.Z(   )<<" > "  << endl;
   o<<"  charge = "<< _charge      <<" / lundId = "<<_pdt         <<" / gTrackId = "<<_gTrackId      <<endl;
   o<<"  D0: "<<GetHelixD0()
-   <<"  Phi0: "<<GetHelixPhi0()
+   <<"  Phi0: "<<GetHelixPhi0()*180/3.1416<<"deg"
    <<"  1/Omega: "<<1/GetHelixOmega()
    <<"  Z0: "<<GetHelixZ0()
    <<"  TanDip: "<<GetHelixTanDip()<<endl;
