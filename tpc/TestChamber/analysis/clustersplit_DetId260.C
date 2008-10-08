@@ -123,11 +123,11 @@ void plots(TString files){
      TCtrack tr(*intr);
      TCtrack trSplit = clusterSplit1(tr);
      trSplit.fit(260);    
-     if (fabs(tr.getAx()) > 1.E3) continue;
-     if (fabs(tr.getAy()) > 1.E3) continue;
-     if (tr.getChi2()/tr.getNDF()>2) continue;
-     if (tr.getChi2()/tr.getNDF()<0.01) continue;
-     if (tr.nCl()<2) continue;;
+     if (fabs(trSplit.getAx()) > 1.E3) continue;
+     if (fabs(trSplit.getAy()) > 1.E3) continue;
+     if (trSplit.getChi2()/trSplit.getNDF()>2) continue;
+     if (trSplit.getChi2()/trSplit.getNDF()<0.01) continue;
+     if (trSplit.nCl()<2) continue;;
 
 
      for(int i=0;i<trSplit.nCl();++i){

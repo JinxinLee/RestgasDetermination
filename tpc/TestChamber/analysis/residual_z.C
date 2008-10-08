@@ -24,7 +24,7 @@ void plots(TString files){
   //gSystem->Load("libtestChamber"); 
 
 
-  //gROOT->Macro("macro/christian_style.C"); 
+  gROOT->Macro("../macro/christian_style.C"); 
 
   TChain myChain("at");
 
@@ -37,13 +37,14 @@ void plots(TString files){
   TCtrack *intr=0;
 
 
-   TH1D *zresid = new TH1D("zresid","",500,-1,1);
-   zresid->SetXTitle("residual z [cm]");
-   //zresid->SetFillColor(2);
+   TH1D *wresid = new TH1D("wresid","",500,-0.2,0.2);
+   wresid->SetXTitle("residual w [cm]");
+   //wresid->SetFillColor(2);
 
-   TH1D *zresidw = new TH1D("zresidw","",500,-1,1);
-   zresidw->SetXTitle("residual z with cut [cm]");
-   zresidw->SetFillColor(4);
+   TH1D *wresidw = new TH1D("wresidw","",500,-0.2,0.2);
+   wresidw->SetXTitle("residual w with cut [cm]");
+   wresidw->SetFillColor(4);
+   wresidw->SetLineColor(4);
 
    TCanvas *z = new TCanvas();
 
@@ -57,11 +58,16 @@ void plots(TString files){
 
     myChain.GetEntry(iev);
     TCtrack tr(*intr);
+    if (fabs(tr.getAx()) > 1.E3) continue;
+    if (fabs(tr.getAy()) > 1.E3) continue;
+    if (tr.getChi2()/tr.getNDF()>2) continue;
+    if (tr.getChi2()/tr.getNDF()<0.01) continue;
+    if (tr.nCl()<2) continue;
 
       for(int i=0;i<tr.nCl();++i){
 	TCcluster c = tr.getCl(i);
 	if(c.getFit()){//was used in fit
-	  zresid->Fill(c.getRes().Z());
+	  wresid->Fill(c.getRes().Z());
  	}
       }
 
@@ -71,7 +77,7 @@ void plots(TString files){
           if(!consecCut(tr)) continue;
           TCcluster c = tr.getCl(i);
 	  if(c.getFit()){//was used in fit
-	    zresidw->Fill(c.getRes().Z());
+	    wresidw->Fill(c.getRes().Z());
           }
 
     }
@@ -80,8 +86,8 @@ void plots(TString files){
   time ( &rawtime );
   std::cout<< "The current time is " << ctime(&rawtime) << std::endl;
 
-  zresid->Draw();
-  zresidw->Draw("same");
+  wresid->Draw();
+  wresidw->Draw("same");
   z->Update();
 
 }

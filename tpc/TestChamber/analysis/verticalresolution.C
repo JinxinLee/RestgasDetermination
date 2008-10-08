@@ -154,7 +154,7 @@ void resolution(TString files){
 	if (fabs(tr.getAy()) > 1.E3) continue;
 	if (tr.getChi2()/tr.getNDF()>2) continue;
 	if (tr.getChi2()/tr.getNDF()<0.01) continue;
-	if (tr.nCl()<2) continue;
+	if (tr.nClFit()<2) continue;
 
 	vall->Fill(c.getRes().Y());
 	wall->Fill(c.getRes().Z());
@@ -192,8 +192,7 @@ void resolution(TString files){
 	if (fabs(trSplit.getAy()) > 1.E3) continue;
 	if (trSplit.getChi2()/trSplit.getNDF()>2) continue;
 	if (trSplit.getChi2()/trSplit.getNDF()<0.01) continue;
-	if (trSplit.nCl()<2) continue;
-	
+	if (trSplit.nClFit()<2) continue;
 
 	vallw->Fill(d.getRes().Y());
 	wallw->Fill(d.getRes().Z());
@@ -316,12 +315,12 @@ void resolution(TString files){
   //vall
 
   TF1 *doublegaus_vall = new TF1("doublegaus_vall",doublegausf,-.1,.1,6);
-
+  /*
   doublegaus_vall->SetParLimits(0,0,100);
   doublegaus_vall->SetParLimits(2,0.005,0.05);
   doublegaus_vall->SetParLimits(3,0,100);
   doublegaus_vall->SetParLimits(5,0.005,0.05);
-
+  */
   doublegaus_vall->SetParameters(20,vall->GetMean(),vall->GetRMS(),5,vall->GetMean(),vall->GetRMS());
   vall->Fit("doublegaus_vall","R");
 
@@ -353,12 +352,12 @@ void resolution(TString files){
   //v01
 
   TF1 *doublegaus_v01 = new TF1("doublegaus_v01",doublegausf,-.1,.1,6);
-
+  /*
   doublegaus_v01->SetParLimits(0,0,100);
   doublegaus_v01->SetParLimits(2,0.005,0.05);
   doublegaus_v01->SetParLimits(3,0,100);
   doublegaus_v01->SetParLimits(5,0.005,0.05);
-
+  */
   doublegaus_v01->SetParameters(20,v01->GetMean(),v01->GetRMS(),5,v01->GetMean(),v01->GetRMS());
   v01->Fit("doublegaus_v01","R");
 
@@ -390,12 +389,12 @@ void resolution(TString files){
   //v02
 
   TF1 *doublegaus_v02 = new TF1("doublegaus_v02",doublegausf,-.1,.1,6);
-
+  /*
   doublegaus_v02->SetParLimits(0,0,100);
   doublegaus_v02->SetParLimits(2,0.005,0.05);
   doublegaus_v02->SetParLimits(3,0,100);
   doublegaus_v02->SetParLimits(5,0.005,0.05);
-
+  */
   doublegaus_v02->SetParameters(20,v02->GetMean(),v02->GetRMS(),5,v02->GetMean(),v02->GetRMS());
   v02->Fit("doublegaus_v02","R");
 
@@ -426,12 +425,12 @@ void resolution(TString files){
   //v03
 
   TF1 *doublegaus_v03 = new TF1("doublegaus_v03",doublegausf,-.1,.1,6);
-
+  /*
   doublegaus_v03->SetParLimits(0,0,100);
   doublegaus_v03->SetParLimits(2,0.005,0.05);
   doublegaus_v03->SetParLimits(3,0,100);
   doublegaus_v03->SetParLimits(5,0.005,0.05);
-
+  */
   doublegaus_v03->SetParameters(20,v03->GetMean(),v03->GetRMS(),5,v03->GetMean(),v03->GetRMS());
   v03->Fit("doublegaus_v03","R");
 
@@ -462,12 +461,12 @@ void resolution(TString files){
   //v04
 
   TF1 *doublegaus_v04 = new TF1("doublegaus_v04",doublegausf,-.1,.1,6);
-
+  /*
   doublegaus_v04->SetParLimits(0,0,100);
   doublegaus_v04->SetParLimits(2,0.005,0.05);
   doublegaus_v04->SetParLimits(3,0,100);
   doublegaus_v04->SetParLimits(5,0.005,0.05);
-
+  */
   doublegaus_v04->SetParameters(20,v04->GetMean(),v04->GetRMS(),5,v04->GetMean(),v04->GetRMS());
   v04->Fit("doublegaus_v04","R");
 
@@ -498,12 +497,12 @@ void resolution(TString files){
   //v05
 
   TF1 *doublegaus_v05 = new TF1("doublegaus_v05",doublegausf,-.1,.1,6);
-
+  /*
   doublegaus_v05->SetParLimits(0,0,100);
   doublegaus_v05->SetParLimits(2,0.005,0.05);
   doublegaus_v05->SetParLimits(3,0,100);
   doublegaus_v05->SetParLimits(5,0.005,0.05);
-
+  */
   doublegaus_v05->SetParameters(20,v05->GetMean(),v05->GetRMS(),5,v05->GetMean(),v05->GetRMS());
   v05->Fit("doublegaus_v05","R");
 
@@ -534,12 +533,12 @@ void resolution(TString files){
   //v06
 
   TF1 *doublegaus_v06 = new TF1("doublegaus_v06",doublegausf,-.1,.1,6);
-
+  /*
   doublegaus_v06->SetParLimits(0,0,100);
   doublegaus_v06->SetParLimits(2,0.005,0.05);
   doublegaus_v06->SetParLimits(3,0,100);
   doublegaus_v06->SetParLimits(5,0.005,0.05);
-
+  */
   doublegaus_v06->SetParameters(20,v06->GetMean(),v06->GetRMS(),5,v06->GetMean(),v06->GetRMS());
   v06->Fit("doublegaus_v06","R");
 
@@ -570,12 +569,12 @@ void resolution(TString files){
   //v07
 
   TF1 *doublegaus_v07 = new TF1("doublegaus_v07",doublegausf,-.1,.1,6);
-
+  /*
   doublegaus_v07->SetParLimits(0,0,100);
   doublegaus_v07->SetParLimits(2,0.005,0.05);
   doublegaus_v07->SetParLimits(3,0,100);
   doublegaus_v07->SetParLimits(5,0.005,0.05);
-
+  */
   doublegaus_v07->SetParameters(20,v07->GetMean(),v07->GetRMS(),5,v07->GetMean(),v07->GetRMS());
   v07->Fit("doublegaus_v07","R");
 
@@ -606,12 +605,12 @@ void resolution(TString files){
   //v08
 
   TF1 *doublegaus_v08 = new TF1("doublegaus_v08",doublegausf,-.1,.1,6);
-
+  /*
   doublegaus_v08->SetParLimits(0,0,100);
   doublegaus_v08->SetParLimits(2,0.005,0.05);
   doublegaus_v08->SetParLimits(3,0,100);
   doublegaus_v08->SetParLimits(5,0.005,0.05);
-
+  */
   doublegaus_v08->SetParameters(20,v08->GetMean(),v08->GetRMS(),5,v08->GetMean(),v08->GetRMS());
   v08->Fit("doublegaus_v08","R");
 
@@ -926,12 +925,12 @@ void resolution(TString files){
   //vallw
 
   TF1 *doublegaus_vallw = new TF1("doublegaus_vallw",doublegausf,-.1,.1,6);
-
+  /*
   doublegaus_vallw->SetParLimits(0,0,10000);
   doublegaus_vallw->SetParLimits(2,0.005,0.05);
   doublegaus_vallw->SetParLimits(3,0,10000);
   doublegaus_vallw->SetParLimits(5,0.005,0.05);
-
+  */
   doublegaus_vallw->SetParameters(20,vallw->GetMean(),vallw->GetRMS(),5,vallw->GetMean(),vallw->GetRMS());
   vallw->Fit("doublegaus_vallw","R");
 
@@ -962,12 +961,12 @@ void resolution(TString files){
   //v01w
 
   TF1 *doublegaus_v01w = new TF1("doublegaus_v01w",doublegausf,-.1,.1,6);
-
+  /*
   doublegaus_v01w->SetParLimits(0,0,100);
   doublegaus_v01w->SetParLimits(2,0.005,0.05);
   doublegaus_v01w->SetParLimits(3,0,100);
   doublegaus_v01w->SetParLimits(5,0.005,0.05);
-
+  */
   doublegaus_v01w->SetParameters(20,v01w->GetMean(),v01w->GetRMS(),5,v01w->GetMean(),v01w->GetRMS());
   v01w->Fit("doublegaus_v01w","R");
 
@@ -998,12 +997,12 @@ void resolution(TString files){
   //v02w
 
   TF1 *doublegaus_v02w = new TF1("doublegaus_v02w",doublegausf,-.1,.1,6);
-
+  /*
   doublegaus_v02w->SetParLimits(0,0,100);
   doublegaus_v02w->SetParLimits(2,0.005,0.05);
   doublegaus_v02w->SetParLimits(3,0,100);
   doublegaus_v02w->SetParLimits(5,0.005,0.05);
-
+  */
   doublegaus_v02w->SetParameters(20,v02w->GetMean(),v02w->GetRMS(),5,v02w->GetMean(),v02w->GetRMS());
   v02w->Fit("doublegaus_v02w","R");
 
@@ -1034,12 +1033,12 @@ void resolution(TString files){
   //v03w
 
   TF1 *doublegaus_v03w = new TF1("doublegaus_v03w",doublegausf,-.1,.1,6);
-
+  /*
   doublegaus_v03w->SetParLimits(0,0,100);
   doublegaus_v03w->SetParLimits(2,0.005,0.05);
   doublegaus_v03w->SetParLimits(3,0,100);
   doublegaus_v03w->SetParLimits(5,0.005,0.05);
-
+  */
   doublegaus_v03w->SetParameters(20,v03w->GetMean(),v03w->GetRMS(),5,v03w->GetMean(),v03w->GetRMS());
   v03w->Fit("doublegaus_v03w","R");
 
@@ -1070,12 +1069,12 @@ void resolution(TString files){
   //v04w
 
   TF1 *doublegaus_v04w = new TF1("doublegaus_v04w",doublegausf,-.1,.1,6);
-
+  /*
   doublegaus_v04w->SetParLimits(0,0,100);
   doublegaus_v04w->SetParLimits(2,0.005,0.05);
   doublegaus_v04w->SetParLimits(3,0,100);
   doublegaus_v04w->SetParLimits(5,0.005,0.05);
-
+  */
   doublegaus_v04w->SetParameters(20,v04w->GetMean(),v04w->GetRMS(),5,v04w->GetMean(),v04w->GetRMS());
   v04w->Fit("doublegaus_v04w","R");
 
@@ -1106,12 +1105,12 @@ void resolution(TString files){
   //v05w
 
   TF1 *doublegaus_v05w = new TF1("doublegaus_v05w",doublegausf,-.1,.1,6);
-
+  /*
   doublegaus_v05w->SetParLimits(0,0,100);
   doublegaus_v05w->SetParLimits(2,0.005,0.05);
   doublegaus_v05w->SetParLimits(3,0,100);
   doublegaus_v05w->SetParLimits(5,0.005,0.05);
-
+  */
   doublegaus_v05w->SetParameters(20,v05w->GetMean(),v05w->GetRMS(),5,v05w->GetMean(),v05w->GetRMS());
   v05w->Fit("doublegaus_v05w","R");
 
@@ -1142,12 +1141,12 @@ void resolution(TString files){
   //v06w
 
   TF1 *doublegaus_v06w = new TF1("doublegaus_v06w",doublegausf,-.1,.1,6);
-
+  /*
   doublegaus_v06w->SetParLimits(0,0,100);
   doublegaus_v06w->SetParLimits(2,0.005,0.05);
   doublegaus_v06w->SetParLimits(3,0,100);
   doublegaus_v06w->SetParLimits(5,0.005,0.05);
-
+  */
   doublegaus_v06w->SetParameters(20,v06w->GetMean(),v06w->GetRMS(),5,v06w->GetMean(),v06w->GetRMS());
   v06w->Fit("doublegaus_v06w","R");
 
@@ -1178,12 +1177,12 @@ void resolution(TString files){
   //v07w
 
   TF1 *doublegaus_v07w = new TF1("doublegaus_v07w",doublegausf,-.1,.1,6);
-
+  /*
   doublegaus_v07w->SetParLimits(0,0,100);
   doublegaus_v07w->SetParLimits(2,0.005,0.05);
   doublegaus_v07w->SetParLimits(3,0,100);
   doublegaus_v07w->SetParLimits(5,0.005,0.05);
-
+  */
   doublegaus_v07w->SetParameters(20,v07w->GetMean(),v07w->GetRMS(),5,v07w->GetMean(),v07w->GetRMS());
   v07w->Fit("doublegaus_v07w","R");
 
@@ -1214,12 +1213,12 @@ void resolution(TString files){
   //v08w
 
   TF1 *doublegaus_v08w = new TF1("doublegaus_v08w",doublegausf,-.1,.1,6);
-
+  /*
   doublegaus_v08w->SetParLimits(0,0,100);
   doublegaus_v08w->SetParLimits(2,0.005,0.05);
   doublegaus_v08w->SetParLimits(3,0,100);
   doublegaus_v08w->SetParLimits(5,0.005,0.05);
-
+  */
   doublegaus_v08w->SetParameters(20,v08w->GetMean(),v08w->GetRMS(),5,v08w->GetMean(),v08w->GetRMS());
   v08w->Fit("doublegaus_v08w","R");
 

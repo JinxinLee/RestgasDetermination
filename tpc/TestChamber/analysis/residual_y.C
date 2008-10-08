@@ -24,7 +24,7 @@ void plots(TString files){
   //gSystem->Load("libtestChamber"); 
 
 
-  //gROOT->Macro("macro/christian_style.C"); 
+  gROOT->Macro("../macro/christian_style.C"); 
 
   TChain myChain("at");
 
@@ -37,31 +37,37 @@ void plots(TString files){
   TCtrack *intr=0;
 
 
-   TH1D *yresid = new TH1D("yresid","",500,-1,1);
-   yresid->SetXTitle("residual y [cm]");
-   //yresid->SetFillColor(2);
+   TH1D *vresid = new TH1D("vresid","",500,-0.2,0.2);
+   vresid->SetXTitle("residual v [cm]");
+   //vresid->SetFillColor(2);
 
-   TH1D *yresidw = new TH1D("yresidw","",500,-1,1);
-   yresidw->SetXTitle("residual y with cut [cm]");
-   yresidw->SetFillColor(4);
+   TH1D *vresidw = new TH1D("vresidw","",500,-0.2,0.2);
+   vresidw->SetXTitle("residual v with cut [cm]");
+   vresidw->SetFillColor(4);
+   vresidw->SetLineColor(4);
 
    TCanvas *y = new TCanvas();
 
-  myChain.SetBranchAddress("track", &intr);
+   myChain.SetBranchAddress("track", &intr);
 
-  time_t rawtime;
-  time ( &rawtime );
-  std::cout<< "The current time is " << ctime(&rawtime) << std::endl;
+   time_t rawtime;
+   time ( &rawtime );
+   std::cout<< "The current time is " << ctime(&rawtime) << std::endl;
 
-  for (Int_t iev=0;iev<nevent;iev++){
+   for (Int_t iev=0;iev<nevent;iev++){
 
-    myChain.GetEntry(iev);
-    TCtrack tr(*intr);
+     myChain.GetEntry(iev);
+     TCtrack tr(*intr);
+     if (fabs(tr.getAx()) > 1.E3) continue;
+     if (fabs(tr.getAy()) > 1.E3) continue;
+     if (tr.getChi2()/tr.getNDF()>2) continue;
+     if (tr.getChi2()/tr.getNDF()<0.01) continue;
+     if (tr.nCl()<2) continue;
 
       for(int i=0;i<tr.nCl();++i){
 	TCcluster c = tr.getCl(i);
 	if(c.getFit()){//was used in fit
-	  yresid->Fill(c.getRes().Y());
+	  vresid->Fill(c.getRes().Y());
  	}
       }
 
@@ -71,7 +77,7 @@ void plots(TString files){
           if(!consecCut(tr)) continue;
           TCcluster c = tr.getCl(i);
 	  if(c.getFit()){//was used in fit
-	    yresidw->Fill(c.getRes().Y());
+	    vresidw->Fill(c.getRes().Y());
           }
        }
   }
@@ -79,9 +85,8 @@ void plots(TString files){
   time ( &rawtime );
   std::cout<< "The current time is " << ctime(&rawtime) << std::endl;
 
-  yresid->Draw();
-  yresidw->Draw("same");
-
+  vresid->Draw();
+  vresidw->Draw("same");
   y->Update();
 
 }

@@ -45,7 +45,7 @@ void tracks(TString files){
      TCanvas *tracks = new TCanvas();
      tracks->SetGrid();
      TView *view = TView::CreateView(1);
-     view->SetRange(0,0,0,10,10,8);
+     view->SetRange(0,0,0,10,10,10);
 
 
   myChain.SetBranchAddress("track", &intr);
@@ -61,9 +61,9 @@ void tracks(TString files){
     Bx->Fill(tr.getBx());
 
     Double_t x1 = tr.getBx();
-    Double_t x2 = 8*tr.getAx() + tr.getBx();
+    Double_t x2 = 10*tr.getAx() + tr.getBx();
     Double_t y11 = tr.getBy();
-    Double_t y22 = 8*tr.getAy() + tr.getBy();
+    Double_t y22 = 10*tr.getAy() + tr.getBy();
 
     TPolyLine3D *i = new TPolyLine3D(2); 
 
@@ -75,18 +75,6 @@ void tracks(TString files){
    tracks->Modified();
    tracks->Update();
 
-  //TCanvas *ax = new TCanvas();
-  //Ax->Draw();
-  //canvas->SaveAs("output/yresid1.eps");
-  //TCanvas *bx = new TCanvas();
-  //Bx->Draw();
-  //canvas->SaveAs("output/yresid2.eps");
-  //TCanvas *ay = new TCanvas();
-  //Ay->Draw();
-  //canvas->SaveAs("output/yresid3.eps");
-  //TCanvas *by = new TCanvas();
-  //By->Draw();
-  //canvas->SaveAs("output/yresid4.eps");
 
 }
 

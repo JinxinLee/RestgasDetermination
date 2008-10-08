@@ -16,8 +16,8 @@
 
 
 //#include "consecCut.C"
-#include "clusterSplit1.C"
-
+//#include "clusterSplit1.C"
+#include "oneRow3.C"
 
 void plots(TString files){
 
@@ -74,17 +74,17 @@ void plots(TString files){
     delete clone2;
     */
     //    intr->draw();
-    if(tr.nClFit()<7)continue;
+    // if(tr.nClFit()<7)continue;
 
     //TCtrack trSplit = clusterSplit1(tr);
 
     //tr.drawClustering(false,20,20,400,400);
     //tr.useTrivialClustering();
-    tr.draw(true,650,20,400,400);
+    //tr.draw(true,650,20,400,400);
 
 
-    //trSplit.drawClustering(false,20,250,400,400);
-    //trSplit.draw(true,700,250,400,400);
+    //tr.drawClustering(false,20,50,800,400);
+    //tr.draw(true,700,50,800,400);
 
     //    tr.draw();
     //tr.setCustomRange(true,0,9,0,1,0,8);
@@ -104,8 +104,9 @@ void plots(TString files){
     //clone.useTrivialClustering();
     //clone.draw(false,650,50,500,500);
 
-    //std::cout << consecCut(*tr) << std::endl;
-
+    //    std::cout << consecCut(tr) << std::endl;
+            std::cout << oneRow3(tr) << std::endl;
+  }
     //tr.setCustomRange(true,0,9,0,1,0,8);
     //tr.drawClustering(true,50,50,500,500);
 
@@ -131,7 +132,6 @@ void plots(TString files){
       }
     }
 */
-  }
   //yresid->Draw();
   //xresid->Draw();
   //chi2->Draw();

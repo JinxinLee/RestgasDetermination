@@ -48,6 +48,9 @@ void plots(TString files){
   TH1D *diffnhits = new TH1D("diffnhits","",30,0,30);
   diffnhits->SetXTitle("Number of Hits - Number of Hits on Track");
 
+  TH1D *diffnhits2 = new TH1D("diffnhits2","",30,0,30);
+  diffnhits2->SetXTitle("(# Hits - # Hits on Track)/# Hits");
+
   TH1D *diffnhits3 = new TH1D("diffnhits3","",30,0,30);
   diffnhits3->SetXTitle("");
   diffnhits3->SetLineColor(5);
@@ -66,6 +69,7 @@ void plots(TString files){
     nSelHits->Fill(tr.nClFit());
     nHits->Fill(tr.nCl());
     diffnhits->Add(nHits, nSelHits, 1, -1);
+    diffnhits2->Divide(diffnhits,nHits);
     diffnhits3->Add(nHits, nSelHits, 1, -1);
   }
 
@@ -78,6 +82,8 @@ void plots(TString files){
   nSelHits->Draw("same");
   TCanvas *diff = new TCanvas();
   diffnhits->Draw();
+  diff = new TCanvas();
+  diffnhits2->Draw();
   TCanvas *diff3 = new TCanvas();
   nHits->Draw();
   nSelHits->Draw("same");

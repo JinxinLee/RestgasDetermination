@@ -53,7 +53,7 @@ void plots(TString files){
 
    TH1D *uresid = new TH1D("uresid","",500,-1,1);
    uresid->SetXTitle("residual u [cm]");
-   uresid->SetFillColor(2);
+   //uresid->SetFillColor(2);
    uresid->SetLineColor(2);
 
    TH1D *uresidw = new TH1D("uresidw","",500,-1,1);
@@ -66,7 +66,7 @@ void plots(TString files){
 
    TH1D *vresid = new TH1D("vresid","",500,-0.2,0.2);
    vresid->SetXTitle("residual v [cm]");
-   vresid->SetFillColor(2);
+   //vresid->SetFillColor(2);
    vresid->SetLineColor(2);
 
    TH1D *vresidw = new TH1D("vresidw","",500,-0.2,0.2);
@@ -79,7 +79,7 @@ void plots(TString files){
 
    TH1D *wresid = new TH1D("wresid","",500,-0.2,0.2);
    wresid->SetXTitle("residual w [cm]");
-   wresid->SetFillColor(2);
+   //wresid->SetFillColor(2);
    wresid->SetLineColor(2);
 
    TH1D *wresidw = new TH1D("wresidw","",500,-0.2,0.2);
@@ -123,11 +123,11 @@ void plots(TString files){
      TCtrack tr(*intr);
      TCtrack trSplit = clusterSplit1(tr);
      trSplit.fit(200);    
-     if (fabs(tr.getAx()) > 1.E3) continue;
-     if (fabs(tr.getAy()) > 1.E3) continue;
-     if (tr.getChi2()/tr.getNDF()>2) continue;
-     if (tr.getChi2()/tr.getNDF()<0.01) continue;
-     if (tr.nCl()<2) continue;;
+     if (fabs(trSplit.getAx()) > 1.E3) continue;
+     if (fabs(trSplit.getAy()) > 1.E3) continue;
+     if (trSplit.getChi2()/trSplit.getNDF()>2) continue;
+     if (trSplit.getChi2()/trSplit.getNDF()<0.01) continue;
+     if (trSplit.nCl()<2) continue;;
 
 
      for(int i=0;i<trSplit.nCl();++i){
@@ -174,8 +174,8 @@ void plots(TString files){
    vresidp->Draw();
    doublegaus_f->Draw("same");
    TCanvas *zw = new TCanvas("canv5","");   
-   wresidw->Draw();
-   wresid->Draw("same");
+   wresid->Draw();
+   wresidw->Draw("same");
    TCanvas *z = new TCanvas("canv6","");   
    wresidp->Draw();
    zdoublegaus_f->Draw("same");

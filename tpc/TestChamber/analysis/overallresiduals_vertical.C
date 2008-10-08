@@ -295,7 +295,7 @@ void plots(TString files){
   vallw_f1->Draw("same");
   vallw_f2->Draw("same");
   
-  TText *t1 = new TText(0.125, 0.87, endl<<"Overall resolution v "<<vres_all<<" +- " <<err_vres_all<<endl);
+  TText *t1 = new TText(0.125, 0.87,"The overall resolution is:");
   t1->SetNDC();
   t1->SetTextSize(0.038);
   t1->SetTextFont(102);

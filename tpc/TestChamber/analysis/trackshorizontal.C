@@ -25,7 +25,7 @@ void tracks(TString files){
   //gSystem->Load("../libtestChamber.so"); 
 
 
-  //gROOT->Macro("macro/christian_style.C"); 
+  // gROOT->Macro("../macro/christian_style.C"); 
 
   TChain myChain("at");
 
@@ -37,10 +37,10 @@ void tracks(TString files){
 
   TCtrack *intr=0;
 
-     TCanvas *tracks = new TCanvas();
-     tracks->SetGrid();
-     TView *view = TView::CreateView(1);
-     view->SetRange(0,0,0,10,10,10);
+  TCanvas *tracks = new TCanvas();
+  tracks->SetGrid();
+  TView *view = TView::CreateView(1);
+  view->SetRange(0,0,0,10,10,10);
 
   TPolyLine3D *outline = new TPolyLine3D(17);
   outline->SetPoint(0,0,0,0);
@@ -63,7 +63,7 @@ void tracks(TString files){
   outline->SetLineWidth(3);
   outline->SetLineColor(5);
 
-//     void DrawOutlineCube(0, 8, 0, 1, 0, 10);
+  //     void DrawOutlineCube(0, 8, 0, 1, 0, 10);
 
 
   myChain.SetBranchAddress("track", &intr);
@@ -73,10 +73,11 @@ void tracks(TString files){
     myChain.GetEntry(i);
     TCtrack tr(*intr);
 
-    //Ay->Fill(tr.getAy());
-    //By->Fill(tr.getBy());
-    //Ax->Fill(tr.getAx());
-    //Bx->Fill(tr.getBx());
+    if (fabs(tr.getAx()) > 1.E3) continue;
+    //if (fabs(tr.getAy()) > 1.E6) continue;
+    //if (tr.getChi2()/tr.getNDF()>2) continue;
+    //if (tr.getChi2()/tr.getNDF()<0.1) continue;
+    //if (tr.nCl()<2) continue;
 
     Double_t x1 = tr.getBx();
     Double_t x2 = 10*tr.getAx() + tr.getBx();
@@ -90,9 +91,9 @@ void tracks(TString files){
     i->Draw("same");
 
   }
-   outline->Draw();
-   tracks->Modified();
-   tracks->Update();
+  outline->Draw();
+  tracks->Modified();
+  tracks->Update();
 
 
 }
