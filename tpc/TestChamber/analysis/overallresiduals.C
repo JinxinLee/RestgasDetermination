@@ -77,11 +77,13 @@ void plots(TString files){
       TCcluster c = tr.getCl(i);
       if(c.getFit()){//was used in fit
 
-	if (fabs(tr.getAx()) > 1.E3) continue;
-	if (fabs(tr.getAy()) > 1.E3) continue;
-	if (tr.getChi2()/tr.getNDF()>2) continue;
-	if (tr.getChi2()/tr.getNDF()<0.01) continue;
-	if (tr.nClFit()<2) continue;
+	if (fabs(tr.getThX())<1) continue;
+	if (fabs(tr.getThY())<1) continue;
+	if (fabs(tr.getTh())<1) continue;
+	if (fabs(tr.getTh())>30) continue;
+	//if (tr.getChi2()/tr.getNDF()>2) continue;
+	if (tr.getChi2()/tr.getNDF()<0.1) continue;
+	if (tr.nClFit()<5) continue;
 
 	uresidp->Fill(c.getRes().X());
 	vresidp->Fill(c.getRes().Y());
@@ -106,7 +108,7 @@ void plots(TString files){
 
   TF1 *doublegaus_vall = new TF1("doublegaus_vall",doublegausf,-.1,.1,6);
 
-  doublegaus_vall->SetParameters(20,vresidp->GetMean(),vresidp->GetRMS(),5,vresidp->GetMean(),vresidp->GetRMS());
+  doublegaus_vall->SetParameters(200,vresidp->GetMean(),vresidp->GetRMS(),50,vresidp->GetMean(),vresidp->GetRMS());
 
   vresidp->Fit("doublegaus_vall","R");
 
@@ -124,8 +126,8 @@ void plots(TString files){
   vall_f2->SetParError(2,doublegaus_vall->GetParError(5));
   vall_f2->SetLineColor(kBlue);
   
-  Double_t intvall_1 = vall_f1->Integral(-.1,.1);
-  Double_t intvall_2 = vall_f2->Integral(-.1,.1);
+  Double_t intvall_1 = vall_f1->Integral(-0.1,0.1);
+  Double_t intvall_2 = vall_f2->Integral(-0.1,0.1);
   
   vres_all = (intvall_1*fabs(vall_f1->GetParameter(2))+ intvall_2*fabs(vall_f2->GetParameter(2)))/(intvall_1 + intvall_2);
 
@@ -138,7 +140,7 @@ void plots(TString files){
 
   TF1 *doublegaus_wall = new TF1("doublegaus_wall",doublegausf,-.1,.1,6);
 
-  doublegaus_wall->SetParameters(20,wresidp->GetMean(),wresidp->GetRMS(),5,wresidp->GetMean(),wresidp->GetRMS());
+  doublegaus_wall->SetParameters(200,wresidp->GetMean(),wresidp->GetRMS(),50,wresidp->GetMean(),wresidp->GetRMS());
 
   wresidp->Fit("doublegaus_wall","R");
 
@@ -156,8 +158,8 @@ void plots(TString files){
   wall_f2->SetParError(2,doublegaus_wall->GetParError(5));
   wall_f2->SetLineColor(kBlue);
   
-  Double_t intwall_1 = wall_f1->Integral(-.1,.1);
-  Double_t intwall_2 = wall_f2->Integral(-.1,.1);
+  Double_t intwall_1 = wall_f1->Integral(-0.1,0.1);
+  Double_t intwall_2 = wall_f2->Integral(-0.1,0.1);
   
   wres_all = (intwall_1*fabs(wall_f1->GetParameter(2))+ intwall_2*fabs(wall_f2->GetParameter(2)))/(intwall_1 + intwall_2);
 
@@ -185,11 +187,12 @@ void plots(TString files){
   vall_f1->Draw("same");
   vall_f2->Draw("same");
 
-  TText *t1 = new TText(0.125, 0.87, endl<<"Overall resolution v "<<vres_all<<" +- " <<err_vres_all<<endl);
+  /*  TText *t1 = new TText(0.125, 0.87, "Overall resolution v "<<vres_all<<" +- " <<err_vres_all);
   t1->SetNDC();
   t1->SetTextSize(0.038);
   t1->SetTextFont(102);
   t1->Draw();
+  */
 
   TCanvas *z = new TCanvas("canv6","");   
   wresidp->Draw();
