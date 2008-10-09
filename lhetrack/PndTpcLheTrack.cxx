@@ -225,6 +225,7 @@ void PndTpcLheTrack ::SetDefaults() {
   fMvdHits = 0;
   fTpcHits = 0;
   fFitTrackIndex = -1;
+  fGood = kTRUE;
 }
 
 //______________________________________________________________
