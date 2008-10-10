@@ -22,7 +22,7 @@
   CbmRunSim *fRun = new CbmRunSim();
   
   // Set the number of events
-  Int_t nEvents = 1000; 
+  Int_t nEvents = 10; 
   
   // set the MC version used
   // ------------------------

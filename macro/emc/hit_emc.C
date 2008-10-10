@@ -47,7 +47,7 @@
   
   // -----  Parameter database   --------------------------------------------
 	TString emcDigiFile = gSystem->Getenv("VMCWORKDIR");
-	emcDigiFile += "/emc/";
+	emcDigiFile += "/macro/params/";
 	emcDigiFile += digiFile;
 
 	CbmRuntimeDb* rtdb = fRun->GetRuntimeDb();
