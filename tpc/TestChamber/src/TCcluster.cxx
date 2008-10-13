@@ -253,4 +253,23 @@ unsigned int TCcluster::nPadY(){
   return padRows.size();
 }
 
+unsigned int TCcluster::nTime(){
+  std::vector<padRow_t> padRows;
+  for(int iraw=0;iraw<nRaw();++iraw){
+    double pos = getRaw(iraw).posUVW().Z();
+    bool found=false;
+    for(int irow=0;irow<padRows.size();++irow){
+      if(padRows.at(irow).isSame(pos)) {
+	found = true;
+	break;
+      }
+    }
+    if(!found){
+      padRow_t p(pos);
+      padRows.push_back(p);
+    }
+  }
+  return padRows.size();
+}
+
 ClassImp(TCcluster)

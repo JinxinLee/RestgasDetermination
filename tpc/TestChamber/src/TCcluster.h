@@ -19,6 +19,7 @@ class TCcluster : public TObject{
 
   unsigned int nPadX();
   unsigned int nPadY();
+  unsigned int nTime();
 
   void setResid(double *par);
   TVector3 getResid(double *par);
