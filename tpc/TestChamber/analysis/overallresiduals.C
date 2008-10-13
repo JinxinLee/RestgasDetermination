@@ -14,9 +14,7 @@
 #include "../src/TCtrack.h"
 #include "../src/TCcluster.h"
 
-
-#include "consecCut.C"
-#include "clusterSplit1.C"
+#include "cuts.C"
 
 Double_t doublegausf(Double_t *x,Double_t *par)
 {
@@ -73,17 +71,11 @@ void plots(TString files){
     myChain.GetEntry(iev);
     TCtrack tr(*intr);
      
+    if(!IEEE(tr)) continue;
+
     for(int i=0;i<tr.nCl();++i){
       TCcluster c = tr.getCl(i);
       if(c.getFit()){//was used in fit
-
-	if (fabs(tr.getThX())<1) continue;
-	if (fabs(tr.getThY())<1) continue;
-	if (fabs(tr.getTh())<1) continue;
-	if (fabs(tr.getTh())>30) continue;
-	//if (tr.getChi2()/tr.getNDF()>2) continue;
-	if (tr.getChi2()/tr.getNDF()<0.1) continue;
-	if (tr.nClFit()<5) continue;
 
 	uresidp->Fill(c.getRes().X());
 	vresidp->Fill(c.getRes().Y());

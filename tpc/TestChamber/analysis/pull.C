@@ -23,8 +23,8 @@
 #include <vector>
 #include <set>
 
-#include "consecCut.C"
-#include "clusterSplit1.C"
+#include "cuts.C"
+
 
 void pull(TString files){
 
@@ -40,7 +40,7 @@ void pull(TString files){
   TH1D *pullw = new TH1D("pullw","",500,-10,10);
   pullw->SetXTitle("pull w");
 
-  TH1D *resu = new TH1D("resu","",500,-0.1,0.1);
+  TH1D *resu = new TH1D("resu","",500,-1,1);
   resu->SetXTitle("residual u [cm]");
 
   TH1D *resv = new TH1D("resv","",500,-0.1,0.1);
@@ -63,12 +63,8 @@ void pull(TString files){
 
     myChain.GetEntry(iev);
     TCtrack tr(*intr);
-    if (tr.nClFit()<5) continue;
-    if (fabs(tr.getThX())<1) continue;
-    if (fabs(tr.getThY())<1) continue;
-    if (fabs(tr.getTh())<1) continue;
-    if (fabs(tr.getTh())>30) continue;
-    if (tr.getChi2()/tr.getNDF()<0.1) continue;
+
+    if(!IEEE(tr)) continue;
 
     for(Int_t i=0;i<tr.nCl();i++){
 
