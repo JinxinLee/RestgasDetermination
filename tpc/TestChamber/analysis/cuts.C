@@ -21,17 +21,22 @@ bool IEEE(TCtrack t){
   }
 
   if (t.nClFit()<5){
-    if (fabs(t.getThX())<1){
-      if (fabs(t.getThY())<1){
-	if (fabs(t.getTh())<1){
-	  if (fabs(t.getTh())>30){
-
-      return false;
-	  }
-	}
-      }
-    }
+    return false;
   }
+  if (fabs(t.getThX())<1){
+    return false;
+  }
+  if (fabs(t.getThY())<1){
+    return false;
+  }
+  if (fabs(t.getTh())<1){
+    return false;
+  }
+  if (fabs(t.getTh())>30){
+
+    return false;
+  }
+
 
   return true;
 }
