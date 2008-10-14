@@ -23,8 +23,7 @@
 #include <vector>
 #include <set>
 
-#include "consecCut.C"
-#include "clusterSplit1.C"
+#include "cuts.C"
 
 void position(TString files){
 
@@ -86,11 +85,9 @@ void position(TString files){
      
     myChain.GetEntry(iev);
     TCtrack tr(*intr);
-     if (fabs(tr.getAx()) > 1.E3) continue;
-     if (fabs(tr.getAy()) > 1.E3) continue;
-     //if (tr.getChi2()/tr.getNDF()>4) continue;
-     if (tr.getChi2()/tr.getNDF()<0.1) continue;
-     if (tr.nClFit()<7) continue;
+
+    if(!IEEE(tr)) continue;
+    if (tr.nClFit()<7) continue;
      
     for(int i=0;i<tr.nCl();++i){
       TCcluster d = tr.getCl(i);
@@ -107,11 +104,9 @@ void position(TString files){
      
     myChain.GetEntry(iev);
     TCtrack tr(*intr);
-     if (fabs(tr.getAx()) > 1.E3) continue;
-     if (fabs(tr.getAy()) > 1.E3) continue;
-     //if (tr.getChi2()/tr.getNDF()>4) continue;
-     if (tr.getChi2()/tr.getNDF()<0.1) continue;
-     if (tr.nClFit()<9) continue;
+
+    if(!IEEE(tr)) continue;
+    if (tr.nClFit()<9) continue;
      
     for(int i=0;i<tr.nCl();++i){
       TCcluster d = tr.getCl(i);
@@ -129,12 +124,9 @@ void position(TString files){
      
     myChain.GetEntry(iev);
     TCtrack tr(*intr);
-     if (fabs(tr.getAx()) > 1.E3) continue;
-     if (fabs(tr.getAy()) > 1.E3) continue;
-     //if (tr.getChi2()/tr.getNDF()>4) continue;
-     if (tr.getChi2()/tr.getNDF()<0.1) continue;
-     if (tr.nClFit()<5) continue;
-     
+
+    if(!IEEE(tr)) continue;
+
     for(int i=0;i<tr.nCl();++i){
       TCcluster d = tr.getCl(i);
       if(d.getFit()){//was used in fit
