@@ -12,11 +12,14 @@ TCalign* TCalign::inst = NULL;
 TVector3 TCalign::XYZtoUVW(int id,TVector3 xyz){
   if(T[id]==NULL) quit(id);
   if(R[id]==NULL) quit(id);
-  TVector3 uvw = xyz-(*(T[id]));
-  uvw = (*(R[id]))*uvw;
+  TVector3 uvw = xyz-(*(T[id])); //
+				 //dereferencing, the minus sign is
+				 //the same in my code
+  uvw = (*(R[id]))*uvw; //dereferencing then multiplication4
   return uvw;
 }
 
+//for momentum vectors
 TVector3 TCalign::notranslXYZtoUVW(int id,TVector3 xyz){
   if(R[id]==NULL) quit(id);
   return (*(R[id]))*xyz;
@@ -25,7 +28,7 @@ TVector3 TCalign::notranslXYZtoUVW(int id,TVector3 xyz){
 TVector3 TCalign::notranslUVWtoXYZ(int id,TVector3 uvw){
   if(R[id]==NULL) quit(id);
   TMatrixT<double> M = (*(R[id]));
-  M.T();
+  M.T();//Transposing since Tinverse = T-transpose
   return  M*uvw;
 }
 
@@ -38,6 +41,21 @@ TVector3 TCalign::UVWtoXYZ(int id,TVector3 uvw){
   TVector3 xyz = M*uvw;
   xyz = xyz + (*(T[id]));
   return xyz;
+}
+
+std::vector<int> TCalign::getLoadedIDs(){
+    std::vector<int> ids;
+
+    if(P.empty()==true){
+	return ids;
+    }
+    for(std::map<int, double*>::const_iterator it = P.begin(); it != P.end(); ++it)
+    {
+	ids.push_back(it->first);
+	std::cout<<"id map: "<<it->first<<std::endl;
+    }
+
+    return ids;
 }
 
 void TCalign::read(std::string filename){
@@ -76,13 +94,18 @@ void TCalign::read(std::string filename){
       double pitch;
       istr5>>s;
       istr5>>pitch;
+      input.getline(line,199);
+      std::istringstream istr6(line);
+      double theta,phi,psi;
+      istr6>>s;
+      istr6>>theta>>phi>>psi;
       TVector3 trans(x,y,z);
       TMatrixT<double> M(3,3);
       M[0][0]=M00;    M[0][1]=M01;    M[0][2]=M02;
       M[1][0]=M10;    M[1][1]=M11;    M[1][2]=M12;
       M[2][0]=M20;    M[2][1]=M21;    M[2][2]=M22;
-      setConv(id,trans,M,pitch);
-    }
+      setConv(id,trans,M,pitch,theta,phi,psi);
+        }
   }
 }
 
