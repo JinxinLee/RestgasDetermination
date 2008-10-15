@@ -1,5 +1,5 @@
 #include "detector.h"
-#include "tcalign.h"
+#include "../../src/TCalign.h"
 #include "alignment.h"
 #include <TRandom3.h>
 #include <iostream>
