@@ -78,6 +78,8 @@ void clusterperlength(TString files){
     myChain.GetEntry(iev);
     TCtrack tr(*intr);
 
+    if(!IEEE(tr)) continue;
+
     double maxDist=-1;
     double maxDistI=-1;
     double maxDistJ=-1;
