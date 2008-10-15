@@ -679,7 +679,7 @@ void resolution(TString files){
 
   TF1 *doublegaus_w05 = new TF1("doublegaus_w05",doublegausf,-.1,.1,5);
 
-  doublegaus_w05->SetParameters(200,w05->GetMean(),w05->GetRMS(),50,w05->GetRMS());
+  doublegaus_w05->SetParameters(200,w05->GetMean(),w05->GetRMS(),5,w05->GetRMS());
 
   doublegaus_w05->SetParLimits(2,0.01,0.045);
   doublegaus_w05->SetParLimits(4,0.01,0.045);
