@@ -29,7 +29,7 @@ Double_t doublegausf(Double_t *x, Double_t *par){
   Double_t arg1 = 0;
   Double_t arg2 = 0;
   if (fabs(par[2]) > 1.E-10) arg1 = (x[0] - par[1])/par[2];
-  if (fabs(par[5]) > 1.E-10) arg2 = (x[0] - par[4])/par[5];
+  if (fabs(par[4]) > 1.E-10) arg2 = (x[0] - par[1])/par[4];
   Double_t fitval = par[0]*TMath::Exp(-0.5*arg1*arg1) + par[3]*TMath::Exp(-0.5*arg2*arg2);
   return fitval;
 }
@@ -181,9 +181,13 @@ void resolution(TString files){
   //v
   //vall
 
-  TF1 *doublegaus_vall = new TF1("doublegaus_vall",doublegausf,-.1,.1,6);
+  TF1 *doublegaus_vall = new TF1("doublegaus_vall",doublegausf,-.1,.1,5);
 
-  doublegaus_vall->SetParameters(20,vall->GetMean(),vall->GetRMS(),5,vall->GetMean(),vall->GetRMS());
+  doublegaus_vall->SetParameters(20,vall->GetMean(),vall->GetRMS(),5,vall->GetRMS());
+
+  doublegaus_vall->SetParLimits(2,0.01,0.045);
+  doublegaus_vall->SetParLimits(4,0.01,0.045);
+
   vall->Fit("doublegaus_vall","R");
 
   TF1 *vall_f1 = new TF1("vall_f1","gaus",-0.1,0.1);
@@ -195,9 +199,9 @@ void resolution(TString files){
   vall_f1->SetParError(2,doublegaus_vall->GetParError(2));
   vall_f1->SetLineColor(kRed);
   vall_f2->SetParameter(0,doublegaus_vall->GetParameter(3));
-  vall_f2->SetParameter(1,doublegaus_vall->GetParameter(4));
-  vall_f2->SetParameter(2,doublegaus_vall->GetParameter(5));
-  vall_f2->SetParError(2,doublegaus_vall->GetParError(5));
+  vall_f2->SetParameter(1,doublegaus_vall->GetParameter(1));
+  vall_f2->SetParameter(2,doublegaus_vall->GetParameter(4));
+  vall_f2->SetParError(2,doublegaus_vall->GetParError(4));
   vall_f2->SetLineColor(kBlue);
   
   Double_t intvall_1 = vall_f1->Integral(-.1,.1);
@@ -213,9 +217,13 @@ void resolution(TString files){
 
   //v01
 
-  TF1 *doublegaus_v01 = new TF1("doublegaus_v01",doublegausf,-.1,.1,6);
+  TF1 *doublegaus_v01 = new TF1("doublegaus_v01",doublegausf,-.1,.1,5);
 
-  doublegaus_v01->SetParameters(20,v01->GetMean(),v01->GetRMS(),5,v01->GetMean(),v01->GetRMS());
+  doublegaus_v01->SetParameters(20,v01->GetMean(),v01->GetRMS(),5,v01->GetRMS());
+
+  doublegaus_v01->SetParLimits(2,0.01,0.045);
+  doublegaus_v01->SetParLimits(4,0.01,0.045);
+
   v01->Fit("doublegaus_v01","R");
 
   TF1 *v01_f1 = new TF1("v01_f1","gaus",-0.1,0.1);
@@ -227,9 +235,9 @@ void resolution(TString files){
   v01_f1->SetParError(2,doublegaus_v01->GetParError(2));
   v01_f1->SetLineColor(kRed);
   v01_f2->SetParameter(0,doublegaus_v01->GetParameter(3));
-  v01_f2->SetParameter(1,doublegaus_v01->GetParameter(4));
-  v01_f2->SetParameter(2,doublegaus_v01->GetParameter(5));
-  v01_f2->SetParError(2,doublegaus_v01->GetParError(5));
+  v01_f2->SetParameter(1,doublegaus_v01->GetParameter(1));
+  v01_f2->SetParameter(2,doublegaus_v01->GetParameter(4));
+  v01_f2->SetParError(2,doublegaus_v01->GetParError(4));
   v01_f2->SetLineColor(kBlue);
   
   Double_t intv01_1 = v01_f1->Integral(-.1,.1);
@@ -245,9 +253,13 @@ void resolution(TString files){
 
   //v02
 
-  TF1 *doublegaus_v02 = new TF1("doublegaus_v02",doublegausf,-.1,.1,6);
+  TF1 *doublegaus_v02 = new TF1("doublegaus_v02",doublegausf,-.1,.1,5);
 
-  doublegaus_v02->SetParameters(20,v02->GetMean(),v02->GetRMS(),5,v02->GetMean(),v02->GetRMS());
+  doublegaus_v02->SetParameters(20,v02->GetMean(),v02->GetRMS(),5,v02->GetRMS());
+
+  doublegaus_v02->SetParLimits(2,0.01,0.045);
+  doublegaus_v02->SetParLimits(4,0.01,0.045);
+
   v02->Fit("doublegaus_v02","R");
 
   TF1 *v02_f1 = new TF1("v02_f1","gaus",-0.1,0.1);
@@ -259,9 +271,9 @@ void resolution(TString files){
   v02_f1->SetParError(2,doublegaus_v02->GetParError(2));
   v02_f1->SetLineColor(kRed);
   v02_f2->SetParameter(0,doublegaus_v02->GetParameter(3));
-  v02_f2->SetParameter(1,doublegaus_v02->GetParameter(4));
-  v02_f2->SetParameter(2,doublegaus_v02->GetParameter(5));
-  v02_f2->SetParError(2,doublegaus_v02->GetParError(5));
+  v02_f2->SetParameter(1,doublegaus_v02->GetParameter(1));
+  v02_f2->SetParameter(2,doublegaus_v02->GetParameter(4));
+  v02_f2->SetParError(2,doublegaus_v02->GetParError(4));
   v02_f2->SetLineColor(kBlue);
   
   Double_t intv02_1 = v02_f1->Integral(-.1,.1);
@@ -276,9 +288,13 @@ void resolution(TString files){
 
   //v03
 
-  TF1 *doublegaus_v03 = new TF1("doublegaus_v03",doublegausf,-.1,.1,6);
+  TF1 *doublegaus_v03 = new TF1("doublegaus_v03",doublegausf,-.1,.1,5);
 
-  doublegaus_v03->SetParameters(20,v03->GetMean(),v03->GetRMS(),5,v03->GetMean(),v03->GetRMS());
+  doublegaus_v03->SetParameters(20,v03->GetMean(),v03->GetRMS(),5,v03->GetRMS());
+
+  doublegaus_v03->SetParLimits(2,0.01,0.045);
+  doublegaus_v03->SetParLimits(4,0.01,0.045);
+
   v03->Fit("doublegaus_v03","R");
 
   TF1 *v03_f1 = new TF1("v03_f1","gaus",-0.1,0.1);
@@ -290,9 +306,9 @@ void resolution(TString files){
   v03_f1->SetParError(2,doublegaus_v03->GetParError(2));
   v03_f1->SetLineColor(kRed);
   v03_f2->SetParameter(0,doublegaus_v03->GetParameter(3));
-  v03_f2->SetParameter(1,doublegaus_v03->GetParameter(4));
-  v03_f2->SetParameter(2,doublegaus_v03->GetParameter(5));
-  v03_f2->SetParError(2,doublegaus_v03->GetParError(5));
+  v03_f2->SetParameter(1,doublegaus_v03->GetParameter(1));
+  v03_f2->SetParameter(2,doublegaus_v03->GetParameter(4));
+  v03_f2->SetParError(2,doublegaus_v03->GetParError(4));
   v03_f2->SetLineColor(kBlue);
   
   Double_t intv03_1 = v03_f1->Integral(-.1,.1);
@@ -307,9 +323,13 @@ void resolution(TString files){
 
   //v04
 
-  TF1 *doublegaus_v04 = new TF1("doublegaus_v04",doublegausf,-.1,.1,6);
+  TF1 *doublegaus_v04 = new TF1("doublegaus_v04",doublegausf,-.1,.1,5);
 
-  doublegaus_v04->SetParameters(20,v04->GetMean(),v04->GetRMS(),5,v04->GetMean(),v04->GetRMS());
+  doublegaus_v04->SetParameters(20,v04->GetMean(),v04->GetRMS(),5,v04->GetRMS());
+
+  doublegaus_v04->SetParLimits(2,0.01,0.045);
+  doublegaus_v04->SetParLimits(4,0.01,0.045);
+
   v04->Fit("doublegaus_v04","R");
 
   TF1 *v04_f1 = new TF1("v04_f1","gaus",-0.1,0.1);
@@ -321,9 +341,9 @@ void resolution(TString files){
   v04_f1->SetParError(2,doublegaus_v04->GetParError(2));
   v04_f1->SetLineColor(kRed);
   v04_f2->SetParameter(0,doublegaus_v04->GetParameter(3));
-  v04_f2->SetParameter(1,doublegaus_v04->GetParameter(4));
-  v04_f2->SetParameter(2,doublegaus_v04->GetParameter(5));
-  v04_f2->SetParError(2,doublegaus_v04->GetParError(5));
+  v04_f2->SetParameter(1,doublegaus_v04->GetParameter(1));
+  v04_f2->SetParameter(2,doublegaus_v04->GetParameter(4));
+  v04_f2->SetParError(2,doublegaus_v04->GetParError(4));
   v04_f2->SetLineColor(kBlue);
   
   Double_t intv04_1 = v04_f1->Integral(-.1,.1);
@@ -338,9 +358,13 @@ void resolution(TString files){
 
   //v05
 
-  TF1 *doublegaus_v05 = new TF1("doublegaus_v05",doublegausf,-.1,.1,6);
+  TF1 *doublegaus_v05 = new TF1("doublegaus_v05",doublegausf,-.1,.1,5);
 
-  doublegaus_v05->SetParameters(20,v05->GetMean(),v05->GetRMS(),5,v05->GetMean(),v05->GetRMS());
+  doublegaus_v05->SetParameters(20,v05->GetMean(),v05->GetRMS(),5,v05->GetRMS());
+
+  doublegaus_v05->SetParLimits(2,0.01,0.045);
+  doublegaus_v05->SetParLimits(4,0.01,0.045);
+
   v05->Fit("doublegaus_v05","R");
 
   TF1 *v05_f1 = new TF1("v05_f1","gaus",-0.1,0.1);
@@ -352,9 +376,9 @@ void resolution(TString files){
   v05_f1->SetParError(2,doublegaus_v05->GetParError(2));
   v05_f1->SetLineColor(kRed);
   v05_f2->SetParameter(0,doublegaus_v05->GetParameter(3));
-  v05_f2->SetParameter(1,doublegaus_v05->GetParameter(4));
-  v05_f2->SetParameter(2,doublegaus_v05->GetParameter(5));
-  v05_f2->SetParError(2,doublegaus_v05->GetParError(5));
+  v05_f2->SetParameter(1,doublegaus_v05->GetParameter(1));
+  v05_f2->SetParameter(2,doublegaus_v05->GetParameter(4));
+  v05_f2->SetParError(2,doublegaus_v05->GetParError(4));
   v05_f2->SetLineColor(kBlue);
   
   Double_t intv05_1 = v05_f1->Integral(-.1,.1);
@@ -369,9 +393,13 @@ void resolution(TString files){
 
   //v06
 
-  TF1 *doublegaus_v06 = new TF1("doublegaus_v06",doublegausf,-.1,.1,6);
+  TF1 *doublegaus_v06 = new TF1("doublegaus_v06",doublegausf,-.1,.1,5);
 
-  doublegaus_v06->SetParameters(20,v06->GetMean(),v06->GetRMS(),5,v06->GetMean(),v06->GetRMS());
+  doublegaus_v06->SetParameters(20,v06->GetMean(),v06->GetRMS(),5,v06->GetRMS());
+
+  doublegaus_v06->SetParLimits(2,0.01,0.045);
+  doublegaus_v06->SetParLimits(4,0.01,0.045);
+
   v06->Fit("doublegaus_v06","R");
 
   TF1 *v06_f1 = new TF1("v06_f1","gaus",-0.1,0.1);
@@ -383,9 +411,9 @@ void resolution(TString files){
   v06_f1->SetParError(2,doublegaus_v06->GetParError(2));
   v06_f1->SetLineColor(kRed);
   v06_f2->SetParameter(0,doublegaus_v06->GetParameter(3));
-  v06_f2->SetParameter(1,doublegaus_v06->GetParameter(4));
-  v06_f2->SetParameter(2,doublegaus_v06->GetParameter(5));
-  v06_f2->SetParError(2,doublegaus_v06->GetParError(5));
+  v06_f2->SetParameter(1,doublegaus_v06->GetParameter(1));
+  v06_f2->SetParameter(2,doublegaus_v06->GetParameter(4));
+  v06_f2->SetParError(2,doublegaus_v06->GetParError(4));
   v06_f2->SetLineColor(kBlue);
   
   Double_t intv06_1 = v06_f1->Integral(-.1,.1);
@@ -400,9 +428,13 @@ void resolution(TString files){
 
   //v07
 
-  TF1 *doublegaus_v07 = new TF1("doublegaus_v07",doublegausf,-.1,.1,6);
+  TF1 *doublegaus_v07 = new TF1("doublegaus_v07",doublegausf,-.1,.1,5);
 
-  doublegaus_v07->SetParameters(20,v07->GetMean(),v07->GetRMS(),5,v07->GetMean(),v07->GetRMS());
+  doublegaus_v07->SetParameters(20,v07->GetMean(),v07->GetRMS(),5,v07->GetRMS());
+
+  doublegaus_v07->SetParLimits(2,0.01,0.045);
+  doublegaus_v07->SetParLimits(4,0.01,0.045);
+
   v07->Fit("doublegaus_v07","R");
 
   TF1 *v07_f1 = new TF1("v07_f1","gaus",-0.1,0.1);
@@ -414,9 +446,9 @@ void resolution(TString files){
   v07_f1->SetParError(2,doublegaus_v07->GetParError(2));
   v07_f1->SetLineColor(kRed);
   v07_f2->SetParameter(0,doublegaus_v07->GetParameter(3));
-  v07_f2->SetParameter(1,doublegaus_v07->GetParameter(4));
-  v07_f2->SetParameter(2,doublegaus_v07->GetParameter(5));
-  v07_f2->SetParError(2,doublegaus_v07->GetParError(5));
+  v07_f2->SetParameter(1,doublegaus_v07->GetParameter(1));
+  v07_f2->SetParameter(2,doublegaus_v07->GetParameter(4));
+  v07_f2->SetParError(2,doublegaus_v07->GetParError(4));
   v07_f2->SetLineColor(kBlue);
   
   Double_t intv07_1 = v07_f1->Integral(-.1,.1);
@@ -431,9 +463,13 @@ void resolution(TString files){
 
   //v08
 
-  TF1 *doublegaus_v08 = new TF1("doublegaus_v08",doublegausf,-.1,.1,6);
+  TF1 *doublegaus_v08 = new TF1("doublegaus_v08",doublegausf,-.1,.1,5);
 
-  doublegaus_v08->SetParameters(20,v08->GetMean(),v08->GetRMS(),5,v08->GetMean(),v08->GetRMS());
+  doublegaus_v08->SetParameters(20,v08->GetMean(),v08->GetRMS(),5,v08->GetRMS());
+
+  doublegaus_v08->SetParLimits(2,0.01,0.045);
+  doublegaus_v08->SetParLimits(4,0.01,0.045);
+
   v08->Fit("doublegaus_v08","R");
 
   TF1 *v08_f1 = new TF1("v08_f1","gaus",-0.1,0.1);
@@ -445,9 +481,9 @@ void resolution(TString files){
   v08_f1->SetParError(2,doublegaus_v08->GetParError(2));
   v08_f1->SetLineColor(kRed);
   v08_f2->SetParameter(0,doublegaus_v08->GetParameter(3));
-  v08_f2->SetParameter(1,doublegaus_v08->GetParameter(4));
-  v08_f2->SetParameter(2,doublegaus_v08->GetParameter(5));
-  v08_f2->SetParError(2,doublegaus_v08->GetParError(5));
+  v08_f2->SetParameter(1,doublegaus_v08->GetParameter(1));
+  v08_f2->SetParameter(2,doublegaus_v08->GetParameter(4));
+  v08_f2->SetParError(2,doublegaus_v08->GetParError(4));
   v08_f2->SetLineColor(kBlue);
   
   Double_t intv08_1 = v08_f1->Integral(-.1,.1);
@@ -464,9 +500,13 @@ void resolution(TString files){
   //wall
 
 
-  TF1 *doublegaus_wall = new TF1("doublegaus_wall",doublegausf,-.1,.1,6);
+  TF1 *doublegaus_wall = new TF1("doublegaus_wall",doublegausf,-.1,.1,5);
 
-  doublegaus_wall->SetParameters(200,wall->GetMean(),wall->GetRMS(),50,wall->GetMean(),wall->GetRMS());
+  doublegaus_wall->SetParameters(200,wall->GetMean(),wall->GetRMS(),50,wall->GetRMS());
+
+  doublegaus_wall->SetParLimits(2,0.01,0.045);
+  doublegaus_wall->SetParLimits(4,0.01,0.045);
+
   wall->Fit("doublegaus_wall","R");
 
   TF1 *wall_f1 = new TF1("wall_f1","gaus",-0.1,0.1);
@@ -478,9 +518,9 @@ void resolution(TString files){
   wall_f1->SetParError(2,doublegaus_wall->GetParError(2));
   wall_f1->SetLineColor(kRed);
   wall_f2->SetParameter(0,doublegaus_wall->GetParameter(3));
-  wall_f2->SetParameter(1,doublegaus_wall->GetParameter(4));
-  wall_f2->SetParameter(2,doublegaus_wall->GetParameter(5));
-  wall_f2->SetParError(2,doublegaus_wall->GetParError(5));
+  wall_f2->SetParameter(1,doublegaus_wall->GetParameter(1));
+  wall_f2->SetParameter(2,doublegaus_wall->GetParameter(4));
+  wall_f2->SetParError(2,doublegaus_wall->GetParError(4));
   wall_f2->SetLineColor(kBlue);
   
   Double_t intwall_1 = wall_f1->Integral(-.1,.1);
@@ -496,9 +536,13 @@ void resolution(TString files){
 
   //w01
 
-  TF1 *doublegaus_w01 = new TF1("doublegaus_w01",doublegausf,-.1,.1,6);
+  TF1 *doublegaus_w01 = new TF1("doublegaus_w01",doublegausf,-.1,.1,5);
 
-  doublegaus_w01->SetParameters(20,w01->GetMean(),w01->GetRMS(),5,w01->GetMean(),w01->GetRMS());
+  doublegaus_w01->SetParameters(20,w01->GetMean(),w01->GetRMS(),5,w01->GetRMS());
+
+  doublegaus_w01->SetParLimits(2,0.01,0.045);
+  doublegaus_w01->SetParLimits(4,0.01,0.045);
+
   w01->Fit("doublegaus_w01","R");
 
   TF1 *w01_f1 = new TF1("w01_f1","gaus",-0.1,0.1);
@@ -510,9 +554,9 @@ void resolution(TString files){
   w01_f1->SetParError(2,doublegaus_w01->GetParError(2));
   w01_f1->SetLineColor(kRed);
   w01_f2->SetParameter(0,doublegaus_w01->GetParameter(3));
-  w01_f2->SetParameter(1,doublegaus_w01->GetParameter(4));
-  w01_f2->SetParameter(2,doublegaus_w01->GetParameter(5));
-  w01_f2->SetParError(2,doublegaus_w01->GetParError(5));
+  w01_f2->SetParameter(1,doublegaus_w01->GetParameter(1));
+  w01_f2->SetParameter(2,doublegaus_w01->GetParameter(4));
+  w01_f2->SetParError(2,doublegaus_w01->GetParError(4));
   w01_f2->SetLineColor(kBlue);
   
   Double_t intw01_1 = w01_f1->Integral(-.1,.1);
@@ -528,9 +572,13 @@ void resolution(TString files){
 
   //w02
 
-  TF1 *doublegaus_w02 = new TF1("doublegaus_w02",doublegausf,-.1,.1,6);
+  TF1 *doublegaus_w02 = new TF1("doublegaus_w02",doublegausf,-.1,.1,5);
 
-  doublegaus_w02->SetParameters(20,w02->GetMean(),w02->GetRMS(),5,w02->GetMean(),w02->GetRMS());
+  doublegaus_w02->SetParameters(20,w02->GetMean(),w02->GetRMS(),5,w02->GetRMS());
+
+  doublegaus_w02->SetParLimits(2,0.01,0.045);
+  doublegaus_w02->SetParLimits(4,0.01,0.045);
+
   w02->Fit("doublegaus_w02","R");
 
   TF1 *w02_f1 = new TF1("w02_f1","gaus",-0.1,0.1);
@@ -542,9 +590,9 @@ void resolution(TString files){
   w02_f1->SetParError(2,doublegaus_w02->GetParError(2));
   w02_f1->SetLineColor(kRed);
   w02_f2->SetParameter(0,doublegaus_w02->GetParameter(3));
-  w02_f2->SetParameter(1,doublegaus_w02->GetParameter(4));
-  w02_f2->SetParameter(2,doublegaus_w02->GetParameter(5));
-  w02_f2->SetParError(2,doublegaus_w02->GetParError(5));
+  w02_f2->SetParameter(1,doublegaus_w02->GetParameter(1));
+  w02_f2->SetParameter(2,doublegaus_w02->GetParameter(4));
+  w02_f2->SetParError(2,doublegaus_w02->GetParError(4));
   w02_f2->SetLineColor(kBlue);
   
   Double_t intw02_1 = w02_f1->Integral(-.1,.1);
@@ -559,9 +607,13 @@ void resolution(TString files){
 
   //w03
 
-  TF1 *doublegaus_w03 = new TF1("doublegaus_w03",doublegausf,-.1,.1,6);
+  TF1 *doublegaus_w03 = new TF1("doublegaus_w03",doublegausf,-.1,.1,5);
 
-  doublegaus_w03->SetParameters(20,w03->GetMean(),w03->GetRMS(),5,w03->GetMean(),w03->GetRMS());
+  doublegaus_w03->SetParameters(20,w03->GetMean(),w03->GetRMS(),5,w03->GetRMS());
+
+  doublegaus_w03->SetParLimits(2,0.01,0.045);
+  doublegaus_w03->SetParLimits(4,0.01,0.045);
+
   w03->Fit("doublegaus_w03","R");
 
   TF1 *w03_f1 = new TF1("w03_f1","gaus",-0.1,0.1);
@@ -573,9 +625,9 @@ void resolution(TString files){
   w03_f1->SetParError(2,doublegaus_w03->GetParError(2));
   w03_f1->SetLineColor(kRed);
   w03_f2->SetParameter(0,doublegaus_w03->GetParameter(3));
-  w03_f2->SetParameter(1,doublegaus_w03->GetParameter(4));
-  w03_f2->SetParameter(2,doublegaus_w03->GetParameter(5));
-  w03_f2->SetParError(2,doublegaus_w03->GetParError(5));
+  w03_f2->SetParameter(1,doublegaus_w03->GetParameter(1));
+  w03_f2->SetParameter(2,doublegaus_w03->GetParameter(4));
+  w03_f2->SetParError(2,doublegaus_w03->GetParError(4));
   w03_f2->SetLineColor(kBlue);
   
   Double_t intw03_1 = w03_f1->Integral(-.1,.1);
@@ -590,9 +642,13 @@ void resolution(TString files){
 
   //w04
 
-  TF1 *doublegaus_w04 = new TF1("doublegaus_w04",doublegausf,-.1,.1,6);
+  TF1 *doublegaus_w04 = new TF1("doublegaus_w04",doublegausf,-.1,.1,5);
 
-  doublegaus_w04->SetParameters(20,w04->GetMean(),w04->GetRMS(),5,w04->GetMean(),w04->GetRMS());
+  doublegaus_w04->SetParameters(200,w04->GetMean(),w04->GetRMS(),5,w04->GetRMS());
+
+  doublegaus_w04->SetParLimits(2,0.01,0.045);
+  doublegaus_w04->SetParLimits(4,0.01,0.045);
+
   w04->Fit("doublegaus_w04","R");
 
   TF1 *w04_f1 = new TF1("w04_f1","gaus",-0.1,0.1);
@@ -604,9 +660,9 @@ void resolution(TString files){
   w04_f1->SetParError(2,doublegaus_w04->GetParError(2));
   w04_f1->SetLineColor(kRed);
   w04_f2->SetParameter(0,doublegaus_w04->GetParameter(3));
-  w04_f2->SetParameter(1,doublegaus_w04->GetParameter(4));
-  w04_f2->SetParameter(2,doublegaus_w04->GetParameter(5));
-  w04_f2->SetParError(2,doublegaus_w04->GetParError(5));
+  w04_f2->SetParameter(1,doublegaus_w04->GetParameter(1));
+  w04_f2->SetParameter(2,doublegaus_w04->GetParameter(4));
+  w04_f2->SetParError(2,doublegaus_w04->GetParError(4));
   w04_f2->SetLineColor(kBlue);
   
   Double_t intw04_1 = w04_f1->Integral(-.1,.1);
@@ -621,9 +677,13 @@ void resolution(TString files){
 
   //w05
 
-  TF1 *doublegaus_w05 = new TF1("doublegaus_w05",doublegausf,-.1,.1,6);
+  TF1 *doublegaus_w05 = new TF1("doublegaus_w05",doublegausf,-.1,.1,5);
 
-  doublegaus_w05->SetParameters(20,w05->GetMean(),w05->GetRMS(),5,w05->GetMean(),w05->GetRMS());
+  doublegaus_w05->SetParameters(200,w05->GetMean(),w05->GetRMS(),50,w05->GetRMS());
+
+  doublegaus_w05->SetParLimits(2,0.01,0.045);
+  doublegaus_w05->SetParLimits(4,0.01,0.045);
+
   w05->Fit("doublegaus_w05","R");
 
   TF1 *w05_f1 = new TF1("w05_f1","gaus",-0.1,0.1);
@@ -635,9 +695,9 @@ void resolution(TString files){
   w05_f1->SetParError(2,doublegaus_w05->GetParError(2));
   w05_f1->SetLineColor(kRed);
   w05_f2->SetParameter(0,doublegaus_w05->GetParameter(3));
-  w05_f2->SetParameter(1,doublegaus_w05->GetParameter(4));
-  w05_f2->SetParameter(2,doublegaus_w05->GetParameter(5));
-  w05_f2->SetParError(2,doublegaus_w05->GetParError(5));
+  w05_f2->SetParameter(1,doublegaus_w05->GetParameter(1));
+  w05_f2->SetParameter(2,doublegaus_w05->GetParameter(4));
+  w05_f2->SetParError(2,doublegaus_w05->GetParError(4));
   w05_f2->SetLineColor(kBlue);
   
   Double_t intw05_1 = w05_f1->Integral(-.1,.1);
@@ -652,9 +712,13 @@ void resolution(TString files){
 
   //w06
 
-  TF1 *doublegaus_w06 = new TF1("doublegaus_w06",doublegausf,-.1,.1,6);
+  TF1 *doublegaus_w06 = new TF1("doublegaus_w06",doublegausf,-.1,.1,5);
 
-  doublegaus_w06->SetParameters(20,w06->GetMean(),w06->GetRMS(),5,w06->GetMean(),w06->GetRMS());
+  doublegaus_w06->SetParameters(20,w06->GetMean(),w06->GetRMS(),5,w06->GetRMS());
+
+  doublegaus_w06->SetParLimits(2,0.01,0.045);
+  doublegaus_w06->SetParLimits(4,0.01,0.045);
+
   w06->Fit("doublegaus_w06","R");
 
   TF1 *w06_f1 = new TF1("w06_f1","gaus",-0.1,0.1);
@@ -666,9 +730,9 @@ void resolution(TString files){
   w06_f1->SetParError(2,doublegaus_w06->GetParError(2));
   w06_f1->SetLineColor(kRed);
   w06_f2->SetParameter(0,doublegaus_w06->GetParameter(3));
-  w06_f2->SetParameter(1,doublegaus_w06->GetParameter(4));
-  w06_f2->SetParameter(2,doublegaus_w06->GetParameter(5));
-  w06_f2->SetParError(2,doublegaus_w06->GetParError(5));
+  w06_f2->SetParameter(1,doublegaus_w06->GetParameter(1));
+  w06_f2->SetParameter(2,doublegaus_w06->GetParameter(4));
+  w06_f2->SetParError(2,doublegaus_w06->GetParError(4));
   w06_f2->SetLineColor(kBlue);
   
   Double_t intw06_1 = w06_f1->Integral(-.1,.1);
@@ -683,9 +747,13 @@ void resolution(TString files){
 
   //w07
 
-  TF1 *doublegaus_w07 = new TF1("doublegaus_w07",doublegausf,-.1,.1,6);
+  TF1 *doublegaus_w07 = new TF1("doublegaus_w07",doublegausf,-.1,.1,5);
 
-  doublegaus_w07->SetParameters(20,w07->GetMean(),w07->GetRMS(),5,w07->GetMean(),w07->GetRMS());
+  doublegaus_w07->SetParameters(20,w07->GetMean(),w07->GetRMS(),5,w07->GetRMS());
+
+  doublegaus_w07->SetParLimits(2,0.01,0.045);
+  doublegaus_w07->SetParLimits(4,0.01,0.045);
+
   w07->Fit("doublegaus_w07","R");
 
   TF1 *w07_f1 = new TF1("w07_f1","gaus",-0.1,0.1);
@@ -697,9 +765,9 @@ void resolution(TString files){
   w07_f1->SetParError(2,doublegaus_w07->GetParError(2));
   w07_f1->SetLineColor(kRed);
   w07_f2->SetParameter(0,doublegaus_w07->GetParameter(3));
-  w07_f2->SetParameter(1,doublegaus_w07->GetParameter(4));
-  w07_f2->SetParameter(2,doublegaus_w07->GetParameter(5));
-  w07_f2->SetParError(2,doublegaus_w07->GetParError(5));
+  w07_f2->SetParameter(1,doublegaus_w07->GetParameter(1));
+  w07_f2->SetParameter(2,doublegaus_w07->GetParameter(4));
+  w07_f2->SetParError(2,doublegaus_w07->GetParError(4));
   w07_f2->SetLineColor(kBlue);
   
   Double_t intw07_1 = w07_f1->Integral(-.1,.1);
@@ -714,9 +782,13 @@ void resolution(TString files){
 
   //w08
 
-  TF1 *doublegaus_w08 = new TF1("doublegaus_w08",doublegausf,-.1,.1,6);
+  TF1 *doublegaus_w08 = new TF1("doublegaus_w08",doublegausf,-.1,.1,5);
 
-  doublegaus_w08->SetParameters(20,w08->GetMean(),w08->GetRMS(),5,w08->GetMean(),w08->GetRMS());
+  doublegaus_w08->SetParameters(2000,w08->GetMean(),w08->GetRMS(),50,w08->GetRMS());
+
+  doublegaus_w08->SetParLimits(2,0.01,0.045);
+  doublegaus_w08->SetParLimits(4,0.01,0.045);
+
   w08->Fit("doublegaus_w08","R");
 
   TF1 *w08_f1 = new TF1("w08_f1","gaus",-0.1,0.1);
@@ -728,9 +800,9 @@ void resolution(TString files){
   w08_f1->SetParError(2,doublegaus_w08->GetParError(2));
   w08_f1->SetLineColor(kRed);
   w08_f2->SetParameter(0,doublegaus_w08->GetParameter(3));
-  w08_f2->SetParameter(1,doublegaus_w08->GetParameter(4));
-  w08_f2->SetParameter(2,doublegaus_w08->GetParameter(5));
-  w08_f2->SetParError(2,doublegaus_w08->GetParError(5));
+  w08_f2->SetParameter(1,doublegaus_w08->GetParameter(1));
+  w08_f2->SetParameter(2,doublegaus_w08->GetParameter(4));
+  w08_f2->SetParError(2,doublegaus_w08->GetParError(4));
   w08_f2->SetLineColor(kBlue);
   
   Double_t intw08_1 = w08_f1->Integral(-.1,.1);
