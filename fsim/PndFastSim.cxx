@@ -261,7 +261,7 @@ bool PndFastSim::EnableSplitoffs(std::string fname)
 
 void PndFastSim::EnablePropagation(bool propagate, bool tostartvtx, bool usecovmatrix, double tolerance) {
   fPropagate=propagate;
-  fTostartVtx=tostartvtx;
+  fToStartVtx=tostartvtx;
   fUseCovMatrix=usecovmatrix;
   fTolerance=tolerance;
 }
@@ -618,14 +618,14 @@ PndFastSim::cutAndSmear(PndFsmTrack *t, PndFsmResponse *r)
   // now produce some correlated errors 
   if (fPropagate && fabs(charge)>1e-6) {
     t->HelixRep(t->startVtx() );
-    double p2 = t->p4().Mag2();
+    double p2 = t->p4().Vect().Mag2();
     double omega = t->GetHelixOmega();
     double tandip = t->GetHelixTanDip();
     double theta = t->p4().Theta();
 
     static TVectorD gaus(5);
     for (char p=0;p<5;p++)
-      gaus(p)=fRand->Gaus();
+      gaus[p]=fRand->Gaus();
     if (fUseCovMatrix)
       gaus*=fEta;
     // calculate track par errors
@@ -640,12 +640,12 @@ PndFastSim::cutAndSmear(PndFsmTrack *t, PndFsmResponse *r)
     err[4] = dtheta/pow(sin(theta),2);
     // smear track pars
     for (char p=0;p<5;p++)
-      t->GetHelixParams()[p] += err[p] * gaus(p);
+      t->GetHelixParams()[p] += err[p] * gaus[p];
     // write scaled cov matrix
     for (char r=0;r<5;r++)
     for (char c=0;c<5;c++) 
       t->GetHelixCov()(r,c) = fRho(r,c)*fabs(err[r]*err[c])*(fUseCovMatrix||r==c);
-    t->Propagate( fTostartVtx ? t->startVtx() : TVector3(0,0,0), fTolerance);
+    t->Propagate( fToStartVtx ? t->startVtx() : TVector3(0,0,0), fTolerance);
     // uncharged particles remain uncorrelated
   } else {
     if (dE != 0.0)     smearEnergy(t,dE);
@@ -697,7 +697,7 @@ PndFastSim::smearMomentum(PndFsmTrack *t, double dp)
 {
   TLorentzVector p4=t->p4();
   double newP = p4.Vect().Mag() + fRand->Gaus(0.0,dp);
-  p4.SetVectM(p4.Vect()*(newP/p4.Vect().Mag()),t->p4().M());
+  p4.SetVectM(p4.Vect().Unit()*newP,t->p4().M());
   t->setP4(p4);
 }
 

@@ -94,7 +94,7 @@ class PndFastSim : public CbmTask
   TF1       *fspo[5][4];
   bool      fGenSplitOffs;
   bool      fPropagate;
-  bool      fTostartVtx;
+  bool      fToStartVtx;
   bool      fUseCovMatrix;
   double    fTolerance;
 

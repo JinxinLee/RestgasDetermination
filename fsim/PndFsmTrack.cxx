@@ -155,9 +155,9 @@ void PndFsmTrack::Propagate(TVector3 origin, double deltaError) {
     s1=sin(GetHelixPhi0()+delta);
     c1=cos(GetHelixPhi0()+delta);
     // vertex setup
-    _startVtx.SetX(-s0*(GetHelixD0()+R)+s1*R );
-    _startVtx.SetY( c0*(GetHelixD0()+R)-c1*R );
-    _startVtx.SetZ( GetHelixZ0()+GetHelixTanDip()*R*delta );
+    _startVtx.SetXYZ(-s0*(GetHelixD0()+R)+s1*R,
+                      c0*(GetHelixD0()+R)-c1*R,
+                      GetHelixZ0()+GetHelixTanDip()*R*delta );
     TVector3 distance(_startVtx-origin);
     if (distance2<distance.Mag2()) {
       alpha*=0.5;
@@ -170,10 +170,8 @@ void PndFsmTrack::Propagate(TVector3 origin, double deltaError) {
   } while (fabs(ds)>1e-9);
 
 	// momentum setup
-  _p4.SetX( pt*c1 );
-  _p4.SetY( pt*s1 );
-  _p4.SetZ( pt*GetHelixTanDip() );
-  _p4.SetVectMag(_p4.Vect(), TDatabasePDG::Instance()->GetParticle("pi-")->Mass());
+  _p4.SetXYZM( pt*c1, pt*s1, pt*GetHelixTanDip(),
+               TDatabasePDG::Instance()->GetParticle("pi-")->Mass());
 
   // calculate jacobian wrt d0..tandip 
   TMatrixD J_alpha(7,5);
