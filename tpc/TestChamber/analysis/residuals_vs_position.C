@@ -11,6 +11,7 @@
 #include "TH1.h"
 #include "TH2.h"
 #include "TF1.h"
+#include "TProfile.h"
 #include "TStyle.h"
 #include "TSystem.h"
 #include "TPaveText.h"
@@ -43,13 +44,19 @@ void position(TString files){
   uresid_vs_u->SetXTitle("Position u [cm]");
   uresid_vs_u->SetYTitle("Residual u [cm]");
 
+  TProfile *prof_u = new TProfile("prof_u","Profile of u residual vs u",500,0,10,-1,1);
+
   TH2D *vresid_vs_v = new TH2D("vresid_vs_v","",500,0,1,500,-0.1,0.1);
   vresid_vs_v->SetXTitle("Position v [cm]");
   vresid_vs_v->SetYTitle("Residual v [cm]");
 
+  TProfile *prof_v = new TProfile("prof_v","Profile of v residual vs v",500,0,1,-0.1,0.1);
+
   TH2D *wresid_vs_w = new TH2D("wresid_vs_w","",500,0,10,500,-0.1,0.1);
   wresid_vs_w->SetXTitle("Position w [cm]");
   wresid_vs_w->SetYTitle("Residual w [cm]");
+
+  TProfile *prof_w = new TProfile("prof_w","Profile of w residual vs w",500,0,10,-0.1,0.1);
 
   myChain.SetBranchAddress("track", &intr);
 
@@ -67,6 +74,10 @@ void position(TString files){
 	uresid_vs_u->Fill(d.posUVW().X(),d.getRes().X());
 	vresid_vs_v->Fill(d.posUVW().Y(),d.getRes().Y());
 	wresid_vs_w->Fill(d.posUVW().Z(),d.getRes().Z());
+
+	prof_u->Fill(d.posUVW().X(),d.getRes().X());
+	prof_v->Fill(d.posUVW().Y(),d.getRes().Y());
+	prof_w->Fill(d.posUVW().Z(),d.getRes().Z());
       }
     }
   }
@@ -74,12 +85,17 @@ void position(TString files){
   //end of event loop
 
   TCanvas *canvas = new TCanvas();
-
-  canvas = new TCanvas();
   uresid_vs_u->Draw("colz");
   canvas = new TCanvas();
   vresid_vs_v->Draw("colz");
   canvas = new TCanvas();
   wresid_vs_w->Draw("colz");
+
+  canvas = new TCanvas();
+  prof_u->Draw("");
+  canvas = new TCanvas();
+  prof_v->Draw("");
+  canvas = new TCanvas();
+  prof_w->Draw("");
 
 }
