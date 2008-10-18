@@ -130,7 +130,8 @@ void position(TString files){
     for(int i=0;i<tr.nCl();++i){
       TCcluster d = tr.getCl(i);
       if(d.getFit()){//was used in fit
-
+		if(d.nPadY()!=2) continue;
+		if(d.nTime()!=1) continue;
 	upos_4clust->Fill(d.posUVW().X());
 	vpos_4clust->Fill(d.posUVW().Y());
 	wpos_4clust->Fill(d.posUVW().Z());
@@ -150,8 +151,8 @@ void position(TString files){
   upos_8clust->Draw("same");
   canvas = new TCanvas();
   vpos_4clust->Draw();
-  vpos_6clust->Draw("same");
-  vpos_8clust->Draw("same");
+  //vpos_6clust->Draw("same");
+  //vpos_8clust->Draw("same");
   canvas = new TCanvas();
   wpos_4clust->Draw();
   wpos_6clust->Draw("same");

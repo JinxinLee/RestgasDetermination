@@ -104,7 +104,7 @@ void resolution(TString files){
 
       TCcluster c = tr.getCl(i);
       if(c.getFit()){ 
-
+		if(c.posUVW().Y()<0.3|| c.posUVW().Y()>0.4)continue;
 	vall->Fill(c.getRes().Y());
 	wall->Fill(c.getRes().Z());
 

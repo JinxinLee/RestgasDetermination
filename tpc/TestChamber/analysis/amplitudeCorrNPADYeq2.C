@@ -38,20 +38,9 @@ void position(TString files){
   //define the histograms
   //without using clusterSplit1.C
 
-  double cuts[3]={200.,400.,600.};
-  int colors[3]={kRed,kGreen,kBlue};
 
-  TH1D *vpos = new TH1D("vpos","",100,0,1);
-  vpos->SetXTitle("Position v [cm]");
-  TH1D *vpos0 = new TH1D("vpos0","",100,0,1);
-  vpos0->SetLineColor(colors[0]);
-  TH1D *vpos1 = new TH1D("vpos1","",100,0,1);
-  vpos1->SetLineColor(colors[1]);
-  TH1D *vpos2 = new TH1D("vpos2","",100,0,1);
-  vpos2->SetLineColor(colors[2]);
+  TH2D *amps = new TH2D("amps","",100,0,200,100,0,200);
 
-  TH1D *amp = new TH1D("amp","",100,0.,3000.);
-  TH2D *amp_V = new TH2D("amp_V","",100,0.,3000.,100,0.,1.);
 
   myChain.SetBranchAddress("track", &intr);
 
@@ -67,14 +56,9 @@ void position(TString files){
 	for(int i=0;i<tr.nCl();++i){
 	  TCcluster c = tr.getCl(i);
 	  if(!c.getFit()) continue;
-	  if(c.nPadY()!=1) continue;
-	  if(c.nTime()!=1) continue;
-	  amp->Fill(c.getAmp());
-	  amp_V->Fill(c.getAmp(),c.posUVW().Y());
-	  vpos->Fill(c.posUVW().Y());
-	  if(c.getAmp()>cuts[0]) vpos0->Fill(c.posUVW().Y());
-	  if(c.getAmp()>cuts[1]) vpos1->Fill(c.posUVW().Y());
-	  if(c.getAmp()>cuts[2]) vpos2->Fill(c.posUVW().Y());
+	  if(c.nPadY()!=2) continue;
+	  //	  if(c.nTime()!=1) continue;
+	  amps->Fill(c.getRaw(0).getAmp(),c.getRaw(1).getAmp());
 	}
 
   }
@@ -82,14 +66,6 @@ void position(TString files){
   //end of event loop
 
   TCanvas *canvas = new TCanvas();
-  vpos->Draw();
-  vpos0->Draw("same");
-  vpos1->Draw("same");
-  vpos2->Draw("same");
- 
-  canvas = new TCanvas();
-  amp->Draw();
-  canvas = new TCanvas();
-  amp_V->Draw("colz");
+  amps->Draw("colz");
 
 }
