@@ -41,8 +41,10 @@ public:
 private:
 
   // Private Data Members ------------
-  static const int NparHitRep = 8;
   DetPlane _detPlane;
+
+ protected:
+ static const int NparHitRep = 8;
 
   // Private Methods -----------------
 

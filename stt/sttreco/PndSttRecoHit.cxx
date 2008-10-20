@@ -47,7 +47,7 @@ PndSttRecoHit::PndSttRecoHit(PndSttHit *currenthit) : WirepointRecoHit(NparHitRe
 
   // wire1(3), wire2(3), rdrift, zreco
   TVector3 wiredirection = currenthit->GetWireDirection();
-  TVector3 wiredirection2 = 75. * wiredirection;                     // CHECK for short tubes
+  TVector3 wiredirection2 = currenthit->GetTubeHalfLength() * wiredirection;                     // CHECK for short tubes
   TVector3 cenposition(currenthit->GetX(), currenthit->GetY(), currenthit->GetZ());  // CHECK! z = 35
   TVector3 wire1, wire2;
   wire1 = cenposition - wiredirection2;
@@ -76,7 +76,7 @@ PndSttRecoHit::PndSttRecoHit(PndSttHelixHit *currenthit) : WirepointRecoHit(Npar
 
   // wire1(3), wire2(3), rdrift, zreco
   TVector3 wiredirection = currenthit->GetWireDirection();
-  TVector3 wiredirection2 = 75. * wiredirection;                     // CHECK for short tubes
+  TVector3 wiredirection2 = currenthit->GetTubeHalfLength() * wiredirection;                     // CHECK for short tubes
   TVector3 cenposition(currenthit->GetXcen(), currenthit->GetYcen(), currenthit->GetZcen());  // CHECK! z = 35
   TVector3 wire1, wire2;
   wire1 = cenposition - wiredirection2;
@@ -250,6 +250,11 @@ const DetPlane&
 PndSttRecoHit::getDetPlane(AbsTrackRep* rep){
 
   AbsRecoHit* thishit = clone();
+
+  //   distance of one (the first) of the wire extremities from the plane
+  Double_t distance =  _detPlane.dist(TVector3(_hitCoord[0][0], _hitCoord[1][0],_hitCoord[2][0])).Mag();
+  if(distance < 1e-6) return _detPlane;
+
   _detPlane = detPlane(thishit, rep);
  return _detPlane;
 }
