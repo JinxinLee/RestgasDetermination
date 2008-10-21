@@ -127,6 +127,7 @@ class TCtrack : public TObject{
  private:
   TCanvas *canvDraw;
   TCanvas *canvDrawClust;
+  //track define by: x=a_x*z+b_x and y=.....
   double ax,bx,ay,by,dax,day,dbx,dby;
   double MCax,MCbx,MCay,MCby;
   bool isMC;
