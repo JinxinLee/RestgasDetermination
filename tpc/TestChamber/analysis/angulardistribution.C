@@ -84,7 +84,7 @@ void angulars(TString files){
      if (fabs(tr.getAx()) > 1.E3) continue;
      if (fabs(tr.getAy()) > 1.E3) continue;
      //if (tr.getChi2()/tr.getNDF()>4) continue;
-     if (tr.getChi2()/tr.getNDF()<0.1) continue;
+     //if (tr.getChi2()/tr.getNDF()<0.1) continue;
      if (tr.nClFit()<5) continue;
 
 	  thetay_4clust->Fill(tr.getThY());
@@ -104,7 +104,7 @@ void angulars(TString files){
      if (fabs(tr.getAx()) > 1.E3) continue;
      if (fabs(tr.getAy()) > 1.E3) continue;
      //if (tr.getChi2()/tr.getNDF()>4) continue;
-     if (tr.getChi2()/tr.getNDF()<0.1) continue;
+     //if (tr.getChi2()/tr.getNDF()<0.1) continue;
      if (tr.nClFit()<7) continue;
 
 	  thetay_6clust->Fill(tr.getThY());
@@ -121,7 +121,7 @@ void angulars(TString files){
      if (fabs(tr.getAx()) > 1.E3) continue;
      if (fabs(tr.getAy()) > 1.E3) continue;
      //if (tr.getChi2()/tr.getNDF()>4) continue;
-     if (tr.getChi2()/tr.getNDF()<0.1) continue;
+     //if (tr.getChi2()/tr.getNDF()<0.1) continue;
      if (tr.nClFit()<9) continue;
 
 	  thetay_8clust->Fill(tr.getThY());

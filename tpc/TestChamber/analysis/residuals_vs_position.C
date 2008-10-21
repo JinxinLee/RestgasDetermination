@@ -31,7 +31,7 @@ double f1(double x){
   return -0.0096+0.024*x;
 }
 double f2(double x){
-  return -0.0091+0.023*x;
+  return -0.0154+0.042*x;
 }
 double f3(double x){
   return -0.0154+0.039*x;
@@ -72,11 +72,27 @@ void position(TString files){
   TProfile *prof_vU3 = new TProfile("prof_vU3","Profile of v residual vs v",50,0,1,-0.1,0.1);
   TProfile *prof_vU4 = new TProfile("prof_vU4","Profile of v residual vs v",50,0,1,-0.1,0.1);
 
+  TProfile *prof_vV1 = new TProfile("prof_vV1","Profile of v residual vs v",500,0,1,-0.1,0.1);
+  TProfile *prof_vV2 = new TProfile("prof_vV2","Profile of v residual vs v",500,0,1,-0.1,0.1);
+  TProfile *prof_vV3 = new TProfile("prof_vV3","Profile of v residual vs v",500,0,1,-0.1,0.1);
+  TProfile *prof_vV4 = new TProfile("prof_vV4","Profile of v residual vs v",500,0,1,-0.1,0.1);
+  TProfile *prof_vV5 = new TProfile("prof_vV5","Profile of v residual vs v",500,0,1,-0.1,0.1);
+  TProfile *prof_vV6 = new TProfile("prof_vV6","Profile of v residual vs v",500,0,1,-0.1,0.1);
+  TProfile *prof_vV7 = new TProfile("prof_vV7","Profile of v residual vs v",500,0,1,-0.1,0.1);
+  TProfile *prof_vV8 = new TProfile("prof_vV8","Profile of v residual vs v",500,0,1,-0.1,0.1);
+
+
   TH2D *wresid_vs_w = new TH2D("wresid_vs_w","",500,0,10,500,-0.1,0.1);
   wresid_vs_w->SetXTitle("Position w [cm]");
   wresid_vs_w->SetYTitle("Residual w [cm]");
 
+  TH2D *wresid_vs_v = new TH2D("wresid_vs_v","",100,0,1,100,-0.1,0.1);
+  wresid_vs_v->SetXTitle("Position v [cm]");
+  wresid_vs_v->SetYTitle("Residual w [cm]");
+
   TProfile *prof_w = new TProfile("prof_w","Profile of w residual vs w",500,0,10,-0.1,0.1);
+
+  TProfile *prof_w_v = new TProfile("prof_w_v","Profile of w residual vs v",100,0,1,-0.1,0.1);
 
   myChain.SetBranchAddress("track", &intr);
 
@@ -103,6 +119,18 @@ void position(TString files){
 	for(int i=0;i<tr.nCl();++i){
 	  
 	  TCcluster c = tr.getCl(i);
+
+ 	if(c.posUVW().Y()<0.15)prof_vV1->Fill(c.posUVW().Y(),c.getRes().Y());
+ 	if(c.posUVW().Y()<0.25&&c.posUVW().Y()>0.15)prof_vV2->Fill(c.posUVW().Y(),c.getRes().Y());
+ 	if(c.posUVW().Y()<0.25&&c.posUVW().Y()>0.15)prof_vV2->Fill(c.posUVW().Y(),c.getRes().Y());
+ 	if(c.posUVW().Y()<0.35&&c.posUVW().Y()>0.25)prof_vV3->Fill(c.posUVW().Y(),c.getRes().Y());
+ 	if(c.posUVW().Y()<0.45&&c.posUVW().Y()>0.35)prof_vV4->Fill(c.posUVW().Y(),c.getRes().Y());
+ 	if(c.posUVW().Y()<0.55&&c.posUVW().Y()>0.45)prof_vV5->Fill(c.posUVW().Y(),c.getRes().Y());
+ 	if(c.posUVW().Y()<0.65&&c.posUVW().Y()>0.55)prof_vV6->Fill(c.posUVW().Y(),c.getRes().Y());
+ 	if(c.posUVW().Y()<0.75&&c.posUVW().Y()>0.65)prof_vV7->Fill(c.posUVW().Y(),c.getRes().Y());
+ 	if(c.posUVW().Y()>0.75)prof_vV8->Fill(c.posUVW().Y(),c.getRes().Y());
+
+	wresid_vs_v->Fill(c.posUVW().Y(),c.getRes().Z());
 
 	  detId=c.getId();
 	  if(!c.getFit()) continue;
@@ -165,9 +193,8 @@ void position(TString files){
  	if(d.nPadY()==3)prof_vU3->Fill(d.posUVW().Y(),d.getRes().Y());
  	if(d.nPadY()>3)prof_vU4->Fill(d.posUVW().Y(),d.getRes().Y());
 
-
-
 	prof_w->Fill(d.posUVW().Z(),d.getRes().Z());
+	prof_w_v->Fill(d.posUVW().Y(),d.getRes().Z());
       }
     }
   }
@@ -180,6 +207,8 @@ void position(TString files){
   vresid_vs_v->Draw("colz");
   canvas = new TCanvas();
   wresid_vs_w->Draw("colz");
+  canvas = new TCanvas();
+  wresid_vs_v->Draw("colz");
 
   canvas = new TCanvas();
   prof_u->Draw("");
@@ -187,6 +216,8 @@ void position(TString files){
   prof_v->Draw("");
   canvas = new TCanvas();
   prof_w->Draw("");
+  canvas = new TCanvas();
+  prof_w_v->Draw("");
 
   canvas = new TCanvas();
   canvas->Divide(2,2);
@@ -203,5 +234,24 @@ void position(TString files){
   prof_vU4->Fit("pol1");
   prof_vU4->Draw("");
 
+
+  canvas = new TCanvas();
+  canvas->Divide(3,3);
+  canvas->cd(1);
+  prof_vV1->Draw("");
+  canvas->cd(2);
+  prof_vV2->Draw("");
+  canvas->cd(3);
+  prof_vV3->Draw("");
+  canvas->cd(4);
+  prof_vV4->Draw("");
+  canvas->cd(5);
+  prof_vV5->Draw("");
+  canvas->cd(6);
+  prof_vV6->Draw("");
+  canvas->cd(7);
+  prof_vV7->Draw("");
+  canvas->cd(8);
+  prof_vV8->Draw("");
 
 }
