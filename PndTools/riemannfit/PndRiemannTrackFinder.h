@@ -73,6 +73,7 @@ private:
 	bool CheckHitDistance(int hit1, int hit2);	///< Tests if the distance is larger than fMinPointDistance
 	bool CheckSZ(PndRiemannTrack aTrack);				///< Tests the results of the sz fit
 	bool CheckRiemannHit(PndRiemannTrack* track, PndRiemannHit* hit);
+	bool CheckHitInSameSensor(int hit1, int hit2); ///< Tests if hits in the same sensor are selected
 	
 	PndRiemannTrack CreateRiemannTrack(std::vector<Int_t> aHits); ///< Creates a PndRiemannTrack from an array of indices of Hits
 		

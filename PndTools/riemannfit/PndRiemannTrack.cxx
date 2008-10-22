@@ -302,6 +302,11 @@ PndRiemannTrack::r() const {
   return sqrt(nom)/TMath::Abs(a);
 }
 
+double PndRiemannTrack::dR()
+{
+	return fcovRXY[0][0];
+}
+
 void
 PndRiemannTrack::szFit(){
 	if (fFitDone == false)
@@ -387,6 +392,13 @@ PndRiemannTrack::dip() {
 	if (fSZFitDone == false)
 		szFit();
 	return cos(atan(fm)); 
+}
+
+double PndRiemannTrack::dDip()
+{
+	if (fSZFitDone == false)
+		szFit();
+	return (fabs(sin(1/(1+fm*fm))) * fmError);
 }
 
 

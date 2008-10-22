@@ -46,8 +46,12 @@ public:
   const TVectorD& av() const {return fav;}
 
   TVectorD orig() const;
+  double dX(){return fcovRXY[1][1];}
+  double dY(){return fcovRXY[2][2];} 
   double r() const;
+  double dR();
   double dip();
+  double dDip();
   double sign() const;
   double getSZm() const {return fm;}
   double getSZt() const {return ft;}
@@ -103,7 +107,7 @@ private:
  
 
 public:
-  ClassDef(PndRiemannTrack,1)
+  ClassDef(PndRiemannTrack,2)
 
 };
 
