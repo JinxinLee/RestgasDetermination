@@ -46,15 +46,20 @@ public:
 	      unsigned int& hitId) const {detId=_detId[i];hitId=_hitId[i];}
   unsigned int getNHits() const {return _detId.size();}
   double getCurv() const {return _curv;}
+  double getCurvError() const{return _dCurv;}
   double getDip() const {return _dip;}
+  double getDipError() {return _dDip;}
   bool inverted() const {return _inv;}
   std::vector<unsigned int> GetHitIDs(int detId=-1);
 
   // Modifiers -----------------------
   void addHit(unsigned int detId, unsigned int hitId);
   void setCurv(double c){_curv=c;}
+  void setCurvError(double c){_dCurv =c;}
   void setDip(double d){_dip=d;}
+  void setDipError(double d){_dDip=d;}
   void setInverted(bool f=true) {_inv=f;}
+  bool HitInTrack(unsigned int detId, unsigned int hitId);
 
   // Operations ----------------------
   void reset();
@@ -66,7 +71,9 @@ private:
   std::vector<unsigned int> _hitId;
 
   double _curv; // curvature from pattern reco
+  double _dCurv; // error in curvature
   double _dip;  // dip angle from pattern reco
+  double _dDip; // error in dip angle from pattern reco
   bool _inv;  // true if inverted track
   // Private Methods -----------------
 

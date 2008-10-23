@@ -66,6 +66,16 @@ TrackCand::reset()
   _detId.clear();_hitId.clear();
 }
 
+bool TrackCand::HitInTrack(unsigned int detId, unsigned int hitId)
+{
+	for (int i = 0; i < _detId.size(); i++){
+		if (detId == _detId[i])
+			if (hitId == _hitId[i])
+				return true;
+	}
+	return false;	
+}
+
 bool operator== (const TrackCand& lhs, const TrackCand& rhs){
   if(lhs.getNHits()!=rhs.getNHits()) return false;
   bool result=std::equal(lhs._detId.begin(),lhs._detId.end(),rhs._detId.begin());
