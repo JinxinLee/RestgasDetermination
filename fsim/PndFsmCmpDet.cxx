@@ -211,6 +211,14 @@ PndFsmCmpDet::respond(PndFsmTrack *t) {
   LH_pi /= sumLH;
   LH_K  /= sumLH;
   LH_p  /= sumLH;
+
+  // this shifts all likelihoods linearly to the state 
+  // of no pid information at all i. e. all lhs are 0.2
+  LH_e  = 0.2*(1-_pidLhMulti) + LH_e*_pidLhMulti;
+  LH_mu = 0.2*(1-_pidLhMulti) + LH_mu*_pidLhMulti;
+  LH_pi = 0.2*(1-_pidLhMulti) + LH_pi*_pidLhMulti;
+  LH_K  = 0.2*(1-_pidLhMulti) + LH_K*_pidLhMulti;
+  LH_p  = 0.2*(1-_pidLhMulti) + LH_p*_pidLhMulti;
   
   result->setdE( dE>0. ? 1/sqrt(dE) : 0.0 );
   result->setdp( dp>0. ? 1/sqrt(dp) : 0.0 );
@@ -255,17 +263,17 @@ PndFsmCmpDet::respond(PndFsmTrack *t) {
       detected &= ( theta <= _tht1->GetVal() );
 
       if (detected) {
-        dtheta = eval(_tht[pid], theta) * _thtScale[pid]->Eval(p);
-        dphi = eval(_phi[pid], theta) * _phiScale[pid]->Eval(p);
-        dp = eval(_mom[pid], theta) * _momScale[pid]->Eval(p);
+        dtheta = eval(_tht[pid], theta) * _thtScale[pid]->Eval(p) * _thtResMulti;
+        dphi = eval(_phi[pid], theta) * _phiScale[pid]->Eval(p) * _phiResMulti;
+        dp = eval(_mom[pid], theta) * _momScale[pid]->Eval(p) * _momResMulti;
 
-        dVx = eval(_d0[pid], theta) * _d0Scale[pid]->Eval(p);
-        dVy = eval(_d0[pid], theta) * _d0Scale[pid]->Eval(p);
-        dVz = eval(_z0[pid], theta) * _z0Scale[pid]->Eval(p);
+        dVx = eval(_d0[pid], theta) * _d0Scale[pid]->Eval(p) * _d0ResMulti;
+        dVy = eval(_d0[pid], theta) * _d0Scale[pid]->Eval(p) * _d0ResMulti;
+        dVz = eval(_z0[pid], theta) * _z0Scale[pid]->Eval(p) * _z0ResMulti;
 
         dtheta*=3.1416/180; // parfile contains dtheta[deg]
         dphi*=3.1416/180; // parfile contains dphi[deg]
-        dp*=p*_momResMulti; // parfile contains dp/p
+        dp*=p; // parfile contains dp/p
 
         result->setdp(dp);
         result->setdphi(dphi);
@@ -328,6 +336,9 @@ bool PndFsmCmpDet::setParameter(std::string &name, double value) {
   else
   if (name == "thtMax")
     _tht1 = new TParameter<double>("tht1", value);
+  else
+  if (name == "pidLhMulti")
+    _pidLhMulti=value;
   else
     knownName=false;
 
@@ -443,6 +454,7 @@ void PndFsmCmpDet::initParameters() {
   _thtResMulti=1.0;
   _phiResMulti=1.0;
   _momResMulti=1.0;
+  _pidLhMulti=1.0;
   _mom0[11]=0;
   _mom0[13]=0;
   _mom0[211]=0;

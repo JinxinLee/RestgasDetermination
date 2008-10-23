@@ -71,6 +71,10 @@ private:
   double _thtResMulti;
   double _phiResMulti;
   double _momResMulti;
+  // this can be used do degrade the 
+  // usually sharp likelihoods created 
+  // by a typical fsim detector setup
+  double _pidLhMulti; 
 
   std::map<int, TSpline3*> _d0;
   std::map<int, TSpline3*> _z0;
