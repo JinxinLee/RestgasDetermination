@@ -42,7 +42,6 @@
 
   // THIS IS STRONGLY NEEDED
   CbmGeane *Geane = new CbmGeane(inSimuFile);
-  Geane->SetField(fRun->GetField());
   PndEmcMapper *emcMap = PndEmcMapper::Instance(2,inSimuFile);
 
   // -----  Parameter database   --------------------------------------------
@@ -63,7 +62,7 @@
   
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
-
+  Geane->SetField(fRun->GetField());
   fRun->Run(0,nEvents);
   // ------------------------------------------------------------------------
   rtdb->print();

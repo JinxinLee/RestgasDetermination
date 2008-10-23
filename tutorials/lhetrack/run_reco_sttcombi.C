@@ -72,6 +72,7 @@
   
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
+  Geane->SetField(fRun->GetField());
   fRun->Run(0, nEvents);
 
   rtdb->saveOutput();
