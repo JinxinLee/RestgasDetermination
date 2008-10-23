@@ -52,11 +52,9 @@
 #pragma link C++ class PndGeoHitList+;
 #pragma link C++ class PndEventDisplay+;
 #pragma link C++ class PndMvdEventAnaTask+;
-
-
-
-// #pragma link C++ class PndMvdGeoHandling+;
-
+#pragma link C++ class PndMvdEventMerger+;
+#pragma link C++ class PndMvdEventMergerTask+;
+#pragma link C++ class PndMvdMSAnaTask+;
 
 
 #endif

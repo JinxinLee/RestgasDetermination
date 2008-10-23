@@ -22,6 +22,11 @@ public:
     /** Virtual method Exec **/
     virtual void Exec(Option_t* opt);
     
+	void SetMaxSZChi2(double val)	{fMaxSZChi2 = val;}
+	void SetMaxSZDist(double val)	{fMaxSZDist = val;}
+	void SetMinPointDist(double val){fMinPointDist = val;}
+	void SetMaxDist(double val)		{fMaxDist = val;}
+    
     void PrintResult();
     void SetVerbose(Int_t verbose){ fVerbose = verbose;};
     

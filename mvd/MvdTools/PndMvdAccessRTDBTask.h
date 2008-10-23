@@ -8,16 +8,16 @@
 
 #include <string>
 #include <vector>
- 
+
 class TClonesArray;
 
 class PndMvdAccessRTDBTask : public CbmTask
 {
  public:
 
-  /** Default constructor **/  
+  /** Default constructor **/
  PndMvdAccessRTDBTask(){};
-  
+
   /** Destructor **/
   virtual ~PndMvdAccessRTDBTask(){};
 
@@ -32,6 +32,7 @@ class PndMvdAccessRTDBTask : public CbmTask
   /** Virtual method Finish **/
   virtual void Finish();
 
+private:
   PndMvdPixelDigiPar* fPixelDigiPar;
   PndMvdStripDigiPar* fStripDigiParRect;
   PndMvdStripDigiPar* fStripDigiParTrap;

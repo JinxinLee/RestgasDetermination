@@ -1,7 +1,7 @@
 //
 // C++ Interface: PndMvdCalcStrip
 //
-// Description: 
+// Description:
 //
 //
 // Author: HG Zaunick <hg.zaunick@physik.tu-dresden.de>, (C) 2007
@@ -25,7 +25,7 @@
 enum SensorSide { kTOP, kBOTTOM };
 
 //! Class for calculating strip indices from wafer hits
-/** 
+/**
  * @author HG Zaunick <hg.zaunick@physik.tu-dresden.de>
  *
  **/
@@ -37,7 +37,7 @@ public :
    * No reason to use it
    */
   PndMvdCalcStrip();
-      
+
   /**
    * Constructor
    * Create Object with all necessary parameters
@@ -56,7 +56,7 @@ public :
                Double_t threshold, Double_t noise);
 
   PndMvdCalcStrip(const PndMvdStripDigiPar* digipar, SensorSide side = kTOP);
-      
+
   /**
    * Get List of hit channels from given Wafer hit.
    * @param inx x-coordinate of entry point
@@ -71,32 +71,32 @@ public :
     std::vector<PndMvdStrip> GetStrips (Double_t inx, Double_t iny, Double_t inz,
                    Double_t outx, Double_t outy, Double_t outz,
                    Double_t eLoss);
-               
-               
+
+
     /**
      * Calculate Frontend number from strip-index
      * @param stripNr strip index
      * @return Frontend number
      */
     Int_t CalcFEfromStrip(Int_t stripNr) const;
-    
+
     /**
      * Calculate Channel index (on Frontend) from strip-index
      * @param stripNr strip index
      * @return channel on frontend
      */
     Int_t CalcChannelfromStrip(Int_t stripNr) const;
-    
+
     /**
      * Calculate global strip index from Frontend number and -channel
      * @param fe frontend number
      * @param channel frontend channel
      * @param strip global strip index
-     * @param side 
+     * @param side
      */
     void CalcFeChToStrip(Int_t fe, Int_t channel, Int_t& strip, enum SensorSide& side) const;
     void CalcStripPointOnLine(const Double_t strip, TVector2& point) const;
-    
+
     /**
      * Get Strip Direction (strip orientation angle)
      */
@@ -104,7 +104,7 @@ public :
 
     void SetVerboseLevel(Int_t level){ fVerboseLevel = level;}
     std::ostream& operator<<(std::ostream& out);
-    
+
 
     void Print() const;
 
@@ -120,7 +120,7 @@ private :
     TVector2 fOrthoDir; /// vector orthogonal to strip direction
     TRandom3* fRNG;     /// Random Number Generator
     Int_t fVerboseLevel;
-  
+
     /**
      * Calculate continuous strip-number parameter from given Point in local system
      * @param x x-coordinate
@@ -135,7 +135,7 @@ private :
      * @return Smeared Charge
      */
     Double_t SmearCharge(Double_t charge);
-    inline const Double_t ChargeFromEloss(Double_t eloss) const {return eloss/(3.61e-9);}
+    const Double_t ChargeFromEloss(Double_t eloss) const {return eloss/(3.61e-9);}
 };
 
 #endif /* MVDCALCSTRIP_H */

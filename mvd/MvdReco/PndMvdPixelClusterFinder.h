@@ -12,21 +12,24 @@
 
 class PndMvdPixelClusterFinder
 {
-  public :  PndMvdPixelClusterFinder(){}; 
-      PndMvdPixelClusterFinder(std::vector<Double_t> params, std::vector<PndMvdDigiPixel> hits){
+public :
+  PndMvdPixelClusterFinder(){};
+  PndMvdPixelClusterFinder(std::vector<Double_t> params, std::vector<PndMvdDigiPixel> hits)
+  {
         fParams = params;
         fHits   = hits;
         fVerbose = 0;
-      };
-      virtual std::vector< std::vector < Int_t > > GetClusters() = 0;
+  };
+//  virtual ~PndMvdPixelClusterFinder();
+  virtual std::vector< std::vector < Int_t > > GetClusters() = 0;
   void Print();
   void Print(std::vector<PndMvdDigiPixel> hits);
   void PrintResult(std::vector<std::vector< Int_t> > clusters);
   void SetVerbose(Int_t level){fVerbose = level;};
 
-  std::vector<Double_t> fParams;
   std::vector<PndMvdDigiPixel> fHits;
   Int_t fVerbose;
+  std::vector<Double_t> fParams;
 
   ClassDef(PndMvdPixelClusterFinder, 2);
 };

@@ -121,6 +121,8 @@ class PndMvdDetector : public CbmDetector
  // void ExpandNode(TGeoNode *fN);
 
   void SetExclusiveSensorType(const TString sens);
+  void SetRadDamOption(bool val){fUseRadDamOption = val;};
+  bool GetRadDamOption(){return fUseRadDamOption;};
 
   
  private:
@@ -140,6 +142,7 @@ class PndMvdDetector : public CbmDetector
   PndMvdGeoHandling* fGeoH;	     //! Gives Access to the Path info of a hit
   Int_t fPosIndex;                   //!
   TClonesArray* fPndMvdCollection;      //! Hit collection
+  bool fUseRadDamOption;			//! enables the detection of neutral particles
   
   std::vector<std::string> fListOfSensitives;
   

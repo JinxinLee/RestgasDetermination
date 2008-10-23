@@ -34,7 +34,7 @@ class PndMvdRecoTask : public CbmTask
 {
  public:
 
-  /** Default constructor **/  
+  /** Default constructor **/
   PndMvdRecoTask();
 
 //   PndMvdRecoTask(Double_t sx, Double_t sy, Double_t sz);
@@ -42,7 +42,7 @@ class PndMvdRecoTask : public CbmTask
 
 
   /** Destructor **/
-  ~PndMvdRecoTask();
+  virtual ~PndMvdRecoTask();
 
 
   /** Virtual method Init **/
@@ -81,12 +81,12 @@ class PndMvdRecoTask : public CbmTask
   void smear(TVector3& pos);
   void smearLocal(TVector3& pos);
   void CalcDetPlane(TVector3& o,TVector3& u,TVector3& v);
-  
+
 
   void Register();
-  
+
   void Reset();
-  
+
   void ProduceHits();
 
   ClassDef(PndMvdRecoTask,1);

@@ -3,7 +3,7 @@
 //public
 
 void PndMvdIdealPidAlgo::CalcLikelihood(PndMvdPidCand* cand) {
-  //computes pid likelihoods for pi, k, p, mu and stores them in the likelihood map 
+  //computes pid likelihoods for pi, k, p, mu and stores them in the likelihood map
   //with the map key used as pdg id. This is basically done by integrating the
   //respective energy loss distribution within the chosen selector limits
 
@@ -27,30 +27,30 @@ void PndMvdIdealPidAlgo::CalcLikelihood(PndMvdPidCand* cand) {
 
     //Proton selector
     if (energyloss>=LowerProtonBoundary(momentum)) {
-      weightP=1-pRemainder;
+      weightP=1-fPRemainder;
       weightK=1-LandauIntegral((LowerProtonBoundary(momentum)-LowerBoundary(momentum, fkMass)-fkShift)/fkScale);
       weightPi=1-LandauIntegral((LowerProtonBoundary(momentum)-LowerBoundary(momentum, fpiMass)-fpiShift)/fpiScale);
 
     //Kaon selector
     } else if (energyloss>=LowerKaonBoundary(momentum)) {
-      weightP=pRemainder;
+      weightP=fPRemainder;
       weightK=LandauIntegral((LowerProtonBoundary(momentum)-LowerBoundary(momentum, fkMass)-fkShift)/fkScale)
-             -kRemainder;
+             -fKRemainder;
       weightPi=LandauIntegral((LowerProtonBoundary(momentum)-LowerBoundary(momentum, fpiMass)-fpiShift)/fpiScale)
               -LandauIntegral((LowerKaonBoundary(momentum)-LowerBoundary(momentum, fpiMass)-fpiShift)/fpiScale);
-    
+
     //Pion selector
     } else if (energyloss>=LowerPionBoundary(momentum)) {
       weightP=0;
-      weightK=kRemainder;
+      weightK=fKRemainder;
       weightPi=LandauIntegral((LowerKaonBoundary(momentum)-LowerBoundary(momentum, fpiMass)-fpiShift)/fpiScale)
-              -piRemainder;
+              -fPiRemainder;
 
     //Electron selector
     } else {
       weightP=0;
       weightK=0;
-      weightPi=piRemainder;
+      weightPi=fPiRemainder;
     }
   } else {
     weightP=1;
@@ -87,7 +87,7 @@ double PndMvdIdealPidAlgo::LowerPionBoundary(double p) {
 
 double PndMvdIdealPidAlgo::LowerBoundary(double p, double m) {
 //Calculate the lower boundary of the energy loss distribution.
-  
+
   double sqrfBeta=1/(1+pow(m/p,2));
   return 4.9312e-05 * (log(2*feMass*fc*fc/feb*sqrfBeta/(1-sqrfBeta))-sqrfBeta)/sqrfBeta;
 };
@@ -118,7 +118,7 @@ float PndMvdIdealPidAlgo::feb=0.14e-6;
 //[m/s]
 float PndMvdIdealPidAlgo::fc=2.99792458e8;
 
-//Landau distribution parameters; these parameters have been 
+//Landau distribution parameters; these parameters have been
 //obtained by fitting the Landau-p.d.f on the energy loss shifted
 //by the Bethe-Bloch energy loss at momentum >= 0.4 GeV
 double PndMvdIdealPidAlgo::fkShift=3.38598e-4;
@@ -127,9 +127,9 @@ double PndMvdIdealPidAlgo::fkScale=1.36362e-4;
 double PndMvdIdealPidAlgo::fpiShift=3.09159e-4;
 double PndMvdIdealPidAlgo::fpiScale=1.58696e-4;
 
-//General remainders of integrals for integrating from -INF to 
+//General remainders of integrals for integrating from -INF to
 //below the Bethe-Bloch lower boundary as obtained by MC Simulation
-double PndMvdIdealPidAlgo::pRemainder=0.015;
-double PndMvdIdealPidAlgo::kRemainder=0.01;
-double PndMvdIdealPidAlgo::piRemainder=0.001;
+double PndMvdIdealPidAlgo::fPRemainder=0.015;
+double PndMvdIdealPidAlgo::fKRemainder=0.01;
+double PndMvdIdealPidAlgo::fPiRemainder=0.001;
 

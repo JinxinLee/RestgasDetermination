@@ -14,8 +14,8 @@
 //
 //-----------------------------------------------------------
 
-#ifndef PNDMVDKALMANTASK_HH
-#define PNDMVDKALMANTASK_HH
+#ifndef PNDMVDKALMANTASK_H
+#define PNDMVDKALMANTASK_H
 
 // Base Class Headers ----------------
 #include "CbmTask.h"
@@ -29,17 +29,17 @@
 class TClonesArray;
 class RecoHitFactory;
 class TH1D;
-class TGeoManager; 
+class TGeoManager;
 
 class PndMvdKalmanTask : public CbmTask {
 public:
 
   // Constructors/Destructors ---------
   PndMvdKalmanTask();
-  ~PndMvdKalmanTask();
+  virtual ~PndMvdKalmanTask();
 
   // Operators
-  
+
 
   // Accessors -----------------------
 
@@ -47,14 +47,14 @@ public:
   // Modifiers -----------------------
   void SetTrackBranchName(const TString& name) {fTrackBranchName=name;}
   void SetPersistence(Bool_t opt=kTRUE) {fPersistence=opt;}
-  
+
 
   // Operations ----------------------
-  
+
   virtual InitStatus Init();
 
   virtual void Exec(Option_t* opt);
-  
+
   void WriteHistograms(const TString& filename);
 
 private:
@@ -66,7 +66,7 @@ private:
   Bool_t fPersistence;
 
   RecoHitFactory* fTheRecoHitFactory;
-  
+
 
   TH1D* fPH; // momentum histo;
   TH1D* fChi2H; // chi2 histo;
@@ -82,7 +82,7 @@ private:
 
   // Private Methods -----------------
 
-public:
+//public:
   ClassDef(PndMvdKalmanTask,1);
 
 };

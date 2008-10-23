@@ -32,13 +32,13 @@
 
 class TClonesArray;
 
-class PndMvdPidIdealTask : public CbmTask  
+class PndMvdPidIdealTask : public CbmTask
 {
  public:
 
-  /** Default constructor **/  
+  /** Default constructor **/
   PndMvdPidIdealTask(const TString algoName="ideal");
-
+//  virtual ~PndMvdPidIdealTask();
   /** Virtual method Init **/
   virtual void SetParContainers();
   virtual InitStatus Init();
@@ -49,10 +49,10 @@ class PndMvdPidIdealTask : public CbmTask
 
 
  private:
-  
+
   TString fBranchName;
   TString fAlgoName;
-  
+
   /** Input array of Points **/
   TClonesArray* fPointArray;
   TClonesArray* fMcArray;
@@ -60,9 +60,9 @@ class PndMvdPidIdealTask : public CbmTask
   TClonesArray* fTrackOutputArray;
 
   void Register();
-  
+
   void Reset();
-  
+
   void ProduceHits();
 
   ClassDef(PndMvdPidIdealTask,1);

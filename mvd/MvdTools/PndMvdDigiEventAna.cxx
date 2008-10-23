@@ -18,7 +18,7 @@ PndMvdDigiEventAna::PndMvdDigiEventAna(TString fileName):PndMvdEventAna(fileName
 	Init(fileName);
 	SetCanvasColumns(6);
 
-	geoH = new PndMvdGeoHandling(gGeoManager);
+	fGeoH = new PndMvdGeoHandling(gGeoManager);
 }
 
 void PndMvdDigiEventAna::InitBranch()
@@ -36,7 +36,7 @@ void PndMvdDigiEventAna::InitHistos()
 }
 
 void PndMvdDigiEventAna::AnaHitNr(Int_t Nr)
-{	
+{
 	fHitArray->Clear();
 	fTree->GetEntry(fActiveEvent);
 	PndMvdDigiPixel *hit = (PndMvdDigiPixel*)fHitArray->At(Nr);
@@ -95,34 +95,34 @@ void PndMvdDigiEventAna::CreateMaxHitsHisto()
   hRest->SetStats(kFALSE);
 	for (Int_t i = 0; i < fHistoVector.size(); i++){
 		TString hName= fHistoVector[i]->GetTitle();
-		//std::cout << hName << " " << geoH->GetPath(hName.Data()) << std::endl;
+		//std::cout << hName << " " << fGeoH->GetPath(hName.Data()) << std::endl;
 		Int_t weight = 10000000 / fAnaEvents;
 		std::cout << weight << std::endl;
-		if (geoH->GetPath(hName.Data()).Contains("MiniPixelDisk_1"))
+		if (fGeoH->GetPath(hName.Data()).Contains("MiniPixelDisk_1"))
 			hMPix1->Fill(i, fHistoVector[i]->GetEntries()* weight);
-		else if (geoH->GetPath(hName.Data()).Contains("MiniPixelDisk_2")){
+		else if (fGeoH->GetPath(hName.Data()).Contains("MiniPixelDisk_2")){
 			hMPix2->Fill(i, fHistoVector[i]->GetEntries()* weight);
 		}
-		else if (geoH->GetPath(hName.Data()).Contains("PixelDisk_1"))
+		else if (fGeoH->GetPath(hName.Data()).Contains("PixelDisk_1"))
 			hPix1->Fill(i, fHistoVector[i]->GetEntries()* weight);
-		else if (geoH->GetPath(hName.Data()).Contains("PixelDisk_2"))
+		else if (fGeoH->GetPath(hName.Data()).Contains("PixelDisk_2"))
 			hPix2->Fill(i, fHistoVector[i]->GetEntries()* weight);
-		else if (geoH->GetPath(hName.Data()).Contains("StripDiskMedium2_1"))
+		else if (fGeoH->GetPath(hName.Data()).Contains("StripDiskMedium2_1"))
 			hSDisk1->Fill(i, fHistoVector[i]->GetEntries()* weight);
-		else if (geoH->GetPath(hName.Data()).Contains("StripDiskMedium2_2"))
+		else if (fGeoH->GetPath(hName.Data()).Contains("StripDiskMedium2_2"))
 			hSDisk2->Fill(i, fHistoVector[i]->GetEntries()* weight);
 		else  hRest->Fill(i, fHistoVector[i]->GetEntries()* weight);
 	}
 
 	hMPix1->Draw("");
 	hMPix2->Draw("same");
-	
+
 	hPix1->Draw("same");
 	hPix2->Draw("same");
-	
+
 	hSDisk1->Draw("same");
 	hSDisk2->Draw("same");
-	
+
 	hRest->Draw("same");
 /*	TLegend* leg = new TLegend();
 	leg->AddEntry("hMPix1","Mini pixel disk 1","l");

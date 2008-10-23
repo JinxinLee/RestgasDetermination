@@ -34,14 +34,14 @@ class PndMvdIdealRecoTask : public CbmTask
 {
  public:
 
-  /** Default constructor **/  
+  /** Default constructor **/
   PndMvdIdealRecoTask();
 
   PndMvdIdealRecoTask(Double_t sx, Double_t sy, Double_t sz);
 
 
   /** Destructor **/
-  ~PndMvdIdealRecoTask();
+  virtual ~PndMvdIdealRecoTask();
 
 
   /** Virtual method Init **/
@@ -54,10 +54,10 @@ class PndMvdIdealRecoTask : public CbmTask
 
 
  private:
-  
+
 
   TString fBranchName;
-  PndMvdGeoHandling* fGeoH; 
+  PndMvdGeoHandling* fGeoH;
   /** Input array of Points **/
   TClonesArray* fPointArray;
   TClonesArray* fMctruthArray;
@@ -76,12 +76,12 @@ class PndMvdIdealRecoTask : public CbmTask
   void smear(TVector3& pos);
   void smearLocal(TVector3& pos);
   void CalcDetPlane(TVector3& o,TVector3& u,TVector3& v);
-  
+
 
   void Register();
-  
+
   void Reset();
-  
+
   void ProduceHits();
 
   ClassDef(PndMvdIdealRecoTask,1);

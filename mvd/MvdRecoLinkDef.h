@@ -8,8 +8,6 @@
 
 
 //data
-#pragma link C++ class PndMvdRecoHit+;
-#pragma link C++ class PndMvdPidCand+;
 #pragma link C++ class PndMvdCluster+;
 #pragma link C++ class PndMvdHitInfo+;
 #pragma link C++ class PndMvdHit+;
@@ -24,20 +22,6 @@
 #pragma link C++ class PndMvdIdealClusterTask+;
 #pragma link C++ class PndMvdStripClusterTask+;
 #pragma link C++ class PndMvdStripClusterBuilder+;
-
-//pid
-#pragma link C++ class PndMvdPidIdealTask+;
-#pragma link C++ class PndMvdIdealPidAlgo+;
-#pragma link C++ class PndMvdSimplePidAlgo+;
-#pragma link C++ class PndMvdAdvancedPidAlgo+;
-
-//tracking
-// #pragma link C++ class PndMvdIdealTrackingTask+;
-#pragma link C++ class PndMvdIdealTrackFinderTask+;
-#pragma link C++ class PndMvdKalmanTask+;
-#pragma link C++ class PndMvdRiemannTrackFinderTask+;
-#pragma link C++ class PndMvdTrackFinderAnaTask+;
-// #pragma link C++ class PndMvdTpcRiemannCorrelatorTask+;
 
 
 

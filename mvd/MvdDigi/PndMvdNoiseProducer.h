@@ -7,13 +7,13 @@
 /** PndMvdNoiseProducer.h
  *@author R.Kliemt <r.kliemt@physik.tu-dresden.de>
  **
- ** The Noise Producer adds fake hits to silicon sensor channels (strips and 
+ ** The Noise Producer adds fake hits to silicon sensor channels (strips and
  ** Pixels)
  **/
 
 
 #ifndef PNDMVDNOISEPRODUCER_H
-#define PNDMVDNOISEPRODUCER_H 
+#define PNDMVDNOISEPRODUCER_H
 
 #include "CbmTask.h"
 
@@ -32,7 +32,7 @@ class PndMvdNoiseProducer : public CbmTask
 {
  public:
 
-  /** Default constructor **/  
+  /** Default constructor **/
   PndMvdNoiseProducer();
 
 
@@ -51,15 +51,18 @@ class PndMvdNoiseProducer : public CbmTask
   Double_t CalcDistFraction(Double_t spread, Double_t threshold);
 //   Int_t CalcChanWhite(Int_t chanleft, Double_t frac);
   Int_t CalcChargeAboveThreshold(Double_t spread, Double_t threshold);
+  void AddDigiStrip(Int_t &iStrip, Int_t iPoint, Int_t detID, TString detname, Int_t fe, Int_t chan, Double_t charge);
+  void AddDigiPixel(Int_t &noisies, Int_t iPoint, Int_t detID, TString detname, Int_t fe, Int_t col, Int_t row, Double_t charge);
+
   void DiveDownNode(TGeoNode *fN);
 //   void Finish();
  private:
-  
+
   TString fBranchName;
   /** In-Output array of PndMvdDigis **/
-  TClonesArray* fDigiStripArray;  
-  TClonesArray* fDigiPixelArray;  
-  
+  TClonesArray* fDigiStripArray;
+  TClonesArray* fDigiPixelArray;
+
   /** Parameter Containers **/
   PndMvdStripDigiPar* fDigiParRect;
   PndMvdStripDigiPar* fDigiParTrap;
@@ -81,9 +84,9 @@ class PndMvdNoiseProducer : public CbmTask
   Int_t fThreshold;
 
 //   void Register();
-  
+
 //   void Reset();
-  
+
 //   void ProduceHits();
 
 

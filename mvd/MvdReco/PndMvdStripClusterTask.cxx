@@ -207,11 +207,11 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
   std::vector< Int_t > botclusters;// contains index to fClusterArray
   std::vector< Int_t > oneclustertop;
   std::vector< Int_t > oneclusterbot;
-  std::vector< Int_t > leftDigis; 
+  std::vector< Int_t > leftDigis;
   TVector2 topDirection, botDirection;
 //   TGeoVolume* actVolume;
 //   TGeoBBox* actBox;
-//   TVector3 sensorDim, 
+//   TVector3 sensorDim,
   TVector3 localpos, locDpos;
   Int_t detID, iDigi, clindex, topIndex, botIndex;
   Double_t mycharge;
@@ -407,7 +407,7 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
             new((*fHitArray)[i]) PndMvdHit(detID,detnametop.Data(),hitPos,hitErr,
                 *itTop,mycharge,oneclusterbot.size()+oneclustertop.size());
             ((PndMvdHit*)((*fHitArray)[i]))->SetBotIndex(*itBot);
-          } else 
+          } else
             if (fVerbose > 2) std::cout<<"Strip charge contents too differently"<<std::endl;
         }
       }// loop bot clusters
@@ -416,14 +416,14 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
 
   if (fVerbose > 1)
   std::cout << "-I- PndMvdStripClusterTask: " << fClusterArray->GetEntriesFast()
-            << " Mvd Clusters and " << fHitArray->GetEntriesFast()<<" Hits calculated." 
+            << " Mvd Clusters and " << fHitArray->GetEntriesFast()<<" Hits calculated."
             << " out of " <<fDigiArray->GetEntriesFast()<< " Digis"<< std::endl;
   return;
 }
 
 TVector2 PndMvdStripClusterTask::CalcLineCross(
               TVector2 point1, TVector2 dir1,
-              TVector2 point2, TVector2 dir2)
+              TVector2 point2, TVector2 dir2) const
 {
   Double_t dx, dy, s, t, M, x, y;
   dx = point2.X() - point1.X();

@@ -6,7 +6,7 @@
 
 
 #ifndef PNDMVDSTRIPCLUSTERTASK_H
-#define PNDMVDSTRIPCLUSTERTASK_H 
+#define PNDMVDSTRIPCLUSTERTASK_H
 
 #include "CbmTask.h"
 #include "PndMvdGeoPar.h"
@@ -27,18 +27,18 @@
 
 #include <string>
 #include <vector>
- 
+
 class TClonesArray;
 
 class PndMvdStripClusterTask : public CbmTask
 {
  public:
 
-    /** Default constructor **/  
+    /** Default constructor **/
     PndMvdStripClusterTask();
 
     PndMvdStripClusterTask(Double_t chargecut, TString geofile);
-  
+
     /** Destructor **/
     virtual ~PndMvdStripClusterTask();
 
@@ -56,15 +56,15 @@ class PndMvdStripClusterTask : public CbmTask
 
   private:
 
-    TVector2 CalcLineCross(TVector2 point1, TVector2 dir1, TVector2 point2, TVector2 dir2);
+    TVector2 CalcLineCross(TVector2 point1, TVector2 dir1, TVector2 point2, TVector2 dir2) const;
     void SelectSensorParams(TString detname);
 
-    TClonesArray* fDigiArray;  // Input array of PndMvdDigis 
+    TClonesArray* fDigiArray;  // Input array of PndMvdDigis
     TClonesArray* fClusterArray; // Output array of PndMvdClusters
     TClonesArray* fHitArray;  // Output array of PndMvdHits
-  
+
     void Register();
-    void Reset();  
+    void Reset();
     void ProduceHits();
 
     Double_t fRadius;

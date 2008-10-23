@@ -10,14 +10,14 @@
 //  If no delimiters are given the default delimiter " " is used.
 //
 //  Example:
-//    std::vector<std::string> Output
-//    TPndStringVector Input("Column:Row Type: Test ", ": ");
-//    Output = Input.GetStringVector();
+//    std::vector<std::string> fOutput
+//    TPndStringVector fInput("Column:Row Type: Test ", ": ");
+//    fOutput = fInput.GetStringVector();
 //
-//    Output[0] = "Column"
-//    Output[1] = "Row"
-//    Output[2] = "Type"
-//    Output[3] = "Test"
+//    fOutput[0] = "Column"
+//    fOutput[1] = "Row"
+//    fOutput[2] = "Type"
+//    fOutput[3] = "Test"
 //
 #ifndef PNDSTRINGVECTOR_H
 #define PNDSTRINGVECTOR_H
@@ -33,18 +33,18 @@ class PndStringVector
        PndStringVector(){};
        ~PndStringVector(){};
        PndStringVector(std::string AInput, std::string ADelimiter = " ");
-       void SetInput (std::string AInput)       {Input = AInput;};
-       void SetDelimiter (std::string ADelimiter) {Delimiter = ADelimiter;};
-       void ResetVector(){Strings.clear();};
+       void SetInput (std::string AInput)       {fInput = AInput;};
+       void SetDelimiter (std::string ADelimiter) {fDelimiter = ADelimiter;};
+       void ResetVector(){fStrings.clear();};
        std::vector<std::string> GetStringVector (void);
        void Print();
 
   private :
-       std::string::size_type StartPos;
-       std::vector<std::string> Strings;
-       std::string Input;
-       std::string Delimiter;
-       std::string Output;
+       std::string::size_type fStartPos;
+       std::vector<std::string> fStrings;
+       std::string fInput;
+       std::string fDelimiter;
+       std::string fOutput;
        std::string GetString (void);
 };
 

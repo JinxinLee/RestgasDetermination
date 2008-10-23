@@ -39,7 +39,7 @@ std::vector< std::vector<Int_t> > PndMvdSimplePixelClusterFinder::GetClusters()
 										std::cout << "Hit added to cluster: " << result.size()-1 << std::endl;
 							}
 						}
-						
+
 					}
 					sizeTempHits = posHits.size();
 				}
@@ -62,7 +62,7 @@ std::vector< std::vector<Int_t> > PndMvdSimplePixelClusterFinder::GetClusters()
 	return result;
 }
 */
-Int_t PndMvdSimplePixelClusterFinder::MoveHit(std::vector<Int_t>* hitVector, Int_t index)
+Int_t PndMvdSimplePixelClusterFinder::MoveHit(std::vector<Int_t>* hitVector, Int_t index) const
 {
 	Int_t result;
 	if (index < hitVector->size()){
@@ -72,7 +72,7 @@ Int_t PndMvdSimplePixelClusterFinder::MoveHit(std::vector<Int_t>* hitVector, Int
 	return result;
 }
 
-bool PndMvdSimplePixelClusterFinder::IsInRange(PndMvdDigiPixel hit1, PndMvdDigiPixel hit2)
+bool PndMvdSimplePixelClusterFinder::IsInRange(PndMvdDigiPixel hit1, PndMvdDigiPixel hit2) const
 {
 	Double_t result1, result2;
 	Int_t col1 = hit1.GetPixelColumn() + (Int_t)((hit1.GetFE()%10) * fParams[1]);

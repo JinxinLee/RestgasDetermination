@@ -78,16 +78,16 @@ PndMvdKalmanTask::Init()
       Error("PndMvdKalmanTask::Init","RootManager not instantiated!");
       return kERROR;
     }
-  
+
   // Get input collection
   fTrackArray=(TClonesArray*) ioman->GetObject(fTrackBranchName);
-  
+
   if(fTrackArray==0)
     {
       Error("PndMvdKalmanTask::Init","track-array not found!");
       return kERROR;
     }
-  
+
 
   // Build hit factory -----------------------------
   fTheRecoHitFactory = new RecoHitFactory();
@@ -97,7 +97,7 @@ PndMvdKalmanTask::Init()
     Error("PndMvdKalmanTask::Init","MVDHitsStrip array not found");
   } else {
     fTheRecoHitFactory->addProducer
-      (4,new RecoHitProducer<PndMvdHit,PndMvdRecoHit>(stripar));
+      (0,new RecoHitProducer<PndMvdHit,PndMvdRecoHit>(stripar));
   }
 
   TClonesArray* pixelar=(TClonesArray*) ioman->GetObject("MVDHitsPixel");
@@ -105,13 +105,13 @@ PndMvdKalmanTask::Init()
     Error("PndMvdKalmanTask::Init","MVDHitsPixel array not found");
   } else { //TODO Convention on detector number needed
     fTheRecoHitFactory->addProducer
-      (3,new RecoHitProducer<PndMvdHit,PndMvdRecoHit>(pixelar));
+      (1,new RecoHitProducer<PndMvdHit,PndMvdRecoHit>(pixelar));
   }
 
 
 //      fTheRecoHitFactory->addProducer(2,new
 //        RecoHitProducer<PndTpcHit,PndTpcRecoHit>(ar));
- 
+
   fPro = new CbmGeanePro();
 
 
@@ -148,13 +148,13 @@ PndMvdKalmanTask::Exec(Option_t* opt)
       std::cout<< "TrackCand no. "<<itr<<" has "<<trcnd->getNHits()<<" hits."<<std::endl;
       std::cout<<"[ ihit | detid | index";
       for(unsigned int ihit=0;ihit<trcnd->getNHits();ihit++){
-        trcnd->getHit(ihit,  detid,index);
+        trcnd->getHit(ihit,  detid,index); //detid and index are written here
         std::cout<<" ]\n[ "<<ihit<<" | "<<detid<<" | "<<index;
       }
       std::cout<<" ]"<<std::endl;
     }
   }
-  
+
   // Cut too busy events TODO
   if(ntracks>20){
     std::cout<<"ntracks="<<ntracks<<" Evil Event! skipping"<<std::endl;
@@ -167,7 +167,7 @@ PndMvdKalmanTask::Exec(Option_t* opt)
 
   std::vector<TLorentzVector*> particles;
   std::vector<Int_t> signs;
-  
+
   for(Int_t itr=0;itr<ntracks;++itr){
     std::cout<<"starting track"<<itr<<std::endl;
 //     AbsTrackRep* rep = new LSLTrackRep();
@@ -196,7 +196,7 @@ PndMvdKalmanTask::Exec(Option_t* opt)
     trk->setCandidate(*(TrackCand*)fTrackArray->At(itr));
     //Track* trk=(Track*)fTrackArray->At(itr);
 
-    // Load RecoHits 
+    // Load RecoHits
     try {
       trk->addHitVector(fTheRecoHitFactory->createMany(trk->getCand()));
       std::cout<<trk->getNumHits()<<" hits in track "
@@ -223,7 +223,7 @@ PndMvdKalmanTask::Exec(Option_t* opt)
       TVector3 p3=trk->getTrackRep(0)->getMom(plane);
       Double_t p=trk->getMom().Mag();
       fPH->Fill(p);
-       
+
       TLorentzVector* p4=new TLorentzVector();
       p4->SetXYZM(p3.X(),p3.Y(),p3.Z(),0.493677);
       particles.push_back(p4);
@@ -245,7 +245,7 @@ PndMvdKalmanTask::Exec(Option_t* opt)
    for(Int_t i=0;i<particles.size();++i){
      fMasses->Fill((particles[i])->M());
    }
- 
+
 
   signs.clear();
   particles.clear();
@@ -253,7 +253,7 @@ PndMvdKalmanTask::Exec(Option_t* opt)
   return;
 }
 
-void 
+void
 PndMvdKalmanTask::WriteHistograms(const TString& filename){
   TFile* file = new TFile(filename,"UPDATE");
 //   if(file->cd("Kalman")==false) file->mkdir("Kalman");

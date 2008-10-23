@@ -1,7 +1,7 @@
 //
 // C++ Interface: PndMvdMCEventAna
 //
-// Description: 
+// Description:
 //
 //
 // Author: t.stockmanns <stockman@ikp455>, (C) 2007
@@ -35,10 +35,10 @@ public:
   PndMvdEventAna(){};
 	PndMvdEventAna(TString fileName);
   virtual ~PndMvdEventAna(){};
-	
+
 	virtual void Init(TString fileName);
 	void InitCanvas();
-	
+
 	void AnaEvents(Int_t count);
 	void AnaEventNr(Int_t Nr);
 	void NextEvent();
@@ -69,13 +69,13 @@ protected:
 	TClonesArray* fHitArray;
 	TString fClassName;			//has to be set in constructor of derived class
 	TString fBranchName;			//has to be set in constructor of derived class
-	TString fSelection;			//will be passed to derived classes to do a event selection
+	TString fSelection;			//will be passed to derived classes to do an event selection
 	TCanvas* fCan;
 	std::map<TString, TH1*> fHistos;
 	std::map<TString, TString> fDrawOption;		//stores the drawOption for the Draw command
 	std::vector<TH1*> fHistoVector;
 	Int_t fCancol;
-	PndMvdGeoHandling* geoH;
+	PndMvdGeoHandling* fGeoH;
 
    ClassDef(PndMvdEventAna,1);
 

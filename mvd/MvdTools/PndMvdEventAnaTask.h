@@ -30,11 +30,11 @@ class PndMvdEventAnaTask : public CbmTask
 {
  public:
 
-  /** Default constructor **/  
+  /** Default constructor **/
   PndMvdEventAnaTask();
 
   /** Destructor **/
-  ~PndMvdEventAnaTask();
+  virtual ~PndMvdEventAnaTask();
 
 
   /** Virtual method Init **/
@@ -44,35 +44,35 @@ class PndMvdEventAnaTask : public CbmTask
 
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
-  
+
   virtual void Finish();
-  
+
 
   void DrawTracksPerEvent(TString opt=""){fHTracksPerEvent->DrawClone(opt);}
   void DrawHitsPerTrack(TString opt=""){fHHitsPerTrack->DrawClone(opt);}
   void DrawEnergyPerHit(TString opt=""){fHEnergyPerHit->DrawClone(opt);}
-  
+
   void DrawPointRes(TString opt=""){fHPointRes->DrawClone(opt);}
   void DrawPointResS(TString opt=""){fHPointResS->DrawClone(opt);}
   void DrawPointResD(TString opt=""){fHPointResD->DrawClone(opt);}
   void DrawPointResM(TString opt=""){fHPointResM->DrawClone(opt);}
   void DrawEnergyRes(TString opt=""){fHEnergyRes->DrawClone(opt);}
   void DrawDigisPerCluster(TString opt=""){fHDigisPerCluster->DrawClone(opt);}
-  
+
   void DrawPointResStrip(TString opt=""){fHPointResStrip->DrawClone(opt);}
   void DrawEnergyResStrip(TString opt=""){fHEnergyResStrip->DrawClone(opt);}
   void DrawDigisPerClusterStrip(TString opt=""){fHDigisPerClusterStrip->DrawClone(opt);}
-  
+
   void DrawPtRes(TString opt=""){fHPtRes->DrawClone(opt);}
   void DrawPRes(TString opt=""){fHPRes->DrawClone(opt);}
-  
+
   void DrawRiemannRes(TString opt=""){fHRiemannRes->DrawClone(opt);}
   void DrawRiemannFakes(TString opt=""){fHRiemannFakes->DrawClone(opt);}
   void DrawRiemannTracksPerTrack(TString opt=""){fHRiemannTracksPerTrack->DrawClone(opt);}
   void DrawRiemannTracksPerTrackAdd(TString opt=""){fHRiemannTracksPerTrackAdd->DrawClone(opt);}
-    
-      
-  
+
+
+
 
 
  private:
@@ -85,13 +85,13 @@ class PndMvdEventAnaTask : public CbmTask
 		TClonesArray* fPixCluster;
 		TClonesArray* fStripCluster;
 		TClonesArray* fTrackCand;
-		
+
 		std::vector<int> fGhostCand;
-		
+
 		TH1* fHTracksPerEvent;
 		TH1* fHHitsPerTrack;
 		TH1* fHEnergyPerHit;
-		
+
 		TH1* fHPointRes;
 		TH1* fHPointResS;
 		TH1* fHPointResD;
@@ -100,20 +100,20 @@ class PndMvdEventAnaTask : public CbmTask
 		TH1* fHEnergyRes;
 		TH1* fHPRes;
 		TH1* fHPtRes;
-		
+
 		TH1* fHPointResStrip;
 		TH1* fHPointResSStrip;
 		TH1* fHPointResDStrip;
 		TH1* fHPointResMStrip;
 		TH1* fHDigisPerClusterStrip;
 		TH1* fHEnergyResStrip;
-		
+
 		TH1* fHRiemannRes;
 		TH1* fHRiemannFakes;
 		TH1* fHRiemannTracksPerTrack;
 		TH1* fHRiemannTracksPerTrackAdd;
-				
-		
+
+
 		bool fPrintTrack;
 		bool fPrintMCHit;
 		bool fPrintCluster;
@@ -124,7 +124,7 @@ class PndMvdEventAnaTask : public CbmTask
 		bool fPrintStripHit;
 		bool fPrintTrackMatch;
 		bool fPrintGhosts;
-		
+
 		int fNTracks;
 		int fNPossibleTracks;
 		int fNCompleteTracks;
@@ -132,34 +132,34 @@ class PndMvdEventAnaTask : public CbmTask
 		int fNNotFoundPossibleTracks;
 		int fNNotFoundTracks;
 		int fNGhostTracks;
-		
+
 		int fEventNr;
-		
+
 		std::map<int, std::vector<int> > fTrackPixHitIdMap;				//Track -> PixHitId
 		std::map<int, std::vector<int> > fTrackStripHitIdMap;			//Track -> StripHitId
 
-		
-		
+
+
 		bool MCHitBelongsToCluster(int HitIndex, PndMvdCluster* cluster, bool pixCluster);
 		void GetTrackCandsForMCTrack(std::vector<int> pixHitId, std::vector<int> stripHitId,
 									 std::vector<int>& matches, std::vector<int>& result);
-		
-		int GetRecoHit(int clIndex, bool pixel);
-		std::vector<int> GetClusters(int MCHit, bool pixel);
-		
-		void PrintClusterDigiInfo(int clIndex, std::vector<Int_t> digiInd, bool pixel);
-		void PrintRecoHitInfo(int hitInd, int digiSize, TVector3 MCPos, double MCEnergy, bool pixel);
 
-		void PrintTrackCand(TrackCand* cand);
+		int GetRecoHit(int clIndex, bool pixel) const;
+		std::vector<int> GetClusters(int MCHit, bool pixel);
+
+		void PrintClusterDigiInfo(int clIndex, std::vector<Int_t> digiInd, bool pixel);
+		void PrintRecoHitInfo(int hitInd, int digiSize, TVector3 MCPos, double MCEnergy, bool pixel) const;
+
+		void PrintTrackCand(TrackCand* cand) const;
   void Register();
-  
+
   void Reset();
-  
+
   void ProduceHits();
-  
+
   std::map<int, std::vector<int> > AssignHitsToTracks();
-  
-  
+
+
 
   ClassDef(PndMvdEventAnaTask,1);
 

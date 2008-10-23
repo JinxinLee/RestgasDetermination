@@ -15,8 +15,8 @@
 //
 //-----------------------------------------------------------
 
-#ifndef PNDMVDPIDCAND_HH
-#define PNDMVDPIDCAND_HH
+#ifndef PNDMVDPIDCAND_H
+#define PNDMVDPIDCAND_H
 
 // Base Class Headers ----------------
 #include "TObject.h"
@@ -38,17 +38,17 @@ public:
   // CopyConstructor
   PndMvdPidCand(PndMvdPidCand& point) { *this = point; };
 
-  // operators 
+  // operators
 
   // Setting -----------------------
   void SetLikelihood(int lundId, double likelihood);
   void AddMvdHit(double dE, double dx, double p);
 
   // Getting -----------------------
-  double GetMvdHitdE(int mvdhit);
-  double GetMvdHitdx(int mvdhit);
-  double GetMvdHitMomentum(int mvdhit);
-  int GetMvdHits();
+  double GetMvdHitdE(int mvdhit) const;
+  double GetMvdHitdx(int mvdhit) const;
+  double GetMvdHitMomentum(int mvdhit) const;
+  int GetMvdHits() const;
   double GetLikelihood(int lundId);
 
 private:
@@ -59,8 +59,8 @@ private:
   std::vector<double> fdx;
   std::vector<double> fmomentum;
   std::map<int, double> flikelihood;
-	
-public:
+
+//public:
   ClassDef(PndMvdPidCand,1);
 };
 

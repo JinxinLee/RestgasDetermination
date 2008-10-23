@@ -38,8 +38,8 @@ PndMvdIdealTrackFinderTask::PndMvdIdealTrackFinderTask() :
 
 
 // -----   Destructor   ----------------------------------------------------
-PndMvdIdealTrackFinderTask::~PndMvdIdealTrackFinderTask() 
-{ 
+PndMvdIdealTrackFinderTask::~PndMvdIdealTrackFinderTask()
+{
 }
 // -------------------------------------------------------------------------
 
@@ -47,7 +47,7 @@ PndMvdIdealTrackFinderTask::~PndMvdIdealTrackFinderTask()
 void PndMvdIdealTrackFinderTask::SetParContainers()
 {
   // Get Base Container
-/*  
+/*
   CbmRunAna* ana = CbmRunAna::Instance();
   CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
   fGeoPar = (PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar"));
@@ -56,45 +56,45 @@ void PndMvdIdealTrackFinderTask::SetParContainers()
 
 InitStatus PndMvdIdealTrackFinderTask::ReInit()
 {
-  
+
   InitStatus stat=kERROR;
   return stat;
-  
+
   /*
   CbmRunAna* ana = CbmRunAna::Instance();
   CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
   fGeoPar=(PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar"));
-  
+
   return kSUCCESS;
   */
 }
 
 // -----   Public method Init   --------------------------------------------
-InitStatus PndMvdIdealTrackFinderTask::Init() 
+InitStatus PndMvdIdealTrackFinderTask::Init()
 {
-  
+
   CbmRootManager* ioman = CbmRootManager::Instance();
 
-  if ( ! ioman ) 
+  if ( ! ioman )
     {
       std::cout << "-E- PndMvdIdealTrackFinderTask::Init: "
      << "RootManager not instantiated!" << std::endl;
       return kFATAL;
     }
-    
+
   // Get input array
   fStripHitArray = (TClonesArray*) ioman->GetObject(fHitBranchStrip);
   if ( !fStripHitArray){
     std::cout << "-W- PndMvdIdealTrackFinderTask::Init: " << "No fStripHitArray!" << std::endl;
     return kERROR;
   }
-  
+
   fPixelHitArray = (TClonesArray*) ioman->GetObject(fHitBranchPixel);
   if ( !fPixelHitArray){
     std::cout << "-W- PndMvdIdealTrackFinderTask::Init: " << "No fPixelHitArray!" << std::endl;
     return kERROR;
   }
-  
+
   fStripClusterArray = (TClonesArray*) ioman->GetObject(fClusterBranchStrip);
   if ( !fStripClusterArray){
     std::cout << "-W- PndMvdIdealTrackFinderTask::Init: " << "No StripclusterArray!" << std::endl;
@@ -130,12 +130,12 @@ InitStatus PndMvdIdealTrackFinderTask::Init()
     std::cout << "-W- PndMvdIdealTrackFinderTask::Init: " << "No trackArray!" << std::endl;
     return kERROR;
   }
-  
 
-  
+
+
   fTrackCandArray = new TClonesArray("TrackCand");
   ioman->Register("MVDIdealTrackCand", "MVD", fTrackCandArray, kTRUE);
-  
+
   std::cout << "-I- PndMvdIdealTrackFinderTask: Initialisation successfull" << std::endl;
   return kSUCCESS;
 }
@@ -144,7 +144,7 @@ InitStatus PndMvdIdealTrackFinderTask::Init()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndMvdIdealTrackFinderTask::Exec(Option_t* opt) 
+void PndMvdIdealTrackFinderTask::Exec(Option_t* opt)
 {
 
   // Reset output array
@@ -177,13 +177,13 @@ void PndMvdIdealTrackFinderTask::Exec(Option_t* opt)
 //     AddAndExpand(trackID,detnum,iHit);
     AddAndExpand(myPoint->GetTrackID(),2,iHit);
   }
-  
+
   if(fVerbose>0) PrintResult();
-  
+
   Int_t i = 0;
-  for (std::map<Int_t,TrackCand*>::const_iterator ci=fTrackCandMap.begin();
-      ci != fTrackCandMap.end(); ci++){
-    new((*fTrackCandArray)[i]) TrackCand(*(ci->second));
+  for (std::map<Int_t,TrackCand*>::const_iterator kIt=fTrackCandMap.begin();
+      kIt != fTrackCandMap.end(); kIt++){
+    new((*fTrackCandArray)[i]) TrackCand(*(kIt->second));
     i++;
   }
   ClearTrackCandMap();
@@ -218,10 +218,10 @@ void PndMvdIdealTrackFinderTask::PrintResult()
 {
   std::cout << "**** TrackFinding *****" << std::endl;
   Int_t nStripHits = fStripHitArray->GetEntriesFast();
-   for (std::map<Int_t, TrackCand*>::const_iterator ci=fTrackCandMap.begin();
-        ci != fTrackCandMap.end(); ci++){
-     std::cout << "TrackID: " << ci->first << std::endl;
-     TrackCand* trackCand = ci->second;
+   for (std::map<Int_t, TrackCand*>::const_iterator kIt=fTrackCandMap.begin();
+        kIt != fTrackCandMap.end(); kIt++){
+     std::cout << "TrackID: " << kIt->first << std::endl;
+     TrackCand* trackCand = kIt->second;
      for (unsigned int i = 0; i < trackCand->getNHits(); i++){
        unsigned int detId, hitId;
        trackCand->getHit(i, detId, hitId);
@@ -229,16 +229,16 @@ void PndMvdIdealTrackFinderTask::PrintResult()
       if(hitId<nStripHits) myHit = (PndMvdHit*)(fStripHitArray->At(hitId));
       else myHit = (PndMvdHit*)(fPixelHitArray->At(hitId - nStripHits));
       std::cout << "Detector no. " << detId <<": "<< *myHit;
-     } 
+     }
    }
    std::cout << std::endl;
 }
 
 void PndMvdIdealTrackFinderTask::ClearTrackCandMap()
 {
-  for (std::map<Int_t,TrackCand*>::const_iterator ci=fTrackCandMap.begin();
-          ci != fTrackCandMap.end(); ci++){
-    delete(ci->second);
+  for (std::map<Int_t,TrackCand*>::const_iterator kIt=fTrackCandMap.begin();
+          kIt != fTrackCandMap.end(); kIt++){
+    delete(kIt->second);
   }
   fTrackCandMap.clear();
 }

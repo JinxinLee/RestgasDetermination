@@ -18,11 +18,11 @@
 
 #include <string>
 #include <vector>
- 
+
 class TClonesArray;
 
 //! Hit Producer Task for strip detectors
-/** 
+/**
  * The choice of the parameters used for Digitization depends on the invocation of the
  * different constructors of this task. Instantiating by the default constructor forces
  * the digitisation parameters initialized from the DigiPar-Database. On the other hand these
@@ -33,7 +33,7 @@ class TClonesArray;
  * Knowing the origin of the wafer, the strips can be described by an angle (orientation),
  * their separation with respect to each other (pitch) and one point that is known to be part of the first strip (anchor point).\n
  * The numbering scheme is as follows (assuming 128 channels per FE): \n
- * 
+ *
    <table>
    <TR> <TD> strip index </TD> <TD>frontend #</TD> <TD> side </TD> </TR>
    <TR> <TD>     0       </TD> <TD>    0     </TD> <TD>  top </TD> </TR> <TD><- Top Anchor</TD>
@@ -52,7 +52,7 @@ class TClonesArray;
    <TR> <TD> topNrFE*128+128 </TD> <TD> topNrFE+1  </TD> <TD>  bottom </TD> </TR>
    <TR> <TD>    ...      </TD> <TD>   ...    </TD> <TD>  bottom </TD> </TR>
    <TR> <TD> (topNrFE+botNrFE)*128-1 </TD> <TD> topNrFE+botNrFE-1  </TD> <TD>  bottom </TD> </TR>
-   
+
    </table>
  * \n
  * The numbering starts from the strip containing the anchor point following the direction
@@ -68,12 +68,12 @@ class PndMvdStripHitProducer : public CbmTask
 
   /** Default constructor \n
    * creates object with parameters taken implicitly from DigiPar-File
-   **/  
+   **/
   PndMvdStripHitProducer();
-  
+
   /**
    * creates object with explicit assignment of Digitization parameters
-   * 
+   *
    * @param topPitch strip pitch on top side (cm)
    * @param botPitch strip pitch on bottom side (cm)
    * @param ori Orientation angle of strips on top side (x-y-plane)
@@ -106,6 +106,8 @@ class PndMvdStripHitProducer : public CbmTask
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
 
+  void AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, TString detname, Int_t fe, Int_t chan, Double_t charge);
+
   void SetParamSet(Double_t topPitch, Double_t botPitch,
                       Double_t ori, Double_t skew,
                       TVector2 topAnchor, TVector2 botAnchor,
@@ -128,18 +130,18 @@ class PndMvdStripHitProducer : public CbmTask
 
 
  private:
-  
+
   TString fBranchName;
 
   /** Input array of PndMvdMCPoints **/
 
   TClonesArray* fPointArray;
   //! Output array of PndMvdHits
-//  TClonesArray* fHitArray;  
+//  TClonesArray* fHitArray;
   //! Array of hit strips
   TClonesArray* fStripArray;
 //  TClonesArray* fFeStripArray;
-  
+
   //! Digitization Parameters
   PndMvdStripDigiPar* fDigiParRect;
   PndMvdStripDigiPar* fDigiParTrap;
@@ -154,12 +156,12 @@ class PndMvdStripHitProducer : public CbmTask
   PndMvdCalcStrip* fCurrentStripCalcBot;
 
   void Register();
-  void Reset();  
+  void Reset();
   void ProduceHits();
-  
+
 //   TGeoHMatrix GetTransformation (std::string detName) const;
 //   void GetLocalHitPoints(PndMvdMCPoint* myPoint, CbmGeoVector& myHitIn, CbmGeoVector& myHitOut);
-//   TVector3 GetSensorDimensions(std::string detName) const;  
+//   TVector3 GetSensorDimensions(std::string detName) const;
   Bool_t SelectSensorParams(TString detname);
 
   PndMvdGeoHandling* fGeoH; // converter for detector names
@@ -179,8 +181,8 @@ class PndMvdStripHitProducer : public CbmTask
 //   TString  fFeType;         // Frontend type name (not used yet)
 
 //  Int_t    stripHits;
-  
-  
+
+
   ClassDef(PndMvdStripHitProducer,5);
 
 };

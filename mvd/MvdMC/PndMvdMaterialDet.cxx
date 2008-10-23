@@ -89,9 +89,9 @@ PndMvdMaterialDet::PndMvdMaterialDet(const char* name, Bool_t active)
 // -----   Destructor   ----------------------------------------------------
 PndMvdMaterialDet::~PndMvdMaterialDet()
 {
-  if (fPndMvdCollection) 
+  if (fPndMvdCollection)
     {
-      fPndMvdCollection->Delete(); 
+      fPndMvdCollection->Delete();
       delete fPndMvdCollection;
     }
   delete fGeoH;
@@ -123,7 +123,7 @@ Bool_t  PndMvdMaterialDet::ProcessHits(CbmVolume* vol)
   if ( gMC->IsTrackExiting()    ||
        gMC->IsTrackStop()       ||
        gMC->IsTrackDisappeared()   ) {
-       
+
       fTrackID  = gMC->GetStack()->GetCurrentTrackNumber();
 
       if (fVerboseLevel > 1){
@@ -145,7 +145,7 @@ Bool_t  PndMvdMaterialDet::ProcessHits(CbmVolume* vol)
 // -----   Public method EndOfEvent   --------------------------------------
 void PndMvdMaterialDet::EndOfEvent()
 {
-  if (fVerboseLevel) 
+  if (fVerboseLevel)
     Print();
 
   fPndMvdCollection->Clear();
@@ -169,9 +169,9 @@ void PndMvdMaterialDet::Register()
 // -----   Public method GetCollection   -----------------------------------
 TClonesArray* PndMvdMaterialDet::GetCollection(Int_t iColl) const
 {
-  if (iColl == 0) 
+  if (iColl == 0)
     return fPndMvdCollection;
-  else 
+  else
     return NULL;
 }
 // -------------------------------------------------------------------------
@@ -181,7 +181,7 @@ TClonesArray* PndMvdMaterialDet::GetCollection(Int_t iColl) const
 // -----   Public method Print   -------------------------------------------
 void PndMvdMaterialDet::Print() const
 {
-  Int_t 
+  Int_t
     nHits = fPndMvdCollection->GetEntriesFast();
 
   std::cout << "-I- PndMvdMaterialDet: " << nHits << " points registered in this event."  << std::endl;
@@ -189,7 +189,7 @@ void PndMvdMaterialDet::Print() const
   std::cout<<"Total Absorption Lenght is: "<<fTotAbso<<std::endl;
 
   if (fVerboseLevel>1)
-    for (Int_t i=0; i<nHits; i++) 
+    for (Int_t i=0; i<nHits; i++)
       (*fPndMvdCollection)[i]->Print();
 
 }
@@ -210,7 +210,7 @@ void PndMvdMaterialDet::Reset()
 // -----   Public method CopyClones   --------------------------------------
 void PndMvdMaterialDet::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset)
 {
-  Int_t 
+  Int_t
     nEntries = cl1->GetEntriesFast();
 
   std::cout << "-I- PndMvdMaterialDet: " << nEntries << " entries to add." << std::endl;
@@ -219,11 +219,11 @@ void PndMvdMaterialDet::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t o
 
   PndMvdMCPoint
     *oldpoint = NULL;
-   for (Int_t i=0; i<nEntries; i++) 
+   for (Int_t i=0; i<nEntries; i++)
      {
        oldpoint = (PndMvdMCPoint*) cl1->At(i);
 
-       Int_t 
+       Int_t
    index = oldpoint->GetTrackID() + offset;
 
        oldpoint->SetTrackID(index);
@@ -248,7 +248,7 @@ void PndMvdMaterialDet::ConstructGeometry()
 }
 
 // -------------------------------------------------------------------------
-bool PndMvdMaterialDet::CheckIfSensitive(std::string name)
+bool PndMvdMaterialDet::CheckIfSensitive(std::string name) const
 {
 // make all volumes 'sensitive' to get every material involved
 
@@ -264,7 +264,7 @@ void PndMvdMaterialDet::ConstructRootGeometry()
   TList *l= f->GetListOfKeys();
   TKey *k=(TKey *) l->At(0);
   TGeoVolume *Stt2=(TGeoVolume *)k->ReadObj();
-  TGeoNode *n=Stt2->GetNode(0);        
+  TGeoNode *n=Stt2->GetNode(0);
   TGeoVolume *v1=n->GetVolume();
   TGeoVolume *Cave= gGeoManager->GetTopVolume();
   gGeoManager->AddVolume(v1);
@@ -273,8 +273,8 @@ void PndMvdMaterialDet::ConstructRootGeometry()
         TGeoMatrix *M = n->GetMatrix();
         M->SetDefaultName();
         gGeoManager->GetListOfMatrices()->Remove(M);
-        TGeoHMatrix *global = gGeoManager->GetHMatrix();             
-        gGeoManager->GetListOfMatrices()->Remove(global); //Remove the Identity matrix 
+        TGeoHMatrix *global = gGeoManager->GetHMatrix();
+        gGeoManager->GetListOfMatrices()->Remove(global); //Remove the Identity matrix
   Cave->AddNode(v1,0, M);
         ExpandNode(n);
         delete f;
@@ -294,7 +294,7 @@ void PndMvdMaterialDet::ExpandNode(TGeoNode *fN){
   //v1->RegisterYourself();
         TObjArray *NodeList=v1->GetNodes();
   //Int_t medId=MediaArray1->GetSize();
-    for (Int_t Nod=0; Nod<NodeList->GetEntriesFast();Nod++) {   
+    for (Int_t Nod=0; Nod<NodeList->GetEntriesFast();Nod++) {
     TGeoNode *fNode =(TGeoNode *)NodeList->At(Nod);
                 TGeoMatrix *M =fNode->GetMatrix();
                 M->SetDefaultName();
@@ -303,7 +303,7 @@ void PndMvdMaterialDet::ExpandNode(TGeoNode *fN){
     Int_t MatId=0;
     TGeoMedium* med1=v->GetMedium();
     if(med1){
-      TGeoMaterial*mat1=v->GetMaterial(); 
+      TGeoMaterial*mat1=v->GetMaterial();
       TGeoMaterial *newMat = gGeoManager->GetMaterial(mat1->GetName());
       if( newMat==0){
         std::cout<< "Material " << mat1->GetName() << " is not defined " << std::endl;
@@ -317,7 +317,7 @@ void PndMvdMaterialDet::ExpandNode(TGeoNode *fN){
         Int_t nmed=geobuild->createMedium(CbmMedium);
         v->SetMedium(gGeoManager->GetMedium(nmed));
         gGeoManager->SetAllIndex();
-        
+
       }else{
         TGeoMedium *med2= gGeoManager->GetMedium(mat1->GetName());
         v->SetMedium(med2);
@@ -333,7 +333,7 @@ void PndMvdMaterialDet::ExpandNode(TGeoNode *fN){
             }
       AddSensitiveVolume(v);
     }
-    
+
   }
 }
 
@@ -344,7 +344,7 @@ void PndMvdMaterialDet::ExpandNode(TGeoNode *fN){
 // -----   Public method ConstructGeometry   -------------------------------
 void PndMvdMaterialDet::ConstructASCIIGeometry()
 {
-  // get pointer to the instantons which interface 
+  // get pointer to the instantons which interface
   // to monte carlo
 
   CbmGeoLoader *geoLoad = CbmGeoLoader::Instance();
@@ -356,7 +356,7 @@ void PndMvdMaterialDet::ConstructASCIIGeometry()
 
   Bool_t rc = geoFace->readSet(thePndMvdGeo);
 
-  if (rc) 
+  if (rc)
     thePndMvdGeo->create(geoLoad->getGeoBuilder());
 
   TList* volList = thePndMvdGeo->getListOfVolumes();
@@ -398,18 +398,18 @@ void PndMvdMaterialDet::ConstructASCIIGeometry()
 PndMvdMCPoint* PndMvdMaterialDet::AddHit(Int_t trackID, Int_t detID, TString detName, TVector3 posIn,              TVector3 posOut,TVector3 momIn, TVector3 momOut,
             Double_t time, Double_t length, Double_t eLoss) const
 {
-  TClonesArray& 
+  TClonesArray&
     clref = *fPndMvdCollection;
 
-  Int_t 
+  Int_t
     size = clref.GetEntriesFast();
-    
+
     if (fVerboseLevel >= 2)
        std::cout << "-I- PndMvdMaterialDet: Adding Point at (" << posIn.X() << ", " << posIn.Y()
       << ", " << posIn.Z() << ") cm, (" << posOut.X() << ", " << posOut.Y()
       << ", " << posOut.Z() << ") cm,  detector " << detName << " " << detID << ", track "
       << trackID << ", energy loss " << eLoss*1e06 << " keV" << std::endl;
-   
+
   return new(clref[size]) PndMvdMCPoint(trackID, detID, detName, posIn, posOut,
                         momIn, momOut, time, length, eLoss);
 }

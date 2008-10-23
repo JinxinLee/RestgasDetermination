@@ -14,21 +14,21 @@ public:
   static void CalcLikelihood(PndMvdPidCand* cand);
 
 private:
-  
+
   //Lower boundary of energy loss distribution, as given by Bethe-Bloch formula
   static double LowerBoundary(double p, double m);
 
   //These functions represent the lower boundary of the energy loss distribution
   //at a given momentum. The offset numbers in both momentum and energy loss
-  //axis are adjusted that at least 99% of all events have are gathered. 
+  //axis are adjusted that at least 99% of all events have are gathered.
   static double LowerProtonBoundary(double momentum);
-  
+
   static double LowerKaonBoundary(double momentum);
-  
+
   static double LowerPionBoundary(double momentum);
-   
+
   //Naive approximation of the Landau distribution, integrated from -inf to x
-  static double LandauIntegral(double x); 
+  static double LandauIntegral(double x);
 
   //Constants
   static float fpiMass;
@@ -46,9 +46,9 @@ private:
   static double fpiScale;
 
   //Integral remainders
-  static double pRemainder;
-  static double kRemainder;
-  static double piRemainder;
+  static double fPRemainder;
+  static double fKRemainder;
+  static double fPiRemainder;
 };
 
 #endif

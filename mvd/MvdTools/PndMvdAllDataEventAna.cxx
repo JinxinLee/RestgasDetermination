@@ -18,28 +18,28 @@ PndMvdAllDataEventAna::PndMvdAllDataEventAna(TString fileName):PndMvdEventAna(fi
 {
   Init(fileName);
   SetCanvasColumns(6);
-  
 
-  geoH = new PndMvdGeoHandling(fileName);
-  
+
+  fGeoH = new PndMvdGeoHandling(fileName);
+
   fRecoVolume = gGeoManager->MakeSphere("RecoHit",gGeoManager->GetMedium("vacuum"),0,0.1);
   fRecoVolume->SetLineColor(kRed);
-  
+
   TGeoVolume* mcHit = gGeoManager->MakeSphere("MCHit",gGeoManager->GetMedium("vacuum"),0,0.1);
   mcHit->SetLineColor(kGreen);
-  
+
   TGeoShape* stripShape = gGeoManager->GetVolume("StripSensor")->GetShape();
   TGeoVolume* stripVol = new TGeoVolume("StripSensorRed",stripShape, gGeoManager->GetMedium("vacuum"));
   stripVol->SetLineColor(kRed);
   gGeoManager->AddVolume(stripVol);
   stripVol = gGeoManager->GetVolume("StripSensorRed");
-  
+
   TGeoShape* pixShape1 = gGeoManager->GetVolume("SensorActiveAreao[NrFE=8ooE]")->GetShape();
   TGeoVolume* pixVol1 = new TGeoVolume("PixelSensor8",pixShape1, gGeoManager->GetMedium("vacuum"));
   pixVol1->SetLineColor(kRed);
   gGeoManager->AddVolume(pixVol1);
   pixVol1 = gGeoManager->GetVolume("PixelSensor8");
-  
+
   TGeoShape* pixShape2 = gGeoManager->GetVolume("SensorActiveAreao[NrFE=4]")->GetShape();
   TGeoVolume* pixVol2 = new TGeoVolume("PixelSensor4",pixShape2, gGeoManager->GetMedium("vacuum"));
   pixVol2->SetLineColor(kRed);
@@ -51,17 +51,17 @@ PndMvdAllDataEventAna::PndMvdAllDataEventAna(TString fileName):PndMvdEventAna(fi
   pixVol3->SetLineColor(kRed);
   gGeoManager->AddVolume(pixVol3);
   pixVol3 = gGeoManager->GetVolume("PixelSensor5");
-  
+
   TGeoVolume* stripVolG = new TGeoVolume("StripSensorGreen",stripShape, gGeoManager->GetMedium("vacuum"));
   stripVolG->SetLineColor(kGreen);
   gGeoManager->AddVolume(stripVolG);
   stripVolG = gGeoManager->GetVolume("StripSensorGreen");
-  
+
   TGeoVolume* pixVolG1 = new TGeoVolume("PixelSensor8Green",pixShape1, gGeoManager->GetMedium("vacuum"));
   pixVolG1->SetLineColor(kGreen);
   gGeoManager->AddVolume(pixVolG1);
   pixVolG1 = gGeoManager->GetVolume("PixelSensor8Green");
-  
+
   TGeoVolume* pixVolG2 = new TGeoVolume("PixelSensor4Green",pixShape2, gGeoManager->GetMedium("vacuum"));
   pixVolG2->SetLineColor(kGreen);
   gGeoManager->AddVolume(pixVolG2);
@@ -71,10 +71,10 @@ PndMvdAllDataEventAna::PndMvdAllDataEventAna(TString fileName):PndMvdEventAna(fi
   pixVolG3->SetLineColor(kGreen);
   gGeoManager->AddVolume(pixVolG3);
   pixVolG3 = gGeoManager->GetVolume("PixelSensor5Green");
-    
+
   fMvdTopVolume = gGeoManager->GetVolume("MVDoOption1");
   fGeoList = new PndEventDisplay();
-  
+
   fGeoList->AddNewGroup("RecoHits",new PndGeoHitList("RecoHits","MVDoOption1", fRecoVolume));
   fGeoList->AddNewGroup("MCHits",new PndGeoHitList("MCHits","MVDoOption1", mcHit));
   fGeoList->AddNewGroup("StripHits", new PndGeoHitList("StripHits","MVDoOption1",stripVol));
@@ -85,7 +85,7 @@ PndMvdAllDataEventAna::PndMvdAllDataEventAna(TString fileName):PndMvdEventAna(fi
   fGeoList->AddNewGroup("PixHits8Green", new PndGeoHitList("PixHits8Green","MVDoOption1",pixVolG1));
   fGeoList->AddNewGroup("PixHits4Green", new PndGeoHitList("PixHits4Green","MVDoOption1",pixVolG2));
   fGeoList->AddNewGroup("PixHits5Green", new PndGeoHitList("PixHits5Green","MVDoOption1",pixVolG3));
-    
+
   fPixelCon = new PndMvdCalcFePixel(76,84,10);
 }
 
@@ -94,11 +94,11 @@ void PndMvdAllDataEventAna::Init(TString fileName)
   PndMvdFileNameCreator nameCreator(fileName.Data());
   fFile = new TFile(fileName.Data());
   fTree = (TTree*)fFile->Get("cbmsim");
-  
-  fTree->AddFriend("digi=cbmsim",nameCreator.GetDigiFileName().c_str()); 
+
+  fTree->AddFriend("digi=cbmsim",nameCreator.GetDigiFileName().c_str());
   fTree->AddFriend("reco=cbmsim",nameCreator.GetRecoFileName().c_str());
   fTree->AddFriend("trackF=cbmsim",nameCreator.GetTrackFindingFileName().c_str());
-  
+
   fHitArray=new TClonesArray("PndMvdMCPoint");
   fDigiArray = new TClonesArray("PndMvdDigiPixel");
   fClusterArray = new TClonesArray("PndMvdCluster");
@@ -118,7 +118,7 @@ void PndMvdAllDataEventAna::Init(TString fileName)
   fAllHitResolutionHistos = new TH1D("AllHitResolution","AllHitResolution", 1000,0,0.1);
   f3DMCHisto = new TH3D("h3D","h3D", 50,-15,15, 50, -15,15, 50, -30,30);
   f3DRecoHisto = new TH3D("h3D","h3D", 50,-15,15, 50, -15,15, 50, -30,30);
-  
+
 }
 
 void PndMvdAllDataEventAna::InitBranch()
@@ -159,7 +159,7 @@ void PndMvdAllDataEventAna::AnaHits()
   std::cout << "digiArray: " << fDigiArray->GetEntries() << std::endl;
   std::cout << "clusterArray: " << fClusterArray->GetEntries() << std::endl;
   std::cout << "recoArray: " << fRecoArray->GetEntries() << std::endl;
-    
+
   PrintHitArray();
   PrintDigiArray();
   PrintClusterArray();
@@ -173,7 +173,7 @@ void PndMvdAllDataEventAna::AnaHits()
   FillHitResolutionHistos();
   Fill3DHisto();
   FillHitProjHistos();
-  
+
   Create3DGeoHits();
 }
 
@@ -224,16 +224,16 @@ TVector3 PndMvdAllDataEventAna::GetLocalHitPoints(TString detName, TVector3 inpu
   TVector3 result;
   Double_t in[3];
   Double_t local[3];
-  
+
   in[0] = input.X();
   in[1] = input.Y();
   in[2] = input.Z();
 
-  gGeoManager->cd(geoH->GetPath(detName.Data()));
+  gGeoManager->cd(fGeoH->GetPath(detName.Data()));
     TGeoHMatrix* transMat = gGeoManager->GetCurrentMatrix();
 
   transMat->MasterToLocal(in, local);
-    
+
   TGeoVolume* actVolume = gGeoManager->GetCurrentVolume();
   TGeoBBox* actBox = (TGeoBBox*)(actVolume->GetShape());
 
@@ -255,25 +255,25 @@ void PndMvdAllDataEventAna::FillHitHistos()
       //fDrawOption[hit->GetDetName()] = "colz";
     }
     TH2* tempHisto = (TH2*)(fHistos[detName]);
-    gGeoManager->cd(geoH->GetPath(detName.Data()));
+    gGeoManager->cd(fGeoH->GetPath(detName.Data()));
       TGeoHMatrix* transMat = gGeoManager->GetCurrentMatrix();
-    
+
     TVector3 in(myPoint->GetX(), myPoint->GetY(), myPoint->GetZ());
     TVector3 out(myPoint->GetXOut(), myPoint->GetYOut(), myPoint->GetZOut());
     TVector3 inLocal, outLocal;
     inLocal = GetLocalHitPoints(detName, in);
     outLocal = GetLocalHitPoints(detName, out);
-  
+
     fHistos[detName]->Fill(inLocal.X()*100, inLocal.Y()*100);
     fHistos[detName]->Fill(outLocal.X()*100, outLocal.Y()*100);
-    
+
 //    std::cout << i << ": " << std::endl;
 //     for (Int_t i = 0; i < 3; i++){
 //          std::cout << "posInLocal "<< i << ": " << inLocal(i) << std::endl;
 //            std::cout << "posOutLocal "<< i << ": " << outLocal(i) << std::endl;
 //        }
   }
-} 
+}
 void PndMvdAllDataEventAna::FillDigiHistos()
 {
   for (Int_t i = 0; i < fDigiArray->GetEntries(); i++){
@@ -322,13 +322,13 @@ void PndMvdAllDataEventAna::FillRecoHistos()
       //fDrawOption[hit->GetDetName()] = "colz";
     }
     TH2* tempHisto = (TH2*)(fRecoHistos[detName]);
-    
+
     TVector3 in(myHit->GetX(), myHit->GetY(), myHit->GetZ());
     TVector3 inLocal;
     inLocal = GetLocalHitPoints(detName, in);
-  
+
     fRecoHistos[detName]->Fill(inLocal.X()*100, inLocal.Y()*100);
-    
+
 //    std::cout << i << ": " << std::endl;
 //     for (Int_t i = 0; i < 3; i++){
 //          std::cout << "posInLocal "<< i << ": " << inLocal(i) << std::endl;
@@ -389,7 +389,7 @@ void PndMvdAllDataEventAna::Fill3DHisto()
       PndMvdMCPoint* myPoint = (PndMvdMCPoint*)fHitArray->At(j);
       f3DMCHisto->Fill(myPoint->GetX(), myPoint->GetY(), myPoint->GetZ());
   }
-    
+
 }
 
 void PndMvdAllDataEventAna::FillHitProjHistos()
@@ -398,17 +398,17 @@ void PndMvdAllDataEventAna::FillHitProjHistos()
   ClearHistoVector(&fRecoHisrz);
   unsigned int detID, hitID;
   TVector3 vec;
-    
+
   for (Int_t i = 0; i < fTrackFArray->GetEntries(); i++){
     TrackCand* trackC = (TrackCand*)fTrackFArray->At(i);
     TH2D* myHistoXY = new TH2D("recohisxy","MVD Reco Points, xy view",400,-15.,15.,400,-15.,15.);
     myHistoXY->SetMarkerStyle(7);
     myHistoXY->SetMarkerColor(i+1);
-    
+
     TH2D* myHistoRZ = new TH2D("recohisrz","MVD Reco Points, rz view",400,-20.,20.,400,-20.,20.);
     myHistoRZ->SetMarkerStyle(7);
     myHistoRZ->SetMarkerColor(i+1);
-            
+
     fRecoHisxy.push_back(myHistoXY);
     fRecoHisrz.push_back(myHistoRZ);
     for (Int_t j = 0; j < trackC->getNHits(); j++){
@@ -435,7 +435,7 @@ TVector3 PndMvdAllDataEventAna::CalcMeanHitPos(std::vector<Int_t> points)
 
     TVector3 posHit = posIn + posOut;
     posHit *= 0.5;
-    
+
     std::cout << "posHit: " << posHit.X() << " " << posHit.Y() << " " << posHit.Z() << std::endl;
     //posHit *= myPoint->GetEnergyLoss();
     energy += myPoint->GetEnergyLoss();
@@ -451,7 +451,7 @@ void PndMvdAllDataEventAna::DrawHitHisto(TString detName, TCanvas* extCan, Int_t
 {
   if (extCan)
     extCan->cd(pad);
-  
+
   if (fHistos[detName] != 0)
     fHistos[detName]->Draw();
 }
@@ -468,7 +468,7 @@ void PndMvdAllDataEventAna::DrawClusterHisto(TString detName, TCanvas* extCan, I
 {
   if (extCan)
       extCan->cd(pad);
-    
+
   if(fClusterHistos[detName] != 0)
     fClusterHistos[detName]->Draw("colz");
 }
@@ -476,7 +476,7 @@ void PndMvdAllDataEventAna::DrawRecoHisto(TString detName, TCanvas* extCan, Int_
 {
   if (extCan)
       extCan->cd(pad);
-    
+
   if (fRecoHistos[detName] != 0)
     fRecoHistos[detName]->Draw();
 }
@@ -503,7 +503,7 @@ void PndMvdAllDataEventAna::DrawAllHistos(Int_t index, TCanvas* extCan)
 {
   std::map<TString,TH1*>::const_iterator ki;
   Int_t histoSize = fHistos.size();
-  
+
   if (index >= histoSize) return;
   ki = fHistos.begin();
   for (Int_t i = 0; i < index; i++)
@@ -534,7 +534,7 @@ void PndMvdAllDataEventAna::DrawAllTracks(TCanvas* extCan, Int_t pad)
   if (extCan == 0)
     extCan = new TCanvas();
   extCan->cd(pad);
-  
+
   for (Int_t i = 0; i < fGeoTrackArray->GetEntries(); i++){
     TGeoTrack* myTrack = (TGeoTrack*) fGeoTrackArray->At(i);
     myTrack->Print();
@@ -547,7 +547,7 @@ void PndMvdAllDataEventAna::DrawHitTracks(TCanvas* extCan, Int_t pad)
   if (extCan == 0)
     extCan = new TCanvas();
   extCan->cd(pad);
-  
+
   std::map<Int_t, Int_t> trackUsed;
   for (Int_t i = 0; i < fHitArray->GetEntries(); i++){
     PndMvdMCPoint* myPoint = (PndMvdMCPoint*)fHitArray->At(i);
@@ -606,21 +606,21 @@ void PndMvdAllDataEventAna::DrawEvent(bool tracks, TCanvas* extCan)
         fCan2 = extCan;
   if (fCan2 == 0)
     fCan2 = new TCanvas();
-  
+
   fCan2->Divide(2,2);
-  
+
   fCan2->cd(1);
   DrawTopVolume();
 
   if (tracks)
     DrawHitTracks();
-  
+
   fCan2->cd(2);
   fAllHitResolutionHistos->Draw();
-  
+
   fCan2->cd(3);
   DrawHistoVec(&fRecoHisxy);
-  
+
   fCan2->cd(4);
   DrawHistoVec(&fRecoHisrz);
 }
@@ -651,11 +651,11 @@ std::vector<Int_t> PndMvdAllDataEventAna::GetHitPerCluster(PndMvdCluster* cluste
 void PndMvdAllDataEventAna::Create3DGeoHits()
 {
   fGeoList->SetHits("RecoHits",fRecoArray);
-  
+
   for (Int_t i = 0; i < fHitArray->GetEntriesFast(); i++){
     PndMvdMCPoint* myPoint = (PndMvdMCPoint*)fHitArray->At(i);
     fGeoList->AddHit("MCHits", myPoint->GetX(), myPoint->GetY(), myPoint->GetZ());
-    std::cout << "gGeoManager cd: " << myPoint->GetDetName() << " " << gGeoManager->cd(geoH->GetPath(myPoint->GetDetName())) << std::endl;
+    std::cout << "gGeoManager cd: " << myPoint->GetDetName() << " " << gGeoManager->cd(fGeoH->GetPath(myPoint->GetDetName())) << std::endl;
     TGeoHMatrix* mat = gGeoManager->GetCurrentMatrix();
     mat->Print();
     if (myPoint->GetDetName().Contains("71")){
@@ -677,7 +677,7 @@ void PndMvdAllDataEventAna::Create3DGeoHits()
 }
 
 
-void PndMvdAllDataEventAna::ClearHistoMaps(std::map<TString, TH1*>* myMaps) const 
+void PndMvdAllDataEventAna::ClearHistoMaps(std::map<TString, TH1*>* myMaps) const
 {
   for (std::map<TString,TH1*>::const_iterator ki = myMaps->begin(); ki != myMaps->end(); ki++){
     ki->second->Delete();
@@ -702,9 +702,9 @@ void PndMvdAllDataEventAna::ClearAllVectors()
   ClearHistoVector(&fHitHistoVec);
   ClearHistoVector(&fDigiHistoVec);
   ClearHistoVector(&fClusterHistoVec);
-  ClearHistoVector(&fRecoHistoVec); 
+  ClearHistoVector(&fRecoHistoVec);
 }
-void PndMvdAllDataEventAna::ClearHistoVector(std::vector<TH1*>* myVectors) const 
+void PndMvdAllDataEventAna::ClearHistoVector(std::vector<TH1*>* myVectors) const
 {
   for (Int_t i = 0; i < myVectors->size(); i++)
   {
@@ -718,8 +718,8 @@ std::vector<TString> PndMvdAllDataEventAna::GetModulesHit()
     std::vector<TString> result;
     for(std::map<TString, TH1*>::const_iterator ki= fRecoHistos.begin(); ki != fRecoHistos.end(); ++ki){
       std::cout << "First: " << ki->first << std::endl;
-      std::cout << "Path: " << geoH->GetPath(ki->first) << std::endl;
-      result.push_back(geoH->GetPath(ki->first));
+      std::cout << "Path: " << fGeoH->GetPath(ki->first) << std::endl;
+      result.push_back(fGeoH->GetPath(ki->first));
     }
     return result;
 }

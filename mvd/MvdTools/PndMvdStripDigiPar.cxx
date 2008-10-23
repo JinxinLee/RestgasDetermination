@@ -11,7 +11,7 @@ PndMvdStripDigiPar::PndMvdStripDigiPar(const char* name, const char* title, cons
 void PndMvdStripDigiPar::putParams(CbmParamList* list)
 {
   if(!list) return;
-  
+
   list->add("top_pitch", fTopPitch);
   list->add("bot_pitch", fBotPitch);
   list->add("orient", fOrient);
@@ -28,7 +28,7 @@ void PndMvdStripDigiPar::putParams(CbmParamList* list)
   list->add("sens_Type", fSensType); //("sens_Type", fSensType, 's', 1)
   list->add("fe_Type", fFeType); //("fe_Type", fFeType, 's', 1)
 //   TObjString* sens = new TObjString( fSensType.Data() );
-//   list->addBinary("sens_Type", sens); 
+//   list->addBinary("sens_Type", sens);
 //   TObjString* fe = new TObjString( fFeType.Data() );
 //   list->addBinary("fe_Type", fe);
 }
@@ -36,7 +36,7 @@ void PndMvdStripDigiPar::putParams(CbmParamList* list)
 Bool_t PndMvdStripDigiPar::getParams(CbmParamList* list)
 {
   if (!list) return kFALSE;
-  
+
   if (!list->fill("top_pitch", &fTopPitch)) return kFALSE;
   if (!list->fill("bot_pitch", &fBotPitch)) return kFALSE;
   if (!list->fill("orient",&fOrient)) return kFALSE;
@@ -59,11 +59,6 @@ Bool_t PndMvdStripDigiPar::getParams(CbmParamList* list)
   Text_t feName[80];
   if (!list->fill("fe_Type",feName,80)) return kFALSE;
   fFeType = feName;
-//   TObjString sens,fe;
-//   if (!list->fillBinary("sens_Type",&sens)) return kFALSE;
-//   fSensType = sens.GetString();
-//   if (!list->fillBinary("fe_Type",&fe)) return kFALSE;
-//   fFeType = fe.GetString();
   return kTRUE;
 }
 

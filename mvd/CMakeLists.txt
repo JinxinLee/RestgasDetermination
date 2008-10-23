@@ -12,20 +12,21 @@ ${CMAKE_SOURCE_DIR}/base
 ${CMAKE_SOURCE_DIR}/field
 ${CMAKE_SOURCE_DIR}/mcstack
 ${CMAKE_SOURCE_DIR}/passive
+${CMAKE_SOURCE_DIR}/PndTools/riemannfit
 ${CMAKE_SOURCE_DIR}/mvd/MvdMC
 ${CMAKE_SOURCE_DIR}/mvd/MvdData
 ${CMAKE_SOURCE_DIR}/mvd/MvdDigi
-${CMAKE_SOURCE_DIR}/mvd/PndMvdReco
+${CMAKE_SOURCE_DIR}/mvd/MvdReco
 ${CMAKE_SOURCE_DIR}/mvd/MvdTools
+${CMAKE_SOURCE_DIR}/mvd/MvdPid
+${CMAKE_SOURCE_DIR}/mvd/MvdTracking
 ${CMAKE_SOURCE_DIR}/mvd/transport
 ${CMAKE_SOURCE_DIR}/mvd
 ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/recotasks
-${CMAKE_SOURCE_DIR}/PndTools/riemannfit
 ${CMAKE_SOURCE_DIR}/trackbase
 ${CMAKE_SOURCE_DIR}/trackrep
 ${CMAKE_SOURCE_DIR}/geane
-${CMAKE_SOURCE_DIR}/PndTools/riemannfit
 ${CMAKE_SOURCE_DIR}/tpc
 )
 
@@ -75,6 +76,9 @@ MvdTools/PndMvdFileNameCreator.cxx
 MvdTools/PndGeoHitList.cxx
 MvdTools/PndEventDisplay.cxx
 MvdTools/PndMvdEventAnaTask.cxx
+MvdTools/PndMvdEventMerger.cxx
+MvdTools/PndMvdEventMergerTask.cxx
+MvdTools/PndMvdMSAnaTask.cxx
 
 )
 set (MVD_RULECHECKER_SRCS ${MVD_SRCS})
@@ -97,16 +101,10 @@ set_target_properties(Mvd PROPERTIES ${CBMROOT_LIBRARY_PROPERTIES})
 
 ########################### create libMvdReco ##################################
 set(MVDRECO_SRCS
-MvdData/PndMvdRecoHit.cxx
-MvdData/PndMvdPidCand.cxx
+
 MvdData/PndMvdCluster.cxx
 MvdData/PndMvdHit.cxx
 MvdData/PndMvdHitInfo.cxx
-
-MvdPid/PndMvdPidIdealTask.cxx
-MvdPid/PndMvdIdealPidAlgo.cxx
-MvdPid/PndMvdSimplePidAlgo.cxx
-MvdPid/PndMvdAdvancedPidAlgo.cxx
 
 MvdReco/PndMvdRecoTask.cxx
 MvdReco/PndMvdClusterTask.cxx
@@ -119,13 +117,6 @@ MvdReco/PndMvdChargeWeightedPixelMapping.cxx
 MvdReco/PndMvdStripClusterBuilder.cxx
 MvdReco/PndMvdStripClusterTask.cxx
 MvdReco/PndMvdIdealRecoTask.cxx
-
-MvdTracking/PndMvdIdealTrackFinderTask.cxx
-MvdTracking/PndMvdKalmanTask.cxx
-MvdTracking/PndMvdRiemannTrackFinderTask.cxx
-MvdTracking/PndMvdTrackFinderAnaTask.cxx
-# MvdTracking/PndMvdTpcRiemannCorrelatorTask.cxx
-
 
 )
 set (MVD_RULECHECKER_SRCS ${MVD_RULECHECKER_SRCS} ${MVDRECO_SRCS})
@@ -148,9 +139,47 @@ add_library(MvdReco SHARED ${MVDRECO_SRCS})
 target_link_libraries(MvdReco ${ROOT_LIBRARIES})
 set_target_properties(MvdReco PROPERTIES ${CBMROOT_LIBRARY_PROPERTIES})
 
+########################### create libMvdTrk ##################################
+set(MVDTRK_SRCS
+MvdData/PndMvdRecoHit.cxx
+MvdData/PndMvdPidCand.cxx
+
+MvdPid/PndMvdPidIdealTask.cxx
+MvdPid/PndMvdIdealPidAlgo.cxx
+MvdPid/PndMvdSimplePidAlgo.cxx
+MvdPid/PndMvdAdvancedPidAlgo.cxx
+
+MvdTracking/PndMvdIdealTrackFinderTask.cxx
+MvdTracking/PndMvdKalmanTask.cxx
+MvdTracking/PndMvdRiemannTrackFinderTask.cxx
+MvdTracking/PndMvdTrackFinderAnaTask.cxx
+MvdTracking/PndMvdTpcRiemannCorrelatorTask.cxx
+
+)
+set (MVD_RULECHECKER_SRCS ${MVD_RULECHECKER_SRCS} ${MVDTRK_SRCS})
+
+if(RULE_CHECKER_FOUND)
+  CHECK_RULES("${MVD_RULECHECKER_SRCS}" "${INCLUDE_DIRECTORIES}" MVD_RULES)
+endif(RULE_CHECKER_FOUND)
+
+
+# fill list of header files from list of source files
+# by exchanging the file extension
+CHANGE_FILE_EXTENSION(*.cxx *.h MVDTRK_HEADERS "${MVDTRK_SRCS}")
+set(MVDTRK_LINKDEF  MvdTrkLinkDef.h)
+set(MVDTRK_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/MvdTrkDict.cxx)
+
+ROOT_GENERATE_DICTIONARY("${MVDTRK_HEADERS}" "${MVDTRK_LINKDEF}" "${MVDTRK_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
+SET(MVDTRK_SRCS ${MVDTRK_SRCS} ${MVDTRK_DICTIONARY})
+
+add_library(MvdTrk SHARED ${MVDTRK_SRCS})
+target_link_libraries(MvdTrk ${ROOT_LIBRARIES})
+set_target_properties(MvdTrk PROPERTIES ${CBMROOT_LIBRARY_PROPERTIES})
+
 
 ################################## install #####################################
 install(TARGETS Mvd DESTINATION ${CMAKE_BINARY_DIR}/lib)
 install(TARGETS MvdReco DESTINATION ${CMAKE_BINARY_DIR}/lib)
+install(TARGETS MvdTrk DESTINATION ${CMAKE_BINARY_DIR}/lib)
 
 

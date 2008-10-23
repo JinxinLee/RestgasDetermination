@@ -35,7 +35,7 @@ PndMvdRiemannTrackFinderTask::PndMvdRiemannTrackFinderTask() : CbmTask("MVD Riem
 	fMaxSZDist = 10;
 	fMinPointDist = 1;
 	fMaxDist = 1;
-	
+
 	fEventNr = 0;
 	//fTrackBranch = "MCTrack";
 }
@@ -47,7 +47,7 @@ PndMvdRiemannTrackFinderTask::~PndMvdRiemannTrackFinderTask()
 void PndMvdRiemannTrackFinderTask::SetParContainers()
 {
   // Get Base Container
-/*  
+/*
   CbmRunAna* ana = CbmRunAna::Instance();
   CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
   fGeoPar = (PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar"));
@@ -56,54 +56,54 @@ void PndMvdRiemannTrackFinderTask::SetParContainers()
 
 InitStatus PndMvdRiemannTrackFinderTask::ReInit()
 {
-  
+
   InitStatus stat=kERROR;
   return stat;
-  
+
   /*
   CbmRunAna* ana = CbmRunAna::Instance();
   CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
   fGeoPar=(PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar"));
-  
+
   return kSUCCESS;
   */
 }
 
 // -----   Public method Init   --------------------------------------------
-InitStatus PndMvdRiemannTrackFinderTask::Init() 
+InitStatus PndMvdRiemannTrackFinderTask::Init()
 {
-  
+
   CbmRootManager* ioman = CbmRootManager::Instance();
 
-  if ( ! ioman ) 
+  if ( ! ioman )
     {
-      std::cout << "-E- PndMvdIdealTrackFinderTask::Init: "
+      std::cout << "-E- PndMvdRiemannTrackFinderTask::Init: "
      << "RootManager not instantiated!" << std::endl;
       return kFATAL;
     }
-    
+
   // Get input array
   fHitArray = (TClonesArray*) ioman->GetObject(fHitBranch);
   if ( !fHitArray){
-    std::cout << "-W- PndMvdIdealTrackFinderTask::Init: " << "No hitArray!" << std::endl;
+    std::cout << "-W- PndMvdRiemannTrackFinderTask::Init: " << "No hitArray!" << std::endl;
     return kERROR;
   }
-  
+
   fHitArray2 = (TClonesArray*) ioman->GetObject(fHitBranch2);
    if ( !fHitArray2){
-     std::cout << "-W- PndMvdIdealTrackFinderTask::Init: " << "No hitArray2!" << std::endl;
+     std::cout << "-W- PndMvdRiemannTrackFinderTask::Init: " << "No hitArray2!" << std::endl;
      return kERROR;
    }
-   
+
   fTrackCandArray = new TClonesArray("TrackCand");
   ioman->Register("MVDRiemannTrackCand", "MVD", fTrackCandArray, kTRUE);
-  
-  std::cout << "-I- PndMvdIdealTrackFinderTask: Initialisation successfull" << std::endl;
+
+  std::cout << "-I- PndMvdRiemannTrackFinderTask: Initialisation successfull" << std::endl;
   return kSUCCESS;
 }
 
 // -----   Public method Exec   --------------------------------------------
-void PndMvdRiemannTrackFinderTask::Exec(Option_t* opt) 
+void PndMvdRiemannTrackFinderTask::Exec(Option_t* opt)
 {
 
   // Reset output array
@@ -122,14 +122,12 @@ void PndMvdRiemannTrackFinderTask::Exec(Option_t* opt)
   trackFinder.SetMaxSZDist(fMaxSZDist);
   trackFinder.SetVerbose(fVerbose);
   trackFinder.FindTracks();
-  
+
   std::cout << "Found Tracks: " << trackFinder.NTracks() << " in event no. " << fEventNr++ << std::endl;
   std::cout << "----------------" << std::endl;
  // std::vector<TrackCand> myCand = trackFinder.GetTrackCand();
   for (int i = 0; i < trackFinder.NTracks(); i++){
-	  TrackCand myCand = trackFinder.GetTrackCand(i);
-// 	  std::cout << myCand;
-	  new ((*fTrackCandArray)[i])TrackCand(trackFinder.GetTrackCand(i));    
+	  new ((*fTrackCandArray)[i])TrackCand(trackFinder.GetTrackCand(i));
   }
 }
 

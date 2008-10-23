@@ -1,93 +1,54 @@
 // -------------------------------------------------------------------------
-// -----                CbmStsHitProducerIdeal source file             -----
-// -----                  Created 10/01/06  by V. Friese               -----
+// -----                     PndMvdClusterTask source file             -----
+// -----                  Created 07/10/08  by R. Kliemt               -----
 // -------------------------------------------------------------------------
 
-
-#include "TClonesArray.h"
-#include "TArrayD.h"
-#include "TGeoManager.h"
-
-#include "CbmRootManager.h"
-#include "CbmRunAna.h"
-#include "CbmRuntimeDb.h"
-#include "CbmGeoNode.h"
-#include "CbmGeoVector.h"
-
-#include "PndStringVector.h"
 
 #include "PndMvdClusterTask.h"
 #include "PndMvdPixelClusterTask.h"
 #include "PndMvdStripClusterTask.h"
-#include "PndMvdMCPoint.h"
-#include "PndMvdCalcPixel.h"
-#include "PndMvdCalcFePixel.h"
-#include "PndMvdDigiPixel.h"
-// #include "PndMvdPixelCluster.h"
-#include "PndMvdCluster.h"
-#include "PndMvdGeoHandling.h"
-
-#include "PndMvdSimplePixelClusterFinder.h"
-#include "PndMvdChargeWeightedPixelMapping.h"
 
 // -----   Default constructor   -------------------------------------------
-PndMvdClusterTask::PndMvdClusterTask() :
-  CbmTask("MVD Clustertisation Task")
-{
-//   fBranchName   = "MVDPixelDigis";
-  
-//  fDigiArray  = new TClonesArray("PndMvdDigiPixel");
-//  fClusterArray  = new TClonesArray("PndMvdClusterPixel");
-}
+// PndMvdClusterTask::PndMvdClusterTask() :
+//   CbmTask("MVD Clustertisation Task")
+// {
+// 
+// }
 // -------------------------------------------------------------------------
 
-PndMvdClusterTask::PndMvdClusterTask(Double_t radius, Int_t FEcolumns, Int_t FErows, TString geoFile) :
-  CbmTask("MVD Clustertization Task") 
+PndMvdClusterTask::PndMvdClusterTask(Double_t pixelRadius, Int_t stripChargecut, TString geoFile) :
+  CbmTask("MVD Clustertization Task")
 {
-//   fBranchName   = "MVDPixelDigis";
-//  fDigiArray  = new TClonesArray("PndMvdDigiPixel");
-//  fClusterArray  = new TClonesArray("PndMvdClusterPixel");
+  this->Add(new PndMvdPixelClusterTask(pixelRadius,geoFile));
+  this->Add(new PndMvdStripClusterTask(stripChargecut,geoFile));
 
-  this->Add(new PndMvdPixelClusterTask(radius,geoFile));
-  this->Add(new PndMvdStripClusterTask(1e6,geoFile)); //TODO: fix cargecut hardcoded
+  TList* thistasks = this->GetListOfTasks();
+  for(Int_t i=0;i<thistasks->GetEntries();i++)
+  {
+    ((CbmTask*)thistasks->At(i))->SetVerbose(fVerbose);
+  }
 }
 // -------------------------------------------------------------------------
 
 
 // -----   Destructor   ----------------------------------------------------
-PndMvdClusterTask::~PndMvdClusterTask() 
-{ 
+PndMvdClusterTask::~PndMvdClusterTask()
+{
 }
 // -------------------------------------------------------------------------
 
 // -----   Initialization  of Parameter Containers -------------------------
 void PndMvdClusterTask::SetParContainers()
 {
-  // Get Base Container
-/*  
-  CbmRunAna* ana = CbmRunAna::Instance();
-  CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
-  fGeoPar = (PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar"));
-*/
 }
 
 InitStatus PndMvdClusterTask::ReInit()
 {
-  
-  InitStatus stat=kERROR;
-  return stat;
-  
-  /*
-  CbmRunAna* ana = CbmRunAna::Instance();
-  CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
-  fGeoPar=(PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar"));
-  
-  return kSUCCESS;
-  */
+  return kERROR;
 }
 
 // -----   Public method Init   --------------------------------------------
-InitStatus PndMvdClusterTask::Init() 
+InitStatus PndMvdClusterTask::Init()
 {
   return kSUCCESS;
 }
@@ -96,7 +57,7 @@ InitStatus PndMvdClusterTask::Init()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndMvdClusterTask::Exec(Option_t* opt) 
+void PndMvdClusterTask::Exec(Option_t* opt)
 {
   return;
 }

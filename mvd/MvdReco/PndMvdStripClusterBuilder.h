@@ -39,7 +39,7 @@ class PndMvdStripClusterBuilder {
 
   // getter
 //   std::vector< std::vector<Int_t> > GetClusters() const {return fClusters;}
-  std::vector< PndMvdCluster >  GetClusters(){return fClusters;}
+  std::vector< PndMvdCluster >  GetClusters() const {return fClusters;}
   PndMvdCluster GetCluster(Int_t i);
   PndMvdCluster GetTopCluster(Int_t i);
   PndMvdCluster GetBotCluster(Int_t i);

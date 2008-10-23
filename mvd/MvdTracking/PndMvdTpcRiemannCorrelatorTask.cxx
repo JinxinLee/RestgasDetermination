@@ -25,18 +25,19 @@
 #include "PndMvdCluster.h"
 #include "PndMvdDigi.h"
 #include "PndMvdTpcRiemannCorrelatorTask.h"
-#include "PndTpcHit.h"
+//#include "PndTpcHit.h"
 #include "PndTpcCluster.h"
 #include "PndRiemannHit.h"
+//#include "PndRiemannTrack.h"
 
 PndMvdTpcRiemannCorrelatorTask::PndMvdTpcRiemannCorrelatorTask() : CbmTask("MVD TPC Riemann Track Correlator"),
 fMaxDist(1), fMaxSZ(1), fMaxSZChi2(1)
 {
 	fHitBranchMVDPixel = "MVDHitsPixel";
 	fHitBranchMVDStrip = "MVDHitsStrip";
-	fHitBranchTPC = "PndTpcCluster";
+	fHitBranchTPC = "PndTpcClusterMerged";
 	fTrackBranch = "MVDRiemannTrackCand";
-	
+
 	fEventNr = 0;
 	//fTrackBranch = "MCTrack";
 }
@@ -48,7 +49,7 @@ PndMvdTpcRiemannCorrelatorTask::~PndMvdTpcRiemannCorrelatorTask()
 void PndMvdTpcRiemannCorrelatorTask::SetParContainers()
 {
   // Get Base Container
-/*  
+/*
   CbmRunAna* ana = CbmRunAna::Instance();
   CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
   fGeoPar = (PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar"));
@@ -57,39 +58,39 @@ void PndMvdTpcRiemannCorrelatorTask::SetParContainers()
 
 InitStatus PndMvdTpcRiemannCorrelatorTask::ReInit()
 {
-  
+
   InitStatus stat=kERROR;
   return stat;
-  
+
   /*
   CbmRunAna* ana = CbmRunAna::Instance();
   CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
   fGeoPar=(PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar"));
-  
+
   return kSUCCESS;
   */
 }
 
 // -----   Public method Init   --------------------------------------------
-InitStatus PndMvdTpcRiemannCorrelatorTask::Init() 
+InitStatus PndMvdTpcRiemannCorrelatorTask::Init()
 {
-  
+
   CbmRootManager* ioman = CbmRootManager::Instance();
 
-  if ( ! ioman ) 
+  if ( ! ioman )
     {
       std::cout << "-E- PndMvdIdealTrackFinderTask::Init: "
      << "RootManager not instantiated!" << std::endl;
       return kFATAL;
     }
-    
+
   // Get input array
   fHitArrayMVDPixel = (TClonesArray*) ioman->GetObject(fHitBranchMVDPixel);
   if ( !fHitArrayMVDPixel){
     std::cout << "-W- PndMvdIdealTrackFinderTask::Init: " << "No hitArray Pixel!" << std::endl;
     return kERROR;
   }
-  
+
   fHitArrayMVDStrip = (TClonesArray*) ioman->GetObject(fHitBranchMVDStrip);
    if ( !fHitArrayMVDStrip){
      std::cout << "-W- PndMvdIdealTrackFinderTask::Init: " << "No hitArray Strip!" << std::endl;
@@ -100,41 +101,41 @@ InitStatus PndMvdTpcRiemannCorrelatorTask::Init()
     if ( !fHitArrayTPC){
       std::cout << "-W- PndMvdIdealTrackFinderTask::Init: " << "No hitArray TPC!" << std::endl;
       return kERROR;
-    } 
-    
+    }
+
    fTrackCandArray = (TClonesArray*) ioman->GetObject(fTrackBranch);
      if ( !fTrackCandArray){
        std::cout << "-W- PndMvdIdealTrackFinderTask::Init: " << "No hitArray2!" << std::endl;
        return kERROR;
      }
-   
+
   fCombinedArray = new TClonesArray("TrackCand");
   ioman->Register("MVD_TPC_CombinedRiemannTrack", "MVD", fCombinedArray, kTRUE);
-  
+
   std::cout << "-I- PndMvdTpcRiemannCorrelator: Initialisation successfull" << std::endl;
   return kSUCCESS;
 }
 
 // -----   Public method Exec   --------------------------------------------
-void PndMvdTpcRiemannCorrelatorTask::Exec(Option_t* opt) 
+void PndMvdTpcRiemannCorrelatorTask::Exec(Option_t* opt)
 {
 
   // Reset output array
   if ( ! fCombinedArray )
     Fatal("Exec", "No CombinedTrackCandArray");
   fCombinedArray->Clear();
-  
+
   std::vector<TH1*> distHistos;
   std::vector<TH1*> szDistHistos;
   std::vector<TH1*> szChi2Histos;
-  
+
   TString distHName("distHisto_");
   TString szDistHName("szdistHisto_");
   TString szChi2HName("szChi2Histo_");
-  
+
   if (fVerbose > 0)
  	std::cout << "Analysing Event Nr: " << fEventNr << std::endl;
-    
+
   int foundTracks = 0;
   if (fTrackCandArray->GetEntriesFast() > 100)
 	  return;
@@ -167,7 +168,7 @@ void PndMvdTpcRiemannCorrelatorTask::Exec(Option_t* opt)
 		  std::cout << newCand.getNHits() << std::endl;
 		  std::cout << "Second iteration - Candidates: ";
 	  }
-	  
+
 //	  TrackCand finalCand = newCand;
 	  TrackCand finalCand = AddTPCHits(&newCand);
 	  if (fVerbose > 0)
@@ -179,11 +180,11 @@ void PndMvdTpcRiemannCorrelatorTask::Exec(Option_t* opt)
 		  double trackDist = myTrack.dist(&myRHit);
 		  double szDist = myTrack.szDist(&myRHit);
 		  double szChi2 = myTrack.calcSZChi2(&myRHit);
-		  
+
 		  myDistHisto->Fill(trackDist);
 		  mySZDistHisto->Fill(szDist);
 		  mySZChi2Histo->Fill(szChi2);
-		  
+
 		  if (fabs(szDist) < fMaxSZ && fabs(trackDist) < fMaxDist && fabs(szChi2) < fMaxSZChi2){
 			  if (fVerbose > 1){
 				  std::cout << "TPCCluster " << tpcCluster << " added to track " << trackInd << std::endl;
@@ -192,7 +193,7 @@ void PndMvdTpcRiemannCorrelatorTask::Exec(Option_t* opt)
 			  myMvdTrackCand->addHit(3, tpcCluster);
 			  newTrack.addHit(&myRHit);
 		  }
-			  
+
 	  }*/
 //	  distHistos.push_back(myDistHisto);
 //	  szDistHistos.push_back(mySZDistHisto);/
@@ -200,10 +201,10 @@ void PndMvdTpcRiemannCorrelatorTask::Exec(Option_t* opt)
 //	  newTrack.refit();
 //	  newTrack.szFit();
   	PndRiemannTrack finalTrack = GetRiemannTrack(&finalCand);
-	  
+
 	  finalCand.setCurv(1/finalTrack.r());
 	  finalCand.setDip(finalTrack.dip());
-	  
+
 	  if (finalCand.getNHits() > 10){
 		  new ((*fCombinedArray)[foundTracks])TrackCand(finalCand);
 		  foundTracks++;
@@ -213,10 +214,10 @@ void PndMvdTpcRiemannCorrelatorTask::Exec(Option_t* opt)
 //  fHSZDistVector.push_back(szDistHistos);
 //  fHSZChi2Vector.push_back(szChi2Histos);
   fEventNr++;
-  
+
 
 //  for (int i = 0; i < trackFinder.NTracks(); i++){
-//	  new ((*fTrackCandArray)[i])TrackCand(trackFinder.GetTrackCand(i));    
+//	  new ((*fTrackCandArray)[i])TrackCand(trackFinder.GetTrackCand(i));
 //  }
 }
 
@@ -230,7 +231,7 @@ PndRiemannTrack PndMvdTpcRiemannCorrelatorTask::GetRiemannTrack(TrackCand* cand)
 		if (detId == 1){
 			myHit = (CbmHit*)fHitArrayMVDPixel->At(hitId);
 		}
-		else if (detId == 2){
+		else if (detId == 0){
 			myHit = (CbmHit*)fHitArrayMVDStrip->At(hitId);
 		}
 		if (myHit != 0)
@@ -245,19 +246,27 @@ TrackCand PndMvdTpcRiemannCorrelatorTask::AddTPCHits(TrackCand* myCand)
 {
 	PndRiemannTrack myTrack = GetRiemannTrack(myCand);
 	TrackCand newCand = *myCand;
+	TVector3 pos, sig;
 	for (int tpcCluster = 0; tpcCluster < fHitArrayTPC->GetEntriesFast(); tpcCluster++){
-		if (myCand->HitInTrack(3, tpcCluster)) continue;
+		//??? if (myCand->HitInTrack(3, tpcCluster)) continue;
 		PndTpcCluster* myCluster = (PndTpcCluster*) fHitArrayTPC->At(tpcCluster);
-		PndTpcHit myTpcHit(*myCluster);
-		PndRiemannHit myRHit((CbmHit*)&myTpcHit);
+//		PndTpcHit myTpcHit(*myCluster);
+		//Since the TPC code has no CbmHit data type We create a simple CbmHit just with
+		//the 3d position from the TpcCluster
+		pos = myCluster->pos();
+		sig = myCluster->sig();
+		CbmHit *myTpcHit = new CbmHit(3, pos, sig,0);
+		//caution: the index here is not pointing to an actual CbmPoint
+		//TODO: change the detector number (3) to a kTpcSomething
+		PndRiemannHit myRHit(myTpcHit);
 		double trackDist = myTrack.dist(&myRHit);
 		double szDist = myTrack.szDist(&myRHit);
 		double szChi2 = myTrack.calcSZChi2(&myRHit);
-		  
+
 //		  myDistHisto->Fill(trackDist);
 //		  mySZDistHisto->Fill(szDist);
 //		  mySZChi2Histo->Fill(szChi2);
-		  
+
 		if (fabs(szDist) < fMaxSZ && fabs(trackDist) < fMaxDist && fabs(szChi2) < fMaxSZChi2){
 			if (fVerbose > 1){
 				std::cout << "TPCCluster " << tpcCluster << " added" <<  std::endl;
@@ -288,12 +297,12 @@ void PndMvdTpcRiemannCorrelatorTask::DrawSZChi2Histos(TCanvas* can, int event)
 void PndMvdTpcRiemannCorrelatorTask::DrawHistos(TCanvas* can, std::vector<TH1*> histos)
 {
 	can->Divide(3,3);
-	
+
 	for (int i = 0; i < histos.size() && i < 9; i++){
 		can->cd(i+1);
 		can->Update();
 		histos.at(i)->DrawClone();
-	}	
+	}
 }
 
 

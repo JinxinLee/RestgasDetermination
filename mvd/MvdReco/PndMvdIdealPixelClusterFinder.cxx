@@ -10,7 +10,7 @@ std::vector< std::vector<Int_t> > PndMvdIdealPixelClusterFinder::GetClusters()
   std::vector< std::vector< Int_t> > result;
   Int_t sizeTempHits = posHits.size();
   Int_t actHit = 0;
-  
+
   while (sizeTempHits != 0){
     std::vector<Int_t> tempInt;
     if (fHits[posHits[0]].GetCharge() == 0){  //if the hit has no charge it is deleted out of posHits
@@ -23,7 +23,7 @@ std::vector< std::vector<Int_t> > PndMvdIdealPixelClusterFinder::GetClusters()
     else {
       tempInt.push_back(MoveHit(&posHits,0));   //Move the first hit of the remaining hits into the new cluster
       result.push_back(tempInt);
-      
+
       sizeTempHits = posHits.size();
       for (Int_t j = 0; j < sizeTempHits; j++){
         if (fHits[posHits[j]].GetCharge() == 0){
@@ -43,7 +43,7 @@ std::vector< std::vector<Int_t> > PndMvdIdealPixelClusterFinder::GetClusters()
                   std::cout << "Hit added to cluster: " << result.size()-1 << std::endl;
             }
           }
-          
+
         }
         sizeTempHits = posHits.size();
       }
@@ -54,7 +54,7 @@ std::vector< std::vector<Int_t> > PndMvdIdealPixelClusterFinder::GetClusters()
   return result;
 }
 
-Int_t PndMvdIdealPixelClusterFinder::MoveHit(std::vector<Int_t>* hitVector, Int_t index)
+Int_t PndMvdIdealPixelClusterFinder::MoveHit(std::vector<Int_t>* hitVector, Int_t index) const
 {
   Int_t result;
   if (index < hitVector->size()){
@@ -64,7 +64,7 @@ Int_t PndMvdIdealPixelClusterFinder::MoveHit(std::vector<Int_t>* hitVector, Int_
   return result;
 }
 
-bool PndMvdIdealPixelClusterFinder::IsInRange(PndMvdDigiPixel hit1, PndMvdDigiPixel hit2)
+bool PndMvdIdealPixelClusterFinder::IsInRange(PndMvdDigiPixel hit1, PndMvdDigiPixel hit2) const
 {
   return (hit1.GetIndex(0) == hit2.GetIndex(0)); // two hits are in range if they come from the same MC hit
 }

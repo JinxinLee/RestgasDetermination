@@ -54,7 +54,7 @@ PndMvdStripHitProducer::PndMvdStripHitProducer(Double_t topPitch, Double_t botPi
                                          TString sensorType, TString feType) :
   CbmTask("MVD Strip Digi Producer")
 {
-  // This constructor is probably not needed anymore, since the parameters are 
+  // This constructor is probably not needed anymore, since the parameters are
   // read in via an ascii file.
   std::cout <<" -W- Obsolete constructor for PndMvdStripHitProducer called."
             <<"Mvd strip sensors in barrel and disk are set to the SAME."<< std::endl;
@@ -136,7 +136,7 @@ InitStatus PndMvdStripHitProducer::Init()
 
   fGeoH = new PndMvdGeoHandling(gGeoManager);
 
-  if ( ! ioman ) 
+  if ( ! ioman )
     {
       std::cout << "-E- PndMvdStripHitProducer::Init: "
      << "RootManager not instantiated!" << std::endl;
@@ -158,11 +158,11 @@ InitStatus PndMvdStripHitProducer::Init()
   // Create and register output array
   fStripArray = new TClonesArray("PndMvdDigiStrip");
   ioman->Register("MVDStripDigis", "MVD", fStripArray, kTRUE);
-  
+
   // Create and register parameter array
 //  fStripArray = new TClonesArray("PndMvdDigiPar");
 //  ioman->Register("MVDDigiParam", "MVD", fDigiParRect, kTRUE);
-  
+
   std::cout << "-I- PndMvdStripHitProducer: Initialisation successfull" << std::endl;
 
 
@@ -174,8 +174,8 @@ InitStatus PndMvdStripHitProducer::Init()
      std::cout<<"-E- PndMvdStripHitProducer: DigiPar Trap Container does not exist!"<<std::endl;
      return kERROR;
   }
-  
-  
+
+
   if(fVerbose>0) fDigiParRect->Print();
   if(fVerbose>0) fDigiParTrap->Print();
 
@@ -189,9 +189,9 @@ InitStatus PndMvdStripHitProducer::Init()
   fStripCalcBotTrap->SetVerboseLevel(fVerbose);
 
   return kSUCCESS;
-}    
+}
 // -------------------------------------------------------------------------
-     
+
 
 
 // -----   Public method Exec   --------------------------------------------
@@ -199,7 +199,7 @@ void PndMvdStripHitProducer::Exec(Option_t* opt)
 {
   // Reset output array
   fStripArray->Clear();
-  
+
   // Declare some variables
   PndMvdMCPoint *point = NULL;
 
@@ -207,19 +207,19 @@ void PndMvdStripHitProducer::Exec(Option_t* opt)
 //     Int_t trackID = 0;     // Track index
 
   // Loop over PndMvdMCPoints
-  Int_t 
+  Int_t
     nPoints = fPointArray->GetEntriesFast();
   if (fVerbose > 0){
     std::cout<<" Nr of Points: "<<nPoints<<std::endl;
   }
-  
+
   Int_t iStrip = 0;
 
-  for (Int_t iPoint = 0; iPoint < nPoints; iPoint++) 
+  for (Int_t iPoint = 0; iPoint < nPoints; iPoint++)
   {
       point = (PndMvdMCPoint*) fPointArray->At(iPoint);
       if( kFALSE == SelectSensorParams(point->GetDetName()) ) continue;
-      
+
       if (fVerbose > 2){
         std::cout<<"***** Strip Digi for "<<fCurrentDigiPar->GetSensType()<<" ******"<<std::endl;
         std::cout<<" DetName : "<<fGeoH->GetPath(point->GetDetName())<<std::endl;
@@ -236,7 +236,7 @@ void PndMvdStripHitProducer::Exec(Option_t* opt)
       // transform to local sensor system... (mc point has the ID not the path to the volume)
       TVector3 posInL = fGeoH->MasterToLocalId(point->GetPosition(),point->GetDetName());
       TVector3 posOutL = fGeoH->MasterToLocalId(point->GetPositionOut(),point->GetDetName());
-     
+
       if (fVerbose > 2){
         posInL.Print();posOutL.Print();
         std::cout << "Energy: " << point->GetEnergyLoss() << std::endl;
@@ -250,21 +250,20 @@ void PndMvdStripHitProducer::Exec(Option_t* opt)
         fCurrentStripCalcTop->GetStrips(posInL.X(),  posInL.Y(),  posInL.Z(),
                                         posOutL.X(), posOutL.Y(), posOutL.Z(),
                                         point->GetEnergyLoss());
+
       if (topStrips.size() != 0)
       {
         if (fVerbose > 1) std::cout  << "SensorStrips: " << std::endl;
         for(std::vector<PndMvdStrip>::const_iterator kit=topStrips.begin();
             kit!= topStrips.end(); ++kit)
         {
-            new ((*fStripArray)[iStrip])
-                PndMvdDigiStrip(iPoint,detID,point->GetDetName(),
-                    fCurrentStripCalcTop->CalcFEfromStrip(kit->GetIndex()),
-                    fCurrentStripCalcTop->CalcChannelfromStrip(kit->GetIndex()),kit->GetCharge());
+            AddDigi(iStrip,iPoint,detID,point->GetDetName(),
+            		fCurrentStripCalcTop->CalcFEfromStrip(kit->GetIndex()),
+            		fCurrentStripCalcTop->CalcChannelfromStrip(kit->GetIndex()),kit->GetCharge());
             if (fVerbose > 1) std::cout << *kit << std::endl;
-            iStrip++;
         }
       }else if(fVerbose>2) std::cout<<"Top side empty"<<std::endl;
-      
+
       // Bottom Side
       if (fVerbose > 2) std::cout  << "Bottom Side: " << std::endl;
       std::vector<PndMvdStrip> botStrips =
@@ -278,12 +277,10 @@ void PndMvdStripHitProducer::Exec(Option_t* opt)
             kit!= botStrips.end();
             ++kit)
         {
-            new ((*fStripArray)[iStrip])
-                PndMvdDigiStrip(iPoint,detID,point->GetDetName(),
+            AddDigi(iStrip,iPoint,detID,point->GetDetName(),
                     fCurrentStripCalcBot->CalcFEfromStrip(kit->GetIndex()) + fCurrentDigiPar->GetNrTopFE(),
                     fCurrentStripCalcBot->CalcChannelfromStrip(kit->GetIndex()),kit->GetCharge());
             if (fVerbose > 2) std::cout << *kit << std::endl;
-            iStrip++;
         }
       } else if(fVerbose>2) std::cout<<"Bottom side empty"<<std::endl;
 
@@ -293,63 +290,89 @@ void PndMvdStripHitProducer::Exec(Option_t* opt)
   if(fVerbose > 1) std::cout << "-I- PndMvdStripHitProducer: " << nPoints << " PndMvdMCPoints, "
        << iStrip << " Digis created."<< std::endl;
 }
-
 // -------------------------------------------------------------------------
+
+void PndMvdStripHitProducer::AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, TString detname, Int_t fe, Int_t chan, Double_t charge)
+{
+  Bool_t found = kFALSE;
+  PndMvdDigiStrip* aDigi = 0;
+  for(Int_t kstr = 0; kstr < iStrip && found==kFALSE ; kstr++)
+  {
+	aDigi = (PndMvdDigiStrip*)fStripArray->At(kstr);
+	if ( aDigi->GetDetID() == detID,
+		 aDigi->GetDetName() == detname,
+		 aDigi->GetFE() == fe,
+		 aDigi->GetChannel() == chan )
+	{
+		aDigi->AddCharge(charge);
+		aDigi->AddIndex(iPoint);
+		found = kTRUE;
+//		((PndMvdDigiStrip*)(*fStripArray)[kstr])->AddCarge(charge);
+//		((PndMvdDigiStrip*)(*fStripArray)[kstr])->AddIndex(iPoint);
+//		return;
+	}
+  }
+  if(found == kFALSE){
+    new ((*fStripArray)[iStrip]) PndMvdDigiStrip(iPoint,detID,detname,fe,chan,charge) ;
+    iStrip++;
+  }
+}
+
 // -------------------------------------------------------------------------
 
 // void PndMvdStripHitProducer::GetLocalHitPoints(PndMvdMCPoint* myPoint, TVector3& myHitIn, TVector3& myHitOut)
 // {
-//   
+//
 //   if (fVerbose > 1)
 //     std::cout << "GetLocalHitPoints" << std::endl;
 //   TGeoHMatrix trans = GetTransformation(fGeoH->GetPath(myPoint->GetDetName()).Data());
-//   
+//
 //   Double_t posIn[3];
 //   Double_t posOut[3];
 //   Double_t posInLocal[3];
 //   Double_t posOutLocal[3];
-//   
+//
 //   posIn[0] = myPoint->GetX();
 //   posIn[1] = myPoint->GetY();
 //   posIn[2] = myPoint->GetZ();
-//   
+//
 //   posOut[0] = myPoint->GetXOut();
 //   posOut[1] = myPoint->GetYOut();
 //   posOut[2] = myPoint->GetZOut();
-//   
+//
 //   if (fVerbose > 1){
 //     for (Int_t i = 0; i < 3; i++)
 //       std::cout << "posIn "<< i << ": " << posIn[i] << std::endl;
-//   
+//
 //     trans.Print("");
 //   }
-//   
+//
 //   trans.MasterToLocal(posIn, posInLocal);
 //   trans.MasterToLocal(posOut, posOutLocal);
-//   
+//
 //   if (fVerbose > 1) {
 //     for (Int_t i = 0; i < 3; i++){
 //       std::cout << "posInLocal "<< i << ": " << posInLocal[i] << std::endl;
 //       std::cout << "posOutLocal "<< i << ": " << posOutLocal[i] << std::endl;
 //     }
 //   }
-//   
+//
 //   //posIn/OutLocal have the center of the coordinate system in the center of the shape
 //   //typically sensors have their coordinate system centered at the lower left corner
-//   
+//
 // //   TVector3 offset = GetSensorDimensions(fGeoH->GetPath(myPoint->GetDetName()).Data());
-//   
+//
 // //   posInLocal[0] += 0.5*offset.x();
 // //   posInLocal[1] += 0.5*offset.y();
 // //   //posInLocal[2] += offset.z();
-// //   
+// //
 // //   posOutLocal[0] += 0.5*offset.x();
 // //   posOutLocal[1] += 0.5*offset.y();
 // //   //posOutLocal[2] += offset.z();
-//   
+//
 //   myHitIn.setVector(posInLocal);
 //   myHitOut.setVector(posOutLocal);
-//     
+//
 // }
 // -------------------------------------------------------------------------
 
@@ -365,7 +388,7 @@ void PndMvdStripHitProducer::Exec(Option_t* opt)
 //   return *transMat;
 // }
 // -------------------------------------------------------------------------
-// 
+//
 // TVector3 PndMvdStripHitProducer::GetSensorDimensions(std::string detName) const
 // {
 //   gGeoManager->cd(detName.c_str());
@@ -375,9 +398,9 @@ void PndMvdStripHitProducer::Exec(Option_t* opt)
 //   result.SetX(actBox->GetDX());
 //   result.SetY(actBox->GetDY());
 //   result.SetZ(actBox->GetDZ());
-//   
+//
 //   //result.Dump();
-//   
+//
 //   return result;
 // }
 // -------------------------------------------------------------------------

@@ -17,8 +17,8 @@ class PndMvdIdealPixelClusterFinder : public PndMvdPixelClusterFinder
 			};
 
 			std::vector< std::vector< Int_t> > GetClusters();
-			Int_t MoveHit(std::vector<Int_t>* hitVector, Int_t index);
-			bool IsInRange(PndMvdDigiPixel hit1, PndMvdDigiPixel hit2);
+			Int_t MoveHit(std::vector<Int_t>* hitVector, Int_t index) const;
+			bool IsInRange(PndMvdDigiPixel hit1, PndMvdDigiPixel hit2) const;
 
 };
 #endif

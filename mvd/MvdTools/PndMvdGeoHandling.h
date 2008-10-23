@@ -13,7 +13,7 @@
 * It needs the informations of the GeoManager. Therefore one has to
 * ensure that either an initialized TGeoManager pointer is given in the
 * constructor with the correct goemetry or a filename with the correct geoemetry ("CBMGeom")
-* 
+*
 */
 
 #ifndef PNDMVDGEOHANDLING_H
@@ -58,8 +58,8 @@ public:
   TVector3 LocalToMasterErrorsId(const TVector3& local, const TString& id);
   TVector3 LocalToMasterErrorsPath(const TVector3& local, const TString& id);
 
-  inline void SetVerbose(Int_t v) { fVerbose = v; }
-  
+  void SetVerbose(Int_t v) { fVerbose = v; }
+
   Bool_t cd(TString id); ///< as the cd command of TGeoManager just with the ID
   void FillLevelNames(); ///< fills vector<TString> fLevelNames with the names (or the paths) of the volumes down to the level given by fLevel
 
@@ -69,7 +69,7 @@ private:
   Int_t fLevel;
   bool fFullPath;
   Int_t fVerbose;
-  ClassDef(PndMvdGeoHandling,3);  
+  ClassDef(PndMvdGeoHandling,3);
 };
 
 #endif

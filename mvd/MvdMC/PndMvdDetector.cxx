@@ -40,7 +40,7 @@ class CbmVolume;
 
 
 // -----   Default constructor   -------------------------------------------
-PndMvdDetector::PndMvdDetector() {
+PndMvdDetector::PndMvdDetector() : fUseRadDamOption(false) {
   fPndMvdCollection = new TClonesArray("PndMvdMCPoint");
   fPosIndex = 0;
   fListOfSensitives.push_back("Disk-Sensor");//Root_Test.root
@@ -62,14 +62,14 @@ PndMvdDetector::PndMvdDetector() {
 
 
 // -----   Standard constructor   ------------------------------------------
-PndMvdDetector::PndMvdDetector(const char* name, Bool_t active)
-  : CbmDetector(name, active) {
+PndMvdDetector::PndMvdDetector (const char* name, Bool_t active)
+  : CbmDetector(name, active), fUseRadDamOption(false) {
   fPndMvdCollection = new TClonesArray("PndMvdMCPoint");
   fPosIndex = 0;
   fListOfSensitives.push_back("Disk-Sensor");//Root_Test.root
   fListOfSensitives.push_back("Barrel-Sensor");//Root_Test.root
   fListOfSensitives.push_back("PixelActive");
-  fListOfSensitives.push_back("StripActive"); 
+  fListOfSensitives.push_back("StripActive");
   fListOfSensitives.push_back("StripSensor");//MVD14.root
   fListOfSensitives.push_back("SensorActiveArea");//MVD14.root
   fListOfSensitives.push_back("StripActive");//MVD_v1.0.root
@@ -89,9 +89,9 @@ PndMvdDetector::PndMvdDetector(const char* name, Bool_t active)
 // -----   Destructor   ----------------------------------------------------
 PndMvdDetector::~PndMvdDetector()
 {
-  if (fPndMvdCollection) 
+  if (fPndMvdCollection)
     {
-      fPndMvdCollection->Delete(); 
+      fPndMvdCollection->Delete();
       delete fPndMvdCollection;
     }
   delete fGeoH;
@@ -113,7 +113,7 @@ void PndMvdDetector::Initialize()
 Bool_t  PndMvdDetector::ProcessHits(CbmVolume* vol)
 {
 
-  if ( gMC->IsTrackEntering() ) 
+  if ( gMC->IsTrackEntering() )
   {
     // Set parameters at entrance of volume. Reset ELoss.
     fELoss  = 0.;
@@ -132,13 +132,9 @@ Bool_t  PndMvdDetector::ProcessHits(CbmVolume* vol)
   if ( gMC->IsTrackExiting()    ||
        gMC->IsTrackStop()       ||
        gMC->IsTrackDisappeared()   ) {
-       
+
       fTrackID  = gMC->GetStack()->GetCurrentTrackNumber();
 
-       //if (fVolumeIDMap[gMC->CurrentVolPath()] == 0){
-      //  fVolumeIDMap[gMC->CurrentVolPath()] = fVolumeIDMap.size()+1;
-      // }
-      //fVolumeID = fVolumeIDMap[gMC->CurrentVolPath()];
       if(0==fGeoH) {
         std::cout<<" -E- No PndMvdGeoHandling loaded."<<std::endl;
         abort();
@@ -149,17 +145,17 @@ Bool_t  PndMvdDetector::ProcessHits(CbmVolume* vol)
         std::cout<<"VolumeID: "<<fGeoH->GetID(gMC->CurrentVolPath())<<std::endl;
         std::cout << "PosIn: " << fPosIn.X() << " " << fPosIn.Y() << " " << fPosIn.Z() << " " << fELoss << std::endl;
       }
-//       if( ((TString)gMC->CurrentVolPath()).Contains("Pixel") )fVolumeID = 1;
-//       else if( ((TString)gMC->CurrentVolPath()).Contains("Strip") )fVolumeID = 2;
-//       else std::cout << "Unknown Mvd Sensor type in volume\n"<<gMC->CurrentVolPath()<<std::endl;
+
       gMC->TrackPosition(fPosOut);
       gMC->TrackMomentum(fMomOut);
 
-      if (fELoss == 0.) return kFALSE;
-  
+      if (fUseRadDamOption == false){
+    	  if (fELoss == 0.) return kFALSE;
+      }
+
      TString detPath = gMC->CurrentVolPath();
-     if (detPath.Contains("Strip")) fVolumeID = 2;
-     else fVolumeID = 1;
+     if (detPath.Contains("Strip")) fVolumeID = 0;
+     else fVolumeID = 1; //Pixel
      AddHit(fTrackID, fVolumeID, fGeoH->GetID(detPath),
         TVector3(fPosIn.X(),   fPosIn.Y(),   fPosIn.Z()),
         TVector3(fPosOut.X(),  fPosOut.Y(),  fPosOut.Z()),
@@ -168,15 +164,15 @@ Bool_t  PndMvdDetector::ProcessHits(CbmVolume* vol)
         fTime, fLength, fELoss);
 
       // Increment number of PndMvd points for TParticle
-/*      Int_t 
+/*      Int_t
         points = gMC->GetStack()->GetCurrentTrack()->GetMother(1);
 
-      Int_t 
+      Int_t
         nPndMvdMCPoints = (points & (15<<24)) >> 24;
 
       nPndMvdMCPoints ++;
 
-      if (nPndMvdMCPoints > 15) 
+      if (nPndMvdMCPoints > 15)
         nPndMvdMCPoints = 15;
 
       points = ( points & ( ~ (15<<24) ) ) | (nPndMvdMCPoints << 24);
@@ -195,7 +191,7 @@ Bool_t  PndMvdDetector::ProcessHits(CbmVolume* vol)
 // -----   Public method EndOfEvent   --------------------------------------
 void PndMvdDetector::EndOfEvent()
 {
-  if (fVerboseLevel) 
+  if (fVerboseLevel)
     Print();
 
   fPndMvdCollection->Clear();
@@ -218,11 +214,11 @@ void PndMvdDetector::Register()
 
 
 // -----   Public method GetCollection   -----------------------------------
-TClonesArray* PndMvdDetector::GetCollection(Int_t iColl) const 
+TClonesArray* PndMvdDetector::GetCollection(Int_t iColl) const
 {
-  if (iColl == 0) 
+  if (iColl == 0)
     return fPndMvdCollection;
-  else 
+  else
     return NULL;
 }
 // -------------------------------------------------------------------------
@@ -232,13 +228,13 @@ TClonesArray* PndMvdDetector::GetCollection(Int_t iColl) const
 // -----   Public method Print   -------------------------------------------
 void PndMvdDetector::Print() const
 {
-  Int_t 
+  Int_t
     nHits = fPndMvdCollection->GetEntriesFast();
 
   std::cout << "-I- PndMvdDetector: " << nHits << " points registered in this event."  << std::endl;
 
   if (fVerboseLevel>1)
-    for (Int_t i=0; i<nHits; i++) 
+    for (Int_t i=0; i<nHits; i++)
       (*fPndMvdCollection)[i]->Print();
 }
 // -------------------------------------------------------------------------
@@ -258,7 +254,7 @@ void PndMvdDetector::Reset()
 // -----   Public method CopyClones   --------------------------------------
 void PndMvdDetector::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset)
 {
-  Int_t 
+  Int_t
     nEntries = cl1->GetEntriesFast();
 
   std::cout << "-I- PndMvdDetector: " << nEntries << " entries to add." << std::endl;
@@ -267,11 +263,11 @@ void PndMvdDetector::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offs
 
   PndMvdMCPoint
     *oldpoint = NULL;
-   for (Int_t i=0; i<nEntries; i++) 
+   for (Int_t i=0; i<nEntries; i++)
      {
        oldpoint = (PndMvdMCPoint*) cl1->At(i);
 
-       Int_t 
+       Int_t
    index = oldpoint->GetTrackID() + offset;
 
        oldpoint->SetTrackID(index);
@@ -311,7 +307,7 @@ bool PndMvdDetector::CheckIfSensitive(std::string name)
 // -----   Public method ConstructGeometry   -------------------------------
 void PndMvdDetector::ConstructASCIIGeometry()
 {
-  // get pointer to the instantons which interface 
+  // get pointer to the instantons which interface
   // to monte carlo
 
   CbmGeoLoader *geoLoad = CbmGeoLoader::Instance();
@@ -323,7 +319,7 @@ void PndMvdDetector::ConstructASCIIGeometry()
 
   Bool_t rc = geoFace->readSet(thePndMvdGeo);
 
-  if (rc) 
+  if (rc)
     thePndMvdGeo->create(geoLoad->getGeoBuilder());
 
   TList* volList = thePndMvdGeo->getListOfVolumes();
@@ -378,18 +374,18 @@ void PndMvdDetector::SetExclusiveSensorType(const TString sens)
 PndMvdMCPoint* PndMvdDetector::AddHit(Int_t trackID, Int_t detID, TString detName, TVector3 posIn,              TVector3 posOut,TVector3 momIn, TVector3 momOut,
             Double_t time, Double_t length, Double_t eLoss) const
 {
-  TClonesArray& 
+  TClonesArray&
     clref = *fPndMvdCollection;
 
-  Int_t 
+  Int_t
     size = clref.GetEntriesFast();
-    
+
     if (fVerboseLevel >= 2)
        std::cout << "-I- PndMvdDetector: Adding Point at (" << posIn.X() << ", " << posIn.Y()
       << ", " << posIn.Z() << ") cm, (" << posOut.X() << ", " << posOut.Y()
       << ", " << posOut.Z() << ") cm,  detector " << detName << " " << detID << ", track "
       << trackID << ", energy loss " << eLoss*1e06 << " keV" << std::endl;
-   
+
   return new(clref[size]) PndMvdMCPoint(trackID, detID, detName, posIn, posOut,
                         momIn, momOut, time, length, eLoss);
 }

@@ -16,8 +16,19 @@
 //! position of the digi in the TClonesArray where it is stored.
 class PndMvdCluster : public TObject
 {
- public : 
-    PndMvdCluster():fSide(kTOP){};  
+
+friend std::ostream& operator<< (std::ostream& out, PndMvdCluster& cl){
+      std::vector<Int_t> list = cl.GetClusterList();
+      out << "Hits in Cluster:" << std::endl;
+      for (Int_t i = 0; i<list.size();i++)
+        out << list[i] << std::endl;
+      out << std::endl;
+
+      return out;
+    }
+
+public :
+    PndMvdCluster():fSide(kTOP){};
     ~PndMvdCluster(){};
     PndMvdCluster(std::vector<Int_t> list);
 
@@ -31,16 +42,6 @@ class PndMvdCluster : public TObject
     bool DigiBelongsToCluster(Int_t digiIndex);
 
     void Print();
-    
-    friend std::ostream& operator<< (std::ostream& out, PndMvdCluster& cl){
-      std::vector<Int_t> list = cl.GetClusterList();
-      out << "Hits in Cluster:" << std::endl;
-      for (Int_t i = 0; i<list.size();i++)
-        out << list[i] << std::endl;
-      out << std::endl;
-      
-      return out;
-    }
 
 private :
     std::vector<Int_t> fClusterList;
@@ -48,7 +49,7 @@ private :
 
 
 ClassDef(PndMvdCluster,1);
-    
+
 };
 
 #endif

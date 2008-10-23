@@ -11,27 +11,28 @@ class TRandom3;
 class PndMvdAdvancedPidAlgo {
 public:
 
+
+  //Local pid type (BABAR)
+  enum {kNPidType = 5};
+  enum PidType {
+    kElectron,
+    kMuon,
+    kPion,
+    kKaon,
+    kProton
+  };
+
   //Write likelihoods to PndMvdPidCand
   static void CalcLikelihood(PndMvdPidCand* cand);
-
-  //Local pid type (BARBAR)
-  enum {nPidType = 5};
-  enum PidType {
-    electron,
-    muon,
-    pion,
-    kaon,
-    proton
-  };
 
   //Same as CalcLikelihood but create random energyloss first
   static void CalcLikelihood(PidType particle, double momentum, PndMvdPidCand* cand);
 
   //Same as CalcLikelihood but write lhs to array instead
-  static void CalcLikelihood(PidType part, double momentum, double* lh); 
+  static void CalcLikelihood(PidType part, double momentum, double* lh);
 
   //Same with a pdtid switch
-  static void CalcLikelihood(int lundId, double momentum, double* lh); 
+  static void CalcLikelihood(int lundId, double momentum, double* lh);
 
   //Read last used energy loss and momentum
   static const double GetMomentum() {return fmomentum;};
@@ -45,8 +46,8 @@ private:
   static double MeanEnergyLoss(PidType particle);
 
   //Integral algorithm that computes convolution of landau and gaus
-  //distribution; s_mpv is the difference between energy loss and 
-  //most probable value of the landau distribution, width1 is its 
+  //distribution; s_mpv is the difference between energy loss and
+  //most probable value of the landau distribution, width1 is its
   //scaling, widht2 is the gaussian width.
   static double LandauGaus(double s_mpv, double width1, double width2);
 
@@ -62,7 +63,7 @@ private:
   //Test: random generator for likelihoods
   static TRandom3* frand;
 
-public:
+//public:
   ClassDef(PndMvdAdvancedPidAlgo, 1);
 
 };

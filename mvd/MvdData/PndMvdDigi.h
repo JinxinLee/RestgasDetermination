@@ -8,7 +8,7 @@
 **
 ** \brief Base class for Digi information
 **
-** 
+**
 **/
 
 #ifndef PNDMVDDIGI_H
@@ -43,9 +43,9 @@ class PndMvdDigi : public TObject
 		* \param fe front end ID
 		* \param charge deposited charge in electrons
 		*/
-		
+
 		virtual ~PndMvdDigi(){};
-		
+
 		Int_t GetFE() const { return fFE;}
 		TString GetDetName()   const { return fDetName; }
 		Double_t GetCharge()	 const { return fCharge; }
@@ -54,7 +54,6 @@ class PndMvdDigi : public TObject
 		int GetNIndices() {return fIndex.size();}
 		Int_t GetIndex(int i = 0) const{ return fIndex[i];}
 		Int_t GetNIndices() const { return fIndex.size();}
-		
 		void AddIndex(int index){fIndex.push_back(index);}
 		void AddCharge(double charge){fCharge += charge;}
 
@@ -67,7 +66,7 @@ class PndMvdDigi : public TObject
 		TString fDetName;
 		Double_t fCharge;
 		Int_t fFE;
-		
+
 	ClassDef(PndMvdDigi,1);
 };
 

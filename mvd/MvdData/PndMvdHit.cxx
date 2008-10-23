@@ -21,7 +21,7 @@ PndMvdHit::PndMvdHit() {
 
 // -----   Standard constructor   ------------------------------------------
 PndMvdHit::PndMvdHit(Int_t detID, TString detName, TVector3& pos, TVector3& dpos,
-		     Int_t index, Double_t charge, Int_t NDigiHits) 
+		     Int_t index, Double_t charge, Int_t NDigiHits)
   : CbmHit(detID, pos, dpos, index) {
   fDetName = detName;
   fCharge  = charge;
@@ -29,7 +29,7 @@ PndMvdHit::PndMvdHit(Int_t detID, TString detName, TVector3& pos, TVector3& dpos
   fBotIndex = -1;
 }
 
-/*PndMvdHit::PndMvdHit(PndMvdHit& c) 
+/*PndMvdHit::PndMvdHit(PndMvdHit& c)
 : CbmHit()
 {
 	fDetName = c.GetDetName();
@@ -40,8 +40,8 @@ PndMvdHit::PndMvdHit(Int_t detID, TString detName, TVector3& pos, TVector3& dpos
 	SetPositionError(c.GetPositionError());
 	SetDetectorID(c.GetDetectorID());
 	SetRefIndex(c.GetRefIndex());
-	
-	
+
+
 }*/
 // -------------------------------------------------------------------------
 
@@ -59,28 +59,28 @@ void PndMvdHit::Print(const Option_t* opt) const {
 }
 
 
-// Double_t PndMvdHit::GetD(Int_t i) 
+// Double_t PndMvdHit::GetD(Int_t i)
 // {
 //   if(!gGeoManager){
 //     std::cout<<" -E- in PndMvdHit::GetD(): No gGeoManager there. Please use "<<std::endl;
 //     abort();
 //   }
-// 
-//   // TODO: Caution! if there is a point reconstructed OuTSIDE its volume,
+//
+//   // Caution! if there is a point reconstructed OUTSIDE its volume,
 //   // then the returned stuff is WRONG!
 //   ((TGeoNode*)(gGeoManager->FindNode(fX,fY,fZ)))->cd();
 //   TGeoHMatrix* currMatrix = gGeoManager->GetCurrentMatrix();
-// 
+//
 //   const Double_t* rotation = (currMatrix->Inverse()).GetRotationMatrix();
 //   Double_t local[3]={fDx,fDy,fDz};
-// 
+//
 //   Double_t result = fabs(rotation[3*i+0]*local[0]) + fabs(rotation[3*i+1]*local[1]) + fabs(rotation[3*i+2]*local[2]);
 // std::cout"PndMvdHit::GetD("<<i<<"): dLocal={"<<fDx<<","<<fDy<<","<<fDz<<"} dLab("<<i<<"="<<result<<std::endl;
 // return result;
 // //   Double_t master[3];
 // //   gGeoManager->LocalToMasterVect(local,master);
 // //   return master[i];
-// 
+//
 // }
 
 // -------------------------------------------------------------------------

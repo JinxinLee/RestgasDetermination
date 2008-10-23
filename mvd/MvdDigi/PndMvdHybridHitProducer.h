@@ -4,7 +4,7 @@
  **/
 
 #ifndef PNDMVDHYBRIDHITPRODUCER_H
-#define PNDMVDHYBRIDHITPRODUCER_H 
+#define PNDMVDHYBRIDHITPRODUCER_H
 
 #include "CbmTask.h"
 #include "PndMvdPixelDigiPar.h"
@@ -22,16 +22,16 @@
 
 #include <string>
 #include <vector>
- 
+
 class TClonesArray;
 
 class PndMvdHybridHitProducer : public CbmTask
 {
  public:
 
-  /** Default constructor **/  
+  /** Default constructor **/
  PndMvdHybridHitProducer();
-  
+
   PndMvdHybridHitProducer(Double_t lx, Double_t ly, Double_t threshold, Double_t noise);
 
   /** Destructor **/
@@ -48,41 +48,41 @@ class PndMvdHybridHitProducer : public CbmTask
 
 
  private:
-  
+
   TString fBranchName;
   /** Input array of PndMvdMCPoints **/
   TClonesArray* fPointArray;
 
   /** Output array of PndMvdDigis **/
-//  TClonesArray* fHitArray;  
+//  TClonesArray* fHitArray;
   TClonesArray* fPixelArray;
 //   TClonesArray* fFePixelArray;
-  
+
   PndMvdPixelDigiPar* fDigiPar;
-  
+
   void Register();
-  void Reset();  
+  void Reset();
   void ProduceHits();
-  
+
   TGeoHMatrix GetTransformation (std::string detName);
   void GetLocalHitPoints(PndMvdMCPoint* myPoint, CbmGeoVector& myHitIn, CbmGeoVector& myHitOut);
 //  PndMvdHit CalcGlobalPoint(std::vector<PndMvdPixel> pixels);
   TVector3 GetSensorDimensions(std::string detName);
-  
+
   void AddHit(PndMvdPixel& hit, int mcIndex);
   void AddHits(std::vector<PndMvdPixel>* hitList, int mcIndex);
-  
+
   Double_t flx;	//pixel widh in x;
   Double_t fly;	//pixel width in y;
   Double_t fthreshold; //pixel threshold in electrons
   Double_t fnoise; //pixel noise in electrons
   Int_t    fcols; //pixel columns in one FE
   Int_t    frows; //pixel rows in one FE
-  Int_t pixelHits;
+  Int_t fPixelHits;
   PndMvdGeoHandling* fGeoH;
-  Int_t event_Nr;
+  Int_t fEventNr;
   Bool_t fOverwriteParams;
-  
+
   std::vector<PndMvdPixel> fPixelList;
   ClassDef(PndMvdHybridHitProducer,7);
 

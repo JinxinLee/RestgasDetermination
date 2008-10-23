@@ -17,8 +17,8 @@
 //! A planar (x,y) reco hit & its sensor plane
 /** @author Ralf Kliemt TUD
  */
-#ifndef PNDMVDRECOHIT_HH
-#define PNDMVDRECOHIT_HH
+#ifndef PNDMVDRECOHIT_H
+#define PNDMVDRECOHIT_H
 
 // Base Class Headers ----------------
 #include "RecoHitIfc.h"
@@ -41,13 +41,7 @@ public:
   PndMvdRecoHit();
 
   PndMvdRecoHit(PndMvdMCPoint* point);//from lab MC points
-  PndMvdRecoHit(PndMvdHit* hit);//from lab cluster hits TODO change to local
-//   PndMvdRecoHit(const TVector3& hit, const TMatrixT<Double_t>& cov,
-//              const DetPlane* detplane);//from lab
-//   PndMvdRecoHit(const TVector3& hit, const TMatrixT<Double_t>& cov,
-//              const TVector3& o,const TVector3& u,const TVector3& v);//from lab
-//   PndMvdRecoHit(const TMatrixT<Double_t>& xy,const TMatrixT<Double_t>& cov,
-//              const DetPlane* detplane);//from sensor plane
+  PndMvdRecoHit(PndMvdHit* hit);//from lab cluster hits
 
   virtual ~PndMvdRecoHit();
 
@@ -63,7 +57,7 @@ public:
   virtual Double_t residualScalar(AbsTrackRep* stateVector,
                                 const TMatrixT<Double_t>& state);
 
-  
+
 private:
 
   // Private Data Members ------------
@@ -72,7 +66,7 @@ private:
 
   // Private Methods -----------------
 
-public:
+//public:
   ClassDef(PndMvdRecoHit,1);
 
 };

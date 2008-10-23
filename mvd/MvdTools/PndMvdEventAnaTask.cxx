@@ -62,7 +62,7 @@ InitStatus PndMvdEventAnaTask::Init()
   		std::cout << "-W- PndMvdEventAnaTask::Init: "<< "No MCTrack" << " array!" << std::endl;
   		return kERROR;
   	}
-  
+
 	fMCHits = (TClonesArray*) ioman->GetObject("MVDPoint");
 	if ( !fMCHits)	{
 		std::cout << "-W- PndMvdEventAnaTask::Init: "<< "No MVDPoint"<<" array!" << std::endl;
@@ -98,51 +98,51 @@ InitStatus PndMvdEventAnaTask::Init()
 	if ( !fStripCluster)	{
 		std::cout << "-W- PndMvdEventAnaTask::Init: " << "No MVDStripClusterCand" <<" array!" << std::endl;
 	}
-	
+
 	fTrackCand = (TClonesArray*) ioman->GetObject("MVDRiemannTrackCand");
 		if ( !fTrackCand)	{
 			std::cout << "-W- PndMvdEventAnaTask::Init: " << "No MVDRiemannTrackCand" <<" array!" << std::endl;
 		}
-	
+
 	fHTracksPerEvent = new TH1I("HTracksPerEvent", "Tracks per Event", 21, -0.5, 20.5);
 	fHHitsPerTrack = new TH1I("HHitsPerTrack", "Hits per Track", 21,0.5,20.5);
 	fHEnergyPerHit = new TH1D("HEnergyPerHit","Energy per Hit", 200, 0, 10000000);
-		
+
 	fHPointRes = new TH1D("HPointRes", "Point Resolution", 1000, 0,0.1);
 	fHPointRes->SetLineColor(1);
 	fHPointResS = new TH1D("HPointResS", "Point Resolution", 1000, 0,0.1);
-	fHPointResS->SetLineColor(3);	
+	fHPointResS->SetLineColor(3);
 	fHPointResD = new TH1D("HPointResD", "Point Resolution", 1000, 0,0.1);
 	fHPointResD->SetLineColor(4);
 	fHPointResM = new TH1D("HPointResM", "Point Resolution", 1000, 0,0.1);
 	fHPointResM->SetLineColor(5);
-		
+
 	fHDigisPerCluster = new TH1I("HDigisPerCluster","Digis per Cluster", 20, 0, 20);
 	fHEnergyRes = new TH1D("HEnergyRes", "Energy Resolution", 1000, -100000, 100000);
 	fHPRes = new TH1D("HPRes","Momentum Resolution", 1000, -5,5);
 	fHPtRes = new TH1D("HPtRes","Transversal Momentum Resolution", 1000, -5,5);
-	
+
 	fHPointResStrip = new TH1D("HPointResStrip", "Point Resolution Strips", 1000, 0,0.1);
 	fHPointResStrip->SetLineColor(6);
 	fHPointResSStrip = new TH1D("HPointResSStrip", "Point Resolution Strip", 1000, 0,0.1);
-	fHPointResSStrip->SetLineColor(7);	
+	fHPointResSStrip->SetLineColor(7);
 	fHPointResDStrip = new TH1D("HPointResDStrip", "Point Resolution Strip", 1000, 0,0.1);
 	fHPointResDStrip->SetLineColor(8);
 	fHPointResMStrip = new TH1D("HPointResMStrip", "Point Resolution Strip", 1000, 0,0.1);
 	fHPointResMStrip->SetLineColor(9);
-	
+
 	fHDigisPerClusterStrip = new TH1I("HDigisPerClusterStrip","Digis per Cluster Strips", 20, 0, 20);
 	fHDigisPerClusterStrip->SetLineColor(2);
-	fHEnergyResStrip = new TH1D("HEnergyResStrip", "Energy Resolution Strips", 1000, -100000, 100000); 
+	fHEnergyResStrip = new TH1D("HEnergyResStrip", "Energy Resolution Strips", 1000, -100000, 100000);
 	fHEnergyResStrip->SetLineColor(2);
-	
+
 	fHRiemannRes = new TH1I("HRiemannRes", "Quality of the Riemann Trackfinding", 16,-5.5,10.5);
 	fHRiemannFakes = new TH1I("HRiemannFakes", "Wrong assign hits in Track", 16, -5.5,10.5);
 	fHRiemannFakes->SetLineColor(2);
 	fHRiemannTracksPerTrack = new TH1I("HRiemannTracksPerTrack", "Found Tracks per MC Track", 11, -0.5, 10.5);
 	fHRiemannTracksPerTrackAdd = new TH1I("HRiemannTracksPerTrackAdd", "Found Tracks per MC Track", 11, -0.5, 10.5);
 	fHRiemannTracksPerTrackAdd->SetLineColor(2);
-	
+
   return kSUCCESS;
 }
 // -------------------------------------------------------------------------
@@ -157,38 +157,38 @@ void PndMvdEventAnaTask::SetParContainers()
 
 // -----   Public method Exec   --------------------------------------------
 void PndMvdEventAnaTask::Exec(Option_t* opt)
-{																	
+{
 	std::map<int, std::vector<int> > mcHitMap;						//Track ->  MCHits
 	std::map<int, std::vector<int> > trackToTrackCandMap;			//Track -> TrackCand
-	
+
 	TVector3 MCPos, RecoPos;
 	double MCEnergy, RecoEnergy;
 	double TrackP, TrackPt;
-	
+
 	mcHitMap = AssignHitsToTracks();
 	fGhostCand.clear();
 	fGhostCand.resize(fTrackCand->GetEntriesFast(), 0);
 	fTrackPixHitIdMap.clear();
 	fTrackStripHitIdMap.clear();
-	
+
 	std::cout << "------------Event " << fEventNr << "-------------" << std::endl;
 	fEventNr++;
 	fHTracksPerEvent->Fill(mcHitMap.size());
 	fNTracks += mcHitMap.size();
-			
-	for (std::map<int, std::vector<int> >::const_iterator it = mcHitMap.begin(); it!= mcHitMap.end(); it++){  //go through all tracks
-		CbmMCTrack* myTrack = (CbmMCTrack*)(fMCTracks->At(it->first));
-		std::vector<int> MChits = it->second;
+
+	for (std::map<int, std::vector<int> >::const_iterator kIt = mcHitMap.begin(); kIt!= mcHitMap.end(); kIt++){  //go through all tracks
+		CbmMCTrack* myTrack = (CbmMCTrack*)(fMCTracks->At(kIt->first));
+		std::vector<int> MChits = kIt->second;
 		TrackPt = myTrack->GetMomentum().Pt();
 		TrackP = myTrack->GetMomentum().Mag();
 		fHHitsPerTrack->Fill(MChits.size());
-		
+
 		if (fPrintTrack){
 			std::cout << "<<<<<<<<<<< MCTrack >>>>>>>>>> " << std::endl;
-			myTrack->Print(it->first);
+			myTrack->Print(kIt->first);
 			std::cout << "Pt: " << TrackPt << " GeV/c; P: " << TrackP << " GeV/c" << std::endl;
 		}
-		
+
 		for (int p = 0; p < MChits.size(); p++){											//go through all hits in track
 			PndMvdMCPoint* myPoint = (PndMvdMCPoint*)(fMCHits->At(MChits[p]));
 			if (fPrintMCHit){
@@ -198,25 +198,25 @@ void PndMvdEventAnaTask::Exec(Option_t* opt)
 			MCPos = (myPoint->GetPosition() + myPoint->GetPositionOut())*0.5;
 			MCEnergy = myPoint->GetEnergyLoss()*10E9;
 			fHEnergyPerHit->Fill(MCEnergy);
-			
+
 			std::vector<int> pixCluster = GetClusters(MChits[p], true);		//Indices of all clusters belonging to one hit
-			
+
 			for (int clInd = 0; clInd < pixCluster.size(); clInd++)	{
-				
+
 				PndMvdCluster* myCluster = (PndMvdCluster*)(fPixCluster->At(pixCluster[clInd]));
-				std::vector<Int_t> digiInd = myCluster->GetClusterList(); //gets the list of pixel Digis belonging to the cluster  
+				std::vector<Int_t> digiInd = myCluster->GetClusterList(); //gets the list of pixel Digis belonging to the cluster
 				int recoHit = GetRecoHit(pixCluster[clInd], true);
 				fHDigisPerCluster->Fill(digiInd.size());
 				if (recoHit > -1)
-					fTrackPixHitIdMap[it->first].push_back(recoHit);
-						
+					fTrackPixHitIdMap[kIt->first].push_back(recoHit);
+
 				PrintClusterDigiInfo(pixCluster[clInd], digiInd, true);
 				if (recoHit < 0)
 					std::cout << "-W- No Reco Hit found!" << std::endl;
 				else
 					PrintRecoHitInfo(recoHit, digiInd.size(), MCPos, MCEnergy, true);
 			}
-			
+
 			std::vector<int> stripCluster = GetClusters(MChits[p], false);
 
 			int hitCount = 0;
@@ -225,7 +225,7 @@ void PndMvdEventAnaTask::Exec(Option_t* opt)
 				int recoHit = -1;
 
 				PndMvdCluster* myCluster =	(PndMvdCluster*)(fStripCluster->At(stripCluster[clInd]));
-				std::vector<Int_t> digiInd = myCluster->GetClusterList(); //gets the list of pixel Digis belonging to the cluster  
+				std::vector<Int_t> digiInd = myCluster->GetClusterList(); //gets the list of pixel Digis belonging to the cluster
 				recoHit = GetRecoHit(stripCluster[clInd], false);
 
 				fHDigisPerClusterStrip->Fill(digiInd.size());
@@ -236,12 +236,12 @@ void PndMvdEventAnaTask::Exec(Option_t* opt)
 						oldRecoHit = recoHit;
 					}
 					else if (hitCount > 1 && oldRecoHit > -1 && oldRecoHit == recoHit){
-						fTrackStripHitIdMap[it->first].push_back(recoHit);
+						fTrackStripHitIdMap[kIt->first].push_back(recoHit);
 					}
 				}
 				PrintClusterDigiInfo(stripCluster[clInd], digiInd, false);
 				//std::cout << " hitCount: " << hitCount << " oldReco " << oldRecoHit <<  " recoHit: " << recoHit << std::endl;
-				if (recoHit > -1){	
+				if (recoHit > -1){
 					if (hitCount > 1){
 						PrintRecoHitInfo(recoHit, digiInd.size(), MCPos, MCEnergy, false);
 						if ((oldRecoHit > -1) && (oldRecoHit != recoHit))
@@ -250,27 +250,27 @@ void PndMvdEventAnaTask::Exec(Option_t* opt)
 				}
 			}
 		}
-		std::vector<int> pixHits = fTrackPixHitIdMap[it->first];
-		std::vector<int> stripHits = fTrackStripHitIdMap[it->first];
-		
+		std::vector<int> pixHits = fTrackPixHitIdMap[kIt->first];
+		std::vector<int> stripHits = fTrackStripHitIdMap[kIt->first];
+
 		std::cout << std::endl;
-		std::cout << "TrackID " << it->first << ": ";
+		std::cout << "TrackID " << kIt->first << ": ";
 		for (int testInd = 0; testInd < pixHits.size(); testInd++)
 			std::cout << " 1/" << pixHits[testInd];
 
 		for (int testInd = 0; testInd < stripHits.size(); testInd++)
 			std::cout << " 2/" << stripHits[testInd];
 		std::cout << std::endl;
-		
+
 		std::cout << "MCHitMap: ";
-		for (int testInd = 0; testInd < mcHitMap[it->first].size(); testInd++)
-			std::cout << mcHitMap[it->first].at(testInd) << " ";
+		for (int testInd = 0; testInd < mcHitMap[kIt->first].size(); testInd++)
+			std::cout << mcHitMap[kIt->first].at(testInd) << " ";
 		std::cout << std::endl;
-		
+
 		std::vector<int> matches;
 		std::vector<int> candidates;
 		GetTrackCandsForMCTrack(pixHits, stripHits, matches, candidates);
-		trackToTrackCandMap[it->first] = candidates;
+		trackToTrackCandMap[kIt->first] = candidates;
 
 		int TrackMatch = 0;
 		int oldmatches = 0;
@@ -301,19 +301,19 @@ void PndMvdEventAnaTask::Exec(Option_t* opt)
 				std::cout << "Hits in Track: " << myCand->getNHits() << " Difference: ";
 				if (detId > 0) std::cout << myCand->getNHits() - matches[i] << std::endl;
 				else std::cout << myCand->getNHits() - matches [i] -1 << std::endl;
-								
+
 				PrintTrackCand(myCand);
 				std::cout << "Pt: " << pt << " GeV/c " << " P: " << pt/dip << " GeV/c" << std::endl;
 				std::cout << "Pt error: " << TrackPt - pt << " P error: " << TrackP - pt/dip << std::endl;
-				std::cout << "TrackID: " << it->first << " mcHitMap.size: " << mcHitMap[it->first].size() << " matches: " << matches[i] << std::endl;
-				std::cout << "Missing Hits: " << mcHitMap[it->first].size() - matches[i] << std::endl;
-				if (mcHitMap[it->first].size() < (myCand->getNHits()-1))
+				std::cout << "TrackID: " << kIt->first << " mcHitMap.size: " << mcHitMap[kIt->first].size() << " matches: " << matches[i] << std::endl;
+				std::cout << "Missing Hits: " << mcHitMap[kIt->first].size() - matches[i] << std::endl;
+				if (mcHitMap[kIt->first].size() < (myCand->getNHits()-1))
 					fHRiemannRes->Fill(-2);						//more hits than expected
 			}
 		}
-		
-		if (mcHitMap[it->first].size() > 2){
-			if (mcHitMap[it->first].size() > 3){
+
+		if (mcHitMap[kIt->first].size() > 2){
+			if (mcHitMap[kIt->first].size() > 3){
 				fNPossibleTracks++;
 				if (oldmatches == 0)
 					fNNotFoundPossibleTracks++;
@@ -326,7 +326,7 @@ void PndMvdEventAnaTask::Exec(Option_t* opt)
 		}
 		if (oldmatches == 0)
 			fNNotFoundTracks++;
-		
+
 
 		if (matches.size() > 0){					// there are riemann tracks to a MC Track
 			TrackCand* myCand = (TrackCand*)fTrackCand->At(candidates[highestMatch]);
@@ -337,15 +337,15 @@ void PndMvdEventAnaTask::Exec(Option_t* opt)
 			pt*=0.00299792;
 			fHPtRes->Fill(TrackPt - pt);
 			fHPRes->Fill(TrackP - pt/dip);
-			fHRiemannRes->Fill(mcHitMap[it->first].size() - matches[highestMatch]);
-			if (mcHitMap[it->first].size() - matches[highestMatch] == 0)
+			fHRiemannRes->Fill(mcHitMap[kIt->first].size() - matches[highestMatch]);
+			if (mcHitMap[kIt->first].size() - matches[highestMatch] == 0)
 				fNCompleteTracks++;
 			else fNPartTracks++;
 		}
 		std::cout << "Found TracksPerTrack: " << TrackMatch;
-		if (mcHitMap[it->first].size() > 2) std::cout << " 3Hits+"
-		<< std::endl; 
-		if (mcHitMap[it->first].size() > 2) fHRiemannTracksPerTrackAdd->Fill(TrackMatch);
+		if (mcHitMap[kIt->first].size() > 2) std::cout << " 3Hits+"
+		<< std::endl;
+		if (mcHitMap[kIt->first].size() > 2) fHRiemannTracksPerTrackAdd->Fill(TrackMatch);
 		fHRiemannTracksPerTrack->Fill(TrackMatch);
 	}
 	if (fPrintGhosts){
@@ -384,14 +384,14 @@ std::vector<int> PndMvdEventAnaTask::GetClusters(int MCHit, bool pixel)
 	TClonesArray* cluster;
 
 	std::vector<int> result;
-		
+
 	if (pixel == true){
 		cluster = fPixCluster;
 	}
 	else{
 		cluster = fStripCluster;
 	}
-	
+
 	if (cluster != 0) {
 		for (int clIndex = 0; clIndex < cluster->GetEntriesFast(); clIndex++){		//go through all pixel clusters
 			PndMvdCluster* myCluster = (PndMvdCluster*)(cluster->At(clIndex));
@@ -403,7 +403,7 @@ std::vector<int> PndMvdEventAnaTask::GetClusters(int MCHit, bool pixel)
 	return result;
 }
 
-int PndMvdEventAnaTask::GetRecoHit(int clIndex, bool pixel)
+int PndMvdEventAnaTask::GetRecoHit(int clIndex, bool pixel) const
 {
 	TClonesArray* reco;
 
@@ -428,17 +428,17 @@ void PndMvdEventAnaTask::PrintClusterDigiInfo(int clIndex,
 		std::vector<Int_t> digiInd, bool pixel)
 {
 	TClonesArray* digis;
-	
+
 	if (pixel){
 		digis = fPixDigis;
 	}
 	else{
 		digis = fStripDigis;
 	}
-	
+
 	if (digis == 0)
 		fPrintPixDigis = false;
-	
+
 	if (fPrintCluster)
 		std::cout << "Hit belongs to cluster " << clIndex << std::endl;
 	if (fPrintPixDigis)	{
@@ -450,7 +450,7 @@ void PndMvdEventAnaTask::PrintClusterDigiInfo(int clIndex,
 	}
 }
 
-void PndMvdEventAnaTask::PrintRecoHitInfo(int hitInd, int digiSize, TVector3 MCPos, double MCEnergy, bool pixel)
+void PndMvdEventAnaTask::PrintRecoHitInfo(int hitInd, int digiSize, TVector3 MCPos, double MCEnergy, bool pixel) const
 {
 	TClonesArray* reco;
 	TH1* hPointRes;
@@ -458,10 +458,10 @@ void PndMvdEventAnaTask::PrintRecoHitInfo(int hitInd, int digiSize, TVector3 MCP
 	TH1* hPointResD;
 	TH1* hPointResM;
 	TH1* hEnergyRes;
-	
+
 	if (pixel){
 		reco = fPixReco;
-		
+
 		hPointRes	= fHPointRes;
 		hPointResS = fHPointResS;
 		hPointResD = fHPointResD;
@@ -477,7 +477,7 @@ void PndMvdEventAnaTask::PrintRecoHitInfo(int hitInd, int digiSize, TVector3 MCP
 		hPointResM = fHPointResMStrip;
 		hEnergyRes = fHEnergyResStrip;
 	}
-	
+
 	PndMvdHit* myHit = (PndMvdHit*)reco->At(hitInd);
 	if (fPrintPixHit)
 	{
@@ -523,7 +523,7 @@ void PndMvdEventAnaTask::GetTrackCandsForMCTrack(std::vector<int> pixHitId, std:
 {
 	unsigned int detId, hitId;
 	int hitMatch = 0;
-	
+
 	if (fTrackCand != 0){
 		for (int i = 0; i < fTrackCand->GetEntriesFast(); i++){
 			TrackCand* myTrackCand = (TrackCand*)fTrackCand->At(i);
@@ -541,7 +541,7 @@ void PndMvdEventAnaTask::GetTrackCandsForMCTrack(std::vector<int> pixHitId, std:
 						if (hitId == stripHitId[k])
 							hitMatch++;
 					}
-				}				
+				}
 			}
 			//std::cout << "internal HitMatch: " << hitMatch << std::endl;
 			if (hitMatch > 2){
@@ -561,12 +561,12 @@ std::map<int, std::vector<int> > PndMvdEventAnaTask::AssignHitsToTracks()
 		PndMvdMCPoint* myPoint = (PndMvdMCPoint*)(fMCHits->At(i));									//sort MCHits with Tracks
 		CbmMCTrack* myTrack = (CbmMCTrack*)(fMCTracks->At(myPoint->GetTrackID()));
 		result[myPoint->GetTrackID()].push_back(i);
-	
+
 	}
 	return result;
 }
 
-void PndMvdEventAnaTask::PrintTrackCand(TrackCand* cand)
+void PndMvdEventAnaTask::PrintTrackCand(TrackCand* cand) const
 {
   unsigned int det, hit;
      std::cout << "TrackCand: " << cand->getCurv() << " curv, " << cand->getDip() << " dip, " << (int)(cand->inverted()) << " inverted." << "\n";

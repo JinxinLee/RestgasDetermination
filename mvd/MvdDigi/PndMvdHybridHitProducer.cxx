@@ -27,8 +27,8 @@ PndMvdHybridHitProducer::PndMvdHybridHitProducer() :
   CbmTask("MVD Hybrid Hit Producer")
 {
   fBranchName   = "MVDPoint";
-  pixelHits = 0;
-  event_Nr = 0;
+  fPixelHits = 0;
+  fEventNr = 0;
   fOverwriteParams = kFALSE;
  // fGeoH = new PndMvdGeoHandling(gGeoManager);
 //  fHitArray  = new TClonesArray("PndMvdHit");
@@ -37,7 +37,7 @@ PndMvdHybridHitProducer::PndMvdHybridHitProducer() :
 // -------------------------------------------------------------------------
 
 PndMvdHybridHitProducer::PndMvdHybridHitProducer(Double_t lx, Double_t ly, Double_t threshold, Double_t noise) :
-  CbmTask("MVD Hybrid Digi Producer (PndMvdHybridHitProducer)") 
+  CbmTask("MVD Hybrid Digi Producer (PndMvdHybridHitProducer)")
 {
   fBranchName   = "MVDPoint";
 //  fHitArray  = new TClonesArray("PndMvdHit");
@@ -46,8 +46,8 @@ PndMvdHybridHitProducer::PndMvdHybridHitProducer(Double_t lx, Double_t ly, Doubl
   fly = ly;
   fthreshold = threshold;
   fnoise = noise;
-  pixelHits = 0;
-  event_Nr = 0;
+  fPixelHits = 0;
+  fEventNr = 0;
   fcols = 104;
   frows = 104;
   fOverwriteParams = kTRUE;
@@ -57,8 +57,8 @@ PndMvdHybridHitProducer::PndMvdHybridHitProducer(Double_t lx, Double_t ly, Doubl
 
 
 // -----   Destructor   ----------------------------------------------------
-PndMvdHybridHitProducer::~PndMvdHybridHitProducer() 
-{ 
+PndMvdHybridHitProducer::~PndMvdHybridHitProducer()
+{
 	delete fGeoH;
 }
 // -------------------------------------------------------------------------
@@ -80,12 +80,12 @@ InitStatus PndMvdHybridHitProducer::ReInit()
 }
 
 // -----   Public method Init   --------------------------------------------
-InitStatus PndMvdHybridHitProducer::Init() 
+InitStatus PndMvdHybridHitProducer::Init()
 {
     CbmRunAna* ana = CbmRunAna::Instance();
   CbmRootManager* ioman = CbmRootManager::Instance();
     fGeoH = new PndMvdGeoHandling(gGeoManager);
-  if ( ! ioman ) 
+  if ( ! ioman )
     {
       std::cout << "-E- PndMvdHybridHitProducer::Init: "
      << "RootManager not instantiated!" << std::endl;
@@ -93,7 +93,7 @@ InitStatus PndMvdHybridHitProducer::Init()
     }
   fPointArray = (TClonesArray*) ioman->GetObject(fBranchName);
 
-  if ( ! fPointArray ) 
+  if ( ! fPointArray )
     {
       std::cout << "-W- PndMvdHybridHitProducer::Init: "
      << "No MVDPoint array!" << std::endl;
@@ -107,7 +107,8 @@ InitStatus PndMvdHybridHitProducer::Init()
   // Create and register output array
   fPixelArray = new TClonesArray("PndMvdDigiPixel");
   ioman->Register("MVDPixelDigis", "MVD", fPixelArray, kTRUE);
-  
+
+
 
   if(fOverwriteParams==kTRUE){
     fDigiPar->SetXPitch(flx);
@@ -127,9 +128,9 @@ InitStatus PndMvdHybridHitProducer::Init()
     fnoise = fDigiPar->GetNoise();
     fcols = fDigiPar->GetFECols();
     frows = fDigiPar->GetFERows();
-  
+
    std::cout << "-I- PndMvdHybridHitProducer: Intialisation successfull" << std::endl;
- 
+
   return kSUCCESS;
 }
 // -------------------------------------------------------------------------
@@ -144,7 +145,7 @@ void PndMvdHybridHitProducer::Exec(Option_t* opt)
   fPixelArray->Clear();
   fPixelList.clear();
 //   fFePixelArray->Clear();
-  
+
   // Declare some variables
   PndMvdMCPoint *point = NULL;
 
@@ -152,13 +153,13 @@ void PndMvdHybridHitProducer::Exec(Option_t* opt)
 
 
   // Loop over PndMvdMCPoints
-  Int_t 
+  Int_t
     nPoints = fPointArray->GetEntriesFast();
   Int_t iPixel = 0;
   Int_t iFePixel = 0;
-  pixelHits = 0;
-  
-  for (Int_t iPoint = 0; iPoint < nPoints; iPoint++) 
+  fPixelHits = 0;
+
+  for (Int_t iPoint = 0; iPoint < nPoints; iPoint++)
   {
       point = (PndMvdMCPoint*) fPointArray->At(iPoint);
       if ( ! point){
@@ -171,8 +172,8 @@ void PndMvdHybridHitProducer::Exec(Option_t* opt)
       }
       CbmGeoVector posInL, posOutL, meanPos, meanPosL;
       GetLocalHitPoints(point, posInL, posOutL);
-      
-      if (fVerbose > 1){  
+
+      if (fVerbose > 1){
         std::cout << "posOutL: " << std::endl;
         std::cout << posInL.X() << " " << posInL.Y() << " " << posInL.Z() << std::endl;
         std::cout << posOutL.X() << " " << posOutL.Y() << " " << posOutL.Z() << std::endl;
@@ -201,7 +202,7 @@ void PndMvdHybridHitProducer::Exec(Option_t* opt)
         if (myPixels.size() == 0){
           if (fVerbose > 1) std::cout << "Deposited charge below threshold" << std::endl;
         } else {
-          pixelHits += myPixels.size();
+          fPixelHits += myPixels.size();
           if (fVerbose > 1) std::cout  << "SensorPixels: " << std::endl;
           for(UInt_t i = 0; i < myPixels.size(); i++)
           {
@@ -246,41 +247,41 @@ void PndMvdHybridHitProducer::Exec(Option_t* opt)
 
   if (fVerbose > 0){
     std::cout << "-I- PndMvdHybridHitProducer: " << nPoints << " PndMvdMCPoints, "
-              << pixelHits << " Digi created." << " " << iFePixel
-              << "  (event "<<event_Nr++ <<")"<< std::endl;
+              << fPixelHits << " Digi created." << " " << iFePixel
+              << "  (event "<<fEventNr++ <<")"<< std::endl;
   }
 }
 
 void PndMvdHybridHitProducer::GetLocalHitPoints(PndMvdMCPoint* myPoint, CbmGeoVector& myHitIn, CbmGeoVector& myHitOut)
 {
-  
+
   if (fVerbose > 1)
     std::cout << "GetLocalHitPoints" << std::endl;
   TGeoHMatrix trans = GetTransformation(myPoint->GetDetName().Data());
-  
+
   Double_t posIn[3];
   Double_t posOut[3];
   Double_t posInLocal[3];
   Double_t posOutLocal[3];
-  
+
   posIn[0] = myPoint->GetX();
   posIn[1] = myPoint->GetY();
   posIn[2] = myPoint->GetZ();
-  
+
   posOut[0] = myPoint->GetXOut();
   posOut[1] = myPoint->GetYOut();
   posOut[2] = myPoint->GetZOut();
-  
+
   if (fVerbose > 1){
     for (Int_t i = 0; i < 3; i++)
       std::cout << "posIn "<< i << ": " << posIn[i] << std::endl;
-  
+
     trans.Print("");
   }
-  
+
   trans.MasterToLocal(posIn, posInLocal);
   trans.MasterToLocal(posOut, posOutLocal);
-  
+
   if (fVerbose > 1) {
     for (Int_t i = 0; i < 3; i++){
       std::cout << "posInLocal "<< i << ": " << posInLocal[i] << std::endl;
@@ -288,12 +289,12 @@ void PndMvdHybridHitProducer::GetLocalHitPoints(PndMvdMCPoint* myPoint, CbmGeoVe
     }
   }
 
-  
+
   //posIn/OutLocal have the center of the coordinate system in the center of the shape
   //typically sensors have their coordinate system centered at the lower left corner
-  
+
   TVector3 offset = GetSensorDimensions(myPoint->GetDetName().Data());
-  
+
   if (fVerbose > 1){
 	  std::cout << "SensorDimension for: " << myPoint->GetDetName().Data() << std::endl;
 	  std::cout << offset.X() << " " << offset.Y() << " " << offset.Z() << std::endl;
@@ -302,15 +303,15 @@ void PndMvdHybridHitProducer::GetLocalHitPoints(PndMvdMCPoint* myPoint, CbmGeoVe
   posInLocal[0] += offset.x();
   posInLocal[1] += offset.y();
   //posInLocal[2] += offset.z();
-  
+
   posOutLocal[0] += offset.x();
   posOutLocal[1] += offset.y();
   //posOutLocal[2] += offset.z();
-  
-  
+
+
   myHitIn.setVector(posInLocal);
   myHitOut.setVector(posOutLocal);
-    
+
 }
 
 TGeoHMatrix PndMvdHybridHitProducer::GetTransformation(std::string detName)
@@ -333,9 +334,9 @@ TVector3 PndMvdHybridHitProducer::GetSensorDimensions(std::string detName)
   result.SetX(actBox->GetDX());
   result.SetY(actBox->GetDY());
   result.SetZ(actBox->GetDZ());
-  
+
   //result.Dump();
-  
+
   return result;
 }
 
@@ -364,8 +365,8 @@ void PndMvdHybridHitProducer::AddHit(PndMvdPixel& hit, int mcIndex)
 			fPixelList[i].AddCharge(hit.GetCharge());
 			fPixelList[i].AddMCIndex(mcIndex);
 			found = true;
-		}	
-	}	
+		}
+	}
 	if (found == false){
 		hit.AddMCIndex(mcIndex);
 		fPixelList.push_back(hit);

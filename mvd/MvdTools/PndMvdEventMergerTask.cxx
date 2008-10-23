@@ -1,0 +1,125 @@
+// -------------------------------------------------------------------------
+// -----                CbmStsHitProducerIdeal source file             -----
+// -----                  Created 10/01/06  by V. Friese               -----
+// -------------------------------------------------------------------------
+
+
+#include "TClonesArray.h"
+#include "TArrayD.h"
+
+#include "CbmRootManager.h"
+#include "PndMvdEventMergerTask.h"
+#include "CbmRunAna.h"
+#include "CbmRuntimeDb.h"
+#include "PndStringVector.h"
+#include "PndTpcCluster.h"
+
+// -----   Default constructor   -------------------------------------------
+PndMvdEventMergerTask::PndMvdEventMergerTask() :
+  CbmTask("MVD Event Merger")
+{
+	std::cout << "-E- PndMvdEventMergerTask: The default constructor should not be used!" << std::endl;
+	fEventNr = 0;
+}
+
+PndMvdEventMergerTask::PndMvdEventMergerTask(TString signalBranch, TString bgFile, TString bgBranch, Int_t events, Int_t mergedEvents, Bool_t signalIsBg) :
+	CbmTask("MVD Event Merger")
+{
+	fSignalBranch = signalBranch;
+	fBgFile = bgFile;
+	fBgBranch = bgBranch;
+	fNMergedEvents = mergedEvents;
+	fSignalIsBg = signalIsBg;
+	fEventNr = 0;
+	fNEvents = events;
+}
+// -------------------------------------------------------------------------
+
+
+// -----   Destructor   ----------------------------------------------------
+PndMvdEventMergerTask::~PndMvdEventMergerTask() 
+{
+	delete (fMerger);
+}
+// -------------------------------------------------------------------------
+
+// -----   Initialization  of Parameter Containers -------------------------
+void PndMvdEventMergerTask::SetParContainers()
+{
+  // called before Init()
+  // Get Base Container
+  CbmRunAna* ana = CbmRunAna::Instance();
+  CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+}
+
+InitStatus PndMvdEventMergerTask::ReInit()
+{
+  SetParContainers();
+  return kSUCCESS;
+}
+
+// -----   Public method Init   --------------------------------------------
+InitStatus PndMvdEventMergerTask::Init() 
+{
+    CbmRunAna* ana = CbmRunAna::Instance();
+    CbmRootManager* ioman = CbmRootManager::Instance();
+   
+  if ( ! ioman ) 
+    {
+      std::cout << "-E- PndMvdEventMergerTask::Init: "
+     << "RootManager not instantiated!" << std::endl;
+      return kFATAL;
+    }
+  
+  if (fSignalIsBg == false){
+	  fSignalArray = (TClonesArray*) ioman->GetObject(fSignalBranch);
+	
+	  if ( ! fSignalArray ) 
+	    {
+	      std::cout << "-W- PndMvdEventMergerTask::Init: "
+	     << "No MVDPoint array!" << std::endl;
+	      return kERROR;
+	  }
+  }
+
+
+  // Create and register output array
+  fMergedArray = new TClonesArray("PndTpcCluster");
+  ioman->Register("PndTpcClusterMerged", "TPC", fMergedArray, kTRUE);
+  
+  fMerger = new PndMvdEventMerger(fBgFile, fBgBranch, fNEvents, fNMergedEvents);
+  
+  
+   std::cout << "-I- PndMvdEventMergerTask: Intialisation successfull" << std::endl;
+ 
+  return kSUCCESS;
+}
+// -------------------------------------------------------------------------
+
+// -----   Public method Exec   --------------------------------------------
+void PndMvdEventMergerTask::Exec(Option_t* opt)
+{
+  	
+	TClonesArray* bg;
+	if (fEventNr < fNMergedEvents)
+		bg = fMerger->GetEvent(fEventNr);
+	else bg = fMerger->GetEvent(0);
+	
+	fMergedArray->Clear();
+	
+	if (fSignalIsBg == false){
+		fMerger->AddTClonesArray(bg, fSignalArray);
+	}
+  for (int i = 0; i < bg->GetEntriesFast(); i++){
+    new ((*fMergedArray)[i])PndTpcCluster(*(PndTpcCluster*)bg->At(i));
+  }
+
+  // Event summary
+
+  if (fVerbose > 0){
+    std::cout << "-I- PndMvdEventMergerTask: Merged " << fMergedArray->GetEntriesFast() << " events in Event Nr: " << fEventNr << std::endl;
+  }
+  fEventNr++;
+}
+
+ClassImp(PndMvdEventMergerTask);

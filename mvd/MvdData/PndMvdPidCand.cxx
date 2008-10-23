@@ -38,23 +38,23 @@ void PndMvdPidCand::SetLikelihood(int lundId, double likelihood) {
   this->flikelihood[lundId]=likelihood;
 }
 
-double PndMvdPidCand::GetLikelihood(int lundId) {
+double PndMvdPidCand::GetLikelihood(int lundId)  {
   return flikelihood[lundId];
 }
 
-double PndMvdPidCand::GetMvdHitdE(int mvdhit) {
+double PndMvdPidCand::GetMvdHitdE(int mvdhit) const {
   return fdE[mvdhit];
 }
 
-double PndMvdPidCand::GetMvdHitdx(int mvdhit) {
+double PndMvdPidCand::GetMvdHitdx(int mvdhit) const {
   return fdx[mvdhit];
 }
 
-double PndMvdPidCand::GetMvdHitMomentum(int mvdhit) {
+double PndMvdPidCand::GetMvdHitMomentum(int mvdhit) const {
   return fmomentum[mvdhit];
 }
 
-int PndMvdPidCand::GetMvdHits() {
+int PndMvdPidCand::GetMvdHits() const {
   return fmvdhits;
 }
 

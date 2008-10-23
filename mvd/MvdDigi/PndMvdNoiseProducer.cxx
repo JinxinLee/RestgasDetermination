@@ -21,7 +21,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndMvdNoiseProducer::PndMvdNoiseProducer() :
-  CbmTask("Charge Noise Producer") 
+  CbmTask("Charge Noise Producer")
 {
 	fBranchName 	= "MVDStripDigis";
 }
@@ -30,17 +30,17 @@ PndMvdNoiseProducer::PndMvdNoiseProducer() :
 
 
 // -----   Destructor   ----------------------------------------------------
-PndMvdNoiseProducer::~PndMvdNoiseProducer() 
-{ 
+PndMvdNoiseProducer::~PndMvdNoiseProducer()
+{
 }
 
 // -----   Public method Init   --------------------------------------------
-InitStatus PndMvdNoiseProducer::Init() 
+InitStatus PndMvdNoiseProducer::Init()
 {
   // Get RootManager
   CbmRootManager* ioman = CbmRootManager::Instance();
-  
-  if ( ! ioman ) 
+
+  if ( ! ioman )
     {
       std::cout << "-E- PndMvdNoiseProducer::Init: RootManager not instantiated!" << std::endl;
       return kFATAL;
@@ -67,7 +67,7 @@ InitStatus PndMvdNoiseProducer::Init()
   fGeoH = new PndMvdGeoHandling(gGeoManager);
   // Retrieve a map between the active geometry nodes and their interpretation
   TGeoNode* topnode = gGeoManager->GetTopNode();
-  for (Int_t n=0; n<topnode->GetNdaughters();n++) 
+  for (Int_t n=0; n<topnode->GetNdaughters();n++)
   {
     gGeoManager->CdDown(n);
     TGeoNode* node = gGeoManager->GetCurrentNode();
@@ -79,7 +79,7 @@ InitStatus PndMvdNoiseProducer::Init()
     }
     gGeoManager->CdUp();
   }
-  if(fVerbose>1) 
+  if(fVerbose>1)
   {
     std::cout <<"-I- PndMvdNoiseProducer: Registered Sensors: "
               <<fStripRectIds.size()<<"xStripRect "
@@ -95,8 +95,8 @@ InitStatus PndMvdNoiseProducer::Init()
 }
 
 void PndMvdNoiseProducer::DiveDownNode(TGeoNode *nodeMother){
-  for (Int_t Nod=0; Nod<nodeMother->GetNdaughters();Nod++) 
-  {   
+  for (Int_t Nod=0; Nod<nodeMother->GetNdaughters();Nod++)
+  {
     gGeoManager->CdDown(Nod);
     TGeoNode *aNode = gGeoManager->GetCurrentNode();
     if(aNode->GetNdaughters()>0) DiveDownNode(aNode);
@@ -131,7 +131,7 @@ void PndMvdNoiseProducer::SetParContainers()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndMvdNoiseProducer::Exec(Option_t* opt) 
+void PndMvdNoiseProducer::Exec(Option_t* opt)
 {
 //   TObjArray* activeSensors = fGeoPar->GetGeoSensitiveNodes();
   Int_t nrCh=0,rnd=0,
@@ -139,7 +139,7 @@ void PndMvdNoiseProducer::Exec(Option_t* opt)
         nrSensors=0,fe=0,
         chanmax=0,chan=0,
         col=0,row=0,
-        chanleft=0,iStrip=0,
+        iStrip=0,
         chanwhite=0,iPix=0,
         charge=0,
         nNoisyStripRects=0,
@@ -154,14 +154,11 @@ void PndMvdNoiseProducer::Exec(Option_t* opt)
   nrFE = fDigiParRect->GetNrBotFE() + fDigiParRect->GetNrTopFE();
   nrSensors = fStripRectIds.size();
   chanmax = nrCh * nrFE * nrSensors;
-  chanleft = chanmax - fDigiStripArray->GetEntriesFast()*fStripRectIds.size()/(fStripRectIds.size()+fStripTrapIds.size());
   // Get Number of Channels fired from noise
-  xfrac = CalcDistFraction(fDigiParRect->GetNoise(),//spread
-                           fDigiParRect->GetThreshold());
-//   chanwhite = CalcChanWhite(chanleft,xfrac);
-  chanwhite = gRandom->Poisson(xfrac*chanleft);
-  if(fVerbose>1) std::cout << "-I- PndMvdNoiseProducer: RECT xfrac = " << xfrac 
-            << " leading to " << chanwhite << " noisy digis of " << chanleft
+  xfrac = CalcDistFraction(fDigiParRect->GetNoise(),fDigiParRect->GetThreshold());
+  chanwhite = gRandom->Poisson(xfrac*chanmax);
+  if(fVerbose>1) std::cout << "-I- PndMvdNoiseProducer: RECT xfrac = " << xfrac
+            << " leading to " << chanwhite << " noisy digis of " << chanmax
             << " total channels" << std::endl;
   for(Int_t i = 0;i < chanwhite;i++)
   {
@@ -169,18 +166,12 @@ void PndMvdNoiseProducer::Exec(Option_t* opt)
     rnd = gRandom->Integer(chanmax);
     sens = rnd/(nrFE*nrCh);
     rnd = rnd % (nrFE*nrCh);
-    fe = rnd/nrCh; //will populate 
+    fe = rnd/nrCh; //will populate
     chan = rnd % nrCh;
-      // calculate a charge deposit above threshold
+    // calculate a charge deposit above threshold
     charge = CalcChargeAboveThreshold(fDigiParRect->GetNoise(),fDigiParRect->GetThreshold());
     did = fStripRectIds.at(sens);
-    if(fVerbose>2)
-    std::cout << " -I- PndMvdNoiseProducer: Added StripRect Digi at: FE=" << fe
-               << ", channel=" << chan << ", charge=" << charge<< " e"
-              << ", in sensorindex " << sens <<std::endl; 
-    iStrip = fDigiStripArray->GetEntriesFast();
-    new ((*fDigiStripArray)[iStrip]) PndMvdDigiStrip(-1,2,did,fe,chan,charge);
-    nNoisyStripRects++;
+    AddDigiStrip(nNoisyStripRects,-1,2,did,fe,chan,charge);
   }
 
   // *** Strip Trapezoids ***
@@ -188,42 +179,31 @@ void PndMvdNoiseProducer::Exec(Option_t* opt)
   nrFE = fDigiParTrap->GetNrBotFE() + fDigiParTrap->GetNrTopFE();
   nrSensors = fStripTrapIds.size();
   chanmax = nrCh * nrFE * nrSensors;
-  chanleft = chanmax - fDigiStripArray->GetEntriesFast()*fStripTrapIds.size()/(fStripRectIds.size()+fStripTrapIds.size());
-  xfrac = CalcDistFraction(fDigiParTrap->GetNoise(),//spread
-                           fDigiParTrap->GetThreshold());
-//   chanwhite = CalcChanWhite(chanleft,xfrac);
-  chanwhite = gRandom->Poisson(xfrac*chanleft);
-  if(fVerbose>1) std::cout << "-I- PndMvdNoiseProducer: TRAP xfrac = " << xfrac 
-            << " leading to " << chanwhite << " noisy digis of " << chanleft
+  xfrac = CalcDistFraction(fDigiParTrap->GetNoise(),fDigiParTrap->GetThreshold());
+  chanwhite = gRandom->Poisson(xfrac*chanmax);
+  if(fVerbose>1) std::cout << "-I- PndMvdNoiseProducer: TRAP xfrac = " << xfrac
+            << " leading to " << chanwhite << " noisy digis of " << chanmax
             << " total channels" << std::endl;
   for(Int_t i = 0;i < chanwhite;i++)
   {
     rnd = gRandom->Integer(chanmax);
     sens = rnd/(nrFE*nrCh);
     rnd = rnd % (nrFE*nrCh);
-    fe = rnd/nrCh; 
+    fe = rnd/nrCh;
     chan = rnd % nrCh;
     charge = CalcChargeAboveThreshold(fDigiParTrap->GetNoise(),fDigiParTrap->GetThreshold());
     did = fStripTrapIds.at(sens);
-    if(fVerbose>2) std::cout 
-      << " -I- PndMvdNoiseProducer: Added StripTrap Digi at: FE=" << fe
-      << ", channel=" << chan << ", charge=" << charge<< " e"
-      << ", in sensorindex " << sens <<std::endl; 
-    iStrip = fDigiStripArray->GetEntriesFast();
-    new ((*fDigiStripArray)[iStrip]) PndMvdDigiStrip(-1,2,did,fe,chan,charge);
-    nNoisyStripTraps++;
+    AddDigiStrip(nNoisyStripTraps,-1,2,did,fe,chan,charge);
   }
 
   // *** Pixel Sensors ***
   nrCh = fDigiParPix->GetFECols()*fDigiParPix->GetFERows();
   nrFE = 4*fPixelIds4.size() + 6*fPixelIds6.size() + 8*fPixelIds8.size() + 12*fPixelIds12.size();
   chanmax = nrCh * nrFE;
-  chanleft = chanmax - fDigiPixelArray->GetEntriesFast();
-  xfrac = CalcDistFraction(fDigiParPix->GetNoise(),//spread
-                           fDigiParPix->GetThreshold());
-  chanwhite = gRandom->Poisson(xfrac*chanleft);
+  xfrac = CalcDistFraction(fDigiParPix->GetNoise(),fDigiParPix->GetThreshold());
+  chanwhite = gRandom->Poisson(xfrac*chanmax);
   if(fVerbose>1) std::cout << "-I- PndMvdNoiseProducer: PIXEL xfrac = " << xfrac
-            << " leading to " << chanwhite << " noisy digis of " << chanleft
+            << " leading to " << chanwhite << " noisy digis of " << chanmax
             << " total channels" << std::endl;
   for(Int_t i = 0;i < chanwhite;i++)
   {
@@ -245,28 +225,22 @@ void PndMvdNoiseProducer::Exec(Option_t* opt)
       fe = fe - 4*fPixelIds4.size() - 6*fPixelIds6.size();
       sens = fe/8;
       did = fPixelIds8.at(sens);
-      fe = fe%8; 
+      fe = fe%8;
       if(fe>4) fe=fe-4+10; //0-9 one row of FE, 10-19 2nd row of FE
     } else if( fe >= 4*fPixelIds4.size() )
     {
       fe = fe -4*fPixelIds4.size();
       sens = fe/6;
       did = fPixelIds6.at(sens);
-      fe = fe%6; 
+      fe = fe%6;
     } else
     {
       sens = fe/4;
       did = fPixelIds4.at(sens);
-      fe = fe%4; 
+      fe = fe%4;
     }
 
-    if(fVerbose>2) std::cout 
-      << " -I- PndMvdNoiseProducer: Added Pixel Digi at: FE=" << fe
-      << ", col|row = ("<<col<<"|"<<row<< "), charge=" << charge<< " e"
-      << ", in sensorindex " << sens <<std::endl; 
-    iPix = fDigiPixelArray->GetEntriesFast();
-    new ((*fDigiPixelArray)[iPix]) PndMvdDigiPixel(-1,2,did,fe,col,row,charge);
-    nNoisyPixels++;
+    AddDigiPixel(nNoisyPixels,-1,2,did,fe,col,row,charge);
   }
 
   // *** The End ***
@@ -308,5 +282,64 @@ Int_t PndMvdNoiseProducer::CalcChargeAboveThreshold(Double_t spread,Double_t thr
   return (Int_t)temp;
 }
 // -------------------------------------------------------------------------
+void PndMvdNoiseProducer::AddDigiStrip(Int_t &noisies, Int_t iPoint, Int_t detID, TString detname, Int_t fe, Int_t chan, Double_t charge)
+{
+  Bool_t found = kFALSE;
+  Int_t iStrip = fDigiStripArray->GetEntriesFast();
+  PndMvdDigiStrip* aDigi = 0;
+  for(Int_t kstr = 0; kstr < iStrip && found == kFALSE; kstr++)
+  {
+	aDigi = (PndMvdDigiStrip*)fDigiStripArray->At(kstr);
+	if ( aDigi->GetDetID() == detID,
+		 aDigi->GetDetName() == detname,
+		 aDigi->GetFE() == fe,
+		 aDigi->GetChannel() == chan )
+	{
+		aDigi->AddCharge(charge);
+		aDigi->AddIndex(iPoint);
+		found = kTRUE;
+	}
+  }
+  if(found == kFALSE){
+    new ((*fDigiStripArray)[iStrip]) PndMvdDigiStrip(iPoint,detID,detname,fe,chan,charge) ;
+    noisies++;
+    if(fVerbose>2) std::cout
+      << " -I- PndMvdNoiseProducer: Added StripTrap Digi at: FE=" << fe
+      << ", channel=" << chan << ", charge=" << charge<< " e"
+      << ", in sensor \n" << detname <<std::endl;
+  }
+}
+// -------------------------------------------------------------------------
+void PndMvdNoiseProducer::AddDigiPixel(Int_t &noisies, Int_t iPoint, Int_t detID, TString detname, Int_t fe, Int_t col, Int_t row, Double_t charge)
+{
+  Bool_t found = kFALSE;
+  Int_t iPix = fDigiPixelArray->GetEntriesFast();
+  PndMvdDigiPixel* aDigi = 0;
+  for(Int_t kstr = 0; kstr < iPix && found == kFALSE; kstr++)
+  {
+	aDigi = (PndMvdDigiPixel*)fDigiPixelArray->At(kstr);
+	if ( aDigi->GetDetID() == detID,
+		 aDigi->GetDetName() == detname,
+		 aDigi->GetFE() == fe,
+		 aDigi->GetPixelColumn() == col,
+		 aDigi->GetPixelRow() == row )
+	{
+		aDigi->AddCharge(charge);
+		aDigi->AddIndex(iPoint);
+		found = kTRUE;
+	}
+  }
+  if(found == kFALSE){
+    new ((*fDigiPixelArray)[iPix]) PndMvdDigiPixel(iPoint,detID,detname,fe,col,row,charge) ;
+    noisies++;
+    if(fVerbose>2) std::cout
+      << " -I- PndMvdNoiseProducer: Added Pixel Digi at: FE=" << fe
+      << ", col|row = ("<<col<<"|"<<row<< "), charge=" << charge<< " e"
+      << ", in sensor \n" << detname.Data() <<std::endl;
+
+  }
+}
+// -------------------------------------------------------------------------
+
 
 ClassImp(PndMvdNoiseProducer)

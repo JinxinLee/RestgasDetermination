@@ -21,7 +21,7 @@ std::vector<PndMvdPixel> PndMvdCalcFePixel::CalcFEHits()
 	return fFeHits;
 }
 
-std::vector<PndMvdPixel> PndMvdCalcFePixel::CalcSensorHits(const std::vector<PndMvdPixel> FePixel)				
+std::vector<PndMvdPixel> PndMvdCalcFePixel::CalcSensorHits(const std::vector<PndMvdPixel> FePixel)
 {
 	Int_t col, row, dummy;
 	std::vector<PndMvdPixel> result;
@@ -31,7 +31,7 @@ std::vector<PndMvdPixel> PndMvdCalcFePixel::CalcSensorHits(const std::vector<Pnd
 	return result;
 }
 
-PndMvdPixel PndMvdCalcFePixel::CalcSensorHit(const PndMvdPixel FePixel)
+PndMvdPixel PndMvdCalcFePixel::CalcSensorHit(const PndMvdPixel FePixel) const
 {
   Int_t col = FePixel.GetCol();
   Int_t row = FePixel.GetRow();

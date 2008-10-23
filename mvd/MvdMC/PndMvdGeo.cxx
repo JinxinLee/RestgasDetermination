@@ -13,7 +13,7 @@
 
 ClassImp(PndMvdGeo)
 
-PndMvdGeo::PndMvdGeo() 
+PndMvdGeo::PndMvdGeo()
 {
   // Constructor
   fName="mvd";
@@ -22,30 +22,30 @@ PndMvdGeo::PndMvdGeo()
   //maxKeepinVolumes=99;
 }
 
-const char* PndMvdGeo::getModuleName(Int_t m) 
+const char* PndMvdGeo::getModuleName(Int_t m)
 {
   if ( m < 0 ) {
   	std::cout <<"-E- CbmGeoSts::getModuleName:: Module number "
   	       << m << " not known!" << std::endl;
 	 return "";
 	 }
-  if ( m < 9 ) sprintf(modName,"mvdstation0%i",m+1);
-  else  sprintf(modName,"mvdstation%i",m+1);
-  return modName;
+  if ( m < 9 ) sprintf(fModName,"mvdstation0%i",m+1);
+  else  sprintf(fModName,"mvdstation%i",m+1);
+  return fModName;
 }
 
-const char* PndMvdGeo::getEleName(Int_t m) 
+const char* PndMvdGeo::getEleName(Int_t m)
 {
   // Returns the element name of PndMvd number m
-  if (m < 9) 
-  	sprintf(eleName,"mvd0%i",m+1);
-  else sprintf(eleName,"mvd%i",m+1);
-  
-  return eleName;
+  if (m < 9)
+  	sprintf(fEleName,"mvd0%i",m+1);
+  else sprintf(fEleName,"mvd%i",m+1);
+
+  return fEleName;
 }
 
 const char* PndMvdGeo::getKeepinName(Int_t i, Int_t j)
 {
-   sprintf(keepinName,"MVDKeepin0%i",i+1);
-   return keepinName;
+   sprintf(fKeepinName,"MVDKeepin0%i",i+1);
+   return fKeepinName;
 }

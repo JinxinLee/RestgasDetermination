@@ -29,9 +29,9 @@ class PndMvdSimplePixelClusterFinder : public PndMvdPixelClusterFinder
 			std::vector< std::vector< Int_t> > GetClusters();
 	private :
 			//PndMvdDigiPixel MoveHit(std::vector<PndMvdDigiPixel>* hitVector, Int_t index);
-			Int_t MoveHit(std::vector<Int_t>* hitVector, Int_t index);
-			
-			bool IsInRange(PndMvdDigiPixel hit1, PndMvdDigiPixel hit2);
+			Int_t MoveHit(std::vector<Int_t>* hitVector, Int_t index) const;
+
+			bool IsInRange(PndMvdDigiPixel hit1, PndMvdDigiPixel hit2) const;
 
 };
 #endif

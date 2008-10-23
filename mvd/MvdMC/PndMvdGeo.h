@@ -3,7 +3,7 @@
 
 #include "CbmGeoSet.h"
 
-class  PndMvdGeo : public CbmGeoSet 
+class  PndMvdGeo : public CbmGeoSet
 {
  public:
   PndMvdGeo();
@@ -13,9 +13,9 @@ class  PndMvdGeo : public CbmGeoSet
   const char* getKeepinName(Int_t i,Int_t j);
   inline Int_t getModNumInMod(const TString& name) const;
  protected:
-  char modName[20];  // name of module
-  char eleName[20];  // substring for elements in module
-  char keepinName[20];
+  char fModName[20];  // name of module
+  char fEleName[20];  // substring for elements in module
+  char fKeepinName[20];
 
   ClassDef(PndMvdGeo,1); // Class for PndMvd
 };

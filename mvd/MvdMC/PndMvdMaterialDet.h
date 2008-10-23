@@ -31,7 +31,7 @@
 class TClonesArray;
 class TGeoNode;
 class PndMvdMCPoint;
-class CbmVolume; 
+class CbmVolume;
 
 class PndMvdMaterialDet : public CbmDetector
 {
@@ -107,7 +107,7 @@ class PndMvdMaterialDet : public CbmDetector
    *@param cl2     Target
    *@param offset  Index offset
    **/
-  virtual void CopyClones(TClonesArray* cl1, TClonesArray* cl2, 
+  virtual void CopyClones(TClonesArray* cl1, TClonesArray* cl2,
 			  Int_t offset);
 
 
@@ -120,7 +120,7 @@ class PndMvdMaterialDet : public CbmDetector
   void ConstructASCIIGeometry();
   void ExpandNode(TGeoNode *fN);
 
-  
+
  private:
 
   /** Track information to be stored until the track leaves the
@@ -142,10 +142,10 @@ class PndMvdMaterialDet : public CbmDetector
   PndMvdGeoHandling* fGeoH;	     //! Gives Access to the Path info of a hit
   Int_t fPosIndex;                   //!
   TClonesArray* fPndMvdCollection;      //! Hit collection
-  
+
   std::vector<std::string> fListOfSensitives;
-  
-  bool CheckIfSensitive(std::string name);
+
+  bool CheckIfSensitive(std::string name) const;
 
   /** Private method AddHit
    **
@@ -153,8 +153,8 @@ class PndMvdMaterialDet : public CbmDetector
    **/
   PndMvdMCPoint* AddHit(Int_t trackID, Int_t detID, TString detName,
   		      TVector3 posIn, TVector3 posOut,
-		      TVector3 momIn, TVector3 momOut, 
-		      Double_t time, Double_t length, Double_t eLoss)const; 
+		      TVector3 momIn, TVector3 momOut,
+		      Double_t time, Double_t length, Double_t eLoss)const;
 
 
   /** Private method ResetParameters
