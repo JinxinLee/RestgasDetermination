@@ -449,7 +449,7 @@ void PndLhePidMaker::GetTofInfo(PndLhePidTrack* track) {
 	{
 	  CbmTrackParH *fStart= new CbmTrackParH(track->GetLastHit().GetCoord(), track->GetMomentum(), track->GetLastHit().GetError(), (TVector3)(track->GetMomentum()*0.), track->GetCharge());
 	  CbmTrackParH *fRes= new CbmTrackParH();
-	  Bool_t rc =  fPro->Propagate(fStart, fRes, 13);	
+	  Bool_t rc =  fPro->Propagate(fStart, fRes, -13*track->GetCharge());	
 	  if (rc)
 	    {
 	      vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
@@ -529,7 +529,7 @@ void PndLhePidMaker::GetEmcInfo(PndLhePidTrack* track) {
 	{
 	  CbmTrackParH *fStart= new CbmTrackParH(track->GetLastHit().GetCoord(), track->GetMomentum(), track->GetLastHit().GetError(), (TVector3)(track->GetMomentum()*0.), track->GetCharge());
 	  CbmTrackParH *fRes= new CbmTrackParH();
-	  Bool_t rc =  fPro->Propagate(fStart, fRes, 13);
+	  Bool_t rc =  fPro->Propagate(fStart, fRes, -13*track->GetCharge());
 	  if (rc)
 	    {
 	      vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
@@ -607,7 +607,7 @@ void PndLhePidMaker::GetMdtInfo(PndLhePidTrack* track) {
 	{
 	  CbmTrackParH *fStart= new CbmTrackParH(track->GetLastHit().GetCoord(), track->GetMomentum(), track->GetLastHit().GetError(), (TVector3)(track->GetMomentum()*0.), track->GetCharge());
 	  CbmTrackParH *fRes= new CbmTrackParH();
-	  Bool_t rc =  fPro->Propagate(fStart, fRes, 13); 
+	  Bool_t rc =  fPro->Propagate(fStart, fRes, -13*track->GetCharge()); 
 	  if (rc)
 	    {
 	      vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
@@ -680,7 +680,7 @@ void PndLhePidMaker::GetDrcInfo(PndLhePidTrack* track) {
 	{
 	  CbmTrackParH *fStart= new CbmTrackParH(track->GetLastHit().GetCoord(), track->GetMomentum(), track->GetLastHit().GetError(), (TVector3)(track->GetMomentum()*0.), track->GetCharge());
 	  CbmTrackParH *fRes= new CbmTrackParH();
-	  Bool_t rc =  fPro->Propagate(fStart, fRes, 13); 	
+	  Bool_t rc =  fPro->Propagate(fStart, fRes, -13*track->GetCharge()); 	
 	  if (rc)
 	    {
 	      vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());

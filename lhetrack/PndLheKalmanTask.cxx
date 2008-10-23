@@ -189,7 +189,7 @@ void PndLheKalmanTask::Exec(Option_t* opt)
       }
     
     // Starting values for guessing
-    Int_t PDGCode= 211;
+    Int_t PDGCode= 211*lheTrack->GetCharge();
     TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
     TParticlePDG *fParticle= fdbPDG->GetParticle(PDGCode);
     Double_t  fCharge= lheTrack->GetCharge();
