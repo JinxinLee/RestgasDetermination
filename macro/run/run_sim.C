@@ -5,32 +5,9 @@
   timer.Start();
   gDebug=0;
   // Load basic libraries
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-  basiclibs();
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  rootlogon();
 
-  // Load this example libraries
-  gSystem->Load("libGeoBase");
-  gSystem->Load("libParBase");
-  gSystem->Load("libBase");
-  gSystem->Load("libMCStack");
-  gSystem->Load("libGen");
-  gSystem->Load("libField");
-  
-  gSystem->Load("libPassive");
-  gSystem->Load("libStt"); 
-  gSystem->Load("libMdt");
-  gSystem->Load("libEmc");
-  gSystem->Load("libMvd");
-  gSystem->Load("libDrcProp");
-  gSystem->Load("libDrc");
-  gSystem->Load("libTof");
-  gSystem->Load("libgenfit");
-  gSystem->Load("libtpc");
-  gSystem->Load("libtpcreco");
-  gSystem->Load("libTrkBase");
-  gSystem->Load("libtrackrep");
-  gSystem->Load("librecotasks");
- 
   CbmRunSim *fRun = new CbmRunSim();
   
   // set the MC version used
