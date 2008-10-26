@@ -23,6 +23,7 @@
 // C/C++ Headers ----------------------
 #include <iostream>
 #include <assert.h>
+#include <cmath>
 
 // Collaborating Class Headers --------
 #include "PndRiemannHit.h"
