@@ -180,8 +180,8 @@ void PndTpcLheTrackFinder::Finish() {
 
   cout << " found  "<< fFoundTracks->GetEntries() << " tracks\n";
 
-  CbmRootManager *fManager =CbmRootManager::Instance(); 
-  fManager->Fill();
+  //CbmRootManager *fManager =CbmRootManager::Instance(); 
+  //fManager->Fill();
 
 }
 
