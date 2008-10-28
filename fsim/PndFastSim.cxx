@@ -422,36 +422,33 @@ void PndFastSim::Exec(Option_t* opt)
       else 
         tcand=new (neutCandidates[neucandsize]) TCandidate(ft->p4(),ft->charge(),svtx);
 
-      double pidinfo[30];
-    
       // the likelihood values;
-      pidinfo[0] = ft->detResponse()->LHElectron();
-      pidinfo[1] = ft->detResponse()->LHMuon(); 
-      pidinfo[2] = ft->detResponse()->LHPion(); 
-      pidinfo[3] = ft->detResponse()->LHKaon();
-      pidinfo[4] = ft->detResponse()->LHProton();
+      tcand->SetPidInfo( 0, ft->detResponse()->LHElectron());
+      tcand->SetPidInfo( 1, ft->detResponse()->LHMuon());
+      tcand->SetPidInfo( 2, ft->detResponse()->LHPion());
+      tcand->SetPidInfo( 3, ft->detResponse()->LHKaon());
+      tcand->SetPidInfo( 4, ft->detResponse()->LHProton());
       
       //the direct pid relevant measurements
-      pidinfo[5] = ft->detResponse()->DrcBarrelThtc();
-      pidinfo[6] = ft->detResponse()->DrcDiscThtc();
-      pidinfo[7] = ft->detResponse()->RichThtc();
-      pidinfo[8] = ft->detResponse()->m2();
-      pidinfo[9] = ft->detResponse()->MvddEdx();
-      pidinfo[10]= ft->detResponse()->SttdEdx();
-      pidinfo[11]= ft->detResponse()->TpcdEdx();
+      tcand->SetPidInfo( 5, ft->detResponse()->DrcBarrelThtc());
+      tcand->SetPidInfo( 6, ft->detResponse()->DrcDiscThtc());
+      tcand->SetPidInfo( 7, ft->detResponse()->RichThtc());
+      tcand->SetPidInfo( 8, ft->detResponse()->m2());
+      tcand->SetPidInfo( 9, ft->detResponse()->MvddEdx());
+      tcand->SetPidInfo(10, ft->detResponse()->SttdEdx());
+      tcand->SetPidInfo(11, ft->detResponse()->TpcdEdx());
     
-      pidinfo[12] = ft->detResponse()->DrcBarrelThtcErr();
-      pidinfo[13] = ft->detResponse()->DrcDiscThtcErr();
-      pidinfo[14] = ft->detResponse()->RichThtcErr();
-      pidinfo[15] = ft->detResponse()->m2Err();
-      pidinfo[16] = ft->detResponse()->MvddEdxErr();
-      pidinfo[17]= ft->detResponse()->SttdEdxErr();
-      pidinfo[18]= ft->detResponse()->TpcdEdxErr();
-      pidinfo[29]= (double) ft->pdt();
+      tcand->SetPidInfo(12,  ft->detResponse()->DrcBarrelThtcErr());
+      tcand->SetPidInfo(13, ft->detResponse()->DrcDiscThtcErr());
+      tcand->SetPidInfo(14, ft->detResponse()->RichThtcErr());
+      tcand->SetPidInfo(15, ft->detResponse()->m2Err());
+      tcand->SetPidInfo(16, ft->detResponse()->MvddEdxErr());
+      tcand->SetPidInfo(17, ft->detResponse()->SttdEdxErr());
+      tcand->SetPidInfo(18, ft->detResponse()->TpcdEdxErr());
+      tcand->SetPidInfo(29, (double) ft->pdt());
       //cout<<"********************** PID="<<ft->pdt()<<endl;
       
       tcand->SetMcIdx(iPoint);
-      tcand->SetPidInfo(pidinfo);
       tcand->SetType(ft->pdt());
       
       if (fPropagate && fabs(charge)>1e-6) {
