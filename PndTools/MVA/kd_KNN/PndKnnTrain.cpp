@@ -60,7 +60,7 @@ PndKnnTrain::PndKnnTrain(const char *OutPut,
     m_SigTrees.push_back(sig);
   }
   /*
-   * All trees for all classes are initialized an now we are ready to
+   * All trees for all classes are initialized and now we are ready to
    * do the training
    */
 }

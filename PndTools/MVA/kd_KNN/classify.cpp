@@ -30,11 +30,11 @@ int main(int argc, char** argv)
   std::vector<std::string> clas;
   std::vector<std::string> nam;
   
-  // Classes
+  // Classes (container to hold the class names)
   clas.push_back("El"); clas.push_back("Pi"); clas.push_back("Ka");
   clas.push_back("gam"); clas.push_back("mu");
   
-  // Variables
+  // Variables (names)
   nam.push_back("ep"); nam.push_back("tof"); nam.push_back("mvd");
   nam.push_back("p");  nam.push_back("f");   nam.push_back("d");
   //nam.push_back("a");  nam.push_back("b");   nam.push_back("c");
@@ -43,6 +43,7 @@ int main(int argc, char** argv)
   TStopwatch timer;
   timer.Start();
 
+  //Create the classifier object and specify the weight file
   PndKnnClassify cls ("Test.root",clas,nam);
   std::cout << "Done, creating the trees" << std::endl;
 
@@ -52,7 +53,6 @@ int main(int argc, char** argv)
   std::cout<< "RealTime = " << rtime << " seconds, CpuTime = " 
            << ctime <<" Seconds" << std::endl;
 
-  //std::vector<float> evt(9,5.0);
   std::vector<float> evt,evt1,evt2;
   
   evt.clear();

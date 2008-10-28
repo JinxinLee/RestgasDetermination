@@ -33,8 +33,11 @@ class PndKnnTrain{
   /* Class destructor */
   virtual ~PndKnnTrain();
   
-  /* Train the classifier */
-  void Train(const std::vector<float> &EvtData, const std::string cls);
+  /* Train the classifier 
+   * @param EvtData: The current event feature vector.
+   * @param cls: The class name (label) of the current event.
+   */
+  void Train(const std::vector<float>& EvtData, const std::string cls);
   
  protected:
   
