@@ -21,6 +21,35 @@ double f3(double x){
 double f4(double x){
   return -0.0597+0.152*x;
 }
+double f5(double x){
+  if (x<0.1){
+	return -0.01253;
+  }
+  if (x>0.1&&x<0.2){
+	return -0.01069;
+  }
+  if (x>0.2&&x<0.3){
+	return -0.006227;
+  }
+  if (x>0.3&&x<0.4){
+	return 0.00002076;
+  }
+  if (x>0.4&&x<0.5){
+	return 0.002216;
+  }
+  if (x>0.5&&x<0.6){
+	return 0.00589;
+  }
+  if (x>0.6&&x<0.7){
+	return 0.01087;
+  }
+  if (x>0.7){
+	return 0.01572;
+  }
+}
+double f6(double x){
+  return 0.04096*x-0.01777;
+}
 
 TCtrack vertical(TCtrack t){
 
@@ -29,8 +58,8 @@ TCtrack vertical(TCtrack t){
   for(int i=0;i<t.nCl();++i){
     TCcluster c = t.getCl(i);
     if(c.getId()>=200 && c.getId()<=299){
-		tpc.push_back(c);
-      }
+	  tpc.push_back(c);
+	}
   }
   //std::sort(tpc.begin(),tpc.end(),TCclusterSortUVW());
 
@@ -77,5 +106,74 @@ TCtrack vertical(TCtrack t){
    
 }
 
+TCtrack mean_vertical(TCtrack t){
 
+  std::vector<TCcluster> tpc;//will hold clusters in TPC
+  for(int i=0;i<t.nCl();++i){
+    TCcluster c = t.getCl(i);
+    if(c.getId()>=200 && c.getId()<=299){
+	  tpc.push_back(c);
+	}
+  }
+
+  int detId;
+  std::vector<TCcluster> corrClusters;
+  for(unsigned int icl=0;icl<tpc.size();++icl){   
+
+	detId=t.getCl(icl).getId();
+	if(!t.getCl(icl).getFit()) continue;
+	TVector3 pos = t.getCl(icl).posUVW();
+	TVector3 res = t.getCl(icl).getRes();
+
+	res.SetY(res.Y()-f5(pos.Y()));
+
+	//t.getCl(icl).getRes(res);
+	//	t.getCl(icl).posUVW(pos);
+	  
+	corrClusters.push_back(t.getCl(icl));
+	
+  }
+
+  TCtrack corrTrack;
+  corrTrack.addClusters(corrClusters);
+  TCalign::getInstance();
+  corrTrack.fit(detId);
+  return corrTrack;
+   
+}
+/*
+TCtrack mean_vertical(TCtrack t){
+
+  std::vector<TCcluster> tpc;//will hold clusters in TPC
+  for(int i=0;i<t.nCl();++i){
+    TCcluster c = t.getCl(i);
+    if(c.getId()>=200 && c.getId()<=299){
+	  tpc.push_back(c);
+	}
+  }
+
+  int detId;
+  std::vector<TCcluster> corrClusters;
+  for(unsigned int icl=0;icl<tpc.size();++icl){   
+
+	detId=t.getCl(icl).getId();
+	if(!t.getCl(icl).getFit()) continue;
+	TVector3 pos = t.getCl(icl).posUVW();
+
+	pos.SetY(pos.Y()-f6(pos.Y()));
+
+	t.getCl(icl).posUVW(pos);
+	  
+	corrClusters.push_back(t.getCl(icl));
+	
+  }
+
+  TCtrack corrTrack;
+  corrTrack.addClusters(corrClusters);
+  TCalign::getInstance();
+  corrTrack.fit(detId);
+  return corrTrack;
+   
+}
+*/
 #endif

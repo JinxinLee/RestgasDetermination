@@ -38,7 +38,7 @@ void position(TString files){
   //define the histograms
   //without using clusterSplit1.C
 
-  double cuts[3]={200.,400.,600.};
+  double cuts[3]={250.,400.,600.};
   int colors[3]={kRed,kGreen,kBlue};
 
   TH1D *vpos = new TH1D("vpos","",100,0,1);
@@ -67,14 +67,16 @@ void position(TString files){
 	for(int i=0;i<tr.nCl();++i){
 	  TCcluster c = tr.getCl(i);
 	  if(!c.getFit()) continue;
-	  if(c.nPadY()!=1) continue;
-	  if(c.nTime()!=1) continue;
-	  amp->Fill(c.getAmp());
+	  //if(c.nPadY()!=1) continue;
+	  //if(c.nTime()!=1) continue;
+	  for(int j=0;j<c.nRaw();++j){
+	  amp->Fill(c.getRaw(j).getAmp());
 	  amp_V->Fill(c.getAmp(),c.posUVW().Y());
-	  vpos->Fill(c.posUVW().Y());
-	  if(c.getAmp()>cuts[0]) vpos0->Fill(c.posUVW().Y());
-	  if(c.getAmp()>cuts[1]) vpos1->Fill(c.posUVW().Y());
-	  if(c.getAmp()>cuts[2]) vpos2->Fill(c.posUVW().Y());
+	  vpos->Fill(c.getRaw(j).posUVW().Y());
+	  if(c.getRaw(j).getAmp()>cuts[0]) vpos0->Fill(c.getRaw(j).posUVW().Y());
+	  if(c.getRaw(j).getAmp()>cuts[1]) vpos1->Fill(c.getRaw(j).posUVW().Y());
+	  if(c.getRaw(j).getAmp()>cuts[2]) vpos2->Fill(c.getRaw(j).posUVW().Y());
+	  }
 	}
 
   }
