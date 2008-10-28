@@ -35,7 +35,6 @@ Detector::Detector(int id_,
     biasdT=biasdT_;
     biasdP=biasdP_;
     sigma=sigma_;
-    cout<<"Sigma: "<<sigma<<endl;
     cosT=cos(T);
     sinT=sin(T);
 }
@@ -45,6 +44,18 @@ void Detector::setErrors(const Detector* const det){
     dy=(det->getY()-y);
     dz=(det->getZ()-z);
     dT=(det->getT()-T);
+    if(dT!=0){
+      cout<<"ID:"<<id<<" dTheta: "<<dT<<endl;
+    }
+    if(dx!=0){
+      cout<<"ID:"<<id<<" dx "<<dx<<endl;
+    }
+    if(dy!=0){
+      cout<<"ID:"<<id<<" dy "<<dy<<endl;
+    }
+    if(dz!=0){
+      cout<<"ID:"<<id<<" dz "<<dx<<endl;
+    }
 }
 
 double Detector::round(double u_){

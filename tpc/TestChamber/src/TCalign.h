@@ -25,7 +25,7 @@ public:
 	rot=*(R[id]);
 	pitch=*(P[id]);
     }
-    void getConv(int id,TVector3& trans,TMatrixT<double>& rot,double& pitch, double& theta_,double& phi_, double& psi_  ){
+    void getConv(int id,TVector3& trans,TMatrixT<double>& rot,double& pitch, double& theta_,double& phi_, double& psi_, double& resolution_){
 	getConv(id, trans, rot, pitch);
 	if(Theta[id]==NULL) quit(id);
 	if(Phi[id]==NULL) quit(id);
@@ -33,17 +33,23 @@ public:
 	theta_=*(Theta[id]);
 	phi_=*(Phi[id]);
 	psi_=*(Psi[id]);
-	
+	resolution_=*(Resolution[id]);
     }
     
     void setConv(int id,const TVector3& trans,
-		 const TMatrixT<double>& rot, const double& pitch, const double& theta_=0, const double& phi_=0, const double& psi_=0){
+		 const TMatrixT<double>& rot, 
+                 const double& pitch, 
+                 const double& theta_=0, 
+                 const double& phi_=0, 
+                 const double& psi_=0,
+                 const double& resolution_=0.1){
 	T[id]=new TVector3(trans);
 	R[id]=new TMatrixT<double>(rot);
 	P[id]=new double(pitch);
 	Theta[id] = new double(theta_);
 	Phi[id] = new double(phi_);
 	Psi[id] = new double(psi_);
+        Resolution[id] = new double(resolution_);
     }
 
     std::vector<int> getLoadedIDs();
@@ -73,6 +79,7 @@ private:
     std::map<int,double*> Theta; 
     std::map<int,double*> Phi;
     std::map<int,double*> Psi;
+    std::map<int,double*> Resolution;
     static TCalign *inst;
     TCalign(std::string filename){
 	read(filename);

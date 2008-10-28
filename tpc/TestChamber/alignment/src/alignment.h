@@ -29,7 +29,7 @@ class Alignment{
     bool simulation;
     
     void generateTracks(int amount,
-			double length=500,
+			double length=150,
 			double startwidht=2,
 			double startheight=2,
 			double endheight=2,

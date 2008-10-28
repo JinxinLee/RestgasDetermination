@@ -52,7 +52,7 @@ std::vector<int> TCalign::getLoadedIDs(){
     for(std::map<int, double*>::const_iterator it = P.begin(); it != P.end(); ++it)
     {
 	ids.push_back(it->first);
-	std::cout<<"id map: "<<it->first<<std::endl;
+	//std::cout<<"id map: "<<it->first<<std::endl;
     }
 
     return ids;
@@ -96,15 +96,20 @@ void TCalign::read(std::string filename){
       istr5>>pitch;
       input.getline(line,199);
       std::istringstream istr6(line);
-      double theta,phi,psi;
+      double resolution;
       istr6>>s;
-      istr6>>theta>>phi>>psi;
+      istr6>>resolution;
+      input.getline(line,199);
+      std::istringstream istr7(line);
+      double theta,phi,psi;
+      istr7>>s;
+      istr7>>theta>>phi>>psi;
       TVector3 trans(x,y,z);
       TMatrixT<double> M(3,3);
       M[0][0]=M00;    M[0][1]=M01;    M[0][2]=M02;
       M[1][0]=M10;    M[1][1]=M11;    M[1][2]=M12;
       M[2][0]=M20;    M[2][1]=M21;    M[2][2]=M22;
-      setConv(id,trans,M,pitch,theta,phi,psi);
+      setConv(id,trans,M,pitch,theta,phi,psi,resolution);
         }
   }
 }
@@ -141,6 +146,8 @@ void TCalign::write(std::string filename){
     fprintf(file,"rotationL2  %.7E %.7E %.7E\n",(*R[ids.at(i)])[1][0],(*R[ids.at(i)])[1][1],(*R[ids.at(i)])[1][2]);
     fprintf(file,"rotationL3  %.7E %.7E %.7E\n",(*R[ids.at(i)])[2][0],(*R[ids.at(i)])[2][1],(*R[ids.at(i)])[2][2]);
     fprintf(file,"pitch       %.7E\n",*(P[ids.at(i)]));
+    fprintf(file,"Resolution  %.7E\n",*(Resolution[ids.at(i)]));
+    fprintf(file,"euler       %.7E %.7E %.7E\n",(*(Theta[ids.at(i)])),(*(Phi[ids.at(i)])),(*(Psi[ids.at(i)])));
   }
   
   fclose(file);
