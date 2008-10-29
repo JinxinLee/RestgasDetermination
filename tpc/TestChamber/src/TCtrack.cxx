@@ -127,10 +127,14 @@ bool TCtrack::fit(int id1,int id2,int id3,int id4,int id5,int id6,int id7,int id
   double par[4] = {ax,bx,ay,by};
   chi2=0.;
   NDF=0;
-  for(unsigned int i=0;i<glob_clusters.size();++i){
-    cl.at(i).setResid(par);
+
+  cl.clear();
+  cl = glob_clusters;
+
+  for(unsigned int i=0;i<cl.size();++i){
     if(glob_id.count(glob_clusters.at(i).getId())>0
-       && glob_clusters.at(i).getFit()){
+       && cl.at(i).getFit()){
+      cl.at(i).setResid(par);
       chi2+=glob_clusters.at(i).getChi2(par);
       NDF+=glob_clusters.at(i).getNDF();
     }
