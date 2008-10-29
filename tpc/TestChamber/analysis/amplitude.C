@@ -25,9 +25,16 @@
 #include <vector>
 #include <set>
 
-#include "cuts.C"
+//include macros to recalculate or cut the data
 
-void position(TString files){
+//cuts.C includes cuts on differen Trackparameter
+#include "cuts.C"
+//corrections.C recalculates the clusterposition according to
+//the fit done in residuals_vs_position.C
+//mark: included here but not used in this macro.
+#include "corrections.C"
+
+void amplitude(TString files){
 
   TChain myChain("at");
 
@@ -38,15 +45,21 @@ void position(TString files){
   TCtrack *intr=0;
 
   //define the histograms
-  //without using clusterSplit1.C
+
+  //TH2D to plot amplitude vs position of the clusters
 
   TH2D *amp_cl_u = new TH2D("amp_cl_u","",10,0,10,100,0,5000);
   TH2D *amp_cl_v = new TH2D("amp_cl_v","",500,0,1,100,0,5000);
   TH2D *amp_cl_w = new TH2D("amp_cl_w","",100,0,10,100,0,5000);
 
+  //Profiles of the distributions above
+
   TProfile *prof_amp_cl_u = new TProfile("prof_amp_cl_u","",100,0,10,0,2000);
   TProfile *prof_amp_cl_v = new TProfile("prof_amp_cl_v","",500,0,1,0,2000);
   TProfile *prof_amp_cl_w = new TProfile("prof_amp_cl_w","",100,0,10,0,2000);
+
+  //TH1D to plot distributions of the amplitudes according to the 
+  //cluster-position in v. (v ranges see in event loop)
 
   TH1D *amp_cl_v_1 = new TH1D("amp_cl_v_1","",100,0,2000);
   amp_cl_v_1->SetLineColor(1);
@@ -65,13 +78,20 @@ void position(TString files){
   TH1D *amp_cl_v_8 = new TH1D("amp_cl_v_8","",100,0,2000);
   amp_cl_v_8->SetLineColor(8);
 
+  //TH2D to plot amplitude vs position for the raw hits 
+
   TH2D *amp_u = new TH2D("amp_u","",10,0,10,100,0,5000);
   TH2D *amp_v = new TH2D("amp_v","",10,0,1,100,0,5000);
   TH2D *amp_w = new TH2D("amp_w","",100,0,10,100,0,5000);
 
+  //Profiles of the TH2Ds above
+
   TProfile *prof_amp_u = new TProfile("prof_amp_u","",100,0,10,0,2000);
   TProfile *prof_amp_v = new TProfile("prof_amp_v","",100,0,1,0,2000);
   TProfile *prof_amp_w = new TProfile("prof_amp_w","",100,0,10,0,2000);
+
+  //TH1D to plot distributions of the raw- amplitudes according to the 
+  //raw-hit-position in v. (v ranges see in event loop)
 
   TH1D *amp_v_1 = new TH1D("amp_v_1","",100,0,2000);
   amp_v_1->SetLineColor(1);
@@ -92,20 +112,30 @@ void position(TString files){
 
   myChain.SetBranchAddress("track", &intr);
 
+  //event loop 
+  //loop over events
+
   for (Int_t iev=0;iev<nevent;iev++){
      
     myChain.GetEntry(iev);
     TCtrack tr(*intr);
 
+	//definition of IEEE cuts see cuts.C
     if(!IEEE(tr)) continue;
 	
-	for(int i=0;i<tr.nCl();++i){
-	  TCcluster c = tr.getCl(i);
-	  if(!c.getFit()) continue;
-	  if(c.nPadY()==1) continue;
-	  //	  if(c.nTime()!=1) continue;
+	//loop over clusters in event
 
+	for(int i=0;i<tr.nCl();++i){
+	  //just shorter than typing tr.getCl(i) every time
+	  TCcluster c = tr.getCl(i);
+	  //make sure the cluster was used to fit the track
+	  if(!c.getFit()) continue;
+	  //some other cuts that are not included in cuts.C
+	  if(c.nPadY()==1) continue;
+	  //if(c.nTime()!=1) continue;
 	  // if(c.nRaw()!=2)continue;
+
+	  //just fill the histograms
 
 	  amp_cl_u->Fill(c.posUVW().X(),c.getAmp());
 	  amp_cl_v->Fill(c.posUVW().Y(),c.getAmp());
@@ -124,7 +154,11 @@ void position(TString files){
 	  if(c.posUVW().Y()>0.6&&c.posUVW().Y()<0.7) amp_cl_v_7->Fill(c.getAmp());
 	  if(c.posUVW().Y()>0.7) amp_cl_v_8->Fill(c.getAmp());
 
+	  //loop over Raw-hits inside the cluster
+
 	  for(int j=0;j<c.nRaw();++j){
+
+		//and again fill histograms
 
 		amp_u->Fill(c.getRaw(j).posUVW().X(),c.getRaw(j).getAmp());
 		amp_v->Fill(c.getRaw(j).posUVW().Y(),c.getRaw(j).getAmp());
@@ -148,6 +182,10 @@ void position(TString files){
 
   //end of event loop
 
+  //Draw all that stuff
+
+  //legend for the plots with a lot of histograms inside
+
   TLegend *leg = new TLegend(0.5,0.7,0.999,0.999);
   leg->AddEntry(amp_cl_v_1,"v < 0.1mm","l");
   leg->AddEntry(amp_cl_v_2,"0.1mm < v < 0.2mm","l");
@@ -163,6 +201,8 @@ void position(TString files){
   leg1->AddEntry(amp_cl_v_1,"first and last v pad","l");
   leg1->AddEntry(amp_cl_v_2,"v pads in between","l");
   leg1->SetFillColor(0);
+
+  //define canvases and draw with according options
 
   TCanvas *canvas = new TCanvas();
   amp_u->Draw("lego");
