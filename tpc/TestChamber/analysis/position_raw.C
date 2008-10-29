@@ -46,7 +46,9 @@ void position(TString files){
   TH1D *v_raw = new TH1D("v_raw","",50,0,1);
   TH1D *w_raw = new TH1D("w_raw","",100,0,10);
 
-  TH2D *w_vs_v = new TH2D("w_vs_v","",100,0,10,10,0,1);
+  TH2D *w_vs_v = new TH2D("w_vs_v","",100,0,10,100,0,1);
+
+  TH2D *w_vs_v_raw = new TH2D("w_vs_v_raw","",100,0,10,10,0,1);
 
   TH2D *w_vs_v_1 = new TH2D("w_vs_v_1","",100,0,10,10,0,1);
   TH2D *w_vs_v_2 = new TH2D("w_vs_v_2","",100,0,10,10,0,1);
@@ -88,13 +90,15 @@ void position(TString files){
 	  v->Fill(c.posUVW().Y());
 	  w->Fill(c.posUVW().Z());
 
+	  w_vs_v->Fill(c.posUVW().Z(),c.posUVW().Y());
+
 	  for(int j=0;j<c.nRaw();++j){
 
 		u_raw->Fill(c.getRaw(j).posUVW().X());
 		v_raw->Fill(c.getRaw(j).posUVW().Y());
 		w_raw->Fill(c.getRaw(j).posUVW().Z());
 
-		w_vs_v->Fill(c.getRaw(j).posUVW().Z(),c.getRaw(j).posUVW().Y());
+		w_vs_v_raw->Fill(c.getRaw(j).posUVW().Z(),c.getRaw(j).posUVW().Y());
 
 		if(c.nPadY()==1) w_vs_v_1->Fill(c.getRaw(j).posUVW().Z(),c.getRaw(j).posUVW().Y());
 		if(c.nPadY()==2) w_vs_v_2->Fill(c.getRaw(j).posUVW().Z(),c.getRaw(j).posUVW().Y());
@@ -129,6 +133,9 @@ void position(TString files){
   w->Draw();
 
   canvas = new TCanvas();
+  w_vs_v->Draw("colz");
+
+  canvas = new TCanvas();
   u_raw->Draw();
   canvas = new TCanvas();
   v_raw->Draw();
@@ -136,7 +143,7 @@ void position(TString files){
   w_raw->Draw();
 
   canvas = new TCanvas();
-  w_vs_v->Draw("colz");
+  w_vs_v_raw->Draw("colz");
   canvas = new TCanvas();
   w_vs_v_1->Draw("lego");
   canvas = new TCanvas();
