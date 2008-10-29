@@ -114,9 +114,9 @@ void resolution(TString files){
 
       TCcluster c = tr.getCl(i);
       if(c.getFit()){ 
-   		if(c.posUVW().Y()<0.3 || c.posUVW().Y()>0.5)continue;
-		if(c.nPadY()==1)continue;
-		vall->Fill(c.getRes().Y());
+		//	if(c.posUVW().Y()<0.3 || c.posUVW().Y()>0.5)continue;
+		//	if(c.nPadY()==1)continue;
+	   	vall->Fill(c.getRes().Y());
 		wall->Fill(c.getRes().Z());
 
 		double w = c.posUVW().Z();
@@ -130,6 +130,15 @@ void resolution(TString files){
 		if(v<0.6&&v>0.5)prof_vV6->Fill(v,c.getRes().Y());
 		if(v<0.7&&v>0.6)prof_vV7->Fill(v,c.getRes().Y());
 		if(v<0.74&&v>0.7)prof_vV8->Fill(v,c.getRes().Y());
+		/*
+		if(v<0.1)vall->Fill(c.getRes().Y()-prof_vV1->GetMean(2));
+		if(v<0.2&&v>0.1)vall->Fill(c.getRes().Y()-prof_vV2->GetMean(2));
+		if(v<0.3&&v>0.2)vall->Fill(c.getRes().Y()-prof_vV3->GetMean(2));
+		if(v<0.4&&v>0.3)vall->Fill(c.getRes().Y()-prof_vV4->GetMean(2));
+		if(v<0.5&&v>0.4)vall->Fill(c.getRes().Y()-prof_vV5->GetMean(2));
+		if(v<0.6&&v>0.5)vall->Fill(c.getRes().Y()-prof_vV6->GetMean(2));
+		if(v<0.7&&v>0.6)vall->Fill(c.getRes().Y()-prof_vV7->GetMean(2));
+		if(v>0.7)vall->Fill(c.getRes().Y()-prof_vV8->GetMean(2));
 
 		if(w>0&&w<1){	
 		  if(v<0.1)v01->Fill(c.getRes().Y()-prof_vV1->GetMean(2));
@@ -218,8 +227,8 @@ void resolution(TString files){
 		  if(v<0.7&&v>0.6)v08->Fill(c.getRes().Y()-prof_vV7->GetMean(2));
 		  if(v>0.7)v08->Fill(c.getRes().Y()-prof_vV8->GetMean(2));
 		}
-
-		/*
+		*/
+		
 		if(w>0&&w<1) v01->Fill(c.getRes().Y());
 		if(w>1&&w<2) v02->Fill(c.getRes().Y());
 		if(w>2&&w<3) v03->Fill(c.getRes().Y());
@@ -228,7 +237,7 @@ void resolution(TString files){
 		if(w>5&&w<6) v06->Fill(c.getRes().Y());
 		if(w>6&&w<7) v07->Fill(c.getRes().Y());
 		if(w>7&&w<8) v08->Fill(c.getRes().Y());
-		*/
+		
 
 		if(w>0&&w<1) w01->Fill(c.getRes().Z());
 		if(w>1&&w<2) w02->Fill(c.getRes().Z());
@@ -295,14 +304,12 @@ void resolution(TString files){
   TF1 *doublegaus_vall = new TF1("doublegaus_vall",doublegausf,-.1,.1,5);
 
   doublegaus_vall->SetParameters(20,vall->GetMean(),vall->GetRMS(),5,vall->GetRMS());
-  
+  /*
     doublegaus_vall->SetParLimits(0,1,1000);
-    doublegaus_vall->SetParLimits(2,0.01,0.025);
-  
+    doublegaus_vall->SetParLimits(2,0.01,0.025);  
     doublegaus_vall->SetParLimits(3,1,200);
-	
     doublegaus_vall->SetParLimits(4,0.025,0.045);
-  
+  */
   vall->Fit("doublegaus_vall","R");
 
   TF1 *vall_f1 = new TF1("vall_f1","gaus",-0.1,0.1);
@@ -972,9 +979,9 @@ void resolution(TString files){
 
   TCanvas *canvas = new TCanvas();
   vall->Draw();
-  doublegaus_vall->Draw("same");
-  vall_f1->Draw("same");
-  vall_f2->Draw("same");
+  // doublegaus_vall->Draw("same");
+  // vall_f1->Draw("same");
+  // vall_f2->Draw("same");
   canvas = new TCanvas();
   v01->Draw();
   doublegaus_v01->Draw("same");

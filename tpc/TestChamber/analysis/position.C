@@ -106,17 +106,22 @@ void position(TString files){
       TCcluster d = tr.getCl(i);
       if(d.getFit()){//was used in fit
 		//if(d.nPadY()!=2) continue;
-	   	if(d.nTime()==1) continue;
+		//	   	if(d.nTime()==1) continue;
+		/*
+		  if(d.nPadY()==1) upos_4clust->Fill(d.posUVW().X());
+		  if(d.nPadY()==1) vpos_4clust->Fill(d.posUVW().Y());
+		  if(d.nPadY()==1) wpos_4clust->Fill(d.posUVW().Z());
+		  if(d.nPadY()==1) v_vs_w_4clust->Fill(d.posUVW().Y(),d.posUVW().Z());
+		*/
+		upos_4clust->Fill(d.posUVW().X());
+		vpos_4clust->Fill(d.posUVW().Y());
+		wpos_4clust->Fill(d.posUVW().Z());
+		v_vs_w_4clust->Fill(d.posUVW().Y(),d.posUVW().Z());
 
-	if(d.nPadY()==1) upos_4clust->Fill(d.posUVW().X());
-	if(d.nPadY()==1) vpos_4clust->Fill(d.posUVW().Y());
-	if(d.nPadY()==1) wpos_4clust->Fill(d.posUVW().Z());
-	if(d.nPadY()==1) v_vs_w_4clust->Fill(d.posUVW().Y(),d.posUVW().Z());
-
-	if(d.nPadY()==2) upos_4clust_2->Fill(d.posUVW().X());
-	if(d.nPadY()==2) vpos_4clust_2->Fill(d.posUVW().Y());
-	if(d.nPadY()==2) wpos_4clust_2->Fill(d.posUVW().Z());
-	if(d.nPadY()==2) v_vs_w_4clust_2->Fill(d.posUVW().Y(),d.posUVW().Z());
+		if(d.nPadY()==2) upos_4clust_2->Fill(d.posUVW().X());
+		if(d.nPadY()==2) vpos_4clust_2->Fill(d.posUVW().Y());
+		if(d.nPadY()==2) wpos_4clust_2->Fill(d.posUVW().Z());
+		if(d.nPadY()==2) v_vs_w_4clust_2->Fill(d.posUVW().Y(),d.posUVW().Z());
       }
     }
   }
@@ -164,19 +169,19 @@ void position(TString files){
 
   TCanvas *canvas = new TCanvas();
   upos_4clust->Draw();
-  upos_4clust_2->Draw("same");
-  //upos_6clust->Draw("same");
-  //upos_8clust->Draw("same");
+  //upos_4clust_2->Draw("same");
+  upos_6clust->Draw("same");
+  upos_8clust->Draw("same");
   canvas = new TCanvas();
   vpos_4clust->Draw();
-  vpos_4clust_2->Draw("same");
-  //vpos_6clust->Draw("same");
-  //vpos_8clust->Draw("same");
+  //vpos_4clust_2->Draw("same");
+  vpos_6clust->Draw("same");
+  vpos_8clust->Draw("same");
   canvas = new TCanvas();
   wpos_4clust->Draw();
-  wpos_4clust_2->Draw("same");
-  //wpos_6clust->Draw("same");
-  //wpos_8clust->Draw("same");
+  //wpos_4clust_2->Draw("same");
+  wpos_6clust->Draw("same");
+  wpos_8clust->Draw("same");
 
   canvas = new TCanvas();
   v_vs_w_4clust->Draw("colz");

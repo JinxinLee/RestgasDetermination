@@ -102,10 +102,11 @@ void position(TString files){
 	
     myChain.GetEntry(iev);
     TCtrack tr(*intr);
-	TCtrack corrTrack = mean_vertical(tr);
+	//TCtrack corrTrack = mean_vertical(tr);
 
-    if(!IEEE(corrTrack)) continue;
-     
+    //if(!IEEE(corrTrack)) continue;
+    if(!IEEE(tr)) continue;
+    
 	/*
 	  bool passLow=false;
 	  bool passHigh=false;
@@ -120,9 +121,10 @@ void position(TString files){
 	  std::vector<TCcluster> corrClusters;
 	  int detId;
 	*/
-	for(int i=0;i<corrTrack.nCl();++i){
-	  
-	  TCcluster c = corrTrack.getCl(i);
+	for(int i=0;i<tr.nCl();++i){
+	  //	for(int i=0;i<corrTrack.nCl();++i){ 
+	  TCcluster c = tr.getCl(i);
+	  //TCcluster c = corrTrack.getCl(i);
 	  if (c.getFit()){
 
 		if(c.posUVW().Y()<0.1&&c.posUVW().Y()>0.06)prof_vV1->Fill(c.posUVW().Y(),c.getRes().Y());
@@ -134,7 +136,7 @@ void position(TString files){
 		if(c.posUVW().Y()<0.7&&c.posUVW().Y()>0.6)prof_vV7->Fill(c.posUVW().Y(),c.getRes().Y());
 		if(c.posUVW().Y()<0.74&&c.posUVW().Y()>0.7)prof_vV8->Fill(c.posUVW().Y(),c.getRes().Y());
 
-		/*		
+		/*				
 		if(c.posUVW().Y()<0.1)prof_v->Fill(c.posUVW().Y(),c.getRes().Y()-prof_vV1->GetMean(2));
 		if(c.posUVW().Y()<0.2&&c.posUVW().Y()>0.1)prof_v->Fill(c.posUVW().Y(),c.getRes().Y()-prof_vV2->GetMean(2));
 		if(c.posUVW().Y()<0.3&&c.posUVW().Y()>0.2)prof_v->Fill(c.posUVW().Y(),c.getRes().Y()-prof_vV3->GetMean(2));
@@ -194,7 +196,7 @@ void position(TString files){
 		wresid_vs_w->Fill(c.posUVW().Z(),c.getRes().Z());
 
 		prof_u->Fill(c.posUVW().X(),c.getRes().X());
-	   	prof_v->Fill(c.posUVW().Y(),c.getRes().Y());
+			prof_v->Fill(c.posUVW().Y(),c.getRes().Y());
 		
 		// 	if(tr.getThX()<0.&&tr.getThY()<0.)prof_vU1->Fill(d.posUVW().Y(),d.getRes().Y());
 		// 	if(tr.getThX()<0.&&tr.getThY()>0.)prof_vU2->Fill(d.posUVW().Y(),d.getRes().Y());
@@ -278,27 +280,27 @@ void position(TString files){
   canvas->Divide(3,3);
   canvas->cd(1);
   prof_vV1->Draw("");
-  prof_vV1->Fit("pol0");
+  //  prof_vV1->Fit("pol0");
   canvas->cd(2);
   prof_vV2->Draw("");
-  prof_vV2->Fit("pol0");
+  // prof_vV2->Fit("pol0");
   canvas->cd(3);
   prof_vV3->Draw("");
-  prof_vV3->Fit("pol0");
+  // prof_vV3->Fit("pol0");
   canvas->cd(4);
   prof_vV4->Draw("");
-  prof_vV4->Fit("pol0");
+  // prof_vV4->Fit("pol0");
   canvas->cd(5);
   prof_vV5->Draw("");
-  prof_vV5->Fit("pol0");
+  // prof_vV5->Fit("pol0");
   canvas->cd(6);
   prof_vV6->Draw("");
-  prof_vV6->Fit("pol0");
+  // prof_vV6->Fit("pol0");
   canvas->cd(7);
   prof_vV7->Draw("");
-  prof_vV7->Fit("pol0");
+  //prof_vV7->Fit("pol0");
   canvas->cd(8);
   prof_vV8->Draw("");
-  prof_vV8->Fit("pol0");
+  //prof_vV8->Fit("pol0");
 
 }

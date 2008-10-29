@@ -125,10 +125,10 @@ TCtrack mean_vertical(TCtrack t){
 	TVector3 pos = t.getCl(icl).posUVW();
 	TVector3 res = t.getCl(icl).getRes();
 
-	res.SetY(res.Y()-f5(pos.Y()));
+	pos.SetY(pos.Y()-100*f5(pos.Y()));
 
 	//t.getCl(icl).getRes(res);
-	//	t.getCl(icl).posUVW(pos);
+  	t.getCl(icl).posUVW(pos);
 	  
 	corrClusters.push_back(t.getCl(icl));
 	

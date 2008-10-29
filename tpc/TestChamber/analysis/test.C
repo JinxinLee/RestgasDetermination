@@ -17,7 +17,7 @@
 
 //#include "consecCut.C"
 //#include "clusterSplit1.C"
-#include "oneRow3.C"
+//#include "oneRow3.C"
 
 void plots(TString files){
 
@@ -78,9 +78,9 @@ void plots(TString files){
 
     //TCtrack trSplit = clusterSplit1(tr);
 
-    //tr.drawClustering(false,20,20,400,400);
+    tr.drawClustering(false,20,50,400,400);
     //tr.useTrivialClustering();
-    //tr.draw(true,650,20,400,400);
+    tr.draw(true,650,50,400,400);
 
 
     //tr.drawClustering(false,20,50,800,400);
@@ -105,7 +105,7 @@ void plots(TString files){
     //clone.draw(false,650,50,500,500);
 
     //    std::cout << consecCut(tr) << std::endl;
-            std::cout << oneRow3(tr) << std::endl;
+    //        std::cout << oneRow3(tr) << std::endl;
   }
     //tr.setCustomRange(true,0,9,0,1,0,8);
     //tr.drawClustering(true,50,50,500,500);

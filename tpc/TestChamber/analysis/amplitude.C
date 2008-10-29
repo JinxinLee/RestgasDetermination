@@ -102,7 +102,7 @@ void position(TString files){
 	for(int i=0;i<tr.nCl();++i){
 	  TCcluster c = tr.getCl(i);
 	  if(!c.getFit()) continue;
-	  //if(c.nPadY()!=2) continue;
+	  if(c.nPadY()==1) continue;
 	  //	  if(c.nTime()!=1) continue;
 
 	  // if(c.nRaw()!=2)continue;
