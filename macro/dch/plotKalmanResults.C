@@ -28,9 +28,14 @@ gSystem->ListLibraries();
 
  gStyle->SetOptStat(111111);
 
-TFile* f=TFile::Open("tst_Tracks.root");
+TFile* f=TFile::Open("tst.recoReal.root");
 TTree* t=(TTree*)f->Get("cbmsim");
 
+TFile* f2=TFile::Open("tst.root");
+TTree* t2=(TTree*)f->Get("cbmsim");
+
+
+ t->AddFriend(t2);
 //TCanvas* c2=new TCanvas("c2","Covariances",20,20,800,800);
 //c2->Divide(5,5);
 // for(int i=0; i<5;++i){
@@ -50,23 +55,25 @@ TTree* t=(TTree*)f->Get("cbmsim");
 TCanvas* c=new TCanvas("c","Demo Plots",10,10,800,800);
 c->Divide(3,3);
 
+ TString validTrack="Track.getCardinalRep()->getStatusFlag()==0";
+
 c->cd(1);
 //t->Draw("Track.getMom().Mag()>>h(100,1.5,2.5)");
-t->Draw("Track.getMom().Mag()");
+ t->Draw("Track.getMom().Mag()",validTrack);
 c->cd(2);
-t->Draw("Track.getMom().Px()");
+ t->Draw("Track.getMom().Px()",validTrack);
 c->cd(3);
-t->Draw("Track.getMom().Py()");
+ t->Draw("Track.getMom().Py()",validTrack);
 c->cd(4);
- t->Draw("Track.getMom().Theta()*TMath::RadToDeg()","Track.getCardinalRep()->getStatusFlag()!=0");
+ t->Draw("Track.getMom().Theta()*TMath::RadToDeg()",validTrack);
 c->cd(5);
-t->Draw("Track.getMom().Phi()*TMath::RadToDeg()");
+ t->Draw("Track.getMom().Phi()*TMath::RadToDeg()",validTrack);
 c->cd(7);
-t->Draw("Track.getChiSqu()");
+ t->Draw("Track.getChiSqu()",validTrack);
 c->cd(8);
-t->Draw("Track.getNumHits()");
+// t->Draw("Track.getNumHits()",validTrack);
 c->cd(9);
-t->Draw("Track.");
+t->Draw("Track.getCardinalRep()->getStatusFlag()");
 
 
 

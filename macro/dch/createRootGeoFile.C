@@ -18,10 +18,15 @@
   const Double_t  kDchDx[kNumOfChambers]       = {54., 80., 62., 75., 120., 139., 220., 320.};
   const Double_t  kDchDy[kNumOfChambers]       = { 0.,  0., 39., 45., 38., 42.5, 79., 94.};
   const Double_t  kDchPosition[kNumOfChambers] = {112., 178., 
-						  284.5, 330.,
-						  402., 452.,
-						  612.5, 742.5};
+ 						  284.5, 330.,
+ 						  402., 452.,
+ 						  612.5, 742.5};
   const Double_t  kHoleRadius[kNumOfChambers]   = {3.1, 4.2, 4.2, 6.5, 6.5, 6.5, 6.5, 6.5};
+  // const Double_t  kDchPosition[kNumOfChambers] = {50., 60., 
+// 						  75, 90.,
+// 						  110., 140.,
+// 						  160., 190};
+  //const Double_t  kHoleRadius[kNumOfChambers]   = {6.5, 6.5, 6.5, 6.5, 6.5, 6.5, 6.5, 6.5};
   
   
   
@@ -76,7 +81,7 @@
   TGeoVolume* dchVol[kNumOfChambers];
   TGeoVolume* planeVol[kNumOfChambers];
   TString name, recipe;
-  for(Int_t i=0; i<kNumOfChambers; i++){
+  for(Int_t i=2; i<kNumOfChambers; i++){
     cout<< "********* Next chamber ***************************"<<endl;
     //define shape of the hole for beam pipe for the current chamber
     name = "pipeHoleShape";
@@ -145,8 +150,8 @@
       tr1[0]->RegisterYourself();
       tr1[1] = new TGeoTranslation(0., 0., kDchDz[0]/2.);
       name="tr1_2";
-      tr1[i]->SetName(name);
-      tr1[i]->RegisterYourself();
+      tr1[1]->SetName(name);
+      tr1[1]->RegisterYourself();
       dchVol[0]->AddNode(planeVol[0],1,tr1[0]);
       dchVol[0]->AddNode(planeVol[0],2,tr1[1]);
     }
@@ -174,7 +179,7 @@
 						  kFreeSpace*(1+((Int_t)(j/2)))-
 						  kDchDz[i]);
 	name="tr";
-	name+=i;
+	name+=(i+1);
 	name+="_";
 	name+=(j+1);
 	trFS[j+planesSoFar]->SetName(name);
@@ -183,15 +188,34 @@
       }
     }
   }
+
+
+  for(Int_t i=0; i<10; i++){
+    cout<<endl;
+    for(Int_t j=0; j<10; j++){
+      TString namech="tr";
+      TString name;
+      namech+=i;
+      name=namech;
+      name+="_";
+      name+=j;
+      if(gGeoManager->GetListOfMatrices()->FindObject(name)){
+	const Double_t* match = ((TGeoCombiTrans*)gGeoManager->GetListOfMatrices()->FindObject(namech))->GetTranslation();
+	const Double_t* matpl = ((TGeoCombiTrans*)gGeoManager->GetListOfMatrices()->FindObject(name))->GetTranslation();
+	Double_t z=match[2]+matpl[2];
+	std::cout<<name<<"\t"<<z<<std::endl;
+      }
+    }
+  }
   
   gGeoMan->CloseGeometry();
   
-  TFile* fi = new TFile(outfile,"RECREATE");
-  top->Write();
-  fi->Close();
+   TFile* fi = new TFile(outfile,"RECREATE");
+   top->Write();
+   fi->Close();
 
-  // gGeoManager->SetName("dchGeom");
-//   gGeoManager->Export(outfile);
+   //  gGeoManager->SetName("dchGeom");
+   //gGeoManager->Export(outfile);
 
   //top->Draw();
 }  

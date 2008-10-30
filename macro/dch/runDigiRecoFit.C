@@ -12,10 +12,10 @@
   //Parameter file
   TString parFile = base+".param.root";
   // Output file
-  TString outFile = base+".recoReal.root";
+  TString outFile = base+".withQA_svnGeane_recoReal.root";
   
   // Number of events to process
-  Int_t nEvents = 1;  // if 0 all the events will be processed
+  Int_t nEvents = 10;  // if 0 all the events will be processed
   	
   // Loading libraries
   // If the macro gives error messages in loading libraries, 
@@ -29,8 +29,6 @@
   gSystem->Load("libField");
   gSystem->Load("libPassive");
   gSystem->Load("libMvd");
-  //gSystem->Load("libDrcProp");
-  //gSystem->Load("libDrc");
   gSystem->Load("libGen");
   gSystem->Load("libTrkBase");
   gSystem->Load("libGeane");
@@ -58,62 +56,59 @@
   rtdb->Print();
 
   // -----   Add tasks
-   PndDchDigiProducer* digiProducer= new PndDchDigiProducer();
-   //digiProducer->SetVerbose(2);
+  // ------------------------------------------------- 
+  PndDchDigiProducer* digiProducer= new PndDchDigiProducer();
+  digiProducer->SetVerbose(0);
   fRun->AddTask(digiProducer);
-  
+  // -------------------------------------------------   
   PndDchCylinderHitProducer* cylHitProducer= new PndDchCylinderHitProducer();
-  cylHitProducer->SetVerbose(2);
+  cylHitProducer->SetVerbose(0);
   fRun->AddTask(cylHitProducer);
+  // ------------------------------------------------- 
 
   //------ Ideal DCH track finder --------------------
   PndDchFindTracks* finderTask = new PndDchFindTracks("dchFindTracks");
   finderTask->SetUseHitOrDigi("chit");
-  finderTask->SetVerbose(3);
+  finderTask->SetVerbose(0);
   fRun->AddTask(finderTask);
-  
-  PndDchTrackFinderIdealCylHit* mcTrackFinder = new  PndDchTrackFinderIdealCylHit();
-  mcTrackFinder->SetVerbose(0);  // verbosity level
+  // ------------------------------------------------- 
+    PndDchTrackFinderIdealCylHit* mcTrackFinder = new  PndDchTrackFinderIdealCylHit();
+  mcTrackFinder->SetVerbose(0);  
   mcTrackFinder->SetPrimary(1);  // 1 = Only primary tracks are processed, 0 = all (default)
   finderTask->UseFinder(mcTrackFinder);
   //--------------------------------------------------
-  
-  
-  //------ Match PndDchTracks and MCTracks tracks ----
-  PndDchMatchTracks *matchTask = new PndDchMatchTracks();
+  PndDchMatchTracks *matchTask = new PndDchMatchTracks();//match PndDchTracks and MCTracks
   matchTask->SetUseHitOrDigi("chit");
   matchTask->SetVerbose(0);
   fRun->AddTask(matchTask);
-  // -------------------------------------------------
-
- // ----- Prepare GEANE --------------------------------------------
+  // ----- Prepare GEANE --------------------------------------------
   // this will load Geant3 and execute setup macros to initialize geometry:
   CbmGeane *Geane = new CbmGeane(inFile);
-  // Set the field(if any) to Geane
-  Geane->SetField(fRun->GetField());
-
-
-  //------ Prepare Kalman Tracks ---------------------
+  // ------------------------------------------------- 
   PndDchPrepareKalmanTracks2 *prepareKalmanTracks = new PndDchPrepareKalmanTracks2();
+  prepareKalmanTracks->SetVerbose(0);
   prepareKalmanTracks->UseGeane(kTRUE);
   prepareKalmanTracks->SetPersistence();
   fRun->AddTask(prepareKalmanTracks);
   // ------------------------------------------------- 
   PndDchKalmanTask2* dchKalman = new PndDchKalmanTask2();
-  dchKalman->SetVerbose(1);
+  dchKalman->SetVerbose(0);
   dchKalman->SetNumIterations(1);
   dchKalman->SetSmooth(kFALSE);
   fRun->AddTask(dchKalman);
   // ------------------------------------------------- 
+  PndDchKalmanQATask* dchKalmanQA = new PndDchKalmanQATask();
+  dchKalmanQA->SetVerbose(0);
+  fRun->AddTask(dchKalmanQA);
+  // ------------------------------------------------- 
 
-   
   // -----   Intialise and run 
   cout << "fRun->Init()" << endl;
   fRun->Init();
+  Geane->SetField(fRun->GetField());
   fRun->Run(0,nEvents);
 
-  //dchKalman->WriteHistograms();
-  dchKalman->PlotHistograms();
+  dchKalmanQA->PlotHistograms();
   
 // -----   Finish
   timer.Stop();
@@ -124,7 +119,5 @@
   cout << "Output file is "    << outFile << endl;
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
   cout << endl;
-  // ------------------------------------------------------------------------
-  
   //exit(0);
 }

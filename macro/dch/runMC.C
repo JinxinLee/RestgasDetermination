@@ -50,8 +50,7 @@
 
 
   CbmDetector *Dch = new PndDchDetector("DCH", kTRUE);
-  //  Dch->SetGeometryFileName("dch_allInSolenoid.root");
-  Dch->SetGeometryFileName("dch_onlyFS.root");
+  Dch->SetGeometryFileName("dch.root");
   Dch->SetVerboseLevel(1);
   fRun->AddModule(Dch);
 
@@ -66,10 +65,11 @@
   //primGen->AddGenerator(partGen);
  
  // Box Generator
+  //  gRandom->SetSeed(3523);
   CbmBoxGenerator* boxGen = new CbmBoxGenerator(13, 1); // 13 = muon; 1 = multipl.
-  boxGen->SetPRange(1.,1.); // GeV/c //setPRange vs setPtRange
-  boxGen->SetPhiRange(45,45); // Azimuth angle range [degree]
-  boxGen->SetThetaRange(3, 3); // Polar angle in lab system range [degree]
+  boxGen->SetPRange(1.,10.); // GeV/c //setPRange vs setPtRange
+  boxGen->SetPhiRange(-180,180); // Azimuth angle range [degree]
+  boxGen->SetThetaRange(1, 10); // Polar angle in lab system range [degree]
   boxGen->SetXYZ(0.,0.,0.);
   primGen->AddGenerator(boxGen);
 
@@ -116,7 +116,7 @@
   
   // Transport nEvents
   // -----------------
-  Int_t nEvents = 20;
+  Int_t nEvents = 1000;
   fRun->Run(nEvents);
    
   timer.Stop();
