@@ -59,6 +59,7 @@ PndDchStructure::PndDchStructure(TGeoManager *geoMan) {
   TGeoCombiTrans* planeMatrix;
   Double_t xlo, xup, cellSize;
   Int_t detID;
+  Int_t maxDetID = 0;
   
   TGeoIterator next(geoMan->GetTopVolume());
   TGeoNode *node;
@@ -69,14 +70,18 @@ PndDchStructure::PndDchStructure(TGeoManager *geoMan) {
     if (!isDchSplane) continue;
     
     detID = GetDetectorID(nodePath); 
+    if(detID>maxDetID) maxDetID = detID;
     
     planeMatrix = new TGeoCombiTrans(*next.GetCurrentMatrix());
 
-    cellSize= node->GetVolume()->GetShape()->GetAxisRange(3,xlo,xup);
-  
     fPlaneGeoTransMap[detID] = planeMatrix;
-    fCellSizeMap[detID]      = cellSize;
+    Double_t dx = node->GetVolume()->GetShape()->GetAxisRange(1,xlo,xup)/2.;
+    Double_t dy = node->GetVolume()->GetShape()->GetAxisRange(2,xlo,xup)/2.;
+    Double_t dz = node->GetVolume()->GetShape()->GetAxisRange(3,xlo,xup)/2.;
+    fPlaneHalfSizeMap[detID] = TVector3(dx,dy,dz);
   }
+
+  fNuOfChambers = PndDchMapper::CalculateChamber(detID);
 
   if(!SetWireOrientation())
     cout<<"PndDchStructure::PndDchStructure(...): \n \t Failed in SetWireOrientation()\n";
@@ -87,11 +92,19 @@ PndDchStructure::PndDchStructure(TGeoManager *geoMan) {
 
 Double_t PndDchStructure::GetCellSize(Int_t detID) const {
   // returns cell size for a sensitive plane with detectorID = detID
-    std::map<Int_t, Double_t>::const_iterator kIt;
-    if((kIt = fCellSizeMap.find(detID)) == fCellSizeMap.end())
-      return 0;
-    else 
-      return kIt->second;
+  std::map<Int_t, TVector3>::const_iterator kIt;
+  if((kIt = fPlaneHalfSizeMap.find(detID)) == fPlaneHalfSizeMap.end())
+    return 0;
+  else 
+      return (kIt->second).Z()*2.;
+}
+
+const TVector3 PndDchStructure::GetPlaneHalfSizes(Int_t detID) const{
+  std::map<Int_t, TVector3>::const_iterator kIt;
+  if((kIt = fPlaneHalfSizeMap.find(detID)) == fPlaneHalfSizeMap.end())
+    return TVector3(0,0,0);
+  else 
+    return kIt->second;
 }
 
 const TGeoCombiTrans* PndDchStructure::GetTransMatrix(Int_t detID) const {
@@ -185,13 +198,30 @@ Bool_t PndDchStructure::SetWireOrientation(void){
   return result;
 }
 
+
+// -----   Public method InWhichChamber   -------------------------------------------
+const Int_t PndDchStructure::InWhichChamber(Double_t globalZ) const{
+  std::map<Int_t, TGeoCombiTrans*>::const_iterator kIterator;
+  Int_t detID;
+  for (kIterator = fPlaneGeoTransMap.begin(); kIterator != fPlaneGeoTransMap.end();kIterator++ ){
+    detID = 0;
+    TGeoCombiTrans *combiTrans = kIterator->second;
+    const Double_t* trans = combiTrans->GetTranslation();
+    detID   = kIterator->first;
+    TVector3 hs =  GetPlaneHalfSizes(detID);
+    if (TMath::Abs(globalZ - trans[2] ) < hs.Z()) {
+      return PndDchMapper::CalculateChamber(detID);
+    }
+  }
+  return -1;
+}
 // -----   Public method Print   -------------------------------------------
 void PndDchStructure::Print(const Option_t*) const {
 
   cout << "-I- PndDchStructure: " << endl;
-  std::map<Int_t, Double_t>::const_iterator kIt2 = fCellSizeMap.begin();    
-  while (kIt2 != fCellSizeMap.end()) {
-    cout << "DetID "<<(*kIt2).first<<" CellSize " << (*kIt2).second << endl;
+  std::map<Int_t, TVector3>::const_iterator kIt2 = fPlaneHalfSizeMap.begin();    
+  while (kIt2 != fPlaneHalfSizeMap.end()) {
+    cout << "DetID "<<(*kIt2).first<<" CellSize " << (*kIt2).second.Z()*2. << endl;
     kIt2++;
   }
   std::map<Int_t, TGeoCombiTrans*>::const_iterator kIt3;

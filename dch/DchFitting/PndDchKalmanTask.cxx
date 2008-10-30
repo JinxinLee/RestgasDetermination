@@ -173,17 +173,17 @@ PndDchKalmanTask::Exec(Option_t* opt)
 	mom0.Mag()<<"\t theta="<<mom0.Theta()*TMath::RadToDeg()<<
 	"\t phi="<<mom0.Phi()*TMath::RadToDeg()<<"\n";
 
-      fhP->Fill((mom0.Mag()-mcmom.Mag())/mcmom.Mag());
-      fhChi2->Fill(trk->getChiSqu());
-      fThetaH->Fill(mcmom.Theta()*180./3.1416,(mom0.Theta()-mcmom.Theta())/mcmom.Theta()*180./3.1416);
-      fPhiH->Fill(mcmom.Phi()*180./3.1416,(mom0.Phi()-mcmom.Phi())/mcmom.Phi()*180./3.1416);
+      //      fhP->Fill((mom0.Mag()-mcmom.Mag())/mcmom.Mag());
+      //fhChi2->Fill(trk->getChiSqu());
+      //fThetaH->Fill(mcmom.Theta()*180./3.1416,(mom0.Theta()-mcmom.Theta())/mcmom.Theta()*180./3.1416);
+      //fPhiH->Fill(mcmom.Phi()*180./3.1416,(mom0.Phi()-mcmom.Phi())/mcmom.Phi()*180./3.1416);
 
 
       for(Int_t ihit = 0; ihit<trk->getNumHits(); ihit++){
 	AbsRecoHit* hit = trk->getHit(ihit);
 	Double_t z = hit->getDetPlane(rep).getO().Z();
 	Double_t chi2hit = fitter.getChi2Hit(hit,rep);
-	fChi2HitversusZ->Fill(z,chi2hit);
+	//	fChi2HitversusZ->Fill(z,chi2hit);
       }
       ++fTrackCount;
     }

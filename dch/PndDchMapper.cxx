@@ -69,9 +69,25 @@ Bool_t PndDchMapper::TransformToLocal(Double_t* localPosition,
     return kFALSE;
   trans->MasterToLocal(globalPosition, localPosition);
   trans->MasterToLocalVect(globalMomentum, localMomentum);
-  std::cout<<"ch = "<<point->GetChamber()<<"\t pl= "<<point->GetPlane()<<std::endl;
-  std::cout<<"global pos=("<<globalPosition[0]<<" , "<<globalPosition[1]<<" , "<<globalPosition[2]<<" , "<<std::endl;
-  std::cout<<"local pos=("<<localPosition[0]<<" , "<<localPosition[1]<<" , "<<localPosition[2]<<" , "<<std::endl;
+  //  std::cout<<"ch = "<<point->GetChamber()<<"\t pl= "<<point->GetPlane()<<std::endl;
+  // TVector3 glo(globalPosition);
+  // TVector3 loc(localPosition);
+  //  std::cout<<"global pos =  ";
+  // glo.Print();
+  // std::cout<<"local pos =  ";
+  // loc.Print();
+  return kTRUE;
+}
+
+Bool_t PndDchMapper::TransformToGlobal(Double_t* globalPosition, Double_t* globalWireDirection, 
+				       const Double_t localX, const Int_t detID ) const {
+  Double_t localPosition[3] = {localX,0,0};
+  Double_t localWireDirection[3] = {0,1,0};
+  const TGeoCombiTrans* trans = fDchStructure->GetTransMatrix(detID);
+  if(0 == trans)
+    return kFALSE;
+  trans->LocalToMaster(localPosition, globalPosition);
+  trans->LocalToMasterVect(localWireDirection,globalWireDirection);
   return kTRUE;
 }
 
@@ -120,7 +136,7 @@ Int_t PndDchMapper::GetFiredWires(std::vector<Int_t> &wireID,
       distance.push_back(d);
       //cout<<"localPosition = ("<<localPosition[0]<<" , "<<localPosition[1]<<" , "<<localPosition[2]<<")"<<endl;
       if (d > 0.5*cellSize*sqrt(2.)){
-        cout<< "PndDchMapper::GetFiredWires(...):\n\t Distance from wire too large!\n";
+        //cout<< "PndDchMapper::GetFiredWires(...):\n\t Distance from wire too large!\n";
 	return 0;
       }
     }

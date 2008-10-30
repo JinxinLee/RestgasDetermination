@@ -19,6 +19,8 @@ ${CMAKE_SOURCE_DIR}/dch
 ${CMAKE_SOURCE_DIR}/dch/DchTracking
 ${CMAKE_SOURCE_DIR}/dch/DchFitting
 ${CMAKE_SOURCE_DIR}/dch/DchData
+${CMAKE_SOURCE_DIR}/stt
+${CMAKE_SOURCE_DIR}/stt/sttreco
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -48,10 +50,14 @@ DchData/PndDchHit.cxx
 DchData/PndDchCylinderHit.cxx
 DchFitting/PndDchPreFitterTR.cxx
 DchFitting/PndDchRecoHit.cxx
+DchFitting/PndDchRecoHit2.cxx
 DchFitting/PndDchSimpleFitter.cxx
 DchFitting/PndDchPreFitter.cxx
 DchFitting/PndDchPrepareKalmanTracks.cxx
+DchFitting/PndDchPrepareKalmanTracks2.cxx
 DchFitting/PndDchKalmanTask.cxx
+DchFitting/PndDchKalmanTask2.cxx
+DchFitting/PndDchKalmanQATask.cxx
 DchTracking/PndDchTrack.cxx
 DchTracking/PndDchTrackFinder.cxx
 DchTracking/PndDchTrackFinderIdeal.cxx

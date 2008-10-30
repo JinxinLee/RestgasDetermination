@@ -135,6 +135,8 @@ Int_t PndDchDigiProducer::AddDigis(PndDchPoint* point, Int_t refIndex) {
 // Private method ToBeOrNotToBe digitised
 Bool_t PndDchDigiProducer:: ToBeOrNotToBe(const PndDchPoint* point) const {
   Double_t  detID   = point->GetDetectorID();
+  // if(fMapper->CalculatePlane(detID)<3)
+//     return kFALSE;
   Double_t  trackID = point->GetTrackID();
   PndDchDigi* digi = 0;
   PndDchPoint* itspoint = 0;
@@ -177,8 +179,8 @@ void PndDchDigiProducer::Reset() {
 // -----   Private method Finish   -----------------------------------------
 void PndDchDigiProducer::Finish() {
 
-	TDirectory *current = gDirectory;
-	TDirectory *hdir = current->mkdir("DchDigiProducer");
+ 	TDirectory *current = gDirectory;
+	TDirectory *hdir = current->mkdir("DchDigiProducerHistos");
 	hdir->cd();
 	TIter next(fHistoList);
 	while ( TH1* histo = ((TH1*)next()) ) histo->Write();

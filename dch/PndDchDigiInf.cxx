@@ -45,7 +45,10 @@ PndDchDigiInf* PndDchDigiInf::Instance(TString filename) {
 }
 
 PndDchDigiInf::~PndDchDigiInf() {
-	;
+  if(0!=fVariables){
+    delete fVariables;
+    fVariables=NULL;
+  }
 }
 
 Double_t PndDchDigiInf::GetVariableStrict(const char* key) {

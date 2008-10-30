@@ -27,6 +27,8 @@ class TString;
 class PndDchStructure;
 class TArrayI;
 class PndDchPoint;
+class PndDchCylinderHit;
+class PndDchTrack;
 
 
 class PndDchPreFitterTR : public CbmTask {
@@ -68,11 +70,23 @@ class PndDchPreFitterTR : public CbmTask {
   /** Private method AtInHitAtZ(...) **/
   Bool_t  GetInHitAtZ(Double_t zpos, TVector3 &point);
  
-  /** Private method AddHits **/
-  Int_t AddHits(Int_t trackID);
+  /** Private method GetCrossPoint(TVector2 *line1, TVector2 *line2, TVector2 &point) **/
+  Bool_t GetCrossPoint(PndDchCylinderHit *chit1, PndDchCylinderHit *chit2, TVector2 &point);
+
+  /** Private method GetChargeSign()
+      calculates charge sign based on the current content of the 
+      arrays keeping reconstructed points positions 
+      and reconstructed tracklets**/
+  Int_t GetChargeSign();
+
+  /** Private method GetHitPointInChamber(TClonesArray* chitArray) **/    
+  std::map<Int_t , TVector3> GetHitPointsInChambers(PndDchTrack* tr);
+
 
   TClonesArray* fPointArray; ///< Input array of PndDchPoints
   TClonesArray* fInHitArray; ///< Input array of PndDchInHits
+    TClonesArray* fDchTrackMatchArray; ///< Input array of TrackMatches
+      ///< pozdrawiam cala rodzine hawrankow z doksydzenu
   TClonesArray* fInHitsBeforeXZ; ///< array of hit points (TVector2) in XZ plane upstream the dipole (Chamber3 and Chamber4)  
   TClonesArray* fInHitsAfterXZ;  ///< array of hit points (TVector2) in XZ plane downstream the dipole (Chamber7 and Chamber8)  
 
@@ -97,7 +111,6 @@ class PndDchPreFitterTR : public CbmTask {
   TH1F* fPullP;	   ///< pull distribution of p	       
   TH1F* fPullX;	   ///< pull distribution of x	       
   TH1F* fPullY;	   ///< pull distribution of y	       
-  TString fOutFile;///< name of file to save histograms
  
   TClonesArray* fHitArray;   ///< Output array of PndDchHits	
   TClonesArray* fTrackArray; ///< Output array of PndDchTracks; 

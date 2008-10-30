@@ -16,6 +16,7 @@
 
 // ROOT includes
 #include "TObject.h"
+#include "TVector2.h"
 
 class PndDchDigi;
 
@@ -26,7 +27,8 @@ class PndDchCylinderHit : public TObject{
 
   /** Constructor **/
   PndDchCylinderHit(Int_t digiidx, Double_t xLoc, Double_t zGlo,
-		    Double_t dist, Double_t distErr, Double_t alpha);
+		    Double_t dist, Double_t distErr, Double_t alpha, 
+		    TVector2 end1, TVector2 end2);
   
   /** Destructor **/
   virtual ~PndDchCylinderHit();
@@ -41,6 +43,8 @@ class PndDchCylinderHit : public TObject{
   Double_t GetDistance()         const {return fDistance;}
   Double_t GetDistanceError()    const {return fDistanceError;}
   Double_t GetWireAngle()        const {return fAlpha;}
+  TVector2 GetWireEnd1()         const {return fWireEnd1;}
+  TVector2 GetWireEnd2()         const {return fWireEnd2;}
   
   /** Modifiers  **/
   
@@ -51,6 +55,8 @@ class PndDchCylinderHit : public TObject{
   Double_t fDistance;          ///< distance from the wire (cm) calculated from drift time (=radius)
   Double_t fDistanceError;     ///< uncertainty (=resolution) of distance from the wire (cm) 
   Double_t fAlpha;             ///< inclination angle (rad) of the wire w.r.t the y axis (y:fAlpha=0) 
+  TVector2 fWireEnd1;          ///< x,y of one of wire's ends 
+  TVector2 fWireEnd2;          ///< x,y of the other of wire's ends 
   
   ClassDef(PndDchCylinderHit,1);
   

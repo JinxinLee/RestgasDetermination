@@ -25,6 +25,7 @@
 class TGeoManager;
 class TGeoCombiTrans;
 class TArrayI;
+class TVector3;
 
 class PndDchStructure: public TObject
 {
@@ -50,7 +51,16 @@ class PndDchStructure: public TObject
   TArrayI*              GetDetectorIDList(); 
 
   /** Public method GetCellSize(...) **/
-  Double_t              GetCellSize(Int_t detID) const;  
+  Double_t              GetCellSize(Int_t detID) const;
+
+  /** Public method GetHalfSizes() **/ 
+  const TVector3        GetPlaneHalfSizes(Int_t detID) const; 
+
+  /** Public method GetNuOfChambers() **/ 
+  const Int_t           GetNuOfChambers() const { return  fNuOfChambers;}; 
+
+  /** Public method InWhichChamber(Double_t globalZ)*/ 
+  const Int_t           InWhichChamber(Double_t globalZ) const;
   
   /** Public method Print(...)
    ** provides output to screen
@@ -65,8 +75,8 @@ class PndDchStructure: public TObject
   static PndDchStructure* fgInstance; ///< pointer to the singleton object
   TArrayI* fDetectorIdList;           ///< list of all detIDs of dch
   std::map<Int_t , TGeoCombiTrans* > fPlaneGeoTransMap;///< map detID to det geo tranformation
-  std::map<Int_t , Double_t  > fCellSizeMap;   ///< map detID to det cell size
-
+  std::map<Int_t , TVector3  > fPlaneHalfSizeMap;   ///< map detID to vector of plane half-sizes
+  Int_t fNuOfChambers; ///< number of chambers
   
   
   /** Private method GetDetectorID(...) **/

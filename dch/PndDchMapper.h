@@ -68,6 +68,9 @@ public:
   Bool_t TransformToLocal(Double_t* localPosition, Double_t* localMomentum,
 			  const PndDchPoint* point) const;
 
+  /** magic method calulating what is needed except intersection :(**/
+  Bool_t TransformToGlobal(Double_t* globalPosition, Double_t* globalWireDirection,
+			   const Double_t localX, Int_t detID) const;
   /** Public method WirePosXlocal(...)
    ** gives local wire X coordinate in the plane
    **/

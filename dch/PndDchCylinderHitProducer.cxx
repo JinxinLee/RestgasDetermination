@@ -25,6 +25,8 @@
 #include "TGeoMatrix.h"
 #include "TMath.h"
 #include "TRandom.h"
+#include "TVector2.h"
+#include "TVector3.h"
 
 // C++ includes
 #include <iostream>
@@ -63,13 +65,20 @@ InitStatus PndDchCylinderHitProducer::Init() {
     return kFATAL;
   }
   fDchMapper     = PndDchMapper::Instance();
-  fDchDrifter    = PndDchDrifter::Instance("d2t_rtdb.dat",1.);
+  fDchDrifter    = PndDchDrifter::Instance();//"d2t.dat",1.);
 
   // Get input array
   fDigiArray = (TClonesArray*) ioman->GetObject("PndDchDigi");
   if( !fDigiArray ) {
     std::cout << "-W- PndDchCylinderHitProducer::Init: "
 	      << "Array of PndDchDigis not found!" << std::endl;
+    return kERROR;
+  }
+  // Get input array
+  fPointArray = (TClonesArray*) ioman->GetObject("PndDchPoint");
+  if( !fPointArray ) {
+    std::cout << "-W- PndDchCylinderHitProducer::Init: "
+	      << "Array of PndDchPoint not found!" << std::endl;
     return kERROR;
   }
 
@@ -99,43 +108,99 @@ void PndDchCylinderHitProducer::Exec(Option_t* opt) {
 	// Loop over Digis
 	PndDchDigi* digi  = 0;
 	Double_t xLoc, zGlo, dist, distErr, alpha, drTime, cellSize;
+	Double_t cosalpha, tanalpha, sinalpha; 
 	Int_t nDigis = fDigiArray->GetEntriesFast();
 	Int_t wi, ch, pl, detID;
+	TVector2 end1, end2, tmp;
+	TVector3 planeHalfSizes;
 
 	for(Int_t iDigi = 0; iDigi < nDigis; iDigi++){
-		digi  = (PndDchDigi*) fDigiArray->At(iDigi);
-		xLoc = zGlo = dist = distErr = alpha = drTime = cellSize = 0.0;
-		wi = ch = pl = detID = 0;
-		wi = digi->GetWire();
-		ch = digi->GetChamber();
-		pl = digi->GetPlane();
-		drTime = digi->GetDriftTime();
-
-		detID = fDchMapper->CalculateDetectorID(ch,pl);
-		cellSize = fDchStructure->GetCellSize(detID);
-		fDchDrifter->CalculateDistance(drTime,dist);
-		dist *= cellSize;
-		distErr = (ch==1? 0.005 : 0.02); //hard-coded exp. values
-		//dist += gRandom->Gaus(0.0, distErr); //smear distance
-
-		alpha = fDchStructure->GetTransMatrix(detID)->GetRotation()->GetPhiRotation();
-		alpha *= TMath::DegToRad();
-
-		const Double_t* translation = fDchStructure->GetTransMatrix(detID)->GetTranslation();
-		zGlo = translation[2];
-
-		xLoc = fDchMapper->WirePosXlocal(wi,detID);
-		if(fVerbose>1){
-		  digi->Print("");
-		  cout<<"alpha = "<<alpha*TMath::RadToDeg()<<
-		    " deg, zGlo = "<<zGlo<<
-		    " cm, xLoc = "<<xLoc<<
-		    " cm, dist = "<<dist<<
-		    " plus/minus "<<distErr<<
-		    " cm"<<endl;
+	  digi  = (PndDchDigi*) fDigiArray->At(iDigi);
+	  PndDchPoint* point = (PndDchPoint*)fPointArray->At(digi->GetRefIndex());
+	  xLoc = zGlo = dist = distErr = alpha = drTime = cellSize = 0.0;
+	  wi = ch = pl = detID = 0;
+	  end1.Set(0.,0.);
+	  end2.Set(0.,0.);
+	  tmp.Set(-1e6,-1e6);
+	  wi = digi->GetWire();
+	  ch = digi->GetChamber();
+	  pl = digi->GetPlane();
+	  drTime = digi->GetDriftTime();
+	  
+	  detID = fDchMapper->CalculateDetectorID(ch,pl);
+	  cellSize = fDchStructure->GetCellSize(detID);
+	  fDchDrifter->CalculateDistance(drTime,dist);
+	  dist *= cellSize;
+	  distErr = (ch==1? 0.005 : 0.02); //hard-coded exp. values
+	  //dist += gRandom->Gaus(0.0, distErr); //smear distance
+	  alpha = fDchStructure->GetTransMatrix(detID)->GetRotation()->GetPhiRotation();
+	  const Double_t* translation = fDchStructure->GetTransMatrix(detID)->GetTranslation();
+	  zGlo = translation[2];
+	  xLoc = fDchMapper->WirePosXlocal(wi,detID);
+	  
+	  Double_t globalPos[3];
+	  Double_t globalWireDir[3];
+	  
+	  fDchMapper->TransformToGlobal(globalPos,globalWireDir,xLoc,detID);
+	  alpha *= TMath::DegToRad();
+	  cosalpha= TMath::Cos(alpha);
+	  tanalpha= TMath::Tan(TMath::Pi()/2.-alpha);
+	  sinalpha= TMath::Sin(alpha);
+	  planeHalfSizes = fDchStructure->GetPlaneHalfSizes(detID) ;
+	  //************* finding intersections with chamber's edges **********************
+	  if (TMath::Abs(alpha) < 1e-9) { // x-wires
+	    end1.Set(xLoc, planeHalfSizes.Y());
+	      end2.Set(xLoc, -planeHalfSizes.Y());
+	  } else if (TMath::Abs(alpha*TMath::RadToDeg()-90) < 1e-9) { // y-wires
+	    end1.Set(-planeHalfSizes.X(),xLoc);
+	    end2.Set(planeHalfSizes.X(),xLoc);
+	    
+	  } else {  //inclined wires
+	    Double_t a = globalWireDir[1]/globalWireDir[0];
+	    tmp.Set((-planeHalfSizes.Y()-globalPos[1])/a+globalPos[0], -planeHalfSizes.Y());
+	    if (TMath::Abs(tmp.X())<planeHalfSizes.X()){
+	      end1 = tmp;
+	    }
+	    tmp.Set((planeHalfSizes.Y()-globalPos[1])/a+globalPos[0], planeHalfSizes.Y());
+	    if (TMath::Abs(tmp.X())<planeHalfSizes.X()){
+	      if(end1.Mod()<1)
+		end1 = tmp;
+	      else 
+		end2=tmp;
+	    }
+	    if (end2.Mod() < 1) {
+	      tmp.Set(planeHalfSizes.X(),a*(planeHalfSizes.X()-globalPos[0])+globalPos[1]);
+	      if (TMath::Abs(tmp.Y())<planeHalfSizes.Y()){
+		if(end1.Mod()<1)
+		  end1 = tmp;
+		else 
+		  end2=tmp;
+	      }
+	    }
+	    if (end2.Mod() < 1) {
+	      tmp.Set(-planeHalfSizes.X(),a*(-planeHalfSizes.X()-globalPos[0])+globalPos[1]);
+	      if (TMath::Abs(tmp.Y())<planeHalfSizes.Y()){
+		if(end1.Mod()<1) {
+		  end1 = tmp;
+		  cout<<"NO WAY TO BE HERE !!!!!!!..."<<endl;
+		  exit(2);
+		} else {
+		  end2=tmp;
 		}
-
-		AddCylinderHit(iDigi, xLoc, zGlo, dist, distErr, alpha);
+	      }
+	    }
+	  } 
+	  if(fVerbose>1){
+	    digi->Print("");
+	    cout<<"alpha = "<<alpha*TMath::RadToDeg()<<
+	      " deg, zGlo = "<<zGlo<<
+	      " cm, xLoc = "<<xLoc<<
+	      " cm, dist = "<<dist<<
+	      " plus/minus "<<distErr<<
+	      " cm"<<endl;
+	  }
+	  
+	  AddCylinderHit(iDigi, xLoc, zGlo, dist, distErr, alpha, end1, end2);
 	}  // end of loop over Digis
 }
 // -------------------------------------------------------------------------
@@ -144,11 +209,11 @@ void PndDchCylinderHitProducer::Exec(Option_t* opt) {
 // -----   Private method AddHit   --------------------------------------------
 PndDchCylinderHit* PndDchCylinderHitProducer::AddCylinderHit(Int_t digiidx, Double_t xLoc, Double_t zGlo,
 							     Double_t dist, Double_t distErr,
-							     Double_t alpha) const {
+							     Double_t alpha, TVector2 end1, TVector2 end2) const {
   TClonesArray& clref = *fCylHitArray;
   Int_t size = clref.GetEntriesFast();
   return new(clref[size]) PndDchCylinderHit(digiidx, xLoc, zGlo,
-					    dist, distErr, alpha);
+					    dist, distErr, alpha, end1, end2);
 }
 // -------------------------------------------------------------------------
 

@@ -22,19 +22,24 @@ PndDchCylinderHit::PndDchCylinderHit() {
 	fWireZcoordGlobal = 0;
 	fDistance         = 0.;
 	fAlpha            = 0;
+	fWireEnd1         = TVector2(0,0);
+	fWireEnd2         = TVector2(0,0);
+
 }
 // -------------------------------------------------------------------------
 
 // -----   Constructor   ---------------------------------------------------
 PndDchCylinderHit::PndDchCylinderHit(Int_t digiidx, Double_t xLoc, Double_t zGlo,
 				     Double_t dist, Double_t distErr, 
-				     Double_t alpha){
+				     Double_t alpha, TVector2 end1, TVector2 end2){
   fDigiIndex        = digiidx;
   fWireXcoordLocal  = xLoc;
   fWireZcoordGlobal = zGlo;
   fDistance         = dist; 
   fDistanceError    = distErr;  
   fAlpha            = alpha;
+  fWireEnd1         = end1;
+  fWireEnd2         = end2;
 }
 // -------------------------------------------------------------------------
 

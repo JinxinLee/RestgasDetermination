@@ -24,6 +24,7 @@ class TClonesArray;
 class PndDchStructure;
 class PndDchCylinderHit;
 class TVector3;
+class TVector2;
 
 class PndDchCylinderHitProducer : public CbmTask{
 
@@ -44,11 +45,13 @@ class PndDchCylinderHitProducer : public CbmTask{
 	/** Public method AddCylinderHit **/
 	PndDchCylinderHit* AddCylinderHit(Int_t digiidx, Double_t xLoc,
 					  Double_t zGlo, Double_t dist, 
-					  Double_t distErr, Double_t alpha) const;
+					  Double_t distErr, Double_t alpha, 
+					  TVector2 end1, TVector2 end2) const;
 	
  private: 
    
 	TClonesArray* fDigiArray;       ///< input array of PndDchDigis
+	TClonesArray* fPointArray;       
 	TClonesArray* fCylHitArray;     ///< output array of PndDchCylinderHits
 	PndDchStructure* fDchStructure; ///< structure of dch setup
 	PndDchMapper* fDchMapper;       ///< mapper of dch

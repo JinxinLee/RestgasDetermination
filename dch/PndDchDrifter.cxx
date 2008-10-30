@@ -33,10 +33,10 @@ PndDchDrifter* PndDchDrifter::Instance(TString filename, Double_t cellsize) {
 				<< "I replace it with a new one" << endl;
 		delete fgDrifterInstance;
 	}
-
-	return fgDrifterInstance = new PndDchDrifter(filename, cellsize);
+	fgDrifterInstance = new PndDchDrifter(filename, cellsize);
+	//	fgDrifterInstance->Print();
+	return 	fgDrifterInstance;
 }
-
 PndDchDrifter::PndDchDrifter(TString fileName, Double_t splaneWidth) :
 	fCellSize(splaneWidth) {
 	fInf = PndDchDigiInf::Instance(fileName);
@@ -84,16 +84,18 @@ PndDchDrifter::PndDchDrifter(TString fileName, Double_t splaneWidth) :
 		fDistance.push_back((*iDigiMap).first * fDistanceUnit2cm);
 		fDriftTime.push_back((*iDigiMap).second * fTimeUnit2ns);
 	}
-}
+	}
 
 /*
+
  PndDchDrifter::PndDchDrifter(TString fileName, Double_t splaneWidth)
  : fCellSize(splaneWidth)
  {
- Double_t timeUnit2ns  ; //read from the file to recalculate tim and distance
+ Double_t timeUnit2ns = 1.  ; //read from the file to recalculate tim and distance
  // in  proper units. I assume to have time in [ns]
- Double_t distanceUnit2cm; //I assume to have distance in [cm]
+ Double_t distanceUnit2cm = 1.; //I assume to have distance in [cm]
  //reading the calibration distance to drift time file
+ fNumberOfPoints = 0;
  ifstream infile(fileName.Data(),std::fstream::in);
  if(!infile.good()){
  cout<<"The drift time parametrization file "<<fileName<<" is not found"<<endl;
@@ -110,8 +112,8 @@ PndDchDrifter::PndDchDrifter(TString fileName, Double_t splaneWidth) :
  }
  infile.close();
  }
- */
-
+ 
+*/
 void PndDchDrifter::SetParContainers() {
 	CbmRunAna* ana = CbmRunAna::Instance();
 	CbmRuntimeDb* rtdb = ana->GetRuntimeDb();
@@ -120,7 +122,6 @@ void PndDchDrifter::SetParContainers() {
 }
 
 Bool_t PndDchDrifter::CalculateDriftTime(Double_t &time, Double_t distance) const {
-
 	Double_t bin = 0.5 * fCellSize / fNumberOfPoints;
 	Int_t index1 = (Int_t) TMath::Floor(distance / bin);
 	Int_t index2 = (Int_t) TMath::Ceil(distance / bin);
@@ -153,7 +154,7 @@ Bool_t PndDchDrifter::CalculateDistance(Double_t time, Double_t &distance) const
 		Double_t w1 = TMath::Abs(time - fDriftTime[i - 1]);
 		Double_t w2 = TMath::Abs(time - fDriftTime[i]);
 		distance = (i - 1 + w1 / (w2 + w1)) * bin;
-		if (distance < fCellSize / 2)
+		if (distance < fCellSize / 2.)
 			return kTRUE;
 		else
 			return kFALSE;
@@ -163,7 +164,12 @@ Bool_t PndDchDrifter::CalculateDistance(Double_t time, Double_t &distance) const
 }
 
 void PndDchDrifter::Print(const Option_t* option) const {
-	cout << "PndDchDrifter: \n";
+	cout << "#########    PndDchDrifter: ##########\n";
+	cout<< "  fNumberOfPoints= "<< fNumberOfPoints<<endl;
+	cout<< "  fCellSize = "<< fCellSize<<endl;
+	for(Int_t i = 0; i<fNumberOfPoints; i++){
+	  cout<<i<<"\t driftTime= "<< fDriftTime[i]<<"  fDistance= "<<fDistance[i]<<endl;
+	}
 }
 
 ClassImp(PndDchDrifter)
