@@ -44,9 +44,9 @@
   Pipe->SetGeometryFileName("pipe.geo");
   fRun->AddModule(Pipe);
   
-  // CbmModule *Magnet= new PndMagnet("MAGNET");
-//   Magnet->SetGeometryFileName("magnet.geo");
-//   fRun->AddModule(Magnet);
+   CbmModule *Magnet= new PndMagnet("MAGNET");
+   Magnet->SetGeometryFileName("magnet.geo");
+   fRun->AddModule(Magnet);
 
 
   CbmDetector *Dch = new PndDchDetector("DCH", kTRUE);

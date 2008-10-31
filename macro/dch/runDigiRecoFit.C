@@ -12,10 +12,10 @@
   //Parameter file
   TString parFile = base+".param.root";
   // Output file
-  TString outFile = base+".withQA_svnGeane_recoReal.root";
+  TString outFile = base+".recoReal.root";
   
   // Number of events to process
-  Int_t nEvents = 10;  // if 0 all the events will be processed
+  Int_t nEvents = 300;  // if 0 all the events will be processed
   	
   // Loading libraries
   // If the macro gives error messages in loading libraries, 
@@ -72,7 +72,7 @@
   finderTask->SetVerbose(0);
   fRun->AddTask(finderTask);
   // ------------------------------------------------- 
-    PndDchTrackFinderIdealCylHit* mcTrackFinder = new  PndDchTrackFinderIdealCylHit();
+  PndDchTrackFinderIdealCylHit* mcTrackFinder = new  PndDchTrackFinderIdealCylHit();
   mcTrackFinder->SetVerbose(0);  
   mcTrackFinder->SetPrimary(1);  // 1 = Only primary tracks are processed, 0 = all (default)
   finderTask->UseFinder(mcTrackFinder);
@@ -85,9 +85,15 @@
   // this will load Geant3 and execute setup macros to initialize geometry:
   CbmGeane *Geane = new CbmGeane(inFile);
   // ------------------------------------------------- 
+  PndDchPreFitterTR* dchPreFitter = new PndDchPreFitterTR();
+  dchPreFitter->SetVerbose(3);
+  fRun->AddTask(dchPreFitter);
+  // ------------------------------------------------- 
   PndDchPrepareKalmanTracks2 *prepareKalmanTracks = new PndDchPrepareKalmanTracks2();
   prepareKalmanTracks->SetVerbose(0);
   prepareKalmanTracks->UseGeane(kTRUE);
+  prepareKalmanTracks->UseMC(kFALSE);
+  prepareKalmanTracks->SetPDG(13);
   prepareKalmanTracks->SetPersistence();
   fRun->AddTask(prepareKalmanTracks);
   // ------------------------------------------------- 
