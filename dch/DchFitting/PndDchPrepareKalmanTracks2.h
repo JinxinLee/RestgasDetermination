@@ -44,8 +44,14 @@ public:
   /** public method SetField(CbmField* f) to keep pointer to the B field **/
   void SetField(CbmField* f){fField=f;}
 
-  /** public method UseGeane(Bool_t f) to switch the use of Geane **/
-  void UseGeane(Bool_t f=true){fUseGeane=f;}
+  /** public method UseGeane(Bool_t f) to switch on the use of Geane **/
+  void UseGeane(Bool_t f=kTRUE){fUseGeane=f;}
+
+  /** public method UseMC(Bool_t f) to switch on init from mc or to 0 if not needed**/
+  void UseMC(Bool_t f=kTRUE){fUseMC=f;}
+
+  /** public method SetPDG(Int_t f) if useMC == kTRUE it is ignored **/
+  void SetPDG(Int_t f=11){fPDG=f;}
 
   /** public method Init()
       fetches and creates all necessary arrays, creates Geane **/
@@ -70,6 +76,9 @@ private:
   
   Bool_t fPersistence;    ///< persistance flag
   Bool_t fUseGeane;       ///< flag switching on/off use of Geane
+  Bool_t fUseMC;          ///< flag switching on/off initialisation of track params from MC
+  Int_t fPDG;  ///< hipothesis of PDG value 
+    //It  (shouldn't be here)!!!!
 
   CbmField*    fField;    ///< pointer to field to be used by Geane 
   CbmGeanePro* fGeanePro; ///< pointer to Geane object

@@ -1,7 +1,9 @@
-/////////////////////////////////////////////////////////////
-//  PndDchPreFitterTR
-// check if  the field limits along z are ok
-///////////////////////////////////////////////////////////////// 
+// -------------------------------------------------------------------------------
+// -----                 PndDchPreFitterTR source file                       -----
+// -----            Created 26.02.2008  by A. Wronska, P.Hawranek            -----
+// -------------------------------------------------------------------------------
+
+// check if  the field limits along z are ok !!!!
 
 #include <iostream>
 #include <cmath>
@@ -34,7 +36,7 @@ using std::endl;
 
 // Default constructor
 PndDchPreFitterTR::PndDchPreFitterTR() :
-  CbmTask("very naive reconstruction for the dipole region") { 
+  CbmTask("Dch Prefitter for Forward Spectrometer") { 
   fInHitsAfterXZ = 0;
   fInHitsInXZ = 0;
   fInHitsBeforeXZ = 0;
@@ -166,71 +168,76 @@ void PndDchPreFitterTR::Exec(Option_t* opt) {
   fInHitsYZ->Delete();
   
   // Loop over PndDchHits creating 3 Arrays for track fit in XZ plane and one Array in YZ plane
-  Int_t nInHits = fInHitArray->GetEntriesFast();
+  Int_t nInHits = fInHitArray->GetEntries();
   Int_t nBefore,nIn,nAfter,nYZ;
   
   PndDchTrack *track = 0;
 
-  Int_t nTracks = fTrackArray->GetEntriesFast();
+  Int_t nTracks = fTrackArray->GetEntries();
 
   for(Int_t iTrack = 0; iTrack < nTracks; iTrack++) {
     track = (PndDchTrack*) fTrackArray->At(iTrack);
-
-    // Int_t mcID;
-//     for(Int_t k=0; k< fDchTrackMatchArray->GetEntriesFast(); k++){
-//       PndDchTrackMatch* match = (PndDchTrackMatch*)fDchTrackMatchArray->At(k);
-//       if(iTrack==match->GetRecTrackID()){
-// 	mcID=match->GetMCTrackID();
-// 	break;
-//       }
-//     }
 
     TVector2* tmp;
     std::map<Int_t, TVector3> mapa;
     mapa = GetHitPointsInChambers(track);
     
     map<Int_t,TVector3>::iterator iter; 
+    cout<<"Cross Points in Chambers"<<endl;
     for( iter = mapa.begin(); iter != mapa.end(); ++iter ) {
       cout<<iter->first<<endl;
       iter->second.Print();
     }
-    tmp =     new((*fInHitsBeforeXZ)[0]) TVector2(mapa.find(3)->second.X(),mapa.find(3)->second.Z());
-    tmp =     new((*fInHitsBeforeXZ)[1]) TVector2(mapa.find(4)->second.X(),mapa.find(4)->second.Z());
-    tmp =     new((*fInHitsInXZ)[0]) TVector2(mapa.find(5)->second.X(),mapa.find(5)->second.Z());
-    tmp =     new((*fInHitsInXZ)[1]) TVector2(mapa.find(6)->second.X(),mapa.find(6)->second.Z());
-    tmp =     new((*fInHitsAfterXZ)[0]) TVector2(mapa.find(7)->second.X(),mapa.find(7)->second.Z());
-    tmp =     new((*fInHitsAfterXZ)[1]) TVector2(mapa.find(8)->second.X(),mapa.find(8)->second.Z());
-    tmp =     new((*fInHitsYZ)[0]) TVector2(mapa.find(3)->second.Y(),mapa.find(3)->second.Z());
-    tmp =     new((*fInHitsYZ)[1]) TVector2(mapa.find(4)->second.Y(),mapa.find(4)->second.Z());
-    tmp =     new((*fInHitsYZ)[2]) TVector2(mapa.find(5)->second.Y(),mapa.find(5)->second.Z());
-    tmp =     new((*fInHitsYZ)[3]) TVector2(mapa.find(6)->second.Y(),mapa.find(6)->second.Z());
-//     tmp =     new((*fInHitsYZ)[4]) TVector2(mapa.find(7)->second.Y(),mapa.find(7)->second.Z());
-//     tmp =     new((*fInHitsYZ)[5]) TVector2(mapa.find(8)->second.Y(),mapa.find(8)->second.Z());
-       
-    nIn = 2;
+    cout<<"Cross Points in Chambers END"<<endl;
+
+    Int_t nBeforeXZ =0;
+    Int_t nAfterXZ =0;
+    Int_t nInXZ =0;
+    Int_t nYZ =0;
+
+    if (mapa.find(3) != mapa.end()) {
+      tmp =     new((*fInHitsBeforeXZ)[nBeforeXZ++]) TVector2(mapa.find(3)->second.X(),mapa.find(3)->second.Z());
+      tmp =     new((*fInHitsYZ)[nYZ++]) TVector2(mapa.find(3)->second.Y(),mapa.find(3)->second.Z());
+    }
+    if (mapa.find(4) != mapa.end()) {
+      tmp =     new((*fInHitsBeforeXZ)[nBeforeXZ++]) TVector2(mapa.find(4)->second.X(),mapa.find(4)->second.Z());
+      tmp =     new((*fInHitsYZ)[nYZ++]) TVector2(mapa.find(4)->second.Y(),mapa.find(4)->second.Z());
+    }
+    if (mapa.find(5) != mapa.end()) {
+      tmp =     new((*fInHitsInXZ)[nInXZ++]) TVector2(mapa.find(5)->second.X(),mapa.find(5)->second.Z());
+      tmp =     new((*fInHitsYZ)[nYZ++]) TVector2(mapa.find(5)->second.Y(),mapa.find(5)->second.Z());
+    }
+    if (mapa.find(6) != mapa.end()) {
+      tmp =     new((*fInHitsInXZ)[nInXZ++]) TVector2(mapa.find(6)->second.X(),mapa.find(6)->second.Z());
+      tmp =     new((*fInHitsYZ)[nYZ++]) TVector2(mapa.find(6)->second.Y(),mapa.find(6)->second.Z());
+    }
+    if (mapa.find(7) != mapa.end()) {
+      tmp =     new((*fInHitsAfterXZ)[nAfterXZ++]) TVector2(mapa.find(7)->second.X(),mapa.find(7)->second.Z());
+//     tmp =     new((*fInHitsYZ)[nYZ++]) TVector2(mapa.find(7)->second.Y(),mapa.find(7)->second.Z());
+    }
+    if (mapa.find(8) != mapa.end()) {
+      tmp =     new((*fInHitsAfterXZ)[nAfterXZ++]) TVector2(mapa.find(8)->second.X(),mapa.find(8)->second.Z());
+//     tmp =     new((*fInHitsYZ)[nYZ++]) TVector2(mapa.find(8)->second.Y(),mapa.find(8)->second.Z());
+    }       
     Bool_t isRecoTrackBeforeXZ = GetLineParameters(fInHitsBeforeXZ,fTrackBeforeXZ);
     if(isRecoTrackBeforeXZ){
       Double_t xIn = (fZFieldBegin-fTrackBeforeXZ.Y())/fTrackBeforeXZ.X();
       //artificial dch inhit for entering magnetic field
-      TVector2 *pos = new((*fInHitsInXZ)[nIn]) TVector2(xIn,fZFieldBegin);
-      nIn++;
+      TVector2 *pos = new((*fInHitsInXZ)[nInXZ++]) TVector2(xIn,fZFieldBegin);
     }
     Bool_t  isRecoTrackAfterXZ = GetLineParameters(fInHitsAfterXZ,fTrackAfterXZ);
     if(isRecoTrackAfterXZ){
       Double_t xOut = (fZFieldEnd-fTrackAfterXZ.Y())/fTrackAfterXZ.X();
       //artificial dch inhit for exiting the field
-      TVector2 *pos = new((*fInHitsInXZ)[nIn]) TVector2(xOut,fZFieldEnd);
-      nIn++;
+      TVector2 *pos = new((*fInHitsInXZ)[nInXZ++]) TVector2(xOut,fZFieldEnd);
     }
     Bool_t isRecoTrackYZ  = GetLineParameters(fInHitsYZ,fTrackYZ);
     Bool_t  isRecoTrackInXZ =  GetCircleParameters(fInHitsInXZ,fTrackInXZ);
     TVector3 startMomentum(0., 0., 0.);
     TVector3 startPosition(0., 0., 0.);
     if(!(isRecoTrackYZ && isRecoTrackBeforeXZ  && isRecoTrackInXZ) ){
-
-      cout<<"Wyjszlem bylem "<<isRecoTrackYZ << isRecoTrackBeforeXZ << isRecoTrackInXZ<<isRecoTrackAfterXZ<<endl;
-      cout<<mapa.find(3)->second.X()<<" "<<mapa.find(3)->second.Z()<<endl;
-      cout<<mapa.find(4)->second.X()<<" "<<mapa.find(4)->second.Z()<<endl;
+      cout<<"Tracking failed (YZ BeforeXZ InXZ AfterXZ) "
+	  <<isRecoTrackYZ << isRecoTrackBeforeXZ << isRecoTrackInXZ<<isRecoTrackAfterXZ<<endl;
       return;
     }
     Bool_t isMomentum =  GetMomentum(startMomentum);
@@ -253,7 +260,6 @@ void PndDchPreFitterTR::Exec(Option_t* opt) {
 			 chargeSign/ startMomentum.Mag(),
 			 *covMatrix);
     track->SetParamFirst(parset);
-    track->GetParamFirst()->Print();
   } //end of loop over tracks
 
   cout<<"&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"<<endl;
@@ -278,13 +284,11 @@ void PndDchPreFitterTR::Finish(){
 
 Bool_t PndDchPreFitterTR::GetInHitAtZ(Double_t zpos, TVector3 &inhit){
   inhit.SetXYZ(0., 0., 0.);
-  if(fTrackYZ.X()==0 ||  fTrackBeforeXZ.X()==0 || fTrackAfterXZ.X()==0)
-    return kFALSE; 
   Double_t xpos=0;
   inhit.SetZ(zpos);
   inhit.SetY((zpos-fTrackYZ.Y())/fTrackYZ.X());
   //before dipole 
-  if (zpos < fZFieldBegin) {
+  if (zpos < fZFieldBegin && fTrackBeforeXZ.X()!=0 ) {
     xpos =(zpos-fTrackBeforeXZ.Y())/fTrackBeforeXZ.X();
   //in dipole
   } else if (zpos > fZFieldBegin && zpos < fZFieldEnd) {
@@ -296,16 +300,17 @@ Bool_t PndDchPreFitterTR::GetInHitAtZ(Double_t zpos, TVector3 &inhit){
       return kFALSE;
     xpos=sgn*sqrt(tmp)+fTrackInXZ.X();
   //after dipole
-  } else {
+  } else if( fTrackAfterXZ.X()!=0){
     xpos =(zpos-fTrackAfterXZ.Y())/fTrackAfterXZ.X();
-  }
+  } else
+    return kFALSE;
   inhit.SetX(xpos);  
   return kTRUE;
 }
 
 Int_t PndDchPreFitterTR::GetChargeSign(){
-  Double_t zReal = ((TVector2*)fInHitsAfterXZ->At( fInHitsAfterXZ->GetEntries()-1))->Y();
-  Double_t xReal = ((TVector2*)fInHitsAfterXZ->At( fInHitsAfterXZ->GetEntries()-1))->X();
+  Double_t zReal = ((TVector2*)fInHitsInXZ->At( fInHitsInXZ->GetEntries()-1))->Y();
+  Double_t xReal = ((TVector2*)fInHitsInXZ->At( fInHitsInXZ->GetEntries()-1))->X();
   Double_t xExtrapolated = (zReal-fTrackBeforeXZ.Y())/fTrackBeforeXZ.X();
   if(xReal>xExtrapolated)
     return -1;
@@ -339,10 +344,9 @@ Bool_t PndDchPreFitterTR::GetCircleParameters(TClonesArray *fInHits, TVector3& r
   x=y=xx=yy=xy=w=wx=wy=n=WG=WA=WB=WC=aa=bb=cc=0.0;
   
   TVector2* inhit  = 0;
-  Int_t nInHits = fInHits->GetEntriesFast();
+  Int_t nInHits = fInHits->GetEntries();
   if(nInHits<3)
     return kFALSE;
-  Double_t inhitTime;
   for (Int_t iInHit=0; iInHit<nInHits; iInHit++) {
     inhit  = (TVector2*) fInHits->At(iInHit);
     if ((inhit->X()!=0) && (inhit->Y()!=0)) {
@@ -380,7 +384,7 @@ Bool_t PndDchPreFitterTR::GetLineParameters(TClonesArray *fInHits, TVector2& res
   Double_t n,x,y,xx,xy,WG,WA,WB;
   x=y=xx=xy=n=WG=WA=WB=0.0;
   TVector2* inhit  = 0;
-  Int_t nInHits = fInHits->GetEntriesFast();
+  Int_t nInHits = fInHits->GetEntries();
   if(nInHits<2) {
     cout<<" nHits="<<nInHits<<endl;
     return kFALSE;
@@ -389,8 +393,9 @@ Bool_t PndDchPreFitterTR::GetLineParameters(TClonesArray *fInHits, TVector2& res
     TVector2* p1,*p2;
     p1=(TVector2*)fInHits->At(0);
     p2=(TVector2*)fInHits->At(1);
+
     if(TMath::Abs(p2->X()-p1->X())<1e-10) {
-      cout<<" rownloegly:"<<p2->X()<<" "<<p1->X()<<endl;
+      Error("PndDchPreFitterTR::GetLineParameters","2 points paralel with x1=%f and x2=%f",p2->X(),p1->X());
       return kFALSE;
     }
     Double_t slope = (p2->Y()-p1->Y())/(p2->X()-p1->X());
@@ -398,7 +403,6 @@ Bool_t PndDchPreFitterTR::GetLineParameters(TClonesArray *fInHits, TVector2& res
     result.Set(slope, offset);
     return kTRUE;
   }
-  Double_t inhitTime;
   for (Int_t iInHit=0; iInHit<nInHits; iInHit++) {
     inhit  = (TVector2*) fInHits->At(iInHit);
     if ((inhit->X()!=0) && (inhit->Y()!=0)) {
@@ -428,26 +432,18 @@ Bool_t PndDchPreFitterTR::GetCrossPoint(PndDchCylinderHit *chit1, PndDchCylinder
  TVector2 wire2End2 = chit2->GetWireEnd2();
  TVector2 dir1 = (wire1End2-wire1End1).Unit();
  TVector2 dir2 = (wire2End2-wire2End1).Unit();
- if((dir1-dir2).Mod()<1e-6 || (dir1+dir2).Mod()<1e-6)
+ if((dir1-dir2).Mod()<1e-6 || (dir1+dir2).Mod()<1e-6) {
    return kFALSE; //lines are parallel
-//  cout<<"konce drutow..."<<endl;
-//  dir1.Print();
-//  dir2.Print();
-
-//  wire1End1.Print();
-//  wire1End2.Print();
-//  wire2End1.Print();
-//  wire2End2.Print(); 
-
+ }
  if(TMath::Abs((dir1+dir2).X())<1e-6){
-   cout<<"takie same iksy"<<endl;
+   //   cout<<"The same X"<<endl;
    Double_t x = (wire1End1+wire2End1).X();
    wire1End1.Set(x/2,wire1End1.Y());
    dir1.Set(0.,1.);
  }
 
  if(TMath::Abs((dir1+dir2).Y())<1e-6){
-   cout<<"takie same igreki"<<endl;
+   //   cout<<"The same Y"<<endl;
    Double_t y = (wire1End1+wire2End1).X();
    wire1End1.Set(wire1End1.X(),y/2);
    dir1.Set(1.,0.);
@@ -457,9 +453,6 @@ Bool_t PndDchPreFitterTR::GetCrossPoint(PndDchCylinderHit *chit1, PndDchCylinder
 
  point = wire2End1 + b*dir2;
    
- cout<<"cross point..."<<endl;
- point.Print();
-
  return kTRUE;
 
 }
@@ -490,8 +483,6 @@ std::map<Int_t , TVector3> PndDchPreFitterTR::GetHitPointsInChambers(PndDchTrack
        if (GetCrossPoint(chit1,chit2,point)) {
 	 TVector3 point3d(point.X(), point.Y(), 
 			  (chit1->GetWireZcoordGlobal()+chit2->GetWireZcoordGlobal())/2.);
-	 cout<<"przed ch="<<ch1<<endl; 
-	 point3d.Print();
 	 iter = chamberHitMap.find(ch1);
 	 if( iter == chamberHitMap.end() ) {
 	   chamberHitMap[ch1] = point3d; 
@@ -506,8 +497,6 @@ std::map<Int_t , TVector3> PndDchPreFitterTR::GetHitPointsInChambers(PndDchTrack
   for( iter = chamberHitMap.begin(); iter != chamberHitMap.end(); ++iter ) {
     iterCounts = chamberCountsMap.find(iter->first);
     iter->second = iter->second *(1./(Double_t)iterCounts->second);
-    cout<<iter->first<<endl;
-    iter->second.Print();
   }
   return chamberHitMap;
 }

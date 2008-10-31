@@ -6,7 +6,7 @@
 /** \class PndDchPreFitterTR
  *  \author A.Bubak <arkadiusz.bubak@gmail.com>
  *  \date 26.02.2008
- *  \brief Task for momentum reconstruction in the dipole
+ *  \brief Task for preliminary momentum reconstruction in the dipole
  * 
  *   This task performs  momentum reconstruction (rough!)
  *   for the forward spectrometer (dipole part)

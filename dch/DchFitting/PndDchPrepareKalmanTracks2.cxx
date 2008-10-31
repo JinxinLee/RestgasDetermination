@@ -1,5 +1,5 @@
 // -------------------------------------------------------------------------
-// -----          PndDchPrepareKalmanTracks2 source file                -----
+// -----          PndDchPrepareKalmanTracks2 source file               -----
 // -----            Created 30.09.2008  by A. Wronska                  -----
 // -----        based on the recotasks/demo code  by S.Neubert         -----
 // -------------------------------------------------------------------------
@@ -31,7 +31,7 @@
 
 
 PndDchPrepareKalmanTracks2::PndDchPrepareKalmanTracks2()
-  : CbmTask("Translation of PndDchTracks to Tracks"), fPersistence(kFALSE), fUseGeane(kFALSE)
+  : CbmTask("Translation of PndDchTracks to Tracks"), fPersistence(kFALSE), fUseGeane(kFALSE), fUseMC(kFALSE), fPDG(11)
 {
 }
 
@@ -123,118 +123,115 @@ PndDchPrepareKalmanTracks2::Exec(Option_t* opt)
   if(fTrackArray==0) Fatal("PndDchPrepareKalmanTracks2::Exec)","No TrackArray");
   fTrackArray->Delete();
 
-   std::map<unsigned int,TrackCand*> candmap;
-   
-   Int_t nuOfTracks = fDchTrackArray->GetEntriesFast();
-
-   for (Int_t id=0; id<nuOfTracks; id++){
-     PndDchTrackMatch* dchtrmatch = (PndDchTrackMatch*) fDchTrackMatchArray->At(id);
-     Int_t tridx = dchtrmatch->GetRecTrackID();
-     PndDchTrack* dchtrack = (PndDchTrack*) fDchTrackArray->At(tridx);
-     Int_t nuOfChits = dchtrack->GetNofDchCylinderHits();
-     if(fVerbose>0)
-       std::cout<<"PndDchPrepareKalmanTracks2::Exec(): I found here "<<nuOfChits<<" cyl hits \n";
-
-     if(candmap[id]==NULL){ 
-       candmap[id]=new TrackCand;
-     } else { 
-       std::cout<<"PndDchPrepareKalmanTracks2::Exec()...:"<<
-	 "this track ID was used already!"<<std::endl;
-     }
-     for(Int_t nuhit=0; nuhit<nuOfChits; nuhit++){
-       Int_t globalCHitNu = dchtrack->GetDchCylinderHitIndex(nuhit);
-       candmap[id]->addHit(1,globalCHitNu);
-     }
-   }
-     
-
-   // ------------------------------------------------------------------------
-   // then loop over tracks
-   
-   std::map<unsigned int,TrackCand*>::iterator candIter=candmap.begin();
-   while(candIter!=candmap.end()){
-     TrackCand* cand=candIter->second;
-     if(cand->getNHits()<10){
-       ++candIter;
-       continue;
-     }
-     
-     // Get MCTrack and try to find some starting values for fitting (mom and pos)
-
-     PndDchTrackMatch* dchTrackMatch = 
-       (PndDchTrackMatch*) fDchTrackMatchArray->At(candIter->first);
-     Int_t mcTrId = dchTrackMatch->GetMCTrackID();
-     CbmMCTrack* mc=(CbmMCTrack*)fMcArray->At(mcTrId);
-     if(mc==0){
-       Error("PndDchPrepareKalmanTracks2::Exec","MCTrack Id=&i not found!",mcTrId);
-       ++candIter;
-       continue;
-     }
-
-     Int_t pdg  = mc->GetPdgCode();
-     Double_t q = TDatabasePDG::Instance()->GetParticle(pdg)->Charge()/3.;
-
-     Int_t pointidx = 0;
-     TVector3 pos;
-     TVector3 mom;
-     while(pointidx<fDchPointArray->GetEntries()){
-       PndDchPoint* pnt=(PndDchPoint*)fDchPointArray->At(pointidx);
-       if(pnt->GetTrackID()==mcTrId){
-	 pnt->Position(pos);
-	 pnt->Momentum(mom);
-	 break;
-       }
-     }
-
-     // pos=mc->GetStartVertex();
-     Double_t startPosAccuracy = 0.5;
-     TVector3 poserr(startPosAccuracy,startPosAccuracy,3.*startPosAccuracy);
-     TVector3 startMomAccuracy(0.1,0.1,0.1);
-     TVector3 mcMom = mc->GetMomentum();
-     TVector3 momerr(mom.X()*startMomAccuracy.X(),
- 		     mom.Y()*startMomAccuracy.Y(),
- 		     mom.Z()*startMomAccuracy.Z());
-     
-     TVector3 u(1.,0.,0.);
-     TVector3 v(0.,1.,0.);
-
-     // create track-representation object and initialize with start values
-     AbsTrackRep* rep=0;
-     if(fUseGeane){
-       DetPlane pl(pos,u,v);
-       GeaneTrackRep *grep=new GeaneTrackRep(fGeanePro,pl,mom,poserr,momerr,q,pdg);
-       grep->setPropDir(1); // propagate in flight direction
-       if(fVerbose>0){
-	 std::cout<<" ^^^^^^^^^^^^^I prepare the following GeaneTrackRep:"<<std::endl;
-	 grep->Print();
-	 std::cout<<" ^^^^^^^^^^^^^End of GeaneTrackRep printout"<<std::endl;
-       }
-       rep = grep;
-     }
-     else {
-       TVector3 dir=mom.Unit();
-       double dxdz=dir.X()/dir.Z();
-       double dydz=dir.Y()/dir.Z();
-       double qp=q/mom.Mag();
-       rep=new LSLTrackRep(pos.Z(),pos.X(),pos.Y(),dxdz,dydz,qp,
-     			   poserr.X(),poserr.Y(),0.1,0.1,0.1,NULL);
-       if(fVerbose>0){
-	 std::cout<<" ^^^^^^^^^^^^^I prepare the following LSLTrackRep:"<<std::endl;
-	 rep->Print();
-	 std::cout<<" ^^^^^^^^^^^^^End of LSLTrackRep printout"<<std::endl;
-       }
-     }
-
-     // create track object
-     Track* trk=new((*fTrackArray)[fTrackArray->GetEntriesFast()]) Track(rep);
-     trk->setCandidate(*cand);
-     ++candIter;
-   }// end loop over tracks
-   
-   if(fVerbose>0)
-     std::cout<<fTrackArray->GetEntriesFast()<<" tracks created"<<std::endl;
-
-   return;
+  Int_t nuOfTracks = fDchTrackArray->GetEntriesFast();
+  // loop over tracks
+  for (Int_t id=0; id<nuOfTracks; id++){
+    PndDchTrack* dchtrack = (PndDchTrack*) fDchTrackArray->At(id);
+    Int_t nuOfChits = dchtrack->GetNofDchCylinderHits();
+    if(fVerbose>0)
+      std::cout<<"PndDchPrepareKalmanTracks2::Exec(): I found here "<<nuOfChits<<" cyl hits \n";
+    
+    TrackCand* cand = new TrackCand();
+    for(Int_t nuhit=0; nuhit<nuOfChits; nuhit++){
+      Int_t globalCHitNu = dchtrack->GetDchCylinderHitIndex(nuhit);
+      cand->addHit(1,globalCHitNu);
+    }
+    if(cand->getNHits()<10)
+      continue;
+    
+    Int_t pdg;
+    Double_t q;
+    TVector3 pos, mom;
+    
+    if(fUseMC){ 
+      Int_t mcTrID = -1;
+      Int_t idx = 0;
+      while(idx<fDchTrackMatchArray->GetEntriesFast()){
+	PndDchTrackMatch* dchtrmatch = (PndDchTrackMatch*) fDchTrackMatchArray->At(idx);
+	if(dchtrmatch->GetRecTrackID()==id){
+	  mcTrID = dchtrmatch->GetMCTrackID();
+	  break;
+	}
+	idx++;
+      }
+      if(mcTrID<0){
+	Error("PndDchPrepareKalmanTracks2::Exec","Matching MCTrack for DchTrack Id=&i not found!",id);
+	continue;
+      }
+      CbmMCTrack* mc=(CbmMCTrack*)fMcArray->At(mcTrID);
+      if(mc==0){
+	Error("PndDchPrepareKalmanTracks2::Exec","MCTrack Id=&i not found!",mcTrID);
+	continue;
+      }
+      pdg  = mc->GetPdgCode();
+      q = TDatabasePDG::Instance()->GetParticle(pdg)->Charge()/3.;
+      Int_t pointidx = 0;
+      while(pointidx<fDchPointArray->GetEntries()){
+	PndDchPoint* pnt=(PndDchPoint*)fDchPointArray->At(pointidx);
+	if(pnt->GetTrackID()==mcTrID){
+	  pnt->Position(pos);
+	  pnt->Momentum(mom);
+	  break;
+	}
+      }
+    }
+    else{ // dch track has been initialised by prefitter
+      CbmTrackParam* param = dchtrack->GetParamFirst();
+      param->Position(pos);
+      param->Momentum(mom);
+      q = (param->GetQp()==0) ? 0 : param->GetQp()/TMath::Abs(param->GetQp());
+      pdg = fPDG;
+    }
+    
+    std::cout<<"pozycje i pedy "<<std::endl;
+    pos.Print();
+    mom.Print();
+    if(mom.Mag()>1e3){
+      Error("PndDchPrepareKalmanTracks2::Exec","Track was incorrectly prefitted - abandoned in Kalman!");
+      continue;
+    }
+    Double_t startPosAccuracy = 0.5;
+    TVector3 poserr(startPosAccuracy,startPosAccuracy,3.*startPosAccuracy);
+    TVector3 startMomAccuracy(0.1,0.1,0.1);
+    TVector3 momerr(mom.X()*startMomAccuracy.X(),
+		    mom.Y()*startMomAccuracy.Y(),
+		    mom.Z()*startMomAccuracy.Z());    
+    TVector3 u(1.,0.,0.);
+    TVector3 v(0.,1.,0.);
+    
+    // create track-representation object and initialize with start values
+    AbsTrackRep* rep=0;
+    if(fUseGeane){
+      DetPlane pl(pos,u,v);
+      GeaneTrackRep *grep=new GeaneTrackRep(fGeanePro,pl,mom,poserr,momerr,q,pdg);
+      grep->setPropDir(1); // propagate in flight direction
+      //  if(fVerbose>0){
+	std::cout<<" ^^^^^^^^^^^^^I prepare the following GeaneTrackRep:"<<std::endl;
+	grep->Print();
+	std::cout<<" ^^^^^^^^^^^^^End of GeaneTrackRep printout"<<std::endl;
+	//}
+      rep = grep;
+    }
+    else {
+      TVector3 dir=mom.Unit();
+      double dxdz=dir.X()/dir.Z();
+      double dydz=dir.Y()/dir.Z();
+      double qp=q/mom.Mag();
+      rep=new LSLTrackRep(pos.Z(),pos.X(),pos.Y(),dxdz,dydz,qp,
+			  poserr.X(),poserr.Y(),0.1,0.1,0.1,NULL);
+      if(fVerbose>0){
+	std::cout<<" ^^^^^^^^^^^^^I prepare the following LSLTrackRep:"<<std::endl;
+	rep->Print();
+	std::cout<<" ^^^^^^^^^^^^^End of LSLTrackRep printout"<<std::endl;
+      }
+    }
+    // create track object
+    Track* trk=new((*fTrackArray)[fTrackArray->GetEntriesFast()]) Track(rep);
+    trk->setCandidate(*cand);
+  }// end loop over dchtracks
+  if(fVerbose>0)
+    std::cout<<fTrackArray->GetEntriesFast()<<" tracks created"<<std::endl;
+  return;
 }
 
 ClassImp(PndDchPrepareKalmanTracks2)
