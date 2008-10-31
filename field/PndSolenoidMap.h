@@ -19,8 +19,7 @@
 
 
 #include "PndFieldMap.h"
-
-
+class PndMapPar;
 class PndFieldPar;
 class PndSolenoidPar;
 
@@ -42,7 +41,7 @@ public:
 
 
   /** Constructor from PndFieldPar **/
-  PndSolenoidMap(PndSolenoidPar* fieldPar);
+  PndSolenoidMap(PndMapPar* fieldPar);
 
 
   /** Destructor **/
@@ -68,15 +67,18 @@ public:
 			  Int_t& ix, Int_t& iy, Int_t& iz,
 			  Double_t& dx, Double_t& dy, Double_t& dz);
 
+  static Int_t fNumberOfRegions; //!
+  Int_t fRegionNo;	
 
-	
- protected:
+  Int_t GetRegionNo(){return fRegionNo;}
+  
+  protected:
 
   // Hemispheres of a point (for temporary use)
   Double_t fHemiX, fHemiY;   //!
 
 
-  ClassDef(PndSolenoidMap,1) 
+  ClassDef(PndSolenoidMap,2) 
 
 };
 

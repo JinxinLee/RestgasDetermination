@@ -126,6 +126,32 @@
   fField->AddField(map1);
   fField->AddField(map2);
   
+/**
+ // New field oct.2008
+  PndTransMap  *tmap= new PndTransMap("Trans1", "R");
+  PndDipoleMap *dmap1= new PndDipoleMap("Dipole1", "R");
+  PndDipoleMap *dmap2= new PndDipoleMap("Dipole2", "R");
+    
+  PndSolenoidMap *smap1= new PndSolenoidMap("Solenoid1", "R");
+  PndSolenoidMap *smap2= new PndSolenoidMap("Solenoid2", "R");
+  PndSolenoidMap *smap3= new PndSolenoidMap("Solenoid3", "R");
+  PndSolenoidMap *smap4= new PndSolenoidMap("Solenoid4", "R");
+        
+  fField->AddField(tmap);
+  fField->AddField(dmap1);
+  fField->AddField(dmap2);
+
+  fField->AddField(smap1);
+  fField->AddField(smap2);
+  fField->AddField(smap3);
+  fField->AddField(smap4);
+*/
+
+
+
+
+
+
   //magnetic field
   /*  PndConstField *fMagField=new PndConstField();
       fMagField->SetField(0.,0.,20.); // values are in kG

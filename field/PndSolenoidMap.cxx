@@ -3,7 +3,9 @@
 #include "TArrayF.h"
 #include "stdlib.h"
 #include "PndSolenoidMap.h"
-#include "PndSolenoidPar.h"
+#include "PndMapPar.h"
+
+Int_t PndSolenoidMap::fNumberOfRegions=0;
 
 using namespace std;
 // -------------   Default constructor  ----------------------------------
@@ -19,13 +21,15 @@ PndSolenoidMap::PndSolenoidMap(const char* mapName,
 				 const char* fileType)
   : PndFieldMap(mapName, fileType) { 
   fType = 2;
+  fNumberOfRegions++;
+  fRegionNo=fNumberOfRegions;
 }
 // ------------------------------------------------------------------------
 
 
 
 // ------------   Constructor from PndFieldPar   --------------------------
-PndSolenoidMap::PndSolenoidMap(PndSolenoidPar* fieldPar) 
+PndSolenoidMap::PndSolenoidMap(PndMapPar* fieldPar) 
   : PndFieldMap() {
   fType = 2;
   fPosX  = fPosY  = fPosZ  = 0.;
@@ -189,7 +193,7 @@ Bool_t PndSolenoidMap::IsInside(Double_t x, Double_t y, Double_t z,
   }
 
   // ---  Check for being outside the map range
-  if ( ! ( xl >= fXmin && xl <= fXmax && yl >= fYmin && yl <= fYmax &&
+  if ( ! ( xl >= 0 && xl <= fXmax && yl >= 0 && yl <= fYmax &&
 	   zl >= fZmin && zl <= fZmax ) ) {
     ix = iy = iz = 0;
     dx = dy = dz = 0.;

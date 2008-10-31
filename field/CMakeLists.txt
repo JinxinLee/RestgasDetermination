@@ -29,8 +29,15 @@ PndDipoleMap.cxx
 PndTransMap.cxx      
 PndRegion.cxx        
 PndDipolePar.cxx     
-PndTransPar.cxx      
-PndSolenoidPar.cxx   
+PndDipole1Par.cxx     
+PndDipole2Par.cxx     
+PndDipole3Par.cxx     
+PndTransPar.cxx
+PndSolenoidPar.cxx
+PndSolenoid1Par.cxx
+PndSolenoid2Par.cxx
+PndSolenoid3Par.cxx   
+PndSolenoid4Par.cxx
 PndMapPar.cxx        
 PndMultiFieldPar.cxx 
 PndConstPar.cxx    

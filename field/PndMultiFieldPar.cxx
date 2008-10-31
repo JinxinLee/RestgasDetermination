@@ -12,6 +12,7 @@
 #include "PndMapPar.h"
 #include "CbmRuntimeDb.h"
 #include "CbmRun.h"
+#include "iostream.h"
 
 // ------   Constructor   --------------------------------------------------
 PndMultiFieldPar::PndMultiFieldPar(const char* name, const char* title, const char* context) 
@@ -68,17 +69,44 @@ void PndMultiFieldPar:: SetParameters(CbmField* field)
       } 
       if(Type==2){
          PndSolenoidMap *fs= (PndSolenoidMap *)fField;
-         PndSolenoidPar* cs = (PndSolenoidPar*) rtdb->getContainer("PndSolenoidPar");
-         cs->SetParameters(fs);
-	 cs->setInputVersion(fRun->GetRunId(),1);
-         fParArray->AddLast(cs);
+	 if (PndSolenoidMap::fNumberOfRegions==1){	 	 	 	 
+            PndSolenoidPar* cs = (PndSolenoidPar*) rtdb->getContainer("PndSolenoidPar");
+            cs->SetParameters(fs);
+	    cs->setInputVersion(fRun->GetRunId(),1);
+            fParArray->AddLast(cs);
+	 }else{
+            TString contN1="PndSolenoid";
+	    TString contN3="Par";
+            char NO[1];
+            sprintf(NO,"%d",fs->GetRegionNo());
+            TString contN2=contN1+NO;
+            TString contName=contN2+contN3;
+	    cout << "------"<< "PndMultiFieldPar:: SetParameters(CbmField* field) " << contName << endl;
+            PndMapPar* cs = (PndMapPar*) rtdb->getContainer(contName.Data());
+            cs->SetParameters(fs);
+	    cs->setInputVersion(fRun->GetRunId(),1);
+            fParArray->AddLast(cs); 
+	 }
       }
       if(Type==3){
 	 PndDipoleMap *fd= (PndDipoleMap *)fField;
-         PndDipolePar* cd = (PndDipolePar*) rtdb->getContainer("PndDipolePar");
-         cd->SetParameters(fd);
-	 cd->setInputVersion(fRun->GetRunId(),1);
-	 fParArray->AddLast(cd);
+        if (PndDipoleMap::fNumberOfRegions==1){
+            PndDipolePar* cs = (PndDipolePar*) rtdb->getContainer("PndDipolePar");
+            cs->SetParameters(fd);
+            cs->setInputVersion(fRun->GetRunId(),1);
+            fParArray->AddLast(cs);
+         }else{
+            TString contN1="PndDipole";
+            TString contN3="Par";
+            char NO[1];
+            sprintf(NO,"%d",fd->GetRegionNo());
+            TString contN2=contN1+NO;
+            TString contName=contN2+contN3;
+            PndMapPar* cs = (PndMapPar*) rtdb->getContainer(contName.Data());
+            cs->SetParameters(fd);
+            cs->setInputVersion(fRun->GetRunId(),1);
+            fParArray->AddLast(cs);
+         }
       }
       if(Type==4){
 	 PndTransMap *ft= (PndTransMap *)fField;

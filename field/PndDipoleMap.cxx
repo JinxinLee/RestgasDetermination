@@ -4,6 +4,9 @@
 #include "stdlib.h"
 #include "PndDipoleMap.h"
 #include "PndDipolePar.h"
+#include "PndMapPar.h"
+
+Int_t PndDipoleMap::fNumberOfRegions=0;
 
 using namespace std;
 // -------------   Default constructor  ----------------------------------
@@ -19,13 +22,17 @@ PndDipoleMap::PndDipoleMap(const char* mapName,
 				 const char* fileType)
   : PndFieldMap(mapName, fileType) { 
   fType = 3;
+  
+  fNumberOfRegions++;
+  fRegionNo=fNumberOfRegions;
+  
 }
 // ------------------------------------------------------------------------
 
 
 
 // ------------   Constructor from PndFieldPar   --------------------------
-PndDipoleMap::PndDipoleMap(PndDipolePar* fieldPar) 
+PndDipoleMap::PndDipoleMap(PndMapPar* fieldPar) 
   : PndFieldMap() {
  
   fType = 3;

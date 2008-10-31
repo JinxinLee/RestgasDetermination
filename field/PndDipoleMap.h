@@ -22,7 +22,7 @@
 
 
 class PndDipolePar;
-
+class PndMapPar;
 
 class PndDipoleMap : public PndFieldMap {
 
@@ -42,7 +42,7 @@ public:
 
 
   /** Constructor from PndFieldPar **/
-  PndDipoleMap(PndDipolePar* fieldPar);
+  PndDipoleMap(PndMapPar* fieldPar);
 
 
   /** Destructor **/
@@ -68,7 +68,10 @@ public:
 			  Int_t& ix, Int_t& iy, Int_t& iz,
 			  Double_t& dx, Double_t& dy, Double_t& dz);
 
+  static Int_t fNumberOfRegions; //!
+  Int_t fRegionNo;	
 
+  Int_t GetRegionNo(){return fRegionNo;}
 	
  protected:
 
@@ -76,7 +79,7 @@ public:
   Double_t fHemiX, fHemiY;   //!
 
 
-  ClassDef(PndDipoleMap,1) 
+  ClassDef(PndDipoleMap,2) 
 
 };
 
