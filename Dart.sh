@@ -87,8 +87,13 @@ ln -s $BUILDDIR/emc/libEmc.so .
 ln -s $BUILDDIR/hyp/libHyp.so .
 ln -s $BUILDDIR/mdt/libMdt.so .
 ln -s $BUILDDIR/mvd/libMvd.so .
+ln -s $BUILDDIR/mvd/libMvdReco.so .
+ln -s $BUILDDIR/mvd/libMvdTrk.so .
 ln -s $BUILDDIR/pgenerators/libPGen.so .
+ln -s $BUILDDIR/pgenerators/DpmEvtGen/libDpmEvtGen.so .
 ln -s $BUILDDIR/stt/libStt.so .
+ln -s $BUILDDIR/stt/sttreco/libSttReco.so .
+ln -s $BUILDDIR/PndTools/riemannfit/libriemann.so .
 ln -s $BUILDDIR/tpc/libtpc.so .
 ln -s $BUILDDIR/tpc/tpcreco/libtpcreco.so .
 ln -s $BUILDDIR/genfit/libgenfit.so .
