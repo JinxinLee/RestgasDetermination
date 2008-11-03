@@ -12,7 +12,6 @@
 #include "PndMapPar.h"
 #include "CbmRuntimeDb.h"
 #include "CbmRun.h"
-#include "iostream.h"
 
 // ------   Constructor   --------------------------------------------------
 PndMultiFieldPar::PndMultiFieldPar(const char* name, const char* title, const char* context) 
@@ -81,7 +80,7 @@ void PndMultiFieldPar:: SetParameters(CbmField* field)
             sprintf(NO,"%d",fs->GetRegionNo());
             TString contN2=contN1+NO;
             TString contName=contN2+contN3;
-	    cout << "------"<< "PndMultiFieldPar:: SetParameters(CbmField* field) " << contName << endl;
+	//    cout << "------"<< "PndMultiFieldPar:: SetParameters(CbmField* field) " << contName << endl;
             PndMapPar* cs = (PndMapPar*) rtdb->getContainer(contName.Data());
             cs->SetParameters(fs);
 	    cs->setInputVersion(fRun->GetRunId(),1);
