@@ -15,6 +15,7 @@
 #include "TSystem.h"
 #include "TPaveText.h"
 #include "TROOT.h"
+#include "TLegend.h"
 
 #include "../src/TCtrack.h"
 #include "../src/TCcluster.h"
@@ -44,7 +45,21 @@ void position(TString files){
 
   TH1D *u_raw = new TH1D("u_raw","",50,0,10);
   TH1D *v_raw = new TH1D("v_raw","",50,0,1);
+  v_raw->SetStats(kFALSE);
   TH1D *w_raw = new TH1D("w_raw","",100,0,10);
+
+  TH1D *v_raw_1 = new TH1D("v_raw_1","",50,0,1);
+  v_raw_1->SetLineColor(5);
+  v_raw->SetStats(kFALSE);
+  TH1D *v_raw_2 = new TH1D("v_raw_2","",50,0,1);
+  v_raw_2->SetLineColor(6);
+  v_raw_2->SetStats(kFALSE);
+  TH1D *v_raw_3 = new TH1D("v_raw_3","",50,0,1);
+  v_raw_3->SetLineColor(3);
+  v_raw_3->SetStats(kFALSE);
+  TH1D *v_raw_4 = new TH1D("v_raw_4","",50,0,1);
+  v_raw_4->SetLineColor(4);
+  v_raw_4->SetStats(kFALSE);
 
   TH2D *w_vs_v = new TH2D("w_vs_v","",100,0,10,100,0,1);
 
@@ -98,6 +113,11 @@ void position(TString files){
 		v_raw->Fill(c.getRaw(j).posUVW().Y());
 		w_raw->Fill(c.getRaw(j).posUVW().Z());
 
+		if(c.nPadY()==1)v_raw_1->Fill(c.getRaw(j).posUVW().Y());
+		if(c.nPadY()==2)v_raw_2->Fill(c.getRaw(j).posUVW().Y());
+		if(c.nPadY()==3)v_raw_3->Fill(c.getRaw(j).posUVW().Y());
+		if(c.nPadY()>3)v_raw_4->Fill(c.getRaw(j).posUVW().Y());
+
 		w_vs_v_raw->Fill(c.getRaw(j).posUVW().Z(),c.getRaw(j).posUVW().Y());
 
 		if(c.nPadY()==1) w_vs_v_1->Fill(c.getRaw(j).posUVW().Z(),c.getRaw(j).posUVW().Y());
@@ -125,6 +145,14 @@ void position(TString files){
 
   //end of event loop
 
+  TLegend *leg = new TLegend(0.7,0.8,0.95,0.99);
+  leg->AddEntry(v_raw,"total","l");
+  leg->AddEntry(v_raw_1,"nPadY = 1","l");
+  leg->AddEntry(v_raw_2,"nPadY = 2","l");
+  leg->AddEntry(v_raw_3,"nPadY = 3","l");
+  leg->AddEntry(v_raw_4,"nPadY > 3","l");
+  leg->SetFillColor(0);
+
   TCanvas *canvas = new TCanvas();
   u->Draw();
   canvas = new TCanvas();
@@ -139,6 +167,11 @@ void position(TString files){
   u_raw->Draw();
   canvas = new TCanvas();
   v_raw->Draw();
+  v_raw_2->Draw("same");
+  v_raw_1->Draw("same");
+  v_raw_3->Draw("same");
+  v_raw_4->Draw("same");
+  leg->Draw();
   canvas = new TCanvas();
   w_raw->Draw();
 
