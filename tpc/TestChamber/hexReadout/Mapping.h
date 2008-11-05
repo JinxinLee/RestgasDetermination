@@ -1,6 +1,7 @@
 #ifndef MAPPING_H
 #define MAPPING_H
 
+#include<cassert>
 #include<string>
 #include<sstream>
 #include<iostream>
@@ -27,12 +28,19 @@ class Channel_t{
 class Mapping{
  private:
   Channel_t* c[6][256];
+  static const unsigned int PINOFFSET = 45;
  public:
   void read(std::string);
   void write(std::string);
   Channel_t* getChannel(unsigned int iConn,unsigned int iPin){
     assert(iConn<6 && iPin<256);
     return c[iConn][iPin];
+  }
+  void map(unsigned int conn, unsigned int pin, double& x, double& y){
+    assert(pin > 44 && pin<=300);
+    assert(conn<6);
+    x = c[conn][pin-PINOFFSET]->x;
+    y = c[conn][pin-PINOFFSET]->y;
   }
 };
 

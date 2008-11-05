@@ -39,9 +39,8 @@ void Mapping::read(std::string filename){
   for(unsigned int i=0;i<channels.size();++i){
     int iConn,iPin;
     iConn = channels.at(i).conn;
-    iPin = channels.at(i).pin-45;
+    iPin = channels.at(i).pin-PINOFFSET;
     //channels.at(i).print();
-    std::cout << iConn << " " << iPin << std::endl;
     //std::cout << c[iConn][iPin] << std::endl;
     c[iConn][iPin] = new Channel_t(channels.at(i));
     //c[iConn][iPin]->print();
