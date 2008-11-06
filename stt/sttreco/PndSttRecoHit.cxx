@@ -206,7 +206,10 @@ PndSttRecoHit::detPlane(AbsRecoHit* hit, AbsTrackRep* rep)
     geane->ActualFindPCA(pca, parrep, direction);
     Int_t findpca = geane->FindPCA(pca, PDG, point, wire1, wire2, maxdistance, Rad, vpf, vwi, Di, trklength);
   
-    if(findpca != 0) { cout << "detector plane determination FAILED!" << endl;  //return kFALSE; 
+    if(findpca != 0) { 
+      cout << "detector plane determination FAILED!" << endl;  //return kFALSE; 
+      FitterException exc("findpca failure", __LINE__,__FILE__);	
+      throw exc;    
     }
   
     // find plane
