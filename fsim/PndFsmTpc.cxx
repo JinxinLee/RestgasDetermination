@@ -201,10 +201,33 @@ PndFsmTpc::detected(PndFsmTrack *t) const
   if (t->hitMapValid()) {
     return t->hitMapResponse(FsmDetEnum::Tpc);
   } else {
-    double theta = t->p4().Theta();
+    
+	  double theta  = t->p4().Theta();
+	  double p      = t->p4().Vect().Mag();
+	  double p_t    = t->p4().Vect().Pt();
+	  double charge=t->charge();
+	  
+    //only charged particles give signal 
+	  if (fabs(charge)<0.001) return false; 
+     
+    // due to track curvature particle doesn't reach barrel
+	  double rho = 3.3356 * p_t / _Bfield;
+	  if (_rmin>(2*rho)) return false; 
+        
+    //due to helix trajectory particle doesn't hit detector (even with dip angle in tht range)
+	  double z=2*rho*asin(_rmin/(2*rho))/tan(theta);    
+	  double polar=atan2(_rmin,z);
+	  if (polar<_thtMin || polar>_thtMax) return false; 
+    
+    //finally check for efficiency;
+	  return ( _rand->Rndm()<=_efficiency);   
+	  
+/*	  
+	  
+	  double theta = t->p4().Theta();
     double p=t->p4().Vect().Mag();
     double charge=t->charge();
-    return ( charge!=0.0 && theta>=_thtMin && theta<=_thtMax && p>_pmin  && _rand->Rndm()<=_efficiency);
+    return ( charge!=0.0 && theta>=_thtMin && theta<=_thtMax && p>_pmin  && _rand->Rndm()<=_efficiency);*/
   }
 }
 
@@ -238,7 +261,9 @@ PndFsmTpc::print(ostream &o)
   o  <<"  _thtMax = "<<_thtMax<<endl; 
   o  <<"  _radiationLength = "<<_radiationLength<<endl; 
   o  <<"  _pmin = "<<_pmin<<endl; 
+  o  <<"  _rmin = "<<_rmin<<endl; 
   o  <<"  _pRes = "<<_pRes <<endl; 
+  o  <<"  _Bfield = "<<_Bfield <<endl; 
   o  <<"  _phiRes = "<<_phiRes << " degree" << endl;
   o  <<"  _thetaRes = "<<_thetaRes <<" degree" << endl;    
   o  <<"  _dEdxRes = "<<_dEdxRes << " (rel)"<< endl;    
@@ -251,7 +276,9 @@ PndFsmTpc::initParameters()
   _detName         = FsmDetName::name(FsmDetEnum::Tpc);
   _thtMin          = 7.765;
   _thtMax          = 159.54;
+  _Bfield 		   = 2.0;
   _radiationLength = 0.0;
+  _rmin            = 0.15;
   _pmin            = 0.0;
   _pRes            =0.005;//0.5% smearing
   _phiRes          =0.1; //0.1 degree smearing
@@ -278,11 +305,17 @@ PndFsmTpc::setParameter(std::string &name, double value)
   if (name == "radiationLength")
     _radiationLength=value;
   else
+  if (name == "rmin")
+    _rmin=value;
+  else
   if (name == "pmin")
     _pmin=value;
   else
   if (name == "pRes")
     _pRes=value;
+  else
+  if (name == "Bfield")
+	  _Bfield=value;
   else
   if (name == "phiRes")
     _phiRes=value;

@@ -207,7 +207,7 @@ PndFsmMvd::detected(PndFsmTrack *t) const
     double theta = t->p4().Theta();
     double p=t->p4().Vect().Mag();
     double charge=t->charge();
-    return ( charge!=0.0 && theta>=_thtMin && theta<=_thtMax && p>_pmin  && _rand->Gaus()<=_efficiency);
+    return ( charge!=0.0 && theta>=_thtMin && theta<=_thtMax && p>_pmin  && _rand->Rndm()<=_efficiency);
   }
 }
 

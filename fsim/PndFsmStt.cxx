@@ -204,11 +204,33 @@ PndFsmStt::detected(PndFsmTrack *t) const
   if (t->hitMapValid()) {
     return t->hitMapResponse(FsmDetEnum::Stt);
   } else {
-    double theta = t->p4().Theta();
+
+    
+	  double theta  = t->p4().Theta();
+	  double p      = t->p4().Vect().Mag();
+	  double p_t    = t->p4().Vect().Pt();
+	  double charge=t->charge();
+	  
+    //only charged particles give signal 
+	  if (fabs(charge)<0.001) return false; 
+     
+    // due to track curvature particle doesn't reach barrel
+	  double rho = 3.3356 * p_t / _Bfield;
+	  if (_rmin>(2*rho)) return false; 
+        
+    //due to helix trajectory particle doesn't hit detector (even with dip angle in tht range)
+	  double z=2*rho*asin(_rmin/(2*rho))/tan(theta);    
+	  double polar=atan2(_rmin,z);
+	  if (polar<_thtMin || polar>_thtMax) return false; 
+    
+    //finally check for efficiency;
+	  return ( _rand->Rndm()<=_efficiency);   	  
+	  
+	  /*    double theta = t->p4().Theta();
     //    double p=t->p4().vect().mag();
-    double p_t=t->p4().Vect().Perp(TVector3(0.,0.,1.));
+	double p_t=t->p4().Vect().Pt();
     double charge=t->charge();
-    return ( charge!=0.0 && theta>=_thtMin && theta<=_thtMax && p_t>_pmin  && _rand->Rndm()<=_efficiency);
+    return ( charge!=0.0 && theta>=_thtMin && theta<=_thtMax && p_t>_pmin  && _rand->Rndm()<=_efficiency);*/
   }
 }
 
@@ -254,6 +276,7 @@ PndFsmStt::print(ostream &o)
   o  <<"  _thtMax = "<<_thtMax<<endl; 
   o  <<"  _radiationLength = "<<_radiationLength<<endl; 
   o  <<"  _pmin = "<<_pmin<<endl; 
+  o  <<"  _rmin = "<<_rmin<<endl; 
   o  <<"  _dEdxRes = "<<_dEdxRes << " (rel)"<< endl;    
   o  <<"  _efficiency = "<<_efficiency<<endl; 
 }
@@ -271,7 +294,8 @@ PndFsmStt::initParameters()
   _thtMin          = 7.765;
   _thtMax          = 159.44;
   _radiationLength = 0.0;
-  _pmin            = 0.1;
+  _pmin            = 0.0;
+  _rmin            = 0.15;
   _dEdxRes         = 0.2; // 20% dEdx resolution
   _efficiency	   =1.0; 
 
@@ -315,6 +339,9 @@ PndFsmStt::setParameter(std::string &name, double value)
   else
   if (name == "pmin")
     _pmin=value;
+  else
+  if (name == "rmin")
+	_rmin=value;
   else
   if (name == "dEdxRes")
     _dEdxRes=value;

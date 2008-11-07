@@ -89,6 +89,7 @@ private:
   double _thtMin;
   double _thtMax;
   double _pmin;
+  double _rmin;
   double _radiationLength;      //material budget
   double _dEdxRes;
   

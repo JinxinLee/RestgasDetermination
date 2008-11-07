@@ -84,6 +84,8 @@ private:
   double _thtMax;
   double _radiationLength;      //material budget
   double _pmin;
+  double _rmin;
+  double _Bfield;
   double _pRes;
   double _phiRes;
   double _thetaRes;
