@@ -21,6 +21,7 @@
 //-----------------------
 // This Class's Header --
 //-----------------------
+#include "PndFsmRandom.h"
 #include "PndFsmAbsDet.h"
 #include "StrTok.h"
 
@@ -59,7 +60,7 @@ PndFsmAbsDet::PndFsmAbsDet()
   ArgList par;
   //set default parameter values and parses a parameter list
   parseParameterList(par);
-  _rand=new TRandom3();
+  _rand=PndFsmRandom::Instance();
   _fdbPDG = TDatabasePDG::Instance();
 }
 

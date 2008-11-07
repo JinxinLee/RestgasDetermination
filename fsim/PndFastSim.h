@@ -56,11 +56,10 @@ class PndFastSim : public CbmTask
   bool EnableSplitoffs(std::string fname="splitpars.dat");
   void EnablePropagation(bool propagate=true, bool tostartvtx=true, bool usecovmatrix=true, double tolerance=0.0);
 
+
+  void SetSeed(unsigned int seed=65539);
   //void CreateStructure();
   
-  //get access to global detector response in order to plot sth.
-  bool SmearTrack(PndFsmTrack* t);
-
  private: 
 
   PndFsmResponse* sumResponse(FsmResponseList respList);

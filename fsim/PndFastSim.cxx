@@ -47,6 +47,7 @@
 #include "PndFsmResponse.h"
 #include "PndFsmAbsDet.h"
 #include "PndFsmDetFactory.h"
+#include "PndFsmRandom.h"
 
 using std::cout;
 using std::endl;
@@ -58,7 +59,7 @@ using std::ifstream;
 PndFastSim::PndFastSim() :
   CbmTask("Panda Fast Simulation") { 
   //  fCandidates = new TClonesArray("TParticle");
-  fRand=new TRandom3();
+  fRand=PndFsmRandom::Instance();
   fDetFac = new PndFsmDetFactory;
   fAddedDets=" ";
   fVb=0;
@@ -176,6 +177,10 @@ void PndFastSim::SetParContainers() {
  
 }
 // -------------------------------------------------------------------------
+
+void PndFastSim::SetSeed(unsigned int seed) {
+  fRand->SetSeed(seed);
+}
 
 // -----   Enable split off parametrization   ------------------------------
 
@@ -577,10 +582,6 @@ bool PndFastSim::smearTrack(PndFsmTrack *t)
 
   return cutAndSmear(t);
 
-}
-
-bool PndFastSim::SmearTrack(PndFsmTrack* t) {
-  return smearTrack(t);
 }
 
 bool 

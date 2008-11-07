@@ -32,6 +32,7 @@
 #pragma link C++ class  PndFsmTof+;
 #pragma link C++ class  PndFsmEffTracker+;
 #pragma link C++ class  PndFsmCmpDet+;
+#pragma link C++ class  PndFsmRandom+;
 
 
 #pragma link C++ class  CStrTok+;
