@@ -105,13 +105,6 @@ class PndDchPreFitterTR : public CbmTask {
   TVector2 fTrackAfterXZ;   ///< parametrised track projection in XZ-plane after the dipole  
   TVector3 fTrackInXZ;	    ///< parametrised track projection in XZ-plane in the dipole     
 
-  TH1F* fPullPx;   ///< pull distribution of px	       
-  TH1F* fPullPy;   ///< pull distribution of py        
-  TH1F* fPullPz;   ///< pull distribution of pz        
-  TH1F* fPullP;	   ///< pull distribution of p	       
-  TH1F* fPullX;	   ///< pull distribution of x	       
-  TH1F* fPullY;	   ///< pull distribution of y	       
- 
   TClonesArray* fTrackArray; ///< Output array of PndDchTracks; 
 
   PndDchStructure *fStructure; ///< pointer to geo structure of dch setup  

@@ -100,7 +100,8 @@ PndDchKalmanTask2::Exec(Option_t* opt)
     catch(FitterException& e) {
       std::cout<<"Creation of reco hits failed :-( "<<std::endl;
       std::cout << e.what() << std::endl;
-      throw e;
+      //throw e;
+      continue;
     }
     
     // Start Fitter

@@ -109,7 +109,18 @@ void PndDchKalmanQATask::Exec(Option_t* opt) {
     Track* trk=new Track(*(Track*) fTrackArray->At(itr));
     if(trk->getTrackRep(0)->getStatusFlag()==0){
       TVector3 mom0 = trk->getMom();
+
+      // AbsTrackRep* rep = trk->getCardinalRep()->clone();
+      //       DetPlane pl(TVector3(0,0,0),TVector3(1,0,0),TVector3(0,1,0));
+      //       TVector3 mom0=rep->getMom(pl);
       
+      //      rep->extrapolate(firstHit->getDetPlane(rep));
+      //       rep->setReferencePlane(firstHit->getDetPlane(rep));
+      //       std::cout<<"************ Track at the first hit: \n\t Momentum ="<<
+      // 	rep->getMom().Mag()<<"\t theta="<<rep->getMom().Theta()*TMath::RadToDeg()<<
+      // 	"\t phi="<<rep->getMom().Phi()*TMath::RadToDeg()<<"\n";
+      //       rep->Print();
+            
       Int_t mcTrid = -1;
       Int_t id = 0;
       while(id<fDchTrackMatchArray->GetEntriesFast()){

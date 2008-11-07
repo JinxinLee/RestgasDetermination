@@ -24,9 +24,7 @@ ClassImp(PndDchRecoHit2)
 
 //------------------------------------------------------------------------------
 PndDchRecoHit2::PndDchRecoHit2(const PndDchCylinderHit* cylHit)
-//  : WirepointRecoHit(NparHitRep)
 {
-  //  std::cout<<"I create PndDchRecoHit2 out of a CylinderHit"<<std::endl;
   _sangle = TMath::Sin(cylHit->GetWireAngle());
   _cangle = TMath::Cos(cylHit->GetWireAngle());
   TVector2 end1 = cylHit->GetWireEnd1();
@@ -40,14 +38,12 @@ PndDchRecoHit2::PndDchRecoHit2(const PndDchCylinderHit* cylHit)
  _hitCoord[4][0] = end2.Y();
  _hitCoord[5][0] = z;
  _hitCoord[6][0] = cylHit->GetDistance();
- //_hitCoord[7][0] = z; 
  _hitCoord[7][0] = 0.0; // should be the coordinate along wire 
 
   for(int i = 0; i < NparHitRep; i++) 
     for(int j = 0; j < NparHitRep; j++) 
       _hitCov[i][j] = 0.;
-  //  Double_t sigr = cylHit->GetDistanceError();
-  Double_t sigr = 0.02;
+  Double_t sigr = cylHit->GetDistanceError();
   _hitCov[6][6] = sigr*sigr;
   Double_t sigz = 1.5;
   _hitCov[7][7] = sigz * sigz; 
@@ -56,43 +52,6 @@ PndDchRecoHit2::PndDchRecoHit2(const PndDchCylinderHit* cylHit)
   //Print();
 }
 
-//------------------------------------------------------------------------------
-// void PndDchRecoHit2::setHMatrix(const AbsTrackRep* stateVector,
-// 			 const TMatrixT<double>& state)
-// {
-//   std::cout<<"I set up the H matrix now with NparHitRep = "<<NparHitRep<<std::endl;
-//   assert(stateVector!=NULL);
-//   if (dynamic_cast<const GeaneTrackRep*>(stateVector) != NULL) {
-//     _HMatrix.ResizeTo(2,5);
-   
-//     _HMatrix[0][0] = 0.;
-//     _HMatrix[0][1] = 0.;
-//     _HMatrix[0][2] = 0.;
-//     _HMatrix[0][3] = 1.;
-//     _HMatrix[0][4] = 0.;
-
-//     _HMatrix[1][0] = 0.;
-//     _HMatrix[1][1] = 0.;
-//     _HMatrix[1][2] = 0.;
-//     _HMatrix[1][3] = 0.;
-//     _HMatrix[1][4] = 1.;
-//     //     _HMatrix[0][0] = _cangle;
-//     //     _HMatrix[0][1] = _sangle;
-//     //     _HMatrix[0][2] = 0.;
-//     //     _HMatrix[0][3] = 0.;
-//     //     _HMatrix[0][4] = 0.;
-//     //     _HMatrix[1][0] = _sangle;
-//     //     _HMatrix[1][1] = _cangle;
-//     //     _HMatrix[1][2] = 0.;
-//     //     _HMatrix[1][3] = 0.;
-//     //     _HMatrix[1][4] = 0.;
-//   }  else {
-//     std::cerr << "PndDchRecoHit2 can only handle state"
-//               << " vectors of type GeaneTrackRep  -> abort" 
-// 	      << std::endl;
-//     throw;
-//   }
-// }
 //------------------------------------------------------------------------------
 void  PndDchRecoHit2::Print(){
   std::cout<<"hitCoord:"; _hitCoord.Print();

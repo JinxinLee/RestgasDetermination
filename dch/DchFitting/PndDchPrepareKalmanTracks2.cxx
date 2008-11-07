@@ -74,33 +74,33 @@ PndDchPrepareKalmanTracks2::Init()
   }//end loops over hit types
   fCHitArray = fHitBranchMap[1];
   
+  if(fUseMC){
+    // open MCTruth array
+    fMcArray=(TClonesArray*) ioman->GetObject("MCTrack");
+    if(fMcArray==0){
+      Error("PndDchPrepareKalmanTracks2::Init","mctrack-array not found!");
+      return kERROR;
+    } 
+    // open point array
+    fDchPointArray=(TClonesArray*) ioman->GetObject("PndDchPoint");
+    if(fDchPointArray==0){
+      Error("PndDchPrepareKalmanTracks2::Init","dchpoint-array not found!");
+      return kERROR;
+    } 
+    // open input array of PndDchTrackMatches
+    fDchTrackMatchArray = (TClonesArray*) ioman->GetObject("PndDchTrackMatch"); 
+    if(fDchTrackMatchArray==0){
+      Error("PndDchPrepareKalmanTracks2::Init","PndDchTrackMatch array not found!");
+      return kERROR;
+    }
+  }
 
-  // open MCTruth array
-  fMcArray=(TClonesArray*) ioman->GetObject("MCTrack");
-  if(fMcArray==0){
-    Error("PndDchPrepareKalmanTracks2::Init","mctrack-array not found!");
-    return kERROR;
-  } 
-  // open point array
-  fDchPointArray=(TClonesArray*) ioman->GetObject("PndDchPoint");
-  if(fDchPointArray==0){
-    Error("PndDchPrepareKalmanTracks2::Init","dchpoint-array not found!");
-    return kERROR;
-  } 
   // open input array of PndDchTracks
   fDchTrackArray = (TClonesArray*) ioman->GetObject("PndDchTrack"); 
   if(fDchTrackArray==0){
     Error("PndDchPrepareKalmanTracks2::Init","PndDchTrack array not found!");
     return kERROR;
   }
-
-  // open input array of PndDchTrackMatches
-  fDchTrackMatchArray = (TClonesArray*) ioman->GetObject("PndDchTrackMatch"); 
-  if(fDchTrackMatchArray==0){
-    Error("PndDchPrepareKalmanTracks2::Init","PndDchTrackMatch array not found!");
-    return kERROR;
-  }
- 
   // create and register output array
   fTrackArray = new TClonesArray("Track"); 
   ioman->Register("Track","GenFit",fTrackArray,fPersistence);
@@ -126,6 +126,8 @@ PndDchPrepareKalmanTracks2::Exec(Option_t* opt)
   Int_t nuOfTracks = fDchTrackArray->GetEntriesFast();
   // loop over tracks
   for (Int_t id=0; id<nuOfTracks; id++){
+    if(fVerbose>0)
+      std::cout<<"PndDchPrepareKalmanTracks2::Exec(): Processing track id= "<<id<<std::endl;
     PndDchTrack* dchtrack = (PndDchTrack*) fDchTrackArray->At(id);
     Int_t nuOfChits = dchtrack->GetNofDchCylinderHits();
     if(fVerbose>0)
@@ -136,7 +138,7 @@ PndDchPrepareKalmanTracks2::Exec(Option_t* opt)
       Int_t globalCHitNu = dchtrack->GetDchCylinderHitIndex(nuhit);
       cand->addHit(1,globalCHitNu);
     }
-    if(cand->getNHits()<10)
+    if(cand->getNHits()<20)
       continue;
     
     Int_t pdg;
@@ -146,7 +148,7 @@ PndDchPrepareKalmanTracks2::Exec(Option_t* opt)
     if(fUseMC){ 
       Int_t mcTrID = -1;
       Int_t idx = 0;
-      while(idx<fDchTrackMatchArray->GetEntriesFast()){
+      while(idx<fDchTrackMatchArray->GetEntries()){
 	PndDchTrackMatch* dchtrmatch = (PndDchTrackMatch*) fDchTrackMatchArray->At(idx);
 	if(dchtrmatch->GetRecTrackID()==id){
 	  mcTrID = dchtrmatch->GetMCTrackID();
@@ -163,6 +165,7 @@ PndDchPrepareKalmanTracks2::Exec(Option_t* opt)
 	Error("PndDchPrepareKalmanTracks2::Exec","MCTrack Id=&i not found!",mcTrID);
 	continue;
       }
+      mc->Print(mcTrID);
       pdg  = mc->GetPdgCode();
       q = TDatabasePDG::Instance()->GetParticle(pdg)->Charge()/3.;
       Int_t pointidx = 0;
@@ -173,6 +176,7 @@ PndDchPrepareKalmanTracks2::Exec(Option_t* opt)
 	  pnt->Momentum(mom);
 	  break;
 	}
+	pointidx++;
       }
     }
     else{ // dch track has been initialised by prefitter

@@ -39,10 +39,6 @@ PndDchPreFitterTR::PndDchPreFitterTR() :
   fInHitsInXZ = 0;
   fInHitsBeforeXZ = 0;
   fInHitsYZ = 0;
-  fPullPx = 0;
-  fPullPy = 0;
-  fPullPz = 0;
-  fPullP  = 0;
   fDetIdList = 0;
 }
 
@@ -66,13 +62,6 @@ PndDchPreFitterTR::~PndDchPreFitterTR() {
   if( 0 != fDetIdList){
     delete fDetIdList;
   }
-
-  if(fPullPx !=0) delete fPullPx;
-  if(fPullPy !=0) delete fPullPy;
-  if(fPullPz !=0) delete fPullPx;
-  if(fPullP  !=0) delete fPullP;
-  if(fPullX  !=0) delete fPullX;
-  if(fPullY  !=0) delete fPullY;
 }
 
 // Public method Init 
@@ -127,13 +116,6 @@ InitStatus PndDchPreFitterTR::Init() {
     return kERROR;
   }
 
-  fPullPx = new TH1F("pullPx","pullPx",400,-20,20);
-  fPullPy = new TH1F("pullPy","pullPy",400,-20,20);
-  fPullPz = new TH1F("pullPz","pullPz",400,-20,20);
-  fPullP  = new TH1F("pullP" ,"pullP" ,400,-20,20);
-  fPullX  = new TH1F("pullX","pullX" ,400,-0.03,0.03);
-  fPullY  = new TH1F("pullY","pullY" ,400,-0.03,0.03);
-  
   fZFieldBegin = 350.0;
   fZFieldEnd = 580.0;
   fField=0.895;  
@@ -154,7 +136,6 @@ InitStatus PndDchPreFitterTR::Init() {
 
 }
 
-// Public method Exec 
 void PndDchPreFitterTR::Exec(Option_t* opt) {
   cout<<"&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"<<endl;
   cout<<"&                                                                              &"<<endl;
@@ -179,12 +160,14 @@ void PndDchPreFitterTR::Exec(Option_t* opt) {
     mapa = GetHitPointsInChambers(track);
     
     map<Int_t,TVector3>::iterator iter; 
-    cout<<"Cross Points in Chambers"<<endl;
-    for( iter = mapa.begin(); iter != mapa.end(); ++iter ) {
-      cout<<iter->first<<endl;
-      iter->second.Print();
+    if(fVerbose>0){
+      cout<<"Cross Points in Chambers"<<endl;
+      for( iter = mapa.begin(); iter != mapa.end(); ++iter ) {
+	cout<<iter->first<<endl;
+	iter->second.Print();
+      }
+      cout<<"Cross Points in Chambers END"<<endl;
     }
-    cout<<"Cross Points in Chambers END"<<endl;
 
     nBeforeXZ =0;
     nAfterXZ =0;
@@ -234,15 +217,9 @@ void PndDchPreFitterTR::Exec(Option_t* opt) {
     if(!(isRecoTrackYZ && isRecoTrackBeforeXZ  && isRecoTrackInXZ) ){
       cout<<"Tracking failed (YZ BeforeXZ InXZ AfterXZ) "
 	  <<isRecoTrackYZ << isRecoTrackBeforeXZ << isRecoTrackInXZ<<isRecoTrackAfterXZ<<endl;
-      return;
+      continue;
     }
     Bool_t isMomentum =  GetMomentum(startMomentum);
-    //fill pull histos
-    fPullPx->Fill(startMomentum.X());
-    fPullPy->Fill(startMomentum.Y());
-    fPullPz->Fill(startMomentum.Z());
-    fPullP->Fill(startMomentum.Mag());
-    
     Int_t idx = track->GetDchCylinderHitIndex(0);
     PndDchCylinderHit* chit = (PndDchCylinderHit*)fInHitArray->At(idx);
     GetInHitAtZ(chit->GetWireZcoordGlobal(),startPosition);
@@ -266,16 +243,6 @@ void PndDchPreFitterTR::Exec(Option_t* opt) {
 } // end of Exec()
 
 void PndDchPreFitterTR::Finish(){
-  TDirectory *current = gDirectory;
-  TDirectory *hdir = current->mkdir("DchPreFitter");
-  hdir->cd();
-  fPullPx->Write();
-  fPullPy->Write();
-  fPullPz->Write();
-  fPullP->Write();
-  fPullX->Write();
-  fPullY->Write();
-  current->cd();
 }
 
 Bool_t PndDchPreFitterTR::GetInHitAtZ(Double_t zpos, TVector3 &inhit){
