@@ -1,50 +1,31 @@
 // *******
-// Macro for running analysis in a Task
-// Take a look to tutorials/anatask/PndAnalysis.cxx
-// Add the line add_subdirectory(tutorials/anatask)
-// to pandaroot/CMakeLists.txt
-// and do a 'make install' in build directory first
+// Macro for converting simulated/reconstructed
+// data to PndMicroCandidates/TCandidates
+// as input for analysis
+// parameters: 
+//     recofn=filename of reco file
+//     simfn =filename of McPoints
+//     nevts = # of events
 // *******
 
 
-void writeMicro(TString base="dsdsj20k.evt",int nevts=10, TString outfile="")
+void writeMicro(TString recofn="", TString simfn="",int nevts=10, TString outfile="")
 {
   TStopwatch timer;
   timer.Start();
   gDebug=0;
 
   // Load basic libraries
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-  basiclibs();
-
-  // Load this example libraries
- gSystem->Load("libGeoBase");
- gSystem->Load("libParBase");
- gSystem->Load("libBase");
- gSystem->Load("libMCStack");
- gSystem->Load("libField");
- gSystem->Load("libPassive");
- gSystem->Load("libGen");  
- gSystem->Load("libEmc"); 
- gSystem->Load("libgenfit");
- gSystem->Load("libtpc"); 
- gSystem->Load("libtpcreco");
- gSystem->Load("libtrackrep");
- //gSystem->Load("librecotasks");
- gSystem->Load("libMvd");
- gSystem->Load("libMvdReco");
- //gSystem->Load("libLHETrack");
- gSystem->Load("libanatask");
- //gSystem->Load("libfsim");
- gSystem->Load("libRho");
- 
-  //if (outfile=="") outfile=infile+"_ana.root";
-
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  rootlogon();
+  gSystem->Load("libAnalysisTools");
+  gSystem->Load("libRho");
+  
   //analysis
-  TString infile=base+".mcreco.root";
+  TString infile=recofn;
   if (outfile=="")
-  	outfile=base+".full.root";
-  TString simfile=base+".mc.root";
+  	outfile=recofn+".full.root";
+  TString simfile=simfn;
   	
   CbmRunAna *fRunA= new CbmRunAna();
   fRunA->SetInputFile(infile);
