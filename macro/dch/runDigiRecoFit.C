@@ -1,5 +1,5 @@
 {
-  // Loads a filewith points, makes digitization, reconstruction and Kalman filtering
+  // Loads a file with points, makes digitization, reconstruction and Kalman filtering
   // producing objects of Track type
   
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
@@ -15,7 +15,7 @@
   TString outFile = base+".recoReal.root";
   
   // Number of events to process
-  Int_t nEvents = 300;  // if 0 all the events will be processed
+  Int_t nEvents = 0;  // if 0 all the events will be processed
   	
   // Loading libraries
   // If the macro gives error messages in loading libraries, 
@@ -85,15 +85,19 @@
   // this will load Geant3 and execute setup macros to initialize geometry:
   CbmGeane *Geane = new CbmGeane(inFile);
   // ------------------------------------------------- 
-  PndDchPreFitterTR* dchPreFitter = new PndDchPreFitterTR();
-  dchPreFitter->SetVerbose(3);
+    PndDchPreFitterTR* dchPreFitter = new PndDchPreFitterTR();
+  dchPreFitter->SetVerbose(1);
   fRun->AddTask(dchPreFitter);
+  // ------------------------------------------------- 
+  PndDchPreFitterTRQATask* dchPreFitterQA = new PndDchPreFitterTRQATask();
+  dchPreFitterQA->SetVerbose(0);
+  fRun->AddTask(dchPreFitterQA);
   // ------------------------------------------------- 
   PndDchPrepareKalmanTracks2 *prepareKalmanTracks = new PndDchPrepareKalmanTracks2();
   prepareKalmanTracks->SetVerbose(0);
   prepareKalmanTracks->UseGeane(kTRUE);
   prepareKalmanTracks->UseMC(kFALSE);
-  prepareKalmanTracks->SetPDG(13);
+  prepareKalmanTracks->SetPDG(2212);
   prepareKalmanTracks->SetPersistence();
   fRun->AddTask(prepareKalmanTracks);
   // ------------------------------------------------- 
@@ -114,6 +118,7 @@
   Geane->SetField(fRun->GetField());
   fRun->Run(0,nEvents);
 
+  //dchPreFitterQA->PlotHistograms();
   dchKalmanQA->PlotHistograms();
   
 // -----   Finish
@@ -125,5 +130,5 @@
   cout << "Output file is "    << outFile << endl;
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
   cout << endl;
-  //exit(0);
+  //  exit(0);
 }

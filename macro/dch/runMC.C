@@ -44,9 +44,9 @@
   Pipe->SetGeometryFileName("pipe.geo");
   fRun->AddModule(Pipe);
   
-   CbmModule *Magnet= new PndMagnet("MAGNET");
-   Magnet->SetGeometryFileName("magnet.geo");
-   fRun->AddModule(Magnet);
+  CbmModule *Magnet= new PndMagnet("MAGNET");
+  Magnet->SetGeometryFileName("magnet.geo");
+  fRun->AddModule(Magnet);
 
 
   CbmDetector *Dch = new PndDchDetector("DCH", kTRUE);
@@ -66,10 +66,10 @@
  
  // Box Generator
   //  gRandom->SetSeed(3523);
-  CbmBoxGenerator* boxGen = new CbmBoxGenerator(13, 1); // 13 = muon; 1 = multipl.
+  CbmBoxGenerator* boxGen = new CbmBoxGenerator(2212, 3); // 13=muon; 2212=proton 1 = multipl.
   boxGen->SetPRange(1.,10.); // GeV/c //setPRange vs setPtRange
   boxGen->SetPhiRange(-180,180); // Azimuth angle range [degree]
-  boxGen->SetThetaRange(1, 10); // Polar angle in lab system range [degree]
+  boxGen->SetThetaRange(1, 5); // Polar angle in lab system range [degree]
   boxGen->SetXYZ(0.,0.,0.);
   primGen->AddGenerator(boxGen);
 
@@ -85,12 +85,12 @@
 //   fField->SetFieldRegion(-500, 500,-500, 500, -200, 200);  // solenoid
   PndMultiField *fField= 0;
   fField = new PndMultiField();
-  //PndTransMap *map= new PndTransMap("TransMap", "R");
+//   PndTransMap *map= new PndTransMap("TransMap", "R");
+//   fField->AddField(map);
+//   PndSolenoidMap *map2= new PndSolenoidMap("SolenoidMap", "R");
+//   fField->AddField(map2);
   PndDipoleMap *map1= new PndDipoleMap("DipoleMap", "R");
-  //PndSolenoidMap *map2= new PndSolenoidMap("SolenoidMap", "R");
-  //fField->AddField(map);
   fField->AddField(map1);
-  //fField->AddField(map2);
   fRun->SetField(fField);
   //-----------end of Bfield stuff
 
@@ -116,7 +116,7 @@
   
   // Transport nEvents
   // -----------------
-  Int_t nEvents = 1000;
+  Int_t nEvents = 100;
   fRun->Run(nEvents);
    
   timer.Stop();
