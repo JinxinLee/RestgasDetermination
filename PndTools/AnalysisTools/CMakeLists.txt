@@ -1,0 +1,52 @@
+# Create a library called "AnalysisTools" 
+
+set(INCLUDE_DIRECTORIES
+${ROOT_INCLUDE_DIR} 
+${CMAKE_SOURCE_DIR}/geobase 
+${CMAKE_SOURCE_DIR}/parbase 
+${CMAKE_SOURCE_DIR}/base 
+${CMAKE_SOURCE_DIR}/field 
+${CMAKE_SOURCE_DIR}/trackbase 
+${CMAKE_SOURCE_DIR}/mcstack
+${CMAKE_SOURCE_DIR}/passive
+${CMAKE_SOURCE_DIR}/tpc
+${CMAKE_SOURCE_DIR}/lhetrack
+${CMAKE_SOURCE_DIR}/emc/EmcData
+${CMAKE_SOURCE_DIR}/emc/EmcReco
+${CMAKE_SOURCE_DIR}/fsim
+${CMAKE_SOURCE_DIR}/rho
+${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools
+${CMAKE_SOURCE_DIR}/genfit
+)
+
+include_directories( ${INCLUDE_DIRECTORIES})
+
+set(LINK_DIRECTORIES
+${ROOT_LIBRARY_DIR}
+)
+ 
+link_directories( ${LINK_DIRECTORIES})
+
+set(AnalysisTools_SRCS
+PndMicroWriter.cxx
+)
+
+set(AnalysisTools_HEADERS
+PndMicroWriter.h
+)
+
+
+
+set(AnalysisTools_LINKDEF AnalysisToolsLinkDef.h)
+set(AnalysisTools_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/AnalysisToolsDict.cxx) 
+
+ROOT_GENERATE_DICTIONARY("${AnalysisTools_HEADERS}" "${AnalysisTools_LINKDEF}" "${AnalysisTools_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
+
+
+set(AnalysisTools_SRCS ${AnalysisTools_SRCS} ${AnalysisTools_DICTIONARY})
+
+add_library(AnalysisTools SHARED ${AnalysisTools_SRCS})
+target_link_libraries(AnalysisTools ${ROOT_LIBRARIES})
+set_target_properties(AnalysisTools PROPERTIES ${CBMROOT_LIBRARY_PROPERTIES})
+################ install ###################
+install(TARGETS AnalysisTools DESTINATION ${CMAKE_BINARY_DIR}/lib)
