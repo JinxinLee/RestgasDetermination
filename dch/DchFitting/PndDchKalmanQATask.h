@@ -12,8 +12,8 @@
  *         for forward tracks in dch
  **/
 
-#ifndef DEMOTOOLSTASK_HH
-#define DEMOTOOLSTASK_HH
+#ifndef PNDDCHKALMANQATASK_HH
+#define PNDDCHKALMANQATASK_HH
 
 // Panda Headers ----------------------
 #include "CbmTask.h"

@@ -112,7 +112,6 @@ class PndDchPreFitterTR : public CbmTask {
   TH1F* fPullX;	   ///< pull distribution of x	       
   TH1F* fPullY;	   ///< pull distribution of y	       
  
-  TClonesArray* fHitArray;   ///< Output array of PndDchHits	
   TClonesArray* fTrackArray; ///< Output array of PndDchTracks; 
 
   PndDchStructure *fStructure; ///< pointer to geo structure of dch setup  

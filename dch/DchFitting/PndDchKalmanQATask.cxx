@@ -87,7 +87,7 @@ InitStatus PndDchKalmanQATask::Init(){
   
   
   // // setup histograms
-  fhP    = new TH1D("pullP","(p_{RecTarget}-p_{MC})/p_{MC}",60,-0.05,0.05);
+  fhP    = new TH1D("pullP","(p_{Rec}-p_{MC})/p_{MC}",60,-0.05,0.05);
   fhP->SetFillColor(9);
   fhChi2 = new TH1D("chi2","chi2",500,0,100);
   fhChi2->SetFillColor(2);

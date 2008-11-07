@@ -3,7 +3,6 @@
 // -----            Created 26.02.2008  by A. Wronska, P.Hawranek            -----
 // -------------------------------------------------------------------------------
 
-// check if  the field limits along z are ok !!!!
 
 #include <iostream>
 #include <cmath>
@@ -34,7 +33,6 @@
 using std::cout;
 using std::endl;
 
-// Default constructor
 PndDchPreFitterTR::PndDchPreFitterTR() :
   CbmTask("Dch Prefitter for Forward Spectrometer") { 
   fInHitsAfterXZ = 0;
@@ -48,7 +46,6 @@ PndDchPreFitterTR::PndDchPreFitterTR() :
   fDetIdList = 0;
 }
 
-// Destructor 
 PndDchPreFitterTR::~PndDchPreFitterTR() {
   if (0 != fInHitsBeforeXZ) {
     fInHitsBeforeXZ->Delete();
@@ -69,6 +66,13 @@ PndDchPreFitterTR::~PndDchPreFitterTR() {
   if( 0 != fDetIdList){
     delete fDetIdList;
   }
+
+  if(fPullPx !=0) delete fPullPx;
+  if(fPullPy !=0) delete fPullPy;
+  if(fPullPz !=0) delete fPullPx;
+  if(fPullP  !=0) delete fPullP;
+  if(fPullX  !=0) delete fPullX;
+  if(fPullY  !=0) delete fPullY;
 }
 
 // Public method Init 
@@ -115,11 +119,6 @@ InitStatus PndDchPreFitterTR::Init() {
   fDetIdList =  fStructure->GetDetectorIDList();
   fDetIdListSize = fDetIdList->GetSize();
 
-  // Create and register output array of hots
-  fHitArray = new TClonesArray("PndDchHit");
-  ioman->Register("PndDchHot","Dch",fHitArray,kTRUE);
-
-
   // Get input track array
   fTrackArray = (TClonesArray*) ioman->GetObject("PndDchTrack");
   if ( !fTrackArray ) {
@@ -136,7 +135,7 @@ InitStatus PndDchPreFitterTR::Init() {
   fPullY  = new TH1F("pullY","pullY" ,400,-0.03,0.03);
   
   fZFieldBegin = 350.0;
-  fZFieldEnd = 600.0;
+  fZFieldEnd = 580.0;
   fField=0.895;  
   //TClonesArray of inhits to fit line before the dipole (Chamber 3  and 4) in XZ plane
   fInHitsBeforeXZ = new TClonesArray("TVector2");
@@ -162,22 +161,19 @@ void PndDchPreFitterTR::Exec(Option_t* opt) {
   cout<<"&              Entering PndDchPreFitterTR::Exec(...)                           &"<<endl;
   cout<<"&                                                                              &"<<endl;
   cout<<"&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"<<endl;
-  fInHitsBeforeXZ->Delete();
-  fInHitsAfterXZ->Delete();
-  fInHitsInXZ->Delete();
-  fInHitsYZ->Delete();
   
-  // Loop over PndDchHits creating 3 Arrays for track fit in XZ plane and one Array in YZ plane
-  Int_t nInHits = fInHitArray->GetEntries();
-  Int_t nBefore,nIn,nAfter,nYZ;
+  Int_t nBeforeXZ,nInXZ,nAfterXZ,nYZ;
   
-  PndDchTrack *track = 0;
-
   Int_t nTracks = fTrackArray->GetEntries();
-
+  PndDchTrack* track = 0;
   for(Int_t iTrack = 0; iTrack < nTracks; iTrack++) {
     track = (PndDchTrack*) fTrackArray->At(iTrack);
 
+    fInHitsBeforeXZ->Delete();
+    fInHitsAfterXZ->Delete();
+    fInHitsInXZ->Delete();
+    fInHitsYZ->Delete();
+    
     TVector2* tmp;
     std::map<Int_t, TVector3> mapa;
     mapa = GetHitPointsInChambers(track);
@@ -190,10 +186,10 @@ void PndDchPreFitterTR::Exec(Option_t* opt) {
     }
     cout<<"Cross Points in Chambers END"<<endl;
 
-    Int_t nBeforeXZ =0;
-    Int_t nAfterXZ =0;
-    Int_t nInXZ =0;
-    Int_t nYZ =0;
+    nBeforeXZ =0;
+    nAfterXZ =0;
+    nInXZ =0;
+    nYZ =0;
 
     if (mapa.find(3) != mapa.end()) {
       tmp =     new((*fInHitsBeforeXZ)[nBeforeXZ++]) TVector2(mapa.find(3)->second.X(),mapa.find(3)->second.Z());

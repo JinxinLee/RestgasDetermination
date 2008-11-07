@@ -31,6 +31,7 @@
 #pragma link C++ class  PndDchTrackFinderIdealCylHit+;
 #pragma link C++ class  PndDchFindTracks+;
 #pragma link C++ class  PndDchPreFitterTR+;
+#pragma link C++ class  PndDchPreFitterTRQATask+;
 #pragma link C++ class  PndDchRecoHit+;
 #pragma link C++ class  PndDchRecoHit2+;
 #pragma link C++ class  PndDchTrackMatch+;
