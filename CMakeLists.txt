@@ -20,12 +20,15 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
 # Load some basic macros which are needed later on
 include(CbmMacros)
 include(WriteConfigFile)
-include(Dart)
+include(CTest)
 include(CheckCompiler)
 
 #Check the compiler and set the compile and link flags
 set(CMAKE_BUILD_TYPE Debug)
 Check_Compiler()
+
+set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib")
+set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
 
 # Check if the user wants to build the project in the source
 # directory
@@ -39,24 +42,11 @@ ENDIF(NOT UNIX)
 
 # Check if we are at GSI
 # If we are GSI set some variables
-CHECK_GSI()
-IF(NOT GSI)
-  IF(NOT DEFINED ENV{SIMPATH})
-    MESSAGE(FATAL_ERROR "You did not define the environment variable SIMPATH which is nedded to find the external packages. Please set this variable and execute cmake again.")
-  ENDIF(NOT DEFINED ENV{SIMPATH})
-ENDIF(NOT GSI)
-
-# Check if the installation of the needed external packages is as at GSI
-CHECK_EXTERNAL_PACKAGES_INSTALLATION()
-
-# Check for gcc version, since for gcc 4 one has to add friend-injection
-# as option to compile CbmPlutoGenerator
-EXEC_PROGRAM( gcc ARGS "-dumpversion" OUTPUT_VARIABLE GCC_VERSION )
-STRING(REGEX REPLACE "^([0-9]+)\\.[0-9]+\\.[0-9]" "\\1" req_gcc_major_vers "${GCC_VERSION}")
-STRING(REGEX REPLACE "^[0-9]+\\.([0-9]+)\\.[0-9]" "\\1" req_gcc_minor_vers "${GCC_VERSION}")
-IF(${req_gcc_major_vers} MATCHES "4" AND NOT ${req_gcc_minor_vers} MATCHES "0")
- SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffriend-injection")
-ENDIF(${req_gcc_major_vers} MATCHES "4" AND NOT ${req_gcc_minor_vers} MATCHES "0")
+IF(NOT DEFINED ENV{SIMPATH})
+   MESSAGE(FATAL_ERROR "You did not define the environment variable SIMPATH which is nedded to find the external packages. Please set this variable and execute cmake again.") 
+ENDIF(NOT DEFINED ENV{SIMPATH})
+STRING(REGEX MATCHALL "[^:]+" PATH $ENV{PATH})
+SET(SIMPATH $ENV{SIMPATH})
 
 # Set the build type. Possibilities are None, Debug, Release, 
 # RelWithDebInfo and MinSizeRel 
@@ -87,6 +77,8 @@ SET(CBMROOT_LIBRARY_PROPERTIES ${CBMROOT_LIBRARY_PROPERTIES}
     SUFFIX ".so"
 )
 
+SET(CBMLIBDIR ${CMAKE_BINARY_DIR}/lib)
+SET(LD_LIBRARY_PATH  ${CBMLIBDIR} ${LD_LIBRARY_PATH})
 
 # Recurse into the given subdirectories.  This does not actually
 # cause another cmake executable to run.  The same process will walk through
