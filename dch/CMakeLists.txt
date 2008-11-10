@@ -49,7 +49,7 @@ DchData/PndDchDigi.cxx
 DchData/PndDchHit.cxx
 DchData/PndDchCylinderHit.cxx
 DchFitting/PndDchPreFitterTR.cxx
-DchFitting/PndDchPreFitterTRQATask.cxx
+#DchFitting/PndDchPreFitterTRQATask.cxx
 DchFitting/PndDchRecoHit.cxx
 DchFitting/PndDchRecoHit2.cxx
 DchFitting/PndDchSimpleFitter.cxx
