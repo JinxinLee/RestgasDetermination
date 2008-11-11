@@ -56,7 +56,7 @@ public:
 
   // accessors
   unsigned int cluster_size() const {return _cluster_size;}
-  unsigned int cluster_amp() const {return _cluster_amp;}
+  double cluster_amp() const {return _cluster_amp;}
  
 private:
 
@@ -64,7 +64,7 @@ private:
   static const int NparHitRep = 2;
 
   unsigned int _cluster_size;
-  unsigned int _cluster_amp;
+  double _cluster_amp;
 
   // Private Methods -----------------
 

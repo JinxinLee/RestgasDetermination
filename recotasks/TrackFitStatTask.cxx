@@ -238,7 +238,7 @@ TrackFitStatTask::Exec(Option_t* opt)
 			
 			
 			std::vector<unsigned int> clustersize;
-			std::vector<unsigned int> clusteramp;
+			std::vector<double> clusteramp;
 			unsigned int nh=track->getNumHits();
 			for(unsigned int ih=0; ih<nh; ++ih){ //loop over hits
 				AbsRecoHit* abshit=track->getHit(ih);

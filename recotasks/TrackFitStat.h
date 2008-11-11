@@ -50,7 +50,7 @@ public:
   void fillPndTpcResX(const std::vector<double>& r){_PndTpcResX=r;}
   void fillPndTpcResY(const std::vector<double>& r){_PndTpcResY=r;}
   void fillPndTpcClusterSize(const std::vector<unsigned int>& s){_PndTpcClusterSize=s;}
-  void fillPndTpcClusterAmp(const std::vector<unsigned int>& s){_PndTpcClusterAmp=s;}
+  void fillPndTpcClusterAmp(const std::vector<double>& s){_PndTpcClusterAmp=s;}
 
   // Operations ----------------------
 
@@ -71,7 +71,7 @@ private:
   std::vector<double> _PndTpcResX;
   std::vector<double> _PndTpcResY;
   std::vector<unsigned int> _PndTpcClusterSize;
-  std::vector<unsigned int> _PndTpcClusterAmp;
+  std::vector<double> _PndTpcClusterAmp;
 
   double _p;
   double _pmc;
