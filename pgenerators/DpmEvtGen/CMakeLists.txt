@@ -2,6 +2,12 @@
 # the array .
 # The extension is already found.  Any number of sources could be listed here.
 
+if(COMMAND cmake_policy)
+  cmake_policy(SET CMP0003 OLD)
+endif(COMMAND cmake_policy)
+
+
+
 set(INCLUDE_DIRECTORIES
 ${ROOT_INCLUDE_DIR} 
 ${CMAKE_SOURCE_DIR}/pgenerators/DpmEvtGen
@@ -45,7 +51,7 @@ add_executable(DpmEvtGen_exe ${DPMEVTGEN_EXE_SRCS})
 if (CMAKE_SYSTEM_NAME MATCHES Darwin)
   target_link_libraries(DpmEvtGen_exe ${ROOT_LIBRARIES} EG "-lDpmEvtGen")
 else (CMAKE_SYSTEM_NAME MATCHES Darwin)
-  target_link_libraries(DpmEvtGen_exe ${ROOT_LIBRARIES} EG DpmEvtGen)
+  target_link_libraries(DpmEvtGen_exe EG DpmEvtGen)
 endif (CMAKE_SYSTEM_NAME MATCHES Darwin)
 set_target_properties(DpmEvtGen_exe PROPERTIES OUTPUT_NAME DPMGen)
 
