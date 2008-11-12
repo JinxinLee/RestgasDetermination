@@ -31,14 +31,21 @@ int main(int argc, const char* argv[]){
      line calling the write part of millepede
 
     */
-    float dergb[NGLB];     //!< vector of global derivatives
-    float derlc[NPARTRCK]; //!< vector of local derivatives
-    float par[NGLB];       //!< vector of parameters
+  //   float dergb[NGLB];     //!< vector of global derivatives
+  // float derlc[NPARTRCK]; //!< vector of local derivatives
+  //float par[NGLB];       //!< vector of parameters
 
-    cout<<"alginment creation main"<<endl;
-    Alignment* al = new Alignment(true);
-    cout<<"alginment creation main after "<<endl;
+  if(argc !=3){
+    cerr<<"Number of arguments is not 2. Args: infile outfile"<<endl;
+    throw;
+  }
+  string infile(argv[1]);
+  string outfile(argv[2]);
 
-    al->doFit();
-    return 0;
+  cout<<"alginment creation main"<<endl;
+  Alignment* al = new Alignment(true,infile,outfile);
+  cout<<"alginment creation main after "<<endl;
+  
+  al->doFit();
+  return 0;
 }

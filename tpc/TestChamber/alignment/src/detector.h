@@ -1,6 +1,7 @@
 #ifndef DETECTOR_H
 #define DETECTOR_H
 #include <utility>
+#include "TRandom3.h"
 class Track;
 class Detector{
 /*position of detectors origo in the global coordinates
@@ -24,17 +25,17 @@ class Detector{
     double biasdP;
     double cosT;
     double sinT;
-    double round(double u_);
+    TRandom3 rand;
 public:
     Detector(int id_,
 	     double x_,
 	     double y_,
 	     double z_,
-	     double dx_,
-	     double dy_,
-	     double dz_,
+	     double x_act,
+	     double y_act,
+	     double z_act,
 	     double T_,
-	     double dT_,
+	     double T_act,
 	     double pitch_,
 	     double biasdU_=0.0,
 	     double biasdZ_=0.0,

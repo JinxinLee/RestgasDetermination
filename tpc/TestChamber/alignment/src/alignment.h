@@ -8,12 +8,14 @@
 #include <TH1D.h>
 #include <TH2D.h>
 #include "defs.h"
+#include <string>
+#include <TProfile.h>
 
 class Alignment{
     std::vector<Detector*> detectors;
     std::vector<Track> tracks;
     std::vector<TH1D*> hists_det;
-    std::vector<TH2D*> hists_det2;
+    std::vector<TProfile*> profiles_det;
     /*
      these 3 arrays are for sending information to millepede and for
      getting them back. It is to be said that the array par isnt used
@@ -25,7 +27,8 @@ class Alignment{
     float dergb[NGLB];     //!< vector of global derivatives
     float derlc[NPARTRCK]; //!< vector of local derivatives
     float par[NGLB];       //!< vector of parameters
-
+    std::string infile;
+    std::string outfile;
     bool simulation;
     
     void generateTracks(int amount,
@@ -41,9 +44,9 @@ class Alignment{
    
 public:
     Alignment(const Alignment& al){};
-    Alignment(bool simulation_);
+    Alignment(bool simulation_,std::string infile_, std::string outfile_);
     Alignment(){
-	Alignment(true);
+	Alignment(true,"","");
     }
     ~Alignment(){};
      void doFit();
