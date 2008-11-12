@@ -212,6 +212,16 @@ PndSttRecoHit::detPlane(AbsRecoHit* hit, AbsTrackRep* rep)
       throw exc;    
     }
   
+    Double_t distance;
+    distance = TMath::Sqrt(fabs(((wire1-vpf).Mag2()*(wire2-wire1).Mag2()-pow((wire1-vpf).Dot(wire2-wire1),2))/(wire2-wire1).Mag2()));
+    
+    // check vpf inside tube 
+    if(distance>0.5) {
+      cout << "vpf outside the firing tube" << endl; 
+      FitterException exc("distance vpf-wire > 0.5", __LINE__,__FILE__);	
+      throw exc;    
+    }
+
     // find plane
     // unitary vector along distance
     // vpf on track, vwi on wire
@@ -256,7 +266,7 @@ PndSttRecoHit::getDetPlane(AbsTrackRep* rep){
 
   //   distance of one (the first) of the wire extremities from the plane
   Double_t distance =  _detPlane.dist(TVector3(_hitCoord[0][0], _hitCoord[1][0],_hitCoord[2][0])).Mag();
-  if(distance < 1e-6) return _detPlane;
+  if(distance < 1e-5) return _detPlane;
 
   _detPlane = detPlane(thishit, rep);
  return _detPlane;

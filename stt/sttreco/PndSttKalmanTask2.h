@@ -45,7 +45,7 @@ private:
   TClonesArray* fTrackArray;
   //  TClonesArray *fSttHelixHitArray;
   RecoHitFactory* _theRecoHitFactory;
-  
+  int counterevt;
 
 
   // Private Methods -----------------

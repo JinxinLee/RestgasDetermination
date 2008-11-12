@@ -35,6 +35,8 @@ PndSttKalmanTask2::~PndSttKalmanTask2(){}
 InitStatus
 PndSttKalmanTask2::Init()
 {
+  counterevt = 0;
+
   cout << "PndSttKalmanTask2::Init()" << endl;
 
   CbmRootManager *ioman = CbmRootManager::Instance();
@@ -84,7 +86,9 @@ PndSttKalmanTask2::Init()
 void
 PndSttKalmanTask2::Exec(Option_t* opt)
 {
-//   std::cout<<"PndSttKalmanTask2::Exec"<<  std::endl;
+  //   std::cout << "Event # " << counterevt << std::endl;
+  counterevt++;
+  //   std::cout<<"PndSttKalmanTask2::Exec"<<  std::endl;
   if(fTrackArray)
     {
 
