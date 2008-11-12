@@ -131,7 +131,8 @@ void position(TString files){
    	for(int i=0;i<corrTrack.nCl();++i){ 
 	  // TCcluster c = tr.getCl(i);
 	  TCcluster c = corrTrack.getCl(i);
-	  if (c.getFit()){
+	  //	  if (c.getFit()){
+	  if (true){
 
 		if(c.posUVW().Y()<0.1&&c.posUVW().Y()>0.06)prof_vV1->Fill(c.posUVW().Y(),c.getRes().Y());
 		if(c.posUVW().Y()<0.2&&c.posUVW().Y()>0.1)prof_vV2->Fill(c.posUVW().Y(),c.getRes().Y());

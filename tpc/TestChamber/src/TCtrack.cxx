@@ -36,15 +36,23 @@ TCtrack::~TCtrack(){
 void glob_fcn(Int_t &npar, Double_t *gin, Double_t &f,
 			  Double_t *par, Int_t iflag){
   f=0;
+  //std::cout << "######" << std::endl;
   for(unsigned int i=0;i<glob_clusters.size();++i){
     if(glob_id.count(glob_clusters.at(i).getId())>0
        && glob_clusters.at(i).getFit()){
+	  //std:: cout << "### " << glob_clusters.at(i).posUVW().Y() << std::endl;
       f+=glob_clusters.at(i).getChi2(par);  
     }
   }
+  //std::cout << "######" << std::endl;
 }
 
 bool TCtrack::fit(int id1,int id2,int id3,int id4,int id5,int id6,int id7,int id8,int id9,int id10){
+  //std::cout << "fit" << std::endl;
+  for(int i=0;i<nCl();++i){
+	cl.at(i).clearRes();
+	//std::cout << "%%% " << cl.at(i).getFit() << " " << cl.at(i).posUVW().Y() << std::endl;
+  }
   if(nClFit()<2) return false;
   glob_id.clear();
   if(id1>=0) glob_id.insert(id1);
@@ -130,15 +138,17 @@ bool TCtrack::fit(int id1,int id2,int id3,int id4,int id5,int id6,int id7,int id
 
   cl.clear();
   cl = glob_clusters;
-
+  //std::cout << "$$$$$$" << std::endl;
   for(unsigned int i=0;i<cl.size();++i){
     if(glob_id.count(glob_clusters.at(i).getId())>0
        && cl.at(i).getFit()){
       cl.at(i).setResid(par);
       chi2+=glob_clusters.at(i).getChi2(par);
       NDF+=glob_clusters.at(i).getNDF();
+	  //std::cout << "$$$ " << cl.at(i).posUVW().Y() << std::endl;
     }
   }
+  //std::cout << "$$$$$$" << std::endl;
   NDF-=4;
   delete myMinuit;  
   return true;

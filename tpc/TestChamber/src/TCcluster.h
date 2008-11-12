@@ -42,6 +42,10 @@ class TCcluster : public TObject{
   void print();
   void setFit(bool _b=true){fit=_b;}
   bool getFit(){return fit;}
+  void clearRes(){
+	TVector3 v(0.,0.,0.);
+	res=v;
+  }
   TVector3 getRes(){return res;}
   TVector3 getErr(){return err;}
   void setErr(TVector3 v){

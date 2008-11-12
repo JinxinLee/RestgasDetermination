@@ -155,26 +155,36 @@ TCtrack without_end_pads(TCtrack t){
   int detId;
   std::vector<TCcluster> corrClusters;
   for(unsigned int icl=0;icl<tpc.size();++icl){   
+	TCcluster c = t.getCl(icl);
+	detId=c.getId();
+	if(!c.getFit()) continue;
+	TVector3 pos = c.posUVW();
+// 	if(pos.Y()<0.1) continue;
+// 	if(pos.Y()>0.7) continue;
+// 	if(pos.Y()>0.30&&pos.Y()<0.5) continue;
+ 	if(pos.Y()<0.1) c.setFit(false);
+ 	if(pos.Y()>0.7) c.setFit(false);
+ 	if(pos.Y()>0.30&&pos.Y()<0.5) c.setFit(false);
 
-	detId=t.getCl(icl).getId();
-	if(!t.getCl(icl).getFit()) continue;
-	TVector3 pos = t.getCl(icl).posUVW();
-	if(pos.Y()<0.1) continue;
-	if(pos.Y()>0.7) continue;
-	if(pos.Y()>0.35&&pos.Y()<0.45) continue;
 
-	pos.SetY(pos.Y());
+	//pos.SetY(pos.Y());
 
-	t.getCl(icl).posUVW(pos);
+	//c.posUVW(pos);
 	  
-	corrClusters.push_back(t.getCl(icl));
-	
+	corrClusters.push_back(c);
+
+	//std::cout << "@@@ " << c.getFit() << " " <<c.posUVW().Y() << " "  << corrClusters.at(corrClusters.size()-1).getFit() << " " << corrClusters.at(corrClusters.size()-1).posUVW().Y() << " " << c.getRes().Y() << std::endl;
   }
 
   TCtrack corrTrack;
   corrTrack.addClusters(corrClusters);
   TCalign::getInstance();
   corrTrack.fit(detId);
+  for(int i=0;i<corrTrack.nCl();++i){
+	std::cout << "@@@ " << corrTrack.getCl(i).getFit() << std::endl;
+	std::cout << "@@@ " << corrTrack.getCl(i).posUVW().Y() << std::endl;
+	corrTrack.getCl(i).getRes().Print();
+  }
   return corrTrack;
    
 }
