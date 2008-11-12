@@ -141,8 +141,8 @@ TCtrack mean_vertical(TCtrack t){
   return corrTrack;
    
 }
-/*
-TCtrack mean_vertical(TCtrack t){
+
+TCtrack without_end_pads(TCtrack t){
 
   std::vector<TCcluster> tpc;//will hold clusters in TPC
   for(int i=0;i<t.nCl();++i){
@@ -159,8 +159,11 @@ TCtrack mean_vertical(TCtrack t){
 	detId=t.getCl(icl).getId();
 	if(!t.getCl(icl).getFit()) continue;
 	TVector3 pos = t.getCl(icl).posUVW();
+	if(pos.Y()<0.1) continue;
+	if(pos.Y()>0.7) continue;
+	if(pos.Y()>0.35&&pos.Y()<0.45) continue;
 
-	pos.SetY(pos.Y()-f6(pos.Y()));
+	pos.SetY(pos.Y());
 
 	t.getCl(icl).posUVW(pos);
 	  
@@ -175,5 +178,5 @@ TCtrack mean_vertical(TCtrack t){
   return corrTrack;
    
 }
-*/
+
 #endif

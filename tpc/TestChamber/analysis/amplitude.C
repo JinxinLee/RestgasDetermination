@@ -27,7 +27,7 @@
 
 //include macros to recalculate or cut the data
 
-//cuts.C includes cuts on differen Trackparameter
+//cuts.C includes cuts on different Trackparameter
 #include "cuts.C"
 //corrections.C recalculates the clusterposition according to
 //the fit done in residuals_vs_position.C
@@ -131,9 +131,9 @@ void amplitude(TString files){
 	  //make sure the cluster was used to fit the track
 	  if(!c.getFit()) continue;
 	  //some other cuts that are not included in cuts.C
-	  if(c.nPadY()==1) continue;
+	  if(c.nPadY()!=1) continue;
 	  //if(c.nTime()!=1) continue;
-	  // if(c.nRaw()!=2)continue;
+	  //if(c.nRaw()!=2)continue;
 
 	  //just fill the histograms
 

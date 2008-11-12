@@ -62,13 +62,17 @@ void position(TString files){
   uresid_vs_u->SetXTitle("Position u [cm]");
   uresid_vs_u->SetYTitle("Residual u [cm]");
 
-  TProfile *prof_u = new TProfile("prof_u","Profile of u residual vs u",500,0,10,-1,1);
+  TProfile *prof_u = new TProfile("prof_u","Profile of u residual vs u",100,0,10,-1,1);
+  prof_u->SetXTitle("Position u [cm]");
+  prof_u->SetYTitle("Residual u [cm]");
 
   TH2D *vresid_vs_v = new TH2D("vresid_vs_v","",500,0,1,500,-0.1,0.1);
   vresid_vs_v->SetXTitle("Position v [cm]");
   vresid_vs_v->SetYTitle("Residual v [cm]");
 
-  TProfile *prof_v = new TProfile("prof_v","Profile of v residual vs v",500,0,1,-0.1,0.1);
+  TProfile *prof_v = new TProfile("prof_v","Profile of v residual vs v",100,0,1,-0.1,0.1);
+  prof_v->SetXTitle("Position v [cm]");
+  prof_v->SetYTitle("Residual v [cm]");
 
   TProfile *prof_vU1 = new TProfile("prof_vU1","Profile of v residual vs v",50,0,1,-0.1,0.1);
   TProfile *prof_vU2 = new TProfile("prof_vU2","Profile of v residual vs v",50,0,1,-0.1,0.1);
@@ -92,7 +96,9 @@ void position(TString files){
   wresid_vs_v->SetXTitle("Position v [cm]");
   wresid_vs_v->SetYTitle("Residual w [cm]");
 
-  TProfile *prof_w = new TProfile("prof_w","Profile of w residual vs w",500,0,10,-0.1,0.1);
+  TProfile *prof_w = new TProfile("prof_w","Profile of w residual vs w",100,0,10,-0.1,0.1);
+  prof_w->SetXTitle("Position w [cm]");
+  prof_w->SetYTitle("Residual w [cm]");
 
   TProfile *prof_w_v = new TProfile("prof_w_v","Profile of w residual vs v",100,0,1,-0.1,0.1);
 
@@ -102,10 +108,10 @@ void position(TString files){
 	
     myChain.GetEntry(iev);
     TCtrack tr(*intr);
-	//TCtrack corrTrack = mean_vertical(tr);
+	TCtrack corrTrack = without_end_pads(tr);
 
-    //if(!IEEE(corrTrack)) continue;
-    if(!IEEE(tr)) continue;
+    if(!IEEE(corrTrack)) continue;
+    //if(!IEEE(tr)) continue;
     
 	/*
 	  bool passLow=false;
@@ -121,10 +127,10 @@ void position(TString files){
 	  std::vector<TCcluster> corrClusters;
 	  int detId;
 	*/
-	for(int i=0;i<tr.nCl();++i){
-	  //	for(int i=0;i<corrTrack.nCl();++i){ 
-	  TCcluster c = tr.getCl(i);
-	  //TCcluster c = corrTrack.getCl(i);
+	//for(int i=0;i<tr.nCl();++i){
+   	for(int i=0;i<corrTrack.nCl();++i){ 
+	  // TCcluster c = tr.getCl(i);
+	  TCcluster c = corrTrack.getCl(i);
 	  if (c.getFit()){
 
 		if(c.posUVW().Y()<0.1&&c.posUVW().Y()>0.06)prof_vV1->Fill(c.posUVW().Y(),c.getRes().Y());
