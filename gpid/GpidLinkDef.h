@@ -10,6 +10,7 @@
 #pragma link C++ class  PndGpidCollTask+;
 #pragma link C++ class  PndMultiClassMVA+;
 #pragma link C++ class  PndMakeTrainData+;
+#pragma link C++ class  PndMakeTrainDataLhe+;
 #pragma link C++ class  Event+;
 #pragma link C++ class  EvtGenTask+;
 #pragma link C++ class  PndGpidTask+;

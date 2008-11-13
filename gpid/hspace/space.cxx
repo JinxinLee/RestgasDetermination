@@ -10,63 +10,93 @@ space::~space()
 {
 }
 
-void space::AddDim(dim D)
+void space::AddDim(const dim D)
 {
- fDIM.push_back(D);
+ int dno = D.getDNO();
+ fDIM[dno]=D;
+//  vector<dim>::iterator it; 
+//  it = fDIM.end();
+//  fDIM.insert(it,D);
  nNDIM = nNDIM+1;
-}
-
-void space::CreateSpace()
-{
- hcube box;
- cout<<nNDIM<<endl;
- vector<int> vecInt (nNDIM, 1);
- box.setCoord(vecInt);
- vector<int>::iterator it;
- cout<<vecInt.size()<<endl;
- for ( int it = 0; it < vecInt.size(); it++)
- {
- cout<<"hai"<<it<<endl;
-  dim d =  fDIM[it];
-  
-  for (int j = 1; j <= d.getSEG(); j++)
-   {
-    cout<<"bai"<<j<<endl;
-    vecInt[it] = j;
-    box.setCoord(vecInt);
-    box.setDummy(it*j);
-    fSPACE.push_back(box);
-   }
- }
- cout<<fSPACE.size()<<endl;
 }
 
 
 void space::CS()
 {
- vector< vector<int> >  myspace;
- dim d = fDIM[1];
+// vector< vector<int> >  myspace;
+
+ vector<vector <int> >::iterator it_space;
+ dim dummy = dim("dummy",1,0,10,10);
+ dim d = fDIM[0];
+ d.print();
+// cout<<d.getSEG()<<endl;
+ vector<int> vecInt;
+ vecInt.resize(nNDIM);
+ vector<int>::iterator it;
+// it=vecInt.begin();
  for (int i=1; i <= d.getSEG() ; i++ )
  {
-  vector<int> vecInt(nNDIM);
-  vecInt[1]=i; 
-  vecInt[2]=1;
-  myspace.push_back(vecInt);  
+  vecInt[0]=i; 
+  myspace.push_back(vecInt);
  }
 
  for (int j = 2; j <= nNDIM; j++)
  {
+cout<<"before"<<endl;
   dim d1 = fDIM[j];
-  vector<vector<int> >sub_space;
-  sub_apace = myspace;
-  for ( int i = 0; i <  len; i++  )
-  {
-   
- //  for ( int k = 0;  )
-   vector<int> vecInt;
-   
-   vecInt[]
-  } 
+ d1.print();
+  int k = d1.getDNO()-1;
+  cout<<"  -I-  This dimension no is "<<d1.getDNO()<<endl;
+cout<<"after"<<endl;
+
+  vector<vector<int> > sub_space;
+  sub_space = myspace;
+  myspace.clear();
+  for (it_space=sub_space.begin() ; it_space < sub_space.end() ; it_space++)
+    {
+       for (int l = 1; l <= d1.getSEG(); l++ )
+       {
+         vecInt = *it_space;
+         vecInt[k] = l;      
+         myspace.push_back(vecInt);
+
+       }
+    }
  }
+
+fSPACE.clear();
+  for (it_space = myspace.begin() ; it_space < myspace.end() ; it_space++)
+   {
+    hbox mybox;
+    vecInt = *it_space;
+    // cout<<"before insertion"<<endl;
+    mybox.setCoord(vecInt);
+    fSPACE.insert(pair<vector<int>,hbox>(vecInt,mybox));           
+   }
+
+ cout<<"  -I-  No of box in the space "<<myspace.size()<<endl;
+ cout<<"  -I-  No of box in the space "<<fSPACE.size()<<endl;
+
 }
 
+void space::print()
+{
+ cout<<"  -I-  No of dimensions "<<nNDIM<<endl;
+ vector<dim>::iterator it;
+ for ( it = fDIM.begin() ; it < fDIM.end() ; it++)
+  {
+  cout<<"hai";
+  cout<< it->getDNO()<<endl;
+  
+  }
+
+}
+
+
+
+/*
+cout<<" my vector contains:";
+for ( it=vecInt.begin() ; it < vecInt.end(); it++ )
+    cout << " " << *it;
+cout<<endl;
+ */

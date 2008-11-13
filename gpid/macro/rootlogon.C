@@ -8,6 +8,7 @@
   gSystem->AddIncludePath("-I$VMCWORKDIR/tof");
   gSystem->AddIncludePath("-I$VMCWORKDIR/tpc");
   gSystem->AddIncludePath("-I$VMCWORKDIR/rho");
+  gSystem->AddIncludePath("-I$VMCWORKDIR/lhetrack");
   gSystem->AddIncludePath("-I$VMCWORKDIR/rho/RhoBase");
   gSystem->AddIncludePath("-I$VMCWORKDIR/drc");
   gSystem->AddIncludePath("-I$VMCWORKDIR/mvd/MvdData");

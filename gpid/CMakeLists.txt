@@ -46,6 +46,8 @@ PndGeaneTrTpcIdealTof.cxx
 PndGpidCollTask.cxx
 PndMultiClassMVA.cxx
 PndMakeTrainData.cxx
+PndMakeTrainDataLhe.cxx
+
 Event.cxx
 EvtGenTask.cxx
 PndGpidTask.cxx
