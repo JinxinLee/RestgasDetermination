@@ -60,8 +60,8 @@
   fRun->AddTask(sttFitTracks);
 
   // helix hit production ....
-  //  PndSttHelixHitProducer* sttHHProducer = new PndSttHelixHitProducer();
-  //  fRun->AddTask(sttHHProducer);
+  PndSttHelixHitProducer* sttHHProducer = new PndSttHelixHitProducer();
+  fRun->AddTask(sttHHProducer);
 
 
   // -----   Intialise and run   --------------------------------------------

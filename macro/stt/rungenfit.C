@@ -58,7 +58,7 @@
 
   // ------------------------------------------------------------------------
   // -----  Reco Sequence   --------------------------------------------
-  int whichhit = 1; // 1 = use hit; 2 = use helixhit 
+  int whichhit = 2; // 1 = use hit; 2 = use helixhit 
 
   if(whichhit == 1){
     // use hit
