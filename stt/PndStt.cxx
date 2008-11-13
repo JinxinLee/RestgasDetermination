@@ -282,7 +282,7 @@ Bool_t  PndStt::ProcessHits(CbmVolume* vol)
 	  rotatedVector.setY(M.GetRotationMatrix()[5]);//5
 	  rotatedVector.setZ(M.GetRotationMatrix()[8]);
 	    
-	  if(M.GetRotationMatrix()[2]==0) {//unskwed
+	  if(M.GetRotationMatrix()[8]==1) {//unskwed
 	    //if(skew==kFALSE) {
 	    rotatedVector.setX(0.);
 	    rotatedVector.setY(0.);

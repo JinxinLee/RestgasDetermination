@@ -2419,27 +2419,36 @@ Bool_t PndSttHelixTrackFitter::ZFinderbb3(PndSttTrack* pTrack, Int_t pidHypo) {
 	// Using the parametric equation of the 3d-straigth line and taking the
 	// x points just obtained, the zed coordinate of the skewed tube centre is calculated.
 	
-	//solving the equation to find out the centre of the tangent circle
-	Double_t A = a*a+1;
-	Double_t B = -(a*b-a*y_-x_);
-	Double_t C = x_*x_+ y_*y_+b*b-2*b*y_-rcur*rcur;
-	if((B*B-A*C)>0) {
-	  x1= (B+TMath::Sqrt(B*B-A*C))/A;
-	  x2= (B-TMath::Sqrt(B*B-A*C))/A;
-	  y1=a*x1+b;
-	  y2=a*x2+b;
+	if(x_1 == x_2) 
+	  {
+	    // if the skewed layer lies in yz plane
+	    x1 = x_;
+	    y1 = y_ + rcur;
+	    x2 = x_;
+	    y2 = y_ - rcur;
+	  }
+	else {
+	  //solving the equation to find out the centre of the tangent circle
+	  Double_t A = a*a+1;
+	  Double_t B = -(a*b-a*y_-x_);
+	  Double_t C = x_*x_+ y_*y_+b*b-2*b*y_-rcur*rcur;
+	  if((B*B-A*C)>0) {
+	    x1= (B+TMath::Sqrt(B*B-A*C))/A;
+	    x2= (B-TMath::Sqrt(B*B-A*C))/A;
+	    y1=a*x1+b;
+	    y2=a*x2+b;
+	  }
+	  else if((B*B-A*C)==0){          // CHECK forse da scommentare
+	    x1= B/A;
+	    x2 = x1;
+	    y1=a*x1+b;
+	    y2=a*x2+b;
+	  }
+	  else {
+	    cout << "NO WAY2" << endl;
+	    continue;
+	  }	
 	}
- 	else if((B*B-A*C)==0){          // CHECK forse da scommentare
- 	  x1= B/A;
-	  x2 = x1;
-	  y1=a*x1+b;
- 	  y2=a*x2+b;
- 	}
- 	else {
- 	  cout << "NO WAY2" << endl;
- 	  continue;
- 	}	
-
 	if(rootoutput) {
 	  eventCanvas->cd();
 	  TArc *drftarc = new TArc(x1, y1, rcur); 
@@ -2467,13 +2476,19 @@ Bool_t PndSttHelixTrackFitter::ZFinderbb3(PndSttTrack* pTrack, Int_t pidHypo) {
 	}
 	
 	// zed association
-	if(fabs(x_2-x_1)<0.001) return kFALSE;
-	Double_t t_      =(xcen0-x_1)/(x_2-x_1); // x= a_x*t + x_1 [t=1 x=x_2]
-	Double_t z_      =(z_2-z_1)*t_ +z_1;     // z= a_z*t + z_1 [t=1 z=z_2]
-
-	Double_t t_bis   =(xcen1-x_1)/(x_2-x_1); // from x_'s (the 2 solutions of the 2nd order equation)
-	Double_t z_bis   =(z_2-z_1)*t_bis +z_1;  // and the 2 parametric equations the z coord. are obtained 
-
+	Double_t t_, z_, t_bis, z_bis;
+	if(fabs(x_2-x_1)<0.001) {
+	  t_    =(ycen0-y_1)/(y_2-y_1); // k= a_y*t + y_1 [t=1 y=y_2]
+	  z_    =(z_2-z_1)*t_ +z_1;     // z= a_z*t + z_1 [t=1 z=z_2]
+	  t_bis =(ycen1-y_1)/(y_2-y_1); // from y_'s (the 2 solutions of the 2nd order equation)
+	  z_bis =(z_2-z_1)*t_bis +z_1;  // and the 2 parametric equations the z coord. are obtained 
+	}
+	else{
+	  t_    =(xcen0-x_1)/(x_2-x_1); // x= a_x*t + x_1 [t=1 x=x_2]
+	  z_    =(z_2-z_1)*t_ +z_1;     // z= a_z*t + z_1 [t=1 z=z_2]
+	  t_bis =(xcen1-x_1)/(x_2-x_1); // from x_'s (the 2 solutions of the 2nd order equation)
+	  z_bis =(z_2-z_1)*t_bis +z_1;  // and the 2 parametric equations the z coord. are obtained 
+	}
 
 	//	tofit = new TVector3(xcen0,ycen0,z_);
 	tofit = new TVector3(x_,y_,z_);
