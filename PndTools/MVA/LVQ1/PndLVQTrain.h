@@ -1,3 +1,10 @@
+/* ***************************************
+ * LVQ  Training functions               *
+ * Author: M.Babai@rug.nl                *
+ * LICENSE:                              *
+ * Version 1.0 beta1.                    *
+ * ***************************************
+ */
 #ifndef PndLVQTrain_H
 #define PndLVQTrain_H
 
@@ -5,9 +12,6 @@
 #include <iostream>
 #include <vector>
 #include <map>
-
-//OPENMP header
-//#include <omp.h>
 
 // Root includes
 #include "TFile.h"
@@ -82,5 +86,4 @@ class PndLVQTrain{
   //Holds the LVQ proto-types
   std::vector< std::pair<std::string, std::vector<float>*> > m_LVQProtos;
 };
-#endif
-//end of interface definition
+#endif//end of interface definition

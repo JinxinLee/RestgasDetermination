@@ -1,3 +1,10 @@
+/* ***************************************
+ * LVQ  Classifier                       *
+ * Author: M.Babai@rug.nl                *
+ * LICENSE:                              *
+ * Version 1.0 beta1.                    *
+ * ***************************************
+ */
 #ifndef PndLVQClassify_H
 #define PndLVQClassify_H
 
@@ -6,14 +13,10 @@
 #include <vector>
 #include <map>
 
-//OPENMP header
-//#include <omp.h>
-
 // Root includes
 #include "TFile.h"
 #include "TTree.h"
 #include "TRandom3.h"
-#include "TStopwatch.h"
 
 class PndLVQClassify{
  public:
@@ -53,5 +56,4 @@ class PndLVQClassify{
   // Holds the LVQ proto-types
   std::vector< std::pair<std::string, std::vector<float>*> > m_protoContainer;
 };
-#endif
-//end of interface definition
+#endif//end of interface definition

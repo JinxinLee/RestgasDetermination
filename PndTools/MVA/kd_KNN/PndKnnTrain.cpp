@@ -90,7 +90,7 @@ PndKnnTrain::~PndKnnTrain()
 }
 
 /* 
- * Here we fill the Signal trees and train the classifier.
+ * Fill the Signal trees and train the classifier.
  */
 void PndKnnTrain::Train(const std::vector<float> &EvtData, 
 			const std::string cls)

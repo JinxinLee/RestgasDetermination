@@ -1,3 +1,10 @@
+/* ***************************************
+ * LVQ  Classifier                       *
+ * Author: M.Babai@rug.nl                *
+ * LICENSE:                              *
+ * Version 1.0 beta1.                    *
+ * ***************************************
+ */
 #include "PndLVQClassify.h"
 
 /* Constructor
@@ -111,73 +118,4 @@ void PndLVQClassify::Classify(std::vector<float> &EvtData,
       result[clsName] = dist;
     }
   }
-}
-
-// Just for testing. You may want to remove this before use.
-int main(int argc, char** argv){
-  TStopwatch timer;
-  //================================
-  std::vector<std::string> clas;
-  std::vector<std::string> nam;
-  
-  // Classes
-  clas.push_back("El"); clas.push_back("Pi"); clas.push_back("Ka");
-  clas.push_back("gam"); clas.push_back("mu");
-  
-  // Variables
-  nam.push_back("ep");  nam.push_back("tof"); nam.push_back("mvd");
-  nam.push_back("p");  nam.push_back("f"); nam.push_back("d");
-  nam.push_back("a");  nam.push_back("b"); nam.push_back("c");
-
-  PndLVQClassify bla("OutTestPut.root",clas,nam);
-
-  std::vector<float> evt;
-  evt.push_back(5.0);
-  evt.push_back(5.0);
-  evt.push_back(5.0);
-  evt.push_back(15.0);
-  evt.push_back(15.0);
-  evt.push_back(15.0);
-  evt.push_back(15.0);
-  evt.push_back(15.0);
-  evt.push_back(5.0);
-
-  std::vector<float> evt1;
-  evt1.push_back(1.0);
-  evt1.push_back(2.0);
-  evt1.push_back(32.0);
-  evt1.push_back(14.0);
-  evt1.push_back(5.0);
-  evt1.push_back(6.0);
-  evt1.push_back(7.0);
-  evt1.push_back(8.0);
-  evt1.push_back(9.0);
-
-  std::map<std::string,float> res;
-
-  timer.Start();
-  std::cout << "\n======== FIRST EVENT ==========\n"<< std::endl;
-  bla.Classify(evt,res);
-  std::map<std::string,float>::iterator iter;
-  for( iter = res.begin(); iter != res.end(); ++iter ) {
-    std::cout << "Key: '" << iter->first 
-	      << "', Value: " << iter->second 
-	      << std::endl;
-  }
-
-  bla.Classify(evt1,res);
-  std::cout << "\n======== SECOND EVENT ==========\n"<< std::endl;
-  for( iter = res.begin(); iter != res.end(); ++iter ) {
-    std::cout << "Key: '" << iter->first 
-	      << "', Value: " << iter->second 
-	      << std::endl;
-  }
-  //================================
-  timer.Stop();
-  double rtime = timer.RealTime();
-  double ctime = timer.CpuTime();
-  std::cout<< "RealTime = " << rtime << " seconds, CpuTime = " 
-           << ctime <<" Seconds" << std::endl;
-
-  return 0;
 }

@@ -1,3 +1,10 @@
+/* ***************************************
+ * LVQ  Training functions               *
+ * Author: M.Babai@rug.nl                *
+ * LICENSE:                              *
+ * Version 1.0 beta1.                    *
+ * ***************************************
+ */
 #include "PndLVQTrain.h"
 
 /* Constructor
@@ -294,36 +301,4 @@ void PndLVQTrain::WriteToFile(const char* outPut)
   // We are done. We can close the open file and delete the pointer
   out->Close();
   delete out;
-}
-
-// Only for testing, you want to delete this before using this class
-int main(int argc, char** argv)
-{
-  TStopwatch timer;
-  timer.Start();
-  
-  // ==============================
-  std::vector<std::string> clas;
-  std::vector<std::string> nam;
-  
-  // Classes
-  clas.push_back("El"); clas.push_back("Pi"); clas.push_back("Ka");
-  clas.push_back("gam"); clas.push_back("mu");
-  
-  // Variables
-  nam.push_back("ep");  nam.push_back("tof"); nam.push_back("mvd");
-  nam.push_back("p");  nam.push_back("f"); nam.push_back("d");
-  nam.push_back("a");  nam.push_back("b"); nam.push_back("c");
-  
-  PndLVQTrain bla("TestInput100.root",clas,nam);
-  bla.Train(30,"OutTestPut.root");
-  // =============================
-  
-  timer.Stop();
-  double rtime = timer.RealTime();
-  double ctime = timer.CpuTime();
-  std::cout<< "RealTime = " << rtime << " seconds, CpuTime = " 
-           << ctime <<" Seconds" << std::endl;
-  
-  return 0;
 }

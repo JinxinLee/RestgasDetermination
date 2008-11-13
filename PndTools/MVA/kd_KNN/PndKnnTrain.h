@@ -33,19 +33,20 @@ class PndKnnTrain{
   /* Class destructor */
   virtual ~PndKnnTrain();
   
-  /* Train the classifier 
-   * @param EvtData: The current event feature vector.
-   * @param cls: The class name (label) of the current event.
+  /* 
+   * Train the classifier
+   * @param EvtData: Current event example.
+   * @param cls: The class of the current example.
    */
-  void Train(const std::vector<float>& EvtData, const std::string cls);
+  void Train(const std::vector<float> &EvtData, const std::string cls);
   
- protected:
+  //protected:
   
  private:
   // Variables
-  TFile *m_OutPutF;
-  int   m_numClass;
-  int   m_numVars;
+  TFile *m_OutPutF;//Write the weights in this file
+  int   m_numClass;// Number of classes
+  int   m_numVars;// Dimension of the variables
   
   std::vector<TTree *> m_SigTrees;
   std::vector< std::vector<float>* > m_varContainer;
