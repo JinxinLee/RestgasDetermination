@@ -155,7 +155,7 @@ int main(int argc, char *argv[])
   air0.Surface("side46")->SetReflectivity(PndDrcOptReflNone());
   air0.Surface("side51")->SetReflectivity(PndDrcOptReflNone());
   air0.Surface("side56")->SetReflectivity(PndDrcOptReflNone());
-  air0.SetPrintColor(2);
+  air0.SetPrintColor(4);
   opt_system.AddDevice(air0);
   opt_system.CoupleDevice("bar","air0","side1","side6");
 
@@ -176,7 +176,7 @@ int main(int argc, char *argv[])
   lens1.Surface("side46")->SetReflectivity(PndDrcOptReflNone());
   lens1.Surface("side51")->SetReflectivity(PndDrcOptReflNone());
   lens1.Surface("side56")->SetReflectivity(PndDrcOptReflNone());
-  lens1.SetPrintColor(2);
+  lens1.SetPrintColor(4);
   opt_system.AddDevice(lens1);
   opt_system.CoupleDevice("air0","lens1","side1","side6");
 
@@ -216,7 +216,7 @@ int main(int argc, char *argv[])
   //lens2.SetOptMaterial(PndDrcOptMatLLF1());
   lens2.SetOptMaterial(PndDrcOptMatNLAK33A());
   //lens2.SetOptMaterial(PndDrcOptMatLithotecQ0());
-  lens2.SetPrintColor(2);
+  lens2.SetPrintColor(4);
   opt_system.AddDevice(lens2);
   opt_system.CoupleDevice("air1","lens2","side1","side6");
 

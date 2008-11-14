@@ -82,9 +82,9 @@ int main(int argc, char *argv[])
 
   //int ioption = 1; // parallel beam (0 deg)
   //int ioption = 2; // 0,  +- 20,  +-40 deg
-  int ioption = 3; // C-cone
+  //int ioption = 3; // C-cone
   //int ioption = 4; // random in front of lens.
-  //int ioption = 5; // single photon for debugging.
+  int ioption = 5; // single photon for debugging.
   //int ioption = 6; // grid 5 deg
 
   double pi=3.1415926535;
@@ -178,7 +178,7 @@ int main(int argc, char *argv[])
   lens.AddSurface(lens_side4);
   lens.SetOptMaterial(vacuum);
   lens.SetName("lens");
-  lens.AddTransform(Transform3D(XYZVector(0,0,2)));
+  lens.AddTransform(Transform3D(XYZVector(0,0,3)));
 
 
 
@@ -373,7 +373,7 @@ int main(int argc, char *argv[])
   // .x Geo.C 
   // .x Screen.C
   // 
-  //manager->Print(geo);
+  manager->Print(geo);
   
 
   //geo<<"}"<<endl;
@@ -438,11 +438,11 @@ int main(int argc, char *argv[])
       // -50 close to lens (0)
       // -900 close to far end (1000)
       XYZPoint  pos(0,-20,-150);
-      XYZVector dir(0,1,1); // 45 degree
-      double    beta = 0.97; // the 3.5 GeV proton beam
-      int       photon_number = 2000;
+      XYZVector dir(0,1,1.54); // 45 degree
+      double    beta = 0.9583; // the 3.5 GeV proton beam
+      int       photon_number = 0;//2000;
       float     range = 70;
-      photons_exist = manager->Cerenkov(pos,dir,beta,photon_number,range); 
+      photons_exist = manager->Cerenkov(pos,dir,beta,photon_number,range,300,600); 
     }
   if (ioption==4)  
     {
