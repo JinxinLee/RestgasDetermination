@@ -25,6 +25,8 @@ void Mapping::read(std::string filename){
     istr >> y;
     istr >> conn;
     istr >> pin;
+    if((pin % 2)==0) pin -= 1;
+    else pin += 1;
     Channel_t chan(name,x,-1.0*y,conn,pin);
     //chan.print();
     channels.push_back(chan);
