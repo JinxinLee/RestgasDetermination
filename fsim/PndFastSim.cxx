@@ -878,6 +878,12 @@ PndFastSim::sumResponse(FsmResponseList respList)
         LH_pi *= rawLHpi; 
         LH_K  *= rawLHK; 
         LH_p  *= rawLHp; 
+      } else {
+        LH_e  *= 0.2;
+        LH_mu *= 0.2;
+        LH_pi *= 0.2;
+        LH_K  *= 0.2;
+        LH_p  *= 0.2;
       }
 
       //here a weighted Likelihood evaluation has to be done
@@ -894,11 +900,19 @@ PndFastSim::sumResponse(FsmResponseList respList)
   
   double sumLH = LH_e + LH_mu + LH_pi + LH_K + LH_p;
 
-  LH_e  /= sumLH;
-  LH_mu /= sumLH;
-  LH_pi /= sumLH;
-  LH_K  /= sumLH;
-  LH_p  /= sumLH;
+  if (sumLH>0) {
+    LH_e  /= sumLH;
+    LH_mu /= sumLH;
+    LH_pi /= sumLH;
+    LH_K  /= sumLH;
+    LH_p  /= sumLH;
+  } else {
+    LH_e  = 0.2;
+    LH_mu = 0.2;
+    LH_pi = 0.2;
+    LH_K  = 0.2;
+    LH_p  = 0.2;
+  }
   
   allResponse->setDetected(detected);
   allResponse->setdE( dE>0. ? 1/sqrt(dE) : 0.0 );
