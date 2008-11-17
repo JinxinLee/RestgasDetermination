@@ -131,7 +131,11 @@ int main(int argc, char* argv[]) {
 
   std::vector<PndTpcCluster*> *clusters = new std::vector<PndTpcCluster*>;
   PndTpcAbsClusterFinder *clusterfinder;
-  if(clust_choice == 1) {
+    if(clust_choice == 0) {
+      clusterfinder = new PndTpcClusterFinder(PndTpcDigiMapper::getInstance()->getPadPlane(),clusters,timewindow_seb);
+	  clusterfinder->setTrivialClustering();
+    }
+	else  if(clust_choice == 1) {
     clusterfinder = new PndTpcClusterFinderSimple(PndTpcDigiMapper::getInstance()->getPadPlane(),clusters,timewindow_chr);
     if(noXclustChr){
       ((PndTpcClusterFinderSimple*)clusterfinder)->setNoXclust();
