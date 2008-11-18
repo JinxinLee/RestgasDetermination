@@ -191,6 +191,18 @@ class PndDrcPhoton
   */
   int ColorNumber(double lambda) const;
 
+  /*! \brief Print flag of photon to write its way to the data stream
+    \sa  Print(fstream& stream)
+    \return print flag.
+  */
+  bool PrintFlag() const {return fPrintFlag;};
+ /*! \brief Set print flag of photon to write its way to the data stream
+    \sa  Print(fstream& stream) 
+  \param flg Print flag.
+  */
+  void SetPrintFlag(bool flg){fPrintFlag=flg;};
+
+
  private:
   double           fLambda;                        //!< Wavelength in nm.           
   XYZPoint         fPosition;                      //!< Actual position of photon.          
@@ -202,7 +214,9 @@ class PndDrcPhoton
   PndDrcOptDev*    fDev;                           //!< Pointer to device where photon is.              
   double           fTime;                          //!< Time of flight.             
   int              fReflectionLimit;               //!< Reflection limit.
+  bool             fPrintFlag;                     //!< Print flag, by default true
   
+
   /*! \brief Copy function for assigment and copy operator.
     \param ph The photon
   */

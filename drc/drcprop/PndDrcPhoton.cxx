@@ -28,6 +28,8 @@ PndDrcPhoton::PndDrcPhoton()
   fTime        = 0;
   fDev         = 0;
   fReflectionLimit = 1000;
+  fPrintFlag   = true;
+  
 }
 //----------------------------------------------------------------------
 void PndDrcPhoton::Copy(const PndDrcPhoton& ph)
@@ -42,6 +44,8 @@ void PndDrcPhoton::Copy(const PndDrcPhoton& ph)
   fTime        = ph.fTime;
   fDev         = ph.fDev;
   fReflectionLimit = ph.fReflectionLimit;
+  fPrintFlag   = ph.fPrintFlag;
+  
 }
 //----------------------------------------------------------------------
 PndDrcPhoton::PndDrcPhoton(const PndDrcPhoton& ph)
@@ -189,21 +193,22 @@ int PndDrcPhoton::ColorNumber(double lambda) const
 void PndDrcPhoton::Print(fstream& stream) const
 {
 
-  //if (fReflections==0) return;
-
-  stream<<" TPolyLine3D *l = new TPolyLine3D(2);"<<endl;
-
-  stream<<" l->SetPoint("<<0<<","
-	<<fPositionOld.X()<<","
-	<<fPositionOld.Y()<<","
-	<<fPositionOld.Z()<<");"<<endl;
-  stream<<" l->SetPoint("<<1<<","
-	<<fPosition.X()<<","
-	<<fPosition.Y()<<","
-	<<fPosition.Z()<<");"<<endl;
-  stream<<" l->SetLineColor("<<ColorNumber(fLambda)<<");"<<endl;
-  stream<<" l->Draw();"<<endl;
-
+  if (fPrintFlag)
+    {
+      stream<<" TPolyLine3D *l = new TPolyLine3D(2);"<<endl;
+      
+      stream<<" l->SetPoint("<<0<<","
+	    <<fPositionOld.X()<<","
+	    <<fPositionOld.Y()<<","
+	    <<fPositionOld.Z()<<");"<<endl;
+      stream<<" l->SetPoint("<<1<<","
+	    <<fPosition.X()<<","
+	    <<fPosition.Y()<<","
+	    <<fPosition.Z()<<");"<<endl;
+      stream<<" l->SetLineColor("<<ColorNumber(fLambda)<<");"<<endl;
+      stream<<" l->Draw();"<<endl;
+    }
+  
 }
 //----------------------------------------------------------------------
 void PndDrcPhoton::Print() const
