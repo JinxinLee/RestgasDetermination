@@ -82,9 +82,9 @@ int main(int argc, char *argv[])
 
   //int ioption = 1; // parallel beam (0 deg)
   //int ioption = 2; // 0,  +- 20,  +-40 deg
-  //int ioption = 3; // C-cone
+  int ioption = 3; // C-cone
   //int ioption = 4; // random in front of lens.
-  int ioption = 5; // single photon for debugging.
+  //int ioption = 5; // single photon for debugging.
   //int ioption = 6; // grid 5 deg
 
   double pi=3.1415926535;
@@ -379,7 +379,7 @@ int main(int argc, char *argv[])
   //geo<<"}"<<endl;
   //exit(0);
 
-  list<PndDrcPhoton> list_photon; // get list
+  list<PndDrcPhoton> list_photon; 
 
   PndDrcPhoton ph;
   ph.SetReflectionLimit(200);
@@ -443,7 +443,34 @@ int main(int argc, char *argv[])
       int       photon_number = 0;//2000;
       float     range = 70;
       photons_exist = manager->Cerenkov(pos,dir,beta,photon_number,range,300,600); 
+
+
+      //--------------------------------
+      list_photon = manager->PhotonList();
+      // manipulate photons
+
+      list<PndDrcPhoton>::iterator iph;
+
+      int icandidate = 45;
+      int icnt=0;
+      
+      for(iph=list_photon.begin(); iph != list_photon.end(); ++iph) 
+	{
+	  if (icnt==icandidate)
+	    {
+	      (*iph).SetPrintFlag(true);
+	    }
+	  else
+	    { 
+	      (*iph).SetPrintFlag(false);
+	    }
+	  icnt++;
+	  
+	}    
+      manager->SetPhotonList(list_photon,"slab","opt_system",0,0);
+      //--------------------------------
     }
+  
   if (ioption==4)  
     {
       TRandom ran;
