@@ -93,7 +93,7 @@ public:
   Float_t GetDrcQuality()             { return fDrcQuality; }
   Float_t GetDrcThetaC()              { return fDrcThetaC; }
   Float_t GetDrcThetaCErr()           { return fDrcThetaCErr; }
-  Float_t GetDrcNPhotons()            { return fDrcNPhotons; }
+  Int_t GetDrcNPhotons()              { return fDrcNPhotons; }
   
   Float_t GetTof()                    { return fTimeOfFlight; }
   Float_t GetEmcELoss()               { return fEmcELoss; }
