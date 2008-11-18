@@ -1,0 +1,22 @@
+// $Id: GemLinkDef.h,v 1.0 Ralf Kliemt 08.Jan.2007 $
+
+#ifdef __CINT__
+
+#pragma link off all globals;
+#pragma link off all classes;
+#pragma link off all functions;
+
+
+//data
+#pragma link C++ class PndGemMCPoint+;
+
+//mc
+// #pragma link C++ class PndGemGeo+;
+// #pragma link C++ class PndGemGeoPar+;
+// #pragma link C++ class PndGemContFact+;
+#pragma link C++ class PndGemDetector+;
+#pragma link C++ class PndGemHit+;
+#pragma link C++ class PndGemSmearingTask+;
+
+#endif
+
