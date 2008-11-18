@@ -108,7 +108,7 @@ PndDrcSurfPolyAsphere&  PndDrcSurfPolyAsphere::operator=(const PndDrcSurfPolyAsp
 //----------------------------------------------------------------------
 XYZVector PndDrcSurfPolyAsphere::Normal(const XYZPoint& point) const
 {
-  if (!fChecked) fChecked = Check();// check dimensions
+  if (!fChecked) fChecked = Check1();// check dimensions
 
   // transform point back, where sphere was defined.
   XYZPoint p1(fTransInv(point));
@@ -157,7 +157,7 @@ bool PndDrcSurfPolyAsphere::SurfaceHit(PndDrcPhoton& ph,
   if (fVerbosity>=4) cout<<" PndDrcSurfPolyAsphere::surfaceHit: test of "
 			  <<Name()<<endl;  
 
-  if (!fChecked) fChecked = Check();// check dimensions
+  if (!fChecked) fChecked = Check1();// check dimensions
 
   // transform back in sphere definitions space
   XYZPoint  pos(ph.Position());
@@ -585,7 +585,7 @@ bool PndDrcSurfPolyAsphere::SurfaceHit(PndDrcPhoton& ph,
 
 } 
 //----------------------------------------------------------------------
-bool PndDrcSurfPolyAsphere::Check() const
+bool PndDrcSurfPolyAsphere::Check1() const
 {
   if (fRadius<=0)
     {
@@ -649,7 +649,7 @@ XYZPoint PndDrcSurfPolyAsphere::CenterPoint()
 //----------------------------------------------------------------------
 void PndDrcSurfPolyAsphere::Print(fstream& stream) const
 {
-  if (!fChecked) fChecked = Check();// check dimensions
+  if (!fChecked) fChecked = Check1();// check dimensions
 
   // print points
   unsigned int isize = fP.size();

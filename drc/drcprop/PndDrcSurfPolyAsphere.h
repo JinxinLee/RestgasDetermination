@@ -116,7 +116,7 @@ class PndDrcSurfPolyAsphere : public PndDrcSurfPolyFlat
   the projection is within the half sphere.
   /return true if ok.
   */
-  bool Check() const;
+  bool Check1() const;
 
   /*! The z value in unshifted and unrotated system.
     \param x The x coordinate.

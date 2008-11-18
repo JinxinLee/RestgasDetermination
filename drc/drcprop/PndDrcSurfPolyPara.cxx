@@ -104,7 +104,7 @@ PndDrcSurfPolyPara&  PndDrcSurfPolyPara::operator=(const PndDrcSurfPolyPara& s)
 //----------------------------------------------------------------------
 XYZVector PndDrcSurfPolyPara::Normal(const XYZPoint& point) const
 {
-  if (!fChecked) fChecked = Check();// check dimensions
+  if (!fChecked) fChecked = Check1();// check dimensions
 
   // transform point back, where paraboloid was defined.
   XYZPoint p1(fTransInv*point);
@@ -125,7 +125,7 @@ bool PndDrcSurfPolyPara::SurfaceHit(PndDrcPhoton& ph,
 {
   //cout<<" PndDrcSurfPolyPara::surfaceHit"<<endl;//###
 
-  if (!fChecked) fChecked = Check();// check dimensions
+  if (!fChecked) fChecked = Check1();// check dimensions
 
   // transform back in sphere definitions space
   XYZPoint  pos(fTransInv*ph.Position());
@@ -255,7 +255,7 @@ bool PndDrcSurfPolyPara::SurfaceHit(PndDrcPhoton& ph,
   return false;
 } 
 //----------------------------------------------------------------------
-bool PndDrcSurfPolyPara::Check() const
+bool PndDrcSurfPolyPara::Check1() const
 {
   if (fRadius<=0)
     {
@@ -314,7 +314,7 @@ XYZPoint PndDrcSurfPolyPara::CenterPoint()
 //----------------------------------------------------------------------
 void PndDrcSurfPolyPara::Print(fstream& stream) const
 {
-  if (!fChecked) fChecked = Check();// check dimensions
+  if (!fChecked) fChecked = Check1();// check dimensions
 
   // print points
   unsigned int isize = fP.size();

@@ -91,7 +91,7 @@ class PndDrcSurfPolyPara : public PndDrcSurfPolyFlat
   the projection is within the half parabolic shape.
   /return true if ok.
   */
-  bool Check() const;
+  bool Check1() const;
 
 };
 #endif

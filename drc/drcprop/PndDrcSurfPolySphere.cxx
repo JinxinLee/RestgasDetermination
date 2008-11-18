@@ -103,7 +103,7 @@ PndDrcSurfPolySphere&  PndDrcSurfPolySphere::operator=(const PndDrcSurfPolySpher
 //----------------------------------------------------------------------
 XYZVector PndDrcSurfPolySphere::Normal(const XYZPoint& point) const
 {
-  if (!fChecked) fChecked = Check();// check dimensions
+  if (!fChecked) fChecked = Check1();// check dimensions
 
   // transform point back, where sphere was defined.
   XYZPoint point0(fTransInv*point);
@@ -120,7 +120,7 @@ bool PndDrcSurfPolySphere::SurfaceHit(PndDrcPhoton& ph,
 				   XYZPoint&  pos_new, 
 				   double&    path_length) const
 {
-  if (!fChecked) fChecked = Check();// check dimensions
+  if (!fChecked) fChecked = Check1();// check dimensions
 
   // transform back in sphere definitions space
   XYZPoint  pos(fTransInv*ph.Position());
@@ -244,7 +244,7 @@ bool PndDrcSurfPolySphere::SurfaceHit(PndDrcPhoton& ph,
 
 } 
 //----------------------------------------------------------------------
-bool PndDrcSurfPolySphere::Check() const
+bool PndDrcSurfPolySphere::Check1() const
 {
   if (fRadius<=0)
     {
@@ -317,7 +317,7 @@ void PndDrcSurfPolySphere::AddTransform(const Transform3D& trans)
 //----------------------------------------------------------------------
 void PndDrcSurfPolySphere::Print(fstream& stream) const
 {
-  if (!fChecked) fChecked = Check();// check dimensions
+  if (!fChecked) fChecked = Check1();// check dimensions
 
   // print points
   unsigned int isize = fP.size();
