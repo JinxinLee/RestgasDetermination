@@ -1,0 +1,18 @@
+#To start off with the gems:
+
+# Geometry Preparations
+root create_gem_rootgeo.C
+
+# Linking Preparations for vectors and maps in the macro
+root -q Helper.C+
+
+
+# Simulation - Monte-Carlo points only
+root runGemSim.C
+
+# eventdisplay
+root eventdisplay.C
+
+# Rate analysis (work in progress)
+root anaGemPointrate.C
+
