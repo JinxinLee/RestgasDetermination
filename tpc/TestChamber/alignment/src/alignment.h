@@ -27,9 +27,12 @@ class Alignment{
     float dergb[NGLB];     //!< vector of global derivatives
     float derlc[NPARTRCK]; //!< vector of local derivatives
     float par[NGLB];       //!< vector of parameters
+    float fixingX[NGLB];
+    float fixingY[NGLB];
     std::string infile;
     std::string outfile;
     bool simulation;
+    float zero;
     
     void generateTracks(int amount,
 			double length=150,

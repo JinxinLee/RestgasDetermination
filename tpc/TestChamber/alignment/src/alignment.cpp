@@ -114,80 +114,102 @@ void Alignment::doFit(){
 */
     cout<<"Empty Histograms created"<<endl;
     cout<<"Starting to send data to Millepede"<<endl;
-    bool alignX_ = true;
-    bool alignY_ = true;
+    bool alignU_ = true;
     bool alignZ_ = false;
-    bool alignT_ = true;
+    bool alignT_ = false;
     bool alignP_ = false;
 /*
   for each detector i set the sigma for the detectors to zero for that
   parameter. This is picked up from the fortran code, and that
   parameter is excluded from the fit
 */
+    for(unsigned int j=0;j<NGLB;j++){
+          fixingY[j]=0.0; 
+          fixingX[j]=0.0; 
+        }
+    float z_fixed;
     for( unsigned int i=0; i<detectors.size(); i++) {
-	if (!alignX_) {C_PARSIG(i*NPARPLAN+1,0.0);}	//!< fix all x 
-	if (!alignY_) {C_PARSIG(i*NPARPLAN+2,0.0);}	//!< fix all y 
-	if (!alignZ_) {C_PARSIG(i*NPARPLAN+3,0.0);}	//!< fix all z 
-	if (!alignT_) {C_PARSIG(i*NPARPLAN+4,0.0);}    	//
+	if (!alignU_) {C_PARSIG(i*NPARPLAN+1,0.0);}	//!< fix all u 
+	if (!alignZ_) {C_PARSIG(i*NPARPLAN+2,0.0);}	//!< fix all z 
+	if (!alignT_) {C_PARSIG(i*NPARPLAN+3,0.0);}    	//
 							//!< fix all theta
-        if (!alignP_) {C_PARSIG(i*NPARPLAN+5,0.0);}    	//!< fix all pitch
+        if (!alignP_) {C_PARSIG(i*NPARPLAN+4,0.0);}    	//!< fix all pitch
 	/*
           fixing the first silicon detector with id 51 and 52
 	*/
         int detID =detectors[i]->getId();
-	if(detID==51||detID==52/*||detID==3||detID==4*/){
+	if(detID==51||detID==52||detID==2||detID==4||detID==54){
           cout<<"Fix detid"<<(detectors[i]->getId())<<endl;
-	     C_PARSIG(i*NPARPLAN+1,0.0);	//!< fix all x 
-	     C_PARSIG(i*NPARPLAN+2,0.0);	//!< fix all y 
-             C_PARSIG(i*NPARPLAN+3,0.0);	//!< fix all z 
-	     C_PARSIG(i*NPARPLAN+4,0.0);	//!< fix all thet
-	     C_PARSIG(i*NPARPLAN+5,0.0);	//!< fix all pitch
-	}
-        
+	     C_PARSIG(i*NPARPLAN+1,0.0);	//!< fix all u 
+             C_PARSIG(i*NPARPLAN+2,0.0);	//!< fix all z 
+	     C_PARSIG(i*NPARPLAN+3,0.0);	//!< fix all thet
+	     C_PARSIG(i*NPARPLAN+4,0.0);	//!< fix all pitch
+             if(detID==51){
+               z_fixed=detectors[i]->getZ();
+             }
+	}   
     }
-    
+     zero =0.0;
+     for( unsigned int i=0; i<detectors.size(); i++) {
+       int detID =detectors[i]->getId();
+       if(detID!=51&&detID!=52&&detID!=2&&detID!=4&&detID!=54){
+         double cosT_=detectors[i]->getCosT();
+         double sinT_=detectors[i]->getSinT();
+         double z=detectors[i]->getZ();
+         fixingX[NPARPLAN*i]=(float)cosT_/(z-z_fixed);
+         fixingY[NPARPLAN*i]=(float)sinT_/(z-z_fixed);
+       }
+     }
+     //constf_(fixingX,&zero);
+     //    constf_(fixingY,&zero);
     for(unsigned int i=0;i<tracks.size();i++){
 	double x0 = tracks[i].getX0();
 	double y0 = tracks[i].getY0();
 	double tx = tracks[i].getTx();
 	double ty = tracks[i].getTy();
-	
-	for(unsigned int j=0;j<detectors.size();j++){
-	    pair<double,double> hit = detectors[j]->getHitU(tracks[i]);
-	    hists_det[j]->Fill(hit.second-hit.first); /*u_rec - u_hit*/
-	    profiles_det[j]->Fill(hit.first,(hit.second-hit.first)); 
-	    float u_hit=(float)hit.first;
-	    double cosT_=detectors[j]->getCosT();
-	    double sinT_=detectors[j]->getSinT();
-	    double z_=detectors[j]->getZ();
-	    float sigma_=(float)detectors[j]->getSigma();
-            double x=detectors[j]->getX();
-            double y=detectors[j]->getY();
-	    
-
+	if(i%1000==0){
+          cout<<"track x0: "<<x0<<" tx: "<<tx<<endl;
+}
+	for(unsigned int j=0;j<detectors.size();j++){  
+          pair<double,double> hit = detectors[j]->getHitU(tracks[i]);
+          hists_det[j]->Fill(hit.second-hit.first); /*u_rec - u_hit*/
+          profiles_det[j]->Fill(hit.first,(hit.second-hit.first)); 
+          double x=detectors[j]->getX();
+          double y=detectors[j]->getY();
+          double cosT_=detectors[j]->getCosT();
+          double sinT_=detectors[j]->getSinT();
+          float u_hit=(float)hit.first+x*cosT_+y*sinT_ ;
+          double z_=detectors[j]->getZ();
+          float sigma_=(float)detectors[j]->getSigma();
+          int detID = detectors[j]->getId();
+          if(i%1000==0&&detID!=51&&detID!=52&&detID!=2&&detID!=4&&detID!=5){
+            cout<<"detID "<<detID<<" u_hit: "<<u_hit<<endl;
+          }
 /*
   calculate local derivatives, ie the derivatives with respect to
   track parameters. 
 */
-	    double dudx  = cosT_;           //!< /d x
-	    double dudy  = sinT_;           //!< /d y
-	    double dudtx = cosT_*z_;    //!< /d tx
-	    double dudty = sinT_*z_;    //!< /d ty
-	    
+          double dudx0  = cosT_;           //!< /d x0
+          double dudy0  = sinT_;           //!< /d y0
+          double dudtx = cosT_*z_;    //!< /d tx
+          double dudty = sinT_*z_;    //!< /d ty
+          
 	    //! store std local derivatives
-	    derlc[0]= dudx;           
+	    derlc[0]= dudx0;           
 	    derlc[1]= dudtx;   
 	    
 	    
-	    derlc[2]= dudy;        
+	    derlc[2]= dudy0;        
 	    derlc[3]= dudty; 
+             // if(detID==1||detID==3||detID==53){
+//                cout<<endl<<"dudx0 "<<dudx0<<" dudtx: "<<dudtx<<"u_hit: "<<u_hit<<endl;
+//              }
 	    //cout<<"-cosT_: "<<-cosT_<<endl;
 	    //! calculate/store global derivatives   
-	    dergb[NPARPLAN*j]=-cosT_;                                                     //!< /d dx
-	    dergb[NPARPLAN*j+1]=  sinT_;                                                  //!< /d dy
-	    dergb[NPARPLAN*j+2]=  cosT_*tx - sinT_*ty;                                       //!< /d dz
-	    dergb[NPARPLAN*j+3]= -sinT_*(x0+tx*(z_)-x) - cosT_*(y0+ty*(z_)-y);          //!< /d dtheta
-            dergb[NPARPLAN*j+4]=0/*  cosT_*(x0+tx*(z_)-x) - sinT_*(y0+ty*(z_)-y)*/;              //!< /d dpitch
+	    dergb[NPARPLAN*j]=-1;                                                     //!< /d du
+	    dergb[NPARPLAN*j+1]=  cosT_*tx - sinT_*ty;                                       //!< /d dz
+	    dergb[NPARPLAN*j+2]= -sinT_*(x0+tx*(z_)-x) - cosT_*(y0+ty*(z_)-y);          //!< /d dtheta
+            dergb[NPARPLAN*j+3]=0/*  cosT_*(x0+tx*(z_)-x) - sinT_*(y0+ty*(z_)-y)*/;              //!< /d dpitch
 	    /*
 	      Sending this information to millepede
 	    */
@@ -204,6 +226,7 @@ void Alignment::doFit(){
 
 */
 	fitloc_();
+        //   cout<<"x0: "<<x0<<"tx: "<<tx<<endl;
     }
     
     cout<<"Local fits done, doing global fit"<<endl;
@@ -224,9 +247,9 @@ void Alignment::doFit(){
         trans[2]+=par[NPARPLAN*n+2];
         theta+=par[NPARPLAN*n+3];
         pitch+=par[NPARPLAN*n+4];
-        cout<<"dTheta: "<<par[NPARPLAN*n+3]<<endl;
-        cout<<"dPitch: "<<par[NPARPLAN*n+4]<<endl;
-        cout<<"dx: "<<par[NPARPLAN*n]<<" \t\t dy: "<<par[NPARPLAN*n+1]<<"\t\t dz: "<<par[NPARPLAN*n+2]<<endl;
+        cout<<"dTheta: "<<par[NPARPLAN*n+2]<<endl;
+        cout<<"dPitch: "<<par[NPARPLAN*n+3]<<endl;
+        cout<<"du: "<<par[NPARPLAN*n]<<"\t\t dz: "<<par[NPARPLAN*n+1]<<endl;
         reader->setConv(detectors[n]->getId(),trans,rot,pitch,theta,phi,psi,res);
     }
     reader->write(outfile);

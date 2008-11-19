@@ -29,7 +29,7 @@
   R*=(1+\alpha_L) i.e. U+=\alpha_L*R                \\currently not in
   use
 */
-#define NPARPLAN 5	
+#define NPARPLAN 4	
 
 #define NGLB NPLAN*NPARPLAN /*!< maximum number of global parameters */ 
 #define PI 3.14159          /*!< pi */
