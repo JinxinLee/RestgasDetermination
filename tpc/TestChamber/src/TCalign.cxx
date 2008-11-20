@@ -172,4 +172,28 @@ void TCalign::clear(){
     ++itP;
   }
   P.clear();
+  std::map<int,double*>::iterator itTheta=Theta.begin();
+  while(itTheta!=Theta.end()){
+    delete itTheta->second;
+    ++itTheta;
+  }
+  Theta.clear();
+  std::map<int,double*>::iterator itPhi=Phi.begin();
+  while(itPhi!=Phi.end()){
+    delete itPhi->second;
+    ++itPhi;
+  }
+  Phi.clear();
+  std::map<int,double*>::iterator itPsi=Psi.begin();
+  while(itPsi!=Psi.end()){
+    delete itPsi->second;
+    ++itPsi;
+  }
+  Psi.clear();
+  std::map<int,double*>::iterator itRes=Resolution.begin();
+  while(itRes!=Resolution.end()){
+    delete itRes->second;
+    ++itRes;
+  }
+  Resolution.clear();
 }
