@@ -116,7 +116,7 @@ void Alignment::doFit(){
     cout<<"Starting to send data to Millepede"<<endl;
     bool alignU_ = true;
     bool alignZ_ = false;
-    bool alignT_ = false;
+    bool alignT_ = true;
     bool alignP_ = false;
 /*
   for each detector i set the sigma for the detectors to zero for that
@@ -138,12 +138,14 @@ void Alignment::doFit(){
           fixing the first silicon detector with id 51 and 52
 	*/
         int detID =detectors[i]->getId();
-	if(detID==51||detID==52||detID==2||detID==4||detID==54){
+	if(detID==51||detID==52||detID==3||detID==4){
           cout<<"Fix detid"<<(detectors[i]->getId())<<endl;
 	     C_PARSIG(i*NPARPLAN+1,0.0);	//!< fix all u 
              C_PARSIG(i*NPARPLAN+2,0.0);	//!< fix all z 
-	     C_PARSIG(i*NPARPLAN+3,0.0);	//!< fix all thet
-	     C_PARSIG(i*NPARPLAN+4,0.0);	//!< fix all pitch
+	     if(detID==51||detID==52){
+               C_PARSIG(i*NPARPLAN+3,0.0);	//!< fix all theta
+               C_PARSIG(i*NPARPLAN+4,0.0);	//!< fix all pitch
+             }
              if(detID==51){
                z_fixed=detectors[i]->getZ();
              }
