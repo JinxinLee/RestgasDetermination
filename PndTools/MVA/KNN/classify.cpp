@@ -12,7 +12,9 @@ int main(int argc, char** argv)
   if (!(argc==7))
     {
       std::cout << "Please specify the arguments: " << std::endl;
-      std::cout << argv[0] << " <nrofevents> <nrofclasses> <nroffeatures> <nrofneighbours> <inputfile> <seed>" << std::endl;
+      std::cout << argv[0] << " <nrofevents> <nrofclasses>"
+		<<" <nroffeatures> <nrofneighbours> <inputfile> <seed>" 
+		<< std::endl;
       exit(-1);
     }
 
@@ -74,21 +76,20 @@ int main(int argc, char** argv)
       cls.Classify(evt,nrOfNeighbours,res);
 
       int cnt=0;
-      for( std::map<std::string,float>::iterator ii=res.begin();ii != res.end(); ++ii)
-	{                                                            
-	  //	  std::cout << (*ii).first << ": " << (*ii).second << std::endl;
-	  h[cnt++]->Fill((*ii).second);
-	} 
+      for( std::map<std::string,float>::iterator ii=res.begin();
+	   ii != res.end(); ++ii){                                              
+	//std::cout << (*ii).first << ": " << (*ii).second << std::endl;
+	h[cnt++]->Fill((*ii).second);
+      }
     }
   timer.Stop();
-  std::cout << "Cpu Time=" << timer.CpuTime() << " Real Time=" << timer.RealTime() << std::endl;
+  std::cout << "Cpu Time=" << timer.CpuTime() 
+	    << " Real Time=" << timer.RealTime() << std::endl;
 
-  for (Int_t i=0; i<nrOfClasses; i++)
-    {
-      h[i]->Write();
-    }
+  for (Int_t i=0; i<nrOfClasses; i++){
+    h[i]->Write();
+  }
   f->Write();
   f->Close();
   return 0;
 }
-

@@ -21,11 +21,25 @@
  */
 class DistObject{
  public:
-  
+  //Constructors
  DistObject(): m_cls(""), m_dist(0.0){};
  DistObject(float d, std::string c): m_cls(c), m_dist(d){};
+  
+  //Destructor
   ~DistObject(){};
   
+  //Operators
+  inline bool operator < (const DistObject &other)const
+  {
+    return (m_dist < other.m_dist);
+  }
+  
+  inline bool operator>(const DistObject &other)const
+  {
+    return (m_dist > other.m_dist);
+  }
+  
+  //Local members. 
   std::string m_cls;// Class name
   float       m_dist;//Computed distance
 };
@@ -79,4 +93,10 @@ class PndKnnClassify{
   // contains distances labled for every class
   std::vector<DistObject*> m_dists;
 };
+
+/* Function used for sorting the distances container */
+inline bool LessFunct(const DistObject& p1, const DistObject& p2)
+{  
+  return (p1.m_dist < p2.m_dist);
+}
 #endif

@@ -10,7 +10,9 @@ int main(int argc, char** argv)
   if (!(argc==6))
     {
       std::cout << "Please specify the arguments: " << std::endl;
-      std::cout << argv[0] << " <nrofevents> <nrofclasses> <nroffeatures> <outputfile> <seed>" << std::endl;
+      std::cout << argv[0] 
+		<< " <nrofevents> <nrofclasses> <nroffeatures>"
+		<<" <outputfile> <seed>" << std::endl;
       exit(-1);
     }
   TRandom3 myran(atoi(argv[5]));

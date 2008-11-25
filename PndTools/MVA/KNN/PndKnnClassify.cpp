@@ -7,15 +7,16 @@
 #include "PndKnnClassify.h"
 
 /* Function used for sorting the distances container */
-bool LessFunct(DistObject* p1, DistObject* p2)
-{  
+/*
+  bool LessFunct(DistObject* p1, DistObject* p2)
+  {  
   if(p1->m_dist < p2->m_dist)
   {
-    return true;
+  return true;
   }
   return false;
-}
-
+  }
+*/
 /*
  * @param InputPutFile: The name of the file that holds the weits
  * @param ClassNames: The names of classes to which an event might be
@@ -157,7 +158,8 @@ void PndKnnClassify::Classify(std::vector<float> &EvtData,
   }//For CLS
   
   //All distances are determined, now we can classify
-  sort(m_dists.begin(), m_dists.end(), LessFunct);
+  //sort(m_dists.begin(), m_dists.end(), LessFunct);
+  sort(m_dists.begin(), m_dists.end());
   
   if (Neighbours > m_dists.size()){
     std::cout << "<ERROR> Requested number of Neighbours is too large"
