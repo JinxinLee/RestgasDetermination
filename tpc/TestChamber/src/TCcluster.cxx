@@ -120,6 +120,7 @@ TCcluster::TCcluster(const PndTpcDigi& _d,int id) : detId(id),fit(false){//for r
 
 void TCcluster::print(){
   std::cout << "========== TCcluster::print()" << std::endl;
+  std::cout << "detector id: "<<detId<<std::endl;
   printf("pos:   (%10.10f,%10.10f,%10.10f)\n",pos.X(),pos.Y(),pos.Z());
   printf("err:   (%10.10f,%10.10f,%10.10f)\n",err.X(),err.Y(),err.Z());
   printf("resid: (%10.10f,%10.10f,%10.10f)\n",res.X(),res.Y(),res.Z());
