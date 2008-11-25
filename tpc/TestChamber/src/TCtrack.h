@@ -39,17 +39,32 @@ class TCtrack : public TObject{
     }
     return ret;
   }
+  //id is detector id
+  //nr is cluster the id of the cluster for that detector
+  TCcluster getClById(int id,int nr){
+    bool foundcluster = false;
+    for(int i=0;i<cl.size();++i){
+      if(cl[i].getId()==id){
+        return cl.at(i);
+      }
+    }
+    std::cerr << "TCtrack::getClById(): id " << id 
+              << " not found ->exc" << std::endl;
+    std::string exc("TCtrack::getClById(): id not found");
+    throw exc;
+  }
+
 
   TCcluster getCl(int i){
-	if(i<nCl()){
-	  return cl.at(i);
-	}
-	else{
-	  std::cerr << "TCtrack::getCl(): id " << i 
-				<< " is out of range ->exc" << std::endl;
-	  std::string exc("TCtrack::getCl(): id out of range");
-	  throw exc;
-	}
+    if(i<nCl()){
+      return cl.at(i);
+    }
+    else{
+      std::cerr << "TCtrack::getCl(): id " << i 
+                << " is out of range ->exc" << std::endl;
+      std::string exc("TCtrack::getCl(): id out of range");
+      throw exc;
+    }
   }
 
   double getThX(){

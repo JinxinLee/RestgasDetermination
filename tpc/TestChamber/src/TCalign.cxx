@@ -46,10 +46,10 @@ TVector3 TCalign::UVWtoXYZ(int id,TVector3 uvw){
 std::vector<int> TCalign::getLoadedIDs(){
     std::vector<int> ids;
 
-    if(P.empty()==true){
+    if(Theta.empty()==true){
 	return ids;
     }
-    for(std::map<int, double*>::const_iterator it = P.begin(); it != P.end(); ++it)
+    for(std::map<int, double*>::const_iterator it = Theta.begin(); it != Theta.end(); ++it)
     {
 	ids.push_back(it->first);
 	//std::cout<<"id map: "<<it->first<<std::endl;
