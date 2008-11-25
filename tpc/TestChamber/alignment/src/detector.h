@@ -53,11 +53,11 @@ public:
     inline double  getY() const {return y;};
     inline int  getId() const {return id;};
 
-    void setErrors(double dx_,double dy_,double dz_, double dT_){
-	dx=dx_;
-	dy=dy_;
-	dz=dz_;
-	dT=dT_;
+    void setErrors(double x_act,double y_act,double z_act, double T_act){
+      dx=x_act-x;
+      dy=y_act-y;
+      dz=z_act-z;
+      dT=T_act-T;
     }
     void setErrors(const Detector* const det);
 

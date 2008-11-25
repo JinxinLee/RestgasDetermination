@@ -70,7 +70,6 @@ void Detector::setErrors(const Detector* const det){
       cout<<"ID:"<<id<<" dz "<<dx<<endl;
     }
 }
-
 pair<double,double> Detector::getHitU(Track& track){
   pair<double,double> trackxy = track.intersect(z+dz);//monte carlo truth
   pair<double,double> trackxy_rec = track.intersect(z);//reconstructed

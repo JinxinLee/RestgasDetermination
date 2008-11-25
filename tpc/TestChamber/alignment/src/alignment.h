@@ -10,10 +10,12 @@
 #include "defs.h"
 #include <string>
 #include <TProfile.h>
+#include "../../src/TCtrack.h"
 
 class Alignment{
     std::vector<Detector*> detectors;
-    std::vector<Track> tracks;
+    std::vector<Track> tracks_sim;
+    std::vector<TCtrack> tracks_real;
     std::vector<TH1D*> hists_det;
     std::vector<TProfile*> profiles_det;
     /*

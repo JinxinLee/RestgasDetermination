@@ -35,15 +35,22 @@ int main(int argc, const char* argv[]){
   // float derlc[NPARTRCK]; //!< vector of local derivatives
   //float par[NGLB];       //!< vector of parameters
 
-  if(argc !=3){
-    cerr<<"Number of arguments is not 2. Args: infile outfile"<<endl;
+  if(argc !=4){
+    cerr<<"Number of arguments is not 3. Args: infile outfile sim"<<endl;
     throw;
   }
   string infile(argv[1]);
   string outfile(argv[2]);
-
+  string sim_string(argv[3]);
+  bool sim;
+  if(sim_string=="true"){
+    sim=true;
+  }else{
+    sim=false;
+  }
+  cout<<"sim "<<sim<<endl;
   cout<<"alginment creation main"<<endl;
-  Alignment* al = new Alignment(true,infile,outfile);
+  Alignment* al = new Alignment(sim,infile,outfile);
   cout<<"alginment creation main after "<<endl;
   
   al->doFit();
