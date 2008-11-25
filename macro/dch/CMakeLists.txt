@@ -1,0 +1,9 @@
+GENERATE_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/dch/QAmacro1.C)
+add_test(run_dch_qamacro1 ${PANDAROOT_BINARY_DIR}/macro/run/dch/QAmacro1.sh)
+SET_TESTS_PROPERTIES(run_dch_qamacro1 PROPERTIES TIMEOUT "100")
+SET_TESTS_PROPERTIES(run_dch_qamacro1 PROPERTIES PASS_REGULAR_EXPRESSION "TestPassed;All ok")
+
+GENERATE_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/dch/QAmacro2.C)
+add_test(run_dch_qamacro2 ${PANDAROOT_BINARY_DIR}/macro/run/dch/QAmacro2.sh)
+SET_TESTS_PROPERTIES(run_dch_qamacro2 PROPERTIES TIMEOUT "100")
+SET_TESTS_PROPERTIES(run_dch_qamacro2 PROPERTIES PASS_REGULAR_EXPRESSION "TestPassed;All ok")
