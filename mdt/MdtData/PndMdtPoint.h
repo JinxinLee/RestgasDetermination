@@ -43,7 +43,7 @@ class PndMdtPoint : public CbmMCPoint
 
   /** Accessors **/
   inline Int_t    GetEventID()             const { return fEventID;                        };
-  inline Int_t    GetTrackID()             const { return fTrackID;                        }; 
+//  inline Int_t    GetTrackID()             const { return fTrackID;                        }; 
   inline Int_t    GetTrackParentID()       const { return fTrackParentID;                  }; 
   inline Int_t    GetDetectorID()          const { return fDetectorID;                     };
   inline Int_t    GetModule()              const { return fDetectorID<50 ? 1 : 2;          };
@@ -66,7 +66,7 @@ class PndMdtPoint : public CbmMCPoint
    
   /** Modifiers **/
   inline void SetEventID(Int_t id)               { fEventID       = id;                               };
-  inline void SetTrackID(Int_t id)               { fTrackID       = id;                               }; 
+//  inline void SetTrackID(Int_t id)               { fTrackID       = id;                               }; 
   inline void SetTrackParentID(Int_t id)         { fTrackParentID = id;                               }; 
   inline void SetDetectorID(Int_t id)            { fDetectorID    = id;                               }; 
   inline void SetPDG(Int_t id)                   { fPDG           = id;                               };
@@ -87,7 +87,7 @@ class PndMdtPoint : public CbmMCPoint
 
 protected:
   Int_t fEventID;		
-  Int_t fTrackID;		
+//  Int_t fTrackID;		
   Int_t fTrackParentID;		
   Int_t fPDG;			
   TLorentzVector fPos;          
