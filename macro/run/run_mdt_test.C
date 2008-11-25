@@ -46,10 +46,9 @@
       CbmMCTrack* track = (CbmMCTrack*)fMC->At(point->GetTrackID());
       Pid1=point->GetPDG();
       Pid2= track->GetPdgCode();
-      if((Pid1-Pid2)!=0) cout<< " - "<< i <<" (Point ) Pid "<< Pid1 << "  track Pid  "<<  Pid2 <<
-endl;
+      if((Pid1-Pid2)!=0) {cout<< " - "<< i <<" (Point ) Pid "<< Pid1 << "  track Pid  "<<  Pid2 << endl;
       Test=kFALSE;
-
+      }
     } // end loop trk
   
   
