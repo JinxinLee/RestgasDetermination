@@ -1,4 +1,6 @@
 {
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  rootlogon();
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
   basiclibs();
 
@@ -77,6 +79,8 @@
   Int_t nEvents = 100;
   fRun->Run(nEvents);
    
+  cout << " Test passed" << endl;
+  cout << " All ok " << endl;
   exit(0); 
 }  
   

@@ -1,4 +1,7 @@
 {
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  rootlogon();
+
   TString base="tstQA";
   TString inFile = base+".root";
   TString parFile = base+".param.root";
@@ -93,11 +96,15 @@
   cout<<"~~~~~                         Summary of QA:                         ~~~~"<<endl;
   cout<<"~~~~~                                                                ~~~~"<<endl;
   cout<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"<<endl;
+
+  Bool_t fTest=kTRUE;
+
   if(TMath::Abs(pMeanPrefitter)<5. && pRmsPrefitter<10.){
     cout<<"\n PreFitter: - ACCEPTABLE PERFORMANCE "<<endl;
           }
   else{
     cout<<" \n PreFitter: - SOMETHING WENT WRONG "<<endl;
+    fTest=kFALSE;
   }
   cout<<"\n PreFitter: Mean of pull P = "<<pMeanPrefitter<<" % "<<endl;
   cout<<" PreFitter: RMS  of pull P = "<<pRmsPrefitter<<" % (momentum resolution)"<<endl;
@@ -108,12 +115,21 @@
   }
   else{
     cout<<" \nKalman: - SOMETHING WENT WRONG "<<endl;
+    fTest=kFALSE;
   }
   cout<<" \n Kalman:    Mean of pull P = "<<pMeanKalman<<" %"<<endl;
   cout<<" Kalman:    RMS  of pull P = "<<pRmsKalman<<" % (momentum resolution)"<<endl;
   cout<<" Kalman:    Reconstruction efficiency so far = "<<pullpKalman->GetEntries()/nofTracks<<endl<<endl;
 
   cout<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n\n"<<endl;
+
+  if (fTest){
+    cout << " Test passed" << endl;
+    cout << " All ok " << endl;  
+  }else{
+    cout << " Test Failed" << endl;
+    cout << " Not Ok " << endl;         
+  }
   
   exit(0);
 }
