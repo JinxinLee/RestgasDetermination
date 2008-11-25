@@ -7,6 +7,7 @@
  * Version 1.0 beta1.                    *
  * ***************************************
  */
+#pragma once
 #ifndef PndKnnClassify_H
 #define PndKnnClassify_H
 
@@ -36,11 +37,25 @@ typedef multi_array<float,2> array2dfloat;
 class DistObject{
 
  public:
-  
+  //Constructors    
  DistObject(): m_cls(""), m_dist(0.0){};
  DistObject(float d, std::string c): m_cls(c), m_dist(d){};
-  ~DistObject(){};
   
+  //Destructor
+  ~DistObject(){};
+
+  //Operators
+  inline bool operator < (const DistObject &other)const
+  {
+    return (m_dist < other.m_dist);
+  }
+  
+  inline bool operator>(const DistObject &other)const
+  {
+    return (m_dist > other.m_dist);
+  }
+  
+  //Local members.  
   std::string m_cls;// Class name
   float       m_dist;//Computed distance
 };
@@ -95,4 +110,10 @@ class PndKnnClassify{
   //Pairs to hold the number of available examples per calss
   std::map< std::string, int > m_perClassExamples;
 };
+
+/* Function used for sorting the distances container */
+inline bool LessFunct(const DistObject& p1, const DistObject& p2)
+{  
+  return (p1.m_dist < p2.m_dist);
+}
 #endif

@@ -3,7 +3,8 @@
 
 #FLAGSMACHINE=-march=athlon64 -mfpmath=sse -msse2 -m64
 CXX       =  g++
-CCFLAGS   = -Wall -O3 -ffast-math ${FLAGSMACHINE} -fomit-frame-pointer
+CCFLAGS   = -Wall -Os -O3 -funroll-loops
+CCFLAGS  += -ffast-math ${FLAGSMACHINE} -fomit-frame-pointer
 
 INCLUDE   = $(shell root-config --cflags) -I./
 INCLUDE  += -I/opt/fairroot/fairsoft/basics/boost/include/

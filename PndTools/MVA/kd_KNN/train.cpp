@@ -7,7 +7,7 @@
 #include "TRandom3.h"
 
 int main(int argc, char** argv){
-  int totEvtNum = 100000;
+  int totEvtNum = 10000;
   
   std::vector<std::string> clas;
   std::vector<std::string> nam;

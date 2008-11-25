@@ -1,3 +1,4 @@
+#pragma once
 #ifndef __KDTREE2_HPP
 #define __KDTREE2_HPP
 

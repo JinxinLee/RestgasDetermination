@@ -5,7 +5,7 @@
 INCLUDE   = $(shell root-config --cflags)
 LIBS      = $(shell root-config --libs) 
 CXX       = g++
-CCFLAGS   = -Wall -Os -O3
+CCFLAGS   = -Wall -Os -O3 -funroll-loops
 
 # Define binary file name.
 BINS = PndKnnClassify PndKnnTrain 
@@ -21,4 +21,4 @@ clean:
 	rm -f $(BINS) *~
 
 cleanall:
-	rm -f $(BINS) *~ *.so *.d  *.pdf *.ps *.root
+	rm -f $(BINS) *~ *.root

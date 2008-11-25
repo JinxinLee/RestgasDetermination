@@ -1,3 +1,12 @@
+/* ***************************************
+ * KNN based Classifier.                 *
+ * Author: M.Babai@rug.nl                *
+ * LICENSE:                              *
+ * Version 1.0 beta1.                    *
+ * ***************************************
+ */
+
+#pragma once
 #ifndef PndKnnClassify_H
 #define PndKnnClassify_H
 

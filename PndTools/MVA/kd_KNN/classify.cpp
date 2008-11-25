@@ -66,18 +66,21 @@ int main(int argc, char** argv)
   
   TStopwatch timer1;
   timer1.Start();
-
-  //cls.Classify(evt,15000,res);
-  for(int a = 0; a < 1000; a++){
-    cls.Classify(evt,500,res);
-    //printResult(res);
-  }
   /*
-    cls.Classify(evt1,500,res);
+  cls.Classify(evt,1500,res);
+  printResult(res);
+  */
+  /*
+    for(int a = 0; a < 1000; a++){
+    cls.Classify(evt,500,res);
     printResult(res);
-    cls.Classify(evt2,500,res);
-    printResult(res);
-   */
+    }
+  */
+  cls.Classify(evt1,500,res);
+  printResult(res);
+  cls.Classify(evt2,500,res);
+  printResult(res);
+  
   
   timer1.Stop();
   rtime = timer1.RealTime();

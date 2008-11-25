@@ -5,6 +5,7 @@
  * Version 1.0 beta1.                   *
  * **************************************
  */
+#pragma once
 #ifndef PndKnnTrain_H
 #define PndKnnTrain_H
 
