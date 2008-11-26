@@ -1,0 +1,14 @@
+GENERATE_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/qa/emc/QAmacro_emc_1.C)
+add_test(qa_emc_macro1 ${PANDAROOT_BINARY_DIR}/macro/qa/emc/QAmacro_emc_1.sh)
+SET_TESTS_PROPERTIES(qa_emc_macro1 PROPERTIES TIMEOUT "100")
+SET_TESTS_PROPERTIES(qa_emc_macro1 PROPERTIES PASS_REGULAR_EXPRESSION "TestPassed;All ok")
+
+GENERATE_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/qa/emc/QAmacro_emc_2.C)
+add_test(qa_emc_macro2 ${PANDAROOT_BINARY_DIR}/macro/qa/emc/QAmacro_emc_2.sh)
+SET_TESTS_PROPERTIES(qa_emc_macro2 PROPERTIES TIMEOUT "100")
+SET_TESTS_PROPERTIES(qa_emc_macro2 PROPERTIES PASS_REGULAR_EXPRESSION "TestPassed;All ok")
+
+GENERATE_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/qa/emc/QAmacro_emc_3.C)
+add_test(qa_emc_macro3 ${PANDAROOT_BINARY_DIR}/macro/qa/emc/QAmacro_emc_3.sh)
+SET_TESTS_PROPERTIES(qa_emc_macro3 PROPERTIES TIMEOUT "100")
+SET_TESTS_PROPERTIES(qa_emc_macro3 PROPERTIES PASS_REGULAR_EXPRESSION "TestPassed;All ok")

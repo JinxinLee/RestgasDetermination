@@ -1,0 +1,158 @@
+{
+  // Macro loads a file after reconstruction and plots difference between initial direction of particle and angular position of cluster
+  
+	gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
+	basiclibs();
+	gSystem->Load("libGeoBase");
+	gSystem->Load("libParBase");
+	gSystem->Load("libBase");
+	gSystem->Load("libMCStack");
+	gSystem->Load("libField");
+	gSystem->Load("libGen");
+	gSystem->Load("libPassive");
+	// add the detector libraries you need
+	gSystem->Load("libEmc");	 
+	gSystem->Load("libGeom.so");
+	
+	TFile* f = new TFile("full_emc.root"); //file you want to analyse
+	TTree *t=(TTree *) f->Get("cbmsim") ;
+	TClonesArray* cluster_array=new TClonesArray("PndEmcCluster");
+	t->SetBranchAddress("EmcCluster",&cluster_array);
+
+	TFile* fsim = new TFile("sim_emc.root"); //file you want to analyse
+	TTree *tsim=(TTree *) fsim->Get("cbmsim") ;
+	PndEmcMapper *emcMap=PndEmcMapper::Instance(2);
+
+	TClonesArray* mctrack_array=new TClonesArray("CbmMCTrack");
+	tsim->SetBranchAddress("MCTrack",&mctrack_array);
+	
+	TVector3 photon_momentum;
+
+	double cluster_energy;
+	double cluster_theta, cluster_phi; //position of the cluster
+	double theta, phi; // angular position of the initial particle
+	double theta_diff, phi_diff;
+	int ndigi, npoint;
+	double max_energy=0;
+	
+	TH1F *h1= new TH1F("h1","Theta difference",200,-5.,5.);
+	TH1F *h2= new TH1F("h2","Phi difference",200,-5.,5.);
+	TH1F *h3= new TH1F("h3","Cluster energy",100,0.85,1.05);
+	TH2F *h2theta= new TH2F("h2theta","Theta difference",200,0.,180.,200,-5.,5.);
+	TH2F *h2phi= new TH2F("h2phi","Phi difference",200,0.,180.,200,-5.,5.);
+	TH1F *hE1= new TH1F("hE1","E1",200,0.,1.05);
+	TH1F *hE1E9= new TH1F("hE1E9","E1 / E9",200,0.,1.05);
+	TH1F *hE9E25= new TH1F("hE9E25","E9 / E25",200,0.,1.05);
+ 
+	// Cluster angular position
+	// Entrance point is determined by minimal time
+		
+	// Cluster energy
+	for (Int_t j=0; j< t->GetEntriesFast(); j++)
+	{
+		t->GetEntry(j);
+		for (Int_t i=0; i<cluster_array->GetEntriesFast(); i++)
+		{
+			PndEmcCluster *cluster=(PndEmcCluster*)cluster_array->At(i);
+			cluster_energy=cluster->energy();
+			if ((cluster->NumberOfDigis()>1)&&(cluster_energy>0.02))
+			h3->Fill(cluster_energy);
+			PndEmcClusterEnergySums* esum = (PndEmcClusterEnergySums*)cluster->Esums();
+			hE1->Fill(esum->E1());
+			hE1E9->Fill(esum->E1E9());
+			hE9E25->Fill(esum->E9E25());
+		}
+	}
+
+	for (Int_t j=0; j< t->GetEntriesFast(); j++)//t->GetEntriesFast()
+	{
+		t->GetEntry(j);
+		tsim->GetEntry(j);
+		
+		CbmMCTrack *mctrack=(CbmMCTrack *) mctrack_array->At(0);
+		photon_momentum=mctrack->GetMomentum();
+		theta=photon_momentum.Theta();
+		phi=photon_momentum.Phi();
+		
+	
+		// Loop over clusters
+		// If we have 1 initial particle and several cluster
+		// we can separate cluster from the first interaction by maximum energy
+		
+		for (Int_t i=0; i<cluster_array->GetEntriesFast(); i++)
+		{
+			PndEmcCluster *cluster=(PndEmcCluster*)cluster_array->At(i);
+			cluster_energy=cluster->energy();
+			if (cluster_energy>max_energy)
+			{
+				max_energy=cluster_energy;
+				TVector3 cluster_pos=cluster->where();
+				cluster_theta=cluster_pos.Theta();
+				cluster_phi=cluster_pos.Phi();
+			}
+						
+		}
+		max_energy=0;
+		
+		//cluster_theta-
+		theta_diff=(cluster_theta-theta)*180./TMath::Pi();
+		h1->Fill(theta_diff);
+		h2theta->Fill(theta*TMath::RadToDeg(),theta_diff);
+		//cluster_phi-
+		phi_diff=(cluster_phi-phi)*180./TMath::Pi();
+		h2->Fill(phi_diff);
+		h2phi->Fill(phi*TMath::RadToDeg(),phi_diff);
+		
+	}
+
+Bool_t fTest=kTRUE;
+
+Double_t thetaCheckMean=h1->GetMean();
+Double_t thetaCheckRMS=h1->GetRMS();
+
+if (TMath::Abs(thetaCheckMean)<0.1 && thetaCheckRMS<0.6 && thetaCheckRMS>0.2)
+{
+    cout<<"\n Theta Diff - ACCEPTABLE "<<endl;
+}
+else
+{
+    cout<<" \n Theta Diff - SOMETHING WENT WRONG "<<endl;
+    fTest=kFALSE;
+}
+
+Double_t phiCheckMean=h2->GetMean();
+Double_t phiCheckRMS=h2->GetRMS();
+
+if (TMath::Abs(phiCheckMean)<0.1 && phiCheckRMS<0.9 && phiCheckRMS>0.5)
+{
+    cout<<"\n Phi Diff - ACCEPTABLE "<<endl;
+}
+else
+{
+    cout<<" \n Phi Diff - SOMETHING WENT WRONG "<<endl;
+    fTest=kFALSE;
+}
+
+Double_t energyCheckMean=h3->GetMean();
+Double_t energyCheckRMS=h3->GetRMS();
+
+if (energyCheckMean<1.0 && TMath::Abs(1.0-energyCheckMean)<0.04 && energyCheckRMS<0.022 && energyCheckRMS>0.015)
+{
+    cout<<"\n Cluster Energy - ACCEPTABLE "<<endl;
+}
+else
+{
+    cout<<" \n Cluster Energy - SOMETHING WENT WRONG "<<endl;
+    fTest=kFALSE;
+}
+
+if (fTest){
+    cout << " Test passed" << endl;
+    cout << " All ok " << endl;  
+}else{
+    cout << " Test Failed" << endl;
+    cout << " Not Ok " << endl;         
+}
+
+}
+
