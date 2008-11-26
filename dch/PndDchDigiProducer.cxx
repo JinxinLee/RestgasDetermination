@@ -18,6 +18,7 @@
 #include "TGeoManager.h"
 #include "TGeoMatrix.h"
 #include "TVector3.h"
+#include "TSystem.h"
 
 #include <vector>
 
@@ -53,7 +54,13 @@ InitStatus PndDchDigiProducer::Init() {
   cout<<"Picking up the mapper...";
   fMapper     = PndDchMapper::Instance();
   cout<< fMapper <<"\n Picking up the drifter..."<<endl;
-  fDrifter    = PndDchDrifter::Instance("d2t_rtdb.dat",1.);
+
+  TString fDriftFile = gSystem->Getenv("VMCWORKDIR");
+  fDriftFile += "/macro/params/";
+  fDriftFile += "d2t_rtdb.dat";
+
+//  fDrifter    = PndDchDrifter::Instance("d2t_rtdb.dat",1.);
+  fDrifter    = PndDchDrifter::Instance(fDriftFile.Data(),1.);
   cout<<fDrifter<<endl;
 
 
