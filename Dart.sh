@@ -13,11 +13,6 @@
 #export LINUX_FLAVOUR=Etch64
 #export FAIRSOFT_VERSION=mar08
 ##################################################################
-export SIMPATH=
-export BUILDDIR=
-export SOURCEDIR=
-export LINUX_FLAVOUR=
-export FAIRSOFT_VERSION=
 ###################################################################
 
 if test  "x$SIMPATH" = "x" ; then
