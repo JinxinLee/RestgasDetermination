@@ -33,14 +33,17 @@ protected:
     
     // the params
     Char_t  fCharge;		// The electrical charge
-    Float_t fXposition,		// The origin in x
+    Float_t 
+		fXposition,		// The origin in x
 	    fYposition,		// The origin in y
-	    fZposition,		// The origin in z
+		fZposition;		// The origin in z
+	Double_t
 	    fXmomentum,		// The momentum in x
 	    fYmomentum,		// The momentum in y
 	    fZmomentum,		// The momentum in z
-	    fEnergy,		// The total energy
-	    fErrP7[MATRIXSIZE],	// The symmetric 7*7 error matrix
+		fEnergy;		// The total energy
+	Float_t 
+		fErrP7[MATRIXSIZE],	// The symmetric 7*7 error matrix
 	    fParams[5],		// The helix fit parameters
 	    fCov[15];		// The helix error matrix
     
@@ -84,8 +87,8 @@ public:
     // modifiers
     void SetCharge( Double_t charge ) { fCharge = (Char_t) charge; }
     void SetMass( Double_t mass );
-    void SetEnergy( Double_t energy ) { fEnergy = (Float_t) energy; }
-    void SetE( Double_t energy ) { fEnergy = (Float_t) energy; }
+    void SetEnergy( Double_t energy ) { fEnergy =  energy; }
+    void SetE( Double_t energy ) { fEnergy = energy; }
     void SetMassAndEnergy( Double_t mass, Double_t energy );
     void SetPosition( const TVector3& pos );
     void SetPos( const TVector3& pos ) { SetPosition(pos); }

@@ -77,7 +77,7 @@ PndMicroCandidate::PndMicroCandidate() :
     for (i=0; i<15;i++) fCov[i] = 0;
 }
 
-PndMicroCandidate::PndMicroCandidate(Int_t charge, TVector3& pos, TLorentzVector& p4, TMatrixD& cov7 ) :
+PndMicroCandidate::PndMicroCandidate(Int_t charge, TVector3 &pos, TLorentzVector &p4, TMatrixD &cov7 ) :
 	fLocked(false),
     fCharge(charge),		
     fFirstHitX(0),		
@@ -133,7 +133,7 @@ PndMicroCandidate::PndMicroCandidate(Int_t charge, TVector3& pos, TLorentzVector
 	SetCov7(cov7);
 }
 
-PndMicroCandidate::PndMicroCandidate(Int_t charge, TVector3& pos, TLorentzVector& p4) :
+PndMicroCandidate::PndMicroCandidate(Int_t charge, TVector3 &pos, TLorentzVector &p4) :
 	fLocked(false),
     fCharge(charge),		
     fFirstHitX(0),		
@@ -185,8 +185,8 @@ PndMicroCandidate::PndMicroCandidate(Int_t charge, TVector3& pos, TLorentzVector
     for (i=0; i<5;i++) fParams[i] = 0;
     for (i=0; i<15;i++) fCov[i] = 0;
 	
-	SetPosition(pos);
-	SetLorentzVector(p4);
+    SetPosition(pos);
+    SetLorentzVector(p4);
 }
 
 	
@@ -239,7 +239,7 @@ TMatrixD& PndMicroCandidate::P4Cov() const
     return covP4;
 }
 
-void PndMicroCandidate::SetLorentzVector(TLorentzVector p4)
+void PndMicroCandidate::SetLorentzVector(TLorentzVector &p4)
 {
     fXmomentum = p4.X();
     fYmomentum = p4.Y();
@@ -247,7 +247,7 @@ void PndMicroCandidate::SetLorentzVector(TLorentzVector p4)
     fEnergy    = p4.T();	
 }
 
-void PndMicroCandidate::SetCov7(const TMatrixD& cov7 )
+void PndMicroCandidate::SetCov7(const TMatrixD &cov7 )
 {
     // position error
     
@@ -268,7 +268,7 @@ void PndMicroCandidate::SetCov7(const TMatrixD& cov7 )
     fErrP7[27] = cov7(6,6);
 }
 
-void PndMicroCandidate::SetP4Cov(const TMatrixD& covP4 )
+void PndMicroCandidate::SetP4Cov(const TMatrixD &covP4 )
 {
     // position error
     

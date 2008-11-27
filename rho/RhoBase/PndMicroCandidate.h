@@ -31,8 +31,8 @@ class PndMicroCandidate : public VAbsMicroCandidate
   public:
 
     PndMicroCandidate();
-    PndMicroCandidate(Int_t charge, TVector3& pos, TLorentzVector& p4, TMatrixD& cov7 );
-    PndMicroCandidate(Int_t charge, TVector3& pos, TLorentzVector& p4);
+    PndMicroCandidate(Int_t charge, TVector3 &pos, TLorentzVector &p4, TMatrixD &cov7 );
+    PndMicroCandidate(Int_t charge, TVector3 &pos, TLorentzVector &p4);
 	
     ~PndMicroCandidate();
 
@@ -142,13 +142,13 @@ class PndMicroCandidate : public VAbsMicroCandidate
     void	SetPosition(TVector3 &pos) { fXposition=pos.X();fYposition=pos.Y();fZposition=pos.Z(); }
     void	SetMomentum(TVector3 &mom) { fXmomentum=mom.X();fYmomentum=mom.Y();fZmomentum=mom.Z(); }
 	void	SetEnergy(Double_t en) {fEnergy=(Float_t) en;}
-	void	SetLorentzVector(TLorentzVector p4);
+	void	SetLorentzVector(TLorentzVector &p4);
     
 	void	SetFirstHit(TVector3 &pos) { fFirstHitX=pos.X();fFirstHitY=pos.Y();fFirstHitZ=pos.Z(); }
 	void	SetLastHit(TVector3 &pos) { fLastHitX=pos.X();fLastHitY=pos.Y();fLastHitZ=pos.Z(); }
     
-	void	SetCov7(const TMatrixD& cov7 );
-	void	SetP4Cov(const TMatrixD& covP4 );
+	void	SetCov7(const TMatrixD &cov7 );
+	void	SetP4Cov(const TMatrixD &covP4 );
     void	SetMcIndex(int idx) {fMcIndex=idx; }
 	
 	// ************************
