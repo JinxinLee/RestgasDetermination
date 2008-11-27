@@ -110,7 +110,7 @@ Bool_t fTest=kTRUE;
 Double_t thetaCheckMean=h1->GetMean();
 Double_t thetaCheckRMS=h1->GetRMS();
 
-if (TMath::Abs(thetaCheckMean)<0.1 && thetaCheckRMS<0.6 && thetaCheckRMS>0.2)
+if (TMath::Abs(thetaCheckMean)<0.1 && thetaCheckRMS<0.7 && thetaCheckRMS>0.1)
 {
     cout<<"\n Theta Diff - ACCEPTABLE "<<endl;
 }
@@ -125,7 +125,7 @@ else
 Double_t phiCheckMean=h2->GetMean();
 Double_t phiCheckRMS=h2->GetRMS();
 
-if (TMath::Abs(phiCheckMean)<0.1 && phiCheckRMS<0.9 && phiCheckRMS>0.5)
+if (TMath::Abs(phiCheckMean)<0.1 && phiCheckRMS<1.0 && phiCheckRMS>0.4)
 {
     cout<<"\n Phi Diff - ACCEPTABLE "<<endl;
 }
@@ -140,7 +140,7 @@ else
 Double_t energyCheckMean=h3->GetMean();
 Double_t energyCheckRMS=h3->GetRMS();
 
-if (energyCheckMean<1.0 && TMath::Abs(1.0-energyCheckMean)<0.04 && energyCheckRMS<0.022 && energyCheckRMS>0.015)
+if (energyCheckMean<1.0 && TMath::Abs(1.0-energyCheckMean)<0.06 && energyCheckRMS<0.03 && energyCheckRMS>0.01)
 {
     cout<<"\n Cluster Energy - ACCEPTABLE "<<endl;
 }
