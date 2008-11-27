@@ -28,7 +28,6 @@ ${CMAKE_SOURCE_DIR}/rho/RhoMath
 ${CMAKE_SOURCE_DIR}/rho/RhoFitter
 ${CMAKE_SOURCE_DIR}/myobj
 ${CMAKE_SOURCE_DIR}/geane
-#/usr/lib/gcc/i486-linux-gnu/4.2/include
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -40,6 +39,7 @@ ${ROOT_LIBRARY_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 set(Gpid_SRCS
+PndGpidTask.cxx
 PndPidCand.cxx
 PndGeaneTrTpcTof.cxx
 PndGeaneTrTpcIdealTof.cxx
@@ -47,10 +47,6 @@ PndGpidCollTask.cxx
 PndMultiClassMVA.cxx
 PndMakeTrainData.cxx
 PndMakeTrainDataLhe.cxx
-
-Event.cxx
-EvtGenTask.cxx
-PndGpidTask.cxx
 )
 CHANGE_FILE_EXTENSION(*.cxx *.h Gpid_HEADERS "${Gpid_SRCS}")
 

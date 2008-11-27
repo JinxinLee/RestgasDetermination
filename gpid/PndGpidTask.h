@@ -16,8 +16,8 @@
  *                  S.Vanniarajan  01-08-08
  */
 
-#ifndef PNDGPIDTASK_HH
-#define PNDGPIDTASK_HH 1 
+#ifndef PNDGPIDTASK_H
+#define PNDGPIDTASK_H
 
 #include "CbmTask.h"
 #include "PndLhePidTrack.h"
