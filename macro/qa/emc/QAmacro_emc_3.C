@@ -117,6 +117,8 @@ if (TMath::Abs(thetaCheckMean)<0.1 && thetaCheckRMS<0.6 && thetaCheckRMS>0.2)
 else
 {
     cout<<" \n Theta Diff - SOMETHING WENT WRONG "<<endl;
+    cout<<"    Theta mean = " << energyCheckMean << endl;
+    cout<<"    Theta RMS  = " << energyCheckRMS << endl;
     fTest=kFALSE;
 }
 
@@ -130,6 +132,8 @@ if (TMath::Abs(phiCheckMean)<0.1 && phiCheckRMS<0.9 && phiCheckRMS>0.5)
 else
 {
     cout<<" \n Phi Diff - SOMETHING WENT WRONG "<<endl;
+    cout<<"    Phi mean = " << phiCheckMean << endl;
+    cout<<"    Phi RMS  = " << phiCheckRMS << endl;
     fTest=kFALSE;
 }
 
@@ -143,6 +147,8 @@ if (energyCheckMean<1.0 && TMath::Abs(1.0-energyCheckMean)<0.04 && energyCheckRM
 else
 {
     cout<<" \n Cluster Energy - SOMETHING WENT WRONG "<<endl;
+    cout<<"    Energy mean = " << energyCheckMean << endl;
+    cout<<"    Energy RMS  = " << energyCheckRMS << endl;
     fTest=kFALSE;
 }
 
