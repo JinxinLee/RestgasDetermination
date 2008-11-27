@@ -13,11 +13,11 @@
 #export LINUX_FLAVOUR=Etch64
 #export FAIRSOFT_VERSION=mar08
 ##################################################################
-export SIMPATH=
-export BUILDDIR=
-export SOURCEDIR=
-export LINUX_FLAVOUR=
-export FAIRSOFT_VERSION=
+export SIMPATH=/opt/exp_soft/panda/fairroot/fairsoft
+export BUILDDIR=/opt/exp_soft/panda/fairroot/pandaroot/buildDash
+export SOURCEDIR=/opt/exp_soft/panda/fairroot/pandaroot/trunk
+export LINUX_FLAVOUR=Suse-Enterprise
+export FAIRSOFT_VERSION=July08
 ###################################################################
 
 if test  "x$SIMPATH" = "x" ; then
