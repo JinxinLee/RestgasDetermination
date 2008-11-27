@@ -1,0 +1,4 @@
+GENERATE_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/qa/mvd/QAmacro_mvd_1.C)
+add_test(qa_mvd_macro1 ${PANDAROOT_BINARY_DIR}/macro/qa/mvd/QAmacro_mvd_1.sh)
+SET_TESTS_PROPERTIES(qa_mvd_macro1 PROPERTIES TIMEOUT "100")
+SET_TESTS_PROPERTIES(qa_mvd_macro1 PROPERTIES PASS_REGULAR_EXPRESSION "TestPassed;All ok")
