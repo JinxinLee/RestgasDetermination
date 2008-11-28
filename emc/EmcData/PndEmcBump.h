@@ -46,6 +46,8 @@ public:
 	virtual Double_t energy() const;
 	virtual Int_t NumberOfDigis() const;
 	virtual Double_t RnumberOfDigis() const;
+	
+	Double_t GetEnergyCorrected() const;
 
 protected:
   // Data members
