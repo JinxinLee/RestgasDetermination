@@ -48,8 +48,8 @@ void full_emc(Char_t InputSimFile[]="sim_emc.root", Char_t OutputDatabaseFile[] 
   
   // -----  Parameter database   --------------------------------------------
 	TString emcDigiFile = gSystem->Getenv("VMCWORKDIR");
-	emcDigiFile += "/emc/";
-	emcDigiFile += digiFile;
+        emcDigiFile += "/macro/params/";
+        emcDigiFile += digiFile;
 
 	CbmRuntimeDb* rtdb = fRun->GetRuntimeDb();
         CbmParRootFileIo* parInput1 = new CbmParRootFileIo();
