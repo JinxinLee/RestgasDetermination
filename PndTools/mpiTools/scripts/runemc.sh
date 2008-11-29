@@ -19,17 +19,17 @@
 # For this run the config.sh in the build directory of PandaRoot.
 # Please set the path according to your setup
 #
-PANDAROOTHOME=/opt/exp_soft/panda/fairroot/pandaroot/trunk/
+PANDAROOTHOME=/opt/exp_soft/panda/fairroot/pandaroot/nov08/
 PANDAROOTBUILD=/opt/exp_soft/panda/fairroot/pandaroot/build/
 #
 source $PANDAROOTBUILD/config.sh > logfile
 #
 # Copy ROOT scripts to local path
 #
-cp $HOME/macros/emc/sim_emc.C .
-cp $HOME/macros/emc/full_emc.C .
-cp $HOME/macros/emc/reco_analys.C .
-cp $HOME/macros/emc/rootlogon.C .
+cp $HOME/johan/macros/emc/sim_emc.C .
+cp $HOME/johan/macros/emc/full_emc.C .
+cp $HOME/johan/macros/emc/reco_analys.C .
+cp $HOME/johan/macros/emc/rootlogon.C .
 #
 # Run the scripts
 #
@@ -67,6 +67,10 @@ if [ -z "$error"  ] ; then
   rm -f sim_emc.root
   rm -f full_emc.root
   rm -f simparams.root
+  rm -f *.C
+  rm -f *.dat
+  rm -f *.so
+  rm -f *.sh
 
   exit 0
 fi

@@ -89,8 +89,8 @@ void full_emc(Char_t InputSimFile[]="sim_emc.root", Char_t OutputDatabaseFile[] 
   PndEmcHdrFiller* emcHdrFiller = new PndEmcHdrFiller();
   fRun->AddTask(emcHdrFiller); // ECM header
 
-  PndEmcMakeBump* emcMakeBump= new PndEmcMakeBump(iVerbose);
-  fRun->AddTask(emcMakeBump);
+  //  PndEmcMakeBump* emcMakeBump= new PndEmcMakeBump(iVerbose);
+  // fRun->AddTask(emcMakeBump);
 
   // -----   Intialise and run   --------------------------------------------
   cout << "fRun->Init()" << endl;

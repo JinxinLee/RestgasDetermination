@@ -21,12 +21,12 @@ ls -c > inputstuff
 # For this run the config.sh in the build directory of PandaRoot.
 # Please set the path according to your setup
 #
-PANDAROOTHOME=$HOME/fairroot/pandaroot
-PANDAROOTBUILD=$HOME/fairroot/build
+PANDAROOTHOME=/opt/exp_soft/panda/fairroot/pandaroot/nov08
+PANDAROOTBUILD=/opt/exp_soft/panda/fairroot/pandaroot/build
 #
 source $PANDAROOTBUILD/config.sh > logfile
 #
-# Copy hadd.C root-script
+# Copy treeMerge.C root-script
 #
 cp $PANDAROOTHOME/PndTools/mpiTools/macros/tools/treeMerge.C .
 #
@@ -55,6 +55,11 @@ done
 # Success
 #
 if [ -z "$error"  ] ; then 
+
+  rm -f inputstuff
+  rm -f *.C
+  rm -f *.sh
+
   exit 0
 fi
 #

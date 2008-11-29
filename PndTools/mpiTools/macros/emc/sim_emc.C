@@ -50,8 +50,9 @@ void sim_emc(Int_t nEvents = 10, Char_t part[]="e-", Double_t momentum_min = 1.0
   //Magnet->SetGeometryFileName("magnet.geo");
   //fRun->AddModule(Magnet);
 
-  CbmDetector *Emc = new PndEmc("EMC",kTRUE);
-  Emc->SetGeometryFileName("emc_module12345.dat"); 
+  PndEmc *Emc = new PndEmc("EMC",kTRUE);
+  //Emc->SetGeometryFileName("emc_module12345.dat"); 
+  Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root");
   fRun->AddModule(Emc);
   
   // Create and Set Event Generator
