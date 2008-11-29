@@ -35,19 +35,20 @@ cp $HOME/macros/emc/rootlogon.C .
 #
 root -l -b -q "sim_emc.C($2,\"$3\",$4,$5,$6,$7,$8,$9,\"sim_emc.root\",\"simparams.root\",\"${10}\",$1)" >> logfile 2>&1
 root -l -b -q "full_emc.C(\"sim_emc.root\",\"simparams.root\",\"full_emc.root\")" >> logfile 2>&1
-root -l -b -q "reco_analys.C+(\"sim_emc.root\",\"full_emc.root\",\"output.root\")" >> logfile 2>&1
+root -l -b -q "reco_analys.C+(\"sim_emc.root\",\"full_emc.root\",\"output_$3_${10}.root\")" >> logfile 2>&1
 
 cnt=1
 for FILENAME in "`find . -name "sim_emc.root_*" -print`" ; do
  if [ -n "$FILENAME" ]; then
     root -l -b -q "full_emc.C(\"$FILENAME\",\"simparams.root\",\"full_emc.root_$cnt\")" >> logfile 2>&1
+    root -l -b -q "reco_analys.C+(\"$FILENAME\",\"full_emc.root_$cnt\",\"output_$3_${10}.root_$cnt\")" >> logfile 2>&1
     let cnt=cnt+1
  fi
 done
 #
 # Validate the output and return the appropiate value
 #
-for ofile in "logfile" "sim_emc.C" "full_emc.C" "reco_analys.C" "rootlogon.C" "sim_emc.root" "simparams.root" "full_emc.root" "output.root" ; do  
+for ofile in "logfile" "sim_emc.C" "full_emc.C" "reco_analys.C" "rootlogon.C" "sim_emc.root" "simparams.root" "full_emc.root" "output_$3_${10}.root" ; do  
   [ -f $ofile ]  || error="$error $ofile doesn't exist,";
 done
 
