@@ -14,6 +14,7 @@ int main(int argc, char* argv[]) {
 
   Mapping m;
   m.read(infile.c_str());
+  m.modifications();
   m.write(outfile.c_str());
   
   double x,y;

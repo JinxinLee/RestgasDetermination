@@ -25,16 +25,14 @@ void Mapping::read(std::string filename){
     istr >> y;
     istr >> conn;
     istr >> pin;
-    if((pin % 2)==0) pin -= 1;
-    else pin += 1;
-    Channel_t chan(name,x,-1.0*y,conn,pin);
+    Channel_t chan(name,x,y,conn,pin);
     //chan.print();
     channels.push_back(chan);
   }
 
   for(int i=0;i<6;++i){
     for(int j=0;j<256;++j){
-      c[i][j]=NULL;
+      c[i][j]=new Channel_t("dreggn",-60.,-60.,i,j+PINOFFSET);
     }
   }
 
@@ -58,7 +56,9 @@ void Mapping::write(std::string filename){
       //std::cout << i << " " << j << std::endl;
       //std::cout << c[i][j] << std::endl;
       if(c[i][j]!=NULL){
-	output << c[i][j]->print() << std::endl;;
+	if(c[i][j]->name!="dreggn"){
+	  output << c[i][j]->print() << std::endl;;
+	}
 	//c[i][j]->print();
       }
     }

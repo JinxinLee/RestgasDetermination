@@ -28,8 +28,9 @@ class Channel_t{
 class Mapping{
  private:
   Channel_t* c[6][256];
-  static const unsigned int PINOFFSET = 45;
+
  public:
+  static const unsigned int PINOFFSET = 45;
   void read(std::string);
   void write(std::string);
   Channel_t* getChannel(unsigned int iConn,unsigned int iPin){
@@ -41,6 +42,15 @@ class Mapping{
     assert(conn<6);
     x = c[conn][pin-PINOFFSET]->x;
     y = c[conn][pin-PINOFFSET]->y;
+  }
+  void modifications(){
+    for(int i=0;i<6;++i){
+      for(int j=0;j<256;++j){
+	if((c[i][j]->pin % 2)==0) c[i][j]->pin-=1;
+	else  c[i][j]->pin+=1;
+	c[i][j]->y*=-1.;
+      }
+    }
   }
 };
 
