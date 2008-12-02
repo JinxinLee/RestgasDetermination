@@ -430,8 +430,17 @@ void PndMicroWriter::Exec(Option_t* opt)
   TEventShape shape(l);
   eventInfo->SetEventShape(shape);
   
+  
+  // some cleanup 
+  
   TFactory::Instance()->Reset();
   
+
+  if (fTrArray) fTrArray->Delete();
+  if (fLheTrArray) fLheTrArray->Delete();
+  if (fEmcArray) fEmcArray->Delete();
+  if (fMCTrack) fMCTrack->Delete();
+ 
 }
 // -------------------------------------------------------------------------
 
