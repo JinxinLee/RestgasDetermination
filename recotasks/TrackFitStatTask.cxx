@@ -39,6 +39,9 @@
 #include "TDatabasePDG.h"
 #include "TVector2.h"
 #include "MCTruthAnnex.h"
+#include "LSLTrackRep.h"
+#include "GeaneTrackRep.h"
+#include "PndTpcSPHit.h"
 
 using std::cout;
 using std::endl;
@@ -226,41 +229,68 @@ TrackFitStatTask::Exec(Option_t* opt)
 		continue;
 	}
 	
+	//decide in which trackrep we are in
+	AbsTrackRep* trackRep = track->getTrackRep(0);
+	
+	//LSL rep
+	bool LSLREP = dynamic_cast<LSLTrackRep*>(trackRep);
+	bool GEANEREP = dynamic_cast<GeaneTrackRep*>(trackRep);
+
 	if(_doRes){
-			// fill tpc residuals
-			std::vector<double> res;
-		
-			track->getResiduals(2,0,0,res);
-			stat->fillPndTpcResX(res);
-			res.clear();
-			track->getResiduals(2,1,0,res);
-			stat->fillPndTpcResY(res);
-			
-			
-			std::vector<unsigned int> clustersize;
-			std::vector<double> clusteramp;
-			unsigned int nh=track->getNumHits();
-			for(unsigned int ih=0; ih<nh; ++ih){ //loop over hits
-				AbsRecoHit* abshit=track->getHit(ih);
-				PndTpcPlanarRecoHit* tpchit=dynamic_cast<PndTpcPlanarRecoHit*>(abshit);
-				if(tpchit!=NULL){
-					clustersize.push_back(tpchit->cluster_size());
-					clusteramp.push_back(tpchit->cluster_amp());
-				}
-			}
-			if(clustersize.size()==0)std::cout<<"No TPCHits found!"<<std::endl;
-			stat->fillPndTpcClusterSize(clustersize);
-			stat->fillPndTpcClusterAmp(clusteramp);
-	}    
+	  // fill tpc residuals
+	  std::vector<double> res;
+	  
+	  track->getResiduals(2,0,0,res);
+	  stat->fillPndTpcResX(res);
+	  res.clear();
+	  track->getResiduals(2,1,0,res);
+	  stat->fillPndTpcResY(res);
+	  
+	  
+	  std::vector<unsigned int> clustersize;
+	  std::vector<double> clusteramp;
+	  unsigned int nh=track->getNumHits();
+
+	  for(unsigned int ih=0; ih<nh; ++ih){ //loop over hits
+	    AbsRecoHit* abshit=track->getHit(ih);
+	    if(LSLREP) {
+	      PndTpcPlanarRecoHit* tpchit=dynamic_cast<PndTpcPlanarRecoHit*>(abshit);
+	       if(tpchit!=NULL){
+		 clustersize.push_back(tpchit->cluster_size());
+		 clusteramp.push_back(tpchit->cluster_amp());
+	       }
+	    }
+	    // if(GEANEREP) {
+// 	      PndTpcSPHit* tpchit=dynamic_cast<PndTpcSPHit*>(abshit);
+// 	       if(tpchit!=NULL){
+// 		 clustersize.push_back(tpchit->cluster_size());
+// 		 clusteramp.push_back(tpchit->cluster_amp());
+// 	       }
+// 	    }
+	  }
+	  if(clustersize.size()==0)std::cout<<"No TPCHits found!"<<std::endl;
+	  stat->fillPndTpcClusterSize(clustersize);
+	  stat->fillPndTpcClusterAmp(clusteramp);
+	}  
 	
+	double p, palt, pstart, q;
+	if(LSLREP){
+	  p=track->getMom().Mag();
+	  palt=1./fabs(track->getTrackRep(0)->getState()[4][0]);
+	  pstart=1./fabs(track->getTrackRep(0)->getStartState()[4][0]);
+	  q=track->getCharge();
 	
-	double p=track->getMom().Mag();
-	double palt=1./fabs(track->getTrackRep(0)->getState()[4][0]);
-	double pstart=1./fabs(track->getTrackRep(0)->getStartState()[4][0]);
-	double q=track->getCharge();
+	  std::cout<<"p="<<p<<"  q="<<q<<"  pstart="<<pstart<<std::endl;
+	}
+	if(GEANEREP){
+	  p=track->getMom().Mag();
+	  //palt=1./fabs(track->getTrackRep(0)->getState()[4][0]);
+	  //pstart=1./fabs(track->getTrackRep(0)->getStartState()[4][0]);
+	  pstart=1.2;
+	  q=track->getCharge();
 	
-	std::cout<<"p="<<p<<"  q="<<q<<"  pstart="<<pstart<<std::endl;
-	
+	  std::cout<<"p="<<p<<"  q="<<q<<"  pstart="<<pstart<<std::endl;
+	}
 	
 	stat->setp(p);
 	stat->setmom(track->getMom());

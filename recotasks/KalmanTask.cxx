@@ -31,6 +31,7 @@
 #include "Track.h"
 #include "PndTpcCluster.h"
 #include "PndTpcPlanarRecoHit.h"
+#include "PndTpcSPHit.h"
 
 #include "LSLTrackRep.h"
 #include "RecoHitFactory.h"
@@ -88,7 +89,7 @@ KalmanTask::Init()
      Error("KalmanTask::Init","PndTpcCluster array not found");
    }
    else{ 
-     _theRecoHitFactory->addProducer(2,new RecoHitProducer<PndTpcCluster,PndTpcPlanarRecoHit>(ar));
+     _theRecoHitFactory->addProducer(2,new RecoHitProducer<PndTpcCluster,PndTpcSPHit>(ar));
    }
  
 

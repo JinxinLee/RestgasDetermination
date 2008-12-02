@@ -129,7 +129,7 @@ PndTpcIdealTrackingTask::Exec(Option_t* opt)
   }
   
   // sort dir=false -> forward sorting
-  std::sort(cll.begin(),cll.end(),PndTpcClusterZ(false)); 
+  std::sort(cll.begin(),cll.end(),PndTpcClusterZ(true)); 
 
   // build trackcands
   std::map<unsigned int,TrackCand*> candlist;
@@ -158,6 +158,10 @@ PndTpcIdealTrackingTask::Exec(Option_t* opt)
   std::map<unsigned int,TrackCand*>::iterator candit=candlist.begin();
   while(candit!=candlist.end()){
     TrackCand* cand=candit->second;
+    if(cand->getNHits()<4){
+      ++candit;
+      continue;
+    }
     unsigned int trackid=candit->first;
     CbmMCTrack* mc=(CbmMCTrack*)_mcTrackArray->At(trackid);
     int pdg=mc->GetPdgCode();

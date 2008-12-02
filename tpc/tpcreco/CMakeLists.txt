@@ -60,6 +60,8 @@ PndTpcSimpleDxEvalPoint.cxx
 PndTpcDXCalculator.cxx
 PndTpcClusterTrack.cxx
 PndTpcTFSInfo.cxx
+PndTpcSPHit.cxx	
+
 )
 
 if(RULE_CHECKER_FOUND)

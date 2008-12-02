@@ -17,10 +17,10 @@
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 1;
 
-  Int_t nEvents=1000;
+  Int_t nEvents=500;
   
   // Input file (MC events)
-  TString inFile="/afs/e18/data/panda/MC/FAIRRoot/Sebastian/DEDXtest/test1.mc.root";
+  TString inFile="/home/felix/simulation/fairsoft/data/Pi_1.2GeV_20deg_withMVD/test1.mc.root";
   TString jobname="digi1";
 
   TString inDir=inFile(0,inFile.Last('/')+1);
@@ -112,8 +112,24 @@ std::cout<<"ParamOut: "<<paramOut<<std::endl;
 
     // -----    Digi Sequence  --------------------------------------------
   PndTpcClusterizerTask* tpcClusterizer = new PndTpcClusterizerTask();
-  //tpcClusterizer->SetPersistence();
+  tpcClusterizer->SetPersistence();
+  tpcClusterizer->SetMereChargeConversion();
   fRun->AddTask(tpcClusterizer);
+  
+
+  /**   use Alice Style MC    
+   				make one hit per collision with atom
+				use other straggling
+		WARNING:	
+   	    1. geant3 has to be used!
+   	    2. LOSS = 5 has to be set!
+	    3. DCUTE und DCUTM should be set to 10 keV.	
+	    4. For Digitaization: PndTpcClusterizerTask
+	    		tpcClusterizer->SetMereChargeConversion() has to be set!
+	    5. if you do not use this option make sure 2., 4. are not set!
+		:-(	
+	    6. SetMaxNStep should be set to a high value
+   */ 
  
   PndTpcDriftTask* tpcDrifter = new PndTpcDriftTask();
   tpcDrifter->SetPersistence();

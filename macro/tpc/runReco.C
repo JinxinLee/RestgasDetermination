@@ -7,6 +7,7 @@
   // ----  Load libraries   -------------------------------------------------
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
   basiclibs();
+  gSystem->Load("libgeant321");
   gSystem->Load("libGeoBase");
   gSystem->Load("libParBase");
   gSystem->Load("libBase");
@@ -14,22 +15,29 @@
   gSystem->Load("libField");
   gSystem->Load("libGen");
   gSystem->Load("libPassive");
+  gSystem->Load("libEmc");
+  gSystem->Load("libDrcProp");
+  gSystem->Load("libDrc");
+  gSystem->Load("libGen");
+  gSystem->Load("libPGen");
+  
+  gSystem->Load("libTrkBase");
+  gSystem->Load("libGeane");
   gSystem->Load("libgenfit");
+  gSystem->Load("libtrackrep");
   gSystem->Load("libtpc");
   gSystem->Load("libtpcreco");
-gSystem->Load("libTrkBase");
-gSystem->Load("libGeane");
-  gSystem->Load("libtrackrep");
   gSystem->Load("librecotasks");
-  
+ 
+  gSystem->Load("libMvd");
   
   TString PANDAMC=gSystem->Getenv("PANDAMC");
 
   // Input file (RAW events)
-  TString inFile="$PANDAMC/FAIRRoot/Sebastian/pion40/digi1/test1.raw.root";
+  TString inFile="/home/felix/simulation/fairsoft/data/Pi_1.2GeV_20deg_withMVD/digi1/test1.raw.root";
   TString jobname="reco1";
 
-  TString mcFile="$PANDAMC/FAIRRoot/Sebastian/pion40/test1.mc.root";
+  TString mcFile="/home/felix/simulation/fairsoft/data/Pi_1.2GeV_20deg_withMVD/test1.mc.root";
   
   inFile.ReplaceAll("$PANDAMC",PANDAMC);
 
@@ -91,12 +99,14 @@ gSystem->Load("libGeane");
   // -----   Digitization run   -------------------------------------------
   CbmRunAna *fRun= new CbmRunAna();
   fRun->SetInputFile(inFile);
-  mcFile.ReplaceAll("$PANDAMC","/afs/e18/data/panda/MC");
+  mcFile.ReplaceAll("$PANDAMC","/home/felix/simulation/fairsoft/data/Pi_0.2GeV_15deg_withMVD");
   fRun->AddFriend(mcFile);
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
 
-
+  //prepare GEANE
+  CbmGeane *Geane = new CbmGeane(mcFile);
+  
 
   // -----  Parameter database   --------------------------------------------
   CbmRuntimeDb* rtdb = fRun->GetRuntimeDb();
@@ -104,14 +114,20 @@ gSystem->Load("libGeane");
   parInput1->open(paramIn.Data());
   rtdb->setFirstInput(parInput1);
   
-  rtdb->print();
+  rtdb->Print();
 
   CbmParRootFileIo* parOutput1 = new CbmParRootFileIo(kTRUE);
   parOutput1->open(paramOut.Data());
   rtdb->setOutput(parOutput1);
   rtdb->saveOutput();
 
+
   fRun->LoadGeometry();
+
+
+  std::cout<<"setting GEANE field to "<<fRun->GetField();
+  // Set the field(if any) to Geane
+  Geane->SetField(fRun->GetField());
   // ------------------------------------------------------------------------
   
 
@@ -128,21 +144,23 @@ gSystem->Load("libGeane");
 //  tpcRMC->SetBkgFileName("../data/DPM/test1.mc.root");
 // fRun->AddTask(tpcRMC);
 
-   PndTpcIdealTrackingTask* tpcIPR = new PndTpcIdealTrackingTask();
-fRun->AddTask(tpcIPR);
-tpcIPR->SetPersistence();
+  PndTpcIdealTrackingTask* tpcIPR = new PndTpcIdealTrackingTask();
+  tpcIPR->useGeane();
+  fRun->AddTask(tpcIPR);
+  tpcIPR->SetPersistence();
 
 
 
-//PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
-//  tpcSPR->SetTrkFinderParameters(2.,// proxcut
-//			       0.02, // proxcut on rieman sphere
-//			       2.E-3, // planecut
-//			       4.0, // szcut
-//			       4); // minnumhits for fit
- // tpcSPR->SetPersistence();
-// fRun->AddTask(tpcSPR);
-
+//   PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
+//   tpcSPR->SetTrkFinderParameters(2.,// proxcut
+// 				 0.02, // proxcut on rieman sphere
+// 				 2.E-3, // planecut
+// 				 4.0, // szcut
+// 				 4); // minnumhits for fit
+//   tpcSPR->SetPersistence();
+//   tpcSPR->useGeane();
+//   fRun->AddTask(tpcSPR);
+  
   KalmanTask* kalman =new KalmanTask();
   kalman->SetPersistence();
   kalman->SetLazy(false); // be strict with errors that occur
@@ -150,17 +168,17 @@ tpcIPR->SetPersistence();
   fRun->AddTask(kalman);
 
 
- TrackFitStatTask* fitstat=new TrackFitStatTask();
+  TrackFitStatTask* fitstat=new TrackFitStatTask();
   fitstat->SetPersistence();
   fitstat->SetMCPCut(3); // in sigma dp/p
- fitstat->SetMCCuts(0.05, // pmin
+  fitstat->SetMCCuts(0.05, // pmin
 	             10., // pmax
 		     -TMath::Pi(),   // thetamin 5deg
 		     TMath::Pi(),  // thetamax
 		     20); // nPndTpcPoints
 //fitstat->SetPdgSelection(321);
-//fitstat->DoResiduals();
-fRun->AddTask(fitstat);
+//  fitstat->DoResiduals();
+  fRun->AddTask(fitstat);
 
   
   PndTpcRecoDEdxTask* dEdx=new PndTpcRecoDEdxTask();
@@ -210,6 +228,7 @@ V0Selector* V0Sel2 = new V0Selector();
 
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
+  Geane->SetField(fRun->GetField());
   fRun->Run(0,0);
   // ------------------------------------------------------------------------
 

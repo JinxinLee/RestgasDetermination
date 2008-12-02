@@ -26,6 +26,7 @@
 
 // Collaborating Class Declarations --
 #include "PndTpcCluster.h"
+#include "CbmGeanePro.h"
 class TClonesArray;
 class PndTpcFrontend;
 class PndTpcRiemannTrackFinder;
@@ -59,6 +60,8 @@ public:
   virtual InitStatus Init();
 
   virtual void Exec(Option_t* opt);
+  
+  void useGeane(Bool_t geane=kTRUE) {_geane=geane;}
 
   void WriteHistograms(const TString& filename);
 
@@ -73,6 +76,7 @@ private:
   TClonesArray* _riemannHitArray;
 
   Bool_t _persistence;
+  Bool_t _geane;
 
   // tuning parameters for Conformal Map TrackFinder
   double _proxcut;
@@ -87,6 +91,8 @@ private:
   TH1D* _trackMcIdsH;
 
   PndTpcRiemannTrackFinder* _trackfinder;
+
+  CbmGeanePro* _geanePro;
 
   RecoHitFactory* _theRecoHitFactory;
 

@@ -37,11 +37,14 @@
 #include "TrackCand.h"
 #include "Track.h"
 #include "LSLTrackRep.h"
+#include "GeaneTrackRep.h"
 #include "TH1I.h"
 #include "TH1D.h"
 #include "McIdCollection.h"
 #include "TVector3.h"
 #include "CbmMCPoint.h"
+#include "DetPlane.h"
+#include "TDatabasePDG.h"
 //#include "AbsBFieldIfc.h"
 //#include "CbmFieldAdaptor.h"
 
@@ -154,6 +157,9 @@ PndTpcRiemannTrackingTask::Init()
   _trackSizeH=new TH1I("trksize","# hits in track",100,0,100);
   _trackPurityH=new TH1D("trkpurity","trackPurity",25,0,1.01);
   _trackMcIdsH=new TH1D("trkmcids","# mcids in track",25,0,25);
+  
+  // GeanePro will get Geometry and BField from the Run
+  _geanePro = new CbmGeanePro();
 
   return kSUCCESS;
 }
@@ -268,12 +274,6 @@ if(_riemannHitArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No RiemannHi
 
     // Todo: Use R from pattern reco to initialize track rep!
     // create track object
-    LSLTrackRep* rep=new LSLTrackRep();
-    rep->setInverted(cand->inverted());
-    //rep->SetBField(_fieldIfc);
-    Track* trk=new((*_trackArray)[_trackArray->GetEntriesFast()]) Track(rep);
-    trk->setCandidate(*cand); // here the candidate is copied!
-    //Is this what we want?
 
     // calcualte start values
     unsigned int detID;
@@ -293,11 +293,11 @@ if(_riemannHitArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No RiemannHi
       delta=pos2-pos1;
       if(fabs(delta.Z())>0.1 && delta.X()!=0 && delta.Y()!=0)ok=true;
     }
-    if(!ok){
-      std::cout<<"Track initialization went wrong dz<1mm"<<std::endl;
-      trk->getTrackRep(0)->setStatusFlag(2);
-      continue;
-    }
+    // if(!ok){
+//       std::cout<<"Track initialization went wrong dz<1mm"<<std::endl;
+//       trk->getTrackRep(0)->setStatusFlag(2);
+//       continue;
+//    }
     double mx=delta.X()/delta.Z();
     double my=delta.Y()/delta.Z();
     if(fabs(mx)<1E-12)mx<0 ? mx=-1E-12 : mx=+1E-12;
@@ -311,22 +311,43 @@ if(_riemannHitArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No RiemannHi
     state[3][0]=my;
     // p=0.3BR/dip -- assuming 2T BField R in meters -> convert to cm!
     double one_o_p=cand->getCurv()*fabs(cand->getDip())*166.67; 
-    
     state[4][0]=one_o_p; 
-    std::cout<<"Setting initial p="<<1/state[4][0]<<std::endl;
-    trk->getTrackRep(0)->setState(state);
-    trk->getTrackRep(0)->setStartState(state);
-    TMatrixT<double> cov(5,5);
-    cov[0][0]=100;
-    cov[1][1]=100;
-    cov[2][2]=16;
-    cov[3][3]=16;
-    cov[4][4]=5;
-    trk->getTrackRep(0)->setCov(cov);
-    trk->getTrackRep(0)->setStartCov(cov);
-    DetPlane pl(pos1+TVector3(0,0,-10E-4),TVector3(1,0,0),TVector3(0,1,0));
-    trk->getTrackRep(0)->setReferencePlane(pl);
-    trk->getTrackRep(0)->setStartS(pos1.Z()-10E-4);
+
+    AbsTrackRep* rep=0;
+    if(_geane) {
+      DetPlane pl(pos1, pos1.Orthogonal(), pos1.Cross(pos1.Orthogonal()));
+      TVector3 poserr(2,2,2);
+      TVector3 mom = delta*(1/one_o_p);
+      TVector3 momerr = 0.5*mom;
+      int pdg = 211; //pions hardcoded atm
+      double q=TDatabasePDG::Instance()->GetParticle(pdg)->Charge()/3.;
+      GeaneTrackRep* grep = new GeaneTrackRep(_geanePro, pl, mom, poserr, momerr,q,pdg);
+      grep->setPropDir(1);
+      rep=grep; }
+    else {	
+      LSLTrackRep* rep=new LSLTrackRep();
+    
+      rep->setInverted(cand->inverted());
+      //rep->SetBField(_fieldIfc);
+      Track* trk=new((*_trackArray)[_trackArray->GetEntriesFast()]) Track(rep);
+      trk->setCandidate(*cand); // here the candidate is copied!
+      //Is this what we want?
+      
+      std::cout<<"Setting initial p="<<1/state[4][0]<<std::endl;
+      trk->getTrackRep(0)->setState(state);
+      trk->getTrackRep(0)->setStartState(state);
+      TMatrixT<double> cov(5,5);
+      cov[0][0]=100;
+      cov[1][1]=100;
+      cov[2][2]=16;
+      cov[3][3]=16;
+      cov[4][4]=5;
+      trk->getTrackRep(0)->setCov(cov);
+      trk->getTrackRep(0)->setStartCov(cov);
+      DetPlane pl(pos1+TVector3(0,0,-10E-4),TVector3(1,0,0),TVector3(0,1,0));
+      trk->getTrackRep(0)->setReferencePlane(pl);
+      trk->getTrackRep(0)->setStartS(pos1.Z()-10E-4);
+    }
   }// end loop over tracks
   
   std::cout<<_trackArray->GetEntriesFast()<<" tracks created"<<std::endl;

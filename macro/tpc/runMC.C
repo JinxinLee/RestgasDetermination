@@ -15,13 +15,13 @@
   gSystem->Load("libField");
   gSystem->Load("libPassive");
 
-  gSystem->Load("libMvd");
   gSystem->Load("libEmc");
   gSystem->Load("libDrcProp");
   gSystem->Load("libDrc");
   gSystem->Load("libGen");
   gSystem->Load("libgenfit");
   gSystem->Load("libtpc");
+  gSystem->Load("libMvd");
   
   gSystem->Load("pgenerators/DpmEvtGen/lib/libDpmEvtGen");
   gSystem->Load("libPGen");
@@ -35,11 +35,11 @@
   // Choose the Geant Navigation System
   // fRun->SetGeoModel("G3Native");
   
-  Int_t nEvents = 100;
+  Int_t nEvents =500;
 
   TString PANDAMC=gSystem->Getenv("PANDAMC");
 
-  TString jobname="4PART";
+  TString jobname="Pi_1.2GeV_20deg_withMVD";
   TString jobdir="../data/";
   jobdir.ReplaceAll("$PANDAMC",PANDAMC);
   jobdir+=jobname;
@@ -81,8 +81,11 @@
   Magnet->SetGeometryFileName("magnet.geo");
   fRun->AddModule(Magnet);
   
-  CbmDetector *PndTpc = new PndTpcDetector("TPC", kTRUE);
+  PndTpcDetector *PndTpc = new PndTpcDetector("TPC", kTRUE);
   PndTpc->SetGeometryFileName("tpc.geo");
+  //ALICE Style MC:
+  PndTpc->SetAliMC();
+  //------------------
   fRun->AddModule(PndTpc);
   
   //CbmDetector *Sts= new CbmTst("TST", kTRUE);
@@ -133,10 +136,10 @@
  // Box Generator
 
   // pdgs 211=pion 13=muon 11=electron
-  CbmBoxGenerator* boxGen = new CbmBoxGenerator(211, 4); // 13 = muon; 1 = multipl.
-   boxGen->SetPRange(.5,1.5); // GeV/c //setPRange vs setPtRange
+  CbmBoxGenerator* boxGen = new CbmBoxGenerator(211, 1); // 13 = muon; 1 = multipl.
+   boxGen->SetPRange(1.2,1.2); // GeV/c //setPRange vs setPtRange
    boxGen->SetPhiRange(0, 360); // Azimuth angle range [degree]
-   boxGen->SetThetaRange(25, 50); // Polar angle in lab system range [degree]
+   boxGen->SetThetaRange(20, 20); // Polar angle in lab system range [degree]
    boxGen->SetXYZ(0., 0., 0.); // mm o cm ??
    primGen->AddGenerator(boxGen);
 

@@ -15,7 +15,6 @@
   gSystem->Load("libField");
   gSystem->Load("libPassive");
 
-  gSystem->Load("libMvd");
   gSystem->Load("libEmc");
   gSystem->Load("libDrcProp");
   gSystem->Load("libDrc");
@@ -25,6 +24,7 @@
 
 
   gSystem->Load("libtpc");
+  gSystem->Load("libMvd");
   gSystem->Load("libtpcreco");
   gSystem->Load("librecotasks");
 
