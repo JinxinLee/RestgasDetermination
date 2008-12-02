@@ -156,9 +156,6 @@ PndFsmCmpDet::respond(PndFsmTrack *t) {
 
     if (resp->detected()) {
       if (fabs(val = resp->dE()) > 1e-8)    dE+=1/(val*val);
-      if (fabs(val = resp->dp()) > 1e-8)     dp+=1/(val*val);
-      if (fabs(val = resp->dtheta())> 1e-8)    dtheta+=1/(val*val);
-      if (fabs(val = resp->dphi()) > 1e-8)  dphi+=1/(val*val);
       if (fabs(val = resp->dt()) > 1e-8)     dt += val*val;
       if (fabs(val = resp->dm()) > 1e-8)     dm +=val;
       if (fabs (val = resp->m2()) > 1e-11)    m2+=val;
@@ -176,10 +173,6 @@ PndFsmCmpDet::respond(PndFsmTrack *t) {
       if (fabs (val = resp->DrcDiscThtcErr()) > 1e-11)   DrcDiscThtcErr+=val;
       if (fabs (val = resp->DrcBarrelThtcErr()) > 1e-11)    DrcBarrelThtcErr+=val;
       if (fabs (val = resp->RichThtcErr()) > 1e-11)    RichThtcErr+=val;
-
-      if (fabs (val = resp->dV().X()) > 1e-11) dVx+=1/(val*val);
-      if (fabs (val = resp->dV().Y()) > 1e-11) dVy+=1/(val*val);
-      if (fabs (val = resp->dV().Z()) > 1e-11) dVz+=1/(val*val);
 
       double rawLHe  = resp->LHElectron();
       double rawLHmu = resp->LHMuon();
@@ -210,6 +203,88 @@ PndFsmCmpDet::respond(PndFsmTrack *t) {
     } 
   }
   
+  // invoke parameterised vertex/momentum resolution 
+  // (this will overwrite dp, dtheta, dphi and dV)
+  if ( _parFile ) 
+    // haven't done neutral particles yet
+    if ( fabs(t->charge())>1e-8 ) {
+      double p=t->p4().Vect().Mag();
+      double theta=t->p4().Vect().Theta()*180/M_PI;
+      int pid=abs(t->pdt());
+      // cut off slow and out of theta range particles
+      // (this avoids floating point exceptions)
+      detected &= ( p > _mom0[pid]->GetVal() );
+      detected &= ( theta >= _tht0->GetVal() );
+      detected &= ( theta <= _tht1->GetVal() );
+
+      if (detected) {
+        dtheta = eval(_tht[pid], theta) * _thtScale[pid]->Eval(p) * _thtResMulti * 3.1416/180;
+        dphi = eval(_phi[pid], theta) * _phiScale[pid]->Eval(p) * _phiResMulti * 3.1416/180;
+        dp = eval(_mom[pid], theta) * _momScale[pid]->Eval(p) * _momResMulti * p;
+
+        dVx = eval(_d0[pid], theta) * _d0Scale[pid]->Eval(p) * _d0ResMulti;
+        dVy = eval(_d0[pid], theta) * _d0Scale[pid]->Eval(p) * _d0ResMulti;
+        dVz = eval(_z0[pid], theta) * _z0Scale[pid]->Eval(p) * _z0ResMulti;
+
+        dtheta=1/(dtheta*dtheta);
+        dphi=1/(dphi*dphi);
+        dp=1/(dp*dp);
+      }
+    }
+
+  for (FsmAbsDetList::iterator iter=fSubtractDetList.begin();iter!=fSubtractDetList.end(); iter++) {
+    PndFsmResponse* resp=(*iter)->respond(t);
+
+    if (resp->detected()) {
+      if (fabs(val = resp->dE()) > 1e-8)    dE-=1/(val*val);
+      if (fabs(val = resp->dp()) > 1e-8)     dp-=1/(val*val);
+      if (fabs(val = resp->dtheta())> 1e-8)    dtheta-=1/(val*val);
+      if (fabs(val = resp->dphi()) > 1e-8)  dphi-=1/(val*val);
+      if (fabs(val = resp->dt()) > 1e-8)     dt -= val*val;
+      if (fabs(val = resp->dm()) > 1e-8)     dm -=val;
+      if (fabs (val = resp->m2()) > 1e-11)    m2-=val;
+      if (fabs (val = resp->MvddEdx()) > 1e-11)    MvddEdx-=val;
+      if (fabs (val = resp->TpcdEdx()) > 1e-11)    TpcdEdx-=val;
+      if (fabs (val = resp->SttdEdx()) > 1e-11)    SttdEdx-=val;
+      if (fabs (val = resp->DrcDiscThtc()) > 1e-11)   DrcDiscThtc-=val;
+      if (fabs (val = resp->DrcBarrelThtc()) > 1e-11)    DrcBarrelThtc-=val;
+      if (fabs (val = resp->RichThtc()) > 1e-11)    RichThtc-=val;
+
+      if (fabs (val = resp->m2Err()) > 1e-11)    m2Err-=val;
+      if (fabs (val = resp->MvddEdxErr()) > 1e-11)    MvddEdxErr-=val;
+      if (fabs (val = resp->TpcdEdxErr()) > 1e-11)    TpcdEdxErr-=val;
+      if (fabs (val = resp->SttdEdxErr()) > 1e-11)    SttdEdxErr-=val;
+      if (fabs (val = resp->DrcDiscThtcErr()) > 1e-11)   DrcDiscThtcErr-=val;
+      if (fabs (val = resp->DrcBarrelThtcErr()) > 1e-11)    DrcBarrelThtcErr-=val;
+      if (fabs (val = resp->RichThtcErr()) > 1e-11)    RichThtcErr-=val;
+
+      if (fabs (val = resp->dV().X()) > 1e-11) dVx-=1/(val*val);
+      if (fabs (val = resp->dV().Y()) > 1e-11) dVy-=1/(val*val);
+      if (fabs (val = resp->dV().Z()) > 1e-11) dVz-=1/(val*val);
+
+      double rawLHe  = resp->LHElectron();
+      double rawLHmu = resp->LHMuon();
+      double rawLHpi = resp->LHPion();
+      double rawLHK  = resp->LHKaon();
+      double rawLHp  = resp->LHProton();
+
+      double sumRaw = rawLHe+rawLHmu+rawLHpi+rawLHK+rawLHp;
+
+      if (sumRaw>0) {
+        rawLHe  /= sumRaw;
+        rawLHmu /= sumRaw;
+        rawLHpi /= sumRaw;
+        rawLHK  /= sumRaw;
+        rawLHp  /= sumRaw;
+        LH_e  /= rawLHe; 
+        LH_mu /= rawLHmu; 
+        LH_pi /= rawLHpi; 
+        LH_K  /= rawLHK; 
+        LH_p  /= rawLHp; 
+      }
+    } 
+  }
+
   double sumLH = LH_e + LH_mu + LH_pi + LH_K + LH_p;
 
   if (sumLH>0) {
@@ -262,39 +337,6 @@ PndFsmCmpDet::respond(PndFsmTrack *t) {
   result->setLHKaon(LH_K);
   result->setLHProton(LH_p);	  
   
-  // invoke parameterised vertex/momentum resolution 
-  // (this will overwrite dp, dtheta, dphi and dV)
-  double p=t->p4().Vect().Mag();
-  double theta=t->p4().Vect().Theta()*180/M_PI;
-  int pid=abs(t->pdt());
-  if ( _parFile ) 
-    // haven't done neutral particles yet
-    if ( fabs(t->charge())>1e-8 ) {
-      // cut off slow and out of theta range particles
-      // (this avoids floating point exceptions)
-      detected &= ( p > _mom0[pid]->GetVal() );
-      detected &= ( theta >= _tht0->GetVal() );
-      detected &= ( theta <= _tht1->GetVal() );
-
-      if (detected) {
-        dtheta = eval(_tht[pid], theta) * _thtScale[pid]->Eval(p) * _thtResMulti;
-        dphi = eval(_phi[pid], theta) * _phiScale[pid]->Eval(p) * _phiResMulti;
-        dp = eval(_mom[pid], theta) * _momScale[pid]->Eval(p) * _momResMulti;
-
-        dVx = eval(_d0[pid], theta) * _d0Scale[pid]->Eval(p) * _d0ResMulti;
-        dVy = eval(_d0[pid], theta) * _d0Scale[pid]->Eval(p) * _d0ResMulti;
-        dVz = eval(_z0[pid], theta) * _z0Scale[pid]->Eval(p) * _z0ResMulti;
-
-        dtheta*=3.1416/180; // parfile contains dtheta[deg]
-        dphi*=3.1416/180; // parfile contains dphi[deg]
-        dp*=p; // parfile contains dp/p
-
-        result->setdp(dp);
-        result->setdphi(dphi);
-        result->setdtheta(dtheta);
-        result->setdV(dVx,dVy,dVz);
-      }
-    }
   result->setDetected(detected);
 
   return result;
@@ -305,6 +347,13 @@ bool PndFsmCmpDet::AddDetector(string name, string params) {
   PndFsmAbsDet *det=fDetFact.create(name,params);
   if (det)
     fDetList.push_back(det);
+  return det;
+}
+
+bool PndFsmCmpDet::SubtractDetector(string name, string params) {
+  PndFsmAbsDet *det=fDetFact.create(name,params);
+  if (det)
+    fSubtractDetList.push_back(det);
   return det;
 }
 

@@ -51,7 +51,11 @@ public:
 
   virtual PndFsmResponse* respond(PndFsmTrack *t);
 
+  // adds detector for pid contribution only 
   bool AddDetector(std::string name, std::string params="");
+  // this can be used to subtract a known detector
+  // response from the parameterized track resolution
+  bool SubtractDetector(std::string name, std::string params="");
 
 private:
 
@@ -62,6 +66,7 @@ private:
 
   typedef std::list<PndFsmAbsDet*> FsmAbsDetList;
   FsmAbsDetList fDetList;
+  FsmAbsDetList fSubtractDetList;
   PndFsmDetFactory fDetFact;
 
   TString _parFileName;
