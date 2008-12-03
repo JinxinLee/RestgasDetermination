@@ -133,6 +133,8 @@ public:
 	TMatrixD Get4MomentumErrorMatrix() const; // 4x4 matrix in (px, py, pz, E)
 	
 	virtual Double_t Mass() const; // Claster mass
+	
+	Double_t GetEnergyCorrected() const;
 
 private:
 	
