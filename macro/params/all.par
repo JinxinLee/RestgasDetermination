@@ -132,7 +132,7 @@ SigmaEb:d 0.65
 EnergyThresholdBarrel:d 3.0e-3
 EnergyThresholdFWD:d 3.0e-3
 EnergyThresholdBWD:d 3.0e-3
-EnergyThresholdShashlyk:d 3.0e-3
+EnergyThresholdShashlyk:d 8.0e-3
 EmcClusterPosMethod:s lilo
 OffsetParmA:d 3.6
 OffsetParmB:d 1.594
