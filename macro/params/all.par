@@ -120,7 +120,7 @@ SampleRate:d 80e6
 Use_shaped_noise:i 1
 Use_photon_statistic:i 1
 EnergyDigiThreshold:d 3.0e-3
-MapperVersion:i 1
+MapperVersion:i 2
 UseDigiEffectiveSmearing:i 0
 SigmaEa:d 1.86
 SigmaEb:d 0.65
