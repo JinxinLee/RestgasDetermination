@@ -36,7 +36,7 @@ TCcluster makeCluster(TCtrack *t,int id){
 
 void makeStripTree(){
   TCtrack *outTr = new TCtrack();
-  TFile* rootOutfile = new TFile("out.root","RECREATE");
+  TFile* rootOutfile = new TFile("out2.root","RECREATE");
   TTree* outTree = new TTree("at","test code for strip detectors");
   outTree->Branch("track","TCtrack",&outTr,32000,99);
 
@@ -53,12 +53,12 @@ void makeStripTree(){
     //pos1.SetXYZ(0.,0.,0.);
     //pos2.SetXYZ(1.,2.,100.);
     
-    pos1.SetX(rand.Uniform(-1.,1.));
-    pos1.SetY(rand.Uniform(-1.,1.));
-    pos1.SetZ(rand.Uniform(0.,0.1));
-    pos2.SetX(rand.Uniform(-1.,1.));
-    pos2.SetY(rand.Uniform(-1.,1.));
-    pos2.SetZ(rand.Uniform(100.,100.1));
+    pos1.SetX(rand.Uniform(15.161,15.443));
+    pos1.SetY(rand.Uniform(21.079,21.362));
+    pos1.SetZ(rand.Uniform(28.64,28.66));
+    pos2.SetX(rand.Uniform(21.079,21.362));
+    pos2.SetY(rand.Uniform(28.64,28.66));
+    pos2.SetZ(rand.Uniform(171.0,171.1));
        
     TVector3 mom=pos2-pos1;
     mom.SetMag(1.);
@@ -76,13 +76,12 @@ void makeStripTree(){
       TCcluster c = makeCluster(outTr,j);
       outTr->addCluster(c);
     }
-    cout<<"Track: "<<i<<" "<<endl;
     //"************* ---------------------------------------- *************************"<<endl;
     //    outTr->print();
 
     TCalign* a = TCalign::getInstance("alignment/simRealAlign.txt");
     a->clear();
-    a->read("alignment/simAsumedAlign.txt");
+    a->read("alignment/AlignmentOut.txt");
     outTr->fit(1,2,3,4,5,6,7,8);
     //outTr->print();
     cout<<endl<<endl;
