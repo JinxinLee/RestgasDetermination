@@ -1,7 +1,8 @@
 #ifndef DETECTOR_H
 #define DETECTOR_H
 #include <utility>
-#include "TRandom3.h"
+#include <TRandom3.h>
+#include <iostream>
 class Track;
 class Detector{
 /*position of detectors origo in the global coordinates
@@ -58,6 +59,19 @@ public:
       dy=y_act-y;
       dz=z_act-z;
       dT=T_act-T;
+      if(dT!=0){
+        std::cout<<"ID:"<<id<<" dT: "<<dT<<std::endl;
+      }
+      if(dx!=0){
+        std::cout<<"ID:"<<id<<" dx "<<dx<<std::endl;
+      }
+      if(dy!=0){
+        std::cout<<"ID:"<<id<<" dy "<<dy<<std::endl;
+      }
+      if(dz!=0){
+        std::cout<<"ID:"<<id<<" dz "<<dx<<std::endl;
+      }
+
     }
     void setErrors(const Detector* const det);
 

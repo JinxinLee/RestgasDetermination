@@ -18,6 +18,14 @@ class Alignment{
     std::vector<TCtrack> tracks_real;
     std::vector<TH1D*> hists_det;
     std::vector<TProfile*> profiles_det;
+    std::vector<int> lockedU;
+    std::vector<int> lockedZ;
+    std::vector<int> lockedT;
+    std::vector<int> lockedP;
+    bool alignU_;
+    bool alignZ_;
+    bool alignT_;
+    bool alignP_;
     /*
      these 3 arrays are for sending information to millepede and for
      getting them back. It is to be said that the array par isnt used
@@ -29,8 +37,6 @@ class Alignment{
     float dergb[NGLB];     //!< vector of global derivatives
     float derlc[NPARTRCK]; //!< vector of local derivatives
     float par[NGLB];       //!< vector of parameters
-    float fixingX[NGLB];
-    float fixingY[NGLB];
     std::string infile;
     std::string outfile;
     bool simulation;
@@ -43,19 +49,17 @@ class Alignment{
 			double endheight=2,
 			double endwidth=2);
       
-    void readTracks();
+    void readTracks(std::string tracks);
     void readDetectors(bool simulation_);
-
+    Alignment(){}
+        
    
 public:
     Alignment(const Alignment& al){};
-    Alignment(bool simulation_,std::string infile_, std::string outfile_);
-    Alignment(){
-	Alignment(true,"","");
-    }
+    Alignment(std::string conffile);
     ~Alignment(){};
      void doFit();
-
+ 
     
     
 };

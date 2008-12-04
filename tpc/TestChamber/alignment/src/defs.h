@@ -5,10 +5,10 @@
 #ifndef Defs_h
 #define Defs_h
  
-#define BUFFER_SIZE 32000  /*!< root buffer max size before flushing to file */ // unshure if i need this
+//#define BUFFER_SIZE 32000  /*!< root buffer max size before flushing to file */ // unshure if i need this
 #define NPLAN 8         /*!< Max number of planes 4 detectors, 2
 			 * planes each */
-#define DURANGE 20        /*!< max residual (in number of pitches). may bias the tree*/
+//#define DURANGE 20        /*!< max residual (in number of pitches). may bias the tree*/
 
 /*! number of parameters/track
   0: x           ( perp to the beam horizontal) 
@@ -32,7 +32,7 @@
 #define NPARPLAN 4	
 
 #define NGLB NPLAN*NPARPLAN /*!< maximum number of global parameters */ 
-#define PI 3.14159          /*!< pi */
+//#define PI 3.14159          /*!< pi */
 
 #endif
 

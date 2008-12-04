@@ -58,7 +58,7 @@ void Detector::setErrors(const Detector* const det){
     dz=(det->getZ()-z);
     dT=(det->getT()-T);
     if(dT!=0){
-      cout<<"ID:"<<id<<" dTheta: "<<dT<<endl;
+      cout<<"ID:"<<id<<" dT: "<<dT<<endl;
     }
     if(dx!=0){
       cout<<"ID:"<<id<<" dx "<<dx<<endl;
@@ -86,9 +86,9 @@ pair<double,double> Detector::getHitU(Track& track){
       y0 + ty0(z + dz - z0=  trackxy.y
 
     */
-    double u_hit= (trackxy.first-x-dx)*cos(T+dT)-(trackxy.second-y-dy)*sin(T+dT);
+    double u_hit= (trackxy.first-x-dx)*cos(T+dT)+(trackxy.second-y-dy)*sin(T+dT);
 
-    double u_rec=(trackxy_rec.first-x)*cos(T)-(trackxy_rec.second-y)*sin(T);
+    double u_rec=(trackxy_rec.first-x)*cos(T)+(trackxy_rec.second-y)*sin(T);
     double u_hit_smear = rand.Gaus(u_hit,sigma);
     pair<double,double> ret;
     ret.first=u_hit_smear;

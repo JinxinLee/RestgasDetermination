@@ -8,8 +8,13 @@
 #include <algorithm>
 #include <TROOT.h>
 #include <TTree.h>
-
+#include <string>
+#include <vector>
+#include "../../src/ConfigFile.h"
+#include <boost/tokenizer.hpp>
 using namespace std;
+
+void failedConf(std::string);
 class sortDetector{
 public:
   bool operator()(Detector *a1, Detector *a2){
@@ -34,8 +39,8 @@ void Alignment::generateTracks(int amount,
   }
 }
 
-void Alignment::readTracks(){
-  TFile* file= TFile::Open("out.root");//temporary solution, should make a option file
+void Alignment::readTracks(string tracks){
+  TFile* file= TFile::Open(tracks.c_str());
   TTree *t =(TTree*)gROOT->FindObject("at");
   int nEvt = t->GetEntries();
   TCtrack *tr = 0;
@@ -52,7 +57,7 @@ void Alignment::readTracks(){
 
 void Alignment::readDetectors(bool simulation_)
 {
-  TCalign* reader = TCalign::getInstance(infile);
+  TCalign *reader = TCalign::getInstance(infile);
   cout<<"infile "<<infile<<endl;
   std::vector<int> ids = reader->getLoadedIDs();
   
@@ -74,6 +79,7 @@ void Alignment::readDetectors(bool simulation_)
     }
   }
   if(simulation){
+    cout<<"simrealalign read-----------------------------------------------------***********"<<endl;
     reader->clear();
     reader->read("simRealAlign.txt");
     assert(reader->getLoadedIDs().size()==ids.size());
@@ -82,22 +88,104 @@ void Alignment::readDetectors(bool simulation_)
       TMatrixT<double> rot2(3,3);
       double pitch2,res2, theta2, phi2, psi2;
       reader->getConv(ids[i],trans2,rot2,pitch2,theta2,phi2,psi2,res2);
+      cout<<"theta2 "<<theta2<<endl;
       detectors[i]->setErrors(trans2[0],trans2[1],trans2[2],theta2);
     }
   }
   sort(detectors.begin(),detectors.end(),sortDetector());//sort based on z. not sure if it is necesary
 } 
 
-Alignment::Alignment(bool simulation_,string infile_, string outfile_){
-  infile=infile_;
-  outfile=outfile_;
-  simulation=simulation_;
+Alignment::Alignment(string conffile){
+  std::cout << "Opening config file..." << std::endl;
+  ConfigFile cf( conffile.c_str() );
+  string tracks;
+  alignU_=false;
+  alignZ_=false;
+  alignT_=false;
+  alignP_=false;
+  if(!(cf.readInto(infile , "Alignment input") )) failedConf("Alignment input");
+  if(!(cf.readInto(outfile , "Alignment output") )) failedConf("Alignment output");
+  if(!(cf.readInto(simulation, "Simulation") )) failedConf("Simulation");
+  if(!simulation){
+    cf.readInto(tracks, "Track file");
+  }else{
+    tracks="";
+  }
+  
+  cf.readInto(alignU_, "AlignU");
+  cf.readInto(alignZ_, "AlignZ");
+  cf.readInto(alignT_, "AlignT");
+  cf.readInto(alignP_, "AlignP");
+  
+  using namespace std;
+  using namespace boost;
+  /*
+    Loading detectorIDs for Fixing
+  */
+  
+  /*
+    first detectors where u is fixed-----------------------------------------
+  */
+  string s = "this is,  a test";
+  cf.readInto(s,"fixU");
+  tokenizer<> tok(s);  
+  cout<<"fixing u"<<endl;
+  for(tokenizer<>::iterator beg=tok.begin();beg!=tok.end();++beg){
+    std::istringstream istr1(*beg);
+    int number;
+    istr1>>number;
+    cout<<number<<endl;
+    lockedU.push_back(number);
+  }
+  /*
+    first detectors where Z is fixed-----------------------------------------
+  */
+  s="";
+  cf.readInto(s,"fixZ");
+  tokenizer<> tok2(s);
+  cout<<"fixing z"<<endl;
+  for(tokenizer<>::iterator beg2=tok2.begin();beg2!=tok2.end();++beg2){
+    std::istringstream istr1(*beg2);
+    int number;
+    istr1>>number;
+    cout<<number<<endl;
+    lockedZ.push_back(number);
+  }
+  /*
+    first detectors where T is fixed-----------------------------------------
+  */
+  s="";
+  cf.readInto(s,"fixT");
+  tokenizer<> tok3(s);
+  cout<<"fixing T"<<endl;
+  for(tokenizer<>::iterator beg3=tok3.begin();beg3!=tok3.end();++beg3){
+    std::istringstream istr1(*beg3);
+    int number;
+    istr1>>number;
+    cout<<number<<endl;
+    lockedT.push_back(number);
+  }
+  /*
+    first detectors where p is fixed-----------------------------------------
+  */
+  s="";
+  cf.readInto(s,"fixP");
+  tokenizer<> tok4(s);
+  cout<<"fixing P"<<endl;
+  for(tokenizer<>::iterator beg4=tok4.begin();beg4!=tok4.end();++beg4){
+    std::istringstream istr1(*beg4);
+    int number;
+    istr1>>number;
+    cout<<number<<endl;
+    lockedP.push_back(number);
+  }
+
   std::cout<<"Alignment-object ctor"<<std::endl;
   readDetectors(simulation);
   if(simulation){
     generateTracks(50000,100,2,2,2,2);
   }else{
-    readTracks();
+    readTracks(tracks);
   }
 }
 
@@ -120,12 +208,10 @@ void Alignment::doFit(){
     wil set me down and understand the parameters sendt two it soon
   */
   C_INITUN(11,100000.0);
-  if(simulation){  
-    for(unsigned int i = 0; i<detectors.size();i++){
-      int id=detectors[i]->getId();
-      hists_det.push_back(new TH1D(TString::Format("dU_%i",id),TString::Format("dU_%i",id),10000,-3,3));
-      profiles_det.push_back(new TProfile(TString::Format("dU_vs_U%i",id),TString::Format("dU_vs_U%i",id),1000,-3,3,-1,1));
-    }
+  for(unsigned int i = 0; i<detectors.size();i++){
+    int id=detectors[i]->getId();
+    hists_det.push_back(new TH1D(TString::Format("dU_%i",id),TString::Format("dU_%i",id),10000,-3,3));
+    profiles_det.push_back(new TProfile(TString::Format("dU_vs_U%i",id),TString::Format("dU_vs_U%i",id),1000,-3,3,-1,1));
   }
   cout<<endl<<"marker1"<<endl;
   /*
@@ -133,10 +219,7 @@ void Alignment::doFit(){
   */
   cout<<"Empty Histograms created"<<endl;
   cout<<"Starting to send data to Millepede"<<endl;
-  bool alignU_ = true;
-  bool alignZ_ = false;
-  bool alignT_ = true;
-  bool alignP_ = false;
+
   /*
     for each detector i set the sigma for the detectors to zero for that
     parameter. This is picked up from the fortran code, and that
@@ -149,19 +232,27 @@ void Alignment::doFit(){
     if (!alignT_) {C_PARSIG(i*NPARPLAN+3,0.0);} //!< fix all theta
     if (!alignP_) {C_PARSIG(i*NPARPLAN+4,0.0);}  //!< fix all pitch
     /*
-      fixing the first silicon detector with id 51 and 52
+      Fixing detector coordinates given from config file
     */
     int detID =detectors[i]->getId();
-    if(detID==3||detID==4||detID==7||detID==8){
-      cout<<"Fix detid"<<(detectors[i]->getId())<<endl;
-      C_PARSIG(i*NPARPLAN+1,0.0);	//!< fix all u 
-      C_PARSIG(i*NPARPLAN+2,0.0);	//!< fix all z 
-      C_PARSIG(i*NPARPLAN+4,0.0);	//!< fix all pitch
-      //      if(detID==3||detID==4){
-      C_PARSIG(i*NPARPLAN+3,0.0);	//!< fix all theta
-        //}
-      
-    }   
+    if(find(lockedU.begin(),lockedU.end(),detID)!=lockedU.end()){
+      C_PARSIG(i*NPARPLAN+1,0.0);	//!< fix u
+      cout<<"Fixed U for "<<detID<<endl;
+    }
+    if(find(lockedZ.begin(),lockedZ.end(),detID)!=lockedZ.end()){
+      C_PARSIG(i*NPARPLAN+2,0.0);	//!< fix Z
+      cout<<"Fixed Z for "<<detID<<endl;
+    }
+    if(find(lockedP.begin(),lockedP.end(),detID)!=lockedP.end()){
+      C_PARSIG(i*NPARPLAN+4,0.0);	//!< fix Pitch 
+      cout<<"Fixed P for "<<detID<<endl;
+    }
+    if(find(lockedT.begin(),lockedT.end(),detID)!=lockedT.end()){
+      C_PARSIG(i*NPARPLAN+3,0.0);	//!< fix Theta 
+      cout<<"Fixed Theta for "<<detID<<endl;
+    }
+          
+    
   }
   cout<<endl<<"marker 2 before iteration"<<endl;
   if(simulation){
@@ -186,7 +277,7 @@ void Alignment::doFit(){
         float u_hit=(float)hit.first+x*cosT_+y*sinT_ ;
         double z_=detectors[j]->getZ();
         float sigma_=(float)detectors[j]->getSigma();
-        int detID = detectors[j]->getId();
+        //        int detID = detectors[j]->getId();
         
         /*
           calculate local derivatives, ie the derivatives with respect to
@@ -205,9 +296,9 @@ void Alignment::doFit(){
         
         //! calculate/store global derivatives   
         dergb[NPARPLAN*j]=-1;                                                     //!< /d du
-        dergb[NPARPLAN*j+1]=  cosT_*tx - sinT_*ty;                                       //!< /d dz
-        dergb[NPARPLAN*j+2]= -sinT_*(x0+tx*(z_)-x) - cosT_*(y0+ty*(z_)-y);          //!< /d dtheta
-        dergb[NPARPLAN*j+3]=0/*  cosT_*(x0+tx*(z_)-x) - sinT_*(y0+ty*(z_)-y)*/;              //!< /d dpitch
+        dergb[NPARPLAN*j+1]=  cosT_*tx + sinT_*ty;                                       //!< /d dz
+        dergb[NPARPLAN*j+2]= -sinT_*(x0+tx*(z_)-x) + cosT_*(y0+ty*(z_)-y);          //!< /d dtheta
+        dergb[NPARPLAN*j+3]=0/*  cosT_*(x0+tx*(z_)-x) + sinT_*(y0+ty*(z_)-y)*/;              //!< /d dpitch
         /*
           Sending this information to millepede
           
@@ -237,6 +328,12 @@ void Alignment::doFit(){
         double sinT_=detectors[j]->getSinT();
         int detID = detectors[j]->getId();
         TCcluster hit_cluster = tracks_real[i].getClById(detID,0);
+                
+        TVector3 resid = hit_cluster.getRes();
+        
+        hists_det[j]->Fill(resid.x()); /*u_rec - u_hit*/
+        profiles_det[j]->Fill(hit_cluster.posUVW()[0],resid(0)); 
+        
         float u_hit=(float)hit_cluster.posUVW()[0]+x*cosT_+y*sinT_ ;
         double z_=detectors[j]->getZ();
         float sigma_=(float)detectors[j]->getSigma();
@@ -254,11 +351,12 @@ void Alignment::doFit(){
         derlc[1]= dudtx;   
         derlc[2]= dudy0;        
         derlc[3]= dudty; 
+        
         //! calculate/store global derivatives   
         dergb[NPARPLAN*j]=-1;                                                     //!< /d du
-        dergb[NPARPLAN*j+1]=  cosT_*tx - sinT_*ty;                                       //!< /d dz
-        dergb[NPARPLAN*j+2]= -sinT_*(x0+tx*(z_)-x) - cosT_*(y0+ty*(z_)-y);          //!< /d dtheta
-        dergb[NPARPLAN*j+3]=0/*  cosT_*(x0+tx*(z_)-x) - sinT_*(y0+ty*(z_)-y)*/;              //!< /d dpitch
+        dergb[NPARPLAN*j+1]=  cosT_*tx + sinT_*ty;                                       //!< /d dz
+        dergb[NPARPLAN*j+2]= -sinT_*(x0+tx*(z_)-x) + cosT_*(y0+ty*(z_)-y);          //!< /d dtheta
+        dergb[NPARPLAN*j+3]=0/*  cosT_*(x0+tx*(z_)-x) + sinT_*(y0+ty*(z_)-y)*/;              //!< /d dpitch
         /*
           Sending this information to millepede
         */
@@ -277,7 +375,9 @@ void Alignment::doFit(){
   fitglo_(par); //!< minimize alignment parameters 
   
   C_PRTGLO(20); //!< Dump to screen
-  TCalign* reader = TCalign::getInstance();
+  TCalign* reader = TCalign::getInstance(infile);
+  reader->clear();
+  reader->read(infile);
   std::vector<int> ids = reader->getLoadedIDs();
   for(unsigned int n=0;n<detectors.size();n++){
     TVector3 trans;
@@ -298,19 +398,24 @@ void Alignment::doFit(){
   }
   reader->write(outfile);
   //open file for histograms
-  if(simulation){
-    TFile* file = new TFile("histograms.root","RECREATE");
-    for(unsigned int i = 0; i<hists_det.size();i++){
-      hists_det[i]->Write();
-      profiles_det[i]->Write();
-    }
-    cout<<"Histograms written to file"<<endl;
-    file->Close();
-    delete file;
-    for(unsigned int i = 0; i<hists_det.size();i++){
-      delete hists_det[i];
-      delete profiles_det[i];
-    }
+  
+  TFile* file = new TFile("histograms.root","RECREATE");
+  for(unsigned int i = 0; i<hists_det.size();i++){
+    hists_det[i]->Write();
+    profiles_det[i]->Write();
   }
+  cout<<"Histograms written to file"<<endl;
+  file->Close();
+  delete file;
+  for(unsigned int i = 0; i<hists_det.size();i++){
+    delete hists_det[i];
+    delete profiles_det[i];
+  }
+  
 }
 
+void failedConf(std::string var) {
+  std::cerr << "Reading parameter " << var << " from conf file failed ->abort"
+			<< std::endl;
+  throw;
+}
