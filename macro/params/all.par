@@ -150,8 +150,7 @@ MaxIterations:i 10
 CentroidShift:d 0.1
 MaxBumps:i 8
 MinDigiEnergy:d 20.e-6
-#################################################################
-#################################################################
+##################################################################################################################################
 # Correlation Parameter for LHEtrack
 # Format:
 # parameter_name:parameter_type(i-integer, d-double) parameter_value
