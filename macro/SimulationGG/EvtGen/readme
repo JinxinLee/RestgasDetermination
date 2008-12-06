@@ -1,0 +1,14 @@
+pandaEvtGen asks for momenta:
+here a table of momenta and sqrt(s)
+momentum  	sqrt(s)
+0,737316	2
+2,200649	2.5
+(3,741945	3)
+5,510383	3.5
+7,529818	4
+(9,808078	4.5)
+(12,348511	5)
+15,152784	5.5
+
+change the decay model in test/PPBARTEST
+

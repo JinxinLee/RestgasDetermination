@@ -1,0 +1,7 @@
+start sim.C with the parameters TString simdatei, TString input, TString param, Int_t nEvents
+
+sim.C(simdatei.root, fulldatei.root, paramsdatei.root, nEvents)
+
+and full.C with TString simdatei, TString fulldatei, TString param.
+
+full.C(simdatei.root, fulldatei.root, paramsdatei.root)
