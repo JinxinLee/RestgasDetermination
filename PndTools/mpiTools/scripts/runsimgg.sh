@@ -7,21 +7,27 @@
 # argument 5: transport model (TGeant3, TGeant4, TFluka)
 #
 #
-source $HOME/johan/simgg.sh > logfile
+export KVIHOME=/home/rugkvi04/kvi
+export PANDAHOME=/home/rugkvi04/panda
+export PANDAROOTHOME=$HOME/pandaroot
+source $PANDAROOTHOME/build/config.sh > logfile
+export CERN=$KVIHOME/cern
+export CERN_ROOT=$CERN/2005
+export LD_LIBRARY_PATH=$CERN_ROOT/lib:$LD_LIBRARY_PATH
 #
 # Copy ROOT scripts to local path
 #
-cp $HOME/johan/SimulationGG/EvtGen/DECAY.DEC .
-cp $HOME/johan/SimulationGG/EvtGen/evt.pdl .
-cp $HOME/johan/SimulationGG/EvtGen/pandaEvtGen .
-cp $HOME/johan/SimulationGG/EvtGen/dec/$4 .
+cp $PANDAROOTHOME/trunk/macro/SimulationGG/EvtGen/DECAY.DEC .
+cp $PANDAROOTHOME/trunk/macro/SimulationGG/EvtGen/evt.pdl .
+cp $HOME/bin/ggEvtGen .
+cp $PANDAROOTHOME/trunk/macro/SimulationGG/EvtGen/dec/$4 .
 #
-cp $HOME/johan/SimulationGG/SimulationMacros/sim.C .
-cp $HOME/johan/SimulationGG/SimulationMacros/full.C .
+cp $PANDAROOTHOME/trunk/macro/SimulationGG/SimulationMacros/sim.C .
+cp PANDAROOT$HOME/trunk/macro/SimulationGG/SimulationMacros/full.C .
 #
 # Run evtgen
 #
-./pandaEvtGen $3 $2 $4 $1 >> logfile 2>&1
+./ggEvtGen $3 $2 $4 $1 >> logfile 2>&1
 #
 # Run the scripts
 #
@@ -38,7 +44,7 @@ done
 #
 # Validate the output and return the appropiate value
 #
-for ofile in "logfile" "sim.C" "full.C" "sim.root" "simparams.root" "full.root" "output.evt" ; do  
+for ofile in "ggEvtGen" "logfile" "sim.C" "full.C" "sim.root" "simparams.root" "full.root" "output.evt" ; do  
   [ -f $ofile ]  || error="$error $ofile doesn't exist,";
 done
 
@@ -55,7 +61,7 @@ if [ -z "$error"  ] ; then
 # Remove files you dont want to keep
 #
   rm -f *.C
-  rm -f pandaEvtGen
+  rm -f ggEvtGen
   rm -f $4
   rm -f DECAY.DEC
   rm -f evt.pdl
