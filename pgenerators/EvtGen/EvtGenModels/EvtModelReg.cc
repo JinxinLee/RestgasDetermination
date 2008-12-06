@@ -96,6 +96,9 @@
 #include "EvtGenModels/EvtBToKpipiCP.hh"
 #include "EvtGenModels/EvtBsquark.hh"
 #include "EvtGenModels/EvtPhiDalitz.hh"
+#include "EvtGenModels/EvtPpbarGammaGamma.hh"
+#include "EvtGenModels/EvtPpbarPi0Gamma.hh"
+//#include "EvtGenModels/EvtPpbarPi0Pi0.hh"
 
 #include "EvtGenModels/EvtLNuGamma.hh"
 
@@ -194,6 +197,10 @@ EvtModelReg::EvtModelReg()
     modelist.Register(new EvtVVpipi);
     modelist.Register(new EvtBsquark);
     modelist.Register(new EvtPhiDalitz); 
+
+    modelist.Register(new EvtPpbarGammaGamma);
+    modelist.Register(new EvtPpbarPi0Gamma);
+//    modelist.Register(new EvtPpbarPi0Pi0); 
 
     modelist.Register(new EvtBTo4piCP);
     modelist.Register(new EvtBTo3piCP);
