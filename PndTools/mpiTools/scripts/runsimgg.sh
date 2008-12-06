@@ -23,7 +23,7 @@ cp $HOME/bin/ggEvtGen .
 cp $PANDAROOTHOME/trunk/macro/SimulationGG/EvtGen/dec/$4 .
 #
 cp $PANDAROOTHOME/trunk/macro/SimulationGG/SimulationMacros/sim.C .
-cp PANDAROOT$HOME/trunk/macro/SimulationGG/SimulationMacros/full.C .
+cp $PANDAROOTHOME/trunk/macro/SimulationGG/SimulationMacros/full.C .
 #
 # Run evtgen
 #
