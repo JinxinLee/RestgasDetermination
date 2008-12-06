@@ -1,0 +1,17 @@
+#
+##
+TIMEOUT 19200
+#
+RUNID 100
+#JOB 100 $HOME/johan/scripts/runsimgg.sh NULL /daq/panda/simgg/gammagamma/2_0GeV 4 500 0.737316  gammagamma.dec TGeant4
+#JOB 100 $HOME/johan/scripts/runsimgg.sh NULL /daq/panda/simgg/gammagamma/2_5GeV 4 500 2.200649  gammagamma.dec TGeant4
+JOB 100 $HOME/johan/scripts/runsimgg.sh NULL /daq/panda/simgg/gammagamma/3_5GeV 4 200 5.510383  gammagamma.dec TGeant4
+JOB 100 $HOME/johan/scripts/runsimgg.sh NULL /daq/panda/simgg/gammagamma/4_0GeV 4 200 7.529818  gammagamma.dec TGeant4
+JOB 100 $HOME/johan/scripts/runsimgg.sh NULL /daq/panda/simgg/gammagamma/5_5GeV 4 100 15.152784 gammagamma.dec TGeant4
+#
+RUNID 0
+JOB 100 $HOME/johan/scripts/runsimgg.sh NULL /daq/panda/simgg/pi0gamma/2_0GeV 4 500 0.737316  pi0gamma.dec TGeant4
+JOB 100 $HOME/johan/scripts/runsimgg.sh NULL /daq/panda/simgg/pi0gamma/2_5GeV 4 500 2.200649  pi0gamma.dec TGeant4
+JOB 100 $HOME/johan/scripts/runsimgg.sh NULL /daq/panda/simgg/pi0gamma/3_5GeV 4 500 5.510383  pi0gamma.dec TGeant4
+JOB 100 $HOME/johan/scripts/runsimgg.sh NULL /daq/panda/simgg/pi0gamma/4_0GeV 4 200 7.529818  pi0gamma.dec TGeant4
+JOB 100 $HOME/johan/scripts/runsimgg.sh NULL /daq/panda/simgg/pi0gamma/5_5GeV 4 100 15.152784 pi0gamma.dec TGeant4
