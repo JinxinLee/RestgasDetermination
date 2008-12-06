@@ -53,6 +53,9 @@ bin:
 panda:
 	$(EVTCXX) $(EVTLINK) $(EVTLINKOPT) -o pandaEvtGen pandaEvtGen.o -lEvtGen -lEvtGenModels -lEvtGenBase  -lCLHEP -l$(EVTPYLIB) -l$(EVTPDLIB) -lpacklib -lmathlib -l$(EVTPHLIB) -lCore -lCint -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -ldl $(EVTSYSLIB) -lm -lMathCore -lThread
 
+gg:
+	$(EVTCXX) $(EVTLINK) $(EVTLINKOPT) -o ggEvtGen ggEvtGen.o -lEvtGen -lEvtGenModels -lEvtGenBase  -lCLHEP -l$(EVTPYLIB) -l$(EVTPDLIB) -lpacklib -lmathlib -l$(EVTPHLIB) -lCore -lCint -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -ldl $(EVTSYSLIB) -lm -lMathCore -lThread
+
 simple:
 	$(EVTCXX) $(EVTLINK) $(EVTLINKOPT) -o simpleEvtGen simpleEvtGen.o -lEvtGen -lEvtGenModels -lEvtGenBase  -lCLHEP -l$(EVTPYLIB) -l$(EVTPDLIB) -lpacklib -lmathlib -l$(EVTPHLIB) -lCore -lCint -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -ldl $(EVTSYSLIB) -lm -lMathCore -lThread
 
