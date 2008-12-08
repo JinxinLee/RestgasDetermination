@@ -18,7 +18,7 @@
 
 
 #include "consecCut.C"
-
+#include "cuts.C"
 
 void tracks(TString files){
 
@@ -50,10 +50,12 @@ void tracks(TString files){
 
   myChain.SetBranchAddress("track", &intr);
 
-  for (Int_t i=0;i<nevent;i++){
+  for (Int_t i=0;i<1000;i++){
 
     myChain.GetEntry(i);
     TCtrack tr(*intr);
+
+	if(!IEEE(tr))continue;
 
     Ay->Fill(tr.getAy());
     By->Fill(tr.getBy());

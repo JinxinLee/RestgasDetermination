@@ -45,6 +45,8 @@ void position(TString files){
 
   TH1D *u_raw = new TH1D("u_raw","",50,0,10);
   TH1D *v_raw = new TH1D("v_raw","",50,0,1);
+  v_raw->SetXTitle("Position v [cm]");
+  v_raw->SetYTitle("Number of tracks");
   v_raw->SetStats(kFALSE);
   TH1D *w_raw = new TH1D("w_raw","",100,0,10);
 

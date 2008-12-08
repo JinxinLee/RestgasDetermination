@@ -12,6 +12,7 @@
 #include "TSystem.h"
 #include "TPaveText.h"
 #include "TROOT.h"
+#include "TLegend.h"
 
 #include "../src/TCtrack.h"
 #include "../src/TCcluster.h"
@@ -46,12 +47,15 @@ void angulars(TString files){
 
    TH1D *theta_4clust = new TH1D("theta_4clust","",500,-100,100);
    theta_4clust->SetXTitle("theta");
+   theta_4clust->SetYTitle("Number of tracks");
    theta_4clust->SetLineColor(2);
    TH1D *thetax_4clust = new TH1D("thetax_4clust","",500,-100,100);
    thetax_4clust->SetXTitle("theta x");
+   thetax_4clust->SetYTitle("Number of tracks");
    thetax_4clust->SetLineColor(2);
    TH1D *thetay_4clust = new TH1D("thetay_4clust","",500,-100,100);
    thetay_4clust->SetXTitle("theta y ");
+   thetay_4clust->SetYTitle("Number of tracks");
    thetay_4clust->SetLineColor(2);
 
    TH1D *theta_6clust = new TH1D("theta_6clust","",500,-100,100);
@@ -130,6 +134,24 @@ void angulars(TString files){
 
   }
 
+  TLegend *leg1 = new TLegend(0.6,0.7,0.999,0.999);
+  leg1->AddEntry(theta_4clust,"more than 4 clusters on track","l");
+  leg1->AddEntry(theta_6clust,"more than 6 clusters on track","l");
+  leg1->AddEntry(theta_8clust,"more than 8 clusters on track","l");
+  leg1->SetFillColor(0);
+
+  TLegend *leg2 = new TLegend(0.6,0.7,0.999,0.999);
+  leg2->AddEntry(thetay_4clust,"more than 4 clusters on track","l");
+  leg2->AddEntry(thetay_6clust,"more than 6 clusters on track","l");
+  leg2->AddEntry(thetay_8clust,"more than 8 clusters on track","l");
+  leg2->SetFillColor(0);
+
+  TLegend *leg3 = new TLegend(0.6,0.7,0.999,0.999);
+  leg3->AddEntry(thetax_4clust,"more than 4 clusters on track","l");
+  leg3->AddEntry(thetax_6clust,"more than 6 clusters on track","l");
+  leg3->AddEntry(thetax_8clust,"more than 8 clusters on track","l");
+  leg3->SetFillColor(0);
+
   TCanvas *th = new TCanvas();
   theta_vs_thetaX->Draw("colz");
   TCanvas *thy = new TCanvas();
@@ -158,19 +180,21 @@ void angulars(TString files){
   thx = new TCanvas();
   thetax_8clust->Draw();
 
-
   th = new TCanvas();
   theta_4clust->Draw();
   theta_6clust->Draw("same");
   theta_8clust->Draw("same");
+  leg1->Draw();
   thy = new TCanvas();
   thetay_4clust->Draw();
   thetay_6clust->Draw("same");
   thetay_8clust->Draw("same");
+  leg2->Draw();
   thx = new TCanvas();
   thetax_4clust->Draw();
   thetax_6clust->Draw("same");
   thetax_8clust->Draw("same");
+  leg3->Draw();
 
 }
 

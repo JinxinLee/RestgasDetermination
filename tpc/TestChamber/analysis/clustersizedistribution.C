@@ -17,7 +17,7 @@
 
 #include "consecCut.C"
 #include "clusterSplit1.C"
-
+#include "cuts.C"
 
 void clustersize(TString files){
 
@@ -37,15 +37,15 @@ void clustersize(TString files){
   TCtrack *intr=0;
 
 
-   TH1D *clustersize = new TH1D("clustersize","",10,0,10);
+   TH1D *clustersize = new TH1D("clustersize","",10,-0.5,9.5);
    clustersize->SetXTitle("clustersize");
+   clustersize->SetYTitle("Number of tracks");
+   clustersize->SetStats(kFALSE);
    //clustersize->SetFillColor(2);
 
-
-  TF1 *fitcurve1 = new TF1("fitcurve1","gaus",-1,1);
-  //  fitcurve->SetLineColor(kRed);
-
-
+   TH1D *clustersize_cut = new TH1D("clustersize_cut","",10,-0.5,9.5);
+   clustersize_cut->SetXTitle("clustersize");
+   // clustersize_cut->SetStats(kFALSE);
 
    myChain.SetBranchAddress("track", &intr);
 
@@ -62,11 +62,20 @@ void clustersize(TString files){
 	 clustersize->Fill(c.nRaw());
        }
      }
+     for(int i=0;i<tr.nCl();++i){
+       TCcluster c = tr.getCl(i);
+	   if(!IEEE(tr))continue;
+       if(c.getFit()){//was used in fit
+	 clustersize_cut->Fill(c.nRaw());
+       }
+     }
    }
 
 
-   TCanvas *size = new TCanvas("canv1","");   
+   TCanvas *size = new TCanvas();   
    clustersize->Draw();
-   
+
+   size = new TCanvas();   
+   clustersize_cut->Draw();
 }
 

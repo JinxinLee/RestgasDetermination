@@ -15,6 +15,7 @@
 #include "../src/TCcluster.h"
 
 #include "cuts.C"
+#include "corrections.C"
 
 Double_t doublegausf(Double_t *x,Double_t *par)
 {
@@ -45,16 +46,22 @@ void plots(TString files){
   TCtrack *intr=0;
 
 
-  TH1D *uresidp = new TH1D("uresidp","",500,-0.2,0.2);
+  TH1D *uresidp = new TH1D("uresidp","",500,-1,1);
   uresidp->SetXTitle("residual u [cm]");
+  uresidp->SetYTitle("Number of clusters");
+  //uresidp->SetStats(kFALSE);
   //uresidp->SetFillColor(2);
 
   TH1D *vresidp = new TH1D("vresidp","",500,-0.1,0.1);
   vresidp->SetXTitle("residual v [cm]");
+  vresidp->SetYTitle("Number of tracks");
+  //vresidp->SetStats(kFALSE);
   //vresidp->SetFillColor(2);
 
   TH1D *wresidp = new TH1D("wresidp","",500,-0.1,0.1);
   wresidp->SetXTitle("residual w [cm]");
+  wresidp->SetYTitle("Number of tracks");
+  //wresidp->SetStats(kFALSE);
   //wresidp->SetFillColor(2);
 
 
@@ -70,11 +77,16 @@ void plots(TString files){
      
     myChain.GetEntry(iev);
     TCtrack tr(*intr);
-     
-    if(!IEEE(tr)) continue;
 
-    for(int i=0;i<tr.nCl();++i){
-      TCcluster c = tr.getCl(i);
+		TCtrack ctr = without_end_pads(tr);      
+
+	// if(!IEEE(tr)) continue;
+	  if(!IEEE(ctr)) continue;
+
+	  //  for(int i=0;i<tr.nCl();++i){
+		 //   TCcluster c = tr.getCl(i);
+		   for(int i=0;i<ctr.nCl();++i){
+		 TCcluster c = ctr.getCl(i);
       if(c.getFit()){//was used in fit
 
 	uresidp->Fill(c.getRes().X());
@@ -102,7 +114,7 @@ void plots(TString files){
 
   doublegaus_vall->SetParameters(200,vresidp->GetMean(),vresidp->GetRMS(),50,vresidp->GetMean(),vresidp->GetRMS());
 
-  vresidp->Fit("doublegaus_vall","R");
+   vresidp->Fit("doublegaus_vall","R");
 
   TF1 *vall_f1 = new TF1("vall_f1","gaus",-0.1,0.1);
   TF1 *vall_f2 = new TF1("vall_f2","gaus",-0.1,0.1);
@@ -134,7 +146,7 @@ void plots(TString files){
 
   doublegaus_wall->SetParameters(200,wresidp->GetMean(),wresidp->GetRMS(),50,wresidp->GetMean(),wresidp->GetRMS());
 
-  wresidp->Fit("doublegaus_wall","R");
+   wresidp->Fit("doublegaus_wall","R");
 
   TF1 *wall_f1 = new TF1("wall_f1","gaus",-0.1,0.1);
   TF1 *wall_f2 = new TF1("wall_f2","gaus",-0.1,0.1);
@@ -171,13 +183,13 @@ void plots(TString files){
   //u
 
   TCanvas *x = new TCanvas("canv2","");   
-  uresidp->Draw();
+   uresidp->Draw();
 
   TCanvas *y = new TCanvas("canv4","");   
   vresidp->Draw();
   doublegaus_vall->Draw("same");
-  vall_f1->Draw("same");
-  vall_f2->Draw("same");
+   vall_f1->Draw("same");
+   vall_f2->Draw("same");
 
   /*  TText *t1 = new TText(0.125, 0.87, "Overall resolution v "<<vres_all<<" +- " <<err_vres_all);
   t1->SetNDC();
@@ -188,9 +200,9 @@ void plots(TString files){
 
   TCanvas *z = new TCanvas("canv6","");   
   wresidp->Draw();
-  doublegaus_wall->Draw("same");
-  wall_f1->Draw("same");
-  wall_f2->Draw("same");
+   doublegaus_wall->Draw("same");
+   wall_f1->Draw("same");
+   wall_f2->Draw("same");
    
 }
 

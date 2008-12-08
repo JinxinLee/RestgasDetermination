@@ -17,7 +17,7 @@
 
 
 #include "consecCut.C"
-
+#include "cuts.C"
 
 void plots(TString files){
 
@@ -39,6 +39,7 @@ void plots(TString files){
 
    TH1D *wresid = new TH1D("wresid","",500,-0.2,0.2);
    wresid->SetXTitle("residual w [cm]");
+   wresid->SetStats(kFALSE);
    //wresid->SetFillColor(2);
 
    TH1D *wresidw = new TH1D("wresidw","",500,-0.2,0.2);
@@ -58,24 +59,21 @@ void plots(TString files){
 
     myChain.GetEntry(iev);
     TCtrack tr(*intr);
-    if (fabs(tr.getAx()) > 1.E3) continue;
-    if (fabs(tr.getAy()) > 1.E3) continue;
-    if (tr.getChi2()/tr.getNDF()>2) continue;
-    if (tr.getChi2()/tr.getNDF()<0.01) continue;
-    if (tr.nCl()<2) continue;
-
-      for(int i=0;i<tr.nCl();++i){
-	TCcluster c = tr.getCl(i);
-	if(c.getFit()){//was used in fit
-	  wresid->Fill(c.getRes().Z());
- 	}
-      }
+	if(!IEEE(tr)) continue;
 
 
-      for(int i=0;i<tr.nCl();++i){
-          //if(tr.nClFit()<5) continue;
-          if(!consecCut(tr)) continue;
-          TCcluster c = tr.getCl(i);
+	for(int i=0;i<tr.nCl();++i){
+	  TCcluster c = tr.getCl(i);
+	  if(c.getFit()){//was used in fit
+		wresid->Fill(c.getRes().Z());
+	  }
+	}
+
+
+	for(int i=0;i<tr.nCl();++i){
+	  //if(tr.nClFit()<5) continue;
+	  if(!consecCut(tr)) continue;
+	  TCcluster c = tr.getCl(i);
 	  if(c.getFit()){//was used in fit
 	    wresidw->Fill(c.getRes().Z());
           }
@@ -87,7 +85,7 @@ void plots(TString files){
   std::cout<< "The current time is " << ctime(&rawtime) << std::endl;
 
   wresid->Draw();
-  wresidw->Draw("same");
+  // wresidw->Draw("same");
   z->Update();
 
 }

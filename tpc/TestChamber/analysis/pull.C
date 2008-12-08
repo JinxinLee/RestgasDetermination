@@ -33,12 +33,18 @@ void pull(TString files){
 
   TH1D *pullu = new TH1D("pullu","",500,-10,10);
   pullu->SetXTitle("pull u");
+  pullu->SetYTitle("Number of tracks");
+  pullu->SetStats(kFALSE);
 
   TH1D *pullv = new TH1D("pullv","",500,-10,10);
   pullv->SetXTitle("pull v");
+  pullv->SetYTitle("Number of tracks");
+  pullv->SetStats(kFALSE);
 
   TH1D *pullw = new TH1D("pullw","",500,-10,10);
   pullw->SetXTitle("pull w");
+  pullw->SetYTitle("Number of tracks");
+  pullw->SetStats(kFALSE);
 
   TH1D *resu = new TH1D("resu","",500,-1,1);
   resu->SetXTitle("residual u [cm]");

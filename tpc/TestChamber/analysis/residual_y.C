@@ -17,7 +17,7 @@
 
 
 #include "consecCut.C"
-
+#include "cuts.C"
 
 void plots(TString files){
 
@@ -39,6 +39,7 @@ void plots(TString files){
 
    TH1D *vresid = new TH1D("vresid","",500,-0.2,0.2);
    vresid->SetXTitle("residual v [cm]");
+   vresid->SetStats(kFALSE);
    //vresid->SetFillColor(2);
 
    TH1D *vresidw = new TH1D("vresidw","",500,-0.2,0.2);
@@ -58,11 +59,8 @@ void plots(TString files){
 
      myChain.GetEntry(iev);
      TCtrack tr(*intr);
-     if (fabs(tr.getAx()) > 1.E3) continue;
-     if (fabs(tr.getAy()) > 1.E3) continue;
-     if (tr.getChi2()/tr.getNDF()>2) continue;
-     if (tr.getChi2()/tr.getNDF()<0.01) continue;
-     if (tr.nCl()<2) continue;
+     if (!IEEE(tr)) continue;
+
 
       for(int i=0;i<tr.nCl();++i){
 	TCcluster c = tr.getCl(i);
@@ -86,7 +84,7 @@ void plots(TString files){
   std::cout<< "The current time is " << ctime(&rawtime) << std::endl;
 
   vresid->Draw();
-  vresidw->Draw("same");
+  //  vresidw->Draw("same");
   y->Update();
 
 }

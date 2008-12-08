@@ -17,7 +17,7 @@
 
 
 #include "consecCut.C"
-
+#include "cuts.C"
 
 void plots(TString files){
 
@@ -39,13 +39,14 @@ void plots(TString files){
 
    TH1D *uresid = new TH1D("uresid","",500,-1,1);
    uresid->SetXTitle("residual u [cm]");
+   uresid->SetStats(kFALSE);
    //uresid->SetFillColor(2);
 
    TH1D *uresidw = new TH1D("uresidw","",500,-1,1);
    uresidw->SetXTitle("residual u with cut [cm]");
-   uresidw->SetFillColor(4);   
-   uresidw->SetLineColor(4);
-
+   //uresidw->SetFillColor(4);   
+   //uresidw->SetLineColor(4);
+   //uresidw->SetStats(kFALSE);
 
    TCanvas *x = new TCanvas();
 
@@ -59,11 +60,8 @@ void plots(TString files){
 
     myChain.GetEntry(iev);
     TCtrack tr(*intr);
-    if (fabs(tr.getAx()) > 1.E3) continue;
-    if (fabs(tr.getAy()) > 1.E3) continue;
-    if (tr.getChi2()/tr.getNDF()>2) continue;
-    if (tr.getChi2()/tr.getNDF()<0.01) continue;
-    if (tr.nCl()<2) continue;
+
+    if (!IEEE(tr)) continue;
 
       for(int i=0;i<tr.nCl();++i){
 	TCcluster c = tr.getCl(i);
@@ -75,7 +73,7 @@ void plots(TString files){
 
       for(int i=0;i<tr.nCl();++i){
           //if(tr.nClFit()<5) continue;
-          if(!consecCut(tr)) continue;
+		// if(!consecCut(tr)) continue;
           TCcluster c = tr.getCl(i);
 	  if(c.getFit()){//was used in fit
 	    uresidw->Fill(c.getRes().X());
@@ -88,7 +86,6 @@ void plots(TString files){
   std::cout<< "The current time is " << ctime(&rawtime) << std::endl;
 
   uresid->Draw();
-  uresidw->Draw("same");
   x->Update();
 
 }

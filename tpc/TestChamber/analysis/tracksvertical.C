@@ -18,7 +18,7 @@
 
 
 #include "consecCut.C"
-
+#include "cuts.C"
 
 void tracks(TString files){
 
@@ -68,15 +68,12 @@ void tracks(TString files){
 
   myChain.SetBranchAddress("track", &intr);
 
-  for (Int_t i=0;i<nevent;i++){
+  for (Int_t i=0;i<500;i++){
 
     myChain.GetEntry(i);
     TCtrack tr(*intr);
 
-    if (fabs(tr.getAx()) > 1.E3) continue;
-    if (fabs(tr.getAy()) > 1.E3) continue;
-    if (tr.getChi2()/tr.getNDF()>1) continue;
-    if (tr.nCl()<2) continue;
+	if(!IEEE(tr))continue;
 
     Double_t x1 = tr.getBx();
     Double_t x2 = 10*tr.getAx() + tr.getBx();

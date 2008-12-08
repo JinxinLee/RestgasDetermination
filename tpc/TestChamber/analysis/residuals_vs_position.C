@@ -55,8 +55,6 @@ void position(TString files){
   TCtrack *intr=0;
 
   //define the histograms
-  //without using clusterSplit1.C
-
 
   TH2D *uresid_vs_u = new TH2D("u_vs_uresid","",500,0,10,500,-1,1);
   uresid_vs_u->SetXTitle("Position u [cm]");
@@ -69,10 +67,12 @@ void position(TString files){
   TH2D *vresid_vs_v = new TH2D("vresid_vs_v","",500,0,1,500,-0.1,0.1);
   vresid_vs_v->SetXTitle("Position v [cm]");
   vresid_vs_v->SetYTitle("Residual v [cm]");
+  vresid_vs_v->SetStats(kFALSE);
 
   TProfile *prof_v = new TProfile("prof_v","Profile of v residual vs v",100,0,1,-0.1,0.1);
   prof_v->SetXTitle("Position v [cm]");
   prof_v->SetYTitle("Residual v [cm]");
+  prof_v->SetStats(kFALSE);
 
   TProfile *prof_vU1 = new TProfile("prof_vU1","Profile of v residual vs v",50,0,1,-0.1,0.1);
   TProfile *prof_vU2 = new TProfile("prof_vU2","Profile of v residual vs v",50,0,1,-0.1,0.1);
@@ -102,16 +102,21 @@ void position(TString files){
 
   TProfile *prof_w_v = new TProfile("prof_w_v","Profile of w residual vs v",100,0,1,-0.1,0.1);
 
+  TH1D *test = new TH1D("test","",500,-0.1,0.1);
+
   myChain.SetBranchAddress("track", &intr);
+
+  //event loop
 
   for (Int_t iev=0;iev<nevent;iev++){
 	
     myChain.GetEntry(iev);
     TCtrack tr(*intr);
-	TCtrack corrTrack = without_end_pads(tr);
 
-    if(!IEEE(corrTrack)) continue;
-    //if(!IEEE(tr)) continue;
+	TCtrack corrTrack = without_end_pads(tr);
+	
+	if(!IEEE(corrTrack)) continue;
+	//	  if(!IEEE(tr)) continue;
     
 	/*
 	  bool passLow=false;
@@ -127,13 +132,22 @@ void position(TString files){
 	  std::vector<TCcluster> corrClusters;
 	  int detId;
 	*/
-	//for(int i=0;i<tr.nCl();++i){
-   	for(int i=0;i<corrTrack.nCl();++i){ 
-	  // TCcluster c = tr.getCl(i);
-	  TCcluster c = corrTrack.getCl(i);
-	  //	  if (c.getFit()){
-	  if (true){
 
+	//loop over clusters in the event
+
+	//	for(int i=0;i<tr.nCl();++i){
+    // TCcluster c = tr.getCl(i);
+	for(int i=0;i<corrTrack.nCl();++i){ 
+	  TCcluster c = corrTrack.getCl(i);
+	  if (c.getFit()){
+
+		//	if(c.getRes().Y()<0.0002&&c.getRes().Y()>0.0001)continue;
+		// if (true){
+
+		//simple residual in v
+		test->Fill(c.getRes().Y());
+		
+		//profile of v positon vs v residual in v bins (delta v = 1mm)
 		if(c.posUVW().Y()<0.1&&c.posUVW().Y()>0.06)prof_vV1->Fill(c.posUVW().Y(),c.getRes().Y());
 		if(c.posUVW().Y()<0.2&&c.posUVW().Y()>0.1)prof_vV2->Fill(c.posUVW().Y(),c.getRes().Y());
 		if(c.posUVW().Y()<0.3&&c.posUVW().Y()>0.2)prof_vV3->Fill(c.posUVW().Y(),c.getRes().Y());
@@ -144,6 +158,7 @@ void position(TString files){
 		if(c.posUVW().Y()<0.74&&c.posUVW().Y()>0.7)prof_vV8->Fill(c.posUVW().Y(),c.getRes().Y());
 
 		/*				
+		//profile of v positon vs v residual in v bins (delta v = 1mm)
 		if(c.posUVW().Y()<0.1)prof_v->Fill(c.posUVW().Y(),c.getRes().Y()-prof_vV1->GetMean(2));
 		if(c.posUVW().Y()<0.2&&c.posUVW().Y()>0.1)prof_v->Fill(c.posUVW().Y(),c.getRes().Y()-prof_vV2->GetMean(2));
 		if(c.posUVW().Y()<0.3&&c.posUVW().Y()>0.2)prof_v->Fill(c.posUVW().Y(),c.getRes().Y()-prof_vV3->GetMean(2));
@@ -154,6 +169,7 @@ void position(TString files){
 		if(c.posUVW().Y()>0.7)prof_v->Fill(c.posUVW().Y(),c.getRes().Y()-prof_vV8->GetMean(2));
 		*/
 
+		//w residual versus v position
 		wresid_vs_v->Fill(c.posUVW().Y(),c.getRes().Z());
 
 		/*
@@ -198,35 +214,44 @@ void position(TString files){
 		  if(d.getFit()){//was used in fit
 		  //if(d.nPadY()<2)continue;
 		  */
+		//u,v,w residual versus u,v,w position
 		uresid_vs_u->Fill(c.posUVW().X(),c.getRes().X());
 		vresid_vs_v->Fill(c.posUVW().Y(),c.getRes().Y());
 		wresid_vs_w->Fill(c.posUVW().Z(),c.getRes().Z());
 
+		//profile of u,v,w residual versus u,v,w position
 		prof_u->Fill(c.posUVW().X(),c.getRes().X());
-			prof_v->Fill(c.posUVW().Y(),c.getRes().Y());
-		
+		prof_v->Fill(c.posUVW().Y(),c.getRes().Y());
+		prof_w->Fill(c.posUVW().Z(),c.getRes().Z());
+	
+		//profile of v residuals versus v position for different angle settings
 		// 	if(tr.getThX()<0.&&tr.getThY()<0.)prof_vU1->Fill(d.posUVW().Y(),d.getRes().Y());
 		// 	if(tr.getThX()<0.&&tr.getThY()>0.)prof_vU2->Fill(d.posUVW().Y(),d.getRes().Y());
 		// 	if(tr.getThX()>0.&&tr.getThY()<0.)prof_vU3->Fill(d.posUVW().Y(),d.getRes().Y());
 		// 	if(tr.getThX()>0.&&tr.getThY()>0.)prof_vU4->Fill(d.posUVW().Y(),d.getRes().Y());
 
+		//profile of v residuals versus v position in u bins (4 pads, u = 4*0.62 cm)
 		// 	if(d.posUVW().X()<4.*0.62)prof_vU1->Fill(d.posUVW().Y(),d.getRes().Y());
 		// 	if(d.posUVW().X()>4.*0.62&&d.posUVW().X()<8.*0.62)prof_vU2->Fill(d.posUVW().Y(),d.getRes().Y());
 		// 	if(d.posUVW().X()>8.*0.62&&d.posUVW().X()<12.*0.62)prof_vU3->Fill(d.posUVW().Y(),d.getRes().Y());
 		// 	if(d.posUVW().X()>12*0.62)prof_vU4->Fill(d.posUVW().Y(),d.getRes().Y());
 		//	if(d.nTime()!=1)continue;
+
+		//profile of v residuals versus v position for different nPadY
 		if(c.nPadY()==1)prof_vU1->Fill(c.posUVW().Y(),c.getRes().Y());
 		if(c.nPadY()==2)prof_vU2->Fill(c.posUVW().Y(),c.getRes().Y());
 		if(c.nPadY()==3)prof_vU3->Fill(c.posUVW().Y(),c.getRes().Y());
 		if(c.nPadY()>3)prof_vU4->Fill(c.posUVW().Y(),c.getRes().Y());
 
-		prof_w->Fill(c.posUVW().Z(),c.getRes().Z());
+		//profile of w residuals versus v position
 		prof_w_v->Fill(c.posUVW().Y(),c.getRes().Z());
-      }
+	  }
     }
   }
 
   //end of event loop
+
+  //overview graph for slope in profile of v residual versus v position
 
   double v [8] = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8};
   double mean [8] = {prof_vV1->GetMean(2), prof_vV2->GetMean(2), prof_vV3->GetMean(2), prof_vV4->GetMean(2), prof_vV5->GetMean(2), prof_vV6->GetMean(2), prof_vV7->GetMean(2), prof_vV8->GetMean(2)};
@@ -243,10 +268,13 @@ void position(TString files){
   hr1v_mean->SetXTitle("v [cm]");
   hr1v_mean->SetYTitle("v residual [cm]");
 
+  //draw overview graph and fit
   TCanvas *canvas = new TCanvas();
   hr1v_mean->Draw();
   vmean->Draw("p");
   vmean->Fit("pol1");
+
+  //Draw all the distributions and fitting some
 
   canvas = new TCanvas();
   uresid_vs_u->Draw("colz");
@@ -260,7 +288,7 @@ void position(TString files){
   canvas = new TCanvas();
   prof_u->Draw("");
   canvas = new TCanvas();
-  prof_v->Fit("pol1");
+  // prof_v->Fit("pol1");
   prof_v->Draw("");
   canvas = new TCanvas();
   prof_w->Draw("");
@@ -309,5 +337,8 @@ void position(TString files){
   canvas->cd(8);
   prof_vV8->Draw("");
   //prof_vV8->Fit("pol0");
+
+  canvas = new TCanvas();
+  test->Draw();
 
 }
