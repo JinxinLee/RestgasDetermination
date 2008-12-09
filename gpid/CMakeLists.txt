@@ -47,6 +47,7 @@ PndGpidCollTask.cxx
 PndMultiClassMVA.cxx
 PndMakeTrainData.cxx
 PndMakeTrainDataLhe.cxx
+PndGpidTaskFast.cxx
 )
 CHANGE_FILE_EXTENSION(*.cxx *.h Gpid_HEADERS "${Gpid_SRCS}")
 

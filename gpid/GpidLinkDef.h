@@ -14,5 +14,6 @@
 #pragma link C++ class  PndMakeTrainDataLhe+;
 //#pragma link C++ class  Event+;
 //#pragma link C++ class  EvtGenTask+;
+#pragma link C++ class  PndGpidTaskFast+;
 
 #endif
