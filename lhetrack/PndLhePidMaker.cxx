@@ -658,7 +658,7 @@ void PndLhePidMaker::GetMdtInfo(PndLhePidTrack* track) {
 //_________________________________________________________________
 void PndLhePidMaker::GetDrcInfo(PndLhePidTrack* track) {
   if ((track->GetMomentum().Theta()*TMath::RadToDeg())<20.) return;
-  if (fGeanePro) fPro->PropagateToVolume("DrcBase",0,1);
+  if (fGeanePro) fPro->PropagateToVolume("DrcSide",0,1);
   //---
   PndDrcHit *drcHit = NULL;
   Int_t drcEntries = fDrcHit->GetEntriesFast();
