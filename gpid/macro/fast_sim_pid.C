@@ -3,7 +3,7 @@
 // *******
 
 
-void fast_pid(Char_t part[]="e-",int nevts=0,TString outfile="")
+void fast_sim_pid(Char_t part[]="e-",int nevts=0,TString outfile="test.root")
 {
   TStopwatch timer;
   timer.Start();
