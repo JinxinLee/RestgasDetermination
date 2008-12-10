@@ -117,8 +117,8 @@ if (TMath::Abs(thetaCheckMean)<0.1 && thetaCheckRMS<0.7 && thetaCheckRMS>0.1)
 else
 {
     cout<<" \n Theta Diff - SOMETHING WENT WRONG "<<endl;
-    cout<<"    Theta mean = " << energyCheckMean << endl;
-    cout<<"    Theta RMS  = " << energyCheckRMS << endl;
+    cout<<"    Theta mean = " << thetaCheckMean << endl;
+    cout<<"    Theta RMS  = " << thetaCheckRMS << endl;
     fTest=kFALSE;
 }
 
