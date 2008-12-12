@@ -62,7 +62,7 @@ void Alignment::readDetectors(bool simulation_)
   std::vector<int> ids = reader->getLoadedIDs();
   
   for(unsigned int i=0;i<ids.size();i++){
-    if(ids[i]>0&&ids[i]<20||ids[i]>50&&ids[i]<70){
+    if(ids[i]>0&&ids[i]<100){
       TVector3 trans;
       TMatrixT<double> rot(3,3);
       double pitch,res, theta, phi, psi;
@@ -81,7 +81,7 @@ void Alignment::readDetectors(bool simulation_)
   if(simulation){
     cout<<"simrealalign read-----------------------------------------------------***********"<<endl;
     reader->clear();
-    reader->read("simRealAlign.txt");
+    reader->read("Alignmentfiles/simRealAlign.txt");
     assert(reader->getLoadedIDs().size()==ids.size());
     for(unsigned int i=0;i<ids.size();i++){
       TVector3 trans2;
@@ -111,7 +111,9 @@ Alignment::Alignment(string conffile){
   }else{
     tracks="";
   }
-  
+  if(!cf.readInto(histogramFile, "HistogramFile")){
+    histogramFile="histogramfailed.root";
+  }
   cf.readInto(alignU_, "AlignU");
   cf.readInto(alignZ_, "AlignZ");
   cf.readInto(alignT_, "AlignT");
@@ -208,10 +210,13 @@ void Alignment::doFit(){
     wil set me down and understand the parameters sendt two it soon
   */
   C_INITUN(11,100000.0);
+  
   for(unsigned int i = 0; i<detectors.size();i++){
     int id=detectors[i]->getId();
-    hists_det.push_back(new TH1D(TString::Format("dU_%i",id),TString::Format("dU_%i",id),10000,-3,3));
-    profiles_det.push_back(new TProfile(TString::Format("dU_vs_U%i",id),TString::Format("dU_vs_U%i",id),1000,-3,3,-1,1));
+    hists_det.push_back(new TH1D(TString::Format("dU_%i",id),TString::Format("dU_%i",id),30000,-1,1));
+    profiles_det.push_back(new TProfile(TString::Format("dU_vs_U%i",id),TString::Format("dU_vs_U%i",id),1000,10,10,-10,10));
+    hists_det_testX.push_back(new TH2D(TString::Format("U_vs_X%i",id),TString::Format("Track_x"),200,0,25,200,-5,10));
+    hists_det_testY.push_back(new TH2D(TString::Format("U_vs_Y%i",id),TString::Format("Track_y"),200,0,25,200,-5,10));
   }
   cout<<endl<<"marker1"<<endl;
   /*
@@ -333,9 +338,11 @@ void Alignment::doFit(){
         
         hists_det[j]->Fill(resid.x()); /*u_rec - u_hit*/
         profiles_det[j]->Fill(hit_cluster.posUVW()[0],resid(0)); 
-        
+
         float u_hit=(float)hit_cluster.posUVW()[0]+x*cosT_+y*sinT_ ;
         double z_=detectors[j]->getZ();
+        hists_det_testX[j]->Fill((x0+tx*z_),hit_cluster.posUVW()[0]);
+        hists_det_testY[j]->Fill((y0+ty*z_),hit_cluster.posUVW()[0]);
         float sigma_=(float)detectors[j]->getSigma();
         /*
           calculate local derivatives, ie the derivatives with respect to
@@ -386,23 +393,35 @@ void Alignment::doFit(){
     double theta, phi, psi;
     cout<<endl<<"ID:"<<detectors[n]->getId()<<endl;
     reader->getConv(detectors[n]->getId(),trans,rot,pitch,theta,phi,psi,res);
-    trans[0]+=par[NPARPLAN*n+0];
-    trans[1]+=par[NPARPLAN*n+1];
-    trans[2]+=par[NPARPLAN*n+2];
-    theta+=par[NPARPLAN*n+3];
-    pitch+=par[NPARPLAN*n+4];
-    cout<<"dTheta: "<<par[NPARPLAN*n+2]<<endl;
-    cout<<"dPitch: "<<par[NPARPLAN*n+3]<<endl;
-    cout<<"du: "<<par[NPARPLAN*n]<<"\t\t dz: "<<par[NPARPLAN*n+1]<<endl;
+    double du, dx, dy,dTheta,dz,dp;
+    du=par[NPARPLAN*n+0];
+    dz=par[NPARPLAN*n+1];
+    dTheta=par[NPARPLAN*n+2];
+    dp=par[NPARPLAN*n+3];
+    dx = du*cos(theta);
+    dy = du*sin(theta);
+
+    theta+=dTheta;
+    trans[0]+=dx;
+    trans[1]+=dy;
+    trans[2]+=dz;
+    pitch+=dp;
+
+    cout<<"dTheta: "<<dTheta<<endl;
+    cout<<"dPitch: "<<dp<<endl;
+    cout<<"du: "<<du<<"\t\t dx: "<<dx<<"\t\t dy: "<<dy<<"\t\t dz: "<<dz<<endl;
+    rot=TCalign::eulerMatrix(theta,phi,psi);
     reader->setConv(detectors[n]->getId(),trans,rot,pitch,theta,phi,psi,res);
   }
   reader->write(outfile);
   //open file for histograms
   
-  TFile* file = new TFile("histograms.root","RECREATE");
+  TFile* file = new TFile(histogramFile.c_str(),"RECREATE");
   for(unsigned int i = 0; i<hists_det.size();i++){
     hists_det[i]->Write();
     profiles_det[i]->Write();
+    hists_det_testX[i]->Write();
+    hists_det_testY[i]->Write();
   }
   cout<<"Histograms written to file"<<endl;
   file->Close();
@@ -410,7 +429,10 @@ void Alignment::doFit(){
   for(unsigned int i = 0; i<hists_det.size();i++){
     delete hists_det[i];
     delete profiles_det[i];
+    delete hists_det_testX[i];
+    delete hists_det_testY[i];
   }
+
   
 }
 

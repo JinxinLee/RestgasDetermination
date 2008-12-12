@@ -17,6 +17,8 @@ class Alignment{
     std::vector<Track> tracks_sim;
     std::vector<TCtrack> tracks_real;
     std::vector<TH1D*> hists_det;
+    std::vector<TH2D*> hists_det_testX;
+    std::vector<TH2D*> hists_det_testY;
     std::vector<TProfile*> profiles_det;
     std::vector<int> lockedU;
     std::vector<int> lockedZ;
@@ -39,6 +41,7 @@ class Alignment{
     float par[NGLB];       //!< vector of parameters
     std::string infile;
     std::string outfile;
+    std::string histogramFile;
     bool simulation;
     float zero;
     
