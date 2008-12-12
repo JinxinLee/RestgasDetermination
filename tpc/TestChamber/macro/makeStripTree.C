@@ -11,9 +11,9 @@ TCcluster makeCluster(TCtrack *t,int id){
   TVector3 trans;
   TMatrixT<double> rot(3,3);
   double pitch,theta,d1,d2,res;
-  TCalign* a = TCalign::getInstance("alignment/simRealAlign.txt");
+  TCalign* a = TCalign::getInstance("alignment/AlignmentFiles/simRealAlign.txt");
   a->clear();
-  a->read("alignment/simRealAlign.txt");
+  a->read("alignment/AlignmentFiles/simRealAlign.txt");
   a->getConv(id,trans,rot,pitch,theta,d1,d2,res);
   //cout<<"x "<<trans[0]<<" y: "<<trans[1]<<" z: "<<trans[2]<<endl;
   double x=t->getAx()*trans.Z()+t->getBx();
@@ -34,15 +34,15 @@ TCcluster makeCluster(TCtrack *t,int id){
   return c;
 }
 
-void makeStripTree(){
+void makeStripTree(string trackfile, string alignmentfile, int nTracks){
   TCtrack *outTr = new TCtrack();
-  TFile* rootOutfile = new TFile("out2.root","RECREATE");
+  TFile* rootOutfile = new TFile(trackfile.c_str(),"RECREATE");
   TTree* outTree = new TTree("at","test code for strip detectors");
   outTree->Branch("track","TCtrack",&outTr,32000,99);
 
   
 
-  int nTracks = 10000;
+  // int nTracks = 10000;
 
   TRandom3 rand(0);
 
@@ -53,12 +53,13 @@ void makeStripTree(){
     //pos1.SetXYZ(0.,0.,0.);
     //pos2.SetXYZ(1.,2.,100.);
     
-    pos1.SetX(rand.Uniform(15.161,15.443));
-    pos1.SetY(rand.Uniform(21.079,21.362));
-    pos1.SetZ(rand.Uniform(28.64,28.66));
-    pos2.SetX(rand.Uniform(21.079,21.362));
-    pos2.SetY(rand.Uniform(28.64,28.66));
-    pos2.SetZ(rand.Uniform(171.0,171.1));
+    pos1.SetX(rand.Uniform(13.890,16.716));
+    pos1.SetY(rand.Uniform(21.079,21.618));
+    pos1.SetZ(rand.Uniform(28.14,28.15));
+
+    pos2.SetX(rand.Uniform(13.688,16.506));
+    pos2.SetY(rand.Uniform(21.079,21.618));
+    pos2.SetZ(rand.Uniform(166.6,166.5));
        
     TVector3 mom=pos2-pos1;
     mom.SetMag(1.);
@@ -66,10 +67,13 @@ void makeStripTree(){
 
     ax=mom.X()/mom.Z();
     ay=mom.Y()/mom.Z();    
-    double t=(0.-pos1.Z())/mom.Z();
-    bx=pos1.X()+t*ax;
-    by=pos1.Y()+t*ay;
-    
+    //double t=(0.-pos1.Z())/mom.Z();
+    //bx=pos1.X()+t*ax;
+    //by=pos1.Y()+t*ay;
+    bx=pos1.X()-pos1.Z()*ax;
+    by=pos1.Y()-pos1.Z()*ay;
+
+
     outTr->setPar(ax,bx,ay,by);
     //cout<<"hei"<<endl;
     for(int j=1;j<=8;++j){
@@ -79,13 +83,15 @@ void makeStripTree(){
     //"************* ---------------------------------------- *************************"<<endl;
     //    outTr->print();
 
-    TCalign* a = TCalign::getInstance("alignment/simRealAlign.txt");
+    TCalign* a = TCalign::getInstance("alignment/AlignmentFiles/simRealAlign.txt");
     a->clear();
-    a->read("alignment/AlignmentOut.txt");
-    outTr->fit(1,2,3,4,5,6,7,8);
-    //outTr->print();
-    cout<<endl<<endl;
-    outTree->Fill();    
+    a->read(alignmentfile);
+    if(outTr->fit(1,2,3,4,5,6,7,8)){
+      //outTr->print();
+      outTree->Fill();    
+    
+    }
+    cout<<endl<<endl;    
     
   }
   rootOutfile->Write();
