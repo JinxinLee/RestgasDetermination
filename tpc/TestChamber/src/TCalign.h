@@ -17,6 +17,22 @@ public:
 	return inst;
     }
     
+    
+    /*
+      Building euler matrixes using the x-convention:
+      temporary is theta and phi switched. ie theta has means the angle phi usualy points to.
+      see:
+      http://mathworld.wolfram.com/EulerAngles.html
+      quote:
+      "The so-called "x-convention," illustrated above, is the most common definition. 
+      In this convention, the rotation given by Euler angles (phi,theta,psi), 
+      where the first rotation is by an angle phi about the z-axis, 
+      the second is by an angle theta in [0,pi] about the x-axis, 
+      and the third is by an angle psi about the z-axis (again)"
+    */
+    
+    static TMatrixT<double> eulerMatrix(double theta, double phi, double psi);
+
     void getConv(int id,TVector3& trans,TMatrixT<double>& rot,double& pitch){
 	if(T[id]==NULL) quit(id);
 	if(R[id]==NULL) quit(id);
