@@ -77,7 +77,7 @@ void PndMdt::Print() const
 // -----   Public method Reset   ----------------------------------------------
 void PndMdt::Reset() 
 {
-   fMdtCollection->Clear(); 
+   fMdtCollection->Delete(); 
    fPosIndex = 0;
 }
 // ----------------------------------------------------------------------------
@@ -86,7 +86,7 @@ void PndMdt::Reset()
 // -----   Public method CopyClones   -----------------------------------------
 void PndMdt::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset ) 
 {
-  Int_t nEntries = cl1->GetEntriesFast();
+/*  Int_t nEntries = cl1->GetEntriesFast();
   TClonesArray& clref = *cl2;
   PndMdtPoint* oldpoint = NULL;
   for (Int_t i=0; i<nEntries; i++) {
@@ -98,29 +98,19 @@ void PndMdt::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset )
   }
   cout << " -I- PndMdt: " << cl2->GetEntriesFast() << " merged entries."
        << endl;
+*/
 }
 // ----------------------------------------------------------------------------
-
-
-// -----   Public method AddHit   ---------------------------------------------
-PndMdtPoint* PndMdt::AddHit() 
-{
-  TClonesArray& clref = *fMdtCollection;
-  Int_t size = clref.GetEntriesFast();
-  
-  return new(clref[size]) PndMdtPoint(fEventID,fTrackID,fTrackParentID,fDetectorID,fPDG,fPos,fMom);
-}
-// ----------------------------------------------------------------------------
-
 
 // -----   Public method ResetParameters   ------------------------------------
 void PndMdt::ResetParameters() 
 {
-    fEventID = -999;
+  /*  fEventID = -999;
     fTrackID = -999;
     fTrackParentID = -999;
     fDetectorID = -999;
     fPDG = -999;
+    */
     fPos.SetXYZT(0., 0., 0., 0.);
     fMom.SetXYZT(0., 0., 0., 0.) ;
 }
@@ -364,57 +354,62 @@ void PndMdt::BeginEvent()
 // -----   Public method ProcessHits  --------------------------------------
 Bool_t PndMdt::ProcessHits(CbmVolume* vol) 
 {
-  TString name = gMC->CurrentVolName();
-  if (gMC->IsTrackEntering()==kFALSE) return kTRUE;
-  
+  if (gMC->IsTrackEntering()){
+	  Int_t TrNo=gMC->GetStack()->GetCurrentTrackNumber();
+	  Int_t pdg= gMC->TrackPid();	  
+	  
   TLorentzVector lPos, lMom;
-
+  TString name = vol->GetName();
   if (!(name.BeginsWith("muon"))) 
-    cout << "Error <PndMdt::ProcessHits> : " << name << " not MDT volume" << endl;
+      cout << "Error <PndMdt::ProcessHits> : " << name << " not MDT volume" << endl;
   else {
-    lEventID = gMC->CurrentEvent();
-    lTrackID  = gMC->GetStack()->GetCurrentTrackNumber();
-    SetTrackParentID(gMC->GetStack()->GetCurrentParentTrackNumber());
-    
     int ilayer;
     sscanf(name,"muon%i",&ilayer);
-    SetDetectorID((Int_t)ilayer);
-    
-    SetPDG(gMC->TrackPid());
-    
     gMC->TrackPosition(lPos); // cm
     gMC->TrackMomentum(lMom); // GeV
-    
-    SetPos(lPos);
-    SetMom(lMom);
-    
-    if(name!=fVolumeName || lEventID != GetEventID() || lTrackID != GetTrackID()) 
-    {
-	fVolumeName = name;
-	SetEventID(lEventID);
-	SetTrackID(lTrackID);
-	AddHit();
-	if ( ( (GetModule()==1) && (TMath::Even(GetDetectorID())) ) ||
-	     (GetModule()==2)  )
-	  { // Set the correct MCTrack->GetMdtPoints()
-	    Int_t points = gMC->GetStack()->GetCurrentTrack()->GetMother(1);
+    TClonesArray& clref = *fMdtCollection;
+    Int_t size = fMdtCollection->GetEntriesFast();
+  //  cout << " PndMdt::AddHit() " << size << " : " << gMC->TrackPid() << endl;
+     PndMdtPoint *P= new(clref[size]) PndMdtPoint (TrNo,ilayer, lPos.Vect(), lMom.Vect(), gMC->TrackTime(),
+     gMC->TrackLength(), gMC->Edep(), gMC->GetStack()->GetCurrentParentTrackNumber(),pdg);
+	
+     if ( ( (GetModule()==1) && (TMath::Even(ilayer)) ) ||  (GetModule()==2)  )
+	{ // Set the correct MCTrack->GetMdtPoints()
+            Int_t points = gMC->GetStack()->GetCurrentTrack()->GetMother(1);
 	    Int_t nMdtPoints = (points & (15<<6)) >> 6;
 	    nMdtPoints ++;
-	    if (nMdtPoints <= 15)
-	      {
+	    if (nMdtPoints <= 15){
 		points = ( points & ( ~ (15<< 6) ) ) | (nMdtPoints << 6);
 		gMC->GetStack()->GetCurrentTrack()->SetMother(1,points);
-	      }
-	  }
-    };
+	     }
+	}
+ 
+ //   Int_t n1= gMC->TrackPid();
+ //   Int_t n2= P->GetPDG();
+ //  if(TrNo < 5 ) 
+//   cout << "PndMdt::ProcessHits   Track No. " << TrNo << " Pid " <<  pdg << "Pid (P)" <<  P->GetPDG() << endl;
+//   if((n1-n2)!=0) cout << "Process Hits " << pdg << "  :  " << P->GetPDG() << endl;
+ 
   };
   
-  //  ResetParameters();
-  
+   ResetParameters();
+  }
   return kTRUE;
   
 }
 // ----------------------------------------------------------------------------
+
+TClonesArray* PndMdt::GetCollection(Int_t iColl) const 
+{ 
+
+  if(iColl==0) {
+	   cout << "PndMdt::GetCollection" << endl;
+           return fMdtCollection; 
+  }else{ 
+     return NULL; 
+  }
+
+}
 
 
 // -----   Public method EndOfEvent   -----------------------------------------
