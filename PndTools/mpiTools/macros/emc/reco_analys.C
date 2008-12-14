@@ -35,9 +35,15 @@ void reco_analys(Char_t InputSimFile[]="sim_emc.root",
 	TClonesArray* wf_array=new TClonesArray("PndEmcWaveform");
 	c->SetBranchAddress("EmcCluster",&cluster_array);
 	c->SetBranchAddress("EmcWaveform",&wf_array);
+
+	TClonesArray* digi_array=new TClonesArray("PndEmcDigi");
+        c->SetBranchAddress("EmcDigi",&digi_array);
+
+	TClonesArray* hit_array=new TClonesArray("PndEmcHit");
+        c->SetBranchAddress("EmcHit",&hit_array);
 	
 	TFile *fs=new TFile(OutputFile,"recreate");
-	TNtuple *n = new TNtuple("myntup","My Ntuple","et:tht:pht:ec:thc:phc:nc:sc");
+	TNtuple *n = new TNtuple("myntup","My Ntuple","et:tht:pht:ec:thc:phc:nc:sc:edbar:edfw:edbw:eh:ecc:thd:phd");
 
 	cout << "<I> Number of entries " << c->GetEntries() << endl;
 
@@ -47,8 +53,11 @@ void reco_analys(Char_t InputSimFile[]="sim_emc.root",
 	    exit(-1);
 	  }
 
-	double cluster_energy;
+	double cluster_energy,cluster_energy_check,digi_low,digi_high;
 	double cluster_theta, cluster_phi; //position of the cluster
+	Double_t tot_digi_energy_barrel,tot_digi_energy_fwendcap,tot_digi_energy_bwendcap;
+	Double_t tot_hit_energy;
+	Double_t theta_digi,phi_digi;
 	int ndigi;
        
 	PndEmcMapper *fEmcMap=PndEmcMapper::Instance(1);
@@ -60,9 +69,10 @@ void reco_analys(Char_t InputSimFile[]="sim_emc.root",
 	    {
 	      printf(".%i.",j);fflush(stdout);
 	    }
-		c->GetEntry(j);
-		csim->GetEntry(j);
-
+	  c->GetEntry(j);
+	  csim->GetEntry(j);
+	  
+	  
 		CbmMCTrack *track=(CbmMCTrack*)track_array->At(0);
 		TLorentzVector p4mom=track->Get4Momentum();
 
@@ -76,6 +86,38 @@ void reco_analys(Char_t InputSimFile[]="sim_emc.root",
 		cout << "<I> The azimuthal angle of the incident particle in this event is " << (180./TMath::Pi())*p4mom.Phi() << "\t" << "Degrees" << endl;
 		cout << "<I> Number of clusters found is                                   " << cluster_array->GetEntriesFast() << endl;
 		*/
+
+	        tot_digi_energy_barrel=0;
+	        tot_digi_energy_fwendcap=0;
+	        tot_digi_energy_bwendcap=0;
+	        tot_hit_energy=0;
+	        for (Int_t i=0; i<digi_array->GetEntriesFast(); i++)
+	         {
+	          PndEmcDigi *digi=(PndEmcDigi*)digi_array->At(i);
+	          Double_t digi_energy=digi->GetEnergy();
+		  Int_t detid=digi->GetDetectorId()/100000000;
+		  //cout << digi->GetDetectorId() << "/" << detid << endl;
+	          if (detid==3) 
+		      {
+			  tot_digi_energy_fwendcap+=digi_energy;
+		      }
+		  else if (detid==4) 
+		      {
+			  tot_digi_energy_bwendcap+=digi_energy;	      
+		      }
+	          else
+		      {
+			  tot_digi_energy_barrel+=digi_energy;	      
+		      }
+
+	          }
+	        for (Int_t i=0; i<hit_array->GetEntriesFast(); i++)
+	         {
+	          PndEmcHit *hit=(PndEmcHit*)hit_array->At(i);
+	          Double_t hit_energy=hit->GetEnergy();
+	          tot_hit_energy+=hit_energy;	      
+	          }
+
 		if (cluster_array->GetEntriesFast()>0)
 		  {
 		    Int_t    idWithHighestEnergy = 0;
@@ -100,6 +142,28 @@ void reco_analys(Char_t InputSimFile[]="sim_emc.root",
 		    PndEmcCluster *cluster=(PndEmcCluster*)cluster_array->At(idWithHighestEnergy);
 		    std::vector<PndEmcDigi*> digiList=cluster->DigiList();
 		    ndigi=digiList.size();
+		    
+		    cluster_energy_check=0;
+		    digi_low=digiList[0]->GetEnergy();
+		    digi_high=digiList[0]->GetEnergy();
+		    Int_t digi_high_id=0;
+		    for (Int_t k=0; k<ndigi; k++)
+		    {
+			cluster_energy_check+=digiList[k]->GetEnergy();
+
+			if (digiList[k]->GetEnergy()<digi_low)
+			{
+			    digi_low=digiList[k]->GetEnergy();
+			}
+			if (digiList[k]->GetEnergy()>digi_high)
+			{
+			    digi_high=digiList[k]->GetEnergy();
+			    digi_high_id=k;
+			}
+		    }
+
+		    theta_digi=digiList[digi_high_id]->GetTheta();
+		    phi_digi=digiList[digi_high_id]->GetPhi();
 
 		    TVector3 cluster_pos=cluster->where();
 		    cluster_theta=cluster_pos.Theta();
@@ -121,9 +185,14 @@ void reco_analys(Char_t InputSimFile[]="sim_emc.root",
 			    (Float_t) cluster_theta*(180/TMath::Pi()),
 			    (Float_t) cluster_phi*(180/TMath::Pi()),
 			    (Float_t) cluster_array->GetEntriesFast(),
-			    (Float_t) ndigi);
-
-
+			    (Float_t) ndigi,
+			    (Float_t) tot_digi_energy_barrel,
+			    (Float_t) tot_digi_energy_fwendcap,
+			    (Float_t) tot_digi_energy_bwendcap,
+			    (Float_t) tot_hit_energy,
+			    (Float_t) cluster_energy_check,
+			    (Float_t) theta_digi*(180/TMath::Pi()),
+			    (Float_t) phi_digi*(180/TMath::Pi()));
 		  }
 	}
 	fs->Write();
