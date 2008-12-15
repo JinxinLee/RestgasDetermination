@@ -95,7 +95,7 @@ private:
   // Array of Class names for classification names 
   vector<string> fClassNameArray;
   
-  TMVA::Reader reader[10]; 
+  TMVA::Reader reader[10]; //! 
   Int_t fNVAR;
   Int_t fNCLASS;
   float varArray[100];
