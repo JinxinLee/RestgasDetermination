@@ -5,6 +5,10 @@
 #
 # JOB Multiplicity ScriptToRun Input Output Number_of_pars par1 par2 par3	...
 #
+MOVECMD $HOME/bin/movefiles
+#
+SCRATCH /tmp
+#
 RUNID 0
 JOB 100 $HOME/scripts/fillhisto.sh NULL $HOME/output/parts 3 1000000 1000 output.root
 #
