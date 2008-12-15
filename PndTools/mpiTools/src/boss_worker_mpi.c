@@ -81,7 +81,7 @@
 #define MPELOGFORMAT    "SLOG"                 // Log format of MPE, for profiling.
 
 #define JOBSTRINGSIZE    128                   // Maximum length of one of the parameters defining the job
-#define DEFAULT_JOBSIZE  4                     // Initial memory in units of JOBSTRINGSIZE allocated to job 
+#define DEFAULT_JOBSIZE  5                     // Initial memory in units of JOBSTRINGSIZE allocated to job 
                                                // (automatically resized on the fly)
 
 #define MAX_HOSTNAME_LENGTH 32
@@ -120,6 +120,8 @@ typedef struct {
   int   worker;                                      // Worker ID = rank number
   int   timeout;                                     // Timeout (s) period after which process killed
   char  output[VERYLONGCHARSIZE];                    // String containing the output device
+  char  movecmd[VERYLONGCHARSIZE];                   // String containing the program for moving data
+  char  scratch[VERYLONGCHARSIZE];                   // String containing the scratch directory
 } thread_info;                                       // Structure containing the information necessary to carry out the MoveJob (thread)
 
 typedef struct {
@@ -553,18 +555,18 @@ void* MoveJob(void *in)
     {
       if (!keep_buffer)
 	{
-	  sprintf(command,"%s %s/%u NULL 0 1",move_files,scratch_path,info->jobid);
+	  sprintf(command,"%s %s/%u NULL 0 1",info->movecmd,info->scratch,info->jobid);
 	}
     }
   else
     {
       if (keep_buffer)
 	{
-	  sprintf(command,"%s %s/%u %s/%u 1 0",move_files,scratch_path,info->jobid,info->output,info->jobid);
+	  sprintf(command,"%s %s/%u %s/%u 1 0",info->movecmd,info->scratch,info->jobid,info->output,info->jobid);
 	}
       else
 	{
-	  sprintf(command,"%s %s/%u %s/%u 1 1",move_files,scratch_path,info->jobid,info->output,info->jobid);
+	  sprintf(command,"%s %s/%u %s/%u 1 1",info->movecmd,info->scratch,info->jobid,info->output,info->jobid);
 	}
     }
 
@@ -578,7 +580,7 @@ void* MoveJob(void *in)
 
 	  if (!keep_buffer)
 	    {
-	      sprintf(command,"%s %s/%u NULL 0 1",move_files,scratch_path,info->jobid);
+	      sprintf(command,"%s %s/%u NULL 0 1",info->movecmd,info->scratch,info->jobid);
 	      MakeSystemCallWithTimeOut(rank,command,REMOVE_TIMEOUT);
 	    }
 	}
@@ -660,6 +662,7 @@ int DoJob(unsigned int *info, job_description *job, unsigned int *time_elapsed)
   time(&tb);
 
   sprintf(scratch_path,"%s",&(job->array[3*JOBSTRINGSIZE]));	
+  sprintf(move_files,"%s",&(job->array[4*JOBSTRINGSIZE]));	
 
   sprintf(command,"%s/%u",scratch_path,info[0]);
 
@@ -763,7 +766,7 @@ int DoJob(unsigned int *info, job_description *job, unsigned int *time_elapsed)
 
   sprintf(command,"./%s %i",scriptname,info[0]);
 
-  for (i=4; i<info[1]; i++)
+  for (i=5; i<info[1]; i++)
     {
       sprintf(&command[strlen(command)]," %s",&(job->array[i*JOBSTRINGSIZE]));
     }
@@ -804,6 +807,8 @@ int DoJob(unsigned int *info, job_description *job, unsigned int *time_elapsed)
   time(&te);
   move_info->timeout=job->timeout-(te-tb);
   sprintf(move_info->output,"%s",&(job->array[2*JOBSTRINGSIZE]));
+  sprintf(move_info->movecmd,"%s",&(job->array[4*JOBSTRINGSIZE]));	
+  sprintf(move_info->scratch,"%s",scratch_path);	
 
   if (verbose_mode)
     {
@@ -870,13 +875,14 @@ int GetAJob(FILE *fp, int *npar, int *barrier, job_description *job)
       if (EOF==ores) return 0;
       if (!strcmp(key,"JOB"))
         {
-          *npar=4;
+          *npar=5;
           fscanf(fp,"%s",key);
           njobs=atoi(key);
           fscanf(fp,"%s",&(job->array[0]));                          /* Script to run */
 	  fscanf(fp,"%s",&(job->array[JOBSTRINGSIZE]));              /* Input */
           fscanf(fp,"%s",&(job->array[2*JOBSTRINGSIZE]));            /* Output */
 	  sprintf(&(job->array[3*JOBSTRINGSIZE]),"%s",scratch_path); /* Scratch output */
+	  sprintf(&(job->array[4*JOBSTRINGSIZE]),"%s",move_files);   /* Move command */
           fscanf(fp,"%s",key);
           (*npar)+=atoi(key);
 
@@ -897,7 +903,7 @@ int GetAJob(FILE *fp, int *npar, int *barrier, job_description *job)
 		}
             }
 	  
-          for (i=4; i<(*npar); i++)
+          for (i=5; i<(*npar); i++)
             {
               fscanf(fp,"%s",&(job->array[i*JOBSTRINGSIZE]));
             }
@@ -948,6 +954,16 @@ int GetAJob(FILE *fp, int *npar, int *barrier, job_description *job)
 	  if (verbose_mode)
 	    {
 	      printf("<B> Changed scratch directory to %s\n",scratch_path);
+	    }
+	}
+      else if (!strcmp(key,"MOVECMD")) /* Set move program */
+        {
+	  fscanf(fp,"%s",key);
+	  sprintf(move_files,"%s",key);
+
+	  if (verbose_mode)
+	    {
+	      printf("<B> Changed move program to %s\n",move_files);
 	    }
 	}
     }

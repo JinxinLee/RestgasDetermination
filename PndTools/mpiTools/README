@@ -182,16 +182,24 @@ An overview of all the keywords, can be found below:
      the process is killed by signalling the corresponding (thread) processes with a SIGINT, followed by 
      a SIGHUP, followed by a SIGTERM, and if the process still survives, a SIGKILL.
 
---> SCRATCH <path>
+---> SCRATCH <path>
 
-    Set the scratch directory to <path>. For the following jobs, the temporarily scratch disk will be <path>.
+     Set the scratch directory to <path>. For the following jobs, the temporarily scratch disk will be <path>.
+
+---> MOVECMD <cmd>
+
+     Set the program to move files to <cmd>. For the following jobs, <cmd> will be the new move program.
  
 ---------------------------------------------------------------------------------------------
 
 A more advanced example job description file could looks as follows, including the special keywords 
-"TIMEOUT", "RUNID", "STOP", "SCRATCH", and "BARRIER":
+"TIMEOUT", "RUNID", "STOP", "SCRATCH", "MOVECMD", and "BARRIER":
 
 --------------------------------------------------------------------------------------------
+#
+# Set the move program to $HOME/bin/movefiles
+#
+MOVECMD $HOME/bin/movefiles
 #
 # Change starting run number
 #
