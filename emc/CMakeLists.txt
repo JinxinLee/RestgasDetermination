@@ -53,7 +53,6 @@ EmcDigi/PndEmcDigiPar.cxx
 EmcDigi/PndEmcMakeDigi.cxx
 EmcMC/PndGeoEmc.cxx 
 EmcMC/PndEmc.cxx 
-EmcMC/PndGeoEmcPar.cxx 
 EmcMC/PndEmcReader.cxx 
 EmcMC/PndGeoEmcApd.cxx 
 EmcMC/PndEmcApd.cxx

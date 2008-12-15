@@ -12,7 +12,6 @@
 #include "TString.h"
 #include "TLorentzVector.h"
 #include "CbmDetector.h"
-#include "PndGeoEmcPar.h"
 
 class TClonesArray;
 class PndEmcPoint;
@@ -124,7 +123,6 @@ class PndEmc : public CbmDetector
   
  private:
   
-  PndGeoEmcPar *par;
   Int_t          fTrackID;           //!  track index
   Int_t          fVolumeID;          //!  volume id
   Int_t          fEventID;           //!  event id

@@ -12,7 +12,6 @@
 #include "TString.h"
 #include "TLorentzVector.h"
 #include "CbmDetector.h"
-#include "PndGeoEmcPar.h"
 
 class TClonesArray;
 class PndEmcApdPoint;

@@ -35,11 +35,9 @@
 #include "TGeoVoxelFinder.h"
 #include "TGeoMatrix.h"
 
-#include "CbmGeoMedia.h" 
 #include "CbmGeoMedium.h"
 #include "CbmStack.h"
 #include "TString.h"
-#include "TObject.h"
 
 #include <iostream>
 
@@ -87,8 +85,7 @@ void PndEmc::Initialize() {
   CbmDetector::Initialize();
   CbmRun* sim = CbmRun::Instance();
   CbmRuntimeDb* rtdb=sim->GetRuntimeDb();
-  par=(PndGeoEmcPar*)(rtdb->getContainer("PndGeoEmcPar"));
- 
+  
 }
 // -------------------------------------------------------------------------
 void PndEmc::BeginEvent(){
