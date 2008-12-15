@@ -81,7 +81,7 @@
 #define MPELOGFORMAT    "SLOG"                 // Log format of MPE, for profiling.
 
 #define JOBSTRINGSIZE    128                   // Maximum length of one of the parameters defining the job
-#define DEFAULT_JOBSIZE  3                     // Initial memory in units of JOBSTRINGSIZE allocated to job 
+#define DEFAULT_JOBSIZE  4                     // Initial memory in units of JOBSTRINGSIZE allocated to job 
                                                // (automatically resized on the fly)
 
 #define MAX_HOSTNAME_LENGTH 32
@@ -658,7 +658,9 @@ int DoJob(unsigned int *info, job_description *job, unsigned int *time_elapsed)
   time_t          tb,te;
 
   time(&tb);
-	
+
+  sprintf(scratch_path,"%s",&(job->array[3*JOBSTRINGSIZE]));	
+
   sprintf(command,"%s/%u",scratch_path,info[0]);
 
   if (!dummy_mode) 
@@ -761,7 +763,7 @@ int DoJob(unsigned int *info, job_description *job, unsigned int *time_elapsed)
 
   sprintf(command,"./%s %i",scriptname,info[0]);
 
-  for (i=3; i<info[1]; i++)
+  for (i=4; i<info[1]; i++)
     {
       sprintf(&command[strlen(command)]," %s",&(job->array[i*JOBSTRINGSIZE]));
     }
@@ -868,12 +870,13 @@ int GetAJob(FILE *fp, int *npar, int *barrier, job_description *job)
       if (EOF==ores) return 0;
       if (!strcmp(key,"JOB"))
         {
-          *npar=3;
+          *npar=4;
           fscanf(fp,"%s",key);
           njobs=atoi(key);
-          fscanf(fp,"%s",&(job->array[0]));               /* Script to run */
-	  fscanf(fp,"%s",&(job->array[JOBSTRINGSIZE]));   /* Input */
-          fscanf(fp,"%s",&(job->array[2*JOBSTRINGSIZE])); /* Output */
+          fscanf(fp,"%s",&(job->array[0]));                          /* Script to run */
+	  fscanf(fp,"%s",&(job->array[JOBSTRINGSIZE]));              /* Input */
+          fscanf(fp,"%s",&(job->array[2*JOBSTRINGSIZE]));            /* Output */
+	  sprintf(&(job->array[3*JOBSTRINGSIZE]),"%s",scratch_path); /* Scratch output */
           fscanf(fp,"%s",key);
           (*npar)+=atoi(key);
 
@@ -894,7 +897,7 @@ int GetAJob(FILE *fp, int *npar, int *barrier, job_description *job)
 		}
             }
 	  
-          for (i=3; i<(*npar); i++)
+          for (i=4; i<(*npar); i++)
             {
               fscanf(fp,"%s",&(job->array[i*JOBSTRINGSIZE]));
             }
@@ -935,6 +938,16 @@ int GetAJob(FILE *fp, int *npar, int *barrier, job_description *job)
 	  if (verbose_mode)
 	    {
 	      printf("<B> Changed timeout to %i secs\n",timeout);
+	    }
+	}
+      else if (!strcmp(key,"SCRATCH")) /* Set scratch directory */
+        {
+	  fscanf(fp,"%s",key);
+	  sprintf(scratch_path,"%s",key);
+
+	  if (verbose_mode)
+	    {
+	      printf("<B> Changed scratch directory to %s\n",scratch_path);
 	    }
 	}
     }

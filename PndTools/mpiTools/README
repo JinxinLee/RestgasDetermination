@@ -182,10 +182,14 @@ An overview of all the keywords, can be found below:
      the process is killed by signalling the corresponding (thread) processes with a SIGINT, followed by 
      a SIGHUP, followed by a SIGTERM, and if the process still survives, a SIGKILL.
 
+--> SCRATCH <path>
+
+    Set the scratch directory to <path>. For the following jobs, the temporarily scratch disk will be <path>.
+ 
 ---------------------------------------------------------------------------------------------
 
 A more advanced example job description file could looks as follows, including the special keywords 
-"TIMEOUT", "RUNID", "STOP", and "BARRIER":
+"TIMEOUT", "RUNID", "STOP", "SCRATCH", and "BARRIER":
 
 --------------------------------------------------------------------------------------------
 #
@@ -214,8 +218,10 @@ RUNID 100
 #
 JOB 10 $HOME/scripts/runemc.sh NULL messchendorp@kvip81.kvi.nl:/panda/ 2 10000 1.0
 #
-# Run another ten jobs by calling runemc.sh again with a different user-defined parameter
+# Run another ten jobs by calling runemc.sh again with a different user-defined parameter.
+# Also change the scratch directory to /tmp.
 #
+SCRATCH /tmp
 JOB 10 $HOME/scripts/runemc.sh NULL messchendorp@kvip81.kvi.nl:/panda/ 2 10000 5.0
 #
 # Synchronize and afterward merge the results
