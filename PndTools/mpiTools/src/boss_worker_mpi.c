@@ -11,6 +11,7 @@
 //                                           -m <path+file> [PATH AND SCRIPT TO MOVE FILES]
 //                                           -t <val>       [TIMEOUT IN SECS]
 //                                           -r <val>       [INITIAL RUNID NUMBER]
+//                                           -n <level>     [NICE LEVEL]
 //                                           -k             [KEEP FILES IN SCRATCH}
 //                                           -v             [BE VERBOSE]
 //                                           -d             [RUN IN DUMMY MODE]
@@ -34,6 +35,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/time.h>
+#include <sys/resource.h>
 #include <pthread.h>
 // modified to reference the master mpi.h file, to meet the MPI standard spec.
 #include <mpi.h>
@@ -42,13 +44,14 @@
 // Some default settings, can be overwritten by supplying arguments to executable
 //
 
-#define JOBDESFILE      "jobs.in"                            // Default job description file
-#define MOVEFILES       "~/bin/movefiles"                   // Path and program to move files
-#define SCRATCH         "/tmp"                             // Use this as temporarily disk space
-#define DEFAULT_TIMEOUT 3600                              // Default time out period for script and move process (secs)
-#define DEFAULT_MINDISK 512                              // Default minimum required buffer disk space (Mb)
-#define DEFAULT_MAXDIR  4                               // Default maximum jobs/open directories pending
-#define REMOVE_TIMEOUT  60                             // Timeout for the cleanup system calls
+#define JOBDESFILE        "jobs.in"                            // Default job description file
+#define MOVEFILES         "~/bin/movefiles"                   // Path and program to move files
+#define SCRATCH           "/tmp"                             // Use this as temporarily disk space
+#define DEFAULT_TIMEOUT   3600                              // Default time out period for script and move process (secs)
+#define DEFAULT_MINDISK   512                              // Default minimum required buffer disk space (Mb)
+#define DEFAULT_MAXDIR    4                               // Default maximum jobs/open directories pending
+#define REMOVE_TIMEOUT    60                             // Timeout for the cleanup system calls
+#define DEFAULT_NICELEVEL 0                             // Default Nice level for the jobs
 //
 // The various communication identifiers, TAGs
 //
@@ -107,6 +110,7 @@ unsigned int maximum_running_jobs;             // Maximum allowed running jobs p
 int number_of_running_jobs;                    // Number of presently running jobs (worker)
 int ndonejobs;                                 // Number of jobs finished successfully
 int rank;                                      // Rank of the process
+int nice_level;                                // Nice level
 
 pthread_mutex_t job_mutex    = PTHREAD_MUTEX_INITIALIZER; // Mutex lock for writing static variable "ndonejobs"
 pthread_mutex_t thread_mutex = PTHREAD_MUTEX_INITIALIZER; // Mutex lock for writing "thread_list" and "number_of_running_jobs"
@@ -115,6 +119,7 @@ typedef struct {
   int   size;                                        // Size of the string "array"
   char *array;                                       // String containing details of the job description
   int   timeout;                                     // Timeout (s) period after which job is killed
+  int   nice;                                        // Nice level of the job
 } job_description;                                   // Structure describing contents of a job
 
 typedef struct {
@@ -171,6 +176,8 @@ void PrintOptions()
 	 timeout[0]);
   printf("    -r <number>    --- Starting run identification number (default=%u)\n",
 	 runid);
+  printf("    -n <level>     --- Nice level of the jobs (default=%d)\n",
+	 nice_level);
   printf("    -k             --- Do not delete files in buffer space\n");
   printf("    -v             --- Be verbose\n");
   printf("    -d             --- Enable dummy mode\n\n");
@@ -202,6 +209,7 @@ int ReadArguments(unsigned int argc,char **argv,int rank)
   timeout[1]=DEFAULT_TIMEOUT;
   minimum_disk_space=DEFAULT_MINDISK;
   maximum_running_jobs=DEFAULT_MAXDIR;
+  nice_level=DEFAULT_NICELEVEL;
   dummy_mode=0;
   verbose_mode=0;
   keep_buffer=0;
@@ -260,6 +268,11 @@ int ReadArguments(unsigned int argc,char **argv,int rank)
 	{
 	  i++;
 	  runid=atoi(argv[i]);
+	}
+      else if (!(strcmp(argv[i],"-n")))
+	{
+	  i++;
+	  nice_level=atoi(argv[i]);
 	}
       else if (!(strcmp(argv[i],"-?")))
 	{
@@ -663,6 +676,8 @@ int DoJob(unsigned int *info, job_description *job, unsigned int *time_elapsed)
   thread_info *   move_info=NULL;
   time_t          tb,te;
 
+  setpriority(PRIO_PROCESS,getpid(),job->nice);
+
   time(&tb);
 
   sprintf(scratch_path,"%s",&(job->array[3*JOBSTRINGSIZE]));	
@@ -1003,6 +1018,16 @@ int GetAJob(FILE *fp, int *npar, int *barrier, job_description *job)
 	      printf("<B> Changed maximum allowed running threads to %i\n",maximum_running_jobs);
 	    }
 	}
+      else if (!strcmp(key,"NICE")) /* Set nice level */
+        {
+	  fscanf(fp,"%s",key);
+	  nice_level=atoi(key);
+
+	  if (verbose_mode)
+	    {
+	      printf("<B> Changed nice level to %d\n",nice_level);
+	    }
+	}
     }
 }
 
@@ -1021,7 +1046,7 @@ void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime, int* reqjobs)
   int             msg[5],nacworkers,npar;
   int             i,barrier,number_of_idle_workers;
   int             njobs=0, ndonescripts, nrunjobs, nfailjobs;
-  unsigned int    buf[3];
+  unsigned int    buf[4];
   char            jobstatus[16],jobinfo[16];
   char            timestring[16];
   job_description job;
@@ -1135,9 +1160,9 @@ void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime, int* reqjobs)
 		  fflush(stdout);
 		}
 	      
-	      buf[0]=buf[1]=buf[2]=0;
+	      buf[0]=buf[1]=buf[2]=buf[3]=0;
 	      
-	      MPI_Send (buf, 3, MPI_UNSIGNED, status.MPI_SOURCE, BARRIERTAG, MPI_COMM_WORLD);  
+	      MPI_Send (buf, 4, MPI_UNSIGNED, status.MPI_SOURCE, BARRIERTAG, MPI_COMM_WORLD);  
 	      
 	      fprintf(fp_log,"%s\tB ---> W%i\tWAIT\t\tBARRIER\t\t-\t\t-\t\t%i/%i/%i\n",
 		      timestring,status.MPI_SOURCE,nrunjobs,ndonejobs,nfailjobs);
@@ -1156,7 +1181,7 @@ void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime, int* reqjobs)
 			  fflush(stdout);
 			}
 
-		      buf[0]=buf[1]=0;
+		      buf[0]=buf[1]=buf[3]=0;
 		      buf[2]=timeout[1];
 
 		      if (msg[3]<minimum_disk_space) 
@@ -1170,7 +1195,7 @@ void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime, int* reqjobs)
 			  buf[1]=1;
 			}
 
-		      MPI_Send (buf, 3, MPI_UNSIGNED, status.MPI_SOURCE, SLEEPTAG, MPI_COMM_WORLD);
+		      MPI_Send (buf, 4, MPI_UNSIGNED, status.MPI_SOURCE, SLEEPTAG, MPI_COMM_WORLD);
 		      
 		      fprintf(fp_log,"%s\tB ---> W%i\tSLEEP\t\t%s\t-\t\t%.2i:%.2i:%.2i\t%i/%i/%i\n",
 			      timestring,status.MPI_SOURCE,jobstatus,
@@ -1183,16 +1208,17 @@ void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime, int* reqjobs)
 		      buf[0]=runid;
 		      buf[1]=npar;
 		      buf[2]=timeout[0];
+		      buf[3]=(unsigned int) nice_level;
 		      
 		      if (verbose_mode)
 			{
-			  printf("<B> Sending job to worker %i, %i/%i/%i\n",
-				 status.MPI_SOURCE,buf[0],buf[1],buf[2]);
+			  printf("<B> Sending job to worker %i, %i/%i/%i/%i\n",
+				 status.MPI_SOURCE,buf[0],buf[1],buf[2],buf[3]);
 			  fflush(stdout);
 			}
 		      (*reqjobs)++;
 		      
-		      MPI_Send (buf, 3, MPI_UNSIGNED, status.MPI_SOURCE, TASKTAG, MPI_COMM_WORLD);
+		      MPI_Send (buf, 4, MPI_UNSIGNED, status.MPI_SOURCE, TASKTAG, MPI_COMM_WORLD);
 		      MPI_Send (job.array, (buf[1]*JOBSTRINGSIZE), MPI_CHAR, status.MPI_SOURCE, TASKTAG, MPI_COMM_WORLD);
 		      
 		      nrunjobs++;
@@ -1213,8 +1239,8 @@ void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime, int* reqjobs)
 		      fflush(stdout);
 		    }
 		  
-		  buf[0]=buf[1]=buf[2]=0;
-		  MPI_Send (buf, 3, MPI_UNSIGNED, status.MPI_SOURCE, ABORTTAG, MPI_COMM_WORLD);  
+		  buf[0]=buf[1]=buf[2]=buf[3]=0;
+		  MPI_Send (buf, 4, MPI_UNSIGNED, status.MPI_SOURCE, ABORTTAG, MPI_COMM_WORLD);  
 	      
 		  fprintf(fp_log,"%s\tB ---> W%i\tABORT\t\tNO JOBS\t\t-\t\t-\t\t%i/%i/%i\n",
 			  timestring,status.MPI_SOURCE,nrunjobs,ndonejobs,nfailjobs);
@@ -1338,7 +1364,7 @@ void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime, int* reqjobs)
 void DoWorker(double* wtime, int* reqjobs)
 {
   int             msg[5],abort;
-  unsigned int    buf[3];
+  unsigned int    buf[4];
   MPI_Status      status;
   unsigned int    elapse_time;
   job_description job;
@@ -1376,7 +1402,7 @@ void DoWorker(double* wtime, int* reqjobs)
 
       MPI_Send(msg, 5, MPI_INT, BOSSRANK, REQUESTTAG, MPI_COMM_WORLD);
 
-      MPI_Recv(buf, 3, MPI_UNSIGNED, BOSSRANK, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+      MPI_Recv(buf, 4, MPI_UNSIGNED, BOSSRANK, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
 
       if (verbose_mode)
 	{
@@ -1485,6 +1511,7 @@ void DoWorker(double* wtime, int* reqjobs)
 	      job.array   = (char *) realloc(job.array,buf[1]*JOBSTRINGSIZE*sizeof(char));
 	      job.size    = buf[1]*JOBSTRINGSIZE*sizeof(char);
 	      job.timeout = buf[2];
+	      job.nice    = (int) buf[3];
 
 	      if (verbose_mode)
 		{

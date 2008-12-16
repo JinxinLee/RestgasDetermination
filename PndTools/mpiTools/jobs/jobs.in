@@ -1,6 +1,7 @@
 #
 # General settings ....
 #
+NICE		5
 TIMEOUTS	60 5
 MINDISKSPACE	100
 MAXRUNTHREADS	4
