@@ -1,12 +1,16 @@
 #
-# JOB Multiplicity ScriptToRun Input Output Number_of_pars par1 par2 par3	...
+# General settings ....
 #
-TIMEOUTS 60 5
-MINDISKSPACE 100
-MAXRUNTHREADS 4
+TIMEOUTS	60 5
+MINDISKSPACE	100
+MAXRUNTHREADS	4
+SCRATCH		/tmp
+MOVECMD		$HOME/bin/movefiles
+#
+#
+# JOB Multiplicity ScriptToRun Input Output Number_of_pars par1 par2 par3	...
 #
 RUNID 100
 JOB 10 $HOME/scripts/testscript.sh $HOME/input $HOME/output 1 1
 RUNID 200
 JOB 10 $HOME/scripts/testscript.sh NULL $HOME/output 1 0
-
