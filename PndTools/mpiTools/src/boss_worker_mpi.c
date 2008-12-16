@@ -163,7 +163,7 @@ void PrintOptions()
 	 scratch_path);
   printf("    -b <Mb>        --- Minimum requested buffer space (default=%u Mb)\n",
 	 minimum_disk_space);
-  printf("    -p <number>    --- Maximum allowed pending jobs for a worker (default=%i)\n",
+  printf("    -p <number>    --- Maximum allowed pending threads for a worker (default=%i)\n",
 	 maximum_running_jobs);
   printf("    -m <path>      --- Path and copying script (default=%s)\n",
 	 move_files);
@@ -993,14 +993,14 @@ int GetAJob(FILE *fp, int *npar, int *barrier, job_description *job)
 	      printf("<B> Changed minimum required disk space to %i MBytes\n",minimum_disk_space);
 	    }
 	}
-      else if (!strcmp(key,"MAXRUNJOBS")) /* Set maximum allowed running jobs */
+      else if (!strcmp(key,"MAXRUNTHREADS")) /* Set maximum allowed running threads */
         {
 	  fscanf(fp,"%s",key);
 	  maximum_running_jobs=atoi(key);
 
 	  if (verbose_mode)
 	    {
-	      printf("<B> Changed maximum allowed running jobs to %i\n",maximum_running_jobs);
+	      printf("<B> Changed maximum allowed running threads to %i\n",maximum_running_jobs);
 	    }
 	}
     }

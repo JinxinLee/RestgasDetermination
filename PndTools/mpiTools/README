@@ -205,9 +205,9 @@ An overview of all the keywords, can be found below:
 
      Set the minimum required disk space for scratch to <Mb> MBytes.
 
----> MAXRUNJOBS <n>
+---> MAXRUNTHREADS <n>
 
-     Set the maximum allowed pending jobs for each worker to <n>.
+     Set the maximum allowed pending threads for each worker to <n>.
  
 ---------------------------------------------------------------------------------------------
 
