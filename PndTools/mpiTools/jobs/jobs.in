@@ -1,7 +1,10 @@
  #
 # JOB Multiplicity ScriptToRun Input Output Number_of_pars par1 par2 par3	...
 #
-TIMEOUT 60
+TIMEOUTS 60 5
+MINDISKSPACE 100
+MAXRUNJOBS 4
+#
 RUNID 100
 JOB 10 $HOME/scripts/testscript.sh $HOME/input $HOME/output 1 1
 RUNID 200

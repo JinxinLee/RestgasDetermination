@@ -105,6 +105,9 @@ To run the program "bin/boss_worker_mpi" one can specify the following options:
     -d             --- Run in dummy mode (default off)
 
 You can set these options within the job description file of PBS, "run_boss_worker_mpi.job".
+Furthermore, most of the options can also be specified in the job
+description file for the boss_worker_mpi code (=argument of option -j). The settings in
+this file will override the settings specified on the command line.
 
 The job description file of boss_worker_mpi (by default ./jobs/jobs.in) should look as follows
 
@@ -180,7 +183,15 @@ An overview of all the keywords, can be found below:
 
      The jobs following this keyword will run with a timeout of <secs> seconds. After the timeout period, 
      the process is killed by signalling the corresponding (thread) processes with a SIGINT, followed by 
-     a SIGHUP, followed by a SIGTERM, and if the process still survives, a SIGKILL.
+     a SIGHUP, followed by a SIGTERM, and if the process still survives, a SIGKILL. This TIMEOUT also 
+     corresponds to the sleep period, in <secs>, of a worker in case of too many runnings jobs or not 
+     enough disk space. 
+
+---> TIMEOUTS <secs> <secs>
+
+     Same as the option TIMEOUT, however, the first arguments corresponds to the timeout period before 
+     a process is killed and the second arguments corresponds to the sleep period of a worker in case 
+     of too many running jobs or not enough disk space. The timeouts should be specified in <secs>. 
 
 ---> SCRATCH <path>
 
@@ -189,11 +200,19 @@ An overview of all the keywords, can be found below:
 ---> MOVECMD <cmd>
 
      Set the program to move files to <cmd>. For the following jobs, <cmd> will be the new move program.
+
+---> MINDISKSPACE <Mb>
+
+     Set the minimum required disk space for scratch to <Mb> MBytes.
+
+---> MAXRUNJOBS <n>
+
+     Set the maximum allowed pending jobs for each worker to <n>.
  
 ---------------------------------------------------------------------------------------------
 
 A more advanced example job description file could looks as follows, including the special keywords 
-"TIMEOUT", "RUNID", "STOP", "SCRATCH", "MOVECMD", and "BARRIER":
+"TIMEOUTS", "RUNID", "STOP", "SCRATCH", "MOVECMD", and "BARRIER":
 
 --------------------------------------------------------------------------------------------
 #
@@ -205,9 +224,10 @@ MOVECMD $HOME/bin/movefiles
 #
 RUNID 0
 #
-# Set the time-out period to 1 hour
+# Set the time-out period to 1 hour for duration of each job, and to
+# 60 seconds in case of too many running jobs/not enough disk space
 #
-TIMEOUT 3600
+TIMEOUTS 3600 60
 #
 # Run one job by calling testscript.sh with as input the directory "input"
 #

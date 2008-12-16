@@ -98,7 +98,9 @@ char move_files[VERYLONGCHARSIZE];             // Name and path of the executabl
 int  keep_buffer;                              // In case this flag set, the buffer output will be kept
 int  dummy_mode;                               // Flag which is set to one in case of a dry/dummy run
 int  verbose_mode;                             // Verbosity flag
-unsigned int timeout;                          // Timeout (s) used for sleeping time of workers, and finishing time
+unsigned int timeout[2];                       // Timeout (s) of workers: 
+                                               // [0]=job timeout; 
+                                               // [1]=sleep period in case of too many running jobs/disk space problem
 unsigned int runid;                            // The current Run Identification number
 unsigned int minimum_disk_space;               // The minimum available disk space required for a worker to be active (MBytes)
 unsigned int maximum_running_jobs;             // Maximum allowed running jobs per worker. Exceeding this number will put the worker to sleep
@@ -166,7 +168,7 @@ void PrintOptions()
   printf("    -m <path>      --- Path and copying script (default=%s)\n",
 	 move_files);
   printf("    -t <seconds>   --- Time out for script, copy, and move processes (default=%u secs)\n",
-	 timeout);
+	 timeout[0]);
   printf("    -r <number>    --- Starting run identification number (default=%u)\n",
 	 runid);
   printf("    -k             --- Do not delete files in buffer space\n");
@@ -196,7 +198,8 @@ int ReadArguments(unsigned int argc,char **argv,int rank)
   sprintf(jobdescription_filename,"%s",JOBDESFILE);
   sprintf(scratch_path,"%s",SCRATCH);
   sprintf(move_files,"%s",MOVEFILES);
-  timeout=DEFAULT_TIMEOUT;
+  timeout[0]=DEFAULT_TIMEOUT;
+  timeout[1]=DEFAULT_TIMEOUT;
   minimum_disk_space=DEFAULT_MINDISK;
   maximum_running_jobs=DEFAULT_MAXDIR;
   dummy_mode=0;
@@ -238,7 +241,8 @@ int ReadArguments(unsigned int argc,char **argv,int rank)
       else if (!(strcmp(argv[i],"-t")))
 	{
 	  i++;
-	  timeout=atoi(argv[i]);
+	  timeout[0]=atoi(argv[i]);
+	  timeout[1]=timeout[0];
 	}
       else if (!(strcmp(argv[i],"-d")))
 	{
@@ -939,11 +943,24 @@ int GetAJob(FILE *fp, int *npar, int *barrier, job_description *job)
       else if (!strcmp(key,"TIMEOUT")) /* Set time-out */
         {
 	  fscanf(fp,"%s",key);
-          timeout=atoi(key);
+          timeout[0]=atoi(key);
+	  timeout[1]=timeout[0];
 
 	  if (verbose_mode)
 	    {
-	      printf("<B> Changed timeout to %i secs\n",timeout);
+	      printf("<B> Changed timeout to %i secs\n",timeout[0]);
+	    }
+	}
+      else if (!strcmp(key,"TIMEOUTS")) /* Set time-outs */
+        {
+	  fscanf(fp,"%s",key);
+          timeout[0]=atoi(key);
+	  fscanf(fp,"%s",key);
+	  timeout[1]=atoi(key);
+
+	  if (verbose_mode)
+	    {
+	      printf("<B> Changed timeouts to %i/%i secs\n",timeout[0],timeout[1]);
 	    }
 	}
       else if (!strcmp(key,"SCRATCH")) /* Set scratch directory */
@@ -964,6 +981,26 @@ int GetAJob(FILE *fp, int *npar, int *barrier, job_description *job)
 	  if (verbose_mode)
 	    {
 	      printf("<B> Changed move program to %s\n",move_files);
+	    }
+	}
+      else if (!strcmp(key,"MINDISKSPACE")) /* Set minimum required disk space */
+        {
+	  fscanf(fp,"%s",key);
+	  minimum_disk_space=atoi(key);
+
+	  if (verbose_mode)
+	    {
+	      printf("<B> Changed minimum required disk space to %i MBytes\n",minimum_disk_space);
+	    }
+	}
+      else if (!strcmp(key,"MAXRUNJOBS")) /* Set maximum allowed running jobs */
+        {
+	  fscanf(fp,"%s",key);
+	  maximum_running_jobs=atoi(key);
+
+	  if (verbose_mode)
+	    {
+	      printf("<B> Changed maximum allowed running jobs to %i\n",maximum_running_jobs);
 	    }
 	}
     }
@@ -1120,7 +1157,7 @@ void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime, int* reqjobs)
 			}
 
 		      buf[0]=buf[1]=0;
-		      buf[2]=timeout;
+		      buf[2]=timeout[1];
 
 		      if (msg[3]<minimum_disk_space) 
 			{
@@ -1145,7 +1182,7 @@ void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime, int* reqjobs)
 		    {
 		      buf[0]=runid;
 		      buf[1]=npar;
-		      buf[2]=timeout;
+		      buf[2]=timeout[0];
 		      
 		      if (verbose_mode)
 			{
