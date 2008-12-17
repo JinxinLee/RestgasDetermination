@@ -64,6 +64,7 @@
 	PndEmc *Emc = new PndEmc("EMC",kTRUE);
 	//Emc->SetGeometryFileName("emc_module12345.dat"); // if you want to use old geometry for FwEndCap
 	Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root"); // if you want to use new geometry for FwEndCap
+	Emc->SetStorageOfPoints(kFALSE);
 	fRun->AddModule(Emc);
 	
 	// Create and Set Event Generator
