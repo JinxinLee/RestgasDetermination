@@ -50,17 +50,20 @@ PndEmc::PndEmc() {
   fPosIndex   = 0;
   fEventID=-1;
   bIsFastFsc = kFALSE;
+  fStorePoints = kTRUE;
 }
 // -------------------------------------------------------------------------
 
 // -----   Standard constructor   ------------------------------------------
-PndEmc::PndEmc(const char* name, Bool_t active, Bool_t fast)
+
+PndEmc::PndEmc(const char* name, Bool_t active, Bool_t fast, Bool_t storepnts)
   : CbmDetector(name, active) {
     fEmcCollection        = new TClonesArray("PndEmcPoint");
     fPosIndex   = 0;
     fEventID=-1; 
     bIsFastFsc = fast;
     fwendcap = kFALSE;
+    fStorePoints = storepnts;
 }
 // -------------------------------------------------------------------------
 
@@ -291,7 +294,15 @@ void PndEmc::EndOfEvent() {
 
 // -----   Public method Register   -------------------------------------------
 void PndEmc::Register() {
-  CbmRootManager::Instance()->Register("EmcPoint","Emc", fEmcCollection, kTRUE);
+
+  if (fStorePoints)
+    {
+      CbmRootManager::Instance()->Register("EmcPoint","Emc", fEmcCollection, kTRUE);
+    }
+  else
+    {
+      CbmRootManager::Instance()->Register("EmcPoint","Emc", fEmcCollection, kFALSE);
+    }
 }
 // ----------------------------------------------------------------------------
 
@@ -325,6 +336,15 @@ void PndEmc::Reset() {
 // ----------------------------------------------------------------------------
 
 
+// ------ Public method to enable/disable the storage of points ------------
+
+void PndEmc::SetStorageOfPoints(Bool_t val)
+{
+  fStorePoints=val;
+  return;
+}
+
+// -------------------------------------------------------------------------
 // guarda in CbmRootManager::CopyClones
 // -----   Public method CopyClones   -----------------------------------------
 void PndEmc::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset ) {

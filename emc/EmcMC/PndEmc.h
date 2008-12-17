@@ -26,12 +26,11 @@ class PndEmc : public CbmDetector
   /** Default constructor **/
   PndEmc();
 
-
   /** Standard constructor.
    *@param name    detetcor name
    *@param active  sensitivity flag
    **/
-  PndEmc(const char* name, Bool_t active, Bool_t fast = kFALSE);
+  PndEmc(const char* name, Bool_t active, Bool_t fast = kFALSE, Bool_t storepnts = kTRUE);
 
   
   /** Destructor **/
@@ -120,6 +119,8 @@ class PndEmc : public CbmDetector
   PndEmcPoint* AddHit(Int_t trackID, Int_t detID,  Int_t evtID, TVector3 pos, TVector3 mom,
 		      Double_t tof, Double_t length, Double_t eLoss,
 		      Short_t mod, Short_t row, Short_t crys, Short_t copy);
+
+  void SetStorageOfPoints(Bool_t val);
   
  private:
   
@@ -134,6 +135,7 @@ class PndEmc : public CbmDetector
   Int_t fPosIndex;      //! 
   //Int_t volDetector;     //!  MC volume ID of MUO
   Bool_t         bIsFastFsc;         //!  Flag for fast fsc geometry
+  Bool_t         fStorePoints;
   
   TClonesArray* fEmcCollection;        //! Hit collection
 
