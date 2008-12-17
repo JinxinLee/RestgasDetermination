@@ -120,7 +120,7 @@ class PndEmc : public CbmDetector
 		      Double_t tof, Double_t length, Double_t eLoss,
 		      Short_t mod, Short_t row, Short_t crys, Short_t copy);
 
-  void SetStorageOfPoints(Bool_t val);
+  void SetStorageOfPoints(Bool_t val); // Method to specify whether points are stored or not.
   
  private:
   
@@ -135,7 +135,7 @@ class PndEmc : public CbmDetector
   Int_t fPosIndex;      //! 
   //Int_t volDetector;     //!  MC volume ID of MUO
   Bool_t         bIsFastFsc;         //!  Flag for fast fsc geometry
-  Bool_t         fStorePoints;
+  Bool_t         fStorePoints; // Flag which specify whether points are stored or not
   
   TClonesArray* fEmcCollection;        //! Hit collection
 
