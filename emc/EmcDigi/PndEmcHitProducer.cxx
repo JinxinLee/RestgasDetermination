@@ -105,7 +105,7 @@ InitStatus PndEmcHitProducer::Init() {
 void PndEmcHitProducer::SetParContainers() {
 
   // Get run and runtime database
-  CbmRunAna* run = CbmRunAna::Instance();
+  CbmRun* run = CbmRun::Instance();
   if ( ! run ) Fatal("SetParContainers", "No analysis run");
 
   CbmRuntimeDb* db = run->GetRuntimeDb();
@@ -121,7 +121,7 @@ void PndEmcHitProducer::SetParContainers() {
 // -----   Public method Exec   --------------------------------------------
 void PndEmcHitProducer::Exec(Option_t* opt) {
 
-  //cout << " DIGI EXECUTION *********************" << endl;
+  cout << " DIGI EXECUTION *********************" << endl;
   // Reset output array
   if ( ! fDigiArray ) Fatal("Exec", "No DigiArray");
   
