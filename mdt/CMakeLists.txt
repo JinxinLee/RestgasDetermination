@@ -33,6 +33,8 @@ MdtData/PndMdtHit.cxx
 MdtData/PndMdtTrk.cxx
 MdtMC/PndGeoMdtPar.cxx
 MdtMC/PndMdt.cxx
+MdtMC/PndMdtGeoConstructorDu.cxx
+MdtMC/PndMdtGeoConstructorTo.cxx
 MdtDigi/PndMdtHitProducerIdeal.cxx
 MdtReco/PndMdtTrkProducerIdeal.cxx
 MdtReco/PndMdtTrkProducer.cxx
