@@ -10,10 +10,12 @@
 # argument 8: minimum phi (degrees)
 # argument 9: maximum phi (degrees)
 # argument 10: transport model (TGeant3, TGeant4, TFluka)
+# argument 11: remove pandaroot simulation output (TRUE, FALSE)
+# argument 12: remove logfile (TRUE, FALSE)
 #
 # An example line in the job description file could look like:
 #
-# JOB 10 $HOME/scripts/runemc.sh NULL $HOME/output 9 1000 gamma 0.0 2.0 0. 180. 0. 360. TGeant3
+# JOB 10 $HOME/scripts/runemc.sh NULL $HOME/output 11 1000 gamma 0.0 2.0 0. 180. 0. 360. TGeant3 TRUE FALSE
 #
 # Setup the environmental variables to run Panda and Fair ROOT.
 # For this run the config.sh in the build directory of PandaRoot.
@@ -65,13 +67,22 @@ if [ -z "$error"  ] ; then
 #
 # Remove files you dont want to keep
 #
-  rm -f sim_emc.root*
-  rm -f simparams.root
+
   rm -f *.C
   rm -f *.dat
   rm -f *.so
   rm -f *.sh
+#
+# Also remove the pandaroot results and logfile, in case requested...
+#
+ if [ ${11} = "TRUE" ]; then
+  rm -f sim_emc.root*
+  rm -f simparams.root
+ fi
+#
+ if [ ${12} = "TRUE" ]; then
   rm logfile
+ fi
 
   exit 0
 fi
