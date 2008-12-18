@@ -21,6 +21,7 @@ void Config()
   // create Cbm Specific Stack
   CbmStack *st = new CbmStack();
   st->SetMinPoints(0);
+  st->StoreSecondaries(kTRUE);
   geant3->SetStack( st ) ;
 
   // ******* GEANT3  specific configuration for simulated Runs  *******
