@@ -16,20 +16,17 @@
 #include "PndEmcWaveform.h"
 
 void reco_analys(Char_t InputSimFile[]="sim_emc.root",
-		 Char_t InputClusterFile[]="full_emc.root",
 		 Char_t OutputFile[]="output.root")
 {
         TFile *f=new TFile(InputSimFile);
 	TGeoManager *fGeoManager = (TGeoManager *) f->Get("CBMGeom");
 
 	TChain *c=new TChain("cbmsim");
-	TChain *csim=new TChain("cbmsim");
 
-	csim->Add(InputSimFile);
-	c->Add(InputClusterFile);
+	c->Add(InputSimFile);
 
 	TClonesArray* track_array=new TClonesArray("CbmMCTrack");
-	csim->SetBranchAddress("MCTrack",&track_array);
+	c->SetBranchAddress("MCTrack",&track_array);
 
 	TClonesArray* cluster_array=new TClonesArray("PndEmcCluster");
 	TClonesArray* wf_array=new TClonesArray("PndEmcWaveform");
@@ -46,12 +43,6 @@ void reco_analys(Char_t InputSimFile[]="sim_emc.root",
 	TNtuple *n = new TNtuple("myntup","My Ntuple","et:tht:pht:ec:thc:phc:nc:sc:edbar:edfw:edbw:eh:ecc:thd:phd");
 
 	cout << "<I> Number of entries " << c->GetEntries() << endl;
-
-	if (c->GetEntries()!=csim->GetEntries())
-	  {
-	    cout << "<E> Fatal error: the number of events in simulation and cluster root-files are not equal!" << endl;
-	    exit(-1);
-	  }
 
 	double cluster_energy,cluster_energy_check,digi_low,digi_high;
 	double cluster_theta, cluster_phi; //position of the cluster
@@ -70,8 +61,6 @@ void reco_analys(Char_t InputSimFile[]="sim_emc.root",
 	      printf(".%i.",j);fflush(stdout);
 	    }
 	  c->GetEntry(j);
-	  csim->GetEntry(j);
-	  
 	  
 		CbmMCTrack *track=(CbmMCTrack*)track_array->At(0);
 		TLorentzVector p4mom=track->Get4Momentum();
