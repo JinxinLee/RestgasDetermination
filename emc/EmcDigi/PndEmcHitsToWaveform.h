@@ -40,7 +40,7 @@ public:
 
   // Constructors
 
-  PndEmcHitsToWaveform(Int_t verbose=0);
+  PndEmcHitsToWaveform(Int_t verbose=0, Bool_t storewaves=kTRUE);
 
   // Destructor
 
@@ -54,6 +54,8 @@ public:
   virtual void Exec(Option_t* opt);
   
   PndEmcWaveform * AddWaveform(Int_t detId,Int_t hitIndex);
+
+  void SetStorageOfWaves(Bool_t val); // Method to specify whether waveforms are stored or not.
 
 private:
 
@@ -93,6 +95,7 @@ private:
 	/** Verbosity level **/
 	Int_t fVerbose;
 
+	Bool_t fStoreWaves;
 
   ClassDef(PndEmcHitsToWaveform,1);
 };

@@ -27,7 +27,7 @@ public:
 
   // Constructors
 
-  PndEmcMakeCluster(Int_t verbose=0);
+  PndEmcMakeCluster(Int_t verbose=0, Bool_t storeclusters=kTRUE);
 
   // Destructor
 
@@ -40,7 +40,8 @@ public:
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
 
-
+  void SetStorageOfClusters(Bool_t val); // Method to specify whether clusters are stored or not.
+  
 protected:
 
   
@@ -68,6 +69,8 @@ private:
 	
 	/** Verbosity level **/
 	Int_t fVerbose;
+
+	Bool_t fStoreClusters;
 	
 	ClassDef(PndEmcMakeCluster,1)
 };

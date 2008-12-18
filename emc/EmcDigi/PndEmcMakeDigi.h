@@ -33,7 +33,7 @@ public:
 
   // Constructors
 
-  PndEmcMakeDigi();
+  PndEmcMakeDigi(Bool_t storedigis=kTRUE);
 
   // Destructor
 
@@ -48,6 +48,8 @@ public:
   
   PndEmcDigi* AddDigi(Int_t trackID,Int_t detID, Float_t energy, Float_t time, Int_t hitIndex);
 
+  void SetStorageOfDigis(Bool_t val); // Method to specify whether digis are stored or not.
+  
 private:
 
 	/** Input array of EmcWaveforms **/
@@ -73,6 +75,8 @@ private:
 	/** Get parameter containers **/
 	virtual void SetParContainers();
 	
+	Bool_t fStoreDigis;
+
 	ClassDef(PndEmcMakeDigi,1);
 };
 

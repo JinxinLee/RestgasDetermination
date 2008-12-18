@@ -29,7 +29,8 @@ class PndEmcHitProducer : public CbmTask
 	
 	/** Default constructor **/  
 	PndEmcHitProducer();
-	
+
+	PndEmcHitProducer(Bool_t val);
 	
 	/** Destructor **/
 	~PndEmcHitProducer();
@@ -47,6 +48,7 @@ class PndEmcHitProducer : public CbmTask
    PndEmcHit* AddHit(Int_t trackID, Int_t detID, Float_t energy, Float_t time,std::vector<PndEmcPoint*> pointList);
   //void CreateStructure();
   
+   void SetStorageOfHits(Bool_t val); // Method to specify whether hits are stored or not.
 
  private: 
    
@@ -73,6 +75,7 @@ class PndEmcHitProducer : public CbmTask
 	/** Get parameter containers **/
 	virtual void SetParContainers();
 
+	Bool_t         fStoreHits; // Flag which specify whether hits are stored or not
  
   ClassDef(PndEmcHitProducer,1);
   

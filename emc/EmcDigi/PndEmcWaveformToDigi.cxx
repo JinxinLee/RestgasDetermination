@@ -36,11 +36,12 @@ using std::cout;
 using std::endl;
 using std::fstream;
 
-PndEmcWaveformToDigi::PndEmcWaveformToDigi(Int_t verbose)
+PndEmcWaveformToDigi::PndEmcWaveformToDigi(Int_t verbose, Bool_t storedigis)
 {
 	fVerbose=verbose;
 	fDigiPosMethod="depth";// "surface" or "depth"
 	fEmcDigiRescaleFactor=1.08;
+	fStoreDigis=storedigis;
 	//fPndEmcDigiPositionDepth=6.2;
 }
 
@@ -75,7 +76,7 @@ InitStatus PndEmcWaveformToDigi::Init()
 	// Create and register output array
 	fDigiArray = new TClonesArray("PndEmcDigi");
 
-	ioman->Register("EmcDigi","Emc",fDigiArray,kTRUE);
+	ioman->Register("EmcDigi","Emc",fDigiArray,fStoreDigis);
 	fSampleRate=fDigiPar->GetSampleRate();
 	fEnergyDigiThreshold=fDigiPar->GetEnergyDigiThreshold();
 	fEmcDigiPositionDepth=fRecoPar->GetEmcDigiPositionDepth();
@@ -146,7 +147,7 @@ void PndEmcWaveformToDigi::Exec(Option_t* opt)
 void PndEmcWaveformToDigi::SetParContainers() {
 
   // Get run and runtime database
-  CbmRunAna* run = CbmRunAna::Instance();
+  CbmRun* run = CbmRun::Instance();
   if ( ! run ) Fatal("SetParContainers", "No analysis run");
 
   CbmRuntimeDb* db = run->GetRuntimeDb();
@@ -158,6 +159,12 @@ void PndEmcWaveformToDigi::SetParContainers() {
   // Get Emc reconstruction parameter container
   fRecoPar = (PndEmcRecoPar*) db->getContainer("PndEmcRecoPar");
  
+}
+
+void PndEmcWaveformToDigi::SetStorageOfDigis(Bool_t val)
+{
+  fStoreDigis = val;
+  return;
 }
 
 ClassImp(PndEmcWaveformToDigi)

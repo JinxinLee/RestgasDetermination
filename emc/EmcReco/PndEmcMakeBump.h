@@ -46,7 +46,7 @@ class PndEmcMakeBump  : public CbmTask
 public:
 
   // Constructors
-  PndEmcMakeBump(Int_t verbose=0);
+	PndEmcMakeBump(Int_t verbose=0, Bool_t storebumps=kTRUE);
 
   // Destructor
   virtual ~PndEmcMakeBump( );
@@ -58,6 +58,7 @@ public:
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
 
+  void SetStorageOfBumps(Bool_t val); // Method to specify whether bumps are stored or not.
 
 protected:
 
@@ -81,6 +82,8 @@ private:
 	
 	/** Verbosity level **/
 	Int_t fVerbose;
+
+	Bool_t fStoreBumps;
 	
 	static Int_t fEventCounter;
 	

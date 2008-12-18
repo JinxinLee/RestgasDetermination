@@ -43,9 +43,10 @@ using std::endl;
 
 Int_t PndEmcMakeCluster::fEventCounter=0;
 
-PndEmcMakeCluster::PndEmcMakeCluster(Int_t verbose) 
+PndEmcMakeCluster::PndEmcMakeCluster(Int_t verbose, Bool_t storeclusters) 
 {
 	fVerbose=verbose;
+	fStoreClusters=storeclusters;
 }
 
 //--------------
@@ -79,7 +80,7 @@ InitStatus PndEmcMakeCluster::Init() {
 	// Create and register output array
 	fClusterArray = new TClonesArray("PndEmcCluster");
 	
-	ioman->Register("EmcCluster","Emc",fClusterArray,kTRUE);
+	ioman->Register("EmcCluster","Emc",fClusterArray,fStoreClusters);
 	
 	fMapVersion=fDigiPar->GetMapperVersion();  
 	PndEmcMapper::Instance(fMapVersion);
@@ -216,7 +217,7 @@ void PndEmcMakeCluster::Exec(Option_t* opt)
 void PndEmcMakeCluster::SetParContainers() {
 
   // Get run and runtime database
-  CbmRunAna* run = CbmRunAna::Instance();
+  CbmRun* run = CbmRun::Instance();
   if ( ! run ) Fatal("SetParContainers", "No analysis run");
 
   CbmRuntimeDb* db = run->GetRuntimeDb();
@@ -228,5 +229,12 @@ void PndEmcMakeCluster::SetParContainers() {
   // Get Emc reconstruction parameter container
   fRecoPar = (PndEmcRecoPar*) db->getContainer("PndEmcRecoPar");
 }
+
+void PndEmcMakeCluster::SetStorageOfClusters(Bool_t val)
+{
+  fStoreClusters=val;
+  return;
+}
+  
 
 ClassImp(PndEmcMakeCluster)

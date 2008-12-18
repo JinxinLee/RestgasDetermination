@@ -60,9 +60,10 @@ Int_t PndEmcMakeBump::fEventCounter=1;
 //----------------
 // Constructors --
 //----------------
-PndEmcMakeBump::PndEmcMakeBump(Int_t verbose) 
+PndEmcMakeBump::PndEmcMakeBump(Int_t verbose, Bool_t storebumps) 
 {
 	fVerbose=verbose; 
+	fStoreBumps=storebumps;
 }
 
 //--------------
@@ -99,7 +100,7 @@ InitStatus PndEmcMakeBump::Init() {
 	
 	// Create and register output array
 	fBumpArray = new TClonesArray("PndEmcBump");
-	ioman->Register("EmcBump","Emc",fBumpArray,kTRUE);
+	ioman->Register("EmcBump","Emc",fBumpArray,fStoreBumps);
 	
 ///	fSharedDigiArray = new TClonesArray("PndEmcSharedDigi");
 ///	ioman->Register("EmcSharedDigi","Emc",fSharedDigiArray,kTRUE);
@@ -216,7 +217,7 @@ void PndEmcMakeBump::Exec(Option_t* opt)
 void PndEmcMakeBump::SetParContainers() {
 
   // Get run and runtime database
-  CbmRunAna* run = CbmRunAna::Instance();
+  CbmRun* run = CbmRun::Instance();
   if ( ! run ) Fatal("SetParContainers", "No analysis run");
 
   CbmRuntimeDb* db = run->GetRuntimeDb();
@@ -228,5 +229,12 @@ void PndEmcMakeBump::SetParContainers() {
   // Get Emc reconstruction parameter container
   fRecoPar = (PndEmcRecoPar*) db->getContainer("PndEmcRecoPar");
 }
+
+void PndEmcMakeBump::SetStorageOfBumps(Bool_t val)
+{
+  fStoreBumps=val;
+  return;
+}
+  
 
 ClassImp(PndEmcMakeBump)

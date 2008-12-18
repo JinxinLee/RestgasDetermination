@@ -41,14 +41,20 @@ using std::map;
 // -----   Default constructor   -------------------------------------------
 PndEmcHitProducer::PndEmcHitProducer() :
   CbmTask("Ideal EMC hit Producer") { 
+  fStoreHits=kTRUE;
   //eneThr = 0.001; // Energy threshold for emc pad (Now taken from DB)
 }
 // -------------------------------------------------------------------------
 
+PndEmcHitProducer::PndEmcHitProducer(Bool_t val) :
+  CbmTask("Ideal EMC hit Producer") { 
+  fStoreHits=val;
+  //eneThr = 0.001; // Energy threshold for emc pad (Now taken from DB)
+}
+
 // -----   Destructor   ----------------------------------------------------
 PndEmcHitProducer::~PndEmcHitProducer() { }
 // -------------------------------------------------------------------------
-
 
 
 // -----   Public method Init   --------------------------------------------
@@ -79,7 +85,7 @@ InitStatus PndEmcHitProducer::Init() {
   // Create and register output array
   fDigiArray = new TClonesArray("PndEmcHit");
   
-  ioman->Register("EmcHit","Emc",fDigiArray,kTRUE);
+  ioman->Register("EmcHit","Emc",fDigiArray,fStoreHits);
   
 	// Geometry loading
 // 	TFile *infile = ioman->GetInFile();
@@ -169,5 +175,10 @@ PndEmcHit* PndEmcHitProducer::AddHit(Int_t trackID,Int_t detID, Float_t energy, 
 }
 // ----
 
+void PndEmcHitProducer::SetStorageOfHits(Bool_t val)
+{
+  fStoreHits=val;
+  return;
+}
 
 ClassImp(PndEmcHitProducer)

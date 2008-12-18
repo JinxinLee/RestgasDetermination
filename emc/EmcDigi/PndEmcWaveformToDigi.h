@@ -40,7 +40,7 @@ public:
 
   // Constructors
 
-  PndEmcWaveformToDigi(Int_t verbose=0);
+  PndEmcWaveformToDigi(Int_t verbose=0, Bool_t storedigis=kTRUE);
 
   // Destructor
 
@@ -52,6 +52,8 @@ public:
 
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
+
+  void SetStorageOfDigis(Bool_t val); // Method to specify whether digis are stored or not.
 
 private:
 
@@ -75,6 +77,8 @@ private:
 	
 	/** Verbosity level **/
 	Int_t fVerbose;
+
+	Bool_t fStoreDigis;
 
 	ClassDef(PndEmcWaveformToDigi,1);
 	

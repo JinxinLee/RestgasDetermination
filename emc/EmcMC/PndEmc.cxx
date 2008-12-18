@@ -295,14 +295,8 @@ void PndEmc::EndOfEvent() {
 // -----   Public method Register   -------------------------------------------
 void PndEmc::Register() {
 
-  if (fStorePoints)
-    {
-      CbmRootManager::Instance()->Register("EmcPoint","Emc", fEmcCollection, kTRUE);
-    }
-  else
-    {
-      CbmRootManager::Instance()->Register("EmcPoint","Emc", fEmcCollection, kFALSE);
-    }
+  CbmRootManager::Instance()->Register("EmcPoint","Emc", fEmcCollection, fStorePoints);
+
 }
 // ----------------------------------------------------------------------------
 

@@ -31,10 +31,11 @@ using std::cout;
 using std::endl;
 using std::fstream;
 
-PndEmcMakeDigi::PndEmcMakeDigi()
+PndEmcMakeDigi::PndEmcMakeDigi(Bool_t storedigis)
 {
 	fDigiPosMethod="depth";// "surface" or "depth"
 	fEmcDigiRescaleFactor=1.08;
+	fStoreDigis=storedigis;
 }
 
 //--------------
@@ -68,7 +69,7 @@ InitStatus PndEmcMakeDigi::Init()
 	// Create and register output array
 	fDigiArray = new TClonesArray("PndEmcDigi");
 
-	ioman->Register("EmcDigi","Emc",fDigiArray,kTRUE);
+	ioman->Register("EmcDigi","Emc",fDigiArray,fStoreDigis);
 	
 	if (!fDigiPosMethod.compare("surface"))
 	{
@@ -148,7 +149,7 @@ PndEmcDigi* PndEmcMakeDigi::AddDigi(Int_t trackID,Int_t detID, Float_t energy, F
 void PndEmcMakeDigi::SetParContainers() {
 
   // Get run and runtime database
-  CbmRunAna* run = CbmRunAna::Instance();
+  CbmRun* run = CbmRun::Instance();
   if ( ! run ) Fatal("SetParContainers", "No analysis run");
 
   CbmRuntimeDb* db = run->GetRuntimeDb();
@@ -161,4 +162,10 @@ void PndEmcMakeDigi::SetParContainers() {
  
 }
 
+void PndEmcMakeDigi::SetStorageOfDigis(Bool_t val)
+{
+  fStoreDigis=val;
+  return;
+}
+  
 ClassImp(PndEmcMakeDigi)

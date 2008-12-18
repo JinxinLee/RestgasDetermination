@@ -24,7 +24,7 @@ public:
 
   // Constructors
 
-  PndEmcMakeRecoHit(Int_t verbose=0);
+  PndEmcMakeRecoHit(Int_t verbose=0, Bool_t storerecohits=kTRUE);
 
   // Destructor
 
@@ -37,6 +37,7 @@ public:
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
 
+  void SetStorageOfRecoHits(Bool_t val); // Method to specify whether recohits are stored or not.
 
 protected:
 
@@ -54,6 +55,8 @@ private:
 	
 	/** Verbosity level **/
 	Int_t fVerbose;
+
+	Bool_t fStoreRecoHits;
 	
 	ClassDef(PndEmcMakeRecoHit,1)
 };

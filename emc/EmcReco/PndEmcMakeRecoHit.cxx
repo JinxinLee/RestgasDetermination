@@ -34,9 +34,10 @@
 using std::cout;
 using std::endl;
 
-PndEmcMakeRecoHit::PndEmcMakeRecoHit(Int_t verbose) 
+PndEmcMakeRecoHit::PndEmcMakeRecoHit(Int_t verbose, Bool_t storerecohits) 
 {
 	fVerbose=verbose;
+	fStoreRecoHits=storerecohits;
 }
 
 //--------------
@@ -70,7 +71,7 @@ InitStatus PndEmcMakeRecoHit::Init() {
 	// Create and register output array
 	fRecoHitArray = new TClonesArray("PndEmcRecoHit");
 	
-	ioman->Register("EmcRecoHit","Emc",fRecoHitArray,kTRUE);
+	ioman->Register("EmcRecoHit","Emc",fRecoHitArray,fStoreRecoHits);
 	
 	cout << "-I- PndEmcMakeRecoHit: Intialization successfull" << endl;
 
@@ -100,7 +101,7 @@ void PndEmcMakeRecoHit::Exec(Option_t* opt)
 void PndEmcMakeRecoHit::SetParContainers() {
 
   // Get run and runtime database
-  CbmRunAna* run = CbmRunAna::Instance();
+  CbmRun* run = CbmRun::Instance();
   if ( ! run ) Fatal("SetParContainers", "No analysis run");
 
   CbmRuntimeDb* db = run->GetRuntimeDb();
@@ -109,5 +110,12 @@ void PndEmcMakeRecoHit::SetParContainers() {
   // Get Emc reconstruction parameter container
   fRecoPar = (PndEmcRecoPar*) db->getContainer("PndEmcRecoPar");
 }
+
+void PndEmcMakeRecoHit::SetStorageOfRecoHits(Bool_t val)
+{
+  fStoreRecoHits=val;
+  return;
+}
+  
 
 ClassImp(PndEmcMakeRecoHit)

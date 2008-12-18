@@ -40,9 +40,10 @@ using std::cout;
 using std::endl;
 using std::fstream;
 
-PndEmcHitsToWaveform::PndEmcHitsToWaveform(Int_t verbose)
+PndEmcHitsToWaveform::PndEmcHitsToWaveform(Int_t verbose, Bool_t storewaves)
 {
 	fVerbose = verbose;
+	fStoreWaves = storewaves;
 }
 
 //--------------
@@ -76,7 +77,7 @@ InitStatus PndEmcHitsToWaveform::Init()
 	// Create and register output array
 	fWaveformArray = new TClonesArray("PndEmcWaveform");
 	
-	ioman->Register("EmcWaveform","Emc",fWaveformArray,kTRUE);
+	ioman->Register("EmcWaveform","Emc",fWaveformArray,fStoreWaves);
 	
 	cout << "-I- PndEmcHitsToWaveform: Intialization successfull" << endl;
 
@@ -215,7 +216,7 @@ void PndEmcHitsToWaveform::Exec(Option_t* opt)
 void PndEmcHitsToWaveform::SetParContainers() {
 
   // Get run and runtime database
-  CbmRunAna* run = CbmRunAna::Instance();
+  CbmRun* run = CbmRun::Instance();
   if ( ! run ) Fatal("SetParContainers", "No analysis run");
 
   CbmRuntimeDb* db = run->GetRuntimeDb();
@@ -240,6 +241,12 @@ PndEmcWaveform* PndEmcHitsToWaveform::AddWaveform(Int_t detID, Int_t iHit){
 						 fExcessNoiseFactor,
 						 fUse_photon_statistic,
 						 iHit);
+}
+
+void PndEmcHitsToWaveform::SetStorageOfWaves(Bool_t val)
+{
+  fStoreWaves = val;
+  return;
 }
 
 ClassImp(PndEmcHitsToWaveform)
