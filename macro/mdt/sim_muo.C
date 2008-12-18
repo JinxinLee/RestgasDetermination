@@ -82,7 +82,7 @@ void sim_muo(Int_t nEvents=1000, Float_t pT=2.0){
   pMdt->SetMdtVersion("torino");
   CbmDetector *Mdt = pMdt;
   Muo->SetGeometryFileName("muopars.root");
-  fRun->AddModule(Muo);
+  fRun->AddModule(Mdt);
  
   CbmDetector *Drc = new PndDrc("DIRC", kTRUE);
   Drc->SetGeometryFileName("dirc.geo"); 
