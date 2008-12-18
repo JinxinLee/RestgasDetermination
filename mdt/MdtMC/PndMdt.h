@@ -24,6 +24,8 @@ public:
     PndMdt(const char* name, Bool_t active);
     ~PndMdt();
     
+    void SetMdtVersion(TString);
+
 // hit
     inline void Register() { CbmRootManager::Instance()->Register("MdtPoint","Mdt",fMdtCollection,kTRUE); };
     
@@ -59,6 +61,12 @@ public:
 	ClassDef(PndMdt,1)
     
 private:
+    TString version;
+    void ConstructGeometryTo();
+    void ConstructGeometryDu();
+    Bool_t ProcessHitsTo(CbmVolume* vol);
+    Bool_t ProcessHitsDu(CbmVolume* vol);
+
 // hit
     TClonesArray* fMdtCollection; //!
     Int_t fPosIndex;      
