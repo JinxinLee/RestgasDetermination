@@ -163,7 +163,7 @@ void PndTpcLheTrackFitter::Info4Fit(PndTpcLheTrack *track) {
   //---
 
   TObjArray *rhits = (TObjArray* )track->GetRHits();
-  Int_t nHits = rhits->GetEntries();
+  Int_t nHits = rhits->GetEntriesFast();
   
   // alpha = .2998 * magfield / 100 <- for obtain moment in GeV/c
   Double_t alpha = .2998 * .02 ;
@@ -258,7 +258,7 @@ Int_t PndTpcLheTrackFitter::CircleFit(PndTpcLheTrack *track) {
   //---  From Ososkov CircleCOP() Comp.Phys.Com 33, p.329
 
   TObjArray *rhits = (TObjArray* )track->GetRHits();
-  Int_t NHits = rhits->GetEntries();
+  Int_t NHits = rhits->GetEntriesFast();
 
   double M0,Mx,My;
   M0 = NHits;
@@ -413,7 +413,7 @@ Int_t PndTpcLheTrackFitter::DeepFitOleg(PndTpcLheTrack *track) {
   Double_t sss = 0.F ;
   Double_t ssz = 0.F ;
 
-  Int_t nHits = rHits->GetEntries();
+  Int_t nHits = rHits->GetEntriesFast();
 
   Double_t dpsi, s;
   Double_t fS[nHits];
@@ -512,7 +512,7 @@ Int_t PndTpcLheTrackFitter::DeepFit(PndTpcLheTrack *track) {
   //--- Fit on the R vs z plane
 
   TObjArray *rHits = (TObjArray* )track->GetRHits();
-  Int_t nHits = rHits->GetEntries();
+  Int_t nHits = rHits->GetEntriesFast();
   
   Double_t wsum  = 0.F ;
   Double_t wx  = 0.F ;

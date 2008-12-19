@@ -277,108 +277,38 @@ void PndDrc::BeginEvent(){
   fEventID++;
 }
 
-
-
 // -----   Public method ProcessHits  --------------------------------------
 Bool_t PndDrc::ProcessHits(CbmVolume* vol) {
   
   if (fVerboseLevel >0) cout << "PndDrc::ProcessHits " << vol->GetName() << endl;
- 
-  //Register points in the barrel (PndDrcBarPoints)
+   //Register points in the barrel (PndDrcBarPoints)
   Int_t  fEventID = gMC->CurrentEvent();
   Int_t  fPdgCode = gMC->TrackPid(); 
-  Double_t fCharge = gMC->TrackCharge();
-
-  if (fRunCherenkov==kFALSE && fPdgCode == 50000050) 
-    {
-      gMC->StopTrack();
-      if (fVerboseLevel >0) cout<< "Photon killed" << endl;
-    }
-  
+ 
   TLorentzVector fPos, fMom;
   gMC->TrackPosition(fPos);
-  TString nam = gMC->CurrentVolName();
-  
-  if (nam.BeginsWith("DrcBar") && gMC->IsTrackEntering()==1 &&  fPdgCode != 50000050 && fCharge !=0.) 
-  {
-    Int_t  fTrackID = gMC->GetStack()->GetCurrentTrackNumber();
-    Double_t fTime    = gMC->TrackTime() * 1.0e09;
-    Double_t fLength = gMC->TrackLength();
-    Int_t  copyNo = vol->getCopyNo();
-           
-    Int_t s, b; //side and bar
-    TString path = gMC->CurrentVolPath();     
-    if (fVerboseLevel >0) cout<< "Volume: " << gMC->CurrentVolPath() << endl;
-
-    //  cout << path << endl;    
-    sscanf(path, "/cave_1/DrcBase_1/DrcSide_%d/DrcBox_1/DrcBarContainer_%d/DrcBar_1", &s, &b);
-    
-    Int_t fNBar = s*10 +b;
-    gMC->TrackMomentum(fMom); // GeV/c
-
-
-
- //    Double_t r = 49.7;
-//     Double_t phi = acos(fPos.X()/r);
-//     Double_t tht;
-//     if (fPos.Z() !=0) tht = atan(fPos.Y()/fPos.Z());
-    //  cout << "hit phi: "<< phi <<";   theta = " << tht << endl;
-
-    Double_t Px= fMom.Px();
-    Double_t Py= fMom.Py();
-    Double_t Pz= fMom.Pz();
-    Double_t fP = sqrt(Px*Px + Py*Py +Pz*Pz);
-    Double_t fMass = gMC->TrackMass();
-    Double_t fEnergy = TMath::Sqrt(fP*fP + fMass*fMass); 
-    
-    Double_t fAngIn;
- if ( fabs(Pz/fP) > 1. || fP == 0.){
-      fAngIn = -1.;
-    }
-    else{
-      fAngIn = acos(Pz/fP);
-    }
-    
-    Double_t fThetaC;
-    if (fabs(1./(1.47*(fP/fEnergy))) > 1. || fP == 0. || fEnergy == 0.){
-      fThetaC = -1.;
-    }
-    else{
-      fThetaC = acos(1/(1.47*(fP/fEnergy)));
-    } 
-    
-    AddBarHit(fTrackID,
-	      fCopyNo,
-	      TVector3(fPos.X(),   fPos.Y(),   fPos.Z()),
-	      TVector3(fMom.Px(),  fMom.Py(),  fMom.Pz()),
-	      fTime,
-	      fLength,
-	      fPdgCode,
-	      fAngIn,
-	      fThetaC,
-	      fNBar,
-	      fEventID,
-	      fMass);
-    
-  }
-  
-  if (nam.BeginsWith("DrcBar") && gMC->IsTrackExiting()==1 &&  fPdgCode == 50000050 && fPos.Z() > -148.0 ) 
-    
-    {
+  //TString nam = gMC->CurrentVolName();
+  TString nam =vol->GetName();
+  if (fPdgCode == 50000050){
+    if (fRunCherenkov==kFALSE ) {
       gMC->StopTrack();
       if (fVerboseLevel >0) cout<< "Photon killed" << endl;
-      
     }
-  
-  
-  if (nam.BeginsWith("DrcPd") && gMC->IsTrackEntering()==1 && fPdgCode == 50000050) 
-    {
-      Int_t  fCopyNo = vol->getCopyNo();
-      Int_t  fTrackID = gMC->GetStack()->GetCurrentTrackNumber(); //track ID     
-      
-      gMC->TrackPosition(fPos);
-      gMC->TrackMomentum(fMom); // GeV/c
-      AddHit(fTrackID,
+    if (gMC->IsTrackExiting()==1){
+      if (fPos.Z() > -148.0 ){
+        if (nam.BeginsWith("DrcBar") ) {
+           gMC->StopTrack();
+           if (fVerboseLevel >0) cout<< "Photon killed" << endl;
+        }
+     }
+   }
+   if (gMC->IsTrackEntering()==1){
+      if (nam.BeginsWith("DrcPd")){
+        Int_t  fCopyNo = vol->getCopyNo();
+        Int_t  fTrackID = gMC->GetStack()->GetCurrentTrackNumber(); //track ID     
+        gMC->TrackPosition(fPos);
+        gMC->TrackMomentum(fMom); // GeV/c
+        AddHit(fTrackID,
 	     fCopyNo,
 	     TVector3(fPos.X(),   fPos.Y(),   fPos.Z()),
 	     TVector3(fMom.Px(),  fMom.Py(),  fMom.Pz()),
@@ -386,16 +316,60 @@ Bool_t PndDrc::ProcessHits(CbmVolume* vol) {
 	     fLength,
 	     fPdgCode,
 	     fEventID);
-    } 
-  
-  
-  
+       }
+     }
+  }else if(gMC->TrackCharge()!=0.&&gMC->IsTrackEntering()==1 ){
+        if (nam.BeginsWith("DrcBar")) {
+		Double_t fCharge = gMC->TrackCharge();
+		Int_t  fTrackID = gMC->GetStack()->GetCurrentTrackNumber();
+		Double_t fTime  = gMC->TrackTime() * 1.0e09;
+		Double_t fLength = gMC->TrackLength();
+		Int_t  copyNo = vol->getCopyNo();
+		Int_t s, b; //side and bar
+		TString path = gMC->CurrentVolPath();     
+		if (fVerboseLevel >0) cout<< "Volume: " << gMC->CurrentVolPath() << endl;
+		//  cout << path << endl;    
+		sscanf(path, "/cave_1/DrcBase_1/DrcSide_%d/DrcBox_1/DrcBarContainer_%d/DrcBar_1", &s, &b);
+		Int_t fNBar = s*10 +b;
+		gMC->TrackMomentum(fMom); // GeV/c
+		//    Double_t r = 49.7;
+		//     Double_t phi = acos(fPos.X()/r);
+		//     Double_t tht;
+		//     if (fPos.Z() !=0) tht = atan(fPos.Y()/fPos.Z());
+		//  cout << "hit phi: "<< phi <<";   theta = " << tht << endl;
+		Double_t Px= fMom.Px();
+		Double_t Py= fMom.Py();
+		Double_t Pz= fMom.Pz();
+		Double_t fP = sqrt(Px*Px + Py*Py +Pz*Pz);
+		Double_t fMass = gMC->TrackMass();
+		Double_t fEnergy = TMath::Sqrt(fP*fP + fMass*fMass); 
+		Double_t fAngIn;
+		if ( fabs(Pz/fP) > 1. || fP == 0.){ fAngIn = -1.;
+		}else{ fAngIn = acos(Pz/fP);}
+		Double_t fThetaC;
+		if (fabs(1./(1.47*(fP/fEnergy))) > 1. || fP == 0. || fEnergy == 0.){
+			fThetaC = -1.;
+		}else{
+			fThetaC = acos(1/(1.47*(fP/fEnergy)));
+		} 
+		AddBarHit(fTrackID,
+			fCopyNo,
+			TVector3(fPos.X(),   fPos.Y(),   fPos.Z()),
+			TVector3(fMom.Px(),  fMom.Py(),  fMom.Pz()),
+			fTime,
+			fLength,
+			fPdgCode,
+			fAngIn,
+			fThetaC,
+			fNBar,
+			fEventID,
+			fMass);
+	}
+  }
+
   ResetParameters();
   
   return kTRUE; 
-  
-  
-  
 }
 
 // ---------------------------------------------------------------------------
