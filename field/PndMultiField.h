@@ -45,13 +45,19 @@ public:
    ** @param x,y,z     Point coordinates (global) [cm]
    ** @value Bx,By,Bz  Field components [kG]
    **/
-  virtual Double_t GetBx(Double_t x, Double_t y, Double_t z);
+/*  virtual Double_t GetBx(Double_t x, Double_t y, Double_t z);
   virtual Double_t GetBy(Double_t x, Double_t y, Double_t z);
   virtual Double_t GetBz(Double_t x, Double_t y, Double_t z);
-
+*/
   /** Screen output **/
   virtual void Print();
   ClassDef(PndMultiField,1) 
+
+ /** Get magnetic field. For use of GEANT3
+   ** @param point            Coordinates [cm]
+   ** @param bField (return)  Field components [kG] 
+   **/
+  void GetFieldValue(const Double_t point[3], Double_t* bField);
 
  protected:
    

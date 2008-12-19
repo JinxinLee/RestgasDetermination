@@ -61,12 +61,11 @@ PndTransMap::PndTransMap(PndTransPar* fieldPar)
 // ------------   Destructor   --------------------------------------------
 PndTransMap::~PndTransMap() { }
 // ------------------------------------------------------------------------
-
-
-
-// -----------   Get x component of the field   ---------------------------
-Double_t PndTransMap::GetBx(Double_t x, Double_t y, Double_t z) {
-
+void PndTransMap::GetBxyz(const Double_t point[3], Double_t* bField)
+{ 
+  Double_t x  =point[0];
+  Double_t y  =point[1];
+  Double_t z  =point[2];
   Int_t ix    = 0;
   Int_t iy    = 0;
   Int_t iz    = 0;
@@ -74,10 +73,9 @@ Double_t PndTransMap::GetBx(Double_t x, Double_t y, Double_t z) {
   Double_t dy = 0.;
   Double_t dz = 0.;
 
-  if ( IsInside(x, y, z, ix, iy, iz, dx, dy, dz) ) {
-
-	// Get Bx field values at grid cell corners
-	fHa[0][0][0] = fBx->At(ix    *fNy*fNz + iy    *fNz + iz);
+  if ( IsInside(x, y, z, ix, iy, iz, dx, dy, dz) ){
+        // Get Bx field values at grid cell corners
+        fHa[0][0][0] = fBx->At(ix    *fNy*fNz + iy    *fNz + iz);
 	fHa[1][0][0] = fBx->At((ix+1)*fNy*fNz + iy    *fNz + iz);
 	fHa[0][1][0] = fBx->At(ix    *fNy*fNz + (iy+1)*fNz + iz);
 	fHa[1][1][0] = fBx->At((ix+1)*fNy*fNz + (iy+1)*fNz + iz);
@@ -86,29 +84,8 @@ Double_t PndTransMap::GetBx(Double_t x, Double_t y, Double_t z) {
 	fHa[0][1][1] = fBx->At(ix    *fNy*fNz + (iy+1)*fNz + (iz+1));
 	fHa[1][1][1] = fBx->At((ix+1)*fNy*fNz + (iy+1)*fNz + (iz+1));
 	
-	// Return interpolated field value
 	//Bx is antisymtric in X 
-	return Interpolate(dx, dy, dz) * fHemiX ;
-
-  }
-
-  return 0.;
-}
-// ------------------------------------------------------------------------
-
-
-
-// -----------   Get y component of the field   ---------------------------
-Double_t PndTransMap::GetBy(Double_t x, Double_t y, Double_t z) {
-
-  Int_t ix    = 0;
-  Int_t iy    = 0;
-  Int_t iz    = 0;
-  Double_t dx = 0.;
-  Double_t dy = 0.;
-  Double_t dz = 0.;
-
-  if ( IsInside(x, y, z, ix, iy, iz, dx, dy, dz) ) {
+	bField[0] =Interpolate(dx, dy, dz) * fHemiX ;
 
 	// Get By field values at grid cell corners
 	fHa[0][0][0] = fBy->At(ix    *fNy*fNz + iy    *fNz + iz);
@@ -120,31 +97,10 @@ Double_t PndTransMap::GetBy(Double_t x, Double_t y, Double_t z) {
 	fHa[0][1][1] = fBy->At(ix    *fNy*fNz + (iy+1)*fNz + (iz+1));
 	fHa[1][1][1] = fBy->At((ix+1)*fNy*fNz + (iy+1)*fNz + (iz+1));
 	
-	// Return interpolated field value
 	//By is symtric in X
-	return Interpolate(dx, dy, dz);
+	bField[1] =Interpolate(dx, dy, dz);
 
-  }
-
-  return 0.;
-}
-// ------------------------------------------------------------------------
-
-
-
-// -----------   Get z component of the field   ---------------------------
-Double_t PndTransMap::GetBz(Double_t x, Double_t y, Double_t z) {
-
-  Int_t ix    = 0;
-  Int_t iy    = 0;
-  Int_t iz    = 0;
-  Double_t dx = 0.;
-  Double_t dy = 0.;
-  Double_t dz = 0.;
-
-  if ( IsInside(x, y, z, ix, iy, iz, dx, dy, dz) ) {
-
-	// Get Bz field values at grid cell corners
+        // Get Bz field values at grid cell corners
 	fHa[0][0][0] = fBz->At(ix    *fNy*fNz + iy    *fNz + iz);
 	fHa[1][0][0] = fBz->At((ix+1)*fNy*fNz + iy    *fNz + iz);
 	fHa[0][1][0] = fBz->At(ix    *fNy*fNz + (iy+1)*fNz + iz);
@@ -156,13 +112,15 @@ Double_t PndTransMap::GetBz(Double_t x, Double_t y, Double_t z) {
 	
 	// Return interpolated field value
 	//Bz is symtric in X 
-	return Interpolate(dx, dy, dz);
+	bField[2]=Interpolate(dx, dy, dz);
 
+  }else{
+     bField[0]=0;
+     bField[1]=0;
+     bField[2]=0;
   }
 
-  return 0.;
 }
-// ------------------------------------------------------------------------
 
 
 

@@ -48,15 +48,7 @@ public:
   virtual ~PndSolenoidMap();
 
 
-  /** Get the field components at a certain point 
-   ** @param x,y,z     Point coordinates (global) [cm]
-   ** @value Bx,By,Bz  Field components [kG]
-   **/
-  virtual Double_t GetBx(Double_t x, Double_t y, Double_t z);
-  virtual Double_t GetBy(Double_t x, Double_t y, Double_t z);
-  virtual Double_t GetBz(Double_t x, Double_t y, Double_t z);
-
-
+ 
   /** Determine whether a point is inside the field map
    ** @param x,y,z              Point coordinates (global) [cm]
    ** @param ix,iy,iz (return)  Grid cell
@@ -72,6 +64,7 @@ public:
 
   Int_t GetRegionNo(){return fRegionNo;}
   
+  void GetBxyz(const Double_t point[3], Double_t* bField);
   protected:
 
   // Hemispheres of a point (for temporary use)

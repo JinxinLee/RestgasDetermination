@@ -89,54 +89,6 @@ void PndMultiField::Init() {
 
 }
 
-// -----------   Get x component of the field   ---------------------------
-Double_t PndMultiField::GetBx(Double_t x, Double_t y, Double_t z) {
-   PndRegion *fReg=0;
-   CbmField *fField=0;
-   for (fMapIter=fFieldMaps.begin(); fMapIter!= fFieldMaps.end();fMapIter++ ){
-      fReg=fMapIter->first;
-      if(fReg->IsInside(z)){
-         fField=fMapIter->second;
-	 break;
-      }
-   }
-   if(fField)  return  fField->GetBx( x, y,  z);	
-   else return 0;
-}
-
-
-// -----------   Get y component of the field   ---------------------------
-Double_t PndMultiField::GetBy(Double_t x, Double_t y, Double_t z) {
-
-   PndRegion *fReg=0;
-   CbmField *fField=0;
-   for (fMapIter=fFieldMaps.begin(); fMapIter!= fFieldMaps.end();fMapIter++ ){
-      fReg=fMapIter->first;
-      if(fReg->IsInside(z)){
-         fField=fMapIter->second;
-         break;
-      }
-   }
-   if(fField)  return fField->GetBy( x, y,  z);
-   else return 0;
-}
-
-// -----------   Get z component of the field   ---------------------------
-Double_t PndMultiField::GetBz(Double_t x, Double_t y, Double_t z) {
-
-   PndRegion *fReg=0;
-   CbmField *fField=0;
-   for (fMapIter=fFieldMaps.begin(); fMapIter!= fFieldMaps.end();fMapIter++ ){
-      fReg=fMapIter->first;
-      if(fReg->IsInside(z)){
-         fField=fMapIter->second;
-	 break;
-      }
-   }
-   if(fField) return fField->GetBz( x, y,  z);
-   else return 0;
-}
-
 // ---------   Screen output   --------------------------------------------
 void PndMultiField::Print() {  
  for (Int_t n=0; n<=fNoOfMaps; n++){
@@ -145,6 +97,34 @@ void PndMultiField::Print() {
   }
 }
 
+// -------------------------------------------------------------------------
+void PndMultiField::GetFieldValue(const Double_t point[3], Double_t* bField) 
+{
+  
+   PndRegion *fReg=0;
+   CbmField *fField=0;
+   for (fMapIter=fFieldMaps.begin(); fMapIter!= fFieldMaps.end();fMapIter++ ){
+      fReg=fMapIter->first;
+      if(fReg->IsInside(point[2])){
+         fField=fMapIter->second;
+	 break;
+      }
+   }
+  if(fField){
+   /* bField[0] = fField->GetBx(point[0], point[1], point[2]);
+    bField[1] = fField->GetBy(point[0], point[1], point[2]);
+    bField[2] = fField->GetBz(point[0], point[1], point[2]);
+  */
+  fField->GetBxyz(point, bField);
+
+  //  cout <<"PndMultiField::GetFieldValue" << bField[0] <<" " << bField[1]<< " " << bField[2] << endl;
+  }else{
+    bField[0] = 0;
+    bField[1] = 0;
+    bField[2] = 0;
+
+  }
+}
 
 
 ClassImp(PndMultiField)
