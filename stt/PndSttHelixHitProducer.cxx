@@ -297,7 +297,7 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
 	    Double_t R = pTrack->GetParamLast()->GetTx();
 	
 
-	    wiredirection *= 75.; // CEHCK lunghezza vera!
+	    wiredirection *= currenthit->GetTubeHalfLength(); 
 	    TVector3 cenposition(currenthit->GetX(), currenthit->GetY(), currenthit->GetZ());  // CHECK! z = 35!!
 	
 	    TVector3 min, max;
@@ -478,10 +478,10 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
 	    // 	    cout << "helix hit " << helixhit->GetX() << " " << helixhit->GetY() << " " << helixhit->GetZ() << endl; // CHECK the procedure!!
 	    // 	    cout << "previous reco  " << previouspos->X() << " " << previouspos->Y() << " " << previouspos->Z() << endl; // CHECK the procedure!!
 	    
-	    hxs->Fill(iPoint->GetXtot() - helixhit->GetX());
-	    hys->Fill(iPoint->GetYtot() - helixhit->GetY());
-	    hzs->Fill(iPoint->GetZtot() - helixhit->GetZ());
-
+	    //   hxs->Fill(iPoint->GetXtot() - helixhit->GetX());
+	    //   hys->Fill(iPoint->GetYtot() - helixhit->GetY());
+	    //   hzs->Fill(iPoint->GetZtot() - helixhit->GetZ());
+	    
 	    delete previouspos;
 	  }
 

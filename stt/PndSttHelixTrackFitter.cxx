@@ -1450,8 +1450,8 @@ Bool_t PndSttHelixTrackFitter::ZFinder(PndSttTrack* pTrack, Int_t pidHypo) {
     TVector3 wiredirection(iPoint->GetXWireDirection(), iPoint->GetYWireDirection(), iPoint->GetZWireDirection());
     TVector3 wiredirection2;
 
-    wiredirection2 = 75. * wiredirection;
-    TVector3 cenposition(pMhit->GetX(), pMhit->GetY(), 0.);  // CHECK! z = 35!!
+    wiredirection2 = pMhit->GetTubeHalfLength() * wiredirection;
+    TVector3 cenposition(pMhit->GetX(), pMhit->GetY(), pMhit->GetZ());  // CHECK! z = 35!!
 
 
     TVector3 min, max;
@@ -1852,8 +1852,8 @@ Bool_t PndSttHelixTrackFitter::ZFinder2(PndSttTrack* pTrack, Int_t pidHypo) {
     TVector3 wiredirection(iPoint->GetXWireDirection(), iPoint->GetYWireDirection(), iPoint->GetZWireDirection());
     TVector3 wiredirection2;
 
-    wiredirection2 = 75. * wiredirection;
-    TVector3 cenposition(pMhit->GetX(), pMhit->GetY(), 0.);  // CHECK! z = 35!!
+    wiredirection2 = pMhit->GetTubeHalfLength() * wiredirection;
+    TVector3 cenposition(pMhit->GetX(), pMhit->GetY(), pMhit->GetZ());  // CHECK! z = 35!!
 
 
     TVector3 min, max;
@@ -2266,7 +2266,7 @@ Bool_t PndSttHelixTrackFitter::ZFinderbb3(PndSttTrack* pTrack, Int_t pidHypo) {
     TVector3 wiredirection(iPoint->GetXWireDirection(), iPoint->GetYWireDirection(), iPoint->GetZWireDirection());
     TVector3 wiredirection2;
 
-    wiredirection2 = 75. * wiredirection;
+    wiredirection2 = pMhit->GetTubeHalfLength() * wiredirection;
     TVector3 cenposition(pMhit->GetX(), pMhit->GetY(), pMhit->GetZ());  // CHECK! z = 35!!
     //    if(pMhit->GetZ() != 0) continue; // to throw away short tubes // CHECK
 
@@ -2763,7 +2763,7 @@ Bool_t PndSttHelixTrackFitter::ZFinder6b(PndSttTrack* pTrack, Int_t pidHypo) {
   
     TVector3 wiredirection2;
     
-    wiredirection2 = 75. * wiredirection;
+    wiredirection2 = pMhit->GetTubeHalfLength() * wiredirection;
   
     TVector3 cenposition(pMhit->GetX(), pMhit->GetY(), pMhit->GetZ());  // CHECK! z = 35!!
     //       if(pMhit->GetZ() != 0) continue; // for the moment I throw away short tubes // CHECK
@@ -3079,7 +3079,7 @@ Bool_t PndSttHelixTrackFitter::ZFinder6b(PndSttTrack* pTrack, Int_t pidHypo) {
 	//====================  
 	// zfit
 	//
-	if(tofit->Z() >= -75 || tofit->Z() <= 75 ){
+	if(tofit->Z() >= (pMhit->GetZ() - pMhit->GetTubeHalfLength()) || tofit->Z() <= (pMhit->GetZ() + pMhit->GetTubeHalfLength())){
 	  Sx = Sx + (scos/(sigz * sigz));
 	  Sz = Sz + (tofit->Z()/(sigz * sigz));
 	  Sxz = Sxz + ((scos * tofit->Z())/(sigz * sigz));
@@ -3101,7 +3101,7 @@ Bool_t PndSttHelixTrackFitter::ZFinder6b(PndSttTrack* pTrack, Int_t pidHypo) {
 	//====================  
 	// zfit
 	//
-	if(tofit2->Z() >= -75 || tofit2->Z() <= 75 ){
+	if(tofit2->Z() >= (pMhit->GetZ() - pMhit->GetTubeHalfLength()) || tofit2->Z() <= (pMhit->GetZ() + pMhit->GetTubeHalfLength())){
 	  Sx = Sx + (scos/(sigz * sigz));
 	  Sz = Sz + (tofit2->Z()/(sigz * sigz));
 	  Sxz = Sxz + ((scos * tofit2->Z())/(sigz * sigz));
@@ -3619,7 +3619,7 @@ Int_t PndSttHelixTrackFitter::Zfitbb2(PndSttTrack* pTrack, Int_t pidHypo) {
     TVector3 *vi = new TVector3(pMhit->GetXint(), pMhit->GetYint(), pMhit->GetZint());
 
     // if the found z is > 75 cm or < -75 cm continue: this has to be fixed
-    if(pMhit->GetZint() < -75. || pMhit->GetZint() > 75.) continue; // CHECK 
+    if(pMhit->GetZint() < (pMhit->GetZ() - pMhit->GetTubeHalfLength()) || pMhit->GetZint() > (pMhit->GetZ() + pMhit->GetTubeHalfLength())) continue; // CHECK 
 
     Double_t scos = CalculateScosl(h, pTrack->GetParamLast()->GetX(),  pTrack->GetParamLast()->GetY(), R, pMhit->GetXint(), pMhit->GetYint());
     
