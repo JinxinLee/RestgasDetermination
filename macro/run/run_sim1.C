@@ -76,8 +76,9 @@
   Drc->SetGeometryFileName("dirc.geo"); 
   fRun->AddModule(Drc); 
 
- CbmDetector *Muo = new PndMdt("MDT",kTRUE);
+  PndMdt *Muo = new PndMdt("MDT",kTRUE);
   Muo->SetGeometryFileName("muopars.root");
+  Muo->SetMdtVersion("torino");
   fRun->AddModule(Muo);
 
   CbmDetector *Dch = new PndDchDetector("DCH", kTRUE);

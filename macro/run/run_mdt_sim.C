@@ -54,8 +54,9 @@ void run_mdt_sim()
   Magnet->SetGeometryFileName("FullSolenoid.root");
   fRun->AddModule(Magnet);
 
-  CbmDetector *Mdt = new PndMdt("MDT",kTRUE);
+  PndMdt *Mdt = new PndMdt("MDT",kTRUE);
   Mdt->SetGeometryFileName("muopars.root");
+  Mdt->SetMdtVersion("torino");
   fRun->AddModule(Mdt);
   
   // Create and Set Event Generator
