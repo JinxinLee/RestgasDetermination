@@ -181,7 +181,14 @@ Int_t PndSttHelixTrackFitter::DoFit(PndSttTrack* pTrack, Int_t pidHypo)
     Bool_t Rint = IntersectionFinder(pTrack, pTrack->GetParamLast());
     //    cout << "refit" << endl;                                       
     // if refit is OK
-    if(Rint == kTRUE) fit = Fit4b(pTrack, 2);  
+    if(Rint == kTRUE) {
+      fit = Fit4b(pTrack, 2);   // CHECK flag to be corrected!!!!!
+      Rint = IntersectionFinder(pTrack, pTrack->GetParamLast());
+      if(Rint == kTRUE)  fit = MinuitFit(pTrack, 2);  
+      Rint = IntersectionFinder(pTrack, pTrack->GetParamLast());
+      if(Rint == kTRUE)  fit = MinuitFit(pTrack, 2);  
+
+    }
     else return 0;
     if(fit == 1 && pTrack->GetParamLast()->GetTx()>0&& pTrack->GetParamLast()->GetTx() < 3000) { 
      
@@ -3814,7 +3821,8 @@ Int_t PndSttHelixTrackFitter::MinuitFit(PndSttTrack* pTrack, Int_t pidHypo)
 
 
 
-  minimizer.SetFCN(fcnHelix);
+  if(pidHypo == 1) minimizer.SetFCN(fcnHelix);
+  else  minimizer.SetFCN(fcnHelix2);
   //  minimizer.SetErrorDef(1);  // ???
   
   minimizer.DefineParameter(0, "xc", xcstart, 0.1, -3000., 3000.); // ???
@@ -3852,8 +3860,9 @@ Int_t PndSttHelixTrackFitter::MinuitFit(PndSttTrack* pTrack, Int_t pidHypo)
   //   pTrack->GetParamLast()->SetZ(z0);                
   pTrack->GetParamLast()->SetTx(resultsRadial[2]);
   //   pTrack->GetParamLast()->SetTy(alpha);                
-  pTrack->GetParamLast()->SetQp(0.);
-  
+  h = -GetCharge(d, phi, resultsRadial[2]);
+  pTrack->GetParamLast()->SetQp(-h); 
+
   if(rootoutput) {
     eventCanvas->cd();
     TArc *fitarc = new TArc(((pTrack->GetParamLast()->GetX() + pTrack->GetParamLast()->GetTx()) * cos(pTrack->GetParamLast()->GetY())), ((pTrack->GetParamLast()->GetX() + pTrack->GetParamLast()->GetTx()) * sin(pTrack->GetParamLast()->GetY())), pTrack->GetParamLast()->GetTx());
@@ -3906,6 +3915,52 @@ void fcnHelix(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t ifla
       delta =sqrt((xcur-par[0])*(xcur-par[0])+(ycur-par[1])*(ycur-par[1])) -par[2] ;
       if(currenthit->GetIsochrone() == 0) chisq += (delta * delta * 12.);
       else chisq += (delta*delta)/(currenthit->GetIsochrone() * currenthit->GetIsochrone() / 12.);
+      
+    }
+ 
+  f = chisq;
+}
+
+void fcnHelix2(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag)
+{
+
+  const PndSttHelixTrackFitter *mama = (PndSttHelixTrackFitter *)gMinuit->GetObjectFit();
+
+  PndSttTrack *fTrack = mama->GetTrack(); 
+
+  PndSttHit *currenthit  = NULL;
+
+  Double_t chisq = 0;
+  Double_t delta = 0;
+  Int_t hitcounter = fTrack->GetNofHits();
+
+  Double_t xcur=0;
+  Double_t ycur=0;
+
+  for (Int_t i = 0; i < hitcounter; i++)
+    { 
+
+      // get index of hit
+      Int_t iHit = fTrack->GetHitIndex(i);
+
+      // get hit
+      currenthit = mama->GetHitFromCollections(iHit);
+
+      if(!currenthit) continue;
+
+      if(currenthit->GetXint() == -999 || currenthit->GetYint() == -999) continue;
+      TVector3 wiredirection = currenthit->GetWireDirection();
+
+      if(wiredirection != TVector3(0.,0.,1.)) continue;
+
+      xcur = currenthit->GetXint();
+      ycur = currenthit->GetYint();
+      // cout <<"MINUIT: " << currenthit->GetXint() << " " << currenthit->GetYint() << endl;
+    
+
+      delta =sqrt((xcur-par[0])*(xcur-par[0])+(ycur-par[1])*(ycur-par[1])) -par[2] ;
+      if(currenthit->GetIsochrone() == 0) chisq += (delta * delta * 12.);
+      else chisq += (delta*delta)/(pow(currenthit->GetIsochroneError(),2));
       
     }
  

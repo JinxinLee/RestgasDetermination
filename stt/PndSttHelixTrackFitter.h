@@ -29,6 +29,7 @@ class TCanvas;
 class TH2F;
 
 void fcnHelix(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag);
+void fcnHelix2(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag);
 
 class PndSttHelixTrackFitter : public PndSttTrackFitter
 {

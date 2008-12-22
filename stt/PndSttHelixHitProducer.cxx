@@ -452,6 +452,27 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
 	    //	tofit2 = new TVector3(xcen1,ycen1,z_bis);
 	    tofit2 = new TVector3(x_,y_,z_bis);
 
+	     // I have 2 choices, I prefer the nearest to the line CHECK (DEVE ESSERE MESSO TUTTO A POSTO L' ASSOCIAZIONE DELLA Z!)
+	    // calculate scosl 
+	    PndSttHelixTrackFitter fitter;
+	    Double_t scosl_ = fitter.CalculateScosl(hh, d0, phi0, Rad, x_, y_);
+	    Double_t zcoord_ = z0 + zslope * scosl_;
+	    TVector3 *tofit3 = new TVector3(x_, y_, zcoord_);
+
+	    double distance_1 = sqrt((tofit->X() - tofit3->X())*(tofit->X() - tofit3->X())
+				     + (tofit->Y() - tofit3->Y())*(tofit->Y() - tofit3->Y())
+				     + (tofit->Z() - tofit3->Z())*(tofit->Z() - tofit3->Z()));
+	    
+	    double distance_2 = sqrt((tofit2->X() - tofit3->X())*(tofit2->X() - tofit3->X())
+				     + (tofit2->Y() - tofit3->Y())*(tofit2->Y() - tofit3->Y())
+				     + (tofit2->Z() - tofit3->Z())*(tofit2->Z() - tofit3->Z()));
+	    
+	    if(distance_1 < distance_2) helixhit->SetPosition(*tofit);
+	    else helixhit->SetPosition(*tofit2);
+
+
+
+
 	    // I have 2 choices, I prefer the nearest to the previous one!
 	    TVector3 *previouspos = new TVector3(currenthit->GetXint(), currenthit->GetYint(), currenthit->GetZint());
 
@@ -471,8 +492,8 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
 				    + (tofit2->Z() - previouspos->Z())*(tofit2->Z() - previouspos->Z()));
 
 
-	    if(distance < distance2) helixhit->SetPosition(*tofit);
-	    else helixhit->SetPosition(*tofit2);
+	  //   if(distance < distance2) helixhit->SetPosition(*tofit);
+// 	    else helixhit->SetPosition(*tofit2);
 
 	    //	    cout << "previous center  " << currenthit->GetX() << " " << currenthit->GetY() << " " << currenthit->GetZ() << endl; // CHECK the procedure!!
 	    // 	    cout << "helix hit " << helixhit->GetX() << " " << helixhit->GetY() << " " << helixhit->GetZ() << endl; // CHECK the procedure!!
