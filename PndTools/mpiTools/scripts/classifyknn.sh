@@ -7,8 +7,8 @@
 # argument 5: number of neighbours
 # argument 6: input filename
 #
-PANDAROOTHOME=$HOME/fairroot/trunk
-PANDAROOTBUILD=$HOME/fairroot/build
+PANDAROOTHOME=$VMCWORKDIR
+PANDAROOTBUILD=$VMCWORKDIR/../build
 #
 source $PANDAROOTBUILD/config.sh > logfile
 #

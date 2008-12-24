@@ -97,6 +97,7 @@ To run the program "bin/boss_worker_mpi" one can specify the following options:
     -s <path>      --- Path to the local storage place used by workers (default=/tmp/)
     -b <Mb>        --- Minimum required buffer storage space (default=512 Mb)
     -p <number>    --- Maximum allowed pending jobs for a worker (default=4)
+    -l <val>       --- Maximum allowed load of a worker (default=100.00)
     -m <path>      --- Path and name of the copying/moving tool (default=~/bin/movefiles)
     -t <seconds>   --- Time out period for script and move process to finish (default=3600 secs)
     -r <number>    --- Starting run identification number (default=<time>)
@@ -192,7 +193,8 @@ An overview of all the keywords, can be found below:
 
      Same as the option TIMEOUT, however, the first arguments corresponds to the timeout period before 
      a process is killed and the second arguments corresponds to the sleep period of a worker in case 
-     of too many running jobs or not enough disk space. The timeouts should be specified in <secs>. 
+     of too many running jobs, not enough disk space, or load level exceeded. The timeouts should be specified 
+     in <secs>. 
 
 ---> SCRATCH <path>
 
@@ -204,11 +206,18 @@ An overview of all the keywords, can be found below:
 
 ---> MINDISKSPACE <Mb>
 
-     Set the minimum required disk space for scratch to <Mb> MBytes.
+     Set the minimum required disk space for scratch to <Mb> MBytes. The worker will be put to sleep for
+     a period specified in TIMEOUT(S) in case the disk space is less than required.
 
 ---> MAXRUNTHREADS <n>
 
-     Set the maximum allowed pending threads for each worker to <n>.
+     Set the maximum allowed pending threads for each worker to <n>. The worker will be put to sleep for
+     a period specified in TIMEOUT(S) in case the number of pending threads exceeds MAXRUNTHREADS.
+
+---> MAXLOAD <lvl>
+
+     Set the maximum allowed load level for the  worker to <lvl>. The worker will be put to sleep for
+     a period specified in TIMOUT(S) in case the load level exceeds MAXLOAD.
 
 ---> NICE <lvl>
 

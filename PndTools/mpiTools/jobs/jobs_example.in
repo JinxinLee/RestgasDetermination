@@ -1,0 +1,22 @@
+#
+# Example job description file with BARRIER. First, the workers produce 
+# a simple histogram using the fillhisto.sh script. After a BARRIER, one of
+# workers adds all histograms up using the addhisto.sh script.
+#
+# General settings ....
+#
+NICE            5
+TIMEOUTS        60 5
+MINDISKSPACE    100
+MAXRUNTHREADS   4
+MAXLOAD         10
+SCRATCH         /tmp
+MOVECMD         $HOME/bin/movefiles
+#
+# JOB Multiplicity ScriptToRun Input Output Number_of_pars par1 par2 par3	...
+#
+RUNID 0
+JOB 100 $HOME/scripts/fillhisto.sh NULL $HOME/output/parts 3 50000000 5000 output.root
+BARRIER
+RUNID 1000
+JOB 1 $HOME/scripts/addhisto.sh $HOME/output/parts $HOME/output/ 2 output.root sum.root

@@ -12,8 +12,8 @@
 # For this run the config.sh in the build directory of PandaRoot.
 # Please set the path according to your setup
 #
-PANDAROOTHOME=$HOME/fairroot/pandaroot
-PANDAROOTBUILD=$HOME/fairroot/build
+PANDAROOTHOME=$VMCWORKDIR
+PANDAROOTBUILD=$VMCWORKDIR/../build
 #
 source $PANDAROOTBUILD/config.sh > logfile
 #

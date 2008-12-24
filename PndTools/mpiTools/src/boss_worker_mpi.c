@@ -11,6 +11,9 @@
 //                                           -m <path+file> [PATH AND SCRIPT TO MOVE FILES]
 //                                           -t <val>       [TIMEOUT IN SECS]
 //                                           -r <val>       [INITIAL RUNID NUMBER]
+//                                           -b <Mb>        [MIN SCRATCH SPACE]
+//                                           -p <val>       [MAX PENDING JOBS]
+//                                           -l <val>       [MAX LOAD LEVEL]
 //                                           -n <level>     [NICE LEVEL]
 //                                           -k             [KEEP FILES IN SCRATCH}
 //                                           -v             [BE VERBOSE]
@@ -20,8 +23,9 @@
 // and the remaining processes are the workers who obtain work packages from the
 // boss. The variable [JOBFILE] refers to the path and filename describing the jobs 
 // to be distributed among the workers. For more information, we refer to the README file.
+// Most of the parameters mentioned above can be specified, and overruled, in the [JOBFILE].
 //
-// Johan Messchendorp, 07/05/2008.
+// Johan Messchendorp, 24/12/2008.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////
 #include <stdlib.h>
@@ -50,8 +54,9 @@
 #define DEFAULT_TIMEOUT   3600                              // Default time out period for script and move process (secs)
 #define DEFAULT_MINDISK   512                              // Default minimum required buffer disk space (Mb)
 #define DEFAULT_MAXDIR    4                               // Default maximum jobs/open directories pending
-#define REMOVE_TIMEOUT    60                             // Timeout for the cleanup system calls
-#define DEFAULT_NICELEVEL 0                             // Default Nice level for the jobs
+#define DEFAULT_MAXLOAD   100                            // Default maximum load 
+#define REMOVE_TIMEOUT    60                            // Timeout for the cleanup system calls
+#define DEFAULT_NICELEVEL 0                            // Default Nice level for the jobs
 //
 // The various communication identifiers, TAGs
 //
@@ -107,6 +112,7 @@ unsigned int timeout[2];                       // Timeout (s) of workers:
 unsigned int runid;                            // The current Run Identification number
 unsigned int minimum_disk_space;               // The minimum available disk space required for a worker to be active (MBytes)
 unsigned int maximum_running_jobs;             // Maximum allowed running jobs per worker. Exceeding this number will put the worker to sleep
+double maximum_load;                           // Maximum allowed load of a worker. Exceeding this number will put the worker to sleep
 int number_of_running_jobs;                    // Number of presently running jobs (worker)
 int ndonejobs;                                 // Number of jobs finished successfully
 int rank;                                      // Rank of the process
@@ -170,6 +176,8 @@ void PrintOptions()
 	 minimum_disk_space);
   printf("    -p <number>    --- Maximum allowed pending threads for a worker (default=%i)\n",
 	 maximum_running_jobs);
+  printf("    -l <val>       --- Maximum allowed load of a worker (default=%.2f)\n",
+	 maximum_load);
   printf("    -m <path>      --- Path and copying script (default=%s)\n",
 	 move_files);
   printf("    -t <seconds>   --- Time out for script, copy, and move processes (default=%u secs)\n",
@@ -209,6 +217,7 @@ int ReadArguments(unsigned int argc,char **argv,int rank)
   timeout[1]=DEFAULT_TIMEOUT;
   minimum_disk_space=DEFAULT_MINDISK;
   maximum_running_jobs=DEFAULT_MAXDIR;
+  maximum_load=DEFAULT_MAXLOAD;
   nice_level=DEFAULT_NICELEVEL;
   dummy_mode=0;
   verbose_mode=0;
@@ -240,6 +249,11 @@ int ReadArguments(unsigned int argc,char **argv,int rank)
 	{
 	  i++;
 	  maximum_running_jobs=atoi(argv[i]);
+	}
+      else if (!(strcmp(argv[i],"-l")))
+	{
+	  i++;
+	  maximum_load=atof(argv[i]);
 	}
       else if (!(strcmp(argv[i],"-m")))
 	{
@@ -317,6 +331,31 @@ unsigned int GetFreeDiskSpace()
     } 
 
   return ((fiData.f_bfree/1024)*(fiData.f_bsize/1024));  /* in MBytes */
+}
+
+//
+// double GetAverageLoad(int period)
+// ---------------------------------
+//
+// Description: Obtains the average load for a period of
+//              1 min (period=0), 5 min (period=1), or 15 min (period=2)
+// Input:       period, either 0,1, or 2 (see above)
+// Output:      returns the load average, in case of failure, returns a value of -1
+// Depends on:  static variables define globally 
+//
+
+double GetAverageLoad(int period)
+{
+  double loads[3];
+
+  if ((period<0) || (period>2)) 
+    {
+      fprintf(stderr,"<W:%i> GetAverageLoad called with invalid period of %i\n", rank, period);
+      fflush(stderr);
+      return -1.;
+    }
+  if (getloadavg(loads,3)<0) return -1.;
+  return loads[period];
 }
 
 //
@@ -553,7 +592,7 @@ void* MoveJob(void *in)
   char command[VERYLONGCHARSIZE];
   char retval=0;
   time_t now,start;
-  int msg[5];
+  int msg[6];
 
   thread_info *info = (thread_info *) in;
 
@@ -626,13 +665,14 @@ void* MoveJob(void *in)
   msg[2]=(int) (now-start);
   msg[3]=GetFreeDiskSpace(info->worker);
   msg[4]=number_of_running_jobs;
-	      
+  msg[5]=(int) (100*GetAverageLoad(0));
+
   if (verbose_mode)
     {
-      printf("<W:%i> Sending copy result to boss: %i/%i/%i/%i/%i\n",info->worker,msg[0],msg[1],msg[2],msg[3],msg[4]);
+      printf("<W:%i> Sending copy result to boss: %i/%i/%i/%i/%i/%i\n",info->worker,msg[0],msg[1],msg[2],msg[3],msg[4],msg[5]);
       fflush(stdout);
     }
-  MPI_Send (msg, 5, MPI_INT, BOSSRANK, MOVETAG, MPI_COMM_WORLD);
+  MPI_Send (msg, 6, MPI_INT, BOSSRANK, MOVETAG, MPI_COMM_WORLD);
 
   if (verbose_mode)
     {
@@ -1018,6 +1058,16 @@ int GetAJob(FILE *fp, int *npar, int *barrier, job_description *job)
 	      printf("<B> Changed maximum allowed running threads to %i\n",maximum_running_jobs);
 	    }
 	}
+      else if (!strcmp(key,"MAXLOAD")) /* Set maximum allowed load */
+        {
+	  fscanf(fp,"%s",key);
+	  maximum_load=atof(key);
+
+	  if (verbose_mode)
+	    {
+	      printf("<B> Changed maximum allowed load to %.2f\n",maximum_load);
+	    }
+	}
       else if (!strcmp(key,"NICE")) /* Set nice level */
         {
 	  fscanf(fp,"%s",key);
@@ -1043,7 +1093,7 @@ int GetAJob(FILE *fp, int *npar, int *barrier, job_description *job)
 
 void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime, int* reqjobs)
 {
-  int             msg[5],nacworkers,npar;
+  int             msg[6],nacworkers,npar;
   int             i,barrier,number_of_idle_workers;
   int             njobs=0, ndonescripts, nrunjobs, nfailjobs;
   unsigned int    buf[4];
@@ -1097,7 +1147,7 @@ void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime, int* reqjobs)
 	  fflush(stdout);
 	}
 
-      MPI_Recv(msg,5,MPI_INT,MPI_ANY_SOURCE,MPI_ANY_TAG,MPI_COMM_WORLD,&status);
+      MPI_Recv(msg,6,MPI_INT,MPI_ANY_SOURCE,MPI_ANY_TAG,MPI_COMM_WORLD,&status);
 
       time(&time_now);
       time_ptr = localtime(&time_now);
@@ -1105,8 +1155,8 @@ void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime, int* reqjobs)
 
       if (verbose_mode)
 	{
-	  printf("<B> Received message from worker %i with tag %i and msg=%i/%i/%i/%i/%i\n",
-		 status.MPI_SOURCE,status.MPI_TAG,msg[0],msg[1],msg[2],msg[3],msg[4]);
+	  printf("<B> Received message from worker %i with tag %i and msg=%i/%i/%i/%i/%i/%i\n",
+		 status.MPI_SOURCE,status.MPI_TAG,msg[0],msg[1],msg[2],msg[3],msg[4],msg[5]);
 	  fflush(stdout);
 	}
 
@@ -1172,8 +1222,8 @@ void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime, int* reqjobs)
 	    {
 	      if (njobs)
 		{
-		  /* Not enough disk space available or too many pending jobs, put worker to sleep */
-		  if (msg[3]<minimum_disk_space || msg[4]>=maximum_running_jobs) 
+		  /* Not enough disk space available, too many pending jobs, or too much load, put worker to sleep! */
+		  if (msg[3]<minimum_disk_space || msg[4]>=maximum_running_jobs || msg[5]>=((int) 100*maximum_load)) 
 		    {
 		      if (verbose_mode)
 			{
@@ -1187,12 +1237,17 @@ void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime, int* reqjobs)
 		      if (msg[3]<minimum_disk_space) 
 			{
 			  sprintf(jobstatus,"DISK FULL   ");		    
-			  buf[0]=1;
+			  buf[0] |= (1<<0);
 			}
 		      if (msg[4]>=maximum_running_jobs) 
 			{
 			  sprintf(jobstatus,"PENDING     ");		    
-			  buf[1]=1;
+			  buf[0] |= (1<<1);
+			}
+		      if (msg[5]>=((int) (100*maximum_load))) 
+			{
+			  sprintf(jobstatus,"OVERLOAD    ");		    
+			  buf[0] |= (1<<2);
 			}
 
 		      MPI_Send (buf, 4, MPI_UNSIGNED, status.MPI_SOURCE, SLEEPTAG, MPI_COMM_WORLD);
@@ -1363,7 +1418,7 @@ void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime, int* reqjobs)
 
 void DoWorker(double* wtime, int* reqjobs)
 {
-  int             msg[5],abort;
+  int             msg[6], abort;
   unsigned int    buf[4];
   MPI_Status      status;
   unsigned int    elapse_time;
@@ -1392,15 +1447,16 @@ void DoWorker(double* wtime, int* reqjobs)
       msg[2]=0;
       msg[3]=GetFreeDiskSpace(rank);
       msg[4]=number_of_running_jobs;
+      msg[5]=(int) (100*GetAverageLoad(0));
 
       /* Request master for a task */
       if (verbose_mode)
 	{
-	  printf("<W:%i> Sending request to boss %i/%i/%i/%i/%i\n",rank,msg[0],msg[1],msg[2],msg[3],msg[4]); 
+	  printf("<W:%i> Sending request to boss %i/%i/%i/%i/%i/%i\n",rank,msg[0],msg[1],msg[2],msg[3],msg[4],msg[5]); 
 	  fflush(stdout);
 	}
 
-      MPI_Send(msg, 5, MPI_INT, BOSSRANK, REQUESTTAG, MPI_COMM_WORLD);
+      MPI_Send(msg, 6, MPI_INT, BOSSRANK, REQUESTTAG, MPI_COMM_WORLD);
 
       MPI_Recv(buf, 4, MPI_UNSIGNED, BOSSRANK, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
 
@@ -1460,14 +1516,15 @@ void DoWorker(double* wtime, int* reqjobs)
 	      msg[2]=0;
 	      msg[3]=GetFreeDiskSpace();
 	      msg[4]=number_of_running_jobs;
-	  
+	      msg[5]=(int) (100*GetAverageLoad(0));	  
+
 	      if (verbose_mode)
 		{
-		  printf("<W:%i> Sending barrier response to boss %i/%i/%i/%i/%i\n",rank,msg[0],msg[1],msg[2],msg[3],msg[4]); 
+		  printf("<W:%i> Sending barrier response to boss %i/%i/%i/%i/%i/%i\n",rank,msg[0],msg[1],msg[2],msg[3],msg[4],msg[5]); 
 		  fflush(stdout);
 		}
 
-	      MPI_Send(msg, 5, MPI_INT, BOSSRANK, BARRIERTAG, MPI_COMM_WORLD);
+	      MPI_Send(msg, 6, MPI_INT, BOSSRANK, BARRIERTAG, MPI_COMM_WORLD);
 
 	      if (verbose_mode)
 		{
@@ -1485,14 +1542,19 @@ void DoWorker(double* wtime, int* reqjobs)
 	    {
 	      printf("<W:%i> Worker put to sleep for %i secs\n",rank,buf[2]);
 	      fflush(stdout);
-	      if (buf[0])
+	      if (buf[0] & (1<<0))
 		{
 		  printf("<W:%i> Reason: not enough buffer disk space available: %i\n",rank,GetFreeDiskSpace());
 		  fflush(stdout);
 		}
-	      if (buf[1])
+	      if (buf[0] & (1<<1))
 		{
 		  printf("<W:%i> Reason: too many pending jobs: %i\n",rank,number_of_running_jobs);
+		  fflush(stdout);
+		}
+	      if (buf[0] & (1<<2))
+		{
+		  printf("<W:%i> Reason: worker is overloaded: %.2f\n",rank,GetAverageLoad(0));
 		  fflush(stdout);
 		}
 	    }
@@ -1540,8 +1602,15 @@ void DoWorker(double* wtime, int* reqjobs)
 	  msg[2]=(int) elapse_time;
 	  msg[3]=GetFreeDiskSpace();
 	  msg[4]=number_of_running_jobs;
-	  
-	  MPI_Send(msg, 5, MPI_INT, BOSSRANK, SCRIPTTAG, MPI_COMM_WORLD);
+	  msg[5]=(int) (100*GetAverageLoad(0));
+
+	  if (verbose_mode)
+	    {
+	      printf("<W:%i> Sending script result to boss %i/%i/%i/%i/%i/%i\n",rank,msg[0],msg[1],msg[2],msg[3],msg[4],msg[5]); 
+	      fflush(stdout);
+	    }
+
+	  MPI_Send(msg, 6, MPI_INT, BOSSRANK, SCRIPTTAG, MPI_COMM_WORLD);
 	  break;
 
 	default:
@@ -1560,7 +1629,9 @@ void DoWorker(double* wtime, int* reqjobs)
   (*wtime) = MPI_Wtime() - (*wtime);
 
   msg[0]=0;msg[1]=-1;msg[2]=(int) (*wtime);msg[3]=GetFreeDiskSpace();msg[4]=number_of_running_jobs;
-  MPI_Send (msg, 5, MPI_INT, BOSSRANK, FINISHTAG, MPI_COMM_WORLD);
+  msg[5]=(int) (100*GetAverageLoad(0));
+
+  MPI_Send (msg, 6, MPI_INT, BOSSRANK, FINISHTAG, MPI_COMM_WORLD);
 
   if (verbose_mode)
     {

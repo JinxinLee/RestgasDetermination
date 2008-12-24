@@ -21,8 +21,8 @@
 # For this run the config.sh in the build directory of PandaRoot.
 # Please set the path according to your setup
 #
-PANDAROOTHOME=$HOME/pandaroot/trunk/
-PANDAROOTBUILD=$HOME/pandaroot/build/
+PANDAROOTHOME=$VMCWORKDIR
+PANDAROOTBUILD=$VMCWORKDIR/../build/
 #
 # Get the configuration files for G3 and G4 from own gconfig directory
 #

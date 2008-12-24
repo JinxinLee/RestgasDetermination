@@ -6,8 +6,8 @@
 # argument 4: number of features
 # argument 5: output filename
 #
-PANDAROOTHOME=$HOME/fairroot/trunk
-PANDAROOTBUILD=$HOME/fairroot/build
+PANDAROOTHOME=$VMCWORKDIR
+PANDAROOTBUILD=$VMCWORKDIR/../build
 #
 source $PANDAROOTBUILD/config.sh > logfile
 #

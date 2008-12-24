@@ -21,8 +21,8 @@ ls -c > inputstuff
 # For this run the config.sh in the build directory of PandaRoot.
 # Please set the path according to your setup
 #
-PANDAROOTHOME=/opt/exp_soft/panda/fairroot/pandaroot/nov08
-PANDAROOTBUILD=/opt/exp_soft/panda/fairroot/pandaroot/build
+PANDAROOTHOME=$VMCWORKDIR
+PANDAROOTBUILD=$VMCWORKDIR/../build
 #
 source $PANDAROOTBUILD/config.sh > logfile
 #
