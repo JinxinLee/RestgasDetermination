@@ -89,6 +89,7 @@ scripts/...			- various example bash scripts which call your programs or macros 
 macros/...			- example ROOT macros used for PandaRoot simulations
 bin/movefiles			- script which defines the copying method used to transfer locally stored data 
 				  of the workers to a storage place as defined by the user in "jobs.in"
+bin/runmpi			- script which helps you to start a MPI boss-worker session
 
 To run the program "bin/boss_worker_mpi" one can specify the following options:
 
@@ -367,6 +368,7 @@ this file is usually defined by the system itself. It is useful in case you like
 of computers who should take part in the process. There are many more options you can specify with mpirun.
 For that, take a look at its manual, e.g. "mpirun --help" or "man mpirun". For a description of all 
 possible <options> which are passed to the boss_worker_mpi engine, read the description above.
+A wrapper script for "mpirun" is "runmpi", which can be found in "bin/runmpi".
 
 Running on a PBS farm
 ---------------------
