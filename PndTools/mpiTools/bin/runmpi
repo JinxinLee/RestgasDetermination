@@ -20,33 +20,42 @@ if [ ! "$#" = "2" ]; then
    echo
    echo "<E> Not enough or too many arguments supplied."
    echo 
-   echo "    Usage: runmpi [machinelist] [jdl]"
+   echo "    Usage: runmpi [procgrp] [jdl]"
    echo
-   echo "    [machinelist] - This file should contain a list of names of the computer nodes"
-   echo "                    which you would like to participate as boss/workers. The first"
-   echo "                    entry will be the node on which the boss process will run. The"
-   echo "                    following entries are mapped to the worker processes. Hence, the"
-   echo "                    number of workers will be equivalent to the number of entries"
-   echo "                    minus one in this file. For example, a file with the following" 
-   echo "                    contents"
+   echo "    [procgrp]     - This file should contain a list of names of the computer nodes"
+   echo "                    which you would like to participate as boss/workers. Each line"
+   echo "                    starts with the name of a computer node (internet address),"
+   echo "                    followed by a number which is \"0\" or \"1\". In case of \"0\","
+   echo "                    no other processes are to be started on that node than the one"
+   echo "                    started by the user, e.g. useful for the boss process with rank 0."
+   echo "                    The entries with \"1\" reflect the worker processes The third entry"
+   echo "                    on each line gives the path and filename of the \"boss_worker_mpi\""
+   echo "                    program and the last, optional, entry the corresponding username"
+   echo "                    for that node. Note that with this, one can setup a session on"
+   echo "                    a heterogeneous network. For clarification, the contents of an"
+   echo "                    example \"procgrp\" file could look as follows:"
    echo
-   echo "                    node01"
-   echo "                    node01"
-   echo "                    node01"
-   echo "                    node02"
-   echo "                    node04"
+   echo "                    node01.kvi.nl 0 /home/johan/bin/boss_worker_mpi johan"
+   echo "                    node02.kvi.nl 1 /home/johan/bin/boss_worker_mpi johan"
+   echo "                    node02.kvi.nl 1 /home/johan/bin/boss_worker_mpi johan"
+   echo "                    lxi002.gsi.de 1 /u/jmessch/bin/boss_worker_mpi jmessch"
+   echo "                    lxi003.gsi.de 1 /u/jmessch/bin/boss_worker_mpi jmessch"
    echo
-   echo "                    will start one boss and four workers processes. The boss (rank 0)"
-   echo "                    will run on \"node01\". The first two workers will run on \"node01\","
-   echo "                    and the other two on \"node02\" and on \"node04\", respectively."
-   echo "                    The names of the nodes should be valid internet addresses and" 
-   echo "                    accessible via \"ssh\" or \"rsh\", depending on the MPI configuration." 
+   echo "                    This will start one boss and four workers processes. The boss (rank 0)"
+   echo "                    will run on \"node01.kvi.nl\". The first two workers will run on"
+   echo "                    \"node02.kvi.nl\", and the other two on \"lxi002.gsi.de\" and on"
+   echo "                    \"lxi003.gsi.de\", respectively. Note that the location of the MPI"
+   echo "                    program and the username are indicated as well, which could differ."
+   echo "                    The names of the nodes should be valid internet addresses and"
+   echo "                    accessible via \"ssh\" or \"rsh\", depending on the MPI configuration."
+   echo "                    More detailed information about the \"procgrp\" configuration can be"
+   echo "                    found in any MPI manual (look for option -p4pg)."
    echo
    echo "    [jdl]         - This is the job description file (jdl), which contains the"
    echo "                    information about the jobs and other parameter settings."
    echo "                    Checkout the README file in the \"mpiTools\" directory for a"
    echo "                    detailed description."
-   echo 
+   echo
    RETVAL=1
    exit $RETVAL
 fi
@@ -93,13 +102,11 @@ echo "<I> Detailed LOG information can be found in \"$LOGFILE\""
 # Setup some variables for the run
 #
 NPROCS=`cat $MACHINES | wc -w`
-NWORKERS=`expr $NPROCS - 1`
 #
 # Print the variables
 #
 echo "<I> The job description file is \"$JDL\""
 echo "<I> The list of computer nodes are given in \"$MACHINES\""
-echo "<I> Number of workers is $NWORKERS"
 echo "<I> Numbers of MPI processes is $NPROCS"
 #
 # Remove the old logfile and start a new one
@@ -115,7 +122,7 @@ fi
 # Start the MPI session in NOHUP-background mode (CTRL-C safe!)
 #
 echo "<I> Starting MPI session in NOHUP and background mode."
-nohup $MPIRUNPROG -np $NPROCS -machinefile $MACHINES $BOSSWORKERPROG -j $JDL -v > $LOGFILE 2>&1 &
+nohup $MPIRUNPROG -p4pg $MACHINES $BOSSWORKERPROG -j $JDL -v > $LOGFILE 2>&1 &
 #
 # Get the PID of the MPI session (not complete bulletproof, yet)
 #
