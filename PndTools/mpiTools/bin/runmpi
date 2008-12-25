@@ -23,20 +23,24 @@ if [ ! "$#" = "2" ]; then
    echo "    Usage: runmpi [machinelist] [jdl]"
    echo
    echo "    [machinelist] - This file should contain a list of names of the computer nodes"
-   echo "                    which you would like to participate as worker. Each entry will"
-   echo "                    be mapped to one of the worker id. Hence, the number of workers"
-   echo "                    will be equivalent to the number of entries in this file. For"
-   echo "                    example, a file with the following contents"
+   echo "                    which you would like to participate as boss/workers. The first"
+   echo "                    entry will be the node on which the boss process will run. The"
+   echo "                    following entries are mapped to the worker processes. Hence, the"
+   echo "                    number of workers will be equivalent to the number of entries"
+   echo "                    minus one in this file. For example, a file with the following" 
+   echo "                    contents"
    echo
+   echo "                    node01"
    echo "                    node01"
    echo "                    node01"
    echo "                    node02"
    echo "                    node04"
    echo
-   echo "                    will start four workers of which two will run on \"node01\","
-   echo "                    one on \"node02\", and one on \"node04\". The names of the nodes"
-   echo "                    should be a valid internet address and accessible via \"ssh\" or" 
-   echo "                    \"rsh\", depending on the MPI configuration." 
+   echo "                    will start one boss and four workers processes. The boss (rank 0)"
+   echo "                    will run on \"node01\". The first two workers will run on \"node01\","
+   echo "                    and the other two on \"node02\" and on \"node04\", respectively."
+   echo "                    The names of the nodes should be valid internet addresses and" 
+   echo "                    accessible via \"ssh\" or \"rsh\", depending on the MPI configuration." 
    echo
    echo "    [jdl]         - This is the job description file (jdl), which contains the"
    echo "                    information about the jobs and other parameter settings."
@@ -88,8 +92,8 @@ echo "<I> Detailed LOG information can be found in \"$LOGFILE\""
 #
 # Setup some variables for the run
 #
-NWORKERS=`cat $MACHINES | wc -w`
-NPROCS=`expr $NWORKERS + 1`
+NPROCS=`cat $MACHINES | wc -w`
+NWORKERS=`expr $NPROCS - 1`
 #
 # Print the variables
 #
