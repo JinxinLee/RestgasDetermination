@@ -20,8 +20,29 @@ if [ ! "$#" = "2" ]; then
    echo
    echo "<E> Not enough or too many arguments supplied."
    echo 
-   echo "    Usage: runmpi [list of machines] [job description file]"
+   echo "    Usage: runmpi [machinelist] [jdl]"
    echo
+   echo "    [machinelist] - This file should contain a list of names of the computer nodes"
+   echo "                    which you would like to participate as worker. Each entry will"
+   echo "                    be mapped to one of the worker id. Hence, the number of workers"
+   echo "                    will be equivalent to the number of entries in this file. For"
+   echo "                    example, a file with the following contents"
+   echo
+   echo "                    node01"
+   echo "                    node01"
+   echo "                    node02"
+   echo "                    node04"
+   echo
+   echo "                    will start four workers of which two will run on \"node01\","
+   echo "                    one on \"node02\", and one on \"node04\". The names of the nodes"
+   echo "                    should be a valid internet address and accessible via \"ssh\" or" 
+   echo "                    \"rsh\", depending on the MPI configuration." 
+   echo
+   echo "    [jdl]         - This is the job description file (jdl), which contains the"
+   echo "                    information about the jobs and other parameter settings."
+   echo "                    Checkout the README file in the \"mpiTools\" directory for a"
+   echo "                    detailed description."
+   echo 
    RETVAL=1
    exit $RETVAL
 fi
