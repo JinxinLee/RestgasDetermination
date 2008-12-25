@@ -99,15 +99,10 @@ fi
 LOGFILE=/tmp/runmpi_$$.log
 echo "<I> Detailed LOG information can be found in \"$LOGFILE\""
 #
-# Setup some variables for the run
-#
-NPROCS=`cat $MACHINES | wc -w`
-#
-# Print the variables
+# Print stuff
 #
 echo "<I> The job description file is \"$JDL\""
 echo "<I> The list of computer nodes are given in \"$MACHINES\""
-echo "<I> Numbers of MPI processes is $NPROCS"
 #
 # Remove the old logfile and start a new one
 #
