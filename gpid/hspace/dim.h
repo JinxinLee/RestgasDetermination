@@ -27,7 +27,7 @@ class dim{
         int getDNO() const {return fDNO;}
         inline bool operator==(const dim& d) const; // {return fDNO == d.fDNO; }
         inline bool operator<(const dim& d) const;  //{return fDNO < d.fDNO; }
-        dim &operator=(dim const &other) ;
+        void operator=( const dim &other) ;
         void print();
 };
 

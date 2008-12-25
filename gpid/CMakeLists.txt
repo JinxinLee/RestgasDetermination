@@ -28,6 +28,7 @@ ${CMAKE_SOURCE_DIR}/rho/RhoMath
 ${CMAKE_SOURCE_DIR}/rho/RhoFitter
 ${CMAKE_SOURCE_DIR}/myobj
 ${CMAKE_SOURCE_DIR}/geane
+${CMAKE_SOURCE_DIR}/PndTools/MVA/kd_KNN
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -43,7 +44,7 @@ PndGpidTask.cxx
 PndPidCand.cxx
 PndGeaneTrTpcTof.cxx
 PndGeaneTrTpcIdealTof.cxx
-PndGpidCollTask.cxx
+PndGpidKNN.cxx
 PndMultiClassMVA.cxx
 PndMakeTrainData.cxx
 PndMakeTrainDataLhe.cxx

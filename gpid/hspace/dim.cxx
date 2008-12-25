@@ -35,7 +35,7 @@ inline bool dim::operator<(const dim& other )const
  return false;
 }
 
-dim  &dim::operator= (dim const &other) 
+void  dim::operator= (dim const &other) 
 {
   if (this != &other)
   {
@@ -43,6 +43,7 @@ dim  &dim::operator= (dim const &other)
     copy(other);
   }
 
+}
 /*
   cout<<"inside ="<<endl;
   nSEG = other.nSEG;
@@ -54,7 +55,7 @@ dim  &dim::operator= (dim const &other)
   sNAME = other.sNAME;
   cout<<"inside ="<<endl;
 */
-}
+
 
 void dim::print()
 {
@@ -65,10 +66,10 @@ void dim::print()
  cout<<"            dim no  :"<<nSEG<<endl;
 }
 
-void dim::copy(dim const &other)
+void dim::copy( const dim &other)
 {
   cout<<"inside copy"<<endl;
-  nSEG = other.nSEG;
+//  nSEG = other.nSEG;
   fMIN = other.fMIN;
   fMAX = other.fMAX;
   fDNO = other.fDNO;
