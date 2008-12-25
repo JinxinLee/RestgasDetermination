@@ -23,9 +23,9 @@ fi
 RETVAL=0                  # Default return value (0=OK, anything else is ERROR)
 NROFTRIES=100             # Maximum number of attempts for data transfer
 BACKUP="no"               # Set to "yes" if you want old data to be kept
-SCPPROG="/usr/bin/scp"    # path and filename of scp program
-XRDPROG="$HOME/bin/xrdcp" # path and filename of xrdcp program
-COMPROT="/usr/bin/ssh"    # Use ssh for communication
+SCPPROG="`which scp`"     # path and filename of scp program
+XRDPROG="`which xrdcp`"   # path and filename of xrdcp program
+COMPROT="`which ssh`"     # Use ssh for communication
 
 #
 # Return if source and destination are the same
@@ -46,6 +46,16 @@ argsrc=$1
 dirsrc=${argsrc#*:}
 hostsrc=${argsrc%%:*}
 
+#
+# Check whether ssh exists
+#
+
+if [ -z "$COMPPROT" ]; then
+    echo "<E> Could not find \"ssh\", please make sure your PATH is set properly!"
+    RETVAL=1
+    exit $RETVAL
+fi
+
 prot="$COMPROT -n $host"     # Use ssh for communication
 if [ $host = $dir ]; then
   host="localhost"
@@ -57,8 +67,18 @@ fi
 #
 
 if [ $hostsrc = "root" ] || [ $host = "root" ]; then
+ if [ -z "$XRDPROG" ]; then
+    echo "<E> Could not find \"xrdcp\", please make sure your PATH is set properly!"
+    RETVAL=1
+    exit $RETVAL
+ fi
  CPPROT="$XRDPROG -R -s"
 else
+ if [ -z "$SCPPROG" ]; then
+    echo "<E> Could not find \"scp\", please make sure your PATH is set properly!"
+    RETVAL=1
+    exit $RETVAL
+ fi
  CPPROT="$SCPPROG -r"  
 fi
 
