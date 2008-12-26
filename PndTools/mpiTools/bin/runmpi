@@ -1,5 +1,6 @@
 #!/bin/bash
 #
+# Author: J.G. Messchendorp, messchendorp@kvi.nl
 #
 # USAGE: runmpi [arg1] [arg2] [arg4]
 #

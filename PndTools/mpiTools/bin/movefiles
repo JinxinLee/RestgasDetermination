@@ -1,5 +1,6 @@
-
 #!/bin/bash
+#
+# Author: J.G. Messchendorp, messchendorp@kvi.nl
 #
 # USAGE: movefiles [arg1] [arg2] [arg3] [arg4]
 #
@@ -21,7 +22,8 @@ if [ ! "$#" = "4" ]; then
 fi
 
 #
-# In case needed specify some PATHs here
+# If the location of ssh, scp, or xrdcp programs are not garantueed to be set up properly 
+# on your system, please specify your PATH variable here....
 #
 
 export PATH=$PATH:$HOME/bin
@@ -33,10 +35,11 @@ export PATH=$PATH:$HOME/bin
 RETVAL=0                  # Default return value (0=OK, anything else is ERROR)
 NROFTRIES=100             # Maximum number of attempts for data transfer
 BACKUP="no"               # Set to "yes" if you want old data to be kept
+KEEPLOG="no"		  # Keep the logfile in case of error or remove it (yes/no)
 SCPPROG="`which scp`"     # path and filename of scp program
 XRDPROG="`which xrdcp`"   # path and filename of xrdcp program
 COMPROT="`which ssh`"     # Use ssh for communication
-LOGFILE="/tmp/mv_$$.log"  # Keep a temporarily logfile
+LOGFILE="/tmp/mv_$$.log"  # The name and location of the temporarily logfile
 
 #
 # Return if source and destination are the same
@@ -151,7 +154,11 @@ then
 	  FAILURE=0
 	  RETVAL=1
       else
-	  $CPPROT $1 $2 >> $LOGFILE 2>&1
+	  if [ $NROFTRIES == 1 ] ; then
+	      $CPPROT $1 $2 >> $LOGFILE 2>&1
+	  else
+	      $CPPROT $1 $2 > /dev/null 2>&1
+	  fi
 	  FAILURE=$?
 	  let NROFTRIES=NROFTRIES-1
        fi
@@ -165,7 +172,9 @@ fi
 if [ $RETVAL != 0 ] ; then
     echo "<E> The \"movefiles\" process was not successful:"
     cat $LOGFILE
-    rm -f $LOGFILE > /dev/null 2>&1
+    if [ $KEEPLOG = "no" ]; then
+      rm -f $LOGFILE > /dev/null 2>&1
+    fi
     exit $RETVAL
 fi
 
