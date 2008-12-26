@@ -20,12 +20,23 @@ if [ ! "$#" = "4" ]; then
    exit 1
 fi
 
+#
+# In case needed specify some PATHs here
+#
+
+export PATH=$PATH:$HOME/bin
+
+#
+# Below some important local variables and settings
+#
+
 RETVAL=0                  # Default return value (0=OK, anything else is ERROR)
 NROFTRIES=100             # Maximum number of attempts for data transfer
 BACKUP="no"               # Set to "yes" if you want old data to be kept
 SCPPROG="`which scp`"     # path and filename of scp program
 XRDPROG="`which xrdcp`"   # path and filename of xrdcp program
 COMPROT="`which ssh`"     # Use ssh for communication
+LOGFILE="/tmp/mv_$$.log"  # Keep a temporarily logfile
 
 #
 # Return if source and destination are the same
@@ -50,7 +61,7 @@ hostsrc=${argsrc%%:*}
 # Check whether ssh exists
 #
 
-if [ -z "$COMPPROT" ]; then
+if [ -z "$COMPROT" ]; then
     echo "<E> Could not find \"ssh\", please make sure your PATH is set properly!"
     RETVAL=1
     exit $RETVAL
@@ -83,6 +94,18 @@ else
 fi
 
 #
+#  Try to create logfile, otherwise use /dev/null instead (no log)
+#
+
+touch $LOGFILE
+RETVAL=$?
+if [ ! $RETVAL==0 ]; then
+   echo "<W> Error creating logfile $LOGFILE, no log produced!"
+   LOGFILE="/dev/null"
+   RETVAL=0
+fi 
+
+#
 # Check whether output directory exists
 # If so, remove or rename it, depending on BACKUP
 # Note that this only works in case SCPPROG is used as CPPROT 
@@ -90,7 +113,7 @@ fi
 
 if [ ! $host = "root" ]; then
  isthere="yes"
- $prot ls $dir 2>&1 | grep -i "No such file or directory" > /dev/null 2>&1 && isthere="no"
+ $prot ls $dir 2>&1 | grep -i "No such file or directory" >> $LOGFILE 2>&1 && isthere="no"
 
  if [ $dir = "." ] || [ $dir = "./" ] || [ $dir = `pwd` ]; then
    isthere="no"
@@ -101,16 +124,16 @@ if [ ! $host = "root" ]; then
      date=`date +%d_%m_%y`
      newdir="${dir%/*}/oldstuff_$date"
      isthere="yes"
-     $prot ls $newdir 2>&1 | grep -i "No such file or directory" > /dev/null 2>&1 && isthere="no"
+     $prot ls $newdir 2>&1 | grep -i "No such file or directory" >> $LOGFILE 2>&1 && isthere="no"
      if [ $isthere = "no" ]; then
-       $prot mkdir $newdir > /dev/null 2>&1
+       $prot mkdir $newdir >> $LOGFILE 2>&1
      else
        checkdir="$newdir/${dir##*/}"	
-       $prot rm -rf $checkdir > /dev/null 2>&1
+       $prot rm -rf $checkdir >> $LOGFILE 2>&1
      fi
-     $prot mv $dir $newdir/ > /dev/null 2>&1
+     $prot mv $dir $newdir/ >> $LOGFILE 2>&1
    else
-     $prot rm -rf $dir > /dev/null 2>&1
+     $prot rm -rf $dir >> $LOGFILE 2>&1
   fi
  fi
 fi
@@ -128,7 +151,7 @@ then
 	  FAILURE=0
 	  RETVAL=1
       else
-	  $CPPROT $1 $2 > /dev/null 2>&1
+	  $CPPROT $1 $2 >> $LOGFILE 2>&1
 	  FAILURE=$?
 	  let NROFTRIES=NROFTRIES-1
        fi
@@ -140,6 +163,9 @@ fi
 #
 
 if [ $RETVAL != 0 ] ; then
+    echo "<E> The \"movefiles\" process was not successful:"
+    cat $LOGFILE
+    rm -f $LOGFILE > /dev/null 2>&1
     exit $RETVAL
 fi
 
@@ -154,8 +180,13 @@ then
      hostsrc="localhost"
      prot=""
    fi
-   $prot rm -rf $dirsrc > /dev/null 2>&1
+   $prot rm -rf $dirsrc >> $LOGFILE 2>&1
    RETVAL=$?
 fi
 
+#
+# Clean the log and exit successfully 
+#
+
+rm -f $LOGFILE > /dev/null 2>&1
 exit $RETVAL
