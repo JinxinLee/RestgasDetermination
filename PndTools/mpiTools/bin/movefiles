@@ -105,7 +105,7 @@ else
     RETVAL=1
     exit $RETVAL
  fi
- CPPROT="$SCPPROG -r"  
+ CPPROT="$SCPPROG -B -r"  
 fi
 
 #
