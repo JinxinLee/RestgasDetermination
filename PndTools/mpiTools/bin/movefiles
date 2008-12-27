@@ -35,7 +35,7 @@ fi
 
 #
 # If the location of ssh, scp, or xrdcp programs are not garantueed to be set up properly 
-# on your system, please specify your PATH variable here....
+# on your system, please enrich your PATH variable accordingly here....
 #
 
 export PATH=$PATH:$HOME/bin
