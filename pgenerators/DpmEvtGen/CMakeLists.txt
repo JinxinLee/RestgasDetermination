@@ -49,7 +49,7 @@ set_target_properties(DpmEvtGen PROPERTIES ${CBMROOT_LIBRARY_PROPERTIES})
 
 add_executable(DpmEvtGen_exe ${DPMEVTGEN_EXE_SRCS})
 if (CMAKE_SYSTEM_NAME MATCHES Darwin)
-  target_link_libraries(DpmEvtGen_exe ${ROOT_LIBRARIES} EG "-lDpmEvtGen")
+  target_link_libraries(DpmEvtGen_exe ${ROOT_LIBRARIES} EG "DpmEvtGen")
 else (CMAKE_SYSTEM_NAME MATCHES Darwin)
   target_link_libraries(DpmEvtGen_exe EG DpmEvtGen)
 endif (CMAKE_SYSTEM_NAME MATCHES Darwin)
