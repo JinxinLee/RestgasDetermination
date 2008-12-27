@@ -11,6 +11,18 @@
 # [arg3] ($3): in case you want to copy files, set to "1"
 # [arg4] ($4): in case you want to delete the source files after copying, set to "1"
 #
+# Examples:
+#
+#      1) movefiles /scratch/mydata       root://kvip81.kvi.nl:1094///daq/mydata 1 1
+#      2) movefiles johan@opteron:~/stuff /scratch/stuff                         1 0
+#      3) movefiles /scratch/0            whatever                               0 1
+#
+#      1) moves files from local filesystem or nfs system "/scratch/mydata" to remote storage, 
+#         located at "kvip81.kvi.nl" and on "/daq/mydata" using xrdcp program (xrootd protocol)
+#      2) copies files from remote system, "opteron:~/stuff" using "scp" and "johan" as username
+#         to local or nfs filesystem "/scratch/stuff"
+#      3) removes the directory or file "/scratch/0"
+#
 
 if [ ! "$#" = "4" ]; then
    echo
