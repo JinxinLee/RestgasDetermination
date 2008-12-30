@@ -40,6 +40,7 @@
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/resource.h>
+#include <sys/times.h>
 #include <pthread.h>
 // modified to reference the master mpi.h file, to meet the MPI standard spec.
 #include <mpi.h>
@@ -589,10 +590,11 @@ int MakeSystemCallWithTimeOut(int rank, char *command, int to)
 
 void* MoveJob(void *in)
 {
-  char command[VERYLONGCHARSIZE];
-  char retval=0;
-  time_t now,start;
-  int msg[6];
+  char       command[VERYLONGCHARSIZE];
+  char       retval=0;
+  double     now,start;
+  struct tms cnow,cstart;
+  int        msg[7];
 
   thread_info *info = (thread_info *) in;
 
@@ -605,7 +607,7 @@ void* MoveJob(void *in)
 
   pthread_mutex_unlock(&thread_mutex);
 
-  time(&start);
+  start=((double) times(&cstart)/((double) sysconf(_SC_CLK_TCK)));
 
   if (!strcmp(info->output,"NULL"))
     {
@@ -660,19 +662,21 @@ void* MoveJob(void *in)
       msg[0]=JOB_MOVE_ERROR;
     }
 
-  time(&now);
+  now=((double) times(&cnow)/((double) sysconf(_SC_CLK_TCK)));
+
   msg[1]=info->jobid;
   msg[2]=(int) (now-start);
-  msg[3]=GetFreeDiskSpace(info->worker);
-  msg[4]=number_of_running_jobs;
-  msg[5]=(int) (100*GetAverageLoad(0));
+  msg[3]=(int) (( (double)((cnow.tms_cutime+cnow.tms_cstime) - (cstart.tms_cutime+cstart.tms_cstime)))/((double) sysconf(_SC_CLK_TCK)));
+  msg[4]=GetFreeDiskSpace(info->worker);
+  msg[5]=number_of_running_jobs;
+  msg[6]=(int) (100*GetAverageLoad(0));
 
   if (verbose_mode)
     {
-      printf("<W:%i> Sending copy result to boss: %i/%i/%i/%i/%i/%i\n",info->worker,msg[0],msg[1],msg[2],msg[3],msg[4],msg[5]);
+      printf("<W:%i> Sending copy result to boss: %i/%i/%i/%i/%i/%i/%i\n",info->worker,msg[0],msg[1],msg[2],msg[3],msg[4],msg[5],msg[6]);
       fflush(stdout);
     }
-  MPI_Send (msg, 6, MPI_INT, BOSSRANK, MOVETAG, MPI_COMM_WORLD);
+  MPI_Send (msg, 7, MPI_INT, BOSSRANK, MOVETAG, MPI_COMM_WORLD);
 
   if (verbose_mode)
     {
@@ -707,18 +711,19 @@ void* MoveJob(void *in)
 // Depends on:  various static variables, function called by "DoWorker"
 //
 
-int DoJob(unsigned int *info, job_description *job, unsigned int *time_elapsed)
+int DoJob(unsigned int *info, job_description *job, unsigned int *time_elapsed, unsigned int *time_comp)
 {
   unsigned int  i;
   char            command[VERYLONGCHARSIZE],retval;
   char *          scriptname=NULL;
   pthread_t *     moveThread;
   thread_info *   move_info=NULL;
-  time_t          tb,te;
+  double          tb,te;
+  struct tms      ctb,cte;
 
   setpriority(PRIO_PROCESS,getpid(),job->nice);
 
-  time(&tb);
+  tb=((double) times(&ctb)/((double) sysconf(_SC_CLK_TCK)));
 
   sprintf(scratch_path,"%s",&(job->array[3*JOBSTRINGSIZE]));	
   sprintf(move_files,"%s",&(job->array[4*JOBSTRINGSIZE]));	
@@ -752,8 +757,8 @@ int DoJob(unsigned int *info, job_description *job, unsigned int *time_elapsed)
       sprintf(command,"%s %s ../%u/. 1 0",move_files,&(job->array[JOBSTRINGSIZE]),info[0]);
       if (!dummy_mode)
 	{
-	  time(&te);
-	  retval=MakeSystemCallWithTimeOut(rank,command,(job->timeout-(te-tb)));
+	  te=((double) times(&cte)/((double) sysconf(_SC_CLK_TCK)));
+	  retval=MakeSystemCallWithTimeOut(rank,command,(int) (job->timeout-(te-tb)));
 	  if (retval)
 	    {
 	      fprintf(stderr,"<W:%i> Error executing \"%s\"; return value is %i\n",rank,command,retval);
@@ -762,10 +767,11 @@ int DoJob(unsigned int *info, job_description *job, unsigned int *time_elapsed)
 	      if (!keep_buffer)
 		{
 		  sprintf(command,"%s %s/%u NULL 0 1",move_files,scratch_path,info[0]);
-		  time(&te);
 		  retval=MakeSystemCallWithTimeOut(rank,command,REMOVE_TIMEOUT);
 		}
-	      time(&te); *time_elapsed=te-tb;
+	      te=((double) times(&cte)/((double) sysconf(_SC_CLK_TCK)));
+	      *time_elapsed=(int) (te-tb);
+	      *time_comp=(int) (( (double)((cte.tms_cutime+cte.tms_cstime) - (ctb.tms_cutime+ctb.tms_cstime)))/((double) sysconf(_SC_CLK_TCK)));
 	      return JOB_INPUT_ERROR;
 	    }
 
@@ -784,8 +790,8 @@ int DoJob(unsigned int *info, job_description *job, unsigned int *time_elapsed)
   sprintf(command,"%s %s ../%u/. 1 0",move_files,&(job->array[0]),info[0]);
   if (!dummy_mode)
     {
-      time(&te);
-      retval=MakeSystemCallWithTimeOut(rank,command,(job->timeout-(te-tb)));
+      te=((double) times(&cte)/((double) sysconf(_SC_CLK_TCK)));
+      retval=MakeSystemCallWithTimeOut(rank,command,(int) (job->timeout-(te-tb)));
       if (retval)
 	{
 	  fprintf(stderr,"<W:%i> Error executing \"%s\"; return value is %i\n",rank,command,retval);
@@ -794,12 +800,11 @@ int DoJob(unsigned int *info, job_description *job, unsigned int *time_elapsed)
 	  if (!keep_buffer)
 	    {
 	      sprintf(command,"%s %s/%u NULL 0 1",move_files,scratch_path,info[0]);
-
-	      time(&te);
 	      retval=MakeSystemCallWithTimeOut(rank,command,REMOVE_TIMEOUT);
-	    }
-	  
-	  time(&te); *time_elapsed=te-tb;
+	    }  
+	  te=((double) times(&cte)/((double) sysconf(_SC_CLK_TCK)));
+	  *time_elapsed=(int) (te-tb);
+	  *time_comp=(int) (( (double)((cte.tms_cutime+cte.tms_cstime) - (ctb.tms_cutime+ctb.tms_cstime)))/((double) sysconf(_SC_CLK_TCK)));
 	  return JOB_INPUT_ERROR;
 	}
     }
@@ -834,8 +839,8 @@ int DoJob(unsigned int *info, job_description *job, unsigned int *time_elapsed)
 
   if (!dummy_mode) 
     {
-      time(&te);
-      retval=MakeSystemCallWithTimeOut(rank,command,(job->timeout-(te-tb)));
+      te=((double) times(&cte)/((double) sysconf(_SC_CLK_TCK)));
+      retval=MakeSystemCallWithTimeOut(rank,command,(int) (job->timeout-(te-tb)));
       if (retval)
 	{
 	  fprintf(stderr,"<W:%i> Error executing \"%s\"; return value is %i\n",rank,command,retval);
@@ -844,10 +849,11 @@ int DoJob(unsigned int *info, job_description *job, unsigned int *time_elapsed)
 	  if (!keep_buffer)
 	    {
 	      sprintf(command,"%s %s/%u NULL 0 1",move_files,scratch_path,info[0]);
-	      time(&te);
 	      retval=MakeSystemCallWithTimeOut(rank,command,REMOVE_TIMEOUT);
 	    }
-	  time(&te); *time_elapsed=te-tb;
+	  te=((double) times(&cte)/((double) sysconf(_SC_CLK_TCK)));
+	  *time_elapsed=(int) (te-tb);
+	  *time_comp=(int) (( (double)((cte.tms_cutime+cte.tms_cstime) - (ctb.tms_cutime+ctb.tms_cstime)))/((double) sysconf(_SC_CLK_TCK)));
 	  return JOB_SCRIPT_ERROR;
 	}
     }
@@ -863,8 +869,8 @@ int DoJob(unsigned int *info, job_description *job, unsigned int *time_elapsed)
   move_info=(thread_info *) malloc(sizeof(thread_info));
   move_info->jobid=info[0];
   move_info->worker=rank;
-  time(&te);
-  move_info->timeout=job->timeout-(te-tb);
+  te=((double) times(&cte)/((double) sysconf(_SC_CLK_TCK)));
+  move_info->timeout=(int) job->timeout-(te-tb);
   sprintf(move_info->output,"%s",&(job->array[2*JOBSTRINGSIZE]));
   sprintf(move_info->movecmd,"%s",&(job->array[4*JOBSTRINGSIZE]));	
   sprintf(move_info->scratch,"%s",scratch_path);	
@@ -879,7 +885,9 @@ int DoJob(unsigned int *info, job_description *job, unsigned int *time_elapsed)
   if (NULL==moveThread)
     {
       fprintf(stderr,"<W:%i> Error allocating memory for move thread\n",rank);
-      time(&te); *time_elapsed=te-tb;
+      te=((double) times(&cte)/((double) sysconf(_SC_CLK_TCK)));
+      *time_elapsed=(int) (te-tb);
+      *time_comp=(int) (( (double)((cte.tms_cutime+cte.tms_cstime) - (ctb.tms_cutime+ctb.tms_cstime)))/((double) sysconf(_SC_CLK_TCK)));
       return JOB_MOVE_ERROR;
     }
 
@@ -891,7 +899,9 @@ int DoJob(unsigned int *info, job_description *job, unsigned int *time_elapsed)
     {
       fprintf(stderr,"<W:%i> Error creating move thread %d\n",rank,retval);
       if (moveThread) free(moveThread);
-      time(&te); *time_elapsed=te-tb;
+      te=((double) times(&cte)/((double) sysconf(_SC_CLK_TCK)));
+      *time_elapsed=(int) (te-tb);
+      *time_comp=(int) (( (double)((cte.tms_cutime+cte.tms_cstime) - (ctb.tms_cutime+ctb.tms_cstime)))/((double) sysconf(_SC_CLK_TCK)));
       return JOB_MOVE_ERROR;
     }
 
@@ -900,13 +910,17 @@ int DoJob(unsigned int *info, job_description *job, unsigned int *time_elapsed)
     {
       fprintf(stderr,"<W:%i> Error detaching move thread %d\n",rank,retval);
       if (moveThread) free(moveThread);
-      time(&te); *time_elapsed=te-tb;
+      te=((double) times(&cte)/((double) sysconf(_SC_CLK_TCK)));
+      *time_elapsed=(int) (te-tb);
+      *time_comp=(int) (( (double)((cte.tms_cutime+cte.tms_cstime) - (ctb.tms_cutime+ctb.tms_cstime)))/((double) sysconf(_SC_CLK_TCK)));
       return JOB_MOVE_ERROR;
     }
 
   if (moveThread) free(moveThread);
 
-  time(&te); *time_elapsed=te-tb;
+  te=((double) times(&cte)/((double) sysconf(_SC_CLK_TCK)));
+  *time_elapsed=(int) (te-tb); 
+  *time_comp=(int) (( (double)((cte.tms_cutime+cte.tms_cstime) - (ctb.tms_cutime+ctb.tms_cstime)))/((double) sysconf(_SC_CLK_TCK)));
   return JOB_OK;
 }
 
@@ -1091,9 +1105,9 @@ int GetAJob(FILE *fp, int *npar, int *barrier, job_description *job)
 // Depends on:  Various global variables
 //
 
-void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime, int* reqjobs)
+void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime, double *cputime, int* reqjobs)
 {
-  int             msg[6],nacworkers,npar;
+  int             msg[7],nacworkers,npar;
   int             i,barrier,number_of_idle_workers;
   int             njobs=0, ndonescripts, nrunjobs, nfailjobs;
   unsigned int    buf[4];
@@ -1103,11 +1117,13 @@ void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime, int* reqjobs)
   MPI_Status      status;
   time_t          time_now;
   struct tm *     time_ptr;
+  double          now,start;
+  struct tms      cnow,cstart;
 
   job.array = (char *) malloc(DEFAULT_JOBSIZE*JOBSTRINGSIZE*sizeof(char));
   job.size  = DEFAULT_JOBSIZE*JOBSTRINGSIZE*sizeof(char);
 
-  (*wtime) = MPI_Wtime();
+  start=((double) times(&cstart)/((double) sysconf(_SC_CLK_TCK)));
 
   (*reqjobs)=nrunjobs=nfailjobs=ndonejobs=ndonescripts=0;
 
@@ -1115,9 +1131,9 @@ void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime, int* reqjobs)
   barrier=0;
   number_of_idle_workers=0;
   
-  fprintf(fp_log,"-----------------------------------------------------------------------------------------------------------\n");
-  fprintf(fp_log,"HH:MM:SS\tLink\t\tAction\t\tWhat\t\tRun ID\t\tWall Time\tRUN/OK/FAIL\n");
-  fprintf(fp_log,"-----------------------------------------------------------------------------------------------------------\n");
+  fprintf(fp_log,"-------------------------------------------------------------------------------------------------------------------\n");
+  fprintf(fp_log,"HH:MM:SS\tLink\t\tAction\t\tWhat\t\tRun ID\t\tWall Time\tCPU%%\tRUN/OK/FAIL\n");
+  fprintf(fp_log,"-------------------------------------------------------------------------------------------------------------------\n");
   fflush(fp_log);
 
   while (nacworkers)
@@ -1147,7 +1163,7 @@ void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime, int* reqjobs)
 	  fflush(stdout);
 	}
 
-      MPI_Recv(msg,6,MPI_INT,MPI_ANY_SOURCE,MPI_ANY_TAG,MPI_COMM_WORLD,&status);
+      MPI_Recv(msg,7,MPI_INT,MPI_ANY_SOURCE,MPI_ANY_TAG,MPI_COMM_WORLD,&status);
 
       time(&time_now);
       time_ptr = localtime(&time_now);
@@ -1155,8 +1171,8 @@ void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime, int* reqjobs)
 
       if (verbose_mode)
 	{
-	  printf("<B> Received message from worker %i with tag %i and msg=%i/%i/%i/%i/%i/%i\n",
-		 status.MPI_SOURCE,status.MPI_TAG,msg[0],msg[1],msg[2],msg[3],msg[4],msg[5]);
+	  printf("<B> Received message from worker %i with tag %i and msg=%i/%i/%i/%i/%i/%i/%i\n",
+		 status.MPI_SOURCE,status.MPI_TAG,msg[0],msg[1],msg[2],msg[3],msg[4],msg[5],msg[6]);
 	  fflush(stdout);
 	}
 
@@ -1214,7 +1230,7 @@ void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime, int* reqjobs)
 	      
 	      MPI_Send (buf, 4, MPI_UNSIGNED, status.MPI_SOURCE, BARRIERTAG, MPI_COMM_WORLD);  
 	      
-	      fprintf(fp_log,"%s\tB ---> W%i\tWAIT\t\tBARRIER\t\t-\t\t-\t\t%i/%i/%i\n",
+	      fprintf(fp_log,"%s\tB ---> W%i\tWAIT\t\tBARRIER\t\t-\t\t-\t-\t\t%i/%i/%i\n",
 		      timestring,status.MPI_SOURCE,nrunjobs,ndonejobs,nfailjobs);
 	      fflush(fp_log);
 	    }
@@ -1223,7 +1239,7 @@ void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime, int* reqjobs)
 	      if (njobs)
 		{
 		  /* Not enough disk space available, too many pending jobs, or too much load, put worker to sleep! */
-		  if (msg[3]<minimum_disk_space || msg[4]>=maximum_running_jobs || msg[5]>=((int) 100*maximum_load)) 
+		  if (msg[4]<minimum_disk_space || msg[5]>=maximum_running_jobs || msg[6]>=((int) 100*maximum_load)) 
 		    {
 		      if (verbose_mode)
 			{
@@ -1234,17 +1250,17 @@ void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime, int* reqjobs)
 		      buf[0]=buf[1]=buf[3]=0;
 		      buf[2]=timeout[1];
 
-		      if (msg[3]<minimum_disk_space) 
+		      if (msg[4]<minimum_disk_space) 
 			{
 			  sprintf(jobstatus,"DISK FULL   ");		    
 			  buf[0] |= (1<<0);
 			}
-		      if (msg[4]>=maximum_running_jobs) 
+		      if (msg[5]>=maximum_running_jobs) 
 			{
 			  sprintf(jobstatus,"PENDING     ");		    
 			  buf[0] |= (1<<1);
 			}
-		      if (msg[5]>=((int) (100*maximum_load))) 
+		      if (msg[6]>=((int) (100*maximum_load))) 
 			{
 			  sprintf(jobstatus,"OVERLOAD    ");		    
 			  buf[0] |= (1<<2);
@@ -1252,7 +1268,7 @@ void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime, int* reqjobs)
 
 		      MPI_Send (buf, 4, MPI_UNSIGNED, status.MPI_SOURCE, SLEEPTAG, MPI_COMM_WORLD);
 		      
-		      fprintf(fp_log,"%s\tB ---> W%i\tSLEEP\t\t%s\t-\t\t%.2i:%.2i:%.2i\t%i/%i/%i\n",
+		      fprintf(fp_log,"%s\tB ---> W%i\tSLEEP\t\t%s\t-\t\t%.2i:%.2i:%.2i\t-\t%i/%i/%i\n",
 			      timestring,status.MPI_SOURCE,jobstatus,
 			      buf[2]/3600,((buf[2]%3600)/60),((buf[2]%3600)%60),
 			      nrunjobs,ndonejobs,nfailjobs);
@@ -1278,7 +1294,7 @@ void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime, int* reqjobs)
 		      
 		      nrunjobs++;
 
-		      fprintf(fp_log,"%s\tB ---> W%i\tRUN\t\tJOB\t\t%i\t\t-\t\t%i/%i/%i\n",
+		      fprintf(fp_log,"%s\tB ---> W%i\tRUN\t\tJOB\t\t%i\t\t-\t-\t\t%i/%i/%i\n",
 			      timestring,status.MPI_SOURCE,buf[0],nrunjobs,ndonejobs,nfailjobs);
 		      fflush(fp_log);
 
@@ -1297,7 +1313,7 @@ void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime, int* reqjobs)
 		  buf[0]=buf[1]=buf[2]=buf[3]=0;
 		  MPI_Send (buf, 4, MPI_UNSIGNED, status.MPI_SOURCE, ABORTTAG, MPI_COMM_WORLD);  
 	      
-		  fprintf(fp_log,"%s\tB ---> W%i\tABORT\t\tNO JOBS\t\t-\t\t-\t\t%i/%i/%i\n",
+		  fprintf(fp_log,"%s\tB ---> W%i\tABORT\t\tNO JOBS\t\t-\t\t-\t-\t\t%i/%i/%i\n",
 			  timestring,status.MPI_SOURCE,nrunjobs,ndonejobs,nfailjobs);
 		  fflush(fp_log);
 		}
@@ -1339,10 +1355,21 @@ void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime, int* reqjobs)
 	      nfailjobs++;
 	    }
 	  
-	  fprintf(fp_log,"%s\tB <--- W%i\t%s\t%s\t\t%i\t\t%.2i:%.2i:%.2i\t%i/%i/%i\n",
-		  timestring,status.MPI_SOURCE,jobstatus,jobinfo,msg[1],
-		  msg[2]/3600,((msg[2]%3600)/60),((msg[2]%3600)%60),
-		  nrunjobs,ndonejobs,nfailjobs);
+	  if (msg[2])
+	    {
+	      fprintf(fp_log,"%s\tB <--- W%i\t%s\t%s\t\t%i\t\t%.2i:%.2i:%.2i\t%.0f\t%i/%i/%i\n",
+		      timestring,status.MPI_SOURCE,jobstatus,jobinfo,msg[1],
+		      msg[2]/3600,((msg[2]%3600)/60),((msg[2]%3600)%60),
+		      100*((float) msg[3])/((float) msg[2]),
+		      nrunjobs,ndonejobs,nfailjobs);
+	    }
+	  else
+	    {
+	      fprintf(fp_log,"%s\tB <--- W%i\t%s\t%s\t\t%i\t\t%.2i:%.2i:%.2i\t-\t%i/%i/%i\n",
+		      timestring,status.MPI_SOURCE,jobstatus,jobinfo,msg[1],
+		      msg[2]/3600,((msg[2]%3600)/60),((msg[2]%3600)%60),
+		      nrunjobs,ndonejobs,nfailjobs);
+	    }
 	  fflush(fp_log);
 	  break;
 
@@ -1366,10 +1393,21 @@ void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime, int* reqjobs)
 	      nfailjobs++;
 	    }
 
-	  fprintf(fp_log,"%s\tB <--- W%i\t%s\tMOVE\t\t%i\t\t%.2i:%.2i:%.2i\t%i/%i/%i\n",
-		  timestring,status.MPI_SOURCE,jobstatus,msg[1],
-		  msg[2]/3600,((msg[2]%3600)/60),((msg[2]%3600)%60),
-		  nrunjobs,ndonejobs,nfailjobs);
+	  if (msg[2])
+	    {
+	      fprintf(fp_log,"%s\tB <--- W%i\t%s\tMOVE\t\t%i\t\t%.2i:%.2i:%.2i\t%.0f\t%i/%i/%i\n",
+		      timestring,status.MPI_SOURCE,jobstatus,msg[1],
+		      msg[2]/3600,((msg[2]%3600)/60),((msg[2]%3600)%60),
+		      100*((float) msg[3])/((float) msg[2]),
+		      nrunjobs,ndonejobs,nfailjobs);
+	    }
+	  else
+	    {
+	      fprintf(fp_log,"%s\tB <--- W%i\t%s\tMOVE\t\t%i\t\t%.2i:%.2i:%.2i\t-\t%i/%i/%i\n",
+		      timestring,status.MPI_SOURCE,jobstatus,msg[1],
+		      msg[2]/3600,((msg[2]%3600)/60),((msg[2]%3600)%60),
+		      nrunjobs,ndonejobs,nfailjobs);
+	    }
 	  fflush(fp_log);
 	  break;
 
@@ -1380,10 +1418,21 @@ void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime, int* reqjobs)
 	      fflush(stdout);
 	    }
 
-	  fprintf(fp_log,"%s\tB <--- W%i\tFINISHED\tALL\t\t-\t\t%.2i:%.2i:%.2i\t%i/%i/%i\n",
-		  timestring,status.MPI_SOURCE,
-		  msg[2]/3600,((msg[2]%3600)/60),((msg[2]%3600)%60),
-		  nrunjobs,ndonejobs,nfailjobs);
+	  if (msg[2])
+	    {
+	      fprintf(fp_log,"%s\tB <--- W%i\tFINISHED\tALL\t\t-\t\t%.2i:%.2i:%.2i\t%.0f\t%i/%i/%i\n",
+		      timestring,status.MPI_SOURCE,
+		      msg[2]/3600,((msg[2]%3600)/60),((msg[2]%3600)%60),
+		      100*((float) msg[3])/((float) msg[2]),
+		      nrunjobs,ndonejobs,nfailjobs);
+	    }
+	  else
+	    {
+	      fprintf(fp_log,"%s\tB <--- W%i\tFINISHED\tALL\t\t-\t\t%.2i:%.2i:%.2i\t-\t%i/%i/%i\n",
+		      timestring,status.MPI_SOURCE,
+		      msg[2]/3600,((msg[2]%3600)/60),((msg[2]%3600)%60),
+		      nrunjobs,ndonejobs,nfailjobs);
+	    }
 	  fflush(fp_log);
 
 	  nacworkers--;
@@ -1396,10 +1445,12 @@ void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime, int* reqjobs)
 	}
     }
 
-  fprintf(fp_log,"-----------------------------------------------------------------------------------------------------------\n");
+  fprintf(fp_log,"-------------------------------------------------------------------------------------------------------------------\n");
   fflush(fp_log);
 
-  (*wtime) = MPI_Wtime() - (*wtime);
+  now=((double) times(&cnow)/((double) sysconf(_SC_CLK_TCK)));
+  (*wtime) = now - start;
+  (*cputime) = ((double)((cnow.tms_cutime+cnow.tms_cstime) - (cstart.tms_cutime+cstart.tms_cstime)))/((double) sysconf(_SC_CLK_TCK));
 
   if (job.array) free(job.array);
 
@@ -1416,18 +1467,20 @@ void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime, int* reqjobs)
 // Depends on:  Various global variables
 //
 
-void DoWorker(double* wtime, int* reqjobs)
+void DoWorker(double* wtime, double *cputime, int* reqjobs)
 {
-  int             msg[6], abort;
+  int             msg[7], abort;
   unsigned int    buf[4];
   MPI_Status      status;
-  unsigned int    elapse_time;
+  unsigned int    elapse_time, comp_time;
   job_description job;
+  double          now,start;
+  struct tms      cnow,cstart;
 
   job.array = (char *) malloc(DEFAULT_JOBSIZE*JOBSTRINGSIZE*sizeof(char));
   job.size  = DEFAULT_JOBSIZE*JOBSTRINGSIZE*sizeof(char);
 
-  (*wtime) = MPI_Wtime();
+  start=((double) times(&cstart)/((double) sysconf(_SC_CLK_TCK)));
 
   *reqjobs=0;
   abort=0;
@@ -1445,18 +1498,19 @@ void DoWorker(double* wtime, int* reqjobs)
       msg[0]=JOB_REQUEST;
       msg[1]=-1;
       msg[2]=0;
-      msg[3]=GetFreeDiskSpace(rank);
-      msg[4]=number_of_running_jobs;
-      msg[5]=(int) (100*GetAverageLoad(0));
+      msg[3]=0;
+      msg[4]=GetFreeDiskSpace(rank);
+      msg[5]=number_of_running_jobs;
+      msg[6]=(int) (100*GetAverageLoad(0));
 
       /* Request master for a task */
       if (verbose_mode)
 	{
-	  printf("<W:%i> Sending request to boss %i/%i/%i/%i/%i/%i\n",rank,msg[0],msg[1],msg[2],msg[3],msg[4],msg[5]); 
+	  printf("<W:%i> Sending request to boss %i/%i/%i/%i/%i/%i/%i\n",rank,msg[0],msg[1],msg[2],msg[3],msg[4],msg[5],msg[6]); 
 	  fflush(stdout);
 	}
 
-      MPI_Send(msg, 6, MPI_INT, BOSSRANK, REQUESTTAG, MPI_COMM_WORLD);
+      MPI_Send(msg, 7, MPI_INT, BOSSRANK, REQUESTTAG, MPI_COMM_WORLD);
 
       MPI_Recv(buf, 4, MPI_UNSIGNED, BOSSRANK, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
 
@@ -1514,17 +1568,18 @@ void DoWorker(double* wtime, int* reqjobs)
 	      msg[0]=WORKER_IDLE;
 	      msg[1]=-1;
 	      msg[2]=0;
-	      msg[3]=GetFreeDiskSpace();
-	      msg[4]=number_of_running_jobs;
-	      msg[5]=(int) (100*GetAverageLoad(0));	  
+	      msg[3]=0;
+	      msg[4]=GetFreeDiskSpace();
+	      msg[5]=number_of_running_jobs;
+	      msg[6]=(int) (100*GetAverageLoad(0));	  
 
 	      if (verbose_mode)
 		{
-		  printf("<W:%i> Sending barrier response to boss %i/%i/%i/%i/%i/%i\n",rank,msg[0],msg[1],msg[2],msg[3],msg[4],msg[5]); 
+		  printf("<W:%i> Sending barrier response to boss %i/%i/%i/%i/%i/%i/%i\n",rank,msg[0],msg[1],msg[2],msg[3],msg[4],msg[5],msg[6]); 
 		  fflush(stdout);
 		}
 
-	      MPI_Send(msg, 6, MPI_INT, BOSSRANK, BARRIERTAG, MPI_COMM_WORLD);
+	      MPI_Send(msg, 7, MPI_INT, BOSSRANK, BARRIERTAG, MPI_COMM_WORLD);
 
 	      if (verbose_mode)
 		{
@@ -1589,7 +1644,7 @@ void DoWorker(double* wtime, int* reqjobs)
 	  number_of_running_jobs++;
 	  pthread_mutex_unlock(&thread_mutex);	  
 	  
-	  msg[0]=DoJob(buf,&job,&elapse_time);
+	  msg[0]=DoJob(buf,&job,&elapse_time,&comp_time);
 
 	  if (!(JOB_OK == msg[0]))
 	    {
@@ -1600,17 +1655,18 @@ void DoWorker(double* wtime, int* reqjobs)
 	  
 	  msg[1]=buf[0]; /* Also return RUNID */
 	  msg[2]=(int) elapse_time;
-	  msg[3]=GetFreeDiskSpace();
-	  msg[4]=number_of_running_jobs;
-	  msg[5]=(int) (100*GetAverageLoad(0));
+	  msg[3]=(int) comp_time;
+	  msg[4]=GetFreeDiskSpace();
+	  msg[5]=number_of_running_jobs;
+	  msg[6]=(int) (100*GetAverageLoad(0));
 
 	  if (verbose_mode)
 	    {
-	      printf("<W:%i> Sending script result to boss %i/%i/%i/%i/%i/%i\n",rank,msg[0],msg[1],msg[2],msg[3],msg[4],msg[5]); 
+	      printf("<W:%i> Sending script result to boss %i/%i/%i/%i/%i/%i/%i\n",rank,msg[0],msg[1],msg[2],msg[3],msg[4],msg[5],msg[6]); 
 	      fflush(stdout);
 	    }
 
-	  MPI_Send(msg, 6, MPI_INT, BOSSRANK, SCRIPTTAG, MPI_COMM_WORLD);
+	  MPI_Send(msg, 7, MPI_INT, BOSSRANK, SCRIPTTAG, MPI_COMM_WORLD);
 	  break;
 
 	default:
@@ -1626,12 +1682,14 @@ void DoWorker(double* wtime, int* reqjobs)
       fflush(stdout);
     }
 
-  (*wtime) = MPI_Wtime() - (*wtime);
+  now=((double) times(&cnow)/((double) sysconf(_SC_CLK_TCK)));
+  (*wtime) = now - start;
+  (*cputime) = ((double)((cnow.tms_cutime+cnow.tms_cstime) - (cstart.tms_cutime+cstart.tms_cstime)))/((double) sysconf(_SC_CLK_TCK));
 
-  msg[0]=0;msg[1]=-1;msg[2]=(int) (*wtime);msg[3]=GetFreeDiskSpace();msg[4]=number_of_running_jobs;
-  msg[5]=(int) (100*GetAverageLoad(0));
+  msg[0]=0;msg[1]=-1;msg[2]=(int) (*wtime);msg[3]=(int) (*cputime);msg[4]=GetFreeDiskSpace();msg[5]=number_of_running_jobs;
+  msg[6]=(int) (100*GetAverageLoad(0));
 
-  MPI_Send (msg, 6, MPI_INT, BOSSRANK, FINISHTAG, MPI_COMM_WORLD);
+  MPI_Send (msg, 7, MPI_INT, BOSSRANK, FINISHTAG, MPI_COMM_WORLD);
 
   if (verbose_mode)
     {
@@ -1652,10 +1710,11 @@ void DoWorker(double* wtime, int* reqjobs)
 int main(int argc, char *argv[])
 {
   int      i,size,nworkers,nreqjobs;;
-  double   wtime;
+  double   wtime,cputime;
   int *    nrjobsbuf=NULL;
   int *    nrreqjobsbuf=NULL;
   double * wtimebuf=NULL;
+  double * cputimebuf=NULL;
   char *   hostnamebuf=NULL;
   char     hostname[MAX_HOSTNAME_LENGTH];
   char     jobslog_filename[VERYLONGCHARSIZE];
@@ -1705,17 +1764,18 @@ int main(int argc, char *argv[])
 
       nworkers=size-1;
       
-      DoBoss(fp_jobfile, fp_jobfile_log, nworkers, &wtime, &nreqjobs);
+      DoBoss(fp_jobfile, fp_jobfile_log, nworkers, &wtime, &cputime, &nreqjobs);
 
       nrjobsbuf    = (int*)    malloc(size*sizeof(int));
       nrreqjobsbuf = (int*)    malloc(size*sizeof(int));
       wtimebuf     = (double*) malloc(size*sizeof(double));
+      cputimebuf   = (double*) malloc(size*sizeof(double));
       hostnamebuf  = (char*)   malloc(size*MAX_HOSTNAME_LENGTH*sizeof(char));
 
     }
   else         // Worker 
     {
-      DoWorker(&wtime, &nreqjobs);
+      DoWorker(&wtime, &cputime, &nreqjobs);
     }
 
   gethostname(hostname,sizeof(hostname));
@@ -1723,6 +1783,7 @@ int main(int argc, char *argv[])
   MPI_Gather(&ndonejobs,    1, MPI_INT,    nrjobsbuf,    1, MPI_INT,    BOSSRANK, MPI_COMM_WORLD);
   MPI_Gather(&nreqjobs,     1, MPI_INT,    nrreqjobsbuf, 1, MPI_INT,    BOSSRANK, MPI_COMM_WORLD);
   MPI_Gather(&wtime,        1, MPI_DOUBLE, wtimebuf,     1, MPI_DOUBLE, BOSSRANK, MPI_COMM_WORLD);
+  MPI_Gather(&cputime,      1, MPI_DOUBLE, cputimebuf,   1, MPI_DOUBLE, BOSSRANK, MPI_COMM_WORLD);
   MPI_Gather(hostname,      MAX_HOSTNAME_LENGTH, MPI_CHAR, 
 	     hostnamebuf,   MAX_HOSTNAME_LENGTH, MPI_CHAR, 
 	     BOSSRANK,     MPI_COMM_WORLD);
@@ -1730,12 +1791,12 @@ int main(int argc, char *argv[])
 
   if (BOSSRANK==rank)
     {
-      fprintf(fp_jobfile_log,"Process:Hostname\tWalltime (min)\t\tReq. jobs\tAccompl. jobs\n");
-      fprintf(fp_jobfile_log,"--------------------------------------------------------------------------------\n");
+      fprintf(fp_jobfile_log,"Process:Hostname\tWall/CPU time (min)\t\tReq. jobs\tAccompl. jobs\n");
+      fprintf(fp_jobfile_log,"--------------------------------------------------------------------------------------\n");
       for (i=0; i<size; i++)
 	{
-	  fprintf(fp_jobfile_log,"%i:%s\t\t%.3f\t\t\t%i\t\t%i",i,&hostnamebuf[i*MAX_HOSTNAME_LENGTH],
-		 wtimebuf[i]/60.,nrreqjobsbuf[i],nrjobsbuf[i]);
+	  fprintf(fp_jobfile_log,"%i:%s\t\t%.2f/%.2f\t\t\t%i\t\t%i",i,&hostnamebuf[i*MAX_HOSTNAME_LENGTH],
+		 wtimebuf[i]/60.,cputimebuf[i]/60.,nrreqjobsbuf[i],nrjobsbuf[i]);
 	  if (BOSSRANK==i) 
 	    {
 	      fprintf(fp_jobfile_log,"\t(BOSS)\n");
@@ -1745,7 +1806,7 @@ int main(int argc, char *argv[])
 	      fprintf(fp_jobfile_log,"\n");
 	    }
 	}
-      fprintf(fp_jobfile_log,"--------------------------------------------------------------------------------\n");
+      fprintf(fp_jobfile_log,"--------------------------------------------------------------------------------------\n");
 
       fclose(fp_jobfile);
       fclose(fp_jobfile_log);
