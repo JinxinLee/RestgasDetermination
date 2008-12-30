@@ -1230,7 +1230,7 @@ void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime, double *cputime
 	      
 	      MPI_Send (buf, 4, MPI_UNSIGNED, status.MPI_SOURCE, BARRIERTAG, MPI_COMM_WORLD);  
 	      
-	      fprintf(fp_log,"%s\tB ---> W%i\tWAIT\t\tBARRIER\t\t-\t\t-\t-\t\t%i/%i/%i\n",
+	      fprintf(fp_log,"%s\tB ---> W%i\tWAIT\t\tBARRIER\t\t-\t\t-\t\t-\t%i/%i/%i\n",
 		      timestring,status.MPI_SOURCE,nrunjobs,ndonejobs,nfailjobs);
 	      fflush(fp_log);
 	    }
@@ -1294,7 +1294,7 @@ void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime, double *cputime
 		      
 		      nrunjobs++;
 
-		      fprintf(fp_log,"%s\tB ---> W%i\tRUN\t\tJOB\t\t%i\t\t-\t-\t\t%i/%i/%i\n",
+		      fprintf(fp_log,"%s\tB ---> W%i\tRUN\t\tJOB\t\t%i\t\t-\t\t-\t%i/%i/%i\n",
 			      timestring,status.MPI_SOURCE,buf[0],nrunjobs,ndonejobs,nfailjobs);
 		      fflush(fp_log);
 
@@ -1313,7 +1313,7 @@ void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime, double *cputime
 		  buf[0]=buf[1]=buf[2]=buf[3]=0;
 		  MPI_Send (buf, 4, MPI_UNSIGNED, status.MPI_SOURCE, ABORTTAG, MPI_COMM_WORLD);  
 	      
-		  fprintf(fp_log,"%s\tB ---> W%i\tABORT\t\tNO JOBS\t\t-\t\t-\t-\t\t%i/%i/%i\n",
+		  fprintf(fp_log,"%s\tB ---> W%i\tABORT\t\tNO JOBS\t\t-\t\t-\t\t-\t%i/%i/%i\n",
 			  timestring,status.MPI_SOURCE,nrunjobs,ndonejobs,nfailjobs);
 		  fflush(fp_log);
 		}
