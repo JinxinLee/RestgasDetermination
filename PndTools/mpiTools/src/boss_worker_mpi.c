@@ -666,7 +666,7 @@ void* MoveJob(void *in)
 
   msg[1]=info->jobid;
   msg[2]=(int) (now-start);
-  msg[3]=(int) (( (double)((cnow.tms_cutime+cnow.tms_cstime) - (cstart.tms_cutime+cstart.tms_cstime)))/((double) sysconf(_SC_CLK_TCK)));
+  msg[3]=(int) (( (double)((cnow.tms_cutime+cnow.tms_utime+cnow.tms_cstime+cnow.tms_stime) - (cstart.tms_cutime+cstart.tms_utime+cstart.tms_cstime+cstart.tms_stime)))/((double) sysconf(_SC_CLK_TCK)));
   msg[4]=GetFreeDiskSpace(info->worker);
   msg[5]=number_of_running_jobs;
   msg[6]=(int) (100*GetAverageLoad(0));
@@ -771,7 +771,7 @@ int DoJob(unsigned int *info, job_description *job, unsigned int *time_elapsed, 
 		}
 	      te=((double) times(&cte)/((double) sysconf(_SC_CLK_TCK)));
 	      *time_elapsed=(int) (te-tb);
-	      *time_comp=(int) (( (double)((cte.tms_cutime+cte.tms_cstime) - (ctb.tms_cutime+ctb.tms_cstime)))/((double) sysconf(_SC_CLK_TCK)));
+	      *time_comp=(int) (( (double)((cte.tms_cutime+cte.tms_utime+cte.tms_cstime+cte.tms_stime) - (ctb.tms_cutime+ctb.tms_utime+ctb.tms_cstime+ctb.tms_stime)))/((double) sysconf(_SC_CLK_TCK)));
 	      return JOB_INPUT_ERROR;
 	    }
 
@@ -804,7 +804,7 @@ int DoJob(unsigned int *info, job_description *job, unsigned int *time_elapsed, 
 	    }  
 	  te=((double) times(&cte)/((double) sysconf(_SC_CLK_TCK)));
 	  *time_elapsed=(int) (te-tb);
-	  *time_comp=(int) (( (double)((cte.tms_cutime+cte.tms_cstime) - (ctb.tms_cutime+ctb.tms_cstime)))/((double) sysconf(_SC_CLK_TCK)));
+	  *time_comp=(int) (( (double)((cte.tms_cutime+cte.tms_utime+cte.tms_cstime+cte.tms_stime) - (ctb.tms_cutime+ctb.tms_utime+ctb.tms_cstime+ctb.tms_stime)))/((double) sysconf(_SC_CLK_TCK)));
 	  return JOB_INPUT_ERROR;
 	}
     }
@@ -853,7 +853,7 @@ int DoJob(unsigned int *info, job_description *job, unsigned int *time_elapsed, 
 	    }
 	  te=((double) times(&cte)/((double) sysconf(_SC_CLK_TCK)));
 	  *time_elapsed=(int) (te-tb);
-	  *time_comp=(int) (( (double)((cte.tms_cutime+cte.tms_cstime) - (ctb.tms_cutime+ctb.tms_cstime)))/((double) sysconf(_SC_CLK_TCK)));
+	  *time_comp=(int) (( (double)((cte.tms_cutime+cte.tms_utime+cte.tms_cstime+cte.tms_stime) - (ctb.tms_cutime+ctb.tms_utime+ctb.tms_cstime+ctb.tms_stime)))/((double) sysconf(_SC_CLK_TCK)));
 	  return JOB_SCRIPT_ERROR;
 	}
     }
@@ -887,7 +887,7 @@ int DoJob(unsigned int *info, job_description *job, unsigned int *time_elapsed, 
       fprintf(stderr,"<W:%i> Error allocating memory for move thread\n",rank);
       te=((double) times(&cte)/((double) sysconf(_SC_CLK_TCK)));
       *time_elapsed=(int) (te-tb);
-      *time_comp=(int) (( (double)((cte.tms_cutime+cte.tms_cstime) - (ctb.tms_cutime+ctb.tms_cstime)))/((double) sysconf(_SC_CLK_TCK)));
+      *time_comp=(int) (( (double)((cte.tms_cutime+cte.tms_utime+cte.tms_cstime+cte.tms_stime) - (ctb.tms_cutime+ctb.tms_utime+ctb.tms_cstime+ctb.tms_stime)))/((double) sysconf(_SC_CLK_TCK)));
       return JOB_MOVE_ERROR;
     }
 
@@ -901,7 +901,7 @@ int DoJob(unsigned int *info, job_description *job, unsigned int *time_elapsed, 
       if (moveThread) free(moveThread);
       te=((double) times(&cte)/((double) sysconf(_SC_CLK_TCK)));
       *time_elapsed=(int) (te-tb);
-      *time_comp=(int) (( (double)((cte.tms_cutime+cte.tms_cstime) - (ctb.tms_cutime+ctb.tms_cstime)))/((double) sysconf(_SC_CLK_TCK)));
+      *time_comp=(int) (( (double)((cte.tms_cutime+cte.tms_utime+cte.tms_cstime+cte.tms_stime) - (ctb.tms_cutime+ctb.tms_utime+ctb.tms_cstime+ctb.tms_stime)))/((double) sysconf(_SC_CLK_TCK)));
       return JOB_MOVE_ERROR;
     }
 
@@ -912,7 +912,7 @@ int DoJob(unsigned int *info, job_description *job, unsigned int *time_elapsed, 
       if (moveThread) free(moveThread);
       te=((double) times(&cte)/((double) sysconf(_SC_CLK_TCK)));
       *time_elapsed=(int) (te-tb);
-      *time_comp=(int) (( (double)((cte.tms_cutime+cte.tms_cstime) - (ctb.tms_cutime+ctb.tms_cstime)))/((double) sysconf(_SC_CLK_TCK)));
+      *time_comp=(int) (( (double)((cte.tms_cutime+cte.tms_utime+cte.tms_cstime+cte.tms_stime) - (ctb.tms_cutime+ctb.tms_utime+ctb.tms_cstime+ctb.tms_stime)))/((double) sysconf(_SC_CLK_TCK)));
       return JOB_MOVE_ERROR;
     }
 
@@ -920,7 +920,8 @@ int DoJob(unsigned int *info, job_description *job, unsigned int *time_elapsed, 
 
   te=((double) times(&cte)/((double) sysconf(_SC_CLK_TCK)));
   *time_elapsed=(int) (te-tb); 
-  *time_comp=(int) (( (double)((cte.tms_cutime+cte.tms_cstime) - (ctb.tms_cutime+ctb.tms_cstime)))/((double) sysconf(_SC_CLK_TCK)));
+  *time_comp=(int) (( (double)((cte.tms_cutime+cte.tms_utime+cte.tms_cstime+cte.tms_stime) - (ctb.tms_cutime+ctb.tms_utime+ctb.tms_cstime+ctb.tms_stime)))/((double) sysconf(_SC_CLK_TCK)));
+
   return JOB_OK;
 }
 
@@ -1450,7 +1451,7 @@ void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime, double *cputime
 
   now=((double) times(&cnow)/((double) sysconf(_SC_CLK_TCK)));
   (*wtime) = now - start;
-  (*cputime) = ((double)((cnow.tms_cutime+cnow.tms_cstime) - (cstart.tms_cutime+cstart.tms_cstime)))/((double) sysconf(_SC_CLK_TCK));
+  (*cputime) = ((double)((cnow.tms_cutime+cnow.tms_utime+cnow.tms_cstime+cnow.tms_stime) - (cstart.tms_cutime+cstart.tms_utime+cstart.tms_cstime+cstart.tms_stime)))/((double) sysconf(_SC_CLK_TCK));
 
   if (job.array) free(job.array);
 
@@ -1684,7 +1685,7 @@ void DoWorker(double* wtime, double *cputime, int* reqjobs)
 
   now=((double) times(&cnow)/((double) sysconf(_SC_CLK_TCK)));
   (*wtime) = now - start;
-  (*cputime) = ((double)((cnow.tms_cutime+cnow.tms_cstime) - (cstart.tms_cutime+cstart.tms_cstime)))/((double) sysconf(_SC_CLK_TCK));
+  (*cputime) = ((double)((cnow.tms_cutime+cnow.tms_utime+cnow.tms_cstime+cnow.tms_stime) - (cstart.tms_cutime+cstart.tms_utime+cstart.tms_cstime+cstart.tms_stime)))/((double) sysconf(_SC_CLK_TCK));
 
   msg[0]=0;msg[1]=-1;msg[2]=(int) (*wtime);msg[3]=(int) (*cputime);msg[4]=GetFreeDiskSpace();msg[5]=number_of_running_jobs;
   msg[6]=(int) (100*GetAverageLoad(0));
