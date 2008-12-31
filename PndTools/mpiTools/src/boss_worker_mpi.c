@@ -93,7 +93,7 @@
 #define DEFAULT_JOBSIZE  5                     // Initial memory in units of JOBSTRINGSIZE allocated to job 
                                                // (automatically resized on the fly)
 
-#define MAX_HOSTNAME_LENGTH 32
+#define MAX_HOSTNAME_LENGTH 16
 
 extern void KillProcessAndDaughters(int, char *);   // External function implemented in pstree.c
 
@@ -398,6 +398,21 @@ char* FindTheFilename(char *in)
 }
 
 //
+// double GetCPUTime(struct tms *ctb, struct tms *cte)
+// ---------------------------------------------------
+//
+// Description: Calculate the CPU times
+// Input:       ctb, cte - time information obtained via "times" (b-beginning, e-end)
+// Output:      returns the amount of CPU time for a period between ctb and cte;
+// Depends on:  none
+//
+
+double GetCPUTime(struct tms *ctb, struct tms *cte)
+{
+    return ((double) (( (double)((cte->tms_cutime+cte->tms_utime+cte->tms_cstime+cte->tms_stime) - (ctb->tms_cutime+ctb->tms_utime+ctb->tms_cstime+ctb->tms_stime)))/((double) sysconf(_SC_CLK_TCK))));
+}
+
+//
 // void AddItemToList(thread_list *new)
 // ------------------------------------
 //
@@ -666,7 +681,7 @@ void* MoveJob(void *in)
 
   msg[1]=info->jobid;
   msg[2]=(int) (now-start);
-  msg[3]=(int) (( (double)((cnow.tms_cutime+cnow.tms_utime+cnow.tms_cstime+cnow.tms_stime) - (cstart.tms_cutime+cstart.tms_utime+cstart.tms_cstime+cstart.tms_stime)))/((double) sysconf(_SC_CLK_TCK)));
+  msg[3]=(int) GetCPUTime(&cstart,&cnow);
   msg[4]=GetFreeDiskSpace(info->worker);
   msg[5]=number_of_running_jobs;
   msg[6]=(int) (100*GetAverageLoad(0));
@@ -771,7 +786,7 @@ int DoJob(unsigned int *info, job_description *job, unsigned int *time_elapsed, 
 		}
 	      te=((double) times(&cte)/((double) sysconf(_SC_CLK_TCK)));
 	      *time_elapsed=(int) (te-tb);
-	      *time_comp=(int) (( (double)((cte.tms_cutime+cte.tms_utime+cte.tms_cstime+cte.tms_stime) - (ctb.tms_cutime+ctb.tms_utime+ctb.tms_cstime+ctb.tms_stime)))/((double) sysconf(_SC_CLK_TCK)));
+	      *time_comp=(int) GetCPUTime(&ctb,&cte);
 	      return JOB_INPUT_ERROR;
 	    }
 
@@ -804,7 +819,7 @@ int DoJob(unsigned int *info, job_description *job, unsigned int *time_elapsed, 
 	    }  
 	  te=((double) times(&cte)/((double) sysconf(_SC_CLK_TCK)));
 	  *time_elapsed=(int) (te-tb);
-	  *time_comp=(int) (( (double)((cte.tms_cutime+cte.tms_utime+cte.tms_cstime+cte.tms_stime) - (ctb.tms_cutime+ctb.tms_utime+ctb.tms_cstime+ctb.tms_stime)))/((double) sysconf(_SC_CLK_TCK)));
+	  *time_comp=(int) GetCPUTime(&ctb,&cte);
 	  return JOB_INPUT_ERROR;
 	}
     }
@@ -853,7 +868,7 @@ int DoJob(unsigned int *info, job_description *job, unsigned int *time_elapsed, 
 	    }
 	  te=((double) times(&cte)/((double) sysconf(_SC_CLK_TCK)));
 	  *time_elapsed=(int) (te-tb);
-	  *time_comp=(int) (( (double)((cte.tms_cutime+cte.tms_utime+cte.tms_cstime+cte.tms_stime) - (ctb.tms_cutime+ctb.tms_utime+ctb.tms_cstime+ctb.tms_stime)))/((double) sysconf(_SC_CLK_TCK)));
+	  *time_comp=(int) GetCPUTime(&ctb,&cte);
 	  return JOB_SCRIPT_ERROR;
 	}
     }
@@ -887,7 +902,7 @@ int DoJob(unsigned int *info, job_description *job, unsigned int *time_elapsed, 
       fprintf(stderr,"<W:%i> Error allocating memory for move thread\n",rank);
       te=((double) times(&cte)/((double) sysconf(_SC_CLK_TCK)));
       *time_elapsed=(int) (te-tb);
-      *time_comp=(int) (( (double)((cte.tms_cutime+cte.tms_utime+cte.tms_cstime+cte.tms_stime) - (ctb.tms_cutime+ctb.tms_utime+ctb.tms_cstime+ctb.tms_stime)))/((double) sysconf(_SC_CLK_TCK)));
+      *time_comp=(int) GetCPUTime(&ctb,&cte);
       return JOB_MOVE_ERROR;
     }
 
@@ -901,7 +916,7 @@ int DoJob(unsigned int *info, job_description *job, unsigned int *time_elapsed, 
       if (moveThread) free(moveThread);
       te=((double) times(&cte)/((double) sysconf(_SC_CLK_TCK)));
       *time_elapsed=(int) (te-tb);
-      *time_comp=(int) (( (double)((cte.tms_cutime+cte.tms_utime+cte.tms_cstime+cte.tms_stime) - (ctb.tms_cutime+ctb.tms_utime+ctb.tms_cstime+ctb.tms_stime)))/((double) sysconf(_SC_CLK_TCK)));
+      *time_comp=(int) GetCPUTime(&ctb,&cte);
       return JOB_MOVE_ERROR;
     }
 
@@ -912,7 +927,7 @@ int DoJob(unsigned int *info, job_description *job, unsigned int *time_elapsed, 
       if (moveThread) free(moveThread);
       te=((double) times(&cte)/((double) sysconf(_SC_CLK_TCK)));
       *time_elapsed=(int) (te-tb);
-      *time_comp=(int) (( (double)((cte.tms_cutime+cte.tms_utime+cte.tms_cstime+cte.tms_stime) - (ctb.tms_cutime+ctb.tms_utime+ctb.tms_cstime+ctb.tms_stime)))/((double) sysconf(_SC_CLK_TCK)));
+      *time_comp=(int) GetCPUTime(&ctb,&cte);
       return JOB_MOVE_ERROR;
     }
 
@@ -920,7 +935,7 @@ int DoJob(unsigned int *info, job_description *job, unsigned int *time_elapsed, 
 
   te=((double) times(&cte)/((double) sysconf(_SC_CLK_TCK)));
   *time_elapsed=(int) (te-tb); 
-  *time_comp=(int) (( (double)((cte.tms_cutime+cte.tms_utime+cte.tms_cstime+cte.tms_stime) - (ctb.tms_cutime+ctb.tms_utime+ctb.tms_cstime+ctb.tms_stime)))/((double) sysconf(_SC_CLK_TCK)));
+  *time_comp=(int) GetCPUTime(&ctb,&cte);
 
   return JOB_OK;
 }
@@ -1685,7 +1700,7 @@ void DoWorker(double* wtime, double *cputime, int* reqjobs)
 
   now=((double) times(&cnow)/((double) sysconf(_SC_CLK_TCK)));
   (*wtime) = now - start;
-  (*cputime) = ((double)((cnow.tms_cutime+cnow.tms_utime+cnow.tms_cstime+cnow.tms_stime) - (cstart.tms_cutime+cstart.tms_utime+cstart.tms_cstime+cstart.tms_stime)))/((double) sysconf(_SC_CLK_TCK));
+  (*cputime) = GetCPUTime(&cstart,&cnow);
 
   msg[0]=0;msg[1]=-1;msg[2]=(int) (*wtime);msg[3]=(int) (*cputime);msg[4]=GetFreeDiskSpace();msg[5]=number_of_running_jobs;
   msg[6]=(int) (100*GetAverageLoad(0));
@@ -1787,17 +1802,20 @@ int main(int argc, char *argv[])
   MPI_Gather(&cputime,      1, MPI_DOUBLE, cputimebuf,   1, MPI_DOUBLE, BOSSRANK, MPI_COMM_WORLD);
   MPI_Gather(hostname,      MAX_HOSTNAME_LENGTH, MPI_CHAR, 
 	     hostnamebuf,   MAX_HOSTNAME_LENGTH, MPI_CHAR, 
-	     BOSSRANK,     MPI_COMM_WORLD);
+	     BOSSRANK,      MPI_COMM_WORLD);
 
 
   if (BOSSRANK==rank)
     {
-      fprintf(fp_jobfile_log,"Process:Hostname\tWall/CPU time (min)\t\tReq. jobs\tAccompl. jobs\n");
-      fprintf(fp_jobfile_log,"--------------------------------------------------------------------------------------\n");
+      fprintf(fp_jobfile_log,"Process:Hostname\tWall/CPU times\t\tReq. jobs\tAccompl. jobs\n");
+      fprintf(fp_jobfile_log,"------------------------------------------------------------------------------\n");
       for (i=0; i<size; i++)
 	{
-	  fprintf(fp_jobfile_log,"%i:%s\t\t%.2f/%.2f\t\t\t%i\t\t%i",i,&hostnamebuf[i*MAX_HOSTNAME_LENGTH],
-		 wtimebuf[i]/60.,cputimebuf[i]/60.,nrreqjobsbuf[i],nrjobsbuf[i]);
+	  fprintf(fp_jobfile_log,"%i:%s\t%.2i:%.2i:%.2i/%.2i:%.2i:%.2i\t%i\t\t%i",
+		  i,&hostnamebuf[i*MAX_HOSTNAME_LENGTH],
+		  ((int)wtimebuf[i])/3600,((((int)wtimebuf[i])%3600)/60),((((int)wtimebuf[i])%3600)%60),
+		  ((int)cputimebuf[i])/3600,((((int)cputimebuf[i])%3600)/60),((((int)cputimebuf[i])%3600)%60),
+		  nrreqjobsbuf[i],nrjobsbuf[i]);
 	  if (BOSSRANK==i) 
 	    {
 	      fprintf(fp_jobfile_log,"\t(BOSS)\n");
@@ -1807,7 +1825,7 @@ int main(int argc, char *argv[])
 	      fprintf(fp_jobfile_log,"\n");
 	    }
 	}
-      fprintf(fp_jobfile_log,"--------------------------------------------------------------------------------------\n");
+      fprintf(fp_jobfile_log,"------------------------------------------------------------------------------\n");
 
       fclose(fp_jobfile);
       fclose(fp_jobfile_log);
