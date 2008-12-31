@@ -62,6 +62,7 @@ echo
 if [ "$MPIVERSION" = "2" ]; then
     echo "<I> MPI Version 2, MPDs are started ..."
     sort $PBS_NODEFILE | uniq -c | awk '{ printf("%s\n", $2); }' > /tmp/mpd_nodes.$PBS_JOBID
+    mpdallexit > /dev/null 2>&1
     mpdboot -f /tmp/mpd_nodes.$PBS_JOBID -n $NNODES --rsh=$MPDBOOTRSH
     rm -f /tmp/mpd_nodes.$PBS_JOBID
     mpdtrace -l
