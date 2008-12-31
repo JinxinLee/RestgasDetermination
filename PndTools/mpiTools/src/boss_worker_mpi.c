@@ -1807,11 +1807,11 @@ int main(int argc, char *argv[])
 
   if (BOSSRANK==rank)
     {
-      fprintf(fp_jobfile_log,"Process:Hostname\tWall/CPU times\t\tReq. jobs\tAccompl. jobs\n");
+      fprintf(fp_jobfile_log,"Proc:Host\tWall time\tCPU time\tReq. jobs\tAccompl. jobs\n");
       fprintf(fp_jobfile_log,"------------------------------------------------------------------------------\n");
       for (i=0; i<size; i++)
 	{
-	  fprintf(fp_jobfile_log,"%i:%s\t%.2i:%.2i:%.2i/%.2i:%.2i:%.2i\t%i\t\t%i",
+	  fprintf(fp_jobfile_log,"%i:%s\t%.2i:%.2i:%.2i\t%.2i:%.2i:%.2i\t%i\t\t%i",
 		  i,&hostnamebuf[i*MAX_HOSTNAME_LENGTH],
 		  ((int)wtimebuf[i])/3600,((((int)wtimebuf[i])%3600)/60),((((int)wtimebuf[i])%3600)%60),
 		  ((int)cputimebuf[i])/3600,((((int)cputimebuf[i])%3600)/60),((((int)cputimebuf[i])%3600)%60),
