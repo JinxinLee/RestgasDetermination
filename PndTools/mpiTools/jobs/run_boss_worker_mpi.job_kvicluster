@@ -21,7 +21,11 @@
 # Load stuff needed to find MPI or MPI2
 #
 
-export MPI=/opt/exp_soft/mpich2
+if [ "$MPIVERSION" = "2" ]; then
+    export MPI=/opt/exp_soft/mpich2
+else
+    export MPI=/opt/exp_soft/mpich
+fi
 export LD_LIBRARY_PATH=$MPI/lib:$LD_LIBRARY_PATH
 export PATH=$MPI/bin:$PATH
 
@@ -85,20 +89,22 @@ fi
 
 if [ "$MPIVERSION" = "2" ]; then
     PROG=$HOME/bin/boss_worker_mpi2
+    MPIPROG=mpirun
 else
-    PROG=$HOME/bin/boss_worker_mpi
+    PROG=$HOME/bin/boss_worker_mpi 
+    MPIPROG="mpirun -machinefile $PBS_NODEFILE"
 fi
 
 ARGS="-j $JOBFILE -r $RUNID -v"
 
 if [ "$LOGFILE" = "" ]; then
-    mpirun -np $NPROCS $PROG $ARGS
+    $MPIPROG -np $NPROCS $PROG $ARGS
 else
     if  [ "$LOGFILE" = "/dev/null" ]; then
-	mpirun -np $NPROCS $PROG $ARGS 1> $LOGFILE 2> $LOGFILE 
+	$MPIPROG -np $NPROCS $PROG $ARGS 1> $LOGFILE 2> $LOGFILE 
     else
 	JOBID=`echo $PBS_JOBID | sed 's/\./ /' | awk '{print $1}'`
-	mpirun -np $NPROCS $PROG $ARGS 1> $LOGFILE\_$JOBID 2> $LOGFILE\_$JOBID 
+	$MPIPROG -np $NPROCS $PROG $ARGS 1> $LOGFILE\_$JOBID 2> $LOGFILE\_$JOBID 
     fi
 fi
 
