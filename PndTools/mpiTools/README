@@ -396,12 +396,13 @@ description file for this mpi tool.
 
 In the "run_boss_worker.job" script you can find the following line
 
-export ARGS="-j $JOBFILE -m $HOME/bin/movefiles -s /tmp"
+export ARGS="-j $JOBFILE -r $RUNID -v"
 
-These arguments will be fed to the "boss_worker_mpi" executable. You might need to change the argument
-option "-m" to specify a more proper script which can move files on your system. The available "movefiles"
-script exploits "scp" to transfer files, which requires to setup key sharing in case of copying remotely.
-It also supports the xrdcp (xrootd) protocol. To use this, specify the input/output as 
+These arguments will be fed to the "boss_worker_mpi" executable. You might want to add an argument
+option "-m" to specify a more proper script which can move files on your system. Note that this can
+also be specified in the job description file of the boss_worker_mpi program ($JOBFILE). The available 
+"movefiles" script exploits "scp" to transfer files, which requires to setup key sharing in case of 
+copying remotely. It also supports the xrdcp (xrootd) protocol. To use this, specify the input/output as 
 "root://server.name:port//path/"
 
 The line
@@ -410,6 +411,10 @@ mpirun -np $NPROCS $HOME/bin/boss_worker_mpi $ARGS
 
 in the file "run_boss_worker_mpi.job" is the heart of it all. On a properly configured PBS system, it
 will automatically start the processes on the requested nodes (e.g. option -machinefile is not needed).
+
+The job description file of PBS, "run_boss_worker_mpi.job" is also compatible with MPI2. For this,
+"mpd" daemons need to be started on the worker nodes (and terminated after the run). This is done 
+automatically if you set the variable "MPIVERSION=2" in the qsub call, e.g. qsub ..... -v MPIVERSION=2,... 
 
 Running on an LSF farm
 ----------------------
