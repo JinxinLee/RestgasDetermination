@@ -2,16 +2,16 @@
 #
 # To run this script, make use of the PBS system. For example:
 #
-#  qsub run_boss_worker_mpi.job -q long -N PandaRootEMC -l nodes=5:ppn=2 -v NWORKERS=10,JOBFILE="/home/rugkvi04/jobs/jobs.in,LOGFILE="/home/rugkvi04/johan/jobs/logs/jobs.log",MPIVERSION=2
+#  qsub run_boss_worker_mpi.job -N PandaRootEMC -l nodes=5:ppn=8 -v NWORKERS=40,JOBFILE="$HOME/jobs/jobs.in,LOGFILE="$HOME/jobs/logs/jobs.log",MPIVERSION=2
 #
-# will run this job in the "long" queue (max. 24 hours), allocating 5 computing nodes and
-# for each node two cpus (ppn). The name of the process will be called "PandaRootEMC". You can set
+# will run this job in the default queue, allocating 5 computing nodes and
+# for each node eight cpus (ppn). The name of the process will be called "PandaRootEMC". You can set
 # a couple of environmental variables, which are passed to this script using the "-v" option.
 # A description of the variables can be found below:
 # 
 # JOBFILE     = MANDATORY: the directory and filename containing the job descriptions.
-# NWORKERS    = OPTIONAL: number of workers, preferably take at least (nodes*ppn-1). If not defined,
-#               this script will automatically set it for you to (nodes*ppn-1).
+# NWORKERS    = OPTIONAL: number of workers, preferably take at least (nodes*ppn). If not defined,
+#               this script will automatically set it for you to (nodes*ppn).
 # LOGFILE     = OPTIONAL: directory and filename in which the output streams are dumped.
 #               This option allows you to monitor the output while the program is running.
 # MPIVERSION  = OPTIONAL: specify which MPI version you like to use, by default this is "1".
@@ -45,8 +45,14 @@ NPPN=`ssh ${PBS_O_LOGNAME}@$PBS_SERVER qstat -f $PBS_JOBID |  grep "Resource_Lis
 if [ "$NPPN" = "" ]; then
     NPPN=1
 fi
+
+if [ "$NWORKERS" = "" ]; then
+    NWORKERS=`expr $NNODES \* $NPPN`
+fi
+
 echo "Number of nodes   is $NNODES"
 echo "Number of cpus    is $NPPN"
+echo "Number of workers is $NWORKERS"
 echo
 
 #
@@ -61,12 +67,6 @@ if [ "$MPIVERSION" = "2" ]; then
     mpdtrace -l
     echo
 fi
-
-if [ "$NWORKERS" = "" ]; then
-    NWORKERS=`expr $NNODES \* $NPPN`
-fi
-
-echo "Number of workers is $NWORKERS"
 
 #
 # NPROCS   = represents the number of processes, e.g. NWORKERS + 1 BOSS, 

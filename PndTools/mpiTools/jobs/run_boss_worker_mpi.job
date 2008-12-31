@@ -10,8 +10,8 @@
 # A description of the variables can be found below:
 # 
 # JOBFILE     = MANDATORY: the directory and filename containing the job descriptions.
-# NWORKERS    = OPTIONAL: number of workers, preferably take at least (nodes*ppn-1). If not defined,
-#               this script will automatically set it for you to (nodes*ppn-1).
+# NWORKERS    = OPTIONAL: number of workers, preferably take at least (nodes*ppn). If not defined,
+#               this script will automatically set it for you to (nodes*ppn).
 # LOGFILE     = OPTIONAL: directory and filename in which the output streams are dumped.
 #               This option allows you to monitor the output while the program is running.
 # MPIVERSION  = OPTIONAL: specify which MPI version you like to use, by default this is "1".
@@ -41,8 +41,14 @@ NPPN=`qstat -f $PBS_JOBID |  grep "Resource_List.nodes" | sed 's/:ppn=/ /' | awk
 if [ "$NPPN" = "" ]; then
     NPPN=1
 fi
+
+if [ "$NWORKERS" = "" ]; then
+    NWORKERS=`expr $NNODES \* $NPPN`
+fi
+
 echo "Number of nodes   is $NNODES"
 echo "Number of cpus    is $NPPN"
+echo "Number of workers is $NWORKERS"
 echo
 
 #
@@ -57,12 +63,6 @@ if [ "$MPIVERSION" = "2" ]; then
     mpdtrace -l
     echo
 fi
-
-if [ "$NWORKERS" = "" ]; then
-    NWORKERS=`expr $NNODES \* $NPPN`
-fi
-
-echo "Number of workers is $NWORKERS"
 
 #
 # NPROCS   = represents the number of processes, e.g. NWORKERS + 1 BOSS, 
