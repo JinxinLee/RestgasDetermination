@@ -93,7 +93,7 @@
 #define DEFAULT_JOBSIZE  5                     // Initial memory in units of JOBSTRINGSIZE allocated to job 
                                                // (automatically resized on the fly)
 
-#define MAX_HOSTNAME_LENGTH 16
+#define MAX_HOSTNAME_LENGTH 32
 
 extern void KillProcessAndDaughters(int, char *);   // External function implemented in pstree.c
 
@@ -1807,15 +1807,14 @@ int main(int argc, char *argv[])
 
   if (BOSSRANK==rank)
     {
-      fprintf(fp_jobfile_log,"Proc:Host\tWall time\tCPU time\tReq. jobs\tAccompl. jobs\n");
-      fprintf(fp_jobfile_log,"------------------------------------------------------------------------------\n");
+      fprintf(fp_jobfile_log,"Proc\tWall time\tCPU time\tReq. jobs\tAccompl. jobs\tHostname\n");
+      fprintf(fp_jobfile_log,"-------------------------------------------------------------------------------------------------------------------\n");
       for (i=0; i<size; i++)
 	{
-	  fprintf(fp_jobfile_log,"%i:%s\t%.2i:%.2i:%.2i\t%.2i:%.2i:%.2i\t%i\t\t%i",
-		  i,&hostnamebuf[i*MAX_HOSTNAME_LENGTH],
+	  fprintf(fp_jobfile_log,"%i\t%.2i:%.2i:%.2i\t%.2i:%.2i:%.2i\t%i\t\t%i\t\t%s",i,
 		  ((int)wtimebuf[i])/3600,((((int)wtimebuf[i])%3600)/60),((((int)wtimebuf[i])%3600)%60),
 		  ((int)cputimebuf[i])/3600,((((int)cputimebuf[i])%3600)/60),((((int)cputimebuf[i])%3600)%60),
-		  nrreqjobsbuf[i],nrjobsbuf[i]);
+		  nrreqjobsbuf[i],nrjobsbuf[i],&hostnamebuf[i*MAX_HOSTNAME_LENGTH]);
 	  if (BOSSRANK==i) 
 	    {
 	      fprintf(fp_jobfile_log,"\t(BOSS)\n");
@@ -1825,7 +1824,7 @@ int main(int argc, char *argv[])
 	      fprintf(fp_jobfile_log,"\n");
 	    }
 	}
-      fprintf(fp_jobfile_log,"------------------------------------------------------------------------------\n");
+      fprintf(fp_jobfile_log,"-------------------------------------------------------------------------------------------------------------------\n");
 
       fclose(fp_jobfile);
       fclose(fp_jobfile_log);
