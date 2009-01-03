@@ -722,11 +722,11 @@ void* MoveJob(void *in)
 //              3) Move the output data to storage device --> thread process "MoveJob"
 // Input:       Array "info" containing job ID (runid), 
 //              a complete job description "job", and a pointer to elapsed time
-// Output:      return "JOB_OK" on success, otherwise "JOB_ERROR". Also returns time elapsed.
+// Output:      return "JOB_OK" on success, otherwise "JOB_ERROR". Also returns time elapsed and cputime.
 // Depends on:  various static variables, function called by "DoWorker"
 //
 
-int DoJob(unsigned int *info, job_description *job, unsigned int *time_elapsed, unsigned int *time_comp)
+int DoJob(unsigned int *info, job_description *job, double *time_elapsed, double *time_comp)
 {
   unsigned int  i;
   char            command[VERYLONGCHARSIZE],retval;
@@ -785,8 +785,8 @@ int DoJob(unsigned int *info, job_description *job, unsigned int *time_elapsed, 
 		  retval=MakeSystemCallWithTimeOut(rank,command,REMOVE_TIMEOUT);
 		}
 	      te=((double) times(&cte)/((double) sysconf(_SC_CLK_TCK)));
-	      *time_elapsed=(int) (te-tb);
-	      *time_comp=(int) GetCPUTime(&ctb,&cte);
+	      *time_elapsed=(te-tb);
+	      *time_comp=GetCPUTime(&ctb,&cte);
 	      return JOB_INPUT_ERROR;
 	    }
 
@@ -818,8 +818,8 @@ int DoJob(unsigned int *info, job_description *job, unsigned int *time_elapsed, 
 	      retval=MakeSystemCallWithTimeOut(rank,command,REMOVE_TIMEOUT);
 	    }  
 	  te=((double) times(&cte)/((double) sysconf(_SC_CLK_TCK)));
-	  *time_elapsed=(int) (te-tb);
-	  *time_comp=(int) GetCPUTime(&ctb,&cte);
+	  *time_elapsed=(te-tb);
+	  *time_comp=GetCPUTime(&ctb,&cte);
 	  return JOB_INPUT_ERROR;
 	}
     }
@@ -867,8 +867,8 @@ int DoJob(unsigned int *info, job_description *job, unsigned int *time_elapsed, 
 	      retval=MakeSystemCallWithTimeOut(rank,command,REMOVE_TIMEOUT);
 	    }
 	  te=((double) times(&cte)/((double) sysconf(_SC_CLK_TCK)));
-	  *time_elapsed=(int) (te-tb);
-	  *time_comp=(int) GetCPUTime(&ctb,&cte);
+	  *time_elapsed=(te-tb);
+	  *time_comp=GetCPUTime(&ctb,&cte);
 	  return JOB_SCRIPT_ERROR;
 	}
     }
@@ -901,8 +901,8 @@ int DoJob(unsigned int *info, job_description *job, unsigned int *time_elapsed, 
     {
       fprintf(stderr,"<W:%i> Error allocating memory for move thread\n",rank);
       te=((double) times(&cte)/((double) sysconf(_SC_CLK_TCK)));
-      *time_elapsed=(int) (te-tb);
-      *time_comp=(int) GetCPUTime(&ctb,&cte);
+      *time_elapsed=(te-tb);
+      *time_comp=GetCPUTime(&ctb,&cte);
       return JOB_MOVE_ERROR;
     }
 
@@ -915,8 +915,8 @@ int DoJob(unsigned int *info, job_description *job, unsigned int *time_elapsed, 
       fprintf(stderr,"<W:%i> Error creating move thread %d\n",rank,retval);
       if (moveThread) free(moveThread);
       te=((double) times(&cte)/((double) sysconf(_SC_CLK_TCK)));
-      *time_elapsed=(int) (te-tb);
-      *time_comp=(int) GetCPUTime(&ctb,&cte);
+      *time_elapsed=(te-tb);
+      *time_comp=GetCPUTime(&ctb,&cte);
       return JOB_MOVE_ERROR;
     }
 
@@ -926,16 +926,16 @@ int DoJob(unsigned int *info, job_description *job, unsigned int *time_elapsed, 
       fprintf(stderr,"<W:%i> Error detaching move thread %d\n",rank,retval);
       if (moveThread) free(moveThread);
       te=((double) times(&cte)/((double) sysconf(_SC_CLK_TCK)));
-      *time_elapsed=(int) (te-tb);
-      *time_comp=(int) GetCPUTime(&ctb,&cte);
+      *time_elapsed=(te-tb);
+      *time_comp=GetCPUTime(&ctb,&cte);
       return JOB_MOVE_ERROR;
     }
 
   if (moveThread) free(moveThread);
 
   te=((double) times(&cte)/((double) sysconf(_SC_CLK_TCK)));
-  *time_elapsed=(int) (te-tb); 
-  *time_comp=(int) GetCPUTime(&ctb,&cte);
+  *time_elapsed=(te-tb); 
+  *time_comp=GetCPUTime(&ctb,&cte);
 
   return JOB_OK;
 }
@@ -1112,16 +1112,19 @@ int GetAJob(FILE *fp, int *npar, int *barrier, job_description *job)
 }
 
 //
-// void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime, int* reqjobs)
-// ------------------------------------------------------------------------------
+// void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime, 
+//             double *cputime, double *cputime_jobs_success, int* reqjobs)
+// ------------------------------------------------------------------------
 //
 // Description: Main running loop of the boss process: listen to request of a worker and answers him accordingly
 // Input:       File pointer to the job description file, pointer to log file, number of workers
-// Output:      Total time needed by the boss, and the total number of requested jobs
+// Output:      Total time needed by the boss (walltime, cputime, and cputime of successful jobs), and 
+//              the total number of requested jobs
 // Depends on:  Various global variables
 //
 
-void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime, double *cputime, int* reqjobs)
+void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime, 
+	    double *cputime, double *cputime_jobs_success, int* reqjobs)
 {
   int             msg[7],nacworkers,npar;
   int             i,barrier,number_of_idle_workers;
@@ -1146,7 +1149,8 @@ void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime, double *cputime
   nacworkers=nworkers;
   barrier=0;
   number_of_idle_workers=0;
-  
+  *cputime_jobs_success=0;
+
   fprintf(fp_log,"-------------------------------------------------------------------------------------------------------------------\n");
   fprintf(fp_log,"HH:MM:SS\tLink\t\tAction\t\tWhat\t\tRun ID\t\tWall Time\tCPU%%\tRUN/OK/FAIL\n");
   fprintf(fp_log,"-------------------------------------------------------------------------------------------------------------------\n");
@@ -1343,6 +1347,7 @@ void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime, double *cputime
 	      sprintf(jobinfo,  "SCRIPT");
 	      
 	      ndonescripts+=msg[0];
+	      *cputime_jobs_success+=(double) msg[3];
 	    }
 	  else
 	    {
@@ -1402,6 +1407,7 @@ void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime, double *cputime
 	    {
 	      sprintf(jobstatus,"DONE        ");
 	      ndonejobs++;
+	      *cputime_jobs_success+=(double) msg[3];
 	    }
 	  else
 	    {
@@ -1474,21 +1480,22 @@ void DoBoss(FILE *fp, FILE *fp_log, int nworkers, double* wtime, double *cputime
 }
 
 //
-// void DoWorker(double* wtime, int* reqjobs)
-// ------------------------------------------
+// void DoWorker(double* wtime, double *cputime, double * *cputime_jobs_success, int* reqjobs)
+// -------------------------------------------------------------------------------------------
 //
 // Description: Main running loop of the worker process: sends and retrieves a request to boss
 // Input:       none
-// Output:      Total time needed by the worker, and the total number of requested jobs
+// Output:      Total time needed by the worker (walltime+cputime+cputime spent in successful jobs), 
+//              and the total number of requested jobs
 // Depends on:  Various global variables
 //
 
-void DoWorker(double* wtime, double *cputime, int* reqjobs)
+void DoWorker(double* wtime, double *cputime, double *cputime_jobs_success, int* reqjobs)
 {
   int             msg[7], abort;
   unsigned int    buf[4];
   MPI_Status      status;
-  unsigned int    elapse_time, comp_time;
+  double          elapse_time, comp_time;
   job_description job;
   double          now,start;
   struct tms      cnow,cstart;
@@ -1500,6 +1507,7 @@ void DoWorker(double* wtime, double *cputime, int* reqjobs)
 
   *reqjobs=0;
   abort=0;
+  *cputime_jobs_success=0;
 
   pthread_mutex_lock(&job_mutex);
   ndonejobs=0;
@@ -1667,7 +1675,11 @@ void DoWorker(double* wtime, double *cputime, int* reqjobs)
 	      pthread_mutex_lock(&thread_mutex);
 	      number_of_running_jobs--;
 	      pthread_mutex_unlock(&thread_mutex);
-	    }	  
+	    }
+	  else
+	    {
+	      *cputime_jobs_success+=comp_time;
+	    }
 	  
 	  msg[1]=buf[0]; /* Also return RUNID */
 	  msg[2]=(int) elapse_time;
@@ -1726,11 +1738,13 @@ void DoWorker(double* wtime, double *cputime, int* reqjobs)
 int main(int argc, char *argv[])
 {
   int      i,size,nworkers,nreqjobs;;
-  double   wtime,cputime,sumwtime,sumcputime;
+  double   wtime,cputime,sumwtime,sumcputime,
+           cputime_success;
   int *    nrjobsbuf=NULL;
   int *    nrreqjobsbuf=NULL;
   double * wtimebuf=NULL;
   double * cputimebuf=NULL;
+  double * cputimeokbuf=NULL;
   char *   hostnamebuf=NULL;
   char     hostname[MAX_HOSTNAME_LENGTH];
   char     jobslog_filename[VERYLONGCHARSIZE];
@@ -1780,29 +1794,31 @@ int main(int argc, char *argv[])
 
       nworkers=size-1;
       
-      DoBoss(fp_jobfile, fp_jobfile_log, nworkers, &wtime, &cputime, &nreqjobs);
+      DoBoss(fp_jobfile, fp_jobfile_log, nworkers, &wtime, &cputime, &cputime_success, &nreqjobs);
 
       nrjobsbuf    = (int*)    malloc(size*sizeof(int));
       nrreqjobsbuf = (int*)    malloc(size*sizeof(int));
       wtimebuf     = (double*) malloc(size*sizeof(double));
       cputimebuf   = (double*) malloc(size*sizeof(double));
+      cputimeokbuf = (double*) malloc(size*sizeof(double));
       hostnamebuf  = (char*)   malloc(size*MAX_HOSTNAME_LENGTH*sizeof(char));
 
     }
   else         // Worker 
     {
-      DoWorker(&wtime, &cputime, &nreqjobs);
+      DoWorker(&wtime, &cputime, &cputime_success, &nreqjobs);
     }
 
   gethostname(hostname,sizeof(hostname));
   
-  MPI_Gather(&ndonejobs,    1, MPI_INT,    nrjobsbuf,    1, MPI_INT,    BOSSRANK, MPI_COMM_WORLD);
-  MPI_Gather(&nreqjobs,     1, MPI_INT,    nrreqjobsbuf, 1, MPI_INT,    BOSSRANK, MPI_COMM_WORLD);
-  MPI_Gather(&wtime,        1, MPI_DOUBLE, wtimebuf,     1, MPI_DOUBLE, BOSSRANK, MPI_COMM_WORLD);
-  MPI_Gather(&cputime,      1, MPI_DOUBLE, cputimebuf,   1, MPI_DOUBLE, BOSSRANK, MPI_COMM_WORLD);
-  MPI_Gather(hostname,      MAX_HOSTNAME_LENGTH, MPI_CHAR, 
-	     hostnamebuf,   MAX_HOSTNAME_LENGTH, MPI_CHAR, 
-	     BOSSRANK,      MPI_COMM_WORLD);
+  MPI_Gather(&ndonejobs,       1, MPI_INT,    nrjobsbuf,     1, MPI_INT,    BOSSRANK, MPI_COMM_WORLD);
+  MPI_Gather(&nreqjobs,        1, MPI_INT,    nrreqjobsbuf,  1, MPI_INT,    BOSSRANK, MPI_COMM_WORLD);
+  MPI_Gather(&wtime,           1, MPI_DOUBLE, wtimebuf,      1, MPI_DOUBLE, BOSSRANK, MPI_COMM_WORLD);
+  MPI_Gather(&cputime,         1, MPI_DOUBLE, cputimebuf,    1, MPI_DOUBLE, BOSSRANK, MPI_COMM_WORLD);
+  MPI_Gather(&cputime_success, 1, MPI_DOUBLE, cputimeokbuf,  1, MPI_DOUBLE, BOSSRANK, MPI_COMM_WORLD);
+  MPI_Gather(hostname,         MAX_HOSTNAME_LENGTH, MPI_CHAR, 
+	     hostnamebuf,      MAX_HOSTNAME_LENGTH, MPI_CHAR, 
+	     BOSSRANK,         MPI_COMM_WORLD);
 
 
   if (BOSSRANK==rank)
@@ -1814,7 +1830,7 @@ int main(int argc, char *argv[])
       for (i=0; i<size; i++)
 	{
 	  if (BOSSRANK!=i) sumwtime+=wtimebuf[i];
-	  if (BOSSRANK!=i) sumcputime+=cputimebuf[i];
+	  if (BOSSRANK!=i) sumcputime+=cputimeokbuf[i];
 	  fprintf(fp_jobfile_log,"%i\t%.2i:%.2i:%.2i\t%.2i:%.2i:%.2i\t%i\t\t%i\t\t%s",i,
 		  ((int)wtimebuf[i])/3600,((((int)wtimebuf[i])%3600)/60),((((int)wtimebuf[i])%3600)%60),
 		  ((int)cputimebuf[i])/3600,((((int)cputimebuf[i])%3600)/60),((((int)cputimebuf[i])%3600)%60),
@@ -1831,13 +1847,13 @@ int main(int argc, char *argv[])
       fprintf(fp_jobfile_log,"-------------------------------------------------------------------------------------------------------------------\n");
       if (sumwtime)
       {
-	  fprintf(fp_jobfile_log,"SUM CPU time of workers:\t\t\t%i:%.2i:%.2i (%.0f%% of SUM Wall time)\n",
-		  ((int)sumcputime)/3600,((((int)sumcputime)%3600)/60),((((int)sumcputime)%3600)%60),
+	  fprintf(fp_jobfile_log,"SUM CPU time of OK jobs..........................\t%id:%ih:%im:%is (%.0f%% of SUM Wall time)\n",
+		  (((int)sumcputime)/3600)/24,(((int)sumcputime)/3600)%24,((((int)sumcputime)%3600)/60),((((int)sumcputime)%3600)%60),
 	          100.*sumcputime/sumwtime);
       }
       if (wtimebuf[BOSSRANK])
       {
-	  fprintf(fp_jobfile_log,"Speed-up (CPU time workers/Wall time boss)\t%.2f\n",sumcputime/wtimebuf[BOSSRANK]);
+	  fprintf(fp_jobfile_log,"Speed-up (SUM CPU time OK jobs/Wall time boss)...\t%.2f\n",cputimeokbuf[BOSSRANK]/wtimebuf[BOSSRANK]);
       }
       fprintf(fp_jobfile_log,"-------------------------------------------------------------------------------------------------------------------\n");
 
@@ -1847,6 +1863,8 @@ int main(int argc, char *argv[])
       if (nrjobsbuf)    free(nrjobsbuf);
       if (nrreqjobsbuf) free(nrreqjobsbuf);
       if (wtimebuf)     free(wtimebuf);
+      if (cputimebuf)   free(cputimebuf);
+      if (cputimeokbuf) free(cputimeokbuf);
       if (hostnamebuf)  free(hostnamebuf);
     }
 
