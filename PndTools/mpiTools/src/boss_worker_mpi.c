@@ -1726,7 +1726,7 @@ void DoWorker(double* wtime, double *cputime, int* reqjobs)
 int main(int argc, char *argv[])
 {
   int      i,size,nworkers,nreqjobs;;
-  double   wtime,cputime;
+  double   wtime,cputime,sumwtime,sumcputime;
   int *    nrjobsbuf=NULL;
   int *    nrreqjobsbuf=NULL;
   double * wtimebuf=NULL;
@@ -1807,10 +1807,14 @@ int main(int argc, char *argv[])
 
   if (BOSSRANK==rank)
     {
+      sumwtime=0;
+      sumcputime=0;
       fprintf(fp_jobfile_log,"Proc\tWall time\tCPU time\tReq. jobs\tAccompl. jobs\tHostname\n");
       fprintf(fp_jobfile_log,"-------------------------------------------------------------------------------------------------------------------\n");
       for (i=0; i<size; i++)
 	{
+	  if (BOSSRANK!=i) sumwtime+=wtimebuf[i];
+	  if (BOSSRANK!=i) sumcputime+=cputimebuf[i];
 	  fprintf(fp_jobfile_log,"%i\t%.2i:%.2i:%.2i\t%.2i:%.2i:%.2i\t%i\t\t%i\t\t%s",i,
 		  ((int)wtimebuf[i])/3600,((((int)wtimebuf[i])%3600)/60),((((int)wtimebuf[i])%3600)%60),
 		  ((int)cputimebuf[i])/3600,((((int)cputimebuf[i])%3600)/60),((((int)cputimebuf[i])%3600)%60),
@@ -1824,6 +1828,17 @@ int main(int argc, char *argv[])
 	      fprintf(fp_jobfile_log,"\n");
 	    }
 	}
+      fprintf(fp_jobfile_log,"-------------------------------------------------------------------------------------------------------------------\n");
+      if (sumwtime)
+      {
+	  fprintf(fp_jobfile_log,"SUM CPU time of workers:\t\t\t%i:%.2i:%.2i (%.0f%% of SUM Wall time)\n",
+		  ((int)sumcputime)/3600,((((int)sumcputime)%3600)/60),((((int)sumcputime)%3600)%60),
+	          100.*sumcputime/sumwtime);
+      }
+      if (wtimebuf[BOSSRANK])
+      {
+	  fprintf(fp_jobfile_log,"Speed-up (CPU time workers/Wall time boss)\t%.2f\n",sumcputime/wtimebuf[BOSSRANK]);
+      }
       fprintf(fp_jobfile_log,"-------------------------------------------------------------------------------------------------------------------\n");
 
       fclose(fp_jobfile);
