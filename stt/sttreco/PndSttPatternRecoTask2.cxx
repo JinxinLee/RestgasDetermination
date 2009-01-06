@@ -213,8 +213,10 @@ void PndSttPatternRecoTask2:: Exec(Option_t* opt)
       
             cout <<"end of track " << iTrack << " " << cand->getNHits() << " " << trk->getNumHits() << endl;
             cout << fTrackArray->GetEntriesFast()<<" tracks created"<< endl;
-      
+     delete recovtx;
+     delete momeatvtx; 
     }
-  
+    
+     
 }
 ClassImp(PndSttPatternRecoTask2)

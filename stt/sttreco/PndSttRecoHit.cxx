@@ -262,13 +262,13 @@ PndSttRecoHit::detPlane(AbsRecoHit* hit, AbsTrackRep* rep)
 const DetPlane&
 PndSttRecoHit::getDetPlane(AbsTrackRep* rep){
 
-  AbsRecoHit* thishit = clone();
+ // AbsRecoHit* thishit = clone();
 
   //   distance of one (the first) of the wire extremities from the plane
   Double_t distance =  _detPlane.dist(TVector3(_hitCoord[0][0], _hitCoord[1][0],_hitCoord[2][0])).Mag();
   if(distance < 1e-5) return _detPlane;
 
-  _detPlane = detPlane(thishit, rep);
+  _detPlane = detPlane((AbsRecoHit *)this, rep);
  return _detPlane;
 }
 

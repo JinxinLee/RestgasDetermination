@@ -105,6 +105,7 @@ PndSttKalmanTask2::Exec(Option_t* opt)
 	k.processTrack(trk);
       }
     }
+  fTrackArray->Delete();
   return;
 }
 
