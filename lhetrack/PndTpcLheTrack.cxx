@@ -122,12 +122,12 @@ TrackCand* PndTpcLheTrack::GetTrackCand()
   Int_t fVerbose = 0;
   TrackCand *trackCand = new TrackCand();
   TObjArray* lheList = GetRHits();
-  if (fVerbose) cout << lheList->GetEntries() << " " << GetNumberOfHits() << endl;
+  if (fVerbose) cout << lheList->GetEntriesFast() << " " << GetNumberOfHits() << endl;
   
   map<Float_t, Int_t> fPointList;
   Int_t hit_counter = 0;
   vector<Float_t> hit_dist;
-  for (Int_t lh=0; lh < lheList->GetEntries(); lh++)
+  for (Int_t lh=0; lh < lheList->GetEntriesFast(); lh++)
     {
       PndTpcLheHit* lhit = (PndTpcLheHit*)lheList->At(lh);
       if (NULL==lhit) break; 
@@ -278,7 +278,7 @@ void PndTpcLheTrack::SetCircle(Double_t x, Double_t y, Double_t r) {
 void PndTpcLheTrack::PrintHits() {
   //
 
-    Int_t nhit = fRealHits->GetEntries();
+    Int_t nhit = fRealHits->GetEntriesFast();
 
     PndTpcLheHit * ghit = NULL;
 
@@ -294,7 +294,7 @@ void PndTpcLheTrack::PrintHits() {
 void PndTpcLheTrack::Print() {
   //
 
-    Int_t nhit = fRealHits->GetEntries();
+    Int_t nhit = fRealHits->GetEntriesFast();
 
     cout << "\n Track " << fTrackNumber << "  nhits " << nhit;
     cout << " pdg "  <<  fPid;

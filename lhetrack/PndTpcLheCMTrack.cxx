@@ -158,7 +158,7 @@ void PndTpcLheCMTrack::Clear() {
 void PndTpcLheCMTrack::Print() {
   //
 
-    Int_t nhit =  fMappingHits->GetEntries();
+    Int_t nhit =  fMappingHits->GetEntriesFast();
 
     cout << "\n Track " << fTrackNumber << "  nhits " << nhit;
     cout << " Primary "  << fFromMainVertex << endl;

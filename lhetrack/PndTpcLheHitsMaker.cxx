@@ -301,7 +301,7 @@ void PndTpcLheHitsMaker::GetMvdPoints() {
   if (fVerbose)
     cout << " -I- PndTpcLheHitsMaker::GetMvdPoints(): MVD points entries " << fMvdInput->GetEntriesFast() <<endl;
   
-  for (int j=0; j < fMvdInput->GetEntries(); j++ ) 
+  for (int j=0; j < fMvdInput->GetEntriesFast(); j++ ) 
     {
       PndMvdMCPoint* point = (PndMvdMCPoint*) fMvdInput->At(j);
       
@@ -355,7 +355,7 @@ void PndTpcLheHitsMaker::GetMvdPoints() {
 void PndTpcLheHitsMaker::GetMvdHits() {
   // Taking points from PndMvdHits
   
-  for (int j2=0; j2 < fMvdInput2->GetEntries(); j2++ ) 
+  for (int j2=0; j2 < fMvdInput2->GetEntriesFast(); j2++ ) 
     {
       PndMvdHit* point = (PndMvdHit*) fMvdInput2->At(j2);
       
@@ -390,7 +390,7 @@ void PndTpcLheHitsMaker::GetMvdHits() {
   
 
  
-  for (int j=0; j < fMvdInput->GetEntries(); j++ ) 
+  for (int j=0; j < fMvdInput->GetEntriesFast(); j++ ) 
     {
       PndMvdHit* point = (PndMvdHit*) fMvdInput->At(j);
       
@@ -433,7 +433,7 @@ void PndTpcLheHitsMaker::GetTpcPoints() {
     cout << " PndTpcLheHitsMaker::GetTpcHits(): Tpc points entries " << fTpcInput->GetEntriesFast() <<endl;
   
   
-  for (int j=0; j < fTpcInput->GetEntries(); j++ ) {
+  for (int j=0; j < fTpcInput->GetEntriesFast(); j++ ) {
     PndTpcPoint* point = (PndTpcPoint*) fTpcInput->At(j);
     
     if (fVerbose) point->Print(" "); //PR(point->GetTrackID());
@@ -487,7 +487,7 @@ void PndTpcLheHitsMaker::GetTpcPoints() {
 void PndTpcLheHitsMaker::GetTpcClusters() {
    // Taking points from PndTpcCluster
 
-  for (int j=0; j < fTpcInput->GetEntries(); j++ ) {
+  for (int j=0; j < fTpcInput->GetEntriesFast(); j++ ) {
     PndTpcCluster* clu = (PndTpcCluster*) fTpcInput->At(j);
     
     PndTpcLheHit* hit = AddHit();
@@ -525,7 +525,7 @@ void PndTpcLheHitsMaker::GetSttPoints() {
     cout << " PndTpcLheHitsMaker::GetSttHits(): Stt points entries " << fSttInput->GetEntriesFast() <<endl;
   
   
-  for (int j=0; j < fSttInput->GetEntries(); j++ ) {
+  for (int j=0; j < fSttInput->GetEntriesFast(); j++ ) {
     PndSttPoint* point = (PndSttPoint*) fSttInput->At(j);
     
     if (fVerbose) point->Print(" "); //PR(point->GetTrackID());
@@ -580,7 +580,7 @@ void PndTpcLheHitsMaker::GetSttPoints() {
 void PndTpcLheHitsMaker::GetSttHit() {
    // Taking points from PndSttHit
 
-  for (int j=0; j < fSttInput->GetEntries(); j++ ) {
+  for (int j=0; j < fSttInput->GetEntriesFast(); j++ ) {
     PndSttHit* sttHit = (PndSttHit*) fSttInput->At(j);
     
     PndTpcLheHit* hit = AddHit();
@@ -615,7 +615,7 @@ void PndTpcLheHitsMaker::GetSttHit() {
 void PndTpcLheHitsMaker::GetSttHelixHit() {
    // Taking points from PndSttHelixHit
 
-  for (int j=0; j < fSttInput->GetEntries(); j++ ) {
+  for (int j=0; j < fSttInput->GetEntriesFast(); j++ ) {
     PndSttHelixHit* sttHit = (PndSttHelixHit*) fSttInput->At(j);
     
     PndTpcLheHit* hit = AddHit();
@@ -650,7 +650,7 @@ void PndTpcLheHitsMaker::GetSttHelixHit() {
 void PndTpcLheHitsMaker::GetEmcClusters() {
    // Taking points from PndEmcCluster
 
-  for (int j=0; j < fEmcInput->GetEntries(); j++ ) {
+  for (int j=0; j < fEmcInput->GetEntriesFast(); j++ ) {
     PndEmcCluster* clu = (PndEmcCluster*) fEmcInput->At(j);
     
     PndTpcLheHit* hit = AddHit();
@@ -684,7 +684,7 @@ void PndTpcLheHitsMaker::GetEmcClusters() {
 void PndTpcLheHitsMaker::GetEmcBumps() {
    // Taking points from PndEmcBump
 
-  for (int j=0; j < fEmcInput->GetEntries(); j++ ) {
+  for (int j=0; j < fEmcInput->GetEntriesFast(); j++ ) {
     PndEmcBump* clu = (PndEmcBump*) fEmcInput->At(j);
     
     PndTpcLheHit* hit = AddHit();
@@ -724,21 +724,21 @@ void PndTpcLheHitsMaker::Exec(Option_t * option) {
 
   Reset();
 
-  if ((fMvdMode==1) && (fMvdInput->GetEntries()>0))  GetMvdPoints();
-  if ((fMvdMode==2) && ((fMvdInput->GetEntries()+fMvdInput2->GetEntries())>0))  GetMvdHits();
+  if ((fMvdMode==1) && (fMvdInput->GetEntriesFast()>0))  GetMvdPoints();
+  if ((fMvdMode==2) && ((fMvdInput->GetEntriesFast()+fMvdInput2->GetEntriesFast())>0))  GetMvdHits();
   
-  if ((fTpcMode==1) && (fTpcInput->GetEntries()>0))  GetTpcPoints();
-  if ((fTpcMode==2) && (fTpcInput->GetEntries()>0))  GetTpcClusters();
+  if ((fTpcMode==1) && (fTpcInput->GetEntriesFast()>0))  GetTpcPoints();
+  if ((fTpcMode==2) && (fTpcInput->GetEntriesFast()>0))  GetTpcClusters();
 
-  if ((fSttMode==1) && (fSttInput->GetEntries()>0))  GetSttPoints();
-  if ((fSttMode==2) && (fSttInput->GetEntries()>0))  GetSttHit();
-  if ((fSttMode==3) && (fSttInput->GetEntries()>0))  GetSttHelixHit();
+  if ((fSttMode==1) && (fSttInput->GetEntriesFast()>0))  GetSttPoints();
+  if ((fSttMode==2) && (fSttInput->GetEntriesFast()>0))  GetSttHit();
+  if ((fSttMode==3) && (fSttInput->GetEntriesFast()>0))  GetSttHelixHit();
   
-  if ((fEmcMode==2) && (fEmcInput->GetEntries()>0))  GetEmcClusters();
-  if ((fEmcMode==3) && (fEmcInput->GetEntries()>0))  GetEmcBumps();
+  if ((fEmcMode==2) && (fEmcInput->GetEntriesFast()>0))  GetEmcClusters();
+  if ((fEmcMode==3) && (fEmcInput->GetEntriesFast()>0))  GetEmcBumps();
   
   cout << "  Total number of hits for tracking: " <<
-    setw(5) << fLheHits->GetEntries() << endl;
+    setw(5) << fLheHits->GetEntriesFast() << endl;
 
   if (fSimulation)  CheckTracks();
   if (fVerbose) PrintTracks(0);
@@ -792,8 +792,8 @@ void PndTpcLheHitsMaker::Reset() {
   fNHit = 0;
   fNTrack = 0;	
 
-  if (fLheHits->GetEntries() != 0)  fLheHits->Clear("C");
-  if (fGeantTracks->GetEntries() != 0)fGeantTracks->Clear("C");
+  if (fLheHits->GetEntriesFast() != 0)  fLheHits->Clear("C");
+  if (fGeantTracks->GetEntriesFast() != 0)fGeantTracks->Clear("C");
 
 }
 
@@ -810,18 +810,18 @@ void PndTpcLheHitsMaker::CheckTracks() {
 
   CbmMCTrack *gtrack = 0;
 
-  Int_t nMCtracks = fListMCtracks->GetEntries();
+  Int_t nMCtracks = fListMCtracks->GetEntriesFast();
 
   Int_t selected_tracks = 0;
 
-  for (Int_t ih = 0; ih < fLheHits->GetEntries(); ih++) {
+  for (Int_t ih = 0; ih < fLheHits->GetEntriesFast(); ih++) {
     PndTpcLheHit *hit = (PndTpcLheHit *)fLheHits->UncheckedAt(ih);
     SetTrack(hit);
     //    hit->Print();
   }
 
   if (fVerbose) {
-    cout << " MC tracks in event: " <<fListMCtracks->GetEntries();
+    cout << " MC tracks in event: " <<fListMCtracks->GetEntriesFast();
     cout << " tracks in TPC " << fNTrack << endl;
   }
 
@@ -879,7 +879,7 @@ void PndTpcLheHitsMaker::CheckTracks() {
   }
 
 #if 0
-  for (Int_t ih = 0; ih < fLheHits->GetEntries(); ih++) {
+  for (Int_t ih = 0; ih < fLheHits->GetEntriesFast(); ih++) {
     PndTpcLheHit *hit = (PndTpcLheHit *)fLheHits->UncheckedAt(ih);
     Int_t mTrackNumber = hit->GetTrackID();
     for (Int_t itrack = 0; itrack < fNTrack; itrack++) {
@@ -893,7 +893,7 @@ void PndTpcLheHitsMaker::CheckTracks() {
 #endif
 
   cout << "Total number of tracks in TPC: " <<
-    setw(5) << fGeantTracks->GetEntries() << endl;
+    setw(5) << fGeantTracks->GetEntriesFast() << endl;
   cout << "           Good tracks in TPC: " <<
     setw(5) << selected_tracks << endl;
      
@@ -955,7 +955,7 @@ void PndTpcLheHitsMaker::PrintTracks(Int_t ntr) {
   if(ntr != 0 ) 
     ptracks = ntr;
   else
-    ptracks = fGeantTracks->GetEntries();
+    ptracks = fGeantTracks->GetEntriesFast();
 
   for (Int_t itrack = 0; itrack < ptracks; itrack++) {
 	

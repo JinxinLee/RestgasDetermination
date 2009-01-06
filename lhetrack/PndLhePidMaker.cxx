@@ -294,8 +294,8 @@ void PndLhePidMaker::Exec(Option_t * option) {
         
     if (fVerbose) cout << "\n\n Track " << i << "\n"; 
     TObjArray* lheList = track->GetRHits();
-    if (fVerbose) cout << lheList->GetEntries() << " " << track->GetNumberOfHits() << endl;
-    for (Int_t lh=0; lh < lheList->GetEntries(); lh++)
+    if (fVerbose) cout << lheList->GetEntriesFast() << " " << track->GetNumberOfHits() << endl;
+    for (Int_t lh=0; lh < lheList->GetEntriesFast(); lh++)
       {
 	PndTpcLheHit* lhit = (PndTpcLheHit*)lheList->At(lh);
 	if (fVerbose) cout << lhit->GetX() << "\t" << lhit->GetY() << "\t" <<lhit->GetZ() << endl;
@@ -387,7 +387,7 @@ void PndLhePidMaker::GetSttInfo(PndLhePidTrack* track) {
   
   Int_t sttCounts = 0;
   TObjArray* lheList = track->GetRHits();
-  for (Int_t lh=0; lh < lheList->GetEntries(); lh++)
+  for (Int_t lh=0; lh < lheList->GetEntriesFast(); lh++)
     {
       PndTpcLheHit* lhit = (PndTpcLheHit*)lheList->At(lh);
       if (lhit->GetDetectorId()==kSttHelixHit) {

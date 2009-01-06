@@ -75,7 +75,7 @@ public:
   Int_t   GetTrackNumber()         const { return fTrackNumber; }
   Bool_t  IsGood()                 const { return fGood; }
   Int_t   GetPid()                 const { return fPid; }
-  Int_t   GetNumberOfHits()        const { return fRealHits->GetEntries(); }
+  Int_t   GetNumberOfHits()        const { return fRealHits->GetEntriesFast(); }
   Bool_t  ComesFromMainVertex()    const { return fFromMainVertex; }
   TVector3   GetMomentum()         const { return fP; }
 

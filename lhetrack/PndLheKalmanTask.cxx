@@ -29,7 +29,7 @@
 #include "CbmRootManager.h"
 #include "TClonesArray.h"
 #include "Track.h"
-#include "TDatabasePDG.h"
+//#include "TDatabasePDG.h"
 
 
 #include "PndMvdRecoHit.h"
@@ -189,10 +189,11 @@ void PndLheKalmanTask::Exec(Option_t* opt)
       }
     
     // Starting values for guessing
-    Int_t PDGCode= 211*lheTrack->GetCharge();
-    TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
-    TParticlePDG *fParticle= fdbPDG->GetParticle(PDGCode);
     Double_t  fCharge= lheTrack->GetCharge();
+    Int_t PDGCode= 211*(Int_t)fCharge;
+  //  TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
+  //  TParticlePDG *fParticle= fdbPDG->GetParticle(PDGCode);
+   
     // what to guess here?
     TVector3 U(1.,0.,0.);
     TVector3 V(0.,1.,0.);

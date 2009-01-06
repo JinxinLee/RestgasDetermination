@@ -178,7 +178,7 @@ void PndTpcLheTrackFinder::AddTrackForFit(PndTpcLheCMTrack *track_in) {
 //_________________________________________________________________
 void PndTpcLheTrackFinder::Finish() {
 
-  cout << " found  "<< fFoundTracks->GetEntries() << " tracks\n";
+  cout << " found  "<< fFoundTracks->GetEntriesFast() << " tracks\n";
 
   //CbmRootManager *fManager =CbmRootManager::Instance(); 
   //fManager->Fill();
@@ -362,7 +362,7 @@ void PndTpcLheTrackFinder::CreateTrack(PndTpcLheCMPoint *seed_hit) {
 	  if (!hit->GetUsage() &&
 	      hit->GetHitNumber() != seed_hit->GetHitNumber()) {
 
-	    Int_t ntracks = fCMTracks->GetEntries();
+	    Int_t ntracks = fCMTracks->GetEntriesFast();
 	    fCMTracks->AddAtAndExpand(new PndTpcLheCMTrack(ntracks), ntracks);
 	    PndTpcLheCMTrack *new_track =
 	      (PndTpcLheCMTrack *)fCMTracks->At(ntracks);
