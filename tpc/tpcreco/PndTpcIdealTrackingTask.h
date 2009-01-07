@@ -49,6 +49,7 @@ public:
   void SetClusterBranchName(const TString& name) {_clusterBranchName=name;}
   void SetPersistence(Bool_t opt=kTRUE) {_persistence=opt;}
   void useGeane(Bool_t opt=kTRUE){_useGeane=opt;}
+  void useDistSorting(Bool_t opt=kTRUE) {_useDistSorting=opt;}
  
   // Operations ----------------------
   virtual InitStatus Init();
@@ -67,6 +68,7 @@ private:
  
   Bool_t _persistence;
   Bool_t _useGeane;
+  Bool_t _useDistSorting;
 
   TH1I* _multiplicityHisto;
   TH1I* _trackSizeH;

@@ -86,7 +86,8 @@ PndTpcClusterFinderTask.cxx
 PndTpcCluster.cxx	    
 PndTpcClusterCOG.cxx
 PndTpcClusterRadius.cxx 
-PndTpcClusterZ.cxx	    
+PndTpcClusterZ.cxx
+PndTpcClusterDist.cxx	    
 TORPadProcessor.cxx 		    
 TORPPState_Initial.cxx 	    
 TORPPState_Compare.cxx 	    

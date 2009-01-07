@@ -32,6 +32,7 @@
 #include "FitterExceptions.h"
 #include "PndTpcCluster.h"
 #include "PndTpcClusterZ.h"
+#include "PndTpcClusterDist.h"
 #include "TrackCand.h"
 #include "Track.h"
 #include "LSLTrackRep.h"
@@ -56,7 +57,8 @@ ClassImp(PndTpcIdealTrackingTask)
 
 PndTpcIdealTrackingTask::PndTpcIdealTrackingTask()
   : CbmTask("PndTpc Ideal Pattern Reco"),
-    _persistence(kFALSE),_useGeane(kFALSE),_geanePro(NULL)
+    _persistence(kFALSE),_useGeane(kFALSE),_geanePro(NULL), 
+    _useDistSorting(kFALSE)
 {
   _clusterBranchName = "PndTpcCluster";
 }
@@ -129,11 +131,24 @@ PndTpcIdealTrackingTask::Exec(Option_t* opt)
   }
   
   // sort dir=false -> forward sorting
-  std::sort(cll.begin(),cll.end(),PndTpcClusterZ(true)); 
+  if(_useDistSorting) {
+    std::sort(cll.begin(),cll.end(),PndTpcClusterDist(false)); 
+    std::cout<<"\n **** using DISTANCE presorting of PndTpcClusters ****"<<std::endl;
+    int errcount=0;
+    double mag=0;
+    for(int i=0; i<cll.size(); i++)
+      if (((cll[i])->pos()).Mag() < mag)
+	errcount++;
+    if (errcount>0)
+      std::cout<<"\n      WARNING: SORTING NOT RIGHT ! ! ! ! ("
+	       <<errcount<<" errors)"<<std::endl;
+  }
+  else
+    std::sort(cll.begin(),cll.end(),PndTpcClusterZ(false)); 
 
   // build trackcands
   std::map<unsigned int,TrackCand*> candlist;
-  for(unsigned int i=0;i<n;++i){ // loop over clusters
+  for(unsigned int i=0;i<n;i++){ // loop over clusters   //KRASSER HACK!!
     PndTpcCluster* cl=cll[i];
     unsigned int trackid=cl->mcId().DominantID().mctrackID();
     TrackCand* cand=candlist[trackid];
@@ -181,21 +196,27 @@ PndTpcIdealTrackingTask::Exec(Option_t* opt)
     TVector3 momerr=0.3*mom; //  10% error
     momerr+=TVector3(0.1,0.1,0.1);
   
-    TVector3 u(1.,0.,0.);//=mom.Orthogonal();
-    //u.SetMag(1.);
-    TVector3 v(0.,1.,0.);//=mom.Cross(u);
-    //v.SetMag(1.);
+    //TVector3 u(1.,0.,0.);
+    TVector3 u=mom.Orthogonal();
+    u.SetMag(1.);
+    //TVector3 v(0.,1.,0.);
+    TVector3 v=mom.Cross(u);
+    v.SetMag(1.);
     
     // create track-representation object and initialize with start values
     AbsTrackRep* rep=0;
     if(_useGeane){
       DetPlane pl(pos,u,v);
+      if(pdg<=0 || pdg>=10000){
+	pdg=211;}
       GeaneTrackRep* grep=new GeaneTrackRep(_geanePro,pl,mom,poserr,momerr,q,pdg);
       grep->setPropDir(1); // propagate in flight direction!
       rep=grep;
+      
     }
     else { // use LSLTrackRep
       // calc momentum projections
+      std::cout<<"\nUsing LSL Track Representation"<<std::endl;
       TVector3 dir=mom.Unit();
       double dxdz=dir.X()/dir.Z();
       double dydz=dir.Y()/dir.Z();

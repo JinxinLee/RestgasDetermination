@@ -53,6 +53,7 @@ public:
   void SetDeviationFile(const char* file) {_devFile = file;}
   void SetPhiCut(double phimin, double phimax){_phicut=true;_phimin=phimin;_phimax=phimax;}
   void SetQAPlotCol(QAPlotCollection* col){_qa=col;}
+  void SetShortTPC(Bool_t opt=kTRUE) {_shortTpc=opt;}
   // Operations ----------------------
   
   virtual InitStatus Init();
@@ -93,6 +94,8 @@ private:
   Bool_t _distort;
 
   Bool_t _initialized;
+
+  Bool_t _shortTpc;   //shorten TPC to 120cm length 
 
   const char* _devFile;
 

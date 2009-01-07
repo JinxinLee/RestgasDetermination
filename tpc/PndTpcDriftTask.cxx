@@ -51,7 +51,7 @@ using std::sqrt;
 PndTpcDriftTask::PndTpcDriftTask()
   : CbmTask("TPC Drift"), _persistence(kFALSE), 
     _attach(kTRUE), _diffuseL(kTRUE), _diffuseT(kTRUE), _distort(kFALSE), _phicut(kFALSE), _initialized(kFALSE),
-    _qa(NULL)
+    _qa(NULL), _shortTpc(kFALSE)
 {
   _primBranchName = "PndTpcPrimaryCluster";
   _devFile = "DevMap_29-06-07_E_and_B_new_fieldclass.dat"; //default
@@ -160,6 +160,11 @@ PndTpcDriftTask::Exec(Option_t* opt)
   Int_t nc=_primArray->GetEntriesFast();
   for(int ic=0;ic<nc;++ic){
     PndTpcPrimaryCluster* pcl=(PndTpcPrimaryCluster*)_primArray->At(ic);
+
+    if(_shortTpc){                //ignore primaries outside the "short" TPC
+      if((pcl->pos()).Z() > 80)
+	continue;
+    }
 
     if(_phicut){
       double phi=pcl->pos().Phi();
