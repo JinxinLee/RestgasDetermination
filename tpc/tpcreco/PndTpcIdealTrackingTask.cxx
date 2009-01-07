@@ -139,7 +139,7 @@ PndTpcIdealTrackingTask::Exec(Option_t* opt)
     for(int i=0; i<cll.size(); i++)
       if (((cll[i])->pos()).Mag() < mag)
 	errcount++;
-    if (errcount>0)
+    if (errcount>0) //debug
       std::cout<<"\n      WARNING: SORTING NOT RIGHT ! ! ! ! ("
 	       <<errcount<<" errors)"<<std::endl;
   }
@@ -148,7 +148,7 @@ PndTpcIdealTrackingTask::Exec(Option_t* opt)
 
   // build trackcands
   std::map<unsigned int,TrackCand*> candlist;
-  for(unsigned int i=0;i<n;i++){ // loop over clusters   //KRASSER HACK!!
+  for(unsigned int i=0;i<n;i++){ // loop over clusters   
     PndTpcCluster* cl=cll[i];
     unsigned int trackid=cl->mcId().DominantID().mctrackID();
     TrackCand* cand=candlist[trackid];
