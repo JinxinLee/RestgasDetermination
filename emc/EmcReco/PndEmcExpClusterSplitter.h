@@ -21,9 +21,9 @@
 // Modified:
 // M. Babai
 //------------------------------------------------------------------------
-
-#ifndef PNDEMCEXPCLUSTERSPLITTER_HH
-#define PNDEMCEXPCLUSTERSPLITTER_HH
+#pragma once
+#ifndef PNDEMCEXPCLUSTERSPLITTER_H
+#define PNDEMCEXPCLUSTERSPLITTER_H
 
 //---------------
 // C++ Headers --

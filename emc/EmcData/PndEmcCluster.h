@@ -13,9 +13,9 @@
 //	Stephen Gowdy           University of Edinburgh
 //
 //-----------------------------------------------------------------------
-
-#ifndef PNDEMCCLUSTER_HH
-#define PNDEMCCLUSTER_HH
+#pragma once
+#ifndef PNDEMCCLUSTER_H
+#define PNDEMCCLUSTER_H
 
 #include "TObject.h"
 #include "PndEmcClusterLiloPos.h"
@@ -186,5 +186,4 @@ private:
 // helper function to convert error matrix
 // copied from BbrGeom/BbrError.cc
 TMatrixD similarityWith(const TMatrixD& mat, const TMatrixD& m1);
-
 #endif // EMCCLUSTER_HH

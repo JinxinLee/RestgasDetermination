@@ -17,9 +17,9 @@
 //
 // Dima Melnychuk, adaption for PANDA
 //------------------------------------------------------------------------
-
-#ifndef PNDEMCBUMP_HH
-#define PNDEMCBUMP_HH
+#pragma once
+#ifndef PNDEMCBUMP_H
+#define PNDEMCBUMP_H
 
 //----------------------
 // Base Class Headers --
@@ -55,5 +55,4 @@ protected:
 
 	ClassDef(PndEmcBump,1)
 };
-
 #endif // PNDEMCBUMP_HH

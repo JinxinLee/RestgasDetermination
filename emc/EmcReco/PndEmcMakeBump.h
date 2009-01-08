@@ -19,9 +19,9 @@
 // Modified:
 // M. Babai
 //------------------------------------------------------------------------
-
-#ifndef PNDEMCMAKEBUMP_HH
-#define PNDEMCMAKEBUMP_HH
+#pragma once
+#ifndef PNDEMCMAKEBUMP_H
+#define PNDEMCMAKEBUMP_H
 
 #include "CbmTask.h"
 

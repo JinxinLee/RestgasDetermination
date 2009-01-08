@@ -89,7 +89,8 @@ PndEmc2DLocMaxFinder::~PndEmc2DLocMaxFinder()
 //-------------
 // Methods   --
 //-------------
-void PndEmc2DLocMaxFinder::findMaxima( const PndEmcCluster * const theCluster, std::set<PndEmcTwoCoordIndex*>& res) const
+void PndEmc2DLocMaxFinder::findMaxima( const PndEmcCluster * const theCluster, 
+				       std::set<PndEmcTwoCoordIndex*>& res) const
 {
   // We own the EmcLocMaxInfo objects.  Delete from last time.
   //Clean-up res, We need an empty set to store the results.
