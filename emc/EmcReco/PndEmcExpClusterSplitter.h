@@ -18,6 +18,8 @@
 // Copyright Information:
 //	Copyright (C) 1997               Imperial College
 //
+// Modified:
+// M. Babai
 //------------------------------------------------------------------------
 
 #ifndef PNDEMCEXPCLUSTERSPLITTER_HH
@@ -34,14 +36,14 @@
 
 struct PndEmcExpClusterSplitterData
 {
-	Double_t MoliereRadius; 
-	Double_t ExponentialConstant;
-	Int_t    MaxIterations;
-	Double_t CentroidShift;
-	Int_t    MaxBumps;
-	Double_t MinDigiEnergy;
+  Double_t MoliereRadius; 
+  Double_t ExponentialConstant;
+  Int_t    MaxIterations;
+  Double_t CentroidShift;
+  Int_t    MaxBumps;
+  Double_t MinDigiEnergy;
 };
-		
+
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -56,38 +58,36 @@ class PndEmcTwoCoordIndex;
 //		---------------------
 
 class PndEmcExpClusterSplitter{
-	typedef std::map<PndEmcTwoCoordIndex*, PndEmcDigi*> EmcDigiPtrDict;
+  typedef std::map<PndEmcTwoCoordIndex*, PndEmcDigi*> EmcDigiPtrDict;
   
-public:
+ public:
   
   PndEmcExpClusterSplitter(PndEmcExpClusterSplitterData  expClusterSplitterData,Int_t verbose=0);
-
+  
   // Destructor
   virtual ~PndEmcExpClusterSplitter( );
   
   // Methods
   
-  virtual void splitCluster(const std::set<PndEmcTwoCoordIndex*> &, const PndEmcCluster * const, Int_t clusterIndex, std::vector<PndEmcBump*> &) const;
+  virtual void splitCluster(const std::set<PndEmcTwoCoordIndex*> &, 
+			    const PndEmcCluster* const, Int_t clusterIndex, 
+			    std::vector<PndEmcBump*>& theBumpList) const;
   
-private:
+ private:
+  //These methods are not implemented yet. Maybe wise to do so, ???
+  // Copy Constructor
+  PndEmcExpClusterSplitter( const PndEmcExpClusterSplitter& other);
+  PndEmcExpClusterSplitter& operator= ( const PndEmcExpClusterSplitter& other);
   
-	// Copy Constructor
-	PndEmcExpClusterSplitter( const PndEmcExpClusterSplitter& );
-	
-	PndEmcExpClusterSplitter&       operator= ( const PndEmcExpClusterSplitter& );
-	
-	// Data members
-	Double_t fMoliereRadius;
-	Double_t fExponentialConstant;
-	Int_t fMaxIterations;
-	Double_t fCentroidShift;
-	Int_t fMaxBumps;
-	Double_t fMinDigiEnergy;
-	
-	/** Verbosity level **/
-	Int_t fVerbose;
-
+  // Data members
+  Double_t fMoliereRadius;
+  Double_t fExponentialConstant;
+  Int_t fMaxIterations;
+  Double_t fCentroidShift;
+  Int_t fMaxBumps;
+  Double_t fMinDigiEnergy;
+  
+  /** Verbosity level **/
+  Int_t fVerbose;
 };
-
-
 #endif // EMCABSCLUSTERSPLITTER_HH

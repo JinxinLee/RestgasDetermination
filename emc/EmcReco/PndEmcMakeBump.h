@@ -16,6 +16,8 @@
 //      Phil Strother           Imperial College
 //
 // Dima Melnychuk, adaption for PANDA
+// Modified:
+// M. Babai
 //------------------------------------------------------------------------
 
 #ifndef PNDEMCMAKEBUMP_HH

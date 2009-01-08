@@ -19,7 +19,8 @@
 //
 // Copyright Information:
 //	Copyright (C) 1997	            Imperial College
-//
+// Modified:
+// M. Babai
 //------------------------------------------------------------------------
 
 #ifndef PNDEMC2DLOCALMAXFINDER_HH
@@ -37,83 +38,66 @@ class PndEmcRecoPar;
 
 struct PndEmc2DLocMaxFinderData
 {
-	Double_t MaxECut;
-	Double_t NeighbourECut;
-	Double_t CutSlope;
-	Double_t CutOffset;
-	Double_t ERatioCorr;
-	Int_t    TheNeighbourLevel;
-
+  Double_t MaxECut;
+  Double_t NeighbourECut;
+  Double_t CutSlope;
+  Double_t CutOffset;
+  Double_t ERatioCorr;
+  Int_t    TheNeighbourLevel;
 };
 
 class PndEmc2DLocMaxFinder{
-	
-	typedef std::set<PndEmcTwoCoordIndex*> EmcCoordIndexSet;
-	typedef std::map<PndEmcTwoCoordIndex*, PndEmcDigi*> EmcDigiPtrDict;
-
-public:
-
+  
+  typedef std::set<PndEmcTwoCoordIndex*> EmcCoordIndexSet;
+  typedef std::map<PndEmcTwoCoordIndex*, PndEmcDigi*> EmcDigiPtrDict;
+  
+ public:
+  
   // Constructors
-
+  
   PndEmc2DLocMaxFinder(PndEmc2DLocMaxFinderData locMaxData,Int_t verbose=0);
-
+  // Copy Constructor
+  //PndEmc2DLocMaxFinder( const PndEmc2DLocMaxFinder& other);
+  
   // Destructor
-
   virtual ~PndEmc2DLocMaxFinder();
-
+  
   // Operators
+  //PndEmc2DLocMaxFinder & operator= ( const PndEmc2DLocMaxFinder& other);
   
   // Methods 
-
-  virtual const std::set<PndEmcTwoCoordIndex*> &findMaxima( const PndEmcCluster * const ) const;
+  void findMaxima( const PndEmcCluster * const theCluster, 
+		   std::set<PndEmcTwoCoordIndex*>& res) const;
   
-
-
   // Modifiers
-
-protected:
-
+  
+ protected:
+  
   // Helper functions
-
   virtual bool isALocalMax( const PndEmcDigi *const, const PndEmcCluster * const, 
 			    const EmcCoordIndexSet &amongstTheseNeighbours ) const;
-
-  // Test to see whether the given Digi is a local maxima, within the set of 
+  
+  // Test to see whether the given Digi is a local maxima, within the set of
   // crystals given in "amongstTheseNeighbours".  Note that this set need
   // all be crystals that actually were within the cluster.
-
-private:
-
-  // Copy Constructor
-
-  PndEmc2DLocMaxFinder( const PndEmc2DLocMaxFinder& );
-
-  PndEmc2DLocMaxFinder & operator= ( const PndEmc2DLocMaxFinder& );
   
+ private:
+  // Copy Constructor
+  PndEmc2DLocMaxFinder( const PndEmc2DLocMaxFinder& other);
   // Methods
-
   void getNeighbourDigis( EmcCoordIndexSet &, EmcCoordIndexSet &, int,
 			  const EmcDigiPtrDict* const) const;
-	
-	PndEmcRecoPar*    fRecoPar;      /** Reconstruction parameter container **/
-	
+  
+  PndEmcRecoPar*    fRecoPar;      /** Reconstruction parameter container **/
+  
   // Data members
-	EmcCoordIndexSet *mySet;
-	Double_t fMaxECut;
-	Double_t fNeighbourECut;
-	Double_t fCutSlope;
-	Double_t fCutOffset;
-	Double_t fERatioCorr;
-	Int_t fTheNeighbourLevel;
-	
-	/** Verbosity level **/
-	Int_t fVerbose;
-
+  Double_t fMaxECut;
+  Double_t fNeighbourECut;
+  Double_t fCutSlope;
+  Double_t fCutOffset;
+  Double_t fERatioCorr;
+  Int_t fTheNeighbourLevel;
+  /** Verbosity level **/
+  Int_t fVerbose;
 };
-
 #endif // PNDEMC2DLOCALMAXFINDER_HH
-
-
-
-
-
