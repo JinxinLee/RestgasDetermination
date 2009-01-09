@@ -49,7 +49,9 @@ void PndTpcDigiPar::putParams(CbmParamList* list)
 	list->add("TransversediffusionFlag",_diffuseT);
 	list->add("DriftDistortionFlag",_distort);
 	list->add("zGem",_zGem);
+	list->add("zMax",_zMax);
 	list->add("Gain",_gain);
+	list->add("Supression", _supression);
 	list->add("Spread",_spread);
 	list->add("MinSignalAmp",_minSignalAmp);
 	list->add("rMin",_rmin);
@@ -72,6 +74,7 @@ void PndTpcDigiPar::putParams(CbmParamList* list)
 	list->add("TOTPSA",_psa);
 	list->add("GAUSSIANNOISE",_gaussianNoise);
 	list->add("GAUSSIANNOISEAMP",_gaussianNoiseAmp);
+	list->add("Rate",_rate);
 }
 
 Bool_t PndTpcDigiPar::getParams(CbmParamList* list)
@@ -91,8 +94,12 @@ Bool_t PndTpcDigiPar::getParams(CbmParamList* list)
 	  {std::cout<<"par: DriftDistortionFlag not found"<<std::endl; return kFALSE;}
 	if(!list->fill("zGem",&_zGem)) 
 	  {std::cout<<"par: zGem not found"<<std::endl; return kFALSE;}
+	if(!list->fill("zMax",&_zMax)) 
+	  {std::cout<<"par: zMax not found"<<std::endl; return kFALSE;}
 	if(!list->fill("Gain",&_gain)) 
 	  {std::cout<<"par: Gain not found"<<std::endl; return kFALSE;}
+	if(!list->fill("Supression",&_supression)) 
+	  {std::cout<<"par: Supression not found"<<std::endl; return kFALSE;}
 	if(!list->fill("Spread",&_spread)) 
 	  {std::cout<<"par: Spread not found"<<std::endl; return kFALSE;}
 	if(!list->fill("MinSignalAmp",&_minSignalAmp)) 
@@ -137,7 +144,9 @@ Bool_t PndTpcDigiPar::getParams(CbmParamList* list)
 	  {std::cout<<"par: GAUSSIANNOISE not found"<<std::endl; return kFALSE;}
 	if(!list->fill("GAUSSIANNOISEAMP",&_gaussianNoiseAmp)) 
 	  {std::cout<<"par: GAUSSIANNOISEAMP not found"<<std::endl; return kFALSE;}
-	  
+	if(!list->fill("Rate",&_rate)) 
+	  {std::cout<<"par: Rate not found"<<std::endl; return kFALSE;}  
+	
 	// read strings
 	_tpcGasFileName=readString(_tpcGasFile);
 	_padPlaneFileName=readString(_padPlaneFile);

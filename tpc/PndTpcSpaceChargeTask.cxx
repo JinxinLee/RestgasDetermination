@@ -23,7 +23,10 @@
 #include "PndTpcGas.h"
 #include "TClonesArray.h"
 #include "CbmRootManager.h"
+#include "CbmRunAna.h"
+#include "CbmRuntimeDb.h"
 #include "PndTpcPoint.h"
+#include "PndTpcDigiPar.h"
 
 #include <iostream>
 #include <iomanip>
@@ -35,21 +38,17 @@
 
 PndTpcSpaceChargeTask::PndTpcSpaceChargeTask()		//default constructor
   : 	CbmTask("TPC Space Charge"),
-	_rate(2e-2),
-	_ionDriftVelocity(1.766e-6),
-	_supression(1e-3),
-	_tpcMinR(15.5),		//TODO: PARAMETER MANAGEMENT
-	_tpcMaxR(41.5),         //these are all default values
-	_tpcMinZ(-39.5),        //change with set-functions individually
-	_tpcMaxZ(109.5),
+	//_tpcMinR(15.5),	
+	//_tpcMaxR(41.5),         //these are all default values
+	//_tpcMinZ(-39.5),        //change with set-functions individually
+	//_tpcMaxZ(109.5),
 	_rBinCount(26),
 	_zBinCount(75),
-	_angle(0.17453),
+	_angle(0.17453),              //TODO: parameter management!
+	_ionDriftVelocity(1.766e-6),  //...
 	_time(0),               
 	_errorCount(0),
-				//This should be received from PndTpcGem later, 
-	_gemGain(4000.0),	//but PndTpcGem does not read it in itself atm
- 
+	 
         _pointBranchName("PndTpcPoint")
 {}
 
@@ -60,10 +59,7 @@ InitStatus
 PndTpcSpaceChargeTask::Init()
 {
 
-  _rBinWidth = ((_tpcMaxR - _tpcMinR) / _rBinCount);
-  _zBinWidth = ((_tpcMaxZ - _tpcMinZ) / _zBinCount);
-
- //Get ROOT Manager
+  //Get ROOT Manager
   CbmRootManager* ioman= CbmRootManager::Instance();
   
   if(ioman==0)
@@ -81,18 +77,56 @@ PndTpcSpaceChargeTask::Init()
       return kERROR;
     }
 
-  _gas = new PndTpcGas("NEON-90_CO2-10_B2_PRES1013.asc",400);
+  _supression=_par->getSupression();
+  _tpcMaxR=_par->getRMax();  //make sure these are the values for the ACTIVE detector region  
+  _tpcMinR=_par->getRMin();  //see geometry/tpc.geo      
+  _tpcMaxZ=_par->getZMax();  
+  _tpcMinZ=_par->getZGem();    
+  			
+  _gemGain=_par->getGain();
+  _rate=_par->getRate();              
+
+  _gas=_par->getGas();
   _WGas = _gas->W();
-  delete _gas;
+ 
   _gemCharge = _supression * _gemGain;
   _distPerTime = _ionDriftVelocity / _rate; 	//Ion travel distance per event
+
+  _rBinWidth = ((_tpcMaxR - _tpcMinR) / _rBinCount);
+  _zBinWidth = ((_tpcMaxZ - _tpcMinZ) / _zBinCount);
+
+  std::cout<<"\n\n--------- PndTpcSpaceChargeTask working parameters ----------"<<std::endl;
+  std::cout<<"\nSupression: "<<_supression<<";   Gain: "<<_gemGain
+	   <<";   Rate: "<<_rate<<"   WGas: "<<_WGas<<std::endl;
+  std::cout<<"Geometry:\n"<<"MinR: "<<_tpcMinR<<";   MaxR: "<<_tpcMaxR<<std::endl;
+  std::cout<<"MinZ: "<<_tpcMinZ<<";   MaxZ: "<<_tpcMaxZ<<std::endl;
+  std::cout<<"-------------------------------------------------------------\n\n"<<std::endl;
+  std::cout.flush();  
   
 
 // Initialize the charge-map (empty at the start...)
   for (int nr = 0; nr < _rBinCount; nr++)
-	_chargeMap.push_back(std::vector<int>(_zBinCount, 0));
+	_chargeMap.push_back(std::vector<int>(_zBinCount, 0));  
 
   return kSUCCESS;
+}
+
+void 
+PndTpcSpaceChargeTask::SetParContainers() {
+
+  std::cout<<"PndTpcSpaceChargeTask::SetParContainers"<<std::endl;
+  std::cout.flush();
+
+  // Get run and runtime database
+  CbmRunAna* run = CbmRunAna::Instance();
+  if ( ! run ) Fatal("SetParContainers", "No analysis run");
+
+  CbmRuntimeDb* db = run->GetRuntimeDb();
+  if ( ! db ) Fatal("SetParContainers", "No runtime database");
+
+  // Get PndTpc digitisation parameter container
+  _par= (PndTpcDigiPar*) db->getContainer("PndTpcDigiPar");
+  if (! _par ) Fatal("SetParContainers", "PndTpcDigiPar not found");
 }
 
 void
@@ -100,6 +134,11 @@ PndTpcSpaceChargeTask::Exec(Option_t* opt)
 {
   PndTpcPoint* currentPoint;
   int np = _pointArray->GetEntriesFast();	//number of MC points 
+
+  if(_time%500==0) {
+    std::cout<<". ";
+    std::cout.flush();
+  }
   
   for(int n=0; n<np; n++)			//Loop over all MC points
   {
@@ -113,9 +152,9 @@ PndTpcSpaceChargeTask::Exec(Option_t* opt)
     int rBin = (int)std::floor(std::fabs(r - _tpcMinR) / _rBinWidth);
     int zBin = (int)std::floor(std::fabs(currentPoint->GetZ() - _tpcMinZ) / _zBinWidth);
 
-    if(rBin > _rBinCount-1 || zBin > _zBinCount-1)
+    if(rBin >= _rBinCount || zBin >= _zBinCount)
     {
-	Error("PndTpcSpaceChargeTask::Exec", "Hit occured outside the PndTpc-Volume!");
+      //Error("PndTpcSpaceChargeTask::Exec", "Hit occured outside the PndTpc-Volume!");
 	_errorCount++;
 	continue;
     }

@@ -27,6 +27,7 @@ public :
 
   // Accessors (partially catched!)
   double getZGem()const {return _zGem;}
+  double getZMax() const {return _zMax;}
   double getTDiff() const {return _tdiff;}
   double getTInt() const {return _tint;}
   double getTSig() const {return _tsig;}
@@ -35,6 +36,9 @@ public :
   bool getAttach() const {return _attach>0;}
   bool getDiffuseL() const {return _diffuseL>0;}
   bool getDiffuseT() const {return _diffuseT>0;}
+  double getGain() const {return _gain;}
+  double getSupression() const {return _supression;}
+  double getRate() const {return _rate;}
   double getMinSigAmp() const {return _minSignalAmp;}
   int getPSA() const {return _psa;}
   const PndTpcGas* getGas();
@@ -54,9 +58,12 @@ private :
   Int_t _diffuseT;
   Int_t _distort;
   Double_t _zGem; // get from Geom!
+  Double_t _zMax; // get from Geom!
 
   Double_t _gain;
+  Double_t _supression;
   Double_t _spread;
+  Double_t _rate;
 
   Double_t _minSignalAmp; // cut on signal amplitude
   Double_t _rmin, _rmax; // cuts on the TPC volume in r should come from Geom!
