@@ -3,8 +3,6 @@
 //charge is normalized to one drift step, then displaced and copied.
 //For monitoring purposes the first 120 drift-steps are written to files
 //in steps of 10.
-
-
 //Author: Felix Boehmer
 
 
@@ -20,7 +18,7 @@
   int _EventsToSim = 4e6;
   double _Rate = 2e-2;
   double _IonDriftVel = 1.766e-6;
-  int _EventsSimInInput = 5000;
+  int _EventsSimInInput = 10000;
 
   int drift_control = 0;    //keep track of the number of drift-steps
 
