@@ -32,7 +32,7 @@ class PndMdtPoint : public CbmMCPoint
   /** Initializing constructor - see the above order **/  
   PndMdtPoint(Int_t trackID, Int_t detID, TVector3 pos, TVector3 mom,
 	     Double_t tof, Double_t length, Double_t eLoss, Int_t
-	     MotherTrId, Int_t pdg);
+	     MotherTrId, Int_t pdg, Int_t track_out);
   
   /** Copy constructor **/
  // PndMdtPoint(const PndMdtPoint& point) { *this = point; };
@@ -49,6 +49,7 @@ class PndMdtPoint : public CbmMCPoint
   inline Int_t    GetLayerID()             const { return fDetectorID<50 ? (Int_t)((fDetectorID-1)/2) : fDetectorID-51;};
   inline Int_t    GetSector(); 
   inline Int_t    GetPDG()                 const { return fPDG;                            };
+  inline Int_t    GetTrackOut()            const { return fTrackOut;                       };
     
   /** Modifiers **/
   inline void SetTrackParentID(Int_t id)         { fTrackParentID = id;                               }; 
@@ -62,7 +63,8 @@ class PndMdtPoint : public CbmMCPoint
 protected:
   Int_t fTrackParentID;		
   Int_t fPDG;			
-    
+  Int_t fTrackOut;
+  
  
 };
 

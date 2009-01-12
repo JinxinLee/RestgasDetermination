@@ -19,10 +19,11 @@ PndMdtPoint::PndMdtPoint() : CbmMCPoint()
 // -----   Standard constructor   ------------------------------------------
 PndMdtPoint::PndMdtPoint( Int_t trackID, Int_t detID, TVector3 pos, TVector3 mom,
 	     Double_t tof, Double_t length, Double_t eLoss, Int_t
-	     MotherTrId, Int_t pdg) :  CbmMCPoint(trackID, detID, pos, mom,tof, length, eLoss )
+			  MotherTrId, Int_t pdg, Int_t track_out) :  CbmMCPoint(trackID, detID, pos, mom,tof, length, eLoss )
 {
   fTrackParentID = MotherTrId;
   fPDG           = pdg;
+  fTrackOut      = track_out;
 }
 
 

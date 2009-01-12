@@ -191,7 +191,12 @@ void PndMdt::ConstructGeometryTo()
 // -----   Public method ProcessHits  --------------------------------------
 Bool_t PndMdt::ProcessHitsTo(CbmVolume* vol) 
 {
-  if (gMC->IsTrackEntering()){
+
+  Int_t track_out = 0; // 0 = track in; 1 = track out
+  if (gMC->IsTrackEntering()) track_out = 0;
+  if (gMC->IsTrackExiting() ) track_out = 1;
+
+  if (gMC->IsTrackEntering() || gMC->IsTrackExiting()){
 	  Int_t TrNo=gMC->GetStack()->GetCurrentTrackNumber();
 	  Int_t pdg= gMC->TrackPid();	  
 	  
@@ -207,7 +212,7 @@ Bool_t PndMdt::ProcessHitsTo(CbmVolume* vol)
     TClonesArray& clref = *fMdtCollection;
     Int_t size = fMdtCollection->GetEntriesFast();
      PndMdtPoint *P= new(clref[size]) PndMdtPoint (TrNo,ilayer, lPos.Vect(), lMom.Vect(), gMC->TrackTime(),
-     gMC->TrackLength(), gMC->Edep(), gMC->GetStack()->GetCurrentParentTrackNumber(),pdg);
+						   gMC->TrackLength(), gMC->Edep(), gMC->GetStack()->GetCurrentParentTrackNumber(),pdg,track_out);
 	
      if ( ( (GetModule()==1) && (TMath::Even(ilayer)) ) ||  (GetModule()==2)  )
 	{ // Set the correct MCTrack->GetMdtPoints()
