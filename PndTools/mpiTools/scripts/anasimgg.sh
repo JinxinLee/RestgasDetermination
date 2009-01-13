@@ -10,6 +10,7 @@
 export PANDAHOME=/home/panda
 export PANDAROOTHOME=$HOME/pandaroot
 source $PANDAROOTHOME/build/config.sh > logfile
+export LD_LIBRARY_PATH=/opt/exp_soft/lib:$LD_LIBRARY_PATH
 #
 # Copy ROOT scripts to local path
 #
@@ -18,7 +19,7 @@ svn info $VMCWORKDIR >> logfile 2>&1
 #
 #
 #
-revline=`cat $logfile | grep "Revision" `
+revline=`cat logfile | grep "Revision" `
 revnumber=`echo $revline | awk '{print $2}'` 
 
 let tel=$3
@@ -31,19 +32,19 @@ do
 
  echo "<I> Analyzing $2/$tel" >> logfile 2>&1
  if [ -s sim.root ]; then
-     root -l -b -q "full.C(\"sim.root\",\"full_${revnumber}_$5.root\",\"simparams.root\")" >> logfile 2>&1 
+     root -l -b -q "full.C(\"sim.root\",\"full_rev${revnumber}_$5.root\",\"simparams.root\")" >> logfile 2>&1 
      cnt=1
      for FILENAME in "`find . -name "sim.root_*" -print`" ; do
 	 if [ -n "$FILENAME" ]; then
-	     root -l -b -q "full.C(\"$FILENAME\",\"full_${revnumber}_$5_$cnt.root\",\"simparams.root\")" >> logfile 2>&1
+	     root -l -b -q "full.C(\"$FILENAME\",\"full_rev${revnumber}_$5_$cnt.root\",\"simparams.root\")" >> logfile 2>&1
 	     let cnt=cnt+1
 	 fi
      done
  fi
 
- echo "<I> Copying full_${revnumber}_$5.root to $2/$tel/" >> logfile 2>&1
- if [ -s full_${revnumber}_$5.root ]; then
-     scp -B -r full_${revnumber}_$5*.root $2/$tel/ >> logfile 2>&1
+ echo "<I> Copying full_rev${revnumber}_$5.root to $2/$tel/" >> logfile 2>&1
+ if [ -s full_rev${revnumber}_$5.root ]; then
+     scp -B -r full_rev${revnumber}_$5*.root $2/$tel/ >> logfile 2>&1
  fi
  rm -f sim*.root >> logfile 2>&1
  rm -f full*.root >> logfile 2>&1
