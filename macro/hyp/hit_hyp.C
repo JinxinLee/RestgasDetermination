@@ -1,79 +1,94 @@
 {
-  // Macro created 20/09/2006 by S.Spataro
-  // It loads a simulation file and digitize hits for EMC
-  
-  // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
-  Int_t iVerbose = 0; // just forget about it, for the moment
-  
-  // Input file (MC events)
-  TString inFile = "sim_sim.root";
+
+  // ========================================================================
   
   
-  // Number of events to process
-  Int_t nEvents = 0;  // if 0 all the vents will be processed
+// Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
+  Int_t iVerbose = 1;//iVerbose = 3
+  TString inFile = "sim_hypgeantcheck.root";
+  Int_t nEvents = 50;//50000;
+  TString parFile="simparams.root";
+  TString outFile = "hypIdealreco.root";
+
+ // ---  Now choose concrete engines for the different tasks   -------------
+  // ------------------------------------------------------------------------
+
+
+  // In general, the following parts need not be touched
+  // ========================================================================
+
+ // ----  Load libraries   -------------------------------------------------
   
-  // Parameter file
-  TString parFile = "simparams.root"; // at the moment you do not need it
-  
-  // Output file
-  TString outFile = "hit_sim.root";
-  
-  // Loading libraries
-  // If the macro gives error messages in loading libraries, please check the path of the libs and put it by hands
-  
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-  basiclibs();
-  gSystem->Load("libGeoBase");
-  gSystem->Load("libParBase");
-  gSystem->Load("libBase");
-  gSystem->Load("libMCStack");
-  gSystem->Load("libField");
-  gSystem->Load("libPassive");
-  gSystem->Load("libGen");  
-  gSystem->Load("libHyp"); 
-  
-  // -----   Timer   --------------------------------------------------------
+ gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+ rootlogon();
+
+ gSystem->Load("libHyp");
+
+// -----   Timer   --------------------------------------------------------
   TStopwatch timer;
   timer.Start();
+ 
   // ------------------------------------------------------------------------
   
   // -----   Reconstruction run   -------------------------------------------
+  
   CbmRunAna *fRun= new CbmRunAna();
-  fRun->SetInputFile(inFile);
-  fRun->SetOutputFile(outFile);
+  fRun->SetInputFile(inFile.Data());
+/*fRun->AddFile(inFile2.Data());
+  fRun->AddFile(inFile3.Data());
+  fRun->AddFile(inFile4.Data());*/
+  //fRun->AddFile(inFile5.Data());
+  fRun->SetOutputFile(outFile.Data());
+  // ------------------------------------------------------------------------
+
+  
   
   // -----  Parameter database   --------------------------------------------
-  /*  CbmRuntimeDb* rtdb = fRun->GetRuntimeDb();
-      CbmParRootFileIo* parInput1 = new CbmParRootFileIo();
-      parInput1->open(parFile.Data());
-      rtdb->setFirstInput(parInput1);
-      fRun->LoadGeometry();
-  */ // not needed at the moment
+  
+  CbmRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  CbmParRootFileIo* parInput1 = new CbmParRootFileIo();
+  parInput1->open(parFile.Data());
+  
+  Bool_t kParameterMerged=kTRUE;
+  rtdb->setFirstInput(parInput1);
+
+   fRun->LoadGeometry();
   // ------------------------------------------------------------------------
+
+
+
+  // =========================================================================
+  // ======                       Hit Producers                         ======
+  // =========================================================================
   
-  // -----   EMC hit producers   --------------------------------------------
-  // The file name should be the same of the geometry file which was used for the simulation
+  // -----    MVD hit producer   --------------------------------------------
+  PndHypIdealRecoTask* mvdirec = new PndHypIdealRecoTask(0.01,0.01,0.005);
+  mvdirec->SetVerbose(iVerbose);
+  fRun->AddTask(mvdirec);
+
   
-  CbmHypHitProducer* hypHitProd = new CbmHypHitProducer("HypST.geo");
-  fRun->AddTask(hypHitProd);
+  
+  // =========================================================================
+  
   
   // -----   Intialise and run   --------------------------------------------
-  cout << "fRun->Init()" << endl;
   fRun->Init();
+  
   fRun->Run(0,nEvents);
-  // ------------------------------------------------------------------------
-
-
+  
+  
+     
   // -----   Finish   -------------------------------------------------------
   timer.Stop();
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
   cout << endl << endl;
-  cout << "Macro finished successfully." << endl;
+  cout << "Macro finished succesfully." << endl;
   cout << "Output file is "    << outFile << endl;
   cout << "Parameter file is " << parFile << endl;
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
   cout << endl;
   // ------------------------------------------------------------------------
-  
+
+
 }
