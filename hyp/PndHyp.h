@@ -13,6 +13,11 @@
 #include "CbmDetector.h"
 #include "PndGeoHypPar.h"
 
+#include "TRandom.h"
+
+#include "PndHypGeoHandling.h"
+//#include "PndHypDecayer.h"
+//#include "HypStatDecay.h"
 using namespace std;
 
 
@@ -57,7 +62,7 @@ class PndHyp : public CbmDetector
    **/
   virtual Bool_t ProcessHits(CbmVolume* vol = 0);
 
-
+  virtual void SetSpecialPhysicsCuts();
   /** Virtual method EndOfEvent
    **
    ** If verbosity level is set, print hit collection at the
@@ -108,7 +113,7 @@ class PndHyp : public CbmDetector
    **/
   virtual void ConstructGeometry();
 
-  PndHypPoint* AddHit(Int_t trackID, 
+  PndHypPoint* AddHit(Int_t trackID,Int_t evtID, 
 		      Int_t detID, TString detName,
 		      TVector3 posin, 
 		      TVector3 momin,
@@ -126,7 +131,7 @@ class PndHyp : public CbmDetector
 		      Double_t PLin,
 		      Double_t PLout);
 
-  PndHypPoint* AddSecTarHit(Int_t trackID, 
+  PndHypPoint* AddSecTarHit(Int_t trackID, Int_t evtID,
 			    Int_t detID,TString detName,
 			    TVector3 posin, 
 			    TVector3 momin,
@@ -144,7 +149,7 @@ class PndHyp : public CbmDetector
 			    Double_t PLin,
 			    Double_t PLout);
 
-  PndHypPoint* AddSTpipeHit(Int_t trackID, 
+  PndHypPoint* AddSTpipeHit(Int_t trackID, Int_t evtID,
 			    Int_t detID,TString detName,
 			    TVector3 posin, 
 			    TVector3 momin,
@@ -161,6 +166,8 @@ class PndHyp : public CbmDetector
 			    Double_t dist,
 			    Double_t PLin,
 			    Double_t PLout); 
+
+  void PreTrack();
 
  private:
   
@@ -187,20 +194,27 @@ class PndHyp : public CbmDetector
   Double_t fcharge;  
   Double_t fmass, fdist;
   
+   PndHypGeoHandling* fGeoH;          //! Gives Access to the Path info of a hit
+  
+  //PndHypDecayer* fread;          //! Gives Access to the Statistical decay products
+  //HypStatDecay* fread;          //! Gives Access to the Statistical decay products
+
   TClonesArray* fHypCollection;        //! Hit collection
   TClonesArray* fHypSecTarCollection;        // Hit collection(Absorver)
   TClonesArray* fHypSTpipeCollection;        // Hit collection(pipehyp)
-  
+  TRandom r; 
+
   // reset all parameters   
   void ResetParameters();
+  Bool_t  fTrackStopNxtStep;
 
-  ClassDef(PndHyp,2)
+  ClassDef(PndHyp,4)
 
 }; 
 
 
 inline void PndHyp::ResetParameters() {
-  fTrackID = fVolumeID = 0;
+  fTrackID = fVolumeID = fEventID =-1;
   fPosIn.SetXYZM(0.0, 0.0, 0.0, 0.0);
   fPosOut.SetXYZM(0.0, 0.0, 0.0, 0.0);
   fMomIn.SetPxPyPzE(0.0, 0.0, 0.0, 0.0);
