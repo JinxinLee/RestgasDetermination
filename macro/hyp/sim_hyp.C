@@ -15,10 +15,15 @@
   gSystem->Load("libMCStack");
   gSystem->Load("libField");
   gSystem->Load("libPassive"); // add other detector's lib if you need them
-  gSystem->Load("libHyp");
   gSystem->Load("libGen");
   gSystem->Load("libDpmEvtGen");
   gSystem->Load("libPGen");
+  gSystem->Load("libgenfit");
+  gSystem->Load("libtrackrep");
+  gSystem->Load("libtpc");
+  gSystem->Load("libtpcreco");
+  gSystem->Load("librecotasks");
+  gSystem->Load("libHyp");
   CbmRunSim *fRun = new CbmRunSim();
   
  
