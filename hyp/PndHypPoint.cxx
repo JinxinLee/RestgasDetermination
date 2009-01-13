@@ -14,7 +14,7 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndHypPoint::PndHypPoint() : CbmMCPoint() {
-  fTrackID    = -1;
+ 
   fEventID    = -1;
   fXin          = fYin  = fZin =  0.;
   fPxin         = fPyin = fPzin = 0.;
@@ -25,8 +25,7 @@ PndHypPoint::PndHypPoint() : CbmMCPoint() {
   fPLin        = fPLout = 0.;
 
   fTime       =  0.;
-  fLength     =  0.;
-  fELoss      =  0.;
+ 
   fcharge = 0.0;
   fmass   = 0.0;
   fVolumeID = fpdgCode = 0;
@@ -38,7 +37,7 @@ PndHypPoint::PndHypPoint() : CbmMCPoint() {
 
 
 // -----   Standard constructor   ------------------------------------------
-PndHypPoint::PndHypPoint(Int_t trackID, 
+PndHypPoint::PndHypPoint(Int_t trackID, Int_t evtID,
 			 Int_t detID, TString detName,
 			 TVector3 posin,
 			 TVector3 momin, 
@@ -50,9 +49,11 @@ PndHypPoint::PndHypPoint(Int_t trackID,
                          Double_t mass, 
 			 Int_t pdgCode,Double_t dist, 
 			 Double_t PLin, Double_t PLout)
+: CbmMCPoint(trackID, detID, posin, momin, tof, length, eLoss)
   {
-  fTrackID    = trackID;
+
   fVolumeID = detID; 
+  fEventID = evtID;
   
   fXin          = posin.X();
   fYin          = posin.Y();
@@ -81,9 +82,8 @@ PndHypPoint::PndHypPoint(Int_t trackID,
   
   fDetName = detName;
   
-  fTime       = tof;
-  fLength     = length;
-  fELoss      = eLoss;
+  //fTime       = tof;
+ 
   fcharge = charge;
   fmass   = mass;
   
