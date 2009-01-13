@@ -40,7 +40,7 @@ class PndHypPoint : public CbmMCPoint
    *@param eLoss    Energy deposit [GeV]
    **/
   
-  PndHypPoint(Int_t trackID, 
+  PndHypPoint(Int_t trackID, Int_t evtID,
 	      Int_t detID,TString detName,
 	      TVector3 posin, 
 	      TVector3 momin, 
@@ -64,7 +64,7 @@ class PndHypPoint : public CbmMCPoint
   
 
   /** Accessors **/
-  Int_t    GetTrackID()    const { return fTrackID; }; 
+  // Int_t    GetTrackID()    const { return fTrackID; }; 
   Int_t    GetEventID()    const { return fEventID; };
   Int_t    GetVolumeID() const { return fVolumeID; };
   Double_t GetXin()          const { return fXin; };
@@ -96,9 +96,9 @@ class PndHypPoint : public CbmMCPoint
   
   TString GetDetName() const { return fDetName;};
   Double_t GetMass() const { return fmass; };
-  Double_t GetTime()       const { return fTime; };
-  Double_t GetLength()     const { return fLength; };
-  Double_t GetEnergyLoss() const { return fELoss; };
+  //Double_t GetTime()       const { return fTime; };
+  // Double_t GetLength()     const { return fLength; };
+  //Double_t GetEnergyLoss() const { return fELoss; };
   
   void PositionIn(TVector3& pos)   { pos.SetXYZ(fXin, fYin, fZin); };
   void MomentumIn(TVector3& mom)   { mom.SetXYZ(fPxin, fPyin, fPzin); };
@@ -115,11 +115,11 @@ class PndHypPoint : public CbmMCPoint
  
   
   /** Modifiers **/
-  void SetTrackID(Int_t id)          { fTrackID    = id; } ;
-  void SetEventID(Int_t id)          { fEventID    = id; };
-  void SetTime(Double_t tof)        { fTime       = tof; };
-  void SetLength(Double_t length)    { fLength     = length; };
-  void SetEnergyLoss(Double_t eLoss) { fELoss      = eLoss; };
+  //void SetTrackID(Int_t id)          { fTrackID    = id; } ;
+  void SetEventID(Int_t ev)          { fEventID    = ev; };
+  //void SetTime(Double_t tof)        { fTime       = tof; };
+  //void SetLength(Double_t length)    { fLength     = length; };
+  //void SetEnergyLoss(Double_t eLoss) { fELoss      = eLoss; };
   
   void SetPositionIn(const TVector3& pos);
   void SetMomentumIn(const TVector3& mom);
@@ -139,8 +139,8 @@ class PndHypPoint : public CbmMCPoint
   Int_t fEventID;               // Event ID
  
   Double_t fPLin, fPLout;    //  momentum
-  Int_t fTrackID ; 
-  Double_t  fTime , fLength ,fELoss ,fmass,fcharge;
+  //Int_t fTrackID ; 
+  Double_t   fmass,fcharge;
   
   Double_t  fXin, fYin, fZin;
   Double_t  fPxin,fPyin,fPzin;
@@ -153,7 +153,7 @@ class PndHypPoint : public CbmMCPoint
   Int_t fVolumeID,fpdgCode;
   
   
-  ClassDef(PndHypPoint,1)
+  ClassDef(PndHypPoint,7)
 
 };
 
