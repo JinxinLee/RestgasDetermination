@@ -15,6 +15,7 @@
 #include "TGeoManager.h"
 #include "TLorentzVector.h"
 #include "TParticle.h"
+#include "THParticle.h"
 #include "TVirtualMC.h"
 #include "TString.h"
 #include "CbmGeoTransform.h"
@@ -38,8 +39,18 @@
 #include "CbmRuntimeDb.h"
 #include "TObjArray.h"
 #include "CbmRun.h"
+#include "CbmRunSim.h"
+
+#include "PndHypGeoHandling.h"
+
+//#include "PndHypDecayer.h"
+//#include "HypStatDecay.h"
+#include "TArrayI.h"
+#include "TMCProcess.h"
 
 #include "TList.h"
+#include "TFile.h"
+
 #include <string>
 #include <sstream>
 using std::cout;
@@ -98,6 +109,9 @@ PndHyp::~PndHyp() {
     fHypSTpipeCollection->Delete();
     delete fHypSTpipeCollection;
   }
+
+ delete fGeoH;
+ //delete fread;
   
 }
 // -------------------------------------------------------------------------
@@ -109,16 +123,17 @@ void PndHyp::Initialize() {
   // Init function
   
   CbmDetector::Initialize();
-  CbmRun* sim = CbmRun::Instance();
-  CbmRuntimeDb* rtdb=sim->GetRuntimeDb();
-  par=(PndGeoHypPar*)(rtdb->getContainer("PndGeoHypPar"));
-  
-  //TObjArray *fSensNodes = par->GetGeoSensitiveNodes();
-  
-  
-  //CbmGeoMedium* Si = gGeoManager->GetMedium("silicon");->getMediumIndex();
 
  
+
+  if(0==gGeoManager) {
+    std::cout<<" -E- No gGeoManager in PndHyp Detector::Initialize()!"<<std::endl;
+    abort();
+  }
+  fGeoH = new PndHypGeoHandling(gGeoManager);
+
+  //fread = new PndHypDecayer("hypBupDecay2.root");
+  //fread = new HypStatDecay("statDecay");
   
   TGeoMedium *Si= gGeoManager->GetMedium("HYPsilicon");
   SiId=  Si->GetId();
@@ -145,17 +160,30 @@ void PndHyp::BeginEvent(){
 }
 
 
+// -------------------------------------------------------------------------
+void PndHyp::PreTrack(){
+  // Begin of the event
+  
+  fTrackStopNxtStep=kFALSE;
+ // cout << " PndHyp::PreTrack() "<< endl;
+  
+}
+
+
+void PndHyp::SetSpecialPhysicsCuts(){
+// CbmRun* fRun = CbmRun::Instance();
+
+  //Int_t mat = gGeoManager->GetMaterialIndex("HYPdiamond");
+  //gMC->Gstpar(mat,"HADR",1.0e-9);
+}
+
 
    // -----   Public method ProcessHits  --------------------------------------
 
 Bool_t PndHyp::ProcessHits(CbmVolume* vol) 
 
 
-{ // CbmGeoMedium* Si = vol->getGeoNode()->getMedium();
-  //volSi = Si->getMediumIndex();
-  //    TString nameSi = Si->getName();
-  //  CbmGeoMedium* Si = gGeoManager->GetMedium("silicon");
-  //   volSi = Si->getMediumIndex();
+{ 
   
   //fpdgCode = gMC->TrackPid(); 
   Double_t beta, gamma;	TString nam;Int_t nSiL = -1;
@@ -163,12 +191,27 @@ Bool_t PndHyp::ProcessHits(CbmVolume* vol)
  
   Int_t medId =  gMC->CurrentMedium();
   TVector3 radt;
-  //cout<<"med = absorver "<<medId<<" "<<fpdgCode<<" "<< fmass<< " "<<endl;
   
+  
+   if(fTrackStopNxtStep) {
+   //if( gMC->TrackPid()==3312)//&&(medId==SiId||medId==CId))
+   //cout<<"particle  "<< gMC->TrackPid() << "  " <<fTrackStopNxtStep <<endl;
+      gMC->StopTrack();
+      return kTRUE;
+  }
+  
+
+  
+ 
+  /*gMC->TrackMomentum(PiL);
+   if (gMC->TrackPid()>1010000000 ||gMC->TrackPid()>1020000000 ||gMC->TrackPid()==-211) cout<<"ProcessHits :  Energy Loss  hyp "<< gMC->TrackPid() << "  "<<vol->getName() <<" "<<PiL.P()<<" "<<gMC->Edep()<<endl;
+   if(PiL.P()>3.)cout<<"ProcessHits :  Energy Loss  "<< gMC->TrackPid() << "  " 
+       <<vol->getName() <<" "<<PiL.P()<<" "<<gMC->Edep()<<endl;
+  */
+   
   if (medId==SiId) 
     { //hola
-    //fpdgCode = gMC->TrackPid(); 
-    //cout<<"silicon "<<medId<<" "<< fpdgCode<<endl;
+   
     if ( gMC->IsTrackEntering() ) 
       {
 	fELoss  = 0.;
@@ -177,22 +220,10 @@ Bool_t PndHyp::ProcessHits(CbmVolume* vol)
 	fmass   = gMC->TrackMass();   // mass (GeV)
 	fcharge = gMC->TrackCharge(); // charge?
 	fpdgCode = gMC->TrackPid(); 
+	fEventID = gMC->CurrentEvent();
 	gMC->TrackPosition(fPosIn);
 	gMC->TrackMomentum(fMomIn);
 
-	// float  globalPos[3], localPos[3];
-
-	// 	  globalPos[0] = fPosIn.X();
-	// 	  globalPos[1] = fPosIn.Y();
-	// 	  globalPos[2] = fPosIn.Z();
-
-	// 	  gMC->Gmtod(globalPos, localPos, 1);
-
-	// 	  fPosInLocal.SetXYZM(localPos[0], localPos[1], localPos[2], 0.0);
-
-	//	cout << "FullName: " << vol->getName() << "/"
-	//  << " entering "<<gGeoManager->GetPath()<<endl;
-		 
 		
       }
     
@@ -201,7 +232,7 @@ Bool_t PndHyp::ProcessHits(CbmVolume* vol)
     fELoss += gMC->Edep();
     
     // Set additional parameters at exit of active volume. Create CbmStsPoint.
-    //cout<<"Energy Loss  "<< fpdgCode << "  " << fELoss <<endl;
+    
     TLorentzVector PL;
     gMC->TrackMomentum(PL);
 	 
@@ -222,14 +253,7 @@ Bool_t PndHyp::ProcessHits(CbmVolume* vol)
 	//*** now the volume is through the layer number characterised.(X-Z,Z-Y)
 	fVolumeID = nSiL;
 	
-	CbmGeoNode* node = vol->getGeoNode();
-	TList* nodeList = node->getTree();
-	//cout << "FullName: " << vol->getName() << "/"<<endl;
-	for (Int_t index=0; index < nodeList->GetSize(); index++)
-	  {
-	    CbmGeoNode* myNode = dynamic_cast<CbmGeoNode*> ( nodeList->At(index) );
-	    //cout << myNode->getName() << "/";
-	  }
+
 	//**************///
 	  
 	  //FullName << gGeoManager->GetPath();
@@ -251,29 +275,14 @@ Bool_t PndHyp::ProcessHits(CbmVolume* vol)
 	     } */
 	  FullName <<gMC->CurrentVolPath();
 	  
-	  
-	  /* //7/11/07 modify the path
-	    fVolid=gMC->CurrentVolOffID(1,cp); 
-	  FullName <<"/";
-	  FullName << gMC->CurrentVolOffName(3) << "_" << cp << "/";
-	  FullName << gMC->CurrentVolOffName(2) << "_" << cp << "/";
-	  FullName << gMC->CurrentVolOffName(1) << "_" << cp << "/";
-	  FullName << gMC->CurrentVolName() << "_" << cp; 
-	  */
+	  if(0==fGeoH) {
+	    std::cout<<" -E- No PndHypGeoHandling loaded."<<std::endl;
+	    abort();
+	  }
+
  
 	  gMC->TrackPosition(fPosOut);
 	  gMC->TrackMomentum(fMomOut);
-
-	  // float globalPos[3],localPos[3] = {0., 0., 0.};
-
-	  // 	  globalPos[0] = fPosOut.X();
-	  // 	  globalPos[1] = fPosOut.Y();
-	  // 	  globalPos[2] = fPosOut.Z();
-	  
-	  // 	  gMC->Gmtod(globalPos, localPos, 1);
-	  // 	  fPosOutLocal.SetXYZM(localPos[0], 
-	  // 			     localPos[1], 
-	  // 			     localPos[2], 0.0);
 
 	  if (fELoss == 0. ) return kFALSE;
     
@@ -285,7 +294,8 @@ Bool_t PndHyp::ProcessHits(CbmVolume* vol)
 	  //fPLin = fMomIn.P();
 	  fPLout = fMomOut.P();
 
-	  AddHit(fTrackID, fVolumeID, FullName.str(),
+	  AddHit(fTrackID, fEventID,fVolumeID, 
+		 fGeoH->GetID(gMC->CurrentVolPath()),
 		 TVector3(fPosIn.X(),   fPosIn.Y(),   fPosIn.Z()),
 		 TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),
 		 TVector3(fPosOut.X(),  fPosOut.Y(),  fPosOut.Z()),
@@ -293,9 +303,7 @@ Bool_t PndHyp::ProcessHits(CbmVolume* vol)
 		 fTime, fLength,fELoss,fcharge,fmass,fpdgCode,
 		 fdist,fPLin,fPLout);
 	  
-	  //cout<<" xi minus? "<<fpdgCode<<" "<< fmass<< " "<<medId<<endl;
-
-	  //cout<<"med "<<medId<<" "<<fpdgCode<<" "<<fPLin<<" "<<fPLout << " "<<gamma<<endl;
+	 
 	  ResetParameters();
       }
 
@@ -309,7 +317,7 @@ Bool_t PndHyp::ProcessHits(CbmVolume* vol)
   //if ((nam2.Contains("Abs"))) {
   
   //if ((fpdgCode==3312)&&(medId==CId || medId==SiId))
-  if ((fpdgCode==3312)&&(nam2.Contains("Ab")||nam2.Contains("Si")))
+  if ((fpdgCode==3312)&&(nam2.Contains("Ab")))//||nam2.Contains("Si")))
     {  // absorver
        
        
@@ -321,12 +329,10 @@ Bool_t PndHyp::ProcessHits(CbmVolume* vol)
 	    fmass   = gMC->TrackMass();   // mass (GeV)
 	    fcharge = gMC->TrackCharge(); // charge?
 	    fpdgCode = gMC->TrackPid(); 
+	    fEventID = gMC->CurrentEvent();
 	    gMC->TrackPosition(fPosIn);
 	    gMC->TrackMomentum(fMomIn);
-	    // cout<<" xi minus "<<fMomIn.P()<<endl;
-	    //cout<<"med = C absorver "<<CId<<" "<<fpdgCode<<" "<<fELoss<<endl;
-
-	   
+	  
 	}
 
 	 // Sum energy loss for all steps in the active volume
@@ -336,19 +342,7 @@ Bool_t PndHyp::ProcessHits(CbmVolume* vol)
       TLorentzVector PL;
       gMC->TrackMomentum(PL);
       beta = PL.Beta();
-      //gamma = PL.Gamma();
-
-	// Set additional parameters at exit of active volume. Create CbmStsPoint.
-		  
-	 //(gMC->IsTrackStop()&&(PL.P()<1.0 )
-	 //if ((PL.P()>=0.00&&PL.P()<=0.5)&& gMC->IsTrackDisappeared())
-	 
-	 //---geant4: fStopButAlive()
-	 //if (gMC->IsTrackDisappeared()&&(!gMC->IsTrackStop())  )
-	 //---geant4: fStopandKill()
-	 //if ((!gMC->IsTrackDisappeared())&&(gMC->IsTrackStop())  )
-	 // gamma==1.0, tau==tau_proper particle at rest and alive
-	 //if (gamma==1.0) 
+      
 	
       if (beta==0.0) 
 	{    
@@ -373,9 +367,9 @@ Bool_t PndHyp::ProcessHits(CbmVolume* vol)
 	     //fPLin = fMomIn.P();
 	     fPLout = fMomOut.P();
  
-	     //cout<<"absorver "<<medId<<" "<<fpdgCode<<" "<< PL.P()<<endl;
+	    
      
-	     AddSecTarHit(fTrackID, fVolumeID,matName.str(),
+	     AddSecTarHit(fTrackID, fEventID,fVolumeID,matName.str(),
 		       TVector3(fPosIn.X(),   fPosIn.Y(),   fPosIn.Z()),
 		       TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),
 		       TVector3(fPosOut.X(),  fPosOut.Y(),  fPosOut.Z()),
@@ -384,7 +378,8 @@ Bool_t PndHyp::ProcessHits(CbmVolume* vol)
 		       fdist,fPLin,fPLout);
 
 
-	
+	     fTrackStopNxtStep=kTRUE;
+
 	     ResetParameters();
 	}
 
@@ -406,13 +401,11 @@ Bool_t PndHyp::ProcessHits(CbmVolume* vol)
 	      fLength = gMC->TrackLength();
 	      fmass   = gMC->TrackMass();   // mass (GeV)
 	      fcharge = gMC->TrackCharge(); // charge?
-	    fpdgCode = gMC->TrackPid(); 
-	    gMC->TrackPosition(fPosIn);
-	    gMC->TrackMomentum(fMomIn);
-	    //cout<<" pipe "<<fpdgCode<<endl;
-	    //cout<<"med = C absorver "<<CId<<" "<<fpdgCode<<" "<<fELoss<<endl;
-
-	   
+	      fpdgCode = gMC->TrackPid(); 
+	      fEventID = gMC->CurrentEvent();
+	      gMC->TrackPosition(fPosIn);
+	      gMC->TrackMomentum(fMomIn);
+	    
 	    }
 
 	  // Sum energy loss for all steps in the active volume
@@ -451,7 +444,7 @@ Bool_t PndHyp::ProcessHits(CbmVolume* vol)
 	     //fPLin = fMomIn.P();
 	     fPLout = fMomOut.P();
  
-	     AddSTpipeHit(fTrackID, fVolumeID,FullName.str(),
+	     AddSTpipeHit(fTrackID, fEventID,fVolumeID,FullName.str(),
 			  TVector3(fPosIn.X(),   fPosIn.Y(),   fPosIn.Z()),
 			  TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),
 			  TVector3(fPosOut.X(),  fPosOut.Y(),  fPosOut.Z()),
@@ -579,8 +572,8 @@ void PndHyp::ConstructGeometry() {
       fPassNodes->AddLast( aVol );
     }
   }
-  par->setChanged();
-  par->setInputVersion(fRun->GetRunId(),1);
+    par->setChanged();
+    par->setInputVersion(fRun->GetRunId(),1);
 
   ProcessNodes ( volList );
 
@@ -592,7 +585,8 @@ void PndHyp::ConstructGeometry() {
 
 // -----   Private method AddHit   --------------------------------------------
 
-PndHypPoint* PndHyp::AddHit(Int_t trackID, Int_t detID, TString detName,
+PndHypPoint* PndHyp::AddHit(Int_t trackID, Int_t evtID,
+			    Int_t detID, TString detName,
 			    TVector3 pos, TVector3 mom,
 			    TVector3 posout, 
 			    TVector3 momout,
@@ -605,7 +599,7 @@ PndHypPoint* PndHyp::AddHit(Int_t trackID, Int_t detID, TString detName,
 			    Double_t PLin,Double_t PLout) {
   TClonesArray& clref = *fHypCollection;
   Int_t size = clref.GetEntriesFast();
-  return new(clref[size]) PndHypPoint(trackID, detID, detName,pos, mom, 
+  return new(clref[size]) PndHypPoint(trackID,  evtID,detID, detName,pos, mom, 
 				      posout, momout,
 				      time, length, eLoss,charge, 
 				      mass,pdgCode,
@@ -618,8 +612,9 @@ PndHypPoint* PndHyp::AddHit(Int_t trackID, Int_t detID, TString detName,
 
 // -----   Private method AddSecTarHit   --------------------------------------------
 
-PndHypPoint* PndHyp::AddSecTarHit(Int_t trackID, Int_t detID, TString detName,
-			    TVector3 pos, TVector3 mom,  
+PndHypPoint* PndHyp::AddSecTarHit(Int_t trackID, Int_t evtID,
+				  Int_t detID, TString detName,
+				  TVector3 pos, TVector3 mom,  
 				  TVector3 posout, 
 				  TVector3 momout, 
 				  Double_t time, 
@@ -630,7 +625,8 @@ PndHypPoint* PndHyp::AddSecTarHit(Int_t trackID, Int_t detID, TString detName,
 				  Double_t PLin,Double_t PLout) {
   TClonesArray& clref = *fHypSecTarCollection;
   Int_t size = clref.GetEntriesFast();
-  return new(clref[size]) PndHypPoint(trackID, detID, detName, pos, mom,  posout, momout,
+  return new(clref[size]) PndHypPoint(trackID,  evtID,detID, detName, pos, 
+				      mom,  posout, momout,
 				      time, length, eLoss,charge, mass, pdgCode,
 				      dist,PLin,PLout);
  }
@@ -641,8 +637,9 @@ PndHypPoint* PndHyp::AddSecTarHit(Int_t trackID, Int_t detID, TString detName,
 
 // -----   Private method AddSTpipeHit   --------------------------------------------
 
-PndHypPoint* PndHyp::AddSTpipeHit(Int_t trackID, Int_t detID, TString detName,
-			    TVector3 pos, TVector3 mom,  
+PndHypPoint* PndHyp::AddSTpipeHit(Int_t trackID, Int_t evtID,
+				  Int_t detID, TString detName,
+				  TVector3 pos, TVector3 mom,  
 				  TVector3 posout, 
 				  TVector3 momout, 
 				  Double_t time, 
@@ -653,7 +650,8 @@ PndHypPoint* PndHyp::AddSTpipeHit(Int_t trackID, Int_t detID, TString detName,
 				  Double_t PLin,Double_t PLout) {
   TClonesArray& clref = *fHypSTpipeCollection;
   Int_t size = clref.GetEntriesFast();
-  return new(clref[size]) PndHypPoint(trackID, detID, detName, pos, mom,  posout, momout,
+  return new(clref[size]) PndHypPoint(trackID, evtID,detID, detName, pos, mom,  
+				      posout, momout,
 				      time, length, eLoss,charge, mass, pdgCode,
 				      dist,PLin,PLout);
  }
