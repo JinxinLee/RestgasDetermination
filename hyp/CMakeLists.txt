@@ -45,7 +45,7 @@ PndHypPoint.cxx
 PndHypHit.cxx
 PndHypHitProducerIdeal.cxx    
 PndHypContFact.cxx 
-#THParticle.cxx 
+THParticle.cxx 
 #PndHypDecayer.cxx 
 #PndHypDecayReader.cxx
 #PndHypAnaIdeal.cxx  
@@ -65,10 +65,10 @@ PndHypContFact.cxx
 #hypDigi/PndHypCalcStrip.cxx
 #hypDigi/PndHypCalcFePixel.cxx
 #hypDigi/PndHypGeoMappingPar.cxx
-#hypDigi/PndHypDigiPar.cxx
-#hypDigi/PndHypStripDigiPar.cxx
+hypDigi/PndHypDigiPar.cxx
+hypDigi/PndHypStripDigiPar.cxx
 
-#hypReco/PndHypIdealRecoTask.cxx
+hypReco/PndHypIdealRecoTask.cxx
 #hypReco/PndHypRecoTask.cxx
 #hypReco/PndHypStripClusterBuilder.cxx
 #hypReco/PndHypStripClusterTask.cxx
@@ -76,7 +76,7 @@ PndHypContFact.cxx
 #hypFullAna/PndHypFullAna.cxx
 #hypFullAna/PndHypMicroWriter.cxx
 
-#hypTools/PndHypGeoHandling.cxx
+hypTools/PndHypGeoHandling.cxx
 #hypTools/PndStringVector.cxx
 #hypTools/PndHypMSAnaTask.cxx;
 
