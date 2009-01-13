@@ -11,7 +11,7 @@
 #pragma link C++ class  PndHypContFact+;
 #pragma link C++ class  PndHypHit+;
 #pragma link C++ class  PndHypHitProducerIdeal+;
-#pragma link C++ class  THParticle+;
+//#pragma link C++ class  THParticle+;
 //#pragma link C++ class  PndHypDecayer+;
 //#pragma link C++ class  PndHypDecayReader+;
 //#pragma link C++ class  PndHypAnaIdeal+;
@@ -31,13 +31,13 @@
 */
 //digi
 
-#pragma link C++ class PndHypDigiPar+;
-#pragma link C++ class PndHypStripDigiPar+;
+//#pragma link C++ class PndHypDigiPar+;
+//#pragma link C++ class PndHypStripDigiPar+;
 /*#pragma link C++ class PndHypStripHitProducer+;
 #pragma link C++ class PndHypPixelHitProducer+;
 */
 //reco
-#pragma link C++ class PndHypIdealRecoTask+;
+//#pragma link C++ class PndHypIdealRecoTask+;
 //#pragma link C++ class PndHypRecoTask+;
 //#pragma link C++ class PndHypHitMaker+;
 //#pragma link C++ class PndHypHitMakerFactory+;
@@ -50,7 +50,7 @@
 //#pragma link C++ class PndHypMicroWriter+;
 
 //tools
-#pragma link C++ class PndHypGeoHandling+;
+//#pragma link C++ class PndHypGeoHandling+;
 //#pragma link C++ class PndHypMSAnaTask+;
 
 //tracking
