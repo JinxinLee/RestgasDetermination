@@ -27,11 +27,10 @@ let max=$4+1
 
 while [ $tel != $max ]
 do
- echo "<I> Copying $2/$tel" >> logfile 2>&1
- scp -B -r $2/$tel/sim*.root . >> logfile 2>&1
+ scp -B -r $2/$tel/sim*.root . > /dev/null 2>&1
 
- echo "<I> Analyzing $2/$tel" >> logfile 2>&1
  if [ -s sim.root ]; then
+     echo "<I> Analyzing $2/$tel" >> logfile 2>&1
      root -l -b -q "full.C(\"sim.root\",\"full_rev${revnumber}_$5.root\",\"simparams.root\")" >> logfile 2>&1 
      cnt=1
      for FILENAME in "`find . -name "sim.root_*" -print`" ; do
@@ -40,17 +39,17 @@ do
 	     let cnt=cnt+1
 	 fi
      done
- fi
 
- echo "<I> Copying full_rev${revnumber}_$5.root to $2/$tel/" >> logfile 2>&1
- if [ -s full_rev${revnumber}_$5.root ]; then
-     scp -B -r full_rev${revnumber}_$5*.root $2/$tel/ >> logfile 2>&1
+     echo "<I> Copying full_rev${revnumber}_$5.root to $2/$tel/" >> logfile 2>&1
+     if [ -s full_rev${revnumber}_$5.root ]; then
+	 scp -B -r full_rev${revnumber}_$5*.root $2/$tel/ >> logfile 2>&1
+     fi
+     rm -f sim*.root >> logfile 2>&1
+     rm -f full*.root >> logfile 2>&1
+     
+     scp -B -r logfile $2/$tel/logfile_$5 > /dev/null 2>&1
+     let tel=tel+1  
  fi
- rm -f sim*.root >> logfile 2>&1
- rm -f full*.root >> logfile 2>&1
-
- scp -B -r logfile $2/$tel/logfile_$5 > /dev/null 2>&1
- let tel=tel+1
 done
 
 exit 0
