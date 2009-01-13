@@ -14,8 +14,8 @@ using namespace std;
 #include "CbmParRootFileIo.h"
 #include "CbmParAsciiFileIo.h"
 #include "PndGeoHypPar.h"
-//#include "PndHypDigiPar.h"
-//#include "PndHypStripDigiPar.h"
+#include "PndHypDigiPar.h"
+#include "PndHypStripDigiPar.h"
 #include <iostream>
 #include <iomanip>
 
