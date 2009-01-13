@@ -11,4 +11,52 @@
 #pragma link C++ class  PndHypContFact+;
 #pragma link C++ class  PndHypHit+;
 #pragma link C++ class  PndHypHitProducerIdeal+;
+#pragma link C++ class  THParticle+;
+//#pragma link C++ class  PndHypDecayer+;
+//#pragma link C++ class  PndHypDecayReader+;
+//#pragma link C++ class  PndHypAnaIdeal+;
+//#pragma link C++ class  HypStatDecay+;
+//#pragma link C++ class  PndHypDigi+;
+
+//data
+/*#pragma link C++ class PndHypCluster+;
+#pragma link C++ class PndHypDigiPixel+;
+#pragma link C++ class PndHypPixel+;
+#pragma link C++ class PndHypDigiStrip+;
+#pragma link C++ class PndHypStrip+;
+#pragma link C++ class PndHypGeoMappingPar+;
+#pragma link C++ class PndHypCluster+;
+#pragma link C++ class PndHypRecoHit+;
+//#pragma link C++ class PndHypStripCluster+;
+*/
+//digi
+
+#pragma link C++ class PndHypDigiPar+;
+#pragma link C++ class PndHypStripDigiPar+;
+/*#pragma link C++ class PndHypStripHitProducer+;
+#pragma link C++ class PndHypPixelHitProducer+;
+*/
+//reco
+#pragma link C++ class PndHypIdealRecoTask+;
+//#pragma link C++ class PndHypRecoTask+;
+//#pragma link C++ class PndHypHitMaker+;
+//#pragma link C++ class PndHypHitMakerFactory+;
+//#pragma link C++ class PndHypSimpleHitMaker+;
+//#pragma link C++ class PndHypStripClusterBuilder+;
+//#pragma link C++ class PndHypStripClusterTask+;
+
+//fullana
+//#pragma link C++ class PndHypFullAna+;
+//#pragma link C++ class PndHypMicroWriter+;
+
+//tools
+#pragma link C++ class PndHypGeoHandling+;
+//#pragma link C++ class PndHypMSAnaTask+;
+
+//tracking
+//#pragma link C++ class PndHypIdealTrackingTask+;
+//#pragma link C++ class PndHypIdealTrackFinderTask+;
+//#pragma link C++ class PndHypRiemannTrackFinderTask+;
+//#pragma link C++ class PndHypKalmanTask+;
+
 #endif
