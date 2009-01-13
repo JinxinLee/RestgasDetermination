@@ -14,8 +14,8 @@ using namespace std;
 #include "CbmParRootFileIo.h"
 #include "CbmParAsciiFileIo.h"
 #include "PndGeoHypPar.h"
-//#include "PndHypDigiPar.h"
-//#include "PndHypStripDigiPar.h"
+#include "PndHypDigiPar.h"
+#include "PndHypStripDigiPar.h"
 #include <iostream>
 #include <iomanip>
 
@@ -42,7 +42,7 @@ void PndHypContFact::setAllContainers() {
 
     containers->Add(p);
 
-    /*  CbmContainer* p2 = new CbmContainer("PndHypDigiPar", 
+    CbmContainer* p2 = new CbmContainer("PndHypDigiPar", 
 					"Hyp Pixel Digitization Parameters", 
 					"TestDefaultContext");
     p2->addContext("TestNonDefaultContext");
@@ -53,7 +53,7 @@ void PndHypContFact::setAllContainers() {
 					"TestDefaultContext");
     p3->addContext("TestNonDefaultContext");
     containers->Add(p3);
-    */
+    
 
 }
 
@@ -67,13 +67,13 @@ CbmParSet* PndHypContFact::createContainer(CbmContainer* c) {
     p=new PndGeoHypPar(c->getConcatName().Data(),c->GetTitle(),c->getContext());
   }
 
-  /*if (strcmp(name,"PndHypDigiPar")==0) {
+  if (strcmp(name,"PndHypDigiPar")==0) {
 	p=new PndHypDigiPar(c->getConcatName().Data(),c->GetTitle(),c->getContext());
   }
 
   if (strcmp(name,"PndHypStripDigiPar")==0) {
 	p=new PndHypStripDigiPar(c->getConcatName().Data(),c->GetTitle(),c->getContext());
-	}*/
+	}
 
   return p;
 }
