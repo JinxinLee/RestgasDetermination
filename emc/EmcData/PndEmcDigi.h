@@ -66,7 +66,7 @@ class PndEmcDigi : public TObject
 
   
 	/** Accessors **/
-	Double_t GetEnergy()  const;
+	virtual Double_t GetEnergy()  const;
 	Double_t GetTime()  const { return fTime     ;};
 	Int_t GetTrackId()    const { return fTrackId    ;};
 	Int_t GetDetectorId() const { return fDetectorId ;};

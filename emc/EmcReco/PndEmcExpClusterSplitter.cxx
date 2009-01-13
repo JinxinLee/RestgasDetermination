@@ -300,7 +300,7 @@ void PndEmcExpClusterSplitter::splitCluster(const std::set<PndEmcTwoCoordIndex*>
 	    std::cout<<"energy = "<<theCurrentDigi->GetEnergy()<<", weight = "<< weight<<std::endl;
 	  }
 	  
-	  PndEmcSharedDigi* sharedDigi= new PndEmcSharedDigi( *theCurrentDigi, weight );
+	  PndEmcDigi* sharedDigi= new PndEmcSharedDigi( *theCurrentDigi, weight );
 	  
 	  if (fVerbose>=3){
 	    std::cout<<"shared digi energy = "<<sharedDigi->GetEnergy()<<std::endl;
