@@ -6,32 +6,8 @@ void runMC(TString fname="dsdsj20k_4291.evt", int nEvents = 10 )
   timer.Start();
   gDebug=0;
   // Load basic libraries
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-  basiclibs();
-  // Load this example libraries
-  gSystem->Load("libGeoBase");
-  gSystem->Load("libParBase");
-  gSystem->Load("libBase");
-  gSystem->Load("libMCStack");
-  gSystem->Load("libField");
-  gSystem->Load("libPassive");
-
-  gSystem->Load("libMvd");
-  gSystem->Load("libEmc");
-  gSystem->Load("libDrcProp");
-  gSystem->Load("libDrc");
-  gSystem->Load("libGen");
-  gSystem->Load("libgenfit");
-  gSystem->Load("libtrackrep");
-
-
-  gSystem->Load("libtpc");
-  gSystem->Load("libtpcreco");
-  gSystem->Load("librecotasks");
-
-  gSystem->Load("pgenerators/DpmEvtGen/lib/libDpmEvtGen");
-  //gSystem->Load("libPGen");
-
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  rootlogon();
 
   //Int_t nEvents = 2000;
 
