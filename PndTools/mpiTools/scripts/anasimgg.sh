@@ -71,10 +71,9 @@ do
      rm -f full*.root >> logfile 2>&1
      rm -f logfile
      touch logfile
-
-     let tel=tel+1  
   fi
  fi
+ let tel=tel+1  
 done
 
 exit 0
