@@ -55,7 +55,8 @@ void run_sim_tpccombi_dpm(Int_t nEvents=100, Float_t pbarP=4.0){
   Tof->SetGeometryFileName("tofbarrel.geo");
   fRun->AddModule(Tof);
  
-  CbmDetector *Muo = new PndMdt("MDT",kTRUE);
+  PndMdt *Muo = new PndMdt("MDT",kTRUE);
+  Muo->SetMdtVersion("torino");
   Muo->SetGeometryFileName("muopars.root");
   fRun->AddModule(Muo);
  
