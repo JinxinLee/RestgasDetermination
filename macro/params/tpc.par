@@ -13,11 +13,13 @@ LogitudinaldiffusionFlag:i 1
 TransversediffusionFlag:i 1
 DriftDistortionFlag:i 0
 zGem:d -40
-Gain:d 5000
+zMax:d 110
+Gain:d 4000
+Supression:d 0.001
 Spread:d 0.02
 MinSignalAmp:d 10
-rMin:d 15
-rMax:d 42
+rMin:d 15.5
+rMax:d 41.5
 PadPlaneFile:i 24
 PadShapeFile:i 14
 PadShapeRange:d 0.5
@@ -36,4 +38,5 @@ Shaper_tSig:d 2
 TOTPSA:i 1
 GAUSSIANNOISE:i 0
 GAUSSIANNOISEAMP:i 0
+Rate:d 2e-2
 #################################################################
