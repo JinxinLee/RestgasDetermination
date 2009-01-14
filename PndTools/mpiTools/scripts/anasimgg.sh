@@ -7,13 +7,13 @@
 # argument 5: output filename
 #
 #
-export KVIHOME=/home/rugkvi04/kvi
-export PANDAHOME=/home/rugkvi04/panda
+export STUFF=/opt/exp_soft
+export PANDAHOME=/home/panda
 export PANDAROOTHOME=$HOME/pandaroot
 source $PANDAROOTHOME/build/config.sh > logfile
 #
-export PATH=$KVIHOME/subversion/bin:$HOME/bin:$PATH
-export LD_LIBRARY_PATH=$KVIHOME/subversion/lib:$LD_LIBRARY_PATH
+export PATH=$HOME/bin:$STUFF/bin:$PATH
+export LD_LIBRARY_PATH=$STUFF/lib:$LD_LIBRARY_PATH
 #
 # Copy ROOT scripts to local path
 #
