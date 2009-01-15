@@ -141,23 +141,25 @@ PndEmcClusterEnergySums::E25() const
 
 }
 
-Double_t
-PndEmcClusterEnergySums::E1E9() const
+Double_t PndEmcClusterEnergySums::E1E9() const
 {
   Double_t e9 = E9();
-
-  Double_t e1e9 = ( e9 != 0. )? e1e9 = E1()/e9 : -1.;
-
+  //Double_t e1e9 = ( e9 != 0. )? e1e9 = E1()/e9 : -1.;
+   Double_t e1e9 = -1;
+   if( e9 != 0.0){
+   	e1e9 = E1()/e9;
+   	}
   return( e1e9 );
 }
 
-Double_t
-PndEmcClusterEnergySums::E9E25() const
+Double_t PndEmcClusterEnergySums::E9E25() const
 {
   Double_t e25 = E25();
-
-  Double_t e9e25 = ( e25 != 0. )? e9e25 = E9()/e25 : -1.;
-
+  //Double_t e9e25 = ( e25 != 0. )? e9e25 = E9()/e25 : -1.;
+  Double_t e9e25 = -1;
+  if( e25 != 0.0){
+  	e9e25 = E9()/e25;
+  	}
   return( e9e25 );
 }
 
@@ -170,4 +172,3 @@ PndEmcClusterEnergySums::Print(const Option_t* opt) const
 }
 
 ClassImp(PndEmcClusterEnergySums)
-

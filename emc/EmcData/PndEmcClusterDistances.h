@@ -15,9 +15,9 @@
 //
 // Dima Melnichuk, adaption for pandaroot
 //------------------------------------------------------------------------
-
-#ifndef PNDEMCCLUSTERDISTANCES_HH
-#define PNDEMCCLUSTERDISTANCES_HH
+#pragma once
+#ifndef PNDEMCCLUSTERDISTANCES_H
+#define PNDEMCCLUSTERDISTANCES_H
 
 #include "PndEmcAbsClusterProperty.h"
 #include "TObject.h"

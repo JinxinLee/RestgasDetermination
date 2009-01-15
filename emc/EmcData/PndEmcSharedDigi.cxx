@@ -47,6 +47,7 @@ PndEmcSharedDigi::PndEmcSharedDigi()
 
 PndEmcSharedDigi::~PndEmcSharedDigi()
 {
+	delete fDigi;
 }
 
 PndEmcDigi*

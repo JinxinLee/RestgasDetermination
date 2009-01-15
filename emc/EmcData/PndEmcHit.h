@@ -9,7 +9,7 @@
  ** Hits in EMC
  **/
 
-
+#pragma once
 #ifndef PNDEMCHIT_H
 #define PNDEMCHIT_H
 

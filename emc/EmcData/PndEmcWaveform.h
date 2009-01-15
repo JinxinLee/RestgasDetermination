@@ -36,8 +36,9 @@
 // 	P.D.Strother 	Imperial College
 // Dima Melnichuk - adaption for PANDA		
 //=======================================================================
-#ifndef PNDEMCWAVEFORM_HH
-#define PNDEMCWAVEFORM_HH
+#pragma once
+#ifndef PNDEMCWAVEFORM_H
+#define PNDEMCWAVEFORM_H
 
 #include <vector>
 #include "TObject.h"
@@ -136,6 +137,4 @@ private:
 
 ClassDef(PndEmcWaveform,1)
 };
-
-
 #endif

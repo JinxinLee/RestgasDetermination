@@ -15,9 +15,9 @@
 //	Copyright (C) 1998	University of Edinburgh
 //
 //------------------------------------------------------------------------
-
-#ifndef PNDEMCABSCLUSTERPROPERTY_HH
-#define PNDEMCABSCLUSTERPROPERTY_HH
+#pragma once
+#ifndef PNDEMCABSCLUSTERPROPERTY_H
+#define PNDEMCABSCLUSTERPROPERTY_H
 
 #include "TObject.h"
 #include <map>

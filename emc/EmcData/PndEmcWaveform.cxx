@@ -118,6 +118,7 @@ PndEmcWaveform::operator=(const PndEmcWaveform &copy){
 
 PndEmcWaveform::~PndEmcWaveform()
 {
+	fSignal.clear();
 }
 
     

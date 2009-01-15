@@ -17,9 +17,9 @@
 //
 // Dima Melnichuk, adaption for pandaroot
 //------------------------------------------------------------------------
-
-#ifndef PNDEMCCLUSTERENERGYSUMS_HH
-#define PNDEMCCLUSTERENERGYSUMS_HH
+#pragma once
+#ifndef PNDEMCCLUSTERENERGYSUMS_H
+#define PNDEMCCLUSTERENERGYSUMS_H
 
 #include "PndEmcAbsClusterProperty.h"
 #include <iostream>
@@ -65,5 +65,4 @@ private:
 	
 	ClassDef(PndEmcClusterEnergySums,1)
 };
-
-#endif // PNDEMCCLUSTERENERGYSUMS_HH
+#endif // PNDEMCCLUSTERENERGYSUMS_H

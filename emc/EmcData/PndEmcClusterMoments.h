@@ -16,9 +16,9 @@
 //
 // Dima Melnichuk, adaption for pandaroot
 //------------------------------------------------------------------------
-
-#ifndef PNDEMCCLUSTERMOMENTS_HH
-#define PNDEMCCLUSTERMOMENTS_HH
+#pragma once
+#ifndef PNDEMCCLUSTERMOMENTS_H
+#define PNDEMCCLUSTERMOMENTS_H
 
 #include "PndEmcAbsClusterProperty.h"
 #include "TObject.h"
