@@ -15,16 +15,16 @@
 // Copyright Information:
 //      Copyright (C) 1996             Imperial College
 //----------------------------------------------------------------------
-
-#ifndef PndEmcHitsToWaveform_HH
-#define PndEmcHitsToWaveform_HH
+#pragma once
+#ifndef PndEmcHitsToWaveform_H
+#define PndEmcHitsToWaveform_H
 
 #include "PndEmcWaveform.h"
 #include "PndEmcTwoCoordIndex.h"
 
 #include "CbmTask.h"
-#include <string>
-#include <map>
+//#include <string>
+//#include <map>
 
 //class PndEmcTwoCoordIndex;
 //class PndEmcWaveform;

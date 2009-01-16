@@ -64,11 +64,11 @@ public:
   virtual ~PndEmcWaveform();
 
   // Copy:
-  PndEmcWaveform(const PndEmcWaveform &);
+  PndEmcWaveform(const PndEmcWaveform& copy);
 
   // Operators
   
-  virtual PndEmcWaveform& operator=(const PndEmcWaveform &);
+  virtual PndEmcWaveform& operator=(const PndEmcWaveform& copy);
 
   // Selectors 
 

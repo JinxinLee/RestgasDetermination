@@ -42,4 +42,4 @@ private:
 	ClassDef(PndEmcRecoHit,1)
 };
 
-#endif // PNDEMCRECOHIT_HH
+#endif // PNDEMCRECOHIT_H

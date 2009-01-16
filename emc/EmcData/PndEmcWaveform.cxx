@@ -69,7 +69,7 @@ PndEmcWaveform::PndEmcWaveform(int trackId, long detId, Double_t tau1, Double_t 
 	fTCI=fEmcMap->GetTCI(detId);
 }
 
-PndEmcWaveform::PndEmcWaveform(const PndEmcWaveform &copy)
+PndEmcWaveform::PndEmcWaveform(const PndEmcWaveform& copy)
 {
 		fTrackId=copy.fTrackId;
 		fDetectorId = copy.fDetectorId;

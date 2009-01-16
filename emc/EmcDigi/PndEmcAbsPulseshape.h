@@ -9,9 +9,9 @@
 //      Sebastian Neubert    TUM            (original author)
 //
 //-----------------------------------------------------------
-
-#ifndef PNDEMCABSPULSESHAPE_HH
-#define PNDEMCABSPULSESHAPE_HH
+#pragma once
+#ifndef PNDEMCABSPULSESHAPE_H
+#define PNDEMCABSPULSESHAPE_H
 
 // Collaborating Class Headers -------
 

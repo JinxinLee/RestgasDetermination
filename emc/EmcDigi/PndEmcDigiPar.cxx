@@ -15,7 +15,7 @@ PndEmcDigiPar::PndEmcDigiPar(const char* name,const char* title,
 			     const char* context)
     : CbmParGenericSet(name,title,context) 
 {
-	clear();
+	clear();//WHY?
 }
 
 void PndEmcDigiPar::putParams(CbmParamList* list)
@@ -67,4 +67,3 @@ Bool_t PndEmcDigiPar::getParams(CbmParamList* list)
 	
 	return kTRUE;
 }
-

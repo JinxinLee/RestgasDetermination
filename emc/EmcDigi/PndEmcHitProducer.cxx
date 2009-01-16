@@ -31,7 +31,7 @@
 #include "TGeoMatrix.h"
 #include "TVector3.h"
 
-#include <string>
+//#include <string>
 
 using std::cout;
 using std::endl;
@@ -53,7 +53,7 @@ PndEmcHitProducer::PndEmcHitProducer(Bool_t val) :
 }
 
 // -----   Destructor   ----------------------------------------------------
-PndEmcHitProducer::~PndEmcHitProducer() { }
+PndEmcHitProducer::~PndEmcHitProducer() { delete fEmcStr;}
 // -------------------------------------------------------------------------
 
 

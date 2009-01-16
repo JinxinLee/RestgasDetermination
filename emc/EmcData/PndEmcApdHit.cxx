@@ -68,7 +68,10 @@ PndEmcApdHit::PndEmcApdHit(const PndEmcApdHit &copy)
 	for (Int_t ii=0; ii<10; ii++) fPointIndex[ii] = copy.fPointIndex[ii];
 }
 // -----   Destructor   ----------------------------------------------------
-PndEmcApdHit::~PndEmcApdHit() {}
+PndEmcApdHit::~PndEmcApdHit()
+{
+  fPointList.clear();
+}
 // -------------------------------------------------------------------------
 
 

@@ -11,9 +11,9 @@
 //	 Software developed for the BaBar Detector at the SLAC B-Factory.
 // Adapted for the PANDA experiment at GSI		
 //----------------------------------------------------------------------
-
-#ifndef PndEmcMakeDigi_HH
-#define PndEmcMakeDigi_HH
+#pragma once
+#ifndef PndEmcMakeDigi_H
+#define PndEmcMakeDigi_H
 
 #include "CbmTask.h"
 #include <string>		

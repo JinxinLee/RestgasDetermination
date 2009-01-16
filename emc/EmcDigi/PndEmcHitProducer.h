@@ -2,9 +2,9 @@
 // -----                 PndEmcHitProducer header file                 -----
 // -----                 Created 14/08/06  by S.Spataro                -----
 // -------------------------------------------------------------------------
-
+#pragma once
 #ifndef PNDEMCHITPRODUCER_H
-#define PNDEMCHITPRODUCER_H 1
+#define PNDEMCHITPRODUCER_H
 
 
 #include "CbmTask.h"
@@ -68,7 +68,7 @@ class PndEmcHitProducer : public CbmTask
 	mapper emcY;
 	mapper emcZ;
 	
-	PndEmcStructure *fEmcStr;
+	PndEmcStructure* fEmcStr;
 
 	PndEmcDigiPar*    fDigiPar;      /** Digitisation parameter container **/
 

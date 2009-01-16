@@ -75,9 +75,9 @@ public:
 private:
 
 	PndEmcClusterMoments();
-	PndEmcClusterMoments &operator=(const PndEmcClusterMoments &);
+	PndEmcClusterMoments& operator=(const PndEmcClusterMoments& other);
 	
 	ClassDef(PndEmcClusterMoments,1)
 };
 
-#endif // PNDEMCCLUSTERMOMENTS_HH
+#endif // PNDEMCCLUSTERMOMENTS_H

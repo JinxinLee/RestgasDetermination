@@ -8,15 +8,15 @@
 //      Sebastian Neubert    TUM            (original author)
 //
 //-----------------------------------------------------------
-
-#ifndef PNDEMCCRRCPULSESHAPE_HH
-#define PNDEMCCRRCPULSESHAPE_HH
+#pragma once
+#ifndef PNDEMCCRRCPULSESHAPE_H
+#define PNDEMCCRRCPULSESHAPE_H
 
 // Base Class Headers ----------------
 #include "PndEmcAbsPulseshape.h"
 
 // Collaborating Class Headers -------
-#include <ostream> 
+//#include <ostream> 
 
 class PndEmcCRRCPulseshape  : public PndEmcAbsPulseshape
 {

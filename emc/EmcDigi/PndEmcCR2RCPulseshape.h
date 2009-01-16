@@ -6,15 +6,15 @@
 //      Pulseshape from an CR2RC-Shaper
 //
 //-----------------------------------------------------------
-
-#ifndef PNDEMCCR2RCPULSESHAPE_HH
-#define PNDEMCCR2RCPULSESHAPE_HH
+#pragma once
+#ifndef PNDEMCCR2RCPULSESHAPE_H
+#define PNDEMCCR2RCPULSESHAPE_H
 
 // Base Class Headers ----------------
 #include "PndEmcAbsPulseshape.h"
 
 // Collaborating Class Headers -------
-#include <ostream> 
+//#include <ostream> 
 
 class PndEmcCR2RCPulseshape  : public PndEmcAbsPulseshape
 {

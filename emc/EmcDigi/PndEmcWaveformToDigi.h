@@ -17,13 +17,13 @@
 //      Copyright (C) 1996             Imperial College
 //
 //----------------------------------------------------------------------
-
-#ifndef PndEmcWaveformToDigi_HH
-#define PndEmcWaveformToDigi_HH
+#pragma once
+#ifndef PndEmcWaveformToDigi_H
+#define PndEmcWaveformToDigi_H
 
 #include "CbmTask.h"
 #include <string>		
-#include <vector>
+//#include <vector>
 
 class PndEmcHit;
 class PndEmcTwoCoordIndex;

@@ -46,7 +46,8 @@ public:
 protected:
 
   // Helper functions
-  const PndEmcCluster& MyCluster() const;
+  //Possible memory problems (FIXME)
+  const PndEmcCluster& MyCluster()const;
   PndEmcDigiPtrDict& Members() const;
 
 private:

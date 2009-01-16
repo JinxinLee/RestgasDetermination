@@ -111,7 +111,7 @@ private:
 	PndEmcXClMoments &operator=(const PndEmcXClMoments &);
 	
 	// Data members
-	std::vector<PndEmcClEnergyDeposition> *fEnergyDistribution;
+	std::vector<PndEmcClEnergyDeposition>* fEnergyDistribution;
 	Int_t fClusterSize; 
 	Double_t (PndEmcXClMoments::*fFcn[12])( Double_t ) const;
 	Double_t (PndEmcXClMoments::*fFcn2)( Double_t );

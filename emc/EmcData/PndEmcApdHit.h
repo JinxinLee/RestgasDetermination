@@ -62,8 +62,9 @@ class PndEmcApdHit : public CbmHit
  
   Int_t GetNPoints()            const {  return fNPoints;};
   Int_t GetMCIndex(Short_t ind) const {  return fPointIndex[ind];};
-   
-  std::vector<PndEmcApdPoint*> &GetPointList() {return fPointList;}
+  
+  // Possible memory issue (FIXME).
+  std::vector<PndEmcApdPoint*>& GetPointList() {return fPointList;}
   
   //TArrayI* GetPoindIndexes() { return fPointIndexes;};
     

@@ -44,7 +44,7 @@ PndEmcApdHitProducer::PndEmcApdHitProducer() :
 // -------------------------------------------------------------------------
 
 // -----   Destructor   ----------------------------------------------------
-PndEmcApdHitProducer::~PndEmcApdHitProducer() { }
+PndEmcApdHitProducer::~PndEmcApdHitProducer() { delete fEmcStr;}
 // -------------------------------------------------------------------------
 
 

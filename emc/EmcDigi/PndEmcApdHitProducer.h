@@ -2,9 +2,9 @@
 // -----                 PndEmcApdHitProducer header file                 -----
 // -----                 Created 07/04/08  by S.Spataro                -----
 // -------------------------------------------------------------------------
-
+#pragma once
 #ifndef PNDEMCAPDHITPRODUCER_H
-#define PNDEMCAPDHITPRODUCER_H 1
+#define PNDEMCAPDHITPRODUCER_H
 
 
 #include "CbmTask.h"

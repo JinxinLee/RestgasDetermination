@@ -25,7 +25,7 @@
 #include "TROOT.h"
 
 #include <iostream>
-#include <map>
+//#include <map>
 
 using std::cout;
 using std::endl;
@@ -121,7 +121,7 @@ void PndEmcMakeDigi::Exec(Option_t* opt)
 		int detId=theHit->GetDetectorID();
 		Double_t energy=theHit->GetEnergy();
 		
-		int module = detId/100000000;
+		//int module = detId/100000000;
 		
 		if (energy>fThreshold)
 		{

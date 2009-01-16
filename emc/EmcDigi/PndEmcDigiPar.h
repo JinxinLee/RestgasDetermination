@@ -1,3 +1,4 @@
+#pragma once
 #ifndef PNDEMCDIGIPAR_H
 #define PNDEMCDIGIPAR_H
 
@@ -31,7 +32,10 @@ class PndEmcDigiPar : public CbmParGenericSet
 			    const char* title="Emc digi parameter",
 			    const char* context="TestDefaultContext");
 		~PndEmcDigiPar(void){};
+		
+		// Empty method, WHY is this Called in constructor(FIXME)
 		void clear(void){};
+		
 		void putParams(CbmParamList* list);
 		Bool_t getParams(CbmParamList* list);
 	
