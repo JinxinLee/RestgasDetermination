@@ -27,6 +27,10 @@
 
 using namespace std;
 
+Int_t PndMdt::fTrkIn = 0;
+TLorentzVector PndMdt::fPos_In;
+TLorentzVector PndMdt::fMom_In;
+
 
 // -----   Default constructor   -------------------------------------------
 PndMdt::PndMdt() 

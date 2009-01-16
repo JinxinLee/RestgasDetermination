@@ -58,6 +58,11 @@ public:
     void BeginEvent();
     Bool_t ProcessHits(CbmVolume* vol);
     void EndOfEvent();
+
+    static Int_t fTrkIn; 
+    static TLorentzVector fPos_In;
+    static TLorentzVector fMom_In;
+
 	ClassDef(PndMdt,1)
     
 private:

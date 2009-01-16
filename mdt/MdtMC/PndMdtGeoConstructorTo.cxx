@@ -191,28 +191,32 @@ void PndMdt::ConstructGeometryTo()
 // -----   Public method ProcessHits  --------------------------------------
 Bool_t PndMdt::ProcessHitsTo(CbmVolume* vol) 
 {
-
-  Int_t track_out = 0; // 0 = track in; 1 = track out
-  if (gMC->IsTrackEntering()) track_out = 0;
-  if (gMC->IsTrackExiting() ) track_out = 1;
-
-  if (gMC->IsTrackEntering() || gMC->IsTrackExiting()){
-	  Int_t TrNo=gMC->GetStack()->GetCurrentTrackNumber();
-	  Int_t pdg= gMC->TrackPid();	  
-	  
-  TLorentzVector lPos, lMom;
   TString name = vol->GetName();
   if (!(name.BeginsWith("muon"))) 
-      cout << "Error <PndMdt::ProcessHits> : " << name << " not MDT volume" << endl;
+    cout << "Error <PndMdt::ProcessHits> : " << name << " not MDT volume" << endl;
   else {
-    int ilayer;
-    sscanf(name,"muon%i",&ilayer);
-    gMC->TrackPosition(lPos); // cm
-    gMC->TrackMomentum(lMom); // GeV
-    TClonesArray& clref = *fMdtCollection;
-    Int_t size = fMdtCollection->GetEntriesFast();
-     PndMdtPoint *P= new(clref[size]) PndMdtPoint (TrNo,ilayer, lPos.Vect(), lMom.Vect(), gMC->TrackTime(),
-						   gMC->TrackLength(), gMC->Edep(), gMC->GetStack()->GetCurrentParentTrackNumber(),pdg,track_out);
+    if (gMC->IsTrackEntering() || gMC->IsNewTrack() ){
+      fPos_In.SetXYZM(0.,0.,0.,0.);
+      fMom_In.SetXYZM(0.,0.,0.,0.);
+      gMC->TrackPosition(fPos_In);
+      gMC->TrackMomentum(fMom_In);
+      fTrkIn = gMC->GetStack()->GetCurrentTrackNumber();
+    }; // end entering
+
+    if (gMC->IsTrackExiting() || gMC->IsTrackStop() || gMC->IsTrackDisappeared() ){
+      Int_t TrNo=gMC->GetStack()->GetCurrentTrackNumber();
+      Int_t pdg= gMC->TrackPid();	  
+      if ( TrNo == fTrkIn ){
+	TLorentzVector lPos, lMom;
+	int ilayer;
+	sscanf(name,"muon%i",&ilayer);
+	gMC->TrackPosition(lPos); // cm
+	gMC->TrackMomentum(lMom); // GeV
+	TClonesArray& clref = *fMdtCollection;
+	Int_t size = fMdtCollection->GetEntriesFast();
+	PndMdtPoint *P= new(clref[size]) PndMdtPoint (TrNo,ilayer, lPos.Vect(), lMom.Vect(), gMC->TrackTime(),
+			  gMC->TrackLength(), gMC->Edep(), gMC->GetStack()->GetCurrentParentTrackNumber(),pdg,
+			  fPos_In.Vect(), fMom_In.Vect());
 	
      if ( ( (GetModule()==1) && (TMath::Even(ilayer)) ) ||  (GetModule()==2)  )
 	{ // Set the correct MCTrack->GetMdtPoints()
@@ -225,9 +229,11 @@ Bool_t PndMdt::ProcessHitsTo(CbmVolume* vol)
 	     }
 	}
  
-  };
+      };
   
-   ResetParameters();
+      ResetParameters();
+    };
+
   }
   return kTRUE;
   
