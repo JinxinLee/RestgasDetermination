@@ -26,6 +26,7 @@ PndEmcReader::PndEmcReader(TString name)
 
 PndEmcReader::~PndEmcReader()
 {
+	g4data.clear();
 }
 
 void PndEmcReader::fill_vector()

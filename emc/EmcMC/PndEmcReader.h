@@ -2,9 +2,9 @@
 // -----                     PndEmcReader header file                  -----
 // -----               Created 14/08/06  by S.Spataro                  -----
 // -------------------------------------------------------------------------
-
-#ifndef PNDEMCREADER_HH
-#define PNDEMCREADER_HH 1
+#pragma once
+#ifndef PNDEMCREADER_H
+#define PNDEMCREADER_H
 
 #include <vector>
 #include "TString.h"
@@ -41,8 +41,6 @@ public:
     int GetMinModules();
     int GetMinRows(int module);
     int GetMinCrystals(int module, int row);
-    DataG4 GetData(int module, int row, int crystal);
-    
+    DataG4 GetData(int module, int row, int crystal);  
 };
-
-#endif //PNDEMCREADER_HH
+#endif //PNDEMCREADER_H
