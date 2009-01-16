@@ -24,6 +24,13 @@
 
 class PndHypHit : public CbmHit
 {
+friend std::ostream& operator<< (std::ostream& out, const PndHypHit& hit){
+    out << "Hybrid pixel hit in detector " << hit.GetDetName() << " at ("
+	<< hit.GetX() << ", " << hit.GetY() << ", " << hit.GetZ() << ") cm "
+	<< " with " << hit.GetCharge() << " e" << ", Cluster " 
+	<< hit.GetRefIndex() << std::endl;
+    return out;
+  }
 
  public:
 
@@ -59,33 +66,54 @@ class PndHypHit : public CbmHit
   void SetDetName(TString name) {fDetName = name;};
   void SetCharge(Double_t charge) {fCharge = charge;};
   void SetNPixelHits(Int_t pixel) {fNPixelHits = pixel;};
-  
+  void SetBotIndex(Int_t id)       { fBotIndex  = id;}
+   
   TString GetDetName()const { return fDetName; }
   //Int_t 	GetTrackID(){return fTrackID;};
   Double_t GetCharge()const{return fCharge;};
   Int_t 	GetNPixelHits() const { return fNPixelHits; }
   TVector3 GetPosition() const { return TVector3(fX, fY, fZ);	  }
+  Int_t     GetBotIndex()  const { return fBotIndex;}
+  Double_t  GetEloss()     const { return (fCharge * 3.61e-9);}  // 3.6 eV/Electron in Silicon
+
+
+  Double_t GetDxLocal() const { return fDx;};
+  Double_t GetDyLocal() const { return fDy;};
+  Double_t GetDzLocal() const { return fDz;};
+  void PositionErrorLocal(TVector3& dpos) const;
+  /** overloaded accessors **/
   
+  Double_t GetDx() {return GetD(0);};
+  Double_t GetDy() {return GetD(1);};
+  Double_t GetDz() {return GetD(2);};
+  void PositionError(TVector3& dpos);
+
 
   /** Screen output **/
   virtual void Print(const Option_t* opt = 0) const;
   //new version
-  friend std::ostream& operator<< (std::ostream& out, const PndHypHit& hit){
-    out << "Hybrid pixel hit in detector " << hit.GetDetName() << " at ("
-	<< hit.GetX() << ", " << hit.GetY() << ", " << hit.GetZ() << ") cm "
-	<< " with " << hit.GetCharge() << " e" << ", Cluster " 
-	<< hit.GetRefIndex() << std::endl;
-    return out;
-  }
   
- public:
+  
+ private:
 
-  TString fDetName;  // Detector name
-  //Int_t fTrackID;
-  Double_t fCharge;
-  Int_t fNPixelHits;
-  ClassDef(PndHypHit,7);
+   Double_t GetD(Int_t i);
+   TString fDetName;  // Detector name
+   //Int_t fTrackID;
+   Double_t fCharge;
+   Int_t fNPixelHits;
+   Int_t fBotIndex; /// bottom side of strip clusters
+
+   ClassDef(PndHypHit,7);
 
 };
+
+inline void PndHypHit::PositionErrorLocal(TVector3& dpos) const {
+  dpos.SetXYZ(fDx, fDy, fDz);
+}
+
+inline void PndHypHit::PositionError(TVector3& dpos) {
+  dpos.SetXYZ(GetDx(), GetDy(), GetDz());
+}
+
 
 #endif
