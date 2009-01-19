@@ -57,6 +57,7 @@ void setBins(int rbins, int zbins) {_rBinCount = rbins; _zBinCount = zbins;}
 void setRate(double rate) {_rate = rate;}
 void setSupression(double sup) {_supression = sup;}
 void setGain(double gain) {_gemGain = gain;}
+void setPrimChargeMode(bool opt) {_primChargeOnly = opt;}
 
 private:
 
@@ -85,6 +86,8 @@ private:
  double _gemGain;		//gain factor of the gem. Set by hand atm
  double _gemCharge;		//net charge produced at the gems
  double _WGas;			//obtained from PndTpcGas-Object
+
+ bool _primChargeOnly;          //no Charge is created at gems if true
  
  std::vector< std::vector<int> > _chargeMap;	//segmented map of net charge
  

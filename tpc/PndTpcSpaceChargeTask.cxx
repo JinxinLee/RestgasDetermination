@@ -48,6 +48,7 @@ PndTpcSpaceChargeTask::PndTpcSpaceChargeTask()		//default constructor
 	_ionDriftVelocity(1.766e-6),  //...
 	_time(0),               
 	_errorCount(0),
+	_primChargeOnly(false),
 	 
         _pointBranchName("PndTpcPoint")
 {}
@@ -165,7 +166,8 @@ PndTpcSpaceChargeTask::Exec(Option_t* opt)
     //At the same x-y-coordinates Ions are created on the gem-plane by the 
     //impact of the drifted electrons (assuming instant electron drift) in 
     //the gems
-    _chargeMap.at(rBin).at(0) += (int)(qPoint*_gemCharge);
+    if(!_primChargeOnly)
+      _chargeMap.at(rBin).at(0) += (int)(qPoint*_gemCharge);
 
   } 		//end Loop over all Points of this track/event
 
