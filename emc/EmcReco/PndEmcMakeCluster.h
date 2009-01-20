@@ -5,12 +5,12 @@
 // Author List:
 //	Jan Zhong            
 //---------------------------------------------------------------------
-
-#ifndef PNDEMCMAKECLUSTER_HH
-#define PNDEMCMAKECLUSTER_HH
+#pragma once
+#ifndef PNDEMCMAKECLUSTER_H
+#define PNDEMCMAKECLUSTER_H
 
 #include "CbmTask.h"
-#include <string>
+//#include <string>
 #include <vector>		
 
 class TClonesArray;

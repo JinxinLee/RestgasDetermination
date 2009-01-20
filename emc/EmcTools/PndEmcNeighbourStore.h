@@ -1,7 +1,7 @@
 //
 // $Id: $
 //
-
+#pragma once
 #ifndef PndEmcNeighbourStore_H
 #define PndEmcNeighbourStore_H
 

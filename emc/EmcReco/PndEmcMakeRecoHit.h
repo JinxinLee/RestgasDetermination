@@ -3,13 +3,13 @@
 // $Id: $
 // Software developed for the PANDA Detector at GSI.		
 //---------------------------------------------------------------------
-
-#ifndef PNDEMCMAKERECOHIT_HH
-#define PNDEMCMAKERECOHIT_HH
+#pragma once
+#ifndef PNDEMCMAKERECOHIT_H
+#define PNDEMCMAKERECOHIT_H
 
 #include "CbmTask.h"
-#include <string>
-#include <vector>		
+//#include <string>
+//#include <vector>		
 
 class TClonesArray;
 class TObjectArray;

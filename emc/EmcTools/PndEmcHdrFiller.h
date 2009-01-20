@@ -2,9 +2,9 @@
 // -----                 PndEmcHdrFiller header file                 -----
 // -----                 Created 21/04/07  by S.Spataro                -----
 // -------------------------------------------------------------------------
-
+#pragma once
 #ifndef PNDEMCHDRFILLER_H
-#define PNDEMCHDRFILLER_H 1
+#define PNDEMCHDRFILLER_H
 
 
 #include "CbmTask.h"

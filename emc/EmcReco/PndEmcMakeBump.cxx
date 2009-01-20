@@ -51,8 +51,8 @@
 // C++ Headers --
 //---------------
 #include <iostream>
-#include <set>
-#include <vector>
+//#include <set>
+//#include <vector>
 
 //OpenMP header file
 #ifdef _OPENMP
@@ -159,6 +159,7 @@ void PndEmcMakeBump::Exec(Option_t* opt)
   //std::cout << "With OpenMP" << std::endl;
   //omp_set_num_threads(1);
   int tid = 0;
+  tid = 1;
 #pragma omp parallel private(tid, tmp_CoordSet_set)
   {
     //static schedule(roundrobin)
@@ -173,7 +174,7 @@ void PndEmcMakeBump::Exec(Option_t* opt)
     // we need it since fMemberDigiMap is transient element
     theCluster->ValidateDigiMap();
     
-    Int_t NDigis = theCluster->NumberOfDigis();
+    //Int_t NDigis = theCluster->NumberOfDigis();
     
     std::vector<PndEmcBump*> theBumps;
 
@@ -190,9 +191,9 @@ void PndEmcMakeBump::Exec(Option_t* opt)
 	       <<theBumps.size()<<endl;
     }
 
-    for (Int_t i=0; i<theBumps.size() ; i++){
-      Int_t size_ba = fBumpArray->GetEntriesFast();
-      PndEmcBump* theNextBump = new((*fBumpArray)[size_ba]) PndEmcBump(*(theBumps[i]));
+    for (unsigned int  i = 0; i < theBumps.size(); i++){
+      //Int_t size_ba = fBumpArray->GetEntriesFast();
+      //PndEmcBump* theNextBump = new((*fBumpArray)[size_ba]) PndEmcBump(*(theBumps[i]));
       
       if ((fVerbose>=1)&&(theBumps.size()>1)){
 	std::cout<<"bump energy = "<<theBumps[i]->energy()<<endl;

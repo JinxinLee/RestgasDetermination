@@ -8,13 +8,13 @@
 // Created for test purpose, not for real cluster position reconstruction.
 //
 //------------------------------------------------------------------------
-
-#ifndef PNDEMCCLUSTERLINEARPOS_HH
-#define PNDEMCCLUSTERLINEARPOS_HH
+#pragma once
+#ifndef PNDEMCCLUSTERLINEARPOS_H
+#define PNDEMCCLUSTERLINEARPOS_H
 
 #include "TObject.h"
 #include <map>
-#include <vector>
+//#include <vector>
 		
 class TVector3;
 class PndEmcCluster;

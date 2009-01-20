@@ -32,7 +32,7 @@
 #include "stdlib.h"
 #include <iostream>
 #include <fstream>				
-#include <string>
+//#include <string>
 #include <cassert>		
 
 using std::cout;

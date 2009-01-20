@@ -17,10 +17,11 @@
 //	Copyright (C) 1996		Lawrence Berkeley Laboratory
 //	Copyright (C) 1996	       CEA - Centre d'Etude de Saclay
 //------------------------------------------------------------------------
-#ifndef PNDEMCXTAL_HH
-#define PNDEMCXTAL_HH
+#pragma once
+#ifndef PNDEMCXTAL_H
+#define PNDEMCXTAL_H
 
-#include <vector>
+//#include <vector>
 #include "TVector3.h"
 #include "TGeoArb8.h"
 

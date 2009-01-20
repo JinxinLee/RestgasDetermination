@@ -21,9 +21,9 @@
 // Dima Melnichuk - adaption for PANDA							
 // 
 //======================================================================
-
-#ifndef PNDEMCTWOCOORDINDEX_HH
-#define PNDEMCTWOCOORDINDEX_HH
+#pragma once
+#ifndef PNDEMCTWOCOORDINDEX_H
+#define PNDEMCTWOCOORDINDEX_H
 
 //---------------
 // C++ Headers --

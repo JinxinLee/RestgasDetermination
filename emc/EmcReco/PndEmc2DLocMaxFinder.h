@@ -22,9 +22,9 @@
 // Modified:
 // M. Babai
 //------------------------------------------------------------------------
-
-#ifndef PNDEMC2DLOCALMAXFINDER_HH
-#define PNDEMC2DLOCALMAXFINDER_HH
+#pragma once
+#ifndef PNDEMC2DLOCALMAXFINDER_H
+#define PNDEMC2DLOCALMAXFINDER_H
 
 #include <set>
 #include <map>

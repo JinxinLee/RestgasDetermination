@@ -43,7 +43,15 @@ PndEmcMapper* PndEmcMapper::Instance (Int_t MapVersion, TString geoFile)
 }
 
 // -----   Destructor   -----------------------------------
-PndEmcMapper::~PndEmcMapper() {}
+PndEmcMapper::~PndEmcMapper()
+{
+	delete _instance;
+	for(std::map<Int_t,PndEmcTwoCoordIndex* >::iterator iter = fIntTwoCoordMap.begin();
+	    iter != fIntTwoCoordMap.end(); ++iter){
+		delete (*iter).second;
+	}
+	fIntTwoCoordMap.clear();
+}
 // --------------------------------------------------------
   
 PndEmcMapper::PndEmcMapper(Int_t MapVersion):fMapVersion(MapVersion)

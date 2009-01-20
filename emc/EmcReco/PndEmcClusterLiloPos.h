@@ -21,9 +21,9 @@
 //	Copyright (C) 2000	TU Dresden
 //
 //------------------------------------------------------------------------
-
-#ifndef PNDEMCCLUSTERLILOPOS_HH
-#define PNDEMCCLUSTERLILOPOS_HH
+#pragma once
+#ifndef PNDEMCCLUSTERLILOPOS_H
+#define PNDEMCCLUSTERLILOPOS_H
 
 #include "TObject.h"
 #include <map>

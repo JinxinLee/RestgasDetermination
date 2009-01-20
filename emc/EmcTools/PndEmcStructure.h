@@ -3,12 +3,12 @@
 // 	$Id: $
 //
 //------------------------------------------------------------------------
-
-#ifndef PNDEMCSTRUCTURE_HH
-#define PNDEMCSTRUCTURE_HH
+#pragma once
+#ifndef PNDEMCSTRUCTURE_H
+#define PNDEMCSTRUCTURE_H
 
 #include <map>
-#include <string>		
+//#include <string>		
 #include "TObject.h"
 #include "TString.h"
 		
