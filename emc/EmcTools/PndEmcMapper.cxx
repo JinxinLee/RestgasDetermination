@@ -58,6 +58,7 @@ PndEmcMapper::PndEmcMapper(Int_t MapVersion):fMapVersion(MapVersion)
 {
 	PndEmcTwoCoordIndex _tci;
 	Int_t iTheta, iPhi, detId, detId_tmp, iX, iY;
+	iTheta = iPhi = detId = detId_tmp =iX = iY = 0;
 	
 	if (fMapVersion==1)
 	{
@@ -471,7 +472,7 @@ bool PndEmcMapper::IsValidIndex(Int_t detectorId)
 	Short_t module =detectorId/100000000;
 	Short_t row=(detectorId/1000000)%100;
 	Short_t crystal=detectorId%10000;
-   	Short_t copy=(detectorId/10000)%100;
+   	//Short_t copy=(detectorId/10000)%100;
    
    Text_t volname[30];
    sprintf(volname,"emc0%dr%dc%d",module, row, crystal);
@@ -498,7 +499,8 @@ const std::map<Int_t,PndEmcTwoCoordIndex* >& PndEmcMapper::GetTciMap()
 
 Int_t PndEmcMapper::GetDetId(Int_t iTheta,Int_t iPhi)
 {
-	Int_t module,row,copy,crystal,detId;
+  Int_t module,row,copy,crystal,detId;
+  module = row = copy = crystal = detId = 0;
 	if (iTheta<=29) 
 	{
 		module=2;

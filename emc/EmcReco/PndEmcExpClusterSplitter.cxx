@@ -193,7 +193,7 @@ void PndEmcExpClusterSplitter::splitCluster(const std::set<PndEmcTwoCoordIndex*>
       if (fVerbose>=3){
 	std::cout<<"iteration No "<<iterations<<std::endl;
       }
-      Int_t bumpsSoFar=0;
+      //Int_t bumpsSoFar=0;
       averageCentroidShift=0.0;
       
       // First clean up the old bumps
