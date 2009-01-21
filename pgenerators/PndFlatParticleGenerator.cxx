@@ -1,23 +1,8 @@
 // -------------------------------------------------------------------------
 // -----            PndFlatParticleGenerator source file                        -----
-// -----          Created 09/09/04  by Yu.Kharlov
+// -----          Created 10/30/08	by Tobias Stockmanns
 // -------------------------------------------------------------------------
 
-/* $Id: PndFlatParticleGenerator.cxx,v 1.4 2006/07/18 09:28:06 prokudin Exp $ */
-
-/* History of cvs commits:
- *
- * $Log: PndFlatParticleGenerator.cxx,v $
- * Revision 1.4  2006/07/18 09:28:06  prokudin
- * Should be * instead /
- *
- * Revision 1.3  2006/07/14 11:23:57  kharlov
- * Add protection for simultaneously set ranges; split vertex and kinematics ranges
- *
- * Revision 1.2  2006/03/29 16:25:50  kharlov
- * New functionality added
- *
- */
 
 #include "PndFlatParticleGenerator.h"
 
@@ -61,7 +46,7 @@ PndFlatParticleGenerator::PndFlatParticleGenerator(Int_t pdgid, Int_t mult) :
 	fRapidity.SetStart(0);fRapidity.SetStop(0);fRapidity.SetStep(0);
 	fP.SetStart(0);fP.SetStop(0); fP.SetStep(0);
 	fTheta.SetStart(0);fTheta.SetStop(0);fTheta.SetStep(0);
-	
+
 	SetPhiRange();
 }
 // ------------------------------------------------------------------------
@@ -96,7 +81,7 @@ Bool_t PndFlatParticleGenerator::ReadEvent(CbmPrimaryGenerator* primGen)
   // Generate one event: produce primary particles emitted from one vertex.
   // Primary particles are distributed uniformly along
   // those kinematics variables which were limitted by setters.
-  // if SetCosTheta() function is used, the distribution will be uniform in 
+  // if SetCosTheta() function is used, the distribution will be uniform in
   // cos(theta)
 
   Double32_t pabs=0, phi, pt=0, theta=0, eta, y, mt, px, py, pz=0;
@@ -108,26 +93,27 @@ Bool_t PndFlatParticleGenerator::ReadEvent(CbmPrimaryGenerator* primGen)
   if (fThetaRangeIsSet){
 	  if (fCosThetaIsSet){
 		  midVal = &fCosTheta;
-	  } else 
+		  //std::cout << "CosTheta selected: " << midVal->fStart << " " << midVal->fStop << " " << midVal->fStep << " " << midVal->fActualValue << " " <<std::endl;
+	  } else
 		  midVal = &fTheta;
   }
   else if (fEtaRangeIsSet)
 	  midVal = &fEta;
   else if (fYRangeIsSet)
 	  midVal = &fRapidity;
-  
+
   if (fPtRangeIsSet)
 	  innerVal = &fPt;
   else if (fPRangeIsSet)
 	  innerVal = &fP;
 
   CalcActValues(outerVal, midVal, innerVal);
-  std::cout << "outerVal, midVal, innerVal: " << outerVal->fActualValue << " " << midVal->fActualValue << " " << innerVal->fActualValue << std::endl;
-  std::cout << "phi, cosTheta, p: " << fPhi.fActualValue << " " << fCosTheta.fActualValue << " " << fP.fActualValue << std::endl;
-  
+ // std::cout << "outerVal, midVal, innerVal: " << outerVal->fActualValue << " " << midVal->fActualValue << " " << innerVal->fActualValue << std::endl;
+ // std::cout << "phi, cosTheta, p: " << fPhi.fActualValue << " " << fCosTheta.fActualValue << " " << fP.fActualValue << std::endl;
+
   if      (fPRangeIsSet ) pabs = fP.fActualValue;
   else if (fPtRangeIsSet) pt   = fPt.fActualValue;
-  
+
   phi = fPhi.fActualValue * TMath::DegToRad();
 
 
@@ -137,7 +123,7 @@ Bool_t PndFlatParticleGenerator::ReadEvent(CbmPrimaryGenerator* primGen)
       else
     	  theta = fTheta.fActualValue * TMath::DegToRad();
     }
-    
+
     else if (fEtaRangeIsSet) {
       eta   = fEta.fActualValue;
       theta = 2*TMath::ATan(TMath::Exp(-eta));
@@ -147,13 +133,13 @@ Bool_t PndFlatParticleGenerator::ReadEvent(CbmPrimaryGenerator* primGen)
       mt = TMath::Sqrt(fPDGMass*fPDGMass + pt*pt);
       pz = mt * TMath::SinH(y);
     }
-    
+
     if (fThetaRangeIsSet || fEtaRangeIsSet) {
       if      (fPRangeIsSet ) {
 	pz = pabs*TMath::Cos(theta);
 	pt = pabs*TMath::Sin(theta);
       }
-      else if (fPtRangeIsSet) 
+      else if (fPtRangeIsSet)
 	pz = pt/TMath::Tan(theta);
     }
 
@@ -183,7 +169,7 @@ void PndFlatParticleGenerator::CalcActValues(RangeValues* val1, RangeValues* val
 		val2 = &RangeValues();
 	if (val3 == 0)
 		val3 = &RangeValues();
-	
+
 	if (fDoit){
 		val3->fActualValue += val3->fStep;
 		if (val3->fActualValue > val3->fStop && fDoit){
@@ -200,7 +186,7 @@ void PndFlatParticleGenerator::CalcActValues(RangeValues* val1, RangeValues* val
 	}
 	if (fDoit) fEvent++;
 	else
-		std::cout << "End of range reached at EventNr: " << fEvent << std::endl;	
+		std::cout << "End of range reached at EventNr: " << fEvent << std::endl;
 }
 
 ClassImp(PndFlatParticleGenerator)

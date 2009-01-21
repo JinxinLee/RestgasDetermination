@@ -1,28 +1,10 @@
 // -------------------------------------------------------------------------
 // -----                PndFlatParticleGenerator header file                    -----
-// -----          Created 09/09/04  by Yu.Kharlov                      -----
+// -----          Created 30/10/08  by Tobias Stockmanns                      -----
 // -------------------------------------------------------------------------
 
-/**  PndFlatParticleGenerator.h 
- *@author Yuri Kharlov <Yuri.Kharlov@cern.ch>
- *
- * The PndFlatParticleGenerator generates particles within given range
- * over pt, phi, eta, y or theta a fixed multiplicity per event.
- * Derived from PndGenerator.
-**/
-
-/* $Id: PndFlatParticleGenerator.h,v 1.3 2006/07/14 11:23:57 kharlov Exp $ */
-
-/* History of cvs commits:
- *
- * $Log: PndFlatParticleGenerator.h,v $
- * Revision 1.3  2006/07/14 11:23:57  kharlov
- * Add protection for simultaneously set ranges; split vertex and kinematics ranges
- *
- * Revision 1.2  2006/03/29 16:25:50  kharlov
- * New functionality added
- *
- */
+/**  PndFlatParticleGenerator.h
+*/
 
 #ifndef Pnd_FLATPARTICLEGENERATOR_H
 #define Pnd_FLATPARTICLEGENERATOR_H
@@ -36,18 +18,18 @@ class CbmPrimaryGenerator;
 class RangeValues
 {
 public :
-	RangeValues(Double32_t start = 0, Double32_t stop = 0, Double32_t step = 1): fStart(start), fStop(stop), fStep(step)
-	{ fActualValue = fStart;}
+	RangeValues(Double32_t start = 0, Double32_t stop = 0, Double32_t step = 1): fStart(start), fStop(stop), fStep(step), fActualValue(start)
+	{}
 	Double32_t fStart;
 	Double32_t fStop;
 	Double32_t fStep;
 	Double32_t fActualValue;
-	
-	void SetStart(Double32_t val){fStart = val;};
+
+	void SetStart(Double32_t val){fStart = val; fActualValue = val;};
 	void SetStop(Double32_t val){fStop = val;};
 	void SetStep(Double32_t val){fStep = val;};
 	void SetActualValue(Double32_t val){fActualValue = val;};
-	
+
 	virtual Double32_t GetStep(){return fStep;}
 };
 
@@ -135,7 +117,7 @@ private:
   Bool_t     fEtaRangeIsSet;       // True if eta range is set
   Bool_t     fYRangeIsSet;         // True if rapidity range is set
   Bool_t     fThetaRangeIsSet;     // True if theta range is set
-  Bool_t     fCosThetaIsSet;       // True if uniform distribution in 
+  Bool_t     fCosThetaIsSet;       // True if uniform distribution in
                                    //cos(theta) is set (default -> not set)
   Bool_t     fPtRangeIsSet;        // True if transverse momentum range is set
   Bool_t     fPRangeIsSet;         // True if abs.momentum range is set
@@ -143,7 +125,7 @@ private:
   Bool_t     fBoxVtxIsSet;         // True if box vertex is set
   Bool_t     fDebug;               // Debug switch
   Bool_t	 fDoit;					// Stop generating particles at the end of the range
-  void CalcActValues(RangeValues* val1, RangeValues* val2, RangeValues* val3); 
+  void CalcActValues(RangeValues* val1, RangeValues* val2, RangeValues* val3);
 
   ClassDef(PndFlatParticleGenerator,1);
 
