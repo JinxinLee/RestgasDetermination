@@ -17,22 +17,24 @@
  *
  *                  S.Vanniarajan  01-08-08
  */
-
+#pragma once
 #ifndef MULTI_CLASS_MVA_H
-#define MULTI_CLASS_MVA_H 1 
-
+#define MULTI_CLASS_MVA_H 
+//C++ headers
 #include <iostream>
 #include <sstream>
+#include <fstream>
+#include <vector>
+#include <string>
+#include <map>
+//Root & PandaRoot headers
 #include "TCut.h"
 #include "TFile.h"
 #include "TString.h"
 #include "TSystem.h"
 #include "TTree.h"
-#include <fstream>
-#include <vector>
-#include <string>
-#include <map>
-#include "Factory.h" 
+#include "Factory.h"
+
 using namespace std;
 
 class PndMultiClassMVA

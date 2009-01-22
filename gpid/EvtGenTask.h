@@ -1,11 +1,14 @@
+#pragma once
 #ifndef EVTGENTASK_H
-#define EVTFENTASK_H 1
+#define EVTFENTASK_H
 
-
-#include "CbmTask.h"
-#include "TVector3.h"
+//C++ headers
 #include <algorithm>
 #include <vector>
+
+//ROOT & PANDA headers
+#include "CbmTask.h"
+#include "TVector3.h"
 #include "Event.h" 
 #include "TRandom3.h"
 

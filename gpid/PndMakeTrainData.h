@@ -1,10 +1,15 @@
-#ifndef PND_MAKE_TRAIN_DATA_HH
-#define PND_MAKE_TRAIN_DATA_HH 1
+#pragma once
+#ifndef PND_MAKE_TRAIN_DATA_H
+#define PND_MAKE_TRAIN_DATA_H
 
+//C++ headers
 #include <iostream>
 #include <map>
 #include <string>
 #include <vector>
+#include <memory>
+
+// ROOT & PandaRootheaders
 #include "TNtuple.h"
 #include "TClonesArray.h"
 #include "PndTofPoint.h"
@@ -13,7 +18,6 @@
 #include "PndTofHit.h"
 #include "TROOT.h"
 #include "TStyle.h"
-#include <memory>
 #include "TSystem.h"
 #include "CbmMCTrack.h"
 #include "CbmMCPoint.h"

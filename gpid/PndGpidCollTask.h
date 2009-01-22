@@ -1,5 +1,6 @@
+#pragma once
 #ifndef PNDGPIDCOLLTASK_H
-#define PNDGPIDCOLLTASK_H 1
+#define PNDGPIDCOLLTASK_H
 
 #include "CbmTask.h"
 #include "TVector3.h"
@@ -12,8 +13,10 @@
 #include "PndTpcLheTrack.h"
 #include "PndTpcLheHit.h"
 #include "CbmMCTrack.h"
+//C++ headers
 #include <algorithm>
 #include <vector>
+
 class PndGpidCollTask : public CbmTask
 {
  public:

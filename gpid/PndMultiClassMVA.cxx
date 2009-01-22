@@ -44,6 +44,8 @@ PndMultiClassMVA::PndMultiClassMVA( Int_t NoClass, Int_t NoPar, TString fname,TS
 */
 PndMultiClassMVA::~PndMultiClassMVA()
 {
+	fVarNameArray.clear();
+    fClassNameArray.clear();
 }
 
 

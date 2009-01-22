@@ -7,6 +7,8 @@ fParam.clear();
 
 Event::~Event()
 {
+ fParam.clear();
+ fVarName.clear();  
  //destroy();
 }
 /*

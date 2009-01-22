@@ -1,21 +1,25 @@
-#ifndef EVENT_HH
-#define EVENT_HH 1
+#pragma once
+#ifndef EVENT_H
+#define EVENT_H
 
-
+//C++ includes
 #include <map>
 #include <string>
 #include <vector>
-#include "TObject.h"
 #include <iostream> 
+//ROOT includes
+#include "TObject.h"
 
 using namespace std;
 
 typedef std::map<string,double> Param;
+
 class Event : public TObject
 {
 private:
  Param fParam;
  std::vector<string> fVarName;  
+
 public:
   Event();
   ~Event();
@@ -25,6 +29,5 @@ public:
  Param GetParam();
  vector<string> GetVarName();
  ClassDef(Event,1);
-  };
-
+ };
 #endif

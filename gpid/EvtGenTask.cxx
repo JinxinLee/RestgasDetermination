@@ -11,6 +11,7 @@ EvtGenTask::EvtGenTask()
 
 EvtGenTask::~EvtGenTask()
 {
+	delete fEvt;
 }
 
 

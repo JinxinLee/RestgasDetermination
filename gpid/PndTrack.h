@@ -1,5 +1,8 @@
-#ifndef PND_TRACK_HH
-#define PND_TRACK_HH 1
+#pragma once
+#ifndef PND_TRACK_H
+#define PND_TRACK_H
+
+//PandaRoot & Root headers
 #include "TObject.h"
 /*
 any pointer data member here has to be deleted by destroy func

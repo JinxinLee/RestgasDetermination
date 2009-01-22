@@ -19,6 +19,8 @@ cout<<"Inside constructor"<<endl;
 
 PndMakeTrainDataLhe::~PndMakeTrainDataLhe()
 {
+	fInFileNameArray.clear();
+    fClassNameArray.clear();
 }
 
 void PndMakeTrainDataLhe::AddInFile(string className,string recoFileName)

@@ -1,9 +1,8 @@
 // Task for the exercise 1 of the GEANE tutorial
 // Authors A. Fontana & P. Genova, Sept. 2007
-
+#pragma once
 #ifndef PNDGEANETRTPCIDEALTOF_H
-#define PNDGEANETRTPCIDEALTOF_H 1
-
+#define PNDGEANETRTPCIDEALTOF_H
 
 #include "CbmTask.h"
 #include "TVector3.h"
@@ -14,6 +13,7 @@
 #include "PndTpcLheTrack.h"
 #include "PndTpcLheHit.h"
 #include "CbmMCTrack.h"
+//C++ headers
 #include <algorithm>
 #include <vector>
 class TGeant3;
@@ -54,7 +54,7 @@ class PndGeaneTrTpcIdealTof : public CbmTask
   TClonesArray* fPndTrackArr;  
   TClonesArray* fMCTrackArr;  
 //  TClonesArray* fTrackParFinal;  
-  void destroy(void);
+  void destroy();
   TGeant3 *gMC3;
   CbmGeane *fGeane;
   Int_t fEvent;

@@ -8,6 +8,8 @@ PndMakeTrainData::PndMakeTrainData()
 
 PndMakeTrainData::~PndMakeTrainData()
 {
+	fInFileNameArray.clear();
+    fClassNameArray.clear();
 }
 
 void PndMakeTrainData::AddInFile(string className,string simFileName,string recoFileName)

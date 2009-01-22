@@ -12,6 +12,8 @@ PndPidCand::~PndPidCand()
 
 void PndPidCand::destroy()
 {
+	fParam.clear();
+ 	fVarName.clear(); 
 }
 
 

@@ -25,6 +25,10 @@ PndGpidCollTask::~PndGpidCollTask()
  }
 void PndGpidCollTask::destroy()
 {
+  delete fTpcPoint;
+  delete fMvdPoint;
+  delete fTrack1;
+  delete fPoint2;
 }
 
 InitStatus PndGpidCollTask::Init() {

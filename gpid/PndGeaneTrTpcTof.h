@@ -3,8 +3,9 @@
 // Modified by S.Vanniarajan,  May 2008
 // for Geane Propagation to Time of flight 
 // detector volume in PANDAROOT
+#pragma once
 #ifndef PNDGEANETRTPCTOF_H
-#define PNDGEANETRTPCTOF_H 1
+#define PNDGEANETRTPCTOF_H
 
 
 #include "CbmTask.h"
@@ -16,8 +17,10 @@
 #include "PndTpcLheTrack.h"
 #include "PndTpcLheHit.h"
 #include "CbmMCTrack.h"
+
 #include <algorithm>
 #include <vector>
+
 class TGeant3;
 class TClonesArray;
 class TTree;

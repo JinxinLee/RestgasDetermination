@@ -1,13 +1,10 @@
-#ifndef PNDGPIDTASKFAST_HH
-#define PNDGPIDTASKFAST_HH 1 
+#pragma once
+#ifndef PNDGPIDTASKFAST_H
+#define PNDGPIDTASKFAST_H
 
 #include "CbmTask.h"
 #include "PndLhePidTrack.h"
 #include "TVector3.h"
-#include <algorithm>
-#include <vector>
-#include <string>
-#include <fstream>
 #include "TClonesArray.h"
 #include "CbmRootManager.h"
 #include "TMVA/Reader.h"
@@ -15,6 +12,11 @@
 #include "PndTpcPoint.h"
 #include "PndPidCand.h"
 #include "PndMicroCandidate.h"
+//C++ headers
+#include <algorithm>
+#include <vector>
+#include <string>
+#include <fstream>
 
 using namespace std;
 

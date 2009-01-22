@@ -36,6 +36,7 @@ void PndGeaneTrTpcEmc::destroy()
  delete fPoint1;
  delete fPoint2;
  delete fCluster;
+ // delete fPro;
 // delete fPointArray1;
 // delete fPointArray2;
 // delete fClusterArray;

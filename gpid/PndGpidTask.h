@@ -15,7 +15,7 @@
  *
  *                  S.Vanniarajan  01-08-08
  */
-
+#pragma once
 #ifndef PNDGPIDTASK_H
 #define PNDGPIDTASK_H
 
@@ -67,6 +67,7 @@ class PndGpidTask : public CbmTask
 
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
+
 private:
   // Private fuction members called by init during Initialization
 

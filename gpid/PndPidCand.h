@@ -1,9 +1,14 @@
-#ifndef PND_PID_CAND_HH
-#define PND_PID_CAND_HH 1
-#include "TCandidate.h"
+#pragma once
+#ifndef PND_PID_CAND_H
+#define PND_PID_CAND_H
+
+//C++ headers
 #include <map>
 #include <string>
 #include <vector>
+
+//Root & PandaRoot headers
+#include "TCandidate.h"
 using namespace std;
 
 typedef std::map<string,double> Param;

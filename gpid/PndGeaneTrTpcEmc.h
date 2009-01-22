@@ -1,8 +1,8 @@
 // Task for the exercise 1 of the GEANE tutorial
 // Authors A. Fontana & P. Genova, Sept. 2007
-
+#pragma once
 #ifndef PND_GEANETRTPCEMC_H
-#define PND_GEANETRTPCEMC_H 1
+#define PND_GEANETRTPCEMC_H
 
 
 #include "CbmTask.h"
