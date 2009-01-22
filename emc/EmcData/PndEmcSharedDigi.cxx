@@ -28,7 +28,7 @@
 PndEmcSharedDigi::PndEmcSharedDigi( const PndEmcDigi &theDigi, const double weight )
   : PndEmcDigi( theDigi ),
     fWeight( weight ),
-    fDigi( (PndEmcDigi*)&theDigi )
+    fDigi( (PndEmcDigi*)&theDigi  )
 {
 }
 
@@ -47,7 +47,6 @@ PndEmcSharedDigi::PndEmcSharedDigi()
 
 PndEmcSharedDigi::~PndEmcSharedDigi()
 {
-	delete fDigi;
 }
 
 PndEmcDigi*
