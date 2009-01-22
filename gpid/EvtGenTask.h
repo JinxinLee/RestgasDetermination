@@ -20,16 +20,17 @@ class TFile;
 class EvtGenTask : public CbmTask
 {
  public :
-    EvtGenTask();
-    virtual ~EvtGenTask();
-    virtual InitStatus Init();
-    virtual void Exec(Option_t* opt) ; 	
+  EvtGenTask();
+  virtual ~EvtGenTask();
+  virtual InitStatus Init();
+  virtual void Exec(Option_t* opt) ; 	
 
- private :
-    TClonesArray* fEvtArray;  
-    Event* fEvt; 
-    TRandom3 fRan;
-    ClassDef(EvtGenTask,1);
+  //protected: 
+ 
+private :
+  TClonesArray* fEvtArray;  
+  Event* fEvt; 
+  TRandom3 fRan;
+  ClassDef(EvtGenTask,1);
 };
-
 #endif 

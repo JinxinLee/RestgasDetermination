@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <iostream> 
+
 //ROOT includes
 #include "TObject.h"
 
@@ -16,18 +17,23 @@ typedef std::map<string,double> Param;
 
 class Event : public TObject
 {
-private:
- Param fParam;
- std::vector<string> fVarName;  
-
-public:
+ public:
   Event();
   ~Event();
-//void destroy();
- void Set(const string key, double value);
- double Get(const string key);
- Param GetParam();
- vector<string> GetVarName();
- ClassDef(Event,1);
- };
+  void Set(const string key, const double value);
+  double Get(const string key);
+  
+  Param GetParam();
+  
+  //vector<string> GetVarName();
+  void GetVarName(vector<string>& outPut);
+  
+  //protected:
+ private:
+  void destroy();
+  Param fParam;
+  std::vector<string> fVarName;  
+  
+  ClassDef(Event,1);
+};
 #endif

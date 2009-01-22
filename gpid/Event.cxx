@@ -2,44 +2,54 @@
 
 Event::Event()
 {
-fParam.clear();
+  fParam.clear();
 }
 
 Event::~Event()
 {
- fParam.clear();
- fVarName.clear();  
- //destroy();
+  destroy();
 }
-/*
+
 void Event::destroy()
 {
+  fParam.clear();
+  fVarName.clear();  
 }
-*/
 
-void Event::Set(const string key,double value)
+void Event::Set(const string key, const double value)
 {
   fParam[key] = value;
 }
 
 double Event::Get(const string key)
 {
-    return fParam.find(key)->second;
+  return fParam.find(key)->second;
 }
 
 inline Param Event::GetParam()
 {
   return fParam;
 }
+
+/*
 vector<string> Event::GetVarName()
 {
-    std::map<string,double>::iterator fIter;
-    for(fIter = fParam.begin(); fIter != fParam.end();fIter++)
-     {
-      fVarName.push_back((*fIter).first);
-      cout<<(*fIter).first<<" =>"<<(*fIter).second<<endl; 
-     }
-     return fVarName;
+  std::map<string,double>::iterator fIter;
+  for(fIter = fParam.begin(); fIter != fParam.end();fIter++){
+    fVarName.push_back((*fIter).first);
+    cout<<(*fIter).first<<" =>"<<(*fIter).second<<endl; 
+  }
+  return fVarName;
+}
+*/
+
+void Event::GetVarName(vector<string>& outPut)
+{
+  std::map<string,double>::iterator fIter;
+  for(fIter = fParam.begin(); fIter != fParam.end();fIter++){
+    outPut.push_back((*fIter).first);
+    //cout<<(*fIter).first<<" =>"<<(*fIter).second<<endl; 
+  }
 }
 
 ClassImp(Event)

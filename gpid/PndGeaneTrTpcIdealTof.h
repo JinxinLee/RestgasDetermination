@@ -4,6 +4,7 @@
 #ifndef PNDGEANETRTPCIDEALTOF_H
 #define PNDGEANETRTPCIDEALTOF_H
 
+//ROOT & PandaRoot Headers
 #include "CbmTask.h"
 #include "TVector3.h"
 #include "CbmGeanePro.h"
@@ -35,6 +36,7 @@ class PndGeaneTrTpcIdealTof : public CbmTask
 
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
+
  private:
   /** Input array of Points **/
   TClonesArray* fTrackArray1;

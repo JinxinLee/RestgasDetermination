@@ -23,22 +23,24 @@ class PndGeaneTrTpcEmc : public CbmTask
  public:
   /** Default constructor **/  
   PndGeaneTrTpcEmc();
-
+  
   /** Destructor **/
   ~PndGeaneTrTpcEmc();
-
+  
   /** Virtual method Init **/
   virtual InitStatus Init();
-
+  
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
+
+  //protected:
  private:
   /** Input array of Points **/
   TClonesArray* fPointArray1;
   TClonesArray* fPointArray2;
   TClonesArray* fClusterArray;
   //  CbmPlanePoint	 *fPoint1;
-//  CbmMCTrack	 *fPoint1;
+  //  CbmMCTrack	 *fPoint1;
   PndTpcPoint	 *fPoint1;
   PndEmcPoint	 *fPoint2;
   PndEmcCluster	 *fCluster;
@@ -49,11 +51,10 @@ class PndGeaneTrTpcEmc : public CbmTask
   TClonesArray* fTrackParIni;  
   TClonesArray* fTrackParGeane;  
   TClonesArray* fTrackParFinal;  
-
+  
   TGeant3 *gMC3;
   ClassDef(PndGeaneTrTpcEmc,1);
   Int_t fEvent;
   CbmGeanePro *fPro;
 };
-
 #endif

@@ -40,6 +40,7 @@ class PndGeaneTrTpcTof : public CbmTask
 
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
+
  private:
   /** Input array of Points **/
   TClonesArray* fTrackArray1;
