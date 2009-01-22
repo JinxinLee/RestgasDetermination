@@ -5,6 +5,7 @@
 
 
 #include <iostream>
+#include <algorithm>
 #include "PndHypHit.h"
 #include "TGeoManager.h"
 #include "TGeoNode.h"
