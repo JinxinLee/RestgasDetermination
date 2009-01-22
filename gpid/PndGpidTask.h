@@ -19,13 +19,16 @@
 #ifndef PNDGPIDTASK_H
 #define PNDGPIDTASK_H
 
-#include "CbmTask.h"
-#include "PndLhePidTrack.h"
-#include "TVector3.h"
+//C++ headers
 #include <algorithm>
 #include <vector>
 #include <string>
 #include <fstream>
+
+//ROOT & PandaRoot headers
+#include "CbmTask.h"
+#include "PndLhePidTrack.h"
+#include "TVector3.h"
 #include "TClonesArray.h"
 #include "CbmRootManager.h"
 #include "TMVA/Reader.h"
@@ -43,34 +46,34 @@ class Reader;
 class PndGpidTask : public CbmTask
 {
  public:
- // enum type for the type of classifier 
- // task is going to use
+  // enum type for the type of classifier 
+  // task is going to use
   enum MVAType{
-       KNN = 1,
-       BDT = 2,
-       MLP = 3,
-       };
-
-
+    KNN = 1,
+    BDT = 2,
+    MLP = 3,
+  };
+  
+  
   /** Default constructor **/  
   PndGpidTask();
-
+  
   /** Destructor **/
   virtual ~PndGpidTask();
   // Data modifiers
   void SetAPPNAME(TString anaName)  { fAPPNAME = anaName; }
   void SetDIR(string dir) {fDIR = dir;}
   void SetMVA(MVAType mode) { fMVAmode = mode; } 
-
+  
   /** Virtual method Init **/
   virtual InitStatus Init();
-
+  
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
-
-private:
+  
+ private:
   // Private fuction members called by init during Initialization
-
+  
   // function to configure the Classifier with proper class names and variable names
   void Config();
   

@@ -7,34 +7,34 @@ PndPidCand::PndPidCand()
 
 PndPidCand::~PndPidCand()
 {
- destroy();
+  destroy();
 }
 
 void PndPidCand::destroy()
 {
-	fParam.clear();
- 	fVarName.clear(); 
+  fParam.clear();
+  fVarName.clear(); 
 }
 
 
-void PndPidCand::Set(const string key,double value)
+void PndPidCand::Set(const string key, const double value)
 {
   fParam[key] = value;
 }
 
 double PndPidCand::Get(const string key)
 {
-    return fParam.find(key)->second;
+  return fParam.find(key)->second;
 }
 
 
 vector<string> PndPidCand::GetVarName()
 {
-    std::map<string,double>::iterator fIter;
-    for(fIter = fParam.begin(); fIter != fParam.end();fIter++)
-     {
+  std::map<string,double>::iterator fIter;
+  for(fIter = fParam.begin(); fIter != fParam.end();fIter++)
+    {
       fVarName.push_back((*fIter).first); 
-     }
-     return fVarName;
+    }
+  return fVarName;
 }
 

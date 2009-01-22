@@ -29,6 +29,8 @@ PndGpidTask::PndGpidTask()
 
 PndGpidTask::~PndGpidTask()
 {
+  fVarNameArray.clear();
+  fClassNameArray.clear();
 }
 
 InitStatus PndGpidTask::Init()
