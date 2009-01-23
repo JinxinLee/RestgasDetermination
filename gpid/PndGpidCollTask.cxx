@@ -1,15 +1,39 @@
+/*
+ *  
+ *  S.Vanniarajan  V.Suyam.Jothi@kvi.nl
+ *
+ *  This is the Mutivariate Event classification tool
+ *  designed for PANDAROOT Analysis package for 
+ *  PANDA Experiments.
+ *       TMVA(Toolkit for MultiVariate Analysis) is a 
+ *  two class classifier(signal and background). 
+ *  available with ROOT package. mainly used for 
+ *  Event Classification in High Energy Physics Experiments.
+ *         
+ *       This tool here is Designed from TMVA, for Multiclass 
+ * Classification purpose. 
+ *
+ *                  S.Vanniarajan  01-08-08
+ * Modified:
+ * M. Babai
+ */
+
+//C++ headers
+#include <iostream>
+
+//Panda & ROOT headers
 #include "TClonesArray.h"
-#include "CbmRootManager.h"
-#include "PndGpidCollTask.h"
 #include "TGeant3TGeo.h"
 #include "TGeant3.h"
 #include "TVector3.h"
-#include "PndPidCand.h"
 #include "TTree.h"
 #include "TDatabasePDG.h"
+
+#include "PndPidCand.h"
+#include "CbmRootManager.h"
+#include "PndGpidCollTask.h"
 #include "CbmTrackParH.h"
 #include "CbmMCTrack.h"
-#include <iostream>
 
 #define PI 3.14159265
 

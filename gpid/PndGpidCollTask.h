@@ -1,6 +1,30 @@
+/*
+ *  
+ *  S.Vanniarajan  V.Suyam.Jothi@kvi.nl
+ *
+ *  This is the Mutivariate Event classification tool
+ *  designed for PANDAROOT Analysis package for 
+ *  PANDA Experiments.
+ *       TMVA(Toolkit for MultiVariate Analysis) is a 
+ *  two class classifier(signal and background). 
+ *  available with ROOT package. mainly used for 
+ *  Event Classification in High Energy Physics Experiments.
+ *         
+ *       This tool here is Designed from TMVA, for Multiclass 
+ * Classification purpose. 
+ *
+ *                  S.Vanniarajan  01-08-08
+ * Modified:
+ * M. Babai
+ */
+
 #pragma once
 #ifndef PNDGPIDCOLLTASK_H
 #define PNDGPIDCOLLTASK_H
+
+//C++ headers
+#include <algorithm>
+#include <vector>
 
 //ROOT & PandaRoot Headers
 #include "CbmTask.h"
@@ -15,32 +39,28 @@
 #include "PndTpcLheHit.h"
 #include "CbmMCTrack.h"
 
-//C++ headers
-#include <algorithm>
-#include <vector>
-
 class PndGpidCollTask : public CbmTask
 {
  public:
   /** Default constructor **/  
   PndGpidCollTask();
-
+  
   /** Destructor **/
   virtual ~PndGpidCollTask();
   
   /** Virtual method Init **/
   virtual InitStatus Init();
   
-  void smear(Double_t& theta, const Double_t& del );
+  void smear(const Double_t& theta, const Double_t& del );
   
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
-
+  
   //protected:
-
+  
  private:
   //Functions and methods
-  void destroy(void);
+  void destroy();
   /** Input array of Points **/
   TClonesArray* fTrackArray1;
   TClonesArray* fPointArray1;

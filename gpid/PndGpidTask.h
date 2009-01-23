@@ -74,7 +74,8 @@ class PndGpidTask : public CbmTask
  private:
   // Private fuction members called by init during Initialization
   
-  // function to configure the Classifier with proper class names and variable names
+  // function to configure the Classifier with proper 
+  //class names and variable names
   void Config();
   
   void AddVar();      // function adding the variables for classification 
@@ -84,7 +85,8 @@ class PndGpidTask : public CbmTask
   // MVAType booked 
   MVAType fMVAmode;
   
-  // Name of the application for which one does the classification used to pickup
+  // Name of the application for which one does the classification
+  // used to pickup
   // the correct configuration file and weight file.
   std::string fAPPNAME;
   

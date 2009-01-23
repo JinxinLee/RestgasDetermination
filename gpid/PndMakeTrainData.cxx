@@ -1,3 +1,23 @@
+/*
+ *  
+ *  S.Vanniarajan  V.Suyam.Jothi@kvi.nl
+ *
+ *  This is the Mutivariate Event classification tool
+ *  designed for PANDAROOT Analysis package for 
+ *  PANDA Experiments.
+ *       TMVA(Toolkit for MultiVariate Analysis) is a 
+ *  two class classifier(signal and background). 
+ *  available with ROOT package. mainly used for 
+ *  Event Classification in High Energy Physics Experiments.
+ *         
+ *       This tool here is Designed from TMVA, for Multiclass 
+ * Classification purpose. 
+ *
+ *                  S.Vanniarajan  01-08-08
+ * Modified:
+ * M. Babai
+ */
+
 #include "PndMakeTrainData.h"
 #include "TChain.h"
 
@@ -12,20 +32,22 @@ PndMakeTrainData::~PndMakeTrainData()
   fClassNameArray.clear();
 }
 
-void PndMakeTrainData::AddInFile(string className,
-				 string simFileName,
-				 string recoFileName)
+void PndMakeTrainData::AddInFile(const string className,
+				 const string simFileName,
+				 const string recoFileName)
 {
   pair<string,string> stringPair;
   stringPair.first = simFileName;
   stringPair.second = recoFileName;
   vector <string>::iterator it;
   // cout<<"  -I-  Adding Input files for the class"<<className<<endl;
+  
   if (fInFileNameArray.find(className) == fInFileNameArray.end()){
     vector<pair<string,string> > stringVec;
     fInFileNameArray.insert(pair<string,
 			    vector<pair<string,string> > >(className,stringVec));
     (fInFileNameArray.find(className)->second).push_back(stringPair); 
+    
     fNCLASS = fNCLASS +1;
     fClassNameArray.push_back(className);
     // cout<<"No of Classes added = "<<fNCLASS<<endl;   
@@ -36,7 +58,7 @@ void PndMakeTrainData::AddInFile(string className,
   cout << "  -I-  classes added for training are :";
   for (it=fClassNameArray.begin(); it<fClassNameArray.end(); it++)
     cout << " " << *it;
- 
+  
   cout<<endl;
 }
 
@@ -51,24 +73,29 @@ void PndMakeTrainData::GenerateTree()
   TDirectory *dir = outfile->mkdir("out");
   
   TNtuple *ntuple = new TNtuple("dummy","dummy","PMag:tpc:mvd:beta:msquare");
-  cout<<outfile<<endl;
+  
+  cout<< outfile <<endl;
   system("sleep 2");
   
-  for(int i=0; i <fNCLASS; i++){
+  for(int i = 0; i <fNCLASS; i++){
     string className;
     vector < pair<string,string> > fileNameVec;
     className = fClassNameArray[i];
     ntuple->SetNameTitle(className.c_str(),className.c_str());
     fileNameVec = fInFileNameArray.find(className)->second;
+    
     TChain *simChain = new TChain("cbmsim");
     TChain *recoChain = new TChain("cbmsim");
-    cout<<"                                       "<<fileNameVec.size()<<endl;
-
+    
+    cout<<"                             "<<fileNameVec.size()<<endl;
+    
     for(int j = 0; j < fileNameVec.size();j++ ){
       pair<string,string> filePair;
       filePair = fileNameVec.at(j);
+      
       simChain->Add((filePair.first).c_str());
       recoChain->Add((filePair.second).c_str());
+      
       cout<<filePair.first<<"  "<<filePair.second<<"  "<<j<<endl;  
     }
     FillNTuple(*simChain,*recoChain,*ntuple);
@@ -200,5 +227,7 @@ void PndMakeTrainData::FillNTuple(TChain& simChain ,
   delete ArrMCTrack1;
   delete ArrTpc1;
   delete ArrMvd1;
-  delete ArrPndPidCand1;  
+  delete ArrPndPidCand1;
+  delete ArrEmc;
+  delete ArrTof;
 }

@@ -16,6 +16,8 @@
  * to do the configuration for different algorithem. 
  *
  *                  S.Vanniarajan  01-08-08
+ * Modified:
+ * M. Babai
  */
 #pragma once
 #ifndef MULTI_CLASS_MVA_H
@@ -43,27 +45,30 @@ class PndMultiClassMVA
  public:
   PndMultiClassMVA();
   ~PndMultiClassMVA();
-  void AddVar(string varName); 
-  void AddClass(string className);
+  void AddVar(const string varName); 
+  void AddClass(const string className);
   // void GenerateTree();
   // void AddInFile(string className,string simFileName,string recoFileName);
   void WriteConfigFile();
   //  data modifiers
-  void SetINFILENAME(TString fname)  { fINFILENAME = fname; }
-  void SetConfigFileName(TString fname)  { fConfigFileName = fname; }
-  void SetAPPNAME(TString anaName)  { fAPPNAME = anaName; }
-  void SetNSigTrain(TString sigTrain) { fNSigTrain = sigTrain; }
-  void SetNSigTest(TString sigTest) { fNSigTest = sigTest; }
-  void SetNBkgTrain(TString bkgTrain) { fNBkgTrain = bkgTrain; }
-  void SetNBkgTest(TString bkgTest) { fNBkgTest = bkgTest; }
-  void SetPruneStrengthBDT(TString PruneStrength) { fPruneStrengthBDT = PruneStrength; }
-  void SetNTreeBDT(TString nTree) { fNTreeBDT = nTree; }
-  void SetBoostTypeBDT(TString boostType) {fBoostTypeBDT = boostType; }
-  void SetNCutsBDT(TString nCuts) { fNCutsBDT = nCuts; }
-  void SetNKNN(TString kNN) { fNKNN = kNN; }
+  void SetINFILENAME(const TString fname)  { fINFILENAME = fname; }
+  void SetConfigFileName(const TString fname)  { fConfigFileName = fname; }
+  void SetAPPNAME(const TString anaName)  { fAPPNAME = anaName; }
+  void SetNSigTrain(const TString sigTrain) { fNSigTrain = sigTrain; }
+  void SetNSigTest(const TString sigTest) { fNSigTest = sigTest; }
+  void SetNBkgTrain(const TString bkgTrain) { fNBkgTrain = bkgTrain; }
+  void SetNBkgTest(const TString bkgTest) { fNBkgTest = bkgTest; }
+  void SetPruneStrengthBDT(const TString PruneStrength) { fPruneStrengthBDT = PruneStrength; }
+  void SetNTreeBDT(const TString nTree) { fNTreeBDT = nTree; }
+  void SetBoostTypeBDT(const TString boostType) {fBoostTypeBDT = boostType; }
+  void SetNCutsBDT(const TString nCuts) { fNCutsBDT = nCuts; }
+  void SetNKNN(const TString kNN) { fNKNN = kNN; }
+
   //data accessers
-  Int_t GetNCLASS() {return fNCLASS; }
-  Int_t GetNVAR() {return fNVAR; }
+  //Int_t GetNCLASS() {return fNCLASS; }
+  Int_t GetNCLASS() {return fClassNameArray.size(); }
+  //Int_t GetNVAR() {return fNVAR; }
+  Int_t GetNVAR() {return fVarNameArray.size(); }
   void TrainTest();       
   
  private:
@@ -88,6 +93,6 @@ class PndMultiClassMVA
   //  map <string, vector<pair<string,string> > > fInFileNameArray;  
   // map from class names the the corresponding 
   
-  TFile fINPUT;
+  //TFile fINPUT;
 };
 #endif

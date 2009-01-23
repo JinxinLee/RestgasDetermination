@@ -13,9 +13,9 @@
  * Classification purpose. 
  *
  *                  S.Vanniarajan  01-08-08
+ * Modified:
+ * M. Babai 
  */
-
-
 
 #include "PndGpidTask.h"
 #include "Event.h"
@@ -73,6 +73,7 @@ InitStatus PndGpidTask::Init()
   
   return kSUCCESS;
 }
+
 void PndGpidTask::Config()
 {
   ifstream inFile;
@@ -89,6 +90,7 @@ void PndGpidTask::Config()
   cout<<fNVAR<<endl;
   cout<<fNCLASS<<endl;
   sbuff=buff;
+  
   while(1){
     size_t prompt = sbuff.find(":");
     sbuff = sbuff.substr(prompt+1,sbuff.size());
@@ -99,6 +101,7 @@ void PndGpidTask::Config()
   }
   inFile.getline(buff,512);
   sbuff=buff;
+  
   while(1){
     size_t prompt = sbuff.find(":");
     sbuff = sbuff.substr(prompt+1,sbuff.size());
@@ -168,12 +171,12 @@ void PndGpidTask::Exec(Option_t* opt)
     
     varName = fVarNameArray.at(i);
     if (varName == "tpc"){
-     for (Int_t j = 0; j < fArrTpc->GetEntriesFast(); j++ ){
-       PndTpcPoint *tpc = (PndTpcPoint *) fArrTpc->At(j);
-       if(tpc == 0)continue;
-       de_tpc += tpc->GetEnergyLoss();
-       dx_tpc += tpc->GetLength();
-     }
+      for (Int_t j = 0; j < fArrTpc->GetEntriesFast(); j++ ){
+	PndTpcPoint *tpc = (PndTpcPoint *) fArrTpc->At(j);
+	if(tpc == 0)continue;
+	de_tpc += tpc->GetEnergyLoss();
+	dx_tpc += tpc->GetLength();
+      }
     }
     if (varName == "mvd"){
       for (Int_t j = 0; j < fArrMvd->GetEntriesFast(); j++ ){
@@ -196,8 +199,6 @@ void PndGpidTask::Exec(Option_t* opt)
       varArray[i]=pid->Get("msquare");
     // cout<<varArray[i]<<" "<<varName<<endl;
   }
-  
-  
   
   for (int i = 0 ; i < fNCLASS; i++){
     string className;

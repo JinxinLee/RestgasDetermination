@@ -1,3 +1,23 @@
+/*
+ *  
+ *  S.Vanniarajan  V.Suyam.Jothi@kvi.nl
+ *
+ *  This is the Mutivariate Event classification tool
+ *  designed for PANDAROOT Analysis package for 
+ *  PANDA Experiments.
+ *       TMVA(Toolkit for MultiVariate Analysis) is a 
+ *  two class classifier(signal and background). 
+ *  available with ROOT package. mainly used for 
+ *  Event Classification in High Energy Physics Experiments.
+ *         
+ *       This tool here is Designed from TMVA, for Multiclass 
+ * Classification purpose. 
+ *
+ *                  S.Vanniarajan  01-08-08
+ * Modified:
+ * M. Babai
+ */
+
 #pragma once
 #ifndef PND_MAKE_TRAIN_DATA_H
 #define PND_MAKE_TRAIN_DATA_H
@@ -37,20 +57,28 @@ class PndMakeTrainData  {
   PndMakeTrainData();
   // destructor
   ~PndMakeTrainData();
+
   // function generating the tree
   void GenerateTree();
-  // function call adds the input file
-  void AddInFile(string className,string simFileName,string recoFileName);
-  // data modifiers 
-  void SetOutFileName(string fName) {outFileName = fName; }
 
+  // function call adds the input file
+  void AddInFile(const string className, const string simFileName, 
+		 const string recoFileName);
+  
+  // data modifiers 
+  void SetOutFileName(const string fName) {outFileName = fName; }
+
+  //protected:
+  
  private:
-  int fNCLASS;                // number of class
+  int fNCLASS; // number of class
   // file name of the tree file containing all the class signals
   string outFileName;
   //  map from class name to the corresponding input files
   map <string, vector<pair<string,string> > > fInFileNameArray; 
+  
   vector <string> fClassNameArray;  // array of class names
+  
   // function which fills the  class ntuples from corresponding files
   void FillNTuple(TChain  &simChain,TChain  &recoChain, TNtuple &ntuple);
 };

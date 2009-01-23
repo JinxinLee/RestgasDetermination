@@ -14,27 +14,19 @@
  * Classification purpose. 
  *
  *                  S.Vanniarajan  01-08-08
+ * Modified:
+ * M. Babai
  */
-
 
 #include "PndMultiClassMVA.h"
 #define NUMBEROFTREES 50
 
 using namespace std;
-PndMultiClassMVA::PndMultiClassMVA()
-{
-  fNCLASS = 0;
-  fNVAR   = 0;
-  fNSigTrain = "100";
-  fNSigTest = "100";
-  fNSigTrain = "100";
-  fNSigTest = "100";
-  fPruneStrengthBDT = "4.0";
-  fBoostTypeBDT = "AdaBoost";
-  fNCutsBDT = "10";
-  fNTreeBDT = "100";
-  fNKNN     = "40";
-}
+PndMultiClassMVA::PndMultiClassMVA():fNCLASS(0),fNVAR(0), fNSigTest("100"), 
+				     fNSigTrain("100"), fPruneStrengthBDT("4.0"),
+				     fBoostTypeBDT("AdaBoost"),fNCutsBDT("10"),
+				     fNTreeBDT("100"), fNKNN("40")
+{}
 /*
   PndMultiClassMVA::PndMultiClassMVA( Int_t NoClass, 
   Int_t NoPar, TString fname,TString anaName )
@@ -51,19 +43,23 @@ PndMultiClassMVA::~PndMultiClassMVA()
   fClassNameArray.clear();
 }
 
-void PndMultiClassMVA::AddVar(string varName)
+void PndMultiClassMVA::AddVar(const string varName)
 {
   fVarNameArray.push_back(varName);
-  fNVAR = fNVAR +1;
+  //fNVAR = fVarNameArray.size()
+  //We can remove this one.
+  fNVAR += 1;
 }
 
-void PndMultiClassMVA::AddClass(string className)
+void PndMultiClassMVA::AddClass(const string className)
 {
   //  vector<pair<string,string> > stringVec;
   fClassNameArray.push_back(className);
   //  fInFileNameArray.insert(pair<string,vector<pair<string,string> >
   //  >(className,stringVec));
-  fNCLASS = fNCLASS +1;
+  //This is equal to  fClassNameArray.size()
+  // Thus we do not need this one.
+  fNCLASS += 1;
 }
 /*
   void PndMultiClassMVA::AddInFile(string className,
@@ -111,6 +107,7 @@ void PndMultiClassMVA::WriteConfigFile()
   TString varString = ":";
   TString classString = ":";
   fstream config;
+  
   config.open(fileName,fstream::out);
   config<<fNVAR<<endl;
   config<<fNCLASS<<endl;
@@ -162,6 +159,7 @@ void PndMultiClassMVA::TrainTest()
       cout<< (TTree*)input->Get(treeName)<<endl;  
       TreeArray[i] = (TTree*)input->Get(treeName);  
     }
+    
     //TreeArray is filled, we can delete input
     input->Close();
     delete input;
@@ -234,4 +232,4 @@ void PndMultiClassMVA::TrainTest()
   WriteConfigFile();
 }
 
-ClassImp(PndMultiClassMVA)
+ClassImp(PndMultiClassMVA);

@@ -1,9 +1,29 @@
+/*
+ *  
+ *  S.Vanniarajan  V.Suyam.Jothi@kvi.nl
+ *
+ *  This is the Mutivariate Event classification tool
+ *  designed for PANDAROOT Analysis package for 
+ *  PANDA Experiments.
+ *       TMVA(Toolkit for MultiVariate Analysis) is a 
+ *  two class classifier(signal and background). 
+ *  available with ROOT package. mainly used for 
+ *  Event Classification in High Energy Physics Experiments.
+ *         
+ *       This tool here is Designed from TMVA, for Multiclass 
+ * Classification purpose. 
+ *
+ *                  S.Vanniarajan  01-08-08
+ * Modified:
+ * M. Babai
+ */
+
 #include "PndPidCand.h"
+
 ClassImp(PndPidCand);
 
 PndPidCand::PndPidCand()
-{
-}
+{}
 
 PndPidCand::~PndPidCand()
 {
@@ -28,13 +48,13 @@ double PndPidCand::Get(const string key)
 }
 
 
-vector<string> PndPidCand::GetVarName()
+//vector<string> PndPidCand::GetVarName()
+void PndPidCand::GetVarName(vector<string>& varList)
 {
   std::map<string,double>::iterator fIter;
-  for(fIter = fParam.begin(); fIter != fParam.end();fIter++)
-    {
-      fVarName.push_back((*fIter).first); 
-    }
-  return fVarName;
+  for(fIter = fParam.begin(); fIter != fParam.end();fIter++){
+    varList.push_back((*fIter).first); 
+  }
+  //return fVarName;
 }
 
