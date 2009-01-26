@@ -7,7 +7,9 @@
 
 using namespace std;
 // -------------   Default constructor  ----------------------------------
-PndTransMap::PndTransMap() { 
+PndTransMap::PndTransMap() 
+ :PndFieldMap()
+{ 
   fType = 4;
 }
 // ------------------------------------------------------------------------

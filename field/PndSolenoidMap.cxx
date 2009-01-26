@@ -9,7 +9,9 @@ Int_t PndSolenoidMap::fNumberOfRegions=0;
 
 using namespace std;
 // -------------   Default constructor  ----------------------------------
-PndSolenoidMap::PndSolenoidMap() { 
+PndSolenoidMap::PndSolenoidMap()
+  :PndFieldMap()
+{ 
   fType = 2;
 }
 // ------------------------------------------------------------------------

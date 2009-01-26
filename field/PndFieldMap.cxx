@@ -21,18 +21,19 @@
 using namespace std;
 
 // -------------   Default constructor  ----------------------------------
-PndFieldMap::PndFieldMap() {
-  fPosX  = fPosY  = fPosZ  = 0.;
-  fXmin  = fYmin  = fZmin  = 0.;
-  fXmax  = fYmax  = fZmax  = 0.;
-  fXstep = fYstep = fZstep = 0.;
-  fNx    = fNy    = fNz    = 0;
-  fScale = 1.;
-  funit = 10.0;
-  fBx    = fBy    = fBz    = NULL;
-  fPosX = fPosY = fPosZ = 0.;
+PndFieldMap::PndFieldMap() 
+  : CbmField(),
+    fPosX(0), fPosY(0), fPosZ(0),
+    fXmin(0), fYmin(0), fZmin(0),
+    fXmax(0), fYmax(0), fZmax(0),
+    fXstep(0), fYstep(0),fZstep(0),
+    fNx(0),fNy(0),fNz(0),
+    fScale(1.0),
+    funit(10.0),
+    fBx(NULL), fBy(NULL), fBz(NULL),
+    fFileName("")
+{
   fName     = "";
-  fFileName = "";
   fType = 1;
 }
 // ------------------------------------------------------------------------
@@ -41,15 +42,16 @@ PndFieldMap::PndFieldMap() {
 
 // -------------   Standard constructor   ---------------------------------
 PndFieldMap::PndFieldMap(const char* mapName, const char* fileType)
-  : CbmField(mapName) {
-  fPosX  = fPosY  = fPosZ  = 0.;
-  fXmin  = fYmin  = fZmin  = 0.;
-  fXmax  = fYmax  = fZmax  = 0.;
-  fXstep = fYstep = fZstep = 0.;
-  fNx    = fNy    = fNz    = 0;
-  fScale = 1.;
-  funit = 10.0;
-  fBx    = fBy    = fBz    = NULL;
+  : CbmField(mapName),
+    fPosX(0), fPosY(0), fPosZ(0),
+    fXmin(0), fYmin(0), fZmin(0),
+    fXmax(0), fYmax(0), fZmax(0),
+    fXstep(0), fYstep(0),fZstep(0),
+    fNx(0),fNy(0),fNz(0),
+    fScale(1.0),
+    funit(10.0),
+    fBx(NULL), fBy(NULL), fBz(NULL)
+{
   fName  = mapName;
   TString dir = getenv("VMCWORKDIR");
   fFileName = dir + "/input/" + mapName;
@@ -62,16 +64,18 @@ PndFieldMap::PndFieldMap(const char* mapName, const char* fileType)
 
 
 // ------------   Constructor from PndFieldPar   --------------------------
-PndFieldMap::PndFieldMap(PndFieldPar* fieldPar) {
+PndFieldMap::PndFieldMap(PndFieldPar* fieldPar) 
+  : CbmField(),
+    fPosX(0), fPosY(0), fPosZ(0),
+    fXmin(0), fYmin(0), fZmin(0),
+    fXmax(0), fYmax(0), fZmax(0),
+    fXstep(0), fYstep(0),fZstep(0),
+    fNx(0),fNy(0),fNz(0),
+    fScale(1.0),
+    funit(10.0),
+    fBx(NULL), fBy(NULL), fBz(NULL)
+{
   fType = 1;
-  fPosX  = fPosY  = fPosZ  = 0.;
-  fXmin  = fYmin  = fZmin  = 0.;
-  fXmax  = fYmax  = fZmax  = 0.;
-  fXstep = fYstep = fZstep = 0.;
-  fNx    = fNy    = fNz    = 0;
-  fScale = 1.;
-  funit = 10.0;
-  fBx    = fBy    = fBz    = NULL;
   if ( ! fieldPar ) {
     cerr << "-W- PndConstField::PndConstField: empty parameter container!"
 	 << endl;

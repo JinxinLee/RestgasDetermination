@@ -10,7 +10,9 @@ Int_t PndDipoleMap::fNumberOfRegions=0;
 
 using namespace std;
 // -------------   Default constructor  ----------------------------------
-PndDipoleMap::PndDipoleMap() { 
+PndDipoleMap::PndDipoleMap() 
+  :PndFieldMap()
+{ 
   fType = 3;
 }
 // ------------------------------------------------------------------------
