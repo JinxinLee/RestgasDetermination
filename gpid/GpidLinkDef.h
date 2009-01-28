@@ -15,5 +15,5 @@
 //#pragma link C++ class  Event+;
 //#pragma link C++ class  EvtGenTask+;
 #pragma link C++ class  PndGpidTaskFast;
-
+#pragma link C++ class PndGpidTaskLhe;
 #endif
