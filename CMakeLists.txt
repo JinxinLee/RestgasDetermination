@@ -119,7 +119,9 @@ add_subdirectory(rho)
 add_subdirectory (rpc) 
 add_subdirectory (gpid)
 add_subdirectory (PndTools/riemannfit)
-add_subdirectory (tutorials/anatask)
+#add_subdirectory (tutorials/anatask)
+add_subdirectory(PndTools/AnalysisTools)
+
 
 if(GEANT4_FOUND AND GEANT4VMC_FOUND AND CLHEP_FOUND)  
   add_subdirectory (cbmg4)
