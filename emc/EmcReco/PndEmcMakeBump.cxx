@@ -115,7 +115,6 @@ InitStatus PndEmcMakeBump::Init() {
   // Create and register output array
   fBumpArray = new TClonesArray("PndEmcBump");
   ioman->Register("EmcBump","Emc",fBumpArray,fStoreBumps);
-
   // Fill structure with parameters from RunTime DB for local maximum
   // finder
   PndEmc2DLocMaxFinderData locMaxData;
@@ -192,8 +191,8 @@ void PndEmcMakeBump::Exec(Option_t* opt)
     }
 
     for (unsigned int  i = 0; i < theBumps.size(); i++){
-      //Int_t size_ba = fBumpArray->GetEntriesFast();
-      //PndEmcBump* theNextBump = new((*fBumpArray)[size_ba]) PndEmcBump(*(theBumps[i]));
+      Int_t size_ba = fBumpArray->GetEntriesFast();
+      PndEmcBump* theNextBump = new((*fBumpArray)[size_ba]) PndEmcBump(*(theBumps[i]));
       
       if ((fVerbose>=1)&&(theBumps.size()>1)){
 	std::cout<<"bump energy = "<<theBumps[i]->energy()<<endl;
