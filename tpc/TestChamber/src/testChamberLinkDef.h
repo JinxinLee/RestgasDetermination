@@ -13,6 +13,7 @@
 
 #pragma link C++ class TCcluster+;
 #pragma link C++ class TCtrack+;
+#pragma link C++ class TCevent+;
 
 
 #endif

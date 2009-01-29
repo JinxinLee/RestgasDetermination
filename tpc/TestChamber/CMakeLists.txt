@@ -54,6 +54,7 @@ SET(SOURCES 	../PndTpcSample.cxx
 		src/TChough1.cxx
 		src/TChoughPatternReco.cxx
 		src/TCalign.cxx
+		src/TCevent.cxx
 		testChamberDict.cxx) 
 
 FIND_PROGRAM(ROOT_CINT_EXECUTABLE
@@ -65,7 +66,7 @@ FIND_PROGRAM(ROOT_CINT_EXECUTABLE
 ADD_CUSTOM_COMMAND(OUTPUT testChamberDict.cxx
       COMMAND ${ROOT_CINT_EXECUTABLE}
       ARGS -f testChamberDict.cxx -c -DHAVE_CONFIG_H ${INCLUDE_DIRECTORIES}
-	  ../PndTpcCluster.h ../PndTpcSample.h ../PndTpcDigi.h ../McId.h ../McIdCollection.h src/TCcluster.h src/TCtrack.h  src/testChamberLinkDef.h)
+	  ../PndTpcCluster.h ../PndTpcSample.h ../PndTpcDigi.h ../McId.h ../McIdCollection.h src/TCcluster.h src/TCtrack.h src/TCevent.h  src/testChamberLinkDef.h)
 
 
 ADD_LIBRARY(testChamber SHARED ${SOURCES})
