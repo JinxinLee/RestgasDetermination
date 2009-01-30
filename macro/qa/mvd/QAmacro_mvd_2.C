@@ -1,0 +1,56 @@
+{
+	  cout << "QA module for the MVD Digitization and Hit Reconstruction." << endl;
+  TStopwatch timer;
+  timer.Start();
+  Int_t iVerbose = 1;
+
+  TString inFile = "mvdqasim.root";
+  TString parFile = "mvdqapar.root";
+  TString outFile = "mvdqarec.root";
+
+  Int_t nEvents = 100;
+
+  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+
+  CbmRunAna *fRun= new CbmRunAna();
+  fRun->SetInputFile(inFile);
+  fRun->SetOutputFile(outFile);
+
+  TString sysFile = gSystem->Getenv("VMCWORKDIR");
+  TString allDigiFile = sysFile+"/macro/params/all.par";
+
+  CbmRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  CbmParRootFileIo* parInput1 = new CbmParRootFileIo();
+  parInput1->open(parFile.Data());
+
+  CbmParAsciiFileIo* parIo1 = new CbmParAsciiFileIo();
+  parIo1->open(allDigiFile.Data(),"in");
+
+  rtdb->setFirstInput(parInput1);
+  rtdb->setSecondInput(parIo1);
+  fRun->LoadGeometry();
+
+  PndMvdDigiTask* mvddigi = new PndMvdDigiTask();
+  mvddigi->SetVerbose(iVerbose);
+  fRun->AddTask(mvddigi);
+
+  Double_t chargecut = 5000., pixelrad=1.8;
+  PndMvdClusterTask* mvdmccls = new PndMvdClusterTask(pixelrad,chargecut,inFile);
+  mvdmccls->SetVerbose(iVerbose);
+  fRun->AddTask(mvdmccls);
+
+  fRun->Init();
+  fRun->Run(0, nEvents);
+
+  rtdb->saveOutput();
+  rtdb->print();
+
+  timer.Stop();
+  Double_t rtime = timer.RealTime();
+  Double_t ctime = timer.CpuTime();
+  printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
+
+	cout << " Test passed" << endl;
+    cout << " All ok " << endl;
+
+}
