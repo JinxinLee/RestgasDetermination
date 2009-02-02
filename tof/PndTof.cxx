@@ -103,9 +103,7 @@ void PndTof::Initialize() {
   // Init function
   
   CbmDetector::Initialize();
-  CbmRun* sim = CbmRun::Instance();
-  CbmRuntimeDb* rtdb=sim->GetRuntimeDb();
-  par=(PndGeoTofPar*)(rtdb->getContainer("PndGeoTofPar"));
+ 
   
   //TObjArray *fSensNodes = par->GetGeoSensitiveNodes();
   
@@ -158,7 +156,7 @@ Bool_t PndTof::ProcessHits(CbmVolume* vol)
      
     if ( gMC->IsTrackEntering() ) 
       {
-	fELoss  = 0.;
+	fELoss  = 0.;fEventID = gMC->CurrentEvent();
 	fTime   = gMC->TrackTime() * 1.0e09;
 	fLength = gMC->TrackLength();
 	fmass   = gMC->TrackMass();   // mass (GeV)
@@ -184,20 +182,21 @@ Bool_t PndTof::ProcessHits(CbmVolume* vol)
       {
 	fTrackID  = gMC->GetStack()->GetCurrentTrackNumber();
 	 Int_t cp=-1;
-	  TString nam2 = gMC->CurrentVolOffName(1);  
+	 //TString nam2 = gMC->CurrentVolOffName(1);  
 	  gMC->CurrentVolOffID(1,cp) ;
 	  
 	  //if ((nam2.Contains("Si"))) {
 	  // sscanf(nam2,"stglSi%d#01", &nSiL);
 	  //cout << "hyp::ProcessHits> : " << nam2 <<" # "
-	    //   <<gMC->CurrentVolOffID(1,cp)<<" "<<"Hit in "<<cp<<" "
-	    // << gGeoManager->GetPath()<<endl;
+	  // <<gMC->CurrentVolOffID(1,cp)<<" "<<"Hit in "<<cp<<" "
+	  // << gGeoManager->GetPath()<<endl;
 	     // } 
 
 	//fVolumeID = vol->getMCid();
 	
-	  fVolumeID = cp * (1 + vol->getCopyNo());
-	CbmGeoNode* node = vol->getGeoNode();
+	  if(cp==0)fVolumeID = (cp+1) * (1 + vol->getCopyNo());
+	  else fVolumeID = (cp) * (1 + vol->getCopyNo());
+	    CbmGeoNode* node = vol->getGeoNode();
 	TList* nodeList = node->getTree();
 	//cout << "FullName: " << vol->getName() << "/"<<endl;
 	for (Int_t index=0; index < nodeList->GetSize(); index++)
@@ -220,24 +219,11 @@ Bool_t PndTof::ProcessHits(CbmVolume* vol)
 	  Int_t fVolid = gMC->CurrentVolID(cp);
 	  Int_t nSiL = -1;
 	  
-	  // cout << " Vol Name: " << gMC->CurrentVolName() << endl;
-	  
 	 
-	  
-	  /*
-	    fVolid=gMC->CurrentVolOffID(1,cp); 
-	    FullName <<"/";
-	    FullName << gMC->CurrentVolOffName(3) << "_" << cp << "/";
-	    FullName << gMC->CurrentVolOffName(2) << "_" << cp << "/";
-	    FullName << gMC->CurrentVolOffName(1) << "_" << cp << "/";
-	    FullName << gMC->CurrentVolName() << "_" << cp << "/"; 
-	  */
 	 
 	  FullName <<gMC->CurrentVolPath();
  
-	  //fVolid=gMC->CurrentVolOffID(1,cp);      
-//	  cout<<"tof volume "<<medId<<" "<< fpdgCode<<endl;	   
-//	  cout << "Hit in fullname " << FullName.str() <<endl;
+	 
 	  nam = FullName.str();
 	  
 	  
@@ -258,7 +244,7 @@ Bool_t PndTof::ProcessHits(CbmVolume* vol)
 
 	fPLout = fMomOut.P();
 
-	AddHit(fTrackID, fVolumeID, FullName.str(),
+	AddHit(fTrackID, fEventID,fVolumeID, FullName.str(),
 	       TVector3(fPosIn.X(),   fPosIn.Y(),   fPosIn.Z()),
 	       TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),
 	       TVector3(fPosOut.X(),  fPosOut.Y(),  fPosOut.Z()),
@@ -284,7 +270,7 @@ Bool_t PndTof::ProcessHits(CbmVolume* vol)
 	 
        if ( gMC->IsTrackEntering() ) 
 	 {
-	     fELoss  = 0.;
+	     fELoss  = 0.;fEventID = gMC->CurrentEvent();
 	    fTime   = gMC->TrackTime() * 1.0e09;
 	    fLength = gMC->TrackLength();
 	    fmass   = gMC->TrackMass();   // mass (GeV)
@@ -311,10 +297,15 @@ Bool_t PndTof::ProcessHits(CbmVolume* vol)
 	       gMC->IsTrackDisappeared()) )//&& gMC->TrackCharge()) 
 	   {    
 	     fTrackID  = gMC->GetStack()->GetCurrentTrackNumber();
-	     fVolumeID = vol->getCopyNo();
+	    
 	     //vol->getMCid();
 	     gMC->TrackPosition(fPosOut);
 	     gMC->TrackMomentum(fMomOut);
+	     TString nam3 = gMC->CurrentVolOffName(0); 
+	     if (nam3.Contains("tsciF04"))fVolumeID = vol->getCopyNo();
+	     if( nam3.Contains("tsciF05"))fVolumeID = 501+vol->getCopyNo();
+	     // cout<<" sciF "<< fVolumeID<<" "<<vol->getMCid()<<nam3<<endl;
+	     
 	     
 	     ostringstream matName;
 	    TString mat[4]={"CAbs","Si","Be","Al"};
@@ -323,7 +314,11 @@ Bool_t PndTof::ProcessHits(CbmVolume* vol)
 	    
 	    //if (medId==SiId) matName<<"polypropilene";
 	    //cout << "Hit in fullname " << matName.str() <<endl;
-	     if (fELoss == 0. ) return kFALSE;
+	     
+	    if ((fELoss == 0. )&&(fpdgCode!=2112 )) {
+	      return kFALSE;
+	    }
+	 
 	  
 	     //---Kinetic energy:###(PL.P())^2 + Mass^2 -Mass##
 	     radt= fPosOut.Vect();
@@ -334,7 +329,7 @@ Bool_t PndTof::ProcessHits(CbmVolume* vol)
 	     //fPLin = fMomIn.P();
 	     fPLout = fMomOut.P();
  
-	  AddSciFHit(fTrackID, fVolumeID,matName.str(),
+	     AddSciFHit(fTrackID, fEventID,fVolumeID,matName.str(),
 		       TVector3(fPosIn.X(),   fPosIn.Y(),   fPosIn.Z()),
 		       TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),
 		       TVector3(fPosOut.X(),  fPosOut.Y(),  fPosOut.Z()),
@@ -477,7 +472,7 @@ void PndTof::ConstructGeometry() {
 
 // -----   Private method AddHit   --------------------------------------------
 
-PndTofPoint* PndTof::AddHit(Int_t trackID, Int_t detID, TString detName,
+PndTofPoint* PndTof::AddHit(Int_t trackID, Int_t evtID, Int_t detID, TString detName,
 			    TVector3 pos, TVector3 mom,
 			    TVector3 posout, 
 			    TVector3 momout,
@@ -490,7 +485,7 @@ PndTofPoint* PndTof::AddHit(Int_t trackID, Int_t detID, TString detName,
 			    Double_t PLin,Double_t PLout) {
   TClonesArray& clref = *fTofCollection;
   Int_t size = clref.GetEntriesFast();
-  return new(clref[size]) PndTofPoint(trackID, detID, detName,pos, mom, 
+  return new(clref[size]) PndTofPoint(trackID, evtID,detID, detName,pos, mom, 
 				      posout, momout,
 				      time, length, eLoss,charge, 
 				      mass,pdgCode,
@@ -503,7 +498,7 @@ PndTofPoint* PndTof::AddHit(Int_t trackID, Int_t detID, TString detName,
 
 // -----   Private method AddSciFHit   --------------------------------------------
 
-PndTofPoint* PndTof::AddSciFHit(Int_t trackID, Int_t detID, TString detName,
+PndTofPoint* PndTof::AddSciFHit(Int_t trackID, Int_t evtID, Int_t detID, TString detName,
 			    TVector3 pos, TVector3 mom,  
 				  TVector3 posout, 
 				  TVector3 momout, 
@@ -515,7 +510,7 @@ PndTofPoint* PndTof::AddSciFHit(Int_t trackID, Int_t detID, TString detName,
 				  Double_t PLin,Double_t PLout) {
   TClonesArray& clref = *fTofSciFCollection;
   Int_t size = clref.GetEntriesFast();
-  return new(clref[size]) PndTofPoint(trackID, detID, detName, pos, mom,  posout, momout,
+  return new(clref[size]) PndTofPoint(trackID, evtID,detID, detName, pos, mom,  posout, momout,
 				     time, length, eLoss,charge, mass, pdgCode,
 				      dist,PLin,PLout);
  }
