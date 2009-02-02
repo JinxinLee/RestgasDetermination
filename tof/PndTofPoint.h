@@ -35,7 +35,7 @@ class PndTofPoint : public CbmMCPoint
    *@param eLoss    Energy deposit [GeV]
    **/
   
-  PndTofPoint(Int_t trackID, 
+  PndTofPoint(Int_t trackID, Int_t evtID,
 	      Int_t detID,TString detName,
 	      TVector3 posin, 
 	      TVector3 momin, 

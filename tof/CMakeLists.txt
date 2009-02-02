@@ -4,12 +4,16 @@
 
 set(INCLUDE_DIRECTORIES
 ${ROOT_INCLUDE_DIR} 
+${GEANT3_INCLUDE_DIR}
+${CLHEP_INCLUDE_DIR}
 ${CMAKE_SOURCE_DIR}/geobase 
 ${CMAKE_SOURCE_DIR}/parbase 
 ${CMAKE_SOURCE_DIR}/base 
 ${CMAKE_SOURCE_DIR}/field 
 ${CMAKE_SOURCE_DIR}/mcstack 
 ${CMAKE_SOURCE_DIR}/tof
+${CMAKE_SOURCE_DIR}/genfit
+${CMAKE_SOURCE_DIR}/recotasks
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -28,6 +32,8 @@ PndTofPoint.cxx
 PndTofHit.cxx  
 PndTofContFact.cxx
 PndTofHitProducerIdeal.cxx  
+PndTofAnaIdeal.cxx
+PndTofMassTrig.cxx
 )
 
 if(RULE_CHECKER_FOUND)

@@ -39,7 +39,7 @@ PndTofPoint::PndTofPoint() : CbmMCPoint() {
 
 
 // -----   Standard constructor   ------------------------------------------
-PndTofPoint::PndTofPoint(Int_t trackID, 
+PndTofPoint::PndTofPoint(Int_t trackID, Int_t evtID,
 			 Int_t detID, TString detName,
 			 TVector3 posin,
 			 TVector3 momin, 
@@ -50,9 +50,9 @@ PndTofPoint::PndTofPoint(Int_t trackID,
                          Double_t mass, 
 			 Int_t pdgCode,Double_t dist, 
 			 Double_t PLin, Double_t PLout)
-  {
+ : CbmMCPoint(trackID, detID, posin, momin, tof, length, eLoss) {
   fTrackID    = trackID;
-  fVolumeID = detID; 
+  fVolumeID = detID;  fEventID    = evtID;
   
   fXin          = posin.X();
   fYin          = posin.Y();

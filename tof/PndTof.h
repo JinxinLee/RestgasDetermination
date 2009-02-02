@@ -105,7 +105,7 @@ class PndTof : public CbmDetector
    **/
   virtual void ConstructGeometry();
 
-  PndTofPoint* AddHit(Int_t trackID, 
+  PndTofPoint* AddHit(Int_t trackID, Int_t evtID, 
 		      Int_t detID, TString detName,
 		      TVector3 posin, 
 		      TVector3 momin,
@@ -121,7 +121,7 @@ class PndTof : public CbmDetector
 		      Double_t PLin,
 		      Double_t PLout);
 
-  PndTofPoint* AddSciFHit(Int_t trackID, 
+  PndTofPoint* AddSciFHit(Int_t trackID, Int_t evtID, 
 			    Int_t detID,TString detName,
 			    TVector3 posin, 
 			    TVector3 momin,
@@ -176,7 +176,7 @@ class PndTof : public CbmDetector
 
 
 inline void PndTof::ResetParameters() {
-  fTrackID = fVolumeID = 0;
+  fTrackID = fVolumeID = 0;fEventID = -1;
   fPosIn.SetXYZM(0.0, 0.0, 0.0, 0.0);
   fPosOut.SetXYZM(0.0, 0.0, 0.0, 0.0);
   fMomIn.SetPxPyPzE(0.0, 0.0, 0.0, 0.0);
