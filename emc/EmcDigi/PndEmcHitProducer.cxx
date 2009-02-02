@@ -175,7 +175,7 @@ PndEmcHit* PndEmcHitProducer::AddHit(Int_t trackID,Int_t detID, Float_t energy, 
 }
 // ----
 
-void PndEmcHitProducer::SetStorageOfHits(Bool_t val)
+void PndEmcHitProducer::SetStorageOfData(Bool_t val)
 {
   fStoreHits=val;
   return;

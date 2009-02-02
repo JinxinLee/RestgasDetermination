@@ -48,7 +48,7 @@ public:
   
   PndEmcDigi* AddDigi(Int_t trackID,Int_t detID, Float_t energy, Float_t time, Int_t hitIndex);
 
-  void SetStorageOfDigis(Bool_t val); // Method to specify whether digis are stored or not.
+  void SetStorageOfData(Bool_t val); // Method to specify whether digis are stored or not.
   
 private:
 

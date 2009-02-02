@@ -37,7 +37,7 @@ public:
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
 
-  void SetStorageOfRecoHits(Bool_t val); // Method to specify whether recohits are stored or not.
+  void SetStorageOfData(Bool_t val); // Method to specify whether recohits are stored or not.
 
 protected:
 

@@ -162,7 +162,7 @@ void PndEmcMakeDigi::SetParContainers() {
  
 }
 
-void PndEmcMakeDigi::SetStorageOfDigis(Bool_t val)
+void PndEmcMakeDigi::SetStorageOfData(Bool_t val)
 {
   fStoreDigis=val;
   return;

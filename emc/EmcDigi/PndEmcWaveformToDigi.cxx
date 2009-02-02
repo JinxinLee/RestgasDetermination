@@ -161,7 +161,7 @@ void PndEmcWaveformToDigi::SetParContainers() {
  
 }
 
-void PndEmcWaveformToDigi::SetStorageOfDigis(Bool_t val)
+void PndEmcWaveformToDigi::SetStorageOfData(Bool_t val)
 {
   fStoreDigis = val;
   return;

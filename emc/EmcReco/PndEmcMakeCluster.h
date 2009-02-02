@@ -40,7 +40,7 @@ public:
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
 
-  void SetStorageOfClusters(Bool_t val); // Method to specify whether clusters are stored or not.
+  void SetStorageOfData(Bool_t val); // Method to specify whether clusters are stored or not.
   
 protected:
 

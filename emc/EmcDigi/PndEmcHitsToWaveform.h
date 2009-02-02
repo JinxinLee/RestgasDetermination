@@ -55,7 +55,7 @@ public:
   
   PndEmcWaveform * AddWaveform(Int_t detId,Int_t hitIndex);
 
-  void SetStorageOfWaves(Bool_t val); // Method to specify whether waveforms are stored or not.
+  void SetStorageOfData(Bool_t val); // Method to specify whether waveforms are stored or not.
 
 private:
 

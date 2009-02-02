@@ -48,7 +48,7 @@ class PndEmcHitProducer : public CbmTask
    PndEmcHit* AddHit(Int_t trackID, Int_t detID, Float_t energy, Float_t time,std::vector<PndEmcPoint*> pointList);
   //void CreateStructure();
   
-   void SetStorageOfHits(Bool_t val); // Method to specify whether hits are stored or not.
+   void SetStorageOfData(Bool_t val); // Method to specify whether hits are stored or not.
 
  private: 
    

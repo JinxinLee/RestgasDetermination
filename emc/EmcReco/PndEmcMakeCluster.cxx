@@ -230,7 +230,7 @@ void PndEmcMakeCluster::SetParContainers() {
   fRecoPar = (PndEmcRecoPar*) db->getContainer("PndEmcRecoPar");
 }
 
-void PndEmcMakeCluster::SetStorageOfClusters(Bool_t val)
+void PndEmcMakeCluster::SetStorageOfData(Bool_t val)
 {
   fStoreClusters=val;
   return;

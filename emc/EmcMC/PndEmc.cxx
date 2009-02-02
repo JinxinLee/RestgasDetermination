@@ -50,7 +50,7 @@ PndEmc::PndEmc() {
   fPosIndex   = 0;
   fEventID=-1;
   bIsFastFsc = kFALSE;
-  fStorePoints = kTRUE;
+  fStoreData = kTRUE;
 }
 // -------------------------------------------------------------------------
 
@@ -63,7 +63,7 @@ PndEmc::PndEmc(const char* name, Bool_t active, Bool_t fast, Bool_t storepnts)
     fEventID=-1; 
     bIsFastFsc = fast;
     fwendcap = kFALSE;
-    fStorePoints = storepnts;
+    fStoreData = storepnts;
 }
 // -------------------------------------------------------------------------
 
@@ -295,7 +295,7 @@ void PndEmc::EndOfEvent() {
 // -----   Public method Register   -------------------------------------------
 void PndEmc::Register() {
 
-  CbmRootManager::Instance()->Register("EmcPoint","Emc", fEmcCollection, fStorePoints);
+  CbmRootManager::Instance()->Register("EmcPoint","Emc", fEmcCollection, fStoreData);
 
 }
 // ----------------------------------------------------------------------------
@@ -332,9 +332,9 @@ void PndEmc::Reset() {
 
 // ------ Public method to enable/disable the storage of points ------------
 
-void PndEmc::SetStorageOfPoints(Bool_t val)
+void PndEmc::SetStorageOfData(Bool_t val)
 {
-  fStorePoints=val;
+  fStoreData=val;
   return;
 }
 

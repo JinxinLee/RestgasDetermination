@@ -111,7 +111,7 @@ void PndEmcMakeRecoHit::SetParContainers() {
   fRecoPar = (PndEmcRecoPar*) db->getContainer("PndEmcRecoPar");
 }
 
-void PndEmcMakeRecoHit::SetStorageOfRecoHits(Bool_t val)
+void PndEmcMakeRecoHit::SetStorageOfData(Bool_t val)
 {
   fStoreRecoHits=val;
   return;

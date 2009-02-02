@@ -246,7 +246,7 @@ void PndEmcMakeBump::SetParContainers() {
   fRecoPar = (PndEmcRecoPar*) db->getContainer("PndEmcRecoPar");
 }
 
-void PndEmcMakeBump::SetStorageOfBumps(Bool_t val)
+void PndEmcMakeBump::SetStorageOfData(Bool_t val)
 {
   fStoreBumps=val;
   return;

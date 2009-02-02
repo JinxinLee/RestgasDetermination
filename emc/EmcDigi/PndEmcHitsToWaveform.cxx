@@ -243,7 +243,7 @@ PndEmcWaveform* PndEmcHitsToWaveform::AddWaveform(Int_t detID, Int_t iHit){
 						 iHit);
 }
 
-void PndEmcHitsToWaveform::SetStorageOfWaves(Bool_t val)
+void PndEmcHitsToWaveform::SetStorageOfData(Bool_t val)
 {
   fStoreWaves = val;
   return;

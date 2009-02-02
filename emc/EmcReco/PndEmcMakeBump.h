@@ -60,7 +60,7 @@ public:
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
 
-  void SetStorageOfBumps(Bool_t val); // Method to specify whether bumps are stored or not.
+  void SetStorageOfData(Bool_t val); // Method to specify whether bumps are stored or not.
 
 protected:
 
