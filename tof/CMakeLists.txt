@@ -32,8 +32,8 @@ PndTofPoint.cxx
 PndTofHit.cxx  
 PndTofContFact.cxx
 PndTofHitProducerIdeal.cxx  
-PndTofAnaIdeal.cxx
-PndTofMassTrig.cxx
+#PndTofAnaIdeal.cxx
+#PndTofMassTrig.cxx
 )
 
 if(RULE_CHECKER_FOUND)

@@ -11,8 +11,8 @@
 #pragma link C++ class  PndTofContFact+;
 #pragma link C++ class  PndTofHitProducerIdeal+;
 #pragma link C++ class  PndTofHit+;
-#pragma link C++ class  PndTofAnaIdeal+;
-#pragma link C++ class  PndTofMassTrig+;
+//#pragma link C++ class  PndTofAnaIdeal+;
+//#pragma link C++ class  PndTofMassTrig+;
 
 
 #endif
