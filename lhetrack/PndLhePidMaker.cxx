@@ -259,7 +259,7 @@ InitStatus PndLhePidMaker::Init() {
 void PndLhePidMaker::SetParContainers() {
 
   // Get run and runtime database
-  CbmRunAna* run = CbmRunAna::Instance();
+  CbmRun* run = CbmRun::Instance();
   if ( ! run ) Fatal("PndLhePidMaker:: SetParContainers", "No analysis run");
 
   CbmRuntimeDb* db = run->GetRuntimeDb();

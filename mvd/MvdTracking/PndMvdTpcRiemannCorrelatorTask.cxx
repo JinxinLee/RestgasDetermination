@@ -50,7 +50,7 @@ void PndMvdTpcRiemannCorrelatorTask::SetParContainers()
 {
   // Get Base Container
 /*
-  CbmRunAna* ana = CbmRunAna::Instance();
+  CbmRun* ana = CbmRun::Instance();
   CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
   fGeoPar = (PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar"));
 */
@@ -63,7 +63,7 @@ InitStatus PndMvdTpcRiemannCorrelatorTask::ReInit()
   return stat;
 
   /*
-  CbmRunAna* ana = CbmRunAna::Instance();
+  CbmRun* ana = CbmRun::Instance();
   CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
   fGeoPar=(PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar"));
 

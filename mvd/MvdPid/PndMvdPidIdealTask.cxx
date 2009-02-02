@@ -74,7 +74,7 @@ InitStatus PndMvdPidIdealTask::Init()
 void PndMvdPidIdealTask::SetParContainers()
 {
   // Get Base Container
-  CbmRunAna* ana = CbmRunAna::Instance();
+  CbmRun* ana = CbmRun::Instance();
   CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
 
 }

@@ -61,7 +61,7 @@ PndTpcGemTask::SetParContainers() {
   std::cout.flush();
 
   // Get run and runtime database
-  CbmRunAna* run = CbmRunAna::Instance();
+  CbmRun* run = CbmRun::Instance();
   if ( ! run ) Fatal("SetParContainers", "No analysis run");
 
   CbmRuntimeDb* db = run->GetRuntimeDb();

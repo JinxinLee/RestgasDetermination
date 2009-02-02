@@ -95,7 +95,7 @@ InitStatus PndTofHitProducerIdeal::Init()
 void PndTofHitProducerIdeal::SetParContainers()
 {
   // Get Base Container
-  CbmRunAna* ana = CbmRunAna::Instance();
+  CbmRun* ana = CbmRun::Instance();
   CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
   //fGeoPar = (PndGeoTofPar*)(rtdb->getContainer("PndGeoTofPar"));
 

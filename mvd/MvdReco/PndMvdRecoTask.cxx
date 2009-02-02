@@ -159,7 +159,7 @@ InitStatus PndMvdRecoTask::Init()
 void PndMvdRecoTask::SetParContainers()
 {
   // Get Base Container
-  CbmRunAna* ana = CbmRunAna::Instance();
+  CbmRun* ana = CbmRun::Instance();
   CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
 
 }

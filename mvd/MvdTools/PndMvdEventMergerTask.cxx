@@ -48,7 +48,7 @@ void PndMvdEventMergerTask::SetParContainers()
 {
   // called before Init()
   // Get Base Container
-  CbmRunAna* ana = CbmRunAna::Instance();
+  CbmRun* ana = CbmRun::Instance();
   CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
 }
 

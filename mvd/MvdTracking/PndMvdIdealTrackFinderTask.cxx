@@ -48,7 +48,7 @@ void PndMvdIdealTrackFinderTask::SetParContainers()
 {
   // Get Base Container
 /*
-  CbmRunAna* ana = CbmRunAna::Instance();
+  CbmRun* ana = CbmRun::Instance();
   CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
   fGeoPar = (PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar"));
 */
@@ -61,7 +61,7 @@ InitStatus PndMvdIdealTrackFinderTask::ReInit()
   return stat;
 
   /*
-  CbmRunAna* ana = CbmRunAna::Instance();
+  CbmRun* ana = CbmRun::Instance();
   CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
   fGeoPar=(PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar"));
 

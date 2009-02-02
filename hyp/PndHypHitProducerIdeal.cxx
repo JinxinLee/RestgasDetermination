@@ -64,7 +64,7 @@ InitStatus PndHypHitProducerIdeal::Init()
 void PndHypHitProducerIdeal::SetParContainers()
 {
   // Get Base Container
-  CbmRunAna* ana = CbmRunAna::Instance();
+  CbmRun* ana = CbmRun::Instance();
   CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
   fGeoPar = (PndGeoHypPar*)(rtdb->getContainer("PndGeoHypPar"));
 

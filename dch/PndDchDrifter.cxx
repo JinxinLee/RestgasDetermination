@@ -115,7 +115,7 @@ PndDchDrifter::PndDchDrifter(TString fileName, Double_t splaneWidth) :
  
 */
 void PndDchDrifter::SetParContainers() {
-	CbmRunAna* ana = CbmRunAna::Instance();
+	CbmRun* ana = CbmRun::Instance();
 	CbmRuntimeDb* rtdb = ana->GetRuntimeDb();
 	fPar = (PndDchDigiPar*) (rtdb->getContainer("PndDchDigiParGarfield"));
 	fInf->FillDigiPar(fPar);

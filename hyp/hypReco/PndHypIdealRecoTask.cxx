@@ -95,7 +95,7 @@ InitStatus PndHypIdealRecoTask::Init()
 void PndHypIdealRecoTask::SetParContainers()
 {
   // Get Base Container
-  CbmRunAna* ana = CbmRunAna::Instance();
+  CbmRun* ana = CbmRun::Instance();
   CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
   std::cout << "-I- rtdb = "<<rtdb << std::endl;
 

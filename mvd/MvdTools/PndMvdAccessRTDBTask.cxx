@@ -7,7 +7,7 @@ ClassImp(PndMvdAccessRTDBTask);
 
 void PndMvdAccessRTDBTask::SetParContainers()
 {
-  CbmRunAna* ana = CbmRunAna::Instance();
+  CbmRun* ana = CbmRun::Instance();
   CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
   fPixelDigiPar = (PndMvdPixelDigiPar*)(rtdb->getContainer("MVDPixelDigiPar"));
   fStripDigiParRect = (PndMvdStripDigiPar*)(rtdb->getContainer("MVDStripDigiParRect"));

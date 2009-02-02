@@ -54,7 +54,7 @@ PndMvdDigiAna::~PndMvdDigiAna()
 void PndMvdDigiAna::SetParContainers()
 {
   // Get Base Container
-  CbmRunAna* ana = CbmRunAna::Instance();
+  CbmRun* ana = CbmRun::Instance();
   CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
   fGeoPar = (PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar"));
   fDigiPar = (PndMvdPixelDigiPar*)(rtdb->getContainer("MVDPixelDigiPar"));

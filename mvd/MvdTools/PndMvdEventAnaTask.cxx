@@ -149,7 +149,7 @@ InitStatus PndMvdEventAnaTask::Init()
 void PndMvdEventAnaTask::SetParContainers()
 {
   // Get Base Container
-  CbmRunAna* ana = CbmRunAna::Instance();
+  CbmRun* ana = CbmRun::Instance();
   CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
 
 }
