@@ -64,7 +64,7 @@
 	PndEmc *Emc = new PndEmc("EMC",kTRUE);
 	//Emc->SetGeometryFileName("emc_module12345.dat"); // if you want to use old geometry for FwEndCap
 	Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root"); // if you want to use new geometry for FwEndCap
-	Emc->SetStorageOfPoints(kFALSE);
+	Emc->SetStorageOfData(kFALSE);
 	fRun->AddModule(Emc);
 	
 	// Create and Set Event Generator
@@ -112,25 +112,25 @@
 	 Add Hit producer task to the simulation 
 	 */
 	PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
-	emcHitProd->SetStorageOfHits(kFALSE);
+	emcHitProd->SetStorageOfData(kFALSE);
 	fRun->AddTask(emcHitProd);
 
 	PndEmcHitsToWaveform* emcHitsToWaveform= new PndEmcHitsToWaveform(0);
 	PndEmcWaveformToDigi* emcWaveformToDigi=new PndEmcWaveformToDigi(0);
-	emcHitsToWaveform->SetStorageOfWaves(kFALSE);
-	emcWaveformToDigi->SetStorageOfDigis(kFALSE);
+	emcHitsToWaveform->SetStorageOfData(kFALSE);
+	emcWaveformToDigi->SetStorageOfData(kFALSE);
 	fRun->AddTask(emcHitsToWaveform);  // full digitization
 	fRun->AddTask(emcWaveformToDigi);  // full digitization
  
 	PndEmcMakeCluster* emcMakeCluster= new PndEmcMakeCluster(0);
-	emcMakeCluster->SetStorageOfClusters(kFALSE);
+	emcMakeCluster->SetStorageOfData(kFALSE);
 	fRun->AddTask(emcMakeCluster);
 
 	PndEmcHdrFiller* emcHdrFiller = new PndEmcHdrFiller();
 	fRun->AddTask(emcHdrFiller); // ECM header
 
 	PndEmcMakeBump* emcMakeBump= new PndEmcMakeBump();
-	emcMakeBump->SetStorageOfBumps(kFALSE);
+	emcMakeBump->SetStorageOfData(kFALSE);
 	fRun->AddTask(emcMakeBump);
 
 	PndEmcMakeRecoHit* emcMakeRecoHit= new PndEmcMakeRecoHit();
