@@ -27,16 +27,19 @@
 // Class Member definitions -----------
 
 PndTpcGem::PndTpcGem()
-  : _gain(0),_spread(0),_cloudShape("CloudShape","gaus(0)",-99,99)
-{;}
+  : _gain(0),_spread(0)
+{
+  _cloudShape = new TF1("CloudShape","gaus(0)",-99,99);
+}
 
 PndTpcGem::PndTpcGem(const double Gain,
 		       const double Spread)
-  : _gain(Gain),_spread(Spread),_cloudShape("CloudShape","gausn(0)",-99,99)
+  : _gain(Gain),_spread(Spread)
 {
-  _cloudShape.SetParameter(0,1); // normalized gauss
-  _cloudShape.SetParameter(1,0);
-  _cloudShape.SetParameter(2,Spread);
+  _cloudShape = new TF1("CloudShape","gausn(0)",-99,99);
+  _cloudShape->SetParameter(0,1); // normalized gauss
+  _cloudShape->SetParameter(1,0);
+  _cloudShape->SetParameter(2,Spread);
 }
 
 PndTpcGem::~PndTpcGem(){}

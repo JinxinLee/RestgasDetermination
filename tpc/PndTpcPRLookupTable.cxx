@@ -141,7 +141,7 @@ PndTpcPRLookupTable::Integrate(const PndTpcGem& gem,
       double thisx=ix*intStep-offsetx-dx;
       double thisy=iy*intStep-offsety-dy;
       double r=sqrt(thisx*thisx+thisy*thisy);
-      sum+=gem.cloudShape().Eval(r)*1/gem.spread()*1/sqrt(2*3.1416); // TODO: cache these values!!!
+      sum+=gem.cloudShape()->Eval(r)*1/gem.spread()*1/sqrt(2*3.1416); // TODO: cache these values!!!
     }
   
   //normalize to area

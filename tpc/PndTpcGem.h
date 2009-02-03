@@ -45,7 +45,7 @@ public:
   double gain() const {return _gain;}
   double spread() const {return _spread;}
 
-  const TF1& cloudShape() const {return _cloudShape;}
+  const TF1* cloudShape() const {return _cloudShape;}
 
   void PrintAll(std::ostream& s) const {s<<*this;}
 
@@ -59,7 +59,7 @@ private:
   double _gain;
   double _spread;
   
-  TF1 _cloudShape;
+  TF1* _cloudShape;
   
   // Private Methods -----------------
   bool operator<  (const PndTpcGem&) const; // forbidden, PndTpcGem
