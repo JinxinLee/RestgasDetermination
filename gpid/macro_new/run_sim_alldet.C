@@ -1,5 +1,6 @@
-void run_sim_alldet(Int_t nEvents=50, Int_t pid=11, 
-		    Float_t p1=1.0, Float_t p2=2.0){
+void run_sim_alldet(Int_t nEvents = 50, const char* part="e-",
+		    //Int_t pid = 11, 
+		    Float_t p1 = 1.0, Float_t p2 = 2.0){
   
   TStopwatch timer;
   timer.Start();
@@ -80,6 +81,10 @@ void run_sim_alldet(Int_t nEvents=50, Int_t pid=11,
   fRun->SetGenerator(primGen);
 
   // Box Generator
+  Int_t pid = 11;
+  TDatabasePDG pdg;// = new TDatabasePDG();
+  pid = pdg->GetParticle(part)->PdgCode();
+
   // 13 = muon; 1 = multipl.
   CbmBoxGenerator* boxGen = new CbmBoxGenerator(pid, 1);
   if (p2<0) p2 = p1;

@@ -24,7 +24,7 @@ void learn_pid()
   bdt_train.SetNKNN("19");
   //  bdt_train.SetNCLASS(3);
   //  bdt_train.SetNVAR(3);
-  bdt_train.SetINFILENAME("part_tree_clean.root");
+  bdt_train.SetINFILENAME("/media/daq/babaiexp/VanniFiles/part_tree_clean.root");
   //  bdt_train.SetAPPNAME("STT_P_MVD_TOF_THETAC_EMC_1_2_1000NN");        
   bdt_train.SetAPPNAME("test1");        
   bdt_train.WriteConfigFile();        

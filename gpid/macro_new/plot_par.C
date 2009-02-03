@@ -1,6 +1,6 @@
 plot_par()
 {
-  TFile* m_InPutF = new TFile("part_tree_clean.root","READ");
+  TFile* m_InPutF = new TFile("/media/daq/babaiexp/VanniFiles/part_tree_clean.root","READ");
   TTree *t1 = (TTree*) m_InPutF->Get("pion");
   TTree *t2 = (TTree*) m_InPutF->Get("electron");
   float stt1,mvd1,tof1,thetaC1,emc1,p1;
