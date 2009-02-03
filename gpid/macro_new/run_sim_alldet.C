@@ -1,4 +1,5 @@
-void run_sim_alldet(Int_t nEvents=10000, Int_t pid=11, Float_t p1=1.0, Float_t p2=2.0){
+void run_sim_alldet(Int_t nEvents=50, Int_t pid=11, 
+		    Float_t p1=1.0, Float_t p2=2.0){
   
   TStopwatch timer;
   timer.Start();
@@ -55,10 +56,15 @@ void run_sim_alldet(Int_t nEvents=10000, Int_t pid=11, Float_t p1=1.0, Float_t p
   Tof->SetGeometryFileName("tofbarrel.geo");
   fRun->AddModule(Tof);
  
-  CbmDetector *Muo = new PndMdt("MDT",kTRUE);
-  Muo->SetGeometryFileName("muopars.root");
-  fRun->AddModule(Muo);
- 
+  //CbmDetector *Muo = new PndMdt("MDT",kTRUE);
+  //Muo->SetGeometryFileName("muopars.root");
+  //fRun->AddModule(Muo);
+  
+  PndMdt* Mdt = new PndMdt("MDT",kTRUE);
+  Mdt->SetMdtVersion("torino");
+  Mdt->SetGeometryFileName("muopars.root");
+  fRun->AddModule(Mdt);
+
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
   Drc->SetRunCherenkov(kFALSE); // for fast sim Cherenkov -> kFALSE
   fRun->AddModule(Drc); 
@@ -74,12 +80,13 @@ void run_sim_alldet(Int_t nEvents=10000, Int_t pid=11, Float_t p1=1.0, Float_t p
   fRun->SetGenerator(primGen);
 
   // Box Generator
-  CbmBoxGenerator* boxGen = new CbmBoxGenerator(pid, 1); // 13 = muon; 1 = multipl.
+  // 13 = muon; 1 = multipl.
+  CbmBoxGenerator* boxGen = new CbmBoxGenerator(pid, 1);
   if (p2<0) p2 = p1;
-  boxGen->SetPRange(p1,p2); // GeV/c
-  boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
-  boxGen->SetThetaRange(50., 140.); // Polar angle in lab system range [degree]
-  boxGen->SetXYZ(0., 0., 0.); // mm o cm ??
+  boxGen->SetPRange(p1,p2);// GeV/c
+  boxGen->SetPhiRange(0., 360.);// Azimuth angle range [degree]
+  boxGen->SetThetaRange(50., 140.);// Polar angle in lab system range [degree]
+  boxGen->SetXYZ(0., 0., 0.);// mm o cm ??
   primGen->AddGenerator(boxGen);
 
   fRun->SetStoreTraj(kFALSE);
