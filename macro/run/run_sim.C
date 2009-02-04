@@ -113,7 +113,7 @@
 
   
   // 
-  fRun->SetStoreTraj(kTRUE);
+  //fRun->SetStoreTraj(kTRUE);
   
    PndMultiField *fField= new PndMultiField();
 

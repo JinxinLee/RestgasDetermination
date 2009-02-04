@@ -74,7 +74,7 @@ void run_mdt_sim()
  boxGen->SetXYZ(0., 0., 0.); // vertex coordinates [mm]
  primGen->AddGenerator(boxGen);  
   
-  fRun->SetStoreTraj(kTRUE); // to store particle trajectories 
+ // fRun->SetStoreTraj(kTRUE); // to store particle trajectories 
 
    PndMultiField *fField= new PndMultiField();
 
