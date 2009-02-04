@@ -15,11 +15,7 @@
  *
  *                  S.Vanniarajan  01-08-08
  */
-
-
 #include "PndMultiClassMVA.h"
-
-using namespace std;
 
 PndMultiClassMVA::PndMultiClassMVA()
 {

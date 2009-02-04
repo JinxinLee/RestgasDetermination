@@ -18,14 +18,9 @@
  */
 
 #include "PndGpidTask.h"
-#include "Event.h"
-
-#include <iostream>
-using namespace std;
 
 PndGpidTask::PndGpidTask()
-{
-}
+{}
 
 PndGpidTask::~PndGpidTask()
 {
@@ -139,17 +134,17 @@ void PndGpidTask::BookingMVA()
       reader[i].BookMVA("BDT method", anaFile );
       fClassifier = "BDT method";
       break;
-      
-    case KNN: 
-      anaFile =  fDIR + fAPPNAME + fClassNameArray.at(i) + "_KNN.weights.txt";
-      reader[i].BookMVA("KNN method", anaFile );
-      fClassifier = "KNN method";
-      break;
-      
+    
     case MLP:
       anaFile =  fDIR + fAPPNAME + fClassNameArray.at(i) + "_MLP.weights.txt";
       reader[i].BookMVA("MLP method", anaFile );
       fClassifier = "MLP method";
+      break;
+      
+      default://case KNN: 
+      anaFile =  fDIR + fAPPNAME + fClassNameArray.at(i) + "_KNN.weights.txt";
+      reader[i].BookMVA("KNN method", anaFile );
+      fClassifier = "KNN method";
       break;
     }
   }

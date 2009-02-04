@@ -1,4 +1,4 @@
-void run_pid_reco()
+void run_pid_reco(Int_t nEvents = 10)
 {
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
@@ -6,16 +6,13 @@ void run_pid_reco()
   
   // Input file (MC events)
   //TString inFile = "ele125T_reco.root";
-  TString inFile = "pi_reco.root";
+  TString inFile = "el_reco.root";
   
   // Parameter file
   TString parFile = "params_sttcombi.root";
   
   // Output file
   TString outFile = "ele_pid.root";
-  
-  // Number of events to process
-  Int_t nEvents = 10;
   
   // ----  Load libraries   -------------------------------------------------
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -31,7 +28,7 @@ void run_pid_reco()
   timer.Start();
   // ------------------------------------------------------------------------
   
-  PndEmcMapper *emcMap=PndEmcMapper::Instance(2,"pi_sttcombi.root");
+  PndEmcMapper *emcMap=PndEmcMapper::Instance(2,"el_sttcombi.root");
   
   // -----   Digitization run   -------------------------------------------
   CbmRunAna *fRun= new CbmRunAna();
@@ -51,26 +48,26 @@ void run_pid_reco()
   rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parIo1);
   fRun->LoadGeometry();
+  
+  // PID task
   PndGpidTaskLhe* pid = new PndGpidTaskLhe();
   
   //pid->SetAPPNAME("e_pi_stt_mvd_tof_p_thetaC_emc_T1000");
   //  pid->SetAPPNAME("STT_P_MVD_TOF_THETAC_EMC_1_2_5NN");
-  pid->SetAPPNAME("test1");
+  pid->SetAPPNAME("test");
   pid->SetDIR("./weights/");
   pid->SetMVA(PndGpidTask::KNN);
+  //pid->SetMVA(PndGpidTask::BDT);
   fRun->AddTask(pid);
   fRun->Init();
-  //fRun->Run(0, 10);
+ 
   fRun->Run(0, nEvents);
-  //  fRun->Run(2500, 2700);
   
   rtdb->saveOutput();
   rtdb->print();
   
   // ------------------------------------------------------------------------
-  
   // -----   Finish   -------------------------------------------------------
-  
   timer.Stop();
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();

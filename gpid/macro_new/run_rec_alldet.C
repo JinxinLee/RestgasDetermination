@@ -1,21 +1,18 @@
-void run_rec_alldet()
+void run_rec_alldet(Int_t nEvents = 0)
 {
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0;
 
   // Input file (MC events)
-  TString inFile = "pi_sttcombi.root";
+  TString inFile = "el_sttcombi.root";
 
   // Parameter file
   TString parFile = "params_sttcombi.root";
 
   // Output file
-  TString outFile = "pi_reco.root";
+  TString outFile = "el_reco.root";
 
-  // Number of events to process
-  Int_t nEvents = 0;
- 
   // ----  Load libraries   -------------------------------------------------
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
@@ -163,21 +160,18 @@ void run_rec_alldet()
   pidMaker->SetGeanePro(kFALSE);  // Switch ON Geane propagation
   pidMaker->SetDebugMode(kTRUE);  // Debug ntuples
   fRun->AddTask(pidMaker);
-
+/*
   PndGpidTaskLhe* pid = new PndGpidTaskLhe();
-
-
   pid->SetAPPNAME("testp_1_2");
-  pid->SetDIR("/home/vanni/work/pid_ana/weights/");
+  pid->SetDIR("weights/");
   pid->SetMVA(PndGpidTask::KNN);
-
-//  fRun->AddTask(pid);
+*/
+  //  fRun->AddTask(pid);
 
 
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
   fRun->Run(0, nEvents);
-//  fRun->Run(2500, 2700);
 
   rtdb->saveOutput();
   rtdb->print();
@@ -198,4 +192,3 @@ void run_rec_alldet()
   // ------------------------------------------------------------------------
 
 }
-

@@ -1,7 +1,6 @@
-void run_sim_alldet(Int_t nEvents = 50, const char* part="e-",
-		    //Int_t pid = 11, 
-		    Float_t p1 = 1.0, Float_t p2 = 2.0){
-  
+void run_sim_alldet(Int_t nEvents = 50, const char* part="pi-",
+		            Float_t p1 = 4.0, Float_t p2 = 5.0)
+{
   TStopwatch timer;
   timer.Start();
   gDebug=0;
@@ -16,7 +15,7 @@ void run_sim_alldet(Int_t nEvents = 50, const char* part="e-",
 
   fRun->SetName("TGeant3");
   
-  fRun->SetOutputFile("pi_sttcombi.root");
+  fRun->SetOutputFile("el_sttcombi.root");
 
   // Set Material file Name
   //-----------------------
@@ -81,9 +80,8 @@ void run_sim_alldet(Int_t nEvents = 50, const char* part="e-",
   fRun->SetGenerator(primGen);
 
   // Box Generator
-  Int_t pid = 11;
   TDatabasePDG pdg;// = new TDatabasePDG();
-  pid = pdg->GetParticle(part)->PdgCode();
+  int pid = pdg->GetParticle(part)->PdgCode();
 
   // 13 = muon; 1 = multipl.
   CbmBoxGenerator* boxGen = new CbmBoxGenerator(pid, 1);
@@ -133,7 +131,5 @@ void run_sim_alldet(Int_t nEvents = 50, const char* part="e-",
    
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
-  //exit(0);
-   
-}  
-
+  //exit(0);  
+}
