@@ -258,9 +258,10 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
       //if (mvaValue < 0) mvaValue = 0.01;
       
       fTrack->Set(className,mvaValue);
-      cout<< "Likelihood for the class "<< className 
+      cout<< " Likelihood for the class "<< className 
 	  <<" is : "<< mvaValue << endl;
     }
+    std::cout << " =+=+=+=+=+=+=+=+=+=+=+=+= " << std::endl;
   }
 }
 ClassImp(PndGpidTaskLhe);
