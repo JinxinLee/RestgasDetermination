@@ -58,7 +58,7 @@
   CbmEvtGenGenerator* evtGen = new CbmEvtGenGenerator("output.evt");
   primGen->AddGenerator(evtGen);  
   
-  fRun->SetStoreTraj(kTRUE); // to store particle trajectories 
+  //fRun->SetStoreTraj(kTRUE); // to store particle trajectories 
   
   //magnetic field: no field when commented put
   //CbmFieldConst *fMagField=new CbmFieldConst();
