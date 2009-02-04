@@ -44,38 +44,31 @@ void sim_complete(Int_t nEvents=100, Double_t mom=10.0)
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
   //Emc->SetGeometryFileName("emc_module12345.dat"); // if you want to use old geometry for FwEndCap
   Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root"); // if you want to use new geometry for FwEndCap
-  Emc->SetStorageOfData(kTRUE);
   fRun->AddModule(Emc);
   
   PndMvdDetector *Mvd = new PndMvdDetector("MVD",kTRUE);
   Mvd->SetGeometryFileName("MVD14.root");
-  Mvd->SetStorageOfData(kTRUE);
   fRun->AddModule(Mvd);
   
   PndStt *Stt= new PndStt("STT",kTRUE);
   Stt->SetGeometryFileName("straws_skewed_blocks.geo");
-  Stt->SetStorageOfData(kTRUE);
   fRun->AddModule(Stt);
   
   PndTof *Tof = new PndTof("TOF",kTRUE);
   Tof->SetGeometryFileName("tofSciF.geo");
-  Tof->SetStorageOfData(kTRUE);
   fRun->AddModule(Tof);
   
   PndDrc *Drc = new PndDrc("DIRC",kTRUE);
   Drc->SetGeometryFileName("dirc.geo"); 
-  Drc->SetStorageOfData(kTRUE);
   //fRun->AddModule(Drc); 
   
   PndDchDetector *Dch = new PndDchDetector("DCH",kTRUE);
   Dch->SetGeometryFileName("dch.root");
-  Dch->SetStorageOfData(kTRUE);
   fRun->AddModule(Dch);  
   
   PndMdt *Mdt = new PndMdt("MDT",kTRUE);
   Mdt->SetGeometryFileName("muopars.root");
   Mdt->SetMdtVersion("torino");
-  Mdt->SetStorageOfData(kTRUE);
   fRun->AddModule(Mdt);
 
   // Create and Set Event Generator
