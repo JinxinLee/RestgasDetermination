@@ -62,8 +62,8 @@
 
    fRun->SetField(fField);
 
-   fRun->SetStoreTraj(kTRUE); // toggle this for use with EVE
-//   fRun->SetStoreTraj(kFALSE);
+//fRun->SetStoreTraj(kTRUE); // toggle this for use with EVE
+   fRun->SetStoreTraj(kFALSE);
 
    fRun->Init();
 

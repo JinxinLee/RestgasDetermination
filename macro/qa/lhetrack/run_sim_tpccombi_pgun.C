@@ -83,7 +83,7 @@ void run_sim_tpccombi_pgun(Int_t nEvents=100, Int_t pid=13, Float_t p1=1.0, Floa
   boxGen->SetXYZ(0., 0., 0.); // mm o cm ??
   primGen->AddGenerator(boxGen);
 
-  fRun->SetStoreTraj(kTRUE);
+  //fRun->SetStoreTraj(kTRUE);
   
   PndMultiField *fField= new PndMultiField();
 
