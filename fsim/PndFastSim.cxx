@@ -807,9 +807,9 @@ PndFastSim::sumResponse(FsmResponseList respList)
   double DrcBarrelThtcErr=0;
   double RichThtcErr=0;
 
-  double dVx;
-  double dVy;
-  double dVz;
+  double dVx=0.0;
+  double dVy=0.0;
+  double dVz=0.0;
   
   double LH_e=1.0;
   double LH_mu=1.0;
