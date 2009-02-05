@@ -15,7 +15,7 @@
  *
  *                  S.Vanniarajan  01-08-08
  */
-
+#pragma once
 #ifndef PNDGPIDTASKLHE_H
 #define PNDGPIDTASKLHE_H
 
