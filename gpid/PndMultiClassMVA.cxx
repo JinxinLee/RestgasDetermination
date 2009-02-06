@@ -125,6 +125,7 @@ void PndMultiClassMVA::WriteConfigFile()
 void PndMultiClassMVA::TrainTest()
 {
   TFile *input(0);
+  
   if (fNCLASS < 2 ) {
     std::cout<< " you need atleast two classes for the classification "<<endl;
     return; //exit(0);
@@ -152,6 +153,7 @@ void PndMultiClassMVA::TrainTest()
       cout<< (TTree*)input->Get(treeName)<<endl;  
       TreeArray[i] = (TTree*)input->Get(treeName);  
     }
+    // We are done, the inputfile can be closed.
     
     for (int i = 0 ; i < fNCLASS ; i++ ){
       TString s,OutFileName,anaName;
@@ -183,6 +185,7 @@ void PndMultiClassMVA::TrainTest()
       //TCut mycutb = "stt>2 && stt<30 && emc>0 && emc<3 && thetaC>0 && thetaC <1 && mvd>0 && mvd< 0.02 && tof>0";
       TCut mycuts = ""; //"abs(var1)<0.5 && abs(var2-0.5)<1";
       TCut mycutb = ""; // for example: TCut mycutb = "abs(var1)<0.5";
+      
       TString trainConfig = "NSigTrain=" + fNSigTrain + ":NBkgTrain=" + 
 	fNBkgTrain + ":NSigTest=" + fNSigTest + ":NBkgTest=" +fNBkgTest
 	+ ":SplitMode=Random:!V";
@@ -194,14 +197,28 @@ void PndMultiClassMVA::TrainTest()
 	"PruneMethod=CostComplexity:PruneStrength=" + fPruneStrengthBDT; 
 	factory->BookMethod( TMVA::Types::kBDT, "BDT", BdtConfig); 
 	
-	factory->BookMethod( TMVA::Types::kMLP, "MLP", 
-	"Normalise:H:!V:NeuronType=tanh:NCycles=200:HiddenLayers=N+1,N:TestRate=5"); 
+	/*
+	 * TString mlpNeuTyp; //MLP neuron type
+     * TString mlpCycle;  //MLP number of cycles
+     * TString mlpNumHidden; //MLP number of hidden layers
+     * TString mlpTestRate; //MLP Test rate
+	 */
+	TString MLPConfig = "Normalise:H:!V:NeuronType=" + mlpNeuTyp + ":NCycles=" + mlpCycle +
+	                     ":HiddenLayers=" + mlpNumHidden + ":TestRate=" + mlpTestRate;
+	 MLPConfig = "Normalise:H:!V:NeuronType=tanh:NCycles=2:HiddenLayers=N+1,N:TestRate=5";
+	//std::cout <<"Config values\n\n\n"<< MLPConfig << "\n++++++++++++++++++++++++++++++++\n" << std::endl;
+	factory->BookMethod( TMVA::Types::kMLP, "MLP", MLPConfig);
+	                     
+	//factory->BookMethod( TMVA::Types::kMLP, "MLP", 
+	//"Normalise:H:!V:NeuronType=tanh:NCycles=200:HiddenLayers=N+1,N:TestRate=5"); 
     
       TString kNNConfig = "nkNN=" + fNKNN + ":V:TreeOptDepth=6:ScaleFrac=0.8:!UseKernel:Trim";
       factory->BookMethod( TMVA::Types::kKNN, "KNN", kNNConfig);
       factory->TrainAllMethods();
       factory->TestAllMethods();
-      // factory->EvaluateAllMethods();    
+      //factory->EvaluateAllMethods();  
+        
+      // We are done, Close the output
       outputFile->Close();
       delete factory;
     }
