@@ -255,7 +255,7 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
 	break;
 	}
       */
-      //if (mvaValue < 0) mvaValue = 0.01;
+      if (mvaValue < 0) mvaValue = 0.0001;
       
       fTrack->Set(className,mvaValue);
       cout<< " Likelihood for the class "<< className 

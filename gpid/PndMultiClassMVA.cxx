@@ -188,7 +188,7 @@ void PndMultiClassMVA::TrainTest()
 	+ ":SplitMode=Random:!V";
       cout<<trainConfig<<endl; 
       factory->PrepareTrainingAndTestTree( mycuts, mycutb, trainConfig ); 
-      /*
+      
 	TString BdtConfig = "!H:!V:NTrees=" + fNTreeBDT + ":BoostType=" + 
 	fBoostTypeBDT + ":SeparationType=GiniIndex:nCuts=" + fNCutsBDT +
 	"PruneMethod=CostComplexity:PruneStrength=" + fPruneStrengthBDT; 
@@ -196,7 +196,7 @@ void PndMultiClassMVA::TrainTest()
 	
 	factory->BookMethod( TMVA::Types::kMLP, "MLP", 
 	"Normalise:H:!V:NeuronType=tanh:NCycles=200:HiddenLayers=N+1,N:TestRate=5"); 
-      */
+    
       TString kNNConfig = "nkNN=" + fNKNN + ":V:TreeOptDepth=6:ScaleFrac=0.8:!UseKernel:Trim";
       factory->BookMethod( TMVA::Types::kKNN, "KNN", kNNConfig);
       factory->TrainAllMethods();

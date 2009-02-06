@@ -28,7 +28,6 @@
 #include <fstream>
 #include <vector>
 #include <string>
-//#include <map>
 
 //Root & PandaRoot headers
 #include "TCut.h"
@@ -43,25 +42,39 @@ using namespace std;
 class PndMultiClassMVA
 {
  public:
+ //Constructor
   PndMultiClassMVA();
+  
+  //Destructor
   ~PndMultiClassMVA();
+  //Adds variables to be used as features
   void AddVar(const string varName); 
+  //Add class names
   void AddClass(const string className);
   // void GenerateTree();
   // void AddInFile(string className,string simFileName,string recoFileName);
+  //Write the configuration file, with the same nams as the chosen 
+  // application
   void WriteConfigFile();
   //  data modifiers
   void SetINFILENAME(const TString fname)  { fINFILENAME = fname; }
   void SetConfigFileName(const TString fname)  { fConfigFileName = fname; }
   void SetAPPNAME(const TString anaName)  { fAPPNAME = anaName; }
+  // Select number of signal and background events to be used for
+  //training and testing
   void SetNSigTrain(const TString sigTrain) { fNSigTrain = sigTrain; }
   void SetNSigTest(const TString sigTest) { fNSigTest = sigTest; }
   void SetNBkgTrain(const TString bkgTrain) { fNBkgTrain = bkgTrain; }
   void SetNBkgTest(const TString bkgTest) { fNBkgTest = bkgTest; }
+  // Set the classifier properties. Note that there are different 
+  // functions and options for different classifiers. For the available
+  // options see the TMVA manuals.
+  // BDT
   void SetPruneStrengthBDT(const TString PruneStrength) { fPruneStrengthBDT = PruneStrength; }
   void SetNTreeBDT(const TString nTree) { fNTreeBDT = nTree; }
   void SetBoostTypeBDT(const TString boostType) {fBoostTypeBDT = boostType; }
   void SetNCutsBDT(const TString nCuts) { fNCutsBDT = nCuts; }
+  // KNN
   void SetNKNN(const TString kNN) { fNKNN = kNN; }
 
   //data accessers
@@ -90,7 +103,7 @@ class PndMultiClassMVA
   vector <string> fVarNameArray;      // array of Variable names 
   vector <string> fClassNameArray;    // array of class names
 
-  //  map <string, vector<pair<string,string> > > fInFileNameArray;  
+  // map <string, vector<pair<string,string> > > fInFileNameArray;  
   // map from class names the the corresponding 
   
   //TFile fINPUT;
