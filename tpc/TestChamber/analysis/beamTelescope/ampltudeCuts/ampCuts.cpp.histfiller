@@ -73,16 +73,16 @@ int main(int argc,char **argv){
   TH1I *histogramTrack = new TH1I("Track multiplicity", "Track multiplicity", 40, 0, 40);
   TH1D *histogramChi2 = new TH1D("Chi2", "Chi2", 200, 0, 10);
 
-
-  TH1D *histogramSI1Xhitpoint = new TH1D("SI1Xhitpoint", "SI1Xhitpoint", 1000, 0, 40);
-  TH1D *histogramSI1Yhitpoint = new TH1D("SI1Yhitpoint", "SI1Yhitpoint", 1000, 0, 40);
-  TH1D *histogramSI2Xhitpoint = new TH1D("SI2Xhitpoint", "SI2Xhitpoint", 1000, 0, 40);
-  TH1D *histogramSI2Yhitpoint = new TH1D("SI2Yhitpoint", "SI2Yhitpoint", 1000, 0, 40);
+  TH1D *histogramSI1Xhitpoint = new TH1D("SI1Xhitpoint", "SI1Xhitpoint", 500, 5, 25);
+  TH1D *histogramSI1Yhitpoint = new TH1D("SI1Yhitpoint", "SI1Yhitpoint", 500, 15, 30);
+  TH1D *histogramSI2Xhitpoint = new TH1D("SI2Xhitpoint", "SI2Xhitpoint", 500, 5, 25);
+  TH1D *histogramSI2Yhitpoint = new TH1D("SI2Yhitpoint", "SI2Yhitpoint", 500, 15, 30);
   
-  TH1D *histogramGM1Xhitpoint = new TH1D("GM1Xhitpoint", "GM1Xhitpoint", 1000, 0, 40);
-  TH1D *histogramGM1Yhitpoint = new TH1D("GM1Yhitpoint", "GM1Yhitpoint", 1000, 0, 40);
-  TH1D *histogramGM2Xhitpoint = new TH1D("GM2Xhitpoint", "GM2Xhitpoint", 1000, 0, 40);
-  TH1D *histogramGM2Yhitpoint = new TH1D("GM2Yhitpoint", "GM2Yhitpoint", 1000, 0, 40);
+  TH1D *histogramGM1Xhitpoint = new TH1D("GM1Xhitpoint", "GM1Xhitpoint", 500, 5, 25);
+  TH1D *histogramGM1Yhitpoint = new TH1D("GM1Yhitpoint", "GM1Yhitpoint", 500, 15, 30);
+  TH1D *histogramGM2Xhitpoint = new TH1D("GM2Xhitpoint", "GM2Xhitpoint", 500, 5, 25);
+  TH1D *histogramGM2Yhitpoint = new TH1D("GM2Yhitpoint", "GM2Yhitpoint", 500, 15, 30);
+
 
   int nEvents=tree->GetEntries();
   /*
@@ -102,20 +102,12 @@ int main(int argc,char **argv){
   outTree->Branch("event","TCevent",&event,32000,99);
   cout<<"after TTree setBranch"<<endl;
 
-  TCalign* a = TCalign::getInstance("../../../alignment/AlignmentFiles/simRealAlign.txt");
+  TCalign* a = TCalign::getInstance("../../../alignment/alignout5.txt");
   a->clear();
-  a->read("../../../alignment/AlignmentFiles/simRealAlign.txt");
-  TGraph* x_event =new TGraph;
-  TGraph* y_event =new TGraph;
-  /*
-    gROOT->SetStyle("Plain");
-    gStyle->SetPalette(1);
-    TCanvas * c = new TCanvas("occupancy","occupancy",10,10,800,600);
-    c->Divide(2,1);
-  */
+  a->read("../../../alignment/AlignmentFiles/alignout5.txt");
+
   for(int i_ev=0;i_ev<nEvents;i_ev++) {
-    x_event->Clear();
-    y_event->Clear();
+
 
     tree->GetEntry(i_ev);
      std::vector<TCcluster> clSI1X;
@@ -130,59 +122,54 @@ int main(int argc,char **argv){
      event->clear();
      { 
        const std::list<CsGEMCluster*> clusterList = SI01X1->GetClusters();
-       ampDiffCut(clusterList, clSI1X, 12,5);
+       ampDiffCut(clusterList, clSI1X, 20,3);
        histogramSI1X->Fill(clSI1X.size());
      }
      {
        const std::list<CsGEMCluster*> clusterList = SI01Y1->GetClusters();
-       ampDiffCut(clusterList, clSI1Y, 12,6);
+       ampDiffCut(clusterList, clSI1Y, 20,4);
        histogramSI1Y->Fill(clSI1Y.size());    
      }
      { 
        const std::list<CsGEMCluster*> clusterList = SI02X1->GetClusters();
-       ampDiffCut(clusterList, clSI2X, 12,7);
+       ampDiffCut(clusterList, clSI2X, 20,5);
        histogramSI1X->Fill(clSI2X.size());
      }
      {
        const std::list<CsGEMCluster*> clusterList = SI02Y1->GetClusters();
-       ampDiffCut(clusterList, clSI2Y, 12,8);
+       ampDiffCut(clusterList, clSI2Y, 20,6);
        histogramSI1Y->Fill(clSI2Y.size());    
      }
      { 
        const std::list<CsGEMCluster*> clusterList = GM01X1->GetClusters();
-       ampDiffCut(clusterList, clGM1X, 12,1);
+       ampRatioCut(clusterList, clGM1X, 1.05,1.05,1);
        histogramGM1X->Fill(clGM1X.size());
      }
      {
        const std::list<CsGEMCluster*> clusterList = GM01Y1->GetClusters();
-       ampDiffCut(clusterList, clGM1Y, 12,2);
+       ampRatioCut(clusterList, clGM1Y, 1.05,1.05,2);
        histogramGM1Y->Fill(clGM1Y.size());    
      }
      { 
        const std::list<CsGEMCluster*> clusterList = GM02X1->GetClusters();
-       ampDiffCut(clusterList, clGM2X, 12,3);
+       ampRatioCut(clusterList, clGM2X, 0.7,0.34,7);
        histogramGM1X->Fill(clGM2X.size());
      }
      {
        const std::list<CsGEMCluster*> clusterList = GM02Y1->GetClusters();
-       ampDiffCut(clusterList, clGM2Y, 12,4);
+       ampRatioCut(clusterList, clGM2Y, 0.7,0.34,8);
        histogramGM1Y->Fill(clGM2Y.size());    
      }
      
+     
      histogramEvent->Fill(event->nClusters());
      int n_points=0;
-     
-     if(clSI1X.size()>2||
-        clSI1Y.size()>2||
-        clSI2X.size()>2||
-        clSI2Y.size()>2){
-       continue;
-     }
+
 
      for(unsigned int i=0;i<clGM1X.size();++i){
        TVector3 spacePoint=clGM1X.at(i).posXYZ();
        histogramGM1Xhitpoint->Fill(spacePoint.x());
-       x_event->SetPoint(n_points, spacePoint.z(),spacePoint.x());
+
        
        n_points++;
      }
@@ -190,19 +177,19 @@ int main(int argc,char **argv){
 
        TVector3 spacePoint=clSI1X.at(i).posXYZ();
        histogramSI1Xhitpoint->Fill(spacePoint.x());
-       x_event->SetPoint(n_points, spacePoint.z(),spacePoint.x());
+
        n_points++;
      }
      for(unsigned int i=0;i<clSI2X.size();++i){
        TVector3 spacePoint=clSI2X.at(i).posXYZ();
        histogramSI2Xhitpoint->Fill(spacePoint.x());
-       x_event->SetPoint(n_points, spacePoint.z(),spacePoint.x());
+
        n_points++;
      }
      for(unsigned int i=0;i<clGM2X.size();++i){
        TVector3 spacePoint=clGM2X.at(i).posXYZ();
        histogramGM2Xhitpoint->Fill(spacePoint.x());
-       x_event->SetPoint(n_points, spacePoint.z(),spacePoint.x());
+
        n_points++;
      }
 
@@ -211,25 +198,25 @@ int main(int argc,char **argv){
      for(unsigned int i=0;i<clGM1Y.size();++i){
        TVector3 spacePoint=clGM1Y.at(i).posXYZ();
        histogramGM1Yhitpoint->Fill(spacePoint.y());
-       y_event->SetPoint(n_points, spacePoint.z(),spacePoint.y());
+
        n_points++;
      }
      for(unsigned int i=0;i<clSI1Y.size();++i){
        TVector3 spacePoint=clSI1Y.at(i).posXYZ();
        histogramSI1Yhitpoint->Fill(spacePoint.y());
-       y_event->SetPoint(n_points, spacePoint.z(),spacePoint.y());
+
        n_points++;
      }
      for(unsigned int i=0;i<clSI2Y.size();++i){
        TVector3 spacePoint=clSI2Y.at(i).posXYZ();
        histogramSI2Yhitpoint->Fill(spacePoint.y());
-       y_event->SetPoint(n_points, spacePoint.z(),spacePoint.y());
+
        n_points++;
      }
      for(unsigned int i=0;i<clGM2Y.size();++i){
        TVector3 spacePoint=clGM2Y.at(i).posXYZ();
        histogramGM2Yhitpoint->Fill(spacePoint.y());
-       y_event->SetPoint(n_points, spacePoint.z(),spacePoint.y());
+
        n_points++;
      }
      /*
@@ -344,21 +331,12 @@ int main(int argc,char **argv){
      */
      histogramTrack->Fill(event->nTracks());
 
-      
-     c->Update();
-     c->Modified();
-     gSystem->ProcessEvents();
-     
 
      //outTree->Fill();
      
-     
- cout<<"press enter for next event"<<endl;
-     string tmp;
-     cin>>tmp;
-     cout<<"next event coming up"<<endl;
+
           
-     if(i_ev>10000) break;
+     //   if(i_ev>200000) break;
   }
 
   outTree->Write();

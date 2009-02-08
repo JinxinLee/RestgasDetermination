@@ -71,19 +71,29 @@ int main(int argc,char **argv){
   TH1I *histogramStart = new TH1I("Start cluster multiplicity", "Start cluster multiplicity", 40, 0, 40);
   TH1I *histogramEnd = new TH1I("End cluster multiplicity", "End cluster multiplicity", 40, 0, 40);
   TH1I *histogramTrack = new TH1I("Track multiplicity", "Track multiplicity", 40, 0, 40);
-  TH1D *histogramChi2 = new TH1D("Chi2", "Chi2", 200, 0, 10);
+  TH1D *histogramChi2 = new TH1D("Chi2", "Chi2", 10000, 0, 1000000);
 
 
-  TH1D *histogramSI1Xhitpoint = new TH1D("SI1Xhitpoint", "SI1Xhitpoint", 1000, 0, 40);
-  TH1D *histogramSI1Yhitpoint = new TH1D("SI1Yhitpoint", "SI1Yhitpoint", 1000, 0, 40);
-  TH1D *histogramSI2Xhitpoint = new TH1D("SI2Xhitpoint", "SI2Xhitpoint", 1000, 0, 40);
-  TH1D *histogramSI2Yhitpoint = new TH1D("SI2Yhitpoint", "SI2Yhitpoint", 1000, 0, 40);
+  TH1D *histogramSI1Xhitpoint = new TH1D("SI1Xhitpoint", "SI1Xhitpoint", 500, 5, 25);
+  TH1D *histogramSI1Yhitpoint = new TH1D("SI1Yhitpoint", "SI1Yhitpoint", 500, 15, 30);
+  TH1D *histogramSI2Xhitpoint = new TH1D("SI2Xhitpoint", "SI2Xhitpoint", 500, 5, 25);
+  TH1D *histogramSI2Yhitpoint = new TH1D("SI2Yhitpoint", "SI2Yhitpoint", 500, 15, 30);
   
-  TH1D *histogramGM1Xhitpoint = new TH1D("GM1Xhitpoint", "GM1Xhitpoint", 1000, 0, 40);
-  TH1D *histogramGM1Yhitpoint = new TH1D("GM1Yhitpoint", "GM1Yhitpoint", 1000, 0, 40);
-  TH1D *histogramGM2Xhitpoint = new TH1D("GM2Xhitpoint", "GM2Xhitpoint", 1000, 0, 40);
-  TH1D *histogramGM2Yhitpoint = new TH1D("GM2Yhitpoint", "GM2Yhitpoint", 1000, 0, 40);
+  TH1D *histogramGM1Xhitpoint = new TH1D("GM1Xhitpoint", "GM1Xhitpoint", 500, 5, 25);
+  TH1D *histogramGM1Yhitpoint = new TH1D("GM1Yhitpoint", "GM1Yhitpoint", 500, 15, 30);
+  TH1D *histogramGM2Xhitpoint = new TH1D("GM2Xhitpoint", "GM2Xhitpoint", 500, 5, 25);
+  TH1D *histogramGM2Yhitpoint = new TH1D("GM2Yhitpoint", "GM2Yhitpoint", 500, 15, 30);
 
+  
+  TH1D *histogramSI1Xresi = new TH1D("SI1Xresi", "SI1Xresi", 500, -2, 2);
+  TH1D *histogramSI1Yresi = new TH1D("SI1Yresi", "SI1Yresi", 500, -2, 2);
+  TH1D *histogramSI2Xresi = new TH1D("SI2Xresi", "SI2Xresi", 500, -2, 2);
+  TH1D *histogramSI2Yresi = new TH1D("SI2Yresi", "SI2Yresi", 500, -2, 2);
+  
+  TH1D *histogramGM1Xresi = new TH1D("GM1Xresi", "GM1Xresi", 500, -10, 10);
+  TH1D *histogramGM1Yresi = new TH1D("GM1Yresi", "GM1Yresi", 500, -10, 10);
+  TH1D *histogramGM2Xresi = new TH1D("GM2Xresi", "GM2Xresi", 500, -10, 10);
+  TH1D *histogramGM2Yresi = new TH1D("GM2Yresi", "GM2Yresi", 500, -10, 10);
   int nEvents=tree->GetEntries();
   /*
   looking at plots 
@@ -102,21 +112,21 @@ int main(int argc,char **argv){
   outTree->Branch("event","TCevent",&event,32000,99);
   cout<<"after TTree setBranch"<<endl;
 
-  TCalign* a = TCalign::getInstance("../../../alignment/AlignmentFiles/simRealAlign.txt");
+  TCalign* a = TCalign::getInstance("../../../AlignmentFiles/simRealAlign.txt");
   a->clear();
   a->read("../../../alignment/AlignmentFiles/simRealAlign.txt");
-  TGraph* x_event =new TGraph;
-  TGraph* y_event =new TGraph;
-   
+
+
   gROOT->SetStyle("Plain");
   gStyle->SetPalette(1);
-  TCanvas * c = new TCanvas("occupancy","occupancy",10,10,800,600);
-  c->Divide(2,1);
- 
-  for(int i_ev=0;i_ev<nEvents;i_ev++) {
-    x_event->Clear();
-    y_event->Clear();
+  int n_tracks = 0;
+  int track_tries=0;
 
+  for(int i_ev=0;i_ev<nEvents;i_ev++) {
+    if(i_ev%100==0){
+      std::cout<<i_ev<<" "<<track_tries<<" "<<n_tracks<<"*******************************************************************************************************"<<std::endl;
+     }
+   
     tree->GetEntry(i_ev);
      std::vector<TCcluster> clSI1X;
      std::vector<TCcluster> clSI1Y;
@@ -130,79 +140,76 @@ int main(int argc,char **argv){
      event->clear();
      { 
        const std::list<CsGEMCluster*> clusterList = SI01X1->GetClusters();
-       ampDiffCut(clusterList, clSI1X, 12,5);
+       ampDiffCut(clusterList, clSI1X, 15,3);
        histogramSI1X->Fill(clSI1X.size());
      }
      {
        const std::list<CsGEMCluster*> clusterList = SI01Y1->GetClusters();
-       ampDiffCut(clusterList, clSI1Y, 12,6);
+       ampDiffCut(clusterList, clSI1Y, 15,4);
        histogramSI1Y->Fill(clSI1Y.size());    
      }
      { 
        const std::list<CsGEMCluster*> clusterList = SI02X1->GetClusters();
-       ampDiffCut(clusterList, clSI2X, 12,7);
-       histogramSI1X->Fill(clSI2X.size());
+       ampDiffCut(clusterList, clSI2X, 15,5);
+       histogramSI2X->Fill(clSI2X.size());
      }
      {
        const std::list<CsGEMCluster*> clusterList = SI02Y1->GetClusters();
-       ampDiffCut(clusterList, clSI2Y, 12,8);
-       histogramSI1Y->Fill(clSI2Y.size());    
+       ampDiffCut(clusterList, clSI2Y, 15,6);
+       histogramSI2Y->Fill(clSI2Y.size());    
      }
      { 
        const std::list<CsGEMCluster*> clusterList = GM01X1->GetClusters();
-       ampDiffCut(clusterList, clGM1X, 12,1);
+       ampRatioCut(clusterList, clGM1X, 1.05,1.05,1);
        histogramGM1X->Fill(clGM1X.size());
      }
      {
        const std::list<CsGEMCluster*> clusterList = GM01Y1->GetClusters();
-       ampDiffCut(clusterList, clGM1Y, 12,2);
+       ampRatioCut(clusterList, clGM1Y, 1.05,1.05,2);
        histogramGM1Y->Fill(clGM1Y.size());    
      }
      { 
        const std::list<CsGEMCluster*> clusterList = GM02X1->GetClusters();
-       ampDiffCut(clusterList, clGM2X, 12,3);
+       ampRatioCut(clusterList, clGM2X, 0.7,0.34,7);
        histogramGM1X->Fill(clGM2X.size());
      }
      {
        const std::list<CsGEMCluster*> clusterList = GM02Y1->GetClusters();
-       ampDiffCut(clusterList, clGM2Y, 12,4);
+       ampRatioCut(clusterList, clGM2Y, 0.7,0.34,8);
        histogramGM1Y->Fill(clGM2Y.size());    
      }
      
      histogramEvent->Fill(event->nClusters());
      int n_points=0;
      
-     if(clSI1X.size()>2||
-        clSI1Y.size()>2||
-        clSI2X.size()>2||
-        clSI2Y.size()>2){
+     if(clSI1X.size()>3||
+        clSI1Y.size()>3||
+        clSI2X.size()>3||
+        clSI2Y.size()>3){ 
        continue;
      }
 
      for(unsigned int i=0;i<clGM1X.size();++i){
        TVector3 spacePoint=clGM1X.at(i).posXYZ();
        histogramGM1Xhitpoint->Fill(spacePoint.x());
-       x_event->SetPoint(n_points, spacePoint.z(),spacePoint.x());
-       
+            
        n_points++;
      }
      for(unsigned int i=0;i<clSI1X.size();++i){
 
        TVector3 spacePoint=clSI1X.at(i).posXYZ();
        histogramSI1Xhitpoint->Fill(spacePoint.x());
-       x_event->SetPoint(n_points, spacePoint.z(),spacePoint.x());
        n_points++;
      }
      for(unsigned int i=0;i<clSI2X.size();++i){
        TVector3 spacePoint=clSI2X.at(i).posXYZ();
        histogramSI2Xhitpoint->Fill(spacePoint.x());
-       x_event->SetPoint(n_points, spacePoint.z(),spacePoint.x());
        n_points++;
      }
      for(unsigned int i=0;i<clGM2X.size();++i){
        TVector3 spacePoint=clGM2X.at(i).posXYZ();
        histogramGM2Xhitpoint->Fill(spacePoint.x());
-       x_event->SetPoint(n_points, spacePoint.z(),spacePoint.x());
+
        n_points++;
      }
 
@@ -211,60 +218,196 @@ int main(int argc,char **argv){
      for(unsigned int i=0;i<clGM1Y.size();++i){
        TVector3 spacePoint=clGM1Y.at(i).posXYZ();
        histogramGM1Yhitpoint->Fill(spacePoint.y());
-       y_event->SetPoint(n_points, spacePoint.z(),spacePoint.y());
        n_points++;
      }
      for(unsigned int i=0;i<clSI1Y.size();++i){
        TVector3 spacePoint=clSI1Y.at(i).posXYZ();
        histogramSI1Yhitpoint->Fill(spacePoint.y());
-       y_event->SetPoint(n_points, spacePoint.z(),spacePoint.y());
        n_points++;
      }
      for(unsigned int i=0;i<clSI2Y.size();++i){
        TVector3 spacePoint=clSI2Y.at(i).posXYZ();
        histogramSI2Yhitpoint->Fill(spacePoint.y());
-       y_event->SetPoint(n_points, spacePoint.z(),spacePoint.y());
        n_points++;
      }
      for(unsigned int i=0;i<clGM2Y.size();++i){
        TVector3 spacePoint=clGM2Y.at(i).posXYZ();
        histogramGM2Yhitpoint->Fill(spacePoint.y());
-       y_event->SetPoint(n_points, spacePoint.z(),spacePoint.y());
        n_points++;
      }
+
+         
+     vector<TCcluster> startClusters;
+     vector<TCcluster> endClusters;
+     for(unsigned int i=0;i<clGM1X.size();++i){
+       for(unsigned int j=0;j<clGM1Y.size();++j){
+         double ratio=clGM1X.at(i).getAmp()/clGM1Y.at(j).getAmp();
+         if(ratio>0.9&&ratio<1.1){
+           TVector3 pos(clGM1X.at(i).posUVW().x(),clGM1Y.at(j).posUVW().x()-5,0);
+           TVector3 err(clGM1X.at(i).getErr().x(),1,1);
+           double amp(clGM1X.at(i).getAmp());
+           int detID(clGM1X.at(i).getId()); 
+           TCcluster _c(pos,err,amp,detID); 
+           _c.setFit(true);
+           TVector3 pos2(clGM1Y.at(j).posUVW().x(),clGM1X.at(i).posUVW().x()-5,0);
+           TVector3 err2(clGM1Y.at(j).getErr().x(),1,1);;
+           double amp2(clGM1Y.at(j).getAmp());
+           int detID2(clGM1Y.at(j).getId()); 
+           TCcluster _c2(pos2,err2,amp2,detID2); 
+           _c2.setFit(true);
+           startClusters.push_back(_c);
+           startClusters.push_back(_c2);
+           //cout<<"gm1 pulse cor"<<endl;
+         }
+       } //end looping over GM1Y clusters
+     } //end looping over GM1X clusters
+         
      
-     c->cd(1);
-     x_event->Draw("a*");
-     c->cd(2);
-     y_event->Draw("a*");
-       
-     if(i_ev%100==0){
-       std::cout<<i_ev<<" "<<event->nTracks()<<std::endl;
+     for(unsigned int i=0;i<clGM2X.size();++i){
+       for(unsigned int j=0;j<clGM2Y.size();++j){
+         double ratio=clGM2X.at(i).getAmp()/clGM2Y.at(j).getAmp();
+         if(ratio>0.9&&ratio<1.1){
+           TVector3 pos(clGM2X.at(i).posUVW().x(),clGM2Y.at(j).posUVW().x()-5.,0);
+           TVector3 err(clGM2X.at(i).getErr().x(),1,1);
+           double amp(clGM2X.at(i).getAmp());      
+
+           int detID(clGM2X.at(i).getId()); 
+           TCcluster _c(pos,err,amp,detID); 
+           _c.setFit(true);
+           TVector3 pos2(clGM2Y.at(j).posUVW().x(),clGM2X.at(i).posUVW().x()-5.,0);
+           TVector3 err2(clGM2Y.at(j).getErr().x(),1,1);;
+           double amp2(clGM2Y.at(j).getAmp());
+           int detID2(clGM2Y.at(j).getId()); 
+           TCcluster _c2(pos2,err2,amp2,detID2); 
+           _c2.setFit(true);
+           endClusters.push_back(_c);
+           endClusters.push_back(_c2);
+           //cout<<"gm1 pulse cor"<<endl;
+         }
+       } //end looping over GM1Y clusters
+     } //end looping over GM1X clusters
+     
+
+     
+     if(startClusters.size()==0||endClusters.size()==0){
+       continue;
      }
+     histogramStart->Fill(startClusters.size());
+     histogramEnd->Fill(endClusters.size());
+     
+     //   cout<<"before loop startClusters.size "<<startClusters.size()<<endl;
+     //looping over starting clusters 
+     
+     for(unsigned int i=0;i<startClusters.size()/2;++i){
+       
+       //looping over ending clusters---------------------------
+       for(unsigned int j=0;j<endClusters.size()/2;++j){
+
+         //looping over SI1X clusters----------------------------
+         for(unsigned int k=0;k<clSI1X.size();++k){
+           //looping over SI1Y cluster---------------------------
+           for(unsigned int l=0;l<clSI1Y.size();++l){
+             //looping over SI2X clusters-------------------------
+             for(unsigned int m=0;m<clSI2X.size();++m){
+               //looping over SI2Y clusters--------------------------
+               for(unsigned int n=0;n<clSI2Y.size();++n){
+                 track_tries++;
+                 TCtrack* track = new TCtrack;
+                 vector<TCcluster> trackCl;
+                 trackCl.push_back(startClusters.at(i));
+                 trackCl.push_back(startClusters.at(i+1));
+                 trackCl.push_back(clSI1X.at(k));
+                 trackCl.push_back(clSI1Y.at(l));
+                 trackCl.push_back(clSI2X.at(m));
+                 trackCl.push_back(clSI2Y.at(n));
+                 trackCl.push_back(endClusters.at(j));
+                 trackCl.push_back(endClusters.at(j+1));
+                 track->addClusters(trackCl);
+                 //cout<<"nclFit"<<track->nClFit()<<endl;
+                 
+                 if(track->fit(1,2,3,4,5,6,7,8)){
+                   //cout<<"track fit converged with chi2 "<<track->getChi2()/track->getNDF()<<endl;
+                   histogramChi2->Fill(track->getChi2()/track->getNDF());
+                   // double par[4]={track->getAX(),track->getBX(),track->getAY(),track->getBY()};
+                   for(unsigned int cl=0;cl<track->nCl();cl++){
+                     TCcluster tmpcl = track->getCl(cl);
+                     TVector3 resid=tmpcl.getRes();
+                     if(tmpcl.getFit()){
+                       switch(tmpcl.getId()){
+                       case 1:
+                         histogramGM1Xresi->Fill(resid.x());
+                         break;
+                       case 2:
+                         histogramGM1Yresi->Fill(resid.x());
+                         break;
+                       case 3:
+                         histogramSI1Xresi->Fill(resid.x());
+                         break;
+                       case 4:                         
+                         histogramSI1Yresi->Fill(resid.x());
+                         break;
+                       case 5:
+                         histogramSI2Xresi->Fill(resid.x());
+                         break;
+                       case 6:
+                         histogramSI2Yresi->Fill(resid.x());
+                         break;
+                       case 7:
+                         histogramGM2Xresi->Fill(resid.x());
+                         break;
+                       case 8:
+                         histogramGM2Yresi->Fill(resid.x());
+                         break;
+                       default:
+                         cout<<"unknown id "<<tmpcl.getId()<<endl;
+                       }
+                     }
+                   
+                   }//end filling residual histograms
+                   n_tracks++;
+                   
+                   //cout<<i_ev<<" "<<n_tracks<<endl;
+                   // track->draw();
+                  
+                   histogramChi2->Fill(track->getChi2());
+                   event->addTrack(track);
+                   
+                 }
+
+
+                 //                 cout<<"bla"<<endl;
+               }//end looping over SI2Y clusters
+             }//end looping over SI2X clusters
+           }//end looping over SI1Y clusters
+         }//end looping over SI1X clusters
+       }//end looping over END clusters
+     }//end looping over START clusters
+     
+    
+
      /*
      if(event->nTracks()==0){
        continue;
      }
      */
      histogramTrack->Fill(event->nTracks());
-
-      
-     c->Update();
-     c->Modified();
-     gSystem->ProcessEvents();
-     
-
-     //outTree->Fill();
-     
-     
- cout<<"press enter for next event"<<endl;
+     /*
+     cout<<"press enter for next event"<<endl;
      string tmp;
      cin>>tmp;
      cout<<"next event coming up"<<endl;
-          
-     if(i_ev>10000) break;
+     */    
+     /*
+     cout<<"press n and enter for next event"<<endl;
+     string tmp;
+     cin>>tmp;
+     cout<<"next event coming up"<<endl;
+     */   
+     outTree->Fill();
+     //if(i_ev>10000) break;
   }
-
+  cout<<"Tried trackfits"<<track_tries<<endl;
+  cout<<"n tracks "<<n_tracks<<endl;
   outTree->Write();
   rootOutfile->Close();
 
@@ -294,12 +437,23 @@ int main(int argc,char **argv){
   histogramGM1Yhitpoint->Write();
   histogramGM2Xhitpoint->Write();
   histogramGM2Yhitpoint->Write();
-  file->Close();
-  //  delete histogramGM1X;
 
-  //delete  histogramGM1Y;
-  //  delete  histogramGM2X;
-  //  delete  histogramGM2Y;
+
+  histogramSI1Xresi->Write();
+  histogramSI1Yresi->Write();
+  histogramSI2Xresi->Write();
+  histogramSI2Yresi->Write();
+  
+  histogramGM1Xresi->Write();
+  histogramGM1Yresi->Write();
+  histogramGM2Xresi->Write();
+  histogramGM2Yresi->Write();
+  file->Close();
+  delete histogramGM1X;
+  
+  delete  histogramGM1Y;
+  delete  histogramGM2X;
+  delete  histogramGM2Y;
 
   delete histogramSI1X;
   delete  histogramSI1Y;

@@ -74,15 +74,15 @@ int main(int argc,char **argv){
   TH1D *histogramChi2 = new TH1D("Chi2", "Chi2", 200, 0, 10);
 
 
-  TH1D *histogramSI1Xhitpoint = new TH1D("SI1Xhitpoint", "SI1Xhitpoint", 1000, 0, 40);
-  TH1D *histogramSI1Yhitpoint = new TH1D("SI1Yhitpoint", "SI1Yhitpoint", 1000, 0, 40);
-  TH1D *histogramSI2Xhitpoint = new TH1D("SI2Xhitpoint", "SI2Xhitpoint", 1000, 0, 40);
-  TH1D *histogramSI2Yhitpoint = new TH1D("SI2Yhitpoint", "SI2Yhitpoint", 1000, 0, 40);
+  TH1D *histogramSI1Xhitpoint = new TH1D("SI1Xhitpoint", "SI1Xhitpoint", 1000, 5, 25);
+  TH1D *histogramSI1Yhitpoint = new TH1D("SI1Yhitpoint", "SI1Yhitpoint", 1000, 5, 25);
+  TH1D *histogramSI2Xhitpoint = new TH1D("SI2Xhitpoint", "SI2Xhitpoint", 1000, 5, 25);
+  TH1D *histogramSI2Yhitpoint = new TH1D("SI2Yhitpoint", "SI2Yhitpoint", 1000, 5, 25);
   
-  TH1D *histogramGM1Xhitpoint = new TH1D("GM1Xhitpoint", "GM1Xhitpoint", 1000, 0, 40);
-  TH1D *histogramGM1Yhitpoint = new TH1D("GM1Yhitpoint", "GM1Yhitpoint", 1000, 0, 40);
-  TH1D *histogramGM2Xhitpoint = new TH1D("GM2Xhitpoint", "GM2Xhitpoint", 1000, 0, 40);
-  TH1D *histogramGM2Yhitpoint = new TH1D("GM2Yhitpoint", "GM2Yhitpoint", 1000, 0, 40);
+  TH1D *histogramGM1Xhitpoint = new TH1D("GM1Xhitpoint", "GM1Xhitpoint", 1000, 15, 30);
+  TH1D *histogramGM1Yhitpoint = new TH1D("GM1Yhitpoint", "GM1Yhitpoint", 1000, 15, 30);
+  TH1D *histogramGM2Xhitpoint = new TH1D("GM2Xhitpoint", "GM2Xhitpoint", 1000, 15, 30);
+  TH1D *histogramGM2Yhitpoint = new TH1D("GM2Yhitpoint", "GM2Yhitpoint", 1000, 15, 30);
 
   int nEvents=tree->GetEntries();
   /*
@@ -130,22 +130,22 @@ int main(int argc,char **argv){
      event->clear();
      { 
        const std::list<CsGEMCluster*> clusterList = SI01X1->GetClusters();
-       ampDiffCut(clusterList, clSI1X, 12,5);
+       ampDiffCut(clusterList, clSI1X, 12,3);
        histogramSI1X->Fill(clSI1X.size());
      }
      {
        const std::list<CsGEMCluster*> clusterList = SI01Y1->GetClusters();
-       ampDiffCut(clusterList, clSI1Y, 12,6);
+       ampDiffCut(clusterList, clSI1Y, 12,4);
        histogramSI1Y->Fill(clSI1Y.size());    
      }
      { 
        const std::list<CsGEMCluster*> clusterList = SI02X1->GetClusters();
-       ampDiffCut(clusterList, clSI2X, 12,7);
+       ampDiffCut(clusterList, clSI2X, 12,5);
        histogramSI1X->Fill(clSI2X.size());
      }
      {
        const std::list<CsGEMCluster*> clusterList = SI02Y1->GetClusters();
-       ampDiffCut(clusterList, clSI2Y, 12,8);
+       ampDiffCut(clusterList, clSI2Y, 12,6);
        histogramSI1Y->Fill(clSI2Y.size());    
      }
      { 
@@ -160,12 +160,12 @@ int main(int argc,char **argv){
      }
      { 
        const std::list<CsGEMCluster*> clusterList = GM02X1->GetClusters();
-       ampDiffCut(clusterList, clGM2X, 12,3);
+       ampDiffCut(clusterList, clGM2X, 12,7);
        histogramGM1X->Fill(clGM2X.size());
      }
      {
        const std::list<CsGEMCluster*> clusterList = GM02Y1->GetClusters();
-       ampDiffCut(clusterList, clGM2Y, 12,4);
+       ampDiffCut(clusterList, clGM2Y, 12,8);
        histogramGM1Y->Fill(clGM2Y.size());    
      }
      
@@ -183,7 +183,7 @@ int main(int argc,char **argv){
        TVector3 spacePoint=clGM1X.at(i).posXYZ();
        histogramGM1Xhitpoint->Fill(spacePoint.x());
        x_event->SetPoint(n_points, spacePoint.z(),spacePoint.x());
-       
+       cout<<"gm1x error "<<clGM1X.at(i).getErr().x()<<endl;
        n_points++;
      }
      for(unsigned int i=0;i<clSI1X.size();++i){

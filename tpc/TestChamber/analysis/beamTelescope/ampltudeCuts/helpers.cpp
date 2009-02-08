@@ -1,3 +1,4 @@
+
 #include "helpers.h"
 #include "../../../src/TCtrack.h"
 #include <list>
@@ -18,7 +19,7 @@ void ampDiffCut(const std::list<CsGEMCluster*> &clusterList, std::vector<TCclust
       double x=((*it)->GetCenter())*pitch;
       //cout<<"x "<<x<<" pitch "<<pitch<<endl;
       TVector3 pos(x,0,0);
-      TVector3 err(((*it)->GetErrCenter())*pitch,0,0);
+      TVector3 err(((*it)->GetErrCenter())*pitch,1,1);
       double amp((*it)->GetAmp3());
       TCcluster _c(pos,err,amp,detID);
       _c.setFit(true);
@@ -34,12 +35,12 @@ void ampRatioCut(const std::list<CsGEMCluster*> &clusterList, std::vector<TCclus
   for(std::list<CsGEMCluster*>::const_iterator it =clusterList.begin();it!=clusterList.end();it++ ){
     double ratio1=((*it)->GetAmp2())/((*it)->GetAmp3());
     double ratio2=((*it)->GetAmp1())/((*it)->GetAmp3());
-    if(ratio1<1.05 && ratio2<1.05){
+    if(ratio1<cut0 && ratio2<cut1){
 
       double x=((*it)->GetCenter())*pitch;
       //cout<<"x "<<x<<" pitch "<<pitch<<endl;
       TVector3 pos(x,0,0);
-      TVector3 err(((*it)->GetErrCenter())*pitch,0,0);
+      TVector3 err(((*it)->GetErrCenter())*pitch,5,1);
       double amp((*it)->GetAmp3());
       //        pedestalRMS=_c.GetNoise();
       TCcluster _c(pos,err,amp,detID);
