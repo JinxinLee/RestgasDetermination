@@ -1,4 +1,4 @@
-void run_pid_reco(Int_t nEvents = 10)
+void run_pid_reco(Int_t nEvents = 5)
 {
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
@@ -56,8 +56,11 @@ void run_pid_reco(Int_t nEvents = 10)
   //  pid->SetAPPNAME("STT_P_MVD_TOF_THETAC_EMC_1_2_5NN");
   pid->SetAPPNAME("test");
   pid->SetDIR("./weights/");
+  
   pid->SetMVA(PndGpidTask::KNN);
   //pid->SetMVA(PndGpidTask::BDT);
+  //pid->SetMVA(PndGpidTask::MLP);
+  
   fRun->AddTask(pid);
   fRun->Init();
  

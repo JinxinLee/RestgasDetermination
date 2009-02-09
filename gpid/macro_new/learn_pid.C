@@ -30,6 +30,12 @@ void learn_pid()
   bdt_train.SetNCutsBDT("30");
   bdt_train.SetNKNN("100");
   
+  //MLP
+  bdt_train.SetMLPNeuronType("tanh");
+  bdt_train.SetNuOfCycle(10);
+  //bdt_train.SetNumOfHiddenLayers(5);
+  bdt_train.SetTestRate(5);
+  
   //  bdt_train.SetNCLASS(3);
   //  bdt_train.SetNVAR(3);
   //Select the name of the input file which contains 
