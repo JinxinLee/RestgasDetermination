@@ -89,10 +89,8 @@ class PndMultiClassMVA
    	mlpCycle = out.str();
    	//mlpCycle = "10";//DEBUG
    	};
-   void SetNumOfHiddenLayers(const int NumHidLayer){
-   	std::stringstream out;
-   	out << NumHidLayer;
-   	mlpNumHidden = out.str();
+   void SetNumOfHiddenLayers(const TString NumHidLayer){
+   	mlpNumHidden = NumHidLayer;
    	//mlpNumHidden = "N=1,N";//DEBUG
    	};
    void SetTestRate(const int TestR){

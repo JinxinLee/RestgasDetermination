@@ -214,14 +214,8 @@ void PndMultiClassMVA::TrainTest()
 	  factory->BookMethod( TMVA::Types::kBDT, "BDT", BdtConfig); 
 
   //"Normalise:H:!V:NeuronType=tanh:NCycles=50:HiddenLayers=N+1,N:TestRate=5";
-  /*
-   * TString mlpNeuTyp; //MLP neuron type
-  TString mlpCycle;  //MLP number of cycles
-  TString mlpNumHidden; //MLP number of hidden layers
-  TString mlpTestRate; //MLP Test rate
-   */
   TString MLPConfig = "Normalise:H:!V:NeuronType="+ mlpNeuTyp +":NCycles="+mlpCycle+
-                      ":HiddenLayers=N+1,N:TestRate="+ mlpTestRate;
+                      ":HiddenLayers="+mlpNumHidden+":TestRate="+ mlpTestRate;
   factory->BookMethod( TMVA::Types::kMLP, "MLP", MLPConfig); 
 
 

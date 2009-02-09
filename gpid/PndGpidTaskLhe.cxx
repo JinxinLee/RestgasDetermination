@@ -153,7 +153,7 @@ void PndGpidTaskLhe::BookingMVA()
         fClassifier = "MLP method";
         break;
         
-    default:// KNN: 
+    default:// case KNN: 
    	anaFile =  fDIR + fAPPNAME + fClassNameArray.at(i) + "_KNN.weights.txt";
    	reader[i].BookMVA("KNN method", anaFile );
     fClassifier = "KNN method";

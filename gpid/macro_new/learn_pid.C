@@ -18,8 +18,9 @@ void learn_pid()
   bdt_train.AddClass("pion");
   
   //Set number of signal and background events to be used
-  bdt_train.SetNSigTrain("1000");
-  bdt_train.SetNBkgTrain("1000");
+  bdt_train.SetNSigTrain("10000");
+  bdt_train.SetNBkgTrain("10000");
+  
   bdt_train.SetNSigTest("50");
   bdt_train.SetNBkgTest("50");
   
@@ -28,12 +29,12 @@ void learn_pid()
   bdt_train.SetNTreeBDT("50");
   bdt_train.SetBoostTypeBDT("AdaBoost");
   bdt_train.SetNCutsBDT("30");
-  bdt_train.SetNKNN("100");
+  bdt_train.SetNKNN("150");
   
   //MLP
   bdt_train.SetMLPNeuronType("tanh");
-  bdt_train.SetNuOfCycle(10);
-  //bdt_train.SetNumOfHiddenLayers(5);
+  bdt_train.SetNuOfCycle(50);
+  bdt_train.SetNumOfHiddenLayers("N-1,N");
   bdt_train.SetTestRate(5);
   
   //  bdt_train.SetNCLASS(3);

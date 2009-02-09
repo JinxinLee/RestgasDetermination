@@ -1,5 +1,5 @@
-void run_sim_alldet(Int_t nEvents = 50, const char* part="pi-",
-		            Float_t p1 = 1.0, Float_t p2 = 2.0)
+void run_sim_alldet(Int_t nEvents = 100, const char* part="e-",
+		             Float_t p1 = 1.0, Float_t p2 = 2.0)
 {
   TStopwatch timer;
   timer.Start();
