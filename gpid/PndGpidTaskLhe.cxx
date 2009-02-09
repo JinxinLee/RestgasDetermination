@@ -147,17 +147,17 @@ void PndGpidTaskLhe::BookingMVA()
         fClassifier = "BDT method";
         break;
 
-   case KNN: 
-   	anaFile =  fDIR + fAPPNAME + fClassNameArray.at(i) + "_KNN.weights.txt";
-   	reader[i].BookMVA("KNN method", anaFile );
-        fClassifier = "KNN method";
-        break;
-
    case MLP:
    	anaFile =  fDIR + fAPPNAME + fClassNameArray.at(i) + "_MLP.weights.txt";
    	reader[i].BookMVA("MLP method", anaFile );
         fClassifier = "MLP method";
         break;
+        
+    default:// KNN: 
+   	anaFile =  fDIR + fAPPNAME + fClassNameArray.at(i) + "_KNN.weights.txt";
+   	reader[i].BookMVA("KNN method", anaFile );
+    fClassifier = "KNN method";
+    break;
    }
  }
 }
@@ -249,14 +249,14 @@ if(mvaValue == 0) exit(0);
        mvaValue = (mvaValue - (-1.0))/2.0;
        break;
 
-      case KNN:
+      case MLP:
+       mvaValue = (mvaValue - (-1.1))/2.2;
+       break;
+       
+      default://case KNN:
        cout<<mvaValue<<endl;
        mvaValue = mvaValue-0.5; 
        cout<<mvaValue<<endl;
-       break;
-
-      case MLP:
-       mvaValue = (mvaValue - (-1.1))/2.2;
        break;
      }
 
