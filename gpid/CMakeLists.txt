@@ -42,14 +42,14 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(Gpid_SRCS
 PndGpidTask.cxx
-PndPidCand.cxx
-PndGeaneTrTpcTof.cxx
-PndGeaneTrTpcIdealTof.cxx
-PndMultiClassMVA.cxx
-PndMakeTrainData.cxx
-PndMakeTrainDataLhe.cxx
-PndGpidTaskFast.cxx
 PndGpidTaskLhe.cxx
+PndPidCand.cxx
+#PndGeaneTrTpcTof.cxx
+#PndGeaneTrTpcIdealTof.cxx
+PndMultiClassMVA.cxx
+#PndMakeTrainData.cxx
+#PndMakeTrainDataLhe.cxx
+PndGpidTaskFast.cxx
 )
 CHANGE_FILE_EXTENSION(*.cxx *.h Gpid_HEADERS "${Gpid_SRCS}")
 
