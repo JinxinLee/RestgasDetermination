@@ -33,7 +33,7 @@ public:
 	const mapper& GetEmcZ() const { return emcZ ;};
 	const std::map<PndEmcTwoCoordIndex*, PndEmcXtal*>& GetTciXtalMap() const { return fTciXtalMap ;};
 	PndEmcTwoCoordIndex* locateIndex( double theta, double phi ) const;
-	void Print(string) const;
+	void Print(string, Int_t option=1) const;
 
 private:
 	bool crystal_name_analysis(TString,int &module,int &copy,int &row,int &crystal);

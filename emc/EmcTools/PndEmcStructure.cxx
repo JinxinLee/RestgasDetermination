@@ -104,6 +104,12 @@ PndEmcStructure::PndEmcStructure(TGeoManager *geoMan)
       
       PndEmcTwoCoordIndex *tci=fEmcMap->GetTCI(detId);
 		
+		if (tci==0)
+		{
+			cout<<"Not found tci for index = "<<detId<<" in PndEmcStructure"<<endl;
+			abort();	
+		}
+		
 		// Obtaine TGeoMatrix matrix for the current node, later it is factorised to translation and rotation
 		crystal_matrix=next.GetCurrentMatrix();
 		
@@ -198,7 +204,7 @@ bool PndEmcStructure::crystal_name_analysis(TString node_path,int &module,int &c
       Int_t copyNoBox  = (((TObjString *)subStrL->At(3))->GetString()).Atoi();
       Int_t copyNoCrys  = (((TObjString *)subStrL->At(4))->GetString()).Atoi();
 
-      Int_t col=0, k1=0, nRow=-1, nCrys=-1;
+		Int_t col=0, k1=0, nRow=-1, nCrys=-1;
       Int_t subrow=4;   // 4 crystals in each subvolume
       Int_t next=0;     // starts (from the middle) next column 
       
@@ -314,30 +320,54 @@ PndEmcStructure::locateIndex( double theta, double phi ) const
 
 
 // Print information on angular position for all the crystall into the file
-void PndEmcStructure::Print(string filename) const
+void PndEmcStructure::Print(string filename, Int_t option) const
 {
 	ofstream f(filename.c_str());
-	f<<"detID"<<"\t"<<"ThetaInd"<<"\t"<<"PhiInd"<<"\t"<<"theta_centre"<<"\t"<<"theta_frontface"<<"\t"<<"dTheta"<<"\t"<<"phi_centre"<<"\t"<<"phi_frontface"<<"\t"<<"dPhi"<<endl;
-	TVector3 centre, front_centre;
-	double theta_c, theta_f, phi_c, phi_f;
-	double dTheta, dPhi;
-	std::map <PndEmcTwoCoordIndex*, PndEmcXtal*>::const_iterator iter=fTciXtalMap.begin();
-	PndEmcTwoCoordIndex *tci;
-	while(iter!=(fTciXtalMap).end())
+	//different option corresponds to different details level of output 
+	if (option==1)
 	{
-		tci = (*iter).first;
-		centre= ((*iter).second)->centre();
-		front_centre=((*iter).second)->frontCentre();
-		theta_c=centre.Theta()*TMath::RadToDeg();
-		phi_c=centre.Phi()*TMath::RadToDeg();
-		theta_f=front_centre.Theta()*TMath::RadToDeg();
-		phi_f=front_centre.Phi()*TMath::RadToDeg();
-
-		dTheta=theta_c-theta_f;
-		dPhi=phi_c-phi_f;
-
-		f<<tci->Index()<<"\t"<<tci->XCoord()<<"\t"<<tci->YCoord()<<"\t"<<theta_c<<"\t"<<theta_f<<"\t"<<dTheta<<"\t"<<phi_c<<"\t"<<phi_f<<"\t"<<dPhi<<endl;
-		iter++;
+		f<<"detID"<<"\t"<<"ThetaInd"<<"\t"<<"PhiInd"<<"\t"<<"theta_centre"<<"\t"<<"theta_frontface"<<"\t"<<"dTheta"<<"\t"<<"phi_centre"<<"\t"<<"phi_frontface"<<"\t"<<"dPhi"<<endl;
+		TVector3 centre, front_centre;
+		double theta_c, theta_f, phi_c, phi_f;
+		double dTheta, dPhi;
+		std::map <PndEmcTwoCoordIndex*, PndEmcXtal*>::const_iterator iter=fTciXtalMap.begin();
+		PndEmcTwoCoordIndex *tci;
+		while(iter!=(fTciXtalMap).end())
+		{
+			tci = (*iter).first;
+			centre= ((*iter).second)->centre();
+			front_centre=((*iter).second)->frontCentre();
+			theta_c=centre.Theta()*TMath::RadToDeg();
+			phi_c=centre.Phi()*TMath::RadToDeg();
+			theta_f=front_centre.Theta()*TMath::RadToDeg();
+			phi_f=front_centre.Phi()*TMath::RadToDeg();
+	
+			dTheta=theta_c-theta_f;
+			dPhi=phi_c-phi_f;
+	
+			f<<tci->Index()<<"\t"<<tci->XCoord()<<"\t"<<tci->YCoord()<<"\t"<<theta_c<<"\t"<<theta_f<<"\t"<<dTheta<<"\t"<<phi_c<<"\t"<<phi_f<<"\t"<<dPhi<<endl;
+			iter++;
+		}
+	} else if (option==2)
+	{
+		f<<"detID"<<"\t"<<"ThetaInd"<<"\t"<<"PhiInd"<<"\t"<<"X"<<"\t"<<"Y"<<"\t"<<"Z"<<endl;
+		TVector3 front_centre;
+		TVector3 centre;
+		double x, y, z;
+		std::map <PndEmcTwoCoordIndex*, PndEmcXtal*>::const_iterator iter=fTciXtalMap.begin();
+		PndEmcTwoCoordIndex *tci;
+		while(iter!=(fTciXtalMap).end())
+		{
+			tci = (*iter).first;
+			front_centre=((*iter).second)->frontCentre();
+			centre=((*iter).second)->centre();
+			//x=front_centre.X();y=front_centre.Y();z=front_centre.Z();
+			x=centre.X();y=centre.Y();z=centre.Z();
+	
+			f<<tci->Index()<<"\t"<<tci->XCoord()<<"\t"<<tci->YCoord()<<"\t"<<x<<"\t"<<y<<"\t"<<z<<endl;
+			iter++;
+		}
+		
 	}
        
 	f.close();
