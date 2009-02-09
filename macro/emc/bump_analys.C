@@ -26,6 +26,8 @@
 	TTree *tsim=(TTree *) fsim->Get("cbmsim") ;
 	TClonesArray* mctrack_array=new TClonesArray("CbmMCTrack");
 	tsim->SetBranchAddress("MCTrack",&mctrack_array);
+	
+	PndEmcMapper *emcMap=PndEmcMapper::Instance(2);
 
 	TVector3 mc_momentum1, mc_momentum2;
 	TVector3 mc_vertex1, mc_vertex2;
@@ -72,7 +74,7 @@
 		}
 	}
 
-
+	TVector3 pi0_momentum;
 	for (Int_t j=0; j< t->GetEntriesFast(); j++)
 	{
 		tsim->GetEntry(j);
@@ -99,7 +101,8 @@
 						double invMassMC=sqrt(2*mc_momentum1.Mag()*mc_momentum2.Mag()*(1-cos(alphaMC)));
 						h_MC_angle->Fill(alphaMC*TMath::RadToDeg());
 						h_MC_mass->Fill(invMassMC);
-						h_energy_vs_angle_MC->Fill(mc_momentum1.Mag(),alphaMC*TMath::RadToDeg());
+						pi0_momentum=mc_momentum1+mc_momentum2;
+						h_energy_vs_angle_MC->Fill(pi0_momentum.Mag(),alphaMC*TMath::RadToDeg());
 
 					}
 				}
