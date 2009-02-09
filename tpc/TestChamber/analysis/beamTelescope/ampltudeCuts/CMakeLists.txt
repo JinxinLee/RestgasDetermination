@@ -6,7 +6,7 @@ PROJECT(alignment)
 cmake_minimum_required(VERSION 2.4)
 
 
-INCLUDE_DIRECTORIES($ENV{ROOTSYS}/include /afs/e18/panda/SIM/sdorheim/gemMonitor/src ../../src)
+INCLUDE_DIRECTORIES($ENV{ROOTSYS}/include $ENV{ROOTSYS}/include/Math/ /afs/e18/panda/SIM/sdorheim/gemMonitor/src ../../src)
 LINK_DIRECTORIES(../../../)
 
 
@@ -18,7 +18,7 @@ EXEC_PROGRAM(
 		ARGS --glibs --cflags
 		OUTPUT_VARIABLE ROOTCONFIG)
 		
-SET(ROOT_LIBS ${ROOTCONFIG})
+SET(ROOT_LIBS ${ROOTCONFIG} -lGraf -lMathCore -lMathMore)
 
 SET(CMAKE_CXX_FLAGS "-g -Wall -pedantic -Wno-long-long")
 

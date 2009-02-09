@@ -249,9 +249,7 @@ int main(int argc,char **argv){
      histogramTrack->Fill(event->nTracks());
 
       
-     c->Update();
-     c->Modified();
-     gSystem->ProcessEvents();
+
      
 
      //outTree->Fill();

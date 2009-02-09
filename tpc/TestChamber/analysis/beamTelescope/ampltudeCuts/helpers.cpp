@@ -7,10 +7,10 @@
 #include "../../../src/TCevent.h"
 #include "../../../src/TCalign.h"
 using namespace std;
-void ampDiffCut(const std::list<CsGEMCluster*> &clusterList, std::vector<TCcluster> &tcClusters, double cut, int detID){
+void ampDiffCut(const std::list<CsGEMCluster*> &clusterList, std::vector<TCcluster> &tcClusters, double cut, int detID,string alignmentFile){
   TCalign* a = TCalign::getInstance("../../../alignment/AlignmentFiles/simRealAlign.txt");
   a->clear();
-  a->read("../../../alignment/AlignmentFiles/simRealAlign.txt");
+  a->read(alignmentFile);
   double pitch=a->getPitch(detID);
   for(std::list<CsGEMCluster*>::const_iterator it =clusterList.begin();it!=clusterList.end();it++ ){
     double amp3=(*it)->GetAmp3();
@@ -19,7 +19,7 @@ void ampDiffCut(const std::list<CsGEMCluster*> &clusterList, std::vector<TCclust
       double x=((*it)->GetCenter())*pitch;
       //cout<<"x "<<x<<" pitch "<<pitch<<endl;
       TVector3 pos(x,0,0);
-      TVector3 err(((*it)->GetErrCenter())*pitch,1,1);
+      TVector3 err(((*it)->GetErrCenter())*pitch,0.1,0.1);
       double amp((*it)->GetAmp3());
       TCcluster _c(pos,err,amp,detID);
       _c.setFit(true);
@@ -27,10 +27,10 @@ void ampDiffCut(const std::list<CsGEMCluster*> &clusterList, std::vector<TCclust
     }
   }
 }
-void ampRatioCut(const std::list<CsGEMCluster*> &clusterList, std::vector<TCcluster> &tcClusters,  double cut0, double cut1, int detID){
+void ampRatioCut(const std::list<CsGEMCluster*> &clusterList, std::vector<TCcluster> &tcClusters,  double cut0, double cut1, int detID,string alignmentFile){
   TCalign* a = TCalign::getInstance("../../../alignment/AlignmentFiles/simRealAlign.txt");
   a->clear();
-  a->read("../../../alignment/AlignmentFiles/simRealAlign.txt");
+  a->read(alignmentFile);
   double pitch = a->getPitch(detID);
   for(std::list<CsGEMCluster*>::const_iterator it =clusterList.begin();it!=clusterList.end();it++ ){
     double ratio1=((*it)->GetAmp2())/((*it)->GetAmp3());
@@ -40,7 +40,7 @@ void ampRatioCut(const std::list<CsGEMCluster*> &clusterList, std::vector<TCclus
       double x=((*it)->GetCenter())*pitch;
       //cout<<"x "<<x<<" pitch "<<pitch<<endl;
       TVector3 pos(x,0,0);
-      TVector3 err(((*it)->GetErrCenter())*pitch,5,1);
+      TVector3 err(((*it)->GetErrCenter())*pitch,0.5,0.1);
       double amp((*it)->GetAmp3());
       //        pedestalRMS=_c.GetNoise();
       TCcluster _c(pos,err,amp,detID);
