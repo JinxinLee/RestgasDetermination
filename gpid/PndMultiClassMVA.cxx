@@ -48,6 +48,8 @@ PndMultiClassMVA::PndMultiClassMVA( Int_t NoClass, Int_t NoPar, TString fname,TS
 // Default destructor 
 PndMultiClassMVA::~PndMultiClassMVA()
 {
+  fVarNameArray.clear(); 
+  fClassNameArray.clear();
 }
 
 // Method to add Variable for the classification
@@ -211,12 +213,21 @@ void PndMultiClassMVA::TrainTest()
                                 "PruneMethod=CostComplexity:PruneStrength=" + fPruneStrengthBDT; 
 	  factory->BookMethod( TMVA::Types::kBDT, "BDT", BdtConfig); 
 
-/*
-          factory->BookMethod( TMVA::Types::kMLP, "MLP", "Normalise:H:!V:NeuronType=tanh:NCycles=200:HiddenLayers=N+1,N:TestRate=5"); 
+  //"Normalise:H:!V:NeuronType=tanh:NCycles=50:HiddenLayers=N+1,N:TestRate=5";
+  /*
+   * TString mlpNeuTyp; //MLP neuron type
+  TString mlpCycle;  //MLP number of cycles
+  TString mlpNumHidden; //MLP number of hidden layers
+  TString mlpTestRate; //MLP Test rate
+   */
+  TString MLPConfig = "Normalise:H:!V:NeuronType="+ mlpNeuTyp +":NCycles="+mlpCycle+
+                      ":HiddenLayers=N+1,N:TestRate="+ mlpTestRate;
+  factory->BookMethod( TMVA::Types::kMLP, "MLP", MLPConfig); 
+
 
           TString kNNConfig = "nkNN=" + fNKNN + ":V:TreeOptDepth=6:ScaleFrac=0.8:!UseKernel:Trim";
           factory->BookMethod( TMVA::Types::kKNN, "KNN", kNNConfig);
-*/
+
 	  factory->TrainAllMethods();
 	  factory->TestAllMethods();
 	 // factory->EvaluateAllMethods();    

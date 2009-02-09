@@ -77,29 +77,29 @@ class PndMultiClassMVA
   // KNN Parameters
   void SetNKNN(const TString kNN) { fNKNN = kNN; }
 
-   //MLP Parameters
+   // MLP Parameters
    // "Normalise:H:!V:NeuronType=tanh:NCycles=200:HiddenLayers=N+1,N:TestRate=5"
    void SetMLPNeuronType(const TString NtMLP){
-   	//mlpNeuTyp = NtMLP;
-   	mlpNeuTyp = "tanh";//DEBUG
+   	mlpNeuTyp = NtMLP;
+   	//mlpNeuTyp = "tanh";//DEBUG
    	};
    void SetNuOfCycle(const int NumCycle){
    	std::stringstream out;
    	out << NumCycle;
-   	//mlpCycle = out.str();
-   	mlpCycle = "10";//DEBUG
+   	mlpCycle = out.str();
+   	//mlpCycle = "10";//DEBUG
    	};
    void SetNumOfHiddenLayers(const int NumHidLayer){
    	std::stringstream out;
    	out << NumHidLayer;
-   	//mlpNumHidden = out.str();
-   	mlpNumHidden = "N=1,N";//DEBUG
+   	mlpNumHidden = out.str();
+   	//mlpNumHidden = "N=1,N";//DEBUG
    	};
    void SetTestRate(const int TestR){
    	std::stringstream out;
    	out << TestR;
-   	//mlpTestRate = out.str();
-   	mlpTestRate = "5";//DEBUG
+   	mlpTestRate = out.str();
+   	//mlpTestRate = "5";//DEBUG
    	};
    
   //data accessers

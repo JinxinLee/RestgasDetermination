@@ -15,12 +15,8 @@
  *                  S.Vanniarajan  01-08-08
  */
 
-
-
 #include "PndGpidTaskLhe.h"
-#include "Event.h"
-#include <iostream>
-using namespace std;
+
 
 PndGpidTaskLhe::PndGpidTaskLhe()
 {
@@ -28,6 +24,8 @@ PndGpidTaskLhe::PndGpidTaskLhe()
 
 PndGpidTaskLhe::~PndGpidTaskLhe()
 {
+  fVarNameArray.clear();
+  fClassNameArray.clear();
 }
 
 InitStatus PndGpidTaskLhe::Init()
@@ -262,7 +260,7 @@ if(mvaValue == 0) exit(0);
        break;
      }
 
-//if (mvaValue < 0) mvaValue = 0.01;
+   if (mvaValue < 0) mvaValue = 0.0001;
 
    fTrack->Set(className,mvaValue);
    cout<<"Likelihood for the class "<<className<<"is :"<<mvaValue<<endl;
