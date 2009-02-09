@@ -14,19 +14,28 @@
  *
  *                  S.Vanniarajan  01-08-08
  * Modified:
- * M. Babai 
+ * M. Babai
+ * Vanni 09-02-08 
  */
 
 #include "PndGpidTask.h"
 
+
+//default constructor
+
 PndGpidTask::PndGpidTask()
 {}
+
+// default destructor
 
 PndGpidTask::~PndGpidTask()
 {
   fVarNameArray.clear();
   fClassNameArray.clear();
 }
+
+//Init call of the task inherited from the Cbmtask 
+//Registers the output of the track and get the inputs of the track
 
 InitStatus PndGpidTask::Init()
 {
@@ -69,6 +78,9 @@ InitStatus PndGpidTask::Init()
   return kSUCCESS;
 }
 
+
+
+// config call private member reading the config file 
 void PndGpidTask::Config()
 {
   ifstream inFile;
@@ -107,6 +119,8 @@ void PndGpidTask::Config()
   }
 }
 
+
+// Adding the variable called by Init
 void PndGpidTask::AddVar()
 {
   for ( int i = 0 ; i < fNVAR ; i++){
@@ -124,6 +138,8 @@ void PndGpidTask::AddVar()
   }
 }
 
+
+// books the MVA called by the Init 
 void PndGpidTask::BookingMVA()
 {
   for (int i = 0 ; i < fNCLASS ; i++  ){
@@ -151,6 +167,8 @@ void PndGpidTask::BookingMVA()
 }
 
 
+
+// Exec call of the task
 void PndGpidTask::Exec(Option_t* opt)
 {
   
