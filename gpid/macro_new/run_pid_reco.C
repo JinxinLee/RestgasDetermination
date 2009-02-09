@@ -1,4 +1,4 @@
-void run_pid_reco(Int_t nEvents = 2)
+void run_pid_reco(Int_t nEvents = 5)
 {
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
@@ -57,14 +57,15 @@ void run_pid_reco(Int_t nEvents = 2)
   pid->SetAPPNAME("test");
   pid->SetDIR("./weights/");
   
-  //pid->SetMVA(PndGpidTask::KNN);
   //pid->SetMVA(PndGpidTask::BDT);
-  pid->SetMVA(PndGpidTask::MLP);
+  //pid->SetMVA(PndGpidTask::MLP);
+  pid->SetMVA(PndGpidTask::KNN);
   
   fRun->AddTask(pid);
   fRun->Init();
  
   fRun->Run(0, nEvents);
+  //fRun->Run(0, 20);//nEvents);
   
   rtdb->saveOutput();
   rtdb->print();

@@ -18,11 +18,11 @@ void learn_pid()
   bdt_train.AddClass("pion");
   
   //Set number of signal and background events to be used
-  bdt_train.SetNSigTrain("10000");
-  bdt_train.SetNBkgTrain("10000");
+  bdt_train.SetNSigTrain("1000");
+  bdt_train.SetNBkgTrain("1000");
   
-  bdt_train.SetNSigTest("50");
-  bdt_train.SetNBkgTest("50");
+  bdt_train.SetNSigTest("20");
+  bdt_train.SetNBkgTest("20");
   
   //Set the classifier properties
   //BDT

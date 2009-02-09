@@ -18,7 +18,6 @@
 
 
 #include "PndMultiClassMVA.h"
-using namespace std;
 
 // Default constructor with default parameters for the training
 PndMultiClassMVA::PndMultiClassMVA()
