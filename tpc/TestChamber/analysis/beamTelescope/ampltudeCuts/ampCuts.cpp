@@ -345,9 +345,7 @@ int main(int argc,char **argv){
              for(unsigned int m=0;m<clSI2X.size();++m){
                //looping over SI2Y clusters--------------------------
                for(unsigned int n=0;n<clSI2Y.size();++n){
-                 if(event->nTracks()>1){
-                   continue;
-                 }
+
                  track_tries++;
                  TCtrack* track = new TCtrack;
                  vector<TCcluster> trackCl;
@@ -404,10 +402,36 @@ int main(int argc,char **argv){
                    
                    }//end filling residual histograms
                    n_tracks++;
-                   
+                  
+                   histogramChi2->Fill(track->getChi2());
+                   event->addTrack(track);
 
+                   TGraph *clusters_x = new TGraph;
+                   TGraph *clusters_y = new TGraph;
+                   TVector3 spacePoint=startClusters.at(i).posXYZ();
+                   clusters_x->SetPoint(0, spacePoint.z(),spacePoint.x());
+                   spacePoint=clSI1X.at(k).posXYZ();
+                   clusters_x->SetPoint(1, spacePoint.z(),spacePoint.x());
+                   spacePoint=clSI2X.at(m).posXYZ();
+                   clusters_x->SetPoint(2, spacePoint.z(),spacePoint.x());
+                   spacePoint=endClusters.at(j).posXYZ();
+                   clusters_x->SetPoint(3, spacePoint.z(),spacePoint.x());
 
+                   spacePoint=startClusters.at(i+1).posXYZ();
+                   clusters_y->SetPoint(0, spacePoint.z(),spacePoint.y());
+                   spacePoint=clSI1Y.at(l).posXYZ();
+                   clusters_y->SetPoint(1, spacePoint.z(),spacePoint.y());
+                   spacePoint=clSI2Y.at(n).posXYZ();
+                   clusters_y->SetPoint(2, spacePoint.z(),spacePoint.y());
+                   spacePoint=endClusters.at(j+1).posXYZ();
+                   clusters_y->SetPoint(3, spacePoint.z(),spacePoint.y());
 
+                   clusters_x->SetMarkerColor(2);
+                   clusters_y->SetMarkerColor(2);
+                   clusters_x->SetMarkerSize(4);
+                   clusters_y->SetMarkerSize(4);
+                   clusters_x->SetMarkerStyle(2);
+                   clusters_y->SetMarkerStyle(2);
                    double min,max,dummy1,dummy2;
                    x_event->ComputeRange(min,dummy1,max,dummy2);
                    char buf[10];
@@ -429,9 +453,11 @@ int main(int argc,char **argv){
                    
                    c->cd(1);
                    x_event->Draw("A*");
+                   clusters_x->Draw("P");
                    tf->Draw("LSAME");
                    c->cd(2);
                    y_event->Draw("A*");
+                   clusters_y->Draw("P");
                    tf2->Draw("LSAME");
                    
                    
@@ -440,18 +466,21 @@ int main(int argc,char **argv){
                    c->Update();
                    c->Modified();
                    gSystem->ProcessEvents();
+                   cout<<"chi2 "<<track->getChi2()<<endl;
                    cout<<"track "<<event->nTracks()<<" event nr "<<i_ev<<endl;
-                   cout<<"press n to redraw"<<endl;
-                   string tmp2;
+                   cout<<"press n to for next event, something else to redraw"<<endl;
+                   string tmp2="";
                    cin>>tmp2;
-                   
+                   if(tmp2=="n"){
+                     continue;
+                   }
                    cout<<"next event coming up"<<endl;
                    c->Update();
                    c->Modified();
                    gSystem->ProcessEvents();
                    
                    
-                   cout<<"press n and enter for next event"<<endl;
+                   cout<<"press a letter and enter for next event"<<endl;
                    cin>>tmp2;
                    cout<<"next event coming up"<<endl;
                    
@@ -462,8 +491,6 @@ int main(int argc,char **argv){
                    //cout<<i_ev<<" "<<n_tracks<<endl;
                    //   track->draw();
                   
-                   histogramChi2->Fill(track->getChi2());
-                   event->addTrack(track);
                    
                  }
 
