@@ -24,6 +24,7 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include <limits>
 
 //ROOT and PandaRoot includes
 #include "CbmTask.h"

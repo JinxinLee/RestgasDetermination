@@ -109,7 +109,7 @@ void PndGpidTaskLhe::AddVar()
  {
   varArray[i] = 0.0;  
  }
- int count = 0;
+ //int count = 0;
 
  for ( int i = 0 ; i < fNVAR ; i++  )
  {
@@ -161,17 +161,32 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
   TClonesArray& clref2 = *fArrPid;
   Int_t size2 = clref2.GetEntriesFast();
   PndPidCand *fTrack= new(clref2[size2]) PndPidCand(); 
+  
   float skp=0; 
   
   for (int k=0; k < fPidTrackCand->GetEntriesFast(); k++){
-    float s,p,gamma2;
+    //float s,p,gamma2;
     PndLhePidTrack *pid = (PndLhePidTrack *) fPidTrackCand->At(k);
     cout<<"this is Exec"<<endl;
     string varName;
     
     for (int i = 0 ; i< fNVAR; i++){
       varName = fVarNameArray.at(i);
-      
+      //FIXME if stt is included and is nan we need to skip the 
+      // total event, restructure the CODE.
+      if (varName == "stt"){
+	    skp=pid->GetSttDEDX();
+	    
+	  //if(!isnan(skp))
+	  if(!(skp == std::numeric_limits<float>::signaling_NaN()))// It is not NaN 
+	     varArray[i]=skp;
+	  
+	  cout<<"stt hit counts"<<pid->GetSttHitCounts()<<"  "<<pid->GetSttDEDX()<<endl;
+	  if (skp == 0) 
+	    continue;
+	
+	   fTrack->Set(varName,varArray[i]);
+     }
       if (varName == "tof") {
 	varArray[i]=pid->GetTof();
 	fTrack->Set(varName,varArray[i]);
@@ -180,14 +195,15 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
 	varArray[i]=pid->GetEmcELoss()/pid->GetP();
 	fTrack->Set(varName,varArray[i]);
       }
-      if (varName == "stt"){
-	skp=pid->GetSttDEDX();
+     /* Original place of the stt-var read code
+    if (varName == "stt"){
+	 skp=pid->GetSttDEDX();
 	if(!isnan(skp)) varArray[i]=skp;
-	cout<<"stt hit counts"<<pid->GetSttHitCounts()<<"  "<<pid->GetSttDEDX()<<endl;
+	   cout<<"stt hit counts"<<pid->GetSttHitCounts()<<"  "<<pid->GetSttDEDX()<<endl;
 	if (skp==0) continue;
 	
 	fTrack->Set(varName,varArray[i]);
-      }
+    }*/
       if (varName == "mvd"){
 	varArray[i]=pid->GetMvdDEDX();
 	fTrack->Set(varName,varArray[i]);
@@ -240,8 +256,9 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
        mvaValue = (mvaValue - (-1.1))/2.2;
        break;
        
-     //default:// KNN
-      // mvaValue = mvaValue;
+     default:// KNN
+      //mvaValue = mvaValue;
+      break;
      }
      
      if (mvaValue < 0) mvaValue = 0.0001;
