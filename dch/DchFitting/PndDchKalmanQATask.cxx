@@ -133,20 +133,20 @@ void PndDchKalmanQATask::Exec(Option_t* opt) {
 	grep->setPropDir(-1);
 	mom0=grep->getMom(pl);
       }
-      else if(fApproach==2){
-	//approach two
-	rep = trk->getCardinalRep()->clone();
-	TMatrix<double> statePred(5,1);
-	TMatrix<double> covPred(5,5);
-	DetPlane planePred;
-	grep=dynamic_cast<GeaneTrackRep*>(rep);
-	grep->setPropDir(-1);
-	grep->extrapolateToPoca( TVector3(0,0,0), statePred, covPred, planePred );
-	grep->setState(statePred);
-	grep->setCov(covPred);
-	grep->setReferencePlane(planePred);
-	mom0=grep->getMom(planePred);
-      }
+     //  else if(fApproach==2){
+// 	//approach two
+// 	rep = trk->getCardinalRep()->clone();
+// 	TMatrix<double> statePred(5,1);
+// 	TMatrix<double> covPred(5,5);
+// 	DetPlane planePred;
+// 	grep=dynamic_cast<GeaneTrackRep*>(rep);
+// 	grep->setPropDir(-1);
+// 	grep->extrapolateToPoca( TVector3(0,0,0), statePred, covPred, planePred );
+// 	grep->setState(statePred);
+// 	grep->setCov(covPred);
+// 	grep->setReferencePlane(planePred);
+// 	mom0=grep->getMom(planePred);
+//       }
       else{
 	continue;
       }
