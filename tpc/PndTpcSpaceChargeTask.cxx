@@ -144,7 +144,19 @@ PndTpcSpaceChargeTask::Exec(Option_t* opt)
   for(int n=0; n<np; n++)			//Loop over all MC points
   {
     currentPoint = (PndTpcPoint*) _pointArray->At(n);
-    unsigned int qPoint = (unsigned int)std::floor(currentPoint->GetEnergyLoss()*1e9 / _WGas); // [eV]
+    Int_t qPoint = (Int_t)std::floor(currentPoint->GetEnergyLoss()*1e9 / _WGas); // [eV]
+    
+
+    if(_ALICEmode) {
+      if(n==0 && time==0)
+	std::cout<<"\n------- USING ALICE CHARGE CONVERSION MODE --------------------------"<<std::endl;
+      const Float_t poti = 20.77e-9; // first ionization potential for Ne/CO2
+      const Float_t w_ion = 35.97e-9; // energy for the ion-electron pair creation 
+            
+      //Do no clustering just convert energy deposition to ionisation
+      qPoint = (Int_t)(((currentPoint->GetEnergyLoss())-poti)/w_ion) + 1;	//imported from ALICE
+      qPoint = TMath::Min(qPoint,300); // 300 electrons corresponds to 10 keV ??
+    }
     
     double posX = currentPoint->GetX();
     double posY = currentPoint->GetY();
@@ -156,8 +168,8 @@ PndTpcSpaceChargeTask::Exec(Option_t* opt)
     if(rBin >= _rBinCount || zBin >= _zBinCount)
     {
       //Error("PndTpcSpaceChargeTask::Exec", "Hit occured outside the PndTpc-Volume!");
-	_errorCount++;
-	continue;
+      _errorCount++;
+      continue;
     }
 
     //Now fill in the point-charge into the charge-map

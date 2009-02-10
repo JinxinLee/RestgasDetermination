@@ -44,7 +44,8 @@
 
 PndTpcPadResponseTask::PndTpcPadResponseTask()
   : CbmTask("TPC PadResponse"), _persistence(kFALSE), _minSignalAmp(0),
-    _rmin(15.), _rmax(42.), _selected(false), _initialized(kFALSE), _qa(NULL)
+    _rmin(15.5), _rmax(41.5), _selected(false), _initialized(kFALSE), _qa(NULL)
+    //TODO: parameter management
 {
   _avalancheBranchName = "PndTpcAvalanche";
 }

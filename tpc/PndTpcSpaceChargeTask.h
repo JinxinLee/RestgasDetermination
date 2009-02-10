@@ -59,6 +59,8 @@ void setSupression(double sup) {_supression = sup;}
 void setGain(double gain) {_gemGain = gain;}
 void setPrimChargeMode(bool opt) {_primChargeOnly = opt;}
 
+void setAliceMode(bool opt) {_ALICEmode = opt;}
+
 private:
 
  TString _pointBranchName;
@@ -88,6 +90,7 @@ private:
  double _WGas;			//obtained from PndTpcGas-Object
 
  bool _primChargeOnly;          //no Charge is created at gems if true
+ bool _ALICEmode;
  
  std::vector< std::vector<int> > _chargeMap;	//segmented map of net charge
  
