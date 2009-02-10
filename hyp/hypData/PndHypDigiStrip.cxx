@@ -1,0 +1,41 @@
+#include "PndHypDigiStrip.h"
+#include "PndHypDigi.h"
+
+PndHypDigiStrip::PndHypDigiStrip()
+{
+  //fIndex = -1;
+}
+
+PndHypDigiStrip::PndHypDigiStrip(Int_t index, Int_t detID, TString detName, Int_t fe, Int_t chan, Double_t charge): PndHypDigi(index,detID,detName,fe,charge)
+{
+// 	fIndex 	= index;
+// 	fDetID  = detID;
+// 	fDetName = detName;
+// 	fFE = fe;
+ 	fChannel = chan;
+// 	fCharge = charge;
+// 	fMCID = -1;
+}
+
+// const void PndHypDigiStrip::print(){
+// //      std::cout << *((PndHypStrip*)this) << std::endl;
+// }
+
+// Bool_t const HasNeighbour(const PndHypDigiStrip& d2)
+// 	{
+//  	  return true; // Dummy so far
+//  	}
+
+Bool_t PndHypDigiStrip::operator==(const PndHypDigiStrip& d2) const
+	{
+	  return (     //fIndex==d2.GetIndex()
+		       fDetID==d2.GetDetID()
+		       && fDetName==d2.GetDetName()
+		       && fFE==d2.GetFE()
+		     && fChannel==d2.GetChannel()
+		     && fCharge==d2.GetCharge()
+		       //  && fMCID==d2.GetMCID()
+		     );
+ 	}
+
+ClassImp(PndHypDigiStrip)
