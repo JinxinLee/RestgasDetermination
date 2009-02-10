@@ -28,13 +28,12 @@
   gSystem->Load("libMCStack");
   gSystem->Load("libField");
   gSystem->Load("libPassive");
-  gSystem->Load("libMvd");
   gSystem->Load("libEmc");
   gSystem->Load("libDrcProp");
   gSystem->Load("libDrc");
   gSystem->Load("libGen");
   gSystem->Load("libPGen");
-
+  
   gSystem->Load("libTrkBase");
   gSystem->Load("libGeane");
   gSystem->Load("libgenfit");
@@ -42,6 +41,9 @@
   gSystem->Load("libtpc");
   gSystem->Load("libtpcreco");
   gSystem->Load("librecotasks");
+
+  
+  gSystem->Load("libMvd");
 
 gSystem->ListLibraries();
 

@@ -44,6 +44,10 @@
 #include "TLorentzVector.h"
 #include "DetPlane.h"
 
+#include "AbsRecoHit.h"
+#include "TVector3.h"
+
+
 // Class Member definitions -----------
 
 
@@ -129,16 +133,32 @@ KalmanTask::Exec(Option_t* opt)
   for(Int_t itr=0;itr<ntracks;++itr){
     std::cout<<"starting track"<<itr<<std::endl;
     Track* trk=(Track*)_trackArray->At(itr);
+          
     // Load RecoHits 
-	try {
-	  trk->addHitVector(_theRecoHitFactory->createMany(trk->getCand()));
-	  std::cout<<trk->getNumHits()<<" hits in track "
-			   <<itr<<std::endl;
+    try {
+      trk->addHitVector(_theRecoHitFactory->createMany(trk->getCand()));
+      std::cout<<trk->getNumHits()<<" hits in track "
+	       <<itr<<std::endl;
     }
-	catch(FitterException& e) {
-	  std::cout << e.what() << std::endl;
-	  throw e;
-	}
+    catch(FitterException& e) {
+      std::cout << e.what() << std::endl;
+      throw e;
+    }
+    
+    std::vector<AbsRecoHit*> hits = trk->getHits();
+    std::cout<<"\nstd::vector<AbsRecoHit*> hits has "<< hits.size()<<" entries"<<std::endl;
+    
+    // HACK: print out hit positions:
+
+    std::cout<<"\n *** PndTpcSPHit positions ***"<<std::endl;
+    for(int hit=0; hit<hits.size(); hit++) {
+      PndTpcSPHit* the_sphit = dynamic_cast<PndTpcSPHit*>(hits[hit]);
+      TVector3 the_pos = the_sphit->getPos();
+      std::cout<<"("<<the_pos.X()<<", "<<the_pos.Y()<<", "<<the_pos.Z()<<");    ";
+      if(hit%4 == 0 && hit>0)
+	std::cout<<std::endl;
+    }
+	
     // Start Fitter
     try{
       std::cout<<"starting fit"<<std::endl;
@@ -150,9 +170,9 @@ KalmanTask::Exec(Option_t* opt)
 
     // Print Track Parameters after fit
     if(trk->getTrackRep(0)->getStatusFlag()==0){
-      //trk->getTrackRep(0)->Print();
-      DetPlane plane(TVector3(0,0,0.1),TVector3(1,0,0),TVector3(0,1,0));
-      TVector3 p3=trk->getTrackRep(0)->getMom(plane);
+      trk->getTrackRep(0)->Print();
+      //DetPlane plane(TVector3(0,0,0.1),TVector3(1,0,0),TVector3(0,1,0));
+      //TVector3 p3=trk->getTrackRep(0)->getMom(plane);
       double p=trk->getMom().Mag();
       _pH->Fill(p);
       

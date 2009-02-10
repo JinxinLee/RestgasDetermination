@@ -44,6 +44,7 @@ public:
   Int_t GetPdgCode()	{ return _nPDG; }
   Int_t GetMotherID()	{ return _motherID; }
   Double_t GetMCP()		{ return _pmc;	}
+  Double_t GetP()       {return _p;}
 
   // Modifiers -----------------------
 

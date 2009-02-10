@@ -225,7 +225,7 @@ TrackFitStatTask::Exec(Option_t* opt)
 	TrackFitStat* stat=new ((*_fitstatArray)[size]) TrackFitStat();
 	
 	if(track->getTrackRep(0)->getStatusFlag()!=0){
-		std::cout<<"Trackfit not successfull!"<<std::endl;
+		std::cout<<"Trackfit not successful!"<<std::endl;
 		continue;
 	}
 	
@@ -276,8 +276,8 @@ TrackFitStatTask::Exec(Option_t* opt)
 	double p, palt, pstart, q;
 	if(LSLREP){
 	  p=track->getMom().Mag();
-	  palt=1./fabs(track->getTrackRep(0)->getState()[4][0]);
-	  pstart=1./fabs(track->getTrackRep(0)->getStartState()[4][0]);
+	  //palt=1./fabs(track->getTrackRep(0)->getState()[4][0]);
+	  pstart=1.0; ///fabs(track->getTrackRep(0)->getStartState()[4][0]);
 	  q=track->getCharge();
 	
 	  std::cout<<"p="<<p<<"  q="<<q<<"  pstart="<<pstart<<std::endl;
@@ -328,7 +328,7 @@ TrackFitStatTask::Exec(Option_t* opt)
 			stat->setpmc(-10.0);
 			stat->setp(-100.0);
 		}
-#endif
+
 	//	else if(fabs(p-mcp)<0.01 && (mcit->second) && q==mcq )	{
 		if(fabs(p-mcp)<_precotol && (mcit->second) )	{	
 	//	if(mcit->second) 	{	//set properties of first track, momentum reconstruction not possible now
@@ -355,6 +355,7 @@ TrackFitStatTask::Exec(Option_t* opt)
 			stat->setpmc(-100.0);
 			stat->setp(-100.0);
 		}
+#endif
 		++mcit;
 		++index;
 	} // end loop over mc-tracks
