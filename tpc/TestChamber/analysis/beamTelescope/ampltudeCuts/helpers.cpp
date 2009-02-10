@@ -14,11 +14,16 @@ void ampDiffCut(const std::list<CsGEMCluster*> &clusterList, std::vector<TCclust
   double pitch=a->getPitch(detID);
   for(std::list<CsGEMCluster*>::const_iterator it =clusterList.begin();it!=clusterList.end();it++ ){
     double amp3=(*it)->GetAmp3();
+    double amp2=(*it)->GetAmp2();
     double amp1=(*it)->GetAmp1();
-    if(amp3-amp1>cut){
-      double x=((*it)->GetCenter())*pitch;
+    if((amp3-amp1>cut)&&(amp3-amp2>cut/3)){
+      double x=((*it)->GetCenter());
       //cout<<"x "<<x<<" pitch "<<pitch<<endl;
-      TVector3 pos(x,0,0);
+
+      if((x>=0&&x<16)||(x>128&&x<144)||(x>256&&x<267)){
+        continue;
+      }
+      TVector3 pos(x*pitch,0,0);
       TVector3 err(((*it)->GetErrCenter())*pitch,0.1,0.1);
       double amp((*it)->GetAmp3());
       TCcluster _c(pos,err,amp,detID);
