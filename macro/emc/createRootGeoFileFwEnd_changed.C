@@ -12,28 +12,35 @@
   const Int_t     kNumOfCrystals = 4;
 
   Double_t tr = 2.51875;             // Size of the Crystal in its center (cm)
+
+  Double_t b1 = 2.6000-0.5*tr;       // Back-tilted part (-Z direction) of the Crystal center (cm)
+  Double_t b2 = 2.4375-0.5*tr;       // Front-tilted part (+Z direction) of the Crystal center (cm)
+   
   Double_t dz,vert[20];              // Parameters for TGeoArb8 shape of crystal (cm)
   Double_t vert0[20],vertBox[20],vertSub[20],vertQuar[20];
 
   // Parameters for crystal shape:  front size:    24.375(mm) x 24.375(mm)
   //                                back  size:    26.0(mm) x 26.0(mm)
-  dz       = 10.000;
-  vert[0]  = 0.0000; 
-  vert[1]  = 0.0000;
-  vert[2]  = 0.0000;
-  vert[3]  = 2.6000;
-  vert[4]  = 2.6000;
-  vert[5]  = 2.6000;
-  vert[6]  = 2.6000;
-  vert[7]  = 0.0000;
-  vert[8]  = 0.0000;
-  vert[9]  = 0.0000;
-  vert[10] = 0.0000;
-  vert[11] = 2.4375;
-  vert[12] = 2.4375;  // Tapered right side the front face 
-  vert[13] = 2.4375;  // of the crystal (upper corner)
-  vert[14] = 2.4375;  // Tapered right side the front face
-  vert[15] = 0.0000;  // of the crystal (lower corner)
+   dz       = 10.000;
+   // first four vertices - in -Z direction
+   vert[0]  = -0.5*tr;  
+   vert[1]  = -0.5*tr;
+   vert[2]  = -0.5*tr;
+   vert[3]  = +b1;
+   vert[4]  = +b1;
+   vert[5]  = +b1;
+   vert[6]  = +b1;
+   vert[7]  = -0.5*tr;
+   
+   // second four vertices - in +Z direction
+   vert[8]  = -0.5*tr;
+   vert[9]  = -0.5*tr;
+   vert[10] = -0.5*tr;
+   vert[11] = +b2; 
+   vert[12] = +b2;     // Tapered right side the front face 
+   vert[13] = +b2;     // of the crystal (upper corner)
+   vert[14] = +b2;     // Tapered right side the front face
+   vert[15] = -0.5*tr; // of the crystal (lower corner)
    
   // Box size (4 crystals) - creation a SIZE for BOX shape
   for (Int_t i=0; i< 16; i++){
@@ -119,15 +126,16 @@
   gSystem->Load("libBase");
   gSystem->Load("libMCStack");
   gSystem->Load("libPassive");
-  
-  TString outfile= "../../geometry/emc_module3new.root";
-  TFile* fi = new TFile(outfile,"RECREATE");  
-  
-  CbmGeoLoader* geoLoad = new CbmGeoLoader("TGeo","CbmGeoLoader");
-  CbmGeoInterface *geoFace = geoLoad->getGeoInterface();
-  geoFace->setMediaFile("../../geometry/media_pnd.geo");
-  geoFace->readMedia();
-  geoFace->print();
+   
+   TString outfile= "../../geometry/emc_module3new.root";
+   
+   TFile* fi = new TFile(outfile,"RECREATE");  
+   
+   CbmGeoLoader* geoLoad = new CbmGeoLoader("TGeo","CbmGeoLoader");
+   CbmGeoInterface *geoFace = geoLoad->getGeoInterface();
+   geoFace->setMediaFile("../../geometry/media_pnd.geo");
+   geoFace->readMedia();
+   geoFace->print();
 
   CbmGeoMedia *Media =  geoFace->getMedia();
   CbmGeoBuilder *geobuild=geoLoad->getGeoBuilder();
@@ -205,8 +213,8 @@
   //TString medium="carbon";
   TString medium="air";
   name="BoxVol";
-  //BoxVol = new TGeoVolume(name,BoxShape,gGeoMan->GetMedium(medium));
-  BoxVol = new TGeoVolumeAssembly(name);
+  BoxVol = new TGeoVolume(name,BoxShape,gGeoMan->GetMedium(medium));
+  //BoxVol = new TGeoVolumeAssembly(name);
   
   // Translations and Rotations for Boxes are according to co-ordinate system 
   // which is in the center of the Subunit
@@ -244,7 +252,7 @@
     trrotBox->SetName(name);
     trrotBox->RegisterYourself();
     
-    SubunitVol->AddNode(BoxVol,b,trrotBox);
+    SubunitVol->AddNode(BoxVol,b,trrotBox);    
   }
   
   // ========== CRYSTAL (TGeoArb8 shape)=================
@@ -261,26 +269,26 @@
   CrystalVol->SetLineColor(5);
   for(Int_t k=0; k<kNumOfCrystals; k++){
     cout << "               " << endl;
-    cout << "         ----->  CRYSTAL number: "<< k << endl;
-    if (k==0){     
-      trCrystal = new TGeoTranslation(0.5*kSpaceInBox,0.5*kSpaceInBox,0.);
-      rotCrystal = new TGeoRotation() ; // "right-upper" Crystal
-    }else if (k==1){
-      trCrystal= new TGeoTranslation(-0.5*kSpaceInBox,-0.5*kSpaceInBox,0.); 
-      rotCrystal = new TGeoRotation();  // "left-lower" Crystal
-      rotCrystal.RotateZ(180.);      
-    }else if (k==2){
-      trCrystal= new TGeoTranslation(-0.5*kSpaceInBox,0.5*kSpaceInBox,0.); 
-      rotCrystal = new TGeoRotation();  // "left-upper" Crystal
-      rotCrystal.RotateZ(90.);       
-    }else if (k==3){
-      trCrystal= new TGeoTranslation(0.5*kSpaceInBox,-0.5*kSpaceInBox,0.); 
-      rotCrystal = new TGeoRotation() ; // "right-lower" Crystal
-      rotCrystal.RotateZ(270.);      
-    }
-    TGeoCombiTrans* trrotCrystal= new TGeoCombiTrans(trCrystal,rotCrystal); 
-    name = "CrystalVol";
-    name+=k;
+     cout << "         ----->  CRYSTAL number: "<< k << endl;
+     if (k==0){     
+	trCrystal = new TGeoTranslation(tr/2.+0.5*kSpaceInBox,tr/2.+0.5*kSpaceInBox,0.);
+	rotCrystal = new TGeoRotation() ; // "right-upper" Crystal
+     }else if (k==1){
+	trCrystal= new TGeoTranslation(-tr/2.-0.5*kSpaceInBox,-tr/2.-0.5*kSpaceInBox,0.); 
+	rotCrystal = new TGeoRotation();  // "left-lower" Crystal
+	rotCrystal.RotateZ(180.);      
+     }else if (k==2){
+	trCrystal= new TGeoTranslation(-tr/2.-0.5*kSpaceInBox,tr/2.+0.5*kSpaceInBox,0.); 
+	rotCrystal = new TGeoRotation();  // "left-upper" Crystal
+	rotCrystal.RotateZ(90.);       
+     }else if (k==3){
+	trCrystal= new TGeoTranslation(tr/2.+0.5*kSpaceInBox,-tr/2.-0.5*kSpaceInBox,0.); 
+	rotCrystal = new TGeoRotation() ; // "right-lower" Crystal
+	rotCrystal.RotateZ(270.);      
+     }
+     TGeoCombiTrans* trrotCrystal= new TGeoCombiTrans(trCrystal,rotCrystal); 
+     name = "CrystalVol";
+     name+=k;
     trrotCrystal->SetName(name);
     trrotCrystal->RegisterYourself();
     
@@ -343,7 +351,7 @@
 	thAngle->SetName(name);
 	thAngle->RegisterYourself();                 
       
-	QuarterVol->AddNode(SubunitVol,jj,thAngle);
+	QuarterVol->AddNode(SubunitVol,jj,thAngle); // right-upper Quarter
       }
     }
   }
@@ -356,31 +364,31 @@
   trrotQuar->SetName(name);
   trrotQuar->RegisterYourself();
   
-  top->AddNode(QuarterVol,1,trrotQuar); //Quarter of EMC 
+   top->AddNode(QuarterVol,1,trrotQuar); //Quarter of EMC 
     
    for (Int_t q=1; q<=3; q++){
     TGeoCombiTrans reflection; 
     TGeoTranslation ttt;
     if (q==1){
-      reflection.ReflectX(1);
+      reflection.ReflectX(1); // left-upper Quarter
       ttt = new TGeoTranslation(-0.5*sizeOfQuar,0.5*sizeOfQuar,0.);
     }
     if (q==2){
-      reflection.ReflectY(1); 
+      reflection.ReflectY(1); // right-lower Quarter
       ttt = new TGeoTranslation(0.5*sizeOfQuar,-0.5*sizeOfQuar,0.);
     }
     if (q==3){
       reflection.ReflectY(1);
-      reflection.ReflectX(1);
+      reflection.ReflectX(1); // left-lower Quarter
       ttt = new TGeoTranslation(-0.5*sizeOfQuar,-0.5*sizeOfQuar,0.);
     }
 
-    top->AddNode(QuarterVol,q+1,new TGeoCombiTrans(ttt,reflection)); 
+      top->AddNode(QuarterVol,q+1,new TGeoCombiTrans(ttt,reflection)); 
   }
   
   gGeoMan->CloseGeometry();
   top->Write();
   fi->Close();
-  //gGeoManager->Export(outfile);//
-  //top->Draw();//
+   //gGeoManager->Export(outfile);//
+   //top->Draw();//
 }  
