@@ -22,8 +22,9 @@
   
   // Input file (MC events)
   TString inDir="/afs/e18/panda/DATA/fboehmer/dipl_data/SpaceCharge/07_01_2009/";
-  inDir+="GEANT3_ALICE_settings/";
-  TString jobname="2Gev_G3ALICE_el_and_inel_10k_evts";
+  TString job="GEANT3_ALICE_highN_LOSS2";
+  inDir+=(job+"/");
+  TString jobname="2Gev_G3_ALICE_highN_LOSS2_el_and_inel_10k_evts";
 
   TString inFile=inDir+jobname;
   inFile+=".mc.root";
@@ -130,7 +131,7 @@ CbmRootManager::Instance()->GetOutFile()->mkdir("QAPlots");
 CbmRootManager::Instance()->GetOutFile()->cd("QAPlots");
 qa->Write();
 
-tpcSP->writeToFile("SpaceChargeTest.dat");
+tpcSP->writeToFile(outDir+"SpaceCharge"+job+".dat");
 
   // -----   Finish   -------------------------------------------------------
 

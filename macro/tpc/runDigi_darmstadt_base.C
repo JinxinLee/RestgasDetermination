@@ -17,12 +17,12 @@
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 1;
 
-  Int_t nEvents=5000;
+  Int_t nEvents=10000;
   
   // Input file (MC events)
   //TString inDir="/afs/e18/panda/DATA/MC_data_snapshot_darmstadt/150cm/";
-  TString inDir="/afs/e18/panda/DATA/MC_data_snapshot_darmstadt/150cm/";
-  TString jobname="150cm_0.2GeV_15deg_withMVD";
+  TString inDir="/lustre/e18/user/fboehmer/DATA/darmstadt_overhaul/150cm/";
+  TString jobname="JOBNAME";
 
   TString inFile=inDir+jobname;
   inFile+=".mc.root";
@@ -117,7 +117,7 @@ std::cout<<"ParamOut: "<<paramOut<<std::endl;
     // -----    Digi Sequence  --------------------------------------------
   PndTpcClusterizerTask* tpcClusterizer = new PndTpcClusterizerTask();
   tpcClusterizer->SetPersistence();
-  tpcClusterizer->SetMereChargeConversion();  //ONLY USE THIS WHEN USING ALICE SETTINGS WITH GEANT3
+  tpcClusterizer->SetMereChargeConversion();
   fRun->AddTask(tpcClusterizer);
   
 

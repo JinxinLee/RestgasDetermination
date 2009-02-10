@@ -30,9 +30,8 @@
   
   // set the MC version used
   // ------------------------
-  TString GEANT = "TGeant3";
-  
-  fRun->SetName(GEANT);
+
+  fRun->SetName("TGeant3");
   // Choose the Geant Navigation System
   // fRun->SetGeoModel("G3Native");
   
@@ -40,43 +39,35 @@
 
   TString PANDAMC=gSystem->Getenv("PANDAMC");
 
-  TString jobname="2Gev_G3_orig_el_and_inel_10k_evts";
-  TString basejobdir="/afs/e18/panda/DATA/fboehmer/dipl_data/SpaceCharge/13_01_2009/";
-  TString jobdir=basejobdir+"GEANT3_orig/";
-  TString copy = jobdir;
-  
-//jobdir.ReplaceAll("$PANDAMC",PANDAMC);
-  //jobdir+="/";
+  TString jobname="JOBNAME";
+  TString jobdir="/lustre/e18/user/fboehmer/DATA/darmstadt_overhaul/150cm/";
+  // jobdir.ReplaceAll("$PANDAMC",PANDAMC);
+ //  jobdir+=jobname;
+//   jobdir+="/";
   // TString cmd="mkdir ";
-  //   cmd+=jobdir;
-  //   if(gSystem->Exec(cmd)) {
-  //     std::cout<<"Could not create Job-Directory "<<jobdir<<". Aborting."<<std::endl;
-  //     return;
-  //   }
-  jobdir+=jobname;
+//   cmd+=jobdir;
+//   if(gSystem->Exec(cmd)) {
+//     std::cout<<"Could not create Job-Directory "<<jobdir<<". Aborting."<<std::endl;
+//     return;
+//   }
 
-  TString base=jobdir;//base+="10k_events_G3";
-  TString outfile=base+".mc.root";
+  TString base=jobdir+jobname; //base+="test1";
+  TString outfile=base+".mc.root"; 
   TString dbfile=base+".param.root";
 
   fRun->SetOutputFile(outfile);
-
-  //SET USER CONFIG AND CUTS:
-  fRun->SetUserCuts(copy+"SetCuts.C");
-  if(GEANT=="TGeant3")
-    fRun->SetUserConfig(copy+"g3Config.C");
-  if(GEANT=="TGeant4")
-    fRun->SetUserConfig(copy+"g4Config.C");  
   
 
   // Set Material file Name
   //-----------------------
+
   fRun->SetMaterials("media_pnd.geo");
   
 
 
   // Create and add detectors
   //-------------------------
+
   CbmModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave);
@@ -92,9 +83,8 @@
   
   PndTpcDetector *PndTpc = new PndTpcDetector("TPC", kTRUE);
   PndTpc->SetGeometryFileName("tpc.geo");
-  //ALICE Style MC (only for G3):
-  //PndTpc->SetAliMC();
-
+  //ALICE Style MC:
+  PndTpc->SetAliMC();
   //------------------
   fRun->AddModule(PndTpc);
   
@@ -103,9 +93,9 @@
   //fRun->AddModule(Sts);
 
 
-  //CbmDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
-  //Mvd->SetGeometryFileName("MVD14.root");
-  //fRun->AddModule(Mvd);
+  CbmDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
+  Mvd->SetGeometryFileName("MVD14.root");
+  fRun->AddModule(Mvd);
   
   //CbmDetector *Emc = new CbmEmc("EMC",kTRUE);
   //Emc->SetGeometryFileName("emc_module1234.dat");
@@ -146,20 +136,19 @@
  // Box Generator
 
   // pdgs 211=pion 13=muon 11=electron
- //  CbmBoxGenerator* boxGen = new CbmBoxGenerator(211, 1); // 13 = muon; 1 = multipl.
-//    boxGen->SetPRange(1.2,1.2); // GeV/c //setPRange vs setPtRange
-//    boxGen->SetPhiRange(0, 360); // Azimuth angle range [degree]
-//    boxGen->SetThetaRange(20, 20); // Polar angle in lab system range [degree]
-//    boxGen->SetXYZ(0., 0., 0.); // mm o cm ??
-//    primGen->AddGenerator(boxGen);
+  CbmBoxGenerator* boxGen = new CbmBoxGenerator(211, 1); // 13 = muon; 1 = multipl.
+   boxGen->SetPRange(MOMENTUM,MOMENTUM); // GeV/c //setPRange vs setPtRange
+   boxGen->SetPhiRange(0, 360); // Azimuth angle range [degree]
+   boxGen->SetThetaRange(THETA, THETA); // Polar angle in lab system range [degree]
+   boxGen->SetXYZ(0., 0., 0.); // mm o cm ??
+   primGen->AddGenerator(boxGen);
 
   //CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
   //fRun->SetGenerator(primGen);
 
-  //DPM
-  TString dpmfile = basejobdir+"10k_2Gev_el_and_inel_DPMDATA.root";
-  PndDpmGenerator* dpmGen = new PndDpmGenerator(dpmfile);
-  primGen->AddGenerator(dpmGen);  
+   // DPM
+   //PndDpmGenerator* dpmGen = new PndDpmGenerator("data/dpm2GeV.root");
+   //primGen->AddGenerator(dpmGen);  
    
    
    //CbmEvtGenGenerator* evtGen = new CbmEvtGenGenerator("../data/evtgen.y4260.jpsipipi.vvpipi.dat");
@@ -186,8 +175,8 @@
 
   fRun->SetField(fMagField);
    
-  //fRun->SetStoreTraj(kTRUE);
-  fRun->SetStoreTraj(kFALSE);
+   fRun->SetStoreTraj(kTRUE);
+   //fRun->SetStoreTraj(kFALSE);
     
    std::cout<<"Starting INIT"<<std::endl;
    fRun->Init();
@@ -236,6 +225,8 @@
   timer.Stop();
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
- printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
+  printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
+  std::cout<<"Output file was "<<outfile<<std::endl;
+  std::cout.flush();
 }  
   

@@ -34,10 +34,10 @@
   TString PANDAMC=gSystem->Getenv("PANDAMC");
 
   // Input file (RAW events)
-  TString inDir="/afs/e18/panda/DATA/MC_data_snapshot_darmstadt/150cm/";
+  TString inDir="/lustre/e18/user/fboehmer/DATA/darmstadt_overhaul/150cm/";
   TString digiDir=inDir+"digi/";
   
-  TString jobname="150cm_0.8GeV_60deg_withMVD";
+  TString jobname="JOBNAME";
   TString inFile=digiDir+jobname;
   inFile+=".raw.root";
 
@@ -153,6 +153,7 @@
 
   PndTpcIdealTrackingTask* tpcIPR = new PndTpcIdealTrackingTask();
   tpcIPR->useGeane();
+  tpcIPR->useDistSorting(kTRUE);
   fRun->AddTask(tpcIPR);
   tpcIPR->SetPersistence();
 
@@ -171,7 +172,7 @@
   KalmanTask* kalman =new KalmanTask();
   kalman->SetPersistence();
   kalman->SetLazy(false); // be strict with errors that occur
-  kalman->SetNumIterations(1); // number of fitting iterations (back and forth)
+  kalman->SetNumIterations(3); // number of fitting iterations (back and forth)
   fRun->AddTask(kalman);
 
 
