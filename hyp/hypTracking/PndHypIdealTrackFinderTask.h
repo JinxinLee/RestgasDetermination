@@ -1,0 +1,86 @@
+
+/** PndMvdIdealTrackFinderTask.h
+ *@author Tobias Stockmanns <t.stockmanns@fz-juelich.de>
+ **
+ ** Ideal cluster finding task 
+ */
+
+
+#ifndef PndHypIdealTrackFinderTASK_H
+#define PndHypIdealTrackFinderTASK_H 
+
+#include "CbmTask.h"
+#include "CbmMCTrack.h"
+#include "PndGeoHypPar.h"
+#include "PndHypHit.h"
+#include "PndHypPoint.h"
+//#include "PndHypPixel.h"
+//#include "PndHypClusterCand.h"
+#include "TrackCand.h"
+#include "PndHypCluster.h"
+#include <string>
+#include <vector>
+ 
+class TClonesArray;
+
+class PndHypIdealTrackFinderTask : public CbmTask
+{
+ public:
+
+    /** Default constructor **/  
+    PndHypIdealTrackFinderTask();
+    /** Destructor **/
+    virtual ~PndHypIdealTrackFinderTask();
+
+
+    /** Virtual method Init **/
+    virtual void SetParContainers();
+    virtual InitStatus Init();
+    virtual InitStatus ReInit();
+
+    /** Virtual method Exec **/
+    virtual void Exec(Option_t* opt);
+    
+    void PrintResult();
+    void SetVerbose(Int_t verbose){ fVerbose = verbose;};
+
+
+ private:
+   
+    //std::vector<Int_t> GetHitPerCluster(PndHypCluster* clusterCand);
+   void ClearTrackCandMap();
+   void AddAndExpand(Int_t trackID, Int_t detnum, Int_t iHit);
+   Double_t GetTrackDip(CbmMCTrack* myTrack);
+   Double_t GetTrackCurvature(CbmMCTrack* myTrack);
+   
+   TString fHitBranchStrip;
+   //TString fClusterBranchStrip;
+   //TString fDigiBranchStrip;
+   TString fMcBranch;
+   TString fTrackBranch;
+   
+    /** Input array of PndHypDigis **/
+     TClonesArray* fStripHitArray;
+     //TClonesArray* fStripClusterArray;
+     //TClonesArray* fStripDigiArray;
+     TClonesArray* fMcArray;
+     TClonesArray* fTrackArray;
+
+  /** Output array of PndHypHits **/
+      TClonesArray* fTrackCandArray;
+      std::map<Int_t, TrackCand*> fTrackCandMap;
+      
+      Int_t fVerbose;
+
+  
+  void Register();
+  void Reset();  
+  void ProduceHits();
+ 
+
+  ClassDef(PndHypIdealTrackFinderTask,2);
+
+};
+
+#endif /* PndHypIdealTrackFinderTASK_H */
+

@@ -1,0 +1,222 @@
+// -------------------------------------------------------------------------
+// -----                CbmStsHitProducerIdeal source file             -----
+// -----                  Created 10/01/06  by V. Friese               -----
+// -------------------------------------------------------------------------
+
+
+#include "TClonesArray.h"
+#include "TArrayD.h"
+#include "TGeoManager.h"
+
+#include "CbmRootManager.h"
+#include "CbmRunAna.h"
+#include "CbmRuntimeDb.h"
+
+#include "PndHypIdealTrackFinderTask.h"
+#include "PndHypDigiStrip.h"
+//#include "PndHypDigiPixel.h"
+//nclude "PndHypPixelCluster.h"
+
+
+// -----   Default constructor   -------------------------------------------
+PndHypIdealTrackFinderTask::PndHypIdealTrackFinderTask() :
+  CbmTask("HYP Ideal Track Finding Task")
+{
+  fHitBranchStrip = "HypHit";
+   //fHitBranchPixel = "MVDHitsPixel";
+  /* fClusterBranchStrip = "MVDStripClusterCand";
+  //fClusterBranchPixel = "MVDClusterCand";
+  fDigiBranchStrip = "MVDStripDigis"; 
+  //fDigiBranchPixel = "MVDPixelDigis";*/
+  
+  fMcBranch = "HypPoint";
+  fTrackBranch = "MCTrack";
+}
+
+
+// -------------------------------------------------------------------------
+
+
+// -----   Destructor   ----------------------------------------------------
+PndHypIdealTrackFinderTask::~PndHypIdealTrackFinderTask() 
+{ 
+}
+// -------------------------------------------------------------------------
+
+// -----   Initialization  of Parameter Containers -------------------------
+void PndHypIdealTrackFinderTask::SetParContainers()
+{
+  // Get Base Container
+/*  
+  CbmRunAna* ana = CbmRunAna::Instance();
+  CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+  fGeoPar = (PndHypGeoPar*)(rtdb->getContainer("PndHypGeoPar"));
+*/
+}
+
+InitStatus PndHypIdealTrackFinderTask::ReInit()
+{
+  
+  InitStatus stat=kERROR;
+  return stat;
+  
+  /*
+  CbmRunAna* ana = CbmRunAna::Instance();
+  CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+  fGeoPar=(PndHypGeoPar*)(rtdb->getContainer("PndHypGeoPar"));
+  
+  return kSUCCESS;
+  */
+}
+
+// -----   Public method Init   --------------------------------------------
+InitStatus PndHypIdealTrackFinderTask::Init() 
+{
+  
+  CbmRootManager* ioman = CbmRootManager::Instance();
+
+  if ( ! ioman ) 
+    {
+      std::cout << "-E- PndHypIdealTrackFinderTask::Init: "
+     << "RootManager not instantiated!" << std::endl;
+      return kFATAL;
+    }
+    
+
+// Get input array
+  fStripHitArray = (TClonesArray*) ioman->GetObject(fHitBranchStrip);
+  if ( !fStripHitArray){
+    std::cout << "-W- PndHypIdealTrackFinderTask::Init: " << "No hitArray!" << std::endl;
+    return kERROR;
+  }
+  
+ /* fStripClusterArray = (TClonesArray*) ioman->GetObject(fClusterBranchStrip);
+  if ( !fStripClusterArray){
+    std::cout << "-W- PndHypIdealTrackFinderTask::Init: " << "No clusterArray!" << std::endl;
+    return kERROR;
+  }
+
+  fStripDigiArray = (TClonesArray*) ioman->GetObject(fDigiBranchStrip);
+  if ( !fStripDigiArray){
+    std::cout << "-W- PndHypIdealTrackFinderTask::Init: " << "No digiArray!" << std::endl;
+    return kERROR;
+  }
+
+*/
+  fMcArray = (TClonesArray*) ioman->GetObject(fMcBranch);
+  if ( !fMcArray){
+    std::cout << "-W- PndHypIdealTrackFinderTask::Init: " << "No mcArray!" << std::endl;
+    return kERROR;
+  }
+
+  fTrackArray = (TClonesArray*) ioman->GetObject(fTrackBranch);
+  if ( !fTrackArray){
+    std::cout << "-W- PndHypIdealTrackFinderTask::Init: " << "No trackArray!" << std::endl;
+    return kERROR;
+  }
+  
+
+  
+  fTrackCandArray = new TClonesArray("TrackCand");
+  ioman->Register("HypTrackCand", "HYP", fTrackCandArray, kTRUE);
+  
+  std::cout << "-I- PndHypIdealTrackFinderTask: Initialisation successfull" << std::endl;
+  return kSUCCESS;
+}
+// -------------------------------------------------------------------------
+
+
+
+// -----   Public method Exec   --------------------------------------------
+void PndHypIdealTrackFinderTask::Exec(Option_t* opt) 
+{
+// Reset output array
+  if ( ! fTrackCandArray )
+    Fatal("Exec", "No trackCandArray");
+  fTrackCandArray->Clear();
+
+  Int_t 
+    nStripHits = fStripHitArray->GetEntriesFast();
+
+  for (Int_t iHit = 0; iHit < nStripHits; iHit++){
+  PndHypHit* myHit = (PndHypHit*)(fStripHitArray->At(iHit));
+ 
+  /*PndHypCluster* myCluster =(PndHypCluster*)(fStripClusterArray->At(myHit->GetRefIndex()));
+  PndHypDigiStrip* astripdigi = (PndHypDigiStrip*)fStripDigiArray->At(myCluster->GetDigiIndex(0));*/
+
+  PndHypPoint* myPoint = (PndHypPoint*)(fMcArray->At(myHit->GetRefIndex()));
+  
+  AddAndExpand(myPoint->GetTrackID(),2,iHit);
+  }
+  
+  
+  if(fVerbose>0) PrintResult();
+
+  Int_t i = 0;
+  for (std::map<Int_t,TrackCand*>::const_iterator ci=fTrackCandMap.begin();
+       ci != fTrackCandMap.end(); ci++){
+    new((*fTrackCandArray)[i]) TrackCand(*(ci->second));
+    i++;
+  }
+  ClearTrackCandMap();
+  fMcArray->Delete();
+  fTrackArray->Delete();
+  
+}
+ 
+
+void PndHypIdealTrackFinderTask::AddAndExpand(Int_t trackID, Int_t detnum, Int_t iHit){
+  if (fTrackCandMap[trackID] == 0){
+    TrackCand *myTCand = new TrackCand();
+    CbmMCTrack* myMCTrack = (CbmMCTrack*)fTrackArray->At(trackID);
+    myTCand->setCurv(GetTrackCurvature(myMCTrack));
+    myTCand->setDip(GetTrackDip(myMCTrack));
+    myTCand->setInverted(false);
+    //myTCand->setMCID(trackID);
+    fTrackCandMap[trackID] = myTCand;
+  }
+  fTrackCandMap[trackID]->addHit(detnum,iHit);
+}
+
+
+Double_t PndHypIdealTrackFinderTask::GetTrackCurvature(CbmMCTrack* myTrack)
+{
+  TVector3 p = myTrack->GetMomentum();
+  return (2/TMath::Sqrt(p.Px()*p.Px() + p.Py()*p.Py()));
+}
+
+Double_t PndHypIdealTrackFinderTask::GetTrackDip(CbmMCTrack* myTrack)
+{
+  TVector3 p= myTrack->GetMomentum();
+  return (p.Mag()/TMath::Sqrt(p.Px()*p.Px() + p.Py()*p.Py()));
+}
+
+void PndHypIdealTrackFinderTask::PrintResult()
+{
+  std::cout << "**** TrackFinding *****" << std::endl; 
+  Int_t nStripHits = fStripHitArray->GetEntriesFast();
+   for (std::map<Int_t, TrackCand*>::const_iterator ci=fTrackCandMap.begin();
+        ci != fTrackCandMap.end(); ci++){
+     std::cout << "TrackID: " << ci->first << std::endl;
+     TrackCand* trackCand = ci->second;
+     for (unsigned int i = 0; i < trackCand->getNHits(); i++){
+       unsigned int detId, hitId;
+       trackCand->getHit(i, detId, hitId);
+       PndHypHit* myHit; 
+       myHit = (PndHypHit*)fStripHitArray->At(hitId);
+       std::cout << "Detector no. " << detId <<": "<< *myHit;
+     } 
+   }
+   std::cout << std::endl;
+}
+
+void PndHypIdealTrackFinderTask::ClearTrackCandMap()
+{
+  for (std::map<Int_t,TrackCand*>::const_iterator ci=fTrackCandMap.begin();
+          ci != fTrackCandMap.end(); ci++){
+    delete(ci->second);
+  }
+  fTrackCandMap.clear();
+}
+ClassImp(PndHypIdealTrackFinderTask)
+
