@@ -41,6 +41,9 @@ public:
   /** public method SetPersistence(Bool_t opt) **/
   void SetPersistence(Bool_t opt=kTRUE) {fPersistence=opt;}
 
+  /** public method SetPersistence(Bool_t opt) **/
+  void SetApproach(Int_t approach) {fApproach=approach;}
+
   /** public method Init() **/
   virtual InitStatus Init();
 
@@ -64,15 +67,19 @@ private:
   TClonesArray* fDchTrackMatchArray;///< pointer to array of DchTrackMatches
   
   Bool_t fPersistence;   ///< persistence flag
-  
-  TH1D* fhP;             ///< momentum histogram;
-  TH2D* fThetaH;         ///< theta histogram;
-  TH2D* fPhiH;           ///< phi histogram;
-  TH1D* fhChi2;          ///< chi2 histogram;
+    
+  TH1D* fhP;             ///< momentum pull distribution;
+  TH1D* fhPx;             ///< x-momentum pull distribution;
+  TH1D* fhPy;             ///< y-momentum pull distribution;
+  TH1D* fhPz;             ///< z-momentum pull distribution;
+  TH2D* fThetaH;         ///< theta pull distribution;
+  TH2D* fPhiH;           ///< phi pull distribution;
+  TH1D* fhChi2;          ///< chi2 pull distribution;
   TCanvas* fCanvas;      ///< pointer to a canvas for drawing fit results
   
   Int_t fTrackcount;       ///< track counter
   Int_t fEvt;              ///< event counter
+  Int_t fApproach;       ///< choice of where to compare track parameters with MC
 
   /** private method WriteHistograms()
       writes out histograms with results of fitting into a file **/

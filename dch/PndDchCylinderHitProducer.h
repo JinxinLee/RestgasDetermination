@@ -57,6 +57,18 @@ class PndDchCylinderHitProducer : public CbmTask{
 	PndDchMapper* fDchMapper;       ///< mapper of dch
 	PndDchDrifter* fDchDrifter;     ///< drifter of dch
 
+        /** Private method with parametrised detection efficiency **/
+	Double_t Efficiency(Double_t fracDist);
+
+        /** Private method with parametrised position resolution **/
+	Double_t Resolution(Double_t fracDist);
+
+        /** Private method deciding if to convert into a chit **/
+	Bool_t Accept(Double_t fracDist);
+
+	/** Private method to smear the distance from wire **/
+	Double_t SmearDistance(Double_t dist, Double_t cellsize);
+	  
     ClassDef(PndDchCylinderHitProducer,1);
     
 };

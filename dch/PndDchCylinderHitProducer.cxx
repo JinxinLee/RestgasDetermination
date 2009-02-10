@@ -126,13 +126,14 @@ void PndDchCylinderHitProducer::Exec(Option_t* opt) {
 	  ch = digi->GetChamber();
 	  pl = digi->GetPlane();
 	  drTime = digi->GetDriftTime();
-	  
 	  detID = fDchMapper->CalculateDetectorID(ch,pl);
 	  cellSize = fDchStructure->GetCellSize(detID);
-	  fDchDrifter->CalculateDistance(drTime,dist);
-	  dist *= cellSize;
-	  distErr = (ch==1? 0.005 : 0.02); //hard-coded exp. values
-	  dist += gRandom->Gaus(0.0, distErr); //smear distance
+	  fDchDrifter->CalculateDistance(drTime,dist); // 0<=dist<=0.5
+	  Double_t smearedDist = SmearDistance(dist*cellSize, cellSize/2.);
+	  if(0==Accept(2.*smearedDist/cellSize))
+	    continue;
+	  distErr = Resolution(2.*dist);
+	  dist = smearedDist;
 	  alpha = fDchStructure->GetTransMatrix(detID)->GetRotation()->GetPhiRotation();
 	  const Double_t* translation = fDchStructure->GetTransMatrix(detID)->GetTranslation();
 	  zGlo = translation[2];
@@ -216,6 +217,36 @@ PndDchCylinderHit* PndDchCylinderHitProducer::AddCylinderHit(Int_t digiidx, Doub
 					    dist, distErr, alpha, end1, end2);
 }
 // -------------------------------------------------------------------------
+
+
+Double_t PndDchCylinderHitProducer::Efficiency(Double_t fracDist){
+  if (fracDist >= 0   && fracDist <= 0.91) return 1.;
+  if (fracDist > 0.91 && fracDist <= 0.94) return 0.9;
+  if (fracDist > 0.94 && fracDist <= 0.97) return 0.89;
+  if (fracDist > 0.97 && fracDist <= 0.99) return 0.76;
+  return 0;
+}
+
+Bool_t PndDchCylinderHitProducer::Accept(Double_t fracDist){
+  if (Efficiency(fracDist)>=0 && Efficiency(fracDist) >= gRandom->Uniform(1)) 
+    return 1;
+  else
+    return 0;
+}
+
+Double_t PndDchCylinderHitProducer::Resolution(Double_t fracDist){
+  Double_t res;
+  res = (0.1568-0.227*fracDist+0.121*fracDist*fracDist);
+  return res;
+}
+
+Double_t PndDchCylinderHitProducer::SmearDistance(Double_t dist, Double_t cellsize){
+  Double_t newd;
+  newd = gRandom->Gaus(dist,Resolution(dist/cellsize));
+  return fabs(newd);
+}
+
+
 
 
 ClassImp(PndDchCylinderHitProducer)
