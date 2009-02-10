@@ -172,6 +172,7 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
     
     for (int i = 0 ; i< fNVAR; i++){
       varName = fVarNameArray.at(i);
+      
       //FIXME if stt is included and is nan we need to skip the 
       // total event, restructure the CODE.
       if (varName == "stt"){

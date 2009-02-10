@@ -81,23 +81,19 @@ class PndMultiClassMVA
    // "Normalise:H:!V:NeuronType=tanh:NCycles=200:HiddenLayers=N+1,N:TestRate=5"
    void SetMLPNeuronType(const TString NtMLP){
    	mlpNeuTyp = NtMLP;
-   	//mlpNeuTyp = "tanh";//DEBUG
    	};
    void SetNuOfCycle(const int NumCycle){
    	std::stringstream out;
    	out << NumCycle;
    	mlpCycle = out.str();
-   	//mlpCycle = "10";//DEBUG
    	};
    void SetNumOfHiddenLayers(const TString NumHidLayer){
    	mlpNumHidden = NumHidLayer;
-   	//mlpNumHidden = "N=1,N";//DEBUG
    	};
    void SetTestRate(const int TestR){
    	std::stringstream out;
    	out << TestR;
    	mlpTestRate = out.str();
-   	//mlpTestRate = "5";//DEBUG
    	};
    
   //data accessers
