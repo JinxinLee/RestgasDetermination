@@ -9,7 +9,7 @@
 #include "TGeoManager.h"
 
 #include "CbmRootManager.h"
-#include "CbmRunAna.h"
+#include "CbmRun.h"
 #include "CbmRuntimeDb.h"
 #include "CbmGeoNode.h"
 #include "CbmGeoVector.h"
@@ -33,7 +33,7 @@ PndMvdIdealClusterTask::PndMvdIdealClusterTask() :
   CbmTask("MVD Clustertisation Task")
 {
   fBranchName   = "MVDPixelDigis";
-  
+
   TGeoManager* geoMan;// = new TGeoManager("geoMan","geoMan");
   //geoMan->Import("PndMvdG4_DPM15fE+i_10000.root","CBMGeom");
   geoMan = gGeoManager;
@@ -42,7 +42,7 @@ PndMvdIdealClusterTask::PndMvdIdealClusterTask() :
 }
 
 PndMvdIdealClusterTask::PndMvdIdealClusterTask(Double_t radius, Int_t FEcolumns, Int_t FErows, TString geoFile) :
-  CbmTask("MVD Clustertisation Task") 
+  CbmTask("MVD Clustertisation Task")
 {
   fBranchName   = "MVDPixelDigis";
 //  fDigiArray  = new TClonesArray("PndMvdDigiPixel");
@@ -64,8 +64,8 @@ PndMvdIdealClusterTask::PndMvdIdealClusterTask(Double_t radius, Int_t FEcolumns,
 
 
 // -----   Destructor   ----------------------------------------------------
-PndMvdIdealClusterTask::~PndMvdIdealClusterTask() 
-{ 
+PndMvdIdealClusterTask::~PndMvdIdealClusterTask()
+{
 }
 // -------------------------------------------------------------------------
 
@@ -73,7 +73,7 @@ PndMvdIdealClusterTask::~PndMvdIdealClusterTask()
 void PndMvdIdealClusterTask::SetParContainers()
 {
   // Get Base Container
-/*  
+/*
   CbmRun* ana = CbmRun::Instance();
   CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
   fGeoPar = (PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar"));
@@ -82,46 +82,46 @@ void PndMvdIdealClusterTask::SetParContainers()
 
 InitStatus PndMvdIdealClusterTask::ReInit()
 {
-  
+
   InitStatus stat=kERROR;
   return stat;
-  
+
   /*
-  CbmRunAna* ana = CbmRunAna::Instance();
+  CbmRun* ana = CbmRun::Instance();
   CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
   fGeoPar=(PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar"));
-  
+
   return kSUCCESS;
   */
 }
 
 // -----   Public method Init   --------------------------------------------
-InitStatus PndMvdIdealClusterTask::Init() 
+InitStatus PndMvdIdealClusterTask::Init()
 {
-  
+
   CbmRootManager* ioman = CbmRootManager::Instance();
 
-  if ( ! ioman ) 
+  if ( ! ioman )
     {
       std::cout << "-E- PndMvdIdealClusterTask::Init: "
      << "RootManager not instantiated!" << std::endl;
       return kFATAL;
     }
-    
+
   // Get input array
   fDigiArray = (TClonesArray*) ioman->GetObject(fBranchName);
 
-  if ( ! fDigiArray ) 
+  if ( ! fDigiArray )
     {
       std::cout << "-W- PndMvdIdealClusterTask::Init: "
      << "No MVDDigi array!" << std::endl;
       return kERROR;
   }
 
-  
+
   fHitArray = new TClonesArray("PndMvdHit");
   ioman->Register("PndMvdIdealClusterHit", "MVD", fHitArray, kTRUE);
-  
+
   fClusterArray = new TClonesArray("PndMvdCluster");
   ioman->Register("PndMvdCluster","MVD",fClusterArray,kTRUE);
 
@@ -133,7 +133,7 @@ InitStatus PndMvdIdealClusterTask::Init()
 
 
 // -----   Public method Exec   --------------------------------------------
-void PndMvdIdealClusterTask::Exec(Option_t* opt) 
+void PndMvdIdealClusterTask::Exec(Option_t* opt)
 {
   std::vector<PndMvdDigiPixel> DigiPixelArray;
   // Reset output array
@@ -145,7 +145,7 @@ void PndMvdIdealClusterTask::Exec(Option_t* opt)
     Fatal("Exec", "No HitArray");
   fHitArray->Clear();
 
-  Int_t 
+  Int_t
     nPoints = fDigiArray->GetEntriesFast();
 
   for (Int_t iPoint = 0; iPoint < nPoints; iPoint++){

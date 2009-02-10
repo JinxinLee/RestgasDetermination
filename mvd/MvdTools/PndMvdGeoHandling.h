@@ -20,6 +20,7 @@
 #define PNDMVDGEOHANDLING_H
 
 #include "TGeoManager.h"
+#include "TGeoMatrix.h"
 #include "TString.h"
 #include "TVector3.h"
 #include <string>
@@ -44,6 +45,8 @@ public:
   std::vector<TString> GetNamesLevel(Int_t level, TString startPath = "", bool fullPath = false);
   void GetOUVPath(TString path, TVector3& o, TVector3& u, TVector3& v); ///< for a volume given by its path the o, u, v vectors for the plane are returned
   void GetOUVId(TString id, TVector3& o, TVector3& u, TVector3& v); ///< for a volume given by its ID the o, u, v vectors for the plane are returned
+  TGeoHMatrix* GetMatrixPath(TString path);
+  TGeoHMatrix* GetMatrixId(TString id);
 
   TVector3 GetSensorDimensionsID(TString id);
   TVector3 GetSensorDimensionsPath(TString path);

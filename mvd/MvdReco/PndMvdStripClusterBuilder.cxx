@@ -36,68 +36,9 @@ void PndMvdStripClusterBuilder::Reinit()
   fLeftDigis.clear();
 }
 
-void PndMvdStripClusterBuilder::AddDigi(std::string detName, SensorSide side, Int_t strip, Int_t iPoint)
+void PndMvdStripClusterBuilder::AddDigi(std::string detName, SensorSide side, Int_t timestamp, Int_t strip, Int_t iPoint)
 {
-    fSortedDigis[detName][side][strip] = iPoint;
-}
-
-
-std::vector< PndMvdCluster >  PndMvdStripClusterBuilder::SearchClusters()
-{
-  ///  -----  search for clusters  -----
-  ///  Take neighbouring fired strips.
-  fClusters.clear();
-  fTopclusters.clear();
-  fBotclusters.clear();
-  std::vector< Int_t > onecluster;
-  Indexpair::iterator tempStrip;
-  //fSortedDigis[sensor][side][stripnr]=digiindex 
-  for (Fullmap::iterator itSensors = fSortedDigis.begin();
-        itSensors != fSortedDigis.end(); ++itSensors)
-  {
-    for (std::map<SensorSide,Indexpair>::iterator itSide = (itSensors->second).begin();
-          itSide != (itSensors->second).end(); ++itSide)
-    {
-//       std::cout<<"clsterfinder: ";
-//       if(itSide->first == kTOP) std::cout<<"top"<<std::endl;
-//       else std::cout<<"bottom"<<std::endl;
-
-      // create a flagmap 
-      Indexpair flagmap;
-      for (Indexpair::iterator itStrip = (itSide->second).begin(); itStrip!= (itSide->second).end(); ++itStrip)
-      {flagmap[itStrip->second]=1;}
-
-      for (Indexpair::iterator itStrip = (itSide->second).begin();
-            itStrip!= (itSide->second).end();itStrip++)
-      {
-        tempStrip=itStrip;
-        if( !(1==flagmap[itStrip->second]) ) continue;
-        for(Indexpair::iterator itStrip3 = itStrip; itStrip3 != (itSide->second).end(); ++itStrip3)
-        {
-          if( !(1==flagmap[itStrip3->second]) ) continue;
-          if( fabs(tempStrip->first - itStrip3->first) > 1) continue; // TODO parametrize this?
-          onecluster.push_back(itStrip3->second);
-          flagmap[itStrip3->second]=-1;//do not reuse this digi
-          tempStrip=itStrip3;
-//           std::cout<<"add strip "<<itStrip3->first << " from digi "<<itStrip3->second <<std::endl;
-        }
-//         std::cout<<" --- "<<std::endl; 
-        AddCluster(onecluster,itSide->first);
-        onecluster.clear();
-      } // end loop itStrip
-      if (onecluster.size()>0)
-      {
-          std::cout<<"mvd strip clusterfinder: cluster hangover? "<<onecluster.size()<<std::endl;
-          AddCluster(onecluster,itSide->first);
-          onecluster.clear();
-      }
-      for (Indexpair::iterator itflag = flagmap.begin(); itflag!= flagmap.end(); ++itflag)
-      {
-        if (1==itflag->second) fLeftDigis.push_back(itflag->first);
-      }
-    }// end loop it Side
-  }// end loop sensor
-  return fClusters;
+    fSortedDigis[detName][side][timestamp][strip] = iPoint;
 }
 
 PndMvdCluster PndMvdStripClusterBuilder::GetCluster(Int_t i)
@@ -140,39 +81,6 @@ void PndMvdStripClusterBuilder::AddCluster(const std::vector< Int_t >& onecluste
 
 
 ClassImp(PndMvdStripClusterBuilder);
-
-
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-
-// double PndMvdStripClusterBuilder::meanColumn(std::vector<PndMvdDigiPixel*>& list){
-//   double mean = 0.;
-//   if (list.size() == 0){
-//     std::cout<<" there are no channels in list to form cluster!"<<std::endl;
-//   }
-//   else{
-//     // loop over digis to get weighted mean
-//     double sumWeights = 0.;
-//     double sumChannel = 0.;
-//     for (int loopList = 0; loopList<list.size(); loopList++) {
-//       sumWeights += list[loopList]->getTot(); 
-//       sumChannel += list[loopList]->getTot() * list[loopList]->getColumn();
-//     }
-//     // calc the weighted mean
-//     mean = sumChannel/sumWeights;
-//   }
-//   return mean;
-// }
-// 
-// 
-// double PndMvdStripClusterBuilder::errMeanColumn(std::vector<PndMvdDigiPixel*>& list, double pitch){
-// 
-//   // only geometric resolution so far....
-//   double errMean = list.size()*pitch/sqrt(12);
-//   return errMean;
-// }
-
 
 
 

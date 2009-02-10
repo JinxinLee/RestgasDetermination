@@ -38,7 +38,6 @@
 
 class CbmVolume;
 
-
 // -----   Default constructor   -------------------------------------------
 PndMvdDetector::PndMvdDetector() : fUseRadDamOption(false) {
   fPndMvdCollection = new TClonesArray("PndMvdMCPoint");
@@ -154,9 +153,8 @@ Bool_t  PndMvdDetector::ProcessHits(CbmVolume* vol)
       }
 
      TString detPath = gMC->CurrentVolPath();
-     if (detPath.Contains("Strip")) fVolumeID = 0;
-     else fVolumeID = 1; //Pixel
-     AddHit(fTrackID, fVolumeID, fGeoH->GetID(detPath),
+     //TODO Add detector index here properly!!!
+     AddHit(fTrackID, kMVDPoint, fGeoH->GetID(detPath),
         TVector3(fPosIn.X(),   fPosIn.Y(),   fPosIn.Z()),
         TVector3(fPosOut.X(),  fPosOut.Y(),  fPosOut.Z()),
         TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),

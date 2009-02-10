@@ -30,13 +30,18 @@
 class PndStringVector
 {
   public :
-       PndStringVector(){};
+       PndStringVector():fFirstDel(false),fLastDel(false){};
        ~PndStringVector(){};
        PndStringVector(std::string AInput, std::string ADelimiter = " ");
        void SetInput (std::string AInput)       {fInput = AInput;};
        void SetDelimiter (std::string ADelimiter) {fDelimiter = ADelimiter;};
        void ResetVector(){fStrings.clear();};
        std::vector<std::string> GetStringVector (void);
+       void TestFirst(){if(fInput.find_first_of(fDelimiter)==0) fFirstDel=true; else fFirstDel=false;}
+       void TestLast(){if(fInput.find_last_of(fDelimiter)==fInput.size()-1) fLastDel = true; else fLastDel = false;}
+       bool GetIfFirst(){return fFirstDel;}
+       bool GetIfLast(){return fLastDel;}
+       std::string Replace(std::string from, std::string to);
        void Print();
 
   private :
@@ -46,6 +51,8 @@ class PndStringVector
        std::string fDelimiter;
        std::string fOutput;
        std::string GetString (void);
+       bool fFirstDel;	//first element in the string was a delimiter
+       bool fLastDel;	//last element in the string was a delimiter
 };
 
 #endif

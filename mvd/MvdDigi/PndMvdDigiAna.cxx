@@ -4,7 +4,7 @@
 #include "PndMvdDigiStrip.h"
 #include "PndMvdMCPoint.h"
 
-#include "CbmRunAna.h"
+#include "CbmRun.h"
 #include "CbmRuntimeDb.h"
 #include "CbmGeoNode.h"
 #include "CbmGeoVector.h"
@@ -25,7 +25,7 @@ PndMvdDigiAna::PndMvdDigiAna() :
 	fBranchName 	= "MVDDigiStrip";
 	fPixelPos = new TH3F("pPos","pPos",200,-15,15,200,-15,15,200,-20,20);
 	fStripPos = new TH3F("sPos","sPos",128,0,127,16,0,15,200,0,20);
-	
+
 //	fHitArray	= new TClonesArray("PndMvdDigiPixel");
 //	fPixelArray	= new TClonesArray("PndMvdDigiPixel");
 }
@@ -39,14 +39,14 @@ PndMvdDigiAna::PndMvdDigiAna(TString DetName) :
 	fDetName 		= DetName;
 	fPixelPos = new TH3F("pPos","pPos",200,-15,15,200,-15,15,200,-20,20);
 	fStripPos = new TH3F("sPos","sPos",128,0,127,16,0,15,200,0,20);
-	
+
 }
 // -------------------------------------------------------------------------
 
 
 // -----   Destructor   ----------------------------------------------------
-PndMvdDigiAna::~PndMvdDigiAna() 
-{ 
+PndMvdDigiAna::~PndMvdDigiAna()
+{
 }
 // -------------------------------------------------------------------------
 
@@ -68,23 +68,23 @@ InitStatus PndMvdDigiAna::ReInit()
 }
 
 // -----   Public method Init   --------------------------------------------
-InitStatus PndMvdDigiAna::Init() 
+InitStatus PndMvdDigiAna::Init()
 {
-  
+
   CbmRootManager* ioman = CbmRootManager::Instance();
 
-  if ( ! ioman ) 
+  if ( ! ioman )
     {
       std::cout << "-E- PndMvdDigiAna::Init: "
 	   << "RootManager not instantiated!" << std::endl;
       return kFATAL;
     }
     std::cout << "within init" << std::endl;
-    
+
   // Get input array
   fHitArray = (TClonesArray*) ioman->GetObject(fBranchName);
 
-  if ( ! fHitArray ) 
+  if ( ! fHitArray )
     {
       std::cout << "-W- PndMvdDigiAna::Init: "
 	   << "No MVDHit array!" << std::endl;
@@ -100,32 +100,32 @@ InitStatus PndMvdDigiAna::Init()
 }
 // -------------------------------------------------------------------------
 
-void PndMvdDigiAna::Exec(Option_t* opt) 
+void PndMvdDigiAna::Exec(Option_t* opt)
 {
   // Reset output array
   std::cout << "Within Exec! " << fHitArray << " " << fPixelArray << std::endl;
-  if ( ! fHitArray ) 
+  if ( ! fHitArray )
     Fatal("Exec", "No HitArray");
-  
+
   // Loop over PndMvdMCPoints
-  Int_t 
+  Int_t
     nPoints = fHitArray->GetEntriesFast();
-  
+
   PndMvdDigiStrip* hit = 0;
-  
-  for (Int_t iPoint = 0, iPixel = 0; iPoint < nPoints; iPoint++) 
+
+  for (Int_t iPoint = 0, iPixel = 0; iPoint < nPoints; iPoint++)
     {
 //      hit = (PndMvdDigiPixel*) fHitArray->At(iPoint);
       hit = (PndMvdDigiStrip*) fHitArray->At(iPoint);
 
       if ( !hit){
-      	std::cout<< "No Hit!" << std::endl; 
+      	std::cout<< "No Hit!" << std::endl;
 		continue;
       }
 
      // std::cout << "****Hit Point: " << std::endl;
 	 // hit->Print("");
-	 
+
 	  std::string det = hit->GetDetName().Data();
 
 	  PndStringVector sAna(det,"/");
@@ -137,7 +137,7 @@ void PndMvdDigiAna::Exec(Option_t* opt)
 //               <<hit->GetPixelRow()<<" charge "<<hit->GetCharge()<<std::endl;
 	  }
 	  else
-	  {	
+	  {
 	  	/*
 	  	fPixelPos->Fill(hit->GetPixelColumn(), hit->GetPixelRow(), hit->GetCharge());
  	  	std::cout << "Pixel Found" << std::endl;
@@ -155,12 +155,12 @@ void PndMvdDigiAna::Exec(Option_t* opt)
 
 
 
-void PndMvdDigiAna::WriteHistograms(const TString& filename) 
+void PndMvdDigiAna::WriteHistograms(const TString& filename)
 {
   TFile* file = new TFile(filename,"UPDATE");
   file->mkdir("PndMvdDigiAna");
   file->cd("PndMvdDigiAna");
-  
+
   fStripPos->Write();
   delete fStripPos;
   fStripPos=NULL;
@@ -177,27 +177,27 @@ void PndMvdDigiAna::PrintHistograms(const TString& outpsfile)
 {
   TCanvas* can1 = new TCanvas("can1","MVD digitization analysis",0,0,600,800);
   Int_t a = 2, b = 4, zaehl = 1;
-  can1->Divide(a,b);                                                          
-  can1->Print(outpsfile+"[");//opens the ps file, no writing                  
+  can1->Divide(a,b);
+  can1->Print(outpsfile+"[");//opens the ps file, no writing
 
   if(zaehl>(a*b)) // new page
-    {zaehl=1;can1->Print(outpsfile);can1->Clear("D");}       
+    {zaehl=1;can1->Print(outpsfile);can1->Clear("D");}
   can1->cd(zaehl);
   fStripPos->DrawCopy();
   delete fStripPos;
   fStripPos=NULL;
- 
+
   if(zaehl>(a*b)) // new page
-    {zaehl=1;can1->Print(outpsfile);can1->Clear("D");}       
+    {zaehl=1;can1->Print(outpsfile);can1->Clear("D");}
   can1->cd(zaehl);
   fPixelPos->DrawCopy();
   delete fPixelPos;
   fPixelPos=NULL;
 
   // finish plotting
-  can1->Print(outpsfile);//writes in file   
-  can1->Print(outpsfile+"]");//closes the file                                
-  delete can1; 
+  can1->Print(outpsfile);//writes in file
+  can1->Print(outpsfile+"]");//closes the file
+  delete can1;
 }
 
 

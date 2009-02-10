@@ -9,7 +9,7 @@
 
 #include "CbmRootManager.h"
 #include "PndMvdEventMergerTask.h"
-#include "CbmRunAna.h"
+#include "CbmRun.h"
 #include "CbmRuntimeDb.h"
 #include "PndStringVector.h"
 #include "PndTpcCluster.h"
@@ -37,7 +37,7 @@ PndMvdEventMergerTask::PndMvdEventMergerTask(TString signalBranch, TString bgFil
 
 
 // -----   Destructor   ----------------------------------------------------
-PndMvdEventMergerTask::~PndMvdEventMergerTask() 
+PndMvdEventMergerTask::~PndMvdEventMergerTask()
 {
 	delete (fMerger);
 }
@@ -59,22 +59,22 @@ InitStatus PndMvdEventMergerTask::ReInit()
 }
 
 // -----   Public method Init   --------------------------------------------
-InitStatus PndMvdEventMergerTask::Init() 
+InitStatus PndMvdEventMergerTask::Init()
 {
-    CbmRunAna* ana = CbmRunAna::Instance();
+    CbmRun* ana = CbmRun::Instance();
     CbmRootManager* ioman = CbmRootManager::Instance();
-   
-  if ( ! ioman ) 
+
+  if ( ! ioman )
     {
       std::cout << "-E- PndMvdEventMergerTask::Init: "
      << "RootManager not instantiated!" << std::endl;
       return kFATAL;
     }
-  
+
   if (fSignalIsBg == false){
 	  fSignalArray = (TClonesArray*) ioman->GetObject(fSignalBranch);
-	
-	  if ( ! fSignalArray ) 
+
+	  if ( ! fSignalArray )
 	    {
 	      std::cout << "-W- PndMvdEventMergerTask::Init: "
 	     << "No MVDPoint array!" << std::endl;
@@ -86,12 +86,12 @@ InitStatus PndMvdEventMergerTask::Init()
   // Create and register output array
   fMergedArray = new TClonesArray("PndTpcCluster");
   ioman->Register("PndTpcClusterMerged", "TPC", fMergedArray, kTRUE);
-  
+
   fMerger = new PndMvdEventMerger(fBgFile, fBgBranch, fNEvents, fNMergedEvents);
-  
-  
+
+
    std::cout << "-I- PndMvdEventMergerTask: Intialisation successfull" << std::endl;
- 
+
   return kSUCCESS;
 }
 // -------------------------------------------------------------------------
@@ -99,14 +99,14 @@ InitStatus PndMvdEventMergerTask::Init()
 // -----   Public method Exec   --------------------------------------------
 void PndMvdEventMergerTask::Exec(Option_t* opt)
 {
-  	
+
 	TClonesArray* bg;
 	if (fEventNr < fNMergedEvents)
 		bg = fMerger->GetEvent(fEventNr);
 	else bg = fMerger->GetEvent(0);
-	
+
 	fMergedArray->Clear();
-	
+
 	if (fSignalIsBg == false){
 		fMerger->AddTClonesArray(bg, fSignalArray);
 	}

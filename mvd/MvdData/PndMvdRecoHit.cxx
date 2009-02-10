@@ -53,12 +53,12 @@ PndMvdRecoHit::PndMvdRecoHit(PndMvdMCPoint* point)
   : RecoHitIfc<PlanarHitPolicy>(fNparHitRep)
 {
   std::cout<<" -I- PndMvdRecoHit::PndMvdRecoHit(PndMvdMCPoint*) called."<<std::endl;
- 
+
   _hitCoord[0][0] =  point->GetX();
   _hitCoord[1][0] =  point->GetY();
 
-  _hitCov[0][0] = 0.1;
-  _hitCov[1][1] = 0.1;
+  _hitCov[0][0] = 0.01;
+  _hitCov[1][1] = 0.01;
 
   TVector3  o(0.,0.,point->GetZ()),
             u(1.,0.,0.),
@@ -82,8 +82,8 @@ PndMvdRecoHit::PndMvdRecoHit(PndMvdHit* hit)
 //   _hitCov[1][1] = hit->GetDy();
 
 //TODO this is cheating the error bars larger for the kalman
-  _hitCov[0][0] = 0.1;
-  _hitCov[1][1] = 0.1;
+  _hitCov[0][0] = 0.01;
+  _hitCov[1][1] = 0.01;
 
   TVector3  o(0.,0.,hit->GetZ()),
             u(1.,0.,0.),
@@ -94,7 +94,7 @@ PndMvdRecoHit::PndMvdRecoHit(PndMvdHit* hit)
 }
 
 
-void 
+void
 PndMvdRecoHit::setHMatrix(const AbsTrackRep* stateVector,
        const TMatrixT<Double_t>& state)
 {
@@ -139,14 +139,14 @@ PndMvdRecoHit::setHMatrix(const AbsTrackRep* stateVector,
   }
   else {
     std::cerr << "DemoRecoHit can only handle state"
-              << " vectors of type LSLTrackRep or GeaneTrackRep -> abort" 
+              << " vectors of type LSLTrackRep or GeaneTrackRep -> abort"
         << std::endl;
      throw;
   }
- 
+
 }
 
-Double_t 
+Double_t
 PndMvdRecoHit::residualScalar(AbsTrackRep* stateVector,
           const TMatrixT<Double_t>& state)
 {

@@ -12,7 +12,7 @@
 #include "CbmRootManager.h"
 #include "PndMvdStripHitProducer.h"
 #include "PndMvdMCPoint.h"
-#include "CbmRunAna.h"
+#include "CbmRun.h"
 #include "CbmRuntimeDb.h"
 #include "CbmGeoNode.h"
 #include "CbmRuntimeDb.h"
@@ -21,6 +21,9 @@
 #include "PndStringVector.h"
 #include "PndMvdCalcStrip.h"
 #include "PndMvdDigiStrip.h"
+
+//TODO this include is for the enumeration
+#include "PndMvdDetector.h"
 
 // -----   Default constructor   -------------------------------------------
 PndMvdStripHitProducer::PndMvdStripHitProducer() :
@@ -75,7 +78,7 @@ void PndMvdStripHitProducer::SetParamSet(Double_t topPitch, Double_t botPitch,
                                          Double_t threshold, Double_t noise,
                                          TString sensorType, TString feType)
 {
-  CbmRunAna* ana = CbmRunAna::Instance();
+  CbmRun* ana = CbmRun::Instance();
   CbmRootManager* ioman = CbmRootManager::Instance();
   if ( 0==fDigiParRect || 0==fDigiParTrap ) SetParContainers();
   if (fOverrideParams){
@@ -113,7 +116,7 @@ PndMvdStripHitProducer::~PndMvdStripHitProducer()
 // -----   Initialization  of Parameter Containers -------------------------
 void PndMvdStripHitProducer::SetParContainers()
 {
-  // called from the CbmRunAna::Init()
+  // called from the CbmRun::Init()
   // Get Base Container
   CbmRun* ana = CbmRun::Instance();
   CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
@@ -131,7 +134,7 @@ InitStatus PndMvdStripHitProducer::ReInit()
 // -----   Public method Init   --------------------------------------------
 InitStatus PndMvdStripHitProducer::Init()
 {
-  CbmRunAna* ana = CbmRunAna::Instance();
+  CbmRun* ana = CbmRun::Instance();
   CbmRootManager* ioman = CbmRootManager::Instance();
 
   fGeoH = new PndMvdGeoHandling(gGeoManager);
@@ -203,7 +206,7 @@ void PndMvdStripHitProducer::Exec(Option_t* opt)
   // Declare some variables
   PndMvdMCPoint *point = NULL;
 
-  Int_t detID = 0;       // Detector ID
+//  Int_t detID = 0;       // Detector ID
 //     Int_t trackID = 0;     // Track index
 
   // Loop over PndMvdMCPoints
@@ -241,7 +244,7 @@ void PndMvdStripHitProducer::Exec(Option_t* opt)
         posInL.Print();posOutL.Print();
         std::cout << "Energy: " << point->GetEnergyLoss() << std::endl;
       }
-      detID   = point->GetDetectorID();
+//      detID   = point->GetDetectorID();
 
       // Top Side
       if (fVerbose > 2) std::cout  << "Top Side: " << std::endl;
@@ -257,7 +260,7 @@ void PndMvdStripHitProducer::Exec(Option_t* opt)
         for(std::vector<PndMvdStrip>::const_iterator kit=topStrips.begin();
             kit!= topStrips.end(); ++kit)
         {
-            AddDigi(iStrip,iPoint,detID,point->GetDetName(),
+            AddDigi(iStrip,iPoint,kMVDHitsStrip,point->GetDetName(),
             		fCurrentStripCalcTop->CalcFEfromStrip(kit->GetIndex()),
             		fCurrentStripCalcTop->CalcChannelfromStrip(kit->GetIndex()),kit->GetCharge());
             if (fVerbose > 1) std::cout << *kit << std::endl;
@@ -277,7 +280,7 @@ void PndMvdStripHitProducer::Exec(Option_t* opt)
             kit!= botStrips.end();
             ++kit)
         {
-            AddDigi(iStrip,iPoint,detID,point->GetDetName(),
+            AddDigi(iStrip,iPoint,kMVDHitsStrip,point->GetDetName(),
                     fCurrentStripCalcBot->CalcFEfromStrip(kit->GetIndex()) + fCurrentDigiPar->GetNrTopFE(),
                     fCurrentStripCalcBot->CalcChannelfromStrip(kit->GetIndex()),kit->GetCharge());
             if (fVerbose > 2) std::cout << *kit << std::endl;
@@ -312,8 +315,8 @@ void PndMvdStripHitProducer::AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, T
 //		return;
 	}
   }
-  if(found == kFALSE){
-    new ((*fStripArray)[iStrip]) PndMvdDigiStrip(iPoint,detID,detname,fe,chan,charge) ;
+  if(found == kFALSE){//TODO: Simulate a timestamp
+    new ((*fStripArray)[iStrip]) PndMvdDigiStrip(iPoint,detID,detname,fe,chan,0,charge) ;
     iStrip++;
   }
 }

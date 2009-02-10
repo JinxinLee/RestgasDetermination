@@ -5,7 +5,7 @@ PndMvdDigiStrip::PndMvdDigiStrip(){
 }
 
 PndMvdDigiStrip::PndMvdDigiStrip(Int_t index, Int_t detID,
-  TString detName, Int_t fe, Int_t chan, Double_t charge)
+  TString detName, Int_t fe, Int_t chan, Int_t timestamp, Double_t charge)
 : PndMvdDigi(index,detID,detName,fe,charge)
 {
 // 	fIndex 	= index;
@@ -15,6 +15,21 @@ PndMvdDigiStrip::PndMvdDigiStrip(Int_t index, Int_t detID,
 	fChannel = chan;
 // 	fCharge = charge;
 // 	fMCID = -1;
+	fTimestamp = timestamp;
+}
+
+PndMvdDigiStrip::PndMvdDigiStrip(Int_t index, Int_t detID,
+  TString detName, Int_t fe, Int_t chan, Double_t charge, Int_t timestamp)
+: PndMvdDigi(index,detID,detName,fe,charge)
+{
+// 	fIndex 	= index;
+// 	fDetID  = detID;
+// 	fDetName = detName;
+// 	fFE = fe;
+	fChannel = chan;
+// 	fCharge = charge;
+// 	fMCID = -1;
+	fTimestamp = timestamp;
 }
 
 // const void PndMvdDigiStrip::Print(){
@@ -35,6 +50,7 @@ return (
           && fChannel==d2.GetChannel()
           && fCharge==d2.GetCharge()
 //           && fMCID==d2.GetMCID()
+          && fTimestamp==d2.GetTimestamp()
         );
 }
 

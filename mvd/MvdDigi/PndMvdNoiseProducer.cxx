@@ -9,7 +9,7 @@
 
 #include "CbmRootManager.h"
 #include "CbmGeoVolume.h"
-#include "CbmRunAna.h"
+#include "CbmRun.h"
 #include "CbmRuntimeDb.h"
 #include "CbmGeoNode.h"
 
@@ -18,6 +18,9 @@
 #include "PndMvdMCPoint.h"
 #include "PndMvdDigiStrip.h"
 #include "PndMvdDigiPixel.h"
+
+//TODO this include is for the enumeration
+#include "PndMvdDetector.h"
 
 // -----   Default constructor   -------------------------------------------
 PndMvdNoiseProducer::PndMvdNoiseProducer() :
@@ -171,7 +174,7 @@ void PndMvdNoiseProducer::Exec(Option_t* opt)
     // calculate a charge deposit above threshold
     charge = CalcChargeAboveThreshold(fDigiParRect->GetNoise(),fDigiParRect->GetThreshold());
     did = fStripRectIds.at(sens);
-    AddDigiStrip(nNoisyStripRects,-1,2,did,fe,chan,charge);
+    AddDigiStrip(nNoisyStripRects,-1,did,fe,chan,charge);
   }
 
   // *** Strip Trapezoids ***
@@ -193,7 +196,7 @@ void PndMvdNoiseProducer::Exec(Option_t* opt)
     chan = rnd % nrCh;
     charge = CalcChargeAboveThreshold(fDigiParTrap->GetNoise(),fDigiParTrap->GetThreshold());
     did = fStripTrapIds.at(sens);
-    AddDigiStrip(nNoisyStripTraps,-1,2,did,fe,chan,charge);
+    AddDigiStrip(nNoisyStripTraps,-1,did,fe,chan,charge);
   }
 
   // *** Pixel Sensors ***
@@ -240,7 +243,7 @@ void PndMvdNoiseProducer::Exec(Option_t* opt)
       fe = fe%4;
     }
 
-    AddDigiPixel(nNoisyPixels,-1,2,did,fe,col,row,charge);
+    AddDigiPixel(nNoisyPixels,-1,did,fe,col,row,charge);
   }
 
   // *** The End ***
@@ -282,9 +285,10 @@ Int_t PndMvdNoiseProducer::CalcChargeAboveThreshold(Double_t spread,Double_t thr
   return (Int_t)temp;
 }
 // -------------------------------------------------------------------------
-void PndMvdNoiseProducer::AddDigiStrip(Int_t &noisies, Int_t iPoint, Int_t detID, TString detname, Int_t fe, Int_t chan, Double_t charge)
+void PndMvdNoiseProducer::AddDigiStrip(Int_t &noisies, Int_t iPoint, TString detname, Int_t fe, Int_t chan, Double_t charge)
 {
   Bool_t found = kFALSE;
+  Int_t detID = kMVDHitsStrip;
   Int_t iStrip = fDigiStripArray->GetEntriesFast();
   PndMvdDigiStrip* aDigi = 0;
   for(Int_t kstr = 0; kstr < iStrip && found == kFALSE; kstr++)
@@ -301,7 +305,8 @@ void PndMvdNoiseProducer::AddDigiStrip(Int_t &noisies, Int_t iPoint, Int_t detID
 	}
   }
   if(found == kFALSE){
-    new ((*fDigiStripArray)[iStrip]) PndMvdDigiStrip(iPoint,detID,detname,fe,chan,charge) ;
+	  //TODO: get a reasonable timestamp fake for the noise
+    new ((*fDigiStripArray)[iStrip]) PndMvdDigiStrip(iPoint,detID,detname,fe,chan,0,charge) ;
     noisies++;
     if(fVerbose>2) std::cout
       << " -I- PndMvdNoiseProducer: Added StripTrap Digi at: FE=" << fe
@@ -310,9 +315,10 @@ void PndMvdNoiseProducer::AddDigiStrip(Int_t &noisies, Int_t iPoint, Int_t detID
   }
 }
 // -------------------------------------------------------------------------
-void PndMvdNoiseProducer::AddDigiPixel(Int_t &noisies, Int_t iPoint, Int_t detID, TString detname, Int_t fe, Int_t col, Int_t row, Double_t charge)
+void PndMvdNoiseProducer::AddDigiPixel(Int_t &noisies, Int_t iPoint, TString detname, Int_t fe, Int_t col, Int_t row, Double_t charge)
 {
   Bool_t found = kFALSE;
+  Int_t detID = kMVDHitsPixel;
   Int_t iPix = fDigiPixelArray->GetEntriesFast();
   PndMvdDigiPixel* aDigi = 0;
   for(Int_t kstr = 0; kstr < iPix && found == kFALSE; kstr++)

@@ -48,7 +48,6 @@ void PndMvdContFact::setAllContainers() {
     CbmContainer* p4 = new CbmContainer("MVDStripDigiParTrap", "PndMvd Strip Digitization Parameters (trapezoid sensors)", "TestDefaultContext");
     p4->addContext("TestNonDefaultContext");
     containers->Add(p4);
-
     
 }
 

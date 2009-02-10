@@ -10,7 +10,7 @@
 
 // framework includes
 #include "CbmRootManager.h"
-#include "CbmRunAna.h"
+#include "CbmRun.h"
 #include "CbmRuntimeDb.h"
 
 
@@ -40,44 +40,44 @@ void PndMvdTrackFinderAnaTask::SetParContainers()
 
 InitStatus PndMvdTrackFinderAnaTask::ReInit()
 {
-  
+
   InitStatus stat=kERROR;
   return stat;
 }
 
 // -----   Public method Init   --------------------------------------------
-InitStatus PndMvdTrackFinderAnaTask::Init() 
+InitStatus PndMvdTrackFinderAnaTask::Init()
 {
-  
+
   CbmRootManager* ioman = CbmRootManager::Instance();
 
-  if ( ! ioman ) 
+  if ( ! ioman )
     {
       std::cout << "-E- PndMvdTrackFinderAna::Init: "
      << "RootManager not instantiated!" << std::endl;
       return kFATAL;
     }
-    
+
   // Get input array
   fIdealTrackCandArray = (TClonesArray*) ioman->GetObject(fIdealTrackCandBranch);
   if ( !fIdealTrackCandArray){
     std::cout << "-W- PndMvdTrackFinderAnaTask::Init: " << "No IdealTrackCandArray!" << std::endl;
     return kERROR;
   }
-  
+
   // Get input array
   fRiemannTrackCandArray = (TClonesArray*) ioman->GetObject(fRiemannTrackCandBranch);
   if ( !fRiemannTrackCandArray){
     std::cout << "-W- PndMvdTrackFinderAnaTask::Init: " << "No RiemannTrackCandArray!" << std::endl;
     return kERROR;
   }
-  
+
   std::cout << "-I- PndMvdTrackFinderAnaTask: Initialisation successfull" << std::endl;
   return kSUCCESS;
 }
 
 // -----   Public method Exec   --------------------------------------------
-void PndMvdTrackFinderAnaTask::Exec(Option_t* opt) 
+void PndMvdTrackFinderAnaTask::Exec(Option_t* opt)
 {
 
   // Reset output array
@@ -87,10 +87,10 @@ void PndMvdTrackFinderAnaTask::Exec(Option_t* opt)
     Fatal("Exec", "No RiemannTrackCandArray");
   if ( ! fIdealTrackCandArray )
     Fatal("Exec", "No IdealTrackCandArray");
-  
+
   fHitMatrix.clear();
   std::map<int, std::vector<int> > hitsInTrack;
-  
+
   std::cout << "<<<<<<<<<<<< Event " << fEventNr++ << " >>>>>>>>>>>>>>" << std::endl;
   for (int i = 0; i < fRiemannTrackCandArray->GetEntriesFast(); i++){
 	  hitsInTrack.clear();
@@ -109,7 +109,7 @@ void PndMvdTrackFinderAnaTask::Exec(Option_t* opt)
  // for (int p = 0; p < fHitMatrix.size(); p++){
 //	  std::cout << "hits " << p << ": " << fHitMatrix[p][1].size() << std::endl;
 //  }
-  
+
   for (int k = 0; k < fIdealTrackCandArray->GetEntriesFast(); k++){
 	  std::map<int, std::vector<int> > IdealHitsInTrack;
   	  TrackCand* myIdealTrackCand = (TrackCand*)(fIdealTrackCandArray->At(k));
@@ -123,7 +123,7 @@ void PndMvdTrackFinderAnaTask::Exec(Option_t* opt)
   		  	  << " Inv: " << myIdealTrackCand->inverted() << std::endl;
   	int foundHits = TrackIncluded(IdealHitsInTrack);
   	int idealHits = NHitsInTrack(IdealHitsInTrack);
-  	
+
   	std::cout << "TrackIncluded: " << foundHits << std::endl;
   	//if (myIdealTrackCand->getMCID() < 6)
   		hitsPerTrack->Fill(idealHits);
@@ -140,7 +140,7 @@ void PndMvdTrackFinderAnaTask::Exec(Option_t* opt)
 	  		std::cout << "More Hits of Track found!" << std::endl;
 	  		histo->Fill(3);
 	  	}
-  	
+
   	}
   	else
   		histo->Fill(0);*/
@@ -177,7 +177,7 @@ int PndMvdTrackFinderAnaTask::TrackIncluded(std::map<int, std::vector<int> > can
 {
 	int result = 0;
 	int oldresult = 0;
-	
+
 	for (int i = 0; i < fHitMatrix.size(); i++){
 		//std::cout << "CheckAgreement to HitMatrixVector " << i << std::endl;
 		result = CheckAgreement(cand, fHitMatrix[i]);
@@ -194,7 +194,7 @@ int PndMvdTrackFinderAnaTask::CheckAgreement(std::map<int, std::vector<int> > va
 	for (int i = 1; i < 3; i++){
 		std::vector<int> det1 = val1[i];
 		std::vector<int> det2 = val2[i];
-		
+
 		for (int j = 0; j < det1.size(); j++){
 			for (int k = 0; k < det2.size(); k++){
 				//std::cout << "Det1: " << det1[j] << " Det2: " << det2[k] << std::endl;

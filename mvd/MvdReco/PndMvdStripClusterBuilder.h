@@ -24,7 +24,8 @@
 // #include "PndMvdStripCluster.h"
 
 typedef std::map<Int_t,Int_t> Indexpair;
-typedef std::map<std::string,std::map<SensorSide,Indexpair> > Fullmap;
+typedef std::map<Int_t,Indexpair> Indextriple;
+typedef std::map<std::string,std::map<SensorSide,Indextriple> > Fullmap;
 
 class PndMvdStripClusterBuilder {
  public:
@@ -33,12 +34,10 @@ class PndMvdStripClusterBuilder {
 
   void Reinit();
 
-  void AddDigi(std::string detname, SensorSide side, Int_t strip, Int_t iPoint);
+  void AddDigi(std::string detname, SensorSide side, Int_t timestamp, Int_t strip, Int_t iPoint);
 
-  std::vector< PndMvdCluster > SearchClusters();
+  virtual std::vector< PndMvdCluster > SearchClusters() = 0;
 
-  // getter
-//   std::vector< std::vector<Int_t> > GetClusters() const {return fClusters;}
   std::vector< PndMvdCluster >  GetClusters() const {return fClusters;}
   PndMvdCluster GetCluster(Int_t i);
   PndMvdCluster GetTopCluster(Int_t i);
@@ -47,7 +46,7 @@ class PndMvdStripClusterBuilder {
   std::vector< Int_t > GetBotClusterIDs() const {return fBotclusters;}
   std::vector< Int_t > GetLeftDigiIDs() const {return fLeftDigis;}
 
-private:
+protected:
 
   void AddCluster(const std::vector< Int_t >& onecluster,SensorSide side);
   Fullmap fSortedDigis;
@@ -56,7 +55,7 @@ private:
   std::vector< Int_t > fLeftDigis;  // contains index to the not assigned digis
   std::vector< PndMvdCluster > fClusters;
 
-
+private:
 ClassDef(PndMvdStripClusterBuilder,1);
 };
 

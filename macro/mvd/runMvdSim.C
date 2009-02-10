@@ -6,7 +6,7 @@
   gDebug=0;
   int verboseLevel = 0;
   Int_t nEvents = 10;
-  
+
   //FileNames
   TString simOutput="Mvd_Test.root";
 
@@ -30,13 +30,13 @@
   // Set Material file Name
   //-----------------------
   fRun->SetMaterials("media_pnd.geo");
-  
+
   // Create and add detectors
   //-------------------------
 
   CbmModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
-  fRun->AddModule(Cave); 
+  fRun->AddModule(Cave);
 
   CbmModule *Magnet= new PndMagnet("MAGNET");
   Magnet->SetGeometryFileName("magnet.geo");
@@ -57,11 +57,11 @@
 //  fRun->AddModule(Stt);
 
 //  CbmDetector *Emc = new CbmEmc("EMC",kTRUE);
-//  Emc->SetGeometryFileName("emc_module12345.dat"); 
+//  Emc->SetGeometryFileName("emc_module12345.dat");
 //  fRun->AddModule(Emc);
 
 //  CbmDetector *Drc = new CbmDrc("DIRC", kTRUE);
-//  Drc->SetGeometryFileName("dirc.geo"); 
+//  Drc->SetGeometryFileName("dirc.geo");
 //  fRun->AddModule(Drc);
 
 
@@ -96,7 +96,7 @@
   //EvtGen Generator
 //    CbmEvtGenGenerator* evtGen = new
 //      CbmEvtGenGenerator("/home/ralfk/Pandaroot/pandaroot/macro/mvd/output.evt");
-//    primGen->AddGenerator(evtGen);  
+//    primGen->AddGenerator(evtGen);
 
   // Urqmd  Generator
   //    CbmUrqmdGenerator* urqmdGen = new CbmUrqmdGenerator("../../input/00-03fm.100ev.f14");
@@ -120,7 +120,7 @@
    fField->AddField(map2);
 
    fRun->SetField(fField);
-   
+
    //fRun->SetStoreTraj(kTRUE); // toggle this for use with EVE
    fRun->SetStoreTraj(kFALSE);
 
@@ -138,7 +138,7 @@
 //     trajFilter->SetEnergyCut(0., 1.02); // 0 < Etot < 1.04 GeV
 //     trajFilter->SetStorePrimaries(kTRUE);
 //     trajFilter->SetStoreSecondaries(kTRUE);
-   
+
 
   // Fill the Parameter containers for this run
   //-------------------------------------------
@@ -147,7 +147,11 @@
   CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
   output->open(parOutput.Data(),"RECREATE");
   rtdb->setOutput(output);
-  
+  PndMultiFieldPar* Par = (PndMultiFieldPar*) rtdb->getContainer("PndMultiFieldPar");
+  if (fField) {  Par->SetParameters(fField); }
+  Par->setInputVersion(fRun->GetRunId(),1);
+  Par->setChanged();
+
   // Transport nEvents
   // -----------------
 
@@ -161,5 +165,5 @@
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
-}  
-  
+}
+

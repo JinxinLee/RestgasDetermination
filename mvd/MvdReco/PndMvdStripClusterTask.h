@@ -24,20 +24,24 @@
 #include "TH2F.h"
 #include "PndMvdHybridHitProducer.h"
 #include "PndMvdStripHitProducer.h"
+#include "PndMvdStripClusterBuilder.h"
 
 #include <string>
 #include <vector>
 
 class TClonesArray;
+class PndMvdChargeWeightingAlgorithms;
 
 class PndMvdStripClusterTask : public CbmTask
 {
  public:
 
     /** Default constructor **/
-    PndMvdStripClusterTask();
 
-    PndMvdStripClusterTask(Double_t chargecut, TString geofile);
+
+	PndMvdStripClusterTask(Int_t ClusterMod=0, Int_t RadChannel=2, Int_t RadTime=0);
+
+	PndMvdStripClusterTask(Double_t chargecut, TString geofile, Int_t meanalgo=0, Int_t clustermod=0, Int_t RadChannel=2, Int_t RadTime=0);
 
     /** Destructor **/
     virtual ~PndMvdStripClusterTask();
@@ -58,7 +62,9 @@ class PndMvdStripClusterTask : public CbmTask
 
     TVector2 CalcLineCross(TVector2 point1, TVector2 dir1, TVector2 point2, TVector2 dir2) const;
     void SelectSensorParams(TString detname);
-
+    void CalcMeanCharge(std::vector<Int_t> &onecluster, Double_t &meanstrip, Double_t &meanerr, Double_t &charge);
+    Bool_t Backmap( TVector2 meantopPoint, Double_t toperr , TVector2 meanbotPoint, Double_t boterr,
+    	         	TVector3 &hitpos, TVector3 &hiterr, TString &detname);
     TClonesArray* fDigiArray;  // Input array of PndMvdDigis
     TClonesArray* fClusterArray; // Output array of PndMvdClusters
     TClonesArray* fHitArray;  // Output array of PndMvdHits
@@ -71,7 +77,10 @@ class PndMvdStripClusterTask : public CbmTask
     Int_t fFEcolumns;
     Int_t fFErows;
     TString fGeoFile;
-	  Double_t fChargeCut;
+    Double_t fChargeCut;
+    Int_t fMeanAlgo;
+	Int_t fRadChannel;
+	Int_t fRadTime;
 
     PndMvdStripDigiPar* fDigiParRect;     //! Digitization Parameters (Barrel)
     PndMvdStripDigiPar* fDigiParTrap;     //! Digitization Parameters (Disks)
@@ -84,9 +93,12 @@ class PndMvdStripClusterTask : public CbmTask
     PndMvdCalcStrip* fStripCalcTop;
     PndMvdCalcStrip* fStripCalcBot;
 
+    Int_t fClusterMod;					/// selected clusterfinder 1...simple 0...default
+
     PndMvdGeoHandling* fGeoH;      //! Geometry name handling
     PndMvdGeoPar* fGeoPar;
-
+    PndMvdChargeWeightingAlgorithms* fChargeAlgos;
+    PndMvdStripClusterBuilder* fClusterfinder;
 //     TH1F* fHChgDiff;
 //     TH1F* fHChgMC;
 //     TH1F* fHChgFake;

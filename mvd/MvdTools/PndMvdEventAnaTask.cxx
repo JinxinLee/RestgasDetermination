@@ -14,7 +14,7 @@
 // framework includes
 #include "CbmRootManager.h"
 #include "PndMvdEventAnaTask.h"
-#include "CbmRunAna.h"
+#include "CbmRun.h"
 #include "CbmRuntimeDb.h"
 #include "CbmHit.h"
 #include "CbmMCTrack.h"

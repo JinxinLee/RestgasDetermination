@@ -32,14 +32,14 @@ void DrawText(Double_t posX = 0., Double_t posY = 0., const char* text = "",
   pText->Draw();
 }
 
-void DrawNice2DHisto(TH2* h,const char* opt="")
+void DrawNice2DHisto(TH2* h,const char* opt="",double range = 10.)
 {
-  // Draw a 2D histo with the rainbow colors and the palette besides 
+  // Draw a 2D histo with the rainbow colors and the palette besides
   TString options = "colz"; options += opt;
-  if(gPad->GetLogz() == 0 && h->GetMaximum()<10.) h->SetAxisRange(0.,10.,"Z");
+  if(gPad->GetLogz() == 0 && h->GetMaximum()<range) h->SetAxisRange(0.,range,"Z");
   h->SetStats(kFALSE);
-  h->SetTitleOffset(0.5,"T");
-  gPad->SetRightMargin(0.10);
+  h->SetTitleOffset(0.8,"T");
+  gPad->SetRightMargin(0.16);
   h->DrawCopy(options.Data());
 }
 
@@ -64,7 +64,7 @@ void BetterStatBox( TPad* pad ){
 /// * die Update() Funktion vom Canvas aufrufen (die Statistikboxen werden erst
 ///   erzeugt, wenn das Histogramm wirklich gezeichnet wird)
 /// * der Funktion das aktuelle TPad uebergeben
-///   (z.B.: TPad* p=(TPad*)gPad; BetterStatBox(p))
+///   (z.B.: TPad* p=(TPad*)gPad; BetterStatBox(p);)
 
   int entries  = pad->GetListOfPrimitives()->GetEntries();
   TString name = "";
@@ -79,8 +79,8 @@ void BetterStatBox( TPad* pad ){
       if(st){
         st->SetOptStat(1);
         st->SetX1NDC(0.80);
-        st->SetY1NDC(1-0.16*obj) ; 
-        st->SetY2NDC( st->GetY1NDC()+0.15 ) ; 
+        st->SetY1NDC(1-0.16*obj) ;
+        st->SetY2NDC( st->GetY1NDC()+0.15 ) ;
         st->SetTextColor( hist->GetLineColor() );
         st->SetLineColor( hist->GetLineColor() );
         st->Draw("same");
@@ -91,14 +91,14 @@ void BetterStatBox( TPad* pad ){
 }
 
 // TLegend* BuildLegend_THStack( THStack* stack, float x1, float y1, float x2, float y2 ){
-// 
+//
 //   TLegend* legend = new TLegend(x1,y1,x2,y2);
 //   TList*   list = stack->GetHists();
 //   TIter    next( list );
 //   TH1*     hist;
-// 
+//
 //   while ( hist = (TH1*)next() ) legend->AddEntry(hist,"","F");
-// 
+//
 //   return legend;
 // }
 
@@ -110,7 +110,7 @@ void LoadPandaStyle(void)
 //      $Id: PBase.C,v 1.8 2006/09/22 12:04:13 kliemt Exp $
 //
 // Description:
-//      Initialization code executed at the start of a ROOT session.         
+//      Initialization code executed at the start of a ROOT session.
 //      Set up the Panda style for approved plots.
 //
 // Environment:
@@ -127,7 +127,7 @@ void LoadPandaStyle(void)
   // use the 'plain' style for plots (white backgrounds, etc)
   //cout << "...using style 'Plain'" << endl;
   gROOT->SetStyle("Plain");
-  
+
   // Create the 'PANDA' style for approved plots. Note that this style may need
   // some fine tuning in your macro depending on what you are plotting, e.g.
   //

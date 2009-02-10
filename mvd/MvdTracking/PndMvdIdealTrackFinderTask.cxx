@@ -9,7 +9,7 @@
 #include "TGeoManager.h"
 
 #include "CbmRootManager.h"
-#include "CbmRunAna.h"
+#include "CbmRun.h"
 #include "CbmRuntimeDb.h"
 
 #include "PndMvdIdealTrackFinderTask.h"
@@ -160,6 +160,7 @@ void PndMvdIdealTrackFinderTask::Exec(Option_t* opt)
     PndMvdHit* myHit = (PndMvdHit*)(fPixelHitArray->At(iHit));
     PndMvdCluster* myCluster = (PndMvdCluster*)(fPixelClusterArray->At(myHit->GetRefIndex()));
     PndMvdDigiPixel* apixeldigi = (PndMvdDigiPixel*)fPixelDigiArray->At(myCluster->GetDigiIndex(0));
+    if (apixeldigi->GetIndex(0) == -1) continue; // sort out noise
     PndMvdMCPoint* myPoint = (PndMvdMCPoint*)(fMcArray->At(apixeldigi->GetIndex(0)));
 //     Int_t trackID = myPoint->GetTrackID();
 //     Int_t detnum = 3; //TODO Convention needed
@@ -171,6 +172,7 @@ void PndMvdIdealTrackFinderTask::Exec(Option_t* opt)
     PndMvdHit* myHit = (PndMvdHit*)(fStripHitArray->At(iHit));
     PndMvdCluster* myCluster =  (PndMvdCluster*)(fStripClusterArray->At(myHit->GetRefIndex()));
     PndMvdDigiStrip* astripdigi = (PndMvdDigiStrip*)fStripDigiArray->At(myCluster->GetDigiIndex(0));
+    if (astripdigi->GetIndex(0) == -1) continue; // sort out noise
     PndMvdMCPoint* myPoint = (PndMvdMCPoint*)(fMcArray->At(astripdigi->GetIndex(0)));
 //     Int_t trackID = myPoint->GetTrackID();
 //     Int_t detnum = 4; //TODO Convention needed

@@ -14,6 +14,7 @@
 #pragma link C++ class PndMvdDigiStrip+;
 #pragma link C++ class PndMvdPixel+;
 #pragma link C++ class PndMvdStrip+;
+#pragma link C++ class PndMvdApvHit+;
 
 //mc
 #pragma link C++ class PndMvdGeo+;
@@ -35,7 +36,6 @@
 #pragma link C++ class PndMvdHitProducerIdeal+;
 #pragma link C++ class PndMvdNoiseProducer+;
 
-
 #pragma link C++ class PndMvdGeoHandling+;
 #pragma link C++ class PndMvdCalcFePixel+;
 
@@ -49,12 +49,18 @@
 #pragma link C++ class PndMvdFileNameCreator+;
 #pragma link C++ class PndMvdAccessRTDBTask+;
 
+
 #pragma link C++ class PndGeoHitList+;
 #pragma link C++ class PndEventDisplay+;
 #pragma link C++ class PndMvdEventAnaTask+;
 #pragma link C++ class PndMvdEventMerger+;
 #pragma link C++ class PndMvdEventMergerTask+;
 #pragma link C++ class PndMvdMSAnaTask+;
+
+#pragma link C++ class PndStringVector+;
+
+#pragma link C++ class PndMvdConvertApv+;
+#pragma link C++ class PndMvdConvertApvTask+;
 
 
 #endif

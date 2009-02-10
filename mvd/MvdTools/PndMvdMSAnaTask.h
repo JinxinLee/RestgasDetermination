@@ -61,6 +61,7 @@ class PndMvdMSAnaTask : public CbmTask
 		
 		CbmGeanePro* fPro;
 		PndMvdGeoHandling* fGeoH;
+		bool fUseMVDPoint;
 		
 				
 		

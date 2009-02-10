@@ -19,7 +19,7 @@
 // framework includes
 #include "CbmRootManager.h"
 #include "PndMvdPidIdealTask.h"
-#include "CbmRunAna.h"
+#include "CbmRun.h"
 #include "CbmRuntimeDb.h"
 #include "../mcstack/CbmMCTrack.h"
 
@@ -67,7 +67,7 @@ InitStatus PndMvdPidIdealTask::Init()
   if (fAlgoName!="ideal"&&fAlgoName!="simple"&&fAlgoName!="advanced") {
     std::cout << "-W- PndMvdPidIdealTask::Init: "<< "No pid algorithm named '"<< fAlgoName <<"'! Names are 'ideal', 'simple', 'advanced'" << std::endl;
     return kERROR;
-  } 
+  }
   return kSUCCESS;
 }
 // -------------------------------------------------------------------------
@@ -93,7 +93,7 @@ void PndMvdPidIdealTask::Exec(Option_t* opt)
   for(int i=0;i<fPointArray->GetEntriesFast();i++) {
     PndMvdMCPoint* mvdpoint=(PndMvdMCPoint*) fPointArray->At(i);
     int track = mvdpoint->GetTrackID();
-    if(!pidcand[track]) 
+    if(!pidcand[track])
       pidcand[track]=new PndMvdPidCand();
     double dx = ( mvdpoint->GetPositionOut() - mvdpoint->GetPosition() ).Mag();
     double dE = mvdpoint->GetEnergyLoss();
@@ -106,7 +106,7 @@ void PndMvdPidIdealTask::Exec(Option_t* opt)
   // invoke likelohood calculation, TClonesArray output
   for(std::map<int, PndMvdPidCand*>::iterator it=pidcand.begin();it!=pidcand.end();it++) {
     int track = it->first;
-    if (fAlgoName=="ideal") 
+    if (fAlgoName=="ideal")
       PndMvdIdealPidAlgo::CalcLikelihood(pidcand[track]);
     else if (fAlgoName=="simple")
       PndMvdSimplePidAlgo::CalcLikelihood(pidcand[track]);

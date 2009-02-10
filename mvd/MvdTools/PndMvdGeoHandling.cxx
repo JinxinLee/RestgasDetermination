@@ -1,7 +1,7 @@
 //
 // C++ Implementation: PndMvdGeoHandling
 //
-// Description: 
+// Description:
 //
 //
 // Author: t.stockmanns <stockman@ikp455>, (C) 2007
@@ -15,8 +15,6 @@
 #include <string>
 #include "PndStringVector.h"
 #include "TROOT.h"
-#include "TGeoManager.h"
-#include "TGeoMatrix.h"
 #include "TGeoVolume.h"
 #include "TGeoShape.h"
 #include "TGeoBBox.h"
@@ -52,7 +50,7 @@ TString PndMvdGeoHandling::GetCurrentID()
  Int_t copyNr[100];
  Int_t volNr[100];
  TString result;
- 
+
  level = fGeoMan->GetLevel();
  level++;
 
@@ -62,7 +60,7 @@ TString PndMvdGeoHandling::GetCurrentID()
 	result += "_";
 	result += copyNr[i];
 	result += "/";
- }	
+ }
  return result;
 }
 
@@ -83,7 +81,7 @@ TString PndMvdGeoHandling::GetPath(TString id)
 	std::vector<std::string> idVector;
 	PndStringVector pathAna(id.Data(), "/_");
 	idVector = pathAna.GetStringVector();
-	
+
 	for(Int_t i = 0; i < idVector.size(); i+=2){
 		result += "/";
 		Int_t VolId = atoi(idVector[i].c_str());
@@ -146,7 +144,7 @@ void PndMvdGeoHandling::FillLevelNames()
 		for (Int_t i = 0; i < nDaughters; i++){
 			fGeoMan->CdDown(i);
 			FillLevelNames();
-			fGeoMan->CdUp();	
+			fGeoMan->CdUp();
 		}
 	}
 }
@@ -157,17 +155,17 @@ void PndMvdGeoHandling::GetOUVPath(TString path, TVector3& o, TVector3& u, TVect
 	Double_t* temp;
 	TString actPath = fGeoMan->GetPath();
 	fGeoMan->cd(path);
-	
+
 	TGeoHMatrix* currMatrix = fGeoMan->GetCurrentMatrix();
 	temp = currMatrix->GetTranslation();
 	o.SetXYZ(temp[0], temp[1], temp[2]);
-	
+
 	temp[0] = 1;
 	temp[1] = 0;
 	temp[2] = 0;
 	fGeoMan->LocalToMasterVect(temp, result);
 	u.SetXYZ(result[0], result[1], result[2]);
-	
+
 	temp[0] = 0;
 	temp[1] = 1;
 	temp[2] = 0;
@@ -204,6 +202,22 @@ TVector3 PndMvdGeoHandling::GetSensorDimensionsID(TString id)
 return GetSensorDimensionsPath(GetPath(id));
 }
 
+TGeoHMatrix* PndMvdGeoHandling::GetMatrixPath(TString path)
+{
+	TString actPath = fGeoMan->GetPath();
+	fGeoMan->cd(path);
+
+	TGeoHMatrix* currMatrix = fGeoMan->GetCurrentMatrix();
+	if(actPath!="" && actPath!=" ") fGeoMan->cd(actPath);
+
+	return currMatrix;
+
+}
+
+TGeoHMatrix* PndMvdGeoHandling::GetMatrixId(TString id)
+{
+	return GetMatrixPath(GetPath(id));
+}
 
 //  ----- conversions of POINTS (not vectors) here -----
 TVector3 PndMvdGeoHandling::MasterToLocalId(const TVector3& master, const TString& id)
@@ -222,7 +236,7 @@ TVector3 PndMvdGeoHandling::MasterToLocalPath(const TVector3& master, const TStr
   TString actPath = fGeoMan->GetPath();
   fGeoMan->cd(path);
   fGeoMan->MasterToLocal(temp, result);
-  if(actPath != "" && actPath != " ") fGeoMan->cd(actPath);  
+  if(actPath != "" && actPath != " ") fGeoMan->cd(actPath);
   return TVector3(result[0],result[1],result[2]);
 }
 
@@ -258,7 +272,7 @@ TVector3 PndMvdGeoHandling::MasterToLocalErrorsPath(const TVector3& master, cons
   Double_t temp[3];
   TString actPath = fGeoMan->GetPath();
   fGeoMan->cd(path);
-  
+
   temp[0] = master.X();
   temp[1] = master.Y();
   temp[2] = master.Z();

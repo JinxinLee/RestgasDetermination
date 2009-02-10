@@ -15,7 +15,7 @@
 #include <iostream>
 #include "PndMvdDigi.h"
 //! Class for digitised strip hits
-/** 
+/**
  * Information about digitised hits from strip detectors
  * @author HG Zaunick <hg.zaunick@physik.tu-dresden.de>
  *
@@ -24,8 +24,13 @@ class PndMvdDigiStrip : public PndMvdDigi
 {
   public :
     PndMvdDigiStrip();
+
+	PndMvdDigiStrip(Int_t index, Int_t detID, TString detName, Int_t fe, Int_t chan, Int_t timestamp, Double_t charge);
     PndMvdDigiStrip(Int_t index, Int_t detID, TString detName, Int_t fe,
-                    Int_t chan, Double_t charge);
+		    Int_t chan, Double_t charge);
+    
+    PndMvdDigiStrip(Int_t index, Int_t detID, TString detName, Int_t fe,
+                    Int_t chan, Double_t charge, Int_t timestamp);
     ~PndMvdDigiStrip(){};
     
     friend std::ostream& operator<< (std::ostream& out, PndMvdDigiStrip& digi){
@@ -46,6 +51,7 @@ class PndMvdDigiStrip : public PndMvdDigi
 //     TString GetDetName() const { return fDetName; }
 //     Int_t GetFE() const { return fFE; }
     Int_t GetChannel() const { return fChannel; }
+    Int_t GetTimestamp() const { return fTimestamp; }
 //     Double_t GetCharge() const { return fCharge; }
 //     Int_t GetMCID() const { return fMCID; }
 
@@ -71,10 +77,11 @@ class PndMvdDigiStrip : public PndMvdDigi
 //    TString fDetName;   /// Detector Name
 //    Int_t fFE;   /// Frontend Number
     Int_t fChannel;   /// Frontend Channel
+    Int_t fTimestamp;	/// Timestamp of ev
 //    Double_t fCharge;   /// Charge of Hit
 //    Int_t fMCID;   /// MC Track index
 
-    ClassDef(PndMvdDigiStrip,2);
+    ClassDef(PndMvdDigiStrip,3);
 };
 
 #endif

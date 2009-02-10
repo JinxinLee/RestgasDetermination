@@ -11,16 +11,18 @@
 #include "CbmRootManager.h"
 #include "PndMvdHybridHitProducer.h"
 #include "PndMvdMCPoint.h"
-#include "CbmRunAna.h"
+#include "CbmRun.h"
 #include "CbmRuntimeDb.h"
 #include "CbmGeoNode.h"
-#include "CbmRuntimeDb.h"
 #include "CbmGeoNode.h"
 #include "CbmGeoVector.h"
 #include "PndStringVector.h"
 #include "PndMvdCalcPixel.h"
 #include "PndMvdCalcFePixel.h"
 #include "PndMvdDigiPixel.h"
+
+//TODO this include is for the enumeration
+#include "PndMvdDetector.h"
 
 // -----   Default constructor   -------------------------------------------
 PndMvdHybridHitProducer::PndMvdHybridHitProducer() :
@@ -82,7 +84,7 @@ InitStatus PndMvdHybridHitProducer::ReInit()
 // -----   Public method Init   --------------------------------------------
 InitStatus PndMvdHybridHitProducer::Init()
 {
-    CbmRunAna* ana = CbmRunAna::Instance();
+    CbmRun* ana = CbmRun::Instance();
   CbmRootManager* ioman = CbmRootManager::Instance();
     fGeoH = new PndMvdGeoHandling(gGeoManager);
   if ( ! ioman )
@@ -149,7 +151,7 @@ void PndMvdHybridHitProducer::Exec(Option_t* opt)
   // Declare some variables
   PndMvdMCPoint *point = NULL;
 
-  Int_t detID = 0;      // Detector ID
+//  Int_t detID = 0;      // Detector ID
 
 
   // Loop over PndMvdMCPoints
@@ -221,7 +223,8 @@ void PndMvdHybridHitProducer::Exec(Option_t* opt)
           }
           AddHits(&myFePixels, iPoint);
 
-          detID   = point->GetDetectorID();
+//          detID   = point->GetDetectorID();
+
 //          for (UInt_t iPix = 0; iPix < myFePixels.size(); iPix++){
 //            new ((*fPixelArray)[iFePixel++])
 //                  PndMvdDigiPixel( iPoint, detID,   point->GetDetName(),myFePixels[iPix].GetFE(),
@@ -237,10 +240,14 @@ void PndMvdHybridHitProducer::Exec(Option_t* opt)
   for (int iPix = 0; iPix < fPixelList.size(); iPix++){
     if (fPixelList[iPix].GetCharge()<=fthreshold) continue;
 	  if (fVerbose > 1)  std::cout << fPixelList[iPix] << std::endl;
-    new ((*fPixelArray)[iFePixel++])
-          PndMvdDigiPixel( fPixelList[iPix].GetFirstMCIndex(), detID, fPixelList[iPix].GetDetName() ,fPixelList[iPix].GetFE(),
-                       fPixelList[iPix].GetCol(), fPixelList[iPix].GetRow(),
-                       fPixelList[iPix].GetCharge());
+	    new ((*fPixelArray)[iFePixel++])
+	          PndMvdDigiPixel( fPixelList[iPix].GetFirstMCIndex(), kMVDHitsPixel, fPixelList[iPix].GetDetName() ,fPixelList[iPix].GetFE(),
+	                       fPixelList[iPix].GetCol(), fPixelList[iPix].GetRow(),
+	                       fPixelList[iPix].GetCharge());
+//	    new ((*fPixelArray)[iFePixel++])
+//	          PndMvdDigiPixel( fPixelList[iPix].GetFirstMCIndex(), detID, fPixelList[iPix].GetDetName() ,fPixelList[iPix].GetFE(),
+//	                       fPixelList[iPix].GetCol(), fPixelList[iPix].GetRow(),
+//	                       fPixelList[iPix].GetCharge());
   }
 
   // Event summary

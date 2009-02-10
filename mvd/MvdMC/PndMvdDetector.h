@@ -31,7 +31,23 @@
 class TClonesArray;
 class TGeoNode;
 class PndMvdMCPoint;
-class CbmVolume; 
+class CbmVolume;
+
+
+enum fDetectorType {
+   kUnknown      =  0,
+   kTpcPoint     =  1,
+   kTpcCluster   =  2,
+   kMVDPoint     =  3,
+   kMVDHitsStrip =  4,
+   kMVDHitsPixel =  5,
+   kEmcCluster   =  6,
+   kEmcBump      =  7,
+   kSttPoint     =  8,
+   kSttHit       =  9,
+   kSttHelixHit  = 10,
+};
+
 
 class PndMvdDetector : public CbmDetector
 {
@@ -107,7 +123,7 @@ class PndMvdDetector : public CbmDetector
    *@param cl2     Target
    *@param offset  Index offset
    **/
-  virtual void CopyClones(TClonesArray* cl1, TClonesArray* cl2, 
+  virtual void CopyClones(TClonesArray* cl1, TClonesArray* cl2,
 			  Int_t offset);
 
 
@@ -124,7 +140,7 @@ class PndMvdDetector : public CbmDetector
   void SetRadDamOption(bool val){fUseRadDamOption = val;};
   bool GetRadDamOption(){return fUseRadDamOption;};
 
-  
+
  private:
 
   /** Track information to be stored until the track leaves the
@@ -143,9 +159,9 @@ class PndMvdDetector : public CbmDetector
   Int_t fPosIndex;                   //!
   TClonesArray* fPndMvdCollection;      //! Hit collection
   bool fUseRadDamOption;			//! enables the detection of neutral particles
-  
+
   std::vector<std::string> fListOfSensitives;
-  
+
   bool CheckIfSensitive(std::string name);
 
   /** Private method AddHit
@@ -154,8 +170,8 @@ class PndMvdDetector : public CbmDetector
    **/
   PndMvdMCPoint* AddHit(Int_t trackID, Int_t detID, TString detName,
   		      TVector3 posIn, TVector3 posOut,
-		      TVector3 momIn, TVector3 momOut, 
-		      Double_t time, Double_t length, Double_t eLoss)const; 
+		      TVector3 momIn, TVector3 momOut,
+		      Double_t time, Double_t length, Double_t eLoss)const;
 
 
   /** Private method ResetParameters
@@ -165,7 +181,7 @@ class PndMvdDetector : public CbmDetector
   void ResetParameters();
 
 
-  ClassDef(PndMvdDetector,5); 
+  ClassDef(PndMvdDetector,5);
 
 };
 

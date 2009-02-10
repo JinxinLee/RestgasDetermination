@@ -5,45 +5,32 @@
   Int_t nEvents = 100;
   // ----  Load libraries   -------------------------------------------------
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-//   gSystem->Load("libGeane");
+
+  gSystem->Load("libGeane");
   // ------------------------------------------------------------------------
   // Output file
-    TString parFile = "../data/MvdTrackingParams.root";
-    PndMvdFileNameCreator namecreator("../data/MvdTracking.root");
-    namecreator.SetVerbose(1);
-    TString MCFile = namecreator.GetSimFileName(false).c_str();
-    TString DigiFile = namecreator.GetDigiFileName(false).c_str();
-    TString RecoFile = namecreator.GetRecoFileName(false).c_str();
-    TString TrackFile  = namecreator.GetTrackFindingFileName(false).c_str();
-    TString outFile = namecreator.GetKalmanFileName(false).c_str();
+    TString parFile = "MvdFwdParams.root";
+    PndMvdFileNameCreator namecreator("MvdFwd.root");
+    std::string MCFile = namecreator.GetSimFileName();
+    std::string RecoFile = namecreator.GetRecoFileName();
+    std::string TrackFile  = namecreator.GetTrackFindingFileName();
+    std::string outFile = namecreator.GetKalmanFileName();
     
-    std::cout << "DigiFile: " << DigiFile.Data()<< std::endl;
-    std::cout << "RecoFile: " << RecoFile.Data()<< std::endl;
-    std::cout << "TrackFinderFile: " << TrackFile.Data()<< std::endl;
-    std::cout << "KalmanFile: " << outFile.Data() << std::endl;
-  // ---  Now choose concrete engines for the different tasks   -------------
-  // ------------------------------------------------------------------------
-
-
-  // In general, the following parts need not be touched
-  // ========================================================================
-
-
-
+    std::cout << "DigiFile: " << DigiFile<< std::endl;
+    std::cout << "RecoFile: " << RecoFile<< std::endl;
+    std::cout << "TrackFinderFile: " << TrackFile<< std::endl;
+    std::cout << "KalmanFile: " << outFile << std::endl;
 
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
   timer.Start();
   // ------------------------------------------------------------------------
 
-
-
   // -----   Reconstruction run   -------------------------------------------
   CbmRunAna *fRun= new CbmRunAna();
-  fRun->SetInputFile(MCFile);
-//   fRun->AddFriend(DigiFile);
-  fRun->AddFriend(RecoFile);
-  fRun->AddFriend(TrackFile);
+  fRun->SetInputFile(MCFile.c_str());
+  fRun->AddFriend(RecoFile.c_str());
+  fRun->AddFriend(TrackFile.c_str());
   
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
@@ -61,11 +48,6 @@
   fRun->LoadGeometry();
   // ------------------------------------------------------------------------
 
-
- 
-//   PndMvdKalmanTask* mvdKalman = new PndMvdKalmanTask();
-//   mvdKalman->SetVerbose(iVerbose);
-//   fRun->AddTask(mvdKalman);
 
   PndLheKalmanTask* lheKalman = new PndLheKalmanTask();
   lheKalman->SetVerbose(iVerbose);

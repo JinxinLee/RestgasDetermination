@@ -18,6 +18,7 @@ ${CMAKE_SOURCE_DIR}/mvd/MvdData
 ${CMAKE_SOURCE_DIR}/mvd/MvdDigi
 ${CMAKE_SOURCE_DIR}/mvd/MvdReco
 ${CMAKE_SOURCE_DIR}/mvd/MvdTools
+${CMAKE_SOURCE_DIR}/mvd/MvdDAQ
 ${CMAKE_SOURCE_DIR}/mvd/MvdPid
 ${CMAKE_SOURCE_DIR}/mvd/MvdTracking
 ${CMAKE_SOURCE_DIR}/mvd/transport
@@ -80,6 +81,9 @@ MvdTools/PndMvdEventMerger.cxx
 MvdTools/PndMvdEventMergerTask.cxx
 MvdTools/PndMvdMSAnaTask.cxx
 
+MvdDAQ/PndMvdConvertApv.cxx
+MvdDAQ/PndMvdConvertApvTask.cxx
+
 )
 set (MVD_RULECHECKER_SRCS ${MVD_SRCS})
 
@@ -105,6 +109,7 @@ set(MVDRECO_SRCS
 MvdData/PndMvdCluster.cxx
 MvdData/PndMvdHit.cxx
 MvdData/PndMvdHitInfo.cxx
+MvdData/PndMvdRadDamHit.cxx
 
 MvdReco/PndMvdRecoTask.cxx
 MvdReco/PndMvdClusterTask.cxx
@@ -115,8 +120,14 @@ MvdReco/PndMvdPixelClusterTask.cxx
 MvdReco/PndMvdIdealClusterTask.cxx
 MvdReco/PndMvdChargeWeightedPixelMapping.cxx
 MvdReco/PndMvdStripClusterBuilder.cxx
+MvdReco/PndMvdSimpleStripClusterFinder.cxx
+MvdReco/PndMvdStripClusterFinder.cxx
 MvdReco/PndMvdStripClusterTask.cxx
 MvdReco/PndMvdIdealRecoTask.cxx
+MvdReco/PndMvdChargeWeightingAlgorithms.cxx
+
+MvdTools/PndMvdRadDamList.cxx
+MvdTools/PndMvdRadDamTask.cxx
 
 )
 set (MVD_RULECHECKER_SRCS ${MVD_RULECHECKER_SRCS} ${MVDRECO_SRCS})
@@ -176,10 +187,8 @@ add_library(MvdTrk SHARED ${MVDTRK_SRCS})
 target_link_libraries(MvdTrk ${ROOT_LIBRARIES})
 set_target_properties(MvdTrk PROPERTIES ${CBMROOT_LIBRARY_PROPERTIES})
 
-
 ################################## install #####################################
 install(TARGETS Mvd DESTINATION ${CMAKE_BINARY_DIR}/lib)
 install(TARGETS MvdReco DESTINATION ${CMAKE_BINARY_DIR}/lib)
 install(TARGETS MvdTrk DESTINATION ${CMAKE_BINARY_DIR}/lib)
-
 

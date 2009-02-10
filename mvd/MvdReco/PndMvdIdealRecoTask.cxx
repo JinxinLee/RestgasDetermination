@@ -16,7 +16,7 @@
 // framework includes
 #include "CbmRootManager.h"
 #include "PndMvdIdealRecoTask.h"
-#include "CbmRunAna.h"
+#include "CbmRun.h"
 #include "CbmRuntimeDb.h"
 #include "../mcstack/CbmMCTrack.h"
 #include "CbmHit.h"
@@ -30,7 +30,7 @@ PndMvdIdealRecoTask::PndMvdIdealRecoTask() :
   fHitCovMatrix(3,3),
   CbmTask("Ideal reconstruction task for PANDA PndMvd")
 {
-  fSigmaX=0.; 
+  fSigmaX=0.;
   fSigmaY=0.;
   fSigmaZ=0.;
 	fBranchName 	= "MVDPoint";
@@ -105,7 +105,7 @@ void PndMvdIdealRecoTask::Exec(Option_t* opt)
 {
 	// Fills PndMvdHits with the MC Truth
   // TODO filling of RecoHits, together with the sensor plane
-  
+
 
  	if ( ! fHitOutputArray ) Fatal("Exec", "No fHitOutputArray");
  	fHitOutputArray->Clear();
@@ -133,8 +133,8 @@ void PndMvdIdealRecoTask::Exec(Option_t* opt)
     TVector3 dposLocal(fSigmaX,fSigmaY,fSigmaZ);
 
     // TODO here we shall distinguish between strip and pixel sensors
-    // TODO How to handle the covariance matrix? OR do we really use local point 
-    // errors. this would avoid two conversations, myabe overload the CbmHit 
+    // TODO How to handle the covariance matrix? OR do we really use local point
+    // errors. this would avoid two conversations, myabe overload the CbmHit
     // functions for the global error points.
 
     // Now the 3D Info is smared inside the CbmHit part of PndMvdHit

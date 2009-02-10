@@ -1,5 +1,6 @@
 #include "PndStringVector.h"
 #include <iostream>
+#include <sstream>
 
 
 PndStringVector::PndStringVector (std::string AInput, std::string ADelimiter)
@@ -39,12 +40,31 @@ std::vector<std::string> PndStringVector::GetStringVector(void)
   std::string value;
 
   ResetVector();
+  TestFirst();
+  TestLast();
   while (fStartPos != std::string::npos){
     value = GetString();
     if (value.length() > 0)
       fStrings.push_back(value);
   }
   return fStrings;
+}
+
+std::string PndStringVector::Replace(std::string from, std::string to)
+{
+	std::string olddel = fDelimiter;
+	SetDelimiter(from);
+	std::stringstream result;
+	std::vector<std::string> strVector = GetStringVector();
+	if (GetIfFirst()) result << to;
+	result << strVector[0];
+	for (int i = 1; i < strVector.size(); i++){
+		result << to << strVector[i];
+	}
+	if(GetIfLast()) result << to;
+	fDelimiter = olddel;
+	//std::cout << "New String: " << result.str() << std::endl;
+	return result.str();
 }
 
 void PndStringVector::Print()

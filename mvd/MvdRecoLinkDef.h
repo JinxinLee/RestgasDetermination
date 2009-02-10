@@ -22,6 +22,13 @@
 #pragma link C++ class PndMvdIdealClusterTask+;
 #pragma link C++ class PndMvdStripClusterTask+;
 #pragma link C++ class PndMvdStripClusterBuilder+;
+#pragma link C++ class PndMvdSimpleStripClusterFinder+;
+#pragma link C++ class PndMvdStripClusterFinder+;
+#pragma link C++ class PndMvdChargeWeightingAlgorithms+;
+//tools
+#pragma link C++ class PndMvdRadDamHit+;
+#pragma link C++ class PndMvdRadDamList+;
+#pragma link C++ class PndMvdRadDamTask+;
 
 
 
