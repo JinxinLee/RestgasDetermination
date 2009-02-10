@@ -48,6 +48,8 @@ public:
 
   void reset();  // deletes the RecoHits!
 
+  std::vector<AbsRecoHit*> getHits() {return hits;}
+
   const TrackCand& getCand() const {return _cand;}
 
   AbsRecoHit* getHit(int id) const {

@@ -45,6 +45,9 @@ public:
   // Modifiers -----------------------
   void setPos(const TVector3& p){_pos=p;}
 
+  // Acessors ------------------------
+  const TVector3& getPos() {return _pos;}
+
   // Operations ----------------------
   const DetPlane& detPlane(AbsRecoHit*, AbsTrackRep*);
   TMatrixT<double> hitCoord(AbsRecoHit*,const DetPlane&);

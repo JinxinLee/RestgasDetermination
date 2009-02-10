@@ -46,7 +46,7 @@ Kalman::processTrack(Track* trk){
     if(i == 0) trk->setNextHitToFit(0);
     else trk->setNextHitToFit(1);
     continueTrack(trk,1);
-    // the we do backtracking
+ //    //the we do backtracking
     switchDirection(trk);
     trk->setNextHitToFit(trk->getNumHits()-2);
     continueTrack(trk,-1);
