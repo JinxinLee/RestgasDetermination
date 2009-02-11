@@ -4,12 +4,12 @@
 #include "PndMvdDigiStrip.h"
 #include "PndMvdMCPoint.h"
 
-#include "CbmRun.h"
-#include "CbmRuntimeDb.h"
-#include "CbmGeoNode.h"
-#include "CbmGeoVector.h"
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
+#include "FairGeoNode.h"
+#include "FairGeoVector.h"
 #include "PndStringVector.h"
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 
 #include "TClonesArray.h"
 #include "TArrayD.h"
@@ -19,7 +19,7 @@
 using std::string;
 
 PndMvdDigiAna::PndMvdDigiAna() :
-  CbmTask("PndMvd Digi Ana")
+  FairTask("PndMvd Digi Ana")
 {
 //	fBranchName 	= "MVDDigiPixel";
 	fBranchName 	= "MVDDigiStrip";
@@ -32,7 +32,7 @@ PndMvdDigiAna::PndMvdDigiAna() :
 // -------------------------------------------------------------------------
 
 PndMvdDigiAna::PndMvdDigiAna(TString DetName) :
-  CbmTask("MVD Digi Ana")
+  FairTask("MVD Digi Ana")
 {
 //	fBranchName 	= "MVDDigiPixel";
 	fBranchName 	= "MVDDigiStrip";
@@ -54,8 +54,8 @@ PndMvdDigiAna::~PndMvdDigiAna()
 void PndMvdDigiAna::SetParContainers()
 {
   // Get Base Container
-  CbmRun* ana = CbmRun::Instance();
-  CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+  FairRun* ana = FairRun::Instance();
+  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
   fGeoPar = (PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar"));
   fDigiPar = (PndMvdPixelDigiPar*)(rtdb->getContainer("MVDPixelDigiPar"));
 
@@ -71,7 +71,7 @@ InitStatus PndMvdDigiAna::ReInit()
 InitStatus PndMvdDigiAna::Init()
 {
 
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
 
   if ( ! ioman )
     {

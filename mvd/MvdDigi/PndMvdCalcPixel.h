@@ -2,7 +2,7 @@
 #define PNDMVDCALCPIXEL_H
 
 #include "PndMvdPixel.h"
-#include "CbmGeoVector.h"
+#include "FairGeoVector.h"
 #include <iostream>
 #include <vector>
 //#include <XYVector.h>
@@ -54,12 +54,12 @@ class PndMvdCalcPixel
 		EQuadrantType fQuad;
 		ENextPixelType fNextPixel;
 			
-		CbmGeoVector fIn;	//entry point of particle in sensor
-		CbmGeoVector fOut;	//exit point of particle out of sensor
-		CbmGeoVector fDir;	//direction of particle inside sensor
-		CbmGeoVector fPos;	//actual position of stepping inside sensor
+		FairGeoVector fIn;	//entry point of particle in sensor
+		FairGeoVector fOut;	//exit point of particle out of sensor
+		FairGeoVector fDir;	//direction of particle inside sensor
+		FairGeoVector fPos;	//actual position of stepping inside sensor
 			
-		CbmGeoVector fCon;
+		FairGeoVector fCon;
 		
 		PndMvdPixel fActivePixel;
 	  Double_t fCperL;		//Charge per Tracklength;

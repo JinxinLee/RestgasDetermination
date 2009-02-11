@@ -18,7 +18,7 @@
 #ifndef PNDMVDHITPRODUCERIDEAL_H
 #define PNDMVDHITPRODUCERIDEAL_H 
 
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "PndMvdGeoPar.h"
 
 #include "TVector3.h"
@@ -26,7 +26,7 @@
  
 class TClonesArray;
 
-class PndMvdHitProducerIdeal : public CbmTask
+class PndMvdHitProducerIdeal : public FairTask
 {
  public:
 

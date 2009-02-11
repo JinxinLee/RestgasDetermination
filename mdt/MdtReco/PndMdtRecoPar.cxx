@@ -13,7 +13,7 @@ ClassImp(PndMdtRecoPar)
 
 PndMdtRecoPar::PndMdtRecoPar(const char* name,const char* title,
 			     const char* context)
-    : CbmParGenericSet(name,title,context) 
+    : FairParGenericSet(name,title,context) 
 {
   Clear();
   
@@ -51,13 +51,13 @@ void PndMdtRecoPar::Clear()
 	}
     }
 }
-void PndMdtRecoPar::putParams(CbmParamList* list)
+void PndMdtRecoPar::putParams(FairParamList* list)
 {
 	if(!list) return;
 	//list->add("LayerPosition",fLayerPos);
 }
  
-Bool_t PndMdtRecoPar::getParams(CbmParamList* list)
+Bool_t PndMdtRecoPar::getParams(FairParamList* list)
 {
   if (!list) return kFALSE;
   //if (!list->fill("LayerPosition",&fLayerPos)) return kFALSE;

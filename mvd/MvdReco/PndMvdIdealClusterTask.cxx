@@ -8,11 +8,11 @@
 #include "TArrayD.h"
 #include "TGeoManager.h"
 
-#include "CbmRootManager.h"
-#include "CbmRun.h"
-#include "CbmRuntimeDb.h"
-#include "CbmGeoNode.h"
-#include "CbmGeoVector.h"
+#include "FairRootManager.h"
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
+#include "FairGeoNode.h"
+#include "FairGeoVector.h"
 
 #include "PndStringVector.h"
 
@@ -30,25 +30,25 @@
 
 // -----   Default constructor   -------------------------------------------
 PndMvdIdealClusterTask::PndMvdIdealClusterTask() :
-  CbmTask("MVD Clustertisation Task")
+  FairTask("MVD Clustertisation Task")
 {
   fBranchName   = "MVDPixelDigis";
 
   TGeoManager* geoMan;// = new TGeoManager("geoMan","geoMan");
-  //geoMan->Import("PndMvdG4_DPM15fE+i_10000.root","CBMGeom");
+  //geoMan->Import("PndMvdG4_DPM15fE+i_10000.root","FAIRGeom");
   geoMan = gGeoManager;
 //  fDigiArray  = new TClonesArray("PndMvdDigiPixel");
 //  fClusterArray  = new TClonesArray("PndMvdIdealClusterPixel");
 }
 
 PndMvdIdealClusterTask::PndMvdIdealClusterTask(Double_t radius, Int_t FEcolumns, Int_t FErows, TString geoFile) :
-  CbmTask("MVD Clustertisation Task")
+  FairTask("MVD Clustertisation Task")
 {
   fBranchName   = "MVDPixelDigis";
 //  fDigiArray  = new TClonesArray("PndMvdDigiPixel");
 //  fClusterArray  = new TClonesArray("PndMvdClusterPixel");
   TGeoManager* geoMan;// = new TGeoManager("geoMan","geoMan");
-  //geoMan->Import("PndMvdG4_DPM15fE+i_10000.root","CBMGeom");
+  //geoMan->Import("PndMvdG4_DPM15fE+i_10000.root","FAIRGeom");
   geoMan = gGeoManager;
 
   fRadius = radius;
@@ -74,8 +74,8 @@ void PndMvdIdealClusterTask::SetParContainers()
 {
   // Get Base Container
 /*
-  CbmRun* ana = CbmRun::Instance();
-  CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+  FairRun* ana = FairRun::Instance();
+  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
   fGeoPar = (PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar"));
 */
 }
@@ -87,8 +87,8 @@ InitStatus PndMvdIdealClusterTask::ReInit()
   return stat;
 
   /*
-  CbmRun* ana = CbmRun::Instance();
-  CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+  FairRun* ana = FairRun::Instance();
+  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
   fGeoPar=(PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar"));
 
   return kSUCCESS;
@@ -99,7 +99,7 @@ InitStatus PndMvdIdealClusterTask::ReInit()
 InitStatus PndMvdIdealClusterTask::Init()
 {
 
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
 
   if ( ! ioman )
     {

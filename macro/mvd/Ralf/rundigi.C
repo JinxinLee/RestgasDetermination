@@ -27,19 +27,19 @@
   std::string outFile = namecreator.GetDigiFileName();
 
   // -----   Reconstruction run   -------------------------------------------
-  CbmRunAna *fRun= new CbmRunAna();
+  FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile.c_str());
   fRun->SetOutputFile(outFile.c_str());
 
 
   // -----  Parameter database   --------------------------------------------
-  CbmRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
 
-  CbmParRootFileIo* parInput1 = new CbmParRootFileIo();
+  FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open(parFile.Data());
   rtdb->setFirstInput(parInput1);
 
-  CbmParAsciiFileIo* parInput2 = new CbmParAsciiFileIo();
+  FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
   parInput2->open(digiparFile.Data(),"in");
   rtdb->setSecondInput(parInput2);
 
@@ -78,7 +78,7 @@
 
 //   // save Parameters ??into a new file??
   Bool_t kParameterMerged=kTRUE;
-  CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   output->open(parOutFile.Data(),"RECREATE");
   rtdb->setOutput(output);
 
@@ -90,8 +90,8 @@
 
 
 // // check param file
-//   CbmRuntimeDb* rtdb2 = fRun->GetRuntimeDb();
-//   CbmParRootFileIo* parInput1b = new CbmParRootFileIo();
+//   FairRuntimeDb* rtdb2 = fRun->GetRuntimeDb();
+//   FairParRootFileIo* parInput1b = new FairParRootFileIo();
 //   parInput1b->open(parFile.Data());
 //   rtdb2->setFirstInput(parInput1b);
 //   PndMvdStripDigiPar* par = (PndMvdStripDigiPar*)(rtdb2->getContainer("PndMvdStripDigiPar"));

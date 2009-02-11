@@ -26,7 +26,7 @@
 
 PndMvdGeoHandling::PndMvdGeoHandling()
 {
-	if (gROOT->FindObjectAny("CBMGeom") == 0){
+	if (gROOT->FindObjectAny("FAIRGeom") == 0){
 		std::cout << " -E- PndMvdGeoHandling: No Geometry existing!" << std::endl;
 		return;
 	}
@@ -36,7 +36,7 @@ PndMvdGeoHandling::PndMvdGeoHandling()
 
 PndMvdGeoHandling::PndMvdGeoHandling(TString fileName)
 {
-	if (gROOT->FindObjectAny("CBMGeom") == 0){
+	if (gROOT->FindObjectAny("FAIRGeom") == 0){
 		 TGeoManager* fGeoMan = new TGeoManager("geoMan","geoMan");
   		 fGeoMan->Import(fileName.Data());
 	}

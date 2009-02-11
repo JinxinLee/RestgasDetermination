@@ -6,7 +6,7 @@
 /////////////////////////////////////////////////////////////
 
 #include "PndGeoMuo.h"
-#include "CbmGeoNode.h"
+#include "FairGeoNode.h"
 
 ClassImp(PndGeoMuo)
 

@@ -49,7 +49,7 @@ TString parFile = "demo.param.root";
 
 
   // -----   Digitization run   -------------------------------------------
-  CbmRunAna *fRun= new CbmRunAna();
+  FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
@@ -57,10 +57,10 @@ TString parFile = "demo.param.root";
 
 
   // -----  Parameter database   --------------------------------------------
-  CbmRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  CbmParRootFileIo* parInput1 = new CbmParRootFileIo(kTRUE);
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairParRootFileIo* parInput1 = new FairParRootFileIo(kTRUE);
   parInput1->open(parFile.Data());
-  CbmParAsciiFileIo* parInput2 = new CbmParAsciiFileIo();
+  FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
   TString tpcDigiFile = gSystem->Getenv("VMCWORKDIR");
   tpcDigiFile += "/tpc/tpc.par";
   parInput2->open(tpcDigiFile.Data(),"in");

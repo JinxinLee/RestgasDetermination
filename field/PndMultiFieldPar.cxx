@@ -8,10 +8,10 @@
 #include "PndSolenoidPar.h"
 #include "PndTransPar.h"
 #include "PndTransMap.h"
-#include "CbmParamList.h"
+#include "FairParamList.h"
 #include "PndMapPar.h"
-#include "CbmRuntimeDb.h"
-#include "CbmRun.h"
+#include "FairRuntimeDb.h"
+#include "FairRun.h"
 
 // ------   Constructor   --------------------------------------------------
 PndMultiFieldPar::PndMultiFieldPar(const char* name, const char* title, const char* context) 
@@ -27,34 +27,34 @@ PndMultiFieldPar::PndMultiFieldPar()
 
 PndMultiFieldPar::~PndMultiFieldPar() { }
 
-void PndMultiFieldPar::putParams(CbmParamList* list)
+void PndMultiFieldPar::putParams(FairParamList* list)
 {
    if ( ! list ) return;
-   list->addBinary("List of Field par", fParArray);
+   list->addObject("List of Field par", fParArray);
    list->add("Field Type", fType);
 }
 
 
 
-Bool_t PndMultiFieldPar::getParams(CbmParamList* l)
+Bool_t PndMultiFieldPar::getParams(FairParamList* l)
 {
-  if (!l->fillBinary("list of fields Par",fParArray))return kFALSE;
+  if (!l->fillObject("list of fields Par",fParArray))return kFALSE;
   if ( ! l->fill("Field Type", &fType) ) return kFALSE;
 
   return kTRUE;
 } 
-void PndMultiFieldPar:: SetParameters(CbmField* field)
+void PndMultiFieldPar:: SetParameters(FairField* field)
 {	 
    fType=5;
-   CbmRuntimeDb *rtdb=CbmRuntimeDb::instance();
-   CbmRun *fRun= CbmRun::Instance();
+   FairRuntimeDb *rtdb=FairRuntimeDb::instance();
+   FairRun *fRun= FairRun::Instance();
    PndMultiField *fmField = (PndMultiField *)field;
    TObjArray *fArray=fmField->GetFieldList();
    TIterator *Iter=fArray->MakeIterator();
    Iter->Reset();
-   CbmField* fField = NULL;
+   FairField* fField = NULL;
    Int_t Type=-1;
-   while( (fField = (CbmField*)Iter->Next() ) ) {
+   while( (fField = (FairField*)Iter->Next() ) ) {
       Type=fField->GetType();
       if(Type==0){
 	 PndConstField *fc= (PndConstField *)fField;
@@ -80,7 +80,7 @@ void PndMultiFieldPar:: SetParameters(CbmField* field)
             sprintf(NO,"%d",fs->GetRegionNo());
             TString contN2=contN1+NO;
             TString contName=contN2+contN3;
-	//    cout << "------"<< "PndMultiFieldPar:: SetParameters(CbmField* field) " << contName << endl;
+	//    cout << "------"<< "PndMultiFieldPar:: SetParameters(FairField* field) " << contName << endl;
             PndMapPar* cs = (PndMapPar*) rtdb->getContainer(contName.Data());
             cs->SetParameters(fs);
 	    cs->setInputVersion(fRun->GetRunId(),1);

@@ -12,16 +12,16 @@
 
 //#include "TClonesArray.h"
 #include "TLorentzVector.h"
-#include "CbmDetector.h"
+#include "FairDetector.h"
 
 //using namespace std;
 
 class TClonesArray;
 class PndDrcPDPoint;
 class PndDrcBarPoint;
-class CbmVolume; 
+class FairVolume; 
 
-class PndDrc : public CbmDetector 
+class PndDrc : public FairDetector 
 {
 
  public:
@@ -54,7 +54,7 @@ class PndDrc : public CbmDetector
    ** them to the collections.
    *@param vol  Pointer to the active volume
    **/
-  virtual Bool_t ProcessHits(CbmVolume* vol = 0);
+  virtual Bool_t ProcessHits(FairVolume* vol = 0);
 
 
   /** Virtual method EndOfEvent

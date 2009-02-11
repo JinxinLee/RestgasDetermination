@@ -27,7 +27,7 @@
 #include <ostream> // remove if you do not need streaming op
 
 // Collaborating Class Declarations --
-class CbmMCPoint;
+class FairMCPoint;
 
 typedef RecoHitIfc<PlanarHitPolicy> PlanarRecoHit;
 
@@ -40,7 +40,7 @@ public:
 	       double sigx, double sigy);
   DemoRecoHit(const TVector3& pos,
 	       double sigx, double sigy);
-  DemoRecoHit(CbmMCPoint* point);
+  DemoRecoHit(FairMCPoint* point);
 
   virtual ~DemoRecoHit();
 

@@ -27,7 +27,7 @@ void writeMicro(TString recofn="", TString simfn="",int nevts=10, TString outfil
   	outfile=recofn+".full.root";
   TString simfile=simfn;
   	
-  CbmRunAna *fRunA= new CbmRunAna();
+  FairRunAna *fRunA= new FairRunAna();
   fRunA->SetInputFile(infile);
   fRunA->AddFriend(simfile);
   fRunA->SetOutputFile(outfile.Data());

@@ -40,7 +40,7 @@ void ana_simple(TString infile,TString cfgfile="analysis.cfg",int nevts=0,TStrin
   cout <<"\n####### Processing "<<nevts <<" events...\n"<<endl;
  	
   
-  CbmRunAna *fRunA= new CbmRunAna();
+  FairRunAna *fRunA= new FairRunAna();
   fRunA->SetInputFile(infile);
   fRunA->SetOutputFile(outfile);
   

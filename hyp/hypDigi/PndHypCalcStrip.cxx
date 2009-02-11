@@ -13,7 +13,7 @@
 
 #include "PndHypCalcStrip.h"
 #include "TRandom3.h"
-//#include "CbmGeoVector.h"
+//#include "FairGeoVector.h"
 
 //static const int CH_PER_FE = 128;
 

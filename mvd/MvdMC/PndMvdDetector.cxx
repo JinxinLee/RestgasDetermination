@@ -3,17 +3,17 @@
 #include "PndMvdGeo.h"
 #include "PndMvdGeoPar.h"
 
-#include "CbmGeoInterface.h"
-#include "CbmGeoLoader.h"
-#include "CbmGeoNode.h"
-#include "CbmGeoRootBuilder.h"
-#include "CbmRootManager.h"
-#include "CbmRuntimeDb.h"
-#include "CbmRun.h"
-#include "CbmGeoMedia.h"
-#include "CbmGeoVolume.h"
-#include "CbmRunSim.h"
-#include "CbmVolume.h"
+#include "FairGeoInterface.h"
+#include "FairGeoLoader.h"
+#include "FairGeoNode.h"
+#include "FairGeoRootBuilder.h"
+#include "FairRootManager.h"
+#include "FairRuntimeDb.h"
+#include "FairRun.h"
+#include "FairGeoMedia.h"
+#include "FairGeoVolume.h"
+#include "FairRunSim.h"
+#include "FairVolume.h"
 
 
 #include "PndMvdMCPoint.h"
@@ -36,7 +36,7 @@
 #include <string>
 #include <sstream>
 
-class CbmVolume;
+class FairVolume;
 
 // -----   Default constructor   -------------------------------------------
 PndMvdDetector::PndMvdDetector() : fUseRadDamOption(false) {
@@ -62,7 +62,7 @@ PndMvdDetector::PndMvdDetector() : fUseRadDamOption(false) {
 
 // -----   Standard constructor   ------------------------------------------
 PndMvdDetector::PndMvdDetector (const char* name, Bool_t active)
-  : CbmDetector(name, active), fUseRadDamOption(false) {
+  : FairDetector(name, active), fUseRadDamOption(false) {
   fPndMvdCollection = new TClonesArray("PndMvdMCPoint");
   fPosIndex = 0;
   fListOfSensitives.push_back("Disk-Sensor");//Root_Test.root
@@ -99,7 +99,7 @@ PndMvdDetector::~PndMvdDetector()
 void PndMvdDetector::Initialize()
 {
   std::cout<<" -I- Initializing PndMvdDetector()"<<std::endl;
-  CbmDetector::Initialize();
+  FairDetector::Initialize();
   if(0==gGeoManager) {
     std::cout<<" -E- No gGeoManager in PndMvdDetector::Initialize()!"<<std::endl;
     abort();
@@ -109,7 +109,7 @@ void PndMvdDetector::Initialize()
 
 
 // -----   Public method ProcessHits  --------------------------------------
-Bool_t  PndMvdDetector::ProcessHits(CbmVolume* vol)
+Bool_t  PndMvdDetector::ProcessHits(FairVolume* vol)
 {
 
   if ( gMC->IsTrackEntering() )
@@ -205,7 +205,7 @@ void PndMvdDetector::FinishRun()
 // -----   Public method Register   ----------------------------------------
 void PndMvdDetector::Register()
 {
-  CbmRootManager::Instance()->Register("MVDPoint", "PndMvd", fPndMvdCollection, kTRUE);
+  FairRootManager::Instance()->Register("MVDPoint", "PndMvd", fPndMvdCollection, kTRUE);
 }
 // -------------------------------------------------------------------------
 
@@ -308,8 +308,8 @@ void PndMvdDetector::ConstructASCIIGeometry()
   // get pointer to the instantons which interface
   // to monte carlo
 
-  CbmGeoLoader *geoLoad = CbmGeoLoader::Instance();
-  CbmGeoInterface *geoFace = geoLoad->getGeoInterface();
+  FairGeoLoader *geoLoad = FairGeoLoader::Instance();
+  FairGeoInterface *geoFace = geoLoad->getGeoInterface();
   PndMvdGeo *thePndMvdGeo  = new PndMvdGeo();
 
   thePndMvdGeo->setGeomFile(GetGeometryFileName());
@@ -323,9 +323,9 @@ void PndMvdDetector::ConstructASCIIGeometry()
   TList* volList = thePndMvdGeo->getListOfVolumes();
 
   // store geo parameter
-  CbmRun *fRun = CbmRun::Instance();
+  FairRun *fRun = FairRun::Instance();
 
-  CbmRuntimeDb *rtdb= CbmRun::Instance()->GetRuntimeDb();
+  FairRuntimeDb *rtdb= FairRun::Instance()->GetRuntimeDb();
 
   PndMvdGeoPar *par= (PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar"));
 
@@ -335,11 +335,11 @@ void PndMvdDetector::ConstructASCIIGeometry()
 
   TListIter iter(volList);
 
-  CbmGeoNode   *node = NULL;
-  CbmGeoVolume *aVol = NULL;
+  FairGeoNode   *node = NULL;
+  FairGeoVolume *aVol = NULL;
 
-  while( (node = (CbmGeoNode*)iter.Next()) ) {
-      aVol = dynamic_cast<CbmGeoVolume*> ( node );
+  while( (node = (FairGeoNode*)iter.Next()) ) {
+      aVol = dynamic_cast<FairGeoVolume*> ( node );
        if ( node->isSensitive()  ) {
            fSensNodes->AddLast( aVol );
        }else{

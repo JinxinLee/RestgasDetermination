@@ -19,7 +19,7 @@
 #define TPCPOINT_HH
 
 // Base Class Headers ----------------
-#include "CbmMCPoint.h"
+#include "FairMCPoint.h"
 #include "TMath.h"
 
 // Collaborating Class Headers -------
@@ -29,7 +29,7 @@
 
 
 
-class PndTpcPoint : public CbmMCPoint {
+class PndTpcPoint : public FairMCPoint {
 public:
 
   // Constructors/Destructors ---------

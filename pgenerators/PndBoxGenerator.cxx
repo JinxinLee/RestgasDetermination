@@ -7,7 +7,7 @@
 #include "TRandom.h"
 #include "TMath.h"
 #include "PndBoxGenerator.h"
-#include "CbmPrimaryGenerator.h"
+#include "FairPrimaryGenerator.h"
 #include "TParticlePDG.h"
 #include "TDatabasePDG.h"
 
@@ -65,7 +65,7 @@ void PndBoxGenerator::Init()
 }
 
 // ------------------------------------------------------------------------
-Bool_t PndBoxGenerator::ReadEvent(CbmPrimaryGenerator* primGen)
+Bool_t PndBoxGenerator::ReadEvent(FairPrimaryGenerator* primGen)
 {
   // Generate one event: produce primary particles emitted from one vertex.
   // Primary particles are distributed uniformly along

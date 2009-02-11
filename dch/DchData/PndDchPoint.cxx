@@ -9,7 +9,7 @@ using std::endl;
 #include "PndDchPoint.h"
 
 // -----   Default constructor   -------------------------------------------
-PndDchPoint::PndDchPoint() : CbmMCPoint() {
+PndDchPoint::PndDchPoint() : FairMCPoint() {
   fEventID = -1;
 }
 // -------------------------------------------------------------------------
@@ -18,7 +18,7 @@ PndDchPoint::PndDchPoint() : CbmMCPoint() {
 PndDchPoint::PndDchPoint(Int_t trackID,Int_t evtID, Int_t chamber, Int_t plane,
 			 TVector3 pos, TVector3 mom, 
                          Double_t tof, Double_t length, Double_t eLoss)
-  : CbmMCPoint(trackID, 0, pos, mom, tof, length, eLoss) {
+  : FairMCPoint(trackID, 0, pos, mom, tof, length, eLoss) {
   SetDetectorID(chamber,plane);
   fEventID = evtID;
 }

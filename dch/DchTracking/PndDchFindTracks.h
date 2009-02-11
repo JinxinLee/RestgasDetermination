@@ -21,12 +21,12 @@
 #define PNDDCHFINDTRACKS_H 1
 
 
-#include "CbmTask.h"
+#include "FairTask.h"
 
 class PndDchTrackFinder;
 class TClonesArray;
 
-class PndDchFindTracks : public CbmTask
+class PndDchFindTracks : public FairTask
 {
 
  public:

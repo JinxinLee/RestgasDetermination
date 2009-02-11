@@ -22,7 +22,7 @@
 
 // Base Class Headers ----------------
 #include "AbsTrackRep.h"
-#include "CbmTrackParP.h"
+#include "FairTrackParP.h"
 
 // Collaborating Class Headers -------
 #include <ostream> // remove if you do not need streaming op
@@ -30,7 +30,7 @@
 
 
 // Collaborating Class Declarations --
-class CbmGeanePro;
+class FairGeanePro;
 
 
 class GeaneTrackRep : public AbsTrackRep {
@@ -38,7 +38,7 @@ public:
 
   // Constructors/Destructors ---------
   GeaneTrackRep();
-  GeaneTrackRep(CbmGeanePro* geane,
+  GeaneTrackRep(FairGeanePro* geane,
 		const DetPlane& plane, // will be defined at origin of plane
 		const TVector3& mom,
 		const TVector3& poserr,
@@ -93,10 +93,10 @@ public:
   virtual void getPosMom(const DetPlane&,TVector3& pos,TVector3& mom) ;
   virtual double getCharge()const {return state[0][0] > 0 ? 1.: -1.;}
   int getPropDir() {return _backw;} 
-  CbmGeanePro* getPropagator() {return _geane;}
+  FairGeanePro* getPropagator() {return _geane;}
   int getPDG() {return _pdg;};
 
-  void setPropagator(CbmGeanePro* g){_geane=g;}
+  void setPropagator(FairGeanePro* g){_geane=g;}
   void setPropDir(int d){_backw=d;} 
   void switchDirection(){_backw=-_backw;}
 
@@ -105,7 +105,7 @@ public:
 private:
 
   // Private Data Members ------------
-  CbmGeanePro* _geane; //!
+  FairGeanePro* _geane; //!
   double _spu; // sign of z-component of momentum
   int _pdg; // pdg code of the particle to be tracked
   int _backw; // (-1,0,1) -> (backward prop,decide myself,forward)

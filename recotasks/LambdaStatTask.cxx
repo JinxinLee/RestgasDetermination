@@ -27,7 +27,7 @@
 #include <assert.h>
 
 // Collaborating Class Headers --------
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "TClonesArray.h"
 #include "CbmMCTrack.h"
 #include "TMath.h"
@@ -35,7 +35,7 @@
 #include "MCTruthAnnex.h"
 
 LambdaStatTask::LambdaStatTask()
-  : CbmTask("LambdaStatistics"), _persistence(kFALSE)
+  : FairTask("LambdaStatistics"), _persistence(kFALSE)
 {
   _lambdaBranchName = "LambdaMom";
   _mcBranchName = "MCTrack";
@@ -53,7 +53,7 @@ InitStatus
 LambdaStatTask::Init()
 {
   //Get ROOT Manager
-  CbmRootManager* ioman= CbmRootManager::Instance();
+  FairRootManager* ioman= FairRootManager::Instance();
 
   if(ioman==0)
     {

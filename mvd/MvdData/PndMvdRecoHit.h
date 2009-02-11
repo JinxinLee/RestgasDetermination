@@ -29,7 +29,7 @@
 #include <ostream> // remove if you do not need streaming op
 
 // Collaborating Class Declarations --
-class CbmMCPoint;
+class FairMCPoint;
 class PndMvdMCPoint;
 class PndMvdHit;
 

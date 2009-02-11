@@ -3,7 +3,7 @@
 
 using namespace std;
 #include "PndGeoPassivePar.h"
-#include "CbmParamList.h"
+#include "FairParamList.h"
 #include <iostream>
 #include <iomanip>
 #include "TObjArray.h"
@@ -11,7 +11,7 @@ using namespace std;
 ClassImp(PndGeoPassivePar)
 
 PndGeoPassivePar::PndGeoPassivePar(const char* name,const char* title,const char* context)
-           : CbmParGenericSet(name,title,context) {
+           : FairParGenericSet(name,title,context) {
 
                fGeoSensNodes = new TObjArray();
                fGeoPassNodes = new TObjArray();
@@ -25,16 +25,16 @@ void PndGeoPassivePar::clear(void) {
     if(fGeoPassNodes) delete fGeoPassNodes;
 }
 
-void PndGeoPassivePar::putParams(CbmParamList* l) {
+void PndGeoPassivePar::putParams(FairParamList* l) {
   if (!l) return;
-   l->addBinary("CbmGeoNodes Sensitive List", fGeoSensNodes);
-   l->addBinary("CbmGeoNodes Passive List", fGeoPassNodes);
+   l->addObject("FairGeoNodes Sensitive List", fGeoSensNodes);
+   l->addObject("FairGeoNodes Passive List", fGeoPassNodes);
 }
 
-Bool_t PndGeoPassivePar::getParams(CbmParamList* l) {
+Bool_t PndGeoPassivePar::getParams(FairParamList* l) {
     if (!l) return kFALSE;
-    if (!l->fillBinary("CbmGeoNodes Sensitive List", fGeoSensNodes)) return kFALSE;
-    if (!l->fillBinary("CbmGeoNodes Passive List", fGeoPassNodes)) return kFALSE;
+    if (!l->fillObject("FairGeoNodes Sensitive List", fGeoSensNodes)) return kFALSE;
+    if (!l->fillObject("FairGeoNodes Passive List", fGeoPassNodes)) return kFALSE;
 
   return kTRUE;
 }

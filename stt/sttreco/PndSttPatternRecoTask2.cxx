@@ -5,7 +5,7 @@
 #include "PndSttTrack.h"
 #include "Track.h"
 #include "TrackCand.h"
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "TClonesArray.h"
 #include <iostream>
 #include "PndSttHelixTrackFitter.h"
@@ -18,8 +18,8 @@
 #include "PndSttHelixHit.h"
 #include "Kalman.h"
 #include "FitterExceptions.h"
-#include "CbmGeanePro.h"
-#include "CbmTrackParP.h"
+#include "FairGeanePro.h"
+#include "FairTrackParP.h"
 #include "CbmMCTrack.h"
 
 
@@ -28,7 +28,7 @@ using std::endl;
 using std::string;
 
 // -----   Default constructor   -------------------------------------------
-PndSttPatternRecoTask2::PndSttPatternRecoTask2() : CbmTask("STT Pattern Reco Task") 
+PndSttPatternRecoTask2::PndSttPatternRecoTask2() : FairTask("STT Pattern Reco Task") 
 {
   
 }
@@ -50,7 +50,7 @@ InitStatus PndSttPatternRecoTask2::Init()
 {
   //   cout << "SttPRTask::Init()" << endl;
   
-  CbmRootManager *ioman = CbmRootManager::Instance();
+  FairRootManager *ioman = FairRootManager::Instance();
   
   if (!ioman) 
     {
@@ -95,7 +95,7 @@ InitStatus PndSttPatternRecoTask2::Init()
   fTrackArray = new TClonesArray("Track",100);
   ioman->Register("Track", "GenFit", fTrackArray, kTRUE);
   
-  fPro = new CbmGeanePro();
+  fPro = new FairGeanePro();
   return kSUCCESS;
 }
 

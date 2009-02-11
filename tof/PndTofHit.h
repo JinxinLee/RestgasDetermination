@@ -8,7 +8,7 @@
  *@author V.Friese <v.friese@gsi.de>
  **
  ** A hit in a hybrid pixel station of STS. In addition to the base class
- ** CbmHit, it holds the number of the pixel (column and row).
+ ** FairHit, it holds the number of the pixel (column and row).
  **/
 
 #ifndef PNDTOFHIT_H
@@ -17,10 +17,10 @@
 
 #include "TVector3.h"
 #include "TString.h"
-#include "CbmHit.h"
+#include "FairHit.h"
 
 
-class PndTofHit : public CbmHit
+class PndTofHit : public FairHit
 {
 
  public:

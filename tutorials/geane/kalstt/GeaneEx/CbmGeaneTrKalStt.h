@@ -3,11 +3,11 @@
 
 
 
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "TVector3.h"
 #include "TFile.h"
-#include "CbmGeanePro.h"
-#include "CbmGeaneUtil.h"
+#include "FairGeanePro.h"
+#include "FairGeaneUtil.h"
 
 class TGeant3;
 class TClonesArray;
@@ -17,14 +17,14 @@ class PndSttTrack;
 class PndSttHit;
 class PndSttPoint;
 
-class CbmGeaneTrKalStt : public CbmTask
+class FairGeaneTrKalStt : public FairTask
 {
  public:
   /** Default constructor **/  
-  CbmGeaneTrKalStt();
+  FairGeaneTrKalStt();
 
   /** Destructor **/
-  ~CbmGeaneTrKalStt();
+  ~FairGeaneTrKalStt();
 
   /** Virtual method Init **/
   virtual InitStatus Init();
@@ -34,12 +34,12 @@ class CbmGeaneTrKalStt : public CbmTask
 
   Bool_t CoordSDToMARS(TVector3 o, TVector3 y, TVector3 z, TMatrixT<double> coor, TVector3 &coordinate);
 
-  Bool_t ProcessHit(PndSttTrack *pTrack, Int_t k, CbmTrackParP *fRunningStart, CbmTrackParP *fRunningRes, TString fb);
-  Bool_t Propagation(PndSttHit *currenthit, CbmTrackParP *fRunningStart, CbmTrackParP *fRunningRes, TString fb);
-  Bool_t Kalman(PndSttHit *currenthit, CbmTrackParP *fRunningRes, CbmTrackParP *fRunningStart);
+  Bool_t ProcessHit(PndSttTrack *pTrack, Int_t k, FairTrackParP *fRunningStart, FairTrackParP *fRunningRes, TString fb);
+  Bool_t Propagation(PndSttHit *currenthit, FairTrackParP *fRunningStart, FairTrackParP *fRunningRes, TString fb);
+  Bool_t Kalman(PndSttHit *currenthit, FairTrackParP *fRunningRes, FairTrackParP *fRunningStart);
   Bool_t RetrieveVertex(PndSttTrack *pTrack);
-  Bool_t BackToVertex(CbmTrackParP *fRunningRes, CbmTrackParP *fRes);
- Bool_t BackToVertex2(CbmTrackParP *fRunningRes, CbmTrackParP *fRes);
+  Bool_t BackToVertex(FairTrackParP *fRunningRes, FairTrackParP *fRes);
+ Bool_t BackToVertex2(FairTrackParP *fRunningRes, FairTrackParP *fRes);
  void FinishTask();
 
  private:
@@ -56,10 +56,10 @@ class CbmGeaneTrKalStt : public CbmTask
   TClonesArray* fTrackParFinal;  
 
   TGeant3 *gMC3;
-  ClassDef(CbmGeaneTrKalStt,1);
+  ClassDef(FairGeaneTrKalStt,1);
   Int_t fEvent;
-  CbmGeanePro *fPro;
-  CbmGeaneUtil *fUtil;
+  FairGeanePro *fPro;
+  FairGeaneUtil *fUtil;
 
   Int_t PDGCode; //!
   TVector3 StartPos;     //!

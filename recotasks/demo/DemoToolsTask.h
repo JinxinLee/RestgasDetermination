@@ -21,7 +21,7 @@
 #define DEMOTOOLSTASK_HH
 
 // Base Class Headers ----------------
-#include "CbmTask.h"
+#include "FairTask.h"
 
 // Collaborating Class Headers -------
 #include "TString.h"
@@ -30,7 +30,7 @@
 class TClonesArray;
 class TH1D;
 
-class DemoToolsTask : public CbmTask {
+class DemoToolsTask : public FairTask {
 public:
 
   // Constructors/Destructors ---------

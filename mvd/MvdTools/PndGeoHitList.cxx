@@ -34,7 +34,7 @@ void PndGeoHitList::CreateNewGroup(TString groupName, TString topNodeName, TGeoV
   
 }
 
-void PndGeoHitList::AddHit(CbmHit* hit, Bool_t vis)
+void PndGeoHitList::AddHit(FairHit* hit, Bool_t vis)
 {
   AddHit(hit->GetX(), hit->GetY(), hit->GetZ(), vis);
 }
@@ -60,7 +60,7 @@ void PndGeoHitList::AddHits(TClonesArray* hitList, Bool_t vis)
   CreateGeoHits(hitList->GetEntries());
   
   for (Int_t i = 0; i < hitList->GetEntries(); i++){
-    CbmHit* myHit = (CbmHit*)hitList->At(i);
+    FairHit* myHit = (FairHit*)hitList->At(i);
     TGeoTranslation *tr = (TGeoTranslation*)fNodeList[start+i]->GetMatrix();
     tr->SetTranslation(myHit->GetX(), myHit->GetY(), myHit->GetZ());
     fNodeList[start+i]->SetVisibility(vis);
@@ -78,7 +78,7 @@ void PndGeoHitList::SetHits(TClonesArray* hitList, Bool_t vis)
     RemoveGeoHits(hitList->GetEntries());
   
   for (Int_t i = 0; i < hitList->GetEntries(); i++){
-    CbmHit* myHit = (CbmHit*)hitList->At(i);
+    FairHit* myHit = (FairHit*)hitList->At(i);
     TGeoTranslation *tr = (TGeoTranslation*)fNodeList[i]->GetMatrix();
     tr->SetTranslation(myHit->GetX(), myHit->GetY(), myHit->GetZ());
     fNodeList[i]->SetVisibility(vis);

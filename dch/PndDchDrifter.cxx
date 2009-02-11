@@ -5,8 +5,8 @@
 #include  "TMath.h"
 #include "PndDchDrifter.h"
 #include "TMath.h"
-#include "CbmRunAna.h"
-#include "CbmRuntimeDb.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
 #include "PndDchDigiPar.h"
 #include "PndDchDigiInf.h"
 
@@ -115,8 +115,8 @@ PndDchDrifter::PndDchDrifter(TString fileName, Double_t splaneWidth) :
  
 */
 void PndDchDrifter::SetParContainers() {
-	CbmRun* ana = CbmRun::Instance();
-	CbmRuntimeDb* rtdb = ana->GetRuntimeDb();
+	FairRun* ana = FairRun::Instance();
+	FairRuntimeDb* rtdb = ana->GetRuntimeDb();
 	fPar = (PndDchDigiPar*) (rtdb->getContainer("PndDchDigiParGarfield"));
 	fInf->FillDigiPar(fPar);
 }

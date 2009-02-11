@@ -13,19 +13,20 @@ ClassImp(PndEmcRecoPar)
 
 PndEmcRecoPar::PndEmcRecoPar(const char* name,const char* title,
 			     const char* context)
-    : CbmParGenericSet(name,title,context) 
+    : FairParGenericSet(name,title,context) 
 {
 	clear();
 }
 
-void PndEmcRecoPar::putParams(CbmParamList* list)
+void PndEmcRecoPar::putParams(FairParamList* list)
 {
 	if(!list) return;
 	list->add("EnergyThresholdBarrel",fEnergyThresholdBarrel);
 	list->add("EnergyThresholdFWD",fEnergyThresholdFWD);
 	list->add("EnergyThresholdBWD",fEnergyThresholdBWD);
 	list->add("EnergyThresholdShashlyk",fEnergyThresholdShashlyk);
-	list->add("EmcClusterPosMethod",fEmcClusterPosMethod,10);	list->add("OffsetParmA",fOffsetParmA);
+	list->add("EmcClusterPosMethod",fEmcClusterPosMethod);	
+        list->add("OffsetParmA",fOffsetParmA);
 	list->add("OffsetParmB",fOffsetParmB);
 	list->add("OffsetParmC",fOffsetParmC);
 	list->add("EmcDigiPositionDepth",fEmcDigiPositionDepth);
@@ -45,7 +46,7 @@ void PndEmcRecoPar::putParams(CbmParamList* list)
 	list->add("MinDigiEnergy",fMinDigiEnergy);
 }
  
-Bool_t PndEmcRecoPar::getParams(CbmParamList* list)
+Bool_t PndEmcRecoPar::getParams(FairParamList* list)
 {
 	if (!list) return kFALSE;
 	if (!list->fill("EnergyThresholdBarrel",&fEnergyThresholdBarrel)) return kFALSE;

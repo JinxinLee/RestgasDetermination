@@ -13,9 +13,9 @@
 #include "TMath.h"
 #include "TFile.h"
 
-#include "CbmRootManager.h"
-#include "CbmRunAna.h"
-#include "CbmRun.h"
+#include "FairRootManager.h"
+#include "FairRunAna.h"
+#include "FairRun.h"
 
 #include "PndDchSimpleFitter.h"
 #include "PndDchPoint.h"
@@ -25,7 +25,7 @@ using std::endl;
 
 // Default constructor
 PndDchSimpleFitter::PndDchSimpleFitter() :
-  CbmTask("very naive reconstruction for the dipole region") { 
+  FairTask("very naive reconstruction for the dipole region") { 
   fPointsAfterXZ = 0;
   fPointsInXZ = 0;
   fPointsBeforeXZ = 0;
@@ -63,7 +63,7 @@ InitStatus PndDchSimpleFitter::Init() {
   cout << "PndDchSimpleFitter::Init()... " << endl;
   
   // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
     cout << "-E- PndDchSimpleFitter::Init():\n\t "
 	 << "RootManager not instantiated!" << endl;

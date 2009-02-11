@@ -12,14 +12,14 @@ using std::endl;
 #include "PndRpcPoint.h"
 
 // -----   Default constructor   -------------------------------------------
-PndRpcPoint::PndRpcPoint() : CbmMCPoint() {}
+PndRpcPoint::PndRpcPoint() : FairMCPoint() {}
 // -------------------------------------------------------------------------
 
 // -----   Standard constructor   ------------------------------------------
 PndRpcPoint::PndRpcPoint(Int_t trackID, Int_t detID, TVector3 pos,
  TVector3 mom, Double_t tof, Double_t length, Double_t eLoss, Int_t 
 eventID, Double_t t1, Double_t t2, TVector3 pos_sm)
-  : CbmMCPoint(trackID, detID, pos, mom, tof, length, eLoss) {
+  : FairMCPoint(trackID, detID, pos, mom, tof, length, eLoss) {
     fX  = pos.X();  //cm
     fY  = pos.Y();  //cm
     fZ  = pos.Z();  //cm

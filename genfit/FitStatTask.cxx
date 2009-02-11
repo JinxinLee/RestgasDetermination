@@ -8,7 +8,7 @@
 #include <string>
 
 // Collaborating Class Headers --------
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "TClonesArray.h"
 #include "CbmMCTrack.h"
 #include "Track.h"
@@ -20,7 +20,7 @@
 
 
 FitStatTask::FitStatTask()
-  : CbmTask("FitStat"), _persistence(kFALSE)
+  : FairTask("FitStat"), _persistence(kFALSE)
 {
   stat = new statTreeMaker(std::string("statTree"),
 						   std::string("statTree.root"));
@@ -37,7 +37,7 @@ InitStatus
 FitStatTask::Init()
 {
   //Get ROOT Manager
-  CbmRootManager* ioman= CbmRootManager::Instance();
+  FairRootManager* ioman= FairRootManager::Instance();
 
   if(ioman==0)
     {

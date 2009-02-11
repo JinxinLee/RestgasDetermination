@@ -8,11 +8,11 @@
 
 
 #include "TVector3.h"
-#include "CbmHit.h"
+#include "FairHit.h"
 
 class PndSttHit;
 
-class PndSttHelixHit : public CbmHit 
+class PndSttHelixHit : public FairHit 
 {
 
  public:    
@@ -25,7 +25,7 @@ class PndSttHelixHit : public CbmHit
   *@param pos       Position coordinates X Y Z [cm]
   *@param dpos      Errors in position coordinates [cm]
   *@param mcindex   Index of corresponding MCPoint
-  *@param hitindex  Index of corresponding CbmHit
+  *@param hitindex  Index of corresponding FairHit
   *@param edep      Deposited energy
 
   **/

@@ -3,12 +3,12 @@
 #include "TMath.h"
 
 PndHypStripDigiPar::PndHypStripDigiPar(const char* name, const char* title, const char* context)
-	: CbmParGenericSet(name,title,context)
+	: FairParGenericSet(name,title,context)
 {
 	clear();
 }
 
-void PndHypStripDigiPar::putParams(CbmParamList* list)
+void PndHypStripDigiPar::putParams(FairParamList* list)
 {
 	if(!list) return;
 	list->add("top_pitch", topPitch);
@@ -31,7 +31,7 @@ void PndHypStripDigiPar::putParams(CbmParamList* list)
 	  //   list->add("feName", feName);
 }
 
-Bool_t PndHypStripDigiPar::getParams(CbmParamList* list)
+Bool_t PndHypStripDigiPar::getParams(FairParamList* list)
 {
 	if (!list) return kFALSE;
 	

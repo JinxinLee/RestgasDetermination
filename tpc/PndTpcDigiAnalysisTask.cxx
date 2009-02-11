@@ -28,7 +28,7 @@
 #include "TH2D.h"
 
 // Collaborating Class Headers --------
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "TClonesArray.h"
 #include "PndTpcDigi.h"
 #include "PndTpcDigiAge.h"
@@ -40,7 +40,7 @@
 
 
 PndTpcDigiAnalysisTask::PndTpcDigiAnalysisTask()
-  : CbmTask("TPC DigiAnalysis"), _persistence(kFALSE)
+  : FairTask("TPC DigiAnalysis"), _persistence(kFALSE)
  {
   _digiBranchName = "PndTpcDigi";
  }
@@ -55,7 +55,7 @@ InitStatus
 PndTpcDigiAnalysisTask::Init()
 {
   //Get ROOT Manager
-  CbmRootManager* ioman= CbmRootManager::Instance();
+  FairRootManager* ioman= FairRootManager::Instance();
 
   if(ioman==0)
     {
@@ -126,7 +126,7 @@ PndTpcDigiAnalysisTask::Exec(Option_t* opt)
 void
 PndTpcDigiAnalysisTask::WriteHistos()
 {
-  TFile* outfile=CbmRootManager::Instance()->GetOutFile();
+  TFile* outfile=FairRootManager::Instance()->GetOutFile();
   outfile->cd();
   _hTimesOverThres->Write();
   _hTimesXY->Write();

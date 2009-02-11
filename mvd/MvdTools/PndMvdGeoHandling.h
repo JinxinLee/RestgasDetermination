@@ -12,7 +12,7 @@
 * information and vice versa.
 * It needs the informations of the GeoManager. Therefore one has to
 * ensure that either an initialized TGeoManager pointer is given in the
-* constructor with the correct goemetry or a filename with the correct geoemetry ("CBMGeom")
+* constructor with the correct goemetry or a filename with the correct geoemetry ("FAIRGeom")
 *
 */
 

@@ -64,7 +64,7 @@ std::cout<<"ParamOut: "<<paramOut<<std::endl;
 
 
   // -----   Digitization run   -------------------------------------------
-  CbmRunAna *fRun= new CbmRunAna();
+  FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
@@ -72,10 +72,10 @@ std::cout<<"ParamOut: "<<paramOut<<std::endl;
 
 
   // -----  Parameter database   --------------------------------------------
-  CbmRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  CbmParRootFileIo* parInput1 = new CbmParRootFileIo();
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open(paramIn.Data());
-  CbmParAsciiFileIo* parInput2 = new CbmParAsciiFileIo();
+  FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
   TString tpcDigiFile = gSystem->Getenv("VMCWORKDIR");
   tpcDigiFile += "/tpc/tpc.par";
   parInput2->open(tpcDigiFile.Data(),"in");
@@ -83,7 +83,7 @@ std::cout<<"ParamOut: "<<paramOut<<std::endl;
   rtdb->setFirstInput(parInput2);
   rtdb->setSecondInput(parInput1);
 
-  CbmParRootFileIo* parOutput1 = new CbmParRootFileIo(kTRUE);
+  FairParRootFileIo* parOutput1 = new FairParRootFileIo(kTRUE);
   parOutput1->open(paramOut.Data());
   rtdb->setOutput(parOutput1);
   rtdb->saveOutput();
@@ -128,8 +128,8 @@ std::cout<<"ParamOut: "<<paramOut<<std::endl;
 
 
   // -----   Finish   -------------------------------------------------------
-CbmRootManager::Instance()->GetOutFile()->mkdir("QAPlots");
-CbmRootManager::Instance()->GetOutFile()->cd("QAPlots");
+FairRootManager::Instance()->GetOutFile()->mkdir("QAPlots");
+FairRootManager::Instance()->GetOutFile()->cd("QAPlots");
 qa->Write();
 
 

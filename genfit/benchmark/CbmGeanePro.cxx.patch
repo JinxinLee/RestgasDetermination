@@ -1,5 +1,5 @@
---- ../pandaroot/geane/CbmGeanePro.cxx	2008-06-18 17:06:32.000000000 +0200
-+++ geane/CbmGeanePro.cxx	2008-06-18 11:21:30.000000000 +0200
+--- ../pandaroot/geane/FairGeanePro.cxx	2008-06-18 17:06:32.000000000 +0200
++++ geane/FairGeanePro.cxx	2008-06-18 11:21:30.000000000 +0200
 @@ -57,7 +57,8 @@
    Float_t ch=1;   //        CHARGE OF PARTICLE
  

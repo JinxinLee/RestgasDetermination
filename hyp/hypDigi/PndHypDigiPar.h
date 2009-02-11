@@ -13,10 +13,10 @@
 #ifndef PNDHYPDIGIPAR_H
 #define PNDHYPDIGIPAR_H
 
-#include "CbmParGenericSet.h"
-#include "CbmParamList.h"
+#include "FairParGenericSet.h"
+#include "FairParamList.h"
 
-class PndHypDigiPar : public CbmParGenericSet
+class PndHypDigiPar : public FairParGenericSet
 {
 	public :
 		Double_t dimX;		  // PixelDimension in x
@@ -32,8 +32,8 @@ class PndHypDigiPar : public CbmParGenericSet
 			    const char* context="TestDefaultContext");
 		~PndHypDigiPar(void){};
 		void clear(void){};
-		void putParams(CbmParamList* list);
-		Bool_t getParams(CbmParamList* list);
+		void putParams(FairParamList* list);
+		Bool_t getParams(FairParamList* list);
 	ClassDef(PndHypDigiPar,2);
 };
 

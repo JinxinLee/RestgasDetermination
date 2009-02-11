@@ -8,9 +8,9 @@
 #include "TArrayD.h"
 #include "TGeoManager.h"
 
-#include "CbmRootManager.h"
-#include "CbmRun.h"
-#include "CbmRuntimeDb.h"
+#include "FairRootManager.h"
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
 
 #include "PndMvdIdealTrackFinderTask.h"
 
@@ -21,7 +21,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndMvdIdealTrackFinderTask::PndMvdIdealTrackFinderTask() :
-  CbmTask("MVD Ideal Track Finding Task")
+  FairTask("MVD Ideal Track Finding Task")
 {
    fHitBranchStrip = "MVDHitsStrip";
    fHitBranchPixel = "MVDHitsPixel";
@@ -48,8 +48,8 @@ void PndMvdIdealTrackFinderTask::SetParContainers()
 {
   // Get Base Container
 /*
-  CbmRun* ana = CbmRun::Instance();
-  CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+  FairRun* ana = FairRun::Instance();
+  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
   fGeoPar = (PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar"));
 */
 }
@@ -61,8 +61,8 @@ InitStatus PndMvdIdealTrackFinderTask::ReInit()
   return stat;
 
   /*
-  CbmRun* ana = CbmRun::Instance();
-  CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+  FairRun* ana = FairRun::Instance();
+  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
   fGeoPar=(PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar"));
 
   return kSUCCESS;
@@ -73,7 +73,7 @@ InitStatus PndMvdIdealTrackFinderTask::ReInit()
 InitStatus PndMvdIdealTrackFinderTask::Init()
 {
 
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
 
   if ( ! ioman )
     {

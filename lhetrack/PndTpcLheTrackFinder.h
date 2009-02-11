@@ -17,7 +17,7 @@
 #include "TBenchmark.h"
 #include "Riostream.h"
 
-#include "CbmTask.h"
+#include "FairTask.h"
 
 #include "PndTpcLheHit.h"
 #include "PndTpcLheCMPoint.h"
@@ -27,7 +27,7 @@
 #include "PndTpcLheTrackFitter.h"
 #include "lhe.h"
 
-class PndTpcLheTrackFinder : public CbmTask {
+class PndTpcLheTrackFinder : public FairTask {
 
 protected:
 

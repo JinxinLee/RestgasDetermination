@@ -7,8 +7,8 @@
 #ifndef PNDFIELDCREATOR_H
 #define PNDFIELDCREATOR_H
 
-#include "CbmField.h"
-#include "CbmFieldFactory.h"
+#include "FairField.h"
+#include "FairFieldFactory.h"
 #include "PndFieldPar.h"
 
 class  PndSolenoidPar;
@@ -17,12 +17,12 @@ class  PndTransPar   ;
 class  PndConstPar   ;
 class  PndMultiFieldPar ;
 
-class PndFieldCreator : public CbmFieldFactory 
+class PndFieldCreator : public FairFieldFactory 
 {
 public:
     PndFieldCreator();
     virtual ~PndFieldCreator();
-    virtual CbmField* createCbmField();
+    virtual FairField* createFairField();
     virtual void SetParm();
     ClassDef(PndFieldCreator,1);
 protected:

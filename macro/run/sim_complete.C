@@ -11,7 +11,7 @@ void sim_complete(Int_t nEvents=100, Double_t mom=10.0)
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");  
   rootlogon();
   
-  CbmRunSim *fRun = new CbmRunSim();
+  FairRunSim *fRun = new FairRunSim();
   
   TString parFile = "simparams.root";
     
@@ -28,19 +28,19 @@ void sim_complete(Int_t nEvents=100, Double_t mom=10.0)
   
   // Create and add detectors
   //-------------------------
-  CbmModule *Cave= new PndCave("CAVE");
+  FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave); 
   
-  CbmModule *Magnet= new PndMagnet("MAGNET");
+  FairModule *Magnet= new PndMagnet("MAGNET");
   Magnet->SetGeometryFileName("FullSolenoid.root");
   fRun->AddModule(Magnet);
   
-  CbmModule *Pipe= new PndPipe("PIPE");
+  FairModule *Pipe= new PndPipe("PIPE");
   Pipe->SetGeometryFileName("pipe.geo");
   fRun->AddModule(Pipe);
   
-  //CbmDetector *Emc = new PndEmc("EMC",kTRUE);
+  //FairDetector *Emc = new PndEmc("EMC",kTRUE);
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
   //Emc->SetGeometryFileName("emc_module12345.dat"); // if you want to use old geometry for FwEndCap
   Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root"); // if you want to use new geometry for FwEndCap
@@ -74,7 +74,7 @@ void sim_complete(Int_t nEvents=100, Double_t mom=10.0)
   // Create and Set Event Generator
   //-------------------------------
   
-  CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
+  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
   PndDpmDirect *dpmGen=new PndDpmDirect(mom,0);
@@ -101,9 +101,9 @@ void sim_complete(Int_t nEvents=100, Double_t mom=10.0)
   // Fill the Parameter containers for this run
   //-------------------------------------------
 
-  CbmRuntimeDb *rtdb=fRun->GetRuntimeDb();
+  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
   Bool_t kParameterMerged=kTRUE;
-  CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   output->open(parFile.Data());
   rtdb->setOutput(output);
   //PndConstPar* fieldPar = (PndConstPar*) rtdb->getContainer("PndConstPar");

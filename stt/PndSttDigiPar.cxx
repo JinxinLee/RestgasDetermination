@@ -11,9 +11,9 @@
 
 using namespace std;
 #include "PndSttDigiPar.h"
-#include "CbmRuntimeDb.h"
-#include "CbmParIo.h"
-#include "CbmDetParIo.h"
+#include "FairRuntimeDb.h"
+#include "FairParIo.h"
+#include "FairDetParIo.h"
 #include "TClass.h"
 #include <iostream> 
 #include <iomanip>
@@ -22,7 +22,7 @@ ClassImp(PndSttDigiPar)
 
 PndSttDigiPar::PndSttDigiPar(const char* name,const char* title,
 			     const char* context)
-    : CbmParSet(name,title,context) 
+    : FairParSet(name,title,context) 
 {
   // constructor does nothing yet
   detName="Stt";
@@ -33,22 +33,22 @@ PndSttDigiPar::~PndSttDigiPar()
     // destructor
 }
 
-Bool_t PndSttDigiPar::init(CbmParIo* inp) 
+Bool_t PndSttDigiPar::init(FairParIo* inp) 
 {
     // intitializes the container from an input
     cout << "-I- PndSttDigiPar::init " << endl;
     
-    CbmDetParIo* input=inp->getDetParIo("PndSttParIo");
+    FairDetParIo* input=inp->getDetParIo("PndSttParIo");
     cout << "-I- PndSttDigiPar::init " << input << endl;
 
     if (input) return (input->init(this));
     return kFALSE;
 }
 
-Int_t PndSttDigiPar::write(CbmParIo* output) 
+Int_t PndSttDigiPar::write(FairParIo* output) 
 {
     // writes the container to an output
-    CbmDetParIo* out=output->getDetParIo("PndSttParIo");
+    FairDetParIo* out=output->getDetParIo("PndSttParIo");
     if (out) return out->write(this);
     return -1;
 }

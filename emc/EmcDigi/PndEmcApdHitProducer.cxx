@@ -15,12 +15,12 @@
 #include "PndEmcApdHit.h"
 #include "PndEmcApdPoint.h"
 
-#include "CbmRootManager.h"
-#include "CbmRunAna.h"
-#include "CbmRuntimeDb.h"
-#include "CbmDetector.h"
-#include "CbmRun.h"
-#include "CbmRuntimeDb.h"
+#include "FairRootManager.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
+#include "FairDetector.h"
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
 
 #include "TClonesArray.h"
 #include "TROOT.h"
@@ -39,7 +39,7 @@ using std::map;
 		
 // -----   Default constructor   -------------------------------------------
 PndEmcApdHitProducer::PndEmcApdHitProducer() :
-  CbmTask("Ideal EMC APD hit Producer") { 
+  FairTask("Ideal EMC APD hit Producer") { 
 }
 // -------------------------------------------------------------------------
 
@@ -54,12 +54,12 @@ InitStatus PndEmcApdHitProducer::Init() {
  
   cout << " INITIALIZATION *********************" << endl;
   
-  //CbmDetector::Initialize();
-  //CbmRun* sim = CbmRun::Instance();
-  //CbmRuntimeDb* rtdb=sim->GetRuntimeDb();
+  //FairDetector::Initialize();
+  //FairRun* sim = FairRun::Instance();
+  //FairRuntimeDb* rtdb=sim->GetRuntimeDb();
   
   // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
     cout << "-E- PndEmcApdHitProducer::Init: "
 	 << "RootManager not instantiated!" << endl;
@@ -81,8 +81,8 @@ InitStatus PndEmcApdHitProducer::Init() {
   
 	// Geometry loading
 // 	TFile *infile = ioman->GetInFile();
-// 	TGeoManager *geoMan = (TGeoManager*) infile->Get("CBMGeom");
-	TGeoManager *geoMan = (TGeoManager*) gROOT->FindObject("CBMGeom");
+// 	TGeoManager *geoMan = (TGeoManager*) infile->Get("FAIRGeom");
+	TGeoManager *geoMan = (TGeoManager*) gROOT->FindObject("FAIRGeom");
 	
 	fMapVersion=1;
 	PndEmcMapper *map=PndEmcMapper::Instance(fMapVersion);

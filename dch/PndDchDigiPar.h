@@ -2,10 +2,10 @@
 #ifndef PNDDCHDIGIPAR_H
 #define PNDDCHDIGIPAR_H
 
-#include "CbmParGenericSet.h"
+#include "FairParGenericSet.h"
 #include "TMap.h"
 
-class PndDchDigiPar: public CbmParGenericSet {
+class PndDchDigiPar: public FairParGenericSet {
 public:
 
 	/** Standard constructor **/
@@ -19,10 +19,10 @@ public:
 	void clear(void);
 
 	/** Public method putParams(...) **/
-	void putParams(CbmParamList*);
+	void putParams(FairParamList*);
 
 	/** Public method gutParams(...) **/
-	Bool_t getParams(CbmParamList*);
+	Bool_t getParams(FairParamList*);
 
 	//Double_t GetVariable(const char* key) const { return fVariables; }
 	TMap* GetVariables() const {

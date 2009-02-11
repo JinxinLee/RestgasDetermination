@@ -2,8 +2,8 @@
 // Authors A. Fontana & P. Genova, Sept. 2007
 
 #include "TClonesArray.h"
-#include "CbmRootManager.h"
-#include "CbmGeaneTrT.h"
+#include "FairRootManager.h"
+#include "FairGeaneTrT.h"
 #include "TGeant3TGeo.h"
 #include "TGeant3.h"
 #include "TVector3.h"
@@ -14,10 +14,10 @@
 #include "PndSttHit.h"
 #include "PndSttPoint.h"
 #include "DetPlane.h"
-#include "CbmRunAna.h"
+#include "FairRunAna.h"
 #include "PndSttHelixTrackFitter.h"
-#include "CbmTrackParH.h"
-#include "CbmTrackParP.h"
+#include "FairTrackParH.h"
+#include "FairTrackParP.h"
 #include "TCanvas.h"
 #include "TH1F.h"
 
@@ -28,24 +28,24 @@ using namespace std;
 // TH1F *dstvtx, *momvtx;
 
 // -----   Default constructor   -------------------------------------------
-CbmGeaneTrT::CbmGeaneTrT() :
-  CbmTask("Test") { }
+FairGeaneTrT::FairGeaneTrT() :
+  FairTask("Test") { }
 // -------------------------------------------------------------------------
 
 
 
 // -----   Destructor   ----------------------------------------------------
-CbmGeaneTrT::~CbmGeaneTrT() { }
+FairGeaneTrT::~FairGeaneTrT() { }
 // -------------------------------------------------------------------------
 
 
 // -----   Public method Init   --------------------------------------------
-InitStatus CbmGeaneTrT::Init() {
+InitStatus FairGeaneTrT::Init() {
  
   // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
-    cout << "-E- CbmGeaneTrT::Init: "
+    cout << "-E- FairGeaneTrT::Init: "
 	 << "RootManager not instantised!" << endl;
     return kFATAL;
   }
@@ -56,31 +56,31 @@ InitStatus CbmGeaneTrT::Init() {
 //   momvtx = new TH1F("momvtx","momvtx",100,0,0.5);
 
 
-  fTrackParGeane = new TClonesArray("CbmTrackParP");
+  fTrackParGeane = new TClonesArray("FairTrackParP");
   ioman->Register("GeaneTrackPar","Geane", fTrackParGeane, kTRUE);
   
-  fTrackParIni = new TClonesArray("CbmTrackParP");
+  fTrackParIni = new TClonesArray("FairTrackParP");
   ioman->Register("GeaneTrackIni","Geane", fTrackParIni, kTRUE);
   
-  fTrackParFinal = new TClonesArray("CbmTrackParP");
+  fTrackParFinal = new TClonesArray("FairTrackParP");
   ioman->Register("GeaneTrackFinal","Geane", fTrackParFinal, kTRUE);
   
   // Get hit Array
   fHitArray = (TClonesArray*) ioman->GetObject("STTHit");
-  if (!fHitArray)   cout << "-W- CbmGeaneTrT::Init: No Hit array!" << endl;
+  if (!fHitArray)   cout << "-W- FairGeaneTrT::Init: No Hit array!" << endl;
   // Get point Array
   fPointArray = (TClonesArray*) ioman->GetObject("STTPoint");
-  if (!fPointArray) cout << "-W- CbmGeaneTrT::Init: No Point array!" << endl;
+  if (!fPointArray) cout << "-W- FairGeaneTrT::Init: No Point array!" << endl;
  
   // Get SttTrack array
   fTrackArray  = (TClonesArray*) ioman->GetObject("STTTrack"); 
   if (!fTrackArray) {
-    cout << "-E- CbmGeaneTrT::Init: No SttTrack array!" << endl;
+    cout << "-E- FairGeaneTrT::Init: No SttTrack array!" << endl;
     return kERROR;
   }
 
-  fPro = new CbmGeanePro();
-  fUtil = new CbmGeaneUtil();
+  fPro = new FairGeanePro();
+  fUtil = new FairGeaneUtil();
   //  fPro->PropagateToVolume("mL3",0,1);
 
   return kSUCCESS;
@@ -90,8 +90,8 @@ InitStatus CbmGeaneTrT::Init() {
 
 
 // -----   Public method Exec   --------------------------------------------
-void CbmGeaneTrT::Exec(Option_t* opt) {
-  //	cout << "CbmGeaneTrT::Exec" << endl;
+void FairGeaneTrT::Exec(Option_t* opt) {
+  //	cout << "FairGeaneTrT::Exec" << endl;
    fTrackParGeane->Delete();
    fTrackParIni->Delete();
    fTrackParFinal->Delete();
@@ -172,17 +172,17 @@ void CbmGeaneTrT::Exec(Option_t* opt) {
        
        TClonesArray& clref1 = *fTrackParIni;
        Int_t size1 = clref1.GetEntriesFast();
-       //       CbmTrackParH *fStart = new (clref1[size1]) CbmTrackParH(StartPos, StartMom, StartPosErr, StartMomErr, fCharge);
-       CbmTrackParP *fStart = new (clref1[size1]) CbmTrackParP(StartPos, StartMom, StartPosErr, StartMomErr, fCharge, TVector3(0.,0.,0.), TVector3(0.,1.,0.), TVector3(0.,0.,1.));
+       //       FairTrackParH *fStart = new (clref1[size1]) FairTrackParH(StartPos, StartMom, StartPosErr, StartMomErr, fCharge);
+       FairTrackParP *fStart = new (clref1[size1]) FairTrackParP(StartPos, StartMom, StartPosErr, StartMomErr, fCharge, TVector3(0.,0.,0.), TVector3(0.,1.,0.), TVector3(0.,0.,1.));
 	
        TClonesArray& clref = *fTrackParGeane;
        Int_t size = clref.GetEntriesFast();
-       CbmTrackParP *fRes = new(clref[size]) CbmTrackParP();
+       FairTrackParP *fRes = new(clref[size]) FairTrackParP();
        
        TClonesArray& clref2 = *fTrackParFinal;
        Int_t size2 = clref2.GetEntriesFast();
-       CbmTrackParP *fFinal = new(clref2[size2]) CbmTrackParP();
-       CbmTrackParH *fFinalH = new CbmTrackParH(EndPos, EndMom, EndPosErr, EndMomErr, fCharge);
+       FairTrackParP *fFinal = new(clref2[size2]) FairTrackParP();
+       FairTrackParH *fFinalH = new FairTrackParH(EndPos, EndMom, EndPosErr, EndMomErr, fCharge);
     
        // ----- propagation: using method propagate to closest ------
        TVector3 v0 = TVector3(0, 0, 0);
@@ -250,4 +250,4 @@ void CbmGeaneTrT::Exec(Option_t* opt) {
 
 
 
-ClassImp(CbmGeaneTrT)
+ClassImp(FairGeaneTrT)

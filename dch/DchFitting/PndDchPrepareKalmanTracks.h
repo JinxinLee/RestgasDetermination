@@ -13,7 +13,7 @@
 #define PNDDCHPREPAREKALMANTRACKS_HH
 
 // Pnd Headres
-#include "CbmTask.h"
+#include "FairTask.h"
 
 // c++ headers
 #include <map>
@@ -21,10 +21,10 @@
 class TClonesArray;
 class RecoHitFactory;
 class AbsBFieldIfc;
-class CbmField;
-class CbmGeanePro;
+class FairField;
+class FairGeanePro;
 
-class PndDchPrepareKalmanTracks : public CbmTask {
+class PndDchPrepareKalmanTracks : public FairTask {
 public:
 
   /**  Constructor  **/
@@ -41,8 +41,8 @@ public:
   /** public method SetPersistence(Bool_t opt) **/
   void SetPersistence(Bool_t opt=kTRUE) {fPersistence=opt;}
 
-  /** public method SetField(CbmField* f) to keep pointer to the B field **/
-  void SetField(CbmField* f){fField=f;}
+  /** public method SetField(FairField* f) to keep pointer to the B field **/
+  void SetField(FairField* f){fField=f;}
 
   /** public method UseGeane(Bool_t f) to switch the use of Geane **/
   void UseGeane(Bool_t f=true){fUseGeane=f;}
@@ -72,8 +72,8 @@ private:
   Bool_t fPersistence;    ///< persistance flag
   Bool_t fUseGeane;       ///< flag switching on/off use of Geane
 
-  CbmField*    fField;    ///< pointer to field to be used by Geane 
-  CbmGeanePro* fGeanePro; ///< pointer to Geane object
+  FairField*    fField;    ///< pointer to field to be used by Geane 
+  FairGeanePro* fGeanePro; ///< pointer to Geane object
 
   // Private Methods -----------------
 

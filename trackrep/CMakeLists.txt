@@ -47,6 +47,6 @@ SET(TRACKREP_SRCS_ALL ${TRACKREP_SRCS} ${TRACKREP_DICTIONARY})
 
 add_library(trackrep SHARED ${TRACKREP_SRCS_ALL})
 target_link_libraries(trackrep ${ROOT_LIBRARIES})
-set_target_properties(trackrep PROPERTIES ${CBMROOT_LIBRARY_PROPERTIES})
+set_target_properties(trackrep PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 ################ install ###################
 install(TARGETS trackrep DESTINATION ${CMAKE_BINARY_DIR}/lib)

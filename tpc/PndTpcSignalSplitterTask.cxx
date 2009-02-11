@@ -28,8 +28,8 @@
 
 
 // Collaborating Class Headers --------
-#include "CbmRootManager.h"
-#include "CbmEventHeader.h"
+#include "FairRootManager.h"
+#include "FairEventHeader.h"
 
 #include "TClonesArray.h"
 #include "PndTpcSignal.h"
@@ -51,7 +51,7 @@
 
 
 PndTpcSignalSplitterTask::PndTpcSignalSplitterTask()
-  : CbmTask("TPC SignalSplitter response"), _single(false)
+  : FairTask("TPC SignalSplitter response"), _single(false)
 {
   _signalBranchName = "PndTpcSignal";
   _base = "PndTpcSigRegion";
@@ -67,7 +67,7 @@ InitStatus
 PndTpcSignalSplitterTask::Init()
 {
   //Get ROOT Manager
-  CbmRootManager* ioman= CbmRootManager::Instance();
+  FairRootManager* ioman= FairRootManager::Instance();
 
   if(ioman==0)
     {
@@ -85,7 +85,7 @@ PndTpcSignalSplitterTask::Init()
     }
 
   ioman->ActivateBranch("EventHeader.");
-  _evtHeader=(CbmEventHeader*) ioman->GetObject("EventHeader.");
+  _evtHeader=(FairEventHeader*) ioman->GetObject("EventHeader.");
   if(_evtHeader==0)
     {
       Error("PndTpcSignalSplitterTask::Init","EventHeader not found!");

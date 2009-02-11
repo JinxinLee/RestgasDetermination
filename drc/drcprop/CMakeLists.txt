@@ -69,6 +69,6 @@ endif(RULE_CHECKER_FOUND)
 
 add_library(DrcProp SHARED ${DRCPROP_SRCS})
 target_link_libraries(DrcProp ${ROOT_LIBRARIES})
-set_target_properties(DrcProp PROPERTIES ${CBMROOT_LIBRARY_PROPERTIES})
+set_target_properties(DrcProp PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 ################ install ###################
 install(TARGETS DrcProp DESTINATION ${CMAKE_BINARY_DIR}/lib)

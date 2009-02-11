@@ -47,7 +47,7 @@ runDchTrackFinderIdeal() {
 
 
 	//------ Reconstruction run ------------------------
-	CbmRunAna *fRun= new CbmRunAna();
+	FairRunAna *fRun= new FairRunAna();
 	fRun->SetInputFile(mcFile);
 	fRun->SetOutputFile(outFile);
 	fRun->AddFriend(hitFile);

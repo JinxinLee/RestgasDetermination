@@ -12,7 +12,7 @@
 #include "TVector3.h"
 #include "TParticle.h"
 #include "PndDpmGenerator.h"
-#include "CbmPrimaryGenerator.h"
+#include "FairPrimaryGenerator.h"
 
 
 
@@ -51,7 +51,7 @@ PndDpmGenerator::~PndDpmGenerator() {
 
 
 // -----   Public method ReadEvent   --------------------------------------
-Bool_t PndDpmGenerator::ReadEvent(CbmPrimaryGenerator* primGen) {
+Bool_t PndDpmGenerator::ReadEvent(FairPrimaryGenerator* primGen) {
 
   // Check for input file
   if ( ! fInputFile ) {

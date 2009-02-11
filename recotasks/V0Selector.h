@@ -19,7 +19,7 @@
 #define V0SELECTOR_HH
 
 // Base Class Headers ----------------
-#include "CbmTask.h"
+#include "FairTask.h"
 
 // Collaborating Class Headers -------
  
@@ -28,7 +28,7 @@
 class TClonesArray;
 
 
-class V0Selector : public CbmTask {
+class V0Selector : public FairTask {
 public:
 
   // Constructors/Destructors ---------

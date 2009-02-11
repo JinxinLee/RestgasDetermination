@@ -14,15 +14,15 @@
 
 #include "TClonesArray.h"
 
-#include "CbmTask.h"
-#include "CbmDetector.h"
-#include "CbmHit.h"
+#include "FairTask.h"
+#include "FairDetector.h"
+#include "FairHit.h"
 
 #include "PndTpcLheHit.h"
 #include "PndTpcLheTrack.h"
 #include "PndTpcLheTrackCuts.h"
 
-class PndTpcLheHitsMaker : public CbmTask {
+class PndTpcLheHitsMaker : public FairTask {
 
     
 protected:

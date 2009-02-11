@@ -2,18 +2,18 @@
 #ifndef PNDMDTCONTFACT_H
 #define PNDMDTCONTFACT_H
 
-#include "CbmContFact.h"
+#include "FairContFact.h"
 
-class CbmContainer;
+class FairContainer;
 
-class PndMdtContFact : public CbmContFact {
+class PndMdtContFact : public FairContFact {
 private:
   void setAllContainers();
 public:
   PndMdtContFact();
   ~PndMdtContFact() {}
-  CbmParSet* createContainer(CbmContainer*);
- /*  void  activateParIo(CbmParIo* io); */
+  FairParSet* createContainer(FairContainer*);
+ /*  void  activateParIo(FairParIo* io); */
   ClassDef( PndMdtContFact,0) // Factory for all MDT parameter containers
 };
 

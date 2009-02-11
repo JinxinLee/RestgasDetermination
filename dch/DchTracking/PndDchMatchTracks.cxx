@@ -11,8 +11,8 @@
 #include "PndDchTrack.h"
 
 // Root includes
-#include "CbmMCPoint.h"
-#include "CbmRootManager.h"
+#include "FairMCPoint.h"
+#include "FairRootManager.h"
 #include "TClonesArray.h"
 
 // C++ includes
@@ -25,7 +25,7 @@ using std::map;
 
 // -----   Default constructor   -------------------------------------------
 PndDchMatchTracks::PndDchMatchTracks() 
-: CbmTask("PndDchMatchTracks") {
+: FairTask("PndDchMatchTracks") {
 	fTracks       = NULL;
 	fPoints       = NULL;
 	fHits         = NULL;
@@ -42,7 +42,7 @@ PndDchMatchTracks::PndDchMatchTracks()
 
 // -----   Constructor with verbosity level   ------------------------------
 PndDchMatchTracks::PndDchMatchTracks(Int_t verbose) 
-: CbmTask("PndDchMatchTracks") {
+: FairTask("PndDchMatchTracks") {
 	fTracks       = NULL;
 	fPoints       = NULL;
 	fHits         = NULL;
@@ -60,7 +60,7 @@ PndDchMatchTracks::PndDchMatchTracks(Int_t verbose)
 // -----   Constructor with name, title, digi/hits usage and verbosity  ---------------------
 PndDchMatchTracks::PndDchMatchTracks(const char* name, const char* title,
 		TString hitOrDigi, Int_t verbose) 
-: CbmTask(name) {
+: FairTask(name) {
 	fTracks  = NULL;
 	fPoints  = NULL;
 	fHits    = NULL;
@@ -84,8 +84,8 @@ PndDchMatchTracks::~PndDchMatchTracks() { }
 // -----   Public method Init   --------------------------------------------
 InitStatus PndDchMatchTracks::Init() {
 
-	// Get CbmRootManager
-	CbmRootManager* ioman = CbmRootManager::Instance();
+	// Get FairRootManager
+	FairRootManager* ioman = FairRootManager::Instance();
 	if( !ioman ) {
 		cout << "-E- PndDchMatchTracks::Init: "
 		<< "RootManager not instantised!" << endl;
@@ -168,7 +168,7 @@ void PndDchMatchTracks::Exec(Option_t* opt) {
 	PndDchHit*         hit    = NULL;
 	PndDchCylinderHit* cylHit = NULL;
 	PndDchDigi*        digi   = NULL;
-	CbmMCPoint*        point  = NULL;
+	FairMCPoint*        point  = NULL;
 	Int_t nHits       = 0;
 	Int_t nDigis      = 0;
 	Int_t nHorDs      = 0;
@@ -252,7 +252,7 @@ void PndDchMatchTracks::Exec(Option_t* opt) {
 				continue;
 			}
 
-			point = (CbmMCPoint*) fPoints->At(iPoint);
+			point = (FairMCPoint*) fPoints->At(iPoint);
 			if( !point ) {
 				cout << "-E- "<< GetName() <<"::Exec: "
 				<< "Empty MCPoint " << iPoint << " from DchHorD " << iHorD

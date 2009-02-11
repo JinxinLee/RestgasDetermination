@@ -4,10 +4,10 @@
 #ifndef CBMGEANETrT_H
 #define CBMGEANETrT_H 1
 
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "TVector3.h"
-#include "CbmGeanePro.h"
-#include "CbmGeaneUtil.h"
+#include "FairGeanePro.h"
+#include "FairGeaneUtil.h"
 #include "TFile.h"
 
 class TGeant3;
@@ -18,14 +18,14 @@ class PndSttTrack;
 class PndSttHit;
 class PndSttPoint;
 
-class CbmGeaneTrT : public CbmTask
+class FairGeaneTrT : public FairTask
 {
  public:
   /** Default constructor **/  
-  CbmGeaneTrT();
+  FairGeaneTrT();
 
   /** Destructor **/
-  ~CbmGeaneTrT();
+  ~FairGeaneTrT();
 
   /** Virtual method Init **/
   virtual InitStatus Init();
@@ -51,10 +51,10 @@ class CbmGeaneTrT : public CbmTask
   TClonesArray* fTrackParMC;  
 
   TGeant3 *gMC3;
-  ClassDef(CbmGeaneTrT,1);
+  ClassDef(FairGeaneTrT,1);
   Int_t fEvent;
-  CbmGeanePro *fPro;
-  CbmGeaneUtil *fUtil;
+  FairGeanePro *fPro;
+  FairGeaneUtil *fUtil;
 };
 
 #endif

@@ -1,14 +1,14 @@
 #include "PndMvdAccessRTDBTask.h"
 
-#include "CbmRuntimeDb.h"
-#include "CbmRun.h"
+#include "FairRuntimeDb.h"
+#include "FairRun.h"
 
 ClassImp(PndMvdAccessRTDBTask);
 
 void PndMvdAccessRTDBTask::SetParContainers()
 {
-  CbmRun* ana = CbmRun::Instance();
-  CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+  FairRun* ana = FairRun::Instance();
+  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
   fPixelDigiPar = (PndMvdPixelDigiPar*)(rtdb->getContainer("MVDPixelDigiPar"));
   fStripDigiParRect = (PndMvdStripDigiPar*)(rtdb->getContainer("MVDStripDigiParRect"));
   fStripDigiParTrap = (PndMvdStripDigiPar*)(rtdb->getContainer("MVDStripDigiParTrap"));

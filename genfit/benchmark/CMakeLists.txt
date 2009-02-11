@@ -48,6 +48,6 @@ SET(BENCHMARK_SRCS ${BENCHMARK_SRCS} ${BENCHMARK_DICTIONARY})
 
 add_library(benchmark SHARED ${BENCHMARK_SRCS})
 target_link_libraries(benchmark ${ROOT_LIBRARIES})
-set_target_properties(benchmark PROPERTIES ${CBMROOT_LIBRARY_PROPERTIES})
+set_target_properties(benchmark PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 ################ install ###################
 install(TARGETS benchmark DESTINATION ${CMAKE_BINARY_DIR}/lib)

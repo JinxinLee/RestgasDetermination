@@ -9,20 +9,20 @@
  * The PndBoxGenerator generates particles within given range
  * over pt, phi, eta, y or theta a fixed multiplicity per event.
  * Is it possible to have flat distribution on theta or on cos(theta)
- * Derived from CbmGenerator 
- * Original file (first import): CbmBoxGenerator.h 
+ * Derived from FairGenerator 
+ * Original file (first import): FairBoxGenerator.h 
  * author Yuri Kharlov <Yuri.Kharlov@cern.ch>
 **/
 
 #ifndef PND_BOXGENERATOR_H
 #define PND_BOXGENERATOR_H
 
-#include "CbmGenerator.h"
+#include "FairGenerator.h"
 #include <iostream>
 
-class CbmPrimaryGenerator;
+class FairPrimaryGenerator;
 
-class PndBoxGenerator : public CbmGenerator
+class PndBoxGenerator : public FairGenerator
 {
 public:
 
@@ -79,9 +79,9 @@ public:
   void Init();
 
   /** Creates an event with given type and multiplicity.
-   **@param primGen  pointer to the CbmPrimaryGenerator
+   **@param primGen  pointer to the FairPrimaryGenerator
    **/
-  virtual Bool_t ReadEvent(CbmPrimaryGenerator* primGen);
+  virtual Bool_t ReadEvent(FairPrimaryGenerator* primGen);
 
 private:
   Int_t      fPDGType;             // Particle type (PDG encoding)

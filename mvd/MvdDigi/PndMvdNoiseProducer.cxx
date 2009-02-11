@@ -7,11 +7,11 @@
 #include "TClonesArray.h"
 #include "TGeoNode.h"
 
-#include "CbmRootManager.h"
-#include "CbmGeoVolume.h"
-#include "CbmRun.h"
-#include "CbmRuntimeDb.h"
-#include "CbmGeoNode.h"
+#include "FairRootManager.h"
+#include "FairGeoVolume.h"
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
+#include "FairGeoNode.h"
 
 #include "PndMvdNoiseProducer.h"
 #include "PndMvdHitInfo.h"
@@ -24,7 +24,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndMvdNoiseProducer::PndMvdNoiseProducer() :
-  CbmTask("Charge Noise Producer")
+  FairTask("Charge Noise Producer")
 {
 	fBranchName 	= "MVDStripDigis";
 }
@@ -41,7 +41,7 @@ PndMvdNoiseProducer::~PndMvdNoiseProducer()
 InitStatus PndMvdNoiseProducer::Init()
 {
   // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
 
   if ( ! ioman )
     {
@@ -124,8 +124,8 @@ void PndMvdNoiseProducer::DiveDownNode(TGeoNode *nodeMother){
 void PndMvdNoiseProducer::SetParContainers()
 {
   // Get Base Container
-  CbmRun* ana = CbmRun::Instance();
-  CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+  FairRun* ana = FairRun::Instance();
+  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
   fGeoPar = (PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar"));
   fDigiParRect = (PndMvdStripDigiPar*)(rtdb->getContainer("MVDStripDigiParRect"));
   fDigiParTrap = (PndMvdStripDigiPar*)(rtdb->getContainer("MVDStripDigiParTrap"));

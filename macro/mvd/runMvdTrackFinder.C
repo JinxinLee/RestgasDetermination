@@ -36,7 +36,7 @@
 
 
   // -----   Reconstruction run   -------------------------------------------
-  CbmRunAna *fRun= new CbmRunAna();
+  FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(MCFile);
   fRun->AddFriend(DigiFile);
   fRun->AddFriend(RecoFile);
@@ -47,13 +47,13 @@
 
 
   // -----  Parameter database   --------------------------------------------
-  CbmRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  CbmParRootFileIo* parInput1 = new CbmParRootFileIo();
-//  CbmParAsciiFileIo* parInput1 = new CbmParAsciiFileIo();
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairParRootFileIo* parInput1 = new FairParRootFileIo();
+//  FairParAsciiFileIo* parInput1 = new FairParAsciiFileIo();
   parInput1->open(parFile.Data(),"in");
   rtdb->setFirstInput(parInput1);
   /*Bool_t kParameterMerged=kTRUE;
-  CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   output->open(parOutFile);
   rtdb->setOutput(output);
 */  fRun->LoadGeometry();
@@ -71,7 +71,7 @@
   mvdTrackFinder->SetVerbose(iVerbose);
   fRun->AddTask(mvdTrackFinder);
 
- CbmParRootFileIo* output=new CbmParRootFileIo(kTRUE);
+ FairParRootFileIo* output=new FairParRootFileIo(kTRUE);
  output->open(parOutFile.Data());
  rtdb->setOutput(output);
  rtdb->print();

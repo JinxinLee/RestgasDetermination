@@ -9,9 +9,9 @@
 #include "TObject.h"
 #include "TVector3.h"
 #include "TLorentzVector.h"
-#include "CbmMCPoint.h"
+#include "FairMCPoint.h"
 
-class PndEmcPoint : public CbmMCPoint 
+class PndEmcPoint : public FairMCPoint 
 {
 
  public:

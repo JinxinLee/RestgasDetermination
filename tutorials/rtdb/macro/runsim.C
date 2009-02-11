@@ -1,21 +1,21 @@
 {
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 
-  CbmRunSim *fRun = new CbmRunSim();
+  FairRunSim *fRun = new FairRunSim();
 
   fRun->SetOutputFile("dummysim.root");
   fRun->SetMaterials("media_pnd.geo");
 
-  CbmModule *Cave= new PndCave("CAVE");
+  FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave); 
 
-  CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
+  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
-  CbmRuntimeDb *rtdb=fRun->GetRuntimeDb();
+  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
   Bool_t kParameterMerged=kTRUE;
-  CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   output->open("par.root","RECREATE");
   rtdb->setOutput(output);
 

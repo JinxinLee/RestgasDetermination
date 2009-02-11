@@ -22,7 +22,7 @@ void sim_emc(Int_t nEvents = 10, Char_t part[]="e-", Double_t momentum_min = 1.0
   //gSystem->Load("libEmc");
   //gSystem->Load("libGen");
   
-  CbmRunSim *fRun = new CbmRunSim();
+  FairRunSim *fRun = new FairRunSim();
   
   // Set the number of events
   //  Int_t nEvents = 10000; 
@@ -42,11 +42,11 @@ void sim_emc(Int_t nEvents = 10, Char_t part[]="e-", Double_t momentum_min = 1.0
   // Create and add detectors
   //-------------------------
 
-  CbmModule *Cave= new PndCave("CAVE");
+  FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave); 
 
-  //CbmModule *Magnet= new CbmMagnet("MAGNET");
+  //FairModule *Magnet= new CbmMagnet("MAGNET");
   //Magnet->SetGeometryFileName("magnet.geo");
   //fRun->AddModule(Magnet);
 
@@ -58,7 +58,7 @@ void sim_emc(Int_t nEvents = 10, Char_t part[]="e-", Double_t momentum_min = 1.0
   // Create and Set Event Generator
   //-------------------------------
   
-  CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
+  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
   // Box Generator: 
@@ -66,7 +66,7 @@ void sim_emc(Int_t nEvents = 10, Char_t part[]="e-", Double_t momentum_min = 1.0
   TDatabasePDG *pdg = new TDatabasePDG();
   Int_t pid = pdg->GetParticle(part)->PdgCode();
   
-  CbmBoxGenerator* boxGen = new CbmBoxGenerator(pid, 1);
+  FairBoxGenerator* boxGen = new FairBoxGenerator(pid, 1);
   // first number: PDG particle code: 2nd number: particle multiplicity per event
   
   boxGen->SetPRange(momentum_min,momentum_max); // GeV/c
@@ -93,7 +93,7 @@ void sim_emc(Int_t nEvents = 10, Char_t part[]="e-", Double_t momentum_min = 1.0
   // Fill the Parameter containers for this run
   //-------------------------------------------
   
-  CbmRuntimeDb *rtdb=fRun->GetRuntimeDb();
+  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
   Bool_t kParameterMerged=kTRUE;
   
   PndMultiFieldPar* Par = (PndMultiFieldPar*) rtdb->getContainer("PndMultiFieldPar");
@@ -101,7 +101,7 @@ void sim_emc(Int_t nEvents = 10, Char_t part[]="e-", Double_t momentum_min = 1.0
   Par->setInputVersion(fRun->GetRunId(),1);
   Par->setChanged();
   
-  CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   output->open("simparams.root");
    
   rtdb->setOutput(output);

@@ -41,7 +41,7 @@ void plotDigis(TString datafile, TString padplane, TString padshapes, bool movie
   
 
   TFile* file = new TFile(datafile);
-  //TGeoManager *geoMan = (TGeoManager*) file->Get("CBMGeom");
+  //TGeoManager *geoMan = (TGeoManager*) file->Get("FAIRGeom");
   
   TTree *t=(TTree*)file->Get("cbmsim") ;
   

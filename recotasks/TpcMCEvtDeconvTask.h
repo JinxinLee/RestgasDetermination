@@ -18,18 +18,18 @@
 #define TPCMCEVTDECONVTASK_HH
 
 // Base Class Headers ----------------
-#include "CbmTask.h"
+#include "FairTask.h"
 
 // Collaborating Class Headers -------
 #include <vector>
 
 // Collaborating Class Declarations --
 class TClonesArray;
-class CbmGeanePro;
+class FairGeanePro;
 class GeaneTrackRep;
 class TVector3;
 
-class TpcMCEvtDeconvTask : public CbmTask {
+class TpcMCEvtDeconvTask : public FairTask {
 public:
 
   // Constructors/Destructors ---------
@@ -67,7 +67,7 @@ private:
   TClonesArray* _trackletOutArray;
   TClonesArray* _mvdArray;
     
-  CbmGeanePro* _geanePro;
+  FairGeanePro* _geanePro;
 
   Bool_t _persistence;
   Double_t _vdrift;

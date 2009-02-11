@@ -24,7 +24,7 @@
 
 
 // Collaborating Class Headers --------
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "TClonesArray.h"
 #include "RecoHitFactory.h"
 #include "FitterExceptions.h"
@@ -36,7 +36,7 @@
 #include "TH1D.h"
 #include "McIdCollection.h"
 //#include "AbsBFieldIfc.h"
-//#include "CbmFieldAdaptor.h"
+//#include "FairFieldAdaptor.h"
 
 #include <cmath>
 
@@ -47,7 +47,7 @@ using std::fabs;
 ClassImp(PndTpcPatternRecoTask)
 
 PndTpcPatternRecoTask::PndTpcPatternRecoTask()
-  : CbmTask("PndTpc Pattern Reco"), _persistence(kFALSE)
+  : FairTask("PndTpc Pattern Reco"), _persistence(kFALSE)
 {
   // default values for Conformal Map TrackFinder
   _xcut=1.;
@@ -84,7 +84,7 @@ InitStatus
 PndTpcPatternRecoTask::Init()
 {
 //Get ROOT Manager
-  CbmRootManager* ioman= CbmRootManager::Instance();
+  FairRootManager* ioman= FairRootManager::Instance();
 
   if(ioman==0)
     {
@@ -110,7 +110,7 @@ PndTpcPatternRecoTask::Init()
   //  Error("DemoPatternRecoTask::Init","BField not found!");
   //  return kERROR;
   // 
-  //_fieldIfc=new CbmFieldAdaptor(_field);
+  //_fieldIfc=new FairFieldAdaptor(_field);
 
   _trackfinder= new PndTpcConfTrackFinder();
 

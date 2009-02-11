@@ -24,8 +24,8 @@
 #include <memory>
 #include "TSystem.h"
 #include "CbmMCTrack.h"
-#include "CbmMCPoint.h"
-#include "CbmTrackParH.h"
+#include "FairMCPoint.h"
+#include "FairTrackParH.h"
 #include "TNtuple.h"
 #include "TFile.h"
 #include "PndPidCand.h"
@@ -57,7 +57,7 @@ void histFill(TString const inf1, TString const inf2,TH2F &pvss,TH2F &pvslam,
  TClonesArray *ArrTofHit1 = new TClonesArray("PndTofHit");
  treco1->SetBranchAddress("TofHit",&ArrTofHit1);
 
- TClonesArray *ArrTrackPar1 = new TClonesArray("CbmTrackParH");
+ TClonesArray *ArrTrackPar1 = new TClonesArray("FairTrackParH");
  treco1->SetBranchAddress("GeaneTrackPar",&ArrTrackPar1);
 
  TClonesArray *ArrPndPidCand1 = new TClonesArray("PndPidCand");
@@ -78,7 +78,7 @@ cout<<inf1<<inf2<<setw(10)<<ArrMvd1->GetEntriesFast()<<setw(10)<<ArrTpc1->GetEnt
      PndTofPoint *tof = (PndTofPoint *) ArrTof1->At(0);
      PndTofHit *tofHit = (PndTofHit *) ArrTofHit1->At(0);
      PndPidCand *track = (PndPidCand *) ArrPndPidCand1->At(0);
-     CbmTrackParH *trackpar = (CbmTrackParH *) ArrTrackPar1->At(0);
+     FairTrackParH *trackpar = (FairTrackParH *) ArrTrackPar1->At(0);
      
      Double_t de_tpc=0;
      Double_t dx_tpc=0;

@@ -16,7 +16,7 @@
 
 
 // framework includes
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "TH1.h"
 #include "TrackCand.h"
 
@@ -26,7 +26,7 @@
 class TClonesArray;
 class PndMvdCluster;
 
-class PndMvdEventAnaTask : public CbmTask
+class PndMvdEventAnaTask : public FairTask
 {
  public:
 

@@ -6,9 +6,9 @@
 
 // Panda Headers ----------------------
 #include "PndDchKalmanQATask.h"
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "Track.h"
-#include "CbmMCPoint.h"
+#include "FairMCPoint.h"
 #include "CbmMCTrack.h"
 #include "LSLTrackRep.h"
 #include "GeaneTrackRep.h"
@@ -35,7 +35,7 @@
 
 
 PndDchKalmanQATask::PndDchKalmanQATask()
-  : CbmTask("QA Task for Kalman od DCH"), fPersistence(kFALSE), fEvt(0), fApproach(0)
+  : FairTask("QA Task for Kalman od DCH"), fPersistence(kFALSE), fEvt(0), fApproach(0)
 {
   fTrackBranchName = "Track";
   fhP = NULL;
@@ -65,7 +65,7 @@ PndDchKalmanQATask::~PndDchKalmanQATask() {
 
 InitStatus PndDchKalmanQATask::Init(){
   //Get ROOT Manager
-  CbmRootManager* ioman= CbmRootManager::Instance();
+  FairRootManager* ioman= FairRootManager::Instance();
   if(ioman==0){
       Error("PndDchKalmanQATask::Init","RootManager not instantiated!");
       return kERROR;
@@ -202,7 +202,7 @@ void PndDchKalmanQATask::Exec(Option_t* opt) {
 }
   
 Bool_t  PndDchKalmanQATask::WriteHistograms(){
-  TFile* file = CbmRootManager::Instance()->GetOutFile();
+  TFile* file = FairRootManager::Instance()->GetOutFile();
   file->cd();
   file->mkdir("DchKalmanQA");
   file->cd("DchKalmanQA");

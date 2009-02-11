@@ -63,18 +63,18 @@ gSystem->ListLibraries();
 
 
   // -----   Reco run   -------------------------------------------
-  CbmRunAna *fRun= new CbmRunAna();
+  FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
 
   // ----- Prepare GEANE --------------------------------------------
   // this will load Geant3 and execute setup macros to initialize geometry:
-  CbmGeane *Geane = new CbmGeane(mcFile);
+  FairGeane *Geane = new FairGeane(mcFile);
 
   // ------------------------------------------------------------------------
   // -----  Parameter database   --------------------------------------------
-  CbmRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  CbmParRootFileIo* parInput1 = new CbmParRootFileIo();
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open(parFile.Data());
   rtdb->setFirstInput(parInput1);
 
@@ -86,7 +86,7 @@ gSystem->ListLibraries();
   fMagField->SetFieldRegion(-150, 150,-150, 150, -2000, 2000);
   fRun->SetField(fMagField);
 
-  CbmField* field=fRun->GetField();
+  FairField* field=fRun->GetField();
   
     Geane->SetField(fMagField);
        

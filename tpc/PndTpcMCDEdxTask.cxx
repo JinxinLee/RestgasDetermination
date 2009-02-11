@@ -19,7 +19,7 @@
 #include "PndTpcPoint.h"
 #include "CbmMCTrack.h"
 #include "PndTpcRawDEdxCollection.h"
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "PndTpcHitMerger.h"
 #include "PndTpcDEDXStorageHelper.h"
 
@@ -45,7 +45,7 @@ using namespace std;
 // Class Member definitions -----------
 
 PndTpcMCDEdxTask::PndTpcMCDEdxTask()
-  : CbmTask("dEdx"), _persistence(kFALSE), _combineHitsLength(false),_combineHitsNumber(false), _catchRemaining(kFALSE),_combineLength(0.5),_combineNumber(10),_startHit(0), _pdgselect(false), _pdgId(0), _pmin(0.00001), _pmax(100.0), _thetamin(0), 
+  : FairTask("dEdx"), _persistence(kFALSE), _combineHitsLength(false),_combineHitsNumber(false), _catchRemaining(kFALSE),_combineLength(0.5),_combineNumber(10),_startHit(0), _pdgselect(false), _pdgId(0), _pmin(0.00001), _pmax(100.0), _thetamin(0), 
     _thetamax(TMath::TwoPi()), _minTpcHits(0), _maxTpcHits(100000)
 {
 	//these Branches store the inforamtion for calculating dedx
@@ -66,7 +66,7 @@ InitStatus
 PndTpcMCDEdxTask::Init()
 {
 	//Get ROOT Manager
-	CbmRootManager* ioman= CbmRootManager::Instance();
+	FairRootManager* ioman= FairRootManager::Instance();
 	if(ioman==0)
 	{
 		Error("TrackDEdxTask::Init","RootManager not instantiated!");

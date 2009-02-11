@@ -13,13 +13,13 @@
 #define PNDDCHPOINT_H
 
 // Pnd includes
-#include "CbmMCPoint.h"
+#include "FairMCPoint.h"
 #include "PndDchMapper.h"
 // ROOT includes
 #include "TObject.h"
 #include "TVector3.h"
 
-class PndDchPoint : public CbmMCPoint 
+class PndDchPoint : public FairMCPoint 
 {
 
  public:

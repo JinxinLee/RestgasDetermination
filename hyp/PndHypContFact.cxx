@@ -10,9 +10,9 @@
 
 using namespace std;
 #include "PndHypContFact.h"
-#include "CbmRuntimeDb.h"
-#include "CbmParRootFileIo.h"
-#include "CbmParAsciiFileIo.h"
+#include "FairRuntimeDb.h"
+#include "FairParRootFileIo.h"
+#include "FairParAsciiFileIo.h"
 #include "PndGeoHypPar.h"
 #include "PndHypDigiPar.h"
 #include "PndHypStripDigiPar.h"
@@ -28,27 +28,27 @@ PndHypContFact::PndHypContFact() {
   fName="PndHypContFact";
   fTitle="Factory for parameter containers in libHyp";
   setAllContainers();
-  CbmRuntimeDb::instance()->addContFactory(this);
+  FairRuntimeDb::instance()->addContFactory(this);
 }
 
 void PndHypContFact::setAllContainers() {
   /** Creates the Container objects with all accepted contexts and adds them to
    *  the list of containers for the Hyp library.*/
 
-    CbmContainer* p= new CbmContainer("PndGeoHypPar",
+    FairContainer* p= new FairContainer("PndGeoHypPar",
                                           "Hyp Geometry Parameters",
                                           "TestDefaultContext");
     p->addContext("TestNonDefaultContext");
 
     containers->Add(p);
 
-    CbmContainer* p2 = new CbmContainer("PndHypDigiPar", 
+    FairContainer* p2 = new FairContainer("PndHypDigiPar", 
 					"Hyp Pixel Digitization Parameters", 
 					"TestDefaultContext");
     p2->addContext("TestNonDefaultContext");
     containers->Add(p2);
     
-    CbmContainer* p3 = new CbmContainer("PndHypStripDigiPar", 
+    FairContainer* p3 = new FairContainer("PndHypStripDigiPar", 
 					"Hyp Strip Digitization Parameters", 
 					"TestDefaultContext");
     p3->addContext("TestNonDefaultContext");
@@ -57,12 +57,12 @@ void PndHypContFact::setAllContainers() {
 
 }
 
-CbmParSet* PndHypContFact::createContainer(CbmContainer* c) {
+FairParSet* PndHypContFact::createContainer(FairContainer* c) {
   /** Calls the constructor of the corresponding parameter container.
    * For an actual context, which is not an empty string and not the default context
    * of this container, the name is concatinated with the context. */
   const char* name=c->GetName();
-  CbmParSet* p=NULL;
+  FairParSet* p=NULL;
   if (strcmp(name,"PndGeoHypPar")==0) {
     p=new PndGeoHypPar(c->getConcatName().Data(),c->GetTitle(),c->getContext());
   }

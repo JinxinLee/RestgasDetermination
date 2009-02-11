@@ -17,7 +17,7 @@
 #define PNDSTTTRACKFITTER 1
 
 #include "TObject.h"
-#include "CbmTrackParam.h"
+#include "FairTrackParam.h"
 
 class PndSttTrack;
 class TClonesArray;
@@ -60,7 +60,7 @@ class PndSttTrackFitter : public TObject
    *@param param  (return value) SttTrackParam at r
    **/
   virtual void Extrapolate( PndSttTrack* track, Double_t r, 
-			    CbmTrackParam *param ) = 0;
+			    FairTrackParam *param ) = 0;
 
 
   ClassDef(PndSttTrackFitter,1);

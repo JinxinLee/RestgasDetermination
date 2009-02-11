@@ -63,7 +63,7 @@ void recoMovie(TString datafile, TString padplane, TString padshapes, bool movie
 
   TFile* file = new TFile(datafile);
   if(!file)return;
-  //TGeoManager *geoMan = (TGeoManager*) file->Get("CBMGeom");
+  //TGeoManager *geoMan = (TGeoManager*) file->Get("FAIRGeom");
 
   // setup reco algorithms ---------------------------
   PndTpcDigiMapper::getInstance(false)->init(_padPlane,_gem,_gas,-40,-60000,40);

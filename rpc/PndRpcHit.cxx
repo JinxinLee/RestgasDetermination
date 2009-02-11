@@ -28,7 +28,7 @@ PndRpcHit::PndRpcHit()
 
 PndRpcHit::PndRpcHit(Int_t detectorID, Int_t Gap, Int_t Cell, Int_t Module, 
 TVector3 pos, TVector3 dpos,  Double_t time, Int_t index)
-: CbmHit(detectorID, pos, dpos, index)
+: FairHit(detectorID, pos, dpos, index)
 {
     fTime = time;
 //    fFlag = flag;

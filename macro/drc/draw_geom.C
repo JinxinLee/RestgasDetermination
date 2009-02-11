@@ -24,7 +24,7 @@
  
   TFile* file = new TFile("./testrun1.root");
   //  TFile* file = new TFile("Pi-100ev0.1_0.5.root");
-  TGeoManager *geoMan = (TGeoManager*) file->Get("CBMGeom");
+  TGeoManager *geoMan = (TGeoManager*) file->Get("FAIRGeom");
 
   
   TCanvas* c1 = new TCanvas("c1", "", 100, 100, 800, 800);

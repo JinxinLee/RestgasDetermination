@@ -19,7 +19,7 @@
   cout<<"libgenfit\t"<<gSystem->Load("libgenfit")<<endl;
   cout<<"libDch\t\t"<<gSystem->Load("libDch")<<endl;
 
-  CbmRunSim *fRun = new CbmRunSim();
+  FairRunSim *fRun = new FairRunSim();
   
   // set the MC version used
   fRun->SetName("TGeant3");
@@ -36,20 +36,20 @@
   fRun->SetMaterials("media_pnd.geo");
   
   // Create and add detectors
-  CbmModule *Cave= new PndCave("CAVE");
+  FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave);
 
-  CbmModule *Pipe= new PndPipe("PIPE");
+  FairModule *Pipe= new PndPipe("PIPE");
   Pipe->SetGeometryFileName("pipe.geo");
   fRun->AddModule(Pipe);
   
-  CbmModule *Magnet= new PndMagnet("MAGNET");
+  FairModule *Magnet= new PndMagnet("MAGNET");
   Magnet->SetGeometryFileName("magnet.geo");
   fRun->AddModule(Magnet);
 
 
-  CbmDetector *Dch = new PndDchDetector("DCH", kTRUE);
+  FairDetector *Dch = new PndDchDetector("DCH", kTRUE);
   Dch->SetGeometryFileName("dch.root");
   Dch->SetVerboseLevel(1);
   fRun->AddModule(Dch);
@@ -57,16 +57,16 @@
  // Create and Set Event Generator
  //-------------------------------
 
-  CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
+  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
  // Particle Generator
-  //CbmParticleGenerator* partGen = new CbmParticleGenerator(211, 10, 1, 0,3,kTRUE);
+  //FairParticleGenerator* partGen = new FairParticleGenerator(211, 10, 1, 0,3,kTRUE);
   //primGen->AddGenerator(partGen);
  
  // Box Generator
   //  gRandom->SetSeed(3523);
-  CbmBoxGenerator* boxGen = new CbmBoxGenerator(2212, 3); // 13=muon; 2212=proton 1 = multipl.
+  FairBoxGenerator* boxGen = new FairBoxGenerator(2212, 3); // 13=muon; 2212=proton 1 = multipl.
   boxGen->SetPRange(1.,10.); // GeV/c //setPRange vs setPtRange
   boxGen->SetPhiRange(-180,180); // Azimuth angle range [degree]
   boxGen->SetThetaRange(1, 5); // Polar angle in lab system range [degree]
@@ -99,9 +99,9 @@
   // Fill the Parameter containers for this run
   //-------------------------------------------
 
-  CbmRuntimeDb *rtdb=fRun->GetRuntimeDb();
+  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
   Bool_t kParameterMerged=kTRUE;
-  CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   output->open(parFile.Data());
   rtdb->setOutput(output);
   //PndConstPar* fieldPar = (PndConstPar*) rtdb->getContainer("PndConstPar");
@@ -125,7 +125,7 @@
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
   
   exit(0);
-  // TGeoManager *geoMan = (TGeoManager*) gDirectory->Get("CBMGeom");
+  // TGeoManager *geoMan = (TGeoManager*) gDirectory->Get("FAIRGeom");
   //  TCanvas* c1 = new TCanvas("c1", "", 100, 100, 800, 800);
   //  c1->SetFillColor(10);
   //  geoMan->SetVisLevel(3); 

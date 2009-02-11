@@ -1,22 +1,22 @@
 #ifndef TPCGEOPAR_H
 #define TPCGEOPAR_H
 
-#include "CbmParGenericSet.h"
+#include "FairParGenericSet.h"
 #include "TH1F.h"
 #include "TObjArray.h"
 
-class PndTpcGeoPar : public CbmParGenericSet {
+class PndTpcGeoPar : public FairParGenericSet {
 public:
-  TObjArray            *fGeoSensNodes; // List of CbmGeoNodes for sensitive volumes
-  TObjArray            *fGeoPassNodes; // List of CbmGeoNodes for sensitive volumes
+  TObjArray            *fGeoSensNodes; // List of FairGeoNodes for sensitive volumes
+  TObjArray            *fGeoPassNodes; // List of FairGeoNodes for sensitive volumes
 
   PndTpcGeoPar(const char* name="PndTpcGeoPar",
 	    const char* title="PndTpc Geometry Parameters",
 	    const char* context="PndTpcDefaultContext");
   ~PndTpcGeoPar(void);
   void clear(void);
-  void putParams(CbmParamList*);
-  Bool_t getParams(CbmParamList*);
+  void putParams(FairParamList*);
+  Bool_t getParams(FairParamList*);
   TObjArray             *GetGeoSensitiveNodes(){return fGeoSensNodes;}
   TObjArray             *GetGeoPassiveNodes(){return fGeoPassNodes;}
 

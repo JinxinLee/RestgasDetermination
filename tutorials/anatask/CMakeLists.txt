@@ -49,6 +49,6 @@ set(anatask_SRCS ${anatask_SRCS} ${anatask_DICTIONARY})
 
 add_library(anatask SHARED ${anatask_SRCS})
 target_link_libraries(anatask ${ROOT_LIBRARIES})
-set_target_properties(anatask PROPERTIES ${CBMROOT_LIBRARY_PROPERTIES})
+set_target_properties(anatask PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 ################ install ###################
 install(TARGETS anatask DESTINATION ${CMAKE_BINARY_DIR}/lib)

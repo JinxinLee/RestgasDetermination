@@ -27,7 +27,7 @@
 
   gSystem->Load("libPGen");
 
-  CbmRunSim *fRun = new CbmRunSim();
+  FairRunSim *fRun = new FairRunSim();
   
   // set the MC version used
   // ------------------------
@@ -52,15 +52,15 @@
   // Create and add detectors
   //-------------------------
 
-  CbmModule *Cave= new PndCave("CAVE");
+  FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave);
 
-  CbmModule *Magnet= new PndMagnet("MAGNET");
+  FairModule *Magnet= new PndMagnet("MAGNET");
   Magnet->SetGeometryFileName("magnet.geo");
   fRun->AddModule(Magnet);
   
-  CbmDetector *PndTpc = new PndTpcDetector("TPC", kTRUE);
+  FairDetector *PndTpc = new PndTpcDetector("TPC", kTRUE);
   PndTpc->SetGeometryFileName("tpc.geo");
   fRun->AddModule(PndTpc);
   
@@ -68,14 +68,14 @@
  // Create and Set Event Generator
  //-------------------------------
 
-  CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
+  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
  
   // Box Generator
 
   // pdgs 211=pion 13=muon 11=electron
-  CbmBoxGenerator* boxGen = new CbmBoxGenerator(211, 1); // 13 = muon; 1 = multipl.
+  FairBoxGenerator* boxGen = new FairBoxGenerator(211, 1); // 13 = muon; 1 = multipl.
    boxGen->SetPtRange(1.,1.); // GeV/c //setPRange vs setPtRange
    boxGen->SetPhiRange(0, 360); // Azimuth angle range [degree]
    boxGen->SetThetaRange(40, 40); // Polar angle in lab system range [degree]
@@ -102,9 +102,9 @@
    // Fill the Parameter containers for this run
    //-------------------------------------------
 
-   CbmRuntimeDb *rtdb=fRun->GetRuntimeDb();
+   FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
    Bool_t kParameterMerged=kTRUE;
-   CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
+   FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
    output->open(dbfile.Data());
    rtdb->setOutput(output);
    

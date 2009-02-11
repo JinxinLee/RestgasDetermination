@@ -19,7 +19,7 @@ void reco_analys(Char_t InputSimFile[]="sim_emc.root",
 		 Char_t OutputFile[]="output.root")
 {
         TFile *f=new TFile(InputSimFile);
-	TGeoManager *fGeoManager = (TGeoManager *) f->Get("CBMGeom");
+	TGeoManager *fGeoManager = (TGeoManager *) f->Get("FAIRGeom");
 
 	TChain *c=new TChain("cbmsim");
 

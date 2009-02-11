@@ -9,10 +9,10 @@
 #include "PndMdtHit.h"
 #include "PndMdtPoint.h"
 
-#include "CbmRootManager.h"
-#include "CbmDetector.h"
-#include "CbmRun.h"
-#include "CbmRuntimeDb.h"
+#include "FairRootManager.h"
+#include "FairDetector.h"
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
 #include "CbmMCTrack.h"
 
 #include "TClonesArray.h"
@@ -30,7 +30,7 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndMdtTrkProducerIdeal::PndMdtTrkProducerIdeal() :
-  CbmTask("Ideal MDT Tracklet Producer") { 
+  FairTask("Ideal MDT Tracklet Producer") { 
  
 }
 // -------------------------------------------------------------------------
@@ -47,11 +47,11 @@ InitStatus PndMdtTrkProducerIdeal::Init() {
   cout << "-I- PndMdtTrkProducerIdeal::Init: "
        << "INITIALIZATION *********************" << endl;
   
-  CbmRun* sim = CbmRun::Instance();
-  CbmRuntimeDb* rtdb=sim->GetRuntimeDb();
+  FairRun* sim = FairRun::Instance();
+  FairRuntimeDb* rtdb=sim->GetRuntimeDb();
     
   // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
     cout << "-E- PndMdtTrkProducerIdeal::Init: "
 	 << "RootManager not instantiated!" << endl;

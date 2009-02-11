@@ -25,7 +25,7 @@
   gSystem->Load("librecotasks");
 
 
-  CbmRunAna *fRun= new CbmRunAna();
+  FairRunAna *fRun= new FairRunAna();
   PndConstField *fMagField=new PndConstField();
   fMagField->SetField(0, 0 ,20. ); // values are in kG
   fMagField->SetFieldRegion(-500, 500,-500, 500, -200, 200);
@@ -45,7 +45,7 @@
 
   double spu=1;
 
-  CbmTrackParP par(v,w,Tv,Tw,qp,cov,o,u,k);
+  FairTrackParP par(v,w,Tv,Tw,qp,cov,o,u,k);
 
   par.Print();
 

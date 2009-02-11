@@ -5,7 +5,7 @@
 #pragma link off all functions;
  
 
-#pragma link C++ class  CbmGeaneTrEmc+;
+#pragma link C++ class  FairGeaneTrEmc+;
 
 #endif
 

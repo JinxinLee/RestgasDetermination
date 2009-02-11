@@ -131,26 +131,26 @@
    
    TFile* fi = new TFile(outfile,"RECREATE");  
    
-   CbmGeoLoader* geoLoad = new CbmGeoLoader("TGeo","CbmGeoLoader");
-   CbmGeoInterface *geoFace = geoLoad->getGeoInterface();
+   FairGeoLoader* geoLoad = new FairGeoLoader("TGeo","FairGeoLoader");
+   FairGeoInterface *geoFace = geoLoad->getGeoInterface();
    geoFace->setMediaFile("../../geometry/media_pnd.geo");
    geoFace->readMedia();
    geoFace->print();
 
-  CbmGeoMedia *Media =  geoFace->getMedia();
-  CbmGeoBuilder *geobuild=geoLoad->getGeoBuilder();
+  FairGeoMedia *Media =  geoFace->getMedia();
+  FairGeoBuilder *geobuild=geoLoad->getGeoBuilder();
 
-  CbmGeoMedium *CbmMediumAir  = Media->getMedium("air");
-  CbmGeoMedium *CbmMediumPWO = Media->getMedium("PWO");
-  CbmGeoMedium *CbmMediumCarbon  = Media->getMedium("carbon");
-  CbmGeoMedium *CbmMediumAluminium = Media->getMedium("aluminium");
+  FairGeoMedium *CbmMediumAir  = Media->getMedium("air");
+  FairGeoMedium *CbmMediumPWO = Media->getMedium("PWO");
+  FairGeoMedium *CbmMediumCarbon  = Media->getMedium("carbon");
+  FairGeoMedium *CbmMediumAluminium = Media->getMedium("aluminium");
   
   Int_t nmed=geobuild->createMedium(CbmMediumAir);
   nmed=geobuild->createMedium(CbmMediumPWO);
   nmed=geobuild->createMedium(CbmMediumCarbon);
   nmed=geobuild->createMedium(CbmMediumAluminium);
 
-  TGeoManager* gGeoMan = (TGeoManager*)gROOT->FindObject("CBMGeom");
+  TGeoManager* gGeoMan = (TGeoManager*)gROOT->FindObject("FAIRGeom");
 
   //construct the overall box
   Double_t sizeOfQuar = 96.192;  // size of one Quarter (the same in X and Y direction)

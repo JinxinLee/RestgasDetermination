@@ -5,18 +5,18 @@
   gSystem->Load("librtdbtut");
 
   // -----   Reconstruction run   -------------------------------------------
-  CbmRunAna *fRun= new CbmRunAna();
+  FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile("dummysim.root");
   fRun->SetOutputFile("dummyana.root");
 
   // -----  Parameter database   --------------------------------------------
-  CbmRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
 
-  CbmParRootFileIo* parInput1 = new CbmParRootFileIo();
+  FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open("par.root","READ");//RECREATE etc. like in TFile from root
   rtdb->setFirstInput(parInput1);
 
-  CbmParAsciiFileIo* parInput2 = new CbmParAsciiFileIo();
+  FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
   parInput2->open("../ascii-example.par","in");
   rtdb->setSecondInput(parInput2);
 
@@ -27,7 +27,7 @@
   fRun->Init();
 
   Bool_t kParameterMerged=kTRUE;
-  CbmParRootFileIo* parOutput = new CbmParRootFileIo(kParameterMerged);
+  FairParRootFileIo* parOutput = new FairParRootFileIo(kParameterMerged);
   parOutput->open("par2.root","RECREATE");//RECREATE etc. like in TFile from root
   rtdb->setOutput(parOutput);
   rtdb->saveOutput();

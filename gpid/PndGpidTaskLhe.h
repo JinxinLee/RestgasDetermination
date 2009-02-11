@@ -27,11 +27,11 @@
 #include <limits>
 
 //ROOT and PandaRoot includes
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "PndLhePidTrack.h"
 #include "TVector3.h"
 #include "TClonesArray.h"
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "TMVA/Reader.h"
 #include "PndMvdMCPoint.h"
 #include "PndTpcPoint.h"
@@ -43,7 +43,7 @@ class TObjectArray;
 class TClonesArray;
 class Reader;
 
-class PndGpidTaskLhe : public CbmTask
+class PndGpidTaskLhe : public FairTask
 {
  public:
   // enum type for the type of classifier 

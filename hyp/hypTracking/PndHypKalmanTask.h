@@ -18,12 +18,12 @@
 #define PNDHYPKALMANTASK_HH
 
 // Base Class Headers ----------------
-#include "CbmTask.h"
+#include "FairTask.h"
 
 // Collaborating Class Headers -------
 #include <map>
 #include "TString.h"
-#include "CbmGeanePro.h"
+#include "FairGeanePro.h"
 
 // Collaborating Class Declarations --
 class TClonesArray;
@@ -31,7 +31,7 @@ class RecoHitFactory;
 class TH1D;
 class TGeoManager; 
 
-class PndHypKalmanTask : public CbmTask {
+class PndHypKalmanTask : public FairTask {
 public:
 
   // Constructors/Destructors ---------
@@ -77,7 +77,7 @@ private:
   Int_t fTrackcount;
 Int_t fEvent;
 TGeant3 *gMC3;
-CbmGeanePro *fPro;
+FairGeanePro *fPro;
   // Private Methods -----------------
 
 public:

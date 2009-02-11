@@ -9,9 +9,9 @@
 #include "TParticlePDG.h"
 
 // framework includes
-#include "CbmRootManager.h"
-#include "CbmRun.h"
-#include "CbmRuntimeDb.h"
+#include "FairRootManager.h"
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
 #include "CbmMCTrack.h"
 
 
@@ -30,7 +30,7 @@
 #include "PndRiemannHit.h"
 //#include "PndRiemannTrack.h"
 
-PndMvdTpcRiemannCorrelatorTask::PndMvdTpcRiemannCorrelatorTask() : CbmTask("MVD TPC Riemann Track Correlator"),
+PndMvdTpcRiemannCorrelatorTask::PndMvdTpcRiemannCorrelatorTask() : FairTask("MVD TPC Riemann Track Correlator"),
 fMaxDist(1), fMaxSZ(1), fMaxSZChi2(1)
 {
 	fHitBranchMVDPixel = "MVDHitsPixel";
@@ -50,8 +50,8 @@ void PndMvdTpcRiemannCorrelatorTask::SetParContainers()
 {
   // Get Base Container
 /*
-  CbmRun* ana = CbmRun::Instance();
-  CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+  FairRun* ana = FairRun::Instance();
+  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
   fGeoPar = (PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar"));
 */
 }
@@ -63,8 +63,8 @@ InitStatus PndMvdTpcRiemannCorrelatorTask::ReInit()
   return stat;
 
   /*
-  CbmRun* ana = CbmRun::Instance();
-  CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+  FairRun* ana = FairRun::Instance();
+  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
   fGeoPar=(PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar"));
 
   return kSUCCESS;
@@ -75,7 +75,7 @@ InitStatus PndMvdTpcRiemannCorrelatorTask::ReInit()
 InitStatus PndMvdTpcRiemannCorrelatorTask::Init()
 {
 
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
 
   if ( ! ioman )
     {
@@ -176,7 +176,7 @@ void PndMvdTpcRiemannCorrelatorTask::Exec(Option_t* opt)
 	/*  for (int tpcCluster = 0; tpcCluster < fHitArrayTPC->GetEntriesFast(); tpcCluster++){
 		  PndTpcCluster* myCluster = (PndTpcCluster*) fHitArrayTPC->At(tpcCluster);
 		  PndTpcHit myTpcHit(*myCluster);
-		  PndRiemannHit myRHit((CbmHit*)&myTpcHit);
+		  PndRiemannHit myRHit((FairHit*)&myTpcHit);
 		  double trackDist = myTrack.dist(&myRHit);
 		  double szDist = myTrack.szDist(&myRHit);
 		  double szChi2 = myTrack.calcSZChi2(&myRHit);
@@ -227,12 +227,12 @@ PndRiemannTrack PndMvdTpcRiemannCorrelatorTask::GetRiemannTrack(TrackCand* cand)
 	for (int i = 0; i < cand->getNHits(); i++){
 		unsigned int detId, hitId;
 		cand->getHit(i, detId, hitId);
-		CbmHit* myHit = 0;
+		FairHit* myHit = 0;
 		if (detId == 1){
-			myHit = (CbmHit*)fHitArrayMVDPixel->At(hitId);
+			myHit = (FairHit*)fHitArrayMVDPixel->At(hitId);
 		}
 		else if (detId == 0){
-			myHit = (CbmHit*)fHitArrayMVDStrip->At(hitId);
+			myHit = (FairHit*)fHitArrayMVDStrip->At(hitId);
 		}
 		if (myHit != 0)
 			result.addHit(new PndRiemannHit(myHit));
@@ -251,11 +251,11 @@ TrackCand PndMvdTpcRiemannCorrelatorTask::AddTPCHits(TrackCand* myCand)
 		//??? if (myCand->HitInTrack(3, tpcCluster)) continue;
 		PndTpcCluster* myCluster = (PndTpcCluster*) fHitArrayTPC->At(tpcCluster);
 //		PndTpcHit myTpcHit(*myCluster);
-		//Since the TPC code has no CbmHit data type We create a simple CbmHit just with
+		//Since the TPC code has no FairHit data type We create a simple FairHit just with
 		//the 3d position from the TpcCluster
 		pos = myCluster->pos();
 		sig = myCluster->sig();
-		CbmHit *myTpcHit = new CbmHit(3, pos, sig,0);
+		FairHit *myTpcHit = new FairHit(3, pos, sig,0);
 		//caution: the index here is not pointing to an actual CbmPoint
 		//TODO: change the detector number (3) to a kTpcSomething
 		PndRiemannHit myRHit(myTpcHit);

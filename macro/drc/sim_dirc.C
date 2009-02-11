@@ -23,7 +23,7 @@
   gSystem->Load("libTof");
   gSystem->Load("libGen");
 
-  CbmRunSim *fRun = new CbmRunSim();
+  FairRunSim *fRun = new FairRunSim();
   
   // set the MC version used
   // ------------------------
@@ -44,7 +44,7 @@
   // Create and add detectors
   //-------------------------
   
-  CbmModule *Cave= new PndCave("CAVE");
+  FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("cave.geo");
   fRun->AddModule(Cave);
       
@@ -53,27 +53,27 @@
   // Drc->SetGeometryFileName("dirc.geo"); 
   fRun->AddModule(Drc);
 
-  CbmDetector *Tof = new PndTof("TOF", kTRUE);
+  FairDetector *Tof = new PndTof("TOF", kTRUE);
   Tof->SetGeometryFileName("tofbarrel.geo"); 
   // fRun->AddModule(Tof);
 
 
    // Create and Set Event Generator
   //-------------------------------
-  CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
+  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
   // Urqmd  Generator
-  //  CbmUrqmdGenerator* urqmdGen = new CbmUrqmdGenerator("../../input/00-03fm.100ev.f14");
+  //  FairUrqmdGenerator* urqmdGen = new FairUrqmdGenerator("../../input/00-03fm.100ev.f14");
   //  primGen->AddGenerator(urqmdGen);
 
   // Particle Generator
-  //  CbmParticleGenerator* partGen = new CbmParticleGenerator(-211, 2, 2., 0., 0.);
+  //  FairParticleGenerator* partGen = new FairParticleGenerator(-211, 2, 2., 0., 0.);
   //  primGen->AddGenerator(partGen);
 
   // Box Generator
-  CbmBoxGenerator* boxGen = new CbmBoxGenerator(-13, 1); // 13 = muon; 1 = multipl.
-  //  CbmBoxGenerator* boxGenMu = new CbmBoxGenerator(13, 1);  
+  FairBoxGenerator* boxGen = new FairBoxGenerator(-13, 1); // 13 = muon; 1 = multipl.
+  //  FairBoxGenerator* boxGenMu = new FairBoxGenerator(13, 1);  
   boxGen->SetPRange(3.,3.); // GeV/c //setPRange vs setPtRange
   boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
   boxGen->SetThetaRange(22., 135.); // (22 - 135) Polar angle in lab system range [degree]
@@ -87,7 +87,7 @@
   //  primGen->AddGenerator(boxGenMu);
 
   // Ion Generator
-  //CbmIonGenerator *fIongen= new CbmIonGenerator(79, 197,79,1, 0.,0., 25, 0.,0.,-1.);
+  //FairIonGenerator *fIongen= new FairIonGenerator(79, 197,79,1, 0.,0., 25, 0.,0.,-1.);
   //  primGen->AddGenerator(fIongen);
 
   fRun->SetStoreTraj(kTRUE);
@@ -116,9 +116,9 @@
   // Fill the Parameter containers for this run
   //-------------------------------------------
   
-  CbmRuntimeDb *rtdb=fRun->GetRuntimeDb();
+  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
   Bool_t kParameterMerged=kTRUE;
-  CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   output->open("./testparams.root");
   rtdb->setOutput(output);
   rtdb->saveOutput();

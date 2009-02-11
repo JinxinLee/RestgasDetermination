@@ -8,7 +8,7 @@
 #ifndef PNDMVDRADDAMTASK_H_
 #define PNDMVDRADDAMTASK_H_
 
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "PndMvdRadDamList.h"
 #include "PndMvdGeoHandling.h"
 
@@ -18,7 +18,7 @@
 #include <map>
 #include <string>
 
-class PndMvdRadDamTask : public CbmTask
+class PndMvdRadDamTask : public FairTask
 {
 public:
 	PndMvdRadDamTask();

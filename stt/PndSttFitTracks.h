@@ -19,7 +19,7 @@
 #define PNDSTTFITTRACKS 1
 
 
-#include "CbmTask.h"
+#include "FairTask.h"
 
 #include <string>
 #include <vector>
@@ -27,7 +27,7 @@
 class PndSttTrackFitter;
 class TClonesArray;
 
-class PndSttFitTracks : public CbmTask
+class PndSttFitTracks : public FairTask
 {
 
  public:
@@ -42,7 +42,7 @@ class PndSttFitTracks : public CbmTask
    *@param title  Task title
    *@param fitter Pointer to STT track fitter concrete class
    **/
-  PndSttFitTracks(const char* name, const char* title = "CbmTask",
+  PndSttFitTracks(const char* name, const char* title = "FairTask",
 		  PndSttTrackFitter* fitter = NULL);
 
 

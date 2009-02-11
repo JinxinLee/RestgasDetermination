@@ -13,7 +13,7 @@ using std::endl;
 #include "PndHypPoint.h"
 
 // -----   Default constructor   -------------------------------------------
-PndHypPoint::PndHypPoint() : CbmMCPoint() {
+PndHypPoint::PndHypPoint() : FairMCPoint() {
  
   fEventID    = -1;
   fXin          = fYin  = fZin =  0.;
@@ -49,7 +49,7 @@ PndHypPoint::PndHypPoint(Int_t trackID, Int_t evtID,
                          Double_t mass, 
 			 Int_t pdgCode,Double_t dist, 
 			 Double_t PLin, Double_t PLout)
-: CbmMCPoint(trackID, detID, posin, momin, tof, length, eLoss)
+: FairMCPoint(trackID, detID, posin, momin, tof, length, eLoss)
   {
 
   fVolumeID = detID; 

@@ -5,13 +5,13 @@
 #include "PndTpcLheHit.h"
 #include "lhe.h"
 
-#include "CbmMCApplication.h"
-#include "CbmTask.h"
-#include "CbmRunAna.h"
-#include "CbmGeoNode.h"
-#include "CbmGeoVector.h"
-#include "CbmGeoMedium.h"
-#include "CbmRootManager.h"
+#include "FairMCApplication.h"
+#include "FairTask.h"
+#include "FairRunAna.h"
+#include "FairGeoNode.h"
+#include "FairGeoVector.h"
+#include "FairGeoMedium.h"
+#include "FairRootManager.h"
 
 #include "TObjectTable.h"
 #include "TClonesArray.h"
@@ -31,7 +31,7 @@ PndTpcLheTrackFinder::PndTpcLheTrackFinder() {
 
 //_________________________________________________________________
 PndTpcLheTrackFinder::
-PndTpcLheTrackFinder( const char *name, const char *title):CbmTask(name) {
+PndTpcLheTrackFinder( const char *name, const char *title):FairTask(name) {
   //---
 
   fFoundTracks = new TClonesArray("PndTpcLheTrack");
@@ -50,7 +50,7 @@ PndTpcLheTrackFinder::~PndTpcLheTrackFinder() {
 
   if (fSegments) delete fSegments;
 
-  CbmRootManager *fManager =CbmRootManager::Instance();
+  FairRootManager *fManager =FairRootManager::Instance();
   fManager->Write();
 
 }
@@ -58,11 +58,11 @@ PndTpcLheTrackFinder::~PndTpcLheTrackFinder() {
 //_________________________________________________________________
 void PndTpcLheTrackFinder::Register() {
   //---
-  CbmRootManager::
+  FairRootManager::
     Instance()->Register("PndTpcLheTrack",
   			 "Lhe", fFoundTracks, kTRUE);
 
-  CbmRootManager::
+  FairRootManager::
     Instance()->Register("PndTpcLheCMPoint",
   			 "Lhe",fCMHits, kTRUE);
 
@@ -72,7 +72,7 @@ void PndTpcLheTrackFinder::Register() {
 InitStatus PndTpcLheTrackFinder::Init() {
   // ---
 
-  CbmRootManager *fManager = CbmRootManager::Instance();
+  FairRootManager *fManager = FairRootManager::Instance();
   fTrackCuts = PndTpcLheTrackCuts::Instance();
 
   if(fOption.Contains("geant")) {
@@ -180,7 +180,7 @@ void PndTpcLheTrackFinder::Finish() {
 
   cout << " found  "<< fFoundTracks->GetEntriesFast() << " tracks\n";
 
-  //CbmRootManager *fManager =CbmRootManager::Instance(); 
+  //FairRootManager *fManager =FairRootManager::Instance(); 
   //fManager->Fill();
 
 }

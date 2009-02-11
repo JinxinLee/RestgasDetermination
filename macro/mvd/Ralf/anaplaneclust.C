@@ -39,7 +39,7 @@
   TClonesArray* mc_array=new TClonesArray("MvdMCPoint");
   T->SetBranchAddress("MVDPoint",&mc_array);//Branch names
 
-  TGeoManager *geoMan = (TGeoManager*) gDirectory->Get("CBMGeom");
+  TGeoManager *geoMan = (TGeoManager*) gDirectory->Get("FAIRGeom");
 
   TH2D* hisxy = new TH2D("hisxy","",400,-15.,15.,400,-15.,15.);
   hisxy->SetTitle("MVD MC Cluster, xy view;x / cm;y / cm");

@@ -10,49 +10,49 @@
 # UseDigiEffectiveSmearing: 0 - energy of hit is copied to digi, 1 - smear energy as sigma/E= a/sqrt(E) + b
 #################################################################
 [PndEmcDigiPar]
-EnergyHitThreshold:d 0.000001
-NBits:i 14
-DetectedPhotonsPerMeV:d 150
-EnergyRange:d 15
-ExcessNoiseFactor:d 1.38
-FirstSamplePhase:d 0
-Number_of_samples_in_waveform:i 64
-Shaping_diff_time:d 100e-9
-Shaping_int_time:d 500e-9
-Crystal_time_constant:d 12e-9
-Incoherent_elec_noise_width_GeV:d 1.0e-3
-SampleRate:d 80e6
-Use_shaped_noise:i 1
-Use_photon_statistic:i 1
-EnergyDigiThreshold:d 3.0e-3
-MapperVersion:i 2
-UseDigiEffectiveSmearing:i 0
-SigmaEa:d 1.86
-SigmaEb:d 0.65
+EnergyHitThreshold:Double_t 0.000001
+NBits:Int_t 14
+DetectedPhotonsPerMeV:Double_t 150
+EnergyRange:Double_t 15
+ExcessNoiseFactor:Double_t 1.38
+FirstSamplePhase:Double_t 0
+Number_of_samples_in_waveform:Int_t 64
+Shaping_diff_time:Double_t 100e-9
+Shaping_int_time:Double_t 500e-9
+Crystal_time_constant:Double_t 12e-9
+Incoherent_elec_noise_width_GeV:Double_t 1.0e-3
+SampleRate:Double_t 80e6
+Use_shaped_noise:Int_t 1
+Use_photon_statistic:Int_t 1
+EnergyDigiThreshold:Double_t 3.0e-3
+MapperVersion:Int_t 2
+UseDigiEffectiveSmearing:Int_t 0
+SigmaEa:Double_t 1.86
+SigmaEb:Double_t 0.65
 #################################################################
 # Reconstruction parameter for EMC
 # PndEmcRecoPar
 #################################################################
 [PndEmcRecoPar]
-EnergyThresholdBarrel:d 3.0e-3
-EnergyThresholdFWD:d 3.0e-3
-EnergyThresholdBWD:d 3.0e-3
-EnergyThresholdShashlyk:d 8.0e-3
-EmcClusterPosMethod:s lilo
-OffsetParmA:d 3.6
-OffsetParmB:d 1.594
-OffsetParmC:d 2.543
-EmcDigiPositionDepth:d 6.2
-MaxECut:d 0.02
-NeighbourECut:d 0.002
-CutSlope:d 0.5
-CutOffset:d 2.5
-ERatioCorr:d 0.0
-TheNeighbourLevel:i 0
-MoliereRadius:d 2.0
-ExponentialConstant:d 2.5
-MaxIterations:i 10
-CentroidShift:d 0.1
-MaxBumps:i 8
-MinDigiEnergy:d 20.e-6
+EnergyThresholdBarrel:Double_t 3.0e-3
+EnergyThresholdFWD:Double_t 3.0e-3
+EnergyThresholdBWD:Double_t 3.0e-3
+EnergyThresholdShashlyk:Double_t 8.0e-3
+EmcClusterPosMethod:Text_t lilo
+OffsetParmA:Double_t 3.6
+OffsetParmB:Double_t 1.594
+OffsetParmC:Double_t 2.543
+EmcDigiPositionDepth:Double_t 6.2
+MaxECut:Double_t 0.02
+NeighbourECut:Double_t 0.002
+CutSlope:Double_t 0.5
+CutOffset:Double_t 2.5
+ERatioCorr:Double_t 0.0
+TheNeighbourLevel:Int_t 0
+MoliereRadius:Double_t 2.0
+ExponentialConstant:Double_t 2.5
+MaxIterations:Int_t 10
+CentroidShift:Double_t 0.1
+MaxBumps:Int_t 8
+MinDigiEnergy:Double_t 20.e-6
 #################################################################

@@ -30,13 +30,13 @@ libOra_la_LDFLAGS 	= -version-info 0:0:0
 
 libOra_la_LIBADD	= -L$(ROOTLIBDIR) $(ROOTLIBS) -L$(top_srcdir)/base/ 
 
-include_HEADERS		= CbmDetParOraIo.h CbmOraConn.h CbmOraRunInfo.h	\
-			  CbmGenericParOraIo.h CbmOraInfo.h CbmParOraIo.h
+include_HEADERS		= FairDetParOraIo.h FairOraConn.h FairOraRunInfo.h	\
+			  FairGenericParOraIo.h FairOraInfo.h FairParOraIo.h
 
 noinst_HEADERS		= OraLinkDef.h 
 
-libOra_la_SOURCES	= CbmDetParOraIo.cxx CbmGenericParOraIo.cxx	\
-			  CbmOraConn.cxx CbmOraInfo.cxx	\
+libOra_la_SOURCES	= FairDetParOraIo.cxx FairGenericParOraIo.cxx	\
+			  FairOraConn.cxx FairOraInfo.cxx	\
 			  CbmOraDict.cxx  
 
 CLEANFILES		= CbmOraDict.cxx CbmOraDict.h *~ libOra.la

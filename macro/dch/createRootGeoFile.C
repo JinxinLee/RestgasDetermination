@@ -42,21 +42,21 @@
 
   TString outfile= "../../geometry/dch.root";
   
-  CbmGeoLoader* geoLoad = new CbmGeoLoader("TGeo","CbmGeoLoader");
-  CbmGeoInterface *geoFace = geoLoad->getGeoInterface();
+  FairGeoLoader* geoLoad = new FairGeoLoader("TGeo","FairGeoLoader");
+  FairGeoInterface *geoFace = geoLoad->getGeoInterface();
   geoFace->setMediaFile("../../geometry/media_pnd.geo");
   geoFace->readMedia();
   geoFace->print();
 
-  CbmGeoMedia *Media =  geoFace->getMedia();
-  CbmGeoBuilder *geobuild=geoLoad->getGeoBuilder();
+  FairGeoMedia *Media =  geoFace->getMedia();
+  FairGeoBuilder *geobuild=geoLoad->getGeoBuilder();
 
-  CbmGeoMedium *CbmMediumAir  = Media->getMedium("air");
-  CbmGeoMedium *CbmMediumSilicon = Media->getMedium("silicon");
-  CbmGeoMedium *CbmMediumGas = Media->getMedium("DCHmixture");
-  CbmGeoMedium *CbmMediumGasP = Media->getMedium("DCHmixturePassive");
-  CbmGeoMedium *CbmMediumVacuum = Media->getMedium("vacuum");
-  CbmGeoMedium *CbmMediumLead = Media->getMedium("lead");
+  FairGeoMedium *CbmMediumAir  = Media->getMedium("air");
+  FairGeoMedium *CbmMediumSilicon = Media->getMedium("silicon");
+  FairGeoMedium *CbmMediumGas = Media->getMedium("DCHmixture");
+  FairGeoMedium *CbmMediumGasP = Media->getMedium("DCHmixturePassive");
+  FairGeoMedium *CbmMediumVacuum = Media->getMedium("vacuum");
+  FairGeoMedium *CbmMediumLead = Media->getMedium("lead");
   
   Int_t nmed=geobuild->createMedium(CbmMediumAir);
   nmed=geobuild->createMedium(CbmMediumSilicon);
@@ -65,7 +65,7 @@
   nmed=geobuild->createMedium(CbmMediumVacuum);
   nmed=geobuild->createMedium(CbmMediumLead);
   
-  TGeoManager* gGeoMan = (TGeoManager*)gROOT->FindObject("CBMGeom");
+  TGeoManager* gGeoMan = (TGeoManager*)gROOT->FindObject("FAIRGeom");
     
   //construct the overall box
   cout<<endl<<endl<<endl<<"&&&&&&&&&&&&&&&&&&&&&&&"<<gGeoMan->GetMedium("air")<<endl<<endl;

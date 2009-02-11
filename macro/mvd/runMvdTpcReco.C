@@ -80,7 +80,7 @@
 
 
   // -----   Reconstruction run   -------------------------------------------
-  CbmRunAna *fRun= new CbmRunAna();
+  FairRunAna *fRun= new FairRunAna();
 
   fRun->SetInputFile(inFile);
   fRun->AddFriend(mcFile);
@@ -91,11 +91,11 @@
 
 
   // -----  Parameter database   --------------------------------------------
-  CbmRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
 
-  CbmParRootFileIo* parInput1 = new CbmParRootFileIo(kTRUE);
+  FairParRootFileIo* parInput1 = new FairParRootFileIo(kTRUE);
   parInput1->open(paramIn.Data(),"UPDATE");
-//   CbmParAsciiFileIo* parInput1 = new CbmParAsciiFileIo();
+//   FairParAsciiFileIo* parInput1 = new FairParAsciiFileIo();
 //   parInput1->open(parFile.Data(),"in");
 
   rtdb->setFirstInput(parInput1);
@@ -125,7 +125,7 @@
   mvdClusterizer->SetVerbose(iVerbose);
   fRun->AddTask(mvdClusterizer);
 
-   CbmParRootFileIo* output=new CbmParRootFileIo(kTRUE);
+   FairParRootFileIo* output=new FairParRootFileIo(kTRUE);
    output->open(paramOut.Data());
    rtdb->setOutput(output);
 //  rtdb->setOutput(parInput1);

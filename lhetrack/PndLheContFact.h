@@ -7,18 +7,18 @@
 #ifndef PNDLHECONTFACT_H
 #define PNDLHECONTFACT_H
 
-#include "CbmContFact.h"
+#include "FairContFact.h"
 
-class CbmContainer;
+class FairContainer;
 
-class PndLheContFact : public CbmContFact {
+class PndLheContFact : public FairContFact {
 private:
   void setAllContainers();
 public:
 	PndLheContFact();
 	~PndLheContFact() {}
-	CbmParSet* createContainer(CbmContainer*);
-	//void  activateParIo(CbmParIo* io);
+	FairParSet* createContainer(FairContainer*);
+	//void  activateParIo(FairParIo* io);
 
   ClassDef( PndLheContFact,0) // Factory for LHE Correlation parameter containers
 };

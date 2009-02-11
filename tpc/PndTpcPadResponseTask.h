@@ -19,7 +19,7 @@
 #define TPCPADRESPONSETASK_HH
 
 // Base Class Headers ----------------
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "TH1.h"
 #include "TH2.h"
 
@@ -33,7 +33,7 @@ class PndTpcGem;
 class PndTpcDigiPar;
 class QAPlotCollection;
 
-class PndTpcPadResponseTask : public CbmTask {
+class PndTpcPadResponseTask : public FairTask {
 public:
 
   // Constructors/Destructors ---------

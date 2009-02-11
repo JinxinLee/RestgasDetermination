@@ -1,8 +1,8 @@
 #ifndef TPCDIGIPAR_H
 #define TPCDIGIPAR_H
 
-#include "CbmParGenericSet.h"
-#include "CbmParamList.h"
+#include "FairParGenericSet.h"
+#include "FairParamList.h"
 #include "TString.h"
 
 // interfaces to the PndTpcCode:
@@ -12,7 +12,7 @@ class PndTpcPadPlane;
 class PndTpcFrontend;
 class PndTpcPadShapePool;
 
-class PndTpcDigiPar : public CbmParGenericSet
+class PndTpcDigiPar : public FairParGenericSet
 {
 public :
   
@@ -22,8 +22,8 @@ public :
 
   ~PndTpcDigiPar();
   void clear(){};
-  void putParams(CbmParamList* list);
-  Bool_t getParams(CbmParamList* list);
+  void putParams(FairParamList* list);
+  Bool_t getParams(FairParamList* list);
 
   // Accessors (partially catched!)
   double getZGem()const {return _zGem;}

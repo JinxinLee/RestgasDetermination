@@ -26,13 +26,13 @@
 #include <assert.h>
 
 // Collaborating Class Headers --------
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "TClonesArray.h"
 #include "Track.h"
 #include "TDatabasePDG.h"
 
 // #include "PndMvdHit.h"
-#include "CbmMCPoint.h"
+#include "FairMCPoint.h"
 
 #include "PndMvdRecoHit.h"
 
@@ -45,17 +45,17 @@
 #include "TGeoManager.h"
 #include "TLorentzVector.h"
 #include "DetPlane.h"
-#include "CbmTrackParH.h"
+#include "FairTrackParH.h"
 
 #include "LSLTrackRep.h"
 #include "GeaneTrackRep.h"
-#include "CbmGeanePro.h"
+#include "FairGeanePro.h"
 
 // Class Member definitions -----------
 
 
 PndMvdKalmanTask::PndMvdKalmanTask()
-  : CbmTask("Kalman Filter"), fPersistence(kFALSE)
+  : FairTask("Kalman Filter"), fPersistence(kFALSE)
 {
   fTrackBranchName = "MVDIdealTrackCand";
 }
@@ -71,7 +71,7 @@ InitStatus
 PndMvdKalmanTask::Init()
 {
   //Get ROOT Manager
-  CbmRootManager* ioman= CbmRootManager::Instance();
+  FairRootManager* ioman= FairRootManager::Instance();
 
   if(ioman==0)
     {
@@ -112,7 +112,7 @@ PndMvdKalmanTask::Init()
 //      fTheRecoHitFactory->addProducer(2,new
 //        RecoHitProducer<PndTpcHit,PndTpcRecoHit>(ar));
 
-  fPro = new CbmGeanePro();
+  fPro = new FairGeanePro();
 
 
   // setup histograms

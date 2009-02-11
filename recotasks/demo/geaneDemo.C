@@ -25,7 +25,7 @@
   gSystem->Load("libtrackrep");
   gSystem->Load("librecotasks");
 
-  CbmRunAna *fRun = new CbmRunAna();
+  FairRunAna *fRun = new FairRunAna();
 
   TString base="demo";
   TString infile=base+".mc.root";
@@ -36,12 +36,12 @@
   // setup the run for  use with Geane:
   // Geane object will call scripts to load Geant3
   // the object will not be used afterwards!
-  CbmGeane *Geane = new CbmGeane(infile);
+  FairGeane *Geane = new FairGeane(infile);
 
  // -----  Parameter database   --------------------------------------------
 
-  CbmRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  CbmParRootFileIo* parInput1 = new CbmParRootFileIo();
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairParRootFileIo* parInput1 = new FairParRootFileIo();
 
   TString dbfile=base+".param.root";
   parInput1->open(dbfile.Data()); 
@@ -58,9 +58,9 @@
      
   
   // Setup a trackrep which uses geane
-  CbmGeanePro* gePro=new CbmGeanePro();
+  FairGeanePro* gePro=new FairGeanePro();
   
-  CbmTrackParP dummy;
+  FairTrackParP dummy;
 
   TVector3 pos(1.0,0.5,0.0);
   TVector3 mom(0.5,0.1,1.);
@@ -71,7 +71,7 @@
   double q=-1.;
   
   
-  CbmTrackParP par(pos,mom,poserr,momerr,q,
+  FairTrackParP par(pos,mom,poserr,momerr,q,
 		  			initplane.getO(),initplane.getU(),initplane.getV());
   par.Print();
   

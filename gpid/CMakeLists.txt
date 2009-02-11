@@ -63,6 +63,6 @@ set(Gpid_SRCS ${Gpid_SRCS} ${Gpid_DICTIONARY})
 
 add_library(Gpid SHARED ${Gpid_SRCS})
 target_link_libraries(Gpid ${ROOT_LIBRARIES})
-set_target_properties(Gpid PROPERTIES ${CBMROOT_LIBRARY_PROPERTIES})
+set_target_properties(Gpid PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 ################ install ###################
 install(TARGETS Gpid DESTINATION ${CMAKE_BINARY_DIR}/lib)

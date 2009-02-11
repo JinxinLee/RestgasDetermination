@@ -87,7 +87,7 @@ gSystem->Load("libtrackrep");
   
 
   // -----   Digitization run   -------------------------------------------
-  CbmRunAna *fRun= new CbmRunAna();
+  FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
   mcFile.ReplaceAll("$PANDAMC","/afs/e18/data/panda/MC");
   fRun->AddFriend(mcFile);
@@ -97,14 +97,14 @@ gSystem->Load("libtrackrep");
 
 
   // -----  Parameter database   --------------------------------------------
-  CbmRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  CbmParRootFileIo* parInput1 = new CbmParRootFileIo();
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open(paramIn.Data());
   rtdb->setFirstInput(parInput1);
   
   rtdb->print();
 
-  CbmParRootFileIo* parOutput1 = new CbmParRootFileIo(kTRUE);
+  FairParRootFileIo* parOutput1 = new FairParRootFileIo(kTRUE);
   parOutput1->open(paramOut.Data());
   rtdb->setOutput(parOutput1);
   rtdb->saveOutput();

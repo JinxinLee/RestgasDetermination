@@ -5,7 +5,7 @@
 // -------------------------------------------------------------------------
 
 // Panda Headers ----------------------
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "Track.h"
 #include "TrackCand.h"
 #include "CbmMCTrack.h"
@@ -13,8 +13,8 @@
 #include "GeaneTrackRep.h"
 #include "Kalman.h"
 #include "FitterExceptions.h"
-#include "CbmGeanePro.h"
-#include "CbmTrackParP.h"
+#include "FairGeanePro.h"
+#include "FairTrackParP.h"
 #include "PndDchPrepareKalmanTracks.h"
 #include "PndDchPoint.h"
 #include "PndDchTrack.h"
@@ -31,7 +31,7 @@
 
 
 PndDchPrepareKalmanTracks::PndDchPrepareKalmanTracks()
-  : CbmTask("Translation of PndDchTracks to Tracks"), fPersistence(kFALSE), fUseGeane(kFALSE)
+  : FairTask("Translation of PndDchTracks to Tracks"), fPersistence(kFALSE), fUseGeane(kFALSE)
 {
 }
 
@@ -44,7 +44,7 @@ InitStatus
 PndDchPrepareKalmanTracks::Init()
 {
   //Get ROOT Manager
-  CbmRootManager* ioman= CbmRootManager::Instance();
+  FairRootManager* ioman= FairRootManager::Instance();
 
   if(ioman==0)
     {
@@ -105,7 +105,7 @@ PndDchPrepareKalmanTracks::Init()
  
   
   // GeanePro will get Geometry and BField from the Run
-  fGeanePro=new CbmGeanePro();
+  fGeanePro=new FairGeanePro();
   std::cout<<"Geane created "<< fGeanePro<<std::endl;
   
   return kSUCCESS;

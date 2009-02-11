@@ -14,7 +14,7 @@ Author: K.Goetzen, GSI, 06/2008
 #define PNDSIMPLEANALYSIS_H 1
 
 
-#include "CbmTask.h"
+#include "FairTask.h"
 #include <map>
 #include <string>
 #include <vector>
@@ -47,7 +47,7 @@ class TCandidate;
 class PndListDefiner;
 
 
-class PndSimpleAnalysis : public CbmTask
+class PndSimpleAnalysis : public FairTask
 {
 
  public:

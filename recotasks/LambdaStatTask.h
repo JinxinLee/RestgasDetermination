@@ -19,7 +19,7 @@
 #define LAMBDASTATTASK_HH
 
 // Base Class Headers ----------------
-#include "CbmTask.h"
+#include "FairTask.h"
 
 // Collaborating Class Headers -------
 #include "Track.h"
@@ -29,7 +29,7 @@
 // Collaborating Class Declarations --
 class TClonesArray;
 
-class LambdaStatTask : public CbmTask {
+class LambdaStatTask : public FairTask {
 public:
 
   // Constructors/Destructors ---------

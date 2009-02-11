@@ -2,7 +2,7 @@
 # refer to the root source directory of the project as ${PANDAROOT_SOURCE_DIR} 
 # or as ${CMAKE_SOURCE_DIR} and to the root binary directory of the project as 
 # ${PANDAROOT_BINARY_DIR} or ${CMAKE_BINARY_DIR}.
-# This difference is important for the base classes which are in CBMROOT 
+# This difference is important for the base classes which are in FAIRROOT 
 # and PANDAROOT.
 
 # Check if cmake has the required version
@@ -18,7 +18,7 @@ ENABLE_LANGUAGE(Fortran)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
 
 # Load some basic macros which are needed later on
-include(CbmMacros)
+include(FairMacros)
 include(WriteConfigFile)
 include(CTest)
 include(CheckCompiler)
@@ -67,13 +67,13 @@ find_package(CLHEP)
 find_package(RuleChecker)
 
 # Set the library version in the main CMakeLists.txt
-SET(CBMROOT_MAJOR_VERSION 0)
-SET(CBMROOT_MINOR_VERSION 0)
-SET(CBMROOT_PATCH_VERSION 0)
-SET(CBMROOT_VERSION "${CBMROOT_MAJOR_VERSION}.${CBMROOT_MINOR_VERSION}.${CBMROOT_PATCH_VERSION}")
-SET(CBMROOT_LIBRARY_PROPERTIES ${CBMROOT_LIBRARY_PROPERTIES}
-    VERSION "${CBMROOT_VERSION}"
-    SOVERSION "${CBMROOT_MAJOR_VERSION}"
+SET(FAIRROOT_MAJOR_VERSION 0)
+SET(FAIRROOT_MINOR_VERSION 0)
+SET(FAIRROOT_PATCH_VERSION 0)
+SET(FAIRROOT_VERSION "${FAIRROOT_MAJOR_VERSION}.${FAIRROOT_MINOR_VERSION}.${FAIRROOT_PATCH_VERSION}")
+SET(FAIRROOT_LIBRARY_PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES}
+    VERSION "${FAIRROOT_VERSION}"
+    SOVERSION "${FAIRROOT_MAJOR_VERSION}"
     SUFFIX ".so"
 )
 

@@ -10,10 +10,10 @@
 
 using namespace std;
 #include "PndEmcContFact.h"
-#include "CbmRuntimeDb.h"
+#include "FairRuntimeDb.h"
 #include "PndEmcDigiPar.h"
 #include "PndEmcRecoPar.h"					
-#include "CbmParAsciiFileIo.h"
+#include "FairParAsciiFileIo.h"
 #include "TClass.h"										
 #include <iostream>
 #include <iomanip>
@@ -27,19 +27,19 @@ PndEmcContFact::PndEmcContFact() {
   fName="PndEmcContFact";
   fTitle="Factory for parameter containers in libEmc";
   setAllContainers();
-  CbmRuntimeDb::instance()->addContFactory(this);
+  FairRuntimeDb::instance()->addContFactory(this);
 }
 
 void PndEmcContFact::setAllContainers() {
   /** Creates the Container objects with all accepted contexts and adds them to
    *  the list of containers for the Emc library.*/
 	
-	CbmContainer* p1= new CbmContainer("PndEmcDigiPar",
+	FairContainer* p1= new FairContainer("PndEmcDigiPar",
 														"Emc Digitalization Parameters",
 														"TestDefaultContext");
 	p1->addContext("TestNonDefaultContext");
 	
-	CbmContainer* p2= new CbmContainer("PndEmcRecoPar",
+	FairContainer* p2= new FairContainer("PndEmcRecoPar",
 														"Emc Reconstruction Parameters",
 														"TestDefaultContext");
 	p2->addContext("TestNonDefaultContext");
@@ -48,13 +48,13 @@ void PndEmcContFact::setAllContainers() {
 	containers->Add(p2);
 }
 
-CbmParSet* PndEmcContFact::createContainer(CbmContainer* c) {
+FairParSet* PndEmcContFact::createContainer(FairContainer* c) {
   /** Calls the constructor of the corresponding parameter container.
    * For an actual context, which is not an empty string and not the default context
    * of this container, the name is concatinated with the context. */
   const char* name=c->GetName();
   cout << " -I container name " << name << endl;
-  CbmParSet* p=NULL;
+  FairParSet* p=NULL;
   
   if (strcmp(name,"PndEmcDigiPar")==0) {
     p=new PndEmcDigiPar(c->getConcatName().Data(),c->GetTitle(),c->getContext());

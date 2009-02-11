@@ -19,7 +19,7 @@
 #define TPCGEMTASK_HH
 
 // Base Class Headers ----------------
-#include "CbmTask.h"
+#include "FairTask.h"
 
 // Collaborating Class Headers -------
 
@@ -29,7 +29,7 @@ class TClonesArray;
 class PndTpcDigiPar;
 
 
-class PndTpcGemTask : public CbmTask {
+class PndTpcGemTask : public FairTask {
 public:
 
   // Constructors/Destructors ---------

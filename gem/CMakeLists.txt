@@ -52,7 +52,7 @@ SET(GEM_SRCS ${GEM_SRCS} ${GEM_DICTIONARY})
 
 add_library(Gem SHARED ${GEM_SRCS})
 target_link_libraries(Gem ${ROOT_LIBRARIES})
-set_target_properties(Gem PROPERTIES ${CBMROOT_LIBRARY_PROPERTIES})
+set_target_properties(Gem PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 
 ################################## install #####################################
 install(TARGETS Gem DESTINATION ${CMAKE_BINARY_DIR}/lib)

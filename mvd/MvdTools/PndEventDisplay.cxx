@@ -20,7 +20,7 @@ void PndEventDisplay::AddNewGroup(TString groupName, PndGeoHitList* newList)
 	fHitListMap[groupName] = newList;
 }
 
-void PndEventDisplay::AddHit(TString groupName, CbmHit* hit, Bool_t vis)
+void PndEventDisplay::AddHit(TString groupName, FairHit* hit, Bool_t vis)
 {
 	fHitListMap[groupName]->AddHit(hit, vis);
 }

@@ -26,9 +26,9 @@
 #include "PndEmcDigi.h"
 #include "PndEmcClusterLiloPos.h"		
 
-#include "CbmRootManager.h"
-#include "CbmRunAna.h"
-#include "CbmRuntimeDb.h"
+#include "FairRootManager.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
 
 #include "TClonesArray.h"
 #include "TStopwatch.h"
@@ -61,7 +61,7 @@ PndEmcMakeCluster::~PndEmcMakeCluster()
 InitStatus PndEmcMakeCluster::Init() {
 	
   	// Get RootManager
-	CbmRootManager* ioman = CbmRootManager::Instance();
+	FairRootManager* ioman = FairRootManager::Instance();
 	if ( ! ioman )
 	{
 		cout << "-E- PndEmcMakeCluster::Init: "
@@ -217,10 +217,10 @@ void PndEmcMakeCluster::Exec(Option_t* opt)
 void PndEmcMakeCluster::SetParContainers() {
 
   // Get run and runtime database
-  CbmRun* run = CbmRun::Instance();
+  FairRun* run = FairRun::Instance();
   if ( ! run ) Fatal("SetParContainers", "No analysis run");
 
-  CbmRuntimeDb* db = run->GetRuntimeDb();
+  FairRuntimeDb* db = run->GetRuntimeDb();
   if ( ! db ) Fatal("SetParContainers", "No runtime database");
 
   // Get Emc digitisation parameter container

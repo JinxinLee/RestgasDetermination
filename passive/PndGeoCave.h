@@ -1,18 +1,18 @@
 #ifndef PNDGEOCAVE_H
 #define PNDGEOCAVE_H
 
-#include "CbmGeoSet.h"
+#include "FairGeoSet.h"
 #include "TString.h"
-#include "CbmGeoMedia.h"
+#include "FairGeoMedia.h"
 #include <fstream>
-class  PndGeoCave : public CbmGeoSet {
+class  PndGeoCave : public FairGeoSet {
 protected:
   TString name;
 public:
   PndGeoCave();
   ~PndGeoCave() {}
   const char* getModuleName(Int_t) {return name.Data();}  
-  Bool_t read(fstream&,CbmGeoMedia*);
+  Bool_t read(fstream&,FairGeoMedia*);
   void addRefNodes();
   void write(fstream&);
   void print();

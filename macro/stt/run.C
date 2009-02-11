@@ -18,7 +18,7 @@
   gSystem->Load("libStt");
   gSystem->Load("libGen");
 
-  CbmRunSim *fRun = new CbmRunSim();
+  FairRunSim *fRun = new FairRunSim();
   
   // set the MC version used
   // ------------------------
@@ -43,22 +43,22 @@
   
   // Create and add detectors
   //-------------------------
-  CbmModule *Cave= new PndCave("CAVE");
+  FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("cave.geo");
   fRun->AddModule(Cave);
 
-  CbmDetector *Stt= new PndStt("STT", kTRUE);
+  FairDetector *Stt= new PndStt("STT", kTRUE);
   Stt->SetGeometryFileName("straws_skewed_blocks.geo");
   fRun->AddModule(Stt);
 
   // Create and Set Event Generator
   //-------------------------------
 
-  CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
+  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
   
   // Box Generator
-  CbmBoxGenerator* boxGen = new CbmBoxGenerator(13, 1); // 13 = muon; 1 = multipl.
+  FairBoxGenerator* boxGen = new FairBoxGenerator(13, 1); // 13 = muon; 1 = multipl.
   boxGen->SetPRange(1.,1.); // GeV/c //setPRange vs setPtRange
   boxGen->SetPhiRange(0, 360); // Azimuth angle range [degree]
   boxGen->SetThetaRange(0, 180); // Polar angle in lab system range [degree]
@@ -78,7 +78,7 @@
 
 ;
  // Set cuts for storing the trajectpries
-  /* CbmTrajFilter* trajFilter = CbmTrajFilter::Instance();
+  /* FairTrajFilter* trajFilter = FairTrajFilter::Instance();
      trajFilter->SetStepSizeCut(0.01); // 1 cm
      trajFilter->SetVertexCut(-2000., -2000., 4., 2000., 2000., 100.);
      trajFilter->SetMomentumCutP(10e-3); // p_lab > 10 MeV
@@ -91,9 +91,9 @@
   // Fill the Parameter containers for this run
   //-------------------------------------------
 
-  CbmRuntimeDb *rtdb=fRun->GetRuntimeDb();
+  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
   Bool_t kParameterMerged=kTRUE;
-  CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   output->open("testparams.root");
   rtdb->setOutput(output);
 

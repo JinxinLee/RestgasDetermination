@@ -1,6 +1,6 @@
 #include <iostream>
 #include "TClonesArray.h"
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "SPtestTask.h"
 #include "TGeant3TGeo.h"
 #include "TGeant3.h"
@@ -12,7 +12,7 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TDatabasePDG.h"
-#include "CbmTrackParH.h"
+#include "FairTrackParH.h"
 
 #include "DetPlane.h"
 #include "GeaneTrackRep.h"
@@ -27,7 +27,7 @@ using namespace std;
 
 // -----   Default constructor   -------------------------------------------
 SPtestTask::SPtestTask() :
-  CbmTask("Test") { 
+  FairTask("Test") { 
   _nEv=500;
   _th=TMath::Pi()/4.;
   _posSig=0.1;
@@ -50,7 +50,7 @@ SPtestTask::~SPtestTask() { }
 InitStatus SPtestTask::Init() {
 
   // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
     cout << "-E- SPtestTask::Init: "
 	 << "RootManager not instantised!" << endl;
@@ -62,7 +62,7 @@ InitStatus SPtestTask::Init() {
   fPointArray = (TClonesArray*) ioman->GetObject("PndTpcPoint");
   // Create and register output array
 
-  fPro = new CbmGeanePro();
+  fPro = new FairGeanePro();
 
   return kSUCCESS;
 

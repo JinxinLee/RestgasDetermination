@@ -6,11 +6,11 @@
 
 #include <TVector2.h>
 
-#include "CbmParGenericSet.h"
-#include "CbmParamList.h"
+#include "FairParGenericSet.h"
+#include "FairParamList.h"
 
 //! Digitization Parameter Class for MVD-Pixel part
-class PndMvdPixelDigiPar : public CbmParGenericSet
+class PndMvdPixelDigiPar : public FairParGenericSet
 {
   public :
     PndMvdPixelDigiPar (const char* name="PndMvdParTest",
@@ -18,8 +18,8 @@ class PndMvdPixelDigiPar : public CbmParGenericSet
           const char* context="TestDefaultContext");
     ~PndMvdPixelDigiPar(void){};
     void clear(void){};
-    void putParams(CbmParamList* list);
-    Bool_t getParams(CbmParamList* list);
+    void putParams(FairParamList* list);
+    Bool_t getParams(FairParamList* list);
 
     void Print();
 

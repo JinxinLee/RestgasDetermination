@@ -31,7 +31,7 @@ void runMC(Int_t nrOfEvents=10, Double_t momentum=1.0, Char_t particle[]="e-")
   gSystem->Load("libtrackrep");
   gSystem->Load("librecotasks");
 
-  CbmRunSim *fRun = new CbmRunSim();
+  FairRunSim *fRun = new FairRunSim();
   
   // set the MC version used
   // ------------------------
@@ -48,42 +48,42 @@ void runMC(Int_t nrOfEvents=10, Double_t momentum=1.0, Char_t particle[]="e-")
   // Create and add detectors
   //-------------------------
 
-  CbmModule *Cave= new PndCave("CAVE");
+  FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("cave.geo");
   fRun->AddModule(Cave);
 
-  //CbmModule *Magnet= new PndMagnet("MAGNET");
+  //FairModule *Magnet= new PndMagnet("MAGNET");
   //Magnet->SetGeometryFileName("magnet.geo");
   //fRun->AddModule(Magnet);
 
-  CbmModule *Pipe= new PndPipe("PIPE");
+  FairModule *Pipe= new PndPipe("PIPE");
   Pipe->SetGeometryFileName("pipebeamtarget.geo");
   fRun->AddModule(Pipe);
   
-  //  CbmDetector *Stt= new PndStt("STT", kTRUE);
+  //  FairDetector *Stt= new PndStt("STT", kTRUE);
   //  Stt->SetGeometryFileName("straws_skewed_blocks.geo");
   //  fRun->AddModule(Stt);
   
-  CbmDetector *Tpc = new PndTpcDetector("TPC", kTRUE);
+  FairDetector *Tpc = new PndTpcDetector("TPC", kTRUE);
   Tpc->SetGeometryFileName("tpc.geo");
   fRun->AddModule(Tpc);
   
-  CbmDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
+  FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
   Mvd->SetGeometryFileName("MVD14.root");
   fRun->AddModule(Mvd);
 
-  CbmDetector *Drc = new PndDrc("DIRC", kTRUE);
+  FairDetector *Drc = new PndDrc("DIRC", kTRUE);
   Drc->SetGeometryFileName("dirc.geo"); 
   fRun->AddModule(Drc);
 
-  CbmDetector *Emc = new PndEmc("EMC",kTRUE);
+  FairDetector *Emc = new PndEmc("EMC",kTRUE);
   Emc->SetGeometryFileName("emc_module1234.dat"); 
   fRun->AddModule(Emc);
 
   // Create and Set Event Generator
   //-------------------------------
 
-  CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
+  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
   TDatabasePDG *pdg = new TDatabasePDG();
@@ -121,7 +121,7 @@ void runMC(Int_t nrOfEvents=10, Double_t momentum=1.0, Char_t particle[]="e-")
 
   // -Trajectories Visualization
   // ----------------------------
-  CbmTrajFilter* trajFilter = CbmTrajFilter::Instance();
+  FairTrajFilter* trajFilter = FairTrajFilter::Instance();
   // Set cuts for storing the trajectpries
   trajFilter->SetStepSizeCut(0.01); // 1 cm
   //     trajFilter->SetVertexCut(-2000., -2000., 4., 2000., 2000., 100.);
@@ -133,9 +133,9 @@ void runMC(Int_t nrOfEvents=10, Double_t momentum=1.0, Char_t particle[]="e-")
   // Fill the Parameter containers for this run
   //-------------------------------------------
      
-  CbmRuntimeDb *rtdb=fRun->GetRuntimeDb();
+  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
   Bool_t kParameterMerged=kTRUE;
-  CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   output->open("params.root");
   rtdb->setOutput(output);
  

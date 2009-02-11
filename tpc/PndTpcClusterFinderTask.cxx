@@ -25,9 +25,9 @@
 #include <iostream>
 
 // Collaborating Class Headers --------
-#include "CbmRootManager.h"
-#include "CbmRunAna.h"
-#include "CbmRuntimeDb.h"
+#include "FairRootManager.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
 #include "PndTpcDigiPar.h"
 #include "TClonesArray.h"
 #include "PndTpcDigi.h"
@@ -44,7 +44,7 @@
 
 
 PndTpcClusterFinderTask::PndTpcClusterFinderTask()
-  : CbmTask("TPC Cluster Finder"), _persistence(kFALSE),_trivial(kFALSE),
+  : FairTask("TPC Cluster Finder"), _persistence(kFALSE),_trivial(kFALSE),
     _timeslice(2), _mode(0)
 {
   _digiBranchName = "PndTpcDigi";
@@ -62,10 +62,10 @@ PndTpcClusterFinderTask::SetParContainers() {
   std::cout.flush();
 
   // Get run and runtime database
-  CbmRun* run = CbmRun::Instance();
+  FairRun* run = FairRun::Instance();
   if ( ! run ) Fatal("SetParContainers", "No analysis run");
 
-  CbmRuntimeDb* db = run->GetRuntimeDb();
+  FairRuntimeDb* db = run->GetRuntimeDb();
   if ( ! db ) Fatal("SetParContainers", "No runtime database");
 
   // Get PndTpc digitisation parameter container
@@ -78,7 +78,7 @@ InitStatus
 PndTpcClusterFinderTask::Init()
 {
   //Get ROOT Manager
-  CbmRootManager* ioman= CbmRootManager::Instance();
+  FairRootManager* ioman= FairRootManager::Instance();
 
   if(ioman==0)
     {

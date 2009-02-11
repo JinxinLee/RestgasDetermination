@@ -18,19 +18,19 @@
   gSystem->Load("libGen");
   gSystem->Load("libGeaneEx");
   
-  CbmRunAna *fRun = new CbmRunAna();
+  FairRunAna *fRun = new FairRunAna();
 
   fRun->SetInputFile("ex1.root");
   fRun->SetOutputFile("ex1g.root");
 
-   //CbmGeane *Geane = new CbmGeane();
-   CbmGeane *Geane = new CbmGeane("ex1.root");
+   //FairGeane *Geane = new FairGeane();
+   FairGeane *Geane = new FairGeane("ex1.root");
 
-   CbmGeaneTr *tr= new CbmGeaneTr();
+   FairGeaneTr *tr= new FairGeaneTr();
   fRun->AddTask(tr);
 
-  CbmRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  CbmParRootFileIo* parInput1 = new CbmParRootFileIo();
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open("ex1params.root"); 
   rtdb->setFirstInput(parInput1);
 

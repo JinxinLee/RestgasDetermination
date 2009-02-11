@@ -5,16 +5,16 @@
 #include <assert.h>
 
 // Collaborating Class Headers --------
-#include "CbmRootManager.h"
-#include "CbmRunAna.h"
+#include "FairRootManager.h"
+#include "FairRunAna.h"
 #include "CbmMCTrack.h"
-#include "CbmRuntimeDb.h"
+#include "FairRuntimeDb.h"
 #include "PndTpcDigiPar.h"
 #include "TClonesArray.h"
 #include "PndTpcSample.h"
 
 PndTpcTestChamberOutputTask::PndTpcTestChamberOutputTask()
-  : CbmTask("TPC Cluster Finder"), outtree(NULL)
+  : FairTask("TPC Cluster Finder"), outtree(NULL)
 {
   _sampleBranchName = "PndTpcSample";
   _filename = "dreggn.root";
@@ -35,7 +35,7 @@ InitStatus
 PndTpcTestChamberOutputTask::Init()
 {
   //Get ROOT Manager
-  CbmRootManager* ioman= CbmRootManager::Instance();
+  FairRootManager* ioman= FairRootManager::Instance();
 
   if(ioman==0)
     {

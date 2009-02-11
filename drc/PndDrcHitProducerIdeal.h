@@ -16,12 +16,12 @@
 #ifndef PNDDRCHITPRODUCERIDEAL_H
 #define PNDDRCHITPRODUCERIDEAL_H
 
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "TClonesArray.h"
 #include "CbmMCTrack.h"
 #include "PndDrcHit.h"
 #include "CbmStack.h"
-#include "CbmBaseParSet.h"
+#include "FairBaseParSet.h"
 #include "PndGeoDrcPar.h"
 #include "TString.h"
 #include <string>
@@ -34,7 +34,7 @@
 #endif
 
 
-class PndDrcHitProducerIdeal : public CbmTask {
+class PndDrcHitProducerIdeal : public FairTask {
 
 public:
 

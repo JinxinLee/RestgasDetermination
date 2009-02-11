@@ -12,7 +12,7 @@
 #include "TVector3.h"
 #include "TParticle.h"
 #include "PndDpmDirect.h"
-#include "CbmPrimaryGenerator.h"
+#include "FairPrimaryGenerator.h"
 #include "TRandom.h"
 
 using namespace std;
@@ -70,7 +70,7 @@ PndDpmDirect::~PndDpmDirect() {
 // ------------------------------------------------------------------------
 
 // -----   Public method ReadEvent   --------------------------------------
-Bool_t PndDpmDirect::ReadEvent(CbmPrimaryGenerator* primGen) {
+Bool_t PndDpmDirect::ReadEvent(FairPrimaryGenerator* primGen) {
 
   int  npart, i;	
   double Px[1000],Py[1000],Pz[1000],E[1000],Pm[1000],Wh[1000];

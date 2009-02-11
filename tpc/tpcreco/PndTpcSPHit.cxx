@@ -24,7 +24,7 @@
 #include <assert.h>
 
 // Collaborating Class Headers --------
-#include "CbmMCPoint.h"
+#include "FairMCPoint.h"
 #include "PndTpcCluster.h"
 #include "LSLTrackRep.h"
 #include "GeaneTrackRep.h"
@@ -70,7 +70,7 @@ PndTpcSPHit::PndTpcSPHit(const TVector3& pos,
   
 }
 
-PndTpcSPHit::PndTpcSPHit(CbmMCPoint* point)
+PndTpcSPHit::PndTpcSPHit(FairMCPoint* point)
   : SpacepointRecoHit(NparHitRep)
 {
   setPos(TVector3(point->GetX(),point->GetY(),point->GetZ()));

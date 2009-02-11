@@ -24,21 +24,21 @@
   std::cout << "DigiFileName: " << outFile.Data() << std::endl;
 
   // -----   Reconstruction run   -------------------------------------------
-  CbmRunAna *fRun= new CbmRunAna();
+  FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
 
 
   // -----  Parameter database   --------------------------------------------
-  CbmRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  CbmParRootFileIo* parInput1 = new CbmParRootFileIo(kTRUE);
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairParRootFileIo* parInput1 = new FairParRootFileIo(kTRUE);
   parInput1->open(parFile.Data(),"UPDATE");
   rtdb->setFirstInput(parInput1);
 //   Bool_t kParameterMerged=kTRUE;
-//   CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
+//   FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
 //   output->open(parOutFile);
 //   rtdb->setOutput(output);
-  CbmParAsciiFileIo* parInput2 = new CbmParAsciiFileIo();
+  FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
   parInput2->open(digiparFile.Data(),"in");
   rtdb->setSecondInput(parInput2);
 
@@ -56,7 +56,7 @@
 //  fRun->AddTask(mvdNoiseMaker);
 
 
-//   CbmParRootFileIo* output=new CbmParRootFileIo(kTRUE);
+//   FairParRootFileIo* output=new FairParRootFileIo(kTRUE);
 //   output->open(parOutFile.Data());
 //   rtdb->setOutput(output);
   rtdb->setOutput(parInput1);

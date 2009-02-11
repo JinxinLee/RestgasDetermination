@@ -1,12 +1,12 @@
 // -------------------------------------------------------------------------
-// -----                 CbmGeaneTrKalStt source file             -----
+// -----                 FairGeaneTrKalStt source file             -----
 // -----                  Created 28/09/06  by M. Al-Turany               -----
 // -------------------------------------------------------------------------
 
 
 #include "TClonesArray.h"
-#include "CbmRootManager.h"
-#include "CbmGeaneTrKalStt.h"
+#include "FairRootManager.h"
+#include "FairGeaneTrKalStt.h"
 #include "TGeant3TGeo.h"
 #include "TGeant3.h"
 #include "TVector3.h"
@@ -17,10 +17,10 @@
 #include "PndSttHit.h"
 #include "PndSttPoint.h"
 #include "DetPlane.h"
-#include "CbmRunAna.h"
+#include "FairRunAna.h"
 #include "PndSttHelixTrackFitter.h"
-#include "CbmTrackParH.h"
-#include "CbmTrackParP.h"
+#include "FairTrackParH.h"
+#include "FairTrackParP.h"
 #include "TCanvas.h"
 #include "TH1F.h"
 
@@ -32,26 +32,26 @@ using namespace std;
 // TH1F *dstvtx, *momvtx;
 Int_t eventnum3;
 // -----   Default constructor   -------------------------------------------
-CbmGeaneTrKalStt::CbmGeaneTrKalStt() :
-  CbmTask("Test") { }
+FairGeaneTrKalStt::FairGeaneTrKalStt() :
+  FairTask("Test") { }
 // -------------------------------------------------------------------------
 
 
 
 // -----   Destructor   ----------------------------------------------------
-CbmGeaneTrKalStt::~CbmGeaneTrKalStt() { }
+FairGeaneTrKalStt::~FairGeaneTrKalStt() { }
 // -------------------------------------------------------------------------
 
 
 // -----   Public method Init   --------------------------------------------
-InitStatus CbmGeaneTrKalStt::Init() {
+InitStatus FairGeaneTrKalStt::Init() {
  
   eventnum3 = 0;
 
   // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
-    cout << "-E- CbmGeaneTrKalStt::Init: "
+    cout << "-E- FairGeaneTrKalStt::Init: "
 	 << "RootManager not instantised!" << endl;
     return kFATAL;
   }
@@ -67,31 +67,31 @@ InitStatus CbmGeaneTrKalStt::Init() {
   //   momvtx = new TH1F("momvtx","momvtx",100,0,0.5);
 
 
-  fTrackParGeane = new TClonesArray("CbmTrackParP");
+  fTrackParGeane = new TClonesArray("FairTrackParP");
   ioman->Register("GeaneTrackPar","Geane", fTrackParGeane, kTRUE);
   
-  fTrackParIni = new TClonesArray("CbmTrackParP");
+  fTrackParIni = new TClonesArray("FairTrackParP");
   ioman->Register("GeaneTrackIni","Geane", fTrackParIni, kTRUE);
   
-  fTrackParFinal = new TClonesArray("CbmTrackParP");
+  fTrackParFinal = new TClonesArray("FairTrackParP");
   ioman->Register("GeaneTrackFinal","Geane", fTrackParFinal, kTRUE);
   
   // Get hit Array
   fHitArray = (TClonesArray*) ioman->GetObject("STTHit");
-  if (!fHitArray)   cout << "-W- CbmGeaneTrKalStt::Init: No Hit array!" << endl;
+  if (!fHitArray)   cout << "-W- FairGeaneTrKalStt::Init: No Hit array!" << endl;
   // Get point Array
   fPointArray = (TClonesArray*) ioman->GetObject("STTPoint");
-  if (!fPointArray) cout << "-W- CbmGeaneTrKalStt::Init: No Point array!" << endl;
+  if (!fPointArray) cout << "-W- FairGeaneTrKalStt::Init: No Point array!" << endl;
  
   // Get SttTrack array
   fTrackArray  = (TClonesArray*) ioman->GetObject("STTTrack"); 
   if (!fTrackArray) {
-    cout << "-E- CbmGeaneTrKalStt::Init: No SttTrack array!" << endl;
+    cout << "-E- FairGeaneTrKalStt::Init: No SttTrack array!" << endl;
     return kERROR;
   }
 
-  fPro = new CbmGeanePro();
-  fUtil = new CbmGeaneUtil();
+  fPro = new FairGeanePro();
+  fUtil = new FairGeaneUtil();
   //  fPro->PropagateToVolume("mL3",0,1);
 
 
@@ -100,20 +100,20 @@ InitStatus CbmGeaneTrKalStt::Init() {
 }
 // -------------------------------------------------------------------------
 
-void CbmGeaneTrKalStt::FinishTask() {
-  cout << "CbmGeaneTrKalStt::FinishTask" << " total " << total << " total hits " << tothits << endl;
+void FairGeaneTrKalStt::FinishTask() {
+  cout << "FairGeaneTrKalStt::FinishTask" << " total " << total << " total hits " << tothits << endl;
   cout << "WELL DONE " << welldone << " NOT DONE " << notdone << endl;
   cout << "notconsidered " << notconsidered << " notprocessedhit " << notprocessedhit << " notbackprocessedhit " << notbackprocessedhit << endl;
 }
 
 // -----   Public method Exec   --------------------------------------------
-void CbmGeaneTrKalStt::Exec(Option_t* opt) {
+void FairGeaneTrKalStt::Exec(Option_t* opt) {
 
   //  cout << "EVENT " << eventnum3 << endl;
   eventnum3++;
 
   if(total > 900) {
-    cout << "CbmGeaneTrKalStt::Exec" << " total " << total << " total hits " << tothits << endl;
+    cout << "FairGeaneTrKalStt::Exec" << " total " << total << " total hits " << tothits << endl;
     cout << "WELL DONE " << welldone << " NOT DONE " << notdone << endl;
     cout << "notconsidered " << notconsidered << " notprocessedhit " << notprocessedhit << " notbackprocessedhit " << notbackprocessedhit << endl;
   }
@@ -191,21 +191,21 @@ void CbmGeaneTrKalStt::Exec(Option_t* opt) {
        
       TClonesArray& clref1 = *fTrackParIni;
       Int_t size1 = clref1.GetEntriesFast();
-      CbmTrackParP *fStart = new (clref1[size1]) CbmTrackParP(StartPos, StartMom, StartPosErr, StartMomErr, fCharge, StartPos, TVector3(0.,1.,0.), TVector3(0.,0.,1.));
+      FairTrackParP *fStart = new (clref1[size1]) FairTrackParP(StartPos, StartMom, StartPosErr, StartMomErr, fCharge, StartPos, TVector3(0.,1.,0.), TVector3(0.,0.,1.));
 	
       TClonesArray& clref = *fTrackParGeane;
       Int_t size = clref.GetEntriesFast();
-      CbmTrackParP *fRes = new(clref[size]) CbmTrackParP();
+      FairTrackParP *fRes = new(clref[size]) FairTrackParP();
        
       TClonesArray& clref2 = *fTrackParFinal;
       Int_t size2 = clref2.GetEntriesFast();
-      CbmTrackParP *fFinal = new(clref2[size2]) CbmTrackParP();
-      CbmTrackParH *fFinalH = new CbmTrackParH(EndPos, EndMom, EndPosErr, EndMomErr, fCharge);
+      FairTrackParP *fFinal = new(clref2[size2]) FairTrackParP();
+      FairTrackParH *fFinalH = new FairTrackParH(EndPos, EndMom, EndPosErr, EndMomErr, fCharge);
 
       Int_t processedhit = 0;
       Int_t backprocessedhit = 0;
   
-      CbmTrackParP *fRunningRes = new CbmTrackParP();
+      FairTrackParP *fRunningRes = new FairTrackParP();
        
       for(Int_t iteration = 0; iteration < 3; iteration++)
 	{
@@ -213,7 +213,7 @@ void CbmGeaneTrKalStt::Exec(Option_t* opt) {
 
 	  //  cout << "ITERATION " << iteration << endl;
 	  // running start point: ogni volta viene riaggiornato col punto di kalman
-	  CbmTrackParP *fRunningStart = new CbmTrackParP(StartPos, StartMom, StartPosErr, StartMomErr, fCharge, TVector3(0.,0.,0.), TVector3(0.,1.,0.), TVector3(0.,0.,1.));    
+	  FairTrackParP *fRunningStart = new FairTrackParP(StartPos, StartMom, StartPosErr, StartMomErr, fCharge, TVector3(0.,0.,0.), TVector3(0.,1.,0.), TVector3(0.,0.,1.));    
 	  if(!fRunningStart) continue;
 	  fRunningRes->Reset();
 	   
@@ -246,7 +246,7 @@ void CbmGeaneTrKalStt::Exec(Option_t* opt) {
 	  }	   
 	  // BACK TRACKING AL PRIMO PUNTO
 	  //	      cout << "STARTING BACK TRACKING" << donecounter << endl;
-	  CbmTrackParP *fRunningKal = new CbmTrackParP();
+	  FairTrackParP *fRunningKal = new FairTrackParP();
 	  Double_t KD2[15];
 	  fRunningRes->GetCov(KD2);
 	  fRunningKal->SetTrackPar(fRunningRes->GetV(), fRunningRes->GetW(), 
@@ -337,7 +337,7 @@ void CbmGeaneTrKalStt::Exec(Option_t* opt) {
     
 }
 
-Bool_t CbmGeaneTrKalStt::ProcessHit(PndSttTrack *pTrack, Int_t i, CbmTrackParP *fRunningStart, CbmTrackParP *fRunningRes, TString fb)
+Bool_t FairGeaneTrKalStt::ProcessHit(PndSttTrack *pTrack, Int_t i, FairTrackParP *fRunningStart, FairTrackParP *fRunningRes, TString fb)
 {
   if(!fRunningStart) return kFALSE;
   Int_t iHit = pTrack->GetHitIndex(i);
@@ -392,7 +392,7 @@ Bool_t CbmGeaneTrKalStt::ProcessHit(PndSttTrack *pTrack, Int_t i, CbmTrackParP *
 
 }
 
-Bool_t CbmGeaneTrKalStt::Propagation(PndSttHit *currenthit, CbmTrackParP *fRunningStart, CbmTrackParP *fRunningRes, TString fb)
+Bool_t FairGeaneTrKalStt::Propagation(PndSttHit *currenthit, FairTrackParP *fRunningStart, FairTrackParP *fRunningRes, TString fb)
 {
   //  cout << "................." << endl;
   //  cout << "O " << fRunningStart->GetOrigin().X()<<" "<< fRunningStart->GetOrigin().Y() << " " << fRunningStart->GetOrigin().Z() << endl;
@@ -437,7 +437,7 @@ Bool_t CbmGeaneTrKalStt::Propagation(PndSttHit *currenthit, CbmTrackParP *fRunni
   return rc;
 
 }
-Bool_t CbmGeaneTrKalStt::Kalman(PndSttHit *currenthit, CbmTrackParP *fRunningRes, CbmTrackParP *fRunningStart)
+Bool_t FairGeaneTrKalStt::Kalman(PndSttHit *currenthit, FairTrackParP *fRunningRes, FairTrackParP *fRunningStart)
 {
   // KALMAN
   // punto estrapolato 
@@ -561,7 +561,7 @@ Bool_t CbmGeaneTrKalStt::Kalman(PndSttHit *currenthit, CbmTrackParP *fRunningRes
 }
 
 //-------------------
-Bool_t CbmGeaneTrKalStt::RetrieveVertex(PndSttTrack *pTrack)
+Bool_t FairGeaneTrKalStt::RetrieveVertex(PndSttTrack *pTrack)
 {
 
   PndSttHelixTrackFitter *fFitter;
@@ -616,7 +616,7 @@ Bool_t CbmGeaneTrKalStt::RetrieveVertex(PndSttTrack *pTrack)
  
 }
 
-Bool_t CbmGeaneTrKalStt::BackToVertex(CbmTrackParP *fRunningRes, CbmTrackParP *fRunningKal)
+Bool_t FairGeaneTrKalStt::BackToVertex(FairTrackParP *fRunningRes, FairTrackParP *fRunningKal)
 {
 
   //   cout << "back to vertex " << fRunningRes->GetQp() << " " << fRunningRes->GetTV() << " " << fRunningRes->GetTW() << " " << fRunningRes->GetV() << " " << fRunningRes->GetW() << endl;
@@ -642,14 +642,14 @@ Bool_t CbmGeaneTrKalStt::BackToVertex(CbmTrackParP *fRunningRes, CbmTrackParP *f
 				 fRunningRes->GetDPy(),
 				 fRunningRes->GetDPz());
 
-  CbmTrackParH *fKalH1 =  new CbmTrackParH(lastPos, lastMom, 
+  FairTrackParH *fKalH1 =  new FairTrackParH(lastPos, lastMom, 
 					   lastPosErr, lastMomErr, 
 					   fRunningRes->GetQ());
 
 
   //  cout << "fKalH1 " << fKalH1->GetQp() << " " << fKalH1->GetX() << " " << fKalH1->GetY() << " " << fKalH1->GetZ() << endl;
 
-  CbmTrackParH *fKalH2 =  new CbmTrackParH();
+  FairTrackParH *fKalH2 =  new FairTrackParH();
   rc_vtx = fPro->Propagate(fKalH1, fKalH2, PDGCode);
   //  cout << "fKalH2 " << fKalH2->GetQp() << " " << fKalH2->GetX() << " " << fKalH2->GetY() << " " << fKalH2->GetZ() << endl;
 
@@ -676,7 +676,7 @@ Bool_t CbmGeaneTrKalStt::BackToVertex(CbmTrackParP *fRunningRes, CbmTrackParP *f
   //  cout << "VTX MOMENTUM " << TMath::Sqrt(fRunningKal->GetPx() * fRunningKal->GetPx() + fRunningKal->GetPy() * fRunningKal->GetPy() + fRunningKal->GetPz() * fRunningKal->GetPz()) << endl;
 }
 
-Bool_t CbmGeaneTrKalStt::BackToVertex2(CbmTrackParP *fRunningRes, CbmTrackParP *fRunningKal)
+Bool_t FairGeaneTrKalStt::BackToVertex2(FairTrackParP *fRunningRes, FairTrackParP *fRunningKal)
 {
 
   if(!fRunningRes) return kFALSE;
@@ -701,5 +701,5 @@ Bool_t CbmGeaneTrKalStt::BackToVertex2(CbmTrackParP *fRunningRes, CbmTrackParP *
 }
 
 
-ClassImp(CbmGeaneTrKalStt)
+ClassImp(FairGeaneTrKalStt)
 

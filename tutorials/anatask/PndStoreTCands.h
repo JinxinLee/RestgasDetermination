@@ -2,7 +2,7 @@
 #define PNDSTORETCANDS_H 1
 
 
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "TH1F.h"
 #include "TFile.h"
 #include "TVector3.h"
@@ -14,7 +14,7 @@ class TClonesArray;
 class TObjectArray;
 
 
-class PndStoreTCands : public CbmTask
+class PndStoreTCands : public FairTask
 {
 
  public:

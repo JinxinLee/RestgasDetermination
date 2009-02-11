@@ -17,7 +17,7 @@
 #define PNDDCHIDEALHITPRODUCER_H 1
 
 // Pnd includes
-#include "CbmTask.h"
+#include "FairTask.h"
 
 // Root includes
 #include "TH1F.h"
@@ -30,7 +30,7 @@ class TVector3;
 class TDirectory;
 class TList;
 
-class PndDchIdealHitProducer : public CbmTask{
+class PndDchIdealHitProducer : public FairTask{
 
  public:
 	

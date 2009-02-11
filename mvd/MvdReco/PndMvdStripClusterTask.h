@@ -8,15 +8,15 @@
 #ifndef PNDMVDSTRIPCLUSTERTASK_H
 #define PNDMVDSTRIPCLUSTERTASK_H
 
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "PndMvdGeoPar.h"
 #include "PndMvdStripDigiPar.h"
 #include "PndMvdHit.h"
 #include "PndMvdMCPoint.h"
 #include "PndMvdPixel.h"
 // #include "PndMvdCluster.h"
-#include "CbmGeoVector.h"
-#include "CbmGeoTransform.h"
+#include "FairGeoVector.h"
+#include "FairGeoTransform.h"
 #include "TVector3.h"
 #include "TRandom.h"
 #include "TGeoMatrix.h"
@@ -32,7 +32,7 @@
 class TClonesArray;
 class PndMvdChargeWeightingAlgorithms;
 
-class PndMvdStripClusterTask : public CbmTask
+class PndMvdStripClusterTask : public FairTask
 {
  public:
 

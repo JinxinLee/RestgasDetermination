@@ -24,7 +24,7 @@
   int nHits = ;
   double dPhi = TMath::Pi()/18; // 10 degree
   
-  CbmHit* hits[nHits];
+  FairHit* hits[nHits];
   
   for (int i = 0; i < nHits; i++){
 	  TVector3 pos (r*TMath::Cos(dPhi*i), r*TMath::Sin(dPhi*i), i+1);

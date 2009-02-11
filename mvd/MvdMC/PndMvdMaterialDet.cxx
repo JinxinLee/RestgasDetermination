@@ -3,17 +3,17 @@
 #include "PndMvdGeo.h"
 #include "PndMvdGeoPar.h"
 
-#include "CbmGeoInterface.h"
-#include "CbmGeoLoader.h"
-#include "CbmGeoNode.h"
-#include "CbmGeoRootBuilder.h"
-#include "CbmRootManager.h"
-#include "CbmRuntimeDb.h"
-#include "CbmRun.h"
-#include "CbmGeoMedia.h"
-#include "CbmGeoVolume.h"
-#include "CbmRunSim.h"
-#include "CbmVolume.h"
+#include "FairGeoInterface.h"
+#include "FairGeoLoader.h"
+#include "FairGeoNode.h"
+#include "FairGeoRootBuilder.h"
+#include "FairRootManager.h"
+#include "FairRuntimeDb.h"
+#include "FairRun.h"
+#include "FairGeoMedia.h"
+#include "FairGeoVolume.h"
+#include "FairRunSim.h"
+#include "FairVolume.h"
 
 
 #include "PndMvdMCPoint.h"
@@ -37,7 +37,7 @@
 #include <string>
 #include <sstream>
 
-class CbmVolume;
+class FairVolume;
 
 
 // -----   Default constructor   -------------------------------------------
@@ -64,7 +64,7 @@ PndMvdMaterialDet::PndMvdMaterialDet() {
 
 // -----   Standard constructor   ------------------------------------------
 PndMvdMaterialDet::PndMvdMaterialDet(const char* name, Bool_t active)
-  : CbmDetector(name, active) {
+  : FairDetector(name, active) {
   fPndMvdCollection = new TClonesArray("PndMvdMCPoint");
   fPosIndex = 0;
   fVerboseLevel = 1;
@@ -99,13 +99,13 @@ PndMvdMaterialDet::~PndMvdMaterialDet()
 // -------------------------------------------------------------------------
 void PndMvdMaterialDet::Initialize()
 {
-  CbmDetector::Initialize();
+  FairDetector::Initialize();
   fGeoH = new PndMvdGeoHandling(gGeoManager);
 }
 
 
 // -----   Public method ProcessHits  --------------------------------------
-Bool_t  PndMvdMaterialDet::ProcessHits(CbmVolume* vol)
+Bool_t  PndMvdMaterialDet::ProcessHits(FairVolume* vol)
 {
   TParticle* currPart = gMC->GetStack()->GetCurrentTrack();
 
@@ -160,7 +160,7 @@ void PndMvdMaterialDet::FinishRun()
 // -----   Public method Register   ----------------------------------------
 void PndMvdMaterialDet::Register()
 {
-  CbmRootManager::Instance()->Register("MVDPoint", "PndMvd", fPndMvdCollection, kTRUE);
+  FairRootManager::Instance()->Register("MVDPoint", "PndMvd", fPndMvdCollection, kTRUE);
 }
 // -------------------------------------------------------------------------
 
@@ -283,10 +283,10 @@ void PndMvdMaterialDet::ConstructRootGeometry()
 
 void PndMvdMaterialDet::ExpandNode(TGeoNode *fN){
 
-  CbmGeoLoader*geoLoad = CbmGeoLoader::Instance();
-      CbmGeoInterface *geoFace = geoLoad->getGeoInterface();
-  CbmGeoMedia *Media =  geoFace->getMedia();
-  CbmGeoBuilder *geobuild=geoLoad->getGeoBuilder();
+  FairGeoLoader*geoLoad = FairGeoLoader::Instance();
+      FairGeoInterface *geoFace = geoLoad->getGeoInterface();
+  FairGeoMedia *Media =  geoFace->getMedia();
+  FairGeoBuilder *geobuild=geoLoad->getGeoBuilder();
 
         TGeoMatrix *Matrix =fN->GetMatrix();
   if(gGeoManager->GetListOfMatrices()->FindObject(Matrix))gGeoManager->GetListOfMatrices()->Remove(Matrix);
@@ -307,10 +307,10 @@ void PndMvdMaterialDet::ExpandNode(TGeoNode *fN){
       TGeoMaterial *newMat = gGeoManager->GetMaterial(mat1->GetName());
       if( newMat==0){
         std::cout<< "Material " << mat1->GetName() << " is not defined " << std::endl;
-        CbmGeoMedium *CbmMedium=Media->getMedium(mat1->GetName());
+        FairGeoMedium *CbmMedium=Media->getMedium(mat1->GetName());
         if (!CbmMedium) {
           std::cout << "Material is not defined in ASCII file nor in Root file" << std::endl;
-          CbmMedium=new CbmGeoMedium(mat1->GetName());
+          CbmMedium=new FairGeoMedium(mat1->GetName());
           Media->addMedium(CbmMedium);
         }
         std::cout << "Create Medium " << mat1->GetName() << std::endl;
@@ -347,8 +347,8 @@ void PndMvdMaterialDet::ConstructASCIIGeometry()
   // get pointer to the instantons which interface
   // to monte carlo
 
-  CbmGeoLoader *geoLoad = CbmGeoLoader::Instance();
-  CbmGeoInterface *geoFace = geoLoad->getGeoInterface();
+  FairGeoLoader *geoLoad = FairGeoLoader::Instance();
+  FairGeoInterface *geoFace = geoLoad->getGeoInterface();
   PndMvdGeo *thePndMvdGeo  = new PndMvdGeo();
 
   thePndMvdGeo->setGeomFile(GetGeometryFileName());
@@ -362,9 +362,9 @@ void PndMvdMaterialDet::ConstructASCIIGeometry()
   TList* volList = thePndMvdGeo->getListOfVolumes();
 
   // store geo parameter
-  CbmRun *fRun = CbmRun::Instance();
+  FairRun *fRun = FairRun::Instance();
 
-  CbmRuntimeDb *rtdb= CbmRun::Instance()->GetRuntimeDb();
+  FairRuntimeDb *rtdb= FairRun::Instance()->GetRuntimeDb();
 
   PndMvdGeoPar *par= (PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar"));
 
@@ -374,11 +374,11 @@ void PndMvdMaterialDet::ConstructASCIIGeometry()
 
   TListIter iter(volList);
 
-  CbmGeoNode   *node = NULL;
-  CbmGeoVolume *aVol = NULL;
+  FairGeoNode   *node = NULL;
+  FairGeoVolume *aVol = NULL;
 
-  while( (node = (CbmGeoNode*)iter.Next()) ) {
-      aVol = dynamic_cast<CbmGeoVolume*> ( node );
+  while( (node = (FairGeoNode*)iter.Next()) ) {
+      aVol = dynamic_cast<FairGeoVolume*> ( node );
 //        if ( node->isSensitive()  ) {
            fSensNodes->AddLast( aVol );
 //        }else{

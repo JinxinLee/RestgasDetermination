@@ -26,7 +26,7 @@
 #include <string>
 
 // Collaborating Class Headers --------
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "TClonesArray.h"
 #include "Track.h"
 #include "TrackCand.h"
@@ -46,7 +46,7 @@
 #include "TPolyMarker3D.h"
 
 PndTpcTrackVisTask::PndTpcTrackVisTask()
-  : CbmTask("PndTpcTrackVis"), _persistence(kFALSE),_fitFlag(kFALSE)
+  : FairTask("PndTpcTrackVis"), _persistence(kFALSE),_fitFlag(kFALSE)
 {
   _trackBranchName = "TrackPostFit";
 
@@ -62,7 +62,7 @@ InitStatus
 PndTpcTrackVisTask::Init()
 {
   //Get ROOT Manager
-  CbmRootManager* ioman= CbmRootManager::Instance();
+  FairRootManager* ioman= FairRootManager::Instance();
 
   if(ioman==0)
     {

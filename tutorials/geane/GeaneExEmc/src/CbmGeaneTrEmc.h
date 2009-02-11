@@ -5,9 +5,9 @@
 #define CBMGEANETREMC_H 1
 
 
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "TVector3.h"
-#include "CbmGeanePro.h"
+#include "FairGeanePro.h"
 #include "PndEmcPoint.h"
 #include "CbmMCTrack.h"
 
@@ -16,14 +16,14 @@ class TClonesArray;
 class TTree;
 class TFile;
 
-class CbmGeaneTrEmc : public CbmTask
+class FairGeaneTrEmc : public FairTask
 {
  public:
   /** Default constructor **/  
-  CbmGeaneTrEmc();
+  FairGeaneTrEmc();
 
   /** Destructor **/
-  ~CbmGeaneTrEmc();
+  ~FairGeaneTrEmc();
 
   /** Virtual method Init **/
   virtual InitStatus Init();
@@ -46,9 +46,9 @@ class CbmGeaneTrEmc : public CbmTask
   TClonesArray* fTrackParFinal;  
 
   TGeant3 *gMC3;
-  ClassDef(CbmGeaneTrEmc,1);
+  ClassDef(FairGeaneTrEmc,1);
   Int_t fEvent;
-  CbmGeanePro *fPro;
+  FairGeanePro *fPro;
 };
 
 #endif

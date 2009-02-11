@@ -18,14 +18,14 @@
 #ifndef PNDSTTHITPRODUCERIDEAL_H
 #define PNDSTTHITPRODUCERIDEAL_H 
 
-#include "CbmTask.h"
+#include "FairTask.h"
 
 #include "TVector3.h"
 //#include "TRandom.h"
  
 class TClonesArray;
 
-class PndSttHitProducerIdeal : public CbmTask
+class PndSttHitProducerIdeal : public FairTask
 {
  public:
 

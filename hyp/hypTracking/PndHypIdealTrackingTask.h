@@ -20,12 +20,12 @@
 #include "TRandom.h"
 
 // framework includes
-#include "CbmTask.h"
-#include "CbmField.h"
+#include "FairTask.h"
+#include "FairField.h"
 class CbmMCTrack;
 class TClonesArray;
 
-class PndHypIdealTrackingTask : public CbmTask
+class PndHypIdealTrackingTask : public FairTask
 {
  public:
 

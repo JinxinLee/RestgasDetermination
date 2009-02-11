@@ -3,7 +3,7 @@
 #include "PndTpcLheHit.h"
 #include "PndTpcLheTrack.h"
 
-#include "CbmRunAna.h"
+#include "FairRunAna.h"
 #include "PndTpcPoint.h"
 #include "PndTpcCluster.h"
 #include "PndSttPoint.h"
@@ -14,13 +14,13 @@
 #include "PndEmcCluster.h"
 #include "PndEmcBump.h"
 #include "CbmMCTrack.h"
-#include "CbmMCApplication.h"
-#include "CbmRootManager.h"
+#include "FairMCApplication.h"
+#include "FairRootManager.h"
 
 #include "TGeoManager.h"
 #include "TGeoVolume.h"
-#include "CbmVolume.h"
-#include "CbmTask.h"
+#include "FairVolume.h"
+#include "FairTask.h"
 #include "TParticle.h"
 #include "TRandom.h"
 #include "Riostream.h"
@@ -48,7 +48,7 @@ PndTpcLheHitsMaker::PndTpcLheHitsMaker() {
 
 //_________________________________________________________________
 PndTpcLheHitsMaker::PndTpcLheHitsMaker(const char *name,
-				       const char *title):CbmTask(name) {
+				       const char *title):FairTask(name) {
   //---
   fLheHits = new TClonesArray("PndTpcLheHit");
   fGeantTracks = new TClonesArray("PndTpcLheTrack");
@@ -67,7 +67,7 @@ PndTpcLheHitsMaker::PndTpcLheHitsMaker(const char *name,
 //_________________________________________________________________
 PndTpcLheHitsMaker::~PndTpcLheHitsMaker() {
   //
-  CbmRootManager *fManager =CbmRootManager::Instance();
+  FairRootManager *fManager =FairRootManager::Instance();
   fManager->Write();
 }
 
@@ -86,7 +86,7 @@ InitStatus PndTpcLheHitsMaker::Init() {
   
   fCuts = PndTpcLheTrackCuts::Instance();
 
-  CbmRootManager *fManager =CbmRootManager::Instance();	
+  FairRootManager *fManager =FairRootManager::Instance();	
   
   switch (fTpcMode) 
     {
@@ -761,11 +761,11 @@ PndTpcLheHit * PndTpcLheHitsMaker::AddHit() {
 void PndTpcLheHitsMaker::Register() {
   //---
 
-  CbmRootManager::Instance()->
+  FairRootManager::Instance()->
     Register("LheGeantTrack","Lhe", fGeantTracks, fPersistence);
   //    Register("LheGeantTrack","Lhe", fGeantTracks, kTRUE);
 
-  CbmRootManager::Instance()->
+  FairRootManager::Instance()->
     Register("LheHit","Lhe", fLheHits, fPersistence);
 
 }
@@ -773,7 +773,7 @@ void PndTpcLheHitsMaker::Register() {
 //_________________________________________________________________
 void PndTpcLheHitsMaker::Finish() {
 
-//   CbmRootManager *fManager =CbmRootManager::Instance();	
+//   FairRootManager *fManager =FairRootManager::Instance();	
 //   fManager->Fill();
 
   cout << " PndTpcLheHitsMaker::Finish : Geant tracks " <<

@@ -14,18 +14,18 @@
 #include "TNtuple.h"
 #include "TString.h"
 
-#include "CbmTask.h"
-#include "CbmField.h"
-#include "CbmTrackParH.h"
-#include "CbmGeanePro.h"
-#include "CbmGeane.h"
+#include "FairTask.h"
+#include "FairField.h"
+#include "FairTrackParH.h"
+#include "FairGeanePro.h"
+#include "FairGeane.h"
 #include "PndTpcLheTrack.h"
 #include "PndMvdGeoHandling.h"
 #include "PndLhePidTrack.h"
 #include "PndLheCorrPar.h"
 
 class TGeant3;
-class PndLhePidMaker : public CbmTask {
+class PndLhePidMaker : public FairTask {
 
 protected:
 
@@ -59,7 +59,7 @@ protected:
   Bool_t fSimulation;       // Switch simulation diagnostic
   Bool_t fGeanePro;         // Use GEANE propagation
 
-  CbmGeanePro *fPro;     // Geane Propagator
+  FairGeanePro *fPro;     // Geane Propagator
   
   PndMvdGeoHandling* geoH;           // Object to retrieve MVD geometry
 

@@ -27,7 +27,7 @@
 
 // Collaborating Class Headers --------
 #include "TClonesArray.h"
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "TVector3.h"
 #include "PndTpcLaser.h"
 #include "PndTpcLaserTrack.h"
@@ -39,7 +39,7 @@
 // Class Member definitions -----------
 
 PndTpcLaserFitTask::PndTpcLaserFitTask()		//default constructor
-  : CbmTask("TPC Laser Fit"),
+  : FairTask("TPC Laser Fit"),
     _persistence(kFALSE),	
     _XYresidual(false),
     _maxDist(1.0),
@@ -61,7 +61,7 @@ PndTpcLaserFitTask::Init()
 {
 
  //Get ROOT Manager
-  CbmRootManager* ioman= CbmRootManager::Instance();
+  FairRootManager* ioman= FairRootManager::Instance();
   if(ioman==0)
     {
       Error("PndTpcLaserFitTask::Init","RootManager not instantiated!");

@@ -19,7 +19,7 @@
 #define TRACKVISTASK_HH
 
 // Base Class Headers ----------------
-#include "CbmTask.h"
+#include "FairTask.h"
 
 // Collaborating Class Headers -------
 #include "Track.h"
@@ -30,7 +30,7 @@
 class TClonesArray;
 class TGeoManager;
 
-class PndTpcTrackVisTask : public CbmTask {
+class PndTpcTrackVisTask : public FairTask {
 public:
 
   // Constructors/Destructors ---------

@@ -12,9 +12,9 @@
 
 #include "TObject.h"
 #include "TVector3.h"
-#include "CbmMCPoint.h"
+#include "FairMCPoint.h"
 
-class PndDrcBarPoint : public CbmMCPoint
+class PndDrcBarPoint : public FairMCPoint
 {
 
  public:    

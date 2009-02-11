@@ -23,7 +23,7 @@
 #ifndef PNDEMCMAKEBUMP_H
 #define PNDEMCMAKEBUMP_H
 
-#include "CbmTask.h"
+#include "FairTask.h"
 
 #include <set>
 		
@@ -40,7 +40,7 @@ class PndEmcTwoCoordIndex;
 class PndEmc2DLocMaxFinder;
 class PndEmcExpClusterSplitter;
 
-class PndEmcMakeBump  : public CbmTask
+class PndEmcMakeBump  : public FairTask
 {
 	
 	typedef std::set<PndEmcTwoCoordIndex*> EmcCoordIndexSet;

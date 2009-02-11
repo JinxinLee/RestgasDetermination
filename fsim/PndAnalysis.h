@@ -2,7 +2,7 @@
 #define PNDANALYSIS_H 1
 
 
-#include "CbmTask.h"
+#include "FairTask.h"
 #include <map>
 #include <string>
 
@@ -18,7 +18,7 @@ class TPidMassSelector;
 class TPidSimpleKaonSelector;
 class TPidSimplePionSelector;
 
-class PndAnalysis : public CbmTask
+class PndAnalysis : public FairTask
 {
 
  public:

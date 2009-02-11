@@ -7,7 +7,7 @@
 
 #include "TClonesArray.h"
 
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "PndSttHelixHitProducer.h"
 #include "PndSttHit.h"
 #include "PndSttTrack.h"
@@ -34,7 +34,7 @@ using namespace std;
 
 // -----   Default constructor   -------------------------------------------
 PndSttHelixHitProducer::PndSttHelixHitProducer() :
-  CbmTask("STT HELIX Hit Producer") { }
+  FairTask("STT HELIX Hit Producer") { }
 // -------------------------------------------------------------------------
 
 
@@ -60,7 +60,7 @@ InitStatus PndSttHelixHitProducer::Init() {
   hzresvsslope = new TH2F("hzresvsslope", "z: mc - reco vs slope", 100, -3.5, 3.5, 100, -3., 3.);
 
   // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
     cout << "-E- PndSttHelixHitProducer::Init: "
 	 << "RootManager not instantiated!" << endl;
@@ -574,7 +574,7 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
 }
 
 void PndSttHelixHitProducer::WriteHistograms(){
-  TFile* file = CbmRootManager::Instance()->GetOutFile();
+  TFile* file = FairRootManager::Instance()->GetOutFile();
   file->cd();
   file->mkdir("PndSttHelixHit");
   file->cd("PndSttHelixHit");

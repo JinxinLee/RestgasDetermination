@@ -9,19 +9,19 @@
 # Digitization parameters for RECTANGULAR Hyp strip sensors
 #################################################################
 [HypStripDigiParRect]
-top_pitch:d 0.0120
-bot_pitch:d 0.0130
-orient:d 0
-skew:d 1.570796327
-top_anchor_x:d 0.
-top_anchor_y:d 0.
-bot_anchor_x:d 0.
-bot_anchor_y:d 0.
-nr_fe_channels:i 128
-nr_fe_top:i 10
-nr_fe_bottom:i 10
-charge_threshold:d 3000
-charge_noise:d 1000
-sens_Type:s Rect
-fe_Type:s APV25
+top_pitch:Double_t 0.0120
+bot_pitch:Double_t 0.0130
+orient:Double_t 0
+skew:Double_t 1.570796327
+top_anchor_x:Double_t 0.
+top_anchor_y:Double_t 0.
+bot_anchor_x:Double_t 0.
+bot_anchor_y:Double_t 0.
+nr_fe_channels:Int_t 128
+nr_fe_top:Int_t 10
+nr_fe_bottom:Int_t 10
+charge_threshold:Double_t 3000
+charge_noise:Double_t 1000
+sens_Type:Text_t Rect
+fe_Type:Text_t APV25
 

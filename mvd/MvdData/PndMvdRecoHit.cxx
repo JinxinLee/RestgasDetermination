@@ -20,7 +20,7 @@
 #include "TMatrixT.h"
 #include "TMath.h"
 // Collaborating Class Headers --------
-#include "CbmMCPoint.h"
+#include "FairMCPoint.h"
 #include "LSLTrackRep.h"
 #include "GeaneTrackRep.h"
 #include "DetPlane.h"

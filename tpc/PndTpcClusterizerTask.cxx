@@ -24,15 +24,15 @@
 
 
 // Collaborating Class Headers --------
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "TClonesArray.h"
 #include "PndTpcPoint.h"
 #include "PndTpcGas.h"
 #include "TRandom.h"
 #include "PndTpcPrimaryCluster.h"
 #include "LinearInterpolPolicy.h"
-#include "CbmRunAna.h"
-#include "CbmRuntimeDb.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
 #include "PndTpcDigiPar.h"
 
 #include <iostream>
@@ -47,7 +47,7 @@ using std::floor;
 
 
 PndTpcClusterizerTask::PndTpcClusterizerTask()
-  : CbmTask("TPC Clusterizer"), _persistence(kFALSE),_mereChargeConversion(kFALSE)
+  : FairTask("TPC Clusterizer"), _persistence(kFALSE),_mereChargeConversion(kFALSE)
 {
   _pointBranchName = "PndTpcPoint";
 }
@@ -63,10 +63,10 @@ PndTpcClusterizerTask::SetParContainers() {
   std::cout.flush();
 
   // Get run and runtime database
-  CbmRun* run = CbmRun::Instance();
+  FairRun* run = FairRun::Instance();
   if ( ! run ) Fatal("SetParContainers", "No analysis run");
 
-  CbmRuntimeDb* db = run->GetRuntimeDb();
+  FairRuntimeDb* db = run->GetRuntimeDb();
   if ( ! db ) Fatal("SetParContainers", "No runtime database");
 
   // Get PndTpc digitisation parameter container
@@ -80,7 +80,7 @@ InitStatus
 PndTpcClusterizerTask::Init()
 {
   //Get ROOT Manager
-  CbmRootManager* ioman= CbmRootManager::Instance();
+  FairRootManager* ioman= FairRootManager::Instance();
 
   if(ioman==0)
     {

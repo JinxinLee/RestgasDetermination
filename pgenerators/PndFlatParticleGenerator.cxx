@@ -6,7 +6,7 @@
 
 #include "PndFlatParticleGenerator.h"
 
-#include "CbmPrimaryGenerator.h"
+#include "FairPrimaryGenerator.h"
 
 #include "TRandom.h"
 #include "TParticlePDG.h"
@@ -76,7 +76,7 @@ void PndFlatParticleGenerator::Init()
 }
 
 // ------------------------------------------------------------------------
-Bool_t PndFlatParticleGenerator::ReadEvent(CbmPrimaryGenerator* primGen)
+Bool_t PndFlatParticleGenerator::ReadEvent(FairPrimaryGenerator* primGen)
 {
   // Generate one event: produce primary particles emitted from one vertex.
   // Primary particles are distributed uniformly along

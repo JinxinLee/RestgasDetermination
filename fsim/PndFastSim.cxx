@@ -11,12 +11,12 @@
 #include <fstream>
 
 //CBM class headers
-#include "CbmRootManager.h"
-#include "CbmRunAna.h"
-#include "CbmRuntimeDb.h"
+#include "FairRootManager.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
 #include "CbmMCTrack.h"
 #include "CbmStack.h"
-#include "CbmRun.h"
+#include "FairRun.h"
 
 #include "PndFastSim.h"
 
@@ -57,7 +57,7 @@ using std::ifstream;
 		
 // -----   Default constructor   -------------------------------------------
 PndFastSim::PndFastSim() :
-  CbmTask("Panda Fast Simulation") { 
+  FairTask("Panda Fast Simulation") { 
   //  fCandidates = new TClonesArray("TParticle");
   fRand=PndFsmRandom::Instance();
   fDetFac = new PndFsmDetFactory;
@@ -71,7 +71,7 @@ PndFastSim::PndFastSim() :
 
 // -----   Destructor   ----------------------------------------------------
 PndFastSim::~PndFastSim() { 
-    CbmRootManager *fManager =CbmRootManager::Instance();
+    FairRootManager *fManager =FairRootManager::Instance();
    fManager->Write();
 
   if (fChargedCandidates) {fChargedCandidates->Delete(); delete fChargedCandidates;}
@@ -90,22 +90,22 @@ void PndFastSim::Register() {
   //---
 
   fMcCandidates = new TClonesArray("TCandidate");
-  CbmRootManager::Instance()->Register("PndMcTracks","FastSim", fMcCandidates, kTRUE);
+  FairRootManager::Instance()->Register("PndMcTracks","FastSim", fMcCandidates, kTRUE);
 
   //fPndCandidates = new TClonesArray("TCandidate");
-  //CbmRootManager::Instance()->Register("PndCandidates","FastSim", fPndCandidates, kTRUE);
+  //FairRootManager::Instance()->Register("PndCandidates","FastSim", fPndCandidates, kTRUE);
 
   fChargedCandidates = new TClonesArray("TCandidate");
-  CbmRootManager::Instance()->Register("PndChargedCandidates","FastSim", fChargedCandidates, kTRUE);
+  FairRootManager::Instance()->Register("PndChargedCandidates","FastSim", fChargedCandidates, kTRUE);
 
   fNeutralCandidates = new TClonesArray("TCandidate");
-  CbmRootManager::Instance()->Register("PndNeutralCandidates","FastSim", fNeutralCandidates, kTRUE);
+  FairRootManager::Instance()->Register("PndNeutralCandidates","FastSim", fNeutralCandidates, kTRUE);
 
   fMicroCandidates = new TClonesArray("PndMicroCandidate");
-  CbmRootManager::Instance()->Register("PndMicroCandidates","FastSim", fMicroCandidates, kTRUE);
+  FairRootManager::Instance()->Register("PndMicroCandidates","FastSim", fMicroCandidates, kTRUE);
 
   fEventInfo = new TClonesArray("PndEventInfo");
-  CbmRootManager::Instance()->Register("PndEventSummary","FastSim", fEventInfo, kTRUE);
+  FairRootManager::Instance()->Register("PndEventSummary","FastSim", fEventInfo, kTRUE);
 
 }
 
@@ -116,12 +116,12 @@ InitStatus PndFastSim::Init() {
  
   if (fVb>3) cout << " Inside the Init function****" << endl;
   
-  //CbmDetector::Initialize();
-  //CbmRun* sim = CbmRun::Instance();
-  //CbmRuntimeDb* rtdb=sim->GetRuntimeDb();
+  //FairDetector::Initialize();
+  //FairRun* sim = FairRun::Instance();
+  //FairRuntimeDb* rtdb=sim->GetRuntimeDb();
   
   // Get RootManager
-  /* CbmRootManager* ioman = CbmRootManager::Instance();
+  /* FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
     cout << "-E- PndFastSim::Init: "
 	 << "RootManager not instantiated!" << endl;
@@ -168,10 +168,10 @@ InitStatus PndFastSim::Init() {
 void PndFastSim::SetParContainers() {
 
   // Get run and runtime database
-  CbmRun* run = CbmRun::Instance();
+  FairRun* run = FairRun::Instance();
   if ( ! run ) Fatal("SetParContainers", "No analysis run");
 
-  CbmRuntimeDb* db = run->GetRuntimeDb();
+  FairRuntimeDb* db = run->GetRuntimeDb();
   if ( ! db ) Fatal("SetParContainers", "No runtime database");
 
  

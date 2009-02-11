@@ -8,10 +8,10 @@
 
 #include "TClonesArray.h"
 
-#include "CbmRootManager.h"
-#include "CbmRunAna.h"
-#include "CbmRuntimeDb.h"
-#include "CbmRun.h"
+#include "FairRootManager.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
+#include "FairRun.h"
 
 #include "PndRpcHitProducerIdeal.h"
 #include "PndRpcHit.h"
@@ -24,7 +24,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndRpcHitProducerIdeal::PndRpcHitProducerIdeal() :
-  CbmTask("Ideal TOF Hit Producer") { }
+  FairTask("Ideal TOF Hit Producer") { }
 // -------------------------------------------------------------------------
 
 
@@ -40,7 +40,7 @@ InitStatus PndRpcHitProducerIdeal::Init() {
 
   // Get RootManager
  std::cout << " INITIALIZATION OF Ideal Tof Hit Producer**"<< std::endl;
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
     cout << "-E- PndRpcHitProducerIdeal::Init: "
 	 << "RootManager not instantised!" << endl;

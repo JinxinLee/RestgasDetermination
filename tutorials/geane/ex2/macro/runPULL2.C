@@ -20,9 +20,9 @@
 	TFile *f=new TFile("ex2g.root");	
 	TTree *cbmsim=f->Get("cbmsim") ;
 
-        fTrackParGeane = new TClonesArray("CbmTrackParP");
- 	fTrackParIni = new TClonesArray("CbmTrackParP");
-  	fTrackParFinal = new TClonesArray("CbmTrackParP");
+        fTrackParGeane = new TClonesArray("FairTrackParP");
+ 	fTrackParIni = new TClonesArray("FairTrackParP");
+  	fTrackParFinal = new TClonesArray("FairTrackParP");
 		
 	TH1F *h1=new TH1F("h1","V ",100,-10.,10.);
 	TH1F *h2=new TH1F("h2","W",100,-10,10);
@@ -37,8 +37,8 @@
 	
 	cbmsim->SetBranchAddress("GeaneTrackFinal",&fTrackParFinal);
 	cbmsim->SetBranchAddress("GeaneTrackPar",&fTrackParGeane);
-	CbmTrackParP *fTrkF  ;
-	CbmTrackParP *fTrkG;
+	FairTrackParP *fTrkF  ;
+	FairTrackParP *fTrkG;
 	
 	Int_t Nevents= cbmsim->GetEntriesFast();
 	for(Int_t i=0; i<Nevents; i++){
@@ -46,8 +46,8 @@
  	  fTrackParFinal->Delete();               
 	  cbmsim->GetEntry(i);
 	  for (Int_t k=0; k<fTrackParGeane->GetEntriesFast(); k++)	{
-	    fTrkF = (CbmTrackParP *)fTrackParFinal->At(k);
-	    fTrkG = (CbmTrackParP *)fTrackParGeane->At(k);
+	    fTrkF = (FairTrackParP *)fTrackParFinal->At(k);
+	    fTrkG = (FairTrackParP *)fTrackParGeane->At(k);
 	    if(!fTrkF || !fTrkG) continue;
 	    if(fTrkF &&fTrkG ){
     if(fTrkG->GetDV())  h1->Fill((fTrkF->GetV()  - fTrkG->GetV())/fTrkG->GetDV());

@@ -37,7 +37,7 @@ for the conformal mapping stuff
   TClonesArray* hit_array=new TClonesArray("PndMvdMCPoint");
   t->SetBranchAddress("MVDPoint",&hit_array);//Branch names
   
-  TClonesArray* radlen_array = new TClonesArray("CbmRadLenPoint");
+  TClonesArray* radlen_array = new TClonesArray("FairRadLenPoint");
   t->SetBranchAddress("RadLen", &radlen_array);
 
   TClonesArray* mc_array=new TClonesArray("CbmMCTrack");
@@ -68,7 +68,7 @@ for the conformal mapping stuff
     for (Int_t i=0; i<radlen_array->GetEntriesFast(); i++)
     {
       if(verbose) cout<<"Point No "<<i<<endl;
-       CbmRadLenPoint *point=(CbmRadLenPoint*)radlen_array->At(i);
+       FairRadLenPoint *point=(FairRadLenPoint*)radlen_array->At(i);
       if (verbose) cout << "Track ID: " << point->GetTrackID() << std::endl;
       TVector3 pos, posOut, res;
       pos = point->GetPosition();

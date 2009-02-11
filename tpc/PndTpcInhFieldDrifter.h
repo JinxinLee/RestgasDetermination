@@ -26,7 +26,7 @@
 
 class PndFieldMap;
 class PndMultiField;
-class CbmField;
+class FairField;
 
 class PndTpcInhFieldDrifter {
 

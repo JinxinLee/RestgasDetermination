@@ -3,7 +3,7 @@
 
 #include "TClonesArray.h"
 #include "TLorentzVector.h"
-#include "CbmDetector.h"
+#include "FairDetector.h"
 #include "PndRpcGeoPar.h"
 
 using namespace std;
@@ -11,11 +11,11 @@ using std::ofstream;
 
 class TClonesArray;
 class PndRpcPoint;
-class CbmVolume; 
+class FairVolume; 
 
 
 
-class PndRpcDetector : public CbmDetector 
+class PndRpcDetector : public FairDetector 
 {
 
  public:
@@ -43,7 +43,7 @@ class PndRpcDetector : public CbmDetector
 
  virtual void Initialize();
 
-  virtual Bool_t ProcessHits(CbmVolume* vol = 0);
+  virtual Bool_t ProcessHits(FairVolume* vol = 0);
 
 
   /** Virtual method EndOfEvent

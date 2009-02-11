@@ -19,14 +19,14 @@
 #define TPCRIEMANNTRACKINGTASK_HH
 
 // Base Class Headers ----------------
-#include "CbmTask.h"
+#include "FairTask.h"
 
 // Collaborating Class Headers -------
 #include <ostream> // remove if you do not need streaming op
 
 // Collaborating Class Declarations --
 #include "PndTpcCluster.h"
-#include "CbmGeanePro.h"
+#include "FairGeanePro.h"
 class TClonesArray;
 class PndTpcFrontend;
 class PndTpcRiemannTrackFinder;
@@ -34,7 +34,7 @@ class RecoHitFactory;
 class TH1I;
 class TH1D;
 
-class PndTpcRiemannTrackingTask : public CbmTask {
+class PndTpcRiemannTrackingTask : public FairTask {
 public:
 
   // Constructors/Destructors ---------
@@ -92,7 +92,7 @@ private:
 
   PndTpcRiemannTrackFinder* _trackfinder;
 
-  CbmGeanePro* _geanePro;
+  FairGeanePro* _geanePro;
 
   RecoHitFactory* _theRecoHitFactory;
 

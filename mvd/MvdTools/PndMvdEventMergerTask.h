@@ -6,7 +6,7 @@
 #ifndef PndMvdEventMergerTask_H
 #define PndMvdEventMergerTask_H 
 
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "PndMvdEventMerger.h"
 
 #include <string>
@@ -14,7 +14,7 @@
  
 class TClonesArray;
 
-class PndMvdEventMergerTask : public CbmTask
+class PndMvdEventMergerTask : public FairTask
 {
  public:
 

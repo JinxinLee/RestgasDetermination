@@ -23,22 +23,22 @@
   gSystem->Load("libtpc");
   gSystem->Load("libMvd");
   
-  CbmRunAna *fRun = new CbmRunAna();
+  FairRunAna *fRun = new FairRunAna();
 
   fRun->SetInputFile("mc.root");
   fRun->SetOutputFile("geane.root");
 
-   //CbmGeane *Geane = new CbmGeane();
-   CbmGeane *Geane = new CbmGeane("mc.root");
+   //FairGeane *Geane = new FairGeane();
+   FairGeane *Geane = new FairGeane("mc.root");
 
-   CbmGeaneTrEmc *tr= new CbmGeaneTrEmc();
+   FairGeaneTrEmc *tr= new FairGeaneTrEmc();
    fRun->AddTask(tr);
 
-  CbmRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  CbmParRootFileIo* parInput1 = new CbmParRootFileIo();
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open("params.root"); 
   rtdb->setFirstInput(parInput1);
-  new CbmTrajFilter();
+  new FairTrajFilter();
 
   fRun->Init();
 

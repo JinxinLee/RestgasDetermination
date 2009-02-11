@@ -23,7 +23,7 @@
   
   TFile* f = new TFile("sim_emc.root"); // the sim file you want to analyse
   
-  TGeoManager *geoMan = (TGeoManager*) f->Get("CBMGeom");
+  TGeoManager *geoMan = (TGeoManager*) f->Get("FAIRGeom");
 
   TCanvas* c1 = new TCanvas("c1", "", 100, 100, 800, 800); // to create a canvas where to plot the geometry
   c1->SetFillColor(10);

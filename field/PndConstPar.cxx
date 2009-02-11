@@ -1,6 +1,6 @@
 #include "PndConstPar.h"
 #include "PndConstField.h"
- #include "CbmParamList.h"
+ #include "FairParamList.h"
 // ------   Constructor   --------------------------------------------------
 PndConstPar::PndConstPar(const char* name, const char* title, const char* context) 
   : PndMapPar(name, title, context) 
@@ -17,7 +17,7 @@ PndConstPar::PndConstPar()
 
 PndConstPar::~PndConstPar() { }
 
-void PndConstPar::putParams(CbmParamList* list)
+void PndConstPar::putParams(FairParamList* list)
 {
   if ( ! list ) return;
 
@@ -37,7 +37,7 @@ void PndConstPar::putParams(CbmParamList* list)
 
 
 
-Bool_t PndConstPar::getParams(CbmParamList* list)
+Bool_t PndConstPar::getParams(FairParamList* list)
 {
   if ( ! list ) return kFALSE;
   if ( ! list->fill("Field Type", &fType) ) return kFALSE;
@@ -52,7 +52,7 @@ Bool_t PndConstPar::getParams(CbmParamList* list)
   if ( ! list->fill("Field Bz", &fBz) ) return kFALSE;
   return kTRUE;
 } 
-void PndConstPar:: SetParameters(CbmField* field)
+void PndConstPar:: SetParameters(FairField* field)
 {
     PndConstField* fieldConst = (PndConstField*) field;
     fBx = fieldConst->GetBx();

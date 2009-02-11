@@ -27,7 +27,7 @@
 #include <assert.h>
 
 // Collaborating Class Headers --------
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "TClonesArray.h"
 #include "Track.h"
 #include "TrackFitStat.h"
@@ -47,7 +47,7 @@ using std::cout;
 using std::endl;
 
 TrackFitStatTask::TrackFitStatTask()
-  : CbmTask("TrackFitStatistics"), _persistence(kFALSE), _doRes(kFALSE),
+  : FairTask("TrackFitStatistics"), _persistence(kFALSE), _doRes(kFALSE),
     _mcPCut(0.01), _pmin(0), _pmax(100), _thetamin(0), 
     _thetamax(TMath::TwoPi()), _minPndTpcHits(0), _pdgselect(false),_precotol(0.01)
 {
@@ -66,7 +66,7 @@ InitStatus
 TrackFitStatTask::Init()
 {
   //Get ROOT Manager
-  CbmRootManager* ioman= CbmRootManager::Instance();
+  FairRootManager* ioman= FairRootManager::Instance();
 
   if(ioman==0)
     {

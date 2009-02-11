@@ -7,20 +7,20 @@ of J/Psi: Dipak
 
 #include "TClonesArray.h"
 
-#include "CbmRootManager.h"
-#include "CbmRunAna.h"
-#include "CbmRuntimeDb.h"
+#include "FairRootManager.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
 #include "PndTpcLheTrack.h"
 
 #include "TVector3.h"
-#include "CbmRun.h"
-#include "CbmRuntimeDb.h"
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
 #include "PndJPsiExample.h"
 #include <string>
 		
 // -----   Default constructor   -------------------------------------------
 PndJPsiExample::PndJPsiExample() :
-  CbmTask("FastSim Dump") { 
+  FairTask("FastSim Dump") { 
 }
 // -------------------------------------------------------------------------
 
@@ -35,12 +35,12 @@ InitStatus PndJPsiExample::Init() {
  
   cout << " Inside the Init function****" << endl;
   
-  //CbmDetector::Initialize();
-  //CbmRun* sim = CbmRun::Instance();
-  //CbmRuntimeDb* rtdb=sim->GetRuntimeDb();
+  //FairDetector::Initialize();
+  //FairRun* sim = FairRun::Instance();
+  //FairRuntimeDb* rtdb=sim->GetRuntimeDb();
   
   // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
     cout << "-E- PndEmcHitProducer::Init: "
 	 << "RootManager not instantiated!" << endl;
@@ -66,10 +66,10 @@ InitStatus PndJPsiExample::Init() {
 void PndJPsiExample::SetParContainers() {
 
   // Get run and runtime database
-  CbmRunAna* run = CbmRunAna::Instance();
+  FairRunAna* run = FairRunAna::Instance();
   if ( ! run ) Fatal("SetParContainers", "No analysis run");
 
-  CbmRuntimeDb* db = run->GetRuntimeDb();
+  FairRuntimeDb* db = run->GetRuntimeDb();
   if ( ! db ) Fatal("SetParContainers", "No runtime database");
 
  

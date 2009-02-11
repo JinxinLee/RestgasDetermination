@@ -18,7 +18,7 @@ void runGemSim(Int_t nEvents = 10,int verboseLevel = 0)
 //   gROOT->Macro("Libs.C");
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   gSystem->Load("libGem");
-  CbmRunSim *fRun = new CbmRunSim();
+  FairRunSim *fRun = new FairRunSim();
 
   // set the MC version used
   // ------------------------
@@ -35,28 +35,28 @@ void runGemSim(Int_t nEvents = 10,int verboseLevel = 0)
   // Create and add detectors
   //-------------------------
 
-  CbmModule *Cave= new PndCave("CAVE");
+  FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave);
 
-//   CbmModule *Magnet= new PndMagnet("MAGNET");
+//   FairModule *Magnet= new PndMagnet("MAGNET");
 //   Magnet->SetGeometryFileName("FullSolenoid.root");
 //   fRun->AddModule(Magnet);
 
-//  CbmModule *Dipole= new PndMagnet("MAGNET");
+//  FairModule *Dipole= new PndMagnet("MAGNET");
 //  Dipole->SetGeometryFileName("dipole.geo");
 //  fRun->AddModule(Dipole);
 
-  CbmModule *Pipe= new PndPipe("PIPE");
+  FairModule *Pipe= new PndPipe("PIPE");
 //   Pipe->SetGeometryFileName("pipebeamtarget.geo");
   fRun->AddModule(Pipe);
 
-  CbmDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
+  FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
   Mvd->SetGeometryFileName("MVD_v1.0_woPassiveTraps.root");
   Mvd->SetVerboseLevel(verboseLevel);
   fRun->AddModule(Mvd);
 
-  CbmDetector *Tpc = new PndTpcDetector("TPC", kTRUE);
+  FairDetector *Tpc = new PndTpcDetector("TPC", kTRUE);
   Tpc->SetGeometryFileName("tpc.geo");
   fRun->AddModule(Tpc);
 
@@ -64,11 +64,11 @@ void runGemSim(Int_t nEvents = 10,int verboseLevel = 0)
 //  Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root");
 //   fRun->AddModule(Emc);
 
-//  CbmDetector *Tof = new PndTof("TOF",kTRUE);
+//  FairDetector *Tof = new PndTof("TOF",kTRUE);
 //  Tof->SetGeometryFileName("tofbarrel.geo");
 //   fRun->AddModule(Tof);
 
-//  CbmDetector *Muo = new PndMdt("MDT",kTRUE);
+//  FairDetector *Muo = new PndMdt("MDT",kTRUE);
 //  Muo->SetGeometryFileName("muopars.root");
 //   fRun->AddModule(Muo);
 
@@ -77,11 +77,11 @@ void runGemSim(Int_t nEvents = 10,int verboseLevel = 0)
   //Drc->SetGeometryFileName("dirc.geo");
 //   fRun->AddModule(Drc);
 
-//  CbmDetector *Dch = new PndDchDetector("DCH", kTRUE);
+//  FairDetector *Dch = new PndDchDetector("DCH", kTRUE);
 //  Dch->SetGeometryFileName("dch.root");
 //   fRun->AddModule(Dch);
 
-  CbmDetector *Gem = new PndGemDetector("GEM", kTRUE);
+  FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
   Gem->SetGeometryFileName("gem.root");
   Gem->SetVerboseLevel(verboseLevel);
   fRun->AddModule(Gem);
@@ -89,7 +89,7 @@ void runGemSim(Int_t nEvents = 10,int verboseLevel = 0)
 
 
 
-  CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
+  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
   // DPM Generator
@@ -97,7 +97,7 @@ void runGemSim(Int_t nEvents = 10,int verboseLevel = 0)
   primGen->AddGenerator(dpmGen);
 
 
-//  CbmBoxGenerator *fBox2 = new CbmBoxGenerator(2212, 5);
+//  FairBoxGenerator *fBox2 = new FairBoxGenerator(2212, 5);
 //  fBox2->SetPRange(0.9,1.1);
 //  fBox2->SetThetaRange(0,50);
 //  fBox2->SetPhiRange(0.,360.);
@@ -127,7 +127,7 @@ void runGemSim(Int_t nEvents = 10,int verboseLevel = 0)
  // -----------------------------------------------
 
  // Set cuts for storing the trajectpries
-//   CbmTrajFilter* trajFilter = CbmTrajFilter::Instance();
+//   FairTrajFilter* trajFilter = FairTrajFilter::Instance();
 //     trajFilter->SetStepSizeCut(0.01); // 1 cm
 //     trajFilter->SetVertexCut(-200., -200., -200, 200., 200., 200.);
 //     trajFilter->SetMomentumCutP(10e-3); // p_lab > 10 MeV
@@ -138,9 +138,9 @@ void runGemSim(Int_t nEvents = 10,int verboseLevel = 0)
 
   // Fill the Parameter containers for this run
   //-------------------------------------------
-  CbmRuntimeDb *rtdb=fRun->GetRuntimeDb();
+  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
   Bool_t kParameterMerged=kTRUE;
-  CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   output->open(parOutput.Data(),"RECREATE");
   rtdb->setOutput(output);
 

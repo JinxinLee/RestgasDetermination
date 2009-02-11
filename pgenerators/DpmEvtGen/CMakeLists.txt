@@ -45,7 +45,7 @@ endif (CMAKE_COMPILER_IS_GNUCXX)
 
 add_library(DpmEvtGen SHARED ${DPMEVTGEN_SRCS})
 target_link_libraries(DpmEvtGen ${ROOT_LIBRARIES})
-set_target_properties(DpmEvtGen PROPERTIES ${CBMROOT_LIBRARY_PROPERTIES})
+set_target_properties(DpmEvtGen PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 
 add_executable(DpmEvtGen_exe ${DPMEVTGEN_EXE_SRCS})
 if (CMAKE_SYSTEM_NAME MATCHES Darwin)

@@ -13,23 +13,23 @@
 #include "PndHypGe.h"
 #include "PndHypGePoint.h"
 
-#include "CbmGeoInterface.h"
-#include "CbmGeoLoader.h"
-#include "CbmGeoMedia.h"
-#include "CbmGeoNode.h"
+#include "FairGeoInterface.h"
+#include "FairGeoLoader.h"
+#include "FairGeoMedia.h"
+#include "FairGeoNode.h"
 #include "PndGeoHypGe.h"
-#include "CbmGeoRootBuilder.h"
+#include "FairGeoRootBuilder.h"
 #include "CbmStack.h"
-#include "CbmGeoMedium.h"
-#include "CbmRootManager.h"
-#include "CbmModule.h"
-#include "CbmVolume.h"
+#include "FairGeoMedium.h"
+#include "FairRootManager.h"
+#include "FairModule.h"
+#include "FairVolume.h"
 #include "GeCluster.h"
 // add on for debug
-#include "CbmGeoG3Builder.h"
-#include "CbmRuntimeDb.h"
+#include "FairGeoG3Builder.h"
+#include "FairRuntimeDb.h"
 #include "TObjArray.h"
-#include "CbmRun.h"
+#include "FairRun.h"
 
 #include "TClonesArray.h"
 #include "TGeoMCGeometry.h"
@@ -59,7 +59,7 @@ PndHypGe::PndHypGe() {
 
 // -----   Standard constructor   ------------------------------------------
 PndHypGe::PndHypGe(const char* name, Bool_t active)
-  : CbmDetector(name, active) {
+  : FairDetector(name, active) {
     fHypGeCollection        = new TClonesArray("PndHypGePoint");
     fHypGesciCollection        = new TClonesArray("PndHypGePoint");
     //fHypGecapCollection        = new TClonesArray("PndHypGePoint");
@@ -95,9 +95,9 @@ PndHypGe::~PndHypGe() {
 void PndHypGe::Initialize() {
   // Init function
   
-  CbmDetector::Initialize();
-  CbmRun* sim = CbmRun::Instance();
-  CbmRuntimeDb* rtdb=sim->GetRuntimeDb();
+  FairDetector::Initialize();
+  FairRun* sim = FairRun::Instance();
+  FairRuntimeDb* rtdb=sim->GetRuntimeDb();
   par=(PndGeoHypGePar*)(rtdb->getContainer("PndGeoHypGePar"));
   
   // TObjArray *fSensNodes = par->GetGeoSensitiveNodes();
@@ -114,7 +114,7 @@ void PndHypGe::BeginEvent(){
 
 
 // -----   Public method ProcessHits  --------------------------------------
-Bool_t PndHypGe::ProcessHits(CbmVolume* vol) 
+Bool_t PndHypGe::ProcessHits(FairVolume* vol) 
 {
   Int_t pdgCode ; 
     Int_t copyNo = -1, id = -1;
@@ -312,9 +312,9 @@ void PndHypGe::EndOfEvent() {
 
 // -----   Public method Register   -------------------------------------------
 void PndHypGe::Register() {
-  CbmRootManager::Instance()->Register("HypGePoint","HypGe", fHypGeCollection, kTRUE);
-  CbmRootManager::Instance()->Register("HypGesciPoint","HypGesci", fHypGesciCollection, kTRUE);
-  //CbmRootManager::Instance()->Register("HypGecapPoint","HypGecap", fHypGecapCollection, kTRUE);
+  FairRootManager::Instance()->Register("HypGePoint","HypGe", fHypGeCollection, kTRUE);
+  FairRootManager::Instance()->Register("HypGesciPoint","HypGesci", fHypGesciCollection, kTRUE);
+  //FairRootManager::Instance()->Register("HypGecapPoint","HypGecap", fHypGecapCollection, kTRUE);
 }
 // ----------------------------------------------------------------------------
 
@@ -350,7 +350,7 @@ void PndHypGe::Reset() {
 // ----------------------------------------------------------------------------
 
 
-// guarda in CbmRootManager::CopyClones
+// guarda in FairRootManager::CopyClones
 // -----   Public method CopyClones   -----------------------------------------
 void PndHypGe::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset ) {
   Int_t nEntries = cl1->GetEntriesFast();
@@ -374,20 +374,20 @@ void PndHypGe::ConstructGeometry() {
 
   
   //vacuum = gGeoManager->Medium("vacuum");
-  CbmGeoLoader*geoLoad = CbmGeoLoader::Instance();
-  CbmGeoInterface *geoFace = geoLoad->getGeoInterface();
-  CbmGeoMedia *Media =  geoFace->getMedia();
-  CbmGeoBuilder *geobuild=geoLoad->getGeoBuilder();
+  FairGeoLoader*geoLoad = FairGeoLoader::Instance();
+  FairGeoInterface *geoFace = geoLoad->getGeoInterface();
+  FairGeoMedia *Media =  geoFace->getMedia();
+  FairGeoBuilder *geobuild=geoLoad->getGeoBuilder();
 
-  CbmGeoMedium *medGe  = Media->getMedium("germanium");
+  FairGeoMedium *medGe  = Media->getMedium("germanium");
   Int_t nmedGe=geobuild->createMedium(medGe);
 
   //Scintillator plate
-  CbmGeoMedium *medsci  = Media->getMedium("polypropylene");
+  FairGeoMedium *medsci  = Media->getMedium("polypropylene");
   Int_t nmedsci=geobuild->createMedium(medsci);
 
    // aluminum capsule
-  CbmGeoMedium *medcap  = Media->getMedium("HYPaluminium");
+  FairGeoMedium *medcap  = Media->getMedium("HYPaluminium");
   Int_t nmedcap=geobuild->createMedium(medcap);
   
 

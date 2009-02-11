@@ -8,7 +8,7 @@
  *@author R.Castelijns <r.castelijns@fz-juelich.de>
  **
  ** STT local track. Holds lists of PndSttHits and the fitted
- ** track parameters. The fit parameters are of type CbmTrackParam
+ ** track parameters. The fit parameters are of type FairTrackParam
  ** and can only be accesssed and modified via this class.
  **/
 
@@ -19,7 +19,7 @@
 #include <map>
 #include "TArrayI.h"
 #include "TObject.h"
-#include "CbmTrackParam.h"
+#include "FairTrackParam.h"
 #include "TClonesArray.h"
 class PndSttHit;
 
@@ -68,14 +68,14 @@ class PndSttTrack : public TObject
   // stt1
   //  TClonesArray * GetHOT() const {return fHotArray;}
 
-  CbmTrackParam* GetParamFirst() { return &fParamFirst; }; 
-  CbmTrackParam* GetParamLast()  { return &fParamLast ; }; 
+  FairTrackParam* GetParamFirst() { return &fParamFirst; }; 
+  FairTrackParam* GetParamLast()  { return &fParamLast ; }; 
   Bool_t AlreadyHasHit(Int_t iHit);
  
   /** Modifiers  **/
   void SetPidHypo(Int_t pid)                { fPidHypo    = pid;  };
-  void SetParamFirst(CbmTrackParam& par)    { fParamFirst = par;  };
-  void SetParamLast(CbmTrackParam& par)     { fParamLast  = par;  };
+  void SetParamFirst(FairTrackParam& par)    { fParamFirst = par;  };
+  void SetParamLast(FairTrackParam& par)     { fParamLast  = par;  };
   void SetFlag(Int_t flag)                  { fFlag       = flag; };
   void SetChi2Long(Double_t chi2)           { fChi2Long   = chi2; };
   void SetChi2Rad(Double_t chi2)            { fChi2Rad    = chi2; };
@@ -97,8 +97,8 @@ class PndSttTrack : public TObject
   Int_t fPidHypo;
 
   /** Track parameters at first and last fitted hit **/
-  CbmTrackParam fParamFirst;
-  CbmTrackParam fParamLast;
+  FairTrackParam fParamFirst;
+  FairTrackParam fParamLast;
 
   /** Quality flag **/
   Int_t fFlag;

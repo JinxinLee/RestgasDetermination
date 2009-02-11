@@ -13,7 +13,7 @@
 #ifndef PNDDCHTRACKFINDERIDEALCYLHIT_H
 #define PNDDCHTRACKFINDERIDEALCYLHIT_H 1
 
-#include "CbmMCPoint.h"
+#include "FairMCPoint.h"
 #include "CbmMCTrack.h"
 
 #include "PndDchCylinderHit.h"

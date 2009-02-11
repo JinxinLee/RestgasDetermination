@@ -11,14 +11,14 @@
 #include "TVector3.h"
 #include "TString.h"
 #include "TLorentzVector.h"
-#include "CbmDetector.h"
+#include "FairDetector.h"
 
 class TClonesArray;
 class PndEmcPoint;
-class CbmVolume; 
+class FairVolume; 
 class TGeoNode; 
 
-class PndEmc : public CbmDetector 
+class PndEmc : public FairDetector 
 {
 
  public:
@@ -50,7 +50,7 @@ class PndEmc : public CbmDetector
    ** them to the collections.
    *@param vol  Pointer to the active volume
    **/
-  virtual Bool_t ProcessHits(CbmVolume* vol = 0);
+  virtual Bool_t ProcessHits(FairVolume* vol = 0);
 
 
   /** Virtual method EndOfEvent

@@ -9,15 +9,15 @@
 #include "TVector2.h"
 #include "TGeoManager.h"
 
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "PndMvdStripHitProducer.h"
 #include "PndMvdMCPoint.h"
-#include "CbmRun.h"
-#include "CbmRuntimeDb.h"
-#include "CbmGeoNode.h"
-#include "CbmRuntimeDb.h"
-#include "CbmGeoNode.h"
-#include "CbmGeoVector.h"
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
+#include "FairGeoNode.h"
+#include "FairRuntimeDb.h"
+#include "FairGeoNode.h"
+#include "FairGeoVector.h"
 #include "PndStringVector.h"
 #include "PndMvdCalcStrip.h"
 #include "PndMvdDigiStrip.h"
@@ -27,7 +27,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndMvdStripHitProducer::PndMvdStripHitProducer() :
-  CbmTask("MVD Strip Digi Producer(PndMvdStripHitProducer)")
+  FairTask("MVD Strip Digi Producer(PndMvdStripHitProducer)")
 {
   fBranchName   = "MVDPoint";
 //  stripHits = 0;
@@ -55,7 +55,7 @@ PndMvdStripHitProducer::PndMvdStripHitProducer(Double_t topPitch, Double_t botPi
                                          Int_t nrTopFE, Int_t nrBotFE, Int_t nrFECh,
                                          Double_t threshold, Double_t noise,
                                          TString sensorType, TString feType) :
-  CbmTask("MVD Strip Digi Producer")
+  FairTask("MVD Strip Digi Producer")
 {
   // This constructor is probably not needed anymore, since the parameters are
   // read in via an ascii file.
@@ -78,8 +78,8 @@ void PndMvdStripHitProducer::SetParamSet(Double_t topPitch, Double_t botPitch,
                                          Double_t threshold, Double_t noise,
                                          TString sensorType, TString feType)
 {
-  CbmRun* ana = CbmRun::Instance();
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRun* ana = FairRun::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   if ( 0==fDigiParRect || 0==fDigiParTrap ) SetParContainers();
   if (fOverrideParams){
     if (sensorType.Contains("Rect")) fCurrentDigiPar = fDigiParRect;
@@ -116,10 +116,10 @@ PndMvdStripHitProducer::~PndMvdStripHitProducer()
 // -----   Initialization  of Parameter Containers -------------------------
 void PndMvdStripHitProducer::SetParContainers()
 {
-  // called from the CbmRun::Init()
+  // called from the FairRun::Init()
   // Get Base Container
-  CbmRun* ana = CbmRun::Instance();
-  CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+  FairRun* ana = FairRun::Instance();
+  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
   fDigiParRect = (PndMvdStripDigiPar*)(rtdb->getContainer("MVDStripDigiParRect"));
   fDigiParTrap = (PndMvdStripDigiPar*)(rtdb->getContainer("MVDStripDigiParTrap"));
 }
@@ -134,8 +134,8 @@ InitStatus PndMvdStripHitProducer::ReInit()
 // -----   Public method Init   --------------------------------------------
 InitStatus PndMvdStripHitProducer::Init()
 {
-  CbmRun* ana = CbmRun::Instance();
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRun* ana = FairRun::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
 
   fGeoH = new PndMvdGeoHandling(gGeoManager);
 

@@ -6,13 +6,13 @@
 #ifndef PNDMVDHYBRIDHITPRODUCER_H
 #define PNDMVDHYBRIDHITPRODUCER_H
 
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "PndMvdPixelDigiPar.h"
 #include "PndMvdMCPoint.h"
 #include "PndMvdPixel.h"
 #include "PndMvdDigiPixel.h"
-#include "CbmGeoVector.h"
-#include "CbmGeoTransform.h"
+#include "FairGeoVector.h"
+#include "FairGeoTransform.h"
 #include "TVector3.h"
 #include "TRandom.h"
 #include "TGeoMatrix.h"
@@ -25,7 +25,7 @@
 
 class TClonesArray;
 
-class PndMvdHybridHitProducer : public CbmTask
+class PndMvdHybridHitProducer : public FairTask
 {
  public:
 
@@ -65,7 +65,7 @@ class PndMvdHybridHitProducer : public CbmTask
   void ProduceHits();
 
   TGeoHMatrix GetTransformation (std::string detName);
-  void GetLocalHitPoints(PndMvdMCPoint* myPoint, CbmGeoVector& myHitIn, CbmGeoVector& myHitOut);
+  void GetLocalHitPoints(PndMvdMCPoint* myPoint, FairGeoVector& myHitIn, FairGeoVector& myHitOut);
 //  PndMvdHit CalcGlobalPoint(std::vector<PndMvdPixel> pixels);
   TVector3 GetSensorDimensions(std::string detName);
 

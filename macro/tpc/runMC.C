@@ -26,7 +26,7 @@
   gSystem->Load("pgenerators/DpmEvtGen/lib/libDpmEvtGen");
   gSystem->Load("libPGen");
 
-  CbmRunSim *fRun = new CbmRunSim();
+  FairRunSim *fRun = new FairRunSim();
   
   // set the MC version used
   // ------------------------
@@ -77,16 +77,16 @@
 
   // Create and add detectors
   //-------------------------
-  CbmModule *Cave= new PndCave("CAVE");
+  FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave);
 
-  //CbmModule *Pipe= new CbmPipe("PIPE");
+  //FairModule *Pipe= new CbmPipe("PIPE");
   //Pipe->SetGeometryFileName("pipe.geo");
   //fRun->AddModule(Pipe);
   
   
-  CbmModule *Magnet= new PndMagnet("MAGNET");
+  FairModule *Magnet= new PndMagnet("MAGNET");
   Magnet->SetGeometryFileName("magnet.geo");
   fRun->AddModule(Magnet);
   
@@ -98,40 +98,40 @@
   //------------------
   fRun->AddModule(PndTpc);
   
-  //CbmDetector *Sts= new CbmTst("TST", kTRUE);
+  //FairDetector *Sts= new CbmTst("TST", kTRUE);
   //Sts->SetGeometryFileName("tst_mvd.geo");
   //fRun->AddModule(Sts);
 
 
-  //CbmDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
+  //FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
   //Mvd->SetGeometryFileName("MVD14.root");
   //fRun->AddModule(Mvd);
   
-  //CbmDetector *Emc = new CbmEmc("EMC",kTRUE);
+  //FairDetector *Emc = new CbmEmc("EMC",kTRUE);
   //Emc->SetGeometryFileName("emc_module1234.dat");
   //fRun->AddModule(Emc);
 
-  //CbmDetector *Drc = new CbmDrc("DIRC", kTRUE);
+  //FairDetector *Drc = new CbmDrc("DIRC", kTRUE);
   //Drc->SetGeometryFileName("dirc.geo");
   //fRun->AddModule(Drc);
 
- //CbmModule *Target= new CbmTarget("Target");
+ //FairModule *Target= new CbmTarget("Target");
  //Target->SetGeometryFileName("target_vacuum.geo");
  //fRun->AddModule(Target);		
 
- //CbmDetector *Tof= new CbmTof("TOF", kTRUE );
+ //FairDetector *Tof= new CbmTof("TOF", kTRUE );
  //Tof->SetGeometryFileName("tof.geo");
  //fRun->AddModule(Tof);
 	
- //CbmDetector *Trd= new CbmTrd("TRD",kTRUE );
+ //FairDetector *Trd= new CbmTrd("TRD",kTRUE );
  //Trd->SetGeometryFileName("trd_9.geo");
  //fRun->AddModule(Trd);
 
- // CbmDetector *Rich= new CbmRich("RICH", kTRUE);
+ // FairDetector *Rich= new CbmRich("RICH", kTRUE);
  // Rich->SetGeometryFileName("rich.geo");
  // fRun->AddModule(Rich);
 
-  //CbmDetector *Ecal= new CbmEcal("ECAL", kTRUE);
+  //FairDetector *Ecal= new CbmEcal("ECAL", kTRUE);
   //Ecal->SetGeometryFileName("ecal.geo");
   //fRun->AddModule(Ecal);
 
@@ -139,21 +139,21 @@
  // Create and Set Event Generator
  //-------------------------------
  std::cout<<"Setup EvtGens"<<std::endl;std::cout.flush();
- CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
+ FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
  fRun->SetGenerator(primGen);
 
  
  // Box Generator
 
   // pdgs 211=pion 13=muon 11=electron
- //  CbmBoxGenerator* boxGen = new CbmBoxGenerator(211, 1); // 13 = muon; 1 = multipl.
+ //  FairBoxGenerator* boxGen = new FairBoxGenerator(211, 1); // 13 = muon; 1 = multipl.
 //    boxGen->SetPRange(1.2,1.2); // GeV/c //setPRange vs setPtRange
 //    boxGen->SetPhiRange(0, 360); // Azimuth angle range [degree]
 //    boxGen->SetThetaRange(20, 20); // Polar angle in lab system range [degree]
 //    boxGen->SetXYZ(0., 0., 0.); // mm o cm ??
 //    primGen->AddGenerator(boxGen);
 
-  //CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
+  //FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   //fRun->SetGenerator(primGen);
 
   //DPM
@@ -162,17 +162,17 @@
   primGen->AddGenerator(dpmGen);  
    
    
-   //CbmEvtGenGenerator* evtGen = new CbmEvtGenGenerator("../data/evtgen.y4260.jpsipipi.vvpipi.dat");
+   //FairEvtGenGenerator* evtGen = new FairEvtGenGenerator("../data/evtgen.y4260.jpsipipi.vvpipi.dat");
    //primGen->AddGenerator(evtGen);  
 
-  //CbmEvtGenGenerator* evtGen = new CbmEvtGenGenerator("pgenerators/EvtGen/etacphiphi100.evt");
+  //FairEvtGenGenerator* evtGen = new FairEvtGenGenerator("pgenerators/EvtGen/etacphiphi100.evt");
   //primGen->AddGenerator(evtGen);  
 
  // Field Map Definition
  // --------------------
   // 1- Reading the new field map in the old format
 
-     // CbmFieldMap *fMagField= new CbmFieldMap("FIELD.v04_pavel.map");
+     // FairFieldMap *fMagField= new FairFieldMap("FIELD.v04_pavel.map");
    // Constant Field
       PndConstField *fMagField=new PndConstField();
       fMagField->SetField(0, 0 ,20. ); // values are in kG
@@ -181,7 +181,7 @@
 
   // 2- Reading the new field map in the new format
 
-//  CbmField *fMagField= new CbmFieldMapSym3("FieldActive");
+//  FairField *fMagField= new FairFieldMapSym3("FieldActive");
   // Active Shielding
 
   fRun->SetField(fMagField);
@@ -199,7 +199,7 @@
 
 ;
  // Set cuts for storing the trajectpries
-//   CbmTrajFilter* trajFilter = CbmTrajFilter::Instance();
+//   FairTrajFilter* trajFilter = FairTrajFilter::Instance();
 //   trajFilter->SetStepSizeCut(0.01); // 1 cm
 //   trajFilter->SetVertexCut(-2000., -2000., 4., 2000., 2000., 100.);
 //   trajFilter->SetMomentumCutP(10e-3); // p_lab > 10 MeV
@@ -211,9 +211,9 @@
   // Fill the Parameter containers for this run
   //-------------------------------------------
 
-  CbmRuntimeDb *rtdb=fRun->GetRuntimeDb();
+  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
   Bool_t kParameterMerged=kTRUE;
-  CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   output->open(dbfile.Data());
   rtdb->setOutput(output);
 

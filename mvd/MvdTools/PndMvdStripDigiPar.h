@@ -8,11 +8,11 @@
 // #include <TString.h>
 #include <TObjString.h>
 
-#include "CbmParGenericSet.h"
-#include "CbmParamList.h"
+#include "FairParGenericSet.h"
+#include "FairParamList.h"
 
 //! Digitization Parameter Class for MVD-Strip part
-class PndMvdStripDigiPar : public CbmParGenericSet
+class PndMvdStripDigiPar : public FairParGenericSet
 {
 	public :
 		PndMvdStripDigiPar (const char* name="PndMvdParTest",
@@ -20,8 +20,8 @@ class PndMvdStripDigiPar : public CbmParGenericSet
 			    const char* context="TestDefaultContext");
 		~PndMvdStripDigiPar(void){};
 		void clear(void){};
-		void putParams(CbmParamList* list);
-		Bool_t getParams(CbmParamList* list);
+		void putParams(FairParamList* list);
+		Bool_t getParams(FairParamList* list);
 		
 		void Print();
   /** Accessor functions **/

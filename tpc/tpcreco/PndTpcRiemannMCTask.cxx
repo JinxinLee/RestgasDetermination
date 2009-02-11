@@ -25,7 +25,7 @@
 #include <algorithm>
 
 // Collaborating Class Headers --------
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "CbmMCTrack.h"
 #include "TClonesArray.h"
 #include "PndTpcCluster.h"
@@ -46,7 +46,7 @@
 #include "TVector3.h"
 #include "TDatabasePDG.h"
 //#include "AbsBFieldIfc.h"
-//#include "CbmFieldAdaptor.h"
+//#include "FairFieldAdaptor.h"
 
 #include <cmath>
 #include <fenv.h>
@@ -58,7 +58,7 @@ using std::fabs;
 ClassImp(PndTpcRiemannMCTask)
 
 PndTpcRiemannMCTask::PndTpcRiemannMCTask()
-  : CbmTask("PndTpc Pattern Reco"), _persistence(kFALSE), _bkgTree(NULL)
+  : FairTask("PndTpc Pattern Reco"), _persistence(kFALSE), _bkgTree(NULL)
 {
   // default values for Riemann TrackFinder
   _proxcut=2;
@@ -102,7 +102,7 @@ PndTpcRiemannMCTask::Init()
   //feenableexcept(FE_INVALID|FE_DIVBYZERO|FE_OVERFLOW);
 
 //Get ROOT Manager
-  CbmRootManager* ioman= CbmRootManager::Instance();
+  FairRootManager* ioman= FairRootManager::Instance();
 
   if(ioman==0)
     {
@@ -319,7 +319,7 @@ PndTpcRiemannMCTask::Exec(Option_t* opt)
 
 void
 PndTpcRiemannMCTask::WriteHistograms() {
-  TFile* file=CbmRootManager::Instance()->GetOutFile();
+  TFile* file=FairRootManager::Instance()->GetOutFile();
   file->mkdir("RiemannMC");
   file->cd("RiemannMC");
 

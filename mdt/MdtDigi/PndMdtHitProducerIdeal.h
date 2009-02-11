@@ -2,13 +2,13 @@
 #define PNDMDTHITPRODUCERIDEAL_H 1
 
 
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "PndMdtHit.h"
 #include "TVector3.h"
 
 class TClonesArray;
 
-class PndMdtHitProducerIdeal : public CbmTask
+class PndMdtHitProducerIdeal : public FairTask
 {
 
  public:

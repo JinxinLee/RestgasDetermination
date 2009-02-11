@@ -15,7 +15,7 @@
 #ifndef PndEmcMakeDigi_H
 #define PndEmcMakeDigi_H
 
-#include "CbmTask.h"
+#include "FairTask.h"
 #include <string>		
 
 class PndEmcTwoCoordIndex;
@@ -26,7 +26,7 @@ class TClonesArray;
 class PndEmcDigiPar;
 class PndEmcRecoPar;
 
-class PndEmcMakeDigi : public CbmTask
+class PndEmcMakeDigi : public FairTask
 {
 
 public:

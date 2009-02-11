@@ -20,7 +20,7 @@
 #define TPCSPACECHARGETASK_HH
 
 //Base class
-#include "CbmTask.h"
+#include "FairTask.h"
 #include <vector>
 // Collaborating Class Declarations --------------------------------------
 class TClonesArray;
@@ -28,7 +28,7 @@ class PndTpcGas;
 class PndTpcDigiPar;
 
 
-class PndTpcSpaceChargeTask : public CbmTask {
+class PndTpcSpaceChargeTask : public FairTask {
 
 public:
 

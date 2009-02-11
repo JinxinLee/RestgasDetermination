@@ -9,9 +9,9 @@
 #include "TParticlePDG.h"
 
 // framework includes
-#include "CbmRootManager.h"
-#include "CbmRun.h"
-#include "CbmRuntimeDb.h"
+#include "FairRootManager.h"
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
 
 
 // PndMvd includes
@@ -20,7 +20,7 @@
 
 
 
-PndMvdTrackFinderAnaTask::PndMvdTrackFinderAnaTask() : CbmTask("MVD Track Finder Ana"), fEventNr(0)
+PndMvdTrackFinderAnaTask::PndMvdTrackFinderAnaTask() : FairTask("MVD Track Finder Ana"), fEventNr(0)
 {
 	fIdealTrackCandBranch = "MVDIdealTrackCand";
 	fRiemannTrackCandBranch = "MVDRiemannTrackCand";
@@ -49,7 +49,7 @@ InitStatus PndMvdTrackFinderAnaTask::ReInit()
 InitStatus PndMvdTrackFinderAnaTask::Init()
 {
 
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
 
   if ( ! ioman )
     {

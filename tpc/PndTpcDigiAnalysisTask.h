@@ -19,7 +19,7 @@
 #define TPCDIGIANALYSISTASK_HH
 
 // Base Class Headers ----------------
-#include "CbmTask.h"
+#include "FairTask.h"
 
 // Collaborating Class Headers -------
 
@@ -31,7 +31,7 @@ class PndTpcDigiMapper;
 class TH1D;
 class TH2D;
 
-class PndTpcDigiAnalysisTask : public CbmTask {
+class PndTpcDigiAnalysisTask : public FairTask {
 public:
 
   // Constructors/Destructors ---------

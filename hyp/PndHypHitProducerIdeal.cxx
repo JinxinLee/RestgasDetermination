@@ -6,18 +6,18 @@
 
 #include "TClonesArray.h"
 
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "PndHypHitProducerIdeal.h"
 #include "PndHypHit.h"
 #include "PndHypHitInfo.h"
 #include "PndHypPoint.h"
-#include "CbmRunAna.h"
-#include "CbmRuntimeDb.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
 
 
 // -----   Default constructor   -------------------------------------------
 PndHypHitProducerIdeal::PndHypHitProducerIdeal() :
-  CbmTask("Ideal PndHyp Hit Producer") 
+  FairTask("Ideal PndHyp Hit Producer") 
 {
 	fBranchName 	= "HypPoint";
 }
@@ -34,7 +34,7 @@ PndHypHitProducerIdeal::~PndHypHitProducerIdeal()
 InitStatus PndHypHitProducerIdeal::Init() 
 {
   // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   
   if ( ! ioman ) 
     {
@@ -64,8 +64,8 @@ InitStatus PndHypHitProducerIdeal::Init()
 void PndHypHitProducerIdeal::SetParContainers()
 {
   // Get Base Container
-  CbmRun* ana = CbmRun::Instance();
-  CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+  FairRun* ana = FairRun::Instance();
+  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
   fGeoPar = (PndGeoHypPar*)(rtdb->getContainer("PndGeoHypPar"));
 
 }

@@ -40,6 +40,6 @@ set(rtdbtut_SRCS ${rtdbtut_SRCS} ${rtdbtut_DICTIONARY})
 
 add_library(rtdbtut SHARED ${rtdbtut_SRCS})
 target_link_libraries(rtdbtut ${ROOT_LIBRARIES})
-set_target_properties(rtdbtut PROPERTIES ${CBMROOT_LIBRARY_PROPERTIES})
+set_target_properties(rtdbtut PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 ################ install ###################
 install(TARGETS rtdbtut DESTINATION ${CMAKE_BINARY_DIR}/lib)

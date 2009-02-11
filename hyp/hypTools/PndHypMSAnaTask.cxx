@@ -12,16 +12,16 @@
 
 
 // framework includes
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "PndHypMSAnaTask.h"
-#include "CbmRunAna.h"
-#include "CbmRuntimeDb.h"
-#include "CbmHit.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
+#include "FairHit.h"
 #include "CbmMCTrack.h"
 // PndHyp includes
 #include "PndHypPoint.h"
-#include "CbmTrackParH.h"
-#include "CbmTrackParP.h"
+#include "FairTrackParH.h"
+#include "FairTrackParP.h"
 
 #include "TDatabasePDG.h"
 
@@ -30,7 +30,7 @@
 
 
 // -----   Default constructor   -------------------------------------------
-PndHypMSAnaTask::PndHypMSAnaTask() : CbmTask("Geane Task for PANDA PndHyp"), fEventNr(0)
+PndHypMSAnaTask::PndHypMSAnaTask() : FairTask("Geane Task for PANDA PndHyp"), fEventNr(0)
 {
 	histo = new TH1F("h1","h1",3000,0,20);
 }
@@ -46,7 +46,7 @@ PndHypMSAnaTask::~PndHypMSAnaTask()
 InitStatus PndHypMSAnaTask::Init()
 {
   // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   if ( !ioman){
 		std::cout << "-E- PndHypMSAnaTask::Init: "<< "RootManager not instantiated!" << std::endl;
 		return kFATAL;
@@ -65,16 +65,16 @@ InitStatus PndHypMSAnaTask::Init()
 		return kERROR;
 	}
 	
-	 /* fTrackParGeane = new TClonesArray("CbmTrackParP");
+	 /* fTrackParGeane = new TClonesArray("FairTrackParP");
 	  ioman->Register("GeaneTrackPar","Geane", fTrackParGeane, kTRUE);
 	  
-	  fTrackParIni = new TClonesArray("CbmTrackParP");
+	  fTrackParIni = new TClonesArray("FairTrackParP");
 	  ioman->Register("GeaneTrackIni","Geane", fTrackParIni, kTRUE);
 	  
-	  fTrackParFinal = new TClonesArray("CbmTrackParP");
+	  fTrackParFinal = new TClonesArray("FairTrackParP");
 	  ioman->Register("GeaneTrackFinal","Geane", fTrackParFinal, kTRUE);*/
 	  
-	  // fPro = new CbmGeanePro();
+	  // fPro = new FairGeanePro();
 	  fGeoH = new PndHypGeoHandling(gGeoManager);
 
   return kSUCCESS;
@@ -83,8 +83,8 @@ InitStatus PndHypMSAnaTask::Init()
 void PndHypMSAnaTask::SetParContainers()
 {
   // Get Base Container
-  //CbmRunAna* ana = CbmRunAna::Instance();
-  //CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+  //FairRunAna* ana = FairRunAna::Instance();
+  //FairRuntimeDb* rtdb=ana->GetRuntimeDb();
 
 }
 
@@ -165,7 +165,7 @@ void PndHypMSAnaTask::Exec(Option_t* opt)
 		
 		TClonesArray& clref1 = *fTrackParIni;
 		Int_t size1 = clref1.GetEntriesFast();
-		CbmTrackParP *fStart= new (clref1[size1]) CbmTrackParP(StartPos, StartMom, StartPosErr, StartMomErr, fCharge, startO, startU, startV);
+		FairTrackParP *fStart= new (clref1[size1]) FairTrackParP(StartPos, StartMom, StartPosErr, StartMomErr, fCharge, startO, startU, startV);
 		
 		for (int p = 1; p < MChits.size(); p++){											//go through all hits in track
 		PndHypPoint* myPoint = (PndHypPoint*)(fMCHits->At(MChits[p]));
@@ -181,11 +181,11 @@ void PndHypMSAnaTask::Exec(Option_t* opt)
 		
 		TClonesArray& clref2 = *fTrackParFinal;
 		Int_t size2 = clref2.GetEntriesFast();
-		CbmTrackParP *fStop= new (clref2[size2]) CbmTrackParP(StopPos, StopMom, StopPosErr, StopMomErr, fCharge, o, u, v);
+		FairTrackParP *fStop= new (clref2[size2]) FairTrackParP(StopPos, StopMom, StopPosErr, StopMomErr, fCharge, o, u, v);
 		
 		TClonesArray& clref = *fTrackParGeane;
 		Int_t size = clref.GetEntriesFast();
-		CbmTrackParP *fRes=	new(clref[size]) CbmTrackParP();
+		FairTrackParP *fRes=	new(clref[size]) FairTrackParP();
 		
 		std::cout << "Propagation Plane:" << std::endl;
 		std::cout << "o: " << o[0] << " " << o[1] << " " << o[2] << std::endl;
@@ -252,7 +252,7 @@ std::map<int, std::vector<int> > PndHypMSAnaTask::AssignHitsToTracks()
 }
 
 void PndHypMSAnaTask::WriteHistograms(){
- 	  TFile* file = CbmRootManager::Instance()->GetOutFile();
+ 	  TFile* file = FairRootManager::Instance()->GetOutFile();
  	  file->cd();
  	  file->mkdir("Dedx_detid");
  	  file->cd("Dedx_detid");

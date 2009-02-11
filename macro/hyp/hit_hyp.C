@@ -32,7 +32,7 @@
   
   // -----   Reconstruction run   -------------------------------------------
   
-  CbmRunAna *fRun= new CbmRunAna();
+  FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile.Data());
 /*fRun->AddFile(inFile2.Data());
   fRun->AddFile(inFile3.Data());
@@ -45,8 +45,8 @@
   
   // -----  Parameter database   --------------------------------------------
   
-  CbmRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  CbmParRootFileIo* parInput1 = new CbmParRootFileIo();
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open(parFile.Data());
   
   Bool_t kParameterMerged=kTRUE;

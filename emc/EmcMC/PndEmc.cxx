@@ -14,15 +14,15 @@
 #include "PndEmcReader.h"
 #include "PndEmcStructure.h"
 
-#include "CbmGeoInterface.h"
-#include "CbmGeoLoader.h"
-#include "CbmGeoRootBuilder.h"
-#include "CbmRootManager.h"
-#include "CbmVolume.h"
-#include "CbmGeoMedia.h"
-#include "CbmGeoG3Builder.h"
-#include "CbmRuntimeDb.h"
-#include "CbmRun.h"
+#include "FairGeoInterface.h"
+#include "FairGeoLoader.h"
+#include "FairGeoRootBuilder.h"
+#include "FairRootManager.h"
+#include "FairVolume.h"
+#include "FairGeoMedia.h"
+#include "FairGeoG3Builder.h"
+#include "FairRuntimeDb.h"
+#include "FairRun.h"
 
 #include "TObjArray.h"
 #include "TClonesArray.h"
@@ -35,7 +35,7 @@
 #include "TGeoVoxelFinder.h"
 #include "TGeoMatrix.h"
 
-#include "CbmGeoMedium.h"
+#include "FairGeoMedium.h"
 #include "CbmStack.h"
 #include "TString.h"
 
@@ -57,7 +57,7 @@ PndEmc::PndEmc() {
 // -----   Standard constructor   ------------------------------------------
 
 PndEmc::PndEmc(const char* name, Bool_t active, Bool_t fast, Bool_t storepnts)
-  : CbmDetector(name, active) {
+  : FairDetector(name, active) {
     fEmcCollection        = new TClonesArray("PndEmcPoint");
     fPosIndex   = 0;
     fEventID=-1; 
@@ -85,9 +85,9 @@ PndEmc::~PndEmc() {
 void PndEmc::Initialize() {
   // Init function
   
-  CbmDetector::Initialize();
-  CbmRun* sim = CbmRun::Instance();
-  CbmRuntimeDb* rtdb=sim->GetRuntimeDb();
+  FairDetector::Initialize();
+  FairRun* sim = FairRun::Instance();
+  FairRuntimeDb* rtdb=sim->GetRuntimeDb();
   
 }
 // -------------------------------------------------------------------------
@@ -99,7 +99,7 @@ void PndEmc::BeginEvent(){
 
 
 // -----   Public method ProcessHits  --------------------------------------
-Bool_t PndEmc::ProcessHits(CbmVolume* vol) {  
+Bool_t PndEmc::ProcessHits(FairVolume* vol) {  
   
   // Increment number of emc points for TParticle
   if (gMC->IsTrackEntering()) 
@@ -295,7 +295,7 @@ void PndEmc::EndOfEvent() {
 // -----   Public method Register   -------------------------------------------
 void PndEmc::Register() {
 
-  CbmRootManager::Instance()->Register("EmcPoint","Emc", fEmcCollection, fStoreData);
+  FairRootManager::Instance()->Register("EmcPoint","Emc", fEmcCollection, fStoreData);
 
 }
 // ----------------------------------------------------------------------------
@@ -339,7 +339,7 @@ void PndEmc::SetStorageOfData(Bool_t val)
 }
 
 // -------------------------------------------------------------------------
-// guarda in CbmRootManager::CopyClones
+// guarda in FairRootManager::CopyClones
 // -----   Public method CopyClones   -----------------------------------------
 void PndEmc::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset ) {
   Int_t nEntries = cl1->GetEntriesFast();
@@ -446,10 +446,10 @@ void PndEmc::ConstructRootGeometry() {
 
 void PndEmc::ExpandNode(TGeoVolume *fVol, TGeoVolume *Cave){
   
-  CbmGeoLoader*geoLoad = CbmGeoLoader::Instance();
-  CbmGeoInterface *geoFace = geoLoad->getGeoInterface();
-  CbmGeoMedia *Media = geoFace->getMedia();
-  CbmGeoBuilder *geobuild=geoLoad->getGeoBuilder();
+  FairGeoLoader*geoLoad = FairGeoLoader::Instance();
+  FairGeoInterface *geoFace = geoLoad->getGeoInterface();
+  FairGeoMedia *Media = geoFace->getMedia();
+  FairGeoBuilder *geobuild=geoLoad->getGeoBuilder();
    
   TObjArray *nodeList=fVol->GetNodes();  
   Int_t nodes = nodeList->GetEntries();
@@ -470,10 +470,10 @@ void PndEmc::ExpandNode(TGeoVolume *fVol, TGeoVolume *Cave){
       TGeoMaterial *newMat = gGeoManager->GetMaterial(mat1->GetName());
       if (newMat==0) {
 	//std::cout<< "Material " << mat1->GetName() << " is not defined " << std::endl;
-	CbmGeoMedium *CbmMedium=Media->getMedium(mat1->GetName());
+	FairGeoMedium *CbmMedium=Media->getMedium(mat1->GetName());
 	if (!CbmMedium) {
 	  //std::cout << "Material is not defined in ASCII file nor in Root file" << std::endl;
-	  CbmMedium=new CbmGeoMedium(mat1->GetName());
+	  CbmMedium=new FairGeoMedium(mat1->GetName());
 	  Media->addMedium(CbmMedium);
 	}
 	//std::cout << "Create Medium " << mat1->GetName() << std::endl;
@@ -504,14 +504,14 @@ void PndEmc::ExpandNode(TGeoVolume *fVol, TGeoVolume *Cave){
 void PndEmc::ConstructASCIIGeometry() {
   // Definition of materials
   
-  CbmGeoLoader*geoLoad = CbmGeoLoader::Instance();
-  CbmGeoInterface *geoFace = geoLoad->getGeoInterface();
-  CbmGeoMedia *Media =  geoFace->getMedia();
-  CbmGeoBuilder *geobuild=geoLoad->getGeoBuilder();
+  FairGeoLoader*geoLoad = FairGeoLoader::Instance();
+  FairGeoInterface *geoFace = geoLoad->getGeoInterface();
+  FairGeoMedia *Media =  geoFace->getMedia();
+  FairGeoBuilder *geobuild=geoLoad->getGeoBuilder();
  
-  CbmGeoMedium *CbmMediumPb  = Media->getMedium("lead");
-  CbmGeoMedium *CbmMediumPWO = Media->getMedium("PWO");
-  CbmGeoMedium *CbmMediumFsc = Media->getMedium("FscScint");
+  FairGeoMedium *CbmMediumPb  = Media->getMedium("lead");
+  FairGeoMedium *CbmMediumPWO = Media->getMedium("PWO");
+  FairGeoMedium *CbmMediumFsc = Media->getMedium("FscScint");
   
   Int_t nmedPb=geobuild->createMedium(CbmMediumPb);
   Int_t nmedPWO=geobuild->createMedium(CbmMediumPWO);

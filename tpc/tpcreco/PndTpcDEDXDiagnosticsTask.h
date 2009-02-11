@@ -19,10 +19,10 @@
 #define PNDTPCDEDXDIAGNOSTICSTASK_HH
 
 // Base Class Headers ----------------
-#include "CbmTask.h"
+#include "FairTask.h"
 
 class RecoHitFactory;
-class PndTpcDEDXDiagnosticsTask : public CbmTask
+class PndTpcDEDXDiagnosticsTask : public FairTask
 {
 public:
 	PndTpcDEDXDiagnosticsTask();	//do not run the task if you don' t want to save it

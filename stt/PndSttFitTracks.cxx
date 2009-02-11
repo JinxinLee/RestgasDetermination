@@ -8,7 +8,7 @@
 #include "PndSttTrackFitter.h"
 #include "PndSttTrack.h"
 
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 
 #include "TClonesArray.h"
 
@@ -33,7 +33,7 @@ PndSttFitTracks::PndSttFitTracks()
 PndSttFitTracks::PndSttFitTracks(const char* name,
 				 const char* title,
 				 PndSttTrackFitter* fitter)
-  : CbmTask(name) 
+  : FairTask(name) 
 {
   fFitter        = fitter;
   fTrackArray    = NULL;
@@ -63,9 +63,9 @@ InitStatus PndSttFitTracks::Init()
       return kERROR;
     }
 
-  // Get and check CbmRootManager
-  CbmRootManager
-    *ioman = CbmRootManager::Instance();
+  // Get and check FairRootManager
+  FairRootManager
+    *ioman = FairRootManager::Instance();
 
   if (! ioman) 
     {
@@ -128,9 +128,9 @@ void PndSttFitTracks::AddHitCollectionName(char *hitCollectionName)
 
 void PndSttFitTracks::AddHitCollection(char const *hitCollectionName)
 {
-    // Get and check CbmRootManager
-    CbmRootManager
-	*ioman = CbmRootManager::Instance();
+    // Get and check FairRootManager
+    FairRootManager
+	*ioman = FairRootManager::Instance();
     
     if (!ioman) 
     {

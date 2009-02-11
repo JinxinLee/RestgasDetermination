@@ -1,19 +1,19 @@
 #ifndef PNDSTTCONTFACT_H
 #define PNDSTTCONTFACT_H
 
-#include "CbmContFact.h"
+#include "FairContFact.h"
 
-class CbmContainer;
+class FairContainer;
 
-class PndSttContFact : public CbmContFact 
+class PndSttContFact : public FairContFact 
 {
 private:
   void setAllContainers();
 public:
   PndSttContFact();
   ~PndSttContFact() {}
-  CbmParSet* createContainer(CbmContainer*);
-//  void  activateParIo(CbmParIo* io);
+  FairParSet* createContainer(FairContainer*);
+//  void  activateParIo(FairParIo* io);
   ClassDef( PndSttContFact,0) // Factory for all STT parameter containers
 };
 

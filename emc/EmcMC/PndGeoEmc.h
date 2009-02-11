@@ -6,9 +6,9 @@
 #ifndef PNDGEOEMC_H
 #define PNDGEOEMC_H
 
-#include "CbmGeoSet.h"
+#include "FairGeoSet.h"
 
-class  PndGeoEmc : public CbmGeoSet {
+class  PndGeoEmc : public FairGeoSet {
 protected:
   char modName[20];  // name of module
   char eleName[20];  // substring for elements in module

@@ -2,10 +2,10 @@
 #ifndef PNDEMCDIGIPAR_H
 #define PNDEMCDIGIPAR_H
 
-#include "CbmParGenericSet.h"
-#include "CbmParamList.h"
+#include "FairParGenericSet.h"
+#include "FairParamList.h"
 
-class PndEmcDigiPar : public CbmParGenericSet
+class PndEmcDigiPar : public FairParGenericSet
 {
 	public:
 		Double_t GetEnergyHitThreshold() {return fEnergyHitThreshold;};
@@ -36,8 +36,8 @@ class PndEmcDigiPar : public CbmParGenericSet
 		// Empty method, WHY is this Called in constructor(FIXME)
 		void clear(void){};
 		
-		void putParams(CbmParamList* list);
-		Bool_t getParams(CbmParamList* list);
+		void putParams(FairParamList* list);
+		Bool_t getParams(FairParamList* list);
 	
 	private :
 		Double_t fEnergyHitThreshold;

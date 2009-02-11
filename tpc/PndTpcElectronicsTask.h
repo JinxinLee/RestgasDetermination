@@ -19,7 +19,7 @@
 #define TPCELECTRONICSTASK_HH
 
 // Base Class Headers ----------------
-#include "CbmTask.h"
+#include "FairTask.h"
 
 // Collaborating Class Headers -------
 #include <vector>
@@ -34,7 +34,7 @@ class PndTpcSample;
 class TH1D;
 class QAPlotCollection;
 
-class PndTpcElectronicsTask : public CbmTask {
+class PndTpcElectronicsTask : public FairTask {
 public:
 
   // Constructors/Destructors ---------

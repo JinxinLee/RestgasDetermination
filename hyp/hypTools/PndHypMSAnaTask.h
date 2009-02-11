@@ -16,10 +16,10 @@
 
 
 // framework includes
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "TH1.h"
 #include "TrackCand.h"
-#include "CbmGeanePro.h"
+#include "FairGeanePro.h"
 
 #include "PndHypGeoHandling.h"
 
@@ -29,7 +29,7 @@
 class TClonesArray;
 class PndHypCluster;
 
-class PndHypMSAnaTask : public CbmTask
+class PndHypMSAnaTask : public FairTask
 {
  public:
 
@@ -58,7 +58,7 @@ class PndHypMSAnaTask : public CbmTask
 		TClonesArray* fTrackParIni;
 		TClonesArray* fTrackParFinal;
 		
-		CbmGeanePro* fPro;
+		FairGeanePro* fPro;
 		PndHypGeoHandling* fGeoH;
 		
 				

@@ -26,19 +26,19 @@ void fast_sim_pid(Char_t part[]="e-",int nevts=0,TString outfile="test.root")
   //if (outfile=="") outfile=infile+".fast.root";
   
  
-  CbmRunSim *fRun = new CbmRunSim();
+  FairRunSim *fRun = new FairRunSim();
   fRun->SetOutputFile(outfile.Data());
 
   // Create and Set Event Generator
   //-------------------------------
 
-  CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
+  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
   TDatabasePDG *pdg = new TDatabasePDG();
   Int_t pid = pdg->GetParticle(part)->PdgCode();
 
-CbmBoxGenerator* boxGen = new CbmBoxGenerator(pid, 1); // 13 = muon; 1 = multipl.
+FairBoxGenerator* boxGen = new FairBoxGenerator(pid, 1); // 13 = muon; 1 = multipl.
 //  if (p2<0) p2 = p1;
   boxGen->SetPRange(0.01,5); // GeV/c
   boxGen->SetPhiRange(0.0, 180.0); // Azimuth angle range [degree]

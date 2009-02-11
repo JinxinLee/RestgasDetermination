@@ -15,12 +15,12 @@
 #include "TGeoManager.h"
 #include "TVirtualMC.h"
 
-#include "CbmVolume.h"
+#include "FairVolume.h"
 // add on for debug
-#include "CbmGeoG3Builder.h"
-#include "CbmRuntimeDb.h"
-#include "CbmRun.h"
-#include "CbmModule.h"
+#include "FairGeoG3Builder.h"
+#include "FairRuntimeDb.h"
+#include "FairRun.h"
+#include "FairModule.h"
 
 #include "PndMdt.h"
 
@@ -46,7 +46,7 @@ PndMdt::PndMdt()
 
 
 // -----   Inherited constructor   -----------------------------------------
-PndMdt::PndMdt(const char* name, Bool_t active) : CbmDetector(name,active)
+PndMdt::PndMdt(const char* name, Bool_t active) : FairDetector(name,active)
 {
     fMdtCollection        = new TClonesArray("PndMdtPoint");
     fPosIndex   = 0;
@@ -197,9 +197,9 @@ void PndMdt::ConstructGeometry()
 // -----   Public method Intialize   ---------------------------------------
 void PndMdt::Initialize() 
 {
-  CbmDetector::Initialize();
-  CbmRun* sim = CbmRun::Instance();
-  CbmRuntimeDb* rtdb=sim->GetRuntimeDb();
+  FairDetector::Initialize();
+  FairRun* sim = FairRun::Instance();
+  FairRuntimeDb* rtdb=sim->GetRuntimeDb();
   par=(PndGeoMdtPar*)(rtdb->getContainer("PndGeoMdtPar"));
   
   TObjArray *fSensNodes = par->GetSensitiveNodes();
@@ -215,7 +215,7 @@ void PndMdt::BeginEvent()
 
 
 // -----   Public method ProcessHits  --------------------------------------
-Bool_t PndMdt::ProcessHits(CbmVolume* vol) 
+Bool_t PndMdt::ProcessHits(FairVolume* vol) 
 {
     Bool_t ph = kFALSE;
 

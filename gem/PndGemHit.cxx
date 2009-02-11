@@ -22,7 +22,7 @@ PndGemHit::PndGemHit() {
 // -----   Standard constructor   ------------------------------------------
 PndGemHit::PndGemHit(Int_t detID, TString detName, TVector3& pos, TVector3& dpos,
 		     Int_t index, Double_t charge, Int_t NDigiHits)
-  : CbmHit(detID, pos, dpos, index) {
+  : FairHit(detID, pos, dpos, index) {
   fDetName = detName;
   fCharge  = charge;
   fNDigiHits = NDigiHits;
@@ -30,7 +30,7 @@ PndGemHit::PndGemHit(Int_t detID, TString detName, TVector3& pos, TVector3& dpos
 }
 
 /*PndGemHit::PndGemHit(PndGemHit& c)
-: CbmHit()
+: FairHit()
 {
 	fDetName = c.GetDetName();
 	fTrackID = c.GetTrackID();

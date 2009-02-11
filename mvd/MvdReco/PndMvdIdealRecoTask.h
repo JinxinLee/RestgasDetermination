@@ -22,7 +22,7 @@
 #include "TGeoManager.h"
 
 // framework includes
-#include "CbmTask.h"
+#include "FairTask.h"
 
 // PndMvd includes
 #include "PndMvdMCPoint.h"
@@ -30,7 +30,7 @@
 
 class TClonesArray;
 
-class PndMvdIdealRecoTask : public CbmTask
+class PndMvdIdealRecoTask : public FairTask
 {
  public:
 

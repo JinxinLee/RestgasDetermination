@@ -17,10 +17,10 @@
 #include "TCanvas.h"
 
 // framework includes
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "PndMvdPidIdealTask.h"
-#include "CbmRun.h"
-#include "CbmRuntimeDb.h"
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
 #include "../mcstack/CbmMCTrack.h"
 
 
@@ -34,7 +34,7 @@
 #include "MvdPid/PndMvdAdvancedPidAlgo.h"
 
 // -----   Default constructor   -------------------------------------------
-PndMvdPidIdealTask::PndMvdPidIdealTask(TString algoName) :  CbmTask("Digitization task for PANDA PndMvd") {
+PndMvdPidIdealTask::PndMvdPidIdealTask(TString algoName) :  FairTask("Digitization task for PANDA PndMvd") {
   fBranchName = "MVDPoint";
   fAlgoName = algoName;
 }
@@ -43,7 +43,7 @@ PndMvdPidIdealTask::PndMvdPidIdealTask(TString algoName) :  CbmTask("Digitizatio
 InitStatus PndMvdPidIdealTask::Init()
 {
   // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
     std::cout << "-E- PndMvdPidIdealTask::Init: "<< "RootManager not instantiated!" << std::endl;
     return kFATAL;  }
@@ -74,8 +74,8 @@ InitStatus PndMvdPidIdealTask::Init()
 void PndMvdPidIdealTask::SetParContainers()
 {
   // Get Base Container
-  CbmRun* ana = CbmRun::Instance();
-  CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+  FairRun* ana = FairRun::Instance();
+  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
 
 }
 

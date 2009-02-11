@@ -25,7 +25,7 @@
   gSystem->Load("libRpc");
 
 
-  CbmRunSim *fRun = new CbmRunSim();
+  FairRunSim *fRun = new FairRunSim();
   
   // set the MC version used
   fRun->SetName("TGeant3");
@@ -39,20 +39,20 @@
   fRun->SetMaterials("media_pnd.geo");
   
   // Create and add detectors
-  CbmModule *Cave= new PndCave("CAVE");
+  FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("cave.geo");
   fRun->AddModule(Cave);
 
-// CbmDetector *Stt = new PndStt("STT", kTRUE);
+// FairDetector *Stt = new PndStt("STT", kTRUE);
 // Stt->SetGeometryFileName("straws_skewed_blocks.geo"); 
 // fRun->AddModule(Stt);
   
 
-//  CbmDetector *Tpc = new PndTpcDetector("TPC", kTRUE);
+//  FairDetector *Tpc = new PndTpcDetector("TPC", kTRUE);
 //  Tpc->SetGeometryFileName("tpc.geo");
 //  fRun->AddModule(Tpc);
 
-   CbmDetector *Rpc = new PndRpcDetector("Rpc", kTRUE);
+   FairDetector *Rpc = new PndRpcDetector("Rpc", kTRUE);
    Rpc->SetGeometryFileName("rpc.geo");
    fRun->AddModule(Rpc);
 
@@ -60,7 +60,7 @@
  // Create and Set Event Generator
  //-------------------------------
 
-  CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
+  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
 // insert output file from DPM generator running
@@ -70,7 +70,7 @@ primGen->AddGenerator(dpmGen);
   // Field Map Definition
   // --------------------
   // 1- Reading the new field map in the old format
-  // CbmFieldMap *fMagField= new CbmFieldMap("FIELD.v04_pavel.map");
+  // FairFieldMap *fMagField= new FairFieldMap("FIELD.v04_pavel.map");
   // Constant Field
   PndConstField *fMagField=new PndConstField();
   fMagField->SetField(0, 0 ,20. ); // values are in kG
@@ -78,7 +78,7 @@ primGen->AddGenerator(dpmGen);
   fMagField->SetFieldRegion(-50, 50,-50, 50, -200, 200);
   
   // 2- Reading the new field map in the new format
-  //  CbmField *fMagField= new CbmFieldMapSym3("FieldActive");
+  //  FairField *fMagField= new FairFieldMapSym3("FieldActive");
   // Active Shielding
   
   fRun->SetField(fMagField);
@@ -94,9 +94,9 @@ primGen->AddGenerator(dpmGen);
   // Fill the Parameter containers for this run
   //-------------------------------------------
   
-     CbmRuntimeDb *rtdb=fRun->GetRuntimeDb();
+     FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
      Bool_t kParameterMerged=kTRUE;
-     CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
+     FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
      output->open("testparams.root");
      rtdb->setOutput(output);
      rtdb->saveOutput();
@@ -114,7 +114,7 @@ primGen->AddGenerator(dpmGen);
  printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
 
 
- TGeoManager *geoMan = (TGeoManager*) gDirectory->Get("CBMGeom");
+ TGeoManager *geoMan = (TGeoManager*) gDirectory->Get("FAIRGeom");
  
  TCanvas* c1 = new TCanvas("c1", "", 100, 100, 800, 800);
  c1->SetFillColor(10);

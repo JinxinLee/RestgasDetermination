@@ -14,12 +14,12 @@
 #include "TGeoMatrix.h"
 
 // framework includes
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "PndMvdIdealRecoTask.h"
-#include "CbmRun.h"
-#include "CbmRuntimeDb.h"
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
 #include "../mcstack/CbmMCTrack.h"
-#include "CbmHit.h"
+#include "FairHit.h"
 // PndMvd includes
 #include "PndMvdHit.h"
 #include "PndMvdMCPoint.h"
@@ -28,7 +28,7 @@
 // -----   Default constructor   -------------------------------------------
 PndMvdIdealRecoTask::PndMvdIdealRecoTask() :
   fHitCovMatrix(3,3),
-  CbmTask("Ideal reconstruction task for PANDA PndMvd")
+  FairTask("Ideal reconstruction task for PANDA PndMvd")
 {
   fSigmaX=0.;
   fSigmaY=0.;
@@ -40,7 +40,7 @@ PndMvdIdealRecoTask::PndMvdIdealRecoTask() :
 // -----   Constructor   ---------------------------------------------------
 PndMvdIdealRecoTask::PndMvdIdealRecoTask(Double_t sx, Double_t sy, Double_t sz) :
   fHitCovMatrix(3,3),
-  CbmTask("Ideal reconstruction task for PANDA PndMvd")
+  FairTask("Ideal reconstruction task for PANDA PndMvd")
 {
   fSigmaX=sx;
   fSigmaY=sy;
@@ -60,7 +60,7 @@ delete fGeoH;
 InitStatus PndMvdIdealRecoTask::Init()
 {
   // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
     std::cout << "-E- PndMvdIdealRecoTask::Init: "
 							<< "RootManager not instantiated!" << std::endl;
@@ -94,8 +94,8 @@ InitStatus PndMvdIdealRecoTask::Init()
 void PndMvdIdealRecoTask::SetParContainers()
 {
   // Get Base Container
-  CbmRun* ana = CbmRun::Instance();
-  CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+  FairRun* ana = FairRun::Instance();
+  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
 
 }
 
@@ -134,10 +134,10 @@ void PndMvdIdealRecoTask::Exec(Option_t* opt)
 
     // TODO here we shall distinguish between strip and pixel sensors
     // TODO How to handle the covariance matrix? OR do we really use local point
-    // errors. this would avoid two conversations, myabe overload the CbmHit
+    // errors. this would avoid two conversations, myabe overload the FairHit
     // functions for the global error points.
 
-    // Now the 3D Info is smared inside the CbmHit part of PndMvdHit
+    // Now the 3D Info is smared inside the FairHit part of PndMvdHit
     new ((*fHitOutputArray)[size]) PndMvdHit(fCurrentPndMvdMCPoint->GetDetectorID(),
 					   (fCurrentPndMvdMCPoint->GetDetName()).Data(),
       					   pos,dposLocal,iMvdPoint,fCurrentPndMvdMCPoint->GetEnergyLoss(),1);

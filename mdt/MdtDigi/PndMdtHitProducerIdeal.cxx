@@ -8,10 +8,10 @@
 #include "PndMdtHit.h"
 #include "PndMdtPoint.h"
 
-#include "CbmRootManager.h"
-#include "CbmDetector.h"
-#include "CbmRun.h"
-#include "CbmRuntimeDb.h"
+#include "FairRootManager.h"
+#include "FairDetector.h"
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
 
 #include "TClonesArray.h"
 #include "TGeoManager.h"
@@ -28,7 +28,7 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndMdtHitProducerIdeal::PndMdtHitProducerIdeal() :
-  CbmTask("Ideal MDT Hit Producer") { 
+  FairTask("Ideal MDT Hit Producer") { 
   fPosResolution = -1.;
 }
 // -------------------------------------------------------------------------
@@ -45,11 +45,11 @@ InitStatus PndMdtHitProducerIdeal::Init() {
   cout << "-I- PndMdtHitProducerIdeal::Init: "
        << "INITIALIZATION *********************" << endl;
   
-  CbmRun* sim = CbmRun::Instance();
-  CbmRuntimeDb* rtdb=sim->GetRuntimeDb();
+  FairRun* sim = FairRun::Instance();
+  FairRuntimeDb* rtdb=sim->GetRuntimeDb();
     
   // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
     cout << "-E- PndMdtHitProducerIdeal::Init: "
 	 << "RootManager not instantiated!" << endl;

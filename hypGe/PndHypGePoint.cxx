@@ -12,7 +12,7 @@
 #include "PndHypGePoint.h"
 
 // -----   Default constructor   -------------------------------------------
-PndHypGePoint::PndHypGePoint() : CbmMCPoint() {
+PndHypGePoint::PndHypGePoint() : FairMCPoint() {
   fTrackID    = -1;
   //fDetectorID = -1;
   fEventID    = -1;

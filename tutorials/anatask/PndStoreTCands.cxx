@@ -11,9 +11,9 @@ of J/Psi: Dipak
 #include "TParticlePDG.h"
 //#include "TParticle.h"
 
-#include "CbmRootManager.h"
-#include "CbmRunAna.h"
-#include "CbmRuntimeDb.h"
+#include "FairRootManager.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
 #include "PndTpcLheTrack.h"
 #include "PndTpcLhePoint.h"
 #include "CbmStack.h"
@@ -26,8 +26,8 @@ of J/Psi: Dipak
 
 #include "TVector3.h"
 #include "TVectorD.h"
-#include "CbmRun.h"
-#include "CbmRuntimeDb.h"
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
 #include "PndStoreTCands.h"
 #include <string>
 #include <iostream>
@@ -42,7 +42,7 @@ using std::endl;
 		
 // -----   Default constructor   -------------------------------------------
 PndStoreTCands::PndStoreTCands() :
-  CbmTask("FastSim Dump") { 
+  FairTask("FastSim Dump") { 
 }
 // -------------------------------------------------------------------------
 
@@ -67,12 +67,12 @@ InitStatus PndStoreTCands::Init() {
  
   cout << " Inside the Init function****" << endl;
   
-  //CbmDetector::Initialize();
-  //CbmRun* sim = CbmRun::Instance();
-  //CbmRuntimeDb* rtdb=sim->GetRuntimeDb();
+  //FairDetector::Initialize();
+  //FairRun* sim = FairRun::Instance();
+  //FairRuntimeDb* rtdb=sim->GetRuntimeDb();
   
   // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
     cout << "-E- PndStoreTCands::Init: "
 	 << "RootManager not instantiated!" << endl;
@@ -106,16 +106,16 @@ InitStatus PndStoreTCands::Init() {
   }
   
   fChargedCandidates = new TClonesArray("TCandidate");
-  CbmRootManager::Instance()->Register("PndChargedCandidates","FullSim", fChargedCandidates, kTRUE);
+  FairRootManager::Instance()->Register("PndChargedCandidates","FullSim", fChargedCandidates, kTRUE);
   
   fNeutralCandidates = new TClonesArray("TCandidate");
-  CbmRootManager::Instance()->Register("PndNeutralCandidates","FullSim", fNeutralCandidates, kTRUE);
+  FairRootManager::Instance()->Register("PndNeutralCandidates","FullSim", fNeutralCandidates, kTRUE);
   
   fMcCandidates = new TClonesArray("TCandidate");
-  CbmRootManager::Instance()->Register("PndMcTracks","FullSim", fMcCandidates, kTRUE);
+  FairRootManager::Instance()->Register("PndMcTracks","FullSim", fMcCandidates, kTRUE);
 
   fMicroCandidates = new TClonesArray("PndMicroCandidate");
-  CbmRootManager::Instance()->Register("PndMicroCandidates","FullSim", fMicroCandidates, kTRUE);
+  FairRootManager::Instance()->Register("PndMicroCandidates","FullSim", fMicroCandidates, kTRUE);
 
   // Create and register output array
   cout << "-I- PndStoreTCands: Intialization successfull" << endl;
@@ -131,10 +131,10 @@ InitStatus PndStoreTCands::Init() {
 void PndStoreTCands::SetParContainers() {
 
   // Get run and runtime database
-  CbmRunAna* run = CbmRunAna::Instance();
+  FairRunAna* run = FairRunAna::Instance();
   if ( ! run ) Fatal("SetParContainers", "No analysis run");
 
-  CbmRuntimeDb* db = run->GetRuntimeDb();
+  FairRuntimeDb* db = run->GetRuntimeDb();
   if ( ! db ) Fatal("SetParContainers", "No runtime database");
 
  

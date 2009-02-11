@@ -14,7 +14,7 @@
 #include "PndEmcHit.h"
 #include "PndEmcCluster.h"
 		
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 
 #include "TClonesArray.h"
 #include "TLorentzVector.h"
@@ -26,7 +26,7 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndEmcHdrFiller::PndEmcHdrFiller() :
-  CbmTask("EMC Header Filler") { 
+  FairTask("EMC Header Filler") { 
 }
 // -------------------------------------------------------------------------
 
@@ -42,7 +42,7 @@ InitStatus PndEmcHdrFiller::Init() {
   cout << " INITIALIZATION *********************" << endl;
   
   // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
     cout << "-E- PndEmcHdrFiller::Init: "
 	 << "RootManager not instantiated!" << endl;

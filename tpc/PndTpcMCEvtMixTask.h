@@ -19,7 +19,7 @@
 #define TPCMCEVTMIXTASK_HH
 
 // Base Class Headers ----------------
-#include "CbmTask.h"
+#include "FairTask.h"
 
 // Collaborating Class Headers -------
 #include <ostream> // remove if you do not need streaming op
@@ -30,7 +30,7 @@ class TFile;
 class TTree;
 class TBranch;
 
-class PndTpcMCEvtMixTask : public CbmTask {
+class PndTpcMCEvtMixTask : public FairTask {
 public:
 
   // Constructors/Destructors ---------

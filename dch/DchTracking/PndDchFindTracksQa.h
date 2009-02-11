@@ -12,7 +12,7 @@
 #define PNDDCHFINDTRACKSQA_H 1
 
 // Pnd includes
-#include "CbmTask.h"
+#include "FairTask.h"
 
 // C++ includes
 #include <set>
@@ -26,7 +26,7 @@ class TH1F;
 class TList;
 
 
-class PndDchFindTracksQa : public CbmTask
+class PndDchFindTracksQa : public FairTask
 {
 
 public:

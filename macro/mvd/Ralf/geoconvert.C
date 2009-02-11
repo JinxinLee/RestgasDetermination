@@ -37,7 +37,7 @@ void geoconvert()
   TGeoManager *geoMan = (TGeoManager*) file->Get("CADtoROOT");
 
 //   TFile* file = new TFile("../data/mvdevalg4.root");
-//   TGeoManager *geoMan = (TGeoManager*) file->Get("CBMGeom");
+//   TGeoManager *geoMan = (TGeoManager*) file->Get("FAIRGeom");
 
 //   TCanvas* c1 = new TCanvas("c1", "", 100, 100, 1100, 1100);
 //   c1->SetFillColor(10);

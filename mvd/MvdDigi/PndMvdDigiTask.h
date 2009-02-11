@@ -7,11 +7,11 @@
 #ifndef PNDMVDDIGITASK_H
 #define PNDMVDDIGITASK_H
 
-#include "CbmTask.h"
+#include "FairTask.h"
 
 class TClonesArray;
 
-class PndMvdDigiTask : public CbmTask
+class PndMvdDigiTask : public FairTask
 {
  public:
 

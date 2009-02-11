@@ -11,7 +11,7 @@
 
 
 // framework includes
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 // PndMvd includes
 #include "PndMvdConvertApvTask.h"
 #include "PndMvdConvertApv.h"
@@ -22,7 +22,7 @@
 using namespace std;
 
 // -----   Default constructor   -------------------------------------------
-PndMvdConvertApvTask::PndMvdConvertApvTask(PndMvdConvertApv* Apvconvert) : CbmTask("Convert Task for PANDA PndMvd")
+PndMvdConvertApvTask::PndMvdConvertApvTask(PndMvdConvertApv* Apvconvert) : FairTask("Convert Task for PANDA PndMvd")
 {
   fApvConvert=Apvconvert;
 }
@@ -35,7 +35,7 @@ PndMvdConvertApvTask::~PndMvdConvertApvTask()
 InitStatus PndMvdConvertApvTask::Init()
 {
   // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
 
   if ( ! ioman )
     {

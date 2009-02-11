@@ -17,7 +17,7 @@
 #define PNDDCHPREFITTER_H
 
 
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "PndDchHit.h"
 #include "TVector3.h"
 
@@ -29,7 +29,7 @@ class TArrayI;
 class PndDchPoint;
 
 
-class PndDchPreFitter : public CbmTask {
+class PndDchPreFitter : public FairTask {
   
  public:
   

@@ -30,7 +30,7 @@ for the conformal mapping stuff
   TClonesArray* mc_array=new TClonesArray("CbmMCTrack");
   t->SetBranchAddress("MCTrack",&mc_array);//Branch names
 
-  TGeoManager *geoMan = (TGeoManager*) gDirectory->Get("CBMGeom");
+  TGeoManager *geoMan = (TGeoManager*) gDirectory->Get("FAIRGeom");
   PndMvdGeoHandling* fGeoH = new PndMvdGeoHandling(geoMan);
 
   // histos

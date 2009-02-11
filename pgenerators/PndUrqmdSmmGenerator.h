@@ -5,8 +5,8 @@
 
 /** PndUrqmdSmmGenerator.h
  The PndUrqmdSmmGenerator reads the Urqmd+SMM output file (ROOT format)
- and inserts the tracks into the CbmStack via the CbmPrimaryGenerator.
- Derived from CbmGenerator.
+ and inserts the tracks into the CbmStack via the FairPrimaryGenerator.
+ Derived from FairGenerator.
 **/
 
 
@@ -14,7 +14,7 @@
 #define PND_URQMDSMMGENERATOR_H
 
 
-#include "CbmGenerator.h"
+#include "FairGenerator.h"
 
 // using namespace std;
 
@@ -22,11 +22,11 @@ class TClonesArray;
 class TFile;
 class TTree;
 class TVirtualMCStack;
-class CbmPrimaryGenerator;
+class FairPrimaryGenerator;
 
 
 
-class PndUrqmdSmmGenerator : public CbmGenerator
+class PndUrqmdSmmGenerator : public FairGenerator
 {
 
  public: 
@@ -47,9 +47,9 @@ class PndUrqmdSmmGenerator : public CbmGenerator
 
   /** Reads on event from the input file and pushes the tracks onto
    ** the stack. Abstract method in base class.
-   ** @param primGen  pointer to the CbmPrimaryGenerator
+   ** @param primGen  pointer to the FairPrimaryGenerator
    **/
-  virtual Bool_t ReadEvent(CbmPrimaryGenerator* primGen);
+  virtual Bool_t ReadEvent(FairPrimaryGenerator* primGen);
 
 
 	

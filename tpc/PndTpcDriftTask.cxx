@@ -25,9 +25,9 @@
 #include <exception>
 
 // Collaborating Class Headers --------
-#include "CbmRootManager.h"
-#include "CbmRunAna.h"
-#include "CbmRuntimeDb.h"
+#include "FairRootManager.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
 #include "PndTpcDigiPar.h"
 #include "TClonesArray.h"
 #include "PndTpcGas.h"
@@ -49,7 +49,7 @@ using std::sqrt;
 
 
 PndTpcDriftTask::PndTpcDriftTask()
-  : CbmTask("TPC Drift"), _persistence(kFALSE), 
+  : FairTask("TPC Drift"), _persistence(kFALSE), 
     _attach(kTRUE), _diffuseL(kTRUE), _diffuseT(kTRUE), _distort(kFALSE), _phicut(kFALSE), _initialized(kFALSE),
     _qa(NULL), _shortTpc(kFALSE)
 {
@@ -72,7 +72,7 @@ PndTpcDriftTask::Init()
   _initialized=false;
 
   //Get ROOT Manager
-  CbmRootManager* ioman= CbmRootManager::Instance();
+  FairRootManager* ioman= FairRootManager::Instance();
 
   if(ioman==0)
     {
@@ -136,10 +136,10 @@ PndTpcDriftTask::SetParContainers() {
   std::cout.flush();
 
   // Get run and runtime database
-  CbmRun* run = CbmRun::Instance();
+  FairRun* run = FairRun::Instance();
   if ( ! run ) Fatal("SetParContainers", "No analysis run");
 
-  CbmRuntimeDb* db = run->GetRuntimeDb();
+  FairRuntimeDb* db = run->GetRuntimeDb();
   if ( ! db ) Fatal("SetParContainers", "No runtime database");
 
   // Get PndTpc digitisation parameter container
@@ -232,7 +232,7 @@ void PndTpcDriftTask::FillHistograms(double x, double y, double dl) {
 //WriteHistograms() has to be called once in the runDigi.C macro!
 void PndTpcDriftTask::WriteHistograms() {
   if(!_initialized)return;
-  TFile* file=CbmRootManager::Instance()->GetOutFile();
+  TFile* file=FairRootManager::Instance()->GetOutFile();
 
   file->mkdir("PndTpcDriftTask");
   file->cd("PndTpcDriftTask");

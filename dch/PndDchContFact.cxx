@@ -11,10 +11,10 @@ using namespace std;
 #include "PndDchGeoPar.h"
 #include "PndDchDigiPar.h"
 
-#include "CbmRuntimeDb.h"
+#include "FairRuntimeDb.h"
 
-//#include "CbmParRootFileIo.h"
-//#include "CbmParAsciiFileIo.h"
+//#include "FairParRootFileIo.h"
+//#include "FairParAsciiFileIo.h"
 #include <iostream>
 #include <iomanip>
 
@@ -27,15 +27,15 @@ PndDchContFact::PndDchContFact() {
 	fName  = "PndDchContFact";
 	fTitle = "Factory for parameter containers in libDch";
 	setAllContainers();
-	CbmRuntimeDb::instance()->addContFactory(this);
+	FairRuntimeDb::instance()->addContFactory(this);
 }
 
 void PndDchContFact::setAllContainers() {
 	/** Creates the Container objects with all accepted contexts and adds them to
 	 *  the list of containers for the DCH library.*/
 
-	CbmContainer* p = new CbmContainer("PndDchGeoPar", "Dch Geometry Parameters", "TestDefaultContext");
-	CbmContainer* calib = new CbmContainer("PndDchDigiParGarfield", "Dch Digitalization Parameters", "TestDefaultContextDigi");
+	FairContainer* p = new FairContainer("PndDchGeoPar", "Dch Geometry Parameters", "TestDefaultContext");
+	FairContainer* calib = new FairContainer("PndDchDigiParGarfield", "Dch Digitalization Parameters", "TestDefaultContextDigi");
 
 	//   p->addContext("TestNonDefaultContext");
 	//   calib->addContext("TestNonDefaultContextDigi");
@@ -44,12 +44,12 @@ void PndDchContFact::setAllContainers() {
 	containers->Add(calib);
 }
 
-CbmParSet* PndDchContFact::createContainer(CbmContainer* c) {
+FairParSet* PndDchContFact::createContainer(FairContainer* c) {
 	/** Calls the constructor of the corresponding parameter container.
 	 * For an actual context, which is not an empty string and not the default context
 	 * of this container, the name is concatinated with the context. */
 	const char* name = c->GetName();
-	CbmParSet* p = NULL;
+	FairParSet* p = NULL;
 	if (strcmp(name, "PndDchGeoPar") == 0) {
 		p = new PndDchGeoPar(c->getConcatName().Data(), c->GetTitle(), c->getContext());
 	}

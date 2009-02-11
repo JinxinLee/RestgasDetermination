@@ -19,7 +19,7 @@
 #define TPCLASERFITTASK_H
 
 //Base class
-#include "CbmTask.h"
+#include "FairTask.h"
 
 #include "TClonesArray.h"
 #include "TString.h"
@@ -34,7 +34,7 @@ class PndTpcLaserTask;
 class PndTpcCluster;
 
 
-class PndTpcLaserFitTask : public CbmTask {
+class PndTpcLaserFitTask : public FairTask {
 
 public:
 

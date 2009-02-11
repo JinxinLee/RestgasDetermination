@@ -7,18 +7,18 @@
 #ifndef PNDEMCCONTFACT_H
 #define PNDEMCCONTFACT_H
 
-#include "CbmContFact.h"
+#include "FairContFact.h"
 
-class CbmContainer;
+class FairContainer;
 
-class PndEmcContFact : public CbmContFact {
+class PndEmcContFact : public FairContFact {
 private:
   void setAllContainers();
 public:
 	PndEmcContFact();
 	~PndEmcContFact() {}
-	CbmParSet* createContainer(CbmContainer*);
-	//void  activateParIo(CbmParIo* io);
+	FairParSet* createContainer(FairContainer*);
+	//void  activateParIo(FairParIo* io);
 
   ClassDef( PndEmcContFact,0) // Factory for all EMC parameter containers
 };

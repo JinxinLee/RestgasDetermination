@@ -24,7 +24,7 @@
 #include <algorithm>
 
 // Collaborating Class Headers --------
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "TClonesArray.h"
 #include "TRandom.h"
 #include "PndTpcSignal.h"
@@ -40,7 +40,7 @@
 
 
 PndTpcAdcTask::PndTpcAdcTask()
-  : CbmTask("TPC Adc"), _persistence(kFALSE)
+  : FairTask("TPC Adc"), _persistence(kFALSE)
 {
   _signalBranchName = "PndTpcSignal";
 }
@@ -56,7 +56,7 @@ InitStatus
 PndTpcAdcTask::Init()
 {
   //Get ROOT Manager
-  CbmRootManager* ioman= CbmRootManager::Instance();
+  FairRootManager* ioman= FairRootManager::Instance();
 
   if(ioman==0)
     {

@@ -19,7 +19,7 @@
 #define TPCIDEALTRACKINGTASK_HH
 
 // Base Class Headers ----------------
-#include "CbmTask.h"
+#include "FairTask.h"
 
 // Collaborating Class Headers -------
 #include <ostream> // remove if you do not need streaming op
@@ -31,9 +31,9 @@ class PndTpcFrontend;
 class RecoHitFactory;
 class TH1I;
 class TH1D;
-class CbmGeanePro;
+class FairGeanePro;
 
-class PndTpcIdealTrackingTask : public CbmTask {
+class PndTpcIdealTrackingTask : public FairTask {
 public:
 
   // Constructors/Destructors ---------
@@ -76,7 +76,7 @@ private:
   TH1D* _trackMcIdsH;
 
   RecoHitFactory* _theRecoHitFactory;
-  CbmGeanePro* _geanePro;
+  FairGeanePro* _geanePro;
 
   // Private Methods -----------------
 

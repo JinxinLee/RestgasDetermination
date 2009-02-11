@@ -9,9 +9,9 @@
 #include "TParticlePDG.h"
 
 // framework includes
-#include "CbmRootManager.h"
-#include "CbmRun.h"
-#include "CbmRuntimeDb.h"
+#include "FairRootManager.h"
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
 #include "CbmMCTrack.h"
 
 
@@ -26,7 +26,7 @@
 #include "PndMvdDigi.h"
 #include "PndRiemannTrackFinder.h"
 
-PndMvdRiemannTrackFinderTask::PndMvdRiemannTrackFinderTask() : CbmTask("MVD Riemann Track Finder"),
+PndMvdRiemannTrackFinderTask::PndMvdRiemannTrackFinderTask() : FairTask("MVD Riemann Track Finder"),
 	fMaxDist(0.1), fMinPointDist(0.5), fMaxSZChi2(1)
 {
 	fHitBranch = "MVDHitsPixel";
@@ -48,8 +48,8 @@ void PndMvdRiemannTrackFinderTask::SetParContainers()
 {
   // Get Base Container
 /*
-  CbmRun* ana = CbmRun::Instance();
-  CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+  FairRun* ana = FairRun::Instance();
+  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
   fGeoPar = (PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar"));
 */
 }
@@ -61,8 +61,8 @@ InitStatus PndMvdRiemannTrackFinderTask::ReInit()
   return stat;
 
   /*
-  CbmRun* ana = CbmRun::Instance();
-  CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+  FairRun* ana = FairRun::Instance();
+  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
   fGeoPar=(PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar"));
 
   return kSUCCESS;
@@ -73,7 +73,7 @@ InitStatus PndMvdRiemannTrackFinderTask::ReInit()
 InitStatus PndMvdRiemannTrackFinderTask::Init()
 {
 
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
 
   if ( ! ioman )
     {

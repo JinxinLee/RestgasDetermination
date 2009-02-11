@@ -20,7 +20,7 @@
   if (nEvents > 1000) nEvents = 1000;
   //nEvents = 3;
 
-  CbmRunAna *fRun= new CbmRunAna();
+  FairRunAna *fRun= new FairRunAna();
 
   fRun->SetOutputFile("output.root");
 

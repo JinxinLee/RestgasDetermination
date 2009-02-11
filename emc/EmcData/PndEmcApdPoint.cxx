@@ -16,7 +16,7 @@ using std::cout;
 using std::endl;
 
 // -----   Default constructor   -------------------------------------------
-PndEmcApdPoint::PndEmcApdPoint() : CbmMCPoint() {
+PndEmcApdPoint::PndEmcApdPoint() : FairMCPoint() {
   fTrackID    = -1;
   fDetectorID = -1;
   fEventID    = -1;

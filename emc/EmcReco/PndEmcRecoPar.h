@@ -2,10 +2,10 @@
 #ifndef PNDEMCRECOPAR_H
 #define PNDEMCRECOPAR_H
 
-#include "CbmParGenericSet.h"
-#include "CbmParamList.h"
+#include "FairParGenericSet.h"
+#include "FairParamList.h"
 
-class PndEmcRecoPar : public CbmParGenericSet
+class PndEmcRecoPar : public FairParGenericSet
 {
 	public :
 		Double_t GetEnergyThresholdBarrel() {return fEnergyThresholdBarrel;};
@@ -36,8 +36,8 @@ class PndEmcRecoPar : public CbmParGenericSet
 			    const char* context="TestDefaultContext");
 		~PndEmcRecoPar(void){};
 		void clear(void){};
-		void putParams(CbmParamList* list);
-		Bool_t getParams(CbmParamList* list);
+		void putParams(FairParamList* list);
+		Bool_t getParams(FairParamList* list);
 	
 	private :
 		Double_t fEnergyThresholdBarrel;   // Single crystal energy threshold for barrel EMC

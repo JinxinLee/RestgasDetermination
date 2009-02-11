@@ -30,9 +30,9 @@
 #include "TDatabasePDG.h"
 
 #include "PndPidCand.h"
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "PndGpidCollTask.h"
-#include "CbmTrackParH.h"
+#include "FairTrackParH.h"
 #include "CbmMCTrack.h"
 
 #define PI 3.14159265
@@ -40,7 +40,7 @@
 using namespace std;
 
 PndGpidCollTask::PndGpidCollTask() :
-  CbmTask("PndGpidCollTask") { }
+  FairTask("PndGpidCollTask") { }
 
 // -----   Destructor   ----------------------------------------------------
 PndGpidCollTask::~PndGpidCollTask()
@@ -57,7 +57,7 @@ void PndGpidCollTask::destroy()
 
 InitStatus PndGpidCollTask::Init() {
 cout<<"-I- PndGpidCollTask"<<endl;
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
     cout << "-E- PndGpidCollTask::Init: "
 	 << "RootManager not instantised!" << endl;

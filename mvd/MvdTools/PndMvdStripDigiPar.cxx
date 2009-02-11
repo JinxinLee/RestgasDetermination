@@ -3,12 +3,12 @@
 #include "TMath.h"
 
 PndMvdStripDigiPar::PndMvdStripDigiPar(const char* name, const char* title, const char* context)
-  : CbmParGenericSet(name,title,context)
+  : FairParGenericSet(name,title,context)
 {
   clear();
 }
 
-void PndMvdStripDigiPar::putParams(CbmParamList* list)
+void PndMvdStripDigiPar::putParams(FairParamList* list)
 {
   if(!list) return;
 
@@ -28,12 +28,12 @@ void PndMvdStripDigiPar::putParams(CbmParamList* list)
   list->add("sens_Type", fSensType); //("sens_Type", fSensType, 's', 1)
   list->add("fe_Type", fFeType); //("fe_Type", fFeType, 's', 1)
 //   TObjString* sens = new TObjString( fSensType.Data() );
-//   list->addBinary("sens_Type", sens);
+//   list->addObject("sens_Type", sens);
 //   TObjString* fe = new TObjString( fFeType.Data() );
-//   list->addBinary("fe_Type", fe);
+//   list->addObject("fe_Type", fe);
 }
 
-Bool_t PndMvdStripDigiPar::getParams(CbmParamList* list)
+Bool_t PndMvdStripDigiPar::getParams(FairParamList* list)
 {
   if (!list) return kFALSE;
 

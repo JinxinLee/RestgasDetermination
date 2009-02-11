@@ -9,7 +9,7 @@
 #ifndef PNDEMCMAKECLUSTER_H
 #define PNDEMCMAKECLUSTER_H
 
-#include "CbmTask.h"
+#include "FairTask.h"
 //#include <string>
 #include <vector>		
 
@@ -19,7 +19,7 @@ class PndEmcCluster;
 class PndEmcDigiPar;
 class PndEmcRecoPar;
 
-class PndEmcMakeCluster : public CbmTask
+class PndEmcMakeCluster : public FairTask
 {
 
 

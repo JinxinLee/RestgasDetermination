@@ -10,7 +10,7 @@ void sim(TString simdatei, TString input, TString param, Int_t nEvents,  Char_t 
       gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
       rootlogon();
 
-  CbmRunSim *fRun = new CbmRunSim();
+  FairRunSim *fRun = new FairRunSim();
   
   // Set the number of events
  // Int_t nEvents = n; 
@@ -30,7 +30,7 @@ void sim(TString simdatei, TString input, TString param, Int_t nEvents,  Char_t 
   // Create and add detectors
   //-------------------------
 
-  CbmModule *Cave= new PndCave("CAVE");
+  FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave); 
   
@@ -38,53 +38,53 @@ void sim(TString simdatei, TString input, TString param, Int_t nEvents,  Char_t 
   Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root");
   fRun->AddModule(Emc); 
 
-  CbmModule *Magnet= new PndMagnet("MAGNET");
+  FairModule *Magnet= new PndMagnet("MAGNET");
   Magnet->SetGeometryFileName("FullSolenoid.root");
   fRun->AddModule(Magnet);
 
-  CbmModule *Dipole= new PndMagnet("MAGNET");
+  FairModule *Dipole= new PndMagnet("MAGNET");
   Dipole->SetGeometryFileName("dipole.geo");
   fRun->AddModule(Dipole);
 
 
-  CbmModule *Pipe= new PndPipe("PIPE");
+  FairModule *Pipe= new PndPipe("PIPE");
   //Pipe->SetGeometryFileName("pipebeamtarget.geo");
   fRun->AddModule(Pipe);
 
  
 /*
-    CbmDetector *Stt = new CbmStt("STT",kFALSE);
+    FairDetector *Stt = new CbmStt("STT",kFALSE);
     Stt->SetGeometryFileName("stt24.geo"); // 14 = 1 solo 2layer pablo01.geo 3 layers stt24 
     fRun->AddModule(Stt);
 */
   
   /*
-    CbmDetector *Stt= new CbmStt("STT", kFALSE); 
+    FairDetector *Stt= new CbmStt("STT", kFALSE); 
     Stt->SetGeometryFileName("straws_axial.geo");
     fRun->AddModule(Stt);
   */
 
-  CbmDetector *Tpc = new PndTpcDetector("TPC", kTRUE);
+  FairDetector *Tpc = new PndTpcDetector("TPC", kTRUE);
   Tpc->SetGeometryFileName("tpc.geo");
   fRun->AddModule(Tpc);
 
-  CbmDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
+  FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
   Mvd->SetGeometryFileName("MVD_v1.0_woPassiveTraps.root");
   fRun->AddModule(Mvd);
   
-  CbmDetector *Tof = new PndTof("TOF",kTRUE);
+  FairDetector *Tof = new PndTof("TOF",kTRUE);
   Tof->SetGeometryFileName("tofbarrel.geo");
   fRun->AddModule(Tof);
 
-  CbmDetector *Drc = new PndDrc("DIRC", kTRUE);
+  FairDetector *Drc = new PndDrc("DIRC", kTRUE);
   Drc->SetGeometryFileName("dirc.geo"); 
   fRun->AddModule(Drc); 
 
- CbmDetector *Muo = new PndMdt("MDT",kTRUE);
+ FairDetector *Muo = new PndMdt("MDT",kTRUE);
   Muo->SetGeometryFileName("muopars.root");
   fRun->AddModule(Muo);
 
-  CbmDetector *Dch = new PndDchDetector("DCH", kTRUE);
+  FairDetector *Dch = new PndDchDetector("DCH", kTRUE);
   Dch->SetGeometryFileName("dch.root"); 
   fRun->AddModule(Dch);
  
@@ -93,18 +93,18 @@ void sim(TString simdatei, TString input, TString param, Int_t nEvents,  Char_t 
   // Create and Set Event Generator
   //-------------------------------
   
-  CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
+  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
   // EvtGen Generator: 
 
-  CbmEvtGenGenerator* evtGen = new CbmEvtGenGenerator(input);
+  FairEvtGenGenerator* evtGen = new FairEvtGenGenerator(input);
   primGen->AddGenerator(evtGen);  
   
   fRun->SetStoreTraj(kTRUE); // to store particle trajectories 
   
   //magnetic field: no field when commented put
-  //CbmFieldConst *fMagField=new CbmFieldConst();
+  //FairFieldConst *fMagField=new FairFieldConst();
   //fMagField->SetField(0.,0.,20.); // values are in kG
   //fMagField->SetFieldRegion(-50, 50,-50, 50, -100, 100);// values are in cm (xmin,xmax,ymin,ymax,zmin,zmax)
   //fRun->SetField(fMagField);
@@ -114,9 +114,9 @@ void sim(TString simdatei, TString input, TString param, Int_t nEvents,  Char_t 
   // Fill the Parameter containers for this run
   //-------------------------------------------
   
-  CbmRuntimeDb *rtdb=fRun->GetRuntimeDb();
+  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
   Bool_t kParameterMerged=kTRUE;
-  CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   output->open(param);
   rtdb->setOutput(output);
   rtdb->saveOutput();

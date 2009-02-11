@@ -17,7 +17,7 @@
 
 
 // Pnd includes
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "PndDchDigi.h"
 // ROOT includes
 #include "TVector3.h"
@@ -32,7 +32,7 @@ class PndDchDrifter;
 class TDirectory;
 class TList;
 
-class PndDchDigiProducer : public CbmTask {
+class PndDchDigiProducer : public FairTask {
 
 public:
 

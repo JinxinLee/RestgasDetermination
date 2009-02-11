@@ -1,9 +1,9 @@
 #ifndef PNDGEOSTT_H
 #define PNDGEOSTT_H
 
-#include "CbmGeoSet.h"
+#include "FairGeoSet.h"
 
-class  PndGeoStt : public CbmGeoSet 
+class  PndGeoStt : public FairGeoSet 
 {
  protected:
   char modName[20];  // name of module

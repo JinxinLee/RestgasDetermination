@@ -2,7 +2,7 @@
 // PndLheCorrPar
 //
 // Container class for Digitisation parameters
-// class is inherited from CbmParGenericSet
+// class is inherited from FairParGenericSet
 //
 /////////////////////////////////////////////////////////////
 
@@ -14,12 +14,12 @@ ClassImp(PndLheCorrPar)
 
 PndLheCorrPar::PndLheCorrPar(const char* name,const char* title,
 			     const char* context)
-    : CbmParGenericSet(name,title,context) 
+    : FairParGenericSet(name,title,context) 
 {
 	clear();
 }
 
-void PndLheCorrPar::putParams(CbmParamList* list)
+void PndLheCorrPar::putParams(FairParamList* list)
 {
 	if(!list) return;
 
@@ -48,7 +48,7 @@ void PndLheCorrPar::putParams(CbmParamList* list)
 	list->add("DrcCut",        fDrcCut);
 }
 
-Bool_t PndLheCorrPar::getParams(CbmParamList* list)
+Bool_t PndLheCorrPar::getParams(FairParamList* list)
 {
 	if (!list) return kFALSE;
 	if (!list->fill("TofRadius",     &fTofRadius))     return kFALSE;

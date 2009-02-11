@@ -89,7 +89,7 @@ void draw_geo(void)
 //   tP->SetBranchAddress("DskPoint",&fP);
 
   // access to GeoManager
-  TGeoManager* geoMan = (TGeoManager*) f->Get("CBMGeom");
+  TGeoManager* geoMan = (TGeoManager*) f->Get("FAIRGeom");
   TObjArray*   TrList= geoMan->GetListOfTracks();
   TGeoTrack*   tr;
 //   PndDskPoint* dp;
@@ -163,7 +163,7 @@ void draw_geo(void)
             if (USE_OPENGL) {
               // draw tracks by hand
               Int_t Np = tr->GetNpoints();
-              CbmVTrack *pt = new CbmVTrack(Np);
+              FairVTrack *pt = new FairVTrack(Np);
               pt->SetLineColor(tr->GetLineColor());
               pt->SetLineWidth(2);
               pt->SetTrack(tr);
@@ -220,7 +220,7 @@ void draw_geo(void)
               if (USE_OPENGL) {
                 // draw tracks by hand
                 Int_t Np = tr->GetNpoints();
-                CbmVTrack *pt = new CbmVTrack(Np);
+                FairVTrack *pt = new FairVTrack(Np);
                 pt->SetLineColor(tr->GetLineColor());
                 pt->SetLineWidth(2);
                 pt->SetTrack(tr);

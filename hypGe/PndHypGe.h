@@ -9,7 +9,7 @@
 #include "TClonesArray.h"
 #include "TVector3.h"
 #include "TLorentzVector.h"
-#include "CbmDetector.h"
+#include "FairDetector.h"
 #include "PndGeoHypGePar.h"
 //#include "GeCluster.h"
 
@@ -21,9 +21,9 @@ using namespace std;
 class TClonesArray;
 class PndHypGePoint;
 //class PndHypGesciPoint;
-class CbmVolume; 
+class FairVolume; 
 
-class PndHypGe : public CbmDetector 
+class PndHypGe : public FairDetector 
 {
 
  public:
@@ -56,7 +56,7 @@ class PndHypGe : public CbmDetector
    ** them to the collections.
    *@param vol  Pointer to the active volume
    **/
-  virtual Bool_t ProcessHits(CbmVolume* vol = 0);
+  virtual Bool_t ProcessHits(FairVolume* vol = 0);
 
 
   /** Virtual method EndOfEvent

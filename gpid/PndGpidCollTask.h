@@ -27,10 +27,10 @@
 #include <vector>
 
 //ROOT & PandaRoot Headers
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "TVector3.h"
-#include "CbmGeanePro.h"
-#include "CbmGeane.h"
+#include "FairGeanePro.h"
+#include "FairGeane.h"
 #include "PndTofHit.h"
 #include "PndLhePidTrack.h"
 #include "PndTpcPoint.h"
@@ -39,7 +39,7 @@
 #include "PndTpcLheHit.h"
 #include "CbmMCTrack.h"
 
-class PndGpidCollTask : public CbmTask
+class PndGpidCollTask : public FairTask
 {
  public:
   /** Default constructor **/  

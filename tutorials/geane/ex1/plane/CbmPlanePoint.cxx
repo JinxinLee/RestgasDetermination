@@ -2,7 +2,7 @@
 #include "CbmPlanePoint.h"
 
 // -----   Default constructor   -------------------------------------------
-CbmPlanePoint::CbmPlanePoint() : CbmMCPoint() {
+CbmPlanePoint::CbmPlanePoint() : FairMCPoint() {
   fX_out      = fY_out  = fZ_out  = 0.;
   fPx_out     = fPy_out = fPz_out = 0.;
 }
@@ -14,7 +14,7 @@ CbmPlanePoint::CbmPlanePoint() : CbmMCPoint() {
 // CbmPlanePoint::CbmPlanePoint(Int_t trackID, Int_t detID, TVector3 posIn, 
 // 			 TVector3 posOut, TVector3 momIn, TVector3 momOut,
 // 			 Double_t tof, Double_t length, Double_t eLoss) 
-//   : CbmMCPoint(trackID, detID, posIn, momIn, tof, length, eLoss) {
+//   : FairMCPoint(trackID, detID, posIn, momIn, tof, length, eLoss) {
 //   fX_out  = posOut.X();
 //   fY_out  = posOut.Y();
 //   fZ_out  = posOut.Z();
@@ -27,7 +27,7 @@ CbmPlanePoint::CbmPlanePoint(Int_t trackID, Int_t detID, TVector3 posIn,
 			 TVector3 posOut, TVector3 momIn, TVector3 momOut, 
                          Double_t tof, Double_t length, Double_t eLoss, Double_t charge,
                          Double_t mass, Bool_t preflag, Bool_t postflag,TString nam,Int_t eventID) 
-  : CbmMCPoint(trackID, detID, posIn, momIn, tof, length, eLoss) {
+  : FairMCPoint(trackID, detID, posIn, momIn, tof, length, eLoss) {
     fX_out  = posOut.X();//cm
     fY_out  = posOut.Y();//cm
     fZ_out  = posOut.Z();

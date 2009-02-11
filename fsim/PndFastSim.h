@@ -7,7 +7,7 @@
 #define PNDFASTSIM_H 1
 
 
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "TVector3.h"
 #include "TMatrixD.h"
 #include <string>
@@ -27,7 +27,7 @@ class TDatabasePDG;
 typedef std::list<PndFsmAbsDet*> FsmAbsDetList;
 typedef std::list<PndFsmResponse*> FsmResponseList;
 
-class PndFastSim : public CbmTask
+class PndFastSim : public FairTask
 {
 
  public:

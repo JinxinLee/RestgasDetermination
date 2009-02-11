@@ -2,7 +2,7 @@
 #define PNDMVDACCESSRTDBTASK_H
 
 
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "PndMvdPixelDigiPar.h"
 #include "PndMvdStripDigiPar.h"
 
@@ -11,7 +11,7 @@
 
 class TClonesArray;
 
-class PndMvdAccessRTDBTask : public CbmTask
+class PndMvdAccessRTDBTask : public FairTask
 {
  public:
 

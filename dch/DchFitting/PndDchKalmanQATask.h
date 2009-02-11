@@ -16,7 +16,7 @@
 #define PNDDCHKALMANQATASK_HH
 
 // Panda Headers ----------------------
-#include "CbmTask.h"
+#include "FairTask.h"
 
 // ROOT Headers -----------------------
 #include "TString.h"
@@ -26,7 +26,7 @@ class TH1D;
 class TH2D;
 class TCanvas;
 
-class PndDchKalmanQATask : public CbmTask {
+class PndDchKalmanQATask : public FairTask {
 public:
 
   /**  Constructor  **/

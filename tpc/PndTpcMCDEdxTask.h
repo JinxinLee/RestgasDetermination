@@ -19,7 +19,7 @@
 #define PNDTPCMCDEDXTASK_HH
 
 // Base Class Headers ----------------
-#include "CbmTask.h"
+#include "FairTask.h"
 #include <vector>
 
 // Collaborating Class Headers -------
@@ -29,7 +29,7 @@ class TClonesArray;
 class TH2F;
 class PndTpcPoint;
 
-class PndTpcMCDEdxTask : public CbmTask {
+class PndTpcMCDEdxTask : public FairTask {
 public:
 
   // Constructors/Destructors ---------

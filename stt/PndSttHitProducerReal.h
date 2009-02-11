@@ -2,7 +2,7 @@
 #define PNDSTTHITPRODUCERREAL_H 1
 
 
-#include "CbmTask.h"
+#include "FairTask.h"
 //#include "PndSttHit.h"
 //#include "PndSttHitInfo.h"
 
@@ -13,7 +13,7 @@ class PndSttHitInfo;
 class TClonesArray;
 class TObjectArray;
 
-class PndSttHitProducerReal : public CbmTask
+class PndSttHitProducerReal : public FairTask
 {
 
  public:

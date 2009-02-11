@@ -1,10 +1,10 @@
 #ifndef PNDMUODIGI_HH
 #define PNDMUODIGI_HH
 
-#include "CbmHit.h"
+#include "FairHit.h"
 #include "TVector3.h"
 
-class PndMuoDigi : public CbmHit {
+class PndMuoDigi : public FairHit {
 
   //class PndMuoDigi {
 public:

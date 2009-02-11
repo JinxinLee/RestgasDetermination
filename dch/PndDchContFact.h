@@ -1,17 +1,17 @@
 #ifndef PNDDCHCONTFACT_H
 #define PNDDCHCONTFACT_H
 
-#include "CbmContFact.h"
+#include "FairContFact.h"
 
-class CbmContainer;
+class FairContainer;
 
-class PndDchContFact: public CbmContFact {
+class PndDchContFact: public FairContFact {
 
 public:
 	PndDchContFact();
 	~PndDchContFact() {
 	}
-	CbmParSet* createContainer(CbmContainer*);
+	FairParSet* createContainer(FairContainer*);
 
 private:
 	void setAllContainers();

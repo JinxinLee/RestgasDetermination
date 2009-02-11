@@ -12,7 +12,7 @@
 #ifndef PNDRPCHITPRODUCER_H
 #define PNDRPCHITPRODUCER_H 1
 
-#include "CbmTask.h"
+#include "FairTask.h"
 
 class TClonesArray;
 class PndRpcHit;
@@ -20,7 +20,7 @@ class PndRpcPoint;
 class TVector3;
 
 
-class PndRpcHitProducer : public CbmTask
+class PndRpcHitProducer : public FairTask
 {
 
  public:

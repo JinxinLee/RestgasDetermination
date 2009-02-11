@@ -26,7 +26,7 @@
 #include <assert.h>
 
 // Collaborating Class Headers --------
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "TClonesArray.h"
 #include "Track.h"
 #include "PndTpcCluster.h"
@@ -52,7 +52,7 @@
 
 
 KalmanTask::KalmanTask()
-  : CbmTask("Kalman Filter"), _persistence(kFALSE),_lazy(0),_numIt(1)
+  : FairTask("Kalman Filter"), _persistence(kFALSE),_lazy(0),_numIt(1)
 {
   _trackBranchName = "TrackPreFit";
 }
@@ -68,7 +68,7 @@ InitStatus
 KalmanTask::Init()
 {
   //Get ROOT Manager
-  CbmRootManager* ioman= CbmRootManager::Instance();
+  FairRootManager* ioman= FairRootManager::Instance();
 
   if(ioman==0)
     {

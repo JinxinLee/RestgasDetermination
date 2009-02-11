@@ -22,7 +22,7 @@
   //  gSystem->Load("libMvd");
 
 
-  CbmRunSim *fRun = new CbmRunSim();
+  FairRunSim *fRun = new FairRunSim();
   
   // set the MC version used
   fRun->SetName("TGeant4");
@@ -36,19 +36,19 @@
   fRun->SetMaterials("media_pnd.geo");
   
   // Create and add detectors
-  CbmModule *Cave= new CbmCave("CAVE");
+  FairModule *Cave= new CbmCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave);
 
-  //CbmDetector *Stt = new CbmStt("STT", kTRUE);
+  //FairDetector *Stt = new CbmStt("STT", kTRUE);
   //Stt->SetGeometryFileName("stt24.geo"); //
   //fRun->AddModule(Stt);
   
-  CbmDetector *Fsc = new FscDetector("FSC", kTRUE);
+  FairDetector *Fsc = new FscDetector("FSC", kTRUE);
    Fsc->SetGeometryFileName("fsc.geo");
    fRun->AddModule(Fsc);
 
-  //CbmDetector *Tpc = new TpcDetector("TPC", kTRUE);
+  //FairDetector *Tpc = new TpcDetector("TPC", kTRUE);
   //Tpc->SetGeometryFileName("tpc.geo");
   //fRun->AddModule(Tpc);
 
@@ -56,15 +56,15 @@
  // Create and Set Event Generator
  //-------------------------------
 
-  CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
+  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
  // Particle Generator
-  //CbmParticleGenerator* partGen = new CbmParticleGenerator(211, 10, 1, 0,3,kTRUE);
+  //FairParticleGenerator* partGen = new FairParticleGenerator(211, 10, 1, 0,3,kTRUE);
   //primGen->AddGenerator(partGen);
  
  // Box Generator
-  CbmBoxGenerator* boxGen = new CbmBoxGenerator(211, 1); // 13 = muon, 211=pion; 1 = multipl.
+  FairBoxGenerator* boxGen = new FairBoxGenerator(211, 1); // 13 = muon, 211=pion; 1 = multipl.
   boxGen->SetPRange(5.0,5.1); // GeV/c //setPRange vs setPtRange
   boxGen->SetPhiRange(0, 360); // Azimuth angle range [degree]
   boxGen->SetThetaRange(3, 7); // Polar angle in lab system range [degree]
@@ -75,7 +75,7 @@
   // Field Map Definition
   // --------------------
   // 1- Reading the new field map in the old format
-  // CbmFieldMap *fMagField= new CbmFieldMap("FIELD.v04_pavel.map");
+  // FairFieldMap *fMagField= new FairFieldMap("FIELD.v04_pavel.map");
   // Constant Field
   PndConstField *fMagField=new PndConstField();
   fMagField->SetField(0, 0 ,20. ); // values are in kG
@@ -83,7 +83,7 @@
   fMagField->SetFieldRegion(-50, 50,-50, 50, -200, 200);
   
   // 2- Reading the new field map in the new format
-  //  CbmField *fMagField= new CbmFieldMapSym3("FieldActive");
+  //  FairField *fMagField= new FairFieldMapSym3("FieldActive");
   // Active Shielding
   
   fRun->SetField(fMagField);
@@ -97,7 +97,7 @@
   
   ;
   // Set cuts for storing the trajectpries
-  //   CbmTrajFilter* trajFilter = CbmTrajFilter::Instance();
+  //   FairTrajFilter* trajFilter = FairTrajFilter::Instance();
   //   trajFilter->SetStepSizeCut(0.01); // 1 cm
   //   trajFilter->SetVertexCut(-2000., -2000., 4., 2000., 2000., 100.);
   //   trajFilter->SetMomentumCutP(10e-3); // p_lab > 10 MeV
@@ -109,9 +109,9 @@
   // Fill the Parameter containers for this run
   //-------------------------------------------
   
-  //   CbmRuntimeDb *rtdb=fRun->GetRuntimeDb();
+  //   FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
   //   Bool_t kParameterMerged=kTRUE;
-  //   CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
+  //   FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   //   output->open("testparams.root");
   //   rtdb->setOutput(output);
   //   rtdb->saveOutput();
@@ -131,7 +131,7 @@
  printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
 
 
- TGeoManager *geoMan = (TGeoManager*) gDirectory->Get("CBMGeom");
+ TGeoManager *geoMan = (TGeoManager*) gDirectory->Get("FAIRGeom");
  
  TCanvas* c1 = new TCanvas("c1", "", 100, 100, 800, 800);
  c1->SetFillColor(10);

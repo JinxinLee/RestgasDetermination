@@ -5,7 +5,7 @@
 
 // Panda Headers ----------------------
 #include "PndDchPreFitterTRQATask.h"
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "CbmMCTrack.h"
 #include "FitterExceptions.h"
 #include "PndDchTrackMatch.h"
@@ -26,7 +26,7 @@
 
 
 PndDchPreFitterTRQATask::PndDchPreFitterTRQATask()
-  : CbmTask("QA Task for Kalman od DCH"){
+  : FairTask("QA Task for Kalman od DCH"){
   fhP = NULL;
   fhChi2 = NULL;
   fThetaH = NULL;
@@ -48,7 +48,7 @@ PndDchPreFitterTRQATask::~PndDchPreFitterTRQATask() {
 
 InitStatus PndDchPreFitterTRQATask::Init(){
   //Get ROOT Manager
-  CbmRootManager* ioman= CbmRootManager::Instance();
+  FairRootManager* ioman= FairRootManager::Instance();
   if(ioman==0){
       Error("PndDchPreFitterTRQATask::Init","RootManager not instantiated!");
       return kERROR;
@@ -130,7 +130,7 @@ void PndDchPreFitterTRQATask::Exec(Option_t* opt) {
 }
   
 Bool_t  PndDchPreFitterTRQATask::WriteHistograms(){
-  TFile* file = CbmRootManager::Instance()->GetOutFile();
+  TFile* file = FairRootManager::Instance()->GetOutFile();
   file->cd();
   file->mkdir("DchPreFitterTRQA");
   file->cd("DchPreFitterTRQA");

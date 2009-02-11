@@ -29,7 +29,7 @@ void runsim(Int_t nEvents=1000, Float_t pT=1.0, UInt_t seed=0){
   gSystem->Load("libLHETrack");
 
  
-  CbmRunSim *fRun = new CbmRunSim();
+  FairRunSim *fRun = new FairRunSim();
   
   // set the MC version used
   // ------------------------
@@ -48,23 +48,23 @@ void runsim(Int_t nEvents=1000, Float_t pT=1.0, UInt_t seed=0){
   // Create and add detectors
   //-------------------------
 
-  CbmModule *Cave= new PndCave("CAVE");
+  FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave); 
   
-  CbmModule *Magnet= new PndMagnet("MAGNET");
+  FairModule *Magnet= new PndMagnet("MAGNET");
   Magnet->SetGeometryFileName("magnet.geo");
   fRun->AddModule(Magnet);
 
-  CbmModule *Pipe= new PndPipe("PIPE");
+  FairModule *Pipe= new PndPipe("PIPE");
   Pipe->SetGeometryFileName("pipebeamtarget.geo");
   fRun->AddModule(Pipe);
  
-  CbmDetector *Stt= new PndStt("STT", kTRUE);
+  FairDetector *Stt= new PndStt("STT", kTRUE);
   Stt->SetGeometryFileName("straws_skewed_blocks.geo");
   fRun->AddModule(Stt);
 
-  CbmDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
+  FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
   Mvd->SetGeometryFileName("MVD14.root");
   fRun->AddModule(Mvd);
 
@@ -72,30 +72,30 @@ void runsim(Int_t nEvents=1000, Float_t pT=1.0, UInt_t seed=0){
   Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root");
   fRun->AddModule(Emc);
 
-  //  CbmDetector *Tof = new PndTof("TOF",kTRUE);
+  //  FairDetector *Tof = new PndTof("TOF",kTRUE);
   //  Tof->SetGeometryFileName("tofSciF.geo");
   //  fRun->AddModule(Tof);
   
-  //  CbmDetector *Muo = new PndMuo("MUO",kTRUE);
+  //  FairDetector *Muo = new PndMuo("MUO",kTRUE);
   //  Muo->SetGeometryFileName("muon_newmag.geo"); 
   //  fRun->AddModule(Muo);
   
-  //  CbmDetector *Drc = new PndDrc("DIRC", kTRUE);
+  //  FairDetector *Drc = new PndDrc("DIRC", kTRUE);
   //  Drc->SetGeometryFileName("dirc.geo"); 
   //  fRun->AddModule(Drc); 
   
-  //  CbmDetector *Dch = new PndDchDetector("DCH", kTRUE);
+  //  FairDetector *Dch = new PndDchDetector("DCH", kTRUE);
   //  Dch->SetGeometryFileName("dch.root"); 
   //  fRun->AddModule(Dch);
   
   // Create and Set Event Generator
   //-------------------------------
 
-  CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
+  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
   // Box Generator
-  CbmBoxGenerator* boxGen = new CbmBoxGenerator(13, 1); // 13 = muon; 1 = multipl.
+  FairBoxGenerator* boxGen = new FairBoxGenerator(13, 1); // 13 = muon; 1 = multipl.
   //  boxGen->SetPRange(1.,1.1); // GeV/c
   boxGen->SetPtRange(pT,pT); // GeV/c
   boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
@@ -126,7 +126,7 @@ void runsim(Int_t nEvents=1000, Float_t pT=1.0, UInt_t seed=0){
   /*
   // -Trajectories Visualization
   // ----------------------------
-  CbmTrajFilter* trajFilter = CbmTrajFilter::Instance();
+  FairTrajFilter* trajFilter = FairTrajFilter::Instance();
   // Set cuts for storing the trajectories
   trajFilter->SetStepSizeCut(0.01); // 1 cm
   //   trajFilter->SetVertexCut(-2000., -2000., 4., 2000., 2000., 100.);
@@ -139,7 +139,7 @@ void runsim(Int_t nEvents=1000, Float_t pT=1.0, UInt_t seed=0){
   //   // Fill the Parameter containers for this run
   //   //-------------------------------------------
   //      
-  CbmRuntimeDb *rtdb=fRun->GetRuntimeDb();
+  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
   Bool_t kParameterMerged=kTRUE;
      
   //if a field is used save the parameters in the RTDB
@@ -165,7 +165,7 @@ void runsim(Int_t nEvents=1000, Float_t pT=1.0, UInt_t seed=0){
   Par->setInputVersion(fRun->GetRunId(),1);
   Par->setChanged();
 
-  CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   output->open("testparams.root");
   rtdb->setOutput(output);
   rtdb->saveOutput();

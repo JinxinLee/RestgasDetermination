@@ -20,10 +20,10 @@
   int  nEvents = ApvConverter->GetNofEvents();
 //   if (nEvents > 1000) nEvents = 1000;
 
-  CbmRunAna *fRun= new CbmRunAna();
+  FairRunAna *fRun= new FairRunAna();
 
-  CbmRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  CbmParAsciiFileIo* parInput2 = new CbmParAsciiFileIo();
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
   parInput2->open(SenParName.c_str(),"in");
   rtdb->setFirstInput(parInput2);
 

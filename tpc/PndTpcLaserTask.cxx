@@ -20,7 +20,7 @@
 #include "PndTpcLaserTask.h"
 
 // Collaborating Class Headers --------
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "TClonesArray.h"
 #include "PndTpcPrimaryCluster.h"
 #include "PndTpcLaser.h"
@@ -32,7 +32,7 @@
 
 
 PndTpcLaserTask::PndTpcLaserTask()
-  : CbmTask("TPC Laser")
+  : FairTask("TPC Laser")
 {
   _laserList = new std::vector<PndTpcLaser*>;
   _is_end = false;
@@ -53,7 +53,7 @@ InitStatus
 PndTpcLaserTask::Init()
 {
   //Get ROOT Manager
-  CbmRootManager* ioman= CbmRootManager::Instance();
+  FairRootManager* ioman= FairRootManager::Instance();
 
   if(ioman==0)
     {

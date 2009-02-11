@@ -14,8 +14,8 @@
 #define PNDHYPGEHIT_H
 
 #include "TObject.h"
-#include "CbmHit.h"
-class PndHypGeHit : public CbmHit{
+#include "FairHit.h"
+class PndHypGeHit : public FairHit{
  public:    
   
   

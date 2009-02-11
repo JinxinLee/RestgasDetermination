@@ -5,7 +5,7 @@
 // -------------------------------------------------------------------------
 
 // Panda Headers ----------------------
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "Track.h"
 #include "TrackCand.h"
 #include "CbmMCTrack.h"
@@ -13,8 +13,8 @@
 #include "GeaneTrackRep.h"
 #include "Kalman.h"
 #include "FitterExceptions.h"
-#include "CbmGeanePro.h"
-#include "CbmTrackParP.h"
+#include "FairGeanePro.h"
+#include "FairTrackParP.h"
 #include "PndDchPrepareKalmanTracks2.h"
 #include "PndDchPoint.h"
 #include "PndDchTrack.h"
@@ -31,7 +31,7 @@
 
 
 PndDchPrepareKalmanTracks2::PndDchPrepareKalmanTracks2()
-  : CbmTask("Translation of PndDchTracks to Tracks"), fPersistence(kFALSE), fUseGeane(kFALSE), fUseMC(kFALSE), fPDG(11)
+  : FairTask("Translation of PndDchTracks to Tracks"), fPersistence(kFALSE), fUseGeane(kFALSE), fUseMC(kFALSE), fPDG(11)
 {
 }
 
@@ -50,7 +50,7 @@ InitStatus
 PndDchPrepareKalmanTracks2::Init()
 {
   //Get ROOT Manager
-  CbmRootManager* ioman= CbmRootManager::Instance();
+  FairRootManager* ioman= FairRootManager::Instance();
 
   if(ioman==0)
     {
@@ -106,7 +106,7 @@ PndDchPrepareKalmanTracks2::Init()
   ioman->Register("Track","GenFit",fTrackArray,fPersistence);
   
   // GeanePro will get Geometry and BField from the Run
-  fGeanePro=new CbmGeanePro();
+  fGeanePro=new FairGeanePro();
   
   return kSUCCESS;
 }
@@ -180,7 +180,7 @@ PndDchPrepareKalmanTracks2::Exec(Option_t* opt)
       }
     }
     else{ // dch track has been initialised by prefitter
-      CbmTrackParam* param = dchtrack->GetParamFirst();
+      FairTrackParam* param = dchtrack->GetParamFirst();
       param->Position(pos);
       param->Momentum(mom);
       q = (param->GetQp()==0) ? 0 : param->GetQp()/TMath::Abs(param->GetQp());

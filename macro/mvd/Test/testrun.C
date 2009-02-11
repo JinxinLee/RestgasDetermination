@@ -28,7 +28,7 @@
   gSystem->Load("libGen");
   gSystem->Load("libPGen");
 
-  CbmRunSim *fRun = new CbmRunSim();
+  FairRunSim *fRun = new FairRunSim();
 
   // set the MC version used
   // ------------------------
@@ -49,19 +49,19 @@
   // Create and add detectors
   //-------------------------
 
-  CbmModule *Cave= new PndCave("CAVE");
+  FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave); 
 
-//  CbmModule *Magnet= new PndMagnet("MAGNET");
+//  FairModule *Magnet= new PndMagnet("MAGNET");
 //  Magnet->SetGeometryFileName("magnet.geo");
 //  fRun->AddModule(Magnet);
 
-//  CbmModule *Pipe= new PndPipe("PIPE");
+//  FairModule *Pipe= new PndPipe("PIPE");
 //  Pipe->SetGeometryFileName("pipebeamtarget.geo");
 //  fRun->AddModule(Pipe);
 
-  CbmDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
+  FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
   //Mvd->SetGeometryFileName("MVD_Rev14b_Corr+Dead.geo");
   Mvd->SetGeometryFileName("MVD14.root");
   //Mvd->SetGeometryFileName("MVD14_b.root");
@@ -72,27 +72,27 @@
  // Create and Set Event Generator
  //-------------------------------
 
-  CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
+  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
  // Urqmd  Generator
- //    CbmUrqmdGenerator* urqmdGen = new CbmUrqmdGenerator("../../input/00-03fm.100ev.f14");
+ //    FairUrqmdGenerator* urqmdGen = new FairUrqmdGenerator("../../input/00-03fm.100ev.f14");
  //    primGen->AddGenerator(urqmdGen);
 
  // Particle Generator (pdgid,mult, px,py,pz, vx,vy,vz)
 
      // single pions for testing
-//      CbmParticleGenerator* partGenX   = new CbmParticleGenerator(211,1, 1.,0.,0., 0.,0.,0.);
-//      CbmParticleGenerator* partGenY   = new CbmParticleGenerator(211,1, 0.,1.,0., 0.,0.,0.);
-//      CbmParticleGenerator* partGenZ   = new CbmParticleGenerator(211,1, 0.,0.1,1., 0.,0.,0.);
-//      CbmParticleGenerator* partGenXYZ = new CbmParticleGenerator(211,1, 1.,1.,1., 0.,0.,0.); 
+//      FairParticleGenerator* partGenX   = new FairParticleGenerator(211,1, 1.,0.,0., 0.,0.,0.);
+//      FairParticleGenerator* partGenY   = new FairParticleGenerator(211,1, 0.,1.,0., 0.,0.,0.);
+//      FairParticleGenerator* partGenZ   = new FairParticleGenerator(211,1, 0.,0.1,1., 0.,0.,0.);
+//      FairParticleGenerator* partGenXYZ = new FairParticleGenerator(211,1, 1.,1.,1., 0.,0.,0.); 
 //      primGen->AddGenerator(partGenX);
 //      primGen->AddGenerator(partGenY);
 //      primGen->AddGenerator(partGenZ);
 //      primGen->AddGenerator(partGenXYZ);
 
  // Ion Generator
- //    CbmIonGenerator *fIongen= new CbmIonGenerator(79, 197,79,1, 0.,0., 25, 0.,0.,-1.);
+ //    FairIonGenerator *fIongen= new FairIonGenerator(79, 197,79,1, 0.,0., 25, 0.,0.,-1.);
  //    primGen->AddGenerator(fIongen);
 
  // Box Generator
@@ -111,7 +111,7 @@
  // --------------------
   // 1- Reading the new field map in the old format
 
-     // CbmFieldMap *fMagField= new CbmFieldMap("FIELD.v04_pavel.map");
+     // FairFieldMap *fMagField= new FairFieldMap("FIELD.v04_pavel.map");
    // Constant Field
      //  CbmConstField *fMagField=new CbmConstField();
      //  fMagField->SetFieldXYZ(0, 14 ,0 ); // values are in kG
@@ -120,7 +120,7 @@
 
   // 2- Reading the new field map in the new format
 
-//  CbmField *fMagField= new CbmFieldMapSym3("FieldActive");
+//  FairField *fMagField= new FairFieldMapSym3("FieldActive");
   // Active Shielding
 
 //   fRun->SetField(fMagField);
@@ -136,7 +136,7 @@
 
 
  // Set cuts for storing the trajectpries
-  /* CbmTrajFilter* trajFilter = CbmTrajFilter::Instance();
+  /* FairTrajFilter* trajFilter = FairTrajFilter::Instance();
      trajFilter->SetStepSizeCut(0.01); // 1 cm
      trajFilter->SetVertexCut(-2000., -2000., 4., 2000., 2000., 100.);
      trajFilter->SetMomentumCutP(10e-3); // p_lab > 10 MeV
@@ -148,9 +148,9 @@
   // Fill the Parameter containers for this run
   //-------------------------------------------
 
-  CbmRuntimeDb *rtdb=fRun->GetRuntimeDb();
+  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
   Bool_t kParameterMerged=kTRUE;
-  CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   output->open("testParams.root");
   rtdb->setOutput(output);
   rtdb->saveOutput();

@@ -16,7 +16,7 @@ InitStatus PndGpidTaskFast::Init()
 {
   
   cout<<"-I-  Here is the Initialization"<<endl;
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
     std::cout << "-E- PndGpidTaskFast::Init: "
          << "RootManager not instantised!" << std::endl;

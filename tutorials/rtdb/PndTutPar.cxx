@@ -3,12 +3,12 @@
 #include "TMath.h"
 
 PndTutPar::PndTutPar(const char* name, const char* title, const char* context)
-  : CbmParGenericSet(name,title,context)
+  : FairParGenericSet(name,title,context)
 {
   clear();
 }
 
-void PndTutPar::putParams(CbmParamList* list)
+void PndTutPar::putParams(FairParamList* list)
 {
   std::cout<<"-I- PndTutPar::putParams() called"<<std::endl;
   if(!list) return;
@@ -20,7 +20,7 @@ void PndTutPar::putParams(CbmParamList* list)
   list->add("fe_Type", fFeType);
 }
 
-Bool_t PndTutPar::getParams(CbmParamList* list)
+Bool_t PndTutPar::getParams(FairParamList* list)
 {
   std::cout<<"-I- PndTutPar::getParams() called"<<std::endl;
   if (!list) return kFALSE;

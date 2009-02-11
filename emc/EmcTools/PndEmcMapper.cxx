@@ -461,11 +461,11 @@ bool PndEmcMapper::IsValidIndex(Int_t detectorId)
 		geom = gGeoManager;
 	}
 	else {
-		geom = (TGeoManager*) gROOT->FindObject("CBMGeom");
+		geom = (TGeoManager*) gROOT->FindObject("FAIRGeom");
 	}
 	
 	if (geom==0){	
-		std::cout<<"CBMGeom object is not found"<<std::endl;
+		std::cout<<"FAIRGeom object is not found"<<std::endl;
 		abort();
 	}
 	

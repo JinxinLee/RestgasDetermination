@@ -23,7 +23,7 @@
 
 // called from pandaroot/macro/mvd/Ralf
 //how to do this better?
-#include "$VMCWORKDIR/base/CbmRadLenPoint.h"
+#include "$VMCWORKDIR/base/FairRadLenPoint.h"
 #include "$VMCWORKDIR/mcstack/CbmMCTrack.h"
 // #include "$VMCWORKDIR/mvd/MvdTools/PndMvdGeoHandling.h"
 #include "$VMCWORKDIR/macro/mvd/Tools.C"
@@ -54,10 +54,10 @@ void materialana(int nEvents = 10, bool verbose = false)
   TClonesArray* mc_array=new TClonesArray("CbmMCTrack");
   t->SetBranchAddress("MCTrack",&mc_array);//Branch names
 
-  TClonesArray* rad_array=new TClonesArray("CbmRadLenPoint");
+  TClonesArray* rad_array=new TClonesArray("FairRadLenPoint");
   t->SetBranchAddress("RadLen",&rad_array);
 
-  TGeoManager *geoMan = (TGeoManager*) gDirectory->Get("CBMGeom");
+  TGeoManager *geoMan = (TGeoManager*) gDirectory->Get("FAIRGeom");
 //   PndMvdGeoHandling* fGeoH = new PndMvdGeoHandling(geoMan);
 
   // histos
@@ -132,7 +132,7 @@ void materialana(int nEvents = 10, bool verbose = false)
       effradl=0.; effradlsum=0.;
       for(uint i=0;i<radlList.size();i++) radlList[i]=0.;
       for (Int_t k=0; k<rad_array->GetEntriesFast(); k++){
-        CbmRadLenPoint* radpoint = (CbmRadLenPoint*)rad_array->At(k);
+        FairRadLenPoint* radpoint = (FairRadLenPoint*)rad_array->At(k);
         if (radpoint->GetTrackID() != trackno) continue;
         radlen = radpoint->GetRadLength();
         in = radpoint->GetPosition();

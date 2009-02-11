@@ -25,10 +25,10 @@
 #include <iostream>
 #include "TClonesArray.h"
 #include "TVirtualMCStack.h"
-#include "CbmGenericStack.h"
+#include "FairGenericStack.h"
 
 
-class CbmStack : public CbmGenericStack
+class CbmStack : public FairGenericStack
 {
 
  public:

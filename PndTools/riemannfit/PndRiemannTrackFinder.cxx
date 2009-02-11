@@ -13,7 +13,7 @@ fMinNumberOfHits(4), fVerbose(1)
 	if (fUseZeroPos){
 		TVector3 pos(0.0,0.0,0.0);
 		TVector3 dpos(0.1,0.1,0.1);
-		PndMvdHit* ZeroHit = new PndMvdHit(1, "", pos, dpos, 0, 0, 0); // this is not very nice (one should create a neutral CbmHit here
+		PndMvdHit* ZeroHit = new PndMvdHit(1, "", pos, dpos, 0, 0, 0); // this is not very nice (one should create a neutral FairHit here
 		fHits.push_back(ZeroHit);
 	}
 }
@@ -24,7 +24,7 @@ PndRiemannTrackFinder::~PndRiemannTrackFinder()
 		delete(fHits[0]);
 }
 
-void PndRiemannTrackFinder::AddHits(std::vector<CbmHit*> hits)
+void PndRiemannTrackFinder::AddHits(std::vector<FairHit*> hits)
 {
 	for (int i = 0; i < hits.size(); i++){
 		fHits.push_back(hits[i]);
@@ -34,7 +34,7 @@ void PndRiemannTrackFinder::AddHits(std::vector<CbmHit*> hits)
 void PndRiemannTrackFinder::AddHits(TClonesArray* hits)
 {
 	for (int i = 0; i < hits->GetEntries(); i++){
-		CbmHit* myHit = (CbmHit*)(hits->At(i));
+		FairHit* myHit = (FairHit*)(hits->At(i));
 		fHits.push_back(myHit);
 		std::pair<int,int> myID(myHit->GetDetectorID(), i);
 		fMapHitToID[fHits.size()-1]=myID;
@@ -272,8 +272,8 @@ PndRiemannTrack PndRiemannTrackFinder::CreateRiemannTrack(std::vector<Int_t> aHi
 
 bool PndRiemannTrackFinder::CheckHitInSameSensor(int hit1, int hit2)
 {
-	CbmHit* first = fHits[hit1];
-	CbmHit* second = fHits[hit2];
+	FairHit* first = fHits[hit1];
+	FairHit* second = fHits[hit2];
 	
 	if (first->GetDetectorID() != 1 || first->GetDetectorID() != 2)
 		return false;
@@ -454,7 +454,7 @@ bool PndRiemannTrackFinder::TrackExists(std::vector<Int_t> hitsInTrack){
 	return false;
 }
 
-double PndRiemannTrackFinder::HitDistance(CbmHit* h1, CbmHit* h2)
+double PndRiemannTrackFinder::HitDistance(FairHit* h1, FairHit* h2)
 {
 	TVector3 vH1, vH2, result;
 	h1->Position(vH1);
@@ -464,10 +464,10 @@ double PndRiemannTrackFinder::HitDistance(CbmHit* h1, CbmHit* h2)
 	return result.Mag();
 }
 
-int PndRiemannTrackFinder::HitTooClose(std::vector<Int_t> hitsInUse, CbmHit* newHit, double threshold)
+int PndRiemannTrackFinder::HitTooClose(std::vector<Int_t> hitsInUse, FairHit* newHit, double threshold)
 {
 	for (int i = 0; i < hitsInUse.size(); i++){
-		CbmHit* h1 = fHits[hitsInUse.at(i)];
+		FairHit* h1 = fHits[hitsInUse.at(i)];
 		if (fVerbose > 2) std::cout << "Point Distance: " << HitDistance(h1, newHit) << std::endl;
 		if (fabs(HitDistance(h1, newHit)) < threshold)
 			return i;
@@ -514,7 +514,7 @@ void PndRiemannTrackFinder::RefitTrackCand(TrackCand& cand)
 	unsigned int detId, hitId;
 	for (int i = 0; i < cand.getNHits(); i++){
 		cand.getHit(i, detId, hitId);
-		CbmHit* myHit = fHits[fMapIDtoHit[std::pair<unsigned int, unsigned int>(detId, hitId)]];
+		FairHit* myHit = fHits[fMapIDtoHit[std::pair<unsigned int, unsigned int>(detId, hitId)]];
 		myTrack.addHit(new PndRiemannHit(myHit));
 	}
 	myTrack.refit();

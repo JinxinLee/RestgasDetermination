@@ -30,7 +30,7 @@ PndGpidTaskLhe::~PndGpidTaskLhe()
 
 InitStatus PndGpidTaskLhe::Init()
 {
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
     std::cout << "-E- PndGpidTaskLhe::Init: "
          << "RootManager not instantised!" << std::endl;

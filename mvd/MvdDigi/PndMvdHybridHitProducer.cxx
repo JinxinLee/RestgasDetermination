@@ -8,14 +8,14 @@
 #include "TArrayD.h"
 #include "TGeoManager.h"
 
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "PndMvdHybridHitProducer.h"
 #include "PndMvdMCPoint.h"
-#include "CbmRun.h"
-#include "CbmRuntimeDb.h"
-#include "CbmGeoNode.h"
-#include "CbmGeoNode.h"
-#include "CbmGeoVector.h"
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
+#include "FairGeoNode.h"
+#include "FairGeoNode.h"
+#include "FairGeoVector.h"
 #include "PndStringVector.h"
 #include "PndMvdCalcPixel.h"
 #include "PndMvdCalcFePixel.h"
@@ -26,7 +26,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndMvdHybridHitProducer::PndMvdHybridHitProducer() :
-  CbmTask("MVD Hybrid Hit Producer")
+  FairTask("MVD Hybrid Hit Producer")
 {
   fBranchName   = "MVDPoint";
   fPixelHits = 0;
@@ -39,7 +39,7 @@ PndMvdHybridHitProducer::PndMvdHybridHitProducer() :
 // -------------------------------------------------------------------------
 
 PndMvdHybridHitProducer::PndMvdHybridHitProducer(Double_t lx, Double_t ly, Double_t threshold, Double_t noise) :
-  CbmTask("MVD Hybrid Digi Producer (PndMvdHybridHitProducer)")
+  FairTask("MVD Hybrid Digi Producer (PndMvdHybridHitProducer)")
 {
   fBranchName   = "MVDPoint";
 //  fHitArray  = new TClonesArray("PndMvdHit");
@@ -70,8 +70,8 @@ void PndMvdHybridHitProducer::SetParContainers()
 {
   // called before Init()
   // Get Base Container
-  CbmRun* ana = CbmRun::Instance();
-  CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+  FairRun* ana = FairRun::Instance();
+  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
   fDigiPar = (PndMvdPixelDigiPar*)(rtdb->getContainer("MVDPixelDigiPar"));
 }
 
@@ -84,8 +84,8 @@ InitStatus PndMvdHybridHitProducer::ReInit()
 // -----   Public method Init   --------------------------------------------
 InitStatus PndMvdHybridHitProducer::Init()
 {
-    CbmRun* ana = CbmRun::Instance();
-  CbmRootManager* ioman = CbmRootManager::Instance();
+    FairRun* ana = FairRun::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
     fGeoH = new PndMvdGeoHandling(gGeoManager);
   if ( ! ioman )
     {
@@ -172,7 +172,7 @@ void PndMvdHybridHitProducer::Exec(Option_t* opt)
         std::cout << "****Global Point: " << std::endl;
         point->Print("");
       }
-      CbmGeoVector posInL, posOutL, meanPos, meanPosL;
+      FairGeoVector posInL, posOutL, meanPos, meanPosL;
       GetLocalHitPoints(point, posInL, posOutL);
 
       if (fVerbose > 1){
@@ -259,7 +259,7 @@ void PndMvdHybridHitProducer::Exec(Option_t* opt)
   }
 }
 
-void PndMvdHybridHitProducer::GetLocalHitPoints(PndMvdMCPoint* myPoint, CbmGeoVector& myHitIn, CbmGeoVector& myHitOut)
+void PndMvdHybridHitProducer::GetLocalHitPoints(PndMvdMCPoint* myPoint, FairGeoVector& myHitIn, FairGeoVector& myHitOut)
 {
 
   if (fVerbose > 1)

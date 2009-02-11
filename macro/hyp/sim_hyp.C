@@ -24,7 +24,7 @@
   gSystem->Load("libtpcreco");
   gSystem->Load("librecotasks");
   gSystem->Load("libHyp");
-  CbmRunSim *fRun = new CbmRunSim();
+  FairRunSim *fRun = new FairRunSim();
   
  
   
@@ -49,16 +49,16 @@
   // Create and add detectors
   //-------------------------
 
-  CbmModule *Cave= new PndCave("CAVE");
+  FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("cave.geo");
   fRun->AddModule(Cave); 
   /*
-   CbmModule *Magnet= new CbmMagnet("MAGNET");
+   FairModule *Magnet= new CbmMagnet("MAGNET");
   Magnet->SetGeometryFileName("magnet.geo");
   fRun->AddModule(Magnet);
   */
   
-  CbmDetector *Hyp = new PndHyp("HYP",kTRUE);
+  FairDetector *Hyp = new PndHyp("HYP",kTRUE);
   //Hyp->SetGeometryFileName("HypST_block.geo");
   //fRun->AddModule(Hyp);
   //--blocks
@@ -75,7 +75,7 @@
   // Create and Set Event Generator
   //-------------------------------
   
-  CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
+  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
 
@@ -94,11 +94,11 @@
   
   
   
-  //CbmParticleGenerator* partGen = new CbmParticleGenerator(3312, 1, -0.3,0.3,0.3, 0., 0., -76);
+  //FairParticleGenerator* partGen = new FairParticleGenerator(3312, 1, -0.3,0.3,0.3, 0., 0., -76);
   //primGen->AddGenerator(partGen);
   
   //*** with Ascii inFile ***
-      // CbmAsciiGenerator* AsciiGen = new CbmAsciiGenerator(inFile);
+      // FairAsciiGenerator* AsciiGen = new FairAsciiGenerator(inFile);
       //primGen->AddGenerator(AsciiGen);
        
 
@@ -113,7 +113,7 @@
 
   fRun->Init();
 
-  /*CbmTrajFilter* trajFilter = CbmTrajFilter::Instance();
+  /*FairTrajFilter* trajFilter = FairTrajFilter::Instance();
   trajFilter->SetStepSizeCut(0.001); // 1 cm
   //  trajFilter->SetVertexCut(-2000., -2000., 4., 2000., 2000., 100.);
   // trajFilter->SetMomentumCutP(10e-3); // p_lab > 10 MeV
@@ -126,9 +126,9 @@
   // Fill the Parameter containers for this run
   //-------------------------------------------
   
-  CbmRuntimeDb *rtdb=fRun->GetRuntimeDb();
+  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
   Bool_t kParameterMerged=kTRUE;
-  CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   output->open("simparams.root");
   rtdb->setOutput(output);
   rtdb->saveOutput();

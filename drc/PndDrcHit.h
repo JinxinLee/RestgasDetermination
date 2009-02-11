@@ -8,9 +8,9 @@
 #ifndef PNDDRCHIT_H
 #define PNDDRCHIT_H
 
-#include "CbmHit.h"
+#include "FairHit.h"
 
-class PndDrcHit : public CbmHit {
+class PndDrcHit : public FairHit {
 
 public:    
   

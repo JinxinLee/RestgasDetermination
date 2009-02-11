@@ -22,7 +22,7 @@
 #include "PndEmcWaveform.h"
 #include "PndEmcTwoCoordIndex.h"
 
-#include "CbmTask.h"
+#include "FairTask.h"
 //#include <string>
 //#include <map>
 
@@ -33,7 +33,7 @@ class PndEmcMapper;
 class TClonesArray;
 class PndEmcDigiPar;
 
-class PndEmcHitsToWaveform : public CbmTask
+class PndEmcHitsToWaveform : public FairTask
 {
 
 public:

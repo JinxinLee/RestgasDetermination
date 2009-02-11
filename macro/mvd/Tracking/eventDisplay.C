@@ -14,7 +14,7 @@ eventDisplay()
   std::string outFile = "../data/MvdTracking_EVEout.root";
 
   // -----   Reconstruction run   -------------------------------------------
-  CbmRunAna *fRun= new CbmRunAna();
+  FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(simFile.c_str());
   fRun->AddFriend(recoFile.c_str());
   fRun->AddFriend(trackingFile.c_str());

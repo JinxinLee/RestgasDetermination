@@ -18,7 +18,7 @@
 #define DEMOKALMANTASK_HH
 
 // Base Class Headers ----------------
-#include "CbmTask.h"
+#include "FairTask.h"
 
 // Collaborating Class Headers -------
 #include <map>
@@ -31,7 +31,7 @@ class TH1D;
 class TH2D;
 class TGeoManager; 
 
-class DemoKalmanTask : public CbmTask {
+class DemoKalmanTask : public FairTask {
 public:
 
   // Constructors/Destructors ---------

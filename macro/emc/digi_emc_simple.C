@@ -44,7 +44,7 @@
   // ------------------------------------------------------
   
   // -----   Reconstruction run   ------------------------------
-  CbmRunAna *fRun= new CbmRunAna();
+  FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(simFile);
   fRun->AddFriend(inFile);
   fRun->SetOutputFile(outFile);
@@ -54,8 +54,8 @@
 	emcDigiFile += "/macro/params/";
 	emcDigiFile += digiFile;
 
-	CbmRuntimeDb* rtdb = fRun->GetRuntimeDb();
-	CbmParAsciiFileIo* parIo1 = new CbmParAsciiFileIo();
+	FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+	FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
 	parIo1->open(emcDigiFile.Data(),"in");
 	rtdb->setFirstInput(parIo1);
 	

@@ -21,7 +21,7 @@
 #ifndef PndEmcWaveformToDigi_H
 #define PndEmcWaveformToDigi_H
 
-#include "CbmTask.h"
+#include "FairTask.h"
 #include <string>		
 //#include <vector>
 
@@ -33,7 +33,7 @@ class TClonesArray;
 class PndEmcDigiPar;
 class PndEmcRecoPar;
 
-class PndEmcWaveformToDigi : public CbmTask
+class PndEmcWaveformToDigi : public FairTask
 {
 
 public:

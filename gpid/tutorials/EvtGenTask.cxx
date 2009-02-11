@@ -1,6 +1,6 @@
 #include <iostream>
 #include "EvtGenTask.h"
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "TClonesArray.h"
 using namespace std;
 
@@ -16,7 +16,7 @@ EvtGenTask::~EvtGenTask()
 
 InitStatus EvtGenTask::Init()
 {
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
     std::cout << "-E- EvtGenTask::Init: "
          << "RootManager not instantised!" << std::endl;

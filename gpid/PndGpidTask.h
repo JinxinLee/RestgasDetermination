@@ -26,11 +26,11 @@
 #include <fstream>
 
 //ROOT & PandaRoot headers
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "PndLhePidTrack.h"
 #include "TVector3.h"
 #include "TClonesArray.h"
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "TMVA/Reader.h"
 #include "PndMvdMCPoint.h"
 #include "PndTpcPoint.h"
@@ -43,7 +43,7 @@ class TClonesArray;
 class Reader;
 
 
-class PndGpidTask : public CbmTask
+class PndGpidTask : public FairTask
 {
  public:
   // enum type for the type of classifier 

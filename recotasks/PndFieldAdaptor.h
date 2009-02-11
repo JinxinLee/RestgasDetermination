@@ -3,7 +3,7 @@
 // $Id$
 //
 // Description:
-//      Adapts a CbmField to genfit AbsBFieldIfc
+//      Adapts a PndField to genfit AbsBFieldIfc
 //
 //
 // Environment:
@@ -15,8 +15,8 @@
 //
 //-----------------------------------------------------------
 
-#ifndef CBMFIELDADAPTOR_HH
-#define CBMFIELDADAPTOR_HH
+#ifndef PNDFIELDADAPTOR_HH
+#define PNDFIELDADAPTOR_HH
 
 // Base Class Headers ----------------
 #include "AbsBFieldIfc.h"
@@ -25,14 +25,14 @@
 #include <ostream> // remove if you do not need streaming op
 
 // Collaborating Class Declarations --
-class CbmField;
+class FairField;
 
 
-class CbmFieldAdaptor : public AbsBFieldIfc {
+class PndFieldAdaptor : public AbsBFieldIfc {
 public:
 
   // Constructors/Destructors ---------
-  CbmFieldAdaptor(CbmField* field);
+  PndFieldAdaptor(FairField* field);
   
   // Accessors -----------------------
   TVectorT<double> get(const TVectorT<double>& pos) const;
@@ -41,7 +41,7 @@ public:
 private:
 
   // Private Data Members ------------
-  CbmField* _field;
+  FairField* _field;
 
   // Private Methods -----------------
 

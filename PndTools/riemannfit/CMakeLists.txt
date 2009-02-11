@@ -42,6 +42,6 @@ SET(RIEMANN_SRCS ${RIEMANN_SRCS} ${RIEMANN_DICTIONARY})
 
 add_library(riemann SHARED ${RIEMANN_SRCS})
 target_link_libraries(riemann ${ROOT_LIBRARIES})
-set_target_properties(riemann PROPERTIES ${CBMROOT_LIBRARY_PROPERTIES})
+set_target_properties(riemann PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 ################ install ###################
 install(TARGETS riemann DESTINATION ${CMAKE_BINARY_DIR}/lib)

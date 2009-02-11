@@ -29,10 +29,10 @@
 #include <cmath>
 
 // Collaborating Class Headers --------
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "TClonesArray.h"
 #include "GeaneTrackRep.h"
-#include "CbmGeanePro.h"
+#include "FairGeanePro.h"
 #include "DetPlane.h"
 #include "PndTpcMCTracklet.h"
 #include "TMath.h"
@@ -43,7 +43,7 @@
 // Class Member definitions -----------
 
 TpcMCEvtDeconvTask::TpcMCEvtDeconvTask()
-  : CbmTask("TpcMCEvtDeconv"), _persistence(kFALSE),
+  : FairTask("TpcMCEvtDeconv"), _persistence(kFALSE),
     _vdrift(0.0027314), _dt(100), _dx(1),
     _minMVDHits(2)
 {
@@ -64,7 +64,7 @@ TpcMCEvtDeconvTask::Init()
 
 
   //Get ROOT Manager
-  CbmRootManager* ioman= CbmRootManager::Instance();
+  FairRootManager* ioman= FairRootManager::Instance();
 
   if(ioman==0)
     {
@@ -89,7 +89,7 @@ TpcMCEvtDeconvTask::Init()
   ioman->Register(_trackletOutBranchName,"PndTpc",
 		  _trackletOutArray,_persistence);
 
-  _geanePro=new CbmGeanePro();
+  _geanePro=new FairGeanePro();
 
    return kSUCCESS;
 }

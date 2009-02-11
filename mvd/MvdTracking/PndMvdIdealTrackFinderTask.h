@@ -9,7 +9,7 @@
 #ifndef PNDMVDIDEALTRACKFINDERTASK_H
 #define PNDMVDIDEALTRACKFINDERTASK_H
 
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "CbmMCTrack.h"
 #include "PndMvdGeoPar.h"
 #include "PndMvdHit.h"
@@ -23,7 +23,7 @@
 
 class TClonesArray;
 
-class PndMvdIdealTrackFinderTask : public CbmTask
+class PndMvdIdealTrackFinderTask : public FairTask
 {
  public:
 

@@ -9,7 +9,7 @@
 /////////////////////////////////////////////////////////////
 
 #include "PndMvdGeo.h"
-#include "CbmGeoNode.h"
+#include "FairGeoNode.h"
 
 ClassImp(PndMvdGeo)
 

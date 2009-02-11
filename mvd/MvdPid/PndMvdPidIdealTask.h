@@ -26,13 +26,13 @@
 
 
 // framework includes
-#include "CbmTask.h"
-#include "CbmField.h"
+#include "FairTask.h"
+#include "FairField.h"
 #include "PndMvdPidCand.h"
 
 class TClonesArray;
 
-class PndMvdPidIdealTask : public CbmTask
+class PndMvdPidIdealTask : public FairTask
 {
  public:
 

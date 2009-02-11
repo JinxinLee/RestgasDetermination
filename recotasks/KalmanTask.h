@@ -18,7 +18,7 @@
 #define KALMANTASK_HH
 
 // Base Class Headers ----------------
-#include "CbmTask.h"
+#include "FairTask.h"
 
 // Collaborating Class Headers -------
 #include <map>
@@ -30,7 +30,7 @@ class RecoHitFactory;
 class TH1D;
 class TGeoManager; 
 
-class KalmanTask : public CbmTask {
+class KalmanTask : public FairTask {
 public:
 
   // Constructors/Destructors ---------

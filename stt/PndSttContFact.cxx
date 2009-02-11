@@ -11,11 +11,11 @@
 
 using namespace std;
 #include "PndSttContFact.h"
-#include "CbmRuntimeDb.h"
+#include "FairRuntimeDb.h"
 #include "PndGeoSttPar.h"
 #include "PndSttDigiPar.h"
-#include "CbmParRootFileIo.h"
-#include "CbmParAsciiFileIo.h"
+#include "FairParRootFileIo.h"
+#include "FairParAsciiFileIo.h"
 #include "PndSttParRootFileIo.h"
 #include "PndSttParAsciiFileIo.h"
 #include <iostream>
@@ -31,14 +31,14 @@ PndSttContFact::PndSttContFact()
   fName="PndSttContFact";
   fTitle="Factory for parameter containers in libStt";
   setAllContainers();
-  CbmRuntimeDb::instance()->addContFactory(this);
+  FairRuntimeDb::instance()->addContFactory(this);
 }
 
 void PndSttContFact::setAllContainers() 
 {
     /** Creates the Container objects with all accepted contexts and adds them to
      *  the list of containers for the STT library.*/
-    CbmContainer* p2= new CbmContainer("PndGeoSttPar",
+    FairContainer* p2= new FairContainer("PndGeoSttPar",
 				       "Stt Geometry Parameters",
 				       "TestDefaultContext");
     p2->addContext("TestNonDefaultContext");
@@ -46,14 +46,14 @@ void PndSttContFact::setAllContainers()
     containers->Add(p2);
 }
 
-CbmParSet* PndSttContFact::createContainer(CbmContainer* c) 
+FairParSet* PndSttContFact::createContainer(FairContainer* c) 
 {
   /** Calls the constructor of the corresponding parameter container.
    * For an actual context, which is not an empty string and not the default context
    * of this container, the name is concatinated with the context. */
   const char* name=c->GetName();
   cout << " -I container name " << name << endl;
-  CbmParSet* p=0;
+  FairParSet* p=0;
 
   if (strcmp(name,"PndGeoSttPar")==0) {
     p=new PndGeoSttPar(c->getConcatName().Data(),c->GetTitle(),c->getContext());
@@ -61,15 +61,15 @@ CbmParSet* PndSttContFact::createContainer(CbmContainer* c)
   return p;
 }
 /*
-void  PndSttContFact::activateParIo(CbmParIo* io) {
+void  PndSttContFact::activateParIo(FairParIo* io) {
   // activates the input/output class for the parameters
   // needed by the Stt
-  if (strcmp(io->IsA()->GetName(),"CbmParRootFileIo")==0) {
-    PndSttParRootFileIo* p=new PndSttParRootFileIo(((CbmParRootFileIo*)io)->getParRootFile());
+  if (strcmp(io->IsA()->GetName(),"FairParRootFileIo")==0) {
+    PndSttParRootFileIo* p=new PndSttParRootFileIo(((FairParRootFileIo*)io)->getParRootFile());
     io->setDetParIo(p);
   }
-  if (strcmp(io->IsA()->GetName(),"CbmParAsciiFileIo")==0) {
-    PndSttParAsciiFileIo* p=new PndSttParAsciiFileIo(((CbmParAsciiFileIo*)io)->getFile());
+  if (strcmp(io->IsA()->GetName(),"FairParAsciiFileIo")==0) {
+    PndSttParAsciiFileIo* p=new PndSttParAsciiFileIo(((FairParAsciiFileIo*)io)->getFile());
     io->setDetParIo(p);
   }
 }

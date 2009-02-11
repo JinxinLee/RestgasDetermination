@@ -20,7 +20,7 @@ PndSttHit::PndSttHit()
 PndSttHit::PndSttHit(Int_t detID, TVector3& pos, TVector3& dpos, 
 		     Int_t index, Int_t flag, Double_t isochrone,
 		     Double_t isochroneError, TVector3 wireDir) 
-  : CbmHit(detID, pos, dpos, index) 
+  : FairHit(detID, pos, dpos, index) 
 {
   fIsochrone = isochrone;
   fIsochroneError = isochroneError;
@@ -34,14 +34,14 @@ PndSttHit::PndSttHit(Int_t detID, TVector3& pos, TVector3& dpos,
 }
 
 PndSttHit::PndSttHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t index) 
-  : CbmHit(detID, pos, dpos, index) 
+  : FairHit(detID, pos, dpos, index) 
 {
     Clear();
 }
 
 //PndSttHit::PndSttHit(Int_t trackID,Int_t eventID,Double_t p, Double_t rr, Double_t rt,TString nam,TVector3 center,TVector3 tubemax,TVector3 tubemin) {
 PndSttHit::PndSttHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t index, Int_t trackID, Double_t p, Double_t rr, Double_t rt, Double_t isochroneError, TVector3 wireDir) 
-  : CbmHit(detID, pos, dpos, index){
+  : FairHit(detID, pos, dpos, index){
   fPulse   = p;
   fRsim    = rr;
   fRtrue   = rt;

@@ -9,8 +9,8 @@
 /////////////////////////////////////////////////////////////
 
 #include "PndGeoPipe.h"
-#include "CbmGeoLoader.h"
-#include "CbmGeoInterface.h"
+#include "FairGeoLoader.h"
+#include "FairGeoInterface.h"
     
 ClassImp(PndGeoPipe)
 
@@ -22,11 +22,11 @@ PndGeoPipe::PndGeoPipe() {
   maxSectors=0;
   maxModules=1;
 }
-Bool_t  PndGeoPipe::create ( CbmGeoBuilder * build ) {
-    Bool_t rc = CbmGeoSet::create( build );
+Bool_t  PndGeoPipe::create ( FairGeoBuilder * build ) {
+    Bool_t rc = FairGeoSet::create( build );
     if ( rc ) {
-	CbmGeoLoader *loader=CbmGeoLoader::Instance();
-	CbmGeoInterface *GeoInterface =loader->getGeoInterface();
+	FairGeoLoader *loader=FairGeoLoader::Instance();
+	FairGeoInterface *GeoInterface =loader->getGeoInterface();
 	
 	GeoInterface->getMasterNodes()->Add( (TObject*)  getVolume("pipeCentral") );
     }

@@ -26,7 +26,7 @@
 #include <algorithm>
 
 // Collaborating Class Headers --------
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "TClonesArray.h"
 #include "RecoHitFactory.h"
 #include "FitterExceptions.h"
@@ -37,7 +37,7 @@
 #include "Track.h"
 #include "LSLTrackRep.h"
 #include "GeaneTrackRep.h"
-#include "CbmGeanePro.h"
+#include "FairGeanePro.h"
 #include "TH1I.h"
 #include "TH1D.h"
 #include "McIdCollection.h"
@@ -45,7 +45,7 @@
 #include "CbmMCTrack.h"
 
 //#include "AbsBFieldIfc.h"
-//#include "CbmFieldAdaptor.h"
+//#include "FairFieldAdaptor.h"
 
 #include <cmath>
 
@@ -56,7 +56,7 @@ using std::fabs;
 ClassImp(PndTpcIdealTrackingTask)
 
 PndTpcIdealTrackingTask::PndTpcIdealTrackingTask()
-  : CbmTask("PndTpc Ideal Pattern Reco"),
+  : FairTask("PndTpc Ideal Pattern Reco"),
     _persistence(kFALSE),_useGeane(kFALSE),_geanePro(NULL), 
     _useDistSorting(kFALSE)
 {
@@ -75,7 +75,7 @@ InitStatus
 PndTpcIdealTrackingTask::Init()
 {
 //Get ROOT Manager
-  CbmRootManager* ioman= CbmRootManager::Instance();
+  FairRootManager* ioman= FairRootManager::Instance();
 
   if(ioman==0)
     {
@@ -102,7 +102,7 @@ PndTpcIdealTrackingTask::Init()
   _trackArray = new TClonesArray("Track");
   ioman->Register("TrackPreFit","GenFit",_trackArray,_persistence);
  // GeanePro will get Geometry and BField from the Run
-  if(_useGeane)_geanePro=new CbmGeanePro();
+  if(_useGeane)_geanePro=new FairGeanePro();
   
   // init histos
   _multiplicityHisto=new TH1I("multipl","# track candidates",20,0,20);
@@ -242,7 +242,7 @@ PndTpcIdealTrackingTask::Exec(Option_t* opt)
 
 void
 PndTpcIdealTrackingTask::WriteHistograms(const TString& filename) {
-  TFile* file=CbmRootManager::Instance()->GetOutFile();
+  TFile* file=FairRootManager::Instance()->GetOutFile();
   file->mkdir("IdealTracking");
   file->cd("IdealTracking");
 

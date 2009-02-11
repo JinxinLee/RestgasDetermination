@@ -17,10 +17,10 @@ Author: K.Goetzen, GSI, 06/2008
 #include <algorithm>
 
 //FAIR headers
-#include "CbmRootManager.h"
-#include "CbmRunAna.h"
-#include "CbmRuntimeDb.h"
-#include "CbmRun.h"
+#include "FairRootManager.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
+#include "FairRun.h"
 
 //ROOT headers
 #include "TVector3.h"
@@ -54,7 +54,7 @@ using std::ios;
 		
 // -----   Default constructor   -------------------------------------------
 PndSimpleAnalysis::PndSimpleAnalysis() :
-  CbmTask("Panda Analysis Task") 
+  FairTask("Panda Analysis Task") 
 { 
 	//fdbPdg=TDatabasePDG::Instance();
 	fdbPdg = TRho::Instance()->GetPDG();
@@ -63,7 +63,7 @@ PndSimpleAnalysis::PndSimpleAnalysis() :
 // -------------------------------------------------------------------------
 
 PndSimpleAnalysis::PndSimpleAnalysis(std::string filename) :
-  CbmTask("Panda Analysis Task") 
+  FairTask("Panda Analysis Task") 
 { 
   //fdbPdg=TDatabasePDG::Instance();
 	fdbPdg = TRho::Instance()->GetPDG();
@@ -83,12 +83,12 @@ InitStatus PndSimpleAnalysis::Init() {
  
   //cout << " Inside the Init function****" << endl;
   
-  //CbmDetector::Initialize();
-  //CbmRun* sim = CbmRun::Instance();
-  //CbmRuntimeDb* rtdb=sim->GetRuntimeDb();
+  //FairDetector::Initialize();
+  //FairRun* sim = FairRun::Instance();
+  //FairRuntimeDb* rtdb=sim->GetRuntimeDb();
   
   // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
     cout << "-E- PndSimpleAnalysis::Init: "
 	 << "RootManager not instantiated!" << endl;
@@ -371,10 +371,10 @@ void PndSimpleAnalysis::InitColumnNames()
 void PndSimpleAnalysis::SetParContainers() {
 
   // Get run and runtime database
-  CbmRun* run = CbmRun::Instance();
+  FairRun* run = FairRun::Instance();
   if ( ! run ) Fatal("SetParContainers", "No analysis run");
 
-  //CbmRuntimeDb* db = run->GetRuntimeDb();
+  //FairRuntimeDb* db = run->GetRuntimeDb();
   //if ( ! db ) Fatal("SetParContainers", "No runtime database");
 
  

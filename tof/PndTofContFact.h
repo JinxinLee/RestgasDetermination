@@ -7,17 +7,17 @@
 #ifndef PNDTOFCONTFACT_H
 #define PNDTOFCONTFACT_H
 
-#include "CbmContFact.h"
+#include "FairContFact.h"
 
-class CbmContainer;
+class FairContainer;
 
-class PndTofContFact : public CbmContFact {
+class PndTofContFact : public FairContFact {
 private:
   void setAllContainers();
 public:
   PndTofContFact();
   ~PndTofContFact() {}
-  CbmParSet* createContainer(CbmContainer*);
+  FairParSet* createContainer(FairContainer*);
 
   ClassDef( PndTofContFact,0) // Factory for all HYP parameter containers
 };

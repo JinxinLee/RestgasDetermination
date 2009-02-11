@@ -1,7 +1,7 @@
 #ifndef PNDMDTTRK_HH
 #define PNDMDTTRK_HH
 
-#include "CbmHit.h"
+#include "FairHit.h"
 #include "TVector3.h"
 
 #include <iostream>

@@ -1,7 +1,7 @@
 #include <iostream>
 #include "PndFieldMap.h"
 #include "PndMapPar.h"
-#include "CbmParamList.h"
+#include "FairParamList.h"
 
 
 using namespace std;
@@ -9,7 +9,7 @@ using namespace std;
 // ------   Constructor   --------------------------------------------------
 PndMapPar::PndMapPar(const char* name, const char* title,
 			 const char* context) 
-  : CbmParGenericSet(name, title, context) {
+  : FairParGenericSet(name, title, context) {
   fType = -1;
   fXmin = fXmax = fYmin = fYmax = fZmin = fZmax = 0.;
   fMapName = "";
@@ -35,7 +35,7 @@ PndMapPar::~PndMapPar() { }
 
 
 // ------   Put parameters   -----------------------------------------------
-void PndMapPar::putParams(CbmParamList* list) {
+void PndMapPar::putParams(FairParamList* list) {
 
   if ( ! list ) return;
 
@@ -51,7 +51,7 @@ void PndMapPar::putParams(CbmParamList* list) {
 
 
 // --------   Get parameters   ---------------------------------------------
-Bool_t PndMapPar::getParams(CbmParamList* list) {
+Bool_t PndMapPar::getParams(FairParamList* list) {
 
   if ( ! list ) return kFALSE;
 
@@ -71,8 +71,8 @@ Bool_t PndMapPar::getParams(CbmParamList* list) {
 
 
 
-// ---------   Set parameters from CbmField   ------------------------------
-void PndMapPar::SetParameters(CbmField* field) {
+// ---------   Set parameters from FairField   ------------------------------
+void PndMapPar::SetParameters(FairField* field) {
 
   if ( ! field ) {
     cerr << "-W- PndMapPar::SetParameters: Empty field pointer!" << endl;

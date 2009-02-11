@@ -12,16 +12,16 @@
 
 
 // framework includes
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "PndMvdMSAnaTask.h"
-#include "CbmRun.h"
-#include "CbmRuntimeDb.h"
-#include "CbmHit.h"
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
+#include "FairHit.h"
 #include "CbmMCTrack.h"
 // PndMvd includes
 #include "PndMvdMCPoint.h"
-#include "CbmTrackParH.h"
-#include "CbmTrackParP.h"
+#include "FairTrackParH.h"
+#include "FairTrackParP.h"
 
 #include "TDatabasePDG.h"
 
@@ -30,7 +30,7 @@
 
 
 // -----   Default constructor   -------------------------------------------
-PndMvdMSAnaTask::PndMvdMSAnaTask() : CbmTask("Geane Task for PANDA PndMvd"), fEventNr(0), fUseMVDPoint(false)
+PndMvdMSAnaTask::PndMvdMSAnaTask() : FairTask("Geane Task for PANDA PndMvd"), fEventNr(0), fUseMVDPoint(false)
 {
 }
 // -------------------------------------------------------------------------
@@ -45,7 +45,7 @@ PndMvdMSAnaTask::~PndMvdMSAnaTask()
 InitStatus PndMvdMSAnaTask::Init()
 {
   // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   if ( !ioman){
 		std::cout << "-E- PndMvdMSAnaTask::Init: "<< "RootManager not instantiated!" << std::endl;
 		return kFATAL;
@@ -64,19 +64,19 @@ InitStatus PndMvdMSAnaTask::Init()
 		return kERROR;
 	}
 
-	  fTrackParGeane = new TClonesArray("CbmTrackParP");
+	  fTrackParGeane = new TClonesArray("FairTrackParP");
 	  ioman->Register("GeaneTrackPar","Geane", fTrackParGeane, kTRUE);
 
-	  fTrackParIni = new TClonesArray("CbmTrackParP");
+	  fTrackParIni = new TClonesArray("FairTrackParP");
 	  ioman->Register("GeaneTrackIni","Geane", fTrackParIni, kTRUE);
 
-	  fTrackParFinal = new TClonesArray("CbmTrackParP");
+	  fTrackParFinal = new TClonesArray("FairTrackParP");
 	  ioman->Register("GeaneTrackFinal","Geane", fTrackParFinal, kTRUE);
 
 	  fDetName = new TClonesArray("TObjString");
 	  ioman->Register("DetName", "Geane", fDetName, kTRUE);
 
-	  fPro = new CbmGeanePro();
+	  fPro = new FairGeanePro();
 	  fGeoH = new PndMvdGeoHandling(gGeoManager);
 
   return kSUCCESS;
@@ -85,8 +85,8 @@ InitStatus PndMvdMSAnaTask::Init()
 void PndMvdMSAnaTask::SetParContainers()
 {
   // Get Base Container
-  CbmRun* ana = CbmRun::Instance();
-  CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+  FairRun* ana = FairRun::Instance();
+  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
 
 }
 
@@ -141,7 +141,7 @@ void PndMvdMSAnaTask::Exec(Option_t* opt)
 
 			TClonesArray& clref1 = *fTrackParIni;
 			Int_t size1 = clref1.GetEntriesFast();
-			CbmTrackParP *fStart= new (clref1[size1]) CbmTrackParP(StartPos, StartMom, StartPosErr, StartMomErr, fCharge, StartO, StartU, StartV);
+			FairTrackParP *fStart= new (clref1[size1]) FairTrackParP(StartPos, StartMom, StartPosErr, StartMomErr, fCharge, StartO, StartU, StartV);
 
 			for (; p < MChits.size(); p++){											//go through all hits in track
 				PndMvdMCPoint* myPoint = (PndMvdMCPoint*)(fMCHits->At(MChits[p]));
@@ -157,11 +157,11 @@ void PndMvdMSAnaTask::Exec(Option_t* opt)
 
 				TClonesArray& clref2 = *fTrackParFinal;
 				Int_t size2 = clref2.GetEntriesFast();
-				CbmTrackParP *fStop= new (clref2[size2]) CbmTrackParP(StopPos, StopMom, StopPosErr, StopMomErr, fCharge, o, u, v);
+				FairTrackParP *fStop= new (clref2[size2]) FairTrackParP(StopPos, StopMom, StopPosErr, StopMomErr, fCharge, o, u, v);
 
 				TClonesArray& clref = *fTrackParGeane;
 				Int_t size = clref.GetEntriesFast();
-				CbmTrackParP *fRes=	new(clref[size]) CbmTrackParP();
+				FairTrackParP *fRes=	new(clref[size]) FairTrackParP();
 
 				//std::cout << "DetName: " << fGeoH->GetPath(myPoint->GetDetName()) << std::endl;
 				TClonesArray& cDetRef = *fDetName;

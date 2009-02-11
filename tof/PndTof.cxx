@@ -12,18 +12,18 @@
 
 #include "PndTofPoint.h"
 
-#include "CbmGeoTransform.h"
-#include "CbmGeoInterface.h"
-#include "CbmGeoLoader.h"
-#include "CbmGeoNode.h"
-#include "CbmGeoMedium.h"
+#include "FairGeoTransform.h"
+#include "FairGeoInterface.h"
+#include "FairGeoLoader.h"
+#include "FairGeoNode.h"
+#include "FairGeoMedium.h"
 #include "PndGeoTof.h"
-#include "CbmGeoRootBuilder.h"
+#include "FairGeoRootBuilder.h"
 #include "CbmStack.h"
-#include "CbmRootManager.h"
-#include "CbmVolume.h"
-#include "CbmRuntimeDb.h"
-#include "CbmRun.h"
+#include "FairRootManager.h"
+#include "FairVolume.h"
+#include "FairRuntimeDb.h"
+#include "FairRun.h"
 
 #include "TClonesArray.h"
 #include "TGeoManager.h"
@@ -64,7 +64,7 @@ PndTof::PndTof() {
 
 // -----   Standard constructor   ------------------------------------------
 PndTof::PndTof(const char* name, Bool_t active)
-  : CbmDetector(name, active) {
+  : FairDetector(name, active) {
     fTofCollection        = new TClonesArray("PndTofPoint");
     fTofSciFCollection  = new TClonesArray("PndTofPoint");
    
@@ -102,13 +102,13 @@ PndTof::~PndTof() {
 void PndTof::Initialize() {
   // Init function
   
-  CbmDetector::Initialize();
+  FairDetector::Initialize();
  
   
   //TObjArray *fSensNodes = par->GetGeoSensitiveNodes();
   
   
-  //CbmGeoMedium* Si = gGeoManager->GetMedium("silicon");->getMediumIndex();
+  //FairGeoMedium* Si = gGeoManager->GetMedium("silicon");->getMediumIndex();
 
   
   //TGeoMedium *Si= gGeoManager->GetMedium("polypropylene");
@@ -130,12 +130,12 @@ void PndTof::BeginEvent(){
 
 // -----   Public method ProcessHits  --------------------------------------
 
-Bool_t PndTof::ProcessHits(CbmVolume* vol) 
+Bool_t PndTof::ProcessHits(FairVolume* vol) 
 {
-  //CbmGeoMedium* Si = vol->getGeoNode()->getMedium();
+  //FairGeoMedium* Si = vol->getGeoNode()->getMedium();
   //volSi = Si->getMediumIndex();
   //    TString nameSi = Si->getName();
-  //  CbmGeoMedium* Si = gGeoManager->GetMedium("silicon");
+  //  FairGeoMedium* Si = gGeoManager->GetMedium("silicon");
   //   volSi = Si->getMediumIndex();
   
   fpdgCode = gMC->TrackPid(); 
@@ -196,12 +196,12 @@ Bool_t PndTof::ProcessHits(CbmVolume* vol)
 	
 	  if(cp==0)fVolumeID = (cp+1) * (1 + vol->getCopyNo());
 	  else fVolumeID = (cp) * (1 + vol->getCopyNo());
-	    CbmGeoNode* node = vol->getGeoNode();
+	    FairGeoNode* node = vol->getGeoNode();
 	TList* nodeList = node->getTree();
 	//cout << "FullName: " << vol->getName() << "/"<<endl;
 	for (Int_t index=0; index < nodeList->GetSize(); index++)
 	  {
-	    CbmGeoNode* myNode = dynamic_cast<CbmGeoNode*> ( nodeList->At(index) );
+	    FairGeoNode* myNode = dynamic_cast<FairGeoNode*> ( nodeList->At(index) );
 	    //cout << myNode->getName() << "/";
 	  }
 	//**************///
@@ -367,8 +367,8 @@ void PndTof::EndOfEvent() {
 
 // -----   Public method Register   -------------------------------------------
 void PndTof::Register() {
-  CbmRootManager::Instance()->Register("TofPoint","Tof", fTofCollection, kTRUE);
-  CbmRootManager::Instance()->Register("TofSciFPoint","TofSciF", 
+  FairRootManager::Instance()->Register("TofPoint","Tof", fTofCollection, kTRUE);
+  FairRootManager::Instance()->Register("TofSciFPoint","TofSciF", 
 				       fTofSciFCollection, kTRUE);
   
 }
@@ -408,7 +408,7 @@ void PndTof::Reset() {
 // ----------------------------------------------------------------------------
 
 
-// guarda in CbmRootManager::CopyClones
+// guarda in FairRootManager::CopyClones
 // -----   Public method CopyClones   -----------------------------------------
 void PndTof::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset ) {
   Int_t nEntries = cl1->GetEntriesFast();
@@ -428,8 +428,8 @@ void PndTof::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset ) {
 // ----------------------------------------------------------------------------
  // -----   Public method ConstructGeometry   ----------------------------------
 void PndTof::ConstructGeometry() {
- CbmGeoLoader*    geoLoad = CbmGeoLoader::Instance();
-  CbmGeoInterface* geoFace = geoLoad->getGeoInterface();
+ FairGeoLoader*    geoLoad = FairGeoLoader::Instance();
+  FairGeoInterface* geoFace = geoLoad->getGeoInterface();
   PndGeoTof*      hypGeo = new PndGeoTof();
   hypGeo->setGeomFile(GetGeometryFileName());
   geoFace->addGeoModule(hypGeo);
@@ -439,18 +439,18 @@ void PndTof::ConstructGeometry() {
   TList* volList = hypGeo->getListOfVolumes();
 
   // store geo parameter
-  CbmRun *fRun = CbmRun::Instance();
-  CbmRuntimeDb *rtdb= CbmRun::Instance()->GetRuntimeDb();
+  FairRun *fRun = FairRun::Instance();
+  FairRuntimeDb *rtdb= FairRun::Instance()->GetRuntimeDb();
   PndGeoTofPar* par=(PndGeoTofPar*)(rtdb->getContainer("PndGeoTofPar"));
   TObjArray *fSensNodes = par->GetGeoSensitiveNodes();
   TObjArray *fPassNodes = par->GetGeoPassiveNodes();
 
   TListIter iter(volList);
-  CbmGeoNode* node   = NULL;
-  CbmGeoVolume *aVol=NULL;
+  FairGeoNode* node   = NULL;
+  FairGeoVolume *aVol=NULL;
 
-  while( (node = (CbmGeoNode*)iter.Next()) ) {
-    aVol = dynamic_cast<CbmGeoVolume*> ( node );
+  while( (node = (FairGeoNode*)iter.Next()) ) {
+    aVol = dynamic_cast<FairGeoVolume*> ( node );
 
 
     if ( node->isSensitive()  ) {

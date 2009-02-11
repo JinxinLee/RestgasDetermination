@@ -16,10 +16,10 @@
 
 
 // framework includes
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "TH1.h"
 #include "TrackCand.h"
-#include "CbmGeanePro.h"
+#include "FairGeanePro.h"
 
 #include "PndMvdGeoHandling.h"
 
@@ -29,7 +29,7 @@
 class TClonesArray;
 class PndMvdCluster;
 
-class PndMvdMSAnaTask : public CbmTask
+class PndMvdMSAnaTask : public FairTask
 {
  public:
 
@@ -59,7 +59,7 @@ class PndMvdMSAnaTask : public CbmTask
 		TClonesArray* fTrackParFinal;
 		TClonesArray* fDetName;
 		
-		CbmGeanePro* fPro;
+		FairGeanePro* fPro;
 		PndMvdGeoHandling* fGeoH;
 		bool fUseMVDPoint;
 		

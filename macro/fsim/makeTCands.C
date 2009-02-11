@@ -44,7 +44,7 @@ void makeTCands(TString base="dsdsj20k.evt",int nevts=10)
   TString infile=base+".mcreco.root";
   TString outfile=base+".full.root";
   	
-  CbmRunAna *fRunA= new CbmRunAna();
+  FairRunAna *fRunA= new FairRunAna();
   fRunA->SetInputFile(infile);
   fRunA->SetOutputFile(outfile.Data());
   

@@ -15,7 +15,7 @@ PndDchHit::PndDchHit() {
 PndDchHit::PndDchHit(Int_t trackID, Int_t detID, 
 		     TVector3 pos, TVector3 dpos,
 		     Int_t index) 
-  : CbmHit(detID, pos, dpos, index) {
+  : FairHit(detID, pos, dpos, index) {
   fTrackID = trackID;
 }
 

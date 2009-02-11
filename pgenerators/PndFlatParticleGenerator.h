@@ -9,11 +9,11 @@
 #ifndef Pnd_FLATPARTICLEGENERATOR_H
 #define Pnd_FLATPARTICLEGENERATOR_H
 
-#include "CbmGenerator.h"
+#include "FairGenerator.h"
 
 #include <iostream>
 
-class CbmPrimaryGenerator;
+class FairPrimaryGenerator;
 
 class PndRangeValues
 {
@@ -36,7 +36,7 @@ public :
 };
 
 
-class PndFlatParticleGenerator : public CbmGenerator
+class PndFlatParticleGenerator : public FairGenerator
 {
 public:
 
@@ -92,7 +92,7 @@ public:
   /** Creates an event with given type and multiplicity.
    **@param primGen  pointer to the PndPrimaryGenerator
    **/
-  virtual Bool_t ReadEvent(CbmPrimaryGenerator* primGen);
+  virtual Bool_t ReadEvent(FairPrimaryGenerator* primGen);
 
 private:
   Int_t      fPDGType;             // Particle type (PDG encoding)

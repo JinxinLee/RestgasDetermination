@@ -8,8 +8,8 @@
 
 #include "TClonesArray.h"
 
-#include "CbmMCPoint.h"
-#include "CbmRootManager.h"
+#include "FairMCPoint.h"
+#include "FairRootManager.h"
 #include "PndSttMatchTracks.h"
 #include "PndSttHit.h"
 #include "PndSttTrack.h"
@@ -19,7 +19,7 @@ using namespace std;
 
 // -----   Default constructor   -------------------------------------------
 PndSttMatchTracks::PndSttMatchTracks() 
-  : CbmTask("STT track match") {
+  : FairTask("STT track match") {
   fTracks     = NULL;
   fMatches    = NULL;
   fVerbose    = 1;
@@ -31,7 +31,7 @@ PndSttMatchTracks::PndSttMatchTracks()
 
 // -----   Constructor with verbosity level   ------------------------------
 PndSttMatchTracks::PndSttMatchTracks(Int_t verbose) 
-  : CbmTask("STT track match") {
+  : FairTask("STT track match") {
   fTracks     = NULL;
   fMatches    = NULL;
   fVerbose    = verbose;
@@ -44,7 +44,7 @@ PndSttMatchTracks::PndSttMatchTracks(Int_t verbose)
 // -----   Constructor with name, title and verbosity  ---------------------
 PndSttMatchTracks::PndSttMatchTracks(const char* name, const char* title,
 				     Int_t verbose) 
-  : CbmTask(name) {
+  : FairTask(name) {
   fTracks     = NULL;
   fMatches    = NULL;
   fVerbose    = verbose;
@@ -68,8 +68,8 @@ PndSttMatchTracks::~PndSttMatchTracks()
 // -----   Public method Init   --------------------------------------------
 InitStatus PndSttMatchTracks::Init() {
   
-  // Get CbmRootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  // Get FairRootManager
+  FairRootManager* ioman = FairRootManager::Instance();
   if (! ioman) {
     cout << "-E- PndSttMatchTracks::Init: "
 	 << "RootManager not instantised!" << endl;
@@ -117,7 +117,7 @@ void PndSttMatchTracks::Exec(Option_t* opt)
   // Create some pointers and variables
   PndSttTrack*      track = NULL;
   PndSttHit*        mHit  = NULL;
-  CbmMCPoint*       point = NULL;
+  FairMCPoint*       point = NULL;
 
   Int_t nHits    = 0;
   Int_t nMCTracks = 0;
@@ -287,9 +287,9 @@ void PndSttMatchTracks::AddHitCollectionName(char *hitCollectionName, char *poin
 
 void PndSttMatchTracks::AddHitCollection(char const *hitCollectionName, char const *pointCollectionName)
 {
-    // Get and check CbmRootManager
-    CbmRootManager
-	*ioman = CbmRootManager::Instance();
+    // Get and check FairRootManager
+    FairRootManager
+	*ioman = FairRootManager::Instance();
     
     if (!ioman) 
     {
@@ -359,9 +359,9 @@ PndSttHit* PndSttMatchTracks::GetHitFromCollections(Int_t hitCounter)
     return retval;
 }
 
-CbmMCPoint* PndSttMatchTracks::GetPointFromCollections(Int_t hitCounter)
+FairMCPoint* PndSttMatchTracks::GetPointFromCollections(Int_t hitCounter)
 {
-    CbmMCPoint
+    FairMCPoint
 	*retval = NULL;
  
     Int_t
@@ -377,7 +377,7 @@ CbmMCPoint* PndSttMatchTracks::GetPointFromCollections(Int_t hitCounter)
 	    Int_t
 		tmpHit = ((PndSttHit*) ((TClonesArray *)fHitCollectionList.At(collectionCounter))->At(relativeCounter))->GetRefIndex();
 	    
-	    retval = (CbmMCPoint*) ((TClonesArray *)fPointCollectionList.At(collectionCounter))->At(tmpHit);
+	    retval = (FairMCPoint*) ((TClonesArray *)fPointCollectionList.At(collectionCounter))->At(tmpHit);
 	    
 	    break;
 	}

@@ -7,7 +7,7 @@
 
 
 #include "PndDchDigiPar.h"
-#include "CbmParamList.h"
+#include "FairParamList.h"
 
 #include "TObjArray.h"
 #include "TObjString.h"
@@ -21,7 +21,7 @@ using std::endl;
 ClassImp(PndDchDigiPar)
 
 PndDchDigiPar::PndDchDigiPar(const char* name,const char* title,const char* context)
-: CbmParGenericSet(name,title,context) {
+: FairParGenericSet(name,title,context) {
 
 	fVariables=NULL;
 }
@@ -34,17 +34,17 @@ void PndDchDigiPar::clear(void) {
 		delete fVariables;
 }
 
-void PndDchDigiPar::putParams(CbmParamList* l) {
+void PndDchDigiPar::putParams(FairParamList* l) {
 	if (!l)
 		return;
-	l->addBinary("Drift times and distances for Calibration of Dch", fVariables);
+	l->addObject("Drift times and distances for Calibration of Dch", fVariables);
 }
 
-Bool_t PndDchDigiPar::getParams(CbmParamList* l) {
+Bool_t PndDchDigiPar::getParams(FairParamList* l) {
 	if (!l)
 		return kFALSE;
 
-	if (!l->fillBinary("Drift times and distances for Calibration of Dch",
+	if (!l->fillObject("Drift times and distances for Calibration of Dch",
 			fVariables))
 		return kFALSE;
 

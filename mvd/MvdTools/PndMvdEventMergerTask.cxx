@@ -7,23 +7,23 @@
 #include "TClonesArray.h"
 #include "TArrayD.h"
 
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "PndMvdEventMergerTask.h"
-#include "CbmRun.h"
-#include "CbmRuntimeDb.h"
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
 #include "PndStringVector.h"
 #include "PndTpcCluster.h"
 
 // -----   Default constructor   -------------------------------------------
 PndMvdEventMergerTask::PndMvdEventMergerTask() :
-  CbmTask("MVD Event Merger")
+  FairTask("MVD Event Merger")
 {
 	std::cout << "-E- PndMvdEventMergerTask: The default constructor should not be used!" << std::endl;
 	fEventNr = 0;
 }
 
 PndMvdEventMergerTask::PndMvdEventMergerTask(TString signalBranch, TString bgFile, TString bgBranch, Int_t events, Int_t mergedEvents, Bool_t signalIsBg) :
-	CbmTask("MVD Event Merger")
+	FairTask("MVD Event Merger")
 {
 	fSignalBranch = signalBranch;
 	fBgFile = bgFile;
@@ -48,8 +48,8 @@ void PndMvdEventMergerTask::SetParContainers()
 {
   // called before Init()
   // Get Base Container
-  CbmRun* ana = CbmRun::Instance();
-  CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+  FairRun* ana = FairRun::Instance();
+  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
 }
 
 InitStatus PndMvdEventMergerTask::ReInit()
@@ -61,8 +61,8 @@ InitStatus PndMvdEventMergerTask::ReInit()
 // -----   Public method Init   --------------------------------------------
 InitStatus PndMvdEventMergerTask::Init()
 {
-    CbmRun* ana = CbmRun::Instance();
-    CbmRootManager* ioman = CbmRootManager::Instance();
+    FairRun* ana = FairRun::Instance();
+    FairRootManager* ioman = FairRootManager::Instance();
 
   if ( ! ioman )
     {

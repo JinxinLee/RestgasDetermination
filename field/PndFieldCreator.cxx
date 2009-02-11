@@ -17,8 +17,8 @@
 #include "PndTransMap.h"
 #include "PndMapPar.h"
 
-#include "CbmRunAna.h"
-#include "CbmRuntimeDb.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
 
 #include "TObjArray.h"
 
@@ -29,7 +29,7 @@ static PndFieldCreator gPndFieldCreator;
 
 
 PndFieldCreator::PndFieldCreator()
-	:CbmFieldFactory()
+	:FairFieldFactory()
 {
 	fCreator=this;
   fSPar=0;
@@ -47,8 +47,8 @@ void PndFieldCreator::SetParm()
 {
  
   cout << "PndFieldCreator::SetParm()" <<endl;
-  CbmRunAna *Run = CbmRunAna::Instance();
-  CbmRuntimeDb *RunDB = Run->GetRuntimeDb();
+  FairRunAna *Run = FairRunAna::Instance();
+  FairRuntimeDb *RunDB = Run->GetRuntimeDb();
   
   fFieldPar = (PndFieldPar*) RunDB->getContainer("PndFieldPar");
   fSPar = (PndSolenoidPar  *)RunDB->getContainer("PndSolenoidPar");
@@ -59,10 +59,10 @@ void PndFieldCreator::SetParm()
  
 }
 
-CbmField* PndFieldCreator::createCbmField()
+FairField* PndFieldCreator::createFairField()
 {       
-        cout << "PndFieldCreator::createCbmField()" <<endl;
-        CbmField *fMagneticField=0;
+        cout << "PndFieldCreator::createFairField()" <<endl;
+        FairField *fMagneticField=0;
 	PndMultiField *MField=0;
 	Int_t Type=-1;
         Bool_t multi=kFALSE;
@@ -78,49 +78,49 @@ CbmField* PndFieldCreator::createCbmField()
    		while( (fPar = (PndMapPar*)Iter->Next() ) ) {
 			fPar->Print();
 			if (fPar->GetType()==0){
-				CbmField *fField1 = new PndConstField((PndConstPar*)fPar);
+				FairField *fField1 = new PndConstField((PndConstPar*)fPar);
 				MField->AddField(fField1);
 			}
 			if (fPar->GetType()==1){
-				CbmField *fField2 = new PndFieldMap((PndFieldPar*)fPar);
+				FairField *fField2 = new PndFieldMap((PndFieldPar*)fPar);
 				MField->AddField(fField2);
 			}
 			if (fPar->GetType()==2){
-				CbmField *fField3 = new PndSolenoidMap((PndSolenoidPar*)fPar);
+				FairField *fField3 = new PndSolenoidMap((PndSolenoidPar*)fPar);
 				MField->AddField(fField3);
 			}
 			if (fPar->GetType()==3){
-				CbmField *fField4 = new PndDipoleMap((PndDipolePar*)fPar);
+				FairField *fField4 = new PndDipoleMap((PndDipolePar*)fPar);
 				MField->AddField(fField4);
 			}
 			if (fPar->GetType()==4){
-				CbmField *fField5 = new PndTransMap((PndTransPar*)fPar);
+				FairField *fField5 = new PndTransMap((PndTransPar*)fPar);
 				MField->AddField(fField5);
 			}
 		}
 	}
 
-	CbmField *fField1 = new PndConstField(fCPar);
+	FairField *fField1 = new PndConstField(fCPar);
 	Type= fCPar->GetType();
 	if (Type==-1) {delete fField1; fField1=0;}
 	if(fField1)fMagneticField=fField1;	
 
-	CbmField *fField2 = new PndFieldMap(fFieldPar);
+	FairField *fField2 = new PndFieldMap(fFieldPar);
 	Type= fFieldPar->GetType();
 	if (Type==-1){delete fField2; fField2=0;}
 	if(fField2)fMagneticField=fField2;	
 
-	CbmField *fField3 = new PndSolenoidMap(fSPar);
+	FairField *fField3 = new PndSolenoidMap(fSPar);
 	Type= fSPar->GetType();
 	if (Type==-1) {delete fField3; fField3=0;}
 	if(fField3)fMagneticField=fField3;
 	
-	CbmField *fField4 = new PndDipoleMap(fDPar);
+	FairField *fField4 = new PndDipoleMap(fDPar);
 	Type= fDPar->GetType();
 	if (Type==-1) {delete fField4; fField4=0;}
 	if(fField4)fMagneticField=fField4;	
 
-	CbmField *fField5 = new PndTransMap(fTPar);
+	FairField *fField5 = new PndTransMap(fTPar);
 	Type= fTPar->GetType();
 	if (Type==-1){delete fField5; fField5=0;}
 	if(fField5)fMagneticField=fField5;	

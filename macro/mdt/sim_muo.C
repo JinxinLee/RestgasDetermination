@@ -27,7 +27,7 @@ void sim_muo(Int_t nEvents=1000, Float_t pT=2.0){
   gSystem->Load("libLHETrack");
 
  
-  CbmRunSim *fRun = new CbmRunSim();
+  FairRunSim *fRun = new FairRunSim();
   
   // set the MC version used
   // ------------------------
@@ -46,27 +46,27 @@ void sim_muo(Int_t nEvents=1000, Float_t pT=2.0){
   // Create and add detectors
   //-------------------------
 
-  CbmModule *Cave= new PndCave("CAVE");
+  FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave); 
   
-  CbmModule *Magnet= new PndMagnet("MAGNET");
+  FairModule *Magnet= new PndMagnet("MAGNET");
   Magnet->SetGeometryFileName("FullSolenoid.root");
   fRun->AddModule(Magnet);
 
-  CbmModule *Dipole= new PndMagnet("MAGNET");
+  FairModule *Dipole= new PndMagnet("MAGNET");
   Dipole->SetGeometryFileName("dipole.geo");
   fRun->AddModule(Dipole);
  
-  CbmModule *Pipe= new PndPipe("PIPE");
+  FairModule *Pipe= new PndPipe("PIPE");
   Pipe->SetGeometryFileName("pipebeamtarget.geo");
   fRun->AddModule(Pipe);
 
-  CbmDetector *Tpc = new PndTpcDetector("TPC", kTRUE);
+  FairDetector *Tpc = new PndTpcDetector("TPC", kTRUE);
   Tpc->SetGeometryFileName("tpc.geo");
   fRun->AddModule(Tpc);
 
-  CbmDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
+  FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
   Mvd->SetGeometryFileName("MVD_v1.0_woPassiveTraps.root");
   fRun->AddModule(Mvd);
   
@@ -74,7 +74,7 @@ void sim_muo(Int_t nEvents=1000, Float_t pT=2.0){
   Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root");
   fRun->AddModule(Emc);   
   
-  CbmDetector *Tof = new PndTof("TOF",kTRUE);
+  FairDetector *Tof = new PndTof("TOF",kTRUE);
   Tof->SetGeometryFileName("tofSciF.geo");
   fRun->AddModule(Tof);
  
@@ -83,22 +83,22 @@ void sim_muo(Int_t nEvents=1000, Float_t pT=2.0){
   Mdt->SetGeometryFileName("muopars.root");
   fRun->AddModule(Mdt);
  
-  CbmDetector *Drc = new PndDrc("DIRC", kTRUE);
+  FairDetector *Drc = new PndDrc("DIRC", kTRUE);
   Drc->SetGeometryFileName("dirc.geo"); 
   fRun->AddModule(Drc); 
   
-  CbmDetector *Dch = new PndDchDetector("DCH", kTRUE);
+  FairDetector *Dch = new PndDchDetector("DCH", kTRUE);
   Dch->SetGeometryFileName("dch.root"); 
   fRun->AddModule(Dch);
   
   // Create and Set Event Generator
   //-------------------------------
 
-  CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
+  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
   // Box Generator
-  CbmBoxGenerator* boxGen = new CbmBoxGenerator(13, 1); // 13 = muon; 1 = multipl.
+  FairBoxGenerator* boxGen = new FairBoxGenerator(13, 1); // 13 = muon; 1 = multipl.
   boxGen->SetPRange(pT,pT); // GeV/c
   boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
   boxGen->SetThetaRange(0., 90.); // Polar angle in lab system range [degree]
@@ -120,7 +120,7 @@ void sim_muo(Int_t nEvents=1000, Float_t pT=2.0){
   
   fRun->Init();
   
-  CbmRuntimeDb *rtdb=fRun->GetRuntimeDb();
+  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
   Bool_t kParameterMerged=kTRUE;
      
   PndMultiFieldPar* Par = (PndMultiFieldPar*) rtdb->getContainer("PndMultiFieldPar");
@@ -128,7 +128,7 @@ void sim_muo(Int_t nEvents=1000, Float_t pT=2.0){
   Par->setInputVersion(fRun->GetRunId(),1);
   Par->setChanged();
 
-  CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   output->open("testparams.root");
   rtdb->setOutput(output);
   rtdb->saveOutput();

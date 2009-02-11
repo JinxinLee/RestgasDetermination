@@ -15,12 +15,12 @@
 #include "TGeoMatrix.h"
 
 // framework includes
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "PndMvdRecoTask.h"
-#include "CbmRun.h"
-#include "CbmRuntimeDb.h"
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
 #include "../mcstack/CbmMCTrack.h"
-#include "CbmHit.h"
+#include "FairHit.h"
 // PndMvd includes
 #include "PndMvdMCPoint.h"
 #include "PndMvdDigiPixel.h"
@@ -35,7 +35,7 @@
 // -----   Default constructor   -------------------------------------------
 PndMvdRecoTask::PndMvdRecoTask() :
   fHitCovMatrix(3,3),
-  CbmTask("Reconstruction task for PANDA PndMvd")
+  FairTask("Reconstruction task for PANDA PndMvd")
 {
 /*  fSigmaX=0.;
   fSigmaY=0.;
@@ -47,7 +47,7 @@ PndMvdRecoTask::PndMvdRecoTask() :
 // -----   Constructor   ---------------------------------------------------
 PndMvdRecoTask::PndMvdRecoTask(Double_t sx, Double_t sy, Double_t sz) :
   fHitCovMatrix(3,3),
-  CbmTask("Ideal reconstruction task for PANDA PndMvd")
+  FairTask("Ideal reconstruction task for PANDA PndMvd")
 {
   fSigmaX=sx;
   fSigmaY=sy;
@@ -59,7 +59,7 @@ PndMvdRecoTask::PndMvdRecoTask(Double_t sx, Double_t sy, Double_t sz) :
 */
 // -----   Constructor   ---------------------------------------------------
 PndMvdRecoTask::PndMvdRecoTask(std::string type) :
-  CbmTask("Reconstruction task for PANDA PndMvd")
+  FairTask("Reconstruction task for PANDA PndMvd")
 {
   fMakerType = type;
   fBranchName   = "MVDDigi";
@@ -82,7 +82,7 @@ InitStatus PndMvdRecoTask::Init()
     std::cout<<"PndMvdRecoTask::Init() called."<<std::endl;
 
   // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
     std::cout << "-E- PndMvdRecoTask::Init: "
 							<< "RootManager not instantiated!" << std::endl;
@@ -159,8 +159,8 @@ InitStatus PndMvdRecoTask::Init()
 void PndMvdRecoTask::SetParContainers()
 {
   // Get Base Container
-  CbmRun* ana = CbmRun::Instance();
-  CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+  FairRun* ana = FairRun::Instance();
+  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
 
 }
 

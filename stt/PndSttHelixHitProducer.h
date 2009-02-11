@@ -2,7 +2,7 @@
 #define PNDSTTHELIXHITPRODUCER_H 1
 
 
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "PndSttHelixHit.h"
 #include "TVector3.h"
 #include "TH1F.h"
@@ -11,7 +11,7 @@
 class TClonesArray;
 class TObjectArray;
 
-class PndSttHelixHitProducer : public CbmTask
+class PndSttHelixHitProducer : public FairTask
 {
 
  public:

@@ -135,6 +135,6 @@ SET(Rho_SRCS ${Rho_SRCS} ${Rho_DICTIONARY})
 
 add_library(Rho SHARED ${Rho_SRCS})
 target_link_libraries(Rho ${ROOT_LIBRARIES})
-set_target_properties(Rho PROPERTIES ${CBMROOT_LIBRARY_PROPERTIES})
+set_target_properties(Rho PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 ################ install ###################
 install(TARGETS Rho DESTINATION ${CMAKE_BINARY_DIR}/lib)

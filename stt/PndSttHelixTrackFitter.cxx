@@ -8,8 +8,8 @@
 #include "PndSttHit.h"
 #include "PndSttPoint.h"
 
-#include "CbmRootManager.h"
-#include "CbmTask.h"
+#include "FairRootManager.h"
+#include "FairTask.h"
 
 #include "TArc.h"
 #include "TH2.h"
@@ -79,9 +79,9 @@ void PndSttHelixTrackFitter::Init()
 {
   fEventCounter = 0;
 
-  // Get and check CbmRootManager
-  CbmRootManager
-    *ioman = CbmRootManager::Instance();
+  // Get and check FairRootManager
+  FairRootManager
+    *ioman = FairRootManager::Instance();
 
   if (! ioman) 
     {
@@ -1102,7 +1102,7 @@ Int_t PndSttHelixTrackFitter::Fit4b(PndSttTrack* pTrack, Int_t pidHypo) {
 
 
 // -------------- IntersectionFinder  --------------------------------------
-Bool_t PndSttHelixTrackFitter::IntersectionFinder(PndSttTrack *pTrack, CbmTrackParam *par)
+Bool_t PndSttHelixTrackFitter::IntersectionFinder(PndSttTrack *pTrack, FairTrackParam *par)
 {
 
   ResetMArray();
@@ -1238,7 +1238,7 @@ Bool_t PndSttHelixTrackFitter::IntersectionFinder(PndSttTrack *pTrack, CbmTrackP
 }
 
 // -------------- IntersectionFinder  --------------------------------------
-Bool_t PndSttHelixTrackFitter::IntersectionFinder4b(PndSttTrack *pTrack, CbmTrackParam *par)
+Bool_t PndSttHelixTrackFitter::IntersectionFinder4b(PndSttTrack *pTrack, FairTrackParam *par)
 // if the drift radius is too small the center of the tube is used
 {
 
@@ -3771,7 +3771,7 @@ TVector3 PndSttHelixTrackFitter::GetHoughResponse()
 
 
 // ------ Extrapolate ------------------------------------------------------------
-void PndSttHelixTrackFitter::Extrapolate(PndSttTrack* track, Double_t r, CbmTrackParam *param )
+void PndSttHelixTrackFitter::Extrapolate(PndSttTrack* track, Double_t r, FairTrackParam *param )
 {
   cout << "-W- PndSttMinuitTrackFitter::Extrapolate: Not yet implemented, sorry!"
        << endl;

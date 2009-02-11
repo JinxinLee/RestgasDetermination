@@ -29,12 +29,12 @@
 // Class Member definitions -----------
 
 PndTpcPoint::PndTpcPoint()
-  : CbmMCPoint()
+  : FairMCPoint()
 {}
 
 PndTpcPoint::PndTpcPoint(Int_t trackID, Int_t detID, TVector3 pos, TVector3 mom,
              Double_t tof, Double_t length, Double_t eLoss)
-  : CbmMCPoint(trackID, detID, pos, mom, tof, length, eLoss)
+  : FairMCPoint(trackID, detID, pos, mom, tof, length, eLoss)
 {}
 
 void 

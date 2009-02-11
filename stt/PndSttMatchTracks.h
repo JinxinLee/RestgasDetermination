@@ -19,15 +19,15 @@
 
 #include <vector>
 #include <map>
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "PndSttHit.h"
-#include "CbmMCPoint.h"
+#include "FairMCPoint.h"
 
 class TClonesArray;
 
 
 
-class PndSttMatchTracks : public CbmTask
+class PndSttMatchTracks : public FairTask
 {
 
  public:
@@ -43,10 +43,10 @@ class PndSttMatchTracks : public CbmTask
   /** Constructor with name, title and verbosity
    **
    *@param name     Name of taks
-   *@param title    Title of task   (default CbmTask)
+   *@param title    Title of task   (default FairTask)
    *@param verbose  Verbosity level (default 1)
    **/
-  PndSttMatchTracks(const char* name, const char* title = "CbmTask",
+  PndSttMatchTracks(const char* name, const char* title = "FairTask",
 		    Int_t verbose = 1);
 
 
@@ -68,7 +68,7 @@ class PndSttMatchTracks : public CbmTask
   /** Add an hit collection to perform trackfinding on */
   void AddHitCollectionName(char *hitCollectionName, char *pointCollectionName);
   PndSttHit* GetHitFromCollections(Int_t hitCounter);
-  CbmMCPoint* GetPointFromCollections(Int_t hitCounter);
+  FairMCPoint* GetPointFromCollections(Int_t hitCounter);
 
  private:
   void AddAllCollections(); 

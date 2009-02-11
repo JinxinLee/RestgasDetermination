@@ -14,7 +14,7 @@
 #define PNDDCHKALMANTASK_HH
 
 // Pnd Headres
-#include "CbmTask.h"
+#include "FairTask.h"
 
 // ROOT Headers
 #include "TString.h"
@@ -29,7 +29,7 @@ class TH2D;
 class TCanvas;
 class TGeoManager; 
 
-class PndDchKalmanTask : public CbmTask {
+class PndDchKalmanTask : public FairTask {
  public:
   
   /**  Constructor  **/

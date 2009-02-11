@@ -14,9 +14,9 @@
 #include "TMath.h"
 #include "TFile.h"
 
-#include "CbmRootManager.h"
-#include "CbmRunAna.h"
-#include "CbmRun.h"
+#include "FairRootManager.h"
+#include "FairRunAna.h"
+#include "FairRun.h"
 
 #include "PndDchPreFitter.h"
 #include "PndDchHit.h"
@@ -30,7 +30,7 @@ using std::endl;
 
 // Default constructor
 PndDchPreFitter::PndDchPreFitter() :
-  CbmTask("very naive reconstruction for the dipole region") { 
+  FairTask("very naive reconstruction for the dipole region") { 
   fInHitsAfterXZ = 0;
   fInHitsInXZ = 0;
   fInHitsBeforeXZ = 0;
@@ -72,9 +72,9 @@ InitStatus PndDchPreFitter::Init() {
   cout << "PndDchPreFitter::Init()... " << endl;
   
   // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   TFile *infile = ioman->GetInFile();
-  TGeoManager *geoMan = (TGeoManager*) infile->Get("CBMGeom");
+  TGeoManager *geoMan = (TGeoManager*) infile->Get("FAIRGeom");
   fStructure = PndDchStructure::Instance(geoMan);
 
   if ( ! ioman ) {

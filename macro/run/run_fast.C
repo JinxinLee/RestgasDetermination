@@ -17,7 +17,7 @@
   gSystem->Load("libPassive");
   gSystem->Load("libPGen");
  
-  CbmRunSim *fRun = new CbmRunSim();
+  FairRunSim *fRun = new FairRunSim();
   
   
   fRun->SetOutputFile("sim_fast.root");
@@ -25,19 +25,19 @@
     // Create and Set Event Generator
     //-------------------------------
 
-  CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
+  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
   // Urqmd  Generator
-  // CbmUrqmdGenerator* urqmdGen = new CbmUrqmdGenerator("../../input/00-03fm.100ev.f14");
+  // FairUrqmdGenerator* urqmdGen = new FairUrqmdGenerator("../../input/00-03fm.100ev.f14");
   // primGen->AddGenerator(urqmdGen);
 
   // Particle Generator
-  //CbmParticleGenerator* partGen = new CbmParticleGenerator(13, 1, 0.5, 0., 0.);
+  //FairParticleGenerator* partGen = new FairParticleGenerator(13, 1, 0.5, 0., 0.);
   //primGen->AddGenerator(partGen);
 
   // Box Generator
-  CbmBoxGenerator* boxGen = new CbmBoxGenerator(13, 1); // 13 = muon; 1 = multipl.
+  FairBoxGenerator* boxGen = new FairBoxGenerator(13, 1); // 13 = muon; 1 = multipl.
   //  boxGen->SetPRange(1.,1.1); // GeV/c
   boxGen->SetPtRange(1.,1.); // GeV/c
   boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
@@ -50,7 +50,7 @@
   for (Int_t n =0; n<10; n++){
 	randx= gRandom->Gaus(0,1);
 	randy= gRandom->Gaus(0,1);
-	CbmParticleGenerator* partGen = new CbmParticleGenerator(3312, 1, 0.3*randx, 0.3*randy, 0.3);
+	FairParticleGenerator* partGen = new FairParticleGenerator(3312, 1, 0.3*randx, 0.3*randy, 0.3);
   	primGen->AddGenerator(partGen);
   }
 */
@@ -58,7 +58,7 @@
  //PndDpmGenerator *PndDpm = new PndDpmGenerator("../../input/dpmevt_noelastic_36755.root");
  //primGen->AddGenerator(PndDpm);
   // Ion Generator
-  //CbmIonGenerator *fIongen= new CbmIonGenerator(79, 197,79,1, 0.,0., 25, 0.,0.,-1.);
+  //FairIonGenerator *fIongen= new FairIonGenerator(79, 197,79,1, 0.,0., 25, 0.,0.,-1.);
   //  primGen->AddGenerator(fIongen);
 
  /**switch off the transport of particles*/

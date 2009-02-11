@@ -72,13 +72,13 @@
   // i cant find out how to use this one, so
   // we better restart root.
   // If we will go on, root will crash.
-  CbmRunSim* fRun = 0;
-  if (0 != (CbmRunSim::Instance())) {
-    cout << "[ ** ] CbmRunSim instance found. Please restart root." << endl;
+  FairRunSim* fRun = 0;
+  if (0 != (FairRunSim::Instance())) {
+    cout << "[ ** ] FairRunSim instance found. Please restart root." << endl;
     return;
   }
   else
-    fRun = new CbmRunSim();
+    fRun = new FairRunSim();
 
   // setup versions and files
 //   fRun->SetOutputFile(fOutFile.Data());
@@ -89,11 +89,11 @@
 
   // modules
   // the cave
-  CbmModule* Cave= new PndCave("CAVE");
+  FairModule* Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave);
   // the stt for testing with an other module
-//   CbmDetector *Stt= new PndStt("STT", kTRUE);
+//   FairDetector *Stt= new PndStt("STT", kTRUE);
 //   Stt->SetGeometryFileName("straws_skewed_blocks.geo");
 //   fRun->AddModule(Stt);
   // the disk dirc
@@ -105,11 +105,11 @@
 
 
   // create and set event generator
-  CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
+  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
   for (Int_t p=0; p<fParticles; p++) {
-    CbmBoxGenerator* boxGen = new CbmBoxGenerator(fParticle[p], 1);
+    FairBoxGenerator* boxGen = new FairBoxGenerator(fParticle[p], 1);
     boxGen->SetBoxXYZ(-fVertexSize,+fVertexSize,-fVertexSize,+fVertexSize,0.);
     boxGen->SetPRange(fPMin, fPMax); // momentum GeV/c
     boxGen->SetPhiRange(fPhiMin, fPhiMax); // Azimuth angle range [degree]
@@ -124,7 +124,7 @@
   fRun->Init();
 
   primGen->DoTracking(kTRUE);
-  CbmTrajFilter* trajFilter = CbmTrajFilter::Instance();
+  FairTrajFilter* trajFilter = FairTrajFilter::Instance();
   // Set cuts for storing the trajectpries
   trajFilter->SetStepSizeCut(0.01); // 1 cm
   trajFilter->SetStorePrimaries(kTRUE);
@@ -132,9 +132,9 @@
 
   // Fill the Parameter containers for this run
   //-------------------------------------------
-  CbmRuntimeDb *rtdb=fRun->GetRuntimeDb();
+  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
   Bool_t kParameterMerged=kTRUE;
-  CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   output->open("simparams.root");
   rtdb->setOutput(output);
   rtdb->saveOutput();

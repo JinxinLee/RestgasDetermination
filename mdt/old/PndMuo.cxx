@@ -3,17 +3,17 @@
 
 #include "PndMuoPoint.h"
 
-#include "CbmGeoInterface.h"
-#include "CbmGeoLoader.h"
-#include "CbmGeoNode.h"
+#include "FairGeoInterface.h"
+#include "FairGeoLoader.h"
+#include "FairGeoNode.h"
 #include "PndGeoMuo.h"
-#include "CbmGeoRootBuilder.h"
+#include "FairGeoRootBuilder.h"
 #include "CbmStack.h"
-#include "CbmRootManager.h"
-#include "CbmVolume.h"
-#include "CbmGeoG3Builder.h"
-#include "CbmRuntimeDb.h"
-#include "CbmRun.h"
+#include "FairRootManager.h"
+#include "FairVolume.h"
+#include "FairGeoG3Builder.h"
+#include "FairRuntimeDb.h"
+#include "FairRun.h"
 
 #include "TClonesArray.h"
 #include "TGeoMCGeometry.h"
@@ -42,7 +42,7 @@ PndMuo::PndMuo() {
 
 // -----   Standard constructor   ------------------------------------------
 PndMuo::PndMuo(const char* name, Bool_t active)
-  : CbmDetector(name, active) {
+  : FairDetector(name, active) {
     fMuoCollection        = new TClonesArray("PndMuoPoint");
     fPosIndex   = 0;
     nFlag = 0;
@@ -69,9 +69,9 @@ PndMuo::~PndMuo() {
 void PndMuo::Initialize() {
   
   // controlla-- forse non tutto e' necessario.
-  CbmDetector::Initialize();
-  CbmRun* sim = CbmRun::Instance();
-  CbmRuntimeDb* rtdb=sim->GetRuntimeDb();
+  FairDetector::Initialize();
+  FairRun* sim = FairRun::Instance();
+  FairRuntimeDb* rtdb=sim->GetRuntimeDb();
   par=(PndGeoMuoPar*)(rtdb->getContainer("PndGeoMuoPar"));
   
   // TObjArray *fSensNodes = par->GetGeoSensitiveNodes();
@@ -86,7 +86,7 @@ void PndMuo::BeginEvent(){
 
 
 // -----   Public method ProcessHits  --------------------------------------
-Bool_t PndMuo::ProcessHits(CbmVolume* vol) {
+Bool_t PndMuo::ProcessHits(FairVolume* vol) {
   
   fTrackID  = gMC->GetStack()->GetCurrentTrackNumber(); // trk ID
   fEventID = gMC->CurrentEvent();
@@ -142,7 +142,7 @@ void PndMuo::EndOfEvent() {
 
 // -----   Public method Register   -------------------------------------------
 void PndMuo::Register() {
-  CbmRootManager::Instance()->Register("MuoPoint","Muo", fMuoCollection, kTRUE);
+  FairRootManager::Instance()->Register("MuoPoint","Muo", fMuoCollection, kTRUE);
 }
 // ----------------------------------------------------------------------------
 
@@ -181,7 +181,7 @@ void PndMuo::Reset() {
 // ----------------------------------------------------------------------------
 
 
-// guarda in CbmRootManager::CopyClones
+// guarda in FairRootManager::CopyClones
 // -----   Public method CopyClones   -----------------------------------------
 void PndMuo::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset ) {
   Int_t nEntries = cl1->GetEntriesFast();
@@ -205,8 +205,8 @@ void PndMuo::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset ) {
 // -----   Public method ConstructGeometry   ----------------------------------
 void PndMuo::ConstructGeometry() {
 
-  CbmGeoLoader*    muogeoLoad = CbmGeoLoader::Instance();
-  CbmGeoInterface* muogeoFace = muogeoLoad->getGeoInterface();
+  FairGeoLoader*    muogeoLoad = FairGeoLoader::Instance();
+  FairGeoInterface* muogeoFace = muogeoLoad->getGeoInterface();
   PndGeoMuo*      muoGeo = new PndGeoMuo();
   muoGeo->setGeomFile(GetGeometryFileName());
   muogeoFace->addGeoModule(muoGeo);
@@ -216,18 +216,18 @@ void PndMuo::ConstructGeometry() {
   TList* volList = muoGeo->getListOfVolumes();
 
   // store geo parameter
-  CbmRun *fRun = CbmRun::Instance();
-  CbmRuntimeDb *rtdb= CbmRun::Instance()->GetRuntimeDb();
+  FairRun *fRun = FairRun::Instance();
+  FairRuntimeDb *rtdb= FairRun::Instance()->GetRuntimeDb();
   PndGeoMuoPar* par=(PndGeoMuoPar*)(rtdb->getContainer("PndGeoMuoPar"));
   TObjArray *fSensNodes = par->GetGeoSensitiveNodes();
   TObjArray *fPassNodes = par->GetGeoPassiveNodes();
 
   TListIter iter(volList);
-  CbmGeoNode* node   = NULL;
-  CbmGeoVolume *aVol=NULL;
+  FairGeoNode* node   = NULL;
+  FairGeoVolume *aVol=NULL;
 
-  while( (node = (CbmGeoNode*)iter.Next()) ) {
-    aVol = dynamic_cast<CbmGeoVolume*> ( node );
+  while( (node = (FairGeoNode*)iter.Next()) ) {
+    aVol = dynamic_cast<FairGeoVolume*> ( node );
     if ( node->isSensitive()  ) {
       fSensNodes->AddLast( aVol );
     }

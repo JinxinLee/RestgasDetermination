@@ -24,16 +24,16 @@ void simfast(TString infile="dsdsj20k.evt",int soff=0,int nevts=0,TString outfil
  
   if (outfile=="") outfile=infile+".fast.root";
 
-  CbmRunSim *fRun = new CbmRunSim();
+  FairRunSim *fRun = new FairRunSim();
   fRun->SetOutputFile(outfile.Data());
 
   // Create and Set Event Generator
   //-------------------------------
 
-  CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
+  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
-  CbmEvtGenGenerator* evtGen = new CbmEvtGenGenerator(infile.Data());
+  FairEvtGenGenerator* evtGen = new FairEvtGenGenerator(infile.Data());
   primGen->AddGenerator(evtGen);
 
   primGen->DoTracking(kFALSE);

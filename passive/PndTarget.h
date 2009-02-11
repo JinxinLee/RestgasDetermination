@@ -1,10 +1,10 @@
 #ifndef Target_H
 #define Target_H
 
-#include "CbmDetector.h"
-#include "CbmModule.h"
+#include "FairDetector.h"
+#include "FairModule.h"
 
-class PndTarget : public CbmModule {
+class PndTarget : public FairModule {
   public:
     PndTarget(const char * name, const char *Title="PND Target");
     PndTarget();

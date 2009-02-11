@@ -39,7 +39,7 @@
   timer.Start();
     
   // -----   Reconstruction run
-  CbmRunAna *fRun= new CbmRunAna();
+  FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
   

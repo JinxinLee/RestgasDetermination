@@ -1,20 +1,20 @@
 #ifndef PNDSTTPARROOTFILEIO_H
 #define PNDSTTPARROOTFILEIO_H
 
-#include "CbmDetParRootFileIo.h"
+#include "FairDetParRootFileIo.h"
 #include "TFile.h"
 #include "TArrayI.h"
 
-class CbmParRootFile;
-class CbmParSet;
+class FairParRootFile;
+class FairParSet;
 class PndSttDigiPar;
 
-class PndSttParRootFileIo : public CbmDetParRootFileIo 
+class PndSttParRootFileIo : public FairDetParRootFileIo 
 {
 public:
-  PndSttParRootFileIo(CbmParRootFile* f);
+  PndSttParRootFileIo(FairParRootFile* f);
   ~PndSttParRootFileIo();
-  Bool_t init(CbmParSet*,Int_t*);
+  Bool_t init(FairParSet*,Int_t*);
   Bool_t read(PndSttDigiPar*,Int_t*);
   ClassDef(PndSttParRootFileIo,0) // Class for STT parameter I/O from ROOT file
 };

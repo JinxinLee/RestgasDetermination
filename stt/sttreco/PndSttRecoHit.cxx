@@ -25,8 +25,8 @@
 #include "DetPlane.h"
 #include "PndSttHit.h"
 #include "PndSttHelixHit.h"
-#include "CbmGeanePro.h"
-#include "CbmGeaneUtil.h"
+#include "FairGeanePro.h"
+#include "FairGeaneUtil.h"
 #include "FitterExceptions.h"
   
 // Class Member definitions -----------
@@ -152,7 +152,7 @@ PndSttRecoHit::detPlane(AbsRecoHit* hit, AbsTrackRep* rep)
    
     // propagation to closest approach
     // retrieve GEANE
-    CbmGeanePro *geane = ((GeaneTrackRep*)rep)->getPropagator(); 
+    FairGeanePro *geane = ((GeaneTrackRep*)rep)->getPropagator(); 
 
     // call propagation to closest approach to a wire 
     Int_t pca = 2;
@@ -177,7 +177,7 @@ PndSttRecoHit::detPlane(AbsRecoHit* hit, AbsTrackRep* rep)
     DetPlane referenceplane = rep->getReferencePlane();
 
     TMatrixT<double> covar = rep->getCov();
-    CbmGeaneUtil util;
+    FairGeaneUtil util;
     Double_t cov55[5][5];
     for(int i = 0; i < 5; i++) for(int j = 0; j < 5; j++) cov55[i][j] = covar[i][j];
     Double_t CovMatrix[15];
@@ -193,7 +193,7 @@ PndSttRecoHit::detPlane(AbsRecoHit* hit, AbsTrackRep* rep)
     TVector3 dj = referenceplane.getU();
     TVector3 dk = referenceplane.getV();
 
-    CbmTrackParP *parrep = new CbmTrackParP(posp, momp, posErr, MomErr, q,  o, dj, dk);
+    FairTrackParP *parrep = new FairTrackParP(posp, momp, posErr, MomErr, q,  o, dj, dk);
 
     //   posp.Print();
     //   momp.Print();

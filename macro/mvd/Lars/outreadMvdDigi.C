@@ -31,7 +31,7 @@
   TClonesArray* digiStrip_array=new TClonesArray("PndMvdDigiStrip");
   t->SetBranchAddress("MVDStripDigis",&digiStrip_array);//Branch names
 
-  TGeoManager *geoMan = (TGeoManager*) gDirectory->Get("CBMGeom");
+  TGeoManager *geoMan = (TGeoManager*) gDirectory->Get("FAIRGeom");
   
   std::ofstream Outfile("../data/Lars/0999_1001_85.hit",ios_base::app);
   std::ofstream Outrealfile("../data/Lars/0999_1001_85.real",ios_base::app);

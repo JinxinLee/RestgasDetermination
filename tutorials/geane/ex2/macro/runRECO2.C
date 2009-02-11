@@ -37,7 +37,7 @@
 
 
   // -----   Reconstruction run   -------------------------------------------
-  CbmRunAna *fRun= new CbmRunAna();
+  FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
   fRun->AddFriend(inFile2);
   fRun->SetOutputFile(outFile);
@@ -45,7 +45,7 @@
 
   // trackfinding ....
   PndSttTrackFinderIdeal* sttTrackFinder = new PndSttTrackFinderIdeal(iVerbose);
-  PndSttFindTracks* sttFindTracks = new PndSttFindTracks("Track Finder", "CbmTask", sttTrackFinder, iVerbose);
+  PndSttFindTracks* sttFindTracks = new PndSttFindTracks("Track Finder", "FairTask", sttTrackFinder, iVerbose);
   sttFindTracks->AddHitCollectionName("STTHit", "STTPoint");
   fRun->AddTask(sttFindTracks);
 
@@ -56,7 +56,7 @@
 
   // trackfitting ....
   PndSttTrackFitter* sttTrackFitter = new PndSttHelixTrackFitter(0);
-  PndSttFitTracks* sttFitTracks = new PndSttFitTracks("STT Track Fitter", "CbmTask", sttTrackFitter); 
+  PndSttFitTracks* sttFitTracks = new PndSttFitTracks("STT Track Fitter", "FairTask", sttTrackFitter); 
   sttFitTracks->AddHitCollectionName("STTHit");
   fRun->AddTask(sttFitTracks);
 

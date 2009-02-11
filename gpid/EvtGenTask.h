@@ -7,7 +7,7 @@
 #include <vector>
 
 //ROOT & PANDA headers
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "TVector3.h"
 #include "Event.h" 
 #include "TRandom3.h"
@@ -17,7 +17,7 @@ class TTree;
 class TFile;
 
 
-class EvtGenTask : public CbmTask
+class EvtGenTask : public FairTask
 {
  public :
   EvtGenTask();

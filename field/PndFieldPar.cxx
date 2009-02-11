@@ -2,7 +2,7 @@
 #include "PndConstField.h"
 #include "PndFieldMap.h"
 #include "PndFieldPar.h"
-#include "CbmParamList.h"
+#include "FairParamList.h"
 #include "PndMultiField.h"
 #include "TObjArray.h"
 
@@ -11,7 +11,7 @@ using namespace std;
 // ------   Constructor   --------------------------------------------------
 PndFieldPar::PndFieldPar(const char* name, const char* title,
 			 const char* context) 
-  : CbmParGenericSet(name, title, context) {
+  : FairParGenericSet(name, title, context) {
   fType = -1;
   fXmin = fXmax = fYmin = fYmax = fZmin = fZmax = 0.;
   fBx   = fBy   = fBz   = 0.;
@@ -39,7 +39,7 @@ PndFieldPar::~PndFieldPar() { }
 
 
 // ------   Put parameters   -----------------------------------------------
-void PndFieldPar::putParams(CbmParamList* list) {
+void PndFieldPar::putParams(FairParamList* list) {
 
   if ( ! list ) return;
 
@@ -72,7 +72,7 @@ void PndFieldPar::putParams(CbmParamList* list) {
 
 
 // --------   Get parameters   ---------------------------------------------
-Bool_t PndFieldPar::getParams(CbmParamList* list) {
+Bool_t PndFieldPar::getParams(FairParamList* list) {
 
   if ( ! list ) return kFALSE;
 
@@ -106,8 +106,8 @@ Bool_t PndFieldPar::getParams(CbmParamList* list) {
 
 
 
-// ---------   Set parameters from CbmField   ------------------------------
-void PndFieldPar::SetParameters(CbmField* field) {
+// ---------   Set parameters from FairField   ------------------------------
+void PndFieldPar::SetParameters(FairField* field) {
 
   if ( ! field ) {
     cerr << "-W- PndFieldPar::SetParameters: Empty field pointer!" << endl;
@@ -147,8 +147,8 @@ void PndFieldPar::SetParameters(CbmField* field) {
     TObjArray *fieldlist = fMulti->GetFieldList();
     TIterator* FieldIter = fieldlist->MakeIterator();
     FieldIter->Reset();
-    CbmField *fi=0;
-    while( (fi = (CbmField*)FieldIter->Next() ) ) {
+    FairField *fi=0;
+    while( (fi = (FairField*)FieldIter->Next() ) ) {
          SetParameters(fi);
     }
    

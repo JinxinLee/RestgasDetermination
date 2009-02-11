@@ -1,18 +1,18 @@
 #ifndef CBMPlaneCONTFACT_H
 #define CBMPlaneCONTFACT_H
 
-#include "CbmContFact.h"
+#include "FairContFact.h"
 
-class CbmContainer;
+class FairContainer;
 
-class CbmPlaneContFact : public CbmContFact {
+class CbmPlaneContFact : public FairContFact {
 private:
   void setAllContainers();
 public:
   CbmPlaneContFact();
   ~CbmPlaneContFact() {}
-  CbmParSet* createContainer(CbmContainer*);
- /*  void  activateParIo(CbmParIo* io); */
+  FairParSet* createContainer(FairContainer*);
+ /*  void  activateParIo(FairParIo* io); */
   ClassDef( CbmPlaneContFact,0) // Factory for all Plane parameter containers
 };
 

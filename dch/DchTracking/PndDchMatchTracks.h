@@ -17,7 +17,7 @@
 #define PNDDCHMATCHTRACKS_H 1
 
 // Pnd includes
-#include "CbmTask.h"
+#include "FairTask.h"
 
 // C++ includes
 #include <map>
@@ -26,7 +26,7 @@ class TClonesArray;
 
 
 
-class PndDchMatchTracks : public CbmTask
+class PndDchMatchTracks : public FairTask
 {
 
 public:
@@ -41,11 +41,11 @@ public:
 
 	/** Constructor with name, title, digi/hits usage and verbosity
 	 *  \param name       Name of taks
-	 *  \param title      Title of task   (default CbmTask)
+	 *  \param title      Title of task   (default FairTask)
 	 *  \param hitOrDigi  Choose: Use digi, hit, chit
 	 *  \param verbose    Verbosity level (default 1)
 	 **/
-	PndDchMatchTracks(const char* name, const char* title = "CbmTask",
+	PndDchMatchTracks(const char* name, const char* title = "FairTask",
 			TString hitOrDigi = "hit", Int_t verbose = 1);
 
 
@@ -78,7 +78,7 @@ public:
 private:
 
 	TClonesArray* fTracks;       ///< Array of PndDchTracks
-	TClonesArray* fPoints;       ///< Array of CbmMCPoints
+	TClonesArray* fPoints;       ///< Array of FairMCPoints
 	TClonesArray* fHits;         ///< Array of PndDchHits
 	TClonesArray* fCylinderHits; ///< Array of PndDchCylinderHits
 	TClonesArray* fDigis;		 ///< Array of PndDchDigis

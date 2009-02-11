@@ -3,7 +3,7 @@
 // $Id$
 //
 // Description:
-//     CbmTask for creation of laser-beams in the TPC
+//     FairTask for creation of laser-beams in the TPC
 //     See "PndTpcLaser.h" for information on the Lasers
 //     Lasers can be added manually or read in from a file
 //     This file has to be of of a special format
@@ -23,7 +23,7 @@
 #define TPCLASERTASK_H
 
 // Base Class Headers ---------------------------------------
-#include "CbmTask.h"
+#include "FairTask.h"
 
 // External Headers -----------------------------------------
 #include <vector> 
@@ -33,7 +33,7 @@
 class PndTpcLaser;
 class TClonesArray;
 
-class PndTpcLaserTask : public CbmTask {
+class PndTpcLaserTask : public FairTask {
 
  public:
 

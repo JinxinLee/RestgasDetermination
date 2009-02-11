@@ -18,7 +18,7 @@ PndTofHit::PndTofHit() {
 // -----   Standard constructor   ------------------------------------------
 PndTofHit::PndTofHit(Int_t trackId, Int_t detID, TString detName,  Double_t time, Double_t dt,
 		     TVector3& pos,TVector3& dpos,Int_t index, Double_t charge) 
-: CbmHit(detID, pos, dpos, index) {
+: FairHit(detID, pos, dpos, index) {
   fDetName = detName;
   fTrackID = trackId;
   fCharge  = charge;
@@ -28,7 +28,7 @@ PndTofHit::PndTofHit(Int_t trackId, Int_t detID, TString detName,  Double_t time
 }
 
 /*PndTofHit::PndTofHit(PndTofHit& c) 
-: CbmHit()
+: FairHit()
 {
 	fDetName = c.GetDetName();
 	fTrackID = c.GetTrackID();

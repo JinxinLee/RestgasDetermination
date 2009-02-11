@@ -8,7 +8,7 @@
 
 using namespace std;
 #include "PndRpcContFact.h"
-#include "CbmRuntimeDb.h"
+#include "FairRuntimeDb.h"
 #include "PndRpcGeoPar.h"
 #include <iostream>
 #include <iomanip>
@@ -22,14 +22,14 @@ PndRpcContFact::PndRpcContFact() {
   fName="PndRpcContFact";
   fTitle="Factory for parameter containers in libRpc";
   setAllContainers();
-  CbmRuntimeDb::instance()->addContFactory(this);
+  FairRuntimeDb::instance()->addContFactory(this);
 }
 
 void PndRpcContFact::setAllContainers() {
   /** Creates the Container objects with all accepted contexts and adds them to
    *  the list of containers for the Rpc library.*/
 
-    CbmContainer* p= new CbmContainer("PndRpcGeoPar",
+    FairContainer* p= new FairContainer("PndRpcGeoPar",
                                           "Rpc Geometry Parameters",
                                           "TestDefaultContext");
     p->addContext("TestNonDefaultContext");
@@ -37,12 +37,12 @@ void PndRpcContFact::setAllContainers() {
     containers->Add(p);
 }
 
-CbmParSet* PndRpcContFact::createContainer(CbmContainer* c) {
+FairParSet* PndRpcContFact::createContainer(FairContainer* c) {
   /** Calls the constructor of the corresponding parameter container.
    * For an actual context, which is not an empty string and not the default context
    * of this container, the name is concatinated with the context. */
   const char* name=c->GetName();
-  CbmParSet* p=NULL;
+  FairParSet* p=NULL;
   if (strcmp(name,"PndRpcGeoPar")==0) {
     p=new PndRpcGeoPar(c->getConcatName().Data(),c->GetTitle(),c->getContext());
   }

@@ -7,7 +7,7 @@
   // ----  Load libraries   -------------------------------------------------
   gROOT->Macro("../Libs.C");
 
-  CbmRunSim *fRun = new CbmRunSim();
+  FairRunSim *fRun = new FairRunSim();
 
   // set the MC version used
   // ------------------------
@@ -29,19 +29,19 @@
   // Create and add detectors
   //-------------------------
 
-  CbmModule *Cave= new PndCave("CAVE");
+  FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave); 
 
-//   CbmModule *Magnet= new PndMagnet("MAGNET");
+//   FairModule *Magnet= new PndMagnet("MAGNET");
 //   Magnet->SetGeometryFileName("magnet.geo");
 //   fRun->AddModule(Magnet);
 
-  CbmModule *Pipe= new PndPipe("PIPE");
+  FairModule *Pipe= new PndPipe("PIPE");
   Pipe->SetGeometryFileName("pipebeamtarget.geo");
   fRun->AddModule(Pipe);
 
-  CbmDetector *Mvd = new PndMvdDetector("MVD", kFALSE);//kTRUE);
+  FairDetector *Mvd = new PndMvdDetector("MVD", kFALSE);//kTRUE);
   Mvd->SetGeometryFileName("MVD_v1.0_woPassiveTraps.root");
 //  Mvd->SetGeometryFileName("MVD_v1.0.root");
 //   Mvd->SetGeometryFileName("MVD14.root");
@@ -53,7 +53,7 @@
  // Create and Set Event Generator
  //-------------------------------
 
-  CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
+  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
   //ROOTino
   PndBoxGenerator *fBox1 = new PndBoxGenerator(0, 1);
@@ -76,9 +76,9 @@
   // Fill the Parameter containers for this run
   //-------------------------------------------
 
-  CbmRuntimeDb *rtdb=fRun->GetRuntimeDb();
+  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
   Bool_t kParameterMerged=kTRUE;
-  CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   output->open("../data/mvdTestGeo1.0_par.root");
   rtdb->setOutput(output);
   rtdb->saveOutput();

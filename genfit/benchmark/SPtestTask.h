@@ -2,9 +2,9 @@
 #define SPTESTTASK_H 
 
 
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "TVector3.h"
-#include "CbmGeanePro.h"
+#include "FairGeanePro.h"
 
 #include "TGraph.h"
 #include "TPolyLine3D.h"
@@ -17,7 +17,7 @@ class TClonesArray;
 class TTree;
 class CbmPlanePoint;
 
-class SPtestTask : public CbmTask
+class SPtestTask : public FairTask
 {
  public:
   /** Default constructor **/  
@@ -86,7 +86,7 @@ class SPtestTask : public CbmTask
   TGeant3 *gMC3;
   ClassDef(SPtestTask,1);
   Int_t fEvent;
-  CbmGeanePro *fPro;
+  FairGeanePro *fPro;
 };
 
 #endif

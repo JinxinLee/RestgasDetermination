@@ -45,6 +45,6 @@ SET(RPC_SRCS ${RPC_SRCS} ${RPC_DICTIONARY})
 
 add_library(Rpc SHARED ${RPC_SRCS})
 target_link_libraries(Rpc ${ROOT_LIBRARIES})
-set_target_properties(Rpc PROPERTIES ${CBMROOT_LIBRARY_PROPERTIES})
+set_target_properties(Rpc PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 ################ install ###################
 install(TARGETS Rpc DESTINATION ${CMAKE_BINARY_DIR}/lib)

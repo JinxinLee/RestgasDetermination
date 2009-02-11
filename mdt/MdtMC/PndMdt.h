@@ -10,14 +10,14 @@
 #include "TGeoManager.h"
 #include "TGeoVolume.h"
 
-#include "CbmRootManager.h"
-#include "CbmDetector.h"
-#include "CbmVolume.h"
+#include "FairRootManager.h"
+#include "FairDetector.h"
+#include "FairVolume.h"
 
 #include "PndGeoMdtPar.h"
 #include "PndMdtPoint.h"
 
-class PndMdt : public CbmDetector
+class PndMdt : public FairDetector
 {
 public:
     PndMdt();
@@ -27,7 +27,7 @@ public:
     void SetMdtVersion(TString);
 
 // hit
-    inline void Register() { CbmRootManager::Instance()->Register("MdtPoint","Mdt",fMdtCollection,kTRUE); };
+    inline void Register() { FairRootManager::Instance()->Register("MdtPoint","Mdt",fMdtCollection,kTRUE); };
     
    
     void ResetParameters();
@@ -56,7 +56,7 @@ public:
     void ConstructGeometry();
     void Initialize();
     void BeginEvent();
-    Bool_t ProcessHits(CbmVolume* vol);
+    Bool_t ProcessHits(FairVolume* vol);
     void EndOfEvent();
 
     static Int_t fTrkIn; 
@@ -69,8 +69,8 @@ private:
     TString version;
     void ConstructGeometryTo();
     void ConstructGeometryDu();
-    Bool_t ProcessHitsTo(CbmVolume* vol);
-    Bool_t ProcessHitsDu(CbmVolume* vol);
+    Bool_t ProcessHitsTo(FairVolume* vol);
+    Bool_t ProcessHitsDu(FairVolume* vol);
 
 // hit
     TClonesArray* fMdtCollection; //!

@@ -13,26 +13,26 @@
   TString outfile= "teststation.root";
 //  TFile* fi = new TFile(outfile,"RECREATE");
 
-  CbmGeoLoader* geoLoad = new CbmGeoLoader("TGeo","CbmGeoLoader");
-  CbmGeoInterface *geoFace = geoLoad->getGeoInterface();
+  FairGeoLoader* geoLoad = new FairGeoLoader("TGeo","FairGeoLoader");
+  FairGeoInterface *geoFace = geoLoad->getGeoInterface();
   geoFace->setMediaFile("../../../geometry/media_pnd.geo");
   geoFace->readMedia();
   geoFace->print();
 
-  CbmGeoMedia *Media =  geoFace->getMedia();
-  CbmGeoBuilder *geobuild=geoLoad->getGeoBuilder();
+  FairGeoMedia *Media =  geoFace->getMedia();
+  FairGeoBuilder *geobuild=geoLoad->getGeoBuilder();
 
-  CbmGeoMedium *CbmMediumAir  = Media->getMedium("air");
-  CbmGeoMedium *CbmMediumSilicon = Media->getMedium("silicon");
-  CbmGeoMedium *CbmMediumCarbon  = Media->getMedium("carbon");
-  CbmGeoMedium *CbmMediumAluminium = Media->getMedium("aluminium");
+  FairGeoMedium *CbmMediumAir  = Media->getMedium("air");
+  FairGeoMedium *CbmMediumSilicon = Media->getMedium("silicon");
+  FairGeoMedium *CbmMediumCarbon  = Media->getMedium("carbon");
+  FairGeoMedium *CbmMediumAluminium = Media->getMedium("aluminium");
 
   Int_t nmed=geobuild->createMedium(CbmMediumAir);
   nmed=geobuild->createMedium(CbmMediumSilicon);
   nmed=geobuild->createMedium(CbmMediumCarbon);
   nmed=geobuild->createMedium(CbmMediumAluminium);
 
-  TGeoManager* GeoMan = (TGeoManager*)gROOT->FindObject("CBMGeom");
+  TGeoManager* GeoMan = (TGeoManager*)gROOT->FindObject("FAIRGeom");
 
   TGeoVolume *top = new TGeoVolumeAssembly("SiliconTestStation");
 

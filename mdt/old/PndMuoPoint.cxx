@@ -6,7 +6,7 @@ using std::endl;
 #include "PndMuoPoint.h"
 
 // -----   Default constructor   -------------------------------------------
-PndMuoPoint::PndMuoPoint() : CbmMCPoint() {
+PndMuoPoint::PndMuoPoint() : FairMCPoint() {
   fTrackID    = -1;
   fDetectorID = -1;
   fEventID    = -1;

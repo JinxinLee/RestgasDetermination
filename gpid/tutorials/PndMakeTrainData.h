@@ -16,8 +16,8 @@
 #include <memory>
 #include "TSystem.h"
 #include "CbmMCTrack.h"
-#include "CbmMCPoint.h"
-#include "CbmTrackParH.h"
+#include "FairMCPoint.h"
+#include "FairTrackParH.h"
 #include "TNtuple.h"
 #include "TFile.h"
 #include "PndPidCand.h"

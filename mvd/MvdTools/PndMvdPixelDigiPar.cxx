@@ -2,12 +2,12 @@
 #include "PndMvdPixelDigiPar.h"
 
 PndMvdPixelDigiPar::PndMvdPixelDigiPar(const char* name, const char* title, const char* context)
-  : CbmParGenericSet(name,title,context)
+  : FairParGenericSet(name,title,context)
 {
   clear();
 }
 
-void PndMvdPixelDigiPar::putParams(CbmParamList* list)
+void PndMvdPixelDigiPar::putParams(FairParamList* list)
 {
   if(!list) return;
   list->add("dimX", fDimX);
@@ -21,7 +21,7 @@ void PndMvdPixelDigiPar::putParams(CbmParamList* list)
 //   list->add("feName", feName);
 }
 
-Bool_t PndMvdPixelDigiPar::getParams(CbmParamList* list)
+Bool_t PndMvdPixelDigiPar::getParams(FairParamList* list)
 {
   if (!list) return kFALSE;
   if (!list->fill("dimX",&fDimX)) return kFALSE;

@@ -29,7 +29,7 @@
 
   t->SetBranchAddress("GeoTracks",&fT) ;
 
- TGeoManager *geoMan = (TGeoManager*) f->Get("CBMGeom");
+ TGeoManager *geoMan = (TGeoManager*) f->Get("FAIRGeom");
  TCanvas* c1 = new TCanvas("glcanvas", "openGL", 100, 100, 800, 800);
  c1->SetFillColor(10);
 
@@ -46,7 +46,7 @@
 	for (Int_t i=0; i<fT->GetEntriesFast(); i++)	{
     		tr=(TGeoTrack *)fT->At(i);
                 Int_t Np=tr->GetNpoints();
-                CbmVTrack *pt = new CbmVTrack(Np); 
+                FairVTrack *pt = new FairVTrack(Np); 
                 pt->SetLineColor(tr->GetLineColor());
                 pt->SetLineWidth(2);
                 pt->SetTrack(tr);

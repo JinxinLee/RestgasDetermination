@@ -10,11 +10,11 @@
 #include "TGeoManager.h"
 #include "TGeoMatrix.h"
 
-#include "CbmRootManager.h"
-#include "CbmRunAna.h"
-#include "CbmRuntimeDb.h"
-#include "CbmGeoNode.h"
-#include "CbmGeoVector.h"
+#include "FairRootManager.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
+#include "FairGeoNode.h"
+#include "FairGeoVector.h"
 
 #include "PndStringVector.h"
 #include "PndGeoHypPar.h"
@@ -27,7 +27,7 @@
 //#include "PndHypClusterCand.h"
 #include "PndHypCluster.h"
 #include "PndHypGeoHandling.h"
-#include "CbmHit.h"
+#include "FairHit.h"
 #include "PndHypStripClusterBuilder.h"
 
 #include <map>
@@ -36,7 +36,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndHypStripClusterTask::PndHypStripClusterTask() :
-  CbmTask("HYP Strip Clustertisation Task")
+  FairTask("HYP Strip Clustertisation Task")
 {
   fChargeCut = 1.e6; // this ist really large and shall have no effect
   fGeoFile = "";
@@ -45,7 +45,7 @@ PndHypStripClusterTask::PndHypStripClusterTask() :
 
 // -----           constructor   -------------------------------------------
 PndHypStripClusterTask::PndHypStripClusterTask(Double_t chargecut,TString geoFile) :
-  CbmTask("HYP Strip Clustertisation Task")
+  FairTask("HYP Strip Clustertisation Task")
 {
   fChargeCut = chargecut;
   fGeoFile = geoFile;
@@ -65,8 +65,8 @@ void PndHypStripClusterTask::SetParContainers()
 {
   // Get Base Container
   
-  CbmRunAna* ana = CbmRunAna::Instance();
-  CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+  FairRunAna* ana = FairRunAna::Instance();
+  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
   //fGeoPar = (PndGeoHypPar*)(rtdb->getContainer("PndGeoHypPar"));
   fDigiPar = (PndHypStripDigiPar*)(rtdb->getContainer("PndHypStripDigiPar"));
 }
@@ -78,8 +78,8 @@ InitStatus PndHypStripClusterTask::ReInit()
   return stat;
   
   
-  /*CbmRunAna* ana = CbmRunAna::Instance();
-  CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+  /*FairRunAna* ana = FairRunAna::Instance();
+  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
  fGeoPar=(PndGeoHypPar*)(rtdb->getContainer("PndGeoHypPar"));
   return kSUCCESS;*/
  
@@ -92,7 +92,7 @@ InitStatus PndHypStripClusterTask::ReInit()
 InitStatus PndHypStripClusterTask::Init()
 {
   
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
 
   if ( ! ioman ) 
     {

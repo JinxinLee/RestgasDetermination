@@ -19,7 +19,7 @@
 #ifndef PNDDCHTRACKFINDERIDEAL_H
 #define PNDDCHTRACKFINDERIDEAL_H
 
-#include "CbmMCPoint.h"
+#include "FairMCPoint.h"
 #include "CbmMCTrack.h"
 
 #include "PndDchHit.h"

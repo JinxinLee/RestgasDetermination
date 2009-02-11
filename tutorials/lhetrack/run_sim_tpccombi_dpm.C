@@ -7,7 +7,7 @@ void run_sim_tpccombi_dpm(Int_t nEvents=100, Float_t pbarP=4.0){
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
 
-  CbmRunSim *fRun = new CbmRunSim();
+  FairRunSim *fRun = new FairRunSim();
   
   // set the MC version used
   // ------------------------
@@ -24,26 +24,26 @@ void run_sim_tpccombi_dpm(Int_t nEvents=100, Float_t pbarP=4.0){
   // Create and add detectors
   //-------------------------
 
-  CbmModule *Cave= new PndCave("CAVE");
+  FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave); 
   
-  CbmModule *Magnet= new PndMagnet("MAGNET");
+  FairModule *Magnet= new PndMagnet("MAGNET");
   Magnet->SetGeometryFileName("FullSolenoid.root");
   fRun->AddModule(Magnet);
 
-  CbmModule *Dipole= new PndMagnet("MAGNET");
+  FairModule *Dipole= new PndMagnet("MAGNET");
   Dipole->SetGeometryFileName("dipole.geo");
   fRun->AddModule(Dipole);
  
-  CbmModule *Pipe= new PndPipe("PIPE");
+  FairModule *Pipe= new PndPipe("PIPE");
   fRun->AddModule(Pipe);
 
-  CbmDetector *Tpc = new PndTpcDetector("TPC", kTRUE);
+  FairDetector *Tpc = new PndTpcDetector("TPC", kTRUE);
   Tpc->SetGeometryFileName("tpc.geo");
   fRun->AddModule(Tpc);
 
-  CbmDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
+  FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
   Mvd->SetGeometryFileName("MVD_v1.0_woPassiveTraps.root");
   fRun->AddModule(Mvd);
   
@@ -51,7 +51,7 @@ void run_sim_tpccombi_dpm(Int_t nEvents=100, Float_t pbarP=4.0){
   Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root");
   fRun->AddModule(Emc);   
   
-  CbmDetector *Tof = new PndTof("TOF",kTRUE);
+  FairDetector *Tof = new PndTof("TOF",kTRUE);
   Tof->SetGeometryFileName("tofbarrel.geo");
   fRun->AddModule(Tof);
  
@@ -64,14 +64,14 @@ void run_sim_tpccombi_dpm(Int_t nEvents=100, Float_t pbarP=4.0){
   Drc->SetRunCherenkov(kFALSE); // for fast sim Cherenkov -> kFALSE
   fRun->AddModule(Drc); 
   
-  //CbmDetector *Dch = new PndDchDetector("DCH", kTRUE);
+  //FairDetector *Dch = new PndDchDetector("DCH", kTRUE);
   //Dch->SetGeometryFileName("dch.root"); 
   //fRun->AddModule(Dch);
   
   // Create and Set Event Generator
   //-------------------------------
 
-  CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
+  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
   PndDpmDirect *Dpm= new PndDpmDirect(pbarP,1);
@@ -92,7 +92,7 @@ void run_sim_tpccombi_dpm(Int_t nEvents=100, Float_t pbarP=4.0){
   
   fRun->Init();
   
-  CbmRuntimeDb *rtdb=fRun->GetRuntimeDb();
+  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
   Bool_t kParameterMerged=kTRUE;
      
   PndMultiFieldPar* Par = (PndMultiFieldPar*) rtdb->getContainer("PndMultiFieldPar");
@@ -100,7 +100,7 @@ void run_sim_tpccombi_dpm(Int_t nEvents=100, Float_t pbarP=4.0){
   Par->setInputVersion(fRun->GetRunId(),1);
   Par->setChanged();
 
-  CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   output->open("params_tpccombi.root");
   rtdb->setOutput(output);
   rtdb->saveOutput();

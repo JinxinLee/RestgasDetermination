@@ -18,7 +18,7 @@
 
 #include "TClonesArray.h"
 #include "TLorentzVector.h"
-#include "CbmDetector.h"
+#include "FairDetector.h"
 
 class TClonesArray;
 class PndDchPoint;
@@ -26,7 +26,7 @@ class TGeoVolume;
 class TGeoNode; 
 
 
-class PndDchDetector : public CbmDetector 
+class PndDchDetector : public FairDetector 
 {
 
  public:
@@ -52,7 +52,7 @@ class PndDchDetector : public CbmDetector
    ** them to the collections.
    *@param vol  Pointer to the active volume
    **/
-  virtual Bool_t ProcessHits(CbmVolume* vol = 0);
+  virtual Bool_t ProcessHits(FairVolume* vol = 0);
 
 
   /** Virtual method EndOfEvent

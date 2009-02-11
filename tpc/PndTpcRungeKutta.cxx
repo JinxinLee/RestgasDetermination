@@ -139,7 +139,7 @@ PndTpcRungeKutta::getNextPoint(double* aP, double* errorEstimate)
   double k[6][6];
     
   //_bfield at the right point
-  //CbmFieldMap takes coordinates in [cm] and returns B in [kGauss] -> *0.1 !
+  //FairFieldMap takes coordinates in [cm] and returns B in [kGauss] -> *0.1 !
 
   double bFieldX, bFieldY, bFieldZ;
   //TVector3 bFieldValue = TVector3(0.,0.,0.);  

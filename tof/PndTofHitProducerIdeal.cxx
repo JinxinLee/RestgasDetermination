@@ -7,21 +7,21 @@
 
 #include "TClonesArray.h"
 #include "TGeoManager.h"
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "PndTofHitProducerIdeal.h"
 #include "PndTofHit.h"
 #include "TGeoBBox.h"
 //#include "PndTofHitInfo.h"
 #include "PndTofPoint.h"
-#include "CbmRunAna.h"
-#include "CbmRuntimeDb.h"
-#include "CbmGeoVector.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
+#include "FairGeoVector.h"
 #include "TVector3.h"
 
 
 // -----   Default constructor   -------------------------------------------
 PndTofHitProducerIdeal::PndTofHitProducerIdeal() :
-  CbmTask("Ideal PndTof Hit Producer") 
+  FairTask("Ideal PndTof Hit Producer") 
 {
 	fBranchName 	= "TofPoint";
 	fBranchName2 	= "TofSciFPoint";
@@ -30,7 +30,7 @@ PndTofHitProducerIdeal::PndTofHitProducerIdeal() :
 
 // -----   Default constructor   -------------------------------------------
 PndTofHitProducerIdeal::PndTofHitProducerIdeal(Double_t dt, Double_t dt2) :
-  CbmTask("Ideal PndTof Hit Producer") 
+  FairTask("Ideal PndTof Hit Producer") 
 {
 	fBranchName 	= "TofPoint";
 	fBranchName2 	= "TofSciFPoint";
@@ -48,7 +48,7 @@ PndTofHitProducerIdeal::~PndTofHitProducerIdeal()
 InitStatus PndTofHitProducerIdeal::Init() 
 {
   // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   
   if ( ! ioman ) 
     {
@@ -95,8 +95,8 @@ InitStatus PndTofHitProducerIdeal::Init()
 void PndTofHitProducerIdeal::SetParContainers()
 {
   // Get Base Container
-  CbmRun* ana = CbmRun::Instance();
-  CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+  FairRun* ana = FairRun::Instance();
+  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
   //fGeoPar = (PndGeoTofPar*)(rtdb->getContainer("PndGeoTofPar"));
 
 }
@@ -146,7 +146,7 @@ void PndTofHitProducerIdeal::Exec(Option_t* opt)
       // MCTrack ID
       trackID = point->GetTrackID();
 
-      CbmGeoVector posCInL, posCOut, meanPos, meanPosL;
+      FairGeoVector posCInL, posCOut, meanPos, meanPosL;
       Double_t ZLoc;Double_t Ztdc[3];
       Double_t DistZ[3];
 
@@ -310,7 +310,7 @@ void PndTofHitProducerIdeal::smear(Double_t& time, Double_t& fdt)
 }
 
 void PndTofHitProducerIdeal::GetLocalHitPoints(PndTofPoint* myPoint, 
-					       CbmGeoVector& myHitIn,CbmGeoVector& myInL)
+					       FairGeoVector& myHitIn,FairGeoVector& myInL)
 {
  	 
   if (fVerbose > 1)

@@ -7,7 +7,7 @@
 
 #include "PndMvdRadDamTask.h"
 
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "PndMvdMCPoint.h"
 #include "CbmMCTrack.h"
 #include "PndMvdRadDamHit.h"
@@ -41,7 +41,7 @@ InitStatus PndMvdRadDamTask::ReInit()
 
 InitStatus PndMvdRadDamTask::Init()
 {
-	CbmRootManager* ioman = CbmRootManager::Instance();
+	FairRootManager* ioman = FairRootManager::Instance();
 
 	if (!ioman)
 	{

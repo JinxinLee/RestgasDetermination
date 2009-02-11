@@ -1,6 +1,6 @@
 #include <iostream>
 #include "TClonesArray.h"
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "IllustrateTask.h"
 #include "TGeant3TGeo.h"
 #include "TGeant3.h"
@@ -12,7 +12,7 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TDatabasePDG.h"
-#include "CbmTrackParH.h"
+#include "FairTrackParH.h"
 
 #include "DetPlane.h"
 #include "GeaneTrackRep.h"
@@ -27,7 +27,7 @@ using namespace std;
 
 // -----   Default constructor   -------------------------------------------
 IllustrateTask::IllustrateTask() :
-  CbmTask("Test") { 
+  FairTask("Test") { 
 }
 // -------------------------------------------------------------------------
 
@@ -42,7 +42,7 @@ IllustrateTask::~IllustrateTask() { }
 InitStatus IllustrateTask::Init() {
 
   // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
     cout << "-E- IllustrateTask::Init: "
 	 << "RootManager not instantised!" << endl;
@@ -54,7 +54,7 @@ InitStatus IllustrateTask::Init() {
   fPointArray = (TClonesArray*) ioman->GetObject("PndTpcPoint");
   // Create and register output array
 
-  fPro = new CbmGeanePro();
+  fPro = new FairGeanePro();
 
   return kSUCCESS;
 

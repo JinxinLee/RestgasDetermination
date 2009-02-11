@@ -2,9 +2,9 @@
 #define ILLUSTRATETASK_H 
 
 
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "TVector3.h"
-#include "CbmGeanePro.h"
+#include "FairGeanePro.h"
 
 #include "TGraph.h"
 #include "TPolyLine3D.h"
@@ -19,7 +19,7 @@ class CbmPlanePoint;
 class AbsTrackRep;
 class DetPlane;
 
-class IllustrateTask : public CbmTask
+class IllustrateTask : public FairTask
 {
  public:
   /** Default constructor **/  
@@ -45,7 +45,7 @@ class IllustrateTask : public CbmTask
   TGeant3 *gMC3;
   ClassDef(IllustrateTask,1);
   Int_t fEvent;
-  CbmGeanePro *fPro;
+  FairGeanePro *fPro;
   TPolyLine3D* getLine(AbsTrackRep* rep,DetPlane startPl,int nSteps,double dist,bool backward=false);
 };
 

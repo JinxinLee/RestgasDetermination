@@ -7,10 +7,10 @@
 #include <TVector3.h>
 #include <TObjString.h>
 
-#include "CbmParGenericSet.h"
-#include "CbmParamList.h"
+#include "FairParGenericSet.h"
+#include "FairParamList.h"
 
-class PndTutPar : public CbmParGenericSet
+class PndTutPar : public FairParGenericSet
 {
 	public :
 		PndTutPar (const char* name="PndTutParTest",
@@ -18,8 +18,8 @@ class PndTutPar : public CbmParGenericSet
 			    const char* context="TestDefaultContext");
 		~PndTutPar(void){};
 		void clear(void){};
-		void putParams(CbmParamList* list);
-		Bool_t getParams(CbmParamList* list);
+		void putParams(FairParamList* list);
+		Bool_t getParams(FairParamList* list);
 		
 		void Print();
   /** Accessor functions **/

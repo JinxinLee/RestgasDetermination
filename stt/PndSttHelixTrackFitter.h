@@ -13,7 +13,7 @@
 #include "PndSttTrack.h"
 //#include "PndSttHit.h"
 //#include "PndSttPoint.h"
-//#include "CbmTrackParam.h"
+//#include "FairTrackParam.h"
 #include "PndSttTrackFitter.h"
 
 //#include "TH2F.h"
@@ -22,7 +22,7 @@
 
 #include <map>
 
-class CbmTrackParam;
+class FairTrackParam;
 class PndSttHit;
 //class PndSttTrackFitter;
 class TCanvas;
@@ -64,8 +64,8 @@ class PndSttHelixTrackFitter : public PndSttTrackFitter
 
   // xy plane ----------------------
   // intersection finder 
-  Bool_t IntersectionFinder(PndSttTrack *pTrack, CbmTrackParam *par);  
-  Bool_t IntersectionFinder4b(PndSttTrack *pTrack, CbmTrackParam *par); 
+  Bool_t IntersectionFinder(PndSttTrack *pTrack, FairTrackParam *par);  
+  Bool_t IntersectionFinder4b(PndSttTrack *pTrack, FairTrackParam *par); 
   // fit
   Int_t Fit4(PndSttTrack* pTrack, Int_t pidHypo); 
   Int_t Fit4b(PndSttTrack* pTrack, Int_t pidHypo);
@@ -109,7 +109,7 @@ class PndSttHelixTrackFitter : public PndSttTrackFitter
 
 
   virtual void Extrapolate( PndSttTrack* track, Double_t r, 
-			    CbmTrackParam *param );
+			    FairTrackParam *param );
 
   // marray reset
   void ResetMArray();

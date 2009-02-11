@@ -9,10 +9,10 @@
 #include "PndDchFindTracks.h"
 #include "PndDchTrackFinder.h"
 
-#include "CbmRootManager.h"
-#include "CbmRunAna.h"
-#include "CbmRuntimeDb.h"
-#include "CbmBaseParSet.h"
+#include "FairRootManager.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
+#include "FairBaseParSet.h"
 
 // ROOT includes
 #include "TClonesArray.h"
@@ -25,7 +25,7 @@ using std::endl;
 class iostream;
 
 // Pnd declaration
-class CbmBaseParSet;
+class FairBaseParSet;
 class PndDchHit;
 class PndDchCylinderHit;
 class PndDchDigi;
@@ -48,7 +48,7 @@ PndDchFindTracks::PndDchFindTracks() {
 PndDchFindTracks::PndDchFindTracks(const char* name, 
 		const char* title, 
 		PndDchTrackFinder* finder) 
-: CbmTask(name) {
+: FairTask(name) {
 	fFinder              = finder;
 	fDchHitArray         = NULL;
 	fDchCylinderHitArray = NULL;
@@ -78,8 +78,8 @@ InitStatus PndDchFindTracks::Init() {
 		return kERROR;
 	}
 
-	// Get and check CbmRootManager
-	CbmRootManager* ioman = CbmRootManager::Instance();
+	// Get and check FairRootManager
+	FairRootManager* ioman = FairRootManager::Instance();
 	if( !ioman ) {
 		cout << "-E- PndDchFindTracks::Init: "
 		<< "RootManager not instantised!" << endl;
@@ -137,9 +137,9 @@ InitStatus PndDchFindTracks::Init() {
 
 // -----  SetParContainers -------------------------------------------------
 void PndDchFindTracks::SetParContainers() {
-	CbmRunAna* ana = CbmRunAna::Instance();
-	CbmRuntimeDb* rtdb = ana->GetRuntimeDb();
-	rtdb->getContainer("CbmBaseParSet");
+	FairRunAna* ana = FairRunAna::Instance();
+	FairRuntimeDb* rtdb = ana->GetRuntimeDb();
+	rtdb->getContainer("FairBaseParSet");
 	rtdb->getContainer("PndGeoPassivePar");
 }
 // -------------------------------------------------------------------------

@@ -26,7 +26,7 @@
 #include <string>
 
 // Collaborating Class Headers --------
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "TClonesArray.h"
 #include "Track.h"
 
@@ -43,7 +43,7 @@
 
 
 TrackVisTask::TrackVisTask()
-  : CbmTask("TrackVis"), _persistence(kFALSE)//, app("app",0,NULL)
+  : FairTask("TrackVis"), _persistence(kFALSE)//, app("app",0,NULL)
 {
   _trackBranchName = "TrackPostFit";
 
@@ -59,7 +59,7 @@ InitStatus
 TrackVisTask::Init()
 {
   //Get ROOT Manager
-  CbmRootManager* ioman= CbmRootManager::Instance();
+  FairRootManager* ioman= FairRootManager::Instance();
 
   if(ioman==0)
     {

@@ -22,9 +22,9 @@
 // Collaborating Class Headers --------
 #include "PndTpcGas.h"
 #include "TClonesArray.h"
-#include "CbmRootManager.h"
-#include "CbmRunAna.h"
-#include "CbmRuntimeDb.h"
+#include "FairRootManager.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
 #include "PndTpcPoint.h"
 #include "PndTpcDigiPar.h"
 
@@ -37,7 +37,7 @@
 // Class Member definitions -----------
 
 PndTpcSpaceChargeTask::PndTpcSpaceChargeTask()		//default constructor
-  : 	CbmTask("TPC Space Charge"),
+  : 	FairTask("TPC Space Charge"),
 	//_tpcMinR(15.5),	
 	//_tpcMaxR(41.5),         //these are all default values
 	//_tpcMinZ(-39.5),        //change with set-functions individually
@@ -61,7 +61,7 @@ PndTpcSpaceChargeTask::Init()
 {
 
   //Get ROOT Manager
-  CbmRootManager* ioman= CbmRootManager::Instance();
+  FairRootManager* ioman= FairRootManager::Instance();
   
   if(ioman==0)
     {
@@ -119,10 +119,10 @@ PndTpcSpaceChargeTask::SetParContainers() {
   std::cout.flush();
 
   // Get run and runtime database
-  CbmRun* run = CbmRun::Instance();
+  FairRun* run = FairRun::Instance();
   if ( ! run ) Fatal("SetParContainers", "No analysis run");
 
-  CbmRuntimeDb* db = run->GetRuntimeDb();
+  FairRuntimeDb* db = run->GetRuntimeDb();
   if ( ! db ) Fatal("SetParContainers", "No runtime database");
 
   // Get PndTpc digitisation parameter container

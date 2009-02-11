@@ -19,7 +19,7 @@
   gSystem->Load("libEmc"); 
   gSystem->Load("libGen");
   
-  CbmRunSim *fRun = new CbmRunSim();
+  FairRunSim *fRun = new FairRunSim();
   
   // Set the number of events
   Int_t nEvents = 1000; 
@@ -39,7 +39,7 @@
   // Create and add detectors
   //-------------------------
 
-  CbmModule *Cave= new PndCave("CAVE");
+  FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave); 
   
@@ -50,18 +50,18 @@
   // Create and Set Event Generator
   //-------------------------------
   
-  CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
+  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
   // EvtGen Generator: 
 
-  CbmEvtGenGenerator* evtGen = new CbmEvtGenGenerator("output.evt");
+  FairEvtGenGenerator* evtGen = new FairEvtGenGenerator("output.evt");
   primGen->AddGenerator(evtGen);  
   
   //fRun->SetStoreTraj(kTRUE); // to store particle trajectories 
   
   //magnetic field: no field when commented put
-  //CbmFieldConst *fMagField=new CbmFieldConst();
+  //FairFieldConst *fMagField=new FairFieldConst();
   //fMagField->SetField(0.,0.,20.); // values are in kG
   //fMagField->SetFieldRegion(-50, 50,-50, 50, -100, 100);// values are in cm (xmin,xmax,ymin,ymax,zmin,zmax)
   //fRun->SetField(fMagField);
@@ -71,9 +71,9 @@
   // Fill the Parameter containers for this run
   //-------------------------------------------
   
-  CbmRuntimeDb *rtdb=fRun->GetRuntimeDb();
+  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
   Bool_t kParameterMerged=kTRUE;
-  CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   output->open("simparams.root");
   rtdb->setOutput(output);
   rtdb->saveOutput();

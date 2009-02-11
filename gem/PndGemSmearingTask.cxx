@@ -14,12 +14,12 @@
 #include "TGeoMatrix.h"
 
 // framework includes
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "PndGemSmearingTask.h"
-#include "CbmRunAna.h"
-#include "CbmRuntimeDb.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
 #include "../mcstack/CbmMCTrack.h"
-#include "CbmHit.h"
+#include "FairHit.h"
 // PndGem includes
 #include "PndGemHit.h"
 #include "PndGemMCPoint.h"
@@ -28,7 +28,7 @@
 // -----   Default constructor   -------------------------------------------
 PndGemSmearingTask::PndGemSmearingTask() :
   fHitCovMatrix(3,3),
-  CbmTask("Ideal reconstruction task for PANDA PndGem")
+  FairTask("Ideal reconstruction task for PANDA PndGem")
 {
   fSigmaX=0.;
   fSigmaY=0.;
@@ -40,7 +40,7 @@ PndGemSmearingTask::PndGemSmearingTask() :
 // -----   Constructor   ---------------------------------------------------
 PndGemSmearingTask::PndGemSmearingTask(Double_t sx, Double_t sy, Double_t sz) :
   fHitCovMatrix(3,3),
-  CbmTask("Ideal reconstruction task for PANDA PndGem")
+  FairTask("Ideal reconstruction task for PANDA PndGem")
 {
   fSigmaX=sx;
   fSigmaY=sy;
@@ -59,7 +59,7 @@ PndGemSmearingTask::~PndGemSmearingTask()
 InitStatus PndGemSmearingTask::Init()
 {
   // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
     std::cout << "-E- PndGemSmearingTask::Init: "
 							<< "RootManager not instantiated!" << std::endl;
@@ -92,8 +92,8 @@ InitStatus PndGemSmearingTask::Init()
 void PndGemSmearingTask::SetParContainers()
 {
   // Get Base Container
-  CbmRun* ana = CbmRun::Instance();
-  CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+  FairRun* ana = FairRun::Instance();
+  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
 
 }
 
@@ -132,10 +132,10 @@ void PndGemSmearingTask::Exec(Option_t* opt)
 
     // TODO here we shall distinguish between strip and pixel sensors
     // TODO How to handle the covariance matrix? OR do we really use local point
-    // errors. this would avoid two conversations, myabe overload the CbmHit
+    // errors. this would avoid two conversations, myabe overload the FairHit
     // functions for the global error points.
 
-    // Now the 3D Info is smared inside the CbmHit part of PndGemHit
+    // Now the 3D Info is smared inside the FairHit part of PndGemHit
     new ((*fHitOutputArray)[size]) PndGemHit(fCurrentPndGemMCPoint->GetDetectorID(),
 					   (fCurrentPndGemMCPoint->GetDetName()).Data(),
       					   pos,dposLocal,iMvdPoint,fCurrentPndGemMCPoint->GetEnergyLoss(),1);

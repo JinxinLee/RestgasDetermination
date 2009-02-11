@@ -8,9 +8,9 @@
 #include "TArrayD.h"
 #include "TGeoManager.h"
 
-#include "CbmRootManager.h"
-#include "CbmRunAna.h"
-#include "CbmRuntimeDb.h"
+#include "FairRootManager.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
 
 #include "PndHypIdealTrackFinderTask.h"
 #include "PndHypDigiStrip.h"
@@ -20,7 +20,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndHypIdealTrackFinderTask::PndHypIdealTrackFinderTask() :
-  CbmTask("HYP Ideal Track Finding Task")
+  FairTask("HYP Ideal Track Finding Task")
 {
   fHitBranchStrip = "HypHit";
    //fHitBranchPixel = "MVDHitsPixel";
@@ -48,8 +48,8 @@ void PndHypIdealTrackFinderTask::SetParContainers()
 {
   // Get Base Container
 /*  
-  CbmRunAna* ana = CbmRunAna::Instance();
-  CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+  FairRunAna* ana = FairRunAna::Instance();
+  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
   fGeoPar = (PndHypGeoPar*)(rtdb->getContainer("PndHypGeoPar"));
 */
 }
@@ -61,8 +61,8 @@ InitStatus PndHypIdealTrackFinderTask::ReInit()
   return stat;
   
   /*
-  CbmRunAna* ana = CbmRunAna::Instance();
-  CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+  FairRunAna* ana = FairRunAna::Instance();
+  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
   fGeoPar=(PndHypGeoPar*)(rtdb->getContainer("PndHypGeoPar"));
   
   return kSUCCESS;
@@ -73,7 +73,7 @@ InitStatus PndHypIdealTrackFinderTask::ReInit()
 InitStatus PndHypIdealTrackFinderTask::Init() 
 {
   
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
 
   if ( ! ioman ) 
     {

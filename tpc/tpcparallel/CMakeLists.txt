@@ -84,7 +84,7 @@ SET(TPCPARA_SRCS ${TPCPARA_SRCS} ${TPCPARA_DICTIONARY})
 
 add_library(tpcpara SHARED ${TPCPARA_SRCS})
 target_link_libraries(tpcpara ${ROOT_LIBRARIES})
-set_target_properties(tpcpara PROPERTIES ${CBMROOT_LIBRARY_PROPERTIES})
+set_target_properties(tpcpara PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 
 
 ############### MPI binaries ##################

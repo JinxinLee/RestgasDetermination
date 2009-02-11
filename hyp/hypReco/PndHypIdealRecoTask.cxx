@@ -15,12 +15,12 @@
 #include "TGeoMatrix.h"
 
 // framework includes
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "PndHypIdealRecoTask.h"
-#include "CbmRunAna.h"
-#include "CbmRuntimeDb.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
 #include "CbmMCTrack.h"
-#include "CbmHit.h"
+#include "FairHit.h"
 // Hyp includes
 #include "PndHypHit.h"
 #include "PndHypPoint.h"
@@ -29,7 +29,7 @@
 // -----   Default constructor   -------------------------------------------
 PndHypIdealRecoTask::PndHypIdealRecoTask() :
   fHitCovMatrix(3,3),
-  CbmTask("Ideal reconstruction task for PANDA Hyp")
+  FairTask("Ideal reconstruction task for PANDA Hyp")
 {
   fSigmaX=0.; 
   fSigmaY=0.;
@@ -41,7 +41,7 @@ PndHypIdealRecoTask::PndHypIdealRecoTask() :
 // -----   Constructor   ---------------------------------------------------
 PndHypIdealRecoTask::PndHypIdealRecoTask(Double_t sx, Double_t sy, Double_t sz) :
   fHitCovMatrix(3,3),
-  CbmTask("Ideal reconstruction task for PANDA Hyp")
+  FairTask("Ideal reconstruction task for PANDA Hyp")
 {
   fSigmaX=sx;
   fSigmaY=sy;
@@ -61,7 +61,7 @@ delete fGeoH;
 InitStatus PndHypIdealRecoTask::Init()
 {
   // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
     std::cout << "-E- PndHypIdealRecoTask::Init: "
 							<< "RootManager not instantiated!" << std::endl;
@@ -95,8 +95,8 @@ InitStatus PndHypIdealRecoTask::Init()
 void PndHypIdealRecoTask::SetParContainers()
 {
   // Get Base Container
-  CbmRun* ana = CbmRun::Instance();
-  CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+  FairRun* ana = FairRun::Instance();
+  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
   std::cout << "-I- rtdb = "<<rtdb << std::endl;
 
 }
@@ -144,7 +144,7 @@ void PndHypIdealRecoTask::Exec(Option_t* opt)
       TVector3 dposLocal(fSigmaX,fSigmaY,fSigmaZ);
       
       // TODO here we shall distinguish between strip and pixel sensors
-      // Now the 3D Info is smared inside the CbmHit part of HypCluster
+      // Now the 3D Info is smared inside the FairHit part of HypCluster
       new ((*fHitOutputArray)[size]) PndHypHit(fCurrentHypPoint->GetVolumeID(),
 					       (fCurrentHypPoint->GetDetName()).Data(),
 					       pos,dposLocal,

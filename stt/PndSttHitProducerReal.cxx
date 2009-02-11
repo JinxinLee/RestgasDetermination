@@ -15,7 +15,7 @@
 #include "PndSttPoint.h"
 #include "PndSttSingleStraw.h"
 
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 
 #include "TClonesArray.h"
 #include "TGeoManager.h"
@@ -29,7 +29,7 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndSttHitProducerReal::PndSttHitProducerReal() :
-  CbmTask("Ideal STT Hit Producer") { }
+  FairTask("Ideal STT Hit Producer") { }
 // -------------------------------------------------------------------------
 
 
@@ -44,7 +44,7 @@ PndSttHitProducerReal::~PndSttHitProducerReal() { }
 InitStatus PndSttHitProducerReal::Init() {
   
   // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
     cout << "-E- PndSttHitProducerReal::Init: "
 	 << "RootManager not instantiated!" << endl;
@@ -70,7 +70,7 @@ InitStatus PndSttHitProducerReal::Init() {
   // Geometry loading
   TFile *tstfile=ioman->GetInFile();
   
-  TGeoManager *geoMan = (TGeoManager*) tstfile->Get("CBMGeom");
+  TGeoManager *geoMan = (TGeoManager*) tstfile->Get("FAIRGeom");
   fVolumeArray = geoMan->GetListOfVolumes();
 
   fVolumeArray = gGeoManager->GetListOfVolumes();
@@ -160,7 +160,7 @@ void PndSttHitProducerReal::Exec(Option_t* opt) {
     //if (distance != 0)  dedx = depCharge/(1000000 * distance);  // in arbitrary units
     
     // stt2: detID, pos, dpos, index come from --------------
-    // stt2 (CbmHit):
+    // stt2 (FairHit):
     Double_t closestDistanceError = 0.0150; // per adesso (stessa che in Ideal: 
                                             // radialResolution = 0.0150)
 

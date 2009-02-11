@@ -23,23 +23,23 @@ void simfast_singletracks(int abslund=211, int mult=10, int soff=0,int nevts=0,T
   if (outfile=="") outfile="singletracks.root";
 
 
-  CbmRunSim *fRun = new CbmRunSim();
+  FairRunSim *fRun = new FairRunSim();
   fRun->SetOutputFile(outfile.Data());
 
     // Create and Set Event Generator
     //-------------------------------
 
-  CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
+  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
-  CbmBoxGenerator *boxGen1=new CbmBoxGenerator();
+  FairBoxGenerator *boxGen1=new FairBoxGenerator();
   boxGen1->SetMultiplicity(mult);
   boxGen1->SetPDGType(abslund);  
   boxGen1->SetThetaRange(0,180);
   boxGen1->SetPRange(0.05,8);
   primGen->AddGenerator(boxGen1);
 
-  CbmBoxGenerator *boxGen2=new CbmBoxGenerator();
+  FairBoxGenerator *boxGen2=new FairBoxGenerator();
   boxGen2->SetMultiplicity(mult);
   boxGen2->SetPDGType(-abslund);  
   boxGen2->SetThetaRange(0,180);
@@ -47,7 +47,7 @@ void simfast_singletracks(int abslund=211, int mult=10, int soff=0,int nevts=0,T
   primGen->AddGenerator(boxGen2);
 
 
-  //  CbmEvtGenGenerator* evtGen = new CbmEvtGenGenerator(infile.Data());
+  //  FairEvtGenGenerator* evtGen = new FairEvtGenGenerator(infile.Data());
   //  primGen->AddGenerator(evtGen);
 
   primGen->DoTracking(kFALSE);

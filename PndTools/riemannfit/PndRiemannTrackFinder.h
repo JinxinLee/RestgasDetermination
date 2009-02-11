@@ -3,7 +3,7 @@
 
 #include "PndRiemannTrack.h"
 #include "PndRiemannHit.h"
-#include "CbmHit.h"
+#include "FairHit.h"
 
 #include "TClonesArray.h"
 #include "TrackCand.h"
@@ -19,10 +19,10 @@ public:
 	
 	void FindTracks();										///< Main function to start the riemann track finding
 	void MergeTracks();
-	void SetHits(std::vector<CbmHit*> hits){fHits = hits;};	///< Replaces the existing array of hits with a new one
-	void AddHits(std::vector<CbmHit*> hits);				///< Appends the new array of hits to the existing one
+	void SetHits(std::vector<FairHit*> hits){fHits = hits;};	///< Replaces the existing array of hits with a new one
+	void AddHits(std::vector<FairHit*> hits);				///< Appends the new array of hits to the existing one
 	void AddHits(TClonesArray* hits);						///< Appends the new array of hits to the existing one
-	void AddHit(CbmHit* hit){fHits.push_back(hit);};		///< Adds one new hit to the array of hits
+	void AddHit(FairHit* hit){fHits.push_back(hit);};		///< Adds one new hit to the array of hits
 	void SetVerbose (int val){fVerbose = val;}
 	int NTracks(){return fTrackCand.size();};					///< Returns the number of found tracks
 	PndRiemannTrack GetTrack(int i){return fTracks[i];};	///< Returns the track with the index i
@@ -30,8 +30,8 @@ public:
 	std::vector<TrackCand> GetTrackCand(){return fTrackCand;}
 	std::vector<TrackCand> GetMergedTrackCands(){return fMergedTrackCand;}
 	TrackCand GetTrackCand(int i) {return fTrackCand[i];}
-	double HitDistance(CbmHit* h1, CbmHit* h2);				///< Calculates the distance between two hits
-	int HitTooClose(std::vector<Int_t> hitsInUse, CbmHit* newHit, double threshold); ///< returns if and which hit was too close to the hit which is tested
+	double HitDistance(FairHit* h1, FairHit* h2);				///< Calculates the distance between two hits
+	int HitTooClose(std::vector<Int_t> hitsInUse, FairHit* newHit, double threshold); ///< returns if and which hit was too close to the hit which is tested
 	
 	void SetMaxPlaneDistance(double val){fMaxPlaneDist = val;}
 	void SetMaxSZDist(double val){fMaxSZDist = val;}
@@ -45,7 +45,7 @@ public:
 	void SetDipDiff(double val){fDipDiff = val;}
 	
 private:
-	std::vector<CbmHit*> fHits;							///< Vector of CbmHits used for track finding (fitting)
+	std::vector<FairHit*> fHits;							///< Vector of FairHits used for track finding (fitting)
 	std::vector<PndRiemannTrack> fTracks;				///< Resulting Riemann Tracks
 	std::vector<std::vector<Int_t> > fHitsInTracks;		///< Vector of indizes which hits where used in which track
 	std::vector<TrackCand> fTrackCand;

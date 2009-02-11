@@ -13,7 +13,7 @@
   TString simOutput="mvdqasim.root";
   TString parOutput="mvdqapar.root";
 
-  CbmRunSim *fRun = new CbmRunSim();
+  FairRunSim *fRun = new FairRunSim();
 
   fRun->SetName("TGeant4");
   // Choose the Geant Navigation System
@@ -22,29 +22,29 @@
 
   fRun->SetMaterials("media_pnd.geo");
 
-  CbmModule *Cave= new PndCave("CAVE");
+  FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave);
 
-  CbmModule *Pipe= new PndPipe("PIPE");
+  FairModule *Pipe= new PndPipe("PIPE");
   Pipe->SetGeometryFileName("pipebeamtarget.geo");
   fRun->AddModule(Pipe);
 
-  CbmDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
+  FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
   Mvd->SetGeometryFileName("MVD_v1.0_woPassiveTraps.root");
   Mvd->SetVerboseLevel(verboseLevel);
   fRun->AddModule(Mvd);
 
-//  CbmModule *Magnet= new PndMagnet("MAGNET");
+//  FairModule *Magnet= new PndMagnet("MAGNET");
 //  Magnet->SetGeometryFileName("magnet.geo");
 //  fRun->AddModule(Magnet);
 
-  CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
+  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
   // Box Generator
   //Pions
-  CbmBoxGenerator *fBox = new CbmBoxGenerator(211, 5);
+  FairBoxGenerator *fBox = new FairBoxGenerator(211, 5);
     fBox->SetPRange(0.1,2.5); // GeV/c
     fBox->SetPhiRange(0.,360); // Azimuth angle range [degree]
     fBox->SetThetaRange(5,150); // Polar angle in lab system range [degree]
@@ -69,7 +69,7 @@
 
   // Fill the Parameter containers for this run
   //-------------------------------------------
-  CbmRuntimeDb *rtdb=fRun->GetRuntimeDb();
+  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
 
   PndMultiFieldPar* Par = (PndMultiFieldPar*) rtdb->getContainer("PndMultiFieldPar");
   if (fField) {  Par->SetParameters(fField); }
@@ -77,7 +77,7 @@
   Par->setChanged();
 
   Bool_t kParameterMerged=kTRUE;
-  CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   output->open(parOutput.Data(),"RECREATE");
   rtdb->setOutput(output);
 

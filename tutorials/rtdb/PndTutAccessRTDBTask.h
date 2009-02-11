@@ -2,7 +2,7 @@
 #define PNDTUTACCESSRTDBTASK_H
 
 
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "PndTutPar.h"
 
 #include <string>
@@ -10,7 +10,7 @@
  
 class TClonesArray;
 
-class PndTutAccessRTDBTask : public CbmTask
+class PndTutAccessRTDBTask : public FairTask
 {
  public:
 

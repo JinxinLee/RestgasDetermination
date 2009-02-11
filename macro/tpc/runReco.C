@@ -104,7 +104,7 @@
   
 
   // -----   Digitization run   -------------------------------------------
-  CbmRunAna *fRun= new CbmRunAna();
+  FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
 //mcFile.ReplaceAll("$PANDAMC","/home/felix/simulation/fairsoft/data/Pi_0.2GeV_15deg_withMVD");
   fRun->AddFriend(mcFile);
@@ -112,18 +112,18 @@
   // ------------------------------------------------------------------------
 
   //prepare GEANE
-  CbmGeane *Geane = new CbmGeane(mcFile);
+  FairGeane *Geane = new FairGeane(mcFile);
   
 
   // -----  Parameter database   --------------------------------------------
-  CbmRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  CbmParRootFileIo* parInput1 = new CbmParRootFileIo();
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open(paramIn.Data());
   rtdb->setFirstInput(parInput1);
   
   rtdb->Print();
 
-  CbmParRootFileIo* parOutput1 = new CbmParRootFileIo(kTRUE);
+  FairParRootFileIo* parOutput1 = new FairParRootFileIo(kTRUE);
   parOutput1->open(paramOut.Data());
   rtdb->setOutput(parOutput1);
   rtdb->saveOutput();

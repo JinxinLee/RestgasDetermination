@@ -17,7 +17,7 @@
 //   gROOT->Macro("Libs.C");
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 
-  CbmRunSim *fRun = new CbmRunSim();
+  FairRunSim *fRun = new FairRunSim();
 
   // set the MC version used
   // ------------------------
@@ -34,59 +34,59 @@
   // Create and add detectors
   //-------------------------
 
-  CbmModule *Cave= new PndCave("CAVE");
+  FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave);
 
-  CbmModule *Magnet= new PndMagnet("MAGNET");
+  FairModule *Magnet= new PndMagnet("MAGNET");
   Magnet->SetGeometryFileName("magnet.geo");
   fRun->AddModule(Magnet);
 
-  CbmModule *Pipe= new PndPipe("PIPE");
+  FairModule *Pipe= new PndPipe("PIPE");
   Pipe->SetGeometryFileName("pipebeamtarget.geo");
   fRun->AddModule(Pipe);
 
-  CbmDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
+  FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
   Mvd->SetGeometryFileName("MVD_v1.0_woPassiveTraps.root");
 //   Mvd->SetGeometryFileName("MVD14.root");
   Mvd->SetVerboseLevel(verboseLevel);
   fRun->AddModule(Mvd);
 
-//  CbmDetector *Stt= new CbmStt("STT", kTRUE);
+//  FairDetector *Stt= new CbmStt("STT", kTRUE);
 //  Stt->SetGeometryFileName("straws_axial.geo");
 //  fRun->AddModule(Stt);
 
-//  CbmDetector *Emc = new CbmEmc("EMC",kTRUE);
+//  FairDetector *Emc = new CbmEmc("EMC",kTRUE);
 //  Emc->SetGeometryFileName("emc_module12345.dat");
 //  fRun->AddModule(Emc);
 
-//  CbmDetector *Drc = new CbmDrc("DIRC", kTRUE);
+//  FairDetector *Drc = new CbmDrc("DIRC", kTRUE);
 //  Drc->SetGeometryFileName("dirc.geo");
 //  fRun->AddModule(Drc);
 
 
-  CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
+  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
  // Particle Generator (pdgid,mult, px,py,pz, vx,vy,vz)
 
      // single pions for testing
-//      CbmParticleGenerator* partGenX   = new CbmParticleGenerator(211,1, 1.,0.,0., 0.,0.,0.);
-//      CbmParticleGenerator* partGenY   = new CbmParticleGenerator(211,1, 0.,1.,0., 0.,0.,0.);
-//      CbmParticleGenerator* partGenZ   = new CbmParticleGenerator(211,1, 0.,0.1,1., 0.,0.,0.);
-//      CbmParticleGenerator* partGenXYZ = new CbmParticleGenerator(211,1, 1.,1.,5., 0.,0.,0.);
+//      FairParticleGenerator* partGenX   = new FairParticleGenerator(211,1, 1.,0.,0., 0.,0.,0.);
+//      FairParticleGenerator* partGenY   = new FairParticleGenerator(211,1, 0.,1.,0., 0.,0.,0.);
+//      FairParticleGenerator* partGenZ   = new FairParticleGenerator(211,1, 0.,0.1,1., 0.,0.,0.);
+//      FairParticleGenerator* partGenXYZ = new FairParticleGenerator(211,1, 1.,1.,5., 0.,0.,0.);
 //      primGen->AddGenerator(partGenX);
 //      primGen->AddGenerator(partGenY);
 //      primGen->AddGenerator(partGenZ);
 //      primGen->AddGenerator(partGenXYZ);
 
  // Ion Generator
- //    CbmIonGenerator *fIongen= new CbmIonGenerator(79, 197,79,1, 0.,0., 25, 0.,0.,-1.);
+ //    FairIonGenerator *fIongen= new FairIonGenerator(79, 197,79,1, 0.,0., 25, 0.,0.,-1.);
  //    primGen->AddGenerator(fIongen);
 
   // Box Generator
   //Pions
- CbmBoxGenerator *fBox = new CbmBoxGenerator(211, 1);
+ FairBoxGenerator *fBox = new FairBoxGenerator(211, 1);
     fBox->SetPRange(0.1,2.5);
     fBox->SetThetaRange(5,150);
     fBox->SetPhiRange(0.,360);
@@ -94,12 +94,12 @@
     primGen->AddGenerator(fBox);
 
   //EvtGen Generator
-//    CbmEvtGenGenerator* evtGen = new
-//      CbmEvtGenGenerator("/home/ralfk/Pandaroot/pandaroot/macro/mvd/output.evt");
+//    FairEvtGenGenerator* evtGen = new
+//      FairEvtGenGenerator("/home/ralfk/Pandaroot/pandaroot/macro/mvd/output.evt");
 //    primGen->AddGenerator(evtGen);
 
   // Urqmd  Generator
-  //    CbmUrqmdGenerator* urqmdGen = new CbmUrqmdGenerator("../../input/00-03fm.100ev.f14");
+  //    FairUrqmdGenerator* urqmdGen = new FairUrqmdGenerator("../../input/00-03fm.100ev.f14");
   //    primGen->AddGenerator(urqmdGen);
 
   // DPM Generator
@@ -131,7 +131,7 @@
  // -----------------------------------------------
 
  // Set cuts for storing the trajectpries
-//   CbmTrajFilter* trajFilter = CbmTrajFilter::Instance();
+//   FairTrajFilter* trajFilter = FairTrajFilter::Instance();
 //     trajFilter->SetStepSizeCut(0.01); // 1 cm
 //     trajFilter->SetVertexCut(-200., -200., -200, 200., 200., 200.);
 //     trajFilter->SetMomentumCutP(10e-3); // p_lab > 10 MeV
@@ -142,9 +142,9 @@
 
   // Fill the Parameter containers for this run
   //-------------------------------------------
-  CbmRuntimeDb *rtdb=fRun->GetRuntimeDb();
+  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
   Bool_t kParameterMerged=kTRUE;
-  CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   output->open(parOutput.Data(),"RECREATE");
   rtdb->setOutput(output);
   PndMultiFieldPar* Par = (PndMultiFieldPar*) rtdb->getContainer("PndMultiFieldPar");

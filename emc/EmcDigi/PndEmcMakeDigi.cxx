@@ -16,9 +16,9 @@
 #include "PndEmcMapper.h"
 #include "PndEmcStructure.h"
 
-#include "CbmRootManager.h"
-#include "CbmRunAna.h"
-#include "CbmRuntimeDb.h"
+#include "FairRootManager.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
 
 #include "TClonesArray.h"
 #include "TRandom.h"
@@ -50,7 +50,7 @@ PndEmcMakeDigi::~PndEmcMakeDigi()
 InitStatus PndEmcMakeDigi::Init()
 {
 	// Get RootManager
-	CbmRootManager* ioman = CbmRootManager::Instance();
+	FairRootManager* ioman = FairRootManager::Instance();
 	if ( ! ioman )
 	{
 		cout << "-E- PndEmcMakeDigi::Init: "
@@ -149,10 +149,10 @@ PndEmcDigi* PndEmcMakeDigi::AddDigi(Int_t trackID,Int_t detID, Float_t energy, F
 void PndEmcMakeDigi::SetParContainers() {
 
   // Get run and runtime database
-  CbmRun* run = CbmRun::Instance();
+  FairRun* run = FairRun::Instance();
   if ( ! run ) Fatal("SetParContainers", "No analysis run");
 
-  CbmRuntimeDb* db = run->GetRuntimeDb();
+  FairRuntimeDb* db = run->GetRuntimeDb();
   if ( ! db ) Fatal("SetParContainers", "No runtime database");
 
   // Get Emc digitisation parameter container

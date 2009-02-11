@@ -12,7 +12,7 @@
 #include "PndMapPar.h"
 #include "PndMultiField.h"
 
-class CbmParamList;
+class FairParamList;
 
 class PndMultiFieldPar : public PndMapPar
 {
@@ -30,15 +30,15 @@ class PndMultiFieldPar : public PndMapPar
 /** Destructor **/
   ~PndMultiFieldPar();
 
-  void putParams(CbmParamList* list);
+  void putParams(FairParamList* list);
 
 
   /** Get parameters **/
-  Bool_t getParams(CbmParamList* list);
+  Bool_t getParams(FairParamList* list);
 
 
-  /** Set parameters from CbmField  **/
-  void SetParameters(CbmField* field);
+  /** Set parameters from FairField  **/
+  void SetParameters(FairField* field);
   
   TObjArray *GetParArray(){return fParArray; }
   

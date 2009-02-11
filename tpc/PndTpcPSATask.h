@@ -19,7 +19,7 @@
 #define TPCPSATASK_HH
 
 // Base Class Headers ----------------
-#include "CbmTask.h"
+#include "FairTask.h"
 
 // Collaborating Class Headers -------
 
@@ -29,7 +29,7 @@ class TClonesArray;
 class PndTpcFrontend;
 class PndTpcAbsPSAStrategy;
 
-class PndTpcPSATask : public CbmTask {
+class PndTpcPSATask : public FairTask {
 public:
 
   // Constructors/Destructors ---------

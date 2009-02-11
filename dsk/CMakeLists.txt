@@ -41,7 +41,7 @@ SET(DSK_SRCS ${DSK_SRCS} ${DSK_DICTIONARY})
 
 add_library(Dsk SHARED ${DSK_SRCS})
 target_link_libraries(Dsk ${ROOT_LIBRARIES})
-set_target_properties(Dsk PROPERTIES ${CBMROOT_LIBRARY_PROPERTIES})
+set_target_properties(Dsk PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 
 
 ################ install ###################

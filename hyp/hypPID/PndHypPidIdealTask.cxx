@@ -18,10 +18,10 @@
 #include "TCanvas.h"
 
 // framework includes
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "PndHypPidIdealTask.h"
-#include "CbmRunAna.h"
-#include "CbmRuntimeDb.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
 #include "../mcstack/CbmMCTrack.h"
 
 
@@ -35,7 +35,7 @@
 #include "PndHypAdvancedPidAlgo.h"
 
 // -----   Default constructor   -------------------------------------------
-PndHypPidIdealTask::PndHypPidIdealTask(TString algoName) :  CbmTask("Digitization task for PANDA PndHyp") {
+PndHypPidIdealTask::PndHypPidIdealTask(TString algoName) :  FairTask("Digitization task for PANDA PndHyp") {
   fBranchName = "HypPoint";
   fAlgoName = algoName;
 }
@@ -44,7 +44,7 @@ PndHypPidIdealTask::PndHypPidIdealTask(TString algoName) :  CbmTask("Digitizatio
 InitStatus PndHypPidIdealTask::Init()
 {
   // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
     std::cout << "-E- PndHypPidIdealTask::Init: "<< "RootManager not instantiated!" << std::endl;
     return kFATAL;  }
@@ -75,8 +75,8 @@ InitStatus PndHypPidIdealTask::Init()
 void PndHypPidIdealTask::SetParContainers()
 {
   // Get Base Container
-  CbmRunAna* ana = CbmRunAna::Instance();
-  CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+  FairRunAna* ana = FairRunAna::Instance();
+  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
 
 }
 

@@ -24,7 +24,7 @@
 
 
 // Collaborating Class Headers --------
-#include "CbmGeoNode.h"
+#include "FairGeoNode.h"
 
 // Class Member definitions -----------
 

@@ -5,12 +5,12 @@
 #ifndef PNDFIELDCONTFACT_H
 #define PNDFIELDCONTFACT_H 1
 
-#include "CbmContFact.h"
+#include "FairContFact.h"
 
-class CbmContainer;
-class CbmParSet;
+class FairContainer;
+class FairParSet;
 
-class PndFieldContFact : public CbmContFact
+class PndFieldContFact : public FairContFact
 {
 
  public:
@@ -26,7 +26,7 @@ class PndFieldContFact : public CbmContFact
   /** Create containers
    ** Creates the requested parameter sets (PndFieldPar) 
    **/
-  CbmParSet* createContainer(CbmContainer* container);
+  FairParSet* createContainer(FairContainer* container);
 
  private:
 

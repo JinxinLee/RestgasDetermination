@@ -81,6 +81,6 @@ SET(TPCRECO_SRCS ${TPCRECO_SRCS} ${TPCRECO_DICTIONARY})
 
 add_library(tpcreco SHARED ${TPCRECO_SRCS})
 target_link_libraries(tpcreco ${ROOT_LIBRARIES})
-set_target_properties(tpcreco PROPERTIES ${CBMROOT_LIBRARY_PROPERTIES})
+set_target_properties(tpcreco PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 ################ install ###################
 install(TARGETS tpcreco DESTINATION ${CMAKE_BINARY_DIR}/lib)

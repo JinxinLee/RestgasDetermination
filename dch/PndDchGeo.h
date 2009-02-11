@@ -14,9 +14,9 @@
 #ifndef PNDDCHGEO_H
 #define PNDDCHGEO_H
 
-#include "CbmGeoSet.h"
+#include "FairGeoSet.h"
 
-class  PndDchGeo : public CbmGeoSet {
+class  PndDchGeo : public FairGeoSet {
 
 public:
 	/** Default constructor **/ 

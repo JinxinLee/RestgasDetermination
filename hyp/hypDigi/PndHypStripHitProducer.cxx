@@ -9,16 +9,16 @@
 #include "TVector2.h"
 #include "TGeoManager.h"
 
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "PndHypStripHitProducer.h"
 #include "../PndHypHit.h"
 #include "../PndHypPoint.h"
-#include "CbmRunAna.h"
-#include "CbmRuntimeDb.h"
-#include "CbmGeoNode.h"
-//#include "CbmRuntimeDb.h"
-#include "CbmGeoNode.h"
-#include "CbmGeoVector.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
+#include "FairGeoNode.h"
+//#include "FairRuntimeDb.h"
+#include "FairGeoNode.h"
+#include "FairGeoVector.h"
 //#include "StringVector.h"
 #include "PndHypCalcStrip.h"
 #include "PndHypDigiStrip.h"
@@ -26,7 +26,7 @@
 //enum SensorSide { kTOP, kBOTTOM };
 // -----   Default constructor   -------------------------------------------
 PndHypStripHitProducer::PndHypStripHitProducer() :
-  CbmTask("Hyp Strip Hit Producer")
+  FairTask("Hyp Strip Hit Producer")
 {
   fBranchName   = "HypPoint";
 
@@ -55,7 +55,7 @@ PndHypStripHitProducer::PndHypStripHitProducer(Double_t topPitch, Double_t botPi
 					       Int_t nrTopFE, Int_t nrBotFE, Int_t nrFECh,
 					       Double_t threshold, Double_t noise,
 					       TString sensorType, TString feType) :
-  CbmTask("Hyp Strip Hit Producer")
+  FairTask("Hyp Strip Hit Producer")
 {
   fBranchName   = "HypPoint";
   // ftopPitch = topPitch;
@@ -85,8 +85,8 @@ void PndHypStripHitProducer::SetParamSet(Double_t topPitch, Double_t botPitch,
  	                                         Double_t threshold, Double_t noise,
  	                                         TString sensorType, TString feType)
  	{
- 	  CbmRunAna* ana = CbmRunAna::Instance();
- 	  CbmRootManager* ioman = CbmRootManager::Instance();
+ 	  FairRunAna* ana = FairRunAna::Instance();
+ 	  FairRootManager* ioman = FairRootManager::Instance();
  	  if ( fDigiPar==0 ) SetParContainers();
  	  if (fOverrideParams){
  	    if (sensorType.Contains("Rect"))fCurrentDigiPar = fDigiPar;
@@ -123,8 +123,8 @@ void PndHypStripHitProducer::SetParContainers()
 {
   // Get Base Container
   
-  CbmRunAna* ana = CbmRunAna::Instance();
-  CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+  FairRunAna* ana = FairRunAna::Instance();
+  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
   //fGeoPar = (PndGeoHypPar*)(rtdb->getContainer("PndGeoHypPar"));
   fDigiPar = (PndHypStripDigiPar*)(rtdb->getContainer("PndHypStripDigiPar"));
   //fGeoMappingPar = (PndHypGeoMappingPar*)(rtdb->getContainer("PndHypGeoMappingPar"));
@@ -134,8 +134,8 @@ void PndHypStripHitProducer::SetParContainers()
 InitStatus PndHypStripHitProducer::ReInit()
 {
   /*
-    CbmRunAna* ana = CbmRunAna::Instance();
-    CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+    FairRunAna* ana = FairRunAna::Instance();
+    FairRuntimeDb* rtdb=ana->GetRuntimeDb();
     //fGeoPar = (PndGeoHypPar*)(rtdb->getContainer("PndGeoHypPar"));
     fDigiPar=(PndHypStripDigiPar*)(rtdb->getContainer("PndHypStripDigiPar"));
     //fGeoMappingPar = (PndHypGeoMappingPar*)(rtdb->getContainer("PndHypGeoMappingPar"));
@@ -150,8 +150,8 @@ InitStatus PndHypStripHitProducer::ReInit()
 // -----   Public method Init   --------------------------------------------
 InitStatus PndHypStripHitProducer::Init()
 {
-  CbmRunAna* ana = CbmRunAna::Instance();
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRunAna* ana = FairRunAna::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
 
   fGeoH = new PndHypGeoHandling(gGeoManager);
 
@@ -294,7 +294,7 @@ void PndHypStripHitProducer::Exec(Option_t* opt)
 	    std::cout << "****Global Point: " << std::endl;
 	    point->Print("");
 	  }
-	  //CbmGeoVector posInL, posOutL, meanPos, meanPosL;
+	  //FairGeoVector posInL, posOutL, meanPos, meanPosL;
 	  //GetLocalHitPoints(point, posInL, posOutL);
 	  TVector3 posIn,posOut;
 	  point->PositionIn(posIn);
@@ -327,7 +327,7 @@ void PndHypStripHitProducer::Exec(Option_t* opt)
 	  if (fVerbose > 0)
 	    std::cout  << "Top Side: " << std::endl;
 	  // PndHypCalcStrip StripCalc(ftopPitch, forient, fnrTopFE * fnrFECh , 
-	  // 				 //CbmGeoVector(-size.x(),-size.y(),0.),
+	  // 				 //FairGeoVector(-size.x(),-size.y(),0.),
 	  // 				 TVector2(0.,0.),
 	  // 				 fthreshold, fnoise);
 	  
@@ -388,7 +388,7 @@ void PndHypStripHitProducer::Exec(Option_t* opt)
 	  if (fVerbose > 0)
 	    std::cout  << "Bottom Side: " << std::endl;
 	 //  StripCalc = PndHypCalcStrip(fbotPitch, forient + fskew, fnrBotFE * fnrFECh , 
-	  // 				   //CbmGeoVector(-size.x(),-size.y(),0.),
+	  // 				   //FairGeoVector(-size.x(),-size.y(),0.),
 	  // 				   TVector2(0.,size.y()*2.),
 	  // 				   fthreshold, fnoise);
 	  
@@ -452,7 +452,7 @@ void PndHypStripHitProducer::Exec(Option_t* opt)
 }
 
 
-// void PndHypStripHitProducer::GetLocalHitPoints(PndHypPoint* myPoint, CbmGeoVector& myHitIn, CbmGeoVector& myHitOut)
+// void PndHypStripHitProducer::GetLocalHitPoints(PndHypPoint* myPoint, FairGeoVector& myHitIn, FairGeoVector& myHitOut)
 // {
   
 //   if (fVerbose > 1)

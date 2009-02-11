@@ -16,10 +16,10 @@
 #include "TMath.h"
 #include "TFile.h"
 
-#include "CbmRootManager.h"
-#include "CbmRunAna.h"
-#include "CbmRun.h"
-#include "CbmTrackParam.h"
+#include "FairRootManager.h"
+#include "FairRunAna.h"
+#include "FairRun.h"
+#include "FairTrackParam.h"
 
 #include "PndDchPreFitterTR.h"
 #include "PndDchHit.h"
@@ -34,7 +34,7 @@ using std::cout;
 using std::endl;
 
 PndDchPreFitterTR::PndDchPreFitterTR() :
-  CbmTask("Dch Prefitter for Forward Spectrometer") { 
+  FairTask("Dch Prefitter for Forward Spectrometer") { 
   fInHitsAfterXZ = 0;
   fInHitsInXZ = 0;
   fInHitsBeforeXZ = 0;
@@ -71,14 +71,14 @@ InitStatus PndDchPreFitterTR::Init() {
   cout << "PndDchPreFitterTR::Init()... " << endl;
   
   // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   TFile *infile = ioman->GetInFile();
   if ( ! ioman ) {
     cout << "-E- PndDchPreFitterTR::Init():\n\t "
 	 << "RootManager not instantiated!" << endl;
     return kFATAL;
   }
-  TGeoManager *geoMan = (TGeoManager*) infile->Get("CBMGeom");
+  TGeoManager *geoMan = (TGeoManager*) infile->Get("FAIRGeom");
   fStructure = PndDchStructure::Instance(geoMan);
 
   // Get input point array - only to get real value of momentum!
@@ -227,7 +227,7 @@ void PndDchPreFitterTR::Exec(Option_t* opt) {
     Int_t chargeSign = GetChargeSign();
 
     const TMatrixFSym* covMatrix = new TMatrixFSym(15);
-    CbmTrackParam parset(startPosition.X(),startPosition.Y(),startPosition.Z(),
+    FairTrackParam parset(startPosition.X(),startPosition.Y(),startPosition.Z(),
 			 startMomentum.X()/ startMomentum.Z(),
 			 startMomentum.Y()/ startMomentum.Z(),
 			 chargeSign/ startMomentum.Mag(),

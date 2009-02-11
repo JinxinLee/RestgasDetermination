@@ -7,17 +7,17 @@
 #ifndef PNDHYPGECONTFACT_H
 #define PNDHYPGECONTFACT_H
 
-#include "CbmContFact.h"
+#include "FairContFact.h"
 
-class CbmContainer;
+class FairContainer;
 
-class PndHypGeContFact : public CbmContFact {
+class PndHypGeContFact : public FairContFact {
 private:
   void setAllContainers();
 public:
   PndHypGeContFact();
   ~PndHypGeContFact() {}
-  CbmParSet* createContainer(CbmContainer*);
+  FairParSet* createContainer(FairContainer*);
 
   ClassDef( PndHypGeContFact,0) // Factory for all HYPGE parameter containers
 };

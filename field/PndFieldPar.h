@@ -17,14 +17,14 @@
 #define PNDFIELDPAR_H 1
 
 
-#include "CbmField.h"
-#include "CbmParGenericSet.h"
+#include "FairField.h"
+#include "FairParGenericSet.h"
 
 
-class CbmParamList;
+class FairParamList;
 
 
-class PndFieldPar : public CbmParGenericSet
+class PndFieldPar : public FairParGenericSet
 {
 
  public:
@@ -41,15 +41,15 @@ class PndFieldPar : public CbmParGenericSet
 
 
   /** Put parameters **/
-  virtual void putParams(CbmParamList* list);
+  virtual void putParams(FairParamList* list);
 
 
   /** Get parameters **/
-  virtual Bool_t getParams(CbmParamList* list);
+  virtual Bool_t getParams(FairParamList* list);
 
 
-  /** Set parameters from CbmField  **/
-  void SetParameters(CbmField* field);
+  /** Set parameters from FairField  **/
+  void SetParameters(FairField* field);
 
 
   /** Accessors **/

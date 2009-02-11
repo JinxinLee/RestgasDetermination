@@ -17,7 +17,7 @@
 #define PNDDCHPREFITTERTR_H
 
 
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "PndDchHit.h"
 #include "TVector3.h"
 
@@ -31,7 +31,7 @@ class PndDchCylinderHit;
 class PndDchTrack;
 
 
-class PndDchPreFitterTR : public CbmTask {
+class PndDchPreFitterTR : public FairTask {
   
  public:
   

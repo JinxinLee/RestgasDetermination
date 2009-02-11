@@ -110,6 +110,6 @@ set(fsim_SRCS ${fsim_SRCS} ${fsim_DICTIONARY})
 
 add_library(fsim SHARED ${fsim_SRCS})
 target_link_libraries(fsim ${ROOT_LIBRARIES})
-set_target_properties(fsim PROPERTIES ${CBMROOT_LIBRARY_PROPERTIES})
+set_target_properties(fsim PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 ################ install ###################
 install(TARGETS fsim DESTINATION ${CMAKE_BINARY_DIR}/lib)

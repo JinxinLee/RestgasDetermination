@@ -89,6 +89,6 @@ SET(EMC_SRCS ${EMC_SRCS} ${EMC_DICTIONARY})
 
 add_library(Emc SHARED ${EMC_SRCS})
 target_link_libraries(Emc ${ROOT_LIBRARIES})
-set_target_properties(Emc PROPERTIES ${CBMROOT_LIBRARY_PROPERTIES})
+set_target_properties(Emc PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 ################ install ###################
 install(TARGETS Emc DESTINATION ${CMAKE_BINARY_DIR}/lib)

@@ -417,7 +417,7 @@ void CbmPlane::ShowMembers(TMemberInspector &R__insp, char *R__parent)
       R__insp.Inspect(R__cl, R__parent, "*fPlane2Collection", &fPlane2Collection);
       R__insp.Inspect(R__cl, R__parent, "*fPlane3Collection", &fPlane3Collection);
       R__insp.Inspect(R__cl, R__parent, "fevent", &fevent);
-      CbmDetector::ShowMembers(R__insp, R__parent);
+      FairDetector::ShowMembers(R__insp, R__parent);
 }
 
 namespace ROOT {
@@ -481,7 +481,7 @@ void CbmPlanePoint::ShowMembers(TMemberInspector &R__insp, char *R__parent)
       fPlanenam.ShowMembers(R__insp, strcat(R__parent,"fPlanenam.")); R__parent[R__ncp] = 0;
       R__insp.Inspect(R__cl, R__parent, "ftrackID", &ftrackID);
       R__insp.Inspect(R__cl, R__parent, "feventID", &feventID);
-      CbmMCPoint::ShowMembers(R__insp, R__parent);
+      FairMCPoint::ShowMembers(R__insp, R__parent);
 }
 
 namespace ROOT {
@@ -510,7 +510,7 @@ void CbmGeoPlane::Streamer(TBuffer &R__b)
 {
    // Stream an object of class CbmGeoPlane.
 
-   CbmGeoSet::Streamer(R__b);
+   FairGeoSet::Streamer(R__b);
 }
 
 //______________________________________________________________________________
@@ -522,7 +522,7 @@ void CbmGeoPlane::ShowMembers(TMemberInspector &R__insp, char *R__parent)
       if (R__ncp || R__cl || R__insp.IsA()) { }
       R__insp.Inspect(R__cl, R__parent, "modName[10]", modName);
       R__insp.Inspect(R__cl, R__parent, "eleName[10]", eleName);
-      CbmGeoSet::ShowMembers(R__insp, R__parent);
+      FairGeoSet::ShowMembers(R__insp, R__parent);
 }
 
 namespace ROOT {
@@ -551,7 +551,7 @@ void CbmPlaneContFact::Streamer(TBuffer &R__b)
 {
    // Stream an object of class CbmPlaneContFact.
 
-   CbmContFact::Streamer(R__b);
+   FairContFact::Streamer(R__b);
 }
 
 //______________________________________________________________________________
@@ -561,7 +561,7 @@ void CbmPlaneContFact::ShowMembers(TMemberInspector &R__insp, char *R__parent)
       TClass *R__cl = ::CbmPlaneContFact::IsA();
       Int_t R__ncp = strlen(R__parent);
       if (R__ncp || R__cl || R__insp.IsA()) { }
-      CbmContFact::ShowMembers(R__insp, R__parent);
+      FairContFact::ShowMembers(R__insp, R__parent);
 }
 
 namespace ROOT {
@@ -593,13 +593,13 @@ void CbmGeoPlanePar::Streamer(TBuffer &R__b)
    UInt_t R__s, R__c;
    if (R__b.IsReading()) {
       Version_t R__v = R__b.ReadVersion(&R__s, &R__c); if (R__v) { }
-      CbmParGenericSet::Streamer(R__b);
+      FairParGenericSet::Streamer(R__b);
       R__b >> fGeoSensNodes;
       R__b >> fGeoPassNodes;
       R__b.CheckByteCount(R__s, R__c, CbmGeoPlanePar::IsA());
    } else {
       R__c = R__b.WriteVersion(CbmGeoPlanePar::IsA(), kTRUE);
-      CbmParGenericSet::Streamer(R__b);
+      FairParGenericSet::Streamer(R__b);
       R__b << fGeoSensNodes;
       R__b << fGeoPassNodes;
       R__b.SetByteCount(R__c, kTRUE);
@@ -615,7 +615,7 @@ void CbmGeoPlanePar::ShowMembers(TMemberInspector &R__insp, char *R__parent)
       if (R__ncp || R__cl || R__insp.IsA()) { }
       R__insp.Inspect(R__cl, R__parent, "*fGeoSensNodes", &fGeoSensNodes);
       R__insp.Inspect(R__cl, R__parent, "*fGeoPassNodes", &fGeoPassNodes);
-      CbmParGenericSet::ShowMembers(R__insp, R__parent);
+      FairParGenericSet::ShowMembers(R__insp, R__parent);
 }
 
 namespace ROOT {
@@ -903,14 +903,14 @@ static int G__CbmPlaneDict_209_0_2(G__value* result7, G__CONST char* funcname, s
 
 static int G__CbmPlaneDict_209_0_3(G__value* result7, G__CONST char* funcname, struct G__param* libp, int hash)
 {
-      ((CbmGeoPlanePar*) G__getstructoffset())->putParams((CbmParamList*) G__int(libp->para[0]));
+      ((CbmGeoPlanePar*) G__getstructoffset())->putParams((FairParamList*) G__int(libp->para[0]));
       G__setnull(result7);
    return(1 || funcname || hash || result7 || libp) ;
 }
 
 static int G__CbmPlaneDict_209_0_4(G__value* result7, G__CONST char* funcname, struct G__param* libp, int hash)
 {
-      G__letint(result7, 103, (long) ((CbmGeoPlanePar*) G__getstructoffset())->getParams((CbmParamList*) G__int(libp->para[0])));
+      G__letint(result7, 103, (long) ((CbmGeoPlanePar*) G__getstructoffset())->getParams((FairParamList*) G__int(libp->para[0])));
    return(1 || funcname || hash || result7 || libp) ;
 }
 
@@ -1492,7 +1492,7 @@ static int G__CbmPlaneDict_561_0_4(G__value* result7, G__CONST char* funcname, s
 {
    switch (libp->paran) {
    case 1:
-      G__letint(result7, 103, (long) ((CbmPlane*) G__getstructoffset())->ProcessHits((CbmVolume*) G__int(libp->para[0])));
+      G__letint(result7, 103, (long) ((CbmPlane*) G__getstructoffset())->ProcessHits((FairVolume*) G__int(libp->para[0])));
       break;
    case 0:
       G__letint(result7, 103, (long) ((CbmPlane*) G__getstructoffset())->ProcessHits());
@@ -1774,7 +1774,7 @@ static int G__CbmPlaneDict_565_0_2(G__value* result7, G__CONST char* funcname, s
 
 static int G__CbmPlaneDict_565_0_3(G__value* result7, G__CONST char* funcname, struct G__param* libp, int hash)
 {
-      G__letint(result7, 85, (long) ((CbmPlaneContFact*) G__getstructoffset())->createContainer((CbmContainer*) G__int(libp->para[0])));
+      G__letint(result7, 85, (long) ((CbmPlaneContFact*) G__getstructoffset())->createContainer((FairContainer*) G__int(libp->para[0])));
    return(1 || funcname || hash || result7 || libp) ;
 }
 
@@ -1973,8 +1973,8 @@ extern "C" void G__cpp_setup_inheritanceCbmPlaneDict() {
      CbmGeoPlane *G__Lderived;
      G__Lderived=(CbmGeoPlane*)0x1000;
      {
-       CbmGeoSet *G__Lpbase=(CbmGeoSet*)G__Lderived;
-       G__inheritance_setup(G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmGeoPlane),G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmGeoSet),(long)G__Lpbase-(long)G__Lderived,1,1);
+       FairGeoSet *G__Lpbase=(FairGeoSet*)G__Lderived;
+       G__inheritance_setup(G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmGeoPlane),G__get_linked_tagnum(&G__CbmPlaneDictLN_FairGeoSet),(long)G__Lpbase-(long)G__Lderived,1,1);
      }
      {
        TNamed *G__Lpbase=(TNamed*)G__Lderived;
@@ -1989,12 +1989,12 @@ extern "C" void G__cpp_setup_inheritanceCbmPlaneDict() {
      CbmGeoPlanePar *G__Lderived;
      G__Lderived=(CbmGeoPlanePar*)0x1000;
      {
-       CbmParGenericSet *G__Lpbase=(CbmParGenericSet*)G__Lderived;
-       G__inheritance_setup(G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmGeoPlanePar),G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmParGenericSet),(long)G__Lpbase-(long)G__Lderived,1,1);
+       FairParGenericSet *G__Lpbase=(FairParGenericSet*)G__Lderived;
+       G__inheritance_setup(G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmGeoPlanePar),G__get_linked_tagnum(&G__CbmPlaneDictLN_FairParGenericSet),(long)G__Lpbase-(long)G__Lderived,1,1);
      }
      {
-       CbmParSet *G__Lpbase=(CbmParSet*)G__Lderived;
-       G__inheritance_setup(G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmGeoPlanePar),G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmParSet),(long)G__Lpbase-(long)G__Lderived,1,0);
+       FairParSet *G__Lpbase=(FairParSet*)G__Lderived;
+       G__inheritance_setup(G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmGeoPlanePar),G__get_linked_tagnum(&G__CbmPlaneDictLN_FairParSet),(long)G__Lpbase-(long)G__Lderived,1,0);
      }
      {
        TNamed *G__Lpbase=(TNamed*)G__Lderived;
@@ -2009,8 +2009,8 @@ extern "C" void G__cpp_setup_inheritanceCbmPlaneDict() {
      CbmPlanePoint *G__Lderived;
      G__Lderived=(CbmPlanePoint*)0x1000;
      {
-       CbmMCPoint *G__Lpbase=(CbmMCPoint*)G__Lderived;
-       G__inheritance_setup(G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmPlanePoint),G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmMCPoint),(long)G__Lpbase-(long)G__Lderived,1,1);
+       FairMCPoint *G__Lpbase=(FairMCPoint*)G__Lderived;
+       G__inheritance_setup(G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmPlanePoint),G__get_linked_tagnum(&G__CbmPlaneDictLN_FairMCPoint),(long)G__Lpbase-(long)G__Lderived,1,1);
      }
      {
        TObject *G__Lpbase=(TObject*)G__Lderived;
@@ -2021,12 +2021,12 @@ extern "C" void G__cpp_setup_inheritanceCbmPlaneDict() {
      CbmPlane *G__Lderived;
      G__Lderived=(CbmPlane*)0x1000;
      {
-       CbmDetector *G__Lpbase=(CbmDetector*)G__Lderived;
-       G__inheritance_setup(G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmPlane),G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmDetector),(long)G__Lpbase-(long)G__Lderived,1,1);
+       FairDetector *G__Lpbase=(FairDetector*)G__Lderived;
+       G__inheritance_setup(G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmPlane),G__get_linked_tagnum(&G__CbmPlaneDictLN_FairDetector),(long)G__Lpbase-(long)G__Lderived,1,1);
      }
      {
-       CbmModule *G__Lpbase=(CbmModule*)G__Lderived;
-       G__inheritance_setup(G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmPlane),G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmModule),(long)G__Lpbase-(long)G__Lderived,1,0);
+       FairModule *G__Lpbase=(FairModule*)G__Lderived;
+       G__inheritance_setup(G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmPlane),G__get_linked_tagnum(&G__CbmPlaneDictLN_FairModule),(long)G__Lpbase-(long)G__Lderived,1,0);
      }
      {
        TNamed *G__Lpbase=(TNamed*)G__Lderived;
@@ -2037,20 +2037,20 @@ extern "C" void G__cpp_setup_inheritanceCbmPlaneDict() {
        G__inheritance_setup(G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmPlane),G__get_linked_tagnum(&G__CbmPlaneDictLN_TObject),(long)G__Lpbase-(long)G__Lderived,1,0);
      }
    }
-   if(0==G__getnumbaseclass(G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmMCPoint))) {
-     CbmMCPoint *G__Lderived;
-     G__Lderived=(CbmMCPoint*)0x1000;
+   if(0==G__getnumbaseclass(G__get_linked_tagnum(&G__CbmPlaneDictLN_FairMCPoint))) {
+     FairMCPoint *G__Lderived;
+     G__Lderived=(FairMCPoint*)0x1000;
      {
        TObject *G__Lpbase=(TObject*)G__Lderived;
-       G__inheritance_setup(G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmMCPoint),G__get_linked_tagnum(&G__CbmPlaneDictLN_TObject),(long)G__Lpbase-(long)G__Lderived,1,1);
+       G__inheritance_setup(G__get_linked_tagnum(&G__CbmPlaneDictLN_FairMCPoint),G__get_linked_tagnum(&G__CbmPlaneDictLN_TObject),(long)G__Lpbase-(long)G__Lderived,1,1);
      }
    }
    if(0==G__getnumbaseclass(G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmPlaneContFact))) {
      CbmPlaneContFact *G__Lderived;
      G__Lderived=(CbmPlaneContFact*)0x1000;
      {
-       CbmContFact *G__Lpbase=(CbmContFact*)G__Lderived;
-       G__inheritance_setup(G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmPlaneContFact),G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmContFact),(long)G__Lpbase-(long)G__Lderived,1,1);
+       FairContFact *G__Lpbase=(FairContFact*)G__Lderived;
+       G__inheritance_setup(G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmPlaneContFact),G__get_linked_tagnum(&G__CbmPlaneDictLN_FairContFact),(long)G__Lpbase-(long)G__Lderived,1,1);
      }
      {
        TNamed *G__Lpbase=(TNamed*)G__Lderived;
@@ -2165,8 +2165,8 @@ static void G__setup_memvarCbmGeoPlane(void) {
 static void G__setup_memvarCbmGeoPlanePar(void) {
    G__tag_memvar_setup(G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmGeoPlanePar));
    { CbmGeoPlanePar *p; p=(CbmGeoPlanePar*)0x1000; if (p) { }
-   G__memvar_setup((void*)((long)(&p->fGeoSensNodes)-(long)(p)),85,0,0,G__get_linked_tagnum(&G__CbmPlaneDictLN_TObjArray),-1,-1,1,"fGeoSensNodes=",0,"* List of CbmGeoNodes for sensitive  volumes */");
-   G__memvar_setup((void*)((long)(&p->fGeoPassNodes)-(long)(p)),85,0,0,G__get_linked_tagnum(&G__CbmPlaneDictLN_TObjArray),-1,-1,1,"fGeoPassNodes=",0,"* List of CbmGeoNodes for passive  volumes */");
+   G__memvar_setup((void*)((long)(&p->fGeoSensNodes)-(long)(p)),85,0,0,G__get_linked_tagnum(&G__CbmPlaneDictLN_TObjArray),-1,-1,1,"fGeoSensNodes=",0,"* List of FairGeoNodes for sensitive  volumes */");
+   G__memvar_setup((void*)((long)(&p->fGeoPassNodes)-(long)(p)),85,0,0,G__get_linked_tagnum(&G__CbmPlaneDictLN_TObjArray),-1,-1,1,"fGeoPassNodes=",0,"* List of FairGeoNodes for passive  volumes */");
    G__memvar_setup((void*)NULL,85,0,0,G__get_linked_tagnum(&G__CbmPlaneDictLN_TClass),-1,-2,4,"fgIsA=",0,(char*)NULL);
    }
    G__tag_memvar_reset();
@@ -2290,8 +2290,8 @@ static void G__setup_memfuncCbmGeoPlanePar(void) {
 "C - - 10 \"CbmGeoPlanePar\" name C - - 10 \"Plane Geometry Parameters\" title "
 "C - - 10 \"TestDefaultContext\" context", (char*)NULL, (void*) NULL, 0);
    G__memfunc_setup("clear",519,G__CbmPlaneDict_209_0_2, 121, -1, -1, 0, 0, 1, 1, 0, "", (char*)NULL, (void*) NULL, 1);
-   G__memfunc_setup("putParams",957,G__CbmPlaneDict_209_0_3, 121, -1, -1, 0, 1, 1, 1, 0, "U 'CbmParamList' - 0 - -", (char*)NULL, (void*) NULL, 1);
-   G__memfunc_setup("getParams",932,G__CbmPlaneDict_209_0_4, 103, -1, G__defined_typename("Bool_t"), 0, 1, 1, 1, 0, "U 'CbmParamList' - 0 - -", (char*)NULL, (void*) NULL, 1);
+   G__memfunc_setup("putParams",957,G__CbmPlaneDict_209_0_3, 121, -1, -1, 0, 1, 1, 1, 0, "U 'FairParamList' - 0 - -", (char*)NULL, (void*) NULL, 1);
+   G__memfunc_setup("getParams",932,G__CbmPlaneDict_209_0_4, 103, -1, G__defined_typename("Bool_t"), 0, 1, 1, 1, 0, "U 'FairParamList' - 0 - -", (char*)NULL, (void*) NULL, 1);
    G__memfunc_setup("GetGeoSensitiveNodes",2030,G__CbmPlaneDict_209_0_5, 85, G__get_linked_tagnum(&G__CbmPlaneDictLN_TObjArray), -1, 0, 0, 1, 1, 0, "", (char*)NULL, (void*) NULL, 0);
    G__memfunc_setup("GetGeoPassiveNodes",1807,G__CbmPlaneDict_209_0_6, 85, G__get_linked_tagnum(&G__CbmPlaneDictLN_TObjArray), -1, 0, 0, 1, 1, 0, "", (char*)NULL, (void*) NULL, 0);
    G__memfunc_setup("Class",502,G__CbmPlaneDict_209_0_7, 85, G__get_linked_tagnum(&G__CbmPlaneDictLN_TClass), -1, 0, 0, 3, 1, 0, "", (char*)NULL, (void*) (TClass* (*)())(&CbmGeoPlanePar::Class), 0);
@@ -2383,7 +2383,7 @@ static void G__setup_memfuncCbmPlane(void) {
    G__memfunc_setup("CbmPlane",770,G__CbmPlaneDict_561_0_2, 105, G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmPlane), -1, 0, 2, 1, 1, 0, 
 "C - - 10 - name g - 'Bool_t' 0 - active", (char*)NULL, (void*) NULL, 0);
    G__memfunc_setup("Initialize",1042,G__CbmPlaneDict_561_0_3, 121, -1, -1, 0, 0, 1, 1, 0, "", (char*)NULL, (void*) NULL, 1);
-   G__memfunc_setup("ProcessHits",1143,G__CbmPlaneDict_561_0_4, 103, -1, G__defined_typename("Bool_t"), 0, 1, 1, 1, 0, "U 'CbmVolume' - 0 0 vol", (char*)NULL, (void*) NULL, 1);
+   G__memfunc_setup("ProcessHits",1143,G__CbmPlaneDict_561_0_4, 103, -1, G__defined_typename("Bool_t"), 0, 1, 1, 1, 0, "U 'FairVolume' - 0 0 vol", (char*)NULL, (void*) NULL, 1);
    G__memfunc_setup("EndOfEvent",974,G__CbmPlaneDict_561_0_5, 121, -1, -1, 0, 0, 1, 1, 0, "", (char*)NULL, (void*) NULL, 1);
    G__memfunc_setup("BeginEvent",999,G__CbmPlaneDict_561_0_6, 121, -1, -1, 0, 0, 1, 1, 0, "", (char*)NULL, (void*) NULL, 1);
    G__memfunc_setup("Register",837,G__CbmPlaneDict_561_0_7, 121, -1, -1, 0, 0, 1, 1, 0, "", (char*)NULL, (void*) NULL, 1);
@@ -2450,7 +2450,7 @@ static void G__setup_memfuncCbmPlaneContFact(void) {
    G__tag_memfunc_setup(G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmPlaneContFact));
    G__memfunc_setup("setAllContainers",1659,(G__InterfaceMethod) NULL, 121, -1, -1, 0, 0, 1, 4, 0, "", (char*)NULL, (void*) NULL, 0);
    G__memfunc_setup("CbmPlaneContFact",1556,G__CbmPlaneDict_565_0_2, 105, G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmPlaneContFact), -1, 0, 0, 1, 1, 0, "", (char*)NULL, (void*) NULL, 0);
-   G__memfunc_setup("createContainer",1559,G__CbmPlaneDict_565_0_3, 85, G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmParSet), -1, 0, 1, 1, 1, 0, "U 'CbmContainer' - 0 - -", (char*)NULL, (void*) NULL, 1);
+   G__memfunc_setup("createContainer",1559,G__CbmPlaneDict_565_0_3, 85, G__get_linked_tagnum(&G__CbmPlaneDictLN_FairParSet), -1, 0, 1, 1, 1, 0, "U 'FairContainer' - 0 - -", (char*)NULL, (void*) NULL, 1);
    G__memfunc_setup("Class",502,G__CbmPlaneDict_565_0_4, 85, G__get_linked_tagnum(&G__CbmPlaneDictLN_TClass), -1, 0, 0, 3, 1, 0, "", (char*)NULL, (void*) (TClass* (*)())(&CbmPlaneContFact::Class), 0);
    G__memfunc_setup("Class_Name",982,G__CbmPlaneDict_565_0_5, 67, -1, -1, 0, 0, 3, 1, 1, "", (char*)NULL, (void*) (const char* (*)())(&CbmPlaneContFact::Class_Name), 0);
    G__memfunc_setup("Class_Version",1339,G__CbmPlaneDict_565_0_6, 115, -1, G__defined_typename("Version_t"), 0, 0, 3, 1, 0, "", (char*)NULL, (void*) (Version_t (*)())(&CbmPlaneContFact::Class_Version), 0);
@@ -2603,11 +2603,11 @@ G__linked_taginfo G__CbmPlaneDictLN_vectorlEunsignedsPintcOallocatorlEunsignedsP
 G__linked_taginfo G__CbmPlaneDictLN_vectorlETStreamerInfomUcOallocatorlETStreamerInfomUgRsPgR = { "vector<TStreamerInfo*,allocator<TStreamerInfo*> >" , 99 , -1 };
 G__linked_taginfo G__CbmPlaneDictLN_reverse_iteratorlEvectorlETStreamerInfomUcOallocatorlETStreamerInfomUgRsPgRcLcLiteratorgR = { "reverse_iterator<vector<TStreamerInfo*,allocator<TStreamerInfo*> >::iterator>" , 99 , -1 };
 G__linked_taginfo G__CbmPlaneDictLN_TString = { "TString" , 99 , -1 };
-G__linked_taginfo G__CbmPlaneDictLN_CbmGeoSet = { "CbmGeoSet" , 99 , -1 };
+G__linked_taginfo G__CbmPlaneDictLN_FairGeoSet = { "FairGeoSet" , 99 , -1 };
 G__linked_taginfo G__CbmPlaneDictLN_CbmGeoPlane = { "CbmGeoPlane" , 99 , -1 };
-G__linked_taginfo G__CbmPlaneDictLN_CbmParSet = { "CbmParSet" , 99 , -1 };
-G__linked_taginfo G__CbmPlaneDictLN_CbmParamList = { "CbmParamList" , 99 , -1 };
-G__linked_taginfo G__CbmPlaneDictLN_CbmParGenericSet = { "CbmParGenericSet" , 99 , -1 };
+G__linked_taginfo G__CbmPlaneDictLN_FairParSet = { "FairParSet" , 99 , -1 };
+G__linked_taginfo G__CbmPlaneDictLN_FairParamList = { "FairParamList" , 99 , -1 };
+G__linked_taginfo G__CbmPlaneDictLN_FairParGenericSet = { "FairParGenericSet" , 99 , -1 };
 G__linked_taginfo G__CbmPlaneDictLN_TClonesArray = { "TClonesArray" , 99 , -1 };
 G__linked_taginfo G__CbmPlaneDictLN_CbmGeoPlanePar = { "CbmGeoPlanePar" , 99 , -1 };
 G__linked_taginfo G__CbmPlaneDictLN_multimaplEvoidmUcOshortcOlesslEvoidmUgRcOallocatorlEpairlEvoidmUsPconstcOshortgRsPgRsPgR = { "multimap<void*,short,less<void*>,allocator<pair<void* const,short> > >" , 99 , -1 };
@@ -2634,16 +2634,16 @@ G__linked_taginfo G__CbmPlaneDictLN_TMatrixTSparseRowlEfloatgR = { "TMatrixTSpar
 G__linked_taginfo G__CbmPlaneDictLN_TMatrixTSparseDiaglEfloatgR = { "TMatrixTSparseDiag<float>" , 99 , -1 };
 G__linked_taginfo G__CbmPlaneDictLN_TVector3 = { "TVector3" , 99 , -1 };
 G__linked_taginfo G__CbmPlaneDictLN_TLorentzVector = { "TLorentzVector" , 99 , -1 };
-G__linked_taginfo G__CbmPlaneDictLN_CbmModule = { "CbmModule" , 99 , -1 };
-G__linked_taginfo G__CbmPlaneDictLN_CbmVolume = { "CbmVolume" , 99 , -1 };
+G__linked_taginfo G__CbmPlaneDictLN_FairModule = { "FairModule" , 99 , -1 };
+G__linked_taginfo G__CbmPlaneDictLN_FairVolume = { "FairVolume" , 99 , -1 };
 G__linked_taginfo G__CbmPlaneDictLN_vectorlETStringcOallocatorlETStringgRsPgR = { "vector<TString,allocator<TString> >" , 99 , -1 };
 G__linked_taginfo G__CbmPlaneDictLN_reverse_iteratorlEvectorlETStringcOallocatorlETStringgRsPgRcLcLiteratorgR = { "reverse_iterator<vector<TString,allocator<TString> >::iterator>" , 99 , -1 };
-G__linked_taginfo G__CbmPlaneDictLN_CbmDetector = { "CbmDetector" , 99 , -1 };
+G__linked_taginfo G__CbmPlaneDictLN_FairDetector = { "FairDetector" , 99 , -1 };
 G__linked_taginfo G__CbmPlaneDictLN_CbmPlanePoint = { "CbmPlanePoint" , 99 , -1 };
 G__linked_taginfo G__CbmPlaneDictLN_CbmPlane = { "CbmPlane" , 99 , -1 };
-G__linked_taginfo G__CbmPlaneDictLN_CbmMCPoint = { "CbmMCPoint" , 99 , -1 };
-G__linked_taginfo G__CbmPlaneDictLN_CbmContainer = { "CbmContainer" , 99 , -1 };
-G__linked_taginfo G__CbmPlaneDictLN_CbmContFact = { "CbmContFact" , 99 , -1 };
+G__linked_taginfo G__CbmPlaneDictLN_FairMCPoint = { "FairMCPoint" , 99 , -1 };
+G__linked_taginfo G__CbmPlaneDictLN_FairContainer = { "FairContainer" , 99 , -1 };
+G__linked_taginfo G__CbmPlaneDictLN_FairContFact = { "FairContFact" , 99 , -1 };
 G__linked_taginfo G__CbmPlaneDictLN_CbmPlaneContFact = { "CbmPlaneContFact" , 99 , -1 };
 
 /* Reset class/struct taginfo */
@@ -2658,11 +2658,11 @@ extern "C" void G__cpp_reset_tagtableCbmPlaneDict() {
   G__CbmPlaneDictLN_vectorlETStreamerInfomUcOallocatorlETStreamerInfomUgRsPgR.tagnum = -1 ;
   G__CbmPlaneDictLN_reverse_iteratorlEvectorlETStreamerInfomUcOallocatorlETStreamerInfomUgRsPgRcLcLiteratorgR.tagnum = -1 ;
   G__CbmPlaneDictLN_TString.tagnum = -1 ;
-  G__CbmPlaneDictLN_CbmGeoSet.tagnum = -1 ;
+  G__CbmPlaneDictLN_FairGeoSet.tagnum = -1 ;
   G__CbmPlaneDictLN_CbmGeoPlane.tagnum = -1 ;
-  G__CbmPlaneDictLN_CbmParSet.tagnum = -1 ;
-  G__CbmPlaneDictLN_CbmParamList.tagnum = -1 ;
-  G__CbmPlaneDictLN_CbmParGenericSet.tagnum = -1 ;
+  G__CbmPlaneDictLN_FairParSet.tagnum = -1 ;
+  G__CbmPlaneDictLN_FairParamList.tagnum = -1 ;
+  G__CbmPlaneDictLN_FairParGenericSet.tagnum = -1 ;
   G__CbmPlaneDictLN_TClonesArray.tagnum = -1 ;
   G__CbmPlaneDictLN_CbmGeoPlanePar.tagnum = -1 ;
   G__CbmPlaneDictLN_multimaplEvoidmUcOshortcOlesslEvoidmUgRcOallocatorlEpairlEvoidmUsPconstcOshortgRsPgRsPgR.tagnum = -1 ;
@@ -2689,16 +2689,16 @@ extern "C" void G__cpp_reset_tagtableCbmPlaneDict() {
   G__CbmPlaneDictLN_TMatrixTSparseDiaglEfloatgR.tagnum = -1 ;
   G__CbmPlaneDictLN_TVector3.tagnum = -1 ;
   G__CbmPlaneDictLN_TLorentzVector.tagnum = -1 ;
-  G__CbmPlaneDictLN_CbmModule.tagnum = -1 ;
-  G__CbmPlaneDictLN_CbmVolume.tagnum = -1 ;
+  G__CbmPlaneDictLN_FairModule.tagnum = -1 ;
+  G__CbmPlaneDictLN_FairVolume.tagnum = -1 ;
   G__CbmPlaneDictLN_vectorlETStringcOallocatorlETStringgRsPgR.tagnum = -1 ;
   G__CbmPlaneDictLN_reverse_iteratorlEvectorlETStringcOallocatorlETStringgRsPgRcLcLiteratorgR.tagnum = -1 ;
-  G__CbmPlaneDictLN_CbmDetector.tagnum = -1 ;
+  G__CbmPlaneDictLN_FairDetector.tagnum = -1 ;
   G__CbmPlaneDictLN_CbmPlanePoint.tagnum = -1 ;
   G__CbmPlaneDictLN_CbmPlane.tagnum = -1 ;
-  G__CbmPlaneDictLN_CbmMCPoint.tagnum = -1 ;
-  G__CbmPlaneDictLN_CbmContainer.tagnum = -1 ;
-  G__CbmPlaneDictLN_CbmContFact.tagnum = -1 ;
+  G__CbmPlaneDictLN_FairMCPoint.tagnum = -1 ;
+  G__CbmPlaneDictLN_FairContainer.tagnum = -1 ;
+  G__CbmPlaneDictLN_FairContFact.tagnum = -1 ;
   G__CbmPlaneDictLN_CbmPlaneContFact.tagnum = -1 ;
 }
 
@@ -2716,11 +2716,11 @@ extern "C" void G__cpp_setup_tagtableCbmPlaneDict() {
    G__get_linked_tagnum(&G__CbmPlaneDictLN_vectorlETStreamerInfomUcOallocatorlETStreamerInfomUgRsPgR);
    G__get_linked_tagnum(&G__CbmPlaneDictLN_reverse_iteratorlEvectorlETStreamerInfomUcOallocatorlETStreamerInfomUgRsPgRcLcLiteratorgR);
    G__get_linked_tagnum(&G__CbmPlaneDictLN_TString);
-   G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmGeoSet);
+   G__get_linked_tagnum(&G__CbmPlaneDictLN_FairGeoSet);
    G__tagtable_setup(G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmGeoPlane),sizeof(CbmGeoPlane),-1,62720,"Class for Plane",G__setup_memvarCbmGeoPlane,G__setup_memfuncCbmGeoPlane);
-   G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmParSet);
-   G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmParamList);
-   G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmParGenericSet);
+   G__get_linked_tagnum(&G__CbmPlaneDictLN_FairParSet);
+   G__get_linked_tagnum(&G__CbmPlaneDictLN_FairParamList);
+   G__get_linked_tagnum(&G__CbmPlaneDictLN_FairParGenericSet);
    G__get_linked_tagnum(&G__CbmPlaneDictLN_TClonesArray);
    G__tagtable_setup(G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmGeoPlanePar),sizeof(CbmGeoPlanePar),-1,62720,(char*)NULL,G__setup_memvarCbmGeoPlanePar,G__setup_memfuncCbmGeoPlanePar);
    G__get_linked_tagnum(&G__CbmPlaneDictLN_multimaplEvoidmUcOshortcOlesslEvoidmUgRcOallocatorlEpairlEvoidmUsPconstcOshortgRsPgRsPgR);
@@ -2747,16 +2747,16 @@ extern "C" void G__cpp_setup_tagtableCbmPlaneDict() {
    G__get_linked_tagnum(&G__CbmPlaneDictLN_TMatrixTSparseDiaglEfloatgR);
    G__get_linked_tagnum(&G__CbmPlaneDictLN_TVector3);
    G__get_linked_tagnum(&G__CbmPlaneDictLN_TLorentzVector);
-   G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmModule);
-   G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmVolume);
+   G__get_linked_tagnum(&G__CbmPlaneDictLN_FairModule);
+   G__get_linked_tagnum(&G__CbmPlaneDictLN_FairVolume);
    G__get_linked_tagnum(&G__CbmPlaneDictLN_vectorlETStringcOallocatorlETStringgRsPgR);
    G__get_linked_tagnum(&G__CbmPlaneDictLN_reverse_iteratorlEvectorlETStringcOallocatorlETStringgRsPgRcLcLiteratorgR);
-   G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmDetector);
+   G__get_linked_tagnum(&G__CbmPlaneDictLN_FairDetector);
    G__tagtable_setup(G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmPlanePoint),sizeof(CbmPlanePoint),-1,325376,(char*)NULL,G__setup_memvarCbmPlanePoint,G__setup_memfuncCbmPlanePoint);
    G__tagtable_setup(G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmPlane),sizeof(CbmPlane),-1,324864,(char*)NULL,G__setup_memvarCbmPlane,G__setup_memfuncCbmPlane);
-   G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmMCPoint);
-   G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmContainer);
-   G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmContFact);
+   G__get_linked_tagnum(&G__CbmPlaneDictLN_FairMCPoint);
+   G__get_linked_tagnum(&G__CbmPlaneDictLN_FairContainer);
+   G__get_linked_tagnum(&G__CbmPlaneDictLN_FairContFact);
    G__tagtable_setup(G__get_linked_tagnum(&G__CbmPlaneDictLN_CbmPlaneContFact),sizeof(CbmPlaneContFact),-1,62720,"Factory for all Plane parameter containers",G__setup_memvarCbmPlaneContFact,G__setup_memfuncCbmPlaneContFact);
 }
 extern "C" void G__cpp_setupCbmPlaneDict(void) {

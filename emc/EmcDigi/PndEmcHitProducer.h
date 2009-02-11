@@ -7,7 +7,7 @@
 #define PNDEMCHITPRODUCER_H
 
 
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "TH1F.h"
 #include "TFile.h"
 #include "PndEmcHit.h"
@@ -21,7 +21,7 @@ class TObjectArray;
 
 class PndEmcDigiPar;
 
-class PndEmcHitProducer : public CbmTask
+class PndEmcHitProducer : public FairTask
 {
 
  public:

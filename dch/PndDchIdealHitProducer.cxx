@@ -6,12 +6,12 @@
 
 #include "TClonesArray.h"
 
-#include "CbmRootManager.h"
-#include "CbmRunAna.h"
-#include "CbmRuntimeDb.h"
-#include "CbmRun.h"
+#include "FairRootManager.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
+#include "FairRun.h"
 
-#include "CbmDetector.h"
+#include "FairDetector.h"
 #include "PndDchIdealHitProducer.h"
 #include "PndDchHit.h"
 #include "PndDchPoint.h"
@@ -26,7 +26,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndDchIdealHitProducer::PndDchIdealHitProducer() :
-  CbmTask("Ideal DCH hit Producer") { 
+  FairTask("Ideal DCH hit Producer") { 
 }
 
 // -----   Destructor   ----------------------------------------------------
@@ -44,7 +44,7 @@ InitStatus PndDchIdealHitProducer::Init() {
   std::cout << " INITIALIZATION OF Ideal Dch Hit Producer***************" << std::endl;
   
   // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   if( !ioman ) {
     std::cout << "-E- PndDchIdealHitProducer::Init: "
 	      << "RootManager not instantiated!" << std::endl;
@@ -66,7 +66,7 @@ InitStatus PndDchIdealHitProducer::Init() {
   
   // Geometry loading
   TFile *infile = ioman->GetInFile();
-  TGeoManager *geoMan = (TGeoManager*) infile->Get("CBMGeom");
+  TGeoManager *geoMan = (TGeoManager*) infile->Get("FAIRGeom");
   fDchStructure = PndDchStructure::Instance(geoMan);
   
   // Create histograms

@@ -46,6 +46,6 @@ set(charmtask_SRCS ${charmtask_SRCS} ${charmtask_DICTIONARY})
 
 add_library(charmtask SHARED ${charmtask_SRCS})
 target_link_libraries(charmtask ${ROOT_LIBRARIES})
-set_target_properties(charmtask PROPERTIES ${CBMROOT_LIBRARY_PROPERTIES})
+set_target_properties(charmtask PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 ################ install ###################
 install(TARGETS charmtask DESTINATION ${CMAKE_BINARY_DIR}/lib)

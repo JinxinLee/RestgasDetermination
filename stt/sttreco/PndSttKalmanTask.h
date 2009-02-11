@@ -2,7 +2,7 @@
 #define PNDSTTKALMANTASK_HH
 
 // Base Class Headers ----------------
-#include "CbmTask.h"
+#include "FairTask.h"
 
 // Collaborating Class Headers -------
 #include <map>
@@ -13,7 +13,7 @@ class TClonesArray;
 class RecoHitFactory;
 class TGeoManager; 
 
-class PndSttKalmanTask : public CbmTask {
+class PndSttKalmanTask : public FairTask {
 public:
 
   // Constructors/Destructors ---------

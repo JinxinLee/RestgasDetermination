@@ -27,7 +27,7 @@
 #include "TMatrixD.h"
 
 // Collaborating Class Declarations --
-class CbmHit;
+class FairHit;
 class PndTpcCluster;
 class PndRiemannTrack;
 
@@ -37,16 +37,16 @@ public:
   // Constructors/Destructors ---------
   PndRiemannHit() : fCovX(3,3){};
   PndRiemannHit(double r,double phi, double z = 0);
-  PndRiemannHit(CbmHit* cl);
+  PndRiemannHit(FairHit* cl);
   ~PndRiemannHit();
 
   
   // Accessors -----------------------
   void setXYZ(double x, double y, double z);
   void setDXYZ(double dx, double dy, double dz);
-  void setHit(CbmHit* cl);
+  void setHit(FairHit* cl);
   const TVector3& x() const {return fX;}
-  const CbmHit* hit() const {return fHit;}
+  const FairHit* hit() const {return fHit;}
   double s() const {return fS;}
   double z() const;
   double alpha() const {return fAlpha;}
@@ -68,7 +68,7 @@ private:
   TVector3 fX;
   TVector3 fSigmaX;			///< Sigma Error of fX (should be replaced by covariance matrix)
   TMatrixD fCovX;			///< Covariance Matrix of the hit
-  CbmHit* fHit; 			//->  //no ownership over this pointer!
+  FairHit* fHit; 			//->  //no ownership over this pointer!
   int fHitID;
   double fS;     			///< pathlength along track
   double fZ;				///< z-coordinate of hit

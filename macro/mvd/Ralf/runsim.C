@@ -11,7 +11,7 @@
   rootlogon();
 //   gROOT->Macro("../Libs.C");
 
-  CbmRunSim *fRun = new CbmRunSim();
+  FairRunSim *fRun = new FairRunSim();
 
   // set the MC version used
   // ------------------------
@@ -32,15 +32,15 @@
   // Create and add detectors
   //-------------------------
 
-  CbmModule *Cave= new PndCave("CAVE");
+  FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave); 
 
-//  CbmModule *Magnet= new PndMagnet("MAGNET");
+//  FairModule *Magnet= new PndMagnet("MAGNET");
 //  Magnet->SetGeometryFileName("magnet.geo");
 //  fRun->AddModule(Magnet);
 
-  CbmModule *Pipe= new PndPipe("PIPE");
+  FairModule *Pipe= new PndPipe("PIPE");
   Pipe->SetGeometryFileName("pipebeamtarget.geo");
   fRun->AddModule(Pipe);
 
@@ -50,28 +50,28 @@
   Mvd->SetVerboseLevel(verboseLevel);
 //   Mvd->SetExclusiveSensorType("StripActive");
   fRun->AddModule(Mvd);
-// fRun->AddModule((CbmDetector*)Mvd);
+// fRun->AddModule((FairDetector*)Mvd);
 
  // Create and Set Event Generator
  //-------------------------------
 
-   CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
+   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
    fRun->SetGenerator(primGen);
 
  // Particle Generator (pdgid,mult, px,py,pz, vx,vy,vz)
 
      // single pions for testing
-//      CbmParticleGenerator* partGenX   = new CbmParticleGenerator(211,1, 1.,0.,0., 0.,0.,0.);
-//      CbmParticleGenerator* partGenY   = new CbmParticleGenerator(211,1, 0.,1.,0., 0.,0.,0.);
-//      CbmParticleGenerator* partGenZ   = new CbmParticleGenerator(211,1, 0.,0.1,1., 0.,0.,0.);
-//      CbmParticleGenerator* partGenXYZ = new CbmParticleGenerator(211,1, 1.,1.,5., 0.,0.,0.);
+//      FairParticleGenerator* partGenX   = new FairParticleGenerator(211,1, 1.,0.,0., 0.,0.,0.);
+//      FairParticleGenerator* partGenY   = new FairParticleGenerator(211,1, 0.,1.,0., 0.,0.,0.);
+//      FairParticleGenerator* partGenZ   = new FairParticleGenerator(211,1, 0.,0.1,1., 0.,0.,0.);
+//      FairParticleGenerator* partGenXYZ = new FairParticleGenerator(211,1, 1.,1.,5., 0.,0.,0.);
 //      primGen->AddGenerator(partGenX);
 //      primGen->AddGenerator(partGenY);
 //      primGen->AddGenerator(partGenZ);
 //      primGen->AddGenerator(partGenXYZ);
 
  // Ion Generator
- //    CbmIonGenerator *fIongen= new CbmIonGenerator(79, 197,79,1, 0.,0., 25, 0.,0.,-1.);
+ //    FairIonGenerator *fIongen= new FairIonGenerator(79, 197,79,1, 0.,0., 25, 0.,0.,-1.);
  //    primGen->AddGenerator(fIongen);
 
  // Box Generator
@@ -83,14 +83,14 @@
 //     primGen->AddGenerator(fBox);
 
   //EvtGen Generator
-// CbmEvtGenGenerator* evtGen = new
-//   CbmEvtGenGenerator("/home/ralfk/Pandaroot/pandaroot/pgenerators/EvtGen/lambda.evt");
+// FairEvtGenGenerator* evtGen = new
+//   FairEvtGenGenerator("/home/ralfk/Pandaroot/pandaroot/pgenerators/EvtGen/lambda.evt");
 // primGen->AddGenerator(evtGen);  
 
 
 
  // Urqmd  Generator
- //    CbmUrqmdGenerator* urqmdGen = new CbmUrqmdGenerator("../../input/00-03fm.100ev.f14");
+ //    FairUrqmdGenerator* urqmdGen = new FairUrqmdGenerator("../../input/00-03fm.100ev.f14");
  //    primGen->AddGenerator(urqmdGen);
 
 
@@ -100,21 +100,21 @@
 
 
   //K+
-//   CbmBoxGenerator *fBox1 = new CbmBoxGenerator(321, 3);
+//   FairBoxGenerator *fBox1 = new FairBoxGenerator(321, 3);
 //      fBox1->SetPRange(0.01,1.);
 //      fBox1->SetThetaRange(5,150);
 //      fBox1->SetPhiRange(0.,360);
 // //      fBox1->SetCosTheta();
 //      primGen->AddGenerator(fBox1);
   //P
-//   CbmBoxGenerator *fBox2 = new CbmBoxGenerator(2212, 3);
+//   FairBoxGenerator *fBox2 = new FairBoxGenerator(2212, 3);
 //      fBox2->SetPRange(0.5,0.5);
 //      fBox2->SetThetaRange(50,80);
 //      fBox2->SetPhiRange(0.,360);
 //      fBox2->SetCosTheta();
 //      primGen->AddGenerator(fBox2);
   //Pi+
-//   CbmBoxGenerator *fBox3 = new CbmBoxGenerator(211, 3);
+//   FairBoxGenerator *fBox3 = new FairBoxGenerator(211, 3);
 //      fBox3->SetPRange(0.1,1.);
 //      fBox3->SetThetaRange(5,150);
 //      fBox3->SetPhiRange(0.,360);
@@ -122,7 +122,7 @@
 //      primGen->AddGenerator(fBox3);
 
   //Mu-
-//  CbmBoxGenerator *fBox4 = new CbmBoxGenerator(13, 10);
+//  FairBoxGenerator *fBox4 = new FairBoxGenerator(13, 10);
 //     fBox4->SetPRange(1.,1.);
 //     fBox4->SetThetaRange(0,180);
 //     fBox4->SetPhiRange(0.,360);
@@ -154,7 +154,7 @@
 
 
  // Set cuts for storing the trajectpries
-  /* CbmTrajFilter* trajFilter = CbmTrajFilter::Instance();
+  /* FairTrajFilter* trajFilter = FairTrajFilter::Instance();
      trajFilter->SetStepSizeCut(0.01); // 1 cm
      trajFilter->SetVertexCut(-2000., -2000., 4., 2000., 2000., 100.);
      trajFilter->SetMomentumCutP(10e-3); // p_lab > 10 MeV
@@ -166,9 +166,9 @@
   // Fill the Parameter containers for this run
   //-------------------------------------------
 
-  CbmRuntimeDb *rtdb=fRun->GetRuntimeDb();
+  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
   Bool_t kParameterMerged=kTRUE;
-  CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
 //   output->open("../data/mvdStrip_par.root");
   output->open("../data/mvddpm6GeV_par.root");
   rtdb->setOutput(output);

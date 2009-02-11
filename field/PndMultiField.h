@@ -14,13 +14,13 @@
 #ifndef PNDMULTIMAP_H
 #define PNDMULTIMAP_H 1
 
-#include "CbmField.h"
+#include "FairField.h"
 #include "TObjArray.h"
 #include <map>
 
 class PndRegion;
 class PndMultiFieldPar;
-class PndMultiField : public CbmField {
+class PndMultiField : public FairField {
 
 public:
 
@@ -38,7 +38,7 @@ public:
 
   /**Adding a field to the collection*/
 
-  void AddField(CbmField *field);
+  void AddField(FairField *field);
   TObjArray *GetFieldList(){return fMaps; }
 
   /** Get the field components at a certain point 
@@ -63,8 +63,8 @@ public:
    
   TObjArray *fMaps;
   Int_t     fNoOfMaps;
-  std::map <PndRegion*, CbmField* > fFieldMaps;//! 
-  std::map <PndRegion*, CbmField* >::iterator fMapIter; //!
+  std::map <PndRegion*, FairField* > fFieldMaps;//! 
+  std::map <PndRegion*, FairField* >::iterator fMapIter; //!
 
 };
 

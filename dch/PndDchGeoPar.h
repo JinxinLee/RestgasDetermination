@@ -15,13 +15,13 @@
 #ifndef PNDDCHGEOPAR_H
 #define PNDDCHGEOPAR_H
 
-#include "CbmParGenericSet.h"
+#include "FairParGenericSet.h"
 #include "TObjArray.h"
 
-class PndDchGeoPar : public CbmParGenericSet {
+class PndDchGeoPar : public FairParGenericSet {
  public:
-  TObjArray        *fGeoSensNodes; ///< List of CbmGeoNodes for sensitive  volumes
-  TObjArray      *fGeoPassNodes;   ///< List of CbmGeoNodes for passive  volumes
+  TObjArray        *fGeoSensNodes; ///< List of FairGeoNodes for sensitive  volumes
+  TObjArray      *fGeoPassNodes;   ///< List of FairGeoNodes for passive  volumes
 
   /** Standard constructor **/ 
   PndDchGeoPar(const char* name="PndDchGeoPar",
@@ -35,10 +35,10 @@ class PndDchGeoPar : public CbmParGenericSet {
   void clear(void);
 
   /** Public method putParams(...) **/
-  void putParams(CbmParamList*);
+  void putParams(FairParamList*);
 
   /** Public method gutParams(...) **/
-  Bool_t getParams(CbmParamList*);
+  Bool_t getParams(FairParamList*);
 
   /** Public method GetGeoSensitiveNodes(...) **/
   TObjArray* GetGeoSensitiveNodes(){return fGeoSensNodes;}

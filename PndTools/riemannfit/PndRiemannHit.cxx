@@ -21,7 +21,7 @@
 #include "PndRiemannHit.h"
 #include "TMath.h"
 // C/C++ Headers ----------------------
-#include "CbmHit.h"
+#include "FairHit.h"
 #include <assert.h>
 #include <iostream>
 
@@ -44,7 +44,7 @@ PndRiemannHit::PndRiemannHit(double r, double phi, double z) : fHit(NULL), fCovX
   setDXYZ(1,1,1);
 }
 
-PndRiemannHit::PndRiemannHit(CbmHit* cl) : fHit(cl), fCovX(3,3), fVerbose(0)
+PndRiemannHit::PndRiemannHit(FairHit* cl) : fHit(cl), fCovX(3,3), fVerbose(0)
 {
   setHit(cl);
 }
@@ -73,7 +73,7 @@ void PndRiemannHit::setDXYZ(double dx, double dy, double dz)
 	  fDeltaZ = dz/RIEMANNSCALE;
 }
 
-void PndRiemannHit::setHit(CbmHit* cl)
+void PndRiemannHit::setHit(FairHit* cl)
 {
 	setXYZ(cl->GetX(), cl->GetY(), cl->GetZ());
 	setDXYZ(cl->GetDx(), cl->GetDy(), cl->GetDz());  
@@ -92,7 +92,7 @@ PndRiemannHit::calcPosOnTrk(PndRiemannTrack* trk){
   o*=RIEMANNSCALE;// convert back to cm;
   double r=trk->r();
   r*=RIEMANNSCALE;
-  const CbmHit* firstHit=trk->getHit(0)->hit();
+  const FairHit* firstHit=trk->getHit(0)->hit();
   assert(firstHit!=NULL);
   TVector2 k(firstHit->GetX()-o[0],firstHit->GetY()-o[1]);
   TVector2 l(fHit->GetX()-o[0],fHit->GetY()-o[1]);

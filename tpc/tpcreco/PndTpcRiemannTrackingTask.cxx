@@ -24,7 +24,7 @@
 
 
 // Collaborating Class Headers --------
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "TClonesArray.h"
 #include "RecoHitFactory.h"
 #include "FitterExceptions.h"
@@ -42,11 +42,11 @@
 #include "TH1D.h"
 #include "McIdCollection.h"
 #include "TVector3.h"
-#include "CbmMCPoint.h"
+#include "FairMCPoint.h"
 #include "DetPlane.h"
 #include "TDatabasePDG.h"
 //#include "AbsBFieldIfc.h"
-//#include "CbmFieldAdaptor.h"
+//#include "FairFieldAdaptor.h"
 
 #include <cmath>
 
@@ -57,7 +57,7 @@ using std::fabs;
 ClassImp(PndTpcRiemannTrackingTask)
 
 PndTpcRiemannTrackingTask::PndTpcRiemannTrackingTask()
-  : CbmTask("PndTpc Pattern Reco"), _persistence(kFALSE)
+  : FairTask("PndTpc Pattern Reco"), _persistence(kFALSE)
 {
   // default values for Riemann TrackFinder
   _proxcut=2;
@@ -95,7 +95,7 @@ InitStatus
 PndTpcRiemannTrackingTask::Init()
 {
 //Get ROOT Manager
-  CbmRootManager* ioman= CbmRootManager::Instance();
+  FairRootManager* ioman= FairRootManager::Instance();
 
   if(ioman==0)
     {
@@ -137,7 +137,7 @@ PndTpcRiemannTrackingTask::Init()
   //  Error("DemoRiemannTrackingTask::Init","BField not found!");
   //  return kERROR;
   // 
-  //_fieldIfc=new CbmFieldAdaptor(_field);
+  //_fieldIfc=new FairFieldAdaptor(_field);
 
   _trackfinder= new PndTpcRiemannTrackFinder();
   _trackfinder->setMinHitsForFit(_minpoints);
@@ -159,7 +159,7 @@ PndTpcRiemannTrackingTask::Init()
   _trackMcIdsH=new TH1D("trkmcids","# mcids in track",25,0,25);
   
   // GeanePro will get Geometry and BField from the Run
-  _geanePro = new CbmGeanePro();
+  _geanePro = new FairGeanePro();
 
   return kSUCCESS;
 }
@@ -189,7 +189,7 @@ if(_riemannHitArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No RiemannHi
   //if(_mvdArray!=NULL){
   //  unsigned int nmvd=_mvdArray->GetEntriesFast();
   //  for(unsigned int imvd=0; imvd<nmvd; ++imvd){
-  //    CbmMCPoint* mvd=(CbmMCPoint*)_mvdArray->At(imvd);
+  //    FairMCPoint* mvd=(FairMCPoint*)_mvdArray->At(imvd);
   //    TVector3 pos;
   //    mvd->Position(pos);
   //    clusterlist.push_back(new PndTpcCluster(pos,1,imvd));
@@ -358,7 +358,7 @@ if(_riemannHitArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No RiemannHi
 
 void
 PndTpcRiemannTrackingTask::WriteHistograms(const TString& filename) {
-  TFile* file=CbmRootManager::Instance()->GetOutFile();
+  TFile* file=FairRootManager::Instance()->GetOutFile();
   file->mkdir("RiemannTracking");
   file->cd("RiemannTracking");
 

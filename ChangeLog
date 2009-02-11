@@ -19,12 +19,12 @@
  19.03.08
  --------
  
- 1.  new method  CbmMCApplication::AddIons()
+ 1.  new method  FairMCApplication::AddIons()
  	 addition of ions and particls has been sperated in Geant4 VMC 
  
  02.04.08
  --------
- 1. Move ConstructRootGeometry to CbmModule	
+ 1. Move ConstructRootGeometry to FairModule	
  2. Read TGeoVolumes or TGeoManager from root files 
  	
  
@@ -32,7 +32,7 @@
  --------
  1. Geane, trackbase and eventdisplay are moved to the external directories in SVN
  
- 2. Time stamps are now implimented in CbmPrimeryGenerator and CbmMCEventHeader
+ 2. Time stamps are now implimented in CbmPrimeryGenerator and FairMCEventHeader
     to set the time for event one should call:
        primGen->SetEventTimeInterval ( minTime, maxTime) ; 
 
@@ -40,7 +40,7 @@
     in nano secounds, it will also be added for each event, i.e: 
     each event will have the time of all previous events+ its own one!
  
- 3. SetEventMeanTime(Double_t) to the CbmPrimaryGenerator,
+ 3. SetEventMeanTime(Double_t) to the FairPrimaryGenerator,
     setting this value will create a TF1 function:
 
     TF1 *f1 = TF1("f1", "1/meanTime * Exp (-t/meanTime)", 0, meanTime*10 ) 

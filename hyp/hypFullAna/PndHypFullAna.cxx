@@ -7,9 +7,9 @@ for Hypernuclei.
 
 #include "TClonesArray.h"
 
-#include "CbmRootManager.h"
-#include "CbmRunAna.h"
-#include "CbmRuntimeDb.h"
+#include "FairRootManager.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
 //#include "PndTpcLheTrack.h"
 
 //#include "PndTpcLheTrack.h"
@@ -23,8 +23,8 @@ for Hypernuclei.
 #include "TH1F.h"
 #include "TH2F.h"
 
-#include "CbmRun.h"
-#include "CbmRuntimeDb.h"
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
 #include "PndHypFullAna.h"
 #include <string>
 #include <iostream>
@@ -48,7 +48,7 @@ using std::endl;
 		
 // -----   Default constructor   -------------------------------------------
 PndHypFullAna::PndHypFullAna() :
-  CbmTask("Panda HypFullAna	 Task") { 
+  FairTask("Panda HypFullAna	 Task") { 
 }
 // -------------------------------------------------------------------------
 
@@ -63,12 +63,12 @@ InitStatus PndHypFullAna::Init() {
  
   //cout << " Inside the Init function****" << endl;
   
-  //CbmDetector::Initialize();
-  //CbmRun* sim = CbmRun::Instance();
-  //CbmRuntimeDb* rtdb=sim->GetRuntimeDb();
+  //FairDetector::Initialize();
+  //FairRun* sim = FairRun::Instance();
+  //FairRuntimeDb* rtdb=sim->GetRuntimeDb();
   
   // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
     cout << "-E- PndEmcHitProducer::Init: "
 	 << "RootManager not instantiated!" << endl;
@@ -156,10 +156,10 @@ InitStatus PndHypFullAna::Init() {
 void PndHypFullAna::SetParContainers() {
 
   // Get run and runtime database
-  CbmRunAna* run = CbmRunAna::Instance();
+  FairRunAna* run = FairRunAna::Instance();
   if ( ! run ) Fatal("SetParContainers", "No analysis run");
 
-  //CbmRuntimeDb* db = run->GetRuntimeDb();
+  //FairRuntimeDb* db = run->GetRuntimeDb();
   //if ( ! db ) Fatal("SetParContainers", "No runtime database");
 
  
@@ -812,7 +812,7 @@ if((ion>1010000000||ion>1020000000))
 }
 void PndHypFullAna::Finish(TString cat)
 { 
-  TFile* file = CbmRootManager::Instance()->GetOutFile();
+  TFile* file = FairRootManager::Instance()->GetOutFile();
   file->cd();
   //file->mkdir(cat.Data());//"HypHitAnaF");
   //file->cd(cat.Data());//"HypHitAnaF");

@@ -9,11 +9,11 @@
 #include "PndMdtHit.h"
 #include "PndMdtPoint.h"
 
-#include "CbmRootManager.h"
-#include "CbmDetector.h"
-#include "CbmRun.h"
-#include "CbmRunAna.h"
-#include "CbmRuntimeDb.h"
+#include "FairRootManager.h"
+#include "FairDetector.h"
+#include "FairRun.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
 
 #include "TVector3.h"
 #include "TMath.h"
@@ -25,7 +25,7 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndMdtTrkProducer::PndMdtTrkProducer() :
-  CbmTask(" MDT Tracklet Producer") { 
+  FairTask(" MDT Tracklet Producer") { 
   fUseSimulation = kTRUE;
 }
 // -------------------------------------------------------------------------
@@ -42,11 +42,11 @@ InitStatus PndMdtTrkProducer::Init() {
   cout << "-I- PndMdtTrkProducer::Init: "
        << "INITIALIZATION *********************" << endl;
   
-  CbmRun* sim = CbmRun::Instance();
-  CbmRuntimeDb* rtdb=sim->GetRuntimeDb();
+  FairRun* sim = FairRun::Instance();
+  FairRuntimeDb* rtdb=sim->GetRuntimeDb();
     
   // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
     cout << "-E- PndMdtTrkProducer::Init: "
 	 << "RootManager not instantiated!" << endl;
@@ -92,10 +92,10 @@ InitStatus PndMdtTrkProducer::Init() {
 void PndMdtTrkProducer::SetParContainers() {
   
   // Get run and runtime database
-  CbmRun* run = CbmRun::Instance();
+  FairRun* run = FairRun::Instance();
   if ( ! run ) Fatal("PndMdtTrkProducer:: SetParContainers", "No analysis run");
   
-  CbmRuntimeDb* db = run->GetRuntimeDb();
+  FairRuntimeDb* db = run->GetRuntimeDb();
   if ( ! db ) Fatal("PndMdtTrkProducer:: SetParContainers", "No runtime database");
 
   // Get Mdt Reconstruction parameter container

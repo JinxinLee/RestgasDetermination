@@ -10,9 +10,9 @@
 #include "PndDchMapper.h"
 #include "PndDchDrifter.h"
 
-#include "CbmRootManager.h"
-#include "CbmRunAna.h"
-#include "CbmRun.h"
+#include "FairRootManager.h"
+#include "FairRunAna.h"
+#include "FairRun.h"
 
 #include "TClonesArray.h"
 #include "TGeoManager.h"
@@ -28,7 +28,7 @@ using std::vector;
 
 // Default constructor
 PndDchDigiProducer::PndDchDigiProducer() :
-  CbmTask("Ideal DCH digi Producer") {
+  FairTask("Ideal DCH digi Producer") {
 }
 
 // Destructor
@@ -45,7 +45,7 @@ InitStatus PndDchDigiProducer::Init() {
   cout << "PndDchDigiProducer::Init()... " << endl;
 
   // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
     cout << "-E- PndDchDigiProducer::Init():\n\t "
 	 << "RootManager not instantiated!" << endl;

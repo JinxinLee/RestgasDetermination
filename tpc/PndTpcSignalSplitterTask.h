@@ -19,7 +19,7 @@
 #define TPCSIGNALSPLITTERTASK_HH
 
 // Base Class Headers ----------------
-#include "CbmTask.h"
+#include "FairTask.h"
 
 // Collaborating Class Headers -------
 #include <vector>
@@ -30,9 +30,9 @@ class TClonesArray;
 class PndTpcDigiMapper;
 class TTree;
 class TBranch;
-class CbmEventHeader;
+class FairEventHeader;
 
-class PndTpcSignalSplitterTask : public CbmTask {
+class PndTpcSignalSplitterTask : public FairTask {
 public:
 
   // Constructors/Destructors ---------
@@ -65,7 +65,7 @@ private:
   TString _base;
   TClonesArray* _signalArray;
   PndTpcDigiMapper* _mapper;
-  CbmEventHeader* _evtHeader;
+  FairEventHeader* _evtHeader;
 
   int _secid;
   int _single;

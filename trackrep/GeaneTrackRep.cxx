@@ -19,8 +19,8 @@
 
 // This Class' Header ------------------
 #include "GeaneTrackRep.h"
-#include "CbmGeaneUtil.h"
-#include "CbmTrackParH.h"
+#include "FairGeaneUtil.h"
+#include "FairTrackParH.h"
 
 // C/C++ Headers ----------------------
 #include <iostream>
@@ -29,7 +29,7 @@
 // Collaborating Class Headers --------
 #include "AbsRecoHit.h"
 #include "FitterExceptions.h"
-#include "CbmGeanePro.h"
+#include "FairGeanePro.h"
 
 // Class Member definitions -----------
 
@@ -41,7 +41,7 @@ GeaneTrackRep::GeaneTrackRep()
 
 }
 
-GeaneTrackRep::GeaneTrackRep(CbmGeanePro* geane, 
+GeaneTrackRep::GeaneTrackRep(FairGeanePro* geane, 
 			     const DetPlane& plane,
 			     const TVector3& mom,
 			     const TVector3& poserr,
@@ -51,7 +51,7 @@ GeaneTrackRep::GeaneTrackRep(CbmGeanePro* geane,
   : AbsTrackRep(5), _geane(geane), _pdg(PDGCode), _backw(0)
 {
 
-  CbmTrackParP par(plane.getO(),mom,poserr,momerr,q,plane.getO(),plane.getU(),plane.getV());
+  FairTrackParP par(plane.getO(),mom,poserr,momerr,q,plane.getO(),plane.getU(),plane.getV());
 
   _spu=par.GetSPU(); // direction of the momentum
 
@@ -146,8 +146,8 @@ GeaneTrackRep::extrapolate(const DetPlane& pl,
   _geane->PropagateFromPlane(ufrom,vfrom);
   _geane->PropagateToPlane(o,u,v);
 
-  CbmTrackParP result;
-  CbmTrackParH result2;
+  FairTrackParP result;
+  FairTrackParH result2;
   
   //std::cout<<"Before prop:"<<std::endl;
   //Print();
@@ -173,7 +173,7 @@ GeaneTrackRep::extrapolate(const DetPlane& pl,
   if(state[4][0]==0)state[4][0]=1E-4;
   
   
-  CbmTrackParP par(state[3][0],state[4][0],state[1][0],state[2][0],state[0][0],cova,ofrom,ufrom,vfrom,_spu);
+  FairTrackParP par(state[3][0],state[4][0],state[1][0],state[2][0],state[0][0],cova,ofrom,ufrom,vfrom,_spu);
 
   bool backprop=_backw<0;
   if(_backw==0){
@@ -270,7 +270,7 @@ GeaneTrackRep::extrapolateToPoca(const TVector3& pos,
   if(state[4][0]==0)state[4][0]=1E-4;
   
   
-  CbmTrackParP par(state[3][0],state[4][0],state[1][0],state[2][0],state[0][0],cova,ofrom,ufrom,vfrom,_spu);
+  FairTrackParP par(state[3][0],state[4][0],state[1][0],state[2][0],state[0][0],cova,ofrom,ufrom,vfrom,_spu);
   par.Print();
   
   bool backprop=_backw<0;
@@ -291,7 +291,7 @@ GeaneTrackRep::extrapolateToPoca(const TVector3& pos,
     _geane->BackTrackToVirtualPlaneAtPCA(1);
   }
 
-  CbmTrackParP result;
+  FairTrackParP result;
   Bool_t prop = kTRUE;
 
   prop = _geane->Propagate(&par,&result,_pdg);   //211
@@ -365,7 +365,7 @@ GeaneTrackRep::getPocaOnLine(const TVector3& p1, const TVector3& p2, bool back){
   if(state[4][0]==0)state[4][0]=1E-4;
   
   
-  CbmTrackParP par(state[3][0],state[4][0],state[1][0],state[2][0],state[0][0],cova,ofrom,ufrom,vfrom,_spu);
+  FairTrackParP par(state[3][0],state[4][0],state[1][0],state[2][0],state[0][0],cova,ofrom,ufrom,vfrom,_spu);
 
   
   if(!back){ // point lies in same direction of flight as momentum
@@ -377,7 +377,7 @@ GeaneTrackRep::getPocaOnLine(const TVector3& p1, const TVector3& p2, bool back){
     _geane->BackTrackToVirtualPlaneAtPCA(2);
   }
 
-  CbmTrackParP result;
+  FairTrackParP result;
   Bool_t prop = kTRUE;
 
   prop = _geane->Propagate(&par,&result,_pdg);

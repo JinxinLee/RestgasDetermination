@@ -3,8 +3,8 @@
 // $Id$
 //
 // Description:
-//      Implementation of class CbmFieldAdaptor
-//      see CbmFieldAdaptor.hh for details
+//      Implementation of class PndFieldAdaptor
+//      see PndFieldAdaptor.hh for details
 //
 // Environment:
 //      Software developed for the PANDA Detector at FAIR.
@@ -18,24 +18,24 @@
 // Panda Headers ----------------------
 
 // This Class' Header ------------------
-#include "CbmFieldAdaptor.h"
+#include "PndFieldAdaptor.h"
 
 // C/C++ Headers ----------------------
 #include "assert.h"
 #include<iostream>
 
 // Collaborating Class Headers --------
-#include "CbmField.h"
+#include "FairField.h"
 
 // Class Member definitions -----------
 
 
-CbmFieldAdaptor::CbmFieldAdaptor(CbmField* field)
+PndFieldAdaptor::PndFieldAdaptor(FairField* field)
   : _field(field)
 {}
 
 TVectorT<double> 
-CbmFieldAdaptor::get(const TVectorT<double>& pos) const {
+PndFieldAdaptor::get(const TVectorT<double>& pos) const {
   assert(_field!=NULL);
   Double_t f[3];
   _field->GetFieldValue(pos.GetMatrixArray(),f);

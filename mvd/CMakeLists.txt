@@ -101,7 +101,7 @@ SET(MVD_SRCS ${MVD_SRCS} ${MVD_DICTIONARY})
 
 add_library(Mvd SHARED ${MVD_SRCS})
 target_link_libraries(Mvd ${ROOT_LIBRARIES})
-set_target_properties(Mvd PROPERTIES ${CBMROOT_LIBRARY_PROPERTIES})
+set_target_properties(Mvd PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 
 ########################### create libMvdReco ##################################
 set(MVDRECO_SRCS
@@ -148,7 +148,7 @@ SET(MVDRECO_SRCS ${MVDRECO_SRCS} ${MVDRECO_DICTIONARY})
 
 add_library(MvdReco SHARED ${MVDRECO_SRCS})
 target_link_libraries(MvdReco ${ROOT_LIBRARIES})
-set_target_properties(MvdReco PROPERTIES ${CBMROOT_LIBRARY_PROPERTIES})
+set_target_properties(MvdReco PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 
 ########################### create libMvdTrk ##################################
 set(MVDTRK_SRCS
@@ -185,7 +185,7 @@ SET(MVDTRK_SRCS ${MVDTRK_SRCS} ${MVDTRK_DICTIONARY})
 
 add_library(MvdTrk SHARED ${MVDTRK_SRCS})
 target_link_libraries(MvdTrk ${ROOT_LIBRARIES})
-set_target_properties(MvdTrk PROPERTIES ${CBMROOT_LIBRARY_PROPERTIES})
+set_target_properties(MvdTrk PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 
 ################################## install #####################################
 install(TARGETS Mvd DESTINATION ${CMAKE_BINARY_DIR}/lib)

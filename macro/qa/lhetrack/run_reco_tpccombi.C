@@ -30,22 +30,22 @@
   // ------------------------------------------------------------------------
 
   // -----   Digitization run   -------------------------------------------
-  CbmRunAna *fRun= new CbmRunAna();
+  FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inDigiFile);
   fRun->AddFriend(inSimFile);
   fRun->SetOutputFile(outFile);
-  CbmGeane *Geane = new CbmGeane(inSimFile.Data());
+  FairGeane *Geane = new FairGeane(inSimFile.Data());
   PndEmcMapper::Instance(2,inSimFile);
   // ------------------------------------------------------------------------
 
   // -----  Parameter database   --------------------------------------------
    TString allDigiFile = sysFile+"/macro/params/all.par";
 
-  CbmRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  CbmParRootFileIo* parInput1 = new CbmParRootFileIo();
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open(parFile.Data());
 	
-  CbmParAsciiFileIo* parIo1 = new CbmParAsciiFileIo();
+  FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
   parIo1->open(allDigiFile.Data(),"in");
         
   rtdb->setFirstInput(parInput1);

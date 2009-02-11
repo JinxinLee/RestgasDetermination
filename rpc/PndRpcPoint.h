@@ -4,13 +4,13 @@
 
 #include "TObject.h"
 #include "TVector3.h"
-#include "CbmMCPoint.h"
+#include "FairMCPoint.h"
 
 using namespace std;
 
 
 
-class PndRpcPoint : public CbmMCPoint 
+class PndRpcPoint : public FairMCPoint 
 {
 
  public:

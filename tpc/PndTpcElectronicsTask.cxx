@@ -34,9 +34,9 @@
 #include "TH1D.h"
 
 // Collaborating Class Headers --------
-#include "CbmRootManager.h"
-#include "CbmRunAna.h"
-#include "CbmRuntimeDb.h"
+#include "FairRootManager.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
 #include "PndTpcDigiPar.h"
 #include "TClonesArray.h"
 #include "PndTpcSignal.h"
@@ -58,7 +58,7 @@
 
 
 PndTpcElectronicsTask::PndTpcElectronicsTask()
-  : CbmTask("TPC Electronics response"), _persistence(kFALSE),_samplePersistence(kFALSE), _initialized(kFALSE), _qa(NULL)
+  : FairTask("TPC Electronics response"), _persistence(kFALSE),_samplePersistence(kFALSE), _initialized(kFALSE), _qa(NULL)
  {
   _signalBranchName = "PndTpcSignal";
  }
@@ -77,10 +77,10 @@ PndTpcElectronicsTask::SetParContainers() {
   std::cout.flush();
 
   // Get run and runtime database
-  CbmRun* run = CbmRun::Instance();
+  FairRun* run = FairRun::Instance();
   if ( ! run ) Fatal("SetParContainers", "No analysis run");
 
-  CbmRuntimeDb* db = run->GetRuntimeDb();
+  FairRuntimeDb* db = run->GetRuntimeDb();
   if ( ! db ) Fatal("SetParContainers", "No runtime database");
 
   // Get PndTpc digitisation parameter container
@@ -95,7 +95,7 @@ PndTpcElectronicsTask::Init()
 	
 	_initialized=kFALSE;
   //Get ROOT Manager
-  CbmRootManager* ioman= CbmRootManager::Instance();
+  FairRootManager* ioman= FairRootManager::Instance();
 
   if(ioman==0)
     {
@@ -302,7 +302,7 @@ void PndTpcElectronicsTask::StoreSamples(std::vector<PndTpcSample*> *samplelist)
 void 
 PndTpcElectronicsTask::WriteHistograms(){
 	if(!_initialized || _qa==NULL)return;
-	TFile* outfile=CbmRootManager::Instance()->GetOutFile();
+	TFile* outfile=FairRootManager::Instance()->GetOutFile();
 	
 	outfile->mkdir("PndTpcElectronicsTask");
 	outfile->cd("PndTpcElectronicsTask");

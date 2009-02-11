@@ -12,7 +12,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndMvdDigiTask::PndMvdDigiTask() :
-  CbmTask("MVD Digitization Task")
+  FairTask("MVD Digitization Task")
 {
   this->Add(new PndMvdHybridHitProducer());
   this->Add(new PndMvdStripHitProducer());
@@ -21,7 +21,7 @@ PndMvdDigiTask::PndMvdDigiTask() :
   TList* thistasks = this->GetListOfTasks();
   for(Int_t i=0;i<thistasks->GetEntries();i++)
   {
-    ((CbmTask*)thistasks->At(i))->SetVerbose(fVerbose);
+    ((FairTask*)thistasks->At(i))->SetVerbose(fVerbose);
   }
 }
 // -------------------------------------------------------------------------

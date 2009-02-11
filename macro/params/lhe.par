@@ -4,27 +4,27 @@
 # parameter_name:parameter_type(i-integer, d-double) parameter_value
 #################################################################
 [PndLheCorrPar]
-TofRadius:f 43.6
-TofPhi0:f 0.
-TofZ0:f 0.
-TofSigmaPhi:f 0.0346
-TofSigmaZ:f  1.43
-TofCut:f 20.
-Emc12Thr: f 0.02
-Emc12Radius:f 63.
-Emc12Phi0:f 0.
-Emc12Z0:f 0.
-Emc12SigmaPhi:f 0.0486
-Emc12SigmaZ:f 2.88
-Emc12Cut:f 20.
-MdtRadius:f 155.
-MdtPhi0:f 0.
-MdtZ0:f 2.1
-MdtSigmaPhi:f 0.097
-MdtSigmaZ:f 15.
-MdtCut:f 20.
-DrcRadius:f 49.
-DrcPhi0:f 0.
-DrcSigmaPhi:f 0.0474
-DrcCut:f 20.
+TofRadius:Float_t 43.6
+TofPhi0:Float_t 0.
+TofZ0:Float_t 0.
+TofSigmaPhi:Float_t 0.0346
+TofSigmaZ:Float_t  1.43
+TofCut:Float_t 20.
+Emc12Thr:Float_t 0.02
+Emc12Radius:Float_t 63.
+Emc12Phi0:Float_t 0.
+Emc12Z0:Float_t 0.
+Emc12SigmaPhi:Float_t 0.0486
+Emc12SigmaZ:Float_t 2.88
+Emc12Cut:Float_t 20.
+MdtRadius:Float_t 155.
+MdtPhi0:Float_t 0.
+MdtZ0:Float_t 2.1
+MdtSigmaPhi:Float_t 0.097
+MdtSigmaZ:Float_t 15.
+MdtCut:Float_t 20.
+DrcRadius:Float_t 49.
+DrcPhi0:Float_t 0.
+DrcSigmaPhi:Float_t 0.0474
+DrcCut:Float_t 20.
 #################################################################

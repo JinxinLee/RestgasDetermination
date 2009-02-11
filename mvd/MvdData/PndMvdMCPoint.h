@@ -19,7 +19,7 @@
 
 #include "TObject.h"
 #include "TVector3.h"
-#include "CbmMCPoint.h"
+#include "FairMCPoint.h"
 #include "TString.h"
 
 #include <stdio.h>
@@ -29,7 +29,7 @@ using namespace std;
 
 
 
-class PndMvdMCPoint : public CbmMCPoint 
+class PndMvdMCPoint : public FairMCPoint 
 {
   friend std::ostream& operator<< (std::ostream& out, const PndMvdMCPoint& point){
     out << "-I- PndMvdMCPoint: PndMvd Point for track " << point.GetTrackID() 

@@ -10,7 +10,7 @@
 #include "PndSttPoint.h"
 #include "PndSttSingleStraw.h"
 
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 
 #include "TClonesArray.h"
 #include "TRandom.h"
@@ -37,7 +37,7 @@ using std::sqrt;
 
 // -----   Default constructor   -------------------------------------------
 PndSttHitProducerIdeal::PndSttHitProducerIdeal() :
-  CbmTask("Ideal STT Hit Producer") 
+  FairTask("Ideal STT Hit Producer") 
 { 
 }
 // -------------------------------------------------------------------------
@@ -56,7 +56,7 @@ PndSttHitProducerIdeal::~PndSttHitProducerIdeal()
 InitStatus PndSttHitProducerIdeal::Init() 
 {
   // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
 
   if ( ! ioman ) 
     {

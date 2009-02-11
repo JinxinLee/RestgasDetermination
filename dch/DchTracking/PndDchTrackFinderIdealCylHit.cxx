@@ -6,14 +6,14 @@
 #include "PndDchTrackFinderIdealCylHit.h"
 
 // Pnd includes
-#include "CbmRootManager.h"
-#include "CbmRunAna.h"
-#include "CbmRuntimeDb.h"
-#include "CbmBaseParSet.h"
+#include "FairRootManager.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
+#include "FairBaseParSet.h"
 #include "PndDchPoint.h"
 #include "PndDchDigi.h"
 #include "PndDchCylinderHit.h"
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 
 // ROOT includes
 #include "TClonesArray.h"
@@ -40,24 +40,24 @@ PndDchTrackFinderIdealCylHit::~PndDchTrackFinderIdealCylHit() { }
 
 void PndDchTrackFinderIdealCylHit::Init() {
 
-	// Get and check CbmRootManager
-	CbmRootManager* ioman = CbmRootManager::Instance();
+	// Get and check FairRootManager
+	FairRootManager* ioman = FairRootManager::Instance();
 	if( !ioman ) {
 		cout << "-E- "<< GetName() <<"::Init: "
 		<< "RootManager not instantised!" << endl;
 		return;
 	}
 
-	// Get the pointer to the singleton CbmRunAna object
-	CbmRunAna* ana = CbmRunAna::Instance();
+	// Get the pointer to the singleton FairRunAna object
+	FairRunAna* ana = FairRunAna::Instance();
 	if(NULL == ana) {
 		cout << "-E- "<< GetName() <<"::Init :"
-		<<" no CbmRunAna object!" << endl;
+		<<" no FairRunAna object!" << endl;
 		return;
 	}
 	
 	// Get the pointer to run-time data base
-	CbmRuntimeDb* rtdb = ana->GetRuntimeDb();
+	FairRuntimeDb* rtdb = ana->GetRuntimeDb();
 	if(NULL == rtdb) {
 		cout << "-E- "<< GetName() <<"::Init :"
 		<<" no runtime database!" << endl;
@@ -87,7 +87,7 @@ void PndDchTrackFinderIdealCylHit::Init() {
 	
 	// Geometry loading
 	TFile *infile = ioman->GetInFile();
-	TGeoManager *geoMan = (TGeoManager*) infile->Get("CBMGeom");
+	TGeoManager *geoMan = (TGeoManager*) infile->Get("FAIRGeom");
 	fDchStructure = PndDchStructure::Instance(geoMan);
 
 	std::cout << "-I- "<< GetName() <<": Intialization successfull" << std::endl;
@@ -158,7 +158,7 @@ Int_t PndDchTrackFinderIdealCylHit::DoFind(TClonesArray* cylHitArray,
 	// Create pointers to DchCylinderHit/DchPoint/DchDigi
 	PndDchCylinderHit*  dchCylHit  = NULL;
 	PndDchDigi*  dchDigi  = NULL;
-	CbmMCPoint*  mcPoint  = NULL;
+	FairMCPoint*  mcPoint  = NULL;
 	CbmMCTrack*  mcTrack  = NULL;
 	PndDchTrack* dchTrack = NULL;
 
@@ -194,7 +194,7 @@ Int_t PndDchTrackFinderIdealCylHit::DoFind(TClonesArray* cylHitArray,
 			ptIndex = dchDigi->GetRefIndex();
 
 			// Get pointer to MC point
-			mcPoint = (CbmMCPoint*) fMCPointArray->At(ptIndex);
+			mcPoint = (FairMCPoint*) fMCPointArray->At(ptIndex);
 			if(NULL == mcPoint) continue;
 
 			// Get MC track index
@@ -267,7 +267,7 @@ Int_t PndDchTrackFinderIdealCylHit::DoFind(TClonesArray* cylHitArray,
 		ptIndex = dchDigi->GetRefIndex();
 
 		if(ptIndex < 0) continue;           // fake or background digi
-		mcPoint = (CbmMCPoint*) fMCPointArray->At(ptIndex);
+		mcPoint = (FairMCPoint*) fMCPointArray->At(ptIndex);
 
 		if( !mcPoint ) {
 			nNoDchPoint++;

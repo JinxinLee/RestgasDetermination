@@ -18,28 +18,28 @@
 #include "THParticle.h"
 #include "TVirtualMC.h"
 #include "TString.h"
-#include "CbmGeoTransform.h"
+#include "FairGeoTransform.h"
 
 #include "TGeoBBox.h"
-#include "CbmGeoInterface.h"
-#include "CbmGeoLoader.h"
+#include "FairGeoInterface.h"
+#include "FairGeoLoader.h"
 #include "TGeoMCGeometry.h"
-#include "CbmGeoNode.h"
-#include "CbmGeoMedium.h"
+#include "FairGeoNode.h"
+#include "FairGeoMedium.h"
 #include "PndGeoHyp.h"
-#include "CbmGeoRootBuilder.h"
+#include "FairGeoRootBuilder.h"
 #include "CbmStack.h"
 #include "PndHyp.h"
 #include "PndHypPoint.h"
 
-#include "CbmRootManager.h"
-#include "CbmVolume.h"
+#include "FairRootManager.h"
+#include "FairVolume.h"
 // add on for debug
 
-#include "CbmRuntimeDb.h"
+#include "FairRuntimeDb.h"
 #include "TObjArray.h"
-#include "CbmRun.h"
-#include "CbmRunSim.h"
+#include "FairRun.h"
+#include "FairRunSim.h"
 
 #include "PndHypGeoHandling.h"
 
@@ -56,7 +56,7 @@
 using std::cout;
 using std::endl;
 using std::ostringstream;
-class CbmVolume;
+class FairVolume;
 
 // -----   Default constructor   -------------------------------------------
 PndHyp::PndHyp() {
@@ -78,7 +78,7 @@ PndHyp::PndHyp() {
 
 // -----   Standard constructor   ------------------------------------------
 PndHyp::PndHyp(const char* name, Bool_t active)
-  : CbmDetector(name, active) {
+  : FairDetector(name, active) {
     fHypCollection        = new TClonesArray("PndHypPoint");
     fHypSecTarCollection  = new TClonesArray("PndHypPoint");
     fHypSTpipeCollection  = new TClonesArray("PndHypPoint");
@@ -122,7 +122,7 @@ PndHyp::~PndHyp() {
 void PndHyp::Initialize() {
   // Init function
   
-  CbmDetector::Initialize();
+  FairDetector::Initialize();
 
  
 
@@ -171,7 +171,7 @@ void PndHyp::PreTrack(){
 
 
 void PndHyp::SetSpecialPhysicsCuts(){
-// CbmRun* fRun = CbmRun::Instance();
+// FairRun* fRun = FairRun::Instance();
 
   //Int_t mat = gGeoManager->GetMaterialIndex("HYPdiamond");
   //gMC->Gstpar(mat,"HADR",1.0e-9);
@@ -180,7 +180,7 @@ void PndHyp::SetSpecialPhysicsCuts(){
 
    // -----   Public method ProcessHits  --------------------------------------
 
-Bool_t PndHyp::ProcessHits(CbmVolume* vol) 
+Bool_t PndHyp::ProcessHits(FairVolume* vol) 
 
 
 { 
@@ -479,10 +479,10 @@ void PndHyp::EndOfEvent() {
 
 // -----   Public method Register   -------------------------------------------
 void PndHyp::Register() {
-  CbmRootManager::Instance()->Register("HypPoint","Hyp", fHypCollection, kTRUE);
-  CbmRootManager::Instance()->Register("HypSegTarPoint","HypSecTarg", 
+  FairRootManager::Instance()->Register("HypPoint","Hyp", fHypCollection, kTRUE);
+  FairRootManager::Instance()->Register("HypSegTarPoint","HypSecTarg", 
 				       fHypSecTarCollection, kTRUE);
-   CbmRootManager::Instance()->Register("HypSTpipePoint","HypSTpipe", 
+   FairRootManager::Instance()->Register("HypSTpipePoint","HypSTpipe", 
 				       fHypSTpipeCollection, kTRUE);
 }
 // ----------------------------------------------------------------------------
@@ -521,7 +521,7 @@ void PndHyp::Reset() {
 // ----------------------------------------------------------------------------
 
 
-// guarda in CbmRootManager::CopyClones
+// guarda in FairRootManager::CopyClones
 // -----   Public method CopyClones   -----------------------------------------
 void PndHyp::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset ) {
   Int_t nEntries = cl1->GetEntriesFast();
@@ -541,8 +541,8 @@ void PndHyp::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset ) {
 // ----------------------------------------------------------------------------
  // -----   Public method ConstructGeometry   ----------------------------------
 void PndHyp::ConstructGeometry() {
- CbmGeoLoader*    geoLoad = CbmGeoLoader::Instance();
-  CbmGeoInterface* geoFace = geoLoad->getGeoInterface();
+ FairGeoLoader*    geoLoad = FairGeoLoader::Instance();
+  FairGeoInterface* geoFace = geoLoad->getGeoInterface();
   PndGeoHyp*      hypGeo = new PndGeoHyp();
   hypGeo->setGeomFile(GetGeometryFileName());
   geoFace->addGeoModule(hypGeo);
@@ -552,18 +552,18 @@ void PndHyp::ConstructGeometry() {
   TList* volList = hypGeo->getListOfVolumes();
 
   // store geo parameter
-  CbmRun *fRun = CbmRun::Instance();
-  CbmRuntimeDb *rtdb= CbmRun::Instance()->GetRuntimeDb();
+  FairRun *fRun = FairRun::Instance();
+  FairRuntimeDb *rtdb= FairRun::Instance()->GetRuntimeDb();
   PndGeoHypPar* par=(PndGeoHypPar*)(rtdb->getContainer("PndGeoHypPar"));
   TObjArray *fSensNodes = par->GetGeoSensitiveNodes();
   TObjArray *fPassNodes = par->GetGeoPassiveNodes();
 
   TListIter iter(volList);
-  CbmGeoNode* node   = NULL;
-  CbmGeoVolume *aVol=NULL;
+  FairGeoNode* node   = NULL;
+  FairGeoVolume *aVol=NULL;
 
-  while( (node = (CbmGeoNode*)iter.Next()) ) {
-    aVol = dynamic_cast<CbmGeoVolume*> ( node );
+  while( (node = (FairGeoNode*)iter.Next()) ) {
+    aVol = dynamic_cast<FairGeoVolume*> ( node );
 
 
     if ( node->isSensitive()  ) {

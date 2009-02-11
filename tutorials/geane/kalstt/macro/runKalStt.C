@@ -18,30 +18,30 @@
   gSystem->Load("libGen");
   gSystem->Load("libGeaneEx");
   
-  CbmRunAna *fRun = new CbmRunAna();
+  FairRunAna *fRun = new FairRunAna();
 
   fRun->SetInputFile("ex2.root");
   fRun->AddFriend("ex2d.root");
   fRun->AddFriend("ex2r.root");
   fRun->SetOutputFile("ex2g.root");
 
-   //CbmGeane *Geane = new CbmGeane();
-   CbmGeane *Geane = new CbmGeane("ex2.root");
+   //FairGeane *Geane = new FairGeane();
+   FairGeane *Geane = new FairGeane("ex2.root");
 
-//   CbmGeaneTr *tr= new CbmGeaneTr();
-//   CbmGeaneTrC *tr= new CbmGeaneTrC();
-//   CbmGeaneTrT *tr= new CbmGeaneTrT();
-//   CbmGeaneTrP *tr= new CbmGeaneTrP();
-//   CbmGeaneTrK *tr= new CbmGeaneTrK();
-   CbmGeaneTrKalStt *tr= new CbmGeaneTrKalStt();
+//   FairGeaneTr *tr= new FairGeaneTr();
+//   FairGeaneTrC *tr= new FairGeaneTrC();
+//   FairGeaneTrT *tr= new FairGeaneTrT();
+//   FairGeaneTrP *tr= new FairGeaneTrP();
+//   FairGeaneTrK *tr= new FairGeaneTrK();
+   FairGeaneTrKalStt *tr= new FairGeaneTrKalStt();
   fRun->AddTask(tr);
 
- //  CbmGeaneTrP *trP= new CbmGeaneTrP();
+ //  FairGeaneTrP *trP= new FairGeaneTrP();
  //  fRun->AddTask(trP);
  // -----  Parameter database   --------------------------------------------
 
-  CbmRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  CbmParRootFileIo* parInput1 = new CbmParRootFileIo();
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open("ex2params.root"); 
   rtdb->setFirstInput(parInput1);
 

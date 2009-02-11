@@ -49,6 +49,6 @@ SET(DRC_SRCS ${DRC_SRCS} ${DRC_DICTIONARY})
 
 add_library(Drc SHARED ${DRC_SRCS})
 target_link_libraries(Drc ${ROOT_LIBRARIES})
-set_target_properties(Drc PROPERTIES ${CBMROOT_LIBRARY_PROPERTIES})
+set_target_properties(Drc PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 ################ install ###################
 install(TARGETS Drc DESTINATION ${CMAKE_BINARY_DIR}/lib)

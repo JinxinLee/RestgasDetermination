@@ -2,17 +2,17 @@
 #define PNDSTTPATTERNRECOTASK_HH
 
 // Base Class Headers ----------------
-#include "CbmTask.h"
+#include "FairTask.h"
 #include<map>
 
 // Collaborating Class Headers -------
 
 // Collaborating Class Declarations --
 class TClonesArray;
-class CbmGeanePro;
-class CbmMCPoint;
+class FairGeanePro;
+class FairMCPoint;
 
-class PndSttPatternRecoTask : public CbmTask {
+class PndSttPatternRecoTask : public FairTask {
 public:
 
   // Constructors/Destructors ---------
@@ -43,7 +43,7 @@ private:
   TClonesArray* fMatchArray;
   TClonesArray* fSttTrackArray;
   TClonesArray* fSttHitArray;
-  CbmGeanePro *fPro;
+  FairGeanePro *fPro;
   // Private Methods -----------------
 
 public:

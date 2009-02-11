@@ -6,10 +6,10 @@
 
 #include "TClonesArray.h"
 
-#include "CbmRootManager.h"
-#include "CbmRunAna.h"
-#include "CbmRuntimeDb.h"
-#include "CbmRun.h"
+#include "FairRootManager.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
+#include "FairRun.h"
 #include "CbmMCTrack.h"
 
 #include "PndRpcSimpleReco.h"
@@ -26,7 +26,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndRpcSimpleReco::PndRpcSimpleReco() :
-  CbmTask("Reco of Rpc TOF Hits") { }
+  FairTask("Reco of Rpc TOF Hits") { }
 // -------------------------------------------------------------------------
 
 
@@ -42,7 +42,7 @@ InitStatus PndRpcSimpleReco::Init() {
 
   // Get RootManager
  std::cout << " INITIALIZATION OF Simple Reco Rpc-tof Hit **"<< std::endl;
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
     cout << "-E- PndRpcSimpleReco::Init: "
 	 << "RootManager not instantised!" << endl;

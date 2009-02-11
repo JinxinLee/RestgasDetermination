@@ -16,12 +16,12 @@
 #include "PndEmcPoint.h"
 #include "PndEmcDigiPar.h"		
 
-#include "CbmRootManager.h"
-#include "CbmRunAna.h"
-#include "CbmRuntimeDb.h"
-#include "CbmDetector.h"
-#include "CbmRun.h"
-#include "CbmRuntimeDb.h"
+#include "FairRootManager.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
+#include "FairDetector.h"
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
 
 #include "TClonesArray.h"
 #include "TROOT.h"
@@ -40,14 +40,14 @@ using std::map;
 		
 // -----   Default constructor   -------------------------------------------
 PndEmcHitProducer::PndEmcHitProducer() :
-  CbmTask("Ideal EMC hit Producer") { 
+  FairTask("Ideal EMC hit Producer") { 
   fStoreHits=kTRUE;
   //eneThr = 0.001; // Energy threshold for emc pad (Now taken from DB)
 }
 // -------------------------------------------------------------------------
 
 PndEmcHitProducer::PndEmcHitProducer(Bool_t val) :
-  CbmTask("Ideal EMC hit Producer") { 
+  FairTask("Ideal EMC hit Producer") { 
   fStoreHits=val;
   //eneThr = 0.001; // Energy threshold for emc pad (Now taken from DB)
 }
@@ -62,12 +62,12 @@ InitStatus PndEmcHitProducer::Init() {
  
   cout << " INITIALIZATION *********************" << endl;
   
-  //CbmDetector::Initialize();
-  //CbmRun* sim = CbmRun::Instance();
-  //CbmRuntimeDb* rtdb=sim->GetRuntimeDb();
+  //FairDetector::Initialize();
+  //FairRun* sim = FairRun::Instance();
+  //FairRuntimeDb* rtdb=sim->GetRuntimeDb();
   
   // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
     cout << "-E- PndEmcHitProducer::Init: "
 	 << "RootManager not instantiated!" << endl;
@@ -89,8 +89,8 @@ InitStatus PndEmcHitProducer::Init() {
   
 	// Geometry loading
 // 	TFile *infile = ioman->GetInFile();
-// 	TGeoManager *geoMan = (TGeoManager*) infile->Get("CBMGeom");
-//	TGeoManager *geoMan = (TGeoManager*) gROOT->FindObject("CBMGeom");
+// 	TGeoManager *geoMan = (TGeoManager*) infile->Get("FAIRGeom");
+//	TGeoManager *geoMan = (TGeoManager*) gROOT->FindObject("FAIRGeom");
 	
 	fMapVersion=fDigiPar->GetMapperVersion();
 	PndEmcMapper *map=PndEmcMapper::Instance(fMapVersion);
@@ -111,10 +111,10 @@ InitStatus PndEmcHitProducer::Init() {
 void PndEmcHitProducer::SetParContainers() {
 
   // Get run and runtime database
-  CbmRun* run = CbmRun::Instance();
+  FairRun* run = FairRun::Instance();
   if ( ! run ) Fatal("SetParContainers", "No analysis run");
 
-  CbmRuntimeDb* db = run->GetRuntimeDb();
+  FairRuntimeDb* db = run->GetRuntimeDb();
   if ( ! db ) Fatal("SetParContainers", "No runtime database");
 
   // Get Emc digitisation parameter container

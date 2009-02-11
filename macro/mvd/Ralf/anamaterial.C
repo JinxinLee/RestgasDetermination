@@ -21,7 +21,7 @@
   TClonesArray* mc_array=new TClonesArray("CbmMCTrack");
   t->SetBranchAddress("MCTrack",&mc_array);//Branch names
 
-  TGeoManager *geoMan = (TGeoManager*) gDirectory->Get("CBMGeom");
+  TGeoManager *geoMan = (TGeoManager*) gDirectory->Get("FAIRGeom");
 
   
   for(Int_t event=0;event<nEvents && event<mc_array.GetEntriesFast();event++)

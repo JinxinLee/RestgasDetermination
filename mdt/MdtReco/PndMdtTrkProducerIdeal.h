@@ -2,12 +2,12 @@
 #define PNDMDTTRKPRODUCERIDEAL_H 1
 
 
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "PndMdtTrk.h"
 
 class TClonesArray;
 
-class PndMdtTrkProducerIdeal : public CbmTask
+class PndMdtTrkProducerIdeal : public FairTask
 {
 
  public:

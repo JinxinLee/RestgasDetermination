@@ -5,13 +5,13 @@
 
   TString parFile = "../data/mvddpm6GeV_digipar.root";
 
-  CbmRunAna *fRun= new CbmRunAna();
+  FairRunAna *fRun= new FairRunAna();
 
   fRun->SetInputFile("../data/mvddpm6GeV_digi.root");
   fRun->SetOutputFile("../data/dummy.root");
 
-  CbmRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  CbmParRootFileIo* parInput1 = new CbmParRootFileIo();
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open(parFile.Data());
   rtdb->setFirstInput(parInput1);
 

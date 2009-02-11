@@ -62,7 +62,7 @@ PndMultiField::~PndMultiField() {
 }
 
 // -----------   Adding fields   ------------------------------------------
-void PndMultiField::AddField(CbmField *field){
+void PndMultiField::AddField(FairField *field){
 	
    if(field){
       fMaps->AddLast(field);	
@@ -80,10 +80,10 @@ void PndMultiField::Init() {
       field = dynamic_cast<PndConstField *>(fMaps->At(n));
       if(fieldMap){
          fieldMap->Init();
-	 fFieldMaps.insert( pair<PndRegion*, CbmField*>(new PndRegion(fieldMap->GetZmin(),fieldMap->GetZmax()) , fieldMap ));
+	 fFieldMaps.insert( pair<PndRegion*, FairField*>(new PndRegion(fieldMap->GetZmin(),fieldMap->GetZmax()) , fieldMap ));
       }else if(field){
          field->Init();
-	 fFieldMaps.insert( pair<PndRegion*, CbmField*>(new PndRegion(field->GetZmin(),field->GetZmax() ), field ));
+	 fFieldMaps.insert( pair<PndRegion*, FairField*>(new PndRegion(field->GetZmin(),field->GetZmax() ), field ));
       }
    }
 
@@ -92,7 +92,7 @@ void PndMultiField::Init() {
 // ---------   Screen output   --------------------------------------------
 void PndMultiField::Print() {  
  for (Int_t n=0; n<=fNoOfMaps; n++){
-      CbmField *fieldMap = dynamic_cast<CbmField *>(fMaps->At(n));
+      FairField *fieldMap = dynamic_cast<FairField *>(fMaps->At(n));
       if(fieldMap) fieldMap->Print();
   }
 }
@@ -102,7 +102,7 @@ void PndMultiField::GetFieldValue(const Double_t point[3], Double_t* bField)
 {
   
    PndRegion *fReg=0;
-   CbmField *fField=0;
+   FairField *fField=0;
    for (fMapIter=fFieldMaps.begin(); fMapIter!= fFieldMaps.end();fMapIter++ ){
       fReg=fMapIter->first;
       if(fReg->IsInside(point[2])){

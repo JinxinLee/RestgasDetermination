@@ -2,7 +2,7 @@
 #define PNDHYPFULLIDEALANA_H 1
 
 
-#include "CbmTask.h"
+#include "FairTask.h"
 #include <map>
 #include <string>
 #include "TFile.h"
@@ -24,7 +24,7 @@ class TPidSimpleKaonSelector;
 class TPidSimplePionSelector;
 class TPidSimpleProtonSelector;
 
-class PndHypFullIdealAna : public CbmTask
+class PndHypFullIdealAna : public FairTask
 {
 
  public:

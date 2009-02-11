@@ -24,7 +24,7 @@ void fillTree(TString const inf1, TString const inf2,
   TClonesArray *ArrTofHit1 = new TClonesArray("PndTofHit");
   treco1->SetBranchAddress("TofHit",&ArrTofHit1);
   
-  TClonesArray *ArrTrackPar1 = new TClonesArray("CbmTrackParH");
+  TClonesArray *ArrTrackPar1 = new TClonesArray("FairTrackParH");
   treco1->SetBranchAddress("GeaneTrackPar",&ArrTrackPar1);
   
   TClonesArray *ArrPndPidCand1 = new TClonesArray("PndPidCand");
@@ -48,7 +48,7 @@ void fillTree(TString const inf1, TString const inf2,
     PndTofPoint *tof = (PndTofPoint *) ArrTof1->At(0);
     PndTofHit *tofHit = (PndTofHit *) ArrTofHit1->At(0);
     PndPidCand *track = (PndPidCand *) ArrPndPidCand1->At(0);
-    CbmTrackParH *trackpar = (CbmTrackParH *) ArrTrackPar1->At(0);
+    FairTrackParH *trackpar = (FairTrackParH *) ArrTrackPar1->At(0);
     
     Double_t de_tpc=0;
     Double_t dx_tpc=0;

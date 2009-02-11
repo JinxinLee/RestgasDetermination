@@ -19,7 +19,7 @@
 #define IDEALPATTERNRECTASK_HH
 
 // Base Class Headers ----------------
-#include "CbmTask.h"
+#include "FairTask.h"
 
 // Collaborating Class Headers -------
 #include "Track.h"
@@ -29,7 +29,7 @@ class TClonesArray;
 class TObjArray;
 class RecoHitFactory;
 
-class IdealPatternRecTask : public CbmTask {
+class IdealPatternRecTask : public FairTask {
 public:
 
   // Constructors/Destructors ---------

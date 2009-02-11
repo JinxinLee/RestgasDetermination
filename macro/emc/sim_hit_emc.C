@@ -25,7 +25,7 @@
 	gSystem->Load("libEmc");
 	gSystem->Load("libGen");
 	
-	CbmRunSim *fRun = new CbmRunSim();
+	FairRunSim *fRun = new FairRunSim();
 	
 	TString digiFile = "emc.par";
 	
@@ -48,19 +48,19 @@
 	
 	// Create and add detectors
 	//-------------------------
-	CbmModule *Cave= new PndCave("CAVE");
+	FairModule *Cave= new PndCave("CAVE");
 	Cave->SetGeometryFileName("pndcave.geo");
 	fRun->AddModule(Cave); 
 	
-	CbmModule *Magnet= new PndMagnet("MAGNET");
+	FairModule *Magnet= new PndMagnet("MAGNET");
 	Magnet->SetGeometryFileName("magnet.geo");
 	fRun->AddModule(Magnet);
 	
-	CbmModule *Pipe= new PndPipe("PIPE");
+	FairModule *Pipe= new PndPipe("PIPE");
 	Pipe->SetGeometryFileName("pipe.geo");
 	fRun->AddModule(Pipe);
 	
-	//CbmDetector *Emc = new PndEmc("EMC",kTRUE);
+	//FairDetector *Emc = new PndEmc("EMC",kTRUE);
 	PndEmc *Emc = new PndEmc("EMC",kTRUE);
 	//Emc->SetGeometryFileName("emc_module12345.dat"); // if you want to use old geometry for FwEndCap
 	Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root"); // if you want to use new geometry for FwEndCap
@@ -70,11 +70,11 @@
 	// Create and Set Event Generator
 	//-------------------------------
 	
-	CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
+	FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
 	fRun->SetGenerator(primGen);
 	
 	// Box Generator: 
-	CbmBoxGenerator* boxGen = new CbmBoxGenerator(22, 5); // 13 = muon; 1 = multipl. // 211 = pi+
+	FairBoxGenerator* boxGen = new FairBoxGenerator(22, 5); // 13 = muon; 1 = multipl. // 211 = pi+
 	// first number: PDG particle code: 2nd number: particle multiplicity per event
 	
 	boxGen->SetPRange(1.,1.); // GeV/c
@@ -120,14 +120,14 @@
 	emcDigiFile += "/macro/params/";
 	emcDigiFile += digiFile;
 	/**Get the run time data base for this session and set the needed input*/
-	CbmRuntimeDb* rtdb = fRun->GetRuntimeDb();
-    CbmParAsciiFileIo* parIo1 = new CbmParAsciiFileIo();
+	FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+    FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
 	parIo1->open(emcDigiFile.Data(),"in");
     rtdb->setFirstInput(parIo1);        
     Bool_t kParameterMerged=kTRUE;
 	
 	/**Parameters created for this simulation goes to the out put*/
-	CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
+	FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
     output->open("simparams.root");
     rtdb->setOutput(output);
 	

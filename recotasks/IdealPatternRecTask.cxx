@@ -26,7 +26,7 @@
 #include <string>
 
 // Collaborating Class Headers --------
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "TClonesArray.h"
 #include "CbmMCTrack.h"
 #include "PndTpcPoint.h"
@@ -54,7 +54,7 @@
 
 
 IdealPatternRecTask::IdealPatternRecTask()
-  : CbmTask("IdealPatternRec"), _persistence(kFALSE)
+  : FairTask("IdealPatternRec"), _persistence(kFALSE)
 {
   _hitBranchName = "PndTpcPoint";
 }
@@ -72,7 +72,7 @@ IdealPatternRecTask::Init()
 
 
   //Get ROOT Manager
-  CbmRootManager* ioman= CbmRootManager::Instance();
+  FairRootManager* ioman= FairRootManager::Instance();
 
   if(ioman==0)
     {

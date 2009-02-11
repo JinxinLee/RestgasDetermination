@@ -1,11 +1,11 @@
 #ifndef PNDMDTHIT_HH
 #define PNDMDTHIT_HH
 
-#include "CbmHit.h"
+#include "FairHit.h"
 #include "TVector3.h"
 #include "TMath.h"
 
-class PndMdtHit : public CbmHit {
+class PndMdtHit : public FairHit {
 
  public:
  

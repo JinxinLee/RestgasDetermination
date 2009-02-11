@@ -2,7 +2,7 @@
 // // PndTpcDigiPar
 // //
 // // Container class for Digitisation parameters
-// // class is inherited from CbmParGenericSet
+// // class is inherited from FairParGenericSet
 // //
 // /////////////////////////////////////////////////////////////
 
@@ -22,7 +22,7 @@ ClassImp(PndTpcDigiPar)
 
 PndTpcDigiPar::PndTpcDigiPar(const char* name,const char* title,
 			     const char* context)
-  : CbmParGenericSet(name,title,context),
+  : FairParGenericSet(name,title,context),
     _gas(NULL), _gem(NULL), _padplane(NULL), _frontend(NULL), _padshapepool(NULL)
 {
 	clear();
@@ -39,7 +39,7 @@ PndTpcDigiPar::~PndTpcDigiPar()
 }
 
 
-void PndTpcDigiPar::putParams(CbmParamList* list)
+void PndTpcDigiPar::putParams(FairParamList* list)
 {
 	if(!list) return;
 	list->add("PndTpcGasFile",_tpcGasFile);
@@ -77,7 +77,7 @@ void PndTpcDigiPar::putParams(CbmParamList* list)
 	list->add("Rate",_rate);
 }
 
-Bool_t PndTpcDigiPar::getParams(CbmParamList* list)
+Bool_t PndTpcDigiPar::getParams(FairParamList* list)
 {
  	if (!list) {std::cout<<"list not found"<<std::endl; return kFALSE;}
 	if(!list->fill("EField",&_EField)) 

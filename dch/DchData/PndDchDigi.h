@@ -31,7 +31,7 @@ class PndDchDigi : public TObject  {
     *  \param chamber - number of chamber 
     *  \param wire - number of wire
     *  \param driftTime - drift time to the wire
-    *  \param refIndex - index of CbmMCPoint for this digi
+    *  \param refIndex - index of FairMCPoint for this digi
     **/
   PndDchDigi(Double_t timeStamp,
 	     Int_t plane,

@@ -9,14 +9,14 @@
 #include "PndGeoStt.h"
 #include "PndSttPoint.h"
 
-#include "CbmRun.h"
-#include "CbmGeoInterface.h"
-#include "CbmGeoLoader.h"
-#include "CbmGeoNode.h"
-#include "CbmGeoRootBuilder.h"
-#include "CbmRootManager.h"
-#include "CbmRuntimeDb.h"
-#include "CbmVolume.h"
+#include "FairRun.h"
+#include "FairGeoInterface.h"
+#include "FairGeoLoader.h"
+#include "FairGeoNode.h"
+#include "FairGeoRootBuilder.h"
+#include "FairRootManager.h"
+#include "FairRuntimeDb.h"
+#include "FairVolume.h"
 
 #include "TClonesArray.h"
 #include "TLorentzVector.h"
@@ -50,7 +50,7 @@ PndStt::PndStt()
 
 // -----   Standard constructor   ------------------------------------------
 PndStt::PndStt(const char* name, Bool_t active)
-  : CbmDetector(name, active) 
+  : FairDetector(name, active) 
 {
     fSttCollection = new TClonesArray("PndSttPoint");
     fPosIndex = 0;
@@ -137,7 +137,7 @@ string PndStt::GetStringPart(string &aSrc, Int_t part, char aDelim)
 }
 
 // -----   Public method ProcessHits  --------------------------------------
-Bool_t  PndStt::ProcessHits(CbmVolume* vol)
+Bool_t  PndStt::ProcessHits(FairVolume* vol)
 {
   //new>>>>>>>>>>>>>>>>>>
 
@@ -250,15 +250,15 @@ Bool_t  PndStt::ProcessHits(CbmVolume* vol)
 	  //      cout << gMC->CurrentVolPath() << endl;
 	  // 	    cout << "fullname: " << fullName << endl;
  	  
-	  CbmRuntimeDb *rtdb= CbmRun::Instance()->GetRuntimeDb();
+	  FairRuntimeDb *rtdb= FairRun::Instance()->GetRuntimeDb();
 	  PndGeoSttPar* par=(PndGeoSttPar*)(rtdb->getContainer("PndGeoSttPar"));
 	  TObjArray *fPassNodes = par->GetGeoPassiveNodes();
 	  
-	  CbmGeoNode 
-	    *volnode = dynamic_cast<CbmGeoNode*> (fPassNodes->FindObject(fullName.c_str()));
+	  FairGeoNode 
+	    *volnode = dynamic_cast<FairGeoNode*> (fPassNodes->FindObject(fullName.c_str()));
 	    
 	  if(number=="0") {
-	    volnode = dynamic_cast<CbmGeoNode*> (fPassNodes->FindObject(specialname.c_str()));
+	    volnode = dynamic_cast<FairGeoNode*> (fPassNodes->FindObject(specialname.c_str()));
 	    //cout<<">>>>"<<endl;
 	    //cout<<"special "<<specialname.c_str()<<endl;
 	  }
@@ -269,14 +269,14 @@ Bool_t  PndStt::ProcessHits(CbmVolume* vol)
 	      return kFALSE;
 	    }
 	    
-	  //CbmGeoRotation  // check if vol is the CbmGeoVolume or the CbmGeoNode before using this!
+	  //FairGeoRotation  // check if vol is the FairGeoVolume or the FairGeoNode before using this!
 	  //  rotation = vol->getLabTransform()->getRotMatrix();
 	    
-	  //CbmGeoVector
+	  //FairGeoVector
 	  // originalVector(0., 0., 1.),
 	  //  rotatedVector = rotation * originalVector;
 
-	  CbmGeoVector rotatedVector;
+	  FairGeoVector rotatedVector;
 	    
 	  rotatedVector.setX(M.GetRotationMatrix()[2]);//2
 	  rotatedVector.setY(M.GetRotationMatrix()[5]);//5
@@ -367,7 +367,7 @@ void PndStt::EndOfEvent()
 // -----   Public method Register   ----------------------------------------
 void PndStt::Register() 
 {
-    CbmRootManager::Instance()->Register("STTPoint", "Stt", fSttCollection, kTRUE);
+    FairRootManager::Instance()->Register("STTPoint", "Stt", fSttCollection, kTRUE);
 }
 // -------------------------------------------------------------------------
 
@@ -444,8 +444,8 @@ void PndStt::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset)
 // -----   Public method ConstructGeometry   -------------------------------
 void PndStt::ConstructGeometry() 
 {
-  CbmGeoLoader*    geoLoad = CbmGeoLoader::Instance();
-  CbmGeoInterface* geoFace = geoLoad->getGeoInterface();
+  FairGeoLoader*    geoLoad = FairGeoLoader::Instance();
+  FairGeoInterface* geoFace = geoLoad->getGeoInterface();
   PndGeoStt*       Geo  = new  PndGeoStt();
   Geo->setGeomFile(GetGeometryFileName());
   geoFace->addGeoModule(Geo);
@@ -456,19 +456,19 @@ void PndStt::ConstructGeometry()
   TList* volList = Geo->getListOfVolumes();
 
   // store geo parameter
-  CbmRun *fRun = CbmRun::Instance();
-  CbmRuntimeDb *rtdb= CbmRun::Instance()->GetRuntimeDb();
+  FairRun *fRun = FairRun::Instance();
+  FairRuntimeDb *rtdb= FairRun::Instance()->GetRuntimeDb();
   PndGeoSttPar* par=(PndGeoSttPar*)(rtdb->getContainer("PndGeoSttPar"));
   TObjArray *fSensNodes = par->GetGeoSensitiveNodes();
   TObjArray *fPassNodes = par->GetGeoPassiveNodes();
 
   TListIter iter(volList);
-  CbmGeoNode* node   = NULL;
-  CbmGeoVolume *aVol=NULL;
+  FairGeoNode* node   = NULL;
+  FairGeoVolume *aVol=NULL;
   
   
-  while( (node = (CbmGeoNode*)iter.Next()) ) {
-      aVol = dynamic_cast<CbmGeoVolume*> ( node );
+  while( (node = (FairGeoNode*)iter.Next()) ) {
+      aVol = dynamic_cast<FairGeoVolume*> ( node );
        if ( node->isSensitive()  ) {
            fSensNodes->AddLast( aVol );
        }else{

@@ -1,16 +1,16 @@
 #include "PndGemDetector.h"
 
-#include "CbmGeoInterface.h"
-#include "CbmGeoLoader.h"
-#include "CbmGeoNode.h"
-#include "CbmGeoRootBuilder.h"
-#include "CbmRootManager.h"
-#include "CbmRuntimeDb.h"
-#include "CbmRun.h"
-#include "CbmGeoMedia.h"
-#include "CbmGeoVolume.h"
-#include "CbmRunSim.h"
-#include "CbmVolume.h"
+#include "FairGeoInterface.h"
+#include "FairGeoLoader.h"
+#include "FairGeoNode.h"
+#include "FairGeoRootBuilder.h"
+#include "FairRootManager.h"
+#include "FairRuntimeDb.h"
+#include "FairRun.h"
+#include "FairGeoMedia.h"
+#include "FairGeoVolume.h"
+#include "FairRunSim.h"
+#include "FairVolume.h"
 
 
 #include "PndGemMCPoint.h"
@@ -33,7 +33,7 @@
 #include <string>
 #include <sstream>
 
-class CbmVolume;
+class FairVolume;
 
 
 // -----   Default constructor   -------------------------------------------
@@ -54,7 +54,7 @@ PndGemDetector::PndGemDetector() : fUseRadDamOption(false) {
 
 // -----   Standard constructor   ------------------------------------------
 PndGemDetector::PndGemDetector (const char* name, Bool_t active)
-  : CbmDetector(name, active), fUseRadDamOption(false) {
+  : FairDetector(name, active), fUseRadDamOption(false) {
   fPndGemCollection = new TClonesArray("PndGemMCPoint");
   fPosIndex = 0;
   fListOfSensitives.push_back("Sensor");
@@ -84,7 +84,7 @@ PndGemDetector::~PndGemDetector()
 void PndGemDetector::Initialize()
 {
   std::cout<<" -I- Initializing PndGemDetector()"<<std::endl;
-  CbmDetector::Initialize();
+  FairDetector::Initialize();
   if(0==gGeoManager) {
     std::cout<<" -E- No gGeoManager in PndGemDetector::Initialize()!"<<std::endl;
     abort();
@@ -94,7 +94,7 @@ void PndGemDetector::Initialize()
 
 
 // -----   Public method ProcessHits  --------------------------------------
-Bool_t  PndGemDetector::ProcessHits(CbmVolume* vol)
+Bool_t  PndGemDetector::ProcessHits(FairVolume* vol)
 {
 
   if ( gMC->IsTrackEntering() )
@@ -190,7 +190,7 @@ void PndGemDetector::FinishRun()
 // -----   Public method Register   ----------------------------------------
 void PndGemDetector::Register()
 {
-  CbmRootManager::Instance()->Register("GEMPoint", "PndGem", fPndGemCollection, kTRUE);
+  FairRootManager::Instance()->Register("GEMPoint", "PndGem", fPndGemCollection, kTRUE);
 }
 // -------------------------------------------------------------------------
 
@@ -294,8 +294,8 @@ bool PndGemDetector::CheckIfSensitive(std::string name)
 //   // get pointer to the instantons which interface
 //   // to monte carlo
 // 
-//   CbmGeoLoader *geoLoad = CbmGeoLoader::Instance();
-//   CbmGeoInterface *geoFace = geoLoad->getGeoInterface();
+//   FairGeoLoader *geoLoad = FairGeoLoader::Instance();
+//   FairGeoInterface *geoFace = geoLoad->getGeoInterface();
 //   PndGemGeo *thePndGemGeo  = new PndGemGeo();
 // 
 //   thePndGemGeo->setGeomFile(GetGeometryFileName());
@@ -309,9 +309,9 @@ bool PndGemDetector::CheckIfSensitive(std::string name)
 //   TList* volList = thePndGemGeo->getListOfVolumes();
 // 
 //   // store geo parameter
-//   CbmRun *fRun = CbmRun::Instance();
+//   FairRun *fRun = FairRun::Instance();
 // 
-//   CbmRuntimeDb *rtdb= CbmRun::Instance()->GetRuntimeDb();
+//   FairRuntimeDb *rtdb= FairRun::Instance()->GetRuntimeDb();
 // 
 //   PndGemGeoPar *par= (PndGemGeoPar*)(rtdb->getContainer("PndGemGeoPar"));
 // 
@@ -321,11 +321,11 @@ bool PndGemDetector::CheckIfSensitive(std::string name)
 // 
 //   TListIter iter(volList);
 // 
-//   CbmGeoNode   *node = NULL;
-//   CbmGeoVolume *aVol = NULL;
+//   FairGeoNode   *node = NULL;
+//   FairGeoVolume *aVol = NULL;
 // 
-//   while( (node = (CbmGeoNode*)iter.Next()) ) {
-//       aVol = dynamic_cast<CbmGeoVolume*> ( node );
+//   while( (node = (FairGeoNode*)iter.Next()) ) {
+//       aVol = dynamic_cast<FairGeoVolume*> ( node );
 //        if ( node->isSensitive()  ) {
 //            fSensNodes->AddLast( aVol );
 //        }else{

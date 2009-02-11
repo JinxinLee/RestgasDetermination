@@ -18,7 +18,7 @@
   gSystem->Load("libGen");
   gSystem->Load("libPGen");
 
-  CbmRunSim *fRun = new CbmRunSim();
+  FairRunSim *fRun = new FairRunSim();
   
   // set the MC version used
   // ------------------------
@@ -36,11 +36,11 @@
   // Create and add detectors
   //-------------------------
 
-  CbmModule *Cave= new PndCave("CAVE");
+  FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("cave.geo");
   fRun->AddModule(Cave);
 
-   CbmDetector *Stt = new PndStt("STT", kTRUE);
+   FairDetector *Stt = new PndStt("STT", kTRUE);
 //   Stt->SetGeometryFileName("optimized_stt.geo"); 
    Stt->SetGeometryFileName("straws_skewed_blocks.geo"); 
    fRun->AddModule(Stt);
@@ -48,7 +48,7 @@
   // Create and Set Event Generator
   //-------------------------------
 
-  CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
+  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
   PndBoxGenerator* boxGen = new PndBoxGenerator(13,1);
@@ -77,9 +77,9 @@
   // Fill the Parameter containers for this run
   //-------------------------------------------
      
-  CbmRuntimeDb *rtdb=fRun->GetRuntimeDb();
+  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
   Bool_t kParameterMerged=kTRUE;
-  CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   output->open("ex2params.root");
   rtdb->setOutput(output);
 

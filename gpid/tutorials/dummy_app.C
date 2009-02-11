@@ -1,7 +1,7 @@
 {
   TStopwatch timer;
  
-  CbmRunAna *fRun = new CbmRunAna();
+  FairRunAna *fRun = new FairRunAna();
 
   EvtGenTask *eGen = new EvtGenTask();
   fRun->AddTask(eGen);

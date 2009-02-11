@@ -22,18 +22,18 @@
   digiparFile += "/mvd/MvdTools/mvd.digi.par";
 
   // -----   Reconstruction run   -------------------------------------------
-  CbmRunAna *fRun= new CbmRunAna();
+  FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(simFile.c_str());
   fRun->SetOutputFile(outFile.c_str());
 
   // -----  Parameter database   --------------------------------------------
-  CbmRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  CbmParRootFileIo* parInput1 = new CbmParRootFileIo(kTRUE);
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairParRootFileIo* parInput1 = new FairParRootFileIo(kTRUE);
   parInput1->open(parFile.Data(),"UPDATE");
   rtdb->setFirstInput(parInput1);
   rtdb->setOutput(parInput1);
 
-  CbmParAsciiFileIo* parInput2 = new CbmParAsciiFileIo();
+  FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
   parInput2->open(digiparFile.Data(),"in");
   rtdb->setSecondInput(parInput2);
 

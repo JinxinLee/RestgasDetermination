@@ -18,12 +18,12 @@
 #define PNDLHEKALMANTASK_HH
 
 // Base Class Headers ----------------
-#include "CbmTask.h"
+#include "FairTask.h"
 
 // Collaborating Class Headers -------
 #include <map>
 #include "TString.h"
-#include "CbmGeanePro.h"
+#include "FairGeanePro.h"
 
 // Collaborating Class Declarations --
 class TClonesArray;
@@ -33,7 +33,7 @@ class TrackCand;
 class Track;
 class TGeoManager; 
 
-class PndLheKalmanTask : public CbmTask {
+class PndLheKalmanTask : public FairTask {
 public:
 
   // Constructors/Destructors ---------
@@ -74,7 +74,7 @@ private:
   Int_t fTrackcount;
   Int_t fEvent;
 
-  CbmGeanePro *fPro;
+  FairGeanePro *fPro;
 
   Bool_t fUseGeane;     //! Flag to use Geane 
   Bool_t fSmoothing;    //! Flag to set on smoothing

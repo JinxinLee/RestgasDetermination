@@ -26,7 +26,7 @@ void reco_complete()
     // ------------------------------------------------------------------------
   
   // -----   Reconstruction run   -------------------------------------------
-  CbmRunAna *fRun= new CbmRunAna();
+  FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile("sim_complete.root");
   fRun->AddFriend("digi_complete.root");
   fRun->SetOutputFile(outFile);
@@ -36,11 +36,11 @@ void reco_complete()
   emcDigiFile += "/macro/params/";
   emcDigiFile += digiFile;
   
-  CbmRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  CbmParRootFileIo* parInput1 = new CbmParRootFileIo();
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open(parFile.Data());
   
-  CbmParAsciiFileIo* parIo1 = new CbmParAsciiFileIo();
+  FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
   parIo1->open(emcDigiFile.Data(),"in");
         
   rtdb->setFirstInput(parInput1);
@@ -66,7 +66,7 @@ void reco_complete()
 
   // trackfinding ....
   PndSttTrackFinderIdeal* sttTrackFinder = new PndSttTrackFinderIdeal(iVerbose);
-  PndSttFindTracks* sttFindTracks = new PndSttFindTracks("Track Finder", "CbmTask", sttTrackFinder, iVerbose);
+  PndSttFindTracks* sttFindTracks = new PndSttFindTracks("Track Finder", "FairTask", sttTrackFinder, iVerbose);
   sttFindTracks->AddHitCollectionName("STTHit", "STTPoint");
   fRun->AddTask(sttFindTracks);
   // trackmatching ....
@@ -75,7 +75,7 @@ void reco_complete()
   fRun->AddTask(sttTrackMatcher);  
   // trackfitting ....
   PndSttTrackFitter* sttTrackFitter = new PndSttHelixTrackFitter(0);
-  PndSttFitTracks* sttFitTracks = new PndSttFitTracks("STT Track Fitter", "CbmTask", sttTrackFitter); 
+  PndSttFitTracks* sttFitTracks = new PndSttFitTracks("STT Track Fitter", "FairTask", sttTrackFitter); 
   sttFitTracks->AddHitCollectionName("STTHit");
   fRun->AddTask(sttFitTracks);
   // helix hit production ....

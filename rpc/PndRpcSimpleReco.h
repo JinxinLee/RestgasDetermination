@@ -15,7 +15,7 @@
 #ifndef PNDRPCSIMPLERECO_H
 #define PNDRPCSIMPLERECO_H 1
 
-#include "CbmTask.h"
+#include "FairTask.h"
 
 class TClonesArray;
 class TH1F;
@@ -25,7 +25,7 @@ class PndRpcPoint;
 class TVector3;
 class CbmMCTrack;
 
-class PndRpcSimpleReco : public CbmTask
+class PndRpcSimpleReco : public FairTask
 {
 
  public:

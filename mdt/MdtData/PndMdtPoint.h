@@ -7,9 +7,9 @@
 #include "TVector3.h"
 #include "TMath.h"
 
-#include "CbmMCPoint.h"
+#include "FairMCPoint.h"
 
-class PndMdtPoint : public CbmMCPoint 
+class PndMdtPoint : public FairMCPoint 
 {
 
  public:

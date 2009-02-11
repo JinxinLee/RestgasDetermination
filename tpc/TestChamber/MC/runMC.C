@@ -31,7 +31,7 @@
 
   Int_t nEvents = 2999;
 
-  CbmRunSim *fRun = new CbmRunSim();
+  FairRunSim *fRun = new FairRunSim();
   
   // set the MC version used
   // ------------------------
@@ -54,11 +54,11 @@
   // Create and add detectors
   //-------------------------
 
-  CbmModule *Cave= new PndCave("CAVE");
+  FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave);
 
-  CbmDetector *PndTpc = new PndTpcDetector("TPC", kTRUE);
+  FairDetector *PndTpc = new PndTpcDetector("TPC", kTRUE);
   PndTpc->SetGeometryFileName("tpcTestChamber.geo");
   fRun->AddModule(PndTpc);
   
@@ -66,10 +66,10 @@
  // Create and Set Event Generator
  //-------------------------------
 
-  CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
+  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
-  CbmBoxGenerator* boxGen = new CbmBoxGenerator(13, 1); // 13 = muon; 1 = multipl.
+  FairBoxGenerator* boxGen = new FairBoxGenerator(13, 1); // 13 = muon; 1 = multipl.
   boxGen->SetPRange(0.5,0.5); // GeV/c //setPRange vs setPtRange
   boxGen->SetPhiRange(17, 17); // Azimuth angle range [degree]
   boxGen->SetThetaRange(40,40); // Polar angle in lab system range [degree]
@@ -80,7 +80,7 @@
   std::string sPath(cPath);
   sPath+="/../workdir/prim.txt";
 
-  CbmAsciiGenerator *asciiGen = new CbmAsciiGenerator(sPath.c_str());
+  FairAsciiGenerator *asciiGen = new FairAsciiGenerator(sPath.c_str());
 
   primGen->AddGenerator(asciiGen);
 
@@ -101,9 +101,9 @@
    fRun->Init();
 
 
-  CbmRuntimeDb *rtdb=fRun->GetRuntimeDb();
+  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
   Bool_t kParameterMerged=kTRUE;
-  CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   output->open("demo.param.root");
   rtdb->setOutput(output);
 

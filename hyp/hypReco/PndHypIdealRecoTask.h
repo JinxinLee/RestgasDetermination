@@ -23,14 +23,14 @@
 #include "TGeoManager.h"
 
 // framework includes
-#include "CbmTask.h"
+#include "FairTask.h"
 
 // Hyp includes
 #include "PndHypPoint.h"
 #include "PndHypGeoHandling.h"
 class TClonesArray;
 
-class PndHypIdealRecoTask : public CbmTask
+class PndHypIdealRecoTask : public FairTask
 {
  public:
 

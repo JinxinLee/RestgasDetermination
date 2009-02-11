@@ -26,13 +26,13 @@
 #include <assert.h>
 
 // Collaborating Class Headers --------
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "TClonesArray.h"
 #include "Track.h"
 //#include "PndTpcPoint.h"
 #include "DemoRecoHit.h"
 #include "DemoSPHit.h"
-#include "CbmMCPoint.h"
+#include "FairMCPoint.h"
 #include "LSLTrackRep.h"
 #include "GeaneTrackRep.h"
 #include "RecoHitFactory.h"
@@ -48,7 +48,7 @@
 
 
 DemoKalmanTask::DemoKalmanTask()
-  : CbmTask("Kalman Filter"), _persistence(kFALSE),_smooth(kFALSE), _evt(0)
+  : FairTask("Kalman Filter"), _persistence(kFALSE),_smooth(kFALSE), _evt(0)
 {
   _trackBranchName = "Track";
 }
@@ -64,7 +64,7 @@ InitStatus
 DemoKalmanTask::Init()
 {
   //Get ROOT Manager
-  CbmRootManager* ioman= CbmRootManager::Instance();
+  FairRootManager* ioman= FairRootManager::Instance();
 
   if(ioman==0)
     {
@@ -95,7 +95,7 @@ DemoKalmanTask::Init()
    }
    else{ 
      // the next lines is not general because it will work only for CmMCPoints!
-     _theRecoHitFactory->addProducer(iter->first,new RecoHitProducer<CbmMCPoint,DemoSPHit>(ar));
+     _theRecoHitFactory->addProducer(iter->first,new RecoHitProducer<FairMCPoint,DemoSPHit>(ar));
    }
   ++iter;
   }//end loops over hit types
@@ -208,7 +208,7 @@ DemoKalmanTask::Exec(Option_t* opt)
 
 void 
 DemoKalmanTask::WriteHistograms(){
-  TFile* file = CbmRootManager::Instance()->GetOutFile();
+  TFile* file = FairRootManager::Instance()->GetOutFile();
   file->cd();
   file->mkdir("DemoKalman");
   file->cd("DemoKalman");

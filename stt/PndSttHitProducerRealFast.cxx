@@ -15,7 +15,7 @@
 #include "PndSttPoint.h"
 #include "PndSttSingleStraw.h"
 
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 
 #include "TGeoManager.h"
 #include "TClonesArray.h"
@@ -30,7 +30,7 @@ using std::sqrt;
 
 // -----   Default constructor   -------------------------------------------
 PndSttHitProducerRealFast::PndSttHitProducerRealFast() :
-  CbmTask("Ideal STT Hit Producer") { }
+  FairTask("Ideal STT Hit Producer") { }
 // -------------------------------------------------------------------------
 
 
@@ -46,7 +46,7 @@ InitStatus PndSttHitProducerRealFast::Init() {
   fevtn=0;
  
  // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
     cout << "-E- PndSttHitProducerRealFast-wintz::Init: "
 	 << "RootManager not instantiated!" << endl;
@@ -72,7 +72,7 @@ InitStatus PndSttHitProducerRealFast::Init() {
   // Geometry loading
   TFile *tstfile=ioman->GetInFile();
   
-  TGeoManager *geoMan = (TGeoManager*) tstfile->Get("CBMGeom");
+  TGeoManager *geoMan = (TGeoManager*) tstfile->Get("FAIRGeom");
   fVolumeArray = geoMan->GetListOfVolumes();
 
   fVolumeArray = gGeoManager->GetListOfVolumes();
@@ -177,7 +177,7 @@ void PndSttHitProducerRealFast::Exec(Option_t* opt) {
     Double_t halflength = point->GetTubeHalfLength(); 
     
     // stt2: detID, pos, dpos, index come from --------------
-    // stt2 (CbmHit):
+    // stt2 (FairHit):
     Double_t closestDistanceError = GetError(radius);//calculates the error according                                                      to Juelich experimental curves
     //cout<<"radius "<<radius<<" error "<<closestDistanceError<<endl;                    
     //closestDistanceError = 0.0150; //150 microns check this point!                             

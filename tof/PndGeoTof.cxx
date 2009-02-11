@@ -8,7 +8,7 @@
 /////////////////////////////////////////////////////////////
 
 #include "PndGeoTof.h"
-#include "CbmGeoNode.h"
+#include "FairGeoNode.h"
 
 ClassImp(PndGeoTof)
 

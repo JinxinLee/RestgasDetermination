@@ -45,7 +45,7 @@ SET(HYPGE_SRCS ${HYPGE_SRCS} ${HYPGE_DICTIONARY})
 
 add_library(HypGe SHARED ${HYPGE_SRCS})
 target_link_libraries(HypGe ${ROOT_LIBRARIES})
-set_target_properties(HypGe PROPERTIES ${CBMROOT_LIBRARY_PROPERTIES})
+set_target_properties(HypGe PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 
 ################ install ###################
 install(TARGETS HypGe DESTINATION ${CMAKE_BINARY_DIR}/lib)

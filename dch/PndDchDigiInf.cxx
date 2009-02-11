@@ -7,8 +7,8 @@
 
 #include "PndDchDigiPar.h"
 
-#include "CbmRunAna.h"
-#include "CbmRuntimeDb.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
 
 #include "TSystem.h"
 #include "TMap.h"

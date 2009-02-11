@@ -55,7 +55,7 @@ void anaclust()
   t->SetBranchAddress("MVDHitsPixel",&pixelHit_array);//Branch names
 
 
-  TGeoManager *geoMan = (TGeoManager*) gDirectory->Get("CBMGeom");
+  TGeoManager *geoMan = (TGeoManager*) gDirectory->Get("FAIRGeom");
   PndMvdGeoHandling* fGeoH = new PndMvdGeoHandling(geoMan);
 
   Int_t nbins = 120; //200

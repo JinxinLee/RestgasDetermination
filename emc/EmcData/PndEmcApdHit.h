@@ -13,14 +13,14 @@
 #ifndef PNDEMCAPDHIT_H
 #define PNDEMCAPDHIT_H
 
-#include "CbmHit.h"
+#include "FairHit.h"
 #include "TMath.h"
 #include "TArrayI.h"
 #include <vector>
 
 class PndEmcApdPoint;
 
-class PndEmcApdHit : public CbmHit
+class PndEmcApdHit : public FairHit
 {
  public:    
   

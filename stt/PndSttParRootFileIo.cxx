@@ -12,15 +12,15 @@
 /////////////////////////////////////////////////////////////
 using namespace std;
 #include "PndSttParRootFileIo.h"
-#include "CbmParRootFileIo.h"
-#include "CbmRuntimeDb.h"
+#include "FairParRootFileIo.h"
+#include "FairRuntimeDb.h"
 #include "PndSttDigiPar.h"
 #include <iostream> 
 #include <iomanip>
 
 ClassImp(PndSttParRootFileIo)
 
-PndSttParRootFileIo::PndSttParRootFileIo(CbmParRootFile* f) : CbmDetParRootFileIo(f) 
+PndSttParRootFileIo::PndSttParRootFileIo(FairParRootFile* f) : FairDetParRootFileIo(f) 
 {
   fName="PndSttParIo";
 }
@@ -30,7 +30,7 @@ PndSttParRootFileIo::~PndSttParRootFileIo()
 {
 }
 
-Bool_t PndSttParRootFileIo::init(CbmParSet* pPar,Int_t* set) 
+Bool_t PndSttParRootFileIo::init(FairParSet* pPar,Int_t* set) 
 {
   const Text_t* name=pPar->GetName();
   if (pFile) 

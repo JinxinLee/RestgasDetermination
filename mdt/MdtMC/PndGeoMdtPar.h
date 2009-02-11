@@ -1,21 +1,21 @@
 #ifndef PNDGEOMDTPAR_H
 #define PNDGEOMDTPAR_H 1
 
-#include "CbmParGenericSet.h"
+#include "FairParGenericSet.h"
 #include "TObjArray.h"
 
-class PndGeoMdtPar : public CbmParGenericSet {
+class PndGeoMdtPar : public FairParGenericSet {
 public:
-  TObjArray* fSensNodes; /** List of CbmGeoNodes for sensitive  volumes */
-  TObjArray* fPassNodes; /** List of CbmGeoNodes for passive  volumes */
+  TObjArray* fSensNodes; /** List of FairGeoNodes for sensitive  volumes */
+  TObjArray* fPassNodes; /** List of FairGeoNodes for passive  volumes */
 
   PndGeoMdtPar(const char* name="PndGeoMdtPar",
              const char* title="MDT Geometry Parameters",
              const char* context="TestDefaultContext");
   ~PndGeoMdtPar(void);
   void clear(void);
-  void putParams(CbmParamList*);
-  Bool_t getParams(CbmParamList*);
+  void putParams(FairParamList*);
+  Bool_t getParams(FairParamList*);
   TObjArray* GetSensitiveNodes(){return fSensNodes;}
   TObjArray* GetPassiveNodes(){return fPassNodes;}
   

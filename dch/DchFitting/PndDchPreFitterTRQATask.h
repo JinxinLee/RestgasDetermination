@@ -15,7 +15,7 @@
 #define PNDDCHPREFITTERTRQATASK_HH
 
 // Panda Headers ----------------------
-#include "CbmTask.h"
+#include "FairTask.h"
 
 // ROOT Headers -----------------------
 #include "TString.h"
@@ -25,7 +25,7 @@ class TH1D;
 class TH2D;
 class TCanvas;
 
-class PndDchPreFitterTRQATask : public CbmTask {
+class PndDchPreFitterTRQATask : public FairTask {
 public:
 
   /**  Constructor  **/

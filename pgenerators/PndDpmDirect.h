@@ -7,21 +7,21 @@
  *@author M.Al-Turany <m.al-turany@gsi.de>
  *
  The PndDpmDirect generates DPM event using the DPM fortran code
- and inserts the tracks into the CbmStack via the CbmPrimaryGenerator.
- Derived from CbmGenerator.
+ and inserts the tracks into the CbmStack via the FairPrimaryGenerator.
+ Derived from FairGenerator.
 **/
 
 #ifndef PND_DPMDIRECT_H
 #define PND_DPMDIRECT_H
 
-#include "CbmGenerator.h"
+#include "FairGenerator.h"
 
 class TVirtualMCStack;
-class CbmPrimaryGenerator;
+class FairPrimaryGenerator;
 
 
 
-class PndDpmDirect : public CbmGenerator
+class PndDpmDirect : public FairGenerator
 {
 
  public: 
@@ -42,9 +42,9 @@ class PndDpmDirect : public CbmGenerator
   virtual ~PndDpmDirect();
 
   /** Generate one event using DPM
-   ** @param primGen  pointer to the CbmPrimaryGenerator
+   ** @param primGen  pointer to the FairPrimaryGenerator
    **/
-  virtual Bool_t ReadEvent(CbmPrimaryGenerator* primGen);
+  virtual Bool_t ReadEvent(FairPrimaryGenerator* primGen);
 	
  private:
 

@@ -1,12 +1,12 @@
 #include "PndHypDigiPar.h"
 
 PndHypDigiPar::PndHypDigiPar(const char* name, const char* title, const char* context)
-	: CbmParGenericSet(name,title,context)
+	: FairParGenericSet(name,title,context)
 {
 	clear();
 }
 
-void PndHypDigiPar::putParams(CbmParamList* list)
+void PndHypDigiPar::putParams(FairParamList* list)
 {
 	if(!list) return;
 	list->add("dimX", dimX);
@@ -18,7 +18,7 @@ void PndHypDigiPar::putParams(CbmParamList* list)
 	//   list->add("feName", feName);
 }
 
-Bool_t PndHypDigiPar::getParams(CbmParamList* list)
+Bool_t PndHypDigiPar::getParams(FairParamList* list)
 {
 	if (!list) return kFALSE;
 	if (!list->fill("dimX",&dimX)) return kFALSE;

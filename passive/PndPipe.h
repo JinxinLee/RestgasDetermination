@@ -4,11 +4,11 @@
 #include "TNamed.h"
 #include "TArrayI.h"
 #include "TClonesArray.h"
-#include "CbmDetector.h"
-#include "CbmModule.h"
+#include "FairDetector.h"
+#include "FairModule.h"
 
 
-class PndPipe : public CbmModule {
+class PndPipe : public FairModule {
   public:
     PndPipe(const char * name, const char *Title="PND Pipe");
     PndPipe();

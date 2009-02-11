@@ -30,7 +30,7 @@
   geoMan->SetTopVolume(topvol);
 
  //C
-//   TGeoManager *geoMan = (TGeoManager*) file->Get("CBMGeom");
+//   TGeoManager *geoMan = (TGeoManager*) file->Get("FAIRGeom");
 
   // Number of folded geo levels; 8 for mvd.
   // Try to change the number and to see how the geometry changes.

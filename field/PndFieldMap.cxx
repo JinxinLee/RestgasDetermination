@@ -1,6 +1,6 @@
 // -------------------------------------------------------------------------
 // -----                      PndFieldMap source file                  -----
-// -----         Created 12/01/04  by M. Al/Turany (CbmField.cxx)      -----
+// -----         Created 12/01/04  by M. Al/Turany (FairField.cxx)      -----
 // -----                Redesign 13/02/06  by V. Friese                -----
 // -------------------------------------------------------------------------
 
@@ -22,7 +22,7 @@ using namespace std;
 
 // -------------   Default constructor  ----------------------------------
 PndFieldMap::PndFieldMap() 
-  : CbmField(),
+  : FairField(),
     fPosX(0), fPosY(0), fPosZ(0),
     fXmin(0), fYmin(0), fZmin(0),
     fXmax(0), fYmax(0), fZmax(0),
@@ -42,7 +42,7 @@ PndFieldMap::PndFieldMap()
 
 // -------------   Standard constructor   ---------------------------------
 PndFieldMap::PndFieldMap(const char* mapName, const char* fileType)
-  : CbmField(mapName),
+  : FairField(mapName),
     fPosX(0), fPosY(0), fPosZ(0),
     fXmin(0), fYmin(0), fZmin(0),
     fXmax(0), fYmax(0), fZmax(0),
@@ -65,7 +65,7 @@ PndFieldMap::PndFieldMap(const char* mapName, const char* fileType)
 
 // ------------   Constructor from PndFieldPar   --------------------------
 PndFieldMap::PndFieldMap(PndFieldPar* fieldPar) 
-  : CbmField(),
+  : FairField(),
     fPosX(0), fPosY(0), fPosZ(0),
     fXmin(0), fYmin(0), fZmin(0),
     fXmax(0), fYmax(0), fZmax(0),

@@ -10,11 +10,11 @@
 #include "TGeoManager.h"
 #include "TGeoMatrix.h"
 #include "TCanvas.h"
-#include "CbmRootManager.h"
-#include "CbmRun.h"
-#include "CbmRuntimeDb.h"
-#include "CbmGeoNode.h"
-#include "CbmGeoVector.h"
+#include "FairRootManager.h"
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
+#include "FairGeoNode.h"
+#include "FairGeoVector.h"
 
 #include "PndStringVector.h"
 #include "PndMvdGeoPar.h"
@@ -38,7 +38,7 @@
 // -----   Default constructor   -------------------------------------------
 
 PndMvdStripClusterTask::PndMvdStripClusterTask(Int_t ClusterMod, Int_t RadChannel, Int_t RadTime) :
-  CbmTask("MVD Strip Clustertisation Task")
+  FairTask("MVD Strip Clustertisation Task")
 {
   fChargeCut = 1.e8; // this ist really large and shall have no effect
   fGeoFile = "";
@@ -52,7 +52,7 @@ PndMvdStripClusterTask::PndMvdStripClusterTask(Int_t ClusterMod, Int_t RadChanne
 
 
 PndMvdStripClusterTask::PndMvdStripClusterTask(Double_t chargecut, TString geofile, Int_t meanalgo, Int_t clustermod, Int_t RadChannel, Int_t RadTime) :
-  CbmTask("MVD Strip Clustertisation Task")
+  FairTask("MVD Strip Clustertisation Task")
 {
   fChargeCut = chargecut;
   fGeoFile = geofile;
@@ -76,8 +76,8 @@ void PndMvdStripClusterTask::SetParContainers()
 {
   // Get Base Container
 
-  CbmRun* ana = CbmRun::Instance();
-  CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+  FairRun* ana = FairRun::Instance();
+  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
   fGeoPar = (PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar"));
   fDigiParRect = (PndMvdStripDigiPar*)(rtdb->getContainer("MVDStripDigiParRect"));
   fDigiParTrap = (PndMvdStripDigiPar*)(rtdb->getContainer("MVDStripDigiParTrap"));
@@ -90,8 +90,8 @@ InitStatus PndMvdStripClusterTask::ReInit()
   return stat;
 
   /*
-  CbmRun* ana = CbmRun::Instance();
-  CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+  FairRun* ana = FairRun::Instance();
+  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
   fGeoPar=(PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar"));
 
   return kSUCCESS;
@@ -102,7 +102,7 @@ InitStatus PndMvdStripClusterTask::ReInit()
 InitStatus PndMvdStripClusterTask::Init()
 {
 
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
 
   if ( ! ioman )
     {
@@ -134,7 +134,7 @@ InitStatus PndMvdStripClusterTask::Init()
   fGeoH = new PndMvdGeoHandling(fGeoFile.Data());
 
 //   else *infile = new TFile(fGeoFile);
-//   TGeoManager *geoMan = (TGeoManager*) infile->Get("CBMGeom");
+//   TGeoManager *geoMan = (TGeoManager*) infile->Get("FAIRGeom");
 //   std::cout << "-I- geoMan in StripClusterTask is  = "<<geoMan << std::endl;
 //   fGeoH = new PndMvdGeoHandling(geoMan);
 SetParContainers();

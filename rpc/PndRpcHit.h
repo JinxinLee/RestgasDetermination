@@ -6,10 +6,10 @@
 #ifndef PNDRPCHIT_H
 #define PNDRPCHIT_H
 
-#include "CbmHit.h"
+#include "FairHit.h"
 #include "TVector3.h"
  
-class PndRpcHit : public CbmHit
+class PndRpcHit : public FairHit
 {
 
  public:

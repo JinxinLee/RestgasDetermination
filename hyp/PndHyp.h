@@ -10,7 +10,7 @@
 #include "TClonesArray.h"
 #include "TVector3.h"
 #include "TLorentzVector.h"
-#include "CbmDetector.h"
+#include "FairDetector.h"
 #include "PndGeoHypPar.h"
 
 #include "TRandom.h"
@@ -25,9 +25,9 @@ class TClonesArray;
 class PndHypPoint;
 class PndHypSecTarPoint;
 class PndHypSTpipePoint;
-class CbmVolume; 
+class FairVolume; 
 
-class PndHyp : public CbmDetector 
+class PndHyp : public FairDetector 
 {
 
  public:
@@ -60,7 +60,7 @@ class PndHyp : public CbmDetector
    ** them to the collections.
    *@param vol  Pointer to the active volume
    **/
-  virtual Bool_t ProcessHits(CbmVolume* vol = 0);
+  virtual Bool_t ProcessHits(FairVolume* vol = 0);
 
   virtual void SetSpecialPhysicsCuts();
   /** Virtual method EndOfEvent

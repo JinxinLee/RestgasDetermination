@@ -29,7 +29,7 @@
   gSystem->Load("libMvd");
  
   TFile* file = new TFile("mc.root");
-  TGeoManager *geoMan = (TGeoManager*) file->Get("CBMGeom");
+  TGeoManager *geoMan = (TGeoManager*) file->Get("FAIRGeom");
 
   
   TCanvas* c1 = new TCanvas("c1", "", 100, 100, 800, 800);

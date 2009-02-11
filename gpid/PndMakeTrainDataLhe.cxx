@@ -10,11 +10,11 @@ PndMakeTrainDataLhe::PndMakeTrainDataLhe()
   fNCLASS = 0;
   
   TFile *f = new TFile("/daq/dtbina/vanni/test/points_tpcmvdemc_kminus.root");
-  TGeoManager *gGeoManager = (TGeoManager*)f->FindObject("CBMGeom"); 
+  TGeoManager *gGeoManager = (TGeoManager*)f->FindObject("FAIRGeom"); 
   
   cout<<"Inside constructor"<<endl;
   
-  // TGeoManager  *gGeoManager =  (TGeoManager*) gROOT->FindObject("CBMGeom");
+  // TGeoManager  *gGeoManager =  (TGeoManager*) gROOT->FindObject("FAIRGeom");
 }
 
 PndMakeTrainDataLhe::~PndMakeTrainDataLhe()
@@ -97,7 +97,7 @@ void PndMakeTrainDataLhe::FillNTuple(TChain  &recoChain, TNtuple &ntuple)
   
   TClonesArray *ArrEmc = new TClonesArray("PndEmcCluster");
   recoChain.SetBranchAddress("EmcCluster",&ArrEmc);
-  //  gGeoManager =  (TGeoManager*) gROOT->FindObject("CBMGeom");
+  //  gGeoManager =  (TGeoManager*) gROOT->FindObject("FAIRGeom");
   //cout<<gGeoManager<<endl;
   for (Int_t i =0; i < recoChain.GetEntries();i++)     
     {

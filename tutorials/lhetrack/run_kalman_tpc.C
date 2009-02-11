@@ -31,7 +31,7 @@
 
 
   // -----   Reconstruction run   -------------------------------------------
-  CbmRunAna *fRun= new CbmRunAna();
+  FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inSimuFile);
   fRun->AddFriend(inDigiFile);
   fRun->AddFriend(inRecoFile);
@@ -41,12 +41,12 @@
   // ------------------------------------------------------------------------
 
   // THIS IS STRONGLY NEEDED
-  CbmGeane *Geane = new CbmGeane(inSimuFile);
+  FairGeane *Geane = new FairGeane(inSimuFile);
   PndEmcMapper *emcMap = PndEmcMapper::Instance(2,inSimuFile);
 
   // -----  Parameter database   --------------------------------------------
-  CbmRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  CbmParRootFileIo* parInput1 = new CbmParRootFileIo();
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open(parFile.Data());
   rtdb->setFirstInput(parInput1);
   fRun->LoadGeometry();

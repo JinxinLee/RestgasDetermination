@@ -1,7 +1,7 @@
 #ifndef TPCTESTCHAMBEROUTPUTTASK_HH
 #define TPCTESTCHAMBEROUTPUTTASK_HH
 
-#include "CbmTask.h"
+#include "FairTask.h"
 #include"TTree.h"
 
 class TClonesArray;
@@ -19,7 +19,7 @@ struct multitree_t{
   Double_t MCTby;
 };
 
-class PndTpcTestChamberOutputTask : public CbmTask {
+class PndTpcTestChamberOutputTask : public FairTask {
 public:
 
   // Constructors/Destructors ---------

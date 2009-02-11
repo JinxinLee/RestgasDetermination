@@ -1,14 +1,14 @@
 #ifndef CBMGENERICPARORAIO_H
 #define CBMGENERICPARORAIO_H
 
-#include "CbmDetParOraIo.h"
+#include "FairDetParOraIo.h"
 
-class CbmOraConn;
-class CbmParSet;
-class CbmParGenericSet;
+class FairOraConn;
+class FairParSet;
+class FairParGenericSet;
 class CbmParamBinObj;
 
-class CbmGenericParOraIo : public CbmDetParOraIo {
+class FairGenericParOraIo : public FairDetParOraIo {
 private:
   class CbmParOraBlob : public TObject {
     public:
@@ -18,19 +18,19 @@ private:
       ~CbmParOraBlob() {}
   };
 public:
-  CbmGenericParOraIo(CbmOraConn* p=0);
-  ~CbmGenericParOraIo() {;}
-  Bool_t init(CbmParSet*,Int_t*);
-  Int_t write(CbmParSet*);
-  Bool_t read(CbmParGenericSet*);
-  Int_t writeSet(CbmParGenericSet*);
-  Bool_t readFromLoadingTable(CbmParGenericSet*,Int_t);
+  FairGenericParOraIo(FairOraConn* p=0);
+  ~FairGenericParOraIo() {;}
+  Bool_t init(FairParSet*,Int_t*);
+  Int_t write(FairParSet*);
+  Bool_t read(FairParGenericSet*);
+  Int_t writeSet(FairParGenericSet*);
+  Bool_t readFromLoadingTable(FairParGenericSet*,Int_t);
 private:
   Bool_t readBlob(CbmParamBinObj* obj,Int_t lobId);
-  Int_t createParamVers(CbmParGenericSet*);
+  Int_t createParamVers(FairParGenericSet*);
   Int_t storeBlob(UChar_t*, Int_t);
   Bool_t readLoadBlob(CbmParamBinObj*,Int_t);
-  ClassDef(CbmGenericParOraIo,0) // I/O from Oracle for gemeric parameter containers
+  ClassDef(FairGenericParOraIo,0) // I/O from Oracle for gemeric parameter containers
 };
 
 #endif  /* !CBMGENERICPARORAIO_H */

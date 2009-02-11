@@ -27,7 +27,7 @@
   // ------------------------------------------------------------------------
 
   // -----   Reconstruction run   -------------------------------------------
-  CbmRunAna *fRun= new CbmRunAna();
+  FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(MCFile.c_str());
   fRun->AddFriend(RecoFile.c_str());
   fRun->AddFriend(TrackFile.c_str());
@@ -36,13 +36,13 @@
   // ------------------------------------------------------------------------
 
   // THIS IS STRONGLY NEEDED
-  CbmGeane *Geane = new CbmGeane(MCFile.Data());
+  FairGeane *Geane = new FairGeane(MCFile.Data());
   Geane->SetField(fRun->GetField());
 
 
   // -----  Parameter database   --------------------------------------------
-  CbmRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  CbmParRootFileIo* parInput1 = new CbmParRootFileIo();
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open(parFile.Data(),"in");
   rtdb->setFirstInput(parInput1);
   fRun->LoadGeometry();

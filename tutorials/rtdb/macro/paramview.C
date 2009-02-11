@@ -4,14 +4,14 @@
   gSystem->Load("librtdbtut");
 
   // -----   Reconstruction run   -------------------------------------------
-  CbmRunAna *fRun= new CbmRunAna();
+  FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile("dummyana.root");
   fRun->SetOutputFile("dummy.root");
 
   // -----  Parameter database   --------------------------------------------
-  CbmRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
 
-  CbmParRootFileIo* parInput = new CbmParRootFileIo();
+  FairParRootFileIo* parInput = new FairParRootFileIo();
   parInput->open("par2.root");
   rtdb->setFirstInput(parInput);
   fRun->LoadGeometry();
@@ -22,7 +22,7 @@
   fRun->Init();
 
   // write an ascii file from that 
-  CbmParAsciiFileIo* parOutput2 = new CbmParAsciiFileIo();
+  FairParAsciiFileIo* parOutput2 = new FairParAsciiFileIo();
   parOutput2->open("ascii-out.par","out");
   rtdb->setOutput(parOutput2);
   rtdb->saveOutput();

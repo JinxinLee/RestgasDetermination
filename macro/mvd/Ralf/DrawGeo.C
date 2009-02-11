@@ -20,7 +20,7 @@
   gSystem->Load("libGeom.so");
   TFile* file = new TFile("../data/testMCgeo.root");
 
-  TGeoManager *geoMan = (TGeoManager*) file->Get("CBMGeom");
+  TGeoManager *geoMan = (TGeoManager*) file->Get("FAIRGeom");
 
   TCanvas* c1 = new TCanvas("c1", "", 100, 100, 1100, 1100);
   c1->SetFillColor(10);

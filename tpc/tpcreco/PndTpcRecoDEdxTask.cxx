@@ -21,7 +21,7 @@
 #include "Track.h"
 #include "PndTpcPlanarRecoHit.h"
 #include "CbmMCTrack.h"
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "DetPlane.h"
 #include "TrackCand.h"
 //#include "TrackFitStat.h"
@@ -58,7 +58,7 @@ using namespace std;
 
 // Class Member definitions -----------
 PndTpcRecoDEdxTask::PndTpcRecoDEdxTask()
-  : CbmTask("dEdx"), _persistence(kFALSE), _spatialSorting(kFALSE), _diagnosticOutput(kFALSE),  _pdgselect(kFALSE),_nonCenteredDX(kFALSE), _pdgId(0), _mcIDselect(false), _mcID(0), _pmin(0.0001), _pmax(100.0), _thetamin(0), _thetamax(TMath::TwoPi()), _minTpcHits(0), _maxTpcHits(100000), _pid(NULL), nEvent(0)
+  : FairTask("dEdx"), _persistence(kFALSE), _spatialSorting(kFALSE), _diagnosticOutput(kFALSE),  _pdgselect(kFALSE),_nonCenteredDX(kFALSE), _pdgId(0), _mcIDselect(false), _mcID(0), _pmin(0.0001), _pmax(100.0), _thetamin(0), _thetamax(TMath::TwoPi()), _minTpcHits(0), _maxTpcHits(100000), _pid(NULL), nEvent(0)
 {
 	//these Branches store the inforamtion for calculating dedx
 	_trackBranchName = "TrackPreFit";
@@ -83,7 +83,7 @@ InitStatus
 PndTpcRecoDEdxTask::Init()
 {
 	//Get ROOT Manager
-	CbmRootManager* ioman= CbmRootManager::Instance();
+	FairRootManager* ioman= FairRootManager::Instance();
 	if(ioman==0)
 	{
 		Error("TrackDEdxTask::Init","RootManager not instantiated!");

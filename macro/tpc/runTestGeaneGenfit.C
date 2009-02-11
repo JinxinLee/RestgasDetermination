@@ -21,14 +21,14 @@
   //gSystem->Load("libGeaneEx");
   gSystem->Load("libgenfit");
   
-  CbmRunAna *fRun = new CbmRunAna();
+  FairRunAna *fRun = new FairRunAna();
 
   // fRun->SetInputFile("data/test1.mc.root");
 //   //fRun->AddFriend("aftestd.root");
 //   //fRun->AddFriend("aftestr.root");
 //   fRun->SetOutputFile("aftestg.root");
 
-   //CbmGeane *Geane = new CbmGeane();
+   //FairGeane *Geane = new FairGeane();
 
   TString base="data/test1";
   TString infile=base+".mc.root";
@@ -36,21 +36,21 @@
   fRun->SetInputFile(infile);
   fRun->SetOutputFile(outfile);
 
-   CbmGeane *Geane = new CbmGeane(infile);
+   FairGeane *Geane = new FairGeane(infile);
 
-   //   CbmGeaneTr *tr= new CbmGeaneTr();
-//   CbmGeaneTrC *tr= new CbmGeaneTrC();
-//   CbmGeaneTrT *tr= new CbmGeaneTrT();
-//   CbmGeaneTrP *tr= new CbmGeaneTrP();
-//   CbmGeaneTrK *tr= new CbmGeaneTrK();
+   //   FairGeaneTr *tr= new FairGeaneTr();
+//   FairGeaneTrC *tr= new FairGeaneTrC();
+//   FairGeaneTrT *tr= new FairGeaneTrT();
+//   FairGeaneTrP *tr= new FairGeaneTrP();
+//   FairGeaneTrK *tr= new FairGeaneTrK();
    // fRun->AddTask(tr);
 
- //  CbmGeaneTrP *trP= new CbmGeaneTrP();
+ //  FairGeaneTrP *trP= new FairGeaneTrP();
  //  fRun->AddTask(trP);
  // -----  Parameter database   --------------------------------------------
 
-  CbmRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  CbmParRootFileIo* parInput1 = new CbmParRootFileIo();
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairParRootFileIo* parInput1 = new FairParRootFileIo();
 
   TString dbfile=base+".param.root";
   parInput1->open(dbfile.Data()); 
@@ -69,9 +69,9 @@
   TStopwatch timer;
   timer.Start();
   
-  CbmGeanePro* gePro=new CbmGeanePro();
+  FairGeanePro* gePro=new FairGeanePro();
   
-  CbmTrackParP dummy;
+  FairTrackParP dummy;
 
   TVector3 pos(0.,0.,0.);
   TVector3 mom(0.1,0.0001,1.);

@@ -8,11 +8,11 @@
 #include "TArrayD.h"
 #include "TGeoManager.h"
 
-#include "CbmRootManager.h"
-#include "CbmRun.h"
-#include "CbmRuntimeDb.h"
-#include "CbmGeoNode.h"
-#include "CbmGeoVector.h"
+#include "FairRootManager.h"
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
+#include "FairGeoNode.h"
+#include "FairGeoVector.h"
 
 #include "PndStringVector.h"
 
@@ -30,7 +30,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndMvdPixelClusterTask::PndMvdPixelClusterTask() :
-  CbmTask("MVD Clustertisation Task")
+  FairTask("MVD Clustertisation Task")
 {
   fBranchName   = "MVDPixelDigis";
 
@@ -40,7 +40,7 @@ PndMvdPixelClusterTask::PndMvdPixelClusterTask() :
 // -------------------------------------------------------------------------
 
 PndMvdPixelClusterTask::PndMvdPixelClusterTask(Double_t radius, TString geoFile) :
-  CbmTask("MVD Pixel Clustertization Task")
+  FairTask("MVD Pixel Clustertization Task")
 {
   fBranchName   = "MVDPixelDigis";
 //  fDigiArray  = new TClonesArray("PndMvdDigiPixel");
@@ -61,8 +61,8 @@ PndMvdPixelClusterTask::~PndMvdPixelClusterTask()
 void PndMvdPixelClusterTask::SetParContainers()
 {
   // Get Base Container
-	CbmRun* ana = CbmRun::Instance();
-	CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+	FairRun* ana = FairRun::Instance();
+	FairRuntimeDb* rtdb=ana->GetRuntimeDb();
 	fDigiPar = (PndMvdPixelDigiPar*)(rtdb->getContainer("MVDPixelDigiPar"));
 }
 
@@ -73,8 +73,8 @@ InitStatus PndMvdPixelClusterTask::ReInit()
   return stat;
 
   /*
-  CbmRun* ana = CbmRun::Instance();
-  CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+  FairRun* ana = FairRun::Instance();
+  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
   fGeoPar=(PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar"));
 
   return kSUCCESS;
@@ -85,7 +85,7 @@ InitStatus PndMvdPixelClusterTask::ReInit()
 InitStatus PndMvdPixelClusterTask::Init()
 {
 
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
 
   if ( ! ioman )
     {

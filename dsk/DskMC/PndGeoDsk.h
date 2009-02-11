@@ -16,9 +16,9 @@
 #ifndef PNDGEODSK_H
 #define PNDGEODSK_H
 
-#include "CbmGeoSet.h"
+#include "FairGeoSet.h"
 
-class PndGeoDsk : public CbmGeoSet
+class PndGeoDsk : public FairGeoSet
 {
 
 protected:

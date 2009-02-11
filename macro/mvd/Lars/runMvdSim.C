@@ -13,7 +13,7 @@
   // Load basic libraries
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 
-  CbmRunSim *fRun = new CbmRunSim();
+  FairRunSim *fRun = new FairRunSim();
 
   fRun->SetName("TGeant4");
   // Choose the Geant Navigation System
@@ -22,21 +22,21 @@
 
   fRun->SetMaterials("media_pnd.geo");
 
-  CbmModule *Cave= new PndCave("CAVE");
+  FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave); 
 
 
-  CbmDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
+  FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
 //  Mvd->SetGeometryFileName("OneSiliconSensor.geo");
   Mvd->SetGeometryFileName("../macro/mvd/Lars/dummysensor.root");
   Mvd->SetVerboseLevel(verboseLevel);
   fRun->AddModule(Mvd);
 
-  CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
+  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
-  CbmBoxGenerator *fBox = new CbmBoxGenerator(11, 1);//11 e-, 22 mu-
+  FairBoxGenerator *fBox = new FairBoxGenerator(11, 1);//11 e-, 22 mu-
     fBox->SetPRange(1.001,0.999);//GeV/c
     fBox->SetThetaRange(0,0.0005);
     fBox->SetPhiRange(0.,360);
@@ -48,9 +48,9 @@
   fRun->Init();
 
   // Fill the Parameter containers for this run
-  CbmRuntimeDb *rtdb=fRun->GetRuntimeDb();
+  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
   Bool_t kParameterMerged=kTRUE;
-  CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   output->open(parOutput.Data(),"RECREATE");
   rtdb->setOutput(output);
 

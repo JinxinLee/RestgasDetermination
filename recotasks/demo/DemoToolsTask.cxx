@@ -26,12 +26,12 @@
 #include <assert.h>
 
 // Collaborating Class Headers --------
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "TClonesArray.h"
 #include "Track.h"
 //#include "PndTpcPoint.h"
 #include "DemoRecoHit.h"
-#include "CbmMCPoint.h"
+#include "FairMCPoint.h"
 #include "LSLTrackRep.h"
 #include "GeaneTrackRep.h"
 #include "RecoHitFactory.h"
@@ -46,7 +46,7 @@
 
 
 DemoToolsTask::DemoToolsTask()
-  : CbmTask("Tools Filter"), _persistence(kFALSE), _evt(0)
+  : FairTask("Tools Filter"), _persistence(kFALSE), _evt(0)
 {
   _trackBranchName = "Track";
 }
@@ -61,7 +61,7 @@ InitStatus
 DemoToolsTask::Init()
 {
   //Get ROOT Manager
-  CbmRootManager* ioman= CbmRootManager::Instance();
+  FairRootManager* ioman= FairRootManager::Instance();
 
   if(ioman==0)
     {
@@ -151,7 +151,7 @@ DemoToolsTask::Exec(Option_t* opt)
 
 void 
 DemoToolsTask::WriteHistograms(){
-  TFile* file = CbmRootManager::Instance()->GetOutFile();
+  TFile* file = FairRootManager::Instance()->GetOutFile();
   file->cd();
   file->mkdir("DemoTools");
   file->cd("DemoTools");

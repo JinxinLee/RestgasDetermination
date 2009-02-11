@@ -17,8 +17,8 @@
 
 #include "VtxFitter_Init.h"
 
-#include "CbmRootManager.h"
-#include "CbmTask.h"
+#include "FairRootManager.h"
+#include "FairTask.h"
 
 class VtxFitterParticle : public TObject
 {

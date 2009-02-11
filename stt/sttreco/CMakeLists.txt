@@ -48,6 +48,6 @@ SET(STT_SRCS ${STT_SRCS} ${STT_DICTIONARY})
 
 add_library(SttReco SHARED ${STT_SRCS})
 target_link_libraries(SttReco ${ROOT_LIBRARIES})
-set_target_properties(SttReco PROPERTIES ${CBMROOT_LIBRARY_PROPERTIES})
+set_target_properties(SttReco PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 ################ install ###################
 install(TARGETS SttReco DESTINATION ${CMAKE_BINARY_DIR}/lib)

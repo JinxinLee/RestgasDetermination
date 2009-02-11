@@ -125,7 +125,7 @@ void PndMvdCalcPixel::CalcPixel()
 {
   Double_t borderX = 0;
   Double_t borderY = 0;
-  CbmGeoVector OutPoint;
+  FairGeoVector OutPoint;
   bool xBeforeY = false;
 
 /*  if ( fabs(fDir.getX()) < 1e-8 ) {

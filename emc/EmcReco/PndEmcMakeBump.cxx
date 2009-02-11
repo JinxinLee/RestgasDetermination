@@ -40,9 +40,9 @@
 #include "PndEmcExpClusterSplitter.h"
 #include "PndEmcTwoCoordIndex.h"
 
-#include "CbmRootManager.h"
-#include "CbmRunAna.h"
-#include "CbmRuntimeDb.h"
+#include "FairRootManager.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
 
 #include "TClonesArray.h"
 #include "TROOT.h"
@@ -92,7 +92,7 @@ PndEmcMakeBump::~PndEmcMakeBump()
 InitStatus PndEmcMakeBump::Init() {
   
   // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ){
     cout << "-E- PndEmcMakeBump::Init: "
 	 << "RootManager not instantiated!" << endl;
@@ -235,10 +235,10 @@ void PndEmcMakeBump::Exec(Option_t* opt)
 void PndEmcMakeBump::SetParContainers() {
 
   // Get run and runtime database
-  CbmRun* run = CbmRun::Instance();
+  FairRun* run = FairRun::Instance();
   if ( ! run ) Fatal("SetParContainers", "No analysis run");
 
-  CbmRuntimeDb* db = run->GetRuntimeDb();
+  FairRuntimeDb* db = run->GetRuntimeDb();
   if ( ! db ) Fatal("SetParContainers", "No runtime database");
   // Get Emc digitisation parameter container
   fDigiPar = (PndEmcDigiPar*) db->getContainer("PndEmcDigiPar");

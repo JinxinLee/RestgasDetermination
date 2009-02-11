@@ -59,7 +59,7 @@ void runMC_dpm(double mom, int mode=0,int nevts=10,TString fname="")
 
   //Int_t nEvents = 2000;
 
-  CbmRunSim *fRun = new CbmRunSim();
+  FairRunSim *fRun = new FairRunSim();
   
   // set the MC version used
   // ------------------------
@@ -85,20 +85,20 @@ void runMC_dpm(double mom, int mode=0,int nevts=10,TString fname="")
   // Create and add detectors
   //-------------------------
 
-  CbmModule *Cave= new PndCave("CAVE");
+  FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave);
 
-  CbmModule *Pipe= new PndPipe("PIPE");
+  FairModule *Pipe= new PndPipe("PIPE");
   Pipe->SetGeometryFileName("pipe.geo");
   //fRun->AddModule(Pipe);
   
   
-  //CbmModule *Magnet= new PndMagnet("MAGNET");
+  //FairModule *Magnet= new PndMagnet("MAGNET");
   //Magnet->SetGeometryFileName("magnet.geo");
   //fRun->AddModule(Magnet);
   
-  CbmDetector *PndTpc = new PndTpcDetector("TPC", kTRUE);
+  FairDetector *PndTpc = new PndTpcDetector("TPC", kTRUE);
   PndTpc->SetGeometryFileName("tpc.geo");
   fRun->AddModule(PndTpc);
   
@@ -107,7 +107,7 @@ void runMC_dpm(double mom, int mode=0,int nevts=10,TString fname="")
   Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root"); // if you want to use new geometry for FwEndCap
   fRun->AddModule(Emc);
    
-  CbmDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
+  FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
   Mvd->SetGeometryFileName("MVD14.root");
   fRun->AddModule(Mvd);
 
@@ -115,38 +115,38 @@ void runMC_dpm(double mom, int mode=0,int nevts=10,TString fname="")
  // Create and Set Event Generator
  //-------------------------------
 
-  CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
+  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
  // Urqmd  Generator
-//  CbmUrqmdGenerator* urqmdGen = new CbmUrqmdGenerator("../../input/00-03fm.100ev.f14");
+//  FairUrqmdGenerator* urqmdGen = new FairUrqmdGenerator("../../input/00-03fm.100ev.f14");
 //  primGen->AddGenerator(urqmdGen);
 
  // Particle Generator
-  //CbmParticleGenerator* partGen = new CbmParticleGenerator(211, 10, 1, 0,3,kTRUE);
+  //FairParticleGenerator* partGen = new FairParticleGenerator(211, 10, 1, 0,3,kTRUE);
   //primGen->AddGenerator(partGen);
  
  // Ion Generator
- //    CbmIonGenerator *fIongen= new CbmIonGenerator(79, 197,79,1, 0.,0., 25, 0.,0.,-1.);
+ //    FairIonGenerator *fIongen= new FairIonGenerator(79, 197,79,1, 0.,0., 25, 0.,0.,-1.);
  //    primGen->AddGenerator(fIongen);
  // Box Generator
  
  
-  //CbmEvtGenGenerator* evtGen = new CbmEvtGenGenerator(fname.Data());//infile.Data());
+  //FairEvtGenGenerator* evtGen = new FairEvtGenGenerator(fname.Data());//infile.Data());
   PndDpmDirect *dpmGen=new PndDpmDirect(p,0);
   primGen->AddGenerator(dpmGen);
   
   
   // Box Generator
   /*
-  CbmBoxGenerator* boxGen = new CbmBoxGenerator(3122, 1); // 13 = muon; 1 = multipl.
+  FairBoxGenerator* boxGen = new FairBoxGenerator(3122, 1); // 13 = muon; 1 = multipl.
   boxGen->SetPRange(0.5,0.5); // GeV/c //setPRange vs setPtRange
   boxGen->SetPhiRange(35, 35); // Azimuth angle range [degree]
   boxGen->SetThetaRange(60,60); // Polar angle in lab system range [degree]
   boxGen->SetXYZ(0., 0., 0.); // mm o cm ??
   primGen->AddGenerator(boxGen);
  */
-  //CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
+  //FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   //fRun->SetGenerator(primGen);
 
   // PndDpmGenerator* dpmGen = new PndDpmGenerator("pgenerators/DpmEvtGen/Background-micro.root");
@@ -156,7 +156,7 @@ void runMC_dpm(double mom, int mode=0,int nevts=10,TString fname="")
  // --------------------
   // 1- Reading the new field map in the old format
 
-     // CbmFieldMap *fMagField= new CbmFieldMap("FIELD.v04_pavel.map");
+     // FairFieldMap *fMagField= new FairFieldMap("FIELD.v04_pavel.map");
    // Constant Field
       PndConstField *fMagField=new PndConstField();
       fMagField->SetField(0, 0 ,20. ); // values are in kG
@@ -165,7 +165,7 @@ void runMC_dpm(double mom, int mode=0,int nevts=10,TString fname="")
 
   // 2- Reading the new field map in the new format
 
-//  CbmField *fMagField= new CbmFieldMapSym3("FieldActive");
+//  FairField *fMagField= new FairFieldMapSym3("FieldActive");
   // Active Shielding
 
   fRun->SetField(fMagField);
@@ -182,7 +182,7 @@ void runMC_dpm(double mom, int mode=0,int nevts=10,TString fname="")
 
 ;
  // Set cuts for storing the trajectpries
-//   CbmTrajFilter* trajFilter = CbmTrajFilter::Instance();
+//   FairTrajFilter* trajFilter = FairTrajFilter::Instance();
 //   trajFilter->SetStepSizeCut(0.01); // 1 cm
 //   trajFilter->SetVertexCut(-2000., -2000., 4., 2000., 2000., 100.);
 //   trajFilter->SetMomentumCutP(10e-3); // p_lab > 10 MeV
@@ -194,9 +194,9 @@ void runMC_dpm(double mom, int mode=0,int nevts=10,TString fname="")
   // Fill the Parameter containers for this run
   //-------------------------------------------
 
-  CbmRuntimeDb *rtdb=fRun->GetRuntimeDb();
+  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
   Bool_t kParameterMerged=kTRUE;
-  CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   output->open(paramfilename.Data());
   rtdb->setOutput(output);
 

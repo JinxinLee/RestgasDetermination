@@ -1,7 +1,7 @@
 #ifndef PNDMVDTpcRiemannCorrelatorTASK_H_
 #define PNDMVDTpcRiemannCorrelatorTASK_H_
 
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "PndMvdHit.h"
 
 #include "PndRiemannTrack.h"
@@ -15,7 +15,7 @@
 
 // This class takes the tracks from the MVD trackfinder and tries to find corresponding tracks in the TPC
 
-class PndMvdTpcRiemannCorrelatorTask : public CbmTask
+class PndMvdTpcRiemannCorrelatorTask : public FairTask
 {
 public:
 	PndMvdTpcRiemannCorrelatorTask();

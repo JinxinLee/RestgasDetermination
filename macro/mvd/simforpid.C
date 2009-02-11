@@ -27,7 +27,7 @@
   gSystem->Load("libMvd");
 
 
-  CbmRunSim *fRun = new CbmRunSim();
+  FairRunSim *fRun = new FairRunSim();
   
   // set the MC version used
   // ------------------------
@@ -47,48 +47,48 @@
   // Create and add detectors
   //-------------------------
 
-  CbmModule *Cave= new PndCave("CAVE");
+  FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("cave.geo");
   fRun->AddModule(Cave);
 
- // CbmModule *Pipe= new PndPipe("PIPE");
+ // FairModule *Pipe= new PndPipe("PIPE");
  // Pipe->SetGeometryFileName("pipe.geo");
  // fRun->AddModule(Pipe);
   
   
-  //CbmModule *Magnet= new PndMagnet("MAGNET");
+  //FairModule *Magnet= new PndMagnet("MAGNET");
   // 1- Active shielding Geometry
   //Magnet->SetGeometryFileName("magnet_active.geo");
   // 2- Iron Magnet
   // Magnet->SetGeometryFileName("magnet_iron.geo");
   //fRun->AddModule(Magnet);
   
-  CbmDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
+  FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
   Mvd->SetGeometryFileName("MVD14.root");
   fRun->AddModule(Mvd);
   
- // CbmDetector *Sts= new CbmSts("STS", kTRUE);
+ // FairDetector *Sts= new CbmSts("STS", kTRUE);
  // Sts->SetGeometryFileName("sts_mvd.geo");
  // fRun->AddModule(Sts);
 
   
- // CbmModule *Target= new CbmTarget("Target");
+ // FairModule *Target= new CbmTarget("Target");
  // Target->SetGeometryFileName("target_vacuum.geo");
  // fRun->AddModule(Target);		
 
- //CbmDetector *Tof= new CbmTof("TOF", kTRUE );
+ //FairDetector *Tof= new CbmTof("TOF", kTRUE );
  //Tof->SetGeometryFileName("tof.geo");
  //fRun->AddModule(Tof);
 	
- //CbmDetector *Trd= new CbmTrd("TRD",kTRUE );
+ //FairDetector *Trd= new CbmTrd("TRD",kTRUE );
  //Trd->SetGeometryFileName("trd_9.geo");
  //fRun->AddModule(Trd);
 
- // CbmDetector *Rich= new CbmRich("RICH", kTRUE);
+ // FairDetector *Rich= new CbmRich("RICH", kTRUE);
  // Rich->SetGeometryFileName("rich.geo");
  // fRun->AddModule(Rich);
 
-  //CbmDetector *Ecal= new CbmEcal("ECAL", kTRUE);
+  //FairDetector *Ecal= new CbmEcal("ECAL", kTRUE);
   //Ecal->SetGeometryFileName("ecal.geo");
   //fRun->AddModule(Ecal);
 
@@ -96,11 +96,11 @@
  // Create and Set Event Generator
  //-------------------------------
 
-  CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
+  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
   //K+
-  CbmBoxGenerator *fBox1 = new CbmBoxGenerator(321, 1);
+  FairBoxGenerator *fBox1 = new FairBoxGenerator(321, 1);
      fBox1->SetPRange(0.01,1.);
      fBox1->SetThetaRange(5,150);
      fBox1->SetPhiRange(0.,360);
@@ -108,7 +108,7 @@
      primGen->AddGenerator(fBox1);
 
   //P
-  CbmBoxGenerator *fBox2 = new CbmBoxGenerator(2212, 1);
+  FairBoxGenerator *fBox2 = new FairBoxGenerator(2212, 1);
      fBox2->SetPRange(0.01,1.);
      fBox2->SetThetaRange(5,150);
      fBox2->SetPhiRange(0.,360);
@@ -117,7 +117,7 @@
 
 
   //Pi+
-  CbmBoxGenerator *fBox3 = new CbmBoxGenerator(211, 1);
+  FairBoxGenerator *fBox3 = new FairBoxGenerator(211, 1);
      fBox3->SetPRange(0.1,1.);
      fBox3->SetThetaRange(5,150);
      fBox3->SetPhiRange(0.,360);
@@ -125,7 +125,7 @@
      primGen->AddGenerator(fBox3);
 
   //Mu-
-//   CbmBoxGenerator *fBox4 = new CbmBoxGenerator(13, 1);
+//   FairBoxGenerator *fBox4 = new FairBoxGenerator(13, 1);
 //      fBox4->SetPRange(0.01,1);
 //      fBox4->SetThetaRange(5,150);
 //      fBox4->SetPhiRange(0.,360);
@@ -138,9 +138,9 @@
 
    fRun->Init();
 
-  CbmRuntimeDb *rtdb=fRun->GetRuntimeDb();
+  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
   Bool_t kParameterMerged=kTRUE;
-  CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   output->open("testparams.root");
   rtdb->setOutput(output);
   rtdb->saveOutput();

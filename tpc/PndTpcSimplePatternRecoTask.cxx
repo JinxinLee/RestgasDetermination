@@ -25,7 +25,7 @@
 #include <iostream>
 
 // Collaborating Class Headers --------
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "TClonesArray.h"
 #include "Track.h"
 #include "McId.h"
@@ -39,7 +39,7 @@
 
 
 PndTpcSimplePatternRecoTask::PndTpcSimplePatternRecoTask()
-  : CbmTask("TPC Simple Pattern Reco"), _persistence(kFALSE)
+  : FairTask("TPC Simple Pattern Reco"), _persistence(kFALSE)
 {
   _clusterBranchName = "PndTpcCluster";
 }
@@ -53,7 +53,7 @@ InitStatus
 PndTpcSimplePatternRecoTask::Init()
 {
   //Get ROOT Manager
-  CbmRootManager* ioman= CbmRootManager::Instance();
+  FairRootManager* ioman= FairRootManager::Instance();
 
   if(ioman==0)
     {

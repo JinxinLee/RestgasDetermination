@@ -18,7 +18,7 @@
 #define PNDDCHCYLINDERHITPRODUCER_H 1
 
 // Pnd includes
-#include "CbmTask.h"
+#include "FairTask.h"
 
 class TClonesArray;
 class PndDchStructure;
@@ -26,7 +26,7 @@ class PndDchCylinderHit;
 class TVector3;
 class TVector2;
 
-class PndDchCylinderHitProducer : public CbmTask{
+class PndDchCylinderHitProducer : public FairTask{
 
  public:
 	

@@ -22,17 +22,17 @@ using std::endl;
 #include "TGeoVoxelFinder.h"
 #include "TGeoMatrix.h"
 
-#include "CbmGeoInterface.h"
-#include "CbmGeoLoader.h"
-#include "CbmGeoNode.h"
-#include "CbmGeoRootBuilder.h"
+#include "FairGeoInterface.h"
+#include "FairGeoLoader.h"
+#include "FairGeoNode.h"
+#include "FairGeoRootBuilder.h"
 #include "CbmStack.h"
-#include "CbmRootManager.h"
-#include "CbmVolume.h"
-#include "CbmGeoG3Builder.h"
-#include "CbmRuntimeDb.h"
-#include "CbmRun.h"
-#include "CbmGeoMedia.h"
+#include "FairRootManager.h"
+#include "FairVolume.h"
+#include "FairGeoG3Builder.h"
+#include "FairRuntimeDb.h"
+#include "FairRun.h"
+#include "FairGeoMedia.h"
 
 #include "PndDchGeo.h"
 #include "PndDchDetector.h"	
@@ -49,7 +49,7 @@ PndDchDetector::PndDchDetector() {
 
 // -----   Standard constructor   ------------------------------------------
 PndDchDetector::PndDchDetector(const char* name, Bool_t active)
-  : CbmDetector(name, active) {
+  : FairDetector(name, active) {
     fDchPointCollection        = new TClonesArray("PndDchPoint");
     fPosIndex   = 0;
     ResetParameters();
@@ -67,7 +67,7 @@ PndDchDetector::~PndDchDetector() {
 // -------------------------------------------------------------------------
 
 // -----   Public method ProcessHits  --------------------------------------
-Bool_t PndDchDetector::ProcessHits(CbmVolume* vol) {
+Bool_t PndDchDetector::ProcessHits(FairVolume* vol) {
 
   TParticle* particle =  gMC->GetStack()->GetCurrentTrack();
   fTrackID  = gMC->GetStack()->GetCurrentTrackNumber(); 
@@ -124,7 +124,7 @@ void PndDchDetector::EndOfEvent() {
 
 // -----   Public method Register   -------------------------------------------
 void PndDchDetector::Register() {
-  CbmRootManager::Instance()->Register("PndDchPoint","Dch", fDchPointCollection, kTRUE);
+  FairRootManager::Instance()->Register("PndDchPoint","Dch", fDchPointCollection, kTRUE);
 }
 // ----------------------------------------------------------------------------
 
@@ -212,10 +212,10 @@ void PndDchDetector::ConstructRootGeometry() {
 
 void PndDchDetector::ExpandNode(TGeoVolume *fVol, TGeoVolume *Cave){
 
-   CbmGeoLoader*geoLoad = CbmGeoLoader::Instance();
-   CbmGeoInterface *geoFace = geoLoad->getGeoInterface();
-   CbmGeoMedia *Media =  geoFace->getMedia();
-   CbmGeoBuilder *geobuild=geoLoad->getGeoBuilder();
+   FairGeoLoader*geoLoad = FairGeoLoader::Instance();
+   FairGeoInterface *geoFace = geoLoad->getGeoInterface();
+   FairGeoMedia *Media =  geoFace->getMedia();
+   FairGeoBuilder *geobuild=geoLoad->getGeoBuilder();
   
    TObjArray *nodeList=fVol->GetNodes();
    if(fVerboseLevel>2)
@@ -237,10 +237,10 @@ void PndDchDetector::ExpandNode(TGeoVolume *fVol, TGeoVolume *Cave){
        TGeoMaterial *newMat = gGeoManager->GetMaterial(mat1->GetName());
        if (newMat==0) {
 	 std::cout<< "Material " << mat1->GetName() << " is not defined " << std::endl;
-	 CbmGeoMedium *CbmMedium=Media->getMedium(mat1->GetName());
+	 FairGeoMedium *CbmMedium=Media->getMedium(mat1->GetName());
 	 if (!CbmMedium) {
 	   std::cout << "Material is not defined in ASCII file nor in Root file" << std::endl;
-	   CbmMedium=new CbmGeoMedium(mat1->GetName());
+	   CbmMedium=new FairGeoMedium(mat1->GetName());
 	   Media->addMedium(CbmMedium);
 	 }
 	 std::cout << "Create Medium " << mat1->GetName() << std::endl;
@@ -281,8 +281,8 @@ void PndDchDetector::ExpandNode(TGeoVolume *fVol, TGeoVolume *Cave){
 void PndDchDetector::ConstructASCIIGeometry() {
   std::cout<<" --- Building DCH Geometry from ASCI file ---"<<std::endl;
 
-  CbmGeoLoader*    geoLoad = CbmGeoLoader::Instance();
-  CbmGeoInterface* geoIFace = geoLoad->getGeoInterface();
+  FairGeoLoader*    geoLoad = FairGeoLoader::Instance();
+  FairGeoInterface* geoIFace = geoLoad->getGeoInterface();
   PndDchGeo*      dchGeo = new PndDchGeo();
   dchGeo->setGeomFile(GetGeometryFileName());
   geoIFace->addGeoModule(dchGeo);
@@ -295,19 +295,19 @@ void PndDchDetector::ConstructASCIIGeometry() {
   std::cout<<"volList contains "<<volList->GetEntries()<<" volumes"<<std::endl;
 
   // store geo parameter
-  CbmRun *fRun = CbmRun::Instance();
-  CbmRuntimeDb *rtdb= CbmRun::Instance()->GetRuntimeDb();
+  FairRun *fRun = FairRun::Instance();
+  FairRuntimeDb *rtdb= FairRun::Instance()->GetRuntimeDb();
   PndDchGeoPar* par=(PndDchGeoPar*)(rtdb->getContainer("PndDchGeoPar"));
   TObjArray *fSensNodes = par->GetGeoSensitiveNodes();
   TObjArray *fPassNodes = par->GetGeoPassiveNodes();
 
   TListIter iter(volList);
-  CbmGeoNode* node   = NULL;
-  CbmGeoVolume *aVol=NULL;
+  FairGeoNode* node   = NULL;
+  FairGeoVolume *aVol=NULL;
 
-  while( (node = (CbmGeoNode*)iter.Next()) ) {
+  while( (node = (FairGeoNode*)iter.Next()) ) {
     std::cout<<"&&&&&&&&&&&&&&&&&&&&&&&&&&&&&  "<<    node->GetName()<<std::endl;
-    aVol = dynamic_cast<CbmGeoVolume*> ( node );
+    aVol = dynamic_cast<FairGeoVolume*> ( node );
     if ( node->isSensitive()  ) {
       fSensNodes->AddLast( aVol );
     }else{

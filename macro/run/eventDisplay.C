@@ -28,7 +28,7 @@ eventDisplay()
   gSystem->Load("libGeom");
                                      
   // -----   Reconstruction run   -------------------------------------------
-  CbmRunAna *fRun= new CbmRunAna();
+  FairRunAna *fRun= new FairRunAna();
   //fRun->SetInputFile("points.x3872.jpsipipi.phsp.root");
   fRun->SetInputFile("testsimu10.root");
   

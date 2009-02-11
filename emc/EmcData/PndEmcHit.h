@@ -13,13 +13,13 @@
 #ifndef PNDEMCHIT_H
 #define PNDEMCHIT_H
 
-#include "CbmHit.h"
+#include "FairHit.h"
 #include "TMath.h"
 #include <vector>
 
 class PndEmcPoint;
 
-class PndEmcHit : public CbmHit
+class PndEmcHit : public FairHit
 {
  public:    
   

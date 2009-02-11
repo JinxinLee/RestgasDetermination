@@ -20,9 +20,9 @@
 	TFile *f=new TFile("geane.root");	
 	TTree *cbmsim=f->Get("cbmsim") ;
 
-        fTrackParGeane = new TClonesArray("CbmTrackParH");
- 	fTrackParIni = new TClonesArray("CbmTrackParH");
-  	fTrackParFinal = new TClonesArray("CbmTrackParH");
+        fTrackParGeane = new TClonesArray("FairTrackParH");
+ 	fTrackParIni = new TClonesArray("FairTrackParH");
+  	fTrackParFinal = new TClonesArray("FairTrackParH");
   	
         TH1F *h1=new TH1F("h1","Phi ",100,-10.,10.);
 	TH1F *h2=new TH1F("h2","Lambda",100,-10,10);
@@ -46,8 +46,8 @@
        
         cbmsim->SetBranchAddress("GeaneTrackFinal",&fTrackParFinal);
 	cbmsim->SetBranchAddress("GeaneTrackPar",&fTrackParGeane);
-        CbmTrackParH *fTrkF  ;
-        CbmTrackParH *fTrkG;
+        FairTrackParH *fTrkF  ;
+        FairTrackParH *fTrkG;
         Int_t Nevents= cbmsim->GetEntriesFast();
 	cout<<Nevents<<endl;
 	for(Int_t i=0; i<Nevents; i++){
@@ -55,8 +55,8 @@
 		fTrackParFinal->Delete();               
 		cbmsim->GetEntry(i);
 		 for (Int_t k=0; k<fTrackParGeane->GetEntriesFast(); k++)	{
-    			fTrkF = (CbmTrackParH *)fTrackParFinal->At(k);
-			fTrkG = (CbmTrackParH *)fTrackParGeane->At(k);
+    			fTrkF = (FairTrackParH *)fTrackParFinal->At(k);
+			fTrkG = (FairTrackParH *)fTrackParGeane->At(k);
 			if(fTrkF &&fTrkG ){
 			  
 			  h101->Fill(fTrkF->GetX(),fTrkG->GetX());

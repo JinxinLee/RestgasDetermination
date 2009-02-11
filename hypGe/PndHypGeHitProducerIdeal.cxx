@@ -6,18 +6,18 @@
 
 #include "TClonesArray.h"
 
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "PndHypGeHitProducerIdeal.h"
 #include "PndHypGeHit.h"
 //#include "PndHypGeHitInfo.h"
 #include "PndHypGePoint.h"
-#include "CbmRunAna.h"
-#include "CbmRuntimeDb.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
 
 
 // -----   Default constructor   -------------------------------------------
 PndHypGeHitProducerIdeal::PndHypGeHitProducerIdeal() :
-  CbmTask("Ideal HYPGE Hit Producer") 
+  FairTask("Ideal HYPGE Hit Producer") 
 {//
 	fBranchName 	= "HypGePoint";
 }
@@ -34,7 +34,7 @@ PndHypGeHitProducerIdeal::~PndHypGeHitProducerIdeal()
 InitStatus PndHypGeHitProducerIdeal::Init() 
 {
   // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   
   if ( ! ioman ) 
     {
@@ -64,8 +64,8 @@ InitStatus PndHypGeHitProducerIdeal::Init()
 void PndHypGeHitProducerIdeal::SetParContainers()
 {
   // Get Base Container
-  CbmRun* ana = CbmRun::Instance();
-  CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+  FairRun* ana = FairRun::Instance();
+  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
   fGeoPar = (PndGeoHypGePar*)(rtdb->getContainer("PndGeoHypGePar"));
 
 }

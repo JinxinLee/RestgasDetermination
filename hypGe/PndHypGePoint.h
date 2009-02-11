@@ -9,11 +9,11 @@
 #include "TObject.h"
 #include "TVector3.h"
 #include "TLorentzVector.h"
-#include "CbmMCPoint.h"
+#include "FairMCPoint.h"
 
 using namespace std;
 
-class PndHypGePoint : public CbmMCPoint 
+class PndHypGePoint : public FairMCPoint 
 {
 
  public:

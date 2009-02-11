@@ -1,7 +1,7 @@
 #ifndef PNDHYPSTRIPHITPRODUCER_H
 #define PNDHYPSTRIPHITPRODUCER_H
 
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "../hyp/PndGeoHypPar.h"
 #include "PndHypStripDigiPar.h"
 //#include "PndHypGeoMappingPar.h"
@@ -9,8 +9,8 @@
 #include "../PndHypPoint.h"
 #include "PndHypStrip.h"
 #include "PndHypDigiPixel.h"
-#include "CbmGeoVector.h"
-#include "CbmGeoTransform.h"
+#include "FairGeoVector.h"
+#include "FairGeoTransform.h"
 #include "TVector3.h"
 #include "TRandom.h"
 #include "TGeoMatrix.h"
@@ -68,7 +68,7 @@ class TClonesArray;
 
 
 
-class PndHypStripHitProducer : public CbmTask
+class PndHypStripHitProducer : public FairTask
 {
  public:
 
@@ -125,7 +125,7 @@ class PndHypStripHitProducer : public CbmTask
   void ProduceHits();
   
   //TGeoHMatrix GetTransformation (std::string detName) const;
-  //void GetLocalHitPoints(PndHypPoint* myPoint, CbmGeoVector& myHitIn, CbmGeoVector& myHitOut);
+  //void GetLocalHitPoints(PndHypPoint* myPoint, FairGeoVector& myHitIn, FairGeoVector& myHitOut);
   TVector3 GetSensorDimensions(std::string detName) const;  
   Bool_t SelectSensorParams(TString detname);
   PndHypGeoHandling* fGeoH; // converter for detector names

@@ -23,7 +23,7 @@
   //gSystem->AddIncludePath("tpc");
 
   //TFile* file = new TFile("test.raw.root");
-  //TGeoManager *geoMan = (TGeoManager*) file->Get("CBMGeom");
+  //TGeoManager *geoMan = (TGeoManager*) file->Get("FAIRGeom");
   
   //cbmsim->StartViewer();
 }

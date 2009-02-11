@@ -2,7 +2,7 @@
 // PndEmcDigiPar
 //
 // Container class for Digitisation parameters
-// class is inherited from CbmParGenericSet
+// class is inherited from FairParGenericSet
 //
 /////////////////////////////////////////////////////////////
 
@@ -13,12 +13,12 @@ ClassImp(PndEmcDigiPar)
 
 PndEmcDigiPar::PndEmcDigiPar(const char* name,const char* title,
 			     const char* context)
-    : CbmParGenericSet(name,title,context) 
+    : FairParGenericSet(name,title,context) 
 {
 	clear();//WHY?
 }
 
-void PndEmcDigiPar::putParams(CbmParamList* list)
+void PndEmcDigiPar::putParams(FairParamList* list)
 {
 	if(!list) return;
 	list->add("EnergyHitThreshold",fEnergyHitThreshold);
@@ -42,7 +42,7 @@ void PndEmcDigiPar::putParams(CbmParamList* list)
 	list->add("SigmaEb",fSigmaEb);
 }
 
-Bool_t PndEmcDigiPar::getParams(CbmParamList* list)
+Bool_t PndEmcDigiPar::getParams(FairParamList* list)
 {
 	if (!list) return kFALSE;
 	if (!list->fill("EnergyHitThreshold",&fEnergyHitThreshold)) return kFALSE;

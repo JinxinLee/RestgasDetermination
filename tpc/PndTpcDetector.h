@@ -19,7 +19,7 @@
 #define TPCDETECTOR_HH
 
 // Base Class Headers ----------------
-#include "CbmDetector.h"
+#include "FairDetector.h"
 
 // Collaborating Class Headers -------
 #include <ostream> // remove if you do not need streaming op
@@ -27,10 +27,10 @@
 
 // Collaborating Class Declarations --
 class TClonesArray;
-class CbmVolume;
+class FairVolume;
 class PndTpcPoint;
 
-class PndTpcDetector : public CbmDetector{
+class PndTpcDetector : public FairDetector{
 public:	
   // Constructors/Destructors ---------
   /**      Name :  Detector Name
@@ -64,8 +64,8 @@ public:
   //virtual void   Initialize();
   
   /**       this method is called for each step 
-	    during simulation (see CbmMCApplication::Stepping())    */
-  virtual Bool_t ProcessHits( CbmVolume *v=0);
+	    during simulation (see FairMCApplication::Stepping())    */
+  virtual Bool_t ProcessHits( FairVolume *v=0);
   
   /**       Registers the produced collections in CBMRootManager.     */
   virtual void   Register();

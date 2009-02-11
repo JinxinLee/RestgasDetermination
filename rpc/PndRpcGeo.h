@@ -1,9 +1,9 @@
 #ifndef PNDRPCGEO_H
 #define PNDRPCGEO_H
 
-#include "CbmGeoSet.h"
+#include "FairGeoSet.h"
 
-class  PndRpcGeo : public CbmGeoSet {
+class  PndRpcGeo : public FairGeoSet {
 
 protected:
  char eleName[20];  // substring for elements in module 

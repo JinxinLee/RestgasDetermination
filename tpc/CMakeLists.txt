@@ -149,6 +149,6 @@ SET(TPC_SRCS ${TPC_SRCS} ${TPC_DICTIONARY} dbgstream.cxx)
 
 add_library(tpc SHARED ${TPC_SRCS})
 target_link_libraries(tpc ${ROOT_LIBRARIES})
-set_target_properties(tpc PROPERTIES ${CBMROOT_LIBRARY_PROPERTIES})
+set_target_properties(tpc PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 ################ install ###################
 install(TARGETS tpc DESTINATION ${CMAKE_BINARY_DIR}/lib)

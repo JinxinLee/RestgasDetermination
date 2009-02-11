@@ -19,7 +19,7 @@
 #define LAMBDASELECTOR_HH
 
 // Base Class Headers ----------------
-#include "CbmTask.h"
+#include "FairTask.h"
 
 // Collaborating Class Headers -------
  
@@ -28,7 +28,7 @@
 class TClonesArray;
 
 
-class LambdaSelector : public CbmTask {
+class LambdaSelector : public FairTask {
 public:
 
   // Constructors/Destructors ---------

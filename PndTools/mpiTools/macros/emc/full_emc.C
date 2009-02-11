@@ -42,7 +42,7 @@ void full_emc(Char_t InputSimFile[]="sim_emc.root", Char_t OutputDatabaseFile[] 
   // ------------------------------------------------------------------------
   
 	// -----   Reconstruction run   -------------------------------------------
-	CbmRunAna *fRun= new CbmRunAna();
+	FairRunAna *fRun= new FairRunAna();
 	fRun->SetInputFile(inFile);
 	fRun->SetOutputFile(outFile);
   
@@ -51,11 +51,11 @@ void full_emc(Char_t InputSimFile[]="sim_emc.root", Char_t OutputDatabaseFile[] 
         emcDigiFile += "/macro/params/";
         emcDigiFile += digiFile;
 
-	CbmRuntimeDb* rtdb = fRun->GetRuntimeDb();
-        CbmParRootFileIo* parInput1 = new CbmParRootFileIo();
+	FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+        FairParRootFileIo* parInput1 = new FairParRootFileIo();
         parInput1->open(parFile.Data());
 	
-        CbmParAsciiFileIo* parIo1 = new CbmParAsciiFileIo();
+        FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
 	parIo1->open(emcDigiFile.Data(),"in");
         
         rtdb->setFirstInput(parInput1);

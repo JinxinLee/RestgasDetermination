@@ -9,7 +9,7 @@
 #ifndef PndHypIdealTrackFinderTASK_H
 #define PndHypIdealTrackFinderTASK_H 
 
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "CbmMCTrack.h"
 #include "PndGeoHypPar.h"
 #include "PndHypHit.h"
@@ -23,7 +23,7 @@
  
 class TClonesArray;
 
-class PndHypIdealTrackFinderTask : public CbmTask
+class PndHypIdealTrackFinderTask : public FairTask
 {
  public:
 

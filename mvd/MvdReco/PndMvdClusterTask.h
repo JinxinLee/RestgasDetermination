@@ -2,11 +2,11 @@
 #ifndef PNDMVDCLUSTERTASK_H
 #define PNDMVDCLUSTERTASK_H
 
-#include "CbmTask.h"
+#include "FairTask.h"
 
 class TClonesArray;
 
-class PndMvdClusterTask : public CbmTask
+class PndMvdClusterTask : public FairTask
 {
  public:
 

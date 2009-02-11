@@ -11,13 +11,13 @@
 
 using namespace std;
 #include "PndMdtContFact.h"
-#include "CbmRuntimeDb.h"
+#include "FairRuntimeDb.h"
 
 #include "PndGeoMdtPar.h"
 #include "PndMdtRecoPar.h"
 
-//#include "CbmParRootFileIo.h"
-//#include "CbmParAsciiFileIo.h"
+//#include "FairParRootFileIo.h"
+//#include "FairParAsciiFileIo.h"
 #include <iostream>
 #include <iomanip>
 
@@ -30,19 +30,19 @@ PndMdtContFact::PndMdtContFact() {
   fName="PndMdtContFact";
   fTitle="Factory for parameter containers in libMdt";
   setAllContainers();
-  CbmRuntimeDb::instance()->addContFactory(this);
+  FairRuntimeDb::instance()->addContFactory(this);
 }
 
 void PndMdtContFact::setAllContainers() {
   /** Creates the Container objects with all accepted contexts and adds them to
    *  the list of containers for the Mdt library.*/
 
-    CbmContainer* p1= new CbmContainer("PndGeoMdtPar",
+    FairContainer* p1= new FairContainer("PndGeoMdtPar",
                                           "MDT Geometry Parameters",
                                           "TestDefaultContext");
     p1->addContext("TestDefaultContext");
 
-    CbmContainer* p2= new CbmContainer("PndMdtRecoPar",
+    FairContainer* p2= new FairContainer("PndMdtRecoPar",
                                           "MDT Reconstruction Parameters",
 				       "TestDefaultContext");
     p2->addContext("TestDefaultContext");
@@ -51,12 +51,12 @@ void PndMdtContFact::setAllContainers() {
     containers->Add(p2);
 }
 
-CbmParSet* PndMdtContFact::createContainer(CbmContainer* c) {
+FairParSet* PndMdtContFact::createContainer(FairContainer* c) {
   /** Calls the constructor of the corresponding parameter container.
    * For an actual context, which is not an empty string and not the default context
    * of this container, the name is concatinated with the context. */
   const char* name=c->GetName();
-  CbmParSet* p=NULL;
+  FairParSet* p=NULL;
   
   if (strcmp(name,"PndGeoMdtPar")==0) {
     p=new PndGeoMdtPar(c->getConcatName().Data(),c->GetTitle(),c->getContext());

@@ -26,12 +26,12 @@
 #include <assert.h>
 
 // Collaborating Class Headers --------
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "TClonesArray.h"
 #include "Track.h"
 #include "TDatabasePDG.h"
 // #include "PndHypHit.h"
-#include "CbmMCPoint.h"
+#include "FairMCPoint.h"
 
 #include "PndHypRecoHit.h"
 
@@ -47,16 +47,16 @@
 #include "DetPlane.h"
 
 #include "TDatabasePDG.h"
-#include "CbmTrackParH.h"
+#include "FairTrackParH.h"
 	
 #include "LSLTrackRep.h"
 #include "GeaneTrackRep.h"
-#include "CbmGeanePro.h"
+#include "FairGeanePro.h"
 // Class Member definitions -----------
 
 
 PndHypKalmanTask::PndHypKalmanTask()
-  : CbmTask("Kalman Filter"), fPersistence(kFALSE)
+  : FairTask("Kalman Filter"), fPersistence(kFALSE)
 {
   fTrackBranchName = "HypTrackCand";
 }
@@ -72,7 +72,7 @@ InitStatus
 PndHypKalmanTask::Init()
 {
   //Get ROOT Manager
-  CbmRootManager* ioman= CbmRootManager::Instance();
+  FairRootManager* ioman= FairRootManager::Instance();
 
   if(ioman==0)
     {
@@ -103,7 +103,7 @@ PndHypKalmanTask::Init()
   
   
    }
-   fPro = new CbmGeanePro();
+   fPro = new FairGeanePro();
 
   // setup histograms
   fPH=new TH1D("pH","p",100,0.4,0.6);

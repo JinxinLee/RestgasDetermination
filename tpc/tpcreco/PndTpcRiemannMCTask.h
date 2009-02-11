@@ -19,7 +19,7 @@
 #define TPCRIEMANNMCTASK_HH
 
 // Base Class Headers ----------------
-#include "CbmTask.h"
+#include "FairTask.h"
 
 // Collaborating Class Headers -------
 #include <ostream> // remove if you do not need streaming op
@@ -38,7 +38,7 @@ class TH2D;
 class TTree;
 
 
-class PndTpcRiemannMCTask : public CbmTask {
+class PndTpcRiemannMCTask : public FairTask {
 public:
 
   // Constructors/Destructors ---------

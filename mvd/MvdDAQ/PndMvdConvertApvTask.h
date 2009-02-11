@@ -16,7 +16,7 @@
 
 
 // framework includes
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "PndMvdConvertApv.h"
 // #include "PndMvdGeoHandling.h"
 
@@ -26,7 +26,7 @@
 class TClonesArray;
 class PndMvdDigiStrip;
 
-class PndMvdConvertApvTask : public CbmTask
+class PndMvdConvertApvTask : public FairTask
 {
  public:
 

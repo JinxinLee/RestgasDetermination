@@ -46,6 +46,6 @@ SET(PGEN_SRCS ${PGEN_SRCS} ${PGEN_DICTIONARY})
 
 add_library(PGen SHARED ${PGEN_SRCS})
 target_link_libraries(PGen ${ROOT_LIBRARIES})
-set_target_properties(PGen PROPERTIES ${CBMROOT_LIBRARY_PROPERTIES})
+set_target_properties(PGen PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 ################ install ###################
 install(TARGETS PGen DESTINATION ${CMAKE_BINARY_DIR}/lib)

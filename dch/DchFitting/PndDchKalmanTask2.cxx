@@ -5,7 +5,7 @@
 // -------------------------------------------------------------------------------
 
 // Panda Headers ----------------------
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "PndDchKalmanTask2.h"
 #include "Track.h"
 #include "PndDchRecoHit2.h"
@@ -28,7 +28,7 @@
 
 
 PndDchKalmanTask2::PndDchKalmanTask2()
-  : CbmTask("Kalman Filter"), fPersistence(kFALSE),fSmooth(kFALSE), fEvtCount(0), fNumIt(1)
+  : FairTask("Kalman Filter"), fPersistence(kFALSE),fSmooth(kFALSE), fEvtCount(0), fNumIt(1)
 {
   fTrackBranchName = "Track";
 
@@ -42,7 +42,7 @@ PndDchKalmanTask2::~PndDchKalmanTask2()
 InitStatus PndDchKalmanTask2::Init()
 {
   //Get ROOT Manager
-  CbmRootManager* ioman= CbmRootManager::Instance();
+  FairRootManager* ioman= FairRootManager::Instance();
 
   if(ioman==0)
     {

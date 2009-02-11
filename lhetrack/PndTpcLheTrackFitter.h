@@ -11,9 +11,9 @@
 //
 // *************************************************************************
 
-#include "CbmTask.h"
-#include "CbmField.h"
-#include "CbmTrackParH.h"
+#include "FairTask.h"
+#include "FairField.h"
+#include "FairTrackParH.h"
 
 
 #include "PndTpcLheTrack.h"
@@ -24,11 +24,11 @@
 class TH2F;
 class TGeoTrack;
 
-class PndTpcLheTrackFitter : public CbmTask {
+class PndTpcLheTrackFitter : public FairTask {
 
 protected:
 
-  CbmField*     fMagField;       //  
+  FairField*     fMagField;       //  
   TClonesArray* fTpcTracks;      //
   TClonesArray* fTpcHits;        //!
 

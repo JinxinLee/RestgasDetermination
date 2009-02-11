@@ -19,7 +19,7 @@
 #define TPCGEO_HH
 
 // Base Class Headers ----------------
-#include "CbmGeoSet.h"
+#include "FairGeoSet.h"
 
 // Collaborating Class Headers -------
 
@@ -27,7 +27,7 @@
 
 
 
-class PndTpcGeo : public CbmGeoSet {
+class PndTpcGeo : public FairGeoSet {
 public:
 
   // Constructors/Destructors ---------

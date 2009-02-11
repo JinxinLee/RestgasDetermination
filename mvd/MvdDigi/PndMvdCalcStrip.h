@@ -13,7 +13,7 @@
 #define PNDMVDCALCSTRIP_H
 
 #include "PndMvdStrip.h"
-//#include "CbmGeoVector.h"
+//#include "FairGeoVector.h"
 #include "PndMvdStripDigiPar.h"
 
 #include <TVector2.h>

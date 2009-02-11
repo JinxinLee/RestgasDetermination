@@ -39,21 +39,21 @@ using std::cout;
 #include "TGeoManager.h"
 #include "TObject.h"
 
-#include "CbmGeoInterface.h"
-#include "CbmGeoLoader.h"
-#include "CbmGeoNode.h"
-#include "CbmRootManager.h"
-#include "CbmVolume.h"
-#include "CbmGeoMedia.h"
-#include "CbmGeoMedium.h"
-#include "CbmGeoRootBuilder.h"
+#include "FairGeoInterface.h"
+#include "FairGeoLoader.h"
+#include "FairGeoNode.h"
+#include "FairRootManager.h"
+#include "FairVolume.h"
+#include "FairGeoMedia.h"
+#include "FairGeoMedium.h"
+#include "FairGeoRootBuilder.h"
 #include "CbmStack.h"
 
 // add on for debug
-#include "CbmGeoG3Builder.h"
-#include "CbmRun.h"
-//#include "CbmRunSim.h"
-#include "CbmRuntimeDb.h"
+#include "FairGeoG3Builder.h"
+#include "FairRun.h"
+//#include "FairRunSim.h"
+#include "FairRuntimeDb.h"
 
 
 // -----   Default constructor   -------------------------------------------
@@ -70,7 +70,7 @@ PndDrc::PndDrc() {
 
 // -----   Standard constructor   ------------------------------------------
 PndDrc::PndDrc(const char* name, Bool_t active)
-  : CbmDetector(name, active) {
+  : FairDetector(name, active) {
     fDrcPDCollection = new TClonesArray("PndDrcPDPoint");
     fDrcBarCollection = new TClonesArray("PndDrcBarPoint");
     fPosIndex   = 0;
@@ -105,9 +105,9 @@ PndDrc::~PndDrc() {
 // -----   Public method Intialize   ---------------------------------------
 void PndDrc::Initialize() {
   
-  CbmDetector::Initialize();
-  CbmRun       *sim  = CbmRun::Instance();
-  CbmRuntimeDb *rtdb = sim->GetRuntimeDb();
+  FairDetector::Initialize();
+  FairRun       *sim  = FairRun::Instance();
+  FairRuntimeDb *rtdb = sim->GetRuntimeDb();
   PndGeoDrcPar *par  = (PndGeoDrcPar*)(rtdb->getContainer("PndGeoDrcPar"));
 
 
@@ -142,8 +142,8 @@ void PndDrc::Initialize() {
 
   TObjArray    *sensNodes = par->GetGeoSensitiveNodes();
 
- //  CbmGeoNode *fm1= (CbmGeoNode *) sensNodes->FindObject("bar"); // barrel (single slab)
-//   CbmGeoNode *fm2= (CbmGeoNode *) sensNodes->FindObject("pd"); // photodetector
+ //  FairGeoNode *fm1= (FairGeoNode *) sensNodes->FindObject("bar"); // barrel (single slab)
+//   FairGeoNode *fm2= (FairGeoNode *) sensNodes->FindObject("pd"); // photodetector
   
 //   fSenIdBar=fm1->getMCid();
 //   fSenId2=fm2->getMCid();
@@ -152,7 +152,7 @@ void PndDrc::Initialize() {
 
   for( int inode=0; inode<sensNodes->GetEntries(); inode++) 
     {// for inode
-      CbmGeoNode *node = dynamic_cast<CbmGeoNode*> (sensNodes->At(inode));	
+      FairGeoNode *node = dynamic_cast<FairGeoNode*> (sensNodes->At(inode));	
       if ( !node ) continue;
       
       TString name = node->getName();
@@ -167,12 +167,12 @@ void PndDrc::Initialize() {
 	  name_clone += "_clone";
 	    
 
-	  CbmGeoTransform trans = node->getTransform();
+	  FairGeoTransform trans = node->getTransform();
 
 	  for (int ii=0; ii<node->getNumPoints(); ii++)
 	    {
-	      CbmGeoVector vec = *(node->getPoint(ii));
-	      CbmGeoVector vec1 = trans.transFrom(vec);
+	      FairGeoVector vec = *(node->getPoint(ii));
+	      FairGeoVector vec1 = trans.transFrom(vec);
 	      p[ii].SetXYZ(vec1.X(),vec1.Y(),vec1.Z());
 	      //cout<<" points: "<<vec1.X()<<" "<<vec1.Y()<<" "<<vec1.Z()<<endl;
 	    }
@@ -278,7 +278,7 @@ void PndDrc::BeginEvent(){
 }
 
 // -----   Public method ProcessHits  --------------------------------------
-Bool_t PndDrc::ProcessHits(CbmVolume* vol) {
+Bool_t PndDrc::ProcessHits(FairVolume* vol) {
   
   if (fVerboseLevel >0) cout << "PndDrc::ProcessHits " << vol->GetName() << endl;
    //Register points in the barrel (PndDrcBarPoints)
@@ -387,8 +387,8 @@ void PndDrc::EndOfEvent() {
 
 // -----   Public method Register   -------------------------------------------
 void PndDrc::Register() {
-  CbmRootManager::Instance()->Register("DrcBarPoint","Drc", fDrcBarCollection, kTRUE);
-  CbmRootManager::Instance()->Register("DrcPDPoint","Drc", fDrcPDCollection, kTRUE);
+  FairRootManager::Instance()->Register("DrcBarPoint","Drc", fDrcBarCollection, kTRUE);
+  FairRootManager::Instance()->Register("DrcPDPoint","Drc", fDrcPDCollection, kTRUE);
 
 }
 // ----------------------------------------------------------------------------
@@ -431,7 +431,7 @@ void PndDrc::Reset() {
 // ----------------------------------------------------------------------------
 
 
-// guarda in CbmRootManager::CopyClones
+// guarda in FairRootManager::CopyClones
 // -----   Public method CopyClones   -----------------------------------------
 void PndDrc::CopyClones(TClonesArray* clPD1, TClonesArray* clPD2,TClonesArray* clBar1, TClonesArray* clBar2, Int_t offset ) {
   Int_t nPDEntries = clPD1->GetEntriesFast();
@@ -475,24 +475,24 @@ void PndDrc::ConstructGeometry()
   cout<< " =======  DRC::  ConstructGeometry()  ======== " << endl;
   cout<< " ============================================= " << endl;
   
-  CbmGeoLoader*    drcgeoLoad = CbmGeoLoader::Instance();
-  CbmGeoInterface* drcgeoFace = drcgeoLoad->getGeoInterface();
+  FairGeoLoader*    drcgeoLoad = FairGeoLoader::Instance();
+  FairGeoInterface* drcgeoFace = drcgeoLoad->getGeoInterface();
 
-  CbmGeoMedia *Media =  drcgeoFace->getMedia();
-  CbmGeoBuilder *geobuild = drcgeoLoad->getGeoBuilder();
+  FairGeoMedia *Media =  drcgeoFace->getMedia();
+  FairGeoBuilder *geobuild = drcgeoLoad->getGeoBuilder();
 
   // Call materials
-  CbmGeoMedium *fusedSil  = Media->getMedium("FusedSil");
+  FairGeoMedium *fusedSil  = Media->getMedium("FusedSil");
   Int_t nFusedSil = geobuild->createMedium(fusedSil);
-  CbmGeoMedium *nlak33a  = Media->getMedium("NLAK33A");
+  FairGeoMedium *nlak33a  = Media->getMedium("NLAK33A");
   Int_t nNlak33a = geobuild->createMedium(nlak33a);
-  CbmGeoMedium *air  = Media->getMedium("DIRCair");
+  FairGeoMedium *air  = Media->getMedium("DIRCair");
   Int_t nAir = geobuild->createMedium(air);
-  CbmGeoMedium *airNoSens  = Media->getMedium("DIRCairNoSens");
+  FairGeoMedium *airNoSens  = Media->getMedium("DIRCairNoSens");
   Int_t nAirNoSens = geobuild->createMedium(airNoSens);
-  CbmGeoMedium *mirror  = Media->getMedium("Mirror");
+  FairGeoMedium *mirror  = Media->getMedium("Mirror");
   Int_t nMirror = geobuild->createMedium(mirror);
-  CbmGeoMedium *marcol82  = Media->getMedium("Marcol82");
+  FairGeoMedium *marcol82  = Media->getMedium("Marcol82");
   Int_t nMarcol82 = geobuild->createMedium(marcol82);
 
   TGeoVolume *cave = gGeoManager->GetTopVolume();

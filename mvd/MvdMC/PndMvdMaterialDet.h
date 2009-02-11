@@ -20,7 +20,7 @@
 //#include "TClonesArray.h"
 #include "TLorentzVector.h"
 #include "TVector3.h"
-#include "CbmDetector.h"
+#include "FairDetector.h"
 #include "TString.h"
 #include "PndMvdGeoHandling.h"
 
@@ -31,9 +31,9 @@
 class TClonesArray;
 class TGeoNode;
 class PndMvdMCPoint;
-class CbmVolume;
+class FairVolume;
 
-class PndMvdMaterialDet : public CbmDetector
+class PndMvdMaterialDet : public FairDetector
 {
 
  public:
@@ -62,7 +62,7 @@ class PndMvdMaterialDet : public CbmDetector
    ** collection.
    *@param vol  Pointer to the active volume
    **/
-  virtual Bool_t  ProcessHits(CbmVolume* vol = 0);
+  virtual Bool_t  ProcessHits(FairVolume* vol = 0);
 
 
   /** Virtual method EndOfEvent

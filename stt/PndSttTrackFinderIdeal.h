@@ -25,7 +25,7 @@
 
 class PndSttTrack;
 class PndSttHit;
-class CbmMCPoint;
+class FairMCPoint;
 //class TClonesArray;
 
 
@@ -88,7 +88,7 @@ class PndSttTrackFinderIdeal : public PndSttTrackFinder
   TList fHitCollectionList;
   TList fPointCollectionList;
   PndSttHit* GetHitFromCollections(Int_t hitCounter);
-  CbmMCPoint* GetPointFromCollections(Int_t hitCounter);
+  FairMCPoint* GetPointFromCollections(Int_t hitCounter);
 
   ClassDef(PndSttTrackFinderIdeal,1);
 };

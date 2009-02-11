@@ -1,17 +1,17 @@
 #ifndef PNDRPCCONTFACT_H
 #define PNDRPCCONTFACT_H
 
-#include "CbmContFact.h"
+#include "FairContFact.h"
 
-class CbmContainer;
+class FairContainer;
 
-class PndRpcContFact : public CbmContFact {
+class PndRpcContFact : public FairContFact {
 private:
   void setAllContainers();
 public:
   PndRpcContFact();
   ~PndRpcContFact() {}
-  CbmParSet* createContainer(CbmContainer*);
+  FairParSet* createContainer(FairContainer*);
   ClassDef( PndRpcContFact,0) // Factory for all RPC parameter containers
 };
 

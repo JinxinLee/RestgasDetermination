@@ -27,7 +27,7 @@
 #include <ostream> // remove if you do not need streaming op
 
 // Collaborating Class Declarations --
-class CbmMCPoint;
+class FairMCPoint;
 
 typedef RecoHitIfc<SpacepointHitPolicy> SpacepointRecoHit;
 
@@ -40,7 +40,7 @@ public:
 	       double sigx, double sigy, double sigz);
   DemoSPHit(const TVector3& pos,
 	    const TVector3& sig);
-  DemoSPHit(CbmMCPoint* point);
+  DemoSPHit(FairMCPoint* point);
 
   virtual ~DemoSPHit();
 

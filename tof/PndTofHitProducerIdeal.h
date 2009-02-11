@@ -18,12 +18,12 @@
 #ifndef PNDTOFHITPRODUCERIDEAL_H
 #define PNDTOFHITPRODUCERIDEAL_H 
 
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "PndGeoTofPar.h"
 #include "PndTofPoint.h"
 
-#include "CbmGeoVector.h"
-#include "CbmGeoTransform.h"
+#include "FairGeoVector.h"
+#include "FairGeoTransform.h"
 
 #include "TVector3.h"
 #include "TGeoMatrix.h"
@@ -32,7 +32,7 @@
 
 class TClonesArray;
 
-class PndTofHitProducerIdeal : public CbmTask
+class PndTofHitProducerIdeal : public FairTask
 {
  public:
 
@@ -74,7 +74,7 @@ class PndTofHitProducerIdeal : public CbmTask
   
   void ProduceHits();
 TGeoHMatrix GetTransformation (std::string detName) const;
-void GetLocalHitPoints(PndTofPoint* myPoint, CbmGeoVector& myHitIn,CbmGeoVector& myInL);
+void GetLocalHitPoints(PndTofPoint* myPoint, FairGeoVector& myHitIn,FairGeoVector& myInL);
 TVector3 GetSensorDimensions(std::string detName) const;
   ClassDef(PndTofHitProducerIdeal,3);
 

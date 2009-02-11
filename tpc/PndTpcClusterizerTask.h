@@ -19,7 +19,7 @@
 #define TPCCLUSTERIZERTASK_HH
 
 // Base Class Headers ----------------
-#include "CbmTask.h"
+#include "FairTask.h"
 
 // Collaborating Class Headers -------
 
@@ -29,7 +29,7 @@ class TClonesArray;
 class PndTpcGas;
 class PndTpcDigiPar;
 
-class PndTpcClusterizerTask : public CbmTask {
+class PndTpcClusterizerTask : public FairTask {
 public:
 
   // Constructors/Destructors ---------

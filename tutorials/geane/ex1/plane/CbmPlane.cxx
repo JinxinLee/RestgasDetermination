@@ -11,22 +11,22 @@
 #include "TParticle.h"
 #include "TVirtualMC.h"
 
-#include "CbmGeoInterface.h"
-#include "CbmGeoLoader.h"
-#include "CbmGeoNode.h"
+#include "FairGeoInterface.h"
+#include "FairGeoLoader.h"
+#include "FairGeoNode.h"
 #include "CbmGeoPlane.h"
-#include "CbmGeoRootBuilder.h"
+#include "FairGeoRootBuilder.h"
 #include "CbmStack.h"
 #include "CbmPlane.h"
 #include "CbmPlanePoint.h"
-#include "CbmRootManager.h"
-#include "CbmVolume.h"
+#include "FairRootManager.h"
+#include "FairVolume.h"
 // add on for debug
-#include "CbmGeoG3Builder.h"
-#include "CbmRuntimeDb.h"
+#include "FairGeoG3Builder.h"
+#include "FairRuntimeDb.h"
 #include "CbmGeoPlanePar.h"
 #include "TObjArray.h"
-#include "CbmRun.h"
+#include "FairRun.h"
 
 #include "TGeant3.h"
 
@@ -49,7 +49,7 @@ CbmPlane::CbmPlane() {
 
 // -----   Standard constructor   ------------------------------------------
 CbmPlane::CbmPlane(const char* name, Bool_t active)
-  : CbmDetector(name, active) {
+  : FairDetector(name, active) {
     fPlane1Collection        = new TClonesArray("CbmPlanePoint");
     fPlane2Collection        = new TClonesArray("CbmPlanePoint"); 
     fPlane3Collection        = new TClonesArray("CbmPlanePoint");
@@ -82,13 +82,13 @@ CbmPlane::~CbmPlane() {
 void CbmPlane::Initialize() {
   
   // controlla-- forse non tutto e' necessario.
-  CbmDetector::Initialize();
-  CbmRun* sim = CbmRun::Instance();
-  CbmRuntimeDb* rtdb=sim->GetRuntimeDb();
+  FairDetector::Initialize();
+  FairRun* sim = FairRun::Instance();
+  FairRuntimeDb* rtdb=sim->GetRuntimeDb();
   CbmGeoPlanePar *par=(CbmGeoPlanePar*)(rtdb->getContainer("CbmGeoPlanePar"));
   TObjArray *fSensNodes = par->GetGeoSensitiveNodes();
  
- //  CbmGeoNode *fm1= (CbmGeoNode *) fSensNodes->FindObject("Plane0000");
+ //  FairGeoNode *fm1= (FairGeoNode *) fSensNodes->FindObject("Plane0000");
 //   cout << "GET COPY NO: " << fm1->getCopyNo() << endl;
 //   volDetector = fm1->getMCid();
 
@@ -102,7 +102,7 @@ void CbmPlane::BeginEvent(){
 
 
 // -----   Public method ProcessHits  --------------------------------------
-Bool_t CbmPlane::ProcessHits(CbmVolume* vol) {
+Bool_t CbmPlane::ProcessHits(FairVolume* vol) {
   
  
     Int_t      pdgCode = gMC->TrackPid();
@@ -272,9 +272,9 @@ void CbmPlane::plane() {
 
 // -----   Public method Register   -------------------------------------------
 void CbmPlane::Register() {
-  CbmRootManager::Instance()->Register("Plane1Point","Plane1", fPlane1Collection, kTRUE);
-  CbmRootManager::Instance()->Register("Plane2Point","Plane2", fPlane2Collection, kTRUE);
-  CbmRootManager::Instance()->Register("Plane3Point","Plane3", fPlane3Collection, kTRUE);
+  FairRootManager::Instance()->Register("Plane1Point","Plane1", fPlane1Collection, kTRUE);
+  FairRootManager::Instance()->Register("Plane2Point","Plane2", fPlane2Collection, kTRUE);
+  FairRootManager::Instance()->Register("Plane3Point","Plane3", fPlane3Collection, kTRUE);
 }
 // ----------------------------------------------------------------------------
 
@@ -310,7 +310,7 @@ void CbmPlane::Reset() {
 // ----------------------------------------------------------------------------
 
 
-// guarda in CbmRootManager::CopyClones
+// guarda in FairRootManager::CopyClones
 // -----   Public method CopyClones   -----------------------------------------
 void CbmPlane::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset ) {
   
@@ -323,8 +323,8 @@ void CbmPlane::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset ) {
 // -----   Public method ConstructGeometry   ----------------------------------
 void CbmPlane::ConstructGeometry() {
 
-  CbmGeoLoader*    PlanegeoLoad = CbmGeoLoader::Instance();
-  CbmGeoInterface* PlanegeoFace = PlanegeoLoad->getGeoInterface();
+  FairGeoLoader*    PlanegeoLoad = FairGeoLoader::Instance();
+  FairGeoInterface* PlanegeoFace = PlanegeoLoad->getGeoInterface();
   CbmGeoPlane*      PlaneGeo = new CbmGeoPlane();
   PlaneGeo->setGeomFile(GetGeometryFileName());
   PlanegeoFace->addGeoModule(PlaneGeo);
@@ -334,18 +334,18 @@ void CbmPlane::ConstructGeometry() {
   TList* volList = PlaneGeo->getListOfVolumes();
 
   // store geo parameter
-  CbmRun *fRun = CbmRun::Instance();
-  CbmRuntimeDb *rtdb= CbmRun::Instance()->GetRuntimeDb();
+  FairRun *fRun = FairRun::Instance();
+  FairRuntimeDb *rtdb= FairRun::Instance()->GetRuntimeDb();
   CbmGeoPlanePar* par=(CbmGeoPlanePar*)(rtdb->getContainer("CbmGeoPlanePar"));
   TObjArray *fSensNodes = par->GetGeoSensitiveNodes();
   TObjArray *fPassNodes = par->GetGeoPassiveNodes();
 
   TListIter iter(volList);
-  CbmGeoNode* node   = NULL;
-  CbmGeoVolume *aVol=NULL;
+  FairGeoNode* node   = NULL;
+  FairGeoVolume *aVol=NULL;
 
-  while( (node = (CbmGeoNode*)iter.Next()) ) {
-    aVol = dynamic_cast<CbmGeoVolume*> ( node );
+  while( (node = (FairGeoNode*)iter.Next()) ) {
+    aVol = dynamic_cast<FairGeoVolume*> ( node );
     if ( node->isSensitive()  ) {
       fSensNodes->AddLast( aVol );
     }else{

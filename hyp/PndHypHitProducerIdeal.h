@@ -18,7 +18,7 @@
 #ifndef PNDHYPHITPRODUCERIDEAL_H
 #define PNDHYPHITPRODUCERIDEAL_H 
 
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "PndGeoHypPar.h"
 
 #include "TVector3.h"
@@ -26,7 +26,7 @@
  
 class TClonesArray;
 
-class PndHypHitProducerIdeal : public CbmTask
+class PndHypHitProducerIdeal : public FairTask
 {
  public:
 

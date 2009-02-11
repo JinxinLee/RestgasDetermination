@@ -22,7 +22,7 @@
 
  
   TFile* file = new TFile("ex2.root");
-  TGeoManager *geoMan = (TGeoManager*) file->Get("CBMGeom");
+  TGeoManager *geoMan = (TGeoManager*) file->Get("FAIRGeom");
 
   
   TCanvas* c1 = new TCanvas("c1", "", 100, 100, 800, 800);

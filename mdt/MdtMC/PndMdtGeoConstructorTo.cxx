@@ -15,12 +15,12 @@
 #include "TGeoManager.h"
 #include "TVirtualMC.h"
 
-#include "CbmVolume.h"
+#include "FairVolume.h"
 // add on for debug
-#include "CbmGeoG3Builder.h"
-#include "CbmRuntimeDb.h"
-#include "CbmRun.h"
-#include "CbmModule.h"
+#include "FairGeoG3Builder.h"
+#include "FairRuntimeDb.h"
+#include "FairRun.h"
+#include "FairModule.h"
 
 #include "PndMdt.h"
 
@@ -189,7 +189,7 @@ void PndMdt::ConstructGeometryTo()
 
 
 // -----   Public method ProcessHits  --------------------------------------
-Bool_t PndMdt::ProcessHitsTo(CbmVolume* vol) 
+Bool_t PndMdt::ProcessHitsTo(FairVolume* vol) 
 {
   TString name = vol->GetName();
   if (!(name.BeginsWith("muon"))) 

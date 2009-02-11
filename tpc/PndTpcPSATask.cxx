@@ -25,7 +25,7 @@
 #include <iostream>
 
 // Collaborating Class Headers --------
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "TClonesArray.h"
 #include "PndTpcSample.h"
 #include "PndTpcDigi.h"
@@ -38,7 +38,7 @@
 
 
 PndTpcPSATask::PndTpcPSATask()
-  : CbmTask("TPC Pulse shape analyser"), _persistence(kFALSE)
+  : FairTask("TPC Pulse shape analyser"), _persistence(kFALSE)
 {
   _sampleBranchName = "PndTpcSample";
 }
@@ -54,7 +54,7 @@ InitStatus
 PndTpcPSATask::Init()
 {
   //Get ROOT Manager
-  CbmRootManager* ioman= CbmRootManager::Instance();
+  FairRootManager* ioman= FairRootManager::Instance();
 
   if(ioman==0)
     {

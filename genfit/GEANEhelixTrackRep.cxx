@@ -6,7 +6,7 @@
 GEANEhelixTrackRep::GEANEhelixTrackRep() : AbsTrackRep(5) {
 }
 
-GEANEhelixTrackRep::GEANEhelixTrackRep(const CbmTrackParH& par)
+GEANEhelixTrackRep::GEANEhelixTrackRep(const FairTrackParH& par)
   : AbsTrackRep(5)
 {
   state[4][0]=par.GetQp();

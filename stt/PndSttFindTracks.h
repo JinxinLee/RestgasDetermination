@@ -18,7 +18,7 @@
 #ifndef PNDSTTFINDTRACKS
 #define PNDSTTFINDTRACKS 1
 
-#include "CbmTask.h"
+#include "FairTask.h"
 
 #include <string>
 #include <vector>
@@ -26,7 +26,7 @@
 class PndSttTrackFinder;
 class TClonesArray;
 
-class PndSttFindTracks : public CbmTask
+class PndSttFindTracks : public FairTask
 {
 
  public:
@@ -48,7 +48,7 @@ class PndSttFindTracks : public CbmTask
    *@param finder   Pointer to STT track finder concrete class
    *@param verbose  Verbosity level
    **/
-  PndSttFindTracks(const char* name, const char* title = "CbmTask", 
+  PndSttFindTracks(const char* name, const char* title = "FairTask", 
 		   PndSttTrackFinder* finder = NULL, Int_t verbose = 1);
 
 

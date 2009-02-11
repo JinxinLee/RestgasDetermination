@@ -15,7 +15,7 @@
 
 #include "PndGeoHitList.h"
 
-#include "CbmHit.h"
+#include "FairHit.h"
 
 #include "TString.h"
 #include "TClonesArray.h"
@@ -30,7 +30,7 @@ public:
   virtual ~PndEventDisplay();
   
   void AddNewGroup(TString groupName, PndGeoHitList* newList);
-  void AddHit(TString groupName, CbmHit* hit, Bool_t vis = kTRUE);
+  void AddHit(TString groupName, FairHit* hit, Bool_t vis = kTRUE);
   void AddHit(TString groupName, Double_t x, Double_t y, Double_t z, Bool_t vis = kTRUE);
   void AddHit(TString groupName, TGeoMatrix* mat, Bool_t vis = kTRUE);
   void AddHits(TString groupName, TClonesArray* hits, Bool_t vis = kTRUE);

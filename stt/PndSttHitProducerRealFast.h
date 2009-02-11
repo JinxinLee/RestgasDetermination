@@ -4,7 +4,7 @@
 #define PNDSTTHITPRODUCERREALFAST_H 1
 
 
-#include "CbmTask.h"
+#include "FairTask.h"
 
 //#include "PndSttHit.h"
 //#include "PndSttHitInfo.h"
@@ -16,7 +16,7 @@ class PndSttHitInfo;
 class TClonesArray;
 class TObjectArray;
 
-class PndSttHitProducerRealFast : public CbmTask
+class PndSttHitProducerRealFast : public FairTask
 {
 
  public:

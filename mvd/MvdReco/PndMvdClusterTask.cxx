@@ -10,14 +10,14 @@
 
 // -----   Default constructor   -------------------------------------------
 // PndMvdClusterTask::PndMvdClusterTask() :
-//   CbmTask("MVD Clustertisation Task")
+//   FairTask("MVD Clustertisation Task")
 // {
 //
 // }
 // -------------------------------------------------------------------------
 
 PndMvdClusterTask::PndMvdClusterTask(Double_t pixelRadius, Int_t stripChargecut, TString geoFile) :
-  CbmTask("MVD Clustertization Task")
+  FairTask("MVD Clustertization Task")
 {
 	Int_t meanalgo=0; //0: built-in CoG, 1: algo class, CoG
 	Int_t clustermod=0; //0: simple, 1:"normal"
@@ -27,7 +27,7 @@ PndMvdClusterTask::PndMvdClusterTask(Double_t pixelRadius, Int_t stripChargecut,
   TList* thistasks = this->GetListOfTasks();
   for(Int_t i=0;i<thistasks->GetEntries();i++)
   {
-    ((CbmTask*)thistasks->At(i))->SetVerbose(fVerbose);
+    ((FairTask*)thistasks->At(i))->SetVerbose(fVerbose);
   }
 }
 // -------------------------------------------------------------------------

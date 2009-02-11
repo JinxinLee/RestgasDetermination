@@ -8,10 +8,10 @@
 #include "PndMuoDigi.h"
 #include "PndMuoPoint.h"
 
-#include "CbmRootManager.h"
-#include "CbmDetector.h"
-#include "CbmRun.h"
-#include "CbmRuntimeDb.h"
+#include "FairRootManager.h"
+#include "FairDetector.h"
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
 
 #include "TClonesArray.h"
 #include "TGeoManager.h"
@@ -27,7 +27,7 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndMuoDigiProducer::PndMuoDigiProducer() :
-  CbmTask("Ideal MUO Digi Producer") { 
+  FairTask("Ideal MUO Digi Producer") { 
   //nSec = -1;
 }
 // -------------------------------------------------------------------------
@@ -43,14 +43,14 @@ InitStatus PndMuoDigiProducer::Init() {
  
   cout << " INITIALIZATION *********************" << endl;
   
-  //CbmDetector::Initialize();
-  CbmRun* sim = CbmRun::Instance();
-  CbmRuntimeDb* rtdb=sim->GetRuntimeDb();
+  //FairDetector::Initialize();
+  FairRun* sim = FairRun::Instance();
+  FairRuntimeDb* rtdb=sim->GetRuntimeDb();
   // Load of geometry params
   par=(PndGeoMuoPar*)(rtdb->getContainer("PndGeoMuoPar"));
   
   // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
     cout << "-E- PndMuoDigiProducer::Init: "
 	 << "RootManager not instantiated!" << endl;
@@ -71,9 +71,9 @@ InitStatus PndMuoDigiProducer::Init() {
   ioman->Register("MuoDigi","Muo",fDigiArray,kTRUE);
   
   // Geometry loading
-  //TGeoManager *geoMan = (TGeoManager*) ioman->GetObject("CBMGeom");
+  //TGeoManager *geoMan = (TGeoManager*) ioman->GetObject("FAIRGeom");
   // TFile tstfile("$VMCWORKDIR/macro/run/testandrea.root");
-  // TGeoManager *geoMan = (TGeoManager*) tstfile.Get("CBMGeom");
+  // TGeoManager *geoMan = (TGeoManager*) tstfile.Get("FAIRGeom");
   // fVolumeArray = geoMan->GetListOfVolumes();
 
   cout << "-I- PndMuoDigiProducer: Intialization successfull" << endl;

@@ -28,7 +28,7 @@ ${ROOT_LIBRARY_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 set(GEANEEX_SRCS
-CbmGeaneTr.cxx
+FairGeaneTr.cxx
 )
 
 # fill list of header files from list of source files
@@ -44,6 +44,6 @@ SET(GEANEEX_SRCS ${GEANEEX_SRCS} ${GEANEEX_DICTIONARY})
 
 add_library(GeaneEx SHARED ${GEANEEX_SRCS})
 target_link_libraries(GeaneEx ${ROOT_LIBRARIES})
-set_target_properties(GeaneEx PROPERTIES ${CBMROOT_LIBRARY_PROPERTIES})
+set_target_properties(GeaneEx PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 ################ install ###################
 install(TARGETS GeaneEx DESTINATION ${CMAKE_BINARY_DIR}/lib)

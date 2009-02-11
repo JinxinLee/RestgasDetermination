@@ -17,7 +17,7 @@ ClassImp(PndDskCerenkov);
 
 // Default constructor
 // -------------------------------------------------------------------------------------------------
-PndDskCerenkov::PndDskCerenkov() : CbmMCPoint()
+PndDskCerenkov::PndDskCerenkov() : FairMCPoint()
 {
 }
 
@@ -28,7 +28,7 @@ PndDskCerenkov::PndDskCerenkov(Int_t trackID, Int_t volID, TVector3 pos, TVector
               Double_t tof, Double_t length, Double_t eLoss,
               Double_t energy, Int_t motherPdgCode,
               TVector3 primaryHitMomentum)
-  : CbmMCPoint(trackID, volID, pos, mom, tof, length, eLoss)
+  : FairMCPoint(trackID, volID, pos, mom, tof, length, eLoss)
 {
   fCurPos = pos;
   fEnergy = energy;

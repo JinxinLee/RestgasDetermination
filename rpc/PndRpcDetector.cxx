@@ -19,23 +19,23 @@ using std::ofstream;
 #include "TLorentzVector.h"
 #include "TParticle.h"
 #include "TVirtualMC.h"
-#include "CbmMCEventHeader.h"
+#include "FairMCEventHeader.h"
 
-#include "CbmGeoInterface.h"
-#include "CbmGeoLoader.h"
-#include "CbmGeoNode.h"
-#include "CbmGeoRootBuilder.h"
+#include "FairGeoInterface.h"
+#include "FairGeoLoader.h"
+#include "FairGeoNode.h"
+#include "FairGeoRootBuilder.h"
 #include "CbmStack.h"
-#include "CbmRootManager.h"
-#include "CbmVolume.h"
+#include "FairRootManager.h"
+#include "FairVolume.h"
 #include "PndRpcGeo.h"
 #include "PndRpcDetector.h"	
 #include "PndRpcPoint.h"
-#include "CbmGeoG3Builder.h"
-#include "CbmRuntimeDb.h"
+#include "FairGeoG3Builder.h"
+#include "FairRuntimeDb.h"
 #include "PndRpcGeoPar.h"
 #include "TObjArray.h"
-#include "CbmRun.h"
+#include "FairRun.h"
 
 
 // -----   Default constructor   -------------------------------------------
@@ -49,7 +49,7 @@ PndRpcDetector::PndRpcDetector()  {
 
 // -----   Standard constructor   ------------------------------------------
 PndRpcDetector::PndRpcDetector(const char* name, Bool_t active)
-  : CbmDetector(name, active) {
+  : FairDetector(name, active) {
     fRpcPointCollection  = new TClonesArray("PndRpcPoint");
     fPosIndex   = 0;
 //    fDetectorID = 0;
@@ -72,9 +72,9 @@ PndRpcDetector::~PndRpcDetector() {
 // ---------------------------------------
 void PndRpcDetector::Initialize() {
 
-  CbmDetector::Initialize();
-  CbmRun* sim = CbmRun::Instance();
-  CbmRuntimeDb* rtdb=sim->GetRuntimeDb();
+  FairDetector::Initialize();
+  FairRun* sim = FairRun::Instance();
+  FairRuntimeDb* rtdb=sim->GetRuntimeDb();
   PndRpcGeoPar *par=(PndRpcGeoPar*)(rtdb->getContainer("PndRpcGeoPar"));
 
    TObjArray *fSensNodes = par->GetGeoSensitiveNodes();
@@ -91,9 +91,9 @@ void RpcDetector::BeginEvent(){
 
 // -----   Public method ProcessHits  --------------------------------------
 
-Bool_t PndRpcDetector::ProcessHits(CbmVolume* vol) {
+Bool_t PndRpcDetector::ProcessHits(FairVolume* vol) {
 
-/*  CbmMCEventHeader EvHead; 
+/*  FairMCEventHeader EvHead; 
 //  Double_t time_ev = EvHead.GetT();
 //  char c;
 //  cin>>c;
@@ -211,7 +211,7 @@ void PndRpcDetector::EndOfEvent() {
 
 // -----   Public method Register   -------------------------------------------
 void PndRpcDetector::Register() {
-CbmRootManager::Instance()->Register("PndRpcPoint","Rpc", fRpcPointCollection, kTRUE);
+FairRootManager::Instance()->Register("PndRpcPoint","Rpc", fRpcPointCollection, kTRUE);
 }
 // ----------------------------------------------------------------------------
 
@@ -266,8 +266,8 @@ void PndRpcDetector::ConstructGeometry() {
   Int_t count_tot=0;
 
   std::cout<<" --- Building RpcTof Geometry ---"<<std::endl;
-  CbmGeoLoader*    geoLoad = CbmGeoLoader::Instance();
-  CbmGeoInterface* geoIFace = geoLoad->getGeoInterface();
+  FairGeoLoader*    geoLoad = FairGeoLoader::Instance();
+  FairGeoInterface* geoIFace = geoLoad->getGeoInterface();
   PndRpcGeo*      rpcGeo = new PndRpcGeo();
   rpcGeo->setGeomFile(GetGeometryFileName());
   std::cout<<"Geometry filename = "<<GetGeometryFileName()<<std::endl;
@@ -282,19 +282,19 @@ void PndRpcDetector::ConstructGeometry() {
   std::cout<<"volList contains "<<volList->GetEntries()<<" volumes"<<std::endl;
 
   // store geo parameter
-  CbmRun *fRun = CbmRun::Instance();
-  CbmRuntimeDb *rtdb= CbmRun::Instance()->GetRuntimeDb();
+  FairRun *fRun = FairRun::Instance();
+  FairRuntimeDb *rtdb= FairRun::Instance()->GetRuntimeDb();
   PndRpcGeoPar* par=(PndRpcGeoPar*)(rtdb->getContainer("PndRpcGeoPar"));
   TObjArray *fSensNodes = par->GetGeoSensitiveNodes();
   TObjArray *fPassNodes = par->GetGeoPassiveNodes();
 
   TListIter iter(volList);
-  CbmGeoNode* node   = NULL;
-  CbmGeoVolume *aVol=NULL;
+  FairGeoNode* node   = NULL;
+  FairGeoVolume *aVol=NULL;
 
-  while( (node = (CbmGeoNode*)iter.Next()) ) {
+  while( (node = (FairGeoNode*)iter.Next()) ) {
     std::cout<<"&&&&&&&&&&&&&&&&&&&&&&&&&&&&&  "<< node->GetName()<<std::endl;
-    aVol = dynamic_cast<CbmGeoVolume*> ( node );
+    aVol = dynamic_cast<FairGeoVolume*> ( node );
     if ( node->isSensitive()  ) {
       fSensNodes->AddLast( aVol );
       count++;

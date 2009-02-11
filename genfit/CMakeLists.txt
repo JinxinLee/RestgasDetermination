@@ -68,6 +68,6 @@ SET(GENFIT_SRCS ${GENFIT_SRCS} ${GENFIT_DICTIONARY})
 
 add_library(genfit SHARED ${GENFIT_SRCS})
 target_link_libraries(genfit ${ROOT_LIBRARIES})
-set_target_properties(genfit PROPERTIES ${CBMROOT_LIBRARY_PROPERTIES})
+set_target_properties(genfit PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 ################ install ###################
 install(TARGETS genfit DESTINATION ${CMAKE_BINARY_DIR}/lib)

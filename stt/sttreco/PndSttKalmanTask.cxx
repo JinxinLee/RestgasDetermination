@@ -10,7 +10,7 @@
 #include <assert.h>
 
 // Collaborating Class Headers --------
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "TClonesArray.h"
 #include "Track.h"
 #include "RecoHitFactory.h"
@@ -36,7 +36,7 @@ PndSttKalmanTask::Init()
 {
   cout << "PndSttKalmanTask::Init()" << endl;
 
-  CbmRootManager *ioman = CbmRootManager::Instance();
+  FairRootManager *ioman = FairRootManager::Instance();
   
   if (!ioman) 
   {

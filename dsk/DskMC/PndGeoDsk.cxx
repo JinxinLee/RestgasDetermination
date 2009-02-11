@@ -7,7 +7,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "PndGeoDsk.h"
-#include "CbmGeoNode.h"
+#include "FairGeoNode.h"
 
 ClassImp(PndGeoDsk);
 
@@ -49,6 +49,6 @@ PndGeoDsk::getModuleName(Int_t m)
 // testing, maybe not needed?
 void PndGeoDsk::addRefNodes() {
   // Adds the reference node
-  CbmGeoNode* volu=getVolume(fName);
-  if (volu) masterNodes->Add(new CbmGeoNode(*volu));
+  FairGeoNode* volu=getVolume(fName);
+  if (volu) masterNodes->Add(new FairGeoNode(*volu));
 }

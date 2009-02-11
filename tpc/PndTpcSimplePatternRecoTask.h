@@ -19,7 +19,7 @@
 #define TPCSPRTASK_HH
 
 // Base Class Headers ----------------
-#include "CbmTask.h"
+#include "FairTask.h"
 
 // Collaborating Class Headers -------
 #include "PndTpcCluster.h"
@@ -30,7 +30,7 @@ class TClonesArray;
 class PndTpcFrontend;
 class RecoHitFactory;
 
-class PndTpcSimplePatternRecoTask : public CbmTask {
+class PndTpcSimplePatternRecoTask : public FairTask {
 public:
 
   // Constructors/Destructors ---------

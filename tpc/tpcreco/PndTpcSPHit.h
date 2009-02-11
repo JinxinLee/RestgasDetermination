@@ -27,7 +27,7 @@
 #include <ostream> // remove if you do not need streaming op
 
 // Collaborating Class Declarations --
-class CbmMCPoint;
+class FairMCPoint;
 class PndTpcCluster;
 
 typedef RecoHitIfc<SpacepointHitPolicy> SpacepointRecoHit;
@@ -41,7 +41,7 @@ public:
 	       double sigx, double sigy, double sigz);
   PndTpcSPHit(const TVector3& pos,
 	    const TVector3& sig);
-  PndTpcSPHit(CbmMCPoint* point);
+  PndTpcSPHit(FairMCPoint* point);
   PndTpcSPHit(PndTpcCluster* cluster);
 
   virtual ~PndTpcSPHit();

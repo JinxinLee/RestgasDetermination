@@ -7,7 +7,7 @@
 #include <string>
 
 // Collaborating Class Headers --------
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "TClonesArray.h"
 #include "CbmMCTrack.h"
 #include "PndTpcPoint.h"
@@ -34,7 +34,7 @@
 
                    
 MickeyMouseMCTask::MickeyMouseMCTask()
-  : CbmTask("MickeyMouseMC"), _persistence(kFALSE)
+  : FairTask("MickeyMouseMC"), _persistence(kFALSE)
 {
 }
 
@@ -50,7 +50,7 @@ MickeyMouseMCTask::Init()
 
   counter = 0;
   //Get ROOT Manager
-  CbmRootManager* ioman= CbmRootManager::Instance();
+  FairRootManager* ioman= FairRootManager::Instance();
 
   if(ioman==0)
     {

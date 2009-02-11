@@ -1,10 +1,10 @@
 #ifndef PNDLHECORRPAR_H
 #define PNDLHECORRPAR_H
 
-#include "CbmParGenericSet.h"
-#include "CbmParamList.h"
+#include "FairParGenericSet.h"
+#include "FairParamList.h"
 
-class PndLheCorrPar : public CbmParGenericSet
+class PndLheCorrPar : public FairParGenericSet
 {
  public:
 
@@ -37,8 +37,8 @@ class PndLheCorrPar : public CbmParGenericSet
 		 const char* context="TestDefaultContext");
   ~PndLheCorrPar(void){};
   void clear(void){};
-  void putParams(CbmParamList* list);
-  Bool_t getParams(CbmParamList* list);
+  void putParams(FairParamList* list);
+  Bool_t getParams(FairParamList* list);
 	
  private :
    

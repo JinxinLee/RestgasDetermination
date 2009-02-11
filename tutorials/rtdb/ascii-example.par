@@ -5,19 +5,19 @@
 ################################################################################
 ################################################################################
 [TUTParDefault]
-top_pitch:d 0.01
-top_anchor_x:d -3.0
-top_anchor_y:d 1.5
-top_anchor_z:d 0.015
-nr_fe_top:i 10
-fe_Type:s APV25
+top_pitch:Double_t 0.01
+top_anchor_x:Double_t -3.0
+top_anchor_y:Double_t 1.5
+top_anchor_z:Double_t 0.015
+nr_fe_top:Int_t 10
+fe_Type:Text_t APV25
 ################################################################################
 ################################################################################
 [TUTParAlternative]
-top_pitch:d 0.0075
-top_anchor_x:d -2.0
-top_anchor_y:d 3.0
-top_anchor_z:d 0.015
-nr_fe_top:i 15
-fe_Type:s APV25
+top_pitch:Double_t 0.0075
+top_anchor_x:Double_t -2.0
+top_anchor_y:Double_t 3.0
+top_anchor_z:Double_t 0.015
+nr_fe_top:Int_t 15
+fe_Type:Text_t APV25
 ################################################################################

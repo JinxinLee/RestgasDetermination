@@ -19,7 +19,7 @@
 #define TPCDRIFTTASK_HH
 
 // Base Class Headers ----------------
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "TH1.h"
 #include "TH2.h"
 
@@ -33,7 +33,7 @@ class PndTpcDevmapCyl;
 class PndTpcDigiPar;
 class QAPlotCollection;
 
-class PndTpcDriftTask : public CbmTask {
+class PndTpcDriftTask : public FairTask {
 public:
 
   // Constructors/Destructors ---------

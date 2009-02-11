@@ -14,7 +14,7 @@
 
 #include "../hyp/PndHypHit.h"
 #include "PndHypStrip.h"
-//#include "CbmGeoVector.h"
+//#include "FairGeoVector.h"
 #include "PndHypStripDigiPar.h"
 
 #include <TVector2.h>

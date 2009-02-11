@@ -4,7 +4,7 @@
 // -------------------------------------------------------------------------
 #include "PndPythiaGenerator.h"
 
-#include "CbmPrimaryGenerator.h"
+#include "FairPrimaryGenerator.h"
 
 #include <iostream>
 #include <cstdio>
@@ -44,7 +44,7 @@ PndPythiaGenerator::~PndPythiaGenerator() {
 
 
 // -----   Public method ReadEvent   --------------------------------------
-Bool_t PndPythiaGenerator::ReadEvent(CbmPrimaryGenerator* primGen) {
+Bool_t PndPythiaGenerator::ReadEvent(FairPrimaryGenerator* primGen) {
 
   // Check for input file
   if (!fInputFile) {

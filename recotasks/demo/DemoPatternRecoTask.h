@@ -18,7 +18,7 @@
 #define DEMOPRTASK_HH
 
 // Base Class Headers ----------------
-#include "CbmTask.h"
+#include "FairTask.h"
 #include<map>
 
 // Collaborating Class Headers -------
@@ -28,10 +28,10 @@
 class TClonesArray;
 class RecoHitFactory;
 class AbsBFieldIfc;
-class CbmField;
-class CbmGeanePro;
+class FairField;
+class FairGeanePro;
 
-class DemoPatternRecoTask : public CbmTask {
+class DemoPatternRecoTask : public FairTask {
 public:
 
   // Constructors/Destructors ---------
@@ -48,7 +48,7 @@ public:
   //void SetPointBranchName(const TString& name) {_pointBranchName=name;}
   void AddHitBranch(unsigned int detId, const TString& m){_hitBranchNameMap[detId]=m;};
   void SetPersistence(Bool_t opt=kTRUE) {_persistence=opt;}
-  void SetField(CbmField* f){_field=f;}
+  void SetField(FairField* f){_field=f;}
   void UseGeane(bool f=true){_useGeane=f;}
 
   // Operations ----------------------
@@ -74,8 +74,8 @@ private:
 
   RecoHitFactory* _theRecoHitFactory;
  
-  CbmField* _field;
-  CbmGeanePro* _geanePro;
+  FairField* _field;
+  FairGeanePro* _geanePro;
 
   // Private Methods -----------------
 

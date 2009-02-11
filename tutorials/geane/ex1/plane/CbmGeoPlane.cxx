@@ -6,7 +6,7 @@
 /////////////////////////////////////////////////////////////
 
 #include "CbmGeoPlane.h"
-#include "CbmGeoNode.h"
+#include "FairGeoNode.h"
 
 ClassImp(CbmGeoPlane)
 

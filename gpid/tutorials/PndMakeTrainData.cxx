@@ -105,7 +105,7 @@ void PndMakeTrainData::FillNTuple(string const inf1,string const inf2, TNtuple &
 //  TClonesArray *ArrTofHit1 = new TClonesArray("PndTofHit");
 //  treco1->SetBranchAddress("TofHit",&ArrTofHit1);
 
-//  TClonesArray *ArrTrackPar1 = new TClonesArray("CbmTrackParH");
+//  TClonesArray *ArrTrackPar1 = new TClonesArray("FairTrackParH");
 //  treco1->SetBranchAddress("GeaneTrackPar",&ArrTrackPar1);
 
   TClonesArray *ArrPndPidCand1 = new TClonesArray("PndPidCand");
@@ -118,7 +118,7 @@ cout<<tsim1->GetEntries()<<" no of Events from "<<inf1<<"  "<<inf2<<endl;
      treco1->GetEntry(i);
  //    PndTofPoint *tof = (PndTofPoint *) ArrTof1->At(0);
      PndPidCand *track = (PndPidCand *) ArrPndPidCand1->At(0);
-//     CbmTrackParH *trackpar = (CbmTrackParH *) ArrTrackPar1->At(0);
+//     FairTrackParH *trackpar = (FairTrackParH *) ArrTrackPar1->At(0);
      
      Double_t de_tpc=0;
      Double_t dx_tpc=0;

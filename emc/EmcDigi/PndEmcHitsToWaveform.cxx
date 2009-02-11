@@ -24,9 +24,9 @@
 #include "PndEmcStructure.h"
 #include "PndEmcDigiPar.h"		
 
-#include "CbmRootManager.h"
-#include "CbmRunAna.h"
-#include "CbmRuntimeDb.h"
+#include "FairRootManager.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
 
 #include "TStopwatch.h"
 #include "TROOT.h"
@@ -58,7 +58,7 @@ PndEmcHitsToWaveform::~PndEmcHitsToWaveform()
 InitStatus PndEmcHitsToWaveform::Init()
 {
 	// Get RootManager
-	CbmRootManager* ioman = CbmRootManager::Instance();
+	FairRootManager* ioman = FairRootManager::Instance();
 	if ( ! ioman )
 	{
 		cout << "-E- PndEmcHitsToWaveform::Init: "
@@ -83,8 +83,8 @@ InitStatus PndEmcHitsToWaveform::Init()
 
 	// Geometry loading
 // 	TFile *infile = ioman->GetInFile();
-// 	TGeoManager *geoMan = (TGeoManager*) infile->Get("CBMGeom");
-//	TGeoManager *geoMan = (TGeoManager*) gROOT->FindObject("CBMGeom");
+// 	TGeoManager *geoMan = (TGeoManager*) infile->Get("FAIRGeom");
+//	TGeoManager *geoMan = (TGeoManager*) gROOT->FindObject("FAIRGeom");
 
 	fNBits=fDigiPar->GetNBits();
 	fDetectedPhotonsPerMeV=fDigiPar->GetDetectedPhotonsPerMeV();
@@ -216,10 +216,10 @@ void PndEmcHitsToWaveform::Exec(Option_t* opt)
 void PndEmcHitsToWaveform::SetParContainers() {
 
   // Get run and runtime database
-  CbmRun* run = CbmRun::Instance();
+  FairRun* run = FairRun::Instance();
   if ( ! run ) Fatal("SetParContainers", "No analysis run");
 
-  CbmRuntimeDb* db = run->GetRuntimeDb();
+  FairRuntimeDb* db = run->GetRuntimeDb();
   if ( ! db ) Fatal("SetParContainers", "No runtime database");
 
   // Get Emc digitisation parameter container

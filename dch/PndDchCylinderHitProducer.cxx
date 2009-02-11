@@ -5,11 +5,11 @@
 
 
 // Pnd includes
-#include "CbmRootManager.h"
-#include "CbmRunAna.h"
-#include "CbmRuntimeDb.h"
-#include "CbmRun.h"
-#include "CbmDetector.h"
+#include "FairRootManager.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
+#include "FairRun.h"
+#include "FairDetector.h"
 #include "PndDchStructure.h"
 #include "PndDchMapper.h"
 #include "PndDchDrifter.h"
@@ -36,7 +36,7 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndDchCylinderHitProducer::PndDchCylinderHitProducer() :
-  CbmTask("CylinderHit Producer for DCH") {
+  FairTask("CylinderHit Producer for DCH") {
 }
 // -------------------------------------------------------------------------
 
@@ -58,7 +58,7 @@ InitStatus PndDchCylinderHitProducer::Init() {
   std::cout << " INITIALIZATION OF PndDchCylinderHitProducer***************" << std::endl;
 
   // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   if( !ioman ) {
     std::cout << "-E- PndDchCylinderHitProducer::Init: "
 	      << "RootManager not instantiated!" << std::endl;
@@ -89,7 +89,7 @@ InitStatus PndDchCylinderHitProducer::Init() {
 
   // Geometry loading
   TFile *infile = ioman->GetInFile();
-  TGeoManager *geoMan = (TGeoManager*) infile->Get("CBMGeom");
+  TGeoManager *geoMan = (TGeoManager*) infile->Get("FAIRGeom");
   fDchStructure = PndDchStructure::Instance(geoMan);
 
   std::cout << "-I- PndDchCylinderHitProducer: Intialization successfull" << std::endl;

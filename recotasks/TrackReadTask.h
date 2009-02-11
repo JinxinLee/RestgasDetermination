@@ -19,7 +19,7 @@
 #define TRACKREADTASK_HH
 
 // Base Class Headers ----------------
-#include "CbmTask.h"
+#include "FairTask.h"
 
 // Collaborating Class Headers -------
 
@@ -28,7 +28,7 @@
 class TClonesArray;
 
 
-class TrackReadTask : public CbmTask {
+class TrackReadTask : public FairTask {
 public:
 
   // Constructors/Destructors ---------

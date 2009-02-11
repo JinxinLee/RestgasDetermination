@@ -51,7 +51,7 @@ timer.Start();
 // ------------------------------------------------------------------------
 
 // -----   Digitization run   -------------------------------------------
-CbmRunAna *fRun= new CbmRunAna();
+FairRunAna *fRun= new FairRunAna();
 fRun->SetInputFile(inFile);
 fRun->SetOutputFile(outFile);
 // ------------------------------------------------------------------------
@@ -60,11 +60,11 @@ fRun->SetOutputFile(outFile);
 /*
 TString allDigiFile = "./all.par";
 
-CbmRuntimeDb* rtdb = fRun->GetRuntimeDb();
-CbmParRootFileIo* parInput1 = new CbmParRootFileIo();
+FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+FairParRootFileIo* parInput1 = new FairParRootFileIo();
 parInput1->open(parFile.Data());
 	
-CbmParAsciiFileIo* parIo1 = new CbmParAsciiFileIo();
+FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
 parIo1->open(allDigiFile.Data(),"in");
         
 rtdb->setFirstInput(parInput1);
@@ -72,7 +72,7 @@ rtdb->setSecondInput(parIo1);
 fRun->LoadGeometry();
 */
 //Geane starting
-  CbmGeane *Geane = new CbmGeane(inFile);
+  FairGeane *Geane = new FairGeane(inFile);
 /*
   PndConstField *fMagField=new PndConstField();
   fMagField->SetField(0, 0 ,20. ); // values are in kG

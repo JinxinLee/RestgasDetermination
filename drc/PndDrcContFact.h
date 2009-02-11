@@ -1,18 +1,18 @@
 #ifndef PNDDRCCONTFACT_H
 #define PNDDRCCONTFACT_H
 
-#include "CbmContFact.h"
+#include "FairContFact.h"
 
-class CbmContainer;
+class FairContainer;
 
-class PndDrcContFact : public CbmContFact {
+class PndDrcContFact : public FairContFact {
 private:
   void setAllContainers();
 public:
   PndDrcContFact();
   ~PndDrcContFact() {}
-  CbmParSet* createContainer(CbmContainer*);
- /*  void  activateParIo(CbmParIo* io); */
+  FairParSet* createContainer(FairContainer*);
+ /*  void  activateParIo(FairParIo* io); */
   ClassDef( PndDrcContFact,0) // Factory for all DRC parameter containers
 };
 

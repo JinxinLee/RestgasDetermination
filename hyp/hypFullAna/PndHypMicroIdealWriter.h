@@ -13,7 +13,7 @@ Author: K.Goetzen, GSI, 06/2008
 #define PNDMICROIDEALWRITER_H 1
 
 
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "TH1F.h"
 #include "TFile.h"
 #include "TVector3.h"
@@ -25,7 +25,7 @@ class TClonesArray;
 class TObjectArray;
 
 
-class PndHypMicroIdealWriter : public CbmTask
+class PndHypMicroIdealWriter : public FairTask
 {
 
  public:

@@ -40,7 +40,7 @@
 #include "TMatrixT.h"
 #include "TMath.h"
 // Collaborating Class Headers --------
-#include "CbmMCPoint.h"
+#include "FairMCPoint.h"
 #include "LSLTrackRep.h"
 #include "GeaneTrackRep.h"
 #include "DetPlane.h"
@@ -138,7 +138,7 @@ PndHypRecoHit::PndHypRecoHit(PndHypHit* hit)
 //   : RecoHitIfc<PlanarHitPolicy>(fNparHitRep)
 // {
 //     std::cout<<" -I- PndHypRecoHit::PndHypRecoHit() called."<<std::endl;
-//   // get hit values from the CbmHit part of PndHypCluster
+//   // get hit values from the FairHit part of PndHypCluster
 //   _hitCoord[0][0] = hit.x();
 //   _hitCoord[1][0] = hit.y();
 //   _hitCoord[2][0] = hit.z(); // put to 0?
@@ -151,7 +151,7 @@ PndHypRecoHit::PndHypRecoHit(PndHypHit* hit)
 //   : RecoHitIfc<PlanarHitPolicy>(fNparHitRep)
 // {
 //     std::cout<<" -I- PndHypRecoHit::PndHypRecoHit() called."<<std::endl;
-//   // get hit values from the CbmHit part of PndHypCluster
+//   // get hit values from the FairHit part of PndHypCluster
 //   _hitCoord[0][0] = hit.x();
 //   _hitCoord[1][0] = hit.y();
 //   _hitCoord[2][0] = hit.z(); // put to 0?

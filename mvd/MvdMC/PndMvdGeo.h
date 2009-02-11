@@ -1,9 +1,9 @@
 #ifndef PNDMVDGEO_H
 #define PNDMVDGEO_H
 
-#include "CbmGeoSet.h"
+#include "FairGeoSet.h"
 
-class  PndMvdGeo : public CbmGeoSet
+class  PndMvdGeo : public FairGeoSet
 {
  public:
   PndMvdGeo();

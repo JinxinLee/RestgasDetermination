@@ -19,7 +19,7 @@
 #define TPCPATTERNRECOTASK_HH
 
 // Base Class Headers ----------------
-#include "CbmTask.h"
+#include "FairTask.h"
 
 // Collaborating Class Headers -------
 #include <ostream> // remove if you do not need streaming op
@@ -33,7 +33,7 @@ class PndTpcConfTrackFinder;
 class TH1I;
 class TH1D;
 
-class PndTpcPatternRecoTask : public CbmTask {
+class PndTpcPatternRecoTask : public FairTask {
 public:
 
   // Constructors/Destructors ---------

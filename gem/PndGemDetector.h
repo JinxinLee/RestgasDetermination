@@ -19,7 +19,7 @@
 //#include "TClonesArray.h"
 #include "TLorentzVector.h"
 #include "TVector3.h"
-#include "CbmDetector.h"
+#include "FairDetector.h"
 #include "TString.h"
 // #include "PndGemGeoHandling.h"
 
@@ -30,9 +30,9 @@
 class TClonesArray;
 class TGeoNode;
 class PndGemMCPoint;
-class CbmVolume; 
+class FairVolume; 
 
-class PndGemDetector : public CbmDetector
+class PndGemDetector : public FairDetector
 {
 
  public:
@@ -61,7 +61,7 @@ class PndGemDetector : public CbmDetector
    ** collection.
    *@param vol  Pointer to the active volume
    **/
-  virtual Bool_t  ProcessHits(CbmVolume* vol = 0);
+  virtual Bool_t  ProcessHits(FairVolume* vol = 0);
 
 
   /** Virtual method EndOfEvent

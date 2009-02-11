@@ -26,7 +26,7 @@ void QAmacro_mdt_1()
 
   gRandom->SetSeed(1235);	
   
-  CbmRunSim *fRun = new CbmRunSim();
+  FairRunSim *fRun = new FairRunSim();
   
   // Set the number of events
   Int_t nEvents = 20;
@@ -46,11 +46,11 @@ void QAmacro_mdt_1()
   // Create and add detectors
   //-------------------------
 
-  CbmModule *Cave= new PndCave("CAVE");
+  FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave); 
 
-  CbmModule *Magnet= new PndMagnet("MAGNET");
+  FairModule *Magnet= new PndMagnet("MAGNET");
   Magnet->SetGeometryFileName("FullSolenoid.root");
   fRun->AddModule(Magnet);
 
@@ -62,11 +62,11 @@ void QAmacro_mdt_1()
   // Create and Set Event Generator
   //-------------------------------
   
-  CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
+  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
   // Box Generator: 
- CbmBoxGenerator* boxGen = new CbmBoxGenerator(-211, 1); // 13 = muon; 1 = multipl. // 211 = pi+
+ FairBoxGenerator* boxGen = new FairBoxGenerator(-211, 1); // 13 = muon; 1 = multipl. // 211 = pi+
   // first number: PDG particle code: 2nd number: particle multiplicity per event
   
  boxGen->SetPRange(2.192840326,2.192840326); // GeV/c
@@ -96,7 +96,7 @@ void QAmacro_mdt_1()
   // Fill the Parameter containers for this run
   //-------------------------------------------
   
-   CbmRuntimeDb *rtdb=fRun->GetRuntimeDb();
+   FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
    Bool_t kParameterMerged=kTRUE;
   
   
@@ -105,7 +105,7 @@ void QAmacro_mdt_1()
 //    Par->setInputVersion(fRun->GetRunId(),1);
 //    Par->setChanged();
   
-   CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
+   FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
    output->open("simparams_piG4_test04_testi2.root");
    rtdb->setOutput(output);
    rtdb->saveOutput();

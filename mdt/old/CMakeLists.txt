@@ -43,6 +43,6 @@ SET(MUO_SRCS ${MUO_SRCS} ${MUO_DICTIONARY})
 
 add_library(Muo SHARED ${MUO_SRCS})
 target_link_libraries(Muo ${ROOT_LIBRARIES})
-set_target_properties(Muo PROPERTIES ${CBMROOT_LIBRARY_PROPERTIES})
+set_target_properties(Muo PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 ################ install ###################
 install(TARGETS Muo DESTINATION ${CMAKE_BINARY_DIR}/lib)

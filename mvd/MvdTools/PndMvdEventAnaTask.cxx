@@ -12,11 +12,11 @@
 
 
 // framework includes
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "PndMvdEventAnaTask.h"
-#include "CbmRun.h"
-#include "CbmRuntimeDb.h"
-#include "CbmHit.h"
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
+#include "FairHit.h"
 #include "CbmMCTrack.h"
 // PndMvd includes
 #include "PndMvdMCPoint.h"
@@ -31,7 +31,7 @@
 
 
 // -----   Default constructor   -------------------------------------------
-PndMvdEventAnaTask::PndMvdEventAnaTask() : CbmTask("Event Display task for PANDA PndMvd"),
+PndMvdEventAnaTask::PndMvdEventAnaTask() : FairTask("Event Display task for PANDA PndMvd"),
 	fPrintTrack(true), fPrintMCHit(true), fPrintCluster(true), fPrintPixDigis(true), fPrintPixHit(true),
 	fPrintStripCluster(true), fPrintStripDigis(true), fPrintStripHit(true), fPrintTrackMatch(true), fPrintGhosts(true),
 	fNTracks(0), fNPossibleTracks(0), fNCompleteTracks(0), fNPartTracks(0), fNNotFoundPossibleTracks(0), fNNotFoundTracks(0),
@@ -50,7 +50,7 @@ PndMvdEventAnaTask::~PndMvdEventAnaTask()
 InitStatus PndMvdEventAnaTask::Init()
 {
   // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   if ( !ioman){
 		std::cout << "-E- PndMvdEventAnaTask::Init: "<< "RootManager not instantiated!" << std::endl;
 		return kFATAL;
@@ -149,8 +149,8 @@ InitStatus PndMvdEventAnaTask::Init()
 void PndMvdEventAnaTask::SetParContainers()
 {
   // Get Base Container
-  CbmRun* ana = CbmRun::Instance();
-  CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+  FairRun* ana = FairRun::Instance();
+  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
 
 }
 

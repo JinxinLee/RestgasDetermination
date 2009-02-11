@@ -1,14 +1,14 @@
 #ifndef PNDMVDRIEMANNTRACKFINDERTASK_H_
 #define PNDMVDRIEMANNTRACKFINDERTASK_H_
 
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "PndMvdHit.h"
 
 #include "TString.h"
 
 
 
-class PndMvdRiemannTrackFinderTask : public CbmTask
+class PndMvdRiemannTrackFinderTask : public FairTask
 {
 public:
 	PndMvdRiemannTrackFinderTask();

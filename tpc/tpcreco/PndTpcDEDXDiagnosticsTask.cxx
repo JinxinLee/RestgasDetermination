@@ -6,7 +6,7 @@
 #include "TVector3.h"
 #include "TClonesArray.h"
 
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 
 #include "PndTpcCluster.h"
 #include "Track.h"
@@ -27,7 +27,7 @@ PndTpcDEDXDiagnosticsTask::PndTpcDEDXDiagnosticsTask(): _persistence(true)
 InitStatus PndTpcDEDXDiagnosticsTask::Init()
 {
 	//Get ROOT Manager
-	CbmRootManager* ioman= CbmRootManager::Instance();
+	FairRootManager* ioman= FairRootManager::Instance();
 	if(ioman==0)
 	{
 		Error("TrackDEdxTask::Init","RootManager not instantiated!");

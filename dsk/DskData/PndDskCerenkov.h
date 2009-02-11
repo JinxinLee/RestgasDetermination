@@ -17,16 +17,16 @@
 #ifndef PNDDSKCERENKOV_H
 #define PNDDSKCERENKOV_H
 
-#include "CbmMCPoint.h"
+#include "FairMCPoint.h"
 #include "TVector3.h"
 
 // class PndDskCerenkov : public TObject
-class PndDskCerenkov : public CbmMCPoint
+class PndDskCerenkov : public FairMCPoint
 {
 
 private:
   // information, that we want to store in root file
-  // which is *not* already handled by CbmMCPoint:
+  // which is *not* already handled by FairMCPoint:
   /// Detector number that finally registered the photon.
   /// Starting with 1 at top left detector, clockwise. 0 is not hit any detector
   Int_t    fDetNumber;

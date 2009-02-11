@@ -1,14 +1,14 @@
 #include "PndTutAccessRTDBTask.h"
 
-#include "CbmRuntimeDb.h"
-#include "CbmRunAna.h"
+#include "FairRuntimeDb.h"
+#include "FairRunAna.h"
 
 ClassImp(PndTutAccessRTDBTask);
 
 void PndTutAccessRTDBTask::SetParContainers()
 {
-  CbmRunAna* ana = CbmRunAna::Instance();
-  CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+  FairRunAna* ana = FairRunAna::Instance();
+  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
   fTutParDef = (PndTutPar*)(rtdb->getContainer("TUTParDefault"));
   fTutParAlt = (PndTutPar*)(rtdb->getContainer("TUTParAlternative"));
 }

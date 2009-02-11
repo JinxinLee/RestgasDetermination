@@ -1,7 +1,7 @@
 #ifndef PNDGEOHITLIST_H
 #define PNDGEOHITLIST_H
 
-#include "CbmHit.h"
+#include "FairHit.h"
 
 #include "TGeoManager.h"
 #include "TGeoNode.h"
@@ -21,7 +21,7 @@ public:
 	virtual ~PndGeoHitList();
 	
 	void CreateNewGroup(TString groupName, TString topNodeName, TGeoVolume* baseVolume);
-	void AddHit(CbmHit* hit, Bool_t vis = kTRUE);
+	void AddHit(FairHit* hit, Bool_t vis = kTRUE);
 	void AddHit(Double_t x, Double_t y, Double_t z, Bool_t vis = kTRUE);
 	void AddHit(TGeoMatrix* mat, Bool_t vis = kTRUE);
 	void AddHits(TClonesArray* hitList, Bool_t vis = kTRUE);

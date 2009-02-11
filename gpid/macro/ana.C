@@ -29,8 +29,8 @@ de/dx from mvd and tpc of two particle types
 #include <memory>
 #include "TSystem.h"
 #include "CbmMCTrack.h"
-#include "CbmMCPoint.h"
-#include "CbmTrackParH.h"
+#include "FairMCPoint.h"
+#include "FairTrackParH.h"
 #include "TNtuple.h"
 #include "TFile.h"
 #include "PndTrack.h"
@@ -70,7 +70,7 @@ void ana()
  TClonesArray *ArrTofHit = new TClonesArray("PndTofHit");
  treco->SetBranchAddress("TofHit",&ArrTofHit);
 
- TClonesArray *ArrTrackPar = new TClonesArray("CbmTrackParH");
+ TClonesArray *ArrTrackPar = new TClonesArray("FairTrackParH");
  treco->SetBranchAddress("GeaneTrackPar",&ArrTrackPar);
 
  TClonesArray *ArrPndTrack = new TClonesArray("PndTrack");
@@ -108,7 +108,7 @@ cout<<" "<<ArrMCTrack->GetEntriesFast()
      PndTofPoint *tof = (PndTofPoint *) ArrTof->At(0);
      PndTofHit *tofHit = (PndTofHit *) ArrTofHit->At(0);
      PndTrack *track = (PndTrack *) ArrPndTrack->At(0);
-     CbmTrackParH *trackpar = (CbmTrackParH *) ArrTrackPar->At(0);
+     FairTrackParH *trackpar = (FairTrackParH *) ArrTrackPar->At(0);
      Double_t de_tpc=0;
      Double_t dx_tpc=0;
      for (Int_t j = 0; j < ArrTpc->GetEntriesFast(); j++ )
@@ -192,7 +192,7 @@ pvsmvdDEdx0->Fill(de_mvd/dx_mvd*1000000);
  TClonesArray *ArrTofHit1 = new TClonesArray("PndTofHit");
  treco1->SetBranchAddress("TofHit",&ArrTofHit1);
 
- TClonesArray *ArrTrackPar1 = new TClonesArray("CbmTrackParH");
+ TClonesArray *ArrTrackPar1 = new TClonesArray("FairTrackParH");
  treco1->SetBranchAddress("GeaneTrackPar",&ArrTrackPar1);
 
  TClonesArray *ArrPndTrack1 = new TClonesArray("PndTrack");
@@ -207,7 +207,7 @@ pvsmvdDEdx0->Fill(de_mvd/dx_mvd*1000000);
      PndTofPoint *tof = (PndTofPoint *) ArrTof1->At(0);
      PndTofHit *tofHit = (PndTofHit *) ArrTofHit1->At(0);
      PndTrack *track = (PndTrack *) ArrPndTrack1->At(0);
-     CbmTrackParH *trackpar = (CbmTrackParH *) ArrTrackPar1->At(0);
+     FairTrackParH *trackpar = (FairTrackParH *) ArrTrackPar1->At(0);
      
      Double_t de_tpc=0;
      Double_t dx_tpc=0;

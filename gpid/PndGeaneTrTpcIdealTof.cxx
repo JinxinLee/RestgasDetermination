@@ -3,7 +3,7 @@
 // Adapted for EMC, JGM, 27/03/08
 
 #include "TClonesArray.h"
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "PndGeaneTrTpcIdealTof.h"
 #include "TGeant3TGeo.h"
 #include "TGeant3.h"
@@ -12,7 +12,7 @@
 #include "TTree.h"
 #include "TDatabasePDG.h"
 
-#include "CbmTrackParH.h"
+#include "FairTrackParH.h"
 #include "CbmMCTrack.h"
 #include <iostream>
 
@@ -23,7 +23,7 @@ using namespace std;
 
 // -----   Default constructor   -------------------------------------------
 PndGeaneTrTpcIdealTof::PndGeaneTrTpcIdealTof() :
-  CbmTask("PndGeaneTrTpcIdealTof") { }
+  FairTask("PndGeaneTrTpcIdealTof") { }
 // -------------------------------------------------------------------------
 
 // -----   Destructor   ----------------------------------------------------
@@ -47,7 +47,7 @@ void PndGeaneTrTpcIdealTof::destroy()
 InitStatus PndGeaneTrTpcIdealTof::Init() {
   cout<<"-I- PndGeaneTrTpcIdealTof"<<endl;
   // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   if (!ioman){
     cout << "-E- PndGeaneTrTpcIdealTof::Init: "
 	 << "RootManager not instantised!" << endl;
@@ -84,20 +84,20 @@ InitStatus PndGeaneTrTpcIdealTof::Init() {
     return kERROR;
   }
  
-  fTrackParGeane = new TClonesArray("CbmTrackParH");
+  fTrackParGeane = new TClonesArray("FairTrackParH");
   ioman->Register("GeaneTrackPar","Geane", fTrackParGeane, kTRUE);
   
-  fTrackParIni = new TClonesArray("CbmTrackParH");
+  fTrackParIni = new TClonesArray("FairTrackParH");
   ioman->Register("GeaneTrackIni","Geane", fTrackParIni, kTRUE);
   
   fPndTrackArr = new TClonesArray("PndPidCand");
   ioman->Register("PndPidCand","Geane", fPndTrackArr, kTRUE);
-  //  fTrackParFinal = new TClonesArray("CbmTrackParH");
+  //  fTrackParFinal = new TClonesArray("FairTrackParH");
   //  ioman->Register("GeaneTrackFinal","Geane", fTrackParFinal, kTRUE);
   
   // Create and register output array
-  fGeane = new CbmGeane(); 
-  fPro = new CbmGeanePro();
+  fGeane = new FairGeane(); 
+  fPro = new FairGeanePro();
   fPro->PropagateToVolume("tofB01",0,1);
   
   return kSUCCESS;
@@ -146,14 +146,14 @@ CbmMCTrack* mcstack;
      TClonesArray& clref1 = *fTrackParIni;
      Int_t size1 = clref1.GetEntriesFast();
      // cout<<"~~~~~~~~~~~before~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"<<PDGCode<<endl;
-     CbmTrackParH *fStart= new (clref1[size1]) CbmTrackParH(StartPos, StartMom, 
+     FairTrackParH *fStart= new (clref1[size1]) FairTrackParH(StartPos, StartMom, 
 							    StartPosErr, StartMomErr,
 							    fCharge);
      // cout<<"~~~~~~~~~~~after~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"<<endl; 
      
      TClonesArray& clref = *fTrackParGeane;
      Int_t size = clref.GetEntriesFast();
-     CbmTrackParH *fRes=	new(clref[size]) CbmTrackParH();
+     FairTrackParH *fRes=	new(clref[size]) FairTrackParH();
      
      TClonesArray& clref2 = *fPndTrackArr;
      Int_t size2 = clref2.GetEntriesFast();

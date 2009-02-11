@@ -1,9 +1,9 @@
 #ifndef CBMGEOPlane_H
 #define CBMGEOPlane_H
 
-#include "CbmGeoSet.h"
+#include "FairGeoSet.h"
 
-class  CbmGeoPlane : public CbmGeoSet {
+class  CbmGeoPlane : public FairGeoSet {
 public:
   char modName[10];  // name of module
   char eleName[10];  // substring for elements in module

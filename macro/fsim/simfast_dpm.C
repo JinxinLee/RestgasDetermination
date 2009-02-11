@@ -44,13 +44,13 @@ void simfast_dpm(double mom, int mode=0,int soff=0,int nevts=100,TString outfile
   sprintf(tmp,"dpm%d_%6.4f_%dk.fast.root",mode,M,nevts/1000);
   if (outfile=="") outfile=TString(tmp);
 
-  CbmRunSim *fRun = new CbmRunSim();
+  FairRunSim *fRun = new FairRunSim();
   fRun->SetOutputFile(outfile.Data());
 
   // Create and Set Event Generator
   //-------------------------------
 
-  CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
+  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
   //PndDpmGenerator* dpmGen = new PndDpmGenerator(infile.Data());

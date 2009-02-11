@@ -25,24 +25,24 @@
 #include <iostream>
 
 // Collaborating Class Headers --------
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "TClonesArray.h"
 #include "Track.h"
 #include "TrackCand.h"
-#include "CbmMCPoint.h"
+#include "FairMCPoint.h"
 #include "CbmMCTrack.h"
 #include "LSLTrackRep.h"
 #include "GeaneTrackRep.h"
 #include "Kalman.h"
 #include "FitterExceptions.h"
-#include "CbmGeanePro.h"
-#include "CbmTrackParP.h"
+#include "FairGeanePro.h"
+#include "FairTrackParP.h"
 #include "TRandom.h"
 
 // Class Member definitions -----------
 
 DemoPatternRecoTask::DemoPatternRecoTask()
-  : CbmTask("Ideal Pattern Reco"), _persistence(kFALSE), _useGeane(kFALSE)
+  : FairTask("Ideal Pattern Reco"), _persistence(kFALSE), _useGeane(kFALSE)
 {
 }
 
@@ -55,7 +55,7 @@ InitStatus
 DemoPatternRecoTask::Init()
 {
   //Get ROOT Manager
-  CbmRootManager* ioman= CbmRootManager::Instance();
+  FairRootManager* ioman= FairRootManager::Instance();
 
   if(ioman==0)
     {
@@ -90,7 +90,7 @@ DemoPatternRecoTask::Init()
  
   
   // GeanePro will get Geometry and BField from the Run
-  _geanePro=new CbmGeanePro();
+  _geanePro=new FairGeanePro();
   
   return kSUCCESS;
 }
@@ -114,7 +114,7 @@ DemoPatternRecoTask::Exec(Option_t* opt)
 	 //loop over points
 	 Int_t np=pointArray->GetEntriesFast();
 	 for(Int_t ip=0; ip<np; ++ip){
-	   CbmMCPoint* point=(CbmMCPoint*)pointArray->At(ip);
+	   FairMCPoint* point=(FairMCPoint*)pointArray->At(ip);
 	   unsigned int id=point->GetTrackID();
 	   // cut on insane ids
 	   if(id>100000)continue;

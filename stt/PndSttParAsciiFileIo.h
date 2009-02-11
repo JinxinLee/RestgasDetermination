@@ -5,16 +5,16 @@
 
 #include "TObject.h"
 #include "TArrayI.h"
-#include "CbmDetParAsciiFileIo.h"
+#include "FairDetParAsciiFileIo.h"
 
-class CbmParSet;
+class FairParSet;
 
-class PndSttParAsciiFileIo : public CbmDetParAsciiFileIo {
+class PndSttParAsciiFileIo : public FairDetParAsciiFileIo {
 public:
   PndSttParAsciiFileIo(fstream*);
   ~PndSttParAsciiFileIo() {}
-  Bool_t init(CbmParSet*);
-  Int_t write(CbmParSet*);
+  Bool_t init(FairParSet*);
+  Int_t write(FairParSet*);
   template<class T> Bool_t read(T*, Int_t*, Bool_t needsClear=kFALSE);
   template<class T> Int_t writeFile2(T*);
   ClassDef(PndSttParAsciiFileIo,0) // Class for STT parameter I/O from Ascii files

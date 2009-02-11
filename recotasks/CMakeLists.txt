@@ -35,7 +35,7 @@ ${ROOT_LIBRARY_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 set(RECOTASKS_SRCS
-CbmFieldAdaptor.cxx 
+PndFieldAdaptor.cxx 
 demo/DemoRecoHit.cxx 
 demo/DemoSPHit.cxx 
 demo/DemoPatternRecoTask.cxx 
@@ -69,6 +69,6 @@ SET(RECOTASKS_SRCS ${RECOTASKS_SRCS} ${RECOTASKS_DICTIONARY})
 
 add_library(recotasks SHARED ${RECOTASKS_SRCS})
 target_link_libraries(recotasks ${ROOT_LIBRARIES})
-set_target_properties(recotasks PROPERTIES ${CBMROOT_LIBRARY_PROPERTIES})
+set_target_properties(recotasks PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 ################ install ###################
 install(TARGETS recotasks DESTINATION ${CMAKE_BINARY_DIR}/lib)

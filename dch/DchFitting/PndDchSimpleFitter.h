@@ -17,7 +17,7 @@
 #define PNDDCHSIMPLEFITTER_H
 
 // Pnd includes
-#include "CbmTask.h"
+#include "FairTask.h"
 // ROOT includes
 #include "TVector3.h"
 
@@ -25,7 +25,7 @@ class TClonesArray;
 class TH1F;
 class TString;
 
-class PndDchSimpleFitter : public CbmTask {
+class PndDchSimpleFitter : public FairTask {
   
  public:
   

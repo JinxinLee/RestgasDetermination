@@ -19,7 +19,7 @@
   //  gSystem->Load("libgenfit");
 
 
-  CbmRunSim *fRun = new CbmRunSim();
+  FairRunSim *fRun = new FairRunSim();
 
   fRun->SetName("TGeant4");
   
@@ -32,12 +32,12 @@
   // Create and add detectors
   //-------------------------
 
-  CbmModule *Cave= new CbmCave("CAVE");
+  FairModule *Cave= new CbmCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave);
 
 
-  CbmDetector *PndTpc = new PndTpcDetector("TPC", kTRUE);
+  FairDetector *PndTpc = new PndTpcDetector("TPC", kTRUE);
   PndTpc->SetGeometryFileName("tpc.geo");
   fRun->AddModule(PndTpc);
   
@@ -45,7 +45,7 @@
  // Create and Set Event Generator
  //-------------------------------
 
-  CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
+  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
 
@@ -55,7 +55,7 @@
 
 
  // Box Generator
- // CbmBoxGenerator* boxGen = new CbmBoxGenerator(211, 1); // 211 = PION; 1 = multipl.
+ // FairBoxGenerator* boxGen = new FairBoxGenerator(211, 1); // 211 = PION; 1 = multipl.
  // boxGen->SetPRange(0.1, 1.0); // GeV/c //setPRange vs setPtRange
  // boxGen->SetPhiRange(0, 360); // Azimuth angle range [degree]
  // boxGen->SetThetaRange(0, 180); // Polar angle in lab system range [degree]
@@ -68,7 +68,7 @@
  // --------------------
  // 1- Reading the new field map in the old format
 
-   // CbmFieldMap *fMagField= new CbmFieldMap("FIELD.v04_pavel.map");
+   // FairFieldMap *fMagField= new FairFieldMap("FIELD.v04_pavel.map");
    // Constant Field
       PndConstField *fMagField=new PndConstField();
       fMagField->SetField(0, 0 ,20. ); // values are in kG
@@ -77,7 +77,7 @@
 
   // 2- Reading the new field map in the new format
 
-//  CbmField *fMagField= new CbmFieldMapSym3("FieldActive");
+//  FairField *fMagField= new FairFieldMapSym3("FieldActive");
   // Active Shielding
 
   fRun->SetField(fMagField);
@@ -94,7 +94,7 @@
 
 ;
  // Set cuts for storing the trajectpries
-//   CbmTrajFilter* trajFilter = CbmTrajFilter::Instance();
+//   FairTrajFilter* trajFilter = FairTrajFilter::Instance();
 //   trajFilter->SetStepSizeCut(0.01); // 1 cm
 //   trajFilter->SetVertexCut(-2000., -2000., 4., 2000., 2000., 100.);
 //   trajFilter->SetMomentumCutP(10e-3); // p_lab > 10 MeV

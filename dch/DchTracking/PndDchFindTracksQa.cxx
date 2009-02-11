@@ -9,9 +9,9 @@
 #include "PndDchTrackMatch.h"
 
 #include "CbmMCTrack.h"
-#include "CbmRootManager.h"
-#include "CbmRunAna.h"
-#include "CbmRuntimeDb.h"
+#include "FairRootManager.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
 
 // Root includes
 #include "TClonesArray.h"
@@ -30,7 +30,7 @@ using std::map;
 
 // -----   Default constructor   -------------------------------------------
 PndDchFindTracksQa::PndDchFindTracksQa()
-: CbmTask("PndDchFindTracksQa") {
+: FairTask("PndDchFindTracksQa") {
 	fQuota        = 0.7;
 	fVerbose      = 1;
 	fMinPoints    = 18;
@@ -42,7 +42,7 @@ PndDchFindTracksQa::PndDchFindTracksQa()
 
 // -----   Standard constructor   ------------------------------------------
 PndDchFindTracksQa::PndDchFindTracksQa(Double_t quota, Int_t minPoints, TString useHitOrDigi, Int_t verbose)
-: CbmTask("PndDchFindTracksQa") {
+: FairTask("PndDchFindTracksQa") {
 	fQuota        = quota;
 	fVerbose      = verbose;
 	fMinPoints    = minPoints;
@@ -65,19 +65,19 @@ PndDchFindTracksQa::~PndDchFindTracksQa() {
 // -----   Public method Init   --------------------------------------------
 InitStatus PndDchFindTracksQa::Init() {
 
-	// Get and check CbmRootManager
-	CbmRootManager* ioman = CbmRootManager::Instance();
+	// Get and check FairRootManager
+	FairRootManager* ioman = FairRootManager::Instance();
 	if( !ioman ) {
 		cout << "-E- "<< GetName() <<"::Init: "
 		<< "RootManager not instantised!" << endl;
 		return kFATAL;
 	}
 
-	// Get the pointer to the singleton CbmRunAna object
-	CbmRunAna* ana = CbmRunAna::Instance();
+	// Get the pointer to the singleton FairRunAna object
+	FairRunAna* ana = FairRunAna::Instance();
 	if(NULL == ana) {
 		cout << "-E- "<< GetName() <<"::Init :"
-		<<" no CbmRunAna object!" << endl;
+		<<" no FairRunAna object!" << endl;
 		return kFATAL;
 	}
 

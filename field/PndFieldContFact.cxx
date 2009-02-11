@@ -11,8 +11,8 @@
 #include "PndDipole3Par.h"
 #include "PndTransPar.h"
 #include "PndConstPar.h"
-#include "CbmParSet.h"
-#include "CbmRuntimeDb.h"
+#include "FairParSet.h"
+#include "FairRuntimeDb.h"
 #include "PndMultiFieldPar.h"
 #include <iostream>
 
@@ -25,7 +25,7 @@ PndFieldContFact::PndFieldContFact() {
   fName = "PndFieldContFact";
   fTitle = "Factory for field parameter containers";
   SetAllContainers();
-  CbmRuntimeDb::instance()->addContFactory(this);
+  FairRuntimeDb::instance()->addContFactory(this);
 }
 // -------------------------------------------------------------------------
 
@@ -37,12 +37,12 @@ PndFieldContFact::~PndFieldContFact() { }
 
 
 // -----   Create containers   ---------------------------------------------
-CbmParSet* PndFieldContFact::createContainer(CbmContainer* container) {
+FairParSet* PndFieldContFact::createContainer(FairContainer* container) {
 
 
   const char* name = container->GetName();
   cout << "create PndFieldPar container " << name << endl;
-  CbmParSet* set = NULL;
+  FairParSet* set = NULL;
   if ( strcmp(name, "PndFieldPar") == 0 ) {
     set = new PndFieldPar( container->getConcatName().Data(),
 			   container->GetTitle(),
@@ -104,68 +104,68 @@ return set;
 
 // -----   Set all containers (private)   ----------------------------------
 void PndFieldContFact::SetAllContainers() {
-  CbmContainer* con1 = new CbmContainer("PndFieldPar",
+  FairContainer* con1 = new FairContainer("PndFieldPar",
 					     "Field parameter container",
 					     "Default field");
   containers->Add(con1);
-  CbmContainer* con2 = new CbmContainer("PndSolenoidPar",
+  FairContainer* con2 = new FairContainer("PndSolenoidPar",
 					     "Solenoid Field parameter container",
 					     "Default field");
   containers->Add(con2);
  
-  CbmContainer* con21 = new CbmContainer("PndSolenoid1Par",
+  FairContainer* con21 = new FairContainer("PndSolenoid1Par",
 					     "Solenoid 1st region parameter container",
 					     "Default field");
   containers->Add(con21);
-  CbmContainer* con22 = new CbmContainer("PndSolenoid2Par",
+  FairContainer* con22 = new FairContainer("PndSolenoid2Par",
 					     "Solenoid 2nd region parameter container",
 					     "Default field");
   containers->Add(con22);					  
   
-  CbmContainer* con23 = new CbmContainer("PndSolenoid3Par",
+  FairContainer* con23 = new FairContainer("PndSolenoid3Par",
 					     "Solenoid 3rd region parameter container",
 					     "Default field");
   containers->Add(con23);
   
-  CbmContainer* con24 = new CbmContainer("PndSolenoid4Par",
+  FairContainer* con24 = new FairContainer("PndSolenoid4Par",
 					     "Solenoid 4th region parameter container",
 					     "Default field");					     					     					     					     
   containers->Add(con24);
   
-  CbmContainer* con3 = new CbmContainer("PndDipolePar",
+  FairContainer* con3 = new FairContainer("PndDipolePar",
 					     "Dipole Field parameter container",
 					     "Default field");
   containers->Add(con3);
   
   
-  CbmContainer* con31 = new CbmContainer("PndDipole1Par",
+  FairContainer* con31 = new FairContainer("PndDipole1Par",
 					     "Dipole Field parameter container",
 					     "Default field");
   containers->Add(con31);
   
-  CbmContainer* con32 = new CbmContainer("PndDipole2Par",
+  FairContainer* con32 = new FairContainer("PndDipole2Par",
 					     "Dipole Field parameter container",
 					     "Default field");
   containers->Add(con32);
   
  
-  CbmContainer* con33 = new CbmContainer("PndDipole3Par",
+  FairContainer* con33 = new FairContainer("PndDipole3Par",
 					     "Dipole Field parameter container",
 					     "Default field");
   containers->Add(con33);
   
     
-  CbmContainer* con4 = new CbmContainer("PndTransPar",
+  FairContainer* con4 = new FairContainer("PndTransPar",
 					     "Trans. Field parameter container",
 					     "Default field");
   containers->Add(con4);
 
-  CbmContainer* con5 = new CbmContainer("PndConstPar",
+  FairContainer* con5 = new FairContainer("PndConstPar",
 					     "Const Field parameter container",
 					     "Default field");
   containers->Add(con5);
 
-  CbmContainer* con6 = new CbmContainer("PndMultiFieldPar",
+  FairContainer* con6 = new FairContainer("PndMultiFieldPar",
 					     "Multiple Field parameter container",
 					     "Default field");
   containers->Add(con6);

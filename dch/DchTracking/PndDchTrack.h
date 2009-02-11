@@ -17,7 +17,7 @@
 #define PNDDCHTRACK_H 1
 
 // Pnd includes
-#include "CbmTrackParam.h"
+#include "FairTrackParam.h"
 
 // ROOT includes
 #include "TArrayI.h"
@@ -85,13 +85,13 @@ public:
 	Double_t GetChi2()                  const { return fChi2; }
 	Int_t    GetNDF()                   const { return fNDF; }
 	Double_t GetELoss()                 const { return fELoss;}
-	CbmTrackParam* GetParamFirst() { return &fParamFirst; }
-	CbmTrackParam* GetParamLast()  { return &fParamLast ; }
+	FairTrackParam* GetParamFirst() { return &fParamFirst; }
+	FairTrackParam* GetParamLast()  { return &fParamLast ; }
 
 
 	/** Modifiers  **/
-	void SetParamFirst(CbmTrackParam& par)    { fParamFirst = par;   }
-	void SetParamLast(CbmTrackParam& par)     { fParamLast  = par;   }
+	void SetParamFirst(FairTrackParam& par)    { fParamFirst = par;   }
+	void SetParamLast(FairTrackParam& par)     { fParamLast  = par;   }
 	void SetFlag(Int_t flag)                  { fFlag       = flag;  }
 	void SetChi2(Double_t chi2)               { fChi2       = chi2;  }
 	void SetNDF(Int_t ndf)                    { fNDF        = ndf;   }
@@ -119,8 +119,8 @@ private:
 	TArrayI		 fDchDigis;        ///< array of digis
 	
 	/** Track parameters at first and last fitted hit **/
-	CbmTrackParam fParamFirst;
-	CbmTrackParam fParamLast;
+	FairTrackParam fParamFirst;
+	FairTrackParam fParamLast;
 
 	/** Quality flag **/
 	Int_t fFlag;

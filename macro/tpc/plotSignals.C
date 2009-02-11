@@ -30,7 +30,7 @@ void plotSignals(){
 
 
   TFile* file = new TFile("/afs/e18/data/panda/MC/FAIRRoot/DPM3/sigSlice1/test1.sig.root");
-  //TGeoManager *geoMan = (TGeoManager*) file->Get("CBMGeom");
+  //TGeoManager *geoMan = (TGeoManager*) file->Get("FAIRGeom");
   
   TTree *t=(TTree*)file->Get("cbmsim") ;
   

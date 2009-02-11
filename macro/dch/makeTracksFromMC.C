@@ -44,7 +44,7 @@
   timer.Start();
     
   // -----   Reconstruction run
-  CbmRunAna *fRun= new CbmRunAna();
+  FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
   
@@ -78,7 +78,7 @@
 
  // ----- Prepare GEANE --------------------------------------------
   // this will load Geant3 and execute setup macros to initialize geometry:
-  CbmGeane *Geane = new CbmGeane(inFile);
+  FairGeane *Geane = new FairGeane(inFile);
   // Set the field(if any) to Geane
   Geane->SetField(fRun->GetField());
 

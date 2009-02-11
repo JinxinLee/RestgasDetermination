@@ -59,7 +59,7 @@ SET(MDT_SRCS ${MDT_SRCS} ${MDT_DICTIONARY})
 
 add_library(Mdt SHARED ${MDT_SRCS})
 target_link_libraries(Mdt ${ROOT_LIBRARIES})
-set_target_properties(Mdt PROPERTIES ${CBMROOT_LIBRARY_PROPERTIES})
+set_target_properties(Mdt PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 
 ################ install ###################
 install(TARGETS Mdt DESTINATION ${CMAKE_BINARY_DIR}/lib)

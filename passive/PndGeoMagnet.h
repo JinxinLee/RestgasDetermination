@@ -1,10 +1,10 @@
 #ifndef PNDGEOMAGNET_H
 #define PNDGEOMAGNET_H
 
-#include "CbmGeoSet.h"
+#include "FairGeoSet.h"
 #include "TString.h"
 
-class  PndGeoMagnet : public CbmGeoSet {
+class  PndGeoMagnet : public FairGeoSet {
 protected:
   char modName[2];  // name of module
   char eleName[2];  // substring for elements in module

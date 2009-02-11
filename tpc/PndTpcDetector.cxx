@@ -25,33 +25,33 @@
 
 // Collaborating Class Headers --------
 #include "TClonesArray.h"
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "PndTpcPoint.h"
 #include "TVirtualMC.h"
 #include "TLorentzVector.h"
 #include "PndTpcGeo.h"
-#include "CbmGeoLoader.h"
-#include "CbmGeoInterface.h"
+#include "FairGeoLoader.h"
+#include "FairGeoInterface.h"
 #include "TList.h"
-#include "CbmRun.h"
-#include "CbmRuntimeDb.h"
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
 #include "PndTpcGeoPar.h"
 #include "TObjArray.h"
-#include "CbmGeoNode.h"
-#include "CbmGeoVolume.h"
-#include "CbmVolume.h"
+#include "FairGeoNode.h"
+#include "FairGeoVolume.h"
+#include "FairVolume.h"
 #include "TParticle.h"
 #include "CbmStack.h"
 #include "TVirtualMC.h"
 
-#include "CbmGeoMedia.h"
+#include "FairGeoMedia.h"
 #include "TRandom.h"
 
 // Class Member definitions -----------
 
 
 PndTpcDetector::PndTpcDetector(const char * Name, Bool_t Active)
-  : CbmDetector(Name, Active),fAliMC(kFALSE)
+  : FairDetector(Name, Active),fAliMC(kFALSE)
 {
   fPndTpcPointCollection= new TClonesArray("PndTpcPoint");
 }
@@ -82,11 +82,11 @@ void PndTpcDetector::Register() {
 
     this collection will not be written to the file, it will exist only during the simulation. */
  
-   CbmRootManager::Instance()->Register("PndTpcPoint", "PndTpc", fPndTpcPointCollection, kTRUE);
+   FairRootManager::Instance()->Register("PndTpcPoint", "PndTpc", fPndTpcPointCollection, kTRUE);
 }
 
 Bool_t 
-PndTpcDetector::ProcessHits( CbmVolume *v)
+PndTpcDetector::ProcessHits( FairVolume *v)
 {
   Double_t q= gMC->TrackCharge();
   if(q==0)return kTRUE;
@@ -191,11 +191,11 @@ Float_t PndTpcDetector::AliTPCv3_InitDetector()
 	//
 	// Initialises the TPC after that it has been built
 	//
-	CbmGeoLoader*geoLoad = CbmGeoLoader::Instance();
-	CbmGeoInterface *geoFace = geoLoad->getGeoInterface();
-	CbmGeoMedia *Media =  geoFace->getMedia();
+	FairGeoLoader*geoLoad = FairGeoLoader::Instance();
+	FairGeoInterface *geoFace = geoLoad->getGeoInterface();
+	FairGeoMedia *Media =  geoFace->getMedia();
 	
-	CbmGeoMedium *TPCmixture  = Media->getMedium("TPCmixture");
+	FairGeoMedium *TPCmixture  = Media->getMedium("TPCmixture");
 	Int_t mediumId=TPCmixture->getMediumIndex();
 	std::cout << "mediumId: " << mediumId << std::endl;
 	gMC->Gstpar(mediumId,"LOSS",5);	//5 -> new geant3 option for ALICE TPC see gphys/gfluct.F
@@ -239,8 +239,8 @@ PndTpcDetector::ConstructGeometry() {
   std::cout<<" --- Building TPC Geometry ---"<<std::endl;
 
   
-  CbmGeoLoader*    geoLoad = CbmGeoLoader::Instance();
-  CbmGeoInterface* geoFace = geoLoad->getGeoInterface();
+  FairGeoLoader*    geoLoad = FairGeoLoader::Instance();
+  FairGeoInterface* geoFace = geoLoad->getGeoInterface();
   PndTpcGeo*       Geo  = new PndTpcGeo();
   Geo->setGeomFile(GetGeometryFileName());
   geoFace->addGeoModule(Geo);
@@ -252,19 +252,19 @@ PndTpcDetector::ConstructGeometry() {
   TList* volList = Geo->getListOfVolumes();
 
   // store geo parameter
-  CbmRun *fRun = CbmRun::Instance();
-  CbmRuntimeDb *rtdb= CbmRun::Instance()->GetRuntimeDb();
+  FairRun *fRun = FairRun::Instance();
+  FairRuntimeDb *rtdb= FairRun::Instance()->GetRuntimeDb();
   PndTpcGeoPar* par=(PndTpcGeoPar*)(rtdb->getContainer("PndTpcGeoPar"));
   TObjArray *fSensNodes = par->GetGeoSensitiveNodes();
   TObjArray *fPassNodes = par->GetGeoPassiveNodes();
 
   TListIter iter(volList);
-  CbmGeoNode* node   = NULL;
-  CbmGeoVolume *aVol=NULL;
+  FairGeoNode* node   = NULL;
+  FairGeoVolume *aVol=NULL;
   
   
-  while( (node = (CbmGeoNode*)iter.Next()) ) {
-      aVol = dynamic_cast<CbmGeoVolume*> ( node );
+  while( (node = (FairGeoNode*)iter.Next()) ) {
+      aVol = dynamic_cast<FairGeoVolume*> ( node );
        if ( node->isSensitive()  ) {
            fSensNodes->AddLast( aVol );
        }else{

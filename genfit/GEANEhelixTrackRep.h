@@ -4,7 +4,7 @@
 #include "TMatrixT.h"
 
 #include "AbsTrackRep.h"
-#include "CbmTrackParH.h"
+#include "FairTrackParH.h"
 
 class GEANEhelixTrackRep : public AbsTrackRep {
 
@@ -14,7 +14,7 @@ class GEANEhelixTrackRep : public AbsTrackRep {
   
  public:
   GEANEhelixTrackRep();
-  GEANEhelixTrackRep(const CbmTrackParH& par);
+  GEANEhelixTrackRep(const FairTrackParH& par);
   virtual ~GEANEhelixTrackRep();
 
   virtual AbsTrackRep* clone(){return new GEANEhelixTrackRep(*this);}

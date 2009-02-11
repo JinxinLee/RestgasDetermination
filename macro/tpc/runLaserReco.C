@@ -84,18 +84,18 @@ std::cout<<"ParamIn: "<<paramIn<<std::endl;
   // ------------------------------------------------------------------------
 
   // -----   Digitization run   -------------------------------------------
-  CbmRunAna *fRun= new CbmRunAna();
+  FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
   fRun->AddFriend(mcFile);
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
 
   // -----  Parameter database   --------------------------------------------
-  CbmRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  CbmParRootFileIo* parInput1 = new CbmParRootFileIo();
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open(paramIn.Data());
 
-  CbmParAsciiFileIo* parInput2 = new CbmParAsciiFileIo();
+  FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
   TString tpcDigiFile = gSystem->Getenv("VMCWORKDIR");
   tpcDigiFile += "/tpc/tpc.par";
   parInput2->open(tpcDigiFile.Data(),"in");
@@ -107,7 +107,7 @@ std::cout<<"ParamIn: "<<paramIn<<std::endl;
 
   rtdb->print();
 
-//   CbmParRootFileIo* parOutput1 = new CbmParRootFileIo(kTRUE);
+//   FairParRootFileIo* parOutput1 = new FairParRootFileIo(kTRUE);
 //   parOutput1->open(paramOut.Data());
 //   rtdb->setOutput(parOutput1);
 //   rtdb->saveOutput();

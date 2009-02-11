@@ -15,7 +15,7 @@ using std::cout;
 using std::endl;
 
 // -----   Default constructor   -------------------------------------------
-PndTofPoint::PndTofPoint() : CbmMCPoint() {
+PndTofPoint::PndTofPoint() : FairMCPoint() {
   fTrackID    = -1;
   fEventID    = -1;
   fXin          = fYin  = fZin =  0.;
@@ -50,7 +50,7 @@ PndTofPoint::PndTofPoint(Int_t trackID, Int_t evtID,
                          Double_t mass, 
 			 Int_t pdgCode,Double_t dist, 
 			 Double_t PLin, Double_t PLout)
- : CbmMCPoint(trackID, detID, posin, momin, tof, length, eLoss) {
+ : FairMCPoint(trackID, detID, posin, momin, tof, length, eLoss) {
   fTrackID    = trackID;
   fVolumeID = detID;  fEventID    = evtID;
   

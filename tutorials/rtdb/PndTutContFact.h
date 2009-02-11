@@ -1,16 +1,16 @@
 #ifndef PNDTUTCONTFACT_H
 #define PNDTUTCONTFACT_H
 
-#include "CbmContFact.h"
+#include "FairContFact.h"
 
-class CbmContainer;
-//class CbmParIo;
+class FairContainer;
+//class FairParIo;
 
-class PndTutContFact : public CbmContFact {
+class PndTutContFact : public FairContFact {
 public:
   PndTutContFact();
   ~PndTutContFact() {}
-  CbmParSet* createContainer(CbmContainer* c);
+  FairParSet* createContainer(FairContainer* c);
 private:
   void setAllContainers();
   

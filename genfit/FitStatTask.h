@@ -2,7 +2,7 @@
 #define FITSTATTASK_HH
 
 // Base Class Headers ----------------
-#include "CbmTask.h"
+#include "FairTask.h"
 
 // Collaborating Class Headers -------
 #include "statTree.h"
@@ -11,7 +11,7 @@
 class TClonesArray;
 
 
-class FitStatTask : public CbmTask {
+class FitStatTask : public FairTask {
 public:
 
   // Constructors/Destructors ---------

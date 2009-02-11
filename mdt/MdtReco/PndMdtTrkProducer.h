@@ -2,13 +2,13 @@
 #define PNDMDTTRKPRODUCER_H 1
 
 
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "PndMdtTrk.h"
 #include "PndMdtRecoPar.h"
 
 class TClonesArray;
 
-class PndMdtTrkProducer : public CbmTask
+class PndMdtTrkProducer : public FairTask
 {
 
  public:

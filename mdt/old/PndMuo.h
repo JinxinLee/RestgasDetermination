@@ -2,7 +2,7 @@
 #define PNDMUO_H
 
 
-#include "CbmDetector.h"
+#include "FairDetector.h"
 #include "PndGeoMuoPar.h"
 
 //#include "TClonesArray.h"
@@ -11,11 +11,11 @@
 
 class TClonesArray;
 class PndMuoPoint;
-class CbmVolume; 
+class FairVolume; 
 
 
 
-class PndMuo : public CbmDetector 
+class PndMuo : public FairDetector 
 {
 
  public:
@@ -48,7 +48,7 @@ class PndMuo : public CbmDetector
    ** them to the collections.
    *@param vol  Pointer to the active volume
    **/
-  virtual Bool_t ProcessHits(CbmVolume* vol = 0);
+  virtual Bool_t ProcessHits(FairVolume* vol = 0);
 
 
   /** Virtual method EndOfEvent

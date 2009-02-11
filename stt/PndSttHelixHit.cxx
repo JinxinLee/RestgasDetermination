@@ -22,7 +22,7 @@ PndSttHelixHit::PndSttHelixHit()
 PndSttHelixHit::PndSttHelixHit(Int_t detID, 
 			       TVector3& pos, TVector3& dpos,
 			       Int_t mcindex, Int_t hitindex, Double_t edep)
-  : CbmHit(detID, pos, dpos, mcindex) 
+  : FairHit(detID, pos, dpos, mcindex) 
 {
   fHitIndex = hitindex;
   fELoss = edep;
@@ -35,7 +35,7 @@ PndSttHelixHit::PndSttHelixHit(Int_t detID,
 			       TVector3& cpos, TVector3& dcpos, 
 			       Double_t isochrone,
 			       Double_t isochroneError, TVector3 wireDir)			        
- : CbmHit(detID, pos, dpos, mcindex) 
+ : FairHit(detID, pos, dpos, mcindex) 
 {
 
   fHitIndex = hitindex;
@@ -52,10 +52,10 @@ PndSttHelixHit::PndSttHelixHit(Int_t detID,
 // this copies the PndSttHit to the PndSttHelixHit
 void PndSttHelixHit::CopyHitToHelixHit(PndSttHit *aHit, Int_t hitindex)
 {
-//   CbmHit::SetPosition(TVector3(0,0,0));
-//   CbmHit::SetPositionError(TVector3(0,0,0));
-  CbmHit::SetDetectorID(aHit->GetDetectorID());
-  CbmHit::SetRefIndex(aHit->GetRefIndex());
+//   FairHit::SetPosition(TVector3(0,0,0));
+//   FairHit::SetPositionError(TVector3(0,0,0));
+  FairHit::SetDetectorID(aHit->GetDetectorID());
+  FairHit::SetRefIndex(aHit->GetRefIndex());
 
   fHitIndex = hitindex;
   fELoss = aHit->GetEnergyLoss();

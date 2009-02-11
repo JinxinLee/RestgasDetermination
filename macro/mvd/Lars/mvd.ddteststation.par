@@ -10,38 +10,38 @@
 #################################################################
 # threshold set to 5*sigmaNoise (noise rate ~ DPM signals rate)
 [MVDStripDigiParRect]
-top_pitch:d 0.0050
-bot_pitch:d 0.0050
-orient:d 1.570796327
-skew:d -1.570796327
-top_anchor_x:d -0.96
-top_anchor_y:d 0.96
-bot_anchor_x:d -0.96
-bot_anchor_y:d 0.96
-nr_fe_channels:i 128
-nr_fe_top:i 3
-nr_fe_bottom:i 0
-charge_threshold:d 5000
-charge_noise:d 1000
-sens_Type:s Rect
-fe_Type:s APV25
+top_pitch:Double_t 0.0050
+bot_pitch:Double_t 0.0050
+orient:Double_t 1.570796327
+skew:Double_t -1.570796327
+top_anchor_x:Double_t -0.96
+top_anchor_y:Double_t 0.96
+bot_anchor_x:Double_t -0.96
+bot_anchor_y:Double_t 0.96
+nr_fe_channels:Int_t 128
+nr_fe_top:Int_t 3
+nr_fe_bottom:Int_t 0
+charge_threshold:Double_t 5000
+charge_noise:Double_t 1000
+sens_Type:Text_t Rect
+fe_Type:Text_t APV25
 #################################################################
 # Digitization parameters for TRAPEZOID Mvd strip sensors
 #################################################################
 # threshold set to 5*sigmaNoise (noise rate ~ DPM signals rate)
 [MVDStripDigiParTrap]
-top_pitch:d 0.0073
-bot_pitch:d 0.0073
-orient:d 1.439896633
-skew:d 0.261799388
-top_anchor_x:d -1.944
-top_anchor_y:d 3.28861
-bot_anchor_x:d -1.944
-bot_anchor_y:d 3.28861
-nr_fe_channels:i 128
-nr_fe_top:i 7
-nr_fe_bottom:i 9
-charge_threshold:d 5000
-charge_noise:d 1000
-sens_Type:s Trap
-fe_Type:s APV25
+top_pitch:Double_t 0.0073
+bot_pitch:Double_t 0.0073
+orient:Double_t 1.439896633
+skew:Double_t 0.261799388
+top_anchor_x:Double_t -1.944
+top_anchor_y:Double_t 3.28861
+bot_anchor_x:Double_t -1.944
+bot_anchor_y:Double_t 3.28861
+nr_fe_channels:Int_t 128
+nr_fe_top:Int_t 7
+nr_fe_bottom:Int_t 9
+charge_threshold:Double_t 5000
+charge_noise:Double_t 1000
+sens_Type:Text_t Trap
+fe_Type:Text_t APV25

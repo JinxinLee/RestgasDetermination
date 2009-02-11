@@ -10,16 +10,16 @@
 //#include "TClonesArray.h"
 #include "TVector3.h"
 #include "TLorentzVector.h"
-#include "CbmDetector.h"
+#include "FairDetector.h"
 #include "PndGeoTofPar.h"
 
 class TClonesArray;
 class PndTofPoint;
 class PndTofSciFPoint;
 
-class CbmVolume; 
+class FairVolume; 
 
-class PndTof : public CbmDetector 
+class PndTof : public FairDetector 
 {
 
  public:
@@ -52,7 +52,7 @@ class PndTof : public CbmDetector
    ** them to the collections.
    *@param vol  Pointer to the active volume
    **/
-  virtual Bool_t ProcessHits(CbmVolume* vol = 0);
+  virtual Bool_t ProcessHits(FairVolume* vol = 0);
 
 
   /** Virtual method EndOfEvent

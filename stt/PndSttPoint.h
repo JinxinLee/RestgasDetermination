@@ -19,10 +19,10 @@
 
 #include "TObject.h"
 #include "TVector3.h"
-#include "CbmMCPoint.h"
+#include "FairMCPoint.h"
 
 
-class PndSttPoint : public CbmMCPoint 
+class PndSttPoint : public FairMCPoint 
 {
 
  public:

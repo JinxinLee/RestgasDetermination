@@ -12,7 +12,7 @@
 #include "TVector3.h"
 #include "TParticle.h"
 #include "PndUrqmdSmmGenerator.h"
-#include "CbmPrimaryGenerator.h"
+#include "FairPrimaryGenerator.h"
 
 
 using namespace std;
@@ -47,7 +47,7 @@ PndUrqmdSmmGenerator::~PndUrqmdSmmGenerator() {
 
 
 // -----   Public method ReadEvent   --------------------------------------
-Bool_t PndUrqmdSmmGenerator::ReadEvent(CbmPrimaryGenerator* primGen) {
+Bool_t PndUrqmdSmmGenerator::ReadEvent(FairPrimaryGenerator* primGen) {
 
   // Check for input file
   if ( ! fInputFile ) {

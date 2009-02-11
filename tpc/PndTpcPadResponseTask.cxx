@@ -24,9 +24,9 @@
 
 
 // Collaborating Class Headers --------
-#include "CbmRootManager.h"
-#include "CbmRunAna.h"
-#include "CbmRuntimeDb.h"
+#include "FairRootManager.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
 #include "PndTpcDigiPar.h"
 #include "TClonesArray.h"
 #include "TRandom.h"
@@ -43,7 +43,7 @@
 
 
 PndTpcPadResponseTask::PndTpcPadResponseTask()
-  : CbmTask("TPC PadResponse"), _persistence(kFALSE), _minSignalAmp(0),
+  : FairTask("TPC PadResponse"), _persistence(kFALSE), _minSignalAmp(0),
     _rmin(15.5), _rmax(41.5), _selected(false), _initialized(kFALSE), _qa(NULL)
     //TODO: parameter management
 {
@@ -61,10 +61,10 @@ PndTpcPadResponseTask::SetParContainers() {
   std::cout.flush();
 
   // Get run and runtime database
-  CbmRun* run = CbmRun::Instance();
+  FairRun* run = FairRun::Instance();
   if ( ! run ) Fatal("SetParContainers", "No analysis run");
 
-  CbmRuntimeDb* db = run->GetRuntimeDb();
+  FairRuntimeDb* db = run->GetRuntimeDb();
   if ( ! db ) Fatal("SetParContainers", "No runtime database");
 
   // Get PndTpc digitisation parameter container
@@ -81,7 +81,7 @@ PndTpcPadResponseTask::Init()
   _initialized=false;
 
   //Get ROOT Manager
-  CbmRootManager* ioman= CbmRootManager::Instance();
+  FairRootManager* ioman= FairRootManager::Instance();
 
   if(ioman==0)
     {
@@ -208,7 +208,7 @@ void PndTpcPadResponseTask::FillHistograms(double xAv, double yAv,
 void PndTpcPadResponseTask::WriteHistograms() {
 
   if(!_initialized || _qa==NULL)return;
-  TFile* file = CbmRootManager::Instance()->GetOutFile();
+  TFile* file = FairRootManager::Instance()->GetOutFile();
   file->mkdir("PndTpcPadResponse");
   file->cd("PndTpcPadResponse");
 

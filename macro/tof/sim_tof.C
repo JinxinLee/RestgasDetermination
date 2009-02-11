@@ -25,7 +25,7 @@
   gSystem->Load("libDpmEvtGen");
   gSystem->Load("libPGen");
   //gSystem->Load("libPGen");
-  CbmRunSim *fRun = new CbmRunSim();
+  FairRunSim *fRun = new FairRunSim();
   
   
   TString inFile3= "/d/panda02/urqmd_smm/pbarC_3_GeV.root";
@@ -48,28 +48,28 @@
   // Create and add detectors
   //-------------------------
 
-  CbmModule *Cave= new PndCave("CAVE");
+  FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("cave.geo");
   fRun->AddModule(Cave); 
   /*
-   CbmModule *Magnet= new CbmMagnet("MAGNET");
+   FairModule *Magnet= new CbmMagnet("MAGNET");
   Magnet->SetGeometryFileName("magnet.geo");
   fRun->AddModule(Magnet);
   */
   
-  CbmDetector *Tof = new PndTof("TOF",kTRUE);
+  FairDetector *Tof = new PndTof("TOF",kTRUE);
   Tof->SetGeometryFileName("tofbarrel.geo");  //Tof->SetGeometryFileName("tofSciF.geo"); 
   fRun->AddModule(Tof);
  // 
   
-  /*CbmDetector *Tpc = new PndTpcDetector("TPC", kTRUE);
+  /*FairDetector *Tpc = new PndTpcDetector("TPC", kTRUE);
   Tpc->SetGeometryFileName("tpc.geo");
   fRun->AddModule(Tpc);
 
   */
 
 
- /* CbmDetector *Hyp = new PndHyp("HYP",kTRUE);
+ /* FairDetector *Hyp = new PndHyp("HYP",kTRUE);
   Hyp->SetGeometryFileName("HypST_new.geo"); 
   fRun->AddModule(Hyp);
 */
@@ -80,7 +80,7 @@
   // Create and Set Event Generator
   //-------------------------------
   
-  CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
+  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
    
@@ -111,7 +111,7 @@
        {
        randx= gRandom->Gaus(0,1);
        randy= gRandom->Gaus(0,1);
-       CbmParticleGenerator* partGen = new CbmParticleGenerator(-321, 1, 0.2*randx, 0.4*randy,0.5,0,0,-76);
+       FairParticleGenerator* partGen = new FairParticleGenerator(-321, 1, 0.2*randx, 0.4*randy,0.5,0,0,-76);
        primGen->AddGenerator(partGen);
        }*/
     
@@ -135,7 +135,7 @@
 
        fRun->SetStoreTraj(kTRUE); // to store particle trajectories 
     
-       /*CbmTrajFilter* trajFilter = CbmTrajFilter::Instance();
+       /*FairTrajFilter* trajFilter = FairTrajFilter::Instance();
 	 trajFilter->SetStepSizeCut(0.001); // 1 cm
 	 //  trajFilter->SetVertexCut(-2000., -2000., 4., 2000., 2000., 100.);
 	 // trajFilter->SetMomentumCutP(10e-3); // p_lab > 10 MeV
@@ -149,9 +149,9 @@
   // Fill the Parameter containers for this run
   //-------------------------------------------
   
-  CbmRuntimeDb *rtdb=fRun->GetRuntimeDb();
+  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
   Bool_t kParameterMerged=kTRUE;
-  CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   output->open("simparams.root");
   rtdb->setOutput(output);
   rtdb->saveOutput();

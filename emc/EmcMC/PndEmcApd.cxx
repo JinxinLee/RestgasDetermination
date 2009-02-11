@@ -12,15 +12,15 @@
 #include "PndEmcApdPoint.h"
 #include "PndEmcReader.h"
 
-#include "CbmGeoInterface.h"
-#include "CbmGeoLoader.h"
-#include "CbmGeoRootBuilder.h"
-#include "CbmRootManager.h"
-#include "CbmVolume.h"
-#include "CbmGeoMedia.h"
-#include "CbmGeoG3Builder.h"
-#include "CbmRuntimeDb.h"
-#include "CbmRun.h"
+#include "FairGeoInterface.h"
+#include "FairGeoLoader.h"
+#include "FairGeoRootBuilder.h"
+#include "FairRootManager.h"
+#include "FairVolume.h"
+#include "FairGeoMedia.h"
+#include "FairGeoG3Builder.h"
+#include "FairRuntimeDb.h"
+#include "FairRun.h"
 
 #include "TObjArray.h"
 #include "TClonesArray.h"
@@ -33,8 +33,8 @@
 #include "TGeoVoxelFinder.h"
 #include "TGeoMatrix.h"
 
-#include "CbmGeoMedia.h" 
-#include "CbmGeoMedium.h"
+#include "FairGeoMedia.h" 
+#include "FairGeoMedium.h"
 #include "CbmStack.h"
 #include "TString.h"
 #include "TObject.h"
@@ -54,7 +54,7 @@ PndEmcApd::PndEmcApd() {
 
 // -----   Standard constructor   ------------------------------------------
 PndEmcApd::PndEmcApd(const char* name, Bool_t active)
-  : CbmDetector(name, active) {
+  : FairDetector(name, active) {
     fApdCollection        = new TClonesArray("PndEmcApdPoint");
     fPosIndex   = 0;
     fEventID=-1; 
@@ -79,9 +79,9 @@ PndEmcApd::~PndEmcApd() {
 void PndEmcApd::Initialize() {
   // Init function
   
-  CbmDetector::Initialize();
-  CbmRun* sim = CbmRun::Instance();
-  CbmRuntimeDb* rtdb=sim->GetRuntimeDb();
+  FairDetector::Initialize();
+  FairRun* sim = FairRun::Instance();
+  FairRuntimeDb* rtdb=sim->GetRuntimeDb();
   
 }
 // -------------------------------------------------------------------------
@@ -93,7 +93,7 @@ void PndEmcApd::BeginEvent(){
 
 
 // -----   Public method ProcessHits  --------------------------------------
-Bool_t PndEmcApd::ProcessHits(CbmVolume* vol) {  
+Bool_t PndEmcApd::ProcessHits(FairVolume* vol) {  
   
   TString nam = gMC->CurrentVolName();
   
@@ -150,7 +150,7 @@ void PndEmcApd::EndOfEvent() {
 
 // -----   Public method Register   -------------------------------------------
 void PndEmcApd::Register() {
-  CbmRootManager::Instance()->Register("EmcApdPoint","Emc", fApdCollection, kTRUE);
+  FairRootManager::Instance()->Register("EmcApdPoint","Emc", fApdCollection, kTRUE);
 }
 // ----------------------------------------------------------------------------
 
@@ -184,7 +184,7 @@ void PndEmcApd::Reset() {
 // ----------------------------------------------------------------------------
 
 
-// guarda in CbmRootManager::CopyClones
+// guarda in FairRootManager::CopyClones
 // -----   Public method CopyClones   -----------------------------------------
 void PndEmcApd::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset ) {
   Int_t nEntries = cl1->GetEntriesFast();
@@ -225,12 +225,12 @@ void PndEmcApd::ConstructGeometry() {
 void PndEmcApd::ConstructASCIIGeometry() {
   // Definition of materials
   
-  CbmGeoLoader*geoLoad = CbmGeoLoader::Instance();
-  CbmGeoInterface *geoFace = geoLoad->getGeoInterface();
-  CbmGeoMedia *Media =  geoFace->getMedia();
-  CbmGeoBuilder *geobuild=geoLoad->getGeoBuilder();
+  FairGeoLoader*geoLoad = FairGeoLoader::Instance();
+  FairGeoInterface *geoFace = geoLoad->getGeoInterface();
+  FairGeoMedia *Media =  geoFace->getMedia();
+  FairGeoBuilder *geobuild=geoLoad->getGeoBuilder();
   
-  CbmGeoMedium *CbmMediumSi = Media->getMedium("silicon");
+  FairGeoMedium *CbmMediumSi = Media->getMedium("silicon");
   Int_t nmedSi =geobuild->createMedium(CbmMediumSi);
   
   TGeoVolume *flayer1 = new TGeoVolumeAssembly("ApdLayer1");

@@ -3,11 +3,11 @@
 
 #include "lhe.h"
 
-#include "CbmTrackParH.h"
-#include "CbmField.h"
-#include "CbmMCApplication.h"
-#include "CbmRunAna.h"
-#include "CbmRootManager.h"
+#include "FairTrackParH.h"
+#include "FairField.h"
+#include "FairMCApplication.h"
+#include "FairRunAna.h"
+#include "FairRootManager.h"
 
 #include "TGeoTrack.h"
 
@@ -30,7 +30,7 @@ PndTpcLheTrackFitter* PndTpcLheTrackFitter::Instance() {
 //___________________________________________________________
 PndTpcLheTrackFitter::~PndTpcLheTrackFitter() {
   //
-  CbmRootManager *fManger =CbmRootManager::Instance();
+  FairRootManager *fManger =FairRootManager::Instance();
   fManger->Write();
 }
 
@@ -44,7 +44,7 @@ PndTpcLheTrackFitter::PndTpcLheTrackFitter() {
 
 //___________________________________________________________
 PndTpcLheTrackFitter::PndTpcLheTrackFitter(const char *name, const char *title)
-  :CbmTask(name) {
+  :FairTask(name) {
   //---
   fVerbose = kFALSE;
   fSimulation = kFALSE;
@@ -58,7 +58,7 @@ InitStatus PndTpcLheTrackFitter::Init() {
 
   //  cout << "InitStatus PndTpcLheTrackFitter::Init()" << endl;
 
-  CbmRootManager *fManager =CbmRootManager::Instance();	
+  FairRootManager *fManager =FairRootManager::Instance();	
 
   fTpcHits = (TClonesArray *)fManager->GetObject("LheHit");
 
@@ -83,8 +83,8 @@ InitStatus PndTpcLheTrackFitter::Init() {
   fManager->Register("TrackFit",  "Fit", fTpcTrFit,  kTRUE);
 
   //  get the field in Memory:
-  CbmRunAna *fRun=CbmRunAna::Instance();
-  fMagField = (CbmField*) fRun->GetField();
+  FairRunAna *fRun=FairRunAna::Instance();
+  fMagField = (FairField*) fRun->GetField();
 
   fTrackCuts =PndTpcLheTrackCuts::Instance();
 
@@ -144,13 +144,13 @@ void PndTpcLheTrackFitter::Exec(Option_t * option) {
 
 #if 0
   /** Constructor with all track variables  (x,y,z in SC) **/
-  CbmTrackParH(Double_t x,  Double_t y,  Double_t z,
+  FairTrackParH(Double_t x,  Double_t y,  Double_t z,
 	       Double_t lambda, Double_t phi, Double_t qp,
 	       Double_t CovMatrix[15]);
 
   /** Constructor track parameters with position (LAB) momentum **/
   
-  CbmTrackParH(TVector3 pos, TVector3 Mom, TVector3 posErr,
+  FairTrackParH(TVector3 pos, TVector3 Mom, TVector3 posErr,
 	       TVector3 MomErr, Double_t q);
 
 #endif
@@ -605,7 +605,7 @@ Int_t PndTpcLheTrackFitter::HelixFit(PndTpcLheTrack *track) {
 void PndTpcLheTrackFitter::Finish() {
   //---
 
- // CbmRootManager *fManger =CbmRootManager::Instance();
+ // FairRootManager *fManger =FairRootManager::Instance();
  // fManger->Fill();
   
  /* fXYF->Write();

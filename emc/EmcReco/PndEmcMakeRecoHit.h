@@ -7,7 +7,7 @@
 #ifndef PNDEMCMAKERECOHIT_H
 #define PNDEMCMAKERECOHIT_H
 
-#include "CbmTask.h"
+#include "FairTask.h"
 //#include <string>
 //#include <vector>		
 
@@ -16,7 +16,7 @@ class TObjectArray;
 class PndEmcBump;
 class PndEmcRecoPar;
 
-class PndEmcMakeRecoHit : public CbmTask
+class PndEmcMakeRecoHit : public FairTask
 {
 
 

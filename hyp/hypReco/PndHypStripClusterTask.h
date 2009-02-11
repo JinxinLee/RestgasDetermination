@@ -8,15 +8,15 @@
 #ifndef PNDHYPSTRIPCLUSTERTASK_H
 #define PNDHYPSTRIPCLUSTERTASK_H 
 
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "PndGeoHypPar.h"
 #include "PndHypStripDigiPar.h"
 #include "PndHypHit.h"
 #include "PndHypPoint.h"
 #include "PndHypPixel.h"
 #include "PndHypCalcStrip.h"
-#include "CbmGeoVector.h"
-#include "CbmGeoTransform.h"
+#include "FairGeoVector.h"
+#include "FairGeoTransform.h"
 #include "TVector3.h"
 #include "TRandom.h"
 #include "TGeoMatrix.h"
@@ -29,7 +29,7 @@
  
 class TClonesArray;
 
-class PndHypStripClusterTask : public CbmTask
+class PndHypStripClusterTask : public FairTask
 {
  public:
 

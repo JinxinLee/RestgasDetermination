@@ -19,7 +19,7 @@
 #define TPCCLUSTERFINDERTASK_HH
 
 // Base Class Headers ----------------
-#include "CbmTask.h"
+#include "FairTask.h"
 
 // Collaborating Class Headers -------
 #include "PndTpcCluster.h"
@@ -34,7 +34,7 @@ class PndTpcGem;
 class PndTpcFrontend;
 class PndTpcGas;
 
-class PndTpcClusterFinderTask : public CbmTask {
+class PndTpcClusterFinderTask : public FairTask {
 public:
 
   // Constructors/Destructors ---------

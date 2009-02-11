@@ -8,7 +8,7 @@
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
 
-  CbmRunSim *fRun = new CbmRunSim();
+  FairRunSim *fRun = new FairRunSim();
   
   // set the MC version used
   // ------------------------
@@ -28,68 +28,68 @@
   // Create and add detectors
   //-------------------------
 
-  CbmModule *Cave= new PndCave("CAVE");
+  FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave); 
   
-  CbmModule *Magnet= new PndMagnet("MAGNET");
+  FairModule *Magnet= new PndMagnet("MAGNET");
   Magnet->SetGeometryFileName("FullSolenoid.root");
   fRun->AddModule(Magnet);
  
-  CbmModule *Dipole= new PndMagnet("MAGNET");
+  FairModule *Dipole= new PndMagnet("MAGNET");
   Dipole->SetGeometryFileName("dipole.geo");
   fRun->AddModule(Dipole);
 
 
   /*
-  CbmDetector *Stt = new CbmStt("STT",kTRUE);
+  FairDetector *Stt = new CbmStt("STT",kTRUE);
   Stt->SetGeometryFileName("stt24.geo"); // 14 = 1 solo 2layer pablo01.geo 3 layers stt24 
   fRun->AddModule(Stt);
   */
     /*
-  CbmDetector *Stt= new CbmStt("STT", kTRUE); 
+  FairDetector *Stt= new CbmStt("STT", kTRUE); 
   Stt->SetGeometryFileName("straws_axial.geo");
   fRun->AddModule(Stt);
 */
-/*   CbmDetector *Tpc = new TpcDetector("TPC", kTRUE);
+/*   FairDetector *Tpc = new TpcDetector("TPC", kTRUE);
   Tpc->SetGeometryFileName("tpc.geo");
   fRun->AddModule(Tpc);
 
-  CbmDetector *Mvd = new CbmTst("MVD", kTRUE);
+  FairDetector *Mvd = new CbmTst("MVD", kTRUE);
   Mvd->SetGeometryFileName("MVD_Rev14b_Corr.geo");
   fRun->AddModule(Mvd);
    
   
   
-    CbmDetector *Emc = new CbmEmc("EMC",kTRUE);
+    FairDetector *Emc = new CbmEmc("EMC",kTRUE);
     Emc->SetGeometryFileName("emc_module123.dat");
     fRun->AddModule(Emc);
   */  
-//    CbmDetector *Muo = new PndMuo("MUO",kTRUE);
+//    FairDetector *Muo = new PndMuo("MUO",kTRUE);
 //    Muo->SetGeometryFileName("muon_super_light2.geo"); 
 //    fRun->AddModule(Muo);
     
 
-   CbmDetector *Drc = new PndDrc("DIRC", kTRUE);
+   FairDetector *Drc = new PndDrc("DIRC", kTRUE);
    Drc->SetGeometryFileName("dirc.geo"); 
    fRun->AddModule(Drc);
 
     // Create and Set Event Generator
     //-------------------------------
 
-  CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
+  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
   // Urqmd  Generator
-  // CbmUrqmdGenerator* urqmdGen = new CbmUrqmdGenerator("../../input/00-03fm.100ev.f14");
+  // FairUrqmdGenerator* urqmdGen = new FairUrqmdGenerator("../../input/00-03fm.100ev.f14");
   // primGen->AddGenerator(urqmdGen);
 
   // Particle Generator
-  //CbmParticleGenerator* partGen = new CbmParticleGenerator(13, 1, 0.5, 0., 0.);
+  //FairParticleGenerator* partGen = new FairParticleGenerator(13, 1, 0.5, 0., 0.);
   //primGen->AddGenerator(partGen);
 
 /*  // Box Generator
-  CbmBoxGenerator* boxGen = new CbmBoxGenerator(13, 200); // 13 = muon; 1 = multipl.
+  FairBoxGenerator* boxGen = new FairBoxGenerator(13, 200); // 13 = muon; 1 = multipl.
   //  boxGen->SetPRange(1.,1.1); // GeV/c
   boxGen->SetPtRange(1.,1.); // GeV/c
   boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
@@ -102,13 +102,13 @@
   for (Int_t n =0; n<10; n++){
 	randx= gRandom->Gaus(0,1);
 	randy= gRandom->Gaus(0,1);
-	CbmParticleGenerator* partGen = new CbmParticleGenerator(2212, 1, 0.3*randx, 0.3*randy, 0.3);
+	FairParticleGenerator* partGen = new FairParticleGenerator(2212, 1, 0.3*randx, 0.3*randy, 0.3);
   	primGen->AddGenerator(partGen);
   }
 
  
   // Ion Generator
-  //CbmIonGenerator *fIongen= new CbmIonGenerator(79, 197,79,1, 0.,0., 25, 0.,0.,-1.);
+  //FairIonGenerator *fIongen= new FairIonGenerator(79, 197,79,1, 0.,0., 25, 0.,0.,-1.);
   //  primGen->AddGenerator(fIongen);
 
   
@@ -138,7 +138,7 @@
 
  // -Trajectories Visualization
  // ----------------------------
-     CbmTrajFilter* trajFilter = CbmTrajFilter::Instance();
+  /*   FairTrajFilter* trajFilter = FairTrajFilter::Instance();
  // Set cuts for storing the trajectpries
      trajFilter->SetStepSizeCut(0.01); // 1 cm
 //     trajFilter->SetVertexCut(-2000., -2000., 4., 2000., 2000., 100.);
@@ -146,12 +146,12 @@
 //     trajFilter->SetEnergyCut(0., 1.02); // 0 < Etot < 1.04 GeV
      trajFilter->SetStorePrimaries(kTRUE);
      trajFilter->SetStoreSecondaries(kTRUE);
-
+*/
 // 
 //   // Fill the Parameter containers for this run
 //   //-------------------------------------------
 //      
-   CbmRuntimeDb *rtdb=fRun->GetRuntimeDb();
+   FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
    Bool_t kParameterMerged=kTRUE;
   
    
@@ -180,7 +180,7 @@
     Par->setInputVersion(fRun->GetRunId(),1);
     Par->setChanged();
 
-    CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
+    FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
     output->open("testparams.root");
     rtdb->setOutput(output);
     rtdb->saveOutput();

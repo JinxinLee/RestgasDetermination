@@ -1,7 +1,7 @@
 #ifndef fMVDSTRIP_HH
 #define fMVDSTRIP_HH
 
-#include "CbmGeoVector.h"
+#include "FairGeoVector.h"
 #include <iostream>
 #include <vector>
 

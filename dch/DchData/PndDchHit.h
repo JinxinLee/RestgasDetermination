@@ -14,11 +14,11 @@
 #define PNDDCHHIT_H
 
 // Pnd includes
-#include "CbmHit.h"
+#include "FairHit.h"
 // ROOT includes
 #include "TVector3.h"
 
-class PndDchHit : public CbmHit
+class PndDchHit : public FairHit
 {
 
  public:

@@ -26,7 +26,7 @@
 #include <assert.h>
 
 // Collaborating Class Headers --------
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "TClonesArray.h"
 #include "Track.h"
 //#include "TDatabasePDG.h"
@@ -44,17 +44,17 @@
 #include "TGeoManager.h"
 #include "TLorentzVector.h"
 #include "DetPlane.h"
-#include "CbmTrackParH.h"
+#include "FairTrackParH.h"
 
 #include "LSLTrackRep.h"
 #include "GeaneTrackRep.h"
-#include "CbmGeanePro.h"
+#include "FairGeanePro.h"
 
 // Class Member definitions -----------
 
 
 PndLheKalmanTask::PndLheKalmanTask(const char* name, Int_t iVerbose)
-  : CbmTask(name, iVerbose), fPersistence(kFALSE)
+  : FairTask(name, iVerbose), fPersistence(kFALSE)
 {
   fTrackBranchName = "PndTpcLheTrack";
   fFitTrackArray = new TClonesArray("Track");
@@ -72,7 +72,7 @@ InitStatus
 PndLheKalmanTask::Init()
 {
   //Get ROOT Manager
-  CbmRootManager* ioman= CbmRootManager::Instance();
+  FairRootManager* ioman= FairRootManager::Instance();
 
   if(ioman==0)
     {
@@ -133,9 +133,9 @@ PndLheKalmanTask::Init()
       fTheRecoHitFactory->addProducer(5,new RecoHitProducer<PndSttHelixHit,PndSttRecoHit>(sttr));
     }
   
-  if (fUseGeane)  fPro = new CbmGeanePro();
+  if (fUseGeane)  fPro = new FairGeanePro();
   
-  CbmRootManager::Instance()->
+  FairRootManager::Instance()->
     Register("LheGenTrack","Lhe", fFitTrackArray, kTRUE);
  
   return kSUCCESS;

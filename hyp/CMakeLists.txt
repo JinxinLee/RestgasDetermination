@@ -105,6 +105,6 @@ SET(HYP_SRCS ${HYP_SRCS} ${HYP_DICTIONARY})
 
 add_library(Hyp SHARED ${HYP_SRCS})
 target_link_libraries(Hyp ${ROOT_LIBRARIES})
-set_target_properties(Hyp PROPERTIES ${CBMROOT_LIBRARY_PROPERTIES})
+set_target_properties(Hyp PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 ################ install ###################
 install(TARGETS Hyp DESTINATION ${CMAKE_BINARY_DIR}/lib)

@@ -1,7 +1,7 @@
 #ifndef PNDMVDTRACKFINDERANATASK_H_
 #define PNDMVDTRACKFINDERANATASK_H_
 
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "PndMvdHit.h"
 
 #include "TString.h"
@@ -13,7 +13,7 @@
 #include <map>
 #include <vector>
 
-class PndMvdTrackFinderAnaTask : public CbmTask
+class PndMvdTrackFinderAnaTask : public FairTask
 {
 public:
 	PndMvdTrackFinderAnaTask();

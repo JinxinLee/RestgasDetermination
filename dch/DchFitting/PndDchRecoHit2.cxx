@@ -8,8 +8,8 @@
 #include "PndDchCylinderHit.h"
 #include "GeaneTrackRep.h"
 #include "DetPlane.h"
-#include "CbmGeanePro.h"
-#include "CbmGeaneUtil.h"
+#include "FairGeanePro.h"
+#include "FairGeaneUtil.h"
 #include "FitterExceptions.h"
 
 //ROOT includes

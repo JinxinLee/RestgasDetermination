@@ -10,7 +10,7 @@
 #ifndef PNDCONSTPAR_H
 #define PNDCONSTPAR_H 1
 #include "PndMapPar.h"
-class CbmParamList;
+class FairParamList;
 
 class PndConstPar : public PndMapPar
 {
@@ -27,15 +27,15 @@ class PndConstPar : public PndMapPar
   /** Destructor **/
   ~PndConstPar();
 
-  void putParams(CbmParamList* list);
+  void putParams(FairParamList* list);
 
 
   /** Get parameters **/
-  Bool_t getParams(CbmParamList* list);
+  Bool_t getParams(FairParamList* list);
 
 
-  /** Set parameters from CbmField  **/
-  void SetParameters(CbmField* field);
+  /** Set parameters from FairField  **/
+  void SetParameters(FairField* field);
 
 
   Double_t GetBx()        const { return fBx; }

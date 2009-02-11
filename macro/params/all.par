@@ -10,52 +10,52 @@
 #################################################################
 # threshold set to 5*sigmaNoise (noise rate ~ DPM signals rate)
 [MVDStripDigiParRect]
-top_pitch:d 0.0120
-bot_pitch:d 0.0130
-orient:d 1.570796327
-skew:d -1.570796327
-top_anchor_x:d -3.0780
-top_anchor_y:d 1.6705
-bot_anchor_x:d -3.0780
-bot_anchor_y:d 1.6705
-nr_fe_channels:i 128
-nr_fe_top:i 4
-nr_fe_bottom:i 2
-charge_threshold:d 5000
-charge_noise:d 1000
-sens_Type:s Rect
-fe_Type:s APV25
+top_pitch:Double_t 0.0120
+bot_pitch:Double_t 0.0130
+orient:Double_t 1.570796327
+skew:Double_t -1.570796327
+top_anchor_x:Double_t -3.0780
+top_anchor_y:Double_t 1.6705
+bot_anchor_x:Double_t -3.0780
+bot_anchor_y:Double_t 1.6705
+nr_fe_channels:Int_t 128
+nr_fe_top:Int_t 4
+nr_fe_bottom:Int_t 2
+charge_threshold:Double_t 5000
+charge_noise:Double_t 1000
+sens_Type:Text_t Rect
+fe_Type:Text_t APV25
 #################################################################
 # Digitization parameters for TRAPEZOID Mvd strip sensors
 #################################################################
 # threshold set to 5*sigmaNoise (noise rate ~ DPM signals rate)
 [MVDStripDigiParTrap]
-top_pitch:d 0.0073
-bot_pitch:d 0.0073
-orient:d 1.439896633
-skew:d 0.261799388
-top_anchor_x:d -1.944
-top_anchor_y:d 3.28861
-bot_anchor_x:d -1.944
-bot_anchor_y:d 3.28861
-nr_fe_channels:i 128
-nr_fe_top:i 4
-nr_fe_bottom:i 4
-charge_threshold:d 5000
-charge_noise:d 1000
-sens_Type:s Trap
-fe_Type:s APV25
+top_pitch:Double_t 0.0073
+bot_pitch:Double_t 0.0073
+orient:Double_t 1.439896633
+skew:Double_t 0.261799388
+top_anchor_x:Double_t -1.944
+top_anchor_y:Double_t 3.28861
+bot_anchor_x:Double_t -1.944
+bot_anchor_y:Double_t 3.28861
+nr_fe_channels:Int_t 128
+nr_fe_top:Int_t 4
+nr_fe_bottom:Int_t 4
+charge_threshold:Double_t 5000
+charge_noise:Double_t 1000
+sens_Type:Text_t Trap
+fe_Type:Text_t APV25
 #################################################################
 # Digitization Parameters for MVD Pixel
 #################################################################
 # threshold set to 6 sigma (noise rate ~ DPM signals rate)
 [MVDPixelDigiPar]
-dimX:d 0.01
-dimY:d 0.01
-threshold:d 1100
-noise:d 200
-FECols:i 104
-FERows:i 104#################################################################
+dimX:Double_t 0.01
+dimY:Double_t 0.01
+threshold:Double_t 1100
+noise:Double_t 200
+FECols:Int_t 104
+FERows:Int_t 104#################################################################
 # Digitisation and reconstruction parameters for TPC
 # Format:
 # parameter_name:parameter_type(i-integer, d-double) parameter_value
@@ -63,39 +63,39 @@ FERows:i 104#################################################################
 # Description of parameters
 #################################################################
 [PndTpcDigiPar]
-PndTpcGasFile:i 0
-EField:d 400
-AttachFlag:i 0
-LogitudinaldiffusionFlag:i 1
-TransversediffusionFlag:i 1
-DriftDistortionFlag:i 0
-zGem:d -40
-zMax:d 110
-Gain:d 4000
-Supression:d 0.001
-Spread:d 0.02
-MinSignalAmp:d 10
-rMin:d 15.5
-rMax:d 41.5
-PadPlaneFile:i 24
-PadShapeFile:i 14
-PadShapeRange:d 0.5
-PadShapeStep:d 0.02
-PadShapeIntStep:d 0.01
-ADCThreshold:i 10
-ADCMax:i 100000
-ADCBits:i 12
-SamplingFreq:d 40
-T0_wallclock:d -60000
-TimeBits:i 28
-PSAThreshold:i 100
-Shaper_tDiff:d 50
-Shaper_tInt:d 50
-Shaper_tSig:d 2
-TOTPSA:i 1
-GAUSSIANNOISE:i 0
-GAUSSIANNOISEAMP:i 0
-Rate:d 2e-2
+PndTpcGasFile:Int_t 0
+EField:Double_t 400
+AttachFlag:Int_t 0
+LogitudinaldiffusionFlag:Int_t 1
+TransversediffusionFlag:Int_t 1
+DriftDistortionFlag:Int_t 0
+zGem:Double_t -40
+zMax:Double_t 110
+Gain:Double_t 4000
+Supression:Double_t 0.001
+Spread:Double_t 0.02
+MinSignalAmp:Double_t 10
+rMin:Double_t 15.5
+rMax:Double_t 41.5
+PadPlaneFile:Int_t 24
+PadShapeFile:Int_t 14
+PadShapeRange:Double_t 0.5
+PadShapeStep:Double_t 0.02
+PadShapeIntStep:Double_t 0.01
+ADCThreshold:Int_t 10
+ADCMax:Int_t 100000
+ADCBits:Int_t 12
+SamplingFreq:Double_t 40
+T0_wallclock:Double_t -60000
+TimeBits:Int_t 28
+PSAThreshold:Int_t 100
+Shaper_tDiff:Double_t 50
+Shaper_tInt:Double_t 50
+Shaper_tSig:Double_t 2
+TOTPSA:Int_t 1
+GAUSSIANNOISE:Int_t 0
+GAUSSIANNOISEAMP:Int_t 0
+Rate:Double_t 2e-2
 ##################################################################################################################################
 # Digitisation and reconstruction parameters for EMC
 # Format:
@@ -108,78 +108,78 @@ Rate:d 2e-2
 # UseDigiEffectiveSmearing: 0 - energy of hit is copied to digi, 1 - smear energy as sigma/E= a/sqrt(E) + b
 #################################################################
 [PndEmcDigiPar]
-EnergyHitThreshold:d 0.000001
-NBits:i 14
-DetectedPhotonsPerMeV:d 150
-EnergyRange:d 15
-ExcessNoiseFactor:d 1.38
-FirstSamplePhase:d 0
-Number_of_samples_in_waveform:i 64
-Shaping_diff_time:d 100e-9
-Shaping_int_time:d 500e-9
-Crystal_time_constant:d 12e-9
-Incoherent_elec_noise_width_GeV:d 1.0e-3
-SampleRate:d 80e6
-Use_shaped_noise:i 1
-Use_photon_statistic:i 1
-EnergyDigiThreshold:d 3.0e-3
-MapperVersion:i 2
-UseDigiEffectiveSmearing:i 0
-SigmaEa:d 1.86
-SigmaEb:d 0.65
+EnergyHitThreshold:Double_t 0.000001
+NBits:Int_t 14
+DetectedPhotonsPerMeV:Double_t 150
+EnergyRange:Double_t 15
+ExcessNoiseFactor:Double_t 1.38
+FirstSamplePhase:Double_t 0
+Number_of_samples_in_waveform:Int_t 64
+Shaping_diff_time:Double_t 100e-9
+Shaping_int_time:Double_t 500e-9
+Crystal_time_constant:Double_t 12e-9
+Incoherent_elec_noise_width_GeV:Double_t 1.0e-3
+SampleRate:Double_t 80e6
+Use_shaped_noise:Int_t 1
+Use_photon_statistic:Int_t 1
+EnergyDigiThreshold:Double_t 3.0e-3
+MapperVersion:Int_t 2
+UseDigiEffectiveSmearing:Int_t 0
+SigmaEa:Double_t 1.86
+SigmaEb:Double_t 0.65
 #################################################################
 # Reconstruction parameter for EMC
 # PndEmcRecoPar
 #################################################################
 [PndEmcRecoPar]
-EnergyThresholdBarrel:d 3.0e-3
-EnergyThresholdFWD:d 3.0e-3
-EnergyThresholdBWD:d 3.0e-3
-EnergyThresholdShashlyk:d 8.0e-3
-EmcClusterPosMethod:s lilo
-OffsetParmA:d 3.6
-OffsetParmB:d 1.594
-OffsetParmC:d 2.543
-EmcDigiPositionDepth:d 6.2
-MaxECut:d 0.02
-NeighbourECut:d 0.002
-CutSlope:d 0.5
-CutOffset:d 2.5
-ERatioCorr:d 0.0
-TheNeighbourLevel:i 0
-MoliereRadius:d 2.0
-ExponentialConstant:d 2.5
-MaxIterations:i 10
-CentroidShift:d 0.1
-MaxBumps:i 8
-MinDigiEnergy:d 20.e-6
+EnergyThresholdBarrel:Double_t 3.0e-3
+EnergyThresholdFWD:Double_t 3.0e-3
+EnergyThresholdBWD:Double_t 3.0e-3
+EnergyThresholdShashlyk:Double_t 8.0e-3
+EmcClusterPosMethod:Text_t lilo
+OffsetParmA:Double_t 3.6
+OffsetParmB:Double_t 1.594
+OffsetParmC:Double_t 2.543
+EmcDigiPositionDepth:Double_t 6.2
+MaxECut:Double_t 0.02
+NeighbourECut:Double_t 0.002
+CutSlope:Double_t 0.5
+CutOffset:Double_t 2.5
+ERatioCorr:Double_t 0.0
+TheNeighbourLevel:Int_t 0
+MoliereRadius:Double_t 2.0
+ExponentialConstant:Double_t 2.5
+MaxIterations:Int_t 10
+CentroidShift:Double_t 0.1
+MaxBumps:Int_t 8
+MinDigiEnergy:Double_t 20.e-6
 ##################################################################################################################################
 # Correlation Parameter for LHEtrack
 # Format:
 # parameter_name:parameter_type(i-integer, d-double) parameter_value
 #################################################################
 [PndLheCorrPar]
-TofRadius:f 43.6
-TofPhi0:f 0.
-TofZ0:f 0.
-TofSigmaPhi:f 0.0346
-TofSigmaZ:f  1.43
-TofCut:f 20.
-Emc12Thr: f 0.02
-Emc12Radius:f 63.
-Emc12Phi0:f 0.
-Emc12Z0:f 0.
-Emc12SigmaPhi:f 0.0486
-Emc12SigmaZ:f 2.88
-Emc12Cut:f 20.
-MdtRadius:f 155.
-MdtPhi0:f 0.
-MdtZ0:f 2.1
-MdtSigmaPhi:f 0.097
-MdtSigmaZ:f 15.
-MdtCut:f 20.
-DrcRadius:f 49.
-DrcPhi0:f 0.
-DrcSigmaPhi:f 0.0474
-DrcCut:f 20.
+TofRadius:Float_t 43.6
+TofPhi0:Float_t 0.
+TofZ0:Float_t 0.
+TofSigmaPhi:Float_t 0.0346
+TofSigmaZ:Float_t  1.43
+TofCut:Float_t 20.
+Emc12Thr:Float_t 0.02
+Emc12Radius:Float_t 63.
+Emc12Phi0:Float_t 0.
+Emc12Z0:Float_t 0.
+Emc12SigmaPhi:Float_t 0.0486
+Emc12SigmaZ:Float_t 2.88
+Emc12Cut:Float_t 20.
+MdtRadius:Float_t 155.
+MdtPhi0:Float_t 0.
+MdtZ0:Float_t 2.1
+MdtSigmaPhi:Float_t 0.097
+MdtSigmaZ:Float_t 15.
+MdtCut:Float_t 20.
+DrcRadius:Float_t 49.
+DrcPhi0:Float_t 0.
+DrcSigmaPhi:Float_t 0.0474
+DrcCut:Float_t 20.
 #################################################################

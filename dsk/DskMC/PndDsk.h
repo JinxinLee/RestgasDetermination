@@ -21,12 +21,12 @@
 
 #include "TClonesArray.h"
 #include "TVector3.h"
-#include "CbmDetector.h"
-class CbmVolume;
+#include "FairDetector.h"
+class FairVolume;
 class PndDskCerenkov;
 
 
-class PndDsk : public CbmDetector
+class PndDsk : public FairDetector
 {
 
 private:
@@ -83,10 +83,10 @@ public:
   /// @param trackID ID of cerenkov. (Dont mix up with TGeoTracks trackID!)
   /// @param volID ID of the volume where the first hit is produced - for CbmMcPoint
   /// @param pos position of the Cerenkov [cm]
-  /// @param mom momentum of the particle in the first hitpoint [GeV] - for CbmMCPoint
+  /// @param mom momentum of the particle in the first hitpoint [GeV] - for FairMCPoint
   /// @param tof time of flight since primary! vertex in [ns]
   /// @param length length of the track from creation point [cm]
-  /// @param eLoss energy loss of the particle in the histpoint - for CbmMCPoint
+  /// @param eLoss energy loss of the particle in the histpoint - for FairMCPoint
   /// @param energy Energy of the photon
   /// @param motherPdgCode PDG Code of particle that emiited this Cerenkov photon \n
   ///        This is not necessarily the primary particle!
@@ -110,7 +110,7 @@ public:
   /// @param vol pointer to the volume that got hit \n
   /// Here most work is done. It has to be decided to which Collection to point has to be added
   /// and all values for the Collections are calculated here.
-  virtual Bool_t        ProcessHits(CbmVolume *vol = 0);
+  virtual Bool_t        ProcessHits(FairVolume *vol = 0);
   /// Registers the hit collections to the ROOT manager
   virtual void          Register();
   /// Clear hit-collections

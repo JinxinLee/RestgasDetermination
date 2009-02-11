@@ -1,21 +1,21 @@
 #ifndef PNDGEOMUOPAR_H
 #define PNDGEOMUOPAR_H
 
-#include "CbmParGenericSet.h"
+#include "FairParGenericSet.h"
 #include "TObjArray.h"
 
-class PndGeoMuoPar : public CbmParGenericSet {
+class PndGeoMuoPar : public FairParGenericSet {
 public:
-  TObjArray      *fGeoSensNodes; /** List of CbmGeoNodes for sensitive  volumes */
-  TObjArray      *fGeoPassNodes; /** List of CbmGeoNodes for passive  volumes */
+  TObjArray      *fGeoSensNodes; /** List of FairGeoNodes for sensitive  volumes */
+  TObjArray      *fGeoPassNodes; /** List of FairGeoNodes for passive  volumes */
 
   PndGeoMuoPar(const char* name="PndGeoMuoPar",
              const char* title="Muo Geometry Parameters",
              const char* context="TestDefaultContext");
   ~PndGeoMuoPar(void);
   void clear(void);
-  void putParams(CbmParamList*);
-  Bool_t getParams(CbmParamList*);
+  void putParams(FairParamList*);
+  Bool_t getParams(FairParamList*);
   TObjArray             *GetGeoSensitiveNodes(){return fGeoSensNodes;}
   TObjArray             *GetGeoPassiveNodes(){return fGeoPassNodes;}
 

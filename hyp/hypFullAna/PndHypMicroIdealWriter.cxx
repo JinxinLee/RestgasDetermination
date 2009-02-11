@@ -17,9 +17,9 @@ modified by A. Sanchez for hyp purpose
 #include "TParticlePDG.h"
 //#include "TParticle.h"
 
-#include "CbmRootManager.h"
-#include "CbmRunAna.h"
-#include "CbmRuntimeDb.h"
+#include "FairRootManager.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
 
 #include "CbmStack.h"
 #include "CbmMCTrack.h"
@@ -32,8 +32,8 @@ modified by A. Sanchez for hyp purpose
 
 #include "TVector3.h"
 #include "TVectorD.h"
-#include "CbmRun.h"
-#include "CbmRuntimeDb.h"
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
 #include <string>
 #include <iostream>
 
@@ -52,7 +52,7 @@ using std::endl;
 		
 // -----   Default constructor   -------------------------------------------
 PndHypMicroIdealWriter::PndHypMicroIdealWriter() :
-  CbmTask("FastSim Dump") { 
+  FairTask("FastSim Dump") { 
 }
 // -------------------------------------------------------------------------
 
@@ -83,12 +83,12 @@ InitStatus PndHypMicroIdealWriter::Init()
   
   cout << " Inside the Init function****" << endl;
   
-  //CbmDetector::Initialize();
-  //CbmRun* sim = CbmRun::Instance();
-  //CbmRuntimeDb* rtdb=sim->GetRuntimeDb();
+  //FairDetector::Initialize();
+  //FairRun* sim = FairRun::Instance();
+  //FairRuntimeDb* rtdb=sim->GetRuntimeDb();
   
   // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
     cout << "-E- PndHypMicroIdealWriter::Init: "
 	 << "RootManager not instantiated!" << endl;
@@ -125,19 +125,19 @@ InitStatus PndHypMicroIdealWriter::Init()
 */
   
   // fChargedCandidates = new TClonesArray("TCandidate");
-//   CbmRootManager::Instance()->Register("PndChargedCandidates","FullSim", fChargedCandidates, kTRUE);
+//   FairRootManager::Instance()->Register("PndChargedCandidates","FullSim", fChargedCandidates, kTRUE);
   
 //   fNeutralCandidates = new TClonesArray("TCandidate");
-//   CbmRootManager::Instance()->Register("PndNeutralCandidates","FullSim", fNeutralCandidates, kTRUE);
+//   FairRootManager::Instance()->Register("PndNeutralCandidates","FullSim", fNeutralCandidates, kTRUE);
   
 //   fMcCandidates = new TClonesArray("TCandidate");
-//   CbmRootManager::Instance()->Register("PndMcTracks","FullSim", fMcCandidates, kTRUE);
+//   FairRootManager::Instance()->Register("PndMcTracks","FullSim", fMcCandidates, kTRUE);
 
   fMicroIdealCandidates = new TClonesArray("PndMicroCandidate");
-  CbmRootManager::Instance()->Register("PndMicroIdealCandidates","FullSim", fMicroIdealCandidates, kTRUE);
+  FairRootManager::Instance()->Register("PndMicroIdealCandidates","FullSim", fMicroIdealCandidates, kTRUE);
 
 //   fEventInfo = new TClonesArray("PndEventInfo");
-//   CbmRootManager::Instance()->Register("PndEventSummary","FullSim", fEventInfo, kTRUE);
+//   FairRootManager::Instance()->Register("PndEventSummary","FullSim", fEventInfo, kTRUE);
 
   // Create and register output array
   cout << "-I- PndHypMicroIdealWriter: Intialization successfull" << endl;
@@ -153,14 +153,14 @@ InitStatus PndHypMicroIdealWriter::Init()
 void PndHypMicroIdealWriter::SetParContainers() {
 
  // Get Base Container
-  CbmRunAna* ana = CbmRunAna::Instance();
-  CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+  FairRunAna* ana = FairRunAna::Instance();
+  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
 
   // Get run and runtime database
- //  CbmRunAna* run = CbmRunAna::Instance();
+ //  FairRunAna* run = FairRunAna::Instance();
 //   if ( ! run ) Fatal("SetParContainers", "No analysis run");
 
- //  CbmRuntimeDb* db = run->GetRuntimeDb();
+ //  FairRuntimeDb* db = run->GetRuntimeDb();
 //   if ( ! db ) Fatal("SetParContainers", "No runtime database");
 
  

@@ -15,7 +15,7 @@
 #ifndef PNDMVDNOISEPRODUCER_H
 #define PNDMVDNOISEPRODUCER_H
 
-#include "CbmTask.h"
+#include "FairTask.h"
 
 #include <vector>
 
@@ -28,7 +28,7 @@
 
 class TClonesArray;
 
-class PndMvdNoiseProducer : public CbmTask
+class PndMvdNoiseProducer : public FairTask
 {
  public:
 

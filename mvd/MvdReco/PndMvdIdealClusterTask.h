@@ -9,14 +9,14 @@
 #ifndef PndMvdIdealClusterTASK_H
 #define PndMvdIdealClusterTASK_H 
 
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "PndMvdGeoPar.h"
 #include "PndMvdHit.h"
 #include "PndMvdMCPoint.h"
 #include "PndMvdPixel.h"
 #include "PndMvdIdealPixelClusterFinder.h"
-#include "CbmGeoVector.h"
-#include "CbmGeoTransform.h"
+#include "FairGeoVector.h"
+#include "FairGeoTransform.h"
 #include "TVector3.h"
 #include "TRandom.h"
 #include "TGeoMatrix.h"
@@ -29,7 +29,7 @@
  
 class TClonesArray;
 
-class PndMvdIdealClusterTask : public CbmTask
+class PndMvdIdealClusterTask : public FairTask
 {
  public:
 
@@ -74,7 +74,7 @@ class PndMvdIdealClusterTask : public CbmTask
   TString fGeoFile;
   
 //   TGeoHMatrix GetTransformation (std::string detName);
-//   void GetLocalHitPoints(PndMvdMCPoint* myPoint, CbmGeoVector& myHitIn, CbmGeoVector& myHitOut);
+//   void GetLocalHitPoints(PndMvdMCPoint* myPoint, FairGeoVector& myHitIn, FairGeoVector& myHitOut);
 //   PndMvdHit CalcGlobalPoint(std::vector<PndMvdPixel> pixels);
 //   TVector3 GetSensorDimensions(std::string detName);  
 

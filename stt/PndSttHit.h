@@ -17,9 +17,9 @@
 
 
 #include "TVector3.h"
-#include "CbmHit.h"
+#include "FairHit.h"
 
-class PndSttHit : public CbmHit 
+class PndSttHit : public FairHit 
 {
 
  public:    

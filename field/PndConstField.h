@@ -10,13 +10,13 @@
 #define PNDCONSTFIELD_H 1
 
 
-#include "CbmField.h"
+#include "FairField.h"
 
 
 class PndConstPar;
 
 
-class PndConstField : public CbmField
+class PndConstField : public FairField
 {
 
  public:    

@@ -20,15 +20,15 @@ libGeaneEx_la_LIBADD	= -L$(ROOTLIBDIR) $(ROOTLIBS) -L$(top_srcdir)/base
 libGeaneEx_la_LIBADD       += -L$(top_srcdir)/parbase
 libGeaneEx_la_LIBADD       += -L$(top_srcdir)/base
 
-sources                 = CbmGeaneTrT.cxx
+sources                 = FairGeaneTrT.cxx
 
 include_HEADERS		= $(patsubst %.cxx,%.h,$(sources))
 
 noinst_HEADERS		= GeaneExLinkDef.h
 
-libGeaneEx_la_SOURCES	= $(sources) CbmGeaneExDict.cxx
+libGeaneEx_la_SOURCES	= $(sources) FairGeaneExDict.cxx
 
-CLEANFILES		= CbmGeaneExDict.cxx CbmGeaneExDict.h *~ libGeaneEx.la
+CLEANFILES		= FairGeaneExDict.cxx FairGeaneExDict.h *~ libGeaneEx.la
 
-CbmGeaneExDict.cxx: $(include_HEADERS) GeaneExLinkDef.h 
+FairGeaneExDict.cxx: $(include_HEADERS) GeaneExLinkDef.h 
 	$(ROOTCINT) -f $@ -c -DHAVE_CONFIG_H $(INCLUDES) $^

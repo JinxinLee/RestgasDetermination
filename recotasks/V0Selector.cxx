@@ -25,7 +25,7 @@
 #include <iostream>
 
 // Collaborating Class Headers --------
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "TClonesArray.h"
 #include "TVector3.h"
 #include "TLorentzVector.h"
@@ -39,7 +39,7 @@
 
 
 V0Selector::V0Selector()
-  : CbmTask("V0Selector"), _persistence(kFALSE), _trackBranchName("TrackPreFit"), _V0BranchName("V0"), _mass_pos(511.E-6), _mass_neg(511.E-6)
+  : FairTask("V0Selector"), _persistence(kFALSE), _trackBranchName("TrackPreFit"), _V0BranchName("V0"), _mass_pos(511.E-6), _mass_neg(511.E-6)
 {
 }
 
@@ -51,7 +51,7 @@ InitStatus
 V0Selector::Init()
 {
   //Get ROOT Manager
-  CbmRootManager* ioman= CbmRootManager::Instance();
+  FairRootManager* ioman= FairRootManager::Instance();
   
   if(ioman==0)
     {

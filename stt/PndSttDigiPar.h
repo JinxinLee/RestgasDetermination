@@ -2,11 +2,11 @@
 #define PNDSTTDIGIPAR_H
 
 #include "TObject.h"
-#include "CbmParSet.h"
+#include "FairParSet.h"
 #include <fstream>
 
 
-class PndSttDigiPar : public CbmParSet 
+class PndSttDigiPar : public FairParSet 
 {
  protected:
  public:
@@ -15,8 +15,8 @@ class PndSttDigiPar : public CbmParSet
 		  const char* context="TestDefaultContext");
     ~PndSttDigiPar();
     Int_t getSize() { return 0; }
-    Bool_t init(CbmParIo* input);
-    Int_t write(CbmParIo* output);
+    Bool_t init(FairParIo* input);
+    Int_t write(FairParIo* output);
     void clear();
     void printParam();
     void readline(const char*, Int_t*);

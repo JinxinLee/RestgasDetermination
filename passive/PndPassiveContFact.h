@@ -1,17 +1,17 @@
 #ifndef PNDPASSIVECONTFACT_H
 #define PNDPASSIVECONTFACT_H
 
-#include "CbmContFact.h"
+#include "FairContFact.h"
 
-class CbmContainer;
+class FairContainer;
 
-class PndPassiveContFact : public CbmContFact {
+class PndPassiveContFact : public FairContFact {
 private:
   void setAllContainers();
 public:
   PndPassiveContFact();
   ~PndPassiveContFact() {}
-  CbmParSet* createContainer(CbmContainer*);
+  FairParSet* createContainer(FairContainer*);
   ClassDef( PndPassiveContFact,0) // Factory for all Passive parameter containers
 };
 

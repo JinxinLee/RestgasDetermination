@@ -24,7 +24,7 @@
 #include <assert.h>
 
 // Collaborating Class Headers --------
-#include "CbmMCPoint.h"
+#include "FairMCPoint.h"
 #include "LSLTrackRep.h"
 #include "GeaneTrackRep.h"
 #include "DetPlane.h"
@@ -67,7 +67,7 @@ DemoRecoHit::DemoRecoHit(const TVector3& pos,
   _hitCov[1][1] = sigy*sigy;
 }
 
-DemoRecoHit::DemoRecoHit(CbmMCPoint* point)
+DemoRecoHit::DemoRecoHit(FairMCPoint* point)
   : PlanarRecoHit(NparHitRep)
 {
   _hitCoord[0][0] = point->GetX();

@@ -8,8 +8,8 @@
 #include "PndSttTrack.h"
 #include "PndSttTrackFinder.h"
 
-#include "CbmHit.h"
-#include "CbmRootManager.h"
+#include "FairHit.h"
+#include "FairRootManager.h"
 
 #include "TClonesArray.h"
 
@@ -21,7 +21,7 @@ using std::string;
 
 // -----   Default constructor   -------------------------------------------
 PndSttFindTracks::PndSttFindTracks() 
-  : CbmTask("STT Find Tracks") 
+  : FairTask("STT Find Tracks") 
 {
   fFinder      = NULL;
   fTrackArray  = NULL;
@@ -36,7 +36,7 @@ PndSttFindTracks::PndSttFindTracks()
 // -----   Standard constructor   ------------------------------------------
 PndSttFindTracks::PndSttFindTracks(PndSttTrackFinder* finder, 
 				   Int_t verbose)
-  : CbmTask("STT Find Tracks") 
+  : FairTask("STT Find Tracks") 
 {
   fFinder      = finder;
   fTrackArray  = NULL;
@@ -52,7 +52,7 @@ PndSttFindTracks::PndSttFindTracks(PndSttTrackFinder* finder,
 PndSttFindTracks::PndSttFindTracks(const char* name, const char* title, 
 				   PndSttTrackFinder* finder,
 				   Int_t verbose) 
-  : CbmTask(name) 
+  : FairTask(name) 
 {
   fFinder      = finder;
   fTrackArray  = NULL;
@@ -84,8 +84,8 @@ InitStatus PndSttFindTracks::Init()
     return kERROR;
   }
 
-  CbmRootManager
-      *ioman = CbmRootManager::Instance();
+  FairRootManager
+      *ioman = FairRootManager::Instance();
   
   if (!ioman) 
   {
@@ -120,9 +120,9 @@ void PndSttFindTracks::AddHitCollectionName(char *hitCollectionName, char *point
 
 void PndSttFindTracks::AddHitCollection(char const *hitCollectionName, char const *pointCollectionName)
 {
-    // Get and check CbmRootManager
-    CbmRootManager
-	*ioman = CbmRootManager::Instance();
+    // Get and check FairRootManager
+    FairRootManager
+	*ioman = FairRootManager::Instance();
     
     if (!ioman) 
     {

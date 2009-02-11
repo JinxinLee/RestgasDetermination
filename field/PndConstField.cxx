@@ -27,7 +27,7 @@ PndConstField::PndConstField(const char* name, Double_t xMin,
 			     Double_t yMax, Double_t zMin,
 			     Double_t zMax, Double_t bX, 
 			     Double_t bY, Double_t bZ) 
-  : CbmField(name) {
+  : FairField(name) {
   fXmin = xMin;
   fXmax = xMax;
   fYmin = yMin;
@@ -45,7 +45,7 @@ PndConstField::PndConstField(const char* name, Double_t xMin,
 
 // --------   Constructor from PndFieldPar   -------------------------------
 PndConstField::PndConstField(PndConstPar* fieldPar) 
-:CbmField()
+:FairField()
  {
   if ( ! fieldPar ) {
     cerr << "-W- PndConstField::PndConstField: empty parameter container!"

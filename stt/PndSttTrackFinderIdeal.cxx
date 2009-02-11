@@ -10,8 +10,8 @@
 #include "PndSttTrack.h"
 #include "PndSttHoughDefines.h"
 #include  <cmath>
-#include "CbmMCPoint.h"
-#include "CbmRootManager.h"
+#include "FairMCPoint.h"
+#include "FairRootManager.h"
 
 // ROOT includes
 #include "TClonesArray.h"
@@ -67,8 +67,8 @@ PndSttTrackFinderIdeal::~PndSttTrackFinderIdeal()
 // -----   Public method Init   --------------------------------------------
 void PndSttTrackFinderIdeal::Init() 
 {
-  // Get and check CbmRootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  // Get and check FairRootManager
+  FairRootManager* ioman = FairRootManager::Instance();
 
   if (!ioman) 
     {
@@ -142,7 +142,7 @@ Int_t PndSttTrackFinderIdeal::DoFind(TClonesArray* trackArray)
 
   // Create pointers to hit and SttPoint
   PndSttHit*       pMhit = NULL;
-  CbmMCPoint*      pMCpt = NULL;
+  FairMCPoint*      pMCpt = NULL;
   CbmMCTrack*      pMCtr = NULL;
   PndSttTrack*     pTrck = NULL;
 
@@ -794,9 +794,9 @@ PndSttHit* PndSttTrackFinderIdeal::GetHitFromCollections(Int_t hitCounter)
     return retval;
 }
 
-CbmMCPoint* PndSttTrackFinderIdeal::GetPointFromCollections(Int_t hitCounter)
+FairMCPoint* PndSttTrackFinderIdeal::GetPointFromCollections(Int_t hitCounter)
 {
-    CbmMCPoint
+    FairMCPoint
 	*retval = NULL;
  
     Int_t
@@ -812,7 +812,7 @@ CbmMCPoint* PndSttTrackFinderIdeal::GetPointFromCollections(Int_t hitCounter)
 	    Int_t
 		tmpHit = ((PndSttHit*) ((TClonesArray *)fHitCollectionList.At(collectionCounter))->At(relativeCounter))->GetRefIndex();
 	    
-	    retval = (CbmMCPoint*) ((TClonesArray *)fPointCollectionList.At(collectionCounter))->At(tmpHit);
+	    retval = (FairMCPoint*) ((TClonesArray *)fPointCollectionList.At(collectionCounter))->At(tmpHit);
 	    
 	    break;
 	}

@@ -6,18 +6,18 @@
 
 #include "TClonesArray.h"
 
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "PndMvdHitProducerIdeal.h"
 #include "PndMvdHit.h"
 #include "PndMvdHitInfo.h"
 #include "PndMvdMCPoint.h"
-#include "CbmRun.h"
-#include "CbmRuntimeDb.h"
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
 
 
 // -----   Default constructor   -------------------------------------------
 PndMvdHitProducerIdeal::PndMvdHitProducerIdeal() :
-  CbmTask("Ideal MVD Hit Producer")
+  FairTask("Ideal MVD Hit Producer")
 {
 	fBranchName 	= "MVDPoint";
 }
@@ -34,7 +34,7 @@ PndMvdHitProducerIdeal::~PndMvdHitProducerIdeal()
 InitStatus PndMvdHitProducerIdeal::Init()
 {
   // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
 
   if ( ! ioman )
     {
@@ -64,8 +64,8 @@ InitStatus PndMvdHitProducerIdeal::Init()
 void PndMvdHitProducerIdeal::SetParContainers()
 {
   // Get Base Container
-  CbmRun* ana = CbmRun::Instance();
-  CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+  FairRun* ana = FairRun::Instance();
+  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
   fGeoPar = (PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar"));
 
 }

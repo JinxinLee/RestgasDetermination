@@ -23,13 +23,13 @@ void simfast_single_allpid(int mult=5, int soff=0,int nevts=0,TString outfile=""
   if (outfile=="") outfile="fastout.root";
 
 
-  CbmRunSim *fRun = new CbmRunSim();
+  FairRunSim *fRun = new FairRunSim();
   fRun->SetOutputFile(outfile.Data());
 
   // Create and Set Event Generator
   //-------------------------------
 
-  CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
+  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
   double pmin    = 0.05;
@@ -41,10 +41,10 @@ void simfast_single_allpid(int mult=5, int soff=0,int nevts=0,TString outfile=""
 
   int i;
 
-  CbmBoxGenerator *boxGen[10];
+  FairBoxGenerator *boxGen[10];
   
   for (i=0;i<10;i++){
-    boxGen[i] =new CbmBoxGenerator(); 
+    boxGen[i] =new FairBoxGenerator(); 
     boxGen[i]->SetMultiplicity(mult);
     boxGen[i]->SetPDGType(pdgcode[i]);  
     boxGen[i]->SetThetaRange(thtmin,thtmax);
@@ -54,7 +54,7 @@ void simfast_single_allpid(int mult=5, int soff=0,int nevts=0,TString outfile=""
   }
 
 
-  //  CbmEvtGenGenerator* evtGen = new CbmEvtGenGenerator(infile.Data());
+  //  FairEvtGenGenerator* evtGen = new FairEvtGenGenerator(infile.Data());
   //  primGen->AddGenerator(evtGen);
 
   primGen->DoTracking(kFALSE);

@@ -12,10 +12,10 @@
 #include "TParticlePDG.h"
 
 // framework includes
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "PndHypIdealTrackingTask.h"
-#include "CbmRunAna.h"
-#include "CbmRuntimeDb.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
 #include "CbmMCTrack.h"
 
 
@@ -31,7 +31,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndHypIdealTrackingTask::PndHypIdealTrackingTask() :
-  CbmTask("Digitization task for PANDA PndHyp") 
+  FairTask("Digitization task for PANDA PndHyp") 
 {
   //fBranchName 	= "HYPStripClusterHit";
 	fBranchName 	= "";
@@ -49,7 +49,7 @@ PndHypIdealTrackingTask::~PndHypIdealTrackingTask()
 InitStatus PndHypIdealTrackingTask::Init()
 {
   // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
     std::cout << "-E- PndHypIdealTrackingTask::Init: "<< "RootManager not instantiated!" << std::endl;
     return kFATAL;  }
@@ -95,8 +95,8 @@ InitStatus PndHypIdealTrackingTask::Init()
 void PndHypIdealTrackingTask::SetParContainers()
 {
   // Get Base Container
-  CbmRunAna* ana = CbmRunAna::Instance();
-  CbmRuntimeDb* rtdb=ana->GetRuntimeDb();
+  FairRunAna* ana = FairRunAna::Instance();
+  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
 
 }
 

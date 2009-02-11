@@ -14,10 +14,10 @@
 #ifndef PNDHYPSTRIPDIGIPAR_H
 #define PNDHYPSTRIPDIGIPAR_H
 
-#include "CbmParGenericSet.h"
-#include "CbmParamList.h"
+#include "FairParGenericSet.h"
+#include "FairParamList.h"
 #include <TVector2.h>
-class PndHypStripDigiPar : public CbmParGenericSet
+class PndHypStripDigiPar : public FairParGenericSet
 {
   public :
   
@@ -28,8 +28,8 @@ class PndHypStripDigiPar : public CbmParGenericSet
 			    const char* context="TestDefaultContext");
 		~PndHypStripDigiPar(void){};
 		void clear(void){};
-		void putParams(CbmParamList* list);
-		Bool_t getParams(CbmParamList* list);
+		void putParams(FairParamList* list);
+		Bool_t getParams(FairParamList* list);
 		void print();
 
 /** Accessor functions **/

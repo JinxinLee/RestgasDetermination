@@ -13,7 +13,7 @@
 #include "TVector3.h"
 #include "TParticle.h"
 #include "PndJRGenerator.h"
-#include "CbmPrimaryGenerator.h"
+#include "FairPrimaryGenerator.h"
 
 
 
@@ -52,7 +52,7 @@ PndJRGenerator::~PndJRGenerator() {
 
 
 // -----   Public method ReadEvent   --------------------------------------
-Bool_t PndJRGenerator::ReadEvent(CbmPrimaryGenerator* primGen) {
+Bool_t PndJRGenerator::ReadEvent(FairPrimaryGenerator* primGen) {
 
   // Check for input file
   if ( ! fInputFile ) {

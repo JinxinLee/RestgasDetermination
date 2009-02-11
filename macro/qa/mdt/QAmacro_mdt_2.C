@@ -7,7 +7,7 @@
 
   TFile* f = new TFile("pygen_sim_01_test04_test2.root");
   TTree *tree=(TTree *) f->Get("cbmsim") ;
-  TGeoManager *geoMan = (TGeoManager*) f->Get("CBMGeom");
+  TGeoManager *geoMan = (TGeoManager*) f->Get("FAIRGeom");
 
 
   TClonesArray* fMdt=new TClonesArray("PndMdtPoint");

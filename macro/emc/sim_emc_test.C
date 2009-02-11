@@ -19,7 +19,7 @@
   gSystem->Load("libEmc");
   gSystem->Load("libGen");
   
-  CbmRunSim *fRun = new CbmRunSim();
+  FairRunSim *fRun = new FairRunSim();
   
   // Set the number of events
   Int_t nEvents = 100; 
@@ -39,22 +39,22 @@
   // Create and add detectors
   //-------------------------
 
-  CbmModule *Cave= new PndCave("CAVE");
+  FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave); 
   
-  CbmDetector *Emc = new PndEmc("EMC",kTRUE);
+  FairDetector *Emc = new PndEmc("EMC",kTRUE);
   Emc->SetGeometryFileName("emc_module_5x5.dat"); 
   fRun->AddModule(Emc);
   
   // Create and Set Event Generator
   //-------------------------------
   
-  CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
+  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
   // Box Generator: 
-  CbmBoxGenerator* boxGen = new CbmBoxGenerator(22, 1); // 13 = muon; 1 = multipl. // 211 = pi+
+  FairBoxGenerator* boxGen = new FairBoxGenerator(22, 1); // 13 = muon; 1 = multipl. // 211 = pi+
   // first number: PDG particle code: 2nd number: particle multiplicity per event
   
   boxGen->SetPRange(1.,1.); // GeV/c
@@ -84,7 +84,7 @@
   // Fill the Parameter containers for this run
   //-------------------------------------------
   
-   CbmRuntimeDb *rtdb=fRun->GetRuntimeDb();
+   FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
    Bool_t kParameterMerged=kTRUE;
   
   
@@ -93,7 +93,7 @@
     Par->setInputVersion(fRun->GetRunId(),1);
     Par->setChanged();
   
-   CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
+   FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
    output->open("simparams.root");
    rtdb->setOutput(output);
    rtdb->saveOutput();

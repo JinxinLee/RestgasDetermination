@@ -19,7 +19,7 @@
 #define PNDTPCRECODEDXTASK_HH
 
 // Base Class Headers ----------------
-#include "CbmTask.h"
+#include "FairTask.h"
 #include <vector>
 
 // Collaborating Class Headers -------
@@ -32,7 +32,7 @@ class PndTpcRawDEdxCollection;
 class PndTpcDEDXFits;
 class PndTpcDEDXStorageHelper;
 
-class PndTpcRecoDEdxTask : public CbmTask {
+class PndTpcRecoDEdxTask : public FairTask {
 public:
 
   // Constructors/Destructors ---------

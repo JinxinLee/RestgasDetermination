@@ -1,6 +1,6 @@
 // -------------------------------------------------------------------------
 // -----                      PndFieldMap header file                  -----
-// -----          Created 12/01/04  by M. Al/Turany (CbmField.h)       -----
+// -----          Created 12/01/04  by M. Al/Turany (FairField.h)       -----
 // -----                Redesign 13/02/06  by V. Friese                -----
 // -------------------------------------------------------------------------
 
@@ -20,14 +20,14 @@
 #define PNDFIELDMAP_H 1
 
 
-#include "CbmField.h"
+#include "FairField.h"
 
 class TArrayF;
 class PndFieldMapData;
 class PndFieldPar;
 
 
-class PndFieldMap : public CbmField {
+class PndFieldMap : public FairField {
 
 
 public:

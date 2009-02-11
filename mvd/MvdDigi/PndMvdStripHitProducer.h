@@ -1,13 +1,13 @@
 #ifndef PNDMVDSTRIPHITPRODUCER_H
 #define PNDMVDSTRIPHITPRODUCER_H
 
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "PndMvdStripDigiPar.h"
 #include "PndMvdMCPoint.h"
 #include "PndMvdStrip.h"
 #include "PndMvdDigiPixel.h"
-#include "CbmGeoVector.h"
-#include "CbmGeoTransform.h"
+#include "FairGeoVector.h"
+#include "FairGeoTransform.h"
 #include "TVector3.h"
 #include "TRandom.h"
 #include "TGeoMatrix.h"
@@ -62,7 +62,7 @@ class TClonesArray;
  * @author HG Zaunick <hg.zaunick@physik.tu-dresden.de>
  *
  **/
-class PndMvdStripHitProducer : public CbmTask
+class PndMvdStripHitProducer : public FairTask
 {
  public:
 
@@ -160,7 +160,7 @@ class PndMvdStripHitProducer : public CbmTask
   void ProduceHits();
 
 //   TGeoHMatrix GetTransformation (std::string detName) const;
-//   void GetLocalHitPoints(PndMvdMCPoint* myPoint, CbmGeoVector& myHitIn, CbmGeoVector& myHitOut);
+//   void GetLocalHitPoints(PndMvdMCPoint* myPoint, FairGeoVector& myHitIn, FairGeoVector& myHitOut);
 //   TVector3 GetSensorDimensions(std::string detName) const;
   Bool_t SelectSensorParams(TString detname);
 

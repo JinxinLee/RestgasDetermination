@@ -8,12 +8,12 @@
 
 using namespace std;
 #include "PndTpcContFact.h"
-#include "CbmRuntimeDb.h"
+#include "FairRuntimeDb.h"
 #include "PndTpcGeoPar.h"
 #include "PndTpcDigiPar.h"
-#include "CbmParRootFileIo.h"
-#include "CbmParAsciiFileIo.h"
-//#include "CbmParIo.h"
+#include "FairParRootFileIo.h"
+#include "FairParAsciiFileIo.h"
+//#include "FairParIo.h"
 //#include "PndTpcParRootFileIo.h"
 //#include "PndTpcParAsciiFileIo.h"
 #include <iostream>
@@ -28,19 +28,19 @@ PndTpcContFact::PndTpcContFact() {
   fName="PndTpcContFact";
   fTitle="Factory for parameter containers in libPndTpc";
   setAllContainers();
-  CbmRuntimeDb::instance()->addContFactory(this);
+  FairRuntimeDb::instance()->addContFactory(this);
 }
 
 void PndTpcContFact::setAllContainers() {
   /** Creates the Container objects with all accepted contexts and adds them to
    *  the list of containers for the TST library.*/
 
-    CbmContainer* p= new CbmContainer("PndTpcGeoPar",
+    FairContainer* p= new FairContainer("PndTpcGeoPar",
                                           "PndTpc Geometry Parameters",
                                           "PndTpcDefaultContext");
     p->addContext("PndTpcNonDefaultContext");
 
-    CbmContainer* p2= new CbmContainer("PndTpcDigiPar",
+    FairContainer* p2= new FairContainer("PndTpcDigiPar",
 				      "PndTpc Digitization Parameters",
 				      "PndTpcDefaultContext");
 
@@ -50,12 +50,12 @@ void PndTpcContFact::setAllContainers() {
     containers->Add(p2);
 }
 
-CbmParSet* PndTpcContFact::createContainer(CbmContainer* c) {
+FairParSet* PndTpcContFact::createContainer(FairContainer* c) {
   /** Calls the constructor of the corresponding parameter container.
    * For an actual context, which is not an empty string and not the default context
    * of this container, the name is concatinated with the context. */
   const char* name=c->GetName();
-  CbmParSet* p=NULL;
+  FairParSet* p=NULL;
   if (strcmp(name,"PndTpcGeoPar")==0) {
     p=new PndTpcGeoPar(c->getConcatName().Data(),c->GetTitle(),c->getContext());
   }
@@ -65,9 +65,9 @@ CbmParSet* PndTpcContFact::createContainer(CbmContainer* c) {
   return p;
 }
 
-//void  PndTpcContFact::activateParIo(CbmParIo* io) {
-//  if (strcmp(io->IsA()->GetName(),"CbmParAsciiFileIo")==0) {
-//    PndTpcParAsciiFileIo* p=new PndTpcParAsciiFileIo(((CbmParAsciiFileIo*)io)->getFile());
+//void  PndTpcContFact::activateParIo(FairParIo* io) {
+//  if (strcmp(io->IsA()->GetName(),"FairParAsciiFileIo")==0) {
+//    PndTpcParAsciiFileIo* p=new PndTpcParAsciiFileIo(((FairParAsciiFileIo*)io)->getFile());
 //    io->setDetParIo(p);
 //  }
 //}

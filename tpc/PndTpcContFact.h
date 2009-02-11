@@ -1,19 +1,19 @@
 #ifndef TPCCONTFACT_H
 #define TPCCONTFACT_H
 
-#include "CbmContFact.h"
+#include "FairContFact.h"
 
-class CbmContainer;
-//class CbmParIo;
+class FairContainer;
+//class FairParIo;
 
-class PndTpcContFact : public CbmContFact {
+class PndTpcContFact : public FairContFact {
 private:
   void setAllContainers();
 public:
   PndTpcContFact();
   ~PndTpcContFact() {}
-  CbmParSet* createContainer(CbmContainer*);
-  //void  activateParIo(CbmParIo* io); 
+  FairParSet* createContainer(FairContainer*);
+  //void  activateParIo(FairParIo* io); 
   ClassDef( PndTpcContFact,1) // Factory for all TPC parameter containers
 };
 

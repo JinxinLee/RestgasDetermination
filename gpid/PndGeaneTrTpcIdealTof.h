@@ -5,10 +5,10 @@
 #define PNDGEANETRTPCIDEALTOF_H
 
 //ROOT & PandaRoot Headers
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "TVector3.h"
-#include "CbmGeanePro.h"
-#include "CbmGeane.h"
+#include "FairGeanePro.h"
+#include "FairGeane.h"
 #include "PndTofPoint.h"
 #include "PndTpcPoint.h"
 #include "PndTpcLheTrack.h"
@@ -22,7 +22,7 @@ class TClonesArray;
 class TTree;
 class TFile;
 
-class PndGeaneTrTpcIdealTof : public CbmTask
+class PndGeaneTrTpcIdealTof : public FairTask
 {
  public:
   /** Default constructor **/  
@@ -58,9 +58,9 @@ class PndGeaneTrTpcIdealTof : public CbmTask
 //  TClonesArray* fTrackParFinal;  
   void destroy();
   TGeant3 *gMC3;
-  CbmGeane *fGeane;
+  FairGeane *fGeane;
   Int_t fEvent;
-  CbmGeanePro *fPro;
+  FairGeanePro *fPro;
   ClassDef(PndGeaneTrTpcIdealTof,1);
 };
 

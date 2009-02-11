@@ -42,7 +42,7 @@
  where the first row has the number of event and the number of particles, and below "N" is the line
  number of the event, 
 
- Derived from CbmGenerator.
+ Derived from FairGenerator.
 **/
 
 
@@ -50,14 +50,14 @@
 #define PND_PYTHIAGENERATOR_H
 
 
-#include "CbmGenerator.h"
+#include "FairGenerator.h"
 
 class TDatabasePDG;
-class CbmPrimaryGenerator;
+class FairPrimaryGenerator;
 
 
 
-class PndPythiaGenerator : public CbmGenerator  
+class PndPythiaGenerator : public FairGenerator  
 {
 
  public: 
@@ -80,7 +80,7 @@ class PndPythiaGenerator : public CbmGenerator
    ** the stack. Abstract method in base class.
    ** @param primGen  pointer to the CbmrimaryGenerator
    **/
-  virtual Bool_t ReadEvent(CbmPrimaryGenerator* primGen);
+  virtual Bool_t ReadEvent(FairPrimaryGenerator* primGen);
 
   void SetVerbose (Int_t verb) { fVerbose = verb; };
 

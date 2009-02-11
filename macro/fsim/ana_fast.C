@@ -31,7 +31,7 @@ void ana_fast(TString infile="dsdsj_20k.evt.root",int nevts=0,TString outfile="a
 
   //analysis
   	
-  CbmRunAna *fRunA= new CbmRunAna();
+  FairRunAna *fRunA= new FairRunAna();
   fRunA->SetInputFile(infile);
   fRunA->SetOutputFile(outfile);
   

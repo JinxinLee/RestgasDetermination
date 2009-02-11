@@ -5,9 +5,9 @@
 #define PND_GEANETRTPCEMC_H
 
 
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "TVector3.h"
-#include "CbmGeanePro.h"
+#include "FairGeanePro.h"
 #include "PndEmcPoint.h"
 #include "PndEmcCluster.h"
 #include "PndTpcPoint.h"
@@ -18,7 +18,7 @@ class TClonesArray;
 class TTree;
 class TFile;
 
-class PndGeaneTrTpcEmc : public CbmTask
+class PndGeaneTrTpcEmc : public FairTask
 {
  public:
   /** Default constructor **/  
@@ -55,6 +55,6 @@ class PndGeaneTrTpcEmc : public CbmTask
   TGeant3 *gMC3;
   ClassDef(PndGeaneTrTpcEmc,1);
   Int_t fEvent;
-  CbmGeanePro *fPro;
+  FairGeanePro *fPro;
 };
 #endif

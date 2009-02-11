@@ -9,7 +9,7 @@
  
  **
  ** A hit in a silicon sensor. In addition to the base class
- ** CbmHit, it holds the number of digis & charge entry.
+ ** FairHit, it holds the number of digis & charge entry.
  ** There is also a bottom index for double sided strip sensors.
  ** All coordinates are in the LAB frame.
 
@@ -22,12 +22,12 @@
 
 #include "TVector3.h"
 #include "TString.h"
-#include "CbmHit.h"
+#include "FairHit.h"
 
 #include <stdio.h>
 #include <iostream>
 
-class PndHypHit : public CbmHit
+class PndHypHit : public FairHit
 {
 friend std::ostream& operator<< (std::ostream& out, const PndHypHit& hit){
     

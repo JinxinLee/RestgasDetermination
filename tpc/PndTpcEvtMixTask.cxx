@@ -24,7 +24,7 @@
 
 
 // Collaborating Class Headers --------
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "TClonesArray.h"
 #include "PndTpcSignal.h"
 #include "PndTpcEvtTime.h"
@@ -39,7 +39,7 @@
 
 
 PndTpcEvtMixTask::PndTpcEvtMixTask()
-  : CbmTask("TPC Background Event Addmixer"),
+  : FairTask("TPC Background Event Addmixer"),
     _inBranchName("PndTpcSignal"),
     _bkgBranchName("PndTpcSignal"),
     _bkgFileName(""),
@@ -71,7 +71,7 @@ PndTpcEvtMixTask::Init()
   std::cout<< "PndTpcEvtMixTask::Init()" <<std::endl;
 
   //Get ROOT Manager
-  CbmRootManager* ioman= CbmRootManager::Instance();
+  FairRootManager* ioman= FairRootManager::Instance();
 
   if(ioman==0)
     {

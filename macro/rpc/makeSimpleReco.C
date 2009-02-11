@@ -33,7 +33,7 @@
   timer.Start();
     
   // -----   Reconstruction run
-  CbmRunAna *fRun= new CbmRunAna();
+  FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(MCFile);
   fRun->AddFriend(HitFile);
   fRun->SetOutputFile(outFile);

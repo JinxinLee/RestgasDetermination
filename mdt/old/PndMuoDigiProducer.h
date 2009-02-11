@@ -2,7 +2,7 @@
 #define PNDMUODIGIPRODUCER_H 1
 
 
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "TH1F.h"
 #include "TFile.h"
 #include "PndMuoDigi.h"
@@ -12,7 +12,7 @@
 class TClonesArray;
 class TObjectArray;
 
-class PndMuoDigiProducer : public CbmTask
+class PndMuoDigiProducer : public FairTask
 {
 
  public:

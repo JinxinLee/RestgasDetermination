@@ -9,21 +9,21 @@
 #include "stdio.h"
 
 #include "PndDrcHitProducerIdeal.h"
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "CbmMCTrack.h"
 #include "PndDrcBarPoint.h"
 #include "PndDrcHit.h"
 #include "TVector3.h"
 #include "TRandom.h"
-#include "CbmRunAna.h"
-#include "CbmRuntimeDb.h"
-#include "CbmBaseParSet.h"
-#include "CbmGeoVolume.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
+#include "FairBaseParSet.h"
+#include "FairGeoVolume.h"
 #include "TString.h"
-#include "CbmGeoTransform.h"
-#include "CbmGeoVector.h"
-#include "CbmGeoMedium.h"
-#include "CbmGeoNode.h"
+#include "FairGeoTransform.h"
+#include "FairGeoVector.h"
+#include "FairGeoMedium.h"
+#include "FairGeoNode.h"
 #include "PndGeoDrcPar.h"
 #include "TFormula.h"
 #include "TMath.h"
@@ -38,7 +38,7 @@ using std::cout;
 
 // -----   Default constructor   -------------------------------------------
 PndDrcHitProducerIdeal::PndDrcHitProducerIdeal() 
-:CbmTask("PndDrcHitProducerIdeal")
+:FairTask("PndDrcHitProducerIdeal")
 {
 }
 // -------------------------------------------------------------------------
@@ -46,7 +46,7 @@ PndDrcHitProducerIdeal::PndDrcHitProducerIdeal()
 // -----   Standard constructor with verbosity level  -------------------------------------------
 
 PndDrcHitProducerIdeal::PndDrcHitProducerIdeal(Int_t verbose) 
-  :CbmTask("PndDrcHitProducerIdeal")
+  :FairTask("PndDrcHitProducerIdeal")
 {
    fVerbose = verbose;  
  }
@@ -67,7 +67,7 @@ InitStatus PndDrcHitProducerIdeal::Init()
   cout << " ---------- INITIALIZATION ------------" << endl;
   nevents = 0;
   // Get RootManager
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
     cout << "-E- PndDrcHitProducerIdeal::Init: "
          << "RootManager not instantiated!" << endl;

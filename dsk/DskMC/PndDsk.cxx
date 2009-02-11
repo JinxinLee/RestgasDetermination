@@ -6,21 +6,21 @@
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// #include "CbmRun.h"
-#include "CbmMCApplication.h"
-#include "CbmVolumeList.h"
+// #include "FairRun.h"
+#include "FairMCApplication.h"
+#include "FairVolumeList.h"
 #include "TGeoMCGeometry.h"
 #include "TGeoMedium.h"
 
-#include "CbmGeoLoader.h"
-#include "CbmGeoInterface.h"
+#include "FairGeoLoader.h"
+#include "FairGeoInterface.h"
 #include "PndGeoDsk.h"
-#include "CbmGeoRootBuilder.h"
-#include "CbmRuntimeDb.h"
+#include "FairGeoRootBuilder.h"
+#include "FairRuntimeDb.h"
 #include "TObjArray.h"
-#include "CbmGeoVolume.h"
-#include "CbmGeoNode.h"
-#include "CbmRun.h"
+#include "FairGeoVolume.h"
+#include "FairGeoNode.h"
+#include "FairRun.h"
 
 
 
@@ -28,18 +28,18 @@
 #include "TGeoManager.h"
 #include "TGeoVolume.h"
 #include "TGeoPhysicalNode.h"
-#include "CbmRun.h"
+#include "FairRun.h"
 #include "PndGeoDskPar.h"
-#include "CbmRuntimeDb.h"
+#include "FairRuntimeDb.h"
 
 #include "TLorentzVector.h"
 #include "TVirtualMC.h"
 #include "TParticle.h"
-#include "CbmGeoInterface.h"
-#include "CbmGeoLoader.h"
-#include "CbmGeoNode.h"
-#include "CbmRootManager.h"
-#include "CbmVolume.h"
+#include "FairGeoInterface.h"
+#include "FairGeoLoader.h"
+#include "FairGeoNode.h"
+#include "FairRootManager.h"
+#include "FairVolume.h"
 #include "CbmStack.h"
 #include "PndDsk.h"
 #include "PndDskCerenkov.h"
@@ -62,7 +62,7 @@ PndDsk::PndDsk()
 // standard constructor
 // -------------------------------------------------------------------------------------------------
 PndDsk::PndDsk(const char *name, Bool_t active)
-  : CbmDetector(name, active)
+  : FairDetector(name, active)
 {
   // default mirror setup
   fMirrorTypes    = 3;
@@ -118,9 +118,9 @@ PndDsk::ConstructGeometry()
   dskGeo->setGeomFile(GetGeometryFileName());
 
   // geo interface is the class that reads our geometry file
-  CbmGeoInterface *geoFace = CbmGeoLoader::Instance()->getGeoInterface();
+  FairGeoInterface *geoFace = FairGeoLoader::Instance()->getGeoInterface();
   // geo builder is the class that constructs the geometry
-  CbmGeoBuilder *geoBuild = CbmGeoLoader::Instance()->getGeoBuilder();
+  FairGeoBuilder *geoBuild = FairGeoLoader::Instance()->getGeoBuilder();
 
   // Read in geometry file
   geoFace->addGeoModule(dskGeo);
@@ -195,7 +195,7 @@ PndDsk::GetCollection(Int_t iColl) const
 // React on a hit in an activ volume
 // -----------------------------------------------------------------------------
 Bool_t
-PndDsk::ProcessHits(CbmVolume *vol)
+PndDsk::ProcessHits(FairVolume *vol)
 {
   // Defines the action to be taken when a cherenkov produced a hit
   // but there is nothing to do here as long as we dont get reflections
@@ -227,7 +227,7 @@ PndDsk::Register()
   // Registers the hit collection to the ROOT manager
 
   // All entries in fDskPointCollection will be added to ROOTFILE->cbmsim->DskPoint
-  CbmRootManager::Instance()->Register("DskCerenkov", "Dsk", fDskCerenkovCollection, kTRUE);
+  FairRootManager::Instance()->Register("DskCerenkov", "Dsk", fDskCerenkovCollection, kTRUE);
 }
 
 

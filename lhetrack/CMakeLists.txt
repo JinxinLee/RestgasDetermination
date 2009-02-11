@@ -93,6 +93,6 @@ set(LHETrack_SRCS ${LHETrack_SRCS} ${LHETrack_DICTIONARY})
 
 add_library(LHETrack SHARED ${LHETrack_SRCS})
 target_link_libraries(LHETrack ${ROOT_LIBRARIES})
-set_target_properties(LHETrack PROPERTIES ${CBMROOT_LIBRARY_PROPERTIES})
+set_target_properties(LHETrack PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 ################ install ###################
 install(TARGETS LHETrack DESTINATION ${CMAKE_BINARY_DIR}/lib)

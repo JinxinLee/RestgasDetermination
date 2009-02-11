@@ -1,11 +1,11 @@
 #ifndef Cave_H
 #define Cave_H
 
-#include "CbmDetector.h"
-#include "CbmModule.h"
+#include "FairDetector.h"
+#include "FairModule.h"
 
 
-class PndCave : public CbmModule {
+class PndCave : public FairModule {
   public:
     PndCave(const char * name, const char *Title="Exp Cave");
     PndCave();

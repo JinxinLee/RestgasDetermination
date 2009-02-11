@@ -13,11 +13,11 @@
 #include "PndSttHelixHit.h"
 #include "PndMdtHit.h"
 #include "PndDrcHit.h"
-#include "CbmTrackParH.h"
-#include "CbmMCApplication.h"
-#include "CbmRunAna.h"
-#include "CbmRootManager.h"
-#include "CbmRuntimeDb.h"
+#include "FairTrackParH.h"
+#include "FairMCApplication.h"
+#include "FairRunAna.h"
+#include "FairRootManager.h"
+#include "FairRuntimeDb.h"
 
 #include "TObjArray.h"
 #include "TVector3.h"
@@ -42,7 +42,7 @@ PndLhePidMaker* PndLhePidMaker::Instance() {
 //___________________________________________________________
 PndLhePidMaker::~PndLhePidMaker() {
   //
-  CbmRootManager *fManger =CbmRootManager::Instance();
+  FairRootManager *fManger =FairRootManager::Instance();
   fManger->Write();
 }
 
@@ -70,7 +70,7 @@ PndLhePidMaker::PndLhePidMaker() {
 
 //___________________________________________________________
 PndLhePidMaker::PndLhePidMaker(const char *name, const char *title)
-  :CbmTask(name) {
+  :FairTask(name) {
   //---
   fPidTrackCand = new TClonesArray("PndLhePidTrack");
   fMvdMode = 0;  
@@ -95,7 +95,7 @@ InitStatus PndLhePidMaker::Init() {
 
   //  cout << "InitStatus PndLhePidMaker::Init()" << endl;
 
-  CbmRootManager *fManager =CbmRootManager::Instance();	
+  FairRootManager *fManager =FairRootManager::Instance();	
 
   fTrackCand = (TClonesArray *)fManager->GetObject("PndTpcLheTrack");
   if ( ! fTrackCand ) {
@@ -231,7 +231,7 @@ InitStatus PndLhePidMaker::Init() {
 
   if (fGeanePro)
     {
-      fPro = new CbmGeanePro();
+      fPro = new FairGeanePro();
       cout << "-I- PndLhePidMaker::Init: Using Geane for Track propagation" << endl;
     }
   
@@ -259,10 +259,10 @@ InitStatus PndLhePidMaker::Init() {
 void PndLhePidMaker::SetParContainers() {
 
   // Get run and runtime database
-  CbmRun* run = CbmRun::Instance();
+  FairRun* run = FairRun::Instance();
   if ( ! run ) Fatal("PndLhePidMaker:: SetParContainers", "No analysis run");
 
-  CbmRuntimeDb* db = run->GetRuntimeDb();
+  FairRuntimeDb* db = run->GetRuntimeDb();
   if ( ! db ) Fatal("PndLhePidMaker:: SetParContainers", "No runtime database");
 
   // Get LHE Correlation parameter container
@@ -329,13 +329,13 @@ void PndLhePidMaker::Exec(Option_t * option) {
   
 #if 0
   /** Constructor with all track variables  (x,y,z in SC) **/
-  CbmTrackParH(Double_t x,  Double_t y,  Double_t z,
+  FairTrackParH(Double_t x,  Double_t y,  Double_t z,
 	       Double_t lambda, Double_t phi, Double_t qp,
 	       Double_t CovMatrix[15]);
 
   /** Constructor track parameters with position (LAB) momentum **/
   
-  CbmTrackParH(TVector3 pos, TVector3 Mom, TVector3 posErr,
+  FairTrackParH(TVector3 pos, TVector3 Mom, TVector3 posErr,
 	       TVector3 MomErr, Double_t q);
 
 #endif
@@ -447,8 +447,8 @@ void PndLhePidMaker::GetTofInfo(PndLhePidTrack* track) {
       
       if (fGeanePro) // Overwrites vertex if Geane is used
 	{
-	  CbmTrackParH *fStart= new CbmTrackParH(track->GetLastHit().GetCoord(), track->GetMomentum(), track->GetLastHit().GetError(), (TVector3)(track->GetMomentum()*0.), track->GetCharge());
-	  CbmTrackParH *fRes= new CbmTrackParH();
+	  FairTrackParH *fStart= new FairTrackParH(track->GetLastHit().GetCoord(), track->GetMomentum(), track->GetLastHit().GetError(), (TVector3)(track->GetMomentum()*0.), track->GetCharge());
+	  FairTrackParH *fRes= new FairTrackParH();
 	  Bool_t rc =  fPro->Propagate(fStart, fRes, -13*track->GetCharge());	
 	  if (rc)
 	    {
@@ -527,8 +527,8 @@ void PndLhePidMaker::GetEmcInfo(PndLhePidTrack* track) {
       
       if (fGeanePro) // Overwrites vertex if Geane is used
 	{
-	  CbmTrackParH *fStart= new CbmTrackParH(track->GetLastHit().GetCoord(), track->GetMomentum(), track->GetLastHit().GetError(), (TVector3)(track->GetMomentum()*0.), track->GetCharge());
-	  CbmTrackParH *fRes= new CbmTrackParH();
+	  FairTrackParH *fStart= new FairTrackParH(track->GetLastHit().GetCoord(), track->GetMomentum(), track->GetLastHit().GetError(), (TVector3)(track->GetMomentum()*0.), track->GetCharge());
+	  FairTrackParH *fRes= new FairTrackParH();
 	  Bool_t rc =  fPro->Propagate(fStart, fRes, -13*track->GetCharge());
 	  if (rc)
 	    {
@@ -605,8 +605,8 @@ void PndLhePidMaker::GetMdtInfo(PndLhePidTrack* track) {
 
       if (fGeanePro) // Overwrites vertex if Geane is used
 	{
-	  CbmTrackParH *fStart= new CbmTrackParH(track->GetLastHit().GetCoord(), track->GetMomentum(), track->GetLastHit().GetError(), (TVector3)(track->GetMomentum()*0.), track->GetCharge());
-	  CbmTrackParH *fRes= new CbmTrackParH();
+	  FairTrackParH *fStart= new FairTrackParH(track->GetLastHit().GetCoord(), track->GetMomentum(), track->GetLastHit().GetError(), (TVector3)(track->GetMomentum()*0.), track->GetCharge());
+	  FairTrackParH *fRes= new FairTrackParH();
 	  Bool_t rc =  fPro->Propagate(fStart, fRes, -13*track->GetCharge()); 
 	  if (rc)
 	    {
@@ -678,8 +678,8 @@ void PndLhePidMaker::GetDrcInfo(PndLhePidTrack* track) {
 
       if (fGeanePro) // Overwrites vertex if Geane is used
 	{
-	  CbmTrackParH *fStart= new CbmTrackParH(track->GetLastHit().GetCoord(), track->GetMomentum(), track->GetLastHit().GetError(), (TVector3)(track->GetMomentum()*0.), track->GetCharge());
-	  CbmTrackParH *fRes= new CbmTrackParH();
+	  FairTrackParH *fStart= new FairTrackParH(track->GetLastHit().GetCoord(), track->GetMomentum(), track->GetLastHit().GetError(), (TVector3)(track->GetMomentum()*0.), track->GetCharge());
+	  FairTrackParH *fRes= new FairTrackParH();
 	  Bool_t rc =  fPro->Propagate(fStart, fRes, -13*track->GetCharge()); 	
 	  if (rc)
 	    {
@@ -728,7 +728,7 @@ void PndLhePidMaker::GetDrcInfo(PndLhePidTrack* track) {
 //_________________________________________________________________
 void PndLhePidMaker::Register() {
   //---
-  CbmRootManager::Instance()->
+  FairRootManager::Instance()->
     Register("LhePidTrack","Lhe", fPidTrackCand, kTRUE);
 }
 

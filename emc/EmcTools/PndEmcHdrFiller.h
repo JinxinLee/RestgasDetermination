@@ -7,7 +7,7 @@
 #define PNDEMCHDRFILLER_H
 
 
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "PndEmcHit.h"
 #include "PndEmcCluster.h"
 #include "TVector3.h"
@@ -15,7 +15,7 @@
 class TClonesArray;
 class PndEmcHeader;
 
-class PndEmcHdrFiller : public CbmTask
+class PndEmcHdrFiller : public FairTask
 {
 
  public:

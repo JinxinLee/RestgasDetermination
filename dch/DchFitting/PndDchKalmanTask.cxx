@@ -5,7 +5,7 @@
 // -------------------------------------------------------------------------
 
 // Panda Headers ----------------------
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "PndDchKalmanTask.h"
 #include "Track.h"
 #include "CbmMCTrack.h"
@@ -35,7 +35,7 @@
 
 
 PndDchKalmanTask::PndDchKalmanTask()
-  : CbmTask("Kalman Filter"), fPersistence(kFALSE),fSmooth(kFALSE), fEvtCount(0), fNumIt(1)
+  : FairTask("Kalman Filter"), fPersistence(kFALSE),fSmooth(kFALSE), fEvtCount(0), fNumIt(1)
 {
   fTrackBranchName = "Track";
 }
@@ -54,7 +54,7 @@ PndDchKalmanTask::~PndDchKalmanTask()
 InitStatus PndDchKalmanTask::Init()
 {
   //Get ROOT Manager
-  CbmRootManager* ioman= CbmRootManager::Instance();
+  FairRootManager* ioman= FairRootManager::Instance();
 
   if(ioman==0)
     {
@@ -193,7 +193,7 @@ PndDchKalmanTask::Exec(Option_t* opt)
 }
 
 void PndDchKalmanTask::WriteHistograms(){
-  TFile* file = CbmRootManager::Instance()->GetOutFile();
+  TFile* file = FairRootManager::Instance()->GetOutFile();
   file->cd();
   file->mkdir("DchKalman");
   file->cd("DchKalman");

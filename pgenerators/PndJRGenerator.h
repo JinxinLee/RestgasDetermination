@@ -7,8 +7,8 @@
 /** PndJRGenerator.h
  *@author S.Spataro <stefano.spataro@exp2.physik.uni-giessen.de>
  The PndJRGenerator reads the PndJRGen  output file (ROOT format)
- and inserts the tracks into the CbmStack via the CbmPrimaryGenerator.
- Derived from CbmGenerator.
+ and inserts the tracks into the CbmStack via the FairPrimaryGenerator.
+ Derived from FairGenerator.
 **/
 
 
@@ -16,17 +16,17 @@
 #define PND_JRGENERATOR_H
 
 
-#include "CbmGenerator.h"
+#include "FairGenerator.h"
 
 class TClonesArray;
 class TFile;
 class TTree;
 class TVirtualMCStack;
-class CbmPrimaryGenerator;
+class FairPrimaryGenerator;
 
 
 
-class PndJRGenerator : public CbmGenerator
+class PndJRGenerator : public FairGenerator
 {
 
  public: 
@@ -47,9 +47,9 @@ class PndJRGenerator : public CbmGenerator
 
   /** Reads on event from the input file and pushes the tracks onto
    ** the stack. Abstract method in base class.
-   ** @param primGen  pointer to the CbmPrimaryGenerator
+   ** @param primGen  pointer to the FairPrimaryGenerator
    **/
-  virtual Bool_t ReadEvent(CbmPrimaryGenerator* primGen);
+  virtual Bool_t ReadEvent(FairPrimaryGenerator* primGen);
 
 
 	

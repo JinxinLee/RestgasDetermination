@@ -24,14 +24,14 @@
 
 
 // Collaborating Class Headers --------
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "TClonesArray.h"
 #include "TRandom.h"
 #include "PndTpcDriftedElectron.h"
 #include "PndTpcAvalanche.h"
 #include "PndTpcGem.h"
-#include "CbmRunAna.h"
-#include "CbmRuntimeDb.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
 #include "PndTpcDigiPar.h"
 
 #include <iostream>
@@ -43,7 +43,7 @@ using std::log;
 
 
 PndTpcGemTask::PndTpcGemTask()
-  : CbmTask("TPC Gem"), _persistence(kFALSE), _gainFluctuations(kFALSE),
+  : FairTask("TPC Gem"), _persistence(kFALSE), _gainFluctuations(kFALSE),
     _initialized(kFALSE)
 {
   _driftedBranchName = "PndTpcDriftedElectron";
@@ -61,10 +61,10 @@ PndTpcGemTask::SetParContainers() {
   std::cout.flush();
 
   // Get run and runtime database
-  CbmRun* run = CbmRun::Instance();
+  FairRun* run = FairRun::Instance();
   if ( ! run ) Fatal("SetParContainers", "No analysis run");
 
-  CbmRuntimeDb* db = run->GetRuntimeDb();
+  FairRuntimeDb* db = run->GetRuntimeDb();
   if ( ! db ) Fatal("SetParContainers", "No runtime database");
 
   // Get PndTpc digitisation parameter container
@@ -79,7 +79,7 @@ PndTpcGemTask::Init()
 
   _initialized=false;
   //Get ROOT Manager
-  CbmRootManager* ioman= CbmRootManager::Instance();
+  FairRootManager* ioman= FairRootManager::Instance();
 
   if(ioman==0)
     {

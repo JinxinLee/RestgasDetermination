@@ -34,7 +34,7 @@
   TClonesArray* digiStrip_array=new TClonesArray("PndMvdDigiStrip");
   t->SetBranchAddress("MVDStripDigis",&digiStrip_array);//Branch names
 
-  TGeoManager *geoMan = (TGeoManager*) gDirectory->Get("CBMGeom");
+  TGeoManager *geoMan = (TGeoManager*) gDirectory->Get("FAIRGeom");
 
 
   // ---------  HISTOS ---------

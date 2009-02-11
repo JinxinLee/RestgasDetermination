@@ -23,8 +23,8 @@
 #include "PndEmcTwoCoordIndex.h"
 #include "PndPidCand.h"
 #include "CbmMCTrack.h"
-#include "CbmMCPoint.h"
-#include "CbmTrackParH.h"
+#include "FairMCPoint.h"
+#include "FairTrackParH.h"
 
 
 void fillTree(TString const points, TString const tracks, 
