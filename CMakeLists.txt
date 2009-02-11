@@ -123,10 +123,6 @@ add_subdirectory (PndTools/riemannfit)
 add_subdirectory(PndTools/AnalysisTools)
 
 
-if(GEANT4_FOUND AND GEANT4VMC_FOUND AND CLHEP_FOUND)  
-  add_subdirectory (cbmg4)
-endif(GEANT4_FOUND AND GEANT4VMC_FOUND AND CLHEP_FOUND)  
-
 if(RULE_CHECKER_FOUND)
 
   ADD_CUSTOM_TARGET(RULES 
