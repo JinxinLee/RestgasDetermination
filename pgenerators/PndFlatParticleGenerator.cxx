@@ -87,9 +87,9 @@ Bool_t PndFlatParticleGenerator::ReadEvent(CbmPrimaryGenerator* primGen)
   Double32_t pabs=0, phi, pt=0, theta=0, eta, y, mt, px, py, pz=0;
 
   // Generate particles
-  RangeValues* outerVal = &fPhi;
-  RangeValues* midVal = 0;
-  RangeValues* innerVal = 0;
+  PndRangeValues* outerVal = &fPhi;
+  PndRangeValues* midVal = 0;
+  PndRangeValues* innerVal = 0;
   if (fThetaRangeIsSet){
 	  if (fCosThetaIsSet){
 		  midVal = &fCosTheta;
@@ -161,14 +161,14 @@ Bool_t PndFlatParticleGenerator::ReadEvent(CbmPrimaryGenerator* primGen)
 
 }
 // ------------------------------------------------------------------------
-void PndFlatParticleGenerator::CalcActValues(RangeValues* val1, RangeValues* val2, RangeValues* val3)
+void PndFlatParticleGenerator::CalcActValues(PndRangeValues* val1, PndRangeValues* val2, PndRangeValues* val3)
 {
 	if (val1 == 0)
-		val1 = &RangeValues();
+		val1 = &PndRangeValues();
 	if (val2 == 0)
-		val2 = &RangeValues();
+		val2 = &PndRangeValues();
 	if (val3 == 0)
-		val3 = &RangeValues();
+		val3 = &PndRangeValues();
 
 	if (fDoit){
 		val3->fActualValue += val3->fStep;

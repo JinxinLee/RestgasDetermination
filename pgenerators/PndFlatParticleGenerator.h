@@ -15,10 +15,10 @@
 
 class CbmPrimaryGenerator;
 
-class RangeValues
+class PndRangeValues
 {
 public :
-	RangeValues(Double32_t start = 0, Double32_t stop = 0, Double32_t step = 1): fStart(start), fStop(stop), fStep(step), fActualValue(start)
+	PndRangeValues(Double32_t start = 0, Double32_t stop = 0, Double32_t step = 1): fStart(start), fStop(stop), fStep(step), fActualValue(start)
 	{}
 	Double32_t fStart;
 	Double32_t fStop;
@@ -31,6 +31,8 @@ public :
 	void SetActualValue(Double32_t val){fActualValue = val;};
 
 	virtual Double32_t GetStep(){return fStep;}
+
+	ClassDef(PndRangeValues,1);
 };
 
 
@@ -99,18 +101,18 @@ private:
 
   Double32_t fPDGMass;             // Particle mass [GeV]
 //  Double32_t fPtMin,  fPtMax,	fPtStep;      // Transverse momentum range [GeV]
-  RangeValues fPt;
+  PndRangeValues fPt;
 // Double32_t fPhiMin, fPhiMax,	fPhiStep;     // Azimuth angle range [degree]
-  RangeValues fPhi;
+  PndRangeValues fPhi;
 //  Double32_t fEtaMin, fEtaMax,	fEtaStep;     // Pseudorapidity range in lab system
-  RangeValues fEta;
+  PndRangeValues fEta;
 //  Double32_t fYMin,   fYMax, 	fYStep;       // Rapidity range in lab system
-  RangeValues fRapidity;
+  PndRangeValues fRapidity;
 //  Double32_t fPMin,   fPMax,	fPStep;       // Momentum range in lab system
-  RangeValues fP;
+  PndRangeValues fP;
 //  Double32_t fThetaMin, fThetaMax, fThetaStep; // Polar angle range in lab system [degree]
-  RangeValues fTheta;
-  RangeValues fCosTheta;
+  PndRangeValues fTheta;
+  PndRangeValues fCosTheta;
   Double32_t fX, fY, fZ;           // Point vertex coordinates [cm]
   Double32_t fX1, fY1, fX2, fY2;   // Box vertex coords (x1,y1)->(x2,y2)
 
@@ -125,7 +127,7 @@ private:
   Bool_t     fBoxVtxIsSet;         // True if box vertex is set
   Bool_t     fDebug;               // Debug switch
   Bool_t	 fDoit;					// Stop generating particles at the end of the range
-  void CalcActValues(RangeValues* val1, RangeValues* val2, RangeValues* val3);
+  void CalcActValues(PndRangeValues* val1, PndRangeValues* val2, PndRangeValues* val3);
 
   ClassDef(PndFlatParticleGenerator,1);
 
