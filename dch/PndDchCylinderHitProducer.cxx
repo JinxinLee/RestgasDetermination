@@ -30,6 +30,7 @@
 
 // C++ includes
 #include <iostream>
+#include "math.h" 
 using std::cout;
 using std::endl;
 
