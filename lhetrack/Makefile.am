@@ -16,7 +16,7 @@ INCLUDES               += -I$(top_srcdir)/trackbase
 INCLUDES               += -I$(top_srcdir)/field
 INCLUDES               += -I$(top_srcdir)/passive
 INCLUDES               += -I$(top_srcdir)/tpc
-INCLUDES               += -I$(top_srcdir)/mcstack
+INCLUDES               += -I$(top_srcdir)/pndbase
 INCLUDES               += -I$(top_srcdir)/mvd/tst
 
 

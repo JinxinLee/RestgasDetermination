@@ -3,7 +3,7 @@ INCLUDES               += -I$(top_srcdir)/geobase
 INCLUDES               += -I$(top_srcdir)/parbase
 INCLUDES               += -I$(top_srcdir)/field
 INCLUDES               += -I$(top_srcdir)/base
-INCLUDES               += -I$(top_srcdir)/mcstack
+INCLUDES               += -I$(top_srcdir)/pndbase
 INCLUDES               += $(GEANT3INC)
 INCLUDES               += $(CLHEPINC)
 

@@ -1,6 +1,6 @@
 
 #include "PndTpcPoint.h"
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 #include "TCanvas.h"
 #include "TFile.h"
 #include "TChain.h"
@@ -28,7 +28,7 @@ void XYplot(std::string filename) {
   TTree* tree = (TTree*)inFile->Get("cbmsim");
   
   TClonesArray* points = new TClonesArray("PndTpcPoint");
-  TClonesArray* tracks = new TClonesArray("CbmMCTrack");
+  TClonesArray* tracks = new TClonesArray("PndMCTrack");
   
   
   TH2D* hits = new TH2D("hits", "hits in the chamber",200,-45,45,200,-45,45);
@@ -60,7 +60,7 @@ std::cout<<"found "<<nE<<" entries in tree\n"<<std::endl;
     for (int p=0; p<nPoints; p++) {
 
       int trackID = ((PndTpcPoint*)points->At(p))->GetTrackID();
-      int motherID = ((CbmMCTrack*)tracks->At(trackID))->GetMotherID();
+      int motherID = ((PndMCTrack*)tracks->At(trackID))->GetMotherID();
 
       //cut on trackID
 
@@ -93,7 +93,7 @@ void plotTree(TTree* tree, int pdg_cut=-1, int eventcut=-1, double p_low_cut=0, 
 
   
   TClonesArray* points = new TClonesArray("PndTpcPoint");
-  TClonesArray* tracks = new TClonesArray("CbmMCTrack");
+  TClonesArray* tracks = new TClonesArray("PndMCTrack");
   
   
   TH2D* hits = new TH2D("hits", "electron hits in the chamber",200,-40,110,150,15.5,41.5);
@@ -134,9 +134,9 @@ void plotTree(TTree* tree, int pdg_cut=-1, int eventcut=-1, double p_low_cut=0, 
     for (int p=0; p<nPoints; p++) {
 
       int trackID = ((PndTpcPoint*)points->At(p))->GetTrackID();
-      int motherID = ((CbmMCTrack*)tracks->At(trackID))->GetMotherID();
-      int pdg = ((CbmMCTrack*)tracks->At(trackID))->GetPdgCode();
-      TLorentzVector lmom = ((CbmMCTrack*)tracks->At(trackID))->Get4Momentum();
+      int motherID = ((PndMCTrack*)tracks->At(trackID))->GetMotherID();
+      int pdg = ((PndMCTrack*)tracks->At(trackID))->GetPdgCode();
+      TLorentzVector lmom = ((PndMCTrack*)tracks->At(trackID))->Get4Momentum();
 
       //cut on particle type
        if(pdg_cut!=-1)

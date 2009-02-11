@@ -18,9 +18,9 @@
 
 #include "FairTask.h"
 #include "TClonesArray.h"
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 #include "PndDrcHit.h"
-#include "CbmStack.h"
+#include "PndStack.h"
 #include "FairBaseParSet.h"
 #include "PndGeoDrcPar.h"
 #include "TString.h"

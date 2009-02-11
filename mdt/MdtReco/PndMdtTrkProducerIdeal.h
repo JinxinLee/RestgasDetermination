@@ -37,7 +37,7 @@ class PndMdtTrkProducerIdeal : public FairTask
   /** Input array of PndMdtHit **/
   TClonesArray* fHitArray; 
 
-  /** Input array of CbmMCTrack **/
+  /** Input array of PndMCTrack **/
   TClonesArray* fMCArray;
 
   /** Output array of PndMdtTrk **/

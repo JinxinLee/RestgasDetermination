@@ -17,7 +17,7 @@
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
 #include "FairHit.h"
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 // PndHyp includes
 #include "PndHypPoint.h"
 #include "FairTrackParH.h"
@@ -109,7 +109,7 @@ void PndHypMSAnaTask::Exec(Option_t* opt)
 	     it!= mcHitMap.end(); 
 	     it++)
 	  {  //go through all tracks
-	    CbmMCTrack* myTrack = (CbmMCTrack*)(fMCTracks->At(it->first));
+	    PndMCTrack* myTrack = (PndMCTrack*)(fMCTracks->At(it->first));
 	    std::vector<int> MChits = it->second;
 	    
 	    /*	if(myTrack==0)
@@ -129,7 +129,7 @@ void PndHypMSAnaTask::Exec(Option_t* opt)
 	      std::cout<<" hits "<<MChits.size()<<(it->first)<<std::endl;
 	      //std::cout << "StartPoint: " << *startPoint << std::endl;
 	      
-	      //CbmMCTrack* mctruth=(CbmMCTrack*)fMCTracks->At( startPoint->GetTrackID());
+	      //PndMCTrack* mctruth=(PndMCTrack*)fMCTracks->At( startPoint->GetTrackID());
 			//if(mctruth==0)continue;
 	      std::cout<<" pid "<<startPoint->GetTrackID()<<" "<<it->first<<std::endl;
 	      Int_t MotherId, Motherpdg;
@@ -137,7 +137,7 @@ void PndHypMSAnaTask::Exec(Option_t* opt)
 	      
 	      if  (MotherId==-1)Motherpdg = myTrack->GetPdgCode();
 	      else {
-		CbmMCTrack *mother =(CbmMCTrack*)fMCTracks->At(MotherId);
+		PndMCTrack *mother =(PndMCTrack*)fMCTracks->At(MotherId);
 		Motherpdg = mother->GetPdgCode();
 	      }
 	      if((myTrack->GetPdgCode()==-211)&&( Motherpdg>1010000000&& 
@@ -242,7 +242,7 @@ std::map<int, std::vector<int> > PndHypMSAnaTask::AssignHitsToTracks()
 		//std::cout<<" hyp "<<myPoint->GetTrackID()<<std::endl;
 		  //}
 		
-		  CbmMCTrack* myTrack = (CbmMCTrack*)(fMCTracks->At(myPoint->GetTrackID()));
+		  PndMCTrack* myTrack = (PndMCTrack*)(fMCTracks->At(myPoint->GetTrackID()));
 		  result[myPoint->GetTrackID()].push_back(i);
 		  //}
 		

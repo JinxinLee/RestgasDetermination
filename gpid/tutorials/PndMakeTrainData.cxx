@@ -90,7 +90,7 @@ void PndMakeTrainData::FillNTuple(string const inf1,string const inf2, TNtuple &
   TFile *freco1 = new TFile(inf2.c_str());
   TTree *treco1 = ( TTree* )freco1->Get("cbmsim");
 
-  TClonesArray *ArrMCTrack1 = new TClonesArray("CbmMCTrack");
+  TClonesArray *ArrMCTrack1 = new TClonesArray("PndMCTrack");
   tsim1->SetBranchAddress("MCTrack",&ArrMCTrack1);
 
 //  TClonesArray *ArrTof1 = new TClonesArray("PndTofPoint");
@@ -127,7 +127,7 @@ cout<<tsim1->GetEntries()<<" no of Events from "<<inf1<<"  "<<inf2<<endl;
        PndTpcPoint *tpc = (PndTpcPoint *) ArrTpc1->At(j);
        if(tpc == 0)continue;
        Int_t trkID = tpc->GetTrackID();
-       CbmMCTrack *mctrack_g = (CbmMCTrack *) ArrMCTrack1->At(trkID);
+       PndMCTrack *mctrack_g = (PndMCTrack *) ArrMCTrack1->At(trkID);
        Int_t pdg = mctrack_g->GetPdgCode();
        de_tpc += tpc->GetEnergyLoss();
        dx_tpc += tpc->GetLength();
@@ -140,7 +140,7 @@ cout<<tsim1->GetEntries()<<" no of Events from "<<inf1<<"  "<<inf2<<endl;
        PndMvdMCPoint *mvd = (PndMvdMCPoint *) ArrMvd1->At(j);
        if(mvd == 0)continue;
        Int_t trkID = mvd->GetTrackID();
-       CbmMCTrack *mctrack_g = (CbmMCTrack *) ArrMCTrack1->At(trkID);
+       PndMCTrack *mctrack_g = (PndMCTrack *) ArrMCTrack1->At(trkID);
        Int_t pdg = mctrack_g->GetPdgCode();
         de_mvd += mvd->GetEnergyLoss();
         dx_mvd += mvd->GetLength();

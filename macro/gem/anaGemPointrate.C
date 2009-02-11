@@ -22,7 +22,7 @@ void anaGemPointrate(int nEvents = 10, bool verbose = false)
   TClonesArray* hit_array=new TClonesArray("PndGemMCPoint");
   t->SetBranchAddress("GEMPoint",&hit_array);//Branch names
 
-  TClonesArray* mc_array=new TClonesArray("CbmMCTrack");
+  TClonesArray* mc_array=new TClonesArray("PndMCTrack");
   t->SetBranchAddress("MCTrack",&mc_array);//Branch names
 
   TH2D* hisxy = new TH2D("hisxy","GEM MC Points, xy view",100,-150.,150.,100,-150.,150.);
@@ -58,7 +58,7 @@ void anaGemPointrate(int nEvents = 10, bool verbose = false)
       PndGemMCPoint *hit=(PndGemMCPoint*)hit_array->At(i);
       int mcpdg = -1;
 
-//       CbmMCTrack *mctruth = (CbmMCTrack*)mc_array->At(hit->GetTrackID());
+//       PndMCTrack *mctruth = (PndMCTrack*)mc_array->At(hit->GetTrackID());
 //       mcpdg = mctruth->GetPdgCode();
 //       cout<<"mcpdg="<<mcpdg<<endl;
 
@@ -82,7 +82,7 @@ void anaGemPointrate(int nEvents = 10, bool verbose = false)
     }//end for i (points in event)
 
     for(int k=0;k<mc_array->GetEntriesFast();k++){
-      CbmMCTrack *mctruth = (CbmMCTrack*)mc_array->At(k);
+      PndMCTrack *mctruth = (PndMCTrack*)mc_array->At(k);
       vecs=mctruth->GetMomentum();
       thetadeg = vecs.Theta()*TMath::RadToDeg();
       histrackrate->Fill(thetadeg,hitsontrack[k],scale);

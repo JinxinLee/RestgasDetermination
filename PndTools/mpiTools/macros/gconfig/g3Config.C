@@ -19,7 +19,7 @@ void Config()
              << endl;
   }
   // create Cbm Specific Stack
-  CbmStack *st = new CbmStack();
+  PndStack *st = new PndStack();
   st->SetMinPoints(0);
   st->StoreSecondaries(kFALSE);
   geant3->SetStack( st ) ;

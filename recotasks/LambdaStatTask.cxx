@@ -29,7 +29,7 @@
 // Collaborating Class Headers --------
 #include "FairRootManager.h"
 #include "TClonesArray.h"
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 #include "TMath.h"
 #include "TDatabasePDG.h"
 #include "MCTruthAnnex.h"
@@ -117,11 +117,11 @@ LambdaStatTask::Exec(Option_t* opt)
   // prepare MonteCarlo Truth info
   int nmctrks=_mcTrackArray->GetEntriesFast();
   // look for protons and pions with enough hits in tpc
-  std::vector<CbmMCTrack*> protons;
-  std::vector<CbmMCTrack*> pions;
+  std::vector<PndMCTrack*> protons;
+  std::vector<PndMCTrack*> pions;
   
   for(int i=0; i<nmctrks;++i){
-    CbmMCTrack* mctrk=(CbmMCTrack*) _mcTrackArray->At(i);
+    PndMCTrack* mctrk=(PndMCTrack*) _mcTrackArray->At(i);
     MCTruthAnnex* annex=(MCTruthAnnex*) _mcAnnexArray->At(i);
     if(annex->getPndTpcHits()<20)continue;
     if(mctrk->GetPdgCode()==2212)protons.push_back(mctrk);

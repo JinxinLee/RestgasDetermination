@@ -10,7 +10,7 @@
 // Collaborating Class Headers --------
 #include "FairRootManager.h"
 #include "TClonesArray.h"
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 #include "Track.h"
 
 

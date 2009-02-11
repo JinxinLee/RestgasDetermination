@@ -143,7 +143,7 @@ Int_t PndSttTrackFinderIdeal::DoFind(TClonesArray* trackArray)
   // Create pointers to hit and SttPoint
   PndSttHit*       pMhit = NULL;
   FairMCPoint*      pMCpt = NULL;
-  CbmMCTrack*      pMCtr = NULL;
+  PndMCTrack*      pMCtr = NULL;
   PndSttTrack*     pTrck = NULL;
 
   // Number of STT hits
@@ -217,7 +217,7 @@ Int_t PndSttTrackFinderIdeal::DoFind(TClonesArray* trackArray)
   
   for (Int_t iMCTrack = 0; iMCTrack < nMCTracks; iMCTrack++) 
   {
-      pMCtr = (CbmMCTrack*) fMCTrackArray->At(iMCTrack);
+      pMCtr = (PndMCTrack*) fMCTrackArray->At(iMCTrack);
       if ( ! pMCtr ) 
 	  continue;
       
@@ -605,8 +605,8 @@ void PndSttTrackFinderIdeal::GetTrackletCircular(Double_t firstX, Double_t first
 void PndSttTrackFinderIdeal::GetTrack(Double_t &dSeed, Double_t &phiSeed, 
 				      Double_t &rSeed, Int_t mcTrackNo)
 {
-    CbmMCTrack
-	*mcTrack = (CbmMCTrack*) fMCTrackArray->At(mcTrackNo);
+    PndMCTrack
+	*mcTrack = (PndMCTrack*) fMCTrackArray->At(mcTrackNo);
 
     // TODO: read field from container
     rSeed = sqrt(mcTrack->GetMomentum().X() * mcTrack->GetMomentum().X() + 

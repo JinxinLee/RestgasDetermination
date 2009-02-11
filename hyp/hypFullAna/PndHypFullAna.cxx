@@ -16,8 +16,8 @@ for Hypernuclei.
 #include "PndHypHit.h"
 #include "PndHypPoint.h"
 #include "../../hypGe/PndHypGePoint.h"
-#include "CbmStack.h"
-#include "CbmMCTrack.h"
+#include "PndStack.h"
+#include "PndMCTrack.h"
 
 #include "TVector3.h"
 #include "TH1F.h"
@@ -298,7 +298,7 @@ void PndHypFullAna::Exec(Option_t* opt) {
 	    PndHypPoint* pop=(PndHypPoint*)fMc->At(hp->GetRefIndex());
 	    if(pop==0)continue;
 	    
-	    CbmMCTrack* moc=(CbmMCTrack*)fMcTr->At(pop->GetTrackID());
+	    PndMCTrack* moc=(PndMCTrack*)fMcTr->At(pop->GetTrackID());
 	    if(moc==0)continue;
 	    if( moc->GetPdgCode()==-211)dsCands.Add(pion);
 	    //cout<<"  number real "<<pop->GetEventID()<<" pion number real "<<dsCands.GetLength()<<endl;
@@ -335,12 +335,12 @@ void PndHypFullAna::Exec(Option_t* opt) {
 	    PndHypPoint* pop=(PndHypPoint*)fMc->At(hp->GetRefIndex());
 	    if(pop==0)continue;
 	    
-	    CbmMCTrack* moc=(CbmMCTrack*)fMcTr->At(pop->GetTrackID());
+	    PndMCTrack* moc=(PndMCTrack*)fMcTr->At(pop->GetTrackID());
 	    if(moc==0)continue;
 	    MotherId= moc->GetMotherID();
 	    if  (MotherId==-1)Motherpdg = moc->GetPdgCode();
 	    else {
-	      CbmMCTrack *mother =(CbmMCTrack*)fMcTr->At(MotherId);
+	      PndMCTrack *mother =(PndMCTrack*)fMcTr->At(MotherId);
 	      Motherpdg = mother->GetPdgCode();
 	    }
 	    //****cut on PCA to primary vertex has to be added ****
@@ -406,12 +406,12 @@ void PndHypFullAna::Exec(Option_t* opt) {
 		    po=(PndHypPoint*)fMc->At(hit->GetRefIndex());
 		    if(po==0)continue;
 		   
-		    CbmMCTrack* mc=(CbmMCTrack*)fMcTr->At(po->GetTrackID());
+		    PndMCTrack* mc=(PndMCTrack*)fMcTr->At(po->GetTrackID());
 		    if(mc==0)continue;
 		    MotherId= mc->GetMotherID();
 		    if  (MotherId==-1)Motherpdg = mc->GetPdgCode();
 		    else {
-		      CbmMCTrack *mother =(CbmMCTrack*)fMcTr->At(MotherId);
+		      PndMCTrack *mother =(PndMCTrack*)fMcTr->At(MotherId);
 		      Motherpdg = mother->GetPdgCode();
 		    }
 		    //****cut on PCA to primary vertex has to be added ****

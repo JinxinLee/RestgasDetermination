@@ -13,7 +13,7 @@
   gSystem->AddIncludePath("-I$VMCWORKDIR/drc");
   gSystem->AddIncludePath("-I$VMCWORKDIR/mvd/MvdData");
   gSystem->AddIncludePath("-I$VMCWORKDIR/gpid");
-  gSystem->AddIncludePath("-I$VMCWORKDIR/mcstack");
+  gSystem->AddIncludePath("-I$VMCWORKDIR/pndbase");
   gSystem->AddIncludePath("-I$VMCWORKDIR/base");
   gSystem->AddIncludePath("-I$VMCWORKDIR/trackbase");
   gSystem->AddIncludePath("-I/home/vanni/TMVA/include");

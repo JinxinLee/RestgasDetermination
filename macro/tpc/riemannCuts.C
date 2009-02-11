@@ -1,6 +1,6 @@
 #include "TFile.h"
 #include "TTree.h"
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 #include "TClonesArray.h"
 #include "PndTpcRiemannTrack.h"
 #include <vector>
@@ -22,13 +22,13 @@ void riemannCuts(){
 
   // build up Riemann MC-Tracks
   std::vector<PndTpcRiemannTrack*> ritrk;
-  TClonesArray* mctrkA=new TClonesArray("CbmMCTrack");
+  TClonesArray* mctrkA=new TClonesArray("PndMCTrack");
   mctree->SetBranchAddress("MCTrack",&mctrkA);
   for(int imc=0;imc<nevts;++imc++){
     mctree->GetEntry(imc);
     int ntrk=mctrk->GetEntriesFast();
     for(int itrk=0;itrk<ntrk;++itrk){
-      CbmMCTrack* mctrk=(CbmMCTrack*)mctrkA->At(itrk);
+      PndMCTrack* mctrk=(PndMCTrack*)mctrkA->At(itrk);
       
     }
       

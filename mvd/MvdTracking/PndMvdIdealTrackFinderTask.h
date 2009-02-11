@@ -10,7 +10,7 @@
 #define PNDMVDIDEALTRACKFINDERTASK_H
 
 #include "FairTask.h"
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 #include "PndMvdGeoPar.h"
 #include "PndMvdHit.h"
 #include "PndMvdMCPoint.h"
@@ -50,8 +50,8 @@ class PndMvdIdealTrackFinderTask : public FairTask
 //    std::vector<Int_t> GetHitPerCluster(PndMvdCluster* clusterCand);
    void ClearTrackCandMap();
    void AddAndExpand(Int_t trackID, Int_t detnum, Int_t iHit);
-   Double_t GetTrackDip(CbmMCTrack* myTrack);
-   Double_t GetTrackCurvature(CbmMCTrack* myTrack);
+   Double_t GetTrackDip(PndMCTrack* myTrack);
+   Double_t GetTrackCurvature(PndMCTrack* myTrack);
 
    TString fHitBranchStrip;
    TString fHitBranchPixel;

@@ -13,7 +13,7 @@
   TClonesArray* fMdt=new TClonesArray("PndMdtPoint");
   tree->SetBranchAddress("MdtPoint",&fMdt);
 
-  TClonesArray* fMC=new TClonesArray("CbmMCTrack");
+  TClonesArray* fMC=new TClonesArray("PndMCTrack");
   tree->SetBranchAddress("MCTrack",&fMC);
 
   Int_t NEvents = (Int_t) tree->GetEntriesFast();
@@ -33,7 +33,7 @@
 
     // Loop on the tracks
   /*  for (Int_t trk_loop=0; trk_loop<pmp_tid; trk_loop++){
-      CbmMCTrack* track = (CbmMCTrack*)fMC->At(trk_loop);
+      PndMCTrack* track = (PndMCTrack*)fMC->At(trk_loop);
       cout<<trk_loop<<"    Pid "<<track->GetPdgCode()<<endl;
       // 1) position in the array
       // 2) PID of the track
@@ -43,7 +43,7 @@
   
     for (Int_t i=0; i<NPoints ; i++){
       PndMdtPoint* point = (PndMdtPoint*)fMdt->At(i);
-      CbmMCTrack* track = (CbmMCTrack*)fMC->At(point->GetTrackID());
+      PndMCTrack* track = (PndMCTrack*)fMC->At(point->GetTrackID());
       Pid1=point->GetPDG();
       Pid2= track->GetPdgCode();
       if((Pid1-Pid2)!=0) {cout<< " - "<< i <<" (Point ) Pid "<< Pid1 << "  track Pid  "<<  Pid2 << endl;

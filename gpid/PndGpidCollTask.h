@@ -37,7 +37,7 @@
 #include "PndMvdMCPoint.h"
 #include "PndTpcLheTrack.h"
 #include "PndTpcLheHit.h"
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 
 class PndGpidCollTask : public FairTask
 {
@@ -67,7 +67,7 @@ class PndGpidCollTask : public FairTask
   TClonesArray* fPointArray2;
   TClonesArray* fPidTrack;  
   //  CbmPlanePoint	 *fPoint1;
-  //  CbmMCTrack	 *fPoint1;
+  //  PndMCTrack	 *fPoint1;
   PndTpcPoint *fTpcPoint;
   PndMvdMCPoint *fMvdPoint;
   PndTpcLheTrack *fTrack1;

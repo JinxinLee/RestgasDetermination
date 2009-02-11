@@ -16,7 +16,7 @@
 #include "FairGeoNode.h"
 #include "CbmGeoPlane.h"
 #include "FairGeoRootBuilder.h"
-#include "CbmStack.h"
+#include "PndStack.h"
 #include "CbmPlane.h"
 #include "CbmPlanePoint.h"
 #include "FairRootManager.h"

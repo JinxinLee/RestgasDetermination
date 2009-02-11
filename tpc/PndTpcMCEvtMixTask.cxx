@@ -36,7 +36,7 @@
 #include "TBranch.h"
 #include "TDatabasePDG.h"
 #include "TParticlePDG.h"
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 #include <iostream>
 
 // Class Member definitions -----------
@@ -138,7 +138,7 @@ PndTpcMCEvtMixTask::Init()
     }
   
   // Create bkgArray
-  _bkgTrackArray = new TClonesArray("CbmMCTrack");
+  _bkgTrackArray = new TClonesArray("PndMCTrack");
   _bkgTree->SetBranchAddress(_mcTrackBranchName,&_bkgTrackArray);
   _bkgPointArray = new TClonesArray(_tpcPointBranchName);
   _bkgTree->SetBranchAddress(_tpcPointBranchName,&_bkgPointArray);
@@ -209,7 +209,7 @@ PndTpcMCEvtMixTask::buildTracks(TClonesArray* tpcpoints,TClonesArray* mctracks,
 
     if(mom.Perp()<_minp)continue; // check minimal momentum for track
     // fetch mc-truth
-    CbmMCTrack* mct=(CbmMCTrack*)mctracks->At(oldtrackid);
+    PndMCTrack* mct=(PndMCTrack*)mctracks->At(oldtrackid);
     Int_t pdg=mct->GetPdgCode();
     TParticlePDG* part=TDatabasePDG::Instance()->GetParticle(pdg);
     if(part==NULL){

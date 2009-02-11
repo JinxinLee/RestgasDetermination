@@ -33,7 +33,7 @@
 #include "FairRootManager.h"
 #include "PndGpidCollTask.h"
 #include "FairTrackParH.h"
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 
 #define PI 3.14159265
 
@@ -112,9 +112,9 @@ for (Int_t l=0; l < nTracks;l++   )
        PndTpcPoint *Point1 =(PndTpcPoint *) fPointArray1->At(hit->GetRefIndex());
        if(Point1 == NULL)continue;
        Int_t trId = Point1->GetTrackID();
-       CbmMCTrack *mcstack = (CbmMCTrack *) fMCTrackArr->At(trId);
-       if(mcstack == 0 ) cout<<"CbmMCTrack at trId not found"<<endl;
-       Int_t PDGCode = mcstack->GetPdgCode();
+       PndMCTrack *pndbase = (PndMCTrack *) fMCTrackArr->At(trId);
+       if(pndbase == 0 ) cout<<"PndMCTrack at trId not found"<<endl;
+       Int_t PDGCode = pndbase->GetPdgCode();
 
        fTrack1 = (PndTpcLheTrack *)fTrackArray1->At(l);
        PndLhePidTrack *pidTrack = ( PndLhePidTrack *) fPidTrack->At(l);

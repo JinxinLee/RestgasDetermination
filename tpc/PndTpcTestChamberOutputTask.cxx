@@ -7,7 +7,7 @@
 // Collaborating Class Headers --------
 #include "FairRootManager.h"
 #include "FairRunAna.h"
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 #include "FairRuntimeDb.h"
 #include "PndTpcDigiPar.h"
 #include "TClonesArray.h"
@@ -86,7 +86,7 @@ PndTpcTestChamberOutputTask::Exec(Option_t* opt)
   std::cout<<"PndTpcTestChamberOutputTask::Exec"<<std::endl;
 
   int nMCT = MCTarray->GetEntriesFast();
-  CbmMCTrack* MCT = (CbmMCTrack*) MCTarray->At(0);
+  PndMCTrack* MCT = (PndMCTrack*) MCTarray->At(0);
   assert(MCT->GetPdgCode()==13);
   assert(MCT->GetMotherID()==-1);
 

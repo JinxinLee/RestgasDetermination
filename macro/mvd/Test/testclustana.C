@@ -38,7 +38,7 @@
   TClonesArray* mc_array=new TClonesArray("MvdMCPoint");
   T->SetBranchAddress("MVDPoint",&mc_array);//Branch names
 
-//	TClonesArray* mc_array=new TClonesArray("CbmMCTrack");
+//	TClonesArray* mc_array=new TClonesArray("PndMCTrack");
 //	t->SetBranchAddress("MCTrack",&mc_array);//Branch names
 
   TH2D* hisxy = new TH2D("hisxy","MVD MC Cluster, xy view",400,-15.,15.,400,-15.,15.);
@@ -69,7 +69,7 @@
       PndMvdMCPoint *point=(PndMvdMCPoint*)mc_array->At(i);
       int mcpdg = -1;
 
-//      CbmMCTrack *mctruth = (CbmMCTrack*)mc_array->At(hit->GetRefIndex());
+//      PndMCTrack *mctruth = (PndMCTrack*)mc_array->At(hit->GetRefIndex());
 //      mcpdg = mctruth->GetPdgCode();
 //      cout<<"mcpdg="<<mcpdg<<endl;
       

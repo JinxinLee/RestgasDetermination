@@ -5,7 +5,7 @@
 
 /** PndUrqmdSmmGenerator.h
  The PndUrqmdSmmGenerator reads the Urqmd+SMM output file (ROOT format)
- and inserts the tracks into the CbmStack via the FairPrimaryGenerator.
+ and inserts the tracks into the PndStack via the FairPrimaryGenerator.
  Derived from FairGenerator.
 **/
 

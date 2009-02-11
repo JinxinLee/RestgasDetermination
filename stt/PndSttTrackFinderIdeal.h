@@ -18,7 +18,7 @@
 #define PNDSTTTRACKFINDERIDEAL 1
 
 #include "PndSttTrackFinder.h"
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 
 #include "TList.h"
 #include "TClonesArray.h"

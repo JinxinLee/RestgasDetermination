@@ -90,7 +90,7 @@ void FairGeaneTrEmc::Exec(Option_t* opt) {
   
   cout<<fPointArray1->GetEntriesFast()<<"/"<<fPointArray2->GetEntriesFast()<<endl;
   
-    fPoint1 = (CbmMCTrack *)fPointArray1->At(0);
+    fPoint1 = (PndMCTrack *)fPointArray1->At(0);
     Int_t trId=0;
     fPoint2=0;
     for (Int_t k=0; k<fPointArray2->GetEntriesFast(); k++)	{

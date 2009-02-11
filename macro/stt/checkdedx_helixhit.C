@@ -31,7 +31,7 @@
   TTree *treemc = (TTree*) filerun.Get("cbmsim");
   TClonesArray *pnt = new TClonesArray("PndSttPoint");
   treemc->SetBranchAddress("STTPoint",&pnt);
-  TClonesArray *mctrack = new TClonesArray("CbmMCTrack");
+  TClonesArray *mctrack = new TClonesArray("PndMCTrack");
   treemc->SetBranchAddress("MCTrack",&mctrack);
     
   // Hits
@@ -85,7 +85,7 @@
       if(!stttrack) continue;
       PndSttTrackMatch *mtrack = (PndSttTrackMatch *) matchtrack->At(k);
       if(!mtrack) continue;
-      CbmMCTrack *MCtrack = (CbmMCTrack*) mctrack->At(mtrack->GetMCTrackID());
+      PndMCTrack *MCtrack = (PndMCTrack*) mctrack->At(mtrack->GetMCTrackID());
       if(!MCtrack) continue;
       Int_t PDGcode = MCtrack->GetPdgCode();
 

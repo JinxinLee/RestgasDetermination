@@ -14,8 +14,8 @@
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
-#include "CbmMCTrack.h"
-#include "CbmStack.h"
+#include "PndMCTrack.h"
+#include "PndStack.h"
 #include "FairRun.h"
 
 #include "PndFastSim.h"
@@ -316,7 +316,7 @@ void PndFastSim::Exec(Option_t* opt)
   if ((++evtcnt)%100==0)
     cout <<"evt: "<<evtcnt<<endl;
   
-  CbmStack *fStack=(CbmStack*)gMC->GetStack();  
+  PndStack *fStack=(PndStack*)gMC->GetStack();  
   int nTracks=fStack->GetNtrack();
 
 

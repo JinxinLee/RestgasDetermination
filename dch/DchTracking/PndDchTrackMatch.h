@@ -7,7 +7,7 @@
  *  \author A.Bubak <arkadiusz.bubak@gmail.com>
  *  \date 14.03.2008
  *  \brief Data structure describing the matching of a reconstructed PndDchTrack
- * 	 with a Monte Carlo CbmMCTrack.
+ * 	 with a Monte Carlo PndMCTrack.
  **/
 
 #ifndef PNDDCHTRACKMATCH_H
@@ -54,7 +54,7 @@ class PndDchTrackMatch : public TObject
 
  private:
 
-  /** Best matching CbmMCTrack  **/
+  /** Best matching PndMCTrack  **/
   Int_t fMCTrackID;
 
   /** Number of good hits/digis belonging to the matched MCTrack **/

@@ -27,7 +27,7 @@
 
 
 // Collaborating Class Declarations --
-class CbmMCTrack;
+class PndMCTrack;
 
 
 

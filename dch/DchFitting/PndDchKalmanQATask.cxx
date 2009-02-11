@@ -9,7 +9,7 @@
 #include "FairRootManager.h"
 #include "Track.h"
 #include "FairMCPoint.h"
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 #include "LSLTrackRep.h"
 #include "GeaneTrackRep.h"
 #include "RecoHitFactory.h"
@@ -173,7 +173,7 @@ void PndDchKalmanQATask::Exec(Option_t* opt) {
 	return;
       }
       
-      CbmMCTrack* mc=(CbmMCTrack*)fMCTrackArray->At(mcTrid);
+      PndMCTrack* mc=(PndMCTrack*)fMCTrackArray->At(mcTrid);
       if(mc==0){
 	Error("PndDchPrepareKalmanTracks::Exec","MCTrack Id=0 not found!");
 	continue;

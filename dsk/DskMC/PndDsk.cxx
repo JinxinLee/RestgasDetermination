@@ -40,7 +40,7 @@
 #include "FairGeoNode.h"
 #include "FairRootManager.h"
 #include "FairVolume.h"
-#include "CbmStack.h"
+#include "PndStack.h"
 #include "PndDsk.h"
 #include "PndDskCerenkov.h"
 #include "PndGeoDsk.h"

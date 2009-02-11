@@ -10,7 +10,7 @@
 #define PndHypIdealTrackFinderTASK_H 
 
 #include "FairTask.h"
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 #include "PndGeoHypPar.h"
 #include "PndHypHit.h"
 #include "PndHypPoint.h"
@@ -50,8 +50,8 @@ class PndHypIdealTrackFinderTask : public FairTask
     //std::vector<Int_t> GetHitPerCluster(PndHypCluster* clusterCand);
    void ClearTrackCandMap();
    void AddAndExpand(Int_t trackID, Int_t detnum, Int_t iHit);
-   Double_t GetTrackDip(CbmMCTrack* myTrack);
-   Double_t GetTrackCurvature(CbmMCTrack* myTrack);
+   Double_t GetTrackDip(PndMCTrack* myTrack);
+   Double_t GetTrackCurvature(PndMCTrack* myTrack);
    
    TString fHitBranchStrip;
    //TString fClusterBranchStrip;

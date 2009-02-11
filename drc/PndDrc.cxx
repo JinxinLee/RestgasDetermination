@@ -47,7 +47,7 @@ using std::cout;
 #include "FairGeoMedia.h"
 #include "FairGeoMedium.h"
 #include "FairGeoRootBuilder.h"
-#include "CbmStack.h"
+#include "PndStack.h"
 
 // add on for debug
 #include "FairGeoG3Builder.h"

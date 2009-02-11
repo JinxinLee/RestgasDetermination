@@ -12,7 +12,7 @@
 #include "FairRootManager.h"
 #include "FairRun.h"
 #include "FairRuntimeDb.h"
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 
 
 // PndMvd includes

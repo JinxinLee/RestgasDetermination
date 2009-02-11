@@ -8,7 +8,7 @@
 #include "PndDchTrack.h"
 #include "PndDchTrackMatch.h"
 
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
@@ -249,7 +249,7 @@ void PndDchFindTracksQa::Exec(Option_t* opt) {
 	Int_t motherID = 0;
 	Int_t nMC = fMCTracks->GetEntriesFast();
 	for(Int_t iMC = 0; iMC < nMC; iMC++) {
-		CbmMCTrack* mcTrack = (CbmMCTrack*) fMCTracks->At(iMC);
+		PndMCTrack* mcTrack = (PndMCTrack*) fMCTracks->At(iMC);
 
 		if( !mcTrack ) {
 			cout << "-E- "<< GetName() <<"::Exec: "

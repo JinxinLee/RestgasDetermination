@@ -17,7 +17,7 @@
 #include "FairRun.h"
 #include "FairRuntimeDb.h"
 #include "FairHit.h"
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 // PndMvd includes
 #include "PndMvdMCPoint.h"
 #include "FairTrackParH.h"
@@ -106,7 +106,7 @@ void PndMvdMSAnaTask::Exec(Option_t* opt)
 	fEventNr++;
 
 	for (std::map<int, std::vector<int> >::const_iterator it = mcHitMap.begin(); it!= mcHitMap.end(); it++){  //go through all tracks
-		CbmMCTrack* myTrack = (CbmMCTrack*)(fMCTracks->At(it->first));
+		PndMCTrack* myTrack = (PndMCTrack*)(fMCTracks->At(it->first));
 		std::vector<int> MChits = it->second;
 		if (MChits.size() > 1 && myTrack->GetMotherID() < 0){
 			TVector3 StartPos, StartPosErr, StartMom, StartMomErr, StartO, StartU, StartV;
@@ -208,7 +208,7 @@ std::map<int, std::vector<int> > PndMvdMSAnaTask::AssignHitsToTracks()
 	std::map<int, std::vector<int> > result;
 	for (int i = 0; i < fMCHits->GetEntriesFast(); i++){											//get all MC Hits
 		PndMvdMCPoint* myPoint = (PndMvdMCPoint*)(fMCHits->At(i));									//sort MCHits with Tracks
-		CbmMCTrack* myTrack = (CbmMCTrack*)(fMCTracks->At(myPoint->GetTrackID()));
+		PndMCTrack* myTrack = (PndMCTrack*)(fMCTracks->At(myPoint->GetTrackID()));
 		result[myPoint->GetTrackID()].push_back(i);
 
 	}

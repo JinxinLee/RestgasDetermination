@@ -28,7 +28,7 @@
 #include "FairGeoMedium.h"
 #include "PndGeoHyp.h"
 #include "FairGeoRootBuilder.h"
-#include "CbmStack.h"
+#include "PndStack.h"
 #include "PndHyp.h"
 #include "PndHypPoint.h"
 

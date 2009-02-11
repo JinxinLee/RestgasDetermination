@@ -10,7 +10,7 @@
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
 #include "FairRun.h"
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 
 #include "PndRpcSimpleReco.h"
 #include "PndRpcHit.h"
@@ -104,7 +104,7 @@ void PndRpcSimpleReco::Exec(Option_t* opt) {
   
   PndRpcPoint *point = NULL;
   PndRpcHit *hit = NULL;
-  CbmMCTrack *McTrack = NULL;
+  PndMCTrack *McTrack = NULL;
   
   TVector3 pos, dpos;       // Position and error vectors
   Int_t Gap=0;
@@ -123,7 +123,7 @@ void PndRpcSimpleReco::Exec(Option_t* opt) {
     if ( ! hit) continue;
    point = (PndRpcPoint*) fPointArray->At(hit->GetIndex());
    if (! point) continue;
-  McTrack = (CbmMCTrack *) MCTrackArray->At(point->GetTrackID());
+  McTrack = (PndMCTrack *) MCTrackArray->At(point->GetTrackID());
 
 // choose for example -  proton 2212, pi+ 211, K+ 321 .
 // if(McTrack-> GetPdgCode()== 2212)

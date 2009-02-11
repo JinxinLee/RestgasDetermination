@@ -8,7 +8,7 @@
  *  \brief Task class for matching a reconstructed PndDchTrack with a simulated one
  * 
  *  Task class for matching a reconstructed PndDchTrack with a simulated
- *  CbmMCTrack. The matching criterion is a maximal number of common
+ *  PndMCTrack. The matching criterion is a maximal number of common
  *  hits/digis/chits//points. The task fills the data class PndDchTrackMatch for
  *  each PndDchTrack.
  **/

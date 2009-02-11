@@ -13,7 +13,7 @@
 #include "FairDetector.h"
 #include "FairRun.h"
 #include "FairRuntimeDb.h"
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 
 #include "TClonesArray.h"
 #include "TGeoManager.h"
@@ -105,7 +105,7 @@ void PndMdtTrkProducerIdeal::Exec(Option_t* opt) {
   Int_t nHits = fHitArray->GetEntriesFast();
   if (nHits==0) return; // exit if the event contains no Mdt hits
   
-  CbmMCTrack   *mcTrack = NULL;
+  PndMCTrack   *mcTrack = NULL;
   PndMdtHit    *mdtHit = NULL;
   PndMdtPoint  *mdtPoint = NULL;
   
@@ -113,7 +113,7 @@ void PndMdtTrkProducerIdeal::Exec(Option_t* opt) {
   Int_t nMCTrack = fMCArray->GetEntriesFast();
   
   for (Int_t iMc=0; iMc<nMCTrack; iMc++) {
-    mcTrack = (CbmMCTrack*) fMCArray->At(iMc);
+    mcTrack = (PndMCTrack*) fMCArray->At(iMc);
     if (mcTrack->GetMdtPoints()==0) continue;
     
     PndMdtTrk *mdtTrk = new PndMdtTrk();

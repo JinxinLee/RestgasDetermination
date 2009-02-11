@@ -14,7 +14,7 @@
 #define PNDDCHTRACKFINDERIDEALDIGI_H
 
 #include "FairMCPoint.h"
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 
 #include "PndDchHit.h"
 #include "PndDchTrack.h"

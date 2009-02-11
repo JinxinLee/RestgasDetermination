@@ -23,7 +23,7 @@
 	TTree *tsim=(TTree *) fsim->Get("cbmsim") ;
 	PndEmcMapper *emcMap=PndEmcMapper::Instance(2);
 
-	TClonesArray* mctrack_array=new TClonesArray("CbmMCTrack");
+	TClonesArray* mctrack_array=new TClonesArray("PndMCTrack");
 	tsim->SetBranchAddress("MCTrack",&mctrack_array);
 	
 	double bump_energy;

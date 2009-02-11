@@ -13,7 +13,7 @@
 #include "PndTpcPoint.h"
 #include "PndTpcLheTrack.h"
 #include "PndTpcLheHit.h"
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 //C++ headers
 #include <algorithm>
 #include <vector>
@@ -43,7 +43,7 @@ class PndGeaneTrTpcIdealTof : public FairTask
   TClonesArray* fPointArray1;
   TClonesArray* fPointArray2;
   //  CbmPlanePoint	 *fPoint1;
-//  CbmMCTrack	 *fPoint1;
+//  PndMCTrack	 *fPoint1;
   PndTpcPoint *fPoint1;
   PndTpcLheTrack *fTrack1;
   PndTofPoint	 *fPoint2;

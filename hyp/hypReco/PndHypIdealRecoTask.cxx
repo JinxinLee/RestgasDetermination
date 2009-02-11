@@ -19,7 +19,7 @@
 #include "PndHypIdealRecoTask.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 #include "FairHit.h"
 // Hyp includes
 #include "PndHypHit.h"

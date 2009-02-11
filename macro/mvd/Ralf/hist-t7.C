@@ -95,7 +95,7 @@
   TTree* tree = (TTree *)inFile->Get("cbmsim");
   TClonesArray* pointlist=new TClonesArray("PndMvdMCPoint");
   tree->SetBranchAddress("MVDPoint",&pointlist);
-  TClonesArray* mc_array=new TClonesArray("CbmMCTrack");
+  TClonesArray* mc_array=new TClonesArray("PndMCTrack");
   tree->SetBranchAddress("MCTrack",&mc_array);
   
   
@@ -144,7 +144,7 @@
 		vecBack=(point->GetXOut(),point->GetYOut(),point->GetZOut());
 		vecPBack=(point->GetPxOut(),point->GetPyOut(),point->GetPzOut());
    	vecFront=(point->GetPxOut(),point->GetPyOut(),point->GetPzOut());
-		CbmMCTrack* mct=(CbmMCTrack*) mc_array->At(point->GetTrackID());
+		PndMCTrack* mct=(PndMCTrack*) mc_array->At(point->GetTrackID());
 		pdcid=mct->GetPdgCode();
    	dx=(vecBack-vecFront).Mag();
 		cout<<"dx=  "<<dx<<endl;

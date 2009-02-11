@@ -13,7 +13,7 @@
 #include "TDatabasePDG.h"
 
 #include "FairTrackParH.h"
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 #include <iostream>
 
 #define PI 3.14159265
@@ -109,7 +109,7 @@ InitStatus PndGeaneTrTpcIdealTof::Init() {
 void PndGeaneTrTpcIdealTof::Exec(Option_t* opt) {
 TObjArray* points;
 PndTpcLheHit* hit;
-CbmMCTrack* mcstack; 
+PndMCTrack* pndbase; 
    fTrackParGeane->Delete();
    fTrackParIni->Delete();
    fPndTrackArr->Delete();
@@ -130,9 +130,9 @@ CbmMCTrack* mcstack;
      fPoint1 =(PndTpcPoint *) fPointArray1->At(hit->GetRefIndex());
      if(fPoint1 == NULL)continue;
      Int_t trId = fPoint1->GetTrackID();
-     mcstack = (CbmMCTrack *) fMCTrackArr->At(trId);
-     if(mcstack == 0 ) cout<<"CbmMCTrack at trId not found"<<endl; 
-     Int_t PDGCode = mcstack->GetPdgCode();
+     pndbase = (PndMCTrack *) fMCTrackArr->At(trId);
+     if(pndbase == 0 ) cout<<"PndMCTrack at trId not found"<<endl; 
+     Int_t PDGCode = pndbase->GetPdgCode();
 
      TVector3 StartPos;         //    = fPoint1->GetStartVertex();
      fPoint1->Position(StartPos);
@@ -212,7 +212,7 @@ CbmMCTrack* mcstack;
      //cout<<fPoint2<<endl;
      //fPoint2 = (PndTofPoint *)fPointArray2->At(min_i);
      
-     CbmMCTrack *mctrack = (CbmMCTrack *) fMCTrackArr->At(0);
+     PndMCTrack *mctrack = (PndMCTrack *) fMCTrackArr->At(0);
      fPoint2 = (PndTofPoint *)fPointArray2->At(0);
      if (fPoint2 == 0 || mctrack == 0 )continue;
      fPoint2->PositionIn(tofv);

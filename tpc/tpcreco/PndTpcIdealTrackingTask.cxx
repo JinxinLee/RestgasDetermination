@@ -42,7 +42,7 @@
 #include "TH1D.h"
 #include "McIdCollection.h"
 #include "TVector3.h"
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 
 //#include "AbsBFieldIfc.h"
 //#include "FairFieldAdaptor.h"
@@ -156,7 +156,7 @@ PndTpcIdealTrackingTask::Exec(Option_t* opt)
       cand=new TrackCand();
       candlist[trackid]=cand;
       // get starting values from monta carlo truth
-      CbmMCTrack* trk=(CbmMCTrack*)_mcTrackArray->At(trackid);
+      PndMCTrack* trk=(PndMCTrack*)_mcTrackArray->At(trackid);
       TVector3 mom=trk->GetMomentum();
       double curv=0.3*2.0/mom.Perp(); // 1/R=0.3*B/pt   pt in GeV, B in Tesla
       cand->setCurv(curv);
@@ -178,7 +178,7 @@ PndTpcIdealTrackingTask::Exec(Option_t* opt)
       continue;
     }
     unsigned int trackid=candit->first;
-    CbmMCTrack* mc=(CbmMCTrack*)_mcTrackArray->At(trackid);
+    PndMCTrack* mc=(PndMCTrack*)_mcTrackArray->At(trackid);
     int pdg=mc->GetPdgCode();
     double q=1.;
 	if(TDatabasePDG::Instance()->GetParticle(mc->GetPdgCode()))	{

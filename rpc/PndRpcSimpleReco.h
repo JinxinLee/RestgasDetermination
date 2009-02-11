@@ -23,7 +23,7 @@ class TH2F;
 class PndRpcHit;
 class PndRpcPoint;
 class TVector3;
-class CbmMCTrack;
+class PndMCTrack;
 
 class PndRpcSimpleReco : public FairTask
 {

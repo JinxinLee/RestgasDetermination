@@ -19,7 +19,7 @@
 #include "PndGeoHypGe.h"
 #include "FairGeoRootBuilder.h"
 #include "TGeoMatrix.h"
-#include "CbmStack.h"
+#include "PndStack.h"
 #include "PndHypGe.h"
 #include "PndHypGeReader.h"
 #include "PndHypGePoint.h"

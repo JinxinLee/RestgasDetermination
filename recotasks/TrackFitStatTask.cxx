@@ -33,7 +33,7 @@
 #include "TrackFitStat.h"
 #include "PndTpcPlanarRecoHit.h"
 #include "PndTpcPoint.h"
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 #include "TMath.h"
 #include "TH1D.h"
 #include "TDatabasePDG.h"
@@ -136,7 +136,7 @@ TrackFitStatTask::Exec(Option_t* opt)
   _mcAnnexArray->Delete();
 
   // prepare MonteCarlo Truth info
-  std::map<CbmMCTrack*,int> mctruthmap;
+  std::map<PndMCTrack*,int> mctruthmap;
   int nmctrks=_mcTrackArray->GetEntriesFast();
   int ntpcMChits=_mcPndTpcHitArray->GetEntriesFast();
   
@@ -162,7 +162,7 @@ TrackFitStatTask::Exec(Option_t* opt)
 		//if(counter>=_minPndTpcHits)break;
 	}
 	//std::cout<<"MCTrack"<<imc<<" has "<<counter<<" hits in TPC."<<std::endl;
-	CbmMCTrack* mc=(CbmMCTrack*)_mcTrackArray->At(imc);
+	PndMCTrack* mc=(PndMCTrack*)_mcTrackArray->At(imc);
 	
 	// create MCTruth Annex
 	MCTruthAnnex* annex=new((*_mcAnnexArray)[imc]) MCTruthAnnex();
@@ -304,11 +304,11 @@ TrackFitStatTask::Exec(Option_t* opt)
 	}
 	
 	// try to associate a MonteCarlo Track
-	std::map<CbmMCTrack*,int>::iterator mcit=mctruthmap.begin();
+	std::map<PndMCTrack*,int>::iterator mcit=mctruthmap.begin();
 	int index=0;
 	while(mcit!=mctruthmap.end())
 		{
-		CbmMCTrack* mc=mcit->first;
+		PndMCTrack* mc=mcit->first;
 		double mcp=mc->Get4Momentum().P();
 		double mcq=-100;
 		if(TDatabasePDG::Instance()->GetParticle(mc->GetPdgCode()))	{
@@ -363,7 +363,7 @@ TrackFitStatTask::Exec(Option_t* opt)
   } // end loop over tracks
   
   // analyse mc-truth association
-  std::map<CbmMCTrack*,int>::iterator mcit=mctruthmap.begin();
+  std::map<PndMCTrack*,int>::iterator mcit=mctruthmap.begin();
   int counter=0;
   while(mcit!=mctruthmap.end())
     {

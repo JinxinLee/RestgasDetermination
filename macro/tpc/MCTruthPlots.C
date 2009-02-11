@@ -7,7 +7,7 @@
 #include <TCut.h>
 #include <TStyle.h>
 #include <sstream>
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 
 void Draw_Alt(TTree *pTree, TCanvas *pCanvas, int nStartCanvas, int nPdgCode, int m);
 void Draw_ParticleDistribution(TTree *pTree, TCanvas *pCanvas, int nCanvas, int m);
@@ -102,7 +102,7 @@ void run(TString filename)
 		TClonesArray *pClArray=NULL;
 		pTree->SetBranchAddress("MCTrack", &pClArray);
 		//pClArray->Inspect();
-		CbmMCTrack *pTrack=NULL;
+		PndMCTrack *pTrack=NULL;
 		Long64_t nTreeEntries=pTree->GetEntries();
 		printf("nTreeEntries: %lld\n", nTreeEntries);
 		
@@ -115,7 +115,7 @@ void run(TString filename)
 			//printf("nClArrayEntries: %d\n", nClArrayEntries);
 			for(Int_t j=0; j < nClArrayEntries; j++)
 			{
-				pTrack=(CbmMCTrack*)pClArray->At(j);
+				pTrack=(PndMCTrack*)pClArray->At(j);
 				assert(pTrack);
 				if( PDGMap.find( pTrack->GetPdgCode() ) != PDGMap.end() )	{
 					if( PDGMap[pTrack->GetPdgCode()]==strParticleName.c_str() )	{

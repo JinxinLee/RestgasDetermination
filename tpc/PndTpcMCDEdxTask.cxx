@@ -17,7 +17,7 @@
 
 // Panda Headers ----------------------
 #include "PndTpcPoint.h"
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 #include "PndTpcRawDEdxCollection.h"
 #include "FairRootManager.h"
 #include "PndTpcHitMerger.h"
@@ -139,7 +139,7 @@ PndTpcMCDEdxTask::Exec(Option_t* opt)
 	for(int imc=0; imc<nmctrks;++imc) 
 	{
 		//cout << "TrackNr: " << imc << endl;
-		CbmMCTrack *mc=(CbmMCTrack*)_mcTrackArray->At(imc);
+		PndMCTrack *mc=(PndMCTrack*)_mcTrackArray->At(imc);
 
 		Int_t nPDG = mc->GetPdgCode();
 		if(!CheckPDG(nPDG))					{ continue;}

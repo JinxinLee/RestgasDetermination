@@ -8,7 +8,7 @@
  *@author R.Castelijns <r.castelijns@fz-juelich.de>
  **
  ** Data structure describing the matching of a reconstructed PndSttTrack
- ** with a Monte Carlo CbmMCTrack.
+ ** with a Monte Carlo PndMCTrack.
  **/
 
 
@@ -52,7 +52,7 @@ class PndSttTrackMatch : public TObject
 
  private:
 
-  /** Best matching CbmMCTrack  **/
+  /** Best matching PndMCTrack  **/
   Int_t fMCTrackID;
 
   /** Number of good hits belonging to the matched MCTrack **/

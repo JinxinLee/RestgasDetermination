@@ -1,16 +1,16 @@
 // -------------------------------------------------------------------------
-// -----                      CbmMCTrack source file                   -----
+// -----                      PndMCTrack source file                   -----
 // -----                  Created 03/08/04  by V. Friese               -----
 // -------------------------------------------------------------------------
 
 
 #include <iostream>
 
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 
 using namespace std;
 // -----   Default constructor   -------------------------------------------
-CbmMCTrack::CbmMCTrack() {
+PndMCTrack::PndMCTrack() {
  fPdgCode = fMotherID = fPoints = 0;
   fStartX = fStartY  = fStartZ = fStartT = 0.;
   fPx = fPy = fPz = 0.;
@@ -21,7 +21,7 @@ CbmMCTrack::CbmMCTrack() {
 
 
 // -----   Standard constructor   ------------------------------------------
-CbmMCTrack::CbmMCTrack(Int_t pdgCode, Int_t motherID, TVector3 startVertex, 
+PndMCTrack::PndMCTrack(Int_t pdgCode, Int_t motherID, TVector3 startVertex, 
 		       Double_t startTime, TVector3 momentum, Int_t nPoint){
   fPdgCode  = pdgCode;
   fMotherID = motherID;
@@ -43,7 +43,7 @@ CbmMCTrack::CbmMCTrack(Int_t pdgCode, Int_t motherID, TVector3 startVertex,
 
 
 // -----   Copy constructor   ----------------------------------------------
-CbmMCTrack::CbmMCTrack(const CbmMCTrack& track) { 
+PndMCTrack::PndMCTrack(const PndMCTrack& track) { 
   *this = track;
 }
 // -------------------------------------------------------------------------
@@ -51,7 +51,7 @@ CbmMCTrack::CbmMCTrack(const CbmMCTrack& track) {
 
 
 // -----   Constructor from TParticle   ------------------------------------
-CbmMCTrack::CbmMCTrack(TParticle* part) {
+PndMCTrack::PndMCTrack(TParticle* part) {
   fPdgCode  = part->GetPdgCode();
   fMotherID = part->GetMother(0);
   fStartX   = part->Vx();
@@ -68,20 +68,20 @@ CbmMCTrack::CbmMCTrack(TParticle* part) {
 
   
 // -----   Destructor   ----------------------------------------------------
-CbmMCTrack::~CbmMCTrack() { }
+PndMCTrack::~PndMCTrack() { }
 // -------------------------------------------------------------------------
 
 
 
 // -----   Public method Print   -------------------------------------------
-void CbmMCTrack::Print(Int_t trackID) const {
+void PndMCTrack::Print(Int_t trackID) const {
   cout << "Track " << trackID << ", mother : " << fMotherID << ", Type "
        << fPdgCode << ", momentum (" << fPx << ", " << fPy << ", " << fPz
        << ") GeV" << endl;
 }
 // -------------------------------------------------------------------------
 
-TLorentzVector CbmMCTrack::Get4Momentum() const {
+TLorentzVector PndMCTrack::Get4Momentum() const {
 
     Double_t mass=0.0;
     Double_t ene=0.0;
@@ -98,4 +98,4 @@ TLorentzVector CbmMCTrack::Get4Momentum() const {
    return TLorentzVector(fPx,fPy,fPz,ene);
 }
 
-ClassImp(CbmMCTrack)
+ClassImp(PndMCTrack)

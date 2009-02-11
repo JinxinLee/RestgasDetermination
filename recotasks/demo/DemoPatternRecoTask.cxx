@@ -30,7 +30,7 @@
 #include "Track.h"
 #include "TrackCand.h"
 #include "FairMCPoint.h"
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 #include "LSLTrackRep.h"
 #include "GeaneTrackRep.h"
 #include "Kalman.h"
@@ -144,7 +144,7 @@ DemoPatternRecoTask::Exec(Option_t* opt)
      }
      
      // Get MCTrack
-     CbmMCTrack* mc=(CbmMCTrack*)_mcArray->At(candIter->first);
+     PndMCTrack* mc=(PndMCTrack*)_mcArray->At(candIter->first);
      if(mc==0){
        Error("DemoPRTask::Exec","MCTrack Id=&i not found!",candIter->first);
        ++candIter;

@@ -24,7 +24,7 @@
 // called from pandaroot/macro/mvd/Ralf
 //how to do this better?
 #include "$VMCWORKDIR/base/FairRadLenPoint.h"
-#include "$VMCWORKDIR/mcstack/CbmMCTrack.h"
+#include "$VMCWORKDIR/pndbase/PndMCTrack.h"
 // #include "$VMCWORKDIR/mvd/MvdTools/PndMvdGeoHandling.h"
 #include "$VMCWORKDIR/macro/mvd/Tools.C"
 
@@ -51,7 +51,7 @@ void materialana(int nEvents = 10, bool verbose = false)
   TFile* f = new TFile(inFile.c_str()); // the sim file you want to analyse
   TTree *t=(TTree *) f->Get("cbmsim") ;
 
-  TClonesArray* mc_array=new TClonesArray("CbmMCTrack");
+  TClonesArray* mc_array=new TClonesArray("PndMCTrack");
   t->SetBranchAddress("MCTrack",&mc_array);//Branch names
 
   TClonesArray* rad_array=new TClonesArray("FairRadLenPoint");
@@ -124,7 +124,7 @@ void materialana(int nEvents = 10, bool verbose = false)
     else if (!(event%1000)) cout <<"Event No "<<event<<endl;
 
     for (Int_t trackno=0; trackno<mc_array->GetEntriesFast();trackno++){
-      CbmMCTrack* aTrack = (CbmMCTrack*)mc_array->At(trackno);
+      PndMCTrack* aTrack = (PndMCTrack*)mc_array->At(trackno);
       mom = aTrack->GetMomentum();
       theta = mom.Theta(); phi = mom.Phi();
 //       if(theta < 0.05 || theta > (TMath::Pi()-0.05)) continue; // cut strange angles

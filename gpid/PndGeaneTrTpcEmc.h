@@ -11,7 +11,7 @@
 #include "PndEmcPoint.h"
 #include "PndEmcCluster.h"
 #include "PndTpcPoint.h"
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 
 class TGeant3;
 class TClonesArray;
@@ -40,7 +40,7 @@ class PndGeaneTrTpcEmc : public FairTask
   TClonesArray* fPointArray2;
   TClonesArray* fClusterArray;
   //  CbmPlanePoint	 *fPoint1;
-  //  CbmMCTrack	 *fPoint1;
+  //  PndMCTrack	 *fPoint1;
   PndTpcPoint	 *fPoint1;
   PndEmcPoint	 *fPoint2;
   PndEmcCluster	 *fCluster;

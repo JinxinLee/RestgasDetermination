@@ -8,7 +8,7 @@
  *@author V.Friese <v.friese@gsi.de>
  **
  ** Task class for matching a reconstructed PndSttTrack with a simulated
- ** CbmMCTrack. The matching criterion is a maximal number of common
+ ** PndMCTrack. The matching criterion is a maximal number of common
  ** hits/points. The task fills the data class PndSttTrackMatch for
  ** each PndSttTrack.
  **/

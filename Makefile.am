@@ -28,7 +28,7 @@ if COND_HADES
 endif
 
 
-SUBDIRS			= geobase parbase base trackbase mcstack field generators pgenerators passive stt tpc tpc/tpcreco mvd muo emc drc drc/drcprop hyp genfit recotasks dch tof rpc lhetrack $(GEANT4_DIR) 
+SUBDIRS			= geobase parbase base trackbase pndbase field generators pgenerators passive stt tpc tpc/tpcreco mvd muo emc drc drc/drcprop hyp genfit recotasks dch tof rpc lhetrack $(GEANT4_DIR) 
 
 
 dist-hook:

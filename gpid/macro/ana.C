@@ -28,7 +28,7 @@ de/dx from mvd and tpc of two particle types
 #include "TStyle.h"
 #include <memory>
 #include "TSystem.h"
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 #include "FairMCPoint.h"
 #include "FairTrackParH.h"
 #include "TNtuple.h"
@@ -55,7 +55,7 @@ void ana()
   TFile *freco = new TFile("tracks_tpcmvdemc_muplus.root");
   TTree *treco = ( TTree* )freco->Get("cbmsim");
 
- TClonesArray *ArrMCTrack = new TClonesArray("CbmMCTrack");
+ TClonesArray *ArrMCTrack = new TClonesArray("PndMCTrack");
  tsim->SetBranchAddress("MCTrack",&ArrMCTrack);
 
  TClonesArray *ArrTof = new TClonesArray("PndTofPoint");
@@ -104,7 +104,7 @@ cout<<" "<<ArrMCTrack->GetEntriesFast()
 */
 
      
-  //   CbmMCTrack *mctrack_g = (CbmMCTrack *) ArrMCTrack->At(0);
+  //   PndMCTrack *mctrack_g = (PndMCTrack *) ArrMCTrack->At(0);
      PndTofPoint *tof = (PndTofPoint *) ArrTof->At(0);
      PndTofHit *tofHit = (PndTofHit *) ArrTofHit->At(0);
      PndTrack *track = (PndTrack *) ArrPndTrack->At(0);
@@ -115,7 +115,7 @@ cout<<" "<<ArrMCTrack->GetEntriesFast()
      {
        PndTpcPoint *tpc = (PndTpcPoint *) ArrTpc->At(j);
        Int_t trkID = tpc->GetTrackID();
-       CbmMCTrack *mctrack_g = (CbmMCTrack *) ArrMCTrack->At(trkID);
+       PndMCTrack *mctrack_g = (PndMCTrack *) ArrMCTrack->At(trkID);
        Int_t pdg = mctrack_g->GetPdgCode();
 //cout<<pdg<<endl;
        if (pdg == -13 )
@@ -132,7 +132,7 @@ cout<<" "<<ArrMCTrack->GetEntriesFast()
        PndMvdMCPoint *mvd = (PndMvdMCPoint *) ArrTpc->At(j);
        if(mvd == 0)continue;
        Int_t trkID = mvd->GetTrackID();
-       CbmMCTrack *mctrack_g = (CbmMCTrack *) ArrMCTrack->At(trkID);
+       PndMCTrack *mctrack_g = (PndMCTrack *) ArrMCTrack->At(trkID);
        Int_t pdg = mctrack_g->GetPdgCode();
        if (pdg == -13 )
         {
@@ -177,7 +177,7 @@ pvsmvdDEdx0->Fill(de_mvd/dx_mvd*1000000);
   TFile *freco1 = new TFile("tracks_tpcmvdemc_proton.root");
   TTree *treco1 = ( TTree* )freco1->Get("cbmsim");
 
- TClonesArray *ArrMCTrack1 = new TClonesArray("CbmMCTrack");
+ TClonesArray *ArrMCTrack1 = new TClonesArray("PndMCTrack");
  tsim1->SetBranchAddress("MCTrack",&ArrMCTrack1);
 
  TClonesArray *ArrTof1 = new TClonesArray("PndTofPoint");
@@ -217,7 +217,7 @@ pvsmvdDEdx0->Fill(de_mvd/dx_mvd*1000000);
        if(tpc == 0)continue;
        Int_t trkID = tpc->GetTrackID();
 //cout<<trkID<<"  "<<ArrMCTrack1->GetEntriesFast()<<endl;
-       CbmMCTrack *mctrack_g = (CbmMCTrack *) ArrMCTrack1->At(trkID);
+       PndMCTrack *mctrack_g = (PndMCTrack *) ArrMCTrack1->At(trkID);
        Int_t pdg = mctrack_g->GetPdgCode();
        if (pdg == 2212 )
         {
@@ -234,7 +234,7 @@ pvsmvdDEdx0->Fill(de_mvd/dx_mvd*1000000);
        PndMvdMCPoint *mvd = (PndMvdMCPoint *) ArrMvd1->At(j);
        if(mvd == 0)continue;
        Int_t trkID = mvd->GetTrackID();
-       CbmMCTrack *mctrack_g = (CbmMCTrack *) ArrMCTrack1->At(trkID);
+       PndMCTrack *mctrack_g = (PndMCTrack *) ArrMCTrack1->At(trkID);
        Int_t pdg = mctrack_g->GetPdgCode();
        if (pdg == 2212 )
         {

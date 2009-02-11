@@ -23,7 +23,7 @@
 #include "TStyle.h"
 #include <memory>
 #include "TSystem.h"
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 #include "FairMCPoint.h"
 #include "FairTrackParH.h"
 #include "TNtuple.h"
@@ -42,7 +42,7 @@ void histFill(TString const inf1, TString const inf2,TH2F &pvss,TH2F &pvslam,
   TFile *freco1 = new TFile(inf2);
   TTree *treco1 = ( TTree* )freco1->Get("cbmsim");
 
- TClonesArray *ArrMCTrack1 = new TClonesArray("CbmMCTrack");
+ TClonesArray *ArrMCTrack1 = new TClonesArray("PndMCTrack");
  tsim1->SetBranchAddress("MCTrack",&ArrMCTrack1);
 
  TClonesArray *ArrTof1 = new TClonesArray("PndTofPoint");
@@ -88,7 +88,7 @@ cout<<inf1<<inf2<<setw(10)<<ArrMvd1->GetEntriesFast()<<setw(10)<<ArrTpc1->GetEnt
        if(tpc == 0)continue;
        Int_t trkID = tpc->GetTrackID();
 //cout<<trkID<<"  "<<ArrMCTrack1->GetEntriesFast()<<endl;
-       CbmMCTrack *mctrack_g = (CbmMCTrack *) ArrMCTrack1->At(trkID);
+       PndMCTrack *mctrack_g = (PndMCTrack *) ArrMCTrack1->At(trkID);
        Int_t pdg = mctrack_g->GetPdgCode();
        if (pdg == pdg_code )
         {
@@ -105,7 +105,7 @@ cout<<inf1<<inf2<<setw(10)<<ArrMvd1->GetEntriesFast()<<setw(10)<<ArrTpc1->GetEnt
        PndMvdMCPoint *mvd = (PndMvdMCPoint *) ArrMvd1->At(j);
        if(mvd == 0)continue;
        Int_t trkID = mvd->GetTrackID();
-       CbmMCTrack *mctrack_g = (CbmMCTrack *) ArrMCTrack1->At(trkID);
+       PndMCTrack *mctrack_g = (PndMCTrack *) ArrMCTrack1->At(trkID);
        Int_t pdg = mctrack_g->GetPdgCode();
        if (pdg == pdg_code )
         {

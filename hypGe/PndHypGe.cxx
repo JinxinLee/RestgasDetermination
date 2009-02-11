@@ -19,7 +19,7 @@
 #include "FairGeoNode.h"
 #include "PndGeoHypGe.h"
 #include "FairGeoRootBuilder.h"
-#include "CbmStack.h"
+#include "PndStack.h"
 #include "FairGeoMedium.h"
 #include "FairRootManager.h"
 #include "FairModule.h"

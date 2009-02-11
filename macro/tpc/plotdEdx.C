@@ -1,5 +1,5 @@
 
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 #include "PndTpcPoint.h"
 //#include "TString.h"
 #include "TCanvas.h"
@@ -22,7 +22,7 @@ void plot(std::string filename) {
   TFile* inFile = new TFile(filename.c_str());
   TTree* tree = (TTree*)inFile->Get("cbmsim");
 
-  TClonesArray* tracks = new TClonesArray("CbmMCTrack");
+  TClonesArray* tracks = new TClonesArray("PndMCTrack");
   TClonesArray* points = new TClonesArray("PndTpcPoint");
 
   TH1D* hist = new TH1D("bla", "dE/dx", 300, 0, 10e-6);
@@ -52,7 +52,7 @@ void plot(std::string filename) {
       //std::cout<<"TrackID: "<<trackID<<std::endl;
       int ntracks = tracks->GetEntriesFast();
       //std::cout<<"# tracks: "<<ntracks<<std::endl;
-      int pdg = ((CbmMCTrack*)tracks->At(trackID))->GetPdgCode();
+      int pdg = ((PndMCTrack*)tracks->At(trackID))->GetPdgCode();
 
    
       double eLoss = ((PndTpcPoint*)points->At(p))->GetEnergyLoss();
@@ -100,7 +100,7 @@ void plotChain(std::string filename1, std::string filename2) {
   tree->AddFile(filename1.c_str());
   tree->AddFile(filename2.c_str());
 
-  TClonesArray* tracks = new TClonesArray("CbmMCTrack");
+  TClonesArray* tracks = new TClonesArray("PndMCTrack");
   TClonesArray* points = new TClonesArray("PndTpcPoint");
 
   TH1D* hist = new TH1D("bla", "dE/dx", 300, 0, 10e-6);
@@ -133,7 +133,7 @@ void plotChain(std::string filename1, std::string filename2) {
       //std::cout<<"TrackID: "<<trackID<<std::endl;
       int ntracks = tracks->GetEntriesFast();
       //std::cout<<"# tracks: "<<ntracks<<std::endl;
-      int pdg = ((CbmMCTrack*)tracks->At(trackID))->GetPdgCode();
+      int pdg = ((PndMCTrack*)tracks->At(trackID))->GetPdgCode();
 
    
       double eLoss = ((PndTpcPoint*)points->At(p))->GetEnergyLoss();

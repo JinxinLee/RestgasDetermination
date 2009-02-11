@@ -24,7 +24,7 @@
 	
 	TFile* fsim = new TFile("sim_emc_pi0.root"); //file you want to analyse
 	TTree *tsim=(TTree *) fsim->Get("cbmsim") ;
-	TClonesArray* mctrack_array=new TClonesArray("CbmMCTrack");
+	TClonesArray* mctrack_array=new TClonesArray("PndMCTrack");
 	tsim->SetBranchAddress("MCTrack",&mctrack_array);
 	
 	PndEmcMapper *emcMap=PndEmcMapper::Instance(2);
@@ -81,7 +81,7 @@
 		
 		for (Int_t i=0; i<mctrack_array->GetEntriesFast(); i++)
 		{
-			CbmMCTrack *mctrack1=(CbmMCTrack *) mctrack_array->At(i);
+			PndMCTrack *mctrack1=(PndMCTrack *) mctrack_array->At(i);
 			if (mctrack1->GetPdgCode()==22) // photons
 			{
 				mc_momentum1=mctrack1->GetMomentum();
@@ -91,7 +91,7 @@
 				
 				for (Int_t k=i+1; k<mctrack_array->GetEntriesFast(); k++)
 				{
-					CbmMCTrack *mctrack2=(CbmMCTrack *) mctrack_array->At(k);
+					PndMCTrack *mctrack2=(PndMCTrack *) mctrack_array->At(k);
 					if (mctrack2->GetPdgCode()==22) // photons
 					{
 						mc_momentum2=mctrack2->GetMomentum();

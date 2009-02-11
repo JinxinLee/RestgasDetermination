@@ -27,7 +27,7 @@ for the conformal mapping stuff
   TClonesArray* hit_array=new TClonesArray("PndMvdMCPoint");
   t->SetBranchAddress("MVDPoint",&hit_array);//Branch names
 
-  TClonesArray* mc_array=new TClonesArray("CbmMCTrack");
+  TClonesArray* mc_array=new TClonesArray("PndMCTrack");
   t->SetBranchAddress("MCTrack",&mc_array);//Branch names
 
   TGeoManager *geoMan = (TGeoManager*) gDirectory->Get("FAIRGeom");
@@ -70,7 +70,7 @@ for the conformal mapping stuff
       PndMvdMCPoint *hit=(PndMvdMCPoint*)hit_array->At(i);
       int mcpdg = -1;
 
-      //CbmMCTrack *mctruth = (CbmMCTrack*)mc_array->At(hit->GetTrackID());
+      //PndMCTrack *mctruth = (PndMCTrack*)mc_array->At(hit->GetTrackID());
       //mcpdg = mctruth->GetPdgCode();
       //cout<<"mcpdg="<<mcpdg<<endl;
 

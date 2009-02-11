@@ -7,7 +7,7 @@
  *@author S.Spataro <stefano.spataro@exp2.physik.uni-giessen.de>
  *
  The PndDpmGenerator reads the DPM output file (ROOT format)
- and inserts the tracks into the CbmStack via the FairPrimaryGenerator.
+ and inserts the tracks into the PndStack via the FairPrimaryGenerator.
  Derived from FairGenerator.
 **/
 

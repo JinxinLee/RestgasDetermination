@@ -7,7 +7,7 @@
 #include "TFile.h"
 #include "TNtuple.h"
 #include "TGeoManager.h"
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 #include "PndEmcHit.h"
 #include "PndEmcDigi.h"
 #include "PndEmcCluster.h"
@@ -25,7 +25,7 @@ void reco_analys(Char_t InputSimFile[]="sim_emc.root",
 
 	c->Add(InputSimFile);
 
-	TClonesArray* track_array=new TClonesArray("CbmMCTrack");
+	TClonesArray* track_array=new TClonesArray("PndMCTrack");
 	c->SetBranchAddress("MCTrack",&track_array);
 
 	TClonesArray* cluster_array=new TClonesArray("PndEmcCluster");
@@ -62,7 +62,7 @@ void reco_analys(Char_t InputSimFile[]="sim_emc.root",
 	    }
 	  c->GetEntry(j);
 	  
-		CbmMCTrack *track=(CbmMCTrack*)track_array->At(0);
+		PndMCTrack *track=(PndMCTrack*)track_array->At(0);
 		TLorentzVector p4mom=track->Get4Momentum();
 
 		/*

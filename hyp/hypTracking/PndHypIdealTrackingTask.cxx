@@ -16,7 +16,7 @@
 #include "PndHypIdealTrackingTask.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 
 
 // PndHyp includes
@@ -108,10 +108,10 @@ void PndHypIdealTrackingTask::Exec(Option_t* opt)
  	fTrackOutputArray->Clear();
 
   // CREATE MONTECARLO MAP
-  std::map<Int_t, CbmMCTrack*> mcmap;
+  std::map<Int_t, PndMCTrack*> mcmap;
   Int_t nmc=fMctruthArray->GetEntriesFast();
   for(Int_t imc=0;imc<nmc;++imc){
-    CbmMCTrack* mc=(CbmMCTrack*)fMctruthArray->At(imc);
+    PndMCTrack* mc=(PndMCTrack*)fMctruthArray->At(imc);
     mcmap[imc]=mc;
     //if(mc->GetPdgCode()>100)cout<<imc<<" "<<mc->GetPdgCode()<<endl;
     
@@ -220,13 +220,13 @@ void PndHypIdealTrackingTask::Exec(Option_t* opt)
    
 }
 
-Double_t PndHypIdealTrackingTask::GetTrackCurvature(CbmMCTrack* myTrack)
+Double_t PndHypIdealTrackingTask::GetTrackCurvature(PndMCTrack* myTrack)
 {
   TVector3 p = myTrack->GetMomentum();
   return (2/TMath::Sqrt(p.Px()*p.Px() + p.Py()*p.Py()));
 }
 
-Double_t PndHypIdealTrackingTask::GetTrackDip(CbmMCTrack* myTrack)
+Double_t PndHypIdealTrackingTask::GetTrackDip(PndMCTrack* myTrack)
 {
   TVector3 p= myTrack->GetMomentum();
   return (p.Mag()/TMath::Sqrt(p.Px()*p.Px() + p.Py()*p.Py()));

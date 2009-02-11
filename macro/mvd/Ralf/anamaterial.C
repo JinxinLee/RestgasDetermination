@@ -18,7 +18,7 @@
 //   TClonesArray* point_array=new TClonesArray("PndMvdMCPoint");
 //   t->SetBranchAddress("MVDPoint",&mc_array);//Branch names
 
-  TClonesArray* mc_array=new TClonesArray("CbmMCTrack");
+  TClonesArray* mc_array=new TClonesArray("PndMCTrack");
   t->SetBranchAddress("MCTrack",&mc_array);//Branch names
 
   TGeoManager *geoMan = (TGeoManager*) gDirectory->Get("FAIRGeom");

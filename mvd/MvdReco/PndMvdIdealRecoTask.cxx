@@ -18,7 +18,7 @@
 #include "PndMvdIdealRecoTask.h"
 #include "FairRun.h"
 #include "FairRuntimeDb.h"
-#include "../mcstack/CbmMCTrack.h"
+#include "../pndbase/PndMCTrack.h"
 #include "FairHit.h"
 // PndMvd includes
 #include "PndMvdHit.h"

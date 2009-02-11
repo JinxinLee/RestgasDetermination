@@ -8,7 +8,7 @@
 PndMvdMCEventAna::PndMvdMCEventAna(TString fileName):PndMvdEventAna(fileName)
 {
   Init(fileName);
-  fMCTrackArray = new TClonesArray("CbmMCTrack");
+  fMCTrackArray = new TClonesArray("PndMCTrack");
   fTree->SetBranchAddress("MCTrack", &fMCTrackArray);
   fGeoH = new PndMvdGeoHandling(gGeoManager);
 }

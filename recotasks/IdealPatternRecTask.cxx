@@ -28,7 +28,7 @@
 // Collaborating Class Headers --------
 #include "FairRootManager.h"
 #include "TClonesArray.h"
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 #include "PndTpcPoint.h"
 #include "CbmTstPoint.h"
 #include "Track.h"
@@ -138,10 +138,10 @@ IdealPatternRecTask::Exec(Option_t* opt)
   if(_trackOutputArray==0) Fatal("IdealPatternRec::Exec)","No TrackArray");
   _trackOutputArray->Delete();
   // CREATE MONTECARLO MAP
-  std::map<int, CbmMCTrack*> mcmap;
+  std::map<int, PndMCTrack*> mcmap;
   Int_t nmc=_mctruthArray->GetEntriesFast();
   for(int imc=0;imc<nmc;++imc){
-    CbmMCTrack* mc=(CbmMCTrack*)_mctruthArray->At(imc);
+    PndMCTrack* mc=(PndMCTrack*)_mctruthArray->At(imc);
     mcmap[imc]=mc;
   }
   // BUILD TRACKS

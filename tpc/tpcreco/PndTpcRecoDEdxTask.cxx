@@ -20,7 +20,7 @@
 #include "PndTpcCluster.h"
 #include "Track.h"
 #include "PndTpcPlanarRecoHit.h"
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 #include "FairRootManager.h"
 #include "DetPlane.h"
 #include "TrackCand.h"

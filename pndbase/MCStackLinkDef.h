@@ -7,8 +7,8 @@
 #pragma link off all classes;
 #pragma link off all functions;
 
-#pragma link C++ class CbmStack+;
-#pragma link C++ class CbmMCTrack+;
+#pragma link C++ class PndStack+;
+#pragma link C++ class PndMCTrack+;
  
 #endif
 

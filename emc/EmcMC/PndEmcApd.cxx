@@ -35,7 +35,7 @@
 
 #include "FairGeoMedia.h" 
 #include "FairGeoMedium.h"
-#include "CbmStack.h"
+#include "PndStack.h"
 #include "TString.h"
 #include "TObject.h"
 

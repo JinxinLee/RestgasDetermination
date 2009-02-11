@@ -29,7 +29,7 @@
 class TClonesArray;
 class PndTpcFrontend;
 class PndTpcRiemannTrack;
-class CbmMCTrack;
+class PndMCTrack;
 class RecoHitFactory;
 class TH1I;
 class TH1D;
@@ -105,7 +105,7 @@ private:
   TH2D* _2dTrueDist;
 
   // Private Methods -----------------
-  PndTpcRiemannTrack* McToRiemann(CbmMCTrack* mctrk);
+  PndTpcRiemannTrack* McToRiemann(PndMCTrack* mctrk);
 
 public:
   ClassDef(PndTpcRiemannMCTask,1)

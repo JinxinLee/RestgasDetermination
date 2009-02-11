@@ -22,7 +22,7 @@
 #include "PndEmcMapper.h"
 #include "PndEmcTwoCoordIndex.h"
 #include "PndPidCand.h"
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 #include "FairMCPoint.h"
 #include "FairTrackParH.h"
 

@@ -22,7 +22,7 @@
 // framework includes
 #include "FairTask.h"
 #include "FairField.h"
-class CbmMCTrack;
+class PndMCTrack;
 class TClonesArray;
 
 class PndHypIdealTrackingTask : public FairTask
@@ -45,8 +45,8 @@ class PndHypIdealTrackingTask : public FairTask
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
 
-   Double_t GetTrackDip(CbmMCTrack* myTrack);
-   Double_t GetTrackCurvature(CbmMCTrack* myTrack);
+   Double_t GetTrackDip(PndMCTrack* myTrack);
+   Double_t GetTrackCurvature(PndMCTrack* myTrack);
 
  private:
   

@@ -26,7 +26,7 @@
 
 // Collaborating Class Headers --------
 #include "FairRootManager.h"
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 #include "TClonesArray.h"
 #include "PndTpcCluster.h"
 #include "PndTpcClusterZ.h"
@@ -155,7 +155,7 @@ PndTpcRiemannMCTask::Init()
 		  <<_bkgFileName<<std::endl;
 
     // Create bkgArray
-    _bkgArray = new TClonesArray("CbmMCTrack");
+    _bkgArray = new TClonesArray("PndMCTrack");
     _bkgTree->SetBranchAddress(_bkgBranchName,&_bkgArray);
 
   }
@@ -214,13 +214,13 @@ PndTpcRiemannMCTask::Exec(Option_t* opt)
     McId id=mastercoll.ID(i);
     unsigned int evtid=id.mceventID();
     unsigned int trkid=id.mctrackID();
-    CbmMCTrack* mctrk=NULL;
+    PndMCTrack* mctrk=NULL;
     if(evtid==0){ // get mctrack from this event
-          mctrk=(CbmMCTrack*)_mctrackArray->At(trkid);
+          mctrk=(PndMCTrack*)_mctrackArray->At(trkid);
         }
     else if(_bkgTree!=NULL){// this means background!
       _bkgTree->GetEntry(evtid-1);
-      mctrk=(CbmMCTrack*)_bkgArray->At(trkid);
+      mctrk=(PndMCTrack*)_bkgArray->At(trkid);
     }
     
     if(mctrk!=NULL && mctrk->GetMomentum().Mag()>0.2){
@@ -363,7 +363,7 @@ PndTpcRiemannMCTask::WriteHistograms() {
 }
 
 PndTpcRiemannTrack*
-PndTpcRiemannMCTask::McToRiemann(CbmMCTrack* mctrk){
+PndTpcRiemannMCTask::McToRiemann(PndMCTrack* mctrk){
   double R,dip,z0;
   TVector3 p=mctrk->GetMomentum();
 

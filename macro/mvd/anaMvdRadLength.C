@@ -40,7 +40,7 @@ for the conformal mapping stuff
   TClonesArray* radlen_array = new TClonesArray("FairRadLenPoint");
   t->SetBranchAddress("RadLen", &radlen_array);
 
-  TClonesArray* mc_array=new TClonesArray("CbmMCTrack");
+  TClonesArray* mc_array=new TClonesArray("PndMCTrack");
   t->SetBranchAddress("MCTrack",&mc_array);//Branch names
   
   TH1D* hisRadLen = new TH1D("hisRadLen","Radiation Length", 1000,0,100);
@@ -74,7 +74,7 @@ for the conformal mapping stuff
       pos = point->GetPosition();
       posOut = point->GetPositionOut();
       res = posOut - pos;
-      CbmMCTrack* myTrack = (CbmMCTrack*)(mc_array->At(point->GetTrackID()));
+      PndMCTrack* myTrack = (PndMCTrack*)(mc_array->At(point->GetTrackID()));
       if (myTrack->GetMotherID() < 0){
 	      if (verbose){
 	    	  std::cout << "Time: " << point->GetTime() << " Length: " << point->GetLength() << std::endl;
@@ -89,7 +89,7 @@ for the conformal mapping stuff
     for (int k = 0; k < RadLengthOnTrack.size(); k++){
 	  if (RadLengthOnTrack[k] > 0){
 		  if (verbose) std::cout << "Full TrackLength: " << RadLengthOnTrack[k] << std::endl;
-		  CbmMCTrack* mcTrack = (CbmMCTrack*)(mc_array->At(k));
+		  PndMCTrack* mcTrack = (PndMCTrack*)(mc_array->At(k));
 		  hisRadLen->Fill(RadLengthOnTrack[k]);
 		  hisRadLen2D->Fill(mcTrack->GetMomentum().CosTheta(), mcTrack->GetMomentum().Phi(), RadLengthOnTrack[k]);
 		  hisRadLenCount->Fill(mcTrack->GetMomentum().CosTheta(), mcTrack->GetMomentum().Phi());
@@ -103,7 +103,7 @@ for the conformal mapping stuff
     }
     
     for (map<int,int>::const_iterator ci = trackHitMap.begin(); ci != trackHitMap.end(); ci++){
-    	CbmMCTrack* track = (CbmMCTrack*)(mc_array->At(ci->first));
+    	PndMCTrack* track = (PndMCTrack*)(mc_array->At(ci->first));
     	hisTrackP->Fill(ci->second);
     	hisTrackP2D->Fill(track->GetMomentum().CosTheta(), track->GetMomentum().Phi(), ci->second);
     	hisTrackPCount->Fill(track->GetMomentum().CosTheta(), track->GetMomentum().Phi());

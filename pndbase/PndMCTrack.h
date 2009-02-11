@@ -1,13 +1,13 @@
 // -------------------------------------------------------------------------
-// -----                      CbmMCTrack header file                   -----
+// -----                      PndMCTrack header file                   -----
 // -----                  Created 03/08/04  by V. Friese               -----
 // -------------------------------------------------------------------------
 
 
-/** CbmMCTrack.h
+/** PndMCTrack.h
  *@author V.Friese <v.friese@gsi.de>
  **
- ** Data class for storing Monte Carlo tracks processed by the CbmStack.
+ ** Data class for storing Monte Carlo tracks processed by the PndStack.
  ** A MCTrack can be a primary track put into the simulation or a
  ** secondary one produced by the transport through decay or interaction.
  **/
@@ -29,31 +29,31 @@
 #include "TDatabasePDG.h"
 #endif
 
-class CbmMCTrack : public TObject
+class PndMCTrack : public TObject
 {
 
  public:
 
 
   /**  Default constructor  **/
-  CbmMCTrack();
+  PndMCTrack();
 
 
   /**  Standard constructor  **/
-  CbmMCTrack(Int_t pdgCode, Int_t motherID, TVector3 startVvertex, 
+  PndMCTrack(Int_t pdgCode, Int_t motherID, TVector3 startVvertex, 
 	     Double_t startTime, TVector3 momentum, Int_t nPoint=0);
 
 
   /**  Copy constructor  **/
-  CbmMCTrack(const CbmMCTrack& track);
+  PndMCTrack(const PndMCTrack& track);
 
 
   /**  Constructor from TParticle  **/
-  CbmMCTrack(TParticle* particle);
+  PndMCTrack(TParticle* particle);
 
 
   /**  Destructor  **/
-  virtual ~CbmMCTrack();
+  virtual ~PndMCTrack();
 
 
   /**  Output to screen  **/
@@ -133,33 +133,33 @@ private:
   Int_t fPoints;
 
  
-  ClassDef(CbmMCTrack,1);
+  ClassDef(PndMCTrack,1);
 
 };
 
 /*
-inline void CbmMCTrack::SetStsPoints(Int_t np) {
+inline void PndMCTrack::SetStsPoints(Int_t np) {
   if (np >= 0) fPoints = ( fPoints & ( ~ 15      ) ) |   np;
 }
 */
 
-inline void CbmMCTrack::SetDrcPoints(Int_t np) {
+inline void PndMCTrack::SetDrcPoints(Int_t np) {
   if (np >= 0) fPoints = ( fPoints & ( ~(15<< 2) ) ) | ( np <<  2 );
 }
 
-inline void CbmMCTrack::SetMdtPoints(Int_t np) {
+inline void PndMCTrack::SetMdtPoints(Int_t np) {
   if (np >= 0) fPoints = ( fPoints & ( ~(15<< 6) ) ) | ( np <<  6 );
 }
 
-inline void CbmMCTrack::SetDchPoints(Int_t np) {
+inline void PndMCTrack::SetDchPoints(Int_t np) {
   if (np >= 0) fPoints = ( fPoints & ( ~(63<<10) ) ) | ( np << 10 );
 }
 
-inline void CbmMCTrack::SetEmcPoints(Int_t np) {
+inline void PndMCTrack::SetEmcPoints(Int_t np) {
   if (np >= 0) fPoints = ( fPoints & ( ~(15<<16) ) ) | ( np << 16 );
 }
 
-inline void CbmMCTrack::SetSttPoints(Int_t np) {
+inline void PndMCTrack::SetSttPoints(Int_t np) {
   if (np >= 0) fPoints = ( fPoints & ( ~(15<<20) ) ) | ( np << 20 );
 }
 

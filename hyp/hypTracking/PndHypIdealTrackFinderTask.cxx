@@ -168,7 +168,7 @@ void PndHypIdealTrackFinderTask::Exec(Option_t* opt)
 void PndHypIdealTrackFinderTask::AddAndExpand(Int_t trackID, Int_t detnum, Int_t iHit){
   if (fTrackCandMap[trackID] == 0){
     TrackCand *myTCand = new TrackCand();
-    CbmMCTrack* myMCTrack = (CbmMCTrack*)fTrackArray->At(trackID);
+    PndMCTrack* myMCTrack = (PndMCTrack*)fTrackArray->At(trackID);
     myTCand->setCurv(GetTrackCurvature(myMCTrack));
     myTCand->setDip(GetTrackDip(myMCTrack));
     myTCand->setInverted(false);
@@ -179,13 +179,13 @@ void PndHypIdealTrackFinderTask::AddAndExpand(Int_t trackID, Int_t detnum, Int_t
 }
 
 
-Double_t PndHypIdealTrackFinderTask::GetTrackCurvature(CbmMCTrack* myTrack)
+Double_t PndHypIdealTrackFinderTask::GetTrackCurvature(PndMCTrack* myTrack)
 {
   TVector3 p = myTrack->GetMomentum();
   return (2/TMath::Sqrt(p.Px()*p.Px() + p.Py()*p.Py()));
 }
 
-Double_t PndHypIdealTrackFinderTask::GetTrackDip(CbmMCTrack* myTrack)
+Double_t PndHypIdealTrackFinderTask::GetTrackDip(PndMCTrack* myTrack)
 {
   TVector3 p= myTrack->GetMomentum();
   return (p.Mag()/TMath::Sqrt(p.Px()*p.Px() + p.Py()*p.Py()));

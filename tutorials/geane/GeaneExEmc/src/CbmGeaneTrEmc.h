@@ -9,7 +9,7 @@
 #include "TVector3.h"
 #include "FairGeanePro.h"
 #include "PndEmcPoint.h"
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 
 class TGeant3;
 class TClonesArray;
@@ -35,7 +35,7 @@ class FairGeaneTrEmc : public FairTask
   TClonesArray* fPointArray1;
   TClonesArray* fPointArray2;
   //  CbmPlanePoint	 *fPoint1;
-  CbmMCTrack	 *fPoint1;
+  PndMCTrack	 *fPoint1;
   PndEmcPoint	 *fPoint2;
 
   TTree *t;

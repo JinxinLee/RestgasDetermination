@@ -1,17 +1,17 @@
 // -------------------------------------------------------------------------
-// -----                       CbmStack header file                    -----
+// -----                       PndStack header file                    -----
 // -----           Created 10/08/04  by D. Bertini / V. Friese         -----
 // -------------------------------------------------------------------------
 
 
-/** CbmStack.h
+/** PndStack.h
  *@author D.Bertini <d.bertini@gsi.de>
  *@author V.Friese <v.friese@gsi.de>
  **
  ** This class handles the particle stack for the transport simulation.
  ** For the stack FILO functunality, it uses the STL stack. To store
  ** the tracks, a TParticle arry is used. At the end of the event,
- ** it is filtered and copied to a CbmMCTrack array, which is written to
+ ** it is filtered and copied to a PndMCTrack array, which is written to
  ** the output. 
  **/
 
@@ -28,21 +28,21 @@
 #include "FairGenericStack.h"
 
 
-class CbmStack : public FairGenericStack
+class PndStack : public FairGenericStack
 {
 
  public:
 
   /** Default constructor  **/
-  CbmStack();
+  PndStack();
 
 
   /** Destructor with estimated array size  **/
-  CbmStack(Int_t size);
+  PndStack(Int_t size);
 
 
   /** Destructor  **/
-  virtual ~CbmStack();
+  virtual ~PndStack();
 
   /** Virtual method PushTrack.
    ** Add a TParticle to the stack.
@@ -139,7 +139,7 @@ class CbmStack : public FairGenericStack
   TClonesArray* fParticles;            //!
 
 
-  /** Array of CbmMCTracks containg the tracks written to the output **/
+  /** Array of PndMCTracks containg the tracks written to the output **/
   TClonesArray* fTracks;
 
 
@@ -171,10 +171,10 @@ class CbmStack : public FairGenericStack
   void SelectTracks();
 
 
-  ClassDef(CbmStack,1)
+  ClassDef(PndStack,1)
   private:
-    CbmStack(const CbmStack &L);
-    CbmStack& operator= (const CbmStack&) {return *this;}
+    PndStack(const PndStack &L);
+    PndStack& operator= (const PndStack&) {return *this;}
 
       
 };

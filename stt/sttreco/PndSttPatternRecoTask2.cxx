@@ -20,7 +20,7 @@
 #include "FitterExceptions.h"
 #include "FairGeanePro.h"
 #include "FairTrackParP.h"
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 
 
 using std::cout;
@@ -106,7 +106,7 @@ void PndSttPatternRecoTask2:: Exec(Option_t* opt)
   //   cout << "SttPRTask::Exec()" << endl;
   fTrackArray->Delete();
 
-  CbmMCTrack*       mctrack = NULL; 
+  PndMCTrack*       mctrack = NULL; 
   PndSttTrack*      track = NULL;
   PndSttTrackMatch* match = NULL;
   
@@ -118,13 +118,13 @@ void PndSttPatternRecoTask2:: Exec(Option_t* opt)
 
   for (Int_t iTrack=0; iTrack<nTracks; iTrack++) 
     {
-      mctrack = (CbmMCTrack*) fMCTrackArray->At(iTrack);
+      mctrack = (PndMCTrack*) fMCTrackArray->At(iTrack);
       track = (PndSttTrack*) fSttTrackArray->At(iTrack);
       match = (PndSttTrackMatch*) fMatchArray->At(iTrack);
  
       if (!mctrack) 
 	{
-	  cout << "-W- SttPRTask::Exec: Empty CbmMCTrack at " << iTrack << endl;
+	  cout << "-W- SttPRTask::Exec: Empty PndMCTrack at " << iTrack << endl;
 	  continue;
 	}
      

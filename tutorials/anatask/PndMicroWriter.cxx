@@ -22,8 +22,8 @@ Author: K.Goetzen, GSI, 06/2008
 #include "PndTpcLheTrack.h"
 #include "PndTpcLhePoint.h"
 #include "PndLhePidTrack.h"
-#include "CbmStack.h"
-#include "CbmMCTrack.h"
+#include "PndStack.h"
+#include "PndMCTrack.h"
 #include "FairMCPoint.h"
 
 #include "Track.h"
@@ -192,7 +192,7 @@ void PndMicroWriter::Exec(Option_t* opt)
   
   int nMCTrack=0;
   if (fStoreMC) nMCTrack=fMCTrack->GetEntriesFast();
-  //CbmStack *fStack=(CbmStack*)gMC->GetStack();  
+  //PndStack *fStack=(PndStack*)gMC->GetStack();  
   //int nMCTracks=fStack->GetNtrack();
 
    // Reset output array
@@ -220,7 +220,7 @@ void PndMicroWriter::Exec(Option_t* opt)
   {
     Int_t mcsize = mctracks.GetEntriesFast();
 	
-	CbmMCTrack *t = (CbmMCTrack*)fMCTrack->At(imc);
+	PndMCTrack *t = (PndMCTrack*)fMCTrack->At(imc);
 	
 	if (t->GetMotherID()!=-1) continue;
 	

@@ -23,7 +23,7 @@
 	TTree *tsim=(TTree *) fsim->Get("cbmsim") ;
 	PndEmcMapper *emcMap=PndEmcMapper::Instance(2);
 
-	TClonesArray* mctrack_array=new TClonesArray("CbmMCTrack");
+	TClonesArray* mctrack_array=new TClonesArray("PndMCTrack");
 	tsim->SetBranchAddress("MCTrack",&mctrack_array);
 	
 	TVector3 photon_momentum;
@@ -69,7 +69,7 @@
 		t->GetEntry(j);
 		tsim->GetEntry(j);
 		
-		CbmMCTrack *mctrack=(CbmMCTrack *) mctrack_array->At(0);
+		PndMCTrack *mctrack=(PndMCTrack *) mctrack_array->At(0);
 		photon_momentum=mctrack->GetMomentum();
 		theta=photon_momentum.Theta();
 		phi=photon_momentum.Phi();

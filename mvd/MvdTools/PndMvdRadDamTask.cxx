@@ -9,7 +9,7 @@
 
 #include "FairRootManager.h"
 #include "PndMvdMCPoint.h"
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 #include "PndMvdRadDamHit.h"
 #include "PndStringVector.h"
 
@@ -109,11 +109,11 @@ void PndMvdRadDamTask::Exec(Option_t* opt)
   fRadDamHits->Clear();
 
   PndMvdMCPoint* mcPoint;
-  CbmMCTrack* mcTrack;
+  PndMCTrack* mcTrack;
 
   for (int i = 0; i < fMCHits->GetEntriesFast(); i++){
 	  mcPoint = (PndMvdMCPoint*)fMCHits->At(i);
-	  mcTrack = (CbmMCTrack*)(fMCTracks->At(mcPoint->GetTrackID()));
+	  mcTrack = (PndMCTrack*)(fMCTracks->At(mcPoint->GetTrackID()));
 	  TVector3 mom;
 	  mcPoint->Momentum(mom);
 	  Double_t Ekin = mom.Mag();

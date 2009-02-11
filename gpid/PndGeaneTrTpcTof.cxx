@@ -13,7 +13,7 @@
 #include "TDatabasePDG.h"
 
 #include "FairTrackParH.h"
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 #include <iostream>
 
 
@@ -115,7 +115,7 @@ cout<<"-I- PndGeaneTrTpcTof"<<endl;
 void PndGeaneTrTpcTof::Exec(Option_t* opt) {
 TObjArray* points;
 PndTpcLheHit* hit;
-CbmMCTrack* mcstack; 
+PndMCTrack* pndbase; 
    fTrackParGeane->Delete();
    fTrackParIni->Delete();
    fPndTrackArr->Delete();
@@ -133,13 +133,13 @@ for (Int_t l=0; l<fTrackArray1->GetEntriesFast();l++   )  {          //loop over
     fPoint1 =(PndTpcPoint *) fPointArray1->At(hit->GetRefIndex());
     if(fPoint1 == NULL)continue;
     Int_t trId = fPoint1->GetTrackID();
-   mcstack = (CbmMCTrack *) fMCTrackArr->At(trId);
-   if(mcstack == 0 ) cout<<"CbmMCTrack at trId not found"<<endl; 
-    Int_t PDGCode = mcstack->GetPdgCode();
+   pndbase = (PndMCTrack *) fMCTrackArr->At(trId);
+   if(pndbase == 0 ) cout<<"PndMCTrack at trId not found"<<endl; 
+    Int_t PDGCode = pndbase->GetPdgCode();
 
 /*
   TVector3 Mom;       //    = fPoint1->GetMomentum();
-    Mom = mcstack->GetMomentum();
+    Mom = pndbase->GetMomentum();
     double p=Mom.Mag(); 
     TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
     TParticlePDG *fParticle= fdbPDG->GetParticle(PDGCode);

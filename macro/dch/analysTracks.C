@@ -1,5 +1,5 @@
 analysTracks() {
-	// Macro loads files with simulated (CbmMCTrack) and reconstructed tracks (PndDchTracks)
+	// Macro loads files with simulated (PndMCTrack) and reconstructed tracks (PndDchTracks)
 	// and plots various tracks quality spectra
 
 	gStyle->SetOptFit(1);

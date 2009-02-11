@@ -10,7 +10,7 @@
 
 #include "PndDrcHitProducerIdeal.h"
 #include "FairRootManager.h"
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 #include "PndDrcBarPoint.h"
 #include "PndDrcHit.h"
 #include "TVector3.h"
@@ -170,7 +170,7 @@ void PndDrcHitProducerIdeal::Exec(Option_t* option)
 
     Int_t fRefIndex = j;
 
-    CbmMCTrack* tr = NULL;
+    PndMCTrack* tr = NULL;
 
     AddHit(fDetectorID, 
 	   fPosHit, 

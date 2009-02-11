@@ -8,7 +8,7 @@
 #include "FairRootManager.h"
 #include "PndDchKalmanTask.h"
 #include "Track.h"
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 #include "PndDchRecoHit.h"
 #include "PndDchCylinderHit.h"
 #include "LSLTrackRep.h"
@@ -160,7 +160,7 @@ PndDchKalmanTask::Exec(Option_t* opt)
 // 	"\t phi="<<rep->getMom().Phi()*TMath::RadToDeg()<<"\n";
 //       rep->Print();
 
-      CbmMCTrack* mc=(CbmMCTrack*)fMCTrackArray->At(0);
+      PndMCTrack* mc=(PndMCTrack*)fMCTrackArray->At(0);
       if(mc==0){
 	Error("PndDchPrepareKalmanTracks::Exec","MCTrack Id=0 not found!");
 	continue;

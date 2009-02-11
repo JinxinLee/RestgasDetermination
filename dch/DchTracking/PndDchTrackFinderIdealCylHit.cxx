@@ -159,7 +159,7 @@ Int_t PndDchTrackFinderIdealCylHit::DoFind(TClonesArray* cylHitArray,
 	PndDchCylinderHit*  dchCylHit  = NULL;
 	PndDchDigi*  dchDigi  = NULL;
 	FairMCPoint*  mcPoint  = NULL;
-	CbmMCTrack*  mcTrack  = NULL;
+	PndMCTrack*  mcTrack  = NULL;
 	PndDchTrack* dchTrack = NULL;
 
 	// Declare variables outside the loop
@@ -219,7 +219,7 @@ Int_t PndDchTrackFinderIdealCylHit::DoFind(TClonesArray* cylHitArray,
 	}
 
 	for(Int_t iMCTrack = 0; iMCTrack < nMCTracks; iMCTrack++) {
-		mcTrack = (CbmMCTrack*) fMCTrackArray->At(iMCTrack);
+		mcTrack = (PndMCTrack*) fMCTrackArray->At(iMCTrack);
 		if( !mcTrack ) continue;
 
 

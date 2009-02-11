@@ -22,7 +22,7 @@ t->SetBranchAddress("EmcApdHit",&hit_array);
 	
 TFile* fsim = new TFile("sim_emc_apd.root"); //file you want to analyse
 TTree *tsim=(TTree *) fsim->Get("cbmsim") ;
-TClonesArray* mctrack_array=new TClonesArray("CbmMCTrack");
+TClonesArray* mctrack_array=new TClonesArray("PndMCTrack");
 tsim->SetBranchAddress("MCTrack",&mctrack_array);
 
 Float_t energy = 0;
@@ -51,7 +51,7 @@ for (Int_t j=0; j< t->GetEntriesFast(); j++)
 	for (Int_t tt=0; tt<ntrack; tt++)
 	  {
 	    cout << apd->GetMCIndex(tt) << endl;
-	    CbmMCTrack* mctrack=(CbmMCTrack *) mctrack_array->At(apd->GetMCIndex(tt));
+	    PndMCTrack* mctrack=(PndMCTrack *) mctrack_array->At(apd->GetMCIndex(tt));
 	    cout << "Particle ID: " << mctrack->GetPdgCode()<< endl;
 	    hMom->Fill(mctrack->GetMomentum().Mag());
 	  } // end of MC loop

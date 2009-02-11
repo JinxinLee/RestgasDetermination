@@ -25,7 +25,7 @@ using std::ofstream;
 #include "FairGeoLoader.h"
 #include "FairGeoNode.h"
 #include "FairGeoRootBuilder.h"
-#include "CbmStack.h"
+#include "PndStack.h"
 #include "FairRootManager.h"
 #include "FairVolume.h"
 #include "PndRpcGeo.h"
@@ -187,7 +187,7 @@ cout << " time " << fTime << " length " << fLength <<"Eloss "<< fELoss << endl;
 cout << "t1 = " << ft1 << " t2= " << ft2<<endl;  
 
     // Increment number of tof points for TParticle
-//a    CbmStack* stack = (CbmStack*) gMC->GetStack();
+//a    PndStack* stack = (PndStack*) gMC->GetStack();
 //a    stack->AddPoint(kTOF);
      
 

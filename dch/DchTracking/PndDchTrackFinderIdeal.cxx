@@ -132,7 +132,7 @@ Int_t PndDchTrackFinderIdeal::DoFind(TClonesArray* hitArray,
 	// Create pointers to DchHit and DchPoint
 	PndDchHit*   dchHit   = NULL;
 	FairMCPoint*  mcPoint  = NULL;
-	CbmMCTrack*  mcTrack  = NULL;
+	PndMCTrack*  mcTrack  = NULL;
 	PndDchTrack* dchTrack = NULL;
 
 	// Declare variables outside the loop
@@ -190,7 +190,7 @@ Int_t PndDchTrackFinderIdeal::DoFind(TClonesArray* hitArray,
 	}
 
 	for(Int_t iMCTrack = 0; iMCTrack < nMCTracks; iMCTrack++) {
-		mcTrack = (CbmMCTrack*) fMCTrackArray->At(iMCTrack);
+		mcTrack = (PndMCTrack*) fMCTrackArray->At(iMCTrack);
 		if( !mcTrack ) continue;
 
 

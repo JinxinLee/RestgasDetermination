@@ -13,7 +13,7 @@
 #include "PndMvdHit.h"
 #include "PndEmcCluster.h"
 #include "PndEmcBump.h"
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 #include "FairMCApplication.h"
 #include "FairRootManager.h"
 
@@ -808,7 +808,7 @@ void PndTpcLheHitsMaker::CheckTracks() {
   TObjArray dtracks;
   TObjArray  *chits;
 
-  CbmMCTrack *gtrack = 0;
+  PndMCTrack *gtrack = 0;
 
   Int_t nMCtracks = fListMCtracks->GetEntriesFast();
 
@@ -834,7 +834,7 @@ void PndTpcLheHitsMaker::CheckTracks() {
       tr_pdg = 0;
       parent = 99999;
 
-      gtrack = (CbmMCTrack *) fListMCtracks->At(tr_num);
+      gtrack = (PndMCTrack *) fListMCtracks->At(tr_num);
 
       tr_pdg = gtrack->GetPdgCode();
       track->SetPid(tr_pdg);

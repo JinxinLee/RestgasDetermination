@@ -8,7 +8,7 @@
 #include "FairRootManager.h"
 #include "Track.h"
 #include "TrackCand.h"
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 #include "LSLTrackRep.h"
 #include "GeaneTrackRep.h"
 #include "Kalman.h"
@@ -161,7 +161,7 @@ PndDchPrepareKalmanTracks::Exec(Option_t* opt)
 
      PndDchTrackMatch* dchTrackMatch = (PndDchTrackMatch*) fDchTrackMatchArray->At(candIter->first);
      Int_t mcTrId = dchTrackMatch->GetMCTrackID();
-     CbmMCTrack* mc=(CbmMCTrack*)fMcArray->At(mcTrId);
+     PndMCTrack* mc=(PndMCTrack*)fMcArray->At(mcTrId);
      if(mc==0){
        Error("PndDchPrepareKalmanTracks::Exec","MCTrack Id=&i not found!",mcTrId);
        ++candIter;

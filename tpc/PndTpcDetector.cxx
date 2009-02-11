@@ -41,7 +41,7 @@
 #include "FairGeoVolume.h"
 #include "FairVolume.h"
 #include "TParticle.h"
-#include "CbmStack.h"
+#include "PndStack.h"
 #include "TVirtualMC.h"
 
 #include "FairGeoMedia.h"
@@ -121,7 +121,7 @@ PndTpcDetector::ProcessHits( FairVolume *v)
     TParticle* mother=gMC->GetStack()->GetCurrentTrack();
     while(!mother->IsPrimary()){
       trackID=mother->GetFirstMother();
-      mother=dynamic_cast<CbmStack*>(gMC->GetStack())->GetParticle(trackID);
+      mother=dynamic_cast<PndStack*>(gMC->GetStack())->GetParticle(trackID);
       //std::cout<<"Fetching mother id="<<trackID<<std::endl;
     }
   }

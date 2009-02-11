@@ -21,8 +21,8 @@ modified by A. Sanchez for hyp purpose
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
 
-#include "CbmStack.h"
-#include "CbmMCTrack.h"
+#include "PndStack.h"
+#include "PndMCTrack.h"
 
 #include "Track.h"
 #include "LSLTrackRep.h"
@@ -183,7 +183,7 @@ void PndHypMicroIdealWriter::Exec(Option_t* opt)
   int nMCTrack=0;
   //if (fStoreMC) nMCTrack=fMCTrack->GetEntriesFast();
   
-  //CbmStack *fStack=(CbmStack*)gMC->GetStack();  
+  //PndStack *fStack=(PndStack*)gMC->GetStack();  
   //int nMCTracks=fStack->GetNtrack();
 
    // Reset output array

@@ -33,7 +33,7 @@ void Config()
    cout << "Geant4 has been created." << endl;
 
 /// create the Specific stack
-   CbmStack *stack = new CbmStack(1000); 
+   PndStack *stack = new PndStack(1000); 
    stack->StoreSecondaries(kTRUE);
    stack->SetMinPoints(0);
    geant4->SetStack(stack);

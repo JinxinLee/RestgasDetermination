@@ -13,7 +13,7 @@
   TClonesArray* point_array=new TClonesArray("PndMdtPoint");
   t->SetBranchAddress("MdtPoint",&point_array);
 
-  TClonesArray* mc_array=new TClonesArray("CbmMCTrack");
+  TClonesArray* mc_array=new TClonesArray("PndMCTrack");
   t->SetBranchAddress("MCTrack",&mc_array);
   PndEmcMapper *emcMap=PndEmcMapper::Instance(1);
 
@@ -57,7 +57,7 @@
 	  //for (Int_t pp=0;pp<10;pp++) cout << trkHit->GetModule() << "  " << pp << "  " << trkHit->GetHitNumber(pp)<< endl;
 	  PndMdtHit *hit0 = (PndMdtHit*)hit_array->At(trkHit->GetHitNumber(0));
 	  PndMdtPoint *point0 = (PndMdtPoint*)point_array->At(hit0->GetRefIndex());
-	  CbmMCTrack *mc0 = (CbmMCTrack*)mc_array->At(((PndMdtPoint*)point_array->At(hit0->GetRefIndex()))->GetTrackID());
+	  PndMCTrack *mc0 = (PndMCTrack*)mc_array->At(((PndMdtPoint*)point_array->At(hit0->GetRefIndex()))->GetTrackID());
 	  
 	  TVector3 pos0(0.,0.,0.);
 	  hit0->Position(pos0);

@@ -19,7 +19,7 @@
 #include "TROOT.h"
 #include "TStyle.h"
 #include "TSystem.h"
-#include "CbmMCTrack.h"
+#include "PndMCTrack.h"
 #include "FairMCPoint.h"
 #include "FairTrackParH.h"
 #include "TNtuple.h"

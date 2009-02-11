@@ -9,7 +9,7 @@ void fillTree(TString const inf1, TString const inf2,
   TFile *freco1 = new TFile(inf2);
   TTree *treco1 = ( TTree* )freco1->Get("cbmsim");
   
-  TClonesArray *ArrMCTrack1 = new TClonesArray("CbmMCTrack");
+  TClonesArray *ArrMCTrack1 = new TClonesArray("PndMCTrack");
   tsim1->SetBranchAddress("MCTrack",&ArrMCTrack1);
   
   TClonesArray *ArrTof1 = new TClonesArray("PndTofPoint");
@@ -59,7 +59,7 @@ void fillTree(TString const inf1, TString const inf2,
       if(tpc == 0)continue;
       
       Int_t trkID = tpc->GetTrackID();
-      CbmMCTrack *mctrack_g = (CbmMCTrack *) ArrMCTrack1->At(trkID);
+      PndMCTrack *mctrack_g = (PndMCTrack *) ArrMCTrack1->At(trkID);
       Int_t pdg = mctrack_g->GetPdgCode();
       
       if (pdg == pdg_code ){
@@ -77,7 +77,7 @@ void fillTree(TString const inf1, TString const inf2,
       if(mvd == 0)continue;
       
       Int_t trkID = mvd->GetTrackID();
-      CbmMCTrack *mctrack_g = (CbmMCTrack *) ArrMCTrack1->At(trkID);
+      PndMCTrack *mctrack_g = (PndMCTrack *) ArrMCTrack1->At(trkID);
       Int_t pdg = mctrack_g->GetPdgCode();
       
       if (pdg == pdg_code ){
