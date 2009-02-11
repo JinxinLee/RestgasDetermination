@@ -17,7 +17,7 @@ void simfast(TString infile="dsdsj20k.evt",int soff=0,int nevts=0,TString outfil
   gSystem->Load("libGeoBase");
   gSystem->Load("libParBase");
   gSystem->Load("libBase");
-  gSystem->Load("libMCStack");
+  gSystem->Load("libPndBase");
   gSystem->Load("libGen");
   gSystem->Load("libRho");
   gSystem->Load("libfsim");

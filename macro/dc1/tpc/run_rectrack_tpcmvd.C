@@ -21,7 +21,7 @@ basiclibs();
 gSystem->Load("libGeoBase");
 gSystem->Load("libParBase");
 gSystem->Load("libBase");
-gSystem->Load("libMCStack");
+gSystem->Load("libPndBase");
 gSystem->Load("libField");
 gSystem->Load("libPassive");
 gSystem->Load("libGen");  

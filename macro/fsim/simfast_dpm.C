@@ -16,7 +16,7 @@ void simfast_dpm(double mom, int mode=0,int soff=0,int nevts=100,TString outfile
   gSystem->Load("libGeoBase");
   gSystem->Load("libParBase");
   gSystem->Load("libBase");
-  gSystem->Load("libMCStack");
+  gSystem->Load("libPndBase");
   gSystem->Load("libDpmEvtGen"); 	  
   gSystem->Load("libPGen");
   //gSystem->Load("libGen");

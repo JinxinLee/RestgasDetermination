@@ -11,7 +11,7 @@ void runMC(Int_t nrOfEvents=10, Double_t momentum=1.0, Char_t particle[]="e-")
   gSystem->Load("libGeoBase");
   gSystem->Load("libParBase");
   gSystem->Load("libBase");
-  gSystem->Load("libMCStack");
+  gSystem->Load("libPndBase");
   gSystem->Load("libGen");
   gSystem->Load("libPGen");
   gSystem->Load("libField");

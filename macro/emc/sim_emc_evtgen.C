@@ -13,7 +13,7 @@
   gSystem->Load("libGeoBase");
   gSystem->Load("libParBase");
   gSystem->Load("libBase");
-  gSystem->Load("libMCStack");
+  gSystem->Load("libPndBase");
   gSystem->Load("libField");
   gSystem->Load("libPassive"); // add other detector's lib if you need them
   gSystem->Load("libEmc"); 

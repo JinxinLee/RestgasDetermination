@@ -22,7 +22,7 @@ void geoconvert()
   gSystem->Load("libField");
   gSystem->Load("libGen");
   gSystem->Load("libPassive");
-  gSystem->Load("libMCStack");
+  gSystem->Load("libPndBase");
 //  gSystem->Load("libStt1"); 
 ////  gSystem->Load("libStt2");
 //  gSystem->Load("libMuo");

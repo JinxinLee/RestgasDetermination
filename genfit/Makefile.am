@@ -66,7 +66,7 @@ genfitDict.cxx: FitParams.h AbsTrackRep.h  LSLTrackRep.h GEANEhelixTrackRep.h Tr
 #localTrkRepTest_LDADD           += $(libgenfit_la_LIBADD) $(prefix)/lib/libtpc.so $(prefix)/lib/libBase.so
 #TpcDrawPadPlane_SOURCES	= TpcDrawPadPlane.cc
 
-#TpcDrawPadPlane_LDADD	= $(prefix)/lib/libtpc.so -L$(ROOTLIBDIR) -lCore -lCint -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lGeom -lGeomPainter -lVMC -lEG -lEGPythia6 -L$(ROOTSIM)/generators/lib/ -lPythia6 -L$(prefix)/lib -lBase -lGeoBase -lParBase -lMCStack /lib/libdl.so.2 -L$(SYSTEMC)/lib-linux -lsystemc -lm 
+#TpcDrawPadPlane_LDADD	= $(prefix)/lib/libtpc.so -L$(ROOTLIBDIR) -lCore -lCint -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lGeom -lGeomPainter -lVMC -lEG -lEGPythia6 -L$(ROOTSIM)/generators/lib/ -lPythia6 -L$(prefix)/lib -lBase -lGeoBase -lParBase -lPndBase /lib/libdl.so.2 -L$(SYSTEMC)/lib-linux -lsystemc -lm 
 
 #bin_PROGRAMS 	        = manualtest
 #manualtest_SOURCES	= test/manualtest.cxx

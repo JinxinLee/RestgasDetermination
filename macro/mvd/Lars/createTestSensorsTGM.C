@@ -7,7 +7,7 @@
   gSystem->Load("libGeoBase");
   gSystem->Load("libParBase");
   gSystem->Load("libBase");
-  gSystem->Load("libMCStack");
+  gSystem->Load("libPndBase");
   gSystem->Load("libPassive");
 
   TString outfile= "teststation.root";

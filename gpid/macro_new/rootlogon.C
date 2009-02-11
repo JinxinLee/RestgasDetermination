@@ -27,7 +27,7 @@
   gSystem->Load("libPassive");
   gSystem->Load("libEmc"); 
   gSystem->Load("libGeom.so");
-  gSystem->Load("libMCStack.so");
+  gSystem->Load("libPndBase.so");
   gSystem->Load("libGui.so");
   gSystem->Load("libgenfit");
   gSystem->Load("libtpc");

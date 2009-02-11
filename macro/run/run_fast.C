@@ -1,5 +1,5 @@
 /** Macro for running fast simulation it will only fill the 
-*   MCStack without any transport(M. Al-Turany)
+*   PndBase without any transport(M. Al-Turany)
 */
 {
   TStopwatch timer;
@@ -12,7 +12,7 @@
   gSystem->Load("libGeoBase");
   gSystem->Load("libParBase");
   gSystem->Load("libBase");
-  gSystem->Load("libMCStack");
+  gSystem->Load("libPndBase");
   gSystem->Load("libGen");
   gSystem->Load("libPassive");
   gSystem->Load("libPGen");

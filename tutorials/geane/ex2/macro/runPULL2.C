@@ -11,7 +11,7 @@
 	gSystem->Load("libParBase");
 	gSystem->Load("libBase");
     	gSystem->Load("libField");
-	gSystem->Load("libMCStack");
+	gSystem->Load("libPndBase");
 	gSystem->Load("libGeane");
   	gSystem->Load("libPlane");
         gSystem->Load("libGeaneEx");

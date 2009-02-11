@@ -26,7 +26,7 @@ void runReco(TString base="dsdsj_20k.evt", int nEvents = 10 )
   gSystem->Load("libGeoBase");
   gSystem->Load("libParBase");
   gSystem->Load("libBase");
-  gSystem->Load("libMCStack");
+  gSystem->Load("libPndBase");
   gSystem->Load("libField");
   gSystem->Load("libPassive");
   gSystem->Load("libMvd");

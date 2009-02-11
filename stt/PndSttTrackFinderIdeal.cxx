@@ -1,15 +1,8 @@
-// -------------------------------------------------------------------------
-// -----                PndSttTrackFinderIdeal source file             -----
-// -----                  Created 28/03/06  by V. Friese               -----
-// -------------------------------------------------------------------------
 
-// CBM includes
 #include "PndSttTrackFinderIdeal.h"
-
 #include "PndSttHit.h"
 #include "PndSttTrack.h"
 #include "PndSttHoughDefines.h"
-#include  <cmath>
 #include "FairMCPoint.h"
 #include "FairRootManager.h"
 
@@ -24,6 +17,7 @@
 // C++ includes
 #include <iostream>
 #include <map>
+#include  <cmath>
 
 using std::cout;
 using std::cin;

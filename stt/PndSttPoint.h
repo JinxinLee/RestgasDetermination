@@ -1,18 +1,3 @@
-// -------------------------------------------------------------------------
-// -----                      CbmStsPoint header file                  -----
-// -----                  Created 26/07/04  by V. Friese               -----
-// -------------------------------------------------------------------------
-
-
-/**  CbmStsPoint.h
- *@author V.Friese <v.friese@gsi.de>
- *
- * Interception of MC track with a STT detetcor. Holds in addition
- * to the base class the coordinates and momentum at the exit from
- * the active volume.
- **/
-//
-
 #ifndef PNDSTTPOINT_H
 #define PNDSTTPOINT_H
 

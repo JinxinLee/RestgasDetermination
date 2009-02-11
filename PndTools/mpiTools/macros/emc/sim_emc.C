@@ -16,7 +16,7 @@ void sim_emc(Int_t nEvents = 10, Char_t part[]="e-", Double_t momentum_min = 1.0
   //gSystem->Load("libGeoBase");
   //gSystem->Load("libParBase");
   //gSystem->Load("libBase");
-  //gSystem->Load("libMCStack");
+  //gSystem->Load("libPndBase");
   //gSystem->Load("libField");
   //gSystem->Load("libPassive"); // add other detector's lib if you need them
   //gSystem->Load("libEmc");

@@ -1,4 +1,4 @@
-# Create a library called "libBase" which includes the source files given in
+# Create a library called "libPndBase" which includes the source files given in
 # the array .
 # The extension is already found.  Any number of sources could be listed here.
 
@@ -30,16 +30,17 @@ endif(RULE_CHECKER_FOUND)
 # fill list of header files from list of source files
 # by exchanging the file extension
 CHANGE_FILE_EXTENSION(*.cxx *.h PNDBASE_HEADERS "${PNDBASE_SRCS}")
+SET( PNDBASE_HEADERS ${PNDBASE_HEADERS} PndDetectorList.h )
 
-set(PNDBASE_LINKDEF  MCStackLinkDef.h)
-set(PNDBASE_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/CbmMCStackDict.cxx) 
+set(PNDBASE_LINKDEF  PndBaseLinkDef.h)
+set(PNDBASE_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/PndBaseDict.cxx) 
 
 ROOT_GENERATE_DICTIONARY("${PNDBASE_HEADERS}" "${PNDBASE_LINKDEF}" "${PNDBASE_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
 
 SET(PNDBASE_SRCS ${PNDBASE_SRCS} ${PNDBASE_DICTIONARY})
 
-add_library(MCStack SHARED ${PNDBASE_SRCS})
-target_link_libraries(MCStack ${ROOT_LIBRARIES})
-set_target_properties(MCStack PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
+add_library(PndBase SHARED ${PNDBASE_SRCS})
+target_link_libraries(PndBase ${ROOT_LIBRARIES})
+set_target_properties(PndBase PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 ################ install ###################
-install(TARGETS MCStack DESTINATION ${CMAKE_BINARY_DIR}/lib)
+install(TARGETS PndBase DESTINATION ${CMAKE_BINARY_DIR}/lib)
