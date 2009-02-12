@@ -45,39 +45,19 @@ class PndEmcPoint : public FairMCPoint
   
 
   /** Accessors **/
-  Int_t    GetTrackID()    const { return fTrackID; }; 
   Int_t    GetEventID()    const { return fEventID; };
-  Int_t    GetDetectorID() const { return fDetectorID; };
-  Double_t GetX()          const { return fX; };
-  Double_t GetY()          const { return fY; };
-  Double_t GetZ()          const { return fZ; };
   Double_t GetTheta()      const { return fX == 0.0 && fY == 0.0 && fZ == 0.0 ? 0.0 : TMath::ATan2(sqrt(fX*fX+fY*fY),fZ)*TMath::RadToDeg() ;};
   Double_t GetPhi()        const { return fX == 0.0 && fY == 0.0 ? 0.0 : TMath::ATan2(fY,fX)*TMath::RadToDeg()  ;};
-  Double_t GetPx()         const { return fPx; };
-  Double_t GetPy()         const { return fPy; };
-  Double_t GetPz()         const { return fPz; };
-  Double_t GetTime()       const { return fTime; };
-  Double_t GetLength()     const { return fLength; };
-  Double_t GetEnergyLoss() const { return fELoss; };
-  
   Short_t GetXPad()        const;
   Short_t GetYPad()        const;
   
-  void Position(TVector3& pos)   { pos.SetXYZ(fX, fY, fZ); };
-  void Momentum(TVector3& mom)   { mom.SetXYZ(fPx, fPy, fPz); };
   Short_t GetModule()      const { return (fDetectorID/100000000);};
   Short_t GetRow()         const { return ((fDetectorID/1000000)%100);};
   Short_t GetCrystal()     const { return (fDetectorID%10000);};
   Short_t GetCopy()        const { return ((fDetectorID/10000)%100);};
   /** Modifiers **/
-  void SetTrackID(Int_t id)          { fTrackID    = id; }; 
+
   void SetEventID(Int_t id)          { fEventID    = id; };
-  void SetDetectorID(Int_t id)       { fDetectorID = id; };
-  void SetTime(Double_t time)        { fTime       = time; };
-  void SetLength(Double_t length)    { fLength     = length; };
-  void SetEnergyLoss(Double_t eLoss) { fELoss      = eLoss; };
-  void SetPosition(const TVector3& pos);
-  void SetMomentum(const TVector3& mom);
   void SetModule(Short_t mod)        { nModule     = mod;};
   void SetRow(Short_t row)           { nRow        = row;};
   void SetCrystal(Short_t crys)      { nCrystal    = crys;};
@@ -99,16 +79,5 @@ class PndEmcPoint : public FairMCPoint
 
 };
 
-inline void PndEmcPoint::SetPosition(const TVector3& pos) {
-  fX = pos.X();
-  fY = pos.Y();
-  fZ = pos.Z();
-}
-
-inline void PndEmcPoint::SetMomentum(const TVector3& mom) {
-  fPx = mom.Px();
-  fPy = mom.Py();
-  fPz = mom.Pz();
-}
 
 #endif
