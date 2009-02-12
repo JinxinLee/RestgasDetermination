@@ -12,8 +12,10 @@
 #include "FairRunSim.h"
 #include "FairVolume.h"
 
-
+#include "PndDetectorList.h"
 #include "PndGemMCPoint.h"
+#include "PndStack.h"
+
 // #include "PndGemGeo.h"
 // #include "PndGemGeoPar.h"
 // #include "PndGemGeoHandling.h"
@@ -147,21 +149,9 @@ Bool_t  PndGemDetector::ProcessHits(FairVolume* vol)
         fTime, fLength, fELoss);
 
       // Increment number of PndGem points for TParticle
-/*      Int_t
-        points = gMC->GetStack()->GetCurrentTrack()->GetMother(1);
+       PndStack* stack = (PndStack*) gMC->GetStack();
+       stack->AddPoint(kGEM);
 
-      Int_t
-        nPndGemMCPoints = (points & (15<<24)) >> 24;
-
-      nPndGemMCPoints ++;
-
-      if (nPndGemMCPoints > 15)
-        nPndGemMCPoints = 15;
-
-      points = ( points & ( ~ (15<<24) ) ) | (nPndGemMCPoints << 24);
-
-      gMC->GetStack()->GetCurrentTrack()->SetMother(1,points);
-      */
       ResetParameters();
     }
 

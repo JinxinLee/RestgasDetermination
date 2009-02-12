@@ -8,6 +8,7 @@
 #include "PndMdtTrk.h"
 #include "PndMdtHit.h"
 #include "PndMdtPoint.h"
+#include "PndDetectorList.h"
 
 #include "FairRootManager.h"
 #include "FairDetector.h"

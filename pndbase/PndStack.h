@@ -8,44 +8,55 @@
  *@author D.Bertini <d.bertini@gsi.de>
  *@author V.Friese <v.friese@gsi.de>
  **
+ ** Version 14/06/07 by V. Friese
+ **
  ** This class handles the particle stack for the transport simulation.
  ** For the stack FILO functunality, it uses the STL stack. To store
- ** the tracks, a TParticle arry is used. At the end of the event,
- ** it is filtered and copied to a PndMCTrack array, which is written to
- ** the output. 
+ ** the tracks during transport, a TParticle arry is used. 
+ ** At the end of the event, tracks satisfying the filter criteria
+ ** are copied to a PndMCTrack array, which is stored in the output.
+ **
+ ** The filtering criteria for the output tracks are:
+ ** - primary tracks are stored in any case.
+ ** - secondary tracks are stored if they have a minimal number of
+ **   points (sum of all detectors) and a minimal energy, or are the
+ ** 
+ ** The storage of secondaries can be switched off.
+ ** The storage of all mothers can be switched off. 
+ ** By default, the minimal number of points is 1 and the energy cut is 0.
  **/
 
 
-#ifndef CBMSTACK_H
-#define CBMSTACK_H
+#ifndef PNDSTACK_H
+#define PNDSTACK_H
 
+
+#include "PndDetectorList.h"
+#include "FairGenericStack.h"
+
+#include "TClonesArray.h"
+#include "TVirtualMCStack.h"
 
 #include <map>
 #include <stack>
-#include <iostream>
-#include "TClonesArray.h"
-#include "TVirtualMCStack.h"
-#include "FairGenericStack.h"
-
 
 class PndStack : public FairGenericStack
 {
 
  public:
 
-  /** Default constructor  **/
-  PndStack();
-
-
-  /** Destructor with estimated array size  **/
-  PndStack(Int_t size);
+  /** Default constructor
+   *param size  Estimated track number
+   **/
+  PndStack(Int_t size = 100);
 
 
   /** Destructor  **/
   virtual ~PndStack();
 
-  /** Virtual method PushTrack.
-   ** Add a TParticle to the stack.
+
+  /** Add a TParticle to the stack.
+   ** Declared in TVirtualMCStack
    *@param toBeDone  Flag for tracking
    *@param parentID  Index of mother particle
    *@param pdgCode   Particle type (PDG encoding)
@@ -67,20 +78,57 @@ class PndStack : public FairGenericStack
 			 Int_t& ntr, Double_t weight, Int_t is);
 
 
-  /** Virtual method PopNextTrack.
-   ** Gets next particle for tracking from the stack.
-   *@param  iTrack  index of popped track
+  /** Get next particle for tracking from the stack.
+   ** Declared in TVirtualMCStack
+   *@param  iTrack  index of popped track (return)
    *@return Pointer to the TParticle of the track
    **/
   virtual TParticle* PopNextTrack(Int_t& iTrack);
 
 
-  /** Virtual method PopPrimaryForTracking.
-   ** Gets primary particle by index for tracking from stack.
+  /** Get primary particle by index for tracking from stack
+   ** Declared in TVirtualMCStack
    *@param  iPrim   index of primary particle
    *@return Pointer to the TParticle of the track
    **/
   virtual TParticle* PopPrimaryForTracking(Int_t iPrim); 
+
+
+  /** Set the current track number 
+   ** Declared in TVirtualMCStack
+   *@param iTrack  track number
+   **/
+  virtual void SetCurrentTrack(Int_t iTrack)   { fCurrentTrack     = iTrack; }
+
+
+  /** Get total number of tracks 
+   ** Declared in TVirtualMCStack
+   **/
+  virtual Int_t GetNtrack() const { return fNParticles; }
+
+
+  /** Get number of primary tracks
+   ** Declared in TVirtualMCStack
+   **/
+  virtual Int_t GetNprimary() const { return fNPrimaries; }
+
+
+  /** Get the current track's particle
+   ** Declared in TVirtualMCStack
+   **/
+  virtual TParticle* GetCurrentTrack() const;
+
+
+  /** Get the number of the current track
+   ** Declared in TVirtualMCStack
+   **/
+  virtual Int_t GetCurrentTrackNumber() const { return fCurrentTrack; }
+
+
+  /** Get the track number of the parent of the current track
+   ** Declared in TVirtualMCStack
+   **/
+  virtual Int_t GetCurrentParentTrackNumber() const;
 
 
   /** Add a TParticle to the fParticles array **/
@@ -110,21 +158,30 @@ class PndStack : public FairGenericStack
 
 
   /** Modifiers  **/
-  virtual void SetCurrentTrack(Int_t iTrack);
   void StoreSecondaries(Bool_t choice = kTRUE) { fStoreSecondaries = choice; }
   void SetMinPoints(Int_t min)                 { fMinPoints        = min;    }
   void SetEnergyCut(Double_t eMin)             { fEnergyCut        = eMin;   }
   void StoreMothers(Bool_t choice = kTRUE)     { fStoreMothers     = choice; }
 
 
+  /** Increment number of points for the current track in a given detector
+   *@param iDet  Detector unique identifier
+   **/
+  void AddPoint(DetectorId iDet);
+
+
+  /** Increment number of points for an arbitrary track in a given detector
+   *@param iDet    Detector unique identifier
+   *@param iTrack  Track number
+   **/
+  void AddPoint(DetectorId iDet, Int_t iTrack);
+
+
   /** Accessors **/
-  virtual Int_t GetNtrack() const;   // Total number of tracks
-  virtual Int_t GetNprimary() const; // Number of primaries
-  virtual TParticle* GetCurrentTrack() const;
-  virtual Int_t GetCurrentTrackNumber() const; 
-  virtual Int_t GetCurrentParentTrackNumber() const;
-  TParticle* GetParticle(Int_t trackID) const;
+  TParticle* GetParticle(Int_t trackId) const;
   TClonesArray* GetListOfParticles() { return fParticles; }
+
+
 
  private:
 
@@ -152,6 +209,10 @@ class PndStack : public FairGenericStack
   std::map<Int_t, Int_t>            fIndexMap;        //!
   std::map<Int_t, Int_t>::iterator  fIndexIter;       //!
 
+
+  /** STL map from track index and detector ID to number of MCPoints **/
+  std::map<std::pair<Int_t, Int_t>, Int_t> fPointsMap;     //!
+
   
   /** Some indizes and counters **/
   Int_t fCurrentTrack;  //! Index of current track
@@ -159,6 +220,7 @@ class PndStack : public FairGenericStack
   Int_t fNParticles;    //! Number of entries in fParticles
   Int_t fNTracks;       //! Number of entries in fTracks
   Int_t fIndex;         //! Used for merging
+
 
   /** Variables defining the criteria for output selection **/
   Bool_t     fStoreSecondaries;
@@ -172,9 +234,6 @@ class PndStack : public FairGenericStack
 
 
   ClassDef(PndStack,1)
-  private:
-    PndStack(const PndStack &L);
-    PndStack& operator= (const PndStack&) {return *this;}
 
       
 };

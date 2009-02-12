@@ -7,6 +7,8 @@
 #include "PndDchFindTracksQa.h"
 #include "PndDchTrack.h"
 #include "PndDchTrackMatch.h"
+#include "PndDetectorList.h"
+
 
 #include "PndMCTrack.h"
 #include "FairRootManager.h"
@@ -260,7 +262,7 @@ void PndDchFindTracksQa::Exec(Option_t* opt) {
 		// --- Check geometrical acceptance; continue only for accepted tracks
 		nAll++;
 
-		Int_t nPoints = mcTrack->GetDchPoints();
+		Int_t nPoints = mcTrack->GetNPoints(kDCH);
 		if(nPoints < fMinPoints) continue;
 		nAcc++;
 

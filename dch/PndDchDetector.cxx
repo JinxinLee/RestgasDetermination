@@ -38,7 +38,7 @@ using std::endl;
 #include "PndDchDetector.h"	
 #include "PndDchPoint.h"
 #include "PndDchGeoPar.h"
-
+#include "PndDetectorList.h"
 // -----   Default constructor   -------------------------------------------
 PndDchDetector::PndDchDetector() {
   fDchPointCollection        = new TClonesArray("PndDchPoint");
@@ -90,13 +90,8 @@ Bool_t PndDchDetector::ProcessHits(FairVolume* vol) {
   //if entering
   if ( gMC->IsTrackEntering() ) {	
     valid=kTRUE;
-    Int_t points = gMC->GetStack()->GetCurrentTrack()->GetMother(1);
-    Int_t nDchPoints = (points & (63<<10)) >> 10;
-    nDchPoints++;
-    if (nDchPoints <= 63) {
-      points = ( points & ( ~ (63<<10) ) ) | (nDchPoints << 10);
-      gMC->GetStack()->GetCurrentTrack()->SetMother(1,points);
-    }
+    PndStack* stack = (PndStack*) gMC->GetStack();
+    stack->AddPoint(kDCH);
   }
    
   fELoss = gMC->Edep();

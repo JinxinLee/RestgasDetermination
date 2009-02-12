@@ -17,6 +17,7 @@
 #include "PndDrcPDPoint.h"
 #include "PndDrcBarPoint.h"
 #include "PndGeoDrcPar.h"
+#include "PndDetectorList.h"
 
 #include "TString.h"
 //#include <iostream>
@@ -48,6 +49,7 @@ using std::cout;
 #include "FairGeoMedium.h"
 #include "FairGeoRootBuilder.h"
 #include "PndStack.h"
+#include "PndDetectorList.h"
 
 // add on for debug
 #include "FairGeoG3Builder.h"
@@ -317,6 +319,8 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
 	     fPdgCode,
 	     fEventID);
        }
+       PndStack* stack = (PndStack*) gMC->GetStack();
+       stack->AddPoint(kDRC);
      }
   }else if(gMC->TrackCharge()!=0.&&gMC->IsTrackEntering()==1 ){
         if (nam.BeginsWith("DrcBar")) {
@@ -364,6 +368,8 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
 			fNBar,
 			fEventID,
 			fMass);
+		        PndStack* stack = (PndStack*) gMC->GetStack();
+       			stack->AddPoint(kDRC);
 	}
   }
 

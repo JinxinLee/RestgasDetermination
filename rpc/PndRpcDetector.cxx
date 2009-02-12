@@ -20,7 +20,7 @@ using std::ofstream;
 #include "TParticle.h"
 #include "TVirtualMC.h"
 #include "FairMCEventHeader.h"
-
+#include "PndDetectorList.h"
 #include "FairGeoInterface.h"
 #include "FairGeoLoader.h"
 #include "FairGeoNode.h"
@@ -187,8 +187,8 @@ cout << " time " << fTime << " length " << fLength <<"Eloss "<< fELoss << endl;
 cout << "t1 = " << ft1 << " t2= " << ft2<<endl;  
 
     // Increment number of tof points for TParticle
-//a    PndStack* stack = (PndStack*) gMC->GetStack();
-//a    stack->AddPoint(kTOF);
+     PndStack* stack = (PndStack*) gMC->GetStack();
+     stack->AddPoint(kTOF);
      
 
   

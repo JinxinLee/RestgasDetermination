@@ -102,7 +102,7 @@
   */
   // proton 2212 pi+ 211 pi- -211 
   Double_t randx, randy;
-  for (Int_t n =0; n<10; n++){
+  for (Int_t n =0; n<2; n++){
     randx= gRandom->Gaus(0,1);
     randy= gRandom->Gaus(0,1);
     FairParticleGenerator* partGen = new FairParticleGenerator(2212, 1, 0.3*randx, 0.3*randy, 0.3);

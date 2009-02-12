@@ -5,6 +5,7 @@
 #include "PndSttHoughDefines.h"
 #include "FairMCPoint.h"
 #include "FairRootManager.h"
+#include "PndDetectorList.h"
 
 // ROOT includes
 #include "TClonesArray.h"
@@ -231,7 +232,7 @@ Int_t PndSttTrackFinderIdeal::DoFind(TClonesArray* trackArray)
       
       if (fVerbose) cout << "-I- PndSttTrackFinderIdeal: STTTrack " 
 			 << nTracks << " created from MCTrack " 
-			 << iMCTrack << " (" << pMCtr->GetSttPoints() 
+			 << iMCTrack << " (" << pMCtr->GetNPoints(kSTT) 
 			 << " STTPoints)" << endl;
       
       correlationMap[nTracks] = iMCTrack;

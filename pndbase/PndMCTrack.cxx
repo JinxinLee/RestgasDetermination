@@ -7,11 +7,12 @@
 #include <iostream>
 
 #include "PndMCTrack.h"
-
+#include <limits>
 using namespace std;
 // -----   Default constructor   -------------------------------------------
 PndMCTrack::PndMCTrack() {
- fPdgCode = fMotherID = fPoints = 0;
+  fPdgCode = fMotherID = 0;
+  fPoints = 0;
   fStartX = fStartY  = fStartZ = fStartT = 0.;
   fPx = fPy = fPz = 0.;
 
@@ -22,7 +23,7 @@ PndMCTrack::PndMCTrack() {
 
 // -----   Standard constructor   ------------------------------------------
 PndMCTrack::PndMCTrack(Int_t pdgCode, Int_t motherID, TVector3 startVertex, 
-		       Double_t startTime, TVector3 momentum, Int_t nPoint){
+		       Double_t startTime, TVector3 momentum, Int_t  nPoint){
   fPdgCode  = pdgCode;
   fMotherID = motherID;
   fStartX   = startVertex.X();
@@ -34,8 +35,6 @@ PndMCTrack::PndMCTrack(Int_t pdgCode, Int_t motherID, TVector3 startVertex,
   fPz       = momentum.Z();
   if (nPoint >= 0) fPoints = nPoint;
   else             fPoints = 0;
-
-
 
 }
 // -------------------------------------------------------------------------
@@ -89,7 +88,7 @@ TLorentzVector PndMCTrack::Get4Momentum() const {
     fParticlePDG = TDatabasePDG::Instance()->GetParticle(fPdgCode);
 
     if (fParticlePDG)
-     mass    = fParticlePDG->Mass();
+     mass   = fParticlePDG->Mass();
 
     if ( mass >= 0 ) {
 	ene  = TMath::Sqrt(mass*mass + fPx*fPx +fPy*fPy +fPz*fPz);
@@ -97,5 +96,97 @@ TLorentzVector PndMCTrack::Get4Momentum() const {
 
    return TLorentzVector(fPx,fPy,fPz,ene);
 }
+
+// -----   Public method GetNPoints   --------------------------------------
+Int_t  PndMCTrack::GetNPoints(DetectorId detId) const {
+  if      ( detId == kDRC ) return ( (fPoints  & (3 <<  0) ) >>  0 );
+  else if ( detId == kMDT ) return ( (fPoints  & (7 <<  2) ) >>  2 );
+  else if ( detId == kMVD ) return ( (fPoints  & (7 <<  5) ) >>  5 );
+  else if ( detId == kDCH ) return ( (fPoints  & (7 <<  8) ) >>  8 );
+  else if ( detId == kEMC ) return ( (fPoints  & (7 << 11) ) >> 11 ); 
+  else if ( detId == kSTT ) return ( (fPoints  & (15<< 14) ) >> 14 );
+  else if ( detId == kTOF ) return ( (fPoints  & (7 << 18) ) >> 18 );
+  else if ( detId == kGEM ) return ( (fPoints  & (7 << 22) ) >> 22 );
+  else if ( detId == kDSK ) return ( (fPoints  & (3 << 25) ) >> 25 );
+  else if ( detId == kHYP ) return ( (fPoints  & (3 << 27) ) >> 27 );
+  else if ( detId == kRPC ) return ( (fPoints  & (3 << 29) ) >> 29 );
+  else {
+    cout << "-E- PndMCTrack::GetNPoints: Unknown detector ID "
+	 << detId << endl;
+    return 0;
+  }
+}
+void PndMCTrack::SetNPoints(Int_t iDet, Int_t  nPoints) {
+
+  if ( iDet == kDRC ) {
+    if      ( nPoints < 0 ) nPoints = 0;
+    else if ( nPoints > 3 ) nPoints = 3;
+    fPoints = ( fPoints & ( ~ (  3 <<  0 ) ) )  |  ( nPoints <<  0 );
+  }
+
+  else if ( iDet == kMDT ) {
+    if      ( nPoints <  0 ) nPoints =  0;
+    else if ( nPoints > 7 ) nPoints = 7;
+    fPoints = ( fPoints & ( ~ ( 15 <<  2 ) ) )  |  ( nPoints <<  2 );
+  }
+
+  else if ( iDet == kMVD ) {
+    if      ( nPoints < 0 ) nPoints = 0;
+    else if ( nPoints > 7 ) nPoints = 7;
+    fPoints = ( fPoints & ( ~ (  7 << 5 ) ) )  |  ( nPoints << 5 );
+  }
+
+  else if ( iDet == kDCH ) {
+    if      ( nPoints < 0 ) nPoints = 0;
+    else if ( nPoints > 7 ) nPoints = 63;
+    fPoints = ( fPoints & ( ~ ( 7 <<  8 ) ) )  | ( nPoints << 8 );
+  }
+
+  else if ( iDet == kEMC ) {
+    if      ( nPoints <  0 ) nPoints =  0;
+    else if ( nPoints > 7 ) nPoints = 7;
+    fPoints = ( fPoints & ( ~ ( 7 << 11 ) ) )  |  ( nPoints << 11 );
+  }
+
+  else if ( iDet == kSTT ) {
+    if      ( nPoints <  0 ) nPoints =  0;
+    else if ( nPoints > 15 ) nPoints = 15;
+    fPoints = ( fPoints & ( ~ ( 15 << 14 ) ) )  |  ( nPoints << 14 );
+  }
+
+  else if ( iDet == kTOF ) {
+    if      ( nPoints <  0 ) nPoints =  0;
+    else if ( nPoints > 7 ) nPoints = 7;
+    fPoints = ( fPoints & ( ~ ( 7 << 18 ) ) )  |  ( nPoints << 18 );
+  }
+
+  else if ( iDet == kGEM ) {
+    if      ( nPoints < 0 ) nPoints = 0;
+    else if ( nPoints > 7 ) nPoints = 7;
+    fPoints = ( fPoints & ( ~ ( 7 << 22 ) ) )  |  ( nPoints << 22 );
+  }
+  else if ( iDet == kDSK ) {
+    if      ( nPoints < 0 ) nPoints = 0;
+    else if ( nPoints > 3 ) nPoints = 3;
+    fPoints = ( fPoints & ( ~ (  3 << 25 ) ) )  |  ( nPoints << 25 );
+  }
+
+  else if ( iDet == kHYP ) {
+    if      ( nPoints < 0 ) nPoints = 0;
+    else if ( nPoints > 3 ) nPoints = 3;
+    fPoints = ( fPoints & ( ~ (  3 << 27 ) ) )  |  ( nPoints << 27 );
+  }
+  else if ( iDet == kRPC ) {
+    if      ( nPoints < 0 ) nPoints = 0;
+    else if ( nPoints > 3 ) nPoints = 3;
+    fPoints = ( fPoints & ( ~ (  15 << 29 ) ) )  |  ( nPoints << 29 );
+  }
+
+  else cout << "-E- FairMCTrack::SetNPoints: Unknown detector ID "
+	    << iDet << endl;
+
+}
+//
+
 
 ClassImp(PndMCTrack)

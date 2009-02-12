@@ -14,7 +14,7 @@
 #include "PndDchDigi.h"
 #include "PndDchCylinderHit.h"
 #include "FairRootManager.h"
-
+#include "PndDetectorList.h"
 // ROOT includes
 #include "TClonesArray.h"
 #include "TGeoManager.h"
@@ -237,7 +237,7 @@ Int_t PndDchTrackFinderIdealCylHit::DoFind(TClonesArray* cylHitArray,
 		nMCacc++;
 
 		if(fVerbose > 2) {
-			cout << iMCTrack << ": #DchPoints in MCTrack: "<< mcTrack->GetDchPoints() << endl;
+			cout << iMCTrack << ": #DchPoints in MCTrack: "<< mcTrack->GetNPoints(kDCH) << endl;
 		}
 
 		new((*trackArray)[nTracks]) PndDchTrack();

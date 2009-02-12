@@ -22,6 +22,8 @@
 #include "FairRun.h"
 #include "FairModule.h"
 
+#include "PndDetectorList.h"
+#include "PndStack.h"
 #include "PndMdt.h"
 
 
@@ -220,13 +222,8 @@ Bool_t PndMdt::ProcessHitsTo(FairVolume* vol)
 	
      if ( ( (GetModule()==1) && (TMath::Even(ilayer)) ) ||  (GetModule()==2)  )
 	{ // Set the correct MCTrack->GetMdtPoints()
-            Int_t points = gMC->GetStack()->GetCurrentTrack()->GetMother(1);
-	    Int_t nMdtPoints = (points & (15<<6)) >> 6;
-	    nMdtPoints ++;
-	    if (nMdtPoints <= 15){
-		points = ( points & ( ~ (15<< 6) ) ) | (nMdtPoints << 6);
-		gMC->GetStack()->GetCurrentTrack()->SetMother(1,points);
-	     }
+           PndStack* stack = (PndStack*) gMC->GetStack();
+    	   stack->AddPoint(kMDT);
 	}
  
       };

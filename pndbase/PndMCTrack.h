@@ -16,7 +16,7 @@
 #ifndef CBMMCTRACK_H
 #define CBMMCTRACK_H 1
 
-
+#include "PndDetectorList.h"
 #include "TObject.h"
 #include "TParticle.h"
 #include "TVector3.h"
@@ -41,7 +41,7 @@ class PndMCTrack : public TObject
 
   /**  Standard constructor  **/
   PndMCTrack(Int_t pdgCode, Int_t motherID, TVector3 startVvertex, 
-	     Double_t startTime, TVector3 momentum, Int_t nPoint=0);
+	     Double_t startTime, TVector3 momentum, Int_t  nPoint=0);
 
 
   /**  Copy constructor  **/
@@ -63,41 +63,30 @@ class PndMCTrack : public TObject
   /**  Accessors  **/
   Int_t    GetPdgCode()     const { return fPdgCode; }
   Int_t    GetMotherID()    const { return fMotherID; }
-  TVector3 GetStartVertex() const { return TVector3(fStartX, fStartY, 
-						    fStartZ); }
+  TVector3 GetStartVertex() const { return TVector3(fStartX, fStartY,fStartZ);}
   Double_t GetStartTime()   const { return fStartT; }
   TVector3 GetMomentum()    const { return TVector3(fPx, fPy, fPz); }
-
+  Double_t GetPt()       const { return TMath::Sqrt(fPx*fPx+fPy*fPy); }
   /*
   Int_t GetStsPoints()  const { return   (fPoints &  15        )        ; }
   */
-  Int_t GetDrcPoints()  const { return ( (fPoints & (15 <<  2) ) >>  2 ); }
-  Int_t GetMdtPoints()  const { return ( (fPoints & (15 <<  6) ) >>  6 ); }
-  Int_t GetDchPoints()  const { return ( (fPoints & (63 << 10) ) >> 10 ); }
-  Int_t GetEmcPoints()  const { return ( (fPoints & (15 << 16) ) >> 16 ); }
-  Int_t GetSttPoints()  const { return ( (fPoints & (15 << 20) ) >> 20 ); }
-    
+   
+  Int_t  GetNPoints(DetectorId detId)  const;  
   /**  Modifiers  **/
-
+  
   void SetMotherID(Int_t id) { fMotherID = id; }
   /*
   void SetStsPoints(Int_t np);
   */ 
-  void SetDrcPoints(Int_t np);
-  void SetMdtPoints(Int_t np);
-  void SetDchPoints(Int_t np);
-  void SetEmcPoints(Int_t np);
-  void SetSttPoints(Int_t np);
+ 
   
   /**  Add one detector point to the fPoint variable  **/
  /*
   void AddStsPoint()  { SetStsPoints(  GetStsPoints()  + 1 ); }
  */ 
-  void AddDrcPoint()  { SetDrcPoints(  GetDrcPoints()  + 1 ); }
-  void AddMdtPoint()  { SetMdtPoints(  GetMdtPoints()  + 1 ); }
-  void AddDchPoint()  { SetDchPoints(  GetDchPoints()  + 1 ); }
-  void AddEmcPoint()  { SetEmcPoints(  GetEmcPoints()  + 1 ); }
-  void AddSttPoint()  { SetSttPoints(  GetSttPoints()  + 1 ); } 
+ 
+  
+  void SetNPoints(Int_t iDet, Int_t  np);
   
   TLorentzVector Get4Momentum() const;
 
@@ -116,51 +105,28 @@ private:
   /** Coordinates of start vertex [cm, ns]  **/
   Double32_t fStartX, fStartY, fStartZ, fStartT;
 
-
   /**  Bitvector representing the number of MCPoints for this track in 
    **  each subdetector. The detectors are represented by
-   **  xxx:  Bit  0 -  3
-   **  DRC:  Bit  2 -  5
-   **  MDT:  Bit  6 -  9
-   **  DCH:  Bit 10 - 15
-   **  EMC:  Bit 16 - 19
-   **  STT:  Bit 20 - 23
-   **  The respective point numbers can be accessed and modified 
-   **  with the inline functions. The number of points must of course
-   **  not exceed 15 (4 bits). There is room for two more subdetectors 
-   **  in this variable.
-   **/
-  Int_t fPoints;
+   **  This goes to fPoints:
+   **  DRC:  Bit  0 -  1  (2 bit max. value 3)
+   **  MDT:  Bit  2 -  4  (3 bit max. value 7)
+   **  MVD:  Bit  5 -  7  (3 bit max. value 7)
+   **  DCH:  Bit  8 - 10  (3 bit max. value 7)
+   **  EMC:  Bit 11 - 13  (3 bit max. value 7)
+   **  STT:  Bit 14 - 17  (4 bit max. value 15)
+   **  TOF:  Bit 18 - 21  (3 bit max. value 7)
+   **  GEM:  Bit 22 - 24  (3 bit max. value 7)
+   **  DSK:  Bit 25 - 26  (2 bit max. value 3)
+   **  HYP:  Bit 27 - 28  (2 bit max. value 3)
+   **  RPC:  Bit 29 - 30  (3 bit max. value 3)
+   **  The respective point numbers can be accessed and modified **/
 
- 
+  Int_t  fPoints;
+
   ClassDef(PndMCTrack,1);
 
 };
 
-/*
-inline void PndMCTrack::SetStsPoints(Int_t np) {
-  if (np >= 0) fPoints = ( fPoints & ( ~ 15      ) ) |   np;
-}
-*/
 
-inline void PndMCTrack::SetDrcPoints(Int_t np) {
-  if (np >= 0) fPoints = ( fPoints & ( ~(15<< 2) ) ) | ( np <<  2 );
-}
-
-inline void PndMCTrack::SetMdtPoints(Int_t np) {
-  if (np >= 0) fPoints = ( fPoints & ( ~(15<< 6) ) ) | ( np <<  6 );
-}
-
-inline void PndMCTrack::SetDchPoints(Int_t np) {
-  if (np >= 0) fPoints = ( fPoints & ( ~(63<<10) ) ) | ( np << 10 );
-}
-
-inline void PndMCTrack::SetEmcPoints(Int_t np) {
-  if (np >= 0) fPoints = ( fPoints & ( ~(15<<16) ) ) | ( np << 16 );
-}
-
-inline void PndMCTrack::SetSttPoints(Int_t np) {
-  if (np >= 0) fPoints = ( fPoints & ( ~(15<<20) ) ) | ( np << 20 );
-}
 
 #endif

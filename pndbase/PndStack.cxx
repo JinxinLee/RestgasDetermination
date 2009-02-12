@@ -2,7 +2,6 @@
 // -----                       PndStack source file                    -----
 // -----             Created 10/08/04  by D. Bertini / V. Friese       -----
 // -------------------------------------------------------------------------
-
 #include "PndStack.h"
 
 #include "FairDetector.h"
@@ -15,25 +14,15 @@
 #include "TParticle.h"
 #include "TRefArray.h"
 
+#include <list>
+#include <iostream>
+
 using std::cout;
 using std::endl;
+using std::pair;
 
 
 // -----   Default constructor   -------------------------------------------
-PndStack::PndStack() {
-  fParticles = new TClonesArray("TParticle", 100);
-  fTracks    = new TClonesArray("PndMCTrack", 100);
-  fCurrentTrack = -1;
-  fNPrimaries = fNParticles = fNTracks = 0;
-  fIndex = 0;
-  fStoreSecondaries = kTRUE;
-  fMinPoints        = 1;
-  fEnergyCut        = 0.;
-  fStoreMothers     = kTRUE;
-}
-
-// -------------------------------------------------------------------------
-// -----   Constructor with estimated array dimension   --------------------
 PndStack::PndStack(Int_t size) {
   fParticles = new TClonesArray("TParticle", size);
   fTracks    = new TClonesArray("PndMCTrack", size);
@@ -45,9 +34,10 @@ PndStack::PndStack(Int_t size) {
   fEnergyCut        = 0.;
   fStoreMothers     = kTRUE;
 }
+
 // -------------------------------------------------------------------------
 
-  
+
 
 // -----   Destructor   ----------------------------------------------------
 PndStack::~PndStack() {
@@ -64,36 +54,36 @@ PndStack::~PndStack() {
 
   
 
-// -----   Virtual method PushTrack   --------------------------------------
-void PndStack::PushTrack(Int_t toBeDone, Int_t parentID, Int_t pdgCode,
+// -----   Virtual public method PushTrack   -------------------------------
+void PndStack::PushTrack(Int_t toBeDone, Int_t parentId, Int_t pdgCode,
 			 Double_t px, Double_t py, Double_t pz,
 			 Double_t e, Double_t vx, Double_t vy, Double_t vz, 
 			 Double_t time, Double_t polx, Double_t poly,
 			 Double_t polz, TMCProcess proc, Int_t& ntr, 
 			 Double_t weight, Int_t is) {
 
-  // --> Get Stack
+  // --> Get TParticle array
   TClonesArray& partArray = *fParticles;
 
   // --> Create new TParticle and add it to the TParticle array
-  Int_t trackID = fNParticles;
+  Int_t trackId = fNParticles;
   Int_t nPoints = 0;
-  Int_t daughter1ID = -1;
-  Int_t daughter2ID = -1;
+  Int_t daughter1Id = -1;
+  Int_t daughter2Id = -1;
   TParticle* particle = 
-    new(partArray[fNParticles++]) TParticle(pdgCode, trackID, parentID, 
-					    nPoints, daughter1ID, 
-					    daughter2ID, px, py, pz, e, 
+    new(partArray[fNParticles++]) TParticle(pdgCode, trackId, parentId, 
+					    nPoints, daughter1Id, 
+					    daughter2Id, px, py, pz, e, 
 					    vx, vy, vz, time);
   particle->SetPolarisation(polx, poly, polz);
   particle->SetWeight(weight);
   particle->SetUniqueID(proc);
 
   // --> Increment counter
-  if (parentID < 0) fNPrimaries++;
+  if (parentId < 0) fNPrimaries++;
 
   // --> Set argument variable
-  ntr = trackID;
+  ntr = trackId;
 
   // --> Push particle on the stack if toBeDone is set
   if (toBeDone == 1) fStack.push(particle);
@@ -157,6 +147,19 @@ TParticle* PndStack::PopPrimaryForTracking(Int_t iPrim) {
 // -------------------------------------------------------------------------
 
 
+
+// -----   Virtual public method GetCurrentTrack   -------------------------
+TParticle* PndStack::GetCurrentTrack() const {
+  TParticle* currentPart = GetParticle(fCurrentTrack);
+  if ( ! currentPart) {
+    cout << "-W- PndStack: Current track not found in stack!" << endl;
+    Warning("PndStack::GetCurrentTrack", "Track not found in stack");
+  }
+  return currentPart;
+}
+// -------------------------------------------------------------------------
+
+
   
 // -----   Public method AddParticle   -------------------------------------
 void PndStack::AddParticle(TParticle* oldPart) {
@@ -173,7 +176,7 @@ void PndStack::AddParticle(TParticle* oldPart) {
 // -----   Public method FillTrackArray   ----------------------------------
 void PndStack::FillTrackArray() {
 
-  if(gDebug!=0) cout << "-I- PndStack: Filling MCTrack array..." << endl;
+  cout << "-I- PndStack: Filling MCTrack array..." << endl;
 
   // --> Reset index map and number of output tracks
   fIndexMap.clear();
@@ -195,8 +198,14 @@ void PndStack::FillTrackArray() {
     Bool_t store = (*fStoreIter).second;
 
     if (store) {
-      new( (*fTracks)[fNTracks]) PndMCTrack(GetParticle(iPart));
+      PndMCTrack* track = 
+	new( (*fTracks)[fNTracks]) PndMCTrack(GetParticle(iPart));
       fIndexMap[iPart] = fNTracks;
+      // --> Set the number of points in the detectors for this track
+      for (Int_t iDet=kREF; iDet<=kHYP; iDet++) {
+	pair<Int_t, Int_t> a(iPart, iDet);
+	track->SetNPoints(iDet, fPointsMap[a]);
+      }
       fNTracks++;
     }
     else fIndexMap[iPart] = -2;
@@ -206,6 +215,9 @@ void PndStack::FillTrackArray() {
   // --> Map index for primary mothers
   fIndexMap[-1] = -1;
 
+  // --> Screen output
+  Print(0);
+
 }
 // -------------------------------------------------------------------------
 
@@ -214,7 +226,7 @@ void PndStack::FillTrackArray() {
 // -----   Public method UpdateTrackIndex   --------------------------------
 void PndStack::UpdateTrackIndex(TRefArray* detList) {
 
-  if(gDebug!=0)cout << "-I- PndStack: Updating track indizes...";
+  cout << "-I- PndStack: Updating track indizes...";
   Int_t nColl = 0;
 
   // First update mother ID in MCTracks
@@ -222,7 +234,7 @@ void PndStack::UpdateTrackIndex(TRefArray* detList) {
     PndMCTrack* track = (PndMCTrack*)fTracks->At(i);
     Int_t iMotherOld = track->GetMotherID();
     fIndexIter = fIndexMap.find(iMotherOld);
-    if (fIndexIter == fIndexMap.end() && gDebug!=0 ) {
+    if (fIndexIter == fIndexMap.end()) {
       cout << "-E- PndStack: Particle index " << iMotherOld 
 	   << " not found in dex map! " << endl;
       Fatal("PndStack::UpdateTrackIndex",
@@ -236,6 +248,7 @@ void PndStack::UpdateTrackIndex(TRefArray* detList) {
   detIter->Reset();
   FairDetector* det = NULL;
   while( (det = (FairDetector*)detIter->Next() ) ) {
+
 
     // --> Get hit collections from detector
     Int_t iColl = 0;
@@ -252,7 +265,7 @@ void PndStack::UpdateTrackIndex(TRefArray* detList) {
 	fIndexIter = fIndexMap.find(iTrack);
 	if (fIndexIter == fIndexMap.end()) {
 	  cout << "-E- PndStack: Particle index " << iTrack 
-	       << " not found in dex map! " << endl;
+	       << " not found in index map! " << endl;
 	  Fatal("PndStack::UpdateTrackIndex",
 		"Particle index not found in map");
 	}
@@ -261,8 +274,8 @@ void PndStack::UpdateTrackIndex(TRefArray* detList) {
 
     }   // Collections of this detector
   }     // List of active detectors
-  delete  detIter;
-  if(gDebug!=0) cout << "...stack and " << nColl << " collections updated." << endl;
+
+  cout << "...stack and " << nColl << " collections updated." << endl;
 
 }
 // -------------------------------------------------------------------------
@@ -277,6 +290,7 @@ void PndStack::Reset() {
   while (! fStack.empty() ) fStack.pop();
   fParticles->Clear();
   fTracks->Clear();
+  fPointsMap.clear();
 }
 // -------------------------------------------------------------------------
 
@@ -300,55 +314,34 @@ void PndStack::Print(Int_t iVerbose) const {
        << fNTracks << endl;
   if (iVerbose) {
     for (Int_t iTrack=0; iTrack<fNTracks; iTrack++) 
-      fTracks->At(iTrack)->Print();
+      ((PndMCTrack*) fTracks->At(iTrack))->Print(iTrack);
   }
 }
 // -------------------------------------------------------------------------
 
 
 
-// -----   Virtual method SetCurrentTrack   --------------------------------
-void PndStack::SetCurrentTrack(Int_t iTrack) { 
-  fCurrentTrack = iTrack;
-}
-// -------------------------------------------------------------------------
-
-  
-
-// -----   Virtual method GetNtrack   --------------------------------------
-Int_t PndStack::GetNtrack() const {
-  return fNParticles;
-}
-// -------------------------------------------------------------------------
-
-  
-
-// -----   Virtual method GetNprimary   ------------------------------------
-Int_t PndStack::GetNprimary() const {
-  return fNPrimaries;
+// -----   Public method AddPoint (for current track)   --------------------
+void PndStack::AddPoint(DetectorId detId) {
+  Int_t iDet = detId;
+  pair<Int_t, Int_t> a(fCurrentTrack, iDet);
+  if ( fPointsMap.find(a) == fPointsMap.end() ) fPointsMap[a] = 1;
+  else fPointsMap[a]++;
 }
 // -------------------------------------------------------------------------
 
 
 
-// -----   Virtual method GetCurrentTrack   --------------------------------
-TParticle* PndStack::GetCurrentTrack() const {
-  TParticle* currentPart = GetParticle(fCurrentTrack);
-  if ( ! currentPart) {
-    cout << "-W- PndStack: Current track not found in stack!" << endl;
-    Warning("PndStack::GetCurrentTrack", "Track not found in stack");
-  }
-  return currentPart;
+// -----   Public method AddPoint (for arbitrary track)  -------------------
+void PndStack::AddPoint(DetectorId detId, Int_t iTrack) {
+  if ( iTrack < 0 ) return;
+  Int_t iDet = detId;
+  pair<Int_t, Int_t> a(iTrack, iDet);
+  if ( fPointsMap.find(a) == fPointsMap.end() ) fPointsMap[a] = 1;
+  else fPointsMap[a]++;
 }
 // -------------------------------------------------------------------------
 
-
-  
-// -----   Virtual method GetCurrentTrackNumber   --------------------------
-Int_t PndStack::GetCurrentTrackNumber() const {
-  return fCurrentTrack;
-}
-// -------------------------------------------------------------------------
 
 
 
@@ -360,7 +353,20 @@ Int_t PndStack::GetCurrentParentTrackNumber() const {
 }
 // -------------------------------------------------------------------------
 
-  
+
+
+// -----   Public method GetParticle   -------------------------------------
+TParticle* PndStack::GetParticle(Int_t trackID) const {
+  if (trackID < 0 || trackID >= fNParticles) {
+    cout << "-E- PndStack: Particle index " << trackID 
+	 << " out of range." << endl;
+    Fatal("PndStack::GetParticle", "Index out of range");
+  }
+  return (TParticle*)fParticles->At(trackID);
+}
+// -------------------------------------------------------------------------
+
+
 
 // -----   Private method SelectTracks   -----------------------------------
 void PndStack::SelectTracks() {
@@ -376,7 +382,6 @@ void PndStack::SelectTracks() {
 
     // --> Get track parameters
     Int_t iMother   = thisPart->GetMother(0);
-    Int_t points    = thisPart->GetMother(1);
     TLorentzVector p;
     thisPart->Momentum(p);
     Double_t energy = p.E();
@@ -385,8 +390,11 @@ void PndStack::SelectTracks() {
 
     // --> Calculate number of points
     Int_t nPoints = 0;
-    for (Int_t j=0; j<7; j++)
-      nPoints += ( ( points & (15 << (4*j)) ) >> (4*j) );
+    for (Int_t iDet=kDRC; iDet<=kHYP; iDet++) {
+      pair<Int_t, Int_t> a(i, iDet);
+      if ( fPointsMap.find(a) != fPointsMap.end() )
+	nPoints += fPointsMap[a];
+    }
 
     // --> Check for cuts (store primaries in any case)
     if (iMother < 0)            store = kTRUE;
@@ -398,6 +406,7 @@ void PndStack::SelectTracks() {
 
     // --> Set storage flag
     fStoreMap[i] = store;
+
 
   }
 
@@ -417,14 +426,6 @@ void PndStack::SelectTracks() {
 }
 // -------------------------------------------------------------------------
 
-TParticle* PndStack::GetParticle(Int_t trackID) const {
-  if (trackID < 0 || trackID >= fNParticles) {
-    cout << "-E- PndStack: Particle index " << trackID 
-	 << " out of range." << endl;
-    Fatal("PndStack::GetParticle", "Index out of range");
-  }
-  return (TParticle*)fParticles->At(trackID);
-}
 
 
 ClassImp(PndStack)

@@ -15,7 +15,7 @@
 #include "FairRunSim.h"
 #include "FairVolume.h"
 
-
+#include "PndStack.h"
 #include "PndMvdMCPoint.h"
 #include "PndMvdGeo.h"
 #include "PndMvdGeoPar.h"
@@ -162,21 +162,8 @@ Bool_t  PndMvdDetector::ProcessHits(FairVolume* vol)
         fTime, fLength, fELoss);
 
       // Increment number of PndMvd points for TParticle
-/*      Int_t
-        points = gMC->GetStack()->GetCurrentTrack()->GetMother(1);
-
-      Int_t
-        nPndMvdMCPoints = (points & (15<<24)) >> 24;
-
-      nPndMvdMCPoints ++;
-
-      if (nPndMvdMCPoints > 15)
-        nPndMvdMCPoints = 15;
-
-      points = ( points & ( ~ (15<<24) ) ) | (nPndMvdMCPoints << 24);
-
-      gMC->GetStack()->GetCurrentTrack()->SetMother(1,points);
-      */
+      PndStack* stack = (PndStack*) gMC->GetStack();
+      stack->AddPoint(kMVD);
       ResetParameters();
     }
 

@@ -8,6 +8,8 @@
 #include "PndGeoSttPar.h"
 #include "PndGeoStt.h"
 #include "PndSttPoint.h"
+#include "PndDetectorList.h"
+#include "PndStack.h"
 
 #include "FairRun.h"
 #include "FairGeoInterface.h"
@@ -327,21 +329,8 @@ Bool_t  PndStt::ProcessHits(FairVolume* vol)
 		 fTime, fLength, fELoss, fMass, fHalfLength, TVector3(fpostot.X(), fpostot.Y(), fpostot.Z())); // da cancellare fpostot
 	    
 	  // Increment number of stt points for TParticle
-	  Int_t 
-	    points = gMC->GetStack()->GetCurrentTrack()->GetMother(1);
-	    
-	  Int_t 
-	    nSttPoints = (points & (15<<20)) >> 20;
-	    
-	  nSttPoints ++;
-	    
-	  if (nSttPoints > 15) 
-	    nSttPoints = 15;
-	    
-	  points = ( points & ( ~ (15<<20) ) ) | (nSttPoints << 20);
-	
-	  gMC->GetStack()->GetCurrentTrack()->SetMother(1,points);
-
+	  PndStack* stack = (PndStack*) gMC->GetStack();
+          stack->AddPoint(kSTT);
 	  ResetParameters();
 	}
     }

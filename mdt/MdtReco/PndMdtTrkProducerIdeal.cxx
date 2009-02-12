@@ -114,7 +114,7 @@ void PndMdtTrkProducerIdeal::Exec(Option_t* opt) {
   
   for (Int_t iMc=0; iMc<nMCTrack; iMc++) {
     mcTrack = (PndMCTrack*) fMCArray->At(iMc);
-    if (mcTrack->GetMdtPoints()==0) continue;
+    if (mcTrack->GetNPoints(kMDT)==0) continue;
     
     PndMdtTrk *mdtTrk = new PndMdtTrk();
     Int_t mdtCount = 0;
