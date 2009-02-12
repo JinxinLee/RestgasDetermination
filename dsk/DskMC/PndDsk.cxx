@@ -29,7 +29,6 @@
 #include "TGeoVolume.h"
 #include "TGeoPhysicalNode.h"
 #include "FairRun.h"
-#include "PndGeoDskPar.h"
 #include "FairRuntimeDb.h"
 
 #include "TLorentzVector.h"

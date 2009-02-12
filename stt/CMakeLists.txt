@@ -8,6 +8,7 @@ ${CMAKE_SOURCE_DIR}/geobase
 ${CMAKE_SOURCE_DIR}/parbase 
 ${CMAKE_SOURCE_DIR}/base 
 ${CMAKE_SOURCE_DIR}/pndbase 
+${CMAKE_SOURCE_DIR}/pndbase/SttData
 ${CMAKE_SOURCE_DIR}/field 
 ${CMAKE_SOURCE_DIR}/stt
 )
@@ -23,8 +24,6 @@ link_directories( ${LINK_DIRECTORIES})
 set(STT_SRCS
 PndSttMatchTracks.cxx 		
 PndGeoStt.cxx    			
-PndSttPoint.cxx 			
-PndSttTrack.cxx 			
 PndStt.cxx   			
 PndGeoSttPar.cxx 			
 PndSttContFact.cxx 			
@@ -37,16 +36,12 @@ PndSttTrackFinderIdeal.cxx
 PndSttTrackFitter.cxx 		
 PndSttFitTracks.cxx    		
 PndSttTrackMatch.cxx 		
-PndSttHit.cxx     			
-PndSttHitInfo.cxx   			
 PndSttHitProducerIdeal.cxx  		
 PndSttSingleStraw.cxx				
 PndSttHitProducerReal.cxx 		
 PndSttHelixTrackFitter.cxx 		
-PndSttGeomPoint.cxx     
 PndSttHitProducerRealFast.cxx
 PndSttHitProducerRealFull.cxx            
-PndSttHelixHit.cxx
 PndSttHelixHitProducer.cxx
 )
 

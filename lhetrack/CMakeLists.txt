@@ -9,6 +9,7 @@ ${CMAKE_SOURCE_DIR}/base
 ${CMAKE_SOURCE_DIR}/field 
 ${CMAKE_SOURCE_DIR}/trackbase 
 ${CMAKE_SOURCE_DIR}/pndbase
+${CMAKE_SOURCE_DIR}/pndbase/DrcData
 ${CMAKE_SOURCE_DIR}/passive
 ${CMAKE_SOURCE_DIR}/tpc
 ${CMAKE_SOURCE_DIR}/tpc/tpcreco
@@ -18,15 +19,14 @@ ${CMAKE_SOURCE_DIR}/emc/EmcData
 ${CMAKE_SOURCE_DIR}/emc/EmcReco
 ${CMAKE_SOURCE_DIR}/emc/EmcTools
 ${CMAKE_SOURCE_DIR}/tof
-${CMAKE_SOURCE_DIR}/mdt
-${CMAKE_SOURCE_DIR}/mdt/MdtData
-${CMAKE_SOURCE_DIR}/drc
+${CMAKE_SOURCE_DIR}/pndbase/MdtData
 ${CMAKE_SOURCE_DIR}/genfit
-${CMAKE_SOURCE_DIR}/stt
+${CMAKE_SOURCE_DIR}/pndbase/SttData
 ${CMAKE_SOURCE_DIR}/stt/sttreco
 ${CMAKE_SOURCE_DIR}/geane
 ${CMAKE_SOURCE_DIR}/trackrep
 ${CMAKE_SOURCE_DIR}/lhetrack
+
 
 )
 

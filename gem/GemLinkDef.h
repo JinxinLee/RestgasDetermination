@@ -8,14 +8,13 @@
 
 
 //data
-#pragma link C++ class PndGemMCPoint+;
+
 
 //mc
 // #pragma link C++ class PndGemGeo+;
 // #pragma link C++ class PndGemGeoPar+;
 // #pragma link C++ class PndGemContFact+;
 #pragma link C++ class PndGemDetector+;
-#pragma link C++ class PndGemHit+;
 #pragma link C++ class PndGemSmearingTask+;
 
 #endif

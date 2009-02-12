@@ -6,10 +6,7 @@
  
 #pragma link C++ class  PndMdt+;
 #pragma link C++ class  PndGeoMdtPar+;
-#pragma link C++ class  PndMdtPoint+;
-#pragma link C++ class  PndMdtHit+;
 #pragma link C++ class  PndMdtHitProducerIdeal+;
-#pragma link C++ class  PndMdtTrk+;
 #pragma link C++ class  PndMdtTrkProducerIdeal+;
 #pragma link C++ class  PndMdtTrkProducer+;
 #pragma link C++ class  PndMdtRecoPar+;

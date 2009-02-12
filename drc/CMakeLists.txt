@@ -11,6 +11,8 @@ ${CMAKE_SOURCE_DIR}/field
 ${CMAKE_SOURCE_DIR}/pndbase 
 ${CMAKE_SOURCE_DIR}/drc/
 ${CMAKE_SOURCE_DIR}/drc/drcprop 
+${CMAKE_SOURCE_DIR}/pndbase/DrcData 
+
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -26,10 +28,7 @@ PndGeoDrc.cxx
 PndDrc.cxx 
 PndGeoDrcPar.cxx 
 PndDrcContFact.cxx 
-PndDrcPDPoint.cxx 
-PndDrcBarPoint.cxx
 PndDrcHitProducerIdeal.cxx 
-PndDrcHit.cxx
 )
 
 if(RULE_CHECKER_FOUND)

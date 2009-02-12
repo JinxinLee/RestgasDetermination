@@ -11,6 +11,7 @@ ${CMAKE_SOURCE_DIR}/parbase
 ${CMAKE_SOURCE_DIR}/base
 ${CMAKE_SOURCE_DIR}/field
 ${CMAKE_SOURCE_DIR}/pndbase
+${CMAKE_SOURCE_DIR}/pndbase/GemData
 ${CMAKE_SOURCE_DIR}/passive
 ${CMAKE_SOURCE_DIR}/gem
 )
@@ -26,13 +27,10 @@ link_directories( ${LINK_DIRECTORIES})
 
 ########################### create libGem ######################################
 set(GEM_SRCS
-
-PndGemMCPoint.cxx
 PndGemDetector.cxx
 # GemMC/PndGemGeo.cxx
 # GemMC/PndGemGeoPar.cxx
 # PndGemContFact.cxx
-PndGemHit.cxx
 PndGemSmearingTask.cxx
 
 )

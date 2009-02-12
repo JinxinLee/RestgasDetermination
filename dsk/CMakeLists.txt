@@ -9,9 +9,10 @@ ${CMAKE_SOURCE_DIR}/base
 ${CMAKE_SOURCE_DIR}/parbase
 ${CMAKE_SOURCE_DIR}/field
 ${CMAKE_SOURCE_DIR}/pndbase
+${CMAKE_SOURCE_DIR}/pndbase/DskData
 ${CMAKE_SOURCE_DIR}/dsk
-${CMAKE_SOURCE_DIR}/dsk/DskData
 ${CMAKE_SOURCE_DIR}/dsk/DskMC
+
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -25,7 +26,6 @@ link_directories( ${LINK_DIRECTORIES})
 set(DSK_SRCS
 DskMC/PndDsk.cxx
 DskMC/PndGeoDsk.cxx
-DskData/PndDskCerenkov.cxx
 )
 
 # fill list of header files from list of source files

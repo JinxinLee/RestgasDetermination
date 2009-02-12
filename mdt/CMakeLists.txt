@@ -11,7 +11,7 @@ ${CMAKE_SOURCE_DIR}/field
 ${CMAKE_SOURCE_DIR}/pndbase 
 ${CMAKE_SOURCE_DIR}/mdt 
 ${CMAKE_SOURCE_DIR}/mdt/MdtMC
-${CMAKE_SOURCE_DIR}/mdt/MdtData 
+${CMAKE_SOURCE_DIR}/pndbase/MdtData 
 ${CMAKE_SOURCE_DIR}/mdt/MdtDigi
 ${CMAKE_SOURCE_DIR}/mdt/MdtReco
 )
@@ -28,9 +28,6 @@ ${ROOT_LIBRARY_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 set(MDT_SRCS
-MdtData/PndMdtPoint.cxx
-MdtData/PndMdtHit.cxx
-MdtData/PndMdtTrk.cxx
 MdtMC/PndGeoMdtPar.cxx
 MdtMC/PndMdt.cxx
 MdtMC/PndMdtGeoConstructorDu.cxx

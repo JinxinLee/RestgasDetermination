@@ -21,6 +21,26 @@ link_directories( ${LINK_DIRECTORIES})
 set(PNDBASE_SRCS
 PndStack.cxx 
 PndMCTrack.cxx
+DskData/PndDskCerenkov.cxx
+
+DrcData/PndDrcPDPoint.cxx 
+DrcData/PndDrcBarPoint.cxx
+DrcData/PndDrcHit.cxx
+
+GemData/PndGemHit.cxx
+GemData/PndGemMCPoint.cxx
+
+MdtData/PndMdtPoint.cxx
+MdtData/PndMdtHit.cxx
+MdtData/PndMdtTrk.cxx
+
+SttData/PndSttGeomPoint.cxx
+SttData/PndSttHelixHit.cxx
+SttData/PndSttHit.cxx  
+SttData/PndSttHitInfo.cxx  
+SttData/PndSttPoint.cxx  
+SttData/PndSttTrack.cxx
+
 )
 
 if(RULE_CHECKER_FOUND)

@@ -7,13 +7,11 @@
 #pragma link off all functions;
  
 #pragma link C++ class  PndDrc+;
-#pragma link C++ class  PndDrcPDPoint+;
-#pragma link C++ class  PndDrcBarPoint+;
 #pragma link C++ class  PndGeoDrc+;
 #pragma link C++ class  PndDrcContFact+;
 #pragma link C++ class  PndGeoDrcPar+;
 #pragma link C++ class  PndDrcHitProducerIdeal+;
-#pragma link C++ class  PndDrcHit+;
+
 
 
 #endif

@@ -6,6 +6,6 @@
 
 #pragma link C++ class PndDsk+;
 #pragma link C++ class PndGeoDsk+;
-#pragma link C++ class PndDskCerenkov+;
+
 
 #endif
