@@ -219,11 +219,12 @@ Bool_t PndMdt::ProcessHitsTo(FairVolume* vol)
 	PndMdtPoint *P= new(clref[size]) PndMdtPoint (TrNo,ilayer, lPos.Vect(), lMom.Vect(), gMC->TrackTime(),
 			  gMC->TrackLength(), gMC->Edep(), gMC->GetStack()->GetCurrentParentTrackNumber(),pdg,
 			  fPos_In.Vect(), fMom_In.Vect());
-	
+        /**if you add a point then tell the stack! here*/
+	PndStack* stack = (PndStack*) gMC->GetStack();
+    	stack->AddPoint(kMDT);
      if ( ( (GetModule()==1) && (TMath::Even(ilayer)) ) ||  (GetModule()==2)  )
 	{ // Set the correct MCTrack->GetMdtPoints()
-           PndStack* stack = (PndStack*) gMC->GetStack();
-    	   stack->AddPoint(kMDT);
+
 	}
  
       };

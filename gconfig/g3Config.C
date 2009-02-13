@@ -20,7 +20,7 @@ void Config()
   }
   // create Cbm Specific Stack
   PndStack *st = new PndStack();
-  st->SetMinPoints(0);
+  st->SetMinPoints(1);
   st->StoreSecondaries(kTRUE);
   geant3->SetStack( st ) ;
 
@@ -37,12 +37,6 @@ void Config()
     geant3->SetERAN(5.e-7);
     geant3->SetCKOV(1);     // cerenkov photons 
   // set common stuff 
-    TString configm(gSystem->Getenv("VMCWORKDIR"));
-    TString cuts = configm + "/gconfig/SetCuts.C";
-    cout << "Physics cuts with script \n "<<  cuts.Data() << endl;
-    Int_t cut=gROOT->LoadMacro(cuts.Data());
-    if(cut==0)gInterpreter->ProcessLine("SetCuts()"); 
-
 }
 
 

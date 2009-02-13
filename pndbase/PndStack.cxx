@@ -207,8 +207,10 @@ void PndStack::FillTrackArray() {
 	track->SetNPoints(iDet, fPointsMap[a]);
       }
       fNTracks++;
+    
+    }else{
+      fIndexMap[iPart] = -2;
     }
-    else fIndexMap[iPart] = -2;
 
   }
 
@@ -387,7 +389,7 @@ void PndStack::SelectTracks() {
     Double_t energy = p.E();
     Double_t mass   = thisPart->GetMass();
     Double_t eKin = energy - mass;
-
+    if(eKin < 0.0) eKin=0.0; // sometimes due to different PDG masses between ROOT and G4!!!!!!
     // --> Calculate number of points
     Int_t nPoints = 0;
     for (Int_t iDet=kDRC; iDet<=kHYP; iDet++) {
@@ -406,7 +408,6 @@ void PndStack::SelectTracks() {
 
     // --> Set storage flag
     fStoreMap[i] = store;
-
 
   }
 

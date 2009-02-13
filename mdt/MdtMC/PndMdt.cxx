@@ -235,7 +235,6 @@ TClonesArray* PndMdt::GetCollection(Int_t iColl) const
 { 
 
   if(iColl==0) {
-	   cout << "PndMdt::GetCollection" << endl;
            return fMdtCollection; 
   }else{ 
      return NULL; 

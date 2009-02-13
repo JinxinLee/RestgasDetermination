@@ -35,7 +35,7 @@ void Config()
 /// create the Specific stack
    PndStack *stack = new PndStack(1000); 
    stack->StoreSecondaries(kTRUE);
-   stack->SetMinPoints(0);
+   stack->SetMinPoints(1);
    geant4->SetStack(stack);
 
    if(FairRunSim::Instance()->IsExtDecayer()){
@@ -50,12 +50,6 @@ void Config()
    configm1 = configm + "/gconfig/g4config.in";
    cout << " -I g4Config() using g4conf  macro: " << configm1 << endl;
 
-   // set the common cuts 
-/*   TString cuts = configm + "/gconfig/SetCuts.C";
-   cout << "Physics cuts with script \n "<<  cuts.Data() << endl;
-   Int_t cut=gROOT->LoadMacro(cuts.Data());
-   if(cut==0)gInterpreter->ProcessLine("SetCuts()"); 
-*/
    //set geant4 specific stuff
   geant4->SetMaxNStep(10000);  // default is 30000
   geant4->ProcessGeantMacro(configm1.Data());
