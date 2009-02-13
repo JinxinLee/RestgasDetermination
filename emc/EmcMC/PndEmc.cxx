@@ -34,7 +34,7 @@
 #include "TGeoArb8.h"
 #include "TGeoVoxelFinder.h"
 #include "TGeoMatrix.h"
-
+#include "PndDetectorList.h"
 #include "FairGeoMedium.h"
 #include "PndStack.h"
 #include "TString.h"
@@ -104,14 +104,8 @@ Bool_t PndEmc::ProcessHits(FairVolume* vol) {
   // Increment number of emc points for TParticle
   if (gMC->IsTrackEntering()) 
     {
-    Int_t points = gMC->GetStack()->GetCurrentTrack()->GetMother(1);
-    Int_t nEmcPoints = (points & (15<<16)) >> 16;
-    nEmcPoints ++;
-    if (nEmcPoints <= 15)
-      {
-        points = ( points & ( ~ (15<<16) ) ) | (nEmcPoints << 16);
-        gMC->GetStack()->GetCurrentTrack()->SetMother(1,points);
-      }
+      PndStack* stack = (PndStack*) gMC->GetStack();
+      stack->AddPoint(kEMC);
     }
 
   if (gMC->Edep()<=0) return kTRUE; // skip all the points which have no energy loss (i.e. Entering)

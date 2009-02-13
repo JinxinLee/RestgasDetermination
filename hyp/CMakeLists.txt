@@ -11,6 +11,7 @@ ${CMAKE_SOURCE_DIR}/parbase
 ${CMAKE_SOURCE_DIR}/base 
 ${CMAKE_SOURCE_DIR}/field 
 ${CMAKE_SOURCE_DIR}/pndbase 
+${CMAKE_SOURCE_DIR}/pndbase/HypData
 ${CMAKE_SOURCE_DIR}/passive
 ${CMAKE_SOURCE_DIR}/PndTools/riemannfit
 ${CMAKE_SOURCE_DIR}/hyp
@@ -41,8 +42,6 @@ set(HYP_SRCS
 PndGeoHyp.cxx 
 PndHyp.cxx 
 PndGeoHypPar.cxx 
-PndHypPoint.cxx 
-PndHypHit.cxx
 PndHypHitProducerIdeal.cxx    
 PndHypContFact.cxx 
 THParticle.cxx 

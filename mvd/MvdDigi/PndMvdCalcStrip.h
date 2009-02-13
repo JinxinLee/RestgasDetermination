@@ -22,7 +22,7 @@
 #include <iostream>
 #include <vector>
 
-enum SensorSide { kTOP, kBOTTOM };
+#include "PndDetectorList.h"
 
 //! Class for calculating strip indices from wafer hits
 /**

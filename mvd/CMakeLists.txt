@@ -11,6 +11,7 @@ ${CMAKE_SOURCE_DIR}/parbase
 ${CMAKE_SOURCE_DIR}/base
 ${CMAKE_SOURCE_DIR}/field
 ${CMAKE_SOURCE_DIR}/pndbase
+${CMAKE_SOURCE_DIR}/pndbase/MvdData
 ${CMAKE_SOURCE_DIR}/passive
 ${CMAKE_SOURCE_DIR}/PndTools/riemannfit
 ${CMAKE_SOURCE_DIR}/mvd/MvdMC
@@ -43,10 +44,6 @@ link_directories( ${LINK_DIRECTORIES})
 ########################### create libMvd ######################################
 set(MVD_SRCS
 
-MvdData/PndMvdDigi.cxx
-MvdData/PndMvdDigiPixel.cxx
-MvdData/PndMvdDigiStrip.cxx
-MvdData/PndMvdMCPoint.cxx
 
 MvdDigi/PndMvdCalcFePixel.cxx
 MvdDigi/PndMvdCalcPixel.cxx
@@ -106,10 +103,6 @@ set_target_properties(Mvd PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 ########################### create libMvdReco ##################################
 set(MVDRECO_SRCS
 
-MvdData/PndMvdCluster.cxx
-MvdData/PndMvdHit.cxx
-MvdData/PndMvdHitInfo.cxx
-MvdData/PndMvdRadDamHit.cxx
 
 MvdReco/PndMvdRecoTask.cxx
 MvdReco/PndMvdClusterTask.cxx
@@ -153,7 +146,6 @@ set_target_properties(MvdReco PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 ########################### create libMvdTrk ##################################
 set(MVDTRK_SRCS
 MvdData/PndMvdRecoHit.cxx
-MvdData/PndMvdPidCand.cxx
 
 MvdPid/PndMvdPidIdealTask.cxx
 MvdPid/PndMvdIdealPidAlgo.cxx

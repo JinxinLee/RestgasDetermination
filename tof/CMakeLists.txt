@@ -11,6 +11,7 @@ ${CMAKE_SOURCE_DIR}/parbase
 ${CMAKE_SOURCE_DIR}/base 
 ${CMAKE_SOURCE_DIR}/field 
 ${CMAKE_SOURCE_DIR}/pndbase 
+${CMAKE_SOURCE_DIR}/pndbase/TofData
 ${CMAKE_SOURCE_DIR}/tof
 ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/recotasks
@@ -28,8 +29,6 @@ set(TOF_SRCS
 PndGeoTof.cxx 
 PndTof.cxx 
 PndGeoTofPar.cxx 
-PndTofPoint.cxx 
-PndTofHit.cxx  
 PndTofContFact.cxx
 PndTofHitProducerIdeal.cxx  
 #PndTofAnaIdeal.cxx

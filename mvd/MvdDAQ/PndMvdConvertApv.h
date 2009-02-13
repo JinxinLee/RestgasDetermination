@@ -22,7 +22,7 @@
 //! Class for digitising strip of Apv-Sensors to digtil hits
 
 // class PndMvdApv;
-class PndMvdDigiStrip;
+#include "PndMvdDigiStrip.h"
 
 class PndMvdConvertApv
 {

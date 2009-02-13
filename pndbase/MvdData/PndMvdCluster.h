@@ -4,7 +4,7 @@
 #include "TObject.h"
 #include <vector>
 #include <iostream>
-#include "PndMvdCalcStrip.h" // contains SensorSide enumeration
+#include "PndDetectorList.h" // contains SensorSide enumeration
 
 
 //! PndMvdCluster.h

@@ -8,9 +8,6 @@
 
 
 //data
-#pragma link C++ class PndMvdCluster+;
-#pragma link C++ class PndMvdHitInfo+;
-#pragma link C++ class PndMvdHit+;
 
 //reco
 #pragma link C++ class PndMvdIdealRecoTask+;
@@ -26,7 +23,6 @@
 #pragma link C++ class PndMvdStripClusterFinder+;
 #pragma link C++ class PndMvdChargeWeightingAlgorithms+;
 //tools
-#pragma link C++ class PndMvdRadDamHit+;
 #pragma link C++ class PndMvdRadDamList+;
 #pragma link C++ class PndMvdRadDamTask+;
 

@@ -1,7 +1,7 @@
 #ifndef _PNDHYPSTRIP_HH
 #define _PNDHYPSTRIP_HH
 
-#include "../PndHypHit.h"
+#include "PndHypHit.h"
 #include "FairGeoVector.h"
 #include <iostream>
 #include <vector>

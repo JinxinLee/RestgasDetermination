@@ -15,7 +15,7 @@
 
 //! Class to store data of Apv-Sensors
 
-class PndMvdApvHit
+class PndMvdApvHit : public TObject
 {
    public :
 	PndMvdApvHit(){}

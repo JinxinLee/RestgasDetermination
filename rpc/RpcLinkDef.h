@@ -7,11 +7,9 @@
 #pragma link off all functions;
  
 #pragma link C++ class  PndRpcDetector+;
-#pragma link C++ class  PndRpcPoint+;
 #pragma link C++ class  PndRpcGeo+;
 #pragma link C++ class  PndRpcGeoPar+;
 #pragma link C++ class  PndRpcContFact+;
-#pragma link C++ class  PndRpcHit+;
 #pragma link C++ class  PndRpcHitProducerIdeal+;
 #pragma link C++ class  PndRpcHitProducer+;
 #pragma link C++ class  PndRpcSimpleReco+;

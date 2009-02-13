@@ -12,7 +12,7 @@
 #ifndef PNDHYPCALCSTRIP_H
 #define PNDHYPCALCSTRIP_H
 
-#include "../hyp/PndHypHit.h"
+#include "PndHypHit.h"
 #include "PndHypStrip.h"
 //#include "FairGeoVector.h"
 #include "PndHypStripDigiPar.h"

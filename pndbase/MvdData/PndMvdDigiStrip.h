@@ -14,12 +14,15 @@
 #include "TString.h"
 #include <iostream>
 #include "PndMvdDigi.h"
+
 //! Class for digitised strip hits
 /**
  * Information about digitised hits from strip detectors
  * @author HG Zaunick <hg.zaunick@physik.tu-dresden.de>
  *
  **/
+
+
 class PndMvdDigiStrip : public PndMvdDigi
 {
   public :

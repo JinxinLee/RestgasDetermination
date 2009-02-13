@@ -13,7 +13,8 @@ ${CMAKE_SOURCE_DIR}/field
 ${CMAKE_SOURCE_DIR}/pndbase 
 ${CMAKE_SOURCE_DIR}/passive
 ${CMAKE_SOURCE_DIR}/mvd
-${CMAKE_SOURCE_DIR}/mvd/MvdData 
+${CMAKE_SOURCE_DIR}/mvd/MvdData
+${CMAKE_SOURCE_DIR}/pndbase/MvdData 
 ${CMAKE_SOURCE_DIR}/mvd/MvdTools
 ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/tpc 

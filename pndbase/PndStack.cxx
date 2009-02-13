@@ -202,7 +202,7 @@ void PndStack::FillTrackArray() {
 	new( (*fTracks)[fNTracks]) PndMCTrack(GetParticle(iPart));
       fIndexMap[iPart] = fNTracks;
       // --> Set the number of points in the detectors for this track
-      for (Int_t iDet=kREF; iDet<=kHYP; iDet++) {
+      for (Int_t iDet=kDCH; iDet<=kHYP; iDet++) {
 	pair<Int_t, Int_t> a(iPart, iDet);
 	track->SetNPoints(iDet, fPointsMap[a]);
       }

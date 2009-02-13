@@ -1,7 +1,7 @@
 #include "PndRiemannTrackFinder.h"
 #include <iostream>
 #include <math.h>
-#include "../../mvd/MvdData/PndMvdHit.h"
+#include "PndMvdHit.h"
 
 
 ClassImp(PndRiemannTrackFinder);

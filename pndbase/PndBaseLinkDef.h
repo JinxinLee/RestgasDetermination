@@ -1,4 +1,4 @@
-// $Id: ZdcLinkDef.h,v 1.1.1.1 
+// $Id: ZdcLinkDef+;,v 1.1.1.1 
 //2005/06/23 07:14:26 dbertini Exp $
 
 #ifdef __CINT__
@@ -29,6 +29,37 @@
 #pragma link C++ class  PndSttHitInfo+;  
 #pragma link C++ class  PndSttPoint+;  
 #pragma link C++ class  PndSttTrack+;
+
+#pragma link C++ class  PndTofHit+;
+#pragma link C++ class  PndTofPoint+;
+
+#pragma link C++ class  PndRpcPoint+;
+#pragma link C++ class  PndRpcHit+;
+
+#pragma link C++ class  PndHypCluster+;
+#pragma link C++ class  PndHypDigi+;
+#pragma link C++ class  PndHypDigiStrip+;
+#pragma link C++ class  PndHypHit+;
+#pragma link C++ class  PndHypHitInfo+;
+#pragma link C++ class  PndHypPidCand+;
+#pragma link C++ class  PndHypPoint+;
+#pragma link C++ class  PndHypStrip+;
+
+#pragma link C++ class  PndMvdApvHit+;
+#pragma link C++ class  PndMvdCluster+;
+#pragma link C++ class  PndMvdDigi+;
+#pragma link C++ class  PndMvdDigiPixel+;
+#pragma link C++ class  PndMvdDigiStrip+;
+#pragma link C++ class  PndMvdHit+;
+#pragma link C++ class  PndMvdHitInfo+;
+#pragma link C++ class  PndMvdMCPoint+;
+#pragma link C++ class  PndMvdPidCand+;
+#pragma link C++ class  PndMvdPixel+;
+#pragma link C++ class  PndMvdRadDamHit+;
+#pragma link C++ class  PndMvdStrip+;
+
+
+
 
 
 #endif

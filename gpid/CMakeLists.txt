@@ -16,7 +16,7 @@ ${CMAKE_SOURCE_DIR}/tof
 ${CMAKE_SOURCE_DIR}/emc/EmcData
 ${CMAKE_SOURCE_DIR}/emc/EmcReco
 ${CMAKE_SOURCE_DIR}/mvd
-${CMAKE_SOURCE_DIR}/mvd/MvdData
+${CMAKE_SOURCE_DIR}/pndbase/MvdData
 ${CMAKE_SOURCE_DIR}/lhetrack
 ${CMAKE_SOURCE_DIR}/gpid
 ${CMAKE_SOURCE_DIR}/drc

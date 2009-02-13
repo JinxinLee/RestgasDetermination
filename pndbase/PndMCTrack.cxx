@@ -118,7 +118,7 @@ Int_t  PndMCTrack::GetNPoints(DetectorId detId) const {
 }
 void PndMCTrack::SetNPoints(Int_t iDet, Int_t  nPoints) {
 
-  if ( iDet == kDRC ) {
+  if        ( iDet == kDRC ) {
     if      ( nPoints < 0 ) nPoints = 0;
     else if ( nPoints > 3 ) nPoints = 3;
     fPoints = ( fPoints & ( ~ (  3 <<  0 ) ) )  |  ( nPoints <<  0 );
@@ -138,7 +138,7 @@ void PndMCTrack::SetNPoints(Int_t iDet, Int_t  nPoints) {
 
   else if ( iDet == kDCH ) {
     if      ( nPoints < 0 ) nPoints = 0;
-    else if ( nPoints > 7 ) nPoints = 63;
+    else if ( nPoints > 7 ) nPoints = 7;
     fPoints = ( fPoints & ( ~ ( 7 <<  8 ) ) )  | ( nPoints << 8 );
   }
 
@@ -150,39 +150,44 @@ void PndMCTrack::SetNPoints(Int_t iDet, Int_t  nPoints) {
 
   else if ( iDet == kSTT ) {
     if      ( nPoints <  0 ) nPoints =  0;
-    else if ( nPoints > 15 ) nPoints = 15;
-    fPoints = ( fPoints & ( ~ ( 15 << 14 ) ) )  |  ( nPoints << 14 );
+    else if ( nPoints > 7 ) nPoints = 7;
+    fPoints = ( fPoints & ( ~ ( 7 << 14 ) ) )  |  ( nPoints << 14 );
+  }
+  else if ( iDet == kTPC ) {
+    if      ( nPoints <  0 ) nPoints =  0;
+    else if ( nPoints > 7 ) nPoints = 7;
+    fPoints = ( fPoints & ( ~ ( 7 << 17 ) ) )  |  ( nPoints << 17 );
   }
 
   else if ( iDet == kTOF ) {
     if      ( nPoints <  0 ) nPoints =  0;
     else if ( nPoints > 7 ) nPoints = 7;
-    fPoints = ( fPoints & ( ~ ( 7 << 18 ) ) )  |  ( nPoints << 18 );
+    fPoints = ( fPoints & ( ~ ( 7 << 20 ) ) )  |  ( nPoints << 20 );
   }
 
   else if ( iDet == kGEM ) {
     if      ( nPoints < 0 ) nPoints = 0;
     else if ( nPoints > 7 ) nPoints = 7;
-    fPoints = ( fPoints & ( ~ ( 7 << 22 ) ) )  |  ( nPoints << 22 );
+    fPoints = ( fPoints & ( ~ ( 7 << 23 ) ) )  |  ( nPoints << 23 );
   }
   else if ( iDet == kDSK ) {
     if      ( nPoints < 0 ) nPoints = 0;
     else if ( nPoints > 3 ) nPoints = 3;
-    fPoints = ( fPoints & ( ~ (  3 << 25 ) ) )  |  ( nPoints << 25 );
+    fPoints = ( fPoints & ( ~ (  3 << 26 ) ) )  |  ( nPoints << 26 );
   }
 
   else if ( iDet == kHYP ) {
     if      ( nPoints < 0 ) nPoints = 0;
     else if ( nPoints > 3 ) nPoints = 3;
-    fPoints = ( fPoints & ( ~ (  3 << 27 ) ) )  |  ( nPoints << 27 );
+    fPoints = ( fPoints & ( ~ (  3 << 28 ) ) )  |  ( nPoints << 28 );
   }
   else if ( iDet == kRPC ) {
     if      ( nPoints < 0 ) nPoints = 0;
     else if ( nPoints > 3 ) nPoints = 3;
-    fPoints = ( fPoints & ( ~ (  15 << 29 ) ) )  |  ( nPoints << 29 );
+    fPoints = ( fPoints & ( ~ (  15 << 30 ) ) )  |  ( nPoints << 30 );
   }
 
-  else cout << "-E- FairMCTrack::SetNPoints: Unknown detector ID "
+  else cout << "-E- PndMCTrack::SetNPoints: Unknown detector ID "
 	    << iDet << endl;
 
 }

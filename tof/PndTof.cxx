@@ -24,6 +24,8 @@
 #include "FairVolume.h"
 #include "FairRuntimeDb.h"
 #include "FairRun.h"
+#include "PndDetectorList.h"
+
 
 #include "TClonesArray.h"
 #include "TGeoManager.h"
@@ -252,8 +254,10 @@ Bool_t PndTof::ProcessHits(FairVolume* vol)
 	      fTime, fLength,fELoss,fcharge,fmass,fpdgCode,
 	       fdist,fPLin,fPLout);
 
-
-	ResetParameters();
+        PndStack* stack = (PndStack*) gMC->GetStack();
+        stack->AddPoint(kTOF);
+	
+        ResetParameters();
       }
 
     //return kTRUE;
@@ -337,7 +341,9 @@ Bool_t PndTof::ProcessHits(FairVolume* vol)
 		     fTime, fLength,fELoss,fcharge,fmass,fpdgCode,
 		       fdist,fPLin,fPLout);
 
-
+             PndStack* stack = (PndStack*) gMC->GetStack();
+             stack->AddPoint(kTOF);
+	
 	
 	  ResetParameters();
 	   }

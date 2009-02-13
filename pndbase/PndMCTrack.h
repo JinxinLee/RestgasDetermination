@@ -113,12 +113,13 @@ private:
    **  MVD:  Bit  5 -  7  (3 bit max. value 7)
    **  DCH:  Bit  8 - 10  (3 bit max. value 7)
    **  EMC:  Bit 11 - 13  (3 bit max. value 7)
-   **  STT:  Bit 14 - 17  (4 bit max. value 15)
-   **  TOF:  Bit 18 - 21  (3 bit max. value 7)
-   **  GEM:  Bit 22 - 24  (3 bit max. value 7)
-   **  DSK:  Bit 25 - 26  (2 bit max. value 3)
-   **  HYP:  Bit 27 - 28  (2 bit max. value 3)
-   **  RPC:  Bit 29 - 30  (3 bit max. value 3)
+   **  STT:  Bit 14 - 16  (3 bit max. value 7)
+   **  TPC:  Bit 17 - 19  (3 bit max. value 7)
+   **  TOF:  Bit 20 - 22  (3 bit max. value 7)
+   **  GEM:  Bit 23 - 25  (3 bit max. value 7)
+   **  DSK:  Bit 26 - 27  (2 bit max. value 3)
+   **  HYP:  Bit 28 - 29  (2 bit max. value 3)
+   **  RPC:  Bit 30 - 31  (3 bit max. value 3)
    **  The respective point numbers can be accessed and modified **/
 
   Int_t  fPoints;

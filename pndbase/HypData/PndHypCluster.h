@@ -4,7 +4,8 @@
 #include "TObject.h"
 #include <vector>
 #include <iostream>
-#include "PndHypCalcStrip.h" // contains SensorSide enumeration
+
+#include "PndHypHit.h" // contains SensorSide enumeration
 
 
 //! PndHypClusterCand.h
