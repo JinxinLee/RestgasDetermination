@@ -64,7 +64,7 @@
   prepareKalmanTracks->SetPersistence();
   fRun->AddTask(prepareKalmanTracks);
   // ------------------------------------------------- 
-  PndDchKalmanTask2* dchKalman = new PndDchKalmanTask2();
+/*  PndDchKalmanTask2* dchKalman = new PndDchKalmanTask2();
   dchKalman->SetVerbose(0);
   dchKalman->SetNumIterations(1);
   dchKalman->SetSmooth(kFALSE);
@@ -74,7 +74,7 @@
   dchKalmanQA->SetVerbose(0);
   fRun->AddTask(dchKalmanQA);
   // ------------------------------------------------- 
-
+*/
   fRun->Init();
   Geane->SetField(fRun->GetField());
   fRun->Run(0,nEvents);

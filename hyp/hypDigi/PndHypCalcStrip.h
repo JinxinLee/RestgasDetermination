@@ -23,7 +23,7 @@
 #include <iostream>
 #include <vector>
 
-enum SensorSide { kTOP, kBOTTOM };
+
 
 class PndHypCalcStrip
 {

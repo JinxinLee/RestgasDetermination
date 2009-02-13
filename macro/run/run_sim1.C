@@ -42,7 +42,7 @@
 
 
   FairModule *Pipe= new PndPipe("PIPE");
-  //Pipe->SetGeometryFileName("pipebeamtarget.geo");
+  Pipe->SetGeometryFileName("pipebeamtarget.geo");
   fRun->AddModule(Pipe);
 
   /*
@@ -217,7 +217,7 @@
   // Transport nEvents
   // -----------------1
   
-  Int_t nEvents = 10;
+  Int_t nEvents = 5;
   fRun->Run(nEvents);
      
   timer.Stop();

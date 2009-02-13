@@ -28,51 +28,49 @@
   // Create and add detectors
   //-------------------------
 
-  FairModule *Cave= new PndCave("CAVE");
+ FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave); 
   
   FairModule *Magnet= new PndMagnet("MAGNET");
   Magnet->SetGeometryFileName("FullSolenoid.root");
   fRun->AddModule(Magnet);
- 
+
   FairModule *Dipole= new PndMagnet("MAGNET");
   Dipole->SetGeometryFileName("dipole.geo");
   fRun->AddModule(Dipole);
 
 
-  /*
-  FairDetector *Stt = new CbmStt("STT",kTRUE);
-  Stt->SetGeometryFileName("stt24.geo"); // 14 = 1 solo 2layer pablo01.geo 3 layers stt24 
+  FairDetector *Stt= new PndStt("STT", kTRUE);
+  Stt->SetGeometryFileName("straws_skewed_blocks.geo");
   fRun->AddModule(Stt);
-  */
-    /*
-  FairDetector *Stt= new CbmStt("STT", kTRUE); 
-  Stt->SetGeometryFileName("straws_axial.geo");
-  fRun->AddModule(Stt);
-*/
-/*   FairDetector *Tpc = new TpcDetector("TPC", kTRUE);
-  Tpc->SetGeometryFileName("tpc.geo");
-  fRun->AddModule(Tpc);
 
-  FairDetector *Mvd = new CbmTst("MVD", kTRUE);
-  Mvd->SetGeometryFileName("MVD_Rev14b_Corr.geo");
+  FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
+  Mvd->SetGeometryFileName("MVD_v1.0_woPassiveTraps.root");
   fRun->AddModule(Mvd);
-   
   
+  PndEmc *Emc = new PndEmc("EMC",kTRUE);
+  Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root"); // if you want to use new geometry for FwEndCap
+  fRun->AddModule(Emc);
   
-    FairDetector *Emc = new CbmEmc("EMC",kTRUE);
-    Emc->SetGeometryFileName("emc_module123.dat");
-    fRun->AddModule(Emc);
-  */  
-//    FairDetector *Muo = new PndMuo("MUO",kTRUE);
-//    Muo->SetGeometryFileName("muon_super_light2.geo"); 
-//    fRun->AddModule(Muo);
-    
+  FairDetector *Tof = new PndTof("TOF",kTRUE);
+  Tof->SetGeometryFileName("tofbarrel.geo");
+  fRun->AddModule(Tof);
 
-   FairDetector *Drc = new PndDrc("DIRC", kTRUE);
-   Drc->SetGeometryFileName("dirc.geo"); 
-   fRun->AddModule(Drc);
+  FairDetector *Drc = new PndDrc("DIRC", kTRUE);
+  Drc->SetGeometryFileName("dirc.geo"); 
+  fRun->AddModule(Drc); 
+
+  PndMdt *Muo = new PndMdt("MDT",kTRUE);
+  Muo->SetGeometryFileName("muopars.root");
+  Muo->SetMdtVersion("torino");
+  fRun->AddModule(Muo);
+
+  FairDetector *Dch = new PndDchDetector("DCH", kTRUE);
+  Dch->SetGeometryFileName("dch.root"); 
+  fRun->AddModule(Dch);
+
+
 
     // Create and Set Event Generator
     //-------------------------------
@@ -99,10 +97,10 @@
  */
   // proton 2212 pi+ 211 pi- -211 
   Double_t randx, randy;
-  for (Int_t n =0; n<10; n++){
+  for (Int_t n =0; n<5; n++){
 	randx= gRandom->Gaus(0,1);
 	randy= gRandom->Gaus(0,1);
-	FairParticleGenerator* partGen = new FairParticleGenerator(2212, 1, 0.3*randx, 0.3*randy, 0.3);
+	FairParticleGenerator* partGen = new FairParticleGenerator(2212, 1, 0.3*randx, 0.3*randy, 1.0);
   	primGen->AddGenerator(partGen);
   }
 

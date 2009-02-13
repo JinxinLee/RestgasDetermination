@@ -35,7 +35,7 @@ void Config()
 /// create the Specific stack
    PndStack *stack = new PndStack(1000); 
    stack->StoreSecondaries(kTRUE);
-   stack->SetMinPoints(1);
+   stack->SetMinPoints(0);
    geant4->SetStack(stack);
 
    if(FairRunSim::Instance()->IsExtDecayer()){
