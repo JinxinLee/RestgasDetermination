@@ -13,7 +13,7 @@
   // set the MC version used
   // ------------------------
 
-  fRun->SetName("TGeant4");
+  fRun->SetName("TGeant3");
   // Choose the Geant Navigation System
   // fRun->SetGeoModel("G3Native");
   
@@ -65,12 +65,12 @@
   Muo->SetGeometryFileName("muopars.root");
   Muo->SetMdtVersion("torino");
   fRun->AddModule(Muo);
-
+/*
   FairDetector *Dch = new PndDchDetector("DCH", kTRUE);
   Dch->SetGeometryFileName("dch.root"); 
   fRun->AddModule(Dch);
 
-
+*/
 
     // Create and Set Event Generator
     //-------------------------------
@@ -151,10 +151,11 @@
 //      
    FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
    Bool_t kParameterMerged=kTRUE;
-  
+   FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
+   output->open("testparams.root");
+   rtdb->setOutput(output);
    
-   
-     
+       
   //if a field is used save the parameters in the RTDB
 /*    
     PndSolenoidPar* Par1 = (PndSolenoidPar*) rtdb->getContainer("PndSolenoidPar");
@@ -178,9 +179,7 @@
     Par->setInputVersion(fRun->GetRunId(),1);
     Par->setChanged();
 
-    FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
-    output->open("testparams.root");
-    rtdb->setOutput(output);
+    
     rtdb->saveOutput();
     rtdb->print();
   // Transport nEvents
