@@ -367,6 +367,7 @@ Int_t PndTpcLheTrackFitter::CircleFit(PndTpcLheTrack *track) {
 
   Xcenter = (Mxz*(Myy-xnew) - Myz*Mxy)/DET/2.;
   Ycenter = (Myz*(Mxx-xnew) - Mxz*Mxy)/DET/2.;
+  if ((Xcenter*Xcenter+Ycenter*Ycenter-GAM) < 0.) return 0;
   Radius = sqrt(Xcenter*Xcenter+Ycenter*Ycenter-GAM);
 
 //   cout << " x center " <<  Xcenter + Mx <<

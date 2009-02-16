@@ -173,24 +173,28 @@ void PndLheKalmanTask::Exec(Option_t* opt)
   for(Int_t itr=0;itr<ntracks;++itr){
     if (fVerbose>1) std::cout<<"starting track"<<itr<<std::endl;
     PndTpcLheTrack *lheTrack = (PndTpcLheTrack*)fTrackArray->At(itr);
-    
-    TVector3 StartPos(0., 0., 0.); 
+    if (lheTrack->IsGood()==kFALSE) {
+      std::cout<<" -I- PndLheKalmanTask::Exec: Bad track skipped" << std::endl;
+      continue;
+    }
+
+    TVector3 StartPos(0., 0., 0.);
     //TVector3 StartPos    = lheTrack->GetFirstHit().GetCoord();
     //TVector3 StartPosErr = lheTrack->GetFirstHit().GetError();
-    TVector3 StartPosErr(0.5, 0.5, 0.5);
     TVector3 StartMom(0., 0., 0.);
     //TVector3 StartMom = lheTrack->GetMomentum();
-    TVector3 StartMomErr = TVector3(0.1*StartMom);
     Float_t phi = lheTrack->ExtrapolateToZ(&StartMom, &StartPos, 0.);
     if (phi==-100000)
       {
-	std::cout<<" -I- PndLheKalmanTask::Exec: Evil Track (lam==0)! skipping" << std::endl;
-	continue; // not valid track
+        std::cout<<" -I- PndLheKalmanTask::Exec: Evil Track (lam==0)! skipping" << std::endl;
+        continue; // not valid track
       }
-    
+    TVector3 StartMomErr = TVector3(0.1*StartMom);
+    TVector3 StartPosErr(0.5, 0.5, 0.5);
+
     // Starting values for guessing
     Double_t  fCharge= lheTrack->GetCharge();
-    Int_t PDGCode= 211*(Int_t)fCharge;
+    Int_t PDGCode= -13*(Int_t)fCharge;
   //  TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
   //  TParticlePDG *fParticle= fdbPDG->GetParticle(PDGCode);
    
@@ -207,7 +211,7 @@ void PndLheKalmanTask::Exec(Option_t* opt)
 			   	start_pl,StartMom,
 				StartPosErr,StartMomErr,
 				fCharge,PDGCode);
-	//grep->setPropDir(1);
+	grep->setPropDir(1);
         rep = grep;
       }
     else

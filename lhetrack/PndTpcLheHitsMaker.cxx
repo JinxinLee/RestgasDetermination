@@ -617,7 +617,13 @@ void PndTpcLheHitsMaker::GetSttHelixHit() {
 
   for (int j=0; j < fSttInput->GetEntriesFast(); j++ ) {
     PndSttHelixHit* sttHit = (PndSttHelixHit*) fSttInput->At(j);
-    
+    if (isnan(sttHit->GetX()))
+      {
+        sttHit->Print();
+        cout << "-W- PndTpcLheHitsMaker::GetSttHelixHit: SttHelixHit with NaN - skipped (requires STT bug fix!!)" << endl;
+        continue;
+      }
+
     PndTpcLheHit* hit = AddHit();
     hit->SetHitNumber(fNHit++);
     
