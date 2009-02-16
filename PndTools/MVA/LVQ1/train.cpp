@@ -25,6 +25,6 @@ int main(int argc, char** argv)
   nam.push_back("z");  nam.push_back("zz");  nam.push_back("zzz");
 
   PndLVQTrain tr ("TestInputRand.root",clas,nam);
-  tr.Train(30,"Train10Proto.root");
+  tr.Train(30,"TrainProto.root");
   return 0;
 }
