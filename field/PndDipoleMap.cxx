@@ -31,8 +31,7 @@ PndDipoleMap::PndDipoleMap(const char* mapName,
   if(fRun){
     Double_t BeamEnergy= fRun->GetBeamEnergy();
     if(fRun->UseBeamEnergy() && BeamEnergy){
-      if(BeamEnergy< 2);
-      else if (BeamEnergy< 2.0 )Suffix=".0150" ;
+      if(BeamEnergy< 2)Suffix=".0150" ;
       else if (BeamEnergy< 5.0 )Suffix=".0406";
       else if (BeamEnergy< 10.0 )Suffix=".0890" ;
       else if (BeamEnergy< 12.0 )Suffix=".1190";
