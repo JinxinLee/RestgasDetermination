@@ -18,7 +18,6 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TRandom3.h"
-#include "TStopwatch.h"
 
 class PndLVQTrain{
  public:
@@ -34,6 +33,7 @@ class PndLVQTrain{
    * Destructor
    */
   virtual ~PndLVQTrain();
+  
   /*
    *@param numProto, number of LVQ1 prototypes. Current implementation
    * considers an equal number of prototypes for each class. 
@@ -41,7 +41,19 @@ class PndLVQTrain{
    * stored in.
    */
   void Train(int numProto, const char* OutPut);
-
+  
+  /*
+   * Sets the learning parameters.
+   * @param initConst, Initialization constant, used to initialize LVQ prototypes.
+   * @param etZ, EthaZero, start value for the learning rate.
+   * @param etF, Final value for Etha (learning rate)
+   * @param Nswp, Number of sweeps through the examples collection set.
+   */
+  void SetLearnPrameters(const double initConst, const double etZ,
+                         const double etF, const int Nswp)
+  {m_initConst = initConst; m_ethaZero = etZ; 
+  m_ethaFinal = etF; m_NumSweep = Nswp;};
+ 
  // Protected functions and variables
  protected:
   /* 
@@ -86,5 +98,9 @@ class PndLVQTrain{
 
   //Holds the LVQ proto-types
   std::vector< std::pair<std::string, std::vector<float>*> > m_LVQProtos;
+ 
+ //Learn parameters: Init constant, start learning rate, End learning rate 
+  double m_initConst, m_ethaZero, m_ethaFinal;
+  int m_NumSweep;// Number of sweeps through example set.
 };
 #endif //end of interface definition
