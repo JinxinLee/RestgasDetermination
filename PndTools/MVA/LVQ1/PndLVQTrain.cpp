@@ -77,7 +77,13 @@ PndLVQTrain::PndLVQTrain(const char* InPut,
   for(unsigned int idx = 0; idx < m_ClassNames.size(); idx++){
     CompClsCondMean(m_ClassNames[idx]); 
   }//End of classconditional mean
-  
+
+  /* 
+   * Set the initial values for the learning constants. Note, One
+   * needs to change these for better learning result.
+  */
+  m_initConst = 0.8; m_ethaZero = 0.1; 
+  m_ethaFinal = 0.001; m_NumSweep = 100;
 }// End of constructor
 
 /*
@@ -145,7 +151,7 @@ void PndLVQTrain::CompClsCondMean(std::string clsName)
 void PndLVQTrain::Train(int numProto, const char* outPut)
 {
   // Initialize LVQ-prototypes according to the classconditional means
-  double c = 0.8;
+  double c = m_initConst;//0.8;
   TRandom3 trand(4357);
   
   for(unsigned int cl = 0; cl < m_ClassNames.size(); cl++){
@@ -191,9 +197,9 @@ void PndLVQTrain::Train(int numProto, const char* outPut)
   }
   // All protypes are initialized. We can perform the training
   // Compute learning rate constant "a"
-  double ethaZero  = 0.1;
-  double ethaFinal = 0.001;
-  int    numSweep  = 100;
+  double ethaZero  = m_ethaZero;//0.1;
+  double ethaFinal = m_ethaFinal;//0.001;
+  int    numSweep  = m_NumSweep;//100;
   int    tFinal    = numSweep * ( m_EventsData.size() );
   double a         = (ethaZero - ethaFinal)/(ethaFinal * (double)tFinal);
   
