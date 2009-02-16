@@ -5,6 +5,7 @@
  * Version 1.0 beta1.                    *
  * ***************************************
  */
+#pragma once
 #ifndef PndLVQTrain_H
 #define PndLVQTrain_H
 
@@ -86,4 +87,4 @@ class PndLVQTrain{
   //Holds the LVQ proto-types
   std::vector< std::pair<std::string, std::vector<float>*> > m_LVQProtos;
 };
-#endif//end of interface definition
+#endif //end of interface definition

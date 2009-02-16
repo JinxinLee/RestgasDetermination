@@ -5,6 +5,7 @@
  * Version 1.0 beta1.                    *
  * ***************************************
  */
+#pragma once
 #ifndef PndLVQClassify_H
 #define PndLVQClassify_H
 
