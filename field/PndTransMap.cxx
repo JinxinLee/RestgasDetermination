@@ -4,7 +4,7 @@
 #include "stdlib.h"
 #include "PndTransMap.h"
 #include "PndTransPar.h"
-
+#include "FairRunSim.h"
 using namespace std;
 // -------------   Default constructor  ----------------------------------
 PndTransMap::PndTransMap() 
@@ -21,6 +21,30 @@ PndTransMap::PndTransMap(const char* mapName,
 				 const char* fileType)
   : PndFieldMap(mapName, fileType) { 
   fType = 4;
+  TString Suffix="";
+  FairRunSim *fRun= FairRunSim::Instance();
+  if(fRun){
+    Double_t BeamEnergy= fRun->GetBeamEnergy();
+    if(fRun->UseBeamEnergy() && BeamEnergy){
+      if(BeamEnergy< 2);
+      else if (BeamEnergy< 2.0 )Suffix=".0150" ;
+      else if (BeamEnergy< 5.0 )Suffix=".0406";
+      else if (BeamEnergy< 10.0 )Suffix=".0890" ;
+      else if (BeamEnergy< 12.0 )Suffix=".1190";
+      else  Suffix=".1500";
+    }else{
+      Suffix="";
+    }
+    TString NewName=mapName;
+    NewName=mapName+Suffix;
+    SetName(NewName.Data());
+    TString dir = getenv("VMCWORKDIR");
+    fFileName = dir + "/input/" + NewName;
+    if ( fileType[0] == 'R' ) fFileName += ".root";
+    else                      fFileName += ".dat";
+
+  }
+
 }
 // ------------------------------------------------------------------------
 

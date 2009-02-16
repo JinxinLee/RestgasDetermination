@@ -33,7 +33,7 @@ PndFieldMap::PndFieldMap()
     fBx(NULL), fBy(NULL), fBz(NULL),
     fFileName("")
 {
-  fName     = "";
+  SetName("");
   fType = 1;
 }
 // ------------------------------------------------------------------------
@@ -52,7 +52,7 @@ PndFieldMap::PndFieldMap(const char* mapName, const char* fileType)
     funit(10.0),
     fBx(NULL), fBy(NULL), fBz(NULL)
 {
-  fName  = mapName;
+  SetName(mapName);
   TString dir = getenv("VMCWORKDIR");
   fFileName = dir + "/input/" + mapName;
   if ( fileType[0] == 'R' ) fFileName += ".root";
@@ -79,18 +79,19 @@ PndFieldMap::PndFieldMap(PndFieldPar* fieldPar)
   if ( ! fieldPar ) {
     cerr << "-W- PndConstField::PndConstField: empty parameter container!"
 	 << endl;
-    fName     = "";
+    SetName("");
     fFileName = "";
     fType     = -1;
   }
   else {
-    fieldPar->MapName(fName);
+    TString Name=GetName();
+    fieldPar->MapName(Name);
     fPosX  = fieldPar->GetPositionX();
     fPosY  = fieldPar->GetPositionY();
     fPosZ  = fieldPar->GetPositionZ();
     fScale = fieldPar->GetScale();
     TString dir = getenv("VMCWORKDIR");
-    fFileName = dir + "/input/" + fName + ".root";
+    fFileName = dir + "/input/" + Name + ".root";
     fType = fieldPar->GetType();
   }
 }

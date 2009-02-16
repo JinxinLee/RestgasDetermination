@@ -5,6 +5,7 @@
 #include "PndDipoleMap.h"
 #include "PndDipolePar.h"
 #include "PndMapPar.h"
+#include "FairRunSim.h"  
 
 Int_t PndDipoleMap::fNumberOfRegions=0;
 
@@ -22,9 +23,32 @@ PndDipoleMap::PndDipoleMap()
 // -------------   Standard constructor   ---------------------------------
 PndDipoleMap::PndDipoleMap(const char* mapName, 
 				 const char* fileType)
-  : PndFieldMap(mapName, fileType) { 
+  : PndFieldMap(mapName, fileType) 
+{ 
   fType = 3;
-  
+  TString Suffix="";
+  FairRunSim *fRun= FairRunSim::Instance();
+  if(fRun){
+    Double_t BeamEnergy= fRun->GetBeamEnergy();
+    if(fRun->UseBeamEnergy() && BeamEnergy){
+      if(BeamEnergy< 2);
+      else if (BeamEnergy< 2.0 )Suffix=".0150" ;
+      else if (BeamEnergy< 5.0 )Suffix=".0406";
+      else if (BeamEnergy< 10.0 )Suffix=".0890" ;
+      else if (BeamEnergy< 12.0 )Suffix=".1190";
+      else  Suffix=".1500";
+    }else{
+      Suffix="";
+    }
+    TString NewName=mapName;
+    NewName=mapName+Suffix;
+    SetName(NewName.Data());
+    TString dir = getenv("VMCWORKDIR");
+    fFileName = dir + "/input/" + NewName;
+    if ( fileType[0] == 'R' ) fFileName += ".root";
+    else                      fFileName += ".dat";
+
+  }
   fNumberOfRegions++;
   fRegionNo=fNumberOfRegions;
   
