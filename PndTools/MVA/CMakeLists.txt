@@ -24,6 +24,8 @@ ${BOOST_LIBRARY_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 set(MVA_SRCS
+# KNN/PndKnnClassify.cpp
+# KNN/PndKnnTrain.cpp
 kd_KNN/kdtree2.cpp
 kd_KNN/PndKnnClassify.cpp
 kd_KNN/PndKnnTrain.cpp

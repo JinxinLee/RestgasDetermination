@@ -104,7 +104,8 @@ void PndLVQClassify::Classify(std::vector<float> &EvtData,
   result.clear();
   // Initialize results
   for(unsigned int id = 0; id < m_ClassNames.size(); id++){
-    result.insert( make_pair( m_ClassNames[id], 100000.0 ) );
+    //result.insert( make_pair( m_ClassNames[id], 1000000.0 ) );
+    result.insert( make_pair( m_ClassNames[id], std::numeric_limits<float>::max()) );
   }
   
   //Loop trough the prototypes list and compute the distances

@@ -206,7 +206,7 @@ void PndLVQTrain::Train(int numProto, const char* outPut)
   for(int time = 0; time < tFinal; time++){
     int    protoIndex       = 0;
     double distance         = 0.0;
-    double minProtoDistance = 100000.0;
+    double minProtoDistance = std::numeric_limits<float>::max();//1000000.0;
     
     double ethaT = (ethaZero) / (1.0 + (a * (double)time));
     // select a random example
