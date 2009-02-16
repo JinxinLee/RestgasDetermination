@@ -98,6 +98,8 @@ PndDipoleMap::~PndDipoleMap() { }
 
 void PndDipoleMap::GetBxyz(const Double_t point[3], Double_t* bField)
 { 
+ // cout << " PndDipoleMap::GetBxyz " << point[0] << " " << point[1] <<" " << point[2] << endl; 
+  
   Double_t x  =point[0];
   Double_t y  =point[1];
   Double_t z  =point[2];
@@ -148,7 +150,9 @@ void PndDipoleMap::GetBxyz(const Double_t point[3], Double_t* bField)
 	
 	// Return interpolated field value
 	//Bz is symtric in X and antisymtric Y
-	bField[1]=Interpolate(dx, dy, dz)* fHemiY ;
+	bField[2]=Interpolate(dx, dy, dz)* fHemiY ;
+	
+	
   }else{
      bField[0]=0;
      bField[1]=0;

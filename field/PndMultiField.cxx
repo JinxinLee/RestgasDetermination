@@ -117,7 +117,7 @@ void PndMultiField::GetFieldValue(const Double_t point[3], Double_t* bField)
   */
   fField->GetBxyz(point, bField);
 
-  //  cout <<"PndMultiField::GetFieldValue" << bField[0] <<" " << bField[1]<< " " << bField[2] << endl;
+   //cout <<"PndMultiField::GetFieldValue" << bField[0] <<" " << bField[1]<< " " << bField[2] << endl;
   }else{
     bField[0] = 0;
     bField[1] = 0;
