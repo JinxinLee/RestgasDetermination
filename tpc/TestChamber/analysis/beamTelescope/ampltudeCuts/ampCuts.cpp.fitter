@@ -18,14 +18,15 @@
 #include <TF1.h>
 #include <Math/Polynomial.h>
 #include <TH2D.h>
+#include <TProfile.h>
 int main(int argc,char **argv){
-  assert(argc==2);
+  assert(argc==3);
 
   TApplication theApp("theApp",NULL,NULL);
 
   TFile::Open(argv[1]);
   TTree *tree = (TTree*)gROOT->FindObject("Hits");
-  
+  std::string alignmentFile = argv[2];
   CsGEMPlane* GM01X1=new CsGEMPlane();
   CsGEMPlane* GM01Y1=new CsGEMPlane();
   CsGEMPlane* GM02X1=new CsGEMPlane();
@@ -74,7 +75,7 @@ int main(int argc,char **argv){
   TH1I *histogramStart = new TH1I("Start cluster multiplicity", "Start cluster multiplicity", 40, 0, 40);
   TH1I *histogramEnd = new TH1I("End cluster multiplicity", "End cluster multiplicity", 40, 0, 40);
   TH1I *histogramTrack = new TH1I("Track multiplicity", "Track multiplicity", 40, 0, 40);
-  TH1D *histogramChi2 = new TH1D("Chi2", "Chi2", 1000, 0, 230000);
+  TH1D *histogramChi2 = new TH1D("Chi2", "Chi2", 100000, 0, 100000);
 
 
   TH1D *histogramSI1Xhitpoint = new TH1D("SI1Xhitpoint", "SI1Xhitpoint", 200, 5, 25);
@@ -88,15 +89,28 @@ int main(int argc,char **argv){
   TH1D *histogramGM2Yhitpoint = new TH1D("GM2Yhitpoint", "GM2Yhitpoint", 200, 15, 30);
 
   
-  TH1D *histogramSI1Xresi = new TH1D("SI1Xresi", "SI1Xresi", 100, -5, 5);
-  TH1D *histogramSI1Yresi = new TH1D("SI1Yresi", "SI1Yresi", 100, -5, 5);
-  TH1D *histogramSI2Xresi = new TH1D("SI2Xresi", "SI2Xresi", 100, -5, 5);
-  TH1D *histogramSI2Yresi = new TH1D("SI2Yresi", "SI2Yresi", 100, -5, 5);
+  TH1D *histogramSI1Xresi = new TH1D("resSI1X", "resSI1X", 200, -3, 3);
+  TH1D *histogramSI1Yresi = new TH1D("resSI1Y", "resSI1Y", 200, -3, 3);
+  TH1D *histogramSI2Xresi = new TH1D("resSI2X", "resSI2X", 200, -3, 3);
+  TH1D *histogramSI2Yresi = new TH1D("resSI2Y", "resSI2Y", 200, -3, 3);
   
-  TH1D *histogramGM1Xresi = new TH1D("GM1Xresi", "GM1Xresi", 200, -10, 10);
-  TH1D *histogramGM1Yresi = new TH1D("GM1Yresi", "GM1Yresi", 200, -10, 10);
-  TH1D *histogramGM2Xresi = new TH1D("GM2Xresi", "GM2Xresi", 200, -10, 10);
-  TH1D *histogramGM2Yresi = new TH1D("GM2Yresi", "GM2Yresi", 200, -10, 10);
+  TH1D *histogramGM1Xresi = new TH1D("resGM1X", "resGM1X", 200, -3, 3);
+  TH1D *histogramGM1Yresi = new TH1D("resGM1Y", "resGM1Y", 200, -3, 3);
+  TH1D *histogramGM2Xresi = new TH1D("resGM2X", "resGM2X", 200, -3, 3);
+  TH1D *histogramGM2Yresi = new TH1D("resGM2Y", "resGM2Y", 200, -3, 3);
+
+  TProfile *histogramSI1XresiVu = new TProfile("resVuSI1X", "resVuSI1X", 200, 0,2,-10,10);
+  TProfile *histogramSI1YresiVu = new TProfile("resVuSI1Y", "resVuSI1Y", 200, 0,2,-10,10);
+  TProfile *histogramSI2XresiVu = new TProfile("resVuSI2X", "resVuSI2X", 200, 0,2,-10,10);
+  TProfile *histogramSI2YresiVu = new TProfile("resVuSI2Y", "resVuSI2Y", 200, 0,2,-10,10);
+  
+  TProfile *histogramGM1XresiVu = new TProfile("resVuGM1X", "resVuGM1X", 1000, 0,10,-10,10);
+  TProfile *histogramGM1YresiVu = new TProfile("resVuGM1Y", "resVuGM1Y", 1000, 0,10,-10,10);
+  TProfile *histogramGM2XresiVu = new TProfile("resVuGM2X", "resVuGM2X", 1000, 0,10,-10,10);
+  TProfile *histogramGM2YresiVu = new TProfile("resVuGM2Y", "resVuGM2Y", 1000, 0,10,-10,10);
+
+
+
   int nEvents=tree->GetEntries();
   /*
   looking at plots 
@@ -114,7 +128,7 @@ int main(int argc,char **argv){
   cout<<"after TTree creation"<<endl;
   outTree->Branch("event","TCevent",&event,32000,99);
   cout<<"after TTree setBranch"<<endl;
-  string alignmentFile = "../../../alignment/simRealAlign.txt";
+  
   TCalign* a = TCalign::getInstance(alignmentFile);
   a->clear();
   a->read(alignmentFile);
@@ -151,43 +165,45 @@ int main(int argc,char **argv){
      event->clear();
      { 
        const std::list<CsGEMCluster*> clusterList = SI01X1->GetClusters();
-       ampDiffCut(clusterList, clSI1X, 15,3,alignmentFile);
+       ampDiffCut(clusterList, clSI1X, 7,3,alignmentFile);
        histogramSI1X->Fill(clSI1X.size());
      }
      {
        const std::list<CsGEMCluster*> clusterList = SI01Y1->GetClusters();
-       ampDiffCut(clusterList, clSI1Y, 15,4,alignmentFile);
+       ampDiffCut(clusterList, clSI1Y, 7,4,alignmentFile);
        histogramSI1Y->Fill(clSI1Y.size());    
      }
      { 
        const std::list<CsGEMCluster*> clusterList = SI02X1->GetClusters();
-       ampDiffCut(clusterList, clSI2X, 15,5,alignmentFile);
+       ampDiffCut(clusterList, clSI2X, 7,5,alignmentFile);
        histogramSI2X->Fill(clSI2X.size());
      }
      {
-       const std::list<CsGEMCluster*> clusterList = SI02Y1->GetClusters();
-       ampDiffCut(clusterList, clSI2Y, 15,6,alignmentFile);
+       const std::list<CsGEMCluster*> clusterList =SI02Y1->GetClusters();
+       ampDiffCut(clusterList, clSI2Y, 7,6,alignmentFile);
        histogramSI2Y->Fill(clSI2Y.size());    
      }
+
      { 
-       const std::list<CsGEMCluster*> clusterList = GM02X1->GetClusters();
-       ampRatioCut(clusterList, clGM2X, 1.1,1.05,7,alignmentFile);
+       const std::list<CsGEMCluster*> clusterList = GM01X1->GetClusters();
+       ampRatioCut(clusterList, clGM1X, 1.1,1.2,1,alignmentFile);
+       histogramGM2X->Fill(clGM1X.size());
+     }
+
+     {
+       const std::list<CsGEMCluster*> clusterList = GM01Y1->GetClusters();
+       ampRatioCut(clusterList, clGM1Y, 1.1,1.2,2,alignmentFile);
+       histogramGM2Y->Fill(clGM1Y.size());    
+     }
+     { 
+       const std::list<CsGEMCluster*> clusterLisresidualt = GM02X1->GetClusters();
+       ampRatioCut(clusterList, clGM2X, 1,0.8,7,alignmentFile);
        histogramGM1X->Fill(clGM2X.size());
      }
      {
        const std::list<CsGEMCluster*> clusterList = GM02Y1->GetClusters();
-       ampRatioCut(clusterList, clGM2Y, 1.05,1.05,8,alignmentFile);
+       ampRatioCut(clusterList, clGM2Y, 1,0.8,8,alignmentFile);
        histogramGM1Y->Fill(clGM2Y.size());    
-     }
-     { 
-       const std::list<CsGEMCluster*> clusterList = GM01X1->GetClusters();
-       ampRatioCut(clusterList, clGM1X, 0.7,0.34,1,alignmentFile);
-       histogramGM2X->Fill(clGM1X.size());
-     }
-     {
-       const std::list<CsGEMCluster*> clusterList = GM01Y1->GetClusters();
-       ampRatioCut(clusterList, clGM1Y, 0.7,0.34,2,alignmentFile);
-       histogramGM2Y->Fill(clGM1Y.size());    
      }
      
      histogramEvent->Fill(event->nClusters());
@@ -340,6 +356,7 @@ int main(int argc,char **argv){
                  trackCl.push_back(endClusters.at(2*j+1));
                  track->addClusters(trackCl);
 
+#if 0
                  TVector3 first;
                  TVector3 last;
                  first = startClusters.at(2*i).posXYZ();
@@ -351,7 +368,25 @@ int main(int argc,char **argv){
                  double startLambda=-1.*first.Z()/startDir.Z();
                  startBX=first.X()+startLambda*startDir.X();
                  startBY=first.Y()+startLambda*startDir.Y();
+         
+
+                 TVector3 first, last, dir;
+                 first = startClusters.at(2*i).posXYZ();
+                 last = endClusters.at(2*j).posXYZ();
+                 dir = last-first;
+                 double startAX=dir.X()/dir.Z();
+                 double startLambda=-1.*first.Z()/dir.Z();
+                 double startBX=first.X()+startLambda*dir.X();
+
+                 first = startClusters.at(2*i+1).posXYZ();
+                 last = endClusters.at(2*j+1).posXYZ();
+                 dir = last-first;
+                 double startAY=dir.Y()/dir.Z();
+                 startLambda=-1.*first.Z()/dir.Z();
+                 double startBY=first.Y()+startLambda*dir.Y();
                  
+
+
                  Double_t vstart[4] = {startAX,startBX,startAY,startBY};
                  
                  for(int a=0;a<track->nCl();a++){
@@ -359,90 +394,111 @@ int main(int argc,char **argv){
                    histogramChi2->Fill(track->getCl(a).getChi2(vstart)/4);
                    TCcluster tmpcl = track->getCl(a);
                    TVector3 resid=tmpcl.getResid(vstart);
+                   double uCl=tmpcl.posUVW().x();
                    if(tmpcl.getFit()){
                      switch(tmpcl.getId()){
                      case 1:
                        histogramGM1Xresi->Fill(resid.x());
+                       histogramGM1XresiVu->Fill(uCl,resid.x());
                        break;
                      case 2:
                        histogramGM1Yresi->Fill(resid.x());
+                       histogramGM1YresiVu->Fill(uCl,resid.x());
                        break;
                      case 3:
                        histogramSI1Xresi->Fill(resid.x());
+                       histogramSI1XresiVu->Fill(uCl,resid.x());
                        break;
                      case 4:                         
                        histogramSI1Yresi->Fill(resid.x());
+                       histogramSI1YresiVu->Fill(uCl,resid.x());
                        break;
                      case 5:
                        histogramSI2Xresi->Fill(resid.x());
+                       histogramSI2XresiVu->Fill(uCl,resid.x());
                        break;
                      case 6:
                        histogramSI2Yresi->Fill(resid.x());
+                       histogramSI2YresiVu->Fill(uCl,resid.x());
                        break;
                      case 7:
                        histogramGM2Xresi->Fill(resid.x());
+                       histogramGM2XresiVu->Fill(uCl,resid.x());
                        break;
                      case 8:
                        histogramGM2Yresi->Fill(resid.x());
+                       histogramGM2YresiVu->Fill(uCl,resid.x());
                        break;
                      default:
                       cout<<"unknown id "<<tmpcl.getId()<<endl;
                      }
                    }
                  }
+#endif   
                  //cout<<"nclFit"<<track->nClFit()<<endl;
-                 /*
+                 
                    if(track->fit(1,2,3,4,5,6,7,8)){
                    
                    //cout<<"track fit converged with chi2 "<<track->getChi2()/track->getNDF()<<endl;
                    histogramChi2->Fill(track->getChi2()/track->getNDF());
-                  
+                   n_tracks++;
+                   //cout<<"track nr. "<<n_tracks;
+                   //                   cout<<"chi2/ndf "<<track->getChi2()/track->getNDF()<<endl;
+                   //cout<<"ax "<<track->getAx()<<" bx "<<track->getBx()<<endl;
+                   //cout<<"ay "<<track->getAy()<<" by "<<track->getBy()<<endl;
                    // double par[4]={track->getAX(),track->getBX(),track->getAY(),track->getBY()};
                    for(unsigned int cl=0;cl<track->nCl();cl++){
-                   
+
                      TCcluster tmpcl = track->getCl(cl);
+                     double uCl=tmpcl.posUVW().x();                   
                      TVector3 resid=tmpcl.getRes();
                      if(tmpcl.getFit()){
                        switch(tmpcl.getId()){
-                       case 1:
-                         histogramGM1Xresi->Fill(resid.x());
-                         break;
-                       case 2:
-                         histogramGM1Yresi->Fill(resid.x());
-                         break;
-                       case 3:
-                         histogramSI1Xresi->Fill(resid.x());
-                         break;
-                       case 4:                         
-                         histogramSI1Yresi->Fill(resid.x());
-                         break;
-                       case 5:
-                         histogramSI2Xresi->Fill(resid.x());
-                         break;
-                       case 6:
-                         histogramSI2Yresi->Fill(resid.x());
-                         break;
-                       case 7:
-                         histogramGM2Xresi->Fill(resid.x());
-                         break;
-                       case 8:
-                         histogramGM2Yresi->Fill(resid.x());
-                         break;
+                     case 1:
+                       histogramGM1Xresi->Fill(resid.x());
+                       histogramGM1XresiVu->Fill(uCl,resid.x());
+                       break;
+                     case 2:
+                       histogramGM1Yresi->Fill(resid.x());
+                       histogramGM1YresiVu->Fill(uCl,resid.x());
+                       break;
+                     case 3:
+                       histogramSI1Xresi->Fill(resid.x());
+                       histogramSI1XresiVu->Fill(uCl,resid.x());
+                       break;
+                     case 4:                         
+                       histogramSI1Yresi->Fill(resid.x());
+                       histogramSI1YresiVu->Fill(uCl,resid.x());
+                       break;
+                     case 5:
+                       histogramSI2Xresi->Fill(resid.x());
+                       histogramSI2XresiVu->Fill(uCl,resid.x());
+                       break;
+                     case 6:
+                       histogramSI2Yresi->Fill(resid.x());
+                       histogramSI2YresiVu->Fill(uCl,resid.x());
+                       break;
+                     case 7:
+                       histogramGM2Xresi->Fill(resid.x());
+                       histogramGM2XresiVu->Fill(uCl,resid.x());
+                       break;
+                     case 8:
+                       histogramGM2Yresi->Fill(resid.x());
+                       histogramGM2YresiVu->Fill(uCl,resid.x());
+                       break;
                        default:
                          cout<<"unknown id "<<tmpcl.getId()<<endl;
                        }
                      }
                    
                    }//end filling residual histograms
-                   n_tracks++;
+                
                    event->addTrack(track);
 
  
                    
                  }
-                 */
-
-                 //                 cout<<"bla"<<endl;
+                                  //                 cout<<"bla"<<endl;
                }//end looping over SI2Y clusters
              }//end looping over SI2X clusters
            }//end looping over SI1Y clusters
@@ -469,7 +525,7 @@ int main(int argc,char **argv){
      */    
   
      outTree->Fill();
-     // if(i_ev>10000) break;
+     if(i_ev>2000) break;
   }
   cout<<"Tried trackfits"<<track_tries<<endl;
   cout<<"n tracks "<<n_tracks<<endl;
@@ -485,7 +541,7 @@ int main(int argc,char **argv){
   histogramSI1X->Write();
   histogramSI1Y->Write();
   histogramSI2X->Write(); 
-  histogramSI2X->Write();
+  histogramSI2Y->Write();
      
   histogramEvent->Write();
   histogramStart->Write();
@@ -513,6 +569,18 @@ int main(int argc,char **argv){
   histogramGM1Yresi->Write();
   histogramGM2Xresi->Write();
   histogramGM2Yresi->Write();
+
+
+  histogramSI1XresiVu->Write();
+  histogramSI1YresiVu->Write();
+  histogramSI2XresiVu->Write();
+  histogramSI2YresiVu->Write();
+  
+  histogramGM1XresiVu->Write();
+  histogramGM1YresiVu->Write();
+  histogramGM2XresiVu->Write();
+  histogramGM2YresiVu->Write();
+
   file->Close();
   delete histogramGM1X;
   

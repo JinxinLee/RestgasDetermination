@@ -1,3 +1,6 @@
+#ifndef HELPERS_H
+#define HELPERSH_
+
 #include <list>
 #include <vector>
 #include <string>
@@ -17,3 +20,5 @@ void ampDiffCut(const std::list<CsGEMCluster*> &clusterList, std::vector<TCclust
   Cuts away clusters with a1/a2>cut1 and a0/a2>cut0
 */
 void ampRatioCut(const std::list<CsGEMCluster*> &clusterList, std::vector<TCcluster> &tcClusters, double cut0, double cut1, int detID,std::string alignmentFile);
+
+#endif

@@ -14,15 +14,15 @@ void ampDiffCut(const std::list<CsGEMCluster*> &clusterList, std::vector<TCclust
   double pitch=a->getPitch(detID);
   for(std::list<CsGEMCluster*>::const_iterator it =clusterList.begin();it!=clusterList.end();it++ ){
     double amp3=(*it)->GetAmp3();
-    double amp2=(*it)->GetAmp2();
+    double noise=(*it)->GetNoise();
     double amp1=(*it)->GetAmp1();
-    if((amp3-amp1>cut)&&(amp3-amp2>cut/3)){
+    if((amp3-amp1>cut*noise)){
       double x=((*it)->GetCenter());
       //cout<<"x "<<x<<" pitch "<<pitch<<endl;
 
-      if((x>=0&&x<16)||(x>128&&x<144)||(x>256&&x<267)){
-        continue;
-      }
+      //if((x>=0&&x<16)||(x>128&&x<144)||(x>256&&x<267)){
+      //  continue;
+      //}
       TVector3 pos(x*pitch,0,0);
       TVector3 err(((*it)->GetErrCenter())*pitch,0.1,0.1);
       double amp((*it)->GetAmp3());
@@ -41,16 +41,22 @@ void ampRatioCut(const std::list<CsGEMCluster*> &clusterList, std::vector<TCclus
     double ratio1=((*it)->GetAmp2())/((*it)->GetAmp3());
     double ratio2=((*it)->GetAmp1())/((*it)->GetAmp3());
     if(ratio1<cut0 && ratio2<cut1){
-
+      
       double x=((*it)->GetCenter())*pitch;
+      
       //cout<<"x "<<x<<" pitch "<<pitch<<endl;
       TVector3 pos(x,0,0);
       TVector3 err(((*it)->GetErrCenter())*pitch,0.5,0.1);
       double amp((*it)->GetAmp3());
       //        pedestalRMS=_c.GetNoise();
+
       TCcluster _c(pos,err,amp,detID);
+      // if(((detID==1||detID==7)&&(_c.posXYZ().x()>14&&_c.posXYZ().x()<17))||
+      // ((detID==2||detID==8)&&(_c.posXYZ().y()>22.5&&_c.posXYZ().y()<24.25))){
+
       _c.setFit(true);
       tcClusters.push_back(_c);
+      //}
     }
   }
 }
