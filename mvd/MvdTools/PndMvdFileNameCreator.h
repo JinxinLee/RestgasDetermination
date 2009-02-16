@@ -18,6 +18,7 @@ class PndMvdFileNameCreator : public TObject
 			PndMvdFileNameCreator(std::string fileName);
 			
 			void SetFileName(std::string fileName){fFileName = fileName;};
+      void SetVerbose(Int_t v) {fVerbose = v;};
 			std::string GetFileName() const {return fFileName;};
 
 			std::string GetSimFileName(bool cut = false);			
@@ -42,6 +43,7 @@ class PndMvdFileNameCreator : public TObject
 			std::string fExtTrackF;
 			std::string fExtKalman;
 			std::string TruncateFileName(bool cut);
+      Int_t fVerbose;
 	ClassDef(PndMvdFileNameCreator, 1);
 };
 

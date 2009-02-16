@@ -10,6 +10,7 @@ PndMvdFileNameCreator::PndMvdFileNameCreator(){
   fExtReco = "reco";
   fExtTrackF = "trackF";
   fExtKalman = "kalman";
+  fVerbose = 0;
 }
 PndMvdFileNameCreator::PndMvdFileNameCreator(std::string fileName){
   fFileName = fileName;
@@ -18,6 +19,7 @@ PndMvdFileNameCreator::PndMvdFileNameCreator(std::string fileName){
   fExtReco = "reco";
   fExtTrackF = "trackF";
   fExtKalman = "kalman";
+  fVerbose = 0;
 }
 
 
@@ -89,6 +91,7 @@ std::string PndMvdFileNameCreator::GetCustomFileName(std::string ext, bool cut)
 		result += ext;
 	}
 	result += ".root";
+  if(fVerbose>0) std::cout<<" -I- PndMvdFileNameCreator file: "<<result.c_str()<<std::endl;
 	return result;
 }
 std::string PndMvdFileNameCreator::GetCustomFileName(std::string inputFileName, std::string ext, bool cut)
@@ -106,7 +109,7 @@ std::string PndMvdFileNameCreator::TruncateFileName(bool cut)
 	
 	PndStringVector pathAna(fFileName,"/");
 	resString = pathAna.GetStringVector();
-	pathAna.Print();
+	if(fVerbose>1) pathAna.Print();
 	if (fFileName.find("/") == 0)
 		result << "/";
 	for (Int_t i = 0; i < resString.size()-1; i++){
@@ -114,12 +117,12 @@ std::string PndMvdFileNameCreator::TruncateFileName(bool cut)
 	}
 	path = result.str();
 	name = resString[resString.size()-1];
-	//std::cout << "Path: " << path << " FileName: " << name << std::endl;
+	//if(fVerbose>1) std::cout << "Path: " << path << " FileName: " << name << std::endl;
 	result.str("");
 	
 	PndStringVector stringAna(name, "._");
 	resString = stringAna.GetStringVector();
-	//stringAna.Print();
+	//if(fVerbose>1) stringAna.Print();
 	
 	if (cut == true)
 		cutLast = 2;
