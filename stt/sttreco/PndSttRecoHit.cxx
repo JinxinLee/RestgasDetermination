@@ -67,8 +67,8 @@ PndSttRecoHit::PndSttRecoHit(PndSttHit *currenthit) : WirepointRecoHit(NparHitRe
 
   // errors on drift radius and z (by hand)
   for(int i = 0; i < NparHitRep; i++) for(int j = 0; j < NparHitRep; j++) _hitCov[i][j] = 0.;
-  _hitCov[6][6] = 0.0150 * 0.0150; // currenthit->GetIsochroneError(); CHECK
-  _hitCov[7][7] = 1.5 * 1.5;
+  _hitCov[6][6] = 0.0100 * 0.0100; // currenthit->GetIsochroneError(); CHECK
+  _hitCov[7][7] = 2. * 2.;
  
 }
 
@@ -92,12 +92,14 @@ PndSttRecoHit::PndSttRecoHit(PndSttHelixHit *currenthit) : WirepointRecoHit(Npar
   _hitCoord[4][0] = wire2.Y();
   _hitCoord[5][0] = wire2.Z();
   _hitCoord[6][0] = currenthit->GetIsochrone();
-  _hitCoord[7][0] = 0.; // currenthit->GetZ(); // to be changed into Zreco! CHECK
+  _hitCoord[7][0] = currenthit->GetZ() - currenthit->GetZcen(); 
 
   // errors on drift radius and z (by hand)
   for(int i = 0; i < NparHitRep; i++) for(int j = 0; j < NparHitRep; j++) _hitCov[i][j] = 0.;
-  _hitCov[6][6] = 0.0150 * 0.0150; // currenthit->GetIsochroneError(); CHECK
-  _hitCov[7][7] = 1.5 * 1.5;
+  _hitCov[6][6] = 0.0100 * 0.0100; 
+  //  _hitCov[6][6] = pow(currenthit->GetIsochroneError(), 2); // CHECK
+
+  _hitCov[7][7] = 2. * 2.;
 
 }
 
@@ -245,7 +247,8 @@ PndSttRecoHit::detPlane(AbsRecoHit* hit, AbsTrackRep* rep)
     U.SetMag(1.);
     V.SetMag(1.);
 
-    TVector3 O = vwi; // CHECK
+    //    TVector3 O = vwi; // CHECK
+    TVector3 O = (wire1 + wire2) * 0.5;
   
     _detPlane = DetPlane(O, U, V);
 
