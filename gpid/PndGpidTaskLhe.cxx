@@ -40,7 +40,7 @@ PndGpidTaskLhe::~PndGpidTaskLhe()
  
 InitStatus PndGpidTaskLhe::Init()
 {
-  CbmRootManager* ioman = CbmRootManager::Instance();
+  FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
     std::cout << "-E- PndGpidTaskLhe::Init: "
          << "RootManager not instantised!" << std::endl;
@@ -135,7 +135,7 @@ void PndGpidTaskLhe::AddVar()
  {
   varArray[i] = 0.0;  
  }
- int count = 0;
+ //int count = 0;
 
  for ( int i = 0 ; i < fNVAR ; i++  )
  {
@@ -193,7 +193,7 @@ float skp=0;
 // Loop through the Tracks
 for (int k=0; k < fPidTrackCand->GetEntriesFast(); k++)
  {
-   float s,p,gamma2;
+   //float s,p,gamma2;
    PndLhePidTrack *pid = (PndLhePidTrack *) fPidTrackCand->At(k);
  cout<<"this is Exec"<<endl;
  string varName;

@@ -42,7 +42,7 @@ class TObjectArray;
 class TClonesArray;
 class Reader;
 
-class PndGpidTaskLhe : public CbmTask
+class PndGpidTaskLhe : public FairTask
 {
  public:
   // enum type for the type of classifier 

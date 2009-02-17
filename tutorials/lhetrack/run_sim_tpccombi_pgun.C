@@ -1,4 +1,4 @@
-void run_sim_tpccombi_pgun(Int_t nEvents=1000, Int_t pid=13, Float_t p1=1.0, Float_t p2=-1){
+void run_sim_tpccombi_pgun(Int_t nEvents=10, Int_t pid=13, Float_t p1=1.0, Float_t p2=-1){
   
   TStopwatch timer;
   timer.Start();
