@@ -10,8 +10,8 @@ ${CMAKE_SOURCE_DIR}/geobase
 ${CMAKE_SOURCE_DIR}/parbase 
 ${CMAKE_SOURCE_DIR}/base 
 ${CMAKE_SOURCE_DIR}/field 
-${CMAKE_SOURCE_DIR}/pndbase 
-${CMAKE_SOURCE_DIR}/pndbase/HypData
+${CMAKE_SOURCE_DIR}/pnddata 
+${CMAKE_SOURCE_DIR}/pnddata/HypData
 ${CMAKE_SOURCE_DIR}/passive
 ${CMAKE_SOURCE_DIR}/PndTools/riemannfit
 ${CMAKE_SOURCE_DIR}/hyp

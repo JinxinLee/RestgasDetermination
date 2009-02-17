@@ -21,7 +21,7 @@
 #include "PndMvdPidIdealTask.h"
 #include "FairRun.h"
 #include "FairRuntimeDb.h"
-#include "../pndbase/PndMCTrack.h"
+#include "../pnddata/PndMCTrack.h"
 
 
 // PndMvd includes

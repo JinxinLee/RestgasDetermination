@@ -52,6 +52,6 @@
 //TODO//
 
   PandaRoot:
-  Change pndbase->PandaBase
+  Change pnddata->PandaBase
   Run more macros nightly 
       	 

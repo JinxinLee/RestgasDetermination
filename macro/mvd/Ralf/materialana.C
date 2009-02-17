@@ -24,7 +24,7 @@
 // called from pandaroot/macro/mvd/Ralf
 //how to do this better?
 #include "$VMCWORKDIR/base/FairRadLenPoint.h"
-#include "$VMCWORKDIR/pndbase/PndMCTrack.h"
+#include "$VMCWORKDIR/pnddata/PndMCTrack.h"
 // #include "$VMCWORKDIR/mvd/MvdTools/PndMvdGeoHandling.h"
 #include "$VMCWORKDIR/macro/mvd/Tools.C"
 

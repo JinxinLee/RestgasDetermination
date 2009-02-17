@@ -18,7 +18,7 @@
 #include "PndGemSmearingTask.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
-#include "../pndbase/PndMCTrack.h"
+#include "../pnddata/PndMCTrack.h"
 #include "FairHit.h"
 // PndGem includes
 #include "PndGemHit.h"

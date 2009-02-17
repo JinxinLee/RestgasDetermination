@@ -14,7 +14,7 @@ ${CMAKE_SOURCE_DIR}/trackrep
 ${CMAKE_SOURCE_DIR}/trackbase
 ${CMAKE_SOURCE_DIR}/geane
 ${CMAKE_SOURCE_DIR}/genfit
-${CMAKE_SOURCE_DIR}/pndbase 
+${CMAKE_SOURCE_DIR}/pnddata 
 ${CMAKE_SOURCE_DIR}/dch
 ${CMAKE_SOURCE_DIR}/dch/DchTracking
 ${CMAKE_SOURCE_DIR}/dch/DchFitting

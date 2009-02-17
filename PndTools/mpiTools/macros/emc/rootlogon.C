@@ -5,7 +5,7 @@
   gSystem->AddIncludePath("-I$VMCWORKDIR/emc/EmcTools");
   gSystem->AddIncludePath("-I$VMCWORKDIR/emc/EmcReco");
   gSystem->AddIncludePath("-I$VMCWORKDIR/emc/EmcData");
-  gSystem->AddIncludePath("-I$VMCWORKDIR/pndbase");
+  gSystem->AddIncludePath("-I$VMCWORKDIR/pnddata");
   gSystem->AddIncludePath("-I$VMCWORKDIR/base");
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
   basiclibs();

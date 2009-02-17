@@ -22,7 +22,7 @@
 #include "PndHypPidIdealTask.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
-#include "../pndbase/PndMCTrack.h"
+#include "../pnddata/PndMCTrack.h"
 
 
 // PndHyp includes

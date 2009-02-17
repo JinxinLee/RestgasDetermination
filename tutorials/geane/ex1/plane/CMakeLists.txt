@@ -8,7 +8,7 @@ ${GEANT3_INCLUDE_DIR}
 ${CMAKE_SOURCE_DIR}/geobase 
 ${CMAKE_SOURCE_DIR}/parbase 
 ${CMAKE_SOURCE_DIR}/base 
-${CMAKE_SOURCE_DIR}/pndbase 
+${CMAKE_SOURCE_DIR}/pnddata 
 ${CMAKE_SOURCE_DIR}/field 
 ${CMAKE_SOURCE_DIR}/plane
 )

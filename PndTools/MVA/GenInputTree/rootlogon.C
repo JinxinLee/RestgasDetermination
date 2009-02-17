@@ -14,7 +14,7 @@
   gSystem->AddIncludePath("-I$VMCWORKDIR/drc");
   gSystem->AddIncludePath("-I$VMCWORKDIR/mvd/MvdData");
   gSystem->AddIncludePath("-I$VMCWORKDIR/gpid");
-  gSystem->AddIncludePath("-I$VMCWORKDIR/pndbase");
+  gSystem->AddIncludePath("-I$VMCWORKDIR/pnddata");
   gSystem->AddIncludePath("-I$VMCWORKDIR/base");
   gSystem->AddIncludePath("-I$VMCWORKDIR/trackbase");
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");

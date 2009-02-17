@@ -8,7 +8,7 @@ ${CMAKE_SOURCE_DIR}/geobase
 ${CMAKE_SOURCE_DIR}/parbase 
 ${CMAKE_SOURCE_DIR}/base 
 ${CMAKE_SOURCE_DIR}/field 
-${CMAKE_SOURCE_DIR}/pndbase 
+${CMAKE_SOURCE_DIR}/pnddata 
 ${CMAKE_SOURCE_DIR}/rho/RhoBase
 ${CMAKE_SOURCE_DIR}/rho/RhoMath
 ${CMAKE_SOURCE_DIR}/rho/RhoSelector

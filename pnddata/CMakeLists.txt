@@ -1,4 +1,4 @@
-# Create a library called "libPndBase" which includes the source files given in
+# Create a library called "libPNDDATA" which includes the source files given in
 # the array .
 # The extension is already found.  Any number of sources could be listed here.
 
@@ -6,7 +6,7 @@ set(INCLUDE_DIRECTORIES
 ${ROOT_INCLUDE_DIR} 
 ${CMAKE_SOURCE_DIR}/geobase 
 ${CMAKE_SOURCE_DIR}/base 
-${CMAKE_SOURCE_DIR}/pndbase 
+${CMAKE_SOURCE_DIR}/pnddata 
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -18,7 +18,7 @@ ${CMAKE_SOURCE_DIR}/base
  
 link_directories( ${LINK_DIRECTORIES})
 
-set(PNDBASE_SRCS
+set(PNDDATA_SRCS
 PndStack.cxx 
 PndMCTrack.cxx
 DskData/PndDskCerenkov.cxx
@@ -70,24 +70,24 @@ MvdData/PndMvdRadDamHit.cxx
 )
 
 if(RULE_CHECKER_FOUND)
-  CHECK_RULES("${PNDBASE_SRCS}" "${INCLUDE_DIRECTORIES}" PNDBASE_RULES)
+  CHECK_RULES("${PNDDATA_SRCS}" "${INCLUDE_DIRECTORIES}" PNDDATA_RULES)
 endif(RULE_CHECKER_FOUND)
 
 # fill list of header files from list of source files
 # by exchanging the file extension
-CHANGE_FILE_EXTENSION(*.cxx *.h PNDBASE_HEADERS "${PNDBASE_SRCS}")
-SET( PNDBASE_HEADERS ${PNDBASE_HEADERS} HypData/PndHypStrip.h PndDetectorList.h )
-SET( PNDBASE_HEADERS ${PNDBASE_HEADERS} MvdData/PndMvdStrip.h MvdData/PndMvdApvHit.h MvdData/PndMvdPixel.h)
+CHANGE_FILE_EXTENSION(*.cxx *.h PNDDATA_HEADERS "${PNDDATA_SRCS}")
+SET( PNDDATA_HEADERS ${PNDDATA_HEADERS} HypData/PndHypStrip.h PndDetectorList.h )
+SET( PNDDATA_HEADERS ${PNDDATA_HEADERS} MvdData/PndMvdStrip.h MvdData/PndMvdApvHit.h MvdData/PndMvdPixel.h)
 
-set(PNDBASE_LINKDEF  PndBaseLinkDef.h)
-set(PNDBASE_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/PndBaseDict.cxx) 
+set(PNDDATA_LINKDEF  PndDataLinkDef.h)
+set(PNDDATA_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/PndDataDict.cxx) 
 
-ROOT_GENERATE_DICTIONARY("${PNDBASE_HEADERS}" "${PNDBASE_LINKDEF}" "${PNDBASE_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
+ROOT_GENERATE_DICTIONARY("${PNDDATA_HEADERS}" "${PNDDATA_LINKDEF}" "${PNDDATA_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
 
-SET(PNDBASE_SRCS ${PNDBASE_SRCS} ${PNDBASE_DICTIONARY})
+SET(PNDDATA_SRCS ${PNDDATA_SRCS} ${PNDDATA_DICTIONARY})
 
-add_library(PndBase SHARED ${PNDBASE_SRCS})
-target_link_libraries(PndBase ${ROOT_LIBRARIES})
-set_target_properties(PndBase PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
+add_library(PNDDATA SHARED ${PNDDATA_SRCS})
+target_link_libraries(PNDDATA ${ROOT_LIBRARIES})
+set_target_properties(PNDDATA PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 ################ install ###################
-install(TARGETS PndBase DESTINATION ${CMAKE_BINARY_DIR}/lib)
+install(TARGETS PNDDATA DESTINATION ${CMAKE_BINARY_DIR}/lib)

@@ -8,10 +8,10 @@ ${CMAKE_SOURCE_DIR}/geobase
 ${CMAKE_SOURCE_DIR}/parbase 
 ${CMAKE_SOURCE_DIR}/base 
 ${CMAKE_SOURCE_DIR}/field 
-${CMAKE_SOURCE_DIR}/pndbase 
+${CMAKE_SOURCE_DIR}/pnddata 
 ${CMAKE_SOURCE_DIR}/mdt 
 ${CMAKE_SOURCE_DIR}/mdt/MdtMC
-${CMAKE_SOURCE_DIR}/pndbase/MdtData 
+${CMAKE_SOURCE_DIR}/pnddata/MdtData 
 ${CMAKE_SOURCE_DIR}/mdt/MdtDigi
 ${CMAKE_SOURCE_DIR}/mdt/MdtReco
 )
