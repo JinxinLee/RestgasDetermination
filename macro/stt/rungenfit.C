@@ -5,7 +5,7 @@
   Int_t iVerbose = 1;
 
   // Number of events to process
-  Int_t nEvents = 1000; // process all events in input file
+  Int_t nEvents = 0; // process all events in input file
 
   // Output file
   TString outFile = "testgenfit.root";

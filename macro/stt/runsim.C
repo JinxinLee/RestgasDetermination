@@ -65,7 +65,7 @@ void runsim(Int_t nEvents=1000, Float_t pT=1.0)
   fRun->AddModule(Cave);
 
   FairDetector *Stt= new PndStt("STT", kTRUE);
-  Stt->SetGeometryFileName("straws_skewed_blocks.geo");
+  Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
   fRun->AddModule(Stt);
 
   // Create and Set Event Generator
