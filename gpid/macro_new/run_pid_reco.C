@@ -1,4 +1,4 @@
-void run_pid_reco(Int_t nEvents = 10)
+void run_pid_reco(Int_t nEvents = 4)
 {
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
@@ -31,18 +31,18 @@ void run_pid_reco(Int_t nEvents = 10)
   PndEmcMapper *emcMap=PndEmcMapper::Instance(2,"el_sttcombi.root");
   
   // -----   Digitization run   -------------------------------------------
-  CbmRunAna *fRun= new CbmRunAna();
+  FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
   
   
   TString allDigiFile = sysFile+"/macro/params/all.par";
   
-  CbmRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  CbmParRootFileIo* parInput1 = new CbmParRootFileIo();
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open(parFile.Data());
   
-  CbmParAsciiFileIo* parIo1 = new CbmParAsciiFileIo();
+  FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
   parIo1->open(allDigiFile.Data(),"in");
   
   rtdb->setFirstInput(parInput1);
@@ -56,12 +56,16 @@ void run_pid_reco(Int_t nEvents = 10)
   //  pid->SetAPPNAME("STT_P_MVD_TOF_THETAC_EMC_1_2_5NN");
   pid->SetAPPNAME("test");
   pid->SetDIR("./weights/");
-  pid->SetMVA(PndGpidTask::KNN);
+  
   //pid->SetMVA(PndGpidTask::BDT);
+  //pid->SetMVA(PndGpidTask::MLP);
+  pid->SetMVA(PndGpidTaskLhe::KNN);
+  
   fRun->AddTask(pid);
   fRun->Init();
  
   fRun->Run(0, nEvents);
+  //fRun->Run(0, 20);//nEvents);
   
   rtdb->saveOutput();
   rtdb->print();

@@ -18,17 +18,32 @@ void learn_pid()
   bdt_train.AddClass("pion");
   
   //Set number of signal and background events to be used
-  bdt_train.SetNSigTrain("1000");
-  bdt_train.SetNBkgTrain("1000");
-  bdt_train.SetNSigTest("50");
-  bdt_train.SetNBkgTest("50");
+  bdt_train.SetNSigTrain("2000");
+  bdt_train.SetNBkgTrain("2000");
+  
+  bdt_train.SetNSigTest("100");
+  bdt_train.SetNBkgTest("100");
   
   //Set the classifier properties
+  //BDT
   bdt_train.SetPruneStrengthBDT("5.0");
-  bdt_train.SetNTreeBDT("50");
+  bdt_train.SetNTreeBDT("10");
   bdt_train.SetBoostTypeBDT("AdaBoost");
   bdt_train.SetNCutsBDT("30");
+  //KNN
+  //TString kNNConfig = "nkNN=" + fNKNN + 
+  // ":V:TreeOptDepth=6:ScaleFrac=0.8:!UseKernel:Trim";
   bdt_train.SetNKNN("100");
+  bdt_train.SetKNNTreeOptDepth(6);
+  bdt_train.SetKNNScaleFrac(0.8);
+  bdt_train.SetKNNKernel("Trim");
+
+  
+  //MLP
+  bdt_train.SetMLPNeuronType("tanh");
+  bdt_train.SetNuOfCycle(10);
+  bdt_train.SetNumOfHiddenLayers("N-1,N");
+  bdt_train.SetTestRate(5);
   
   //  bdt_train.SetNCLASS(3);
   //  bdt_train.SetNVAR(3);
