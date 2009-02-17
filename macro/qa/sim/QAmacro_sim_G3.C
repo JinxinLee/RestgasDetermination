@@ -101,7 +101,7 @@
 
 
   /** Set the field*/
-  fRun->SetBeamEnergy(12);
+  fRun->SetBeamMom(12);
    PndMultiField *fField= new PndMultiField();
 
    PndTransMap *map_t= new PndTransMap("TransMap", "R");

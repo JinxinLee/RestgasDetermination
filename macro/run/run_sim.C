@@ -112,7 +112,7 @@
   
   // 
   //fRun->SetStoreTraj(kTRUE);
-   fRun->SetBeamEnergy(15);
+   fRun->SetBeamMom(15);
    PndMultiField *fField= new PndMultiField();
 
    PndTransMap *map_t= new PndTransMap("TransMap", "R");
