@@ -214,13 +214,15 @@ void PndMultiClassMVA::TrainTest()
           TString BdtConfig = "!H:!V:NTrees=" + fNTreeBDT + ":BoostType=" + fBoostTypeBDT + ":SeparationType=GiniIndex:nCuts=" + fNCutsBDT +
                                 "PruneMethod=NoPruning:PruneStrength=" + fPruneStrengthBDT; 
 	  factory->BookMethod( TMVA::Types::kBDT, "BDT", BdtConfig); 
+  
+      TString MLPConfig = "Normalise:H:!V:NeuronType="+mlpNeuTyp+":NCycles="+mlpCycle+
+                          ":HiddenLayers="+mlpNumHidden+":TestRate="+mlpTestRate;
+      //factory->BookMethod( TMVA::Types::kMLP, "MLP", "Normalise:H:!V:NeuronType=tanh:NCycles=200:HiddenLayers=N+1,N:TestRate=5"); 
+      factory->BookMethod( TMVA::Types::kMLP, "MLP", MLPConfig);
+       
+      TString kNNConfig = "nkNN=" + fNKNN + ":V:TreeOptDepth=6:ScaleFrac=0.8:!UseKernel:Trim";
+      factory->BookMethod( TMVA::Types::kKNN, "KNN", kNNConfig);
 
-/*
-          factory->BookMethod( TMVA::Types::kMLP, "MLP", "Normalise:H:!V:NeuronType=tanh:NCycles=200:HiddenLayers=N+1,N:TestRate=5"); 
-
-          TString kNNConfig = "nkNN=" + fNKNN + ":V:TreeOptDepth=6:ScaleFrac=0.8:!UseKernel:Trim";
-          factory->BookMethod( TMVA::Types::kKNN, "KNN", kNNConfig);
-*/
 	  factory->TrainAllMethods();
 	  factory->TestAllMethods();
 	 // factory->EvaluateAllMethods();    
