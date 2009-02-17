@@ -215,21 +215,21 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
 	  // intersection little circle and line --> [x1, y1]
 	  // + and - refer to the 2 possible intersections
 	  // +
-	  Double_t x1 = (-(m*(q - point.Y()) - point.X()) + sqrt((m*(q - point.Y()) - point.X())*(m*(q - point.Y()) - point.X()) - (m*m + 1)*((q - point.Y())*(q - point.Y()) + point.X()*point.X() - radius*radius))) / (m*m + 1);
+	  Double_t x1 = (-(m*(q - point.Y()) - point.X()) + sqrt(fabs((m*(q - point.Y()) - point.X())*(m*(q - point.Y()) - point.X()) - (m*m + 1)*((q - point.Y())*(q - point.Y()) + point.X()*point.X() - radius*radius)))) / (m*m + 1);
 	  Double_t y1 = m*x1 + q;
 	  first.Set(x1, y1);
    
 	  // - 
-	  Double_t x2 = (-(m*(q - point.Y()) - point.X()) - sqrt((m*(q - point.Y()) - point.X())*(m*(q - point.Y()) - point.X()) - (m*m + 1)*((q - point.Y())*(q - point.Y()) + point.X()*point.X() - radius*radius))) / (m*m + 1);
+	  Double_t x2 = (-(m*(q - point.Y()) - point.X()) - sqrt(fabs((m*(q - point.Y()) - point.X())*(m*(q - point.Y()) - point.X()) - (m*m + 1)*((q - point.Y())*(q - point.Y()) + point.X()*point.X() - radius*radius)))) / (m*m + 1);
 	  Double_t y2 = m*x2 + q;
 	  second.Set(x2, y2);
       
 	  // 2.c intersection between line and circle
 	  // +
-	  Double_t xb1 = (-(m*(q - vec.Y()) - vec.X()) + sqrt((m*(q - vec.Y()) - vec.X())*(m*(q - vec.Y()) - vec.X()) - (m*m + 1)*((q - vec.Y())*(q - vec.Y()) + vec.X()*vec.X() - (pTrack->GetParamLast()->GetTx()) *(pTrack->GetParamLast()->GetTx()) ))) / (m*m + 1);
+	  Double_t xb1 = (-(m*(q - vec.Y()) - vec.X()) + sqrt(fabs((m*(q - vec.Y()) - vec.X())*(m*(q - vec.Y()) - vec.X()) - (m*m + 1)*((q - vec.Y())*(q - vec.Y()) + vec.X()*vec.X() - (pTrack->GetParamLast()->GetTx()) *(pTrack->GetParamLast()->GetTx()))))) / (m*m + 1);
 	  Double_t yb1 = m*xb1 + q;
 	  // -
-	  Double_t xb2 = (-(m*(q - vec.Y()) - vec.X()) - sqrt((m*(q - vec.Y()) - vec.X())*(m*(q - vec.Y()) - vec.X()) - (m*m + 1)*((q - vec.Y())*(q - vec.Y()) + vec.X()*vec.X() - (pTrack->GetParamLast()->GetTx()) *(pTrack->GetParamLast()->GetTx())))) / (m*m + 1);
+	  Double_t xb2 = (-(m*(q - vec.Y()) - vec.X()) - sqrt(fabs((m*(q - vec.Y()) - vec.X())*(m*(q - vec.Y()) - vec.X()) - (m*m + 1)*((q - vec.Y())*(q - vec.Y()) + vec.X()*vec.X() - (pTrack->GetParamLast()->GetTx()) *(pTrack->GetParamLast()->GetTx()))))) / (m*m + 1);
 	  Double_t yb2 = m*xb2 + q;
       
 	  // calculation of the distance between [xb, yb] and [xp, yp]
