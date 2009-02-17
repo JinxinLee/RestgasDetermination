@@ -2,35 +2,17 @@
 
 eventDisplay()
 {
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-  basiclibs();  
+   // Load basic libraries
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  rootlogon();
   gSystem->Load("libEve");
-  gSystem->Load("libGeoBase");
-  gSystem->Load("libParBase");
-  gSystem->Load("libBase");
-  gSystem->Load("libPndBase");
-  gSystem->Load("libGen");
-  gSystem->Load("libField");
-  gSystem->Load("libPassive");
-  gSystem->Load("libStt"); 
-  gSystem->Load("libMdt");
-  gSystem->Load("libEmc");  
-  gSystem->Load("libTof");
-  gSystem->Load("libDrcProp");
-  gSystem->Load("libDrc");
-  gSystem->Load("libtpc");
-  gSystem->Load("libgenfit");
-  gSystem->Load("libDch");
-  gSystem->Load("libMvd");
-  gSystem->Load("libHyp");
-// gSystem->Load("libDsk");
   gSystem->Load("libEventDisplay");
-  gSystem->Load("libGeom");
+
                                      
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
   //fRun->SetInputFile("points.x3872.jpsipipi.phsp.root");
-  fRun->SetInputFile("testsimu10.root");
+  fRun->SetInputFile("sim_with_vis.root");
   
   //fRun->SetInputFile("../dsk/sim_dsk.root");
  // fRun->SetInputFile("../dsk/sim_dsk.g4native.root");
