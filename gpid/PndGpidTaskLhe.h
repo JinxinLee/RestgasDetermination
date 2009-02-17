@@ -62,7 +62,7 @@ class PndGpidTaskLhe : public FairTask
   // Data modifiers
   void SetAPPNAME(TString anaName)  { fAPPNAME = anaName; }
   void SetDIR(string dir) {fDIR = dir;}
-  void SetMVA(MVAType mode) { fMVAmode = mode; } 
+  void SetMVA(MVAType mode) {fMVAmode = mode;} 
   
   /** Virtual method Init **/
   virtual InitStatus Init();

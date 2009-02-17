@@ -26,8 +26,8 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
-#include <vector>
 #include <string>
+#include <vector>
 
 //Root & PandaRoot headers
 #include "TCut.h"
@@ -42,64 +42,93 @@ using namespace std;
 class PndMultiClassMVA
 {
  public:
- //Constructor
+  //Constructor
   PndMultiClassMVA();
   
   //Destructor
   ~PndMultiClassMVA();
+  
   //Adds variables to be used as features
   void AddVar(const string varName); 
   //Add class names
   void AddClass(const string className);
   // void GenerateTree();
   // void AddInFile(string className,string simFileName,string recoFileName);
+  
   //Write the configuration file, with the same nams as the chosen 
   // application
   void WriteConfigFile();
+  
   //  data modifiers
   void SetINFILENAME(const TString fname)  { fINFILENAME = fname; }
   void SetConfigFileName(const TString fname)  { fConfigFileName = fname; }
   void SetAPPNAME(const TString anaName)  { fAPPNAME = anaName; }
+  
   // Select number of signal and background events to be used for
   //training and testing
   void SetNSigTrain(const TString sigTrain) { fNSigTrain = sigTrain; }
   void SetNSigTest(const TString sigTest) { fNSigTest = sigTest; }
   void SetNBkgTrain(const TString bkgTrain) { fNBkgTrain = bkgTrain; }
   void SetNBkgTest(const TString bkgTest) { fNBkgTest = bkgTest; }
+  
   // Set the classifier properties. Note that there are different 
   // functions and options for different classifiers. For the available
   // options see the TMVA manuals.
+  
   // BDT Parameters
-  void SetPruneStrengthBDT(const TString PruneStrength) { fPruneStrengthBDT = PruneStrength; }
+  void SetPruneStrengthBDT(const TString PruneStrength){ 
+    fPruneStrengthBDT = PruneStrength; }
   void SetNTreeBDT(const TString nTree) { fNTreeBDT = nTree; }
   void SetBoostTypeBDT(const TString boostType) {fBoostTypeBDT = boostType; }
   void SetNCutsBDT(const TString nCuts) { fNCutsBDT = nCuts; }
+  
   // KNN Parameters
+  //Set number of neighbors
   void SetNKNN(const TString kNN) { fNKNN = kNN; }
+  
+  //Set the depth of the tree that holds the examples
+  void SetKNNTreeOptDepth(const int depth){
+    std::stringstream out;
+    out << depth;
+    mKnnDepth = out.str();
+  };
+  //Set the scaler fraction
+  void SetKNNScaleFrac(const int frac){
+    std::stringstream out;
+    out << frac;
+    mKnnscalefrac = out.str();
+  };
+  //Set the kernel type
+  void SetKNNKernel(const TString kernel){
+    mKnnKernel = kernel;
+  };
 
-   //MLP Parameters
-   // "Normalise:H:!V:NeuronType=tanh:NCycles=200:HiddenLayers=N+1,N:TestRate=5"
-   void SetMLPNeuronType(const TString NtMLP){
-   	mlpNeuTyp = NtMLP;
-   	};
-   void SetNuOfCycle(const int NumCycle){
-   	std::stringstream out;
-   	out << NumCycle;
-   	mlpCycle = out.str();
-   	};
-   void SetNumOfHiddenLayers(const TString NumHidLayer){
-   	mlpNumHidden = NumHidLayer;
-   	};
-   void SetTestRate(const int TestR){
-   	std::stringstream out;
-   	out << TestR;
-   	mlpTestRate = out.str();
-   	};
-   
+  //MLP Parameters
+  //Sets the type of the neuron of the MLP.
+  void SetMLPNeuronType(const TString NtMLP){
+    mlpNeuTyp = NtMLP;
+  };
+  //Set the number of cycles during the training phase.
+  void SetNuOfCycle(const int NumCycle){
+    std::stringstream out;
+    out << NumCycle;
+    mlpCycle = out.str();
+  };
+  //Set the number of hidden layers.
+  void SetNumOfHiddenLayers(const TString NumHidLayer){
+    mlpNumHidden = NumHidLayer;
+  };
+  //Set the learning rate of the MLP classifier.
+  void SetTestRate(const int TestR){
+    std::stringstream out;
+    out << TestR;
+    mlpTestRate = out.str();
+  };
+  // #################### End of classifier parameters ######### 
   //data accessers
-  //Int_t GetNCLASS() {return fNCLASS; }
+  //Int_t GetNCLASS() {return fNCLASS;}
+  //Int_t GetNVAR() {return fNVAR;}
   Int_t GetNCLASS() {return fClassNameArray.size(); }
-  //Int_t GetNVAR() {return fNVAR; }
   Int_t GetNVAR() {return fVarNameArray.size(); }
   void TrainTest();       
   
@@ -117,8 +146,13 @@ class PndMultiClassMVA
   TString fBoostTypeBDT;     //  boost type (Ada boost or bagging)   
   TString fNCutsBDT;         //  number of cuts to create a tree
   TString fNTreeBDT;         //  number of trees to create a forest
+  
   //KNN
   TString fNKNN;             //  number of nearest neighbours
+  TString mKnnDepth;
+  TString mKnnscalefrac;
+  TString mKnnKernel;
+
   //MLP
   TString mlpNeuTyp; //MLP neuron type
   TString mlpCycle;  //MLP number of cycles
@@ -131,7 +165,7 @@ class PndMultiClassMVA
   TString fConfigFileName;   //  name of the configuration file
   vector <string> fVarNameArray;      // array of Variable names 
   vector <string> fClassNameArray;    // array of class names
-
+  
   // map <string, vector<pair<string,string> > > fInFileNameArray;  
   // map from class names the the corresponding 
   
