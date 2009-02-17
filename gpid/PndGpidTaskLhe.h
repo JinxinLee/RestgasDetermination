@@ -26,11 +26,11 @@
 #include <fstream>
 
 //ROOT and PandaRoot includes
-#include "CbmTask.h"
+#include "FairTask.h"
 #include "PndLhePidTrack.h"
 #include "TVector3.h"
 #include "TClonesArray.h"
-#include "CbmRootManager.h"
+#include "FairRootManager.h"
 #include "TMVA/Reader.h"
 #include "PndMvdMCPoint.h"
 #include "PndTpcPoint.h"
