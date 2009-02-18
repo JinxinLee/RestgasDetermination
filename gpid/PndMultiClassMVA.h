@@ -22,14 +22,15 @@
 #pragma once
 #ifndef MULTI_CLASS_MVA_H
 #define MULTI_CLASS_MVA_H 
-//C++ headers
+
+// C++ headers
 #include <iostream>
 #include <sstream>
 #include <fstream>
 #include <string>
 #include <vector>
 
-//Root & PandaRoot headers
+// Root & PandaRoot headers
 #include "TCut.h"
 #include "TFile.h"
 #include "TString.h"
@@ -42,6 +43,10 @@ using namespace std;
 class PndMultiClassMVA
 {
  public:
+  //Which classifier to train 
+  enum MVAType{KNN = 1, BDT = 2, MLP = 3, 
+	       MulClsKNN = 4, LVQ1 = 5};
+
   //Constructor
   PndMultiClassMVA();
   
@@ -52,10 +57,8 @@ class PndMultiClassMVA
   void AddVar(const string varName); 
   //Add class names
   void AddClass(const string className);
-  // void GenerateTree();
-  // void AddInFile(string className,string simFileName,string recoFileName);
   
-  //Write the configuration file, with the same nams as the chosen 
+  //Write the configuration file, with the same nams as the chosen
   // application
   void WriteConfigFile();
   
@@ -76,8 +79,8 @@ class PndMultiClassMVA
   // options see the TMVA manuals.
   
   // BDT Parameters
-  void SetPruneStrengthBDT(const TString PruneStrength){ 
-    fPruneStrengthBDT = PruneStrength; }
+  void SetPruneStrengthBDT(const TString PruneStrength)
+  { fPruneStrengthBDT = PruneStrength; }
   void SetNTreeBDT(const TString nTree) { fNTreeBDT = nTree; }
   void SetBoostTypeBDT(const TString boostType) {fBoostTypeBDT = boostType; }
   void SetNCutsBDT(const TString nCuts) { fNCutsBDT = nCuts; }
@@ -118,7 +121,7 @@ class PndMultiClassMVA
   void SetNumOfHiddenLayers(const TString NumHidLayer){
     mlpNumHidden = NumHidLayer;
   };
-  //Set the learning rate of the MLP classifier.
+  //Set the Test rate of the MLP classifier.
   void SetTestRate(const int TestR){
     std::stringstream out;
     out << TestR;
@@ -131,7 +134,8 @@ class PndMultiClassMVA
   Int_t GetNCLASS() {return fClassNameArray.size(); }
   Int_t GetNVAR() {return fVarNameArray.size(); }
   void TrainTest();       
-  
+  void TrainClassifier(MVAType mva);
+
  private:
   //Classifier train and test parameters
   Int_t fNCLASS;        //  number of classes 
@@ -160,15 +164,10 @@ class PndMultiClassMVA
   TString mlpTestRate; //MLP Test rate
   
   //Clasifier config params
-  TString fINFILENAME;       //  input file containing trees of all the signals
-  TString fAPPNAME;          //  name of the application 
+  TString fINFILENAME;  //  input file containing trees of all the signals
+  TString fAPPNAME;     //  name of the application 
   TString fConfigFileName;   //  name of the configuration file
   vector <string> fVarNameArray;      // array of Variable names 
   vector <string> fClassNameArray;    // array of class names
-  
-  // map <string, vector<pair<string,string> > > fInFileNameArray;  
-  // map from class names the the corresponding 
-  
-  //TFile fINPUT;
 };
 #endif

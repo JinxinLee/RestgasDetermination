@@ -81,7 +81,7 @@ public:
     Double_t fThetaC;
   */
   void destroy();
-  Param fParam;         
+  Param fParam;
   std::vector<string> fVarName;     
   ClassDef(PndPidCand,1);
 };

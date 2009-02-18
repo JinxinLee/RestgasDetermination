@@ -114,28 +114,29 @@ void PndMultiClassMVA::WriteConfigFile()
   config.close(); 
 }
 
-
-
-// this is the main call which does the training for all the class types added 
+// This is the main call which does the training for all the added class 
+// types and available classifiers. 
 void PndMultiClassMVA::TrainTest()
 {
   TFile *input(0);
   if (fNCLASS < 2 ) {
-    std::cout<< " you need atleast two classes for the classification "<<endl;
+    std::cout<< "<ERROR> you need atleast two"
+	     <<" classes for the classification. "<<endl;
     return; //exit(0);
   }
   
   else if (fNVAR < 2 ) {
-    std::cout<< " you need atleast two variables for the Multivariate Analysis "<<endl;
+    std::cout<< "<ERROR> you need atleast two"
+	     <<" variables for the Multivariate Analysis. "<<endl;
     return; //exit(0);
   }
   
   else if (!gSystem->AccessPathName( fINFILENAME )) {
-    std::cout << "--- BDTAnalysis  : accessing " << fINFILENAME << std::endl;
+    std::cout << "<INFO>--- BDTAnalysis  : accessing " << fINFILENAME << std::endl;
     input = TFile::Open( fINFILENAME );
   } 
   else if (!input) {
-    std::cout << "ERROR: could not open data file" << std::endl;
+    std::cout << "<ERROR> could not open data file" << std::endl;
     return; //exit(0);
   }
   {
@@ -144,8 +145,8 @@ void PndMultiClassMVA::TrainTest()
     for (int i = 0; i < fNCLASS ; i++){
       TString s,treeName;
       treeName = fClassNameArray.at(i);
-      cout<< (TTree*)input->Get(treeName)<<endl;  
-      TreeArray[i] = (TTree*)input->Get(treeName);  
+      cout<< (TTree*)input->Get(treeName)<<endl;
+      TreeArray[i] = (TTree*)input->Get(treeName);
     }
     
     for (int i = 0 ; i < fNCLASS ; i++ ){
@@ -155,10 +156,10 @@ void PndMultiClassMVA::TrainTest()
       OutFileName = fClassNameArray.at(i) + ".root";
       
       TFile* outputFile = TFile::Open( OutFileName, "RECREATE" );
-      cout<<"hai"<<endl;
+      //cout<<"hai"<<endl;
       TMVA::Factory *factory = new TMVA::Factory( anaName, 
 						  outputFile, 
-						  Form("!V:%sColor", 0?"!":"") );
+						  Form("!V:%sColor", 0?"!":""));
       Double_t signalWeight     = 1.0;
       Double_t backgroundWeight = 1.0;
       
@@ -187,9 +188,9 @@ void PndMultiClassMVA::TrainTest()
 
       // for example: TCut mycuts = "abs(var1)<0.5 && abs(var2-0.5)<1";
       TCut mycuts = "p<100&&emc<7";
-      TCut mycutb = "p<100&&emc<7"; // for example: TCut mycutb = "abs(var1)<0.5";
-      
-      
+      // for example: TCut mycutb = "abs(var1)<0.5";
+      TCut mycutb = "p<100&&emc<7";
+
       TString trainConfig = "NSigTrain=" + fNSigTrain + ":NBkgTrain=" + 
 	fNBkgTrain + ":NSigTest=" + fNSigTest + ":NBkgTest=" +fNBkgTest
 	+ ":SplitMode=Random:!V";
@@ -201,10 +202,12 @@ void PndMultiClassMVA::TrainTest()
 	"PruneMethod=NoPruning:PruneStrength=" + fPruneStrengthBDT; 
       factory->BookMethod( TMVA::Types::kBDT, "BDT", BdtConfig); 
       
-      TString MLPConfig = "Normalise:H:!V:NeuronType="+mlpNeuTyp+":NCycles="+mlpCycle+
-	":HiddenLayers="+mlpNumHidden+":TestRate="+mlpTestRate;
+      TString MLPConfig = "Normalise:H:!V:NeuronType="+mlpNeuTyp+
+	":NCycles="+mlpCycle+":HiddenLayers="+mlpNumHidden+":TestRate="+
+	mlpTestRate;
       //factory->BookMethod( TMVA::Types::kMLP, "MLP",
-      //"Normalise:H:!V:NeuronType=tanh:NCycles=200:HiddenLayers=N+1,N:TestRate=5");
+      //"Normalise:H:!V:NeuronType=tanh:NCycles=200:HiddenLayers=N+1,
+      //N:TestRate=5");
       factory->BookMethod( TMVA::Types::kMLP, "MLP", MLPConfig);
       
       //TString kNNConfig = "nkNN=" + fNKNN + 
@@ -222,5 +225,19 @@ void PndMultiClassMVA::TrainTest()
     }
   }
   WriteConfigFile();
+}
+
+//Select which MVA to train, From TMVA or the other implementaions
+void PndMultiClassMVA::TrainClassifier(MVAType mva)
+{
+  switch (mva){
+  case MulClsKNN:
+    break;
+  case LVQ1:
+    break;
+  default://case BDT: case MLP: case KNN:
+    TrainTest();//TMVA based classifiers.
+    break;    
+  }
 }
 ClassImp(PndMultiClassMVA);

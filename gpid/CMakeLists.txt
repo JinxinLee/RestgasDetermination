@@ -30,6 +30,7 @@ ${CMAKE_SOURCE_DIR}/myobj
 ${CMAKE_SOURCE_DIR}/geane
 
 ${CMAKE_SOURCE_DIR}/PndTools/MVA/kd_KNN
+${CMAKE_SOURCE_DIR}/PndTools/MVA/LVQ1
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
