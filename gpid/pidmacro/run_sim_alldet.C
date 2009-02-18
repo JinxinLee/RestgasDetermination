@@ -11,7 +11,7 @@ void run_sim_alldet(Int_t nEvents=10 , Char_t part[]="e-", Double_t momentum_min
 
   gRandom->SetSeed(RUNID);
   
-  CbmRunSim *fRun = new CbmRunSim();
+  FairRunSim *fRun = new FairRunSim();
   
   // set the MC version used
   // ------------------------
@@ -28,26 +28,26 @@ void run_sim_alldet(Int_t nEvents=10 , Char_t part[]="e-", Double_t momentum_min
   // Create and add detectors
   //-------------------------
 
-  CbmModule *Cave= new PndCave("CAVE");
+  FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave); 
   
-  CbmModule *Magnet= new PndMagnet("MAGNET");
+  FairModule *Magnet= new PndMagnet("MAGNET");
   Magnet->SetGeometryFileName("FullSolenoid.root");
   fRun->AddModule(Magnet);
 
-  CbmModule *Dipole= new PndMagnet("MAGNET");
+  FairModule *Dipole= new PndMagnet("MAGNET");
   Dipole->SetGeometryFileName("dipole.geo");
   fRun->AddModule(Dipole);
  
-  CbmModule *Pipe= new PndPipe("PIPE");
+  FairModule *Pipe= new PndPipe("PIPE");
   fRun->AddModule(Pipe);
   
-  CbmDetector *Stt= new PndStt("STT", kTRUE);
+  FairDetector *Stt= new PndStt("STT", kTRUE);
   Stt->SetGeometryFileName("straws_skewed_blocks.geo");
   fRun->AddModule(Stt);
 
-  CbmDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
+  FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
   Mvd->SetGeometryFileName("MVD_v1.0_woPassiveTraps.root");
   fRun->AddModule(Mvd);
   
@@ -55,12 +55,12 @@ void run_sim_alldet(Int_t nEvents=10 , Char_t part[]="e-", Double_t momentum_min
   Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root");
   fRun->AddModule(Emc);   
   
-  CbmDetector *Tof = new PndTof("TOF",kTRUE);
+  FairDetector *Tof = new PndTof("TOF",kTRUE);
   Tof->SetGeometryFileName("tofbarrel.geo");
   fRun->AddModule(Tof);
 
   /*
-  CbmDetector *Muo = new PndMdt("MDT",kTRUE);
+  FairDetector *Muo = new PndMdt("MDT",kTRUE);
    Muo->SetMdtVersion("torino");
   Muo->SetGeometryFileName("muopars.root");
   fRun->AddModule(Muo);
@@ -70,21 +70,21 @@ void run_sim_alldet(Int_t nEvents=10 , Char_t part[]="e-", Double_t momentum_min
   Drc->SetRunCherenkov(kFALSE); // for fast sim Cherenkov -> kFALSE
   fRun->AddModule(Drc); 
   
-  //CbmDetector *Dch = new PndDchDetector("DCH", kTRUE);
+  //FairDetector *Dch = new PndDchDetector("DCH", kTRUE);
   //Dch->SetGeometryFileName("dch.root"); 
   //fRun->AddModule(Dch);
   
   // Create and Set Event Generator
   //-------------------------------
 
-  CbmPrimaryGenerator* primGen = new CbmPrimaryGenerator();
+  FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
   TDatabasePDG *pdg = new TDatabasePDG();
   Int_t pid = pdg->GetParticle(part)->PdgCode();
   
   // Box Generator
-  CbmBoxGenerator* boxGen = new CbmBoxGenerator(pid, 1); // 13 = muon; 1 = multipl.
+  FairBoxGenerator* boxGen = new FairBoxGenerator(pid, 1); // 13 = muon; 1 = multipl.
 //  if (p2<0) p2 = p1;
   boxGen->SetPRange(momentum_min,momentum_max); // GeV/c
   boxGen->SetPhiRange(phi_min, phi_max); // Azimuth angle range [degree]
@@ -107,7 +107,7 @@ void run_sim_alldet(Int_t nEvents=10 , Char_t part[]="e-", Double_t momentum_min
   
   fRun->Init();
   
-  CbmRuntimeDb *rtdb=fRun->GetRuntimeDb();
+  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
   Bool_t kParameterMerged=kTRUE;
      
   PndMultiFieldPar* Par = (PndMultiFieldPar*) rtdb->getContainer("PndMultiFieldPar");
@@ -115,7 +115,7 @@ void run_sim_alldet(Int_t nEvents=10 , Char_t part[]="e-", Double_t momentum_min
   Par->setInputVersion(fRun->GetRunId(),1);
   Par->setChanged();
 
-  CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   output->open("params_sttcombi.root");
   rtdb->setOutput(output);
   rtdb->saveOutput();
