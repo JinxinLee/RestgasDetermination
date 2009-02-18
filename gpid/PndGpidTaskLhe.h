@@ -51,6 +51,8 @@ class PndGpidTaskLhe : public FairTask
     KNN = 1,
     BDT = 2,
     MLP = 3,
+    MuClsKNN = 4,
+    LVQ1   = 5
   };
   
   /** Default constructor **/  

@@ -223,5 +223,4 @@ void PndMultiClassMVA::TrainTest()
   }
   WriteConfigFile();
 }
-
 ClassImp(PndMultiClassMVA);

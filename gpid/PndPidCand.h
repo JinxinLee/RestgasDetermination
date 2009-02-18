@@ -32,8 +32,6 @@
 using namespace std;
 
 typedef std::map<string,double> Param;
-//typedef std::map<string,double>::iterator Iter;
-
 
 /*
  * Any pointer data member here has to be deleted by destroy func
@@ -48,7 +46,6 @@ public:
   
   double Get(const string key);
   
-  //vector<string> GetVarName();
   void GetVarName(vector<string>& varList);
   
   /*

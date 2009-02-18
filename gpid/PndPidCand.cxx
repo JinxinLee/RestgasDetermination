@@ -20,8 +20,6 @@
 
 #include "PndPidCand.h"
 
-ClassImp(PndPidCand);
-
 PndPidCand::PndPidCand()
 {}
 
@@ -47,14 +45,11 @@ double PndPidCand::Get(const string key)
   return fParam.find(key)->second;
 }
 
-
-//vector<string> PndPidCand::GetVarName()
 void PndPidCand::GetVarName(vector<string>& varList)
 {
   std::map<string,double>::iterator fIter;
   for(fIter = fParam.begin(); fIter != fParam.end();fIter++){
     varList.push_back((*fIter).first); 
   }
-  //return fVarName;
 }
-
+ClassImp(PndPidCand);
