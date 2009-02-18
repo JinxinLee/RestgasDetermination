@@ -11,7 +11,7 @@
   gSystem->Load("libParBase");
   gSystem->Load("libBase");
   gSystem->Load("libField");
-  gSystem->Load("libPndBase");
+  gSystem->Load("libPndData");
   gSystem->Load("libPassive");
   gSystem->Load("libTrkBase");  
   gSystem->Load("libGeane");

@@ -6,7 +6,7 @@
   gSystem->Load("libGeoBase");
   gSystem->Load("libParBase");
   gSystem->Load("libBase");
-  gSystem->Load("libPndBase");
+  gSystem->Load("libPndData");
   gSystem->Load("libGen");
   gSystem->Load("libField");
   

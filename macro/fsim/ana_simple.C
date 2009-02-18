@@ -21,7 +21,7 @@ void ana_simple(TString infile,TString cfgfile="analysis.cfg",int nevts=0,TStrin
   gSystem->Load("libGeoBase");
   gSystem->Load("libParBase");
   gSystem->Load("libBase");
-  //gSystem->Load("libPndBase");
+  //gSystem->Load("libPndData");
   //gSystem->Load("libGen");
   gSystem->Load("libRho");
   gSystem->Load("libfsim");

@@ -21,7 +21,7 @@ void ana_fast(TString infile="dsdsj_20k.evt.root",int nevts=0,TString outfile="a
   gSystem->Load("libGeoBase");
   gSystem->Load("libParBase");
   gSystem->Load("libBase");
-  gSystem->Load("libPndBase");
+  gSystem->Load("libPndData");
   gSystem->Load("libGen");
   gSystem->Load("libRho");
   gSystem->Load("libfsim");

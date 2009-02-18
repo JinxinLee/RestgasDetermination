@@ -9,7 +9,7 @@
   gSystem->Load("libField");
   gSystem->Load("libGen");
   gSystem->Load("libPassive");
-  gSystem->Load("libPndBase");
+  gSystem->Load("libPndData");
   gSystem->Load("libStt"); 
   gSystem->Load("libMdt");
   gSystem->Load("libEmc");

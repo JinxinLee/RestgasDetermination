@@ -13,7 +13,7 @@ void runMC_dpm(double mom, int mode=0,int nevts=10,TString fname="")
   gSystem->Load("libGeoBase");
   gSystem->Load("libParBase");
   gSystem->Load("libBase");
-  gSystem->Load("libPndBase");
+  gSystem->Load("libPndData");
   gSystem->Load("libField");
   gSystem->Load("libPassive");
 

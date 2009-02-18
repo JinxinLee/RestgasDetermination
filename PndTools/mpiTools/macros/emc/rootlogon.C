@@ -17,7 +17,7 @@
   gSystem->Load("libPassive");
   gSystem->Load("libEmc"); 
   gSystem->Load("libGeom.so");
-  gSystem->Load("libPndBase.so");
+  gSystem->Load("libPndData.so");
   gSystem->Load("libGui.so");
 
   delete gRandom;

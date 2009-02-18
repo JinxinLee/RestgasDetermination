@@ -13,7 +13,7 @@ void runsim(Int_t nEvents=1000, Float_t pT=1.0, UInt_t seed=0){
   gSystem->Load("libGeoBase");
   gSystem->Load("libParBase");
   gSystem->Load("libBase");
-  gSystem->Load("libPndBase");
+  gSystem->Load("libPndData");
   gSystem->Load("libField");
   gSystem->Load("libPassive");
   gSystem->Load("libGen");  

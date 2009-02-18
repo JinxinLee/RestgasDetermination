@@ -71,7 +71,7 @@ void draw_geo(void)
   gSystem->Load("libField");
   gSystem->Load("libGen");
   gSystem->Load("libPassive");
-  gSystem->Load("libPndBase");
+  gSystem->Load("libPndData");
   gSystem->Load("libGeom.so");
   gSystem->Load("libDsk");
 

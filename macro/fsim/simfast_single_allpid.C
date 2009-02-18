@@ -1,5 +1,5 @@
 /** Macro for running fast simulation it will only fill the 
-*   PndBase without any transport(M. Al-Turany)
+*   PndData without any transport(M. Al-Turany)
 */
 
 
@@ -15,7 +15,7 @@ void simfast_single_allpid(int mult=5, int soff=0,int nevts=0,TString outfile=""
   gSystem->Load("libGeoBase");
   gSystem->Load("libParBase");
   gSystem->Load("libBase");
-  gSystem->Load("libPndBase");
+  gSystem->Load("libPndData");
   gSystem->Load("libGen");
   gSystem->Load("libRho");
   gSystem->Load("libfsim");
