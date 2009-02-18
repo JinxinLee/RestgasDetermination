@@ -30,6 +30,8 @@
 #include "PndMvdHit.h"
 #include "PndMvdHit.h"
 #include "PndMvdGeoHandling.h"
+#include "TGeoManager.h"
+#include "FairRootManager.h"
 
 // Class Member definitions -----------
 
@@ -75,21 +77,27 @@ PndMvdRecoHit::PndMvdRecoHit(PndMvdHit* hit)
   std::cout<<" -I- PndMvdRecoHit::PndMvdRecoHit(PndMvdHit*) called."<<std::endl;
   std::cout<<*hit<<std::endl;
 
-  _hitCoord[0][0] =  hit->GetX();
-  _hitCoord[1][0] =  hit->GetY();
+  TString id =  hit->GetDetName();
 
-//   _hitCov[0][0] = hit->GetDx();
-//   _hitCov[1][1] = hit->GetDy();
+  FairRootManager* ioman = FairRootManager::Instance();
+  TString fGeoFile = ioman->GetInFile()->GetName();
+  PndMvdGeoHandling* fGeoH = new PndMvdGeoHandling(fGeoFile.Data());
+  //TString path = fGeoH->GetPath(id);
+  TVector3 oo, uu, vv;
+  fGeoH->GetOUVId(id, oo,uu,vv);
 
-//TODO this is cheating the error bars larger for the kalman
-  _hitCov[0][0] = 0.01;
-  _hitCov[1][1] = 0.01;
+  TVector3 position = hit->GetPosition();
+  TVector3 localpos =  fGeoH->MasterToLocalId(position, id);
 
-  TVector3  o(0.,0.,hit->GetZ()),
-            u(1.,0.,0.),
-            v(0.,1.,0.);
+  _hitCoord[0][0] = localpos.X();
+  _hitCoord[1][0] = localpos.Y();
 
-  setDetPlane(DetPlane(o,u,v));
+  _hitCov[0][0] = 0.0050 * 0.0050;
+  _hitCov[1][1] = 0.0050 * 0.0050;
+
+  setDetPlane(DetPlane(oo,uu,vv));
+//============================================================================
+
 
 }
 
