@@ -34,8 +34,9 @@ source $PANDAROOTBUILD/config.sh > logfile
 
 cp $HOME/pandaroot/trunk/gpid/pidmacro/run_sim_alldet.C .
 cp $HOME/pandaroot/trunk/gpid/pidmacro/run_rec_alldet.C .
+cp $HOME/pandaroot/trunk/gpid/pidmacro/runpid.sh .
 
-cp $PANDAROOTHOME/PndTools/mpiTools/macros/emc/rootlogon.C .
+#cp $PANDAROOTHOME/PndTools/mpiTools/macros/emc/rootlogon.C .
 #
 # Run the scripts
 #
