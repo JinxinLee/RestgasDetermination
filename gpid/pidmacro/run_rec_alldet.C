@@ -34,7 +34,7 @@ void run_rec_alldet(Char_t InputSimFile[]="points_sttcombi.root", Char_t OutputD
   // ------------------------------------------------------------------------
 
   // -----   Digitization run   -------------------------------------------
-  CbmRunAna *fRun= new CbmRunAna();
+  FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
   
@@ -43,11 +43,11 @@ void run_rec_alldet(Char_t InputSimFile[]="points_sttcombi.root", Char_t OutputD
   // -----  Parameter database   --------------------------------------------
   TString allDigiFile = sysFile+"/macro/params/all.par";
 
-  CbmRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  CbmParRootFileIo* parInput1 = new CbmParRootFileIo();
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open(parFile.Data());
 	
-  CbmParAsciiFileIo* parIo1 = new CbmParAsciiFileIo();
+  FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
   parIo1->open(allDigiFile.Data(),"in");
         
   rtdb->setFirstInput(parInput1);
@@ -64,7 +64,7 @@ void run_rec_alldet(Char_t InputSimFile[]="points_sttcombi.root", Char_t OutputD
 
   // trackfinding ....
   PndSttTrackFinderIdeal* sttTrackFinder = new PndSttTrackFinderIdeal(iVerbose);
-  PndSttFindTracks* sttFindTracks = new PndSttFindTracks("Track Finder", "CbmTask", sttTrackFinder, iVerbose);
+  PndSttFindTracks* sttFindTracks = new PndSttFindTracks("Track Finder", "FairTask", sttTrackFinder, iVerbose);
   sttFindTracks->AddHitCollectionName("STTHit", "STTPoint");
   fRun->AddTask(sttFindTracks);
 
@@ -75,7 +75,7 @@ void run_rec_alldet(Char_t InputSimFile[]="points_sttcombi.root", Char_t OutputD
 
   // trackfitting ....
   PndSttTrackFitter* sttTrackFitter = new PndSttHelixTrackFitter(0);
-  PndSttFitTracks* sttFitTracks = new PndSttFitTracks("STT Track Fitter", "CbmTask", sttTrackFitter);
+  PndSttFitTracks* sttFitTracks = new PndSttFitTracks("STT Track Fitter", "FairTask", sttTrackFitter);
   sttFitTracks->AddHitCollectionName("STTHit");
   fRun->AddTask(sttFitTracks);
 
