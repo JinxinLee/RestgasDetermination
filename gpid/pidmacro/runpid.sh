@@ -1,3 +1,40 @@
+#!/bin/bash
+#
+# argument 1: run identification number
+# argument 2: number of events
+# argument 3: particle (gamma, e-, e+, pi-, pi+, etc.)
+# argument 4: minimum momentum (GeV/c)
+# argument 5: maximum momentum (GeV/c)
+# argument 6: minimum theta (degrees)
+# argument 7: maximum theta (degrees)
+# argument 8: minimum phi (degrees)
+# argument 9: maximum phi (degrees)
+# argument 10: transport model (TGeant3, TGeant4, TFluka)
+#
+# An example line in the job description file could look like:
+#
+# JOB 10 $HOME/scripts/runemc.sh NULL $HOME/output 9 1000 gamma 0.0 2.0 0. 180. 0. 360. TGeant3
+#
+# Setup the environmental variables to run Panda and Fair ROOT.
+# For this run the config.sh in the build directory of PandaRoot.
+# Please set the path according to your setup
+#
+PANDAROOTHOME=$HOME/pandaroot
+PANDAROOTBUILD=$HOME/buildPanda
+#
+source $PANDAROOTBUILD/config.sh > logfile
+#
+# Copy ROOT scripts to local path
+#
+#cp $PANDAROOTHOME/PndTools/mpiTools/macros/emc/sim_emc.C .
+#cp $PANDAROOTHOME/PndTools/mpiTools/macros/emc/full_emc.C .
+
+#cp $PANDAROOTHOME/macro/emc/sim_emc.C .
+#cp $PANDAROOTHOME/macro/emc/full_emc.C .
+
+cp $HOME/pandaroot/trunk/gpid/pidmacro/run_sim_alldet.C .
+cp $HOME/pandaroot/trunk/gpid/pidmacro/run_rec_alldet.C .
+
 cp $PANDAROOTHOME/PndTools/mpiTools/macros/emc/rootlogon.C .
 #
 # Run the scripts
