@@ -22,7 +22,9 @@ TClonesArray* hit_array1=new TClonesArray("PndMCTrack");
                 t->GetEntry(j);
                  t1->GetEntry(j);                
          PndLhePidTrack *tr = (PndLhePidTrack*)hit_array->At(0);
-         CbmMCTrack *mv = (CbmMCTrack*)hit_array1->At(0); 
+         CbmMCTrack *mv = (CbmMCTrack*)hit_array1->At(0);
+      if(tr == NULL || mv == NULL) continue;        
+ 
 cout<<tr->GetEmcELoss()<<"  "<<mv->Get4Momentum().Px()<<endl;
 ntuple->Fill(mv->Get4Momentum().Px(),mv->Get4Momentum().Py(),mv->Get4Momentum().Pz(),mv->Get4Momentum().Pt(),tr->GetMomentum().Mag(),tr->GetSttDEDX(),
 tr->GetMvdDEDX(),tr->GetBeta(),tr->GetDrcThetaC(),tr->GetEmcELoss());

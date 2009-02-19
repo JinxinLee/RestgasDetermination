@@ -34,6 +34,7 @@ source $PANDAROOTBUILD/config.sh > logfile
 
 cp $HOME/pandaroot/trunk/gpid/pidmacro/run_sim_alldet.C .
 cp $HOME/pandaroot/trunk/gpid/pidmacro/run_rec_alldet.C .
+cp $HOME/pandaroot/trunk/gpid/pidmacro/grep.C  .
 cp $HOME/pandaroot/trunk/gpid/pidmacro/rootlogon.C  .
 
 #cp $PANDAROOTHOME/PndTools/mpiTools/macros/emc/rootlogon.C .
@@ -53,6 +54,11 @@ root -l -b -q "run_sim_alldet.C($2,\"$3\",$4,$5,$6,$7,$8,$9,$1)" >> logfile 2>&1
 
 root -l -b -q "run_rec_alldet.C" >> logfile 2>&1
 
+root -l -b -q "grep.C" >> logfile 2>&1
+
+rm points_sttcombi.root
+rm reco_sttcombi.root
+rm params_sttcombi.root
 
 echo "hi here is a echo%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 ls
