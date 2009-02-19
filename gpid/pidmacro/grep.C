@@ -14,7 +14,7 @@ TNtuple *ntuple = new TNtuple("pidntuple","pidntuple","Px:Py:Pz:Pt:p:stt:mvd:tof
 TClonesArray* hit_array=new TClonesArray("PndLhePidTrack");
  t->SetBranchAddress("LhePidTrack",&hit_array);
 
-TClonesArray* hit_array1=new TClonesArray("CbmMCTrack");
+TClonesArray* hit_array1=new TClonesArray("PndMCTrack");
  t1->SetBranchAddress("MCTrack",&hit_array1);
 
  for (Int_t j=0; j< t->GetEntriesFast(); j++)
