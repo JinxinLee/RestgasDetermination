@@ -1,4 +1,4 @@
-void full(TString simdatei="sim_emc.root", TString fulldatei="full_emc.root", TString param="simparam.root"){
+void full_gg(TString simdatei="sim_gg.root", TString fulldatei="full_gg.root", TString param="simparam.root"){
   // Macro created 20/09/2006 by S.Spataro
   // It loads a simulation file and digitize hits for EMC
   

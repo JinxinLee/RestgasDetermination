@@ -68,9 +68,9 @@ void sim(TString simdatei, TString input, TString param, Int_t nEvents,  Char_t 
   Tpc->SetGeometryFileName("tpc.geo");
   fRun->AddModule(Tpc);
 
-  FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
-  Mvd->SetGeometryFileName("MVD_v1.0_woPassiveTraps.root");
-  fRun->AddModule(Mvd);
+    //  FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
+    //  Mvd->SetGeometryFileName("MVD_v1.0_woPassiveTraps.root");
+    //  fRun->AddModule(Mvd);
   
   FairDetector *Tof = new PndTof("TOF",kTRUE);
   Tof->SetGeometryFileName("tofbarrel.geo");
