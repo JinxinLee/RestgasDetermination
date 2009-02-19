@@ -247,7 +247,7 @@ bool PndEmcStructure::crystal_name_analysis(TString node_path,int &module,int &c
       if (col>4  && next >6) flag=0; //  -||-
       if (col>1  && next >7) flag=0; //  -||-
       
-      if(flag)
+      /*if(flag)
 	if ( (copyNoBox == 0)  || (copyNoBox == 2) ){
 	   if(copyNoCrys == 0 || copyNoCrys == 1){
 	      nCrys = ( (next*4) + (copyNoCrys+1) );
@@ -267,7 +267,38 @@ bool PndEmcStructure::crystal_name_analysis(TString node_path,int &module,int &c
 	      nRow = (copyNoBox + 1 + subrow*col);
 	   } //end of crystal		     
 	} //end of box
-      
+      */
+
+     //18.02.09
+     if (flag){
+       if ( (copyNoBox == 0)  || (copyNoBox == 3) ){
+       	 if(copyNoCrys == 1 || copyNoCrys == 3){ 
+	   nCrys = next*4 + 3;
+	 }else if (copyNoCrys == 0 || copyNoCrys == 2){
+	   nCrys = next*4 + 4;
+      	 }
+       }else if ( (copyNoBox == 1)  || (copyNoBox == 2) ){
+       	 if(copyNoCrys == 0 || copyNoCrys == 2){ 
+	   nCrys = next*4 + 2;
+	 }else if (copyNoCrys == 1 || copyNoCrys == 3){
+	   nCrys = next*4 + 1; 
+	 }
+       }
+       if ( (copyNoBox == 0)  || (copyNoBox == 2) ){
+	 if(copyNoCrys == 0 || copyNoCrys == 3){ 
+	   nRow = subrow*col + 4;
+	 }else if (copyNoCrys == 1 || copyNoCrys == 2){
+	   nRow = subrow*col + 3;
+	 }
+       }else if ( (copyNoBox == 1)  || (copyNoBox == 3) ){
+	 if(copyNoCrys == 0 || copyNoCrys == 3){ 
+	   nRow = subrow*col + 2;
+	 }else if (copyNoCrys == 1 || copyNoCrys == 2){
+	   nRow = subrow*col + 1; 
+	 }
+       }
+     }
+
       module = 3;
       row = nRow;
       crystal = nCrys;
