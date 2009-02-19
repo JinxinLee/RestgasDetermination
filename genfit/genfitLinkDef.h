@@ -20,6 +20,6 @@
 #pragma link C++ class GenfitTester+;
 #pragma link C++ class VirtSpacePointRecoHit+;
 #pragma link C++ class DetPlane+;
-
+#pragma link C++ class WirepointHitPolicy+;
 
 #endif
