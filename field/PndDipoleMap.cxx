@@ -34,7 +34,7 @@ PndDipoleMap::PndDipoleMap(const char* mapName,
       if(BeamEnergy< 2)Suffix=".0150" ;
       else if (BeamEnergy< 5.0 )Suffix=".0406";
       else if (BeamEnergy< 10.0 )Suffix=".0890" ;
-      else if (BeamEnergy< 12.0 )Suffix=".1190";
+      else if (BeamEnergy< 12.0 )Suffix=".1191";
       else  Suffix=".1500";
     }else{
       Suffix="";
