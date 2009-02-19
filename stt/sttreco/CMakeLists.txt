@@ -33,7 +33,7 @@ PndSttPatternRecoTask2.cxx
 PndSttRecoHit.cxx
 PndSttKalmanTask.cxx
 PndSttKalmanTask2.cxx
-WirepointHitPolicy.cxx
+#WirepointHitPolicy.cxx
 )
 
 # fill list of header files from list of source files

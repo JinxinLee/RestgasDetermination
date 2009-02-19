@@ -8,7 +8,7 @@
 #pragma link C++ class PndSttRecoHit+;
 #pragma link C++ class PndSttKalmanTask+; 
 #pragma link C++ class PndSttKalmanTask2+; 
-#pragma link C++ class WirepointHitPolicy+;
+//#pragma link C++ class WirepointHitPolicy+;
 
 #endif
 
