@@ -10,10 +10,18 @@
 export KVIHOME=/home/rugkvi04/kvi
 export PANDAHOME=/home/rugkvi04/panda
 export PANDAROOTHOME=$HOME/pandaroot
-source $PANDAROOTHOME/build/config.sh > logfile
 export CERN=$KVIHOME/cern
 export CERN_ROOT=$CERN/2005
-export LD_LIBRARY_PATH=$CERN_ROOT/lib:$LD_LIBRARY_PATH
+
+source $PANDAROOTHOME/build/config.sh > logfile
+
+export LD_LIBRARY_PATH=$CERN_ROOT/lib:$KVIHOME/subversion/lib:$LD_LIBRARY_PATH
+export PATH=$KVIHOME/subversion/bin:$HOME/bin:$PATH
+
+svn info $VMCWORKDIR >> logfile 2>&1
+#
+revline=`cat logfile | grep "Revision" `
+revnumber=`echo $revline | awk '{print $2}'` 
 #
 # Copy ROOT scripts to local path
 #
@@ -22,8 +30,8 @@ cp $PANDAROOTHOME/trunk/macro/SimulationGG/EvtGen/evt.pdl .
 cp $HOME/bin/ggEvtGen .
 cp $PANDAROOTHOME/trunk/macro/SimulationGG/EvtGen/dec/$4 .
 #
-cp $PANDAROOTHOME/trunk/macro/SimulationGG/SimulationMacros/sim.C .
-cp $PANDAROOTHOME/trunk/macro/SimulationGG/SimulationMacros/full.C .
+cp $PANDAROOTHOME/trunk/macro/SimulationGG/SimulationMacros/sim_gg.C .
+cp $PANDAROOTHOME/trunk/macro/SimulationGG/SimulationMacros/full_gg.C .
 #
 # Run evtgen
 #
@@ -31,20 +39,20 @@ cp $PANDAROOTHOME/trunk/macro/SimulationGG/SimulationMacros/full.C .
 #
 # Run the scripts
 #
-root -l -b -q "sim.C(\"sim.root\",\"output.evt\",\"simparams.root\",$2,\"$5\",$1)" >> logfile 2>&1
-root -l -b -q "full.C(\"sim.root\",\"full.root\",\"simparams.root\")" >> logfile 2>&1
+root -l -b -q "sim_gg.C(\"sim_rev${revnumber}.root\",\"output.evt\",\"simparams_rev${revnumber}.root\",$2,\"$5\",$3,$1)" >> logfile 2>&1
+root -l -b -q "full_gg.C(\"sim_rev${revnumber}.root\",\"full_rev${revnumber}.root\",\"simparams_rev${revnumber}.root\")" >> logfile 2>&1
 
 cnt=1
-for FILENAME in "`find . -name "sim.root_*" -print`" ; do
+for FILENAME in "`find . -name "sim_rev${revnumber}.root_*" -print`" ; do
  if [ -n "$FILENAME" ]; then
-    root -l -b -q "full.C(\"$FILENAME\",\"full_$cnt.root\",\"simparams.root\")" >> logfile 2>&1
+    root -l -b -q "full_gg.C(\"$FILENAME\",\"full_rev${revnumber}_$cnt.root\",\"simparams_rev${revnumber}.root\")" >> logfile 2>&1
     let cnt=cnt+1
  fi
 done
 #
 # Validate the output and return the appropiate value
 #
-for ofile in "ggEvtGen" "logfile" "sim.C" "full.C" "sim.root" "simparams.root" "full.root" "output.evt" ; do  
+for ofile in "ggEvtGen" "logfile" "sim_gg.C" "full_gg.C" "sim_rev${revnumber}.root" "simparams_rev${revnumber}.root" "full_rev${revnumber}.root" "output.evt" ; do  
   [ -f $ofile ]  || error="$error $ofile doesn't exist,";
 done
 
