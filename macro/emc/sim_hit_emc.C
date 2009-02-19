@@ -64,7 +64,7 @@
 	PndEmc *Emc = new PndEmc("EMC",kTRUE);
 	//Emc->SetGeometryFileName("emc_module12345.dat"); // if you want to use old geometry for FwEndCap
 	Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root"); // if you want to use new geometry for FwEndCap
-	Emc->SetStorageOfPoints(kFALSE);
+	Emc->SetStorageOfData(kFALSE);
 	fRun->AddModule(Emc);
 	
 	// Create and Set Event Generator
@@ -86,25 +86,24 @@
 	
 	// fRun->SetStoreTraj(kTRUE); // to store particle trajectories 
 	
-	PndMultiField *fField= new PndMultiField();
-	
-	PndTransMap  *tmap= new PndTransMap("Trans1", "R");
-	PndDipoleMap *dmap1= new PndDipoleMap("Dipole1", "R");
-	PndDipoleMap *dmap2= new PndDipoleMap("Dipole2", "R");
-    
-	PndSolenoidMap *smap1= new PndSolenoidMap("Solenoid1", "R");
-	PndSolenoidMap *smap2= new PndSolenoidMap("Solenoid2", "R");
-	PndSolenoidMap *smap3= new PndSolenoidMap("Solenoid3", "R");
-	PndSolenoidMap *smap4= new PndSolenoidMap("Solenoid4", "R");
-	
-	fField->AddField(tmap);
-	fField->AddField(dmap1);
-	fField->AddField(dmap2);
-	
-	fField->AddField(smap1);
-	fField->AddField(smap2);
-	fField->AddField(smap3);
-	fField->AddField(smap4);
+   fRun->SetBeamMom(15);
+   PndMultiField *fField= new PndMultiField();
+
+   PndTransMap *map_t= new PndTransMap("TransMap", "R");
+   PndDipoleMap *map_d1= new PndDipoleMap("DipoleMap1", "R");
+   PndDipoleMap *map_d2= new PndDipoleMap("DipoleMap2", "R");
+   PndSolenoidMap *map_s1= new PndSolenoidMap("SolenoidMap1", "R");
+   PndSolenoidMap *map_s2= new PndSolenoidMap("SolenoidMap2", "R");
+   PndSolenoidMap *map_s3= new PndSolenoidMap("SolenoidMap3", "R");
+   PndSolenoidMap *map_s4= new PndSolenoidMap("SolenoidMap4", "R");
+
+   fField->AddField(map_t);
+   fField->AddField(map_d1);
+   fField->AddField(map_d2);
+   fField->AddField(map_s1);
+   fField->AddField(map_s2);
+   fField->AddField(map_s3);
+   fField->AddField(map_s4);
 	
 	fRun->SetField(fField);
 	
