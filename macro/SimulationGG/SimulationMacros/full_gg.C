@@ -52,7 +52,7 @@ void full_gg(TString simdatei="sim_gg.root", TString fulldatei="full_gg.root", T
   
   // -----  Parameter database   --------------------------------------------
 	TString emcDigiFile = gSystem->Getenv("VMCWORKDIR");
-	emcDigiFile += "/macro/params/";
+	emcDigiFile += "/macro/SimulationGG/SimulationMacros/";
 	emcDigiFile += digiFile;
 
 	FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
