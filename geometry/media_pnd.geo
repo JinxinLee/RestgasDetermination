@@ -472,14 +472,28 @@ PWO               -3  207.19  15.99  183.85  82.  8.  74.  8.29  1.  4.  1.
 		   1  1  30.  .001 
                    0             
 // Argon CO2 (90/10)
-DCHmixture	-3  39.948 12.01 15.9994 18. 6. 8. 0.0019 900 33 67 
+DCHmixture	3  39.948 12.01 15.9994 18. 6. 8. 0.0019 0.891 0.030 0.079 
+		1 1   20. 0.001 
+		0
+
+// Argon CO2 (90/10) at 2 bar
+DCHmixture2bar	3  39.948 12.01 15.9994 18. 6. 8. 0.0038 0.891 0.030 0.079 
 		1 1   20. 0.001 
 		0
 
 // Argon CO2 (90/10)
-DCHmixturePassive -3  39.948 12.01 15.9994 18. 6. 8. 0.0019 900 33 67 
+DCHmixturePassive 3  39.948 12.01 15.9994 18. 6. 8. 0.0019 0.891 0.030 0.079 
 		0 1   20. 0.001 
 		0
+
+// Si:0:H=1:6:8 for aerogel in RICH, density 0.1 g/cm3, everything like in HERMES
+Aerogel		3 28.086 15.9994 1.00797 14. 8. 1.  0.1 0.21 0.73 0.06    
+ 	        0  	1  	3.  	.001  	   	   	   	 
+  	        0
+// freon gas for RICH
+C4F10  	-2  	12.01  	19.  	6.  	9.  	0.010625  	4.  	10.
+  	0 	1 	3. 	.001 	  	  	  	 
+  	0
 
 // The next materials must specify additional parameters!
 // Neon CO (90/10)
