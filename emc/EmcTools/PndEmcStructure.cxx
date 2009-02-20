@@ -107,7 +107,9 @@ PndEmcStructure::PndEmcStructure(TGeoManager *geoMan)
 		if (tci==0)
 		{
 			cout<<"Not found tci for index = "<<detId<<" in PndEmcStructure"<<endl;
-			abort();	
+		        cout<<"For: emc_module12345.dat geometry - use MapperVersion 1 in trunk/macro/params/emc.par"<<endl;
+		        cout<<"For: emc_module1245.dat + emc_module3new.root - change MapperVersion to 2 "<<endl;
+		   abort();	
 		}
 		
 		// Obtaine TGeoMatrix matrix for the current node, later it is factorised to translation and rotation
