@@ -213,8 +213,8 @@
   //TString medium="carbon";
   TString medium="air";
   name="BoxVol";
-  BoxVol = new TGeoVolume(name,BoxShape,gGeoMan->GetMedium(medium));
-  //BoxVol = new TGeoVolumeAssembly(name);
+  //BoxVol = new TGeoVolume(name,BoxShape,gGeoMan->GetMedium(medium));
+  BoxVol = new TGeoVolumeAssembly(name);
   
   // Translations and Rotations for Boxes are according to co-ordinate system 
   // which is in the center of the Subunit
