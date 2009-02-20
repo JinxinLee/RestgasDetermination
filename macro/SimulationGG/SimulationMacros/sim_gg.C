@@ -57,8 +57,8 @@ sim_gg(TString simdatei="sim_gg.root", TString input="gg.evt", TString param="si
 
   //FairDetector *Emc = new PndEmc("EMC",kTRUE);
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
-  Emc->SetGeometryFileName("emc_module12345.dat"); // if you want to use old geometry for FwEndCap
-  //    Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root"); // if you want to use new geometry for FwEndCap
+  //Emc->SetGeometryFileName("emc_module12345.dat"); // if you want to use old geometry for FwEndCap
+  Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root"); // if you want to use new geometry for FwEndCap
   fRun->AddModule(Emc);
   
   FairDetector *Tof = new PndTof("TOF",kTRUE);
