@@ -146,11 +146,6 @@ Bool_t PndEmc::ProcessHits(FairVolume* vol) {
     copyNoSub-=1;     // When geometry is created, copyNoSub starts from 1-55 
                       //and the loop below starts from 0-54
 
-    cout<<"copyNoCrys = " << copyNoCrys << endl;
-    cout<<"copyNoBox  = " << copyNoBox  << endl;
-    cout<<"copyNoSub  = " << copyNoSub  << endl;
-    cout<<"copyNoQuar = " << copyNoQuar << endl;
-
     if((copyNoSub >=  0) && (copyNoSub <=  6)){
       next  = copyNoSub + 2;
       col   = 0;
