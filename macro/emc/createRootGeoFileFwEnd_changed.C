@@ -369,15 +369,18 @@
    for (Int_t q=1; q<=3; q++){
     TGeoCombiTrans reflection; 
     TGeoTranslation ttt;
-    if (q==1){
+    //if (q==1){
+    if (q==3){
       reflection.ReflectX(1); // left-upper Quarter
       ttt = new TGeoTranslation(-0.5*sizeOfQuar,0.5*sizeOfQuar,0.);
     }
-    if (q==2){
+    //if (q==2){
+    if (q==1){
       reflection.ReflectY(1); // right-lower Quarter
       ttt = new TGeoTranslation(0.5*sizeOfQuar,-0.5*sizeOfQuar,0.);
     }
-    if (q==3){
+    //if (q==3){
+    if (q==2){
       reflection.ReflectY(1);
       reflection.ReflectX(1); // left-lower Quarter
       ttt = new TGeoTranslation(-0.5*sizeOfQuar,-0.5*sizeOfQuar,0.);
@@ -390,5 +393,5 @@
   top->Write();
   fi->Close();
    //gGeoManager->Export(outfile);//
-   //top->Draw();//
+  //top->Draw();//
 }  
