@@ -142,7 +142,7 @@ Int_t PndDchDigiProducer::AddDigis(PndDchPoint* point, Int_t refIndex) {
 // Private method ToBeOrNotToBe digitised
 Bool_t PndDchDigiProducer:: ToBeOrNotToBe(const PndDchPoint* point) const {
   Double_t  detID   = point->GetDetectorID();
-  // if(fMapper->CalculatePlane(detID)<3)
+//   if(fMapper->CalculateChamber(detID)>5)
 //     return kFALSE;
   Double_t  trackID = point->GetTrackID();
   PndDchDigi* digi = 0;

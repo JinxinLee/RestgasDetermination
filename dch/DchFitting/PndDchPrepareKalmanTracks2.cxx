@@ -103,7 +103,7 @@ PndDchPrepareKalmanTracks2::Init()
   }
   // create and register output array
   fTrackArray = new TClonesArray("Track"); 
-  ioman->Register("Track","GenFit",fTrackArray,fPersistence);
+  ioman->Register("FSTracks","GenFit",fTrackArray,fPersistence);
   
   // GeanePro will get Geometry and BField from the Run
   fGeanePro=new FairGeanePro();
@@ -138,7 +138,7 @@ PndDchPrepareKalmanTracks2::Exec(Option_t* opt)
       Int_t globalCHitNu = dchtrack->GetDchCylinderHitIndex(nuhit);
       cand->addHit(1,globalCHitNu);
     }
-    if(cand->getNHits()<20)
+    if(cand->getNHits()<10)
       continue;
     
     Int_t pdg;

@@ -1,4 +1,4 @@
-// Macro for running Cbm  with Geant3  or Geant4 (M. Al-Turany , D. Bertini)
+// Macro for running sim  with Geant3  or Geant4 (M. Al-Turany , D. Bertini)
 {
   TStopwatch timer;
   timer.Start();
@@ -45,10 +45,13 @@
   fRun->AddModule(Pipe);
   
   FairModule *Magnet= new PndMagnet("MAGNET");
-  Magnet->SetGeometryFileName("magnet.geo");
+  Magnet->SetGeometryFileName("FullSolenoid.root");
   fRun->AddModule(Magnet);
-
-
+  
+  FairModule *dipole= new PndMagnet("MAGNET");
+  dipole->SetGeometryFileName("dipole.geo");
+  fRun->AddModule(dipole);
+ 
   FairDetector *Dch = new PndDchDetector("DCH", kTRUE);
   Dch->SetGeometryFileName("dch.root");
   Dch->SetVerboseLevel(1);
@@ -60,37 +63,36 @@
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
- // Particle Generator
-  //FairParticleGenerator* partGen = new FairParticleGenerator(211, 10, 1, 0,3,kTRUE);
-  //primGen->AddGenerator(partGen);
- 
  // Box Generator
   //  gRandom->SetSeed(3523);
-  FairBoxGenerator* boxGen = new FairBoxGenerator(2212, 3); // 13=muon; 2212=proton 1 = multipl.
-  boxGen->SetPRange(1.,10.); // GeV/c //setPRange vs setPtRange
-  boxGen->SetPhiRange(-180,180); // Azimuth angle range [degree]
-  boxGen->SetThetaRange(1, 5); // Polar angle in lab system range [degree]
+  FairBoxGenerator* boxGen = new FairBoxGenerator(13, 1); // 13=muon; 2212=proton 1 = multipl.
+  boxGen->SetPRange(1.,1.); // GeV/c //setPRange vs setPtRange
+  boxGen->SetPhiRange(0,360); // Azimuth angle range [degree]
+  boxGen->SetThetaRange(2, 8); // Polar angle in lab system range [degree]
   boxGen->SetXYZ(0.,0.,0.);
   primGen->AddGenerator(boxGen);
 
-  fRun->SetStoreTraj(kTRUE);
-  
+  fRun->SetStoreTraj(kFALSE);
+  fRun->SetBeamMom(15.);
 
   // Field Map Definition
   // --------------------
-  //PndConstField *fField=new PndConstField();
-  //fField->SetField(0, 10 ,0 ); // values are in kG    //dipole
-  //fField->SetFieldRegion(-145, 145,-45, 45, 380, 560);  // dipole
-  // fField->SetField(0, 0 ,20. ); // values are in kG    //solenoid
-//   fField->SetFieldRegion(-500, 500,-500, 500, -200, 200);  // solenoid
   PndMultiField *fField= 0;
   fField = new PndMultiField();
-//   PndTransMap *map= new PndTransMap("TransMap", "R");
-//   fField->AddField(map);
-//   PndSolenoidMap *map2= new PndSolenoidMap("SolenoidMap", "R");
-//   fField->AddField(map2);
-  PndDipoleMap *map1= new PndDipoleMap("DipoleMap", "R");
-  fField->AddField(map1);
+  PndTransMap *map_t= new PndTransMap("TransMap", "R");
+  PndSolenoidMap *map_s1= new PndSolenoidMap("SolenoidMap1", "R");
+  PndSolenoidMap *map_s2= new PndSolenoidMap("SolenoidMap2", "R");
+  PndSolenoidMap *map_s3= new PndSolenoidMap("SolenoidMap3", "R");
+  PndSolenoidMap *map_s4= new PndSolenoidMap("SolenoidMap4", "R");
+  PndDipoleMap *map_d1= new PndDipoleMap("DipoleMap1", "R");
+  PndDipoleMap *map_d2= new PndDipoleMap("DipoleMap2", "R");
+  fField->AddField(map_t);
+  fField->AddField(map_s1);
+  fField->AddField(map_s2);
+  fField->AddField(map_s3);
+  fField->AddField(map_s4);
+  fField->AddField(map_d1);
+  fField->AddField(map_d2);
   fRun->SetField(fField);
   //-----------end of Bfield stuff
 
@@ -104,7 +106,7 @@
   FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   output->open(parFile.Data());
   rtdb->setOutput(output);
-  //PndConstPar* fieldPar = (PndConstPar*) rtdb->getContainer("PndConstPar");
+
   PndMultiFieldPar* fieldPar = 
     (PndMultiFieldPar*) rtdb->getContainer("PndMultiFieldPar");
   if(fField)  {  fieldPar->SetParameters(fField); }
@@ -113,10 +115,10 @@
   
   rtdb->saveOutput();
   rtdb->print();
-  
+
   // Transport nEvents
   // -----------------
-  Int_t nEvents = 100;
+  Int_t nEvents = 500;
   fRun->Run(nEvents);
    
   timer.Stop();

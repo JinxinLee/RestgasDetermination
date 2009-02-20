@@ -46,8 +46,7 @@
   // -----   Reconstruction run
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
-  fRun->SetOutputFile(outFile)
-;
+  fRun->SetOutputFile(outFile);
   // -----  Parameter database
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo();
@@ -86,29 +85,31 @@
   FairGeane *Geane = new FairGeane(inFile);
   // ------------------------------------------------- 
     PndDchPreFitterTR* dchPreFitter = new PndDchPreFitterTR();
-  dchPreFitter->SetVerbose(1);
-  fRun->AddTask(dchPreFitter);
+  dchPreFitter->SetVerbose(0);
+  //fRun->AddTask(dchPreFitter);
   // ------------------------------------------------- 
   PndDchPreFitterTRQATask* dchPreFitterQA = new PndDchPreFitterTRQATask();
   dchPreFitterQA->SetVerbose(0);
-  fRun->AddTask(dchPreFitterQA);
+  //fRun->AddTask(dchPreFitterQA);
   // ------------------------------------------------- 
   PndDchPrepareKalmanTracks2 *prepareKalmanTracks = new PndDchPrepareKalmanTracks2();
   prepareKalmanTracks->SetVerbose(0);
   prepareKalmanTracks->UseGeane(kTRUE);
-  prepareKalmanTracks->UseMC(kFALSE);
-  prepareKalmanTracks->SetPDG(2212);
+  prepareKalmanTracks->UseMC(kTRUE);
+  prepareKalmanTracks->SetPDG(13);
   prepareKalmanTracks->SetPersistence();
   fRun->AddTask(prepareKalmanTracks);
   // ------------------------------------------------- 
   PndDchKalmanTask2* dchKalman = new PndDchKalmanTask2();
   dchKalman->SetVerbose(0);
-  dchKalman->SetNumIterations(1);
+  dchKalman->SetNumIterations(3);
   dchKalman->SetSmooth(kFALSE);
   fRun->AddTask(dchKalman);
   // ------------------------------------------------- 
   PndDchKalmanQATask* dchKalmanQA = new PndDchKalmanQATask();
   dchKalmanQA->SetVerbose(0);
+  dchKalmanQA->SetApproach(1);
+  dchKalmanQA->ApplySignPatch(kFALSE);
   fRun->AddTask(dchKalmanQA);
   // ------------------------------------------------- 
 
@@ -130,5 +131,5 @@
   cout << "Output file is "    << outFile << endl;
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
   cout << endl;
-  //  exit(0);
+  //    exit(0);
 }

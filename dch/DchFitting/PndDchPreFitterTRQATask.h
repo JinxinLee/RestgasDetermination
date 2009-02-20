@@ -55,7 +55,10 @@ private:
   TClonesArray* fMCTrackArray;      ///< pointer to array of MCTracks
   TClonesArray* fDchTrackMatchArray;///< pointer to array of DchTrackMatches
   
-  TH1D* fhP;             ///< momentum histogram;
+  TH1D* fhP;             ///< momentum pull histogram;
+  TH1D* fhPx;             ///< x-momentum pull distribution;
+  TH1D* fhPy;             ///< y-momentum pull distribution;
+  TH1D* fhPz;             ///< z-momentum pull distribution;
   TH2D* fThetaH;         ///< theta histogram;
   TH2D* fPhiH;           ///< phi histogram;
   TH1D* fhChi2;          ///< chi2 histogram;

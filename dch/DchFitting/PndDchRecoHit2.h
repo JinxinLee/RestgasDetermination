@@ -13,33 +13,52 @@
 #define PNDDCHRECOHIT2_H 1
 
 // Pnd includes
-#include "PndSttRecoHit.h"
-
-// c++ headers
-#include <ostream> 
+#include "RecoHitIfc.h"
+#include "WirepointHitPolicy.h"
 
 class PndDchCylinderHit;
 
-class PndDchRecoHit2 : public PndSttRecoHit {
+typedef RecoHitIfc<WirepointHitPolicy> WirepointRecoHit;
+
+class PndDchRecoHit2 : public WirepointRecoHit {
 
 public:
 
-  /** All-by-hand Constructor  **/
-  /* PndDchRecoHit2(double r, double wireposx, double angle, double z, */
-/* 		 double sigr); */
+  PndDchRecoHit2();
 
   /** Default Constructor for dch **/
   PndDchRecoHit2(const PndDchCylinderHit* cylHit);
-  
+
+  /** virtual destructor **/
+  virtual ~PndDchRecoHit2();
+
+  /** Public method clone(...) creates a clone of argument**/
+   virtual AbsRecoHit* clone(){return new PndDchRecoHit2(*this);};
+
   /** Public method Print() **/
   virtual void  Print();
 
-private:
+ // Operations ----------------------
+  virtual void setHMatrix(const AbsTrackRep* stateVector,
+                          const TMatrixT<double>& state);
 
+  virtual double residualScalar(AbsTrackRep* stateVector,
+                                const TMatrixT<double>& state);
+
+  const DetPlane& detPlane(AbsRecoHit*, AbsTrackRep*);
+  virtual const DetPlane& getDetPlane(AbsTrackRep*); 
+
+ private:
+  
   double _sangle;  ///<  sine of the angle of the wire
   double _cangle;  ///<  cosine of the angle of the wire
   double _wirepos; ///<  u coordinate of wire in detector plane
+  DetPlane _detPlane;
+	
+ protected:
+  static const int NparHitRep = 8;
 
+ public:
   ClassDef(PndDchRecoHit2,1)
 
 };

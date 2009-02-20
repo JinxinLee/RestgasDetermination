@@ -257,7 +257,7 @@ void PndDchDetector::ExpandNode(TGeoVolume *fVol, TGeoVolume *Cave){
      TString name = v->GetName();
      if(fVerboseLevel>2) std::cout<< "DEBUG VolumeName "  <<name<< std::endl;
      
-     if (name.Contains("dchVol")) {
+     if (name.Contains("dchVol") || name.Contains("RichBoxVol")) {
        if(fVerboseLevel>2) std::cout<< "DEBUG AddNode for volume "  <<name<< std::endl;
        Cave->AddNode(v,0, fNode->GetMatrix());
      }

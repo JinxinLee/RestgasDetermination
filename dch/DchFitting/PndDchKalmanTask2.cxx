@@ -30,7 +30,7 @@
 PndDchKalmanTask2::PndDchKalmanTask2()
   : FairTask("Kalman Filter"), fPersistence(kFALSE),fSmooth(kFALSE), fEvtCount(0), fNumIt(1)
 {
-  fTrackBranchName = "Track";
+  fTrackBranchName = "FSTracks";
 
 }
 
@@ -119,3 +119,4 @@ PndDchKalmanTask2::Exec(Option_t* opt)
 }
 
 ClassImp(PndDchKalmanTask2)
+  

@@ -28,6 +28,9 @@
 PndDchPreFitterTRQATask::PndDchPreFitterTRQATask()
   : FairTask("QA Task for Kalman od DCH"){
   fhP = NULL;
+  fhPx = NULL;
+  fhPy = NULL;
+  fhPz = NULL;
   fhChi2 = NULL;
   fThetaH = NULL;
   fPhiH = NULL;
@@ -40,6 +43,9 @@ PndDchPreFitterTRQATask::~PndDchPreFitterTRQATask() {
   WriteHistograms();
 
   if(fhP!=NULL)    delete fhP;
+  if(fhPx!=NULL)    delete fhPx;
+  if(fhPy!=NULL)    delete fhPy;
+  if(fhPz!=NULL)    delete fhPz;
   if(fhChi2!=NULL) delete fhChi2;
   if(0!=fThetaH)   delete fThetaH;
   if(0!=fPhiH)     delete fPhiH;
@@ -75,6 +81,12 @@ InitStatus PndDchPreFitterTRQATask::Init(){
   // // setup histograms
   fhP    = new TH1D("pullP","(p_{Rec}-p_{MC})/p_{MC}",60,-0.15,0.15);
   fhP->SetFillColor(9);
+ fhPx   = new TH1D("pullPx","(p_{x,Rec}-p_{x,MC})/p_{x,MC}",50,-2.9,2.9);
+  fhPy   = new TH1D("pullPy","(p_{y,Rec}-p_{y,MC})/p_{y,MC}",50,-2.9,2.9);
+  fhPz   = new TH1D("pullPz","(p_{z,Rec}-p_{z,MC})/p_{z,MC}",50,-2.9,2.9);
+  fhPx->SetFillColor(9);
+  fhPy->SetFillColor(9);
+  fhPz->SetFillColor(9);
   fhChi2 = new TH1D("chi2","chi2",500,0,100);
   fhChi2->SetFillColor(2);
   fThetaH =new TH2D("theta","#theta_{rec}-#theta_{MC} vs #theta_{MC}",25,-5,25,100,-1,1.);
@@ -118,7 +130,15 @@ void PndDchPreFitterTRQATask::Exec(Option_t* opt) {
 	continue;
       }
       TVector3 mcmom = mc->GetMomentum();
-      if(fhP) fhP->Fill((mom0.Mag()-mcmom.Mag())/mcmom.Mag());
+      if(0!=mcmom.Mag())
+	if(fhP) fhP->Fill((mom0.Mag()-mcmom.Mag())/mcmom.Mag());
+
+      if(0!=mcmom.X())
+	if(fhPx) fhPx->Fill((mom0.X()-mcmom.X())/mcmom.X());
+      if(0!=mcmom.Y())
+	if(fhPy) fhPy->Fill((mom0.Y()-mcmom.Y())/mcmom.Y());
+      if(0!=mcmom.Z())
+	if(fhPz) fhPz->Fill((mom0.Z()-mcmom.Z())/mcmom.Z());
       if(fThetaH) fThetaH->Fill(mcmom.Theta()*TMath::RadToDeg(),
 				(-mcmom.Theta()+mom0.Theta())*TMath::RadToDeg());
       if(fPhiH) fPhiH->Fill(mcmom.Phi()*TMath::RadToDeg(),
@@ -137,6 +157,9 @@ Bool_t  PndDchPreFitterTRQATask::WriteHistograms(){
 
 
   if(0!=fhP) fhP->Write();
+  if(0!=fhPx) fhPx->Write();
+  if(0!=fhPy) fhPy->Write();
+  if(0!=fhPz) fhPz->Write();
   if(0!=fhChi2) fhChi2->Write();
   if(0!=fThetaH) fThetaH->Write();
   if(0!=fPhiH) fPhiH->Write();
@@ -146,27 +169,48 @@ Bool_t  PndDchPreFitterTRQATask::WriteHistograms(){
 
 void PndDchPreFitterTRQATask::PlotHistograms(){
   gStyle->SetOptStat(111111);
+  gStyle->SetOptFit(0101);
+  gStyle->SetStatW(0.25);
+  gStyle->SetStatH(0.15);
   gStyle->SetPalette(1,0);
   fCanvas = new TCanvas("DchPreFitterQACanvas","Results from the DchPreFitterTRQA",1000,700);
-  fCanvas->Divide(2,2);
+  fCanvas->Divide(4,2);
   
+  Int_t i = 1;
+
   if(fhP!=0){
-    fCanvas->cd(1);
+    fCanvas->cd(i++);
     gPad->SetGrid(1,0);
     fhP->Draw();
   }
+
+  fCanvas->cd(i++);     
+  gPad->SetGrid(1,0); 
+  fhPx->Draw();	      
+  fhPx->Fit("gaus");   
+
+  fCanvas->cd(i++);     
+  gPad->SetGrid(1,0); 
+  fhPy->Draw();	      
+  fhPy->Fit("gaus");   
+
+  fCanvas->cd(i++);     
+  gPad->SetGrid(1,0); 
+  fhPz->Draw();	      
+  fhPz->Fit("gaus");   
+
   if(0!=fPhiH){
-    fCanvas->cd(2);
+    fCanvas->cd(i++);
     gPad->SetGrid(1,1);
     fPhiH->Draw("colz");
   }
   if(0!=fThetaH){
-    fCanvas->cd(3);
+    fCanvas->cd(i++);
     gPad->SetGrid(1,1);
     fThetaH->Draw("colz");
   }
   if(0!=fhChi2){
-    fCanvas->cd(4);
+    fCanvas->cd(i++);
     gPad->SetGrid(1,0);
     fhChi2->Draw();
   }

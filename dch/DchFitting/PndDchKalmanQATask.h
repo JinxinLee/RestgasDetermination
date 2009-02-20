@@ -44,6 +44,10 @@ public:
   /** public method SetPersistence(Bool_t opt) **/
   void SetApproach(Int_t approach) {fApproach=approach;}
 
+  /** public method ApplySignPatch(...) sets a flag deciding whether
+      or not to revert wrongly reconstructed sign of momentum components **/
+  void ApplySignPatch(Bool_t patch){fSignPatch=patch;}
+
   /** public method Init() **/
   virtual InitStatus Init();
 
@@ -80,6 +84,7 @@ private:
   Int_t fTrackcount;       ///< track counter
   Int_t fEvt;              ///< event counter
   Int_t fApproach;       ///< choice of where to compare track parameters with MC
+  Bool_t fSignPatch;     ///< flag for correcting wrongly reconstructed sign of p components
 
   /** private method WriteHistograms()
       writes out histograms with results of fitting into a file **/

@@ -35,9 +35,9 @@
 
 
 PndDchKalmanQATask::PndDchKalmanQATask()
-  : FairTask("QA Task for Kalman od DCH"), fPersistence(kFALSE), fEvt(0), fApproach(0)
+  : FairTask("QA Task for Kalman od DCH"), fPersistence(kFALSE), fEvt(0), fApproach(0), fSignPatch(0)
 {
-  fTrackBranchName = "Track";
+  fTrackBranchName = "FSTracks";
   fhP = NULL;
   fhPx = NULL;
   fhPy = NULL;
@@ -98,7 +98,7 @@ InitStatus PndDchKalmanQATask::Init(){
   fhPx->SetFillColor(9);
   fhPy->SetFillColor(9);
   fhPz->SetFillColor(9);
-  fhChi2 = new TH1D("chi2","chi2",500,0,100);
+  fhChi2 = new TH1D("chi2","chi2",500,0,1000);
   fhChi2->SetFillColor(2);
   fThetaH =new TH2D("theta","#theta_{rec}-#theta_{MC} vs #theta_{MC}",
 		    24,0,8,60,-3.,3.);
@@ -119,6 +119,7 @@ void PndDchKalmanQATask::Exec(Option_t* opt) {
       TVector3 mom0;
       AbsTrackRep* rep = 0;
       rep = trk->getCardinalRep()->clone();
+      std::cout<<" Particle charge = "<<rep->getCharge()<<std::endl;
       GeaneTrackRep* grep = 0;
       if(fApproach==0){
 	// approach zero - working when only dipole field on
@@ -127,29 +128,34 @@ void PndDchKalmanQATask::Exec(Option_t* opt) {
       }
       else if(fApproach==1){
 	// approach one - failing, since for ca. 50% of all events
-	// one of the transverse momentum components has a mismatch in sign
+	// one of the momentum components has a mismatch in sign
 	DetPlane pl(TVector3(0,0,0),TVector3(1,0,0),TVector3(0,1,0));
 	grep=dynamic_cast<GeaneTrackRep*>(rep);
 	grep->setPropDir(-1);
 	mom0=grep->getMom(pl);
       }
-     //  else if(fApproach==2){
-// 	//approach two
-// 	rep = trk->getCardinalRep()->clone();
-// 	TMatrix<double> statePred(5,1);
-// 	TMatrix<double> covPred(5,5);
-// 	DetPlane planePred;
-// 	grep=dynamic_cast<GeaneTrackRep*>(rep);
-// 	grep->setPropDir(-1);
-// 	grep->extrapolateToPoca( TVector3(0,0,0), statePred, covPred, planePred );
-// 	grep->setState(statePred);
-// 	grep->setCov(covPred);
-// 	grep->setReferencePlane(planePred);
-// 	mom0=grep->getMom(planePred);
-//       }
+      else if(fApproach==2){
+ 	//approach two
+ 	TMatrixT<double> statePred(5,1);
+ 	TMatrixT<double> covPred(5,5);
+ 	DetPlane planePred;
+ 	grep=dynamic_cast<GeaneTrackRep*>(rep);
+ 	grep->setPropDir(-1);
+ 	grep->extrapolateToPoca( TVector3(0,0,0), statePred, covPred, planePred );
+ 	grep->setState(statePred);
+ 	grep->setCov(covPred);
+ 	grep->setReferencePlane(planePred);
+	grep->setPropDir(1);
+ 	mom0=grep->getMom(planePred);
+      }
       else{
 	continue;
       }
+      if(fSignPatch)
+	if(mom0.Z()<0)
+	  mom0 = -mom0;
+      std::cout<<"mom0 reconstructed = "<<std::endl;
+      mom0.Print();
       
       //      rep->extrapolate(firstHit->getDetPlane(rep));
       //       rep->setReferencePlane(firstHit->getDetPlane(rep));
@@ -201,6 +207,7 @@ void PndDchKalmanQATask::Exec(Option_t* opt) {
   return;
 }
   
+
 Bool_t  PndDchKalmanQATask::WriteHistograms(){
   TFile* file = FairRootManager::Instance()->GetOutFile();
   file->cd();
@@ -232,22 +239,22 @@ void PndDchKalmanQATask::PlotHistograms(){
   fCanvas->cd(i++);     
   gPad->SetGrid(1,0); 
   fhP->Draw();	      
-  fhP->Fit("gaus");   
+  //  fhP->Fit("gaus");   
 
   fCanvas->cd(i++);     
   gPad->SetGrid(1,0); 
   fhPx->Draw();	      
-  fhPx->Fit("gaus");   
+  //fhPx->Fit("gaus");   
 
   fCanvas->cd(i++);     
   gPad->SetGrid(1,0); 
   fhPy->Draw();	      
-  fhPy->Fit("gaus");   
+  //fhPy->Fit("gaus");   
 
   fCanvas->cd(i++);     
   gPad->SetGrid(1,0); 
   fhPz->Draw();	      
-  fhPz->Fit("gaus");   
+  //fhPz->Fit("gaus");   
 
   fCanvas->cd(i++);
   gPad->SetGrid(1,1);
