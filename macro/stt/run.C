@@ -33,7 +33,7 @@
   // Constant Field
   PndConstField *fMagField = new PndConstField();
   fMagField->SetField(0., 0. ,20. ); // values are in kG
-  fMagField->SetFieldRegion(-50, 50,-50, 50, -100, 100);// values are in cm (xmin,xmax,ymin,ymax,zmin,zmax)
+  fMagField->SetFieldRegion(-50, 50,-50, 50, -50, 120);// values are in cm (xmin,xmax,ymin,ymax,zmin,zmax)
   fRun->SetField(fMagField);
   // --------------------------------------------------------------------
 
