@@ -92,7 +92,7 @@ void run_sim_alldet(Int_t nEvents=10 , Char_t part[]="e-", Double_t momentum_min
   boxGen->SetXYZ(0., 0., 0.); // mm o cm ??
   primGen->AddGenerator(boxGen);
 
-  fRun->SetStoreTraj(kTRUE);
+  fRun->SetStoreTraj(kFALSE);
   
   PndMultiField *fField= new PndMultiField();
 
