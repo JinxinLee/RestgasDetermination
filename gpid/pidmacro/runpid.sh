@@ -61,7 +61,7 @@ rm points_sttcombi.root
 rm reco_sttcombi.root
 rm params_sttcombi.root
 rm lhepidmaker.root
-#rm logfile
+rm logfile
 echo "hi here is a echo%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 ls
 exit 0
