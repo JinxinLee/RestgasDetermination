@@ -1,253 +1,254 @@
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-//  PndDsk
-//
-//  Interface to virtual monte carlo
-//
-////////////////////////////////////////////////////////////////////////////////////////////////////
+// ----------------------------------------------------------------------------
+// -----                        PndDsk source file                        -----
+// -----                   Created 23/10/07 by P. Koch                    -----
+// ----------------------------------------------------------------------------
 
-// #include "FairRun.h"
-#include "FairMCApplication.h"
-#include "FairVolumeList.h"
-#include "TGeoMCGeometry.h"
-#include "TGeoMedium.h"
+#include <iostream>
+using std::endl;
+using std::cout;
 
-#include "FairGeoLoader.h"
-#include "FairGeoInterface.h"
-#include "PndGeoDsk.h"
-#include "FairGeoRootBuilder.h"
-#include "FairRuntimeDb.h"
-#include "TObjArray.h"
-#include "FairGeoVolume.h"
-#include "FairGeoNode.h"
-#include "FairRun.h"
-
-
-
-
-#include "TGeoManager.h"
-#include "TGeoVolume.h"
-#include "TGeoPhysicalNode.h"
-#include "FairRun.h"
-#include "FairRuntimeDb.h"
-
+#include "TClonesArray.h"
 #include "TLorentzVector.h"
+#include "TVector3.h"
 #include "TVirtualMC.h"
-#include "TParticle.h"
-#include "FairGeoInterface.h"
-#include "FairGeoLoader.h"
-#include "FairGeoNode.h"
+
 #include "FairRootManager.h"
-#include "FairVolume.h"
-#include "PndStack.h"
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
+
 #include "PndDsk.h"
 #include "PndDskCerenkov.h"
-#include "PndGeoDsk.h"
-#include <iostream>
-using std::cout;
-using std::endl;
-
-ClassImp(PndDsk);
+#include "PndDskParticle.h"
 
 
-// default constructor
-// -------------------------------------------------------------------------------------------------
+
+// -----   Default constructor   ----------------------------------------------
 PndDsk::PndDsk()
+  : fStoreCerenkovs(kTRUE),
+    fStoreParticles(kTRUE),
+    fPDE(1.),
+    fDetectorTypes(2),
+    fDetectorsPerArray(120),
+    fUsingMirrors(kTRUE),
+    fGeoVersion("TOP"),
+    fDebugLevel(0)
 {
-  cout << "---III---: PndDsk::PndDsk(void) was called!";
-}
-
-
-// standard constructor
-// -------------------------------------------------------------------------------------------------
-PndDsk::PndDsk(const char *name, Bool_t active)
-  : FairDetector(name, active)
-{
-  // default mirror setup
-  fMirrorTypes    = 3;
-  fMirrorsPerEdge = 120;
-  // create the Collections of PndDskPoints
-  // this are all points created in the MC
   fDskCerenkovCollection = new TClonesArray("PndDskCerenkov");
-
-  fPrimaryIsInside = false;
+  fDskParticleCollection = new TClonesArray("PndDskParticle");
 }
+// ----------------------------------------------------------------------------
 
 
-// default destructor
-// -------------------------------------------------------------------------------------------------
+
+// -----   Standard constructor   ---------------------------------------------
+PndDsk::PndDsk(const char* name, Bool_t active)
+  : FairDetector(name, active),
+    fStoreCerenkovs(kTRUE),
+    fStoreParticles(kTRUE),
+    fPDE(1.),
+    fDetectorTypes(2),
+    fDetectorsPerArray(120),
+    fUsingMirrors(kTRUE),
+    fGeoVersion("TOP"),
+    fDebugLevel(0)
+{
+  fDskCerenkovCollection = new TClonesArray("PndDskCerenkov");
+  fDskParticleCollection = new TClonesArray("PndDskParticle");
+}
+// ----------------------------------------------------------------------------
+
+
+
+// -----   Destructor   -------------------------------------------------------
 PndDsk::~PndDsk()
 {
-  // destructor, needs to clean the PointCollections
-
-  if ( 0 != fDskCerenkovCollection) {
+  if (0 != fDskCerenkovCollection) {
     fDskCerenkovCollection->Delete();
     delete fDskCerenkovCollection;
   }
+  if (0 != fDskParticleCollection) {
+    fDskParticleCollection->Delete();
+    delete fDskParticleCollection;
+  }
 }
+// ----------------------------------------------------------------------------
 
 
-// Adds Cerenkov to collection
-// -------------------------------------------------------------------------------------------------
-PndDskCerenkov*
-PndDsk::AddCerenkov(Int_t trackID, Int_t volID, TVector3 pos, TVector3 mom,
-              Double_t tof, Double_t length, Double_t eLoss,
-              Double_t energy, Int_t motherPdgCode,
-              TVector3 motherHitMomentum)
-{
-  // get size of array
-  TClonesArray& points = *fDskCerenkovCollection;
-  Int_t         size   = points.GetEntriesFast();
 
-  // create a new hit after the last one present in the collection
-  return new(points[size]) PndDskCerenkov(trackID, volID, pos, mom, tof, length, eLoss,
-                                          energy, motherPdgCode, motherHitMomentum);
-}
-
-
-// Construct the detector using the definitions in the geometry file
-// -------------------------------------------------------------------------------------------------
+// -----   Public method Intialize   ------------------------------------------
 void
-PndDsk::ConstructGeometry()
+PndDsk::Initialize()
 {
-  cout << "[--- III --- ] PndDsk::ConctructGeometry() was called." << endl;
-
-  // make a new interface to geometry file
-  PndGeoDsk *dskGeo = new PndGeoDsk();
-  dskGeo->setGeomFile(GetGeometryFileName());
-
-  // geo interface is the class that reads our geometry file
-  FairGeoInterface *geoFace = FairGeoLoader::Instance()->getGeoInterface();
-  // geo builder is the class that constructs the geometry
-  FairGeoBuilder *geoBuild = FairGeoLoader::Instance()->getGeoBuilder();
-
-  // Read in geometry file
-  geoFace->addGeoModule(dskGeo);
-  Bool_t rc = geoFace->readSet(dskGeo);
-  // and create the geometry
-  if (rc)
-    dskGeo->create(geoBuild);
-  else
-    cout << "[ !! ] PndDsk::ConstructGeometry: geometry in file "
-         << GetGeometryFileName()
-         << " could not be read!" << endl;
-
-  TList *volList = dskGeo->getListOfVolumes();
-
-  // Set active/inactive
-  ProcessNodes(volList);
+  FairDetector::Initialize();
+  FairRun       *sim  = FairRun::Instance();
+  FairRuntimeDb *rtdb = sim->GetRuntimeDb();
 }
+// ----------------------------------------------------------------------------
 
 
-// Construct optical surfaces of geant4
-// -------------------------------------------------------------------------------------------------
-void
-PndDsk::ConstructOpGeometry()
+
+// -----   Public method ProcessHits  -----------------------------------------
+Bool_t
+PndDsk::ProcessHits(FairVolume* vol)
 {
-  cout << "[ --- III --- ] PndDsk::ConctructOpGeometry() was called." << endl;
-
-  // glass <-> air
-  // the double is the "polish parameter in glisur model"
-  // kUnified / kGlisur
-  // kDielectric_dielectric
-  gMC->DefineOpSurface("GlassSurface",
-                        kUnified, kDielectric_dielectric, kPolished, 0.);
-
-  gMC->SetBorderSurface("GlassSurface",
-                        "dsk01", 0, "dsk02", 0, "GlassSurface");
-
-
-//   const Int_t num = 2;
-//   Double_t ephoton[num] = { 2.038e-09, 4.144e-09 };
-
-  // OpticalWaterSurface
-//   Double_t refractiveIndex[num] = { 1.35, 1.40 };
-//   gMC->SetMaterialProperty("GlassSurface",
-//                            "RINDEX", num, ephoton, refractiveIndex);
-
-
+  fPdgCode = gMC->TrackPid();
+  if (fGeoVersion == "TOP") {
+    if (fPdgCode == 50000050 ) {
+      return ProcessHitsCerenkovTOP(vol);
+    } else {
+      return ProcessHitsParticleTOP(vol);
+    }
+  } else if (fGeoVersion == "LG") {
+    if (fPdgCode == 50000050 ) {
+      return ProcessHitsCerenkovLG(vol);
+    } else {
+      return ProcessHitsParticleLG(vol);
+    }
+  }
 }
+// ----------------------------------------------------------------------------
 
 
-// Things that need to be done at the end of an event
-// -----------------------------------------------------------------------------
+
+// -----   Public method EndOfEvent   -----------------------------------------
 void
 PndDsk::EndOfEvent()
 {
   Reset();
 }
-
-
-// Returns a hit collection
-// -----------------------------------------------------------------------------
-TClonesArray*
-PndDsk::GetCollection(Int_t iColl) const
-{
-  // the assignment for iColl is just defined below:
-  if (iColl == 0)
-    return fDskCerenkovCollection;
-
-  // as default, return null
-  return NULL;
-}
-
-// React on a hit in an activ volume
-// -----------------------------------------------------------------------------
-Bool_t
-PndDsk::ProcessHits(FairVolume *vol)
-{
-  // Defines the action to be taken when a cherenkov produced a hit
-  // but there is nothing to do here as long as we dont get reflections
-
-//   cout << "--- III --- OndDsk::ProcessHits() was called" << endl;
-
-//   fPdgCode    = gMC->TrackPid();
-
-//   if (fPdgCode == 50000050) {
-//     cout << gMC->GetStack()->GetCurrentTrackNumber() <<  " " << vol->getName() << " "
-//          << gMC->IsTrackEntering() << gMC->IsTrackExiting() << endl;
-//   }
-
-//   if (((vol->getName()).EndsWith("04")) && (fPdgCode == 50000050)) {
-//     cout << "Hit in Mirror: " << gMC->GetStack()->GetCurrentTrackNumber() << " hit: " << 1.239842447e-6/fEnergy << "nm " << gMC->IsTrackEntering() << gMC->IsTrackExiting() << endl;
-//   }
+// ----------------------------------------------------------------------------
 
 
 
-  return kTRUE;
-}
-
-
-// Registers the hit collection to the ROOT manager
-// -----------------------------------------------------------------------------
+// -----   Public method Register   -------------------------------------------
 void
 PndDsk::Register()
 {
-  // Registers the hit collection to the ROOT manager
-
-  // All entries in fDskPointCollection will be added to ROOTFILE->cbmsim->DskPoint
-  FairRootManager::Instance()->Register("DskCerenkov", "Dsk", fDskCerenkovCollection, kTRUE);
+  FairRootManager::Instance()->Register("DskCerenkov","Dsk", fDskCerenkovCollection, fStoreCerenkovs);
+  FairRootManager::Instance()->Register("DskParticle","Dsk", fDskParticleCollection, fStoreParticles);
 }
+// ----------------------------------------------------------------------------
 
 
-// Reset the Collections
-// -----------------------------------------------------------------------------
+
+// -----   Public method SetDetectors   ---------------------------------------
+void
+PndDsk::SetDetectors(Int_t detectorTypes, Int_t detectorsPerArray, Bool_t usingMirrors)
+{
+  fDetectorTypes     = detectorTypes;
+  fDetectorsPerArray = detectorsPerArray;
+  fUsingMirrors      = usingMirrors;
+}
+// ----------------------------------------------------------------------------
+
+
+
+// -----   Public method GetCollection   --------------------------------------
+TClonesArray*
+PndDsk::GetCollection(Int_t iColl) const
+{
+  if (iColl == 0) return fDskCerenkovCollection;
+  if (iColl == 1) return fDskParticleCollection;
+
+  return NULL;
+}
+// ----------------------------------------------------------------------------
+
+
+
+// -----   Public method Print   ----------------------------------------------
+void
+PndDsk::Print() const
+{
+  cout << "-I- PndDsk::Print() was called, but is not yet implemented." << endl;
+}
+// ----------------------------------------------------------------------------
+
+
+
+// -----   Public method Reset   ----------------------------------------------
 void
 PndDsk::Reset()
 {
-  // Clear the hit collections
-
   fDskCerenkovCollection->Clear();
+  fDskParticleCollection->Clear();
 }
+// ----------------------------------------------------------------------------
 
 
-// Define mirror setup to use
-// -----------------------------------------------------------------------------
+
+// -----   Public method CopyClones   -----------------------------------------
 void
-PndDsk::SetMirrors(Int_t mirrorTypes, Int_t mirrorsPerEdge )
+PndDsk::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset)
 {
-  // for diffrent wavelength intervals
-  fMirrorTypes    = mirrorTypes;
-  // total number of mirrors per edge
-  fMirrorsPerEdge = mirrorsPerEdge;
+  cout << "-I- PndDsk::CopyClones() was called, but is not yet implemented." << endl;
 }
+// ----------------------------------------------------------------------------
+
+
+
+// -----   Public method ConstructGeometry   ----------------------------------
+void
+PndDsk::ConstructGeometry()
+{
+  TString fileName = GetGeometryFileName();
+  if (fileName.EndsWith(".root")) {
+    ConstructRootGeometry();
+  } else {
+    cout << "-E- PndDsk::ConstructGeometry(): Geometry format not supported." << endl;
+  }
+}
+// ----------------------------------------------------------------------------
+
+
+
+// -----   Public method CheckIfSensitive   -----------------------------------
+Bool_t
+PndDsk::CheckIfSensitive(std::string name)
+{
+  if (fGeoVersion == "TOP") {
+    return CheckIfSensitiveTOP(name);
+  }
+  if (fGeoVersion == "LG") {
+    return CheckIfSensitiveLG(name);
+  }
+}
+// ----------------------------------------------------------------------------
+
+
+
+// -----   Public method AddCerenkov   ----------------------------------------
+PndDskCerenkov*
+PndDsk::AddCerenkov(Int_t trackID, Int_t detectorID, TVector3 position,
+        TVector3 momentum, Double_t time, Double_t energy, Double_t wavelength,
+        Int_t motherTrackID, Int_t motherPdgCode, TString motherPdgName)
+{
+  TClonesArray& clRef = *fDskCerenkovCollection;
+  Int_t         size  = clRef.GetEntriesFast();
+
+  return new(clRef[size]) PndDskCerenkov(trackID, detectorID,
+          position, momentum, time, energy, wavelength,
+          motherTrackID, motherPdgCode, motherPdgName);
+}
+// ----------------------------------------------------------------------------
+
+
+
+// -----   Public method AddParticle   ----------------------------------------
+PndDskParticle*
+PndDsk::AddParticle(Int_t trackID, Int_t detectorID,
+        TVector3 position, TVector3 momentum, Double_t time,
+        Int_t pdgCode, TString pdgName, Double_t energy,
+        Int_t motherTrackID, Int_t motherPdgCode, TString motherPdgName)
+{
+  TClonesArray& clRef = *fDskParticleCollection;
+  Int_t         size  = clRef.GetEntriesFast();
+
+  return new(clRef[size]) PndDskParticle(trackID, detectorID,
+          position, momentum, time, pdgCode, pdgName, energy,
+          motherTrackID, motherPdgCode, motherPdgName);
+}
+// ----------------------------------------------------------------------------
+
+
+ClassImp(PndDsk)

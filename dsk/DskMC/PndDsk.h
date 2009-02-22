@@ -1,125 +1,228 @@
-/**
-
-  @class PndDsk
-
-  @brief Interface to virtual monte carlo
-
-  This is the interface to the virtual monte carlo.
-  Its responsible to create the geometry (ConstructGeometry)
-  and to register the activities of Cerekov photons in our media
-  (ProcessHits)
-
-  @author Peter Koch
-  @date   2008-03-28
-  @since  2008-10-23
-
-**/
-
+// -------------------------------------------------------------------------
+// -----                     PndDsk header file                        -----
+// -----                Created 23/10/07  by P. Koch                   -----
+// -------------------------------------------------------------------------
 
 #ifndef PNDDSK_H
 #define PNDDSK_H
 
-#include "TClonesArray.h"
+#include "TLorentzVector.h"
 #include "TVector3.h"
+
 #include "FairDetector.h"
-class FairVolume;
+
+class TClonesArray;
 class PndDskCerenkov;
+class PndDskParticle;
 
 
 class PndDsk : public FairDetector
 {
 
-private:
-  /// pointer to Cerenkov photon array
-  TClonesArray *fDskCerenkovCollection;
-
-  /// The particle-track ID
-  Int_t    fTrackID;
-  /// PDG Code of the particle that produced the hit
-  Int_t    fPdgCode;
-  /// The ID of the volume that got hit
-  Int_t    fVolID;
-  /// Point where hit was produced [cm]
-  TVector3 fPos;
-  /// Momentum in the point where hit was produced [GeV]
-  TVector3 fMom;
-  /// Total time of flight, including all mothers, till this hit point. [ns]
-  Double_t fTof;
-  /// Length of the track from creation point till this hit point [cm]
-  Double_t fLength;
-  /// Energy loss of the particle  in this hit point [GeV]
-  Double_t fELoss;
-  /// Energy of the particle in this hit point [GeV]
-  Double_t fEnergy;
-  /// Number of the detector that was hit, if a detector was hit.
-  Int_t    fDetNumber;
-  /// The type of the detector
-  UShort_t fDetType;
-
-  /// For Cerenkov: Hit point of primary particle on the disk \n
-  TVector3 fPrimaryHitPoint;
-  /// For Cerenkov: Momentum of primary when it hits the disk for the first time \n
-  TVector3 fPrimaryHitMomentum;
-  /// A Boolean, so we wont store primary values inside the disk, but just when entering
-  Bool_t   fPrimaryIsInside;
-
-  /// total number of mirrors per edge
-  Int_t    fMirrorsPerEdge;
-  /// number of mirror types
-  Int_t    fMirrorTypes;
-
-public:
-  /// default constructor
+ public:
+ 
+  /** Default constructor **/
   PndDsk();
-  /// @brief standard constructor
-  /// @param name name of the detector
-  /// @param active kTRUE for active detectors, ProcessHits() will be called \n
-  ///               kFALSE for inactive detectors
+
+  /** Standard constructor with arguments
+   *@param name    detetcor name
+   *@param active  sensitivity flag
+   **/
   PndDsk(const char *name, Bool_t active);
-  /// default destructor
+
+  /** Destructor **/
   virtual ~PndDsk();
 
-  /// @brief Adds Cerenkov to the list
-  /// @param trackID ID of cerenkov. (Dont mix up with TGeoTracks trackID!)
-  /// @param volID ID of the volume where the first hit is produced - for CbmMcPoint
-  /// @param pos position of the Cerenkov [cm]
-  /// @param mom momentum of the particle in the first hitpoint [GeV] - for FairMCPoint
-  /// @param tof time of flight since primary! vertex in [ns]
-  /// @param length length of the track from creation point [cm]
-  /// @param eLoss energy loss of the particle in the histpoint - for FairMCPoint
-  /// @param energy Energy of the photon
-  /// @param motherPdgCode PDG Code of particle that emiited this Cerenkov photon \n
-  ///        This is not necessarily the primary particle!
-  /// @param primaryHitMomentum Momentum  of particle that hit the disk in the moment when it hits the disk \n
-  PndDskCerenkov *AddCerenkov(Int_t trackID, Int_t volID, TVector3 pos, TVector3 mom,
-                        Double_t tof, Double_t length, Double_t eLoss,
-                        Double_t energy, Int_t motherPdgCode,
-                        TVector3 primaryHitMomentum);
+  /** Virtual method Initialize
+   ** Initialises detector. Stores volume IDs for DIRC detector and mirror.
+   **/
+  virtual void Initialize();
 
-  /// Construct the detector using the definitions in the geometry file
-  virtual void          ConstructGeometry();
-  virtual void          ConstructOpGeometry();
-  /// Things that need to be done at the end of an event
-  virtual void          EndOfEvent();
-  /// @brief Returns a hit collection
-  /// @param iColl and integer representing the hit collection. This value is arbitary in this file
-  ///              at the moment it is: \n
-  ///              0: *fDskCerenkov;
-  virtual TClonesArray *GetCollection(Int_t iColl) const;
-  /// @brief React on a hit in an activ volume
-  /// @param vol pointer to the volume that got hit \n
-  /// Here most work is done. It has to be decided to which Collection to point has to be added
-  /// and all values for the Collections are calculated here.
-  virtual Bool_t        ProcessHits(FairVolume *vol = 0);
-  /// Registers the hit collections to the ROOT manager
-  virtual void          Register();
-  /// Clear hit-collections
-  virtual void          Reset();
+  /** Virtual method ProcessHits
+   **
+   ** Decides if actions for a Cerenkov or a Particle have to be taken
+   ** and calls the ProcessHitsX method accordingly.
+   *@param vol  Pointer to the active volume
+   **/
+  virtual Bool_t ProcessHits(FairVolume* vol = 0);
 
-  /// Define mirror setup. A default, as defined in constructor, 120 mirrors per edge, devided in 3 types
-  void                  SetMirrors(Int_t mirrorTypes, Int_t mirrorsPerEdge );
+  /** Virtual method EndOfEvent
+   **
+   ** If verbosity level is set, print hit collection at the
+   ** end of the event and resets it afterwards.
+   **/
+  virtual void EndOfEvent();
 
-ClassDef(PndDsk,1);
+  /** Virtual method Register
+   **
+   ** Registers the collections in the ROOT manager.
+   **/
+  virtual void Register();
+
+  /** Virtual method GetCollection
+   **
+   ** Accessor to the Cerenkov and Particle collections
+   **/
+  virtual TClonesArray* GetCollection(Int_t iColl) const;
+
+  /** Virtual method Print
+   **
+   ** Screen output of hit collection.
+   **/
+  virtual void Print() const;    
+
+  /** Virtual method Reset
+   **
+   ** Clears the collections
+   **/
+  virtual void Reset();
+
+  /** Virtual method CopyClones
+   **
+   ** Copies the hit collection with a given track index offset
+   *@param cl1     Origin
+   *@param cl2     Target
+   *@param offset  Index offset
+   **/
+  virtual void CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset);
+
+  /** Virtual method ConstructGeometry
+   **
+   ** Decide how to construct the geometry
+   **/
+  virtual void ConstructGeometry(); 
+
+  /** Virtual method CheckIfSensitive
+   **
+   ** Decide if volume is sensitive
+   *@param name  Name of the volume to check
+   **/
+  virtual Bool_t CheckIfSensitive(std::string name);
+
+  /** Method AddCerenkov
+   **
+   ** Adds a Cerenkov to the collection
+   **/
+  PndDskCerenkov* AddCerenkov(Int_t trackID, Int_t detectorID, TVector3 position,
+          TVector3 momentum, Double_t time, Double_t energy, Double_t wavelength,
+          Int_t motherTrackID, Int_t motherPdgCode, TString motherPdgName);
+
+  /** Method AddParticle
+   **
+   ** Adds a Particle to the collection
+   **/
+  PndDskParticle* AddParticle(Int_t trackID, Int_t detectorID,
+          TVector3 position, TVector3 momentum, Double_t time,
+          Int_t pdgCode, TString pdgName, Double_t energy,
+          Int_t motherTrackID, Int_t motherPdgCode, TString motherPdgName);
+
+  /** Modifiers **/
+  void SetDebugLevel(Int_t debugLevel) { fDebugLevel = debugLevel; };
+  void SetDetectors(Int_t detectorTypes, Int_t detectorsPerArray, Bool_t usingMirrors);
+  void SetPDE(Double_t pde) { fPDE = pde; };
+  void SetStoreCerenkovs(Bool_t storeCerenkovs) { fStoreCerenkovs = storeCerenkovs; };
+  void SetStoreParticles(Bool_t storeParticles) { fStoreParticles = storeParticles; };
+  void SetDskVersion(TString geoVersion) { fGeoVersion = geoVersion; };
+
+
+ private:
+
+  /** Private method CheckIfSensitiveTOP
+   **
+   ** Decide if volume is sensitive in the TOP-design
+   *@param name  Name of the volume to check
+   **/
+  Bool_t CheckIfSensitiveTOP(std::string name);
+
+  /** Private method CheckIfSensitiveLG
+   **
+   ** Decide if volume is sensitive in the LG-design
+   *@param name  Name of the volume to check
+   **/
+  Bool_t CheckIfSensitiveLG(std::string name) {; };
+
+  /** Private method ProcessHitsCerenkovTOP
+   **
+   ** Defines the action to be taken in the TOP design when
+   ** Cerenkov does a step inside the active volume.
+   ** Creates and adds Cerenkovs to collection
+   *@param vol  Pointer to the active volume
+   **/
+  Bool_t ProcessHitsCerenkovTOP(FairVolume* vol = 0);
+
+  /** Private method ProcessHitsCerenkovLG
+   **
+   ** Defines the action to be taken in the LG design when
+   ** Cerenkov does a step inside the active volume.
+   ** Creates and adds Cerenkovs to collection
+   *@param vol  Pointer to the active volume
+   **/
+  Bool_t ProcessHitsCerenkovLG(FairVolume* vol = 0) {; };
+
+  /** Private method ProcessHitsParticleTOP
+   **
+   ** Defines the action to be taken in the TOP design when
+   ** Particle does a step inside the active volume.
+   ** Creates and adds Particles to collection
+   *@param vol  Pointer to the active volume
+   **/
+  Bool_t ProcessHitsParticleTOP(FairVolume* vol = 0);
+
+  /** Private method ProcessHitsParticleLG
+   **
+   ** Defines the action to be taken in the LG design when
+   ** Particle does a step inside the active volume.
+   ** Creates and adds Particles to collection
+   *@param vol  Pointer to the active volume
+   **/
+  Bool_t ProcessHitsParticleLG(FairVolume* vol = 0) {; };
+
+
+  TString       fGeoVersion;              //! Design to be used (TOP, LG)
+  Int_t         fDebugLevel;              //! Debug level
+
+  TClonesArray* fDskCerenkovCollection;   //! Cerenkov collection
+  TClonesArray* fDskParticleCollection;   //! Particle collection
+
+  Bool_t        fStoreCerenkovs;          //! Whether to store Cerenkovs (default) or not
+  Bool_t        fStoreParticles;          //! Whether to store Particles (default) or not
+
+  Int_t         fDetectorID;              //! Detector ID (volume) where Cerenkov was created
+  Double_t      fEnergy;                  //! Energy [eV / GeV]
+  TVector3      fMomentum;                //! Momentum when emitted
+  Double_t      fPDE;                     //! Photon Detection Efficiency [0-1, 2]
+  Int_t         fPdgCode;                 //! PDG code of current particle
+  TVector3      fPosition;                //! Position of first appearance [cm]
+  Double_t      fTime;                    //! Global time
+  Int_t         fTrackID;                 //! The particle-track ID
+  Double_t      fWavelength;              //! Vacuum wavelength hc/fEnergy [nm]
+
+  Int_t         fMotherTrackID;           //! Track ID of the particle that emitted this Cerenkov
+  Int_t         fMotherPdgCode;           //! PDG code of the particle that emitted this Cerenkov
+  TString       fMotherPdgName;           //! translation of PDG code
+
+  UShort_t      fDetType;                 //! Detectortype that registered the Cerenkov
+  Int_t         fDetNumber;               //! Number of the Detector that registered the Cerenkov
+  Double_t      fDetTime;                 //! Global time when Cerenkov was detected [ns]
+  TVector3      fDetMomentum;             //! Momentum when detected [eV]
+
+  Double_t      fPrimaryAngleToCerenkov;  //! Angle at the moment of first appearance
+  Double_t      fPrimaryHitAngle;         //! Angle to the z-Axis at first appearance
+  TVector3      fPrimaryHitMomentum;      //! Angle between momentum of eachs first appearance
+
+  TString       fPdgName;                 //! PDG name according to fPdgCode
+  TVector3      fEndPosition;             //! Position when particles disappears
+  Double_t      fEndTime;                 //! Time when particle disappears
+  TVector3      fEndMomentum;             //! Momentum when particle disappears
+  Double_t      fEndEnergy;               //! Energy when particle disappears
+
+  Int_t         fDetectorsPerArray;       //! total number of detectors per array
+  Int_t         fDetectorTypes;           //! number of detector types
+  Bool_t        fUsingMirrors;            //! whether to use mirrors or not
+
+  TLorentzVector tmpLVec;                 //! often needed, avoid allocation
+
+  ClassDef(PndDsk,1)
 
 };
 
