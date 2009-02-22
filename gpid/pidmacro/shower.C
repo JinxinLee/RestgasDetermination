@@ -9,7 +9,7 @@ TTree *t=(TTree *) f->Get("cbmsim");
  TFile* f1 = new TFile("points_sttcombi.root","READ");
 TTree *t1=(TTree *) f1->Get("cbmsim");
 
-TNtuple *ntuple1 = new TNtuple("pion","shower","Px:Py:Pz:Pt:p:emc:z00:z11:z22:z20:z40:z42:z44:z31:z33");
+TNtuple *ntuple = new TNtuple("pion","shower","Px:Py:Pz:Pt:p:emc:z00:z11:z22:z20:z40:z42:z44:z31:z33");
 
 TClonesArray* hit_array=new TClonesArray("PndEmcCluster");
  t->SetBranchAddress("EmcCluster",&hit_array);
