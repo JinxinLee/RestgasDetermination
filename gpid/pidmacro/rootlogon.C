@@ -22,12 +22,13 @@
   gSystem->Load("libGeoBase");
   gSystem->Load("libParBase");
   gSystem->Load("libBase");
+  gSystem->Load("libPndData");
   gSystem->Load("libField");
   gSystem->Load("libGen");
   gSystem->Load("libPassive");
   gSystem->Load("libEmc"); 
   gSystem->Load("libGeom.so");
-  gSystem->Load("libMCStack.so");
+//  gSystem->Load("libMCStack.so");
   gSystem->Load("libGui.so");
   gSystem->Load("libgenfit");
   gSystem->Load("libtpc");
