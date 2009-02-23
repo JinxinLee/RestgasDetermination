@@ -417,8 +417,8 @@ TVector3
 GeaneTrackRep::getMom(const DetPlane& pl)
 {
   TMatrixT<double> statePred(state);
- double fSPU  = _spu;
   if(pl!=_refPlane)extrapolate(pl,statePred);
+  double fSPU  = _spu;
   TVector3 mom = fSPU*pl.getNormal()+fSPU*statePred[1][0]*pl.getU()+fSPU*statePred[2][0]*pl.getV();
   mom.SetMag(1./fabs(statePred[0][0]));
   return mom;
