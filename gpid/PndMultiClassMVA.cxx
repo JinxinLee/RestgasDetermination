@@ -16,7 +16,6 @@
  *                  S.Vanniarajan  01-08-08
  */
 
-
 #include "PndMultiClassMVA.h"
 
 // Default constructor with default parameters for the training
@@ -64,29 +63,27 @@ void PndMultiClassMVA::AddClass(string className)
   fNCLASS = fNCLASS +1;
 }
 /*
-void PndMultiClassMVA::AddInFile(string className,string
-simFileName,string recoFileName) { pair<string,string> stringPair;
-stringPair.first = simFileName; stringPair.second = recoFileName;
-cout<<" -I- Adding Input files for the class"<<className<<endl; if
-(fInFileNameArray.find(className) == fInFileNameArray.end()) { cout<<"
--E- This class named "<<className<<" is not a part of your
-problem"<<endl; return; } else {
-(fInFileNameArray.find(className)->second).push_back(stringPair); }
-}
-
-void PndMultiClassMVA::GenerateTree() { cout<<" -I- Generating the
-Input Tree"<<endl; system("sleep 2"); for(int i=0; i <fNCLASS; i++) {
-string className; vector < pair<string,string> > fileNameVec;
-className = fClassNameArray[i]; fileNameVec =
-fInFileNameArray.find(className)->second; for(int j = 0; j <
-fileNameVec.size();j++ ) { string simFile,recoFile;
-pair<string,string> filePair; filePair = fileNameVec.at(j);
-cout<<filePair.first<<" "<<filePair.second<<endl; }
+  void PndMultiClassMVA::AddInFile(string className,string
+  simFileName,string recoFileName) { pair<string,string> stringPair;
+  stringPair.first = simFileName; stringPair.second = recoFileName;
+  cout<<" -I- Adding Input files for the class"<<className<<endl; if
+  (fInFileNameArray.find(className) == fInFileNameArray.end()) { cout<<"
+  -E- This class named "<<className<<" is not a part of your
+  problem"<<endl; return; } else {
+  (fInFileNameArray.find(className)->second).push_back(stringPair); }
+  }
   
- }
-}
+  void PndMultiClassMVA::GenerateTree() { cout<<" -I- Generating the
+  Input Tree"<<endl; system("sleep 2"); for(int i=0; i <fNCLASS; i++) {
+  string className; vector < pair<string,string> > fileNameVec;
+  className = fClassNameArray[i]; fileNameVec =
+  fInFileNameArray.find(className)->second; for(int j = 0; j <
+  fileNameVec.size();j++ ) { string simFile,recoFile;
+  pair<string,string> filePair; filePair = fileNameVec.at(j);
+  cout<<filePair.first<<" "<<filePair.second<<endl; }
+  }
+  }
 */
-
 
 // Method to create a configuration file which Idntifies it self with
 // the application the the classifier is used
@@ -132,7 +129,8 @@ void PndMultiClassMVA::TrainTest()
   }
   
   else if (!gSystem->AccessPathName( fINFILENAME )) {
-    std::cout << "<INFO>--- BDTAnalysis  : accessing " << fINFILENAME << std::endl;
+    std::cout << "<INFO>--- BDTAnalysis  : accessing " 
+	      << fINFILENAME << std::endl;
     input = TFile::Open( fINFILENAME );
   } 
   else if (!input) {
@@ -240,4 +238,6 @@ void PndMultiClassMVA::TrainClassifier(MVAType mva)
     break;    
   }
 }
+// ============  FIXME FIXME
+// ============  FIXME FIXME
 ClassImp(PndMultiClassMVA);

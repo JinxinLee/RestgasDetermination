@@ -36,6 +36,9 @@
 #include "PndTpcPoint.h"
 #include "PndPidCand.h"
 
+// FIXME
+#include "PndGpidTypes.h"
+
 using namespace std;
 
 class TObjectArray;
@@ -47,14 +50,8 @@ class PndGpidTaskLhe : public FairTask
  public:
   // enum type for the type of classifier 
   // task is going to use
-  enum MVAType{
-    KNN = 1,
-    BDT = 2,
-    MLP = 3,
-    MuClsKNN = 4,
-    LVQ1   = 5
-  };
-  
+  /*enum MVAType{KNN = 1,BDT = 2,
+    MLP = 3, MuClsKNN = 4,LVQ1   = 5};*/
   /** Default constructor **/  
   PndGpidTaskLhe();
   

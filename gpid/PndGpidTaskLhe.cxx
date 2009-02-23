@@ -140,23 +140,27 @@ void PndGpidTaskLhe::BookingMVA()
     string anaFile;
     switch (fMVAmode)
     {
-    case BDT: 
+    case TMBDT: 
       anaFile =  fDIR + fAPPNAME + fClassNameArray.at(i) + "_BDT.weights.txt";
       reader[i].BookMVA("BDT method", anaFile );
       fClassifier = "BDT method";
       break;
       
-    case MLP:
+    case TMMLP:
       anaFile =  fDIR + fAPPNAME + fClassNameArray.at(i) + "_MLP.weights.txt";
       reader[i].BookMVA("MLP method", anaFile );
       fClassifier = "MLP method";
       break;
 
-    default://case KNN: 
+    case TMKNN: 
       anaFile =  fDIR + fAPPNAME + fClassNameArray.at(i) + "_KNN.weights.txt";
       reader[i].BookMVA("KNN method", anaFile );
       fClassifier = "KNN method";
-      //break;
+      break;
+
+    default:
+      std::cout << "<ERROR:> NO classifier was selected." << std::endl;
+      break;
     }
   }
 }
@@ -264,18 +268,22 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
       
       switch (fMVAmode)
       {
-      case BDT:
+      case TMBDT:
 	mvaValue = (mvaValue - (-1.0))/2.0;
 	break;
 	
-      case MLP:
+      case TMMLP:
 	mvaValue = (mvaValue - (-1.1))/2.2;
 	break;
 
-      default://case KNN:
+      case TMKNN:
 	cout<<mvaValue<<endl;
 	mvaValue = mvaValue-0.5; 
 	cout<<mvaValue<<endl;
+	break;
+
+      default:
+	std::cout << "<ERROR:> NO classifier was selected." << std::endl;
 	break;
       }
       

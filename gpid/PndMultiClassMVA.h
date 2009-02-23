@@ -38,14 +38,17 @@
 #include "TTree.h"
 #include "Factory.h"
 
+// FIXME
+#include "PndGpidTypes.h"
+
 using namespace std;
 
 class PndMultiClassMVA
 {
  public:
   //Which classifier to train 
-  enum MVAType{KNN = 1, BDT = 2, MLP = 3, 
-	       MulClsKNN = 4, LVQ1 = 5};
+  /* enum MVAType{KNN = 1, BDT = 2, MLP = 3, 
+     MulClsKNN = 4, LVQ1 = 5};*/
 
   //Constructor
   PndMultiClassMVA();

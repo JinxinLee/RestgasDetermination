@@ -7,4 +7,6 @@
 #pragma link C++ class  PndPidCand;
 #pragma link C++ class  PndMultiClassMVA;
 #pragma link C++ class PndGpidTaskLhe;
+
+#pragma link C++ enum MVAType;
 #endif
