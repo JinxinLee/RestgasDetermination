@@ -623,6 +623,12 @@ void PndTpcLheHitsMaker::GetSttHelixHit() {
         cout << "-W- PndTpcLheHitsMaker::GetSttHelixHit: SttHelixHit with NaN - skipped (requires STT bug fix!!)" << endl;
         continue;
       }
+      if (sttHit->GetZ()==0)
+      {
+        sttHit->Print();
+        cout << "-W- PndTpcLheHitsMaker::GetSttHelixHit: SttHelixHit with GetZ() == 0 - skipped (requires STT bug fix!!)" << endl;
+        continue;
+      }
 
     PndTpcLheHit* hit = AddHit();
     hit->SetHitNumber(fNHit++);
