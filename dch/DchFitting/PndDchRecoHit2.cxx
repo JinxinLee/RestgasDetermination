@@ -36,6 +36,7 @@
 #include <assert.h>
 #include <exception>
 #include <iostream> 
+#include <cmath>
 
 using std::cout;
 using std::endl;
