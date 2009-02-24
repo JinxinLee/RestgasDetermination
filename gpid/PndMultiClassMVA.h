@@ -40,6 +40,7 @@
 
 // Global PID data types definitions
 #include "PndGpidTypes.h"
+#include "PndLVQTrain.h"//LVQ1 implementation
 
 using namespace std;
 
@@ -69,7 +70,10 @@ class PndMultiClassMVA
   void SetINFILENAME(const TString fname)  { fINFILENAME = fname; }
   void SetConfigFileName(const TString fname)  { fConfigFileName = fname; }
   void SetAPPNAME(const TString anaName)  { fAPPNAME = anaName; }
-  
+
+  void SetOutFileName(const TString OutName){ m_OutFileName = OutName; }
+  void SetNumLvqProto(const int protos){ m_numLVQProto = protos; }
+
   // Select number of signal and background events to be used for
   //training and testing
   void SetNSigTrain(const TString sigTrain) { fNSigTrain = sigTrain; }
@@ -184,6 +188,9 @@ class PndMultiClassMVA
   TString fINFILENAME;  //  input file containing trees of all the signals
   TString fAPPNAME;     //  name of the application 
   TString fConfigFileName;   //  name of the configuration file
+
+  TString m_OutFileName;  // Output file for writing proto type coordinates
+  int m_numLVQProto;
   vector <string> fVarNameArray;      // array of Variable names 
   vector <string> fClassNameArray;    // array of class names
 };
