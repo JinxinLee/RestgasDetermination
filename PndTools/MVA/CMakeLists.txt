@@ -24,12 +24,14 @@ ${BOOST_LIBRARY_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 set(MVA_SRCS
-kd_KNN/kdtree2.cpp
-kd_KNN/PndKnnClassify.cpp
-kd_KNN/PndKnnTrain.cpp
 LVQ1/PndLVQClassify.cpp
 LVQ1/PndLVQTrain.cpp
 
+# kd_KNN/kdtree2.cpp
+# kd_KNN/PndKnnClassify.cpp
+# kd_KNN/PndKnnTrain.cpp
+
+# #########################
 # For the time being we do not want to use the 
 # following implementations.
 # KNN/PndKnnClassify.cpp

@@ -36,9 +36,10 @@ class PndLVQTrain{
   virtual ~PndLVQTrain();
   
   /*
-   *@param numProto, number of LVQ1 prototypes. Current implementation
-   * considers an equal number of prototypes for each class. 
-   * @param OutPut, the nameof the out-put file, where the weights are 
+   * @param numProto, number of LVQ1 prototypes. Current
+   * implementation considers an equal number of prototypes for each
+   * class.
+   * @param OutPut, the nameof the out-put file, where the weights are
    * stored in.
    */
   void Train(int numProto, const char* OutPut);
