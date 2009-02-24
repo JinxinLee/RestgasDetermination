@@ -38,7 +38,7 @@
 #include "TTree.h"
 #include "Factory.h"
 
-// FIXME
+// Global PID data types definitions
 #include "PndGpidTypes.h"
 
 using namespace std;
@@ -132,15 +132,29 @@ class PndMultiClassMVA
   };
   // #################### End of classifier parameters ######### 
   //data accessers
-  //Int_t GetNCLASS() {return fNCLASS;}
-  //Int_t GetNVAR() {return fNVAR;}
   Int_t GetNCLASS() {return fClassNameArray.size(); }
   Int_t GetNVAR() {return fVarNameArray.size(); }
   void TrainTest();       
+
+  /* 
+   * Select which MVA to train, From TMVA or other implementaions.
+   * @param mva: Defines the MVA type to be trained.
+   */
   void TrainClassifier(MVAType mva);
 
+  /* This method is implemented because of the fact that the current
+   * implementation of TMVA does not support multi class MVA's. Thus we
+   * need to train a classifier for each class of objects. This method
+   * might disappear if the newer versions of this package support multi
+   * class properties.
+   * @param mva: Defines the MVA type to be trained.
+   * @param config: Defines the configuration string to be used by TMVA.
+   */
+  void TrainTestTM(MVAType mva, const std::string config);
+
+
  private:
-  //Classifier train and test parameters
+  // Classifier train and test parameters
   Int_t fNCLASS;        //  number of classes 
   Int_t fNVAR;          //  number of Variables
   TString fNSigTrain;   //  number of signals for training
@@ -148,25 +162,25 @@ class PndMultiClassMVA
   TString fNBkgTrain;   //  number of background for Training
   TString fNBkgTest;    //  number of background for testing
   
-  //  pruning strength for BDT (removing statistically insignificant nodes)
+  // Pruning strength for BDT (removing statistically insignificant nodes)
   TString fPruneStrengthBDT;
   TString fBoostTypeBDT;     //  boost type (Ada boost or bagging)   
   TString fNCutsBDT;         //  number of cuts to create a tree
   TString fNTreeBDT;         //  number of trees to create a forest
   
-  //KNN
+  // KNN
   TString fNKNN;             //  number of nearest neighbours
   TString mKnnDepth;
   TString mKnnscalefrac;
   TString mKnnKernel;
 
-  //MLP
+  // MLP
   TString mlpNeuTyp; //MLP neuron type
   TString mlpCycle;  //MLP number of cycles
   TString mlpNumHidden; //MLP number of hidden layers
   TString mlpTestRate; //MLP Test rate
   
-  //Clasifier config params
+  // Clasifier config params
   TString fINFILENAME;  //  input file containing trees of all the signals
   TString fAPPNAME;     //  name of the application 
   TString fConfigFileName;   //  name of the configuration file

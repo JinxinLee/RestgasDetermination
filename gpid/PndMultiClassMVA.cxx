@@ -225,19 +225,149 @@ void PndMultiClassMVA::TrainTest()
   WriteConfigFile();
 }
 
-//Select which MVA to train, From TMVA or the other implementaions
+/* 
+ * Select which MVA to train, From TMVA or other implementaions.
+ * @param mva: Defines the MVA type to be trained.
+*/
 void PndMultiClassMVA::TrainClassifier(MVAType mva)
 {
+  std::string MvaConfig = "";
+  // Select which classifier to train
   switch (mva){
-  case MulClsKNN:
+  case MulClsKNN://Multi class KNN
     break;
-  case LVQ1:
+  case LVQ1://Multi class LVQ1
     break;
-  default://case BDT: case MLP: case KNN:
-    TrainTest();//TMVA based classifiers.
-    break;    
+  case TMBDT://BDT from TMVA
+    MvaConfig = "!H:!V:NTrees=" + fNTreeBDT + ":BoostType=" + 
+      fBoostTypeBDT + ":SeparationType=GiniIndex:nCuts=" + fNCutsBDT +
+      "PruneMethod=NoPruning:PruneStrength=" + fPruneStrengthBDT;
+    TrainTestTM(TMBDT, MvaConfig);
+    break;
+  case TMMLP://MLP form TMVA
+    MvaConfig = "Normalise:H:!V:NeuronType="+mlpNeuTyp+
+      ":NCycles="+mlpCycle+":HiddenLayers="+mlpNumHidden+":TestRate="+
+      mlpTestRate;
+    TrainTestTM(TMMLP, MvaConfig);
+    break;
+  case TMKNN://KNN from TMVA
+    MvaConfig = "nkNN=" + fNKNN + 
+      ":V:TreeOptDepth="+mKnnDepth+":ScaleFrac="+mKnnscalefrac+
+      ":!UseKernel:"+mKnnKernel;
+    TrainTestTM(TMKNN, MvaConfig);
+    break;
+    
+  default:
+    std::cout << "<ERROR:> NO classifier was selected." << std::endl;
+    break;
   }
 }
-// ============  FIXME FIXME
-// ============  FIXME FIXME
+/* This method is implemented because of the fact that the current
+ * implementation of TMVA does not support multi class MVA's. Thus we
+ * need to train a classifier for each class of objects. This method
+ * might disappear if the newer versions of this package support multi
+ * class properties.
+ * @param mva: Defines the MVA type to be trained.
+ * @param config: Defines the configuration string to be used by TMVA.
+*/
+void PndMultiClassMVA::TrainTestTM(MVAType mva, const std::string config)
+{
+  TFile *input(0);
+  if (fNCLASS < 2 ) {
+    std::cout<< "<ERROR> you need atleast two"
+	     <<" classes for the classification. "<<endl;
+    return;
+  }
+  
+  else if (fNVAR < 2 ) {
+    std::cout<< "<ERROR> you need atleast two"
+	     <<" variables for the Multivariate Analysis. "<<endl;
+    return;
+  }
+  
+  else if (!gSystem->AccessPathName( fINFILENAME )) {
+    std::cout << "<INFO>--- BDTAnalysis  : accessing " 
+	      << fINFILENAME << std::endl;
+    input = TFile::Open( fINFILENAME );
+  } 
+  else if (!input) {
+    std::cout << "<ERROR> could not open data file" << std::endl;
+    return;
+  }
+  {
+    TTree* TreeArray[50];
+    for (int i = 0; i < fNCLASS ; i++){
+      TString s,treeName;
+      treeName = fClassNameArray.at(i);
+      cout<< (TTree*)input->Get(treeName)<<endl;
+      TreeArray[i] = (TTree*)input->Get(treeName);
+    }
+    
+    for (int i = 0 ; i < fNCLASS ; i++ ){
+      TString s,OutFileName,anaName;
+      anaName = fAPPNAME +fClassNameArray.at(i);
+      s = s +".root";
+      OutFileName = fClassNameArray.at(i) + ".root";
+      
+      TFile* outputFile = TFile::Open( OutFileName, "RECREATE" );
+      
+      TMVA::Factory *factory = new TMVA::Factory( anaName, 
+						  outputFile, 
+						  Form("!V:%sColor", 0?"!":""));
+      
+      Double_t signalWeight     = 1.0;
+      Double_t backgroundWeight = 1.0;
+      
+      for (int j = 0 ; j < fNCLASS ; j++ ){
+	if (i == j ){
+	  factory->AddSignalTree(TreeArray[j],signalWeight);  
+	}
+	else{
+	  factory->AddBackgroundTree(TreeArray[j],backgroundWeight); 
+	}
+      }
+      
+      for (int k = 0 ; k < fNVAR ; k++ ){
+	TString varName;
+	varName = fVarNameArray.at(k);
+	factory->AddVariable(varName,'F');
+      }
+      
+      // for example: TCut mycuts = "abs(var1)<0.5 && abs(var2-0.5)<1";
+      TCut mycuts = "p<100&&emc<7";
+      // for example: TCut mycutb = "abs(var1)<0.5";
+      TCut mycutb = "p<100&&emc<7";
+      
+      TString trainConfig = "NSigTrain=" + fNSigTrain + ":NBkgTrain=" + 
+	fNBkgTrain + ":NSigTest=" + fNSigTest + ":NBkgTest=" +fNBkgTest
+	+ ":SplitMode=Random:!V";
+      cout<<trainConfig<<endl; 
+      factory->PrepareTrainingAndTestTree( mycuts, mycutb, trainConfig ); 
+      
+      // Select which classifier to use.
+      
+      switch(mva){
+      case TMBDT:
+	factory->BookMethod( TMVA::Types::kBDT, "BDT", config);
+	break;
+      case TMMLP:
+	factory->BookMethod( TMVA::Types::kMLP, "MLP", config);
+	break;
+      case TMKNN:
+	factory->BookMethod( TMVA::Types::kKNN, "KNN", config);
+	break;
+      default:
+	std::cout << "<INFO:> NO TMVA classifier was selected." 
+		  << std::endl;
+	break;
+      }
+      factory->TrainAllMethods();
+      factory->TestAllMethods();
+      // factory->EvaluateAllMethods();    
+      outputFile->Close();
+      delete factory;
+    }
+  }
+  WriteConfigFile();
+}
 ClassImp(PndMultiClassMVA);
