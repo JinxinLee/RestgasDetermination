@@ -1,4 +1,4 @@
-# Create a library called "Mva" which includes the source files given in
+# Create a library called "libMva" which includes the source files given in
 # the array .
 
 set(INCLUDE_DIRECTORIES
@@ -24,13 +24,16 @@ ${BOOST_LIBRARY_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 set(MVA_SRCS
-# KNN/PndKnnClassify.cpp
-# KNN/PndKnnTrain.cpp
 kd_KNN/kdtree2.cpp
 kd_KNN/PndKnnClassify.cpp
 kd_KNN/PndKnnTrain.cpp
 LVQ1/PndLVQClassify.cpp
 LVQ1/PndLVQTrain.cpp
+
+# For the time being we do not want to use the 
+# following implementations.
+# KNN/PndKnnClassify.cpp
+# KNN/PndKnnTrain.cpp
 )
 
 if(RULE_CHECKER_FOUND)
