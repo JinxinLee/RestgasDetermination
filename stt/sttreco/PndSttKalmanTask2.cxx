@@ -105,7 +105,11 @@ PndSttKalmanTask2::Exec(Option_t* opt)
 	k.processTrack(trk);
       }
     }
-  fTrackArray->Delete();
+  //  fTrackArray->Delete();  // CHECK!! this must not be commented, but 
+  //                          // prevents the histo/variable filling... 
+  //                          // let' s keep it this way for while and 
+  //                          // we will check what happens
+
   return;
 }
 

@@ -118,28 +118,27 @@ void PndSttPatternRecoTask2:: Exec(Option_t* opt)
 
   for (Int_t iTrack=0; iTrack<nTracks; iTrack++) 
     {
-      mctrack = (PndMCTrack*) fMCTrackArray->At(iTrack);
+    
       track = (PndSttTrack*) fSttTrackArray->At(iTrack);
-      match = (PndSttTrackMatch*) fMatchArray->At(iTrack);
- 
-      if (!mctrack) 
-	{
-	  cout << "-W- SttPRTask::Exec: Empty PndMCTrack at " << iTrack << endl;
-	  continue;
-	}
-     
       if (!track) 
 	{
 	  cout << "-W- SttPRTask::Exec: Empty PndSttTrack at " << iTrack << endl;
 	  continue;
 	}
-
+      
+      match = (PndSttTrackMatch*) fMatchArray->At(iTrack);
       if(!match)
 	{
 	  cout << "-W- SttPRTask::Exec: Empty PndSttTrackMatch at " << iTrack << endl;
 	  continue;
 	}
-
+      mctrack = (PndMCTrack*) fMCTrackArray->At(match->GetMCTrackID());
+      if (!mctrack) 
+	{
+	  cout << "-W- SttPRTask::Exec: Empty PndMCTrack at " << iTrack << endl;
+	  continue;
+	}
+      
       if(track->GetFlag() < 3) continue;
 
       PndSttHelixTrackFitter *fFitter;
