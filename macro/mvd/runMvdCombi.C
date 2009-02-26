@@ -19,7 +19,7 @@
   std::string simFile = namecreator.GetSimFileName();
   std::string outFile = namecreator.GetRecoFileName();
   TString digiparFile = gSystem->Getenv("VMCWORKDIR");
-  digiparFile += "/mvd/MvdTools/mvd.digi.par";
+  digiparFile += "/macro/params/mvd.digi.par";
 
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
@@ -82,11 +82,12 @@
   mvdmccls->SetVerbose(iVerbose);
   fRun->AddTask(mvdmccls);
   // Cluster finder for pixel detectors
-  PndMvdPixelClusterTask* mvdClusterizer = new
+ /* PndMvdPixelClusterTask* mvdClusterizer = new
     PndMvdPixelClusterTask(1.8,76,84, namecreator.GetSimFileName(true));
   mvdClusterizer->SetVerbose(iVerbose);
   fRun->AddTask(mvdClusterizer);
-  //----------------------------------------------------------------------//
+ */ 
+ //----------------------------------------------------------------------//
   //----------------------------------------------------------------------//
 
 

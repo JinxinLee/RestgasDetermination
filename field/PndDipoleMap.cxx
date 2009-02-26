@@ -29,12 +29,12 @@ PndDipoleMap::PndDipoleMap(const char* mapName,
   TString Suffix="";
   FairRunSim *fRun= FairRunSim::Instance();
   if(fRun){
-    Double_t BeamEnergy= fRun->GetBeamEnergy();
-    if(fRun->UseBeamEnergy() && BeamEnergy){
-      if(BeamEnergy< 2)Suffix=".0150" ;
-      else if (BeamEnergy< 5.0 )Suffix=".0406";
-      else if (BeamEnergy< 10.0 )Suffix=".0890" ;
-      else if (BeamEnergy< 12.0 )Suffix=".1191";
+    Double_t BeamMom= fRun->GetBeamMom();
+    if(fRun->UseBeamMom() && BeamMom){
+      if(BeamMom< 2)Suffix=".0150" ;
+      else if (BeamMom< 5.0 )Suffix=".0406";
+      else if (BeamMom< 10.0 )Suffix=".0890" ;
+      else if (BeamMom< 12.0 )Suffix=".1191";
       else  Suffix=".1500";
     }else{
       Suffix="";

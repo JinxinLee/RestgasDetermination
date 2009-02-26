@@ -13,9 +13,12 @@
   TString outfile= "teststation.root";
 //  TFile* fi = new TFile(outfile,"RECREATE");
 
+  TString mediafile = gSystem->Getenv("VMCWORKDIR");
+  mediafile+="/geometry/media_pnd.geo";
+
   FairGeoLoader* geoLoad = new FairGeoLoader("TGeo","FairGeoLoader");
   FairGeoInterface *geoFace = geoLoad->getGeoInterface();
-  geoFace->setMediaFile("../../../geometry/media_pnd.geo");
+  geoFace->setMediaFile(mediafile);
   geoFace->readMedia();
   geoFace->print();
 

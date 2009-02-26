@@ -11,7 +11,7 @@
   TStopwatch timer;
   timer.Start();
   // ------------------------------------------------------------------------
-  std::string HitFileName="data/cosmic.hit";
+  std::string HitFileName="data/testhits.hit";
   std::string CalibFileName="calib.par";
   std::string GeoFileName="teststation.root";
   std::string SenParName="mvd.ddteststation.par";
@@ -27,7 +27,7 @@
   parInput2->open(SenParName.c_str(),"in");
   rtdb->setFirstInput(parInput2);
 
-//   fRun->SetInputFile(GeoFileName.c_str());
+  fRun->SetGeomFile(GeoFileName.c_str());
   fRun->SetOutputFile("data/cosmic.root");
   
 //---- Set Converter
@@ -35,13 +35,13 @@
   fRun->AddTask(ApvTask);
 //----- Set Cluster
 
-//   PndMvdStripClusterTask* mvdClusterizer = new PndMvdStripClusterTask(1.e8, GeoFileName.c_str(),0,0,2,0);
-//   fRun->AddTask(mvdClusterizer);
+ //  PndMvdStripClusterTask* mvdClusterizer = new PndMvdStripClusterTask(1.e8, GeoFileName.c_str(),0,0,2,0);
+ //  fRun->AddTask(mvdClusterizer);
 
   fRun->LoadGeometry();
 // ---- start run
   fRun->Init();
-  fRun->DummyRun(0, nEvents);
+  fRun->Run(0, nEvents);
 
 /*
   // ---------  HISTOS ---------

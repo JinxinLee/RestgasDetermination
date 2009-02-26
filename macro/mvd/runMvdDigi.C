@@ -19,7 +19,7 @@
   // Parameter output file
 //   TString parOutFile = "Test/testParamsOutput.root";
   TString digiparFile = gSystem->Getenv("VMCWORKDIR");
-  digiparFile += "/mvd/MvdTools/mvd.digi.par";
+  digiparFile += "/macro/params/mvd.digi.par";
 
   
   // In general, the following parts need not be touched
