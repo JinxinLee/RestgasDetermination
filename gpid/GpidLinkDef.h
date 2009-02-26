@@ -9,6 +9,5 @@
 #pragma link C++ class PndGpidTaskLhe;
 
 #pragma link C++ enum MVAType;
-//#pragma link C++ std::map<string,double>;
-
+//#pragma link C++ std::map<std::string,double>;
 #endif

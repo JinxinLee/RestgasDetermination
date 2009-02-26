@@ -13,6 +13,8 @@
  * Classification purpose. 
  *
  *                  S.Vanniarajan  01-08-08
+ * Modified:
+ * M. Babai
  */
 
 #include "PndGpidTaskLhe.h"
@@ -29,10 +31,9 @@ PndGpidTaskLhe::~PndGpidTaskLhe()
   fClassNameArray.clear();
 }
 
-//Init call of the task inherited from the Cbmtask 
-//Registers the output of the track and get the inputs of the track
-//Input is LhePidTrack
-//Output is PndPidCand
+//Init call of the task inherited from the Cbmtask Registers the
+//output of the track and get the inputs of the track Input is
+//LhePidTrack Output is PndPidCand
 
 InitStatus PndGpidTaskLhe::Init()
 {
@@ -53,16 +54,6 @@ InitStatus PndGpidTaskLhe::Init()
     return kERROR;
   }
   
-  /*
-    fArrTpc = (TClonesArray*) ioman->GetObject("PndTpcPoint"); if
-    (!fArrTpc){ cout << "-W- PndGpidTaskLhe::Init: " << "No TpcPoint
-    array!" << endl; return kERROR; } fArrMvd = (TClonesArray*)
-    ioman->GetObject("PndMvdMCPoint"); if (!fArrTpc){ cout << "-W-
-    PndGpidTaskLhe::Init: " << "No MvdPoint array!" << endl; return
-    kERROR; } fArrPid = (TClonesArray*) ioman->GetObject("PndPidCand");
-    if (!fArrPid){ cout << "-W- PndGpidTaskLhe::Init: " << "No PidCand
-    array!" << endl; return kERROR; }
-  */
   Config();
   AddVar();
   BookingMVA();
@@ -116,21 +107,18 @@ void PndGpidTaskLhe::Config()
 void PndGpidTaskLhe::AddVar()
 {
   for ( int i = 0 ; i < fNVAR ; i++  ){
-    varArray[i] = 0.0;  
+    m_varVec.push_back(0.0);
   }
-  //int count = 0;
-  
+
   for ( int i = 0 ; i < fNVAR ; i++  ){
     TString varName,s;
     varName = fVarNameArray.at(i);
     cout<<varName<<endl;
-    for ( int j = 0; j < fNCLASS ; j++)
-    {
-      reader[j].AddVariable(varName, &(varArray[i]));  
+    for ( int j = 0; j < fNCLASS ; j++){
+      reader[j].AddVariable(varName, &(m_varVec[i]));
     }
   }
 }
-
 
 // books the MVA called by the Init
 void PndGpidTaskLhe::BookingMVA()
@@ -138,8 +126,7 @@ void PndGpidTaskLhe::BookingMVA()
   for (int i = 0 ; i < fNCLASS ; i++  )
   {
     string anaFile;
-    switch (fMVAmode)
-    {
+    switch (fMVAmode){
     case TMBDT: 
       anaFile =  fDIR + fAPPNAME + fClassNameArray.at(i) + "_BDT.weights.txt";
       reader[i].BookMVA("BDT method", anaFile );
@@ -151,13 +138,13 @@ void PndGpidTaskLhe::BookingMVA()
       reader[i].BookMVA("MLP method", anaFile );
       fClassifier = "MLP method";
       break;
-
+      
     case TMKNN: 
       anaFile =  fDIR + fAPPNAME + fClassNameArray.at(i) + "_KNN.weights.txt";
       reader[i].BookMVA("KNN method", anaFile );
       fClassifier = "KNN method";
       break;
-
+      
     default:
       std::cout << "<ERROR:> NO classifier was selected." << std::endl;
       break;
@@ -177,97 +164,82 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
   float skp=0; 
   
   // Loop through the Tracks
-  for (int k=0; k < fPidTrackCand->GetEntriesFast(); k++)
-  {
-    //float s,p,gamma2;
+  for (int k=0; k < fPidTrackCand->GetEntriesFast(); k++){
     PndLhePidTrack *pid = (PndLhePidTrack *) fPidTrackCand->At(k);
     cout<<"this is Exec"<<endl;
     string varName;
-    for (int l = 0; l < fNVAR; l++)
-    {
-      cout<<fVarNameArray.at(l)<<"  "<<varArray[l]<<endl;
+
+    for (int l = 0; l < fNVAR; l++){
+      cout << fVarNameArray.at(l) <<" = "<< m_varVec[l] << endl;//varArray[l] << endl;
     }
+
     int count =0 ;
     
     //reading the input variable
-    for (int i = 0 ; i< fNVAR; i++)
-    {
+    for (int i = 0 ; i< fNVAR; i++){
       varName = fVarNameArray.at(i);
       
       if (varName == "tof") {
-	varArray[i]=pid->GetTof();
-	if (varArray[i] < 0 || varArray[i] ==0 ) count+=1;
-	fTrack->Set(varName,varArray[i]);
+	m_varVec[i]=pid->GetTof();
+	if (m_varVec[i] < 0 || m_varVec[i] == 0 ) count+=1;
+	fTrack->Set(varName, m_varVec[i]);
       }
+
       if (varName == "emc"){
-	varArray[i]=pid->GetEmcELoss()/pid->GetP();
-	if (varArray[i] < 0 || varArray[i] ==0 ) count+=1;
-	
-	fTrack->Set(varName,varArray[i]);
-      }
-      if (varName == "stt"){
-	skp=pid->GetSttDEDX();
-	if(!isnan(skp)) varArray[i]=skp;
-	cout<<"stt hit counts"<<pid->GetSttHitCounts()
-	    <<"  "<<pid->GetSttDEDX()<<endl;
-	if ( skp < 0 || skp ==0 ) count+=1;
-	if (skp==0) continue;
-	
-	fTrack->Set(varName,varArray[i]);
-      }
-      if (varName == "mvd"){
-	varArray[i]=pid->GetMvdDEDX();
-	if (varArray[i] < 0 || varArray[i] ==0 ) count+=1;
-	fTrack->Set(varName,varArray[i]);
-      }
-      if (varName == "thetaC"){
-	varArray[i]=pid->GetDrcThetaC();
-	if (varArray[i] < 0 || varArray[i] ==0 ) count+=1;
-	fTrack->Set(varName,varArray[i]);
-      }
-      if (varName == "p"){
-	varArray[i]=pid->GetMomentum().Mag();
-	if (varArray[i] < 0 || varArray[i] ==0 ) count+=1;
-	cout<<"momentum "<<pid->GetMomentum().Mag()<<endl;
-	fTrack->Set(varName,varArray[i]);
+	m_varVec[i]= pid->GetEmcELoss()/pid->GetP();
+	if (m_varVec[i] < 0 || m_varVec[i] ==0 ) count+=1;
+	cout<<"emc "<< m_varVec[i]<< endl;
+	fTrack->Set(varName,m_varVec[i]);
       }
       
+      if (varName == "stt"){
+
+	skp=pid->GetSttDEDX();
+	if(!isnan(skp)) m_varVec[i] = skp;
+
+	cout<<"stt hit counts "<<pid->GetSttHitCounts()
+	    <<" Value is "<<pid->GetSttDEDX()<<endl;
+
+	if ( skp < 0 || skp ==0 ) count+=1;
+	if (skp == 0) continue;
+
+	fTrack->Set(varName,m_varVec[i]);
+      }
+
+      if (varName == "mvd"){
+	m_varVec[i]=pid->GetMvdDEDX();
+	if (m_varVec[i] < 0 || m_varVec[i] ==0 ) count+=1;
+
+	fTrack->Set(varName,m_varVec[i]);
+      }
+
+      if (varName == "thetaC"){
+	m_varVec[i]=pid->GetDrcThetaC();
+	if (m_varVec[i] < 0 || m_varVec[i] ==0 ) count+=1;
+
+	fTrack->Set(varName,m_varVec[i]);
+      }
+      
+      if (varName == "p"){
+	m_varVec[i]=pid->GetMomentum().Mag();
+	if (m_varVec[i] < 0 || m_varVec[i] == 0 ) count+=1;
+
+	cout<<"momentum "<<pid->GetMomentum().Mag()<<endl;
+	fTrack->Set(varName,m_varVec[i]);
+      }
       // cout<<varArray[i]<<" "<<varName<<endl;
     }
     
-    if (count >0 )continue;
-    
-    //if(varArray[0] == 0 || varArray[1] == 0 || varArray[2] == 0 ||
-    //varArray[3] == 0 || varArray[4] ==0 || varArray[5] ==0 )
-    //continue; if(varArray[0] < 0 || varArray[1] < 0 || varArray[2] <
-    //0 || varArray[3] < 0 || varArray[4] < 0 || varArray[5] < 0 )
-    //continue;
-    /*
-      if(varArray[1] == 0) continue;
-      if(varArray[2] == 0) continue;
-      if(varArray[3] == 0) continue;
-      if(varArray[4] == 0) continue;
-      if(varArray[5] == 0) continue;
-    */
-    /*
-      for (int l = 0; l < fNVAR; l++)
-      {
-      cout<<fVarNameArray.at(l)<<"  "<<varArray[l]<<endl;
-      }
-    */
+    if (count > 0 ) continue;
+
     Float_t mvaValue;
-    for (int i = 0 ; i < fNCLASS; i++)
-    {
+    for (int i = 0 ; i < fNCLASS; i++){
       string className;
       
       className = fClassNameArray.at(i);
       mvaValue = reader[i].EvaluateMVA(fClassifier);
-      //if(mvaValue == 0) exit(0);
-      //      cout<<mvaValue<<endl;
-      //     cout<<reader[i].GetProba(fClassifier)<<endl;
       
-      switch (fMVAmode)
-      {
+      switch (fMVAmode){
       case TMBDT:
 	mvaValue = (mvaValue - (-1.0))/2.0;
 	break;
@@ -275,19 +247,17 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
       case TMMLP:
 	mvaValue = (mvaValue - (-1.1))/2.2;
 	break;
-
+	
       case TMKNN:
-	cout<<mvaValue<<endl;
-	mvaValue = mvaValue-0.5; 
-	cout<<mvaValue<<endl;
+	cout<<"MVA KNN "<<mvaValue<<endl;
+	mvaValue = mvaValue;//-0.5; 
+	cout<<"MVA correction "<<mvaValue<<endl;
 	break;
 
       default:
 	std::cout << "<ERROR:> NO classifier was selected." << std::endl;
 	break;
       }
-      
-      //if (mvaValue < 0) mvaValue = 0.01;
       
       fTrack->Set(className,mvaValue);
       cout<<"Likelihood for the class "<<className<<"is :"<<mvaValue<<endl;

@@ -34,7 +34,6 @@ void PndPidCand::destroy()
   fVarName.clear(); 
 }
 
-
 void PndPidCand::Set(const string key, const double value)
 {
   fParam[key] = value;

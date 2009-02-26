@@ -14,10 +14,14 @@
  * Classification purpose. 
  *
  *                  S.Vanniarajan  01-08-08
+ * Modified:
+ * M. Babai
  */
 #pragma once
 #ifndef PNDGPIDTASKLHE_H
 #define PNDGPIDTASKLHE_H
+
+#define NUMTMVAREADERS 10
 
 //C++ includes
 #include <algorithm>
@@ -36,8 +40,9 @@
 #include "PndTpcPoint.h"
 #include "PndPidCand.h"
 
-// FIXME
+// Gpid data types
 #include "PndGpidTypes.h"
+#include "PndLVQClassify.h"//LVQ1 implementation
 
 using namespace std;
 
@@ -48,10 +53,7 @@ class Reader;
 class PndGpidTaskLhe : public FairTask
 {
  public:
-  // enum type for the type of classifier 
-  // task is going to use
-  /*enum MVAType{KNN = 1,BDT = 2,
-    MLP = 3, MuClsKNN = 4,LVQ1   = 5};*/
+
   /** Default constructor **/  
   PndGpidTaskLhe();
   
@@ -68,7 +70,9 @@ class PndGpidTaskLhe : public FairTask
   
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
+
   //protected:
+
  private:
   // Private fuction members called by init during Initialization
 
@@ -84,8 +88,7 @@ class PndGpidTaskLhe : public FairTask
   MVAType fMVAmode;
   
   // Name of the application for which one does the classification
-  // used to pickup
-  // the correct configuration file and weight file.
+  // used to pickup the correct configuration file and weight file.
   std::string fAPPNAME;
   
   // locate the directory for the weight files
@@ -95,17 +98,17 @@ class PndGpidTaskLhe : public FairTask
   std::string fClassifier;
   
   // Array of Variable names for classification names 
-  vector<string> fVarNameArray;
+  std::vector<std::string> fVarNameArray;
   
   // Array of Class names for classification names 
-  vector<string> fClassNameArray;
+  std::vector<std::string> fClassNameArray;
   
-  TMVA::Reader reader[10]; //! 
-  Int_t fNVAR;
-  Int_t fNCLASS;
-  float varArray[100];
-  //  std::vector <float> varArray;
-  //  std::vector <float>::iterator FlIt;  
+  TMVA::Reader reader[NUMTMVAREADERS];
+  int fNVAR;
+  int fNCLASS;
+
+  std::vector<float> m_varVec;
+
   TClonesArray* fPidTrackCand;  
   TClonesArray* fArrPid; 
   ClassDef(PndGpidTaskLhe,1);

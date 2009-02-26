@@ -47,10 +47,6 @@ using namespace std;
 class PndMultiClassMVA
 {
  public:
-  //Which classifier to train 
-  /* enum MVAType{KNN = 1, BDT = 2, MLP = 3, 
-     MulClsKNN = 4, LVQ1 = 5};*/
-
   //Constructor
   PndMultiClassMVA();
   
@@ -191,6 +187,7 @@ class PndMultiClassMVA
 
   TString m_OutFileName;  // Output file for writing proto type coordinates
   int m_numLVQProto;
+
   vector <string> fVarNameArray;      // array of Variable names 
   vector <string> fClassNameArray;    // array of class names
 };

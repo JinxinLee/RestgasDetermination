@@ -31,7 +31,7 @@
 
 using namespace std;
 
-typedef std::map<string,double> Param;
+typedef std::map<std::string,double> Param;
 
 /*
  * Any pointer data member here has to be deleted by destroy func
@@ -42,47 +42,48 @@ public:
   PndPidCand();
   ~PndPidCand();
 
-  void Set(const string key, const double value);
+  void Set(const std::string key, const double value);
+  void Set(const std::map<std::string,double>& res){fParam = res;};
+
+  double Get(const std::string key);
+  void GetVarName(std::vector<std::string>& varList);
   
-  double Get(const string key);
-  
-  void GetVarName(vector<string>& varList);
-  
-  /*
-    inline Double_t GetTpcDeDx()		const { return fTpcDeDx;}
-    inline Double_t GetMvdDeDx()		const { return fMvdDeDx;}
-    inline Double_t GetP()			const { return fP;}
-    inline Double_t GetEmcE()		const { return fEmcE;}
-    inline Double_t GetTof()		const { return fTof;}
-    inline Double_t GetSpeed()		const { return fSpeed;}
-    inline Double_t GetLen()		const { return fLen;}
-    inline Double_t GetNPhotons()		const { return fNPhotons;}
-    inline Double_t GetThetaC()		const { return fThetaC;}
-    inline void SetTpcDeDx(Double_t f) 	{ fTpcDeDx = f;}
-    inline void SetMvdDeDx(Double_t f) 	{ fMvdDeDx = f;}
-    inline void SetP(Double_t f) 		{ fP = f;}
-    inline void SetEmcE(Double_t f) 	{ fEmcE = f;}
-    inline void SetTof(Double_t f) 		{ fTof = f;}
-    inline void SetSpeed(Double_t f) 	{ fSpeed = f;}
-    inline void SetLen(Double_t f) 		{ fLen = f;}
-    inline void SetNPhotons(Double_t f) 		{ fNPhotons = f;}
-    inline void SetThetaC(Double_t f) 		{ fThetaC = f;}
-  */
  private:
-  /*
-    Double_t fTpcDeDx;
-    Double_t fMvdDeDx;
-    Double_t fP;
-    Double_t fEmcE;
-    Double_t fTof;
-    Double_t fSpeed;
-    Double_t fLen;
-    Double_t fNPhotons;
-    Double_t fThetaC;
-  */
+
   void destroy();
   Param fParam;
   std::vector<string> fVarName;     
   ClassDef(PndPidCand,1);
 };
 #endif
+/*
+  inline Double_t GetTpcDeDx()		const { return fTpcDeDx;}
+  inline Double_t GetMvdDeDx()		const { return fMvdDeDx;}
+  inline Double_t GetP()			const { return fP;}
+  inline Double_t GetEmcE()		const { return fEmcE;}
+  inline Double_t GetTof()		const { return fTof;}
+  inline Double_t GetSpeed()		const { return fSpeed;}
+  inline Double_t GetLen()		const { return fLen;}
+  inline Double_t GetNPhotons()		const { return fNPhotons;}
+  inline Double_t GetThetaC()		const { return fThetaC;}
+  inline void SetTpcDeDx(Double_t f) 	{ fTpcDeDx = f;}
+  inline void SetMvdDeDx(Double_t f) 	{ fMvdDeDx = f;}
+  inline void SetP(Double_t f) 		{ fP = f;}
+  inline void SetEmcE(Double_t f) 	{ fEmcE = f;}
+  inline void SetTof(Double_t f) 		{ fTof = f;}
+  inline void SetSpeed(Double_t f) 	{ fSpeed = f;}
+  inline void SetLen(Double_t f) 		{ fLen = f;}
+  inline void SetNPhotons(Double_t f) 		{ fNPhotons = f;}
+  inline void SetThetaC(Double_t f) 		{ fThetaC = f;}
+*/
+/*
+  Double_t fTpcDeDx;
+  Double_t fMvdDeDx;
+  Double_t fP;
+  Double_t fEmcE;
+  Double_t fTof;
+  Double_t fSpeed;
+  Double_t fLen;
+  Double_t fNPhotons;
+  Double_t fThetaC;
+*/
