@@ -61,61 +61,92 @@ InitStatus IllustrateTask::Init() {
 }
 // -------------------------------------------------------------------------
 
+void getPoints(GeaneTrackRep GeaneRep,double dist,int nSteps,std::vector<TVector3>* infront,std::vector<TVector3>* behind=NULL,DetPlane* targetPlane=NULL){
 
-TPolyLine3D* IllustrateTask::getLine(AbsTrackRep* rep,DetPlane startPl,int nSteps,double dist,bool backward){
+  AbsTrackRep *rep = &GeaneRep;
+
+  infront->clear();
+  if(behind!=NULL)behind->clear();
+
   TMatrixT<double> statePred(5,1);
   TMatrixT<double> covPred(5,5);
   TMatrixT<double> jac(5,5);
-  {
-	StdoutKiller k; 
-	//rep->extrapolate(startPl,statePred,covPred,jac);
-  }
-  //rep->setReferencePlane(startPl);
-  //rep->setCov(covPred);
-  //rep->setState(statePred);
 
-  std::vector<TVector3> points;
+  std::vector<TVector3>* points=infront;
+
+
+  bool switched = false;
+
   for(int i=0;i<nSteps;++i){
 	TVector3 pos,mom;
 	
 	{
-	  StdoutKiller k;
+	  //StdoutKiller k;
 	  pos = rep->getPos();
 	  mom = rep->getMom();
 	}
+
 	mom.SetMag(dist);
 	DetPlane d(pos+mom,mom);
+
+	if(targetPlane!=NULL){
+	  if(!switched){
+		if(targetPlane->distance(pos)<2.*dist){
+		  d=*targetPlane;
+		  points=behind;
+		  switched=true;
+		}
+	  }	  
+	}
+
 	TVector3 posR,momR;
 	{
-	  StdoutKiller k;
+	  //StdoutKiller k;
 	  rep->getPosMom(d,posR,momR);
 	}
 	TMatrixT<double> statePred(5,1);
 	TMatrixT<double> covPred(5,5);
 	TMatrixT<double> jac(5,5);
 	{
-	  StdoutKiller k; 
+	  //StdoutKiller k; 
 	  rep->extrapolate(d,statePred,covPred,jac);
 	}
 	rep->setState(statePred);
 	rep->setCov(covPred);
 	rep->setReferencePlane(d);
 	
-	points.push_back(posR);
+	points->push_back(posR);
   }  
 
+
+}
+
+
+void IllustrateTask::getLine(TPolyLine3D **infront,TPolyLine3D **behind,GeaneTrackRep GeaneRep,double dist,int nSteps,DetPlane* targetPlane){
+
+  std::vector<TVector3> points;
+  std::vector<TVector3> pointsBehind;
+  getPoints(GeaneRep,dist,nSteps,&points,&pointsBehind,targetPlane);
+
+
   TPolyLine3D  *returnL = new TPolyLine3D(points.size());
-  
-  for(int i=0;i<(int)points.size();++i){
+  for(int i=0;i<points.size();++i){
 	returnL->SetPoint(i,points.at(i).X(),points.at(i).Y(),points.at(i).Z());
   }
+  *infront=returnL;
 
-  return returnL;
+  TPolyLine3D  *returnLBehind = new TPolyLine3D(pointsBehind.size());
+  for(int i=0;i<pointsBehind.size();++i){
+	returnLBehind->SetPoint(i,pointsBehind.at(i).X(),pointsBehind.at(i).Y(),pointsBehind.at(i).Z());
+  }
+  *behind=returnLBehind;
 };
 
 
 // -----   Public method Exec   --------------------------------------------
 void IllustrateTask::Exec(Option_t* opt) {
+
+
   // 	cout << "IllustrateTask::Exec" << endl;
 
   Int_t PDGCode= -13;//mu+ tested
@@ -127,7 +158,7 @@ void IllustrateTask::Exec(Option_t* opt) {
   TVector3 StartPosChanged    = StartPos;
   StartPosChanged.SetX(StartPosChanged.X()-0.3);
   StartPosChanged.SetY(StartPosChanged.Y()+0.3);
-  StartPosChanged.SetZ(StartPosChanged.Z()-0.4);
+  StartPosChanged.SetZ(StartPosChanged.Z()-0.8);
   TVector3 StartPosErr = TVector3(1.,1.,1.);
 
   TVector3 StartMom    = TVector3 (1.,0.,1.);
@@ -141,7 +172,7 @@ void IllustrateTask::Exec(Option_t* opt) {
   StartMomChanged.SetPhi(StartMomChanged.Phi()-1./180.*TMath::Pi());
   
   StartMom.SetMag(0.5);
-  StartMomChanged.SetMag(StartMom.Mag()+0.03);
+  StartMomChanged.SetMag(StartMom.Mag()-0.07);
   TVector3 StartMomErr = TVector3(0.5,0.5,0.5);
   
   TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
@@ -162,7 +193,7 @@ void IllustrateTask::Exec(Option_t* opt) {
 									   start_plChanged,StartMomChanged,
 									   StartPosErr,StartMomErr,
 									   fCharge,PDGCode);
-  AbsTrackRep* rep2 = new GeaneTrackRep(fPro,
+  GeaneTrackRep* rep2 = new GeaneTrackRep(fPro,
 									   start_plChanged,StartMomChanged,
 									   StartPosErr,StartMomErr,
 									   fCharge,PDGCode);
@@ -170,14 +201,11 @@ void IllustrateTask::Exec(Option_t* opt) {
 										   start_pl,StartMom,
 										   StartPosErr,StartMomErr,
 										   fCharge,PDGCode);
-  AbsTrackRep* rephitsTr = new GeaneTrackRep(fPro,
+  GeaneTrackRep* rephitsTr = new GeaneTrackRep(fPro,
 										   start_pl,StartMom,
 										   StartPosErr,StartMomErr,
 										   fCharge,PDGCode);
-  Ltr=getLine(rephitsTr,start_pl,100,1.);
-  Ltr->Write("Ltr");
-  Lst=getLine(rep2,start_plChanged,100,1.);
-  Lst->Write("Lst");
+
   std::cout << "INIT MOMENTUM: " << rep->getMom().Mag() << std::endl;
     
   std::cout << "TRACK MOMENTUM: " << rephits->getMom().Mag() << std::endl;
@@ -191,7 +219,7 @@ void IllustrateTask::Exec(Option_t* opt) {
 	TVector3 pos,mom;
 	
 	{
-	  StdoutKiller k;
+	  //StdoutKiller k;
 	  pos = rephits->getPos();
 		mom = rephits->getMom();
 	}
@@ -204,14 +232,14 @@ void IllustrateTask::Exec(Option_t* opt) {
 	//rephits->getState().Print();
 	TVector3 posR,momR;
 	{
-	  StdoutKiller k;
+	  //StdoutKiller k;
 	  rephits->getPosMom(d,posR,momR);
 	}
 	TMatrixT<double> statePred(5,1);
 	TMatrixT<double> covPred(5,5);
 	TMatrixT<double> jac(5,5);
 	{
-	  StdoutKiller k; 
+	  //StdoutKiller k; 
 	  rephits->extrapolate(d,statePred,covPred,jac);
 	}
 	rephits->setState(statePred);
@@ -232,8 +260,15 @@ void IllustrateTask::Exec(Option_t* opt) {
   lastPlane.Print();
   targetPlane.Print();
 
+  getLine(&Ltr,&LtrBehind,*(dynamic_cast<GeaneTrackRep*>(rephits)),1.,100,&targetPlane);
+  Ltr->Write("Ltr");
+  LtrBehind->Write("LtrBehind");
 
-  targetPlane.getGraphics(2.,5.,&Mpl,&LplU,&LplV,&LplN);
+  getLine(&Lst,&LstBehind,*(dynamic_cast<GeaneTrackRep*>(rep)),1.,100,&targetPlane);
+  Lst->Write("Lst");
+  LstBehind->Write("LstBehind");
+
+  targetPlane.getGraphics(1.5,5.,&Mpl,&LplU,&LplV,&LplN);
   Mpl->Write("Mpl");
   LplU->Write("LplU");
   LplV->Write("LplV");
@@ -286,8 +321,9 @@ void IllustrateTask::Exec(Option_t* opt) {
 	std::cerr << "counter result->getStatusFlag()!=0)" << std::endl;
 	throw;
   }
-  Lfit = getLine(result,start_pl,200,.5);
+  getLine(&Lfit,&LfitBehind,*(dynamic_cast<GeaneTrackRep*>(result)),.5,200,&targetPlane);
   Lfit->Write("Lfit");
+  LfitBehind->Write("LfitBehind");
 
 
 }

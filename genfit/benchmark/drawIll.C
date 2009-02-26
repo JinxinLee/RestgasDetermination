@@ -2,19 +2,25 @@
 gROOT->SetStyle("Plain");
 
 
+
 double phi=126.6;
 double theta=22.1;
 
-Ltr->SetLineColor(kGreen);
+Lfit->SetLineColor(kGreen);
 Lst->SetLineColor(kRed);
-Lst->SetLineColor(kBlue);
-Mtr->SetMarkerStyle(24);
-Mtr->SetMarkerSize(0.4);
-Mtr->SetMarkerColor(kGreen);
-Msm->SetMarkerStyle(24);
-Msm->SetMarkerSize(0.4);
-Msm->SetMarkerColor(kRed);
+Lst->SetLineStyle(3);
+LfitBehind->SetLineColor(kGreen);
+LstBehind->SetLineColor(kRed);
+LstBehind->SetLineStyle(3);
 
+//Mtr->SetMarkerStyle(24);
+//Mtr->SetMarkerSize(0.4);
+//Mtr->SetMarkerColor(kGreen);
+Msm->SetMarkerStyle(24);
+Msm->SetMarkerSize(0.6);
+Msm->SetMarkerColor(kRed);
+Mpl->SetMarkerStyle(20);
+Mpl->SetMarkerSize(1.7);
 
 /*
 TCanvas c1("c1","c1",600,600);
@@ -47,20 +53,30 @@ c4.SetTheta(theta);
 
 
 
-Msm->Draw();
-Ltr->Draw("same");
-Lst->Draw("same");
+
+//LtrBehind->Draw("same");
+LstBehind->Draw("same");
+LfitBehind->Draw("same");
 Mpl->Draw("same");
+//Ltr->Draw("same");
+Lst->Draw("same");
+Msm->Draw();
+Lfit->Draw("same");
+
 //LplU->Draw("same");
 //LplV->Draw("same");
 
 TLegend l(0.7,0.7,0.9,0.9);
-l.AddEntry(Ltr,"1) true track","l");
 
 
-l.AddEntry(Msm,"2) smeared space points","p");
-l.AddEntry(Lst,"3) seed for fit","l");
-l.AddEntry(Mpl,"4) 2D reference plane for pulls","p");
+
+l.AddEntry(Msm,"1) smeared space points","p");
+l.AddEntry(Lst,"2) seed for fit","l");
+l.AddEntry(Mpl,"3) 2D reference plane for pulls","p");
+l.AddEntry(Lfit,"4) fitted track","l");
+l.SetTextFont(102);
+l.SetFillStyle(0);
+l.SetLineWidth(1);
 l.Draw("same");
 
 

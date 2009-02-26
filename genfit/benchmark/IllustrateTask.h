@@ -12,6 +12,9 @@
 #include "TH1D.h"
 #include "TTree.h"
 
+#include"GeaneTrackRep.h"
+#include"DetPlane.h"
+
 class TGeant3;
 class TClonesArray;
 class TTree;
@@ -35,8 +38,9 @@ class IllustrateTask : public FairTask
 
  private:
 
-  TPolyLine3D *Ltr,*Lst,*Lfit,*LplU,*LplV,*LplN;
+  TPolyLine3D *Ltr,*Lst,*LtrBehind,*LstBehind,*Lfit,*LfitBehind,*LplU,*LplV,*LplN;
   TPolyMarker3D *Mtr,*Msm,*Mpl;
+
 
 
 	/** Input array of Points **/
@@ -46,7 +50,7 @@ class IllustrateTask : public FairTask
   ClassDef(IllustrateTask,1);
   Int_t fEvent;
   FairGeanePro *fPro;
-  TPolyLine3D* getLine(AbsTrackRep* rep,DetPlane startPl,int nSteps,double dist,bool backward=false);
+  void getLine(TPolyLine3D **infront,TPolyLine3D **behind,GeaneTrackRep GeaneRep,double dist,int nSteps,DetPlane* targetPlane=NULL);
 };
 
 #endif
