@@ -173,11 +173,11 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
   // Loop through the Tracks
   for (int k=0; k < fPidTrackCand->GetEntriesFast(); k++){
     PndLhePidTrack *pid = (PndLhePidTrack *) fPidTrackCand->At(k);
-    cout<<"this is Exec"<<endl;
+    //cout<<"this is Exec"<<endl;
     string varName;
 
     for (int l = 0; l < fNVAR; l++){
-      cout << fVarNameArray.at(l) <<" = "<< m_varVec[l] << endl;//varArray[l] << endl;
+      //cout << fVarNameArray.at(l) <<" = "<< m_varVec[l] << endl;//varArray[l] << endl;
     }
 
     int count =0 ;
@@ -195,7 +195,7 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
       if (varName == "emc"){
 	m_varVec[i]= pid->GetEmcELoss()/pid->GetP();
 	if (m_varVec[i] < 0 || m_varVec[i] ==0 ) count+=1;
-	cout<<"emc "<< m_varVec[i]<< endl;
+	//cout<<"emc "<< m_varVec[i]<< endl;
 	fTrack->Set(varName,m_varVec[i]);
       }
       
@@ -204,8 +204,8 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
 	skp=pid->GetSttDEDX();
 	if(!isnan(skp)) m_varVec[i] = skp;
 
-	cout<<"stt hit counts "<<pid->GetSttHitCounts()
-	    <<" Value is "<<pid->GetSttDEDX()<<endl;
+	//cout<<"stt hit counts "<<pid->GetSttHitCounts()
+	//    <<" Value is "<<pid->GetSttDEDX()<<endl;
 
 	if ( skp < 0 || skp ==0 ) count+=1;
 	if (skp == 0) continue;
@@ -231,7 +231,7 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
 	m_varVec[i]=pid->GetMomentum().Mag();
 	if (m_varVec[i] < 0 || m_varVec[i] == 0 ) count+=1;
 
-	cout<<"momentum "<<pid->GetMomentum().Mag()<<endl;
+	//cout<<"momentum "<<pid->GetMomentum().Mag()<<endl;
 	fTrack->Set(varName,m_varVec[i]);
       }
       // cout<< varName << " = " << m_varVec[i] << endl;
@@ -285,7 +285,9 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
 	}
 	
 	fTrack->Set(className,mvaValue);
-	cout<<"Likelihood for the class "<<className<<"is :"<<mvaValue<<endl;
+	std::cout << "======== DEBUG INFO =======" << std::endl;
+	cout << "Likelihood for the class "
+	     << className << "is :"<< mvaValue << endl << std::endl;
       }//End of for (int i = 0 ; i < fNCLASS; i++){
     }//End of else branch(if(fMVAmode))
   }// End of Loop through the Tracks 
