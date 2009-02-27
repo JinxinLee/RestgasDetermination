@@ -29,7 +29,7 @@ PndLVQTrain::PndLVQTrain(const char* InPut,
     // Tree name
     const char *name = m_ClassNames[cls].c_str();
     
-    //Get the tree object
+    // Get the tree object
     TTree *t = (TTree*) m_InPutFile->Get(name);
     
     // Init a container to bind to the tree branches
@@ -61,29 +61,29 @@ PndLVQTrain::PndLVQTrain(const char* InPut,
 	EvtDat->push_back(ev[idx]);
       }
       
-      //Store the event and its class name
+      // Store the event and its class name
       m_EventsData.push_back(std::make_pair(m_ClassNames[cls], EvtDat));
     }
     
-    //We are done and can delete the tree pointer
+    // We are done and can delete the tree pointer
     delete t;
-  }//End of for(cls) loop for all classes
+  }// End of for(cls) loop for all classes
   
-  //Close the open file and delete the file pointer
+  // Close the open file and delete the file pointer
   m_InPutFile->Close();
   delete m_InPutFile;
   
   // Compute the class conditional means for each class of signal
   for(unsigned int idx = 0; idx < m_ClassNames.size(); idx++){
     CompClsCondMean(m_ClassNames[idx]); 
-  }//End of classconditional mean
+  }// End of classconditional mean
 
   /* 
    * Set the initial values for the learning constants. Note, One
    * needs to change these for better learning result.
   */
   m_initConst = 0.8; m_ethaZero = 0.1; 
-  m_ethaFinal = 0.001; m_NumSweep = 100;
+  m_ethaFinal = 0.001; m_NumSweep = 200;
 }// End of constructor
 
 /*
@@ -143,10 +143,10 @@ void PndLVQTrain::CompClsCondMean(std::string clsName)
 }
 
 /*
- *@param numProto, number of LVQ1 prototypes. Current implementation
- * considers an equal number of prototypes for each class. 
- *@param OutPut, the nameof the out-put file, where the weights are 
- * stored in.
+ * @param numProto, number of LVQ1 prototypes. Current implementation
+ *  considers an equal number of prototypes for each class. 
+ * @param OutPut, the nameof the out-put file, where the weights are 
+ *  stored in.
  */
 void PndLVQTrain::Train(int numProto, const char* outPut)
 {
@@ -166,7 +166,7 @@ void PndLVQTrain::Train(int numProto, const char* outPut)
       
       if(index < minIdx){
 	index += minIdx - index;
-	//std::cout << index << " \n";// DEBUG DEBUG DEBUG
+	// std::cout << index << " \n";// DEBUG DEBUG DEBUG
       }
       if(index > maxIdx){
 	std::cout << "\n\n======================================\n"
@@ -190,7 +190,7 @@ void PndLVQTrain::Train(int numProto, const char* outPut)
       for(unsigned int k = 0; k < evtData->size(); k++){
 	proto->at(k) = evtData->at(k) * c + (1.0 - c) * evtData->at(k);
       }
-      //proto type is initialized, add to the container
+      // proto type is initialized, add to the container
       m_LVQProtos.push_back(std::make_pair(m_EventsData[index].first, proto));
       // std::cout << m_EventsData[index].first << " " << std::endl;
     }
@@ -221,20 +221,20 @@ void PndLVQTrain::Train(int numProto, const char* outPut)
 	protoIndex  = ix;//index of the prototype with min dist
       }
     }
-    //We need to update the (winner) prototype
+    // We need to update the (winner) prototype
     int delta = 0;
-    //determine delta
+    // determine delta
     if( m_EventsData[index].first == m_LVQProtos[protoIndex].first ){
       delta = 0;
     }
     else{
       delta = 1;
-    }//delta is calculated
+    }// delta is calculated
     
     // Update the LVQ prototype
     UpdateProto( *(m_EventsData[index].second), *(m_LVQProtos[protoIndex].second), delta, ethaT);
   }
-  //Write the coordinates of the prototypes to the file
+  // Write the coordinates of the prototypes to the file
   WriteToFile(outPut);
 }
 
@@ -280,19 +280,19 @@ void PndLVQTrain::WriteToFile(const char* outPut)
     const char* treeName = name.c_str();
     const char* treeDesc = desc.c_str();
 
-    //Create a tree
+    // Create a tree
     TTree sig (treeName, treeDesc);
     
-    //Create branches and bind the variables
+    // Create branches and bind the variables
     for(unsigned int j = 0; j < m_VarNames.size(); j++){
       std::string vname = m_VarNames[j];
       std::string leaf  = vname + "/F" ;
       const char* bname = vname.c_str();
       const char* lname = leaf.c_str();
-      //Bind the parameters to the tree elements.
+      // Bind the parameters to the tree elements.
       sig.Branch(bname,&vars[j],lname);
     }
-    //Fill The tree
+    // Fill The tree
     for(unsigned int i = 0; i< m_LVQProtos.size(); i++){
       if(m_LVQProtos[i].first == name){
 	for(unsigned int k = 0; k < vars.size(); k++){
@@ -301,7 +301,7 @@ void PndLVQTrain::WriteToFile(const char* outPut)
 	sig.Fill();
       }
     }
-    //Write the created tree
+    // Write the created tree
     sig.Write();
   }  
   // We are done. We can close the open file and delete the pointer

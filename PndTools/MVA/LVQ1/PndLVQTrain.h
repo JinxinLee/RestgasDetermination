@@ -87,22 +87,23 @@ class PndLVQTrain{
   // Variable Names
   std::vector<std::string> m_VarNames; 
   
-  //Container to keep  the Class Conditional means
+  // Container to keep  the Class Conditional means
   std::vector<std::pair< std::string, std::vector<float>*> > m_ClassCondMeans;
   
-  //Container to keep  the Event data feature vectors
+  // Container to keep  the Event data feature vectors
   std::vector< std::pair<std::string, std::vector<float>*> > m_EventsData;
   
   // Holds the number of available examples per class
   std::map<std::string, int> m_perClsExamples;
   
-  //Holds the start and the end index of events from each class
+  // Holds the start and the end index of events from each class
   std::vector< std::pair<int,int> > m_ClassIndex;
 
-  //Holds the LVQ proto-types
+  // Holds the LVQ proto-types
   std::vector< std::pair<std::string, std::vector<float>*> > m_LVQProtos;
  
-  //Learn parameters: Init constant, start learning rate, End learning rate 
+  // Learn parameters: Init constant, start learning rate, End
+  // learning rate
   double m_initConst, m_ethaZero, m_ethaFinal;
   int m_NumSweep;// Number of sweeps through example set.
 };

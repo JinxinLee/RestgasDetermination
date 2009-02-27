@@ -93,8 +93,8 @@ float PndLVQClassify::ComputeDist(std::vector<float> &EvtData,
 }
 
 /*
- *@param EvtData. Event data to be classified.
- *@param result.  Classification results. Currently the shortest
+ * @param EvtData. Event data to be classified.
+ * @param result.  Classification results. Currently the shortest
  *     distance for each class is stored in result.
  */
 void PndLVQClassify::Classify(std::vector<float> &EvtData, 
@@ -104,11 +104,10 @@ void PndLVQClassify::Classify(std::vector<float> &EvtData,
   result.clear();
   // Initialize results
   for(unsigned int id = 0; id < m_ClassNames.size(); id++){
-    //result.insert( make_pair( m_ClassNames[id], 1000000.0 ) );
     result.insert( make_pair( m_ClassNames[id], std::numeric_limits<float>::max()) );
   }
   
-  //Loop trough the prototypes list and compute the distances
+  // Loop trough the prototypes list and compute the distances
   for(unsigned int i = 0; i < m_protoContainer.size(); i++){
     std::string clsName = m_protoContainer[i].first;
     std::vector<float>* ev = (m_protoContainer[i]).second;
