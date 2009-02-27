@@ -1,6 +1,10 @@
 # Create a library called "libMva" which includes the source files given in
 # the array .
 
+set(
+BOOST_INCLUDE_DIR ${SIMPATH}/basics/boost/include
+BOOST_LIBRARY_DIR   ${SIMPATH}/basics/boost/lib
+)
 set(INCLUDE_DIRECTORIES
 ${ROOT_INCLUDE_DIR}
 ${BOOST_INCLUDE_DIR}
@@ -27,9 +31,9 @@ set(MVA_SRCS
 LVQ1/PndLVQClassify.cpp
 LVQ1/PndLVQTrain.cpp
 
-# kd_KNN/kdtree2.cpp
-# kd_KNN/PndKnnClassify.cpp
-# kd_KNN/PndKnnTrain.cpp
+kd_KNN/kdtree2.cpp
+kd_KNN/PndKnnClassify.cpp
+kd_KNN/PndKnnTrain.cpp
 
 # #########################
 # For the time being we do not want to use the 
