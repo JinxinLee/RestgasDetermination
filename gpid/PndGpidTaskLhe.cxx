@@ -234,7 +234,7 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
 	cout<<"momentum "<<pid->GetMomentum().Mag()<<endl;
 	fTrack->Set(varName,m_varVec[i]);
       }
-      // cout<<varArray[i]<<" "<<varName<<endl;
+      // cout<< varName << " = " << m_varVec[i] << endl;
     }
     
     if (count > 0 ) continue;
@@ -257,9 +257,9 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
       }
 
     else{
-      Float_t mvaValue;
+      float mvaValue;
       for (int i = 0 ; i < fNCLASS; i++){
-	string className;
+	std::string className;
 	
 	className = fClassNameArray.at(i);
 	mvaValue = reader[i].EvaluateMVA(fClassifier);

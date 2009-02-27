@@ -58,7 +58,7 @@ class PndMultiClassMVA
   //Add class names
   void AddClass(const string className);
   
-  //Write the configuration file, with the same nams as the chosen
+  // Write the configuration file, with the same nams as the chosen
   // application
   void WriteConfigFile();
   
@@ -134,7 +134,8 @@ class PndMultiClassMVA
   //data accessers
   Int_t GetNCLASS() {return fClassNameArray.size(); }
   Int_t GetNVAR() {return fVarNameArray.size(); }
-  void TrainTest();       
+  
+  //void TrainTest();       
 
   /* 
    * Select which MVA to train, From TMVA or other implementaions.

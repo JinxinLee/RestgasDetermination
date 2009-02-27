@@ -1,9 +1,17 @@
+/*
+ * Macro to use for selecting and training classifiers. 
+ *
+ * Created by:
+ * S.Vanniarajan
+ * Modified:
+ * M.Babai
+ */
 void learn_pid()
 {
-  //Create classifier object
+  // Create classifier object
   PndMultiClassMVA bdt_train;
   
-  //Choose the features to be used.
+  // Choose the features (parameters) to be used.
   bdt_train.AddVar("stt");
   bdt_train.AddVar("emc");
   bdt_train.AddVar("p");
@@ -13,33 +21,33 @@ void learn_pid()
   //bdt_train.AddVar("thetaC");
 
   
-  //Select classes
+  // Select classes
   bdt_train.AddClass("electron");
   bdt_train.AddClass("pion");
   
-  //Set number of signal and background events to be used
-  bdt_train.SetNSigTrain("300");
-  bdt_train.SetNBkgTrain("300");
+  // Set number of signal and background events to be used
+  bdt_train.SetNSigTrain("30000");
+  bdt_train.SetNBkgTrain("30000");
   
-  bdt_train.SetNSigTest("20");
-  bdt_train.SetNBkgTest("20");
+  bdt_train.SetNSigTest("200");
+  bdt_train.SetNBkgTest("200");
   
-  //Set the classifier properties
-  //BDT
+  // Set the classifier properties
+  // BDT
   bdt_train.SetPruneStrengthBDT("5.0");
-  bdt_train.SetNTreeBDT("30");
+  bdt_train.SetNTreeBDT("50");
   bdt_train.SetBoostTypeBDT("AdaBoost");
   bdt_train.SetNCutsBDT("30");
 
-  //KNN
-  bdt_train.SetNKNN("10");
+  // KNN
+  bdt_train.SetNKNN("100");
   bdt_train.SetKNNTreeOptDepth(6);
   bdt_train.SetKNNScaleFrac(0.8);
   bdt_train.SetKNNKernel("Trim");
   
-  //MLP
+  // MLP
   bdt_train.SetMLPNeuronType("tanh");
-  bdt_train.SetNuOfCycle(10);
+  bdt_train.SetNuOfCycle(200);
   bdt_train.SetNumOfHiddenLayers("N-1,N");
   bdt_train.SetTestRate(5);
   
@@ -54,8 +62,11 @@ void learn_pid()
   bdt_train.SetAPPNAME("test");        
   bdt_train.WriteConfigFile();        
   
-  //train and test the classifiers.
-  //bdt_train.TrainTest();
+  // Select which classifier to train.
+  /*
+   * Possible MVA's are:
+   * TMKNN, TMBDT, TMMLP, MulClsKNN, LVQ1
+   */
   MVAType bla = TMKNN;
   //bdt_train.TrainClassifier(bla);
   
@@ -65,9 +76,9 @@ void learn_pid()
   bla = TMMLP;
   //bdt_train.TrainClassifier(bla);
   
-  bla = LVQ1;//MulClsKNN;//
+  bla = LVQ1;
   TString OutFile = "ZZTestOut.root";
-  bdt_train.SetNumLvqProto(5);
+  bdt_train.SetNumLvqProto(20);
   bdt_train.SetOutFileName(OutFile);
   bdt_train.TrainClassifier(bla);
 }

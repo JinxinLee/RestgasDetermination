@@ -1,3 +1,14 @@
+/*
+ * Macro to use the trained classifiers to perform 
+ * particle classification.
+ * Created by:
+ * S.Vanniarajan
+ * Modified:
+ * M.Babai
+ */
+/*
+ * @param NumEvt: Number of events to classify.
+ */
 void run_pid_reco(const int NumEvt = 1)
 {
   // ================================================================
@@ -5,7 +16,6 @@ void run_pid_reco(const int NumEvt = 1)
   Int_t iVerbose = 0;
   
   // Input file (MC events)
-  //TString inFile = "ele125T_reco.root";
   TString inFile = "el_reco.root";
   
   // Parameter file
@@ -19,10 +29,6 @@ void run_pid_reco(const int NumEvt = 1)
   rootlogon();
   TString sysFile = gSystem->Getenv("VMCWORKDIR");
   // -------------------------------------------------------------------
-  
-  
-  // ===================================================================
-  
   // -----   Timer   ---------------------------------------------------
   TStopwatch timer;
   timer.Start();
@@ -49,16 +55,19 @@ void run_pid_reco(const int NumEvt = 1)
   rtdb->setSecondInput(parIo1);
   fRun->LoadGeometry();
   
-  // PID task
+  // Create the PID task
   PndGpidTaskLhe* pid = new PndGpidTaskLhe();
   
+  // Set Task parameters
   pid->SetAPPNAME("test");
   pid->SetDIR("./weights/");
   
-  //pid->SetMVA(PndGpidTypes::TMVABDT);
-  //pid->SetMVA(PndGpidTypes::MLP);
-  //pid->SetMVA(PndGpidTypes::KNN);
-  MVAType bla = LVQ1;//TMKNN;
+  /*
+   * Select which MVA to use for classification and set the parameters.
+   * Possible MVA's are:
+   * TMKNN, TMBDT, TMMLP, MulClsKNN, LVQ1
+   */
+  MVAType bla = LVQ1;
   pid->SetInFileName("ZZTestOut.root");
   pid->SetMVA(bla);
   

@@ -111,120 +111,6 @@ void PndMultiClassMVA::WriteConfigFile()
   config.close(); 
 }
 
-// This is the main call which does the training for all the added class 
-// types and available classifiers. 
-void PndMultiClassMVA::TrainTest()
-{
-  TFile *input(0);
-  if (fNCLASS < 2 ) {
-    std::cout<< "<ERROR> you need atleast two"
-	     <<" classes for the classification. "<<endl;
-    return; //exit(0);
-  }
-  
-  else if (fNVAR < 2 ) {
-    std::cout<< "<ERROR> you need atleast two"
-	     <<" variables for the Multivariate Analysis. "<<endl;
-    return; //exit(0);
-  }
-  
-  else if (!gSystem->AccessPathName( fINFILENAME )) {
-    std::cout << "<INFO>--- BDTAnalysis  : accessing " 
-	      << fINFILENAME << std::endl;
-    input = TFile::Open( fINFILENAME );
-  } 
-  else if (!input) {
-    std::cout << "<ERROR> could not open data file" << std::endl;
-    return; //exit(0);
-  }
-  {
-    
-    TTree    *TreeArray[50]; // = new TTree[10];
-    for (int i = 0; i < fNCLASS ; i++){
-      TString s,treeName;
-      treeName = fClassNameArray.at(i);
-      cout<< (TTree*)input->Get(treeName)<<endl;
-      TreeArray[i] = (TTree*)input->Get(treeName);
-    }
-    
-    for (int i = 0 ; i < fNCLASS ; i++ ){
-      TString s,OutFileName,anaName;
-      anaName = fAPPNAME +fClassNameArray.at(i);
-      s = s +".root";
-      OutFileName = fClassNameArray.at(i) + ".root";
-      
-      TFile* outputFile = TFile::Open( OutFileName, "RECREATE" );
-      //cout<<"hai"<<endl;
-      TMVA::Factory *factory = new TMVA::Factory( anaName, 
-						  outputFile, 
-						  Form("!V:%sColor", 0?"!":""));
-      Double_t signalWeight     = 1.0;
-      Double_t backgroundWeight = 1.0;
-      
-      for (int j = 0 ; j < fNCLASS ; j++ ){
-	if (i == j ){
-	  factory->AddSignalTree(TreeArray[j],signalWeight);  
-	}
-	else{
-	  factory->AddBackgroundTree(TreeArray[j],backgroundWeight); 
-	}
-      }
-      
-      for (int k = 0 ; k < fNVAR ; k++ ){
-	TString varName;
-	varName = fVarNameArray.at(k);
-	factory->AddVariable(varName,'F');
-      }
-      //TCut mycuts = "stt>2 && stt<30 && emc>0 && emc<3 && thetaC>0
-      //&& thetaC <1 && mvd>0 && mvd< 0.02 && tof>0"; TCut mycutb =
-      //"stt>2 && stt<30 && emc>0 && emc<3 && thetaC>0 && thetaC <1 &&
-      //mvd>0 && mvd< 0.02 && tof>0"; TCut mycuts = "emc < 5 && emc >
-      //0 && stt > 0 && stt < 30 && p > 0 && p < 10"; //"abs(var1)<0.5
-      //&& abs(var2-0.5)<1"; TCut mycutb = "emc < 5 && emc > 0 && stt
-      //> 0 && stt < 30 && p > 0 && p < 10"; // for example: TCut
-      //mycutb = "abs(var1)<0.5";
-
-      // for example: TCut mycuts = "abs(var1)<0.5 && abs(var2-0.5)<1";
-      TCut mycuts = "p<100&&emc<7";
-      // for example: TCut mycutb = "abs(var1)<0.5";
-      TCut mycutb = "p<100&&emc<7";
-
-      TString trainConfig = "NSigTrain=" + fNSigTrain + ":NBkgTrain=" + 
-	fNBkgTrain + ":NSigTest=" + fNSigTest + ":NBkgTest=" +fNBkgTest
-	+ ":SplitMode=Random:!V";
-      cout<<trainConfig<<endl; 
-      factory->PrepareTrainingAndTestTree( mycuts, mycutb, trainConfig ); 
-      
-      TString BdtConfig = "!H:!V:NTrees=" + fNTreeBDT + ":BoostType=" + 
-	fBoostTypeBDT + ":SeparationType=GiniIndex:nCuts=" + fNCutsBDT +
-	"PruneMethod=NoPruning:PruneStrength=" + fPruneStrengthBDT; 
-      factory->BookMethod( TMVA::Types::kBDT, "BDT", BdtConfig); 
-      
-      TString MLPConfig = "Normalise:H:!V:NeuronType="+mlpNeuTyp+
-	":NCycles="+mlpCycle+":HiddenLayers="+mlpNumHidden+":TestRate="+
-	mlpTestRate;
-      //factory->BookMethod( TMVA::Types::kMLP, "MLP",
-      //"Normalise:H:!V:NeuronType=tanh:NCycles=200:HiddenLayers=N+1,
-      //N:TestRate=5");
-      factory->BookMethod( TMVA::Types::kMLP, "MLP", MLPConfig);
-      
-      //TString kNNConfig = "nkNN=" + fNKNN + 
-      // ":V:TreeOptDepth=6:ScaleFrac=0.8:!UseKernel:Trim";
-	TString kNNConfig = "nkNN=" + fNKNN + 
-	":V:TreeOptDepth="+mKnnDepth+":ScaleFrac="+mKnnscalefrac+
-	":!UseKernel:"+mKnnKernel;
-      factory->BookMethod( TMVA::Types::kKNN, "KNN", kNNConfig);
-      
-      factory->TrainAllMethods();
-      factory->TestAllMethods();
-      // factory->EvaluateAllMethods();    
-      outputFile->Close();
-      delete factory;
-    }
-  }
-  WriteConfigFile();
-}
-
 /* 
  * Select which MVA to train, From TMVA or other implementaions.
  * @param mva: Defines the MVA type to be trained.
@@ -381,3 +267,116 @@ void PndMultiClassMVA::TrainTestTM(MVAType mva, const std::string config)
   WriteConfigFile();
 }
 ClassImp(PndMultiClassMVA);
+
+// This is the main call which does the training for all the added class 
+// types and available classifiers. 
+/*
+  void PndMultiClassMVA::TrainTest()
+  {
+  TFile *input(0);
+  if (fNCLASS < 2 ) {
+  std::cout<< "<ERROR> you need atleast two"
+  <<" classes for the classification. "<<endl;
+  return; //exit(0);
+  }  
+  else if (fNVAR < 2 ) {
+  std::cout<< "<ERROR> you need atleast two"
+  <<" variables for the Multivariate Analysis. "<<endl;
+  return; //exit(0);
+  }
+  else if (!gSystem->AccessPathName( fINFILENAME )) {
+  std::cout << "<INFO>--- BDTAnalysis  : accessing " 
+  << fINFILENAME << std::endl;
+  input = TFile::Open( fINFILENAME );
+  } 
+  else if (!input) {
+  std::cout << "<ERROR> could not open data file" << std::endl;
+  return; //exit(0);
+  }
+  {  
+  TTree    *TreeArray[50]; // = new TTree[10];
+  for (int i = 0; i < fNCLASS ; i++){
+  TString s,treeName;
+  treeName = fClassNameArray.at(i);
+  cout<< (TTree*)input->Get(treeName)<<endl;
+  TreeArray[i] = (TTree*)input->Get(treeName);
+  }
+  
+  for (int i = 0 ; i < fNCLASS ; i++ ){
+  TString s,OutFileName,anaName;
+  anaName = fAPPNAME +fClassNameArray.at(i);
+  s = s +".root";
+  OutFileName = fClassNameArray.at(i) + ".root";
+  
+  TFile* outputFile = TFile::Open( OutFileName, "RECREATE" );
+  //cout<<"hai"<<endl;
+  TMVA::Factory *factory = new TMVA::Factory( anaName, 
+  outputFile, 
+  Form("!V:%sColor", 0?"!":""));
+  Double_t signalWeight     = 1.0;
+  Double_t backgroundWeight = 1.0;
+  
+  for (int j = 0 ; j < fNCLASS ; j++ ){
+  if (i == j ){
+  factory->AddSignalTree(TreeArray[j],signalWeight);  
+  }
+  else{
+  factory->AddBackgroundTree(TreeArray[j],backgroundWeight); 
+  }
+  }
+  
+  for (int k = 0 ; k < fNVAR ; k++ ){
+  TString varName;
+  varName = fVarNameArray.at(k);
+  factory->AddVariable(varName,'F');
+  }
+  //TCut mycuts = "stt>2 && stt<30 && emc>0 && emc<3 && thetaC>0
+  //&& thetaC <1 && mvd>0 && mvd< 0.02 && tof>0"; TCut mycutb =
+  //"stt>2 && stt<30 && emc>0 && emc<3 && thetaC>0 && thetaC <1 &&
+  //mvd>0 && mvd< 0.02 && tof>0"; TCut mycuts = "emc < 5 && emc >
+  //0 && stt > 0 && stt < 30 && p > 0 && p < 10"; //"abs(var1)<0.5
+  //&& abs(var2-0.5)<1"; TCut mycutb = "emc < 5 && emc > 0 && stt
+  //> 0 && stt < 30 && p > 0 && p < 10"; // for example: TCut
+  //mycutb = "abs(var1)<0.5";
+  
+  // for example: TCut mycuts = "abs(var1)<0.5 && abs(var2-0.5)<1";
+  TCut mycuts = "p<100&&emc<7";
+  // for example: TCut mycutb = "abs(var1)<0.5";
+  TCut mycutb = "p<100&&emc<7";
+  
+  TString trainConfig = "NSigTrain=" + fNSigTrain + ":NBkgTrain=" + 
+  fNBkgTrain + ":NSigTest=" + fNSigTest + ":NBkgTest=" +fNBkgTest
+  + ":SplitMode=Random:!V";
+  cout<<trainConfig<<endl; 
+  factory->PrepareTrainingAndTestTree( mycuts, mycutb, trainConfig ); 
+  
+  TString BdtConfig = "!H:!V:NTrees=" + fNTreeBDT + ":BoostType=" + 
+  fBoostTypeBDT + ":SeparationType=GiniIndex:nCuts=" + fNCutsBDT +
+  "PruneMethod=NoPruning:PruneStrength=" + fPruneStrengthBDT; 
+  factory->BookMethod( TMVA::Types::kBDT, "BDT", BdtConfig); 
+  
+  TString MLPConfig = "Normalise:H:!V:NeuronType="+mlpNeuTyp+
+  ":NCycles="+mlpCycle+":HiddenLayers="+mlpNumHidden+":TestRate="+
+  mlpTestRate;
+  //factory->BookMethod( TMVA::Types::kMLP, "MLP",
+  //"Normalise:H:!V:NeuronType=tanh:NCycles=200:HiddenLayers=N+1,
+  //N:TestRate=5");
+  factory->BookMethod( TMVA::Types::kMLP, "MLP", MLPConfig);
+  
+  //TString kNNConfig = "nkNN=" + fNKNN + 
+  // ":V:TreeOptDepth=6:ScaleFrac=0.8:!UseKernel:Trim";
+  TString kNNConfig = "nkNN=" + fNKNN + 
+  ":V:TreeOptDepth="+mKnnDepth+":ScaleFrac="+mKnnscalefrac+
+  ":!UseKernel:"+mKnnKernel;
+  factory->BookMethod( TMVA::Types::kKNN, "KNN", kNNConfig);
+  
+  factory->TrainAllMethods();
+  factory->TestAllMethods();
+  // factory->EvaluateAllMethods();    
+  outputFile->Close();
+  delete factory;
+  }
+  }
+  WriteConfigFile();
+  }
+*/

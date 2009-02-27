@@ -76,7 +76,7 @@ class PndGpidTaskLhe : public FairTask
   virtual void Exec(Option_t* opt);
 
   protected:
-  void printResult(std::map<std::string,float>& res){
+  inline   void printResult(std::map<std::string,float>& res){
     std::cout << "\n===== LVQ output For debugging ========== \n";
     for( std::map<std::string,float>::iterator ii=res.begin(); 
 	 ii != res.end(); ++ii){
