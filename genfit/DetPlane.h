@@ -77,6 +77,8 @@ public:
   friend bool operator== (const DetPlane& lhs, const DetPlane& rhs);
   friend bool operator!= (const DetPlane& lhs, const DetPlane& rhs);
 
+  double distance(TVector3&) const;
+
 private:
 
   // Private Data Members ------------

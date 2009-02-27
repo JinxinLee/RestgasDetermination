@@ -230,3 +230,10 @@ void DetPlane::getGraphics(double mesh, double length, TPolyMarker3D **pl, TPoly
     (*n)->SetLineColor(kBlue);
   }
 }
+
+double DetPlane::distance(TVector3& v) const{
+  double s = (v - _o)*_u;
+  double t = (v - _o)*_v;
+  TVector3 distanceVector = v - _o - (s*_u) - (t*_v); 
+  return distanceVector.Mag();
+}
