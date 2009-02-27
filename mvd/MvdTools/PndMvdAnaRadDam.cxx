@@ -34,6 +34,7 @@ void PndMvdAnaRadDam::AnalyzeFiles()
 				AddHisto(histo);
 			}
 		}
+		f->Close();
 	}
 }
 
