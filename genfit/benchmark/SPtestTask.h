@@ -35,26 +35,14 @@ class SPtestTask : public FairTask
   int _nEv;
   double _th,_posSig,_thSm,_phiSm,_mom,_momSm,_res;
 
+  void setFileName(std::string);
  private:
 
-  TGraph *g1;
-  TGraph *g2;
-  TGraph *g3;
-  TGraph *g4;
-  TGraph *g5;
-  TGraph *g6;
-  TGraph *g7;
-  TGraph *g8;
-  TGraph *g9;
-
-  TPolyLine3D *l1,*uline,*vline;
-  TPolyMarker3D *m1;
-  TPolyMarker3D *m2;
-  TPolyMarker3D *_plane;
-
+  std::string fileName;
   TTree* tree;
 
-  double momRe;
+
+ double momRe;
   double momTr;
   double momSi;
   double momPu;
@@ -78,6 +66,7 @@ class SPtestTask : public FairTask
   double thSt;
   double phiTr;
   double phiSt;
+
 
 
 	/** Input array of Points **/

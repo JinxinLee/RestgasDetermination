@@ -41,15 +41,15 @@
   //  fRun->AddTask(poca);
   SPtestTask *SPT = new SPtestTask();
 
-  SPT->_nEv=3000;
-  SPT->_mom=0.5;
-  double theta=45.;
+  SPT->_nEv=10000;
+  SPT->_mom=.5;
+  double theta=25.;
   SPT->_th=TMath::Pi()*(theta/180.);
   SPT->_res=0.025;
   char buf[200];
   sprintf(buf,"%.2fGeV_%.3fcmRes_%.2fdeg_%dev.root",SPT->_mom,SPT->_res,theta,SPT->_nEv);
   std::string fileName(buf);
-
+  SPT->setFileName(fileName);
   fRun->AddTask(SPT);
 
   // -----  Parameter database   --------------------------------------------
@@ -80,6 +80,6 @@
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
   //  poca->WriteToFile();
-  SPT->WriteToFile(fileName);
+
 }  
   

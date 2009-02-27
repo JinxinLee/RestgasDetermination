@@ -70,25 +70,17 @@ InitStatus SPtestTask::Init() {
 }
 // -------------------------------------------------------------------------
 
-void SPtestTask::WriteToFile(std::string fileName){
-  TFile f(fileName.c_str(),"RECREATE");
-
-  //l1->Write("track");
-  m1->Write("points");
-  //m2->Write("result");
-  //_plane->Write("plane");
-  //uline->Write("uline");
-  //vline->Write("vline");
-
-  tree->Write();
-  f.Close();
+void SPtestTask::setFileName(std::string _fileName){
+  fileName = _fileName;
 }
-
 
 
 
 // -----   Public method Exec   --------------------------------------------
 void SPtestTask::Exec(Option_t* opt) {
+
+  TFile *file = TFile::Open(fileName.c_str(),"RECREATE");
+
   // 	cout << "SPtestTask::Exec" << endl;
   gRandom->SetSeed(0);  
 
@@ -123,6 +115,7 @@ void SPtestTask::Exec(Option_t* opt) {
 
   for(int counter=0;counter<_nEv;++counter){
 
+    std::cerr << "@@@@@@@@@@@@@@@@ Doing event #" << counter << std::endl;
 
 	TVector3 StartPos    = TVector3 (0.1,20.,1.);
 	TVector3 StartPosChanged    = StartPos;
@@ -165,18 +158,18 @@ void SPtestTask::Exec(Option_t* opt) {
 	DetPlane start_pl(StartPos,StartMom);
 	DetPlane start_plChanged(StartPosChanged,StartMomChanged);
 	
-	TVector3 errors(_res,_res,_res);
+	TVector3 errors(_res,_res,2.*_res);
 	std::vector<TVector3> points;
 	
 	
 	AbsTrackRep* rep = new GeaneTrackRep(fPro,
-										 start_plChanged,StartMomChanged,
-										 StartPosErr,StartMomErr,
-										 fCharge,PDGCode);
+					     start_plChanged,StartMomChanged,
+					     StartPosErr,StartMomErr,
+					     fCharge,PDGCode);
 	AbsTrackRep* rephits = new GeaneTrackRep(fPro,
-											 start_pl,StartMom,
-											 StartPosErr,StartMomErr,
-											 fCharge,PDGCode);
+						 start_pl,StartMom,
+						 StartPosErr,StartMomErr,
+						 fCharge,PDGCode);
 	
 	/*
 	  rep->getState().Print();
@@ -206,7 +199,7 @@ void SPtestTask::Exec(Option_t* opt) {
 	  TVector3 pos,mom;
 	  
 	  {
-		StdoutKiller k;
+		//StdoutKiller k;
 		pos = rephits->getPos();
 		mom = rephits->getMom();
 	  }
@@ -215,18 +208,18 @@ void SPtestTask::Exec(Option_t* opt) {
 	  mom.Print();
 	  mom.SetMag(1.5);
 	  DetPlane d(pos+mom,mom);
-	  d.Print();
+	  //d.Print();
 	  //rephits->getState().Print();
 	  TVector3 posR,momR;
 	  {
-		StdoutKiller k;
+		//StdoutKiller k;
 		rephits->getPosMom(d,posR,momR);
 	  }
 	  TMatrixT<double> statePred(5,1);
 	  TMatrixT<double> covPred(5,5);
 	  TMatrixT<double> jac(5,5);
 	  {
-		StdoutKiller k; 
+		//StdoutKiller k; 
 		rephits->extrapolate(d,statePred,covPred,jac);
 	  }
 	  rephits->setState(statePred);
@@ -245,28 +238,21 @@ void SPtestTask::Exec(Option_t* opt) {
 	DetPlane targetPlane = lastPlane;
 	targetPlane.setO(targetPlane.getO()+targetPlane.getNormal());
 	lastPlane.Print();
+
+	std::cout << std::endl << std::endl << std::endl<<"targetPlane" << std::endl;
 	targetPlane.Print();
 
 
 
 	std::vector<AbsRecoHit*> hits;
 	
-	m1 = new TPolyMarker3D(points.size(),23);
-	
-
 
 
 	for(int i=0;i<(int)points.size();++i){
 	  //pointsReverse.at(i).Print();
 	  AbsRecoHit *aHit = new SPhit(points.at(i),errors);
-	  //aHit->getRawHitCoord().Print();
-	  m1->SetPoint(i,(aHit->getRawHitCoord())[0][0],(aHit->getRawHitCoord())[1][0],(aHit->getRawHitCoord())[2][0]);
-	  m1->SetMarkerColor(kBlack);
-	  
 	  hits.push_back(aHit);
 	}
-	
-	
 	
 	
 	Track *tr = new Track( rep );
@@ -282,7 +268,8 @@ void SPtestTask::Exec(Option_t* opt) {
 	}
 	//std::cout << __FILE__ << __LINE__ << std::endl;
 	AbsTrackRep* result =   tr->getCardinalRep();
-	//result->getReferencePlane().Print();
+	std::cout << std::endl << std::endl << std::endl<<"resultPlane" << std::endl;
+	result->getReferencePlane().Print();
 	if(result->getStatusFlag()!=0) {
 	  std::cerr << "counter result->getStatusFlag()!=0)" << std::endl;
 	  continue;
@@ -316,15 +303,22 @@ void SPtestTask::Exec(Option_t* opt) {
 	TMatrixT<double> statePred(5,1);
 	TMatrixT<double> covPred(5,5);
 	TMatrixT<double> jac(5,5);
+
+	//TAG
+	//DetPlane targetPlane(result->getReferencePlane());
+
 	{
-	  StdoutKiller k; 
+	  //StdoutKiller k; 
 	  rephits->extrapolate(targetPlane,statePred,covPred,jac);
 	}
 	UV_MCT.Set(statePred[3][0],statePred[4][0]);
 	UpVp_MCT.Set(statePred[1][0],statePred[2][0]);
 
+	//TAG
+	//statePred=result->getState();
+	//covPred=result->getCov();
 	{
-	  StdoutKiller k; 
+	  //StdoutKiller k; 
 	  result->extrapolate(targetPlane,statePred,covPred,jac);
 	}
 	UV_FIT.Set(statePred[3][0],statePred[4][0]);
@@ -361,6 +355,9 @@ void SPtestTask::Exec(Option_t* opt) {
 	delete rep;
 	delete rephits;
   }
+
+  tree->Write();
+  file->Close();
   
 }
 
