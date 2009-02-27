@@ -1,6 +1,6 @@
-void run_pid_reco(const int nEvents = 4)
+void run_pid_reco(const int NumEvt = 1)
 {
-  // ========================================================================
+  // ================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0;
   
@@ -14,23 +14,23 @@ void run_pid_reco(const int nEvents = 4)
   // Output file
   TString outFile = "ele_pid.root";
   
-  // ----  Load libraries   -------------------------------------------------
+  // ----  Load libraries   --------------------------------------------
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
   TString sysFile = gSystem->Getenv("VMCWORKDIR");
-  // ------------------------------------------------------------------------
+  // -------------------------------------------------------------------
   
   
-  // ========================================================================
+  // ===================================================================
   
-  // -----   Timer   --------------------------------------------------------
+  // -----   Timer   ---------------------------------------------------
   TStopwatch timer;
   timer.Start();
-  // ------------------------------------------------------------------------
+  // -------------------------------------------------------------------
   
   PndEmcMapper *emcMap=PndEmcMapper::Instance(2,"el_sttcombi.root");
   
-  // -----   Digitization run   -------------------------------------------
+  // -----   Digitization run   ----------------------------------------
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
@@ -52,27 +52,26 @@ void run_pid_reco(const int nEvents = 4)
   // PID task
   PndGpidTaskLhe* pid = new PndGpidTaskLhe();
   
-  //pid->SetAPPNAME("e_pi_stt_mvd_tof_p_thetaC_emc_T1000");
-  //  pid->SetAPPNAME("STT_P_MVD_TOF_THETAC_EMC_1_2_5NN");
   pid->SetAPPNAME("test");
   pid->SetDIR("./weights/");
   
-  MVAType mv = TMKNN;
-  //pid->SetMVA(PndGpidTask::BDT);
-  //pid->SetMVA(PndGpidTask::MLP);
-  pid->SetMVA(mv);
+  //pid->SetMVA(PndGpidTypes::TMVABDT);
+  //pid->SetMVA(PndGpidTypes::MLP);
+  //pid->SetMVA(PndGpidTypes::KNN);
+  MVAType bla = LVQ1;//TMKNN;
+  pid->SetInFileName("ZZTestOut.root");
+  pid->SetMVA(bla);
   
   fRun->AddTask(pid);
   fRun->Init();
  
-  fRun->Run(0, nEvents);
-  //fRun->Run(0, 20);//nEvents);
+  fRun->Run(0, NumEvt);
   
   rtdb->saveOutput();
   rtdb->print();
   
-  // ------------------------------------------------------------------------
-  // -----   Finish   -------------------------------------------------------
+  // ----------------------------------------------------------------
+  // -----   Finish   -----------------------------------------------
   timer.Stop();
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
@@ -80,6 +79,7 @@ void run_pid_reco(const int nEvents = 4)
   cout << "Macro finished succesfully." << endl;
   cout << "Output file is "    << outFile << endl;
   cout << "Parameter file is " << parFile << endl;
-  cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
+  cout << "Real time " << rtime << " s, CPU time " 
+       << ctime << " s" << endl;
   cout << endl;
 }

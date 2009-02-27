@@ -34,7 +34,7 @@ void PndPidCand::destroy()
   fVarName.clear(); 
 }
 
-void PndPidCand::Set(const string key, const double value)
+void PndPidCand::Set(const string key, const float value)
 {
   fParam[key] = value;
 }
@@ -46,7 +46,7 @@ double PndPidCand::Get(const string key)
 
 void PndPidCand::GetVarName(vector<string>& varList)
 {
-  std::map<string,double>::iterator fIter;
+  std::map<string, float>::iterator fIter;
   for(fIter = fParam.begin(); fIter != fParam.end();fIter++){
     varList.push_back((*fIter).first); 
   }

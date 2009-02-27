@@ -29,6 +29,8 @@ PndGpidTaskLhe::~PndGpidTaskLhe()
 {
   fVarNameArray.clear();
   fClassNameArray.clear();
+  m_varVec.clear();
+  delete m_lvq;
 }
 
 //Init call of the task inherited from the Cbmtask Registers the
@@ -106,10 +108,8 @@ void PndGpidTaskLhe::Config()
 
 void PndGpidTaskLhe::AddVar()
 {
-  for ( int i = 0 ; i < fNVAR ; i++  ){
-    m_varVec.push_back(0.0);
-  }
-
+  m_varVec = std::vector<float>(fNVAR, 0.00);
+  
   for ( int i = 0 ; i < fNVAR ; i++  ){
     TString varName,s;
     varName = fVarNameArray.at(i);
@@ -143,6 +143,13 @@ void PndGpidTaskLhe::BookingMVA()
       anaFile =  fDIR + fAPPNAME + fClassNameArray.at(i) + "_KNN.weights.txt";
       reader[i].BookMVA("KNN method", anaFile );
       fClassifier = "KNN method";
+      break;
+    case MulClsKNN:
+      std::cout << "Not available yet" << std::endl;
+      break;
+
+    case LVQ1:
+      m_lvq = new PndLVQClassify(M_InFileName,fClassNameArray,fVarNameArray);
       break;
       
     default:
@@ -232,37 +239,55 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
     
     if (count > 0 ) continue;
 
-    Float_t mvaValue;
-    for (int i = 0 ; i < fNCLASS; i++){
-      string className;
-      
-      className = fClassNameArray.at(i);
-      mvaValue = reader[i].EvaluateMVA(fClassifier);
-      
-      switch (fMVAmode){
-      case TMBDT:
-	mvaValue = (mvaValue - (-1.0))/2.0;
-	break;
-	
-      case TMMLP:
-	mvaValue = (mvaValue - (-1.1))/2.2;
-	break;
-	
-      case TMKNN:
-	cout<<"MVA KNN "<<mvaValue<<endl;
-	mvaValue = mvaValue;//-0.5; 
-	cout<<"MVA correction "<<mvaValue<<endl;
-	break;
+      if(fMVAmode == MulClsKNN || fMVAmode == LVQ1){
+	std::map<std::string,float> res;
 
-      default:
-	std::cout << "<ERROR:> NO classifier was selected." << std::endl;
-	break;
+	switch(fMVAmode){
+	case MulClsKNN:
+	  std::cout << "Not available" << std::endl;
+	  break;
+	case LVQ1:
+	  m_lvq->Classify(m_varVec, res);
+	  printResult(res);
+	  fTrack->Set(res);
+	  break;
+	default:
+	  std::cout << "Unknown classifier" << std::endl;
+	}
       }
-      
-      fTrack->Set(className,mvaValue);
-      cout<<"Likelihood for the class "<<className<<"is :"<<mvaValue<<endl;
-    }
-    
+
+    else{
+      Float_t mvaValue;
+      for (int i = 0 ; i < fNCLASS; i++){
+	string className;
+	
+	className = fClassNameArray.at(i);
+	mvaValue = reader[i].EvaluateMVA(fClassifier);
+	
+	switch (fMVAmode){
+	case TMBDT:
+	  mvaValue = (mvaValue - (-1.0))/2.0;
+	  break;
+	  
+	case TMMLP:
+	  mvaValue = (mvaValue - (-1.1))/2.2;
+	  break;
+	  
+	case TMKNN:
+	  cout<<"MVA KNN "<<mvaValue<<endl;
+	  mvaValue = mvaValue;//-0.5; 
+	  cout<<"MVA correction "<<mvaValue<<endl;
+	  break;
+	  
+	default:
+	  std::cout << "<ERROR:> NO classifier was selected." << std::endl;
+	  break;
+	}
+	
+	fTrack->Set(className,mvaValue);
+	cout<<"Likelihood for the class "<<className<<"is :"<<mvaValue<<endl;
+      }//End of for (int i = 0 ; i < fNCLASS; i++){
+    }//End of else branch(if(fMVAmode))
   }// End of Loop through the Tracks 
 }
 ClassImp(PndGpidTaskLhe);

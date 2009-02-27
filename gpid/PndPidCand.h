@@ -31,7 +31,7 @@
 
 using namespace std;
 
-typedef std::map<std::string,double> Param;
+typedef std::map<std::string, float> Param;
 
 /*
  * Any pointer data member here has to be deleted by destroy func
@@ -42,8 +42,8 @@ public:
   PndPidCand();
   ~PndPidCand();
 
-  void Set(const std::string key, const double value);
-  void Set(const std::map<std::string,double>& res){fParam = res;};
+  void Set(const std::string key, const float value);
+  void Set(const std::map<std::string,float>& res){fParam = res;};
 
   double Get(const std::string key);
   void GetVarName(std::vector<std::string>& varList);

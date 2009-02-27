@@ -21,7 +21,9 @@
 #ifndef PNDGPIDTASKLHE_H
 #define PNDGPIDTASKLHE_H
 
-#define NUMTMVAREADERS 10
+#ifndef NUM_TMVA_READERS
+#define NUM_TMVA_READERS 10
+#endif
 
 //C++ includes
 #include <algorithm>
@@ -61,9 +63,11 @@ class PndGpidTaskLhe : public FairTask
   virtual ~PndGpidTaskLhe();
   
   // Data modifiers
-  void SetAPPNAME(TString anaName)  { fAPPNAME = anaName; }
-  void SetDIR(string dir) {fDIR = dir;}
-  void SetMVA(MVAType mode) {fMVAmode = mode;} 
+  void SetAPPNAME(TString anaName)  { fAPPNAME = anaName; };
+  void SetDIR(string dir) {fDIR = dir;};
+  void SetMVA(MVAType mode) {fMVAmode = mode;};
+
+  void SetInFileName(char* InPut) {M_InFileName = InPut;} ;
   
   /** Virtual method Init **/
   virtual InitStatus Init();
@@ -71,7 +75,15 @@ class PndGpidTaskLhe : public FairTask
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
 
-  //protected:
+  protected:
+  void printResult(std::map<std::string,float>& res){
+    std::cout << "\n===== LVQ output For debugging ========== \n";
+    for( std::map<std::string,float>::iterator ii=res.begin(); 
+	 ii != res.end(); ++ii){
+      std::cout << (*ii).first << " => " << (*ii).second << std::endl;
+    }
+    std::cout << "===== LVQ output For debugging ========== \n";
+  }
 
  private:
   // Private fuction members called by init during Initialization
@@ -103,12 +115,14 @@ class PndGpidTaskLhe : public FairTask
   // Array of Class names for classification names 
   std::vector<std::string> fClassNameArray;
   
-  TMVA::Reader reader[NUMTMVAREADERS];
+  TMVA::Reader reader[NUM_TMVA_READERS];
   int fNVAR;
   int fNCLASS;
 
+  TString M_InFileName;
   std::vector<float> m_varVec;
-
+  PndLVQClassify* m_lvq;
+  
   TClonesArray* fPidTrackCand;  
   TClonesArray* fArrPid; 
   ClassDef(PndGpidTaskLhe,1);
