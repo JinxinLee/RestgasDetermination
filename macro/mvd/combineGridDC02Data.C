@@ -9,7 +9,7 @@ void combineGridDC02Data(Int_t runNr)	//give only the initial number (1,2,3)
 
 	for (int i = 0; i < 8; i++){
 		std::stringstream fileName;
-		fileName << "./radDamData/run";
+		fileName << "./radDamageData/run";
 		fileName << runNr << "0" << i;
 		fileName << "/Mvd_GridUrqmdAna_AnalyzedData.root";
 		radAna.AddFile(fileName.str().c_str());
@@ -17,6 +17,6 @@ void combineGridDC02Data(Int_t runNr)	//give only the initial number (1,2,3)
 
 	radAna.AnalyzeFiles();
 	std::stringstream outputName;
-	outputName << "./radDamData/" << "Mvd_GridUrqmdAna_" << runNr << ".root";
+	outputName << "./radDamageData/" << "Mvd_GridUrqmdAna_" << runNr << ".root";
 	radAna.SaveHistos(outputName.str().c_str());
 }
