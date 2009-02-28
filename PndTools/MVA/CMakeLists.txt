@@ -31,9 +31,9 @@ set(MVA_SRCS
 LVQ1/PndLVQClassify.cpp
 LVQ1/PndLVQTrain.cpp
 
-kd_KNN/kdtree2.cpp
-kd_KNN/PndKnnClassify.cpp
-kd_KNN/PndKnnTrain.cpp
+# kd_KNN/kdtree2.cpp
+# kd_KNN/PndKnnClassify.cpp
+# kd_KNN/PndKnnTrain.cpp
 
 # #########################
 # For the time being we do not want to use the 
