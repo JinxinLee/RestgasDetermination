@@ -101,13 +101,7 @@ void PndEmc::BeginEvent(){
 // -----   Public method ProcessHits  --------------------------------------
 Bool_t PndEmc::ProcessHits(FairVolume* vol) {  
   
-  // Increment number of emc points for TParticle
-  if (gMC->IsTrackEntering()) 
-    {
-      PndStack* stack = (PndStack*) gMC->GetStack();
-      stack->AddPoint(kEMC);
-    }
-
+ 
   if (gMC->Edep()<=0) return kTRUE; // skip all the points which have no energy loss (i.e. Entering)
   
   TString nam = gMC->CurrentVolName();
@@ -293,7 +287,15 @@ Bool_t PndEmc::ProcessHits(FairVolume* vol) {
 	 TVector3(fPos.X(),   fPos.Y(),   fPos.Z()),
 	 TVector3(fMom.Px(),  fMom.Py(),  fMom.Pz()),
 	 fTime, fLength, fELoss, nMod, nRow, nCrys, copyNo);
-
+	// Increment number of emc points for TParticle
+	if (gMC->IsTrackEntering()) 
+    {
+		PndStack* stack = (PndStack*) gMC->GetStack();
+		stack->AddPoint(kEMC);
+    }
+	
+	
+	
    /*cout << "PndEmc: fTrackID= " << fTrackID 
      << " fVolumeID= " << fVolumeID 
     // << " fELoss= " << fELoss 
