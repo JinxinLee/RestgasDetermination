@@ -101,7 +101,7 @@ PndEmcStructure::PndEmcStructure(TGeoManager *geoMan)
 		if (!isEmcModule) continue;
 		
       detId =  module*100000000 + row*1000000 + copy*10000 + crystal; 
-      
+      //cout<<"module == "<< module << ", detID == "<< detId <<endl;
       PndEmcTwoCoordIndex *tci=fEmcMap->GetTCI(detId);
 		
 		if (tci==0)
@@ -109,6 +109,7 @@ PndEmcStructure::PndEmcStructure(TGeoManager *geoMan)
 			cout<<"Not found tci for index = "<<detId<<" in PndEmcStructure"<<endl;
 		        cout<<"For: emc_module12345.dat geometry - use MapperVersion 1 in trunk/macro/params/emc.par"<<endl;
 		        cout<<"For: emc_module1245.dat + emc_module3new.root - change MapperVersion to 2 "<<endl;
+		        cout<<"For: emc_module1245.dat + emc_module3new.root + emc_module4_*.root- change MapperVersion to 6 "<<endl;
 		   abort();	
 		}
 		
@@ -206,7 +207,7 @@ bool PndEmcStructure::crystal_name_analysis(TString node_path,int &module,int &c
       Int_t copyNoBox  = (((TObjString *)subStrL->At(3))->GetString()).Atoi();
       Int_t copyNoCrys  = (((TObjString *)subStrL->At(4))->GetString()).Atoi();
 
-		Int_t col=0, k1=0, nRow=-1, nCrys=-1;
+      Int_t col=0, k1=0, nRow=-1, nCrys=-1;
       Int_t subrow=4;   // 4 crystals in each subvolume
       Int_t next=0;     // starts (from the middle) next column 
       
@@ -249,28 +250,6 @@ bool PndEmcStructure::crystal_name_analysis(TString node_path,int &module,int &c
       if (col>4  && next >6) flag=0; //  -||-
       if (col>1  && next >7) flag=0; //  -||-
       
-      /*if(flag)
-	if ( (copyNoBox == 0)  || (copyNoBox == 2) ){
-	   if(copyNoCrys == 0 || copyNoCrys == 1){
-	      nCrys = ( (next*4) + (copyNoCrys+1) );
-	      nRow = (copyNoBox + 1 + subrow*col); 	
-	   }else if (copyNoCrys == 2 || copyNoCrys == 3){
-	      k1 = copyNoCrys-2;			      
-	      nCrys = ( (next*4) + (k1+1) );
-	      nRow = (copyNoBox + 2 + subrow*col);		 
-	   }
-	}else if ( (copyNoBox == 1) || (copyNoBox == 3) ){
-	   if(copyNoCrys == 0 || copyNoCrys == 1){
-	      nCrys = ( (next*4) + (copyNoCrys+3) );
-	      nRow = copyNoBox + subrow*col; 
-	   }else if (copyNoCrys == 2 || copyNoCrys == 3){
-	      k1 = copyNoCrys-2;
-	      nCrys = ( (next*4) + (k1+3) );
-	      nRow = (copyNoBox + 1 + subrow*col);
-	   } //end of crystal		     
-	} //end of box
-      */
-
      //18.02.09
      if (flag){
        if ( (copyNoBox == 0)  || (copyNoBox == 3) ){
@@ -305,7 +284,106 @@ bool PndEmcStructure::crystal_name_analysis(TString node_path,int &module,int &c
       row = nRow;
       crystal = nCrys;
    }
- 
+    	//case new version of backward end-cap (from "emc_module4new.root" file) - 9.10.2008
+   else if (node_path.Contains("Quarter4Vol")) { 
+	  
+     TObjArray *subStrL;
+	  
+     if (node_path.Contains("SubunitVol_")){
+       subStrL = TPRegexp("^cave/Emc4_0/Quarter4Vol_(\\d+)/SubunitVol_(\\d+)/BoxVol_(\\d+)/CrystalVol_(\\d+)$").MatchS(node_path);
+     }else{
+       if (node_path.Contains("BoxVol_")){
+	 subStrL = TPRegexp("^cave/Emc4_0/Quarter4Vol_(\\d+)/SubunitVol(\\d+)_(\\d+)/BoxVol_(\\d+)/CrystalVol_(\\d+)$").MatchS(node_path);
+       }else{
+	 subStrL = TPRegexp("^cave/Emc4_0/Quarter4Vol_(\\d+)/SubunitVol(\\d+)_(\\d+)/BoxVol(\\d+)_(\\d+)/CrystalVol_(\\d+)$").MatchS(node_path);
+       }
+     }
+     
+     copy  = (((TObjString *)subStrL->At(1))->GetString()).Atoi();
+     //cout << "4: copy "<<copy<<endl;
+     
+     Int_t copyNoSub;
+     Int_t copyNoBox;
+     Int_t copyNoCrys;  
+     
+     if (node_path.Contains("SubunitVol_")){
+       copyNoSub = (((TObjString *)subStrL->At(2))->GetString()).Atoi()-1;//'copyNoSub' should start from zero
+       copyNoBox  = (((TObjString *)subStrL->At(3))->GetString()).Atoi();
+       copyNoCrys  = (((TObjString *)subStrL->At(4))->GetString()).Atoi();
+       
+     }else{
+       if (node_path.Contains("BoxVol_")){		  
+	 copyNoSub = (((TObjString *)subStrL->At(3))->GetString()).Atoi()-1;//'copyNoSub' should start from zero
+	 copyNoBox  = (((TObjString *)subStrL->At(4))->GetString()).Atoi();
+	 copyNoCrys  = (((TObjString *)subStrL->At(5))->GetString()).Atoi();
+	 
+       }else{
+	 copyNoSub = (((TObjString *)subStrL->At(3))->GetString()).Atoi()-1;//'copyNoSub' should start from zero
+	 copyNoBox  = (((TObjString *)subStrL->At(5))->GetString()).Atoi();
+	 copyNoCrys  = (((TObjString *)subStrL->At(6))->GetString()).Atoi();
+       }
+     }
+     
+     Int_t col=0, k1=0, nRow=-1, nCrys=-1;
+     Int_t subrow=4;   // 4 crystals in each subvolume
+     Int_t next=0;     // starts (from the middle) next column 
+	  
+     // Below: for BwEndCap we have 13 subunits
+     //  Now, 26.02.2009, 3 crystals in the middle's subunit are added =>
+     // => number of Subunits for BwEncCap & straight geometry is the same   
+     if((copyNoSub >=  0) && (copyNoSub <=  3)){
+       next  = copyNoSub;
+       col   = 0;
+     }else if((copyNoSub >=  4) && (copyNoSub <= 7)){
+       next  = (copyNoSub-4);
+       col   = 1;
+     }else if((copyNoSub >= 8) && (copyNoSub <= 10)){
+       next  = (copyNoSub-8);
+       col   = 2;
+     }else if((copyNoSub >= 11) && (copyNoSub <= 12)){
+       next  = (copyNoSub-11);
+       col   = 3;
+     }
+
+      Int_t flag4=1;
+      // 26.02.2009
+      // "next" means "row", "col" means "col"
+
+      if (next>1  && col>2) flag4=0; // corner's subunit + one below
+      if (next>2  && col>1) flag4=0; // + one from the corner to the left
+      
+      if (flag4!=0){
+	if ( (copyNoBox == 0)  || (copyNoBox == 3) ){
+	  if(copyNoCrys == 1 || copyNoCrys == 3){ 
+	    nCrys = next*4 + 3;
+	  }else if (copyNoCrys == 0 || copyNoCrys == 2){
+	    nCrys = next*4 + 4;
+	  }
+	}else if ( (copyNoBox == 1)  || (copyNoBox == 2) ){
+	  if(copyNoCrys == 0 || copyNoCrys == 2){ 
+	    nCrys = next*4 + 2;
+	  }else if (copyNoCrys == 1 || copyNoCrys == 3){
+	    nCrys = next*4 + 1; 
+	  }
+	}
+	if ( (copyNoBox == 0)  || (copyNoBox == 2) ){
+	  if(copyNoCrys == 0 || copyNoCrys == 3){ 
+	    nRow = subrow*col + 4;
+	  }else if (copyNoCrys == 1 || copyNoCrys == 2){
+	    nRow = subrow*col + 3;
+	  }
+	}else if ( (copyNoBox == 1)  || (copyNoBox == 3) ){
+	  if(copyNoCrys == 0 || copyNoCrys == 3){ 
+	    nRow = subrow*col + 2;
+	  }else if (copyNoCrys == 1 || copyNoCrys == 2){
+	    nRow = subrow*col + 1; 
+	  }
+	}
+      }
+      module = 4;
+      row = nRow;
+      crystal = nCrys;
+   }
    //case of endcups of forward calorimeter
         else {
 	  TObjArray *subStrL = TPRegexp("^cave/Emc\\d_(\\d+)/emc(\\d+)r(\\d+)c(\\d+)_0$").MatchS(node_path);

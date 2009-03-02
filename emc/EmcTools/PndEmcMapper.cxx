@@ -316,6 +316,130 @@ PndEmcMapper::PndEmcMapper(Int_t MapVersion):fMapVersion(MapVersion)
 	      }	
      }	
    
+   // *** for testing of BwEndCap ONLY --> from "emc_module4_*.root" file ***
+   // 26.02.2009
+   if (fMapVersion==5)
+     {
+	Int_t module=4;
+	for (Int_t row=1; row<=16;row++)
+	  for (Int_t crystal=1; crystal<=16;crystal++)
+	    for (Int_t copy=1; copy<=4;copy++)
+	      {
+		 if (copy==1) {  iX = -row+1; iY =  crystal;   }
+		 if (copy==2) {  iX = -row+1; iY = -crystal+1; }
+		 if (copy==3) {  iX =  row;   iY = -crystal+1; }
+		 if (copy==4) {  iX =  row;   iY =  crystal;   }
+		 
+		 detId =  module*100000000 + row*1000000 + copy*10000 + crystal;	
+		 PndEmcTwoCoordIndex* _tci=new PndEmcTwoCoordIndex(iX+250,iY+250,detId);
+		 fIntTwoCoordMap[detId]=_tci;
+	      }	
+     }	
+   
+   // *** for Barrel (like it is), _new_ FwEndCap & _new_ BwEndCap
+   // 26.02.2009
+   if (fMapVersion==6)
+     { 
+      for (Int_t module=1; module<=6; module++)
+		{
+		 	if (module ==2)
+			{
+			for (Int_t row=1; row<=29;row++)
+				for (Int_t crystal=1; crystal<=10;crystal++)
+					for (Int_t copy=1; copy<=16;copy++)
+					{
+						iPhi=(11-crystal)+(copy-1)*10;
+						iTheta=-row+30;
+					
+						detId =  module*100000000 + row*1000000 + copy*10000 + crystal;	
+						PndEmcTwoCoordIndex* _tci=new PndEmcTwoCoordIndex(iTheta,iPhi,detId);
+						fIntTwoCoordMap[detId]=_tci;
+					}	
+			}
+			else if (module ==1)
+			{
+			for (Int_t row=1; row<=43;row++)
+				for (Int_t crystal=1; crystal<=10;crystal++)
+					for (Int_t copy=1; copy<=16;copy++)
+					{
+						iPhi=(11-crystal)+(copy-1)*10;
+						iTheta=row+29;
+						
+						detId =  module*100000000 + row*1000000 + copy*10000 + crystal;	
+						PndEmcTwoCoordIndex* _tci=new PndEmcTwoCoordIndex(iTheta,iPhi,detId);
+						fIntTwoCoordMap[detId]=_tci;
+					}
+			}
+
+	     if (module ==3)
+	       {
+		  for (Int_t row=1; row<=36;row++)
+		    for (Int_t crystal=1; crystal<=36;crystal++)
+		      for (Int_t copy=1; copy<=4;copy++)
+			{
+			   if (copy==1)   {	iX = -row+1; iY =  crystal;   }
+			   if (copy==2)   {	iX = -row+1; iY = -crystal+1; }
+			   if (copy==3)   {	iX =  row;   iY = -crystal+1; }
+			   if (copy==4)   {     iX =  row;   iY =  crystal;   }			   
+			   
+			   detId =  module*100000000 + row*1000000 + copy*10000 + crystal;
+			   
+			   PndEmcTwoCoordIndex* _tci=new PndEmcTwoCoordIndex(iX+250,iY+250,detId);
+			   fIntTwoCoordMap[detId]=_tci;
+			}
+	       }
+	     if (module ==4)
+			{
+			for (Int_t row=1; row<=16;row++)
+				for (Int_t crystal=1; crystal<=16;crystal++)
+					for (Int_t copy=1; copy<=4;copy++)
+					{
+					        if (copy==1) {  iX = -row+1; iY =  crystal;   }
+					        if (copy==2) {  iX = -row+1; iY = -crystal+1; }
+						if (copy==3) {  iX =  row;   iY = -crystal+1; }
+						if (copy==4) {  iX =  row;   iY =  crystal;   }
+					
+					        detId =  module*100000000 + row*1000000 + copy*10000 + crystal;	
+						
+						PndEmcTwoCoordIndex* _tci=new PndEmcTwoCoordIndex(iX+350,iY+350,detId);
+						fIntTwoCoordMap[detId]=_tci;					
+					}	
+			}
+	     if (module ==5)
+			{
+			for (Int_t row=1; row<=14;row++)
+				for (Int_t crystal=1; crystal<=7;crystal++)
+					for (Int_t copy=1; copy<=4;copy++)
+					{
+					        if (copy==1) {  iX = -row+1; iY =  crystal;   }
+					        if (copy==2) {  iX = -row+1; iY = -crystal+1; }
+						if (copy==3) {  iX =  row;   iY = -crystal+1; }
+						if (copy==4) {  iX =  row;   iY =  crystal;   }
+					
+					        detId =  module*100000000 + row*1000000 + copy*10000 + crystal;	
+						
+						PndEmcTwoCoordIndex* _tci=new PndEmcTwoCoordIndex(iX+450,iY+450,detId);
+						fIntTwoCoordMap[detId]=_tci;
+					}	
+			}
+	     if (module ==6)
+			  {
+			    for (Int_t row=1; row<=5;row++)
+			      for (Int_t crystal=1; crystal<=5;crystal++)
+				{
+				  Int_t copy = 1;
+				  iX = row; 
+				  iY =  crystal; 
+				  
+				  detId =  module*100000000 + row*1000000 + copy*10000 + crystal;	
+				  
+				  PndEmcTwoCoordIndex* _tci=new PndEmcTwoCoordIndex(iX+550,iY+550,detId);
+				  fIntTwoCoordMap[detId]=_tci;
+				}	
+			  }
+		}
+     }
+ 
    //fill neigbour list
     if ((fMapVersion ==1) || (fMapVersion ==3))
      {
@@ -364,7 +488,7 @@ PndEmcMapper::PndEmcMapper(Int_t MapVersion):fMapVersion(MapVersion)
 	}
 	
      }
-    if (fMapVersion ==2)
+    if (fMapVersion ==2 || fMapVersion ==4)
      {
 	std::map <int,PndEmcTwoCoordIndex* >::const_iterator tciIter; 
 	for(tciIter=fIntTwoCoordMap.begin();tciIter!=fIntTwoCoordMap.end();++tciIter)
@@ -411,7 +535,6 @@ PndEmcMapper::PndEmcMapper(Int_t MapVersion):fMapVersion(MapVersion)
 	}
 	
      }
-   //if (fMapVersion ==4)
      else if (fMapVersion ==4)
      {
 	std::map <int,PndEmcTwoCoordIndex* >::const_iterator tciIter; 
@@ -437,9 +560,57 @@ PndEmcMapper::PndEmcMapper(Int_t MapVersion):fMapVersion(MapVersion)
 		      }
 		    
 		 }
-	 }
+	  }
      }
 
+    if (fMapVersion ==5 || fMapVersion ==6)  // NEW FwEndCap + NEW BwEndCap
+     {
+	std::map <int,PndEmcTwoCoordIndex* >::const_iterator tciIter; 
+	for(tciIter=fIntTwoCoordMap.begin();tciIter!=fIntTwoCoordMap.end();++tciIter)
+	{
+		PndEmcTwoCoordIndex* _tci=tciIter->second;
+		detId=tciIter->first;
+		iTheta=_tci->XCoord();
+		iPhi=_tci->YCoord();
+		
+		for (Int_t i=iTheta-1;i<=iTheta+1;i++)
+		  for (Int_t j=iPhi-1;j<=iPhi+1;j++)
+		    {
+		      if ((i!=  0)&&(i!= 73)&&(j!=  0)&&(j!=161)&& // Boundaries of module 1&2
+			  //(i!=210)&&(i!=291)&&(j!=210)&&(j!=291)&& // Boundaries of module 3
+			  (i!=214)&&(i!=287)&&(j!=214)&&(j!=287)&& // Boundaries of NEW module 3
+			  //(i!=332)&&(i!=369)&&(j!=332)&&(j!=369)&& // Boundaries of module 4
+			  (i!=335)&&(i!=366)&&(j!=335)&&(j!=366)&& // Boundaries of NEW module 4
+			  (i!=465)&&(i!=436)&&(j!=458)&&(j!=443)&& // Boundaries of module 5
+			  (i!=556)&&(i!=545)&&(j!=556)&&(j!=545)&& // Boundaries of module 6
+			  ((i!=iTheta)||(j!=iPhi)))
+			{
+			  detId_tmp=PndEmcMapper::GetDetId(i,j);
+			  if (!IsValidIndex(detId_tmp)) continue;
+			  PndEmcTwoCoordIndex* tci_tmp=fIntTwoCoordMap[detId_tmp];
+			  _tci->AddToNeighbourList(tci_tmp);
+			  fIntTwoCoordMap[detId]=_tci;
+			}
+		      else if ((i!=0)&&(i!=73)&&(j==0))
+			{
+			  detId_tmp=PndEmcMapper::GetDetId(i,160);
+			  if (!IsValidIndex(detId_tmp)) continue;
+			  PndEmcTwoCoordIndex* tci_tmp=fIntTwoCoordMap[detId_tmp];
+			  _tci->AddToNeighbourList(tci_tmp);
+			  fIntTwoCoordMap[detId]=_tci;
+			}
+		      else if ((i!=0)&&(i!=73)&&(j==161))
+			{
+			  detId_tmp=PndEmcMapper::GetDetId(i,1);
+			  if (!IsValidIndex(detId_tmp)) continue;
+			  PndEmcTwoCoordIndex* tci_tmp=fIntTwoCoordMap[detId_tmp];
+			  _tci->AddToNeighbourList(tci_tmp);
+			  fIntTwoCoordMap[detId]=_tci;
+			}
+		    }
+	}
+	
+     }
 }
 
 
