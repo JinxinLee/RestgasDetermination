@@ -12,7 +12,7 @@
 //      Software developed for the PANDA Detector at FAIR.
 //
 // Author List:
-//      Sebastian Neubert    TUM            (original author)
+// Original Authors: Christian Hoeppner & Sebastian Neubert (TUM)
 //
 //
 //-----------------------------------------------------------

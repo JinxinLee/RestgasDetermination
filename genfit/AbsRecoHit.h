@@ -2,6 +2,7 @@
 /** Abstract Base Class for Hit Representations in GENFIT
  */
 ///////
+// Original Authors: Christian Hoeppner & Sebastian Neubert (TUM)
 
 #ifndef FITTER_ABSHIT_H
 #define FITTER_ABSHIT_H

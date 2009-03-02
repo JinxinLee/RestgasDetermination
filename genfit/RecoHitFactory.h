@@ -1,5 +1,6 @@
 #ifndef FITTER_RECOHITFACTORY_H
 #define FITTER_RECOHITFACTORY_H
+// Original Authors: Christian Hoeppner (TUM)
 
 #include<vector>
 #include<map>

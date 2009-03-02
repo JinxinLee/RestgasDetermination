@@ -1,3 +1,4 @@
+// Original Authors: Christian Hoeppner & Sebastian Neubert (TUM)
 #include "Track.h"
 //#include "TROOT.h"
 #include "TVirtualGeoTrack.h"

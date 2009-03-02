@@ -1,3 +1,4 @@
+// Original Authors: Christian Hoeppner (TUM)
 #include "RecoHitFactory.h"
 #include<iostream>
 

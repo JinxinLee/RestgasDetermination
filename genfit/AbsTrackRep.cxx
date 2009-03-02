@@ -1,3 +1,4 @@
+// Original Authors: Christian Hoeppner & Sebastian Neubert (TUM)
 #include "AbsTrackRep.h"
 #include <iostream>
 

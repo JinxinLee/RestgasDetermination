@@ -2,6 +2,7 @@
 /*! All Track Representations must inherit from this class to be available in genfit
 Algorithms in GENFIT use this class as interface to access track parameters
 */
+// Original Authors: Christian Hoeppner & Sebastian Neubert (TUM)
 
 #ifndef FITTER_ABSTRACKREP_H
 #define FITTER_ABSTRACKREP_H

@@ -1,3 +1,4 @@
+// Original Authors: Christian Hoeppner & Sebastian Neubert (TUM)
 #include "StdoutKiller.h"
 
 
