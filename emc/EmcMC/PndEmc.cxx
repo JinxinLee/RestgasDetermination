@@ -63,6 +63,7 @@ PndEmc::PndEmc(const char* name, Bool_t active, Bool_t fast, Bool_t storepnts)
     fEventID=-1; 
     bIsFastFsc = fast;
     fwendcap = kFALSE;
+    bwendcap = kFALSE;
     fStoreData = storepnts;
 }
 // -------------------------------------------------------------------------
@@ -101,7 +102,7 @@ void PndEmc::BeginEvent(){
 // -----   Public method ProcessHits  --------------------------------------
 Bool_t PndEmc::ProcessHits(FairVolume* vol) {  
   
- 
+  
   if (gMC->Edep()<=0) return kTRUE; // skip all the points which have no energy loss (i.e. Entering)
   
   TString nam = gMC->CurrentVolName();
@@ -120,124 +121,185 @@ Bool_t PndEmc::ProcessHits(FairVolume* vol) {
     TString namBox     = gMC->CurrentVolOffName(1); // Box name  
     TString namSub     = gMC->CurrentVolOffName(2); // Subunit name 
     TString namQuar    = gMC->CurrentVolOffName(3); // Quarter name 
-   
-    // Return the current volume off upward in the geometrical tree
-    // ID and copy number
-    idCrys = gMC->CurrentVolOffID(0,copyNoCrys);
-    idBox  = gMC->CurrentVolOffID(1,copyNoBox);
-    idSub  = gMC->CurrentVolOffID(2,copyNoSub)-1; // 
-    idQuar = gMC->CurrentVolOffID(3,copyNoQuar);
-   
-     
-    Int_t daughtQuar = gMC->NofVolDaughters(namQuar);
-    Int_t daughtSub  = gMC->NofVolDaughters(namSub);
-    Int_t daughtBox  = gMC->NofVolDaughters(namBox);
-    Int_t daughtCrys = gMC->NofVolDaughters(namCrys);
-     
-    Int_t col=0, k1=0;
-    Int_t subrow=4;   // 4 crystals in each subvolume
-    Int_t next=0;     // starts (from the middle) next column, represents rows
-    copyNoSub-=1;     // When geometry is created, copyNoSub starts from 1-55 
-                      //and the loop below starts from 0-54
 
-    if((copyNoSub >=  0) && (copyNoSub <=  6)){
-      next  = copyNoSub + 2;
-      col   = 0;
-    }else if((copyNoSub >=  7) && (copyNoSub <= 13)){
-      next  = (copyNoSub-7) +2;
-      col   = 1;
-    }else if((copyNoSub >= 14) && (copyNoSub <= 19)){
-      next  = (copyNoSub-14) +2;
-      col   = 2;
-    }else if((copyNoSub >= 20) && (copyNoSub <= 26)){
-      next  = (copyNoSub-20) +1;
-      col   = 3;
-    }else if((copyNoSub >= 27) && (copyNoSub <= 34)){
-      next  = (copyNoSub-27);
-      col   = 4;
-    }else if((copyNoSub >= 35) && (copyNoSub <= 41)){
-      next  = (copyNoSub-35);
-      col   = 5;
-    }else if((copyNoSub >= 42) && (copyNoSub <= 47)){
-      next  = (copyNoSub-42);
-      col   = 6;
-    }else if((copyNoSub >= 48) && (copyNoSub <= 52)){
-      next  = (copyNoSub-48);
-      col   = 7;
-    }else if((copyNoSub >= 53) && (copyNoSub <= 54)){
-      next  = (copyNoSub-53);
-      col   = 8;
-    }
+    if (namQuar.Contains("QuarterVol")){
+       
+      // Return the current volume off upward in the geometrical tree
+      // ID and copy number
+      idCrys = gMC->CurrentVolOffID(0,copyNoCrys);
+      idBox  = gMC->CurrentVolOffID(1,copyNoBox);
+      idSub  = gMC->CurrentVolOffID(2,copyNoSub)-1; // 
+      idQuar = gMC->CurrentVolOffID(3,copyNoQuar);
+        
+      Int_t daughtQuar = gMC->NofVolDaughters(namQuar);
+      Int_t daughtSub  = gMC->NofVolDaughters(namSub);
+      Int_t daughtBox  = gMC->NofVolDaughters(namBox);
+      Int_t daughtCrys = gMC->NofVolDaughters(namCrys);
      
-     Int_t flag=1;
+      Int_t col=0, k1=0;
+      Int_t subrow=4;   // 4 crystals in each subvolume
+      Int_t next=0;     // starts (from the middle) next column, represents rows
+      copyNoSub-=1;     // When geometry is created, copyNoSub starts from 1-55 
+                        //and the loop below starts from 0-54
+
+      if((copyNoSub >=  0) && (copyNoSub <=  6)){
+	next  = copyNoSub + 2;
+	col   = 0;
+      }else if((copyNoSub >=  7) && (copyNoSub <= 13)){
+	next  = (copyNoSub-7) +2;
+	col   = 1;
+      }else if((copyNoSub >= 14) && (copyNoSub <= 19)){
+	next  = (copyNoSub-14) +2;
+	col   = 2;
+      }else if((copyNoSub >= 20) && (copyNoSub <= 26)){
+	next  = (copyNoSub-20) +1;
+	col   = 3;
+      }else if((copyNoSub >= 27) && (copyNoSub <= 34)){
+	next  = (copyNoSub-27);
+	col   = 4;
+      }else if((copyNoSub >= 35) && (copyNoSub <= 41)){
+	next  = (copyNoSub-35);
+	col   = 5;
+      }else if((copyNoSub >= 42) && (copyNoSub <= 47)){
+	next  = (copyNoSub-42);
+	col   = 6;
+      }else if((copyNoSub >= 48) && (copyNoSub <= 52)){
+	next  = (copyNoSub-48);
+	col   = 7;
+      }else if((copyNoSub >= 53) && (copyNoSub <= 54)){
+	next  = (copyNoSub-53);
+	col   = 8;
+      }
+     
+      Int_t flag=1;
 	       
-     if (next<2  && col <3) flag=0; // 6 copyNoSub in the beam-pipe area
-     if (next==0 && col==3) flag=0; // 7th copyNoSub in the beam-pipe area
-     if (col>7  && next >1) flag=0; // empty copyNoSub in the residual area
-     if (col>6  && next >4) flag=0; //  -||- 
-     if (col>5  && next >5) flag=0; //  -||- 
-     if (col>4  && next >6) flag=0; //  -||- 
-     if (col>1  && next >7) flag=0; //  -||- 
+      if (next<2  && col <3) flag=0; // 6 copyNoSub in the beam-pipe area
+      if (next==0 && col==3) flag=0; // 7th copyNoSub in the beam-pipe area
+      if (col>7  && next >1) flag=0; // empty copyNoSub in the residual area
+      if (col>6  && next >4) flag=0; //  -||- 
+      if (col>5  && next >5) flag=0; //  -||- 
+      if (col>4  && next >6) flag=0; //  -||- 
+      if (col>1  && next >7) flag=0; //  -||- 
 
-     /*     if(flag)
-       if ( (copyNoBox == 0)  || (copyNoBox == 2) ){
-	  if(copyNoCrys == 0 || copyNoCrys == 1){
-	     nCrys = ( (next*4) + (copyNoCrys+1) );
-	     nRow = (copyNoBox + 1 + subrow*col); 	
-	  }else if (copyNoCrys == 2 || copyNoCrys == 3){
-	     k1 = copyNoCrys-2;			      
-	     nCrys = ( (next*4) + (k1+1) );
-	     nRow = (copyNoBox + 2 + subrow*col);		 
+      //18.02.09
+      if (flag){
+	if ( (copyNoBox == 0)  || (copyNoBox == 3) ){
+	  if(copyNoCrys == 1 || copyNoCrys == 3){ 
+	    nCrys = next*4 + 3;
+	  }else if (copyNoCrys == 0 || copyNoCrys == 2){
+	    nCrys = next*4 + 4;
 	  }
-       }else if ( (copyNoBox == 1) || (copyNoBox == 3) ){
-	  if(copyNoCrys == 0 || copyNoCrys == 1){
-	     nCrys = ( (next*4) + (copyNoCrys+3) );
-	     nRow = copyNoBox + subrow*col; 
-	  }else if (copyNoCrys == 2 || copyNoCrys == 3){
-	     k1 = copyNoCrys-2;
-	     nCrys = ( (next*4) + (k1+3) );
-	     nRow = (copyNoBox + 1 + subrow*col);
-	  } //end of crystal		     
-       } //end of box
-     */
+	}else if ( (copyNoBox == 1)  || (copyNoBox == 2) ){
+	  if(copyNoCrys == 0 || copyNoCrys == 2){ 
+	    nCrys = next*4 + 2;
+	  }else if (copyNoCrys == 1 || copyNoCrys == 3){
+	    nCrys = next*4 + 1; 
+	  }
+	}
+	if ( (copyNoBox == 0)  || (copyNoBox == 2) ){
+	  if(copyNoCrys == 0 || copyNoCrys == 3){ 
+	    nRow = subrow*col + 4;
+	  }else if (copyNoCrys == 1 || copyNoCrys == 2){
+	    nRow = subrow*col + 3;
+	  }
+	}else if ( (copyNoBox == 1)  || (copyNoBox == 3) ){
+	  if(copyNoCrys == 0 || copyNoCrys == 3){ 
+	    nRow = subrow*col + 2;
+	  }else if (copyNoCrys == 1 || copyNoCrys == 2){
+	    nRow = subrow*col + 1; 
+	  }
+	}
+      }
 
-     //18.02.09
-     if (flag){
-       if ( (copyNoBox == 0)  || (copyNoBox == 3) ){
-       	 if(copyNoCrys == 1 || copyNoCrys == 3){ 
-	   nCrys = next*4 + 3;
-	 }else if (copyNoCrys == 0 || copyNoCrys == 2){
-	   nCrys = next*4 + 4;
-      	 }
-       }else if ( (copyNoBox == 1)  || (copyNoBox == 2) ){
-       	 if(copyNoCrys == 0 || copyNoCrys == 2){ 
-	   nCrys = next*4 + 2;
-	 }else if (copyNoCrys == 1 || copyNoCrys == 3){
-	   nCrys = next*4 + 1; 
-	 }
-       }
-       if ( (copyNoBox == 0)  || (copyNoBox == 2) ){
-	 if(copyNoCrys == 0 || copyNoCrys == 3){ 
-	   nRow = subrow*col + 4;
-	 }else if (copyNoCrys == 1 || copyNoCrys == 2){
-	   nRow = subrow*col + 3;
-	 }
-       }else if ( (copyNoBox == 1)  || (copyNoBox == 3) ){
-	 if(copyNoCrys == 0 || copyNoCrys == 3){ 
-	   nRow = subrow*col + 2;
-	 }else if (copyNoCrys == 1 || copyNoCrys == 2){
-	   nRow = subrow*col + 1; 
-	 }
-       }
-     }
-
-     nMod=3;
-     copyNo = copyNoQuar;
+      nMod=3;
+      copyNo = copyNoQuar;
      
-     //Text_t buffer[40];
-     //sprintf(buffer,"emc0%dr%dc%dcp%d",nMod, nRow, nCrys, copyNoQuar);
-     //copyNo = copyNoQuar;
+      //Text_t buffer[40];
+      //sprintf(buffer,"emc0%dr%dc%dcp%d",nMod, nRow, nCrys, copyNoQuar);
+      //copyNo = copyNoQuar;
+    }
+    else if (namQuar.Contains("Quarter4Vol")){
+      // ----- NEW Backward EndCap - with the FwEndCap geometry ----
+       
+      TString namCrys    = gMC->CurrentVolOffName(0); // Crystal name 
+      TString namBox     = gMC->CurrentVolOffName(1); // Box name  
+      TString namSub     = gMC->CurrentVolOffName(2); // Subunit name 
+      TString namQuar    = gMC->CurrentVolOffName(3); // Quarter name 
+       
+      // Return the current volume off upward in the geometrical tree
+      // ID and copy number
+      idCrys = gMC->CurrentVolOffID(0,copyNoCrys);
+      idBox  = gMC->CurrentVolOffID(1,copyNoBox);
+      idSub  = gMC->CurrentVolOffID(2,copyNoSub)-1;
+      idQuar = gMC->CurrentVolOffID(3,copyNoQuar);
+       
+      Int_t daughtQuar = gMC->NofVolDaughters(namQuar);
+      Int_t daughtSub  = gMC->NofVolDaughters(namSub);
+      Int_t daughtBox  = gMC->NofVolDaughters(namBox);
+      Int_t daughtCrys = gMC->NofVolDaughters(namCrys);
+       
+      Int_t col=0, k1=0;
+      Int_t subrow=4;   // 4 crystals in each subvolume
+      Int_t next=0;     // starts (from the middle) next column, represents rows
+      copyNoSub-=1;     // When geometry is created, copyNoSub starts from 1-13 
+                        // and the loop below starts from 0-12
+   
+      //  Now, 26.02.2009, 3 crystals in the middle's subunit are added =>
+      // => number of Subunits for BwEncCap & straight geometry is the same   
+      if((copyNoSub >=  0) && (copyNoSub <=  3)){
+	next  = copyNoSub;
+	col   = 0;
+      }else if((copyNoSub >=  4) && (copyNoSub <= 7)){
+	next  = (copyNoSub-4);
+	col   = 1;
+      }else if((copyNoSub >= 8) && (copyNoSub <= 10)){
+	next  = (copyNoSub-8);
+	col   = 2;
+      }else if((copyNoSub >= 11) && (copyNoSub <= 12)){
+	next  = (copyNoSub-11);
+	col   = 3;
+      }
+       
+      Int_t flag4=1;
+      // 26.02.2009
+      // "next" means "row", "col" means "col"
+
+      if (next>1  && col>2) flag4=0; // corner's subunit + one below
+      if (next>2  && col>1) flag4=0; // + one to the left
+      
+      if (flag4!=0){
+	if ( (copyNoBox == 0)  || (copyNoBox == 3) ){
+	  if(copyNoCrys == 1 || copyNoCrys == 3){ 
+	    nCrys = next*4 + 3;
+	  }else if (copyNoCrys == 0 || copyNoCrys == 2){
+	    nCrys = next*4 + 4;
+	  }
+	}else if ( (copyNoBox == 1)  || (copyNoBox == 2) ){
+	  if(copyNoCrys == 0 || copyNoCrys == 2){ 
+	    nCrys = next*4 + 2;
+	  }else if (copyNoCrys == 1 || copyNoCrys == 3){
+	    nCrys = next*4 + 1; 
+	  }
+	}
+	if ( (copyNoBox == 0)  || (copyNoBox == 2) ){
+	  if(copyNoCrys == 0 || copyNoCrys == 3){ 
+	    nRow = subrow*col + 4;
+	  }else if (copyNoCrys == 1 || copyNoCrys == 2){
+	    nRow = subrow*col + 3;
+	  }
+	}else if ( (copyNoBox == 1)  || (copyNoBox == 3) ){
+	  if(copyNoCrys == 0 || copyNoCrys == 3){ 
+	    nRow = subrow*col + 2;
+	  }else if (copyNoCrys == 1 || copyNoCrys == 2){
+	    nRow = subrow*col + 1; 
+	  }
+	}
+      }
+      nMod=4;
+      copyNo = copyNoQuar;
+    }
   }
+
   // ---------------------------------------------------------------------------------
   
   fTrackID  = gMC->GetStack()->GetCurrentTrackNumber(); // trk ID
@@ -287,15 +349,14 @@ Bool_t PndEmc::ProcessHits(FairVolume* vol) {
 	 TVector3(fPos.X(),   fPos.Y(),   fPos.Z()),
 	 TVector3(fMom.Px(),  fMom.Py(),  fMom.Pz()),
 	 fTime, fLength, fELoss, nMod, nRow, nCrys, copyNo);
-	// Increment number of emc points for TParticle
-	if (gMC->IsTrackEntering()) 
+
+   // Increment number of emc points for TParticle
+  if (gMC->IsTrackEntering()) 
     {
-		PndStack* stack = (PndStack*) gMC->GetStack();
-		stack->AddPoint(kEMC);
+      PndStack* stack = (PndStack*) gMC->GetStack();
+      stack->AddPoint(kEMC);
     }
-	
-	
-	
+
    /*cout << "PndEmc: fTrackID= " << fTrackID 
      << " fVolumeID= " << fVolumeID 
     // << " fELoss= " << fELoss 
@@ -396,6 +457,26 @@ void PndEmc::SetGeometryFileNameDouble(TString fname, TString fname2, TString ge
   fgeoName2=work+"/geometry/";
   fgeoName2+=fname2;
 }
+void PndEmc::SetGeometryFileNameTriple(TString fname, TString fname2, TString fname3, TString geoVer)
+{
+  fwendcap=kTRUE;
+  bwendcap=kTRUE;
+
+  SetGeometryFileName(fname, geoVer);
+ 
+  //SetGeometryFileNameDouble(fname, fname2, geoVer);
+  
+  //fgeoVer=geoVer; 
+  TString work = getenv("VMCWORKDIR");
+	
+  fgeoName2=work+"/geometry/";
+  fgeoName2+=fname2;
+
+  fgeoName3=work+"/geometry/";
+  fgeoName3+=fname3;
+  
+  cout <<"fgeoName3 "<< fgeoName3<< endl;
+}
 
 
 // ----------------------------------------------------------------------------
@@ -403,18 +484,24 @@ void PndEmc::SetGeometryFileNameDouble(TString fname, TString fname2, TString ge
 void PndEmc::ConstructGeometry() {
   TString fileName=GetGeometryFileName();
 
-  if (!fwendcap){
+   //if (!fwendcap){
+   if (!fwendcap || !bwendcap){
     
     if (fileName.EndsWith(".dat")) {
       std::cout<< "                                               " <<std::endl;
       std::cout<< " ====== EMC::  ConstructASCIIGeometry() ====== " <<std::endl;
       std::cout<< " ============================================= " <<std::endl;
       ConstructASCIIGeometry();
-    } else if(fileName.EndsWith(".root")) {
+    } else if(fileName.EndsWith("new.root")) {
       std::cout<< "                                              " <<std::endl;
       std::cout<< " ====== EMC::  ConstructROOTGeometry() ====== " <<std::endl;
       std::cout<< " ============================================ " <<std::endl;
       ConstructRootGeometry();
+    } else if(fileName.EndsWith("4_FwEndCapGeo.root") || fileName.EndsWith("4_StraightGeo.root")) {
+      std::cout<< "                                              " <<std::endl;
+      std::cout<< " ====== EMC::  ConstructROOTGeometry() m4 === " <<std::endl;
+      std::cout<< " ============================================ " <<std::endl;
+      ConstructRootGeomMod4();
     } else {
       std::cout<< "Geometry format not supported " <<std::endl;
     }
@@ -427,11 +514,20 @@ void PndEmc::ConstructGeometry() {
     }else {
       std::cout<< "You do not provide an ASCII file " <<std::endl;
     } 
-    if (fgeoName2.EndsWith(".root")) {
+    if (fgeoName2.EndsWith("new.root")) {
       std::cout<< "                                               " <<std::endl;
       std::cout<< " ====== EMC::  ConstructRootGeometry() ====== " <<std::endl;
       std::cout<< " ============================================= " <<std::endl;
       ConstructRootGeometry();
+    }
+    if(fgeoName3.EndsWith("4_FwEndCapGeo.root") || fgeoName3.EndsWith("4_StraightGeo.root")) {
+      std::cout<< "                                               " <<std::endl;
+      std::cout<< " ====== EMC::  ConstructRootGeometry() m4a === " <<std::endl;
+      std::cout<< " ============================================= " <<std::endl;
+      
+      std::cout<< "fgeoName3:: "<<fgeoName3 <<std::endl;
+      
+      ConstructRootGeomMod4();
     }else {
       std::cout<< "You do not provide a ROOT file " <<std::endl;
     }
@@ -469,6 +565,37 @@ void PndEmc::ConstructRootGeometry() {
   Cave->AddNode(FwEmc,0, new TGeoCombiTrans(0., 0., 221.,new TGeoRotation(rotFwEmc)));
 
   ExpandNode(FwEmc,Cave); 
+}
+void PndEmc::ConstructRootGeomMod4() {
+  
+  TFile *fb;
+  if (!bwendcap){
+    std::cout<< "File name Bw = " << GetGeometryFileName().Data() << std::endl;
+    fb=new TFile(GetGeometryFileName().Data());
+  }else{
+    std::cout<< "File name Bw1= " << fgeoName3 << std::endl;
+    fb=new TFile(fgeoName3);
+  }
+  
+  TGeoVolume *BwEmc=(TGeoVolume *)fb->Get("Emc4");
+  TGeoVolume *Cave = gGeoManager->GetTopVolume();
+  TGeoNode *n=BwEmc->GetNode(0); 
+  
+  gGeoManager->AddVolume(BwEmc);
+  TGeoVoxelFinder *voxels = BwEmc->GetVoxels();
+  if (voxels) voxels->SetNeedRebuild();
+  TGeoMatrix *M = n->GetMatrix();
+  M->SetDefaultName();
+  gGeoManager->GetListOfMatrices()->Remove(M);
+  TGeoHMatrix *global = gGeoManager->GetHMatrix();             
+  gGeoManager->GetListOfMatrices()->Remove(global); //Remove the Identity matrix 
+  
+  TGeoRotation rotBwEmc;
+  rotBwEmc.RotateY(0.);
+   
+   Cave->AddNode(BwEmc,0, new TGeoCombiTrans(0., 0., -66.,new TGeoRotation(rotBwEmc)));
+
+  ExpandNode(BwEmc,Cave); 
 }
 
 void PndEmc::ExpandNode(TGeoVolume *fVol, TGeoVolume *Cave){
