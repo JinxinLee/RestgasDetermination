@@ -61,7 +61,7 @@ PndTpcDXCalculator.cxx
 PndTpcClusterTrack.cxx
 PndTpcTFSInfo.cxx
 PndTpcSPHit.cxx	
-
+MatrixChi2.cxx
 )
 
 if(RULE_CHECKER_FOUND)

@@ -35,7 +35,6 @@ PlanarHitPolicy.cxx
 SpacepointHitPolicy.cxx
 test/GenfitTester.cxx
 test/TestRecoHit.cxx
-MatrixChi2.cxx
 ExtrapolateToPCA.cxx
 VirtSpacePointRecoHit.cxx
 StdoutKiller.cxx
