@@ -9,10 +9,7 @@
 
 
 #pragma link C++ class Track+;
-//#pragma link C++ class AliceHelixTrackRep+;
-//#pragma link C++ class GEANEhelixTrackRep+;
 #pragma link C++ class LSLTrackRep+;
-//#pragma link C++ class SLTrackRep+;
 #pragma link C++ class AbsTrackRep+;
 #pragma link C++ class AbsRecoHit+;
 #pragma link C++ class FitParams+;

@@ -8,8 +8,6 @@
 #pragma link off all functions;
 
 #pragma link C++ class KalmanTask+;
-//#pragma link C++ class IdealPatternRecTask+;
-//#pragma link C++ class MickeyMouseMCTask+;
 #pragma link C++ class TrackVisTask+;
 #pragma link C++ class LambdaSelector+;
 #pragma link C++ class V0Selector+;

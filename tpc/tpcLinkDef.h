@@ -35,8 +35,6 @@
 #pragma link C++ class PndTpcElectronicsTask+;
 #pragma link C++ class PndTpcClusterFinderTask+;
 #pragma link C++ class PndTpcCluster+;
-//#pragma link C++ class PndTpcSimplePatternRecoTask+;
-//#pragma link C++ class PndTpcXYRecoHit+;
 #pragma link C++ class PndTpcInhFieldDrifter+;
 //#pragma link C++ class testfieldclass+;
 #pragma link C++ class DebugLogger+;
