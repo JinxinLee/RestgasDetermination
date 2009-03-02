@@ -38,7 +38,6 @@ test/TestRecoHit.cxx
 MatrixChi2.cxx
 ExtrapolateToPCA.cxx
 VirtSpacePointRecoHit.cxx
-#poca.cxx
 StdoutKiller.cxx
 WirepointHitPolicy.cxx
 )
@@ -50,11 +49,6 @@ endif(RULE_CHECKER_FOUND)
 # fill list of header files from list of source files
 # by exchanging the file extension
 CHANGE_FILE_EXTENSION(*.cxx *.h GENFIT_HEADERS "${GENFIT_SRCS}")
-
-#set(GENFIT_SRCS ${GENFIT_SRCS} statTreeAnalyzer_auto.C) 	 
-
-
-set(GENFIT_HEADERS ${GENFIT_HEADERS} statTreeAnalyzer_auto.h)
 
 set(GENFIT_LINKDEF  genfitLinkDef.h)
 set(GENFIT_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/genfitDict.cxx) 
