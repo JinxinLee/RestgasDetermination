@@ -33,7 +33,7 @@ TrackCand.cxx
 DetPlane.cxx
 PlanarHitPolicy.cxx
 SpacepointHitPolicy.cxx
-test/GenfitTester.cxx
+#test/GenfitTester.cxx
 test/TestRecoHit.cxx
 ExtrapolateToPCA.cxx
 VirtSpacePointRecoHit.cxx
