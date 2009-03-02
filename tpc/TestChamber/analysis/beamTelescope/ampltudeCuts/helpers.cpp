@@ -43,17 +43,15 @@ void ampRatioCut(const std::list<CsGEMCluster*> &clusterList, std::vector<TCclus
     if(ratio1<cut0 && ratio2<cut1){
       
       double x=((*it)->GetCenter())*pitch;
-      
-      //cout<<"x "<<x<<" pitch "<<pitch<<endl;
       TVector3 pos(x,0,0);
-      TVector3 err(((*it)->GetErrCenter())*pitch,0.5,0.1);
+      TVector3 err(0,0,0);
+      if(detID==7||detID==8){
+        err=TVector3(0.5,5.0,0.1);
+      }else{
+        err=TVector3(((*it)->GetErrCenter())*pitch,0.5,0.1);
+      }
       double amp((*it)->GetAmp3());
-      //        pedestalRMS=_c.GetNoise();
-
       TCcluster _c(pos,err,amp,detID);
-      // if(((detID==1||detID==7)&&(_c.posXYZ().x()>14&&_c.posXYZ().x()<17))||
-      // ((detID==2||detID==8)&&(_c.posXYZ().y()>22.5&&_c.posXYZ().y()<24.25))){
-
       _c.setFit(true);
       tcClusters.push_back(_c);
       //}

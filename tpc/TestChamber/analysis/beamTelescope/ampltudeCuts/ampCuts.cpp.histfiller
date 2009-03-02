@@ -1,4 +1,3 @@
-x
 #include <list>
 #include <iostream>
 #include "../Hits.h"
