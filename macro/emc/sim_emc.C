@@ -55,6 +55,12 @@
    PndEmc *Emc = new PndEmc("EMC",kTRUE);
    //Emc->SetGeometryFileName("emc_module12345.dat"); // if you want to use old geometry for FwEndCap
    Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root"); // if you want to use new geometry for FwEndCap
+   //
+   //If you want to test/use a new version of Backward Endcap (BwEndCap) with the forward endcap geometry 
+   //use: SetGeometryFileNameTriple(), like below; 
+   //if you use this combination of geometry, use MapperVersion: 6 - in the trunk/macro/params/emc.par
+   //
+   //Emc->SetGeometryFileNameTriple("emc_module125.dat","emc_module3new.root","emc_module4_FwEndCapGeo.root");
    fRun->AddModule(Emc);
   
   // Create and Set Event Generator

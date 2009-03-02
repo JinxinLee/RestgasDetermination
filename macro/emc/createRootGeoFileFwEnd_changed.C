@@ -333,14 +333,8 @@
 	Double_t tan_alpha2=tan(m*(TMath::Pi()/180.));
 	Double_t addShiftY=FrontFaceToOffPoint*tan_alpha2;
 
-	//cout << "RotToZeroSubX: " << RotToZeroSubX << endl ;
-	//cout << "RotToZeroSubY: " << RotToZeroSubY << endl ;    
-	//cout << "Distance X=    " << addShiftX     << endl;
-	//cout << "Distance Y=    " << addShiftY     << endl;
-    
 	Double_t ShiftX=(ShiftToZeroSub + addShiftX -0.5*sizeOfQuar);
 	Double_t ShiftY=(ShiftToZeroSub + addShiftY -0.5*sizeOfQuar);
-	//cout << "ShiftX == " <<ShiftX << ", ShiftY == " <<ShiftY << endl;
 
 	trSub = new TGeoTranslation(ShiftX, ShiftY, 0.);
 		
@@ -369,17 +363,14 @@
    for (Int_t q=1; q<=3; q++){
     TGeoCombiTrans reflection; 
     TGeoTranslation ttt;
-    //if (q==1){
     if (q==3){
       reflection.ReflectX(1); // left-upper Quarter
       ttt = new TGeoTranslation(-0.5*sizeOfQuar,0.5*sizeOfQuar,0.);
     }
-    //if (q==2){
     if (q==1){
       reflection.ReflectY(1); // right-lower Quarter
       ttt = new TGeoTranslation(0.5*sizeOfQuar,-0.5*sizeOfQuar,0.);
     }
-    //if (q==3){
     if (q==2){
       reflection.ReflectY(1);
       reflection.ReflectX(1); // left-lower Quarter
