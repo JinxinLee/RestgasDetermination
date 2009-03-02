@@ -25,11 +25,11 @@
 #include "TMath.h"
 
 // Collaborating Class Headers --------
-#include "Nystrom.h"
+#include "LSLTrackRep/Nystrom.h"
 #include "AbsRecoHit.h"
 #include "AbsBFieldIfc.h"
-#include "LSLEQM.h"
-#include "AbsNystromEQM.h"
+#include "LSLTrackRep/LSLEQM.h"
+#include "LSLTrackRep/AbsNystromEQM.h"
 #include "TMatrixD.h"
 
 // Class Member definitions -----------
