@@ -135,10 +135,4 @@ DemoRecoHit::setHMatrix(const AbsTrackRep* stateVector,
  
 }
 
-double 
-DemoRecoHit::residualScalar(AbsTrackRep* stateVector,
-			    const TMatrixT<double>& state)
-{
-  throw;
-}
 

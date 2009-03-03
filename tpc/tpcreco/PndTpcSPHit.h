@@ -53,9 +53,6 @@ public:
                           const TMatrixT<double>& state);
 
 
-  virtual double residualScalar(AbsTrackRep* stateVector,
-                                const TMatrixT<double>& state);
-
   
 private:
 

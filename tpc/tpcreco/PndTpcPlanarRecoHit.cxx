@@ -119,10 +119,5 @@ PndTpcPlanarRecoHit::setHMatrix(const AbsTrackRep* stateVector,
  
 }
 
-double 
-PndTpcPlanarRecoHit::residualScalar(AbsTrackRep* stateVector,
-				 const TMatrixT<double>& state)
-{
-  throw;
-}
+
 

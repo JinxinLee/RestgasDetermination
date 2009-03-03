@@ -96,13 +96,7 @@ PndTpcConfMapRecoHit::residualVector(const AbsTrackRep* stateVector,
  }
 
 
-double 
-PndTpcConfMapRecoHit::residualScalar(AbsTrackRep* stateVector,
-				  const TMatrixT<double>& state)
-{
-  TMatrixT<double> res=residualVector(stateVector,state);
-  return res[0][0]+res[1][0];
-}
+
 
 void
 PndTpcConfMapRecoHit::setHMatrix(const AbsTrackRep* stateVector,

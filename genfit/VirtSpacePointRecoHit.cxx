@@ -98,10 +98,3 @@ VirtSpacePointRecoHit::setHMatrix(const AbsTrackRep* stateVector,
 }
 
 
-double 
-VirtSpacePointRecoHit::residualScalar(AbsTrackRep* stateVector,
-	       const TMatrixT<double>& state)
-{
-  TMatrixT<double> resv=residualVector(stateVector,state);
-  return resv[0][0]*resv[0][0]+resv[1][0]*resv[1][0]+resv[2][0]*resv[2][0];
-}

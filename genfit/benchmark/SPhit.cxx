@@ -88,10 +88,4 @@ SPhit::setHMatrix(const AbsTrackRep* stateVector,
  
 }
 
-double 
-SPhit::residualScalar(AbsTrackRep* stateVector,
-				 const TMatrixT<double>& state)
-{
-  throw;
-}
 

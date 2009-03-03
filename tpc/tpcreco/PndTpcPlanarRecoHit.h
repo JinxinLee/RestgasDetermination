@@ -51,9 +51,6 @@ public:
                           const TMatrixT<double>& state);
 
 
-  virtual double residualScalar(AbsTrackRep* stateVector,
-                                const TMatrixT<double>& state);
-
   // accessors
   unsigned int cluster_size() const {return _cluster_size;}
   double cluster_amp() const {return _cluster_amp;}

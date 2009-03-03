@@ -154,10 +154,4 @@ PndTpcSPHit::setHMatrix(const AbsTrackRep* stateVector,
  
 }
 
-double 
-PndTpcSPHit::residualScalar(AbsTrackRep* stateVector,
-			    const TMatrixT<double>& state)
-{
-  throw;
-}
 

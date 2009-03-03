@@ -69,11 +69,6 @@ TestRecoHit::setHMatrix(const AbsTrackRep* stateVector,
 
 }
 
-double
-TestRecoHit::residualScalar(AbsTrackRep* stateVector,
-			    const TMatrixT<double>& state)
-{return 0;}
-  
 
 
 

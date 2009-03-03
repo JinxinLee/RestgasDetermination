@@ -137,10 +137,4 @@ DemoSPHit::setHMatrix(const AbsTrackRep* stateVector,
  
 }
 
-double 
-DemoSPHit::residualScalar(AbsTrackRep* stateVector,
-			    const TMatrixT<double>& state)
-{
-  throw;
-}
 

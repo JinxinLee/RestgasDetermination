@@ -43,8 +43,6 @@ public:
     return ( getHitCoord(d) - (_HMatrix*state ));
   }
 
-  virtual double residualScalar(AbsTrackRep* stateVector,
-				const TMatrixT<double>& state)=0;
 
   TMatrixT<double> getRawHitCov() const {return _hitCov;}
   TMatrixT<double> getRawHitCoord() const {return _hitCoord;}
