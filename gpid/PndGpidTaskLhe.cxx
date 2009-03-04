@@ -19,12 +19,11 @@
 
 #include "PndGpidTaskLhe.h"
 
-//default constructor
+// Default constructor
 PndGpidTaskLhe::PndGpidTaskLhe()
-{
-}
+{}
 
-// default destructor
+// Default destructor
 PndGpidTaskLhe::~PndGpidTaskLhe()
 {
   fVarNameArray.clear();
@@ -32,15 +31,15 @@ PndGpidTaskLhe::~PndGpidTaskLhe()
   m_varVec.clear();
   delete m_lvq;
 }
-
-//Init call of the task inherited from the Cbmtask Registers the
-//output of the track and get the inputs of the track Input is
-//LhePidTrack Output is PndPidCand
-
+/*
+ * Init call of the task inherited from the FairTask. Registers the
+ * output of the track and get the inputs of the track. Input is
+ * LhePidTrack Output is PndPidCand
+*/
 InitStatus PndGpidTaskLhe::Init()
 {
   FairRootManager* ioman = FairRootManager::Instance();
-  if ( ! ioman ) {
+  if ( !ioman ){
     std::cout << "-E- PndGpidTaskLhe::Init: "
 	      << "RootManager not instantised!" << std::endl;
     return kFATAL;
@@ -50,7 +49,7 @@ InitStatus PndGpidTaskLhe::Init()
   ioman->Register("PndPidCand","Geane", fArrPid, kTRUE);
   
   fPidTrackCand = (TClonesArray*) ioman->GetObject("LhePidTrack");
-  if ( ! fPidTrackCand ) {
+  if ( !fPidTrackCand ) {
     cout << "-W- PndGpidTaskLhe::Init: "
          << "No SamEvt array!" << endl;
     return kERROR;
@@ -60,13 +59,14 @@ InitStatus PndGpidTaskLhe::Init()
   AddVar();
   BookingMVA();
   
-  cout<<"-I- This is Init part of the PNDGPIDTASK"<<endl;
+  cout << "-I- Finished Init of PNDGPIDTASK" << endl;
   
   return kSUCCESS;
 }
 
-// config call private member reading the config file 
-//
+/* 
+ * Reading the config file.
+ */
 void PndGpidTaskLhe::Config()
 {
   ifstream inFile;
@@ -82,7 +82,8 @@ void PndGpidTaskLhe::Config()
   
   cout<<fNVAR<<endl;
   cout<<fNCLASS<<endl;
-  sbuff=buff;
+  sbuff = buff;
+  
   while(1){
     size_t prompt = sbuff.find(":");
     sbuff = sbuff.substr(prompt+1,sbuff.size());
@@ -92,7 +93,8 @@ void PndGpidTaskLhe::Config()
     cout<<vName<<endl; 
   }
   inFile.getline(buff,512);
-  sbuff=buff;
+  sbuff = buff;
+  
   while(1){
     size_t prompt = sbuff.find(":");
     sbuff = sbuff.substr(prompt+1,sbuff.size());
@@ -103,52 +105,58 @@ void PndGpidTaskLhe::Config()
   }
 }
 
-
-// Adding the variable called by Init
-
+/* 
+ * Adding the variable which were used during the training phase.
+ * These names are stored locally in a file with the same name as the
+ * application name.
+ */
 void PndGpidTaskLhe::AddVar()
 {
+  // Init a container to hold the variables.
   m_varVec = std::vector<float>(fNVAR, 0.00);
   
   for ( int i = 0 ; i < fNVAR ; i++  ){
     TString varName,s;
     varName = fVarNameArray.at(i);
-    cout<<varName<<endl;
+    cout << varName << endl;
     for ( int j = 0; j < fNCLASS ; j++){
       reader[j].AddVariable(varName, &(m_varVec[i]));
     }
   }
 }
 
-// books the MVA called by the Init
+/* 
+ * Books the algorithm we want to use for classification.
+*/
 void PndGpidTaskLhe::BookingMVA()
 {
   for (int i = 0 ; i < fNCLASS ; i++  )
   {
     string anaFile;
     switch (fMVAmode){
-    case TMBDT: 
+    case TMBDT:// TMVA BDT
       anaFile =  fDIR + fAPPNAME + fClassNameArray.at(i) + "_BDT.weights.txt";
       reader[i].BookMVA("BDT method", anaFile );
       fClassifier = "BDT method";
       break;
       
-    case TMMLP:
+    case TMMLP:// TMVA MLP
       anaFile =  fDIR + fAPPNAME + fClassNameArray.at(i) + "_MLP.weights.txt";
       reader[i].BookMVA("MLP method", anaFile );
       fClassifier = "MLP method";
       break;
       
-    case TMKNN: 
+    case TMKNN:// TMVA KNN
       anaFile =  fDIR + fAPPNAME + fClassNameArray.at(i) + "_KNN.weights.txt";
       reader[i].BookMVA("KNN method", anaFile );
       fClassifier = "KNN method";
       break;
-    case MulClsKNN:
+
+    case MulClsKNN:// Multi class KNN. In PndTools.
       std::cout << "Not available yet" << std::endl;
       break;
 
-    case LVQ1:
+    case LVQ1:// LVQ1. In PndTools.
       m_lvq = new PndLVQClassify(M_InFileName,fClassNameArray,fVarNameArray);
       break;
       
@@ -168,18 +176,20 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
   TClonesArray& clref2 = *fArrPid;
   Int_t size2 = clref2.GetEntriesFast();
   PndPidCand *fTrack= new(clref2[size2]) PndPidCand(); 
-  float skp=0; 
+  float skp = 0; 
   
   // Loop through the Tracks
-  for (int k=0; k < fPidTrackCand->GetEntriesFast(); k++){
+  for (int k = 0; k < fPidTrackCand->GetEntriesFast(); k++){
     PndLhePidTrack *pid = (PndLhePidTrack *) fPidTrackCand->At(k);
     //cout<<"this is Exec"<<endl;
     string varName;
 
-    for (int l = 0; l < fNVAR; l++){
-      //cout << fVarNameArray.at(l) <<" = "<< m_varVec[l] << endl;//varArray[l] << endl;
-    }
-
+    // Debug info.
+    /*
+      for (int l = 0; l < fNVAR; l++){
+      cout << fVarNameArray.at(l) <<" = "<< m_varVec[l] << endl;//varArray[l] << endl;
+      }
+    */
     int count =0 ;
     
     //reading the input variable
@@ -204,7 +214,7 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
 	skp=pid->GetSttDEDX();
 	if(!isnan(skp)) m_varVec[i] = skp;
 
-	//cout<<"stt hit counts "<<pid->GetSttHitCounts()
+	// cout<<"stt hit counts "<<pid->GetSttHitCounts()
 	//    <<" Value is "<<pid->GetSttDEDX()<<endl;
 
 	if ( skp < 0 || skp ==0 ) count+=1;
@@ -238,25 +248,25 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
     }
     
     if (count > 0 ) continue;
-
+    // Select if we want to use TMVA or a MVA from PndTools.
       if(fMVAmode == MulClsKNN || fMVAmode == LVQ1){
 	std::map<std::string,float> res;
 
 	switch(fMVAmode){
 	case MulClsKNN:
-	  std::cout << "Not available" << std::endl;
+	  std::cout << "Not available yet." << std::endl;
 	  break;
+
 	case LVQ1:
 	  m_lvq->Classify(m_varVec, res);
-	  printResult(res);
+	  printResult(res);// Prints debug, may be commented.
 	  fTrack->Set(res);
 	  break;
 	default:
 	  std::cout << "Unknown classifier" << std::endl;
 	}
       }
-
-    else{
+      else{ // We want to renormalize TMVA output.
       float mvaValue;
       for (int i = 0 ; i < fNCLASS; i++){
 	std::string className;
