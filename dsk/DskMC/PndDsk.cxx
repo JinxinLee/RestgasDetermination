@@ -19,6 +19,7 @@ using std::cout;
 #include "PndDsk.h"
 #include "PndDskCerenkov.h"
 #include "PndDskParticle.h"
+#include "PndDskTrackPoint.h"
 
 
 
@@ -26,6 +27,7 @@ using std::cout;
 PndDsk::PndDsk()
   : fStoreCerenkovs(kTRUE),
     fStoreParticles(kTRUE),
+    fStoreTrackPoints(kFALSE),
     fPDE(1.),
     fDetectorTypes(2),
     fDetectorsPerArray(120),
@@ -35,6 +37,7 @@ PndDsk::PndDsk()
 {
   fDskCerenkovCollection = new TClonesArray("PndDskCerenkov");
   fDskParticleCollection = new TClonesArray("PndDskParticle");
+  fDskTrackPointCollection = new TClonesArray("PndDskTrackPoint");
 }
 // ----------------------------------------------------------------------------
 
@@ -45,6 +48,7 @@ PndDsk::PndDsk(const char* name, Bool_t active)
   : FairDetector(name, active),
     fStoreCerenkovs(kTRUE),
     fStoreParticles(kTRUE),
+    fStoreTrackPoints(kFALSE),
     fPDE(1.),
     fDetectorTypes(2),
     fDetectorsPerArray(120),
@@ -54,6 +58,7 @@ PndDsk::PndDsk(const char* name, Bool_t active)
 {
   fDskCerenkovCollection = new TClonesArray("PndDskCerenkov");
   fDskParticleCollection = new TClonesArray("PndDskParticle");
+  fDskTrackPointCollection = new TClonesArray("PndDskTrackPoint");
 }
 // ----------------------------------------------------------------------------
 
@@ -69,6 +74,10 @@ PndDsk::~PndDsk()
   if (0 != fDskParticleCollection) {
     fDskParticleCollection->Delete();
     delete fDskParticleCollection;
+  }
+  if (0 != fDskTrackPointCollection) {
+    fDskTrackPointCollection->Delete();
+    delete fDskTrackPointCollection;
   }
 }
 // ----------------------------------------------------------------------------
@@ -126,6 +135,7 @@ PndDsk::Register()
 {
   FairRootManager::Instance()->Register("DskCerenkov","Dsk", fDskCerenkovCollection, fStoreCerenkovs);
   FairRootManager::Instance()->Register("DskParticle","Dsk", fDskParticleCollection, fStoreParticles);
+  FairRootManager::Instance()->Register("DskTrackPoints","Dsk", fDskTrackPointCollection, fStoreTrackPoints);
 }
 // ----------------------------------------------------------------------------
 
@@ -149,7 +159,7 @@ PndDsk::GetCollection(Int_t iColl) const
 {
   if (iColl == 0) return fDskCerenkovCollection;
   if (iColl == 1) return fDskParticleCollection;
-
+  if (iColl == 2) return fDskTrackPointCollection;
   return NULL;
 }
 // ----------------------------------------------------------------------------
@@ -172,6 +182,7 @@ PndDsk::Reset()
 {
   fDskCerenkovCollection->Clear();
   fDskParticleCollection->Clear();
+  fDskTrackPointCollection->Clear();
 }
 // ----------------------------------------------------------------------------
 
@@ -250,5 +261,19 @@ PndDsk::AddParticle(Int_t trackID, Int_t detectorID,
 }
 // ----------------------------------------------------------------------------
 
+
+
+// -----   Public method AddTrackPoint   ----------------------------------------
+PndDskTrackPoint*
+PndDsk::AddTrackPoint(Int_t trackID, Int_t detectorID, TVector3 position, TVector3 momentum,
+    Double_t time, Double_t length, Double_t eLoss)
+{
+  TClonesArray& clRef = *fDskTrackPointCollection;
+  Int_t         size  = clRef.GetEntriesFast();
+
+  return new(clRef[size]) PndDskTrackPoint(trackID, detectorID,
+          position, momentum, time, length, eLoss);
+}
+// ----------------------------------------------------------------------------
 
 ClassImp(PndDsk)

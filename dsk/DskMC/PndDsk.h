@@ -14,6 +14,7 @@
 class TClonesArray;
 class PndDskCerenkov;
 class PndDskParticle;
+class PndDskTrackPoint;
 
 
 class PndDsk : public FairDetector
@@ -116,13 +117,21 @@ class PndDsk : public FairDetector
           Int_t pdgCode, TString pdgName, Double_t energy,
           Int_t motherTrackID, Int_t motherPdgCode, TString motherPdgName);
 
+  /** Method AddTrackPoint
+   **
+   ** Adds a TrackPoint to the collection
+   **/
+  PndDskTrackPoint* AddTrackPoint(Int_t trackID, Int_t detectorID, TVector3 position,
+          TVector3 momentum, Double_t time, Double_t length, Double_t eLoss);
+
   /** Modifiers **/
-  void SetDebugLevel(Int_t debugLevel) { fDebugLevel = debugLevel; };
+  void SetDebugLevel(Int_t debugLevel) { fDebugLevel = debugLevel; }
   void SetDetectors(Int_t detectorTypes, Int_t detectorsPerArray, Bool_t usingMirrors);
-  void SetPDE(Double_t pde) { fPDE = pde; };
-  void SetStoreCerenkovs(Bool_t storeCerenkovs) { fStoreCerenkovs = storeCerenkovs; };
-  void SetStoreParticles(Bool_t storeParticles) { fStoreParticles = storeParticles; };
-  void SetDskVersion(TString geoVersion) { fGeoVersion = geoVersion; };
+  void SetPDE(Double_t pde) { fPDE = pde; }
+  void SetStoreCerenkovs(Bool_t storeCerenkovs) { fStoreCerenkovs = storeCerenkovs; }
+  void SetStoreParticles(Bool_t storeParticles) { fStoreParticles = storeParticles; }
+  void SetStoreTrackPoints(Bool_t storeTrackPoints) { fStoreTrackPoints = storeTrackPoints; }
+  void SetDskVersion(TString geoVersion) { fGeoVersion = geoVersion; }
 
 
  private:
@@ -183,18 +192,23 @@ class PndDsk : public FairDetector
 
   TClonesArray* fDskCerenkovCollection;   //! Cerenkov collection
   TClonesArray* fDskParticleCollection;   //! Particle collection
+  TClonesArray* fDskTrackPointCollection; //! TrackPoint collection
 
   Bool_t        fStoreCerenkovs;          //! Whether to store Cerenkovs (default) or not
   Bool_t        fStoreParticles;          //! Whether to store Particles (default) or not
+  Bool_t        fStoreTrackPoints;        //! Whether to store TrackPoints or not (default)
 
-  Int_t         fDetectorID;              //! Detector ID (volume) where Cerenkov was created
-  Double_t      fEnergy;                  //! Energy [eV / GeV]
-  TVector3      fMomentum;                //! Momentum when emitted
+  Int_t         fTrackID;                 //! Index of MCTrack
+  Int_t         fDetectorID;              //! Detector ID (volume)
+  TVector3      fPosition;                //! Position [cm]
+  TVector3      fMomentum;                //! Momentum [GeV]
+  Double_t      fTime;                    //! Global time (since event start) [ns]
+  Double_t      fLength;                  //! Track length since creation (without mothers) [cm]
+  Double_t      fELoss;                   //! Energy deposit [GeV]
+
   Double_t      fPDE;                     //! Photon Detection Efficiency [0-1, 2]
   Int_t         fPdgCode;                 //! PDG code of current particle
-  TVector3      fPosition;                //! Position of first appearance [cm]
-  Double_t      fTime;                    //! Global time
-  Int_t         fTrackID;                 //! The particle-track ID
+  Double_t      fEnergy;                  //! Energy [eV / GeV]
   Double_t      fWavelength;              //! Vacuum wavelength hc/fEnergy [nm]
 
   Int_t         fMotherTrackID;           //! Track ID of the particle that emitted this Cerenkov

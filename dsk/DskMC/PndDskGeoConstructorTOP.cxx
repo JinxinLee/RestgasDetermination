@@ -24,14 +24,14 @@ using std::cout;
 Bool_t
 PndDsk::CheckIfSensitiveTOP(std::string name)
 {
-  return kTRUE;
-//   if (name.compare("radiator") == 0) { // radiator
-//     return kTRUE;
-//   }
-//   TString volName(name);
-//   if (volName.BeginsWith("mcp")) { // mcps
-//     return kTRUE;
-//   }
+//   return kTRUE;
+  if (name.compare("radiator") == 0) { // radiator
+    return kTRUE;
+  }
+  TString volName(name);
+  if (volName.BeginsWith("mcp")) { // mcps
+    return kTRUE;
+  }
 }
 // ----------------------------------------------------------------------------
 
@@ -77,6 +77,30 @@ PndDsk::ProcessHitsCerenkovTOP(FairVolume* vol)
 // if (gMC->IsTrackEntering()) {
 //   cout << "Track " << fTrackID << " is entering, called from volume: " << vol->GetName() << endl;
 // }
+
+
+
+  // if fStoreTrackPoints is set gather all necessary data now
+  if (fStoreTrackPoints) {
+
+    fTrackID    = gMC->GetStack()->GetCurrentTrackNumber();
+    fDetectorID = vol->getMCid();
+    gMC->TrackPosition(tmpLVec);
+    fPosition   = tmpLVec.Vect();   // [cm]
+    fTime       = gMC->TrackTime(); // [ns]
+    gMC->TrackMomentum(tmpLVec);
+    fMomentum   = tmpLVec.Vect();   // [GeV]
+    fLength     = gMC->TrackLength();  // [cm]
+    fELoss      = gMC->Edep();           // [GeV]
+
+    AddTrackPoint(fTrackID, fDetectorID, fPosition, fMomentum, fTime, fLength, fELoss);
+
+  }
+
+
+
+
+
 
   // it is entering the glass
   if ((gMC->IsTrackEntering()) && ((vol->getName()).BeginsWith("radiator"))) {
