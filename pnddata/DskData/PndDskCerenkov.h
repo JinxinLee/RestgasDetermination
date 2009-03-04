@@ -1,96 +1,93 @@
-/**
-
-  @class PndDskCerenkov
-
-  @brief MC data storage class for a Cerenkov photon
-
-  This calss will store information about a single Cerenkov photon. It will calculate the
-  projected way on the fly (assuming that every track is done completely one after the other)
-
-  @author Peter Koch
-  @date   2008-03-28
-  @since  2008-03-21
-
-**/
-
+// -------------------------------------------------------------------------
+// -----                 PndDskCerenkov header file                    -----
+// -----                Created 21/03/08  by P. Koch                   -----
+// -------------------------------------------------------------------------
 
 #ifndef PNDDSKCERENKOV_H
 #define PNDDSKCERENKOV_H
 
 #include "FairMCPoint.h"
-#include "TVector3.h"
 
-// class PndDskCerenkov : public TObject
-class PndDskCerenkov : public FairMCPoint
+class PndDskCerenkov : public FairMCPoint 
 {
 
-private:
-  // information, that we want to store in root file
-  // which is *not* already handled by FairMCPoint:
-  /// Detector number that finally registered the photon.
-  /// Starting with 1 at top left detector, clockwise. 0 is not hit any detector
-  Int_t    fDetNumber;
-  /// Detector type. This is a number from 0 to numOfDetectorTypes-1
-  UShort_t fDetType;
-  /// Energy of the Cerenkov
-  Double_t fEnergy;
-  /// Current Position of the Cerenkov
-  TVector3 fCurPos;
-  /// Projected Way, The total way of the photon projected on x-y-plane
-  Double_t fPWay;
-  /// PDG Code of the particle that emitted this Cerenkov photon
-  Int_t    fMotherPdgCode;
-  /// Primarys momentum when it hits on the disk
-  TVector3 fPrimaryHitMomentum;
+ public:
 
-
-public:
-  /// Default constructor
+  /** Default constructor **/
   PndDskCerenkov();
-  /// Standard constructor
-  /// @param trackID ID of the Cerenkov
-  /// @param volID ID of the volume where the first hit is produced - for CbmMcPoint
-  /// @param pos position of the creation point of this Cerenkov [cm]
-  /// @param mom momentum of the Cerenkov when its created [GeV]
-  /// @param tof time of flight since primary! vertex in [ns]
-  /// @param length length of the track from creation point [cm]
-  /// @param eLoss energy loss of the particle in the histpoint (always equal zero)
-  /// @param energy Energy of the photon
-  /// @param motherPdgCode PDG Code of particle that emitted this Cerenkov photon
-  /// @param primaryHitMomentum Momentum of primary when it hits on the disk
-  PndDskCerenkov(Int_t particleID, Int_t volID, TVector3 pos, TVector3 mom,
-              Double_t tof, Double_t length, Double_t eLoss,
-              Double_t energy,
-              Int_t motherPdgCode, TVector3 primaryHitMomentum);
-  /// Copy-constructor
-  PndDskCerenkov(const PndDskCerenkov& point) { *this = point; }
-  /// Standard destructor
+
+  /** Standard constructor with arguments
+   *@param trackID         Index of MCTrack
+   *@param detectorID      Detector ID where the first hit is produced
+   *@param position        Position of Cerenkov when created [cm]
+   *@param momentum        Momentum of Cerenkov when created  [eV]
+   *@param time            Time since event start when created [ns]
+   *@param energy          Energy of the Cerenkov when created [eV]
+   *@param wavelength      Vacuum wavelength hc/energy [nm]
+   *@param motherTrackID   Track ID of particle that emitted the Cerenkov
+   *@param motherPdgCode   PDG Code of particle that emitted the Cerenkov
+   *@param motherPdgName   PDG Name of particle that emitted the Cerenkov
+   **/
+  PndDskCerenkov(Int_t trackID, Int_t detectorID, TVector3 position, TVector3 momentum,
+          Double_t time, Double_t energy, Double_t wavelength,
+          Int_t motherTrackID, Int_t motherPdgCode, TString motherPdgName);
+
+  /** Copy constructor **/
+  PndDskCerenkov(const PndDskCerenkov& cerenkov) { *this = cerenkov; };
+
+  /** Destructor **/
   virtual ~PndDskCerenkov();
 
-  /// increase projected way
-  /// @param newPos current position of the Cerenkov
-  void          CalcPWay(TVector3 newPos);
-  /// Print some info about this Cerenkov
-  virtual  void Print(const Option_t *opt) const { };
+  /** Virtual method Print
+   **
+   ** Screen output of Cerenkov
+   **/
+  virtual void Print(const Option_t* opt) const;
 
-  /// Return detector number
-  Int_t    GetDetNumber()          const { return fDetNumber; }
-  /// Return Energy [GeV]
-  Double_t GetEnergy()             const { return fEnergy; }
-  /// Return projected way [cm]
-  Double_t GetPWay()               const { return fPWay; }
-  /// Return PDG Code of of particle that emitted this Cerenkov photon
-  Int_t    GetMotherPdgCode()      const { return fMotherPdgCode; }
-  /// Return Mothers inverse beta; later needed to calc Cerenkov-Angle
-  TVector3 GetPrimaryHitMomentum() const { return fPrimaryHitMomentum; }
+  /** Accessors **/
+  Double_t GetEnergy()        const { return fEnergy; };
+  Double_t GetWavelength()    const { return fWavelength; };
+  Int_t    GetMotherTrackID() const { return fMotherTrackID; };
+  Int_t    GetMotherPdgCode() const { return fMotherPdgCode; };
+  TString  GetMotherPdgName() const { return fMotherPdgName; };
+  Int_t    GetDetNumber()     const { return fDetNumber; };
+  UShort_t GetDetType()       const { return fDetType; };
+  Double_t GetDetTime()       const { return fDetTime; };
+  TVector3 GetDetMomentum()   const { return fDetMomentum; };
+  Double_t GetPrimaryHitAngle()        const { return fPrimaryHitAngle; };
+  Double_t GetPrimaryAngleToCerenkov() const { return fPrimaryAngleToCerenkov; };
+// This Time Of Flight would be without primarys flighttime within the disk
+//   Double_t GetTof()            const { return fDetTime - fTime; };
+  Double_t GetNofReflections() const { return fNofReflections; };
 
-  /// Set final values when Cerenkov is detected
-  void SetFinalValues(Int_t detNumber, UShort_t detType, Double_t tof, Double_t length);
+  /** Modifiers **/
+  void AddReflection() { fNofReflections++; };
+  void SetFinalValues(Int_t detNumber, UShort_t detType,
+               Double_t detTime, TVector3 detMomentum,
+               Double_t primaryHitAngle, Double_t primaryAngleToCerenkov);
 
+ 
+ protected:
 
-ClassDef(PndDskCerenkov,1);
+  Double_t fEnergy;             ///< Energy of Cerenkov when created [eV]
+  Double_t fWavelength;         ///< Vacuum wavelength hc/energy [nm]
+  Double_t fPWay;               //! Projected Way [cm]
 
+  Int_t    fMotherTrackID;      ///< Track ID of particle that emitted the Cerenkov
+  Int_t    fMotherPdgCode;      ///< PDG Code of particle that emitted the Cerenkov
+  TString  fMotherPdgName;      ///< PDG Name of particle that emitted the Cerenkov
+
+  Int_t    fDetNumber;          ///< Detector number that finally registered the photon.
+  UShort_t fDetType;            ///< Detector type
+  Double_t fDetTime;            ///< Global time when detected [ns]
+  TVector3 fDetMomentum;        ///< Momentum when detected [eV]
+
+  Int_t    fNofReflections;     ///< Number of total reflections the Cerenkov did in the radiator
+
+  Double_t fPrimaryHitAngle;        ///< Angle to the z-Axis when first registered
+  Double_t fPrimaryAngleToCerenkov; ///< Angle between momentum of eachs first appearance
+
+  ClassDef(PndDskCerenkov,1)
 };
-
 
 #endif // PNDDSKCERENKOV_H

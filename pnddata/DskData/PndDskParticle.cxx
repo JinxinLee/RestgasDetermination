@@ -1,66 +1,59 @@
 // ----------------------------------------------------------------------------
-// -----                  PndDskCerenkov source file                      -----
-// -----                 Created 21/03/08  by P. Koch                     -----
+// -----                   PndDskParticle source file                     -----
+// -----                  Created 21/03/08  by P. Koch                    -----
 // ----------------------------------------------------------------------------
 
 #include <iostream>
 using std::cout;
 using std::endl;
 
-#include "PndDskCerenkov.h"
+#include "PndDskParticle.h"
 
 
 
 // -----   Default constructor   ----------------------------------------------
-PndDskCerenkov::PndDskCerenkov()
+PndDskParticle::PndDskParticle()
   : FairMCPoint(),
+    fPdgCode(-1),
+    fPdgName(TString()),
     fEnergy(0.),
-    fWavelength(0.),
     fMotherTrackID(-1),
     fMotherPdgCode(-1),
     fMotherPdgName(TString()),
-    fDetNumber(0),
-    fDetType(0),
-    fDetTime(0.),
-    fDetMomentum(TVector3()),
-    fNofReflections(0),
-    fPWay(0.),
-    fPrimaryHitAngle(0.),
-    fPrimaryAngleToCerenkov(0.)
+    fExitPosition(TVector3()),
+    fExitMomentum(TVector3()),
+    fExitTime(0.),
+    fExitEnergy(0.)
 {
-}
+}    
 // ----------------------------------------------------------------------------
 
 
 
 // -----   Standard constructor   ---------------------------------------------
-PndDskCerenkov::PndDskCerenkov(Int_t trackID, Int_t detectorID,
+PndDskParticle::PndDskParticle(Int_t trackID, Int_t detectorID,
         TVector3 position, TVector3 momentum, Double_t time,
-        Double_t energy, Double_t wavelength,
+        Int_t pdgCode, TString pdgName, Double_t energy,
         Int_t motherTrackID, Int_t motherPdgCode, TString motherPdgName)
   : FairMCPoint(trackID, detectorID, position, momentum, time, 0., 0.),
+    fPdgCode(pdgCode),
+    fPdgName(pdgName),
     fEnergy(energy),
-    fWavelength(wavelength),
     fMotherTrackID(motherTrackID),
     fMotherPdgCode(motherPdgCode),
     fMotherPdgName(motherPdgName),
-    fDetNumber(0),
-    fDetType(0),
-    fDetTime(0.),
-    fDetMomentum(TVector3()),
-    fNofReflections(0),
-    fPWay(0.),
-    fPrimaryHitAngle(0.),
-    fPrimaryAngleToCerenkov(0.)
+    fExitPosition(TVector3()),
+    fExitMomentum(TVector3()),
+    fExitTime(0.),
+    fExitEnergy(0.)    
 {
-//   cout << "Added Cerenkov with wl = " << fWavelength << endl;
 }
 // ----------------------------------------------------------------------------
 
 
 
 // -----   Destructor   -------------------------------------------------------
-PndDskCerenkov::~PndDskCerenkov()
+PndDskParticle::~PndDskParticle()
 {
 }
 // ----------------------------------------------------------------------------
@@ -69,8 +62,8 @@ PndDskCerenkov::~PndDskCerenkov()
 
 // -----   Public method Print   ----------------------------------------------
 void
-PndDskCerenkov::Print(const Option_t* opt) const {
-  cout << "-I- PndDskCerenkov: track" << fTrackID 
+PndDskParticle::Print(const Option_t* opt) const {
+  cout << "-I- PndDskParticle: track" << fTrackID 
        << " created in detector " << fDetectorID << endl;
   cout << "    at Position (" << fX << ", " << fY << ", " << fZ
        << ") cm" << endl;
@@ -84,18 +77,16 @@ PndDskCerenkov::Print(const Option_t* opt) const {
 
 // -----   Public method SetFinalValues   -------------------------------------
 void
-PndDskCerenkov::SetFinalValues(Int_t detNumber, UShort_t detType, Double_t detTime,
-        TVector3 detMomentum, Double_t primaryHitAngle, Double_t primaryAngleToCerenkov)
+PndDskParticle::SetFinalValues(TVector3 exitPosition, TVector3 exitMomentum,
+        Double_t exitTime, Double_t exitEnergy)
 {
-  fDetNumber   = detNumber;
-  fDetType     = detType;
-  fDetTime     = detTime;
-  fDetMomentum = detMomentum;
-  fPrimaryHitAngle        = primaryHitAngle;
-  fPrimaryAngleToCerenkov = primaryAngleToCerenkov;
+  fExitPosition = exitPosition;
+  fExitMomentum = exitMomentum;
+  fExitTime     = exitTime;
+  fExitEnergy   = exitEnergy;
 }
 // ----------------------------------------------------------------------------
 
 
 
-ClassImp(PndDskCerenkov)
+ClassImp(PndDskParticle)
