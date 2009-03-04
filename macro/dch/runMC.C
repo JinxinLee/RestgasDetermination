@@ -12,7 +12,7 @@
   cout<<"libGeoBase\t"<<gSystem->Load("libGeoBase")<<endl;;
   cout<<"libParBase\t"<<gSystem->Load("libParBase")<<endl;
   cout<<"libBase\t\t"<<gSystem->Load("libBase")<<endl;
-  cout<<"libPndData\t"<<gSystem->Load("libPndData")<<endl;
+  cout<<"libPndBase\t"<<gSystem->Load("libPndBase")<<endl;
   cout<<"libField\t"<<gSystem->Load("libField")<<endl;
   cout<<"libPassive\t"<<gSystem->Load("libPassive")<<endl;
   cout<<"libGen\t\t"<<gSystem->Load("libGen")<<endl;
@@ -45,7 +45,7 @@
   fRun->AddModule(Pipe);
   
   FairModule *Magnet= new PndMagnet("MAGNET");
-  Magnet->SetGeometryFileName("FullSolenoid.root");
+  Magnet->SetGeometryFileName("PandaSolenoidV833.root");
   fRun->AddModule(Magnet);
   
   FairModule *dipole= new PndMagnet("MAGNET");
