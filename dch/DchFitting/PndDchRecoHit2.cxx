@@ -5,7 +5,7 @@
 // -----                             for documentation, see there      -----
 // -------------------------------------------------------------------------
 
-// The STT point is not defined by the (x, y, z) coordinates, but we ONLY know the
+// The DCH point is not defined by the (x, y, z) coordinates, but we ONLY know the
 // (x, y) coordinates of the wire center (not the z!); moreover we know the drift
 // radius. In order to find the MEASURED POINT to be used in the Kalman fit a 
 // preliminary propagation must be performed to the point of closest approach to
@@ -115,11 +115,6 @@ void PndDchRecoHit2::setHMatrix(const AbsTrackRep* stateVector,
     throw;
   }
  
-}
-
-double PndDchRecoHit2::residualScalar(AbsTrackRep* stateVector,
-			   const TMatrixT<double>& state){
-  throw;
 }
 
 const DetPlane& PndDchRecoHit2::detPlane(AbsRecoHit* hit, AbsTrackRep* rep){

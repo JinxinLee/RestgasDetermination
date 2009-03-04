@@ -184,20 +184,26 @@ void PndDchPreFitterTRQATask::PlotHistograms(){
     fhP->Draw();
   }
 
+ if(fhPx!=0){
   fCanvas->cd(i++);     
   gPad->SetGrid(1,0); 
   fhPx->Draw();	      
   fhPx->Fit("gaus");   
-
-  fCanvas->cd(i++);     
-  gPad->SetGrid(1,0); 
-  fhPy->Draw();	      
-  fhPy->Fit("gaus");   
-
-  fCanvas->cd(i++);     
-  gPad->SetGrid(1,0); 
-  fhPz->Draw();	      
-  fhPz->Fit("gaus");   
+ }
+ 
+ if(fhPy!=0){
+   fCanvas->cd(i++);     
+   gPad->SetGrid(1,0); 
+   fhPy->Draw();	      
+   fhPy->Fit("gaus");   
+ }
+  
+  if(fhPz!=0){  
+    fCanvas->cd(i++);     
+    gPad->SetGrid(1,0); 
+    fhPz->Draw();	      
+    fhPz->Fit("gaus");   
+ }
 
   if(0!=fPhiH){
     fCanvas->cd(i++);

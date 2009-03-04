@@ -51,6 +51,7 @@ PndDchKalmanQATask::PndDchKalmanQATask()
 
 PndDchKalmanQATask::~PndDchKalmanQATask() {
   
+  std::cout<<"Ever come here? PndDchKalmanQATask::~PndDchKalmanQATask"<<std::endl;
   WriteHistograms();
 
   if(fhP!=NULL)    delete fhP;
@@ -64,6 +65,8 @@ PndDchKalmanQATask::~PndDchKalmanQATask() {
 }
 
 InitStatus PndDchKalmanQATask::Init(){
+  if(fVerbose>0)
+    std::cout<<" I am entering PndDchKalmanQATask::Init()..."<<std::cout;
   //Get ROOT Manager
   FairRootManager* ioman= FairRootManager::Instance();
   if(ioman==0){
@@ -90,10 +93,10 @@ InitStatus PndDchKalmanQATask::Init(){
   }
    
   // // setup histograms
-  fhP    = new TH1D("pullP","(p_{Rec}-p_{MC})/p_{MC}",50,-0.05,0.05);
-  fhPx   = new TH1D("pullPx","(p_{x,Rec}-p_{x,MC})/p_{x,MC}",50,-2.9,2.9);
-  fhPy   = new TH1D("pullPy","(p_{y,Rec}-p_{y,MC})/p_{y,MC}",50,-2.9,2.9);
-  fhPz   = new TH1D("pullPz","(p_{z,Rec}-p_{z,MC})/p_{z,MC}",50,-2.9,2.9);
+  fhP    = new TH1D("pullP","(p_{Rec}-p_{MC})/p_{MC}",50,-0.15,0.15);
+  fhPx   = new TH1D("pullPx","(p_{x,Rec}-p_{x,MC})/p_{x,MC}",50,-0.5,0.5);
+  fhPy   = new TH1D("pullPy","(p_{y,Rec}-p_{y,MC})/p_{y,MC}",50,-0.5,0.5);
+  fhPz   = new TH1D("pullPz","(p_{z,Rec}-p_{z,MC})/p_{z,MC}",50,-0.15,0.15);
   fhP->SetFillColor(9);
   fhPx->SetFillColor(9);
   fhPy->SetFillColor(9);
@@ -119,23 +122,24 @@ void PndDchKalmanQATask::Exec(Option_t* opt) {
       TVector3 mom0;
       AbsTrackRep* rep = 0;
       rep = trk->getCardinalRep()->clone();
-      std::cout<<" Particle charge = "<<rep->getCharge()<<std::endl;
       GeaneTrackRep* grep = 0;
       if(fApproach==0){
 	// approach zero - working when only dipole field on
 	// all three components of momentum then reconstructed properly
+	// though biased by energy loss between target and 1st plane
 	mom0 = trk->getMom();
       }
       else if(fApproach==1){
-	// approach one - failing, since for ca. 50% of all events
-	// one of the momentum components has a mismatch in sign
+	// approach one - extrapolating to the plane containing
+	// the target (and perp. to the beam pipe)
 	DetPlane pl(TVector3(0,0,0),TVector3(1,0,0),TVector3(0,1,0));
 	grep=dynamic_cast<GeaneTrackRep*>(rep);
 	grep->setPropDir(-1);
 	mom0=grep->getMom(pl);
       }
       else if(fApproach==2){
- 	//approach two
+ 	//approach two - extrapolation to the point of closest approach
+	//from the target
  	TMatrixT<double> statePred(5,1);
  	TMatrixT<double> covPred(5,5);
  	DetPlane planePred;
@@ -154,16 +158,11 @@ void PndDchKalmanQATask::Exec(Option_t* opt) {
       if(fSignPatch)
 	if(mom0.Z()<0)
 	  mom0 = -mom0;
-      std::cout<<"mom0 reconstructed = "<<std::endl;
-      mom0.Print();
+      if(fVerbose>0){
+	std::cout<<"mom0 reconstructed = "<<std::endl;
+	mom0.Print();
+      }
       
-      //      rep->extrapolate(firstHit->getDetPlane(rep));
-      //       rep->setReferencePlane(firstHit->getDetPlane(rep));
-      //       std::cout<<"************ Track at the first hit: \n\t Momentum ="<<
-      // 	rep->getMom().Mag()<<"\t theta="<<rep->getMom().Theta()*TMath::RadToDeg()<<
-      // 	"\t phi="<<rep->getMom().Phi()*TMath::RadToDeg()<<"\n";
-      //       rep->Print();
-            
       Int_t mcTrid = -1;
       Int_t id = 0;
       while(id<fDchTrackMatchArray->GetEntriesFast()){
@@ -185,8 +184,10 @@ void PndDchKalmanQATask::Exec(Option_t* opt) {
 	continue;
       }
       TVector3 mcmom = mc->GetMomentum();
-      std::cout<<"mcmom: "<<std::endl;
-      mcmom.Print();
+      if(fVerbose>0){
+	std::cout<<"mcmom: "<<std::endl;
+	mcmom.Print();
+      }
       if(0!=mcmom.Mag())
 	if(fhP) fhP->Fill((mom0.Mag()-mcmom.Mag())/mcmom.Mag());
       if(0!=mcmom.X())
@@ -209,6 +210,7 @@ void PndDchKalmanQATask::Exec(Option_t* opt) {
   
 
 Bool_t  PndDchKalmanQATask::WriteHistograms(){
+  std::cout<<"  PndDchKalmanQATask::WriteHistograms() "<<std::endl;
   TFile* file = FairRootManager::Instance()->GetOutFile();
   file->cd();
   file->mkdir("DchKalmanQA");

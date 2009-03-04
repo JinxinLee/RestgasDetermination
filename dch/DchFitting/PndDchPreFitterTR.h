@@ -82,7 +82,6 @@ class PndDchPreFitterTR : public FairTask {
   /** Private method GetHitPointInChamber(TClonesArray* chitArray) **/    
   std::map<Int_t , TVector3> GetHitPointsInChambers(PndDchTrack* tr);
 
-
   TClonesArray* fPointArray; ///< Input array of PndDchPoints
   TClonesArray* fInHitArray; ///< Input array of PndDchInHits
     TClonesArray* fDchTrackMatchArray; ///< Input array of TrackMatches
@@ -98,7 +97,7 @@ class PndDchPreFitterTR : public FairTask {
   TClonesArray* fInHitsYZ;  ///< array of hit points (TVector2) in YZ plane (hits from Chamber3 to Chamber8)
   Double_t fZFieldBegin;    ///< upstream z - coordinate of the field border
   Double_t fZFieldEnd;      ///< downstream z - coordinate of the field border
-  Double_t fField;          ///< effecitive field strength
+  Double_t fField;          ///< effective field strength
 
   TVector2 fTrackYZ;        ///< parametrised track projection in YZ-plane		     
   TVector2 fTrackBeforeXZ;  ///< parametrised track projection in XZ-plane before the dipole 

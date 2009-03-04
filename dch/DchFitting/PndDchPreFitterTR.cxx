@@ -17,6 +17,8 @@
 #include "TFile.h"
 
 #include "FairRootManager.h"
+#include "FairRuntimeDb.h"
+#include "FairBaseParSet.h"
 #include "FairRunAna.h"
 #include "FairRun.h"
 #include "FairTrackParam.h"
@@ -116,9 +118,24 @@ InitStatus PndDchPreFitterTR::Init() {
     return kERROR;
   }
 
-  fZFieldBegin = 350.0;
+  FairRunAna *fRun= FairRunAna::Instance();
+  Double_t fBeamMom = 0.;
+  if(fRun){
+    FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+    FairBaseParSet* par=(FairBaseParSet*)
+      (rtdb->findContainer("FairBaseParSet"));
+    fBeamMom= par->GetBeamMom();
+    std::cout<<" Beam momentum read out from DB = "<<fBeamMom<<std::endl;
+  }
+  else{
+    std::cout<<"PndDchPreFitterTR: fBeamMom could not be found"<<std::endl;
+    //fBeamMom = 15.;
+    exit(2);
+  }
+
+  fZFieldBegin = 360.0;
   fZFieldEnd = 580.0;
-  fField=0.895;  
+  fField= 0.895 * fBeamMom / 15.;
   //TClonesArray of inhits to fit line before the dipole (Chamber 3  and 4) in XZ plane
   fInHitsBeforeXZ = new TClonesArray("TVector2");
   //TClonesArray of inhits to fit line after the dipole (Chamber 7  and 8) in XZ plane
@@ -204,6 +221,7 @@ void PndDchPreFitterTR::Exec(Option_t* opt) {
       //artificial dch inhit for entering magnetic field
       TVector2 *pos = new((*fInHitsInXZ)[nInXZ++]) TVector2(xIn,fZFieldBegin);
     }
+    
     Bool_t  isRecoTrackAfterXZ = GetLineParameters(fInHitsAfterXZ,fTrackAfterXZ);
     if(isRecoTrackAfterXZ){
       Double_t xOut = (fZFieldEnd-fTrackAfterXZ.Y())/fTrackAfterXZ.X();
@@ -211,7 +229,9 @@ void PndDchPreFitterTR::Exec(Option_t* opt) {
       TVector2 *pos = new((*fInHitsInXZ)[nInXZ++]) TVector2(xOut,fZFieldEnd);
     }
     Bool_t isRecoTrackYZ  = GetLineParameters(fInHitsYZ,fTrackYZ);
+
     Bool_t  isRecoTrackInXZ =  GetCircleParameters(fInHitsInXZ,fTrackInXZ);
+
     TVector3 startMomentum(0., 0., 0.);
     TVector3 startPosition(0., 0., 0.);
     if(!(isRecoTrackYZ && isRecoTrackBeforeXZ  && isRecoTrackInXZ) ){
@@ -232,6 +252,12 @@ void PndDchPreFitterTR::Exec(Option_t* opt) {
 			 startMomentum.Y()/ startMomentum.Z(),
 			 chargeSign/ startMomentum.Mag(),
 			 *covMatrix);
+//     FairTrackParam parset;
+//     startMomentum.Print();
+//     parset.SetPosition(startPosition);
+//     parset.SetTx(startMomentum.X()/ startMomentum.Z());
+//     parset.SetTy(startMomentum.Y()/ startMomentum.Z());
+//     parset.SetQp(chargeSign/ startMomentum.Mag());
     track->SetParamFirst(parset);
   } //end of loop over tracks
 
@@ -282,6 +308,7 @@ Int_t PndDchPreFitterTR::GetChargeSign(){
 
 Bool_t PndDchPreFitterTR::GetMomentum(TVector3& momentum ) {
   Double_t magXZ = 0.3*fField*fTrackInXZ(2)/100.;
+  //  std::cout<<"magXZ= "<<magXZ<<" fField= "<<fField<<" fTrackInXZ(2)= "<<fTrackInXZ(2)<<std::endl;
  
   if(fTrackBeforeXZ.X()==0 || fTrackYZ.X()==0)
     return kFALSE;
@@ -340,6 +367,7 @@ Bool_t PndDchPreFitterTR::GetCircleParameters(TClonesArray *fInHits, TVector3& r
   else
     //result = (X0, Z0, radius)
     result.SetXYZ(bb/2.,cc/2.,0.5*sqrt(dd)); 
+  if(fVerbose>0) std::cout<<" fitted circle radius is "<< result.Z()<<std::endl;
   return kTRUE;
 }
 

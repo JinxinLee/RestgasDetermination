@@ -1,34 +1,32 @@
-{
+Int_t createRootGeoFile(Bool_t builtRICH = kTRUE){
 
   // dch geometry parameters
+  const Double_t kMylarThicknessPerDL = 3.e-3;
+  const Double_t kWoThicknessPerDL = 6.28e-6;
+
   const Double_t  kHoleRadiusFS   = 5.;
   const Double_t  kCiut           = 5.;
   const Int_t      kNumOfChambers  = 8.;
-  const Double_t  kFreeSpace      = 0.5;
-  const Double_t  kPlaneThickness = 1.;
-  const Int_t      kNumOfSplanes[kNumOfChambers]   = {2, 8, 6, 6, 6, 6, 6, 6};
-  const Double_t  kDchDz[kNumOfChambers]       = {0.016,                         
-						  0.5*(kNumOfSplanes[1]*kPlaneThickness+5.*kFreeSpace), 
-						  0.5*(kNumOfSplanes[2]*kPlaneThickness+4.*kFreeSpace),  
-						  0.5*(kNumOfSplanes[3]*kPlaneThickness+4.*kFreeSpace), 
-						  0.5*(kNumOfSplanes[4]*kPlaneThickness+4.*kFreeSpace),  
-						  0.5*(kNumOfSplanes[5]*kPlaneThickness+4.*kFreeSpace), 
-						  0.5*(kNumOfSplanes[6]*kPlaneThickness+4.*kFreeSpace),  
-						  0.5*(kNumOfSplanes[7]*kPlaneThickness+4.*kFreeSpace)};
-  const Double_t  kDchDx[kNumOfChambers]       = {54., 80., 62., 75., 120., 139., 220., 320.};
+  const Double_t  kPlaneThickness = 1.01;
+  const Double_t  kFreeSpace      = 2.5-kPlaneThickness-kMylarThicknessPerDL/2.-kWoThicknessPerDL/2.;
+  const Int_t    kNumOfSplanes[kNumOfChambers]   = {0, 0, 8, 8, 8, 8, 8, 8};
+  const Double_t  kDchDz[kNumOfChambers]       = {0.,0., 10.,10.,10.,10.,10.,10.};
+  const Double_t  kDchDx[kNumOfChambers]       = { 0.,  0., 62., 75., 120., 139., 220., 320.};
   const Double_t  kDchDy[kNumOfChambers]       = { 0.,  0., 39., 45., 38., 42.5, 79., 94.};
-  const Double_t  kDchPosition[kNumOfChambers] = {112., 178., 
- 						  284.5, 330.,
- 						  402., 452.,
- 						  612.5, 742.5};
+  Double_t  kDchPosition[kNumOfChambers] = {112., 178., 
+ 						  305., 337.,
+ 						  418., 462.,
+ 						  615., 760.};
   const Double_t  kHoleRadius[kNumOfChambers]   = {3.1, 4.2, 4.2, 6.5, 6.5, 6.5, 6.5, 6.5};
-  // const Double_t  kDchPosition[kNumOfChambers] = {50., 60., 
-// 						  75, 90.,
-// 						  110., 140.,
-// 						  160., 190};
-  //const Double_t  kHoleRadius[kNumOfChambers]   = {6.5, 6.5, 6.5, 6.5, 6.5, 6.5, 6.5, 6.5};
-  
-  
+
+  if(builtRICH==kFALSE){
+    kDchPosition[kNumOfChambers-1]= kDchPosition[kNumOfChambers-2]+
+      kDchDz[kNumOfChambers-2]+kDchDz[kNumOfChambers-1]+5.;
+    TString outfile= "../../geometry/dch_likeSTT_woRich.root";
+  }
+  else{
+    TString outfile= "../../geometry/dch.root";
+  }
   
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
   basiclibs();
@@ -37,10 +35,9 @@
   gSystem->Load("libGeoBase");
   gSystem->Load("libParBase");
   gSystem->Load("libBase");
-  gSystem->Load("libPndData");
+  gSystem->Load("libMCStack");
   gSystem->Load("libPassive");
 
-  TString outfile= "../../geometry/dch.root";
   
   FairGeoLoader* geoLoad = new FairGeoLoader("TGeo","FairGeoLoader");
   FairGeoInterface *geoFace = geoLoad->getGeoInterface();
@@ -51,37 +48,49 @@
   FairGeoMedia *Media =  geoFace->getMedia();
   FairGeoBuilder *geobuild=geoLoad->getGeoBuilder();
 
-  FairGeoMedium *CbmMediumAir  = Media->getMedium("air");
-  FairGeoMedium *CbmMediumSilicon = Media->getMedium("silicon");
-  FairGeoMedium *CbmMediumGas = Media->getMedium("DCHmixture");
-  FairGeoMedium *CbmMediumGasP = Media->getMedium("DCHmixturePassive");
-  FairGeoMedium *CbmMediumVacuum = Media->getMedium("vacuum");
-  FairGeoMedium *CbmMediumLead = Media->getMedium("lead");
+  FairGeoMedium *FairMediumAir  = Media->getMedium("air");
+  FairGeoMedium *FairMediumGas = Media->getMedium("DCHmixture2bar");
+  FairGeoMedium *FairMediumGasP = Media->getMedium("DCHmixturePassive");
+  FairGeoMedium *FairMediumVacuum = Media->getMedium("vacuum");
+  FairGeoMedium *FairMediumLead = Media->getMedium("lead");
+  FairGeoMedium *FairMediumTungsten = Media->getMedium("tungsten");
+  FairGeoMedium *FairMediumMylar = Media->getMedium("mylar");
   
-  Int_t nmed=geobuild->createMedium(CbmMediumAir);
-  nmed=geobuild->createMedium(CbmMediumSilicon);
-  nmed=geobuild->createMedium(CbmMediumGas);
-  nmed=geobuild->createMedium(CbmMediumGasP);
-  nmed=geobuild->createMedium(CbmMediumVacuum);
-  nmed=geobuild->createMedium(CbmMediumLead);
+  Int_t nmed=geobuild->createMedium(FairMediumAir);
+  nmed=geobuild->createMedium(FairMediumGas);
+  nmed=geobuild->createMedium(FairMediumGasP);
+  nmed=geobuild->createMedium(FairMediumVacuum);
+  nmed=geobuild->createMedium(FairMediumLead);
+  nmed=geobuild->createMedium(FairMediumTungsten);
+  nmed=geobuild->createMedium(FairMediumMylar);
   
   TGeoManager* gGeoMan = (TGeoManager*)gROOT->FindObject("FAIRGeom");
     
   //construct the overall box
   cout<<endl<<endl<<endl<<"&&&&&&&&&&&&&&&&&&&&&&&"<<gGeoMan->GetMedium("air")<<endl<<endl;
-  TGeoVolume *top = gGeoMan->MakeBox("top",gGeoMan->GetMedium("air"),350,100,800);
+  TGeoVolume *top = gGeoMan->MakeBox("top",gGeoMan->GetMedium("air"),400,130,800);
   gGeoMan->SetTopVolume(top);
 
   TGeoTranslation* tr[kNumOfChambers];
   TGeoShape* dchFullShape[kNumOfChambers];
+  TGeoShape* mylarFullShape[kNumOfChambers];
+  TGeoShape* woFullShape[kNumOfChambers];
+  TGeoShape* mylarFullShape[kNumOfChambers];
+  TGeoShape* woFullShape[kNumOfChambers];
   TGeoShape* planeFullShape[kNumOfChambers];
   TGeoTube* pipeHoleShape[kNumOfChambers];
   TGeoCompositeShape* dchShape[kNumOfChambers];
   TGeoCompositeShape* planeShape[kNumOfChambers];
+  TGeoCompositeShape* mylarShape[kNumOfChambers];
+  TGeoCompositeShape* woShape[kNumOfChambers];
   TGeoVolume* dchVol[kNumOfChambers];
   TGeoVolume* planeVol[kNumOfChambers];
+  TGeoVolume* mylarVol[kNumOfChambers];
+  TGeoVolume* woVol[kNumOfChambers];
+
   TString name, recipe;
-  for(Int_t i=2; i<kNumOfChambers; i++){
+  for(Int_t i=2; i<kNumOfChambers; i++){ 
+    //for(Int_t i=2; i<kNumOfChambers-2; i++){
     cout<< "********* Next chamber ***************************"<<endl;
     //define shape of the hole for beam pipe for the current chamber
     name = "pipeHoleShape";
@@ -96,18 +105,17 @@
     // define full shapes of chambers and planes (without the hole)
     name = "dchFullShape";
     name+=(i+1);
-    if(i<2){
-      dchFullShape[i] = new TGeoTube(name,0.,kDchDx[i],kDchDz[i]);
-      if(i==0) planeFullShape[i] = new TGeoTube("planeFullShape1",0.,kDchDx[i],kDchDz[i]/2.);
-      else     planeFullShape[i] = new TGeoTube("planeFullShape2",0.,kDchDx[i],kPlaneThickness/2.);
-    }
-    else{
-      dchFullShape[i] = new TGeoBBox(name,kDchDx[i],kDchDy[i],kDchDz[i]); 
-      name = "planeFullShape";
-      name += (i+1);
-      planeFullShape[i] = new TGeoBBox(name,kDchDx[i],kDchDy[i],kPlaneThickness/2.); 
-    }
-    // create shapes of chambers with holes
+    dchFullShape[i] = new TGeoBBox(name,kDchDx[i],kDchDy[i],kDchDz[i]); 
+    name = "planeFullShape";
+    name += (i+1);
+    planeFullShape[i] = new TGeoBBox(name,kDchDx[i],kDchDy[i],kPlaneThickness/2.); 
+    name = "mylarFullShape";
+    name += (i+1);
+    mylarFullShape[i] = new TGeoBBox(name,kDchDx[i],kDchDy[i],kMylarThicknessPerDL/4.);
+    name = "woFullShape";
+    name += (i+1);
+    woFullShape[i] = new TGeoBBox(name,kDchDx[i],kDchDy[i],kWoThicknessPerDL/4.); 
+     // create shapes of chambers with holes
     name = "dchShape";
     name += (i+1);
     recipe = dchFullShape[i]->GetName();
@@ -121,71 +129,90 @@
     recipe += "-pipeHoleShape";
     recipe+=(i+1);
     planeShape[i] = new TGeoCompositeShape(name,recipe);
+    //creates shapes of mylar with holes
+    name = "mylarShape";
+    name += (i+1);
+    recipe = mylarFullShape[i]->GetName();
+    recipe += "-pipeHoleShape";
+    recipe+=(i+1);
+    mylarShape[i] = new TGeoCompositeShape(name,recipe);
+    //creates shapes of Wo with holes
+    name = "woShape";
+    name += (i+1);
+    recipe = woFullShape[i]->GetName();
+    recipe += "-pipeHoleShape";
+    recipe+=(i+1);
+    woShape[i] = new TGeoCompositeShape(name,recipe);
     // create physical volumes of chambers
     name = "dchVol";
     name+=(i+1);
-    TString medium;
-    i>0 ? medium = "DCHmixturePassive" : medium = "air";
+    TString medium = "air";
     dchVol[i] = new TGeoVolume(name, dchShape[i], gGeoMan->GetMedium(medium));
     cout<<"volume "<<dchVol[i]->GetName()<< " created"<<endl;
     top->AddNode(dchVol[i],0,tr[i]);
     // create physical volumes of planes
     name = "dchSplaneVol";
     name+=(i+1);
-    TString medium;
-    i>0 ? medium = "DCHmixture" : medium = "silicon";
+    TString  medium = "DCHmixture2bar";
     planeVol[i] = new TGeoVolume(name, planeShape[i], gGeoMan->GetMedium(medium));
     cout<<"volume "<<planeVol[i]->GetName()<< " created"<<endl;
+    // create physical volumes of mylar
+    name = "mylarVol";
+    name+=(i+1);
+    TString  medium = "mylar";
+    mylarVol[i] = new TGeoVolume(name, mylarShape[i], gGeoMan->GetMedium(medium));
+    cout<<"volume "<<mylarVol[i]->GetName()<< " created"<<endl;
+    // create physical volumes of tungsten
+    name = "woVol";
+    name+=(i+1);
+    TString  medium = "tungsten";
+    woVol[i] = new TGeoVolume(name, woShape[i], gGeoMan->GetMedium(medium));
+    cout<<"volume "<<woVol[i]->GetName()<< " created"<<endl;
     
     ////////////////////////////////////////
     // adding sensitive planes to chambers
     ////////////////////////////////////////
     TGeoTranslation* trFS[(kNumOfChambers-2)*(kNumOfSplanes[5])];   
-    // gem
-    if(i==0){
-      TGeoTranslation* tr1[2];
-      tr1[0] = new TGeoTranslation(0., 0., -kDchDz[0]/2.);
-      name="tr1_1";
-      tr1[0]->SetName(name);
-      tr1[0]->RegisterYourself();
-      tr1[1] = new TGeoTranslation(0., 0., kDchDz[0]/2.);
-      name="tr1_2";
-      tr1[1]->SetName(name);
-      tr1[1]->RegisterYourself();
-      dchVol[0]->AddNode(planeVol[0],1,tr1[0]);
-      dchVol[0]->AddNode(planeVol[0],2,tr1[1]);
-    }
-    // round TS dch
-    else if (i==1) {
-      TGeoTranslation* tr2[8];
-      for(Int_t j=0; j<kNumOfSplanes[1]; j++){
-	tr2[j] = new TGeoTranslation(0., 0., 
-				     kPlaneThickness*(j+0.5)+
-				     kFreeSpace*(1+((Int_t)(j/2)))-
-				     kDchDz[1]);
-	name="tr2_";
-	name+=(j+1);
-	tr2[j]->SetName(name);
-	tr2[j]->RegisterYourself();
-	dchVol[1]->AddNode(planeVol[1],j+1,tr2[j]);
-      }
-    }
+    TGeoTranslation* trFS_mylar[(kNumOfChambers-2)*(kNumOfSplanes[5])];   
+    TGeoTranslation* trFS_wo[(kNumOfChambers-2)*(kNumOfSplanes[5])];   
+    
     // standard rectangular dch
-    else {
-      Int_t planesSoFar=(i-2)*kNumOfSplanes[5];
-      for(Int_t j=0; j<kNumOfSplanes[i]; j++){
-	trFS[j+planesSoFar] = new TGeoTranslation(0., 0., 
-						   kPlaneThickness*(j+0.5)+
-						  kFreeSpace*(1+((Int_t)(j/2)))-
-						  kDchDz[i]);
-	name="tr";
-	name+=(i+1);
-	name+="_";
-	name+=(j+1);
-	trFS[j+planesSoFar]->SetName(name);
-	trFS[j+planesSoFar]->RegisterYourself();
-	dchVol[i]->AddNode(planeVol[i],j+1,trFS[j+planesSoFar]);
-      }
+    Int_t planesSoFar=(i-2)*kNumOfSplanes[5];
+    for(Int_t j=0; j<kNumOfSplanes[i]; j++){
+      Double_t planeZpos;
+      if(j%2==0) planeZpos = -kDchDz[i]+(1+2.*(j/2))*2.5-kPlaneThickness/2.;
+      else if(j%2==1) planeZpos = -kDchDz[i]+(1+2.*(j/2))*2.5+kPlaneThickness/2.+
+	kMylarThicknessPerDL/2.+kWoThicknessPerDL/2.;
+      trFS[j+planesSoFar] = new TGeoTranslation(0., 0., planeZpos);
+      trFS_mylar[j+planesSoFar]       = new TGeoTranslation(0., 0.,  planeZpos-kPlaneThickness/2.-
+							    kMylarThicknessPerDL/4.-kWoThicknessPerDL/2.);
+      trFS_wo[j+planesSoFar]    = new TGeoTranslation(0., 0.,   planeZpos-kPlaneThickness/2.-
+						      -kWoThicknessPerDL/4.);
+
+      name="tr";
+      name+=(i+1);
+      name+="_";
+      name+=(j+1);
+      trFS[j+planesSoFar]->SetName(name);
+      trFS[j+planesSoFar]->RegisterYourself();
+
+      name="tr_mylar";
+      name+=(i+1);
+      name+="_";
+      name+=(j+1);
+      trFS_mylar[j+planesSoFar]->SetName(name);
+      trFS_mylar[j+planesSoFar]->RegisterYourself();
+
+      name="tr_wo";
+      name+=(i+1);
+      name+="_";
+      name+=(j+1);
+      trFS_wo[j+planesSoFar]->SetName(name);
+      trFS_wo[j+planesSoFar]->RegisterYourself();
+
+      dchVol[i]->AddNode(planeVol[i],j+1,trFS[j+planesSoFar]);
+      dchVol[i]->AddNode(mylarVol[i],j+1,trFS_mylar[j+planesSoFar]);
+      dchVol[i]->AddNode(woVol[i],j+1,trFS_wo[j+planesSoFar]);
     }
   }
 
@@ -193,27 +220,97 @@
   for(Int_t i=0; i<10; i++){
     cout<<endl;
     for(Int_t j=0; j<10; j++){
+      TString namemylar="tr_mylar";
+      TString namewo="tr_wo";
       TString namech="tr";
       TString name;
       namech+=i;
+      namemylar+=i;
+      namewo+=i;
       name=namech;
       name+="_";
+      namemylar+="_";
+      namewo+="_";
       name+=j;
+      namemylar+=j;
+      namewo+=j;
       if(gGeoManager->GetListOfMatrices()->FindObject(name)){
 	const Double_t* match = ((TGeoCombiTrans*)gGeoManager->GetListOfMatrices()->FindObject(namech))->GetTranslation();
 	const Double_t* matpl = ((TGeoCombiTrans*)gGeoManager->GetListOfMatrices()->FindObject(name))->GetTranslation();
+	const Double_t* matmylar = ((TGeoCombiTrans*)gGeoManager->GetListOfMatrices()->FindObject(namemylar))->GetTranslation();
+	const Double_t* matwo = ((TGeoCombiTrans*)gGeoManager->GetListOfMatrices()->FindObject(namewo))->GetTranslation();
 	Double_t z=match[2]+matpl[2];
 	std::cout<<name<<"\t"<<z<<std::endl;
+	z=match[2]+matmylar[2];
+	std::cout<<namemylar<<"\t"<<z<<std::endl;
+	z=match[2]+matwo[2];
+	std::cout<<namewo<<"\t"<<z<<std::endl;
       }
     }
   }
   
-  gGeoMan->CloseGeometry();
-  
-   TFile* fi = new TFile(outfile,"RECREATE");
-   top->Write();
-   fi->Close();
+//&&&&&&&&&&&&&&&&&&&&&&&&&&
+  if(builtRICH){  
+    FairGeoMedium *FairMediumAl = Media->getMedium("aluminium");
+    FairGeoMedium *FairMediumAerogel = Media->getMedium("Aerogel");
+    FairGeoMedium *FairMediumC4F10 = Media->getMedium("C4F10"); 
+    nmed=geobuild->createMedium(FairMediumAl);
+    nmed=geobuild->createMedium(FairMediumAerogel);
+    nmed=geobuild->createMedium(FairMediumC4F10);
+     
+    const Double_t kRichPosition = 612.5+(742.5-612.5)/2.;
+    const Double_t kRichDx = kDchDx[kNumOfChambers-1]+20.;
+    const Double_t kRichDy = kDchDy[kNumOfChambers-1]+20.;
+    const Double_t kRichDz = (kDchPosition[kNumOfChambers-1]-kDchPosition[kNumOfChambers-2])/2.
+      -kDchDz[kNumOfChambers-1];
+    
+    Double_t aeroHalfThickness = 4.0;
+    
+    cout<< "********* Forward Rich Stuff ***************************"<<endl;
+    //define shape of the hole for beam pipe for RICH
+    TGeoTube* pipeHoleShapeRich = new TGeoTube("pipeHoleShapeRich",0.,
+					       kHoleRadius[kNumOfChambers-1],2.*kRichDz); 
+    // define named geometrical transformations with names
+    TGeoTranslation* trRich = new TGeoTranslation(0., 0., kRichPosition);
+    trRich->SetName("trRich");
+    trRich->RegisterYourself();
+    TGeoTranslation* trRichAl1 = new TGeoTranslation(0., 0.,-kRichDz+0.05);
+    trRichAl1->SetName("trRichAl1");
+    trRichAl1->RegisterYourself();
+    TGeoTranslation* trRichAl2 = new TGeoTranslation(0., 0.,kRichDz-0.05);
+    trRichAl2->SetName("trRichAl2");
+    trRichAl2->RegisterYourself();
+    TGeoTranslation* trRichAero = new TGeoTranslation(0., 0.,-kRichDz+0.1+aeroHalfThickness);
+    trRichAero->SetName("trRichAero");
+    trRichAero->RegisterYourself();
+    // define full shape of Rich Box and other shapes
+    TGeoShape* RichBoxFullShape = new TGeoBBox("RichBoxFullShape",kRichDx,kRichDy,kRichDz); 
+    TGeoShape* RichAlFullShape = new TGeoBBox("RichAlFullShape",kRichDx,kRichDy,0.05);
+    TGeoShape* RichAeroFullShape = new TGeoBBox("RichAeroFullShape",kRichDx,kRichDy,aeroHalfThickness);
+    // create shapes of with holes
+    TGeoCompositeShape* richBoxShape = new TGeoCompositeShape("RichBoxShape","RichBoxFullShape-pipeHoleShapeRich");
+    TGeoCompositeShape* richAlShape = new TGeoCompositeShape("RichAlShape","RichAlFullShape-pipeHoleShapeRich");
+    TGeoCompositeShape* richAeroShape = new TGeoCompositeShape("RichAeroShape","RichAeroFullShape-pipeHoleShapeRich");
+    // create physical volumes of chambers
+    TGeoVolume* richBoxVol = new TGeoVolume("RichBoxVol", richBoxShape, gGeoMan->GetMedium("C4F10"));
+    TGeoVolume* richAlVol = new TGeoVolume("RichAlVol", richAlShape, gGeoMan->GetMedium("aluminium"));
+    TGeoVolume* richAeroVol = new TGeoVolume("RichAeroVol", richAeroShape, gGeoMan->GetMedium("Aerogel"));
+    
+    richBoxVol->AddNode(richAlVol,0,trRichAl1);
+    richBoxVol->AddNode(richAlVol,1,trRichAl2);
+    richBoxVol->AddNode(richAeroVol,0,trRichAero);
+    
+    top->AddNode(richBoxVol,0,trRich);
+  }
+  //&&&&&&&&&&&&&&&&&&&&&&&&&&
 
+  
+  //gGeoMan->CloseGeometry();
+  
+  TFile* fi = new TFile(outfile,"RECREATE");
+  top->Write();
+  fi->Close();
+  
    //  gGeoManager->SetName("dchGeom");
    //gGeoManager->Export(outfile);
 

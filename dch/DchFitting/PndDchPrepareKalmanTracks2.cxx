@@ -31,7 +31,7 @@
 
 
 PndDchPrepareKalmanTracks2::PndDchPrepareKalmanTracks2()
-  : FairTask("Translation of PndDchTracks to Tracks"), fPersistence(kFALSE), fUseGeane(kFALSE), fUseMC(kFALSE), fPDG(11)
+  : FairTask("Translation of PndDchTracks to Tracks"), fPersistence(kFALSE), fUseGeane(kFALSE), fUseMC(kFALSE), fPDG(11), fMinNuOfHits(30)
 {
 }
 
@@ -138,7 +138,7 @@ PndDchPrepareKalmanTracks2::Exec(Option_t* opt)
       Int_t globalCHitNu = dchtrack->GetDchCylinderHitIndex(nuhit);
       cand->addHit(1,globalCHitNu);
     }
-    if(cand->getNHits()<10)
+    if(cand->getNHits()<fMinNuOfHits)
       continue;
     
     Int_t pdg;
@@ -174,6 +174,9 @@ PndDchPrepareKalmanTracks2::Exec(Option_t* opt)
 	if(pnt->GetTrackID()==mcTrID){
 	  pnt->Position(pos);
 	  pnt->Momentum(mom);
+//  	  mom.SetXYZ(gRandom->Gaus(mom.X(), 0.05*mom.X()),
+//  		     gRandom->Gaus(mom.Y(), 0.05*mom.Y()),
+//  		     gRandom->Gaus(mom.Z(), 0.05*mom.Z()));
 	  break;
 	}
 	pointidx++;
