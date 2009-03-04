@@ -133,13 +133,6 @@ PndSttRecoHit::setHMatrix(const AbsTrackRep* stateVector,
  
 }
 
-double 
-PndSttRecoHit::residualScalar(AbsTrackRep* stateVector,
-			   const TMatrixT<double>& state)
-{
-  throw;
-}
-
 const DetPlane& 
 PndSttRecoHit::detPlane(AbsRecoHit* hit, AbsTrackRep* rep)
 {
