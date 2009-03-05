@@ -30,7 +30,7 @@ PndTrackCand::~PndTrackCand(){}
 void
 PndTrackCand::AddHit(unsigned int detId, unsigned int hitId, Double_t rho)
 {
-	fHitId[rho]=std::pair<Int_t, Int_t>(detId, hitId);
+	fHitId.insert(std::pair<Double_t, std::pair<Int_t, Int_t> >(rho, std::pair<Int_t, Int_t>(detId, hitId)));
 }
 
 

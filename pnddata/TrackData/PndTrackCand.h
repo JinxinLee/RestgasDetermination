@@ -23,7 +23,7 @@
 
 #include <map>
 
-typedef std::map<Double_t, std::pair<Int_t, Int_t> >::const_iterator mapIter;
+typedef std::multimap<Double_t, std::pair<Int_t, Int_t> >::const_iterator mapIter;
 
 class PndTrackCand : public TObject {
 public:
@@ -46,7 +46,7 @@ public:
   }
   unsigned int GetNHits() const {return fHitId.size();}
 
-  std::map<Double_t, std::pair<Int_t, Int_t> > GetHits() {return fHitId;}
+  std::multimap<Double_t, std::pair<Int_t, Int_t> > GetHits() {return fHitId;}
 
   // Modifiers -----------------------
   void AddHit(unsigned int detId, unsigned int hitId, Double_t rho);
@@ -59,7 +59,7 @@ public:
 private:
 
   // Private Data Members ------------
-	std::map<Double_t, std::pair<Int_t, Int_t> > fHitId;  ///< first index is detId, second index is hit Id
+	std::multimap<Double_t, std::pair<Int_t, Int_t> > fHitId;  ///< first index is detId, second index is hit Id
 
 public:
   ClassDef(PndTrackCand,1)
