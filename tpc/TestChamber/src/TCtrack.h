@@ -1,3 +1,4 @@
+
 #ifndef TCTRACK_H
 #define TCTRACK_H
 
@@ -34,7 +35,7 @@ class TCtrack : public TObject{
   }
   unsigned int nClFit(){
     unsigned int ret=0;
-    for(int i=0;i<nCl();++i){
+    for(unsigned int i=0;i<nCl();++i){
       if(cl.at(i).getFit()) ++ret;
     }
     return ret;
@@ -42,8 +43,8 @@ class TCtrack : public TObject{
   //id is detector id
   //nr is cluster the id of the cluster for that detector
   TCcluster getClById(int id,int nr){
-    bool foundcluster = false;
-    for(int i=0;i<cl.size();++i){
+    //    bool foundcluster = false;
+    for(unsigned int i=0;i<cl.size();++i){
       if(cl[i].getId()==id){
         return cl.at(i);
       }
@@ -54,8 +55,7 @@ class TCtrack : public TObject{
     throw exc;
   }
 
-
-  TCcluster getCl(int i){
+  TCcluster getCl(unsigned int i){
     if(i<nCl()){
       return cl.at(i);
     }
