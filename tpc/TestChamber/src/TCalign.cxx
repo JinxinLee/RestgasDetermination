@@ -178,6 +178,7 @@ void TCalign::write(std::string filename){
   }
 
   for(unsigned int i=0;i<ids.size();++i){
+    fprintf(file,"#####################################################\n");
     fprintf(file,"detId       %d\n",ids.at(i));
     fprintf(file,"translation %.7E %.7E %.7E\n",T[ids.at(i)]->X(),T[ids.at(i)]->Y(),T[ids.at(i)]->Z());
     fprintf(file,"pitch       %.7E\n",*(P[ids.at(i)]));
