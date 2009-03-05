@@ -62,7 +62,7 @@ class TCcluster : public TObject{
     raw.push_back (_c);
   }
 
-  TCcluster getRaw(int i){
+  TCcluster getRaw(unsigned int i){
     assert(i<nRaw());
     return raw.at(i);
   }
