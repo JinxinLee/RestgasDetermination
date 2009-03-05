@@ -10,7 +10,7 @@
 //      Software developed for the PANDA Detector at FAIR.
 //
 // Author List:
-//      Sebastian Neubert    TUM            (original author)
+//      Tobias Stockmanns (IKP - Jülich) during the Panda Meeting 03/09
 //
 //
 //-----------------------------------------------------------
@@ -20,17 +20,20 @@
 // This Class' Header ------------------
 #include "PndTrackCand.h"
 
+#include <algorithm>
+
 
 ClassImp(PndTrackCand);
 
-PndTrackCand::PndTrackCand(){}
+PndTrackCand::PndTrackCand():sorted(false){}
 
 PndTrackCand::~PndTrackCand(){}
 
 void
 PndTrackCand::AddHit(unsigned int detId, unsigned int hitId, Double_t rho)
 {
-	fHitId.insert(std::pair<Double_t, std::pair<Int_t, Int_t> >(rho, std::pair<Int_t, Int_t>(detId, hitId)));
+	fHitId.push_back(PndTrackCandHit(detId, hitId, rho));
+	sorted = false;
 }
 
 
@@ -41,26 +44,31 @@ void PndTrackCand::Reset()
 
 int PndTrackCand::HitInTrack(unsigned int detId, unsigned int hitId)
 {
-	mapIter iter(fHitId.begin());
-	std::pair<Int_t, Int_t> hit(detId, hitId);
-	int i = 0;
-	while(iter != fHitId.end()){
-		if (iter->second == hit)
+	PndTrackCandHit test(detId, hitId, 0.);
+	for (int i = 0; i < fHitId.size(); i++){
+		if(fHitId[i] == test)
 			return i;
-		iter++;
-		i++;
 	}
 	return -1;
 }
 
 void PndTrackCand::DeleteHit(unsigned int detId, unsigned int hitId)
 {
-	int pos = HitInTrack(detId, hitId);
-	mapIter iter(fHitId.begin());
+	int ind = HitInTrack(detId, hitId);
+	fHitId.erase(fHitId.begin()+ind);
+}
 
-	for (int i = 0; i < pos; i++) iter++;
+void PndTrackCand::Sort()
+{
+	std::sort(fHitId.begin(), fHitId.end());
+	sorted = true;
+}
 
-	fHitId.erase(iter->first);
+std::vector<PndTrackCandHit> PndTrackCand::GetSortedHits()
+{
+	if (sorted == false)
+		Sort();
+	return fHitId;
 }
 
 bool operator== (const PndTrackCand& lhs, const PndTrackCand& rhs){
