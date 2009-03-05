@@ -20,13 +20,10 @@
 
 // Root Class Headers ----------------
 #include "TObject.h"
-#include "TArrayI.h"
 
-// Collaborating Class Headers -------
+#include <map>
 
-// Collaborating Class Declarations --
-
-
+typedef std::map<Double_t, std::pair<Int_t, Int_t> >::const_iterator mapIter;
 
 class PndTrackCand : public TObject {
 public:
@@ -39,19 +36,22 @@ public:
   friend bool operator== (const PndTrackCand& lhs, const PndTrackCand& rhs);
 
   // Accessors -----------------------
-  void GetHit(unsigned int i,
-	      unsigned int& detId,
-	      unsigned int& hitId) const {detId=fDetId[i];hitId=fHitId[i];}
-  unsigned int GetNHits() const {return fDetId.GetSize();}
-  int GetDetId(unsigned int pos) const {return fDetId[pos];}
-  int GetHitId(unsigned int pos) const {return fHitId[pos];}
+  std::pair<Int_t, Int_t> GetHit(unsigned int i) const {
+	  if (i < fHitId.size()){
+		  mapIter iter = fHitId.begin();
+		  for (int j = 0; j < i; j++) iter++;
+		  return (iter->second);
+	  }
+	  else return std::pair<Int_t, Int_t>(-1, -1);
+  }
+  unsigned int GetNHits() const {return fHitId.size();}
 
-  TArrayI GetHitIDs(int detId=-1);
+  std::map<Double_t, std::pair<Int_t, Int_t> > GetHits() {return fHitId;}
 
   // Modifiers -----------------------
-  void AddHit(unsigned int detId, unsigned int hitId);
-
-  bool HitInTrack(unsigned int detId, unsigned int hitId);
+  void AddHit(unsigned int detId, unsigned int hitId, Double_t rho);
+  void DeleteHit(unsigned int detId, unsigned int hitId);
+  int HitInTrack(unsigned int detId, unsigned int hitId);
 
   void Reset();
 
@@ -59,8 +59,7 @@ public:
 private:
 
   // Private Data Members ------------
-  TArrayI fDetId;
-  TArrayI fHitId;
+	std::map<Double_t, std::pair<Int_t, Int_t> > fHitId;  ///< first index is detId, second index is hit Id
 
 public:
   ClassDef(PndTrackCand,1)
