@@ -1,6 +1,7 @@
 #include "detector.h"
 #include "../../src/TCalign.h"
 #include "../../src/TCcluster.h"
+#include "../../src/TCevent.h"
 #include "alignment.h"
 #include <TRandom3.h>
 #include <iostream>
@@ -41,23 +42,62 @@ void Alignment::generateTracks(int amount,
 
 void Alignment::readTracks(string tracks){
   TFile* file= TFile::Open(tracks.c_str());
-  TTree *t =(TTree*)gROOT->FindObject("at");
+  TTree *t =(TTree*)gROOT->FindObject("at2");
   int nEvt = t->GetEntries();
-  TCtrack *tr = 0;
+  TCevent *ev = 0;
   
-  t->SetBranchAddress("track",&tr);
-  
+  t->SetBranchAddress("event",&ev);
+  int counter=0;
   for(int i=0;i<nEvt;++i){
     t->GetEntry(i);
-    TCtrack track = *tr;
-    tracks_real.push_back(track);
+    for(unsigned int j=0;j<ev->nTracks();++j){
+      TCtrack track = *(ev->getTrack(j));
+
+      
+      bool a1 =false;
+      bool a2 =false;
+      bool a3 =false;
+      bool a4 =false;
+      bool a5 =false;
+      bool a6 =false;
+      for(int j=0;j<track.nClFit();j++){
+        int id = track.getCl(j).getId();
+        if(id==1){
+          a1=true;
+        }
+        if(id==2){
+          a2=true;
+        }
+        if(id==3){
+          a3=true;
+        }
+        if(id==4){
+          a4=true;
+        }
+        if(id==6){
+          a5=true;
+        }
+        if(id==6){
+          a6=true;
+        }
+      }
+      if(a1&&a2&&a3&&a4&&a5&&a6){
+        tracks_real.push_back(track);
+        ++counter;
+      }
+
+    }
+
   }
+  cout<<"total tracks "<<counter<<endl;;  
   file->Close();
 }
 
 void Alignment::readDetectors(bool simulation_)
 {
   TCalign *reader = TCalign::getInstance(infile);
+  reader->clear();
+  reader->read(infile);
   cout<<"infile "<<infile<<endl;
   std::vector<int> ids = reader->getLoadedIDs();
   
@@ -69,8 +109,8 @@ void Alignment::readDetectors(bool simulation_)
       
       reader->getConv(ids[i],trans,rot,pitch,theta,phi,psi,res);
       Detector* detector = new Detector(ids[i],
-                                        trans[0], trans[1], trans[2],
-                                        trans[0],trans[1],trans[2],
+                                        trans.x(), trans.y(), trans.z(),
+                                        trans.x(),trans.y(),trans.z(),
                                         theta,theta,
                                         pitch,
                                         0,0,0,0,
@@ -92,7 +132,9 @@ void Alignment::readDetectors(bool simulation_)
       detectors[i]->setErrors(trans2[0],trans2[1],trans2[2],theta2);
     }
   }
+  cout<<"before sort"<<endl;
   sort(detectors.begin(),detectors.end(),sortDetector());//sort based on z. not sure if it is necesary
+  cout<<"after sort"<<endl;
 } 
 
 Alignment::Alignment(string conffile){
@@ -118,7 +160,7 @@ Alignment::Alignment(string conffile){
   cf.readInto(alignZ_, "AlignZ");
   cf.readInto(alignT_, "AlignT");
   cf.readInto(alignP_, "AlignP");
-  
+  cout<<"align p "<<alignP_<<endl;
   using namespace std;
   using namespace boost;
   /*
@@ -185,10 +227,12 @@ Alignment::Alignment(string conffile){
   std::cout<<"Alignment-object ctor"<<std::endl;
   readDetectors(simulation);
   if(simulation){
-    generateTracks(50000,100,2,2,2,2);
+    generateTracks(50000,150,2,2,2,2);
   }else{
+
     readTracks(tracks);
   }
+  cout<<"al ctor done"<<endl;
 }
 
 void Alignment::doFit(){
@@ -209,11 +253,11 @@ void Alignment::doFit(){
     setting the iterate flag. Copied call to function from Compass,
     wil set me down and understand the parameters sendt two it soon
   */
-  C_INITUN(11,100000.0);
+  C_INITUN(11,1000000000.0);
   
   for(unsigned int i = 0; i<detectors.size();i++){
     int id=detectors[i]->getId();
-    hists_det.push_back(new TH1D(TString::Format("dU_%i",id),TString::Format("dU_%i",id),30000,-1,1));
+    hists_det.push_back(new TH1D(TString::Format("dU_%i",id),TString::Format("dU_%i",id),3000,-10,10));
     profiles_det.push_back(new TProfile(TString::Format("dU_vs_U%i",id),TString::Format("dU_vs_U%i",id),1000,10,10,-10,10));
     hists_det_testX.push_back(new TH2D(TString::Format("U_vs_X%i",id),TString::Format("Track_x"),200,0,25,200,-5,10));
     hists_det_testY.push_back(new TH2D(TString::Format("U_vs_Y%i",id),TString::Format("Track_y"),200,0,25,200,-5,10));
@@ -262,7 +306,9 @@ void Alignment::doFit(){
   cout<<endl<<"marker 2 before iteration"<<endl;
   if(simulation){
     cout<<"simulation"<<endl;
+    cout<<"tracks length "<<tracks_sim.size()<<endl;
     for(unsigned int i=0;i<tracks_sim.size();i++){
+      
       double x0 = tracks_sim[i].getX0();
       double y0 = tracks_sim[i].getY0();
       double tx = tracks_sim[i].getTx();
@@ -276,12 +322,15 @@ void Alignment::doFit(){
         
         double x=detectors[j]->getX();
         double y=detectors[j]->getY();
+        double z_=detectors[j]->getZ();
+
         double cosT_=detectors[j]->getCosT();
         double sinT_=detectors[j]->getSinT();
-        
-        float u_hit=(float)hit.first+x*cosT_+y*sinT_ ;
-        double z_=detectors[j]->getZ();
         float sigma_=(float)detectors[j]->getSigma();
+
+        float u_hit=(float)hit.first+x*cosT_+y*sinT_ ;
+
+
         //        int detID = detectors[j]->getId();
         
         /*
@@ -303,7 +352,7 @@ void Alignment::doFit(){
         dergb[NPARPLAN*j]=-1;                                                     //!< /d du
         dergb[NPARPLAN*j+1]=  cosT_*tx + sinT_*ty;                                       //!< /d dz
         dergb[NPARPLAN*j+2]= -sinT_*(x0+tx*(z_)-x) + cosT_*(y0+ty*(z_)-y);          //!< /d dtheta
-        dergb[NPARPLAN*j+3]=0/*  cosT_*(x0+tx*(z_)-x) + sinT_*(y0+ty*(z_)-y)*/;              //!< /d dpitch
+        dergb[NPARPLAN*j+3]=  cosT_*(x0+tx*(z_)-x) + sinT_*(y0+ty*(z_)-y);              //!< /d dpitch
         /*
           Sending this information to millepede
           
@@ -322,28 +371,34 @@ void Alignment::doFit(){
     cout<<"real "<<endl;
     for(unsigned int i=0;i<tracks_real.size();i++){
       double x0 = tracks_real[i].getBx();
-      double y0 = tracks_real[i].getBy();
       double tx = tracks_real[i].getAx();
+      double y0 = tracks_real[i].getBy();
       double ty = tracks_real[i].getAy();
-      
+      /*
+      cout<<"*************************************************************************************"<<endl;
+      cout<<"Track parameters for track "<<i<<endl;
+      cout<<"x0 = "<<x0<<"  tx = "<<tx<<endl;
+      cout<<"y0 = "<<y0<<"  ty = "<<ty<<endl;
+      cout<<"--------------------------------------------"<<endl;
+      */
       for(unsigned int j=0;j<detectors.size();j++){  
         double x=detectors[j]->getX();
         double y=detectors[j]->getY();
+        double z_=detectors[j]->getZ();
+        float sigma_=(float)detectors[j]->getSigma();
         double cosT_=detectors[j]->getCosT();
         double sinT_=detectors[j]->getSinT();
+        
         int detID = detectors[j]->getId();
         TCcluster hit_cluster = tracks_real[i].getClById(detID,0);
-                
-        TVector3 resid = hit_cluster.getRes();
-        
-        hists_det[j]->Fill(resid.x()); /*u_rec - u_hit*/
-        profiles_det[j]->Fill(hit_cluster.posUVW()[0],resid(0)); 
-
-        float u_hit=(float)hit_cluster.posUVW()[0]+x*cosT_+y*sinT_ ;
-        double z_=detectors[j]->getZ();
-        hists_det_testX[j]->Fill((x0+tx*z_),hit_cluster.posUVW()[0]);
-        hists_det_testY[j]->Fill((y0+ty*z_),hit_cluster.posUVW()[0]);
-        float sigma_=(float)detectors[j]->getSigma();
+        float u_hit=(float)hit_cluster.posUVW().x()+x*cosT_+y*sinT_ ;
+        /*
+        cout<<"Detector parameters for detector "<<detID<<endl;
+        cout<<"cos(phi) = "<<cosT_<<"  sin(phi) = "<<sinT_<<endl;
+        cout<<"x = "<<x<<"  y = "<<y<<"  z = "<<z_<<endl;
+        cout<<"Hit point in detector u = "<<hit_cluster.posUVW().x()<<endl;
+        cout<<"_________________________________________"<<endl;
+        */
         /*
           calculate local derivatives, ie the derivatives with respect to
           track parameters. 
@@ -363,11 +418,19 @@ void Alignment::doFit(){
         dergb[NPARPLAN*j]=-1;                                                     //!< /d du
         dergb[NPARPLAN*j+1]=  cosT_*tx + sinT_*ty;                                       //!< /d dz
         dergb[NPARPLAN*j+2]= -sinT_*(x0+tx*(z_)-x) + cosT_*(y0+ty*(z_)-y);          //!< /d dtheta
-        dergb[NPARPLAN*j+3]=0/*  cosT_*(x0+tx*(z_)-x) + sinT_*(y0+ty*(z_)-y)*/;              //!< /d dpitch
+        dergb[NPARPLAN*j+3]=  cosT_*(x0+tx*(z_)-x) + sinT_*(y0+ty*(z_)-y);              //!< /d dpitch
         /*
           Sending this information to millepede
         */
         equloc_(dergb,derlc,&u_hit,&sigma_);  //!< book local/global
+
+
+        TVector3 resid = hit_cluster.getRes();
+        hists_det[j]->Fill(resid.x()); /*u_rec - u_hit*/
+        profiles_det[j]->Fill(hit_cluster.posUVW()[0],resid(0)); 
+        hists_det_testX[j]->Fill((x0+tx*z_),hit_cluster.posUVW()[0]);
+        hists_det_testY[j]->Fill((y0+ty*z_),hit_cluster.posUVW()[0]);
+
       }
       /*
         Doing a local fit
@@ -405,7 +468,7 @@ void Alignment::doFit(){
     trans[0]+=dx;
     trans[1]+=dy;
     trans[2]+=dz;
-    pitch+=dp;
+    pitch=pitch*(1+dp);
 
     cout<<"dTheta: "<<dTheta<<endl;
     cout<<"dPitch: "<<dp<<endl;
