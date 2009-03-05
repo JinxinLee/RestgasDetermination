@@ -67,6 +67,8 @@ MvdData/PndMvdMCPoint.cxx
 MvdData/PndMvdPidCand.cxx
 MvdData/PndMvdRadDamHit.cxx
 
+TrackData/PndTrackCand.cxx
+
 )
 
 if(RULE_CHECKER_FOUND)
