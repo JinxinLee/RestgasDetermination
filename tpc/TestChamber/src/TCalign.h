@@ -41,6 +41,10 @@ public:
 	rot=*(R[id]);
 	pitch=*(P[id]);
     }
+    double getPitch(int id){
+      if(P[id]==NULL) quit(id);
+      return *(P[id]);
+    }
     void getConv(int id,TVector3& trans,TMatrixT<double>& rot,double& pitch, double& theta_,double& phi_, double& psi_, double& resolution_){
 	getConv(id, trans, rot, pitch);
 	if(Theta[id]==NULL) quit(id);
