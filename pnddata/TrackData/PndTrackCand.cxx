@@ -30,7 +30,7 @@ PndTrackCand::PndTrackCand():sorted(false){}
 PndTrackCand::~PndTrackCand(){}
 
 void
-PndTrackCand::AddHit(unsigned int detId, unsigned int hitId, Double_t rho)
+PndTrackCand::AddHit(UInt_t detId, UInt_t hitId, Double_t rho)
 {
 	fHitId.push_back(PndTrackCandHit(detId, hitId, rho));
 	sorted = false;
@@ -42,17 +42,17 @@ void PndTrackCand::Reset()
   fHitId.clear();
 }
 
-int PndTrackCand::HitInTrack(unsigned int detId, unsigned int hitId)
+int PndTrackCand::HitInTrack(UInt_t detId, UInt_t hitId)
 {
 	PndTrackCandHit test(detId, hitId, 0.);
-	for (int i = 0; i < fHitId.size(); i++){
+	for (UInt_t i = 0; i < fHitId.size(); i++){
 		if(fHitId[i] == test)
 			return i;
 	}
 	return -1;
 }
 
-void PndTrackCand::DeleteHit(unsigned int detId, unsigned int hitId)
+void PndTrackCand::DeleteHit(UInt_t detId, UInt_t hitId)
 {
 	int ind = HitInTrack(detId, hitId);
 	fHitId.erase(fHitId.begin()+ind);

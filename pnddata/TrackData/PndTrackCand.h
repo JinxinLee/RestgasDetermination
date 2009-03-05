@@ -3,20 +3,20 @@
 // $Id$
 //
 // Description:
-//      Track candidate. Basically a list of hit indices.
-//
+//      Implementation of class PndTrackCand
+//      see PndTrackCand.hh for details
 //
 // Environment:
 //      Software developed for the PANDA Detector at FAIR.
 //
 // Author List:
-//      Sebastian Neubert    TUM            (original author)
+//      Tobias Stockmanns (IKP - Jülich) during the Panda Meeting 03/09
 //
 //
 //-----------------------------------------------------------
 
-#ifndef TRACKCAND_HH
-#define TRACKCAND_HH
+#ifndef PNDTRACKCAND_HH
+#define PNDTRACKCAND_HH
 
 // Root Class Headers ----------------
 #include "TObject.h"
@@ -65,20 +65,20 @@ public:
   friend bool operator== (const PndTrackCand& lhs, const PndTrackCand& rhs);
 
   // Accessors -----------------------
-  PndTrackCandHit GetSortedHit(unsigned int i){
+  PndTrackCandHit GetSortedHit(UInt_t i){
 	  if (sorted == false)
 		  Sort();
 	  return fHitId.at(i);
   }
-  unsigned int GetNHits() const {return fHitId.size();}
+  UInt_t GetNHits() const {return fHitId.size();}
 
   std::vector<PndTrackCandHit>GetSortedHits();
   void Sort();
 
   // Modifiers -----------------------
-  void AddHit(unsigned int detId, unsigned int hitId, Double_t rho);
-  void DeleteHit(unsigned int detId, unsigned int hitId);
-  int HitInTrack(unsigned int detId, unsigned int hitId);
+  void AddHit(UInt_t detId, UInt_t hitId, Double_t rho);
+  void DeleteHit(UInt_t detId, UInt_t hitId);
+  Int_t HitInTrack(UInt_t detId, UInt_t hitId);
 
   void Reset();
 
