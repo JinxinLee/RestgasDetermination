@@ -26,21 +26,24 @@
 #endif
 
 //C++ includes
-#include <algorithm>
+// #include <algorithm>
+// #include <limits>
 #include <vector>
 #include <string>
 #include <fstream>
 
 //ROOT and PandaRoot includes
-#include "FairTask.h"
-#include "PndLhePidTrack.h"
-#include "TVector3.h"
-#include "TClonesArray.h"
-#include "FairRootManager.h"
+// #include "TVector3.h"
+// #include "TClonesArray.h"
 #include "TMVA/Reader.h"
+
+#include "FairTask.h"
+#include "FairRootManager.h"
+#include "PndLhePidTrack.h"
 #include "PndMvdMCPoint.h"
 #include "PndTpcPoint.h"
 #include "PndPidCand.h"
+
 
 // Gpid data types
 #include "PndGpidTypes.h"
@@ -48,9 +51,9 @@
 
 using namespace std;
 
-class TObjectArray;
+// class TObjectArray;
+// class Reader;
 class TClonesArray;
-class Reader;
 
 class PndGpidTaskLhe : public FairTask
 {
@@ -115,15 +118,16 @@ class PndGpidTaskLhe : public FairTask
   // Array of Class names for classification names 
   std::vector<std::string> fClassNameArray;
   
+  // TMVA readers array.
   TMVA::Reader reader[NUM_TMVA_READERS];
-  int fNVAR;
-  int fNCLASS;
+  int fNVAR;  // Number of variables we want to use.
+  int fNCLASS;// Number of available classes.
 
-  TString M_InFileName;
-  std::vector<float> m_varVec;
-  PndLVQClassify* m_lvq;
+  TString M_InFileName;// Name of input weight file for LVQ, kd_KNN
+  std::vector<float> m_varVec;// Container to hold feature values
+  PndLVQClassify* m_lvq;// LVQ classifier object
   
-  TClonesArray* fPidTrackCand;  
+  TClonesArray* fPidTrackCand;
   TClonesArray* fArrPid; 
   ClassDef(PndGpidTaskLhe,1);
 };

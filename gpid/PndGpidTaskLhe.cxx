@@ -59,13 +59,14 @@ InitStatus PndGpidTaskLhe::Init()
   AddVar();
   BookingMVA();
   
-  cout << "-I- Finished Init of PNDGPIDTASK" << endl;
+  std::cout << "-I- Finished Init of PndGpidTask." << std::endl;
   
   return kSUCCESS;
 }
 
 /* 
- * Reading the config file.
+ * Reading the config file and set the number of classes and
+ * variables.
  */
 void PndGpidTaskLhe::Config()
 {
@@ -74,35 +75,43 @@ void PndGpidTaskLhe::Config()
   char buff[512];
   sfName = fAPPNAME + ".dat";
   inFile.open(sfName.c_str(),ios::in);
+  // Set the number of variables
   inFile.getline(buff,512);
   fNVAR = (int) atoi(buff);
+  // Set the number of Classes
   inFile.getline(buff,512);
   fNCLASS = (int) atoi(buff);
   inFile.getline(buff,512);
   
-  cout<<fNVAR<<endl;
-  cout<<fNCLASS<<endl;
+  cout<<"    <INFO:> " << fNVAR 
+      << " variables and "<< fNCLASS 
+      << " classes" << endl;
   sbuff = buff;
-  
+  // Fetch the variable names from the config file.
+  std::cout << "\n<INFO:> The following variables are used: ";
   while(1){
     size_t prompt = sbuff.find(":");
     sbuff = sbuff.substr(prompt+1,sbuff.size());
     if( sbuff.size() == 0) break;
     vName = sbuff.substr(0,sbuff.find(":"));
     fVarNameArray.push_back(vName); 
-    cout<<vName<<endl; 
+    cout<< vName << ", "; 
   }
+  std::cout << std::endl;
+
   inFile.getline(buff,512);
   sbuff = buff;
-  
+  // Fetch the names of available classes.
+  std::cout << "\n<INFO:> The following Classes are available: ";
   while(1){
     size_t prompt = sbuff.find(":");
     sbuff = sbuff.substr(prompt+1,sbuff.size());
     if( sbuff.size() == 0) break;
     vName = sbuff.substr(0,sbuff.find(":"));
     fClassNameArray.push_back(vName); 
-    cout<<vName<<endl; 
+    cout<< vName << ", "; 
   }
+  std::cout << std::endl;
 }
 
 /* 
@@ -118,7 +127,7 @@ void PndGpidTaskLhe::AddVar()
   for ( int i = 0 ; i < fNVAR ; i++  ){
     TString varName,s;
     varName = fVarNameArray.at(i);
-    cout << varName << endl;
+    //cout << varName << endl;// Print debug info
     for ( int j = 0; j < fNCLASS ; j++){
       reader[j].AddVariable(varName, &(m_varVec[i]));
     }
@@ -178,8 +187,11 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
   PndPidCand *fTrack= new(clref2[size2]) PndPidCand(); 
   float skp = 0; 
   
-  // Loop through the Tracks
+  // Loop through the Tracks.
+  std::cout << "Number of available tracks " << fPidTrackCand->GetEntriesFast()
+	    << std::endl;
   for (int k = 0; k < fPidTrackCand->GetEntriesFast(); k++){
+    // Select the current track
     PndLhePidTrack *pid = (PndLhePidTrack *) fPidTrackCand->At(k);
     //cout<<"this is Exec"<<endl;
     string varName;
@@ -187,37 +199,42 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
     // Debug info.
     /*
       for (int l = 0; l < fNVAR; l++){
-      cout << fVarNameArray.at(l) <<" = "<< m_varVec[l] << endl;//varArray[l] << endl;
+      cout << fVarNameArray.at(l) <<" = "
+      << m_varVec[l] << endl;
       }
     */
-    int count =0 ;
+    int count = 0 ;
     
-    //reading the input variable
+    // Reading the input variable
     for (int i = 0 ; i< fNVAR; i++){
       varName = fVarNameArray.at(i);
       
       if (varName == "tof") {
 	m_varVec[i]=pid->GetTof();
+	
 	if (m_varVec[i] < 0 || m_varVec[i] == 0 ) count+=1;
+	
 	fTrack->Set(varName, m_varVec[i]);
       }
 
       if (varName == "emc"){
 	m_varVec[i]= pid->GetEmcELoss()/pid->GetP();
+	
 	if (m_varVec[i] < 0 || m_varVec[i] ==0 ) count+=1;
 	//cout<<"emc "<< m_varVec[i]<< endl;
+	
 	fTrack->Set(varName,m_varVec[i]);
       }
       
       if (varName == "stt"){
 
-	skp=pid->GetSttDEDX();
+	skp = pid->GetSttDEDX();
 	if(!isnan(skp)) m_varVec[i] = skp;
 
 	// cout<<"stt hit counts "<<pid->GetSttHitCounts()
 	//    <<" Value is "<<pid->GetSttDEDX()<<endl;
 
-	if ( skp < 0 || skp ==0 ) count+=1;
+	if ( skp < 0 || skp == 0 ) count+=1;
 	if (skp == 0) continue;
 
 	fTrack->Set(varName,m_varVec[i]);
@@ -225,6 +242,7 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
 
       if (varName == "mvd"){
 	m_varVec[i]=pid->GetMvdDEDX();
+
 	if (m_varVec[i] < 0 || m_varVec[i] ==0 ) count+=1;
 
 	fTrack->Set(varName,m_varVec[i]);
@@ -232,13 +250,15 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
 
       if (varName == "thetaC"){
 	m_varVec[i]=pid->GetDrcThetaC();
-	if (m_varVec[i] < 0 || m_varVec[i] ==0 ) count+=1;
+	
+	if (m_varVec[i] < 0 || m_varVec[i] == 0 ) count+=1;
 
 	fTrack->Set(varName,m_varVec[i]);
       }
       
       if (varName == "p"){
 	m_varVec[i]=pid->GetMomentum().Mag();
+	
 	if (m_varVec[i] < 0 || m_varVec[i] == 0 ) count+=1;
 
 	//cout<<"momentum "<<pid->GetMomentum().Mag()<<endl;
@@ -247,7 +267,8 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
       // cout<< varName << " = " << m_varVec[i] << endl;
     }
     
-    if (count > 0 ) continue;
+    if (count > 0 ) continue;// It seems that something is wrong skip
+			     // the track
     // Select if we want to use TMVA or a MVA from PndTools.
       if(fMVAmode == MulClsKNN || fMVAmode == LVQ1){
 	std::map<std::string,float> res;
