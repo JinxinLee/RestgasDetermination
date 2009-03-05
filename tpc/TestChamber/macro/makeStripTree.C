@@ -5,24 +5,28 @@
 #include"TRandom3.h"
 #include"src/TCcluster.h"
 #include"src/TCtrack.h"
+#include"src/TCevent.h"
+#include"src/StdoutKiller.h"
 
 
 TCcluster makeCluster(TCtrack *t,int id){
   TVector3 trans;
   TMatrixT<double> rot(3,3);
   double pitch,theta,d1,d2,res;
-  TCalign* a = TCalign::getInstance("alignment/AlignmentFiles/simRealAlign.txt");
+  TCalign* a = TCalign::getInstance("alignment/AlignmentFiles/simRealAlign1.txt");
+  //  cout<<"before getting reading file"<<id<<endl;
   a->clear();
-  a->read("alignment/AlignmentFiles/simRealAlign.txt");
+  a->read("alignment/AlignmentFiles/simRealAlign1.txt");
+  //  cout<<"before getting convertion id"<<id<<endl;
   a->getConv(id,trans,rot,pitch,theta,d1,d2,res);
-  //cout<<"x "<<trans[0]<<" y: "<<trans[1]<<" z: "<<trans[2]<<endl;
+  //  cout<<"x "<<trans[0]<<" y: "<<trans[1]<<" z: "<<trans[2]<<endl;
   double x=t->getAx()*trans.Z()+t->getBx();
   double y=t->getAy()*trans.Z()+t->getBy();
 
   TVector3 globPos(x,y,trans.Z());
   TVector3 pos = a->XYZtoUVW(id,globPos);
-  // cout<<"x glob:"<<globPos[0]<<" y glob: "<<globPos[1]<<" z glob: "<<globPos[2]<<endl;
-  //cout<<"u "<<pos[0]<<" v: "<<pos[1]<<" w: "<<pos[2]<<endl;
+  //cout<<"x glob:"<<globPos[0]<<" y glob: "<<globPos[1]<<" z glob: "<<globPos[2]<<endl;
+  //  cout<<"u "<<pos[0]<<" v: "<<pos[1]<<" w: "<<pos[2]<<endl;
   TRandom3 rand2(0);
   double smear = rand2.Gaus(0.,res);
   pos.SetX(pos.X()+smear);
@@ -35,10 +39,11 @@ TCcluster makeCluster(TCtrack *t,int id){
 }
 
 void makeStripTree(string trackfile, string alignmentfile, int nTracks){
-  TCtrack *outTr = new TCtrack();
+  TCevent* outEv = new TCevent();
+
   TFile* rootOutfile = new TFile(trackfile.c_str(),"RECREATE");
-  TTree* outTree = new TTree("at","test code for strip detectors");
-  outTree->Branch("track","TCtrack",&outTr,32000,99);
+  TTree* outTree = new TTree("at2","test code for strip detectors");
+  outTree->Branch("event","TCevent",&outEv,32000,99);
 
   
 
@@ -47,8 +52,9 @@ void makeStripTree(string trackfile, string alignmentfile, int nTracks){
   TRandom3 rand(0);
 
   for(int i=0;i<nTracks;++i){
+    TCtrack* outTr = new TCtrack();
     outTr->clear();
-
+    outEv->clear();
     TVector3 pos1,pos2;
     //pos1.SetXYZ(0.,0.,0.);
     //pos2.SetXYZ(1.,2.,100.);
@@ -75,23 +81,24 @@ void makeStripTree(string trackfile, string alignmentfile, int nTracks){
 
 
     outTr->setPar(ax,bx,ay,by);
-    //cout<<"hei"<<endl;
     for(int j=1;j<=8;++j){
       TCcluster c = makeCluster(outTr,j);
       outTr->addCluster(c);
+      outEv->addCluster(c);
     }
     //"************* ---------------------------------------- *************************"<<endl;
     //    outTr->print();
-
-    TCalign* a = TCalign::getInstance("alignment/AlignmentFiles/simRealAlign.txt");
+    TCalign* a = TCalign::getInstance("alignment/AlignmentFiles/simRealAlign1.txt");
     a->clear();
     a->read(alignmentfile);
     if(outTr->fit(1,2,3,4,5,6,7,8)){
-      //outTr->print();
+      outEv->addTrack(outTr);
+      //  outTr->print();
       outTree->Fill();    
-    
     }
-    cout<<endl<<endl;    
+    if(i%100==0){
+      cout<<i<<endl;
+    }
     
   }
   rootOutfile->Write();
