@@ -85,7 +85,7 @@ class PndGpidTaskLhe : public FairTask
 	 ii != res.end(); ++ii){
       std::cout << (*ii).first << " => " << (*ii).second << std::endl;
     }
-    std::cout << "===== LVQ output For debugging ========== \n";
+    std::cout << "===== END OF LVQ output For debugging ====== \n";
   }
 
  private:

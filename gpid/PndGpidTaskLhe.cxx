@@ -185,7 +185,6 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
   TClonesArray& clref2 = *fArrPid;
   Int_t size2 = clref2.GetEntriesFast();
   PndPidCand *fTrack= new(clref2[size2]) PndPidCand(); 
-  float skp = 0; 
   
   // Loop through the Tracks.
   std::cout << "Number of available tracks " << fPidTrackCand->GetEntriesFast()
@@ -193,26 +192,20 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
   for (int k = 0; k < fPidTrackCand->GetEntriesFast(); k++){
     // Select the current track
     PndLhePidTrack *pid = (PndLhePidTrack *) fPidTrackCand->At(k);
-    //cout<<"this is Exec"<<endl;
     string varName;
 
-    // Debug info.
-    /*
-      for (int l = 0; l < fNVAR; l++){
-      cout << fVarNameArray.at(l) <<" = "
-      << m_varVec[l] << endl;
-      }
-    */
-    int count = 0 ;
+    int skip = 0 ;
+    // DEBUG info
+    std::cout << " <INFO:> Track number is "<< k << std::endl;
     
     // Reading the input variable
     for (int i = 0 ; i< fNVAR; i++){
       varName = fVarNameArray.at(i);
       
       if (varName == "tof") {
-	m_varVec[i]=pid->GetTof();
+	m_varVec[i] = pid->GetTof();
 	
-	if (m_varVec[i] < 0 || m_varVec[i] == 0 ) count+=1;
+	if (m_varVec[i] < 0 || m_varVec[i] == 0 ) {skip += 1;}
 	
 	fTrack->Set(varName, m_varVec[i]);
       }
@@ -220,22 +213,16 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
       if (varName == "emc"){
 	m_varVec[i]= pid->GetEmcELoss()/pid->GetP();
 	
-	if (m_varVec[i] < 0 || m_varVec[i] ==0 ) count+=1;
-	//cout<<"emc "<< m_varVec[i]<< endl;
+	if (m_varVec[i] < 0 || m_varVec[i] ==0 ){skip += 1;}
 	
 	fTrack->Set(varName,m_varVec[i]);
       }
       
       if (varName == "stt"){
 
-	skp = pid->GetSttDEDX();
-	if(!isnan(skp)) m_varVec[i] = skp;
-
-	// cout<<"stt hit counts "<<pid->GetSttHitCounts()
-	//    <<" Value is "<<pid->GetSttDEDX()<<endl;
-
-	if ( skp < 0 || skp == 0 ) count+=1;
-	if (skp == 0) continue;
+	m_varVec[i] = pid->GetSttDEDX();
+	
+	if ( m_varVec[i] < 0 || m_varVec[i] == 0 ){ skip += 1;}
 
 	fTrack->Set(varName,m_varVec[i]);
       }
@@ -243,7 +230,7 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
       if (varName == "mvd"){
 	m_varVec[i]=pid->GetMvdDEDX();
 
-	if (m_varVec[i] < 0 || m_varVec[i] ==0 ) count+=1;
+	if (m_varVec[i] < 0 || m_varVec[i] ==0 ){ skip += 1;}
 
 	fTrack->Set(varName,m_varVec[i]);
       }
@@ -251,7 +238,7 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
       if (varName == "thetaC"){
 	m_varVec[i]=pid->GetDrcThetaC();
 	
-	if (m_varVec[i] < 0 || m_varVec[i] == 0 ) count+=1;
+	if (m_varVec[i] < 0 || m_varVec[i] == 0 ){ skip += 1;}
 
 	fTrack->Set(varName,m_varVec[i]);
       }
@@ -259,16 +246,21 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
       if (varName == "p"){
 	m_varVec[i]=pid->GetMomentum().Mag();
 	
-	if (m_varVec[i] < 0 || m_varVec[i] == 0 ) count+=1;
+	if (m_varVec[i] < 0 || m_varVec[i] == 0 ){ skip += 1;}
 
-	//cout<<"momentum "<<pid->GetMomentum().Mag()<<endl;
 	fTrack->Set(varName,m_varVec[i]);
       }
-      // cout<< varName << " = " << m_varVec[i] << endl;
+      // Print Debug information
+      std::cout << varName << " = " << m_varVec[i] << std::endl;
+    }//End of Reading variables.
+
+    // Check if something is wrong, skip the track
+    if (skip > 0 ){
+      std::cout << "\t <WARNING:> Skipping Track " 
+		<< k << std::endl;
+      continue;
+      // The track is stored but we will not classify the bad track
     }
-    
-    if (count > 0 ) continue;// It seems that something is wrong skip
-			     // the track
     // Select if we want to use TMVA or a MVA from PndTools.
       if(fMVAmode == MulClsKNN || fMVAmode == LVQ1){
 	std::map<std::string,float> res;
