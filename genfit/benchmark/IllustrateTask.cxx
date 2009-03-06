@@ -268,8 +268,9 @@ void IllustrateTask::Exec(Option_t* opt) {
   Lst->Write("Lst");
   LstBehind->Write("LstBehind");
 
-  targetPlane.getGraphics(1.5,5.,&Mpl,&LplU,&LplV,&LplN);
+  targetPlane.getGraphics(1.5,5.,&Mpl,&Lpl,&LplU,&LplV,&LplN);
   Mpl->Write("Mpl");
+  Lpl->Write("Lpl");
   LplU->Write("LplU");
   LplV->Write("LplV");
   LplN->Write("LplN");

@@ -38,7 +38,7 @@ class IllustrateTask : public FairTask
 
  private:
 
-  TPolyLine3D *Ltr,*Lst,*LtrBehind,*LstBehind,*Lfit,*LfitBehind,*LplU,*LplV,*LplN;
+  TPolyLine3D *Ltr,*Lst,*LtrBehind,*LstBehind,*Lfit,*LfitBehind,*LplU,*LplV,*LplN,*Lpl;
   TPolyMarker3D *Mtr,*Msm,*Mpl;
 
 

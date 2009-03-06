@@ -59,6 +59,12 @@ c4.SetTheta(theta);
 LstBehind->Draw("same");
 LfitBehind->Draw("same");
 Mpl->Draw("same");
+Lpl->SetLineStyle(1);
+Lpl->SetLineWidth(2);Lpl->SetLineColor(15);
+Lpl->Draw("same");
+
+
+
 //Ltr->Draw("same");
 Lst->Draw("same");
 Msm->Draw();
@@ -73,11 +79,13 @@ TLegend l(0.7,0.7,0.9,0.9);
 
 l.AddEntry(Msm,"1) smeared space points","p");
 l.AddEntry(Lst,"2) seed for fit","l");
-l.AddEntry(Mpl,"3) 2D reference plane for pulls","p");
-l.AddEntry(Lfit,"4) fitted track","l");
+
+l.AddEntry(Lfit,"3) fitted track","l");
+l.AddEntry(Mpl,"4) 2D reference plane for pull","p");
 l.SetTextFont(102);
 l.SetFillStyle(0);
 l.SetLineWidth(1);
+l.SetBorderSize(0);
 l.Draw("same");
 
 
