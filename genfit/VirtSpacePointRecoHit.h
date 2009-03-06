@@ -16,24 +16,6 @@
     You should have received a copy of the GNU Lesser Public License
     along with Genfit.  If not, see <http://www.gnu.org/licenses/>. */
 
-//-----------------------------------------------------------
-// File and Version Information:
-// $Id$
-//
-// Description:
-//      a virtual space point reco hit
-//      this hit does not acknowledge any special track rep
-//
-//
-// Environment:
-//      Software developed for the PANDA Detector at FAIR.
-//
-// Author List:
-//      Sebastian Neubert    TUM            (original author)
-//
-//
-//-----------------------------------------------------------
-
 #ifndef VIRTSPACEPOINTRECOHIT_HH
 #define VIRTSPACEPOINTRECOHIT_HH
 

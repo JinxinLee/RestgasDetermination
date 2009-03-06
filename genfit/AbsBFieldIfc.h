@@ -16,22 +16,10 @@
     You should have received a copy of the GNU Lesser Public License
     along with Genfit.  If not, see <http://www.gnu.org/licenses/>. */
 
-//-----------------------------------------------------------
-// File and Version Information:
-// $Id$
-//
 // Description:
 //      Abstract interface to a BField
 //      User has to inherit his adaptor from this class
-//
-// Environment:
-//      Software developed for the PANDA Detector at FAIR.
-//
-// Author List:
-//      Sebastian Neubert    TUM            (original author)
-//
-//
-//-----------------------------------------------------------
+
 
 #ifndef ABSBFIELDIFC_HH
 #define ABSBFIELDIFC_HH

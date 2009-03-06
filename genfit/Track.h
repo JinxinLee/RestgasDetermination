@@ -18,7 +18,6 @@
 
 #ifndef FITTER_TRACK_H 
 #define FITTER_TRACK_H
-// Original Authors: Christian Hoeppner & Sebastian Neubert (TUM)
 
 #include "AbsTrackRep.h"
 #include "AbsRecoHit.h"

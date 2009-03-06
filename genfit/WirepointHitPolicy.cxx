@@ -20,12 +20,8 @@
 // Please see WirepointHitPolicy.h  before using this class.
 // ----------------------------------------------------------
 
-// Panda Headers ----------------------
-
-// This Class' Header ------------------
 #include "WirepointHitPolicy.h"
 
-// C/C++ Headers ----------------------
 #include "assert.h"
 #include "TMath.h"
 #include "TVector3.h"

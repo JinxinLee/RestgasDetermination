@@ -16,7 +16,6 @@
     You should have received a copy of the GNU Lesser Public License
     along with Genfit.  If not, see <http://www.gnu.org/licenses/>. */
 
-// Original Authors: Christian Hoeppner (TUM)
 #include "RecoHitFactory.h"
 #include<iostream>
 

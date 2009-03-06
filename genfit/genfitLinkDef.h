@@ -16,8 +16,6 @@
     You should have received a copy of the GNU Lesser Public License
     along with Genfit.  If not, see <http://www.gnu.org/licenses/>. */
 
-// $Id: TofLinkDef.h,v 1.3 2006/03/07 11:51:55 friese Exp $
-
 #ifdef __CINT__
 
 

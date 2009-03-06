@@ -16,10 +16,6 @@
     You should have received a copy of the GNU Lesser Public License
     along with Genfit.  If not, see <http://www.gnu.org/licenses/>. */
 
-//-----------------------------------------------------------
-//
-// WirepointHitPolicy class:
-//
 // policy class for hits in wire detectors (STT and DCH)
 //
 // ************************ WARNING ************************
@@ -36,7 +32,6 @@
 //
 // [to see an example of this reco hit implementation see PndSttRecoHit]
 //
-//-----------------------------------------------------------
 
 #ifndef WIREPOINTHITPOLICY_HH
 #define WIREPOINTHITPOLICY_HH

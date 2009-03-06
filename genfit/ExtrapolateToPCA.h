@@ -16,23 +16,8 @@
     You should have received a copy of the GNU Lesser Public License
     along with Genfit.  If not, see <http://www.gnu.org/licenses/>. */
 
-//-----------------------------------------------------------
-// File and Version Information:
-// $Id$
-//
 // Description:
 //      Function to extrapolate two tracks to common vertex
-//
-//
-// Environment:
-//      Software developed for the PANDA Detector at FAIR.
-//
-// Author List:
-// Original Authors: Christian Hoeppner & Sebastian Neubert (TUM)
-//      Sebastian Neubert    TUM            (original author)
-//
-//
-//-----------------------------------------------------------
 
 #ifndef EXTRAPOLATETOPCA_HH
 #define EXTRAPOLATETOPCA_HH

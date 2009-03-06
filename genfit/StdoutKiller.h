@@ -18,7 +18,6 @@
 
 #ifndef STDOUTKILLER_H
 #define STDOUTKILLER_H
-// Original Authors: Christian Hoeppner (TUM)
 
 #include"unistd.h"
 #include"fcntl.h"

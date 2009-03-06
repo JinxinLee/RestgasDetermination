@@ -16,23 +16,6 @@
     You should have received a copy of the GNU Lesser Public License
     along with Genfit.  If not, see <http://www.gnu.org/licenses/>. */
 
-//-----------------------------------------------------------
-// File and Version Information:
-// $Id$
-//
-// Description:
-//      Policy class for spacepoint hits
-//
-//
-// Environment:
-//      Software developed for the PANDA Detector at FAIR.
-//
-// Author List:
-// Original Authors: Christian Hoeppner & Sebastian Neubert (TUM)
-//
-//
-//-----------------------------------------------------------
-
 #ifndef SPACEPOINTHITPOLICY_HH
 #define SPACEPOINTHITPOLICY_HH
 

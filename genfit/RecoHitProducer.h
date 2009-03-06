@@ -18,7 +18,6 @@
 
 #ifndef FITTER_RECOHITPRODUCER_H
 #define FITTER_RECOHITPRODUCER_H
-// Original Authors: Christian Hoeppner (TUM)
 
 #include<vector>
 #include<map>

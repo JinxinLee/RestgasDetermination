@@ -18,7 +18,6 @@
 
 #ifndef FITPARAMS_H
 #define FITPARAMS_H
-// Original Authors: Christian Hoeppner & Sebastian Neubert (TUM)
 
 #include<map>
 #include<vector>

@@ -16,7 +16,6 @@
     You should have received a copy of the GNU Lesser Public License
     along with Genfit.  If not, see <http://www.gnu.org/licenses/>. */
 
-// Original Authors: Christian Hoeppner & Sebastian Neubert (TUM)
 #include"FitterExceptions.h"
 
 FitterException::FitterException(std::string _whatString, int _line, char* _file) : whatString(_whatString), line(_line), file(_file) {

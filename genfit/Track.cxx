@@ -16,9 +16,7 @@
     You should have received a copy of the GNU Lesser Public License
     along with Genfit.  If not, see <http://www.gnu.org/licenses/>. */
 
-// Original Authors: Christian Hoeppner & Sebastian Neubert (TUM)
 #include "Track.h"
-//#include "TROOT.h"
 #include "TVirtualGeoTrack.h"
 #include "VirtSpacePointRecoHit.h"
 #include <assert.h>

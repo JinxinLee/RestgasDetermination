@@ -18,7 +18,6 @@
 
 #ifndef FITTEREXCEPTIONS_H
 #define FITTEREXCEPTIONS_H
-// Original Authors: Christian Hoeppner & Sebastian Neubert (TUM)
 
 #include <exception>
 #include <string>
