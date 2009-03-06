@@ -39,7 +39,7 @@ class PndLVQTrain{
    * Train the classifier accourding to LVQ1 algorithm.
    * @param numProto, number of LVQ1 prototypes. Current
    * implementation considers an equal number of prototypes for each
-   * class.
+   * class with equal weights.
    * @param OutPut, the nameof the out-put file, where the weights are
    * stored in.
    */
@@ -49,7 +49,7 @@ class PndLVQTrain{
    * Train the classifier accourding to LVQ2.1 algorithm.
    * @param numProto, number of LVQ2 prototypes. Current
    * implementation considers an equal number of prototypes for each
-   * class.
+   * class with equal weights.
    * @param OutPut, the nameof the out-put file, where the weights are
    * stored in.
    */

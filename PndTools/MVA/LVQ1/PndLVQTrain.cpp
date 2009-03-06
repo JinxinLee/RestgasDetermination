@@ -197,15 +197,17 @@ void PndLVQTrain::InitProtoTypes(int numProto)
 
 /*
  * @param numProto, number of LVQ1 prototypes. Current implementation
- *  considers an equal number of prototypes for each class. 
+ *  considers an equal number of prototypes for each class with equal weights. 
  * @param OutPut, the nameof the out-put file, where the weights are 
  *  stored in.
  */
 void PndLVQTrain::Train(int numProto, const char* outPut)
 {
   TRandom3 trand(4357875);
+  
   // Init LVQ protoTypes.
   InitProtoTypes(numProto);
+  
   // All protypes are initialized. We can perform the training
   // Compute learning rate constant "a"
   double ethaZero  = m_ethaZero;//0.1;
@@ -253,14 +255,61 @@ void PndLVQTrain::Train(int numProto, const char* outPut)
  * Train the classifier accourding to LVQ2.1 algorithm.
  * @param numProto, number of LVQ2 prototypes. Current
  * implementation considers an equal number of prototypes for each
- * class.
+ * class with equal weights.
  * @param OutPut, the nameof the out-put file, where the weights are
  * stored in.
  */
-void PndLVQTrain::Train21(int numProto, const char* OutPut)
-{//FIXME
-  std::cout << numProto << std::endl;
-  std::cout << OutPut   << std::endl;
+void PndLVQTrain::Train21(int numProto, const char* outPut)
+{
+  //============ FIXME We need to apply LVQ2. Modify the implementation
+  TRandom3 trand(4357875);
+  
+  // Init LVQ protoTypes.
+  InitProtoTypes(numProto);
+  
+  // All protypes are initialized. We can perform the training
+  // Compute learning rate constant "a"
+  double ethaZero  = m_ethaZero;//0.1;
+  double ethaFinal = m_ethaFinal;//0.001;
+  int    numSweep  = m_NumSweep;//100;
+  int    tFinal    = numSweep * ( m_EventsData.size() );
+  double a         = (ethaZero - ethaFinal)/(ethaFinal * (double)tFinal);
+  
+  for(int time = 0; time < tFinal; time++){
+    int    protoIndex       = 0;
+    double distance         = 0.0;
+    double minProtoDistance = std::numeric_limits<float>::max();//1000000.0;
+    
+    double ethaT = (ethaZero) / (1.0 + (a * (double)time));
+    
+    // select a random example
+    int index = (int) trand.Poisson( (time + 2) * 10000) % (m_EventsData.size() - 1);
+    
+    // Compute the distance to all available LVQ proto-types
+    for(unsigned int ix = 0; ix < m_LVQProtos.size(); ix++){
+      distance = ComputeDist( *(m_EventsData[index].second), *(m_LVQProtos[ix].second) );
+      
+      if(distance < minProtoDistance){
+	minProtoDistance = distance;//minimum distance
+	protoIndex  = ix;//index of the prototype with min dist
+      }
+    }
+    // We need to update the (winner) prototype
+    int delta = 0;
+    // determine delta
+    if( m_EventsData[index].first == m_LVQProtos[protoIndex].first ){
+      delta = 0;
+    }
+    else{
+      delta = 1;
+    }// delta is calculated
+    
+    // Update the LVQ prototype
+    UpdateProto( *(m_EventsData[index].second), *(m_LVQProtos[protoIndex].second), delta, ethaT);
+  }
+  // Write the coordinates of the prototypes to the file
+  WriteToFile(outPut);
+  //============ FIXME We need to apply LVQ2. Modify the implementation
 }
 
 /* 
