@@ -36,6 +36,7 @@ class PndLVQTrain{
   virtual ~PndLVQTrain();
   
   /*
+   * Train the classifier accourding to LVQ1 algorithm.
    * @param numProto, number of LVQ1 prototypes. Current
    * implementation considers an equal number of prototypes for each
    * class.
@@ -44,6 +45,16 @@ class PndLVQTrain{
    */
   void Train(int numProto, const char* OutPut);
   
+  /*
+   * Train the classifier accourding to LVQ2.1 algorithm.
+   * @param numProto, number of LVQ2 prototypes. Current
+   * implementation considers an equal number of prototypes for each
+   * class.
+   * @param OutPut, the nameof the out-put file, where the weights are
+   * stored in.
+   */
+  void Train21(int numProto, const char* OutPut);
+
   /*
    * Sets the learning parameters.
    * @param initConst, Initialization constant, 
@@ -69,6 +80,11 @@ class PndLVQTrain{
   /* Updates the LVQ1 prototypes */
   void UpdateProto( std::vector<float> &EvtData, std::vector<float> &proto, 
 		    int delta, double ethaT);
+
+  /*
+   * Initialize LVQ prototypes (Code books).
+   */
+  void InitProtoTypes(int numProto);
 
  // Private functions and variables
  private:

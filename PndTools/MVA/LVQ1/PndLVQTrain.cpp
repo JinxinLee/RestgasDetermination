@@ -143,6 +143,13 @@ void PndLVQTrain::CompClsCondMean(std::string clsName)
 }
 
 /*
+ * Initialize LVQ prototypes (Code books).
+ */
+void PndLVQTrain::InitProtoTypes(int numProto)
+{//FIXME
+  std::cout << numProto << std::endl;
+}
+/*
  * @param numProto, number of LVQ1 prototypes. Current implementation
  *  considers an equal number of prototypes for each class. 
  * @param OutPut, the nameof the out-put file, where the weights are 
@@ -236,6 +243,20 @@ void PndLVQTrain::Train(int numProto, const char* outPut)
   }
   // Write the coordinates of the prototypes to the file
   WriteToFile(outPut);
+}
+
+/*
+ * Train the classifier accourding to LVQ2.1 algorithm.
+ * @param numProto, number of LVQ2 prototypes. Current
+ * implementation considers an equal number of prototypes for each
+ * class.
+ * @param OutPut, the nameof the out-put file, where the weights are
+ * stored in.
+ */
+void PndLVQTrain::Train21(int numProto, const char* OutPut)
+{//FIXME
+  std::cout << numProto << std::endl;
+  std::cout << OutPut   << std::endl;
 }
 
 /* 
