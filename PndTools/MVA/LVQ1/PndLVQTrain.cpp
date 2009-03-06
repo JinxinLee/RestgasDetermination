@@ -146,20 +146,10 @@ void PndLVQTrain::CompClsCondMean(std::string clsName)
  * Initialize LVQ prototypes (Code books).
  */
 void PndLVQTrain::InitProtoTypes(int numProto)
-{//FIXME
-  std::cout << numProto << std::endl;
-}
-/*
- * @param numProto, number of LVQ1 prototypes. Current implementation
- *  considers an equal number of prototypes for each class. 
- * @param OutPut, the nameof the out-put file, where the weights are 
- *  stored in.
- */
-void PndLVQTrain::Train(int numProto, const char* outPut)
 {
-  // Initialize LVQ-prototypes according to the classconditional means
+  // Initialize LVQ-prototypes.
   double c = m_initConst;//0.8;
-  TRandom3 trand(4357);
+  TRandom3 trand(435785);
   
   for(unsigned int cl = 0; cl < m_ClassNames.size(); cl++){
     int minIdx = m_ClassIndex[cl].first;
@@ -200,8 +190,22 @@ void PndLVQTrain::Train(int numProto, const char* outPut)
       // proto type is initialized, add to the container
       m_LVQProtos.push_back(std::make_pair(m_EventsData[index].first, proto));
       // std::cout << m_EventsData[index].first << " " << std::endl;
-    }
+    }//END for(i = 0; i < numProto)
   }
+  //std::cout << numProto << std::endl;
+}
+
+/*
+ * @param numProto, number of LVQ1 prototypes. Current implementation
+ *  considers an equal number of prototypes for each class. 
+ * @param OutPut, the nameof the out-put file, where the weights are 
+ *  stored in.
+ */
+void PndLVQTrain::Train(int numProto, const char* outPut)
+{
+  TRandom3 trand(4357875);
+  // Init LVQ protoTypes.
+  InitProtoTypes(numProto);
   // All protypes are initialized. We can perform the training
   // Compute learning rate constant "a"
   double ethaZero  = m_ethaZero;//0.1;
