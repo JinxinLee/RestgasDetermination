@@ -1,5 +1,5 @@
-void run_sim_alldet(Int_t nEvents = 10, const char* part="e-",
-		             Float_t p1 = 0.6, Float_t p2 = 1.0)
+void run_sim_alldet(Int_t nEvents = 20, const char* part="e-",
+		             Float_t p1 = 3.0, Float_t p2 = 3.5)
 {
   TStopwatch timer;
   timer.Start();
@@ -79,19 +79,24 @@ void run_sim_alldet(Int_t nEvents = 10, const char* part="e-",
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
+  // Use DPM generator
+  Float_t pbarP=4.0;
+  PndDpmDirect *Dpm= new PndDpmDirect(pbarP,1);
+  primGen->AddGenerator(Dpm);
+
   // Box Generator
   TDatabasePDG pdg;// = new TDatabasePDG();
   int pid = pdg->GetParticle(part)->PdgCode();
 
   // 13 = muon; 1 = multipl.
   FairBoxGenerator* boxGen = new FairBoxGenerator(pid, 1);
-  if (p2<0) p2 = p1;
+  if (p2 < 0) p2 = p1;
   
   boxGen->SetPRange(p1,p2);// GeV/c
   boxGen->SetPhiRange(0., 360.);// Azimuth angle range [degree]
   boxGen->SetThetaRange(50., 140.);// Polar angle in lab system range [degree]
   boxGen->SetXYZ(0., 0., 0.);// mm o cm ??
-  primGen->AddGenerator(boxGen);
+  //primGen->AddGenerator(boxGen);
 
   fRun->SetStoreTraj(kFALSE);
   

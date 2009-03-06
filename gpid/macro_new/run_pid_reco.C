@@ -9,7 +9,7 @@
 /*
  * @param NumEvt: Number of events to classify.
  */
-void run_pid_reco(const int NumEvt = 1)
+void run_pid_reco(const int NumEvt = 2)
 {
   // ================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
@@ -22,7 +22,7 @@ void run_pid_reco(const int NumEvt = 1)
   TString parFile = "params_sttcombi.root";
   
   // Output file
-  TString outFile = "ele_pid.root";
+  TString outFile = "pid_OutPut.root";
   
   // ----  Load libraries   --------------------------------------------
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
