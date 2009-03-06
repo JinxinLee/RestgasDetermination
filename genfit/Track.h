@@ -16,8 +16,8 @@
     You should have received a copy of the GNU Lesser Public License
     along with Genfit.  If not, see <http://www.gnu.org/licenses/>. */
 
-#ifndef FITTER_TRACK_H 
-#define FITTER_TRACK_H
+#ifndef TRACK_H 
+#define TRACK_H
 
 #include "AbsTrackRep.h"
 #include "AbsRecoHit.h"

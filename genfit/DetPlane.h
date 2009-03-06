@@ -19,8 +19,8 @@
 // Description:
 //      Detector plane - a geometric object
 
-#ifndef DETPLANE_HH
-#define DETPLANE_HH
+#ifndef DETPLANE_H
+#define DETPLANE_H
 
 #include "TObject.h"
 

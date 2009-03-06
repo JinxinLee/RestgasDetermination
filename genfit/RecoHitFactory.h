@@ -16,8 +16,8 @@
     You should have received a copy of the GNU Lesser Public License
     along with Genfit.  If not, see <http://www.gnu.org/licenses/>. */
 
-#ifndef FITTER_RECOHITFACTORY_H
-#define FITTER_RECOHITFACTORY_H
+#ifndef RECOHITFACTORY_H
+#define RECOHITFACTORY_H
 
 #include<vector>
 #include<map>

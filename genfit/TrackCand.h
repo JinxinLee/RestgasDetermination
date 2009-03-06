@@ -16,8 +16,8 @@
     You should have received a copy of the GNU Lesser Public License
     along with Genfit.  If not, see <http://www.gnu.org/licenses/>. */
 
-#ifndef TRACKCAND_HH
-#define TRACKCAND_HH
+#ifndef TRACKCAND_H
+#define TRACKCAND_H
 
 #include <vector>
 

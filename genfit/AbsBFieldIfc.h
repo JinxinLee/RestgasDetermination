@@ -21,8 +21,8 @@
 //      User has to inherit his adaptor from this class
 
 
-#ifndef ABSBFIELDIFC_HH
-#define ABSBFIELDIFC_HH
+#ifndef ABSBFIELDIFC_H
+#define ABSBFIELDIFC_H
 
 #include "TVectorT.h"
 

@@ -21,8 +21,8 @@
 Algorithms in GENFIT use this class as interface to access track parameters
 */
 
-#ifndef FITTER_ABSTRACKREP_H
-#define FITTER_ABSTRACKREP_H
+#ifndef ABSTRACKREP_H
+#define ABSTRACKREP_H
 
 #include<vector>
 #include<list>

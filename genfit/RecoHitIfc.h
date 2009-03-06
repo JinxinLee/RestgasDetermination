@@ -17,8 +17,8 @@
     along with Genfit.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-#ifndef RECOHITIFC_HH
-#define RECOHITIFC_HH
+#ifndef RECOHITIFC_H
+#define RECOHITIFC_H
 
 
 #include "TMatrixT.h"

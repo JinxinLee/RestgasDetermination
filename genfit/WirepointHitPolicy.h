@@ -33,8 +33,8 @@
 // [to see an example of this reco hit implementation see PndSttRecoHit]
 //
 
-#ifndef WIREPOINTHITPOLICY_HH
-#define WIREPOINTHITPOLICY_HH
+#ifndef WIREPOINTHITPOLICY_H
+#define WIREPOINTHITPOLICY_H
 
 #include "TMatrixT.h"
 

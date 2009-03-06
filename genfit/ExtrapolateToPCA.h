@@ -19,8 +19,8 @@
 // Description:
 //      Function to extrapolate two tracks to common vertex
 
-#ifndef EXTRAPOLATETOPCA_HH
-#define EXTRAPOLATETOPCA_HH
+#ifndef EXTRAPOLATETOPCA_H
+#define EXTRAPOLATETOPCA_H
 
 class Track;
 

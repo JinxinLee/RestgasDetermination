@@ -16,8 +16,8 @@
     You should have received a copy of the GNU Lesser Public License
     along with Genfit.  If not, see <http://www.gnu.org/licenses/>. */
 
-#ifndef SPACEPOINTHITPOLICY_HH
-#define SPACEPOINTHITPOLICY_HH
+#ifndef SPACEPOINTHITPOLICY_H
+#define SPACEPOINTHITPOLICY_H
 
 
 #include "TMatrixT.h"

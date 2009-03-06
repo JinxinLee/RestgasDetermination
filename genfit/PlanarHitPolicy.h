@@ -17,8 +17,8 @@
     along with Genfit.  If not, see <http://www.gnu.org/licenses/>. */
 
 
-#ifndef PLANARHITPOLICY_HH
-#define PLANARHITPOLICY_HH
+#ifndef PLANARHITPOLICY_H
+#define PLANARHITPOLICY_H
 
 
 #include "TMatrixT.h"

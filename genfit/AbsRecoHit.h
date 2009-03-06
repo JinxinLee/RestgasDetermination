@@ -20,8 +20,8 @@
  */
 
 
-#ifndef FITTER_ABSHIT_H
-#define FITTER_ABSHIT_H
+#ifndef ABSRECOHIT_H
+#define ABSRECOHIT_H
 
 #include<iostream>
 

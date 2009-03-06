@@ -19,8 +19,8 @@
 // Description:
 //      A generic Kalman Filter Implementation
 
-#ifndef FITTER_KALMAN_H
-#define FITTER_KALMAN_H
+#ifndef KALMAN_H
+#define KALMAN_H
 
 #include <map>
 

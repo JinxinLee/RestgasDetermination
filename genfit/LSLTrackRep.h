@@ -19,8 +19,8 @@
 // Description:
 //      a local straight line track representation
 
-#ifndef LSLTRACKREP_HH
-#define LSLTRACKREP_HH
+#ifndef LSLTRACKREP_H
+#define LSLTRACKREP_H
 
 #include <ostream> // remove if you do not need streaming op
 
