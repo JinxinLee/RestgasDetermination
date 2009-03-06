@@ -21,9 +21,12 @@
 #ifndef PNDGPIDTASKLHE_H
 #define PNDGPIDTASKLHE_H
 
-#ifndef NUM_TMVA_READERS
+/*
+#ifdef  NUM_TMVA_READERS
+#undef  NUM_TMVA_READERS
 #define NUM_TMVA_READERS 10
 #endif
+*/
 
 //C++ includes
 // #include <algorithm>
@@ -119,7 +122,9 @@ class PndGpidTaskLhe : public FairTask
   std::vector<std::string> fClassNameArray;
   
   // TMVA readers array.
-  TMVA::Reader reader[NUM_TMVA_READERS];
+  //TMVA::Reader reader[NUM_TMVA_READERS];
+  std::vector<TMVA::Reader*> reader;
+
   int fNVAR;  // Number of variables we want to use.
   int fNCLASS;// Number of available classes.
 

@@ -29,6 +29,10 @@ PndGpidTaskLhe::~PndGpidTaskLhe()
   fVarNameArray.clear();
   fClassNameArray.clear();
   m_varVec.clear();
+  // Delete all TMVA::Reader objects
+  for(int i = 0 ; i < fNVAR ; i++){
+    delete reader[i];
+  }
   delete m_lvq;
 }
 /*
@@ -123,13 +127,21 @@ void PndGpidTaskLhe::AddVar()
 {
   // Init a container to hold the variables.
   m_varVec = std::vector<float>(fNVAR, 0.00);
+
+  // Initialize a TMVA::Reader for each class.
+  for(int i = 0 ; i < fNCLASS ; i++){
+    TMVA::Reader* rd = new TMVA::Reader();
+    reader.push_back(rd);
+  }
   
+  // Bind the variables to the reader  of each class.
   for ( int i = 0 ; i < fNVAR ; i++  ){
-    TString varName,s;
+    TString varName;
     varName = fVarNameArray.at(i);
     //cout << varName << endl;// Print debug info
     for ( int j = 0; j < fNCLASS ; j++){
-      reader[j].AddVariable(varName, &(m_varVec[i]));
+      //reader[j].AddVariable(varName, &(m_varVec[i]));
+      reader[j]->AddVariable(varName, &(m_varVec[i]));
     }
   }
 }
@@ -145,19 +157,22 @@ void PndGpidTaskLhe::BookingMVA()
     switch (fMVAmode){
     case TMBDT:// TMVA BDT
       anaFile =  fDIR + fAPPNAME + fClassNameArray.at(i) + "_BDT.weights.txt";
-      reader[i].BookMVA("BDT method", anaFile );
+      //reader[i].BookMVA("BDT method", anaFile );
+      reader[i]->BookMVA("BDT method", anaFile );
       fClassifier = "BDT method";
       break;
       
     case TMMLP:// TMVA MLP
       anaFile =  fDIR + fAPPNAME + fClassNameArray.at(i) + "_MLP.weights.txt";
-      reader[i].BookMVA("MLP method", anaFile );
+      //reader[i].BookMVA("MLP method", anaFile );
+      reader[i]->BookMVA("MLP method", anaFile );
       fClassifier = "MLP method";
       break;
       
     case TMKNN:// TMVA KNN
       anaFile =  fDIR + fAPPNAME + fClassNameArray.at(i) + "_KNN.weights.txt";
-      reader[i].BookMVA("KNN method", anaFile );
+      //reader[i].BookMVA("KNN method", anaFile );
+      reader[i]->BookMVA("KNN method", anaFile );
       fClassifier = "KNN method";
       break;
 
@@ -192,7 +207,7 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
   for (int k = 0; k < fPidTrackCand->GetEntriesFast(); k++){
     // Select the current track
     PndLhePidTrack *pid = (PndLhePidTrack *) fPidTrackCand->At(k);
-    string varName;
+    std::string varName;
 
     int skip = 0 ;
     // DEBUG info
@@ -205,15 +220,15 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
       if (varName == "tof") {
 	m_varVec[i] = pid->GetTof();
 	
-	if (m_varVec[i] < 0 || m_varVec[i] == 0 ) {skip += 1;}
+	if (m_varVec[i] <= 0) {skip = 1;}
 	
 	fTrack->Set(varName, m_varVec[i]);
       }
 
       if (varName == "emc"){
-	m_varVec[i]= pid->GetEmcELoss()/pid->GetP();
+	m_varVec[i] = pid->GetEmcELoss()/pid->GetP();
 	
-	if (m_varVec[i] < 0 || m_varVec[i] ==0 ){skip += 1;}
+	if (m_varVec[i] <= 0 ){skip = 1;}
 	
 	fTrack->Set(varName,m_varVec[i]);
       }
@@ -222,31 +237,31 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
 
 	m_varVec[i] = pid->GetSttDEDX();
 	
-	if ( m_varVec[i] < 0 || m_varVec[i] == 0 ){ skip += 1;}
+	if ( m_varVec[i] <= 0 ){ skip = 1;}
 
 	fTrack->Set(varName,m_varVec[i]);
       }
 
       if (varName == "mvd"){
-	m_varVec[i]=pid->GetMvdDEDX();
+	m_varVec[i] = pid->GetMvdDEDX();
 
-	if (m_varVec[i] < 0 || m_varVec[i] ==0 ){ skip += 1;}
+	if (m_varVec[i] <= 0 ){ skip = 1;}
 
 	fTrack->Set(varName,m_varVec[i]);
       }
 
       if (varName == "thetaC"){
-	m_varVec[i]=pid->GetDrcThetaC();
+	m_varVec[i] = pid->GetDrcThetaC();
 	
-	if (m_varVec[i] < 0 || m_varVec[i] == 0 ){ skip += 1;}
+	if (m_varVec[i] <= 0 ){ skip = 1;}
 
 	fTrack->Set(varName,m_varVec[i]);
       }
       
       if (varName == "p"){
-	m_varVec[i]=pid->GetMomentum().Mag();
+	m_varVec[i] = pid->GetMomentum().Mag();
 	
-	if (m_varVec[i] < 0 || m_varVec[i] == 0 ){ skip += 1;}
+	if (m_varVec[i] <= 0 ){ skip = 1;}
 
 	fTrack->Set(varName,m_varVec[i]);
       }
@@ -255,9 +270,10 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
     }//End of Reading variables.
 
     // Check if something is wrong, skip the track
-    if (skip > 0 ){
-      std::cout << "\t <WARNING:> Skipping Track " 
-		<< k << std::endl;
+    if (skip != 0 ){
+      std::cout << "\t<WARNING:> Skipping Track " 
+		<< k << ".\n\tThe track itself is stored but not used." 
+		<< std::endl;
       continue;
       // The track is stored but we will not classify the bad track
     }
@@ -280,39 +296,41 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
 	}
       }
       else{ // We want to renormalize TMVA output.
-      float mvaValue;
-      for (int i = 0 ; i < fNCLASS; i++){
-	std::string className;
 	
-	className = fClassNameArray.at(i);
-	mvaValue = reader[i].EvaluateMVA(fClassifier);
-	
-	switch (fMVAmode){
-	case TMBDT:
-	  mvaValue = (mvaValue - (-1.0))/2.0;
-	  break;
+	float mvaValue;// Store MVA output.
+	for (int i = 0 ; i < fNCLASS; i++){
+	  std::string className;
 	  
-	case TMMLP:
-	  mvaValue = (mvaValue - (-1.1))/2.2;
-	  break;
+	  className = fClassNameArray.at(i);
+	  //mvaValue = reader[i].EvaluateMVA(fClassifier);
+	  mvaValue = reader[i]->EvaluateMVA(fClassifier);
 	  
-	case TMKNN:
-	  cout<<"MVA KNN "<<mvaValue<<endl;
-	  mvaValue = mvaValue;//-0.5; 
-	  cout<<"MVA correction "<<mvaValue<<endl;
-	  break;
+	  switch (fMVAmode){
+	  case TMBDT:
+	    mvaValue = (mvaValue - (-1.0))/2.0;
+	    break;
+	    
+	  case TMMLP:
+	    mvaValue = (mvaValue - (-1.1))/2.2;
+	    break;
+	    
+	  case TMKNN:
+	    //cout<<"MVA KNN "<<mvaValue<<endl;
+	    mvaValue = mvaValue;//-0.5; 
+	    //cout<<"MVA correction "<<mvaValue<<endl;
+	    break;
+	    
+	  default:
+	    std::cout << "<ERROR:> NO classifier was selected." << std::endl;
+	    break;
+	  }
 	  
-	default:
-	  std::cout << "<ERROR:> NO classifier was selected." << std::endl;
-	  break;
-	}
-	
-	fTrack->Set(className,mvaValue);
-	std::cout << "======== DEBUG INFO =======" << std::endl;
-	cout << "Likelihood for the class "
-	     << className << "is :"<< mvaValue << endl << std::endl;
-      }//End of for (int i = 0 ; i < fNCLASS; i++){
-    }//End of else branch(if(fMVAmode))
+	  fTrack->Set(className,mvaValue);
+	  std::cout << "======== DEBUG INFO =======" << std::endl;
+	  cout << "Likelihood for the class "
+	       << className << " is :"<< mvaValue << endl << std::endl;
+	}//End of for (int i = 0 ; i < fNCLASS; i++){
+      }//End of else branch(if(fMVAmode))
   }// End of Loop through the Tracks 
 }
 ClassImp(PndGpidTaskLhe);
