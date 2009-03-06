@@ -45,4 +45,4 @@ public:
 };
 
 
-#endif // FITTER_RECOHITFACTORY_H
+#endif

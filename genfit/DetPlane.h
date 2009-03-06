@@ -22,17 +22,11 @@
 #ifndef DETPLANE_HH
 #define DETPLANE_HH
 
-// Base Class Headers ----------------
 #include "TObject.h"
 
-// Collaborating Class Headers -------
 #include "TVector3.h"
 #include "TPolyMarker3D.h"
 #include "TPolyLine3D.h"
-
-// Collaborating Class Declarations --
-
-
 
 class DetPlane : public TObject {
 public:
@@ -46,8 +40,6 @@ public:
 	   const TVector3& n);
   virtual ~DetPlane(){;}
 
-  // Operators
-  
 
   // Accessors -----------------------
   TVector3 getO() const {return _o;}
@@ -102,6 +94,3 @@ public:
 
 #endif
 
-//--------------------------------------------------------------
-// $Log$
-//--------------------------------------------------------------

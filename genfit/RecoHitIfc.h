@@ -20,14 +20,11 @@
 #ifndef RECOHITIFC_HH
 #define RECOHITIFC_HH
 
-// Base Class Headers ----------------
-#include "AbsRecoHit.h"
 
-// Collaborating Class Headers -------
-#include "DetPlane.h"
 #include "TMatrixT.h"
 
-// Collaborating Class Declarations --
+#include "AbsRecoHit.h"
+#include "DetPlane.h"
 
 
 template<class detplane_policy>
@@ -47,6 +44,4 @@ class RecoHitIfc : public AbsRecoHit, public detplane_policy{
 
 
 
-//--------------------------------------------------------------
-// $Log$
-//--------------------------------------------------------------
+

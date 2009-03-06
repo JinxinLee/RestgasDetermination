@@ -17,6 +17,7 @@
     along with Genfit.  If not, see <http://www.gnu.org/licenses/>. */
 
 #include "RecoHitFactory.h"
+
 #include<iostream>
 
 

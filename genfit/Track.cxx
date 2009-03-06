@@ -16,11 +16,12 @@
     You should have received a copy of the GNU Lesser Public License
     along with Genfit.  If not, see <http://www.gnu.org/licenses/>. */
 
+#include <assert.h>
+#include <iostream>
+
 #include "Track.h"
 #include "TVirtualGeoTrack.h"
 #include "VirtSpacePointRecoHit.h"
-#include <assert.h>
-#include <iostream>
 
 Track::Track(AbsTrackRep* defaultRep) 
   : _cardinal_rep(0), _nextHitToFit(0)

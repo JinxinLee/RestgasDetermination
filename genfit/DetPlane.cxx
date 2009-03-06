@@ -16,20 +16,14 @@
     You should have received a copy of the GNU Lesser Public License
     along with Genfit.  If not, see <http://www.gnu.org/licenses/>. */
 
-// This Class' Header ------------------
 #include "DetPlane.h"
 
-// C/C++ Headers ----------------------
 #include "assert.h"
 #include <iostream>
 #include <cmath>
 #include "TMath.h"
 
-// Collaborating Class Headers --------
-
-
-// Class Member definitions -----------
- ClassImp(DetPlane)
+ClassImp(DetPlane)
 
 DetPlane::DetPlane(const TVector3& o,
 		   const TVector3& u,

@@ -29,8 +29,6 @@
 class FitParams{
  private:
 
-  //prefix f means forward. Forseeing that I might implement 
-  //COMPASS-like smooting later with backward Kalman pass
   std::map<int, TMatrixT<double> > fStatePred;
   std::map<int, TMatrixT<double> > fStateFilt;
   std::map<int, TMatrixT<double> > stateFin;
@@ -314,4 +312,4 @@ class FitParams{
 
 
 
-#endif //FITPARAMS
+#endif

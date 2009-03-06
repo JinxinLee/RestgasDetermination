@@ -19,15 +19,8 @@
 #ifndef VIRTSPACEPOINTRECOHIT_HH
 #define VIRTSPACEPOINTRECOHIT_HH
 
-// Base Class Headers ----------------
 #include "RecoHitIfc.h"
 #include "SpacepointHitPolicy.h"
-
-// Collaborating Class Headers -------
-
-
-// Collaborating Class Declarations --
-
 
 typedef RecoHitIfc<SpacepointHitPolicy> SpacepointRecoHit;
 
@@ -65,6 +58,3 @@ public:
 
 #endif
 
-//--------------------------------------------------------------
-// $Log$
-//--------------------------------------------------------------

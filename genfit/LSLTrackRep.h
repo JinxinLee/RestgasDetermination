@@ -22,14 +22,12 @@
 #ifndef LSLTRACKREP_HH
 #define LSLTRACKREP_HH
 
-// Base Class Headers ----------------
-#include "AbsTrackRep.h"
-
-// Collaborating Class Headers -------
 #include <ostream> // remove if you do not need streaming op
+
 #include "TVectorT.h"
 #include "TMatrixT.h"
 
+#include "AbsTrackRep.h"
 
 // Collaborating Class Declarations --
 class AbsBFieldIfc;
@@ -137,6 +135,4 @@ private:
 
 #endif
 
-//--------------------------------------------------------------
-// $Log$
-//--------------------------------------------------------------
+

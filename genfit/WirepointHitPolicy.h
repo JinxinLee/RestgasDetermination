@@ -36,17 +36,12 @@
 #ifndef WIREPOINTHITPOLICY_HH
 #define WIREPOINTHITPOLICY_HH
 
-// Base Class Headers ----------------
-
-
-// Collaborating Class Headers -------
-#include "DetPlane.h"
 #include "TMatrixT.h"
 
-// Collaborating Class Declarations --
+#include "DetPlane.h"
+
 class AbsRecoHit;
 class AbsTrackRep;
-
 
 class WirepointHitPolicy {
 public:
@@ -76,6 +71,3 @@ private:
 
 #endif
 
-//--------------------------------------------------------------
-// $Log$
-//--------------------------------------------------------------

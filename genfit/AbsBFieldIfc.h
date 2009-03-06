@@ -24,15 +24,7 @@
 #ifndef ABSBFIELDIFC_HH
 #define ABSBFIELDIFC_HH
 
-// Base Class Headers ----------------
-
-
-// Collaborating Class Headers -------
-#include <ostream> // remove if you do not need streaming op
 #include "TVectorT.h"
-
-// Collaborating Class Declarations --
-
 
 class AbsBFieldIfc {
 public:
@@ -47,7 +39,3 @@ public:
 };
 
 #endif
-
-//--------------------------------------------------------------
-// $Log$
-//--------------------------------------------------------------

@@ -16,13 +16,10 @@
     You should have received a copy of the GNU Lesser Public License
     along with Genfit.  If not, see <http://www.gnu.org/licenses/>. */
 
-// This Class' Header ------------------
 #include "ExtrapolateToPCA.h"
 
-// C/C++ Headers ----------------------
 #include "TVector3.h"
 
-// Collaborating Class Headers --------
 #include "Track.h"
 
 

@@ -19,14 +19,11 @@
 #ifndef SPACEPOINTHITPOLICY_HH
 #define SPACEPOINTHITPOLICY_HH
 
-// Base Class Headers ----------------
 
-
-// Collaborating Class Headers -------
-#include "DetPlane.h"
 #include "TMatrixT.h"
 
-// Collaborating Class Declarations --
+#include "DetPlane.h"
+
 class AbsRecoHit;
 class AbsTrackRep;
 
@@ -70,6 +67,3 @@ private:
 
 #endif
 
-//--------------------------------------------------------------
-// $Log$
-//--------------------------------------------------------------

@@ -24,11 +24,11 @@ Algorithms in GENFIT use this class as interface to access track parameters
 #ifndef FITTER_ABSTRACKREP_H
 #define FITTER_ABSTRACKREP_H
 
-#include "TMatrixT.h"
-#include "TVector3.h"
-
 #include<vector>
 #include<list>
+
+#include "TMatrixT.h"
+#include "TVector3.h"
 
 #include "FitParams.h"
 #include "DetPlane.h"
@@ -199,4 +199,4 @@ class AbsTrackRep : public TObject{
 
 
 
-#endif // FITTER_ABSTRACKREP_H
+#endif

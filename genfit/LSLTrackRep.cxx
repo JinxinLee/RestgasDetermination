@@ -16,22 +16,18 @@
     You should have received a copy of the GNU Lesser Public License
     along with Genfit.  If not, see <http://www.gnu.org/licenses/>. */
 
-// This Class' Header ------------------
 #include "LSLTrackRep.h"
 
-// C/C++ Headers ----------------------
 #include <iostream>
-#include "TMath.h"
 
-// Collaborating Class Headers --------
+#include "TMath.h"
+#include "TMatrixD.h"
+
 #include "LSLTrackRep/Nystrom.h"
 #include "AbsRecoHit.h"
 #include "AbsBFieldIfc.h"
 #include "LSLTrackRep/LSLEQM.h"
 #include "LSLTrackRep/AbsNystromEQM.h"
-#include "TMatrixD.h"
-
-// Class Member definitions -----------
 
 LSLTrackRep::LSLTrackRep()
   : AbsTrackRep(5), s(0) ,_acc(1E-2), _adaptive(false)

@@ -18,13 +18,7 @@
 
 #include "VirtSpacePointRecoHit.h"
 
-// C/C++ Headers ----------------------
-
-
-// Collaborating Class Headers --------
 #include "LSLTrackRep.h"
-
-// Class Member definitions -----------
 
 ClassImp(VirtSpacePointRecoHit)
 

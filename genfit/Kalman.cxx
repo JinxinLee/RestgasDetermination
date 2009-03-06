@@ -16,25 +16,20 @@
     You should have received a copy of the GNU Lesser Public License
     along with Genfit.  If not, see <http://www.gnu.org/licenses/>. */
 
-// Panda Headers ----------------------
-
-// This Class' Header ------------------
 #include "Kalman.h"
 
-// C/C++ Headers ----------------------
 #include "assert.h"
 #include <iostream>
 #include <sstream>
+
 #include "TMath.h"
-// Collaborating Class Headers --------
+
 #include "Track.h"
 #include "AbsRecoHit.h"
 #include "AbsTrackRep.h"
 #include "FitParams.h"
 #include "FitterExceptions.h"
   
-// Class Member definitions -----------
-
  Kalman::Kalman():_lazy(0),_numIt(3){;}
   
 Kalman::~Kalman(){;}

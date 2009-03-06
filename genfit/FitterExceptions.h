@@ -54,4 +54,4 @@ class FitterException : public std::exception
   virtual const char* what() const throw();
 };
 
-#endif //FITTEREXCEPTIONS_H
+#endif

@@ -18,13 +18,7 @@
 
 #include "TrackCand.h"
 
-// C/C++ Headers ----------------------
 #include <algorithm>
-
-// Collaborating Class Headers --------
-
-
-// Class Member definitions -----------
 
 ClassImp(TrackCand)
 

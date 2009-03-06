@@ -22,13 +22,10 @@
 #ifndef FITTER_KALMAN_H
 #define FITTER_KALMAN_H
 
-// Base Class Headers ----------------
-
-// Collaborating Class Headers -------
-#include "TMatrixT.h"
 #include <map>
 
-// Collaborating Class Declarations --
+#include "TMatrixT.h"
+
 
 class AbsRecoHit;
 class AbsTrackRep;
@@ -74,8 +71,5 @@ private:
 };
 
 
-#endif //FITTER_KALMAN_H
+#endif
 
-//--------------------------------------------------------------
-// $Log$
-//--------------------------------------------------------------

@@ -23,15 +23,12 @@
 #include "WirepointHitPolicy.h"
 
 #include "assert.h"
-#include "TMath.h"
-#include "TVector3.h"
 #include <cmath>
 
-// Collaborating Class Headers --------
+#include "TMath.h"
+#include "TVector3.h"
+
 #include "AbsRecoHit.h"
-
-// Class Member definitions -----------
-
 
 TMatrixT<double> 
 WirepointHitPolicy::hitCoord(AbsRecoHit* hit,const DetPlane& plane)

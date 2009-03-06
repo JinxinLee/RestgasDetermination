@@ -68,4 +68,4 @@ AbsRecoHit* RecoHitProducer<hit_T,recoHit_T>::produce(int index) {
 }
 
 
-#endif // FITTER_RECOHITPRODUCER_H
+#endif 

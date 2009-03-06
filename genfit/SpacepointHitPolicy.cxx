@@ -18,15 +18,11 @@
 
 #include "SpacepointHitPolicy.h"
 
-// C/C++ Headers ----------------------
 #include "assert.h"
+
 #include "TMath.h"
 
-// Collaborating Class Headers --------
 #include "AbsRecoHit.h"
-
-// Class Member definitions -----------
-
 
 TMatrixT<double> 
 SpacepointHitPolicy::hitCoord(AbsRecoHit* hit,const DetPlane& plane)

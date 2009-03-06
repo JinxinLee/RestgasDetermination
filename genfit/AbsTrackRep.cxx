@@ -19,8 +19,6 @@
 #include "AbsTrackRep.h"
 #include <iostream>
 
-
-
 AbsTrackRep::AbsTrackRep() : state(5,1), cov(5,5), startState(5,1), startCov(5,5),startS(0), chiSqu(0), statusFlag(0), inverted(false), params()
 {
   

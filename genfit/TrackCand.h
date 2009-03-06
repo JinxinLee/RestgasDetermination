@@ -19,15 +19,9 @@
 #ifndef TRACKCAND_HH
 #define TRACKCAND_HH
 
-// Base Class Headers ----------------
-#include "TObject.h"
-
-// Collaborating Class Headers -------
 #include <vector>
 
-// Collaborating Class Declarations --
-
-
+#include "TObject.h"
 
 class TrackCand : public TObject {
 public:
@@ -84,6 +78,3 @@ public:
 
 #endif
 
-//--------------------------------------------------------------
-// $Log$
-//--------------------------------------------------------------

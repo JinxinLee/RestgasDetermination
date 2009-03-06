@@ -18,14 +18,7 @@
 
 #include "PlanarHitPolicy.h"
 
-// C/C++ Headers ----------------------
-
-
-// Collaborating Class Headers --------
 #include "AbsRecoHit.h"
-
-// Class Member definitions -----------
-
 
 TMatrixT<double> 
 PlanarHitPolicy::hitCoord(AbsRecoHit* hit,const DetPlane&)
