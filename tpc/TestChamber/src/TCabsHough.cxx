@@ -30,41 +30,6 @@ void TCabsHough::convert(std::vector<TCcluster>& _c){
 	ypHit.push_back(hitPrime.Y());
 	zpHit.push_back(hitPrime.Z());
   }
-
-  //renormalize y and z
-  double y1=-1.;
-  double y2=1.;
-  double z1=-1;
-  double z2=1.;
-
-  double minY=1.E50;
-  double maxY=-1.E50;
-  double minZ=1.E50;
-  double maxZ=-1.E50;
-
-  for(unsigned int i=0;i<nHits();++i){
-	if(ypHit.at(i)>maxY) maxY=ypHit.at(i);
-	if(ypHit.at(i)<minY) minY=ypHit.at(i);
-	if(zpHit.at(i)>maxZ) maxZ=zpHit.at(i);
-	if(zpHit.at(i)<minZ) minZ=zpHit.at(i);
-  }
-
-  if( fabs(maxY-minY)<1.E-10)minY-=1.E-5;
-  if( fabs(maxZ-minZ)<1.E-10)minZ-=1.E-5;
-
-  scaleA=1./((maxZ-minZ)/(maxY-minY));
-
-  //for(unsigned int i=0;i<nHits();++i){
-  //  zpHit.at(i)-=minZ;
-  //  zpHit.at(i)-=(maxZ-minZ)/2.;
-  //}
-
-  scaleB=1.;///(maxY-minY);
-
-  for(unsigned int i=0;i<nHits();++i){
-    ypHit.at(i)=y1+(y2-y1)*(ypHit.at(i)-minY)/(maxY-minY);
-    zpHit.at(i)=z1+(z2-z1)*(zpHit.at(i)-minZ)/(maxZ-minZ);
-  }
   
 }
 

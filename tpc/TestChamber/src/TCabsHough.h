@@ -13,7 +13,7 @@ class TCabsHough{
   TCabsHough(const TVector3& _yp,const TVector3& _zp);
   virtual ~TCabsHough();
 
-  void convert(std::vector<TCcluster>& _c);
+  virtual void convert(std::vector<TCcluster>& _c);
   virtual void doHough()=0;
 
   void make(std::vector<TCcluster>& _c){
@@ -35,12 +35,11 @@ class TCabsHough{
 	return ypHit.size();
   }
   
-  double getScaleA(){return scaleA;}
-  double getScaleB(){return scaleB;}
+
 
  protected:
   TVector3 yp,zp;
-  double scaleA,scaleB;
+ 
   std::vector<double> ypHit;
   std::vector<double> zpHit;
 };

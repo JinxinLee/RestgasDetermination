@@ -10,7 +10,7 @@ class TChough1 : public TCabsHough{
  public:
 
   virtual ~TChough1();
-
+  void convert(std::vector<TCcluster>& _c);
   virtual void doHough();
 
   TChough1(const TVector3& _yp,const TVector3& _zp,double _r1,double _r2);
@@ -18,11 +18,12 @@ class TChough1 : public TCabsHough{
   virtual bool hot(int index);
 
   virtual void draw(bool stop=true,int _x=50,int _y=50,int _w=600,int _h=600);
-
+  double getScaleA(){return scaleA;}
+  double getScaleB(){return scaleB;}
 
  private:
   double aymax,bymax;
-
+  double scaleA,scaleB;
 
   TCanvas *canvas1;
 
