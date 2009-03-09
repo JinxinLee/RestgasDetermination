@@ -16,10 +16,9 @@
     You should have received a copy of the GNU Lesser Public License
     along with Genfit.  If not, see <http://www.gnu.org/licenses/>. */
 
-//! Base Class for GENFIT Track representations
-/*! All Track Representations must inherit from this class to be available in genfit
-Algorithms in GENFIT use this class as interface to access track parameters
-*/
+/** @addtogroup genfit
+ * @{
+ */
 
 #ifndef ABSTRACKREP_H
 #define ABSTRACKREP_H
@@ -34,6 +33,45 @@ Algorithms in GENFIT use this class as interface to access track parameters
 #include "DetPlane.h"
 
 class AbsRecoHit;    
+
+/** @brief Base Class for genfit track representations. 
+ * Defines interface for track parameterizations.
+ *
+ * It is important to understand the difference between a track and a 
+ * track representation in genfit:
+ * - A track representation is a specific parameterization of a trajectory. 
+ * It contains the parameters that describe the track at some point and 
+ * code for the extrapolation of the track parameters through space. 
+ * The actual extrapolation code is not part of genfit but has to be supplied
+ * in some additional package (e.g. GEANE). LSLTrackRep is a very basic example
+ * of a track representation.
+ * - A Track is a collection of RecoHits (see AbsRecoHit) plus a collection
+ * of track representation objects. The hits can be from different detectors.
+ * There can be several representations of the same track. This makes it 
+ * possible to perform several fits in parallel, for example to compare 
+ * different parameterizations or to fit different particle hypotheses.
+ *
+ * All track tepresentations must inherit AbsTrackRep to be available 
+ * in genfit. Algorithms in genfit use this class as interface to 
+ * access track parameters
+ *
+ * Provides:
+ *  - Matrix objects to store track parameters
+ *  - ... and covariances
+ *  - interface to track extrapolation code
+ *
+ * The track extrapolation engine can be exchanged in genfit. 
+ * Or one can even use more than one engine in parallel!
+ * In order to use a track extrapolation engine (like e.g. GEANE) with genfit
+ * one has to write a TrackRep class that inherits from AbsTrackRep. This makes
+ * it possible to uses different track extrapolation codes within a unified
+ * framework without major changes in the detector code.
+ *
+ * There is only one thing one has to do to use a specific track 
+ * representation together with the hits from a detector: 
+ * add the respective code in the AbsRecoHit::setHMatrix method implementation
+ * of the RecoHit in question.
+ */
 
 class AbsTrackRep : public TObject{
  protected:
@@ -197,6 +235,7 @@ class AbsTrackRep : public TObject{
 
 };
 
+/* @} **/
 
 
 #endif
