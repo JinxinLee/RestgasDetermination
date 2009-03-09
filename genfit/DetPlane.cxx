@@ -188,18 +188,44 @@ bool operator!= (const DetPlane& lhs, const DetPlane& rhs){
 }
 
 
-void DetPlane::getGraphics(double mesh, double length, TPolyMarker3D **pl, TPolyLine3D **u, TPolyLine3D **v, TPolyLine3D**n){
+void DetPlane::getGraphics(double mesh, double length, TPolyMarker3D **pl,TPolyLine3D** plLine, TPolyLine3D **u, TPolyLine3D **v, TPolyLine3D**n){
   *pl = new TPolyMarker3D(21*21,24);
   (*pl)->SetMarkerSize(0.1);
   (*pl)->SetMarkerColor(kBlue);
   int counter(0);
-  for (int i=-10;i<=10;++i){
-	for (int j=-10;j<=10;++j){
+  int nI=10;
+  int nJ=10;
+  int linePlCounter=0;
+  *plLine = new TPolyLine3D(5);
+
+  {
+	TVector3 linevec;
+	int i,j;
+	i=-1*nI;j=-1*nJ;
+	linevec=(_o+(mesh*i)*_u+(mesh*j)*_v);
+	//(*plLine)->SetPoint(0,linevec.X(),linevec.Y(),linevec.Z());
+	i=-1*nI;j=1*nJ;
+	linevec=(_o+(mesh*i)*_u+(mesh*j)*_v);
+	(*plLine)->SetPoint(0,linevec.X(),linevec.Y(),linevec.Z());
+	i=1*nI;j=-1*nJ;
+	linevec=(_o+(mesh*i)*_u+(mesh*j)*_v);
+	(*plLine)->SetPoint(2,linevec.X(),linevec.Y(),linevec.Z());
+	i=1*nI;j=1*nJ;
+	linevec=(_o+(mesh*i)*_u+(mesh*j)*_v);
+	(*plLine)->SetPoint(1,linevec.X(),linevec.Y(),linevec.Z());
+	i=-1*nI;j=-1*nJ;
+	linevec=(_o+(mesh*i)*_u+(mesh*j)*_v);
+	//(*plLine)->SetPoint(4,linevec.X(),linevec.Y(),linevec.Z());
+
+  }
+  for (int i=-1*nI;i<=nI;++i){
+	for (int j=-1*nJ;j<=nJ;++j){
 	  TVector3 vec(_o+(mesh*i)*_u+(mesh*j)*_v);
 	  int id=(i+10)*21+j+10;
 	  (*pl)->SetPoint(id,vec.X(),vec.Y(),vec.Z());
 	}
   }
+
 
   *u = new TPolyLine3D(2);
   (*u)->SetPoint(0,_o.X(),_o.Y(),_o.Z());

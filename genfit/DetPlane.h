@@ -68,7 +68,7 @@ public:
   TVector3 dist(const TVector3& point) const;
 
   void Print() const;
-  void getGraphics(double mesh, double length, TPolyMarker3D **pl, TPolyLine3D **u, TPolyLine3D **v, TPolyLine3D **n=NULL);
+  void getGraphics(double mesh, double length, TPolyMarker3D **pl, TPolyLine3D **plLine,TPolyLine3D **u, TPolyLine3D **v, TPolyLine3D **n=NULL);
 
   friend bool operator== (const DetPlane& lhs, const DetPlane& rhs);
   friend bool operator!= (const DetPlane& lhs, const DetPlane& rhs);
