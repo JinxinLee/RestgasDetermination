@@ -1,25 +1,3 @@
-/*  Copyright © 2008, Christian Hoeppner & Sebastian Neubert
-    All rights reserved.
-
-    This file is part of Genfit.
-
-    Genfit is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    Genfit is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser Public License for more details.
-
-    You should have received a copy of the GNU Lesser Public License
-    along with Genfit.  If not, see <http://www.gnu.org/licenses/>. */
-
-// Description:
-//      A generic Kalman Filter Implementation
-
-
 /** @addtogroup genfit
  * @{
  */
@@ -38,6 +16,9 @@ class Track;
 
 /** @brief Generic Kalman Filter implementation
  *
+ *  @author Christian H&ouml;ppner (Technische Universit&auml;t M&uuml;nchen, original author)
+ *  @author Sebastian Neubert  (Technische Universit&auml;t M&uuml;nchen, original author)
+ * 
  * The Kalman Filter operates on genfit Track objects. It is an implementation
  * of the Kalman Filter algebra that uses the genfit interface classes 
  * AbsRecoHit and AbsTrackRep in order to be independent from the specific

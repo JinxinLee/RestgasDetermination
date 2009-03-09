@@ -1,21 +1,3 @@
-/*  Copyright © 2008, Christian Hoeppner & Sebastian Neubert
-    All rights reserved.
-
-    This file is part of Genfit.
-
-    Genfit is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    Genfit is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser Public License for more details.
-
-    You should have received a copy of the GNU Lesser Public License
-    along with Genfit.  If not, see <http://www.gnu.org/licenses/>. */
-
 #include "DetPlane.h"
 
 #include "assert.h"
@@ -203,7 +185,7 @@ void DetPlane::getGraphics(double mesh, double length, TPolyMarker3D **pl,TPolyL
 	int i,j;
 	i=-1*nI;j=-1*nJ;
 	linevec=(_o+(mesh*i)*_u+(mesh*j)*_v);
-	//(*plLine)->SetPoint(0,linevec.X(),linevec.Y(),linevec.Z());
+	(*plLine)->SetPoint(0,linevec.X(),linevec.Y(),linevec.Z());
 	i=-1*nI;j=1*nJ;
 	linevec=(_o+(mesh*i)*_u+(mesh*j)*_v);
 	(*plLine)->SetPoint(0,linevec.X(),linevec.Y(),linevec.Z());
@@ -215,7 +197,7 @@ void DetPlane::getGraphics(double mesh, double length, TPolyMarker3D **pl,TPolyL
 	(*plLine)->SetPoint(1,linevec.X(),linevec.Y(),linevec.Z());
 	i=-1*nI;j=-1*nJ;
 	linevec=(_o+(mesh*i)*_u+(mesh*j)*_v);
-	//(*plLine)->SetPoint(4,linevec.X(),linevec.Y(),linevec.Z());
+	(*plLine)->SetPoint(4,linevec.X(),linevec.Y(),linevec.Z());
 
   }
   for (int i=-1*nI;i<=nI;++i){
