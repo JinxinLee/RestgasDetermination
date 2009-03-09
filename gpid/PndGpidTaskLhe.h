@@ -29,15 +29,11 @@
 */
 
 //C++ includes
-// #include <algorithm>
-// #include <limits>
 #include <vector>
 #include <string>
 #include <fstream>
 
 //ROOT and PandaRoot includes
-// #include "TVector3.h"
-// #include "TClonesArray.h"
 #include "TMVA/Reader.h"
 
 #include "FairTask.h"
@@ -54,8 +50,6 @@
 
 using namespace std;
 
-// class TObjectArray;
-// class Reader;
 class TClonesArray;
 
 class PndGpidTaskLhe : public FairTask

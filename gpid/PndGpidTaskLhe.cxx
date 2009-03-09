@@ -202,7 +202,8 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
   PndPidCand *fTrack= new(clref2[size2]) PndPidCand(); 
   
   // Loop through the Tracks.
-  std::cout << "Number of available tracks " << fPidTrackCand->GetEntriesFast()
+  std::cout << "\n Number of available tracks " 
+	    << fPidTrackCand->GetEntriesFast()
 	    << std::endl;
   for (int k = 0; k < fPidTrackCand->GetEntriesFast(); k++){
     // Select the current track
@@ -237,8 +238,8 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
 
 	m_varVec[i] = pid->GetSttDEDX();
 	
-	if ( m_varVec[i] <= 0 ){ skip = 1;}
-
+	if ( m_varVec[i] <= 0 || isnan(m_varVec[i])){ skip = 1;}
+	
 	fTrack->Set(varName,m_varVec[i]);
       }
 
@@ -271,8 +272,9 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
 
     // Check if something is wrong, skip the track
     if (skip != 0 ){
-      std::cout << "\t<WARNING:> Skipping Track " 
-		<< k << ".\n\tThe track itself is stored but not used." 
+      std::cerr << "\t<WARNING:> Skipping Track " 
+		<< k << ".\n\tOne or more values are not valid numbers."
+		<<"\n\tThe track itself is stored but not used.\n"
 		<< std::endl;
       continue;
       // The track is stored but we will not classify the bad track
