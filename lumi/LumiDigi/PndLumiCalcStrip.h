@@ -1,5 +1,5 @@
 /*
- * This gives strips (type PndLumiStrip) fired par hit
+ * This returns to strips fired
  */
 #ifndef PNDLUMICALCSTRIP_H
 #define PNDLUMICALCSTRIP_H
@@ -17,7 +17,7 @@
 #include <cmath>
 #include <map>
 
-#include "PndLumiCalcStripDigi.h"//need for only fRNG definition
+#include "PndLumiCalcStripDigi.h"
 using std::cout;
 using std::endl;
 extern TRandom3* fRND;
