@@ -35,6 +35,8 @@
  * @sa SpacepointHitPolicy
  * @sa WirepointHitPolicy
  *
+ * A simple example is given in VirtSpacePointRecoHit
+ *
  * Implementation details: The actual implementations of the methods 
  * declared here can be found in the HitPolicy objects. Since RecoHitIfc
  * inhertis from its template parameter class detplane_policy the methods

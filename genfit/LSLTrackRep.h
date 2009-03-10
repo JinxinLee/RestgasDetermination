@@ -1,5 +1,7 @@
-// Description:
-//      a local straight line track representation
+/** @addtogroup genfit
+ * @{ */
+
+
 /**
  *  @author Christian H&ouml;ppner (Technische Universit&auml;t M&uuml;nchen, original author)
  *  @author Sebastian Neubert  (Technische Universit&auml;t M&uuml;nchen, original author)
@@ -19,6 +21,28 @@
 class AbsBFieldIfc;
 class AbsNystromEQM;
 
+/** @brief a local straight line track representation
+ *
+ * The parameterization for the local straight line track representation is:
+ * - x (in global coordinates)
+ * - y (in global coordinates)
+ * - dx/dz
+ * - dy/dz
+ * - 1/p
+ *
+ * The free parameter is z (in global coordinates)
+ *
+ * The LSLTrackRep can only extrapolate to detector planes perpendicular 
+ * to the z-axis and as such does not fulfill the general genfit criteria.
+ *
+ * If no BField is specified through AbsBFieldIfc a constant field of 
+ * B=(0,0,2T) is hardcoded.
+ *
+ * LSLTrackRep uses a simple Nystrom-type integrator to extrapolate the track
+ * parameters in the BField.
+ *
+ * Material effects are NOT taken into account.
+ */
 class LSLTrackRep : public AbsTrackRep {
 public:
 
@@ -120,3 +144,4 @@ private:
 #endif
 
 
+/** @} */

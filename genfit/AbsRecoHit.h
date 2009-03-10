@@ -41,6 +41,8 @@
  * such as spec points, wires, etc. For details look 
  * at the RecoHitIfc documentation.
  * 
+ * A simple example is given in VirtSpacePointRecoHit
+ *
  * Background information: The main feature here is
  * that coordinates and covariances are available as general 
  * TMatrixT<double> objects. By using these general algebraic 
