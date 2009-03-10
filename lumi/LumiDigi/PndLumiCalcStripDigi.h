@@ -1,16 +1,17 @@
 //**********************************************************
 //
-// This class returns to vectors PndLumiStrip (stripID ,
+// This returns to vectors PndLumiStrip (stripID ,
 // path inside , charge collected).
 //
-// First, total Landau deposited charge is shared among
+// First, the Landau deposited charge is shared among
 // all the strips fired according to the path that they
 // contain respectively.
 //
-// Then, these charge are smeared by a Gaus at every point
-// along the whole path for strip multiplicity 1 and
-// at every point along the path at the edges (head and
-// tail )for strip multiplicity more or equal to 2
+// Then, Gaussian smearing (sigma = noise) is added for
+// the amount of charge collected at each strip fired.
+// 
+// Finally, the effective charge at every point of the path
+// along the full path is smeared by a Gaus with 8 micro width
 //
 //*********************************************************
 
@@ -53,8 +54,7 @@ public:
 	std::vector<PndLumiStrip> GetStrips(FairGeoVector in,
 			FairGeoVector out, Double_t eLoss);
 
-	/** Apply a Gaussian Smearing To The Charge Collected At the Head
-	 * and The Tail of The Strips Cluster From the GetStrips-Method
+	/** Apply a Gaussian Smearing To The Charge Collected 
 	 *  and Collect Them
 	 */
 	std::vector<PndLumiStrip> GetStripsDigi(FairGeoVector in,
