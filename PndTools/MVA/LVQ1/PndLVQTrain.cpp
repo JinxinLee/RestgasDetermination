@@ -74,16 +74,18 @@ PndLVQTrain::PndLVQTrain(const char* InPut,
   delete m_InPutFile;
   
   // Compute the class conditional means for each class of signal
-  for(unsigned int idx = 0; idx < m_ClassNames.size(); idx++){
+  /*
+    for(unsigned int idx = 0; idx < m_ClassNames.size(); idx++){
     CompClsCondMean(m_ClassNames[idx]); 
-  }// End of classconditional mean
+    }
+  */ // End of classconditional mean
 
   /* 
    * Set the initial values for the learning constants. Note, One
    * needs to change these for better learning result.
   */
   m_initConst = 0.8; m_ethaZero = 0.1; 
-  m_ethaFinal = 0.001; m_NumSweep = 200;
+  m_ethaFinal = 0.001; m_NumSweep = 500;
 }// End of constructor
 
 /*
@@ -269,6 +271,9 @@ void PndLVQTrain::Train21(int numProto, const char* outPut)
   
   // All protypes are initialized. We can perform the training
   // Compute learning rate constant "a"
+  float windowSize = 0.2;// A value between0.2 & 0.3 is recommended.
+  float s = (1 - windowSize)/(1 + windowSize);//Define the surrounding.
+  s = 0;//FIXME FIXME
   double ethaZero  = m_ethaZero;//0.1;
   double ethaFinal = m_ethaFinal;//0.001;
   int    numSweep  = m_NumSweep;//100;
@@ -295,7 +300,8 @@ void PndLVQTrain::Train21(int numProto, const char* outPut)
       }
     }
     // We need to update the (winner) prototype
-    int delta = 0;
+    int delta = 0; 
+    //int deltaEqCls = 0; int deltaNonEqCls = 1;
     // determine delta
     if( m_EventsData[index].first == m_LVQProtos[protoIndex].first ){
       delta = 0;
