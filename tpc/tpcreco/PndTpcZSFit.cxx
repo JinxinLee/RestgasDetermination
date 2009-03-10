@@ -50,16 +50,6 @@ PndTpcZSFit::prototype()const
 }
 
 
-void 
-PndTpcZSFit::predict(const DetPlane& plane,
-                       TMatrixT<double>& statePred,
-                       TMatrixT<double>& covPred,
-                       TMatrixT<double>& jacobian)
-{
-  statePred=state;
-  covPred=cov;
-}
-
 double
 PndTpcZSFit::extrapolate(const DetPlane& plane, TMatrixT<double>& statePred)
 {

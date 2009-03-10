@@ -58,8 +58,6 @@ public:
   void setRungeKuttaAcc(double acc){_acc=acc;}
   void setRungeKuttaAdaptive(bool f){_adaptive=f;}
   // Operations ----------------------
-  virtual void predict(const DetPlane&,TMatrixT<double>& statePred,
-		       TMatrixT<double>& covPred,TMatrixT<double>& jacobian);
   virtual double extrapolate(const DetPlane&, TMatrixT<double>& statePred);
   //virtual void extrapolate(const DetPlane&, 
   //			   const TMatrixT<double>& stateFrom, 

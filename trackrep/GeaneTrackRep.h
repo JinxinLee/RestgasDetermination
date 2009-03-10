@@ -66,8 +66,6 @@ public:
   virtual DetPlane getVirtualDetPlane(const TVector3& hit);
 
 
-  virtual void predict(const DetPlane&,TMatrixT<double>& statePred,
-		       TMatrixT<double>& covPred,TMatrixT<double>& jacobian);
   virtual double extrapolate(const DetPlane&, TMatrixT<double>& statePred);
   //virtual void extrapolate(const DetPlane&, 
   //			   const TMatrixT<double>& stateFrom, 

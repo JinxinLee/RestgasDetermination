@@ -104,11 +104,6 @@ class AbsTrackRep : public TObject{
 
   virtual DetPlane getVirtualDetPlane(const TVector3& hit)=0;
 
-  virtual void predict(const DetPlane& plane,
-		       TMatrixT<double>& statePred,
-		       TMatrixT<double>& covPred,
-		       TMatrixT<double>& jacobian)=0;
-
   //! returns the tracklength spanned in this extrapolation
   virtual double extrapolate(const DetPlane& plane, TMatrixT<double>& statePred)=0;
 

@@ -394,17 +394,6 @@ GeaneTrackRep::getPocaOnLine(const TVector3& p1, const TVector3& p2, bool back){
 
 
 
-void 
-GeaneTrackRep::predict(const DetPlane& pl, 
-		       TMatrixT<double>& statePred,
-		       TMatrixT<double>& covPred,
-		       TMatrixT<double>& jacobian)
-{
-  extrapolate(pl,statePred,covPred,jacobian);
-}
-
-		
-
 TVector3 
 GeaneTrackRep::getPos(const DetPlane& pl)
 {

@@ -48,11 +48,6 @@ public:
 
 
   // Operations ----------------------
-  virtual void predict(const DetPlane& plane,
-                       TMatrixT<double>& statePred,
-                       TMatrixT<double>& covPred,
-                       TMatrixT<double>& jacobian);
-  
   virtual DetPlane getVirtualDetPlane(const TVector3&){throw;}
   virtual TVector3 extrapolateToPoca(const TVector3&, TMatrixT<double>&, TMatrixT<double>&, DetPlane&){throw;}
 

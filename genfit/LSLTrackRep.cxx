@@ -202,15 +202,6 @@ LSLTrackRep::extrapolateToPoca(const TVector3& p,
 
 
 void 
-LSLTrackRep::predict(const DetPlane& pl, 
-		     TMatrixT<double>& statePred,
-		     TMatrixT<double>& covPred,
-		     TMatrixT<double>& jacobian)
-{
-  extrapolate(pl,statePred,covPred,jacobian);
-}
-
-void 
 LSLTrackRep::stepalong(double h){
   // create new detplane:
   DetPlane newp(_refPlane);

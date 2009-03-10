@@ -47,11 +47,6 @@ public:
 
 
   // Operations ----------------------
-  virtual void predict(const DetPlane& plane,
-                       TMatrixT<double>& statePred,
-                       TMatrixT<double>& covPred,
-                       TMatrixT<double>& jacobian);
-  
   virtual DetPlane getVirtualDetPlane(const TVector3&){throw;}
   
 
