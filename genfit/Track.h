@@ -219,7 +219,7 @@ public:
   /** @brief Get residuals
    *
    * @param detId which detector?
-   * @param index of coordinate to choose from resiudal vector
+   * @param dim = index of coordinate to choose from resiudal vector
    * @param rep which track representation?
    * @param result results are written to this vector
    */

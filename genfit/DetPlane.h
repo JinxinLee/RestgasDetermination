@@ -6,6 +6,11 @@
  * 
  */
 
+
+/** @addtogroup genfit
+ * @{
+ */
+
 #ifndef DETPLANE_H
 #define DETPLANE_H
 
@@ -14,6 +19,22 @@
 #include "TVector3.h"
 #include "TPolyMarker3D.h"
 #include "TPolyLine3D.h"
+
+/** @brief Detector plane genfit geometry class
+ *
+ * A detector plane is the principle object to define coordinate systems for
+ * track fitting in genfit. Since a particle trajectory is a 
+ * one-dimensional object (regardless of any specific parameterization)
+ * positions with repect to the track are always meassured in a plane.
+ *
+ * Which plane is choosen depends on the type of detector. Fixed plane 
+ * detectors have their detector plane defined by their mechanical setup. While
+ * wire chambers or time projection chambers might want to define a detector 
+ * plane more flexibly.
+ *
+ * This class parameterizes a plane in terms of an origin vector o 
+ * and two plane-spanning directions u and v.
+ */
 
 class DetPlane : public TObject {
 public:
@@ -78,6 +99,8 @@ public:
   ClassDef(DetPlane,1)
 
 };
+
+/* @} **/
 
 #endif
 
