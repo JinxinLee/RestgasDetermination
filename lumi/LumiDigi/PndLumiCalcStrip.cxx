@@ -183,8 +183,7 @@ std::vector<PndLumiStrip>PndLumiCalcStrip::GetStrips(FairGeoVector in, FairGeoVe
 Double_t PndLumiCalcStrip::AddNoise(Double_t charge)
 {
 	Double_t q = fRND->Gaus(charge,fNoise);
-	//std::cout<<" charge = "<<charge<<", smeared = "<<smeared<<std::endl;
-    return q;
+     return q;
 }
 
 Double_t PndLumiCalcStrip::CalcStripFromPoint(Double_t x, Double_t y)
