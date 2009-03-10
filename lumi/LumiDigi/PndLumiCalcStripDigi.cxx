@@ -49,7 +49,7 @@ std::vector<PndLumiStrip> PndLumiCalcStripDigi::GetStrips(FairGeoVector in, Fair
     Int_t nuIn = Int_t(inStripId);
     Int_t nuOut = Int_t(outStripId);
 
-    //Orthogonal distance between the entry poInt_t and exit poInt_t
+    //Orthogonal distance between the entry point and exit point
     Double_t d;
 
     //Track direction
@@ -57,8 +57,7 @@ std::vector<PndLumiStrip> PndLumiCalcStripDigi::GetStrips(FairGeoVector in, Fair
     if (outStripId > inStripId) dir=1.;
     else dir = -1.;
 
-    Double_t Q = eLoss;// 3.6 eV/Electron in Silicon
-    //cout << "total charge deposited : "<< Q <<endl;
+    Double_t Q = eLoss;//
 
     //Variable:
     Double_t dQ; // fraction charge collected in one strip
@@ -78,7 +77,7 @@ std::vector<PndLumiStrip> PndLumiCalcStripDigi::GetStrips(FairGeoVector in, Fair
 
     	// info @ the first strip
     	d = TMath::Abs(inStripId-outStripId);
-    	//cout << "d : " << d << endl;
+    	
     	if (dir>0.){
         	dp = ((nuIn + 1) - inStripId) / d;
         	dQ = Q * dp;
@@ -99,9 +98,8 @@ std::vector<PndLumiStrip> PndLumiCalcStripDigi::GetStrips(FairGeoVector in, Fair
             inStripId = inStripId;
         }
     	d = TMath::Abs(Int_t(inStripId)-outStripId);
-    	//cout << "d : " << d << endl;
-        //cout << "1./ after : " << Int_t(inStripId) << " ; " << Int_t(outStripId) << endl;
-        // info @ the last strip
+    	
+	// info @ the last strip
         if (dir<0.){
         	dp = (( nuOut + 1) - outStripId) / d;
         	dQ = Q * dp;
@@ -121,16 +119,13 @@ std::vector<PndLumiStrip> PndLumiCalcStripDigi::GetStrips(FairGeoVector in, Fair
             path -= (dp * path);
             outStripId = outStripId;
         }
-        //cout << "2./ after : " << Int_t(inStripId) << " ; " << Int_t(outStripId) << endl;
-
+        
         // Distribute the charge among the Int_termediate strips
         d = TMath::Abs(Int_t(inStripId)-Int_t(outStripId));
-        //cout << "new d : " << d <<endl;
+        
         if (d != 0){
         	dp = 1./d ;
-        	//cout << "partial path in between in and out : " << dp << endl;
         	dQ = Q * dp;
-        	//cout << "Charge deposited left : "<< Q << endl<<endl;
         	sQ = AddNoise(dQ);
         	if (dir>0.){
         		for ( Int_t iStrip = nuIn +1 ; iStrip < nuOut; iStrip++){
@@ -156,7 +151,6 @@ std::vector<PndLumiStrip> PndLumiCalcStripDigi::GetStrips(FairGeoVector in, Fair
 std::vector<PndLumiStrip> PndLumiCalcStripDigi::GetStripsDigi(FairGeoVector in,
 		FairGeoVector out, Double_t eLoss)
 {
-	//PndLumiCalcStrip StripCalc(fPitch, fOrient, fWidth, fLength, fThreshold, fNoise);
 	std::vector<PndLumiStrip> strips = GetStrips(in,out,eLoss);
 	cout << " Number of strips initially fired : "<< strips.size()<<endl;
 
@@ -400,8 +394,6 @@ std::vector<PndLumiStrip> PndLumiCalcStripDigi::GetStripsDigi(FairGeoVector in,
 Double_t PndLumiCalcStripDigi:: AddNoise(Double_t charge)
 {
 	Double_t Q_n = fRND->Gaus(charge, fNoise);
-	//std::cout<<" charge = "<<charge<<", Noise = "<< fNoise
-	//<< ", ChargeAddNoise = "<< Q_n<< " [eV]."<<std::endl;
     return Q_n;
 }
 
@@ -443,7 +435,6 @@ Double_t PndLumiCalcStripDigi::CalcStripFromHit(Double_t x, Double_t y)
 	Double_t b = fStripZeroId.Y();
 	Double_t zero;
 	zero =TMath::Abs(( -a*sin(fOrient) + b*cos(fOrient))/fPitch);
-	//cout<<" zero = " << zero<< endl;
 	Double_t nr = (-x*sin(fOrient) + y *cos(fOrient))/fPitch;
 
 	return (nr + zero);
@@ -461,10 +452,7 @@ std::map<Int_t,PndLumiStrip> PndLumiCalcStripDigi::GetClusters(std::vector<PndLu
 		clust[strip[j].GetIndex()] = strip[j];
 	}
 
-	//for (it = clust.begin(); it!=clust.end(); ++it){
-	//	cout<< (*it).first << " ==> " << (*it).second<< endl;
-	//}
-
+	
 	return clust;
 
 }
