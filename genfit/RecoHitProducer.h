@@ -73,6 +73,7 @@ class RecoHitProducer : public AbsRecoHitProducer {
    */
   virtual AbsRecoHit* produce(int index);	
 };
+/** @} */
 
 template <class hit_T,class recoHit_T>
 RecoHitProducer<hit_T,recoHit_T>::RecoHitProducer(TClonesArray* theArr) {
@@ -96,4 +97,4 @@ AbsRecoHit* RecoHitProducer<hit_T,recoHit_T>::produce(int index) {
 
 #endif 
 
-/** @} */
+
