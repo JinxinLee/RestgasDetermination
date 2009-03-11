@@ -10,7 +10,7 @@
 
 class Track;
 
-void ExtrapolateToPCA(Track* trk1, Track* trk2);  
+void trackProximity(Track* trk1, Track* trk2);  
 
 
 #endif

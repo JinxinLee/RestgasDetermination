@@ -12,7 +12,7 @@ double trkDist(Track* trk1, Track* trk2){
 
 
 
-void ExtrapolateToPCA(Track* trk1, Track* trk2){
+void trackProximity(Track* trk1, Track* trk2){
   // TODO: make accuracy configurable!
   // a simple newtonian search.
   double h=0.01;
