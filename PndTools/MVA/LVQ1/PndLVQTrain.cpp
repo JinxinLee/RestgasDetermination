@@ -7,7 +7,8 @@
  */
 #include "PndLVQTrain.h"
 
-/* Constructor
+/**
+ * Constructor:
  * @param InPut, Input file name.
  * @param ClassNames, class names.
  * @param VarNames, variable names of the features.
@@ -88,7 +89,7 @@ PndLVQTrain::PndLVQTrain(const char* InPut,
   m_ethaFinal = 0.001; m_NumSweep = 500;
 }// End of constructor
 
-/*
+/**
  * Destructor
  */
 PndLVQTrain::~PndLVQTrain()
@@ -117,7 +118,7 @@ PndLVQTrain::~PndLVQTrain()
   m_ClassIndex.clear();
 }
 
-/* 
+/**
  * Compute the class conditional mean for a given class and store
  * that in the class conditional means container
  */
@@ -144,7 +145,7 @@ void PndLVQTrain::CompClsCondMean(std::string clsName)
   m_ClassCondMeans.push_back(std::make_pair(clsName,vec));
 }
 
-/*
+/**
  * Initialize LVQ prototypes (Code books).
  */
 void PndLVQTrain::InitProtoTypes(int numProto)
@@ -197,7 +198,7 @@ void PndLVQTrain::InitProtoTypes(int numProto)
   //std::cout << numProto << std::endl;
 }
 
-/*
+/**
  * @param numProto, number of LVQ1 prototypes. Current implementation
  *  considers an equal number of prototypes for each class with equal weights. 
  * @param OutPut, the nameof the out-put file, where the weights are 
@@ -253,7 +254,7 @@ void PndLVQTrain::Train(int numProto, const char* outPut)
   WriteToFile(outPut);
 }
 
-/*
+/**
  * Train the classifier accourding to LVQ2.1 algorithm.
  * @param numProto, number of LVQ2 prototypes. Current
  * implementation considers an equal number of prototypes for each
@@ -318,7 +319,7 @@ void PndLVQTrain::Train21(int numProto, const char* outPut)
   //============ FIXME We need to apply LVQ2. Modify the implementation
 }
 
-/* 
+/**
  * Updates the LVQ1 prototypes 
  */
 void PndLVQTrain::UpdateProto( std::vector<float> &EvtData, std::vector<float> &proto, 
@@ -329,7 +330,7 @@ void PndLVQTrain::UpdateProto( std::vector<float> &EvtData, std::vector<float> &
   }
 }
 
-/* 
+/**
  * Computes the Euclidean distance between two given vectors of
  * event features.
  */
@@ -344,7 +345,7 @@ float PndLVQTrain::ComputeDist(std::vector<float> &EvtData,
   return dist;
 }
 
-/* 
+/**
  * Write the prototypes to the out-put file 
  */
 void PndLVQTrain::WriteToFile(const char* outPut)

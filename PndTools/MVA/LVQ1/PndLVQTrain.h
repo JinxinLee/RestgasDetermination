@@ -1,8 +1,8 @@
-/* ***************************************
+/*! **************************************
  * LVQ  Training functions               *
  * Author: M.Babai@rug.nl                *
  * LICENSE:                              *
- * Version 1.0 beta1.                    *
+ * Version: 1.0 beta1.                   *
  * ***************************************
  */
 #pragma once
@@ -22,7 +22,8 @@
 
 class PndLVQTrain{
  public:
-  /* Constructor
+  /**
+   * Constructor:
    * @param InPut, Input file name.
    * @param ClassNames, class names.
    * @param VarNames, variable names of the features.
@@ -30,12 +31,12 @@ class PndLVQTrain{
   PndLVQTrain(const char *InPut,
 	      const std::vector<std::string>& ClassNames, 
 	      const std::vector<std::string>& VarNames);
-  /*
+  /**
    * Destructor
    */
   virtual ~PndLVQTrain();
   
-  /*
+  /**
    * Train the classifier accourding to LVQ1 algorithm.
    * @param numProto, number of LVQ1 prototypes. Current
    * implementation considers an equal number of prototypes for each
@@ -45,7 +46,7 @@ class PndLVQTrain{
    */
   void Train(int numProto, const char* OutPut);
   
-  /*
+  /**
    * Train the classifier accourding to LVQ2.1 algorithm.
    * @param numProto, number of LVQ2 prototypes. Current
    * implementation considers an equal number of prototypes for each
@@ -55,7 +56,7 @@ class PndLVQTrain{
    */
   void Train21(int numProto, const char* OutPut);
 
-  /*
+  /**
    * Sets the learning parameters.
    * @param initConst, Initialization constant, 
    * used to initialize LVQ prototypes.
@@ -68,59 +69,66 @@ class PndLVQTrain{
   { m_initConst = initConst; m_ethaZero = etZ; 
     m_ethaFinal = etF; m_NumSweep = Nswp;};
  
- // Protected functions and variables
+  // Protected functions and variables
  protected:
-  /* 
+  /**
    * Computes the Euclidean distance between two given vectors of
    * event features.
    */
   float ComputeDist(std::vector<float> &EvtData, 
 		    std::vector<float> &Example);
 
-  /* Updates the LVQ1 prototypes */
+  /**
+   * Updates the LVQ1 prototypes.
+   */
   void UpdateProto( std::vector<float> &EvtData, std::vector<float> &proto, 
 		    int delta, double ethaT);
 
-  /*
+  /**
    * Initialize LVQ prototypes (Code books).
    */
   void InitProtoTypes(int numProto);
 
- // Private functions and variables
+  // Private functions and variables
  private:
-  /* 
+  /**
    * Compute the class conditional mean for a given class and store
    * that in the class conditional means container
    */
   void CompClsCondMean(std::string clsName);
 
-  /* Write the prototypes to the out-put file */
+  /**
+   * Write the prototypes to the out-put file 
+   */
   void WriteToFile(const char* outFile);
 
-  // Class names
+  //! Class names
   std::vector<std::string> m_ClassNames;
   
-  // Variable Names
+  //! Variable Names
   std::vector<std::string> m_VarNames; 
   
-  // Container to keep  the Class Conditional means
+  //! Container to keep  the Class Conditional means
   std::vector<std::pair< std::string, std::vector<float>*> > m_ClassCondMeans;
   
-  // Container to keep  the Event data feature vectors
+  //! Container to keep  the Event data feature vectors
   std::vector< std::pair<std::string, std::vector<float>*> > m_EventsData;
   
-  // Holds the number of available examples per class
+  //! Holds the number of available examples per class
   std::map<std::string, int> m_perClsExamples;
   
-  // Holds the start and the end index of events from each class
+  //! Holds the start and the end index of events from each class
   std::vector< std::pair<int,int> > m_ClassIndex;
 
-  // Holds the LVQ proto-types
+  //! Holds the LVQ proto-types
   std::vector< std::pair<std::string, std::vector<float>*> > m_LVQProtos;
  
-  // Learn parameters: Init constant, start learning rate, End
-  // learning rate
+  /**
+   * Learn parameters: Init constant, start learning rate, End
+   * learning rate.
+   */
   double m_initConst, m_ethaZero, m_ethaFinal;
-  int m_NumSweep;// Number of sweeps through example set.
+  //! Number of sweeps through example set.
+  int m_NumSweep;
 };
 #endif //end of interface definition

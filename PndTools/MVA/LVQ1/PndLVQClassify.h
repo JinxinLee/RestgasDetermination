@@ -22,7 +22,8 @@
 
 class PndLVQClassify{
  public:
-  /* Constructor
+  /**
+   * Constructor:
    * @param InPut, Input file name (Weights).
    * @param ClassNames, class names.
    * @param VarNames, variable names of the features.
@@ -30,12 +31,12 @@ class PndLVQClassify{
   PndLVQClassify(const char* InPut,
 		 const std::vector<std::string>& ClassNames, 
 		 const std::vector<std::string>& VarNames);
-  /*
+  /**
    * Destructor
    */
   virtual ~PndLVQClassify();
   
-  /*
+  /**
    * @param EvtData. Event data to be classified.
    *
    * @param result.  Classification results. Currently the shortest
@@ -44,18 +45,18 @@ class PndLVQClassify{
   void Classify(std::vector<float> &EvtData, std::map<std::string,float>& result);
 
  protected:
-  /* 
+  /**
    * Computes the Euclidean distance between two given vectors of
    * event features.
    */
   float ComputeDist(std::vector<float> &EvtData, std::vector<float> &proto);
 
  private:
-  // Holds the class Names
+  //! Holds the class Names
   std::vector<std::string> m_ClassNames;
-  // Holds the Variable Names
+  //! Holds the Variable Names
   std::vector<std::string> m_VarNames;
-  // Holds the LVQ proto-types
+  //! Holds the LVQ proto-types
   std::vector< std::pair<std::string, std::vector<float>*> > m_protoContainer;
 };
 #endif//end of interface definition

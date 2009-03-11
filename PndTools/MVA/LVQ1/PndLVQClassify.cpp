@@ -7,7 +7,8 @@
  */
 #include "PndLVQClassify.h"
 
-/* Constructor
+/**
+ * Constructor:
  * @param InPut, Input file name (Weights).
  * @param ClassNames, class names.
  * @param VarNames, variable names of the features.
@@ -64,7 +65,7 @@ PndLVQClassify::PndLVQClassify(const char* InPut,
   delete InPutFile;
 }//End of constructor
 
-/*
+/**
  * Destructor
  */
 PndLVQClassify::~PndLVQClassify()
@@ -77,7 +78,7 @@ PndLVQClassify::~PndLVQClassify()
   m_VarNames.clear();
 }
   
-/* 
+/**
  * Computes the Euclidean distance between two given vectors of
  * event features.
  */
@@ -92,7 +93,7 @@ float PndLVQClassify::ComputeDist(std::vector<float> &EvtData,
   return dist;
 }
 
-/*
+/**
  * @param EvtData. Event data to be classified.
  * @param result.  Classification results. Currently the shortest
  *     distance for each class is stored in result.
