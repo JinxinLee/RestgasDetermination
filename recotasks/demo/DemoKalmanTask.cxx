@@ -48,7 +48,7 @@
 
 
 DemoKalmanTask::DemoKalmanTask()
-  : FairTask("Kalman Filter"), _persistence(kFALSE),_smooth(kFALSE), _evt(0)
+  : FairTask("Kalman Filter"), _persistence(kFALSE), _evt(0)
 {
   _trackBranchName = "Track";
 }
@@ -160,7 +160,6 @@ DemoKalmanTask::Exec(Option_t* opt)
     // Start Fitter
     try{
       fitter.processTrack(trk);
-      if(_smooth)fitter.smoothing(trk);
     }
     catch (FitterException e){
       std::cout<<"*** FITTER EXCEPTION ***"<<std::endl;

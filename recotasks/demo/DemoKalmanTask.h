@@ -48,7 +48,6 @@ public:
   void SetTrackBranchName(const TString& name) {_trackBranchName=name;}
   void AddHitBranch(unsigned int detId, const TString& m){_hitBranchMap[detId]=m;};
   void SetPersistence(Bool_t opt=kTRUE) {_persistence=opt;}
-  void SetSmooth(Bool_t opt=kTRUE){_smooth=opt;}
 
   // Operations ----------------------
   
@@ -79,7 +78,6 @@ private:
   TH2D* _pEnd;
 
   int _trackcount;
-  Bool_t _smooth;
   int _evt; // event counter
 
   // Private Methods -----------------
