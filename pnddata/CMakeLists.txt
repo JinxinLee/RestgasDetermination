@@ -27,8 +27,9 @@ DrcData/PndDrcPDPoint.cxx
 DrcData/PndDrcBarPoint.cxx
 DrcData/PndDrcHit.cxx
 
-GemData/PndGemHit.cxx
 GemData/PndGemMCPoint.cxx
+GemData/PndGemDigi.cxx
+GemData/PndGemHit.cxx
 
 MdtData/PndMdtPoint.cxx
 MdtData/PndMdtHit.cxx
