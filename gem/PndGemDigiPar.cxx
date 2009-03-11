@@ -1,0 +1,201 @@
+#include <iostream>
+#include "PndGemDigiPar.h"
+
+using std::cout;
+using std::endl;
+using std::flush;
+using std::map;
+using std::pair;
+
+PndGemDigiPar::PndGemDigiPar(const char* name, const char* title, const char* context)
+  : FairParGenericSet(name,title,context)
+{
+  clear();
+  fStations = new TObjArray(10);
+}
+// -------------------------------------------------------------------------
+
+
+
+// -----   Destructor   ----------------------------------------------------
+PndGemDigiPar::~PndGemDigiPar(void) {  
+  if ( fStations) {
+    fStations->Delete();
+    delete fStations;
+  }
+}
+// -------------------------------------------------------------------------
+
+
+void PndGemDigiPar::putParams(FairParamList* list)
+{
+  if(!list) return;
+
+  list->add("parameters", fGemParameters);
+}
+
+Bool_t PndGemDigiPar::getParams(FairParamList* list)
+{
+  if (!list) return kFALSE;
+  if (!list->fill("parameters",&fGemParameters)) return kFALSE;
+  
+  //   if (!list->fill("sensName",&sensName)) return kFALSE;
+  //   if (!list->fill("feName",&feName)) return kFALSE;
+  CreateStations();
+
+  return kTRUE;
+}
+
+void PndGemDigiPar::CreateStations()
+{
+  Int_t arrayIndex = 0;
+
+  Int_t   stationNr   = 0;
+  TString stationName = "";
+  Int_t   nofSensors = 0;
+  Int_t   sensorNr    = 0;
+  TString sensorName  = "";
+  PndGemStation*  station = NULL;
+  PndGemSensor*   sensor  = NULL;
+
+  while ( arrayIndex < fGemParameters.GetSize() ) {
+    stationNr   = (Int_t)fGemParameters[arrayIndex+0];
+    stationName = Form("Gem_Station_%d",stationNr);
+    
+    station = new PndGemStation(stationName.Data(), stationNr, fGemParameters[arrayIndex+1], TMath::Pi()*fGemParameters[arrayIndex+2]/180. );
+    
+    fStations->Add(station);
+    fStationMap[stationNr] = station;
+
+    arrayIndex += 4;
+    
+    nofSensors = (Int_t)fGemParameters[arrayIndex-1];
+
+    for ( Int_t isec = 0 ; isec < nofSensors ; isec++ ) {
+      sensorNr   = (Int_t)fGemParameters[arrayIndex+0];
+      sensorName = Form("Gem_Disk%d_Gem%s_Sensor_kapton",stationNr,(sensorNr==1?"1":"6"));
+      
+      Int_t sensorDetId  = 2 << 24 | stationNr << 16 | sensorNr << 4;
+
+      sensor = new PndGemSensor(sensorName.Data(), sensorDetId, (Int_t)fGemParameters[arrayIndex+1],
+				fGemParameters[arrayIndex+ 2], fGemParameters[arrayIndex+ 3], fGemParameters[arrayIndex+ 4],
+				-TMath::Pi()*fGemParameters[arrayIndex+ 5]/180.,
+				fGemParameters[arrayIndex+ 6], fGemParameters[arrayIndex+ 7], 
+				fGemParameters[arrayIndex+ 8],
+				fGemParameters[arrayIndex+ 9], fGemParameters[arrayIndex+10], 
+				fGemParameters[arrayIndex+11], fGemParameters[arrayIndex+12]);
+
+      station->AddSensor(sensor);
+
+      /*      cout << "Adding " << sensorName.Data() << " with id " << sensorDetId 
+	   << " (type " << (Int_t)fGemParameters[arrayIndex+1] << ") position: ("
+	   << fGemParameters[arrayIndex+ 2] << ", " 
+	   << fGemParameters[arrayIndex+ 3] << ", " 
+	   << fGemParameters[arrayIndex+ 4] << "), rotation " 
+	   << fGemParameters[arrayIndex+ 5] << ", radius from "
+	   << fGemParameters[arrayIndex+ 6] << " to " 
+	   << fGemParameters[arrayIndex+ 7] << ", "
+	   << fGemParameters[arrayIndex+ 8] << " thick. " << endl << "     strip angles (" 
+	   << fGemParameters[arrayIndex+ 9] << ", "
+	   << fGemParameters[arrayIndex+10] << "), pitches ("
+	   << fGemParameters[arrayIndex+11] << ", "
+	   << fGemParameters[arrayIndex+12] << endl;
+      */
+
+      // put sensor into name/sensor map
+      map < TString, PndGemSensor*>::iterator p;
+      p=fSensorByName.find(sensorName.Data());
+      if(p!=fSensorByName.end()){
+	cout << " -E- Sensor \"" << sensorName.Data() << "\" is already inserted " << endl;
+      }else{
+	fSensorByName.insert(pair<TString, PndGemSensor*> (sensorName.Data(), sensor));
+      }
+      arrayIndex+=13;
+    }
+  }
+}
+
+// -----   Public method GetStation   --------------------------------------
+PndGemStation* PndGemDigiPar::GetStation(Int_t iStation) {
+  return (PndGemStation*) fStations->At(iStation);
+}
+// -------------------------------------------------------------------------
+
+
+
+// -------   Public method GetStationById   --------------------------------
+PndGemStation* PndGemDigiPar::GetStationByNr(Int_t stationNr) {
+  //  Int_t index = fStationMap[stationNr];
+  PndGemStation* station = (PndGemStation*) fStationMap[stationNr];
+  //    (PndGemStation*) fStations->At(index);
+  if ( ! station ) {
+    cout << "-W- PndGemDigiPar::GetStationByNr: "
+	 << "No parameters found for station " << stationNr << endl;
+    return NULL;
+  }
+  return station;
+}
+// -------------------------------------------------------------------------
+
+
+// -----   Public method GetDetectorIdByName  ------------------------------
+Int_t PndGemDigiPar::GetDetectorIdByName(TString sensorName)
+{
+  map < TString, Int_t>::iterator p;
+  p=fDetIdByName.find(sensorName);
+
+  if(p!=fDetIdByName.end()){
+    return p->second;
+  }else{
+    cout << " -E- PndGemDigiPar::GetDetectorIdByName \"" << sensorName.Data() << "\" not found " << endl;
+    return -1;
+  }
+}
+// -------------------------------------------------------------------------
+
+// -----   Public method GetSensor   ---------------------------------------
+PndGemSensor* PndGemDigiPar::GetSensor(Int_t stationNr, Int_t sensorNr) {
+  return ( GetStationByNr(stationNr)->GetSensorByNr(sensorNr) );
+}
+// -------------------------------------------------------------------------
+
+// -----   Public method GetSensorIdByName  --------------------------------
+PndGemSensor* PndGemDigiPar::GetSensorByName(TString sensorName)
+{
+  map < TString, PndGemSensor*>::iterator p;
+  p=fSensorByName.find(sensorName);
+
+  if(p!=fSensorByName.end()){
+    return p->second;
+  }else{
+    cout << " -E- PndGemDigiPar::GetSensorByName \"" << sensorName.Data() << "\" not found " << endl;
+    return 0;
+  }
+}
+// -------------------------------------------------------------------------
+
+ClassImp(PndGemDigiPar);
+
+void PndGemDigiPar::Print()
+{
+  Int_t arrayIndex = 0;
+  cout << "-------------------------------------------------" << endl;
+  cout<<"GEM Digitization Parameters:"<<endl;
+  while ( arrayIndex < fGemParameters.GetSize() ) {
+    for ( Int_t istp = 0 ; istp < 4 ; istp++ ) {
+      cout << fGemParameters[arrayIndex+istp] << " " << flush;
+    }
+    cout << endl;
+
+    arrayIndex += 4;
+    
+    for ( Int_t isec = 0 ; isec < fGemParameters[arrayIndex-1] ; isec++ ) {
+      for ( Int_t isep = 0 ; isep < 12 ; isep++ ) {
+	cout << fGemParameters[arrayIndex+isec*12+isep] << " " << flush;
+      }
+      cout << endl;
+    }
+    arrayIndex+=(Int_t)fGemParameters[arrayIndex-1]*12;
+  }
+  cout << "-------------------------------------------------" << endl;
+}

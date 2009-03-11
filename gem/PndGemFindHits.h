@@ -1,0 +1,104 @@
+//* $Id: */
+
+// -------------------------------------------------------------------------
+// -----                     PndGemFindHits header file                -----
+// -----                  Created 11/09/06  by V. Friese               -----
+// -------------------------------------------------------------------------
+
+
+/** PndGemFindHits
+ *@author Volker Friese <v.friese@gsi.de>
+ *@since 11.09.06
+ *@version 1.0
+ **
+ ** CBM task class for finding hits in the STS
+ ** Task level RECO
+ ** Produces objects of type PndGemHits out of PndGemDigi.
+ **/
+
+
+#ifndef PNDGEMFINDHITS_H
+#define PNDGEMFINDHITS_H 1
+
+
+#include "FairTask.h"
+
+#include "TStopwatch.h"
+
+#include <map>
+#include <set>
+
+
+class TClonesArray;
+class PndGemDigiPar;
+class PndGemSensor;
+class PndGemStation;
+
+
+
+class PndGemFindHits : public FairTask
+{
+
+
+ public :
+
+  /** Default constructor **/
+  PndGemFindHits();
+
+
+  /** Standard constructor **/
+  PndGemFindHits(Int_t iVerbose);
+
+
+  /** Constructor with task name **/
+  PndGemFindHits(const char* name, Int_t iVerbose);
+
+
+  /** Destructor **/
+  virtual ~PndGemFindHits();
+
+
+  /** Execution **/
+  virtual void Exec(Option_t* opt);
+
+
+
+ private:
+
+  PndGemDigiPar*    fDigiPar;     /** Digitisation parameters **/
+  TClonesArray*     fDigis;       /** Input array of PndGemDigi **/
+  TClonesArray*     fHits;        /** Output array of PndGemHit **/
+  std::map<PndGemSensor*, std::set<Int_t> > fDigiMapF;  /** sensor digis (front) **/
+  std::map<PndGemSensor*, std::set<Int_t> > fDigiMapB;  /** sensor digis (back)  **/
+  TStopwatch fTimer;
+
+  /** Get parameter containers **/
+  virtual void SetParContainers();
+
+
+  /** Intialisation **/
+  virtual InitStatus Init();
+
+
+  /** Reinitialisation **/
+  virtual InitStatus ReInit();
+
+
+  /** Make sensorwise sets for sigis  **/
+  void MakeSets();
+
+
+  /** Sort digis sensorwise  **/
+  void SortDigis();
+
+
+  /** Find hits in one sensor **/
+  Int_t FindHits(PndGemSensor* sensor,
+		 std::set<Int_t>& fSet, std::set<Int_t>& bSet);
+
+
+  ClassDef(PndGemFindHits,1);
+
+};
+
+#endif
