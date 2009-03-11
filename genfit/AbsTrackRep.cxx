@@ -14,8 +14,9 @@ AbsTrackRep::AbsTrackRep(int dim) : dimension(dim), state(dim,1), cov(dim,dim), 
 AbsTrackRep::~AbsTrackRep() {}
 
 double AbsTrackRep::extrapolate(const DetPlane& plane){
-  TMatrixT<double> statePred,covPred,jac;
-  double retVal = extrapolate(plane,statePred,covPred,jac);
+  TMatrixT<double> statePred(dimension,1);
+  TMatrixT<double> covPred(dimension,dimension);
+  double retVal = extrapolate(plane,statePred,covPred);
   setState(statePred);
   setCov(covPred);
   setReferencePlane(plane);
@@ -24,8 +25,8 @@ double AbsTrackRep::extrapolate(const DetPlane& plane){
 
 //default implentation might be overwritten, please see the doxy docu
 double AbsTrackRep::extrapolate(const DetPlane& plane, TMatrixT<double>& statePred){
-  TMatrixT<double> cov,jac;
-  return extrapolate(plane,statePred,cov,jac);
+  TMatrixT<double> cov(dimension,dimension);
+  return extrapolate(plane,statePred,cov);
 }
 
 void AbsTrackRep::Abort(std::string method){
@@ -79,8 +80,8 @@ AbsTrackRep::Print() const {
 
 DetPlane 
 AbsTrackRep::getVirtualDetPlane(const TVector3& hit){
-  TMatrixT<double> statePred(5,1);
-  TMatrixT<double> covPred(5,5);
+  TMatrixT<double> statePred(dimension,1);
+  TMatrixT<double> covPred(dimension,dimension);
   DetPlane plane;
   TVector3 poca=extrapolateToPoca(hit,statePred,covPred,plane);
 

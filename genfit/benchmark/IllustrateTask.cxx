@@ -106,10 +106,9 @@ void getPoints(GeaneTrackRep GeaneRep,double dist,int nSteps,std::vector<TVector
 	}
 	TMatrixT<double> statePred(5,1);
 	TMatrixT<double> covPred(5,5);
-	TMatrixT<double> jac(5,5);
 	{
 	  //StdoutKiller k; 
-	  rep->extrapolate(d,statePred,covPred,jac);
+	  rep->extrapolate(d,statePred,covPred);
 	}
 	rep->setState(statePred);
 	rep->setCov(covPred);
@@ -237,10 +236,9 @@ void IllustrateTask::Exec(Option_t* opt) {
 	}
 	TMatrixT<double> statePred(5,1);
 	TMatrixT<double> covPred(5,5);
-	TMatrixT<double> jac(5,5);
 	{
 	  //StdoutKiller k; 
-	  rephits->extrapolate(d,statePred,covPred,jac);
+	  rephits->extrapolate(d,statePred,covPred);
 	}
 	rephits->setState(statePred);
 	rephits->setCov(covPred);

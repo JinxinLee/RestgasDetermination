@@ -59,9 +59,9 @@ PndTpcConfMapFit::extrapolate(const DetPlane& plane, TMatrixT<double>& statePred
 
 double
 PndTpcConfMapFit::extrapolate(const DetPlane& plane,
-		 TMatrixT<double>& statePred,
-		 TMatrixT<double>& covPred,
-		 TMatrixT<double>& jacobian)
+			      TMatrixT<double>& statePred,
+			      TMatrixT<double>& covPred)
+
 {
   statePred=state;
   covPred=cov;

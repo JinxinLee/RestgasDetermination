@@ -164,16 +164,13 @@ void LSLTrackRep::extrapolate(const DetPlane& pl,
 double
 LSLTrackRep::extrapolate(const DetPlane& pl, 
 			 TMatrixT<double>& statePred,
-			 TMatrixT<double>& covPred,
-			 TMatrixT<double>& jacobian)
+			 TMatrixT<double>& covPred)
 {
   //std::cout << "Extr from To: " << s << " " << sExtrapolateTo << std::endl;
   double l=extrapolate(pl,statePred);
   // covPred=JCovJ^T with J being Jacobian
-  jacobian.ResizeTo(5,5);
-  Jacobian(pl,statePred,jacobian);
-  TMatrixT<double> dummy(cov,TMatrixT<double>::kMultTranspose,jacobian);
-  covPred=jacobian*dummy;
+  //TMatrixT<double> dummy(cov,TMatrixT<double>::kMultTranspose,jacobian);
+  //covPred=jacobian*dummy;
   //covPred=cov;
   return l;
 }
@@ -183,11 +180,10 @@ LSLTrackRep::extrapolateToPoca(const TVector3& p,
 			       TMatrixT<double>& statePred,
 			       TMatrixT<double>& covPred,
 			       DetPlane& plane){
-  TMatrixT<double> jacobian;
   plane.setO(p);
   plane.setU(TVector3(1,0,0));
   plane.setV(TVector3(0,1,0));
-  extrapolate(plane,statePred,covPred,jacobian);
+  extrapolate(plane,statePred,covPred);
   return TVector3(statePred[0][0],statePred[1][0],plane.getO().Z());
 }
 

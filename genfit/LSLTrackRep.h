@@ -87,9 +87,9 @@ public:
   //			   TMatrixT<double>& stateResult);
 
   virtual double extrapolate(const DetPlane&, 
-			   TMatrixT<double>& statePred,
-			   TMatrixT<double>& covPred,
-			   TMatrixT<double>& jacobian);
+			     TMatrixT<double>& statePred,
+			     TMatrixT<double>& covPred);
+
 
   virtual TVector3 extrapolateToPoca(const TVector3&, 
 				     TMatrixT<double>& statePred,

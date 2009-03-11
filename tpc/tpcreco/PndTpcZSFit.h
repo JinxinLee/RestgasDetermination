@@ -50,9 +50,9 @@ public:
   virtual double extrapolate(const DetPlane& plane, TMatrixT<double>& statePred);
   
   virtual double extrapolate(const DetPlane& plane,
-                           TMatrixT<double>& statePred,
-                           TMatrixT<double>& covPred,
-                           TMatrixT<double>& jacobian);
+			     TMatrixT<double>& statePred,
+			     TMatrixT<double>& covPred);
+
 
 
   virtual void stepalong(double h);

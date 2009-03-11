@@ -70,8 +70,7 @@ public:
 
   virtual double extrapolate(const DetPlane&, 
 			   TMatrixT<double>& statePred,
-			   TMatrixT<double>& covPred,
-			   TMatrixT<double>& jacobian);
+			   TMatrixT<double>& covPred);
   virtual void stepalong(double h){}
 
   TVector3 extrapolateToPoca(const TVector3& pos,

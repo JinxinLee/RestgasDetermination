@@ -218,10 +218,9 @@ void SPtestTask::Exec(Option_t* opt) {
 	  }
 	  TMatrixT<double> statePred(5,1);
 	  TMatrixT<double> covPred(5,5);
-	  TMatrixT<double> jac(5,5);
 	  {
 		//StdoutKiller k; 
-		rephits->extrapolate(d,statePred,covPred,jac);
+		rephits->extrapolate(d,statePred,covPred);
 	  }
 	  rephits->setState(statePred);
 	  rephits->setCov(covPred);
@@ -303,14 +302,13 @@ void SPtestTask::Exec(Option_t* opt) {
 
 	TMatrixT<double> statePred(5,1);
 	TMatrixT<double> covPred(5,5);
-	TMatrixT<double> jac(5,5);
 
 	//TAG
 	//DetPlane targetPlane(result->getReferencePlane());
 
 	{
 	  //StdoutKiller k; 
-	  rephits->extrapolate(targetPlane,statePred,covPred,jac);
+	  rephits->extrapolate(targetPlane,statePred,covPred);
 	}
 	UV_MCT.Set(statePred[3][0],statePred[4][0]);
 	UpVp_MCT.Set(statePred[1][0],statePred[2][0]);
@@ -320,7 +318,7 @@ void SPtestTask::Exec(Option_t* opt) {
 	//covPred=result->getCov();
 	{
 	  //StdoutKiller k; 
-	  result->extrapolate(targetPlane,statePred,covPred,jac);
+	  result->extrapolate(targetPlane,statePred,covPred);
 	}
 	UV_FIT.Set(statePred[3][0],statePred[4][0]);
 	UpVp_FIT.Set(statePred[1][0],statePred[2][0]);

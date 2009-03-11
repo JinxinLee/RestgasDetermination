@@ -97,8 +97,7 @@ GeaneTrackRep::extrapolate(const DetPlane& pl,
 			   TMatrixT<double>& statePred)
 {
   TMatrixT<double> covPred(5,5);
-  TMatrixT<double> j(5,5);
-  return  extrapolate(pl,statePred,covPred,j);
+  return  extrapolate(pl,statePred,covPred);
   //! TODO: make this faster by neglecting covariances ?
 }
 
@@ -106,8 +105,7 @@ GeaneTrackRep::extrapolate(const DetPlane& pl,
 double
 GeaneTrackRep::extrapolate(const DetPlane& pl, 
 			   TMatrixT<double>& statePred,
-			   TMatrixT<double>& covPred,
-			   TMatrixT<double>& jacobian)
+			   TMatrixT<double>& covPred)
 {
 
   TVector3 o=pl.getO();

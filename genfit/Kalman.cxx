@@ -91,9 +91,8 @@ Kalman::getChi2Hit(AbsRecoHit* hit, AbsTrackRep* rep)
   int repDim=rep->getDim();
   TMatrixT<double> state(repDim,1);
   TMatrixT<double> cov(repDim,repDim);;
-  TMatrixT<double> jacobian(repDim,repDim);
   DetPlane pl=hit->getDetPlane(rep);
-  rep->extrapolate(pl,state,cov,jacobian);
+  rep->extrapolate(pl,state,cov);
   hit->setHMatrix(rep,state);
   //hit->setHMatrix(s,pred,);
   TMatrixT<double> H=hit->getHMatrix();
@@ -127,7 +126,6 @@ Kalman::processHit(AbsRecoHit* hit, AbsTrackRep* rep,int hitIndex){
   int repDim=rep->getDim();
   TMatrixT<double> state(repDim,1);
   TMatrixT<double> cov(repDim,repDim);;
-  TMatrixT<double> jacobian(repDim,repDim);
   //double s=0;
 
   //   rep->getState().Print();
@@ -143,7 +141,7 @@ Kalman::processHit(AbsRecoHit* hit, AbsTrackRep* rep,int hitIndex){
   
   // let the rep do the prediction
   //std::cout<<"++++++++++++++ do prediction: ++++++++++++++++"<<std::endl;
-  rep->extrapolate(pl,state,cov,jacobian);
+  rep->extrapolate(pl,state,cov);
   //state.Print();
   //cov.Print();
   

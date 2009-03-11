@@ -137,8 +137,7 @@ class AbsTrackRep : public TObject{
    */ 
   virtual double extrapolate(const DetPlane& plane,
 			   TMatrixT<double>& statePred,
-			   TMatrixT<double>& covPred,
-			   TMatrixT<double>& jacobian)=0;
+			   TMatrixT<double>& covPred)=0;
 
   //! This changes the state and cov and plane of the rep
   /*! This method extrapolates to to the plane and sets the results of state,

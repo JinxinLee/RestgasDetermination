@@ -59,9 +59,8 @@ PndTpcZSFit::extrapolate(const DetPlane& plane, TMatrixT<double>& statePred)
 
 double
 PndTpcZSFit::extrapolate(const DetPlane& plane,
-		 TMatrixT<double>& statePred,
-		 TMatrixT<double>& covPred,
-		 TMatrixT<double>& jacobian)
+			 TMatrixT<double>& statePred,
+			 TMatrixT<double>& covPred)
 {
   statePred=state;
   covPred=cov;
