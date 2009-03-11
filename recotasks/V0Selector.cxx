@@ -32,7 +32,7 @@
 #include "Track.h"
 #include "TrackCand.h"
 #include "AbsTrackRep.h"
-#include "ExtrapolateToPCA.h"
+#include "trackProximity.h"
 
 // Class Member definitions -----------
 
@@ -120,7 +120,7 @@ V0Selector::Exec(Option_t* opt)
 
       // copy tracks! fo not change its parameters
       // find point of closest approach
-      ExtrapolateToPCA(postrk,negtrk);
+      trackProximity(postrk,negtrk);
 
       std::cout<<"Vertex at:"<<std::endl;
       Int_t size=_vertexArray->GetEntriesFast();

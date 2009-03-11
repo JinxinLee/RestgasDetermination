@@ -32,7 +32,7 @@
 #include "Track.h"
 #include "TrackCand.h"
 #include "AbsTrackRep.h"
-#include "ExtrapolateToPCA.h"
+#include "trackProximity.h"
 
 // Class Member definitions -----------
 
@@ -116,7 +116,7 @@ LambdaSelector::Exec(Option_t* opt)
       Track* piontrk=pioncands[ipi];
       
       // find point of closest approach
-      ExtrapolateToPCA(protontrk,piontrk);
+      trackProximity(protontrk,piontrk);
 
       std::cout<<"Vertex at:"<<std::endl;
       Int_t size=_vertexArray->GetEntriesFast();
