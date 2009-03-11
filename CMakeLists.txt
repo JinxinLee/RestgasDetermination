@@ -123,6 +123,7 @@ add_subdirectory (gem)
 add_subdirectory (PndTools/riemannfit)
 #add_subdirectory (tutorials/anatask)
 add_subdirectory(PndTools/AnalysisTools)
+add_subdirectory(lumi)
 
 
 if(RULE_CHECKER_FOUND)
