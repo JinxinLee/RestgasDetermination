@@ -63,8 +63,6 @@ public:
   void setReferencePlane(const DetPlane& pl) {_refPlane=pl;}
 
   // Operations ----------------------
-  virtual DetPlane getVirtualDetPlane(const TVector3& hit);
-
 
   virtual double extrapolate(const DetPlane&, TMatrixT<double>& statePred);
   //virtual void extrapolate(const DetPlane&, 

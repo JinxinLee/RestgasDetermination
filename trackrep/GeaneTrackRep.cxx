@@ -89,31 +89,6 @@ GeaneTrackRep::~GeaneTrackRep()
   
 }
 
-DetPlane 
-GeaneTrackRep::getVirtualDetPlane(const TVector3& hit){
-  TMatrixT<double> statePred(5,1);
-  TMatrixT<double> covPred(5,5);
-  DetPlane plane;
-  TVector3 poca=extrapolateToPoca(hit,statePred,covPred,plane);
-  // construct the vector to plane spanned by (dir, z-axis)
-  TVector3 m=plane.getNormal();
-  //TVector3 n(-m.Y(),m.X(),0);
-  //n.SetMag(1);
-  //TVector3 u=n.Cross(m);
-  //u.SetMag(1);
-  //TVector3 v=m.Cross(u);
-  //v.SetMag(1);
-  //plane=DetPlane(hit,u,v);
-  //plane.set(TVector3(0,0,hit.Z()),TVector3(1,0,0),TVector3(0,1,0));
-  plane.setNormal(m);
-
-  //std::cout<<"PocaHit, Poca, Dir, PocaPadPlane"<<std::endl;
-  //hit.Print();
-  //poca.Print();
-  //m.Print();
-  //plane.Print();
-  return plane;  
-}
 
 
 

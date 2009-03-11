@@ -89,15 +89,6 @@ LSLTrackRep::init(const TVector3& pos,
 }
 
 
-DetPlane 
-LSLTrackRep::getVirtualDetPlane(const TVector3& hit){
-  //TMatrixT<double> statePred(5,1);
-  //TMatrixT<double> covPred(5,5);
-  DetPlane plane;
-  //TVector3 o=extrapolateToPoca(hit,statePred,covPred,plane);
-  return DetPlane(TVector3(0,0,hit.Z()),TVector3(1,0,0),TVector3(0,1,0));
-}
-
 void 
 LSLTrackRep::SetBField(AbsBFieldIfc* b)
 {

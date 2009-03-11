@@ -58,4 +58,21 @@ AbsTrackRep::Print() const {
   std::cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
 }
 
+DetPlane 
+AbsTrackRep::getVirtualDetPlane(const TVector3& hit){
+  TMatrixT<double> statePred(5,1);
+  TMatrixT<double> covPred(5,5);
+  DetPlane plane;
+  TVector3 poca=extrapolateToPoca(hit,statePred,covPred,plane);
+
+  /*C. Hoeppner: I am not entirely sure that these two calls are needed, but
+    they dont hurt for sure. Something happens here to the orientation of
+    of u and v, so keep it.*/
+  TVector3 m=plane.getNormal();
+  plane.setNormal(m);
+
+  return plane;  
+}
+
+
 ClassImp(AbsTrackRep)
