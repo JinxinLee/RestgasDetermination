@@ -1,12 +1,12 @@
 #include "AbsTrackRep.h"
 #include <iostream>
 
-AbsTrackRep::AbsTrackRep() : state(5,1), cov(5,5), startState(5,1), startCov(5,5),chiSqu(0), statusFlag(0), inverted(false)
+AbsTrackRep::AbsTrackRep() : dimension(5),state(5,1), cov(5,5), startState(5,1), startCov(5,5),chiSqu(0), statusFlag(0), inverted(false)
 {
   
 }
 
-AbsTrackRep::AbsTrackRep(int dim) : state(dim,1), cov(dim,dim), startState(dim,1), startCov(dim,dim), chiSqu(0), statusFlag(0), inverted(false)
+AbsTrackRep::AbsTrackRep(int dim) : dimension(dim), state(dim,1), cov(dim,dim), startState(dim,1), startCov(dim,dim), chiSqu(0), statusFlag(0), inverted(false)
 {
  
 }
@@ -22,15 +22,34 @@ double AbsTrackRep::extrapolate(const DetPlane& plane){
   return retVal;
 }
 
-TVector3 extrapolateToPoca(const TVector3& point, 
+//default implentation might be overwritten, please see the doxy docu
+double AbsTrackRep::extrapolate(const DetPlane& plane, TMatrixT<double>& statePred){
+  TMatrixT<double> cov,jac;
+  return extrapolate(plane,statePred,cov,jac);
+}
+
+void AbsTrackRep::Abort(std::string method){
+  std::cerr << method <<  " as implemented in " << __FILE__ 
+	    << " was called. This means that this feature was used "
+	    << "in a track rep which didnt overwrite this method. "
+	    << std::endl << "Calling abort()." << std::endl;
+  //system call abort
+  abort();
+}
+
+TVector3 AbsTrackRep::extrapolateToPoca(const TVector3& point, 
 			   TMatrixT<double>& statePred,
 			   TMatrixT<double>& covPred,
 			   DetPlane& planePred){
-  std::cerr << "extrapolateToPoca as implemented in " << __FILE__ 
-	    << " was called. This means that poca extrapolation was used "
-	    << "in a track rep which didnt overwrite this method. "
-	    << std::endl << "Calling abort()." << std::endl;
-  abort();
+  Abort("extrapolateToPoca()");
+}
+
+void AbsTrackRep::stepalong(double h){
+  Abort("stepalong()");
+}
+
+void AbsTrackRep::setReferencePlane(const DetPlane& pl){
+  _refPlane=pl;
 }
 
 void

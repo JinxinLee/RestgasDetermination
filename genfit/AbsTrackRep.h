@@ -58,7 +58,12 @@ class AbsRecoHit;
  */
 
 class AbsTrackRep : public TObject{
+ private:
+  void Abort(std::string method);
  protected:
+  //! Dimensionality of track representation
+  unsigned int dimension;
+
   //! The vector of track parameters
   TMatrixT<double> state;
   
@@ -95,7 +100,12 @@ class AbsTrackRep : public TObject{
   DetPlane getVirtualDetPlane(const TVector3& hit);
 
   //! returns the tracklength spanned in this extrapolation
-  virtual double extrapolate(const DetPlane& plane, TMatrixT<double>& statePred)=0;
+  /* There is a default implementation in AbsTrackRep.cxx which just drops
+     the predicted covaraiance. If your trackrep has a way to extrapolate
+     without giving a correct cov (that would be faster probably), please
+     overwrite it.
+  */
+  virtual double extrapolate(const DetPlane& plane, TMatrixT<double>& statePred);
 
   //! This method is to extrapolate track to point of closest approach to a point in space
   /*! There is an empty implementation of this method in AbsTrackRep.cxx,
@@ -115,7 +125,11 @@ class AbsTrackRep : public TObject{
   
   
   //! make step of h cm along the track
-  virtual void stepalong(double h)=0; 
+  /*! There is an emply implementation in AbsTrackRep.cxx which will abort
+      (see one of the extrapolate methods above). This can be overwritten,
+      if this feature is needed.
+  */
+  virtual void stepalong(double h); 
 
   //! Extrapolates the track to the given detetorplane
   /*! Results are put into statePred and covPred
@@ -127,10 +141,13 @@ class AbsTrackRep : public TObject{
 			   TMatrixT<double>& jacobian)=0;
 
   //! This changes the state and cov and plane of the rep
+  /*! This method extrapolates to to the plane and sets the results of state,
+      cov and also plane in itself.
+  */
   double extrapolate(const DetPlane& plane);
 
   //! returns dimension of state vector
-  virtual int getDim() const =0;  
+  int getDim() const {return dimension;}  
   
   virtual void Print() const;
 
@@ -177,7 +194,16 @@ class AbsTrackRep : public TObject{
   inline void setStartCov(const TMatrixT<double>& aCov) {
     startCov = aCov;
   }
-  virtual void setReferencePlane(const DetPlane& pl)=0;
+
+  //! sets the referene plane
+  /* There is a default implementation in AbsTrackRep.cxx which just puts
+     pl as the reference plane. This method if virtual (so can be over-
+     written) because some track reps want to use this place to define
+     their free parameter. For example if a track has the z-axis as its free
+     parameter it will update is from the detplane given here.
+  */
+  virtual void setReferencePlane(const DetPlane& pl);
+
   const DetPlane& getReferencePlane() const {return _refPlane;}
 
   inline void setChiSqu(double aChiSqu) {

@@ -61,7 +61,6 @@ public:
   virtual TVector3 getMom(const DetPlane& pl);
   void getPosMom(const DetPlane& pl,TVector3& pos,TVector3& mom){}
   virtual double getCharge() const {return 1;}
-  virtual int getDim() const {return 2;}
   const TVector2& getOrigin() const {return _origin;}
 
   virtual void setReferencePlane(const DetPlane& pl);

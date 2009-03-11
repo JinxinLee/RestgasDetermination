@@ -57,7 +57,6 @@ public:
   friend std::ostream& operator<< (std::ostream& s, const GeaneTrackRep& me);
 
   // Accessors -----------------------
-  virtual int getDim() const {return 5;}
 
   // Modifiers
   void setReferencePlane(const DetPlane& pl) {_refPlane=pl;}

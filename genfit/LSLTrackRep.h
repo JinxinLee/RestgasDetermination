@@ -67,7 +67,6 @@ public:
   friend std::ostream& operator<< (std::ostream& s, const LSLTrackRep& me);
 
   // Accessors -----------------------
-  virtual int getDim() const {return 5;}
   void init(const TVector3& pos,
 	    double dxdz, double dydz, double invp,
 	    double sigx, double sigy,

@@ -61,7 +61,6 @@ public:
   virtual TVector3 getMom(const DetPlane& pl);
   void getPosMom(const DetPlane& pl,TVector3& pos,TVector3& mom){}
   virtual double getCharge() const {return 1;}
-  virtual int getDim() const {return 2;}
 
   double getDip() const {return TMath::Cos(TMath::ATan(state[0][0]));} // pt=p*dip
 
