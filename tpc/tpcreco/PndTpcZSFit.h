@@ -57,9 +57,6 @@ public:
                            TMatrixT<double>& covPred,
                            TMatrixT<double>& jacobian);
 
-  virtual TVector3 extrapolateToPoca(const TVector3&, TMatrixT<double>&, TMatrixT<double>&, DetPlane&){throw;}
-
-
 
   virtual void stepalong(double h);
 

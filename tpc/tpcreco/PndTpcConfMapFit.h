@@ -49,8 +49,6 @@ public:
 
   // Operations ----------------------
   virtual DetPlane getVirtualDetPlane(const TVector3&){throw;}
-  virtual TVector3 extrapolateToPoca(const TVector3&, TMatrixT<double>&, TMatrixT<double>&, DetPlane&){throw;}
-
 
   virtual double extrapolate(const DetPlane& plane, TMatrixT<double>& statePred);
   

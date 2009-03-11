@@ -22,6 +22,17 @@ double AbsTrackRep::extrapolate(const DetPlane& plane){
   return retVal;
 }
 
+TVector3 extrapolateToPoca(const TVector3& point, 
+			   TMatrixT<double>& statePred,
+			   TMatrixT<double>& covPred,
+			   DetPlane& planePred){
+  std::cerr << "extrapolateToPoca as implemented in " << __FILE__ 
+	    << " was called. This means that poca extrapolation was used "
+	    << "in a track rep which didnt overwrite this method. "
+	    << std::endl << "Calling abort()." << std::endl;
+  abort();
+}
+
 void
 AbsTrackRep::reset(){
   std::cout<<"AbsTrackRep::reset"<<std::endl;

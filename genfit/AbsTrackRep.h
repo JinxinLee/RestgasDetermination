@@ -97,10 +97,21 @@ class AbsTrackRep : public TObject{
   //! returns the tracklength spanned in this extrapolation
   virtual double extrapolate(const DetPlane& plane, TMatrixT<double>& statePred)=0;
 
+  //! This method is to extrapolate track to point of closest approach to a point in space
+  /*! There is an empty implementation of this method in AbsTrackRep.cxx,
+      which will just abort with an error message. One can overwrite this
+      method if one wishes to implement a track representation, which should
+      have this feature. An example of an experiment in which you would not
+      need this feature would be track fitting (not so much vertexing) in
+      an experiment with only planar trackers like silicons or planar wire
+      chambers and such. An example where you would need it, would be a TPC
+      where you have to fit the track to space points, or other drift chambers
+      with complicated hit topology.
+   */
   virtual TVector3 extrapolateToPoca(const TVector3& point, 
 				     TMatrixT<double>& statePred,
 				     TMatrixT<double>& covPred,
-				     DetPlane& planePred)=0;
+				     DetPlane& planePred);
   
   
   //! make step of h cm along the track
