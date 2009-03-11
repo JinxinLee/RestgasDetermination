@@ -264,8 +264,16 @@ void PndLVQTrain::Train(int numProto, const char* outPut)
  */
 void PndLVQTrain::Train21(int numProto, const char* outPut)
 {
-  //============ FIXME We need to apply LVQ2. Modify the implementation
   TRandom3 trand(4357875);
+  
+  // Container to store distances.
+  std::vector <PndLVQDistObj*> distances;
+  
+  // Initialize distance container.
+  for(unsigned int i = 0; i < m_LVQProtos.size(); i++){
+    PndLVQDistObj* dd = new PndLVQDistObj();
+    distances.push_back(dd);
+  }
   
   // Init LVQ protoTypes.
   InitProtoTypes(numProto);
@@ -274,7 +282,7 @@ void PndLVQTrain::Train21(int numProto, const char* outPut)
   // Compute learning rate constant "a"
   float windowSize = 0.2;// A value between0.2 & 0.3 is recommended.
   float s = (1 - windowSize)/(1 + windowSize);//Define the surrounding.
-  s = 0;//FIXME FIXME
+  s = 0; //FIXME FIXME
   double ethaZero  = m_ethaZero;//0.1;
   double ethaFinal = m_ethaFinal;//0.001;
   int    numSweep  = m_NumSweep;//100;
@@ -282,10 +290,7 @@ void PndLVQTrain::Train21(int numProto, const char* outPut)
   double a         = (ethaZero - ethaFinal)/(ethaFinal * (double)tFinal);
   
   for(int time = 0; time < tFinal; time++){
-    int    protoIndex       = 0;
     double distance         = 0.0;
-    double minProtoDistance = std::numeric_limits<float>::max();//1000000.0;
-    
     double ethaT = (ethaZero) / (1.0 + (a * (double)time));
     
     // select a random example
@@ -295,27 +300,37 @@ void PndLVQTrain::Train21(int numProto, const char* outPut)
     for(unsigned int ix = 0; ix < m_LVQProtos.size(); ix++){
       distance = ComputeDist( *(m_EventsData[index].second), *(m_LVQProtos[ix].second) );
       
-      if(distance < minProtoDistance){
-	minProtoDistance = distance;//minimum distance
-	protoIndex  = ix;//index of the prototype with min dist
-      }
-    }
-    // We need to update the (winner) prototype
-    int delta = 0; 
+      // Store distance.
+      (distances[ix])->m_idx   = ix;
+      (distances[ix])->m_dist = distance;
+      (distances[ix])->m_cls  = m_LVQProtos[ix].first;
+    }// All distances are determined.
+    
+    // Sort the distances.
+    sort(distances.begin(), distances.end());
+
+    /*
+     * We need to Select the two nearest codebooks and update
+     * them. Per definition we know that the first one has index zero
+     * (0), thus we need to find the second one.
+     */
+    int idx2d = 0;
+    
     //int deltaEqCls = 0; int deltaNonEqCls = 1;
-    // determine delta
-    if( m_EventsData[index].first == m_LVQProtos[protoIndex].first ){
-      delta = 0;
-    }
-    else{
-      delta = 1;
-    }// delta is calculated
     
     // Update the LVQ prototype
-    UpdateProto( *(m_EventsData[index].second), *(m_LVQProtos[protoIndex].second), delta, ethaT);
-  }
-  // Write the coordinates of the prototypes to the file
+    //UpdateProto( *(m_EventsData[index].second), *(m_LVQProtos[protoIndex].second), delta, ethaT);
+    ethaT = 0.0;
+  }// Training is finished
+  
+  // Write the coordinates of the prototypes (Codebook) to the file
   WriteToFile(outPut);
+  
+  // We are done. Clean distances.
+  for(unsigned int i = 0; i < distances.size(); i++){
+    delete distances[i];
+  }
+  distances.clear();
   //============ FIXME We need to apply LVQ2. Modify the implementation
 }
 

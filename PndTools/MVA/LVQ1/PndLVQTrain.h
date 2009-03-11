@@ -14,11 +14,39 @@
 #include <vector>
 #include <map>
 #include <limits>
+#include <algorithm>
 
 // Root includes
 #include "TFile.h"
 #include "TTree.h"
 #include "TRandom3.h"
+
+/**
+ * Class to hold the computed Euclidean distances between the current
+ * example and the available LVQ protoTypes (codeBook) in LVQ2.1
+ * implementation.
+*/
+class PndLVQDistObj{
+ public:
+
+  //! Constructor
+ PndLVQDistObj():m_idx(-1),m_dist(0.0),m_cls("UNKNOWN"){};
+  
+  //! Operator < implementation
+  inline bool operator < (const PndLVQDistObj &other)const{
+    return (m_dist < other.m_dist);
+  };
+  
+  //! Operator > implementation
+  inline bool operator > (const PndLVQDistObj &other)const{
+    return (m_dist > other.m_dist);
+  };
+  
+  int m_idx;/**< Index of the prototype. */
+  float m_dist;/**< Distance to the current example. */
+  std::string m_cls;/**< Class name of the prototype. */
+};
+
 
 class PndLVQTrain{
  public:
