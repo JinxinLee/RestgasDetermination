@@ -3,9 +3,15 @@
 #
 # Setting the linker and compiler flags and options
 #FLAGSMACHINE=-march=athlon64 -mfpmath=sse -msse2 -m64
+
 CXX       =  g++
-#CCFLAGS   = -Wall -Os -O3 -ffast-math ${FLAGSMACHINE} -fomit-frame-pointer
-CCFLAGS   = -Wall -g -O0
+# CCFLAGS   = -Wall -g -O0
+# CCFLAGS   = -Wall -O1 -fopenmp -g -pg #if profiling
+FLAGSMACHINE = -march=core2 -mfpmath=sse -mtune=core2  -msse3 -m32 -m3dnow
+CCFLAGS   = -Wall -Os -O3 -ffast-math ${FLAGSMACHINE} -fomit-frame-pointer
+CCFLAGS   = -fopenmp -fomit-frame-pointer -funsafe-math-optimizations
+CCFLAGS   += -funroll-loops -fvariable-expansion-in-unroller
+
 
 INCLUDE   = $(shell root-config --cflags) -I./
 #INCLUDE  += -I/opt/fairroot/fairsoft/basics/boost/include/
