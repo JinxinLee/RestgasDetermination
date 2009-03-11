@@ -51,6 +51,8 @@ class PndGemHit : public FairHit
    **/
   PndGemHit(Int_t detID, TString detName,
   	    TVector3& pos, TVector3& dpos, Int_t index, Double_t charge, Int_t NDigiHits);
+  PndGemHit(Int_t detID, TString detName,
+  	    TVector3& pos, TVector3& dpos, Int_t digi1, Int_t digi2, Double_t dr, Double_t dp);
 
   //PndGemHit(PndGemHit& c);
   /** Destructor **/
@@ -63,6 +65,8 @@ class PndGemHit : public FairHit
   void SetCharge(Double_t charge){ fCharge    = charge;}
   void SetNDigiHits(Int_t pixel) { fNDigiHits = pixel;}
   void SetBotIndex(Int_t id)       { fBotIndex  = id;}
+  void SetErrors(Double_t dr, Double_t dp) { fDr = dr; fDp = dp; };
+  void SetDigiNr(Int_t digi1, Int_t digi2) { fDigiNr[0] = digi1; fDigiNr[1] = digi2; };
 
   TString 	GetDetName()   const { return fDetName;}
   Double_t 	GetCharge()    const { return fCharge;}
@@ -71,23 +75,23 @@ class PndGemHit : public FairHit
   Int_t     GetBotIndex()  const { return fBotIndex;}
   Double_t  GetEloss()     const { return (fCharge * 3.61e-9);}  // 3.6 eV/Electron in Silicon
 
-
-//   // CAUTION The errors in the MvdHit are LOCAL, but the coordinates are in the LAB
-//
-//   Double_t GetDxLocal() const { return fDx;};
-//   Double_t GetDyLocal() const { return fDy;};
-//   Double_t GetDzLocal() const { return fDz;};
-//   void PositionErrorLocal(TVector3& dpos) const;
-
-//   /** overloaded accessors **/
-//   Double_t GetDx() {return GetD(0);};
-//   Double_t GetDy() {return GetD(1);};
-//   Double_t GetDz() {return GetD(2);};
-//   void PositionError(TVector3& dpos);
-
-
-
-
+  Double_t GetDr()  const { return fDr;  };
+  Double_t GetDp()  const { return fDp;  };
+  Int_t    GetDigiNr(Int_t iside) const { if ( iside*(iside-1) == 0 ) return fDigiNr[iside]; return -1;};
+  
+  //   // CAUTION The errors in the MvdHit are LOCAL, but the coordinates are in the LAB
+  //
+  //   Double_t GetDxLocal() const { return fDx;};
+  //   Double_t GetDyLocal() const { return fDy;};
+  //   Double_t GetDzLocal() const { return fDz;};
+  //   void PositionErrorLocal(TVector3& dpos) const;
+  
+  //   /** overloaded accessors **/
+  //   Double_t GetDx() {return GetD(0);};
+  //   Double_t GetDy() {return GetD(1);};
+  //   Double_t GetDz() {return GetD(2);};
+  //   void PositionError(TVector3& dpos);
+ 
   /** Screen output **/
   virtual void Print(const Option_t* opt = 0) const;
 
@@ -95,6 +99,11 @@ class PndGemHit : public FairHit
 //   Double_t GetD(Int_t i);
 
   TString fDetName;  // Detector name
+
+  Int_t    fDigiNr[2];
+  Double_t fDr;  // error in radius calculation
+  Double_t fDp;  // error in angle calculation
+
   Double_t fCharge; /// deposited Charge
   Int_t fNDigiHits; /// number of fired Digis for this hit,
                     //if more then in the cluster cand, look for the bottom cluster.

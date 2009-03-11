@@ -28,23 +28,23 @@ PndGemHit::PndGemHit(Int_t detID, TString detName, TVector3& pos, TVector3& dpos
   fNDigiHits = NDigiHits;
   fBotIndex = -1;
 }
-
-/*PndGemHit::PndGemHit(PndGemHit& c)
-: FairHit()
-{
-	fDetName = c.GetDetName();
-	fTrackID = c.GetTrackID();
-	fCharge  =  c.GetCharge();
-	fNDigiHits = c.GetNDigiHits();
-	SetPosition(c.GetPosition());
-	SetPositionError(c.GetPositionError());
-	SetDetectorID(c.GetDetectorID());
-	SetRefIndex(c.GetRefIndex());
-
-
-}*/
 // -------------------------------------------------------------------------
 
+// -----   Standard constructor   ------------------------------------------
+PndGemHit::PndGemHit(Int_t detID, TString detName, TVector3& pos, TVector3& dpos,
+		     Int_t digi1, Int_t digi2, Double_t dr, Double_t dp) 
+  : FairHit(detID, pos, dpos, -1) {
+  fDetName = detName;
+  fCharge  = -1;
+  fNDigiHits = -1;
+  fBotIndex = -1;
+
+  fDigiNr[0]  = digi1;
+  fDigiNr[1]  = digi2;
+  fDr = dr;
+  fDp = dp;
+}
+// -------------------------------------------------------------------------
 
 
 // -----   Destructor   ----------------------------------------------------
