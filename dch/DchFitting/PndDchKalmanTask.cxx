@@ -35,7 +35,7 @@
 
 
 PndDchKalmanTask::PndDchKalmanTask()
-  : FairTask("Kalman Filter"), fPersistence(kFALSE),fSmooth(kFALSE), fEvtCount(0), fNumIt(1)
+  : FairTask("Kalman Filter"), fPersistence(kFALSE), fEvtCount(0), fNumIt(1)
 {
   fTrackBranchName = "Track";
 }
@@ -136,7 +136,6 @@ PndDchKalmanTask::Exec(Option_t* opt)
     // Start Fitter
     try{
       fitter.processTrack(trk);
-      if(fSmooth)fitter.smoothing(trk);
     }
     catch (FitterException e){
       std::cout<<"*** FITTER EXCEPTION ***"<<std::endl;

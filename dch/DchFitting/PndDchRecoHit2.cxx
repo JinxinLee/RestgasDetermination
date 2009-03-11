@@ -191,7 +191,7 @@ const DetPlane& PndDchRecoHit2::detPlane(AbsRecoHit* hit, AbsTrackRep* rep){
     /*
     Double_t distance;
     distance = TMath::Sqrt(fabs(((wire1-vpf).Mag2()*(wire2-wire1).Mag2()-pow((wire1-vpf).Dot(wire2-wire1),2))/(wire2-wire1).Mag2()));
-    
+    // 0.5 is the diameter of stt and I should put my cellsize here
     // check vpf inside tube 
     if(distance>0.5) {
       cout << "vpf outside the firing tube" << endl; 
@@ -224,8 +224,8 @@ const DetPlane& PndDchRecoHit2::detPlane(AbsRecoHit* hit, AbsTrackRep* rep){
     U.SetMag(1.);
     V.SetMag(1.);
 
-    //    TVector3 O = vwi; // CHECK
-    TVector3 O = (wire1 + wire2) * 0.5;
+    TVector3 O = vwi; // CHECK
+    //TVector3 O = (wire1 + wire2) * 0.5;//
     _detPlane = DetPlane(O, U, V);
 
     return _detPlane;

@@ -49,9 +49,6 @@ class PndDchKalmanTask2 : public FairTask {
   /** public method SetPersistence(Bool_t opt) **/
   void SetPersistence(Bool_t opt=kTRUE) {fPersistence=opt;}
 
-  /** public method SetSmooth(Bool_t opt=kTRUE) to set the smoothing on/off **/
-  void SetSmooth(Bool_t opt=kTRUE){fSmooth=opt;}
-
   /** public method SetNumIterations(Int_t i) **/
   void SetNumIterations(Int_t i){fNumIt=i;}
   
@@ -70,7 +67,6 @@ private:
   RecoHitFactory* fTheRecoHitFactory; ///< factory producing PndDchRecoHits of PndDchCylinderHits
   Int_t fTrackCount;     ///< track counter
   Int_t fEvtCount;       ///< event counter
-  Bool_t fSmooth;        ///< smoothing flag
   Bool_t fPersistence;   ///< persistence flag
   Int_t fNumIt;          ///< number of iterations
 
