@@ -11,10 +11,10 @@
 
 // Standard C++ libraries
 #include <iostream>
+#include <algorithm>
+#include <limits>
 #include <vector>
 #include <map>
-#include <limits>
-#include <algorithm>
 
 // Root includes
 #include "TFile.h"
@@ -97,7 +97,7 @@ class PndLVQTrain{
   { m_initConst = initConst; m_ethaZero = etZ; 
     m_ethaFinal = etF; m_NumSweep = Nswp;};
  
-  // Protected functions and variables
+  //=========== Protected functions and variables ============
  protected:
   /**
    * Computes the Euclidean distance between two given vectors of
@@ -117,8 +117,14 @@ class PndLVQTrain{
    */
   void InitProtoTypes(int numProto);
 
-  // Private functions and variables
+  //============= Private functions and variables ===========
  private:
+  
+  template <typename T>
+    const T& minFunct ( const T& a, const T& b ) const {
+    return (a < b) ? a : b; // or: return comp(a,b)?a:b; for the comp version
+  }
+  
   /**
    * Compute the class conditional mean for a given class and store
    * that in the class conditional means container

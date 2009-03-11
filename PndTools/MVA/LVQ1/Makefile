@@ -4,7 +4,8 @@
 # Setting the linker and compiler flags and options
 #FLAGSMACHINE=-march=athlon64 -mfpmath=sse -msse2 -m64
 CXX       =  g++
-CCFLAGS   = -Wall -Os -O3 -ffast-math ${FLAGSMACHINE} -fomit-frame-pointer
+#CCFLAGS   = -Wall -Os -O3 -ffast-math ${FLAGSMACHINE} -fomit-frame-pointer
+CCFLAGS   = -Wall -g -O0
 
 INCLUDE   = $(shell root-config --cflags) -I./
 #INCLUDE  += -I/opt/fairroot/fairsoft/basics/boost/include/

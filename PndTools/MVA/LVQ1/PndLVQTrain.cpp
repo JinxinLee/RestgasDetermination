@@ -269,20 +269,27 @@ void PndLVQTrain::Train21(int numProto, const char* outPut)
   // Container to store distances.
   std::vector <PndLVQDistObj*> distances;
   
+  // Init LVQ protoTypes.
+  if(numProto > 0){
+    InitProtoTypes(numProto);
+  }
+  else{
+    std::cerr << "\t<ERROR:> The number of prototypes must\n"
+	      <<"be larger than zero" << std::endl;
+    return;
+  }
+  
   // Initialize distance container.
   for(unsigned int i = 0; i < m_LVQProtos.size(); i++){
     PndLVQDistObj* dd = new PndLVQDistObj();
     distances.push_back(dd);
   }
   
-  // Init LVQ protoTypes.
-  InitProtoTypes(numProto);
-  
   // All protypes are initialized. We can perform the training
   // Compute learning rate constant "a"
   float windowSize = 0.2;// A value between0.2 & 0.3 is recommended.
   float s = (1 - windowSize)/(1 + windowSize);//Define the surrounding.
-  s = 0; //FIXME FIXME
+  
   double ethaZero  = m_ethaZero;//0.1;
   double ethaFinal = m_ethaFinal;//0.001;
   int    numSweep  = m_NumSweep;//100;
@@ -311,19 +318,40 @@ void PndLVQTrain::Train21(int numProto, const char* outPut)
 
     /*
      * We need to Select the two nearest codebooks and update
-     * them. Per definition we know that the first one has index zero
-     * (0), thus we need to find the second one.
+     * them. Per definition the first one has index zero (0), thus we
+     * need to find the second one.
      */
-    int idx2d = 0;
-    
-    //int deltaEqCls = 0; int deltaNonEqCls = 1;
-    
-    // Update the LVQ prototype
-    //UpdateProto( *(m_EventsData[index].second), *(m_LVQProtos[protoIndex].second), delta, ethaT);
-    ethaT = 0.0;
+    int idxSame = 0; int idx2d = 0;
+    if( m_EventsData[index].first == (distances[idxSame])->m_cls ){//Same labels
+       idx2d = 1;
+    }
+    else{//Diff. labels
+      idxSame = 1;
+    }
+    if(idxSame == 0){//Find one with a diff. label
+      while(m_EventsData[index].first == (distances[idx2d])->m_cls){
+	idx2d++;
+      }
+    }
+    else{//Fine one with the same label.
+      while(m_EventsData[index].first != (distances[idxSame])->m_cls){
+	idxSame++;
+      }
+    }
+
+    //Found two prototypes, one with the same lablel and one with a diff. one
+    if(minFunct( (distances[idxSame])->m_dist / (distances[idx2d])->m_dist ,
+		 (distances[idx2d])->m_dist   / (distances[idxSame])->m_dist ) > s){
+      // Update the LVQ prototype
+      int deltaEqCls = 0; int deltaNonEqCls = 1;
+      // Update equal label prototype.
+      UpdateProto( *(m_EventsData[index].second), *(m_LVQProtos[idxSame].second), deltaEqCls, ethaT);
+      // Update different label prototype.
+      UpdateProto( *(m_EventsData[index].second), *(m_LVQProtos[idx2d].second), deltaNonEqCls, ethaT);
+    }
   }// Training is finished
   
-  // Write the coordinates of the prototypes (Codebook) to the file
+  // Write the coordinates of the prototypes (Codebook) to a file.
   WriteToFile(outPut);
   
   // We are done. Clean distances.
@@ -331,7 +359,6 @@ void PndLVQTrain::Train21(int numProto, const char* outPut)
     delete distances[i];
   }
   distances.clear();
-  //============ FIXME We need to apply LVQ2. Modify the implementation
 }
 
 /**
