@@ -1,37 +1,25 @@
 #include "AbsTrackRep.h"
 #include <iostream>
 
-AbsTrackRep::AbsTrackRep() : state(5,1), cov(5,5), startState(5,1), startCov(5,5),startS(0), chiSqu(0), statusFlag(0), inverted(false), params()
+AbsTrackRep::AbsTrackRep() : state(5,1), cov(5,5), startState(5,1), startCov(5,5),chiSqu(0), statusFlag(0), inverted(false)
 {
   
 }
 
-AbsTrackRep::AbsTrackRep(int dim) : state(dim,1), cov(dim,dim), startState(dim,1), startCov(dim,dim), startS(0), chiSqu(0), statusFlag(0), inverted(false), params()
+AbsTrackRep::AbsTrackRep(int dim) : state(dim,1), cov(dim,dim), startState(dim,1), startCov(dim,dim), chiSqu(0), statusFlag(0), inverted(false)
 {
  
 }
 
 AbsTrackRep::~AbsTrackRep() {}
 
-void 
-AbsTrackRep::init(const TVector3& startpoint, 
-			  const TVector3& startmomentum, 
-			  const TVector3& locBField)
-{throw;}
-
-
-
-// this changes the state of the rep!!! ->
-double
-AbsTrackRep::extrapolate(const DetPlane& plane){
-  TMatrixT<double> newstate=state;
-  TMatrixT<double> newcov=cov;
-  TMatrixT<double> jac;
-  double l=extrapolate(plane,newstate);//,newcov,jac);
-  state=newstate;
-  cov=newcov;
+double AbsTrackRep::extrapolate(const DetPlane& plane){
+  TMatrixT<double> statePred,covPred,jac;
+  double retVal = extrapolate(plane,statePred,covPred,jac);
+  setState(statePred);
+  setCov(covPred);
   setReferencePlane(plane);
-  return l;
+  return retVal;
 }
 
 void

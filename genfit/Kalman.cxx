@@ -9,7 +9,6 @@
 #include "Track.h"
 #include "AbsRecoHit.h"
 #include "AbsTrackRep.h"
-#include "FitParams.h"
 #include "FitterExceptions.h"
   
  Kalman::Kalman():_lazy(0),_numIt(3){;}
@@ -123,10 +122,6 @@ Kalman::getChi2Hit(AbsRecoHit* hit, AbsTrackRep* rep)
 void
 Kalman::processHit(AbsRecoHit* hit, AbsTrackRep* rep,int hitIndex){
 
-  //get fitParamsObject from trackRep in order to fill statePre,stateFilt,
-  //covPred,covFilt for this hit
-  FitParams* params =  rep->getFitParams();
-
   // make prediction ------------------------------------
   // get prototypes for matrices
   int repDim=rep->getDim();
@@ -172,9 +167,6 @@ Kalman::processHit(AbsRecoHit* hit, AbsTrackRep* rep,int hitIndex){
   
   //std::cout<<"++++++++++++++++++++++++++++++++++++++++++++++"<<std::endl;
   
-  params->addfStatePred(hitIndex,state);
-  params->addfCovPred(hitIndex,cov);
-  params->addfJacobian(hitIndex,jacobian);
   // create a predicted trackrep
   //  AbsTrackRep* pred=rep->prototype();
   //  pred->setState(state); 
@@ -197,9 +189,6 @@ Kalman::processHit(AbsRecoHit* hit, AbsTrackRep* rep,int hitIndex){
   state+=update; // prediction overwritten!
   cov-=Gain*(H*cov);
   
-  params->addfStateFilt(hitIndex,state);
-  params->addfCovFilt(hitIndex,cov);
-
   // calculate filtered chisq
   // filtered residual
   TMatrixT<double> r=hit->residualVector(rep,state);
@@ -284,74 +273,8 @@ Kalman::gain(const TMatrixT<double>& cov,
 }
 
 void Kalman::smoothing(Track* trk) {
-  std::cout<<"Kalman::smoothing"<<std::endl;
-  int nhits=trk->getNumHits();
-  int nreps=trk->getNumReps();
-
-  //for the last hit set the fin state and cov to the filt values
-  for(int irep=0; irep<nreps; irep++){
-	AbsTrackRep* rep=trk->getTrackRep(irep);
-	FitParams* par = rep->getFitParams();
-	TMatrixT<double> lastStateFilt;
-	TMatrixT<double> lastCovFilt;
-	par->getfStateFilt(nhits-1,lastStateFilt);
-	par->getfCovFilt(nhits-1,lastCovFilt);
-	par->addStateFin(nhits-1,lastStateFilt);
-	par->addCovFin(nhits-1,lastCovFilt);
-  }
-
-
-  //go backwards over all the hit indices from n-1 to 0
-  for(int k=nhits-2; k>=0; k--){
-    for(int irep=0; irep<nreps; irep++){
-      AbsTrackRep* rep=trk->getTrackRep(irep);
-	  int repDim = rep->getDim();
-	  FitParams* par = rep->getFitParams();
-
-	  TMatrixT<double> p_k_k;
-	  TMatrixT<double> p_kplus1_k;
-	  TMatrixT<double> p_kplus1_n;
-	  TMatrixT<double> C_k_k;
-	  TMatrixT<double> C_kplus1_k;
-	  TMatrixT<double> C_kplus1_n;
-	  TMatrixT<double> F_kplus1;	  
-	  par->getfStatePred(k+1,p_kplus1_k);
-	  par->getfStateFilt(k,p_k_k);
-	  par->getStateFin(k+1,p_kplus1_n);
-	  par->getfCovPred(k+1,C_kplus1_k);
-	  par->getfCovFilt(k,C_k_k);
-	  par->getCovFin(k+1,C_kplus1_n);
-	  par->getfJacobian(k+1,F_kplus1);
-
-	  TMatrixT<double> C_kplus1_k_inv(C_kplus1_k);
-	  double det = 0.;
-// 	  std::cout << "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" << std::endl;
-// 	  C_kplus1_k_inv.Print();
-	  C_kplus1_k_inv.Invert(&det);
-// 	  C_kplus1_k_inv.Print();
-// 	  C_kplus1_k_inv.Invert(&det);
-// 	  C_kplus1_k_inv.Print();
-// 	  C_kplus1_k_inv.Invert(&det);
-	  TMatrixT<double> A1(F_kplus1,
-						  TMatrixT<double>::kTransposeMult,
-						  C_kplus1_k_inv);
-	  TMatrixT<double> A(C_k_k,TMatrixT<double>::kMult,A1);
-
-	  TMatrixT<double> stateFin(p_k_k-A*
-								(p_kplus1_k-p_kplus1_n)
-								);
-	  TMatrixT<double> covFin2( C_kplus1_k-C_kplus1_n,
-								TMatrixT<double>::kMultTranspose,
-								A );
-	  TMatrixT<double> covFin( C_k_k-(A*covFin2) );
-	  
-	  par->addStateFin(k,stateFin);
-	  par->addCovFin(k,covFin);
-	 
-    }
-  }
-
-
+  std::cout<<"Kalman::smoothing deprecated. Please check my forum message fom March 11th and let me know if you think I should put this implementation back->abort()"<<std::endl;
+  abort();
 }
 
 

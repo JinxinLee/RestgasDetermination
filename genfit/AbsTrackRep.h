@@ -11,7 +11,6 @@
 #include "TMatrixT.h"
 #include "TVector3.h"
 
-#include "FitParams.h"
 #include "DetPlane.h"
 
 class AbsRecoHit;    
@@ -72,14 +71,8 @@ class AbsTrackRep : public TObject{
   // detector plane where the track parameters are given
   DetPlane         _refPlane;
   
-  //! deprecated
-  double           startS; 
-  
   //! chiSqu of the track fit
   double           chiSqu;
-
-  //! book keeping for kalman filter
-  FitParams        params; 
 
   //! status of track representation: 0 means everything's OK
   int statusFlag; 
@@ -99,9 +92,6 @@ class AbsTrackRep : public TObject{
 
   virtual AbsTrackRep* prototype() const = 0;
 
-  // TODO: make the following method abstract!!
-  virtual void init(const TVector3& startpoint, const TVector3& startmomentum, const TVector3& locBField);
-
   virtual DetPlane getVirtualDetPlane(const TVector3& hit)=0;
 
   //! returns the tracklength spanned in this extrapolation
@@ -112,9 +102,6 @@ class AbsTrackRep : public TObject{
 				     TMatrixT<double>& covPred,
 				     DetPlane& planePred)=0;
   
-  
-  //! changes the state of the trkrep!
-  virtual double extrapolate(const DetPlane& plane); 
   
   //! make step of h cm along the track
   virtual void stepalong(double h)=0; 
@@ -127,6 +114,9 @@ class AbsTrackRep : public TObject{
 			   TMatrixT<double>& statePred,
 			   TMatrixT<double>& covPred,
 			   TMatrixT<double>& jacobian)=0;
+
+  //! This changes the state and cov and plane of the rep
+  double extrapolate(const DetPlane& plane);
 
   //! returns dimension of state vector
   virtual int getDim() const =0;  
@@ -160,17 +150,8 @@ class AbsTrackRep : public TObject{
   inline TMatrixT<double> getStartCov() const {
     return startCov;
   }
-  //inline double getS() const {
-  //  return s;
-  //}
-  inline double getStartS() const {
-    return startS;
-  }
   inline double getChiSqu() const {
     return chiSqu;
-  }
-  inline FitParams* getFitParams() {
-  	return &params;
   }
 
   inline void setState(const TMatrixT<double>& aState) {
@@ -188,9 +169,6 @@ class AbsTrackRep : public TObject{
   virtual void setReferencePlane(const DetPlane& pl)=0;
   const DetPlane& getReferencePlane() const {return _refPlane;}
 
-  inline void setStartS(double anS) {
-    startS = anS;
-  }
   inline void setChiSqu(double aChiSqu) {
     chiSqu = aChiSqu;
   }
