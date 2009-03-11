@@ -55,6 +55,7 @@ class PndMultiClassMVA
   
   //Adds variables to be used as features
   void AddVar(const string varName); 
+
   //Add class names
   void AddClass(const string className);
   

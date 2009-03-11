@@ -121,8 +121,10 @@ void PndMultiClassMVA::TrainClassifier(MVAType mva)
 {
   std::string MvaConfig = "";
   PndLVQTrain* lvq = NULL;
+  
   // Select which classifier to train
   switch (mva){
+  
   case MulClsKNN://Multi class KNN
     std::cout << "\t<INFO:> Current implementation of the MultiClsKNN"<< std::endl
 	      <<"\tcreates root trees to store the event parameters and"<< std::endl
@@ -130,6 +132,7 @@ void PndMultiClassMVA::TrainClassifier(MVAType mva)
 	      <<"\tyou can directly link to the trainer program. See"<<std::endl
 	      <<"\texample in PndTools directory" << std::endl;
     break;
+    
   case LVQ1://Multi class LVQ1
     lvq = new PndLVQTrain (fINFILENAME, fClassNameArray, fVarNameArray);
     // Set learning parameters
@@ -137,18 +140,31 @@ void PndMultiClassMVA::TrainClassifier(MVAType mva)
     lvq->Train(m_numLVQProto, m_OutFileName);
     delete lvq;
     break;
+  
+  case LVQ21://Multi class LVQ21
+    lvq = new PndLVQTrain (fINFILENAME, fClassNameArray, fVarNameArray);
+    
+    // Set learning parameters
+    lvq->SetLearnPrameters(0.8,0.1,0.001,100);
+    
+    lvq->Train21(m_numLVQProto, m_OutFileName);
+    delete lvq;
+    break;
+
   case TMBDT://BDT from TMVA
     MvaConfig = "!H:!V:NTrees=" + fNTreeBDT + ":BoostType=" + 
       fBoostTypeBDT + ":SeparationType=GiniIndex:nCuts=" + fNCutsBDT +
       "PruneMethod=NoPruning:PruneStrength=" + fPruneStrengthBDT;
     TrainTestTM(TMBDT, MvaConfig);
     break;
+  
   case TMMLP://MLP form TMVA
     MvaConfig = "Normalise:H:!V:NeuronType="+mlpNeuTyp+
       ":NCycles="+mlpCycle+":HiddenLayers="+mlpNumHidden+":TestRate="+
       mlpTestRate;
     TrainTestTM(TMMLP, MvaConfig);
     break;
+  
   case TMKNN://KNN from TMVA
     MvaConfig = "nkNN=" + fNKNN + 
       ":V:TreeOptDepth="+mKnnDepth+":ScaleFrac="+mKnnscalefrac+

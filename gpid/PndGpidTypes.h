@@ -4,6 +4,6 @@
 
 // Which classifier to train
 typedef enum {TMKNN = 1, TMBDT = 2, TMMLP = 3, MulClsKNN = 4, 
-	      LVQ1 = 5} MVAType;
+	      LVQ1 = 5, LVQ21 = 6} MVAType;
 
 #endif
