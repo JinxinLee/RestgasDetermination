@@ -36,6 +36,8 @@ TVector3 extrapolateToPoca(const TVector3& point,
 void
 AbsTrackRep::reset(){
   std::cout<<"AbsTrackRep::reset"<<std::endl;
+  TVector3 nullVec(0.,0.,0.);
+  _refPlane.set(nullVec,nullVec,nullVec);
   state.Zero();
   cov.Zero();
   startState.Zero();

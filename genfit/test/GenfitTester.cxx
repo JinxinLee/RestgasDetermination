@@ -34,7 +34,7 @@
 #include "TestRecoHit.h"
 #include "Track.h"
 #include "DetPlane.h"
-#include "ExtrapolateToPCA.h"
+#include "trackProximity.h"
 #include "VirtSpacePointRecoHit.h"
 // Class Member definitions -----------
 
@@ -243,7 +243,7 @@ GenfitTester::test_PCA(){
   TVector3 dif1=trk1->getPos()-trk2->getPos();
   std::cout<<"d="<<dif1.Mag()<<std::endl;;
   
-  ExtrapolateToPCA(trk1,trk2);
+  trackProximity(trk1,trk2);
   
   std::cout<<"Positions after Extrapolation"<<std::endl;
   trk1->getPos().Print();
