@@ -28,10 +28,14 @@ link_directories( ${LINK_DIRECTORIES})
 ########################### create libGem ######################################
 set(GEM_SRCS
 PndGemDetector.cxx
-# GemMC/PndGemGeo.cxx
-# GemMC/PndGemGeoPar.cxx
-# PndGemContFact.cxx
 PndGemSmearingTask.cxx
+PndGemContFact.cxx
+PndGemGeoPar.cxx
+PndGemDigiPar.cxx
+PndGemDigitize.cxx
+PndGemFindHits.cxx
+PndGemStation.cxx
+PndGemSensor.cxx
 
 )
 set (GEM_RULECHECKER_SRCS ${GEM_SRCS})
