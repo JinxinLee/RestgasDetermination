@@ -9,9 +9,9 @@
 
 /**
  * Constructor:
- * @param InPut, Input file name.
- * @param ClassNames, class names.
- * @param VarNames, variable names of the features.
+ * @param InPut: Input file name.
+ * @param ClassNames: class names.
+ * @param VarNames: variable names of the features.
  */
 PndLVQTrain::PndLVQTrain(const char* InPut,
 			 const std::vector<std::string>& ClassNames, 
@@ -199,10 +199,9 @@ void PndLVQTrain::InitProtoTypes(int numProto)
 }
 
 /**
- * @param numProto, number of LVQ1 prototypes. Current implementation
+ * @param numProto: number of LVQ1 prototypes. Current implementation
  *  considers an equal number of prototypes for each class with equal weights. 
- * @param OutPut, the nameof the out-put file, where the weights are 
- *  stored in.
+ * @param OutPut: Out-put file, where the weights are stored.
  */
 void PndLVQTrain::Train(int numProto, const char* outPut)
 {
@@ -256,11 +255,10 @@ void PndLVQTrain::Train(int numProto, const char* outPut)
 
 /**
  * Train the classifier accourding to LVQ2.1 algorithm.
- * @param numProto, number of LVQ2 prototypes. Current
+ * @param numProto: number of LVQ2 prototypes. Current
  * implementation considers an equal number of prototypes for each
  * class with equal weights.
- * @param OutPut, the nameof the out-put file, where the weights are
- * stored in.
+ * @param OutPut: Out-put file, where the weights are stored.
  */
 void PndLVQTrain::Train21(int numProto, const char* outPut)
 {

@@ -52,9 +52,9 @@ class PndLVQTrain{
  public:
   /**
    * Constructor:
-   * @param InPut, Input file name.
-   * @param ClassNames, class names.
-   * @param VarNames, variable names of the features.
+   * @param InPut: Input file name.
+   * @param ClassNames: class names.
+   * @param VarNames: variable names of the features.
    */
   PndLVQTrain(const char *InPut,
 	      const std::vector<std::string>& ClassNames, 
@@ -66,31 +66,29 @@ class PndLVQTrain{
   
   /**
    * Train the classifier accourding to LVQ1 algorithm.
-   * @param numProto, number of LVQ1 prototypes. Current
+   * @param numProto: number of LVQ1 prototypes. Current
    * implementation considers an equal number of prototypes for each
    * class with equal weights.
-   * @param OutPut, the nameof the out-put file, where the weights are
-   * stored in.
+   * @param OutPut: Out-put file, where the weights are stored.
    */
   void Train(int numProto, const char* OutPut);
   
   /**
    * Train the classifier accourding to LVQ2.1 algorithm.
-   * @param numProto, number of LVQ2 prototypes. Current
+   * @param numProto: number of LVQ2 prototypes. Current
    * implementation considers an equal number of prototypes for each
    * class with equal weights.
-   * @param OutPut, the nameof the out-put file, where the weights are
-   * stored in.
+   * @param OutPut: Out-put file, where the weights are stored in.
    */
   void Train21(int numProto, const char* OutPut);
 
   /**
    * Sets the learning parameters.
-   * @param initConst, Initialization constant, 
+   * @param initConst: Initialization constant, 
    * used to initialize LVQ prototypes.
-   * @param etZ, EthaZero, start value for the learning rate.
-   * @param etF, Final value for Etha (learning rate)
-   * @param Nswp, Number of sweeps through the examples collection set.
+   * @param etZ: EthaZero, start value for the learning rate.
+   * @param etF: Final value for Etha (learning rate)
+   * @param Nswp: Number of sweeps through the examples collection set.
    */
   void SetLearnPrameters(const double initConst, const double etZ,
                          const double etF, const int Nswp)
@@ -107,7 +105,7 @@ class PndLVQTrain{
 		    std::vector<float> &Example);
 
   /**
-   * Updates the LVQ1 prototypes.
+   * Updates the LVQ prototypes.
    */
   void UpdateProto( std::vector<float> &EvtData, std::vector<float> &proto, 
 		    int delta, double ethaT);
@@ -126,8 +124,8 @@ class PndLVQTrain{
   }
   
   /**
-   * Compute the class conditional mean for a given class and store
-   * that in the class conditional means container
+   * Class conditional mean for a given class. Stored in class
+   * conditional means container.
    */
   void CompClsCondMean(std::string clsName);
 

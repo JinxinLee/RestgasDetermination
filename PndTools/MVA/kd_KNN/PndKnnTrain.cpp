@@ -7,11 +7,10 @@
  */
 #include "PndKnnTrain.h"
 
-/*
- * @param OutPut: The file name to hold the weight values.
- * @param ClassNames: Name of classes for wich the classifier is
- * trained.
- * @param VarNames: The name of variables creating the feature vector.
+/**
+ * @param OutPut: File name to hold the weight values.
+ * @param ClassNames: Class Names.
+ * @param VarNames: Variable names creating the feature vector.
  */
 PndKnnTrain::PndKnnTrain(const char *OutPut, 
 			 const std::vector<std::string>& ClassNames, 
@@ -65,7 +64,9 @@ PndKnnTrain::PndKnnTrain(const char *OutPut,
    */
 }
 
-/* ========== Class Destructor =========== */
+/**
+ * Class Destructor.
+*/
 PndKnnTrain::~PndKnnTrain()
 {
   // Write the generated trees to the output file
@@ -89,7 +90,7 @@ PndKnnTrain::~PndKnnTrain()
   delete m_OutPutF;
 }
 
-/* 
+/**
  * Fill the Signal trees and train the classifier.
  */
 void PndKnnTrain::Train(const std::vector<float> &EvtData, 
@@ -100,7 +101,7 @@ void PndKnnTrain::Train(const std::vector<float> &EvtData,
   while(m_ClassNames[clsIdx] != cls){
     clsIdx++;
   }
-
+  
   // Class index is found. Assigne the values to the correct holder.
   for(unsigned int i=0; i< EvtData.size(); i++){
     (m_varContainer[clsIdx])->at(i) = EvtData[i];

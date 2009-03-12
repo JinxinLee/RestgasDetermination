@@ -22,19 +22,21 @@ class PndKnnTrain{
  public:
   //Constructors and destructor definitions
   
-  /*
-   * @param OutPut: The file name to hold the weight values.
-   * @param ClassNames: Name of classes for wich the classifier is
+  /**
+   * @param OutPut: File name to hold the weight values.
+   * @param ClassNames: Class names for wich the classifier is
    * trained.
-   * @param VarNames: The name of variables creating the feature vector.
+   * @param VarNames: Variable names creating the feature vector.
    */
   PndKnnTrain(const char *OutPut, 
 	      const std::vector<std::string>& ClassNames, 
 	      const std::vector<std::string>& VarNames);
-  /* Class destructor */
+  /**
+   * Class destructor 
+   */
   virtual ~PndKnnTrain();
   
-  /* 
+  /**
    * Train the classifier
    * @param EvtData: Current event example.
    * @param cls: The class of the current example.
@@ -44,10 +46,10 @@ class PndKnnTrain{
   //protected:
   
  private:
-  // Variables
-  TFile *m_OutPutF;//Write the weights in this file
-  int   m_numClass;// Number of classes
-  int   m_numVars;// Dimension of the variables
+  //! Variables
+  TFile *m_OutPutF;/**< Write the weights in this file. */
+  int   m_numClass;/**< Number of classes. */
+  int   m_numVars;/**< Dimension of the variables. */
   
   std::vector<TTree *> m_SigTrees;
   std::vector< std::vector<float>* > m_varContainer;

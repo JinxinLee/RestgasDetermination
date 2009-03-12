@@ -9,9 +9,9 @@
 
 /**
  * Constructor:
- * @param InPut, Input file name (Weights).
- * @param ClassNames, class names.
- * @param VarNames, variable names of the features.
+ * @param InPut: Input file name (Weights).
+ * @param ClassNames: class names.
+ * @param VarNames: variable names of the features.
  */
 PndLVQClassify::PndLVQClassify(const char* InPut,
 			       const std::vector<std::string>& ClassNames, 
@@ -94,8 +94,8 @@ float PndLVQClassify::ComputeDist(std::vector<float> &EvtData,
 }
 
 /**
- * @param EvtData. Event data to be classified.
- * @param result.  Classification results. Currently the shortest
+ * @param EvtData: Event data to be classified.
+ * @param result:  Classification results. Currently the shortest
  *     distance for each class is stored in result.
  */
 void PndLVQClassify::Classify(std::vector<float> &EvtData, 

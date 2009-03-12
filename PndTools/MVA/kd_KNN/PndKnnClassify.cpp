@@ -20,10 +20,10 @@
   return false;
   }
 */
-/*
- * @param InputPutFile: The name of the file that holds the weits
- * @param ClassNames: The names of classes to which an event might be
- * assigned to.
+
+/**
+ * @param InputPutFile: File that holds the weights
+ * @param ClassNames: Class names.
  * @param VarNames: Variable names from which the feature vector is
  * built.
  */
@@ -123,10 +123,9 @@ float PndKnnClassify::ComputeDist(std::vector<float> &EvtData,
   return dist;
 }
 
-/*
- * @param InputPutFile: The name of the file that holds the weits
- * @param ClassNames: The names of classes to which an event might be
- * assigned to.
+/**
+ * @param InputPutFile: File that holds the weights
+ * @param ClassNames: Class names.
  * @param VarNames: Variable names from which the feature vector is
  * built.
  */
