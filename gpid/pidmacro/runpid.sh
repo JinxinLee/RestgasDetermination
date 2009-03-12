@@ -20,7 +20,7 @@
 # Please set the path according to your setup
 #
 PANDAROOTHOME=$HOME/pandaroot
-PANDAROOTBUILD=$HOME/pandaroot/build
+PANDAROOTBUILD=$HOME/pandaroot/buildvanni
 #
 source $PANDAROOTBUILD/config.sh > logfile
 #
