@@ -8,7 +8,7 @@ TTree *t=(TTree *) f->Get("cbmsim");
  TFile* f1 = new TFile("points_sttcombi.root","READ");
 TTree *t1=(TTree *) f1->Get("cbmsim");
 
-TNtuple *ntuple = new TNtuple("pidntuple","pidntuple","Px:Py:Pz:Pt:p:stt:mvd:tof:thetaC:emc:delphi:delz:z00:z11:z22:z20:z31:z33:z40:z42:44");
+TNtuple *ntuple = new TNtuple("pidntuple","pidntuple","Px:Py:Pz:Pt:p:stt:mvd:tof:thetaC:emc:delphi:delz:E1:");
 Int_t  emcI;
 Float_t z00,z11,z22,z20,z40,z42,z44,z31,z33,p,e;
 float val[21];
@@ -34,7 +34,7 @@ if( emcI == -1 ) continue;
 
 cout<<"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"<<endl;
 
-PndEmcXClMoments mom = cl->Xmoments();
+PndEmcClusterEnergySums energy = cl->Esums();
 
 val[0] = mv->Get4Momentum().X();
 val[1] = mv->Get4Momentum().Y();
@@ -49,18 +49,13 @@ val[8] = tr->GetDrcThetaC();
 val[9] = tr->GetEmcELoss()/val[4];
 val[10]= tr->GetEmcDeltaPhi();
 val[11]= tr->GetEmcDeltaZ();
-val[12]= mom.AbsZernikeMoment(0,0,15);
-val[13]= mom.AbsZernikeMoment(1,1,15);
-val[14]= mom.AbsZernikeMoment(2,2,15);
-val[15]= mom.AbsZernikeMoment(2,0,15);
-val[16]= mom.AbsZernikeMoment(3,1,15);
-val[17]= mom.AbsZernikeMoment(3,3,15);
-val[18]= mom.AbsZernikeMoment(4,0,15);
-val[19]= mom.AbsZernikeMoment(4,2,15);
-val[20]= mom.AbsZernikeMoment(4,4,15);
-
+val[12] = energy.E1();
+val[13] = energy.E9();
+val[14] = energy.E25();
+val[15] = energy.E1E9();
+val[16] = energy.E1E25();
 //cout<<tr->GetEmcELoss()<<"  "<<mv->Get4Momentum().Px()<<endl;
-ntuple->Fill(val);
+//ntuple->Fill(val);
  }
 TFile *out = new TFile("pid_tree.root","RECREATE");
 out->WriteObject(ntuple,"pidntuple");
