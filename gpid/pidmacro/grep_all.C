@@ -18,7 +18,7 @@ TClonesArray* hit_array=new TClonesArray("PndLhePidTrack");
 TClonesArray* hit_array1=new TClonesArray("PndMCTrack");
  t1->SetBranchAddress("MCTrack",&hit_array1);
 
-cout<<"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"
+cout<<"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"<<endl;
 
  for (Int_t j=0; j< t->GetEntriesFast(); j++)
         {
