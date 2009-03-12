@@ -13,7 +13,7 @@ using namespace std;
 
 PndMvdConvertApv::PndMvdConvertApv(const TString& CalibFileName, const TString& HitFileName)
 {
-  fGeoH = new PndMvdGeoHandling(gGeoManager);
+  fFake=false;
   cout<<"Scan HitFile..."<<endl;
   std::ifstream hitfile(HitFileName);
   std::vector<Int_t> modules;						// module detec
@@ -59,6 +59,13 @@ PndMvdConvertApv::PndMvdConvertApv(const TString& CalibFileName, const TString& 
   fDataFile.open(HitFileName);
   fEvent=1;
 }
+
+Bool_t PndMvdConvertApv::Init()
+{
+  fGeoH = new PndMvdGeoHandling(gGeoManager);
+  return kTRUE;
+}
+
 
 // -----   count new modules   --------------------------------------------
 
@@ -131,7 +138,7 @@ std::vector<PndMvdDigiStrip> PndMvdConvertApv::Calc(std::vector<PndMvdApvHit> hi
        {
          if (fCalibPars[hitlist[hitnumber].GetModuleID()][hitlist[hitnumber].GetFeID()][hitlist[hitnumber].GetChannel()])
          {
-           q=fCalibPars[hitlist[hitnumber].GetModuleID()][hitlist[hitnumber].GetFeID()][hitlist[hitnumber].GetChannel()]*(hitlist[hitnumber].GetADC());
+           q=fCalibPars[hitlist[hitnumber].GetModuleID()][hitlist[hitnumber].GetFeID()][hitlist[hitnumber].GetChannel()]*(hitlist[hitnumber].GetADC())*1000.; // in electrons
          }
        }
      }
@@ -140,19 +147,60 @@ std::vector<PndMvdDigiStrip> PndMvdConvertApv::Calc(std::vector<PndMvdApvHit> hi
 //TODO: Detektornamen mit Geometrie sinnvoll verheiraten. 
 // 	string detPath="SiliconTestStation_1/DummysensorAss_0/";
 //     detPath+="Module";
-//     detPath+=hitlist[hitnumber].GetModuleID();
-//     detPath+="_0";
-// 	TGeoNode* node=gGeoManager->FindObject(detPath);
-// 	TGeoVolume* Vol=node->GetVolume();
+    TString detPath="Module";
+    Int_t modId;
+    if(fFake)
+    {
+      if(fTopModuleID==hitlist[hitnumber].GetModuleID() || fBottomModuleID==hitlist[hitnumber].GetModuleID())
+        modId = 1;
+      if(fBottomModuleID==hitlist[hitnumber].GetModuleID()) hitlist[hitnumber].SetFeID(hitlist[hitnumber].GetFeID()+3);
+    }else{
+      modId = hitlist[hitnumber].GetModuleID();
+    }
+    detPath+=modId;
+    detPath+="Rect";
+//     std::cout<<detPath.Data()<<"   |    "<<modId<<std::endl;
+	TGeoVolume* Vol=gGeoManager->FindVolumeFast(detPath);
+    if(0!=Vol) {
+// 		std::cout<<Vol->GetName()<<std::endl;
+// 		Vol->GetNode(-1)->cd();
+        detPath="/SiliconTestStation_1/DummysensorAss_0/";
+		detPath+=Vol->GetName();
+		detPath+="_0";
+		gGeoManager->cd(detPath.Data());
+	}
+	else {
+// 		std::cout<<" -E- PndMvdConvertApv::Calc(): "<<detPath.Data()<<" does not exist"<<std::endl;
+        detPath+="_nonexistent";
+	}
+//     std::cout<<detPath.Data()<<std::endl;
+//     std::cout<<gGeoManager->GetPath()<<std::endl;
+//     if (0==Vol) std::cout<<"0"; 
+//     else std::cout<<"1";
+//     std::cout<<Vol->GetName();
+
+//     detPath = Vol->GetName();
+// 	std::cout << "write Digi with "<< detPath.Data()<<" ( "<<fGeoH->GetID(detPath)<<" )"<<std::endl;
+    if(fFake)
+    {
     PndMvdDigiStrip DigiHit(hitlist[hitnumber].GetEventID(), 
-                             2,
-							 hitlist[hitnumber].GetModuleID(),
-//                              fGeoH->GetID(detPath.c_str()), 
+							 1,
+                             fGeoH->GetID(detPath), 
                              hitlist[hitnumber].GetFeID(),
-                             hitlist[hitnumber].GetFeID()*128+hitlist[hitnumber].GetChannel(), 
-                             q/1000/1000, 
-                             hitlist[hitnumber].GetTimestamp());
+                             hitlist[hitnumber].GetChannel(), 
+							 hitlist[hitnumber].GetTimestamp(),
+						     q/*/1000/1000*/);
      result.push_back(DigiHit);
+    }else{
+     PndMvdDigiStrip DigiHit(hitlist[hitnumber].GetEventID(), 
+							 hitlist[hitnumber].GetModuleID(),
+                             fGeoH->GetID(detPath), 
+                             hitlist[hitnumber].GetFeID(),
+                             hitlist[hitnumber].GetChannel(), 
+                             hitlist[hitnumber].GetTimestamp(), 
+                             q/*/1000/1000*/);
+     result.push_back(DigiHit);
+    }
   }
   return result;
 }
@@ -187,7 +235,7 @@ std::vector<PndMvdDigiStrip> PndMvdConvertApv::ReadNext()
 	double q;
     long int ev;
 
-    fDataFile >> ev >> moduleID >> triggID >> frame >> fe >> ts >> ch >> q >> l;
+    fDataFile >> ev >> moduleID >> fe >> triggID >> ts >> frame >> ch >> q >> l;
 
     if ((ev-1)==fEvent)
     {
@@ -216,6 +264,14 @@ std::vector<PndMvdDigiStrip> PndMvdConvertApv::ReadAll()
     for(int i=0;i<dummy.size();++i) result.push_back(dummy[i]);
   }
   return result;
+}
+
+void PndMvdConvertApv::SetFakePair(Int_t TopModuleID, Int_t BottomModuleID)
+{
+  fFake=true;
+  fTopModuleID=TopModuleID;
+  fBottomModuleID=BottomModuleID;
+  return;
 }
 
 // PndMvdDigiStrip PndMvdConvertApv::DigiHit(hitlist [])

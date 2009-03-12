@@ -34,7 +34,7 @@ public:
     PndMvdGeoHandling(TString fileName);
 
     PndMvdGeoHandling(TGeoManager* aGeoMan)
-  {if (aGeoMan == 0) std::cout << "-E- not a valid GeoManager" << std::endl;
+  {if (aGeoMan == 0) std::cout << "-E- PndMvdGeoHandling: Not a valid GeoManager" << std::endl;
    fGeoMan = aGeoMan;};
 
     ~PndMvdGeoHandling(){};

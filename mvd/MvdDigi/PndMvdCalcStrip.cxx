@@ -65,7 +65,6 @@ PndMvdCalcStrip::PndMvdCalcStrip(const PndMvdStripDigiPar* digipar, SensorSide s
   fVerboseLevel = 0;
   fRNG = new TRandom3();
   if (fVerboseLevel > 0) Print();
-
 }
 
 

@@ -47,8 +47,8 @@ InitStatus PndMvdConvertApvTask::Init()
   // Create and register output array
   fStripArray = new TClonesArray("PndMvdDigiStrip");
   ioman->Register("MVDStripDigis", "MVD", fStripArray, kTRUE);
-
-cout<<"Init of Task"<<endl;
+  fApvConvert->Init();
+  cout<<"Init of Task"<<endl;
   return kSUCCESS;
 }
 
@@ -61,6 +61,8 @@ void PndMvdConvertApvTask::Exec(Option_t* opt)
 	for (std::vector<PndMvdDigiStrip>::iterator strip=strips.begin(); strip!=strips.end(); ++strip)
 	{
 		Int_t iStrip = fStripArray->GetEntriesFast();
+// 		std::cout<<" -I- PndMvdConvertApvTask::Exec(): Adding a strip digi at position "<<iStrip
+// 				 <<"\n in sensor "<<(*strip).GetDetName().Data() <<std::endl;
 		new ((*fStripArray)[iStrip]) PndMvdDigiStrip(*strip);
 // 		new ((*fStripArray)[iStrip]) PndMvdDigiStrip((*strip).GetIndex(), (*strip).GetDetID(), (*strip).GetDetName(), (*strip).GetFE(), (*strip).GetChannel(), (*strip).GetCharge(), (*strip).GetTimestamp()) ;
 	}

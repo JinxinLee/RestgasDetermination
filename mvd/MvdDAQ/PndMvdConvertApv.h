@@ -24,15 +24,25 @@
 // class PndMvdApv;
 #include "PndMvdDigiStrip.h"
 
+/**   
+ @class PndMvdConvertApv
+ @brief Convert meassured data into PndMvdDigiStrip
+ 
+ Load calibration parameter and keeps strean to meassured data. Event wise read in and converting to PndMvdDigiStrip
+ @author Lars Ackermann
+ @date 11.03.2009
+*/
 class PndMvdConvertApv
 {
    public :
+	/** default constructor **/
+	PndMvdConvertApv() {;}
 
-        /**
-        main constructor, call all function to be ready for converting hits from hitfile
-        @param CalibFileName name of file where the calibration is stored
-        @param HitFileName name of hitfile
-        */
+	/**
+	main constructor, call all function to be ready for converting hits from hitfile
+	@param CalibFileName name of file where the calibration is stored
+	@param HitFileName name of hitfile
+	*/
 	PndMvdConvertApv(const TString& CalibFileName, const TString& HitFileName);
 
 	/** Destructor **/
@@ -44,7 +54,7 @@ class PndMvdConvertApv
 
 	@return long integer of last eventID from hitfile
 	*/
-        long int GetNofEvents();
+	long int GetNofEvents();
 
 	/**
 	@fn std::vector<PndMvdDigiStrip> ReadAll()
@@ -62,6 +72,22 @@ class PndMvdConvertApv
 	*/
 	std::vector<PndMvdDigiStrip> ReadNext();
 
+	/**
+	@fn Bool_t Init()
+	Initialize global geometry
+	@return success
+	*/
+	Bool_t Init();
+
+	/**
+	@fn void SetFakePair(Int_t TopModuleID, Int_t BottomModuleID)
+	Set two moduleIDs to merge them as one double sided sensor
+	@param TopModuleID moduleID for top side of fake sensor
+	@param BottomModuleID moduleID for bottom side of fake sensor
+	@return void
+	*/
+	void SetFakePair(Int_t TopModuleID, Int_t BottomModuleID);
+
    private :
 	/**
 	@fn void ModulChecker(Int_t moduleID, std::vector<Int_t>& modules)
@@ -71,7 +97,7 @@ class PndMvdConvertApv
 	@param modules vector of moduleIDs of modules in the hitfile
 	@return void
 	*/
-        void ModulChecker(Int_t moduleID, std::vector<Int_t>& modules);
+	void ModulChecker(Int_t moduleID, std::vector<Int_t>& modules);
 
 	/**
 	@fn void LoadCalibration(TString CalibFileName, std::vector<Int_t> modules)
@@ -113,7 +139,16 @@ class PndMvdConvertApv
 	std::ifstream fDataFile;
 
 	/// stored readed events
-        std::vector<PndMvdApvHit> fhitlist;
+	std::vector<PndMvdApvHit> fhitlist;
+
+	/// stored fake module top side
+	Int_t fTopModuleID;
+
+	/// stored fake module bottom side
+	Int_t fBottomModuleID;
+
+	/// knows if fake is allowed
+	Bool_t fFake;
 
   PndMvdGeoHandling* fGeoH;	     //! Gives Access to the Path info of a hit
 

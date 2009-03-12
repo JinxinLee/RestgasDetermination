@@ -286,7 +286,7 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
 
     CalcMeanCharge(oneclustertop,meantopstrip,meantoperr,topcharge);
 
-    if(oneclustertop.size()==1 && topcharge < 5200) continue;
+    if(oneclustertop.size()==1 && topcharge < 5200) { std::cout<<"wachse"<<endl; continue; }
 
     if(topcharge>0)
     {
@@ -306,7 +306,7 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
 
         CalcMeanCharge(oneclusterbot,meanbotstrip,meanboterr,botcharge);
 
-        if(oneclusterbot.size() == 1 && botcharge < 5200)continue;
+        if(oneclusterbot.size() == 1 && botcharge < 5200) { std::cout<<"wachse"<<endl; continue; }
         if(botcharge>0)
         {
           if(fVerbose > 2)  {

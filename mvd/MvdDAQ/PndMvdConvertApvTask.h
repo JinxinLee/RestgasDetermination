@@ -26,29 +26,67 @@
 class TClonesArray;
 class PndMvdDigiStrip;
 
+/**   
+ @class PndMvdConvertApvTask : public FairTask
+ @brief Convert Task of data
+ 
+ Task to convert data from real measurement with strip sensors
+ @author Lars Ackermann
+ @date 11.03.2009
+*/
 class PndMvdConvertApvTask : public FairTask
 {
  public:
 
-  /** Default constructor **/  
-  PndMvdConvertApvTask(PndMvdConvertApv* Apvconvert);
+	/** Default constructor **/  
+	PndMvdConvertApvTask(PndMvdConvertApv* Apvconvert);
 
-  /** Destructor **/
-  ~PndMvdConvertApvTask();
+	/** Destructor **/
+	~PndMvdConvertApvTask();
 
+	/** Virtual method Exec **/
+	virtual void Exec(Option_t* opt);
 
-  /** Virtual method Exec **/
-  virtual void Exec(Option_t* opt);
-  virtual InitStatus Init();
-  virtual void Finish();
+	/**
+	@fn virtual InitStatus Init()
+
+	init task
+	*/
+	virtual InitStatus Init();
+
+	/**
+	@fn virtual void Finish()
+
+	finish task
+	@return void
+	*/
+	virtual void Finish();
   
  private:
-		PndMvdConvertApv* fApvConvert;
-		TClonesArray* fStripArray;
-		Int_t iStrip;
-  void Register();
-  
-  void Reset();
+	/// class which convert the read in and hold the streams
+	PndMvdConvertApv* fApvConvert;
+
+	/// array of results
+	TClonesArray* fStripArray;
+
+	/// number of strips in this event
+	Int_t iStrip;
+
+	/**
+	@fn void Register()
+
+	
+	@return void
+	*/
+	void Register();
+
+	/**
+	@fn void Reset()
+
+	
+	@return void
+	*/
+	void Reset();
 
   ClassDef(PndMvdConvertApvTask,1);
 
