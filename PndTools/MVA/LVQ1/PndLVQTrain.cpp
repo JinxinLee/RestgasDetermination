@@ -349,7 +349,7 @@ void PndLVQTrain::Train21(int numProto, const char* outPut)
       // Update different label prototype.
       UpdateProto( *(m_EventsData[index].second), *(m_LVQProtos[idx2d].second), deltaNonEqCls, ethaT);
     }
-  }// Training is finished
+  }// (for time = 0;)Training is finished
   
   // Write the coordinates of the prototypes (Codebook) to a file.
   WriteToFile(outPut);
