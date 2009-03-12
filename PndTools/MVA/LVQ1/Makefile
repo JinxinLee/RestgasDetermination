@@ -2,15 +2,16 @@
 #  OMP_NUM_THREADS=4 ./PlotEventData Events03.root
 #
 # Setting the linker and compiler flags and options
-#FLAGSMACHINE=-march=athlon64 -mfpmath=sse -msse2 -m64
+
+# FLAGSMACHINE=-march=athlon64 -mfpmath=sse -msse2 -m64
+FLAGSMACHINE = -march=core2 -mfpmath=sse -mtune=core2  -msse3 -m64 -m3dnow
 
 CXX       =  g++
 # CCFLAGS   = -Wall -g -O0
 # CCFLAGS   = -Wall -O1 -fopenmp -g -pg #if profiling
-FLAGSMACHINE = -march=core2 -mfpmath=sse -mtune=core2  -msse3 -m32 -m3dnow
-CCFLAGS   = -Wall -Os -O3 -ffast-math ${FLAGSMACHINE} -fomit-frame-pointer
-CCFLAGS   = -fopenmp -fomit-frame-pointer -funsafe-math-optimizations
-CCFLAGS   += -funroll-loops -fvariable-expansion-in-unroller
+CCFLAGS      = -Wall -Os -O3 -ffast-math ${FLAGSMACHINE}
+CCFLAGS      += -fopenmp -fomit-frame-pointer -funsafe-math-optimizations
+CCFLAGS      += -funroll-loops -fvariable-expansion-in-unroller
 
 
 INCLUDE   = $(shell root-config --cflags) -I./
