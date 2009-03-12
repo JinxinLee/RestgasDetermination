@@ -32,6 +32,7 @@ if( emcI == -1 ) continue;
          PndEmcCluster *cl = (PndEmcCluster *) hit_array->At(emcI);
   if(cl == NULL ) continue;
 
+cout<<"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"<<endl;
 
 PndEmcXClMoments mom = cl->Xmoments();
 
