@@ -65,7 +65,7 @@ void learn_pid()
   // Select which classifier to train.
   /*
    * Possible MVA's are:
-   * TMKNN, TMBDT, TMMLP, MulClsKNN, LVQ1
+   * TMKNN, TMBDT, TMMLP, MulClsKNN, LVQ1, LVQ21
    */
   MVAType bla = TMKNN;
   //bdt_train.TrainClassifier(bla);
@@ -76,9 +76,9 @@ void learn_pid()
   bla = TMMLP;
   //bdt_train.TrainClassifier(bla);
   
-  bla = LVQ1;
-  TString OutFile = "ZZTestOut.root";
-  bdt_train.SetNumLvqProto(20);
+  bla = LVQ21;//LVQ1;
+  TString OutFile = "LVQ2TestOut.root";
+  bdt_train.SetNumLvqProto(30);
   bdt_train.SetOutFileName(OutFile);
   bdt_train.TrainClassifier(bla);
 }

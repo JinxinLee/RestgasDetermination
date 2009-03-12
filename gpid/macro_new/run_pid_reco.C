@@ -9,7 +9,7 @@
 /*
  * @param NumEvt: Number of events to classify.
  */
-void run_pid_reco(const int NumEvt = 2)
+void run_pid_reco(const int NumEvt = 4)
 {
   // ================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
@@ -68,7 +68,8 @@ void run_pid_reco(const int NumEvt = 2)
    * TMKNN, TMBDT, TMMLP, MulClsKNN, LVQ1
    */
   MVAType bla = LVQ1;
-  pid->SetInFileName("ZZTestOut.root");
+  //pid->SetInFileName("LVQ1TestOut.root");
+  pid->SetInFileName("LVQ2TestOut.root");
   pid->SetMVA(bla);
   
   fRun->AddTask(pid);
