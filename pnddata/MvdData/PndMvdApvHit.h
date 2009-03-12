@@ -75,6 +75,13 @@ class PndMvdApvHit : public TObject
         Int_t GetFeID() const { return fFeID; }
 
         /**
+        @fn void SetFeID(Int_t new_FE)
+	    set new FeID (needed for faking)
+        @return void
+        */
+        void SetFeID(Int_t new_FE) { fFeID=new_FE; return; }
+
+        /**
         @fn long int GetEventID() const
         @return event ID
         */
