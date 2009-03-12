@@ -100,16 +100,18 @@ TLorentzVector PndMCTrack::Get4Momentum() const {
 // -----   Public method GetNPoints   --------------------------------------
 Int_t  PndMCTrack::GetNPoints(DetectorId detId) const {
   if      ( detId == kDRC ) return ( (fPoints  & (3 <<  0) ) >>  0 );
-  else if ( detId == kMDT ) return ( (fPoints  & (7 <<  2) ) >>  2 );
-  else if ( detId == kMVD ) return ( (fPoints  & (7 <<  5) ) >>  5 );
-  else if ( detId == kDCH ) return ( (fPoints  & (7 <<  8) ) >>  8 );
-  else if ( detId == kEMC ) return ( (fPoints  & (7 << 11) ) >> 11 ); 
-  else if ( detId == kSTT ) return ( (fPoints  & (15<< 14) ) >> 14 );
-  else if ( detId == kTOF ) return ( (fPoints  & (7 << 18) ) >> 18 );
-  else if ( detId == kGEM ) return ( (fPoints  & (7 << 22) ) >> 22 );
-  else if ( detId == kDSK ) return ( (fPoints  & (3 << 25) ) >> 25 );
-  else if ( detId == kHYP ) return ( (fPoints  & (3 << 27) ) >> 27 );
-  else if ( detId == kRPC ) return ( (fPoints  & (3 << 29) ) >> 29 );
+  else if ( detId == kMDT ) return ( (fPoints  & (3 <<  2) ) >>  2 );
+  else if ( detId == kMVD ) return ( (fPoints  & (3 <<  4) ) >>  4 );
+  else if ( detId == kDCH ) return ( (fPoints  & (3 <<  6) ) >>  6 );
+  else if ( detId == kEMC ) return ( (fPoints  & (3 <<  8) ) >>  8 ); 
+  else if ( detId == kSTT ) return ( (fPoints  & (3 << 10) ) >> 10 );
+  else if ( detId == kTOF ) return ( (fPoints  & (3 << 12) ) >> 12 );
+  else if ( detId == kGEM ) return ( (fPoints  & (3 << 14) ) >> 14 );
+  else if ( detId == kDSK ) return ( (fPoints  & (3 << 16) ) >> 16 );
+  else if ( detId == kHYP ) return ( (fPoints  & (3 << 18) ) >> 18 );
+  else if ( detId == kRPC ) return ( (fPoints  & (3 << 20) ) >> 20 );
+  else if ( detId == kLUMI) return ( (fPoints  & (3 << 22) ) >> 22 );	
+	
   else {
     cout << "-E- PndMCTrack::GetNPoints: Unknown detector ID "
 	 << detId << endl;
@@ -126,67 +128,75 @@ void PndMCTrack::SetNPoints(Int_t iDet, Int_t  nPoints) {
 
   else if ( iDet == kMDT ) {
     if      ( nPoints <  0 ) nPoints =  0;
-    else if ( nPoints > 7 ) nPoints = 7;
-    fPoints = ( fPoints & ( ~ ( 15 <<  2 ) ) )  |  ( nPoints <<  2 );
+    else if ( nPoints > 3 ) nPoints = 3;
+    fPoints = ( fPoints & ( ~ ( 3 <<  2 ) ) )  |  ( nPoints <<  2 );
   }
 
   else if ( iDet == kMVD ) {
     if      ( nPoints < 0 ) nPoints = 0;
-    else if ( nPoints > 7 ) nPoints = 7;
-    fPoints = ( fPoints & ( ~ (  7 << 5 ) ) )  |  ( nPoints << 5 );
+    else if ( nPoints > 3 ) nPoints = 3;
+    fPoints = ( fPoints & ( ~ (  3 << 4 ) ) )  |  ( nPoints << 4 );
   }
 
   else if ( iDet == kDCH ) {
     if      ( nPoints < 0 ) nPoints = 0;
-    else if ( nPoints > 7 ) nPoints = 7;
-    fPoints = ( fPoints & ( ~ ( 7 <<  8 ) ) )  | ( nPoints << 8 );
+    else if ( nPoints > 3 ) nPoints = 3;
+    fPoints = ( fPoints & ( ~ ( 3 <<  8 ) ) )  | ( nPoints << 6);
   }
 
   else if ( iDet == kEMC ) {
     if      ( nPoints <  0 ) nPoints =  0;
-    else if ( nPoints > 7 ) nPoints = 7;
-    fPoints = ( fPoints & ( ~ ( 7 << 11 ) ) )  |  ( nPoints << 11 );
+    else if ( nPoints > 3 ) nPoints = 3;
+    fPoints = ( fPoints & ( ~ ( 3 <<  8 ) ) )  |  ( nPoints << 8 );
   }
 
   else if ( iDet == kSTT ) {
     if      ( nPoints <  0 ) nPoints =  0;
-    else if ( nPoints > 7 ) nPoints = 7;
-    fPoints = ( fPoints & ( ~ ( 7 << 14 ) ) )  |  ( nPoints << 14 );
+    else if ( nPoints > 3 ) nPoints = 3;
+    fPoints = ( fPoints & ( ~ ( 3 << 10 ) ) )  |  ( nPoints << 10 );
   }
   else if ( iDet == kTPC ) {
     if      ( nPoints <  0 ) nPoints =  0;
-    else if ( nPoints > 7 ) nPoints = 7;
-    fPoints = ( fPoints & ( ~ ( 7 << 17 ) ) )  |  ( nPoints << 17 );
+    else if ( nPoints > 3 ) nPoints = 3;
+    fPoints = ( fPoints & ( ~ ( 3 << 12 ) ) )  |  ( nPoints << 12 );
   }
 
   else if ( iDet == kTOF ) {
     if      ( nPoints <  0 ) nPoints =  0;
-    else if ( nPoints > 7 ) nPoints = 7;
-    fPoints = ( fPoints & ( ~ ( 7 << 20 ) ) )  |  ( nPoints << 20 );
+    else if ( nPoints > 3 ) nPoints = 3;
+    fPoints = ( fPoints & ( ~ ( 3 << 14 ) ) )  |  ( nPoints << 14 );
   }
 
   else if ( iDet == kGEM ) {
     if      ( nPoints < 0 ) nPoints = 0;
-    else if ( nPoints > 7 ) nPoints = 7;
-    fPoints = ( fPoints & ( ~ ( 7 << 23 ) ) )  |  ( nPoints << 23 );
+    else if ( nPoints > 3 ) nPoints = 3;
+    fPoints = ( fPoints & ( ~ ( 3 << 16 ) ) )  |  ( nPoints << 16 );
   }
   else if ( iDet == kDSK ) {
     if      ( nPoints < 0 ) nPoints = 0;
     else if ( nPoints > 3 ) nPoints = 3;
-    fPoints = ( fPoints & ( ~ (  3 << 26 ) ) )  |  ( nPoints << 26 );
+    fPoints = ( fPoints & ( ~ (  3 << 18 ) ) )  |  ( nPoints << 18 );
   }
 
   else if ( iDet == kHYP ) {
     if      ( nPoints < 0 ) nPoints = 0;
     else if ( nPoints > 3 ) nPoints = 3;
-    fPoints = ( fPoints & ( ~ (  3 << 28 ) ) )  |  ( nPoints << 28 );
+    fPoints = ( fPoints & ( ~ (  3 << 20 ) ) )  |  ( nPoints << 20 );
   }
   else if ( iDet == kRPC ) {
     if      ( nPoints < 0 ) nPoints = 0;
     else if ( nPoints > 3 ) nPoints = 3;
-    fPoints = ( fPoints & ( ~ (  15 << 30 ) ) )  |  ( nPoints << 30 );
+    fPoints = ( fPoints & ( ~ (  3 << 22 ) ) )  |  ( nPoints << 22 );
   }
-
+  else if ( iDet == kLUMI ) {
+	  if      ( nPoints < 0 ) nPoints = 0;
+	  else if ( nPoints > 3 ) nPoints = 3;
+	  fPoints = ( fPoints & ( ~ (  3 << 22 ) ) )  |  ( nPoints << 22 );
+  }
+	
+	
+	
+	
   else cout << "-E- PndMCTrack::SetNPoints: Unknown detector ID "
 	    << iDet << endl;
 

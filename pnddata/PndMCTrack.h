@@ -1,6 +1,7 @@
 // -------------------------------------------------------------------------
 // -----                      PndMCTrack header file                   -----
 // -----                  Created 03/08/04  by V. Friese               -----
+// -----                  Adapted to Panda  M. Al-Turany               -----
 // -------------------------------------------------------------------------
 
 
@@ -109,17 +110,19 @@ private:
    **  each subdetector. The detectors are represented by
    **  This goes to fPoints:
    **  DRC:  Bit  0 -  1  (2 bit max. value 3)
-   **  MDT:  Bit  2 -  4  (3 bit max. value 7)
-   **  MVD:  Bit  5 -  7  (3 bit max. value 7)
-   **  DCH:  Bit  8 - 10  (3 bit max. value 7)
-   **  EMC:  Bit 11 - 13  (3 bit max. value 7)
-   **  STT:  Bit 14 - 16  (3 bit max. value 7)
-   **  TPC:  Bit 17 - 19  (3 bit max. value 7)
-   **  TOF:  Bit 20 - 22  (3 bit max. value 7)
-   **  GEM:  Bit 23 - 25  (3 bit max. value 7)
-   **  DSK:  Bit 26 - 27  (2 bit max. value 3)
-   **  HYP:  Bit 28 - 29  (2 bit max. value 3)
-   **  RPC:  Bit 30 - 31  (3 bit max. value 3)
+   **  MDT:  Bit  2 -  3  (2 bit max. value 3)
+   **  MVD:  Bit  4 -  5  (2 bit max. value 3)
+   **  DCH:  Bit  6 -  7  (2 bit max. value 3)
+   **  EMC:  Bit  8 -  9  (3 bit max. value 3)
+   **  STT:  Bit 10 - 11  (2 bit max. value 3)
+   **  TPC:  Bit 12 - 13  (2 bit max. value 3)
+   **  TOF:  Bit 14 - 15  (2 bit max. value 3)
+   **  GEM:  Bit 16 - 17  (2 bit max. value 3)
+   **  DSK:  Bit 18 - 19  (2 bit max. value 3)
+   **  HYP:  Bit 20 - 21  (2 bit max. value 3)
+   **  RPC:  Bit 22 - 23  (2 bit max. value 3)
+   **  LUMI: Bit 23 - 24  (2 bit max. value 3)
+   
    **  The respective point numbers can be accessed and modified **/
 
   Int_t  fPoints;
