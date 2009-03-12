@@ -32,11 +32,11 @@ source $PANDAROOTBUILD/config.sh > logfile
 #cp $PANDAROOTHOME/macro/emc/sim_emc.C .
 #cp $PANDAROOTHOME/macro/emc/full_emc.C .
 
-cp $HOME/pandaroot/trunk/gpid/pidmacro/run_sim_alldet.C .
-cp $HOME/pandaroot/trunk/gpid/pidmacro/run_rec_alldet.C .
-cp $HOME/pandaroot/trunk/gpid/pidmacro/grep_all.C  .
-cp $HOME/pandaroot/trunk/gpid/pidmacro/shower.C  .
-cp $HOME/pandaroot/trunk/gpid/pidmacro/rootlogon.C  .
+cp $HOME/pandaroot/vanni/gpid/pidmacro/run_sim_alldet.C .
+cp $HOME/pandaroot/vanni/gpid/pidmacro/run_rec_alldet.C .
+cp $HOME/pandaroot/vanni/gpid/pidmacro/grep_all.C  .
+cp $HOME/pandaroot/vanni/gpid/pidmacro/shower.C  .
+cp $HOME/pandaroot/vanni/gpid/pidmacro/rootlogon.C  .
 
 #cp $PANDAROOTHOME/PndTools/mpiTools/macros/emc/rootlogon.C .
 #
