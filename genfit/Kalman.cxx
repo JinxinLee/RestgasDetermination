@@ -123,8 +123,6 @@ Kalman::fittingPass(Track* trk, int direction){
 double Kalman::chi2Increment(const TMatrixT<double>& r,const TMatrixT<double>& H,
 			     const TMatrixT<double>& cov,const TMatrixT<double>& V){
 
-  TMatrixT<double> resid(r);
-
   // residuals covariances:R=(V - HCH^T)
   TMatrixT<double> R(V);
   TMatrixT<double> covsum1(cov,TMatrixT<double>::kMultTranspose,H);
@@ -136,7 +134,9 @@ double Kalman::chi2Increment(const TMatrixT<double>& r,const TMatrixT<double>& H
   double det=0.;
   TMatrixT<double> Rsave(R);
   R.Invert(&det);
-  TMatrixT<double> chisq=resid.T()*(R*resid); // note: .T() will change resid!
+  TMatrixT<double> residTranspose(r);
+  residTranspose.T();
+  TMatrixT<double> chisq=residTranspose*(R*r);
   assert(chisq.GetNoElements()==1);
 
   if(TMath::IsNaN(chisq[0][0])){
@@ -145,7 +145,7 @@ double Kalman::chi2Increment(const TMatrixT<double>& r,const TMatrixT<double>& H
 	numbers.push_back(det);
 	exc.setNumbers("det",numbers);
 	std::vector< TMatrixT<double> > matrices;
-	matrices.push_back(resid);
+	matrices.push_back(r);
 	matrices.push_back(V);
 	matrices.push_back(Rsave);
 	matrices.push_back(R);
