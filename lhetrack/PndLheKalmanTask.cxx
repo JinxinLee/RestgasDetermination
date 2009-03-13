@@ -134,7 +134,9 @@ PndLheKalmanTask::Init()
     }
   
   if (fUseGeane)  fPro = new FairGeanePro();
-  
+
+  if (fSmoothing)  Error("PndLheKalmanTask::Init","Smoothing not available. Please switch the flag OFF");
+     
   FairRootManager::Instance()->
     Register("LheGenTrack","Lhe", fFitTrackArray, kTRUE);
  
@@ -243,7 +245,7 @@ void PndLheKalmanTask::Exec(Option_t* opt)
     // Start Fitter
     try{
       fitter.processTrack(trk);
-      if(fSmoothing)fitter.smoothing(trk);
+      //if(fSmoothing)fitter.smoothing(trk);
     }
     catch (FitterException e){
       std::cout<<"*** FITTER EXCEPTION ***"<<std::endl;
