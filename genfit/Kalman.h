@@ -87,10 +87,6 @@ public:
    */
   double getChi2Hit(AbsRecoHit*, AbsTrackRep*);
 
-  /** @brief NOT IMPLEMENTED
-   */
-  void smoothing(Track*);
-
   /** @brief Set the blowup factor (see blowUpCovs() )
    */
   void setBlowUpFactor(double f){_blowUpFactor=f;}

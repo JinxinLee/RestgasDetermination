@@ -284,10 +284,6 @@ Kalman::calcGain(const TMatrixT<double>& cov,
   return gain;
 }
 
-void Kalman::smoothing(Track* trk) {
-  std::cout<<"Kalman::smoothing deprecated. Please check my forum message fom March 11th and let me know if you think I should put this implementation back->abort()"<<std::endl;
-  abort();
-}
 
 
 
