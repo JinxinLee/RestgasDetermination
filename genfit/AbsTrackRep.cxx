@@ -33,9 +33,9 @@ void AbsTrackRep::Abort(std::string method){
   std::cerr << method <<  " as implemented in " << __FILE__ 
 	    << " was called. This means that this feature was used "
 	    << "in a track rep which didnt overwrite this method. "
-	    << std::endl << "Calling abort()." << std::endl;
+	    << std::endl << "C++ throw;" << std::endl;
   //system call abort
-  abort();
+  throw;
 }
 
 TVector3 AbsTrackRep::extrapolateToPoca(const TVector3& point, 
