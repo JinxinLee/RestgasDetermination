@@ -350,7 +350,7 @@ PndTpcConfTrackFinder::mergeTracks(Track* trkA,Track* trkB)
   // remember to remap the confhits!!!
   trkA->mergeHits(trkB); // thetrk will disappear
   
-  myfitter.continueTrack(trkA,1);
+  myfitter.fittingPass(trkA,1);
 }
 
 // ---------------------------------------------------------------------
@@ -447,7 +447,7 @@ PndTpcConfTrackFinder::addHit2Track(PndTpcConfMapRecoHit* hit,
   else if(trk->getNumHits()>_minHitsForFit){ // regular fits
     hit->setRotated((dynamic_cast<PndTpcConfMapFit*>(trk->getTrackRep(0))->isRotated()));
     Kalman myfitter;
-    myfitter.continueTrack(trk,1);
+    myfitter.fittingPass(trk,1);
   }
   
   return true;

@@ -78,6 +78,7 @@ class AbsTrackRep : public TObject{
   
   //! chiSqu of the track fit
   double           chiSqu;
+  unsigned int     ndf;
 
   //! status of track representation: 0 means everything's OK
   int statusFlag; 
@@ -180,6 +181,14 @@ class AbsTrackRep : public TObject{
   inline double getChiSqu() const {
     return chiSqu;
   }
+  //! returns chi2/ndf
+  inline double getRedChiSqu() const {
+    if(ndf>0) return chiSqu/ndf;
+    return 0;
+  }
+  inline unsigned int getNDF() const {
+    return ndf;
+  }
 
   inline void setState(const TMatrixT<double>& aState) {
     state = aState;
@@ -208,8 +217,14 @@ class AbsTrackRep : public TObject{
   inline void setChiSqu(double aChiSqu) {
     chiSqu = aChiSqu;
   }
+  inline void setNDF(unsigned int n) {
+    ndf = n;
+  }
   inline void addChiSqu(double aChiSqu) {
     chiSqu += aChiSqu;
+  }
+  inline void addNDF(unsigned int n) {
+    ndf += n;
   }
   inline void setStatusFlag(int _val) {
 	statusFlag = _val;

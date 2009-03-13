@@ -66,6 +66,7 @@ class SPtestTask : public FairTask
   double thSt;
   double phiTr;
   double phiSt;
+  double chi2;
 
 
 

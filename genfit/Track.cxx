@@ -122,7 +122,7 @@ Track::getResiduals(unsigned int detId, // which detector?
       rep->extrapolate(pl,state);
       //rep->setState(state);
       //rep->setReferencePlane(pl);
-      double res=hit->residualVector(rep,state)[dim][0];
+      double res=hit->residualVector(rep,state,pl)[dim][0];
 
       //std::cout<<res<<std::endl;
 

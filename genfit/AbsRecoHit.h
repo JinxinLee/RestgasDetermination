@@ -34,7 +34,7 @@
  *  - method to calculate the residual of a hit to a track representation.
  * 
  * All hits have to inherit from this base class. 
- * Inheritance can be direct or through the template class
+ * Inheritance can be direct or through template class 
  * RecoHitIfc<GeometryPolicy>.
  * These interface classes (defined with a specific policy)
  * provide additional functionality for specific hit geometries, 
@@ -82,7 +82,7 @@ public:
    * coordinates and track representation coordinates.
    *
    * This is a virtual abstract method which has to be implemented in the child
-   * classes!
+   * classes.
    *
    * In general there is a linear transformation between the coordinate system
    * of the hit (which is defined by the detector plane) and the coordinates of
@@ -125,16 +125,15 @@ public:
    *
    * @param stateVector pointer to track representation - used to synchronize
    * with the track repesentation
-   * @param state parameter vector of the track representation (redundant, 
-   * could be removed)
+   * @param state parameter vector of the track representation 
    *
    * @sa setHMatrix
    * @sa getDetPlane
    */
-  virtual TMatrixT<double> residualVector(AbsTrackRep* stateVector,
-					  const TMatrixT<double>& state) {
+  TMatrixT<double> residualVector(AbsTrackRep* stateVector,
+				  const TMatrixT<double>& state,
+				  const DetPlane& d) {
     setHMatrix(stateVector,state);
-	DetPlane d = getDetPlane(stateVector);
     return ( getHitCoord(d) - (_HMatrix*state ));
   }
 

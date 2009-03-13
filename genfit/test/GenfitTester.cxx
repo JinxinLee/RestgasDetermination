@@ -68,7 +68,7 @@ GenfitTester::test_locTrkRep(){
   hit.getHitCoord(p).Print();
 
   // Calculate Residual
-  TMatrixT<double> res=hit.residualVector(&trkRep,bla);
+  TMatrixT<double> res=hit.residualVector(&trkRep,bla,p);
   res.Print();
     
 }

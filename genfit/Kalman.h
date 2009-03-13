@@ -80,7 +80,7 @@ public:
 
   /** @brief Performs fit on a Track beginning with the current hit.
    */
-  void continueTrack(Track*,int dir); // continues track from lastHitInFit
+  void fittingPass(Track*,int dir); // continues track from lastHitInFit
 
   /** @brief Calculates chi2 of a given hit with respect to a 
    * given track representation.
@@ -90,6 +90,10 @@ public:
   /** @brief NOT IMPLEMENTED
    */
   void smoothing(Track*);
+
+  /** @brief Set the blowup factor (see blowUpCovs() )
+   */
+  void setBlowUpFactor(double f){_blowUpFactor=f;}
 
   // Private Methods -----------------
 private:
@@ -108,11 +112,26 @@ private:
 
   /** @brief Calculate Kalman Gain
    */
-  TMatrixT<double> gain(const TMatrixT<double>& cov, 
+  TMatrixT<double> calcGain(const TMatrixT<double>& cov, 
 						const TMatrixT<double>& HitCov,
 						const TMatrixT<double>& H);
 
-  Int_t _lazy; // controls throw of exceptions
+  /** @brief this returns the reduced chi2 increment for a hit
+   */
+  double chi2Increment(const TMatrixT<double>& r,const TMatrixT<double>& H,
+		       const TMatrixT<double>& cov,const TMatrixT<double>& V);
+
+  /** @brief this is needed to blow up the covariance matrix before a fitting pass
+   * drops off diagonal elements and blows up diagonal by blowUpFactor
+   */
+  void blowUpCovs(Track* trk);
+
+  double _blowUpFactor;
+
+  bool _nullExtrapolation;
+  int _fitPassCounter;
+
+  Int_t _lazy; // controls throwing of exceptions
   Int_t _numIt;
 
 };

@@ -11,22 +11,24 @@
 #include "AbsTrackRep.h"
 #include "FitterExceptions.h"
   
- Kalman::Kalman():_lazy(0),_numIt(3){;}
+Kalman::Kalman():_lazy(0),_numIt(3),_blowUpFactor(20.),_nullExtrapolation(false){;}
   
 Kalman::~Kalman(){;}
 
 void
 Kalman::processTrack(Track* trk){
- 
   for(int i=0; i<_numIt; i++){
+    _fitPassCounter=i;
     // first we do the "normal" propagation
-    if(i == 0) trk->setNextHitToFit(0);
-    else trk->setNextHitToFit(1);
-    continueTrack(trk,1);
- //    //the we do backtracking
+    trk->setNextHitToFit(0);
+    if(i>0) blowUpCovs(trk);
+    fittingPass(trk,1);
+
+    //then we do backtracking
     switchDirection(trk);
-    trk->setNextHitToFit(trk->getNumHits()-2);
-    continueTrack(trk,-1);
+    trk->setNextHitToFit(trk->getNumHits()-1);
+    blowUpCovs(trk);
+    fittingPass(trk,-1);
     switchDirection(trk);
   }
 }
@@ -39,10 +41,32 @@ Kalman::switchDirection(Track* trk){
   }
 }
 
+void Kalman::blowUpCovs(Track* trk){
+  int nreps=trk->getNumReps();
+  for(int i=0; i<nreps; ++i){
+    AbsTrackRep* arep=trk->getTrackRep(i);
+    //dont do it for already compromsied reps, since they wont be fitted anyway
+    if(arep->getStatusFlag()==0) { 
+      TMatrixT<double> cov = arep->getCov();
+      for(int i=0;i<cov.GetNrows();++i){
+	for(int j=0;j<cov.GetNcols();++j){
+	  if(i!=j){//off diagonal
+	    cov[i][j]=0.;
+	  }
+	  else{//diagonal
+	    cov[i][j] = cov[i][j] * _blowUpFactor;
+	  }
+	}
+      }
+      arep->setCov(cov);
+    }
+  }  
+}
+
 void
-Kalman::continueTrack(Track* trk, int direction){
+Kalman::fittingPass(Track* trk, int direction){
+
   //loop over hits
-  //std::cout<<"Kalman::processTrack::Starting track"<<std::endl;
   unsigned int nhits=trk->getNumHits();
   unsigned int starthit=trk->getNextHitToFit();
   if(starthit==nhits && direction >0) {
@@ -57,19 +81,32 @@ Kalman::continueTrack(Track* trk, int direction){
   int nreps=trk->getNumReps();
   int ihit=(int)starthit;
   
+  //clear chi2 sum and ndf sum in track reps
+  for(int i=0;i<nreps;++i){
+    AbsTrackRep* arep=trk->getTrackRep(i);
+    arep->setChiSqu(0.);
+    arep->setNDF(0);
+  }
+
   while((ihit<nhits && direction==1) || (ihit>-1 && direction==-1)){
-    //std::cout<<"Hit#"<<ihit<<std::endl;
     AbsRecoHit* ahit=trk->getHit(ihit);
+    /* configure the flag that will avoid null extrapolations in processHits() */
+    if( (direction==1 && ihit==0 && _fitPassCounter>0) || (direction==-1 && ihit==nhits-1) ){
+      _nullExtrapolation=true;
+    }
+    else{
+      _nullExtrapolation=false;
+    }
+
     // loop over reps
     for(int irep=0; irep<nreps; ++irep){
 	  AbsTrackRep* arep=trk->getTrackRep(irep);
 	  if(arep->getStatusFlag()==0) { 
 		try {
-		  //std::cout<<".";
 		  processHit(ahit,arep,ihit);
 		}
 		catch(FitterException& e) {
-		  std::cout << e.what() << std::endl;
+		  std::cerr << e.what() << std::endl;
 		  if(!_lazy){
 		    e.info();
 		    arep->setStatusFlag(1);
@@ -83,6 +120,43 @@ Kalman::continueTrack(Track* trk, int direction){
   trk->setNextHitToFit(ihit-2*direction);
 }
 
+double Kalman::chi2Increment(const TMatrixT<double>& r,const TMatrixT<double>& H,
+			     const TMatrixT<double>& cov,const TMatrixT<double>& V){
+
+  TMatrixT<double> resid(r);
+
+  // residuals covariances:R=(V - HCH^T)
+  TMatrixT<double> R(V);
+  TMatrixT<double> covsum1(cov,TMatrixT<double>::kMultTranspose,H);
+  TMatrixT<double> covsum(H,TMatrixT<double>::kMult,covsum1);
+
+  R-=covsum;
+
+  // chisq= r^TR^(-1)r
+  double det=0.;
+  TMatrixT<double> Rsave(R);
+  R.Invert(&det);
+  TMatrixT<double> chisq=resid.T()*(R*resid); // note: .T() will change resid!
+  assert(chisq.GetNoElements()==1);
+
+  if(TMath::IsNaN(chisq[0][0])){
+	FitterException exc("chi2 is nan",__LINE__,__FILE__);
+	std::vector<double> numbers;
+	numbers.push_back(det);
+	exc.setNumbers("det",numbers);
+	std::vector< TMatrixT<double> > matrices;
+	matrices.push_back(resid);
+	matrices.push_back(V);
+	matrices.push_back(Rsave);
+	matrices.push_back(R);
+	matrices.push_back(cov);
+	exc.setMatrices("r, V, Rsave, R, cov",matrices);
+    throw exc;
+  }
+
+  return chisq[0][0];
+}
+
 
 double
 Kalman::getChi2Hit(AbsRecoHit* hit, AbsTrackRep* rep)
@@ -94,93 +168,66 @@ Kalman::getChi2Hit(AbsRecoHit* hit, AbsTrackRep* rep)
   DetPlane pl=hit->getDetPlane(rep);
   rep->extrapolate(pl,state,cov);
   hit->setHMatrix(rep,state);
-  //hit->setHMatrix(s,pred,);
+
   TMatrixT<double> H=hit->getHMatrix();
   // get hit covariances  
   TMatrixT<double> V=hit->getHitCov(pl);
-  TMatrixT<double> r=hit->residualVector(rep,state);
-  // residuals covariances:R=(V - HCH^T)
-  TMatrixT<double> R(V);
-  TMatrixT<double> covsum1(cov,TMatrixT<double>::kMultTranspose,H);
-  TMatrixT<double> covsum(H,TMatrixT<double>::kMult,covsum1);
 
-  R+=covsum; // note minus sign!
+  TMatrixT<double> r=hit->residualVector(rep,state,pl);
+  assert(r.GetNrows()>0);
 
-  // chisq= r^TR^(-1)r
-  double det=0;
-  TMatrixT<double> Rsave(R);
-  R.Invert(&det);
-  if(TMath::IsNaN(det))std::cout<<"predicted residual: det nan!"<<std::endl;
-  TMatrixT<double> chisq=r.T()*(R*r); // note: .T() will change r!
-  assert(chisq.GetNoElements()==1);
-  return chisq[0][0];
+  //this is where chi2 is calculated
+  double chi2 = chi2Increment(r,H,cov,V);
+
+  return chi2/r.GetNrows();
 }
-
 
   
 void
 Kalman::processHit(AbsRecoHit* hit, AbsTrackRep* rep,int hitIndex){
 
-  // make prediction ------------------------------------
   // get prototypes for matrices
   int repDim=rep->getDim();
   TMatrixT<double> state(repDim,1);
   TMatrixT<double> cov(repDim,repDim);;
-  //double s=0;
+  DetPlane pl; 
 
-  //   rep->getState().Print();
-  //rep->getCov().Print();
-  //hit->getHitCoord(s,rep).Print();
-  //hit->getHitCov(s,rep).Print();
-  //std::cout << hit->getS() << std::endl;  
- 
-  // get the virtual detector plane
-  DetPlane pl=hit->getDetPlane(rep);
-  
-  //pl.Print();
-  
-  // let the rep do the prediction
-  //std::cout<<"++++++++++++++ do prediction: ++++++++++++++++"<<std::endl;
-  rep->extrapolate(pl,state,cov);
-  //state.Print();
-  //cov.Print();
+  /* dont do an extrapolation if it is the first hit on a forward pass (except for the
+     first pass) or if it is the last hit on a backwards pass. This is configured in
+     fitting pass. */
+  if(!_nullExtrapolation){
+    // get the (virtual) detector plane
+    pl=hit->getDetPlane(rep);
+    //do the extrapolation
+    rep->extrapolate(pl,state,cov);
+  }
+  else{
+    pl = rep->getReferencePlane();
+    state = rep->getState();
+    cov = rep->getCov();
+  }
   
   if(cov[0][0]<1.E-50){
     FitterException exc("cov[0][0]<1.-50",__LINE__,__FILE__);
     throw exc;
   }
   
+
   TMatrixT<double> origcov=rep->getCov();
-  
-  for(int i=0; i<5; ++i){
-    for(int j=0;j<5; ++j){
-      if(cov[i][j]*origcov[i][j]<0){
-	//std::cout<<"AT HIT#"<<hitIndex<<" COV ELEMENT "<<i<<","
-	//	 <<j<<" CHANGED ITS SIGN!"<<std::endl;
-	//cov[i][j]=-cov[i][j];
-      }
-    }
-  }
-  
-  
-  //std::cout<<"++++++++++++++++++++++++++++++++++++++++++++++"<<std::endl;
-  
-  // create a predicted trackrep
-  //  AbsTrackRep* pred=rep->prototype();
-  //  pred->setState(state); 
-  // pred->setCov(cov);
-  //pred->setS(s);
-  
-  // get H Matrix at prediction
+
+  //set and get H matrix  
   hit->setHMatrix(rep,state);
-  //hit->setHMatrix(s,pred,);
+
   TMatrixT<double> H=hit->getHMatrix();
+
   // get hit covariances  
   TMatrixT<double> V=hit->getHitCov(pl);
-  
+
   // calculate kalman gain ------------------------------
-  TMatrixT<double> Gain(gain(cov,V,H));
-  TMatrixT<double> res=hit->residualVector(rep,state);
+  TMatrixT<double> Gain(calcGain(cov,V,H));
+
+  TMatrixT<double> res=hit->residualVector(rep,state,pl);
+
   // calculate update -----------------------------------
   TMatrixT<double> update=Gain*res;
   
@@ -189,61 +236,28 @@ Kalman::processHit(AbsRecoHit* hit, AbsTrackRep* rep,int hitIndex){
   
   // calculate filtered chisq
   // filtered residual
-  TMatrixT<double> r=hit->residualVector(rep,state);
-  // residuals covariances:R=(V - HCH^T)
-  TMatrixT<double> R(V);
+  TMatrixT<double> r=hit->residualVector(rep,state,pl);
 
-  TMatrixT<double> covsum1(cov,TMatrixT<double>::kMultTranspose,H);
-  TMatrixT<double> covsum(H,TMatrixT<double>::kMult,covsum1);
 
-  R+=covsum; // note minus sign!
-
-  // chisq= r^TR^(-1)r
-  double det=0;
-  TMatrixT<double> Rsave(R);
-  R.Invert(&det);
-  if(TMath::IsNaN(det))std::cout<<"filtered residual: det nan!"<<std::endl;
-  TMatrixT<double> chisq=r.T()*(R*r); // note: .T() will change r!
-  assert(chisq.GetNoElements()==1);
-  //  cov.Print();
-  //std::cout << "chi2 incr: " << chisq[0][0] << std::endl;
-  rep->addChiSqu(chisq[0][0]);
-  if(TMath::IsNaN(chisq[0][0])){
-	FitterException exc("chi2 is nan",__LINE__,__FILE__);
-	std::vector<double> numbers;
-	numbers.push_back(det);
-	exc.setNumbers("det",numbers);
-	std::vector< TMatrixT<double> > matrices;
-	matrices.push_back(r);
-	matrices.push_back(V);
-	matrices.push_back(Rsave);
-	matrices.push_back(R);
-	matrices.push_back(state);
-	matrices.push_back(cov);
-	matrices.push_back(Gain);
-	exc.setMatrices("r, V, Rsave, R, state, cov and Gain",matrices);
-    throw exc;
-  }
+  rep->addChiSqu( chi2Increment(r,H,cov,V) );
+  rep->addNDF( r.GetNrows() );
 
   // if we survive until here: update TrackRep
   rep->setState(state);
   rep->setCov(cov);
   rep->setReferencePlane(pl);
-  // No throwing beyond this point!!!!!!!!!!!!!!!!!!!!
+  // No throwing beyond this point!
 }
 
 
 TMatrixT<double>
-Kalman::gain(const TMatrixT<double>& cov, 
+Kalman::calcGain(const TMatrixT<double>& cov, 
 					 const TMatrixT<double>& HitCov,
 					 const TMatrixT<double>& H){
 
-// calculate covsum (V + HCH^T)
+  // calculate covsum (V + HCH^T)
   TMatrixT<double> covsum1(cov,TMatrixT<double>::kMultTranspose,H);
   TMatrixT<double> covsum(H,TMatrixT<double>::kMult,covsum1);
-  //TMatrixT<double> covsum=H*(cov*H.T());
-  //std::cout<<"Covsum==";
-  //covsum.Print();
 
   covsum+=HitCov;
   

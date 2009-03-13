@@ -113,6 +113,7 @@ void SPtestTask::Exec(Option_t* opt) {
   tree->Branch("thSt",&thSt,"thSt/D");
   tree->Branch("phiTr",&phiTr,"phiTr/D");
   tree->Branch("phiSt",&phiSt,"phiSt/D");
+  tree->Branch("chi2",&chi2,"chi2/D");
 
   for(int counter=0;counter<_nEv;++counter){
 
@@ -272,6 +273,9 @@ void SPtestTask::Exec(Option_t* opt) {
 	result->getReferencePlane().Print();
 	if(result->getStatusFlag()!=0) {
 	  std::cerr << "counter result->getStatusFlag()!=0)" << std::endl;
+	  delete rep;
+	  delete rephits;
+
 	  continue;
 	}
 	printf("hitsmom %10.10f\n",StartMom.Mag());
@@ -344,6 +348,7 @@ void SPtestTask::Exec(Option_t* opt) {
 	  vpTr=UpVp_MCT.Y();
 	  vpSi=UpVp_SIGMA.Y();
 	  vpPu=(vpRe-vpTr)/vpSi;
+	  chi2=result->getRedChiSqu();
 	}
 	else{
 	  saveTag=false;
