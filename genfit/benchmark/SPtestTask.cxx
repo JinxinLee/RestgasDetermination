@@ -19,7 +19,7 @@
 #include "GeaneTrackRep.h"
 #include "PndTpcPoint.h"
 
-#include "StdoutKiller.h"
+
 #include "Track.h"
 #include "Kalman.h"
 #include "SPhit.h"

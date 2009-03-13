@@ -130,7 +130,7 @@ public:
    * @sa setHMatrix
    * @sa getDetPlane
    */
-  TMatrixT<double> residualVector(AbsTrackRep* stateVector,
+  TMatrixT<double> residualVector(const AbsTrackRep* stateVector,
 				  const TMatrixT<double>& state,
 				  const DetPlane& d) {
     setHMatrix(stateVector,state);

@@ -37,7 +37,6 @@ test/GenfitTester.cxx
 test/TestRecoHit.cxx
 trackProximity.cxx
 VirtSpacePointRecoHit.cxx
-StdoutKiller.cxx
 WirepointHitPolicy.cxx
 )
 
