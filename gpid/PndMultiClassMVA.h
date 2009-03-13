@@ -105,9 +105,9 @@ class PndMultiClassMVA
     out << frac;
     mKnnscalefrac = out.str();
   };
-  //Set the kernel type
-  void SetKNNKernel(const TString kernel){
-    mKnnKernel = kernel;
+  //Set the selection option
+  void SetKNNSelOpt(const TString sel){
+    mKnnSelOpt = sel;
   };
 
   //MLP Parameters
@@ -174,7 +174,7 @@ class PndMultiClassMVA
   TString fNKNN;             //  number of nearest neighbours
   TString mKnnDepth;
   TString mKnnscalefrac;
-  TString mKnnKernel;
+  TString mKnnSelOpt;
 
   // MLP
   TString mlpNeuTyp; //MLP neuron type

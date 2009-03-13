@@ -168,7 +168,7 @@ void PndMultiClassMVA::TrainClassifier(MVAType mva)
   case TMKNN://KNN from TMVA
     MvaConfig = "nkNN=" + fNKNN + 
       ":V:TreeOptDepth="+mKnnDepth+":ScaleFrac="+mKnnscalefrac+
-      ":!UseKernel:"+mKnnKernel;
+      ":!UseKernel:"+mKnnSelOpt;
     TrainTestTM(TMKNN, MvaConfig);
     break;
     
