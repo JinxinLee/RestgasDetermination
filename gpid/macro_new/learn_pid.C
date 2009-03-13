@@ -12,14 +12,14 @@ void learn_pid()
   PndMultiClassMVA bdt_train;
   
   // Choose the features (parameters) to be used.
-  bdt_train.AddVar("stt");
-  bdt_train.AddVar("emc");
   bdt_train.AddVar("p");
-
-  //bdt_train.AddVar("mvd");
-  //bdt_train.AddVar("tof");
-  //bdt_train.AddVar("thetaC");
-
+  bdt_train.AddVar("emc");
+  bdt_train.AddVar("stt");
+  /*
+  bdt_train.AddVar("mvd");
+  bdt_train.AddVar("tof");
+  bdt_train.AddVar("thetaC");
+  */
   
   // Select classes
   bdt_train.AddClass("electron");
@@ -43,7 +43,7 @@ void learn_pid()
   bdt_train.SetNKNN("100");
   bdt_train.SetKNNTreeOptDepth(6);
   bdt_train.SetKNNScaleFrac(0.8);
-  bdt_train.SetKNNKernel("Trim");
+  bdt_train.SetKNNSelOpt("Trim");
   
   // MLP
   bdt_train.SetMLPNeuronType("tanh");
@@ -64,7 +64,7 @@ void learn_pid()
   
   // Select which classifier to train.
   /*
-   * Possible MVA's are:
+   * Possible MVA's are: 
    * TMKNN, TMBDT, TMMLP, MulClsKNN, LVQ1, LVQ21
    */
   MVAType bla = TMKNN;
@@ -76,7 +76,13 @@ void learn_pid()
   bla = TMMLP;
   //bdt_train.TrainClassifier(bla);
   
-  bla = LVQ21;//LVQ1;
+  bla = LVQ1;//LVQ1
+  TString OutFile = "LVQ1TestOut.root";
+  bdt_train.SetNumLvqProto(30);
+  bdt_train.SetOutFileName(OutFile);
+  bdt_train.TrainClassifier(bla);
+
+  bla = LVQ21;//LVQ2.1
   TString OutFile = "LVQ2TestOut.root";
   bdt_train.SetNumLvqProto(30);
   bdt_train.SetOutFileName(OutFile);
