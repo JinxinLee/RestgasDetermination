@@ -73,7 +73,9 @@ GeaneTrackRep::GeaneTrackRep(FairGeanePro* geane,
       ++count;
     }
   }
-
+  setStartState(state);
+  setStartCov(cov);
+  setStartPlane(plane);
   _refPlane=plane;
 }
 

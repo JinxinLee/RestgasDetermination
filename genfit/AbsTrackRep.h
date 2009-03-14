@@ -58,8 +58,8 @@ class AbsRecoHit;
  */
 
 class AbsTrackRep : public TObject{
- private:
-  void Abort(std::string method);
+
+  /*----- Data mambers -----*/
  protected:
   //! Dimensionality of track representation
   unsigned int dimension;
@@ -72,7 +72,8 @@ class AbsTrackRep : public TObject{
   
   TMatrixT<double> startState; 
   TMatrixT<double> startCov;
-  
+  DetPlane startPlane;  
+
   // detector plane where the track parameters are given
   DetPlane         _refPlane;
   
@@ -82,10 +83,21 @@ class AbsTrackRep : public TObject{
 
   //! status of track representation: 0 means everything's OK
   int statusFlag; 
-  
   //! specifies the direction of flight of the particle
   bool inverted; 
 
+ public:
+  virtual AbsTrackRep* clone() const = 0;
+
+  virtual AbsTrackRep* prototype() const = 0;
+  
+  //! returns the tracklength spanned in this extrapolation
+  /* There is a default implementation in AbsTrackRep.cxx which just drops
+     the predicted covaraiance. If your trackrep has a way to extrapolate
+     without giving a correct cov (that would be faster probably), please
+     overwrite it.
+  */
+  virtual double extrapolate(const DetPlane& plane, TMatrixT<double>& statePred);
 
 
  public:
@@ -94,19 +106,9 @@ class AbsTrackRep : public TObject{
   AbsTrackRep(int);
   virtual ~AbsTrackRep();
 
-  virtual AbsTrackRep* clone() const = 0;
-
-  virtual AbsTrackRep* prototype() const = 0;
 
   DetPlane getVirtualDetPlane(const TVector3& hit);
 
-  //! returns the tracklength spanned in this extrapolation
-  /* There is a default implementation in AbsTrackRep.cxx which just drops
-     the predicted covaraiance. If your trackrep has a way to extrapolate
-     without giving a correct cov (that would be faster probably), please
-     overwrite it.
-  */
-  virtual double extrapolate(const DetPlane& plane, TMatrixT<double>& statePred);
 
   //! This method is to extrapolate track to point of closest approach to a point in space
   /*! There is an empty implementation of this method in AbsTrackRep.cxx,
@@ -178,6 +180,9 @@ class AbsTrackRep : public TObject{
   inline TMatrixT<double> getStartCov() const {
     return startCov;
   }
+  inline DetPlane getStartPlane() const {
+    return startPlane;
+  }
   inline double getChiSqu() const {
     return chiSqu;
   }
@@ -201,6 +206,9 @@ class AbsTrackRep : public TObject{
   }
   inline void setStartCov(const TMatrixT<double>& aCov) {
     startCov = aCov;
+  }
+  inline void setStartPlane(const DetPlane& aPlane) {
+    startPlane = aPlane;;
   }
 
   //! sets the referene plane
@@ -238,6 +246,9 @@ class AbsTrackRep : public TObject{
   }
 
   virtual void reset();
+
+ private:
+  void Abort(std::string method);
 
 
   ClassDef(AbsTrackRep,2)
