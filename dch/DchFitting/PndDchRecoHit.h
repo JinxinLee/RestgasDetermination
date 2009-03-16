@@ -43,13 +43,15 @@ public:
   /** Public method clone() **/
   virtual AbsRecoHit* clone();
   
+  /** Public method residualVector(...) **/
+  TMatrixT<double> residualVector(const AbsTrackRep* stateVector,
+				  const TMatrixT<double>& state,
+				  const DetPlane& d);
+
   /** Operations **/
   virtual void setHMatrix(const AbsTrackRep* stateVector,
                           const TMatrixT<double>& state);
 
-  virtual TMatrixT<double> residualVector(AbsTrackRep* stateVector,
-                                const TMatrixT<double>& state);
-  
   virtual void  Print();
 
 private:

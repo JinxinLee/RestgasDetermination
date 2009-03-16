@@ -99,15 +99,11 @@ void PndDchRecoHit::setHMatrix(const AbsTrackRep* stateVector,
  
 }
 
-TMatrixT<double> PndDchRecoHit::residualVector(AbsTrackRep* stateVector,
-			      const TMatrixT<double>& state)
-{  // calculate two residuals (ambiguity) return smaller one
-  std::cout<<"........Inside of  PndDchRecoHit::residualVector(...)\n rep: (stateVector):"<<std::endl;
-  stateVector->Print();
-  std::cout<<" state (matrix):"<<std::endl;
+TMatrixT<double> PndDchRecoHit::residualVector(const AbsTrackRep* stateVector,
+					       const TMatrixT<double>& state, 
+					       const DetPlane& d){
+  setHMatrix(stateVector,state);
   TMatrixT<double> trackpos=(_HMatrix*state);
-  Double_t trackr=trackpos[0][0];
-  std::cout<<"_wirepos="<<_wirepos<<"  hitCoord[0][0]="<<_hitCoord[0][0]<<"  trackpos[0][0]="<<trackpos[0][0]<<std::endl;
   Double_t res1 = _wirepos+_hitCoord[0][0]-trackpos[0][0];
   Double_t res2 = _wirepos-_hitCoord[0][0]-trackpos[0][0];
   TMatrixT<double> res(1,1);
@@ -115,9 +111,7 @@ TMatrixT<double> PndDchRecoHit::residualVector(AbsTrackRep* stateVector,
     res[0][0]=res2;
   }
   else res[0][0]=res1;
-
-  std::cout<<".......res1 = \t"<<res1<<"\t res2 = "<<res2<<"\t res = "<<res[0][0]<<std::endl;
-
+  
   return res;
 }
 
