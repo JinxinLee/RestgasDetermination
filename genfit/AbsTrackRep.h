@@ -107,9 +107,6 @@ class AbsTrackRep : public TObject{
   virtual ~AbsTrackRep();
 
 
-  DetPlane getVirtualDetPlane(const TVector3& hit);
-
-
   //! This method is to extrapolate track to point of closest approach to a point in space
   /*! There is an empty implementation of this method in AbsTrackRep.cxx,
       which will just abort with an error message. One can overwrite this
@@ -122,6 +119,20 @@ class AbsTrackRep : public TObject{
       with complicated hit topology.
    */
   virtual TVector3 extrapolateToPoca(const TVector3& point, 
+				     TMatrixT<double>& statePred,
+				     TMatrixT<double>& covPred,
+				     DetPlane& planePred);
+
+  //! 
+  /** @brief This method extrapolates to the point of closest approach to a line
+   * 
+   * This method extrapolates to the POCA to a line, i.e. a wire. There
+   * is a default implementation just like for the extrapolateToPoca for
+   * trackReps which do not need this feature, which will abort the
+   * execution if it is ever called.
+   */
+  virtual TVector3 extrapolateToLine(const TVector3& point1, 
+				     const TVector3& point2, 
 				     TMatrixT<double>& statePred,
 				     TMatrixT<double>& covPred,
 				     DetPlane& planePred);

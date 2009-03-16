@@ -14,7 +14,6 @@ VirtSpacePointRecoHit::VirtSpacePointRecoHit()
 VirtSpacePointRecoHit::VirtSpacePointRecoHit(double x, double y, double z)
   : SpacepointRecoHit(NparHitRep)
 {
-  setPos(TVector3(x,y,z));
   _hitCoord[0][0] = x;
   _hitCoord[1][0] = y;
   _hitCoord[2][0] = z;
@@ -24,7 +23,6 @@ VirtSpacePointRecoHit::VirtSpacePointRecoHit(double x, double y, double z)
 VirtSpacePointRecoHit::VirtSpacePointRecoHit(const TVector3& pos)
   : SpacepointRecoHit(NparHitRep)
 {
- setPos(pos);
   _hitCoord[0][0] = pos.X();
   _hitCoord[1][0] = pos.Y();
   _hitCoord[2][0] = pos.Z();

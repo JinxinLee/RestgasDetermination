@@ -153,7 +153,8 @@ KalmanTask::Exec(Option_t* opt)
     std::cout<<"\n *** PndTpcSPHit positions ***"<<std::endl;
     for(int hit=0; hit<hits.size(); hit++) {
       PndTpcSPHit* the_sphit = dynamic_cast<PndTpcSPHit*>(hits[hit]);
-      TVector3 the_pos = the_sphit->getPos();
+      TMatrixT<double> rawcoord =the_sphit->getRawHitCoord();
+      TVector3 the_pos(rawcoord[0][0],rawcoord[1][0],rawcoord[2][0]);
       std::cout<<"("<<the_pos.X()<<", "<<the_pos.Y()<<", "<<the_pos.Z()<<");    ";
       if(hit%4 == 0 && hit>0)
 	std::cout<<std::endl;

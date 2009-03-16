@@ -24,6 +24,10 @@ class AbsTrackRep;
  * For a space point the detector plane has to be defined with respect to
  * a track representation. SpacepointHitPolicy implements a scheme where the
  * detectorplane is chosen perpendicular to the track.
+ * In a track fit only 2 of the three coordinates of a space point are 
+ * independent (the track is a one-dimensional object). Therefore the 3D
+ * data of the hit is used to define a proper detector plane into which the
+ * hit coordinates are then projected.
  */
 
 class SpacepointHitPolicy {
@@ -32,23 +36,6 @@ public:
 
   SpacepointHitPolicy(){;}
   
-
-  // Modifiers -----------------------
-
-  /** @brief Set 3D positon of hit. Hit coordinates will be computed from this.
-   *
-   * In a track fit only 2 of the three coordinates of a space point are 
-   * independent (the track is a one-dimensional object). Therefore the 3D
-   * data of the hit is used to define a proper detector plane into which the
-   * hit coordinates are then projected.
-   */
-  void setPos(const TVector3& p){_pos=p;}
-
-  // Acessors ------------------------
-  /** @brief Get raw hit positoin.
-   */
-  const TVector3& getPos() {return _pos;}
-
   // Operations ----------------------
    /** @brief Get detector plane perpendicular to track.
     *
@@ -71,10 +58,6 @@ protected:
    * see Alexandrescu, 2004
    */
   virtual ~SpacepointHitPolicy(){;}
-
-  /** @brief 3D position of the hit
-   */
-  TVector3 _pos; // position of spacepoint;
 
 private:
 

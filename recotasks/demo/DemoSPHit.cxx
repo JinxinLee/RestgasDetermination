@@ -45,7 +45,6 @@ DemoSPHit::DemoSPHit(double x, double y, double z,
 			   double sigx, double sigy, double sigz)
   : SpacepointRecoHit(NparHitRep)
 {
-  setPos(TVector3(x,y,z));
   _hitCoord[0][0] = x;
   _hitCoord[1][0] = y;
   _hitCoord[2][0] = z;
@@ -59,7 +58,6 @@ DemoSPHit::DemoSPHit(const TVector3& pos,
 		 const TVector3& sig)
   : SpacepointRecoHit(NparHitRep)
 {
-  setPos(pos);
   _hitCoord[0][0] = pos.X();
   _hitCoord[1][0] = pos.Y();
   _hitCoord[2][0] = pos.Z();
@@ -72,7 +70,6 @@ DemoSPHit::DemoSPHit(const TVector3& pos,
 DemoSPHit::DemoSPHit(FairMCPoint* point)
   : SpacepointRecoHit(NparHitRep)
 {
-  setPos(TVector3(point->GetX(),point->GetY(),point->GetZ()));
   _hitCoord[0][0] = point->GetX();
   _hitCoord[1][0] = point->GetY();
   _hitCoord[2][0] = point->GetZ();

@@ -66,6 +66,18 @@ SpacepointHitPolicy::hitCov(AbsRecoHit* hit,const DetPlane& plane)
 const DetPlane&
 SpacepointHitPolicy::detPlane(AbsRecoHit* hit, AbsTrackRep* rep)
 {
-  _plane=rep->getVirtualDetPlane(_pos);
+  TMatrixT<double> rawcoord = hit->getRawHitCoord();
+  TVector3 point(rawcoord[0][0],rawcoord[1][0],rawcoord[2][0]);
+  int dimension = rep->getDim();
+  TMatrixT<double> statePred(dimension,1);
+  TMatrixT<double> covPred(dimension,dimension);
+  TVector3 poca=rep->extrapolateToPoca(point,statePred,covPred,_plane);
+
+  /*C. Hoeppner, March 09: I am not entirely sure that these two calls 
+    are needed, but they dont hurt for sure. Something happens here
+    to the orientation of u and v, so keep it.*/
+  TVector3 m=_plane.getNormal();
+  _plane.setNormal(m);
+
   return _plane;
 }

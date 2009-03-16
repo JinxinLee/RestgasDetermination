@@ -39,11 +39,20 @@ void AbsTrackRep::Abort(std::string method){
 }
 
 TVector3 AbsTrackRep::extrapolateToPoca(const TVector3& point, 
-			   TMatrixT<double>& statePred,
-			   TMatrixT<double>& covPred,
-			   DetPlane& planePred){
+					TMatrixT<double>& statePred,
+					TMatrixT<double>& covPred,
+					DetPlane& planePred){
   Abort("extrapolateToPoca()");
 }
+
+TVector3 AbsTrackRep::extrapolateToLine(const TVector3& point1, 
+					const TVector3& point2, 
+					TMatrixT<double>& statePred,
+					TMatrixT<double>& covPred,
+					DetPlane& planePred){
+  Abort("extrapolateToLine()");
+}
+  
 
 void AbsTrackRep::stepalong(double h){
   Abort("stepalong()");
@@ -78,21 +87,6 @@ AbsTrackRep::Print() const {
   std::cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
 }
 
-DetPlane 
-AbsTrackRep::getVirtualDetPlane(const TVector3& hit){
-  TMatrixT<double> statePred(dimension,1);
-  TMatrixT<double> covPred(dimension,dimension);
-  DetPlane plane;
-  TVector3 poca=extrapolateToPoca(hit,statePred,covPred,plane);
-
-  /*C. Hoeppner: I am not entirely sure that these two calls are needed, but
-    they dont hurt for sure. Something happens here to the orientation of
-    of u and v, so keep it.*/
-  TVector3 m=plane.getNormal();
-  plane.setNormal(m);
-
-  return plane;  
-}
 
 
 ClassImp(AbsTrackRep)

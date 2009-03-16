@@ -28,9 +28,6 @@ SPhit::SPhit(double x, double y, double z,
   _hitCoord[0][0] = gRandom->Gaus(x,sigx);
   _hitCoord[1][0] = gRandom->Gaus(y,sigy);
   _hitCoord[2][0] = gRandom->Gaus(z,sigz);
-  _pos.SetX(_hitCoord[0][0]);
-  _pos.SetY(_hitCoord[1][0]);
-  _pos.SetZ(_hitCoord[2][0]);
   _hitCov[0][0] = sigx*sigx;
   _hitCov[1][1] = sigy*sigy;
   _hitCov[2][2] = sigz*sigz;
@@ -43,9 +40,6 @@ SPhit::SPhit(const TVector3& pos,
   _hitCoord[0][0] = gRandom->Gaus(pos.X(),err.X());
   _hitCoord[1][0] = gRandom->Gaus(pos.Y(),err.Y());
   _hitCoord[2][0] = gRandom->Gaus(pos.Z(),err.Z());
-  _pos.SetX(_hitCoord[0][0]);
-  _pos.SetY(_hitCoord[1][0]);
-  _pos.SetZ(_hitCoord[2][0]);
   _hitCov[0][0] = err.X()*err.X();
   _hitCov[1][1] = err.Y()*err.Y();
   _hitCov[2][2] = err.Z()*err.Z();
