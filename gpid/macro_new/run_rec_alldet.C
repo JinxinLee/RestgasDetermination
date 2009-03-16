@@ -1,17 +1,22 @@
-void run_rec_alldet(Int_t nEvents = 0)
+void run_rec_alldet(int nEvents = 0, const char* inSimFile = "SimOut.root",
+		    const char* parInFile = "params.root",
+		    const char* outPutFile = "RecoOut.root")
 {
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0;
 
   // Input file (MC events)
-  TString inFile = "el_sttcombi.root";
-
+  //TString inFile = "el_sttcombi.root";
+  TString inFile = inSimFile;
+ 
   // Parameter file
-  TString parFile = "params_sttcombi.root";
-
+  //TString parFile = "params_sttcombi.root";
+  TString parFile = parInFile;
+  
   // Output file
-  TString outFile = "el_reco.root";
+  //TString outFile = "el_reco.root";
+  TString outFile =  outPutFile;
 
   // ----  Load libraries   -------------------------------------------------
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -61,7 +66,8 @@ void run_rec_alldet(Int_t nEvents = 0)
 
   // trackfinding ....
   PndSttTrackFinderIdeal* sttTrackFinder = new PndSttTrackFinderIdeal(iVerbose);
-  PndSttFindTracks* sttFindTracks = new PndSttFindTracks("Track Finder", "FairTask", sttTrackFinder, iVerbose);
+  PndSttFindTracks* sttFindTracks = new PndSttFindTracks("Track Finder", "FairTask", 
+							 sttTrackFinder, iVerbose);
   sttFindTracks->AddHitCollectionName("STTHit", "STTPoint");
   fRun->AddTask(sttFindTracks);
 
@@ -146,8 +152,10 @@ void run_rec_alldet(Int_t nEvents = 0)
   // -----   LHETRACK  ---------------------------------
   
   PndTpcLheHitsMaker* trackMS = new PndTpcLheHitsMaker("Tracking routine");
-  trackMS->SetSttMode(3);  // 0 OFF, 1 SttPoint, 2 SttHit, (3) SttHelixHit // SttPoint smearing [cm], if negative no smearing
-  trackMS->SetMvdMode(2);  // 0 OFF, 1 MVDPoint, 2 MVDHit     // MVDPoint smearing [cm], if negative no smearing
+  // 0 OFF, 1 SttPoint, 2 SttHit, (3) SttHelixHit // SttPoint smearing [cm], if negative no smearing
+  trackMS->SetSttMode(3);
+  // 0 OFF, 1 MVDPoint, 2 MVDHit     // MVDPoint smearing [cm], if negative no smearing
+  trackMS->SetMvdMode(2);
   fRun->AddTask(trackMS);
   
   PndTpcLheTrackFinder* trackFinder    = new PndTpcLheTrackFinder();
@@ -160,24 +168,14 @@ void run_rec_alldet(Int_t nEvents = 0)
   pidMaker->SetGeanePro(kFALSE);  // Switch ON Geane propagation
   pidMaker->SetDebugMode(kTRUE);  // Debug ntuples
   fRun->AddTask(pidMaker);
-/*
-  PndGpidTaskLhe* pid = new PndGpidTaskLhe();
-  pid->SetAPPNAME("testp_1_2");
-  pid->SetDIR("weights/");
-  pid->SetMVA(PndGpidTask::KNN);
-*/
-  //  fRun->AddTask(pid);
-
-
+  
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
   fRun->Run(0, nEvents);
-
+  
   rtdb->saveOutput();
   rtdb->print();
-
-  // ------------------------------------------------------------------------
-
+  
   // -----   Finish   -------------------------------------------------------
 
   timer.Stop();
@@ -190,5 +188,5 @@ void run_rec_alldet(Int_t nEvents = 0)
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
   cout << endl;
   // ------------------------------------------------------------------------
-
+  exit(0);
 }

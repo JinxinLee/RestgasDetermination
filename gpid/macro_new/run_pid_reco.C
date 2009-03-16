@@ -9,21 +9,27 @@
 /*
  * @param NumEvt: Number of events to classify.
  */
-void run_pid_reco(const int NumEvt = 4)
+void run_pid_reco(const int NumEvt = 4, const char* inPutFile = "Reco.root",
+		  const char* simInFile = "SimFile.root",
+		  const char* parInput = "Param.root", 
+		  const char* OutPutFile = "PidOut.root")
 {
   // ================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0;
   
   // Input file (MC events)
-  TString inFile = "el_reco.root";
+  //TString inFile = "el_reco.root";
+  TString inFile = inPutFile;
   
   // Parameter file
-  TString parFile = "params_sttcombi.root";
-  
+  //TString parFile = "params_sttcombi.root";
+  TString parFile = parInput;
+
   // Output file
-  TString outFile = "pid_OutPut.root";
-  
+  //TString outFile = "pid_OutPut.root";
+  TString outFile = OutPutFile;
+
   // ----  Load libraries   --------------------------------------------
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
@@ -34,7 +40,8 @@ void run_pid_reco(const int NumEvt = 4)
   timer.Start();
   // -------------------------------------------------------------------
   
-  PndEmcMapper *emcMap=PndEmcMapper::Instance(2,"el_sttcombi.root");
+  //PndEmcMapper *emcMap=PndEmcMapper::Instance(2,".root");
+  PndEmcMapper *emcMap=PndEmcMapper::Instance(2, simInFile);
   
   // -----   Digitization run   ----------------------------------------
   FairRunAna *fRun= new FairRunAna();
@@ -92,4 +99,5 @@ void run_pid_reco(const int NumEvt = 4)
   cout << "Real time " << rtime << " s, CPU time " 
        << ctime << " s" << endl;
   cout << endl;
+  exit(0);
 }

@@ -1,5 +1,8 @@
-void run_sim_alldet(Int_t nEvents = 20, const char* part="e-",
-		             Float_t p1 = 3.0, Float_t p2 = 3.5)
+void run_sim_alldet(const int nEvents = 20, const char* part="e-",
+		    const float p1 = 3.0, const float p2 = 3.5,
+		    const char* SimOut = "SimOut.root",
+		    const char* paramOut = "ParamOut.root"
+		    )
 {
   TStopwatch timer;
   timer.Start();
@@ -15,7 +18,8 @@ void run_sim_alldet(Int_t nEvents = 20, const char* part="e-",
 
   fRun->SetName("TGeant3");
   
-  fRun->SetOutputFile("el_sttcombi.root");
+  //fRun->SetOutputFile("el_sttcombi.root");
+  fRun->SetOutputFile(SimOut);
 
   // Set Material file Name
   //-----------------------
@@ -56,9 +60,6 @@ void run_sim_alldet(Int_t nEvents = 20, const char* part="e-",
   Tof->SetGeometryFileName("tofbarrel.geo");
   fRun->AddModule(Tof);
  
-  //FairDetector *Muo = new PndMdt("MDT",kTRUE);
-  //Muo->SetGeometryFileName("muopars.root");
-  //fRun->AddModule(Muo);
   
   PndMdt* Mdt = new PndMdt("MDT",kTRUE);
   Mdt->SetMdtVersion("torino");
@@ -69,9 +70,9 @@ void run_sim_alldet(Int_t nEvents = 20, const char* part="e-",
   Drc->SetRunCherenkov(kFALSE); // for fast sim Cherenkov -> kFALSE
   fRun->AddModule(Drc); 
   
-  //FairDetector *Dch = new PndDchDetector("DCH", kTRUE);
-  //Dch->SetGeometryFileName("dch.root"); 
-  //fRun->AddModule(Dch);
+  FairDetector *Dch = new PndDchDetector("DCH", kTRUE);
+  Dch->SetGeometryFileName("dch.root"); 
+  fRun->AddModule(Dch);
   
   // Create and Set Event Generator
   //-------------------------------
@@ -82,7 +83,7 @@ void run_sim_alldet(Int_t nEvents = 20, const char* part="e-",
   // Use DPM generator
   Float_t pbarP=4.0;
   PndDpmDirect *Dpm= new PndDpmDirect(pbarP,1);
-  primGen->AddGenerator(Dpm);
+  //primGen->AddGenerator(Dpm);
 
   // Box Generator
   TDatabasePDG pdg;// = new TDatabasePDG();
@@ -96,7 +97,7 @@ void run_sim_alldet(Int_t nEvents = 20, const char* part="e-",
   boxGen->SetPhiRange(0., 360.);// Azimuth angle range [degree]
   boxGen->SetThetaRange(50., 140.);// Polar angle in lab system range [degree]
   boxGen->SetXYZ(0., 0., 0.);// mm o cm ??
-  //primGen->AddGenerator(boxGen);
+  primGen->AddGenerator(boxGen);
 
   fRun->SetStoreTraj(kFALSE);
   
@@ -122,7 +123,8 @@ void run_sim_alldet(Int_t nEvents = 20, const char* part="e-",
   Par->setChanged();
 
   FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
-  output->open("params_sttcombi.root");
+  //output->open("params_sttcombi.root");
+  output->open(paramOut);
   rtdb->setOutput(output);
   rtdb->saveOutput();
   rtdb->print();
@@ -133,9 +135,6 @@ void run_sim_alldet(Int_t nEvents = 20, const char* part="e-",
    
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
-  printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
-   
-  cout << " Test passed" << endl;
-  cout << " All ok " << endl;
-  //exit(0);  
+  printf("RealTime=%f seconds, CpuTime=%f seconds\n\n",rtime,ctime);
+  exit(0);  
 }
