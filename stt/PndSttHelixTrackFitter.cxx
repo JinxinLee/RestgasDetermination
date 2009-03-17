@@ -47,7 +47,7 @@ TCanvas *eventCanvas4, *eventCanvas5;
 TCanvas *hougCanvas;
 TH2F *houg; 
 Double_t vote[201][1001];
-TArrayD marray(100);
+TArrayD marray(200);
 
 PndSttHelixTrackFitter::PndSttHelixTrackFitter()
 {
@@ -681,7 +681,7 @@ Int_t PndSttHelixTrackFitter::Fit4b(PndSttTrack* pTrack, Int_t pidHypo) {
   Int_t hitcounter = pTrack->GetNofHits();
   Bool_t first = kFALSE;
   if(hitcounter == 0) return 0;
-  if(hitcounter > 50 || hitcounter < 5) {
+  if(hitcounter < 5) {         // hitcounter > 50  
     cout << "Bad No of hits in STT " << hitcounter << endl;
     return 0;
   }
@@ -2203,8 +2203,8 @@ Bool_t PndSttHelixTrackFitter::ZFinderbb3(PndSttTrack* pTrack, Int_t pidHypo) {
   Int_t hitcounter = pTrack->GetNofHits();
  
   // cut on number of hits
-  if(hitcounter > 50) {
-    cout << "more than 50 hits " << hitcounter << endl;
+//   if(hitcounter > 50) {
+//     cout << "more than 50 hits " << hitcounter << endl;
     //  pTrack->GetParamLast()->SetX(-999);                
     //     pTrack->GetParamLast()->SetY(-999);
     //     //    Double_t newZ = -999.; // CHECK da cambiare
@@ -2213,8 +2213,8 @@ Bool_t PndSttHelixTrackFitter::ZFinderbb3(PndSttTrack* pTrack, Int_t pidHypo) {
     //     //    Double_t newTheta = -999.; // CHECK da cambiare
     //     //    pTrack->GetParamLast()->SetTy(newTheta);                
     //     pTrack->GetParamLast()->SetQp(0.);
-    return 0;
-  }
+//     return 0;
+//   }
   if(hitcounter < 5)  {
     cout << "less than 5 hits" << endl;
     //     pTrack->GetParamLast()->SetX(-999);                
@@ -3571,7 +3571,7 @@ Int_t PndSttHelixTrackFitter::Zfitbb2(PndSttTrack* pTrack, Int_t pidHypo) {
   Int_t hitcounter = pTrack->GetNofHits();
  
   // cut on number of hits
-  if(hitcounter > 50) return 0;
+//   if(hitcounter > 50) return 0;
   if(hitcounter < 5) return 0;
   
   // CHECK: ATTENTION
@@ -4144,8 +4144,8 @@ Int_t PndSttHelixTrackFitter::GetCharge(Double_t dCenter, Double_t phiCenter, Do
 	hitMapIter++;
     }
 
-    // 2/3 majority is enough to decide on track
-    if (votesForPositive > 2 * votesForNegative)
+    // majority is enough to decide on track  
+    if (votesForPositive > votesForNegative) //2*
     {
 
       // when swimming the track from -z to z we get a positive rotation
@@ -4158,7 +4158,7 @@ Int_t PndSttHelixTrackFitter::GetCharge(Double_t dCenter, Double_t phiCenter, Do
 	  charge = 1;
 	}
     }
-    else if (votesForNegative > 2 * votesForPositive)
+    else if (votesForNegative > votesForPositive) //2*
     {
       // when swimming the track from -z to z we get a positive rotation
       if (firstPoint.DistanceTo(vertex) < lastPoint.DistanceTo(vertex))

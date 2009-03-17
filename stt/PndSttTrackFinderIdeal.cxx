@@ -293,8 +293,23 @@ Int_t PndSttTrackFinderIdeal::DoFind(TClonesArray* trackArray)
 	  nNoTrack++;
 	  continue;
       }
+      
+// ---------------------------------------------------------------------      
+      TVector3 MCmom;
+      pMCpt->Momentum(MCmom);
+      if(MCmom.Mag() < 0.3) {
+	// for low momentum particles, hits added to pTrck by R could not be 
+	// in the correct order due to spiralizing tracks 
+	cout << "LOW MOMENTUM " << MCmom.Mag() << " --> AddHit by HitID " << endl;
+	if(iHit>25) continue;
+	pTrck->AddHitByHitID(iHit, pMhit);
+      }
+      else {
+	// 	cout << "HIGH MOMENTUM --> AddHit by R " << endl;
+	pTrck->AddHit(iHit, pMhit);
+      }
+// ---------------------------------------------------------------------  
 
-      pTrck->AddHit(iHit, pMhit);
 
       if (rootoutput)
       {
