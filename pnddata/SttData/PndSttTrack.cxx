@@ -49,6 +49,13 @@ void PndSttTrack::AddHit(Int_t hitID, PndSttHit* mHit)
 // -------------------------------------------------------------------------
 
 
+// -----   Public method AddHitByHitID   -----------------------------------
+void PndSttTrack::AddHitByHitID(Int_t hitID, PndSttHit* mHit) 
+{
+  fHitMap[hitID] = hitID;
+}
+// -------------------------------------------------------------------------
+
 
 // -----   Public method Print   -------------------------------------------
 void PndSttTrack::Print() 

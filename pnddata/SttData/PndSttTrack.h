@@ -39,6 +39,8 @@ class PndSttTrack : public TObject
    ** Adds the hit index to the index array
    **/
   void AddHit(Int_t hitID, PndSttHit* mHit);
+  // TO BE USED ONLY FOR IDEAL TRACK FINDER
+  void AddHitByHitID(Int_t hitID, PndSttHit* mHit);
 
   /** Public method Print
    ** Output to screen 
