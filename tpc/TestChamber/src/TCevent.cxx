@@ -3,27 +3,17 @@
 
 TCevent::TCevent(const TCevent& rhs){
   for(int i=0;i<rhs.nClusters();++i){
-    TCcluster *c = new TCcluster(*(rhs.clusters.at(i)));
-    clusters.push_back(c);
+    
+    clusters.push_back(rhs.clusters.at(i));
   }
   
   for(int i=0;i<rhs.nTracks();++i){
-    std::vector<int> index;
-    for(int j=0;j<rhs.tracks.at(i)->nCl();++j){
-      TCcluster* rhsCluster = rhs.tracks.at(i)->getCl(j);
-	  for(int k=0;k<rhs.nClusters();++k){
-		if(rhs.clusters.at(k)==rhsCluster) {
-		  index.push_back(k);
-		  break;
-		}
-	  }
+    TCtrack* t = new TCtrack();
+    std::vector<TCcluster> c;
+    for(int j =0;j<rhs.tracks.at(i)->nCl();++j){
+      c.push_back(rhs.tracks.at(i)->getCl(j));
     }
-    TCtrack* t = new TCtrack;
-    std::vector<TCcluster*> lhsClusters;
-    for(int j=0;j<index.size();++j){
-      lhsClusters.push_back(rhs.clusters.at(j));
-    }
-    t->addClusters(lhsClusters);
+    t->addClusters(c);
     tracks.push_back(t);
   }
 }
