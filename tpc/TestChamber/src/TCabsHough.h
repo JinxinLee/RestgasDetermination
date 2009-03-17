@@ -16,7 +16,7 @@ class TCabsHough{
   virtual void convert(std::vector<TCcluster>& _c);
   virtual void doHough()=0;
 
-  void make(std::vector<TCcluster>& _c){
+  virtual void make(std::vector<TCcluster>& _c){
 	convert(_c);
 	doHough();
   }
