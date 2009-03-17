@@ -62,7 +62,7 @@ void setSupression(double sup) {_supression = sup;}
 void setGain(double gain) {_gemGain = gain;}
 void setPrimChargeMode(bool opt) {_primChargeOnly = opt;}
 
-void setAliceMode(bool opt) {_ALICEmode = opt;}
+void setAliceMode(bool opt) {_ALICEmode = opt;} //experimental, should not be used
 
 private:
 

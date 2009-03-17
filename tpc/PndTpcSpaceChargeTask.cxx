@@ -49,7 +49,7 @@ PndTpcSpaceChargeTask::PndTpcSpaceChargeTask()		//default constructor
 	_time(0),               
 	_errorCount(0),
 	_primChargeOnly(false),
-	 
+	_ALICEmode(false),	 
         _pointBranchName("PndTpcPoint")
 {}
 
@@ -133,6 +133,10 @@ PndTpcSpaceChargeTask::SetParContainers() {
 void
 PndTpcSpaceChargeTask::Exec(Option_t* opt)
 {
+  //only needed for ALICE mode
+  const Float_t poti = 20.77e-9; // first ionization potential for Ne/CO2
+  const Float_t w_ion = 35.97e-9; // energy for the ion-electron pair creation 
+
   PndTpcPoint* currentPoint;
   int np = _pointArray->GetEntriesFast();	//number of MC points 
 
@@ -144,26 +148,26 @@ PndTpcSpaceChargeTask::Exec(Option_t* opt)
   for(int n=0; n<np; n++)			//Loop over all MC points
   {
     currentPoint = (PndTpcPoint*) _pointArray->At(n);
-    Int_t qPoint = (Int_t)std::floor(currentPoint->GetEnergyLoss()*1e9 / _WGas); // [eV]
+    int qPoint=0;
     
-
+    //misleading - has nothing to do with G3 "ALICE", just different method
+    //TODO: make sure the DETECTOR class works right
     if(_ALICEmode) {
       if(n==0 && time==0)
 	std::cout<<"\n------- USING ALICE CHARGE CONVERSION MODE --------------------------"<<std::endl;
-      const Float_t poti = 20.77e-9; // first ionization potential for Ne/CO2
-      const Float_t w_ion = 35.97e-9; // energy for the ion-electron pair creation 
-            
-      //Do no clustering just convert energy deposition to ionisation
-      qPoint = (Int_t)(((currentPoint->GetEnergyLoss())-poti)/w_ion) + 1;	//imported from ALICE
+      if((currentPoint->GetEnergyLoss())-poti > 0.)
+	qPoint = (int)(((currentPoint->GetEnergyLoss())-poti)/w_ion) + 1;	//imported from ALICE
       //qPoint = TMath::Min(qPoint,300); // 300 electrons corresponds to 10 keV ??
     }
+    else
+      qPoint = (int)(currentPoint->GetEnergyLoss()*1e9 / _WGas); // [eV]
     
     double posX = currentPoint->GetX();
     double posY = currentPoint->GetY();
     double r = sqrt(posX*posX + posY*posY);
 
-    int rBin = (int)std::floor(std::fabs(r - _tpcMinR) / _rBinWidth);
-    int zBin = (int)std::floor(std::fabs(currentPoint->GetZ() - _tpcMinZ) / _zBinWidth);
+    int rBin = (int)(std::fabs(r - _tpcMinR) / _rBinWidth);
+    int zBin = (int)(std::fabs(currentPoint->GetZ() - _tpcMinZ) / _zBinWidth);
 
     if(rBin >= _rBinCount || zBin >= _zBinCount)
     {
