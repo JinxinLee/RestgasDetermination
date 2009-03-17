@@ -304,7 +304,7 @@ int main(int argc, char *argv[])
   // .x Geo.C 
   // .x Screen.C
   // 
-  manager->Print(geo);
+  //manager->Print(geo);
 
   // create a list of photons in bar
 
@@ -318,8 +318,7 @@ int main(int argc, char *argv[])
   ph.SetReflectionLimit(200);
   
   list<PndDrcPhoton> list_photon; // get list
-  
-  /*
+
     
   {
       
@@ -342,7 +341,7 @@ int main(int argc, char *argv[])
 	      {
 		double xx=ran.Uniform(-0.5*slab_width,0.5*slab_width);
 		double yy=ran.Uniform(-0.5*slab_height,0.5*slab_height);
-		ph.SetPosition(XYZPoint(xx,yy,0));
+		ph.SetPosition(XYZPoint(xx,yy,200));
 		double x = x1;
 		ph.SetDirection(XYZVector(x,y,-1).Unit());
 		ph.SetWavelength(lambda1);
@@ -355,7 +354,7 @@ int main(int argc, char *argv[])
 	      {
 		double xx=ran.Uniform(-0.5*slab_width,0.5*slab_width);
 		double yy=ran.Uniform(-0.5*slab_height,0.5*slab_height);
-		ph.SetPosition(XYZPoint(xx,yy,0));
+		ph.SetPosition(XYZPoint(xx,yy,200));
 		double y = y1;
 		ph.SetDirection(XYZVector(x,y,-1).Unit());
 		ph.SetWavelength(lambda1);
@@ -374,7 +373,7 @@ int main(int argc, char *argv[])
     //manager->setPhotonList(list_photon,"bar","optsys");
   }
    
-  */  
+   
   
   /*
   
@@ -402,7 +401,7 @@ int main(int argc, char *argv[])
   
   */
   
-
+  /*
 
   ph.SetReflectionLimit(200);
   double angle=0;
@@ -437,7 +436,7 @@ int main(int argc, char *argv[])
 	  ph.SetWavelength(630);
 	  list_photon.push_back(ph);
 	}
-    
+  */
   
   // propagate writes to geo, that has finished, therefore, close geo
   

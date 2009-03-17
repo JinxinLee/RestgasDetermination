@@ -4,7 +4,8 @@
 
 INCLFLAGS  = -I$(ROOTSYS)/include -I../
 LDLIBS     = $(shell root-config --glibs) \
-		-L/home/carsten/src/panda/cbmsoft/tools/root/lib -lMathCore 
+		-lMathCore -lMathMore
+#		-L/home/carsten/src/panda/cbmsoft/tools/root/lib -lMathCore -lMathMore
 
 #LDLIBS     = $(shell root-config --glibs) 
 # -lMinuit
