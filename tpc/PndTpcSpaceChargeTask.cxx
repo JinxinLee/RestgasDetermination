@@ -155,7 +155,7 @@ PndTpcSpaceChargeTask::Exec(Option_t* opt)
             
       //Do no clustering just convert energy deposition to ionisation
       qPoint = (Int_t)(((currentPoint->GetEnergyLoss())-poti)/w_ion) + 1;	//imported from ALICE
-      qPoint = TMath::Min(qPoint,300); // 300 electrons corresponds to 10 keV ??
+      //qPoint = TMath::Min(qPoint,300); // 300 electrons corresponds to 10 keV ??
     }
     
     double posX = currentPoint->GetX();

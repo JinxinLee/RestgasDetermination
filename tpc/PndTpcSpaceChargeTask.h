@@ -53,6 +53,9 @@ void setMaxR(double rmax) {_tpcMaxR = rmax;}
 void setMinZ(double zmin) {_tpcMinZ = zmin;}
 void setMaxZ(double zmax) {_tpcMaxZ = zmax;}
 
+void setRBins(int r) {_rBinCount=r;}
+void setZBins(int z) {_zBinCount=z;}
+
 void setBins(int rbins, int zbins) {_rBinCount = rbins; _zBinCount = zbins;}
 void setRate(double rate) {_rate = rate;}
 void setSupression(double sup) {_supression = sup;}
@@ -75,7 +78,7 @@ private:
  double _tpcMaxR;
  double _tpcMinZ;		//Z geometry
  double _tpcMaxZ;
- int _rBinCount;			//number of segments in r direction
+ int _rBinCount;		//number of segments in r direction
  int _zBinCount;
  double _rBinWidth;		//size of one Bin
  double _zBinWidth;
