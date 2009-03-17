@@ -45,6 +45,10 @@ public:
       if(P[id]==NULL) quit(id);
       return *(P[id]);
     }
+    double getRes(int id){
+      if(Resolution[id]==NULL) quit(id);
+      return *(Resolution[id]);
+    }
     void getConv(int id,TVector3& trans,TMatrixT<double>& rot,double& pitch, double& theta_,double& phi_, double& psi_, double& resolution_){
 	getConv(id, trans, rot, pitch);
 	if(Theta[id]==NULL) quit(id);
