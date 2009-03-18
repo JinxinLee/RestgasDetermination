@@ -208,8 +208,18 @@ void PndLVQTrain::Train(int numProto, const char* outPut)
   TRandom3 trand(4357875);
   
   // Init LVQ protoTypes.
-  InitProtoTypes(numProto);
-  
+  if(numProto > 0){
+    InitProtoTypes(numProto);
+  }
+  else{
+	std::cerr << "<ERROR> The number of prototypes\n" 
+			  << " MUST be greater than zero (0)."<< std::endl;
+	return;
+  }
+  if(!outPut){
+	std::cerr << "You need to specify the output file" << std::endl;
+    return;
+  }
   // All protypes are initialized. We can perform the training
   // Compute learning rate constant "a"
   double ethaZero  = m_ethaZero;//0.1;
@@ -273,10 +283,13 @@ void PndLVQTrain::Train21(int numProto, const char* outPut)
   }
   else{
     std::cerr << "\t<ERROR:> The number of prototypes must\n"
-	      <<"be larger than zero" << std::endl;
+	      <<"be greater than zero" << std::endl;
     return;
   }
-  
+  if(!outPut){
+	std::cerr << "You need to specify the output file" << std::endl;
+	return;
+  } 
   // Initialize distance container.
   for(unsigned int i = 0; i < m_LVQProtos.size(); i++){
     PndLVQDistObj* dd = new PndLVQDistObj();
