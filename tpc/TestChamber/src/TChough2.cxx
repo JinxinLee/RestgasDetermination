@@ -79,11 +79,12 @@ void TChough2::draw(bool stop,int _z,int _y,int _w,int _h){
     zsel[i]=zpHit.at(selHits.at(i));
     ysel[i]=ypHit.at(selHits.at(i));
   }
-  TGraph* gsel = new TGraph(selHits.size(),zsel,ysel);
-  gsel->SetMarkerStyle(20);
-  gsel->SetMarkerColor(kGreen);
-  gsel->Draw("P");
-
+  if(selHits.size()>0){
+    TGraph* gsel = new TGraph(selHits.size(),zsel,ysel);
+    gsel->SetMarkerStyle(20);
+    gsel->SetMarkerColor(kGreen);
+    gsel->Draw("P");
+  }
 
   c->cd(2);
   houghHisto->Draw("colz");
@@ -93,9 +94,10 @@ void TChough2::draw(bool stop,int _z,int _y,int _w,int _h){
   for(int i=0;i<NumberOfHits;++i){
     houghLines[i]->Draw("same");
   }
-
+  c->Update();
+  c->Modified();
   if(stop){
-    
+    cout<<"run"<<endl;
     gApplication->SetReturnFromRun(kTRUE);
     gSystem->Run();
   }
