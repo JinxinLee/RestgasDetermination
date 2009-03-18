@@ -382,7 +382,7 @@ float PndLVQTrain::ComputeDist(std::vector<float> &EvtData,
   for(unsigned int i = 0; i< Ex.size(); i++){
     dist += (EvtData[i] - Ex[i]) * (EvtData[i] - Ex[i]);
   }
-  return dist;
+  return sqrt(dist);
 }
 
 /**

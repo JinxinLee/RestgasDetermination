@@ -90,7 +90,7 @@ float PndLVQClassify::ComputeDist(std::vector<float> &EvtData,
   for(unsigned int i = 0; i< proto.size(); i++){
     dist += (EvtData[i] - proto[i]) * (EvtData[i] - proto[i]);
   }
-  return dist;
+  return sqrt(dist);
 }
 
 /**

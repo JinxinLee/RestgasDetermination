@@ -15,6 +15,7 @@
 #include <limits>
 #include <vector>
 #include <map>
+#include <cmath>
 
 // Root includes
 #include "TFile.h"
