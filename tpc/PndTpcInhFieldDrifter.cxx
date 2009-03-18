@@ -9,8 +9,7 @@
 //      Software developed for the PANDA Detector at FAIR.
 //
 // Author List:
-//      Cristoforo Simonetto   	TUM         (original author)
-//	Felix Boehmer           TUM
+//     	Felix Boehmer           TUM         (original author)
 //	
 //-----------------------------------------------------------
 
@@ -28,43 +27,84 @@
 #include <sstream>
 #include "PndTpcEFieldCyl.h"
 #include "PndTpcGas.h"
+#include "FairParAsciiFileIo.h"
+#include "FairRunAna.h"
+#include "FairParSet.h"
+#include "FairRuntimeDb.h"
+#include "PndTpcDigiPar.h"
+#include "PndTpcRungeKutta.h"
 
 
 // Class Member definitions -----------
 
 PndTpcInhFieldDrifter::
-PndTpcInhFieldDrifter(const char* eFieldFile,
-		      const char* bFieldFile,
-		      // PndMultiField* bField,
-		      std::string outFile,
-		      int rBins, int zBins, 
-		      int split)
+PndTpcInhFieldDrifter(PndTpcEFieldCyl* eField,
+		      PndMultiField* bField,
+		      const char* outFile,
+		      const char* paramFile,
+		      const int rBins, const int zBins, 
+		      const int split)
   :
-	_tpcMinR(15.5),
-	_tpcMaxR(41.5),
-	_tpcMinZ(-39.5),
-	_tpcMaxZ(109.5),
 	_outFile(outFile),
-        _sc(-1e-6*299792458*299792458/0.510998902), 
-        _rBins(rBins),
+	_paramFile(paramFile),
+	_rBins(rBins),
         _zBins(zBins),
 	_split(split)
 {
-  if(_split >= 0)    //case split was manually set
-    assert(_split < _rBins);
-
-  //TODO: implement paramater management, get rid of this
-  PndTpcEFieldCyl* efield = new PndTpcEFieldCyl(eFieldFile);
-  TVector3 eNom = efield->nominal();
-  double eNomZ = eNom.Z();
-  PndTpcGas* gas = new PndTpcGas("NEON-90_CO2-10_B2_PRES1013.asc",400);
-  double vDrift = gas->VDrift();
+  if(_split >= 0 && split >= _rBins) {   //in the case split was manually set...
+    std::cout << "PndTpcInhFieldDrifter::PndTpcInhFieldDrifter : "
+	      <<"invalid row number requested! ABORTING"<<std::endl;
+    throw 1;
+  }
+  
+  //init parameters
+  initParams();
+  
+  double vDrift = ((PndTpcGas*)_par->getGas())->VDrift();
+  double eNomZ = (eField->nominal()).Z();
   _friction = 1e-5 * eNomZ / vDrift;  // friction term, see Rolandi Blum    
-  delete efield;
-  delete gas;
+    
+  _runKut = new PndTpcRungeKutta(1e-16, 1e-6, 1e-2, 1e-3,
+			      _sc, eField,bField, _friction);
+  
+}
+
+
+PndTpcInhFieldDrifter::
+PndTpcInhFieldDrifter(const char* eFieldFile,
+		      const char* bFieldFile,
+		      const char* outFile,
+		      const char* paramFile,
+		      const int rBins, const int zBins, 
+		      const int split)
+  :
+	_outFile(outFile),
+	_paramFile(paramFile),
+	_rBins(rBins),
+        _zBins(zBins),
+	_split(split)
+{
+  if(_split >= 0 && split >= _rBins) {   //in the case split was manually set...
+    std::cout << "PndTpcInhFieldDrifter::PndTpcInhFieldDrifter : "
+	      <<"invalid row number requested! ABORTING"<<std::endl;
+    throw 1;
+  }
+  
+  //init parameters
+  initParams();
+  
+  double vDrift = ((PndTpcGas*)_par->getGas())->VDrift();
+  
+  PndTpcEFieldCyl* efield = new PndTpcEFieldCyl(eFieldFile);
+  double eNomZ = (efield->nominal()).Z();
+  _friction = 1e-5 * eNomZ / vDrift;  // friction term, see Rolandi Blum    
+    
   _runKut = new PndTpcRungeKutta(1e-16, 1e-6, 1e-2, 1e-3,
 			      _sc, eFieldFile,bFieldFile, _friction);
+  delete efield;
 }
+
+
 
 PndTpcInhFieldDrifter::~PndTpcInhFieldDrifter()
 {
@@ -192,10 +232,12 @@ PndTpcInhFieldDrifter::run()
 }
 
 void
-PndTpcInhFieldDrifter::writeToFile(std::string filename)
+PndTpcInhFieldDrifter::writeToFile(const char* out_file)
 {
-  std::cout << "\n\n**** Writing Deviation Data to File " << filename 
+  std::cout << "\n\n**** Writing Deviation Data to File " << out_file 
 	    << " ****" << std::endl;
+
+  std::string filename(out_file);
 
   if(_split >= 0) {
     std::string s;
@@ -241,21 +283,64 @@ PndTpcInhFieldDrifter::writeToFile(std::string filename)
 
   outfile.close();
 
-  std::ofstream outfile2("DEVMAP_VELOCITY_FILE.dat", std::fstream::out);
-  outfile<<std::setprecision(8);
+//   std::ofstream outfile2("DEVMAP_VELOCITY_FILE.dat", std::fstream::out);
+//   outfile<<std::setprecision(8);
 
-  long int length = _velocity_control->size();
+//   long int length = _velocity_control->size();
 
-  for (int a=0; a<length; a++)
-  {
-    outfile2<<std::setprecision(8)<<std::setw(8);
-    outfile2<<"\n"<<_velocity_control->at(a)->at(0)*1e-7<<"   "
-            <<_velocity_control->at(a)->at(1)*1e-7<<"   "
-            <<_velocity_control->at(a)->at(2)*1e-7<<"   "
-            <<_velocity_control->at(a)->at(3)*1e9;
-  }
-  outfile2<<std::endl;
-  outfile2<<"#Format: v_x, v_y, v_z, corresponding Runge-Kutta-time"<<std::endl;
-  outfile2.close();
+//   for (int a=0; a<length; a++)
+//   {
+//     outfile2<<std::setprecision(8)<<std::setw(8);
+//     outfile2<<"\n"<<_velocity_control->at(a)->at(0)*1e-7<<"   "
+//             <<_velocity_control->at(a)->at(1)*1e-7<<"   "
+//             <<_velocity_control->at(a)->at(2)*1e-7<<"   "
+//             <<_velocity_control->at(a)->at(3)*1e9;
+//   }
+//   outfile2<<std::endl;
+//   outfile2<<"#Format: v_x, v_y, v_z, corresponding Runge-Kutta-time"<<std::endl;
+//   outfile2.close();
 }
     
+
+
+void
+PndTpcInhFieldDrifter::initParams() {
+  
+  FairParAsciiFileIo* input = new FairParAsciiFileIo();
+  
+  //ugly test for valid param file
+  std::ifstream paramf(_paramFile, std::fstream::in);
+  if(!paramf.good()) {
+    std::cout<<"PndTpcInhFieldDrifter::initParams() "
+	     <<"- parameter file IO error - ABORTING"<<std::endl;
+    throw 1;
+  }
+    
+  input->open(_paramFile, "in");
+  
+  //create dummy run manager and load database
+  FairRunAna* fRun = new FairRunAna();   
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();  
+  rtdb->setFirstInput(input);
+  _par = (PndTpcDigiPar*) rtdb->getContainer("PndTpcDigiPar");
+  
+  _par->FairParSet::init();
+  
+  //read in parameters
+  _tpcMinR = _par->getRMin();
+  _tpcMaxR = _par->getRMax();
+  _tpcMinZ = _par->getZGem();
+  _tpcMaxZ = _par->getZMax();
+
+  std::cout<<"\n\nPndTpcInhFieldDrifter::initParams()\n"
+	   <<"---------- Used Parameters ---------------------------"<<std::endl;
+  std::cout<<"MinR: "<<_tpcMinR<<",   MaxR: "<<_tpcMaxR<<std::endl;
+  std::cout<<"MinZ: "<<_tpcMinZ<<",   MaxZ: "<<_tpcMaxZ<<std::endl;std::cout<<std::endl;
+  std::cout<<"Bins in R: "<<_rBins<<",   Bins in Z: "<<_zBins<<std::endl;
+  
+  std::cout<<"------------------------------------------------------"<<std::endl;
+  std::cout<<std::endl;  
+  _sc = -1e-6*299792458*299792458/0.510998902;
+
+  
+}

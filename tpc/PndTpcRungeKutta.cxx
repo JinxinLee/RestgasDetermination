@@ -10,14 +10,42 @@
 #include "PndFieldMap.h"
 
 
+
+
+
 PndTpcRungeKutta::PndTpcRungeKutta(const double timeStep,
-			     const double maxRelError,
-			     const double maxRelToSpeedError,
-			     const double maxAbsoluteError,
-			     const double specificCharge,
-			     const char* eFieldFile,
-			     const char* bFieldFile,
-			     const double friction)
+				   const double maxRelError,
+				   const double maxRelToSpeedError,
+				   const double maxAbsoluteError,
+				   const double specificCharge,
+				   PndTpcEFieldCyl* eField,
+				   PndMultiField* bField,
+				   const double friction)
+{
+  _dt =timeStep;
+  _epsilon = maxRelError;
+  _epsilonDeriv = maxRelToSpeedError;
+  _epsilonAbs = maxAbsoluteError;
+  _sc = specificCharge;
+  _eField = eField;
+  _bField = bField;
+  _bFieldCyl = NULL;
+  _friction = friction;
+  _constE_flag = false;
+  _constB_flag = false;
+
+  init();
+  
+}
+
+PndTpcRungeKutta::PndTpcRungeKutta(const double timeStep,
+				   const double maxRelError,
+				   const double maxRelToSpeedError,
+				   const double maxAbsoluteError,
+				   const double specificCharge,
+				   const char* eFieldFile,
+				   const char* bFieldFile,
+				   const double friction)
 {
   _dt =timeStep;
   _epsilon = maxRelError;
@@ -25,49 +53,25 @@ PndTpcRungeKutta::PndTpcRungeKutta(const double timeStep,
   _epsilonAbs = maxAbsoluteError;
   _sc = specificCharge;
   _eField = new PndTpcEFieldCyl(eFieldFile);
-  _bField = new PndTpcEFieldCyl(bFieldFile);
-  
-  //_bField->Print();
-  double scpos = _sc;
-  if (scpos < 0)
-    scpos = -_sc;
+  _bFieldCyl = new PndTpcEFieldCyl(bFieldFile);
+  _bField=NULL;
+  _friction = friction;
 
-  _dgladd[0]=0; _dgladd[1]=0;
-  _dgladd[2]=0; _dgladd[3]=0;
-  _dgladd[4]=0; _dgladd[5]=0;
+  _constE_flag = false;
+  _constB_flag = false;
   
-  _dglmat[0][0]=-friction*scpos; _dglmat[0][1]=0; _dglmat[0][2]=0;
-  _dglmat[0][3]=0; _dglmat[0][4]=0; _dglmat[0][5]=0;
-  _dglmat[1][0]=0; _dglmat[1][1]=-friction*scpos; _dglmat[1][2]=0;
-  _dglmat[1][3]=0; _dglmat[1][4]=0; _dglmat[1][5]=0;
-  _dglmat[2][0]=0; _dglmat[2][1]=0; _dglmat[2][2]=-friction*scpos;
-  _dglmat[2][3]=0; _dglmat[2][4]=0; _dglmat[2][5]=0;
-  _dglmat[3][0]=1; _dglmat[3][1]=0; _dglmat[3][2]=0;
-  _dglmat[3][3]=0; _dglmat[3][4]=0; _dglmat[3][5]=0;
-  _dglmat[4][0]=0; _dglmat[4][1]=1; _dglmat[4][2]=0;
-  _dglmat[4][3]=0; _dglmat[4][4]=0; _dglmat[4][5]=0;
-  _dglmat[5][0]=0; _dglmat[5][1]=0; _dglmat[5][2]=1;
-  _dglmat[5][3]=0; _dglmat[5][4]=0; _dglmat[5][5]=0;
+  init();
+  
+}
 
-  _rk5b[0][0]=0; _rk5b[0][1]=0; _rk5b[0][2]=0; _rk5b[0][3]=0;
-  _rk5b[0][4]=0;
-  _rk5b[1][0]=1./5.; _rk5b[1][1]=0; _rk5b[1][2]=0; _rk5b[1][3]=0;
-  _rk5b[1][4]=0;
-  _rk5b[2][0]=3./40.; _rk5b[2][1]=9./40.; _rk5b[2][2]=0; _rk5b[2][3]=0;
-  _rk5b[2][4]=0;
-  _rk5b[3][0]=3./10.; _rk5b[3][1]=-9./10.; _rk5b[3][2]=6./5.; _rk5b[3][3]=0;
-  _rk5b[3][4]=0;
-  _rk5b[4][0]=-11./54.; _rk5b[4][1]=5./2.; _rk5b[4][2]=-70./27.; _rk5b[4][3]=35./27.;
-  _rk5b[4][4]=0;
-  _rk5b[5][0]=1631./55296.; _rk5b[5][1]=175./512.; _rk5b[5][2]=575./13824.;
-  _rk5b[5][3]=44275./110592.; _rk5b[5][4]=253./4096.;
 
-  _rk5c1[0]=37./378.; _rk5c1[1]=0; _rk5c1[2]=250./621.;
-  _rk5c1[3]=125./594.; _rk5c1[4]=0; _rk5c1[5]=512./1771.;
-  
-  _rk5c2[0]=2825./27648.; _rk5c2[1]=0; _rk5c2[2]=18575./48384.;
-  _rk5c2[3]=13525./55296.; _rk5c2[4]=277./14336.; _rk5c2[5]=1./4.;
-  
+PndTpcRungeKutta::~PndTpcRungeKutta()
+{
+  delete _eField;
+  if(_bField!=NULL) 
+    delete _bField;
+  if(_bFieldCyl!=NULL) 
+    delete _bFieldCyl;
 }
 
 bool
@@ -138,18 +142,33 @@ PndTpcRungeKutta::getNextPoint(double* aP, double* errorEstimate)
 {
   double k[6][6];
     
-  //_bfield at the right point
-  //FairFieldMap takes coordinates in [cm] and returns B in [kGauss] -> *0.1 !
-
+  TVector3 bFieldValue;
   double bFieldX, bFieldY, bFieldZ;
-  //TVector3 bFieldValue = TVector3(0.,0.,0.);  
-  TVector3 bFieldValue = _bField->value(TVector3(aP[3]*100., aP[4]*100., aP[5]*100.));
-
-  bFieldX = bFieldValue.X();
-  bFieldY = bFieldValue.Y();
-  bFieldZ = bFieldValue.Z();
-
-
+  
+  if(!_constB_flag){
+    if(_bField!=0) {       //use FairMultiField 
+      
+      /*FairFieldMap takes coordinates in [cm] and returns B in [kGauss] -> *0.1 ! */
+      bFieldX = _bField->GetBx(aP[3]*100., aP[4]*100., aP[5]*100.)*0.1;  
+      bFieldY = _bField->GetBy(aP[3]*100., aP[4]*100., aP[5]*100.)*0.1;
+      bFieldZ = _bField->GetBz(aP[3]*100., aP[4]*100., aP[5]*100.)*0.1;
+    }
+    
+    if(_bFieldCyl!=NULL) { //use PndTpcEFieldCyl for B field representation
+      bFieldValue = _bFieldCyl->value(TVector3(aP[3]*100., aP[4]*100., aP[5]*100.));
+      
+      bFieldX = bFieldValue.X();
+      bFieldY = bFieldValue.Y();
+      bFieldZ = bFieldValue.Z();
+    }
+  }  
+  else {
+    bFieldValue = _constB;      
+    bFieldX = bFieldValue.X();
+    bFieldY = bFieldValue.Y();
+    bFieldZ = bFieldValue.Z();
+  }
+  
   _dglmat[0][1] = bFieldZ * _sc;
   _dglmat[0][2] = -bFieldY * _sc;
   _dglmat[1][0] = -bFieldZ * _sc;
@@ -157,11 +176,16 @@ PndTpcRungeKutta::getNextPoint(double* aP, double* errorEstimate)
   _dglmat[2][0] = bFieldY * _sc;
   _dglmat[2][3] = -bFieldX * _sc;
 
-  // //_efield at the right point [V/m]
-  TVector3 fieldValue;
-  fieldValue = _eField->value(TVector3(aP[3]*100.,aP[4]*100.,aP[5]*100.))*100.;
 
-  // fieldValue = TVector3(0,0,40000); 
+  // read in E field ------------------------------------------------
+  TVector3 fieldValue;
+  if(! _constE_flag) {
+    // //_efield at the right point [V/m]
+    fieldValue = _eField->value(TVector3(aP[3]*100.,aP[4]*100.,aP[5]*100.))*100.;
+  }
+  else 
+    fieldValue = _constE;
+
   
   _dgladd[0] = fieldValue.X() *_sc;
   _dgladd[1] = fieldValue.Y() *_sc;
@@ -213,8 +237,59 @@ PndTpcRungeKutta::derivates(const double* const aP, double* der)
   }
 }
 
-PndTpcRungeKutta::~PndTpcRungeKutta()
-{
-delete _eField;
-delete _bField;
+
+void
+PndTpcRungeKutta::init() {
+  
+  double scpos = _sc;
+  if (scpos < 0)
+    scpos = -_sc;
+  
+  _dgladd[0]=0; _dgladd[1]=0;
+  _dgladd[2]=0; _dgladd[3]=0;
+  _dgladd[4]=0; _dgladd[5]=0;
+  
+  _dglmat[0][0]=-_friction*scpos; _dglmat[0][1]=0; _dglmat[0][2]=0;
+  _dglmat[0][3]=0; _dglmat[0][4]=0; _dglmat[0][5]=0;
+  _dglmat[1][0]=0; _dglmat[1][1]=-_friction*scpos; _dglmat[1][2]=0;
+  _dglmat[1][3]=0; _dglmat[1][4]=0; _dglmat[1][5]=0;
+  _dglmat[2][0]=0; _dglmat[2][1]=0; _dglmat[2][2]=-_friction*scpos;
+  _dglmat[2][3]=0; _dglmat[2][4]=0; _dglmat[2][5]=0;
+  _dglmat[3][0]=1; _dglmat[3][1]=0; _dglmat[3][2]=0;
+  _dglmat[3][3]=0; _dglmat[3][4]=0; _dglmat[3][5]=0;
+  _dglmat[4][0]=0; _dglmat[4][1]=1; _dglmat[4][2]=0;
+  _dglmat[4][3]=0; _dglmat[4][4]=0; _dglmat[4][5]=0;
+  _dglmat[5][0]=0; _dglmat[5][1]=0; _dglmat[5][2]=1;
+  _dglmat[5][3]=0; _dglmat[5][4]=0; _dglmat[5][5]=0;
+
+  _rk5b[0][0]=0; _rk5b[0][1]=0; _rk5b[0][2]=0; _rk5b[0][3]=0;
+  _rk5b[0][4]=0;
+  _rk5b[1][0]=1./5.; _rk5b[1][1]=0; _rk5b[1][2]=0; _rk5b[1][3]=0;
+  _rk5b[1][4]=0;
+  _rk5b[2][0]=3./40.; _rk5b[2][1]=9./40.; _rk5b[2][2]=0; _rk5b[2][3]=0;
+  _rk5b[2][4]=0;
+  _rk5b[3][0]=3./10.; _rk5b[3][1]=-9./10.; _rk5b[3][2]=6./5.; _rk5b[3][3]=0;
+  _rk5b[3][4]=0;
+  _rk5b[4][0]=-11./54.; _rk5b[4][1]=5./2.; _rk5b[4][2]=-70./27.; _rk5b[4][3]=35./27.;
+  _rk5b[4][4]=0;
+  _rk5b[5][0]=1631./55296.; _rk5b[5][1]=175./512.; _rk5b[5][2]=575./13824.;
+  _rk5b[5][3]=44275./110592.; _rk5b[5][4]=253./4096.;
+
+  _rk5c1[0]=37./378.; _rk5c1[1]=0; _rk5c1[2]=250./621.;
+  _rk5c1[3]=125./594.; _rk5c1[4]=0; _rk5c1[5]=512./1771.;
+  
+  _rk5c2[0]=2825./27648.; _rk5c2[1]=0; _rk5c2[2]=18575./48384.;
+  _rk5c2[3]=13525./55296.; _rk5c2[4]=277./14336.; _rk5c2[5]=1./4.;
+}
+
+void
+PndTpcRungeKutta::setConstE(TVector3 cE) {
+  _constE = cE;
+  _constE_flag=true;
+}
+
+void
+PndTpcRungeKutta::setConstB(TVector3 cB) {
+  _constB = cB;
+  _constB_flag=true;
 }
