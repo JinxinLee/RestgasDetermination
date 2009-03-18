@@ -1,4 +1,4 @@
-#include <list>
+x#include <list>
 #include <iostream>
 #include "../Hits.h"
 #include <cassert>
@@ -238,10 +238,8 @@ int main(int argc,char **argv){
            int detID2(clGM1Y.at(j).getId()); 
            TCcluster _c2(pos2,err2,amp2,detID2); 
            _c2.setFit(true);
-           if(pos.x()>4.5&&pos.x()<7.5){
+           if(pos.x()>4.5&&pos.x()<7.5&&pos2.x()>4.5&&pos2.x()<7.5){
              startClusters.push_back(_c);
-           }
-           if(pos2.x()>4.5&&pos2.x()<7.5){
              startClusters.push_back(_c2);
            }
            //cout<<"gm1 pulse cor"<<endl;
