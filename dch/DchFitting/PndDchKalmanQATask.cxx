@@ -145,7 +145,12 @@ void PndDchKalmanQATask::Exec(Option_t* opt) {
  	DetPlane planePred;
  	grep=dynamic_cast<GeaneTrackRep*>(rep);
  	grep->setPropDir(-1);
- 	grep->extrapolateToPoca( TVector3(0,0,0), statePred, covPred, planePred );
+	
+	TVector3 poca,dirInPoca;
+ 	grep->extrapolateToPoca( TVector3(0,0,0), poca,dirInPoca);
+	planePred.setO(TVector3(0,0,0));
+	planePred.setNormal(dirInPoca);
+	grep->extrapolate(planePred,statePred,covPred);
  	grep->setState(statePred);
  	grep->setCov(covPred);
  	grep->setReferencePlane(planePred);
