@@ -2,7 +2,7 @@
 #include"TCabsHough.h"
 #include"TChough1.h"
 
-void TChoughPatternReco::process(TCevent &event,std::vector<TCcluster>& _c){
+void TChoughPatternReco2::process(TCevent &event,std::vector<TCcluster>& _c){
   static TCabsHough* hXZ=NULL;
   static TCabsHough* hYZ=NULL;
   static bool first=true;

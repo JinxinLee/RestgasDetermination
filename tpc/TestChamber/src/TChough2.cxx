@@ -8,12 +8,15 @@
 #include"TRandom.h"
 #include"TEllipse.h"
 #include <utility>
-//#include "TH2D.h"
+#include <iostream>
+#include "TH2D.h"
 using std::pair;
+using std::cout;
+using std::endl;
 TChough2::TChough2(const TVector3& _yp,const TVector3& _zp,double _rR) : TCabsHough(_yp,_zp){
   cutR=_rR;
-  nBinsR = 100;
-  nBinsTheta = 100;
+  nBinsR = 50;
+  nBinsTheta =50;
 
   canvas1 = NULL;
   houghHisto=NULL;
@@ -68,6 +71,7 @@ void TChough2::draw(bool stop,int _z,int _y,int _w,int _h){
       houghLines[i]->SetLineColor(kGreen);
     }
   }
+  cout<<"checking hotnes"<<endl;
 
   double zsel[selHits.size()];
   double ysel[selHits.size()];
@@ -91,6 +95,7 @@ void TChough2::draw(bool stop,int _z,int _y,int _w,int _h){
   }
 
   if(stop){
+    
     gApplication->SetReturnFromRun(kTRUE);
     gSystem->Run();
   }
@@ -104,8 +109,9 @@ void TChough2::doHough(){
   for(int i=0;i<NumberOfHits;i++) {
 
     HitCoordinates[i][0] = ypHit.at(i)-minY;
+    cout<<"hitY "<<i<<" "<<ypHit.at(i)-minY<<", ";
     HitCoordinates[i][1] = zpHit.at(i)-minZ;
-
+    cout<<"hitZ "<<i<<" "<<zpHit.at(i)-minZ<<endl;
   }
 
   makeHoughLines();
@@ -131,7 +137,9 @@ bool TChough2::hot(int clIndex,int maxIndex){
   double thetaAtMax=maxBinTheta*rangeTheta/nBinsTheta+minTheta;
   double rAtMax=maxBinR*rangeR/nBinsTheta;
   double rPoint=z*cos(thetaAtMax) +y*sin(thetaAtMax);
-  discr=cutR-fabs(rPoint-rAtMax);
+  discr=-fabs(rPoint-rAtMax);
+  cout<<"discr "<<-discr<<endl;
+  discr+=cutR;
   if(discr<0){
     return false;
   }
@@ -320,7 +328,8 @@ void TChough2::convert(std::vector<TCcluster>& _c){
   */
   double rangeY=maxY-minY;
   double rangeZ=maxZ-minZ;
-
+  cout<<"rangeY "<<rangeY<<endl;
+  cout<<"rangeZ "<<rangeZ<<endl;
   maxR=rangeY*rangeZ / sqrt(pow(rangeY,2) + pow(rangeZ,2));
   maxTheta=atan(rangeY/rangeZ)+3.141592654/2;
   minTheta=-maxTheta;
