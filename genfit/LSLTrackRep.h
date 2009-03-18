@@ -91,10 +91,9 @@ public:
 			     TMatrixT<double>& covPred);
 
 
-  virtual TVector3 extrapolateToPoca(const TVector3&, 
-				     TMatrixT<double>& statePred,
-				     TMatrixT<double>& covPred,
-				     DetPlane& planePred);
+  virtual void extrapolateToPoca(const TVector3&,
+				 TVector3& poca,
+				 TVector3& dirInPoca);
 
 
   virtual void stepalong(double h);

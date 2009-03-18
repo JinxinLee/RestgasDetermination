@@ -118,10 +118,9 @@ class AbsTrackRep : public TObject{
       where you have to fit the track to space points, or other drift chambers
       with complicated hit topology.
    */
-  virtual TVector3 extrapolateToPoca(const TVector3& point, 
-				     TMatrixT<double>& statePred,
-				     TMatrixT<double>& covPred,
-				     DetPlane& planePred);
+  virtual void extrapolateToPoca(const TVector3& point,
+				 TVector3& poca,
+				 TVector3& dirInPoca); 
 
   //! 
   /** @brief This method extrapolates to the point of closest approach to a line
@@ -131,11 +130,10 @@ class AbsTrackRep : public TObject{
    * trackReps which do not need this feature, which will abort the
    * execution if it is ever called.
    */
-  virtual TVector3 extrapolateToLine(const TVector3& point1, 
-				     const TVector3& point2, 
-				     TMatrixT<double>& statePred,
-				     TMatrixT<double>& covPred,
-				     DetPlane& planePred);
+  virtual void extrapolateToLine(const TVector3& point1, 
+				 const TVector3& point2,
+				 TVector3& poca,
+				 TVector3& dirInPoca);
   
   
   //! make step of h cm along the track

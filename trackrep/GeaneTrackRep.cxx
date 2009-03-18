@@ -207,12 +207,13 @@ GeaneTrackRep::extrapolate(const DetPlane& pl,
 
 
 
-TVector3
+void
 GeaneTrackRep::extrapolateToPoca(const TVector3& pos,
-				 TMatrixT<double>& statePred,
-				 TMatrixT<double>& covPred,
-				 DetPlane& pl){
-  
+				 TVector3& poca,
+				 TVector3& dirInPoca){
+  int dim = getDim();
+  TMatrixT<double> statePred(dim,1);
+  TMatrixT<double> covPred(dim,dim);
   //std::cout<<"GeaneTrackRep::extrapolateToPoca"<<std::endl;
   //_refPlane.Print();
 
@@ -236,8 +237,7 @@ GeaneTrackRep::extrapolateToPoca(const TVector3& pos,
     //covPred=cov;
     statusFlag=10;
     std::cout<<"*** PROTECT AGAINST LOW MOMENTA ***"<<std::endl;
-    pl=_refPlane;
-    return pos;
+    poca = pos;
   }
 
   // protect against (x,y)=(0,0)
@@ -293,12 +293,8 @@ GeaneTrackRep::extrapolateToPoca(const TVector3& pos,
     }
   }
 
-  pl.setO(result.GetOrigin());
-  pl.setU(result.GetJVer());
-  pl.setV(result.GetKVer());
-
-  
-  return TVector3(result.GetX(),result.GetY(),result.GetZ());
+  poca.SetXYZ(result.GetX(),result.GetY(),result.GetZ());
+  dirInPoca = result.GetJVer().Cross( result.GetKVer() );
 }
 
 

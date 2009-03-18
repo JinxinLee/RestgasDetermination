@@ -65,7 +65,7 @@ public:
 
   virtual double extrapolate(const DetPlane&, TMatrixT<double>& statePred);
   //virtual void extrapolate(const DetPlane&, 
-  //			   const TMatrixT<double>& stateFrom, 
+  //			   const TMatrixT<double>& stateFrom 
   //			   TMatrixT<double>& stateResult);
 
   virtual double extrapolate(const DetPlane&, 
@@ -73,10 +73,14 @@ public:
 			   TMatrixT<double>& covPred);
   virtual void stepalong(double h){}
 
-  TVector3 extrapolateToPoca(const TVector3& pos,
-			     TMatrixT<double>& statePred,
-			     TMatrixT<double>& covPred,
-			     DetPlane& planePred);
+  //these two are overwritting ABsTrackRep methods
+  void extrapolateToPoca(const TVector3& pos,
+			 TVector3& poca,
+			 TVector3& dirInPoca);
+  void extrapolateToLine(const TVector3& point1,
+			 const TVector3& point2,
+			 TVector3& poca,
+			 TVector3& dirInPoca);
   
   TVector3 getPocaOnLine(const TVector3& p1, 
 			 const TVector3& p2, 

@@ -237,10 +237,9 @@ TpcMCEvtDeconvTask::ConnectMVD(GeaneTrackRep* rep){
   for(int i=0;i<n;++i){
     PndMvdHit* hit=(PndMvdHit*)_mvdArray->At(i);
     TVector3 pos=hit->GetPosition();
-    TMatrixD state(5,1);
-    TMatrixD cov(5,5);
-    DetPlane p;
-    TVector3 d=rep->extrapolateToPoca(pos,state,cov,p);
+    
+    TVector3 d,dir;
+    rep->extrapolateToPoca(pos,d,dir);
     //pos.Print();
     //d.Print();
     double dx=(pos-d).Mag();

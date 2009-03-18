@@ -175,16 +175,20 @@ LSLTrackRep::extrapolate(const DetPlane& pl,
   return l;
 }
 
-TVector3
-LSLTrackRep::extrapolateToPoca(const TVector3& p, 
-			       TMatrixT<double>& statePred,
-			       TMatrixT<double>& covPred,
-			       DetPlane& plane){
+void
+LSLTrackRep::extrapolateToPoca(const TVector3& p,
+			       TVector3& poca,
+			       TVector3& dirInPoca){
+  DetPlane plane;
+  int dim = getDim();
+  TMatrixT<double> statePred(dim,1);
+  TMatrixT<double> covPred(dim,dim);
   plane.setO(p);
   plane.setU(TVector3(1,0,0));
   plane.setV(TVector3(0,1,0));
   extrapolate(plane,statePred,covPred);
-  return TVector3(statePred[0][0],statePred[1][0],plane.getO().Z());
+  poca.SetXYZ(statePred[0][0],statePred[1][0],plane.getO().Z());
+  dirInPoca.SetXYZ(statePred[2][0],statePred[3][0],plane.getO().Z());
 }
 
 

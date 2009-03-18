@@ -137,10 +137,9 @@ DemoToolsTask::Exec(Option_t* opt)
     GeaneTrackRep* grep=dynamic_cast<GeaneTrackRep*>(rep);
 
     if(grep!=0){
-      TMatrixT<double> state(5,1);
-      TMatrixT<double> cov(5,5);
-      DetPlane p;
-      grep->extrapolateToPoca(pos,state,cov,p).Print();
+      TVector3 poca,dirInPoca;
+      grep->extrapolateToPoca(pos,poca,dirInPoca);
+      poca.Print();
       grep->Print();
     }
 

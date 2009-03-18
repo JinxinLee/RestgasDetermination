@@ -38,18 +38,16 @@ void AbsTrackRep::Abort(std::string method){
   throw;
 }
 
-TVector3 AbsTrackRep::extrapolateToPoca(const TVector3& point, 
-					TMatrixT<double>& statePred,
-					TMatrixT<double>& covPred,
-					DetPlane& planePred){
+void AbsTrackRep::extrapolateToPoca(const TVector3& point,
+				    TVector3& poca,
+				    TVector3& dirInPoca){
   Abort("extrapolateToPoca()");
 }
 
-TVector3 AbsTrackRep::extrapolateToLine(const TVector3& point1, 
-					const TVector3& point2, 
-					TMatrixT<double>& statePred,
-					TMatrixT<double>& covPred,
-					DetPlane& planePred){
+void AbsTrackRep::extrapolateToLine(const TVector3& point1, 
+				    const TVector3& point2,
+				    TVector3& poca,
+				    TVector3& dirInPoca){
   Abort("extrapolateToLine()");
 }
   
