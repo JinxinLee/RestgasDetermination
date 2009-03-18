@@ -197,11 +197,12 @@ class AbsTrackRep : public TObject{
   }
   //! returns chi2/ndf
   inline double getRedChiSqu() const {
-    if(ndf>0) return chiSqu/ndf;
+    if(getNDF()>0) return getChiSqu()/getNDF();
     return 0;
   }
   inline unsigned int getNDF() const {
-    return ndf;
+    if(ndf>getDim())  return ndf-getDim();
+    return 0;
   }
 
   inline void setState(const TMatrixT<double>& aState) {
