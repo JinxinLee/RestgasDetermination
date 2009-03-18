@@ -37,7 +37,7 @@ int main(){
 
   }
   a->make(cl,2);
-  a1->make(cl);
+ 
   vector<TCcluster> ret1;
   vector<TCcluster> ret2;
   
@@ -56,7 +56,6 @@ int main(){
     */
 
   }
-  a1->draw(true,700,50,600,600);
   a->draw(true,700,50,600,600);
   delete a;
 
