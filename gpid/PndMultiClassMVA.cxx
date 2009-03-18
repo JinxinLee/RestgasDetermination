@@ -136,7 +136,7 @@ void PndMultiClassMVA::TrainClassifier(MVAType mva)
   case LVQ1://Multi class LVQ1
     lvq = new PndLVQTrain (fINFILENAME, fClassNameArray, fVarNameArray);
     // Set learning parameters
-    lvq->SetLearnPrameters(0.8,0.1,0.001,1000);
+    lvq->SetLearnPrameters(0.8,0.1,0.001,1500);
     lvq->Train(m_numLVQProto, m_OutFileName);
     delete lvq;
     break;
