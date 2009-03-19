@@ -82,20 +82,22 @@ void TChough2::draw(bool stop,int _z,int _y,int _w,int _h){
       houghLines[i]->SetLineWidth(1);
       houghLines[i]->SetLineColor(kGreen);
     }
-    if(hot(i,1)){
-      selHits2.push_back(i);
-      houghLines[i]->SetLineStyle(1);
-      houghLines[i]->SetLineWidth(1);
-      houghLines[i]->SetLineColor(kBlue);
-    }
-    if(hot(i,1)&&hot(i,0)){
-      houghLines[i]->SetLineStyle(1);
-      houghLines[i]->SetLineWidth(1);
-      houghLines[i]->SetLineColor(kRed);
-
+    if(maxVector.size()>1){
+      if(hot(i,1)){
+	selHits2.push_back(i);
+	houghLines[i]->SetLineStyle(1);
+	houghLines[i]->SetLineWidth(1);
+	houghLines[i]->SetLineColor(kBlue);
+      }
+      if(hot(i,1)&&hot(i,0)){
+	houghLines[i]->SetLineStyle(1);
+	houghLines[i]->SetLineWidth(1);
+	houghLines[i]->SetLineColor(kRed);
+	
+      }
     }
   }
-  cout<<"checking hotnes"<<endl;
+  // cout<<"checking hotnes"<<endl;
 
   double zsel[selHits.size()];
   double ysel[selHits.size()];
@@ -103,20 +105,23 @@ void TChough2::draw(bool stop,int _z,int _y,int _w,int _h){
   double zsel2[selHits.size()];
   double ysel2[selHits.size()];
   for(unsigned int i=0;i<selHits.size();++i){
-    cout<<"hitIndex "<<selHits.at(i)<<" Max nr "<<0<<endl;
+    //  cout<<"hitIndex "<<selHits.at(i)<<" Max nr "<<0<<endl;
     zsel[i]=zpHit.at(selHits.at(i));
     ysel[i]=ypHit.at(selHits.at(i));
   }
-  for(unsigned int i=0;i<selHits2.size();++i){
-    cout<<"hitIndex "<<selHits2.at(i)<<" Max nr "<<1<<endl;
-    zsel2[i]=zpHit.at(selHits2.at(i));
-    ysel2[i]=ypHit.at(selHits2.at(i));
-  }
-  if(selHits2.size()>0){
-    TGraph* gsel2 = new TGraph(selHits2.size(),zsel2,ysel2);
-    gsel2->SetMarkerStyle(2);
-    gsel2->SetMarkerColor(kBlue);
-    gsel2->Draw("P");
+  if(maxVector.size()>1){
+    for(unsigned int i=0;i<selHits2.size();++i){
+      //  cout<<"hitIndex "<<selHits2.at(i)<<" Max nr "<<1<<endl;
+      zsel2[i]=zpHit.at(selHits2.at(i));
+      ysel2[i]=ypHit.at(selHits2.at(i));
+    }
+    if(selHits2.size()>0){
+      TGraph* gsel2 = new TGraph(selHits2.size(),zsel2,ysel2);
+      gsel2->SetMarkerStyle(3);
+      gsel2->SetMarkerSize(5);
+      gsel2->SetMarkerColor(kBlue);
+      gsel2->Draw("P");
+    }
   }
 
   if(selHits.size()>0){
@@ -141,7 +146,7 @@ void TChough2::draw(bool stop,int _z,int _y,int _w,int _h){
   c->Update();
   c->Modified();
   if(stop){
-    cout<<"run"<<endl;
+    // cout<<"run"<<endl;
     gApplication->SetReturnFromRun(kTRUE);
     gSystem->Run();
   }
@@ -229,7 +234,7 @@ void TChough2::findMaxInHisto(std::vector<std::pair<int,int> > &_maxVector, int 
     pair<int,int> max;
     max.first=maxBinTheta;
     max.second=maxBinR;
-    cout<<"maxBinTheta "<<maxBinTheta<<" maxBinR "<<maxBinR<<endl;
+    // cout<<"maxBinTheta "<<maxBinTheta<<" maxBinR "<<maxBinR<<endl;
     maxVector.push_back(max);
   }
   delete houghHistoCopy;
