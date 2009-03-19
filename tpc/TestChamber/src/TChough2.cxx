@@ -17,8 +17,8 @@ using std::cout;
 using std::endl;
 TChough2::TChough2(const TVector3& _yp,const TVector3& _zp,double _rR) : TCabsHough(_yp,_zp){
 
-  nBinsR = 500;
-  nBinsTheta =500;
+  nBinsR = 50;
+  nBinsTheta =50;
  
   cutR=_rR;
 
@@ -45,9 +45,9 @@ void TChough2::draw(bool stop,int _z,int _y,int _w,int _h){
     y[i]=ypHit.at(i);
   }
   for(unsigned int i=0;i<maxVector.size();++i){
-    thetaMax_[i]=maxVector.at(i).first*binTheta+minTheta -binTheta/2;
+    thetaMax_[i]=maxVector.at(i).first*binTheta+minTheta-binTheta/2;
     rMax_[i]=maxVector.at(i).second*binR+minR-binR/2;
-    thetaMaxE_[i]=0;
+    thetaMaxE_[i]=binTheta/2;
     if(cutR==0){
       cutR=binR/2;
     }
@@ -112,17 +112,18 @@ void TChough2::draw(bool stop,int _z,int _y,int _w,int _h){
     zsel2[i]=zpHit.at(selHits2.at(i));
     ysel2[i]=ypHit.at(selHits2.at(i));
   }
+  if(selHits2.size()>0){
+    TGraph* gsel2 = new TGraph(selHits2.size(),zsel2,ysel2);
+    gsel2->SetMarkerStyle(2);
+    gsel2->SetMarkerColor(kBlue);
+    gsel2->Draw("P");
+  }
+
   if(selHits.size()>0){
     TGraph* gsel = new TGraph(selHits.size(),zsel,ysel);
     gsel->SetMarkerStyle(2);
     gsel->SetMarkerColor(kGreen);
     gsel->Draw("P");
-  }
- if(selHits2.size()>0){
-    TGraph* gsel2 = new TGraph(selHits2.size(),zsel2,ysel2);
-    gsel2->SetMarkerStyle(2);
-    gsel2->SetMarkerColor(kBlue);
-    gsel2->Draw("P");
   }
 
   c->cd(2);
@@ -171,7 +172,7 @@ bool TChough2::hot(int clIndex,int maxIndex){
   assert(clIndex>-1);
   assert(maxIndex<nMax);
   double z,y;
-  double discr;
+  double discr,discr2;
 
   z = HitCoordinates[clIndex][1];
   y = HitCoordinates[clIndex][0];
@@ -179,16 +180,21 @@ bool TChough2::hot(int clIndex,int maxIndex){
   int maxBinTheta=maxVector.at(maxIndex).first;
   int maxBinR=maxVector.at(maxIndex).second;
   
-  double thetaAtMax=maxBinTheta*binTheta+minTheta-binTheta/2;
+  double thetaAtMax1=maxBinTheta*binTheta+minTheta-binTheta;
+  double thetaAtMax2=maxBinTheta*binTheta+minTheta;
   double rAtMax=maxBinR*binR+minR-binR/2;
-  double rPoint=z*cos(thetaAtMax) +y*sin(thetaAtMax);
+  double rPoint=z*cos(thetaAtMax1) +y*sin(thetaAtMax1);
+  double rPoint2=z*cos(thetaAtMax2) +y*sin(thetaAtMax2);
   discr=-fabs(rPoint-rAtMax);
+  discr2=-fabs(rPoint2-rAtMax);
+
   // cout<<"discr "<<-discr<<endl;
   if(cutR==0){
     cutR=binR/2;
   }
   discr+=cutR;
-  if(discr<0){
+  discr2+=cutR;
+  if(discr<0&&discr2<0){
     return false;
   }
   return true;
@@ -274,7 +280,7 @@ void TChough2::makeHoughLines(){
   char bufName[50];
   for(int i=0;i<NumberOfHits;i++) {
 	sprintf(buf,"%f*sin(x)+%f*cos(x)",HitCoordinates[i][0],HitCoordinates[i][1]);
-	sprintf(bufName,"copy%f*sin(x)+%f*cos(x)",HitCoordinates[i][0],HitCoordinates[i][1]);
+	sprintf(bufName,"%icopy%f*sin(x)+%f*cos(x)",i,HitCoordinates[i][0],HitCoordinates[i][1]);
 	//	cout<<"minTheta "<<minTheta<<" maxTheta "<<maxTheta<<endl;
 	houghLines[i] = new TF1(bufName,buf,minTheta,maxTheta);
 	//	  houghLines[i]->SetLineColor(kBlue);
@@ -316,15 +322,42 @@ void TChough2::makeHoughHisto(){
 
   for(int ihit=0;ihit<NumberOfHits;ihit++) {///NumberOfHits;ihit++) {
     for(int iTheta=0;iTheta<nBinsTheta;iTheta++) {
-      for(int iR=0;iR<nBinsR;iR++) {
-	int weight = binWeight(iTheta,iR,ihit);
-	if(weight>-1){
-	  houghHisto->SetBinContent(iTheta+1,iR+1,houghHisto->GetBinContent(iTheta+1,iR+1) + 1/*weight*/);
+      /*
+	for(int iR=0;iR<nBinsR;iR++) {
+	  int weight = binWeight(iTheta,iR,ihit);
+	  if(weight>-1){
+	    houghHisto->SetBinContent(iTheta+1,iR+1,houghHisto->GetBinContent(iTheta+1,iR+1) + 1);
+	  }
 	}
+      */
+      double z = HitCoordinates[ihit][1];
+      double y = HitCoordinates[ihit][0];
+      double theta0 = (iTheta)*binTheta+minTheta;
+      double theta1 = theta0 + binTheta;
+
+      double r_at_theta0 = z*cos(theta0)+y*sin(theta0)-minR;
+      double r_at_theta1 = z*cos(theta1)+y*sin(theta1)-minR;
+      double iRstart=r_at_theta0/binR;
+      double iRend=r_at_theta1/binR;
       
+      if(r_at_theta0>r_at_theta1){
+	iRstart=r_at_theta1/binR;
+	iRend=r_at_theta0/binR;
       }
-    }
-  }
+      
+      if(iRstart==iRend){
+	    houghHisto->SetBinContent(iTheta+1,iRstart+1,houghHisto->GetBinContent(iTheta+1,iRstart+1) + 1);
+	    //cout<<"equal "<<ihit<<" at "<<theta0<<", "<<r_at_theta0+minR<<", "<<r_at_theta1+minR
+	    //<<", "<<iRstart<<", "<<iRend<<endl;
+	    
+      }else{
+	for(int iR=iRstart;iR<=iRend;++iR){
+	    houghHisto->SetBinContent(iTheta+1,iR+1,houghHisto->GetBinContent(iTheta+1,iR+1) + 1);
+	    //cout<<"not equal "<<ihit<<endl;
+	}
+      }
+    }//end loop over theta
+  }//end loop over hits
 }
 
 
