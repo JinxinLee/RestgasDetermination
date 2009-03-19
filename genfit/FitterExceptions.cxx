@@ -1,6 +1,6 @@
 #include"FitterExceptions.h"
 
-FitterException::FitterException(std::string _whatString, int _line, char* _file) : whatString(_whatString), line(_line), file(_file) {
+FitterException::FitterException(std::string _whatString, int _line, std::string  _file) : whatString(_whatString), line(_line), file(_file) {
 }
 
 FitterException::~FitterException() throw() {
