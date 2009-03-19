@@ -150,6 +150,8 @@ void PndLVQTrain::CompClsCondMean(std::string clsName)
  */
 void PndLVQTrain::InitProtoTypes(int numProto)
 {
+  std::cout << "Initializing " << numProto 
+	    <<" LVQ prototypes."<< std::endl;
   // Initialize LVQ-prototypes.
   double c = m_initConst;//0.8;
   TRandom3 trand(435785);
@@ -249,11 +251,13 @@ void PndLVQTrain::Train(int numProto, const char* outPut)
     // We need to update the (winner) prototype
     int delta = 0;
     // determine delta
-    if( m_EventsData[index].first == m_LVQProtos[protoIndex].first ){
-      delta = 0;
-    }
-    else{
+    if( m_EventsData[index].first == m_LVQProtos[protoIndex].first ){// Equal labels
+      //delta = 0;
       delta = 1;
+    }
+    else{// Diff. Labels
+      //delta = 1;
+      delta = 0;
     }// delta is calculated
     
     // Update the LVQ prototype
@@ -282,12 +286,12 @@ void PndLVQTrain::Train21(int numProto, const char* outPut)
     InitProtoTypes(numProto);
   }
   else{
-    std::cerr << "\t<ERROR:> The number of prototypes must\n"
+    std::cerr << "\t<ERROR:> The number of prototypes MUST\n"
 	      <<"be greater than zero" << std::endl;
     return;
   }
   if(!outPut){
-	std::cerr << "You need to specify the output file" << std::endl;
+	std::cerr << "You need to specify the output file." << std::endl;
 	return;
   } 
   // Initialize distance container.
@@ -354,7 +358,8 @@ void PndLVQTrain::Train21(int numProto, const char* outPut)
     if(minFunct( (distances[idxSame])->m_dist / (distances[idx2d])->m_dist ,
 		 (distances[idx2d])->m_dist   / (distances[idxSame])->m_dist ) > s){
       // Update the LVQ prototype
-      int deltaEqCls = 0; int deltaNonEqCls = 1;
+      //int deltaEqCls = 0; int deltaNonEqCls = 1;
+      int deltaEqCls = 1; int deltaNonEqCls = 0;
       // Update equal label prototype.
       UpdateProto( *(m_EventsData[index].second), *(m_LVQProtos[idxSame].second), deltaEqCls, ethaT);
       // Update different label prototype.
