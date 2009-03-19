@@ -45,9 +45,10 @@ void AbsTrackRep::extrapolateToPoca(const TVector3& point,
 }
 
 void AbsTrackRep::extrapolateToLine(const TVector3& point1, 
-				    const TVector3& point2,
-				    TVector3& poca,
-				    TVector3& dirInPoca){
+									const TVector3& point2,
+									TVector3& poca,
+									TVector3& dirInPoca,
+									TVector3& poca_onwire){
   Abort("extrapolateToLine()");
 }
   
