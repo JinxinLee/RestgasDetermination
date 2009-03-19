@@ -35,7 +35,7 @@ int main(){
     for(unsigned int i=0;i<ev->nClusters();++i){
       if(ev->getCluster(i).getId()%2==0){
 	cl.push_back(ev->getCluster(i));
-	cout<<i<<endl;
+	//	cout<<i<<endl;
       }
       
     }
@@ -47,7 +47,7 @@ int main(){
     vector<TCcluster> ret2;
     
     
-    /* for (unsigned int i=0 ; i < cl.size(); ++i ){
+    for (unsigned int i=0 ; i < cl.size(); ++i ){
       if(a->hot(i,0)){
 	cl.at(i).setFit();
 	ret1.push_back(cl.at(i));
@@ -56,16 +56,18 @@ int main(){
       if(a->hot(i,1)){
 	cl.at(i).setFit();
 	ret2.push_back(cl.at(i));
-      //      cout<<"bla2 "<<i<<endl;
+	//      cout<<"bla2 "<<i<<endl;
       }
-     
+      
       
     }
-    */
-    a->draw(true,10,10,600,600);
+    
+      //a->draw(true,10,10,600,600);
     //a1->draw(true,10,10,600,600);
  
-    
+    if(nEv%100==0){
+      cout<<nEv<<endl;
+    } 
   }
   delete a;
   delete a1;
