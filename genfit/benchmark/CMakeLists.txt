@@ -26,6 +26,7 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(BENCHMARK_SRCS
 SPhit.cxx
+StripHit.cxx
 SPtestTask.cxx
 IllustrateTask.cxx
 )
@@ -39,7 +40,7 @@ set(BENCHMARK_LINKDEF  benchmarkLinkdef.h)
 set(BENCHMARK_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/benchmarkDict.cxx) 
 
 #########
-set(BENCHMARK_HEADERS  SPhit.h SPtestTask.h IllustrateTask.h)
+set(BENCHMARK_HEADERS  SPhit.h StripHit.h SPtestTask.h IllustrateTask.h)
 #########
 
 ROOT_GENERATE_DICTIONARY("${BENCHMARK_HEADERS}" "${BENCHMARK_LINKDEF}" "${BENCHMARK_DICTIONARY}" "${INCLUDE_DIRECTORIES}")

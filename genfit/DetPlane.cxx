@@ -4,6 +4,7 @@
 #include <iostream>
 #include <cmath>
 #include "TMath.h"
+#include "TRandom3.h"
 
 ClassImp(DetPlane)
 
@@ -16,9 +17,11 @@ DetPlane::DetPlane(const TVector3& o,
 }
 DetPlane::DetPlane()
 {
+  static TRandom3 r(0);
   _o.SetXYZ(0.,0.,0.);
-  _u.SetXYZ(1.,0.,0.);
-  _v.SetXYZ(0.,1.,0.);
+  _u.SetXYZ(r.Uniform(),r.Uniform(),0.);
+  _v.SetXYZ(r.Uniform(),r.Uniform(),0.);
+  sane();
 }
 
 DetPlane::DetPlane(const TVector3& o,

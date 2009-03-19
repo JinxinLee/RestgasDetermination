@@ -9,6 +9,7 @@
 
 
 #pragma link C++ class SPhit+;
+#pragma link C++ class StripHit+;
 #pragma link C++ class SPtestTask+;
 #pragma link C++ class IllustrateTask+;
 

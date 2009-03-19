@@ -23,6 +23,7 @@
 #include "Track.h"
 #include "Kalman.h"
 #include "SPhit.h"
+#include "StripHit.h"
 
 using namespace std;
 
@@ -193,7 +194,7 @@ void SPtestTask::Exec(Option_t* opt) {
 	std::cout << "TRACK MOMENTUM: " << rephits->getMom().Mag() << std::endl;
 	
 
-	const int NPOINTS=50;
+	const int NPOINTS=25;
 	DetPlane lastPlane;
 	for(int i=0;i<NPOINTS;++i){
 	  std::cout << "eeeee" << std::endl;
@@ -250,8 +251,14 @@ void SPtestTask::Exec(Option_t* opt) {
 
 
 	for(int i=0;i<(int)points.size();++i){
-	  //pointsReverse.at(i).Print();
-	  AbsRecoHit *aHit = new SPhit(points.at(i),errors);
+	  AbsRecoHit* aHit;
+	  if(i>=points.size()-12){
+	    aHit = new StripHit(points.at(i),i,_res);
+	  }
+	  else{
+	    //pointsReverse.at(i).Print();
+	    aHit = new SPhit(points.at(i),errors);
+	  }
 	  hits.push_back(aHit);
 	}
 	
@@ -349,6 +356,7 @@ void SPtestTask::Exec(Option_t* opt) {
 	  vpSi=UpVp_SIGMA.Y();
 	  vpPu=(vpRe-vpTr)/vpSi;
 	  chi2=result->getRedChiSqu();
+	  std::cerr<<"NDF " << result->getNDF() << std::endl;
 	}
 	else{
 	  saveTag=false;
