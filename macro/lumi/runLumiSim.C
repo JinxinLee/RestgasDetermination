@@ -3,7 +3,7 @@
 	timer.Start();
 	gDebug=0;
 
-	Int_t nEvents = 50;
+	Int_t nEvents = 100000;
 
 	// Load basic libraries
 	gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
@@ -51,15 +51,17 @@
     fRun->SetGenerator(primGen);
 
     // Box Generator:
-    FairBoxGenerator* boxGen = new FairBoxGenerator(-2212, 1);
+    //FairBoxGenerator* boxGen = new FairBoxGenerator(-2212, 1);
     // first number: PDG particle code: 2nd number: particle multiplicity per event
-	boxGen->SetPRange(6.2, 6.2); // GeV/c
-	boxGen->SetPhiRange(0.,360.);// Azimuth angle range [degree]
-	boxGen->SetThetaRange(0.002*180./pi, 0.01*180./pi);
-	boxGen->SetXYZ(0., 0., 0.); // vertex coordinates [mm]
-	primGen->AddGenerator(boxGen);
+	//boxGen->SetPRange(6.2, 6.2); // GeV/c
+	//boxGen->SetPhiRange(0.,360.);// Azimuth angle range [degree]
+	//boxGen->SetThetaRange(0.002*180./pi, 0.01*180./pi);
+	//boxGen->SetXYZ(0., 0., 0.); // vertex coordinates [mm]
+	//primGen->AddGenerator(boxGen);
 
-
+	PndDpmGenerator* dpmGen =
+		new PndDpmGenerator("/home/tsito/fairroot/pandasoft/pandaroot/pgenerators/DpmEvtGen/Background-micro.root");
+	primGen->AddGenerator(dpmGen);
 	// Field Map Definition
 	// --------------------
 
@@ -108,9 +110,9 @@
 	// -------------------------
 
 	PndMultiFieldPar* fieldPar = (PndMultiFieldPar*) rtdb->getContainer("PndMultiFieldPar");
-	
+
 	if ( fField ) {  fieldPar->SetParameters(fField); }
-	
+
 	fieldPar->setInputVersion(fRun->GetRunId(),1);
 	fieldPar->setChanged(kTRUE);
 
