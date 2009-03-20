@@ -20,7 +20,7 @@ int main(){
   TVector3 Y(0.,1.,0.);
   TVector3 Z(0.,0.,1.);
   TChough2* a = new TChough2(Y,Z);
-  TChough1* a1 = new TChough1(Y,Z,0.3,0.10);
+
 
   TFile* file= TFile::Open("event.root");
   TTree *t =(TTree*)gROOT->FindObject("at2");
@@ -42,10 +42,10 @@ int main(){
       }
       
     }
-    //  a->cleanup();
-    //    a1->cleanup();
+
+
     a->make(cl,2);
-    // a1->make(cl);
+
     vector<TCcluster> ret1;
     vector<TCcluster> ret2;
     
@@ -66,12 +66,12 @@ int main(){
     }
     
     a->draw(true,10,10,600,600,ev);
-    //a1->draw(true,10,10,600,600);
+
  
     if(nEv%100==0){
       cout<<nEv<<endl;
     } 
   }
   delete a;
-  delete a1;
+
 }
