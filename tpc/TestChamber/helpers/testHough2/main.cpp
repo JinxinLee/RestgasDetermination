@@ -22,7 +22,7 @@ int main(){
   TChough2* a = new TChough2(Y,Z);
 
 
-  TFile* file= TFile::Open("event.root");
+  TFile* file= TFile::Open("simExample.root");
   TTree *t =(TTree*)gROOT->FindObject("at2");
   int nEvt = t->GetEntries();
   TCevent *ev = 0;
