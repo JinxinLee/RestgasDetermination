@@ -144,83 +144,91 @@ PndSttRecoHit::detPlane(AbsRecoHit* hit, AbsTrackRep* rep)
     TVector3 wire1(x[0][0],x[1][0],x[2][0]);
     TVector3 wire2(x[3][0],x[4][0],x[5][0]);
   
-   
-    // propagation to closest approach
-    // retrieve GEANE
-    FairGeanePro *geane = ((GeaneTrackRep*)rep)->getPropagator(); 
+    /**
+     // propagation to closest approach
+     // retrieve GEANE
+     FairGeanePro *geane = ((GeaneTrackRep*)rep)->getPropagator(); 
+     
+     // call propagation to closest approach to a wire 
+     Int_t pca = 2;
+     TVector3 point;
+     TVector3 start = rep->getPos();
+     //  cout << "rep start point " << endl;
+     //  start.Print();
+     Double_t distance1, distance2;
+     distance1 = (wire1 - start).Mag();
+     distance2 = (wire2 - start).Mag();
+     Double_t maxdistance;
+     if(distance1 < distance2) maxdistance = distance2;
+     else maxdistance = distance1;
+     maxdistance *= 2.;  
+     Double_t Rad = 0.;
+     TVector3 vpf, vwi;
+     Double_t Di = 0.;
+     Float_t trklength = 0.;
+     Int_t PDG = ((GeaneTrackRep*)rep)->getPDG();
+     
+     TMatrixT<double> status = rep->getState();
+     DetPlane referenceplane = rep->getReferencePlane();
+     
+     TMatrixT<double> covar = rep->getCov();
+     FairGeaneUtil util;
+     Double_t cov55[5][5];
+     for(int i = 0; i < 5; i++) for(int j = 0; j < 5; j++) cov55[i][j] = covar[i][j];
+     Double_t CovMatrix[15];
+     util.FromMat25ToVec15(cov55, CovMatrix);
+     //  for(int i = 0; i < 15; i++) CovMatrix[i] = 0.;
+     
+     TVector3 posp = rep->getPos();
+     TVector3 momp = rep->getMom(); // MARS
+     Double_t q = rep->getCharge();
+     TVector3 posErr(0.,0.,0.);
+     TVector3 MomErr(0.,0.,0.);
+     TVector3 o = referenceplane.getO();
+     TVector3 dj = referenceplane.getU();
+     TVector3 dk = referenceplane.getV();
+     
+     FairTrackParP *parrep = new FairTrackParP(posp, momp, posErr, MomErr, q,  o, dj, dk);
+     
+     //   posp.Print();
+     //   momp.Print();
+     //   o.Print();
+     //   dj.Print();
+     //   dk.Print();
 
-    // call propagation to closest approach to a wire 
-    Int_t pca = 2;
-    TVector3 point;
-    TVector3 start = rep->getPos();
-    //  cout << "rep start point " << endl;
-    //  start.Print();
-    Double_t distance1, distance2;
-    distance1 = (wire1 - start).Mag();
-    distance2 = (wire2 - start).Mag();
-    Double_t maxdistance;
-    if(distance1 < distance2) maxdistance = distance2;
-    else maxdistance = distance1;
-    maxdistance *= 2.;  
-    Double_t Rad = 0.;
-    TVector3 vpf, vwi;
-    Double_t Di = 0.;
-    Float_t trklength = 0.;
-    Int_t PDG = ((GeaneTrackRep*)rep)->getPDG();
-
-    TMatrixT<double> status = rep->getState();
-    DetPlane referenceplane = rep->getReferencePlane();
-
-    TMatrixT<double> covar = rep->getCov();
-    FairGeaneUtil util;
-    Double_t cov55[5][5];
-    for(int i = 0; i < 5; i++) for(int j = 0; j < 5; j++) cov55[i][j] = covar[i][j];
-    Double_t CovMatrix[15];
-    util.FromMat25ToVec15(cov55, CovMatrix);
-    //  for(int i = 0; i < 15; i++) CovMatrix[i] = 0.;
-  
-    TVector3 posp = rep->getPos();
-    TVector3 momp = rep->getMom(); // MARS
-    Double_t q = rep->getCharge();
-    TVector3 posErr(0.,0.,0.);
-    TVector3 MomErr(0.,0.,0.);
-    TVector3 o = referenceplane.getO();
-    TVector3 dj = referenceplane.getU();
-    TVector3 dk = referenceplane.getV();
-
-    FairTrackParP *parrep = new FairTrackParP(posp, momp, posErr, MomErr, q,  o, dj, dk);
-
-    //   posp.Print();
-    //   momp.Print();
-    //   o.Print();
-    //   dj.Print();
-    //   dk.Print();
-  
-    Int_t direction = ((GeaneTrackRep*)rep)->getPropDir();
-
-    geane->ActualFindPCA(pca, parrep, direction);
-    Int_t findpca = geane->FindPCA(pca, PDG, point, wire1, wire2, maxdistance, Rad, vpf, vwi, Di, trklength);
-  
+     Int_t direction = ((GeaneTrackRep*)rep)->getPropDir();
+     
+     geane->ActualFindPCA(pca, parrep, direction);
+     Int_t findpca = geane->FindPCA(pca, PDG, point, wire1, wire2, maxdistance, Rad, vpf, vwi, Di, trklength);
+     
     if(findpca != 0) { 
-      cout << "detector plane determination FAILED!" << endl;  //return kFALSE; 
-      FitterException exc("findpca failure", __LINE__,__FILE__);	
-      throw exc;    
+    cout << "detector plane determination FAILED!" << endl;  //return kFALSE; 
+    FitterException exc("findpca failure", __LINE__,__FILE__);	
+    throw exc;    
     }
-  
-    Double_t distance;
-    distance = TMath::Sqrt(fabs(((wire1-vpf).Mag2()*(wire2-wire1).Mag2()-pow((wire1-vpf).Dot(wire2-wire1),2))/(wire2-wire1).Mag2()));
     
-    // check vpf inside tube 
+    **/
+    
+    // point of closest approach
+    TVector3 poca, poca_onwire, dirInPoca;
+    
+    rep->extrapolateToLine(wire1, wire2, poca, dirInPoca, poca_onwire);
+    
+    
+    Double_t distance;
+    distance = TMath::Sqrt(fabs(((wire1-poca).Mag2()*(wire2-wire1).Mag2()-pow((wire1-poca).Dot(wire2-wire1),2))/(wire2-wire1).Mag2()));
+    
+    // check poca inside tube 
     if(distance>0.5) {
-      cout << "vpf outside the firing tube" << endl; 
-      FitterException exc("distance vpf-wire > 0.5", __LINE__,__FILE__);	
+      cout << "poca outside the firing tube" << endl; 
+      FitterException exc("distance poca-wire > 0.5", __LINE__,__FILE__);	
       throw exc;    
     }
 
     // find plane
     // unitary vector along distance
-    // vpf on track, vwi on wire
-    TVector3 fromwiretoextr = vpf - vwi;     
+    // poca (on track), poca_onwire (on wire)
+    TVector3 fromwiretoextr = poca - poca_onwire;     
     fromwiretoextr.SetMag(1.);
     // unitary vector along the wire
     TVector3 wiredirection = wire2 - wire1; 
@@ -240,7 +248,7 @@ PndSttRecoHit::detPlane(AbsRecoHit* hit, AbsTrackRep* rep)
     U.SetMag(1.);
     V.SetMag(1.);
 
-    //    TVector3 O = vwi; // CHECK
+    //    TVector3 O = poca_onwire; // CHECK
     TVector3 O = (wire1 + wire2) * 0.5;
   
     _detPlane = DetPlane(O, U, V);
