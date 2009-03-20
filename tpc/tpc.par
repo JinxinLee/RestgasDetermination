@@ -12,8 +12,8 @@ AttachFlag:Int_t 0
 LogitudinaldiffusionFlag:Int_t 1
 TransversediffusionFlag:Int_t 1
 DriftDistortionFlag:Int_t 0
-zGem:Double_t -40
-zMax:Double_t 110
+zGem:Double_t -39.5
+zMax:Double_t 109.5
 Gain:Double_t 4000
 Supression:Double_t 0.001
 Spread:Double_t 0.02

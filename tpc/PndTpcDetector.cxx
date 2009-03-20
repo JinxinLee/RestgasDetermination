@@ -42,7 +42,6 @@
 #include "FairVolume.h"
 #include "TParticle.h"
 #include "PndStack.h"
-#include "TVirtualMC.h"
 
 #include "FairGeoMedia.h"
 #include "TRandom.h"
@@ -51,7 +50,7 @@
 
 
 PndTpcDetector::PndTpcDetector(const char * Name, Bool_t Active)
-  : FairDetector(Name, Active),fAliMC(kFALSE)
+  : FairDetector(Name, Active),fAliMC(kFALSE), fDeltaAttach(kFALSE)
 {
   fPndTpcPointCollection= new TClonesArray("PndTpcPoint");
 }
@@ -103,41 +102,50 @@ PndTpcDetector::ProcessHits( FairVolume *v)
   TLorentzVector mom;
   gMC->TrackMomentum(mom);
   //mom.Print();
-  if(mom.Rho()<0.001)	{
-  	return kTRUE; // i do this to avoid crashes in Alice stuff 
+  
+  if(fAliMC) {
+    if(mom.Rho()<=1e-12) { //keep ALICE code from dividing by zero
+      return kTRUE;
+    }
   }
+
   Int_t trackID  = gMC->GetStack()->GetCurrentTrackNumber();
   Int_t volumeID = v->getMCid();
-
   
   if(fAliMC)	{
   	AliTPCv3_SetStepToNextCollision(); 
   }
-  
-#ifdef DO_UNCANNY_STUFF
-  //std::cout<<"CurrentID="<<trackID<<std::endl;
-  // if this is a low momentum particle (e.g. delta) assign mother id
-  if(mom.E()<10.*1E-6){ // E<10keV
+    
+  if(fDeltaAttach) {   //TODO: implement, this is just junk atm
+    
+    //PROBLEMS so far:
+    // - how are we looping through the steps? sorted by particle type or primary/sec ... ??
+    // - what happens in the ClusterizerTask
+    
+    //if this is a low momentum particle (e.g. delta) assign mother id
+    //if(mom.E()<10.*1E-6){ // E<10keV
     TParticle* mother=gMC->GetStack()->GetCurrentTrack();
     while(!mother->IsPrimary()){
       trackID=mother->GetFirstMother();
       mother=dynamic_cast<PndStack*>(gMC->GetStack())->GetParticle(trackID);
       //std::cout<<"Fetching mother id="<<trackID<<std::endl;
     }
-  }
-#endif
-
-  PndTpcPoint* p=AddHit(trackID, volumeID, pos.Vect(), mom.Vect(), time, length, eLoss);
-
+    //}
+    
+    //gotta love TClonesArray syntax!
+    PndTpcPoint* p=AddHit(trackID, volumeID, pos.Vect(), mom.Vect(), time, length, eLoss);
+    
   //p->Print("");
-
-  return kTRUE;
+    
+    return kTRUE;
+  }
 }
 
 
+//copy & paste from AliTPCv3.cxx
 void PndTpcDetector::AliTPCv3_SetStepToNextCollision()
 {
-  const Float_t prim = 14.35; // number of primary collisions per 1 cm
+  const Float_t prim = 14.35; //number of primary collisions per 1 cm for MIPs
 
   Double_t charge= gMC->TrackCharge();
   Float_t pp;
@@ -146,21 +154,28 @@ void PndTpcDetector::AliTPCv3_SetStepToNextCollision()
   Float_t ptot=mom.Rho();
   Float_t beta_gamma = ptot/gMC->TrackMass();
   
-  if(gMC->IdFromPDG(gMC->TrackPid()) <= 3 && ptot > 0.002)
+
+  //gMC->IdFromPDG(gMC->TrackPid()) <= 3 : electron(3), positron(2), photon(1)
+  //                                       unused(0)
+
+  if(gMC->IdFromPDG(gMC->TrackPid()) <= 3 && ptot > 0.02)  //typo in Alice File ??
     { 
       pp = prim*1.58; // electrons above 20 MeV/c are on the plateau!
     }
   else
     {
-      pp=prim*AliTPCv3_BetheBloch(beta_gamma);    
+      pp=prim*AliTPCv3_BetheBloch(beta_gamma); 
+      //assuming form of Bethe Bloch depends only on mean free path
       if(TMath::Abs(charge) > 1.) pp *= (charge*charge);
     }
   
-  Float_t random[1];
+  //Float_t random[1];
   TRandom * rGenerator=gMC->GetRandom();
   Double_t rnd=rGenerator->Rndm();
   
-  gMC->SetMaxStep(-TMath::Log(rnd)/pp);
+  gMC->SetMaxStep(-TMath::Log(rnd)/pp); 
+  //get random free mean path from poisson statistics and mean pp
+                                        
 }
 
  Float_t PndTpcDetector::AliTPCv3_BetheBloch(Float_t bg)

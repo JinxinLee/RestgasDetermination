@@ -146,12 +146,24 @@ PndTpcRungeKutta::getNextPoint(double* aP, double* errorEstimate)
   double bFieldX, bFieldY, bFieldZ;
   
   if(!_constB_flag){
-    if(_bField!=0) {       //use FairMultiField 
+    if(_bField!=0) {       //use PndMultiField 
+      
+      double pos_temp[3];
+      double field_val[3];
+      for(int i=0; i<3; i++)
+	pos_temp[i] = aP[i+3]*100.;
+
+      _bField->GetFieldValue(pos_temp, field_val);
+      
+      bFieldX = field_val[0]*0.1;
+      bFieldY = field_val[1]*0.1;
+      bFieldZ = field_val[2]*0.1;
       
       /*FairFieldMap takes coordinates in [cm] and returns B in [kGauss] -> *0.1 ! */
-      bFieldX = _bField->GetBx(aP[3]*100., aP[4]*100., aP[5]*100.)*0.1;  
-      bFieldY = _bField->GetBy(aP[3]*100., aP[4]*100., aP[5]*100.)*0.1;
-      bFieldZ = _bField->GetBz(aP[3]*100., aP[4]*100., aP[5]*100.)*0.1;
+   
+      // bFieldX = _bField->GetBx(aP[3]*100., aP[4]*100., aP[5]*100.)*0.1;  
+      // bFieldY = _bField->GetBy(aP[3]*100., aP[4]*100., aP[5]*100.)*0.1;
+      // bFieldZ = _bField->GetBz(aP[3]*100., aP[4]*100., aP[5]*100.)*0.1;
     }
     
     if(_bFieldCyl!=NULL) { //use PndTpcEFieldCyl for B field representation

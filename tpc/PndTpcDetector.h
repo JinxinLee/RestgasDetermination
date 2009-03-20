@@ -55,6 +55,15 @@ public:
    */ 
   void SetAliMC(Bool_t opt=kTRUE) {fAliMC=opt;}
   
+
+  //NOT YET READY
+  //if you let GEANT produce delta rays explicitely and you want to treat them in a 
+  //reconstruction that is based on MC trackID's, turn on this option
+  
+  //void SetDeltaAttach(Bool_t opt=kTRUE) {fDeltaAttach=opt;}
+  
+  
+  
   /**      default constructor    */
   PndTpcDetector();
   /**       destructor     */
@@ -97,6 +106,9 @@ public:
   
   // Operations ----------------------
   // the ALICE TPC MC
+
+
+  // __________________________________________________________________________________
   // found at http://www-aix.gsi.de/~miranov/AliRoot/roothtml/TPC/src/AliTPCv3.cxx.html
   Float_t AliTPCv3_InitDetector();
   Float_t AliTPCv3_BetheBloch(Float_t bg);
@@ -106,7 +118,8 @@ private:
   
   // Private Data Members ------------
   TClonesArray  *fPndTpcPointCollection;
- bool fAliMC; //use Alice Monte Carlo, ELOSS=5 has to be set!
+  bool fAliMC; //use Alice Monte Carlo, ELOSS=5 has to be set!
+  bool fDeltaAttach; //assign delta MC points to the mother track
   // Private Methods -----------------
   
 public:

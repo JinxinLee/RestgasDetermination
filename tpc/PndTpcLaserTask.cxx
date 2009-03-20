@@ -87,8 +87,8 @@ PndTpcLaserTask::Exec(Option_t* opt)
     Int_t nPrim = _primArray->GetEntriesFast();
     Int_t nLaser = _laserArray->GetEntriesFast();
     PndTpcPrimaryCluster* test = (PndTpcPrimaryCluster*) _primArray->At(0);
-    unsigned int trackID = test->mcTrackId();
-    unsigned int hitID = test->mcHitId();
+    //unsigned int trackID = test->mcTrackId();
+    //unsigned int hitID = test->mcHitId();
     if(nLaser>0)
       addCounter++;
     
@@ -96,8 +96,10 @@ PndTpcLaserTask::Exec(Option_t* opt)
     { 
       PndTpcPrimaryCluster* cl=(PndTpcPrimaryCluster*) _laserArray->At(j);
       if(cl!=NULL){
+	//new((*_primArray)[_primArray->GetEntriesFast()]) PndTpcPrimaryCluster(cl->t(),cl->q(),
+	//					 cl->pos(),trackID,hitID);
 	new((*_primArray)[_primArray->GetEntriesFast()]) PndTpcPrimaryCluster(cl->t(),cl->q(),
-							 cl->pos(),trackID,hitID);
+							     cl->pos(),1,1);
       }
     }
   }

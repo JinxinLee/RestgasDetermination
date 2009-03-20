@@ -198,7 +198,7 @@ void PndTpcClusterizerTask::ChargeConversion()
   	PndTpcPoint* point=(PndTpcPoint*) _pointArray->At(ip);
 	//Do no clustering just convert energy deposition to ionisation
   	Int_t nel = (Int_t)(((point->GetEnergyLoss())-poti)/w_ion) + 1;	//imported from ALICE
-  	nel=TMath::Min(nel,300); // 300 electrons corresponds to 10 keV
+  	//nel=TMath::Min(nel,300); // 300 electrons corresponds to 10 keV
 	Int_t size = _primArray->GetEntriesFast();
 	new((*_primArray)[size]) PndTpcPrimaryCluster(point->GetTime(),
 						   nel,
