@@ -60,7 +60,7 @@ protected:
 private:
 
   // Private Data Members ------------
- 
+  DetPlane _detPlane;
   // Private Methods -----------------
 
 };
