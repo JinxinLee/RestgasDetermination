@@ -23,7 +23,9 @@
 #include "GeaneTrackRep.h"
 #include "PndSttHit.h"
 #include "PndSttHelixHit.h"
-  
+
+#include "TMath.h"
+
 // Class Member definitions -----------
 using namespace std;
 
