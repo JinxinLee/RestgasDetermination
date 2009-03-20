@@ -113,7 +113,7 @@ private:
    **  MDT:  Bit  2 -  3  (2 bit max. value 3)
    **  MVD:  Bit  4 -  5  (2 bit max. value 3)
    **  DCH:  Bit  6 -  7  (2 bit max. value 3)
-   **  EMC:  Bit  8 -  9  (3 bit max. value 3)
+   **  EMC:  Bit  8 -  9  (2 bit max. value 3)
    **  STT:  Bit 10 - 11  (2 bit max. value 3)
    **  TPC:  Bit 12 - 13  (2 bit max. value 3)
    **  TOF:  Bit 14 - 15  (2 bit max. value 3)
@@ -121,7 +121,7 @@ private:
    **  DSK:  Bit 18 - 19  (2 bit max. value 3)
    **  HYP:  Bit 20 - 21  (2 bit max. value 3)
    **  RPC:  Bit 22 - 23  (2 bit max. value 3)
-   **  LUMI: Bit 23 - 24  (2 bit max. value 3)
+   **  LUMI: Bit 24 - 25  (2 bit max. value 3)
    
    **  The respective point numbers can be accessed and modified **/
 

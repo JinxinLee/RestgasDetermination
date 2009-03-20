@@ -105,12 +105,13 @@ Int_t  PndMCTrack::GetNPoints(DetectorId detId) const {
   else if ( detId == kDCH ) return ( (fPoints  & (3 <<  6) ) >>  6 );
   else if ( detId == kEMC ) return ( (fPoints  & (3 <<  8) ) >>  8 ); 
   else if ( detId == kSTT ) return ( (fPoints  & (3 << 10) ) >> 10 );
-  else if ( detId == kTOF ) return ( (fPoints  & (3 << 12) ) >> 12 );
-  else if ( detId == kGEM ) return ( (fPoints  & (3 << 14) ) >> 14 );
-  else if ( detId == kDSK ) return ( (fPoints  & (3 << 16) ) >> 16 );
-  else if ( detId == kHYP ) return ( (fPoints  & (3 << 18) ) >> 18 );
-  else if ( detId == kRPC ) return ( (fPoints  & (3 << 20) ) >> 20 );
-  else if ( detId == kLUMI) return ( (fPoints  & (3 << 22) ) >> 22 );	
+  else if ( detId == kTPC ) return ( (fPoints  & (3 << 12) ) >> 12 );
+  else if ( detId == kTOF ) return ( (fPoints  & (3 << 14) ) >> 14 );
+  else if ( detId == kGEM ) return ( (fPoints  & (3 << 16) ) >> 16 );
+  else if ( detId == kDSK ) return ( (fPoints  & (3 << 18) ) >> 18 );
+  else if ( detId == kHYP ) return ( (fPoints  & (3 << 20) ) >> 20 );
+  else if ( detId == kRPC ) return ( (fPoints  & (3 << 22) ) >> 22 );
+  else if ( detId == kLUMI) return ( (fPoints  & (3 << 24) ) >> 24 );	
 	
   else {
     cout << "-E- PndMCTrack::GetNPoints: Unknown detector ID "
@@ -123,11 +124,11 @@ void PndMCTrack::SetNPoints(Int_t iDet, Int_t  nPoints) {
   if        ( iDet == kDRC ) {
     if      ( nPoints < 0 ) nPoints = 0;
     else if ( nPoints > 3 ) nPoints = 3;
-    fPoints = ( fPoints & ( ~ (  3 <<  0 ) ) )  |  ( nPoints <<  0 );
+    fPoints = ( fPoints & ( ~ ( 3 <<  0 ) ) )  |  ( nPoints <<  0 );
   }
 
   else if ( iDet == kMDT ) {
-    if      ( nPoints <  0 ) nPoints =  0;
+    if      ( nPoints < 0 ) nPoints = 0;
     else if ( nPoints > 3 ) nPoints = 3;
     fPoints = ( fPoints & ( ~ ( 3 <<  2 ) ) )  |  ( nPoints <<  2 );
   }
@@ -135,34 +136,35 @@ void PndMCTrack::SetNPoints(Int_t iDet, Int_t  nPoints) {
   else if ( iDet == kMVD ) {
     if      ( nPoints < 0 ) nPoints = 0;
     else if ( nPoints > 3 ) nPoints = 3;
-    fPoints = ( fPoints & ( ~ (  3 << 4 ) ) )  |  ( nPoints << 4 );
+    fPoints = ( fPoints & ( ~ (  3 << 4 ) ) )  |  ( nPoints <<  4 );
   }
 
   else if ( iDet == kDCH ) {
     if      ( nPoints < 0 ) nPoints = 0;
     else if ( nPoints > 3 ) nPoints = 3;
-    fPoints = ( fPoints & ( ~ ( 3 <<  8 ) ) )  | ( nPoints << 6);
+    fPoints = ( fPoints & ( ~ ( 3 <<  6 ) ) )  |  ( nPoints <<  6);
   }
 
   else if ( iDet == kEMC ) {
-    if      ( nPoints <  0 ) nPoints =  0;
+    if      ( nPoints < 0 ) nPoints = 0;
     else if ( nPoints > 3 ) nPoints = 3;
-    fPoints = ( fPoints & ( ~ ( 3 <<  8 ) ) )  |  ( nPoints << 8 );
+    fPoints = ( fPoints & ( ~ ( 3 <<  8 ) ) )  |  ( nPoints <<  8 );
   }
 
   else if ( iDet == kSTT ) {
-    if      ( nPoints <  0 ) nPoints =  0;
+    if      ( nPoints < 0 ) nPoints = 0;
     else if ( nPoints > 3 ) nPoints = 3;
     fPoints = ( fPoints & ( ~ ( 3 << 10 ) ) )  |  ( nPoints << 10 );
   }
+
   else if ( iDet == kTPC ) {
-    if      ( nPoints <  0 ) nPoints =  0;
+    if      ( nPoints < 0 ) nPoints = 0;
     else if ( nPoints > 3 ) nPoints = 3;
     fPoints = ( fPoints & ( ~ ( 3 << 12 ) ) )  |  ( nPoints << 12 );
   }
 
   else if ( iDet == kTOF ) {
-    if      ( nPoints <  0 ) nPoints =  0;
+    if      ( nPoints < 0 ) nPoints = 0;
     else if ( nPoints > 3 ) nPoints = 3;
     fPoints = ( fPoints & ( ~ ( 3 << 14 ) ) )  |  ( nPoints << 14 );
   }
@@ -175,23 +177,24 @@ void PndMCTrack::SetNPoints(Int_t iDet, Int_t  nPoints) {
   else if ( iDet == kDSK ) {
     if      ( nPoints < 0 ) nPoints = 0;
     else if ( nPoints > 3 ) nPoints = 3;
-    fPoints = ( fPoints & ( ~ (  3 << 18 ) ) )  |  ( nPoints << 18 );
+    fPoints = ( fPoints & ( ~ ( 3 << 18 ) ) )  |  ( nPoints << 18 );
   }
 
   else if ( iDet == kHYP ) {
     if      ( nPoints < 0 ) nPoints = 0;
     else if ( nPoints > 3 ) nPoints = 3;
-    fPoints = ( fPoints & ( ~ (  3 << 20 ) ) )  |  ( nPoints << 20 );
+    fPoints = ( fPoints & ( ~ ( 3 << 20 ) ) )  |  ( nPoints << 20 );
   }
   else if ( iDet == kRPC ) {
     if      ( nPoints < 0 ) nPoints = 0;
     else if ( nPoints > 3 ) nPoints = 3;
-    fPoints = ( fPoints & ( ~ (  3 << 22 ) ) )  |  ( nPoints << 22 );
+    fPoints = ( fPoints & ( ~ ( 3 << 22 ) ) )  |  ( nPoints << 22 );
   }
+
   else if ( iDet == kLUMI ) {
-	  if      ( nPoints < 0 ) nPoints = 0;
-	  else if ( nPoints > 3 ) nPoints = 3;
-	  fPoints = ( fPoints & ( ~ (  3 << 22 ) ) )  |  ( nPoints << 22 );
+    if      ( nPoints < 0 ) nPoints = 0;
+    else if ( nPoints > 3 ) nPoints = 3;
+    fPoints = ( fPoints & ( ~ ( 3 << 24 ) ) )  |  ( nPoints << 24 );
   }
 	
 	
