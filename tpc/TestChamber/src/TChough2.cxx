@@ -18,8 +18,8 @@ using std::endl;
 using std::vector;
 TChough2::TChough2(const TVector3& _yp,const TVector3& _zp,double _rR) : TCabsHough(_yp,_zp){
 
-  nBinsR = 50;
-  nBinsTheta =50;
+  nBinsR = 100;
+  nBinsTheta =100;
  
   cutR=_rR;
 
@@ -47,9 +47,9 @@ void TChough2::draw(bool stop,int _z,int _y,int _w,int _h,TCevent *mcTruth){
     y[i]=ypHit.at(i);
   }
   for(unsigned int i=0;i<maxVector.size();++i){
-    thetaMax_[i]=maxVector.at(i).first*binTheta+minTheta-binTheta/2;
+    thetaMax_[i]=(maxVector.at(i).first*binTheta+minTheta-binTheta/2)/3.141592654;
     rMax_[i]=maxVector.at(i).second*binR+minR-binR/2;
-    thetaMaxE_[i]=binTheta/2;
+    thetaMaxE_[i]=(binTheta/2)/3.141592654;
     if(cutR==0){
       cutR=binR/2;
     }
@@ -205,7 +205,7 @@ bool TChough2::hot(int clIndex,int maxIndex){
   assert(clIndex>-1);
   assert(maxIndex<nMax);
   double z,y;
-  double discr,discr2;
+  double discr,discr2,discr3;
 
   z = HitCoordinates[clIndex][1];
   y = HitCoordinates[clIndex][0];
@@ -215,19 +215,22 @@ bool TChough2::hot(int clIndex,int maxIndex){
   
   double thetaAtMax1=maxBinTheta*binTheta+minTheta-binTheta;
   double thetaAtMax2=maxBinTheta*binTheta+minTheta;
+  double thetaAtMax3=maxBinTheta*binTheta+minTheta-binTheta/2;
   double rAtMax=maxBinR*binR+minR-binR/2;
   double rPoint=z*cos(thetaAtMax1) +y*sin(thetaAtMax1);
   double rPoint2=z*cos(thetaAtMax2) +y*sin(thetaAtMax2);
+  double rPoint3=z*cos(thetaAtMax3) +y*sin(thetaAtMax3);
   discr=-fabs(rPoint-rAtMax);
   discr2=-fabs(rPoint2-rAtMax);
-
+  discr3=-fabs(rPoint3-rAtMax);
   // cout<<"discr "<<-discr<<endl;
   if(cutR==0){
     cutR=binR/2;
   }
   discr+=cutR;
   discr2+=cutR;
-  if(discr<0&&discr2<0){
+  discr3+=cutR;
+  if(discr<0&&discr2<0&&discr3<0){
     return false;
   }
   return true;
@@ -242,8 +245,8 @@ void TChough2::findMaxInHisto(std::vector<std::pair<int,int> > &_maxVector, int 
     int maxBinR;
     int zDummy;
     houghHistoCopy->GetMaximumBin(maxBinTheta,maxBinR,zDummy);
-    for (int k=maxBinTheta-5;k<=maxBinTheta+10;k++){
-      for(int j=maxBinR-5;j<=maxBinR+10;j++){
+    for (int k=maxBinTheta-1;k<=maxBinTheta+2;k++){
+      for(int j=maxBinR-1;j<=maxBinR+2;j++){
         if(k<0){
           continue;
         }
@@ -309,13 +312,13 @@ void TChough2::cleanup() {
   r(theta) = z*cos(theta) + y*sin(theta)
 */
 void TChough2::makeHoughLines(){
-  char buf[50];
-  char bufName[50];
+  char buf[100];
+  char bufName[100];
   for(int i=0;i<NumberOfHits;i++) {
-	sprintf(buf,"%f*sin(x)+%f*cos(x)",HitCoordinates[i][0],HitCoordinates[i][1]);
-	sprintf(bufName,"%icopy%f*sin(x)+%f*cos(x)",i,HitCoordinates[i][0],HitCoordinates[i][1]);
+	sprintf(buf,"%f*sin(x*3.141592654)+%f*cos(x*3.141592654)",HitCoordinates[i][0],HitCoordinates[i][1]);
+	sprintf(bufName,"%icopy%f*sin(x*3.141592654)+%f*cos(x*3.141592654)",i,HitCoordinates[i][0],HitCoordinates[i][1]);
 	//	cout<<"minTheta "<<minTheta<<" maxTheta "<<maxTheta<<endl;
-	houghLines[i] = new TF1(bufName,buf,minTheta,maxTheta);
+	houghLines[i] = new TF1(bufName,buf,minTheta/3.141592654,maxTheta/3.141592654);
 	//	  houghLines[i]->SetLineColor(kBlue);
 	houghLines[i]->SetLineStyle(1);
   }
@@ -347,10 +350,10 @@ void TChough2::makeHoughHisto(){
   char buf[50];
   static TRandom r(0);
   sprintf(buf,"houghHisto%5.5f",r.Uniform());
-  houghHisto = new TH2D(buf,"",nBinsTheta,minTheta,maxTheta,nBinsR,minR,maxR);
+  houghHisto = new TH2D(buf,"",nBinsTheta,minTheta/3.141592654,maxTheta/3.141592654,nBinsR,minR,maxR);
   houghHisto->SetStats(kFALSE);
   houghHisto->GetYaxis()->SetTitle("R");
-  houghHisto->GetXaxis()->SetTitle("#theta");
+  houghHisto->GetXaxis()->SetTitle("#theta[#pi]");
   
 
   for(int ihit=0;ihit<NumberOfHits;ihit++) {///NumberOfHits;ihit++) {
