@@ -26,14 +26,12 @@ TChough1::TChough1(const TVector3& _yp,const TVector3& _zp,double _r1,double _r2
   for(int i=0;i<Max_NumberOfHits;i++) {
 	houghLinesYZ[i]=NULL;
   }
-
-
 }
 
 TChough1::~TChough1(){
 }
 
-void TChough1::draw(bool stop,int _x,int _y,int _w,int _h){
+void TChough1::draw(bool stop,int _x,int _y,int _w,int _h,TCevent* mcTruth){
   double x[ypHit.size()];
   double y[ypHit.size()];
   for(int i=0;i<ypHit.size();++i){
@@ -325,32 +323,6 @@ int TChough1::binWeight(int ia, int ib, int ihit) {
   if(a_at_b1>a0 && a_at_b1<a1) top=true;
 
 
-  if(top || bottom || left || right) {
-// 	std::cout << ihit << " " << ia << " " << ib << std::endl;
-// 	cout << "top: " << top << endl;
-// 	cout << "bottom: " << bottom << endl;
-// 	cout << "right: " << right << endl;
-// 	cout << "left: " << left << endl;
-//	distance = 1.;
-  }
-
-
-  /*
-  if(!top&&bottom&&left&&right) cout << "bottom and left and right" << endl;
-  if(top&&!bottom&&left&&right) cout << "top and left and right" << endl;
-  if(top&&bottom&&!left&&right) cout << "top and bottom and right" << endl;
-  if(top&&bottom&&left&&!right) cout << "top and bottom and left" << endl;
-  if(top&&bottom&&!left&&!right) cout << "top and bottom" << endl;
-  if(top&&!bottom&&left&&!right) cout << "top and left" << endl;
-  if(top&&!bottom&&!left&&right) cout << "top and right" << endl;
-  if(!top&&bottom&&left&&!right) cout << "bottom and left" << endl;
-  if(!top&&bottom&&!left&&right) cout << "bottom and right" << endl;
-  if(!top&&!bottom&&left&&right) cout << "left and right" << endl;
-  if(top&&!bottom&&!left&&!right) cout << "top only" << endl;
-  if(!top&&bottom&&!left&&!right) cout << "bottom only" << endl;
-  if(!top&&!bottom&&left&&!right) cout << "left only" << endl;
-  if(!top&&!bottom&&!left&&right) cout << "right only" << endl;
-  */
 
   double distance=-1;
   if(left&&right) distance = sqrt( pow(b_at_a0-b_at_a1,2.) + pow(binA,2.));

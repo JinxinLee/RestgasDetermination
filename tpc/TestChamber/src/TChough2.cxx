@@ -15,6 +15,7 @@
 using std::pair;
 using std::cout;
 using std::endl;
+using std::vector;
 TChough2::TChough2(const TVector3& _yp,const TVector3& _zp,double _rR) : TCabsHough(_yp,_zp){
 
   nBinsR = 50;
@@ -32,14 +33,15 @@ TChough2::TChough2(const TVector3& _yp,const TVector3& _zp,double _rR) : TCabsHo
 TChough2::~TChough2(){
 }
 
-void TChough2::draw(bool stop,int _z,int _y,int _w,int _h){
+void TChough2::draw(bool stop,int _z,int _y,int _w,int _h,TCevent *mcTruth){
   double z[ypHit.size()];
   double y[ypHit.size()];
   double thetaMax_[maxVector.size()];
   double thetaMaxE_[maxVector.size()];
   double rMax_[maxVector.size()];
   double rMaxE_[maxVector.size()];
-  
+  char buf[50];
+  char bufName[50];
   for(unsigned int i=0;i<(ypHit.size());++i){
     z[i]=zpHit.at(i);
     y[i]=ypHit.at(i);
@@ -55,24 +57,49 @@ void TChough2::draw(bool stop,int _z,int _y,int _w,int _h){
     
   }
   static TRandom r(0);
-  char buf[10];
+  //char buf[10];
   
   gROOT->SetStyle("Plain");
   gStyle->SetPalette(1);
 
   sprintf(buf,"c%5.5f",r.Uniform());
-  TCanvas *c = new TCanvas(buf,"Hough Transformation R #theta",_z,_y,_w,_h);
+  canvas1 = new TCanvas(buf,"Hough Transformation R #theta",_z,_y,_w,_h);
   TGraph* g = new TGraph(ypHit.size(),z,y);
   TGraphErrors* maxPoints = new TGraphErrors(maxVector.size(),thetaMax_,rMax_,thetaMaxE_,rMaxE_);
 
-  c->Divide(1,2);
-  c->cd(1);
+  canvas1->Divide(1,2);
+  canvas1->cd(1);
   g->SetTitle("");
   g->GetXaxis()->SetTitle("z");
   g->SetMarkerStyle(24);
   g->SetMarkerSize(2.);
   g->Draw("AP");
-    
+
+  vector<TF1*>  mcTruthTracks;
+  if(mcTruth!=NULL){
+
+    int nTracks=mcTruth->nTracks();
+    cout<<nTracks<<endl;
+    for(int i=0;i<nTracks;++i){
+      TCtrack* mcTrack =mcTruth->getTrack(i);
+      double aX,bX;
+      if(yp.x()==0){
+        aX=mcTrack->getAy();
+        bX=mcTrack->getBy();
+      }else{
+        aX=mcTrack->getAx();
+        bX=mcTrack->getBx();
+      }
+      sprintf(buf,"%f*x+%f",aX,bX);
+      sprintf(bufName,"%icopy %f*x+%f",i,aX,bX);
+      mcTruthTracks.push_back(new TF1(bufName,buf,minZ,maxZ));
+      mcTruthTracks.at(i)->SetLineStyle(1);
+      mcTruthTracks.at(i)->SetLineWidth(1); 
+      mcTruthTracks.at(i)->Draw("same");
+    }
+  }
+  
+  
   std::vector<int> selHits;
   std::vector<int> selHits2;
   for(unsigned int i=0;i<ypHit.size();++i){
@@ -131,7 +158,7 @@ void TChough2::draw(bool stop,int _z,int _y,int _w,int _h){
     gsel->Draw("P");
   }
 
-  c->cd(2);
+  canvas1->cd(2);
   houghHisto->Draw("colz");
 
   for(int i=0;i<NumberOfHits;++i){
@@ -143,12 +170,13 @@ void TChough2::draw(bool stop,int _z,int _y,int _w,int _h){
   maxPoints->SetMarkerSize(5.);
   maxPoints->SetMarkerColor(kRed);
   maxPoints->Draw("*P");
-  c->Update();
-  c->Modified();
+  canvas1->Update();
+  canvas1->Modified();
   if(stop){
     // cout<<"run"<<endl;
     gApplication->SetReturnFromRun(kTRUE);
     gSystem->Run();
+    gROOT->Reset();
   }
 
 }

@@ -6,7 +6,7 @@
 #include"TVector3.h"
 #include"TMatrixT.h"
 #include"TCcluster.h"
-
+#include "TCevent.h"
 class TCabsHough{
 
  public:
@@ -23,7 +23,7 @@ class TCabsHough{
 
   virtual bool hot(int index)=0;
 
-  virtual void draw(bool stop=true,int _x=50,int _y=50,int _w=600,int _h=600)=0;
+  virtual void draw(bool stop=true,int _x=50,int _y=50,int _w=600,int _h=600,TCevent* mcTruth= NULL)=0;
 
   void clear(){
 	ypHit.clear();

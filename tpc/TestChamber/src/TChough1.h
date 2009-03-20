@@ -17,7 +17,7 @@ class TChough1 : public TCabsHough{
 
   virtual bool hot(int index);
 
-  virtual void draw(bool stop=true,int _x=50,int _y=50,int _w=600,int _h=600);
+  virtual void draw(bool stop=true,int _x=50,int _y=50,int _w=600,int _h=600,TCevent* = NULL);
   double getScaleA(){return scaleA;}
   double getScaleB(){return scaleB;}
 

@@ -5,7 +5,7 @@
 #include"TH2.h"
 #include"TF1.h"
 #include"TCanvas.h"
-
+#include "TCevent.h"
 class TChough2 : public TCabsHough{
  public:
 
@@ -29,7 +29,7 @@ class TChough2 : public TCabsHough{
     return hot(clIndex,0);
   }
 
-  virtual void draw(bool stop=true,int _x=50,int _y=50,int _w=600,int _h=600);//at the moment only possible if draws two first lines
+  void draw(bool stop=true,int _x=50,int _y=50,int _w=600,int _h=600,TCevent* mcTruth=NULL);//at the moment only possible if draws two first lines
   
 
  private:
