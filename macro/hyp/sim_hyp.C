@@ -6,7 +6,10 @@
   gDebug=0;
   // Load basic libraries
   // If it does not work,  please check the path of the libs and put it by hands
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
+  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+  
+  /*
+    gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
   basiclibs();
   // Load this example libraries
   gSystem->Load("libGeoBase");
@@ -23,6 +26,7 @@
   gSystem->Load("libtpc");
   gSystem->Load("libtpcreco");
   gSystem->Load("librecotasks");
+  */
   gSystem->Load("libHyp");
   FairRunSim *fRun = new FairRunSim();
   
@@ -50,7 +54,7 @@
   //-------------------------
 
   FairModule *Cave= new PndCave("CAVE");
-  Cave->SetGeometryFileName("cave.geo");
+  Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave); 
   /*
    FairModule *Magnet= new CbmMagnet("MAGNET");
@@ -69,7 +73,9 @@
   // Hyp->SetGeometryFileName("HypST_prueba23.geo"); 
   //fRun->AddModule(Hyp);
   //--layers C+si+hyppipe
-  Hyp->SetGeometryFileName("HypST_prueba24pipe.geo"); 
+  //Hyp->SetGeometryFileName("HypST_prueba24pipe.geo"); 
+  Hyp->SetGeometryFileName("HypST_newxy3C.geo");
+  
   fRun->AddModule(Hyp);
 
   // Create and Set Event Generator
@@ -97,17 +103,28 @@
   //FairParticleGenerator* partGen = new FairParticleGenerator(3312, 1, -0.3,0.3,0.3, 0., 0., -76);
   //primGen->AddGenerator(partGen);
   
-  //*** with Ascii inFile ***
-      // FairAsciiGenerator* AsciiGen = new FairAsciiGenerator(inFile);
-      //primGen->AddGenerator(AsciiGen);
-       
-
-      PndConstField *fMagField=new PndConstField();
-  fMagField->SetField(0, 0 ,20. ); // values are in kG
-  // MinX=-75, MinY=-40,MinZ=-12 ,MaxX=75, MaxY=40 ,MaxZ=124 );  // values are in cm
-  fMagField->SetFieldRegion(-50, 50,-50, 50, -200, 200);
-  fRun->SetField(fMagField);
+  // *** with Ascii inFile ***
+  // FairAsciiGenerator* AsciiGen = new FairAsciiGenerator(inFile);
+  //primGen->AddGenerator(AsciiGen);
   
+  
+  /*
+    PndConstField *fMagField=new PndConstField();
+    fMagField->SetField(0, 0 ,20. ); // values are in kG
+    // MinX=-75, MinY=-40,MinZ=-12 ,MaxX=75, MaxY=40 ,MaxZ=124 );  // values are in cm
+    fMagField->SetFieldRegion(-50, 50,-50, 50, -200, 200);
+    fRun->SetField(fMagField);
+  */
+  
+  PndMultiField *fField= new PndMultiField();
+  PndTransMap *map= new PndTransMap("TransMap", "R");
+  PndDipoleMap *map1= new PndDipoleMap("DipoleMap", "R");
+  PndSolenoidMap *map2= new PndSolenoidMap("SolenoidMap", "R");
+  fField->AddField(map);
+  fField->AddField(map1);
+  fField->AddField(map2);
+  fRun->SetField(fField);
+
   fRun->SetStoreTraj(kTRUE); // to store particle trajectories 
 
 
@@ -127,6 +144,12 @@
   //-------------------------------------------
   
   FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
+
+  PndMultiFieldPar* fieldPar = (PndMultiFieldPar*) rtdb->getContainer("PndMultiFieldPar");
+  if ( fField ) { fieldPar->SetParameters(fField); }
+  fieldPar->setInputVersion(fRun->GetRunId(),1);
+  fieldPar->setChanged();
+
   Bool_t kParameterMerged=kTRUE;
   FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   output->open("simparams.root");
