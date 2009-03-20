@@ -32,8 +32,6 @@ public:
   virtual void setHMatrix(const AbsTrackRep* stateVector,
                           const TMatrixT<double>& state);
 
-  const DetPlane& detPlane(AbsRecoHit*, AbsTrackRep*);
-  virtual const DetPlane& getDetPlane(AbsTrackRep*); 
 
 private:
 
