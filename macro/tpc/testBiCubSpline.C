@@ -37,8 +37,8 @@ timer.Start();
 //INCREASING the # of knots kills the fitter, with or without solution error!
 //see comment on stepx: this may have been the reason
 
-int NknotsX = 5;
-int NknotsY = 5; 
+int NknotsX = 3;
+int NknotsY = 7; 
 int NlamdaX = NknotsX+8;
 int NlamdaY = NknotsY+8;
 std::vector<double>* _kx = new std::vector<double>;
@@ -47,7 +47,7 @@ std::vector<double>* _ky = new std::vector<double>;
 std::vector<TVector3*> data;  
 
 std::vector<std::vector<double>*>* coeff=new std::vector<std::vector<double>*>;
- double lLx = -38;
+ double lLx = -48;
  double uLx = 130;
  double lLy = 15;
  double uLy = 42;
@@ -110,11 +110,11 @@ double rWidth;
 
 
 //read file
-std::string filename = "DevMap_Andrea_E_and_B_04_02_08.dat";
+std::string filename = "DevMap_Efield_March_09_Bfield_Official.dat";
 
 std::ifstream infile(filename.c_str(), std::fstream::in);
 
-TFile* laserfile = new TFile("laserdevmap.root");
+TFile* laserfile = new TFile("DevMap_Efield_March_09_Bfield_Official_RECONST.root");
 
 
 //read geometry
@@ -127,14 +127,24 @@ TH2D* histoX = new TH2D(filename.c_str(),"Drift in radial direction [cm]",
 			zBins,minZ,maxZ,rBins,minR,maxR);
 TH2D* histoY = new TH2D(filename.c_str(),"Drift perp. radial-direction [cm]",
 			zBins,minZ,maxZ,rBins,minR,maxR);
-TH2D* laserhist = (TH2D*)((TGraph2D*)laserfile->Get("devmap"))->GetHistogram();
-TGraph2D* lasergraph = (TGraph2D*) laserfile->Get("devmap");
-TH2D* laserdens = (TH2D*)laserfile->Get("densmap");
-TPolyMarker3D* laserpoly = (TPolyMarker3D*)laserfile->Get("raw_Poly");
 
-std::vector<TVector3*> devRdata;       //standard deviation data
-std::vector<TVector3*> laserdata;      //reconstructed dev data
-std::vector<TVector3*> laserpolydata;  //raw reconstructed residual points
+TGraph2D* lasergraph = (TGraph2D*)(((TCanvas*)laserfile->Get("c"))->FindObject("Graph2D"));
+TH2D* laserhist = lasergraph->GetHistogram();
+TPolyMarker3D* laserpoly=(TPolyMarker3D*)(((TCanvas*)laserfile->Get("c"))->FindObject("TPolyMarker3D"));
+
+// TH2D* laserhist = (TH2D*)((TGraph2D*)laserfile->Get("devmap"))->GetHistogram();
+// TGraph2D* lasergraph = (TGraph2D*) laserfile->Get("devmap");
+// TH2D* laserdens = (TH2D*)laserfile->Get("densmap");
+// TPolyMarker3D* laserpoly = (TPolyMarker3D*)laserfile->Get("raw_Poly");
+
+
+std::vector<std::vector<double>*> devRdata;       //standard deviation data
+std::vector<std::vector<double>*> laserdata;      //reconstructed dev data
+std::vector<std::vector<double>*> laserpolydata;  //raw reconstructed residual points
+
+// std::vector<TVector3*> devRdata;       //standard deviation data
+// std::vector<TVector3*> laserdata;      //reconstructed dev data
+// std::vector<TVector3*> laserpolydata;  //raw reconstructed residual points
 
 
 int lbinsz = laserhist->GetNbinsX();
@@ -156,26 +166,29 @@ for(int j=0; j<laserpoly->GetN(); j++) {
   //if(j%10==0) {	
   double x, y, z;
   laserpoly->GetPoint(j,x,y,z);
-  laserpolydata.push_back(new TVector3(x,y,z));
+  laserpolydata.push_back(new std::vector<double>(4,0));
+  (laserpolydata[laserpolydata.size()-1])->at(0) = x;
+  (laserpolydata[laserpolydata.size()-1])->at(1) = y;
+  (laserpolydata[laserpolydata.size()-1])->at(2) = z;
   //}
 }
 
 int counter=0;
 TGraph2D* graph = new TGraph2D(laserpolydata.size());
 for (int i=0; i<laserpolydata.size(); i++) {
-  TVector3* temp=laserpolydata.at(i);
-  graph->SetPoint(i,temp->X(), temp->Y(), temp->Z());
-  if(temp->X() > 110 || temp->X()<(-40) || temp->Y() > 42 || temp->Y() < 15)
+  std::vector<double>* temp=laserpolydata.at(i);
+  graph->SetPoint(i,temp->at(0), temp->at(1), temp->at(2));
+  if(temp->at(0) > 110 || temp->at(0)<(-40) || temp->at(1) > 42 || temp->at(1) < 15)
     counter++;
 }
 
 std::cout<<"\n"<<counter<<" values of "<<laserpolydata.size()<<" where invalid"<<std::endl;
 
-for(int r=0; r<lbinsr; r++) {
-  for(int z=0; z<lbinsz; z++) 
-    laserdata.push_back(new TVector3(lzmin+z*zstep, lrmin+r*rstep,
-				     laserhist->GetBinContent(z+1,r+1)));
-}
+// for(int r=0; r<lbinsr; r++) {
+//   for(int z=0; z<lbinsz; z++) 
+//     laserdata.push_back(new TVector3(lzmin+z*zstep, lrmin+r*rstep,
+// 				     laserhist->GetBinContent(z+1,r+1)));
+// }
 
 for (int nr=0; nr<rBins; nr++)
 {
@@ -183,7 +196,11 @@ for (int nr=0; nr<rBins; nr++)
   {
     double xDev,yDev,time,way,temp;
     infile>>xDev>>yDev>>time>>temp>>way;
-    devRdata.push_back(new TVector3(minZ + nz*zWidth, minR + nr*rWidth, xDev));
+    devRdata.push_back(new std::vector<double>(4,0));
+    (devRdata[devRdata.size()-1])->at(0) = minZ + nz*zWidth;
+    (devRdata[devRdata.size()-1])->at(1) = minR + nr*rWidth;
+    (devRdata[devRdata.size()-1])->at(2) = xDev;
+    //devRdata.push_back(new TVector3(minZ + nz*zWidth, minR + nr*rWidth, xDev));
     histoX->SetBinContent(nz+1,nr+1,xDev);
     histoY->SetBinContent(nz+1,nr+1,yDev);
   }
@@ -298,3 +315,5 @@ Double_t ctime = timer.CpuTime();
 printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
 
 }
+
+

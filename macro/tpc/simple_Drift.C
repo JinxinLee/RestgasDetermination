@@ -5,6 +5,8 @@
 //in steps of 10.
 //Author: Felix Boehmer
 
+//needs a lot of changes
+
 
 {
 #include <string>

@@ -5,33 +5,35 @@
   Int_t iVerbose = 1;
 
   // ----  Load libraries   -------------------------------------------------
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-  basiclibs();
-  gSystem->Load("libgeant321");
-  gSystem->Load("libGeoBase");
-  gSystem->Load("libParBase");
-  gSystem->Load("libBase");
-  gSystem->Load("libPndData");
-  gSystem->Load("libField");
-  gSystem->Load("libGen");
-  gSystem->Load("libPassive");
-  gSystem->Load("libEmc");
-  gSystem->Load("libDrcProp");
-  gSystem->Load("libDrc");
-  gSystem->Load("libGen");
-  gSystem->Load("libPGen");
-  
-  gSystem->Load("libTrkBase");
-  gSystem->Load("libGeane");
-  gSystem->Load("libgenfit");
-  gSystem->Load("libtrackrep");
-  gSystem->Load("libtpc");
-  gSystem->Load("libtpcreco");
-  gSystem->Load("librecotasks");
+
+//   gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
+//   basiclibs();
+//   gSystem->Load("libgeant321");
+//   gSystem->Load("libGeoBase");
+//   gSystem->Load("libParBase");
+//   gSystem->Load("libBase");
+//   gSystem->Load("libPndData");
+//   gSystem->Load("libField");
+//   gSystem->Load("libGen");
+//   gSystem->Load("libPassive");
+//   gSystem->Load("libEmc");
+//   gSystem->Load("libDrcProp");
+//   gSystem->Load("libDrc");
+//   gSystem->Load("libGen");
+//   gSystem->Load("libPGen");
+
+
+//   gSystem->Load("libTrkBase");
+//   gSystem->Load("libGeane");
+//   gSystem->Load("libgenfit");
+//   gSystem->Load("libtrackrep");
+//   gSystem->Load("libtpc");
+//   gSystem->Load("libtpcreco");
+//   gSystem->Load("librecotasks");
  
-  gSystem->Load("libMvd");
+//   gSystem->Load("libMvd");
   
-  TString PANDAMC=gSystem->Getenv("PANDAMC");
+//   TString PANDAMC=gSystem->Getenv("PANDAMC");
 
   // Input file (RAW events)
   TString inDir="/lustre/e18/user/fboehmer/DATA/darmstadt_overhaul/150cm/";
@@ -39,8 +41,10 @@
   
   TString jobname="JOBNAME";
   TString inFile=digiDir+jobname;
+  TString inFile2 = inFile; //if this file does not exist it should not matter,
+                            //FairRunAna tests for Zombie
   inFile+=".raw.root";
-
+  inFile2+=".raw_1.root";
   TString mcFile=inDir+jobname;
   mcFile+=".mc.root";
   
@@ -77,11 +81,11 @@
   mcFile.ReplaceAll(".raw.root",".mc.root");
   */
   
-  std::cout<<"Input: "<<inFile<<std::endl;
-  std::cout<<"Output: "<<outFile<<std::endl;
-  std::cout<<"MCFile: "<<mcFile<<std::endl;
-  std::cout<<"ParamIn: "<<paramIn<<std::endl;
-  std::cout<<"ParamOut: "<<paramOut<<std::endl;
+//std::cout<<"Input: "<<inFile<<std::endl;
+// std::cout<<"Output: "<<outFile<<std::endl;
+//std::cout<<"MCFile: "<<mcFile<<std::endl;
+//std::cout<<"ParamIn: "<<paramIn<<std::endl;
+//std::cout<<"ParamOut: "<<paramOut<<std::endl;
 
 
   
@@ -100,14 +104,15 @@
   timer.Start();
   // ------------------------------------------------------------------------
 
-  inFile.ReplaceAll("$PANDAMC",PANDAMC);
+  //inFile.ReplaceAll("$PANDAMC",PANDAMC);
   
 
   // -----   Digitization run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
-//mcFile.ReplaceAll("$PANDAMC","/home/felix/simulation/fairsoft/data/Pi_0.2GeV_15deg_withMVD");
+
   fRun->AddFriend(mcFile);
+  fRun->AddFile(inFile2);  //ADDING THE SECOND INPUT FILE
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
 

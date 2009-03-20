@@ -7,35 +7,13 @@
 #include <string>
 
  
- 
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-  basiclibs();
-  // Load this example libraries
-  gSystem->Load("libGeoBase");
-  gSystem->Load("libParBase");
-  gSystem->Load("libBase");
-  gSystem->Load("libPndData");
-  gSystem->Load("libField");
-  //gSystem->Load("libPassive");
-
-  // gSystem->Load("libMvd");
-  // gSystem->Load("libEmc");
-  // gSystem->Load("libDrcProp");
-  // gSystem->Load("libDrc");
-  // gSystem->Load("libGen");
-  // gSystem->Load("libgenfit");
-  gSystem->Load("libtpc");
- 
-
-gROOT->Reset();
-gStyle->SetPalette(1);
-
-//define variables
-int rBins = 15;   //default values
-int zBins = 30;
-std::string efield_file = "Efield_12-06-07.dat";
+ //define variables
+int rBins = 3;   //default values
+int zBins = 5;
+std::string efield_file = "EField_smallsteps_GEANT3_ALICE_L5_1MeV_cuts_withPIPE_MVD.dat";
 std::string bfield_file = "andrea_b_field.dat"; //for bfield as efield
-std::string out_file = "DevMap_TEST_ANDREA.dat";
+std::string out_file = "DevMap_TEST.dat";
+std::string param_file = "tpc/tpc.par";
 
 // std::cout<<"\n\nEnter name of E-Field-file (usually DOLFIN output): ";
 // getline(std::cin,efield_file);
@@ -70,7 +48,8 @@ std::string out_file = "DevMap_TEST_ANDREA.dat";
 
 PndTpcInhFieldDrifter* drifter = new PndTpcInhFieldDrifter(efield_file.c_str(),
 							   bfield_file.c_str(),
-							   out_file,
+							   out_file.c_str(),
+							   param_file.c_str(),
 							   rBins, zBins);
 std::cout<<"\nStarting the Drifter..."<<std::endl;
 drifter->run();

@@ -19,12 +19,13 @@
   gSystem->Load("libtrackrep");
   gSystem->Load("libtpcreco");
   gSystem->Load("librecotasks");
+
   
   
   // Input file (RAW events)
 
 
-  TString inFile="eumel.laser.raw.root";
+  TString inFile="laser.laser.raw.root";
 //  TString jobname="reco2";
 
 //  jobdb* db=new jobdb("$PANDAMC/FAIRRoot/JOBDB/pandaJobDB.root");
@@ -42,16 +43,16 @@
 //     return;
 //   }
  
-   TString outFile = "eumel.laser.reco.root"; 
+   TString outFile = "laser.laser.reco.root"; 
 //   outFile.ReplaceAll(inDir,jobDir);
 //   outFile.ReplaceAll(".raw.root",".reco.root");
 
-   TString paramIn = "eumel.param.root";
+   TString paramIn = "laser.param.root";
 //   TString paramOut = outFile;
 //   paramOut.ReplaceAll(".reco.root",".param.root");
 
 //   jobob mcjob=db->findRootJob(injob);
-   TString mcFile= "eumel.mc.root";
+   TString mcFile= "laser.mc.root";
 
 std::cout<<"Input: "<<inFile<<std::endl;
 std::cout<<"Output: "<<outFile<<std::endl;

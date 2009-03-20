@@ -22,12 +22,16 @@
   
   // Input file (MC events)
   TString inDir="/afs/e18/panda/DATA/fboehmer/dipl_data/SpaceCharge/07_01_2009/";
-  TString job="GEANT3_ALICE_highN_LOSS2";
+  TString job="GEANT3_ALICE_L5_1MeV_cuts_withPIPE_MVD";
   inDir+=(job+"/");
-  TString jobname="2Gev_G3_ALICE_highN_LOSS2_el_and_inel_10k_evts";
+  TString jobname="2Gev_G3_ALICE_L5_1MeV_cuts_with_PIPE_MVD_10k_evts";
 
   TString inFile=inDir+jobname;
+  TString inFile2=inFile;  //if this file does not exist it should not matter,
+                           //FairRunAna tests for Zombie
+
   inFile+=".mc.root";
+  inFile2+=".mc_1.root";
   // make new subdir
   // TString jobDir=inDir; jobDir+=jobname; jobDir+="/";
 //   TString cmd="mkdir ";
@@ -80,6 +84,7 @@ std::cout<<"ParamOut: "<<paramOut<<std::endl;
   // -----   Digitization run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
+  fRun->AddFile(inFile2);  //ADDING THE SECOND INPUT FILE
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
 
@@ -113,6 +118,8 @@ std::cout<<"ParamOut: "<<paramOut<<std::endl;
   // -----    Digi Sequence  --------------------------------------------
 
   PndTpcSpaceChargeTask* tpcSP = new PndTpcSpaceChargeTask();
+  //tpcSP->setAliceMode(kTRUE);
+  tpcSP->setBins(26,149);
   fRun->AddTask(tpcSP);  
 
   // -----   Intialise and run   --------------------------------------------
@@ -131,7 +138,7 @@ FairRootManager::Instance()->GetOutFile()->mkdir("QAPlots");
 FairRootManager::Instance()->GetOutFile()->cd("QAPlots");
 qa->Write();
 
-tpcSP->writeToFile(outDir+"SpaceCharge"+job+".dat");
+tpcSP->writeToFile(outDir+"SpaceCharge_smallsteps_"+job+".dat");
 
   // -----   Finish   -------------------------------------------------------
 

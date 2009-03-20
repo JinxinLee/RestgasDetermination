@@ -36,13 +36,13 @@
   // Choose the Geant Navigation System
   // fRun->SetGeoModel("G3Native");
   
-  Int_t nEvents =10000;
+  Int_t nEvents =1;
 
   TString PANDAMC=gSystem->Getenv("PANDAMC");
 
-  TString jobname="2Gev_G3_orig_el_and_inel_10k_evts";
-  TString basejobdir="/afs/e18/panda/DATA/fboehmer/dipl_data/SpaceCharge/13_01_2009/";
-  TString jobdir=basejobdir+"GEANT3_orig/";
+  TString jobname="laser";
+  TString basejobdir="/afs/e18/panda/SIM/fboehmer/trunk/";
+  TString jobdir=basejobdir+"";
   TString copy = jobdir;
   
 //jobdir.ReplaceAll("$PANDAMC",PANDAMC);
@@ -93,7 +93,7 @@
   PndTpcDetector *PndTpc = new PndTpcDetector("TPC", kTRUE);
   PndTpc->SetGeometryFileName("tpc.geo");
   //ALICE Style MC (only for G3):
-  //PndTpc->SetAliMC();
+  PndTpc->SetAliMC();
 
   //------------------
   fRun->AddModule(PndTpc);

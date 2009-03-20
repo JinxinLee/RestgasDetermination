@@ -11,58 +11,84 @@
 #include <vector>
 #include <string>
 #include <iostream>
-#include "tpc/PndTpcInhFieldDrifter.h"
+#include "PndTpcInhFieldDrifter.h"
+#include "PndMultiField.h"
+#include "PndTransMap.h"
+#include "PndDipoleMap.h"
+#include "PndSolenoidMap.h"
+#include "PndTpcEFieldCyl.h"
 
 
 void createDevMapMulti(int rBin) {
 
-//define variables
-int rBins = 15;   
-int zBins = 30;
-int _rBin = rBin;
-
-std::string efield_file = "Efield_21-05-08.dat";  //DOLFIN output
-
-// Use PndTpcEFieldCyl for building the B-Field (custom input) ------------
-
-std::string bfield_file = "andrea_b_field.dat"; //for bfield as efield
-// ------------------------------------------------------------------------
-
-std::string out_file = "DevMap_corrected_zeroB_30-05-08_try3.dat";
-
-
-// PndMultiField part -----------------------------------------------------
-
-// PndMultiField* bField= new PndMultiField();
-
-// PndTransMap* map= new PndTransMap("TransMap", "R");
-// PndDipoleMap* map1= new PndDipoleMap("DipoleMap", "R");
-// PndSolenoidMap* map2= new PndSolenoidMap("SolenoidMap", "R");
-// bField->AddField(map);
-// bField->AddField(map1);
-// bField->AddField(map2);
-// bField->Init();
-
-//if(bField != 0)
-//  std::cout<<"\nsuccessfully initialized the B-Field";
-
-// ------------------------------------------------------------------------
-
-
-
-// start the simulation
-PndTpcInhFieldDrifter* drifter = new PndTpcInhFieldDrifter(efield_file.c_str(),
-							   bfield_file.c_str(),
-							   out_file,
-							   rBins, zBins,_rBin);
-std::cout<<"\nStarting the Drifter..."<<std::endl;
-
-//Set Field Mode
-drifter->turnOffEDist(false);
-drifter->turnOffBField(true);
-
-drifter->run();
-delete drifter;
-//delete bField;
+  //define variables
+  int rBins = 15;   
+  int zBins = 30;
+  int _rBin = rBin;
+  
+  std::string efield_file = "EField_smallsteps_GEANT3_ALICE_L5_1MeV_cuts_withPIPE_MVD.dat";
+  
+  // Use PndTpcEFieldCyl for building the B-Field (custom input) ------------
+  
+  std::string bfield_file = "andrea_b_field.dat"; //for bfield as efield
+  // ------------------------------------------------------------------------
+  
+  std::string out_file = "DevMap_Efield_March_09_Bfield_Official.dat";
+  std::string param_file = "tpc/tpc.par";
+  
+  
+  // PndMultiField part -----------------------------------------------------
+  
+  PndMultiField *bField= new PndMultiField();
+  
+  PndTransMap *map_tr= new PndTransMap("TransMap", "R");
+  PndDipoleMap *map_d1= new PndDipoleMap("DipoleMap", "R");
+  //  PndDipoleMap *map_d2= new PndDipoleMap("DipoleMap2", "R");
+  PndSolenoidMap *map_s1= new PndSolenoidMap("SolenoidMap1", "R");
+  PndSolenoidMap *map_s2= new PndSolenoidMap("SolenoidMap2", "R");
+  PndSolenoidMap *map_s3= new PndSolenoidMap("SolenoidMap3", "R");
+  PndSolenoidMap *map_s4= new PndSolenoidMap("SolenoidMap4", "R");
+  
+  bField->AddField(map_tr);
+  bField->AddField(map_d1);
+  //bField->AddField(map_d2);
+  bField->AddField(map_s1);
+  bField->AddField(map_s2);
+  bField->AddField(map_s3);
+  bField->AddField(map_s4);
+  
+  bField->Init();
+  
+  //create Efield
+  PndTpcEFieldCyl* eField = new PndTpcEFieldCyl(efield_file.c_str());
+   
+  //if(bField != 0)
+  //  std::cout<<"\nsuccessfully initialized the B-Field";
+  
+  // ------------------------------------------------------------------------
+  
+  
+  
+  // start the simulation
+  // PndTpcInhFieldDrifter* drifter = new PndTpcInhFieldDrifter(efield_file.c_str(),
+  // 							   bfield_file.c_str(),
+// 							   out_file.c_str(),
+// 							   param_file.c_str(),
+// 							   rBins, zBins, _rBin);
+  
+  PndTpcInhFieldDrifter* drifter = new PndTpcInhFieldDrifter(eField,
+							     bField,
+							     out_file.c_str(),
+							     param_file.c_str(),
+							     rBins, zBins, _rBin);
+  
+  
+  std::cout<<"\nStarting the Drifter..."<<std::endl;
+  
+  //Set Field Mode
+  
+  drifter->run();
+  delete drifter;
+  //delete bField;
 
 }

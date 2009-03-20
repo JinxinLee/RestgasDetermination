@@ -1,4 +1,5 @@
 {
+
   // ----  Load libraries   -------------------------------------------------
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
   basiclibs();
@@ -13,6 +14,7 @@
   gSystem->Load("libgenfit");
   gSystem->Load("libjobdb");
   // ------------------------------------------------------------------------
+
 
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
@@ -38,12 +40,12 @@
 //     return;
 //   }
   
-  TString inFile = "eumel.mc.root";
+  TString inFile = "laser.mc.root";
   TString outFile = inFile; 
 //  outFile.ReplaceAll(inDir,jobDir);
   outFile.ReplaceAll(".mc.root",".laser.raw.root");
 
-  TString paramIn = "eumel.param.root";
+  TString paramIn = "laser.param.root";
   TString paramOut = outFile;
   paramOut.ReplaceAll(".raw.root",".param.root");
 
@@ -124,10 +126,10 @@ std::cout<<"ParamOut: "<<paramOut<<std::endl;
   fRun->AddTask(tpcLaser);
 
   PndTpcDriftTask* tpcDrifter = new PndTpcDriftTask();
-  tpcDrifter->SetDeviationFile("DevMap_corrected_E_and_B_30-05-08.dat");
+  tpcDrifter->SetDeviationFile("DevMap_Efield_March_09_Bfield_Official.dat");
   tpcDrifter->SetPersistence();
   tpcDrifter->SetDistort(true);
-  tpcDrifter->SetDiffusion(true);
+//tpcDrifter->SetDiffusion(true);
 //double deg=TMath::Pi()/180;
 //tpcDrifter->SetPhiCut(-5*deg,5*deg);
   fRun->AddTask(tpcDrifter);
