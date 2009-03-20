@@ -1,5 +1,5 @@
 void run_rec_alldet(int nEvents = 0, const char* inSimFile = "SimOut.root",
-		    const char* parInFile = "params.root",
+		    const char* parInFile = "ParamOut.root",
 		    const char* outPutFile = "RecoOut.root")
 {
   // ========================================================================

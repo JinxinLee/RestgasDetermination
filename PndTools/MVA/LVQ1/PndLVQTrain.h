@@ -118,6 +118,8 @@ class PndLVQTrain{
 
   //============= Private functions and variables ===========
  private:
+  // Clean prototype container.
+  void cleanProtoList();
   
   template <typename T>
     const T& minFunct ( const T& a, const T& b ) const {

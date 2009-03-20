@@ -118,6 +118,19 @@ PndLVQTrain::~PndLVQTrain()
   m_ClassIndex.clear();
 }
 
+// Clean-up the prototypes list
+void PndLVQTrain::cleanProtoList()
+{
+  std::cout << "<INFO> Cleaning the prototype list." 
+	    << std::endl;
+
+  // Clean up the container for proto-types
+  for(unsigned int k = 0; k < m_LVQProtos.size(); k++){
+    delete m_LVQProtos[k].second;
+  }
+  m_LVQProtos.clear();
+}
+
 /**
  * Compute the class conditional mean for a given class and store
  * that in the class conditional means container
@@ -150,6 +163,8 @@ void PndLVQTrain::CompClsCondMean(std::string clsName)
  */
 void PndLVQTrain::InitProtoTypes(int numProto)
 {
+  cleanProtoList();
+  
   std::cout << "Initializing " << numProto 
 	    <<" LVQ prototypes."<< std::endl;
   // Initialize LVQ-prototypes.

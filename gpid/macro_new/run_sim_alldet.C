@@ -1,5 +1,5 @@
-void run_sim_alldet(const int nEvents = 20, const char* part="e-",
-		    const float p1 = 3.0, const float p2 = 3.5,
+void run_sim_alldet(const int nEvents = 20, const char* part="pi-",
+		    const float p1 = 0.6, const float p2 = 1.0,
 		    const char* SimOut = "SimOut.root",
 		    const char* paramOut = "ParamOut.root"
 		    )
@@ -16,7 +16,8 @@ void run_sim_alldet(const int nEvents = 20, const char* part="e-",
   // set the MC version used
   // ------------------------
 
-  fRun->SetName("TGeant3");
+  //fRun->SetName("TGeant3");
+  fRun->SetName("TGeant4");
   
   //fRun->SetOutputFile("el_sttcombi.root");
   fRun->SetOutputFile(SimOut);

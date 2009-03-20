@@ -9,9 +9,9 @@
 /*
  * @param NumEvt: Number of events to classify.
  */
-void run_pid_reco(const int NumEvt = 4, const char* inPutFile = "Reco.root",
-		  const char* simInFile = "SimFile.root",
-		  const char* parInput = "Param.root", 
+void run_pid_reco(const int NumEvt = 4, const char* inPutFile = "RecoOut.root",
+		  const char* simInFile = "SimOut.root",
+		  const char* parInput = "ParamOut.root", 
 		  const char* OutPutFile = "PidOut.root")
 {
   // ================================================================
@@ -75,8 +75,8 @@ void run_pid_reco(const int NumEvt = 4, const char* inPutFile = "Reco.root",
    * TMKNN, TMBDT, TMMLP, MulClsKNN, LVQ1
    */
   MVAType bla = LVQ1;
-  //pid->SetInFileName("LVQ1TestOut.root");
-  pid->SetInFileName("LVQ2TestOut.root");
+  pid->SetInFileName("LVQ1TestOut.root");
+  //pid->SetInFileName("LVQ2TestOut.root");
   pid->SetMVA(bla);
   
   fRun->AddTask(pid);
@@ -85,7 +85,7 @@ void run_pid_reco(const int NumEvt = 4, const char* inPutFile = "Reco.root",
   fRun->Run(0, NumEvt);
   
   rtdb->saveOutput();
-  rtdb->print();
+  //rtdb->print();
   
   // ----------------------------------------------------------------
   // -----   Finish   -----------------------------------------------

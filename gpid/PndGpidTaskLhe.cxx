@@ -180,7 +180,8 @@ void PndGpidTaskLhe::BookingMVA()
       std::cout << "Not available yet" << std::endl;
       break;
 
-    case LVQ1:// LVQ1. In PndTools.
+    case LVQ1:// LVQ1 & LVQ2.1. In PndTools.
+    case LVQ21:
       m_lvq = new PndLVQClassify(M_InFileName,fClassNameArray,fVarNameArray);
       break;
       
@@ -267,8 +268,9 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
 	fTrack->Set(varName,m_varVec[i]);
       }
       // Print Debug information
-      std::cout << varName << " = " << m_varVec[i] << std::endl;
+      std::cout << varName << " = " << m_varVec[i] << " ";
     }//End of Reading variables.
+    std::cout <<  std::endl;
 
     // Check if something is wrong, skip the track
     if (skip != 0 ){
