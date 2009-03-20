@@ -13,9 +13,9 @@ TCcluster makeCluster(TCtrack *t,int id){
   TVector3 trans;
   TMatrixT<double> rot(3,3);
   double pitch,theta,d1,d2,res;
-  TCalign* a = TCalign::getInstance("alignment/AlignmentFiles/simRealAlign1.txt");
+  TCalign* a = TCalign::getInstance("alignment/simRealAlign1.txt");
   a->clear();
-  a->read("alignment/AlignmentFiles/simRealAlign1.txt");
+  a->read("alignment/simRealAlign1.txt");
   a->getConv(id,trans,rot,pitch,theta,d1,d2,res);
   double x=t->getAx()*trans.Z()+t->getBx();
   double y=t->getAy()*trans.Z()+t->getBy();
@@ -33,7 +33,7 @@ TCcluster makeCluster(TCtrack *t,int id){
   return c;
 }
 
-void makeStripTree(string trackfile, string alignmentfile, int nTracks, int nEv){
+void makeStripTree(string trackfile,int nTracks, int nEv){
   TCevent* outEv = new TCevent();
 
   TFile* rootOutfile = new TFile(trackfile.c_str(),"RECREATE");
@@ -42,10 +42,10 @@ void makeStripTree(string trackfile, string alignmentfile, int nTracks, int nEv)
 
   TRandom3 rand(0);
   for(int j=0;j<nEv;++j){
+    outEv->clear();
     for(int i=0;i<nTracks;++i){
       TCtrack* outTr = new TCtrack();
-      outTr->clear();
-      outEv->clear();
+      
       TVector3 pos1,pos2;
       
       pos1.SetX(rand.Uniform(13.890,16.716));
@@ -64,36 +64,40 @@ void makeStripTree(string trackfile, string alignmentfile, int nTracks, int nEv)
       ay=mom.Y()/mom.Z();    
       bx=pos1.X()-pos1.Z()*ax;
       by=pos1.Y()-pos1.Z()*ay;
+      cout<<"ax "<<ax<<" bx "<<bx<<" ay "<<ay<<" by "<<by<<endl;
       TCalign* a = TCalign::getInstance("alignment/AlignmentFiles/simRealAlign1.txt");
       a->clear();
       a->read("alignment/AlignmentFiles/simRealAlign1.txt");
   
       
       outTr->setPar(ax,bx,ay,by);
-      for(int j=1;j<=8;++j){
-        TCcluster c = makeCluster(outTr,j);
+      for(int k=1;k<=8;++k){
+        TCcluster c = makeCluster(outTr,k);
         outEv->addCluster(c);
-        double res=a->getRes(i);
-        if(rand.Uniform()>0.3){
-          if(i>2&&i<7){
+        outTr->addCluster(c);
+        double res=a->getRes(k);
+        if(i>2&&i<7){
             TVector3 pos(rand.Uniform(0,2),0,0);
             TVector3 err(res,100,100);
-            TCcluster c(pos,err,1.,i);
+            TCcluster c(pos,err,1.,k);
             outEv->addCluster(c);
-          }else if(i<3||i>6){
+        }else if(i<3||i>6){
             TVector3 pos(rand.Uniform(0,10),0,0);
             TVector3 err(res,100,100);
-            TCcluster c(pos,err,1.,i);
+            TCcluster c(pos,err,1.,k);
             outEv->addCluster(c);
-          }
         }
+        
       }
 
-      if(i%100==0){
-        cout<<i<<endl;
-      }
+      outEv->addTrack(outTr);
       
+      if(j%100==0){
+        cout<<j<<endl;
+      }
+     
     }
+    outTree->Fill();    
   }
     rootOutfile->Write();
 }
