@@ -34,6 +34,9 @@ int main(){
     vector<TCcluster> cl;
     for(unsigned int i=0;i<ev->nClusters();++i){
       if(ev->getCluster(i).getId()%2==0){
+        if(ev->getCluster(i).getId()==0){
+          cout<<"not working!"<<i<<endl;
+        }
 	cl.push_back(ev->getCluster(i));
 	//	cout<<i<<endl;
       }
@@ -62,7 +65,7 @@ int main(){
       
     }
     
-      //a->draw(true,10,10,600,600);
+    a->draw(true,10,10,600,600,ev);
     //a1->draw(true,10,10,600,600);
  
     if(nEv%100==0){
