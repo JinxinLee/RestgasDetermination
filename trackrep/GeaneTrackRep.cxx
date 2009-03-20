@@ -298,6 +298,62 @@ GeaneTrackRep::extrapolateToPoca(const TVector3& pos,
 }
 
 
+void 
+GeaneTrackRep::extrapolateToLine(const TVector3& point1,
+				 const TVector3& point2,
+				 TVector3& poca,
+				 TVector3& dirInPoca,
+				 TVector3& poca_onwire)
+{
+  // call propagation to closest approach to a wire 
+  Int_t pca = 2;
+
+  // calculate a very large track length 
+  TVector3 start = getPos(_refPlane);
+  Double_t distance1, distance2;
+  distance1 = (point1 - start).Mag();
+  distance2 = (point2 - start).Mag();
+  Double_t maxdistance;
+  if(distance1 < distance2) maxdistance = distance2;
+  else maxdistance = distance1;
+  maxdistance *= 2.;  
+
+  // variables for FindPCA:
+  TVector3 point(0,0,0);
+  Double_t Rad = 0.;
+  // poca = vpf = point of closest approach on track
+  // poca_onwire = vwi = point of closest approach on wire
+  Double_t Di = 0.;
+  Float_t trklength = 0.;
+  
+  // covariance matrix
+  FairGeaneUtil util;
+  Double_t cov55[5][5];
+  for(int i = 0; i < 5; i++) for(int j = 0; j < 5; j++) cov55[i][j] = cov[i][j];
+  Double_t cova[15];
+  util.FromMat25ToVec15(cov55, cova);
+  
+  TVector3 o  = _refPlane.getO();
+  TVector3 dj = _refPlane.getU();
+  TVector3 dk = _refPlane.getV();
+  
+  FairTrackParP par(state[3][0],state[4][0],state[1][0],state[2][0],state[0][0],cova,o,dj,dk,_spu);
+
+  // get propagation direction
+  Int_t direction = getPropDir();
+  
+  _geane->ActualFindPCA(pca, &par, direction);
+  Int_t findpca = _geane->FindPCA(pca, _pdg, point, point1, point2, maxdistance, Rad, poca, poca_onwire, Di, trklength);
+  
+  if(findpca != 0) {
+    FitterException exc("findpca failure", __LINE__,__FILE__);	
+    throw exc;    
+  }
+
+  // dir in poca not filled now
+  dirInPoca.SetXYZ(0., 0., 0.);
+  
+}
 
 
 

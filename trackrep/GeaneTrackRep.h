@@ -77,12 +77,13 @@ public:
   void extrapolateToPoca(const TVector3& pos,
 			 TVector3& poca,
 			 TVector3& dirInPoca);
-  /*
+
   void extrapolateToLine(const TVector3& point1,
-			 const TVector3& point2,
+	 		 const TVector3& point2,
 			 TVector3& poca,
-			 TVector3& dirInPoca);
-  */
+			 TVector3& dirInPoca,
+			 TVector3& poca_onwire);
+
 
   TVector3 getPocaOnLine(const TVector3& p1, 
 			 const TVector3& p2, 
