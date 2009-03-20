@@ -68,7 +68,7 @@ PndSttRecoHit::PndSttRecoHit(PndSttHit *currenthit) : WirepointRecoHit(NparHitRe
   // errors on drift radius and z (by hand)
   for(int i = 0; i < NparHitRep; i++) for(int j = 0; j < NparHitRep; j++) _hitCov[i][j] = 0.;
   _hitCov[6][6] = 0.0100 * 0.0100; // currenthit->GetIsochroneError(); CHECK
-  _hitCov[7][7] = 2. * 2.;
+  _hitCov[7][7] = 1. * 1.;
  
 }
 
@@ -92,14 +92,20 @@ PndSttRecoHit::PndSttRecoHit(PndSttHelixHit *currenthit) : WirepointRecoHit(Npar
   _hitCoord[4][0] = wire2.Y();
   _hitCoord[5][0] = wire2.Z();
   _hitCoord[6][0] = currenthit->GetIsochrone();
-  _hitCoord[7][0] = currenthit->GetZ() - currenthit->GetZcen(); 
+  if(wiredirection == TVector3(0.,0.,1.)) {
+    _hitCoord[7][0] = currenthit->GetZ() - currenthit->GetZcen(); 
+  }
+  else  {
+    //   cout << "SKEWED " << endl;
+    _hitCoord[7][0] = (currenthit->GetZ() - currenthit->GetZcen())/cos(3.*TMath::DegToRad());
+  }
 
   // errors on drift radius and z (by hand)
   for(int i = 0; i < NparHitRep; i++) for(int j = 0; j < NparHitRep; j++) _hitCov[i][j] = 0.;
   _hitCov[6][6] = 0.0100 * 0.0100; 
   //  _hitCov[6][6] = pow(currenthit->GetIsochroneError(), 2); // CHECK
 
-  _hitCov[7][7] = 2. * 2.;
+  _hitCov[7][7] = 1. * 1.;
 
 }
 
