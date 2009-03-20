@@ -13,7 +13,7 @@
 #include "PndHypStripDigiPar.h"
 #include "PndHypHit.h"
 #include "PndHypPoint.h"
-#include "PndHypPixel.h"
+//#include "PndHypPixel.h"
 #include "PndHypCalcStrip.h"
 #include "FairGeoVector.h"
 #include "FairGeoTransform.h"

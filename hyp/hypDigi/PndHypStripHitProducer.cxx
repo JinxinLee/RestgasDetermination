@@ -11,8 +11,8 @@
 
 #include "FairRootManager.h"
 #include "PndHypStripHitProducer.h"
-#include "../PndHypHit.h"
-#include "../PndHypPoint.h"
+#include "PndHypHit.h"
+#include "PndHypPoint.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
 #include "FairGeoNode.h"

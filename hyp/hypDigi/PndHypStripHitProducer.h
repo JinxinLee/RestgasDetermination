@@ -2,13 +2,13 @@
 #define PNDHYPSTRIPHITPRODUCER_H
 
 #include "FairTask.h"
-#include "../hyp/PndGeoHypPar.h"
+#include "PndGeoHypPar.h"
 #include "PndHypStripDigiPar.h"
 //#include "PndHypGeoMappingPar.h"
-#include "../PndHypHit.h"
-#include "../PndHypPoint.h"
+#include "PndHypHit.h"
+#include "PndHypPoint.h"
 #include "PndHypStrip.h"
-#include "PndHypDigiPixel.h"
+//#include "PndHypDigiPixel.h"
 #include "FairGeoVector.h"
 #include "FairGeoTransform.h"
 #include "TVector3.h"
