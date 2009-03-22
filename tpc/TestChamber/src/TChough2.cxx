@@ -16,11 +16,11 @@ using std::pair;
 using std::cout;
 using std::endl;
 using std::vector;
-TChough2::TChough2(const TVector3& _yp,const TVector3& _zp,double _rR) : TCabsHough(_yp,_zp){
+TChough2::TChough2(const TVector3& _yp,const TVector3& _zp,double _rR,double _rTheta,int _nBinsTheta,int _nBinsR ) : TCabsHough(_yp,_zp){
 
-  nBinsR = 100;
-  nBinsTheta =100;
- 
+  nBinsR = _nBinsR;
+  nBinsTheta =_nBinsTheta;
+  cutTheta=_rTheta;
   cutR=_rR;
 
   canvas1 = NULL;
@@ -49,7 +49,7 @@ void TChough2::draw(bool stop,int _z,int _y,int _w,int _h,TCevent *mcTruth){
   for(unsigned int i=0;i<maxVector.size();++i){
     thetaMax_[i]=(maxVector.at(i).first*binTheta+minTheta-binTheta/2)/3.141592654;
     rMax_[i]=maxVector.at(i).second*binR+minR-binR/2;
-    thetaMaxE_[i]=(binTheta/2)/3.141592654;
+    thetaMaxE_[i]=cutTheta/3.141592654;
     if(cutR==0){
       cutR=binR/2;
     }
@@ -145,7 +145,7 @@ void TChough2::draw(bool stop,int _z,int _y,int _w,int _h,TCevent *mcTruth){
     if(selHits2.size()>0){
       TGraph* gsel2 = new TGraph(selHits2.size(),zsel2,ysel2);
       gsel2->SetMarkerStyle(3);
-      gsel2->SetMarkerSize(5);
+      gsel2->SetMarkerSize(3);
       gsel2->SetMarkerColor(kBlue);
       gsel2->Draw("P");
     }
@@ -154,7 +154,7 @@ void TChough2::draw(bool stop,int _z,int _y,int _w,int _h,TCevent *mcTruth){
   if(selHits.size()>0){
     TGraph* gsel = new TGraph(selHits.size(),zsel,ysel);
     gsel->SetMarkerStyle(2);
-    gsel->SetMarkerColor(kGreen);
+    gsel->SetMarkerColor(kRed);
     gsel->Draw("P");
   }
 
@@ -187,9 +187,9 @@ void TChough2::doHough(){
   assert(NumberOfHits<=Max_NumberOfHits);
   for(int i=0;i<NumberOfHits;i++) {
 
-    HitCoordinates[i][0] = ypHit.at(i)-minY;
+    HitCoordinates[i][0] = ypHit.at(i)-minY+0.000001;
     // cout<<"hitY "<<i<<" "<<ypHit.at(i)-minY<<", ";
-    HitCoordinates[i][1] = zpHit.at(i)-minZ;
+    HitCoordinates[i][1] = zpHit.at(i)-minZ+0.000001;
     //cout<<"hitZ "<<i<<" "<<zpHit.at(i)-minZ<<endl;
   }
 
@@ -245,8 +245,8 @@ void TChough2::findMaxInHisto(std::vector<std::pair<int,int> > &_maxVector, int 
     int maxBinR;
     int zDummy;
     houghHistoCopy->GetMaximumBin(maxBinTheta,maxBinR,zDummy);
-    for (int k=maxBinTheta-1;k<=maxBinTheta+2;k++){
-      for(int j=maxBinR-1;j<=maxBinR+2;j++){
+    for (int k=maxBinTheta;k<=maxBinTheta;k++){
+      for(int j=maxBinR;j<=maxBinR;j++){
         if(k<0){
           continue;
         }
@@ -380,15 +380,23 @@ void TChough2::makeHoughHisto(){
 	iRstart=r_at_theta1/binR;
 	iRend=r_at_theta0/binR;
       }
-      
+      int weight = 1;
       if(iRstart==iRend){
-	    houghHisto->SetBinContent(iTheta+1,iRstart+1,houghHisto->GetBinContent(iTheta+1,iRstart+1) + 1);
+        weight=binWeight(iTheta,iRstart,ihit);
+        if(weight<0){
+          cout<<iTheta<<", "<<iRstart<<endl;
+        }
+        houghHisto->SetBinContent(iTheta+1,iRstart+1,houghHisto->GetBinContent(iTheta+1,iRstart+1) + weight);
 	    //cout<<"equal "<<ihit<<" at "<<theta0<<", "<<r_at_theta0+minR<<", "<<r_at_theta1+minR
 	    //<<", "<<iRstart<<", "<<iRend<<endl;
 	    
       }else{
 	for(int iR=iRstart;iR<=iRend;++iR){
-	    houghHisto->SetBinContent(iTheta+1,iR+1,houghHisto->GetBinContent(iTheta+1,iR+1) + 1);
+          weight=binWeight(iTheta,iR,ihit);
+          if(weight<0){
+            cout<<iTheta<<", "<<iRstart<<endl;
+          }
+          houghHisto->SetBinContent(iTheta+1,iR+1,houghHisto->GetBinContent(iTheta+1,iR+1) + weight);
 	    //cout<<"not equal "<<ihit<<endl;
 	}
       }
@@ -422,24 +430,21 @@ int TChough2::binWeight(int iTheta, int iR, int ihit) {
   bool top=false;
   bool bottom=false;
   
-  if(r_at_theta0>r0 && r_at_theta0<r1) left=true;
-  if(r_at_theta1>r0 && r_at_theta1<r1) right=true;
-  if(theta_at_r0>theta0 && theta_at_r0<theta1) bottom=true;
-  if(theta_at_r1>theta0 && theta_at_r1<theta1) top=true;
+  if(r_at_theta0>=r0 && r_at_theta0<=r1) left=true;
+  if(r_at_theta1>=r0 && r_at_theta1<=r1) right=true;
+  if(theta_at_r0>=theta0 && theta_at_r0<=theta1) bottom=true;
+  if(theta_at_r1>=theta0 && theta_at_r1<=theta1) top=true;
 
   double distance=-1;
-  if(left&&right) {
-    distance = sqrt( pow(r_at_theta0-r_at_theta1,2.) + pow(binTheta,2.));
-  }
-  
-  if(left&&bottom) distance = sqrt( pow(theta_at_r0-theta0,2.) +pow(r_at_theta0-r0,2.) );
-  if(left&&top)    distance = sqrt( pow(theta_at_r1-theta0,2.) +pow(r_at_theta0-r1,2.) );
-  if(bottom&&top)  distance = sqrt( pow(theta_at_r0 - theta_at_r1,2.)+pow(binR,2.));
-  if(bottom&&right)distance = sqrt(pow(theta1-theta_at_r0,2.)+pow(r0-r_at_theta1,2.));
-  if(right&&top)   distance = sqrt(pow(r1-r_at_theta1,2.) + pow(theta1-theta_at_r1,2.));
+  if(left&&right)  distance = sqrt(pow((binTheta)                 /binTheta,2.)+pow((r_at_theta0-r_at_theta1)/binR,2.));
+  if(left&&bottom) distance = sqrt(pow((theta_at_r0-theta0)       /binTheta,2.)+pow((r_at_theta0-r0)/binR,2.) );
+  if(left&&top)    distance = sqrt(pow((theta_at_r1-theta0)       /binTheta,2.)+pow((r_at_theta0-r1)/binR,2.) );
+  if(bottom&&top)  distance = sqrt(pow((theta_at_r0 - theta_at_r1)/binTheta,2.)+pow((binR)          /binR,2.));
+  if(bottom&&right)distance = sqrt(pow((theta1-theta_at_r0)       /binTheta,2.)+pow((r0-r_at_theta1)/binR,2.));
+  if(right&&top)   distance = sqrt(pow((theta1-theta_at_r1)       /binTheta,2.)+pow((r1-r_at_theta1)/binR,2.));
   //  cout<<distance<<" ";
-  double maxDistance = sqrt(pow(binTheta,2.)+pow(binR,2.));
-  int weight = (int)((distance * 100) / maxDistance);
+  double maxDistance = sqrt(pow(1,2.)+pow(1,2.));
+  int weight = (int)((distance * 200) / maxDistance);
   return weight;
 
 }
@@ -495,7 +500,7 @@ void TChough2::convert(std::vector<TCcluster>& _c){
   minTheta=3.141592654/2-atan(rangeY/rangeZ);
   rangeTheta=maxTheta-minTheta;
   binTheta=rangeTheta/nBinsTheta;
-  binR=rangeR/nBinsR;
+  binR=rangeR/(nBinsR);
   if( fabs(maxY-minY)<1.E-10)minY-=1.E-5;
   if( fabs(maxZ-minZ)<1.E-10)minZ-=1.E-5;
 

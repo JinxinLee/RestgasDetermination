@@ -23,7 +23,7 @@ class TChough2 : public TCabsHough{
   /*
     Requiering tracks to go in z-direction range of theta and R is calculated. The default cut is one bin-width.
   */
-  TChough2(const TVector3& _yp,const TVector3& _zp,double _rR=0);
+  TChough2(const TVector3& _yp,const TVector3& _zp,double _rR=0,double _rTheta=0,int _nBinsTheta=50,int _nBinsR=50);
   virtual bool hot(int clIndex, int maxIndex);//is cluster clIndex on line maxIndex
   virtual bool hot(int clIndex){
     return hot(clIndex,0);
@@ -36,7 +36,7 @@ class TChough2 : public TCabsHough{
   int nMax;//number of maxima
   std::vector< std::pair<int,int> > maxVector;// Vector containing the maximas of the hough image
   double cutR; 
-
+  double cutTheta;
   TCanvas *canvas1;
   TH2D* houghHisto;
   static const int Max_NumberOfHits = 500;
