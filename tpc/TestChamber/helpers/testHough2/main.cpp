@@ -9,20 +9,34 @@
 #include <TROOT.h>
 #include <iostream>
 #include"TApplication.h"
-int main(){
+#include <sstream>
+int main(int argc, char* argv[]){
+  using namespace std;  
+  if(argc !=5){
+    cerr<<"eventfile binT binR cutR"<<endl;
+    throw;
+  }
   
   TApplication theApp("theApp",NULL,NULL);
-  using namespace std;
+  std::istringstream istr1(argv[2]);
+  int binT;
+  istr1>>binT;
+  std::istringstream istr2(argv[3]);
+  int binR;
+  istr2>>binR;
+  std::istringstream istr3(argv[4]);
+  double cutR;
+  istr3>>cutR;
   TCalign* al = TCalign::getInstance("alignment/simRealAlign1.txt");
   al->clear();
   al->read("../../alignment/simRealAlign1.txt");
   TVector3 X(1.,0.,0.);
   TVector3 Y(0.,1.,0.);
   TVector3 Z(0.,0.,1.);
-  TChough2* a = new TChough2(Y,Z);
+  TChough2* a = new TChough2(Y,Z,cutR,0.0025,binT,binR);
+  cout<<binT<<" "<<binR<<" "<<cutR<<endl;
 
-
-  TFile* file= TFile::Open("simExample.root");
+  TFile* file= TFile::Open(argv[1]);
   TTree *t =(TTree*)gROOT->FindObject("at2");
   int nEvt = t->GetEntries();
   TCevent *ev = 0;
@@ -65,7 +79,7 @@ int main(){
       
     }
     
-    a->draw(true,10,10,600,600,ev);
+     a->draw(true,10,10,600,600,ev);
 
  
     if(nEv%100==0){
