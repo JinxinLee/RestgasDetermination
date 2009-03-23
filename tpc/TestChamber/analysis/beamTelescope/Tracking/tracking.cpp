@@ -18,6 +18,9 @@
 #include <TProfile.h>
 #include <TMultiGraph.h>
 
+#include "../../../src/TChough2.h"
+#include "../../../src/TCcluster.h"
+#include "../../../src/TCalign.h"
 #include "../../../src/TCtrack.h"
 #include "../../../src/TCevent.h"
 #include "../Hits.h"
@@ -139,6 +142,13 @@ int main(int argc,char **argv){
   a->clear();
   a->read(alignmentFile);
     
+  TVector3 X(1.,0.,0.);
+  TVector3 Y(0.,1.,0.);
+  TVector3 Z(0.,0.,1.);
+  TChough2* houghYZ = new TChough2(Y,Z,0.01,0.0025,100,100);
+  TChough2* houghXZ = new TChough2(X,Z,0.01,0.0025,100,100);
+
+  
   int n_tracks = 0;
   int track_tries=0;
   
@@ -225,33 +235,34 @@ int main(int argc,char **argv){
 	}
       } //end looping over GM2Y clusters
     } //end looping over GM2X clusters
-     
+    histogramStart->Fill(startClusters.size());
+    histogramEnd->Fill(endClusters.size());
     if(startClusters.size()==0||endClusters.size()==0){
       continue;
     }
     int n_points=0;
     TGraph* x_event =new TGraph();
     TGraph* y_event =new TGraph();
-    vector<TCcluster> zxCl;
-    vector<TCcluster> zxCl;
+    vector<TCcluster> clXZ;
+    vector<TCcluster> clYZ;
     
     for(unsigned int i=0;i<startClusters.size()/2;i++){
       int id =2*i;
       TVector3 spacePoint=startClusters.at(id).posXYZ();
-      zxCl.push_back(startClusters.at(id));
+      clXZ.push_back(startClusters.at(id));
       histogramGM1Xhitpoint->Fill(spacePoint.x());
       x_event->SetPoint(n_points, spacePoint.z(),spacePoint.x());     
       n_points++;
     }
     for(unsigned int i=0;i<clSI1X.size();++i){
-      zxCl.push_back(startClusters.at(i));
+      clXZ.push_back(startClusters.at(i));
       TVector3 spacePoint=clSI1X.at(i).posXYZ();
       histogramSI1Xhitpoint->Fill(spacePoint.x());
       x_event->SetPoint(n_points, spacePoint.z(),spacePoint.x());
       n_points++;
     }
     for(unsigned int i=0;i<clSI2X.size();++i){
-      zxCl.push_back(startClusters.at(i));
+      clXZ.push_back(startClusters.at(i));
       TVector3 spacePoint=clSI2X.at(i).posXYZ();
       histogramSI2Xhitpoint->Fill(spacePoint.x());
       x_event->SetPoint(n_points, spacePoint.z(),spacePoint.x());
@@ -259,7 +270,7 @@ int main(int argc,char **argv){
     }
     for(unsigned int i=0;i<endClusters.size()/2;i++){
       int id =2*i;
-      zxCl.push_back(startClusters.at(id));
+      clXZ.push_back(startClusters.at(id));
       TVector3 spacePoint=endClusters.at(id).posXYZ();
       histogramGM2Xhitpoint->Fill(spacePoint.x());
       x_event->SetPoint(n_points, spacePoint.z(),spacePoint.x());
@@ -268,21 +279,21 @@ int main(int argc,char **argv){
     n_points=0;
     for(unsigned int i=0;i<startClusters.size()/2;i++){
       int id =2*i+1;
-      zyCl.push_back(startClusters.at(id));
+      clYZ.push_back(startClusters.at(id));
       TVector3 spacePoint=startClusters.at(id).posXYZ();
       histogramGM1Yhitpoint->Fill(spacePoint.y());
       y_event->SetPoint(n_points, spacePoint.z(),spacePoint.y());
       n_points++;
     }
     for(unsigned int i=0;i<clSI1Y.size();++i){
-      zyCl.push_back(startClusters.at(i));
+      clYZ.push_back(startClusters.at(i));
       TVector3 spacePoint=clSI1Y.at(i).posXYZ();
       histogramSI1Yhitpoint->Fill(spacePoint.y());
       y_event->SetPoint(n_points, spacePoint.z(),spacePoint.y());
       n_points++;
     }
     for(unsigned int i=0;i<clSI2Y.size();++i){
-      zyCl.push_back(startClusters.at(i));      
+      clYZ.push_back(startClusters.at(i));      
       TVector3 spacePoint=clSI2Y.at(i).posXYZ();
       histogramSI2Yhitpoint->Fill(spacePoint.y());
       y_event->SetPoint(n_points, spacePoint.z(),spacePoint.y());
@@ -290,27 +301,60 @@ int main(int argc,char **argv){
     }
     for(unsigned int i=0;i<endClusters.size()/2;i++){
       int id =2*i+1;
-      zyCl.push_back(startClusters.at(id));      
+      clYZ.push_back(startClusters.at(id));      
       TVector3 spacePoint=endClusters.at(id).posXYZ();
       histogramGM2Yhitpoint->Fill(spacePoint.y());
       y_event->SetPoint(n_points, spacePoint.z(),spacePoint.y());
       n_points++;
     }
-
-    histogramStart->Fill(startClusters.size());
-    histogramEnd->Fill(endClusters.size());
+    
+    houghYZ->make(clYZ,1);
+    houghXZ->make(clXZ,1);
+    if(disp){
+      houghXZ->draw(true,10,10,600,600);
+      houghYZ->draw(true,10,10,600,600);
+    }
+    vector<TCcluster> clTrack;
+    TGraph *clFit_x = new TGraph;
+    TGraph *clFit_y = new TGraph;
+    n_points=0;
+    for(unsigned int clX =0;clX<clXZ.size();++clX){
+      if(houghXZ->hot(clX,0)){
+	clXZ.at(clX).setFit();
+	spacePoint=clXZ.at(clX).posXYZ();
+	clFit_x->SetPoint(n_points, spacePoint.z(),spacePoint.x());
+	n_points++;
+      }else{
+	clXZ.at(clX).setFit(false);
+      }
+      clTrack.push_back(clXZ.at(clX));
+    }
+    n_points=0;
+    for(unsigned int clY =0;clY<clYZ.size();++clY){
+      if(houghXZ->hot(clY,0)){
+	clYZ.at(clY).setFit();
+	spacePoint=clYZ.at(clY).posXYZ();
+	clFit_y->SetPoint(n_points, spacePoint.z(),spacePoint.y());
+	n_points++;
+      }else{
+	clYZ.at(clY).setFit(false);
+      }
+      clTrack.push_back(clYZ.at(clY));
+    }
     TCtrack* track_store=NULL;
     TCtrack* track = new TCtrack;
-    track->addClusters(trackCl);
+    track->addClusters(clTrack);
     //cout<<"nclFit"<<track->nClFit()<<endl;
     if(track->fit(1,2,3,4,5,6,7,8)){
       if(disp){
-      cout<<"track fit converged with chi2 "<<track->getChi2()/track->getNDF()<<endl;
+	cout<<"track fit converged with chi2 "<<track->getChi2()/track->getNDF()<<endl;
       }
+      
       histogramChi2->Fill(track->getChi2()/track->getNDF());
       histogramChi2rough->Fill(track->getChi2()/track->getNDF());
       histogramNDF->Fill(track->getNDF());
-      // double par[4]={track->getAX(),track->getBX(),track->getAY(),track->getBY()};
+      n_tracks++;
+      event->addTrack(track);
       for(unsigned int cl=0;cl<track->nCl();cl++){
 	TCcluster tmpcl = track->getCl(cl);
 	double uCl=tmpcl.posUVW().x();                   
@@ -354,43 +398,20 @@ int main(int argc,char **argv){
 	  }
 	}
       }//end filling residual histograms
-      n_tracks++;
-      event->addTrack(track);
       if(disp){
-	TGraph *clusters_x = new TGraph;
-	TGraph *clusters_y = new TGraph;
-	
-	TVector3 spacePoint=startClusters.at(2*i).posXYZ();
-	clusters_x->SetPoint(0, spacePoint.z(),spacePoint.x());
-	spacePoint=clSI1X.at(k).posXYZ();
-	clusters_x->SetPoint(1, spacePoint.z(),spacePoint.x());
-	spacePoint=clSI2X.at(m).posXYZ();
-	clusters_x->SetPoint(2, spacePoint.z(),spacePoint.x());
-	spacePoint=endClusters.at(2*j).posXYZ();
-	clusters_x->SetPoint(3, spacePoint.z(),spacePoint.x());
-	spacePoint=startClusters.at(2*i+1).posXYZ();
-	clusters_y->SetPoint(0, spacePoint.z(),spacePoint.y());
-	spacePoint=clSI1Y.at(l).posXYZ();
-	clusters_y->SetPoint(1, spacePoint.z(),spacePoint.y());
-	spacePoint=clSI2Y.at(n).posXYZ();
-	clusters_y->SetPoint(2, spacePoint.z(),spacePoint.y());
-	spacePoint=endClusters.at(2*j+1).posXYZ();
-	clusters_y->SetPoint(3, spacePoint.z(),spacePoint.y());
-	
-	clusters_x->SetMarkerColor(2);
-	clusters_y->SetMarkerColor(2);
-	clusters_x->SetMarkerSize(4);
-	clusters_y->SetMarkerSize(4);
-	clusters_x->SetMarkerStyle(2);
-	clusters_y->SetMarkerStyle(2);
+	clFit_x->SetMarkerColor(2);
+	clFit_y->SetMarkerColor(2);
+	clFit_x->SetMarkerSize(4);
+	clFit_y->SetMarkerSize(4);
+	clFit_x->SetMarkerStyle(2);
+	clFit_y->SetMarkerStyle(2);
 		
 	char buf[10];
 	TGraph *xTrackStartEndPoint = new TGraph;
 	TGraph *yTrackStartEndPoint = new TGraph;
-	
 	double ax=track->getAx();// ax = tx
 	double bx=track->getBx();
-	double ay=track->getAy();// ax = tx
+	double ay=track->getAy();// ay = ty
 	double by=track->getBy();
 	char bufFormula[50];
 	
@@ -421,11 +442,11 @@ int main(int argc,char **argv){
 	TMultiGraph *xGraph= new TMultiGraph();
 	TMultiGraph *yGraph= new TMultiGraph();
 	xGraph->Add(xTrackStartEndPoint);
-	xGraph->Add(clusters_x);
+	xGraph->Add(clFit_x);
 	xGraph->Add(x_event,"*");                     
       
 	yGraph->Add(yTrackStartEndPoint);
-	yGraph->Add(clusters_y);
+	yGraph->Add(clFit_y);
 	yGraph->Add(y_event,"*");                     
 	
 	(c->cd(1))->Clear();
