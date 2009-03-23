@@ -32,7 +32,7 @@ class WirepointHitPolicy {
 public:
 
 
-  WirepointHitPolicy(){;}
+  WirepointHitPolicy();
  
   // Operations ----------------------
    /** @brief Get detector plane 
@@ -56,7 +56,16 @@ protected:
   // see Alexandrescu
   virtual ~WirepointHitPolicy(){;}
 
-
+  /** true -> the detector provides a measured/reconstructed
+      coordinate along the wire
+      false -> no coordinate along the wire available
+  */
+  bool _wireCoordFlag;
+  /**
+     maximum acceptable distance from the wire
+  */
+  double _maxdistance;
+  
 private:
 
   // Private Data Members ------------

@@ -13,6 +13,8 @@
 #include "AbsRecoHit.h"
 #include "FitterExceptions.h"
 
+WirepointHitPolicy::WirepointHitPolicy() : _wireCoordFlag(false), _maxdistance(1.E50) {;}
+
 TMatrixT<double> 
 WirepointHitPolicy::hitCoord(AbsRecoHit* hit,const DetPlane& plane)
 {
@@ -93,8 +95,8 @@ WirepointHitPolicy::detPlane(AbsRecoHit* hit, AbsTrackRep* rep)
   distance = TMath::Sqrt(fabs(((wire1-poca).Mag2()*(wire2-wire1).Mag2()-pow((wire1-poca).Dot(wire2-wire1),2))/(wire2-wire1).Mag2()));
   
   // check poca inside tube 
-  if(distance>0.5) {
-    FitterException exc("distance poca-wire > 0.5", __LINE__,__FILE__);	
+  if(distance > _maxdistance) {
+    FitterException exc("distance poca-wire > maxdistance", __LINE__,__FILE__);	
     throw exc;    
   }
   
@@ -120,7 +122,10 @@ WirepointHitPolicy::detPlane(AbsRecoHit* hit, AbsTrackRep* rep)
   U.SetMag(1.);
   V.SetMag(1.);
   
-  TVector3 O = (wire1 + wire2) * 0.5;
+  TVector3 O;
+  if(_wireCoordFlag == false) O = poca_onwire;
+  else                        O = (wire1 + wire2) * 0.5;
+
   
   _detPlane = DetPlane(O, U, V);
   
