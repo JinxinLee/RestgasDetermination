@@ -67,8 +67,6 @@ PndSttRecoHit::PndSttRecoHit(PndSttHit *currenthit) : WirepointRecoHit(NparHitRe
   _hitCov[6][6] = 0.0100 * 0.0100; // currenthit->GetIsochroneError(); CHECK
   _hitCov[7][7] = 1. * 1.;
 
-  // has coordinate along the wire
-  _wireCoordFlag = true;
   // cut on distance
   _maxdistance = 0.5;
 }
@@ -108,8 +106,6 @@ PndSttRecoHit::PndSttRecoHit(PndSttHelixHit *currenthit) : WirepointRecoHit(Npar
 
   _hitCov[7][7] = 1. * 1.;
 
-  // has coordinate along the wire
-  _wireCoordFlag = true;
   // cut on distance
   _maxdistance = 0.5;
 

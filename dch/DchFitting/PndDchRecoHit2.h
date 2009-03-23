@@ -14,13 +14,13 @@
 
 // Pnd includes
 #include "RecoHitIfc.h"
-#include "WirepointHitPolicy.h"
+#include "WireHitPolicy.h"
 
 class PndDchCylinderHit;
 
-typedef RecoHitIfc<WirepointHitPolicy> WirepointRecoHit;
+typedef RecoHitIfc<WireHitPolicy> WireRecoHit;
 
-class PndDchRecoHit2 : public WirepointRecoHit {
+class PndDchRecoHit2 : public WireRecoHit {
 
 public:
 
@@ -42,21 +42,17 @@ public:
   virtual void setHMatrix(const AbsTrackRep* stateVector,
                           const TMatrixT<double>& state);
 
-  const DetPlane& detPlane(AbsRecoHit*, AbsTrackRep*);
-  virtual const DetPlane& getDetPlane(AbsTrackRep*); 
-
  private:
   
   double _sangle;  ///<  sine of the angle of the wire
   double _cangle;  ///<  cosine of the angle of the wire
   double _wirepos; ///<  u coordinate of wire in detector plane
-  DetPlane _detPlane;
-	
+
  protected:
-  static const int NparHitRep = 8;
+  static const int NparHitRep = 7;
 
  public:
-  ClassDef(PndDchRecoHit2,1)
+  ClassDef(PndDchRecoHit2,2)
 
 };
 

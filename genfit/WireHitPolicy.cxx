@@ -1,8 +1,8 @@
 // ----------------------------------------------------------
-// Please see WirepointHitPolicy.h  before using this class.
+// Please see WireHitPolicy.h  before using this class.
 // ----------------------------------------------------------
 
-#include "WirepointHitPolicy.h"
+#include "WireHitPolicy.h"
 
 #include "assert.h"
 #include <cmath>
@@ -13,47 +13,43 @@
 #include "AbsRecoHit.h"
 #include "FitterExceptions.h"
 
-WirepointHitPolicy::WirepointHitPolicy() : _maxdistance(1.E50) {;}
+WireHitPolicy::WireHitPolicy() :_maxdistance(1.E50) {;}
 
 TMatrixT<double> 
-WirepointHitPolicy::hitCoord(AbsRecoHit* hit,const DetPlane& plane)
+WireHitPolicy::hitCoord(AbsRecoHit* hit,const DetPlane& plane)
 {
-  TMatrixT<double> returnMat(2,1);
+  TMatrixT<double> returnMat(1,1);
 
   checkPlane(hit, plane);
 
-  // raw x1, y1, z1, x2, y2, z2, rdrift, zreco
+  // raw x1, y1, z1, x2, y2, z2, rdrift
   TMatrixT<double> rC = hit->getRawHitCoord();
 
   returnMat[0][0] = rC[6][0];
-  returnMat[1][0] = rC[7][0];
   return returnMat;
 }
 
 TMatrixT<double> 
-WirepointHitPolicy::hitCov(AbsRecoHit* hit,const DetPlane& plane)
+WireHitPolicy::hitCov(AbsRecoHit* hit,const DetPlane& plane)
 {
   checkPlane(hit, plane);
 
-  TMatrixT<double> returnCov(2,2);
+  TMatrixT<double> returnCov(1,1);
   TMatrixT<double> rawCov = hit->getRawHitCov();
 
   returnCov[0][0] = rawCov[6][6];
-  returnCov[1][0] = rawCov[7][6];
-  returnCov[0][1] = rawCov[6][7];
-  returnCov[1][1] = rawCov[7][7];
 
   return  returnCov;
 }
 
 
 
-void WirepointHitPolicy::checkPlane(AbsRecoHit* hit,const DetPlane& plane)
+void WireHitPolicy::checkPlane(AbsRecoHit* hit,const DetPlane& plane)
 {
   // raw x1, y1, z1, x2, y2, z2, rdrift, zreco
   TMatrixT<double> rC = hit->getRawHitCoord();
 
-  assert(rC.GetNrows()==8);
+  assert(rC.GetNrows()==7);
   
   TVector3 wire1(rC[0][0], rC[1][0], rC[2][0]);
   TVector3 wire2(rC[3][0], rC[4][0], rC[5][0]);
@@ -66,17 +62,17 @@ void WirepointHitPolicy::checkPlane(AbsRecoHit* hit,const DetPlane& plane)
   if(fabs(TMath::Abs(wiredirection.Dot(vaxis)) - 1) > 1e-3)
     {
      
-      std::cout << "WirepointHitPolicy: plane not valid!!" << std::endl;
+      std::cout << "WireHitPolicy: plane not valid!!" << std::endl;
     }
 }
 
 
 const DetPlane& 
-WirepointHitPolicy::detPlane(AbsRecoHit* hit, AbsTrackRep* rep)
+WireHitPolicy::detPlane(AbsRecoHit* hit, AbsTrackRep* rep)
 {
 
   TMatrixT<double> x=hit->getRawHitCoord();
-  assert(x.GetNrows()==8);
+  assert(x.GetNrows()==7);
   TVector3 wire1(x[0][0],x[1][0],x[2][0]);
   TVector3 wire2(x[3][0],x[4][0],x[5][0]);
 
@@ -122,8 +118,7 @@ WirepointHitPolicy::detPlane(AbsRecoHit* hit, AbsTrackRep* rep)
   U.SetMag(1.);
   V.SetMag(1.);
   
-  TVector3 O = (wire1 + wire2) * 0.5;
-
+  TVector3 O = poca_onwire;
   
   _detPlane = DetPlane(O, U, V);
   
