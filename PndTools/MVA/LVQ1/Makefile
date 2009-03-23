@@ -7,9 +7,9 @@
 FLAGSMACHINE = -march=core2 -mfpmath=sse -mtune=core2  -msse3 -m64 -m3dnow
 
 CXX       =  g++
-# CCFLAGS   = -Wall -g -O0
-# CCFLAGS   = -Wall -O1 -fopenmp -g -pg #if profiling
-CCFLAGS      = -Wall -Os -O3 -ffast-math ${FLAGSMACHINE}
+# CCFLAGS   = -Wall -W -g -O0
+# CCFLAGS   = -Wall -W -O1 -fopenmp -g -pg #if profiling
+CCFLAGS       = -Wall -W -Os -O3 -ffast-math ${FLAGSMACHINE}
 CCFLAGS      += -fopenmp -fomit-frame-pointer -funsafe-math-optimizations
 CCFLAGS      += -funroll-loops -fvariable-expansion-in-unroller
 
