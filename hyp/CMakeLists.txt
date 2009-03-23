@@ -85,6 +85,8 @@ hypTracking/PndHypIdealTrackFinderTask.cxx
 #hypTracking/PndHypRiemannTrackFinderTask.cxx
 hypTracking/PndHypIdealTrackingTask.cxx
 hypTracking/PndHypKalmanTask.cxx
+hypTracking/PndHypDKalmanTask.cxx
+hypTracking/PndHypDPatternRecoTask.cxx
 
 hypPID/PndHypAdvancedPidAlgo.cxx
 hypPID/PndHypPidIdealTask.cxx

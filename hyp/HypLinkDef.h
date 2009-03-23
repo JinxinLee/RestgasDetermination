@@ -61,6 +61,9 @@
 #pragma link C++ class PndHypIdealTrackFinderTask+;
 //#pragma link C++ class PndHypRiemannTrackFinderTask+;
 #pragma link C++ class PndHypKalmanTask+;
+#pragma link C++ class PndHypDKalmanTask+;
+#pragma link C++ class PndHypDPatternRecoTask+;
+
 
 #pragma link C++ class PndHypAdvancedPidAlgo+;
 #pragma link C++ class PndHypPidIdealTask+;
