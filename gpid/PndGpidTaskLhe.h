@@ -21,13 +21,6 @@
 #ifndef PNDGPIDTASKLHE_H
 #define PNDGPIDTASKLHE_H
 
-/*
-#ifdef  NUM_TMVA_READERS
-#undef  NUM_TMVA_READERS
-#define NUM_TMVA_READERS 10
-#endif
-*/
-
 //C++ includes
 #include <vector>
 #include <string>
@@ -115,13 +108,12 @@ class PndGpidTaskLhe : public FairTask
   // Array of Class names for classification names 
   std::vector<std::string> fClassNameArray;
   
-  // TMVA readers array.
-  //TMVA::Reader reader[NUM_TMVA_READERS];
+  //! TMVA readers array.
   std::vector<TMVA::Reader*> reader;
 
   int fNVAR;  // Number of variables we want to use.
   int fNCLASS;// Number of available classes.
-
+  
   TString M_InFileName;// Name of input weight file for LVQ, kd_KNN
   std::vector<float> m_varVec;// Container to hold feature values
   PndLVQClassify* m_lvq;// LVQ classifier object

@@ -79,9 +79,11 @@ void PndGpidTaskLhe::Config()
   char buff[512];
   sfName = fAPPNAME + ".dat";
   inFile.open(sfName.c_str(),ios::in);
+  
   // Set the number of variables
   inFile.getline(buff,512);
   fNVAR = (int) atoi(buff);
+  
   // Set the number of Classes
   inFile.getline(buff,512);
   fNCLASS = (int) atoi(buff);
@@ -91,6 +93,7 @@ void PndGpidTaskLhe::Config()
       << " variables and "<< fNCLASS 
       << " classes" << endl;
   sbuff = buff;
+  
   // Fetch the variable names from the config file.
   std::cout << "\n<INFO:> The following variables are used: ";
   while(1){
@@ -105,6 +108,7 @@ void PndGpidTaskLhe::Config()
 
   inFile.getline(buff,512);
   sbuff = buff;
+  
   // Fetch the names of available classes.
   std::cout << "\n<INFO:> The following Classes are available: ";
   while(1){
@@ -140,7 +144,6 @@ void PndGpidTaskLhe::AddVar()
     varName = fVarNameArray.at(i);
     //cout << varName << endl;// Print debug info
     for ( int j = 0; j < fNCLASS ; j++){
-      //reader[j].AddVariable(varName, &(m_varVec[i]));
       reader[j]->AddVariable(varName, &(m_varVec[i]));
     }
   }
@@ -157,21 +160,18 @@ void PndGpidTaskLhe::BookingMVA()
     switch (fMVAmode){
     case TMBDT:// TMVA BDT
       anaFile =  fDIR + fAPPNAME + fClassNameArray.at(i) + "_BDT.weights.txt";
-      //reader[i].BookMVA("BDT method", anaFile );
       reader[i]->BookMVA("BDT method", anaFile );
       fClassifier = "BDT method";
       break;
       
     case TMMLP:// TMVA MLP
       anaFile =  fDIR + fAPPNAME + fClassNameArray.at(i) + "_MLP.weights.txt";
-      //reader[i].BookMVA("MLP method", anaFile );
       reader[i]->BookMVA("MLP method", anaFile );
       fClassifier = "MLP method";
       break;
       
     case TMKNN:// TMVA KNN
       anaFile =  fDIR + fAPPNAME + fClassNameArray.at(i) + "_KNN.weights.txt";
-      //reader[i].BookMVA("KNN method", anaFile );
       reader[i]->BookMVA("KNN method", anaFile );
       fClassifier = "KNN method";
       break;
@@ -319,9 +319,7 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
 	    break;
 	    
 	  case TMKNN:
-	    //cout<<"MVA KNN "<<mvaValue<<endl;
-	    mvaValue = mvaValue;//-0.5; 
-	    //cout<<"MVA correction "<<mvaValue<<endl;
+	    mvaValue = mvaValue; 
 	    break;
 	    
 	  default:
