@@ -10,7 +10,7 @@ INCLUDE_DIRECTORIES($ENV{ROOTSYS}/include $ENV{ROOTSYS}/include/Math/ /afs/e18/p
 LINK_DIRECTORIES(../../../)
 
  
-SET(SOURCES tracking.cpp helpers.cpp)
+SET(SOURCES tracking.cpp helpers.cpp ../../src/TChough2.cxx)
 
 
 EXEC_PROGRAM(
@@ -20,7 +20,7 @@ EXEC_PROGRAM(
 		
 SET(ROOT_LIBS ${ROOTCONFIG} -lGraf -lMathCore -lMathMore)
 
-SET(CMAKE_CXX_FLAGS "-g -Wall -pedantic -Wno-long-long -msse2")
+SET(CMAKE_CXX_FLAGS "-g -Wall -Wno-long-long -msse2")
 
 #TARGET_LINK_LIBRARIES(test ${ROOTLIBS})
 
