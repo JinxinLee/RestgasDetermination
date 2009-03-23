@@ -94,7 +94,7 @@ PndSttRecoHit::PndSttRecoHit(PndSttHelixHit *currenthit) : WirepointRecoHit(Npar
   }
   else  {
     //   cout << "SKEWED " << endl;
-    _hitCoord[7][0] = (currenthit->GetZ() - currenthit->GetZcen())/cos(3.*TMath::DegToRad());
+    _hitCoord[7][0] = (currenthit->GetZ() - currenthit->GetZcen())/(TVector3(0.,0.,1.).Dot(wiredirection)/wiredirection.Mag());
   }
 
   // errors on drift radius and z (by hand)
