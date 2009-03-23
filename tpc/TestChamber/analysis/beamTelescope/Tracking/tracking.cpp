@@ -321,7 +321,7 @@ int main(int argc,char **argv){
     for(unsigned int clX =0;clX<clXZ.size();++clX){
       if(houghXZ->hot(clX,0)){
 	clXZ.at(clX).setFit();
-	spacePoint=clXZ.at(clX).posXYZ();
+	TVector3 spacePoint=clXZ.at(clX).posXYZ();
 	clFit_x->SetPoint(n_points, spacePoint.z(),spacePoint.x());
 	n_points++;
       }else{
@@ -333,7 +333,7 @@ int main(int argc,char **argv){
     for(unsigned int clY =0;clY<clYZ.size();++clY){
       if(houghXZ->hot(clY,0)){
 	clYZ.at(clY).setFit();
-	spacePoint=clYZ.at(clY).posXYZ();
+	TVector3 spacePoint=clYZ.at(clY).posXYZ();
 	clFit_y->SetPoint(n_points, spacePoint.z(),spacePoint.y());
 	n_points++;
       }else{
