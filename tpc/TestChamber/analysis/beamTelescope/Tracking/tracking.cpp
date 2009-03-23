@@ -154,7 +154,7 @@ int main(int argc,char **argv){
   TVector3 Y(0.,1.,0.);
   TVector3 Z(0.,0.,1.);
   TChough2* houghYZ = new TChough2(Y,Z,0.2,0.0005,25,25);
-  TChough2* houghXZ = new TChough2(X,Z,0.2,0.0005,25,25);
+  TChough2* houghXZ = new TChough2(-X,Z,0.2,0.0005,25,25);
   int n_tracks = 0;
   
   for(int i_ev=0;i_ev<nEvents;i_ev++) {
@@ -484,8 +484,8 @@ int main(int argc,char **argv){
           c->Update();
           c->Modified();
           cout<<"before drawing hough"<<endl;
-          houghXZ->draw(false,640,1,600,480);
-          houghYZ->draw(false,1,512,600,480);
+          houghXZ->draw(false,640,1,600,480,event);
+          houghYZ->draw(false,1,512,600,480,event);
           gApplication->SetReturnFromRun(kTRUE);
           gSystem->Run();
         //   delete yGraph;
