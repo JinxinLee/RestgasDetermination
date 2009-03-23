@@ -222,7 +222,7 @@ void PndLVQTrain::InitProtoTypes(int numProto)
  */
 void PndLVQTrain::Train(int numProto, const char* outPut)
 {
-  TRandom3 trand(4357875);
+  TRandom3 trand(435775);
   
   // Init LVQ protoTypes.
   if(numProto > 0){
@@ -291,7 +291,7 @@ void PndLVQTrain::Train(int numProto, const char* outPut)
  */
 void PndLVQTrain::Train21(int numProto, const char* outPut)
 {
-  TRandom3 trand(4357875);
+  TRandom3 trand(435575);
   
   // Container to store distances.
   std::vector <PndLVQDistObj*> distances;
@@ -363,7 +363,7 @@ void PndLVQTrain::Train21(int numProto, const char* outPut)
 	idx2d++;
       }
     }
-    else{//Fine one with the same label.
+    else{//Find one with the same label.
       while(m_EventsData[index].first != (distances[idxSame])->m_cls){
 	idxSame++;
       }
@@ -372,11 +372,13 @@ void PndLVQTrain::Train21(int numProto, const char* outPut)
     //Found two prototypes, one with the same lablel and one with a diff. one
     if(minFunct( (distances[idxSame])->m_dist / (distances[idx2d])->m_dist ,
 		 (distances[idx2d])->m_dist   / (distances[idxSame])->m_dist ) > s){
+      
       // Update the LVQ prototype
-      //int deltaEqCls = 0; int deltaNonEqCls = 1;
       int deltaEqCls = 1; int deltaNonEqCls = 0;
+      
       // Update equal label prototype.
       UpdateProto( *(m_EventsData[index].second), *(m_LVQProtos[idxSame].second), deltaEqCls, ethaT);
+      
       // Update different label prototype.
       UpdateProto( *(m_EventsData[index].second), *(m_LVQProtos[idx2d].second), deltaNonEqCls, ethaT);
     }
