@@ -43,9 +43,11 @@
   gSystem->Load("libMvdReco");
   gSystem->Load("libLHETrack");
   gSystem->Load("libRho");
+  gSystem->Load("libTMVA");
+  gSystem->Load("libMva");
   gSystem->Load("libGpid");
   gSystem->Load("libGeane");
-  gSystem->Load("libTMVA");
+
   gStyle->SetPalette(1);
   gStyle->SetTitleStyle(0);
   gStyle->SetTitleXSize(0.06);
