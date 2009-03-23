@@ -24,8 +24,8 @@ SET(CMAKE_CXX_FLAGS "-g -Wall -pedantic -Wno-long-long -msse2")
 
 #TARGET_LINK_LIBRARIES(test ${ROOTLIBS})
 
-ADD_EXECUTABLE(eventDisp ${SOURCES})
-TARGET_LINK_LIBRARIES(eventDisp  ${ROOT_LIBS})
-TARGET_LINK_LIBRARIES(eventDisp /afs/e18/panda/SIM/sdorheim/gemMonitor/src/libCsGEMPlane_gcc4.1.2_ROOT5.20.00.so)
-TARGET_LINK_LIBRARIES(eventDisp testChamber)
-SET_TARGET_PROPERTIES(eventDisp PROPERTIES LINKER_LANGUAGE CXX)
+ADD_EXECUTABLE(tracker ${SOURCES})
+TARGET_LINK_LIBRARIES(tracker  ${ROOT_LIBS})
+TARGET_LINK_LIBRARIES(tracker /afs/e18/panda/SIM/sdorheim/gemMonitor/src/libCsGEMPlane_gcc4.1.2_ROOT5.20.00.so)
+TARGET_LINK_LIBRARIES(tracker testChamber)
+SET_TARGET_PROPERTIES(tracker PROPERTIES LINKER_LANGUAGE CXX)
