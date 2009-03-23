@@ -207,6 +207,7 @@ void PndLVQTrain::InitProtoTypes(int numProto)
       for(unsigned int k = 0; k < evtData->size(); k++){
 	proto->at(k) = evtData->at(k) * c + (1.0 - c) * evtData->at(k);
       }
+      
       // proto type is initialized, add to the container
       m_LVQProtos.push_back(std::make_pair(m_EventsData[index].first, proto));
       // std::cout << m_EventsData[index].first << " " << std::endl;
