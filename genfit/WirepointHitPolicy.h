@@ -15,7 +15,9 @@ class AbsTrackRep;
 
 /** @brief policy class for hits in wire detectors (STT and DCH)
  *  which can measure the coordinate along the wire
- *
+ *  @author Christian H&ouml;ppner (Technische Universit&auml;t M&uuml;nchen, original author)
+ *  @author Lia Lavezzi (INFN Pavia roiginal author)
+ *  @author Sebastian Neubert  (Technische Universit&auml;t M&uuml;nchen, original author)
  * This policy is not valid for any kind of plane orientation
  * choice: to use it you MUST choose a plane described by u 
  * and v axes with v coincident with the wire (and u orthogonal
