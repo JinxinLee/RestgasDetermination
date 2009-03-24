@@ -41,7 +41,6 @@ class PndSttHelixTrackFitter : public PndSttTrackFitter
 
   TClonesArray* fHitArray;
   TClonesArray* fPointArray;
-  TClonesArray *fHotArray;
   TObjArray *ZPointsArray;
   TCanvas *eventCanvas;
   TCanvas *eventCanvas2;
@@ -50,11 +49,6 @@ class PndSttHelixTrackFitter : public PndSttTrackFitter
   Bool_t rootoutput;
  Int_t fVerbose;
 
- /** Private method AddHOT
-  **
-  ** Adds a PndSttHOT the HOTCollection
-  **/
-/*  PndSttHOT* AddHOT(Double_t x, Double_t y, Double_t x, Int_t hitindex, Int_t pointindex, Int_t trackindex); */
  
  public:
  PndSttHelixTrackFitter();
@@ -65,29 +59,21 @@ class PndSttHelixTrackFitter : public PndSttTrackFitter
   // xy plane ----------------------
   // intersection finder 
   Bool_t IntersectionFinder(PndSttTrack *pTrack, FairTrackParam *par);  
-  Bool_t IntersectionFinder4b(PndSttTrack *pTrack, FairTrackParam *par); 
   // fit
-  Int_t Fit4(PndSttTrack* pTrack, Int_t pidHypo); 
-  Int_t Fit4b(PndSttTrack* pTrack, Int_t pidHypo);
+  Int_t XYFit(PndSttTrack* pTrack, Int_t pidHypo);
   Int_t MinuitFit(PndSttTrack* pTrack, Int_t pidHypo);
 
   // z track length plane ----------
   // zfinder
-  Bool_t ZFinder(PndSttTrack* pTrack, Int_t pidHypo);
-  Bool_t ZFinder2(PndSttTrack* pTrack, Int_t pidHypo);
-  Bool_t ZFinderbb3(PndSttTrack* pTrack, Int_t pidHypo); 
-   Bool_t ZFinder6b(PndSttTrack* pTrack, Int_t pidHypo); 
+  Bool_t ZFinder(PndSttTrack* pTrack, Int_t pidHypo); 
+
   // hough
   void Hough(TVector3* choice, Double_t Phi0, Double_t x0, Double_t y0, Double_t R);
   TVector3 GetHoughResponse();
   // zfit
-  Int_t Zfit(PndSttTrack* pTrack, Int_t pidHypo);
-  Int_t Zfit2(PndSttTrack* pTrack, Int_t pidHypo);
-  Int_t Zfitbb2(PndSttTrack* pTrack, Int_t pidHypo);
+  Int_t ZFit(PndSttTrack* pTrack, Int_t pidHypo);
   
   Int_t DoFit(PndSttTrack* pTrack, Int_t pidHypo = 211);
-
-  /*   Int_t AddHitOnTrack(PndSttTrack *pTrack); */
 
   // track length calculation
   Double_t CalculateScosl(Double_t h, Double_t d0,  Double_t phi0, Double_t R, Double_t x, Double_t y);
@@ -116,7 +102,6 @@ class PndSttHelixTrackFitter : public PndSttTrackFitter
  
   PndSttTrack* GetTrack() const { return fTrack; };
   TClonesArray* GetHitArray() const { return fHitArray; };
-  /*   TClonesArray* GetHOTCollection() const { return fHotArray; }; */
   Double_t refAngle;
   ClassDef(PndSttHelixTrackFitter,1);
 };
