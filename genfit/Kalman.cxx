@@ -11,24 +11,32 @@
 #include "AbsTrackRep.h"
 #include "FitterExceptions.h"
   
-Kalman::Kalman():_lazy(0),_numIt(3),_blowUpFactor(20.),_nullExtrapolation(false){;}
+Kalman::Kalman():_lazy(0),_initialDirection(1),_numIt(3),_blowUpFactor(20.),_nullExtrapolation(false){;}
   
 Kalman::~Kalman(){;}
 
 void
 Kalman::processTrack(Track* trk){
-  for(int i=0; i<_numIt; i++){
+  int direction=_initialDirection;
+  assert(direction==1 || direction==-1);
+  /*why is there a factor of two here (in the for statement)?
+	Because we consider on full iteration to be one back and
+	one forth fitting pass */
+  for(int i=0; i<2*_numIt; i++){
     _fitPassCounter=i;
-    // first we do the "normal" propagation
-    trk->setNextHitToFit(0);
     if(i>0) blowUpCovs(trk);
-    fittingPass(trk,1);
-
-    //then we do backtracking
+    if(direction==1){
+      trk->setNextHitToFit(0);
+    }
+    else {
+      trk->setNextHitToFit(trk->getNumHits()-1);
+    }
+    fittingPass(trk,direction);
     switchDirection(trk);
-    trk->setNextHitToFit(trk->getNumHits()-1);
-    blowUpCovs(trk);
-    fittingPass(trk,-1);
+
+    //switch direction of fitting and also inside all the reps
+    if(direction==1) direction=-1;
+    else direction=1;
     switchDirection(trk);
   }
 }

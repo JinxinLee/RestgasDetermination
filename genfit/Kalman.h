@@ -87,6 +87,11 @@ public:
    */
   double getChi2Hit(AbsRecoHit*, AbsTrackRep*);
 
+  /** @brief Sets the inital direction of the track fit (1 for inner to outer,
+   * or -1 for outer to inner). The standard is 1 and is set in the ctor
+   */
+  void setInitialDirection(int d){_initialDirection=d;}
+
   /** @brief Set the blowup factor (see blowUpCovs() )
    */
   void setBlowUpFactor(double f){_blowUpFactor=f;}
@@ -118,12 +123,12 @@ private:
 		       const TMatrixT<double>& cov,const TMatrixT<double>& V);
 
   /** @brief this is needed to blow up the covariance matrix before a fitting pass
-   * drops off diagonal elements and blows up diagonal by blowUpFactor
+   * drops off-diagonal elements and blows up diagonal by blowUpFactor
    */
   void blowUpCovs(Track* trk);
 
   double _blowUpFactor;
-
+  int _initialDirection;
   bool _nullExtrapolation;
   int _fitPassCounter;
 
