@@ -63,10 +63,16 @@ void TChough2::draw(bool stop,int _z,int _y,int _w,int _h,TCevent *mcTruth){
   gStyle->SetPalette(1);
 
   sprintf(buf,"c%5.5f",r.Uniform());
-  canvas1 = new TCanvas(buf,"Hough Transformation R #theta",_z,_y,_w,_h);
+  std::string name;
+  if(yp.x()==0){
+    name="Hough Transformation (z,y) -> (theta,r)";
+  }else{
+    name="Hough Transformation (z,x) -> (theta,r)";
+  }
+  canvas1 = new TCanvas(buf,name.c_str(),_z,_y,_w,_h);
   TGraph* g = new TGraph(ypHit.size(),z,y);
   TGraphErrors* maxPoints = new TGraphErrors(maxVector.size(),thetaMax_,rMax_,thetaMaxE_,rMaxE_);
-
+  
   canvas1->Divide(1,2);
   canvas1->cd(1);
   g->SetTitle("");
@@ -82,17 +88,21 @@ void TChough2::draw(bool stop,int _z,int _y,int _w,int _h,TCevent *mcTruth){
     cout<<nTracks<<endl;
     for(int i=0;i<nTracks;++i){
       TCtrack* mcTrack =mcTruth->getTrack(i);
-      double aX,bX;
+      double aX=0;
+      double bX=0;
       if(yp.x()==0){
+        cout<<"Y "<<endl;
         aX=mcTrack->getAy();
         bX=mcTrack->getBy();
       }else{
+        cout<<"X "<<endl;
         aX=mcTrack->getAx();
         bX=mcTrack->getBx();
       }
       sprintf(buf,"%f*x+%f",aX,bX);
+      cout<<buf<<endl;
       sprintf(bufName,"%icopy %f*x+%f",i,aX,bX);
-      mcTruthTracks.push_back(new TF1(bufName,buf,minZ,maxZ));
+      mcTruthTracks.push_back(new TF1(bufName,buf,minZ-10,maxZ+10));
       mcTruthTracks.at(i)->SetLineStyle(1);
       mcTruthTracks.at(i)->SetLineWidth(1); 
       mcTruthTracks.at(i)->Draw("same");
@@ -493,11 +503,11 @@ void TChough2::convert(std::vector<TCcluster>& _c){
   rangeY=maxY-minY;
   rangeZ=maxZ-minZ;
   
-  maxR=rangeY*rangeZ / sqrt(pow(rangeY,2) + pow(rangeZ,2));
+  maxR=rangeY*rangeZ / sqrt(pow(rangeY,2) + pow(rangeZ,2))+0.1;
   minR=-maxR;
   rangeR=maxR-minR;
-  maxTheta=3.141592654/2+atan(rangeY/rangeZ);
-  minTheta=3.141592654/2-atan(rangeY/rangeZ);
+  maxTheta=3.141592654/2+atan(rangeY/rangeZ)+0.01;
+  minTheta=3.141592654/2-atan(rangeY/rangeZ)-0.01;
   rangeTheta=maxTheta-minTheta;
   binTheta=rangeTheta/nBinsTheta;
   binR=rangeR/(nBinsR);
