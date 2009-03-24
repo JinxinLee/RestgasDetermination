@@ -29,7 +29,7 @@ class FitterException : public std::exception
 {
  private:
 
-  std::string whatString;
+  std::string excString;
   int line;
   std::string file;
 
@@ -48,7 +48,7 @@ class FitterException : public std::exception
    * @param file sorcefile in which the exception is created. 
    * Can be set through __FILE__ macro
    */
-  FitterException(std::string what, int line, std::string file);
+  FitterException(std::string, int, std::string);
   virtual ~FitterException() throw();
   
   /** @brief set list of numbers with description */
@@ -60,6 +60,8 @@ class FitterException : public std::exception
   void info();
 
   virtual const char* what() const throw();
+
+  std::string getExcString(){return excString;}
 };
 
 #endif

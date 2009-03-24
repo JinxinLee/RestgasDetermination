@@ -105,7 +105,7 @@ private:
    * - Calculation of residual and Kalman Gain
    * - Update of track representation state and chi2
    */
-  void processHit(AbsRecoHit*, AbsTrackRep*, int);
+  void processHit(AbsRecoHit*, AbsTrackRep*);
   
   /** @brief Used to switch between forward and backward filtering
    */

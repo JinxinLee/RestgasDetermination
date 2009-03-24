@@ -11,6 +11,9 @@
 #include "AbsTrackRep.h"
 #include "FitterExceptions.h"
   
+
+#define COVEXC "cov_is_zero"
+
 Kalman::Kalman():_lazy(0),_initialDirection(1),_numIt(3),_blowUpFactor(20.),_nullExtrapolation(false){;}
   
 Kalman::~Kalman(){;}
@@ -111,13 +114,16 @@ Kalman::fittingPass(Track* trk, int direction){
 	  AbsTrackRep* arep=trk->getTrackRep(irep);
 	  if(arep->getStatusFlag()==0) { 
 		try {
-		  processHit(ahit,arep,ihit);
+		  processHit(ahit,arep);
 		}
 		catch(FitterException& e) {
+		  if(e.getExcString()==std::string(COVEXC)){//the covariance is zero
+			trk->addFailedHit(irep,ihit);
+		  }
 		  std::cerr << e.what() << std::endl;
 		  if(!_lazy){
 		    e.info();
-		    arep->setStatusFlag(1);
+		    if(e.getExcString()!=std::string(COVEXC)) arep->setStatusFlag(1);
 		    continue; // go to next rep immediately
 		  }
 		}	
@@ -192,7 +198,7 @@ Kalman::getChi2Hit(AbsRecoHit* hit, AbsTrackRep* rep)
 
   
 void
-Kalman::processHit(AbsRecoHit* hit, AbsTrackRep* rep,int hitIndex){
+Kalman::processHit(AbsRecoHit* hit, AbsTrackRep* rep){
 
   // get prototypes for matrices
   int repDim=rep->getDim();
@@ -216,7 +222,7 @@ Kalman::processHit(AbsRecoHit* hit, AbsTrackRep* rep,int hitIndex){
   }
   
   if(cov[0][0]<1.E-50){
-    FitterException exc("cov[0][0]<1.-50",__LINE__,__FILE__);
+    FitterException exc(COVEXC,__LINE__,__FILE__);
     throw exc;
   }
   

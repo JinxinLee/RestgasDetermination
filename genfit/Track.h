@@ -6,6 +6,9 @@
 #ifndef TRACK_H 
 #define TRACK_H
 
+#include"assert.h"
+#include<map>
+
 #include "AbsTrackRep.h"
 #include "AbsRecoHit.h"
 
@@ -38,13 +41,25 @@ private:
   
   
   /** @brief Collection of track representations
+   * 
+   * this array is only to be added to in the addTrackRep method
+   * because the synchronized construction of the std::map<int,int> for 
+   * failedHits is ensured here. NEVER delete elements from this array!
+   * If this functionality will be need, it has to be done synchronized
+   * with failedHits!!
    */
   TObjArray* trackReps; //->
 
-  /** @brief Collection of REcoHits
+  /** @brief Collection of RecoHits
    */
   std::vector<AbsRecoHit*>      hits;//!
   
+  /** @brief Collection of map<int detId,int num> for every trackRep
+   * which contains the number of failed hits
+   * (error in Kalman::processHit() )
+   */
+  std::vector< std::map<int,int>* > failedHits;
+
   /** @brief Helper to store the indices of the hits in the track. 
    * See TrackCand for details.
    */
@@ -79,6 +94,13 @@ public:
   /** @brief Resets the Track -- deletes RecoHits!
    */
   void reset();  // deletes the RecoHits!
+
+  int getFailedHits(int detId,int repId=-1){
+	int theRep;
+	if(repId==-1) theRep=_cardinal_rep;
+	else theRep = repId;
+	return (*(failedHits.at(theRep)))[detId];
+  }
 
   std::vector<AbsRecoHit*> getHits() {return hits;}
 
@@ -175,6 +197,16 @@ public:
   // Modifiers
   // ---------------------
 
+  void addFailedHit(unsigned int irep,unsigned int ihit){
+	assert(irep<failedHits.size());
+	unsigned int detId,hitId;
+	_cand.getHit(ihit,detId,hitId);
+	if(failedHits.at(irep)->count(detId)==0){
+	  (*(failedHits.at(irep)))[detId]=0;
+	}
+	(*(failedHits.at(irep)))[detId]+=1;
+  }
+
   /** @brief deprecated!
    */
   inline void addHit(AbsRecoHit* theHit) { 
@@ -200,11 +232,12 @@ public:
 
   /** @brief Add track represenation
    *
-   * The given track represenatation has to contain starting values for fit!
+   * The given track representation has to contain starting values for fit!
    */
   void addTrackRep(AbsTrackRep* theTrackRep) {
     if(trackReps==NULL)trackReps=new TObjArray(defNumTrackReps);
     trackReps->Add(theTrackRep);
+	failedHits.push_back( new std::map<int,int> );
   }
     
   void setCandidate(const TrackCand& cand, bool reset=false);

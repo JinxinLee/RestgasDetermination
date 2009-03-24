@@ -246,9 +246,9 @@ void SPtestTask::Exec(Option_t* opt) {
 
 
 
-	std::vector<AbsRecoHit*> hits;
+	//	std::vector<AbsRecoHit*> hits;
 	
-
+	Track *tr = new Track( rep );
 
 	for(int i=0;i<(int)points.size();++i){
 	  AbsRecoHit* aHit;
@@ -259,12 +259,12 @@ void SPtestTask::Exec(Option_t* opt) {
 	    //pointsReverse.at(i).Print();
 	    aHit = new SPhit(points.at(i),errors);
 	  }
-	  hits.push_back(aHit);
+	  tr->addHit(aHit,3,i);
 	}
 	
 	
-	Track *tr = new Track( rep );
-	tr->addHitVector(hits);
+
+	//tr->addHitVector(hits);
 	Kalman k;
 	//std::cout << __FILE__ << __LINE__ << std::endl;
 	try{
@@ -364,6 +364,9 @@ void SPtestTask::Exec(Option_t* opt) {
 	if(saveTag) tree->Fill();
 	//////////////////
 	
+
+	std::cerr << "%%%%%%%%%%%%% " << tr->getNumHits() << " " << tr->getFailedHits(3) << std::endl;
+
 	delete rep;
 	delete rephits;
   }

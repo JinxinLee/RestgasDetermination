@@ -11,6 +11,7 @@
 #define TRACKCAND_H
 
 #include <vector>
+#include "assert.h"
 
 #include "TObject.h"
 
@@ -58,7 +59,10 @@ public:
    */
   void getHit(unsigned int i, 
 	      unsigned int& detId,
-	      unsigned int& hitId) const {detId=_detId[i];hitId=_hitId[i];}
+			  unsigned int& hitId) const {
+	assert(i<getNHits());
+	detId=_detId.at(i);hitId=_hitId.at(i);
+  }
   unsigned int getNHits() const {return _detId.size();}
   double getCurv() const {return _curv;}
   double getCurvError() const{return _dCurv;}

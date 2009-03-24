@@ -6,14 +6,13 @@
 #include "VirtSpacePointRecoHit.h"
 
 Track::Track(AbsTrackRep* defaultRep) 
-  : _cardinal_rep(0), _nextHitToFit(0)
+  : trackReps(NULL),_cardinal_rep(0), _nextHitToFit(0)
 {
-  trackReps = new TObjArray(defNumTrackReps);
-  trackReps->Add(defaultRep);
+  addTrackRep(defaultRep);
 }
 
 Track::Track() 
-  : trackReps(0), _cardinal_rep(0), _nextHitToFit(0)
+  : trackReps(NULL), _cardinal_rep(0), _nextHitToFit(0)
 {
   //trackReps = new TObjArray(defNumTrackReps);
 }
@@ -27,6 +26,9 @@ Track::~Track() {
   for(unsigned int i=0;i<hits.size();i++) {
     delete hits[i];
   }
+  for(unsigned int i=0;i<failedHits.size();++i){
+	if(failedHits.at(i)!=NULL) delete failedHits.at(i);
+  }
 }
 
 Track::Track(const Track& _tr) {
@@ -36,9 +38,9 @@ Track::Track(const Track& _tr) {
   for(int i=0;i<_tr.getNumHits();i++) {
     hits.push_back((_tr.getHit(i))->clone());
   }
-  trackReps = new TObjArray(defNumTrackReps);
+  trackReps = NULL;
   for(int i=0; i<_tr.getNumReps();i++) {
-    trackReps->Add( (_tr.getTrackRep(i))->clone() );
+    addTrackRep( (_tr.getTrackRep(i))->clone() );
   }
 }
 
