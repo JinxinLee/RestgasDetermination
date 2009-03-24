@@ -153,8 +153,8 @@ int main(int argc,char **argv){
   TVector3 X(1.,0.,0.);
   TVector3 Y(0.,1.,0.);
   TVector3 Z(0.,0.,1.);
-  TChough2* houghYZ = new TChough2(Y,Z,0.2,0.0005,25,25);
-  TChough2* houghXZ = new TChough2(-X,Z,0.2,0.0005,25,25);
+  TChough2* houghYZ = new TChough2(Y,Z,0.2,0.0005,100,100);
+  TChough2* houghXZ = new TChough2(-X,Z,0.2,0.0005,100,100);
   int n_tracks = 0;
   
   for(int i_ev=0;i_ev<nEvents;i_ev++) {
@@ -330,56 +330,135 @@ int main(int argc,char **argv){
       n_points++;
     }
     if(fit){
-      houghYZ->make(clYZ,1);
-      houghXZ->make(clXZ,1);
+      houghYZ->make(clYZ,2);
+      houghXZ->make(clXZ,2);
     }
     if(disp){
 
     }
     if(fit){
-      vector<TCcluster> clTrack;
-      TGraph *clFit_x = new TGraph;
-      TGraph *clFit_y = new TGraph;
+      vector<TCcluster> clTrack1;
+      vector<TCcluster> clTrack2;
+      TGraph *clFit_x1 = new TGraph;
+      TGraph *clFit_y1 = new TGraph;
+
+      TGraph *clFit_x2 = new TGraph;
+      TGraph *clFit_y2 = new TGraph;
       n_points=0;
       for(unsigned int clX =0;clX<clXZ.size();++clX){
         if(houghXZ->hot(clX,0)){
           clXZ.at(clX).setFit();
           TVector3 spacePoint=clXZ.at(clX).posXYZ();
-          clFit_x->SetPoint(n_points, spacePoint.z(),spacePoint.x());
+          clFit_x1->SetPoint(n_points, spacePoint.z(),spacePoint.x());
           n_points++;
         }else{
           clXZ.at(clX).setFit(false);
         }
-        clTrack.push_back(clXZ.at(clX));
+        clTrack1.push_back(clXZ.at(clX));
+        if(houghXZ->hot(clX,1)){
+          clXZ.at(clX).setFit();
+          TVector3 spacePoint=clXZ.at(clX).posXYZ();
+          clFit_x2->SetPoint(n_points, spacePoint.z(),spacePoint.x());
+          n_points++;
+        }else{
+          clXZ.at(clX).setFit(false);
+        }
+        clTrack2.push_back(clXZ.at(clX));
       }
       n_points=0;
       for(unsigned int clY =0;clY<clYZ.size();++clY){
         if(houghYZ->hot(clY,0)){
           clYZ.at(clY).setFit();
+          if(clY%7==0){
+            cout << "They are coming for you!" << endl;
+            sleep(1);
+          }
           TVector3 spacePoint=clYZ.at(clY).posXYZ();
-          clFit_y->SetPoint(n_points, spacePoint.z(),spacePoint.y());
+          clFit_y1->SetPoint(n_points, spacePoint.z(),spacePoint.y());
           n_points++;
         }else{
           clYZ.at(clY).setFit(false);
         }
-        clTrack.push_back(clYZ.at(clY));
+        clTrack1.push_back(clYZ.at(clY));
+        if(houghYZ->hot(clY,1)){
+          clYZ.at(clY).setFit();
+          TVector3 spacePoint=clYZ.at(clY).posXYZ();
+          clFit_y2->SetPoint(n_points, spacePoint.z(),spacePoint.y());
+          n_points++;
+        }else{
+          clYZ.at(clY).setFit(false);
+        }
+        clTrack2.push_back(clYZ.at(clY));
       }
-      TCtrack* track = new TCtrack;
-      track->addClusters(clTrack);
+      TCtrack* track1 = new TCtrack;
+      TCtrack* track2 = new TCtrack;
+      track1->addClusters(clTrack1);
+      track2->addClusters(clTrack2);
       //cout<<"nclFit"<<track->nClFit()<<endl;
-      if(track->fit(1,2,3,4,5,6,7,8)){
+      if(track1->fit(1,2,3,4,5,6)&&track2->fit(1,2,3,4,5,6)){
         if(disp){
-          cout<<"track fit converged with chi2 "<<track->getChi2()/track->getNDF()<<endl;
+          cout<<"track fit converged with chi2 "<<track1->getChi2()/track1->getNDF()<<endl;
         }
         
-        histogramChi2->Fill(track->getChi2()/track->getNDF());
-        histogramChi2rough->Fill(track->getChi2()/track->getNDF());
-        histogramNDF->Fill(track->getNDF());
+        histogramChi2->Fill(track1->getChi2()/track1->getNDF());
+        histogramChi2rough->Fill(track1->getChi2()/track1->getNDF());
+        histogramNDF->Fill(track1->getNDF());
         n_tracks++;
-        event->addTrack(track);
-        event->addClusters(clTrack);
-        for(unsigned int cl=0;cl<track->nCl();cl++){
-          TCcluster tmpcl = track->getCl(cl);
+        event->addTrack(track1);
+        event->addClusters(clTrack1);
+
+        histogramChi2->Fill(track2->getChi2()/track2->getNDF());
+        histogramChi2rough->Fill(track2->getChi2()/track2->getNDF());
+        histogramNDF->Fill(track2->getNDF());
+        n_tracks++;
+        event->addTrack(track2);
+        event->addClusters(clTrack2);
+        
+        for(unsigned int cl=0;cl<track1->nCl();cl++){
+          TCcluster tmpcl = track1->getCl(cl);
+          double uCl=tmpcl.posUVW().x();                   
+          TVector3 resid=tmpcl.getRes();
+          if(tmpcl.getFit()){
+            switch(tmpcl.getId()){
+            case 1:
+              histogramGM1Xresi->Fill(resid.x());
+              histogramGM1XresiVu->Fill(uCl,resid.x());
+              break;
+            case 2:
+              histogramGM1Yresi->Fill(resid.x());
+              histogramGM1YresiVu->Fill(uCl,resid.x());
+              break;
+            case 3:
+              histogramSI1Xresi->Fill(resid.x());
+              histogramSI1XresiVu->Fill(uCl,resid.x());
+              break;
+            case 4:                         
+              histogramSI1Yresi->Fill(resid.x());
+              histogramSI1YresiVu->Fill(uCl,resid.x());
+              break;
+            case 5:
+              histogramSI2Xresi->Fill(resid.x());
+              histogramSI2XresiVu->Fill(uCl,resid.x());
+              break;
+            case 6:
+              histogramSI2Yresi->Fill(resid.x());
+              histogramSI2YresiVu->Fill(uCl,resid.x());
+              break;
+            case 7:
+              histogramGM2Xresi->Fill(resid.x());
+              histogramGM2XresiVu->Fill(uCl,resid.x());
+              break;
+            case 8:
+              histogramGM2Yresi->Fill(resid.x());
+              histogramGM2YresiVu->Fill(uCl,resid.x());
+              break;
+            default:
+              cout<<"unknown id "<<tmpcl.getId()<<endl;
+            }
+          }
+        }
+        for(unsigned int cl=0;cl<track2->nCl();cl++){
+          TCcluster tmpcl = track2->getCl(cl);
           double uCl=tmpcl.posUVW().x();                   
           TVector3 resid=tmpcl.getRes();
           if(tmpcl.getFit()){
@@ -425,37 +504,62 @@ int main(int argc,char **argv){
           TCanvas * c = new TCanvas("occupancy","occupancy",1,1,600,480);
           c->Divide(2,1);
           
-          clFit_x->SetMarkerColor(2);
-          clFit_y->SetMarkerColor(2);
-          clFit_x->SetMarkerSize(4);
-          clFit_y->SetMarkerSize(4);
-          clFit_x->SetMarkerStyle(2);
-          clFit_y->SetMarkerStyle(2);
-          
+          clFit_x2->SetMarkerColor(kBlue);
+          clFit_y2->SetMarkerColor(kBlue);
+          clFit_x2->SetMarkerSize(3);
+          clFit_y2->SetMarkerSize(2);
+          clFit_x2->SetMarkerStyle(2);
+          clFit_y2->SetMarkerStyle(2);    
+
+          clFit_x1->SetMarkerColor(kRed);
+          clFit_y1->SetMarkerColor(kRed);
+          clFit_x1->SetMarkerSize(3);
+          clFit_y1->SetMarkerSize(3);
+          clFit_x1->SetMarkerStyle(3);
+          clFit_y1->SetMarkerStyle(3);
+
+     
+ 
           TGraph *xTrackStartEndPoint = new TGraph;
           TGraph *yTrackStartEndPoint = new TGraph;
-          double ax=track->getAx();// ax = tx
-          double bx=track->getBx();
-          double ay=track->getAy();// ay = ty
-          double by=track->getBy();
+          double ax1=track1->getAx();// ax = tx
+          double bx1=track1->getBx();
+          double ay1=track1->getAy();// ay = ty
+          double by1=track1->getBy();
+          double ax2=track2->getAx();// ax = tx
+          double bx2=track2->getBx();
+          double ay2=track2->getAy();// ay = ty
+          double by2=track2->getBy();
           char bufFormula[50];
           
-          sprintf(bufFormula,"%f*x+%f",ax,bx);
+          sprintf(bufFormula,"%f*x+%f",ax1,bx1);
           TF1 *tf = new TF1("track1x",bufFormula,-10, 200);
           tf->SetLineWidth(1.);
           
-          sprintf(bufFormula,"%f*x+%f",ay,by);
+          sprintf(bufFormula,"%f*x+%f",ay1,by1);
           TF1 *tf2 = new TF1("track1y",bufFormula,-10, 200);
           tf2->SetLineWidth(1.);
+
+          sprintf(bufFormula,"%f*x+%f",ax2,bx2);
+          TF1 *tf3 = new TF1("track1x",bufFormula,-10, 200);
+          tf3->SetLineWidth(1.);
+          tf3->SetLineColor(kRed);
           
-          cout<<"ax "<<ax<<" bx "<<bx<<endl;
-          cout<<"ay "<<ay<<" by "<<by<<endl;
+          sprintf(bufFormula,"%f*x+%f",ay2,by2);
+          TF1 *tf4 = new TF1("track1y",bufFormula,-10, 200);
+          tf4->SetLineWidth(1.);
+          tf4->SetLineColor(kRed);          
+
+          cout<<"ax1 "<<ax1<<" bx1 "<<bx1<<endl;
+          cout<<"ay1 "<<ay1<<" by1 "<<by1<<endl;
+          cout<<"ax2 "<<ax2<<" bx2 "<<bx2<<endl;
+          cout<<"ay2 "<<ay2<<" by2 "<<by2<<endl;
           cout<<"track "<<event->nTracks()<<" event nr "<<i_ev<<endl;
           
-          xTrackStartEndPoint->SetPoint(0, -1 ,-1*ax+bx);
-          xTrackStartEndPoint->SetPoint(1, 150 ,150*ax+bx);
-          yTrackStartEndPoint->SetPoint(0, -1 ,-1*ay+by);
-          yTrackStartEndPoint->SetPoint(1, 150 ,150*ay+by);
+          xTrackStartEndPoint->SetPoint(0, -1 ,-1*ax1+bx1);
+          xTrackStartEndPoint->SetPoint(1, 150 ,150*ax1+bx1);
+          yTrackStartEndPoint->SetPoint(0, -1 ,-1*ay1+by1);
+          yTrackStartEndPoint->SetPoint(1, 150 ,150*ay1+by1);
           
           xTrackStartEndPoint->SetMarkerColor(3);
           yTrackStartEndPoint->SetMarkerColor(3);
@@ -467,19 +571,23 @@ int main(int argc,char **argv){
           TMultiGraph *xGraph= new TMultiGraph();
           TMultiGraph *yGraph= new TMultiGraph();
           xGraph->Add(xTrackStartEndPoint);
-          xGraph->Add(clFit_x);
+          xGraph->Add(clFit_x2);
+          xGraph->Add(clFit_x1);
           xGraph->Add(x_event,"*");                     
           
           yGraph->Add(yTrackStartEndPoint);
-          yGraph->Add(clFit_y);
+          yGraph->Add(clFit_y2);
+          yGraph->Add(clFit_y1);
           yGraph->Add(y_event,"*");                     
           
           (c->cd(1))->Clear();
           xGraph->Draw("AP");
           tf->Draw("LSAME");
+          tf3->Draw("LSAME");
           (c->cd(2))->Clear();
           yGraph->Draw("AP");
           tf2->Draw("LSAME");
+          tf4->Draw("LSAME");
           
           c->Update();
           c->Modified();
@@ -488,13 +596,6 @@ int main(int argc,char **argv){
           houghYZ->draw(false,1,512,600,480,event);
           gApplication->SetReturnFromRun(kTRUE);
           gSystem->Run();
-        //   delete yGraph;
-//           delete xGraph;
-//           delete tf2;
-//           delete tf;
-//           delete yTrackStartEndPoint;
-//           delete xTrackStartEndPoint;
-//           delete c;
           gROOT->Reset();
         }//end event display
       }//end if fit true
