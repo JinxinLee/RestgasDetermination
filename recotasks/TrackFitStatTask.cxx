@@ -221,13 +221,13 @@ TrackFitStatTask::Exec(Option_t* opt)
 	Track* track=(Track*)_trackArray->At(i);
 	
 	
-	Int_t size=_fitstatArray->GetEntriesFast();
-	TrackFitStat* stat=new ((*_fitstatArray)[size]) TrackFitStat();
 	
 	if(track->getTrackRep(0)->getStatusFlag()!=0){
 		std::cout<<"Trackfit not successful!"<<std::endl;
 		continue;
 	}
+	Int_t size=_fitstatArray->GetEntriesFast();
+	TrackFitStat* stat=new ((*_fitstatArray)[size]) TrackFitStat();
 	
 	//decide in which trackrep we are in
 	AbsTrackRep* trackRep = track->getTrackRep(0);
