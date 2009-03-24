@@ -23,7 +23,8 @@ class TChough2 : public TCabsHough{
   /*
     Requiering tracks to go in z-direction range of theta and R is calculated. The default cut is one bin-width.
   */
-  TChough2(const TVector3& _yp,const TVector3& _zp,double _rR=0,double _rTheta=0,int _nBinsTheta=50,int _nBinsR=50);
+  TChough2(const TVector3& _yp,const TVector3& _zp ,int _nBinsTheta,int _nBinsR,double _cutR, double _cutTheta,double _minTheta, double _maxTheta, double _minR, double _maxR)
+
   virtual bool hot(int clIndex, int maxIndex);//is cluster clIndex on line maxIndex
   virtual bool hot(int clIndex){
     return hot(clIndex,0);

@@ -16,13 +16,16 @@ using std::pair;
 using std::cout;
 using std::endl;
 using std::vector;
-TChough2::TChough2(const TVector3& _yp,const TVector3& _zp,double _rR,double _rTheta,int _nBinsTheta,int _nBinsR ) : TCabsHough(_yp,_zp){
+TChough2::TChough2(const TVector3& _yp,const TVector3& _zp,int _nBinsTheta,int _nBinsR,double _cutR, double _cutTheta,double _minTheta, double _maxTheta, double _minR, double _maxR ) : TCabsHough(_yp,_zp){
 
   nBinsR = _nBinsR;
   nBinsTheta =_nBinsTheta;
-  cutTheta=_rTheta;
-  cutR=_rR;
-
+  cutTheta=_cutTheta;
+  cutR=_cutR;
+  minR=_minR;
+  maxR=_maxR;
+  minTheta=_minTheta;
+  maxTheta=_maxTheta;
   canvas1 = NULL;
   houghHisto=NULL;
   for(int i=0;i<Max_NumberOfHits;i++) {
