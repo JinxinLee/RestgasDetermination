@@ -31,5 +31,9 @@
 ClassImp(TrackFitStat)
 
   TrackFitStat::TrackFitStat()
-    : _hasMc(false), _mccharge(0), _nPDG(0),_motherID(-100)
+    : _hasMc(false), _mccharge(0), _nPDG(0),_motherID(-100),
+      _p(0.), _pstart(0), _mom(TVector3(0.,0.,0.)), _sigp(0.)
 {}
+
+
+
