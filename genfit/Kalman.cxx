@@ -11,10 +11,6 @@
 #include "AbsTrackRep.h"
 #include "FitterExceptions.h"
   
-<<<<<<< .mine
-Kalman::Kalman():_lazy(0),_initialDirection(1),_numIt(3),_blowUpFactor(20.),_nullExtrapolation(false){;}
-=======
-
 #define COVEXC "cov_is_zero"
 
 Kalman::Kalman():_lazy(0),_initialDirection(1),_numIt(3),_blowUpFactor(20.),_nullExtrapolation(false){;}
