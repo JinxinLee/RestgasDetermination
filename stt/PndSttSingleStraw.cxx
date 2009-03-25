@@ -1275,9 +1275,13 @@ Double_t  PndSttSingleStraw::FastRec(Double_t TrueDcm, Int_t Flag) {
      else resmic=65.;
    }
  }
- 
+
  //real distance in cm
- return gRandom->Gaus(TrueDcm, resmic*0.0001);
+ Double_t rsim = gRandom->Gaus(TrueDcm, resmic*0.0001);
+ if (rsim<0.) rsim = TrueDcm - TrueDcm*gRandom->Uniform(0.,1.);
+ else if (rsim>0.5) rsim = TrueDcm + (0.5-TrueDcm)*gRandom->Uniform(0.,1.);
+
+ return rsim;
 }
 // --------------------------------------------------------------------------------   
 Double_t  PndSttSingleStraw::DiffLong(Double_t Distcm) {
