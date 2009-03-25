@@ -359,7 +359,7 @@ void PndHypStripHitProducer::Exec(Option_t* opt)
 	    detID   = point->GetVolumeID();
 	   
 	    //      for(uint i = 0; i < myStrips.size(); i++)
-	    uint iStrip = 0;
+	    UInt_t iStrip = 0;
 	    Int_t sp;SensorSide si;
 	    
 	    

@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <functional>
 #include <vector>
+#include <cmath>
 #include "TMath.h"
 
 PndHypStripClusterBuilder::PndHypStripClusterBuilder()
