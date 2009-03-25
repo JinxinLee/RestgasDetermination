@@ -131,13 +131,15 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
     //    if(pTrack->GetFlag() < 3) continue; // only prefit-fit-zfit CHECK
     // --------------------------- THE TRACK ----------------------------
     // xy
-    Int_t hh = -(Int_t) pTrack->GetParamLast()->GetQp(); // CHECK in realta' dovrebbe essere q/p e non solo q
+    Int_t hh = -(Int_t) pTrack->GetParamLast()->GetQp(); // CHECK it should be q/p and not only q
     Double_t d0 = pTrack->GetParamLast()->GetX();
     Double_t phi0 = pTrack->GetParamLast()->GetY();
     Double_t Rad =  pTrack->GetParamLast()->GetTx();
     // z    
     Double_t z0 = pTrack->GetParamLast()->GetZ();
     Double_t zslope = pTrack->GetParamLast()->GetTy();
+    // center of curvature of helix
+    TVector2 vec((d0+Rad)*cos(phi0), (d0+Rad)*sin(phi0));
     // -------------------------------------------------------------------
 
     Int_t hitcounter = pTrack->GetNofHits();
@@ -164,33 +166,29 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
       pTrack->AddHelixHit(hitcounter, k, size);
       
       //      helixhit->Print();
-     
+
+      // get point
+      // [xp, yp] point = coordinates xy of the centre of the firing tube
+      point.Set(currenthit->GetX(), currenthit->GetY());
+      radius = currenthit->GetIsochrone();
+
       TVector3 wiredirection = currenthit->GetWireDirection();
-      
+
+
       // ================= NON SKEWED =======================
       if(wiredirection == TVector3(0.,0.,1.)) 
 	{
 	  
 	  // x y plane / non skewed tubes -------------------------------------------------
 	  
-	  // centre of curvature of helix
-	  TVector2 vec((pTrack->GetParamLast()->GetX() + pTrack->GetParamLast()->GetTx()) * cos(pTrack->GetParamLast()->GetY()), (pTrack->GetParamLast()->GetX() + pTrack->GetParamLast()->GetTx()) * sin(pTrack->GetParamLast()->GetY()));
-	  
 	  //==========
 	  // POINT ----------------------------------------------------
-	  // 1. find the cooordinates of the point fired wire of the track
-	  // get point
-	 
-	  // [xp, yp] point = coordinates xy of the centre of the firing tube
-	  point.Set(currenthit->GetX(), currenthit->GetY());
-	  radius = currenthit->GetIsochrone();
-
+	  // 1. find the cooordinates of the point fired wire of the track:
 	  // the coordinates of the point are taken from the intersection
-	  // between the circumference from the drift time and the R radius of
+	  // between the circumference from the drift time and the Rad radius of
 	  // curvature. -------------------------------------------------------
-	  // 2. find the intersection between the little circle and the line // R
-	  TVector2 first;
-	  TVector2 second;
+
+	  // 2. find the intersection between the little circle and the line // Rad
 	  // 2.a
 	  // find the line passing throught [xc, yc] (centre of curvature) and [xp, yp] (first wire)
 	  // y = mx + q
@@ -217,12 +215,9 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
 	  // +
 	  Double_t x1 = (-(m*(q - point.Y()) - point.X()) + sqrt(fabs((m*(q - point.Y()) - point.X())*(m*(q - point.Y()) - point.X()) - (m*m + 1)*((q - point.Y())*(q - point.Y()) + point.X()*point.X() - radius*radius)))) / (m*m + 1);
 	  Double_t y1 = m*x1 + q;
-	  first.Set(x1, y1);
-   
 	  // - 
 	  Double_t x2 = (-(m*(q - point.Y()) - point.X()) - sqrt(fabs((m*(q - point.Y()) - point.X())*(m*(q - point.Y()) - point.X()) - (m*m + 1)*((q - point.Y())*(q - point.Y()) + point.X()*point.X() - radius*radius)))) / (m*m + 1);
 	  Double_t y2 = m*x2 + q;
-	  second.Set(x2, y2);
       
 	  // 2.c intersection between line and circle
 	  // +
@@ -289,16 +284,9 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
 	    // CHECK the reason why these are different from the previous ones!
 
 	    TVector3 *tofit, *tofit2;
-	
-	    // centre of curvature // CHECK gia' trovato!!!!!!!!!!
-	    Double_t x_0 = (pTrack->GetParamLast()->GetX() + pTrack->GetParamLast()->GetTx()) * cos(pTrack->GetParamLast()->GetY());
-	    Double_t y_0 = (pTrack->GetParamLast()->GetX() + pTrack->GetParamLast()->GetTx()) * sin(pTrack->GetParamLast()->GetY());
-	    // radius of curvature // CHECK gia' trovato!!!!!!!!!!
-	    Double_t R = pTrack->GetParamLast()->GetTx();
-	
-
+		  
 	    wiredirection *= currenthit->GetTubeHalfLength(); 
-	    TVector3 cenposition(currenthit->GetX(), currenthit->GetY(), currenthit->GetZ());  // CHECK! z = 35!!
+	    TVector3 cenposition(currenthit->GetX(), currenthit->GetY(), currenthit->GetZ());  
 	
 	    TVector3 min, max;
 	    min = cenposition - wiredirection;
@@ -314,21 +302,17 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
 	    Double_t y_2= max.Y();
 	    Double_t z_2= max.Z();
 	
-	    Double_t rcur = currenthit->GetIsochrone(); // CHECK gia' trovato!!!!!!!!!!
-
 	    Double_t x1 = -9999.;
 	    Double_t y1 = -9999.;
 	    Double_t x2 = -9999.;
 	    Double_t y2 = -9999.;
 	
 	    // from xy plane fit
-	    Double_t phi0 = pTrack->GetParamLast()->GetY();// CHECK gia' trovato!!!!!!!!!!
-	    Double_t d0 = pTrack->GetParamLast()->GetX();// CHECK gia' trovato!!!!!!!!!!
 	    Double_t x0 = d0*TMath::Cos(phi0);
 	    Double_t y0 = d0*TMath::Sin(phi0);
 	    // in xy plane: angle of the PCA to the origin
 	    // with respect to the curvature center
-	    Double_t Phi0 = TMath::ATan2((y0 - y_0),(x0 - x_0));
+ 	    Double_t Phi0 = TMath::ATan2((y0 - vec.Y()),(x0 - vec.X()));
 
 	    Double_t a = -999;
 	    Double_t b = -999;
@@ -340,8 +324,8 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
 	      a =(y_2-y_1)/(x_2-x_1);
 	      b =(y_1-a*x_1);
 	      Double_t A = a*a+1;
-	      Double_t B = x_0+a*y_0-a*b;
-	      Double_t C = x_0*x_0+y_0*y_0+b*b-R*R-2*y_0*b;
+	      Double_t B = vec.X()+a*vec.Y()-a*b;
+	      Double_t C = vec.X()*vec.X()+vec.Y()*vec.Y()+b*b-Rad*Rad-2*vec.Y()*b;
 	      if((B*B-A*C)>0) {
 		x1= (B+TMath::Sqrt(B*B-A*C))/A;
 		x2= (B-TMath::Sqrt(B*B-A*C))/A;
@@ -351,8 +335,8 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
 	    }
 	    else if(fabs(y_2-y_1)>0.0001) {
 	      Double_t A = 1;
-	      Double_t B = y_0;
-	      Double_t C = y_0*y_0 +(x_1-x_0)*(x_1-x_0) -R*R;
+	      Double_t B = vec.Y();
+	      Double_t C = vec.Y()*vec.Y() +(x_1-vec.X())*(x_1-vec.X()) -Rad*Rad;
 
 	      if((B*B-A*C)>0) {
 		y1= (B+TMath::Sqrt(B*B-A*C))/A;
@@ -389,22 +373,22 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
 	    if(x_1 == x_2)
 	      {
 		x1 = x_;
-		y1 = y_ + rcur;
+		y1 = y_ + radius;
 		x2 = x_;
-		y2 = y_ - rcur;
+		y2 = y_ - radius;
 	      }
 	    else {
 	      //solving the equation to find out the centre of the tangent circle
 	      Double_t A = a*a+1;
 	      Double_t B = -(a*b-a*y_-x_);
-	      Double_t C = x_*x_+ y_*y_+b*b-2*b*y_-rcur*rcur;
+	      Double_t C = x_*x_+ y_*y_+b*b-2*b*y_-radius*radius;
 	      if((B*B-A*C)>0) {
 		x1= (B+TMath::Sqrt(B*B-A*C))/A;
 		x2= (B-TMath::Sqrt(B*B-A*C))/A;
 		y1=a*x1+b;
 		y2=a*x2+b;
 	      }
-	      else if((B*B-A*C)==0){          // CHECK forse da scommentare
+	      else if((B*B-A*C)==0){          
 		x1= B/A;
 		x2 = x1;
 		y1=a*x1+b;
@@ -452,7 +436,7 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
 	    //	tofit2 = new TVector3(xcen1,ycen1,z_bis);
 	    tofit2 = new TVector3(x_,y_,z_bis);
 
-	     // I have 2 choices, I prefer the nearest to the line CHECK (DEVE ESSERE MESSO TUTTO A POSTO L' ASSOCIAZIONE DELLA Z!)
+	    // I have 2 choices, I prefer the nearest to the line CHECK (DEVE ESSERE MESSO TUTTO A POSTO L' ASSOCIAZIONE DELLA Z!)
 	    // calculate scosl 
 	    PndSttHelixTrackFitter fitter;
 	    Double_t scosl_ = fitter.CalculateScosl(hh, d0, phi0, Rad, x_, y_);
@@ -469,44 +453,7 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
 	    
 	    if(distance_1 < distance_2) helixhit->SetPosition(*tofit);
 	    else helixhit->SetPosition(*tofit2);
-
-
-
-
-	    // I have 2 choices, I prefer the nearest to the previous one!
-	    TVector3 *previouspos = new TVector3(currenthit->GetXint(), currenthit->GetYint(), currenthit->GetZint());
-
-	    //  	// ------- HOUGH TRANSFORM ------------
-	    // 	// FIRST CHOICE
-	    // 	if(tofit) Hough(tofit, Phi0, x0, y0, R);
-	
-	    // 	// SECOND CHOICE
-	    // 	if(tofit2) Hough(tofit2, Phi0, x0, y0, R);
-
-	    double distance = sqrt((tofit->X() - previouspos->X())*(tofit->X() - previouspos->X())
-				   + (tofit->Y() - previouspos->Y())*(tofit->Y() - previouspos->Y())
-				   + (tofit->Z() - previouspos->Z())*(tofit->Z() - previouspos->Z()));
-
-	    double distance2 = sqrt((tofit2->X() - previouspos->X())*(tofit2->X() - previouspos->X())
-				    + (tofit2->Y() - previouspos->Y())*(tofit2->Y() - previouspos->Y())
-				    + (tofit2->Z() - previouspos->Z())*(tofit2->Z() - previouspos->Z()));
-
-
-	  //   if(distance < distance2) helixhit->SetPosition(*tofit);
-// 	    else helixhit->SetPosition(*tofit2);
-
-	    //	    cout << "previous center  " << currenthit->GetX() << " " << currenthit->GetY() << " " << currenthit->GetZ() << endl; // CHECK the procedure!!
-	    // 	    cout << "helix hit " << helixhit->GetX() << " " << helixhit->GetY() << " " << helixhit->GetZ() << endl; // CHECK the procedure!!
-	    // 	    cout << "previous reco  " << previouspos->X() << " " << previouspos->Y() << " " << previouspos->Z() << endl; // CHECK the procedure!!
-	    
-	    //   hxs->Fill(iPoint->GetXtot() - helixhit->GetX());
-	    //   hys->Fill(iPoint->GetYtot() - helixhit->GetY());
-	    //   hzs->Fill(iPoint->GetZtot() - helixhit->GetZ());
-	    
-	    delete previouspos;
 	  }
-
-
 	
 	//=====================
 	// z plane / non skewed tubes -------------------------------------------------
@@ -544,16 +491,9 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
 	TGeoTube *tube = (TGeoTube*) gastube->GetShape();
 	Double_t tuberadius = tube->GetRmax();
 	Double_t distance = 2 * sqrt(tuberadius * tuberadius - radius * radius); // cm
-	    
 	Double_t coslam = TMath::Cos(TMath::ATan(zslope));
 	distance = distance / coslam;    
 	  
-	// just to check, delete it!
-	TVector3 diff3(iPoint->GetXInLocal() - iPoint->GetXOutLocal(),
-		       iPoint->GetYInLocal() - iPoint->GetYOutLocal(),
-		       iPoint->GetZInLocal() - iPoint->GetZOutLocal());
-	//	cout << "true " << diff3.Mag() << " sim " << distance << endl;
-
 	Double_t dedx = 0.;
 	if (distance != 0)  dedx = currenthit->GetDepCharge()/(1000000 * distance);  // in arbitrary units
   
@@ -595,8 +535,6 @@ void PndSttHelixHitProducer::WriteHistograms(){
 
   hzresvsslope->Write();
   delete hzresvsslope;
-
-
 }
 
 
