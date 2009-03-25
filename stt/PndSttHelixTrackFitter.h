@@ -62,6 +62,7 @@ class PndSttHelixTrackFitter : public PndSttTrackFitter
   // fit
   Int_t XYFit(PndSttTrack* pTrack, Int_t pidHypo);
   Int_t MinuitFit(PndSttTrack* pTrack, Int_t pidHypo);
+  Int_t SetUpFitVector(PndSttTrack* pTrack, TMatrixT<Double32_t> &fitvect);
 
   // z track length plane ----------
   // zfinder
