@@ -74,7 +74,8 @@ PndTpcSpaceChargeTask.cxx
 PndTpcEFieldCyl.cxx 		    
 PndTpcEFieldCylLoader.cxx 	    
 PndTpcDevmapCyl.cxx 		    
-PndTpcDevmapCylLoader.cxx	    
+PndTpcDevmapCylLoader.cxx
+PndTpcDevmapSLA.cxx	    
 PndTpcEvtMixTask.cxx 		    
 PndTpcMCEvtMixTask.cxx
 PndTpcMCTracklet.cxx
