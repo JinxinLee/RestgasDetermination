@@ -195,6 +195,11 @@ void PndGpidTaskLhe::BookingMVA()
 // Exec call of the task
 void PndGpidTaskLhe::Exec(Option_t* opt)
 {
+  if(!fArrPid){
+    std::cout << "<ERROR>: Fatal Error, PIDTask::Exec."
+	      << std::endl;
+    return;
+  }
   
   fArrPid->Delete();
   
@@ -293,7 +298,7 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
 	case LVQ1:
 	  m_lvq->Classify(m_varVec, res);
 	  // Prints debug, may be commented, FIXME DEBUG.
-	  printResult(res);
+	  //printResult(res);
 	  // ========== FIXME DEBUG ============
 	  for( std::map<std::string,float>::iterator ii=res.begin(); 
 	       ii != res.end(); ++ii){

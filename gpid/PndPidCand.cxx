@@ -31,7 +31,6 @@ PndPidCand::~PndPidCand()
 void PndPidCand::destroy()
 {
   fParam.clear();
-  //fVarName.clear(); 
 }
 
 void PndPidCand::Set(const string key, const float value)
