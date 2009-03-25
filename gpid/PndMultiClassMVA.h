@@ -81,6 +81,12 @@ class PndMultiClassMVA
   // Set the classifier properties. Note that there are different 
   // functions and options for different classifiers. For the available
   // options see the TMVA manuals.
+
+
+  //set the cuts on the parameter
+  void SetVarCut(const TCut varCut)
+  { fVarCuts = varCut; }
+
   
   // BDT Parameters
   void SetPruneStrengthBDT(const TString PruneStrength)
@@ -169,6 +175,8 @@ class PndMultiClassMVA
   TString fBoostTypeBDT;     //  boost type (Ada boost or bagging)   
   TString fNCutsBDT;         //  number of cuts to create a tree
   TString fNTreeBDT;         //  number of trees to create a forest
+ 
+  TCut fVarCuts;
   
   // KNN
   TString fNKNN;             //  number of nearest neighbours

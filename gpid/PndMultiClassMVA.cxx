@@ -249,9 +249,9 @@ void PndMultiClassMVA::TrainTestTM(MVAType mva, const std::string config)
       }
       
       // for example: TCut mycuts = "abs(var1)<0.5 && abs(var2-0.5)<1";
-      TCut mycuts = "p<100&&emc<7";
+      TCut mycuts = fVarCuts; //"p<100&&emc<7";
       // for example: TCut mycutb = "abs(var1)<0.5";
-      TCut mycutb = "p<100&&emc<7";
+      TCut mycutb = fVarCuts; //"p<100&&emc<7";
       
       TString trainConfig = "NSigTrain=" + fNSigTrain + ":NBkgTrain=" + 
 	fNBkgTrain + ":NSigTest=" + fNSigTest + ":NBkgTest=" +fNBkgTest
