@@ -4,9 +4,6 @@
 //      Implementation of PndTpcAbsField for a Map (cylindrical
 //      symmetry) of drift deviations relative to a straight
 //      line.
-//      The elements are TVector3's of the format (x,y,z).
-//      This is ok since we assume rotational symmetry and 
-//      therefore the value of time will never be altered.
 //
 // Environment:
 //      Software developed for the PANDA Detector at FAIR.
@@ -40,6 +37,8 @@ public:
 
   // Constructors/Destructors ---------
   PndTpcDevmapCyl(const char* const, double); 
+  //TODO: redesign, get vDrift from param management
+
   virtual ~PndTpcDevmapCyl();
 
   // Operators
@@ -52,13 +51,17 @@ public:
 
   // Modifiers -----------------------
 
-private:
+
+ protected:
+
+  bool _loaded;
+  
+ private:
   // Private Data Members ------------
   
   PndTpcDevmapCylLoader* loader;  //this class takes care of the file I/O
   double _vDrift;
-  bool _loaded;
-
+      
 };
 
 #endif

@@ -64,6 +64,10 @@ PndTpcDevmapCylLoader::load()
   _devmap->setSpacingR(rWidth);
   _devmap->setMinZ(zMin);
   _devmap->setSpacingZ(zWidth);
+
+  _devmap->_xBins = rSteps;
+  _devmap->_zBins = zSteps;
+  
   
   // Initialize the field-map 
   _fieldmap = new std::vector<std::vector<TVector3*>*>;  

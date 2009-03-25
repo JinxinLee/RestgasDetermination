@@ -26,6 +26,8 @@ PndTpcDevmapCyl::PndTpcDevmapCyl(const char* const fileName, double vDrift)
   :PndTpcFieldCylGrid<TVector3>(TVector3(0.,0.,0.),
 			     0.,0.,0.,0.), _loaded(false)
 {
+
+  //TODO: redesign, get vDrift from param management
   _vDrift = vDrift;
   loader = new PndTpcDevmapCylLoader(this, fileName);
   if(loader->load()==0)_loaded=true;
@@ -49,6 +51,8 @@ TVector3
 PndTpcDevmapCyl::value(const TVector3& point) const
 {
   if(!_loaded)return TVector3(0,0,0);
+  //std::cout<<"PndTpcDevmapCyl::value("<<point.X()<<","<<point.Y()<<","
+  //	   <<point.Z()<<")"<<std::endl;
   if (pointOk(point) == true)
   {
     return PndTpcFieldCylGrid<TVector3>::value(point);    

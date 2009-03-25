@@ -92,16 +92,19 @@ protected:
 
   void evalMaxPoint();     //evaluates the plane within _pGrid is defined
 
-private:
-
-  // Private Data Members ------------
+  int _xBins;
+  int _zBins;
+  
   double _minX;//min. x (and r) where pGrid is defined (rel. to the origin of the grid)
   double _minZ;//min. z  where pGrid is defined (relative to the origin of the grid)
   double _spacingX;  //the space between two grid points 
   double _spacingZ;
   double _maxX;//max. x (and r) where pGrid is defined (rel. to the origin of the grid)
   double _maxZ;//max. z  where pGrid is defined (relative to the origin of the grid)
- 
+
+private:
+
+  
 
   // Private Methods -----------------
   t evalValue(const TVector3& point) const;

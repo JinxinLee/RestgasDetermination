@@ -10,6 +10,8 @@
 #include "tpc/spacecharge/SplineTF2Interface.h"
 #include "PndTpcLaserStat.h" 
 #include "PndTpcDevmapCyl.h"
+#include "PndTpcDevmapSLA.h"
+#include "PndTpcGas.h"
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -282,7 +284,19 @@ f3->SetNpy(50);
 
 // ---------------------- init Deviation Map as refernecer -------------------------------------
 
-PndTpcDevmapCyl* devmap = new PndTpcDevmapCyl(origDevMap.c_str(), 400);
+ std::cout<<"test"<<std::endl;
+ std::cout.flush();
+
+PndTpcGas* gas = new PndTpcGas("tpc/NEON-90_CO2-10_B2_PRES1013.asc",400);
+double vDrift = gas->VDrift();
+ std::cout<<"\nVDrift from PndTpcGas: "<<vDrift<<std::endl;
+PndTpcDevmapCyl* devmap = new PndTpcDevmapCyl(origDevMap.c_str(),vDrift);
+ delete gas;
+
+PndTpcDevmapSLA* devSLA = new PndTpcDevmapSLA(origDevMap.c_str(),vDrift);
+
+ std::cout<<"test2"<<std::endl;
+ std::cout.flush();
 
 TH2D* diff = new TH2D("diff",
 		      "Abs. difference of original and reconstructed devmap",
@@ -291,42 +305,49 @@ TH2D* diff = new TH2D("diff",
 TH2D* diff_orig = new TH2D("diff_orig",
 		      "Abs. difference of UNFIT original and reconstructed devmap",
 		      lbinsz,lzmin,lzmax,lbinsr,lrmin,lrmax);
+
+TH2D* diff_SLA = new TH2D("diff_SLA",
+		      "Abs. difference of UNFIT original and SLA devmap",
+		      lbinsz,lzmin,lzmax,lbinsr,lrmin,lrmax);
+
 diff->SetStats(false); 
 diff_orig->SetStats(false);
+diff_SLA->SetStats(false);
 
-TH1D* diff_hist = new TH1D("blob", "Abs. difference in histogram", 100, -0.15, 0.15);
-TH1D* diff_hist_orig = new TH1D("blob2", "Abs. difference in histogram", 100, -0.15, 0.15);
+TH1D* diff_hist = new TH1D("blob", "Abs. difference in histogram", 150, -0.15, 0.15);
+TH1D* diff_hist_orig = new TH1D("blob2", "Abs. difference in histogram", 150, -0.15, 0.15);
+TH1D* diff_hist_SLA = new TH1D("blob3", "Abs. difference in histogram", 150, -0.15, 0.15); 
 
 
-for(int r=0; r<50; r++)
-  for(int z=0; z<50; z++) {
-  	if(z*zstep+lzmin>110 || r*rstep+lrmin> 42) continue;
-    double d = f2->Eval((z+0.5)*zstep+lzmin,(r+0.5)*rstep+lrmin)-f3->Eval((z+0.5)*zstep+lzmin,(r+0.5)*rstep+lrmin);
-    diff->SetBinContent(z+1, r+1,d);
-    diff_hist->Fill(d);
+ for(int r=0; r<50; r++)
+   for(int z=0; z<50; z++) {
+     if(z*zstep+lzmin>109.5 || r*rstep+lrmin> 41.5) continue;
+     double d = f2->Eval((z+0.5)*zstep+lzmin,(r+0.5)*rstep+lrmin)-f3->Eval((z+0.5)*zstep+lzmin,(r+0.5)*rstep+lrmin);
+     diff->SetBinContent(z+1, r+1,d);
+     diff_hist->Fill(d);
 
-    // //from ORIGINAL devmap
-//     TVector3 deviation = devmap->value(TVector3(0.,(r+0.5)*rstep+lrmin, (z+0.5)*zstep+lzmin));
-//     //deviation.Print();
-//     deviation.SetZ(0.);
-//     deviation.SetPhi(0.);
-//     deviation.Print();
+     //from ORIGINAL devmap
+     TVector3 dev_from_SLA = devSLA->value(TVector3(0.,(r+0.5)*rstep+lrmin, (z+0.5)*zstep+lzmin));
+     TVector3 deviation = devmap->value(TVector3(0.,(r+0.5)*rstep+lrmin, (z+0.5)*zstep+lzmin));
+     //dev_from_SLA.Print();
+   
+       
+     double d2 = deviation.Y() - f2->Eval((z+0.5)*zstep+lzmin,(r+0.5)*rstep+lrmin);
+     diff_orig->SetBinContent(z+1, r+1,d2);
+     diff_hist_orig->Fill(d2);
     
-//     double rad = deviation.X();
-    
-//     double d2 = rad - f3->Eval((z+0.5)*zstep+lzmin,(r+0.5)*rstep+lrmin);
-//     diff_orig->SetBinContent(z+1, r+1,d2);
-//     diff_hist_orig->Fill(d2);
+     double d3 = deviation.Y() - dev_from_SLA.Y();
+     diff_SLA->SetBinContent(z+1, r+1,d3);
+     diff_hist_SLA->Fill(d3);
 			       
-    if(fabs(d) < 0.001) {
-      std::cout<<d;
-      if(f2->Eval(z*zstep+lzmin,r*rstep+lrmin)==0 && f2->Eval(z*zstep+lzmin,r*rstep+lrmin)==0)
-	std::cout<<"   z="<<z<<",  r="<<r;
-      std::cout<<std::endl;
-    }
-  }
- 
-
+     if(fabs(d) < 0.001) {
+       std::cout<<d;
+       if(f2->Eval(z*zstep+lzmin,r*rstep+lrmin)==0 && f2->Eval(z*zstep+lzmin,r*rstep+lrmin)==0)
+	 std::cout<<"   z="<<z<<",  r="<<r;
+       std::cout<<std::endl;
+     }
+   }
+       
 std::cout<<"\n**** fit complete ****"<<std::endl;
 
 TCanvas* c1 = new TCanvas();
@@ -343,10 +364,10 @@ c1->cd(2);
 f3->Draw("SURF1");
 
 c1->cd(3);
-diff->Draw("COLZ");
+diff_SLA->Draw("COLZ");
 
 c1->cd(4);
-diff_hist->Draw();
+diff_hist_SLA->Draw();
 
 timer.Stop();
 Double_t rtime = timer.RealTime();
