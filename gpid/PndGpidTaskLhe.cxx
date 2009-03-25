@@ -276,7 +276,7 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
     if (skip != 0 ){
       std::cerr << "\t<WARNING:> Skipping Track " 
 		<< k << ".\n\tOne or more values are not valid numbers."
-		<<"\n\tThe track itself is stored but not used.\n"
+		<<"\n\tThe track itself is stored but not classified.\n"
 		<< std::endl;
       continue;
       // The track is stored but we will not classify the bad track
@@ -292,9 +292,15 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
 
 	case LVQ1:
 	  m_lvq->Classify(m_varVec, res);
-	  printResult(res);// Prints debug, may be commented.
-	  fTrack->Set(res);
+	  // Prints debug, may be commented, FIXME DEBUG.
+	  printResult(res);
+	  // ========== FIXME DEBUG ============
+	  for( std::map<std::string,float>::iterator ii=res.begin(); 
+	       ii != res.end(); ++ii){
+	    fTrack->Set((*ii).first,(*ii).second);
+	  }
 	  break;
+
 	default:
 	  std::cout << "Unknown classifier" << std::endl;
 	}

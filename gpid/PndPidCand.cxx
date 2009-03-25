@@ -31,7 +31,7 @@ PndPidCand::~PndPidCand()
 void PndPidCand::destroy()
 {
   fParam.clear();
-  fVarName.clear(); 
+  //fVarName.clear(); 
 }
 
 void PndPidCand::Set(const string key, const float value)
@@ -39,7 +39,7 @@ void PndPidCand::Set(const string key, const float value)
   fParam[key] = value;
 }
 
-double PndPidCand::Get(const string key)
+float PndPidCand::Get(const string key)
 {
   return fParam.find(key)->second;
 }
