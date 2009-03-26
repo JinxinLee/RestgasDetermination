@@ -31,16 +31,28 @@ PndPidCand::~PndPidCand()
 void PndPidCand::destroy()
 {
   fParam.clear();
+  m_clsVal.clear();
 }
 
-void PndPidCand::Set(const string key, const float value)
+
+void PndPidCand::SetVarVal(const std::string key, const float value)
 {
   fParam[key] = value;
 }
 
-float PndPidCand::Get(const string key)
+void PndPidCand::SetClsVal(const std::string key, const float value)
+{
+  m_clsVal[key] = value;
+}
+
+float PndPidCand::GetVarVal(const string key)
 {
   return fParam.find(key)->second;
+}
+
+float PndPidCand::GetClsVal(const string key)
+{
+  return m_clsVal.find(key)->second;
 }
 
 void PndPidCand::GetVarName(vector<string>& varList)
@@ -48,6 +60,14 @@ void PndPidCand::GetVarName(vector<string>& varList)
   std::map<string, float>::iterator fIter;
   for(fIter = fParam.begin(); fIter != fParam.end();fIter++){
     varList.push_back((*fIter).first); 
+  }
+}
+
+void PndPidCand::GetClsName(std::vector<std::string>& clsList)
+{
+  std::map<string, float>::iterator fIter;
+  for(fIter = m_clsVal.begin(); fIter != m_clsVal.end(); fIter++){
+    clsList.push_back((*fIter).first);
   }
 }
 ClassImp(PndPidCand);

@@ -229,7 +229,7 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
 	
 	if (m_varVec[i] <= 0) {skip = 1;}
 	
-	fTrack->Set(varName, m_varVec[i]);
+	fTrack->SetVarVal(varName, m_varVec[i]);
       }
 
       if (varName == "emc"){
@@ -237,7 +237,7 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
 	
 	if (m_varVec[i] <= 0 ){skip = 1;}
 	
-	fTrack->Set(varName,m_varVec[i]);
+	fTrack->SetVarVal(varName,m_varVec[i]);
       }
       
       if (varName == "stt"){
@@ -246,7 +246,7 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
 	
 	if ( m_varVec[i] <= 0 || isnan(m_varVec[i])){ skip = 1;}
 	
-	fTrack->Set(varName,m_varVec[i]);
+	fTrack->SetVarVal(varName,m_varVec[i]);
       }
 
       if (varName == "mvd"){
@@ -254,7 +254,7 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
 
 	if (m_varVec[i] <= 0 ){ skip = 1;}
 
-	fTrack->Set(varName,m_varVec[i]);
+	fTrack->SetVarVal(varName,m_varVec[i]);
       }
 
       if (varName == "thetaC"){
@@ -262,7 +262,7 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
 	
 	if (m_varVec[i] <= 0 ){ skip = 1;}
 
-	fTrack->Set(varName,m_varVec[i]);
+	fTrack->SetVarVal(varName,m_varVec[i]);
       }
       
       if (varName == "p"){
@@ -270,7 +270,7 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
 	
 	if (m_varVec[i] <= 0 ){ skip = 1;}
 
-	fTrack->Set(varName,m_varVec[i]);
+	fTrack->SetVarVal(varName,m_varVec[i]);
       }
       // Print Debug information
       std::cout << varName << " = " << m_varVec[i] << " ";
@@ -287,7 +287,7 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
       // The track is stored but we will not classify the bad track
     }
     // Select if we want to use TMVA or a MVA from PndTools.
-      if(fMVAmode == MulClsKNN || fMVAmode == LVQ1){
+      if(fMVAmode == MulClsKNN || fMVAmode == LVQ1 || fMVAmode == LVQ21){
 	std::map<std::string,float> res;
 
 	switch(fMVAmode){
@@ -296,13 +296,14 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
 	  break;
 
 	case LVQ1:
+	case LVQ21:
 	  m_lvq->Classify(m_varVec, res);
 	  // Prints debug, may be commented, FIXME DEBUG.
 	  //printResult(res);
 	  // ========== FIXME DEBUG ============
 	  for( std::map<std::string,float>::iterator ii=res.begin(); 
 	       ii != res.end(); ++ii){
-	    fTrack->Set((*ii).first,(*ii).second);
+	    fTrack->SetClsVal((*ii).first,(*ii).second);
 	  }
 	  break;
 
@@ -338,7 +339,7 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
 	    break;
 	  }
 	  
-	  fTrack->Set(className,mvaValue);
+	  fTrack->SetClsVal(className,mvaValue);
 	  std::cout << "======== DEBUG INFO =======" << std::endl;
 	  cout << "Likelihood for the class "
 	       << className << " is :"<< mvaValue << endl << std::endl;

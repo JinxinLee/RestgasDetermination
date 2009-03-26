@@ -86,7 +86,7 @@ PndLVQTrain::PndLVQTrain(const char* InPut,
    * needs to change these for better learning result.
   */
   m_initConst = 0.8; m_ethaZero = 0.1; 
-  m_ethaFinal = 0.001; m_NumSweep = 500;
+  m_ethaFinal = 0.0001; m_NumSweep = 500;
 }// End of constructor
 
 /**
@@ -247,10 +247,11 @@ void PndLVQTrain::Train(int numProto, const char* outPut)
   double a         = (ethaZero - ethaFinal)/(ethaFinal * (double)tFinal);
 
   // Print some information.
-  std::cout << "<INFO>: Performing LVQ1 learning with parameters: "
+  std::cout << "<INFO>: Performing LVQ1 learning with parameters:\n"
 	    <<"ethaZero = " << ethaZero << ", ethaFinal = " << ethaFinal
-	    <<", numSweep = " << tFinal <<", learn coeff. = " << a
-	    << std::endl;
+	    <<", numSweep = " << numSweep << ", tFinal= " << tFinal 
+	    <<", learn coeff. = " << a << "\nPrototypes will be stored in "
+	    << outPut << std::endl;
 
   // Start the training
   for(int time = 0; time < tFinal; time++){
@@ -336,11 +337,13 @@ void PndLVQTrain::Train21(int numProto, const char* outPut)
   double a         = (ethaZero - ethaFinal)/(ethaFinal * (double)tFinal);
 
   // Print some information.
-  std::cout << "<INFO>: Performing LVQ2.1 learning with parameters: "
+  std::cout << "<INFO>: Performing LVQ2.1 learning with parameters:\n"
 	    <<"ethaZero = " << ethaZero << ", ethaFinal = " << ethaFinal
-	    <<", numSweep = " << tFinal <<", learn coeff. = " << a
-	    << ", Window = " << windowSize <<", surroun. = "<< s <<std::endl;
-
+	    <<", numSweep = " << numSweep << ", tFinal= "<< tFinal 
+	    <<", learn coeff. = " << a << ", Window = " << windowSize 
+	    <<", surroun. = "<< s << "\nPrototypes will be stored in "
+	    << outPut <<std::endl;
+  
   //Start learning  
   for(int time = 0; time < tFinal; time++){
     double distance         = 0.0;

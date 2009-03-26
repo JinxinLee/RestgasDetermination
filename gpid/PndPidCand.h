@@ -42,16 +42,20 @@ public:
   PndPidCand();
   ~PndPidCand();
 
-  void Set(const std::string key, const float value);
+  void SetVarVal(const std::string key, const float value);
+  void SetClsVal(const std::string key, const float value);
 
-  float Get(const std::string key);
+  float GetVarVal(const std::string key);
+  float GetClsVal(const std::string key);
+
   void GetVarName(std::vector<std::string>& varList);
+  void GetClsName(std::vector<std::string>& clsList);
   
  private:
-
   void destroy();
   Param fParam;
-
+  Param m_clsVal;
+  
   ClassDef(PndPidCand,1);
 };
 #endif
