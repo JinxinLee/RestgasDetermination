@@ -1,9 +1,13 @@
 ==============================================================
 In this directory one can find the implementation and interface
 definitions of a number of MVA algorithms.
+
+1. KNN
+2. LVQ1
+3. LVQ2.1
 ===============================================================
 
---. A very simple and straight forward implementation of KNN is
+1. A very simple and straight forward implementation of KNN is
 provided in the following files. Currently no optimization schemes are
 applied. Thus the algorithme scales by the number of events in the
 training event example set (O n^2). The result contains PDE for each

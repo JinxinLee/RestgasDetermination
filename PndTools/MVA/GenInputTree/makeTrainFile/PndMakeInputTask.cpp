@@ -7,8 +7,14 @@ PndMakeInputTask::PndMakeInputTask(std::string treeName)
 {
   // Init a container to hold the variables.
   p = tof = emc = stt = mvd = thetaC = 0.0;
+
+  std::string title = "title";
+  title += treeName;
+
   const char* name = treeName.c_str();
-  dataTree = new TTree(name,"TreeTitle");
+  const char* ti   = title.c_str();
+
+  dataTree = new TTree(name,ti);
   
   // Define the tree branches
   dataTree->Branch("p"     , &p      ,"p/F");
@@ -16,7 +22,7 @@ PndMakeInputTask::PndMakeInputTask(std::string treeName)
   dataTree->Branch("emc"   , &emc    ,"emc/F");
   dataTree->Branch("stt"   , &stt    ,"stt/F");
   dataTree->Branch("mvd"   , &mvd    ,"mvd/F");
-  dataTree->Branch("thetac", &thetaC ,"thetac/F");
+  dataTree->Branch("thetaC", &thetaC ,"thetaC/F");
 }
 
 // Default destructor
@@ -71,27 +77,27 @@ void PndMakeInputTask::Exec(Option_t* opt)
     std::cout << "<INFO:> Track number is "<< k << std::endl;
     
     // TOF 
-    tof = pid->GetTof();
+    tof = (float) pid->GetTof();
     if (tof <= 0) {skip = 1;}
     
     // EMC
-    emc  = pid->GetEmcELoss()/pid->GetP();
+    emc  = (float) (pid->GetEmcELoss()/pid->GetP());
     if (emc <= 0 ){skip = 1;}
     
     // STT      
-    stt = pid->GetSttDEDX();
+    stt = (float) pid->GetSttDEDX();
     if ( stt <= 0 || isnan(stt)){ skip = 1;}
     
     // MVD
-    mvd = pid->GetMvdDEDX();
+    mvd = (float) pid->GetMvdDEDX();
     if (mvd <= 0 ){ skip = 1;}
     
     //ThetaC
-    thetaC = pid->GetDrcThetaC();
+    thetaC = (float) pid->GetDrcThetaC();
     if (thetaC <= 0 ){ skip = 1;}
     
     // P
-    p = pid->GetMomentum().Mag();
+    p = (float) pid->GetMomentum().Mag();
     if (p <= 0 ){ skip = 1;}
     
     // Check if something is wrong, skip the track

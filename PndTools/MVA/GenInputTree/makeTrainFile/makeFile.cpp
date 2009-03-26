@@ -4,11 +4,11 @@ void makeFile(const int NumEvt = 0, const char* inPutFile = "Reco.root",
 	      const char* simInFile = "SimFile.root",
 	      const char* parInput = "Param.root", 
 	      const char* OutPutFile = "PidOut.root",
-	      const std::string TreeName ="EenTree"
+	      const std::string TreeName ="Een tree"
 	      )
 {
   std::cout << "Start to generate file " << std::endl;
-
+  
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0;
   
@@ -53,6 +53,7 @@ void makeFile(const int NumEvt = 0, const char* inPutFile = "Reco.root",
   
   // Create the PID task
   PndMakeInputTask* pid = new PndMakeInputTask(TreeName);
+  //pid->SetTreeName(TreeName);
 
   // =========================  FIXME
   fRun->AddTask(pid);

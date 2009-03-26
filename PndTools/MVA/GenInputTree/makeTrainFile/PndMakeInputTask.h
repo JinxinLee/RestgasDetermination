@@ -6,9 +6,7 @@
 #include <iostream>
 #include <vector>
 
-//ROOT and PandaRoot includes
-#include "TTree.h"
-
+// PandaRoot includes
 #include "FairTask.h"
 #include "FairRootManager.h"
 #include "PndLhePidTrack.h"
@@ -16,20 +14,24 @@
 #include "PndPidCand.h"
 //#include "PndMvdMCPoint.h"
 
+// ROOT includes
+#include "TTree.h"
+
 class TClonesArray;
 
 class PndMakeInputTask : public FairTask
 {
  public:
-
+  
   /*
    * Default constructor 
-  */
+   */
   PndMakeInputTask();
   PndMakeInputTask(std::string treeName);
+  
   /*
    * Destructor 
-  */
+   */
   virtual ~PndMakeInputTask();
   
   /*
@@ -43,6 +45,7 @@ class PndMakeInputTask : public FairTask
   virtual void Exec(Option_t* opt);
   
   void SetTreeName(const std::string& name){treeName = name;};
+  
   
   // PRIVATE FUNCTIONS AND VARS
  private:

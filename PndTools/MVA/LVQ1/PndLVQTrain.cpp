@@ -241,11 +241,18 @@ void PndLVQTrain::Train(int numProto, const char* outPut)
   // All protypes are initialized. We can perform the training
   // Compute learning rate constant "a"
   double ethaZero  = m_ethaZero;//0.1;
-  double ethaFinal = m_ethaFinal;//0.001;
-  int    numSweep  = m_NumSweep;//100;
+  double ethaFinal = m_ethaFinal;//0.0001;
+  int    numSweep  = m_NumSweep;//1000;
   int    tFinal    = numSweep * ( m_EventsData.size() );
   double a         = (ethaZero - ethaFinal)/(ethaFinal * (double)tFinal);
-  
+
+  // Print some information.
+  std::cout << "<INFO>: Performing LVQ1 learning with parameters: "
+	    <<"ethaZero = " << ethaZero << ", ethaFinal = " << ethaFinal
+	    <<", numSweep = " << tFinal <<", learn coeff. = " << a
+	    << std::endl;
+
+  // Start the training
   for(int time = 0; time < tFinal; time++){
     int    protoIndex       = 0;
     double distance         = 0.0;
@@ -309,7 +316,8 @@ void PndLVQTrain::Train21(int numProto, const char* outPut)
   if(!outPut){
 	std::cerr << "You need to specify the output file." << std::endl;
 	return;
-  } 
+  }
+
   // Initialize distance container.
   for(unsigned int i = 0; i < m_LVQProtos.size(); i++){
     PndLVQDistObj* dd = new PndLVQDistObj();
@@ -326,7 +334,14 @@ void PndLVQTrain::Train21(int numProto, const char* outPut)
   int    numSweep  = m_NumSweep;//100;
   int    tFinal    = numSweep * ( m_EventsData.size() );
   double a         = (ethaZero - ethaFinal)/(ethaFinal * (double)tFinal);
-  
+
+  // Print some information.
+  std::cout << "<INFO>: Performing LVQ2.1 learning with parameters: "
+	    <<"ethaZero = " << ethaZero << ", ethaFinal = " << ethaFinal
+	    <<", numSweep = " << tFinal <<", learn coeff. = " << a
+	    << ", Window = " << windowSize <<", surroun. = "<< s <<std::endl;
+
+  //Start learning  
   for(int time = 0; time < tFinal; time++){
     double distance         = 0.0;
     double ethaT = (ethaZero) / (1.0 + (a * (double)time));

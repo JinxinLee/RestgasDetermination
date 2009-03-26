@@ -1,5 +1,5 @@
-void run_sim_alldet(const int nEvents = 20, const char* part="pi-",
-		    const float p1 = 0.6, const float p2 = 1.0,
+void run_sim_alldet(const int nEvents = 20, const char* part="e-",
+		    const float p1 = 0.8, const float p2 = 1.0,
 		    const char* SimOut = "SimOut.root",
 		    const char* paramOut = "ParamOut.root"
 		    )
