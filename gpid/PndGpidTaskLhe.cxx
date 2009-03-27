@@ -78,7 +78,14 @@ void PndGpidTaskLhe::Config()
   string sbuff,sfName,small_buff,vName;
   char buff[512];
   sfName = fAPPNAME + ".dat";
+  
   inFile.open(sfName.c_str(),ios::in);
+  
+  if (!inFile.is_open()){
+    std::cout << "\n\n\t<ERROR>: Could not open file "
+	      << sfName <<"\n\n"<< std::endl;
+    exit(0);
+  }
   
   // Set the number of variables
   inFile.getline(buff,512);

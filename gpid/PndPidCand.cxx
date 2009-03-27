@@ -45,18 +45,19 @@ void PndPidCand::SetClsVal(const std::string key, const float value)
   m_clsVal[key] = value;
 }
 
-float PndPidCand::GetVarVal(const string key)
+float PndPidCand::GetVarVal(const std::string key)
 {
   return fParam.find(key)->second;
 }
 
-float PndPidCand::GetClsVal(const string key)
+float PndPidCand::GetClsVal(const std::string key)
 {
   return m_clsVal.find(key)->second;
 }
 
-void PndPidCand::GetVarName(vector<string>& varList)
+void PndPidCand::GetVarName(std::vector<std::string>& varList)
 {
+  varList.clear();
   std::map<string, float>::iterator fIter;
   for(fIter = fParam.begin(); fIter != fParam.end();fIter++){
     varList.push_back((*fIter).first); 
@@ -65,6 +66,7 @@ void PndPidCand::GetVarName(vector<string>& varList)
 
 void PndPidCand::GetClsName(std::vector<std::string>& clsList)
 {
+  clsList.clear();
   std::map<string, float>::iterator fIter;
   for(fIter = m_clsVal.begin(); fIter != m_clsVal.end(); fIter++){
     clsList.push_back((*fIter).first);

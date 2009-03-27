@@ -7,6 +7,7 @@
 // C++
 #include <iostream>
 #include <map>
+#include "vector"
 
 // Root
 #include "TFile.h"
@@ -25,11 +26,11 @@ void printVect (std::vector<std::string>& vect)
   }
   std::cout << std::endl;
 }
-// Main method to analyse the data file produced by GPID task.
-void AnalysPidResults(const char* inPutFile)
+//FIXME FIXME We need to have TFile
+void collectCandidates(const char* inPutFile, std::vector <PndPidCand*>& con)
 {
   TFile pidFile (inPutFile,"READ");
-
+    
   TTree *tr = (TTree*) pidFile.Get("cbmsim");
   TClonesArray* arr = new TClonesArray("PndPidCand");
   
@@ -38,22 +39,51 @@ void AnalysPidResults(const char* inPutFile)
   for (Int_t i = 0; i< tr->GetEntriesFast(); i++){
     std::cout << "\n<INFO>: Candidate number " << i << std::endl;
     tr->GetEntry(i);
-
+    
     std::cout << "length of Arr is " << arr->GetEntriesFast() << std::endl;
- 
+    // Get the candidates.
     for (Int_t j = 0; j < arr->GetEntriesFast(); j++){
       PndPidCand* cand = (PndPidCand*) arr->At(j);
-
-      std::vector<std::string> List;
-      cand->GetVarName(List);
-      printVect(List);
-    
-      for(unsigned int id = 0; id < List.size(); id++){
-	std::string na = List[id];
-	std::cout << na << " = " << cand->Get(na) << std::endl;
-      }
+      con.push_back(cand);
     }
   }
-  pidFile.Close();
+  // Finished clean-up
+  //pidFile.Close();
   delete arr;
+  //std::cout << con.size() << std::endl;
+}
+
+void classifyCand(PndPidCand* cand)
+{
+  if(!cand){
+    std::cout << "Empty candidate object" << std::endl;
+    return;
+  }
+  std::vector <std::string> clsNames;
+  cand->GetClsName(clsNames);
+  
+  for(unsigned int i = 0; i < clsNames.size(); i++){
+    std::string cls = clsNames[i];
+    float val = cand->GetClsVal(cls);
+    std::cout << cls << " " << val << std::endl;
+  }
+  std::cout << "Call " << clsNames.size() << std::endl;
+}
+
+// Main method to analyse the data file produced by GPID task.
+void AnalysPidResults(const char* inPutFile)
+{
+  // Container to store candidates.
+  std::vector <PndPidCand*> candList;
+  collectCandidates(inPutFile, candList);
+
+  for(unsigned int i = 0; i < candList.size(); i++){
+    classifyCand(candList[i]);
+  }
+  // Finished clean-up
+  std::cout <<"\n\n Number of processed tracks = " 
+	    << candList.size() << std::endl;
+  candList.clear();
+  
+  // exit(0);
 }

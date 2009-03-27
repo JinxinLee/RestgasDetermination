@@ -6,10 +6,6 @@
  * Modified:
  * M.Babai
  */
-
-/*
- * 
- */
 void run_pid_reco(const int NumEvt = 0, const char* inPutFile = "RecoOut.root",
 		  const char* simInFile = "SimOut.root",
 		  const char* parInput = "ParamOut.root", 

@@ -25,6 +25,7 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include <algorithm>
 
 //ROOT and PandaRoot includes
 #include "TMVA/Reader.h"
