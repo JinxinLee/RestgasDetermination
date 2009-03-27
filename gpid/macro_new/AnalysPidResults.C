@@ -27,6 +27,7 @@ void printVect (std::vector<std::string>& vect)
   }
   std::cout << std::endl;
 }
+
 // Prints the result vector to the standard output.
 void printMap(std::map<std::string, int>& res){
   std::cout << "\n===== Output For debugging ========== \n"
@@ -37,6 +38,7 @@ void printMap(std::map<std::string, int>& res){
   }
   std::cout << "===== Output For debugging ====== \n";
 }
+
 // Classifys a given candidate, :LVQ classifier
 // The Winner takes all.
 const std::string* classifyLVQCand(PndPidCand* cand)
@@ -49,15 +51,13 @@ const std::string* classifyLVQCand(PndPidCand* cand)
   // Fetch the possible class names
   std::vector <std::string> clsNames;
   cand->GetClsName(clsNames);
-
+  
   float minVal = std::numeric_limits<float>::max();
   std::string Cls;
   
   for(unsigned int i = 0; i < clsNames.size(); i++){
     std::string CurCls = clsNames[i];
     float val = cand->GetClsVal(CurCls);
-    
-    //std::cout << CurCls << " = " << val << std::endl;
     
     if(val < minVal){
       minVal = val;
@@ -70,43 +70,28 @@ const std::string* classifyLVQCand(PndPidCand* cand)
 // Main method to analyse the data file produced by GPID task.
 void AnalysPidResults(const char* inPutFile)
 {
-  // Container to store candidates.
-  std::vector <PndPidCand*> candList;
-  std::vector <std::string> Classes;
+  //Container to hold the counts
   std::map <std::string, int> counts;
-
+  
   // Open File
   TFile pidFile (inPutFile,"READ");
   
-  // Set tree addresses
+  // Set tree branch addres and bound
   TTree *tr = (TTree*) pidFile.Get("cbmsim");
   TClonesArray* arr = new TClonesArray("PndPidCand");
   tr->SetBranchAddress("PndPidCand",&arr);
-
-  //Fetch the class names.
-  if(tr->GetEntriesFast() > 0){
-    tr->GetEntry(0);
-    if( arr->GetEntriesFast() > 0 ){
-      ((PndPidCand*) arr->At(0))->GetClsName(Classes);
-    }
-  }
-  
-  for(unsigned int i = 0; i < Classes.size(); i++){
-    std::string b = Classes[i];
-    counts[b] = 0;
-  }
   
   std::string ClsCurEvt = "";
-
+  
   //Loop through Candidates and collect them
   for (Int_t i = 0; i< tr->GetEntriesFast(); i++){
-    std::cout << "\n<INFO>: Candidate number " << i << std::endl;
+    std::cout << "\n<INFO>: Candidate no: " << i << std::endl;
     tr->GetEntry(i);
     
-    // Collect the candidates.
+    // Loop through Candidates.
     for (Int_t j = 0; j < arr->GetEntriesFast(); j++){
       PndPidCand* cand = (PndPidCand*) arr->At(j);
-      candList.push_back(cand);
+      // Classify current candidate
       ClsCurEvt = *(classifyLVQCand(cand));
       
       if(ClsCurEvt == ""){// The track is !Okay
@@ -117,17 +102,15 @@ void AnalysPidResults(const char* inPutFile)
       }
     }
   }
-  //printVect(Classes);
+  // DEBUG
   printMap(counts);
   // Finished clean-up
   std::cout <<"\n\n Number of processed tracks = " 
-	    << candList.size() << std::endl;
-
-  Classes.clear();
-  candList.clear();
+	    << tr->GetEntriesFast() << std::endl;
+  
   counts.clear();
   arr->Delete();
   delete arr;
   pidFile.Close();
-  //exit(0);
+  exit(0);
 }
