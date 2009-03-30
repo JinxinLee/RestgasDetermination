@@ -248,7 +248,8 @@ void PndLVQTrain::Train(int numProto, const char* outPut)
 
   // Print some information.
   std::cout << "<INFO>: Performing LVQ1 learning with parameters:\n"
-	    <<"ethaZero = " << ethaZero << ", ethaFinal = " << ethaFinal
+	    <<"Init constant = " << m_initConst <<", ethaZero = " 
+	    << ethaZero << ", ethaFinal = " << ethaFinal
 	    <<", numSweep = " << numSweep << ", tFinal= " << tFinal 
 	    <<", learn coeff. = " << a << "\nPrototypes will be stored in "
 	    << outPut << std::endl;
@@ -338,7 +339,8 @@ void PndLVQTrain::Train21(int numProto, const char* outPut)
 
   // Print some information.
   std::cout << "<INFO>: Performing LVQ2.1 learning with parameters:\n"
-	    <<"ethaZero = " << ethaZero << ", ethaFinal = " << ethaFinal
+	    <<"Init constant = " << m_initConst << ", ethaZero =" 
+	    << ethaZero << ", ethaFinal = " << ethaFinal
 	    <<", numSweep = " << numSweep << ", tFinal= "<< tFinal 
 	    <<", learn coeff. = " << a << ", Window = " << windowSize 
 	    <<", surroun. = "<< s << "\nPrototypes will be stored in "
@@ -428,8 +430,8 @@ void PndLVQTrain::UpdateProto( std::vector<float> &EvtData, std::vector<float> &
  * Computes the Euclidean distance between two given vectors of
  * event features.
  */
-float PndLVQTrain::ComputeDist(std::vector<float> &EvtData, 
-			       std::vector<float> &Ex)
+float PndLVQTrain::ComputeDist(const std::vector<float> &EvtData, 
+			       const std::vector<float> &Ex)
 {
   float dist = 0.0;
   

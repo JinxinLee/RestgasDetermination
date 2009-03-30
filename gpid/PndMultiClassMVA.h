@@ -84,18 +84,17 @@ class PndMultiClassMVA
 
 
   //set the cuts on the parameter
-  void SetVarCut(const TCut varCut)
-  { fVarCuts = varCut; }
+  void SetVarCut(const TCut varCut){ fVarCuts = varCut; }
 
   
-  // BDT Parameters
+  //========= BDT Parameters
   void SetPruneStrengthBDT(const TString PruneStrength)
   { fPruneStrengthBDT = PruneStrength; }
   void SetNTreeBDT(const TString nTree) { fNTreeBDT = nTree; }
   void SetBoostTypeBDT(const TString boostType) {fBoostTypeBDT = boostType; }
   void SetNCutsBDT(const TString nCuts) { fNCutsBDT = nCuts; }
   
-  // KNN Parameters
+  //========= KNN Parameters
   //Set number of neighbors
   void SetNKNN(const TString kNN) { fNKNN = kNN; }
   
@@ -116,7 +115,7 @@ class PndMultiClassMVA
     mKnnSelOpt = sel;
   };
 
-  //MLP Parameters
+  //========== MLP Parameters
   //Sets the type of the neuron of the MLP.
   void SetMLPNeuronType(const TString NtMLP){
     mlpNeuTyp = NtMLP;
@@ -137,6 +136,14 @@ class PndMultiClassMVA
     out << TestR;
     mlpTestRate = out.str();
   };
+
+  //========= LVQ parameters
+  void SetLearnPrameters(const double initConst, const double etZ,
+                         const double etF, const int Nswp)
+  {
+    m_initConst = initConst; m_ethaZero = etZ; 
+    m_ethaFinal = etF; m_NumSweep = Nswp; };
+
   // #################### End of classifier parameters ######### 
   //data accessers
   Int_t GetNCLASS() {return fClassNameArray.size(); }
@@ -179,26 +186,33 @@ class PndMultiClassMVA
   TCut fVarCuts;
   
   // KNN
-  TString fNKNN;             //  number of nearest neighbours
-  TString mKnnDepth;
-  TString mKnnscalefrac;
-  TString mKnnSelOpt;
+  TString fNKNN;     //  number of nearest neighbours
+  TString mKnnDepth; // Tree depth
+  TString mKnnscalefrac;// Scale fraction
+  TString mKnnSelOpt; // KNN options
 
   // MLP
-  TString mlpNeuTyp; //MLP neuron type
-  TString mlpCycle;  //MLP number of cycles
-  TString mlpNumHidden; //MLP number of hidden layers
-  TString mlpTestRate; //MLP Test rate
+  TString mlpNeuTyp; // MLP neuron type
+  TString mlpCycle;  // MLP number of cycles
+  TString mlpNumHidden; // MLP number of hidden layers
+  TString mlpTestRate; // MLP Test rate
   
   // Clasifier config params
-  TString fINFILENAME;  //  input file containing trees of all the signals
-  TString fAPPNAME;     //  name of the application 
-  TString fConfigFileName;   //  name of the configuration file
+  TString fINFILENAME;  // Input file containing trees of all the signals
+  TString fAPPNAME;     // Name of the application 
+  TString fConfigFileName;   // Name of the configuration file
 
   TString m_OutFileName;  // Output file for writing proto type coordinates
-  int m_numLVQProto;
-
-  vector <string> fVarNameArray;      // array of Variable names 
-  vector <string> fClassNameArray;    // array of class names
+  int m_numLVQProto;  // Number of prototypes to use
+  /*
+   * Learn parameters: Init constant, start learning rate, End
+   * learning rate.
+   */
+  double m_initConst, m_ethaZero, m_ethaFinal;
+  // Number of sweeps through example set.
+  int m_NumSweep;
+  
+  vector <string> fVarNameArray; // array of Variable names 
+  vector <string> fClassNameArray;// array of class names
 };
 #endif

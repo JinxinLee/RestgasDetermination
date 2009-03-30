@@ -102,8 +102,8 @@ class PndLVQTrain{
    * Computes the Euclidean distance between two given vectors of
    * event features.
    */
-  float ComputeDist(std::vector<float> &EvtData, 
-		    std::vector<float> &Example);
+  float ComputeDist(const std::vector<float> &EvtData, 
+		    const std::vector<float> &Example);
 
   /**
    * Updates the LVQ prototypes.
