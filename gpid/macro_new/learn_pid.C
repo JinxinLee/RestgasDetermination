@@ -82,11 +82,13 @@ void learn_pid()
   TString OutFile = "LVQ1TestOut.root";
   bdt_train.SetNumLvqProto(30);
   bdt_train.SetOutFileName(OutFile);
-  bdt_train.TrainClassifier(bla);
+  bdt_train.SetLearnPrameters(0.2,0.1,0.00001,1000);
+  //bdt_train.TrainClassifier(bla);
 
   bla = LVQ21;//LVQ2.1
   TString OutFile1 = "LVQ2TestOut.root";
   bdt_train.SetNumLvqProto(30);
   bdt_train.SetOutFileName(OutFile1);
-  //bdt_train.TrainClassifier(bla);
+  bdt_train.SetLearnPrameters(0.5, 0.1, 0.00001, 1000);
+  bdt_train.TrainClassifier(bla);
 }
