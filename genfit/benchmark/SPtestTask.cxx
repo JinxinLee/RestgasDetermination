@@ -47,11 +47,17 @@ SPtestTask::SPtestTask() :
 // -----   Destructor   ----------------------------------------------------
 SPtestTask::~SPtestTask() { }
 // -------------------------------------------------------------------------
-
-
+#include"signal.h"
+#include"stdlib.h"
+void myhandler(int sig){
+  std::cerr << "myhandler for sig " << sig << std::endl;
+  abort();
+}
 // -----   Public method Init   --------------------------------------------
 InitStatus SPtestTask::Init() {
-
+  signal(8,myhandler);
+  signal(10,myhandler);
+  signal(11,myhandler);
   // Get RootManager
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
