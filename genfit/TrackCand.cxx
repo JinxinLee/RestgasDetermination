@@ -4,7 +4,7 @@
 
 ClassImp(TrackCand)
 
-TrackCand::TrackCand():_curv(0),_dip(0),_inv(false){}
+TrackCand::TrackCand():_curv(0),_dip(0),_inv(false), _dDip(0.), _dCurv(0.){}
 
 TrackCand::~TrackCand(){}
 
