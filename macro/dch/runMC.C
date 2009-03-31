@@ -68,7 +68,7 @@
   FairBoxGenerator* boxGen = new FairBoxGenerator(13, 1); // 13=muon; 2212=proton 1 = multipl.
   boxGen->SetPRange(1.,1.); // GeV/c //setPRange vs setPtRange
   boxGen->SetPhiRange(0,360); // Azimuth angle range [degree]
-  boxGen->SetThetaRange(2, 8); // Polar angle in lab system range [degree]
+  boxGen->SetThetaRange(3, 3); // Polar angle in lab system range [degree]
   boxGen->SetXYZ(0.,0.,0.);
   primGen->AddGenerator(boxGen);
 
@@ -118,7 +118,7 @@
 
   // Transport nEvents
   // -----------------
-  Int_t nEvents = 500;
+  Int_t nEvents = 100;
   fRun->Run(nEvents);
    
   timer.Stop();

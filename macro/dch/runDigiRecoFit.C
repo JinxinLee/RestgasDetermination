@@ -36,7 +36,6 @@
   gSystem->Load("libtrackrep");
   gSystem->Load("libtpc");
   gSystem->Load("libtpcreco");
-  gSystem->Load("librecotasks");
   gSystem->Load("libDch");
 
   // -----   Timer 
@@ -86,31 +85,30 @@
   // ------------------------------------------------- 
     PndDchPreFitterTR* dchPreFitter = new PndDchPreFitterTR();
   dchPreFitter->SetVerbose(0);
-  fRun->AddTask(dchPreFitter);
+  //fRun->AddTask(dchPreFitter);
   // ------------------------------------------------- 
   PndDchPreFitterTRQATask* dchPreFitterQA = new PndDchPreFitterTRQATask();
   dchPreFitterQA->SetVerbose(0);
-  fRun->AddTask(dchPreFitterQA);
+  //fRun->AddTask(dchPreFitterQA);
   // ------------------------------------------------- 
   PndDchPrepareKalmanTracks2 *prepareKalmanTracks = new PndDchPrepareKalmanTracks2();
   prepareKalmanTracks->SetVerbose(0);
   prepareKalmanTracks->UseGeane(kTRUE);
-  prepareKalmanTracks->UseMC(kFALSE);
+  prepareKalmanTracks->UseMC(kTRUE);
   prepareKalmanTracks->SetPDG(13);
   prepareKalmanTracks->SetPersistence();
   fRun->AddTask(prepareKalmanTracks);
   // ------------------------------------------------- 
   PndDchKalmanTask2* dchKalman = new PndDchKalmanTask2();
-  dchKalman->SetVerbose(0);
+  dchKalman->SetVerbose(5);
   dchKalman->SetNumIterations(3);
-  dchKalman->SetSmooth(kFALSE);
   fRun->AddTask(dchKalman);
   // ------------------------------------------------- 
   PndDchKalmanQATask* dchKalmanQA = new PndDchKalmanQATask();
   dchKalmanQA->SetVerbose(0);
   dchKalmanQA->SetApproach(1);
   dchKalmanQA->ApplySignPatch(kFALSE);
-  fRun->AddTask(dchKalmanQA);
+  //  fRun->AddTask(dchKalmanQA);
   // ------------------------------------------------- 
 
   // -----   Intialise and run 
@@ -119,8 +117,8 @@
   Geane->SetField(fRun->GetField());
   fRun->Run(0,nEvents);
 
-  dchPreFitterQA->PlotHistograms();
-  dchKalmanQA->PlotHistograms();
+  //dchPreFitterQA->PlotHistograms();
+  //dchKalmanQA->PlotHistograms();
   
 // -----   Finish
   timer.Stop();
