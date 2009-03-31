@@ -70,6 +70,7 @@ public:
   double getDipError() {return _dDip;}
   bool inverted() const {return _inv;}
   std::vector<unsigned int> GetHitIDs(int detId=-1);
+  std::vector<unsigned int> GetDetIDs() const {return _detId;}
 
   // Modifiers -----------------------
   void addHit(unsigned int detId, unsigned int hitId);
