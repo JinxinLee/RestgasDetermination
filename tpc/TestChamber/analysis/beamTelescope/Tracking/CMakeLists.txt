@@ -10,7 +10,7 @@ INCLUDE_DIRECTORIES($ENV{ROOTSYS}/include $ENV{ROOTSYS}/include/Math/ /afs/e18/p
 LINK_DIRECTORIES(../../../)
 
  
-SET(SOURCES tracking.cpp helpers.cpp ../../../src/TChough2.cxx)
+SET(SOURCES tracking.cxx helpers.cpp ../../../src/TChough2.cxx)
 
 
 EXEC_PROGRAM(
