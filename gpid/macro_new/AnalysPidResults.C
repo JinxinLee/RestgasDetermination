@@ -14,6 +14,7 @@
 #include "TFile.h"
 #include "TClonesArray.h"
 #include "TTree.h"
+#include "TStopwatch.h"
 
 // Panda
 #include "PndPidCand.h"
@@ -82,6 +83,9 @@ void AnalysPidResults(const char* inPutFile)
   tr->SetBranchAddress("PndPidCand",&arr);
   
   std::string ClsCurEvt = "";
+  // =====================
+  TStopwatch timer;
+  timer.Start();
   
   //Loop through Candidates and collect them
   for (Int_t i = 0; i< tr->GetEntriesFast(); i++){
@@ -108,6 +112,16 @@ void AnalysPidResults(const char* inPutFile)
   std::cout <<"\n\n Number of processed tracks = " 
 	    << tr->GetEntriesFast() << std::endl;
   
+  // -----   Finish   -----------------------
+  timer.Stop();
+  Double_t rtime = timer.RealTime();
+  Double_t ctime = timer.CpuTime();
+  cout << endl << endl;
+  cout << "Macro finished succesfully." << endl;
+  cout << "Real time " << rtime << " s, CPU time " 
+       << ctime << " s" << endl;
+  cout << endl;
+  // --------------------------------------
   counts.clear();
   arr->Delete();
   delete arr;

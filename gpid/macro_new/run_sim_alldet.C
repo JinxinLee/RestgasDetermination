@@ -1,4 +1,4 @@
-void run_sim_alldet(const int nEvents = 20, const char* part="e-",
+void run_sim_alldet(const int nEvents = 100, const char* part="e-",
 		    const float p1 = 0.8, const float p2 = 1.0,
 		    const char* SimOut = "SimOut.root",
 		    const char* paramOut = "ParamOut.root"
@@ -92,9 +92,10 @@ void run_sim_alldet(const int nEvents = 20, const char* part="e-",
 
   // 13 = muon; 1 = multipl.
   FairBoxGenerator* boxGen = new FairBoxGenerator(pid, 1);
+  
   if (p2 < 0) p2 = p1;
   
-  boxGen->SetPRange(p1,p2);// GeV/c
+  boxGen->SetPRange(p1, p2);// GeV/c
   boxGen->SetPhiRange(0., 360.);// Azimuth angle range [degree]
   boxGen->SetThetaRange(50., 140.);// Polar angle in lab system range [degree]
   boxGen->SetXYZ(0., 0., 0.);// mm o cm ??
@@ -107,6 +108,7 @@ void run_sim_alldet(const int nEvents = 20, const char* part="e-",
   PndTransMap *map= new PndTransMap("TransMap", "R");
   PndDipoleMap *map1= new PndDipoleMap("DipoleMap", "R");
   PndSolenoidMap *map2= new PndSolenoidMap("SolenoidMap", "R");
+
   fField->AddField(map);
   fField->AddField(map1);
   fField->AddField(map2);
@@ -119,12 +121,14 @@ void run_sim_alldet(const int nEvents = 20, const char* part="e-",
   Bool_t kParameterMerged=kTRUE;
      
   PndMultiFieldPar* Par = (PndMultiFieldPar*) rtdb->getContainer("PndMultiFieldPar");
-  if (fField) {  Par->SetParameters(fField); }
+  if (fField){  
+    Par->SetParameters(fField);
+  }
   Par->setInputVersion(fRun->GetRunId(),1);
   Par->setChanged();
 
   FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
-  //output->open("params_sttcombi.root");
+
   output->open(paramOut);
   rtdb->setOutput(output);
   rtdb->saveOutput();

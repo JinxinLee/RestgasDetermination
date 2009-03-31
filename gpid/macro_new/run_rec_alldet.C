@@ -7,25 +7,18 @@ void run_rec_alldet(int nEvents = 0, const char* inSimFile = "SimOut.root",
   Int_t iVerbose = 0;
 
   // Input file (MC events)
-  //TString inFile = "el_sttcombi.root";
   TString inFile = inSimFile;
  
   // Parameter file
-  //TString parFile = "params_sttcombi.root";
   TString parFile = parInFile;
   
   // Output file
-  //TString outFile = "el_reco.root";
   TString outFile =  outPutFile;
 
   // ----  Load libraries   -------------------------------------------------
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
   TString sysFile = gSystem->Getenv("VMCWORKDIR");
-  // ------------------------------------------------------------------------
-
-  // ---  Now choose concrete engines for the different tasks   -------------
-  // ------------------------------------------------------------------------
 
   // In general, the following parts need not be touched
   // ========================================================================
@@ -154,8 +147,10 @@ void run_rec_alldet(int nEvents = 0, const char* inSimFile = "SimOut.root",
   PndTpcLheHitsMaker* trackMS = new PndTpcLheHitsMaker("Tracking routine");
   // 0 OFF, 1 SttPoint, 2 SttHit, (3) SttHelixHit // SttPoint smearing [cm], if negative no smearing
   trackMS->SetSttMode(3);
+
   // 0 OFF, 1 MVDPoint, 2 MVDHit     // MVDPoint smearing [cm], if negative no smearing
   trackMS->SetMvdMode(2);
+
   fRun->AddTask(trackMS);
   
   PndTpcLheTrackFinder* trackFinder    = new PndTpcLheTrackFinder();

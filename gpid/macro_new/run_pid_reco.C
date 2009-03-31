@@ -16,35 +16,30 @@ void run_pid_reco(const int NumEvt = 0, const char* inPutFile = "RecoOut.root",
   Int_t iVerbose = 0;
   
   // Input file (MC events)
-  //TString inFile = "el_reco.root";
   TString inFile = inPutFile;
   
   // Parameter file
-  //TString parFile = "params_sttcombi.root";
   TString parFile = parInput;
 
   // Output file
-  //TString outFile = "pid_OutPut.root";
   TString outFile = OutPutFile;
 
   // ----  Load libraries   --------------------------------------------
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
   TString sysFile = gSystem->Getenv("VMCWORKDIR");
-  // -------------------------------------------------------------------
+
   // -----   Timer   ---------------------------------------------------
   TStopwatch timer;
   timer.Start();
-  // -------------------------------------------------------------------
   
-  //PndEmcMapper *emcMap=PndEmcMapper::Instance(2,".root");
+  // -------------------------------------------------------------------
   PndEmcMapper *emcMap=PndEmcMapper::Instance(2, simInFile);
   
   // -----   Digitization run   ----------------------------------------
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
-  
   
   TString allDigiFile = sysFile+"/macro/params/all.par";
   
@@ -67,13 +62,14 @@ void run_pid_reco(const int NumEvt = 0, const char* inPutFile = "RecoOut.root",
   pid->SetDIR("./weights/");
   
   /*
-   * Select which MVA to use for classification and set the parameters.
+   * Select which MVA to use for classification and set the
+   * parameters.  
    * Possible MVA's are:
    * TMKNN, TMBDT, TMMLP, MulClsKNN, LVQ1
    */
   MVAType bla = LVQ1;
-  pid->SetInFileName("LVQ1TestOut.root");
-  //pid->SetInFileName("LVQ2TestOut.root");
+  //pid->SetInFileName("LVQ1TestOut.root");
+  pid->SetInFileName("LVQ2TestOut.root");
   pid->SetMVA(bla);
   
   fRun->AddTask(pid);
@@ -84,7 +80,6 @@ void run_pid_reco(const int NumEvt = 0, const char* inPutFile = "RecoOut.root",
   rtdb->saveOutput();
   //rtdb->print();
   
-  // ----------------------------------------------------------------
   // -----   Finish   -----------------------------------------------
   timer.Stop();
   Double_t rtime = timer.RealTime();
