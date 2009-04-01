@@ -265,6 +265,9 @@
   
   // Translations and Rotations for Boxes are according to the local 
   // co-ordinate system, which is in the center of the Subunit
+  // The angle = 0.465518 (e.g. rotBox.RotateX(0.465518);) for tilted crystal
+  // corresponds to the difference between the front size of the crystal, 
+  // here 24.375mm x 24.375mm, with respect to the back side: 26mm x 26 mm.
   for(Int_t b=0; b<kNumOfBoxes; b++){
     cout << "     " << endl;
     cout << "----------------> BOX number: " << b <<endl;

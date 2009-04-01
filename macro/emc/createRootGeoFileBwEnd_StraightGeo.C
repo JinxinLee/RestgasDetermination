@@ -266,33 +266,35 @@
   BoxVol4 = new TGeoVolumeAssembly(name4);
 
   // Translations and Rotations for Boxes are according to the local 
-  // co-ordinate system, which is in the center of the Subunit
+  // co-ordinate system, which is in the center of the Subunit.
+  // For the straight geometry, both, front & back sides are 26mm x 26 mm, 
+  // so, the angle = 0. (e.g. rotBox.RotateX(0.);)
   for(Int_t b=0; b<kNumOfBoxes; b++){
     cout << "     " << endl;
     cout << "----------------> BOX number: " << b <<endl;
     if (b==0) {      
       trBox = new TGeoTranslation(tr+kSpaceInSub+kAlveoleThickness+0.5*kSpaceInBox,tr+kSpaceInSub+kAlveoleThickness+0.5*kSpaceInBox, 0.);
       rotBox = new TGeoRotation();    
-      rotBox.RotateX(0.465518);  // rotation in "up" direction 
-      rotBox.RotateY(-0.465518); // rotation in "right" direction 
+      rotBox.RotateX(0.);  // rotation in "up" direction 
+      rotBox.RotateY(0.); // rotation in "right" direction 
     }
     if (b==1) {
       trBox = new TGeoTranslation(-tr-kSpaceInSub-kAlveoleThickness-0.5*kSpaceInBox,-tr-kSpaceInSub-kAlveoleThickness-0.5*kSpaceInBox, 0.);
       rotBox = new TGeoRotation(); 
-      rotBox.RotateX(-0.465518); // rotation in "down" direction
-      rotBox.RotateY(0.465518);  // rotation in "left" direction
+      rotBox.RotateX(0.); // rotation in "down" direction
+      rotBox.RotateY(0.);  // rotation in "left" direction
     }
     if (b==2) {
       trBox = new TGeoTranslation(tr+kSpaceInSub+kAlveoleThickness+0.5*kSpaceInBox,-tr-kSpaceInSub-kAlveoleThickness-0.5*kSpaceInBox, 0.);
       rotBox = new TGeoRotation();
-      rotBox.RotateX(-0.465518); // rotation in "down" direction
-      rotBox.RotateY(-0.465518); // rotation in "right" direction
+      rotBox.RotateX(0.); // rotation in "down" direction
+      rotBox.RotateY(0.); // rotation in "right" direction
     }
     if (b==3) {
       trBox = new TGeoTranslation(-tr-kSpaceInSub-kAlveoleThickness-0.5*kSpaceInBox,tr+kSpaceInSub+kAlveoleThickness+0.5*kSpaceInBox, 0.);
       rotBox = new TGeoRotation();
-      rotBox.RotateX(0.465518); // rotation in "up" direction  
-      rotBox.RotateY(0.465518); // rotation in "left" direction  
+      rotBox.RotateX(0.); // rotation in "up" direction  
+      rotBox.RotateY(0.); // rotation in "left" direction  
     }
     TGeoCombiTrans* trrotBox= new TGeoCombiTrans(trBox,rotBox); 
 
