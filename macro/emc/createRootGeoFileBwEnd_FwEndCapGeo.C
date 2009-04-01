@@ -157,8 +157,6 @@
   TGeoManager* gGeoMan = (TGeoManager*)gROOT->FindObject("FAIRGeom");
 
   //construct the overall box
-  //Double_t sizeOfQuar = 96.192;  // size of one Quarter (the same in X and Y direction)
-                                 // size of one Subunit (back side): 10.688*9 = 96.192 (cm)
   Double_t sizeOfQuar = 42.752;  // size of one Quarter (the same in X and Y direction)
                                   // size of one Subunit (back side): 10.688*4 = 96.192 (cm)
 
@@ -199,9 +197,9 @@
   TGeoVolume* BoxVol3;
   TGeoVolume* CrystalVol;     
 
-  TString name,name1,name2,name3,name4,name5,name6,name7,name8, name9;
+  TString name,name1,name2,name3,name4,name5,name6,name7,name8,name9;
 
-  // ========== QUARTER (55 subunits) ===================
+  // ========== QUARTER (13 subunits) ===================
   cout<< "-----------------------------------------------> Quarter VOLUME " <<endl;
   name = "QuarterShape";
   QuarterShape = new TGeoArb8(name,dz,vertQuar); 
@@ -427,7 +425,7 @@
   }
   
   Double_t ShiftToZeroSub= kSpaceInSub + kAlveoleThickness;
-  Double_t kSubShift=10.363;       // size of 1 Subunit (cm) in its half Z-distance
+  Double_t kSubShift=10.363;       // size of 1 Subunit (cm) in its half Z-distance of crystals
   Double_t FrontFaceToOffPoint=295;// Off_point -> front_face_of_crystals distance (cm) -like for the FwEndCap
 
   Int_t jj=0;
@@ -437,13 +435,13 @@
       Int_t flag=1;
       
       // *** 3 Subunits are fully disables 
-      //if (row==0  && col==0) flag=0; // middle subunit
-      if (row==0  && col==0) flag=10; // middle subunit, added 26.02.09
+      //if (row==0  && col==0) flag=0; // middle subunit      
       if (row==3  && col==3) flag=0; // the most external corner's subunit
       if (row==3  && col==2) flag=0; // here: row==column => 4th col, 3rd Subunit
       if (row==2  && col==3) flag=0; // here: row==column => 3th col, 4th Subunit 
 
       // *** Subunits with disabled crystals
+      if (row==0  && col==0) flag=10; // middle subunit, added 26.02.09
       if (row==0  && col==3) flag=-1; // here: row==column => 1st col, 4th Subunit (top)
       if (row==1  && col==3) flag=-2; // here: row==column => 2st col, 4th Subunit (top)
       if (row==2  && col==2) flag=-3; // here: row==column => 3st col, 3rd Subunit
@@ -551,20 +549,20 @@
       reflection.ReflectX(1);
       ttt = new TGeoTranslation(-0.5*sizeOfQuar,-0.5*sizeOfQuar,0.);
     }
-    if (q==2){
-      reflection.ReflectY(1); // third copy: +X -Y
-      reflection.ReflectX(1); // left-lower Quarter
+    if (q==2){                // third copy: +X -Y
+      reflection.ReflectY(1); // left-lower Quarter
+      reflection.ReflectX(1); 
       reflection.ReflectX(1);
       ttt = new TGeoTranslation(0.5*sizeOfQuar,-0.5*sizeOfQuar,0.);
     }
-    if (q==3){
-      reflection.ReflectX(1); // fourth copy: +X +Y      
-      reflection.ReflectX(1); // left-upper Quarter
+    if (q==3){                // fourth copy: +X +Y
+      reflection.ReflectX(1); // left-upper Quarter      
+      reflection.ReflectX(1); 
       ttt = new TGeoTranslation(0.5*sizeOfQuar,0.5*sizeOfQuar,0.);
     }
 
-      top->AddNode(QuarterVol,q+1,new TGeoCombiTrans(ttt,reflection)); 
-   }
+    top->AddNode(QuarterVol,q+1,new TGeoCombiTrans(ttt,reflection)); 
+  }
   
   gGeoMan->CloseGeometry();
   top->Write();
