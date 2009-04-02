@@ -22,12 +22,13 @@ Track::~Track() {
     for(int i=0;i<getNumReps();i++) {
       delete trackReps->At(i);
     }
+    delete trackReps;
   }
   for(unsigned int i=0;i<hits.size();i++) {
     delete hits[i];
   }
   for(unsigned int i=0;i<failedHits.size();++i){
-	if(failedHits.at(i)!=NULL) delete failedHits.at(i);
+    if(failedHits.at(i)!=NULL) delete failedHits.at(i);
   }
 }
 
