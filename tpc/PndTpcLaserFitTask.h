@@ -71,10 +71,12 @@ private:
                                 // set true if z component should be ignored.
 
  //fitting parameters
- double _maxDist;
+ double _maxDist;               // max allowed distance at the ENDPLATE (z=109.5)
  double _openingAngle;          // not implemented
  double _rMin;
  double _rMax;
+ double _zMin;
+ double _zMax;
  double _PI;
 
  PndTpcLaserTask* _lasertask;
