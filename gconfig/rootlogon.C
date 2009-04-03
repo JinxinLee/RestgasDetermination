@@ -33,4 +33,6 @@ rootlogon()
 	gSystem->Load("libDch");
         gSystem->Load("libLHETrack");
 	gSystem->Load("libGeane");
+	gSystem->Load("libRpc");
+	gSystem->Load("libLumi");
 }
