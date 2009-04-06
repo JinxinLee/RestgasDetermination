@@ -41,15 +41,7 @@
   //  fRun->AddTask(poca);
   SPtestTask *SPT = new SPtestTask();
 
-  SPT->_nEv=50000;
-  SPT->_mom=1.;
-  double theta=28.;
-  SPT->_th=TMath::Pi()*(theta/180.);
-  SPT->_res=0.025;
-  char buf[200];
-  sprintf(buf,"%.2fGeV_%.3fcmRes_%.2fdeg_%dev.root",SPT->_mom,SPT->_res,theta,SPT->_nEv);
-  std::string fileName(buf);
-  SPT->setFileName(fileName);
+  SPT->setFileName("out.root");
   fRun->AddTask(SPT);
 
   // -----  Parameter database   --------------------------------------------

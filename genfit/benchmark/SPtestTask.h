@@ -6,6 +6,7 @@
 #include "TVector3.h"
 #include "FairGeanePro.h"
 
+#include "TROOT.h"
 #include "TGraph.h"
 #include "TPolyLine3D.h"
 #include "TPolyMarker3D.h"
@@ -41,8 +42,14 @@ class SPtestTask : public FairTask
   std::string fileName;
   TTree* tree;
 
+  TVector3 *loadPos;
+  TVector3 *loadPosC;
+  TVector3 *loadMom;
+  TVector3 *loadMomC;
 
- double momRe;
+  TTree *intree;
+
+  double momRe;
   double momTr;
   double momSi;
   double momPu;
@@ -68,6 +75,7 @@ class SPtestTask : public FairTask
   double phiSt;
   double chi2;
 
+  
 
 
 	/** Input array of Points **/

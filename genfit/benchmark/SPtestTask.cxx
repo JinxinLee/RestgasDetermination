@@ -14,7 +14,7 @@
 #include "TTree.h"
 #include "TDatabasePDG.h"
 #include "FairTrackParH.h"
-
+#include"TRandom3.h"
 #include "DetPlane.h"
 #include "GeaneTrackRep.h"
 #include "PndTpcPoint.h"
@@ -31,6 +31,11 @@ using namespace std;
 // -----   Default constructor   -------------------------------------------
 SPtestTask::SPtestTask() :
   FairTask("Test") { 
+  loadPos=0;
+  loadPosC=0;
+  loadMom=0;
+  loadMomC=0;
+
   _nEv=500;
   _th=TMath::Pi()/4.;
   _posSig=0.1;
@@ -50,6 +55,13 @@ SPtestTask::~SPtestTask() { }
 
 // -----   Public method Init   --------------------------------------------
 InitStatus SPtestTask::Init() {
+  TFile::Open("events.root");
+  intree = (TTree*)gROOT->FindObject("ev");
+  intree->SetBranchAddress("pos",&loadPos);
+  intree->SetBranchAddress("posC",&loadPosC);
+  intree->SetBranchAddress("mom",&loadMom);
+  intree->SetBranchAddress("momC",&loadMomC);
+
   // Get RootManager
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
@@ -82,7 +94,9 @@ void SPtestTask::Exec(Option_t* opt) {
   TFile *file = TFile::Open(fileName.c_str(),"RECREATE");
 
   // 	cout << "SPtestTask::Exec" << endl;
-  gRandom->SetSeed(0);  
+  TRandom3 *myRand = new TRandom3();
+  myRand->SetSeed(12);  
+  gRandom->SetSeed(12);
 
   Int_t PDGCode= -13;//mu+ tested
     
@@ -112,50 +126,37 @@ void SPtestTask::Exec(Option_t* opt) {
   tree->Branch("thSt",&thSt,"thSt/D");
   tree->Branch("phiTr",&phiTr,"phiTr/D");
   tree->Branch("phiSt",&phiSt,"phiSt/D");
-  tree->Branch("chi2",&chi2,"chi2/D");
+
+
+  _nEv = intree->GetEntries();
 
   for(int counter=0;counter<_nEv;++counter){
 
     std::cerr << "@@@@@@@@@@@@@@@@ Doing event #" << counter << std::endl;
     std::cout << "@@@@@@@@@@@@@@@@ Doing event #" << counter << std::endl;
-
-	TVector3 StartPos    = TVector3 (0.01,20.,10.);
-	TVector3 StartPosChanged    = StartPos;
-	StartPosChanged.SetX(gRandom->Gaus(StartPosChanged.X(),_posSig));
-	StartPosChanged.SetY(gRandom->Gaus(StartPosChanged.Y(),_posSig));
-	StartPosChanged.SetZ(gRandom->Gaus(StartPosChanged.Z(),_posSig));
-	TVector3 StartPosErr = TVector3(1.,1.,1.);
-	TVector3 StartMom    = TVector3 (1.,0.,1.);
-	double phi = gRandom->Uniform()*2.*TMath::Pi();
-	StartMom.SetTheta(_th);
-	StartMom.SetPhi(phi);
-
-
-	TVector3 StartMomChanged    = StartMom;
-	double rand1 = (gRandom->Uniform()-0.5)/TMath::Pi()*2.*_thSm;
-	double rand2 = (gRandom->Uniform()-0.5)/TMath::Pi()*2.*_phiSm;
-	StartMomChanged.SetTheta(StartMomChanged.Theta()+rand1);
-	StartMomChanged.SetPhi(StartMomChanged.Phi()+rand2);
-
-	thTr=StartMom.Theta();
-	phiTr=StartMom.Phi();
-	thSt=StartMomChanged.Theta();
-	phiSt=StartMomChanged.Phi();
-	
-
-	double u1 =   gRandom->Uniform();
-	double u2 =   gRandom->Uniform();
-	StartMom.SetMag(_mom);
-	StartMomChanged.SetMag(StartMom.Mag()+(u2-0.5)*2.*_mom*_momSm);
-	TVector3 StartMomErr = TVector3(0.5,0.5,0.5);
-
-	std::cout << "counter" << counter << " " << StartMomChanged.Mag() << std::endl;	
-	
-	TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
+    
+    TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
 	TParticlePDG *fParticle= fdbPDG->GetParticle(PDGCode);
 	Double_t  fCharge= fParticle->Charge();
 	
+	intree->GetEntry(counter);
 
+	TVector3 StartPos=*loadPos;
+	TVector3 StartPosChanged=*loadPosC;
+	TVector3 StartMom=*loadMom;
+	TVector3 StartMomChanged=*loadMomC;
+	std::cerr << StartPos.X() << " " << StartPos.Y() << " " << StartPos.Z() << " " << std::endl;
+	std::cerr << StartPosChanged.X() << " " << StartPosChanged.Y() << " " << StartPosChanged.Z() << " " << std::endl;
+	std::cerr << StartMom.X() << " " << StartMom.Y() << " " << StartMom.Z() << " " << std::endl;
+	std::cerr << StartMomChanged.X() << " " << StartMomChanged.Y() << " " << StartMomChanged.Z() << " " << std::endl;
+	std::cerr << StartMom.Mag() << std::endl;
+	std::cerr << StartMomChanged.Mag() << std::endl;
+	std::cerr << StartMom.Theta()/TMath::Pi()*180. << std::endl;
+	std::cerr << StartMomChanged.Theta()/TMath::Pi()*180. << std::endl;
+	std::cerr << StartMom.Phi()/TMath::Pi()*180. << std::endl;
+	std::cerr << StartMomChanged.Phi()/TMath::Pi()*180. << std::endl;
+	TVector3 StartPosErr = TVector3(1.,1.,1.);
+	TVector3 StartMomErr = TVector3(0.5,0.5,0.5);
 
 	DetPlane start_pl(StartPos,StartMom);
 	DetPlane start_plChanged(StartPosChanged,StartMomChanged);

@@ -37,7 +37,8 @@ void gen(myEvent_t& e){
   e.mom->SetTheta(28./180.*TMath::Pi());
   e.mom->SetPhi(myrand.Uniform(0.,2.*TMath::Pi()));
   *(e.momC)=*(e.mom);
-  e.momC->SetMag( e.momC->Mag() + myrand.Uniform( -1.*e.momC->Mag(), e.momC->Mag() ) );
+
+  e.momC->SetMag( e.momC->Mag() + myrand.Uniform( -0.1*e.momC->Mag(), 0.1*e.momC->Mag() ) );
   e.momC->SetTheta(e.momC->Theta() + myrand.Uniform(-2./180.*TMath::Pi(),2./180.*TMath::Pi()));
   e.momC->SetPhi(e.momC->Phi() + myrand.Uniform(-2./180.*TMath::Pi(),2./180.*TMath::Pi()));
   
@@ -49,7 +50,7 @@ void gen(myEvent_t& e){
 }
 
 int main(int agrc,char** argv){
-  myrand.SetSeed(12);
+  myrand.SetSeed(0);
   TFile* file = TFile::Open("events.root","RECREATE");
   TTree *tree = new TTree("ev","echter dreggn");
     
@@ -60,7 +61,7 @@ int main(int agrc,char** argv){
   tree->Branch("mom","TVector3",&(E.mom),32000,99);
   tree->Branch("momC","TVector3",&(E.momC),32000,99);
 
-  for(int i=0;i<10000;++i){
+  for(int i=0;i<100000;++i){
     gen(E);
     //E.print();
     tree->Fill();
