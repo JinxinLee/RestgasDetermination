@@ -65,9 +65,7 @@ public:
   }
   unsigned int getNHits() const {return _detId.size();}
   double getCurv() const {return _curv;}
-  double getCurvError() const{return 0.;}
   double getDip() const {return _dip;}
-  double getDipError() {return 0.;}
   bool inverted() const {return _inv;}
   std::vector<unsigned int> GetHitIDs(int detId=-1);
   std::vector<unsigned int> GetDetIDs() const {return _detId;}
@@ -75,9 +73,7 @@ public:
   // Modifiers -----------------------
   void addHit(unsigned int detId, unsigned int hitId);
   void setCurv(double c){_curv=c;}
-  void setCurvError(double c){}
   void setDip(double d){_dip=d;}
-  void setDipError(double d){}
   void setInverted(bool f=true) {_inv=f;}
   /** @brief Test if hit already is part of this track candidate
    */
