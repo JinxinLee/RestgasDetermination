@@ -41,7 +41,7 @@
   //  fRun->AddTask(poca);
   SPtestTask *SPT = new SPtestTask();
 
-  SPT->_nEv=10000;
+  SPT->_nEv=50000;
   SPT->_mom=1.;
   double theta=28.;
   SPT->_th=TMath::Pi()*(theta/180.);

@@ -47,17 +47,9 @@ SPtestTask::SPtestTask() :
 // -----   Destructor   ----------------------------------------------------
 SPtestTask::~SPtestTask() { }
 // -------------------------------------------------------------------------
-#include"signal.h"
-#include"stdlib.h"
-void myhandler(int sig){
-  std::cerr << "myhandler for sig " << sig << std::endl;
-  abort();
-}
+
 // -----   Public method Init   --------------------------------------------
 InitStatus SPtestTask::Init() {
-  signal(8,myhandler);
-  signal(10,myhandler);
-  signal(11,myhandler);
   // Get RootManager
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
@@ -125,8 +117,9 @@ void SPtestTask::Exec(Option_t* opt) {
   for(int counter=0;counter<_nEv;++counter){
 
     std::cerr << "@@@@@@@@@@@@@@@@ Doing event #" << counter << std::endl;
+    std::cout << "@@@@@@@@@@@@@@@@ Doing event #" << counter << std::endl;
 
-	TVector3 StartPos    = TVector3 (0.1,20.,1.);
+	TVector3 StartPos    = TVector3 (0.01,20.,10.);
 	TVector3 StartPosChanged    = StartPos;
 	StartPosChanged.SetX(gRandom->Gaus(StartPosChanged.X(),_posSig));
 	StartPosChanged.SetY(gRandom->Gaus(StartPosChanged.Y(),_posSig));
@@ -212,9 +205,9 @@ void SPtestTask::Exec(Option_t* opt) {
 		pos = rephits->getPos();
 		mom = rephits->getMom();
 	  }
-	  rephits->getReferencePlane().Print();
-	  pos.Print();
-	  mom.Print();
+	  //	  rephits->getReferencePlane().Print();
+	  //pos.Print();
+	  //mom.Print();
 	  mom.SetMag(1.5);
 	  DetPlane d(pos+mom,mom);
 	  //d.Print();
@@ -233,7 +226,7 @@ void SPtestTask::Exec(Option_t* opt) {
 	  rephits->setState(statePred);
 	  rephits->setCov(covPred);
 	  rephits->setReferencePlane(d);
-	  statePred.Print();
+	  //statePred.Print();
 	  
 	  points.push_back(posR);
 	  //std::cout << "############" << std::endl;
@@ -245,7 +238,7 @@ void SPtestTask::Exec(Option_t* opt) {
 	
 	DetPlane targetPlane = lastPlane;
 	targetPlane.setO(targetPlane.getO()+targetPlane.getNormal());
-	lastPlane.Print();
+	//lastPlane.Print();
 
 	std::cout << std::endl << std::endl << std::endl<<"targetPlane" << std::endl;
 	targetPlane.Print();
@@ -286,9 +279,8 @@ void SPtestTask::Exec(Option_t* opt) {
 	result->getReferencePlane().Print();
 	if(result->getStatusFlag()!=0) {
 	  std::cerr << "counter result->getStatusFlag()!=0)" << std::endl;
-	  delete rep;
 	  delete rephits;
-
+	  delete tr;
 	  continue;
 	}
 	printf("hitsmom %10.10f\n",StartMom.Mag());
@@ -373,8 +365,9 @@ void SPtestTask::Exec(Option_t* opt) {
 
 	std::cerr << "%%%%%%%%%%%%% " << tr->getNumHits() << " " << tr->getFailedHits(3) << std::endl;
 
-	delete rep;
+
 	delete rephits;
+	delete tr;
   }
 
   tree->Write();
