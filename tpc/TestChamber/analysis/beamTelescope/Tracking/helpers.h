@@ -25,5 +25,4 @@ void ampRatioCut(const std::list<CsGEMCluster*> &clusterList, std::vector<TCclus
 void clusterFiller(TCcluster cl, std::vector<TCcluster>& clusters, TH1D* hitPointHist,TH1D* uHist, TH1D* errHist, TGraph* graph, int& counter, bool x);
 
 
-
 #endif

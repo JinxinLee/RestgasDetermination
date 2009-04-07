@@ -398,59 +398,15 @@ int main(int argc,char **argv){
            for(unsigned int k=0;k<clSI2X.size();++k){
               for(unsigned int l=0;l<clSI1Y.size();++l){
                 for(unsigned int m=0;m<clSI2Y.size();++m){
-                  /*
-                    //taking gm2 into account better without
-                    if(endClusters.size()>0){
-                     
-                    for(unsigned int n=0;n<endClusters.size()/2;n++){
-                    int id1X =2*i;
-                    int id1Y =2*i+1;
-                    int id2X =2*n;
-                       int id2Y =2*n+1;
-                       TCtrack track;
-                       vector<TCcluster> trackCl;
-                       //                     cout<<"startX"<<endl;
-                       trackCl.push_back(startClusters.at(id1X));
-                       //cout<<"si1X"<<endl;
-                       trackCl.push_back(clSI1X.at(j));
-                       //                     cout<<"si2X"<<endl;
-                       trackCl.push_back(clSI2X.at(k));
-                       //                   cout<<"endX"<<endl;
-                       trackCl.push_back(endClusters.at(id2X));
-                       //                   cout<<"startY"<<endl;
-                       trackCl.push_back(startClusters.at(id1Y));
-                       //                     cout<<"si1Y"<<endl;
-                       trackCl.push_back(clSI1Y.at(l));
-                       //                     cout<<"si2Y "<<endl;
-                       trackCl.push_back(clSI2Y.at(m));
-                       //                     cout<<"endY"<<endl;
-                       trackCl.push_back(endClusters.at(id2Y));
-                       n_tracks++;
-                       track.addClusters(trackCl);
-                       track.fit(1,2,3,4,5,6);
-                       if(track.getChi2()/track.getNDF()<chiStore){
-                         store=track;
-                         chiStore=track.getChi2()/track.getNDF();
-                       }
-                     }//end endClusters l 2n and 2n+1
-                   }else{
-                  */
-
                   int id1X =2*i;
                   int id1Y =2*i+1;
                   TCtrack* track=new TCtrack();
                   vector<TCcluster> trackCl;
-                  //                     cout<<"startX"<<endl;
                   trackCl.push_back(startClusters.at(id1X));
-                  //cout<<"si1X"<<endl;
                   trackCl.push_back(clSI1X.at(j));
-                  //                     cout<<"si2X"<<endl;
                   trackCl.push_back(clSI2X.at(k));
-                  //                   cout<<"startY"<<endl;
                   trackCl.push_back(startClusters.at(id1Y));
-                     //                     cout<<"si1Y"<<endl;
                   trackCl.push_back(clSI1Y.at(l));
-                  //                     cout<<"si2Y "<<endl;
                   trackCl.push_back(clSI2Y.at(m));
                   n_tracks++;
                   track->addClusters(trackCl);
@@ -459,14 +415,12 @@ int main(int argc,char **argv){
                     store=track;
                     chiStore=track->getChi2()/track->getNDF();
                   } 
-                 
                 } //end clSI2Y m
               } //end clSI1Y l
            } // end clSI2X k
         } //end clSI1X j
       } // end startClusters i 2i and 2i+1
       if(store!=NULL){
-        //        store->Print();
         event->addTrack(store);
       }
       histogramChi2->Fill(store->getChi2()/store->getNDF());
@@ -543,13 +497,12 @@ int main(int argc,char **argv){
     if(fit&&!brute){
       vector<TCcluster> clTrack1;
       vector<TCcluster> clTrack2;
-      TGraph *clFit_x1 = new TGraph;
-      TGraph *clFit_y1 = new TGraph;
-
+      TGraph *clFit_x1 = new TGraph;//first x track
+      TGraph *clFit_y1 = new TGraph;//first y track
       TGraph *clFit_x2 = new TGraph;
       TGraph *clFit_y2 = new TGraph;
       n_points=0;
-      int n_points2=0;
+      int n_points2=0;//for filling TGraph, used for drawing
       for(unsigned int clX =0;clX<clXZ.size();++clX){
         if(houghXZ->getNmax()>0&&houghXZ->hot(clX,0)){
           clXZ.at(clX).setFit();
@@ -592,17 +545,14 @@ int main(int argc,char **argv){
         }
         clTrack2.push_back(clYZ.at(clY));
       }
-      cout<<"after 2"<<endl;
       TCtrack* track1 = new TCtrack;
       TCtrack* track2 = new TCtrack;
       track1->addClusters(clTrack1);
       track2->addClusters(clTrack2);
-      //cout<<"nclFit"<<track->nClFit()<<endl;
       if(track1->fit(1,2,3,4,5,6)&&track2->fit(1,2,3,4,5,6)){
         if(disp){
           cout<<"track fit converged with chi2 "<<track1->getChi2()/track1->getNDF()<<endl;
         }
-        
         histogramChi2->Fill(track1->getChi2()/track1->getNDF());
         histogramChi2rough->Fill(track1->getChi2()/track1->getNDF());
         histogramNDF->Fill(track1->getNDF());
