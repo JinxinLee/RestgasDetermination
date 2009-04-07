@@ -16,7 +16,7 @@ using std::pair;
 using std::cout;
 using std::endl;
 using std::vector;
-TChough2::TChough2(const TVector3& _yp,const TVector3& _zp,int _nBinsTheta,int _nBinsR,double _cutR, double _cutTheta,double _minTheta, double _maxTheta, double _minR, double _maxR ) : TCabsHough(_yp,_zp){
+TChough2::TChough2(const TVector3& _yp,const TVector3& _zp ,int _nBinsTheta,int _nBinsR,double _cutR, double _cutTheta,double _minTheta, double _maxTheta, double _minR, double _maxR ) : TCabsHough(_yp,_zp){
 
   nBinsR = _nBinsR;
   nBinsTheta =_nBinsTheta;
@@ -54,7 +54,7 @@ void TChough2::draw(bool stop,int _z,int _y,int _w,int _h,TCevent *mcTruth){
     rMax_[i]=maxVector.at(i).second*binR+minR-binR/2;
     thetaMaxE_[i]=cutTheta/3.141592654;
     if(cutR==0){
-      cutR=binR/2;
+      cutR=resolution.at(i)*nSigma;
     }
     rMaxE_[i]=cutR;
     
@@ -121,6 +121,8 @@ void TChough2::draw(bool stop,int _z,int _y,int _w,int _h,TCevent *mcTruth){
       houghLines[i]->SetLineStyle(1);
       houghLines[i]->SetLineWidth(1);
       houghLines[i]->SetLineColor(kGreen);
+      houghLinesUpperBound[i]->SetLineColor(kGreen);
+      houghLinesLowerBound[i]->SetLineColor(kGreen);
     }
     if(maxVector.size()>1){
       if(hot(i,1)){
@@ -128,12 +130,15 @@ void TChough2::draw(bool stop,int _z,int _y,int _w,int _h,TCevent *mcTruth){
 	houghLines[i]->SetLineStyle(1);
 	houghLines[i]->SetLineWidth(1);
 	houghLines[i]->SetLineColor(kBlue);
+        houghLinesUpperBound[i]->SetLineColor(kBlue);
+        houghLinesLowerBound[i]->SetLineColor(kBlue);
       }
       if(hot(i,1)&&hot(i,0)){
 	houghLines[i]->SetLineStyle(1);
 	houghLines[i]->SetLineWidth(1);
 	houghLines[i]->SetLineColor(kRed);
-	
+        houghLinesUpperBound[i]->SetLineColor(kRed);
+        houghLinesLowerBound[i]->SetLineColor(kRed);
       }
     }
   }
@@ -176,7 +181,10 @@ void TChough2::draw(bool stop,int _z,int _y,int _w,int _h,TCevent *mcTruth){
 
   for(int i=0;i<NumberOfHits;++i){
     houghLines[i]->SetLineWidth(1);
-    houghLines[i]->Draw("same");
+    houghLines[i]->Draw("e1same");
+    houghLinesLowerBound[i]->Draw("same");
+    houghLinesUpperBound[i]->Draw("same");
+
   }
 
   maxPoints->SetMarkerStyle(2);
@@ -209,14 +217,14 @@ void TChough2::doHough(){
   makeHoughLines();
   makeHoughHisto();
 
-  findMaxInHisto(maxVector,nMax);
+  findMaxInHisto(maxVector,nOnMax);
 
 }
 
 bool TChough2::hot(int clIndex,int maxIndex){
   assert(clIndex<nHits());
   assert(clIndex>-1);
-  assert(maxIndex<nMax);
+  assert(maxIndex<maxVector.size());
   double z,y;
   double discr,discr2,discr3;
 
@@ -238,7 +246,7 @@ bool TChough2::hot(int clIndex,int maxIndex){
   discr3=-fabs(rPoint3-rAtMax);
   // cout<<"discr "<<-discr<<endl;
   if(cutR==0){
-    cutR=binR/2;
+    cutR=resolution.at(clIndex)*nSigma;
   }
   discr+=cutR;
   discr2+=cutR;
@@ -249,37 +257,138 @@ bool TChough2::hot(int clIndex,int maxIndex){
   return true;
   
 }
+double TChough2::findMaxAroundPoint(TH2D* histo,int& maxBinTheta,int& maxBinR){
+  double maxVal = 0;
+  int binTheta=-1;
+  int binR=-1;
+  for (int k=maxBinTheta-1;k<=maxBinTheta+1;k++){
+    for(int j=maxBinR-1;j<=maxBinR+1;j++){
+      if(k<0){
+        continue;
+      }
+      else if(k>nBinsTheta){
+        continue;
+      }
+      if(j<0){
+        continue;
+      }
+      else if(j>nBinsR){
+        continue;
+      }
+      if(!(j==maxBinR&&k==maxBinTheta)){
+        if(histo->GetBinContent(k,j)>=maxVal){
+          maxVal=histo->GetBinContent(k,j);
+          //histo->SetBinContent(k,j,0);
+          binTheta=k;
+          binR=j;
+        }else{
+          //histo->SetBinContent(k,j,0);
+        }
+      }
+    }
+  }
+  histo->SetBinContent(binTheta,binR,0);
+  if(binTheta!=-1&&binR!=-1){
+    maxBinTheta=binTheta;
+    maxBinR=binR;
+    
+  }
+  //cout<<"max around "<<maxVal<<endl;
+  return maxVal;
 
+}
 
-void TChough2::findMaxInHisto(std::vector<std::pair<int,int> > &_maxVector, int _nMax) {
+void TChough2::findMaxInHisto(std::vector<std::pair<int,int> > &_maxVector, int _nOnMax) {
   TH2D* houghHistoCopy = new TH2D(*houghHisto);
-  for(int i=0;i<nMax;i++){
+  if(!weighting){
     int maxBinTheta;
     int maxBinR;
     int zDummy;
-    houghHistoCopy->GetMaximumBin(maxBinTheta,maxBinR,zDummy);
-    for (int k=maxBinTheta;k<=maxBinTheta;k++){
-      for(int j=maxBinR;j<=maxBinR;j++){
-        if(k<0){
-          continue;
-        }
-        else if(k>nBinsTheta){
-          continue;
-        }
-        if(j<0){
-          continue;
-        }
-        else if(j>nBinsR){
-          continue;
-        }
-        houghHistoCopy->SetBinContent(k,j,0);
+    while(houghHistoCopy->GetBinContent(houghHistoCopy->GetMaximumBin(maxBinTheta,maxBinR,zDummy))>=_nOnMax){
+      
+      std::vector<std::pair<int,int> > nearbyMax;
+      double sumTheta=maxBinTheta;
+      double sumR=maxBinR;
+      std::pair<int,int> max;
+      max.first=maxBinTheta;
+      max.second=maxBinR;
+      nearbyMax.push_back(max);
+      double maxVal=houghHistoCopy->GetBinContent(maxBinTheta,maxBinR);
+
+      while(findMaxAroundPoint(houghHistoCopy,maxBinTheta,maxBinR)==maxVal){
+        max.first=maxBinTheta;
+        max.second=maxBinR;
+        nearbyMax.push_back(max);
+        sumTheta+=maxBinTheta;
+        sumR+=maxBinR;
       }
+      max.first = sumTheta/nearbyMax.size();
+      max.second = sumR/nearbyMax.size();
+      cout<<"nearbyMax.size() "<<nearbyMax.size()<<endl;
+      cout<<"maxBinTheta "<<(max.first*binTheta+minTheta)/3.141592654<<" maxBinR "<<max.second*binR+minR<<" maxVal "<<maxVal<<endl;
+      maxVector.push_back(max);
+      for(int i =0;i<nearbyMax.size();i++){
+        for (int k=nearbyMax.at(i).first-1;k<=nearbyMax.at(i).first+1;k++){
+          for(int j=nearbyMax.at(i).second-1;j<=nearbyMax.at(i).second+1;j++){
+            if(k<0){
+              continue;
+            }
+            else if(k>nBinsTheta){
+              continue;
+            }
+            if(j<0){
+              continue;
+            }
+            else if(j>nBinsR){
+              continue;
+            }
+            houghHistoCopy->SetBinContent(k,j,0);
+          }
+        }
+      }
+      
+      
     }
-    pair<int,int> max;
-    max.first=maxBinTheta;
-    max.second=maxBinR;
-    // cout<<"maxBinTheta "<<maxBinTheta<<" maxBinR "<<maxBinR<<endl;
-    maxVector.push_back(max);
+    
+  }else{
+    for(int i=0;i<nMax;i++){
+      int maxBinTheta;
+      int maxBinR;
+      int zDummy;
+      houghHistoCopy->GetMaximumBin(maxBinTheta,maxBinR,zDummy);
+      double maxVal = houghHisto->GetBinContent(maxBinTheta,maxBinR);
+      std::vector<std::pair<int,int> > nearbyMax;
+      
+      for (int k=maxBinTheta-2;k<=maxBinTheta+2;k++){
+        for(int j=maxBinR-2;j<=maxBinR+2;j++){
+          if(k<0){
+            continue;
+          }
+          else if(k>nBinsTheta){
+            continue;
+          }
+          if(j<0){
+            continue;
+          }
+          else if(j>nBinsR){
+            continue;
+          }
+          if(j!=maxBinR&&k!=maxBinTheta){
+            if(houghHisto->GetBinContent(k,j)==maxVal){
+              pair<int,int> max;
+              max.first=k;
+              max.second=j;
+              nearbyMax.push_back(max);
+            }
+          }
+        }
+      }
+      pair<int,int> max;
+      max.first=maxBinTheta;
+      max.second=maxBinR;
+      // cout<<"maxBinTheta "<<maxBinTheta<<" maxBinR "<<maxBinR<<endl;
+      maxVector.push_back(max);
+    }
   }
   delete houghHistoCopy;
 
@@ -330,11 +439,23 @@ void TChough2::makeHoughLines(){
   for(int i=0;i<NumberOfHits;i++) {
 	sprintf(buf,"%f*sin(x*3.141592654)+%f*cos(x*3.141592654)",HitCoordinates[i][0],HitCoordinates[i][1]);
 	sprintf(bufName,"%icopy%f*sin(x*3.141592654)+%f*cos(x*3.141592654)",i,HitCoordinates[i][0],HitCoordinates[i][1]);
-	//	cout<<"minTheta "<<minTheta<<" maxTheta "<<maxTheta<<endl;
 	houghLines[i] = new TF1(bufName,buf,minTheta/3.141592654,maxTheta/3.141592654);
-	//	  houghLines[i]->SetLineColor(kBlue);
 	houghLines[i]->SetLineStyle(1);
+        
+        sprintf(buf,"%f*sin(x*3.141592654)+%f*cos(x*3.141592654)+%f*%f",HitCoordinates[i][0],HitCoordinates[i][1],nSigma,resolution.at(i));
+	sprintf(bufName,"%icopy%f*sin(x*3.141592654)+%f*cos(x*3.141592654)+%f*%f",i,HitCoordinates[i][0],HitCoordinates[i][1],nSigma,resolution.at(i));
+	houghLinesUpperBound[i] = new TF1(bufName,buf,minTheta/3.141592654,maxTheta/3.141592654);
+        houghLinesUpperBound[i]->SetLineStyle(2);
+	houghLinesUpperBound[i]->SetLineWidth(1);
+
+        sprintf(buf,"%f*sin(x*3.141592654)+%f*cos(x*3.141592654)-%f*%f",HitCoordinates[i][0],HitCoordinates[i][1],nSigma,resolution.at(i));
+	sprintf(bufName,"%icopy%f*sin(x*3.141592654)+%f*cos(x*3.141592654)-%f*%f",i,HitCoordinates[i][0],HitCoordinates[i][1],nSigma,resolution.at(i));
+        houghLinesLowerBound[i] = new TF1(bufName,buf,minTheta/3.141592654,maxTheta/3.141592654);
+        houghLinesLowerBound[i]->SetLineStyle(2);
+	houghLinesLowerBound[i]->SetLineWidth(1);
+
   }
+
 }
 
 
@@ -386,28 +507,41 @@ void TChough2::makeHoughHisto(){
 
       double r_at_theta0 = z*cos(theta0)+y*sin(theta0)-minR;
       double r_at_theta1 = z*cos(theta1)+y*sin(theta1)-minR;
-      double iRstart=r_at_theta0/binR;
-      double iRend=r_at_theta1/binR;
+      double rMin=r_at_theta0;
+      double rMax=r_at_theta1;
       
       if(r_at_theta0>r_at_theta1){
-	iRstart=r_at_theta1/binR;
-	iRend=r_at_theta0/binR;
+        rMin=r_at_theta1;
+        rMax=r_at_theta0;
       }
+      rMax+=nSigma*resolution.at(ihit);
+      rMin-=nSigma*resolution.at(ihit);
+      
+      int iRmin=(int)(rMin/binR);
+      int iRmax=(int)(rMax/binR);
       int weight = 1;
-      if(iRstart==iRend){
-        weight=binWeight(iTheta,iRstart,ihit);
-        if(weight<0){
-          cout<<iTheta<<", "<<iRstart<<endl;
+      if(iRmin==iRmax){
+        if(weighting){
+          weight=binWeight(iTheta,iRmin,ihit);
+        }else{
+          weight=1;
         }
-        houghHisto->SetBinContent(iTheta+1,iRstart+1,houghHisto->GetBinContent(iTheta+1,iRstart+1) + weight);
+        if(weight<0){
+          cout<<iTheta<<", "<<iRmin<<endl;
+        }
+        houghHisto->SetBinContent(iTheta+1,iRmin+1,houghHisto->GetBinContent(iTheta+1,iRmin+1) + weight);
 	    //cout<<"equal "<<ihit<<" at "<<theta0<<", "<<r_at_theta0+minR<<", "<<r_at_theta1+minR
-	    //<<", "<<iRstart<<", "<<iRend<<endl;
+	    //<<", "<<iRmin<<", "<<iRmax<<endl;
 	    
       }else{
-	for(int iR=iRstart;iR<=iRend;++iR){
-          weight=binWeight(iTheta,iR,ihit);
+	for(int iR=iRmin;iR<=iRmax;++iR){
+          if(weighting){
+            weight=binWeight(iTheta,iR,ihit);
+          }else{
+            weight=1;
+          }
           if(weight<0){
-            cout<<iTheta<<", "<<iRstart<<endl;
+            cout<<iTheta<<", "<<iRmin<<endl;
           }
           houghHisto->SetBinContent(iTheta+1,iR+1,houghHisto->GetBinContent(iTheta+1,iR+1) + weight);
 	    //cout<<"not equal "<<ihit<<endl;
@@ -483,7 +617,7 @@ void TChough2::convert(std::vector<TCcluster>& _c){
   maxY=-1.E50;
   minZ=1.E50;
   maxZ=-1.E50;
-  
+  TCalign* a = TCalign::getInstance();
   for(unsigned int i=0;i<_c.size();++i){
 	TVector3 hitPrime = S * _c.at(i).posXYZ();
 	//xprime isnt needed only doing transform in one plane
@@ -496,8 +630,9 @@ void TChough2::convert(std::vector<TCcluster>& _c){
 	if(z<minZ) minZ=z;
         ypHit.push_back(y);
 	zpHit.push_back(z);
+        resolution.push_back(a->getRes(_c.at(i).getId()));
   }
-  minR=0;
+  //minR=0;
   /*
     Assuming that a track has to pass all detectors, but not nececarily having hits inn all
     maxR is the distance from one corner of a rectangle with sides rangeY and rangeZ to the diagonal
@@ -505,12 +640,15 @@ void TChough2::convert(std::vector<TCcluster>& _c){
   */
   rangeY=maxY-minY;
   rangeZ=maxZ-minZ;
-  
-  maxR=rangeY*rangeZ / sqrt(pow(rangeY,2) + pow(rangeZ,2))+0.1;
-  minR=-maxR;
+  if(maxR==0&&minR==0){
+    maxR=rangeY*rangeZ / sqrt(pow(rangeY,2) + pow(rangeZ,2))+0.1;
+    minR=-maxR;
+  }
   rangeR=maxR-minR;
-  maxTheta=3.141592654/2+atan(rangeY/rangeZ)+0.01;
-  minTheta=3.141592654/2-atan(rangeY/rangeZ)-0.01;
+  if(maxTheta==0&&minTheta==0){
+    maxTheta=3.141592654/2+atan(rangeY/rangeZ)+0.01;
+    minTheta=3.141592654/2-atan(rangeY/rangeZ)-0.01;
+  }
   rangeTheta=maxTheta-minTheta;
   binTheta=rangeTheta/nBinsTheta;
   binR=rangeR/(nBinsR);
