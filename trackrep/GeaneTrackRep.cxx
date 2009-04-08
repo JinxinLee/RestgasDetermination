@@ -33,7 +33,7 @@
 
 // Class Member definitions -----------
 
-
+#define THETACUT 0.4
 
 GeaneTrackRep::GeaneTrackRep()
   : AbsTrackRep(5), _pdg(211),_backw(0)
@@ -50,7 +50,7 @@ GeaneTrackRep::GeaneTrackRep(FairGeanePro* geane,
 			     int PDGCode) 
   : AbsTrackRep(5), _geane(geane), _pdg(PDGCode), _backw(0)
 {
-
+  printf("$#$#$##$#$#$#$$#$#$#$# %10.10f\n",mom.Theta()/TMath::Pi()*180.);
   FairTrackParP par(plane.getO(),mom,poserr,momerr,q,plane.getO(),plane.getU(),plane.getV());
 
   _spu=par.GetSPU(); // direction of the momentum
@@ -109,6 +109,10 @@ GeaneTrackRep::extrapolate(const DetPlane& pl,
 			   TMatrixT<double>& statePred,
 			   TMatrixT<double>& covPred)
 {
+  if(fabs(getMom(_refPlane).Theta()/TMath::Pi()*180.) < THETACUT){
+	FitterException exc("GEANE propagation not possible for p.theta<THETACUT",__LINE__,__FILE__);
+    throw exc;
+  }
 
   TVector3 o=pl.getO();
   TVector3 u=pl.getU();
@@ -136,11 +140,8 @@ GeaneTrackRep::extrapolate(const DetPlane& pl,
   }
   // protect against low momentum:
   if(fabs(state[0][0])>10){
-    statePred=state;
-    covPred=cov;
-    statusFlag=10;
-    std::cout<<"*** PROTECT AGAINST LOW MOMENTA ***"<<std::endl;
-    return 0;
+    FitterException exc("GeaneTrackRep: PROTECT AGAINST LOW MOMENTA",__LINE__,__FILE__);
+	throw exc;
   }
 
   // protect against (x,y)=(0,0)
@@ -211,6 +212,10 @@ void
 GeaneTrackRep::extrapolateToPoca(const TVector3& pos,
 				 TVector3& poca,
 				 TVector3& dirInPoca){
+  if(fabs(getMom(_refPlane).Theta()/TMath::Pi()*180.) < THETACUT){
+	FitterException exc("GEANE propagation not possible for p.theta<THETACUT",__LINE__,__FILE__);
+    throw exc;
+  }
   int dim = getDim();
   TMatrixT<double> statePred(dim,1);
   TMatrixT<double> covPred(dim,dim);
@@ -233,17 +238,13 @@ GeaneTrackRep::extrapolateToPoca(const TVector3& pos,
   }
   // protect against low momentum:
   if(fabs(state[0][0])>10){
-    //statePred=state;
-    //covPred=cov;
-    statusFlag=10;
-    std::cout<<"*** PROTECT AGAINST LOW MOMENTA ***"<<std::endl;
-    poca = pos;
+    FitterException exc("GeaneTrackRep: PROTECT AGAINST LOW MOMENTA",__LINE__,__FILE__);
+	throw exc;
   }
 
   // protect against (x,y)=(0,0)
   if(state[3][0]==0)state[3][0]=1E-4;
   if(state[4][0]==0)state[4][0]=1E-4;
-  
   
   FairTrackParP par(state[3][0],state[4][0],state[1][0],state[2][0],state[0][0],cova,ofrom,ufrom,vfrom,_spu);
   par.Print();
@@ -305,6 +306,11 @@ GeaneTrackRep::extrapolateToLine(const TVector3& point1,
 				 TVector3& dirInPoca,
 				 TVector3& poca_onwire)
 {
+  if(fabs(getMom(_refPlane).Theta()/TMath::Pi()*180.) < THETACUT){
+	FitterException exc("GEANE propagation not possible for p.theta<THETACUT",__LINE__,__FILE__);
+    throw exc;
+  }
+
   // call propagation to closest approach to a wire 
   Int_t pca = 2;
 
