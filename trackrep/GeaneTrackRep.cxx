@@ -150,14 +150,14 @@ GeaneTrackRep::extrapolate(const DetPlane& pl,
   
   
   FairTrackParP par(state[3][0],state[4][0],state[1][0],state[2][0],state[0][0],cova,ofrom,ufrom,vfrom,_spu);
-
   bool backprop=_backw<0;
   if(_backw==0){
     //Try to guess if we are doing a forward or backward step:
     TVector3 pos(par.GetX(),par.GetY(),par.GetZ());
     TVector3 dir=pl.dist(pos); // direction from pos to plane;
     //Assume B=(0,0,BZ) -> compare signs of dir.Z and mom.Z:
-    backprop= (dir.Z()*par.GetPz())<0 ? true : false;
+    //backprop= (dir.Z()*par.GetPz())<0 ? true : false;
+	backprop= (dir*getMom(_refPlane))<0;
   }
   if(backprop){
     _geane->setBackProp();
@@ -248,15 +248,11 @@ GeaneTrackRep::extrapolateToPoca(const TVector3& pos,
   
   FairTrackParP par(state[3][0],state[4][0],state[1][0],state[2][0],state[0][0],cova,ofrom,ufrom,vfrom,_spu);
   par.Print();
-  
   bool backprop=_backw<0;
   if(_backw==0){
     // check if new point is after or before my position
-    double myz=par.GetZ();
-    double dir=pos.Z()-myz;
-    double mypz=par.GetPz();
-    dir*=mypz;
-    backprop=dir<0;
+    TVector3 dir=_refPlane.dist(pos); // direction from pos to plane;
+	backprop= (dir*getMom(_refPlane))>0;
   }
   if(!backprop){ // point lies in same direction of flight as momentum
     std::cout<<" Propagate in flight direction"<<std::endl;
@@ -386,11 +382,9 @@ GeaneTrackRep::getPocaOnLine(const TVector3& p1, const TVector3& p2, bool back){
   }
   // protect against low momentum:
   if(fabs(state[0][0])>10){
-    //statePred=state;
-    //covPred=cov;
-    statusFlag=10;
-    std::cout<<"*** PROTECT AGAINST LOW MOMENTA ***"<<std::endl;
-    return TVector3(0,0,-9999);
+    FitterException exc("GeaneTrackRep: PROTECT AGAINST LOW MOMENTA",__LINE__,__FILE__);
+	throw exc;
+
   }
 
   // protect against (x,y)=(0,0)
