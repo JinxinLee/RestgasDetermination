@@ -50,6 +50,14 @@
   fRun->AddTask(sttHitProducer);
   // ------------------------------------------------------------------------
 
+  
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairParRootFileIo* parInput1 = new FairParRootFileIo();
+  parInput1->open(parFile.Data());
+  rtdb->setFirstInput(parInput1);
+  // PndGeoSttPar *sttPar = (PndGeoSttPar*) rtdb->getContainer("PndGeoSttPar");
+  
+
   // -----   Initialize and run   --------------------------------------------
   fRun->Init();
   fRun->Run(0, nEvents);
