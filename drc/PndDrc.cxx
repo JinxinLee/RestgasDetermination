@@ -481,6 +481,9 @@ void PndDrc::ConstructGeometry()
   cout<< " =======  DRC::  ConstructGeometry()  ======== " << endl;
   cout<< " ============================================= " << endl;
   
+  const Double_t pi = 3.1415926535;
+
+
   FairGeoLoader*    drcgeoLoad = FairGeoLoader::Instance();
   FairGeoInterface* drcgeoFace = drcgeoLoad->getGeoInterface();
 
@@ -506,95 +509,208 @@ void PndDrc::ConstructGeometry()
   TGeoRotation rot;
   rot.RotateZ(11.25);
 
+
+
+
+  // all length units in centimeter
+
+  Double_t eps           = 0.01;                                  // epsilon
+  Double_t bbox_zdown    =  130.0;                                // bar box z downstream
+  Double_t bbox_zup      = -120.0;                                // bar box z upstream
+  Double_t bbox_hlen     = 0.5*(bbox_zdown - bbox_zup);           // bar box half length
+  Double_t bbox_shift    = bbox_zup + bbox_hlen;                  // bar box shift
+  //
+
   
   // Create base volume 
   TGeoPgon* basePol = new TGeoPgon("basePol",11.25, 360., 16, 2);
-  basePol->DefineSection(0, -130., 45., 53.8);
-  basePol->DefineSection(1, 130., 45., 53.8);
+  basePol->DefineSection(0, -bbox_hlen, 45., 53.8);
+  basePol->DefineSection(1, +bbox_hlen, 45., 53.8);
   TGeoVolume *baseVol = new TGeoVolume("DrcBase",basePol,gGeoManager->GetMedium("DIRCairNoSens"));
-  cave->AddNode(baseVol, 1, new TGeoCombiTrans(0, 0, -20., new TGeoRotation(0)));
+  cave->AddNode(baseVol, 1, new TGeoCombiTrans(0, 0, bbox_shift, new TGeoRotation(0)));
 
 
-  //Create the sides
-  Double_t lside = 18.7286709135483108; //side length (cm)
-  TGeoBBox* logicSide = new TGeoBBox("logicSide", lside/2, 0.85, 130.);
+  //Create the short sides
+  //Int_t n=0;
+  //TGeoRotation rot1;
+  //rot1.RotateZ(-22.5*(n-1)+11.25);
+
+
+
+  //Create the sides           lside is the width in the middle of the barbox
+  Double_t rad_out = 52.8-2*0.85/cos(2*pi/16/2); // radius at corner - thickness
+  Double_t lside   = 2*rad_out*sin(2*pi/16/2);
+  //Double_t lside = 18.7286709135483108; //side length (cm)
+  Double_t rad     = 0.5*lside/tan(2*pi/16/2) + 0.85; 
+  cout<<" DIRC radius = "<<rad<<endl;
+  cout<<" DIRC box_w  = "<<lside<<endl;
+  
+  TGeoBBox* logicSide = new TGeoBBox("logicSide", lside/2, 0.85, bbox_hlen);
   TGeoVolume *side = new TGeoVolume("DrcSide",logicSide, gGeoManager->GetMedium("DIRCairNoSens"));
-  baseVol->AddNode(side, 1, new TGeoCombiTrans(0., 48.85, 0., new TGeoRotation(0))); 
-  Int_t n = 1;
-  Double_t rad = 48.85;
+
+  // 2 special sides where slabs will be missing:
+  TGeoBBox* logicSide1 = new TGeoBBox("logicSide1", lside/2, 0.85, bbox_hlen);
+  TGeoVolume *side1 = new TGeoVolume("DrcSide1",logicSide1, gGeoManager->GetMedium("DIRCairNoSens"));
+  TGeoBBox* logicSide2 = new TGeoBBox("logicSide2", lside/2, 0.85, bbox_hlen);
+  TGeoVolume *side2 = new TGeoVolume("DrcSide2",logicSide2, gGeoManager->GetMedium("DIRCairNoSens"));
+
+  Int_t n = 0; 
+  //Double_t rad = 48.85;
   Double_t dx, dy, dz;
 
+  for (Double_t theta=-11.25; theta<360.-22.5; theta+=22.5)
+    {
+      n++;
+      Double_t tht=theta* TMath::Pi()/180.;
+      dx=rad*sin(tht);
+      dy=rad*cos(tht);
+      dz=0.;
+      TGeoRotation rot1;
+      //rot1.RotateZ(-22.5*(n-1));
+      rot1.RotateZ(-22.5*(n-1)+11.25);
 
-  for (Double_t theta=22.5; theta<360.; theta+=22.5){
-    n++;
-    Double_t tht=theta* TMath::Pi()/180.;
-    dx=rad*sin(tht);
-    dy=rad*cos(tht);
-    dz=0.;
-    TGeoRotation rot1;
-    rot1.RotateZ(-22.5*(n-1));
-    baseVol->AddNode(side, n,new TGeoCombiTrans(dx, dy, dz, new TGeoRotation (rot1)) );
+      if      (n==1 || n==9)
+	{
+	  baseVol->AddNode(side1, n,new TGeoCombiTrans(dx, dy, dz, new TGeoRotation (rot1)) );
+	}
+      else if (n==2 || n==10)
+	{
+	  baseVol->AddNode(side2, n,new TGeoCombiTrans(dx, dy, dz, new TGeoRotation (rot1)) );
+	}
+      else
+	{
+	  baseVol->AddNode(side, n,new TGeoCombiTrans(dx, dy, dz, new TGeoRotation (rot1)) );
+	}
 
-
-  }
+    }
 
   // Box contains 6 bars 
-  TGeoBBox* logicBox = new TGeoBBox("logicBox", lside/2, 0.85, 129.9);
-  TGeoBBox* logicMirror = new TGeoBBox("logicMirror", lside/2, 0.85, 0.1);
-  TGeoVolume *box = new TGeoVolume("DrcBox",logicBox, gGeoManager->GetMedium("DIRCairNoSens"));
-  TGeoVolume *mirr = new TGeoVolume("DrcMirr",logicMirror, gGeoManager->GetMedium("Mirror"));
-  side->AddNode(box, 1,new TGeoCombiTrans(0., 0., -0.1, new TGeoRotation (0)) );
-  side->AddNode(mirr, 1,new TGeoCombiTrans(0., 0., 129.9, new TGeoRotation (0)) );
+  TGeoBBox* logicBox  = new TGeoBBox("logicBox", lside/2, 0.85, bbox_hlen-eps);
+  TGeoBBox* logicBox1 = new TGeoBBox("logicBox1", lside/2, 0.85, bbox_hlen-eps);
+  TGeoBBox* logicBox2 = new TGeoBBox("logicBox2", lside/2, 0.85, bbox_hlen-eps);
+  TGeoBBox* logicMirror = new TGeoBBox("logicMirror", lside/2, 0.85, eps);
+  TGeoBBox* logicMirror1 = new TGeoBBox("logicMirror1", (lside*5./6.)/2, 0.85, eps);
+  TGeoBBox* logicMirror2 = new TGeoBBox("logicMirror2", (lside*5./6.)/2, 0.85, eps);
+
+  TGeoVolume *box   = new TGeoVolume("DrcBox",logicBox, gGeoManager->GetMedium("DIRCairNoSens"));
+  TGeoVolume *box1  = new TGeoVolume("DrcBox1",logicBox1, gGeoManager->GetMedium("DIRCairNoSens"));
+  TGeoVolume *box2  = new TGeoVolume("DrcBox2",logicBox2, gGeoManager->GetMedium("DIRCairNoSens"));
+  TGeoVolume *mirr  = new TGeoVolume("DrcMirr",logicMirror, gGeoManager->GetMedium("Mirror"));
+  TGeoVolume *mirr1 = new TGeoVolume("DrcMirr1",logicMirror1, gGeoManager->GetMedium("Mirror"));
+  TGeoVolume *mirr2 = new TGeoVolume("DrcMirr2",logicMirror2, gGeoManager->GetMedium("Mirror"));
+
+  side ->AddNode(box,    1,new TGeoCombiTrans(0., 0., -eps, new TGeoRotation (0)) );
+  side ->AddNode(mirr,   1,new TGeoCombiTrans(0., 0., bbox_hlen-eps, new TGeoRotation (0)) );
+
+  side1->AddNode(box1,  1,new TGeoCombiTrans(0., 0., -eps,          new TGeoRotation (0)) );
+  side1->AddNode(mirr1, 1,new TGeoCombiTrans(-lside*1./12, 0., bbox_hlen-eps, new TGeoRotation (0)) );
+
+  side2->AddNode(box2,  1,new TGeoCombiTrans(0., 0., -eps, new TGeoRotation (0)) );
+  side2->AddNode(mirr2, 1,new TGeoCombiTrans(lside*1./12, 0., bbox_hlen-eps, new TGeoRotation (0)) );
+
+
+
 
   //  Bars container (slab + lens)
-  Double_t r = 15.29; // first lens radius (cm)
-  Double_t alpha = TMath::ASin(0.85/r); // 8.5 mm - half height of the bar
+
+
+  // lens parameters
+  Double_t r = 15.29*0.8; // first lens radius (cm)
+  Double_t alpha = TMath::ASin((lside/12)/r); // 8.5 mm - half height of the bar
   Double_t a = r - r*TMath::Cos(alpha);
   Double_t b = a + .5; // box dimension
-
-  Double_t r2 = 3.6; // radius second lens (cm)
-  Double_t alpha2 = TMath::ASin(0.85/r2); // 8.5 mm - half height of the bar
+  Double_t r2 = 3.1*.8; // radius second lens (cm)              // was 3.6 (CS120309)
+  Double_t alpha2 = TMath::ASin((lside/12)/r2); // 8.5 mm - half height of the bar
   Double_t a2 = r2 - r2*TMath::Cos(alpha2);
   Double_t b2 = .5 + a2;
- 
+  // a is absorbed in the 0.2, no gap of .8 after a2
   Double_t l = 0.5+ 0.2+ 0.5+ a2; // dimension of the box containing both lenses
 
-  TGeoBBox* logicBarContainer = new TGeoBBox("logicBarContainer",  (lside/6)/2, 0.85, 129.9);
-  TGeoVolume *barContainer = new TGeoVolume("DrcBarContainer",logicBarContainer, gGeoManager->GetMedium("DIRCairNoSens"));
-  box->AddNode(barContainer, 1,new TGeoCombiTrans(-lside/2+(lside/12), 0., 0., new TGeoRotation (0)) );
 
-  for (Int_t j = 1; j <6 ; j++)
-     {
-       
+
+  // slabs
+
+  TGeoBBox* logicBarContainer = new TGeoBBox("logicBarContainer",  (lside/6)/2, 0.85, bbox_hlen-eps);
+  TGeoBBox* logicBarContainer1 = new TGeoBBox("logicBarContainer1",(lside/6)/2, 0.85, bbox_hlen-eps);
+  TGeoBBox* logicBarContainer2 = new TGeoBBox("logicBarContainer2",(lside/6)/2, 0.85, bbox_hlen-eps);
+
+  TGeoVolume *barContainer = new TGeoVolume("DrcBarContainer",logicBarContainer, 
+					    gGeoManager->GetMedium("DIRCairNoSens"));
+
+
+
+  //box->AddNode(barContainer, 1,new TGeoCombiTrans(-lside/2+(lside/12), 0., 0., 
+  //						  new TGeoRotation (0)) );
+  for (Int_t j = 0; j <6 ; j++)
+     {   
        dx= - lside/2 + (lside/6)/2  + j * (lside/6); 
        dy=0.;
        dz=0.;
-       box->AddNode(barContainer, 1+j,new TGeoCombiTrans(dx, dy, dz, new TGeoRotation (0)) );
-       
+       box->AddNode(barContainer, j+1,new TGeoCombiTrans(dx, dy, dz, new TGeoRotation (0)) ); 
+     }
+  for (Int_t j = 0; j <5 ; j++)
+     {   
+       dx= - lside/2 + (lside/6)/2  + j * (lside/6); 
+       dy=0.;
+       dz=0.;
+       box1->AddNode(barContainer, j+1,new TGeoCombiTrans(dx, dy, dz, new TGeoRotation (0)) ); 
+     }
+  for (Int_t j = 1; j <6 ; j++)
+     {   
+       dx= - lside/2 + (lside/6)/2  + j * (lside/6); 
+       dy=0.;
+       dz=0.;
+       box2->AddNode(barContainer, j+1,new TGeoCombiTrans(dx, dy, dz, new TGeoRotation (0)) ); 
      }
 
   // Fused Silica bars
-  TGeoBBox* logicBar = new TGeoBBox("logicBar",  ((lside/6)/2)-0.05, 0.85, 129.9-l/2);
+  TGeoBBox* logicBar = new TGeoBBox("logicBar",  ((lside/6)/2)-0.05, 0.85, bbox_hlen-eps-l/2);
   TGeoVolume *bar = new TGeoVolume("DrcBar",logicBar, gGeoManager->GetMedium("FusedSil"));
   barContainer->AddNode(bar, 1,new TGeoCombiTrans(0., 0., l/2, new TGeoRotation (0)) );
   AddSensitiveVolume(bar);
 
  
-  // SOB
-  TGeoPgon* baseSOB = new TGeoPgon("baseSOB",11.25, 360., 16, 3);
-  baseSOB->DefineSection(0, 0., 48., 88.);
-  baseSOB->DefineSection(1, 10., 48., 88.);
-  baseSOB->DefineSection(2, 30., 48., 49.7);
- 
-  TGeoVolume *sob = new TGeoVolume("DrcSob",baseSOB, gGeoManager->GetMedium("Marcol82"));
-  cave->AddNode(sob, 1,new TGeoCombiTrans(0., 0., -180., new TGeoRotation (0)));
 
-  // Photodetector
-  TGeoPgon* logicPD = new TGeoPgon("logicPD",11.25, 360., 16, 2);
-  logicPD->DefineSection(0, 0., 48., 88.);
-  logicPD->DefineSection(1, 0.1, 48., 88.);
-  TGeoVolume *pd = new TGeoVolume("DrcPd", logicPD, gGeoManager->GetMedium("Marcol82"));
-  sob->AddNode(pd, 1,new TGeoCombiTrans(0., 0., 1., new TGeoRotation (0)));
+  //------------------------------------------------------------------------------
+
+  // SOB
+
+  Double_t sob_len   = 30.0;
+  Double_t sob_shift = -bbox_hlen + bbox_shift - sob_len;
+  
+   
+   TGeoPgon* baseSOB = new TGeoPgon("baseSOB",0.0, 360., 16, 3);
+   // TGeoPgon* baseSOB = new TGeoPgon("baseSOB",11.25, 360., 16, 3);
+  baseSOB->DefineSection(0,     0.0, 48., 88.);   // plane location
+  baseSOB->DefineSection(1,    10.0, 48., 88.);
+  baseSOB->DefineSection(2, sob_len, 48., 53.);   // downstream side
+
+  //TGeoPgon* baseSOB = new TGeoPgon("baseSOB",11.25, 360., 16, 2);
+  //baseSOB->DefineSection(0,  0., 48., 52.);
+  //baseSOB->DefineSection(1, -30., 48., 88.);
+  ////baseSOB->DefineSection(2, 30., 48., 49.7);
+ 
+  TGeoVolume *sob = new TGeoVolume("DrcSob",baseSOB, gGeoManager->GetMedium("DIRCairNoSens"));
+  cave->AddNode(sob, 1,new TGeoCombiTrans(0., 0., sob_shift, new TGeoRotation (0)));
+
+
+
+
+
+  //TGeoPgon* logicSOB = new TGeoPgon("baseSOB",11.25, 360., 16, 3);
+  TGeoPgon* logicSOB = new TGeoPgon("baseSOB",0.0, 360., 16, 3);
+  logicSOB->DefineSection(0, + 0.10, 48.1, 87.9);
+  logicSOB->DefineSection(1, +10.00, 48.1, 87.9);
+  logicSOB->DefineSection(2, sob_len-eps, 48.1, 52.9);
+  TGeoVolume *lsob = new TGeoVolume("DrcLSob", logicSOB, gGeoManager->GetMedium("Marcol82"));
+  sob->AddNode(lsob, 1,new TGeoCombiTrans(0., 0., 0.0, new TGeoRotation (0)));
+
+  //TGeoPgon* logicPD = new TGeoPgon("logicPD",11.25, 360., 16, 2);
+  TGeoPgon* logicPD = new TGeoPgon("logicPD",0.0, 360., 16, 2);
+  logicPD->DefineSection(0,   0.0, 48., 52.9);
+  logicPD->DefineSection(1,  +0.1, 48., 88.);
+  TGeoVolume *pd = new TGeoVolume("DrcPd", logicPD, gGeoManager->GetMedium("DIRCair"));
+  sob->AddNode(pd, 1,new TGeoCombiTrans(0., 0., 0., new TGeoRotation (0)));
   AddSensitiveVolume(pd); 
   
 
@@ -608,24 +724,41 @@ void PndDrc::ConstructGeometry()
   TGeoTranslation *tr1 = new TGeoTranslation("tr1", 0.,0., t);
   tr1->RegisterYourself();
   TGeoCompositeShape *cs = new TGeoCompositeShape("cs","S*B:tr1");
+  //TGeoVolume *lens1 = new TGeoVolume("DrcLENS1",cs, gGeoManager->GetMedium("NLAK33A"));
   TGeoVolume *lens1 = new TGeoVolume("DrcLENS1",cs, gGeoManager->GetMedium("FusedSil"));
- //  TGeoRotation rot2;
-//   rot2.RotateX(180.);
-  barContainer->AddNode(lens1, 1,new TGeoCombiTrans(0., 0., -129.9 +r +a2 + 0.5 + 0.2 - a , new TGeoRotation (0)));
-  
+  //  TGeoRotation rot2;
+  //   rot2.RotateX(180.);
 
-   //Lens 2
+  barContainer->AddNode(lens1, 1,             
+			new TGeoCombiTrans(0., 0., -(bbox_hlen-eps) +r + 0.5 + 0.2 + a2, 
+					   new TGeoRotation (0)));
+ 
+
+  //Lens 2
+  /* old Annalisas part
   Double_t t2 = -r2 +b2/2;
-
-  TGeoSphere* logicSphere2= new TGeoSphere("S2", r2-a2 ,r2, 0. ,180.,0.,360.);
+  TGeoSphere* logicSphere2= new TGeoSphere("S2", r2-0.2 ,r2, 0.,180,0.,360); 
+  //TGeoSphere* logicSphere3= new TGeoSphere("S3", 0,   r2, 0. ,180.,0.,360.); 
   TGeoBBox* lBox2 = new TGeoBBox("B2", (lside/6)/2-0.05, 0.85, b2/2.);
   TGeoTranslation *tr2 = new TGeoTranslation("tr2", 0.,0., t2);
   tr2->RegisterYourself();
+  //TGeoTranslation *tr3 = new TGeoTranslation("tr3", 0.,0., t2+0.5);
+  //tr3->RegisterYourself();
+  //TGeoCompositeShape *cs2 = new TGeoCompositeShape("cs2","S2");
   TGeoCompositeShape *cs2 = new TGeoCompositeShape("cs2","S2*B2:tr2");
+  //TGeoCompositeShape *cs3 = new TGeoCompositeShape("cs3","cs2-S3:tr3");
   TGeoVolume *lens2 = new TGeoVolume("DrcLENS2",cs2, gGeoManager->GetMedium("NLAK33A"));
- 
-  barContainer->AddNode(lens2, 1,new TGeoCombiTrans(0., 0., -129.9+r2, new TGeoRotation (0)));
-  
+  */
+
+  Double_t r3=8.0;
+  TGeoSphere* S1= new TGeoSphere("S1",0.,r2, 141. ,180,0.,360.);
+  TGeoSphere* S2= new TGeoSphere("S2",0.,r3, 141. ,180,0.,360.);
+  TGeoTranslation *tr2 = new TGeoTranslation("tr2", 0.,0., r3-r2+0.4);
+  tr2->RegisterYourself();
+  TGeoCompositeShape *cs2 = new TGeoCompositeShape("cs2","(S1)-(S2:tr2)");
+  TGeoVolume *lens2 = new TGeoVolume("DrcLENS2",cs2, gGeoManager->GetMedium("NLAK33A"));
+  barContainer->AddNode(lens2, 1,new TGeoCombiTrans(0., 0., -(bbox_hlen-eps)+r2+0.5, 
+						    new TGeoRotation (0)));
 
   gGeoManager->CloseGeometry();
 
