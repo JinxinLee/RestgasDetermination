@@ -8,6 +8,7 @@
 
 //#include "PndSttHit.h"
 //#include "PndSttHitInfo.h"
+#include "PndGeoSttPar.h"
 
 #include "TVector3.h"
 
@@ -44,6 +45,9 @@ class PndSttHitProducerRealFast : public FairTask
   
   Double_t GetError(Double_t);
 
+  void SetParContainers();
+
+
   private: 
 
   /** Input array of PndSttPoints **/
@@ -58,6 +62,8 @@ class PndSttHitProducerRealFast : public FairTask
   TClonesArray* fHitInfoArray;
   Int_t fevtn;
 
+PndGeoSttPar*  fSttParameters;
+ 
   ClassDef(PndSttHitProducerRealFast,1);
 
 };

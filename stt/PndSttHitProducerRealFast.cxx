@@ -14,8 +14,15 @@
 #include "PndSttHitInfo.h"
 #include "PndSttPoint.h"
 #include "PndSttSingleStraw.h"
+#include "PndGeoSttPar.h"
 
 #include "FairRootManager.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
+#include "FairGeoNode.h"
+#include "FairGeoTransform.h"
+#include "FairGeoRotation.h"
+#include "FairGeoVector.h"
 
 #include "TGeoManager.h"
 #include "TClonesArray.h"
@@ -78,18 +85,42 @@ InitStatus PndSttHitProducerRealFast::Init() {
   fVolumeArray = gGeoManager->GetListOfVolumes();
   
   //cout << "-I- PndSttHitProducerRealFast: Intialization successfull" << endl;
-  
+
+  // ===== retrieve the STT parameters ========================  CHECK, this is just a TEST
+  //  for (int i = 0; i < fSttParameters->GetGeoPassiveNodes()->GetEntriesFast(); i++) 
+  //     {
+  //       FairGeoNode *geonode = (FairGeoNode*) fSttParameters->GetGeoPassiveNodes()->At(i);
+  //       cout << geonode->GetName() << endl;
+  //       FairGeoTransform *pos = geonode->getPosition();
+  //       FairGeoTransform *lab = geonode->getLabTransform();
+  //       if(lab) {
+  // 	FairGeoRotation  rot = lab->getRotMatrix();
+  // 	FairGeoVector    tra = lab->getTransVector();
+  // 	//	lab->print();
+  // 	//	rot.print();
+  // 	//	tra.print();
+  //       }
+  //       //      cout << endl;
+  //     }
+  // ==========================================================
+
   return kSUCCESS;
 
 }
 // -------------------------------------------------------------------------
 
+void PndSttHitProducerRealFast::SetParContainers() {
+  
+  FairRuntimeDb* rtdb = FairRunAna::Instance()->GetRuntimeDb();
+  fSttParameters = (PndGeoSttPar*) rtdb->getContainer("PndGeoSttPar");
+  
+ 
+}
 
 
 // -----   Public method Exec   --------------------------------------------
 void PndSttHitProducerRealFast::Exec(Option_t* opt) {
 
- 
   if(fevtn%50==0) cout << "Event Number "<<fevtn<<endl;
   fevtn++;
   
