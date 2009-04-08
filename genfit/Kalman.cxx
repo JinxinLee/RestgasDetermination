@@ -14,42 +14,15 @@
 #define COVEXC "cov_is_zero"
 
 
-#include"stdlib.h"
-#include"signal.h"
-bool kalmanActive=false;
-bool fpeHappened=false;
-int handlerCounter=0;
-void kalmanSignalHandler(int sig){
-  ++handlerCounter;
-  if(kalmanActive){
-    std::cerr <<"SIGNAL"<<std::endl;
-    std::cout<<"kalmanSignalHandler called for signal "<<sig
-	     <<" while kalmanActive is TRUE -> recover it"<<std::endl;
-    fpeHappened=true;
-    //if(handlerCounter==5) abort();
-    abort();
-  }
-  else{
-    std::cerr<<"kalmanSignalHandler called for signal "<<sig
-	     <<" while kalmanActive is FALSE -> raise(SIGTERM)"<<std::endl;
-    raise(SIGTERM);
-  }
-}
-
 Kalman::Kalman():_lazy(0),_initialDirection(1),_numIt(3),_blowUpFactor(20.),_nullExtrapolation(false){;}
 
 Kalman::~Kalman(){;}
 
 
-
 void Kalman::processTrack(Track* trk){
 
-  static bool first(true);
-  if(first){
-    first=false;
-    signal(SIGFPE,kalmanSignalHandler);
-  }
-  kalmanActive=true;
+  
+  
   int direction=_initialDirection;
   assert(direction==1 || direction==-1);
   /*why is there a factor of two here (in the for statement)?
@@ -71,7 +44,7 @@ void Kalman::processTrack(Track* trk){
     else direction=1;
     switchDirection(trk);
   }
-  kalmanActive=false;
+  
   return;
 }
 
@@ -158,10 +131,7 @@ Kalman::fittingPass(Track* trk, int direction){
 		    continue; // go to next rep immediately
 		  }
 		}	
-		if(fpeHappened){
-		  arep->setStatusFlag(2);
-		  fpeHappened=false;
-		}
+		
 	  }
     }// end loop over reps
     ihit+=direction;
