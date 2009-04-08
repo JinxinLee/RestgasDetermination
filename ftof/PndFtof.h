@@ -12,11 +12,11 @@
 #include "TLorentzVector.h"
 #include "FairDetector.h"
 #include "PndGeoFtofPar.h"
+#include <string>
+#include <vector>
 
 class TClonesArray;
 class PndFtofPoint;
-class PndFtofSciFPoint;
-
 class FairVolume; 
 
 class PndFtof : public FairDetector 
@@ -105,6 +105,9 @@ class PndFtof : public FairDetector
    **/
   virtual void ConstructGeometry();
 
+  void ConstructASCIIGeometry();
+
+
   PndFtofPoint* AddHit(Int_t trackID, Int_t evtID, 
 		      Int_t detID, TString detName,
 		      TVector3 posin, 
@@ -124,8 +127,10 @@ class PndFtof : public FairDetector
  
 
  
-
  private:
+
+  std::vector<std::string> fListOfSensitives;
+  bool CheckIfSensitive(std::string name);
   
   PndGeoFtofPar *par;
   Int_t          fTrackID;           //  track index
