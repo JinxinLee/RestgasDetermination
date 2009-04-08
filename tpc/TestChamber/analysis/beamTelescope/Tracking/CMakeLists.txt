@@ -6,8 +6,8 @@ PROJECT(alignment)
 cmake_minimum_required(VERSION 2.4)
 
 
-INCLUDE_DIRECTORIES($ENV{ROOTSYS}/include $ENV{ROOTSYS}/include/Math/ /afs/e18/panda/SIM/sdorheim/gemMonitor/src ../../src)
-LINK_DIRECTORIES(../../../)
+INCLUDE_DIRECTORIES($ENV{ROOTSYS}/include $ENV{ROOTSYS}/include/Math/ /afs/e18/panda/SIM/sdorheim/gemMonitor/src/ ../../src)
+LINK_DIRECTORIES(../../../ /afs/e18/panda/SIM/sdorheim/gemMonitor/src/)
 
  
 SET(SOURCES tracking.cxx helpers.cpp ../../../src/TChough2.cxx)
