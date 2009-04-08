@@ -3,12 +3,42 @@
  * order to generate weight file to be used by the KNN based
  * classifier.
  */
+#include <sstream>
+
 #include "PndKnnTrain.h"
 #include "TRandom3.h"
 
-//int main(int argc, char** argv){
-int main(){
-  int totEvtNum = 100000;
+int str2int (const std::string &str)
+{
+  std::stringstream ss(str);
+  int n;
+  ss >> n;
+  return n;
+}
+
+std::string int2str (int n)
+{
+  std::stringstream ss;
+  ss << n;
+  return ss.str();
+}
+
+
+int main(int argc, char** argv)
+{
+  if(argc < 3){
+    std::cerr << "\t<ERROR> Usage\n"
+	      <<"\t./train <NumEvents> <OutFile>"
+	      << std::endl;
+    return 1;
+  }
+
+  int totEvtNum = 0;
+  std::string numstr = argv[1];
+  std::istringstream buff(numstr);
+  buff >> totEvtNum;
+
+  std::string ot   = argv[2];
   
   std::vector<std::string> clas;
   std::vector<std::string> nam;
@@ -20,7 +50,7 @@ int main(){
   nam.push_back("p");   nam.push_back("stt"); nam.push_back("tpc");
 
 
-  std::string ot   = "Test.root";
+
   const char* file = ot.c_str();
   
   PndKnnTrain bla (file,clas,nam);

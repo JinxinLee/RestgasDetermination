@@ -24,7 +24,7 @@ LIBS    += $(shell root-config --libs)
 
 
 # Define binary file name.
-BINS = classify train
+BINS = classify train kdKnnTMVA
 
 # Define targets
 
@@ -49,6 +49,11 @@ classify: % : %.cpp $(HEADS)/*.h PndKnnClassify
 	$(CXX) $(CCFLAGS) -c $< $(INCLUDE) -o $@.o
 	$(CXX) $(CCFLAGS) classify.o PndKnnClassify.o $(INCLUDE) $(LIBS) -o $@
 	@echo "Done building the classifier."
+	@echo ""
+
+kdKnnTMVA: % : %.cpp $(HEADS)/*.h
+	$(CXX) $(CCFLAGS) $< $(INCLUDE) $(LIBS) -o $@
+	@echo "Done building Sample."
 	@echo ""
 
 clean:

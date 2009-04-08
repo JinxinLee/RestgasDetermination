@@ -4,6 +4,8 @@
  * algorithm. An implementation of kd-tree is used to improve the
  * recognition performance.
  */
+#include <sstream>
+
 #include "PndKnnClassify.h"
 #include "TRandom3.h"
 #include "TStopwatch.h"
@@ -23,10 +25,22 @@ void printResult(std::map<std::string,float>& res){
  * *********************************************
  */
 
-//int main(int argc, char** argv)
-int main()
+int main(int argc, char** argv)
 {
-  TRandom3 myran(129);
+  if(argc < 3){
+    std::cerr <<"\t<ERROR>" 
+	      <<"./classify <inputFile> <numOfneigh>"
+	      <<std::endl;
+      return 1;
+  }
+  
+  std::string InPutFileName = argv[1];
+  std::string NumNeistr = argv[2];
+  std::istringstream buff(NumNeistr);
+  int NumNei = 0;
+  buff >> NumNei;
+
+  TRandom3 myran(1237557);
   std::vector<std::string> clas;
   std::vector<std::string> nam;
   
@@ -44,7 +58,7 @@ int main()
   timer.Start();
 
   //Create the classifier object and specify the weight file
-  PndKnnClassify cls ("Test.root",clas,nam);
+  PndKnnClassify cls (InPutFileName.c_str(), clas, nam);
   cls.SetEvtParam(0.8,1.0);
   cls.Init();
   std::cout << ".......... Init is done." << std::endl;
@@ -59,7 +73,7 @@ int main()
   
   evt.clear();
   for(unsigned int j = 0; j < nam.size(); j++){
-    evt.push_back(myran.Gaus(2,8));
+    evt.push_back(myran.Gaus(2,10));
     evt1.push_back(myran.Uniform(-10,10));
     evt2.push_back(myran.Uniform(30,50));
   }
@@ -70,7 +84,7 @@ int main()
   TStopwatch timer1;
   timer1.Start();
 
-  cls.Classify(evt, 200, res);
+  cls.Classify(evt, NumNei, res);
   printResult(res);
   //cls.print();
   /*
