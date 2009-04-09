@@ -14,7 +14,7 @@
 #include "TTree.h"
 #include "TDatabasePDG.h"
 #include "FairTrackParH.h"
-#include"TRandom3.h"
+
 #include "DetPlane.h"
 #include "GeaneTrackRep.h"
 #include "PndTpcPoint.h"
@@ -31,16 +31,11 @@ using namespace std;
 // -----   Default constructor   -------------------------------------------
 SPtestTask::SPtestTask() :
   FairTask("Test") { 
-  loadPos=0;
-  loadPosC=0;
-  loadMom=0;
-  loadMomC=0;
-
   _nEv=500;
   _th=TMath::Pi()/4.;
   _posSig=0.1;
-  _thSm=2.;
-  _phiSm=2.;
+  _thSm=5.;
+  _phiSm=5.;
   _mom=0.5;
   _momSm=0.1;
   _res=0.05;
@@ -52,16 +47,17 @@ SPtestTask::SPtestTask() :
 // -----   Destructor   ----------------------------------------------------
 SPtestTask::~SPtestTask() { }
 // -------------------------------------------------------------------------
-
+#include"signal.h"
+#include"stdlib.h"
+void myhandler(int sig){
+  std::cerr << "myhandler for sig " << sig << std::endl;
+  abort();
+}
 // -----   Public method Init   --------------------------------------------
 InitStatus SPtestTask::Init() {
-  TFile::Open("events.root");
-  intree = (TTree*)gROOT->FindObject("ev");
-  intree->SetBranchAddress("pos",&loadPos);
-  intree->SetBranchAddress("posC",&loadPosC);
-  intree->SetBranchAddress("mom",&loadMom);
-  intree->SetBranchAddress("momC",&loadMomC);
-
+  signal(8,myhandler);
+  signal(10,myhandler);
+  signal(11,myhandler);
   // Get RootManager
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
@@ -94,12 +90,11 @@ void SPtestTask::Exec(Option_t* opt) {
   TFile *file = TFile::Open(fileName.c_str(),"RECREATE");
 
   // 	cout << "SPtestTask::Exec" << endl;
-  TRandom3 *myRand = new TRandom3();
-  myRand->SetSeed(12);  
-  gRandom->SetSeed(12);
+  gRandom->SetSeed(4);  
 
   Int_t PDGCode= -13;//mu+ tested
     
+
   tree = new TTree("t","SPtestTask output");
   tree->Branch("momRe",&momRe,"momRe/D");
   tree->Branch("momTr",&momTr,"momTr/D");
@@ -126,25 +121,58 @@ void SPtestTask::Exec(Option_t* opt) {
   tree->Branch("thSt",&thSt,"thSt/D");
   tree->Branch("phiTr",&phiTr,"phiTr/D");
   tree->Branch("phiSt",&phiSt,"phiSt/D");
-
-
-  _nEv = intree->GetEntries();
+  tree->Branch("chi2",&chi2,"chi2/D");
+  tree->Branch("nfail",&nfail,"nfail/I");
 
   for(int counter=0;counter<_nEv;++counter){
 
     std::cerr << "@@@@@@@@@@@@@@@@ Doing event #" << counter << std::endl;
-    std::cout << "@@@@@@@@@@@@@@@@ Doing event #" << counter << std::endl;
-    
-    TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
+
+	TVector3 StartPos    = TVector3 (0.1,20.,1.);
+	TVector3 StartPosChanged    = StartPos;
+	StartPosChanged.SetX(gRandom->Gaus(StartPosChanged.X(),_posSig));
+	StartPosChanged.SetY(gRandom->Gaus(StartPosChanged.Y(),_posSig));
+	StartPosChanged.SetZ(gRandom->Gaus(StartPosChanged.Z(),_posSig));
+	TVector3 StartPosErr = TVector3(1.,1.,1.);
+	TVector3 StartMom    = TVector3 (1.,0.,1.);
+	double phi = gRandom->Uniform()*2.*TMath::Pi();
+	StartMom.SetTheta(_th);
+	StartMom.SetPhi(phi);
+
+
+	TVector3 StartMomChanged    = StartMom;
+	double rand1 = (gRandom->Uniform()-0.5)/180.*TMath::Pi()*2.*_thSm;
+	double rand2 = (gRandom->Uniform()-0.5)/180.*TMath::Pi()*2.*_phiSm;
+	StartMomChanged.SetTheta(StartMomChanged.Theta()+rand1);
+	StartMomChanged.SetPhi(StartMomChanged.Phi()+rand2);
+
+
+	thTr=StartMom.Theta();
+	phiTr=StartMom.Phi();
+	thSt=StartMomChanged.Theta();
+	phiSt=StartMomChanged.Phi();
+	
+
+	double u1 =   gRandom->Uniform();
+	double u2 =   gRandom->Uniform();
+	StartMom.SetMag(_mom);
+	StartMomChanged.SetMag(StartMom.Mag()+(u2-0.5)*2.*_mom*_momSm);
+	TVector3 StartMomErr = TVector3(0.5,0.5,0.5);
+
+	std::cout << "counter" << counter << " " << StartMomChanged.Mag() << std::endl;	
+	
+	TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
 	TParticlePDG *fParticle= fdbPDG->GetParticle(PDGCode);
 	Double_t  fCharge= fParticle->Charge();
 	
-	intree->GetEntry(counter);
 
-	TVector3 StartPos=*loadPos;
-	TVector3 StartPosChanged=*loadPosC;
-	TVector3 StartMom=*loadMom;
-	TVector3 StartMomChanged=*loadMomC;
+
+	DetPlane start_pl(StartPos,StartMom);
+	DetPlane start_plChanged(StartPosChanged,StartMomChanged);
+	
+	TVector3 errors(_res,_res,2.*_res);
+	std::vector<TVector3> points;
+	
 	std::cerr << StartPos.X() << " " << StartPos.Y() << " " << StartPos.Z() << " " << std::endl;
 	std::cerr << StartPosChanged.X() << " " << StartPosChanged.Y() << " " << StartPosChanged.Z() << " " << std::endl;
 	std::cerr << StartMom.X() << " " << StartMom.Y() << " " << StartMom.Z() << " " << std::endl;
@@ -155,16 +183,8 @@ void SPtestTask::Exec(Option_t* opt) {
 	std::cerr << StartMomChanged.Theta()/TMath::Pi()*180. << std::endl;
 	std::cerr << StartMom.Phi()/TMath::Pi()*180. << std::endl;
 	std::cerr << StartMomChanged.Phi()/TMath::Pi()*180. << std::endl;
-	TVector3 StartPosErr = TVector3(1.,1.,1.);
-	TVector3 StartMomErr = TVector3(0.5,0.5,0.5);
+	
 
-	DetPlane start_pl(StartPos,StartMom);
-	DetPlane start_plChanged(StartPosChanged,StartMomChanged);
-	
-	TVector3 errors(_res,_res,2.*_res);
-	std::vector<TVector3> points;
-	
-	
 	AbsTrackRep* rep = new GeaneTrackRep(fPro,
 					     start_plChanged,StartMomChanged,
 					     StartPosErr,StartMomErr,
@@ -188,16 +208,16 @@ void SPtestTask::Exec(Option_t* opt) {
 	  d.Print();
 	*/
 	
-	std::cout << "INIT MOMENTUM: " << rep->getMom().Mag() << std::endl;
+	//std::cout << "INIT MOMENTUM: " << rep->getMom().Mag() << std::endl;
 	
 	
-	std::cout << "TRACK MOMENTUM: " << rephits->getMom().Mag() << std::endl;
+	//std::cout << "TRACK MOMENTUM: " << rephits->getMom().Mag() << std::endl;
 	
 
 	const int NPOINTS=25;
 	DetPlane lastPlane;
 	for(int i=0;i<NPOINTS;++i){
-	  std::cout << "eeeee" << std::endl;
+	  //std::cout << "eeeee" << std::endl;
 	  
 	  TVector3 pos,mom;
 	  
@@ -206,7 +226,7 @@ void SPtestTask::Exec(Option_t* opt) {
 		pos = rephits->getPos();
 		mom = rephits->getMom();
 	  }
-	  //	  rephits->getReferencePlane().Print();
+	  rephits->getReferencePlane().Print();
 	  //pos.Print();
 	  //mom.Print();
 	  mom.SetMag(1.5);
@@ -231,7 +251,7 @@ void SPtestTask::Exec(Option_t* opt) {
 	  
 	  points.push_back(posR);
 	  //std::cout << "############" << std::endl;
-	  std::cout << "fffff" << std::endl;
+	  //std::cout << "fffff" << std::endl;
 	  if(i==(NPOINTS-1)){
 		lastPlane = d;
 	  }
@@ -239,7 +259,7 @@ void SPtestTask::Exec(Option_t* opt) {
 	
 	DetPlane targetPlane = lastPlane;
 	targetPlane.setO(targetPlane.getO()+targetPlane.getNormal());
-	//lastPlane.Print();
+	lastPlane.Print();
 
 	std::cout << std::endl << std::endl << std::endl<<"targetPlane" << std::endl;
 	targetPlane.Print();
@@ -252,13 +272,13 @@ void SPtestTask::Exec(Option_t* opt) {
 
 	for(int i=0;i<(int)points.size();++i){
 	  AbsRecoHit* aHit;
-	  if(i>=points.size()-12){
-	    aHit = new StripHit(points.at(i),i,_res);
-	  }
-	  else{
+	  //if(i>=points.size()-12){
+	  //aHit = new StripHit(points.at(i),i,_res);
+	  //}
+	  //else{
 	    //pointsReverse.at(i).Print();
 	    aHit = new SPhit(points.at(i),errors);
-	  }
+		//}
 	  tr->addHit(aHit,3,i);
 	}
 	
@@ -280,8 +300,9 @@ void SPtestTask::Exec(Option_t* opt) {
 	result->getReferencePlane().Print();
 	if(result->getStatusFlag()!=0) {
 	  std::cerr << "counter result->getStatusFlag()!=0)" << std::endl;
-	  delete rephits;
 	  delete tr;
+	  delete rephits;
+
 	  continue;
 	}
 	printf("hitsmom %10.10f\n",StartMom.Mag());
@@ -355,6 +376,7 @@ void SPtestTask::Exec(Option_t* opt) {
 	  vpSi=UpVp_SIGMA.Y();
 	  vpPu=(vpRe-vpTr)/vpSi;
 	  chi2=result->getRedChiSqu();
+	  nfail=tr->getFailedHits(3);
 	  std::cerr<<"NDF " << result->getNDF() << std::endl;
 	}
 	else{
@@ -366,9 +388,8 @@ void SPtestTask::Exec(Option_t* opt) {
 
 	std::cerr << "%%%%%%%%%%%%% " << tr->getNumHits() << " " << tr->getFailedHits(3) << std::endl;
 
-
-	delete rephits;
 	delete tr;
+	delete rephits;
   }
 
   tree->Write();
