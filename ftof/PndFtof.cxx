@@ -169,13 +169,9 @@ Bool_t PndFtof::ProcessHits(FairVolume* vol)
 	  gMC->CurrentVolOffID(1,cp) ;
 	  
 
-	
-	  if(cp==0)fVolumeID = (cp+1) * (1 + vol->getCopyNo());
-	  else fVolumeID = (cp) * (1 + vol->getCopyNo());
+	  fVolumeID = vol->getMCid();
 	 
-	  //FullName << gGeoManager->GetPath();
-      
-	  
+	 
 	  
 	  cout << "*******  Info from gMC *************" << endl;
 	  //Int_t cp=-1;
@@ -213,6 +209,8 @@ Bool_t PndFtof::ProcessHits(FairVolume* vol)
 	       fdist,fPLin,fPLout);
 
         PndStack* stack = (PndStack*) gMC->GetStack();
+	// that has to be replaced by 
+	// the corresponding KFTOF
         stack->AddPoint(kTOF);
 	
         ResetParameters();
