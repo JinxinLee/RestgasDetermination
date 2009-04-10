@@ -1,3 +1,4 @@
+
 //-----------------------------------------------------------
 // File and Version Information:
 // $Id$
@@ -265,7 +266,9 @@ GeaneTrackRep::extrapolateToPoca(const TVector3& pos,
 
   FairTrackParP result;
   Bool_t prop = kTRUE;
-
+  std::cout << "###############################################" << std::endl;
+  pos.Print();
+  _refPlane.Print();
   prop = _geane->Propagate(&par,&result,_pdg);   //211
   if (prop==kFALSE) {
     FitterException exc("GEANE propagation failed",__LINE__,__FILE__);
