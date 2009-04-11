@@ -18,7 +18,7 @@
 #include "DetPlane.h"
 #include "GeaneTrackRep.h"
 #include "PndTpcPoint.h"
-
+#include"FitterExceptions.h"
 
 #include "Track.h"
 #include "Kalman.h"
@@ -223,8 +223,16 @@ void SPtestTask::Exec(Option_t* opt) {
 	  
 	  {
 		//StdoutKiller k;
+	    try{
 		pos = rephits->getPos();
 		mom = rephits->getMom();
+	    }
+	    catch(FitterException& e){
+	      e.what();
+	      std::cerr<<"Exceptions in SPtestTask wont be further handled _.exit(1)"<<std::endl;
+	      exit(1);
+	    }
+
 	  }
 	  rephits->getReferencePlane().Print();
 	  //pos.Print();
@@ -236,13 +244,30 @@ void SPtestTask::Exec(Option_t* opt) {
 	  TVector3 posR,momR;
 	  {
 		//StdoutKiller k;
-		rephits->getPosMom(d,posR,momR);
+
+	    try{
+	      rephits->getPosMom(d,posR,momR);
+
+	    }
+	    catch(FitterException& e){
+	      e.what();
+	      std::cerr<<"Exceptions in SPtestTask wont be further handled _.exit(1)"<<std::endl;
+	      exit(1);
+	    }
+
 	  }
 	  TMatrixT<double> statePred(5,1);
 	  TMatrixT<double> covPred(5,5);
 	  {
 		//StdoutKiller k; 
-		rephits->extrapolate(d,statePred,covPred);
+	    try{
+	      rephits->extrapolate(d,statePred,covPred);
+	    }
+	    catch(FitterException& e){
+	      e.what();
+	      std::cerr<<"Exceptions in SPtestTask wont be further handled _.exit(1)"<<std::endl;
+	      exit(1);
+	    }
 	  }
 	  rephits->setState(statePred);
 	  rephits->setCov(covPred);
