@@ -18,15 +18,11 @@ Kalman::Kalman():_lazy(0),_initialDirection(1),_numIt(3),_blowUpFactor(20.),_nul
 
 Kalman::~Kalman(){;}
 
-
 void Kalman::processTrack(Track* trk){
-
-  
-  
   int direction=_initialDirection;
   assert(direction==1 || direction==-1);
   /*why is there a factor of two here (in the for statement)?
-    Because we consider on full iteration to be one back and
+    Because we consider one full iteration to be one back and
     one forth fitting pass */
   for(int i=0; i<2*_numIt; i++){
     _fitPassCounter=i;
@@ -131,7 +127,6 @@ Kalman::fittingPass(Track* trk, int direction){
 		    continue; // go to next rep immediately
 		  }
 		}	
-		
 	  }
     }// end loop over reps
     ihit+=direction;
