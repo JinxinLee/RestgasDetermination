@@ -162,9 +162,27 @@ DetPlane::Print() const
     
 }
 
+#define DETPLANE_EPSILON 1.E-8
 
 bool operator== (const DetPlane& lhs, const DetPlane& rhs){
-  return lhs._o==rhs._o && lhs._u==rhs._u && lhs._v == rhs._v;
+  if(
+     fabs( (lhs._o.X()-rhs._o.X())/lhs._o.X() ) > DETPLANE_EPSILON  ||
+     fabs( (lhs._o.Y()-rhs._o.Y())/lhs._o.Y() ) > DETPLANE_EPSILON  ||
+     fabs( (lhs._o.Z()-rhs._o.Z())/lhs._o.Z() ) > DETPLANE_EPSILON 
+     ) return false;
+  else if(
+	  fabs( (lhs._u.X()-rhs._u.X())/lhs._u.X() ) > DETPLANE_EPSILON  ||
+	  fabs( (lhs._u.Y()-rhs._u.Y())/lhs._u.Y() ) > DETPLANE_EPSILON  ||
+	  fabs( (lhs._u.Z()-rhs._u.Z())/lhs._u.Z() ) > DETPLANE_EPSILON 
+	  ) return false;
+  else if(
+	  fabs( (lhs._v.X()-rhs._v.X())/lhs._v.X() ) > DETPLANE_EPSILON  ||
+	  fabs( (lhs._v.Y()-rhs._v.Y())/lhs._v.Y() ) > DETPLANE_EPSILON  ||
+	  fabs( (lhs._v.Z()-rhs._v.Z())/lhs._v.Z() ) > DETPLANE_EPSILON 
+	  ) return false;
+  return true;
+
+  //   return lhs._o==rhs._o && lhs._u==rhs._u && lhs._v == rhs._v;
 
 }
 
