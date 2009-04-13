@@ -60,6 +60,7 @@ PndTpcIdealTrackingTask::PndTpcIdealTrackingTask()
     _persistence(kFALSE),_useGeane(kFALSE),_geanePro(NULL), 
     _useDistSorting(kFALSE)
 {
+  myrandom.SetSeed(1);
   _clusterBranchName = "PndTpcCluster";
 }
 
@@ -171,27 +172,44 @@ PndTpcIdealTrackingTask::Exec(Option_t* opt)
 
   //loop over track candidates
   std::map<unsigned int,TrackCand*>::iterator candit=candlist.begin();
+  int count =0;
   while(candit!=candlist.end()){
+    count++;
+    std::cout<<count<<std::endl;
     TrackCand* cand=candit->second;
-    if(cand->getNHits()<4){
+    if(cand->getNHits()<10){
       ++candit;
       continue;
     }
     unsigned int trackid=candit->first;
     PndMCTrack* mc=(PndMCTrack*)_mcTrackArray->At(trackid);
     int pdg=mc->GetPdgCode();
+    //avoid geane crash for deuterons
+    if(pdg>1000000000) {
+      ++candit;
+      continue;
+    }
     double q=1.;
-	if(TDatabasePDG::Instance()->GetParticle(mc->GetPdgCode()))	{
-		q=TDatabasePDG::Instance()->GetParticle(mc->GetPdgCode())->Charge()/3.;
-	}
-	else	{
-		std::cout << "PndTpcIdealTrackingTask: Can' t get Particle for PDG " << mc->GetPdgCode() <<
-		"q just set to 1" << std::endl;
-	}
+    if(TDatabasePDG::Instance()->GetParticle(mc->GetPdgCode()))	{
+      q=TDatabasePDG::Instance()->GetParticle(mc->GetPdgCode())->Charge()/3.;
+    }
+    else	{
+      std::cout << "PndTpcIdealTrackingTask: Can' t get Particle for PDG " << mc->GetPdgCode() <<
+	"q just set to 1" << std::endl;
+    }
     
-  
-    TVector3 pos=mc->GetStartVertex()+TVector3(0.001,0.001,0.001);
+    
+    TVector3 pos=mc->GetStartVertex()+TVector3(myrandom.Uniform(-0.1,0.1),
+					       myrandom.Uniform(-0.1,0.1),
+					       myrandom.Uniform(-0.1,0.1));
+    if(pos.Mag()<1.E-3) pos.SetMag(1.E-3);
     TVector3 mom=mc->GetMomentum();
+    mom.SetMag(mom.Mag()*myrandom.Uniform(0.9,1.1));
+    mom.SetTheta(mom.Theta() + myrandom.Uniform(-2./180.*TMath::Pi(),
+						2./180.*TMath::Pi()));
+    mom.SetPhi(mom.Phi() + myrandom.Uniform(-2./180.*TMath::Pi(),
+					    2./180.*TMath::Pi()));
+    
     TVector3 poserr(1.,1.,1.);
     TVector3 momerr=0.3*mom; //  10% error
     momerr+=TVector3(0.1,0.1,0.1);
@@ -207,8 +225,7 @@ PndTpcIdealTrackingTask::Exec(Option_t* opt)
     AbsTrackRep* rep=0;
     if(_useGeane){
       DetPlane pl(pos,u,v);
-      if(pdg<=0 || pdg>=10000){
-	pdg=211;}
+      
       GeaneTrackRep* grep=new GeaneTrackRep(_geanePro,pl,mom,poserr,momerr,q,pdg);
       grep->setPropDir(1); // propagate in flight direction!
       rep=grep;

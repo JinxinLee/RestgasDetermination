@@ -23,6 +23,7 @@
 
 // Collaborating Class Headers -------
 #include <ostream> // remove if you do not need streaming op
+#include "TRandom3.h"
 
 // Collaborating Class Declarations --
 #include "PndTpcCluster.h"
@@ -78,6 +79,7 @@ private:
   RecoHitFactory* _theRecoHitFactory;
   FairGeanePro* _geanePro;
 
+  TRandom3 myrandom;
   // Private Methods -----------------
 
 public:
