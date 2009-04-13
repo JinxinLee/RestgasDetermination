@@ -77,9 +77,9 @@ void PndTpcDetector::EndOfEvent()
 
 void PndTpcDetector::Register() {
 
-/** This will create a branch in the output tree called  PndTpcDetectorPoint, setting the last parameter to kFALSE means:
-
-    this collection will not be written to the file, it will exist only during the simulation. */
+/* This will create a branch in the output tree called PndTpcDetectorPoint, 
+   setting the last parameter to kFALSE means:
+   this collection will not be written to the file, it will exist only during the simulation. */
  
    FairRootManager::Instance()->Register("PndTpcPoint", "PndTpc", fPndTpcPointCollection, kTRUE);
 }
@@ -88,23 +88,29 @@ Bool_t
 PndTpcDetector::ProcessHits( FairVolume *v)
 {
   Double_t q= gMC->TrackCharge();
-  if(q==0)return kTRUE;
+  if(q==0) {
+    //std::cout<<"\nPndTpcDetector::ProcessHits: EXIT q==0"<<std::endl;
+    return kTRUE;
+  }
   // create Hit for every MC step where energy is deposited
   Double_t eLoss = gMC->Edep();
-  if(eLoss<=0)return kTRUE;	// if you want to have no energy loss but still have hits
-  						// changeing this might help
-						
+  if(eLoss<=0) {
+    //std::cout<<"\nPndTpcDetector::ProcessHits: EXIT eLoss<=0"<<std::endl;
+    return kTRUE;	
+    // if you want to have no energy loss but still have hits 
+  }
   Double_t time   = gMC->TrackTime() * 1.0e09;
   Double_t length = gMC->TrackStep();
   TLorentzVector pos;
   gMC->TrackPosition(pos);
-  //pos.Print();
   TLorentzVector mom;
   gMC->TrackMomentum(mom);
-  //mom.Print();
+  
   
   if(fAliMC) {
     if(mom.Rho()<=1e-12) { //keep ALICE code from dividing by zero
+      std::cout<<"\n*** mom.Rho()="<<mom.Rho()<<": protect ALICE mode from low momentum, skipping"
+	       <<std::endl;
       return kTRUE;
     }
   }
@@ -124,22 +130,21 @@ PndTpcDetector::ProcessHits( FairVolume *v)
     
     //if this is a low momentum particle (e.g. delta) assign mother id
     //if(mom.E()<10.*1E-6){ // E<10keV
+  
     TParticle* mother=gMC->GetStack()->GetCurrentTrack();
     while(!mother->IsPrimary()){
       trackID=mother->GetFirstMother();
       mother=dynamic_cast<PndStack*>(gMC->GetStack())->GetParticle(trackID);
       //std::cout<<"Fetching mother id="<<trackID<<std::endl;
     }
-    //}
-    
-    //gotta love TClonesArray syntax!
-    PndTpcPoint* p=AddHit(trackID, volumeID, pos.Vect(), mom.Vect(), time, length, eLoss);
-    
-  //p->Print("");
-    
-    return kTRUE;
   }
+    
+  //gotta love TClonesArray syntax!
+  PndTpcPoint* p=AddHit(trackID, volumeID, pos.Vect(), mom.Vect(), time, length, eLoss);
+  
+  return kTRUE;
 }
+
 
 
 //copy & paste from AliTPCv3.cxx
@@ -155,8 +160,8 @@ void PndTpcDetector::AliTPCv3_SetStepToNextCollision()
   Float_t beta_gamma = ptot/gMC->TrackMass();
   
 
-  //gMC->IdFromPDG(gMC->TrackPid()) <= 3 : electron(3), positron(2), photon(1)
-  //                                       unused(0)
+  /*gMC->IdFromPDG(gMC->TrackPid()) <= 3 : electron(3), positron(2), photon(1)
+                                           unused(0)  */
 
   if(gMC->IdFromPDG(gMC->TrackPid()) <= 3 && ptot > 0.02)  //typo in Alice File ??
     { 
