@@ -16,6 +16,7 @@
 #pragma link C++ class  PndTpcLheTrackFitter+;
 #pragma link C++ class  PndTpcLheTrackCuts+;
 #pragma link C++ class  PndTpcLheTrackFinder+;
+#pragma link C++ class  PndLheTrackFinderIdeal+;
 #pragma link C++ class  PndLhePidMaker+;
 #pragma link C++ class  PndLhePidTrack+;
 #pragma link C++ class  PndLheKalmanTask+;

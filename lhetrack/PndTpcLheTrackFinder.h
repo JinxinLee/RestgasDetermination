@@ -33,7 +33,6 @@ protected:
 
   enum Momentum {HIGH, INTERMED, LOW};
 
-  PndTpcLheTrackFitter *fFitter;
   PndTpcLhePoint  *fVertex;       // pointer to the vertex
 
   TClonesArray  *fCMHits;       // Array of hits transformed with conformal mapping

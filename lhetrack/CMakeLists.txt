@@ -41,6 +41,7 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(LHETrack_SRCS
 PndTpcLheTrackFinder.cxx
+PndLheTrackFinderIdeal.cxx
 PndTpcLheSegments.cxx
 PndTpcLheHit.cxx
 PndTpcLheTrackCuts.cxx      
@@ -69,6 +70,7 @@ PndTpcLheTrackCuts.h
 PndTpcLheTrack.h   
 PndTpcLheCMPoint.h  
 PndTpcLheTrackFinder.h
+PndLheTrackFinderIdeal.h
 PndTpcLheTrackFitter.h 
 PndLheHitsMaker.h
 PndTpcLheCMTrack.h   
