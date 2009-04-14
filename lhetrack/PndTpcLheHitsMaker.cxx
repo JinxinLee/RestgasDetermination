@@ -381,8 +381,7 @@ void PndTpcLheHitsMaker::GetMvdHits() {
       hit->SetZerr(0.005);
 
       hit->SetDetectorId(kMVDHitsPixel);
-      //hit->SetTrackID(point->GetTrackID());
-      hit->SetTrackID(-1);
+      hit->SetTrackID(hit->GetRefIndex());
       hit->SetRefIndex(j2);
       
       if (fVerbose)  hit->Print();
@@ -416,8 +415,7 @@ void PndTpcLheHitsMaker::GetMvdHits() {
       hit->SetZerr(0.005);
 
       hit->SetDetectorId(kMVDHitsStrip);
-      //hit->SetTrackID(point->GetTrackID());
-      hit->SetTrackID(-1);
+      hit->SetTrackID(hit->GetRefIndex());
       hit->SetRefIndex(j);
       
       if (fVerbose)  hit->Print();
@@ -509,8 +507,7 @@ void PndTpcLheHitsMaker::GetTpcClusters() {
     hit->SetZerr(clu->sig().Z());
 
     hit->SetDetectorId(kTpcCluster);
-    //hit->SetTrackID(point->GetTrackID());
-    hit->SetTrackID(-1);
+    hit->SetTrackID(clu->mcId().DominantID().mctrackID());
     hit->SetRefIndex(j);
     
     if (fVerbose)  hit->Print();
@@ -602,8 +599,7 @@ void PndTpcLheHitsMaker::GetSttHit() {
     hit->SetZerr(.5);
 
     hit->SetDetectorId(kSttHit);
-    //hit->SetTrackID(point->GetTrackID());
-    hit->SetTrackID(-1);
+    hit->SetTrackID(hit->GetRefIndex());
     hit->SetRefIndex(j);
     
     if (fVerbose)  hit->Print();
@@ -649,8 +645,7 @@ void PndTpcLheHitsMaker::GetSttHelixHit() {
     hit->SetZerr(.5);
 
     hit->SetDetectorId(kSttHelixHit);
-    //hit->SetTrackID(point->GetTrackID());
-    hit->SetTrackID(-1);
+    hit->SetTrackID(hit->GetRefIndex());
     hit->SetRefIndex(j);
     
     if (fVerbose)  hit->Print();
