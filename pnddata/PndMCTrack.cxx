@@ -1,6 +1,7 @@
 // -------------------------------------------------------------------------
 // -----                      PndMCTrack source file                   -----
-// -----                  Created 03/08/04  by V. Friese               -----
+// -----                  Created 03/08/04  by V. Friese (CbmMCTrack)  -----
+// -----                  Created 11/02/09  by  M. Al-Turany           -----
 // -------------------------------------------------------------------------
 
 
@@ -112,7 +113,8 @@ Int_t  PndMCTrack::GetNPoints(DetectorId detId) const {
   else if ( detId == kHYP ) return ( (fPoints  & (3 << 20) ) >> 20 );
   else if ( detId == kRPC ) return ( (fPoints  & (3 << 22) ) >> 22 );
   else if ( detId == kLUMI) return ( (fPoints  & (3 << 24) ) >> 24 );	
-	
+  else if ( detId == kHYPG) return ( (fPoints  & (3 << 26) ) >> 26 );
+  		
   else {
     cout << "-E- PndMCTrack::GetNPoints: Unknown detector ID "
 	 << detId << endl;
@@ -197,6 +199,11 @@ void PndMCTrack::SetNPoints(Int_t iDet, Int_t  nPoints) {
     fPoints = ( fPoints & ( ~ ( 3 << 24 ) ) )  |  ( nPoints << 24 );
   }
 	
+  else if ( iDet == kHYPG ) {
+    if      ( nPoints < 0 ) nPoints = 0;
+    else if ( nPoints > 3 ) nPoints = 3;
+    fPoints = ( fPoints & ( ~ ( 3 << 26 ) ) )  |  ( nPoints << 26 );
+  }
 	
 	
 	
