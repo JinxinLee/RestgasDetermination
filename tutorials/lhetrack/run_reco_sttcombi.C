@@ -54,7 +54,7 @@
   // ------------------------------------------------------------------------
   // -----   LHETRACK  ---------------------------------
   
-  PndTpcLheHitsMaker* trackMS = new PndTpcLheHitsMaker("Tracking routine");
+  PndLheHitsMaker* trackMS = new PndLheHitsMaker("Tracking routine");
   trackMS->SetSttMode(3);  // 0 OFF, 1 SttPoint, 2 SttHit, (3) SttHelixHit // SttPoint smearing [cm], if negative no smearing
   trackMS->SetMvdMode(2);  // 0 OFF, 1 MVDPoint, 2 MVDHit     // MVDPoint smearing [cm], if negative no smearing
   fRun->AddTask(trackMS);
