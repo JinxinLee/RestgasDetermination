@@ -1,6 +1,6 @@
 // -------------------------------------------------------------------------
-// -----                     PndgemStation source file                 -----
-// -----                  Created 31/03/05  by V. Friese               -----
+// -----                     PndGemStation source file                 -----
+// -----                  Created 12/02/2009  by R. Karabowicz         -----
 // -------------------------------------------------------------------------
 
 #include "PndGemStation.h"

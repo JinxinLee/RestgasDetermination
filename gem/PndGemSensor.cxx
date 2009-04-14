@@ -1,11 +1,9 @@
 // -------------------------------------------------------------------------
-// -----                   PndGemStripSensor source file               -----
-// -----                  Created 01/07/2008  by R. Karabowicz         -----
+// -----                     PndGemSensor source file                  -----
+// -----                  Created 12/02/2009  by R. Karabowicz         -----
 // -------------------------------------------------------------------------
 
 #include "PndGemSensor.h"
-
-//#include "PndGemSensorDigiPar.h"
 
 #include "TMath.h"
 
@@ -171,8 +169,8 @@ Int_t PndGemSensor::GetChannel(Double_t x, Double_t y, Int_t iSide) {
    
       Double_t newX = x*TMath::Cos(corrThetaDeg)-y*TMath::Sin(corrThetaDeg);
       Double_t newY = x*TMath::Sin(corrThetaDeg)+y*TMath::Cos(corrThetaDeg);
-      x= newX;
-      y= newY;
+      x = newX;
+      y = newY;
     }
 
     Double_t hitTheta = 0;

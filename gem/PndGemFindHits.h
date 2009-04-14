@@ -2,16 +2,16 @@
 
 // -------------------------------------------------------------------------
 // -----                     PndGemFindHits header file                -----
-// -----                  Created 11/09/06  by V. Friese               -----
+// -----                  Created 15/02/2009 by R. Karabowicz          -----
 // -------------------------------------------------------------------------
 
 
 /** PndGemFindHits
- *@author Volker Friese <v.friese@gsi.de>
- *@since 11.09.06
+ *@author Radoslaw Karabowicz <r.karabowicz@gsi.de>
+ *@since 15/02/2009
  *@version 1.0
  **
- ** CBM task class for finding hits in the STS
+ ** PANDA task class for finding hits in the GEM
  ** Task level RECO
  ** Produces objects of type PndGemHits out of PndGemDigi.
  **/

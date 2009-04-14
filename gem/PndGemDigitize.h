@@ -2,18 +2,18 @@
 
 // -------------------------------------------------------------------------
 // -----                    PndGemDigitize header file                 -----
-// -----                  Created 30/08/06  by V. Friese               -----
+// -----                  Created 12/02/2009 by R. Karabowicz          -----
 // -------------------------------------------------------------------------
 
 
 /** PndGemDigitise
- *@author Volker Friese <v.friese@gsi.de>
- *@since 30.08.06
+ *@author Radoslaw Karabowicz <r.karabowicz@gsi.de>
+ *@since 12.02.2009
  *@version 1.0
  **
- ** CBM task class for digitising STS
+ ** PANDA task class for digitising GEM
  ** Task level SIM
- ** Produces objects of type PndGemDigi out of PndGemPoint.
+ ** Produces objects of type PndGemDigi out of PndGemMCPoint.
  **/
 
 
@@ -29,10 +29,6 @@
 
 class TClonesArray;
 class PndGemDigiPar;
-//class FairGeoStsPar;
-//class PndGemDigiPar;
-//class PndGemDigiScheme;
-//class PndGemStation;
 
 
 

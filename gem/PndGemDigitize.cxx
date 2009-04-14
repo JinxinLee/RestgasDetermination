@@ -2,10 +2,10 @@
 
 // -------------------------------------------------------------------------
 // -----                    PndGemDigitize source file                 -----
-// -----                  Created 30/08/06  by V. Friese               -----
+// -----                  Created 12/02/2009 by R. Karabowicz          -----
 // -------------------------------------------------------------------------
 
-// Includes from STS
+// Includes from GEM
 #include "PndGemDigitize.h"
 
 // Includes from base
@@ -45,13 +45,10 @@ using std::map;
 
 // -----   Default constructor   ------------------------------------------
 PndGemDigitize::PndGemDigitize() : FairTask("GEM Digitizer", 1) {
-  //  fGeoPar      = NULL;
   fDigiPar     = NULL;
   fPoints      = NULL;
   fDigis       = NULL;
   fDigiMatches = NULL;
-  //  fDigiScheme  = new PndGemDigiScheme();
-  // Create and register output array
   Reset();
 }
 // -------------------------------------------------------------------------
@@ -61,13 +58,10 @@ PndGemDigitize::PndGemDigitize() : FairTask("GEM Digitizer", 1) {
 // -----   Standard constructor   ------------------------------------------
 PndGemDigitize::PndGemDigitize(Int_t iVerbose) 
   : FairTask("GEM Digitizer", iVerbose) { 
-  //  fGeoPar      = NULL;
   fDigiPar     = NULL;
   fPoints      = NULL;
   fDigis       = NULL;
   fDigiMatches = NULL;
-   // fDigiScheme  = new PndGemDigiScheme();
-  // Create and register output array
   Reset();
 }
 // -------------------------------------------------------------------------
@@ -77,13 +71,10 @@ PndGemDigitize::PndGemDigitize(Int_t iVerbose)
 // -----   Constructor with name   -----------------------------------------
 PndGemDigitize::PndGemDigitize(const char* name, Int_t iVerbose) 
   : FairTask(name, iVerbose) { 
-//   fGeoPar      = NULL;
   fDigiPar     = NULL;
   fPoints      = NULL;
   fDigis       = NULL;
   fDigiMatches = NULL;
-  //  fDigiScheme  = new PndGemDigiScheme();
-  // Create and register output array
   Reset();
 }
 // -------------------------------------------------------------------------
@@ -92,7 +83,6 @@ PndGemDigitize::PndGemDigitize(const char* name, Int_t iVerbose)
 
 // -----   Destructor   ----------------------------------------------------
 PndGemDigitize::~PndGemDigitize() { 
-  //  if ( fGeoPar)    delete fGeoPar;
   if ( fDigiPar)   delete fDigiPar;
   if ( fDigis ) {
     fDigis->Delete();
@@ -102,7 +92,6 @@ PndGemDigitize::~PndGemDigitize() {
     fDigiMatches->Delete();
     delete fDigiMatches;
   }
-  //  if ( fDigiScheme ) delete fDigiScheme;
   Reset();
 }
 // -------------------------------------------------------------------------
@@ -110,17 +99,9 @@ PndGemDigitize::~PndGemDigitize() {
 // -----   Public method Exec   --------------------------------------------
 void PndGemDigitize::Exec(Option_t* opt) {
 
-//   cout << "************************************************************************************************************************************" << endl;
-//   cout << "pixel sensor position = " << fDigiPar->GetPosition (0) << ", " << fDigiPar->GetPosition (1) << ", " << fDigiPar->GetPosition (2) << ", " 
-//        << " nofsides = " << fDigiPar->GetNofSides   () << ", from " << fDigiPar->GetInnerRadius() << " to " << fDigiPar->GetOuterRadius() << " -- pixel " 
-//        << fDigiPar->GetPixelSize(0) << " x " << fDigiPar->GetPixelSize(1) << " cm2" 
-//        << endl;
-//   cout << "************************************************************************************************************************************" << endl;
   if ( ! fHitOutputArray ) Fatal("Exec", "No fHitOutputArray");
   fHitOutputArray->Clear();
   Reset();
-  //  if ( fDigis ) fDigis->Clear();
-  //  fDigis->Clear();
 
   PndGemSensor* sensor;
 
@@ -153,14 +134,6 @@ void PndGemDigitize::Exec(Option_t* opt) {
 
     if ( sensor->GetType()!=1 ) { locPosIn[3] = locPosIn[2]; locPosIn[2] = locPosIn[1]; locPosIn[1] = locPosIn[3]; locPosIn[0] = -locPosIn[0]; }
 
-    /*    cout << "                         global (" 
-	 << posIn[0] << ", "
-	 << posIn[1] << ", "
-	 << posIn[2] << ") cm to local coord: (" 
-	 << locPosIn[0] << ", " 
-	 << locPosIn[1] << ", " 
-	 << locPosIn[2] << ") cm" << endl;*/
-    
     Int_t channelNumber = sensor->GetChannel(locPosIn[0],locPosIn[1],0);
     if ( channelNumber == -1 ) {
       TVector3 pos;
@@ -179,11 +152,6 @@ void PndGemDigitize::Exec(Option_t* opt) {
     channelNumber = sensor->GetChannel(locPosIn[0],locPosIn[1],1);
     if ( channelNumber == -1 ) continue;
 
-    /*    cout << "creating digiB#" << fNDigis << " in sensor " << sensor->GetDetectorName() << " chann. " << channelNumber 
-	 << " (" << posIn[0] << ", " << posIn[1] << ", " << posIn[2] << ") -- (" 
-	 << locPosIn[0] << ", " 
-	 << locPosIn[1] << ", " 
-	 << locPosIn[2] << ") cm" << endl;*/
     new ((*fDigis)[fNDigis]) PndGemDigi(sensor->GetDetectorId()+1, 1, channelNumber);
     fNDigis++;   
   }
@@ -205,12 +173,6 @@ void PndGemDigitize::SetParContainers() {
   // Get GEM digitisation parameter container
   fDigiPar = (PndGemDigiPar*)(db->getContainer("PndGemDetectors"));
 
-  // Get STS geometry parameter container
-  //  fGeoPar = (FairGeoStsPar*) db->getContainer("FairGeoGemPar");
-
-  // Get STS digitisation parameter container
-  //  fDigiPar = (PndGemDigiPar*) db->getContainer("PndGemDigiPar");
- 
 }
 // -------------------------------------------------------------------------
 
@@ -224,32 +186,14 @@ InitStatus PndGemDigitize::Init() {
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
   fPoints = (TClonesArray*) ioman->GetObject("GEMPoint");
 
-   fHitOutputArray = new TClonesArray("PndGemHit");
-   ioman->Register("GEMOutsideHit", "PndGem Hits in inactive region",
- 									fHitOutputArray, kTRUE);
-
-  // Register output array StsDigi
-   fDigis = new TClonesArray("PndGemDigi",1000);
-   ioman->Register("GEMDigi", "Digital response in GEM", fDigis, kTRUE);
-
-  // Register output array StsDigiMatches
-//   fDigiMatches = new TClonesArray("PndGemDigiMatch",1000);
-//   ioman->Register("STSDigiMatch", "Digi Match in STS", fDigiMatches, kTRUE);
-
-  // Build digitisation scheme
-  /*  if ( fDigiScheme->Init(fGeoPar, fDigiPar) ) {
-    if      (fVerbose == 1 || fVerbose == 2) fDigiScheme->Print(kFALSE);
-    else if (fVerbose >  2) fDigiScheme->Print(kTRUE);
-    cout << "-I- " << fName << "::Init: "
-	 << "STS digitisation scheme succesfully initialised" << endl;
-    cout << "    Stations: " << fDigiScheme->GetNStations() 
-	 << ", Sectors: " << fDigiScheme->GetNSectors() << ", Channels: " 
-	 << fDigiScheme->GetNChannels() << endl;
-    return kSUCCESS;
-  }
+  fHitOutputArray = new TClonesArray("PndGemHit");
+  ioman->Register("GEMOutsideHit", "PndGem Hits in inactive region",
+		  fHitOutputArray, kTRUE);
   
-  return kERROR;*/
-
+  // Register output array StsDigi
+  fDigis = new TClonesArray("PndGemDigi",1000);
+  ioman->Register("GEMDigi", "Digital response in GEM", fDigis, kTRUE);
+  
   return kSUCCESS;
 
 }

@@ -14,6 +14,11 @@ ${CMAKE_SOURCE_DIR}/pnddata
 ${CMAKE_SOURCE_DIR}/pnddata/GemData
 ${CMAKE_SOURCE_DIR}/passive
 ${CMAKE_SOURCE_DIR}/gem
+${CMAKE_SOURCE_DIR}/genfit
+${CMAKE_SOURCE_DIR}/recotasks
+${CMAKE_SOURCE_DIR}/trackbase
+${CMAKE_SOURCE_DIR}/trackrep
+${CMAKE_SOURCE_DIR}/geane
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -36,7 +41,14 @@ PndGemDigitize.cxx
 PndGemFindHits.cxx
 PndGemStation.cxx
 PndGemSensor.cxx
-
+PndGemIdealHitProducer.cxx
+PndGemTrack.cxx
+PndGemTrackFinder.cxx
+PndGemTrackFinderIdeal.cxx
+PndGemFindTracks.cxx
+PndGemPrepareKalmanTracks.cxx
+PndGemRecoHit.cxx
+PndGemKalmanTask.cxx
 )
 set (GEM_RULECHECKER_SRCS ${GEM_SRCS})
 

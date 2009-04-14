@@ -149,12 +149,12 @@ class PndGemDetector : public FairDetector
 
   /** Private method AddHit
    **
-   ** Adds a CbmTrdPoint to the HitCollection
+   ** Adds a PndGemMCPoint to the HitCollection
    **/
   PndGemMCPoint* AddHit(Int_t trackID, Int_t detID, TString detName,
-  		      TVector3 posIn, TVector3 posOut,
-		      TVector3 momIn, TVector3 momOut, 
-		      Double_t time, Double_t length, Double_t eLoss)const; 
+			TVector3 posIn, TVector3 posOut,
+			TVector3 momIn, TVector3 momOut, 
+			Double_t time, Double_t length, Double_t eLoss)const; 
 
 
   /** Private method ResetParameters

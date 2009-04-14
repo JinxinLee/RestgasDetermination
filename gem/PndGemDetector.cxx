@@ -142,19 +142,19 @@ Bool_t  PndGemDetector::ProcessHits(FairVolume* vol)
      TString detPath = gMC->CurrentVolPath();
      fVolumeID = 11; //Gem TODO imlement from a global enum here sth. like kGem
      AddHit(fTrackID, fVolumeID, detPath,//fGeoH->GetID(detPath),
-        TVector3(fPosIn.X(),   fPosIn.Y(),   fPosIn.Z()),
-        TVector3(fPosOut.X(),  fPosOut.Y(),  fPosOut.Z()),
-        TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),
-        TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
-        fTime, fLength, fELoss);
-
-      // Increment number of PndGem points for TParticle
-       PndStack* stack = (PndStack*) gMC->GetStack();
-       stack->AddPoint(kGEM);
-
-      ResetParameters();
-    }
-
+	    TVector3(fPosIn.X(),   fPosIn.Y(),   fPosIn.Z()),
+	    TVector3(fPosOut.X(),  fPosOut.Y(),  fPosOut.Z()),
+	    TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),
+	    TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
+	    fTime, fLength, fELoss);
+     
+     // Increment number of PndGem points for TParticle
+     PndStack* stack = (PndStack*) gMC->GetStack();
+     stack->AddPoint(kGEM);
+     
+     ResetParameters();
+  }
+  
   return kTRUE;
 }
 // -------------------------------------------------------------------------

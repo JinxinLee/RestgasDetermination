@@ -2,7 +2,7 @@
 
 // -------------------------------------------------------------------------
 // -----                    PndGemFindHits source file                 -----
-// -----                  Created 11/09/06  by V. Friese               -----
+// -----                  Created 15/02/2009 by R. Karabowicz          -----
 // -------------------------------------------------------------------------
 
 #include "PndGemFindHits.h"
@@ -365,10 +365,8 @@ Int_t PndGemFindHits::FindHits(PndGemSensor* sensor,
       pos.SetXYZ(xHit, yHit, zHit);
       dpos.SetXYZ(sigmaX, sigmaY, 0.);
       
-      //       new ((*fHits)[nHits++]) PndGemHit(sensorDetId, sensor->GetDetectorName(), pos, dpos,  
-      // 					iDigiF, iDigiB, 9);
       new ((*fHits)[nHits++]) PndGemHit(sensorDetId, sensor->GetDetectorName(), pos, dpos,  
-					iDigiF, iDigiB, dr, dp);
+					iDigiF, iDigiB, dr, dp, -1);
     }
   }
   

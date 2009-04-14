@@ -1,28 +1,29 @@
 // -------------------------------------------------------------------------
 // -----                     PndGemSensor header file                  -----
-// -----                  Created 01/07/2008  by R. Karabowicz         -----
+// -----                  Created 12/02/2009  by R. Karabowicz         -----
 // -------------------------------------------------------------------------
 
 /** PndGemSensor.h
- *@author V.Friese <v.friese@gsi.de>
- *@since 28.08.06
+ *@author Radoslaw Karabowicz <r.karabowicz@gsi.de>
+ *@since 12/02/2009
  *@version 1.0
  **
- ** This class describes the digitisation scheme for a sensor of the STS.
- ** The sensor is rectangular with extensions fLx and fLy. The following
- ** types are implemented:
- ** 1 = pixel detector without charge sharing
- ** 2 = double sides strip detector, all channels read out
- ** 3 = double sided strip detector with double metal layer,
- **     readout at the bottom corner
- ** In case of strip detectors, the internal coordinate system sees
- ** x across and y along the front side strips.
- ** The origin of the internal sensor coordinate system is at the lower 
- ** left corner of the sensor, i.e. x runs from 0 to fLx, 
- ** and y from 0 to fLy. 
- ** For strip detectors, the readout pitch is the same on the front and 
- ** the back side, i.e. the strip pitch on the back side is smaller.
- ** The sensor can be translated and rotated in the c.s. of the station. 
+ ** This class describes the digitisation scheme for a sensor of the GEM.
+ ** The sensor shape is circulare with inner and outer radius.
+ ** The sensor center is defined in 3-D space.
+ ** The rotation angle is defined as angle around the beam axis.
+ ** In the sensor two views of strip orientation are defined
+ ** by specifing the angle of rotation and the smallest pitch.
+ ** The strip rotation angle should be understood as follows:
+ ** - rotation angle  0 - radial strips
+ ** - rotation angle 90 - concentric strips
+ ** - rotation angle 60 - tilted radial strips by angle of 60deg at inner radius,
+ **                       the strips are straight, which means that the angle between
+ **                       the tilted strips and radial strips reduces as the radius grows
+ ** - rotation angle -60 - same as above, but the start angle is -60deg
+ ** The strip pitch for concentric strips is the strip width.
+ ** The strip pitch for radial and tilted strips is defined as the distance between
+ ** strip borders at the inner radius.
  **/
 
 
