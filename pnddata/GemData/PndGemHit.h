@@ -27,7 +27,7 @@
 class PndGemHit : public FairHit
 {
   friend std::ostream& operator<< (std::ostream& out, const PndGemHit& hit){
-    out << "Mvd hit in detector " << hit.GetDetName() << " at ("
+    out << "Gem hit in detector " << hit.GetDetName() << " at ("
             << hit.GetX() << ", " << hit.GetY() << ", " << hit.GetZ() << ") cm "
       << " with " << hit.GetCharge() << " e" << ", Cluster No. " << hit.GetRefIndex() << std::endl;
 
@@ -52,7 +52,7 @@ class PndGemHit : public FairHit
   PndGemHit(Int_t detID, TString detName,
   	    TVector3& pos, TVector3& dpos, Int_t index, Double_t charge, Int_t NDigiHits);
   PndGemHit(Int_t detID, TString detName,
-  	    TVector3& pos, TVector3& dpos, Int_t digi1, Int_t digi2, Double_t dr, Double_t dp);
+  	    TVector3& pos, TVector3& dpos, Int_t digi1, Int_t digi2, Double_t dr, Double_t dp, Int_t index);
 
   //PndGemHit(PndGemHit& c);
   /** Destructor **/
@@ -79,7 +79,7 @@ class PndGemHit : public FairHit
   Double_t GetDp()  const { return fDp;  };
   Int_t    GetDigiNr(Int_t iside) const { if ( iside*(iside-1) == 0 ) return fDigiNr[iside]; return -1;};
   
-  //   // CAUTION The errors in the MvdHit are LOCAL, but the coordinates are in the LAB
+  //   // CAUTION The errors in the GemHit are LOCAL, but the coordinates are in the LAB
   //
   //   Double_t GetDxLocal() const { return fDx;};
   //   Double_t GetDyLocal() const { return fDy;};

@@ -27,13 +27,18 @@ PndGemHit::PndGemHit(Int_t detID, TString detName, TVector3& pos, TVector3& dpos
   fCharge  = charge;
   fNDigiHits = NDigiHits;
   fBotIndex = -1;
+
+  fDigiNr[0]  = -1;
+  fDigiNr[1]  = -1;
+  fDr = -1;
+  fDp = -1;
 }
 // -------------------------------------------------------------------------
 
 // -----   Standard constructor   ------------------------------------------
 PndGemHit::PndGemHit(Int_t detID, TString detName, TVector3& pos, TVector3& dpos,
-		     Int_t digi1, Int_t digi2, Double_t dr, Double_t dp) 
-  : FairHit(detID, pos, dpos, -1) {
+		     Int_t digi1, Int_t digi2, Double_t dr, Double_t dp, Int_t index) 
+  : FairHit(detID, pos, dpos, index) {
   fDetName = detName;
   fCharge  = -1;
   fNDigiHits = -1;

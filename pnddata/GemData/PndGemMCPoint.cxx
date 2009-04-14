@@ -19,9 +19,9 @@ PndGemMCPoint::PndGemMCPoint() : FairMCPoint() {
 
 // -----   Standard constructor   ------------------------------------------
 PndGemMCPoint::PndGemMCPoint(Int_t trackID, Int_t detID, TString detName,
-			 TVector3 posIn, TVector3 posOut,
-			 TVector3 momIn, TVector3 momOut,
-			 Double_t tof, Double_t length, Double_t eLoss) 
+			     TVector3 posIn, TVector3 posOut,
+			     TVector3 momIn, TVector3 momOut,
+			     Double_t tof, Double_t length, Double_t eLoss) 
   : FairMCPoint(trackID, detID, posIn, momIn, tof, length, eLoss) 
 {
   fXfOut = posOut.X();
