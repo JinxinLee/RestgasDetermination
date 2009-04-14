@@ -24,7 +24,7 @@ using namespace std;
 class TClonesArray;
 class PndHypPoint;
 class PndHypSecTarPoint;
-class PndHypSTpipePoint;
+//class PndHypSTpipePoint;
 class FairVolume; 
 
 class PndHyp : public FairDetector 
@@ -149,27 +149,11 @@ class PndHyp : public FairDetector
 			    Double_t PLin,
 			    Double_t PLout);
 
-  PndHypPoint* AddSTpipeHit(Int_t trackID, Int_t evtID,
-			    Int_t detID,TString detName,
-			    TVector3 posin, 
-			    TVector3 momin,
-			    TVector3 posout, 
-			    TVector3 momout,
-			    //TVector3 posInLocal, 
-			    //TVector3 posOutLocal,
-			    Double_t tof, 
-			    Double_t length,
-			    Double_t eLoss,
-			    Double_t charge, 
-			    Double_t mass, 
-			    Int_t pdgCode,
-			    Double_t dist,
-			    Double_t PLin,
-			    Double_t PLout); 
-
+  
+  
   void PreTrack();
 
- private:
+  private:
   
   PndGeoHypPar *par;
   Int_t          fTrackID;           //  track index
@@ -201,14 +185,14 @@ class PndHyp : public FairDetector
 
   TClonesArray* fHypCollection;        //! Hit collection
   TClonesArray* fHypSecTarCollection;        // Hit collection(Absorver)
-  TClonesArray* fHypSTpipeCollection;        // Hit collection(pipehyp)
+  //TClonesArray* fHypSTpipeCollection;        // Hit collection(pipehyp)
   TRandom r; 
 
   // reset all parameters   
   void ResetParameters();
   Bool_t  fTrackStopNxtStep;
 
-  ClassDef(PndHyp,4)
+  ClassDef(PndHyp,5)
 
 }; 
 

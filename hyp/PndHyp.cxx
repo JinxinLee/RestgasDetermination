@@ -62,7 +62,7 @@ class FairVolume;
 PndHyp::PndHyp() {
   fHypCollection        = new TClonesArray("PndHypPoint");
   fHypSecTarCollection  = new TClonesArray("PndHypPoint");
-  fHypSTpipeCollection  = new TClonesArray("PndHypPoint");
+  //fHypSTpipeCollection  = new TClonesArray("PndHypPoint");
   SiId = 0;
   CId = 0;
   CpipeId = 0;
@@ -81,7 +81,7 @@ PndHyp::PndHyp(const char* name, Bool_t active)
   : FairDetector(name, active) {
     fHypCollection        = new TClonesArray("PndHypPoint");
     fHypSecTarCollection  = new TClonesArray("PndHypPoint");
-    fHypSTpipeCollection  = new TClonesArray("PndHypPoint");
+    //fHypSTpipeCollection  = new TClonesArray("PndHypPoint");
     SiId = 0;
      CId = 0;
      alId = 0;
@@ -105,10 +105,6 @@ PndHyp::~PndHyp() {
     delete fHypSecTarCollection;
   }
 
-   if (fHypSTpipeCollection) {
-    fHypSTpipeCollection->Delete();
-    delete fHypSTpipeCollection;
-  }
 
  delete fGeoH;
  //delete fread;
@@ -141,11 +137,11 @@ void PndHyp::Initialize() {
   //----disactivated when geo file is block
   TGeoMedium *C= gGeoManager->GetMedium("HYPdiamond");
   //TGeoMedium *C= gGeoManager->GetMedium("carbon");
-      CId=  C->GetId();
-
-      TGeoMedium *Cpipe= gGeoManager->GetMedium("HYPcarbon");
-      CpipeId=  Cpipe->GetId();
-
+  CId=  C->GetId();
+  
+  TGeoMedium *Cpipe= gGeoManager->GetMedium("HYPcarbon");
+  CpipeId=  Cpipe->GetId();
+  
   //    TGeoMedium *al= gGeoManager->GetMedium("HYPaluminium");
   //    alId=  al->GetId();
   //    TGeoMedium *be= gGeoManager->GetMedium("HYPberyllium");
@@ -165,30 +161,30 @@ void PndHyp::PreTrack(){
   // Begin of the event
   
   fTrackStopNxtStep=kFALSE;
- // cout << " PndHyp::PreTrack() "<< endl;
+  // cout << " PndHyp::PreTrack() "<< endl;
   
 }
 
 
 void PndHyp::SetSpecialPhysicsCuts(){
-// FairRun* fRun = FairRun::Instance();
-
+  // FairRun* fRun = FairRun::Instance();
+  
   //Int_t mat = gGeoManager->GetMaterialIndex("HYPdiamond");
   //gMC->Gstpar(mat,"HADR",1.0e-9);
 }
 
 
-   // -----   Public method ProcessHits  --------------------------------------
+// -----   Public method ProcessHits  --------------------------------------
 
 Bool_t PndHyp::ProcessHits(FairVolume* vol) 
-
-
+  
+  
 { 
   
   //fpdgCode = gMC->TrackPid(); 
   Double_t beta, gamma;	TString nam;Int_t nSiL = -1;
   ostringstream FullName,matName;
- 
+  
   Int_t medId =  gMC->CurrentMedium();
   TVector3 radt;
   
@@ -200,273 +196,203 @@ Bool_t PndHyp::ProcessHits(FairVolume* vol)
       return kTRUE;
   }
   
-
+   TString nam2 = gMC->CurrentVolName();   
   
  
-  /*gMC->TrackMomentum(PiL);
-   if (gMC->TrackPid()>1010000000 ||gMC->TrackPid()>1020000000 ||gMC->TrackPid()==-211) cout<<"ProcessHits :  Energy Loss  hyp "<< gMC->TrackPid() << "  "<<vol->getName() <<" "<<PiL.P()<<" "<<gMC->Edep()<<endl;
-   if(PiL.P()>3.)cout<<"ProcessHits :  Energy Loss  "<< gMC->TrackPid() << "  " 
-       <<vol->getName() <<" "<<PiL.P()<<" "<<gMC->Edep()<<endl;
-  */
+   /*gMC->TrackMomentum(PiL);
+     if (gMC->TrackPid()>1010000000 ||gMC->TrackPid()>1020000000 ||gMC->TrackPid()==-211) cout<<"ProcessHits :  Energy Loss  hyp "<< gMC->TrackPid() << "  "<<vol->getName() <<" "<<PiL.P()<<" "<<gMC->Edep()<<endl;
+     if(PiL.P()>3.)cout<<"ProcessHits :  Energy Loss  "<< gMC->TrackPid() << "  " 
+     <<vol->getName() <<" "<<PiL.P()<<" "<<gMC->Edep()<<endl;
+   */
    
-  if (medId==SiId) 
-    { //hola
-   
-    if ( gMC->IsTrackEntering() ) 
-      {
-	fELoss  = 0.;
-	fTime   = gMC->TrackTime() * 1.0e09;
-	fLength = gMC->TrackLength();
-	fmass   = gMC->TrackMass();   // mass (GeV)
-	fcharge = gMC->TrackCharge(); // charge?
-	fpdgCode = gMC->TrackPid(); 
-	fEventID = gMC->CurrentEvent();
-	gMC->TrackPosition(fPosIn);
-	gMC->TrackMomentum(fMomIn);
-
-		
-      }
-    
-    // Sum energy loss for all steps in the active volume
-  
-    fELoss += gMC->Edep();
-    
-    // Set additional parameters at exit of active volume. Create CbmStsPoint.
-    
-    TLorentzVector PL;
-    gMC->TrackMomentum(PL);
-	 
-    if ( (gMC->IsTrackExiting()    ||
-	  gMC->IsTrackStop()       ||
-	  gMC->IsTrackDisappeared() )&& gMC->TrackCharge()  ) 
-      {
-	fTrackID  = gMC->GetStack()->GetCurrentTrackNumber();
-	  
-	TString nam = gMC->CurrentVolName();   
-	if ((nam.Contains("Si"))) {
-	  sscanf(nam,"stglSi%d#01", &nSiL);
-	  // cout << "hyp::ProcessHits> : " << nam <<" # "
-	  //    <<nSiL<<" "<<"Hit in "<< gGeoManager->GetPath()<<endl;
-	}
-	  
-	//fVolumeID = vol->getMCid();//before it was on
-	//*** now the volume is through the layer number characterised.(X-Z,Z-Y)
-	fVolumeID = nSiL;
-	
-
-	//**************///
-	  
-	  //FullName << gGeoManager->GetPath();
-      
-	  
-	  
-	  //cout << "*******  Info from gMC *************" << endl;
-	  Int_t cp=-1;
-	  Int_t fVolid = gMC->CurrentVolID(cp);
-	  
-	  
-	  // cout << " Vol Name: " << gMC->CurrentVolName() << endl;
-	  
-	  /*  TString nam2 = gMC->CurrentVolName();   
-	  if ((nam2.Contains("Si"))) {
-	     sscanf(nam2,"stglSi%d#01", &nSiL);
-	     cout << "hyp::ProcessHits> : " << nam2 <<" # "
-	     <<nSiL<<" "<<"Hit in "<< gGeoManager->GetPath()<<endl;
-	     } */
-	  FullName <<gMC->CurrentVolPath();
-	  
-	  if(0==fGeoH) {
-	    std::cout<<" -E- No PndHypGeoHandling loaded."<<std::endl;
-	    abort();
-	  }
-
- 
-	  gMC->TrackPosition(fPosOut);
-	  gMC->TrackMomentum(fMomOut);
-
-	  if (fELoss == 0. ) return kFALSE;
-    
-	  radt= fPosOut.Vect();
-	  fdist=radt.Perp();
-	  beta = fMomOut.Beta();
-	//gamma = fMomOut.Gamma();
-	  fPLin = beta;
-	  //fPLin = fMomIn.P();
-	  fPLout = fMomOut.P();
-
-	  AddHit(fTrackID, fEventID,fVolumeID, 
-		 fGeoH->GetID(gMC->CurrentVolPath()),
-		 TVector3(fPosIn.X(),   fPosIn.Y(),   fPosIn.Z()),
-		 TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),
-		 TVector3(fPosOut.X(),  fPosOut.Y(),  fPosOut.Z()),
-		 TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
-		 fTime, fLength,fELoss,fcharge,fmass,fpdgCode,
-		 fdist,fPLin,fPLout);
-	  
-	 
-	  ResetParameters();
-      }
-
-    //return kTRUE;
-  
-   
-  
-    }//volSi
- 
-  TString nam2 = gMC->CurrentVolName();   
-  //if ((nam2.Contains("Abs"))) {
-  
-  //if ((fpdgCode==3312)&&(medId==CId || medId==SiId))
-  if ((fpdgCode==3312)&&(nam2.Contains("Ab")))//||nam2.Contains("Si")))
-    {  // absorver
+   if (medId==SiId) 
+     { //hola
        
+       if ( gMC->IsTrackEntering() ) 
+	 {
+	   fELoss  = 0.;
+	   fTime   = gMC->TrackTime() * 1.0e09;
+	   fLength = gMC->TrackLength();
+	   fmass   = gMC->TrackMass();   // mass (GeV)
+	   fcharge = gMC->TrackCharge(); // charge?
+	   fpdgCode = gMC->TrackPid(); 
+	   fEventID = gMC->CurrentEvent();
+	   gMC->TrackPosition(fPosIn);
+	   gMC->TrackMomentum(fMomIn);
+	   
+	   
+	 }
        
-      if ( gMC->IsTrackEntering() ) 
-	{
-	  fELoss  = 0.;
-	  fTime   = gMC->TrackTime() * 1.0e09;
-	    fLength = gMC->TrackLength();
-	    fmass   = gMC->TrackMass();   // mass (GeV)
-	    fcharge = gMC->TrackCharge(); // charge?
-	    fpdgCode = gMC->TrackPid(); 
-	    fEventID = gMC->CurrentEvent();
-	    gMC->TrackPosition(fPosIn);
-	    gMC->TrackMomentum(fMomIn);
-	  
-	}
-
-	 // Sum energy loss for all steps in the active volume
-  
-      fELoss += gMC->Edep();
-      // Gamma, Beta, tau(proper time) of ximnus
-      TLorentzVector PL;
-      gMC->TrackMomentum(PL);
-      beta = PL.Beta();
-      
-	
-      if (beta==0.0) 
-	{    
-	     fTrackID  = gMC->GetStack()->GetCurrentTrackNumber();
-	     fVolumeID = vol->getMCid();
-	     gMC->TrackPosition(fPosOut);
-	     gMC->TrackMomentum(fMomOut);
-	     
-	     ostringstream matName;
-	    TString mat[4]={"CAbs","Si","Be","Al"};
-	    if (medId==CId) matName<<"CAbs";
-	    if (medId==SiId) matName<<"Si";
-	    // cout << "Hit in fullname " << matName.str() <<endl;
-	     if (fELoss == 0. ) return kFALSE;
-	  
-	     //---Kinetic energy:###(PL.P())^2 + Mass^2 -Mass##
-	     radt= fPosOut.Vect();
-	     fdist=radt.Perp();
-	     //beta = fMomOut.Beta();
-	     //gamma = fMomOut.Gamma();
-	     fPLin = beta;
-	     //fPLin = fMomIn.P();
-	     fPLout = fMomOut.P();
- 
-	    
-     
-	     AddSecTarHit(fTrackID, fEventID,fVolumeID,matName.str(),
-		       TVector3(fPosIn.X(),   fPosIn.Y(),   fPosIn.Z()),
-		       TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),
-		       TVector3(fPosOut.X(),  fPosOut.Y(),  fPosOut.Z()),
-		       TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
-                       fTime, fLength,fELoss,fcharge,fmass,fpdgCode,
-		       fdist,fPLin,fPLout);
-
-
-	     fTrackStopNxtStep=kTRUE;
-
-	     ResetParameters();
-	}
-
-	 //for the pipe return kTRUE;
-  
-    
-  
-    }//no volSi
-   
-
-      if ((medId==CpipeId)&& gMC->TrackCharge())//&&(fpdgCode==3312))
-	{  // pipe
+       // Sum energy loss for all steps in the active volume
        
-        
-	  if ( gMC->IsTrackEntering()) 
-	    {
-	      fELoss  = 0.;
-	      fTime   = gMC->TrackTime() * 1.0e09;
-	      fLength = gMC->TrackLength();
-	      fmass   = gMC->TrackMass();   // mass (GeV)
-	      fcharge = gMC->TrackCharge(); // charge?
-	      fpdgCode = gMC->TrackPid(); 
-	      fEventID = gMC->CurrentEvent();
-	      gMC->TrackPosition(fPosIn);
-	      gMC->TrackMomentum(fMomIn);
-	    
-	    }
-
-	  // Sum energy loss for all steps in the active volume
-  
-	  fELoss += gMC->Edep();
-	  // Gamma, Beta, tau(proper time) of ximnus
-	 TLorentzVector PL;
-	 gMC->TrackMomentum(PL);
-	 beta = PL.Beta();
-	 gamma = PL.Gamma();
-
-	 //cout<<"In absorver "<<medId<<" "<<fpdgCode<<" "
-	 //  << PL.P()<<" "<<gamma<<" "<<gamma*0.1639<<endl;
-	 
-	 // Set additional parameters at exit of active volume. Create CbmStsPoint.
-		  
-	if ( gMC->IsTrackExiting()    ||
-	      gMC->IsTrackStop()       ||
-	      gMC->IsTrackDisappeared()) 
-	   {    
-	     fTrackID  = gMC->GetStack()->GetCurrentTrackNumber();
-	     fVolumeID = vol->getMCid();
-	     gMC->TrackPosition(fPosOut);
-	     gMC->TrackMomentum(fMomOut);
-	     
-	     ostringstream FullName;
-
-	     if (fELoss == 0. ) return kFALSE;
-	  
-	     //---Kinetic energy:###(PL.P())^2 + Mass^2 -Mass##
-	     radt= fPosOut.Vect();
-	     fdist=radt.Perp();
-	     //beta = fMomOut.Beta();
-	     //gamma = fMomOut.Gamma();
-	     fPLin = beta;
-	     //fPLin = fMomIn.P();
-	     fPLout = fMomOut.P();
- 
-	     AddSTpipeHit(fTrackID, fEventID,fVolumeID,FullName.str(),
-			  TVector3(fPosIn.X(),   fPosIn.Y(),   fPosIn.Z()),
-			  TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),
-			  TVector3(fPosOut.X(),  fPosOut.Y(),  fPosOut.Z()),
-			  TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
-			  fTime, fLength,fELoss,fcharge,fmass,fpdgCode,
-			  fdist,fPLin,fPLout);
-
-
-	
-	     ResetParameters();
+       fELoss += gMC->Edep();
+       
+       // Set additional parameters at exit of active volume. Create CbmStsPoint.
+       
+       TLorentzVector PL;
+       gMC->TrackMomentum(PL);
+       
+       if ( (gMC->IsTrackExiting()    ||
+	     gMC->IsTrackStop()       ||
+	     gMC->IsTrackDisappeared() )&& gMC->TrackCharge()  ) 
+	 {
+	   fTrackID  = gMC->GetStack()->GetCurrentTrackNumber();
+	   
+	   TString nam = gMC->CurrentVolName();   
+	   if ((nam.Contains("Si"))) {
+	     sscanf(nam,"stglSi%d#01", &nSiL);
+	     // cout << "hyp::ProcessHits> : " << nam <<" # "
+	     //    <<nSiL<<" "<<"Hit in "<< gGeoManager->GetPath()<<endl;
 	   }
-
-	 return kTRUE;
+	   
+	   //fVolumeID = vol->getMCid();//before it was on
+	   //*** now the volume is through the layer number characterised.(X-Z,Z-Y)
+	       fVolumeID = nSiL;
+	   
+	   
+	   //**************///
+	     
+	     //FullName << gGeoManager->GetPath();
+	     
+	     
+	     
+	     //cout << "*******  Info from gMC *************" << endl;
+	     Int_t cp=-1;
+	     Int_t fVolid = gMC->CurrentVolID(cp);
+	     
+	     
+	     // cout << " Vol Name: " << gMC->CurrentVolName() << endl;
+	     
+	     /*  TString nam2 = gMC->CurrentVolName();   
+		 if ((nam2.Contains("Si"))) {
+		 sscanf(nam2,"stglSi%d#01", &nSiL);
+		 cout << "hyp::ProcessHits> : " << nam2 <<" # "
+		 <<nSiL<<" "<<"Hit in "<< gGeoManager->GetPath()<<endl;
+		 } */
+	     FullName <<gMC->CurrentVolPath();
+	     
+	     if(0==fGeoH) {
+	       std::cout<<" -E- No PndHypGeoHandling loaded."<<std::endl;
+	       abort();
+	     }
+	     
+	     
+	     gMC->TrackPosition(fPosOut);
+	     gMC->TrackMomentum(fMomOut);
+	     
+	     if (fELoss == 0. ) return kFALSE;
+	     
+	     radt= fPosOut.Vect();
+	     fdist=radt.Perp();
+	     beta = fMomOut.Beta();
+	     //gamma = fMomOut.Gamma();
+	     fPLin = beta;
+	     //fPLin = fMomIn.P();
+	     fPLout = fMomOut.P();
+	     
+	     AddHit(fTrackID, fEventID,fVolumeID, 
+		    fGeoH->GetID(gMC->CurrentVolPath()),
+		    TVector3(fPosIn.X(),   fPosIn.Y(),   fPosIn.Z()),
+		    TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),
+		    TVector3(fPosOut.X(),  fPosOut.Y(),  fPosOut.Z()),
+		    TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
+		    fTime, fLength,fELoss,fcharge,fmass,fpdgCode,
+		    fdist,fPLin,fPLout);
+	     
+	     // Increment number of PndMvd points for TParticle
+	     // PndStack* stack = (PndStack*) gMC->GetStack();
+	     // stack->AddPoint(kHYP);
+	     
+	     ResetParameters();
+	 }
+       
+       //return kTRUE;
+       
+       
+       
+     }//volSi
+   else if ((fpdgCode==3312)&&(nam2.Contains("Ab")))//||nam2.Contains("Si")))
+     {  // absorver
+       //if ((fpdgCode==3312)&&(medId==CId || medId==SiId))
+       
+       if ( gMC->IsTrackEntering() ) 
+	 {
+	   fELoss  = 0.;
+	   fTime   = gMC->TrackTime() * 1.0e09;
+	   fLength = gMC->TrackLength();
+	   fmass   = gMC->TrackMass();   // mass (GeV)
+	   fcharge = gMC->TrackCharge(); // charge?
+	   fpdgCode = gMC->TrackPid(); 
+	   fEventID = gMC->CurrentEvent();
+	   gMC->TrackPosition(fPosIn);
+	   gMC->TrackMomentum(fMomIn);
+	   
+	 }
+       
+       // Sum energy loss for all steps in the active volume
+       
+       fELoss += gMC->Edep();
+     // Gamma, Beta, tau(proper time) of ximnus
+       TLorentzVector PL;
+       gMC->TrackMomentum(PL);
+       beta = PL.Beta();
+       
+       
+       if (beta==0.0) 
+	 {    
+	   fTrackID  = gMC->GetStack()->GetCurrentTrackNumber();
+	   fVolumeID = vol->getMCid();
+	   gMC->TrackPosition(fPosOut);
+	   gMC->TrackMomentum(fMomOut);
+	   
+	   ostringstream matName;
+	   TString mat[4]={"CAbs","Si","Be","Al"};
+	   if (medId==CId) matName<<"CAbs";
+	   if (medId==SiId) matName<<"Si";
+	   // cout << "Hit in fullname " << matName.str() <<endl;
+	   if (fELoss == 0. ) return kFALSE;
+	   
+	   //---Kinetic energy:###(PL.P())^2 + Mass^2 -Mass##
+	   radt= fPosOut.Vect();
+	   fdist=radt.Perp();
+	   //beta = fMomOut.Beta();
+	   //gamma = fMomOut.Gamma();
+	   fPLin = beta;
+	   //fPLin = fMomIn.P();
+	   fPLout = fMomOut.P();
+	   
+	   
+	   
+	   AddSecTarHit(fTrackID, fEventID,fVolumeID,matName.str(),
+			TVector3(fPosIn.X(),   fPosIn.Y(),   fPosIn.Z()),
+			TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),
+			TVector3(fPosOut.X(),  fPosOut.Y(),  fPosOut.Z()),
+			TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
+			fTime, fLength,fELoss,fcharge,fmass,fpdgCode,
+			fdist,fPLin,fPLout);
+	   
+	   
+	   fTrackStopNxtStep=kTRUE;
+	   
+	   // Increment number of PndMvd points for TParticle
+	   //PndStack* stack = (PndStack*) gMC->GetStack();
+	   //stack->AddPoint(kHYP);
+	   
+	   ResetParameters();
+	 }
+       
+       //for the pipe return kTRUE;
+       
+       
+       
+     }//no volSi
+   
+   
   
-    
+   return kTRUE;
   
-	}//pipehyp
-    
-      return kTRUE;//return kTRUE;
-
-
-      } //ProcessHits
+  
+} //ProcessHits
 
 // ----------------------------------------------------------------------------
 
@@ -482,8 +408,7 @@ void PndHyp::Register() {
   FairRootManager::Instance()->Register("HypPoint","Hyp", fHypCollection, kTRUE);
   FairRootManager::Instance()->Register("HypSegTarPoint","HypSecTarg", 
 				       fHypSecTarCollection, kTRUE);
-   FairRootManager::Instance()->Register("HypSTpipePoint","HypSTpipe", 
-				       fHypSTpipeCollection, kTRUE);
+  
 }
 // ----------------------------------------------------------------------------
 
@@ -491,7 +416,7 @@ void PndHyp::Register() {
 TClonesArray* PndHyp::GetCollection(Int_t iColl) const {
    if (iColl == 0) return fHypCollection;
    if (iColl == 1) return fHypSecTarCollection;
-   if (iColl == 2) return fHypSTpipeCollection;
+   //if (iColl == 2) return fHypSTpipeCollection;
 
   return NULL;
 }
@@ -514,7 +439,7 @@ void PndHyp::Print() const {
 void PndHyp::Reset() {
    fHypCollection->Clear();
    fHypSecTarCollection->Clear();
-    fHypSTpipeCollection->Clear();
+   // fHypSTpipeCollection->Clear();
  
   fPosIndex = 0;
 }
@@ -634,28 +559,6 @@ PndHypPoint* PndHyp::AddSecTarHit(Int_t trackID, Int_t evtID,
 
 
 // ----
-
-// -----   Private method AddSTpipeHit   --------------------------------------------
-
-PndHypPoint* PndHyp::AddSTpipeHit(Int_t trackID, Int_t evtID,
-				  Int_t detID, TString detName,
-				  TVector3 pos, TVector3 mom,  
-				  TVector3 posout, 
-				  TVector3 momout, 
-				  Double_t time, 
-				  Double_t length, 
-				  Double_t eLoss,
-				  Double_t charge, Double_t mass,
-				  Int_t pdgCode,Double_t dist,
-				  Double_t PLin,Double_t PLout) {
-  TClonesArray& clref = *fHypSTpipeCollection;
-  Int_t size = clref.GetEntriesFast();
-  return new(clref[size]) PndHypPoint(trackID, evtID,detID, detName, pos, mom,  
-				      posout, momout,
-				      time, length, eLoss,charge, mass, pdgCode,
-				      dist,PLin,PLout);
- }
-
 
 
 // ----
