@@ -48,7 +48,7 @@ PndTpcLheCMPoint.cxx
 PndTpcLheTrack.cxx          
 PndTpcLheCMTrack.cxx        
 PndTpcLheTrackFitter.cxx
-PndTpcLheHitsMaker.cxx      
+PndLheHitsMaker.cxx      
 PndTpcLhePoint.cxx
 PndLhePidMaker.cxx
 PndLhePidTrack.cxx
@@ -70,7 +70,7 @@ PndTpcLheTrack.h
 PndTpcLheCMPoint.h  
 PndTpcLheTrackFinder.h
 PndTpcLheTrackFitter.h 
-PndTpcLheHitsMaker.h
+PndLheHitsMaker.h
 PndTpcLheCMTrack.h   
 PndTpcLheSegments.h 
 PndTpcLhePoint.h 

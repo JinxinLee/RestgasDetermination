@@ -1,4 +1,4 @@
-#include "PndTpcLheHitsMaker.h"
+#include "PndLheHitsMaker.h"
 
 #include "PndTpcLheHit.h"
 #include "PndTpcLheTrack.h"
@@ -29,7 +29,7 @@
 #include <iomanip>
 
 //_________________________________________________________________
-PndTpcLheHitsMaker::PndTpcLheHitsMaker() {
+PndLheHitsMaker::PndLheHitsMaker() {
   //---
 
   fLheHits  = new TClonesArray("PndTpcLheHit");
@@ -47,7 +47,7 @@ PndTpcLheHitsMaker::PndTpcLheHitsMaker() {
 }
 
 //_________________________________________________________________
-PndTpcLheHitsMaker::PndTpcLheHitsMaker(const char *name,
+PndLheHitsMaker::PndLheHitsMaker(const char *name,
 				       const char *title):FairTask(name) {
   //---
   fLheHits = new TClonesArray("PndTpcLheHit");
@@ -65,24 +65,24 @@ PndTpcLheHitsMaker::PndTpcLheHitsMaker(const char *name,
 }
 
 //_________________________________________________________________
-PndTpcLheHitsMaker::~PndTpcLheHitsMaker() {
+PndLheHitsMaker::~PndLheHitsMaker() {
   //
   FairRootManager *fManager =FairRootManager::Instance();
   fManager->Write();
 }
 
 //_________________________________________________________________
-InitStatus PndTpcLheHitsMaker::ReInit() {
+InitStatus PndLheHitsMaker::ReInit() {
   // --- Update the pointers after reinitialisation
 
   return kSUCCESS;
 }
 
 //_________________________________________________________________
-InitStatus PndTpcLheHitsMaker::Init() {
+InitStatus PndLheHitsMaker::Init() {
 
-  //  cout << "InitStatus PndTpcLheHitsMaker::Init\n\n";
-  cout << "-I- PndTpcLheHitsMaker::Init" << endl;
+  //  cout << "InitStatus PndLheHitsMaker::Init\n\n";
+  cout << "-I- PndLheHitsMaker::Init" << endl;
   
   fCuts = PndTpcLheTrackCuts::Instance();
 
@@ -91,20 +91,20 @@ InitStatus PndTpcLheHitsMaker::Init() {
   switch (fTpcMode) 
     {
     case 0:
-      cout << "-I- PndTpcLheHitsMaker::Init: No TPC detector is used" << endl;
+      cout << "-I- PndLheHitsMaker::Init: No TPC detector is used" << endl;
       break;
       
     case 1:
       fTpcInput   = (TClonesArray *)fManager->GetObject("PndTpcPoint");
       if ( ! fTpcInput ) 
 	{
-	  cout << "-W- PndTpcLheHitsMaker::Init: No TpcPoint array! Switching TPC OFF" << endl;
+	  cout << "-W- PndLheHitsMaker::Init: No TpcPoint array! Switching TPC OFF" << endl;
 	  fTpcMode = 0;
 	}
       else
 	{
-	  if (fTpcResolution<0.) cout << "-I- PndTpcLheHitsMaker::Init: Using PndTpcPoint, no position smearing" << endl;
-	  else cout << "-I- PndTpcLheHitsMaker::Init: Using PndTpcPoint, position smearing " << fTpcResolution << " [cm]" << endl;
+	  if (fTpcResolution<0.) cout << "-I- PndLheHitsMaker::Init: Using PndTpcPoint, no position smearing" << endl;
+	  else cout << "-I- PndLheHitsMaker::Init: Using PndTpcPoint, position smearing " << fTpcResolution << " [cm]" << endl;
 	}
       break;
       
@@ -112,37 +112,37 @@ InitStatus PndTpcLheHitsMaker::Init() {
       fTpcInput   = (TClonesArray *)fManager->GetObject("PndTpcCluster");
       if ( ! fTpcInput ) 
 	{
-	  cout << "-W- PndTpcLheHitsMaker::Init: No TpcCluster array! Switching TPC OFF" << endl;
+	  cout << "-W- PndLheHitsMaker::Init: No TpcCluster array! Switching TPC OFF" << endl;
 	  fTpcMode = 0;
 	}
       else
 	{
-	  cout << "-I- PndTpcLheHitsMaker::Init: Using PndTpcCluster" << endl;
+	  cout << "-I- PndLheHitsMaker::Init: Using PndTpcCluster" << endl;
 	}
       break;
 
     default:
-      cout << "-E- PndTpcLheHitsMaker::Init: Wrong TPC mode. Switching TPC OFF" << endl;
+      cout << "-E- PndLheHitsMaker::Init: Wrong TPC mode. Switching TPC OFF" << endl;
       fTpcMode = 0;
     }
   
  switch (fSttMode) 
     {
     case 0:
-      cout << "-I- PndTpcLheHitsMaker::Init: No STT detector is used" << endl;
+      cout << "-I- PndLheHitsMaker::Init: No STT detector is used" << endl;
       break;
       
     case 1:
       fSttInput   = (TClonesArray *)fManager->GetObject("STTPoint");
       if ( ! fSttInput ) 
 	{
-	  cout << "-W- PndTpcLheHitsMaker::Init: No SttPoint array! Switching STT OFF" << endl;
+	  cout << "-W- PndLheHitsMaker::Init: No SttPoint array! Switching STT OFF" << endl;
 	  fSttMode = 0;
 	}
       else
 	{
-	  if (fSttResolution<0.) cout << "-I- PndTpcLheHitsMaker::Init: Using PndSttPoint, no position smearing" << endl;
-	  else cout << "-I- PndTpcLheHitsMaker::Init: Using PndSttPoint, position smearing " << fSttResolution << " [cm]" << endl;
+	  if (fSttResolution<0.) cout << "-I- PndLheHitsMaker::Init: Using PndSttPoint, no position smearing" << endl;
+	  else cout << "-I- PndLheHitsMaker::Init: Using PndSttPoint, position smearing " << fSttResolution << " [cm]" << endl;
 	}
       break;
       
@@ -150,12 +150,12 @@ InitStatus PndTpcLheHitsMaker::Init() {
       fSttInput   = (TClonesArray *)fManager->GetObject("STTHit");
       if ( ! fSttInput ) 
 	{
-	  cout << "-W- PndTpcLheHitsMaker::Init: No STTHit array! Switching STT OFF" << endl;
+	  cout << "-W- PndLheHitsMaker::Init: No STTHit array! Switching STT OFF" << endl;
 	  fSttMode = 0;
 	}
       else
 	{
-	  cout << "-I- PndTpcLheHitsMaker::Init: Using PndSttHit" << endl;
+	  cout << "-I- PndLheHitsMaker::Init: Using PndSttHit" << endl;
 	}
       break;
       
@@ -163,23 +163,23 @@ InitStatus PndTpcLheHitsMaker::Init() {
       fSttInput   = (TClonesArray *)fManager->GetObject("SttHelixHit");
       if ( ! fSttInput ) 
 	{
-	  cout << "-W- PndTpcLheHitsMaker::Init: No SttHelixHit array! Switching STT OFF" << endl;
+	  cout << "-W- PndLheHitsMaker::Init: No SttHelixHit array! Switching STT OFF" << endl;
 	  fSttMode = 0;
 	}
       else
 	{
-	  cout << "-I- PndTpcLheHitsMaker::Init: Using PndSttHelixHit" << endl;
+	  cout << "-I- PndLheHitsMaker::Init: Using PndSttHelixHit" << endl;
 	}
       break;
       
     default:
-      cout << "-E- PndTpcLheHitsMaker::Init: Wrong STT mode. Switching STT OFF" << endl;
+      cout << "-E- PndLheHitsMaker::Init: Wrong STT mode. Switching STT OFF" << endl;
       fSttMode = 0;
     }
 
  if (fSttMode>0 && fTpcMode > 0)
    {
-     cout << "-E- PndTpcLheHitsMaker::Init: Both STT and TPC mode. Too many tracking detectors for my tastes!!!" << endl;
+     cout << "-E- PndLheHitsMaker::Init: Both STT and TPC mode. Too many tracking detectors for my tastes!!!" << endl;
      return kFATAL;
    }
  
@@ -187,20 +187,20 @@ InitStatus PndTpcLheHitsMaker::Init() {
   switch (fMvdMode) 
     {
     case 0:
-      cout << "-I- PndTpcLheHitsMaker::Init: No MVD detector is used" << endl;
+      cout << "-I- PndLheHitsMaker::Init: No MVD detector is used" << endl;
       break;
 
     case 1:
       fMvdInput = (TClonesArray*) fManager->GetObject("MVDPoint");
       if ( ! fMvdInput ) 
 	{
-	  cout << "-W- PndTpcLheHitsMaker::Init: No MVDPoint array! Switching MVDPoint OFF" << endl;
+	  cout << "-W- PndLheHitsMaker::Init: No MVDPoint array! Switching MVDPoint OFF" << endl;
 	  fMvdMode = 0;
 	}
       else
 	{
-	  if (fMvdResolution<0.) cout << "-I- PndTpcLheHitsMaker::Init: Using MVDPoint, no position smearing" << endl;
-	  else cout << "-I- PndTpcLheHitsMaker::Init: Using MVDPoint, position smearing " << fMvdResolution << " [cm]" << endl;
+	  if (fMvdResolution<0.) cout << "-I- PndLheHitsMaker::Init: Using MVDPoint, no position smearing" << endl;
+	  else cout << "-I- PndLheHitsMaker::Init: Using MVDPoint, position smearing " << fMvdResolution << " [cm]" << endl;
 	}
       break;
       
@@ -208,45 +208,45 @@ InitStatus PndTpcLheHitsMaker::Init() {
       fMvdInput = (TClonesArray*) fManager->GetObject("MVDHitsStrip");
       if ( ! fMvdInput ) 
 	{
-	  cout << "-W- PndTpcLheHitsMaker::Init: No MVDHitsStrip array!" << endl;
+	  cout << "-W- PndLheHitsMaker::Init: No MVDHitsStrip array!" << endl;
 	}
       fMvdInput2 = (TClonesArray*) fManager->GetObject("MVDHitsPixel");
       if ( ! fMvdInput2 ) 
 	{
-	  cout << "-W- PndTpcLheHitsMaker::Init: No MVDHitsPixel array!" << endl;
+	  cout << "-W- PndLheHitsMaker::Init: No MVDHitsPixel array!" << endl;
 	}
       if (( ! fMvdInput ) &&  ( ! fMvdInput2 ))
 	{
-	  cout << "-W- PndTpcLheHitsMaker::Init: No MDC hits array! Switching MDC OFF" << endl;
+	  cout << "-W- PndLheHitsMaker::Init: No MDC hits array! Switching MDC OFF" << endl;
 	  fMvdMode = 0;
 	}
       else
 	{
-	  cout << "-I- PndTpcLheHitsMaker::Init: Using MVDHit" << endl;
+	  cout << "-I- PndLheHitsMaker::Init: Using MVDHit" << endl;
 	}
       break;
       
     default:
-      cout << "-E- PndTpcLheHitsMaker::Init: Wrong MVD mode. Switching MVD OFF" << endl;
+      cout << "-E- PndLheHitsMaker::Init: Wrong MVD mode. Switching MVD OFF" << endl;
       fMvdMode = 0;
     }
 
   switch (fEmcMode) 
     {
     case 0:
-      cout << "-I- PndTpcLheHitsMaker::Init: No EMC detector is used" << endl;
+      cout << "-I- PndLheHitsMaker::Init: No EMC detector is used" << endl;
       break;
       
     case 2:
       fEmcInput = (TClonesArray*) fManager->GetObject("EmcCluster");
       if ( ! fEmcInput ) 
 	{
-	  cout << "-W- PndTpcLheHitsMaker::Init: No EmcCluster array! Switching EmcCluster OFF" << endl;
+	  cout << "-W- PndLheHitsMaker::Init: No EmcCluster array! Switching EmcCluster OFF" << endl;
 	  fEmcMode = 0;
 	}
       else
 	{
-	  cout << "-I- PndTpcLheHitsMaker::Init: Using EmcCLuster" << endl;
+	  cout << "-I- PndLheHitsMaker::Init: Using EmcCLuster" << endl;
 	}
       break;
       
@@ -254,23 +254,23 @@ InitStatus PndTpcLheHitsMaker::Init() {
       fEmcInput = (TClonesArray*) fManager->GetObject("EmcBump");
       if ( ! fEmcInput ) 
 	{
-	  cout << "-W- PndTpcLheHitsMaker::Init: No EmcBump array! Switching EmcBump OFF" << endl;
+	  cout << "-W- PndLheHitsMaker::Init: No EmcBump array! Switching EmcBump OFF" << endl;
 	  fEmcMode = 0;
 	}
       else
 	{
-	  cout << "-I- PndTpcLheHitsMaker::Init: Using EmcBump" << endl;
+	  cout << "-I- PndLheHitsMaker::Init: Using EmcBump" << endl;
 	}
       break;
       
     default:
-      cout << "-E- PndTpcLheHitsMaker::Init: Wrong EMC mode. Switching EMC OFF" << endl;
+      cout << "-E- PndLheHitsMaker::Init: Wrong EMC mode. Switching EMC OFF" << endl;
       fMvdMode = 0;
     }
 
   if ((fMvdMode+fTpcMode+fSttMode+fEmcMode)==0)
     {
-      cout << "-E- PndTpcLheHitsMaker::Init: No active detectors! Exit" << endl;
+      cout << "-E- PndLheHitsMaker::Init: No active detectors! Exit" << endl;
       return kFATAL;
     }
   
@@ -278,13 +278,13 @@ InitStatus PndTpcLheHitsMaker::Init() {
     { 
       fListMCtracks = (TClonesArray *)fManager->GetObject("MCTrack");
       if ( ! fListMCtracks ) {
-	cout << "-W- PndTpcLheHitsMaker::Init: No MCTrack array!" << "\t" << "Switching Simulation OFF" << endl;
+	cout << "-W- PndLheHitsMaker::Init: No MCTrack array!" << "\t" << "Switching Simulation OFF" << endl;
 	fSimulation = kFALSE;
       }
-      else cout << "-I- PndTpcLheHitsMaker::Init: Using MCTrack" << endl;
+      else cout << "-I- PndLheHitsMaker::Init: Using MCTrack" << endl;
     }
   
-  if (fVerbose)   cout << "-I- PndTpcLheHitsMaker::Init: Verbose Mode ON" << endl;
+  if (fVerbose)   cout << "-I- PndLheHitsMaker::Init: Verbose Mode ON" << endl;
   
   fNofEvents = 0;
   
@@ -295,11 +295,11 @@ InitStatus PndTpcLheHitsMaker::Init() {
 }
 
 //_________________________________________________________________
-void PndTpcLheHitsMaker::GetMvdPoints() {
+void PndLheHitsMaker::GetMvdPoints() {
   // Taking points from PndMvdMCPoint
   
   if (fVerbose)
-    cout << " -I- PndTpcLheHitsMaker::GetMvdPoints(): MVD points entries " << fMvdInput->GetEntriesFast() <<endl;
+    cout << " -I- PndLheHitsMaker::GetMvdPoints(): MVD points entries " << fMvdInput->GetEntriesFast() <<endl;
   
   for (int j=0; j < fMvdInput->GetEntriesFast(); j++ ) 
     {
@@ -352,7 +352,7 @@ void PndTpcLheHitsMaker::GetMvdPoints() {
 }
 
 //_________________________________________________________________
-void PndTpcLheHitsMaker::GetMvdHits() {
+void PndLheHitsMaker::GetMvdHits() {
   // Taking points from PndMvdHits
   
   for (int j2=0; j2 < fMvdInput2->GetEntriesFast(); j2++ ) 
@@ -424,11 +424,11 @@ void PndTpcLheHitsMaker::GetMvdHits() {
 }
   
 //_________________________________________________________________
-void PndTpcLheHitsMaker::GetTpcPoints() {
+void PndLheHitsMaker::GetTpcPoints() {
    // Taking points from PndTpcPoint
   
   if (fVerbose)
-    cout << " PndTpcLheHitsMaker::GetTpcHits(): Tpc points entries " << fTpcInput->GetEntriesFast() <<endl;
+    cout << " PndLheHitsMaker::GetTpcHits(): Tpc points entries " << fTpcInput->GetEntriesFast() <<endl;
   
   
   for (int j=0; j < fTpcInput->GetEntriesFast(); j++ ) {
@@ -482,7 +482,7 @@ void PndTpcLheHitsMaker::GetTpcPoints() {
 } 
 
 //_________________________________________________________________
-void PndTpcLheHitsMaker::GetTpcClusters() {
+void PndLheHitsMaker::GetTpcClusters() {
    // Taking points from PndTpcCluster
 
   for (int j=0; j < fTpcInput->GetEntriesFast(); j++ ) {
@@ -515,11 +515,11 @@ void PndTpcLheHitsMaker::GetTpcClusters() {
   }  // end of TpcCluster loop  
 } 
 //_________________________________________________________________
-void PndTpcLheHitsMaker::GetSttPoints() {
+void PndLheHitsMaker::GetSttPoints() {
    // Taking points from PndSttPoint
   
   if (fVerbose)
-    cout << " PndTpcLheHitsMaker::GetSttHits(): Stt points entries " << fSttInput->GetEntriesFast() <<endl;
+    cout << " PndLheHitsMaker::GetSttHits(): Stt points entries " << fSttInput->GetEntriesFast() <<endl;
   
   
   for (int j=0; j < fSttInput->GetEntriesFast(); j++ ) {
@@ -574,7 +574,7 @@ void PndTpcLheHitsMaker::GetSttPoints() {
 
 
 //_________________________________________________________________
-void PndTpcLheHitsMaker::GetSttHit() {
+void PndLheHitsMaker::GetSttHit() {
    // Taking points from PndSttHit
 
   for (int j=0; j < fSttInput->GetEntriesFast(); j++ ) {
@@ -608,7 +608,7 @@ void PndTpcLheHitsMaker::GetSttHit() {
 } 
 
 //_________________________________________________________________
-void PndTpcLheHitsMaker::GetSttHelixHit() {
+void PndLheHitsMaker::GetSttHelixHit() {
    // Taking points from PndSttHelixHit
 
   for (int j=0; j < fSttInput->GetEntriesFast(); j++ ) {
@@ -616,13 +616,13 @@ void PndTpcLheHitsMaker::GetSttHelixHit() {
     if (isnan(sttHit->GetX()))
       {
         sttHit->Print();
-        cout << "-W- PndTpcLheHitsMaker::GetSttHelixHit: SttHelixHit with NaN - skipped (requires STT bug fix!!)" << endl;
+        cout << "-W- PndLheHitsMaker::GetSttHelixHit: SttHelixHit with NaN - skipped (requires STT bug fix!!)" << endl;
         continue;
       }
       if (sttHit->GetZ()==0)
       {
         sttHit->Print();
-        cout << "-W- PndTpcLheHitsMaker::GetSttHelixHit: SttHelixHit with GetZ() == 0 - skipped (requires STT bug fix!!)" << endl;
+        cout << "-W- PndLheHitsMaker::GetSttHelixHit: SttHelixHit with GetZ() == 0 - skipped (requires STT bug fix!!)" << endl;
         continue;
       }
 
@@ -654,7 +654,7 @@ void PndTpcLheHitsMaker::GetSttHelixHit() {
 } 
 
 //_________________________________________________________________
-void PndTpcLheHitsMaker::GetEmcClusters() {
+void PndLheHitsMaker::GetEmcClusters() {
    // Taking points from PndEmcCluster
 
   for (int j=0; j < fEmcInput->GetEntriesFast(); j++ ) {
@@ -688,7 +688,7 @@ void PndTpcLheHitsMaker::GetEmcClusters() {
   }  // end of EmcCluster loop  
 } 
 //_________________________________________________________________
-void PndTpcLheHitsMaker::GetEmcBumps() {
+void PndLheHitsMaker::GetEmcBumps() {
    // Taking points from PndEmcBump
 
   for (int j=0; j < fEmcInput->GetEntriesFast(); j++ ) {
@@ -723,11 +723,11 @@ void PndTpcLheHitsMaker::GetEmcBumps() {
 } 
 
 //_________________________________________________________________
-void PndTpcLheHitsMaker::Exec(Option_t * option) {
+void PndLheHitsMaker::Exec(Option_t * option) {
     
   cout << "\n\n  ***  Event # " << ++fNofEvents << endl;
 
-  cout << " =====   PndTpcLheHitsMaker   =====\n";
+  cout << " =====   PndLheHitsMaker   =====\n";
 
   Reset();
 
@@ -756,7 +756,7 @@ void PndTpcLheHitsMaker::Exec(Option_t * option) {
 }
 
 //_________________________________________________________________
-PndTpcLheHit * PndTpcLheHitsMaker::AddHit() {
+PndTpcLheHit * PndLheHitsMaker::AddHit() {
   // Creates a new hit in the TClonesArray.
 
   TClonesArray& hitRef = *fLheHits;
@@ -765,7 +765,7 @@ PndTpcLheHit * PndTpcLheHitsMaker::AddHit() {
 }
 
 //_________________________________________________________________
-void PndTpcLheHitsMaker::Register() {
+void PndLheHitsMaker::Register() {
   //---
 
   FairRootManager::Instance()->
@@ -778,12 +778,12 @@ void PndTpcLheHitsMaker::Register() {
 }
 
 //_________________________________________________________________
-void PndTpcLheHitsMaker::Finish() {
+void PndLheHitsMaker::Finish() {
 
 //   FairRootManager *fManager =FairRootManager::Instance();	
 //   fManager->Fill();
 
-  cout << " PndTpcLheHitsMaker::Finish : Geant tracks " <<
+  cout << " PndLheHitsMaker::Finish : Geant tracks " <<
     fGeantTracks->GetEntriesFast() << endl;
 
   fGeantTracks->Delete();
@@ -792,9 +792,9 @@ void PndTpcLheHitsMaker::Finish() {
 }
 
 //_________________________________________________________________
-void PndTpcLheHitsMaker::Reset() {
+void PndLheHitsMaker::Reset() {
   //---
-  //  cout << " PndTpcLheHitsMaker::Reset  " << endl;
+  //  cout << " PndLheHitsMaker::Reset  " << endl;
 
   fNHit = 0;
   fNTrack = 0;	
@@ -805,7 +805,7 @@ void PndTpcLheHitsMaker::Reset() {
 }
 
 //_______________________________________________________________
-void PndTpcLheHitsMaker::CheckTracks() {
+void PndLheHitsMaker::CheckTracks() {
 
   using namespace std;
 
@@ -907,7 +907,7 @@ void PndTpcLheHitsMaker::CheckTracks() {
 }
 
 //________________________________________________________________
-void PndTpcLheHitsMaker::SetTrack(PndTpcLheHit *hit) {
+void PndLheHitsMaker::SetTrack(PndTpcLheHit *hit) {
 
   Int_t mTrackNumber = hit->GetTrackID();
   Int_t mTN;
@@ -942,7 +942,7 @@ void PndTpcLheHitsMaker::SetTrack(PndTpcLheHit *hit) {
 }
 
 //________________________________________________________________
-PndTpcLheTrack *PndTpcLheHitsMaker::AddTrack(Int_t mTrackNumber) {
+PndTpcLheTrack *PndLheHitsMaker::AddTrack(Int_t mTrackNumber) {
 // Add a new track to the list of tracks for this event.
 
   TClonesArray &tracks = *fGeantTracks;
@@ -951,7 +951,7 @@ PndTpcLheTrack *PndTpcLheHitsMaker::AddTrack(Int_t mTrackNumber) {
 }
 
 //_________________________________________________________________
-void PndTpcLheHitsMaker::PrintTracks(Int_t ntr) {
+void PndLheHitsMaker::PrintTracks(Int_t ntr) {
 
 
   //  cout << " " << fNTrack << " tracks  \n\n ";
@@ -974,5 +974,5 @@ void PndTpcLheHitsMaker::PrintTracks(Int_t ntr) {
 
 }
 
-ClassImp(PndTpcLheHitsMaker)
+ClassImp(PndLheHitsMaker)
 

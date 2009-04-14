@@ -8,7 +8,7 @@
  
 #pragma link C++ class  PndTpcLheHit+;
 #pragma link C++ class  PndTpcLheTrack+;
-#pragma link C++ class  PndTpcLheHitsMaker+;
+#pragma link C++ class  PndLheHitsMaker+;
 #pragma link C++ class  PndTpcLheCMPoint+;
 #pragma link C++ class  PndTpcLhePoint+;
 #pragma link C++ class  PndTpcLheSegments+;

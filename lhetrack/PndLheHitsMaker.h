@@ -8,7 +8,7 @@
 //  finding and fitting in LHE program 
 //
 // Created: 1-07-07
-// Modified:
+// Modified: Stefano Spataro
 //
 // *************************************************************************
 
@@ -22,7 +22,7 @@
 #include "PndTpcLheTrack.h"
 #include "PndTpcLheTrackCuts.h"
 
-class PndTpcLheHitsMaker : public FairTask {
+class PndLheHitsMaker : public FairTask {
 
     
 protected:
@@ -68,9 +68,9 @@ public:
   void Reset();
   void Register();
    
-  PndTpcLheHitsMaker(const char *name, const char *title="PND Task");
-  PndTpcLheHitsMaker();
-  virtual ~PndTpcLheHitsMaker();
+  PndLheHitsMaker(const char *name, const char *title="PND Task");
+  PndLheHitsMaker();
+  virtual ~PndLheHitsMaker();
 
   PndTpcLheHit *AddHit();
   PndTpcLheTrack *AddTrack(Int_t mT);
@@ -104,7 +104,7 @@ public:
   void SetMvdResolution(Float_t res)               {  fMvdResolution = res  ;};
   void SetSttResolution(Float_t res)               {  fSttResolution = res  ;};
 
-  ClassDef(PndTpcLheHitsMaker,1)      // PndTpcLheHitsMaker
+  ClassDef(PndLheHitsMaker,1)      // PndLheHitsMaker
 
 };
 
