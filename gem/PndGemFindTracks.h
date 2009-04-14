@@ -1,0 +1,92 @@
+// -------------------------------------------------------------------------
+// -----                   PndGemFindTracks header file                -----
+// -----                  Created 19.03.2009  by R. Karabowicz         -----
+// -----                 according to the PndDchFindTracks             -----
+// -------------------------------------------------------------------------
+
+
+/** \class PndGemFindTracks
+ *  \author R. Karabowicz <r.karabowicz@gsi.de>
+ *  \date 19.03.2009
+ *  \brief Task class for track finding in the Gem
+ * 
+ *   Uses as track finding algorithm classes derived from PndGemTrackFinder. 
+ *	 Input:  TClonesArray of PndGemHit or
+ *	 \return TClonesArray of PndGemTrack
+ **/
+
+#ifndef PNDGEMFINDTRACKS_H
+#define PNDGEMFINDTRACKS_H 1
+
+
+#include "FairTask.h"
+
+class PndGemTrackFinder;
+class TClonesArray;
+
+class PndGemFindTracks : public FairTask
+{
+
+ public:
+
+  /** Default constructor **/
+  PndGemFindTracks();
+
+
+  /** Standard constructor 
+   *  \param name   Name of class
+   *  \param title  Task title
+   *  \param finder Finder algorithm
+   **/
+  PndGemFindTracks(const char* name, const char* title = "PndTask", 
+		   PndGemTrackFinder* finder = NULL);
+
+
+  /** Destructor **/
+  virtual ~PndGemFindTracks();
+
+
+  /** Initialisation at beginning of each event **/
+  virtual InitStatus Init();
+
+  /** Task execution **/
+  virtual void Exec(Option_t* opt);
+
+
+  /** Finish at the end of each event **/
+  virtual void Finish();
+
+
+  /** SetParContainers **/
+  virtual void SetParContainers();
+
+
+  /** Accessors **/
+  PndGemTrackFinder* GetFinder() 	  { return fFinder; };
+  Int_t GetNofTracks()          const { return fNofTracks; };
+  TString GetUseHitOrDigi()     const { return fUseHitOrDigi; };
+
+
+  /** Set concrete track finder **/
+  void UseFinder(PndGemTrackFinder* finder) { fFinder = finder; };
+
+  /** Set use digi or hits
+   ** Option: "hit/chit/digi", Default: "hit"
+   **/
+  void SetUseHitOrDigi(TString useHitOrDigi = "hit") { fUseHitOrDigi = useHitOrDigi; };
+  
+
+ private:
+
+  PndGemTrackFinder* fFinder;    	    ///< Pointer to TrackFinder concrete class
+  TClonesArray* fGemHitOrDigiArray;     //
+  TClonesArray* fTrackArray;     	    ///< Output array of PndGemTracks 
+  Int_t fNofTracks;              	    ///< Number of created tracks
+  TString fUseHitOrDigi;                ///< Choose use hits or digis, default: hits
+  
+
+  ClassDef(PndGemFindTracks,1);
+
+};
+
+#endif
