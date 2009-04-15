@@ -4,13 +4,14 @@
 # FLAGSMACHINE=-march=athlon64 -mfpmath=sse -msse2 -m64
 # FLAGSMACHINE = -march=core2 -mfpmath=sse -mtune=core2  -msse3 -m64 -m3dnow
 
-#MAKEFLAGS  = --no-print-directory -r -s
+MAKEFLAGS  =  -w -k #-s 
 
-#CCFLAGS  = -Wall -W -g -ggdb -O0 -pg # Profiling and debug
+# CCFLAGS  = -Wall -W -g -ggdb -O0 -pg # Profiling and debug
 
 CXX       =  g++
 
-CCFLAGS   = -Wall -W -Os -O3 -funroll-loops # -fopenmp
+# CCFLAGS   = -Wall -W -Os -O3 -funroll-loops # -fopenmp
+CCFLAGS   = -Wall -W -O2 -funroll-loops
 CCFLAGS  += -ffast-math ${FLAGSMACHINE} -fomit-frame-pointer
 CCFLAGS  += -fvariable-expansion-in-unroller -funsafe-math-optimizations
 
@@ -24,7 +25,7 @@ LIBS    += $(shell root-config --libs)
 
 
 # Define binary file name.
-BINS = classify train
+BINS = classify train #kdKnnTMVA
 
 # Define targets
 
@@ -49,6 +50,11 @@ classify: % : %.cpp $(HEADS)/*.h PndKnnClassify
 	$(CXX) $(CCFLAGS) -c $< $(INCLUDE) -o $@.o
 	$(CXX) $(CCFLAGS) classify.o PndKnnClassify.o $(INCLUDE) $(LIBS) -o $@
 	@echo "Done building the classifier."
+	@echo ""
+
+kdKnnTMVA: % : %.cpp $(HEADS)/*.h
+	$(CXX) $(CCFLAGS) $< $(INCLUDE) $(LIBS) -o $@
+	@echo "Done building Sample."
 	@echo ""
 
 clean:

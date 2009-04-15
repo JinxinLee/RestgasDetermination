@@ -281,8 +281,8 @@ void PndLVQTrain::Train(int numProto, const char* outPut)
       delta = 1;
     }
     else{// Diff. Labels
-      //delta = 1;
-      delta = 0;
+      delta = -1;
+      //delta = 0;
     }// delta is calculated
     
     // Update the LVQ prototype
@@ -395,7 +395,8 @@ void PndLVQTrain::Train21(int numProto, const char* outPut)
 		 (distances[idx2d])->m_dist   / (distances[idxSame])->m_dist ) > s){
       
       // Update the LVQ prototype
-      int deltaEqCls = 1; int deltaNonEqCls = 0;
+      //int deltaEqCls = 1; int deltaNonEqCls = 0;
+      int deltaEqCls = 1; int deltaNonEqCls = -1;
       
       // Update equal label prototype.
       UpdateProto( *(m_EventsData[index].second), *(m_LVQProtos[idxSame].second), deltaEqCls, ethaT);
@@ -422,7 +423,8 @@ void PndLVQTrain::UpdateProto( std::vector<float> &EvtData, std::vector<float> &
 			       int delta, double ethaT )
 {
   for(unsigned int i = 0; i < proto.size(); i++){
-    proto[i] = proto[i] + ethaT * (1.0 - 2.0 * (double)delta) * (EvtData[i] - proto[i]);
+    //proto[i] = proto[i] + ethaT * (1.0 - 2.0 * static_cast<double>(delta)) * (EvtData[i] - proto[i]);
+    proto[i] = proto[i] + ( ethaT * static_cast<double>(delta) * (EvtData[i] - proto[i]) );
   }
 }
 

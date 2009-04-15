@@ -14,9 +14,9 @@ void learn_pid()
   // Choose the features (parameters) to be used.
   bdt_train.AddVar("p");
   bdt_train.AddVar("emc");
-  //bdt_train.AddVar("stt");
-  //bdt_train.AddVar("mvd");
-  //bdt_train.AddVar("tof");
+  bdt_train.AddVar("stt");
+  bdt_train.AddVar("mvd");
+  bdt_train.AddVar("tof");
   bdt_train.AddVar("thetaC");
   
   // Select classes
@@ -55,7 +55,7 @@ void learn_pid()
   
   //Select the name of the input file which contains 
   //the training elements.
-  TString InName = "EventFeaturesTrain.root";
+  TString InName = "../Gpid_files/EventFeaturesTrain.root";
   bdt_train.SetINFILENAME(InName);
   
   //Select application name, this is the file name where config info
