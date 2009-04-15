@@ -497,7 +497,7 @@ void PndEmc::ConstructGeometry() {
       std::cout<< " ====== EMC::  ConstructROOTGeometry() ====== " <<std::endl;
       std::cout<< " ============================================ " <<std::endl;
       ConstructRootGeometry();
-    } else if(fileName.EndsWith("4_FwEndCapGeo.root") || fileName.EndsWith("4_StraightGeo.root")) {
+    } else if(fileName.EndsWith("4_FwEndCapGeo.root") || fileName.EndsWith("4_StraightGeo26.root")) {
       std::cout<< "                                              " <<std::endl;
       std::cout<< " ====== EMC::  ConstructROOTGeometry() m4 === " <<std::endl;
       std::cout<< " ============================================ " <<std::endl;
@@ -520,7 +520,7 @@ void PndEmc::ConstructGeometry() {
       std::cout<< " ============================================= " <<std::endl;
       ConstructRootGeometry();
     }
-    if(fgeoName3.EndsWith("4_FwEndCapGeo.root") || fgeoName3.EndsWith("4_StraightGeo.root")) {
+    if(fgeoName3.EndsWith("4_FwEndCapGeo.root") || fgeoName3.EndsWith("4_StraightGeo26.root")) {
       std::cout<< "                                               " <<std::endl;
       std::cout<< " ====== EMC::  ConstructRootGeometry() m4a === " <<std::endl;
       std::cout<< " ============================================= " <<std::endl;
