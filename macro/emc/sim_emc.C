@@ -62,9 +62,9 @@
    //if you use this combination of geometry, use ----> MapperVersion: 6 !!! - in the trunk/macro/params/emc.par
    //
    //Emc->SetGeometryFileName("emc_module4_FwEndCapGeo.root"); // only new BwEndCap
-   //Emc->SetGeometryFileName("emc_module4_StraightGeo.root"); // only new BwEndCap
+   //Emc->SetGeometryFileName("emc_module4_StraightGeo26.root"); // only new BwEndCap
    //Emc->SetGeometryFileNameTriple("emc_module125.dat","emc_module3new.root","emc_module4_FwEndCapGeo.root");
-   //Emc->SetGeometryFileNameTriple("emc_module125.dat","emc_module3new.root","emc_module4_StraightGeo.root");
+   //Emc->SetGeometryFileNameTriple("emc_module125.dat","emc_module3new.root","emc_module4_StraightGeo26.root");
    fRun->AddModule(Emc);
   
   // Create and Set Event Generator
