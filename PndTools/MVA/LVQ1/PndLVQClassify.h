@@ -43,15 +43,15 @@ class PndLVQClassify{
    * @param result:  Classification results. Currently the shortest
    *  distance for each class is stored in result.
    */
-  void Classify(std::vector<float> &EvtData, std::map<std::string,float>& result);
-
+  void Classify(const std::vector<float> &EvtData, std::map<std::string,float>& result);
+  
  protected:
   /**
    * Computes the Euclidean distance between two given vectors of
    * event features.
    */
-  float ComputeDist(std::vector<float> &EvtData, std::vector<float> &proto);
-
+  float ComputeDist(const std::vector<float> &EvtData, const std::vector<float> &proto);
+  
  private:
   //! Holds the class Names
   std::vector<std::string> m_ClassNames;

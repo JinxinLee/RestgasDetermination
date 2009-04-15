@@ -77,13 +77,13 @@ PndLVQClassify::~PndLVQClassify()
   m_ClassNames.clear();
   m_VarNames.clear();
 }
-  
+
 /**
  * Computes the Euclidean distance between two given vectors of
  * event features.
  */
-float PndLVQClassify::ComputeDist(std::vector<float> &EvtData, 
-				  std::vector<float> &proto)
+float PndLVQClassify::ComputeDist(const std::vector<float> &EvtData, 
+				  const std::vector<float> &proto)
 {
   float dist = 0.0;
   
@@ -96,9 +96,9 @@ float PndLVQClassify::ComputeDist(std::vector<float> &EvtData,
 /**
  * @param EvtData: Event data to be classified.
  * @param result:  Classification results. Currently the shortest
- *     distance for each class is stored in result.
+ *                 distance for each class is stored in result.
  */
-void PndLVQClassify::Classify(std::vector<float> &EvtData, 
+void PndLVQClassify::Classify(const std::vector<float> &EvtData, 
 			      std::map<std::string,float>& result)
 {
   float dist = 0.0;
