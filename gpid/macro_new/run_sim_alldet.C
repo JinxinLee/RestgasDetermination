@@ -18,7 +18,7 @@ void run_sim_alldet(const int nEvents = 100, const char* part="e-",
   
   //fRun->SetName("TGeant3");
   fRun->SetName("TGeant4");
-  
+
   //fRun->SetOutputFile("el_sttcombi.root");
   fRun->SetOutputFile(SimOut);
   

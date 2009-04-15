@@ -24,9 +24,9 @@ void learn_pid()
   bdt_train.AddClass("Pion");
   bdt_train.AddClass("Kaon");
   bdt_train.AddClass("Muon");
-  bdt_train.AddClass("Gamma");
   bdt_train.AddClass("Proton");
-  
+  //bdt_train.AddClass("Gamma");
+
   // Set number of signal and background events to be used
   bdt_train.SetNSigTrain("20000");
   bdt_train.SetNBkgTrain("80000");
@@ -83,7 +83,7 @@ void learn_pid()
   bdt_train.SetNumLvqProto(30);
   bdt_train.SetOutFileName(OutFile);
   bdt_train.SetLearnPrameters(0.2,0.1,0.00001,1000);
-  //bdt_train.TrainClassifier(bla);
+  bdt_train.TrainClassifier(bla);
 
   bla = LVQ21;//LVQ2.1
   TString OutFile1 = "LVQ2TestOut.root";
