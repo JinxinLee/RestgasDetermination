@@ -23,6 +23,7 @@ PndKnnClassify::PndKnnClassify(const char *InputPutFile,
   //Copy the class and variable names.
   m_ClassNames = ClassNames;
   m_VarNames   = VarNames;
+  
   // Set the deafult value for scale factor
   m_ScaleFact = 0.8;
 }
@@ -31,10 +32,9 @@ PndKnnClassify::~PndKnnClassify()
 {
   m_ClassNames.clear();
   m_VarNames.clear();
-  // We can do the following function call, because of the fact that
-  // the destructors of the datatypes are well implemented.
+  
   m_perClassExamples.clear();
-
+  
   if(m_InPutF){
     m_InPutF->Close();
     delete m_InPutF;
@@ -75,18 +75,28 @@ void PndKnnClassify::Init()
     for(unsigned int k = 0; k < t->GetEntriesFast(); k++){
       t->GetEntry(k);
 
-      // Create and add the current event.
+      // Create and add the current event. 
       TMVA::kNN::Event Evt(evtDat, m_weight, cls);
       m_module->Add(Evt);
     }
     //Done, delete tree ptr
-    delete t;
+    //delete t;
   }// Values from the (ROOT)trees are inserted
+  
   std::cout << ".......... <INFO> "
 	    << "Number of available classes is "
 	    << m_ClassNames.size() << std::endl;
+  
   // Fill module and optimize
-  m_module->Fill(m_VarNames.size() , (100.0 * m_ScaleFact), "");
+  /*
+  m_module->Fill( static_cast<unsigned int> (m_VarNames.size()),
+  		  static_cast<unsigned int> (100.0 * m_ScaleFact),
+  		  "metric");
+  */
+
+  m_module->Fill(static_cast<unsigned int> (12),
+		 static_cast<unsigned int> (0),
+		 "");
 
   // Close the open file.
   m_InPutF->Close();
@@ -103,6 +113,7 @@ void PndKnnClassify::Classify(std::vector<float> &EvtData,
 			      unsigned int Neighbours,
 			      std::map<std::string, float>& result)
 {
+
   result.clear();
   std::map<int, int> PerClsCount;
 
@@ -111,14 +122,15 @@ void PndKnnClassify::Classify(std::vector<float> &EvtData,
     result.insert( std::make_pair( m_ClassNames[cls], 0.0 ) );
     PerClsCount.insert( std::make_pair(cls, 0));
   }
-  
+
   // Create event and fetch Neighbours events from the tree
-  TMVA::kNN::Event evt(EvtData, m_weight,20);
+  TMVA::kNN::Event evt(EvtData, m_weight, 20);
   m_module->Find(evt, Neighbours);
   
   // Fetch the results list
+
   ResList lst = m_module->GetkNNList();
-  
+
   ResList::iterator iter;
   for(iter  = lst.begin(); iter != lst.end(); ++iter){
     // Fetch the node
@@ -133,37 +145,37 @@ void PndKnnClassify::Classify(std::vector<float> &EvtData,
     // Store per class counts in the search results
     PerClsCount[type] += 1;
   }
- 
+
   // Map the results
   std::map< std::pair<std::string, int>*, int>::iterator it = 
     m_perClassExamples.begin();
-  
+
   int cnt = 0;
   std::vector<int> counts(m_perClassExamples.size(), 0);
 
   while(it != m_perClassExamples.end()){
     std::pair<std::string, int>* pr = (*it).first;
     counts[cnt] = (*it).second;
-    /*
-     * int clsNumber = pr->second;
-     * std::string clName = pr->first;
-     * result[clName] = PerClsCount[clsNumber];
-    */
+    
+    //
+    // int clsNumber = pr->second;
+    // std::string clName = pr->first;
+    // result[clName] = PerClsCount[clsNumber];
+    // 
     result[pr->first] = PerClsCount[pr->second];
     it++;
     cnt++;
   }
 
   // Normalizing the results
-  
   float probSum = 0.0;
   for(unsigned int i = 0; i < result.size(); i++){
     std::string className = m_ClassNames[i];
     int num = counts[i];
-    result[className] = result[className]/num;
+    result[className] = result[className]/static_cast<float>(num);
     probSum += result[className];
   }
-  
+
   for(unsigned int cl = 0; cl < m_ClassNames.size(); cl++){
     std::string className = m_ClassNames[cl];
     result[className] = result[className]/probSum;

@@ -53,7 +53,7 @@ int main(int argc, char** argv)
 
   const char* file = ot.c_str();
   
-  PndKnnTrain bla (file,clas,nam);
+  PndKnnTrain bla (file, clas, nam);
 
   std::vector<float> evt;
   
@@ -70,7 +70,7 @@ int main(int argc, char** argv)
   for(int i = 0; i < totEvtNum; i++){
     evt.clear();
     for(unsigned int j = 0; j < nam.size(); j++){
-      evt.push_back(myran.Uniform(0,1));
+      evt.push_back(myran.Uniform(1,3));
     }
     bla.Train(evt,"Pion");
   }
@@ -78,7 +78,7 @@ int main(int argc, char** argv)
   for(int i = 0; i < totEvtNum; i++){
     evt.clear();
     for(unsigned int j = 0; j < nam.size(); j++){
-      evt.push_back(myran.Uniform(1,2));
+      evt.push_back(myran.Uniform(3,4));
     }
     bla.Train(evt,"Kaon");
   }
@@ -86,7 +86,7 @@ int main(int argc, char** argv)
   for(int i = 0; i < totEvtNum; i++){ 
     evt.clear();
     for(unsigned int j = 0; j < nam.size(); j++){
-      evt.push_back(myran.Uniform(2,3));
+      evt.push_back(myran.Uniform(4,6));
     }
     bla.Train(evt,"Gamma");
   }
@@ -94,7 +94,7 @@ int main(int argc, char** argv)
   for(int i = 0; i < totEvtNum; i++){
     evt.clear();
     for(unsigned int j = 0; j < nam.size(); j++){
-      evt.push_back(myran.Uniform(3,4));
+      evt.push_back(myran.Uniform(6,8));
     }
     bla.Train(evt,"Muon");
   }
@@ -103,7 +103,7 @@ int main(int argc, char** argv)
   for(int i = 0; i < totEvtNum; i++){
     evt.clear();
     for(unsigned int j = 0; j < nam.size(); j++){
-      evt.push_back(myran.Gaus(30,40));
+      evt.push_back(myran.Uniform(10,15));
     }
     bla.Train(evt,"Prot");
   }
