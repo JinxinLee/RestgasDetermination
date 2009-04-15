@@ -22,6 +22,7 @@ PndLVQTrain::PndLVQTrain(const char* InPut,
   
   // Open the input file for reading the event data.
   TFile* m_InPutFile = new TFile(InPut,"READ");
+  
   int minIdx,maxIdx;
   minIdx = 0; maxIdx = -1;
   
@@ -80,11 +81,11 @@ PndLVQTrain::PndLVQTrain(const char* InPut,
     CompClsCondMean(m_ClassNames[idx]); 
     }
   */ // End of classconditional mean
-
+  
   /* 
    * Set the initial values for the learning constants. Note, One
    * needs to change these for better learning result.
-  */
+   */
   m_initConst = 0.8; m_ethaZero = 0.1; 
   m_ethaFinal = 0.0001; m_NumSweep = 500;
 }// End of constructor
@@ -123,7 +124,7 @@ void PndLVQTrain::cleanProtoList()
 {
   std::cout << "<INFO> Cleaning the prototype list." 
 	    << std::endl;
-
+  
   // Clean up the container for proto-types
   for(unsigned int k = 0; k < m_LVQProtos.size(); k++){
     delete m_LVQProtos[k].second;
@@ -167,9 +168,10 @@ void PndLVQTrain::InitProtoTypes(int numProto)
   
   std::cout << "Initializing " << numProto 
 	    <<" LVQ prototypes."<< std::endl;
+
   // Initialize LVQ-prototypes.
   double c = m_initConst;//0.8;
-  TRandom3 trand(435785);
+  TRandom3 trand(435375);
   
   for(unsigned int cl = 0; cl < m_ClassNames.size(); cl++){
     int minIdx = m_ClassIndex[cl].first;
@@ -230,12 +232,12 @@ void PndLVQTrain::Train(int numProto, const char* outPut)
     InitProtoTypes(numProto);
   }
   else{
-	std::cerr << "<ERROR> The number of prototypes\n" 
-			  << " MUST be greater than zero (0)."<< std::endl;
-	return;
+    std::cerr << "<ERROR> The number of prototypes\n" 
+	      << " MUST be greater than zero (0)."<< std::endl;
+    return;
   }
   if(!outPut){
-	std::cerr << "You need to specify the output file" << std::endl;
+    std::cerr << "You need to specify the output file" << std::endl;
     return;
   }
   // All protypes are initialized. We can perform the training
@@ -244,7 +246,7 @@ void PndLVQTrain::Train(int numProto, const char* outPut)
   double ethaFinal = m_ethaFinal;//0.0001;
   int    numSweep  = m_NumSweep;//1000;
   int    tFinal    = numSweep * ( m_EventsData.size() );
-  double a         = (ethaZero - ethaFinal)/(ethaFinal * (double)tFinal);
+  double a         = (ethaZero - ethaFinal)/(ethaFinal * static_cast<double>(tFinal) );
 
   // Print some information.
   std::cout << "<INFO>: Performing LVQ1 learning with parameters:\n"
@@ -260,7 +262,12 @@ void PndLVQTrain::Train(int numProto, const char* outPut)
     double distance         = 0.0;
     double minProtoDistance = std::numeric_limits<float>::max();//1000000.0;
     
-    double ethaT = (ethaZero) / (1.0 + (a * (double)time));
+    double ethaT = (ethaZero) / (1.0 + (a * static_cast<double>(time)));
+
+    if( ethaT <= (1.50 * std::numeric_limits<double>::min())){
+      ethaT  = std::numeric_limits<double>::min();
+      std::cout <<"Very small ethaT" << std::endl;
+    }
     // select a random example
     int index = (int) trand.Poisson( (time + 2) * 10000) % (m_EventsData.size() - 1);
     
@@ -301,7 +308,7 @@ void PndLVQTrain::Train(int numProto, const char* outPut)
  */
 void PndLVQTrain::Train21(int numProto, const char* outPut)
 {
-  TRandom3 trand(435575);
+  TRandom3 trand(435573);
   
   // Container to store distances.
   std::vector <PndLVQDistObj*> distances;
@@ -315,11 +322,12 @@ void PndLVQTrain::Train21(int numProto, const char* outPut)
 	      <<"be greater than zero" << std::endl;
     return;
   }
+  
   if(!outPut){
 	std::cerr << "You need to specify the output file." << std::endl;
 	return;
   }
-
+  
   // Initialize distance container.
   for(unsigned int i = 0; i < m_LVQProtos.size(); i++){
     PndLVQDistObj* dd = new PndLVQDistObj();
@@ -335,7 +343,7 @@ void PndLVQTrain::Train21(int numProto, const char* outPut)
   double ethaFinal = m_ethaFinal;//0.001;
   int    numSweep  = m_NumSweep;//100;
   int    tFinal    = numSweep * ( m_EventsData.size() );
-  double a         = (ethaZero - ethaFinal)/(ethaFinal * (double)tFinal);
+  double a         = (ethaZero - ethaFinal)/(ethaFinal * static_cast<double>(tFinal));
 
   // Print some information.
   std::cout << "<INFO>: Performing LVQ2.1 learning with parameters:\n"
@@ -349,8 +357,12 @@ void PndLVQTrain::Train21(int numProto, const char* outPut)
   //Start learning  
   for(int time = 0; time < tFinal; time++){
     double distance         = 0.0;
-    double ethaT = (ethaZero) / (1.0 + (a * (double)time));
+    double ethaT = (ethaZero) / (1.0 + (a * static_cast<double>(time)));
     
+    if( ethaT <= (1.50 * std::numeric_limits<double>::min())){
+      ethaT  = std::numeric_limits<double>::min();
+      std::cout <<"Very small ethaT" << std::endl;
+    }
     // select a random example
     int index = (int) trand.Poisson( (time + 2) * 10000) % (m_EventsData.size() - 1);
     
@@ -389,7 +401,7 @@ void PndLVQTrain::Train21(int numProto, const char* outPut)
 	idxSame++;
       }
     }
-
+    
     //Found two prototypes, one with the same lablel and one with a diff. one
     if(minFunct( (distances[idxSame])->m_dist / (distances[idx2d])->m_dist ,
 		 (distances[idx2d])->m_dist   / (distances[idxSame])->m_dist ) > s){
