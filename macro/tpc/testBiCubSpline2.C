@@ -51,13 +51,10 @@ std::vector<double>* _kx = new std::vector<double>;
 std::vector<double>* _ky = new std::vector<double>;
 
 
-std::vector<std::vector<double>*>* coeff=new std::vector<std::vector<double>*>;
-
-
-double lLx = -41.;
-double uLx = 111;
+double lLx = -40.;
+double uLx = 110;
 double lLy = 15.;
-double uLy = 43.;
+double uLy = 42.;
 
 double stepx = (uLx - lLx + 1)/NknotsX;  //"+1": make sure last valid knot is slightly 
 double stepy = (uLy - lLy + 1)/NknotsY;  //larger than uLx or uLy
@@ -82,15 +79,11 @@ for(int j=0; j<NlamdaY; ++j){
 //   std::cout<<_ky->at(k)<<"  ";
 // std::cout<<std::endl;
 
-for(int i=0; i<NlamdaY-4; i++) {
-  coeff->push_back(new std::vector<double>(NlamdaX-4, 1.));
-}
 
-std::vector<std::vector<double>*>* coeff2=new std::vector<std::vector<double>*>(*coeff);
 
 // Cub-Spline testing ------------------------------------------
-BiCubSpline* csp = new BiCubSpline(_kx, _ky, coeff);
-BiCubSpline* csp2 = new BiCubSpline(_kx, _ky, coeff2);
+BiCubSpline* csp = new BiCubSpline(_kx, _ky);
+BiCubSpline* csp2 = new BiCubSpline(_kx, _ky);
 
 
 SplineTF2Interface* func = new SplineTF2Interface(csp);   
@@ -232,9 +225,9 @@ for(int i=0;i<nr;++i){   //loop over residuals
 
 //construct the TF2-----------------------------------------------------
 
-TF2* f2 =new TF2("f2",func,&SplineTF2Interface::eval,lzmin,lzmax,lrmin,lrmax,
+TF2* f1 =new TF2("f1",func,&SplineTF2Interface::eval,lzmin,lzmax,lrmin,lrmax,
 		 (NlamdaX-4)*(NlamdaY-4),"Function", "eval");
-TF2* f3 =new TF2("f3",func2,&SplineTF2Interface::eval,lzmin,lzmax,lrmin,lrmax,
+TF2* f2 =new TF2("f2",func2,&SplineTF2Interface::eval,lzmin,lzmax,lrmin,lrmax,
 		 (NlamdaX-4)*(NlamdaY-4),"Function", "eval");
 
 
@@ -270,17 +263,17 @@ for(int i=0; i<(NlamdaX-4)*(NlamdaY-4); i++)
 double* param = result.GetArray();
 double* param2 = result2.GetArray();
 
-f2->SetParameters(param);// THIS DOES NOT AFFECT CSP'S _COEFF VECTOR !!!
-                         // and f2 does NOT take CSP'S coeff vector in the
+f1->SetParameters(param);// THIS DOES NOT AFFECT CSP'S _COEFF VECTOR !!!
+                         // and f1 does NOT take CSP'S coeff vector in the
                          // first place!!!! 
+
+f1->SetNpx(50);
+f1->SetNpy(50);
+
+f2->SetParameters(param2);
 
 f2->SetNpx(50);
 f2->SetNpy(50);
-
-f3->SetParameters(param2);
-
-f3->SetNpx(50);
-f3->SetNpy(50);
 
 // ---------------------- init Deviation Map as refernecer -------------------------------------
 
@@ -317,12 +310,13 @@ diff_SLA->SetStats(false);
 TH1D* diff_hist = new TH1D("blob", "Abs. difference in histogram", 150, -0.15, 0.15);
 TH1D* diff_hist_orig = new TH1D("blob2", "Abs. difference in histogram", 150, -0.15, 0.15);
 TH1D* diff_hist_SLA = new TH1D("blob3", "Abs. difference in histogram", 150, -0.15, 0.15); 
+ 
 
 
  for(int r=0; r<50; r++)
    for(int z=0; z<50; z++) {
      if(z*zstep+lzmin>109.5 || r*rstep+lrmin> 41.5) continue;
-     double d = f2->Eval((z+0.5)*zstep+lzmin,(r+0.5)*rstep+lrmin)-f3->Eval((z+0.5)*zstep+lzmin,(r+0.5)*rstep+lrmin);
+     double d = f1->Eval((z+0.5)*zstep+lzmin,(r+0.5)*rstep+lrmin)-f2->Eval((z+0.5)*zstep+lzmin,(r+0.5)*rstep+lrmin);
      diff->SetBinContent(z+1, r+1,d);
      diff_hist->Fill(d);
 
@@ -332,7 +326,7 @@ TH1D* diff_hist_SLA = new TH1D("blob3", "Abs. difference in histogram", 150, -0.
      //dev_from_SLA.Print();
    
        
-     double d2 = deviation.Y() - f2->Eval((z+0.5)*zstep+lzmin,(r+0.5)*rstep+lrmin);
+     double d2 = deviation.Y() - f1->Eval((z+0.5)*zstep+lzmin,(r+0.5)*rstep+lrmin);
      diff_orig->SetBinContent(z+1, r+1,d2);
      diff_hist_orig->Fill(d2);
     
@@ -342,7 +336,7 @@ TH1D* diff_hist_SLA = new TH1D("blob3", "Abs. difference in histogram", 150, -0.
 			       
      if(fabs(d) < 0.001) {
        std::cout<<d;
-       if(f2->Eval(z*zstep+lzmin,r*rstep+lrmin)==0 && f2->Eval(z*zstep+lzmin,r*rstep+lrmin)==0)
+       if(f1->Eval(z*zstep+lzmin,r*rstep+lrmin)==0 && f1->Eval(z*zstep+lzmin,r*rstep+lrmin)==0)
 	 std::cout<<"   z="<<z<<",  r="<<r;
        std::cout<<std::endl;
      }
@@ -354,20 +348,20 @@ TCanvas* c1 = new TCanvas();
 
 c1->Divide(2,2);
 //c1->cd(1);
-//f2->Draw("SURF1");
+//f1->Draw("SURF1");
 
 c1->cd(1);
-//hist->Fit("f2","R");
-f2->Draw("SURF1"); 
+//hist->Fit("f1","R");
+f1->Draw("SURF1"); 
 
 c1->cd(2);
-f3->Draw("SURF1");
+f2->Draw("SURF1");
 
 c1->cd(3);
-diff_SLA->Draw("COLZ");
+diff_orig->Draw("COLZ");
 
 c1->cd(4);
-diff_hist_SLA->Draw();
+diff_hist_orig->Draw();
 
 timer.Stop();
 Double_t rtime = timer.RealTime();
