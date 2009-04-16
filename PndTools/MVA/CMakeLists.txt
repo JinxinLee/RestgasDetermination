@@ -14,6 +14,7 @@ ${CMAKE_SOURCE_DIR}/base
 ${CMAKE_SOURCE_DIR}/field 
 ${CMAKE_SOURCE_DIR}/pnddata
 ${CMAKE_SOURCE_DIR}/PndTools/MVA/kd_KNN
+${CMAKE_SOURCE_DIR}/PndTools/MVA/TMVAkd_KNN
 ${CMAKE_SOURCE_DIR}/PndTools/MVA/LVQ1
 ${CMAKE_SOURCE_DIR}/PndTools/MVA
 )
@@ -30,6 +31,9 @@ link_directories( ${LINK_DIRECTORIES})
 set(MVA_SRCS
 LVQ1/PndLVQClassify.cpp
 LVQ1/PndLVQTrain.cpp
+
+TMVAkd_KNN/PndKnnClassify.cpp
+TMVAkd_KNN/PndKnnTrain.cpp
 
 # kd_KNN/kdtree2.cpp
 # kd_KNN/PndKnnClassify.cpp
