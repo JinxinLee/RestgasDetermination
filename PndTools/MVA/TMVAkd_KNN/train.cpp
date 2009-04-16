@@ -32,32 +32,34 @@ int main(int argc, char** argv)
 	      << std::endl;
     return 1;
   }
-
+  
   int totEvtNum = 0;
   std::string numstr = argv[1];
   std::istringstream buff(numstr);
   buff >> totEvtNum;
-
+  
   std::string ot   = argv[2];
   
   std::vector<std::string> clas;
   std::vector<std::string> nam;
+  
+  // Class names
   clas.push_back("Elec"); clas.push_back("Pion"); 
   clas.push_back("Kaon"); clas.push_back("Gamma"); 
   clas.push_back("Muon"); clas.push_back("Prot");
-
+  
+  // Parameter names
   nam.push_back("emc"); nam.push_back("tof"); nam.push_back("mvd");
   nam.push_back("p");   nam.push_back("stt"); nam.push_back("tpc");
-
-
 
   const char* file = ot.c_str();
   
   PndKnnTrain bla (file, clas, nam);
-
+  
   std::vector<float> evt;
   
   TRandom3 myran(987629);
+  
   //El events
   for(int i = 0; i < totEvtNum; i++){
     evt.clear();
@@ -66,6 +68,7 @@ int main(int argc, char** argv)
     }
     bla.Train(evt,"Elec");
   }
+  
   //Pi events
   for(int i = 0; i < totEvtNum; i++){
     evt.clear();
@@ -74,6 +77,8 @@ int main(int argc, char** argv)
     }
     bla.Train(evt,"Pion");
   }
+  
+  // /*
   //Ka events
   for(int i = 0; i < totEvtNum; i++){
     evt.clear();
@@ -82,6 +87,7 @@ int main(int argc, char** argv)
     }
     bla.Train(evt,"Kaon");
   }
+  
   //Gam events
   for(int i = 0; i < totEvtNum; i++){ 
     evt.clear();
@@ -90,6 +96,7 @@ int main(int argc, char** argv)
     }
     bla.Train(evt,"Gamma");
   }
+  
   //mu events
   for(int i = 0; i < totEvtNum; i++){
     evt.clear();
@@ -107,6 +114,7 @@ int main(int argc, char** argv)
     }
     bla.Train(evt,"Prot");
   }
+  // */
   std::cout << "Done generating events.\n"
 	    <<"Output is saved in " << ot
 	    << std::endl;

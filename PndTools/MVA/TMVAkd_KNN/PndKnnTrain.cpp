@@ -36,9 +36,9 @@ PndKnnTrain::PndKnnTrain(const char *OutPut,
     std::string desc = "Description Of " + name;
     const char* treeName = name.c_str();
     const char* treeDesc = desc.c_str();
-
+    
     TTree *sig = new TTree(treeName, treeDesc);
-
+    
     //Create branches and bind them to variables;
     for(int j = 0; j < m_numVars; j++){
       std::string vname = VarNames[j];
@@ -59,7 +59,7 @@ PndKnnTrain::PndKnnTrain(const char *OutPut,
 
 /**
  * Class Destructor.
-*/
+ */
 PndKnnTrain::~PndKnnTrain()
 {
   // Write the generated trees to the output file
@@ -71,7 +71,7 @@ PndKnnTrain::~PndKnnTrain()
     delete m_SigTrees[i];
   }
   m_SigTrees.clear();
-
+  
   // Cleaning the var container 
   for(unsigned int k = 0; k< m_varContainer.size();k++){
     delete m_varContainer[k];

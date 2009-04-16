@@ -23,7 +23,7 @@ typedef std::list < std::pair<const TMVA::kNN::Node<TMVA::kNN::Event>*,
  * KNN based classification alg. implementation.
  */
 class PndKnnClassify{
-
+  
  public:
   /**
    * Constructor.
@@ -44,8 +44,8 @@ class PndKnnClassify{
    * @param Neighbours: Number of Neighbours.
    * @param result: Holds the normalized results of classification
    */
-  void Classify(std::vector<float> &EvtData, 
-		unsigned int Neighbours, 
+  void Classify(const std::vector<float> &EvtData, 
+		const unsigned int Neighbours, 
 		std::map<std::string, float>& result);
   /**
    * Set the scalefactor and the event weight for KNN classifier.
@@ -54,23 +54,24 @@ class PndKnnClassify{
    */
   inline void SetEvtParam(const float scFact, const double weight)
   {m_ScaleFact = scFact; m_weight = weight; };
-
+  
   /**
    * Initialize the KNN classifier.
    */
   void Init();
-
+  
   /// DEBUG
   void print(){m_module->Print();}
   /// DEBUG
   // Protected functions and variables
+
  protected:
   /**
    * Euclidean distance between two given vectors of event features.
    */
-  float ComputeDist(std::vector<float> &EvtData, 
-		    std::vector<float> &Example);
-
+  float ComputeDist(const std::vector<float> &EvtData, 
+		    const std::vector<float> &Example);
+  
   // Private functions and variables
  private:
   
@@ -78,13 +79,13 @@ class PndKnnClassify{
   float m_ScaleFact;//!< Scalefactor Default =  0.8
   double m_weight;//!< Event weight
   TMVA::kNN::ModulekNN* m_module;
-
+  
   //! Class names container 
   std::vector<std::string> m_ClassNames;
-
+  
   //! Variable names container
   std::vector<std::string> m_VarNames;
-
+  
   /**
    * Pairs to hold the number of available examples per calss and to
    * map classNames to classNumbers.

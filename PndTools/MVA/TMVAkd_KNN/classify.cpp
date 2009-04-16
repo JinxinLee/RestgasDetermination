@@ -47,16 +47,16 @@ int main(int argc, char** argv)
   
   // Classes (container to hold the class names)
   clas.push_back("Elec"); clas.push_back("Pion"); 
-  //clas.push_back("Kaon"); clas.push_back("Gamma"); 
-  //clas.push_back("Muon"); clas.push_back("Prot");
+  clas.push_back("Kaon"); clas.push_back("Gamma"); 
+  clas.push_back("Muon"); clas.push_back("Prot");
   
   // Variables (names)
   nam.push_back("emc"); nam.push_back("tof"); nam.push_back("mvd");
   nam.push_back("p");   nam.push_back("stt"); nam.push_back("tpc");
 
 
-  // TStopwatch timer;
-  //timer.Start();
+  TStopwatch timer;
+  timer.Start();
 
   //Create the classifier object and specify the weight file
   PndKnnClassify cls (InPutFileName.c_str(), clas, nam);
@@ -64,9 +64,9 @@ int main(int argc, char** argv)
   cls.Init();
   std::cout << ".......... Init is done." << std::endl;
 
-  //timer.Stop();
-  double rtime = 0.0;// = timer.RealTime();
-  double ctime = 0.0;// = timer.CpuTime();
+  timer.Stop();
+  double rtime = timer.RealTime();
+  double ctime = timer.CpuTime();
   std::cout<< "RealTime = " << rtime << " seconds, CpuTime = " 
            << ctime <<" Seconds" << std::endl;
 
@@ -74,8 +74,8 @@ int main(int argc, char** argv)
   
   evt.clear();
   for(unsigned int j = 0; j < nam.size(); j++){
-    evt.push_back(myran.Gaus(1,20));
-    evt1.push_back(myran.Uniform(-10,10));
+    evt.push_back(myran.Gaus(1,1));
+    evt1.push_back(myran.Uniform(-1,1));
     evt2.push_back(myran.Uniform(30,50));
   }
   
@@ -85,9 +85,10 @@ int main(int argc, char** argv)
   TStopwatch ti;
   ti.Start();
   
-  cls.Classify(evt, NumNei, res);
-  printResult(res);
-  
+  for(int i = 0; i < 10; i++){  
+    cls.Classify(evt1, NumNei, res);
+    printResult(res);
+  }
   ti.Stop();
   rtime = ti.RealTime();
   ctime = ti.CpuTime();

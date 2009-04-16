@@ -74,7 +74,7 @@ void PndKnnClassify::Init()
     // Fetch and add the variables to the module
     for(unsigned int k = 0; k < t->GetEntriesFast(); k++){
       t->GetEntry(k);
-
+      
       // Create and add the current event. 
       TMVA::kNN::Event Evt(evtDat, m_weight, cls);
       m_module->Add(Evt);
@@ -88,16 +88,15 @@ void PndKnnClassify::Init()
 	    << m_ClassNames.size() << std::endl;
   
   // Fill module and optimize
-  /*
   m_module->Fill( static_cast<unsigned int> (m_VarNames.size()),
   		  static_cast<unsigned int> (100.0 * m_ScaleFact),
-  		  "metric");
+  		  "");//"metric"
+  
+  /*
+    m_module->Fill(static_cast<unsigned int> (12),
+    static_cast<unsigned int> (0),
+    "");
   */
-
-  m_module->Fill(static_cast<unsigned int> (12),
-		 static_cast<unsigned int> (0),
-		 "");
-
   // Close the open file.
   m_InPutF->Close();
   //std::cout << "length is " << m_perClassExamples.size() << std::endl;
@@ -109,50 +108,50 @@ void PndKnnClassify::Init()
  * @param VarNames: Variable names from which the feature vector is
  * built.
  */
-void PndKnnClassify::Classify(std::vector<float> &EvtData, 
-			      unsigned int Neighbours,
+void PndKnnClassify::Classify(const std::vector<float> &EvtData, 
+			      const unsigned int Neighbours,
 			      std::map<std::string, float>& result)
 {
-
+  
   result.clear();
   std::map<int, int> PerClsCount;
-
+  
   // Initialize results
   for(unsigned int cls = 0; cls < m_ClassNames.size(); cls++){
     result.insert( std::make_pair( m_ClassNames[cls], 0.0 ) );
     PerClsCount.insert( std::make_pair(cls, 0));
   }
-
+  
   // Create event and fetch Neighbours events from the tree
   TMVA::kNN::Event evt(EvtData, m_weight, 20);
   m_module->Find(evt, Neighbours);
   
   // Fetch the results list
-
+  
   ResList lst = m_module->GetkNNList();
-
+  
   ResList::iterator iter;
   for(iter  = lst.begin(); iter != lst.end(); ++iter){
     // Fetch the node
     const TMVA::kNN::Node<TMVA::kNN::Event> *node = (*iter).first;
-
+    
     // Fetch the event from the Node
     TMVA::kNN::Event event = node->GetEvent();
-
+    
     // Type corresponds with the class name
     int type = event.GetType();
-
+    
     // Store per class counts in the search results
     PerClsCount[type] += 1;
   }
-
+  
   // Map the results
   std::map< std::pair<std::string, int>*, int>::iterator it = 
     m_perClassExamples.begin();
-
+  
   int cnt = 0;
   std::vector<int> counts(m_perClassExamples.size(), 0);
-
+  
   while(it != m_perClassExamples.end()){
     std::pair<std::string, int>* pr = (*it).first;
     counts[cnt] = (*it).second;
@@ -166,7 +165,7 @@ void PndKnnClassify::Classify(std::vector<float> &EvtData,
     it++;
     cnt++;
   }
-
+  
   // Normalizing the results
   float probSum = 0.0;
   for(unsigned int i = 0; i < result.size(); i++){
@@ -175,7 +174,7 @@ void PndKnnClassify::Classify(std::vector<float> &EvtData,
     result[className] = result[className]/static_cast<float>(num);
     probSum += result[className];
   }
-
+  
   for(unsigned int cl = 0; cl < m_ClassNames.size(); cl++){
     std::string className = m_ClassNames[cl];
     result[className] = result[className]/probSum;
@@ -192,8 +191,8 @@ void PndKnnClassify::Classify(std::vector<float> &EvtData,
  * Computes the Euclidean distance between two given vectors of
  * event features.
  */
-float PndKnnClassify::ComputeDist(std::vector<float> &EvtData, 
-				  std::vector<float> &Ex)
+float PndKnnClassify::ComputeDist(const std::vector<float> &EvtData, 
+				  const std::vector<float> &Ex)
 {
   float dist = 0.0;
   

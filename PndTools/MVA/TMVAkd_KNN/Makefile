@@ -11,7 +11,7 @@ MAKEFLAGS  =  -w -k #-s
 CXX       =  g++
 
 # CCFLAGS   = -Wall -W -Os -O3 -funroll-loops # -fopenmp
-CCFLAGS   = -Wall -W -O2 -funroll-loops
+CCFLAGS   = -Wall -W -Os -O3 -funroll-loops
 CCFLAGS  += -ffast-math ${FLAGSMACHINE} -fomit-frame-pointer
 CCFLAGS  += -fvariable-expansion-in-unroller -funsafe-math-optimizations
 
