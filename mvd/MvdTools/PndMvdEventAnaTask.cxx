@@ -25,6 +25,7 @@
 #include "PndMvdHit.h"
 #include "PndMvdCluster.h"
 #include "TrackCand.h"
+#include "PndRiemannTrack.h"
 
 #include <vector>
 #include <map>
@@ -102,6 +103,10 @@ InitStatus PndMvdEventAnaTask::Init()
 	fTrackCand = (TClonesArray*) ioman->GetObject("MVDRiemannTrackCand");
 		if ( !fTrackCand)	{
 			std::cout << "-W- PndMvdEventAnaTask::Init: " << "No MVDRiemannTrackCand" <<" array!" << std::endl;
+			fTrackCand = (TClonesArray*) ioman->GetObject("MVDIdealTrackCand");
+			if (!fTrackCand)
+				std::cout << "-W- PndMvdEventAnaTask::Init: " << "No MVDIdealTrackCand" <<" array!" << std::endl;
+
 		}
 
 	fHTracksPerEvent = new TH1I("HTracksPerEvent", "Tracks per Event", 21, -0.5, 20.5);
@@ -143,6 +148,10 @@ InitStatus PndMvdEventAnaTask::Init()
 	fHRiemannTracksPerTrackAdd = new TH1I("HRiemannTracksPerTrackAdd", "Found Tracks per MC Track", 11, -0.5, 10.5);
 	fHRiemannTracksPerTrackAdd->SetLineColor(2);
 
+	fHRiemannVertexResolutionX = new TH1D("HRiemannVertexResolutionX","Difference between reco vertex and MC vertex", 1000, -1, 1);
+	fHRiemannVertexResolutionY = new TH1D("HRiemannVertexResolutionY","Difference between reco vertex and MC vertex", 1000, -1, 1);
+	fHRiemannVertexResolutionZ = new TH1D("HRiemannVertexResolutionZ","Difference between reco vertex and MC vertex", 1000, -1, 1);
+
   return kSUCCESS;
 }
 // -------------------------------------------------------------------------
@@ -160,6 +169,9 @@ void PndMvdEventAnaTask::Exec(Option_t* opt)
 {
 	std::map<int, std::vector<int> > mcHitMap;						//Track ->  MCHits
 	std::map<int, std::vector<int> > trackToTrackCandMap;			//Track -> TrackCand
+
+	std::vector<PndRiemannTrack> riemannTracks;
+	std::vector<int> MCTrackOrderRiemann;							//information which riemannTrack belongs to which MCTrack;
 
 	TVector3 MCPos, RecoPos;
 	double MCEnergy, RecoEnergy;
@@ -186,7 +198,9 @@ void PndMvdEventAnaTask::Exec(Option_t* opt)
 		if (fPrintTrack){
 			std::cout << "<<<<<<<<<<< MCTrack >>>>>>>>>> " << std::endl;
 			myTrack->Print(kIt->first);
+			TVector3 startVertex = myTrack->GetStartVertex();
 			std::cout << "Pt: " << TrackPt << " GeV/c; P: " << TrackP << " GeV/c" << std::endl;
+			std::cout << "StartVertex: " << startVertex.X() << " " << startVertex.Y() << " " << startVertex.Z() << std::endl;
 		}
 
 		for (int p = 0; p < MChits.size(); p++){											//go through all hits in track
@@ -232,11 +246,9 @@ void PndMvdEventAnaTask::Exec(Option_t* opt)
 				std::cout << "RecoHit: " << recoHit << std::endl;
 				if (recoHit > -1){
 					hitCount++;
-					if (hitCount == 1){
-						oldRecoHit = recoHit;
-					}
-					else if (hitCount > 1 && oldRecoHit > -1 && oldRecoHit == recoHit){
+					if (oldRecoHit != recoHit){
 						fTrackStripHitIdMap[kIt->first].push_back(recoHit);
+						oldRecoHit = recoHit;
 					}
 				}
 				PrintClusterDigiInfo(stripCluster[clInd], digiInd, false);
@@ -256,10 +268,10 @@ void PndMvdEventAnaTask::Exec(Option_t* opt)
 		std::cout << std::endl;
 		std::cout << "TrackID " << kIt->first << ": ";
 		for (int testInd = 0; testInd < pixHits.size(); testInd++)
-			std::cout << " 1/" << pixHits[testInd];
+			std::cout << " 5/" << pixHits[testInd];
 
 		for (int testInd = 0; testInd < stripHits.size(); testInd++)
-			std::cout << " 2/" << stripHits[testInd];
+			std::cout << " 4/" << stripHits[testInd];
 		std::cout << std::endl;
 
 		std::cout << "MCHitMap: ";
@@ -270,6 +282,9 @@ void PndMvdEventAnaTask::Exec(Option_t* opt)
 		std::vector<int> matches;
 		std::vector<int> candidates;
 		GetTrackCandsForMCTrack(pixHits, stripHits, matches, candidates);
+		std::cout << "TrackCands for MCTrack: ";
+		for (int i = 0; i < candidates.size(); i++) std::cout << candidates[i];
+		std::cout << std::endl;
 		trackToTrackCandMap[kIt->first] = candidates;
 
 		int TrackMatch = 0;
@@ -281,6 +296,21 @@ void PndMvdEventAnaTask::Exec(Option_t* opt)
 				highestMatch = i;
 			}
 			TrackCand* myCand = (TrackCand*)fTrackCand->At(candidates[i]);
+			PndRiemannTrack myRiemannTrack;
+			MCTrackOrderRiemann.push_back(kIt->first);
+			myRiemannTrack.SetVerbose(1);
+			for (Int_t j = 0; j < myCand->getNHits(); j++){
+				unsigned int detId, hitId;
+				myCand->getHit(j, detId, hitId);
+				myRiemannTrack.addHit(&PndRiemannHit(GetFairHit(detId, hitId)));
+			}
+
+			myRiemannTrack.refit();
+			myRiemannTrack.szFit();
+			TVectorD n = myRiemannTrack.n();
+			//std::cout << "RiemannNormal: "  << n[0] << " " << n[1] << " " << n[2] << std::endl;
+			riemannTracks.push_back(myRiemannTrack);
+
 			double curv = myCand->getCurv();
 			double dip = myCand->getDip();
 			double pt = 1/curv;
@@ -343,10 +373,44 @@ void PndMvdEventAnaTask::Exec(Option_t* opt)
 			else fNPartTracks++;
 		}
 		std::cout << "Found TracksPerTrack: " << TrackMatch;
-		if (mcHitMap[kIt->first].size() > 2) std::cout << " 3Hits+"
-		<< std::endl;
+		if (mcHitMap[kIt->first].size() > 2) std::cout << " 3Hits+"	<< std::endl;
 		if (mcHitMap[kIt->first].size() > 2) fHRiemannTracksPerTrackAdd->Fill(TrackMatch);
 		fHRiemannTracksPerTrack->Fill(TrackMatch);
+	}
+	if (riemannTracks.size() > 1){
+		std::cout << riemannTracks.size() << " Riemann Tracks used!" << std::endl;
+		for (int i = 0; i < riemannTracks.size() - 1; i++){
+			for (int j = i + 1; j < riemannTracks.size(); j++)	{
+				TVector3 p1, p2;
+				//riemannTracks[i].refit();
+				//riemannTracks[i].szFit();
+				//std::cout << "Track: " << i << std::endl;
+				//riemannTracks[i].PrintHits();
+
+				//riemannTracks[j].refit();
+				//riemannTracks[j].szFit();
+				//std::cout << "Track: " << j << std::endl;
+				//riemannTracks[j].PrintHits();
+
+				std::cout << "Vertex Test for: " << MCTrackOrderRiemann[i] << " and " << MCTrackOrderRiemann[j] << std::endl;
+				int result = riemannTracks[i].calcIntersection(riemannTracks[j], p1, p2);
+
+				if (result == 1){
+					std::cout << "Vertex1: " << p1.X() << " " << p1.Y() << " " << p1.Z() << std::endl;
+					std::cout << "Vertex2: " << p2.X() << " " << p2.Y() << " " << p2.Z() << std::endl;
+					PndMCTrack* myMCTrack = (PndMCTrack*)(fMCTracks->At(MCTrackOrderRiemann[i]));
+					TVector3 MCVertex = myMCTrack->GetStartVertex();
+					std::cout << "MCVertex " << MCTrackOrderRiemann[i] << ": "<< MCVertex.X() << " " << MCVertex.Y() << " " << MCVertex.Z() << std::endl;
+					MCVertex -= (p1+p2)*0.5;
+					std::cout << "Difference: " << MCVertex.X() << " " << MCVertex.Y() << " " << MCVertex.Z() << std::endl;
+					fHRiemannVertexResolutionX->Fill(MCVertex.X());
+					fHRiemannVertexResolutionY->Fill(MCVertex.Y());
+					fHRiemannVertexResolutionZ->Fill(MCVertex.Z());
+
+
+				}
+			}
+		}
 	}
 	if (fPrintGhosts){
 		std::cout << std::endl;
@@ -376,6 +440,22 @@ void PndMvdEventAnaTask::Finish()
 	std::cout << (double)fNNotFoundPossibleTracks / fNPossibleTracks * 100 << " % of possible tracks not found" << std::endl;
 	std::cout << (double)fNNotFoundTracks / fNTracks * 100<< " % of  Tracks not found in total" << std::endl;
 	std::cout << (double)fNGhostTracks / fNTracks * 100<< " % of Ghost Tracks" << std::endl;
+}
+
+
+FairHit* PndMvdEventAnaTask::GetFairHit(Int_t detId, Int_t hitId)
+{
+	FairHit* p;
+
+	if (detId == 5){
+		return (FairHit *) fPixReco->At(hitId);
+	}
+	else if (detId == 4){
+		return p=(FairHit *) fStripReco->At(hitId);
+	}
+
+	std::cout << "-E- FairRiemannTrackCandDraw::GetFairHit : Unknown Detector with ID: " << detId << std::endl;
+	return 0;
 }
 
 // -------------------------------------------------------------------------
@@ -530,14 +610,17 @@ void PndMvdEventAnaTask::GetTrackCandsForMCTrack(std::vector<int> pixHitId, std:
 			hitMatch = 0;
 			for (int j = 0; j < myTrackCand->getNHits(); j++){
 				myTrackCand->getHit(j, detId, hitId);
-				if (detId == 1){
+				//std::cout << "DetId: " << detId << " HitId: " << hitId << std::endl;
+				if (detId == 5){
 					for (int k = 0; k < pixHitId.size(); k++){
+						//std::cout << "PixHitId: " << pixHitId[k] << std::endl;
 						if (hitId == pixHitId[k])
 							hitMatch++;
 					}
 				}
-				else if (detId == 2){
+				else if (detId == 4){
 					for (int k = 0; k < stripHitId.size(); k++){
+						//std::cout << "StripHitId: " << stripHitId[k] << std::endl;
 						if (hitId == stripHitId[k])
 							hitMatch++;
 					}

@@ -98,6 +98,9 @@ InitStatus PndMvdRiemannTrackFinderTask::Init()
   fTrackCandArray = new TClonesArray("TrackCand");
   ioman->Register("MVDRiemannTrackCand", "MVD", fTrackCandArray, kTRUE);
 
+//  fRiemannTrackArray = new TClonesArray("PndRiemannTrack");
+//  ioman->Register("MVDRiemannTrack","MVD",fRiemannTrackArray, kTRUE);
+
   std::cout << "-I- PndMvdRiemannTrackFinderTask: Initialisation successfull" << std::endl;
   return kSUCCESS;
 }
@@ -110,10 +113,11 @@ void PndMvdRiemannTrackFinderTask::Exec(Option_t* opt)
   if ( ! fTrackCandArray )
     Fatal("Exec", "No trackCandArray");
   fTrackCandArray->Clear();
+ // fRiemannTrackArray->Clear();
 
   PndRiemannTrackFinder trackFinder;
   trackFinder.SetVerbose(fVerbose);
-  
+
   trackFinder.AddHits(fHitArray);
   trackFinder.AddHits(fHitArray2);
   trackFinder.SetMaxSZChi2(fMaxSZChi2);
@@ -128,6 +132,7 @@ void PndMvdRiemannTrackFinderTask::Exec(Option_t* opt)
  // std::vector<TrackCand> myCand = trackFinder.GetTrackCand();
   for (int i = 0; i < trackFinder.NTracks(); i++){
 	  new ((*fTrackCandArray)[i])TrackCand(trackFinder.GetTrackCand(i));
+	  //new ((*fRiemannTrackArray)[i])PndRiemannTrack(trackFinder.GetTrack(i));
   }
 }
 

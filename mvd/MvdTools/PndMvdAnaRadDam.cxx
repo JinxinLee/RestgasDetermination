@@ -10,6 +10,8 @@
 #include "TCollection.h"
 #include "TObject.h"
 
+#include<iostream>
+
 PndMvdAnaRadDam::PndMvdAnaRadDam()
 {
 	// TODO Auto-generated constructor stub
@@ -60,8 +62,10 @@ TH2* PndMvdAnaRadDam::GetHistoByName(TString name)
 void PndMvdAnaRadDam::SaveHistos(TString fileName)
 {
 	TFile f(fileName,"RECREATE");
+	//f.Dump();
 //	f.Write();
 	for (std::map<TString, TH2D*>::const_iterator iter = fHistoMap.begin(); iter != fHistoMap.end(); iter++){
+		//std::cout << iter->first << std::endl;
 		iter->second->Write();
 	}
 }

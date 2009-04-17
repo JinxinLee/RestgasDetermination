@@ -165,7 +165,7 @@ void PndMvdIdealTrackFinderTask::Exec(Option_t* opt)
 //     Int_t trackID = myPoint->GetTrackID();
 //     Int_t detnum = 3; //TODO Convention needed
 //     AddAndExpand(trackID,detnum,iHit);
-    AddAndExpand(myPoint->GetTrackID(),1,iHit);
+    AddAndExpand(myPoint->GetTrackID(),apixeldigi->GetDetID(),iHit);
   }
   //strip part
   for (Int_t iHit = 0; iHit < nStripHits; iHit++){
@@ -177,7 +177,7 @@ void PndMvdIdealTrackFinderTask::Exec(Option_t* opt)
 //     Int_t trackID = myPoint->GetTrackID();
 //     Int_t detnum = 4; //TODO Convention needed
 //     AddAndExpand(trackID,detnum,iHit);
-    AddAndExpand(myPoint->GetTrackID(),2,iHit);
+    AddAndExpand(myPoint->GetTrackID(),astripdigi->GetDetID(),iHit);
   }
 
   if(fVerbose>0) PrintResult();

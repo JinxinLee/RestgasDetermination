@@ -17,6 +17,7 @@
 
 // framework includes
 #include "FairTask.h"
+#include "FairHit.h"
 #include "TH1.h"
 #include "TrackCand.h"
 
@@ -71,6 +72,10 @@ class PndMvdEventAnaTask : public FairTask
   void DrawRiemannTracksPerTrack(TString opt=""){fHRiemannTracksPerTrack->DrawClone(opt);}
   void DrawRiemannTracksPerTrackAdd(TString opt=""){fHRiemannTracksPerTrackAdd->DrawClone(opt);}
 
+  void DrawRiemannVertexResolutionX(TString opt =""){fHRiemannVertexResolutionX->DrawClone(opt);}
+  void DrawRiemannVertexResolutionY(TString opt =""){fHRiemannVertexResolutionY->DrawClone(opt);}
+  void DrawRiemannVertexResolutionZ(TString opt =""){fHRiemannVertexResolutionZ->DrawClone(opt);}
+
 
 
 
@@ -112,6 +117,10 @@ class PndMvdEventAnaTask : public FairTask
 		TH1* fHRiemannFakes;
 		TH1* fHRiemannTracksPerTrack;
 		TH1* fHRiemannTracksPerTrackAdd;
+
+		TH1* fHRiemannVertexResolutionX;
+		TH1* fHRiemannVertexResolutionY;
+		TH1* fHRiemannVertexResolutionZ;
 
 
 		bool fPrintTrack;
@@ -156,6 +165,8 @@ class PndMvdEventAnaTask : public FairTask
   void Reset();
 
   void ProduceHits();
+
+  FairHit* GetFairHit(Int_t detId, Int_t hitId);
 
   std::map<int, std::vector<int> > AssignHitsToTracks();
 
