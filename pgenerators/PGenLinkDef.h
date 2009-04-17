@@ -13,5 +13,6 @@
 #pragma link C++ class  PndFlatParticleGenerator+;
 #pragma link C++ class  PndRangeValues+;
 #pragma link C++ class  PndGasGenerator+;
+#pragma link C++ class  PndHypBupGenerator+;
 
 #endif

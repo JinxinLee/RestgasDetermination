@@ -28,6 +28,7 @@ PndJRGenerator.cxx
 PndPythiaGenerator.cxx
 PndFlatParticleGenerator.cxx
 PndGasGenerator.cxx
+PndHypBupGenerator.cxx
 )
 
 if(RULE_CHECKER_FOUND)
