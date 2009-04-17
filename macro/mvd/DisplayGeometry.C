@@ -1,7 +1,7 @@
 void DisplayGeometry(TString fileName)
 {
 TFile* f = new TFile(fileName);
-TGeoManager *geoMan = (TGeoManager*)f->Get("CBMGeom");
+TGeoManager *geoMan = (TGeoManager*)f->Get("FAIRGeom");
 TEveManager::Create();
 TGeoNode *N=  gGeoManager->GetTopNode();
  TEveGeoTopNode *TNod=new  TEveGeoTopNode(gGeoManager, N);
