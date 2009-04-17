@@ -6,8 +6,8 @@
 #pragma link off all classes;
 #pragma link off all functions;
 
-#pragma link C++ class PndRiemannHit++;
-#pragma link C++ class PndRiemannTrack++;
+#pragma link C++ class PndRiemannHit+;
+#pragma link C++ class PndRiemannTrack+;
 #pragma link C++ class PndRiemannTrackFinder++;
 
 #endif

@@ -25,9 +25,9 @@
 #include <ostream> // remove if you do not need streaming op
 #include "TVector3.h"
 #include "TMatrixD.h"
+#include "FairHit.h"
 
 // Collaborating Class Declarations --
-class FairHit;
 class PndTpcCluster;
 class PndRiemannTrack;
 
@@ -40,7 +40,7 @@ public:
   PndRiemannHit(FairHit* cl);
   ~PndRiemannHit();
 
-  
+
   // Accessors -----------------------
   void setXYZ(double x, double y, double z);
   void setDXYZ(double dx, double dy, double dz);
@@ -74,7 +74,7 @@ private:
   double fZ;				///< z-coordinate of hit
   double fDeltaZ;			///< error in z
   double fAlpha; 			///< angle along track
-  
+
   int fVerbose;
 
   // Private Methods -----------------

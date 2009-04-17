@@ -32,7 +32,7 @@
 
 
 // scale factor! r=1 => z'=0.5 !!!
-// to normalize cm-range 
+// to normalize cm-range
 #define RIEMANNSCALE 1.
 
 ClassImp(PndRiemannHit)
@@ -55,10 +55,10 @@ PndRiemannHit::~PndRiemannHit(){}
 void PndRiemannHit::setXYZ(double x, double y, double z)
 {
 	TVector2 a(x, y);
-	double r=a.Mod()/RIEMANNSCALE; 
+	double r=a.Mod()/RIEMANNSCALE;
 	double phi=a.Phi();
 	double r2=r*r;
-	  
+
 	fX.SetX(x/RIEMANNSCALE);
 	fX.SetY(y/RIEMANNSCALE);
 	fX.SetZ(r2);
@@ -76,7 +76,7 @@ void PndRiemannHit::setDXYZ(double dx, double dy, double dz)
 void PndRiemannHit::setHit(FairHit* cl)
 {
 	setXYZ(cl->GetX(), cl->GetY(), cl->GetZ());
-	setDXYZ(cl->GetDx(), cl->GetDy(), cl->GetDz());  
+	setDXYZ(cl->GetDx(), cl->GetDy(), cl->GetDz());
 }
 
 
@@ -85,17 +85,17 @@ PndRiemannHit::z()const {
   return fZ;
 }
 
-void 
+void
 PndRiemannHit::calcPosOnTrk(PndRiemannTrack* trk){
   assert(trk!=NULL);
-  TVectorD o=trk->orig(); 
+  TVectorD o=trk->orig();
   o*=RIEMANNSCALE;// convert back to cm;
   double r=trk->r();
   r*=RIEMANNSCALE;
-  const FairHit* firstHit=trk->getHit(0)->hit();
+  const PndRiemannHit* firstHit=trk->getHit(0);
   assert(firstHit!=NULL);
-  TVector2 k(firstHit->GetX()-o[0],firstHit->GetY()-o[1]);
-  TVector2 l(fHit->GetX()-o[0],fHit->GetY()-o[1]);
+  TVector2 k(firstHit->x().X()-o[0],firstHit->x().Y()-o[1]);
+  TVector2 l(fX.X()-o[0],fX.Y()-o[1]);
   fAlpha=l.DeltaPhi(k);
 //  if (fAlpha < 0)
 //	  fAlpha += TMath::Pi()*2;

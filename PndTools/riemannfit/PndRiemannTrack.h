@@ -26,7 +26,9 @@
 // Collaborating Class Headers -------
 #include <vector>
 #include "TVectorD.h"
+#include "TVector3.h"
 #include "TMatrixD.h"
+#include "TMath.h"
 
 // Collaborating Class Declarations --
 #include "PndRiemannHit.h"
@@ -37,17 +39,18 @@ public:
 
   // Constructors/Destructors ---------
   PndRiemannTrack();
+  //PndRiemannTrack(const PndRiemannTrack& rtrack);
   ~PndRiemannTrack(){};
 
-  
+
   // Accessors -----------------------
   const TVectorD& n() const {return fn;}
   double c() const {return fc;}
   const TVectorD& av() const {return fav;}
 
   TVectorD orig() const;
-  double dX(){return fcovRXY[1][1];}
-  double dY(){return fcovRXY[2][2];} 
+  double dX(){return TMath::Sqrt(fcovRXY[1][1]);}
+  double dY(){return TMath::Sqrt(fcovRXY[2][2]);}
   double r() const;
   double dR();
   double dip();
@@ -58,13 +61,23 @@ public:
   unsigned int getNumHits() {return fHits.size();}
   PndRiemannHit* getHit(unsigned int i) {PndRiemannHit* myHit = &(fHits[i]); return myHit;}
   PndRiemannHit* getLastHit() {return getHit(getNumHits()-1);}
+  std::vector<PndRiemannHit> getHits(){return fHits;};
 
+  TVector3 calcPosByS(double s);
+  int calcIntersection(PndRiemannTrack& track, TVector3& p1, TVector3& p2);
+
+  double weight() const {return fweight;};
+  TMatrixD covPlane() const {return fcovPlane;};
+  TMatrixD jacRXY() const {return fjacRXY;};
+  TMatrixD covRXY() const {return fcovRXY;};
   double m() const {return fm;}
+  double mError() const {return fmError;}
   double t() const {return ft;}
+  double tError() const {return ftError;}
 
   // Modifiers -----------------------
   void addHit(PndRiemannHit* hit);
-  void init(double x0, double y0, double R, 
+  void init(double x0, double y0, double R,
 	    double dip, double z0);
 
   // Operations ----------------------
@@ -75,9 +88,11 @@ public:
   double szDist(PndRiemannHit* hit);
   double szError(PndRiemannHit* hit);
   double szChi2(){return fChi2;};
-  
-  void SetVerbose(int i){fVerbose = i;}
 
+  void SetVerbose(int i){fVerbose = i;}
+  TVector3 calcErrorPosByS(Double_t s, Double_t dS);
+
+  void PrintHits();
 private:
 
   // Private Data Members ------------
@@ -99,12 +114,19 @@ private:
   TMatrixD fjacRXY;  	///< jacobian matrix to transform from c,n1,n2,n2 to r,x,y
   TMatrixD fcovRXY;
   int fVerbose;
-  
+
   void calcJacRXY(); 	///< calcualtes fjacRXY
+
+  TVector3 calcErrorLineNorm(PndRiemannTrack& track);
+  TVector3 calcErrorLineOffset(PndRiemannTrack& track);
+  TVectorD calcErrorXY1XY2(TVector3& line, TVector3& dLine, TVector3& offset, TVector3& dOffset);
+  Double_t calcErrorS(TVector2& XY, TVector2& dXY, PndRiemannTrack* track);
+
+
 
 
   // Private Methods -----------------
- 
+
 
 public:
   ClassDef(PndRiemannTrack,2)
