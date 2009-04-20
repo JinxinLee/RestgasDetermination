@@ -85,8 +85,10 @@ int main(int argc, char** argv)
   TStopwatch ti;
   ti.Start();
   
-  for(int i = 0; i < 10; i++){  
-    cls.Classify(evt1, NumNei, res);
+  for(int i = 0; i < 3; i++){
+    cls.Classify(evt, NumNei, res);
+    //cls.Classify(evt1, NumNei, res);
+    //cls.Classify(evt2, NumNei, res);
     printResult(res);
   }
   ti.Stop();
