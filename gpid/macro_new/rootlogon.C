@@ -29,26 +29,26 @@
   gSystem->Load("libEmc"); 
   gSystem->Load("libGeom.so");
   gSystem->Load("libPndData.so");
-  //gSystem->Load("libPndBase.so");
+
   gSystem->Load("libGui.so");
   gSystem->Load("libgenfit");
   gSystem->Load("libtpc");
   gSystem->Load("libTof");
   gSystem->Load("libDrcProp");
   gSystem->Load("libDrc");
-//  gSystem->Load("libtpcreco");
+
   gSystem->Load("libtrackrep");
   gSystem->Load("libTrkBase");
-//  gSystem->Load("librecotasks");
-  gSystem->Load("libMvd");
-  gSystem->Load("libMvdReco");
-  gSystem->Load("libLHETrack");
+  //  gSystem->Load("librecotasks");
+  //gSystem->Load("libMvd");
+  //gSystem->Load("libMvdReco");
+  //gSystem->Load("libLHETrack");
   gSystem->Load("libRho");
   gSystem->Load("libGeane");
   gSystem->Load("libTMVA");
   gSystem->Load("libMva");
   gSystem->Load("libGpid");
-
+  
   gStyle->SetPalette(1);
   gStyle->SetTitleStyle(0);
   gStyle->SetTitleXSize(0.06);
@@ -57,5 +57,5 @@
   gStyle->SetFrameFillColor(kWhite);
   gStyle->SetOptStat(0);
   delete gRandom;
-  gRandom=new TRandom3(0);
+  gRandom=new TRandom3(98754321);
 }

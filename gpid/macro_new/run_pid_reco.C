@@ -67,9 +67,12 @@ void run_pid_reco(const int NumEvt = 0, const char* inPutFile = "RecoOut.root",
    * Possible MVA's are:
    * TMKNN, TMBDT, TMMLP, MulClsKNN, LVQ1
    */
-  MVAType bla = LVQ1;
+  MVAType bla = MulClsKNN;
   //pid->SetInFileName("LVQ1TestOut.root");
-  pid->SetInFileName("LVQ2TestOut.root");
+  //pid->SetInFileName("LVQ2TestOut.root");
+  pid->SetKnn(200);
+  pid->SetInFileName("../Gpid_files/EventFeaturesTrain.root");
+
   pid->SetMVA(bla);
   
   fRun->AddTask(pid);

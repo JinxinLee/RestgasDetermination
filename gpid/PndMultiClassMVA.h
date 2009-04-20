@@ -41,6 +41,7 @@
 // Global PID data types definitions
 #include "PndGpidTypes.h"
 #include "PndLVQTrain.h"//LVQ1 implementation
+//#include "PndKnnTrain.h"//FIXME
 
 using namespace std;
 
@@ -190,6 +191,9 @@ class PndMultiClassMVA
   TString mKnnDepth; // Tree depth
   TString mKnnscalefrac;// Scale fraction
   TString mKnnSelOpt; // KNN options
+
+  // Multi class KNN Based on TMVA kd-tree.
+
 
   // MLP
   TString mlpNeuTyp; // MLP neuron type

@@ -121,11 +121,12 @@ void PndMultiClassMVA::TrainClassifier(MVAType mva)
 {
   std::string MvaConfig = "";
   PndLVQTrain* lvq = NULL;
-  
+ 
   // Select which classifier to train
   switch (mva){
-  
+
   case MulClsKNN://Multi class KNN
+    //knTr =;   
     std::cout << "\t<INFO:> Current implementation of the MultiClsKNN"<< std::endl
 	      <<"\tcreates root trees to store the event parameters and"<< std::endl
 	      <<"\tperforms no computations. If you want to use this,"<<std::endl

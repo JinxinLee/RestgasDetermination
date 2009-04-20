@@ -90,5 +90,5 @@ void learn_pid()
   bdt_train.SetNumLvqProto(30);
   bdt_train.SetOutFileName(OutFile1);
   bdt_train.SetLearnPrameters(0.5, 0.1, 0.00001, 1000);
-  bdt_train.TrainClassifier(bla);
+  //bdt_train.TrainClassifier(bla);
 }

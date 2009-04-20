@@ -41,6 +41,7 @@
 // Gpid data types
 #include "PndGpidTypes.h"
 #include "PndLVQClassify.h"//LVQ1 implementation
+#include "PndKnnClassify.h"//Multi class KNN
 
 using namespace std;
 
@@ -62,13 +63,15 @@ class PndGpidTaskLhe : public FairTask
   void SetMVA(MVAType mode) {fMVAmode = mode;};
 
   void SetInFileName(char* InPut) {M_InFileName = InPut;} ;
-  
+  void SetKnn(const int nn){M_KNN = nn;};
+
   /** Virtual method Init **/
   virtual InitStatus Init();
   
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
 
+  ////////////////// Protected //////////////////
   protected:
   inline   void printResult(std::map<std::string,float>& res){
     std::cout << "\n===== LVQ output For debugging ========== \n";
@@ -79,6 +82,7 @@ class PndGpidTaskLhe : public FairTask
     std::cout << "===== END OF LVQ output For debugging ====== \n";
   }
 
+  ////////////////// Private //////////////////
  private:
   // Private fuction members called by init during Initialization
 
@@ -117,8 +121,11 @@ class PndGpidTaskLhe : public FairTask
   
   TString M_InFileName;// Name of input weight file for LVQ, kd_KNN
   std::vector<float> m_varVec;// Container to hold feature values
+
   PndLVQClassify* m_lvq;// LVQ classifier object
-  
+  PndKnnClassify* m_knn;// KNN classifier
+  int M_KNN; // Number of neigbours to search for
+
   TClonesArray* fPidTrackCand;
   TClonesArray* fArrPid; 
   ClassDef(PndGpidTaskLhe,1);

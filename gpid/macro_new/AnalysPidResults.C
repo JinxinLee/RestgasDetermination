@@ -59,12 +59,14 @@ const std::string* classifyLVQCand(PndPidCand* cand)
   for(unsigned int i = 0; i < clsNames.size(); i++){
     std::string CurCls = clsNames[i];
     float val = cand->GetClsVal(CurCls);
-    
+    std::cout << clsNames[i] << " = " << val << "\t";
+
     if(val < minVal){
       minVal = val;
       Cls = CurCls;
     }
   }
+  std::cout << std::endl;
   return ( new std::string(Cls));
 }
 

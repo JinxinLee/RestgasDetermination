@@ -29,11 +29,17 @@ PndGpidTaskLhe::~PndGpidTaskLhe()
   fVarNameArray.clear();
   fClassNameArray.clear();
   m_varVec.clear();
+  
   // Delete all TMVA::Reader objects
   for(int i = 0 ; i < fNVAR ; i++){
     delete reader[i];
   }
-  delete m_lvq;
+  if(m_lvq){
+    delete m_lvq;
+  }
+  if(m_knn){
+    delete m_knn;
+  }
 }
 /*
  * Init call of the task inherited from the FairTask. Registers the
@@ -184,12 +190,17 @@ void PndGpidTaskLhe::BookingMVA()
       break;
 
     case MulClsKNN:// Multi class KNN. In PndTools.
-      std::cout << "Not available yet" << std::endl;
+      m_knn = new PndKnnClassify(M_InFileName, fClassNameArray, fVarNameArray);
+      m_knn->Init();
+      std::cout << "<INFO> This implementation needs to be tested." 
+		<< std::endl;
       break;
 
     case LVQ1:// LVQ1 & LVQ2.1. In PndTools.
     case LVQ21:
       m_lvq = new PndLVQClassify(M_InFileName,fClassNameArray,fVarNameArray);
+      std::cout << "<INFO> This implementation needs to be tested." 
+		<< std::endl;
       break;
       
     default:
@@ -299,21 +310,24 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
 
 	switch(fMVAmode){
 	case MulClsKNN:
-	  std::cout << "Not available yet." << std::endl;
+	  m_knn->Classify(m_varVec, M_KNN, res);
+	  // Copy the results into fTrack
+	  for( std::map<std::string,float>::iterator ii=res.begin(); 
+               ii != res.end(); ++ii){
+            fTrack->SetClsVal((*ii).first,(*ii).second);
+          }
 	  break;
 
 	case LVQ1:
 	case LVQ21:
 	  m_lvq->Classify(m_varVec, res);
-	  // Prints debug, may be commented, FIXME DEBUG.
-	  //printResult(res);
-	  // ========== FIXME DEBUG ============
+	  // Copy the results into fTrack
 	  for( std::map<std::string,float>::iterator ii=res.begin(); 
-	       ii != res.end(); ++ii){
-	    fTrack->SetClsVal((*ii).first,(*ii).second);
-	  }
+               ii != res.end(); ++ii){
+            fTrack->SetClsVal((*ii).first,(*ii).second);
+          }
 	  break;
-
+	  
 	default:
 	  std::cout << "Unknown classifier" << std::endl;
 	}
@@ -325,7 +339,7 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
 	  std::string className;
 	  
 	  className = fClassNameArray.at(i);
-	  //mvaValue = reader[i].EvaluateMVA(fClassifier);
+
 	  mvaValue = reader[i]->EvaluateMVA(fClassifier);
 	  
 	  switch (fMVAmode){
