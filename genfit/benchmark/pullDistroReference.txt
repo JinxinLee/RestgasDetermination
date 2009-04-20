@@ -1,3 +1,0 @@
-do runTpcMC
-do runTest with setting parameters in it
-edit and run the doIt script. set theinput file and the labels for the plots here

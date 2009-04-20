@@ -19,7 +19,7 @@
   //  gSystem->Load("libPGen");
 
 
-  Int_t nEvents = 100;
+  Int_t nEvents = 1;
 
   FairRunSim *fRun = new FairRunSim();
   
