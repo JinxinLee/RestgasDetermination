@@ -109,10 +109,6 @@ TestGeaneTrackRep::extrapolate(const DetPlane& pl,
 			   TMatrixT<double>& statePred,
 			   TMatrixT<double>& covPred)
 {
-  if(fabs(getMom(_refPlane).Theta()/TMath::Pi()*180.) < THETACUT){
-	FitterException exc("GEANE propagation not possible for p.theta<THETACUT",__LINE__,__FILE__);
-    throw exc;
-  }
 
   TVector3 o=pl.getO();
   TVector3 u=pl.getU();
@@ -212,10 +208,6 @@ void
 TestGeaneTrackRep::extrapolateToPoca(const TVector3& pos,
 				 TVector3& poca,
 				 TVector3& dirInPoca){
-  if(fabs(getMom(_refPlane).Theta()/TMath::Pi()*180.) < THETACUT){
-	FitterException exc("GEANE propagation not possible for p.theta<THETACUT",__LINE__,__FILE__);
-    throw exc;
-  }
   int dim = getDim();
   TMatrixT<double> statePred(dim,1);
   TMatrixT<double> covPred(dim,dim);
@@ -301,10 +293,6 @@ TestGeaneTrackRep::extrapolateToLine(const TVector3& point1,
 				 TVector3& dirInPoca,
 				 TVector3& poca_onwire)
 {
-  if(fabs(getMom(_refPlane).Theta()/TMath::Pi()*180.) < THETACUT){
-	FitterException exc("GEANE propagation not possible for p.theta<THETACUT",__LINE__,__FILE__);
-    throw exc;
-  }
 
   // call propagation to closest approach to a wire 
   Int_t pca = 2;

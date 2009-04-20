@@ -22,7 +22,6 @@ class GeaneTestTask : public FairTask
  public:
   /** Default constructor **/  
   GeaneTestTask();
-  void WriteToFile(std::string fileName="out.root");
   /** Destructor **/
   ~GeaneTestTask();
 
@@ -32,46 +31,8 @@ class GeaneTestTask : public FairTask
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
 
-  int _nEv;
-  double _th,_posSig,_thSm,_phiSm,_mom,_momSm,_res;
-
-  void setFileName(std::string);
  private:
 
-  std::string fileName;
-  TTree* tree;
-
-
- double momRe;
-  double momTr;
-  double momSi;
-  double momPu;
-  double uRe;
-  double uTr;
-  double vRe;
-  double vTr;
-  double uSi;
-  double vSi;
-  double uPu;
-  double vPu;
-  double upRe;
-  double upTr;
-  double vpRe;
-  double vpTr;
-  double upSi;
-  double vpSi;
-  double upPu;
-  double vpPu;
-  double thTr;
-  double thSt;
-  double phiTr;
-  double phiSt;
-  double chi2;
-  int nfail;
-
-
-	/** Input array of Points **/
-  TClonesArray* fPointArray;
 
   TGeant3 *gMC3;
   ClassDef(GeaneTestTask,1);

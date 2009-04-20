@@ -6,6 +6,7 @@
 
 // Collaborating Class Headers --------
 #include "GeaneTrackRep.h"
+#include "TestGeaneTrackRep.h"
 #include "DetPlane.h"
 #include "TRandom.h"
 
@@ -73,7 +74,27 @@ SPhit::setHMatrix(const AbsTrackRep* stateVector,
     _HMatrix[1][2] = 0.;
     _HMatrix[1][3] = 0.;
     _HMatrix[1][4] = 1.;
+ }
+ else  if (dynamic_cast<const TestGeaneTrackRep*>(stateVector) != NULL) {
+    //I know, since this is the same everytime, it could be done in the
+    //the constructor, but I do it here anyway, to make clear that in the
+    //case of several track-reps per hit, it would have to be done here
+   //    _HMatrix.ResizeTo(NparHitRep,5);
+    _HMatrix.ResizeTo(2,5);
+
+    _HMatrix[0][0] = 0.;
+    _HMatrix[0][1] = 0.;
+    _HMatrix[0][2] = 0.;
+    _HMatrix[0][3] = 1.;
+    _HMatrix[0][4] = 0.;
+
+    _HMatrix[1][0] = 0.;
+    _HMatrix[1][1] = 0.;
+    _HMatrix[1][2] = 0.;
+    _HMatrix[1][3] = 0.;
+    _HMatrix[1][4] = 1.;
   }
+
   else {
     std::cerr << "SPhit can only handle state"
               << " vectors of type GeaneTrackRep -> abort" << std::endl;
