@@ -85,7 +85,7 @@ void GeaneTestTask::Exec(Option_t* opt) {
 	TVector3 StartMomChanged    = StartMom;
 	double rand1 = (gRandom->Uniform()-0.5)/180.*TMath::Pi()*2.*5.;
 	double rand2 = (gRandom->Uniform()-0.5)/180.*TMath::Pi()*2.*5.;
-	StartMomChanged.SetTheta(0.01/180.*TMath::Pi());//StartMomChanged.Theta()+rand1);
+	StartMomChanged.SetTheta(gRandom->Uniform(0.,0.01)/180.*TMath::Pi());//StartMomChanged.Theta()+rand1);
 	StartMomChanged.SetPhi(StartMomChanged.Phi()+rand2);
 
 
