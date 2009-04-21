@@ -49,7 +49,7 @@
   FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open(parFile.Data());
   rtdb->setFirstInput(parInput1);
-  fRun->LoadGeometry();
+  //fRun->LoadGeometry();
 
   // ------------------------------------------------------------------------
   
