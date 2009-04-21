@@ -63,7 +63,7 @@ private:
   
   McIdCollection _mcid;
   // Private Methods -----------------
-  void processPulse(std::vector<PndTpcSample*>,double&,double&);
+  void processPulse(std::vector<PndTpcSample*>,double& t0,double& A,double& length);
 
 };
 

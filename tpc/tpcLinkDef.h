@@ -16,6 +16,7 @@
 #pragma link C++ class PndTpcClusterizerTask+;
 #pragma link C++ class PndTpcPrimaryCluster+;
 #pragma link C++ class PndTpcDriftTask+;
+//#pragma link C++ class PndTpcRadialDriftTask+;
 #pragma link C++ class PndTpcDriftedElectron+;
 #pragma link C++ class PndTpcAvalanche+;
 #pragma link C++ class PndTpcGemTask+;

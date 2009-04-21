@@ -109,11 +109,12 @@ void PndTpcPSA_TOT1::Process(const std::vector<PndTpcSample*> & samples,
 	else {// in active pulse
 	  if((deriv_0>=_C3 && deriv_1<_C4) || amp<padThreshold) {//done with pulse
 		inpulse=false;
-		double t0,A;
-		processPulse(samplesInPulse,t0,A);
+		double t0,A,length;
+		processPulse(samplesInPulse,t0,A,length);
 		samplesInPulse.clear();
 		mcid.Renormalize();
 		PndTpcDigi* digi=new PndTpcDigi(A,t0,samples[i]->padId(),mcid);
+		digi->tlength(length);
 		digis.push_back(digi);
 
 		if(deriv_0>_C1 && amp>padThreshold) {//start new pulse
@@ -175,15 +176,14 @@ void PndTpcPSA_TOT1::Process(const std::vector<PndTpcSample*> & samples,
 }
 
 void PndTpcPSA_TOT1::processPulse(std::vector<PndTpcSample*> samples,
-							   double& t0,double& A){
+							   double& t0,double& A, double& length){
   A=0.;
   t0=0.;
   for(unsigned int i=0;i<samples.size();i++) {
 	A+=samples[i]->amp();
   }
-  t0=samples[0]->t() + _PULSEDELAYFACTOR*(samples[samples.size()-1]->t()-
-										  samples[0]->t() 
-										  );
+  length=samples[samples.size()-1]->t()-samples[0]->t();
+  t0=samples[0]->t() + _PULSEDELAYFACTOR*length;
 
 }
 

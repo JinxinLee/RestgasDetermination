@@ -37,6 +37,7 @@ public:
 		    const double _range,      
 		    const double _step,
 		    const double _intStep);
+  PndTpcPadShapePool(const char* const filename);
   ~PndTpcPadShapePool();
 
   // Operators

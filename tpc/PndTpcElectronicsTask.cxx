@@ -174,6 +174,7 @@ PndTpcElectronicsTask::Exec(Option_t* opt)
     padmap[id]->push_back(sig);
   }
   std::cout<<"finished. "<<padmap.size()<<" pads hit"<<std::endl;
+  int tenpercent=padmap.size()/10;
   // cleanup _signal_array;
   //_signalArray->Clear();
 
@@ -181,7 +182,7 @@ PndTpcElectronicsTask::Exec(Option_t* opt)
   std::map<unsigned int,std::vector<PndTpcSignal*>* >::iterator padIt=padmap.begin();
   int counter=0;
   while(padIt!=padmap.end()){
-    if(counter++%5000==0){
+    if(counter++%tenpercent==0){
       std::cout<<".";
       std::cout.flush();
     }

@@ -42,7 +42,7 @@ public:
   // Constructors/Destructors ---------
   PndTpcClusterFinder(PndTpcPadPlane* p,
 		   std::vector<PndTpcCluster*>* output_buffer,
-		   unsigned int timeslice, int mode=0);
+		   unsigned int timeslice, int mode=0, int sectorid=-1);
   ~PndTpcClusterFinder();
 
   // Operators

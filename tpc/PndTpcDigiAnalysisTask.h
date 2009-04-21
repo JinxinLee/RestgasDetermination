@@ -28,6 +28,7 @@
 class TClonesArray;
 class PndTpcFrontend;
 class PndTpcDigiMapper;
+class PndTpcDigiPar;
 class TH1D;
 class TH2D;
 
@@ -47,6 +48,7 @@ public:
   // Modifiers -----------------------
   void SetDigiBranchName(const TString& name) {_digiBranchName=name;}
   void SetPersistence(Bool_t opt=kTRUE) {_persistence=opt;}
+  virtual void SetParContainers();
   
   // Operations ----------------------
   
@@ -64,12 +66,18 @@ private:
   
   Bool_t _persistence;
  
-  PndTpcFrontend* _frontend;
+  PndTpcDigiPar* _par;
+
+  const PndTpcFrontend* _frontend;
   PndTpcDigiMapper* _mapper;
 
   TH1D* _hTimesOverThres;
   TH2D* _hTimesXY;
   TH2D* _hTimesR;
+  TH2D* _hDigiLengthR;
+  TH2D* _hDigiLengthXY;
+  TH1D* _hContOT;
+  TH2D* _hContOTR;
 
   // Private Methods -----------------
 

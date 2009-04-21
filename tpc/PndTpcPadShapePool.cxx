@@ -45,6 +45,14 @@ PndTpcPadShapePool::PndTpcPadShapePool(const char* const filename,
   BuildLookupTable(gem, _range, _step, _intStep);
 }
 
+// CTOR without GEMs will not build LookUpTable!!!
+PndTpcPadShapePool::PndTpcPadShapePool(const char* const filename)
+{
+  ReadFromFile(filename);
+  std::cout<<"PndTpcPadShapePool: No lookup-table will be built!"<<std::endl;
+}
+
+
 PndTpcPadShapePool::~PndTpcPadShapePool()
 {
   for(int i=0; i<references.size(); i++)

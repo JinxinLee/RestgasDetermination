@@ -37,12 +37,25 @@
 // Class Member definitions -----------
 
 PndTpcClusterFinder::PndTpcClusterFinder(PndTpcPadPlane* p,
-				   std::vector<PndTpcCluster*>* ob,
-				   unsigned int timeslice, int mode)
+					 std::vector<PndTpcCluster*>* ob,
+					 unsigned int timeslice, 
+					 int mode, int sectorid)
   : _padplane(p), _output_buffer(ob), _dt(timeslice), _mode(mode)
 {
   // construct sector processors
   std::vector<unsigned int> ids=_padplane->GetSectorIds();
+  if(sectorid>=0){
+    unsigned int myid=(unsigned int)sectorid;
+    if(std::count(ids.begin(),ids.end(),myid)==0){
+      std::cout<<"SectorId "<<myid<<" not found in padplane! Aborting!"
+	       <<std::endl;
+      throw *p;
+    }
+    else {
+      ids.clear();
+      ids.push_back(myid);
+    }
+  } // only select one sector
   unsigned int nsec=ids.size();
   for(unsigned int is=0;is<nsec;++is){
     unsigned int sectorid=ids[is];
