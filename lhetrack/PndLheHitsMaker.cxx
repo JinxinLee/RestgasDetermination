@@ -863,14 +863,14 @@ void PndLheHitsMaker::CheckTracks() {
       nhit = track->GetNumberOfHits();
       chits = track->GetRHits();
       // print some info about track
-
-      cout << "\n *** track *** " << track->GetTrackNumber() <<
-	" pdg " << track->GetPid() <<
+      
+      if (fVerbose>2) {
+	cout << "\n *** track *** " << track->GetTrackNumber() <<
+	  " pdg " << track->GetPid() <<
 	  " nhits " <<nhit << " p_t ";
-
-      printf("%f", track->GetPt());
-
-      cout << "\n";
+	printf("%f", track->GetPt());
+	cout << "\n";
+      }
       
       if (fVerbose) track->Print();
       PndTpcLheHit *hit = (PndTpcLheHit *)chits->First();
