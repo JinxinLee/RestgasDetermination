@@ -158,7 +158,10 @@ class PndMultiClassMVA
    */
   void TrainClassifier(MVAType mva);
 
-  /* This method is implemented because of the fact that the current
+  //////////////////////////// Private functions and members /////////
+ private:
+  /* 
+   * This method is implemented because of the fact that the current
    * implementation of TMVA does not support multi class MVA's. Thus we
    * need to train a classifier for each class of objects. This method
    * might disappear if the newer versions of this package support multi
@@ -169,7 +172,6 @@ class PndMultiClassMVA
   void TrainTestTM(MVAType mva, const std::string config);
 
 
- private:
   // Classifier train and test parameters
   Int_t fNCLASS;        //  number of classes 
   Int_t fNVAR;          //  number of Variables
