@@ -167,45 +167,58 @@ void PndGpidTaskLhe::AddVar()
 */
 void PndGpidTaskLhe::BookingMVA()
 {
-  for (int i = 0 ; i < fNCLASS ; i++  )
-  {
-    string anaFile;
-    switch (fMVAmode){
-    case TMBDT:// TMVA BDT
-      anaFile =  fDIR + fAPPNAME + fClassNameArray.at(i) + "_BDT.weights.txt";
-      reader[i]->BookMVA("BDT method", anaFile );
-      fClassifier = "BDT method";
-      break;
-      
-    case TMMLP:// TMVA MLP
-      anaFile =  fDIR + fAPPNAME + fClassNameArray.at(i) + "_MLP.weights.txt";
-      reader[i]->BookMVA("MLP method", anaFile );
-      fClassifier = "MLP method";
-      break;
-      
-    case TMKNN:// TMVA KNN
-      anaFile =  fDIR + fAPPNAME + fClassNameArray.at(i) + "_KNN.weights.txt";
-      reader[i]->BookMVA("KNN method", anaFile );
-      fClassifier = "KNN method";
-      break;
+  // Select and book the classifier. The first set are all placed in
+  // PndTools and the second set is implemented in TMVA package.
 
+  if(fMVAmode == MulClsKNN || fMVAmode == LVQ1 || fMVAmode == LVQ21)
+  {
+    switch (fMVAmode){
     case MulClsKNN:// Multi class KNN. In PndTools.
       m_knn = new PndKnnClassify(M_InFileName, fClassNameArray, fVarNameArray);
-      m_knn->Init();
-      std::cout << "<INFO> This implementation needs to be tested." 
-		<< std::endl;
-      break;
-
-    case LVQ1:// LVQ1 & LVQ2.1. In PndTools.
-    case LVQ21:
-      m_lvq = new PndLVQClassify(M_InFileName,fClassNameArray,fVarNameArray);
-      std::cout << "<INFO> This implementation needs to be tested." 
+      std::cout << "<INFO KNN> This implementation needs to be tested." 
 		<< std::endl;
       break;
       
+    case LVQ1:// LVQ1 & LVQ2.1. In PndTools.
+    case LVQ21:
+      m_lvq = new PndLVQClassify(M_InFileName, fClassNameArray, fVarNameArray);
+      std::cout << "<INFO LVQ> This implementation needs to be tested." 
+		<< std::endl;
+      break;
+   
     default:
       std::cout << "<ERROR:> NO classifier was selected." << std::endl;
       break;
+    }
+  }
+  else{// TMVA classifiers  
+    for (int i = 0 ; i < fNCLASS ; i++  )
+    {
+      string anaFile;
+      
+      switch (fMVAmode){
+      case TMBDT:// TMVA BDT
+	anaFile =  fDIR + fAPPNAME + fClassNameArray.at(i) + "_BDT.weights.txt";
+	reader[i]->BookMVA("BDT method", anaFile );
+	fClassifier = "BDT method";
+	break;
+	
+      case TMMLP:// TMVA MLP
+	anaFile =  fDIR + fAPPNAME + fClassNameArray.at(i) + "_MLP.weights.txt";
+	reader[i]->BookMVA("MLP method", anaFile );
+	fClassifier = "MLP method";
+	break;
+	
+      case TMKNN:// TMVA KNN
+	anaFile =  fDIR + fAPPNAME + fClassNameArray.at(i) + "_KNN.weights.txt";
+	reader[i]->BookMVA("KNN method", anaFile );
+	fClassifier = "KNN method";
+	break;
+	
+      default:
+	std::cout << "<ERROR:> NO classifier was selected." << std::endl;
+	break;
+      }
     }
   }
 }

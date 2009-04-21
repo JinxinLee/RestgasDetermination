@@ -55,10 +55,6 @@ class PndKnnClassify{
   inline void SetEvtParam(const float scFact, const double weight)
   {m_ScaleFact = scFact; m_weight = weight; };
   
-  /**
-   * Initialize the KNN classifier.
-   */
-  void Init();
   
   /// DEBUG
   void print(){m_module->Print();}
@@ -74,12 +70,16 @@ class PndKnnClassify{
   
   // Private functions and variables
  private:
+  /**
+   * Initialize the KNN classifier.
+   */
+  void Init();
   
   TFile* m_InPutF;
   float m_ScaleFact;//!< Scalefactor Default =  0.8
   double m_weight;//!< Event weight
   TMVA::kNN::ModulekNN* m_module;
-  
+
   //! Class names container 
   std::vector<std::string> m_ClassNames;
   
