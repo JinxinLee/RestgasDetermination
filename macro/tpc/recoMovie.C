@@ -43,6 +43,9 @@ void recoMovie(TString datafile, TString padplane, TString padshapes, bool movie
   TCanvas* c=new TCanvas("c1","Tpc Reconstruction",0,0,1200,800);
   c->Divide(4,3);
 
+  TCanvas* c2=new TCanvas("c2","Clustering and Tracklets",10,10,600,800);
+  c2->Divide(1,2);
+
  
   PndTpcGas* _gas=new PndTpcGas("tpc/NEON-90_CO2-10_B2_PRES1013.asc",400);
 
@@ -112,7 +115,7 @@ void recoMovie(TString datafile, TString padplane, TString padshapes, bool movie
   TClonesArray *sa=new TClonesArray("PndTpcDigi");
   t->SetBranchAddress("PndTpcDigi",&sa);
 
-  TH2D* ma=new TH2D("map","Hit pads",420,0,42,200,-20,20);
+  TH2D* ma=new TH2D("map","Hit pads",420,12,42,200,-10,10);
   TH1D* hPure=new TH1D("pure","Purity",1000,0.0 ,1.1);
   TH1D* hClPure=new TH1D("clpure","Cluster Purity",1000,0.8 ,1.1);
   TH1D* hNHits=new TH1D("nhits","N Hits per track",100,0,100);
@@ -176,7 +179,7 @@ void recoMovie(TString datafile, TString padplane, TString padshapes, bool movie
 
       TH1* hCuts=DebugLogger::Instance()->GetHisto("riemanncuts");
 
-      c->cd(1);
+      c2->cd(1);
       // print frame
       std::ostringstream file;
       file<<"frames/digi";
@@ -185,7 +188,8 @@ void recoMovie(TString datafile, TString padplane, TString padshapes, bool movie
       file<<counter<<".gif";
       ++counter;
       ma->Draw("BOX");
-
+      c2->cd(2);
+      ma->Draw("BOX");
       //plot clusters
       int ncl=_cluster_buffer->size();
       for(int icl=0;icl<ncl;++icl){
@@ -198,24 +202,21 @@ void recoMovie(TString datafile, TString padplane, TString padshapes, bool movie
 	
 	TCovEllipse* el=new TCovEllipse(cov,cl->pos().X(),cl->pos().Y());
 	el->SetLineColor(kRed);
-	el->Draw();
+	c2->cd(1);el->Draw();
+	c2->cd(2);el->Draw();
 	
 	if(cov[0][0]<0.5 && cov[1][1]<0.5) {
 	  TMarker* mk=new TMarker(cl->pos().X(),cl->pos().Y(),24);
 	  mk->SetMarkerColor(kRed);
 	  mk->SetMarkerSize(0.5);
-	  mk->Draw();
+	  c2->cd(1);mk->Draw();
+	  c2->cd(2);mk->Draw();
 	}
       }// end loop over clusters
 
      
       // plot Tracks
-      c->cd(2);
-      //TView3D* view=new TView3D(1,0,0);
-      //view->SetRange(0,-20,-100,40,20,200);
-      //int dum;
-      //view->ResetView((double)counter*2,0,0,dum);
-      ma->Draw("BOX");
+     
       //c2->Clear();
 
       std::map<McId,int> trackpieces;
@@ -303,7 +304,8 @@ void recoMovie(TString datafile, TString padplane, TString padshapes, bool movie
       }
       hPieces->Draw();
       
-      c->SaveAs(file.str().c_str());
+      c2->Update();
+      c2->SaveAs(file.str().c_str());
       // clean up
       ma->Reset();
       hPure->Reset();

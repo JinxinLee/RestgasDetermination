@@ -20,8 +20,8 @@ runEvtMixDigi(){
   Int_t iVerbose = 1;
 
   // Input file (Signals events)
-  TString inFile="../data/Pion40_0/DigiSlice/test1.raw.root";
-  TString jobname="evtmix13";
+  TString inFile="/afs/e18/panda/DATA/fboehmer/dipl_data/SpaceCharge/07_01_2009/new_PndTpcDetector/GEANT3_ALICE_L5_1MeV_cuts_withPIPE_MVD/sigSlice1/2Gev_G3_ALICE_L5_1MeV_cuts_with_PIPE_MVD_10k_evts.sig.root";
+  TString jobname="evtmix3";
   TString inDir=inFile(0,inFile.Last('/')+1);
 
   TString jobDir=inDir; jobDir+=jobname; jobDir+="/";
@@ -42,7 +42,7 @@ runEvtMixDigi(){
   TString paramOut = outFile;
   paramOut.ReplaceAll(".raw.root",".param.root");
 
-  TString bkgFile = "../data/DPM/BkgDigiSlice/test1.raw.root";
+  TString bkgFile = inFile;
 
 std::cout<<"Input: "<<inFile<<std::endl;
 std::cout<<"Output: "<<outFile<<std::endl;
@@ -77,7 +77,7 @@ std::cout<<"ParamOut: "<<paramOut<<std::endl;
   parInput1->open(paramIn.Data());
   FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
   TString tpcDigiFile = gSystem->Getenv("VMCWORKDIR");
-  tpcDigiFile += "/tpc/tpc.par";
+  tpcDigiFile += "/tpc/tpc.fullplane.par";
   parInput2->open(tpcDigiFile.Data(),"in");
 
   rtdb->setFirstInput(parInput2);
@@ -102,7 +102,7 @@ std::cout<<"ParamOut: "<<paramOut<<std::endl;
 
   PndTpcEvtMixTask* evtmixer = new PndTpcEvtMixTask();
   evtmixer->SetBkgFileName(bkgFile);
-  evtmixer->SetNBkgEvts(1000);
+  evtmixer->SetNBkgEvts(2000);
   evtmixer->SetEvtRate(1E7);
   evtmixer->SetPersistence(); // write out time info
   fRun->AddTask(evtmixer);

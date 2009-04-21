@@ -11,23 +11,21 @@
   gSystem->Load("libPassive");
   gSystem->Load("libtpc");
   gSystem->Load("libgenfit");
-  gSystem->Load("libjobdb");
+
   // ------------------------------------------------------------------------
 
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 1;
 
+Int_t nevents=2000;
+
   // Input file (MC events)
-  TString prodjob="DPM5";
+  TString prodjob="DPM";
   TString jobname="sigSlice1";
-  TString comment="geant4";
+ 
+  TString inFile = "/afs/e18/panda/DATA/fboehmer/dipl_data/SpaceCharge/07_01_2009/new_PndTpcDetector/GEANT3_ALICE_L5_1MeV_cuts_withPIPE_MVD/2Gev_G3_ALICE_L5_1MeV_cuts_with_PIPE_MVD_10k_evts.mc.root";
 
-  jobdb* db=new jobdb("$PANDAMC/FAIRRoot/JOBDB/pandaJobDB.root");
-  int prodid=db->findProducerJobByName(prodjob);
-  jobob injob=db->getJob(prodid);
-
-  TString inFile = injob.output();
   TString inDir=inFile(0,inFile.Last('/')+1);
   // make new subdir
   TString jobDir=inDir; jobDir+=jobname; jobDir+="/";
@@ -43,7 +41,8 @@
   outFile.ReplaceAll(inDir,jobDir);
   outFile.ReplaceAll(".mc.root",".sig.root");
 
-  TString paramIn = injob.param();
+  TString paramIn = inFile;
+  paramIn.ReplaceAll(".mc.root",".param.root");
   TString paramOut = outFile;
   paramOut.ReplaceAll(".sig.root",".param.root");
 
@@ -52,18 +51,6 @@ std::cout<<"Output: "<<outFile<<std::endl;
 std::cout<<"ParamIn: "<<paramIn<<std::endl;
 std::cout<<"ParamOut: "<<paramOut<<std::endl;
  
-
-  // ---  Register Job in database   -------------
-  // ------------------------------------------------------------------------
-
-// write jobdb
-  jobob* job=new jobob(jobname,inFile,outFile,paramOut,jobob::kDigi);
-  job->setComment(comment);
-  int id=db->addJob(*job);
-  std::cout<<"Added job with ID="<<id<<std::endl;
-  delete db;
-  delete job;
-
 
   // In general, the following parts need not be touched
   // ========================================================================
@@ -92,7 +79,7 @@ std::cout<<"ParamOut: "<<paramOut<<std::endl;
   parInput1->open(paramIn.Data());
   FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
   TString tpcDigiFile = gSystem->Getenv("VMCWORKDIR");
-  tpcDigiFile += "/tpc/tpc.par";
+  tpcDigiFile += "/tpc/tpc.fullplane.par";
   parInput2->open(tpcDigiFile.Data(),"in");
 
   rtdb->setFirstInput(parInput2);
@@ -118,10 +105,10 @@ std::cout<<"ParamOut: "<<paramOut<<std::endl;
     // -----    Digi Sequence  --------------------------------------------
   PndTpcClusterizerTask* tpcClusterizer = new PndTpcClusterizerTask();
 //tpcClusterizer->SetPersistence();
+  tpcClusterizer->SetMereChargeConversion(true);
   fRun->AddTask(tpcClusterizer);
  
   PndTpcDriftTask* tpcDrifter = new PndTpcDriftTask();
-  tpcDrifter->SetPersistence();
   tpcDrifter->SetDistort(false);
   double deg=TMath::Pi()/180;
   tpcDrifter->SetPhiCut(-12*deg,12*deg);
@@ -145,13 +132,10 @@ std::cout<<"ParamOut: "<<paramOut<<std::endl;
   fRun->Init();
   rtdb->print();
 
-  fRun->Run(0,0); // process all events from input file
+  fRun->Run(0,nevents); // process all events from input file
   // ------------------------------------------------------------------------
 
 
-tpcDrifter->WriteHistograms();
-//tpcGem->WriteHistograms();
-tpcPadResponse->WriteHistograms();
   // -----   Finish   -------------------------------------------------------
 
 

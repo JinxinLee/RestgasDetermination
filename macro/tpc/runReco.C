@@ -1,4 +1,4 @@
-{
+void runReco(TString inFile){
 
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
@@ -34,18 +34,44 @@
   TString PANDAMC=gSystem->Getenv("PANDAMC");
 
   // Input file (RAW events)
+<<<<<<< .mine
+  //TString inFile="/afs/e18/panda/DATA/MC_data_snapshot_darmstadt/150cm/digi/150cm_0.8GeV_40deg_withMVD.raw.root";
+//TString jobname="reco1";
+=======
   TString inDir="/afs/e18/panda/DATA/MC_data_snapshot_darmstadt/150cm/";
   TString digiDir=inDir+"digi/";
   
   TString jobname="150cm_0.8GeV_60deg_withMVD";
   TString inFile=digiDir+jobname;
   inFile+=".raw.root";
+>>>>>>> .r5035
 
+<<<<<<< .mine
+//TString mcFile="/afs/e18/panda/DATA/MC_data_snapshot_darmstadt/150cm/150cm_1.0GeV_40deg_withMVD.mc.root";
+
+  TString mcFile=inFile;
+  mcFile.ReplaceAll("digi/","");
+  mcFile.ReplaceAll("raw","mc");
+
+=======
   TString mcFile=inDir+jobname;
   mcFile+=".mc.root";
+>>>>>>> .r5035
   
 ///inFile.ReplaceAll("$PANDAMC",PANDAMC);
 
+<<<<<<< .mine
+  ///TString inDir=inFile(0,inFile.Last('/')+1);
+  // make new subdir
+  //TString jobDir=inDir; jobDir+=jobname; jobDir+="/";
+  //TString cmd="mkdir ";
+  //cmd+=jobDir; 
+  //if(gSystem->Exec(cmd)){
+  //  std::cout<<"Could not create Job-Directory "<<jobDir
+  //     <<". Aborting."<<std::endl;
+  //  return;
+  // }
+=======
 //   TString inDir=inFile(0,inFile.Last('/')+1);
 //   // make new subdir
 //   TString jobDir=inDir; jobDir+=jobname; jobDir+="/";
@@ -56,20 +82,28 @@
 // 	     <<". Aborting."<<std::endl;
 //     return;
 //   }
+>>>>>>> .r5035
   
+<<<<<<< .mine
+  TString outFile = inFile; 
+  //outFile.ReplaceAll(inDir,jobDir);
+  outFile.ReplaceAll(".raw.root",".reco.root");
+=======
   TString outFile = inDir+"reco/";
   outFile+=jobname;
   outFile+=".reco.root";
   // outFile.ReplaceAll(inDir,jobDir);
 //   outFile.ReplaceAll(".raw.root",".reco.root");
+>>>>>>> .r5035
+  outFile.ReplaceAll("digi","LSLreco");
 
   TString paramIn = inFile;
   paramIn.ReplaceAll(".raw.root",".param.root");
   TString paramOut = outFile;
   paramOut.ReplaceAll(".reco.root",".param.root");
 
-/*
-  TString mcDir = inDir;
+
+  /*TString mcDir = inDir;
   mcDir=mcDir(0,mcDir.Last('/')); // remove last /
   mcDir=mcDir(0,mcDir.Last('/')+1); // one directory up
   TString mcFile= inFile;
@@ -83,7 +117,8 @@
   std::cout<<"ParamIn: "<<paramIn<<std::endl;
   std::cout<<"ParamOut: "<<paramOut<<std::endl;
 
-
+  //return;
+  
   
   // ---  Now choose concrete engines for the different tasks   -------------
   // ------------------------------------------------------------------------
@@ -152,7 +187,7 @@
 // fRun->AddTask(tpcRMC);
 
   PndTpcIdealTrackingTask* tpcIPR = new PndTpcIdealTrackingTask();
-  tpcIPR->useGeane();
+  tpcIPR->useGeane(false);
   fRun->AddTask(tpcIPR);
   tpcIPR->SetPersistence();
 
