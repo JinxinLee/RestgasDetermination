@@ -5,74 +5,47 @@
 
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0;
-
-  Int_t nEvents  = 10;
-
+  Int_t nStart = 0;
+  Int_t nEvents  = 5;
 //   gROOT->Macro("Libs.C");
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 
   // Input file (MC events)
   //TString inFile = "Mvd_DPMfixed_4GeV_10000.root"; //"MvdG4_DPM405_Mag_5000.root";
   //TString inFile = "data/mvdparams.root";
-  TString inFile = "Mvd_Test.root";
+  TString inFile = "Mvd_D+D-_10G_addDets.root";
   // Parameter file
-  TString parFile = "Mvd_TestParam.root";
+  TString parFile = "MvdParams.root";
   //TString parFile = "data/mvdparams.root";
   // Parameter output file
-
 //   TString parOutFile = "Test/testParamsOutput.root";
-
   TString digiparFile = gSystem->Getenv("VMCWORKDIR");
-  digiparFile += "/mvd/MvdTools/mvd.digi.par";
+  digiparFile += "/macro/params/mvd.digi.par";
 
-  
+
   // In general, the following parts need not be touched
   // ========================================================================
   // Output file
-  
-//  gROOT->Macro("Libs.C");
-//  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-//     basiclibs();
-//
-//     // Load this example libraries
-//     gSystem->Load("libGeoBase");
-//     gSystem->Load("libParBase");
-//     gSystem->Load("libBase");
-//     gSystem->Load("libMCStack");
-//     gSystem->Load("libGen");
-//     gSystem->Load("libField");
-//     gSystem->Load("libDpmEvtGen");
-//     gSystem->Load("libPGen");
-//     gSystem->Load("libPassive");
-//     gSystem->Load("libStt"); 
-//     gSystem->Load("libMuo");
-//     gSystem->Load("libEmc");  
-//     gSystem->Load("libTof");
-//     gSystem->Load("libDrcProp");
-//     gSystem->Load("libDrc");
-//     gSystem->Load("libtpc");
-//     gSystem->Load("libgenfit");
-//     gSystem->Load("libDch");
-//     gSystem->Load("libMvd");
-//     
-     PndMvdFileNameCreator creator(inFile.Data());
-       TString outFile = creator.GetDigiFileName().c_str(); //"MvdG4_DPM405_Mag_5000_digi.root";
-       std::cout << "DigiFileName: " << outFile.Data() << std::endl;
-     
-     // -----   Reconstruction run   -------------------------------------------
-  CbmRunAna *fRun= new CbmRunAna();
+  PndMvdFileNameCreator creator(inFile.Data());
+  TString outFile = creator.GetDigiFileName().c_str(); //"MvdG4_DPM405_Mag_5000_digi.root";
+  std::cout << "DigiFileName: " << outFile.Data() << std::endl;
+
+  // -----   Reconstruction run   -------------------------------------------
+  FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
 
 
   // -----  Parameter database   --------------------------------------------
-  CbmRuntimeDb* rtdb = fRun->GetRuntimeDb();
- // CbmParRootFileIo* parInput1 = new CbmParRootFileIo(kTRUE);
- // parInput1->open(parFile.Data(),"UPDATE");
- // rtdb->setFirstInput(parInput1);
-//  Bool_t kParameterMerged=kTRUE;
-
-  CbmParAsciiFileIo* parInput2 = new CbmParAsciiFileIo();
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairParRootFileIo* parInput1 = new FairParRootFileIo(kTRUE);
+  parInput1->open(parFile.Data(),"UPDATE");
+  rtdb->setFirstInput(parInput1);
+//   Bool_t kParameterMerged=kTRUE;
+//   FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
+//   output->open(parOutFile);
+//   rtdb->setOutput(output);
+  FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
   parInput2->open(digiparFile.Data(),"in");
   rtdb->setSecondInput(parInput2);
 
@@ -86,9 +59,8 @@
   // =========================================================================
   // ======                       Hit Producers                         ======
   // =========================================================================
-  
-  // -----    MVD Strip hit producer   ---------------------------------------
 
+  // -----    MVD Strip hit producer   ---------------------------------------
 //   double   topPitch=0.015,
 //            botPitch=0.015,
 //            orient=TMath::Pi()*(0.5),
@@ -109,7 +81,6 @@
   PndMvdStripHitProducer* mvdStripProd = new PndMvdStripHitProducer();
   mvdStripProd->SetVerbose(iVerbose);
   fRun->AddTask(mvdStripProd);
-
   // -----    MVD Pixel hit producer   ---------------------------------------
 //   Double_t  lx=0.01, ly=0.01, threshold=600, noise=200;
 //   PndMvdHybridHitProducer* mvdPixProd = new PndMvdHybridHitProducer(lx,ly,threshold,noise);
@@ -117,30 +88,63 @@
   mvdPixProd->SetVerbose(iVerbose);
   fRun->AddTask(mvdPixProd);
 
-
-
-   CbmParRootFileIo* output=new CbmParRootFileIo(kTRUE);
-   output->open(parFile.Data());
-   rtdb->setOutput(output);
-//  rtdb->setOutput(parInput1);
-
   PndMvdNoiseProducer* mvdNoiseMaker = new PndMvdNoiseProducer();
   mvdNoiseMaker->SetVerbose(iVerbose);
   fRun->AddTask(mvdNoiseMaker);
 
-//   CbmParRootFileIo* output=new CbmParRootFileIo(kTRUE);
+  // -----    MVD hit producer   --------------------------------------------
+
+ /*  Double_t chargecut = 1.e5;
+   PndMvdStripClusterTask* mvdmccls = new PndMvdStripClusterTask(chargecut,creator.GetSimFileName(true));
+   mvdmccls->SetVerbose(iVerbose);
+   fRun->AddTask(mvdmccls);
+
+   PndMvdPixelClusterTask* mvdClusterizer = new PndMvdPixelClusterTask(1.8, creator.GetSimFileName(true));//, slx, sly, sthreshold, snoise);
+   mvdClusterizer->SetVerbose(iVerbose);
+   fRun->AddTask(mvdClusterizer);
+*/
+  // -----   STT analysis tasks   --------------------------------------------
+    // digitize ....
+  //PndSttHitProducerIdeal* sttHitProducer = new PndSttHitProducerIdeal();
+    PndSttHitProducerRealFast* sttHitProducer = new PndSttHitProducerRealFast();
+    fRun->AddTask(sttHitProducer);
+
+
+
+    // -----   EMC hit producers   ---------------------------------
+/*    PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
+    fRun->AddTask(emcHitProd); // hit production
+
+    //PndEmcMakeDigi* emcMakeDigi=new PndEmcMakeDigi();
+    //fRun->AddTask(emcMakeDigi); // fast digitization
+
+    PndEmcHitsToWaveform* emcHitsToWaveform= new PndEmcHitsToWaveform(iVerbose);
+    PndEmcWaveformToDigi* emcWaveformToDigi=new PndEmcWaveformToDigi(iVerbose);
+    fRun->AddTask(emcHitsToWaveform);  // full digitization
+    fRun->AddTask(emcWaveformToDigi);  // full digitization
+
+    PndEmcMakeCluster* emcMakeCluster= new PndEmcMakeCluster(iVerbose);
+    fRun->AddTask(emcMakeCluster);
+
+    PndEmcMakeBump* emcMakeBump= new PndEmcMakeBump();
+    fRun->AddTask(emcMakeBump);
+
+    PndEmcHdrFiller* emcHdrFiller = new PndEmcHdrFiller();
+    fRun->AddTask(emcHdrFiller); // ECM header
+*/
+//   FairParRootFileIo* output=new FairParRootFileIo(kTRUE);
 //   output->open(parOutFile.Data());
 //   rtdb->setOutput(output);
-
+  rtdb->setOutput(parInput1);
   rtdb->print();
   // =====                 End of HitProducers                           =====
   // =========================================================================
-  PndMvdGeoPar* geoPar  = (PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar")); 
-  
+  //PndMvdGeoPar* geoPar  = (PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar"));
+
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
 
-  fRun->Run(0,nEvents);
+  fRun->Run(nStart,nEvents);
 
   rtdb->saveOutput();
   rtdb->print();
