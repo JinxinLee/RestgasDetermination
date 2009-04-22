@@ -29,11 +29,17 @@
 // Class Member definitions -----------
 
 
+BSpline::BSpline() 
+  :
+  _i(0),
+  _p(NULL)
+{;}
+
 BSpline::BSpline(const std::vector<double>* const p, int index)
   :
   _i(index)
 {
-  _p=p;
+  _p = p;
   for(int i=0;i<5;i++){
     _nu[i]=1;
   }
@@ -46,6 +52,9 @@ BSpline::BSpline(const std::vector<double>* const p, int index)
   }
   _nu[0]=0;
 }
+
+BSpline::~BSpline()
+{}
 
 
 double 
@@ -78,3 +87,6 @@ BSpline::print() {
   for(int j=0; j<5; j++)
     std::cout<<_nu[j]<<"   ";
 }
+
+
+ClassImp(BSpline)

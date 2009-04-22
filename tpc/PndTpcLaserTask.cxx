@@ -26,6 +26,7 @@
 #include "PndTpcLaser.h"
 #include "TVector3.h"
 #include "TError.h"
+#include "PndTpcDigiPar.h"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -68,6 +69,21 @@ PndTpcLaserTask::Init()
       Error("PndTpcDriftTask::Init","PrimaryElectron-array not found!");
       return kERROR;
     }
+
+  //TODO: WHY DOES THIS CRASH FOR &*($^W& SAKE ?!?!?
+  
+    //read in parameters
+  //_zMin=_par->getZGem();
+  //_zMax=_par->getZMax();
+  //_rMin=_par->getRMin();
+  //_rMax=_par->getRMax();
+  
+  _zMin=-39.5;
+  _zMax=109.5;
+  _rMin=15.5;
+  _rMax=41.5;
+
+  
   return kSUCCESS;
 }
 
@@ -95,7 +111,14 @@ PndTpcLaserTask::Exec(Option_t* opt)
     for(Int_t j=0; j<nLaser; j++)
     { 
       PndTpcPrimaryCluster* cl=(PndTpcPrimaryCluster*) _laserArray->At(j);
+         
       if(cl!=NULL){
+	TVector3 cl_pos = cl->pos();
+	if(cl_pos.Perp()<_rMin || cl_pos.Perp()>_rMax)
+	  continue;
+	if(cl_pos.Z()<_zMin || cl_pos.Z()>_zMax)
+	  continue;   
+	
 	//new((*_primArray)[_primArray->GetEntriesFast()]) PndTpcPrimaryCluster(cl->t(),cl->q(),
 	//					 cl->pos(),trackID,hitID);
 	new((*_primArray)[_primArray->GetEntriesFast()]) PndTpcPrimaryCluster(cl->t(),cl->q(),

@@ -124,6 +124,8 @@ PndTpcInhFieldDrifter::run()
   _zBinWidth = (double)(_tpcMaxZ - _tpcMinZ) / _zBins;
 
   // Init the fields
+  
+  //TODO: dangerous!!! change to pointers inside 
   for (int nr = 0; nr < _rBins; nr++)
   {
     _devX.push_back(std::vector<double>(_zBins, 0));

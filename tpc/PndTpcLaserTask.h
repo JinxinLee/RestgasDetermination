@@ -32,6 +32,7 @@
 
 class PndTpcLaser;
 class TClonesArray;
+class PndTpcDigiPar;
 
 class PndTpcLaserTask : public FairTask {
 
@@ -81,7 +82,11 @@ class PndTpcLaserTask : public FairTask {
   double _startX,_startY,_startZ,_dirX,_dirY,_dirZ,_iondens,_width,_time;
   unsigned int addCounter, NEcount;
 
-  void readFromFile(bool); 
+  void readFromFile(bool);
+
+  double _zMin,_zMax,_rMin,_rMax;
+
+  PndTpcDigiPar* _par;
   
   
 public:

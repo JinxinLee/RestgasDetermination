@@ -29,7 +29,6 @@
 #include "BiCubSpline.h"
 
 
-
 // helper class for TF implementation ----------------------------
 class SplineTF2Interface {
 
@@ -37,10 +36,13 @@ class SplineTF2Interface {
 public:
 
   //Constructors/Destructors ---------
+  SplineTF2Interface();
   SplineTF2Interface(BiCubSpline* bcsp); 
+  ~SplineTF2Interface(){}
 
   // Accessors -----------------------
   BiCubSpline* getBCSP() {return _bcsp;}
+  void setReadOnly(bool opt) {_read_only=opt;}
 
   // Operations ----------------------
   double eval(double *x, double *p); 
@@ -56,6 +58,10 @@ private:
   std::vector<std::vector<double>*>* _coeffs;
   int _xl, _yl;
 
+  bool _read_only;  //if set ignore parameters in eval argument and just read 
+                    //the splines own coefficients
+
+ 
 };
 
 #endif

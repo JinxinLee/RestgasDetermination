@@ -39,9 +39,9 @@ public:
 
   // Constructors/Destructors ------------------------------------
   BiCubSplineFitter(BiCubSpline* BCSP, 
-		            std::vector<std::vector<double>*>* data);
+		    const std::vector<std::vector<double>*>* data);
                     //takes data as 4-element vectors of :
-  	                //coordinates (x,y), value, error (ignored when zero)
+  	            //coordinates (x,y), value, error (ignored when zero)
   
   ~BiCubSplineFitter();
 
@@ -80,7 +80,7 @@ private:
   TMatrixD* _newmat;             //_matrix with removed empty rows
   TArrayD _mData;                //temporary data to initialize the matrix
 
-  std::vector<std::vector<double>*>* _data; //input data to fit
+  std::vector<std::vector<double>*> _data; //input data to fit
   
   TDecompQRH* _householder;      //does the QR-decomposition
 

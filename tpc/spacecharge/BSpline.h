@@ -22,20 +22,20 @@
 
 
 // Collaborating Class Headers -------
-#include <ostream> // remove if you do not need streaming op
 #include <vector>
 #include <iostream>
 
 // Collaborating Class Declarations --
+#include "TObject.h"
 
 
-
-class BSpline {
+class BSpline : public TObject {
 public:
 
   // Constructors/Destructors ---------
+  BSpline();
   BSpline(const std::vector<double>* const p, int index);
-  ~BSpline(){}
+  virtual ~BSpline();
 
   // Operators
   void print();  
@@ -57,6 +57,9 @@ private:
   double _nu[5]; // coefficients
 
   // Private Methods -----------------
+
+public:
+  ClassDef(BSpline,1)
 
 };
 

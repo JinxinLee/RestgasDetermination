@@ -33,42 +33,45 @@
 // Class Member definitions -----------
 
 
-//TODO: redesign! write init method instead of huge constructor to be able to
-//for ex. turn off and on error handling after constructing
+/*TODO: redesign & make use of std::maps! write init method 
+  instead of huge constructor to for ex. be able to turn 
+  off and on error handling after constructing */
+
 
 BiCubSplineFitter::BiCubSplineFitter(BiCubSpline* BCSP, 
-			                         std::vector<std::vector<double>*>* data)
+				     const std::vector<std::vector<double>*>* data)
 {  
   _BCSP = BCSP;
-  _data = data;
+  _data = std::vector<std::vector<double>*>(data->size(), NULL);
+  for(int i=0; i<data->size(); ++i) 
+    _data[i] = new std::vector<double>(*(data->at(i)));
   _emptycols=false;
   _newmat=NULL;
    
-  unsigned int NData = _data->size();   //# of data points
+  unsigned int NData = _data.size();   //# of data points
   unsigned int lSx = _BCSP->_M.size();  //# of knots - 4
   unsigned int lSy = _BCSP->_N.size();
   unsigned int prod = lSx*lSy;          //will be used a lot ...
-  _mData = TArrayD(lSx*lSy*NData);
+  _mData = TArrayD(prod*NData);
   
   std::cout<<"\nBiCubSplineFitter: Initialising -------------------------------"
   		   <<"----------"<<std::endl;
   
   //test if data has correct format:
   for(int i=0; i<NData; i++) {
-	if(_data->at(i)->size() == 4)
-	  continue;
-	else
-	  Warning("BiCubSplineFitter:", "Wrong data format! Aborting...");	
+    if(_data.at(i)->size() == 4)
+      continue;
+    else
+      Warning("BiCubSplineFitter:", "Wrong data format! Aborting...");	
   }
   
   //resolve sorting on the data:
-  //TODO: make _data const and resolve sorting on a new data vec _sorted_data!	
   std::cout<<"\nBiCubSplineFitter: Sorting the data... "<<std::endl;
   sortData();
   
   //Building the matrix:
   std::cout<<"\nBiCubSplineFitter: Building Spline Matrix ("<<NData<<" x "
-  		   <<lSx*lSy<<"): "<<std::endl<<"                   ";
+  		   <<prod<<"): "<<std::endl<<"                   ";
   
   int count=0;    //testing
   for(int r=0; r<NData; r++) { //loop over rows
@@ -76,9 +79,9 @@ BiCubSplineFitter::BiCubSplineFitter(BiCubSpline* BCSP,
       std::cout<<"* ";
       std::cout.flush();
     }
-    double x_r = _data->at(r)->at(0);
-    double y_r = _data->at(r)->at(1);
-    double sigma_r = _data->at(r)->at(3);
+    double x_r = _data.at(r)->at(0);
+    double y_r = _data.at(r)->at(1);
+    double sigma_r = _data.at(r)->at(3);
     if(sigma_r < 1e-10) {
       sigma_r = 1;	
       count++;
@@ -87,20 +90,21 @@ BiCubSplineFitter::BiCubSplineFitter(BiCubSpline* BCSP,
     for(int j=0; j<lSy; j++) {        //loop over 
       for(int i=0; i<lSx; i++) {      //columns 
     	int index = (j*lSx+i)+ r*prod;
+	//TODO: implement proper error handling
     	_mData[index]=_BCSP->_M[i]->eval(x_r)*_BCSP->_N[j]->eval(y_r)*1/sigma_r;
       }
     }
   }
   
-  _matrix = new TMatrixD(NData, lSx*lSy, _mData.GetArray());
+  _matrix = new TMatrixD(NData, prod, _mData.GetArray());
   std::cout<<"\n                   Spline Matrix initialised."<<std::endl;
-  std::cout<<"                  "<<count<<" errors below 1e-10"<<std::endl; 
+  std::cout<<"                   "<<count<<" errors below 1e-10"<<std::endl; 
   std::cout.flush();
    
   std::cout<<"\nChecking for empty columns...";
   std::cout.flush();
   //check for empty columns:
-  for(int j=0; j<lSx*lSy; j++) {
+  for(int j=0; j<prod; j++) {
     double sum = 0;
     for(int i=0; i<NData; i++)
       sum+=_mData[i*prod + j];
@@ -115,9 +119,9 @@ BiCubSplineFitter::BiCubSplineFitter(BiCubSpline* BCSP,
     std::cout<<"Removing empty columns ... ";
     std::cout.flush();
     
-    TArrayD temp = TArrayD((lSx*lSy-_rc.size())*NData);  //cleaned matrix array
+    TArrayD temp = TArrayD((prod-_rc.size())*NData);  //cleaned matrix array
     int counter = 0;
-    for(int j=0; j<lSx*lSy; j++)  {  //loop over columns first for faster execution
+    for(int j=0; j<prod; j++)  {  //loop over columns first for faster execution
       bool empty_col=false;
       for(int c=0; c<_rc.size(); c++)  //check if this column is marked empty 
         if(_rc[c]==j) {
@@ -134,7 +138,7 @@ BiCubSplineFitter::BiCubSplineFitter(BiCubSpline* BCSP,
     } //end cleaning    
         
     //build new matrix without empty columns
-    _newmat = new TMatrixD(NData, lSx*lSy - _rc.size());
+    _newmat = new TMatrixD(NData, prod - _rc.size());
     _newmat->SetMatrixArray(temp.GetArray());
     std::cout<<" done."<<std::endl;
     std::cout.flush();
@@ -147,7 +151,10 @@ BiCubSplineFitter::BiCubSplineFitter(BiCubSpline* BCSP,
 BiCubSplineFitter::~BiCubSplineFitter() {
   delete _matrix;
   if(_emptycols)
-	  delete _newmat;
+    delete _newmat;
+  for(int i=0; i<_data.size(); ++i) 
+    delete _data[i];   
+  
 }
 
 
@@ -172,12 +179,12 @@ BiCubSplineFitter::decompose(double TOL) {
   
 TVectorD
 BiCubSplineFitter::solve() {
-  TVectorD val = TVectorD(_data->size());
-  for(int k=0; k<_data->size(); k++) {
-	double sigma_k = _data->at(k)->at(3);
+  TVectorD val = TVectorD(_data.size());
+  for(int k=0; k<_data.size(); k++) {
+	double sigma_k = _data.at(k)->at(3);
 	if(sigma_k == 0)
 	 sigma_k = 1;	
-    val[k] = _data->at(k)->at(2)*1/sigma_k;
+    val[k] = _data.at(k)->at(2)/sigma_k;
   }
   TVectorD copy = TVectorD(val);
   std::cout<<"BiCubSplineFitter::solve(): solving... ";
@@ -242,11 +249,11 @@ bool ySort(std::vector<double>* const vec1, std::vector<double>* const vec2) {
 void
 BiCubSplineFitter::sortData() {
   //first sort data in y direction
-  std::sort(_data->begin(), _data->end(), ySort);
+  std::sort(_data.begin(), _data.end(), ySort);
 
   //define cuts in y:
-  int yCuts = (int) std::floor((double)std::sqrt((double)_data->size()));
-  double yCutWidth = (double) (_data->at((_data->size())-1)->at(1)-(_data->at(0))->at(1))/yCuts;
+  int yCuts = (int)(double)std::sqrt((double)_data.size());
+  double yCutWidth = (double) (_data.at((_data.size())-1)->at(1)-(_data.at(0))->at(1))/yCuts;
   
   int startMarker = 0;
   int endMarker = 0;
@@ -254,9 +261,9 @@ BiCubSplineFitter::sortData() {
   //sort each y-slice in x
   for(int i=0; i<yCuts; i++) {
 	startMarker=endMarker;
-	while((_data->at(startMarker+endMarker))->at(1) < (i+1)*yCutWidth)
+	while((_data.at(startMarker+endMarker))->at(1) < (i+1)*yCutWidth)
 	  endMarker++;
-	std::sort(_data->begin()+startMarker, _data->begin()+endMarker, xSort);
+	std::sort(_data.begin()+startMarker, _data.begin()+endMarker, xSort);
   }
     
   std::cout<<"BiCubSplineFitter::sortData(): "<<yCuts<<" cuts in y have been defined";

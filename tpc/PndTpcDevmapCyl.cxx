@@ -59,7 +59,7 @@ PndTpcDevmapCyl::value(const TVector3& point) const
   }
   else //return value for boundary point next to point 
   {
-    Error("PndTpcDevmapCyl::value()", "Point outside of tpc volume!");
+    //Error("PndTpcDevmapCyl::value()", "Point outside of tpc volume!");
     TVector3 boundPoint = point - _relPosition;
     double r2 = boundPoint.X()*boundPoint.X()+boundPoint.Y()*boundPoint.Y();
     if (r2 >= maxR()*maxR())

@@ -118,6 +118,7 @@ spacecharge/CubSplineFitter.cxx
 spacecharge/BiCubSplineFitter.cxx
 spacecharge/SplineTF1Interface.cxx
 spacecharge/SplineTF2Interface.cxx
+spacecharge/PndTpcLaserFitTaskStat.cxx
 QAPlotCollection.cxx
 DEDX.cxx
 PndTpcMCDEdxTask.cxx

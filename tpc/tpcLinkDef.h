@@ -44,6 +44,7 @@
 #pragma link C++ class PndTpcDigiAnalysisTask+;
 #pragma link C++ class PndTpcLaserTask+;
 #pragma link C++ class PndTpcLaserFitTask+;
+#pragma link C++ class PndTpcLaserFitTaskStat+;
 #pragma link C++ class PndTpcLaserStat+;
 #pragma link C++ class PndTpcLaserTrack+;
 #pragma link C++ class QAPlotCollection+;
@@ -53,5 +54,9 @@
 #pragma link C++ class PndTpcDEDXFits+;
 #pragma link C++ class PndTpcHitMerger+;
 #pragma link C++ class PndTpcTestChamberOutputTask+;
+#pragma link C++ class BiCubSpline+;
+#pragma link C++ class BSpline+;
+
+
 #endif
 
