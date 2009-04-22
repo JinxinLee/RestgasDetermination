@@ -5,21 +5,6 @@
   Int_t iVerbose = 1;
 
   // ----  Load libraries   -------------------------------------------------
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-  basiclibs();
-  gSystem->Load("libGeoBase");
-  gSystem->Load("libParBase");
-  gSystem->Load("libBase");
-  gSystem->Load("libPndData");
-  gSystem->Load("libField");
-  gSystem->Load("libGen");
-  gSystem->Load("libPassive");
-  gSystem->Load("libgenfit");
-  gSystem->Load("libtpc");
-  gSystem->Load("libtrackrep");
-  gSystem->Load("libtpcreco");
-  gSystem->Load("librecotasks");
-
   
   
   // Input file (RAW events)
@@ -43,7 +28,7 @@
 //     return;
 //   }
  
-   TString outFile = "laser.laser.reco.root"; 
+   TString outFile = "laser.new.reco.root"; 
 //   outFile.ReplaceAll(inDir,jobDir);
 //   outFile.ReplaceAll(".raw.root",".reco.root");
 
@@ -127,8 +112,9 @@ std::cout<<"ParamIn: "<<paramIn<<std::endl;
   fRun->AddTask(tpcCF);
 
   PndTpcLaserFitTask* laserFit = new PndTpcLaserFitTask();
-  laserFit->buildLaserList("LaserGridTest.dat", true);
+  laserFit->setLaserGridFile("LaserGridTest.dat");
   laserFit->setXYresiduals(true);
+  laserFit->setPlotSplineFits(true);
   laserFit->SetPersistence();
   fRun->AddTask(laserFit);
  

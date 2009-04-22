@@ -1,19 +1,7 @@
 {
 
   // ----  Load libraries   -------------------------------------------------
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-  basiclibs();
-  gSystem->Load("libGeoBase");
-  gSystem->Load("libParBase");
-  gSystem->Load("libBase");
-  gSystem->Load("libPndData");
-  gSystem->Load("libField");
-  gSystem->Load("libGen");
-  gSystem->Load("libPassive");
-  gSystem->Load("libtpc");
-  gSystem->Load("libgenfit");
-  gSystem->Load("libjobdb");
-  // ------------------------------------------------------------------------
+// ------------------------------------------------------------------------
 
 
   // ========================================================================
@@ -82,6 +70,7 @@ std::cout<<"ParamOut: "<<paramOut<<std::endl;
   // -----   Digitization run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
+//fRun->AddFriend(mcFile);
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
 
@@ -89,24 +78,20 @@ std::cout<<"ParamOut: "<<paramOut<<std::endl;
 
   // -----  Parameter database   --------------------------------------------
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  FairParRootFileIo* parInput1 = new FairParRootFileIo(kTRUE);
+  FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open(paramIn.Data());
+
   FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
   TString tpcDigiFile = gSystem->Getenv("VMCWORKDIR");
   tpcDigiFile += "/tpc/tpc.par";
   parInput2->open(tpcDigiFile.Data(),"in");
 
+
   rtdb->setFirstInput(parInput2);
   rtdb->setSecondInput(parInput1);
 
-  PndTpcDigiPar* par = (PndTpcDigiPar*) rtdb->getContainer("PndTpcDigiPar");
-  par->setInputVersion(fRun->GetRunId(),1);
-  par->setChanged(kTRUE);
+  rtdb->print();
 
-  FairParRootFileIo* parOutput1 = new FairParRootFileIo(kTRUE);
-  parOutput1->open(paramOut.Data());
-  rtdb->setOutput(parOutput1);
-  rtdb->saveOutput();
 
   fRun->LoadGeometry();
   // ------------------------------------------------------------------------
@@ -126,7 +111,7 @@ std::cout<<"ParamOut: "<<paramOut<<std::endl;
   fRun->AddTask(tpcLaser);
 
   PndTpcDriftTask* tpcDrifter = new PndTpcDriftTask();
-  tpcDrifter->SetDeviationFile("DevMap_Efield_March_09_Bfield_Official.dat");
+  tpcDrifter->SetDeviationFile("tpc/DevMap_Efield_march09_official_B_Maps.dat");
   tpcDrifter->SetPersistence();
   tpcDrifter->SetDistort(true);
 //tpcDrifter->SetDiffusion(true);

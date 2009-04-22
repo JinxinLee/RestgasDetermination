@@ -145,21 +145,21 @@
  
  // Box Generator
 
-  // pdgs 211=pion 13=muon 11=electron
- //  FairBoxGenerator* boxGen = new FairBoxGenerator(211, 1); // 13 = muon; 1 = multipl.
-//    boxGen->SetPRange(1.2,1.2); // GeV/c //setPRange vs setPtRange
-//    boxGen->SetPhiRange(0, 360); // Azimuth angle range [degree]
-//    boxGen->SetThetaRange(20, 20); // Polar angle in lab system range [degree]
-//    boxGen->SetXYZ(0., 0., 0.); // mm o cm ??
-//    primGen->AddGenerator(boxGen);
+ //pdgs 211=pion 13=muon 11=electron
+  FairBoxGenerator* boxGen = new FairBoxGenerator(211, 1); // 13 = muon; 1 = multipl.
+   boxGen->SetPRange(1.2,1.2); // GeV/c //setPRange vs setPtRange
+   boxGen->SetPhiRange(0, 360); // Azimuth angle range [degree]
+   boxGen->SetThetaRange(20, 20); // Polar angle in lab system range [degree]
+   boxGen->SetXYZ(0., 0., 0.); // mm o cm ??
+   primGen->AddGenerator(boxGen);
 
   //FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   //fRun->SetGenerator(primGen);
 
   //DPM
-  TString dpmfile = basejobdir+"10k_2Gev_el_and_inel_DPMDATA.root";
-  PndDpmGenerator* dpmGen = new PndDpmGenerator(dpmfile);
-  primGen->AddGenerator(dpmGen);  
+  //TString dpmfile = basejobdir+"10k_2Gev_el_and_inel_DPMDATA.root";
+  //PndDpmGenerator* dpmGen = new PndDpmGenerator(dpmfile);
+  //primGen->AddGenerator(dpmGen);  
    
    
    //FairEvtGenGenerator* evtGen = new FairEvtGenGenerator("../data/evtgen.y4260.jpsipipi.vvpipi.dat");

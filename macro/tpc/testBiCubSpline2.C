@@ -47,26 +47,65 @@ int NknotsX = knotsZ;
 int NknotsY = knotsR; 
 int NlamdaX = NknotsX+8;
 int NlamdaY = NknotsY+8;
+
+// I dont get it
+
+// 4 empty points left and right
+
+// border points INSIDE the data range kills both fits:
+
+// border points OUTSIDE the data range AND BOTH FITS ARE OK !!!!!!!!!!
+
+// border points ON the edge of the data range: kills orig fit
+
+
+// 2 MORE EMPTY POINTS (NlamdaX = NknotsX+10) points:
+
+//  border points OUTSIDE data range kills the reco fit:
+// in reco fitter: 
+/*    BiCubSplineFitter::decompose(): performing QR-decomposition... success
+      BiCubSplineFitter::solve(): solving... Error in <TDecompQRH::Solve(TVectorD &)>: R[40,40]=0.0000e+00 < 2.2204e-16
+      something went wrong
+*/
+
+// same thing with border points ON the edge kills the orig fit, but the other one works
+// in orig fitter:
+/*    BiCubSplineFitter::decompose(): performing QR-decomposition... success
+      BiCubSplineFitter::solve(): solving... Error in <TDecompQRH::Solve(TVectorD &)>: R[39,39]=0.0000e+00 < 2.2204e-16
+      something went wrong
+*/
+
+// same thing for border points INSIDE the data range kills both fits
+// EXCEPT WE MOVE FARTHER INSIDE 
+
+/* conclusions:
+   
+   problem ON the data range is consistent. this way knots fall together with data points for 
+   the orig fit.
+
+*/
+
+
 std::vector<double>* _kx = new std::vector<double>;
 std::vector<double>* _ky = new std::vector<double>;
 
 
-double lLx = -40.;
-double uLx = 110;
-double lLy = 15.;
-double uLy = 42.;
+double lLx = -43.;
+double uLx = 113.;
+double lLy = 14.;
+double uLy = 43.;
 
-double stepx = (uLx - lLx + 1)/NknotsX;  //"+1": make sure last valid knot is slightly 
-double stepy = (uLy - lLy + 1)/NknotsY;  //larger than uLx or uLy
+ double stepx = (uLx - lLx)/(NknotsX-1); 
+ double stepy = (uLy - lLy)/(NknotsY-1); 
 
 double kx,ky;
 
 for(int i=0; i<NlamdaX; ++i){
-  kx = lLx + (i-3)*stepx;
+  kx = lLx + (i-4)*stepx;
   _kx->push_back(kx); 
 }
 for(int j=0; j<NlamdaY; ++j){
-  ky = lLy + (j-3)*stepy;
+  ky = lLy + (j-4)*stepy;
   _ky->push_back(ky); 
 }
 
@@ -275,7 +314,7 @@ f2->SetParameters(param2);
 f2->SetNpx(50);
 f2->SetNpy(50);
 
-// ---------------------- init Deviation Map as refernecer -------------------------------------
+// ---------------------- init Deviation Map as referencer -------------------------------------
 
  std::cout<<"test"<<std::endl;
  std::cout.flush();
@@ -288,8 +327,6 @@ PndTpcDevmapCyl* devmap = new PndTpcDevmapCyl(origDevMap.c_str(),vDrift);
 
 PndTpcDevmapSLA* devSLA = new PndTpcDevmapSLA(origDevMap.c_str(),vDrift);
 
- std::cout<<"test2"<<std::endl;
- std::cout.flush();
 
 TH2D* diff = new TH2D("diff",
 		      "Abs. difference of original and reconstructed devmap",
@@ -358,10 +395,10 @@ c1->cd(2);
 f2->Draw("SURF1");
 
 c1->cd(3);
-diff_orig->Draw("COLZ");
+diff->Draw("COLZ");
 
 c1->cd(4);
-diff_hist_orig->Draw();
+diff_hist->Draw();
 
 timer.Stop();
 Double_t rtime = timer.RealTime();

@@ -22,19 +22,22 @@
 void createDevMapMulti(int rBin) {
 
   //define variables
-  int rBins = 15;   
-  int zBins = 30;
+  int rBins = 26;   
+  int zBins = 149;
   int _rBin = rBin;
+
+  std::string basedir = "/afs/e18/panda/SIM/fboehmer/trunk/";
+  std::string targetdir = "/afs/e18/panda/DATA/fboehmer/dipl_data/SpaceCharge/07_01_2009";
   
-  std::string efield_file = "EField_smallsteps_GEANT3_ALICE_L5_1MeV_cuts_withPIPE_MVD.dat";
+  std::string efield_file = basedir+"tpc/EField_G3_ALICE_L5_1MeV_dCUTS_wPIPE_wMVD_march09.dat";
   
   // Use PndTpcEFieldCyl for building the B-Field (custom input) ------------
   
   std::string bfield_file = "andrea_b_field.dat"; //for bfield as efield
   // ------------------------------------------------------------------------
   
-  std::string out_file = "DevMap_Efield_March_09_Bfield_Official.dat";
-  std::string param_file = "tpc/tpc.par";
+  std::string out_file = targetdir+"DevMap_Efield_March_09_Bfield_Official_highRes.dat";
+  std::string param_file = basedir+"tpc/tpc.par";
   
   
   // PndMultiField part -----------------------------------------------------
