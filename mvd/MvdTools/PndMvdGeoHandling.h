@@ -48,7 +48,7 @@ public:
   TGeoHMatrix* GetMatrixPath(TString path);
   TGeoHMatrix* GetMatrixId(TString id);
 
-  TVector3 GetSensorDimensionsID(TString id);
+  TVector3 GetSensorDimensionsId(TString id);
   TVector3 GetSensorDimensionsPath(TString path);
 
   TVector3 MasterToLocalId(const TVector3& master, const TString& id);
@@ -62,6 +62,7 @@ public:
   TVector3 LocalToMasterErrorsPath(const TVector3& local, const TString& id);
 
   void SetVerbose(Int_t v) { fVerbose = v; }
+  void SetGeoManager(TGeoManager* geo){fGeoMan = geo;};
 
   Bool_t cd(TString id); ///< as the cd command of TGeoManager just with the ID
   void FillLevelNames(); ///< fills vector<TString> fLevelNames with the names (or the paths) of the volumes down to the level given by fLevel

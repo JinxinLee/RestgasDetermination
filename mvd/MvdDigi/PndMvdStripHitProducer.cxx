@@ -139,6 +139,8 @@ InitStatus PndMvdStripHitProducer::Init()
 
   fGeoH = new PndMvdGeoHandling(gGeoManager);
 
+  //std::cout << "-I- PndMvdStripHitProucer::Init() " << fGeoH->GetPath("1_1/212_0/") << std::endl;
+
   if ( ! ioman )
     {
       std::cout << "-E- PndMvdStripHitProducer::Init: "

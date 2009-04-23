@@ -10,10 +10,10 @@ PndMvdHit PndMvdChargeWeightedPixelMapping::GetCluster()
 	Double_t tempCol = 0, tempRow = 0;
 	Int_t count = 0;
 	Double_t local[3], master[3];
-	
+
 	if (fDigiArray.size() == 1){
 		if (fDigiArray[0].GetCharge() > 0){
-			col = fDigiArray[0].GetPixelColumn() + ((Int_t)(fDigiArray[0].GetFE()%10)) * fParams[0];	
+			col = fDigiArray[0].GetPixelColumn() + ((Int_t)(fDigiArray[0].GetFE()%10)) * fParams[0];
 			if (col < 0){
 				col -= 0.5;
 				col += fParams[1] / 2;
@@ -31,7 +31,7 @@ PndMvdHit PndMvdChargeWeightedPixelMapping::GetCluster()
 			charge = fDigiArray[0].GetCharge();
 		}
 	}
-	else {						
+	else {
 		//cout << "Multiple Hits!" << std::endl;
 		for (UInt_t i = 0; i < fDigiArray.size(); i++){
 			//cout << "ActCol / Row" << col << " " << row << " added Col/Row " << fDigiArray[i].GetPixelColumn() << " " << fDigiArray[i].GetPixelRow() << endl;
@@ -58,36 +58,18 @@ PndMvdHit PndMvdChargeWeightedPixelMapping::GetCluster()
 		std::cout << "Col: " << col << " Row: " << row << std::endl;
 	}
 
-// 	Double_t resultD[3];
-//   Double_t resultFinal[3];
-// 
-// 	resultD[0] = col * fParams[2];
-// 	resultD[1] = row * fParams[3];
-// 	resultD[2] = 0;
-// 	TVector3 offset = GetSensorDimensions(fDigiArray[0].GetDetName().Data());
-// 	resultD[0] -= offset.x();
-// 	resultD[1] -= offset.y();
-// //   resultD[2] -= offset.z();
-// 	if (fVerbose > 1)
-// 		std::cout << "Local Position: " << resultD[0] << " " << resultD[1] << std::endl;
-// 	TGeoHMatrix trans = GetTransformation(fDigiArray[0].GetDetName().Data());
-// 	//cout << "Transformation for: " << fDigiArray[0].GetDetName() << std::endl;
-// 	//trans.Print("");
-// 	trans.LocalToMaster(resultD, resultFinal);
-// 	//result.setXYZ(resultFinal[0], resultFinal[1], resultFinal[2]);
-// 	TVector3 pos(resultFinal[0], resultFinal[1], resultFinal[2]);
 
   TVector3 offset = GetSensorDimensions(fDigiArray[0].GetDetName().Data());
   TVector3 locpos( col*fParams[2] - offset.X(), row*fParams[3] - offset.Y(), 0);
   TVector3 pos = fGeoH->LocalToMasterId(locpos,fDigiArray[0].GetDetName().Data());
 
-  Double_t errZ = 2.*fGeoH->GetSensorDimensionsID(fDigiArray[0].GetDetName()).Z()/TMath::Sqrt(12.0);
+  Double_t errZ = 2.*fGeoH->GetSensorDimensionsId(fDigiArray[0].GetDetName()).Z()/TMath::Sqrt(12.0);
   TVector3 locdpos(fParams[2]/TMath::Sqrt(12.0),fParams[3]/TMath::Sqrt(12.0),errZ);
   TVector3 dpos = fGeoH->LocalToMasterErrorsId(locdpos,fDigiArray[0].GetDetName().Data());
-  
-            
 
-	
+
+
+
 	return (PndMvdHit(fDigiArray[0].GetDetID(),fDigiArray[0].GetDetName().Data(), pos, dpos, -1, charge, fDigiArray.size()));
 }
 
@@ -109,8 +91,8 @@ TVector3 PndMvdChargeWeightedPixelMapping::GetSensorDimensions(std::string detNa
 	result.SetX(actBox->GetDX());
 	result.SetY(actBox->GetDY());
 	result.SetZ(actBox->GetDZ());
-	
+
 	//result.Dump();
-	
+
 	return result;
 }

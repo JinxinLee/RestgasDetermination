@@ -436,7 +436,7 @@ Bool_t PndMvdStripClusterTask::Backmap( TVector2 meantopPoint, Double_t meantope
 
    TVector3 localpos, locDpos;
    Double_t t, b;
-   Double_t errZ = 2.*fGeoH->GetSensorDimensionsID(detname).Z()/TMath::Sqrt(12.0);
+   Double_t errZ = 2.*fGeoH->GetSensorDimensionsId(detname).Z()/TMath::Sqrt(12.0);
 
 TVector2 onsensorPoint = CalcLineCross(meantopPoint, fStripCalcTop->GetStripDirection(),
                               meanbotPoint, fStripCalcBot->GetStripDirection() );

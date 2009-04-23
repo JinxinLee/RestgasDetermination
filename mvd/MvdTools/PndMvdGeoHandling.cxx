@@ -78,6 +78,8 @@ TString PndMvdGeoHandling::GetID(TString path)
 TString PndMvdGeoHandling::GetPath(TString id)
 {
 	TString result;
+	SetGeoManager(gGeoManager);
+	//std::cout << "-I- PndMvdGeoHandling::GetPath : " << id.Data() << std::endl;
 	std::vector<std::string> idVector;
 	PndStringVector pathAna(id.Data(), "/_");
 	idVector = pathAna.GetStringVector();
@@ -87,6 +89,8 @@ TString PndMvdGeoHandling::GetPath(TString id)
 		Int_t VolId = atoi(idVector[i].c_str());
 		Int_t CopyNr = atoi(idVector[i+1].c_str());
 //     if(fVerbose>3) std::cout<<" -I- PndMvdGeoHandling::GetPath: VolId = "<<VolId<<std::endl;
+		//std::cout << "-I- PndMvdGeoHandling::GetPath : " << VolId;
+		//std::cout << " : " << fGeoMan->GetVolume(VolId)->GetName() << std::endl;
 		result += fGeoMan->GetVolume(VolId)->GetName();
 		result += "_";
 		result += CopyNr;
@@ -197,7 +201,7 @@ TVector3 PndMvdGeoHandling::GetSensorDimensionsPath(TString path)
   return dim;
 }
 
-TVector3 PndMvdGeoHandling::GetSensorDimensionsID(TString id)
+TVector3 PndMvdGeoHandling::GetSensorDimensionsId(TString id)
 {
 return GetSensorDimensionsPath(GetPath(id));
 }

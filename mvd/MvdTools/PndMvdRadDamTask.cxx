@@ -127,7 +127,7 @@ void PndMvdRadDamTask::Exec(Option_t* opt)
 			  mcPoint->GetPosition(), mom, weight);
 	  if (fMapDetHistos[mcPoint->GetDetName().Data()] == 0){
 		  PndStringVector svec(mcPoint->GetDetName().Data(),"/");
-		  TVector3 sensDim = fGeoH->GetSensorDimensionsID(mcPoint->GetDetName().Data());
+		  TVector3 sensDim = fGeoH->GetSensorDimensionsId(mcPoint->GetDetName().Data());
 		  fMapDetHistos[mcPoint->GetDetName().Data()] = new TH2D(svec.Replace("/","o").c_str(),
 																 fGeoH->GetPath(mcPoint->GetDetName()),
 																 2*sensDim.X()*10,-sensDim.X(),sensDim.X(),	// point resolution mm^2
