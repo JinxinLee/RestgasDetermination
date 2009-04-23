@@ -43,6 +43,9 @@ Track::Track(const Track& _tr) {
   for(int i=0; i<_tr.getNumReps();i++) {
     addTrackRep( (_tr.getTrackRep(i))->clone() );
   }
+  for(unsigned int i=0;i<_tr.failedHits.size();++i){
+    failedHits.push_back(new std::map<int,int>(*_tr.failedHits.at(i)));
+  }
 }
 
 
