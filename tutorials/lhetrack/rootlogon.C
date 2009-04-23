@@ -8,6 +8,7 @@ rootlogon()
   	gSystem->Load("libGeoBase");
 	gSystem->Load("libParBase");
 	gSystem->Load("libBase");
+        gSystem->Load("libTrkBase");
 	gSystem->Load("libPndData");
 	gSystem->Load("libField");
 	gSystem->Load("libPassive");
@@ -21,7 +22,6 @@ rootlogon()
         gSystem->Load("libtpcreco");
         gSystem->Load("libStt");
         gSystem->Load("libSttReco");
-	gSystem->Load("libTrkBase");
         gSystem->Load("librecotasks");
         gSystem->Load("libMvd");
         gSystem->Load("libMvdReco");
@@ -33,4 +33,6 @@ rootlogon()
 	gSystem->Load("libDch");
         gSystem->Load("libLHETrack");
 	gSystem->Load("libGeane");
+	gSystem->Load("libRpc");
+	gSystem->Load("libLumi");
 }
