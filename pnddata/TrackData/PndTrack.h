@@ -44,6 +44,9 @@ private:
 	Int_t fChi2;
 	Int_t fNDF;
 
+public:
+	ClassDef(PndTrack,1)
+
 };
 
 #endif /* PNDTRACK_H_ */

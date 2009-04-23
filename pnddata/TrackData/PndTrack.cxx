@@ -7,6 +7,8 @@
 
 #include "PndTrack.h"
 
+ClassImp(PndTrack);
+
 PndTrack::PndTrack() {
 }
 
