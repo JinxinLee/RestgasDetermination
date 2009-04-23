@@ -16,6 +16,7 @@
 class PndTrack : public TObject{
 public:
 	PndTrack();
+	PndTrack(FairTrackPar& first, FairTrackPar& last, PndTrackCand& cand);
 	virtual ~PndTrack();
 
 	void Print(){};

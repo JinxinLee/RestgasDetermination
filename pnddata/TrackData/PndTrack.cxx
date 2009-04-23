@@ -8,10 +8,13 @@
 #include "PndTrack.h"
 
 PndTrack::PndTrack() {
-	// TODO Auto-generated constructor stub
+}
 
+
+PndTrack::PndTrack(FairTrackPar& first, FairTrackPar& last, PndTrackCand& cand):
+	fTrackParamFirst(first), fTrackParamLast(last), fTrackCand(cand)
+{
 }
 
 PndTrack::~PndTrack() {
-	// TODO Auto-generated destructor stub
 }
