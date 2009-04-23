@@ -16,9 +16,8 @@
 
 #include "FairTask.h"
 #include "FairDetector.h"
-#include "FairHit.h"
 
-#include "PndTpcLheHit.h"
+#include "PndLheHit.h"
 #include "PndTpcLheTrack.h"
 #include "PndTpcLheTrackCuts.h"
 
@@ -72,7 +71,7 @@ public:
   PndLheHitsMaker();
   virtual ~PndLheHitsMaker();
 
-  PndTpcLheHit *AddHit();
+  PndLheHit *AddHit();
   PndTpcLheTrack *AddTrack(Int_t mT);
 
   void GetMvdPoints();
@@ -85,7 +84,7 @@ public:
   void GetEmcClusters();
   void GetEmcBumps();
   void SetOption(Option_t *option=" ") {fOption = option;  fOption.ToLower();}
-  void SetTrack(PndTpcLheHit *hit);
+  void SetTrack(PndLheHit *hit);
   void CheckTracks();
   void PrintTracks(Int_t n);
   void GetStripPoints();

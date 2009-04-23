@@ -1,6 +1,6 @@
 #include "PndLheHitsMaker.h"
 
-#include "PndTpcLheHit.h"
+#include "PndLheHit.h"
 #include "PndTpcLheTrack.h"
 
 #include "FairRunAna.h"
@@ -32,7 +32,7 @@
 PndLheHitsMaker::PndLheHitsMaker() {
   //---
 
-  fLheHits  = new TClonesArray("PndTpcLheHit");
+  fLheHits  = new TClonesArray("PndLheHit");
   fGeantTracks = new TClonesArray("PndTpcLheTrack");
   fMvdMode       = 1; 
   fTpcMode       = 1; 
@@ -50,7 +50,7 @@ PndLheHitsMaker::PndLheHitsMaker() {
 PndLheHitsMaker::PndLheHitsMaker(const char *name,
 				       const char *title):FairTask(name) {
   //---
-  fLheHits = new TClonesArray("PndTpcLheHit");
+  fLheHits = new TClonesArray("PndLheHit");
   fGeantTracks = new TClonesArray("PndTpcLheTrack");
   fMvdMode       = 1; 
   fTpcMode       = 1;
@@ -307,7 +307,7 @@ void PndLheHitsMaker::GetMvdPoints() {
       
       if (fVerbose) point->Print(" "); //PR(point->GetTrackID());
       
-      PndTpcLheHit* hit = AddHit();
+      PndLheHit* hit = AddHit();
       hit->SetHitNumber(fNHit++);
       
       if (fTpcResolution<=0.)
@@ -322,9 +322,9 @@ void PndLheHitsMaker::GetMvdPoints() {
 			     << hit->GetZ() << " RADIUS " 
 			     << sqrt((hit->GetX()*hit->GetX())+(hit->GetY()*hit->GetY())) << "\n";	
 	  
-	  hit->SetXerr(0.005);
-	  hit->SetYerr(0.005);
-	  hit->SetZerr(0.005);
+	  hit->SetDx(0.005);
+	  hit->SetDy(0.005);
+	  hit->SetDz(0.005);
 	}
       else
 	{
@@ -338,12 +338,12 @@ void PndLheHitsMaker::GetMvdPoints() {
 			     << hit->GetZ() << " RADIUS " 
 			     << sqrt((hit->GetX()*hit->GetX())+(hit->GetY()*hit->GetY())) << "\n";
 	  
-	  hit->SetXerr(fMvdResolution);
-	  hit->SetYerr(fMvdResolution);
-	  hit->SetZerr(fMvdResolution);
+	  hit->SetDx(fMvdResolution);
+	  hit->SetDy(fMvdResolution);
+	  hit->SetDz(fMvdResolution);
 	}
       
-      hit->SetDetectorId(kMVDPoint);
+      hit->SetDetectorID(kMVDPoint);
       hit->SetTrackID(point->GetTrackID());
       hit->SetRefIndex(j);
       
@@ -359,7 +359,7 @@ void PndLheHitsMaker::GetMvdHits() {
     {
       PndMvdHit* point = (PndMvdHit*) fMvdInput2->At(j2);
       
-      PndTpcLheHit* hit = AddHit();
+      PndLheHit* hit = AddHit();
       hit->SetHitNumber(fNHit++);
       
       hit->SetX(point->GetX());
@@ -372,15 +372,15 @@ void PndLheHitsMaker::GetMvdHits() {
 			 << hit->GetZ() << " RADIUS " 
 			 << sqrt((hit->GetX()*hit->GetX())+(hit->GetY()*hit->GetY())) << "\n";	
       
-      // hit->SetXerr(point->GetDx());
-      // hit->SetYerr(point->GetDy());
-      // hit->SetZerr(point->GetDz());
+      // hit->SetDx(point->GetDx());
+      // hit->SetDy(point->GetDy());
+      // hit->SetDz(point->GetDz());
      
-      hit->SetXerr(0.005);
-      hit->SetYerr(0.005);
-      hit->SetZerr(0.005);
+      hit->SetDx(0.005);
+      hit->SetDy(0.005);
+      hit->SetDz(0.005);
 
-      hit->SetDetectorId(kMVDHitsPixel);
+      hit->SetDetectorID(kMVDHitsPixel);
       hit->SetTrackID(hit->GetRefIndex());
       hit->SetRefIndex(j2);
       
@@ -393,7 +393,7 @@ void PndLheHitsMaker::GetMvdHits() {
     {
       PndMvdHit* point = (PndMvdHit*) fMvdInput->At(j);
       
-      PndTpcLheHit* hit = AddHit();
+      PndLheHit* hit = AddHit();
       hit->SetHitNumber(fNHit++);
       
       hit->SetX(point->GetX());
@@ -406,15 +406,15 @@ void PndLheHitsMaker::GetMvdHits() {
 			 << hit->GetZ() << " RADIUS " 
 			 << sqrt((hit->GetX()*hit->GetX())+(hit->GetY()*hit->GetY())) << "\n";	
       
-      // hit->SetXerr(point->GetDx());
-      // hit->SetYerr(point->GetDy());
-      // hit->SetZerr(point->GetDz());
+      // hit->SetDx(point->GetDx());
+      // hit->SetDy(point->GetDy());
+      // hit->SetDz(point->GetDz());
        
-      hit->SetXerr(0.005);
-      hit->SetYerr(0.005);
-      hit->SetZerr(0.005);
+      hit->SetDx(0.005);
+      hit->SetDy(0.005);
+      hit->SetDz(0.005);
 
-      hit->SetDetectorId(kMVDHitsStrip);
+      hit->SetDetectorID(kMVDHitsStrip);
       hit->SetTrackID(hit->GetRefIndex());
       hit->SetRefIndex(j);
       
@@ -436,7 +436,7 @@ void PndLheHitsMaker::GetTpcPoints() {
     
     if (fVerbose) point->Print(" "); //PR(point->GetTrackID());
 
-    PndTpcLheHit* hit = AddHit();
+    PndLheHit* hit = AddHit();
     hit->SetHitNumber(fNHit++);
     
     if (fTpcResolution<=0.)
@@ -451,9 +451,9 @@ void PndLheHitsMaker::GetTpcPoints() {
 			   << hit->GetZ() << " RADIUS " 
 			   << sqrt((hit->GetX()*hit->GetX())+(hit->GetY()*hit->GetY())) << "\n";
 	
-	hit->SetXerr(0.03);
-	hit->SetYerr(0.03);
-	hit->SetZerr(0.03);
+	hit->SetDx(0.03);
+	hit->SetDy(0.03);
+	hit->SetDz(0.03);
       }
     else
       {
@@ -467,12 +467,12 @@ void PndLheHitsMaker::GetTpcPoints() {
 			   << hit->GetZ() << " RADIUS " 
 			   << sqrt((hit->GetX()*hit->GetX())+(hit->GetY()*hit->GetY())) << "\n";
 	
-	hit->SetXerr(fTpcResolution);
-	hit->SetYerr(fTpcResolution);
-	hit->SetZerr(2*fTpcResolution);
+	hit->SetDx(fTpcResolution);
+	hit->SetDy(fTpcResolution);
+	hit->SetDz(2*fTpcResolution);
       }
     
-    hit->SetDetectorId(kTpcPoint);
+    hit->SetDetectorID(kTpcPoint);
     hit->SetTrackID(point->GetTrackID());
     hit->SetRefIndex(j);
     
@@ -488,7 +488,7 @@ void PndLheHitsMaker::GetTpcClusters() {
   for (int j=0; j < fTpcInput->GetEntriesFast(); j++ ) {
     PndTpcCluster* clu = (PndTpcCluster*) fTpcInput->At(j);
     
-    PndTpcLheHit* hit = AddHit();
+    PndLheHit* hit = AddHit();
     hit->SetHitNumber(fNHit++);
     
     hit->SetX(clu->pos().X());  
@@ -502,11 +502,11 @@ void PndLheHitsMaker::GetTpcClusters() {
 		       << hit->GetZ() << " RADIUS " 
 		       << sqrt((hit->GetX()*hit->GetX())+(hit->GetY()*hit->GetY())) << "\n";
     
-    hit->SetXerr(clu->sig().X());  
-    hit->SetYerr(clu->sig().Y());
-    hit->SetZerr(clu->sig().Z());
+    hit->SetDx(clu->sig().X());  
+    hit->SetDy(clu->sig().Y());
+    hit->SetDz(clu->sig().Z());
 
-    hit->SetDetectorId(kTpcCluster);
+    hit->SetDetectorID(kTpcCluster);
     hit->SetTrackID(clu->mcId().DominantID().mctrackID());
     hit->SetRefIndex(j);
     
@@ -527,7 +527,7 @@ void PndLheHitsMaker::GetSttPoints() {
     
     if (fVerbose) point->Print(" "); //PR(point->GetTrackID());
 
-    PndTpcLheHit* hit = AddHit();
+    PndLheHit* hit = AddHit();
     hit->SetHitNumber(fNHit++);
     
     if (fSttResolution<=0.)
@@ -542,9 +542,9 @@ void PndLheHitsMaker::GetSttPoints() {
 			   << hit->GetZ() << " RADIUS " 
 			   << sqrt((hit->GetX()*hit->GetX())+(hit->GetY()*hit->GetY())) << "\n";
 	
-	hit->SetXerr(.5);
-	hit->SetYerr(.5);
-	hit->SetZerr(.5);
+	hit->SetDx(.5);
+	hit->SetDy(.5);
+	hit->SetDz(.5);
       }
     else
       {
@@ -558,12 +558,12 @@ void PndLheHitsMaker::GetSttPoints() {
 			   << hit->GetZ() << " RADIUS " 
 			   << sqrt((hit->GetX()*hit->GetX())+(hit->GetY()*hit->GetY())) << "\n";
 	
-	hit->SetXerr(fSttResolution);
-	hit->SetYerr(fSttResolution);
-	hit->SetZerr(2*fSttResolution);
+	hit->SetDx(fSttResolution);
+	hit->SetDy(fSttResolution);
+	hit->SetDz(2*fSttResolution);
       }
     
-    hit->SetDetectorId(kSttPoint);
+    hit->SetDetectorID(kSttPoint);
     hit->SetTrackID(point->GetTrackID());
     hit->SetRefIndex(j);
     
@@ -580,7 +580,7 @@ void PndLheHitsMaker::GetSttHit() {
   for (int j=0; j < fSttInput->GetEntriesFast(); j++ ) {
     PndSttHit* sttHit = (PndSttHit*) fSttInput->At(j);
     
-    PndTpcLheHit* hit = AddHit();
+    PndLheHit* hit = AddHit();
     hit->SetHitNumber(fNHit++);
     
     hit->SetX(sttHit->GetX());  
@@ -594,11 +594,11 @@ void PndLheHitsMaker::GetSttHit() {
 		       << hit->GetZ() << " RADIUS " 
 		       << sqrt((hit->GetX()*hit->GetX())+(hit->GetY()*hit->GetY())) << "\n";
     
-    hit->SetXerr(.5);  
-    hit->SetYerr(.5);
-    hit->SetZerr(.5);
+    hit->SetDx(.5);  
+    hit->SetDy(.5);
+    hit->SetDz(.5);
 
-    hit->SetDetectorId(kSttHit);
+    hit->SetDetectorID(kSttHit);
     hit->SetTrackID(hit->GetRefIndex());
     hit->SetRefIndex(j);
     
@@ -626,7 +626,7 @@ void PndLheHitsMaker::GetSttHelixHit() {
         continue;
       }
 
-    PndTpcLheHit* hit = AddHit();
+    PndLheHit* hit = AddHit();
     hit->SetHitNumber(fNHit++);
     
     hit->SetX(sttHit->GetX());  
@@ -640,11 +640,11 @@ void PndLheHitsMaker::GetSttHelixHit() {
 		       << hit->GetZ() << " RADIUS " 
 		       << sqrt((hit->GetX()*hit->GetX())+(hit->GetY()*hit->GetY())) << "\n";
     
-    hit->SetXerr(.5);  
-    hit->SetYerr(.5);
-    hit->SetZerr(.5);
+    hit->SetDx(.5);  
+    hit->SetDy(.5);
+    hit->SetDz(.5);
 
-    hit->SetDetectorId(kSttHelixHit);
+    hit->SetDetectorID(kSttHelixHit);
     hit->SetTrackID(hit->GetRefIndex());
     hit->SetRefIndex(j);
     
@@ -660,7 +660,7 @@ void PndLheHitsMaker::GetEmcClusters() {
   for (int j=0; j < fEmcInput->GetEntriesFast(); j++ ) {
     PndEmcCluster* clu = (PndEmcCluster*) fEmcInput->At(j);
     
-    PndTpcLheHit* hit = AddHit();
+    PndLheHit* hit = AddHit();
     hit->SetHitNumber(fNHit++);
     
     hit->SetX(clu->x());  
@@ -674,11 +674,11 @@ void PndLheHitsMaker::GetEmcClusters() {
 		       << hit->GetZ() << " RADIUS " 
 		       << sqrt((hit->GetX()*hit->GetX())+(hit->GetY()*hit->GetY())) << "\n";
     
-    hit->SetXerr(1.);  
-    hit->SetYerr(1.);
-    hit->SetZerr(1.);
+    hit->SetDx(1.);  
+    hit->SetDy(1.);
+    hit->SetDz(1.);
 
-    hit->SetDetectorId(kEmcCluster);
+    hit->SetDetectorID(kEmcCluster);
     //hit->SetTrackID(point->GetTrackID());
     hit->SetTrackID(-1);
     hit->SetRefIndex(j);
@@ -694,7 +694,7 @@ void PndLheHitsMaker::GetEmcBumps() {
   for (int j=0; j < fEmcInput->GetEntriesFast(); j++ ) {
     PndEmcBump* clu = (PndEmcBump*) fEmcInput->At(j);
     
-    PndTpcLheHit* hit = AddHit();
+    PndLheHit* hit = AddHit();
     hit->SetHitNumber(fNHit++);
     
     hit->SetX(clu->x());  
@@ -708,11 +708,11 @@ void PndLheHitsMaker::GetEmcBumps() {
 		       << hit->GetZ() << " RADIUS " 
 		       << sqrt((hit->GetX()*hit->GetX())+(hit->GetY()*hit->GetY())) << "\n";
     
-    hit->SetXerr(1.);  
-    hit->SetYerr(1.);
-    hit->SetZerr(1.);
+    hit->SetDx(1.);  
+    hit->SetDy(1.);
+    hit->SetDz(1.);
 
-    hit->SetDetectorId(kEmcBump);
+    hit->SetDetectorID(kEmcBump);
     //hit->SetTrackID(point->GetTrackID());
     hit->SetTrackID(-1);
     hit->SetRefIndex(j);
@@ -756,12 +756,12 @@ void PndLheHitsMaker::Exec(Option_t * option) {
 }
 
 //_________________________________________________________________
-PndTpcLheHit * PndLheHitsMaker::AddHit() {
+PndLheHit * PndLheHitsMaker::AddHit() {
   // Creates a new hit in the TClonesArray.
 
   TClonesArray& hitRef = *fLheHits;
   Int_t size = hitRef.GetEntriesFast();
-  return new(hitRef[size]) PndTpcLheHit();
+  return new(hitRef[size]) PndLheHit();
 }
 
 //_________________________________________________________________
@@ -822,7 +822,7 @@ void PndLheHitsMaker::CheckTracks() {
   Int_t selected_tracks = 0;
 
   for (Int_t ih = 0; ih < fLheHits->GetEntriesFast(); ih++) {
-    PndTpcLheHit *hit = (PndTpcLheHit *)fLheHits->UncheckedAt(ih);
+    PndLheHit *hit = (PndLheHit *)fLheHits->UncheckedAt(ih);
     SetTrack(hit);
     //    hit->Print();
   }
@@ -873,7 +873,7 @@ void PndLheHitsMaker::CheckTracks() {
       }
       
       if (fVerbose) track->Print();
-      PndTpcLheHit *hit = (PndTpcLheHit *)chits->First();
+      PndLheHit *hit = (PndLheHit *)chits->First();
       if (fVerbose) hit->Print();
 
       if (fCuts->IsGoodGeantTrack(track)) {
@@ -887,7 +887,7 @@ void PndLheHitsMaker::CheckTracks() {
 
 #if 0
   for (Int_t ih = 0; ih < fLheHits->GetEntriesFast(); ih++) {
-    PndTpcLheHit *hit = (PndTpcLheHit *)fLheHits->UncheckedAt(ih);
+    PndLheHit *hit = (PndLheHit *)fLheHits->UncheckedAt(ih);
     Int_t mTrackNumber = hit->GetTrackID();
     for (Int_t itrack = 0; itrack < fNTrack; itrack++) {
       PndTpcLheTrack *track = (PndTpcLheTrack*)fGeantTracks->UncheckedAt(itrack);
@@ -907,7 +907,7 @@ void PndLheHitsMaker::CheckTracks() {
 }
 
 //________________________________________________________________
-void PndLheHitsMaker::SetTrack(PndTpcLheHit *hit) {
+void PndLheHitsMaker::SetTrack(PndLheHit *hit) {
 
   Int_t mTrackNumber = hit->GetTrackID();
   Int_t mTN;

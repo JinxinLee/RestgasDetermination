@@ -1,6 +1,7 @@
+#include "PndDetectorList.h"
 #include "PndLhePidMaker.h"
 #include "PndTpcLheTrack.h"
-#include "PndTpcLheHit.h"
+#include "PndLheHit.h"
 #include "PndLhePidTrack.h"
 
 #include "PndTofHit.h"
@@ -27,7 +28,7 @@
 
 #include <cmath>
 
-// ---------------------------------------------------------------
+// ----------------------------------------------------------
 // --- Interface with PidMaker and output ---
 
 
@@ -297,11 +298,11 @@ void PndLhePidMaker::Exec(Option_t * option) {
     if (fVerbose) cout << lheList->GetEntriesFast() << " " << track->GetNumberOfHits() << endl;
     for (Int_t lh=0; lh < lheList->GetEntriesFast(); lh++)
       {
-	PndTpcLheHit* lhit = (PndTpcLheHit*)lheList->At(lh);
+	PndLheHit* lhit = (PndLheHit*)lheList->At(lh);
 	if (fVerbose) cout << lhit->GetX() << "\t" << lhit->GetY() << "\t" <<lhit->GetZ() << endl;
 	
 	if ((fMvdMode==2) &&
-	    ((lhit->GetDetectorId()==kMVDHitsStrip) || (lhit->GetDetectorId()==kMVDHitsPixel)))
+	    ((lhit->GetDetectorID()==kMVDHitsStrip) || (lhit->GetDetectorID()==kMVDHitsPixel)))
 	  GetMvdInfo(lhit, pidTrack);
       }
     
@@ -344,11 +345,11 @@ void PndLhePidMaker::Exec(Option_t * option) {
 }
 
 //_________________________________________________________________
-void PndLhePidMaker::GetMvdInfo(const PndTpcLheHit* hit, PndLhePidTrack* track) {
+void PndLhePidMaker::GetMvdInfo(const PndLheHit* hit, PndLhePidTrack* track) {
   //---
   PndMvdHit *mvdHit = NULL;
-  if (hit->GetDetectorId()==kMVDHitsPixel) mvdHit = (PndMvdHit*)fMvdHitsPixel->At(hit->GetRefIndex());
-  if (hit->GetDetectorId()==kMVDHitsStrip) mvdHit = (PndMvdHit*)fMvdHitsStrip->At(hit->GetRefIndex());
+  if (hit->GetDetectorID()==kMVDHitsPixel) mvdHit = (PndMvdHit*)fMvdHitsPixel->At(hit->GetRefIndex());
+  if (hit->GetDetectorID()==kMVDHitsStrip) mvdHit = (PndMvdHit*)fMvdHitsStrip->At(hit->GetRefIndex());
   
   TGeoNode *mvdNode = (TGeoNode*)gGeoManager->FindNode(mvdHit->GetX(), mvdHit->GetY(), mvdHit->GetZ());
   TGeoVolume *mvdVol = (TGeoVolume*)mvdNode->GetVolume();
@@ -389,8 +390,8 @@ void PndLhePidMaker::GetSttInfo(PndLhePidTrack* track) {
   TObjArray* lheList = track->GetRHits();
   for (Int_t lh=0; lh < lheList->GetEntriesFast(); lh++)
     {
-      PndTpcLheHit* lhit = (PndTpcLheHit*)lheList->At(lh);
-      if (lhit->GetDetectorId()==kSttHelixHit) {
+      PndLheHit* lhit = (PndLheHit*)lheList->At(lh);
+      if (lhit->GetDetectorID()==kSttHelixHit) {
 	sttHit = (PndSttHelixHit*)fSttHit->At(lhit->GetRefIndex());
 	if (sttHit->GetdEdx() != 0.) 
 	  {

@@ -13,7 +13,6 @@
 
 #include "PndTpcLheTrack.h"
 #include "PndTpcLheCMPoint.h"
-#include "PndTpcLheHit.h"
 
 #include "Riostream.h"
 

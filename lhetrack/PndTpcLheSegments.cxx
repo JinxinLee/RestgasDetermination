@@ -5,7 +5,6 @@
 ///////////////////////////////////////////////////////////////////////////////////
 
 #include "PndTpcLheSegments.h"
-#include "PndTpcLheHit.h"
 #include "PndTpcLheCMTrack.h"
 #include "PndTpcLheCMPoint.h"
 

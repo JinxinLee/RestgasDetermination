@@ -1,4 +1,4 @@
-#include "PndTpcLheHit.h"
+#include "PndLheHit.h"
 #include "PndTpcLheTrack.h"
 #include "TrackCand.h"
 #include "TClonesArray.h"
@@ -129,7 +129,7 @@ TrackCand* PndTpcLheTrack::GetTrackCand()
   vector<Float_t> hit_dist;
   for (Int_t lh=0; lh < lheList->GetEntriesFast(); lh++)
     {
-      PndTpcLheHit* lhit = (PndTpcLheHit*)lheList->At(lh);
+      PndLheHit* lhit = (PndLheHit*)lheList->At(lh);
       if (NULL==lhit) break; 
 
       if (fVerbose) cout << "before:\t" << lhit->GetX() << "\t" << lhit->GetY() << "\t" <<lhit->GetZ() << endl;
@@ -142,10 +142,10 @@ TrackCand* PndTpcLheTrack::GetTrackCand()
   Int_t detId = 0;
   for (Int_t ii=0; ii< hit_dist.size(); ++ii)
     {
-      PndTpcLheHit* lhit = (PndTpcLheHit*)lheList->At(fPointList[hit_dist[ii]]);
+      PndLheHit* lhit = (PndLheHit*)lheList->At(fPointList[hit_dist[ii]]);
       if (fVerbose) cout << "after:\t" << lhit->GetX() << "\t" << lhit->GetY() << "\t" <<lhit->GetZ() << endl;
-      
-      switch (lhit->GetDetectorId())
+      /*
+      switch (lhit->GetDetectorID())
 	{
 	case kTpcCluster:
 	  detId = 2;
@@ -167,8 +167,8 @@ TrackCand* PndTpcLheTrack::GetTrackCand()
 	  cout << "-E- PndTpcLheTrack::GetTrackCand: Wrong Detector ID" << endl;
 	  detId = 0;
 	}
-      
-      trackCand->addHit(detId, lhit->GetRefIndex());
+      */
+      trackCand->addHit(lhit->GetDetectorID(), lhit->GetRefIndex());
       if (GetRadius()>0.)  
 	{
 	  trackCand->setCurv(1./GetRadius());
@@ -267,7 +267,7 @@ void PndTpcLheTrack::SetCircle(Double_t x, Double_t y, Double_t r) {
 }
 
 //______________________________________________________________
- void PndTpcLheTrack::AddHit(PndTpcLheHit* point) {
+ void PndTpcLheTrack::AddHit(PndLheHit* point) {
   // Adds a hit to the track.
 
   fRealHits->AddLast(point);
@@ -280,10 +280,10 @@ void PndTpcLheTrack::PrintHits() {
 
     Int_t nhit = fRealHits->GetEntriesFast();
 
-    PndTpcLheHit * ghit = NULL;
+    PndLheHit * ghit = NULL;
 
     for (Int_t j=0; j < nhit; j++) {
-      ghit = (PndTpcLheHit *) fRealHits->At(j);
+      ghit = (PndLheHit *) fRealHits->At(j);
       cout << " " << ghit->GetTrackID();
     }
     cout << endl;
@@ -311,10 +311,10 @@ void PndTpcLheTrack::Print() {
     cout << " " << setw(7) <<  fP.Z();
     cout << endl;
 
-    PndTpcLheHit * ghit = NULL;
+    PndLheHit * ghit = NULL;
 
     for (Int_t j=0; j<nhit; j++) {
-      ghit = (PndTpcLheHit *) fRealHits->At(j);
+      ghit = (PndLheHit *) fRealHits->At(j);
       ghit->Print();
     }
 

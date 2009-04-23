@@ -36,7 +36,7 @@
 #include "PndLheTpcPlanarRecoHit.h"
 #include "PndSttRecoHit.h"
 #include "PndTpcLheTrack.h"
-#include "PndTpcLheHit.h"
+#include "PndDetectorList.h"
 
 #include "RecoHitFactory.h"
 #include "Kalman.h"
@@ -100,7 +100,7 @@ PndLheKalmanTask::Init()
     } 
   else
     {
-      fTheRecoHitFactory->addProducer(4,new RecoHitProducer<PndMvdHit,PndMvdRecoHit>(stripar));
+      fTheRecoHitFactory->addProducer(kMVDHitsStrip,new RecoHitProducer<PndMvdHit,PndMvdRecoHit>(stripar));
     }
   
   TClonesArray* pixelar=(TClonesArray*) ioman->GetObject("MVDHitsPixel");
@@ -110,7 +110,7 @@ PndLheKalmanTask::Init()
     } 
   else 
     { //TODO Convention on detector number needed
-      fTheRecoHitFactory->addProducer(3,new RecoHitProducer<PndMvdHit,PndMvdRecoHit>(pixelar));
+      fTheRecoHitFactory->addProducer(kMVDHitsPixel,new RecoHitProducer<PndMvdHit,PndMvdRecoHit>(pixelar));
     }
   
   TClonesArray* ar=(TClonesArray*) ioman->GetObject("PndTpcCluster");
@@ -120,7 +120,7 @@ PndLheKalmanTask::Init()
     }
   else
     {
-      fTheRecoHitFactory->addProducer(2,new RecoHitProducer<PndTpcCluster,PndLheTpcPlanarRecoHit>(ar));
+      fTheRecoHitFactory->addProducer(kTpcCluster,new RecoHitProducer<PndTpcCluster,PndLheTpcPlanarRecoHit>(ar));
     }
   
   TClonesArray* sttr=(TClonesArray*) ioman->GetObject("SttHelixHit");
@@ -130,7 +130,7 @@ PndLheKalmanTask::Init()
     }
   else
     {
-      fTheRecoHitFactory->addProducer(5,new RecoHitProducer<PndSttHelixHit,PndSttRecoHit>(sttr));
+      fTheRecoHitFactory->addProducer(kSttHelixHit,new RecoHitProducer<PndSttHelixHit,PndSttRecoHit>(sttr));
     }
   
   if (fUseGeane)  fPro = new FairGeanePro();

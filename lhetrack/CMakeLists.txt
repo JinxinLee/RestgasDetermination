@@ -23,6 +23,7 @@ ${CMAKE_SOURCE_DIR}/pnddata/TofData
 ${CMAKE_SOURCE_DIR}/pnddata/MdtData
 ${CMAKE_SOURCE_DIR}/pnddata/DrcData
 ${CMAKE_SOURCE_DIR}/pnddata/MvdData
+${CMAKE_SOURCE_DIR}/pnddata/TrackData
 ${CMAKE_SOURCE_DIR}/stt/sttreco
 ${CMAKE_SOURCE_DIR}/geane
 ${CMAKE_SOURCE_DIR}/trackrep
@@ -43,7 +44,6 @@ set(LHETrack_SRCS
 PndTpcLheTrackFinder.cxx
 PndLheTrackFinderIdeal.cxx
 PndTpcLheSegments.cxx
-PndTpcLheHit.cxx
 PndTpcLheTrackCuts.cxx      
 PndTpcLheCMPoint.cxx
 PndTpcLheTrack.cxx          
@@ -51,6 +51,7 @@ PndTpcLheCMTrack.cxx
 PndTpcLheTrackFitter.cxx
 PndLheHitsMaker.cxx      
 PndTpcLhePoint.cxx
+PndLheHit.cxx
 PndLhePidMaker.cxx
 PndLhePidTrack.cxx
 PndLheKalmanTask.cxx
@@ -65,7 +66,6 @@ endif(RULE_CHECKER_FOUND)
 
 
 set(LHETrack_HEADERS
-PndTpcLheHit.h
 PndTpcLheTrackCuts.h 
 PndTpcLheTrack.h   
 PndTpcLheCMPoint.h  
@@ -76,6 +76,7 @@ PndLheHitsMaker.h
 PndTpcLheCMTrack.h   
 PndTpcLheSegments.h 
 PndTpcLhePoint.h 
+PndLheHit.h
 PndLhePidMaker.h
 PndLhePidTrack.h
 PndLheKalmanTask.h

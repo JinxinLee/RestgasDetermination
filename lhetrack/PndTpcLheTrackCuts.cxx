@@ -242,8 +242,8 @@ GetPhiPrediction(PndTpcLheCMTrack *track) {
   //---
   
     Int_t last = (track->GetRHits())->GetLast();
-    PndTpcLheHit *hit0 =  (PndTpcLheHit *)(track->GetRHits())->At(last);
-    PndTpcLheHit *hit1 =  (PndTpcLheHit *)(track->GetRHits())->At(last-1);
+    PndLheHit *hit0 =  (PndLheHit *)(track->GetRHits())->At(last);
+    PndLheHit *hit1 =  (PndLheHit *)(track->GetRHits())->At(last-1);
     
     Double_t x[3], y[3], rez[3];
 
@@ -277,16 +277,16 @@ GetThetPrediction(PndTpcLheCMTrack *track, Double_t zst, Bool_t back) {
   //--- return alpha angle in the next plane
 
 
-  PndTpcLheHit *hit1, *hit0;
+  PndLheHit *hit1, *hit0;
   
   if (back) {
-    hit1 =  (PndTpcLheHit *)(track->GetRHits())->At(1);
-    hit0 =  (PndTpcLheHit *)(track->GetRHits())->At(0);
+    hit1 =  (PndLheHit *)(track->GetRHits())->At(1);
+    hit0 =  (PndLheHit *)(track->GetRHits())->At(0);
   }
   else {
     Int_t last = (track->GetRHits())->GetLast();
-    hit0 =  (PndTpcLheHit *)(track->GetRHits())->At(last);
-    hit1 =  (PndTpcLheHit *)(track->GetRHits())->At(last-1);
+    hit0 =  (PndLheHit *)(track->GetRHits())->At(last);
+    hit1 =  (PndLheHit *)(track->GetRHits())->At(last-1);
   }
 
   Double_t a0 = (hit0->GetY() - hit1->GetY()) / (hit0->GetZ() - hit1->GetZ());

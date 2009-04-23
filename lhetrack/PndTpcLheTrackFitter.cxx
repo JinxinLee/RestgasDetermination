@@ -9,10 +9,6 @@
 #include "FairRunAna.h"
 #include "FairRootManager.h"
 
-#include "TGeoTrack.h"
-
-#include "TH2F.h"
-
 #include <cmath>
 
 // ---------------------------------------------------------------
@@ -76,26 +72,11 @@ InitStatus PndTpcLheTrackFitter::Init() {
     return kERROR;
   }
 
-  fTpcTrCand = new TClonesArray("TGeoTrack");
-  fTpcTrFit  = new TClonesArray("TGeoTrack");
-
-  fManager->Register("TrackCand", "Cand",fTpcTrCand,  kTRUE);
-  fManager->Register("TrackFit",  "Fit", fTpcTrFit,  kTRUE);
-
   //  get the field in Memory:
   FairRunAna *fRun=FairRunAna::Instance();
   fMagField = (FairField*) fRun->GetField();
 
   fTrackCuts =PndTpcLheTrackCuts::Instance();
-
-  fXYG= new TH2F("XY Geant","XY",100,0,100,100,0,100);
-  fXYF= new TH2F("XY Fit","XY",100,0,100,100,0,100);
-
-  fYZG= new TH2F("YZ Geant","YZ",100,0,100,100,0,100);
-  fYZF= new TH2F("YZ Fit","YZ",100,0,100,100,0,100);
-
-  fXZG= new TH2F("XZ Geant","XZ",100,0,100,100,0,100);
-  fXZF= new TH2F("XZ Fit","XZ",100,0,100,100,0,100);
 
   return kSUCCESS;
 }
@@ -104,9 +85,6 @@ InitStatus PndTpcLheTrackFitter::Init() {
 void PndTpcLheTrackFitter::Exec(Option_t * option) {
 
   cout << " =====   PndTpcLheTrackFitter   ===== " << endl;
-
-  fTpcTrCand->Delete();
-  fTpcTrFit->Delete();
 
   if (fTpcTracks) {
     cout << " Number of tracks for fitting " <<
@@ -122,14 +100,6 @@ void PndTpcLheTrackFitter::Exec(Option_t * option) {
     //    cout << "\n\n Track " << track->GetTrackNumber() << "\n"; 
 
     //    track->Print();
-
-    TClonesArray& clref = *fTpcTrCand;
-    Int_t size = clref.GetEntriesFast();
-    fTrCan= new(clref[size]) TGeoTrack();
-    
-    TClonesArray& clref1 = *fTpcTrFit;
-    Int_t size1 = clref1.GetEntriesFast();
-    fTrFit= new(clref1[size1]) TGeoTrack();
 
     if (HelixFit(track)>1)
       {   
@@ -190,7 +160,7 @@ void PndTpcLheTrackFitter::Info4Fit(PndTpcLheTrack *track) {
   
   for (int ih = 0; ih < nHits; ih++) {
     
-    PndTpcLheHit* hit = (PndTpcLheHit*)rhits->At(ih);
+    PndLheHit* hit = (PndLheHit*)rhits->At(ih);
     if (NULL==hit) break;
     TVector2 pnt(hit->GetX() - xc, hit->GetY() - yc);
     
@@ -222,33 +192,7 @@ void PndTpcLheTrackFitter::Info4Fit(PndTpcLheTrack *track) {
 
     if (fVerbose) cout <<  " Fitted x, y, z: " << x << " " << y << " " << z
 		       << " px, py, pz: " << px << " " << py << " " << pz << endl;
-    if (fSimulation)
-      {
-	PndTpcPoint *point =(PndTpcPoint *) fTpcPoints->At(hit->GetRefIndex());
-	if (NULL==point) break; 
-	//if ((NULL==hit) || (NULL==point)) break; // JGM hack to avoid segfault
-	
-	if (fVerbose) cout <<  "\n  Geant x, y, z: " 
-			   << point->GetX() << " " << point->GetY()<< " " << point->GetZ()
-			   << " px, py, pz: " << point->GetPx() << " " << point->GetPy() <<
-			" " << point->GetPz() << endl;
-	
-	fTrCan->AddPoint(point->GetX(),  point->GetY(), point->GetZ(),0 ); 
-	//  calculate deflection angle between point and phi0
-	//
-	fXYG->Fill(point->GetX(),point->GetY());
-	fYZG->Fill(point->GetY(),point->GetZ());
-	fXZG->Fill(point->GetX(),point->GetZ()); 
-
-	fTrFit->AddPoint(x, y, z, 0 );
-	fXYF->Fill(x,y);
-	fYZF->Fill(y,z);
-	fXZF->Fill(x,z);  
-	
-	if (fVerbose) cout << "SOEREN vertex distance " << point->GetPx()-x << "\n";
-      }
   }                    
-  
   
 }
 
@@ -265,7 +209,7 @@ Int_t PndTpcLheTrackFitter::CircleFit(PndTpcLheTrack *track) {
   Mx=My=0.;
 
   for (Int_t lh = 0; lh < NHits; lh++) {
-    PndTpcLheHit* hit = (PndTpcLheHit*) rhits->At(lh);
+    PndLheHit* hit = (PndLheHit*) rhits->At(lh);
     Mx += hit->GetX();
     My += hit->GetY();
   }
@@ -284,7 +228,7 @@ Int_t PndTpcLheTrackFitter::CircleFit(PndTpcLheTrack *track) {
   Mxx = Myy = Mxy = Mxz = Myz = Mzz = 0.;
 
   for (Int_t lh = 0; lh < NHits; lh++) {
-    PndTpcLheHit* hit = (PndTpcLheHit*) rhits->At(lh);
+    PndLheHit* hit = (PndLheHit*) rhits->At(lh);
     //  for (i=0; i<data.n; i++) {
     Xi = hit->GetX() - Mx;
     Yi = hit->GetY() - My;
@@ -387,7 +331,7 @@ Int_t PndTpcLheTrackFitter::DeepFitOleg(PndTpcLheTrack *track) {
 
   TObjArray *rHits = (TObjArray* )track->GetRHits();
 
-  PndTpcLheHit *first = (PndTpcLheHit *)rHits->First();
+  PndLheHit *first = (PndLheHit *)rHits->First();
 
   Double_t dx, dy ;
   dx = first->GetX() - track->GetVertex().GetX();
@@ -422,11 +366,11 @@ Int_t PndTpcLheTrackFitter::DeepFitOleg(PndTpcLheTrack *track) {
 
 
   for(Int_t i = 0; i < nHits; i++) {
-    PndTpcLheHit *hit = (PndTpcLheHit *)rHits->At(i);
-    fZWeight[i] = 1./(hit->GetZerr()*hit->GetZerr());
+    PndLheHit *hit = (PndLheHit *)rHits->At(i);
+    fZWeight[i] = 1./(hit->GetDz()*hit->GetDz());
 
     if(i > 0) {
-      PndTpcLheHit *last = (PndTpcLheHit *)rHits->At(i-1);
+      PndLheHit *last = (PndLheHit *)rHits->At(i-1);
       dx = hit->GetX() - last->GetX();
       dy = hit->GetY() - last->GetY();
       dpsi = 0.5 * (Double_t)sqrt ( dx*dx + dy*dy ) / radius ;
@@ -479,7 +423,7 @@ Int_t PndTpcLheTrackFitter::DeepFitOleg(PndTpcLheTrack *track) {
   Double_t r1 ;
 
   for(Int_t i=0; i < nHits; i++) {
-    PndTpcLheHit *hit = (PndTpcLheHit *)rHits->At(i);
+    PndLheHit *hit = (PndLheHit *)rHits->At(i);
     r1   = hit->GetZ() - tanl * fS[i] - z0 ;
     chi2 += (fZWeight[i]) * (r1 * r1);
   }
@@ -524,10 +468,10 @@ Int_t PndTpcLheTrackFitter::DeepFit(PndTpcLheTrack *track) {
   Double_t qq = 0.;
   
   for(Int_t i = 0; i < nHits; i++) {
-    PndTpcLheHit *hit = (PndTpcLheHit *)rHits->At(i);
+    PndLheHit *hit = (PndLheHit *)rHits->At(i);
     
     Double_t rho = sqrt(hit->GetX()*hit->GetX()+hit->GetY()*hit->GetY());
-    Double_t fZWeight = 1./(hit->GetZerr()*hit->GetZerr());
+    Double_t fZWeight = 1./(hit->GetDz()*hit->GetDz());
     
     wsum += fZWeight;
     wx  += fZWeight * rho;
@@ -558,10 +502,10 @@ Int_t PndTpcLheTrackFitter::DeepFit(PndTpcLheTrack *track) {
   Double_t chi2 = 0.;
   
   for(Int_t i=0; i < nHits; i++) {
-    PndTpcLheHit *hit = (PndTpcLheHit *)rHits->At(i); 
+    PndLheHit *hit = (PndLheHit *)rHits->At(i); 
     
     Double_t rho = sqrt(hit->GetX()*hit->GetX()+hit->GetY()*hit->GetY());
-    Double_t fZWeight = 1./(hit->GetZerr()*hit->GetZerr());
+    Double_t fZWeight = 1./(hit->GetDz()*hit->GetDz());
     r1   = hit->GetZ() - mm * rho - qq;
     chi2 += fZWeight * (r1 * r1);
   }
@@ -601,25 +545,5 @@ Int_t PndTpcLheTrackFitter::HelixFit(PndTpcLheTrack *track) {
     return (isCircle+isDip);
 
 }
-
-//_____________________________________________________
-void PndTpcLheTrackFitter::Finish() {
-  //---
-
- // FairRootManager *fManger =FairRootManager::Instance();
- // fManger->Fill();
-  
- /* fXYF->Write();
-  fYZF->Write();
-  fXZF->Write();
-
-  fXYG->Write();
-  fYZG->Write();
-  fXZG->Write();
-   */
-    printf("\n\n  *** Finish ***");
-
-}
-
 
 ClassImp(PndTpcLheTrackFitter)

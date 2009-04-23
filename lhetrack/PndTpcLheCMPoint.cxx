@@ -1,13 +1,13 @@
 #include <Riostream.h>
 #include "TMath.h"
 
-#include "PndTpcLheHit.h"
+#include "PndLheHit.h"
 #include "PndTpcLheCMPoint.h"
 
 ClassImp(PndTpcLheCMPoint)
 
 //________________________________________________________________
-PndTpcLheCMPoint::PndTpcLheCMPoint() : PndTpcLheHit() {
+PndTpcLheCMPoint::PndTpcLheCMPoint() : PndLheHit() {
     //--- clean all
 
   SetPhi(0.);
@@ -24,8 +24,8 @@ PndTpcLheCMPoint::PndTpcLheCMPoint() : PndTpcLheHit() {
 }
 
 //________________________________________________________________
-PndTpcLheCMPoint::PndTpcLheCMPoint(PndTpcLheHit *point) :
-  PndTpcLheHit( *point) {
+PndTpcLheCMPoint::PndTpcLheCMPoint(PndLheHit *point) :
+  PndLheHit( *point) {
   //---
 
 }
@@ -67,9 +67,9 @@ void PndTpcLheCMPoint::SetAllCoord(const PndTpcLheCMPoint *hit) {
   SetIntPoint(hit->GetX(),
 	      hit->GetY(),
 	      hit->GetZ(),
-	      hit->GetXerr(),
-	      hit->GetYerr(),
-	      hit->GetZerr());
+	      hit->GetDx(),
+	      hit->GetDy(),
+	      hit->GetDz());
   SetShiftedCoord();
   SetConfCoord();
   
@@ -84,9 +84,9 @@ void PndTpcLheCMPoint::SetShiftedCoord() {
   SetYv(GetY() - fYt);
   SetZv(GetZ() - fZt);
 
-  SetXverr(TMath::Sqrt(GetXerr()*GetXerr() + fXterr*fXterr));
-  SetYverr(TMath::Sqrt(GetYerr()*GetYerr() + fYterr*fYterr));
-  SetZverr(TMath::Sqrt(GetZerr()*GetZerr() + fZterr*fZterr));
+  SetXverr(TMath::Sqrt(GetDx()*GetDx() + fXterr*fXterr));
+  SetYverr(TMath::Sqrt(GetDy()*GetDy() + fYterr*fYterr));
+  SetZverr(TMath::Sqrt(GetDz()*GetDz() + fZterr*fZterr));
 
 }
 

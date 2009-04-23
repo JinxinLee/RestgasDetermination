@@ -7,7 +7,7 @@
 //  track fitter 
 //
 // Created: 1-07-07
-// Modified:
+// Modified: 23-04-09 Stefano Spataro (stefano.spataro@to.infn.it)
 //
 // *************************************************************************
 
@@ -21,9 +21,6 @@
 #include "PndTpcLheCMTrack.h"
 #include "PndTpcLheCMPoint.h"
 
-class TH2F;
-class TGeoTrack;
-
 class PndTpcLheTrackFitter : public FairTask {
 
 protected:
@@ -31,16 +28,8 @@ protected:
   FairField*     fMagField;       //  
   TClonesArray* fTpcTracks;      //
   TClonesArray* fTpcHits;        //!
-
-  TClonesArray* fTpcTrCand;
-  TClonesArray* fTpcTrFit;
-
-  TH2F *fXYG, *fXYF,*fYZG, *fYZF,*fXZG, *fXZF,*fPXG,
-    *fPXF,*fPYG, *fPYF,*fPZG, *fPZF;
-
   TClonesArray* fTpcPoints;      //!
-  TGeoTrack *fTrCan, *fTrFit;
-
+  
   TList *fHistList;
   TString fOption;          //  options to choose branches
   Bool_t fVerbose;          // Switch ON/OFF debug messages 
@@ -54,9 +43,8 @@ public:
 
   virtual void Exec(Option_t * option);
   virtual InitStatus Init();                        //
-  virtual void Finish();
-
-  PndTpcLheTrackFitter(const char *name, const char *title="Cbm Task");
+  
+  PndTpcLheTrackFitter(const char *name, const char *title="Panda Task");
   PndTpcLheTrackFitter();
   virtual ~PndTpcLheTrackFitter();
 
@@ -65,16 +53,14 @@ public:
   Int_t DeepFitOleg(PndTpcLheTrack * tr);
   Int_t CircleFit(PndTpcLheTrack * tr);
   Int_t HelixFit(PndTpcLheTrack * tr);
-  //  void Yvone(PndTpcLheTrack *track, Double_t psib);
   void  Info4Fit(PndTpcLheTrack *track);
   void SetOption(Option_t *option=" ") {fOption = option;  fOption.ToLower();}
-  void SaveHistograms();
   void SetVerbose(Bool_t verb)   { fVerbose = verb  ;};
   void SetSimulation(Bool_t sim) { fSimulation = sim; };
 
   static PndTpcLheTrackFitter* Instance();
 
-ClassDef(PndTpcLheTrackFitter,1)   // PndTpcLheTrackFitter
+ClassDef(PndTpcLheTrackFitter,2)   // PndTpcLheTrackFitter
 
 };
 

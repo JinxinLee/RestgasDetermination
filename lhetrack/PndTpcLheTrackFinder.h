@@ -19,7 +19,7 @@
 
 #include "FairTask.h"
 
-#include "PndTpcLheHit.h"
+#include "PndLheHit.h"
 #include "PndTpcLheCMPoint.h"
 #include "PndTpcLheCMTrack.h"
 #include "PndTpcLheTrackCuts.h"

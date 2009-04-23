@@ -13,7 +13,7 @@
 #include "TLorentzVector.h"
 
 #include "PndTpcLhePoint.h"
-#include "PndTpcLheHit.h"
+#include "PndLheHit.h"
 //#include "lhe.h"
 
 #include "Riostream.h"
@@ -66,7 +66,7 @@ public:
   virtual  ~PndTpcLheTrack ();                    //
 
   void SetDefaults();                // performs the default setup for the track
-  void AddHit(PndTpcLheHit *point);     // adds a hit to the track
+  void AddHit(PndLheHit *point);     // adds a hit to the track
 
   // getters
 

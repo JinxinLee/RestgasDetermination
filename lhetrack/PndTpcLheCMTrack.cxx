@@ -71,7 +71,7 @@ void PndTpcLheCMTrack::SetTrackID(Int_t number) {
   SetTrackNumber(number); // fTrackNumber = number;
 
   for (Int_t i = 0; i < fMappingHits->GetEntriesFast(); i++) {
-    ((PndTpcLheHit*)fMappingHits->At(i))->SetTrackID(number);    
+    ((PndLheHit*)fMappingHits->At(i))->SetTrackID(number);    
   }
 
 }
@@ -89,7 +89,7 @@ void PndTpcLheCMTrack::Copy( const PndTpcLheCMTrack* src) {
 
   for (Int_t i = 0; i < fNMapHits; i++) {
     fMappingHits->AddAt(hits->At(i), i); 
-    fRealHits->AddAt(dynamic_cast <PndTpcLheHit *> (hits->At(i)), i); 
+    fRealHits->AddAt(dynamic_cast <PndLheHit *> (hits->At(i)), i); 
 
   }
 }
@@ -99,7 +99,7 @@ void PndTpcLheCMTrack::AddPoint(PndTpcLheCMPoint* point, Bool_t backward) {
   // Adds a given point to the track.
 
   Int_t num = fNMapHits;
-  PndTpcLheHit *hit = dynamic_cast <PndTpcLheHit *> (point);
+  PndLheHit *hit = dynamic_cast <PndLheHit *> (point);
 
   if(backward) {
     fMappingHits->Expand(num+1);

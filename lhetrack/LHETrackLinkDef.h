@@ -6,7 +6,7 @@
 #pragma link off all classes;
 #pragma link off all functions;
  
-#pragma link C++ class  PndTpcLheHit+;
+#pragma link C++ class  PndLheHit+;
 #pragma link C++ class  PndTpcLheTrack+;
 #pragma link C++ class  PndLheHitsMaker+;
 #pragma link C++ class  PndTpcLheCMPoint+;

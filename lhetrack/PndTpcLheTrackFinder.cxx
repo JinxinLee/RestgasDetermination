@@ -1,8 +1,8 @@
 #include "PndTpcLheTrackFinder.h"
-
+#include "PndDetectorList.h"
 #include "PndTpcLheCMTrack.h"
 #include "PndTpcLheCMPoint.h"
-#include "PndTpcLheHit.h"
+#include "PndLheHit.h"
 #include "lhe.h"
 
 #include "FairMCApplication.h"
@@ -115,12 +115,12 @@ void PndTpcLheTrackFinder::Exec(Option_t * option) {
   
   Int_t n_hits = fLheHits->GetEntriesFast();    // number of hits
 
-  PndTpcLheHit *ghit = NULL;
+  PndLheHit *ghit = NULL;
 
   Int_t good_hits = 0;
 
   for (Int_t ih = 0; ih < n_hits; ih++) {
-    ghit = (PndTpcLheHit *) fLheHits->UncheckedAt(ih);
+    ghit = (PndLheHit *) fLheHits->UncheckedAt(ih);
     TClonesArray &cmhits = *fCMHits;
     PndTpcLheCMPoint *cmhit = new(cmhits[good_hits++]) PndTpcLheCMPoint(ghit);
     cmhit->SetHitNumber(ghit->GetHitNumber());
@@ -160,15 +160,15 @@ void PndTpcLheTrackFinder::AddTrackForFit(PndTpcLheCMTrack *track_in) {
     Int_t mvdHits = 0;
     Int_t tpcHits = 0;
     for (Int_t lh = 0; lh < NHits; lh++) {
-      PndTpcLheHit* hit = dynamic_cast <PndTpcLheHit*> (rhits->At(lh));
+      PndLheHit* hit = dynamic_cast <PndLheHit*> (rhits->At(lh));
       track->AddHit(hit);
-      if ( (hit->GetDetectorId() == kTpcPoint)     ||
-	   (hit->GetDetectorId() == kTpcCluster)     )   tpcHits++;
-      if ( (hit->GetDetectorId() == kSttPoint)     ||
-	   (hit->GetDetectorId() == kSttHit)         )   tpcHits++; // for the moment
-      if ( (hit->GetDetectorId() == kMVDPoint)     || 
-	   (hit->GetDetectorId() == kMVDHitsStrip) ||
-	   (hit->GetDetectorId() == kMVDHitsPixel)   )   mvdHits++;
+      if ( (hit->GetDetectorID() == kTpcPoint)     ||
+	   (hit->GetDetectorID() == kTpcCluster)     )   tpcHits++;
+      if ( (hit->GetDetectorID() == kSttPoint)     ||
+	   (hit->GetDetectorID() == kSttHit)         )   tpcHits++; // for the moment
+      if ( (hit->GetDetectorID() == kMVDPoint)     || 
+	   (hit->GetDetectorID() == kMVDHitsStrip) ||
+	   (hit->GetDetectorID() == kMVDHitsPixel)   )   mvdHits++;
     }
     track->SetTpcHits(tpcHits);
     track->SetMvdHits(mvdHits);

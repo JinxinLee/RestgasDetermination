@@ -87,7 +87,7 @@ public:
 
   PndLhePidTrack* AddTrack(PndLhePidTrack* track);
  
-  void GetMvdInfo(const PndTpcLheHit* hit, PndLhePidTrack* track); 
+  void GetMvdInfo(const PndLheHit* hit, PndLhePidTrack* track); 
   void GetSttInfo(PndLhePidTrack* track); 
   void GetTofInfo(PndLhePidTrack* track); 
   void GetEmcInfo(PndLhePidTrack* track); 

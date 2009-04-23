@@ -1,8 +1,9 @@
 #include "PndLheTrackFinderIdeal.h"
 
+#include "PndDetectorList.h"
 #include "PndTpcLheCMTrack.h"
 #include "PndTpcLheCMPoint.h"
-#include "PndTpcLheHit.h"
+#include "PndLheHit.h"
 #include "lhe.h"
 
 #include "FairMCApplication.h"
@@ -94,12 +95,12 @@ void PndLheTrackFinderIdeal::Exec(Option_t * option) {
   Reset();
   
   Int_t n_hits = fLheHits->GetEntriesFast();    // number of hits
-  PndTpcLheHit *ghit = NULL;
+  PndLheHit *ghit = NULL;
   
   Int_t good_hits = 0;
   std::map<Int_t, PndTpcLheTrack*> candlist;
   for (Int_t ih = 0; ih < n_hits; ih++) {
-    ghit = (PndTpcLheHit *) fLheHits->At(ih);
+    ghit = (PndLheHit *) fLheHits->At(ih);
     
     TClonesArray &cmhits = *fCMHits;
     PndTpcLheCMPoint *cmhit = new(cmhits[good_hits++]) PndTpcLheCMPoint(ghit);
@@ -117,13 +118,13 @@ void PndLheTrackFinderIdeal::Exec(Option_t * option) {
     Int_t tpcHits = cand->GetTpcHits();
     Int_t mvdHits = cand->GetMvdHits();
     
-    if ( (ghit->GetDetectorId() == kTpcPoint)     ||
-	 (ghit->GetDetectorId() == kTpcCluster)     )   tpcHits++;
-    if ( (ghit->GetDetectorId() == kSttPoint)     ||
-	 (ghit->GetDetectorId() == kSttHit)         )   tpcHits++; // for the moment
-    if ( (ghit->GetDetectorId() == kMVDPoint)     || 
-	 (ghit->GetDetectorId() == kMVDHitsStrip) ||
-	 (ghit->GetDetectorId() == kMVDHitsPixel)   )   mvdHits++;
+    if ( (ghit->GetDetectorID() == kTpcPoint)     ||
+	 (ghit->GetDetectorID() == kTpcCluster)     )   tpcHits++;
+    if ( (ghit->GetDetectorID() == kSttPoint)     ||
+	 (ghit->GetDetectorID() == kSttHit)         )   tpcHits++; // for the moment
+    if ( (ghit->GetDetectorID() == kMVDPoint)     || 
+	 (ghit->GetDetectorID() == kMVDHitsStrip) ||
+	 (ghit->GetDetectorID() == kMVDHitsPixel)   )   mvdHits++;
     
     cand->SetTpcHits(tpcHits);
     cand->SetMvdHits(mvdHits);

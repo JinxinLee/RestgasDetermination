@@ -10,10 +10,10 @@
 // Modified:
 //
 // *************************************************************************
-#include "PndTpcLheHit.h"
+#include "PndLheHit.h"
 #include "PndTpcLhePoint.h"
 
-class PndTpcLheCMPoint : public PndTpcLheHit {
+class PndTpcLheCMPoint : public PndLheHit {
   
 private:
   
@@ -56,7 +56,7 @@ private:
 public:
   
             PndTpcLheCMPoint();                   //
-            PndTpcLheCMPoint(PndTpcLheHit *point);   // from hit
+            PndTpcLheCMPoint(PndLheHit *point);   // from hit
 
   virtual  ~PndTpcLheCMPoint();                   //
   
