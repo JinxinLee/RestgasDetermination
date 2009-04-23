@@ -18,7 +18,7 @@ public:
 	PndTrack();
 	virtual ~PndTrack();
 
-	void Print();
+	void Print(){};
 
 
 	 /** Public method SortHits
@@ -28,8 +28,8 @@ public:
 	Int_t GetFlag()                  const { return fFlag; }		//Quality flag
 	Double_t GetChi2()               const { return fChi2; }
 	Int_t GetNDF()                   const { return fNDF; }
-	FairTrackParam* GetParamFirst() { return &fTrackParamFirst; }
-	FairTrackParam* GetParamLast()  { return &fTrackParamLast ; }
+	FairTrackPar* GetParamFirst() { return &fTrackParamFirst; }
+	FairTrackPar* GetParamLast()  { return &fTrackParamLast ; }
 
 
 

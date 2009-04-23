@@ -7,6 +7,7 @@ ${ROOT_INCLUDE_DIR}
 ${CMAKE_SOURCE_DIR}/geobase 
 ${CMAKE_SOURCE_DIR}/base 
 ${CMAKE_SOURCE_DIR}/pnddata 
+${CMAKE_SOURCE_DIR}/trackbase
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -69,6 +70,7 @@ MvdData/PndMvdPidCand.cxx
 MvdData/PndMvdRadDamHit.cxx
 
 TrackData/PndTrackCand.cxx
+TrackData/PndTrack.cxx
 
 )
 
