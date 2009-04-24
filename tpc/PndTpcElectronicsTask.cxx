@@ -175,6 +175,7 @@ PndTpcElectronicsTask::Exec(Option_t* opt)
   }
   std::cout<<"finished. "<<padmap.size()<<" pads hit"<<std::endl;
   int tenpercent=padmap.size()/10;
+  if(tenpercent==0)tenpercent=1;
   // cleanup _signal_array;
   //_signalArray->Clear();
 
