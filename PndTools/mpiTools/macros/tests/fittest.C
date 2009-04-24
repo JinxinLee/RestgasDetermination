@@ -1,5 +1,6 @@
 #include "TF1.h"
 #include "TH1D.h"
+#include "TH2D.h"
 #include "TMath.h"
 #include "TRandom3.h"
 #include "TROOT.h"
@@ -122,6 +123,9 @@ void fittest(Int_t nroftests=1, Char_t option[]="LQN", Double_t stat=200,Double_
   TH1D *his3=new TH1D("hiseMass","",100,0,beamresolution);
   TH1D *his4=new TH1D("hiseWidth","",100,0,resonancewidth);
 
+  TH2D *hisMassvsError=new TH2D("hisMassvsError","",100,-resonancewidth*2e-7+(xmin+xmax)/2.,resonancewidth*2e-7+(xmin+xmax)/2.,100,0,beamresolution);
+  TH2D *hisWidthvsError=new TH2D("hisWidthvsError","",100,resonancewidth-10*beamresolution,resonancewidth+10*beamresolution,100,0,resonancewidth);
+
   TH1D *hisxsq=new TH1D("hisxsq","",100,0,5);
 
   Double_t sumemass=0;
@@ -164,6 +168,9 @@ void fittest(Int_t nroftests=1, Char_t option[]="LQN", Double_t stat=200,Double_
 
      his3->Fill(mass[1]*1e6);
      his4->Fill(width[1]);
+
+     hisMassvsError->Fill(mass[0],mass[1]*1e6);
+     hisWidthvsError->Fill(width[0],width[1]);
 
      sumemass+=mass[1];
      sumewidth+=width[1];
@@ -216,6 +223,8 @@ void fittest(Int_t nroftests=1, Char_t option[]="LQN", Double_t stat=200,Double_
   his3->Write();
   his4->Write();
   hisxsq->Write();
+  hisMassvsError->Write();
+  hisWidthvsError->Write();
 
   f->Close();
 }
