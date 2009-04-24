@@ -47,6 +47,15 @@
 #include "AbsRecoHit.h"
 #include "TVector3.h"
 
+#include <signal.h>
+#include <stdlib.h>
+
+
+void sighandler(int sig){
+  std::cerr << "sighandler for sig " << sig << std::endl;
+  abort();
+}
+
 
 // Class Member definitions -----------
 
@@ -67,6 +76,11 @@ KalmanTask::~KalmanTask()
 InitStatus
 KalmanTask::Init()
 {
+  //book fpe handler
+  signal(8,sighandler);
+  signal(10,sighandler);
+  signal(11,sighandler);
+  
   //Get ROOT Manager
   FairRootManager* ioman= FairRootManager::Instance();
 
@@ -78,6 +92,10 @@ KalmanTask::Init()
   
   // Get input collection
   _trackArray=(TClonesArray*) ioman->GetObject(_trackBranchName);
+
+  _trackOutArray = new TClonesArray("Track");
+  ioman->Register("Track_out","PndTpc",_trackOutArray,kTRUE);
+  
   
   if(_trackArray==0)
     {
@@ -111,9 +129,10 @@ void
 KalmanTask::Exec(Option_t* opt)
 {
   std::cout<<"KalmanTask::Exec"<<std::endl;
+  _trackOutArray->Delete();
   // Reset output Array
-  //if(_trackArray==0) Fatal("Kalman::Exec)","No TrackArray");
-  // _trackArray->Delete();
+  if(_trackArray==0) Fatal("Kalman::Exec)","No TrackArray");
+  //_trackArray->Delete();
 
   Int_t ntracks=_trackArray->GetEntriesFast();
   
@@ -133,6 +152,7 @@ KalmanTask::Exec(Option_t* opt)
   for(Int_t itr=0;itr<ntracks;++itr){
     std::cout<<"starting track"<<itr<<std::endl;
     Track* trk=(Track*)_trackArray->At(itr);
+    std::cout<<"*** Number of clusters in track: "<<trk->getNumHits()<<" ***"<<std::endl;
           
     // Load RecoHits 
     try {
@@ -163,11 +183,16 @@ KalmanTask::Exec(Option_t* opt)
     // Start Fitter
     try{
       std::cout<<"starting fit"<<std::endl;
+      std::cerr << "Calling processTrack" << std::endl;
       fitter.processTrack(trk);
     }
     catch (FitterException e){
       std::cout<<e.what()<<std::endl;
     }
+
+    Int_t size = _trackOutArray->GetEntriesFast();
+    Track* trkCopy = new((*_trackOutArray)[size]) Track(*trk);
+
 
     // Print Track Parameters after fit
     if(trk->getTrackRep(0)->getStatusFlag()==0){
@@ -176,6 +201,7 @@ KalmanTask::Exec(Option_t* opt)
       //TVector3 p3=trk->getTrackRep(0)->getMom(plane);
       double p=trk->getMom().Mag();
       _pH->Fill(p);
+      
       
       double chi2=trk->getChiSqu();
       _chi2H->Fill(chi2);

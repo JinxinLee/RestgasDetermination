@@ -99,6 +99,9 @@ Kalman::fittingPass(Track* trk, int direction){
     arep->setNDF(0);
   }
 
+  //clear failedHits
+  trk->clearFailedHits();
+
   while((ihit<nhits && direction==1) || (ihit>-1 && direction==-1)){
     AbsRecoHit* ahit=trk->getHit(ihit);
     /* configure the flag that will avoid null extrapolations in processHits() */

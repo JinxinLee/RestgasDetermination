@@ -11,6 +11,7 @@
 #define TRACKCAND_H
 
 #include <vector>
+#include <set>
 #include "assert.h"
 
 #include "TObject.h"
@@ -69,6 +70,13 @@ public:
   bool inverted() const {return _inv;}
   std::vector<unsigned int> GetHitIDs(int detId=-1);
   std::vector<unsigned int> GetDetIDs() const {return _detId;}
+  std::set<unsigned int> GetUniqueDetIDs() const {
+    std::set<unsigned int> retVal;
+    for(unsigned int i=0;i<_detId.size();++i){
+      retVal.insert(_detId.at(i));
+    }
+    return retVal;
+  }
 
   // Modifiers -----------------------
   void addHit(unsigned int detId, unsigned int hitId);

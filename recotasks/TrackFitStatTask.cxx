@@ -1,4 +1,4 @@
- //-----------------------------------------------------------
+//-----------------------------------------------------------
 // File and Version Information:
 // $Id$
 //
@@ -22,6 +22,7 @@
 #include <cmath>
 // C/C++ Headers ----------------------
 #include <map>
+#include <set>
 #include <algorithm>
 #include <string>
 #include <assert.h>
@@ -31,6 +32,8 @@
 #include "TClonesArray.h"
 #include "Track.h"
 #include "TrackFitStat.h"
+#include "TrackCand.h"
+#include "AbsRecoHit.h"
 #include "PndTpcPlanarRecoHit.h"
 #include "PndTpcPoint.h"
 #include "PndMCTrack.h"
@@ -216,11 +219,22 @@ TrackFitStatTask::Exec(Option_t* opt)
 
 
   Int_t nTracks=_trackArray->GetEntriesFast();
+  
   for(Int_t i=0; i<nTracks; ++i)
   { // loop over tracks
 	Track* track=(Track*)_trackArray->At(i);
 	
-	
+	//clumsily extract failed hits of cardinal rep and pass to TrackFitStat
+	const TrackCand& cand = track->getCand();
+	std::set<unsigned int> detIDs = cand.GetUniqueDetIDs();
+	std::set<unsigned int>::iterator iter;
+	int NFH=0;
+	for(iter=detIDs.begin(); iter!=detIDs.end(); ++iter) {
+	  int detID = *iter;
+	  NFH+=track->getFailedHits(detID);
+	}	
+
+	std::cout<<"TrackFitStatTask: recotrack has "<<NFH<<" failed hits"<<std::endl;
 	
 	if(track->getTrackRep(0)->getStatusFlag()!=0){
 		std::cout<<"Trackfit not successful!"<<std::endl;
@@ -277,7 +291,8 @@ TrackFitStatTask::Exec(Option_t* opt)
 	if(LSLREP){
 	  p=track->getMom().Mag();
 	  //palt=1./fabs(track->getTrackRep(0)->getState()[4][0]);
-	  pstart=1.0; ///fabs(track->getTrackRep(0)->getStartState()[4][0]);
+	  //pstart=1.0; 
+	  pstart=fabs(track->getTrackRep(0)->getStartState()[4][0]);
 	  q=track->getCharge();
 	
 	  std::cout<<"p="<<p<<"  q="<<q<<"  pstart="<<pstart<<std::endl;
@@ -286,16 +301,18 @@ TrackFitStatTask::Exec(Option_t* opt)
 	  p=track->getMom().Mag();
 	  //palt=1./fabs(track->getTrackRep(0)->getState()[4][0]);
 	  //pstart=1./fabs(track->getTrackRep(0)->getStartState()[4][0]);
-	  pstart=1.2;
+	  pstart=0;
 	  q=track->getCharge();
 	
 	  std::cout<<"p="<<p<<"  q="<<q<<"  pstart="<<pstart<<std::endl;
 	}
-	
+
+	std::cout<<"\n *** TrackFitStatTask: Writing fit results to stat object ***\n"<<std::endl;
 	stat->setp(p);
 	stat->setmom(track->getMom());
 	stat->setpstart(pstart);
 	stat->setcharge(q);
+	stat->addFailedHits(NFH);
 	
 	double s=track->getTrackRep(0)->getCov()[4][4];
 	if(s>0){

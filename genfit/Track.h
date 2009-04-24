@@ -16,6 +16,7 @@
 #include "TObjArray.h"
 
 #include "TrackCand.h"
+#include "FailedHits.h"
 
 class TVirtualGeoTrack;
 
@@ -58,7 +59,8 @@ private:
    * which contains the number of failed hits
    * (error in Kalman::processHit() )
    */
-  std::vector< std::map<int,int>* > failedHits;
+  std::vector< FailedHits* > failedHits;
+
 
   /** @brief Helper to store the indices of the hits in the track. 
    * See TrackCand for details.
@@ -95,11 +97,15 @@ public:
    */
   void reset();  // deletes the RecoHits!
 
-  int getFailedHits(int detId,int repId=-1){
+  /** @brief return the number of failed Hits in track fit
+      detId == -1 will just use all detIds in the failedHits map, repId == -1 will use
+      cardinal rep
+  */
+  int getFailedHits(int detId=-1,int repId=-1){
 	int theRep;
 	if(repId==-1) theRep=_cardinal_rep;
 	else theRep = repId;
-	return (*(failedHits.at(theRep)))[detId];
+	return failedHits.at(theRep)->getNum(detId);
   }
 
   std::vector<AbsRecoHit*> getHits() {return hits;}
@@ -201,10 +207,13 @@ public:
 	assert(irep<failedHits.size());
 	unsigned int detId,hitId;
 	_cand.getHit(ihit,detId,hitId);
-	if(failedHits.at(irep)->count(detId)==0){
-	  (*(failedHits.at(irep)))[detId]=0;
-	}
-	(*(failedHits.at(irep)))[detId]+=1;
+	failedHits.at(irep)->add(hitId,detId);
+  }
+
+  void clearFailedHits(){
+    for(unsigned int i=0;i<failedHits.size();++i){
+      failedHits.at(i)->clear();
+    }
   }
 
   /** @brief deprecated!
@@ -237,7 +246,7 @@ public:
   void addTrackRep(AbsTrackRep* theTrackRep) {
     if(trackReps==NULL)trackReps=new TObjArray(defNumTrackReps);
     trackReps->Add(theTrackRep);
-	failedHits.push_back( new std::map<int,int> );
+    failedHits.push_back( new FailedHits() );
   }
     
   void setCandidate(const TrackCand& cand, bool reset=false);

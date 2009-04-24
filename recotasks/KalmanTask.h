@@ -61,6 +61,7 @@ private:
 
   // Private Data Members ------------
   TClonesArray* _trackArray;
+  TClonesArray* _trackOutArray;
   TString _trackBranchName;
 
   Bool_t _persistence;

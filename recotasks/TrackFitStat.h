@@ -52,6 +52,7 @@ public:
   void fillPndTpcResY(const std::vector<double>& r){_PndTpcResY=r;}
   void fillPndTpcClusterSize(const std::vector<unsigned int>& s){_PndTpcClusterSize=s;}
   void fillPndTpcClusterAmp(const std::vector<double>& s){_PndTpcClusterAmp=s;}
+  void addFailedHits(int NFH) {_failedHits+=NFH;}
 
   // Operations ----------------------
 
@@ -65,6 +66,8 @@ public:
   void setpdg(Int_t pdg){_nPDG=pdg;}
   void setmotherid(Int_t motherID)	{_motherID=motherID;}
   unsigned int nhits() const {return _PndTpcResX.size();}
+
+  unsigned int getFailedHits() {return _failedHits;}
 
 private:
 
@@ -83,6 +86,8 @@ private:
   double _sigp;
   Int_t _nPDG;
   Int_t _motherID;
+
+  unsigned int _failedHits;   //stores the number of failed hits (cov was zero)
   
   bool _hasMc;
 

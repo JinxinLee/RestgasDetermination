@@ -16,5 +16,6 @@
 #pragma link C++ class VirtSpacePointRecoHit+;
 #pragma link C++ class DetPlane+;
 #pragma link C++ class WirepointHitPolicy+;
+#pragma link C++ class FailedHits+;
 
 #endif

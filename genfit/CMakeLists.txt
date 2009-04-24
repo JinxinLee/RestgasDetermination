@@ -31,6 +31,7 @@ FitParams.cxx
 FitterExceptions.cxx           
 TrackCand.cxx
 DetPlane.cxx
+FailedHits.cxx
 PlanarHitPolicy.cxx
 SpacepointHitPolicy.cxx
 test/GenfitTester.cxx
@@ -53,7 +54,7 @@ set(GENFIT_LINKDEF  genfitLinkDef.h)
 set(GENFIT_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/genfitDict.cxx) 
 
 #########
-set(GENFIT_HEADERS  FitParams.h AbsRecoHit.h AbsTrackRep.h LSLTrackRep.h Track.h TrackCand.h VirtSpacePointRecoHit.h test/GenfitTester.h WirepointHitPolicy.h)
+set(GENFIT_HEADERS  FailedHits.h FitParams.h AbsRecoHit.h AbsTrackRep.h LSLTrackRep.h Track.h TrackCand.h VirtSpacePointRecoHit.h test/GenfitTester.h WirepointHitPolicy.h)
 #########
 
 ROOT_GENERATE_DICTIONARY("${GENFIT_HEADERS}" "${GENFIT_LINKDEF}" "${GENFIT_DICTIONARY}" "${INCLUDE_DIRECTORIES}")

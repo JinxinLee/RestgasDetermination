@@ -4,19 +4,19 @@
   TStopwatch timer;
   timer.Start();
   gDebug=0;
-  // Load basic libraries
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-  basiclibs();
-  // Load this example libraries
-  gSystem->Load("libGeoBase");
-  gSystem->Load("libParBase");
-  gSystem->Load("libBase");
-  gSystem->Load("libPndData");
-  gSystem->Load("libField");
-  gSystem->Load("libPassive");
-  gSystem->Load("libGen");
-  gSystem->Load("libtpc");
-  //  gSystem->Load("libPGen");
+ //  // Load basic libraries
+//   gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
+//   basiclibs();
+//   // Load this example libraries
+//   gSystem->Load("libGeoBase");
+//   gSystem->Load("libParBase");
+//   gSystem->Load("libBase");
+//   gSystem->Load("libPndData");
+//   gSystem->Load("libField");
+//   gSystem->Load("libPassive");
+//   gSystem->Load("libGen");
+//   gSystem->Load("libtpc");
+//   //  gSystem->Load("libPGen");
 
 
   Int_t nEvents = 1;
@@ -26,7 +26,7 @@
   // set the MC version used
   // ------------------------
 
-  fRun->SetName("TGeant4");
+  fRun->SetName("TGeant3");
   // Choose the Geant Navigation System
   // fRun->SetGeoModel("G3Native");
   
