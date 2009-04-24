@@ -1,0 +1,15 @@
+NICE            0
+TIMEOUTS        3600 120
+MINDISKSPACE    200
+MAXRUNTHREADS   4
+MAXLOAD		17
+SCRATCH         /scratch/johan
+MOVECMD         $HOME/bin/movefiles
+#
+RUNID 0
+JOB 100 /home/panda/pandaroot/trunk/PndTools/mpiTools/scripts/fittest.sh NULL /daq/panda/johan/fittest 7 10000 200 8 50 500 kTRUE LQN
+
+BARRIER
+RUNID 10000
+JOB 1 $HOME/scripts/addhisto.sh /daq/panda/johan/fittest /daq/panda/johan 2 output_stat=200_p2b=8_pres=50_width=500.root sum_stat=200_p2b=8_pres=50_width=500.root
+
