@@ -60,6 +60,7 @@
 #pragma link C++ class  PndMvdStrip+;
 
 #pragma link C++ class PndTrackCand+;
+#pragma link C++ class PndTrack+;
 #pragma link C++ class PndTrackCandHit+;
 
 
