@@ -33,7 +33,7 @@
 
 
 #include "PndMvdRecoHit.h"
-#include "PndLheTpcPlanarRecoHit.h"
+#include "PndTpcSPHit.h"
 #include "PndSttRecoHit.h"
 #include "PndTpcLheTrack.h"
 #include "PndDetectorList.h"
@@ -120,7 +120,7 @@ PndLheKalmanTask::Init()
     }
   else
     {
-      fTheRecoHitFactory->addProducer(kTpcCluster,new RecoHitProducer<PndTpcCluster,PndLheTpcPlanarRecoHit>(ar));
+      fTheRecoHitFactory->addProducer(kTpcCluster,new RecoHitProducer<PndTpcCluster,PndTpcSPHit>(ar));
     }
   
   TClonesArray* sttr=(TClonesArray*) ioman->GetObject("SttHelixHit");
