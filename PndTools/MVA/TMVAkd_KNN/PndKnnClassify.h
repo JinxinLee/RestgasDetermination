@@ -55,12 +55,15 @@ class PndKnnClassify{
   inline void SetEvtParam(const float scFact, const double weight)
   {m_ScaleFact = scFact; m_weight = weight; };
   
+  /**
+   * Initialize the KNN classifier.
+   */
+  void InitKNN();
   
   /// DEBUG
   void print(){m_module->Print();}
   /// DEBUG
   // Protected functions and variables
-
  protected:
   /**
    * Euclidean distance between two given vectors of event features.
@@ -70,11 +73,6 @@ class PndKnnClassify{
   
   // Private functions and variables
  private:
-  /**
-   * Initialize the KNN classifier.
-   */
-  void Init();
-  
   TFile* m_InPutF;
   float m_ScaleFact;//!< Scalefactor Default =  0.8
   double m_weight;//!< Event weight

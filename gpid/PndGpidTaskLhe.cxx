@@ -175,6 +175,7 @@ void PndGpidTaskLhe::BookingMVA()
     switch (fMVAmode){
     case MulClsKNN:// Multi class KNN. In PndTools.
       m_knn = new PndKnnClassify(M_InFileName, fClassNameArray, fVarNameArray);
+      m_knn->InitKNN();
       std::cout << "<INFO KNN> This implementation needs to be tested." 
 		<< std::endl;
       break;
@@ -327,7 +328,7 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
 	  // Copy the results into fTrack
 	  for( std::map<std::string,float>::iterator ii=res.begin(); 
                ii != res.end(); ++ii){
-            fTrack->SetClsVal((*ii).first,(*ii).second);
+            fTrack->SetClsVal((*ii).first, (*ii).second);
           }
 	  break;
 
@@ -337,7 +338,7 @@ void PndGpidTaskLhe::Exec(Option_t* opt)
 	  // Copy the results into fTrack
 	  for( std::map<std::string,float>::iterator ii=res.begin(); 
                ii != res.end(); ++ii){
-            fTrack->SetClsVal((*ii).first,(*ii).second);
+            fTrack->SetClsVal((*ii).first, (*ii).second);
           }
 	  break;
 	  
