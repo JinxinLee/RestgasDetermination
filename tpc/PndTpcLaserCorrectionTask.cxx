@@ -17,7 +17,7 @@
 // Panda Headers ----------------------
 
 // This Class' Header ------------------
-#include "PndTpcClusterizerTask.h"
+#include "PndTpcLaserCorrectionTask.h"
 
 // C/C++ Headers ----------------------
 
