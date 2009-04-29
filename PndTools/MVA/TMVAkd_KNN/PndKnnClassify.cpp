@@ -26,6 +26,7 @@ PndKnnClassify::PndKnnClassify(const char *InputPutFile,
   
   // Set the deafult value for scale factor
   m_ScaleFact = 0.8;
+  //InitKNN();
 }
 
 PndKnnClassify::~PndKnnClassify()
@@ -47,7 +48,7 @@ PndKnnClassify::~PndKnnClassify()
 
 void PndKnnClassify::InitKNN()
 {
-  std::cout << "<INFO> Initializing Multi class KNN." << std::endl;
+  std::cout << "Call to Init()" << std::endl;
   // Fetch the class trees and read the event data.
   for(unsigned int cls = 0; cls < m_ClassNames.size(); cls++){
     // Get tree
@@ -99,8 +100,9 @@ void PndKnnClassify::InitKNN()
     "");
   */
   // Close the open file.
-  m_InPutF->Close();
+  // m_InPutF->Close();
   //std::cout << "length is " << m_perClassExamples.size() << std::endl;
+  std::cout << "END OT Call to Init()" << std::endl;
 }
 
 /**
