@@ -28,15 +28,22 @@
 #include "McIdCollection.h"
 #include "TMatrixD.h"
 #include "PndTpcDigiMapper.h"
+#include "PndTpcLaserCorrectionTask.h"
 
 // Collaborating Class Declarations --
 class Track;
 
 class PndTpcCluster : public TObject{
+
+  friend class PndTpcLaserCorrectionTask;  
+
 public:
+
+  
 
   // Constructors/Destructors ---------
   PndTpcCluster();
+  PndTpcCluster(const PndTpcCluster&);
   PndTpcCluster(const TVector3& pos, double amp, 
 			 unsigned int index, unsigned int size=1);
   PndTpcCluster(const TVector3& pos, const TVector3& sig, double amp, 
