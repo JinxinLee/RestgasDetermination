@@ -28,7 +28,8 @@ void printResult(std::map<std::string,float>& res){
  * *********************************************
  */
 
-int main(int argc, char** argv)
+//int main(int argc, char** argv)
+int main()
 {
   TRandom3 myran(129);
   std::vector<std::string> clas;

@@ -26,10 +26,10 @@
  * Class to hold the computed Euclidean distances between the current
  * example and the available LVQ protoTypes (codeBook) in LVQ2.1
  * implementation.
-*/
+ */
 class PndLVQDistObj{
  public:
-
+  
   //! Constructor
  PndLVQDistObj():m_idx(-1),m_dist(0.0),m_cls("UNKNOWN"){};
   
@@ -47,7 +47,6 @@ class PndLVQDistObj{
   float m_dist;/**< Distance to the current example. */
   std::string m_cls;/**< Class name of the prototype. */
 };
-
 
 class PndLVQTrain{
  public:
@@ -82,7 +81,7 @@ class PndLVQTrain{
    * @param OutPut: Out-put file, where the weights are stored in.
    */
   void Train21(int numProto, const char* OutPut);
-
+  
   /**
    * Sets the learning parameters.
    * @param initConst: Initialization constant, 
@@ -95,8 +94,8 @@ class PndLVQTrain{
                          const double etF, const int Nswp)
   { m_initConst = initConst; m_ethaZero = etZ; 
     m_ethaFinal = etF; m_NumSweep = Nswp;};
- 
-  //=========== Protected functions and variables ============
+  
+  // =========== Protected functions and variables ============
  protected:
   /**
    * Computes the Euclidean distance between two given vectors of
@@ -111,13 +110,14 @@ class PndLVQTrain{
   void UpdateProto( std::vector<float> &EvtData, std::vector<float> &proto, 
 		    int delta, double ethaT);
 
+  // ============= Private functions and variables ===========
+ private:
+
   /**
    * Initialize LVQ prototypes (Code books).
    */
   void InitProtoTypes(int numProto);
-
-  //============= Private functions and variables ===========
- private:
+  
   // Clean prototype container.
   void cleanProtoList();
   
@@ -130,12 +130,43 @@ class PndLVQTrain{
    * Class conditional mean for a given class. Stored in class
    * conditional means container.
    */
-  void CompClsCondMean(std::string clsName);
+  void CompClsCondMean(const std::string clsName);
 
   /**
    * Write the prototypes to the out-put file 
    */
-  void WriteToFile(const char* outFile);
+  void WriteToProtoFile(const char* outFile);
+
+  /**
+   * TO BE REMOVED
+   * Write the normalized DataSet to the out-put file.
+   * @param  outFile  File name to write to
+   */
+  void WriteDataToFile(const char* outFile);
+
+  /**
+   * Computes Variance (unbiased estimator) for each parameter in the
+   * feature list.
+   * @param clsName The name of the class of events for with we want
+   * to compute Var(X).
+   */
+  void ComputeSigma(const std::string clsName);
+  
+  /**
+   * Determines the median for parameters of the loaded DataSet.
+   */
+  void DetermineMediaan();
+
+  /**
+   * Normalize the loaded DataSet using the computed Var(X).
+   */
+  void NormalizeWithVariance();
+
+  /**
+   * Normalize the loaded DataSet using Median and inter-quartile
+   * distance.
+   */
+  void NormalizeWithMedian();
 
   //! Class names
   std::vector<std::string> m_ClassNames;
@@ -144,7 +175,13 @@ class PndLVQTrain{
   std::vector<std::string> m_VarNames; 
   
   //! Container to keep  the Class Conditional means
-  std::vector<std::pair< std::string, std::vector<float>*> > m_ClassCondMeans;
+  std::map< std::string, std::vector<float>* > m_ClassCondMeans;
+
+  //! Container to keep  the per class variances
+  std::map<std::string, std::vector<float>*> m_ClassVarian;
+  
+  //! Container to keep the medians and quartil dists
+  std::vector< std::pair< std::string, std::pair< std::vector<float>*, std::vector<float>* > > > m_ClsMedianQrtlDis;
   
   //! Container to keep  the Event data feature vectors
   std::vector< std::pair<std::string, std::vector<float>*> > m_EventsData;
@@ -165,5 +202,7 @@ class PndLVQTrain{
   double m_initConst, m_ethaZero, m_ethaFinal;
   //! Number of sweeps through example set.
   int m_NumSweep;
+
+  float m_clsMedian, m_qrtDist;
 };
 #endif //end of interface definition
