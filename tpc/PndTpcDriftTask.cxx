@@ -108,7 +108,6 @@ PndTpcDriftTask::Init()
 			    200,-0.7,0.7,200,0,100);
   }
   
- //TODO: get form GEOM!
   _zGem=_par->getZGem();
   _gas=_par->getGas();
   _diffuseL=_par->getDiffuseL();
@@ -118,13 +117,12 @@ PndTpcDriftTask::Init()
 //Instantiate deviation map
   if(_distort){
     _devmap = new PndTpcDevmapCyl(_devFile,_gas->VDrift());
-    if(!_devmap->loaded()){
-      Error("PndTpcDriftTask::Init","Deviation Map not loaded! Switching off distortions.");
-      _distort=false;
+    if(!_devmap->loaded()) {
+      Fatal("PndTpcDriftTask::Init","Deviation Map not loaded! Aborting...");
+      return kERROR;
     }
   }
-  else _devmap=NULL;
-
+  
   _initialized=true;
   return kSUCCESS;
 }

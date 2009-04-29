@@ -56,6 +56,7 @@
 #pragma link C++ class PndTpcTestChamberOutputTask+;
 #pragma link C++ class BiCubSpline+;
 #pragma link C++ class BSpline+;
+#pragma link C++ class PndTpcLaserCorrectionTask;
 
 
 #endif

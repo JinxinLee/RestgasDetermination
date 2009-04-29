@@ -492,33 +492,33 @@ PndTpcLaserFitTask::Exec(Option_t* opt)
   _recoMapPerp->setCoeffsByArray(par_recoMapPerp);
 
   
-  TPolyMarker3D* poly_devMapR = new TPolyMarker3D(_devMapR_data.size());
-  TPolyMarker3D* poly_devMapPerp = new TPolyMarker3D(_devMapPerp_data.size());
-  TPolyMarker3D* poly_recoMapR = new TPolyMarker3D(_recoMapR_data.size());
-  TPolyMarker3D* poly_recoMapPerp = new TPolyMarker3D(_recoMapPerp_data.size());
-
-  for(int i=0; i<_devMapR_data.size(); ++i) {
-    std::vector<double>* temp = _devMapR_data[i];
-    poly_devMapR->SetNextPoint(temp->at(0), temp->at(1), temp->at(2));
-  }
-
-  for(int i=0; i<_devMapPerp_data.size(); ++i) {
-    std::vector<double>* temp = _devMapPerp_data[i];
-    poly_devMapPerp->SetNextPoint(temp->at(0), temp->at(1), temp->at(2));
-  }
-  
-  for(int i=0; i<_recoMapR_data.size(); ++i) {
-    std::vector<double>* temp = _recoMapR_data[i];
-    poly_recoMapR->SetNextPoint(temp->at(0), temp->at(1), temp->at(2));
-  }
-  
-  for(int i=0; i<_recoMapPerp_data.size(); ++i) {
-    std::vector<double>* temp = _recoMapPerp_data[i];
-    poly_recoMapPerp->SetNextPoint(temp->at(0), temp->at(1), temp->at(2));
-  }
-  
   if(_plot) {    
     std::cout<<"\nPndTpcLaserFitTask::Exec(): creating plots .........."<<std::endl;
+
+    TPolyMarker3D* poly_devMapR = new TPolyMarker3D(_devMapR_data.size());
+    TPolyMarker3D* poly_devMapPerp = new TPolyMarker3D(_devMapPerp_data.size());
+    TPolyMarker3D* poly_recoMapR = new TPolyMarker3D(_recoMapR_data.size());
+    TPolyMarker3D* poly_recoMapPerp = new TPolyMarker3D(_recoMapPerp_data.size());
+  
+    for(int i=0; i<_devMapR_data.size(); ++i) {
+      std::vector<double>* temp = _devMapR_data[i];
+      poly_devMapR->SetNextPoint(temp->at(0), temp->at(1), temp->at(2));
+    }
+    
+    for(int i=0; i<_devMapPerp_data.size(); ++i) {
+      std::vector<double>* temp = _devMapPerp_data[i];
+      poly_devMapPerp->SetNextPoint(temp->at(0), temp->at(1), temp->at(2));
+    }
+    
+    for(int i=0; i<_recoMapR_data.size(); ++i) {
+      std::vector<double>* temp = _recoMapR_data[i];
+      poly_recoMapR->SetNextPoint(temp->at(0), temp->at(1), temp->at(2));
+    }
+    
+    for(int i=0; i<_recoMapPerp_data.size(); ++i) {
+      std::vector<double>* temp = _recoMapPerp_data[i];
+      poly_recoMapPerp->SetNextPoint(temp->at(0), temp->at(1), temp->at(2));
+    }
     
     TCanvas* canv = new TCanvas();
     canv->Divide(2,2);
@@ -553,19 +553,12 @@ PndTpcLaserFitTask::Exec(Option_t* opt)
   splineList.push_back(_recoMapR);
   splineList.push_back(_recoMapPerp);
 
-  std::vector<TPolyMarker3D*> markerList;
-  markerList.push_back(poly_devMapR);
-  markerList.push_back(poly_devMapPerp);
-  markerList.push_back(poly_recoMapR);
-  markerList.push_back(poly_recoMapPerp);
+  std::vector<std::vector<std::vector<double>*>*> datalist;
+  datalist.push_back(&_devMapR_data);
+  datalist.push_back(&_devMapPerp_data);
+  datalist.push_back(&_recoMapR_data);
+  datalist.push_back(&_recoMapPerp_data);
   
-  /*  
-    std::vector<TF2*> tf2List;
-    tf2List.push_back(devMapR_TF2); 
-    tf2List.push_back(devMapPerp_TF2); 
-    tf2List.push_back(recoMapR_TF2); 
-    tf2List.push_back(recoMapPerp_TF2); 
-  */
 
   std::cout<<"\nPndTpcLaserFitTask::Exec(): booking fit result container ..."
 	   <<std::endl;
@@ -573,7 +566,7 @@ PndTpcLaserFitTask::Exec(Option_t* opt)
   //write fitStat container
   unsigned int sizeS = _fitStatArray->GetEntriesFast();
   //LaserFitTask gives away BiCubSpline ownerships
-  new((*_fitStatArray)[sizeS]) PndTpcLaserFitTaskStat(splineList);
+  new((*_fitStatArray)[sizeS]) PndTpcLaserFitTaskStat(splineList, datalist);
 
 }
 

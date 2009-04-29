@@ -83,12 +83,12 @@ private:
 
  //fitting parameters
  double _maxDist;                 //max allowed distance at the ENDPLATE (z=109.5)
- double _openingAngle;            //not implemented
+ double _openingAngle;            //not implemented yet
  double _rMin;                   
  double _rMax;                   
  double _zMin;                   
- double _zMax;                   
- unsigned int _NknotsZ;         
+ double _zMax;                    
+ unsigned int _NknotsZ;           
  unsigned int _NknotsR;          
  unsigned int _NlamdaZ;          
  unsigned int _NlamdaR;           

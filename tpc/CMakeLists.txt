@@ -127,6 +127,7 @@ PndTpcDEDXFits.cxx
 PndTpcHitMerger.cxx
 PndTpcDEDXStorageHelper.cxx
 PndTpcTestChamberOutputTask.cxx 	    
+PndTpcLaserCorrectionTask.cxx					    
 )
 
 SET(TPC_SRCS ${TPC_SRCS_RULECHECKER} PndTpcAbsField.cxx PndTpcFieldCylGrid.cxx 		    

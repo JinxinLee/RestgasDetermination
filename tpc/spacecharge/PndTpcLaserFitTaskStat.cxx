@@ -15,8 +15,6 @@
 
 #include "PndTpcLaserFitTaskStat.h"
 
-#include "SplineTF2Interface.h"
-
 #include "assert.h"
 #include <string>
 #include <sstream>
@@ -27,63 +25,99 @@
 ClassImp(PndTpcLaserFitTaskStat)
 
 PndTpcLaserFitTaskStat::PndTpcLaserFitTaskStat() 
-{;}
+{
+  _poly_devMapR = NULL;
+  _poly_devMapPerp = NULL;
+  _poly_recoMapR = NULL;
+  _poly_recoMapPerp = NULL;
+}
   
-PndTpcLaserFitTaskStat::PndTpcLaserFitTaskStat(const std::vector<BiCubSpline*> sList)
+PndTpcLaserFitTaskStat::PndTpcLaserFitTaskStat(const std::vector<BiCubSpline*> & sList,
+					       const std::vector<std::vector<std::vector<double>*>*> & dList)
 {
   assert(sList.size()==4);
+  assert(dList.size()==4);
   _splineList = sList;
-  //_markerList = mList;
   _devMapR = *sList[0];        
   _devMapPerp = *sList[1];
   _recoMapR = *sList[2];       
   _recoMapPerp = *sList[3];
-  //_devMapR_poly = mList[0];        
-  //_devMapPerp_poly = mList[1];
-  //_recoMapR_poly = mList[2];       
-  //_recoMapPerp_poly = mList[3];
+  _devMapR_data = *dList[0];
+  _devMapPerp_data = *dList[1];
+  _recoMapR_data = *dList[2];
+  _recoMapPerp_data = *dList[3];
+  _poly_devMapR = NULL;
+  _poly_devMapPerp = NULL;
+  _poly_recoMapR = NULL;
+  _poly_recoMapPerp = NULL;
 }
 
 
-//TODO: 
 PndTpcLaserFitTaskStat::~PndTpcLaserFitTaskStat()
-{;}
-
-/*
-void
-PndTpcLaserFitTaskStat::setGeometry(double zmin, double zmax, double rmin, double rmax) {
-  _rMin=rmin;                           
-  _rMax=rmax;                           
-  _zMin=zmin;                           
-  _zMax=zmax;
-  _geoInit=true;
-
-  std::vector<TF2*> temp;
+{
+  if(_poly_devMapR!=NULL)
+    delete _poly_devMapR;
+  if(_poly_devMapPerp!=NULL)
+    delete _poly_devMapPerp;
+  if(_poly_recoMapR!=NULL)
+    delete _poly_recoMapR;
+  if(_poly_recoMapPerp!=NULL)
+    delete _poly_recoMapPerp;  
   
-  // now we can build the TF2 interface...
-  for(int i=0; i<4; i++) {
-    std::vector<double>* knotsZ = (_splineList[i]).getKx();
-    std::vector<double>* knotsR = (_splineList[i]).getKy();
-    double lamdaZ = knotsZ->size();
-    double lamdaR = knotsR->size();
-    _ifcList.push_back(new SplineTF2Interface(&(_splineList[i])));
-    (_ifcList[i])->setReadOnly(true);
-    std::string fname = "f";
-    std::stringstream ss;
-    ss<<i;
-    fname.append(ss.string());
-    temp.push_back(new TF2(fname.c_str(),_ifcList[i],&SplineTF2Interface::eval,_zMin,_zMax,
-			   _rMin,_rMax,(lamdaZ-4)*(lamdaR-4),"Function", "eval"));
-    (temp[i])->SetNpx(50);
-    (temp[i])->SetNpy(50);
-  }
-  
-  _devMapR_TF2 = *(temp[0]);
-  _devMapPerp_TF2 = *(temp[1]); 
-  _recoMapR_TF2 = *(temp[2]); 
-  _recoMapPerp_TF2 = *(temp[3]);
-    
 }
-*/ 
+
+
+const TPolyMarker3D* const 
+PndTpcLaserFitTaskStat::getDevMapR_Poly() {
+  if(_poly_devMapR!=NULL) {
+    delete _poly_devMapR;
+  }
+  std::cout<<"creating new TPolyMarker3D"<<std::endl;
+  _poly_devMapR = new TPolyMarker3D(_devMapR_data.size());
+  for(unsigned int i=0; i<_devMapR_data.size(); ++i) {
+    std::vector<double>* temp = _devMapR_data[i];
+    _poly_devMapR->SetNextPoint(temp->at(0), temp->at(1), temp->at(2));
+  }
+  return _poly_devMapR;
+}
+  
+
+const TPolyMarker3D* const  
+PndTpcLaserFitTaskStat::getDevMapPerp_Poly() {
+  if(_poly_devMapPerp!=NULL)
+    delete _poly_devMapPerp;
+  _poly_devMapPerp = new TPolyMarker3D(_devMapPerp_data.size());
+  for(unsigned int i=0; i<_devMapPerp_data.size(); ++i) {
+      std::vector<double>* temp = _devMapPerp_data[i];
+      _poly_devMapPerp->SetNextPoint(temp->at(0), temp->at(1), temp->at(2));
+  }
+  return _poly_devMapPerp;
+}
+
+const TPolyMarker3D* const  
+PndTpcLaserFitTaskStat::getRecoMapR_Poly() {
+  if(_poly_recoMapR!=NULL)
+    delete _poly_recoMapR;
+  _poly_recoMapR = new TPolyMarker3D(_recoMapR_data.size());
+  for(unsigned int i=0; i<_recoMapR_data.size(); ++i) {
+      std::vector<double>* temp = _recoMapR_data[i];
+      _poly_recoMapR->SetNextPoint(temp->at(0), temp->at(1), temp->at(2));
+  }
+  return _poly_recoMapR;
+}
+
+const TPolyMarker3D* const 
+PndTpcLaserFitTaskStat::getRecoMapPerp_Poly() {
+  if(_poly_recoMapPerp!=NULL)
+    delete _poly_recoMapPerp;
+  _poly_recoMapPerp = new TPolyMarker3D(_recoMapPerp_data.size());
+  for(unsigned int i=0; i<_recoMapPerp_data.size(); ++i) {
+      std::vector<double>* temp = _recoMapPerp_data[i];
+      _poly_recoMapPerp->SetNextPoint(temp->at(0), temp->at(1), temp->at(2));
+  }
+  return _poly_recoMapPerp;
+}
+  
+
 
 ClassImp(PndTpcLaserFitTaskStat)

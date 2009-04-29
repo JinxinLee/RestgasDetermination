@@ -22,29 +22,33 @@
 #include "TPolyMarker3D.h"
 #include "TF2.h"
 #include "TObject.h"
+#include <vector>
 
 
 class PndTpcLaserFitTaskStat : public TObject {
-
+  
  public:
-
-// Constructors ---------------------------------------------
-
+  
+  // Constructors ---------------------------------------------
+  
   PndTpcLaserFitTaskStat();
-  PndTpcLaserFitTaskStat(const std::vector<BiCubSpline*>);
-			 
+  PndTpcLaserFitTaskStat(const std::vector<BiCubSpline*>& spline_list, 
+			 const std::vector<std::vector<std::vector<double>*>*>& data_list );
   
   virtual ~PndTpcLaserFitTaskStat();
 
 
 // Acessors -------------------------------------------------
 
-  std::vector<BiCubSpline*> getSplineList() const {return _splineList;}
-    
-  BiCubSpline* getDevMapR_Spline() {return &_devMapR;}
+  BiCubSpline* getDevMapR_Spline()  {return &_devMapR;}
   BiCubSpline* getDevMapPerp_Spline() {return &_devMapPerp;}
   BiCubSpline* getRecoMapR_Spline() {return &_recoMapR;}
   BiCubSpline* getRecoMapPerp_Spline() {return  &_recoMapPerp;}
+
+  const TPolyMarker3D* const getDevMapR_Poly();
+  const TPolyMarker3D* const getDevMapPerp_Poly();
+  const TPolyMarker3D* const getRecoMapR_Poly();
+  const TPolyMarker3D* const getRecoMapPerp_Poly();
 
 
  private:
@@ -57,12 +61,22 @@ class PndTpcLaserFitTaskStat : public TObject {
     BiCubSpline _devMapPerp;
     BiCubSpline _recoMapR;        // maps in MEASURED coordinates
     BiCubSpline _recoMapPerp;
-  
-  std::vector<BiCubSpline*> _splineList;      
+
+    std::vector<std::vector<double>*> _devMapR_data;
+    std::vector<std::vector<double>*> _devMapPerp_data;
+    std::vector<std::vector<double>*> _recoMapR_data;
+    std::vector<std::vector<double>*> _recoMapPerp_data;
+
+    TPolyMarker3D* _poly_devMapR;       //!
+    TPolyMarker3D* _poly_devMapPerp;    //!
+    TPolyMarker3D* _poly_recoMapR;      //!
+    TPolyMarker3D* _poly_recoMapPerp;   //!
+          
+    std::vector<BiCubSpline*> _splineList; //!     
   
     
  public:
-  ClassDef(PndTpcLaserFitTaskStat,1)
+    ClassDef(PndTpcLaserFitTaskStat,1)
 
 };
 
