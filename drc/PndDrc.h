@@ -150,6 +150,10 @@ class PndDrc : public FairDetector
   Int_t volDetector;    //!  MC volume ID of drc
   Double_t fMass;
 
+  Double_t fSlabEnd;   //!< Slab end defined in Construction and used in ProcessHits
+  
+
+
   Int_t fPdgCode;
   Double_t fThetaC;
 
