@@ -302,7 +302,8 @@ void PndMvdEventAnaTask::Exec(Option_t* opt)
 			for (Int_t j = 0; j < myCand->getNHits(); j++){
 				unsigned int detId, hitId;
 				myCand->getHit(j, detId, hitId);
-				myRiemannTrack.addHit(&PndRiemannHit(GetFairHit(detId, hitId)));
+				PndRiemannHit hit(GetFairHit(detId, hitId));
+				myRiemannTrack.addHit(hit);
 			}
 
 			myRiemannTrack.refit();
