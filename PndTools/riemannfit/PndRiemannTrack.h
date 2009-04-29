@@ -40,7 +40,7 @@ public:
   // Constructors/Destructors ---------
   PndRiemannTrack();
   //PndRiemannTrack(const PndRiemannTrack& rtrack);
-  ~PndRiemannTrack(){};
+  ~PndRiemannTrack();
 
 
   // Accessors -----------------------
@@ -76,7 +76,7 @@ public:
   double tError() const {return ftError;}
 
   // Modifiers -----------------------
-  void addHit(PndRiemannHit* hit);
+  void addHit(PndRiemannHit& hit);
   void init(double x0, double y0, double R,
 	    double dip, double z0);
 

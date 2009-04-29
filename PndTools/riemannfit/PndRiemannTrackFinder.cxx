@@ -79,7 +79,7 @@ void PndRiemannTrackFinder::FindTracks()
 
 			StartTrack.push_back(testHit);
 
-			actTrack.addHit(&actHit);
+			actTrack.addHit(actHit);
 			actTrack.refit();
 			actTrack.szFit();
 
@@ -96,7 +96,7 @@ void PndRiemannTrackFinder::FindTracks()
 				if (CheckRiemannHit(&actTrack, &actHit)!= true) continue;
 				StartTrack.push_back(hits[ind]);
 
-				actTrack.addHit(&actHit);
+				actTrack.addHit(actHit);
 				actTrack.refit();
 				actTrack.szFit();
 			}
@@ -191,9 +191,9 @@ std::vector< std::vector<Int_t> > PndRiemannTrackFinder::GetStartTracks()
 						PndRiemannHit hit1(fHits[first]);
 						PndRiemannHit hit2(fHits[second]);
 						PndRiemannHit hit3(fHits[third]);
-						actTrack.addHit(&hit1);
-						actTrack.addHit(&hit2);
-						actTrack.addHit(&hit3);
+						actTrack.addHit(hit1);
+						actTrack.addHit(hit2);
+						actTrack.addHit(hit3);
 						actTrack.refit();
 						if (CheckSZ(actTrack)!= true) continue;
 						TVectorT<double> orig = actTrack.orig();
@@ -263,7 +263,8 @@ PndRiemannTrack PndRiemannTrackFinder::CreateRiemannTrack(std::vector<Int_t> aHi
 	PndRiemannTrack result;
 	for (int i = 0; i < aHits.size(); i++)
 	{
-		result.addHit(new PndRiemannHit(fHits[aHits[i]]));
+		PndRiemannHit hit(fHits[aHits[i]]);
+		result.addHit(hit);
 	}
 	result.refit();
 	result.szFit();
@@ -515,7 +516,8 @@ void PndRiemannTrackFinder::RefitTrackCand(TrackCand& cand)
 	for (int i = 0; i < cand.getNHits(); i++){
 		cand.getHit(i, detId, hitId);
 		FairHit* myHit = fHits[fMapIDtoHit[std::pair<unsigned int, unsigned int>(detId, hitId)]];
-		myTrack.addHit(new PndRiemannHit(myHit));
+		PndRiemannHit hit(myHit);
+		myTrack.addHit(hit);
 	}
 	myTrack.refit();
 	myTrack.szFit();

@@ -234,8 +234,10 @@ PndRiemannTrack PndMvdTpcRiemannCorrelatorTask::GetRiemannTrack(TrackCand* cand)
 		else if (detId == 0){
 			myHit = (FairHit*)fHitArrayMVDStrip->At(hitId);
 		}
-		if (myHit != 0)
-			result.addHit(new PndRiemannHit(myHit));
+		if (myHit != 0){
+			PndRiemannHit hit(myHit);
+			result.addHit(hit);
+		}
 	}
 	result.refit();
 	result.szFit();

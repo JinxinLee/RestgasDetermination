@@ -53,6 +53,9 @@ PndRiemannTrack::PndRiemannTrack() :
 	fVerbose(0), fFitDone(false), fSZFitDone(false), fweight(0)
 {}
 
+PndRiemannTrack::~PndRiemannTrack()
+{
+}
 /*PndRiemannTrack::PndRiemannTrack(const PndRiemannTrack& rtrack)
 {
 	fn = rtrack.n();
@@ -106,16 +109,16 @@ PndRiemannTrack::init(double x0_, double y0_, double R_,
 
 
 void
-PndRiemannTrack::addHit(PndRiemannHit* hit){
+PndRiemannTrack::addHit(PndRiemannHit& hit){
   int nbefore=fHits.size();
-  fHits.push_back(*hit);
-  if (fVerbose > -1) std::cout << "-I- PndRiemannTrack::addHit " << fHits.size() -1 << ": " << hit->x().X() << " " << hit->x().Y() << std::endl;
+  fHits.push_back(hit);
+  if (fVerbose > -1) std::cout << "-I- PndRiemannTrack::addHit " << fHits.size() -1 << ": " << hit.x().X() << " " << hit.x().Y() << std::endl;
   //fav*=(double)nbefore;
-  fav[0]+=hit->x().X() /(hit->sigmaXY()*hit->sigmaXY());
-  fav[1]+=hit->x().Y() /(hit->sigmaXY()*hit->sigmaXY());;
-  fav[2]+=hit->x().Z() /(hit->sigmaXY()*hit->sigmaXY());;
+  fav[0]+=hit.x().X() /(hit.sigmaXY()*hit.sigmaXY());
+  fav[1]+=hit.x().Y() /(hit.sigmaXY()*hit.sigmaXY());;
+  fav[2]+=hit.x().Z() /(hit.sigmaXY()*hit.sigmaXY());;
   //fav*=1./(double)(nbefore+1);
-  fweight += 1/(hit->sigmaXY()*hit->sigmaXY());
+  fweight += 1/(hit.sigmaXY()*hit.sigmaXY());
   fFitDone = false;
   fSZFitDone = false;
 }
