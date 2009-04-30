@@ -95,7 +95,7 @@ PndLVQTrain::PndLVQTrain(const char* InPut,
   // Compute Var(X)
   for(unsigned int cl = 0; cl < m_ClassNames.size(); cl++){
     std::string ClName = m_ClassNames[cl];
-    ComputeSigma(ClName);
+    ComputeVariance(ClName);
   }
 
   // ====== Normalize the loaded dataSet
@@ -158,7 +158,7 @@ PndLVQTrain::~PndLVQTrain()
  *  weights.
  * @param OutPut: Out-put file, where the weights are stored.
  */
-void PndLVQTrain::Train(int numProto, const char* outPut)
+void PndLVQTrain::Train(const int numProto, const char* outPut)
 {
   TRandom3 trand(435775);
   
@@ -252,7 +252,7 @@ void PndLVQTrain::Train(int numProto, const char* outPut)
  * class with equal weights.
  * @param OutPut: Out-put file, where the weights are stored.
  */
-void PndLVQTrain::Train21(int numProto, const char* outPut)
+void PndLVQTrain::Train21(const int numProto, const char* outPut)
 {
   TRandom3 trand(435573);
   
@@ -395,7 +395,7 @@ void PndLVQTrain::Train21(int numProto, const char* outPut)
 /**
  * Initialize LVQ prototypes (Code books).
  */
-void PndLVQTrain::InitProtoTypes(int numProto)
+void PndLVQTrain::InitProtoTypes(const int numProto)
 {
   cleanProtoList();
   
@@ -458,8 +458,8 @@ void PndLVQTrain::InitProtoTypes(int numProto)
 /**
  * Updates the LVQ1 prototypes 
  */
-void PndLVQTrain::UpdateProto( std::vector<float> &EvtData, std::vector<float> &proto, 
-			       int delta, double ethaT )
+void PndLVQTrain::UpdateProto( const std::vector<float> &EvtData, std::vector<float> &proto, 
+			       const int delta, const double ethaT )
 {
   for(unsigned int i = 0; i < proto.size(); i++)
   {
@@ -523,9 +523,15 @@ void PndLVQTrain::CompClsCondMean(const std::string clsName)
  * @param clsName The name of the class of events for with we want
  * to compute Var(X).
  */
-void PndLVQTrain::ComputeSigma(const std::string clsName)
+void PndLVQTrain::ComputeVariance(const std::string clsName)
 {
-  std::vector <float>* vec = new std::vector <float> (m_VarNames.size(),0.0);
+  if(m_ClassCondMeans.size() == 0)
+  {
+    std::cerr << "<Warning>: Class means are not initialized."
+	      << std::endl;
+    return;// FIXME, we may re-init clas-means.
+  }
+  std::vector <float>* vec = new std::vector <float> (m_VarNames.size(), 0.0);
   for(unsigned int i = 0; i < m_EventsData.size(); i++)
   {
     if( clsName == m_EventsData[i].first )
@@ -563,8 +569,8 @@ void PndLVQTrain::NormalizeWithVariance()
     std::string className = m_EventsData[ev].first;
     // Loop Through parameters
     for(unsigned int i = 0; i < m_VarNames.size(); i++)
-    {
-      (m_EventsData[ev].second)->at(i) = (m_EventsData[ev].second)->at(i) / (m_ClassVarian[className])->at(i);
+      {//FIXME FIXME
+      (m_EventsData[ev].second)->at(i) = (m_EventsData[ev].second)->at(i) / (100.0 * (m_ClassVarian[className])->at(i));
     }
   }
 }
@@ -593,15 +599,23 @@ void PndLVQTrain::WriteToProtoFile(const char* outPut)
   
   for(unsigned int cls = 0; cls < m_ClassNames.size(); cls++)
   {
-    std::vector<float> vars(m_VarNames.size(),0.0);
-    
+    std::vector<float> vars(m_VarNames.size(), 0.0);
+    std::vector<float> Variance(m_VarNames.size(), 0.0);
+
     std::string name = m_ClassNames[cls];
+    std::string Variance_name = m_ClassNames[cls] + "Var";
+
     std::string desc = "Description Of " + name;
     const char* treeName = name.c_str();
+    const char* Variance_treeName = Variance_name.c_str();
+
     const char* treeDesc = desc.c_str();
-    
+    desc += "Var";
+    const char* Var_Desc = desc.c_str();
+
     // Create a tree
     TTree sig (treeName, treeDesc);
+    TTree PropTree (Variance_treeName, Var_Desc);
     
     // Create branches and bind the variables
     for(unsigned int j = 0; j < m_VarNames.size(); j++)
@@ -610,10 +624,12 @@ void PndLVQTrain::WriteToProtoFile(const char* outPut)
       std::string leaf  = vname + "/F" ;
       const char* bname = vname.c_str();
       const char* lname = leaf.c_str();
+
       // Bind the parameters to the tree elements.
-      sig.Branch(bname,&vars[j],lname);
+      sig.Branch(bname, &vars[j], lname);
+      PropTree.Branch(bname, &Variance[j], lname);
     }
-    // Fill The tree
+    // Fill The prototypes tree
     for(unsigned int i = 0; i< m_LVQProtos.size(); i++)
     {
       if(m_LVQProtos[i].first == name)
@@ -625,8 +641,15 @@ void PndLVQTrain::WriteToProtoFile(const char* outPut)
 	sig.Fill();
       }
     }
+    // Fill the properties tree.
+    for(unsigned int k = 0; k < (m_ClassVarian[name])->size(); k++)
+    {
+      Variance[k] = (m_ClassVarian[name])->at(k);
+    }
+    PropTree.Fill();
     // Write the created tree
     sig.Write();
+    PropTree.Write();
   }
   // We are done. We can close the open file and delete the pointer
   out->Close();

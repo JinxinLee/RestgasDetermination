@@ -31,7 +31,7 @@ class PndLVQDistObj{
  public:
   
   //! Constructor
- PndLVQDistObj():m_idx(-1),m_dist(0.0),m_cls("UNKNOWN"){};
+ PndLVQDistObj():m_idx(-1), m_dist(0.0), m_cls("UNKNOWN"){};
   
   //! Operator < implementation
   inline bool operator < (const PndLVQDistObj &other)const{
@@ -71,7 +71,7 @@ class PndLVQTrain{
    * class with equal weights.
    * @param OutPut: Out-put file, where the weights are stored.
    */
-  void Train(int numProto, const char* OutPut);
+  void Train(const int numProto, const char* OutPut);
   
   /**
    * Train the classifier accourding to LVQ2.1 algorithm.
@@ -80,7 +80,7 @@ class PndLVQTrain{
    * class with equal weights.
    * @param OutPut: Out-put file, where the weights are stored in.
    */
-  void Train21(int numProto, const char* OutPut);
+  void Train21(const int numProto, const char* OutPut);
   
   /**
    * Sets the learning parameters.
@@ -107,8 +107,8 @@ class PndLVQTrain{
   /**
    * Updates the LVQ prototypes.
    */
-  void UpdateProto( std::vector<float> &EvtData, std::vector<float> &proto, 
-		    int delta, double ethaT);
+  void UpdateProto( const std::vector<float> &EvtData, std::vector<float> &proto, 
+		    const int delta, const double ethaT);
 
   // ============= Private functions and variables ===========
  private:
@@ -150,7 +150,7 @@ class PndLVQTrain{
    * @param clsName The name of the class of events for with we want
    * to compute Var(X).
    */
-  void ComputeSigma(const std::string clsName);
+  void ComputeVariance(const std::string clsName);
   
   /**
    * Determines the median for parameters of the loaded DataSet.

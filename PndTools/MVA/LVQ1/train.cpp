@@ -41,8 +41,9 @@ int main(int argc, char** argv)
   nam.push_back("stt");  nam.push_back("mvd");  nam.push_back("thetaC");
   
   PndLVQTrain tr ("../Gpid_files/EventFeaturesTrain.root", clas, nam);
-  tr.SetLearnPrameters(0.3, 0.1, 0.00001, 500);
-
+  //tr.SetLearnPrameters(0.3, 0.1, 0.00001, 1000);
+  tr.SetLearnPrameters(0.3, 0.1, 0.00001, 10);
+  
   tr.Train(numProto,OutFile);
   //tr.Train21(numProto,OutFile);
   return 0;
