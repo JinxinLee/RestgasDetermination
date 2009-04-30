@@ -136,5 +136,10 @@ void PndMvdRiemannTrackFinderTask::Exec(Option_t* opt)
   }
 }
 
+void PndMvdRiemannTrackFinderTask::FinishEvent()
+{
+	fTrackCandArray->Clear();
+}
+
 ClassImp(PndMvdRiemannTrackFinderTask);
 

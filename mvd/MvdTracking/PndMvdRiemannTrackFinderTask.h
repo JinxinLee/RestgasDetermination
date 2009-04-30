@@ -21,6 +21,7 @@ public:
 
     /** Virtual method Exec **/
     virtual void Exec(Option_t* opt);
+    virtual void FinishEvent();
 
 	void SetMaxSZChi2(double val)	{fMaxSZChi2 = val;}
 	void SetMaxSZDist(double val)	{fMaxSZDist = val;}
