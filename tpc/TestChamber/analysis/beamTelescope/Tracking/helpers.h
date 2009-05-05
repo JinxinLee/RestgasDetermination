@@ -15,29 +15,14 @@ class TGraph;
 class TH1D;
 class TH2D;
 class TH1I;
-//class TProfile;
-/*
-  Does a cut on the difference a2-a0, a very crude cut, but nescesary for the silicons to get the multiplicity down.
-  Cuts away all clusters with a2-a0 <= cut
-*/
-void ampDiffCut(const std::list<CsGEMCluster*> &clusterList, std::vector<TCcluster> &tcClusters, double cut, int detID, std::string alignmentFile,int& counter,double umin=-1, double umax=-1);
-/*
-  Does a cut on the ratio a1/a2 and a0/a2, a cut on the bananaplot
-  Cuts away clusters with a1/a2>cut1 and a0/a2>cut0
-*/
-void ampRatioCut(const std::list<CsGEMCluster*> &clusterList, std::vector<TCcluster> &tcClusters, double cutA1A3, double cutA2A3, int detID,std::string alignmentFile, int& counter, double umin =-1, double umax=-1);
-
-void clusterFiller(TCcluster cl, std::vector<TCcluster>& clusters, TH1D* hitPointHist,TH1D* uHist, TH1D* errHist, TGraph* graph, int& counter, bool x);
-
-void dispDraw(TCtrack* track1, TCtrack* track2, TGraph* clFit_x1,TGraph* clFit_y1, TGraph* clFit_x2, TGraph* clFit_y2 ,  TGraph* x_event,TGraph* y_event);
 
 class HistContainer{
  public:
   HistContainer();
   ~HistContainer();
-  void fillRes(TCtrack* track);
+  void fillRes(TCtrack* track,std::string alignmentFile);
   void write(std::string filename="clusterMultipCut.root");
-
+  void ampFiller(int detID, double amp, double noise,double ratioA1A3=0, double ratioA2A3=0);
   TH1I *histogramSI1X;
   TH1I *histogramSI1Y;
   TH1I *histogramSI2X;
@@ -46,6 +31,24 @@ class HistContainer{
   TH1I *histogramGM1Y;
   TH1I *histogramGM2X;
   TH1I *histogramGM2Y;
+
+  TH2D *histogramSI1XampRatio;
+  TH2D *histogramSI1YampRatio;
+  TH2D *histogramSI2XampRatio;
+  TH2D *histogramSI2YampRatio;
+  TH2D *histogramGM1XampRatio;
+  TH2D *histogramGM1YampRatio;
+  TH2D *histogramGM2XampRatio;
+  TH2D *histogramGM2YampRatio;
+
+  TH1D *histogramSI1XclNoise;
+  TH1D *histogramSI1YclNoise;
+  TH1D *histogramSI2XclNoise;
+  TH1D *histogramSI2YclNoise;
+  TH1D *histogramGM1XclNoise;
+  TH1D *histogramGM1YclNoise;
+  TH1D *histogramGM2XclNoise;
+  TH1D *histogramGM2YclNoise;
 
   TH1I *histogramEvent;
   TH1I *histogramStart;
@@ -63,6 +66,15 @@ class HistContainer{
   TH1D *histogramGM1Yhitpoint;
   TH1D *histogramGM2Xhitpoint;
   TH1D *histogramGM2Yhitpoint;
+
+  TH1D *histogramSI1XAmp;
+  TH1D *histogramSI1YAmp;
+  TH1D *histogramSI2XAmp;
+  TH1D *histogramSI2YAmp;
+  TH1D *histogramGM1XAmp;
+  TH1D *histogramGM1YAmp;
+  TH1D *histogramGM2XAmp;
+  TH1D *histogramGM2YAmp;
   
   TH1D *histogramSI1XU;
   TH1D *histogramSI1YU;
@@ -99,7 +111,25 @@ class HistContainer{
   TH1D *histogramGM1YUbBest;
   TH1D *histogramGM2XUbBest;
   TH1D *histogramGM2YUbBest;
-  
+
+  TH1D *histogramSI1XunBiResi;
+  TH1D *histogramSI1YunBiResi;
+  TH1D *histogramSI2XunBiResi;
+  TH1D *histogramSI2YunBiResi;
+  TH1D *histogramGM1XunBiResi;
+  TH1D *histogramGM1YunBiResi;
+  TH1D *histogramGM2XunBiResi;
+  TH1D *histogramGM2YunBiResi;
+
+  TH2D *histogramSI1XunBiResiVu2d;
+  TH2D *histogramSI1YunBiResiVu2d;
+  TH2D *histogramSI2XunBiResiVu2d;
+  TH2D *histogramSI2YunBiResiVu2d;
+  TH2D *histogramGM1XunBiResiVu2d;
+  TH2D *histogramGM1YunBiResiVu2d;
+  TH2D *histogramGM2XunBiResiVu2d;
+  TH2D *histogramGM2YunBiResiVu2d;
+
   TH1D *histogramSI1Xresi;
   TH1D *histogramSI1Yresi;
   TH1D *histogramSI2Xresi;
@@ -157,9 +187,24 @@ class HistContainer{
   TH1D *histogramGM1SmallBigScaledRatio;
   TH1D *histogramGM2SmallBigScaledRatio;
 
- 
-
-
+  TH2D *histogramTrackErrMatrix;
 
 };
+//class TProfile;
+/*
+  Does a cut on the difference a2-a0, a very crude cut, but nescesary for the silicons to get the multiplicity down.
+  Cuts away all clusters with a2-a0 <= cut
+*/
+
+void ampDiffCut(const std::list<CsGEMCluster*> &clusterList,std::vector<TCcluster> &tcClusters, double cut, int detID, std::string alignmentFile,int& counter, HistContainer* hcont,double umin=-1, double umax=-1);
+/*
+  Does a cut on the ratio a1/a2 and a0/a2, a cut on the bananaplot
+  Cuts away clusters with a1/a2>cut1 and a0/a2>cut0
+*/
+void ampRatioCut(const std::list<CsGEMCluster*> &clusterList,std::vector<TCcluster> &tcClusters, double cutA1A3, double cutA2A3, int detID,std::string alignmentFile, int& counter, HistContainer* hcont, double umin =-1, double umax=-1);
+void ampRatioNoiseCut(const std::list<CsGEMCluster*> &clusterList,std::vector<TCcluster> &tcClusters, double cutA1A3, double cutA2A3,double cut, int detID,std::string alignmentFile, int& counter, HistContainer* hcont, double umin =-1, double umax=-1);
+void clusterFiller(TCcluster cl, std::vector<TCcluster>& clusters, TH1D* hitPointHist,TH1D* uHist, TH1D* errHist, TGraph* graph, int& counter, bool x);
+void dispDraw(TCtrack* track1, TCtrack* track2, TGraph* clFit_x1,TGraph* clFit_y1, TGraph* clFit_x2, TGraph* clFit_y2 ,  TGraph* x_event,TGraph* y_event);
+
+
 #endif
