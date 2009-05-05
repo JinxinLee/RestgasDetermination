@@ -229,7 +229,7 @@ Alignment::Alignment(string conffile){
   if(simulation){
     generateTracks(50000,150,2,2,2,2);
   }else{
-
+    cout<<"reading tracks"<<endl;
     readTracks(tracks);
   }
   cout<<"al ctor done"<<endl;
