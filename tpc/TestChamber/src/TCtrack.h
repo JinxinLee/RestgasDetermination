@@ -13,6 +13,7 @@
 #include "TMath.h"
 #include "TCcluster.h"
 #include "TCclusterSort.h"
+#include <TMatrixT.h>
 
 #define PRINTF(X) printf("%s=%10.10E\n",#X,(X));
 #define PRINTI(X) printf("%s=%d\n",#X,(X));
@@ -107,6 +108,7 @@ class TCtrack : public TObject{
   double getDay(){return day;}
   double getDby(){return dby;}
   double getChi2(){return chi2;}
+  TMatrixT<double> getErrMatrix(){return errorMatrix;}
   int getNDF(){return NDF;}
 
   void draw(bool stop=true,int _x=50,int _y=50,int _w=600,int _h=600);
@@ -118,6 +120,10 @@ class TCtrack : public TObject{
     MCax=-1.E10;MCbx=-1.E10;MCay=-1.E10;MCby=-1.E10;
     dax=-1.E10;dbx=-1.E10;day=-1.E10;dby=-1.E10;
     chi2=-1.E10;
+    errorMatrix[0][0]=1e30;     errorMatrix[0][1]=1e30;     errorMatrix[0][2]=1e30;     errorMatrix[0][3]=1e30; 
+    errorMatrix[1][0]=1e30;     errorMatrix[1][1]=1e30;     errorMatrix[1][2]=1e30;     errorMatrix[1][3]=1e30; 
+    errorMatrix[2][0]=1e30;     errorMatrix[2][1]=1e30;     errorMatrix[2][2]=1e30;     errorMatrix[2][3]=1e30; 
+    errorMatrix[3][0]=1e30;     errorMatrix[3][1]=1e30;     errorMatrix[3][2]=1e30;     errorMatrix[3][3]=1e30; 
   }
 
   void useTrivialClustering();
@@ -148,6 +154,7 @@ class TCtrack : public TObject{
   bool isMC;
   double chi2;
   int NDF;
+  TMatrixT<double> errorMatrix;
   std::vector<TCcluster> cl;
   
   //options for drawing

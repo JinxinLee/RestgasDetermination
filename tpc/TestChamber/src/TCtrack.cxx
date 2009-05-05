@@ -23,7 +23,7 @@ std::set<int> glob_id;
 std::vector<TCcluster> glob_clusters;
 TRandom globRand(0);
 
-TCtrack::TCtrack(){
+TCtrack::TCtrack():errorMatrix(4,4){
   clear();
   canvDraw=NULL;canvDrawClust=NULL;
 }
@@ -140,7 +140,17 @@ bool TCtrack::fit(int id1,int id2,int id3,int id4,int id5,int id6,int id7,int id
   myMinuit->GetParameter(1,bx,dbx);
   myMinuit->GetParameter(2,ay,day);
   myMinuit->GetParameter(3,by,dby);
-
+  double errMatrix_[4][4];
+  errMatrix_[0][0]=1e30;     errMatrix_[0][1]=1e30;     errMatrix_[0][2]=1e30;     errMatrix_[0][3]=1e30; 
+  errMatrix_[1][0]=1e30;     errMatrix_[1][1]=1e30;     errMatrix_[1][2]=1e30;     errMatrix_[1][3]=1e30; 
+  errMatrix_[2][0]=1e30;     errMatrix_[2][1]=1e30;     errMatrix_[2][2]=1e30;     errMatrix_[2][3]=1e30; 
+  errMatrix_[3][0]=1e30;     errMatrix_[3][1]=1e30;     errMatrix_[3][2]=1e30;     errMatrix_[3][3]=1e30;
+  myMinuit->mnemat(&errMatrix_[0][0],4);
+  errorMatrix[0][0]=errMatrix_[0][0];     errorMatrix[0][1]=errMatrix_[0][1];     errorMatrix[0][2]=errMatrix_[0][2];     errorMatrix[0][3]=errMatrix_[0][3]; 
+  errorMatrix[1][0]=errMatrix_[1][0];     errorMatrix[1][1]=errMatrix_[1][1];     errorMatrix[1][2]=errMatrix_[1][2];     errorMatrix[1][3]=errMatrix_[1][3]; 
+  errorMatrix[2][0]=errMatrix_[2][0];     errorMatrix[2][1]=errMatrix_[2][1];     errorMatrix[2][2]=errMatrix_[2][2];     errorMatrix[2][3]=errMatrix_[2][3]; 
+  errorMatrix[3][0]=errMatrix_[3][0];     errorMatrix[3][1]=errMatrix_[3][1];     errorMatrix[3][2]=errMatrix_[3][2];     errorMatrix[3][3]=errMatrix_[3][3];
+  
   double par[4] = {ax,bx,ay,by};
   chi2=0.;
   NDF=0;
