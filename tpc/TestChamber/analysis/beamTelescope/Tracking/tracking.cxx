@@ -31,9 +31,9 @@ int main(int argc,char **argv){
   using std::list;
   using std::string;
   
-  if(argc !=4){
-    cerr<<"Wrong number of arguments"<<endl
-        <<"Syntax should be ./tracker infile alignmentfile mode"<<endl;
+  if(!(argc==4||argc==5)){
+    cerr<<"Wrong number of arguments, "<<argc<<endl
+        <<"Syntax should be ./tracker infile alignmentfile mode histfile"<<endl;
     throw;
   }
   TApplication theApp("theApp",NULL,NULL);
@@ -41,10 +41,15 @@ int main(int argc,char **argv){
   TFile::Open(argv[1]);
   TTree *tree = (TTree*)gROOT->FindObject("Hits");
   string alignmentFile = argv[2];
+  string outHist = "clusterMultipCut.root";
+  if(argc==5){
+    outHist=argv[4];
+  }
   bool disp=false;
   bool fit=true;
   bool brute=false;
   bool hist=false;
+  bool twoPoint=false;
   string mode(argv[3]);
   if(mode == "disp"){
     disp = true;
@@ -63,6 +68,12 @@ int main(int argc,char **argv){
     disp = false;
     fit = true;
     brute = true;
+  }else if(mode == "twoPoint"){
+    cout<<mode<<endl;
+    disp = false;
+    fit = true;
+    twoPoint = true;
+    brute = false;
   }
 
   CsGEMPlane* GM01X1=new CsGEMPlane();
@@ -116,6 +127,12 @@ int main(int argc,char **argv){
   int noiseCut=0;
   int ratioCut=0;
   for(int i_ev=0;i_ev<nEvents;i_ev++) {
+    if (i_ev==117) {
+      std::cout<<"\n\nOk, ok - I will continue, but please wash yourself, man!"
+               <<std::endl;
+      std::cout<<"I too have feelings, you know ... "<<std::endl;
+      continue;
+    }
     if(i_ev%250==0){
       std::cout<<i_ev<<", nTrackTries: "<<n_tracks<<", To Many cl: "<<nToMany<< ", Empty: "<<nZero<<", noiseCut: "<<noiseCut<<", ratioCut: "<<ratioCut<<"********************************************************************"<<std::endl;
     }
@@ -130,14 +147,27 @@ int main(int argc,char **argv){
     std::vector<TCcluster> clGM1Y;
     std::vector<TCcluster> clGM2X;
     std::vector<TCcluster> clGM2Y;
-    ampDiffCut(SI01X1->GetClusters(), clSI1X, 5,3,alignmentFile, noiseCut,1.2,2);
-    ampDiffCut(SI01Y1->GetClusters(), clSI1Y, 5,4,alignmentFile, noiseCut);
-    ampDiffCut(SI02X1->GetClusters(), clSI2X, 5,5,alignmentFile, noiseCut,0.,0.8);
-    ampDiffCut(SI02Y1->GetClusters(), clSI2Y, 5,6,alignmentFile, noiseCut);
-    ampRatioCut(GM01X1->GetClusters(), clGM1X, 0.9,1.1,1,alignmentFile, ratioCut,5,7.5);
-    ampRatioCut(GM01Y1->GetClusters(), clGM1Y, 1.1,1.1,2,alignmentFile, ratioCut,4.8,7.3);
-    ampRatioCut(GM02X1->GetClusters(), clGM2X, 0.2,0.9,7,alignmentFile, ratioCut);
-    ampRatioCut(GM02Y1->GetClusters(), clGM2Y, 0.3,0.9,8,alignmentFile, ratioCut);
+    //cout<<"befoore cuts"<<endl;
+    ampRatioNoiseCut(SI01X1->GetClusters(), clSI1X, 0.45,0.45,7,3,alignmentFile, ratioCut,histContainer/*,1.2,2*/);
+    ampRatioNoiseCut(SI01Y1->GetClusters(), clSI1Y, 0.45,0.45,7,4,alignmentFile, ratioCut,histContainer);
+    ampRatioNoiseCut(SI02X1->GetClusters(), clSI2X, 0.45,0.45,7,5,alignmentFile, ratioCut,histContainer/*,0,0.8*/);
+    ampRatioNoiseCut(SI02Y1->GetClusters(), clSI2Y, 0.45,0.45,7,6,alignmentFile, ratioCut,histContainer);
+    ampRatioNoiseCut(GM01X1->GetClusters(), clGM1X, 0.9,1.1,7,1,alignmentFile, ratioCut,histContainer/*,5,7.5*/);
+    ampRatioNoiseCut(GM01Y1->GetClusters(), clGM1Y, 1.1,1.1,7,2,alignmentFile, ratioCut,histContainer/*,4.8,7.3*/);
+    ampRatioNoiseCut(GM02X1->GetClusters(), clGM2X, 0.2,0.9,7,7,alignmentFile, ratioCut,histContainer);
+    ampRatioNoiseCut(GM02Y1->GetClusters(), clGM2Y, 0.3,0.9,7,8,alignmentFile, ratioCut,histContainer);
+    //    cout<<"after cuts"<<endl;
+    /*
+    ampDiffCut(clSI1X, 5,3,alignmentFile, noiseCut,histContainer,1.2,2);
+    ampDiffCut(clSI1Y, 5,4,alignmentFile, noiseCut,histContainer);
+    ampDiffCut(clSI2X, 5,5,alignmentFile, noiseCut,histContainer,0.,0.8);
+    ampDiffCut(clSI2Y, 5,6,alignmentFile, noiseCut,histContainer);
+    ampDiffCut(clGM1X, 5,1,alignmentFile, ratioCut,histContainer,5,7.5);
+    ampDiffCut(clGM1Y, 5,2,alignmentFile, ratioCut,histContainer,4.8,7.3);
+    ampDiffCut(clGM2X, 5,7,alignmentFile, ratioCut,histContainer);
+    ampDiffCut( clGM2Y, 5,8,alignmentFile, ratioCut,histContainer);
+    */   
+
     if(hist){
       histContainer->histogramSI1X->Fill(clSI1X.size());
       histContainer->histogramSI1Y->Fill(clSI1Y.size());    
@@ -250,40 +280,49 @@ int main(int argc,char **argv){
     vector<TCcluster> clYZ;
     for(unsigned int i=0;i<startClusters.size()/2;i++){
       int id =2*i;
-      clusterFiller(startClusters.at(id),clXZ,histContainer->histogramGM1Xhitpoint,histContainer->histogramGM1XU, histContainer->histogramGM1Xerr,x_event,n_points, true);
+      clusterFiller(startClusters.at(id),clXZ,histContainer->histogramGM1Xhitpoint,
+		    histContainer->histogramGM1XU, histContainer->histogramGM1Xerr,x_event,n_points, true);
     }
     for(unsigned int i=0;i<clSI1X.size();++i){
-      clusterFiller(clSI1X.at(i),clXZ,histContainer->histogramSI1Xhitpoint,histContainer->histogramSI1XU, histContainer->histogramSI1Xerr,x_event,n_points, true);
+      clusterFiller(clSI1X.at(i),clXZ,histContainer->histogramSI1Xhitpoint,
+		    histContainer->histogramSI1XU, histContainer->histogramSI1Xerr,x_event,n_points, true);
     }
     for(unsigned int i=0;i<clSI2X.size();++i){
-      clusterFiller(clSI2X.at(i),clXZ, histContainer->histogramSI2Xhitpoint,histContainer->histogramSI2XU, histContainer->histogramSI2Xerr,x_event,n_points, true);
+      clusterFiller(clSI2X.at(i),clXZ, histContainer->histogramSI2Xhitpoint,
+		    histContainer->histogramSI2XU, histContainer->histogramSI2Xerr,x_event,n_points, true);
     }
     for(unsigned int i=0;i<endClusters.size()/2;i++){
       int id =2*i;
-      clusterFiller(endClusters.at(id),clXZ,histContainer->histogramGM2Xhitpoint,histContainer->histogramGM2XU, histContainer->histogramGM2Xerr,x_event,n_points, true);
+      clusterFiller(endClusters.at(id),clXZ,histContainer->histogramGM2Xhitpoint,
+                    histContainer->histogramGM2XU, histContainer->histogramGM2Xerr,x_event,n_points, true);
     }
     n_points=0;
     for(unsigned int i=0;i<startClusters.size()/2;i++){
       int id =2*i+1;
-      clusterFiller(startClusters.at(id),clYZ,histContainer->histogramGM1Yhitpoint,histContainer->histogramGM1YU, histContainer->histogramGM1Yerr,y_event,n_points, false);
+      clusterFiller(startClusters.at(id),clYZ,histContainer->histogramGM1Yhitpoint,
+                    histContainer->histogramGM1YU, histContainer->histogramGM1Yerr,y_event,n_points, false);
     }
     for(unsigned int i=0;i<clSI1Y.size();++i){
-      clusterFiller(clSI1Y.at(i),clYZ,histContainer->histogramSI1Yhitpoint,histContainer->histogramSI1YU, histContainer->histogramSI1Yerr,y_event,n_points, false);
+      clusterFiller(clSI1Y.at(i),clYZ,histContainer->histogramSI1Yhitpoint,
+                    histContainer->histogramSI1YU, histContainer->histogramSI1Yerr,y_event,n_points, false);
     }
     for(unsigned int i=0;i<clSI2Y.size();++i){
-      clusterFiller(clSI2Y.at(i),clYZ,histContainer->histogramSI2Yhitpoint,histContainer->histogramSI2YU, histContainer->histogramSI2Yerr,y_event,n_points, false);
+      clusterFiller(clSI2Y.at(i),clYZ,histContainer->histogramSI2Yhitpoint,
+                    histContainer->histogramSI2YU, histContainer->histogramSI2Yerr,y_event,n_points, false);
     }
     for(unsigned int i=0;i<endClusters.size()/2;i++){
       int id =2*i+1;
-      clusterFiller(endClusters.at(id),clYZ,histContainer->histogramGM2Yhitpoint,histContainer->histogramGM2YU, histContainer->histogramGM2Yerr,y_event,n_points, false);
+      clusterFiller(endClusters.at(id),clYZ,histContainer->histogramGM2Yhitpoint,
+                    histContainer->histogramGM2YU, histContainer->histogramGM2Yerr,y_event,n_points, false);
     }
-    if(fit&&!brute){
+    if(fit&&!brute&&!twoPoint){
       cout<<"befor"<<endl;
       houghYZ->make(clYZ,3);
       houghXZ->make(clXZ,3);
       cout<<"after"<<endl;
     }
-    if(fit&&brute){
+   
+    if(fit&&brute) {
       double chiStore=99999999;
       for(unsigned int i=0;i<startClusters.size()/2;i++){
         for(unsigned int j=0;j<clSI1X.size();++j){
@@ -312,14 +351,85 @@ int main(int argc,char **argv){
            } // end clSI2X k
         } //end clSI1X j
       } // end startClusters i 2i and 2i+1
-      if(store!=NULL){
+      if(store!=NULL/*&&(store->getChi2()/store->getNDF())<15*/){
         event->addTrack(store);
+        histContainer->histogramChi2->Fill(store->getChi2()/store->getNDF());
+        histContainer->histogramChi2rough->Fill(store->getChi2()/store->getNDF());
+        histContainer->histogramNDF->Fill(store->getNDF());
+        histContainer->fillRes(store,alignmentFile);
       }
-      histContainer->histogramChi2->Fill(store->getChi2()/store->getNDF());
-      histContainer->histogramChi2rough->Fill(store->getChi2()/store->getNDF());
-      histContainer->histogramNDF->Fill(store->getNDF());
-      histContainer->fillRes(store);
     }
+    if(fit&&twoPoint){
+      double chiStore=99999999;
+      for(unsigned int i=0;i<startClusters.size()/2;i++){
+        for(unsigned int j=0;j<clSI1X.size();++j){
+          for(unsigned int k=0;k<clSI2X.size();++k){
+            for(unsigned int l=0;l<clSI1Y.size();++l){
+              for(unsigned int m=0;m<clSI2Y.size();++m){                
+                int id1X =2*i;
+                int id1Y =2*i+1;
+                n_tracks++;
+                double ax1,ax2,ax3,bx1,bx2,bx3;
+                double ay1,ay2,ay3,by1,by2,by3;
+                TVector3 gm1xV=startClusters.at(id1X).posXYZ();
+                TVector3 si1xV=clSI1X.at(j).posXYZ();
+                TVector3 si2xV=clSI2X.at(k).posXYZ();
+                
+                TVector3 gm1yV=startClusters.at(id1Y).posXYZ();
+                TVector3 si1yV=clSI1Y.at(l).posXYZ();
+                TVector3 si2yV=clSI2Y.at(m).posXYZ();
+                
+                ax1=(si2xV.x() - si1xV.x())/(si2xV.z() - si1xV.z());
+                ax2=(si2xV.x() - gm1xV.x())/(si2xV.z() - gm1xV.z());
+                ax3=(si1xV.x() - gm1xV.x())/(si1xV.z() - gm1xV.z());
+                
+                ay1=(si2yV.y() - si1yV.y())/(si2yV.z() - si1yV.z());
+                ay2=(si2yV.y() - gm1yV.y())/(si2yV.z() - gm1yV.z());
+                ay3=(si1yV.y() - gm1yV.y())/(si1yV.z() - gm1yV.z());
+                
+                bx1=si1xV.x()-ax1*si1xV.z();
+                bx2=gm1xV.x()-ax2*gm1xV.z();
+                bx3=si1xV.x()-ax3*si1xV.z();
+                
+                by1=si1yV.y()-ay1*si1yV.z();
+                by2=gm1yV.y()-ay2*gm1yV.z();
+                by3=si1yV.y()-ay3*si1yV.z();
+                
+                  
+                histContainer->histogramGM1XunBiResi->Fill(gm1xV.x()-ax1*gm1xV.z()-bx1);
+                histContainer->histogramGM1YunBiResi->Fill(gm1yV.y()-ay1*gm1yV.z()-by1);;
+                histContainer->histogramSI1XunBiResi->Fill(si1xV.x()-ax2*si1xV.z()-bx2);;
+                histContainer->histogramSI1YunBiResi->Fill(si1yV.y()-ay2*si1yV.z()-by2);;
+                histContainer->histogramSI2XunBiResi->Fill(si2xV.x()-ax3*si2xV.z()-bx3);;
+                histContainer->histogramSI2YunBiResi->Fill(si2yV.y()-ay3*si2yV.z()-by3);;
+                
+                histContainer->histogramGM1XunBiResiVu2d->Fill(gm1xV.x(),gm1xV.x()-ax1*gm1xV.z()-bx1);
+                histContainer->histogramGM1YunBiResiVu2d->Fill(gm1yV.y(),gm1yV.y()-ay1*gm1yV.z()-by1);
+                histContainer->histogramSI2XunBiResiVu2d->Fill(si2xV.x(),si2xV.x()-ax3*si2xV.z()-bx3);
+                histContainer->histogramSI2YunBiResiVu2d->Fill(si2yV.y(),si2yV.y()-ay3*si2yV.z()-by3);
+                histContainer->histogramSI1XunBiResiVu2d->Fill(si1xV.x(),si1xV.x()-ax2*si1xV.z()-bx2);
+                histContainer->histogramSI1YunBiResiVu2d->Fill(si1yV.y(),si1yV.y()-ay2*si1yV.z()-by2);
+                
+                } //end clSI2Y m
+            } //end clSI1Y l
+          } // end clSI2X k
+        } //end clSI1X j
+      }// end startClusters i 2i and 2i+1
+    }
+    
+    /*
+      TMatrixT<double> covar = store->getErrMatrix();
+      double dax=store->getDax();
+      double day=store->getDay();
+      double dbx=store->getDbx();
+      double dby=store->getDby();
+    */
+    
+      /*cout<<"dax "<<dax*dax<<" dbx "<<dbx*dbx<<" day "<<day*day<<" dby "<<dby*dby<<endl;
+        covar.Print();*/
+      
+
+    
     if(fit&&!brute){
       vector<TCcluster> clTrack1;
       vector<TCcluster> clTrack2;
@@ -392,8 +502,8 @@ int main(int argc,char **argv){
         n_tracks++;
         //        event->addTrack(track2);
         //        event->addClusters(clTrack2);
-        histContainer->fillRes(track1);
-        histContainer->fillRes(track2);
+        histContainer->fillRes(track1,alignmentFile);
+        histContainer->fillRes(track2,alignmentFile);
         if(disp){
 	  dispDraw(track1,track2,clFit_x1,clFit_y1,clFit_x2,clFit_y2,x_event,y_event);
 	  houghXZ->draw(false,1,512,600,480,event);
@@ -415,7 +525,9 @@ int main(int argc,char **argv){
   // histogramTrack->Fill(event->nTracks());  
   //  
   //if(n_tracks>1000) break;
-  std::cout<<nEvents<<", nTrackTries: "<<n_tracks<<", To Many cl: "<<nToMany<< ", Empty: "<<nZero<<", noiseCut: "<<noiseCut<<", ratioCut: "<<ratioCut<<"********************************************************************"<<std::endl;
+  std::cout<<nEvents<<", nTrackTries: "<<n_tracks<<", To Many cl: "
+	   <<nToMany<< ", Empty: "<<nZero<<", noiseCut: "<<noiseCut
+	   <<", ratioCut: "<<ratioCut<<"********************************************************************"<<std::endl;
   
   eventTreeOut->Write();
 
@@ -430,7 +542,7 @@ int main(int argc,char **argv){
   delete SI01Y1;;
   delete SI02X1;
   delete SI02Y1;
-  histContainer->write();
+  histContainer->write(outHist);
   delete histContainer;
   return 0;
 } 
