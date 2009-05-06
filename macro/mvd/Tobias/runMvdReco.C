@@ -3,13 +3,13 @@
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0;
   // Input file (MC events)
-  TString MCFile = "Mvd_D+D-_10G_addDets.root";
+  TString MCFile = "MvdTpc_Pions.root";
   // Parameter file
   TString parFile = "MvdParams.root";
   // Parameter output file
   // TString parOutFile = "MvdParams.root";
   // Number of events to process
-  Int_t nEvents = 1000;
+  Int_t nEvents = 10;
   // ----  Load libraries   -------------------------------------------------
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   // ------------------------------------------------------------------------
@@ -79,8 +79,9 @@
    mvdClusterizer->SetVerbose(iVerbose);
    fRun->AddTask(mvdClusterizer);
 
-  // trackfinding ....
-   PndSttTrackFinderIdeal* sttTrackFinder = new PndSttTrackFinderIdeal(iVerbose);
+ // -----    STT hit producer   --------------------------------------------
+ // trackfinding ....
+ /*  PndSttTrackFinderIdeal* sttTrackFinder = new PndSttTrackFinderIdeal(iVerbose);
    PndSttFindTracks* sttFindTracks = new PndSttFindTracks("Track Finder", "FairTask", sttTrackFinder, iVerbose);
    sttFindTracks->AddHitCollectionName("STTHit", "STTPoint");
    fRun->AddTask(sttFindTracks);
@@ -99,6 +100,13 @@
    // helix hit production ....
    PndSttHelixHitProducer* sttHHProducer = new PndSttHelixHitProducer();
    fRun->AddTask(sttHHProducer);
+   */
+ // -----    TPC hit producer   --------------------------------------------
+
+   PndTpcClusterFinderTask* tpcCF = new PndTpcClusterFinderTask();
+    tpcCF->SetPersistence();
+    tpcCF->timeslice(20); // = 4 sample times = 100ns @ 40MHz
+    fRun->AddTask(tpcCF);
 
 //   FairParRootFileIo* output=new FairParRootFileIo(kTRUE);
 //   output->open(parOutFile.Data());

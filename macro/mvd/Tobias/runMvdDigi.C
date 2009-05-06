@@ -6,21 +6,23 @@
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0;
   Int_t nStart = 0;
-  Int_t nEvents  = 5;
+  Int_t nEvents  = 1000;
 //   gROOT->Macro("Libs.C");
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 
   // Input file (MC events)
   //TString inFile = "Mvd_DPMfixed_4GeV_10000.root"; //"MvdG4_DPM405_Mag_5000.root";
   //TString inFile = "data/mvdparams.root";
-  TString inFile = "Mvd_D+D-_10G_addDets.root";
+  TString inFile = "MvdTpc_D+D-_10G_1000.root";
   // Parameter file
   TString parFile = "MvdParams.root";
   //TString parFile = "data/mvdparams.root";
   // Parameter output file
 //   TString parOutFile = "Test/testParamsOutput.root";
-  TString digiparFile = gSystem->Getenv("VMCWORKDIR");
-  digiparFile += "/macro/params/mvd.digi.par";
+  TString sysFile = gSystem->Getenv("VMCWORKDIR");
+  TString MvdDigiparFile = sysFile;
+  MvdDigiparFile += "/macro/params/all.par";
+
 
 
   // In general, the following parts need not be touched
@@ -46,7 +48,7 @@
 //   output->open(parOutFile);
 //   rtdb->setOutput(output);
   FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
-  parInput2->open(digiparFile.Data(),"in");
+  parInput2->open(MvdDigiparFile.Data(),"in");
   rtdb->setSecondInput(parInput2);
 
   fRun->LoadGeometry();
@@ -94,7 +96,7 @@
 
   // -----    MVD hit producer   --------------------------------------------
 
- /*  Double_t chargecut = 1.e5;
+ Double_t chargecut = 1.e5;
    PndMvdStripClusterTask* mvdmccls = new PndMvdStripClusterTask(chargecut,creator.GetSimFileName(true));
    mvdmccls->SetVerbose(iVerbose);
    fRun->AddTask(mvdmccls);
@@ -102,15 +104,35 @@
    PndMvdPixelClusterTask* mvdClusterizer = new PndMvdPixelClusterTask(1.8, creator.GetSimFileName(true));//, slx, sly, sthreshold, snoise);
    mvdClusterizer->SetVerbose(iVerbose);
    fRun->AddTask(mvdClusterizer);
-*/
+
   // -----   STT analysis tasks   --------------------------------------------
     // digitize ....
-  //PndSttHitProducerIdeal* sttHitProducer = new PndSttHitProducerIdeal();
-    PndSttHitProducerRealFast* sttHitProducer = new PndSttHitProducerRealFast();
-    fRun->AddTask(sttHitProducer);
+//  PndSttHitProducerIdeal* sttHitProducer = new PndSttHitProducerIdeal();
+//  PndSttHitProducerRealFast* sttHitProducer = new PndSttHitProducerRealFast();
+//  fRun->AddTask(sttHitProducer);
 
+  // ------  TPC digi tasks ---------------------------
+/*  PndTpcClusterizerTask* tpcClusterizer = new PndTpcClusterizerTask();
+   //tpcClusterizer->SetPersistence();
+   fRun->AddTask(tpcClusterizer);
 
+   PndTpcDriftTask* tpcDrifter = new PndTpcDriftTask();
+   // tpcDrifter->SetPersistence();
+   tpcDrifter->SetDistort(false);
+   fRun->AddTask(tpcDrifter);
 
+   PndTpcGemTask* tpcGem = new PndTpcGemTask();
+   //tpcGem->SetPersistence();
+   fRun->AddTask(tpcGem);
+
+   PndTpcPadResponseTask* tpcPadResponse = new PndTpcPadResponseTask();
+   tpcPadResponse->SetPersistence();
+   fRun->AddTask(tpcPadResponse);
+
+   PndTpcElectronicsTask* tpcElec = new PndTpcElectronicsTask();
+   tpcElec->SetPersistence();
+   fRun->AddTask(tpcElec);
+*/
     // -----   EMC hit producers   ---------------------------------
 /*    PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
     fRun->AddTask(emcHitProd); // hit production

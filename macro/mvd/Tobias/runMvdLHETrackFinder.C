@@ -3,15 +3,16 @@
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0;
   // Input file (MC events)
-  TString MCFile = "Mvd_D+D-_10G_addDets.root";
+  TString MCFile = "Mvd_D+D-_10G.root";
   // Parameter file
   TString parFile = "MvdParams.root";
   // Parameter output file
   TString parOutFile = "MvdParams.root";
   // Number of events to process
-  Int_t nEvents = 6;
+  Int_t nEvents = 1000;
   // ----  Load libraries   -------------------------------------------------
-  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  rootlogon();
   //gROOT->Macro("Libs.C");
 
   gSystem->Load("libriemann");
@@ -66,16 +67,13 @@
 
 
 
-  // =========================================================================
-  // ======                       Hit Producers                         ======
-  // =========================================================================
-
-  // -----    MVD hit producer   --------------------------------------------
   // -----   LHETRACK  ---------------------------------
 
-   PndTpcLheHitsMaker* trackMS = new PndTpcLheHitsMaker("Tracking routine");
-   trackMS->SetSttMode(3);  // 0 OFF, 1 SttPoint, 2 SttHit, (3) SttHelixHit // SttPoint smearing [cm], if negative no smearing
+   PndLheHitsMaker* trackMS = new PndLheHitsMaker("Tracking routine");
+   trackMS->SetTpcMode(2);  // 0 OFF, 1 TpcPoint, 2 TpcCluster // TpcPoint smearing [cm], if negative no smearing
+//   trackMS->SetSttMode(3);  // 0 OFF, 1 SttPoint, 2 SttHit, (3) SttHelixHit // SttPoint smearing [cm], if negative no smearing
    trackMS->SetMvdMode(2);  // 0 OFF, 1 MVDPoint, 2 MVDHit     // MVDPoint smearing [cm], if negative no smearing
+   trackMS->SetVerbose(3);
    fRun->AddTask(trackMS);
 
    PndTpcLheTrackFinder* trackFinder    = new PndTpcLheTrackFinder();

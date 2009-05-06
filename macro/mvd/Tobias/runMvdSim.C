@@ -5,10 +5,10 @@
   timer.Start();
   gDebug=0;
   int verboseLevel = 0;
-  Int_t nEvents = 10;
+  Int_t nEvents = 1000;
 
   //FileNames
-  TString simOutput="Mvd_D+D-_10G_addDets.root";
+  TString simOutput="MvdTpc_D+D-_10G_1000.root";
 
 //  TString simOutput="Mvd_DPMfixed_4GeV_10000.root";
   TString parOutput="MvdParams.root";
@@ -39,7 +39,7 @@
   fRun->AddModule(Cave);
 
   FairModule *Magnet= new PndMagnet("MAGNET");
-  Magnet->SetGeometryFileName("PandaSolenoidV833.root");
+  Magnet->SetGeometryFileName("FullSolenoid.root");
   fRun->AddModule(Magnet);
 
   FairModule *Pipe= new PndPipe("PIPE");
@@ -52,22 +52,26 @@
   Mvd->SetVerboseLevel(verboseLevel);
   fRun->AddModule(Mvd);
 
-  FairDetector *Stt= new PndStt("STT", kTRUE);
-  Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
-  fRun->AddModule(Stt);
+  FairDetector *Tpc = new PndTpcDetector("TPC", kTRUE);
+  Tpc->SetGeometryFileName("tpc.geo");
+  fRun->AddModule(Tpc);
+
+//  FairDetector *Stt= new PndStt("STT", kTRUE);
+//  Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
+//  fRun->AddModule(Stt);
 
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
   Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root");
   fRun->AddModule(Emc);
 
-  FairDetector *Tof = new PndTof("TOF",kTRUE);
+/*  FairDetector *Tof = new PndTof("TOF",kTRUE);
   Tof->SetGeometryFileName("tofbarrel.geo");
   fRun->AddModule(Tof);
 
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
   Drc->SetRunCherenkov(kFALSE); // for fast sim Cherenkov -> kFALSE
   fRun->AddModule(Drc);
-
+*/
 
 //  FairDetector *Emc = new CbmEmc("EMC",kTRUE);
 //  Emc->SetGeometryFileName("emc_module12345.dat");
@@ -99,7 +103,7 @@
 
   // Box Generator
   //Pions
-/* FairBoxGenerator *fBox = new FairBoxGenerator(211, 10);
+/* FairBoxGenerator *fBox = new FairBoxGenerator(211, 3);
     fBox->SetPRange(0.1,2.5);
     fBox->SetThetaRange(5,150);
     fBox->SetPhiRange(0.,360);
