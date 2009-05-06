@@ -150,7 +150,7 @@ class PndLVQTrain{
    * @param clsName The name of the class of events for with we want
    * to compute Var(X).
    */
-  void ComputeVariance(const std::string clsName);
+  void ComputeVariance();
   
   /**
    * Determines the median for parameters of the loaded DataSet.
@@ -168,6 +168,12 @@ class PndLVQTrain{
    */
   void NormalizeWithMedian();
 
+  /**
+   * Determine Dist Min Max difference.
+   */
+  void MinMaxDiff();
+  void NormalizeWithMinMax();
+
   //! Class names
   std::vector<std::string> m_ClassNames;
   
@@ -178,10 +184,13 @@ class PndLVQTrain{
   std::map< std::string, std::vector<float>* > m_ClassCondMeans;
 
   //! Container to keep  the per class variances
-  std::map<std::string, std::vector<float>*> m_ClassVarian;
+  std::map<std::string, float> m_ClassVarian;
   
-  //! Container to keep the medians and quartil dists
-  std::vector< std::pair< std::string, std::pair< std::vector<float>*, std::vector<float>* > > > m_ClsMedianQrtlDis;
+  //! Container to keep  the per class min max diff
+  std::map<std::string, float> m_ClassMinMax;
+
+  //! Container to keep the median and quartil dists
+  std::map< std::string, std::pair< float, float > > m_ClsMedianQrtlDis;
   
   //! Container to keep  the Event data feature vectors
   std::vector< std::pair<std::string, std::vector<float>*> > m_EventsData;

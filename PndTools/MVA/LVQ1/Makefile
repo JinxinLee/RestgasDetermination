@@ -23,7 +23,7 @@ LIBS      = $(shell root-config --libs)
 
 
 # Define binary file name.
-BINS = train classify
+BINS = train  classify
 
 # Define targets
 

@@ -87,21 +87,10 @@ PndLVQTrain::PndLVQTrain(const char* InPut,
   m_initConst = 0.8; m_ethaZero = 0.1; 
   m_ethaFinal = 0.0001; m_NumSweep = 500;
   
-  // Compute mean vector for each class
-  for(unsigned int cl = 0; cl < m_ClassNames.size(); cl++){
-    std::string ClName = m_ClassNames[cl];
-    CompClsCondMean(ClName);
-  }
-  // Compute Var(X)
-  for(unsigned int cl = 0; cl < m_ClassNames.size(); cl++){
-    std::string ClName = m_ClassNames[cl];
-    ComputeVariance(ClName);
-  }
-
   // ====== Normalize the loaded dataSet
-  //DetermineMediaan();
-  //NormalizeWithMedian();
-  NormalizeWithVariance();
+  NormalizeWithMedian();
+  //NormalizeWithVariance();
+  // NormalizeWithMinMax();
   WriteDataToFile("InputNormalized.root");
 }// End of constructor
 
@@ -117,14 +106,7 @@ PndLVQTrain::~PndLVQTrain()
     delete it->second;
   }
   m_ClassCondMeans.clear();
-
-  // Clean up the container for VAR(X)
-  for(it = m_ClassVarian.begin(); it != m_ClassVarian.end(); it++)
-  {
-    delete it->second;
-  }
-  m_ClassVarian.clear();
- 
+  
   // Clean up the container for event data
   for(unsigned int i = 0; i < m_EventsData.size(); i++)
   {
@@ -139,16 +121,12 @@ PndLVQTrain::~PndLVQTrain()
   }
   m_LVQProtos.clear();
   
+
   m_perClsExamples.clear();
   m_ClassNames.clear();
   m_VarNames.clear();
   m_ClassIndex.clear();
-  
-  for(unsigned int k = 0; k < m_ClsMedianQrtlDis.size(); k++)
-  {
-    delete (m_ClsMedianQrtlDis[k].second).first;
-    delete (m_ClsMedianQrtlDis[k].second).second;
-  }
+  m_ClassVarian.clear();
   m_ClsMedianQrtlDis.clear();
 }
 
@@ -523,36 +501,39 @@ void PndLVQTrain::CompClsCondMean(const std::string clsName)
  * @param clsName The name of the class of events for with we want
  * to compute Var(X).
  */
-void PndLVQTrain::ComputeVariance(const std::string clsName)
+void PndLVQTrain::ComputeVariance()
 {
-  if(m_ClassCondMeans.size() == 0)
+  std::vector <float> vec(m_EventsData.size(), 0.0);
+  float mean = 0.0;
+  float variance = 0.0;
+
+  //Variable Loop
+  for(unsigned int i = 0; i < m_VarNames.size(); i++ )
   {
-    std::cerr << "<Warning>: Class means are not initialized."
-	      << std::endl;
-    return;// FIXME, we may re-init clas-means.
-  }
-  std::vector <float>* vec = new std::vector <float> (m_VarNames.size(), 0.0);
-  for(unsigned int i = 0; i < m_EventsData.size(); i++)
-  {
-    if( clsName == m_EventsData[i].first )
+    // Event Loop
+    for(unsigned int ev = 0; ev < m_EventsData.size(); ev++)
     {
-      for(unsigned int j = 0; j < m_VarNames.size(); j++ )
-      {
-	float mean  = (m_ClassCondMeans[clsName])->at(j);
-	float val   = (m_EventsData[i].second)->at(j);
-	vec->at(j) += (val - mean) * (val - mean);
-      }
+      vec[ev] = (m_EventsData[ev].second)->at(i);
+      mean   += (m_EventsData[ev].second)->at(i);
     }
+    // Compute variable mean and variance
+    mean /= static_cast<float>(m_EventsData.size());
+    
+    for(unsigned int ev = 0; ev < m_EventsData.size(); ev++)
+    {
+      variance += (vec[ev] - mean) * (vec[ev] - mean);
+    }
+    variance = variance / static_cast<float>(m_EventsData.size());
+    variance = sqrt(variance);
+    
+    // Insert
+    std::string varName = m_VarNames[i];
+    m_ClassVarian.insert(std::make_pair(varName, variance));
+
+    // Reset
+    mean = 0.0;
+    variance = 0.0;
   }
-  
-  // All available events are visited
-  // Normalizing
-  int numExam = m_perClsExamples[clsName] - 1;
-  
-  for(unsigned int k = 0; k < vec->size(); k++){
-    vec->at(k) = sqrt( (vec->at(k)/(static_cast<float>(numExam))) );
-  }
-  m_ClassVarian.insert(std::make_pair(clsName,vec));
 }
 
 /**
@@ -563,14 +544,16 @@ void PndLVQTrain::NormalizeWithVariance()
   std::cout << "\t<INFO> Normalizing the dataset "
 	    << "using samle Variance. "
 	    << std::endl;
+  ComputeVariance();
+
   // Loop through the classes
   for(unsigned int ev = 0; ev < m_EventsData.size(); ev++)
   {
-    std::string className = m_EventsData[ev].first;
     // Loop Through parameters
     for(unsigned int i = 0; i < m_VarNames.size(); i++)
-      {//FIXME FIXME
-      (m_EventsData[ev].second)->at(i) = (m_EventsData[ev].second)->at(i) / (100.0 * (m_ClassVarian[className])->at(i));
+    {
+      std::string varName = m_VarNames[i];
+      (m_EventsData[ev].second)->at(i) = (m_EventsData[ev].second)->at(i) / (m_ClassVarian[varName]);
     }
   }
 }
@@ -600,23 +583,16 @@ void PndLVQTrain::WriteToProtoFile(const char* outPut)
   for(unsigned int cls = 0; cls < m_ClassNames.size(); cls++)
   {
     std::vector<float> vars(m_VarNames.size(), 0.0);
-    std::vector<float> Variance(m_VarNames.size(), 0.0);
 
     std::string name = m_ClassNames[cls];
-    std::string Variance_name = m_ClassNames[cls] + "Var";
 
     std::string desc = "Description Of " + name;
     const char* treeName = name.c_str();
-    const char* Variance_treeName = Variance_name.c_str();
-
     const char* treeDesc = desc.c_str();
-    desc += "Var";
-    const char* Var_Desc = desc.c_str();
 
     // Create a tree
     TTree sig (treeName, treeDesc);
-    TTree PropTree (Variance_treeName, Var_Desc);
-    
+
     // Create branches and bind the variables
     for(unsigned int j = 0; j < m_VarNames.size(); j++)
     {
@@ -627,7 +603,6 @@ void PndLVQTrain::WriteToProtoFile(const char* outPut)
 
       // Bind the parameters to the tree elements.
       sig.Branch(bname, &vars[j], lname);
-      PropTree.Branch(bname, &Variance[j], lname);
     }
     // Fill The prototypes tree
     for(unsigned int i = 0; i< m_LVQProtos.size(); i++)
@@ -641,15 +616,9 @@ void PndLVQTrain::WriteToProtoFile(const char* outPut)
 	sig.Fill();
       }
     }
-    // Fill the properties tree.
-    for(unsigned int k = 0; k < (m_ClassVarian[name])->size(); k++)
-    {
-      Variance[k] = (m_ClassVarian[name])->at(k);
-    }
-    PropTree.Fill();
+
     // Write the created tree
     sig.Write();
-    PropTree.Write();
   }
   // We are done. We can close the open file and delete the pointer
   out->Close();
@@ -711,51 +680,37 @@ void PndLVQTrain::WriteDataToFile(const char* outPut)
  */
 void PndLVQTrain::DetermineMediaan()
 {
-  std::cout << "\t<INFO> Determining the features of the dataset." 
+  std::cout << "\t<INFO> Determining median for each parameter." 
 	    << std::endl;
   
-  // Loop through the classes
-  for(unsigned int cl = 0; cl < m_ClassNames.size(); cl++)
+  float median = 0.00; float Fquartil = 0.00;
+  std::vector <float> varVect(m_EventsData.size(), 0.00);    
+
+  // We need to determine the median and inter-quartile distances per
+  // feature.
+  
+  // Loop through the Variables
+  for(unsigned int i = 0; i < m_VarNames.size(); i++)
   {
-    int minIdx = m_ClassIndex[cl].first;
-    int maxIdx = m_ClassIndex[cl].second;
-    float median = 0.00; float Fquartil = 0.00;
-    
-    // We need to determine the median and inter-quartile distances
-    // per feature and per class
-    std::vector <float>* clsMedian  = new std::vector <float>();
-    std::vector <float>* clsQrtlDist = new std::vector <float>();
-    
-    // Loop through the Variables
-    for(unsigned int i = 0; i < m_VarNames.size(); i++)
+    // Loop through the Examples
+    for(unsigned int ev = 0; ev < m_EventsData.size(); ev++)
     {
-      std::vector <float> varVect;
-      
-      // Loop through the Examples
-      for(int k = minIdx; k < maxIdx; k++)
-      {
-	varVect.push_back( (m_EventsData[k].second)->at(i) );
-      }
-      
-      // Sort the variables
-      std::sort(varVect.begin(),varVect.end());
-      
-      if(varVect.size() % 2 == 0)
-      {
-	median = ( varVect[(varVect.size() / 2) - 1] + varVect[(varVect.size() / 2)]) / static_cast<float>(2);
-	Fquartil = varVect[( (varVect.size() + 2)/4) - 1 ];
-      }
-      else
-      {
-	median = varVect[(varVect.size() / 2)];
-	Fquartil = varVect[( (varVect.size() + 1)/4) - 1 ];
-      }
-      
-      clsMedian->push_back(median);
-      clsQrtlDist->push_back((median - Fquartil));
+      varVect[ev] = (m_EventsData[ev].second)->at(i);
     }
-    m_ClsMedianQrtlDis.push_back(std::make_pair(m_ClassNames[cl], 
-						std::make_pair(clsMedian, clsQrtlDist)));
+    // Sort the variables
+    std::sort(varVect.begin(), varVect.end());
+
+    if(varVect.size() % 2 == 0)
+    {
+      median = ( varVect[(varVect.size() / 2) - 1] + varVect[(varVect.size() / 2)]) / static_cast<float>(2);
+      Fquartil = varVect[( (varVect.size() + 2)/4) - 1 ];
+    }
+    else
+    {
+      median = varVect[(varVect.size() / 2)];
+      Fquartil = varVect[( (varVect.size() + 1)/4) - 1 ];
+    }
+    m_ClsMedianQrtlDis.insert(std::make_pair(m_VarNames[i], std::make_pair(median, Fquartil)));
   }
 }
 
@@ -768,32 +723,54 @@ void PndLVQTrain::NormalizeWithMedian()
   std::cout << "\t<INFO> Normalizing the dataset "
 	    << "using Median and Inter Quartile Distance."
 	    << std::endl;
+  DetermineMediaan();
   
-  // Loop through the classes
-  for(unsigned int cl = 0; cl < m_ClassNames.size(); cl++)
+  // Event Loop
+  for(unsigned int ev = 0; ev < m_EventsData.size(); ev++)
   {
-    int minIdx = m_ClassIndex[cl].first;
-    int maxIdx = m_ClassIndex[cl].second;
-    
-    // Check if the class names are equal.
-    if(m_ClsMedianQrtlDis[cl].first != m_ClassNames[cl])
+    // Variable loop
+    for(unsigned int i = 0; i < m_VarNames.size(); i++)
     {
-      std::cerr << "Index out of bound. Unknown class name <Normalization LVQ>" 
-		<< std::endl;
-      abort();
+      std::string vName = m_VarNames[i];
+      std::pair<float,float> pr = m_ClsMedianQrtlDis[vName];
+      //(m_EventsData[ev].second)->at(i) = ( (m_EventsData[ev].second)->at(i) - pr.first)/(pr.second);
+      (m_EventsData[ev].second)->at(i) = ( (m_EventsData[ev].second)->at(i) )/(pr.second);
     }
-    std::vector <float>* Median   = (m_ClsMedianQrtlDis[cl].second).first;
-    //std::vector <float>* QrtlDist = (m_ClsMedianQrtlDis[cl].second).second;
-    
-    // Loop through the Examples
-    for(int k = minIdx; k < maxIdx; k++)
+  }
+}
+
+void PndLVQTrain::MinMaxDiff()
+{
+  std::vector <float> vec (m_EventsData.size(), 0.0);
+  // Variables Loop
+  for(unsigned int i = 0; i < m_VarNames.size(); i++)
+  {
+    // Event loop
+    for(unsigned int j = 0; j < m_EventsData.size(); j++)
     {
-      // Loop through the Variables
-      for(unsigned int i = 0; i < m_VarNames.size(); i++)
-      {
-	//(m_EventsData[k].second)->at(i) = ( (m_EventsData[k].second)->at(i) - Median->at(i))/(QrtlDist->at(i));
-	(m_EventsData[k].second)->at(i) = ( (m_EventsData[k].second)->at(i))/ (Median->at(i));
-      }
-    }// END Loop through the Examples
-  }// End of loop through classes
+      vec[j] = (m_EventsData[j].second)->at(i);
+    }
+    // Sort variables
+    std::sort(vec.begin(),vec.end());
+    // Debug may be commented out.
+    std::cout << m_VarNames[i] << "\t min = " << vec[0] 
+	      << "\t max = " << vec[vec.size() - 1 ] << std::endl;
+    float diff = vec[ vec.size() - 1 ] - vec[0];
+    // Store values
+    m_ClassMinMax.insert(std::make_pair(m_VarNames[i], diff));
+    std::cout << m_VarNames[i] << "\t diff = " << diff << std::endl;
+  }
+}
+
+void PndLVQTrain::NormalizeWithMinMax()
+{
+  MinMaxDiff();
+  for(unsigned int ev = 0; ev < m_EventsData.size(); ev++)
+  {
+    for(unsigned int i = 0; i < m_VarNames.size(); i++)
+    {
+      std::string varName = m_VarNames[i];
+      (m_EventsData[ev].second)->at(i) = (m_EventsData[ev].second)->at(i) / (m_ClassMinMax[varName]);
+    }
+  }
 }
