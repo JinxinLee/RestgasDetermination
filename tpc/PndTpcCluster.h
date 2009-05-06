@@ -28,7 +28,6 @@
 #include "McIdCollection.h"
 #include "TMatrixD.h"
 #include "PndTpcDigiMapper.h"
-#include "PndTpcLaserCorrectionTask.h"
 
 // Collaborating Class Declarations --
 class Track;
