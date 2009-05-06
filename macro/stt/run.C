@@ -13,6 +13,7 @@
   gSystem->Load("libParBase");
   gSystem->Load("libBase");
   gSystem->Load("libField"); 
+  gSystem->Load("libTrkBase");
   gSystem->Load("libPndData");
   gSystem->Load("libPassive");
   gSystem->Load("libStt");

@@ -21,11 +21,11 @@
   gSystem->Load("libGeoBase");
   gSystem->Load("libParBase");
   gSystem->Load("libBase");
+  gSystem->Load("libTrkBase");
   gSystem->Load("libPndData");
   gSystem->Load("libField");
   gSystem->Load("libPassive");
   gSystem->Load("libGen");
-  gSystem->Load("libTrkBase");
   gSystem->Load("libGeane");
   gSystem->Load("libStt");
   gSystem->Load("libgenfit");

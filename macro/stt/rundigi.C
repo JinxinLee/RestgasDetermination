@@ -24,6 +24,7 @@
   gSystem->Load("libGeoBase");
   gSystem->Load("libParBase");
   gSystem->Load("libBase");
+  gSystem->Load("libTrkBase");
   gSystem->Load("libPndData");
   gSystem->Load("libField");
   gSystem->Load("libPassive");
