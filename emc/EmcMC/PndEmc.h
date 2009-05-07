@@ -116,7 +116,7 @@ class PndEmc : public FairDetector
   void ExpandNode(TGeoVolume *fVol, TGeoVolume *Cave);
 
   // 
-  virtual void  SetGeometryFileNameDouble(TString fname, TString fname2, TString geoVer="0"); 
+  virtual void  SetGeometryFileNameDouble(TString fname, TString fname2, Int_t fwbwchoice, TString geoVer="0");
   //
   virtual void  SetGeometryFileNameTriple(TString fname, TString fname2, TString fname3, TString geoVer="0");
 

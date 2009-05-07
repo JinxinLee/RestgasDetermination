@@ -445,17 +445,25 @@ void PndEmc::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset ) {
   //   << endl;
 }
 
-void PndEmc::SetGeometryFileNameDouble(TString fname, TString fname2, TString geoVer)
+void PndEmc::SetGeometryFileNameDouble(TString fname, TString fname2, Int_t fwbwchoice, TString geoVer)
 {
-  fwendcap=kTRUE;
-
+ 
   SetGeometryFileName(fname, geoVer);
   
   //fgeoVer=geoVer; 
   TString work = getenv("VMCWORKDIR");
 	
-  fgeoName2=work+"/geometry/";
-  fgeoName2+=fname2;
+  if (fwbwchoice==0) { 
+    fwendcap=kTRUE;
+    fgeoName2=work+"/geometry/";
+    fgeoName2+=fname2;
+    cout <<"---> _new_ Forward End-Cap has been used:  "<< fgeoName2<< endl;
+  }else{
+    bwendcap=kTRUE;
+    fgeoName3=work+"/geometry/";
+    fgeoName3+=fname2;
+    cout <<"---> _new_ Backward End-Cap has been used:  "<< fgeoName3<< endl;
+  }
 }
 void PndEmc::SetGeometryFileNameTriple(TString fname, TString fname2, TString fname3, TString geoVer)
 {
@@ -484,8 +492,9 @@ void PndEmc::SetGeometryFileNameTriple(TString fname, TString fname2, TString fn
 void PndEmc::ConstructGeometry() {
   TString fileName=GetGeometryFileName();
 
-   //if (!fwendcap){
-   if (!fwendcap || !bwendcap){
+  cout <<"fwendcap & bwendcap flags == "<< fwendcap <<" / "<<bwendcap<<endl;
+
+  if (!fwendcap && !bwendcap){
     
     if (fileName.EndsWith(".dat")) {
       std::cout<< "                                               " <<std::endl;
@@ -494,10 +503,10 @@ void PndEmc::ConstructGeometry() {
       ConstructASCIIGeometry();
     } else if(fileName.EndsWith("new.root")) {
       std::cout<< "                                              " <<std::endl;
-      std::cout<< " ====== EMC::  ConstructROOTGeometry() ====== " <<std::endl;
+      std::cout<< " ====== EMC::  ConstructROOTGeometry() m3 === " <<std::endl;
       std::cout<< " ============================================ " <<std::endl;
       ConstructRootGeometry();
-    } else if(fileName.EndsWith("4_FwEndCapGeo.root") || fileName.EndsWith("4_StraightGeo26.root")) {
+    } else if(fileName.EndsWith("4_FwEndCapGeo.root") || fileName.EndsWith("4_StraightGeo26.root") || fgeoName.EndsWith("4_StraightGeo26_Al.root")) {
       std::cout<< "                                              " <<std::endl;
       std::cout<< " ====== EMC::  ConstructROOTGeometry() m4 === " <<std::endl;
       std::cout<< " ============================================ " <<std::endl;
@@ -508,7 +517,7 @@ void PndEmc::ConstructGeometry() {
   }else {      
     if (fileName.EndsWith(".dat")) {
       std::cout<< "                                               " <<std::endl;
-      std::cout<< " ====== EMC::  ConstructASCIIGeometry() ====== " <<std::endl;
+      std::cout<< " ====== EMC 2)::  ConstructASCIIGeometry() === " <<std::endl;
       std::cout<< " ============================================= " <<std::endl;
       ConstructASCIIGeometry();
     }else {
@@ -516,11 +525,11 @@ void PndEmc::ConstructGeometry() {
     } 
     if (fgeoName2.EndsWith("new.root")) {
       std::cout<< "                                               " <<std::endl;
-      std::cout<< " ====== EMC::  ConstructRootGeometry() ====== " <<std::endl;
+      std::cout<< " ====== EMC::  ConstructRootGeometry() m3a === " <<std::endl;
       std::cout<< " ============================================= " <<std::endl;
       ConstructRootGeometry();
     }
-    if(fgeoName3.EndsWith("4_FwEndCapGeo.root") || fgeoName3.EndsWith("4_StraightGeo26.root")) {
+    if(fgeoName3.EndsWith("4_FwEndCapGeo.root") || fgeoName3.EndsWith("4_StraightGeo26.root") || fgeoName3.EndsWith("4_StraightGeo26_Al.root")) {
       std::cout<< "                                               " <<std::endl;
       std::cout<< " ====== EMC::  ConstructRootGeometry() m4a === " <<std::endl;
       std::cout<< " ============================================= " <<std::endl;
@@ -592,8 +601,15 @@ void PndEmc::ConstructRootGeomMod4() {
   
   TGeoRotation rotBwEmc;
   rotBwEmc.RotateY(0.);
-   
-   Cave->AddNode(BwEmc,0, new TGeoCombiTrans(0., 0., -66.,new TGeoRotation(rotBwEmc)));
+
+  //The first position of the BwEndCap crystals (center of the crystal!!) was -66 cm
+  //Cave->AddNode(BwEmc,0, new TGeoCombiTrans(0., 0., -66.,new TGeoRotation(rotBwEmc)));
+  
+  // According to the last geometry integration of BwEndCap (22.04.09)
+  // the position of the BwEndCap crystals (center of the crystal!!) 
+  // is -69.4 cm : -(3.+0.2+0.2+56.)-10 cm, which correspods to: 
+  //               -(insulation+carbon fiber+safety distance+front face of crystals)-half size of crystal
+  Cave->AddNode(BwEmc,0, new TGeoCombiTrans(0., 0., -69.4,new TGeoRotation(rotBwEmc)));
 
   ExpandNode(BwEmc,Cave); 
 }
