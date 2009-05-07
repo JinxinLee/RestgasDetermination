@@ -1,19 +1,11 @@
 {
   // Macro tests gamma energy correction
 	
-	gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-	basiclibs();
-	gSystem->Load("libGeoBase");
-	gSystem->Load("libParBase");
-	gSystem->Load("libBase");
-	gSystem->Load("libPndData");
-	gSystem->Load("libField");
-	gSystem->Load("libGen");
-	gSystem->Load("libPassive");
-	// add the detector libraries you need
-	gSystem->Load("libEmc");	 
-	gSystem->Load("libGeom.so");
-	
+        gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+        gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
+        rootlogon();
+        basiclibs();
+
 	TFile* f = new TFile("full_emc.root"); //file you want to analyse
 	TTree *t=(TTree *) f->Get("cbmsim") ;
 	TClonesArray* bump_array=new TClonesArray("PndEmcBump");

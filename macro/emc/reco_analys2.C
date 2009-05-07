@@ -2,17 +2,10 @@
   // Invariant mass reconstruction
 	double threshold=0.02;
   
+	gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
 	gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
+	rootlogon();
 	basiclibs();
-	gSystem->Load("libGeoBase");
-	gSystem->Load("libParBase");
-	gSystem->Load("libBase");
-	gSystem->Load("libField");
-	gSystem->Load("libGen");
-	gSystem->Load("libPassive");
-	// add the detector libraries you need
-	gSystem->Load("libEmc");	 
-	gSystem->Load("libGeom.so");
 	
 	TFile* f = new TFile("full_emc.root"); //file you want to analyse
         PndEmcMapper::Instance(2, "sim_emc.root");

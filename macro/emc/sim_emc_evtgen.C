@@ -6,18 +6,10 @@
   gDebug=0;
   // Load basic libraries
   // If it does not work,  please check the path of the libs and put it by hands
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
+  rootlogon();
   basiclibs();
-
-  // Load this example libraries
-  gSystem->Load("libGeoBase");
-  gSystem->Load("libParBase");
-  gSystem->Load("libBase");
-  gSystem->Load("libPndData");
-  gSystem->Load("libField");
-  gSystem->Load("libPassive"); // add other detector's lib if you need them
-  gSystem->Load("libEmc"); 
-  gSystem->Load("libGen");
   
   FairRunSim *fRun = new FairRunSim();
   

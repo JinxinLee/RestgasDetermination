@@ -24,17 +24,11 @@
 	// Loading libraries
 	// If the macro gives error messages in loading libraries, please check the path of the libs and put it by hands
 	
+	gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
 	gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
+	rootlogon();
 	basiclibs();
-	gSystem->Load("libGeoBase");
-	gSystem->Load("libParBase");
-	gSystem->Load("libBase");
-	gSystem->Load("libPndData");
-	gSystem->Load("libField");
-	gSystem->Load("libPassive");
-	gSystem->Load("libGen");  
-	gSystem->Load("libEmc"); 
-	
+
 	// -----   Timer   --------------------------------------------------------
 	TStopwatch timer;
 	timer.Start();

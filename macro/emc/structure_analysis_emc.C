@@ -24,20 +24,12 @@ string file_name="sim_emc.root";
 
 void structure_analysis_emc()
 {
-	gROOT->SetStyle("Plain");
+  gROOT->SetStyle("Plain");
 	
-	gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-	basiclibs();
-	
-  gSystem->Load("libGeoBase");
-  gSystem->Load("libParBase");
-  gSystem->Load("libBase");
-  gSystem->Load("libPndBase");
-  gSystem->Load("libField");
-  gSystem->Load("libPassive"); // add other detector's lib if you need them
-  gSystem->Load("libEmc");
-  gSystem->Load("libGen");
-	
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
+  rootlogon();
+  basiclibs();
 
   // The file structure.txt which contain for each detector in Fwd Endcap detectorId, two indexes and x,y,z coordinates
 	ifstream f;
