@@ -36,14 +36,12 @@ int main()
   std::vector<std::string> nam;
   
   // Classes
-  clas.push_back("El"); clas.push_back("Pi"); clas.push_back("Ka");
-  clas.push_back("gam"); clas.push_back("mu");
+  clas.push_back("Elect"); clas.push_back("Pion"); clas.push_back("Kaon");
+  clas.push_back("Muon"); //clas.push_back("gam");
   
   // Variables
-  nam.push_back("ep"); nam.push_back("tof"); nam.push_back("mvd");
-  nam.push_back("p");  nam.push_back("f");   nam.push_back("d");
-  nam.push_back("a");  nam.push_back("b");   nam.push_back("c");
-  nam.push_back("z");  nam.push_back("zz");  nam.push_back("zzz");
+  nam.push_back("p"); nam.push_back("tof"); nam.push_back("emc");
+  nam.push_back("stt"); nam.push_back("mvd"); nam.push_back("thetaC");
 
   TStopwatch timer;
   timer.Start();
@@ -70,6 +68,16 @@ int main()
   
   TStopwatch timer1;
   timer1.Start();
+
+  cls.Classify(evt,res);
+  printResult(res);
+
+  cls.Classify(evt1,res);
+  printResult(res);
+
+  cls.Classify(evt2,res);
+  printResult(res);
+  /*
   for(int i=0; i< 10000; i++){
     cls.Classify(evt,res);
     //printResult(res);
@@ -80,6 +88,7 @@ int main()
     cls.Classify(evt2,res);
     //printResult(res);
   }
+  */
   timer1.Stop();
   rtime = timer1.RealTime();
   ctime = timer1.CpuTime();

@@ -43,7 +43,7 @@ class PndLVQClassify{
    * @param result:  Classification results. Currently the shortest
    *  distance for each class is stored in result.
    */
-  void Classify(const std::vector<float> &EvtData, std::map<std::string,float>& result);
+  void Classify(std::vector<float> &EvtData, std::map<std::string,float>& result);
   
  protected:
   /**
@@ -59,5 +59,7 @@ class PndLVQClassify{
   std::vector<std::string> m_VarNames;
   //! Holds the LVQ proto-types
   std::vector< std::pair<std::string, std::vector<float>*> > m_protoContainer;
+  //! Container to keep normalization factors.
+  std::map<std::string, float> m_normFact;
 };
 #endif//end of interface definition

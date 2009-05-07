@@ -34,12 +34,12 @@ class PndLVQDistObj{
  PndLVQDistObj():m_idx(-1), m_dist(0.0), m_cls("UNKNOWN"){};
   
   //! Operator < implementation
-  inline bool operator < (const PndLVQDistObj &other)const{
+  inline bool operator< (const PndLVQDistObj &other)const{
     return (m_dist < other.m_dist);
   };
   
   //! Operator > implementation
-  inline bool operator > (const PndLVQDistObj &other)const{
+  inline bool operator> (const PndLVQDistObj &other)const{
     return (m_dist > other.m_dist);
   };
   

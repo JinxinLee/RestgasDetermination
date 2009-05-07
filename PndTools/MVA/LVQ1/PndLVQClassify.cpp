@@ -60,6 +60,29 @@ PndLVQClassify::PndLVQClassify(const char* InPut,
     delete t;
   }// End of for cls
 
+  // Read Norm facts
+  std::vector <float> normVars (m_VarNames.size(),0.0);
+  TTree* fact = (TTree*)InPutFile->Get("NormFact");
+  // Bind the parameters to the tree branches
+  for(unsigned int j = 0; j < m_VarNames.size(); j++)
+  {
+    const char* branchName = m_VarNames[j].c_str();
+      
+    //Binding the branches
+    fact->SetBranchAddress(branchName, &(normVars[j]));
+  }// Tree parameters are bounded
+  
+  // Fetch and store the variables to variable container
+  for(unsigned int k = 0; k < fact->GetEntriesFast(); k++)
+  {
+    fact->GetEntry(k);
+      
+    for(unsigned int idx = 0; idx < m_VarNames.size(); idx++)
+    {
+      m_normFact.insert(std::make_pair(m_VarNames[idx], normVars[idx]));
+    }
+  }//End of tree loop
+
   //Close the open file and delete the file pointer
   InPutFile->Close();
   delete InPutFile;
@@ -76,6 +99,7 @@ PndLVQClassify::~PndLVQClassify()
   m_protoContainer.clear();
   m_ClassNames.clear();
   m_VarNames.clear();
+  m_normFact.clear();
 }
 
 /**
@@ -98,16 +122,21 @@ float PndLVQClassify::ComputeDist(const std::vector<float> &EvtData,
  * @param result:  Classification results. Currently the shortest
  *                 distance for each class is stored in result.
  */
-void PndLVQClassify::Classify(const std::vector<float> &EvtData, 
+void PndLVQClassify::Classify(std::vector<float> &EvtData,
 			      std::map<std::string,float>& result)
 {
   float dist = 0.0;
   result.clear();
+  
   // Initialize results
   for(unsigned int id = 0; id < m_ClassNames.size(); id++){
     result.insert( make_pair( m_ClassNames[id], std::numeric_limits<float>::max()) );
   }
-  
+  // Normalize Event
+  for(unsigned int k=0; k < m_VarNames.size(); k++)
+  {
+    EvtData[k] = EvtData[k] / m_normFact[m_VarNames[k]];
+  }
   // Loop trough the prototypes list and compute the distances
   for(unsigned int i = 0; i < m_protoContainer.size(); i++){
     std::string clsName = m_protoContainer[i].first;
