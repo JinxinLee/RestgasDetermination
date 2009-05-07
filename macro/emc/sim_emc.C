@@ -45,20 +45,26 @@
 
    //FairDetector *Emc = new PndEmc("EMC",kTRUE);
    PndEmc *Emc = new PndEmc("EMC",kTRUE);
-   //Emc->SetGeometryFileName("emc_module12345.dat"); // if you want to use old geometry for FwEndCap
-   Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root"); // if you want to use new geometry for FwEndCap
+   //Emc->SetGeometryFileName("emc_module12345.dat"); // if you want to use old geometry for FwEndCap & BwEndCap
+   //Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root"); // obsolete!! if you want to use new geometry for FwEndCap
+   Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root",0); //0 -means: *1245.dat + *.root -> new forward endcap, Mapper==2
+   //Emc->SetGeometryFileNameDouble("emc_module1235.dat","emc_module4_StraightGeo26.root",1); //1 -means: *1235.dat + *.root -> new backward endcap, Mapper==7
    //
-   //If you want to test/use a new version of Backward Endcap (BwEndCap) with the forward endcap geometry: 
-   //"emc_module4_FwEndCapGeo.root" or with straight crystals 26mm x 26mm: "emc_module4_StraightGeo.root",
-   //use: SetGeometryFileNameTriple(), like below; 
-   //if you use this combination of geometry, use ----> MapperVersion: 6 !!! - in the trunk/macro/params/emc.par
-   //
-   //Emc->SetGeometryFileName("emc_module4_FwEndCapGeo.root"); // only new BwEndCap
-   //Emc->SetGeometryFileName("emc_module4_StraightGeo26.root"); // only new BwEndCap
-   //Emc->SetGeometryFileNameTriple("emc_module125.dat","emc_module3new.root","emc_module4_FwEndCapGeo.root");
-   //Emc->SetGeometryFileNameTriple("emc_module125.dat","emc_module3new.root","emc_module4_StraightGeo26.root");
+   // For testing a new version of Backward End-Cap (BwEndCap):
+   // a) with the forward endcap geometry: "emc_module4_FwEndCapGeo.root"
+   // b) with straight crystals 26mm x 26mm x 200mm: "emc_module4_StraightGeo26.root"
+   // you can use SetGeometryFileName() or SetGeometryFileNameDouble() or SetGeometryFileNameTriple(), 
+   // depends on the EMC geometry compination, like below:
+   // 
+   // Emc->SetGeometryFileName("emc_module4_StraightGeo26.root");    //only new BwEndCap, MapperVersion: 6
+   // Emc->SetGeometryFileName("emc_module4_StraightGeo26_Al.root"); //only new BwEndCap with dead material in front, MapperVersion: 6
+   // Emc->SetGeometryFileNameDouble("emc_module1235.dat","emc_module4_StraightGeo26.root",1); //*1235.dat + _new_ BwEndCap, MapperVersion: 7
+   // Emc->SetGeometryFileNameTriple("emc_module125.dat","emc_module3new.root","emc_module4_StraightGeo26.root"); //*125.dat + _new_ FwEndCap + _new_ BwEndCap, MapperVersion: 6
+   // 
+   // MapperVersion you need to set in the "emc.par" file in ../trunk/macro/params/emc.par
    fRun->AddModule(Emc);
   
+
   // Create and Set Event Generator
   //-------------------------------
   
