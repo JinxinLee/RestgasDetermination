@@ -118,7 +118,9 @@ class PndLVQTrain{
    */
   void InitProtoTypes(int numProto);
   
-  // Clean prototype container.
+  /**
+   * Clean prototype container.
+   */
   void cleanProtoList();
   
   template <typename T>
@@ -133,12 +135,13 @@ class PndLVQTrain{
   void CompClsCondMean(const std::string clsName);
 
   /**
-   * Write the prototypes to the out-put file 
+   * Write the prototypes and other features (nomalization factors,
+   * ...) to the out-put file
    */
   void WriteToProtoFile(const char* outFile);
 
   /**
-   * TO BE REMOVED
+   * TO BE REMOVED.
    * Write the normalized DataSet to the out-put file.
    * @param  outFile  File name to write to
    */
@@ -153,25 +156,28 @@ class PndLVQTrain{
   void ComputeVariance();
   
   /**
-   * Determines the median for parameters of the loaded DataSet.
-   */
-  void DetermineMediaan();
-
-  /**
    * Normalize the loaded DataSet using the computed Var(X).
    */
   void NormalizeWithVariance();
-
+  
+  /**
+   * Determines the median for parameters of the loaded DataSet.
+   */
+  void DetermineMediaan();
+  
   /**
    * Normalize the loaded DataSet using Median and inter-quartile
    * distance.
    */
   void NormalizeWithMedian();
-
+  
   /**
-   * Determine Dist Min Max difference.
+   * Determine Min Max difference.
    */
   void MinMaxDiff();
+  /**
+   * Normalize dataset using the min max distance (spread)
+   */
   void NormalizeWithMinMax();
 
   //! Class names
@@ -183,15 +189,9 @@ class PndLVQTrain{
   //! Container to keep  the Class Conditional means
   std::map< std::string, std::vector<float>* > m_ClassCondMeans;
 
-  //! Container to keep  the per class variances
-  std::map<std::string, float> m_ClassVarian;
-  
-  //! Container to keep  the per class min max diff
-  std::map<std::string, float> m_ClassMinMax;
+  //! Container to keep normalization factors.
+  std::map<std::string, float> m_normFact;
 
-  //! Container to keep the median and quartil dists
-  std::map< std::string, std::pair< float, float > > m_ClsMedianQrtlDis;
-  
   //! Container to keep  the Event data feature vectors
   std::vector< std::pair<std::string, std::vector<float>*> > m_EventsData;
   
@@ -209,9 +209,8 @@ class PndLVQTrain{
    * learning rate.
    */
   double m_initConst, m_ethaZero, m_ethaFinal;
+  
   //! Number of sweeps through example set.
   int m_NumSweep;
-
-  float m_clsMedian, m_qrtDist;
 };
 #endif //end of interface definition

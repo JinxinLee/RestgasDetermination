@@ -88,10 +88,16 @@ PndLVQTrain::PndLVQTrain(const char* InPut,
   m_ethaFinal = 0.0001; m_NumSweep = 500;
   
   // ====== Normalize the loaded dataSet
-  NormalizeWithMedian();
-  //NormalizeWithVariance();
+  
+  // NormalizeWithMedian();
+  // WriteDataToFile("InputMedianNormalized.root");
+  
+  NormalizeWithVariance();
+  WriteDataToFile("InputVarianceNormalized.root");
+  
   // NormalizeWithMinMax();
-  WriteDataToFile("InputNormalized.root");
+  // WriteDataToFile("InputMinMaxNormalized.root");
+  
 }// End of constructor
 
 /**
@@ -120,14 +126,12 @@ PndLVQTrain::~PndLVQTrain()
     delete m_LVQProtos[k].second;
   }
   m_LVQProtos.clear();
-  
 
   m_perClsExamples.clear();
   m_ClassNames.clear();
   m_VarNames.clear();
   m_ClassIndex.clear();
-  m_ClassVarian.clear();
-  m_ClsMedianQrtlDis.clear();
+  m_normFact.clear();
 }
 
 /**
@@ -495,69 +499,6 @@ void PndLVQTrain::CompClsCondMean(const std::string clsName)
   m_ClassCondMeans.insert(std::make_pair(clsName,vec));
 }
 
-/**
- * Computes Variance (unbiased estimator) for each parameter in the
- * feature list.
- * @param clsName The name of the class of events for with we want
- * to compute Var(X).
- */
-void PndLVQTrain::ComputeVariance()
-{
-  std::vector <float> vec(m_EventsData.size(), 0.0);
-  float mean = 0.0;
-  float variance = 0.0;
-
-  //Variable Loop
-  for(unsigned int i = 0; i < m_VarNames.size(); i++ )
-  {
-    // Event Loop
-    for(unsigned int ev = 0; ev < m_EventsData.size(); ev++)
-    {
-      vec[ev] = (m_EventsData[ev].second)->at(i);
-      mean   += (m_EventsData[ev].second)->at(i);
-    }
-    // Compute variable mean and variance
-    mean /= static_cast<float>(m_EventsData.size());
-    
-    for(unsigned int ev = 0; ev < m_EventsData.size(); ev++)
-    {
-      variance += (vec[ev] - mean) * (vec[ev] - mean);
-    }
-    variance = variance / static_cast<float>(m_EventsData.size());
-    variance = sqrt(variance);
-    
-    // Insert
-    std::string varName = m_VarNames[i];
-    m_ClassVarian.insert(std::make_pair(varName, variance));
-
-    // Reset
-    mean = 0.0;
-    variance = 0.0;
-  }
-}
-
-/**
- * Normalize the loaded DataSet using the computed Var(X).
- */
-void PndLVQTrain::NormalizeWithVariance()
-{
-  std::cout << "\t<INFO> Normalizing the dataset "
-	    << "using samle Variance. "
-	    << std::endl;
-  ComputeVariance();
-
-  // Loop through the classes
-  for(unsigned int ev = 0; ev < m_EventsData.size(); ev++)
-  {
-    // Loop Through parameters
-    for(unsigned int i = 0; i < m_VarNames.size(); i++)
-    {
-      std::string varName = m_VarNames[i];
-      (m_EventsData[ev].second)->at(i) = (m_EventsData[ev].second)->at(i) / (m_ClassVarian[varName]);
-    }
-  }
-}
-
 // Clean-up the prototypes list
 void PndLVQTrain::cleanProtoList()
 {
@@ -578,20 +519,16 @@ void PndLVQTrain::cleanProtoList()
 void PndLVQTrain::WriteToProtoFile(const char* outPut)
 {
   /* Open out put file and write coordinates of the prototypes */
-  TFile* out = new TFile(outPut,"RECREATE");
-  
+  TFile out (outPut,"RECREATE");
+
   for(unsigned int cls = 0; cls < m_ClassNames.size(); cls++)
   {
     std::vector<float> vars(m_VarNames.size(), 0.0);
-
-    std::string name = m_ClassNames[cls];
-
-    std::string desc = "Description Of " + name;
-    const char* treeName = name.c_str();
-    const char* treeDesc = desc.c_str();
+    std::string treename = m_ClassNames[cls];
+    std::string treedesc = "Description Of " + treename;
 
     // Create a tree
-    TTree sig (treeName, treeDesc);
+    TTree sig (treename.c_str(), treedesc.c_str());
 
     // Create branches and bind the variables
     for(unsigned int j = 0; j < m_VarNames.size(); j++)
@@ -607,7 +544,7 @@ void PndLVQTrain::WriteToProtoFile(const char* outPut)
     // Fill The prototypes tree
     for(unsigned int i = 0; i< m_LVQProtos.size(); i++)
     {
-      if(m_LVQProtos[i].first == name)
+      if(m_LVQProtos[i].first == treename)
       {
 	for(unsigned int k = 0; k < vars.size(); k++)
 	{
@@ -615,17 +552,44 @@ void PndLVQTrain::WriteToProtoFile(const char* outPut)
 	}
 	sig.Fill();
       }
-    }
-
+    }  
     // Write the created tree
     sig.Write();
+  }// End for cls = 0;
+
+  // Write normFactors 
+  std::vector<float> vars(m_VarNames.size(), 0.0);
+  std::string name = "NormFact";
+  std::string desc = "desc of " + name;
+  TTree fact(name.c_str(), desc.c_str());
+
+  // Create branches and bind the variables
+  for(unsigned int j = 0; j < m_VarNames.size(); j++)
+  {
+    std::string vname = m_VarNames[j];
+    std::string leaf  = vname + "/F" ;
+    const char* bname = vname.c_str();
+    const char* lname = leaf.c_str();
+    
+    // Bind the parameters to the tree elements.
+    fact.Branch  (bname, &vars[j], lname);
   }
-  // We are done. We can close the open file and delete the pointer
-  out->Close();
-  delete out;
+  
+  // Fill the trees.
+  for(unsigned int i = 0; i < m_normFact.size(); i++)
+  {
+    std::string n =  m_VarNames[i];
+    vars[i] = m_normFact[n];
+  }
+  fact.Fill();
+  fact.Write();
+
+  //Close open file
+  out.Close();
 }
 
 /**
+ * Will be deleted SOON.
  * Write the normalized DataSet to the out-put file.
  * @param  outFile  File name to write to
  */
@@ -710,7 +674,10 @@ void PndLVQTrain::DetermineMediaan()
       median = varVect[(varVect.size() / 2)];
       Fquartil = varVect[( (varVect.size() + 1)/4) - 1 ];
     }
-    m_ClsMedianQrtlDis.insert(std::make_pair(m_VarNames[i], std::make_pair(median, Fquartil)));
+    // Store values
+    m_normFact.insert(std::make_pair(m_VarNames[i], Fquartil));
+    std::cout << m_VarNames[i] << "\tmedian = " << median 
+	      << "\t IntQuartDist = " << Fquartil << std::endl;
   }
 }
 
@@ -732,13 +699,14 @@ void PndLVQTrain::NormalizeWithMedian()
     for(unsigned int i = 0; i < m_VarNames.size(); i++)
     {
       std::string vName = m_VarNames[i];
-      std::pair<float,float> pr = m_ClsMedianQrtlDis[vName];
-      //(m_EventsData[ev].second)->at(i) = ( (m_EventsData[ev].second)->at(i) - pr.first)/(pr.second);
-      (m_EventsData[ev].second)->at(i) = ( (m_EventsData[ev].second)->at(i) )/(pr.second);
+      (m_EventsData[ev].second)->at(i) = ( (m_EventsData[ev].second)->at(i) )/ m_normFact[vName];
     }
   }
 }
 
+/**
+ * Determine the Min Max distance.
+ */
 void PndLVQTrain::MinMaxDiff()
 {
   std::vector <float> vec (m_EventsData.size(), 0.0);
@@ -752,25 +720,97 @@ void PndLVQTrain::MinMaxDiff()
     }
     // Sort variables
     std::sort(vec.begin(),vec.end());
-    // Debug may be commented out.
-    std::cout << m_VarNames[i] << "\t min = " << vec[0] 
-	      << "\t max = " << vec[vec.size() - 1 ] << std::endl;
+
+    std::cout << m_VarNames[i] << "\tmin = " << vec[0] 
+	      << "\t\t max = " << vec[vec.size() - 1 ];
+
     float diff = vec[ vec.size() - 1 ] - vec[0];
     // Store values
-    m_ClassMinMax.insert(std::make_pair(m_VarNames[i], diff));
-    std::cout << m_VarNames[i] << "\t diff = " << diff << std::endl;
+    m_normFact.insert(std::make_pair(m_VarNames[i], diff));
+    std::cout << "\t\t diff = " << diff << std::endl;
   }
 }
 
+/**
+ * Normalize the dataset using Min Max distance.
+ */
 void PndLVQTrain::NormalizeWithMinMax()
 {
   MinMaxDiff();
+  std::cout << "<INFO>\tNormalizing dataset using Min Max spread." 
+	    <<std::endl;
   for(unsigned int ev = 0; ev < m_EventsData.size(); ev++)
   {
     for(unsigned int i = 0; i < m_VarNames.size(); i++)
     {
       std::string varName = m_VarNames[i];
-      (m_EventsData[ev].second)->at(i) = (m_EventsData[ev].second)->at(i) / (m_ClassMinMax[varName]);
+      //Store values
+      (m_EventsData[ev].second)->at(i) = (m_EventsData[ev].second)->at(i) / (m_normFact[varName]);
+    }
+  }
+}
+
+
+/**
+ * Computes Variance (unbiased estimator) for each parameter in the
+ * feature list.
+ * @param clsName The name of the class of events for with we want
+ * to compute Var(X).
+ */
+void PndLVQTrain::ComputeVariance()
+{
+  std::vector <float> vec(m_EventsData.size(), 0.0);
+  float mean = 0.0;
+  float variance = 0.0;
+
+  //Variable Loop
+  for(unsigned int i = 0; i < m_VarNames.size(); i++ )
+  {
+    // Event Loop
+    for(unsigned int ev = 0; ev < m_EventsData.size(); ev++)
+    {
+      vec[ev] = (m_EventsData[ev].second)->at(i);
+      mean   += (m_EventsData[ev].second)->at(i);
+    }
+    // Compute variable mean and variance
+    mean /= static_cast<float>(m_EventsData.size());
+    
+    for(unsigned int ev = 0; ev < m_EventsData.size(); ev++)
+    {
+      variance += (vec[ev] - mean) * (vec[ev] - mean);
+    }
+    variance = variance / static_cast<float>(m_EventsData.size() - 1 );
+    variance = sqrt(variance);
+    
+    // Insert
+    std::string varName = m_VarNames[i];
+    m_normFact.insert(std::make_pair(varName, variance));
+    std::cout << varName << "\t mean = " << mean
+	      << "\t\tVar(X) = " << variance << std::endl;
+    // Reset
+    mean = 0.0;
+    variance = 0.0;
+  }
+}
+
+/**
+ * Normalize the loaded DataSet using the computed Var(X).
+ */
+void PndLVQTrain::NormalizeWithVariance()
+{
+  std::cout << "\t<INFO> Normalizing the dataset "
+	    << "using samle Variance. "
+	    << std::endl;
+  ComputeVariance();
+
+  // Event Loop
+  for(unsigned int ev = 0; ev < m_EventsData.size(); ev++)
+  {
+    // Parameters Loop
+    for(unsigned int i = 0; i < m_VarNames.size(); i++)
+    {
+      std::string varName = m_VarNames[i];
+      (m_EventsData[ev].second)->at(i) = (m_EventsData[ev].second)->at(i) / (m_normFact[varName]);
     }
   }
 }
