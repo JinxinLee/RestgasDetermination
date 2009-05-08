@@ -177,8 +177,13 @@ void PndLVQTrain::Train(const int numProto, const char* outPut)
 	    << outPut << std::endl;
   
   // Start the training
+  std::cout << "Starting to train (LVQ1)....." << std::endl;
   for(int time = 0; time < tFinal; time++)
   {
+    if( (time % 100000) == 0)
+    {
+      std::cerr << " ." ;
+    }
     int    protoIndex       = 0;
     double distance         = 0.0;
     double minProtoDistance = std::numeric_limits<float>::max();//1000000.0;
@@ -225,6 +230,7 @@ void PndLVQTrain::Train(const int numProto, const char* outPut)
   }
   // Write the coordinates of the prototypes to the file
   WriteToProtoFile(outPut);
+  std::cerr << std::endl;
 }
 
 /**
@@ -286,9 +292,14 @@ void PndLVQTrain::Train21(const int numProto, const char* outPut)
 	    <<", surroun. = "<< s << "\nPrototypes will be stored in "
 	    << outPut <<std::endl;
   
-  //Start learning  
+  //Start learning
+  std::cout << "Starting to train (LVQ2.1)....." << std::endl;
   for(int time = 0; time < tFinal; time++)
   {
+    if( (time % 100000) == 0)
+    {
+      std::cerr << " ." ;
+    }
     double distance         = 0.0;
     double ethaT = (ethaZero) / (1.0 + (a * static_cast<double>(time)));
     
@@ -370,6 +381,7 @@ void PndLVQTrain::Train21(const int numProto, const char* outPut)
     delete distances[i];
   }
   distances.clear();
+  std::cerr << std::endl;
 }
 
 ////////////////////////// Protected functions ///////////

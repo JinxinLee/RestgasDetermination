@@ -132,11 +132,13 @@ void PndLVQClassify::Classify(std::vector<float> &EvtData,
   for(unsigned int id = 0; id < m_ClassNames.size(); id++){
     result.insert( make_pair( m_ClassNames[id], std::numeric_limits<float>::max()) );
   }
+
   // Normalize Event
   for(unsigned int k=0; k < m_VarNames.size(); k++)
   {
     EvtData[k] = EvtData[k] / m_normFact[m_VarNames[k]];
   }
+  
   // Loop trough the prototypes list and compute the distances
   for(unsigned int i = 0; i < m_protoContainer.size(); i++){
     std::string clsName = m_protoContainer[i].first;
