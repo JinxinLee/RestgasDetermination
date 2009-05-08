@@ -46,8 +46,7 @@
    //FairDetector *Emc = new PndEmc("EMC",kTRUE);
    PndEmc *Emc = new PndEmc("EMC",kTRUE);
    //Emc->SetGeometryFileName("emc_module12345.dat"); // if you want to use old geometry for FwEndCap & BwEndCap
-   //Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root"); // obsolete!! if you want to use new geometry for FwEndCap
-   Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root",0); //0 -means: *1245.dat + *.root -> new forward endcap, Mapper==2
+   Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root"); //if you want to use new geometry for FwEndCap
    //Emc->SetGeometryFileNameDouble("emc_module1235.dat","emc_module4_StraightGeo26.root",1); //1 -means: *1235.dat + *.root -> new backward endcap, Mapper==7
    //
    // For testing a new version of Backward End-Cap (BwEndCap):
