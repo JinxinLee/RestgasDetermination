@@ -8,22 +8,10 @@ void QAmacro_mdt_1()
   // Load basic libraries
   // If it does not work,  please check the path of the libs and put it by hands
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  rootlogon();
   basiclibs();
-
-  // Load this example libraries
-  gSystem->Load("libGeoBase");
-  gSystem->Load("libParBase");
-  gSystem->Load("libBase");
-  gSystem->Load("libPndData");
-  gSystem->Load("libField");
-  gSystem->Load("libPassive");
-  gSystem->Load("libMdt");
-  gSystem->Load("libEmc");
-  gSystem->Load("libGen");
-//  gSystem->Load("libMvd");
-//  gSystem->Load("libtpc");
-  gSystem->Load("libgenfit");
-
+ 
   gRandom->SetSeed(1235);	
   
   FairRunSim *fRun = new FairRunSim();
