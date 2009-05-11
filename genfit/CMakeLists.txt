@@ -5,6 +5,8 @@
 set(INCLUDE_DIRECTORIES
 ${ROOT_INCLUDE_DIR} 
 ${CLHEP_INCLUDE_DIR}
+${CMAKE_SOURCE_DIR}/pnddata/TrackData
+${CMAKE_SOURCE_DIR}/trackbase
 ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/genfit/test
 )
@@ -40,6 +42,7 @@ trackProximity.cxx
 VirtSpacePointRecoHit.cxx
 WireHitPolicy.cxx
 WirepointHitPolicy.cxx
+PndAdapters.cxx
 )
 
 if(RULE_CHECKER_FOUND)
