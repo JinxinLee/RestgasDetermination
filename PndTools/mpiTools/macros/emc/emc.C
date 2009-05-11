@@ -51,7 +51,7 @@ void emc(Int_t nEvents = 10, Char_t part[]="e-", Double_t momentum_min = 1.0, Do
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
   //Emc->SetGeometryFileName("emc_module12345.dat"); 
   Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root");
-  Emc->SetStorageOfPoints(savepoints);
+  Emc->SetStorageOfData(savepoints);
   fRun->AddModule(Emc);
   
   // Create and Set Event Generator
@@ -90,25 +90,25 @@ void emc(Int_t nEvents = 10, Char_t part[]="e-", Double_t momentum_min = 1.0, Do
   // -------- Analysis part ------------------------
 
   PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
-  emcHitProd->SetStorageOfHits(savehits);
+  emcHitProd->SetStorageOfData(savehits);
   fRun->AddTask(emcHitProd);
 
   PndEmcHitsToWaveform* emcHitsToWaveform= new PndEmcHitsToWaveform(0);
   PndEmcWaveformToDigi* emcWaveformToDigi=new PndEmcWaveformToDigi(0);
-  emcHitsToWaveform->SetStorageOfWaves(savewaves);
-  emcWaveformToDigi->SetStorageOfDigis(savedigis);
+  emcHitsToWaveform->SetStorageOfData(savewaves);
+  emcWaveformToDigi->SetStorageOfData(savedigis);
   fRun->AddTask(emcHitsToWaveform);  // full digitization
   fRun->AddTask(emcWaveformToDigi);  // full digitization
  
   PndEmcMakeCluster* emcMakeCluster= new PndEmcMakeCluster(0);
-  emcMakeCluster->SetStorageOfClusters(saveclusters);
+  emcMakeCluster->SetStorageOfData(saveclusters);
   fRun->AddTask(emcMakeCluster);
 
   PndEmcHdrFiller* emcHdrFiller = new PndEmcHdrFiller();
   fRun->AddTask(emcHdrFiller); // ECM header
 
   PndEmcMakeBump* emcMakeBump= new PndEmcMakeBump();
-  emcMakeBump->SetStorageOfBumps(savebumps);
+  emcMakeBump->SetStorageOfData(savebumps);
   fRun->AddTask(emcMakeBump);
 
   // -------------------------------------------------
