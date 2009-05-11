@@ -9,16 +9,18 @@
   gSystem->AddIncludePath("-I$VMCWORKDIR/base");
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
   basiclibs();
+
+  gSystem->Load("libDpmEvtGen.so");
   gSystem->Load("libGeoBase");
   gSystem->Load("libParBase");
   gSystem->Load("libBase");
+  gSystem->Load("libTrkBase");
+  gSystem->Load("libPndData");
   gSystem->Load("libField");
-  gSystem->Load("libGen");
   gSystem->Load("libPassive");
+  gSystem->Load("libGen");
+  gSystem->Load("libPGen");
   gSystem->Load("libEmc"); 
-  gSystem->Load("libGeom.so");
-  gSystem->Load("libPndData.so");
-  gSystem->Load("libGui.so");
 
   delete gRandom;
   gRandom=new TRandom3(0);
