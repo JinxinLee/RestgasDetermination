@@ -35,6 +35,7 @@ source $PANDAROOTBUILD/config.sh > logfile
 cp $HOME/pandaroot/vanni/gpid/gamma/run_sim_alldet.C .
 cp $HOME/pandaroot/vanni/gpid/gamma/run_rec_alldet.C .
 cp $HOME/pandaroot/vanni/gpid/gamma/ana.C .
+cp $HOME/pandaroot/vanni/gpid/gamma/rootlogon.C .
 #cp $HOME/pandaroot/vanni/gpid/pidmacro/grep_all.C  .
 #cp $HOME/pandaroot/vanni/gpid/pidmacro/shower.C  .
 #cp $HOME/pandaroot/vanni/gpid/pidmacro/rootlogon.C  .
