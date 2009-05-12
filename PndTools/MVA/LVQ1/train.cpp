@@ -16,19 +16,22 @@ int main(int argc, char** argv)
   std::vector<std::string> clas;
   std::vector<std::string> nam;
 
-  if(argc < 3){
+  if(argc < 4){
     std::cerr << "\t<ERROR> Usage\n"
-              <<"\t./train <NumProtoTypes> <OutFile>"
+              <<"\t./train <InputTrainEventFeatureFile> <NumProtoTypes> <OutFile>"
               << std::endl;
     return 1;
   }
   
+  std::string ip = argv[1];// InputFile
+  const char* InputFile = ip.c_str();
+
   int numProto = 0;
-  std::string numstr = argv[1];
+  std::string numstr = argv[2];// Number of proto's
   std::istringstream buff(numstr);
   buff >> numProto;
 
-  std::string ot   = argv[2];
+  std::string ot   = argv[3];// OutPutFile
   const char* OutFile = ot.c_str();
 
   //Class names
@@ -40,7 +43,7 @@ int main(int argc, char** argv)
   nam.push_back("p");  nam.push_back("tof");  nam.push_back("emc");
   nam.push_back("stt");  nam.push_back("mvd");  nam.push_back("thetaC");
   
-  PndLVQTrain tr ("../Gpid_files/EventFeaturesTrain.root", clas, nam);
+  PndLVQTrain tr (InputFile, clas, nam);
   float initC  = 0.3;
   float ethaZ  = 0.1;
   float ethaF  = 0.00001;
@@ -52,3 +55,15 @@ int main(int argc, char** argv)
   //tr.Train21(numProto, OutFile);
   return 0;
 }
+/*
+  std::string bla = "haphap.root";
+  std::cout <<" str is " << bla << std::endl;
+  std::string::size_type loc = bla.find( ".root", 0 );
+  if( loc != std::string::npos ){
+  std::cout << "Found Omega at " << loc << std::endl;
+  }else{
+  std::cout << "Didn't find Omega" << std::endl;
+  }
+  bla.erase(loc, bla.size());
+  std::cout <<" str is " << bla << std::endl;
+*/

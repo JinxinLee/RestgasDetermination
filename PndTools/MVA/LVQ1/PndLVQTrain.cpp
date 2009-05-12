@@ -105,6 +105,7 @@ PndLVQTrain::PndLVQTrain(const char* InPut,
  */
 PndLVQTrain::~PndLVQTrain()
 {
+  std::cout << "Cleaning all initialized objects." << std::endl;
   // Clean up the container for class Conditional means
   std::map< std::string, std::vector<float>* >::iterator it;
   for(it = m_ClassCondMeans.begin(); it != m_ClassCondMeans.end(); ++it)
@@ -530,6 +531,8 @@ void PndLVQTrain::cleanProtoList()
  */
 void PndLVQTrain::WriteToProtoFile(const char* outPut)
 {
+  std::cerr << "\t<INFO> Writing Trained prototypes to "
+	    << outPut << std::endl;
   /* Open out put file and write coordinates of the prototypes */
   TFile out (outPut,"RECREATE");
 
@@ -607,6 +610,8 @@ void PndLVQTrain::WriteToProtoFile(const char* outPut)
  */
 void PndLVQTrain::WriteDataToFile(const char* outPut)
 {
+  std::cerr << "\t<INFO> Writing normalized data to "
+	    << outPut << std::endl;
   /* Open out put file and write coordinates of the prototypes */
   TFile* out = new TFile(outPut,"RECREATE");
   

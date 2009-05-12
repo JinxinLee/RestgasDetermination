@@ -37,19 +37,19 @@
   gSystem->Load("libTof");
   gSystem->Load("libDrcProp");
   gSystem->Load("libDrc");
-//  gSystem->Load("libtpcreco");
+  //  gSystem->Load("libtpcreco");
   gSystem->Load("libtrackrep");
   gSystem->Load("libTrkBase");
-//  gSystem->Load("librecotasks");
-  gSystem->Load("libMvd");
-  gSystem->Load("libMvdReco");
-  gSystem->Load("libLHETrack");
+  //  gSystem->Load("librecotasks");
+  //gSystem->Load("libMvd");
+  // gSystem->Load("libMvdReco");
+  //gSystem->Load("libLHETrack");
   gSystem->Load("libRho");
   gSystem->Load("libGeane");
   gSystem->Load("libTMVA");
   gSystem->Load("libMva");
   gSystem->Load("libGpid");
-
+  
   gStyle->SetPalette(1);
   gStyle->SetTitleStyle(0);
   gStyle->SetTitleXSize(0.06);
