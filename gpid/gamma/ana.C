@@ -17,7 +17,7 @@ void ana( )
   // Macro loads a file after reconstruction and plots difference between initial direction of particle and angular position of cluster
   
         
-        TFile* f = new TFile("full_emc.root"); //file you want to analyse
+        TFile* f = new TFile("reco_sttcombi.root"); //file you want to analyse
         TTree *t=(TTree *) f->Get("cbmsim") ;
         TClonesArray* cluster_array=new TClonesArray("PndEmcCluster");
         t->SetBranchAddress("EmcCluster",&cluster_array);
