@@ -66,7 +66,7 @@ void ana( )
 		list.clear();
         }
 	TFile *out = new TFile("pid_tree.root","RECREATE");
-	out->WriteObject(ntuple,"pidntuple");
+	out->WriteObject(tube,"pidntuple");
 
 }
 
