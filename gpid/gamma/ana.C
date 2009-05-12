@@ -22,7 +22,7 @@ void ana( )
         TClonesArray* cluster_array=new TClonesArray("PndEmcCluster");
         t->SetBranchAddress("EmcCluster",&cluster_array);
 
-        TFile* fsim = new TFile("sim_emc.root"); //file you want to analyse
+        TFile* fsim = new TFile("points_sttcombi.root"); //file you want to analyse
         TTree *tsim=(TTree *) fsim->Get("cbmsim") ;
         PndEmcMapper *emcMap=PndEmcMapper::Instance(2);
         std::vector<PndEmcDigi*> list;
