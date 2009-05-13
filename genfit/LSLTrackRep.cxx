@@ -166,12 +166,15 @@ LSLTrackRep::extrapolate(const DetPlane& pl,
 			 TMatrixT<double>& statePred,
 			 TMatrixT<double>& covPred)
 {
+  TMatrixT<double> jacobian;
   //std::cout << "Extr from To: " << s << " " << sExtrapolateTo << std::endl;
   double l=extrapolate(pl,statePred);
   // covPred=JCovJ^T with J being Jacobian
-  //TMatrixT<double> dummy(cov,TMatrixT<double>::kMultTranspose,jacobian);
-  //covPred=jacobian*dummy;
-  //covPred=cov;
+  jacobian.ResizeTo(5,5);
+  Jacobian(pl,statePred,jacobian);
+  TMatrixT<double> dummy(cov,TMatrixT<double>::kMultTranspose,jacobian);
+  covPred=jacobian*dummy;
+  covPred=cov;
   return l;
 }
 
