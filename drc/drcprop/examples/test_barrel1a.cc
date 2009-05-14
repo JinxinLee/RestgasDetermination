@@ -100,6 +100,8 @@ void cross(PndDrcPhoton ph1, PndDrcPhoton ph2, double& x, double& y, double& z)
 
 
 
+
+
 int main(int argc, char *argv[]) 
 {
 
@@ -115,6 +117,7 @@ int main(int argc, char *argv[])
 
 
   double radius_lens1  = 152.9;//atof(argv[1]);//120;
+
   double thick_lens1   =   5;
 
   double thick_air1    =   2;
@@ -304,7 +307,7 @@ int main(int argc, char *argv[])
   // .x Geo.C 
   // .x Screen.C
   // 
-  //manager->Print(geo);
+  manager->Print(geo);
 
   // create a list of photons in bar
 
@@ -318,13 +321,14 @@ int main(int argc, char *argv[])
   ph.SetReflectionLimit(200);
   
   list<PndDrcPhoton> list_photon; // get list
-
+  /*
     
   {
       
     // straight lines.
     TRandom ran;
-    for (double angle=5; angle<=40.5; angle+=5)
+    //for (double angle=20; angle<=20; angle+=5)
+      for (double angle=5; angle<=40.5; angle+=5)
       {
 	double slab_width = q2.X()*1.9;
 	double slab_height =q2.Y()*1.9;
@@ -373,7 +377,7 @@ int main(int argc, char *argv[])
     //manager->setPhotonList(list_photon,"bar","optsys");
   }
    
-   
+  */
   
   /*
   
@@ -496,6 +500,7 @@ int main(int argc, char *argv[])
   out_opt.open("optic.dat",std::ios::out);
   
 
+
   
   list<PndDrcPhoton>::iterator iph;
   int i=0;
@@ -563,10 +568,15 @@ int main(int argc, char *argv[])
 	  double yy=(*iph).Position().Y();
 	  scr<<"    TMarker* t = new TMarker("<<xx<<","<<yy<<",20);"<<endl;
 	  scr<<"    t->SetMarkerColor("
-		<<(*iph).ColorNumber((*iph).Wavelength())
-		<<");"<<endl;
+	     <<(*iph).ColorNumber((*iph).Wavelength())
+	     <<");"<<endl;
 	  scr<<"    t->SetMarkerSize(0.2);"<<endl;
 	  scr<<"    t->Draw();"<<endl;
+
+
+	  
+
+
 	}
       
 
@@ -574,8 +584,8 @@ int main(int argc, char *argv[])
       else if ((*iph).Fate()==Drc::kPhotFlying)   icnt_flying++; // should never happen.
       else if ((*iph).Fate()==Drc::kPhotAbsorbed) icnt_absorbed++;
       else                                       icnt_lost++;
-}
-
+    }
+  
   
   double th1=999,th2=999,zz1,zz2;
   for (int iii=0; iii<1000 ;iii++)
