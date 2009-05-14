@@ -32,8 +32,10 @@
 //#include "PndTpcPoint.h"
 //#include "DemoRecoHit.h"
 //#include "DemoSPHit.h"
+//#include "PndHypRecoSPHit.h"
 #include "PndHypRecoHit.h"
 #include "FairMCPoint.h"
+#include "FairHit.h"
 #include "LSLTrackRep.h"
 #include "GeaneTrackRep.h"
 #include "RecoHitFactory.h"
@@ -96,20 +98,20 @@ PndHypDKalmanTask::Init()
    }
    else{ 
      // the next lines is not general because it will work only for CmMCPoints!
-     _theRecoHitFactory->addProducer(iter->first,new RecoHitProducer<PndHypPoint,PndHypRecoHit>(ar));
-     //FairHit,PndHypDSPHit>(ar));
+     _theRecoHitFactory->addProducer(iter->first,new RecoHitProducer<PndHypHit,PndHypRecoHit>(ar));
+     //FairHit,PndHypDSPHit>(ar));PndHypPoint,PndHypRecoHit
    }
   ++iter;
   }//end loops over hit types
 
   // setup histograms
- //  _pH=new TH1D("pH","p",500,0.02,0.7);
-//   _chi2H=new TH1D("chi2H","chi2",100,0,20);
-//   _xresH=new TH1D("xres","xres",100,-5,5);
-//   _yresH=new TH1D("yres","yres",100,-5,5);
-//   _xresFitH=new TH1D("xresfit","xres after fit",100,-5,5);
-//   _yresFitH=new TH1D("yresfit","yres after fit",100,-5,5);
-//   _pEnd=new TH2D("pEnd","Endpoint",100,-40,40,100,-50,150);
+   _pH=new TH1D("pH","p",500,0.02,0.7);
+  _chi2H=new TH1D("chi2H","chi2",100,0,20);
+  _xresH=new TH1D("xres","xres",100,-5,5);
+  _yresH=new TH1D("yres","yres",100,-5,5);
+  _xresFitH=new TH1D("xresfit","xres after fit",100,-5,5);
+  _yresFitH=new TH1D("yresfit","yres after fit",100,-5,5);
+  _pEnd=new TH2D("pEnd","Endpoint",100,-40,40,100,-50,150);
 
   return kSUCCESS;
 }
@@ -140,6 +142,7 @@ PndHypDKalmanTask::Exec(Option_t* opt)
       std::cout<<trk->getNumHits()<<" hits in track "
 	       <<itr<<std::endl;
     }
+   
     catch(FitterException& e) {
       std::cout << e.what() << std::endl;
       throw e;
@@ -180,28 +183,30 @@ PndHypDKalmanTask::Exec(Option_t* opt)
       trk->getCardinalRep()->Print();
       //DetPlane pl(TVector3(0,0,0),TVector3(1,0,0),TVector3(0,1,0));
       double p=trk->getTrackRep(0)->getMom().Mag();
-      //_pH->Fill(p);
+      std::cout<<" momentum "<<p<<std::endl;
+      
+      _pH->Fill(p);
       TVector3 pos=trk->getPos();
-      //_pEnd->Fill(pos.X(),pos.Z());
+      _pEnd->Fill(pos.X(),pos.Z());
 
       double chi2=trk->getChiSqu();
-      // _chi2H->Fill(chi2);
+       _chi2H->Fill(chi2);
       ++_trackcount;
 
 
-      /*
-      // fill tpc residuals
-      trk->getResiduals(2,0,0,res);
-      for(int i=0;i<res.size();++i){
-	_xresFitH->Fill(res[i]);
-      }
-      res.clear();
-      trk->getResiduals(2,1,0,res);
-      for(int i=0;i<res.size();++i){
-	_yresFitH->Fill(res[i]);
-      }
-      res.clear();
-      */
+      
+     //  // fill tpc residuals
+//       trk->getResiduals(2,0,0,res);
+//       for(int i=0;i<res.size();++i){
+// 	_xresFitH->Fill(res[i]);
+//       }
+//       res.clear();
+//       trk->getResiduals(2,1,0,res);
+//       for(int i=0;i<res.size();++i){
+// 	_yresFitH->Fill(res[i]);
+//       }
+//       res.clear();
+      
     }
   }
   
