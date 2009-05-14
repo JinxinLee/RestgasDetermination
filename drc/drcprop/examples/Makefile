@@ -4,7 +4,7 @@
 
 INCLFLAGS  = -I$(ROOTSYS)/include -I../
 LDLIBS     = $(shell root-config --glibs) \
-		-lMathCore -lMathMore
+		-lMathCore -lMathMore -lGenVector
 #		-L/home/carsten/src/panda/cbmsoft/tools/root/lib -lMathCore -lMathMore
 
 #LDLIBS     = $(shell root-config --glibs) 
