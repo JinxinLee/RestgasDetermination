@@ -15,7 +15,7 @@
 // ROOT
 #include "TStopwatch.h"
 
-
+// Print the results map.
 void printResult(std::map<std::string,float>& res){
   std::cout << "\n================================== \n";
   for( std::map<std::string,float>::iterator ii=res.begin(); 
@@ -25,6 +25,7 @@ void printResult(std::map<std::string,float>& res){
   std::cout << "======================================= \n";
 }
 
+// Read the events features from a given file
 void readEvents(const char* infile, const std::vector<std::string>& varNames,
 		const std::vector<std::string>& classNames, 
 		std::vector<std::pair<std::string, std::vector<float>*> >& coNt)
@@ -86,11 +87,11 @@ std::string& classifyEvent(const std::vector<std::string>& clas,
   }
   return *(new std::string(clsName));
 }
+
 /* *********************************************
  * Testing routine, can be deleted afterwards. *
  * *********************************************
  */
-
 int main(int argc, char** argv)
 {
 
@@ -113,18 +114,22 @@ int main(int argc, char** argv)
   std::vector<std::string> clas;
   std::vector<std::string> nam;
   std::map<std::string, float> res;
-  std::map<std::string, int> TotRes;
   std::vector<std::pair<std::string, std::vector<float>* > > events;
   
   // Classes
-  clas.push_back("Elect"); clas.push_back("Pion"); clas.push_back("Kaon");
-  //clas.push_back("Muon"); //clas.push_back("gam");
+  clas.push_back("Elect"); 
+  clas.push_back("Pion");
+  //clas.push_back("Kaon"); 
+  //clas.push_back("Muon");
+  //clas.push_back("Proton");
   
   // Variables
-  nam.push_back("p"); nam.push_back("emc");
-  nam.push_back("thetaC");
+  nam.push_back("p");
+  nam.push_back("emc");
+  //nam.push_back("thetaC");
   //nam.push_back("tof"); 
-  //nam.push_back("stt"); nam.push_back("mvd"); 
+  //nam.push_back("stt");
+  //nam.push_back("mvd"); 
 
   // Create classifier.
   PndLVQClassify cls (inF.c_str(), clas, nam);
@@ -143,31 +148,55 @@ int main(int argc, char** argv)
   TStopwatch timer;
   timer.Start();
 
-  std::string tmpName;
-  for(unsigned int k = 0; k < events.size(); k++)
-  {  
-    std::vector<float>* evt = (events[k]).second;
-    cls.Classify(*evt, res);
-    
-    // Store the results
-    OutPut<< "======================================= \n";
-    OutPut << "# Event " << k 
-	   << " Original className " << (events[k]).first << std::endl;
-    for( std::map<std::string,float>::iterator it = res.begin(); 
-	 it != res.end(); ++it){
-      OutPut << (*it).first << " => " << (*it).second
-	     << std::endl;
-    }
-    OutPut<< "======================================= \n";
-    tmpName = classifyEvent(clas, res);
-    TotRes[tmpName] += 1;
-  }
-  OutPut << std::endl <<" TOTAL RESULTS " << std::endl;
-  for( std::map<std::string, int>::iterator it = TotRes.begin(); 
-       it != TotRes.end(); ++it){
-    OutPut << (*it).first << " => " << (*it).second
-	   << std::endl;
-  }
+  std::string tmpClsName;
+  
+  // Class loop
+  for(unsigned int cl = 0; cl < clas.size(); cl++){
+    std::string curClsName = clas[cl];// Current class Name
+    int correctCls = 0; int wrongCls = 0; int totNumEvt = 0;
+    // Events Loop
+    for(unsigned int k = 0; k < events.size(); k++){
+      if(curClsName == (events[k]).first){
+	std::vector<float>* evt = (events[k]).second;
+	cls.Classify(*evt, res);
+	totNumEvt++;
+	
+	// Perform winner takes all.
+      	tmpClsName = classifyEvent(clas, res);
+
+	// Store the results
+	OutPut<< "======================================= \n";
+	OutPut << "# Event " << k 
+	       << " Original className " << (events[k]).first << std::endl
+	       << " Classifier output name " << tmpClsName << std::endl;
+
+	/*
+	  for( std::map<std::string,float>::iterator it = res.begin(); 
+	  it != res.end(); ++it)
+	  {
+	  OutPut << (*it).first << " => " << (*it).second
+	  << std::endl;
+	  }
+	*/
+	OutPut<< "======================================= \n";
+
+	if(tmpClsName == curClsName){// Correct Label
+	  correctCls++;
+	}
+	else{// Wrong label classification.
+	  wrongCls++;
+	}
+      }// End if
+    }// Events Loop
+    OutPut << "++++++++++++++ Results for classification of " << curClsName 
+	   << "+++++++++++++++++++++++++++++++++++++++++++++"<<std::endl;
+    OutPut << "We have seen " << totNumEvt << " Events in this class" << std::endl;
+    OutPut << "Number of Correct classified events = " << correctCls 
+	   << "\nNumber of mis-classified events = " <<  wrongCls
+	   << "\nErro = " 
+	   << ((static_cast<float>(wrongCls) * 100.00)/static_cast<float>(totNumEvt)) << " %" ;
+    OutPut << std::endl;
+  }// CLass Loop
   /*
     cls.Classify(evt,res);
     printResult(res);
@@ -179,7 +208,9 @@ int main(int argc, char** argv)
   double ctime = timer.CpuTime();
   std::cout << "Classifier timing results:"<<std::endl;
   std::cout<< "RealTime = " << rtime << " seconds, CpuTime = " 
-           << ctime <<" Seconds" << std::endl;
+           << ctime <<" Seconds" << std::endl
+	   << "It took " << (rtime/static_cast<double>(events.size())) << " Per event"
+	   << std::endl;
 
   // Clean up
   std::cout << "Clean up." << std::endl;
@@ -188,7 +219,6 @@ int main(int argc, char** argv)
   }
   events.clear();
   res.clear();
-  TotRes.clear();
   OutPut.close();
   return 0;
 }

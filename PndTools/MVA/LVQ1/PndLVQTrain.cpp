@@ -93,7 +93,7 @@ PndLVQTrain::PndLVQTrain(const char* InPut,
   // WriteDataToFile("InputMedianNormalized.root");
   
   NormalizeWithVariance();
-  WriteDataToFile("InputVarianceNormalized.root");
+  //WriteDataToFile("InputVarianceNormalized.root");
   
   // NormalizeWithMinMax();
   // WriteDataToFile("InputMinMaxNormalized.root");
@@ -163,12 +163,22 @@ void PndLVQTrain::Train(const int numProto, const char* outPut)
   }
   // All protypes are initialized. We can perform the training
   // Compute learning rate constant "a"
-  double ethaZero  = m_ethaZero;//0.1;
-  double ethaFinal = m_ethaFinal;//0.0001;
-  int    numSweep  = m_NumSweep;//1000;
-  int    tFinal    = numSweep * ( m_EventsData.size() );
-  double a         = (ethaZero - ethaFinal)/(ethaFinal * static_cast<double>(tFinal) );
+  double ethaZero     = m_ethaZero;//0.1;
+  double ethaFinal    = m_ethaFinal;//0.0001;
+  int    numSweep     = m_NumSweep;//1000;
+  unsigned int tFinal = numSweep * ( m_EventsData.size() );
+  long double a       = (ethaZero - ethaFinal)/(ethaFinal * static_cast<double>(tFinal) );
   
+  if(a < 0.00){//Underflow
+    std::cout << "Too small value for a." << std::endl;
+    a = std::numeric_limits<double>::min();
+  }
+
+  if(tFinal <= static_cast<unsigned>(0)){// OverFlow
+    std::cout << "tFinal Overflow." << std::endl;
+    tFinal = std::numeric_limits<unsigned>::max();
+  }
+
   // Print some information.
   std::cout << "\t<INFO>: Performing LVQ1 learning with parameters:\n"
 	    <<"Init constant = " << m_initConst <<", ethaZero = " 
@@ -179,7 +189,7 @@ void PndLVQTrain::Train(const int numProto, const char* outPut)
   
   // Start the training
   std::cout << "Starting to train (LVQ1)....." << std::endl;
-  for(int time = 0; time < tFinal; time++)
+  for(unsigned int time = 0; time < tFinal; time++)
   {
     if( (time % 100000) == 0)
     {
@@ -217,13 +227,11 @@ void PndLVQTrain::Train(const int numProto, const char* outPut)
     // determine delta
     if( m_EventsData[index].first == m_LVQProtos[protoIndex].first )
     {// Equal labels
-      //delta = 0;
       delta = 1;
     }
     else
     {// Diff. Labels
       delta = -1;
-      //delta = 0;
     }// delta is calculated
     
     // Update the LVQ prototype
@@ -278,11 +286,21 @@ void PndLVQTrain::Train21(const int numProto, const char* outPut)
   float windowSize = 0.2;// A value between0.2 & 0.3 is recommended.
   float s = (1 - windowSize)/(1 + windowSize);//Define the surrounding.
   
-  double ethaZero  = m_ethaZero;//0.1;
-  double ethaFinal = m_ethaFinal;//0.001;
-  int    numSweep  = m_NumSweep;//100;
-  int    tFinal    = numSweep * ( m_EventsData.size() );
-  double a         = (ethaZero - ethaFinal)/(ethaFinal * static_cast<double>(tFinal));
+  double ethaZero     = m_ethaZero;//0.1;
+  double ethaFinal    = m_ethaFinal;//0.001;
+  int    numSweep     = m_NumSweep;//100;
+  unsigned int tFinal = numSweep * ( m_EventsData.size() );
+  long double a       = (ethaZero - ethaFinal)/(ethaFinal * static_cast<double>(tFinal));
+  
+  if(a < 0.00){//Underflow
+    std::cout << "Too small value for a." << std::endl;
+    a = std::numeric_limits<double>::min();
+  }
+  
+  if(tFinal <= static_cast<unsigned>(0)){// OverFlow
+    std::cout << "tFinal Overflow." << std::endl;
+    tFinal = std::numeric_limits<unsigned>::max();
+  }
   
   // Print some information.
   std::cout << "\t<INFO>: Performing LVQ2.1 learning with parameters:\n"
@@ -295,7 +313,7 @@ void PndLVQTrain::Train21(const int numProto, const char* outPut)
   
   //Start learning
   std::cout << "Starting to train (LVQ2.1)....." << std::endl;
-  for(int time = 0; time < tFinal; time++)
+  for(unsigned int time = 0; time < tFinal; time++)
   {
     if( (time % 100000) == 0)
     {

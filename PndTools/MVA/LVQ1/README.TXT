@@ -1,3 +1,5 @@
+Batch LVQ
+=============================
 This directory contains a very simple implementation of the LVQ1 and
 LVQ2.1 algorithms. One can use these functions directly to create a
 set of prototypes and perform the training using each of the mentioned
