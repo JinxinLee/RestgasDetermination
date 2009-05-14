@@ -31,8 +31,15 @@
   fRun->SetName("TGeant3");
   // Choose the Geant Navigation System
   // fRun->SetGeoModel("G3Native");
+  string file_name;
   
-  fRun->SetOutputFile("./testrun1.root");
+  cout<<" file_name="<<endl;
+  std::cin>>file_name;
+  //file_name = "testrun1.root";
+  
+
+  fRun->SetOutputFile(file_name.c_str());
+  //fRun->SetOutputFile("./testrun1.root");
   //  fRun->SetOutputFile("./Pi-100ev0.1_0.5.root");
 
 
@@ -49,6 +56,9 @@
   fRun->AddModule(Cave);
       
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
+  //Drc->SetVerboseLevel(5);
+  
+  Drc->SetRunCherenkov(kTRUE);
   //Drc->SetRunCherenkov(kFALSE);
   // Drc->SetGeometryFileName("dirc.geo"); 
   fRun->AddModule(Drc);
@@ -57,6 +67,13 @@
   Tof->SetGeometryFileName("tofbarrel.geo"); 
   // fRun->AddModule(Tof);
 
+  FairModule *Pipe= new PndPipe("PIPE");
+  Pipe->SetGeometryFileName("pipe.geo");
+  fRun->AddModule(Pipe);
+
+  //FairModule *Magnet= new PndMagnet("MAGNET");
+  //Magnet->SetGeometryFileName("magnet.geo");
+  //fRun->AddModule(Magnet);
 
    // Create and Set Event Generator
   //-------------------------------
@@ -71,12 +88,27 @@
   //  FairParticleGenerator* partGen = new FairParticleGenerator(-211, 2, 2., 0., 0.);
   //  primGen->AddGenerator(partGen);
 
+
+  Double_t pmom;
+  std::cin>>pmom;
+  
+  Double_t angle,phi;
+  std::cin>>angle;
+  //std::cin>>phi;
+  phi=5;
+  
+  Int_t particle;
+  std::cin>>particle;
+  
   // Box Generator
-  FairBoxGenerator* boxGen = new FairBoxGenerator(-13, 1); // 13 = muon; 1 = multipl.
+  FairBoxGenerator* boxGen = new FairBoxGenerator(particle, 1); // 321 K+; 1 = multipl.
+  //FairBoxGenerator* boxGen = new FairBoxGenerator(321, 1); // 321 K+; 1 = multipl.
+  //FairBoxGenerator* boxGen = new FairBoxGenerator(-13, 1); // 13 = muon; 1 = multipl.
   //  FairBoxGenerator* boxGenMu = new FairBoxGenerator(13, 1);  
-  boxGen->SetPRange(3.,3.); // GeV/c //setPRange vs setPtRange
-  boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
-  boxGen->SetThetaRange(22., 135.); // (22 - 135) Polar angle in lab system range [degree]
+  //boxGen->SetPRange(30,30); // was 30 GeV/c //setPRange vs setPtRange
+  boxGen->SetPRange(pmom,pmom); // was 30 GeV/c //setPRange vs setPtRange
+  boxGen->SetPhiRange(phi, phi); // was 40     Azimuth angle range [degree]
+  boxGen->SetThetaRange(angle,angle); // (22 - 135) Polar angle in lab system range [degree]
   // boxGen->SetXYZ(0., 0.37, 0.); // mm o cm ??
 
   //  boxGenMu->SetPRange(1., 1.5 ); // GeV/c //setPRange vs setPtRange
@@ -106,7 +138,8 @@
   PndConstField *fMagField=new PndConstField();
   fMagField->SetField(0.,0.,20.); // values are in kG
   //fMagField->SetField(0.,0.,0.);
-  fMagField->SetFieldRegion(-50, 50,-50, 50, -150, 110); // values are in cm (xmivoln,xmax,ymin,ymax,zmin,zmax)
+  fMagField->SetFieldRegion(-50, 50,-50, 50, -150, 20); // values are in cm (xmivoln,xmax,ymin,ymax,zmin,zmax)
+  //fMagField->SetFieldRegion(-50, 50,-50, 50, -150, 110); // values are in cm (xmivoln,xmax,ymin,ymax,zmin,zmax)
   //  fField->AddField(fMagField);
   
   fRun->SetField(fField);
@@ -127,7 +160,7 @@
   // Transport nEvents
   // -----------------
      
-  Int_t nEvents = 2;
+  Int_t nEvents = 100;
 
   fRun->Run(nEvents);
      

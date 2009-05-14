@@ -17,12 +17,16 @@
   gSystem->Load("libPassive");
   gSystem->Load("libDrcProp");
   gSystem->Load("libDrc");
-  
-  //  gSystem->Load("libEmc");
+
+  //gSystem->Load("libMvd");
+
+  //gSystem->Load("libEmc");
   gSystem->Load("libGen");
  
  
-  TFile* file = new TFile("./testrun1.root");
+  //TFile* file = new TFile("./testrun1.root");
+  TFile* file = new TFile("/d/panda01/carsten/s36.root");
+  //TFile* file = new TFile("/d/pndint02/carsten/test.root");
   //  TFile* file = new TFile("Pi-100ev0.1_0.5.root");
   TGeoManager *geoMan = (TGeoManager*) file->Get("FAIRGeom");
 
@@ -50,19 +54,25 @@
   TGeoTrack *tr;
   TGeoTrack *tr1;
   Int_t N=  t->GetEntriesFast();
-  // Int_t N=1;
+
+  N=1;
   
 
- for (Int_t j=0; j< N; j++) {
-      t->GetEntry(j);
-      for (Int_t i=0; i<fT->GetEntriesFast(); i++) {
-       tr=(TGeoTrack *)fT->At(i);
-       //         
-       tr->Draw("ogl");
-  TrArray->AddLast(tr);
-      }
-   }
-  //geoMan->AnimateTracks(0,1.,100, "ogl");
+  /*
+  
+  for (Int_t j=0; j< N; j++) {
+    t->GetEntry(j);
+    for (Int_t i=0; i<fT->GetEntriesFast(); i++) {
+      tr=(TGeoTrack *)fT->At(i);
+      //         
+      tr->Draw("ogl");
+      TrArray->AddLast(tr);
+    }
+  }
+  
+
+  */
+  geoMan->AnimateTracks(0,1.,100, "ogl");
 
   //TrArray->Print();
   //geoMan->AnimateTracks();
