@@ -191,6 +191,9 @@ class PndDrcPhoton
   */
   int ColorNumber(double lambda) const;
 
+
+
+
   /*! \brief Print flag of photon to write its way to the data stream
     \sa  Print(fstream& stream)
     \return print flag.
