@@ -5,12 +5,12 @@
   
 // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 1;//iVerbose = 3
-  TString inFile = "/d/pndint02/asanchez/sim_pidC.root";
+  TString inFile = "sim_pidC.root";
   Int_t nEvents = 0;//50000;
   TString parFile="pidparams.root";//pidparams.root";
-  TString RecoFile = "/d/pndint02/asanchez/hypIdealPidreco.root";
+  TString RecoFile = "hypIdealPidreco.root";
   //hypIdealPidreco.root";
-  TString outFile = "/d/pndint02/asanchez/HypPidIdrecdos2.root";//HypPidIdrecdos2.root";
+  TString outFile = "HypPidIdrecdos2.root";//HypPidIdrecdos2.root";
  
  // ---  Now choose concrete engines for the different tasks   -------------
   // ------------------------------------------------------------------------
@@ -76,13 +76,13 @@
    //DemoPR->UseGeane();
    fRun->AddTask(DemoPR);
 
-   /* DemoKalmanTask* DemoKalman = new DemoKalmanTask();
-      DemoKalman->AddHitBranch(2,"HypHit");
-      //DemoKalman->AddHitBranch(2,"PndTpcPoint");
-      //  DemoKalman->AddHitBranch(3,"MVDPoint");
-      DemoKalman->SetPersistence();
-      
-      fRun->AddTask(DemoKalman);*/
+   PndHypDKalmanTask* DemoKalman = new PndHypDKalmanTask();
+   DemoKalman->AddHitBranch(2,"HypHit");
+   //DemoKalman->AddHitBranch(2,"PndTpcPoint");
+   //  DemoKalman->AddHitBranch(3,"MVDPoint");
+   DemoKalman->SetPersistence();
+   
+   fRun->AddTask(DemoKalman);
 
   
   
