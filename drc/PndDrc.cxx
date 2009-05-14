@@ -649,12 +649,13 @@ void PndDrc::ConstructGeometry()
 
 
 
-  Double_t r = 15.29; // first lens radius (cm)
+  Double_t r = 12.23; // first lens radius (cm)
   Double_t alpha = TMath::ASin(hthick/r); 
   Double_t a = r - r*TMath::Cos(alpha);
   Double_t b = a + .5; // box dimension
 
-  Double_t r2 = 3.6; // radius second lens (cm)
+  //Double_t r2 = 2.48; // radius second lens (cm)
+  Double_t r2 = 3.8; // radius second lens (cm)
 
   //std::cin>>r2;
   
@@ -683,31 +684,35 @@ void PndDrc::ConstructGeometry()
 
   // SOB
 
-  Double_t sob_len   = 30.0;
-  Double_t sob_shift = -bbox_hlen + bbox_shift - sob_len;
+  Double_t sob_len     = 30.0;
+  Double_t sob_shift   = -bbox_hlen + bbox_shift - sob_len;
+
+  Double_t sob_radius2 = radius+hthick + sob_len*tan(60./180.*pi);
   
-  cout<<"sob_shift = "<<sob_shift<<endl;
+  cout<<"sob_shift   = "<<sob_shift<<endl;
+  cout<<"sob_radius2 = "<<sob_radius2<<endl;
+  
 
 
   TGeoPgon* baseSOB = new TGeoPgon("baseSOB",0.0, 360., 16, 3);
-  baseSOB->DefineSection(0,      0., radius-hthick,  88.);
-  baseSOB->DefineSection(1,     10., radius-hthick,  88.);
+  baseSOB->DefineSection(0,      0., radius-hthick,  sob_radius2);
+  baseSOB->DefineSection(1,     10., radius-hthick,  sob_radius2);
   baseSOB->DefineSection(2, sob_len, radius-hthick,  radius+hthick);
   TGeoVolume *sob = new TGeoVolume("DrcSob",baseSOB, gGeoManager->GetMedium("DIRCairNoSens"));
   cave->AddNode(sob, 1,new TGeoCombiTrans(0., 0., sob_shift, new TGeoRotation (0)));
 
   // for visualization
   TGeoPgon* logicSOB = new TGeoPgon("baseSOB",0.0, 360., 16, 3);
-  logicSOB->DefineSection(0,     0.1, radius-hthick+eps, 88-eps);
-  logicSOB->DefineSection(1,    10.0, radius-hthick+eps, 88-eps);
+  logicSOB->DefineSection(0,     0.1, radius-hthick+eps, sob_radius2-eps);
+  logicSOB->DefineSection(1,    10.0, radius-hthick+eps, sob_radius2-eps);
   logicSOB->DefineSection(2, sob_len, radius-hthick+eps, radius+hthick-eps);
   TGeoVolume *lsob = new TGeoVolume("DrcLSob", logicSOB, gGeoManager->GetMedium("Marcol82"));
   sob->AddNode(lsob, 1,new TGeoCombiTrans(0., 0., 0., new TGeoRotation (0)));
 
   // Photodetector
   TGeoPgon* logicPD = new TGeoPgon("logicPD",0.0, 360., 16, 2);
-  logicPD->DefineSection(0, 0.0, radius-hthick, 88-eps);
-  logicPD->DefineSection(1, 0.1, radius-hthick, 88-eps);
+  logicPD->DefineSection(0, 0.0, radius-hthick, sob_radius2-eps);
+  logicPD->DefineSection(1, 0.1, radius-hthick, sob_radius2-eps);
   TGeoVolume *pd = new TGeoVolume("DrcPd", logicPD, gGeoManager->GetMedium("DIRCair"));
   sob->AddNode(pd, 1,new TGeoCombiTrans(0., 0., 0., new TGeoRotation (0)));
   AddSensitiveVolume(pd); 
@@ -724,24 +729,20 @@ void PndDrc::ConstructGeometry()
   tr1->RegisterYourself();
   TGeoCompositeShape *cs = new TGeoCompositeShape("cs","S*B:tr1");
   TGeoVolume *lens1 = new TGeoVolume("DrcLENS1",cs, gGeoManager->GetMedium("FusedSil"));
-  //  TGeoRotation rot2;
-  //   rot2.RotateX(180.);
-  //barContainer->AddNode(lens1, 1,new TGeoCombiTrans(0., 0., -129.9 +r +a2 + 0.5 + 0.2 - a , new TGeoRotation (0)));
-  barContainer->AddNode(lens1, 1,new TGeoCombiTrans(0., 0., -(bbox_hlen-eps) +r +a2 + 0.5 + 0.2 - a , new TGeoRotation (0)));
-  
+  barContainer->AddNode(lens1, 1,new TGeoCombiTrans(0., 0., -(bbox_hlen-eps) +r +a2 + 0.5 - a ,new TGeoRotation (0)));
+
 
    //Lens 2
   Double_t t2 = -r2 +b2/2;
-
+  
+  //TGeoSphere* logicSphere2 = new TGeoSphere("S2", r ,r2, 0. ,180.,0.,360.);
   TGeoSphere* logicSphere2 = new TGeoSphere("S2", r2-a2 ,r2, 0. ,180.,0.,360.);
   TGeoBBox*   lBox2        = new TGeoBBox("B2", (lside/6)/2-0.05, hthick, b2/2.);
   TGeoTranslation *tr2     = new TGeoTranslation("tr2", 0.,0., t2);
   tr2->RegisterYourself();
   TGeoCompositeShape *cs2 = new TGeoCompositeShape("cs2","S2*B2:tr2");
   TGeoVolume *lens2 = new TGeoVolume("DrcLENS2",cs2, gGeoManager->GetMedium("NLAK33A"));
- 
-  //barContainer->AddNode(lens2, 1,new TGeoCombiTrans(0., 0., -129.9+r2, new TGeoRotation (0)));
-  barContainer->AddNode(lens2, 1,new TGeoCombiTrans(0., 0., -(bbox_hlen-eps)+r2, new TGeoRotation (0)));
+  barContainer->AddNode(lens2, 1,new TGeoCombiTrans(0., 0., -(bbox_hlen-eps)+r2 + 0.2 , new TGeoRotation (0)));
   
 
   gGeoManager->CloseGeometry();
