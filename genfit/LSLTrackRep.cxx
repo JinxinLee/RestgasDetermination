@@ -174,7 +174,6 @@ LSLTrackRep::extrapolate(const DetPlane& pl,
   Jacobian(pl,statePred,jacobian);
   TMatrixT<double> dummy(cov,TMatrixT<double>::kMultTranspose,jacobian);
   covPred=jacobian*dummy;
-  covPred=cov;
   return l;
 }
 
