@@ -97,7 +97,7 @@ int main(int argc, char** argv)
 
   if(argc < 4){
     std::cerr << "\t<Usage> ./classify <InputFile with Prototypes>"
-	      <<" <To classify EventFile> <Results OutPutFile>"
+	      <<" <Classify EventFile> <Results OutPutFile>"
 	      << std::endl;
     return 1;
   }
@@ -172,11 +172,9 @@ int main(int argc, char** argv)
 
 	/*
 	  for( std::map<std::string,float>::iterator it = res.begin(); 
-	  it != res.end(); ++it)
-	  {
+	  it != res.end(); ++it){
 	  OutPut << (*it).first << " => " << (*it).second
-	  << std::endl;
-	  }
+	  << std::endl;}
 	*/
 	OutPut<< "======================================= \n";
 

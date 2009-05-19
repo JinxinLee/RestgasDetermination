@@ -12,13 +12,12 @@ CXX       =  g++
 # CCFLAGS   = -Wall -W -g -O0
 # CCFLAGS   = -Wall -W -O1 -fopenmp -g -pg #if profiling
 CCFLAGS   = -Wall -W -Os -O3 -ffast-math ${FLAGSMACHINE}
-CCFLAGS  += -fopenmp -fomit-frame-pointer -funsafe-math-optimizations
+CCFLAGS  += -fomit-frame-pointer -funsafe-math-optimizations -fopenmp
 CCFLAGS  += -funroll-loops -fvariable-expansion-in-unroller
-
 
 INCLUDE   = $(shell root-config --cflags) -I./
 
-LIBS      = $(shell root-config --libs) 
+LIBS      = $(shell root-config --libs)
 
 
 

@@ -117,6 +117,7 @@ class PndLVQTrain{
    * Initialize LVQ prototypes (Code books).
    */
   void InitProtoTypes(int numProto);
+  void InitProtoTypesWithClsMean(const int numProto);
   
   /**
    * Clean prototype container.

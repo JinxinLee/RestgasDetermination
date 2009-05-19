@@ -92,7 +92,7 @@ PndLVQTrain::PndLVQTrain(const char* InPut,
   // NormalizeWithMedian();
   // WriteDataToFile("InputMedianNormalized.root");
   
-  NormalizeWithVariance();
+  //NormalizeWithVariance();
   //WriteDataToFile("InputVarianceNormalized.root");
   
   // NormalizeWithMinMax();
@@ -148,7 +148,8 @@ void PndLVQTrain::Train(const int numProto, const char* outPut)
   // Init LVQ protoTypes.
   if(numProto > 0)
   {
-    InitProtoTypes(numProto);
+    //InitProtoTypes(numProto);
+    InitProtoTypesWithClsMean(numProto);
   }
   else
   {
@@ -237,9 +238,9 @@ void PndLVQTrain::Train(const int numProto, const char* outPut)
     // Update the LVQ prototype
     UpdateProto( *(m_EventsData[index].second), *(m_LVQProtos[protoIndex].second), delta, ethaT);
   }
+  std::cerr << std::endl;
   // Write the coordinates of the prototypes to the file
   WriteToProtoFile(outPut);
-  std::cerr << std::endl;
 }
 
 /**
@@ -259,7 +260,8 @@ void PndLVQTrain::Train21(const int numProto, const char* outPut)
   // Init LVQ protoTypes.
   if(numProto > 0)
   {
-    InitProtoTypes(numProto);
+    //InitProtoTypes(numProto);
+    InitProtoTypesWithClsMean(numProto);
   }
   else
   {
@@ -391,6 +393,7 @@ void PndLVQTrain::Train21(const int numProto, const char* outPut)
     }
   }// (for time = 0;)Training is finished
   
+  std::cerr << std::endl;
   // Write the coordinates of the prototypes (Codebook) to a file.
   WriteToProtoFile(outPut);
   
@@ -400,7 +403,6 @@ void PndLVQTrain::Train21(const int numProto, const char* outPut)
     delete distances[i];
   }
   distances.clear();
-  std::cerr << std::endl;
 }
 
 ////////////////////////// Protected functions ///////////
@@ -505,6 +507,9 @@ float PndLVQTrain::ComputeDist(const std::vector<float> &EvtData,
  */
 void PndLVQTrain::CompClsCondMean(const std::string clsName)
 {
+  std::cout << "\t<INFO> Determining class conditional mean for "
+	    << "\n\t\t class " << clsName << "." << std::endl;
+
   std::vector <float>* vec = new std::vector <float> (m_VarNames.size(),0.0);
   for(unsigned int i = 0; i < m_EventsData.size(); i++)
   {
@@ -848,4 +853,87 @@ void PndLVQTrain::NormalizeWithVariance()
       (m_EventsData[ev].second)->at(i) = (m_EventsData[ev].second)->at(i) / (m_normFact[varName]);
     }
   }
+}
+// End of class implementation.
+
+////////////////////// Test Functions ///////////////////
+/**
+ * Initialize LVQ prototypes (Code books) on the mean position between
+ * the randomly selected proto type and the class conditional means
+ * vector.
+ */
+
+// FIXME HIER BEN JE BEZIG.
+void PndLVQTrain::InitProtoTypesWithClsMean(const int numProto)
+{
+  // Clear protypes list
+  cleanProtoList();
+
+  //Init Class Conditional means
+  for(unsigned int id = 0; id < m_ClassNames.size(); id++){
+    CompClsCondMean(m_ClassNames[id]);
+  }
+
+  std::cout << "Initializing " << numProto 
+	    <<" LVQ prototypes."<< std::endl;
+  
+  // Initialize LVQ-prototypes.
+  double c = m_initConst;//0.8;
+  TRandom3 trand(435375);
+  
+  for(unsigned int cl = 0; cl < m_ClassNames.size(); cl++)
+  {
+    
+    std::vector<float>* clsMean = m_ClassCondMeans[m_ClassNames[cl]];
+    
+    // Start and end indices
+    int minIdx = m_ClassIndex[cl].first;
+    int maxIdx = m_ClassIndex[cl].second;
+    
+    for(int i = 0; i < numProto; i++)
+    {
+      // select a random example
+      if(minIdx == 0){minIdx = 1;}
+      int index = (int) (trand.Poisson( (float)((maxIdx + minIdx)/2))) % (maxIdx);
+      
+      if(index < minIdx)
+      {
+	index += minIdx - index;
+      }
+      if(index > maxIdx)
+      {
+	std::cout << "\n\n======================================\n"
+		  << "\t<ERROR> Index out of bound "
+		  << index <<" and cls = "<< cl
+		  << "\n=========================================\n"
+		  << std::endl;
+	return;
+      }
+      
+      // We have found a random event.
+      std::vector<float>* evtData = m_EventsData[index].second;
+
+      // May not happen, DEBUG DEBUG DEBUG
+      if(m_ClassNames[cl] != m_EventsData[index].first)
+      {
+	std::cout << "\n Name collision cls is " << m_ClassNames[cl]
+		  << " index is " << index << " minindex " << minIdx
+		  << std::endl;
+      }
+
+      // New Proto type
+      std::vector<float>* proto   = new std::vector<float>(m_VarNames.size(),0.0);
+      
+      for(unsigned int k = 0; k < evtData->size(); k++)
+      {
+	c = trand.Gaus(0.0, 1.0);
+	//proto->at(k) = evtData->at(k) * c + (1.0 - c) * evtData->at(k);
+	proto->at(k) = ( clsMean->at(k) + evtData->at(k) ) / 2.00;
+      }
+      
+      // proto type is initialized, add to the container
+      m_LVQProtos.push_back(std::make_pair(m_EventsData[index].first, proto));
+
+    }//END for(i = 0; i < numProto)
+  }//End for(cls = 0
 }
