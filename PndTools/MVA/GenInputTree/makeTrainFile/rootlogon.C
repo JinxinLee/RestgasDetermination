@@ -12,43 +12,45 @@
   gSystem->AddIncludePath("-I$VMCWORKDIR/rho/RhoBase");
   gSystem->AddIncludePath("-I$VMCWORKDIR/drc");
   gSystem->AddIncludePath("-I$VMCWORKDIR/mvd/MvdData");
-  gSystem->AddIncludePath("-I$VMCWORKDIR/mvd");
-  gSystem->AddIncludePath("-I$VMCWORKDIR/pnddata");
+  gSystem->AddIncludePath("-I$VMCWORKDIR/gpid");
+  gSystem->AddIncludePath("-I$VMCWORKDIR/mcstack");
   gSystem->AddIncludePath("-I$VMCWORKDIR/base");
   gSystem->AddIncludePath("-I$VMCWORKDIR/trackbase");
   gSystem->AddIncludePath("-I/home/vanni/TMVA/include");
-  gSystem->AddIncludePath("-I$VMCWORKDIR/gpid");
-  gSystem->AddIncludePath("-I$VMCWORKDIR/PndTools/MVA/LVQ1");
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  rootlogon();
+}
+/*
   basiclibs();
   gSystem->Load("libGeoBase");
   gSystem->Load("libParBase");
   gSystem->Load("libBase");
+  gSystem->Load("libPndData");
   gSystem->Load("libField");
   gSystem->Load("libGen");
   gSystem->Load("libPassive");
   gSystem->Load("libEmc"); 
   gSystem->Load("libGeom.so");
-  gSystem->Load("libPndData.so");
-  //gSystem->Load("libPndBase.so");
+  gSystem->Load("libMCStack.so");
   gSystem->Load("libGui.so");
   gSystem->Load("libgenfit");
   gSystem->Load("libtpc");
   gSystem->Load("libTof");
   gSystem->Load("libDrcProp");
   gSystem->Load("libDrc");
-  //  gSystem->Load("libtpcreco");
+  gSystem->Load("libtpcreco");
   gSystem->Load("libtrackrep");
   gSystem->Load("libTrkBase");
-  //  gSystem->Load("librecotasks");
-  //gSystem->Load("libMvd");
-  // gSystem->Load("libMvdReco");
-  //gSystem->Load("libLHETrack");
+  gSystem->Load("librecotasks");
+  gSystem->Load("libMvd");
+  gSystem->Load("libMvdReco");
+  gSystem->Load("libLHETrack");
   gSystem->Load("libRho");
-  gSystem->Load("libGeane");
   gSystem->Load("libTMVA");
   gSystem->Load("libMva");
   gSystem->Load("libGpid");
+  gSystem->Load("libGeane");
   
   gStyle->SetPalette(1);
   gStyle->SetTitleStyle(0);
@@ -59,4 +61,4 @@
   gStyle->SetOptStat(0);
   delete gRandom;
   gRandom=new TRandom3(0);
-}
+*/

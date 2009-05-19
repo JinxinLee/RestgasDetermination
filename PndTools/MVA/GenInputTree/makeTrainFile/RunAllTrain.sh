@@ -13,7 +13,8 @@ parFile=\"/media/daq/babaiexp/SimFiles/TestParamMu.root\"
 OutPut=\"KaonOutTree.root\"
 Tree=\"Kaon\"
 
-root -l -b -q "run.C($NEV,$Infile,$simFile,$parFile,$OutPut,$Tree)"
+# root -l -b -q "run.C($NEV,$Infile,$simFile,$parFile,$OutPut,$Tree)"
+root -l -b -q "ExtractParameters.C($simFile, $Infile, $Tree, $OutPut)"
 
 ############## Fetch Muon Data #############
 Infile=\"/media/daq/babaiexp/SimFiles/RecoMuon06_1.root\"
@@ -22,7 +23,8 @@ parFile=\"/media/daq/babaiexp/SimFiles/TestParamMu.root\"
 OutPut=\"MuonOutTree.root\"
 Tree=\"Muon\"
 
-root -l -b -q "run.C($NEV,$Infile,$simFile,$parFile,$OutPut,$Tree)"
+# root -l -b -q "run.C($NEV,$Infile,$simFile,$parFile,$OutPut,$Tree)"
+root -l -b -q "ExtractParameters.C($simFile, $Infile, $Tree, $OutPut)"
 
 ############## Fetch Pion Data #############
 Infile=\"/media/daq/babaiexp/SimFiles/RecoPion06_1.root\"
@@ -31,7 +33,8 @@ parFile=\"/media/daq/babaiexp/SimFiles/TestParamMu.root\"
 OutPut=\"PionOutTree.root\"
 Tree=\"Pion\"
 
-root -l -b -q "run.C($NEV,$Infile,$simFile,$parFile,$OutPut,$Tree)"
+# root -l -b -q "run.C($NEV,$Infile,$simFile,$parFile,$OutPut,$Tree)"
+root -l -b -q "ExtractParameters.C($simFile, $Infile, $Tree, $OutPut)"
 
 ############## Fetch Electron Data #############
 Infile=\"/media/daq/babaiexp/SimFiles/RecoElectron06_1.root\"
@@ -40,7 +43,8 @@ parFile=\"/media/daq/babaiexp/SimFiles/TestParamMu.root\"
 OutPut=\"ElectOutTree.root\"
 Tree=\"Elect\"
 
-root -l -b -q "run.C($NEV,$Infile,$simFile,$parFile,$OutPut,$Tree)"
+# root -l -b -q "run.C($NEV,$Infile,$simFile,$parFile,$OutPut,$Tree)"
+root -l -b -q "ExtractParameters.C($simFile, $Infile, $Tree, $OutPut)"
 
 ############## Fetch Gamma Data #############
 Infile=\"/media/daq/babaiexp/SimFiles/RecoGam06_1.root\"
@@ -49,7 +53,8 @@ parFile=\"/media/daq/babaiexp/SimFiles/TestParamMu.root\"
 OutPut=\"GammaOutTree.root\"
 Tree=\"Gamma\"
 
-root -l -b -q "run.C($NEV,$Infile,$simFile,$parFile,$OutPut,$Tree)"
+# root -l -b -q "run.C($NEV,$Infile,$simFile,$parFile,$OutPut,$Tree)"
+root -l -b -q "ExtractParameters.C($simFile, $Infile, $Tree, $OutPut)"
 
 ############## Fetch Proton Data #############
 Infile=\"/media/daq/babaiexp/SimFiles/RecoProt06_1.root\"
@@ -58,8 +63,9 @@ parFile=\"/media/daq/babaiexp/SimFiles/TestParamMu.root\"
 OutPut=\"ProtonOutTree.root\"
 Tree=\"Proton\"
 
-root -l -b -q "run.C($NEV,$Infile,$simFile,$parFile,$OutPut,$Tree)"
+# root -l -b -q "run.C($NEV,$Infile,$simFile,$parFile,$OutPut,$Tree)"
+root -l -b -q "ExtractParameters.C($simFile, $Infile, $Tree, $OutPut)"
 
 ## Join the created trees and files into a single file containing all
 ## the event data
-root -l -b -q "extract.C(\"EventFeaturesTrain.root\")"
+root -l -b -q "extract.C(\"EventFeaturesTest20KNTP.root\")"
