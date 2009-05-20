@@ -31,7 +31,7 @@ using std::ofstream;
 #include "PndRpcGeo.h"
 #include "PndRpcDetector.h"	
 #include "PndRpcPoint.h"
-#include "FairGeoG3Builder.h"
+//#include "FairGeoG3Builder.h"
 #include "FairRuntimeDb.h"
 #include "PndRpcGeoPar.h"
 #include "TObjArray.h"

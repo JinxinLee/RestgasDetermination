@@ -29,7 +29,7 @@ using std::endl;
 #include "PndStack.h"
 #include "FairRootManager.h"
 #include "FairVolume.h"
-#include "FairGeoG3Builder.h"
+//#include "FairGeoG3Builder.h"
 #include "FairRuntimeDb.h"
 #include "FairRun.h"
 #include "FairGeoMedia.h"

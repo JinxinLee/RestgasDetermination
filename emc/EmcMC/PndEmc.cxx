@@ -20,7 +20,7 @@
 #include "FairRootManager.h"
 #include "FairVolume.h"
 #include "FairGeoMedia.h"
-#include "FairGeoG3Builder.h"
+//#include "FairGeoG3Builder.h"
 #include "FairRuntimeDb.h"
 #include "FairRun.h"
 

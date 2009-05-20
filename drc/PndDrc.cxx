@@ -52,7 +52,7 @@ using std::cout;
 #include "PndDetectorList.h"
 
 // add on for debug
-#include "FairGeoG3Builder.h"
+//#include "FairGeoG3Builder.h"
 #include "FairRun.h"
 //#include "FairRunSim.h"
 #include "FairRuntimeDb.h"

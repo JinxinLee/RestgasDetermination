@@ -41,7 +41,7 @@
 #include "TObjArray.h"
 #include "TGeoVoxelFinder.h"
 #include "TGeoMatrix.h"
-#include "FairGeoG3Builder.h"
+//#include "FairGeoG3Builder.h"
 
 #include <string>
 #include <sstream>
