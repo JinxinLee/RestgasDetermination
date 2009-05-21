@@ -46,7 +46,7 @@ class PndMdtPoint : public FairMCPoint
  
   inline Int_t    GetTrackParentID()       const { return fTrackParentID;                  }; 
   inline Int_t    GetModule()              const { return fDetectorID<50 ? 1 : 2;          };
-  inline Int_t    GetLayerID()             const { return fDetectorID<50 ? (Int_t)((fDetectorID-1)/2) : fDetectorID-51;};
+  inline Int_t    GetLayerID()             const { return fDetectorID<50 ? (Int_t)(fDetectorID/2) : fDetectorID-50;};
   inline Int_t    GetSector(); 
   inline Int_t    GetPDG()                 const { return fPDG;                            };
   inline TVector3 GetPosIn()               const { return fPosIn;                          };
@@ -82,3 +82,4 @@ Int_t PndMdtPoint::GetSector()
 }
 
 #endif /* !PNDMDTPOINT_H */
+
