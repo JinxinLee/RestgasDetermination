@@ -54,6 +54,7 @@ public:
     inline void SetVerbosity(Bool_t verbosity) { fVerboseLevel = verbosity; };
 
     void ConstructGeometry();
+    void CreateGeometryToUpd(TString outName);
     void Initialize();
     void BeginEvent();
     Bool_t ProcessHits(FairVolume* vol);
@@ -69,8 +70,10 @@ private:
     TString version;
     void ConstructGeometryTo();
     void ConstructGeometryDu();
+    void ConstructGeometryToUpd();
     Bool_t ProcessHitsTo(FairVolume* vol);
     Bool_t ProcessHitsDu(FairVolume* vol);
+    Bool_t ProcessHitsToUpd(FairVolume* vol);
 
 // hit
     TClonesArray* fMdtCollection; //!

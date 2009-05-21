@@ -125,7 +125,7 @@ void PndMdt::ResetParameters()
 void PndMdt::SetParFile(TString filename)
 {
     ffn = filename;
-    SetBE();
+    if(version=="torino" || version=="Torino") SetBE();
 }
 // -------------------------------------------------------------------------
 
@@ -187,6 +187,7 @@ void PndMdt::ConstructGeometry()
 {
     if(version=="torino" || version=="Torino") ConstructGeometryTo();
     else if(version=="dubna" || version=="Dubna") ConstructGeometryDu();
+    else if(version=="toupd" || version=="ToUpd") ConstructGeometryToUpd();
     else {cout<<"Error in PndMdt::ConstructGeometry: Specify the version and run again!"<<endl; exit(0);};
     
     return;
@@ -221,6 +222,7 @@ Bool_t PndMdt::ProcessHits(FairVolume* vol)
 
     if(version=="torino" || version=="Torino") ph = ProcessHitsTo(vol);
     else if(version=="dubna" || version=="Dubna") ph = ProcessHitsDu(vol);
+    else if(version=="toupd" || version=="ToUpd") ph = ProcessHitsToUpd(vol);
     else {cout<<"Error in PndMdt::ConstructGeometry: Specify the version and run again!"<<endl; exit(0);};
   
   ResetParameters();
