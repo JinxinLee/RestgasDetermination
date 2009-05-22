@@ -45,6 +45,7 @@ class PndTpcLaserTask : public FairTask {
 // ----------------------------------------------------------
   virtual InitStatus Init();
   virtual void Exec(Option_t* opt);
+  virtual void SetParContainers();
 
 // Accessors ------------------------------------------------
 

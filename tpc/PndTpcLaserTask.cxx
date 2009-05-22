@@ -21,6 +21,8 @@
 
 // Collaborating Class Headers --------
 #include "FairRootManager.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
 #include "TClonesArray.h"
 #include "PndTpcPrimaryCluster.h"
 #include "PndTpcLaser.h"
@@ -70,22 +72,40 @@ PndTpcLaserTask::Init()
       return kERROR;
     }
 
-  //TODO: WHY DOES THIS CRASH FOR &*($^W& SAKE ?!?!?
-  
-    //read in parameters
-  //_zMin=_par->getZGem();
-  //_zMax=_par->getZMax();
-  //_rMin=_par->getRMin();
-  //_rMax=_par->getRMax();
-  
-  _zMin=-39.5;
-  _zMax=109.5;
-  _rMin=15.5;
-  _rMax=41.5;
+  //clear input array of any real "physical" hits
+  _primArray->Delete();
 
+   
+  //read in parameters
+  _zMin=_par->getZGem();
+  _zMax=_par->getZMax();
+  _rMin=_par->getRMin();
+  _rMax=_par->getRMax();
   
   return kSUCCESS;
 }
+
+
+
+void 
+PndTpcLaserTask::SetParContainers() {
+
+  std::cout<<"PndTpcLaserTask::SetParContainers"<<std::endl;
+  std::cout.flush();
+
+  // Get run and runtime database
+  FairRun* run = FairRun::Instance();
+  if ( ! run ) Fatal("SetParContainers", "No analysis run");
+
+  FairRuntimeDb* db = run->GetRuntimeDb();
+  if ( ! db ) Fatal("SetParContainers", "No runtime database");
+
+  // Get PndTpc digitisation parameter container
+  _par= (PndTpcDigiPar*) db->getContainer("PndTpcDigiPar");
+  if (! _par ) Fatal("SetParContainers", "PndTpcDigiPar not found");
+}
+
+
 
 void
 PndTpcLaserTask::Exec(Option_t* opt)
