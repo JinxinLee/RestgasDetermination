@@ -59,8 +59,9 @@ PndMvdRecoHit::PndMvdRecoHit(PndMvdMCPoint* point)
   _hitCoord[0][0] =  point->GetX();
   _hitCoord[1][0] =  point->GetY();
 
-  _hitCov[0][0] = 0.01;
-  _hitCov[1][1] = 0.01;
+  // we set the covariances to (50mu)^2 by hand.
+  _hitCov[0][0] = 0.0050 * 0.0050;//cm //TODO: cm is rigt?
+  _hitCov[1][1] = 0.0050 * 0.0050;//cm //TODO: cm is rigt?
 
   TVector3  o(0.,0.,point->GetZ()),
             u(1.,0.,0.),
@@ -82,7 +83,8 @@ PndMvdRecoHit::PndMvdRecoHit(PndMvdHit* hit)
   FairRootManager* ioman = FairRootManager::Instance();
   TString fGeoFile = ioman->GetInFile()->GetName();
   PndMvdGeoHandling* fGeoH = new PndMvdGeoHandling(fGeoFile.Data());
-  //TString path = fGeoH->GetPath(id);
+  TString path = fGeoH->GetPath(id);
+  std::cout<<"Detector path: "<<path.Data()<<std::endl;
   TVector3 oo, uu, vv;
   fGeoH->GetOUVId(id, oo,uu,vv);
 
@@ -92,14 +94,24 @@ PndMvdRecoHit::PndMvdRecoHit(PndMvdHit* hit)
   _hitCoord[0][0] = localpos.X();
   _hitCoord[1][0] = localpos.Y();
 
-  _hitCov[0][0] = 0.0050 * 0.0050;
-  _hitCov[1][1] = 0.0050 * 0.0050;
+  TVector3 errPos, errPosLoc;
+  hit->PositionError(errPos);  
+  errPosLoc = fGeoH->MasterToLocalErrorsId(errPos, id);
+  
+//  _hitCov[0][0] = 0.0050 * 0.0050;
+//  _hitCov[1][1] = 0.0050 * 0.0050;
+  _hitCov[0][0] = errPosLoc.X() * errPosLoc.X();
+  _hitCov[1][1] = errPosLoc.Y() * errPosLoc.Y();
+  
+  std::cout<<" -I- PndMvdRecoHit::PndMvdRecoHit: Wrote a hit with"
+  <<"\n(x,y) = ("<<localpos.X()<<","<<localpos.Y()<<")."
+  <<"\n(dx,dy) = ("<<errPosLoc.X()<<","<<errPosLoc.Y()<<"). \t ??? 0==dz=="<<errPosLoc.Z()
+  <<std::endl;
 
   setDetPlane(DetPlane(oo,uu,vv));
-//============================================================================
-
-
 }
+  //============================================================================
+
 
 
 void

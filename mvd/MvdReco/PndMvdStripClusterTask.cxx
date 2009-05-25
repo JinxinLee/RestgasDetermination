@@ -190,7 +190,7 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
   PndMvdCluster* myCandBot=0;
 
   // load the Clusterfinder
-  if(0==fClusterMod) { fClusterfinder = new PndMvdSimpleStripClusterFinder( fRadChannel ); //search radius in channel no.TODO: parametrize
+  if(0==fClusterMod) { fClusterfinder = new PndMvdSimpleStripClusterFinder( fRadChannel ); //search radius in channel no.
   }else if(1==fClusterMod) {fClusterfinder = new PndMvdStripClusterFinder(fRadChannel, fRadTime);}
   // Sort Digi indice into the clusterfinder
   for (Int_t iPoint = 0; iPoint < fDigiArray->GetEntriesFast(); iPoint++)
@@ -202,11 +202,6 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
     fStripCalcTop->CalcFeChToStrip(myDigi->GetFE(), myDigi->GetChannel(), strip, side);
     fClusterfinder->AddDigi(detName.Data(),side,myDigi->GetTimestamp(),strip,iPoint);
   }
-    //TODO
-    // maybe I shall convert the vectors into PndMvdClustCand objects and fill
-    // the fClusterArray
-
-
 
   std::vector< PndMvdCluster > clusters;
   std::vector< Int_t > topclusters;// contains index to fClusterArray
@@ -286,8 +281,10 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
 
     CalcMeanCharge(oneclustertop,meantopstrip,meantoperr,topcharge);
 
-    if(oneclustertop.size()==1 && topcharge < 5200) { std::cout<<"wachse"<<endl; continue; }
-
+    if(oneclustertop.size()==1 && topcharge < 5200) { 
+		std::cout<<"-W- PndMvdClusterTask::Exec: Single strip top charge bigger than 5200 e- : skiping. "<<endl; 
+	    continue; 
+	}
     if(topcharge>0)
     {
       fStripCalcTop->CalcStripPointOnLine(meantopstrip, meantopPoint);
@@ -306,7 +303,10 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
 
         CalcMeanCharge(oneclusterbot,meanbotstrip,meanboterr,botcharge);
 
-        if(oneclusterbot.size() == 1 && botcharge < 5200) { std::cout<<"wachse"<<endl; continue; }
+        if(oneclusterbot.size() == 1 && botcharge < 5200) { 
+	      std::cout<<"-W- PndMvdClusterTask::Exec: Single strip bot charge bigger than 5200 e- : skiping. "<<endl;
+		  continue; 
+		}
         if(botcharge>0)
         {
           if(fVerbose > 2)  {
@@ -347,7 +347,7 @@ TVector2 PndMvdStripClusterTask::CalcLineCross(
               TVector2 point1, TVector2 dir1,
               TVector2 point2, TVector2 dir2) const
 {
-  Double_t dx, dy, s, t, M, x, y;
+  Double_t dx, dy, s, M, x, y;
   dx = point2.X() - point1.X();
   dy = point2.Y() - point1.Y();
 
@@ -402,8 +402,9 @@ void PndMvdStripClusterTask::Finish()
 void PndMvdStripClusterTask::CalcMeanCharge(std::vector<Int_t> &onecluster, Double_t &meanstrip, Double_t &meanerr, Double_t &charge)
 {
 
-	if (fMeanAlgo == 0)
-	{
+	//if (fMeanAlgo == 0)
+	//{
+      // Calculate mean position in position channels weighted by the charges
 		  Int_t strip;
 		  SensorSide side;
 		  for (std::vector<Int_t>::iterator itDigi = onecluster.begin();
@@ -413,13 +414,21 @@ void PndMvdStripClusterTask::CalcMeanCharge(std::vector<Int_t> &onecluster, Doub
 		    fStripCalcTop->CalcFeChToStrip(myDigi->GetFE(), myDigi->GetChannel(), strip, side);
 		    charge += myDigi->GetCharge();
 		    meanstrip += myDigi->GetCharge() * strip;
-		    meanerr += strip*strip/12.; // TODO: error treatment?
+		    meanerr += myDigi->GetCharge()*myDigi->GetCharge(); 
 		  }
 		  meanstrip = meanstrip/charge;
-		  meanerr = sqrt(meanerr)/charge;// TODO: error treatment?
-	} else {
-		fChargeAlgos->center_of_gravity(onecluster);
-	}
+		  // this error treatment is: dx = dpitch * sqrt(weigthsquares)
+  		    meanerr = sqrt(meanerr/(charge*charge));
+		  if(side==kTOP){
+		    meanerr = meanerr * (fCurrentDigiPar->GetTopPitch()/sqrt(12.));
+		  }else{
+			meanerr = meanerr * (fCurrentDigiPar->GetBotPitch()/sqrt(12.));
+		  }
+	//} else {
+	//	//TODO: Apply other clusterfinder mean & error algorithms
+	//	if(fVerbose>1)std::cout<<"-W- PndMvdStripClusterTask::CalcMeanCharge: Using a preliminary Chargeweighting, please set fMeanAlgo = 0 ."<<std::endl;
+	//	fChargeAlgos->center_of_gravity(onecluster);
+	//}
 
 
 
@@ -431,38 +440,38 @@ void PndMvdStripClusterTask::CalcMeanCharge(std::vector<Int_t> &onecluster, Doub
 Bool_t PndMvdStripClusterTask::Backmap( TVector2 meantopPoint, Double_t meantoperr, TVector2 meanbotPoint, Double_t meanboterr,
 		TVector3 &hitPos, TVector3 &hitErr, TString &detname)
 {
-// BACKMAPPING
-// get the backmapped point
+  // BACKMAPPING
+  // get the backmapped point
 
-   TVector3 localpos, locDpos;
-   Double_t t, b;
-   Double_t errZ = 2.*fGeoH->GetSensorDimensionsId(detname).Z()/TMath::Sqrt(12.0);
+  TVector3 localpos, locDpos;
+  Double_t t, b;
+  Double_t errZ = 2.*fGeoH->GetSensorDimensionsId(detname).Z()/TMath::Sqrt(12.0);
 
-TVector2 onsensorPoint = CalcLineCross(meantopPoint, fStripCalcTop->GetStripDirection(),
-                              meanbotPoint, fStripCalcBot->GetStripDirection() );
-// here we assume the sensor system to be in the _Middle_ of the volume
-localpos.SetXYZ( onsensorPoint.X(), onsensorPoint.Y(), 0.);
+  TVector2 onsensorPoint = 
+    CalcLineCross(meantopPoint, fStripCalcTop->GetStripDirection(), meanbotPoint, fStripCalcBot->GetStripDirection() );
+  // here we assume the sensor system to be in the _Middle_ of the volume
+  localpos.SetXYZ( onsensorPoint.X(), onsensorPoint.Y(), 0.);
 
-// let's see if we're still on the sensor (cut combinations with noise off)
-if(fabs(localpos.X()) > fabs(fCurrentDigiPar->GetTopAnchor().X())) return kFALSE;
-if(fabs(localpos.Y()) > fabs(fCurrentDigiPar->GetTopAnchor().Y())) return kFALSE;
+  // let's see if we're still on the sensor (cut combinations with noise off)
+  if(fabs(localpos.X()) > fabs(fCurrentDigiPar->GetTopAnchor().X())) return kFALSE;
+  if(fabs(localpos.Y()) > fabs(fCurrentDigiPar->GetTopAnchor().Y())) return kFALSE;
 
-//do the transformation from sensor to lab frame
-hitPos = fGeoH->LocalToMasterId(localpos,detname.Data());
+  //do the transformation from sensor to lab frame
+  hitPos = fGeoH->LocalToMasterId(localpos,detname.Data());
 
-// calculate the errors corresponding to a skewed system!
-t = meantoperr*fCurrentDigiPar->GetTopPitch()*cos(fCurrentDigiPar->GetOrient());
-b = meanboterr*fCurrentDigiPar->GetBotPitch()*cos(fCurrentDigiPar->GetOrient()+fCurrentDigiPar->GetSkew());
-locDpos.SetX( sqrt(t*t+b*b) );
-t = meantoperr*fCurrentDigiPar->GetTopPitch()*sin(fCurrentDigiPar->GetOrient());
-b = meanboterr*fCurrentDigiPar->GetBotPitch()*sin(fCurrentDigiPar->GetOrient()+fCurrentDigiPar->GetSkew());
-locDpos.SetY( sqrt(t*t+b*b) );
-locDpos.SetZ( errZ );
+  // calculate the errors corresponding to a skewed system!
+  t = meantoperr*fCurrentDigiPar->GetTopPitch()*cos(fCurrentDigiPar->GetOrient());
+  b = meanboterr*fCurrentDigiPar->GetBotPitch()*cos(fCurrentDigiPar->GetOrient()+fCurrentDigiPar->GetSkew());
+  locDpos.SetX( sqrt(t*t+b*b) );
+  t = meantoperr*fCurrentDigiPar->GetTopPitch()*sin(fCurrentDigiPar->GetOrient());
+  b = meanboterr*fCurrentDigiPar->GetBotPitch()*sin(fCurrentDigiPar->GetOrient()+fCurrentDigiPar->GetSkew());
+  locDpos.SetY( sqrt(t*t+b*b) );
+  locDpos.SetZ( errZ );
+  
+  //do the transformation from sensor to lab frame
+  hitErr = fGeoH->LocalToMasterErrorsId(locDpos,detname.Data());
 
-// CAUTION The errors in the MvdHit are LOCAL, but the coordinates are in the LAB
-hitErr = fGeoH->LocalToMasterErrorsId(locDpos,detname.Data());
-
-return kTRUE;
+  return kTRUE;
 }
 
 

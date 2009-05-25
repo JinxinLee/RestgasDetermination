@@ -19,8 +19,7 @@
 #include "PndMvdDigiStrip.h"
 #include "PndMvdDigiPixel.h"
 
-//TODO this include is for the enumeration
-#include "PndMvdDetector.h"
+#include "PndDetectorList.h"
 
 // -----   Default constructor   -------------------------------------------
 PndMvdNoiseProducer::PndMvdNoiseProducer() :
@@ -56,8 +55,6 @@ InitStatus PndMvdNoiseProducer::Init()
       std::cout << "    Create a new one." << std::endl;
       fDigiStripArray = new TClonesArray("PndMvdDigiStrip");
   }
-//   ioman->Register("MVDStripDigis", "MVD", fDigiStripArray, kTRUE); // reregister for output
-    // TODO Check if this is done this way!
 
   fDigiPixelArray = (TClonesArray*) ioman->GetObject("MVDPixelDigis");
   if ( ! fDigiPixelArray )     {
@@ -65,7 +62,6 @@ InitStatus PndMvdNoiseProducer::Init()
       std::cout << "    Create a new one." << std::endl;
       fDigiPixelArray = new TClonesArray("PndMvdDigiPixel");
   }
-//   ioman->Register("MVDPixelDigis", "MVD", fDigiPixelArray, kTRUE); // reregister for output
 
   fGeoH = new PndMvdGeoHandling(gGeoManager);
   // Retrieve a map between the active geometry nodes and their interpretation

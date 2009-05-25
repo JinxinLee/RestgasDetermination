@@ -21,9 +21,7 @@
 #include "PndStringVector.h"
 #include "PndMvdCalcStrip.h"
 #include "PndMvdDigiStrip.h"
-
-//TODO this include is for the enumeration
-#include "PndMvdDetector.h"
+#include "PndDetectorList.h"
 
 // -----   Default constructor   -------------------------------------------
 PndMvdStripHitProducer::PndMvdStripHitProducer() :
@@ -413,7 +411,7 @@ void PndMvdStripHitProducer::AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, T
 
 Bool_t PndMvdStripHitProducer::SelectSensorParams(TString detname)
 {
-      /// TODO change this to a switch on DetID==2
+      /// TODO change this to a switch on DetID==2 ?
   TString detpath = fGeoH->GetPath(detname);
   if( !(detpath.Contains("Strip")) )
     return kFALSE;

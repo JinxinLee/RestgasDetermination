@@ -56,6 +56,7 @@ public:
   TVector3 LocalToMasterId(const TVector3& local, const TString& id);
   TVector3 LocalToMasterPath(const TVector3& local, const TString& id);
 
+  // TODO: Recheck the error calculation for 3-vectors
   TVector3 MasterToLocalErrorsId(const TVector3& master, const TString& id);
   TVector3 MasterToLocalErrorsPath(const TVector3& master, const TString& id);
   TVector3 LocalToMasterErrorsId(const TVector3& local, const TString& id);

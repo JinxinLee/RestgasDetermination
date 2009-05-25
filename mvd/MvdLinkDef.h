@@ -16,11 +16,11 @@
 #pragma link C++ class PndMvdApvHit+;
 
 //mc
-#pragma link C++ class PndMvdGeo+;
+//#pragma link C++ class PndMvdGeo+;
 #pragma link C++ class PndMvdGeoPar+;
 #pragma link C++ class PndMvdContFact+;
 #pragma link C++ class PndMvdDetector+;
-#pragma link C++ class PndMvdMaterialDet+;
+//#pragma link C++ class PndMvdMaterialDet+;
 
 //digi
 #pragma link C++ class PndMvdHybridHitProducer+;

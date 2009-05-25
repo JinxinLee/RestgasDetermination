@@ -1,8 +1,5 @@
 #include "PndMvdDetector.h"
 
-#include "PndMvdGeo.h"
-#include "PndMvdGeoPar.h"
-
 #include "FairGeoInterface.h"
 #include "FairGeoLoader.h"
 #include "FairGeoNode.h"
@@ -15,11 +12,6 @@
 #include "FairRunSim.h"
 #include "FairVolume.h"
 
-#include "PndStack.h"
-#include "PndMvdMCPoint.h"
-#include "PndMvdGeo.h"
-#include "PndMvdGeoPar.h"
-
 #include "TClonesArray.h"
 #include "TLorentzVector.h"
 #include "TParticle.h"
@@ -30,6 +22,11 @@
 #include "TGeoManager.h"
 #include "TGeoVoxelFinder.h"
 #include "TGeoMatrix.h"
+
+#include "PndStack.h"
+#include "PndMvdMCPoint.h"
+#include "PndMvdGeo.h"
+#include "PndMvdGeoPar.h"
 #include "PndMvdGeoHandling.h"
 
 #include <iostream>
@@ -49,12 +46,12 @@ PndMvdDetector::PndMvdDetector() : fUseRadDamOption(false) {
   fListOfSensitives.push_back("SensorActiveArea");//MVD14.root
   fListOfSensitives.push_back("StripActive");//MVD_v1.0.root
   fListOfSensitives.push_back("PixelActive");//MVD_v1.0.root
-  if (fVerboseLevel>0) {
+  //if (fVerboseLevel>0) {
     std::cout<<"-I- PndMvdDetector: fListOfSensitives contains:";
     for(Int_t k=0;k<fListOfSensitives.size();k++)
       std::cout<<"\n\t"<<fListOfSensitives[k];
     std::cout<<std::endl;
-  }
+  //}
 }
 // -------------------------------------------------------------------------
 
@@ -73,12 +70,12 @@ PndMvdDetector::PndMvdDetector (const char* name, Bool_t active)
   fListOfSensitives.push_back("SensorActiveArea");//MVD14.root
   fListOfSensitives.push_back("StripActive");//MVD_v1.0.root
   fListOfSensitives.push_back("PixelActive");//MVD_v1.0.root
-  if (fVerboseLevel>0) {
+  //if (fVerboseLevel>0) {
     std::cout<<"- I - PndMvdDetector: fListOfSensitives contains:";
     for(Int_t k=0;k<fListOfSensitives.size();k++)
       std::cout<<"\n\t"<<fListOfSensitives[k];
     std::cout<<std::endl;
-  }
+  //}
 }
 // -------------------------------------------------------------------------
 
@@ -111,7 +108,7 @@ void PndMvdDetector::Initialize()
 // -----   Public method ProcessHits  --------------------------------------
 Bool_t  PndMvdDetector::ProcessHits(FairVolume* vol)
 {
-
+//	std::cout<<"-I- PndMvdDetector::ProcessHits() : called. Please remove this line soon."<<std::endl;
   if ( gMC->IsTrackEntering() )
   {
     // Set parameters at entrance of volume. Reset ELoss.
@@ -153,7 +150,6 @@ Bool_t  PndMvdDetector::ProcessHits(FairVolume* vol)
       }
 
      TString detPath = gMC->CurrentVolPath();
-     //TODO Add detector index here properly!!!
      AddHit(fTrackID, kMVDPoint, fGeoH->GetID(detPath),
         TVector3(fPosIn.X(),   fPosIn.Y(),   fPosIn.Z()),
         TVector3(fPosOut.X(),  fPosOut.Y(),  fPosOut.Z()),

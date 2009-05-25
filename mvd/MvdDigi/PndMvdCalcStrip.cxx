@@ -73,7 +73,7 @@ PndMvdCalcStrip::GetStrips(Double_t inx, Double_t iny, Double_t inz,
                         Double_t outx, Double_t outy, Double_t outz,
                         Double_t eLoss)
 {
-    if (fVerboseLevel > 2) std::cout<<"-I-  PndMvdCalcStrip::GetStrips "<<std::endl;
+    if (fVerboseLevel > 2) std::cout<<"-I- PndMvdCalcStrip::GetStrips "<<std::endl;
     
     // 2d-Projection of trajectory
     TVector2 in(inx,iny);
@@ -89,7 +89,7 @@ PndMvdCalcStrip::GetStrips(Double_t inx, Double_t iny, Double_t inz,
     Double_t smearedQ;
         
     if (path.Mod()<1E-18) {
-      std::cout<<"-W-  PndMvdCalcStrip::GetStrips : No Trajectory inside Sensor!"<<path.Mod()<<std::endl;
+      std::cout<<"-W- PndMvdCalcStrip::GetStrips : No Trajectory inside Sensor! (out-in).Mod() = "<<path.Mod()<<std::endl;
       return strips;
     }    
     
@@ -108,7 +108,7 @@ PndMvdCalcStrip::GetStrips(Double_t inx, Double_t iny, Double_t inz,
 //     if ( (nuIn<0.5 && nuOut<0.5) || (((nuIn+0.5) > Double_t(fNrStrips-1)) && ((nuOut+0.5) > Double_t(fNrStrips-1)))){
     if ( (nuIn<0. && nuOut<0.) || ((nuIn > Double_t(fNrStrips)) && (nuOut > Double_t(fNrStrips))) )
     {
-      if (fVerboseLevel > 1) std::cout<<" -i- warning: Hit outside active area."<<std::endl;
+      if (fVerboseLevel > 1) std::cout<<"-W- PndMvdCalcStrip::GetStrips: Hit outside active area."<<std::endl;
       return strips;
     }
     

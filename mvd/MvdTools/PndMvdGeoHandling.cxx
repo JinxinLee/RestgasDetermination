@@ -283,8 +283,8 @@ TVector3 PndMvdGeoHandling::MasterToLocalErrorsPath(const TVector3& master, cons
 
   // rotate "error vector"
   fGeoMan->MasterToLocalVect(temp,result);
-  // positive error values
-  for(Int_t i=0;i<3;i++) result[i]=fabs(result[i]);
+//  // positive error values
+//  for(Int_t i=0;i<3;i++) result[i]=fabs(result[i]);
 
   if(actPath != "" && actPath != " ") fGeoMan->cd(actPath);
   return TVector3(result[0],result[1],result[2]);
@@ -310,8 +310,8 @@ TVector3 PndMvdGeoHandling::LocalToMasterErrorsPath(const TVector3& local, const
 
   // rotate "error vector"
   fGeoMan->LocalToMasterVect(temp,result);
-  // positive error values
-  for(Int_t i=0;i<3;i++) result[i]=fabs(result[i]);
+ // // positive error values
+ // for(Int_t i=0;i<3;i++) result[i]=fabs(result[i]);
 
   if(actPath != "" && actPath != " ") fGeoMan->cd(actPath);
   return TVector3(result[0],result[1],result[2]);

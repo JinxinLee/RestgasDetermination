@@ -16,13 +16,13 @@
 #include "FairGeoNode.h"
 #include "FairGeoNode.h"
 #include "FairGeoVector.h"
+
 #include "PndStringVector.h"
 #include "PndMvdCalcPixel.h"
 #include "PndMvdCalcFePixel.h"
 #include "PndMvdDigiPixel.h"
 
-//TODO this include is for the enumeration
-#include "PndMvdDetector.h"
+#include "PndDetectorList.h"
 
 // -----   Default constructor   -------------------------------------------
 PndMvdHybridHitProducer::PndMvdHybridHitProducer() :
@@ -35,6 +35,8 @@ PndMvdHybridHitProducer::PndMvdHybridHitProducer() :
  // fGeoH = new PndMvdGeoHandling(gGeoManager);
 //  fHitArray  = new TClonesArray("PndMvdHit");
 //	fPixelArray	= new TClonesArray("PndMvdPixelHit");
+  if(fVerbose>0) std::cout << "MVD Hybrid Digi Producer created, Parameters will be taken from RTDB" << std::endl;
+
 }
 // -------------------------------------------------------------------------
 
@@ -53,7 +55,7 @@ PndMvdHybridHitProducer::PndMvdHybridHitProducer(Double_t lx, Double_t ly, Doubl
   fcols = 104;
   frows = 104;
   fOverwriteParams = kTRUE;
-	std::cout << "MVD Hybrid Digi Producer initiated" << std::endl;
+  if(fVerbose>0) std::cout << "MVD Hybrid Digi Producer created, Parameters will be overwritten in RTDB" << std::endl;
 }
 // -------------------------------------------------------------------------
 
@@ -121,6 +123,8 @@ InitStatus PndMvdHybridHitProducer::Init()
     fDigiPar->SetFERows(frows);
     fDigiPar->setInputVersion(ana->GetRunId(),1);
     fDigiPar->setChanged();
+	if(fVerbose>0) std::cout << "-I- PndMvdHybridHitProducer: RTDB updated" << std::endl;
+
   }
   fDigiPar->Print();
 
@@ -131,7 +135,7 @@ InitStatus PndMvdHybridHitProducer::Init()
     fcols = fDigiPar->GetFECols();
     frows = fDigiPar->GetFERows();
 
-   std::cout << "-I- PndMvdHybridHitProducer: Intialisation successfull" << std::endl;
+   if(fVerbose>0) std::cout << "-I- PndMvdHybridHitProducer: Intialisation successfull" << std::endl;
 
   return kSUCCESS;
 }
@@ -211,7 +215,6 @@ void PndMvdHybridHitProducer::Exec(Option_t* opt)
             myPixels[i].SetDetName(point->GetDetName().Data());
             if (fVerbose > 1) std::cout << myPixels[i] << std::endl;
           }
-          // TODO read Parameters from Database
           // Calculate channel numbers
           PndMvdCalcFePixel feCalc(fcols, frows, 10);
           myFePixels = feCalc.CalcFEHits(myPixels);

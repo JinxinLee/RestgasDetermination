@@ -11,7 +11,7 @@
 
 //reco
 #pragma link C++ class PndMvdIdealRecoTask+;
-#pragma link C++ class PndMvdRecoTask+;
+//#pragma link C++ class PndMvdRecoTask+;
 #pragma link C++ class PndMvdPixelClusterTask+;
 #pragma link C++ class PndMvdPixelClusterFinder+;
 #pragma link C++ class PndMvdSimplePixelClusterFinder+;

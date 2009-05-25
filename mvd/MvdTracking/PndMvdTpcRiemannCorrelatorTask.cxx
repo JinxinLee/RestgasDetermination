@@ -14,6 +14,7 @@
 #include "FairRuntimeDb.h"
 #include "PndMCTrack.h"
 
+#include "PndDetectorList.h"
 
 // PndMvd includes
 #include "PndMvdRecoHit.h"
@@ -257,7 +258,7 @@ TrackCand PndMvdTpcRiemannCorrelatorTask::AddTPCHits(TrackCand* myCand)
 		//the 3d position from the TpcCluster
 		pos = myCluster->pos();
 		sig = myCluster->sig();
-		FairHit *myTpcHit = new FairHit(3, pos, sig,0);
+		FairHit *myTpcHit = new FairHit(kTpcCluster, pos, sig,0);
 		//caution: the index here is not pointing to an actual CbmPoint
 		//TODO: change the detector number (3) to a kTpcSomething
 		PndRiemannHit myRHit(myTpcHit);

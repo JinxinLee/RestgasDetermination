@@ -139,7 +139,7 @@ InitStatus PndMvdRecoTask::Init()
        unsigned int zFE = 0;
        unsigned int rphiFE = 0;
        unsigned int channelsFE = 128;
-  if(fVerbose>1)
+  if(fVerbose>=1)
     std::cout<<"PndMvdRecoTask::Init(): Making PndMvdDetectorDescr "<<std::endl;
 
 //   PndMvdDetectorDescr* detDescr = new PndMvdDetectorDescr(pixelCellX,pixelCellXLong,

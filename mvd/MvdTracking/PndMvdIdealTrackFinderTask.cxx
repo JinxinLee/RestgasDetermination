@@ -162,9 +162,6 @@ void PndMvdIdealTrackFinderTask::Exec(Option_t* opt)
     PndMvdDigiPixel* apixeldigi = (PndMvdDigiPixel*)fPixelDigiArray->At(myCluster->GetDigiIndex(0));
     if (apixeldigi->GetIndex(0) == -1) continue; // sort out noise
     PndMvdMCPoint* myPoint = (PndMvdMCPoint*)(fMcArray->At(apixeldigi->GetIndex(0)));
-//     Int_t trackID = myPoint->GetTrackID();
-//     Int_t detnum = 3; //TODO Convention needed
-//     AddAndExpand(trackID,detnum,iHit);
     AddAndExpand(myPoint->GetTrackID(),apixeldigi->GetDetID(),iHit);
   }
   //strip part
@@ -174,9 +171,6 @@ void PndMvdIdealTrackFinderTask::Exec(Option_t* opt)
     PndMvdDigiStrip* astripdigi = (PndMvdDigiStrip*)fStripDigiArray->At(myCluster->GetDigiIndex(0));
     if (astripdigi->GetIndex(0) == -1) continue; // sort out noise
     PndMvdMCPoint* myPoint = (PndMvdMCPoint*)(fMcArray->At(astripdigi->GetIndex(0)));
-//     Int_t trackID = myPoint->GetTrackID();
-//     Int_t detnum = 4; //TODO Convention needed
-//     AddAndExpand(trackID,detnum,iHit);
     AddAndExpand(myPoint->GetTrackID(),astripdigi->GetDetID(),iHit);
   }
 

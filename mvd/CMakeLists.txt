@@ -56,9 +56,9 @@ MvdDigi/PndMvdDigiTask.cxx
 MvdDigi/PndMvdNoiseProducer.cxx
 
 MvdMC/PndMvdDetector.cxx
-MvdMC/PndMvdGeo.cxx
+#MvdMC/PndMvdGeo.cxx
 MvdMC/PndMvdGeoPar.cxx
-MvdMC/PndMvdMaterialDet.cxx
+#MvdMC/PndMvdMaterialDet.cxx
 
 MvdTools/PndMvdContFact.cxx
 MvdTools/PndMvdPixelDigiPar.cxx
@@ -104,7 +104,7 @@ set_target_properties(Mvd PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 set(MVDRECO_SRCS
 
 
-MvdReco/PndMvdRecoTask.cxx
+#MvdReco/PndMvdRecoTask.cxx
 MvdReco/PndMvdClusterTask.cxx
 MvdReco/PndMvdPixelClusterFinder.cxx
 MvdReco/PndMvdSimplePixelClusterFinder.cxx
