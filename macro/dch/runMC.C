@@ -1,23 +1,12 @@
 // Macro for running sim  with Geant3  or Geant4 (M. Al-Turany , D. Bertini)
-{
+void runMC(Double_t momentum = 1, Int_t nev = 50){
   TStopwatch timer;
   timer.Start();
   gDebug=0;
 
   // Load basic libraries
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-  basiclibs();
-
-  // Load this example libraries
-  cout<<"libGeoBase\t"<<gSystem->Load("libGeoBase")<<endl;;
-  cout<<"libParBase\t"<<gSystem->Load("libParBase")<<endl;
-  cout<<"libBase\t\t"<<gSystem->Load("libBase")<<endl;
-  cout<<"libPndBase\t"<<gSystem->Load("libPndBase")<<endl;
-  cout<<"libField\t"<<gSystem->Load("libField")<<endl;
-  cout<<"libPassive\t"<<gSystem->Load("libPassive")<<endl;
-  cout<<"libGen\t\t"<<gSystem->Load("libGen")<<endl;
-  cout<<"libgenfit\t"<<gSystem->Load("libgenfit")<<endl;
-  cout<<"libDch\t\t"<<gSystem->Load("libDch")<<endl;
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  rootlogon();
 
   FairRunSim *fRun = new FairRunSim();
   
@@ -41,7 +30,7 @@
   fRun->AddModule(Cave);
 
   FairModule *Pipe= new PndPipe("PIPE");
-  Pipe->SetGeometryFileName("pipe.geo");
+  Pipe->SetGeometryFileName("pipebeamtarget.geo");
   fRun->AddModule(Pipe);
   
   FairModule *Magnet= new PndMagnet("MAGNET");
@@ -57,6 +46,14 @@
   Dch->SetVerboseLevel(1);
   fRun->AddModule(Dch);
 
+//   FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
+//   Gem->SetGeometryFileName("gem_4Stations.root");
+//   Gem->SetVerboseLevel(0);
+//   fRun->AddModule(Gem);
+
+
+
+
  // Create and Set Event Generator
  //-------------------------------
 
@@ -66,9 +63,9 @@
  // Box Generator
   //  gRandom->SetSeed(3523);
   FairBoxGenerator* boxGen = new FairBoxGenerator(13, 1); // 13=muon; 2212=proton 1 = multipl.
-  boxGen->SetPRange(1.,1.); // GeV/c //setPRange vs setPtRange
+  boxGen->SetPRange(momentum,momentum); // GeV/c //setPRange vs setPtRange
   boxGen->SetPhiRange(0,360); // Azimuth angle range [degree]
-  boxGen->SetThetaRange(3, 3); // Polar angle in lab system range [degree]
+  boxGen->SetThetaRange(3, 5); // Polar angle in lab system range [degree]
   boxGen->SetXYZ(0.,0.,0.);
   primGen->AddGenerator(boxGen);
 
@@ -118,15 +115,14 @@
 
   // Transport nEvents
   // -----------------
-  Int_t nEvents = 100;
-  fRun->Run(nEvents);
+  fRun->Run(nev);
    
   timer.Stop();
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
   
-  exit(0);
+  //exit(0);
   // TGeoManager *geoMan = (TGeoManager*) gDirectory->Get("FAIRGeom");
   //  TCanvas* c1 = new TCanvas("c1", "", 100, 100, 800, 800);
   //  c1->SetFillColor(10);

@@ -1,6 +1,7 @@
-{
-  // Loads a file with points, makes digitization, reconstruction and Kalman filtering
+// Loads a file with points, makes digitization, reconstruction and Kalman filtering
   // producing objects of Track type
+
+void runDigiRecoFit(Int_t nEvents = 0){ 
   
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0; 
@@ -16,27 +17,6 @@
   
   // Number of events to process
   Int_t nEvents = 0;  // if 0 all the events will be processed
-  	
-  // Loading libraries
-  // If the macro gives error messages in loading libraries, 
-  // please check the path of the libs and put it by hands
-  
-  std::cout<<"libgeant321\t"<<gSystem->Load("libgeant321")<<endl;
-  gSystem->Load("libGeoBase");
-  gSystem->Load("libParBase");
-  gSystem->Load("libBase");
-  gSystem->Load("libPndData");
-  gSystem->Load("libField");
-  gSystem->Load("libPassive");
-  gSystem->Load("libMvd");
-  gSystem->Load("libGen");
-  gSystem->Load("libTrkBase");
-  gSystem->Load("libGeane");
-  gSystem->Load("libgenfit");
-  gSystem->Load("libtrackrep");
-  gSystem->Load("libtpc");
-  gSystem->Load("libtpcreco");
-  gSystem->Load("libDch");
 
   // -----   Timer 
   TStopwatch timer;
@@ -62,9 +42,7 @@
   PndDchCylinderHitProducer* cylHitProducer= new PndDchCylinderHitProducer();
   cylHitProducer->SetVerbose(0);
   fRun->AddTask(cylHitProducer);
-  // ------------------------------------------------- 
-
-  //------ Ideal DCH track finder --------------------
+   //------ Ideal DCH track finder --------------------
   PndDchFindTracks* finderTask = new PndDchFindTracks("dchFindTracks");
   finderTask->SetUseHitOrDigi("chit");
   finderTask->SetVerbose(0);
@@ -85,30 +63,30 @@
   // ------------------------------------------------- 
     PndDchPreFitterTR* dchPreFitter = new PndDchPreFitterTR();
   dchPreFitter->SetVerbose(0);
-  //fRun->AddTask(dchPreFitter);
+  fRun->AddTask(dchPreFitter);
   // ------------------------------------------------- 
   PndDchPreFitterTRQATask* dchPreFitterQA = new PndDchPreFitterTRQATask();
   dchPreFitterQA->SetVerbose(0);
-  //fRun->AddTask(dchPreFitterQA);
+  fRun->AddTask(dchPreFitterQA);
   // ------------------------------------------------- 
   PndDchPrepareKalmanTracks2 *prepareKalmanTracks = new PndDchPrepareKalmanTracks2();
   prepareKalmanTracks->SetVerbose(0);
   prepareKalmanTracks->UseGeane(kTRUE);
-  prepareKalmanTracks->UseMC(kTRUE);
+  prepareKalmanTracks->UseMC(kFALSE);
   prepareKalmanTracks->SetPDG(13);
   prepareKalmanTracks->SetPersistence();
   fRun->AddTask(prepareKalmanTracks);
   // ------------------------------------------------- 
   PndDchKalmanTask2* dchKalman = new PndDchKalmanTask2();
   dchKalman->SetVerbose(5);
-  dchKalman->SetNumIterations(3);
+  dchKalman->SetNumIterations(2);
   fRun->AddTask(dchKalman);
   // ------------------------------------------------- 
   PndDchKalmanQATask* dchKalmanQA = new PndDchKalmanQATask();
   dchKalmanQA->SetVerbose(0);
   dchKalmanQA->SetApproach(1);
   dchKalmanQA->ApplySignPatch(kFALSE);
-  //  fRun->AddTask(dchKalmanQA);
+  fRun->AddTask(dchKalmanQA);
   // ------------------------------------------------- 
 
   // -----   Intialise and run 
@@ -118,7 +96,7 @@
   fRun->Run(0,nEvents);
 
   //dchPreFitterQA->PlotHistograms();
-  //dchKalmanQA->PlotHistograms();
+  dchKalmanQA->PlotHistograms();
   
 // -----   Finish
   timer.Stop();
