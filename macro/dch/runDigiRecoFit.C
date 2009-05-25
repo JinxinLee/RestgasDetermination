@@ -15,9 +15,6 @@ void runDigiRecoFit(Int_t nEvents = 0){
   // Output file
   TString outFile = base+".recoReal.root";
   
-  // Number of events to process
-  Int_t nEvents = 0;  // if 0 all the events will be processed
-
   // -----   Timer 
   TStopwatch timer;
   timer.Start();
