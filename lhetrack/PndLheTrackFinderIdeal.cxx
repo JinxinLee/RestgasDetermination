@@ -127,12 +127,13 @@ void PndLheTrackFinderIdeal::Exec(Option_t * option) {
 	 (ghit->GetDetectorID() == kMVDHitsPixel)   )   mvdHits++;
     
     cand->SetTpcHits(tpcHits);
-    cand->SetMvdHits(mvdHits);
+    cand->SetMvdHits(mvdHits); 
+    candlist[trackID] = cand;
   }
- 
-  std::map<Int_t, PndTpcLheTrack*>::iterator  candit=candlist.begin();
-  while(candit!=candlist.end()){
-    PndTpcLheTrack* cand=candit->second;
+  
+  std::map<Int_t, PndTpcLheTrack*>::iterator  candit;
+  for(candit=candlist.begin(); candit!=candlist.end(); ++candit) {
+    PndTpcLheTrack* cand=candit->second; 
     if ( (cand->GetTpcHits()+ cand->GetMvdHits()) >=3 )
       AddTrack(cand);
   }
