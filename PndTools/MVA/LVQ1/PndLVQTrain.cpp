@@ -856,14 +856,14 @@ void PndLVQTrain::NormalizeWithVariance()
 }
 // End of class implementation.
 
-////////////////////// Test Functions ///////////////////
+//////////////////////=========== Test Functions ///////////////////
 /**
  * Initialize LVQ prototypes (Code books) on the mean position between
  * the randomly selected proto type and the class conditional means
  * vector.
  */
 
-// FIXME HIER BEN JE BEZIG.
+//=========================== FIXME HIER BEN JE BEZIG. =============//
 void PndLVQTrain::InitProtoTypesWithClsMean(const int numProto)
 {
   // Clear protypes list
@@ -936,4 +936,260 @@ void PndLVQTrain::InitProtoTypesWithClsMean(const int numProto)
 
     }//END for(i = 0; i < numProto)
   }//End for(cls = 0
+}
+
+void PndLVQTrain::TrainSec(const int numProto, const char* outPut)
+{
+  TRandom3 trand(435775);
+  std::vector<unsigned int> indices(m_ClassNames.size(),0);
+  
+  // Init LVQ protoTypes.
+  if(numProto <= 0){
+    std::cerr << "<ERROR> The number of prototypes\n"
+	      << " MUST be greater than zero (0)."<< std::endl;
+    return;
+  }
+  
+  //InitProtoTypes(numProto);
+  InitProtoTypesWithClsMean(numProto);
+  
+  if(!outPut){
+    std::cerr << "You need to specify the output file" << std::endl;
+    return;
+  }
+
+  // All protypes are initialized. We can perform the training
+  // Compute learning rate constant "a"
+  double ethaZero     = m_ethaZero;//0.1;
+  double ethaFinal    = m_ethaFinal;//0.0001;
+  int    numSweep     = m_NumSweep;//1000;
+  unsigned int tFinal = numSweep * ( m_EventsData.size() );
+  long double a       = (ethaZero - ethaFinal)/(ethaFinal * static_cast<double>(tFinal) );
+  
+  if(a < 0.00){//Underflow
+    std::cout << "Too small value for a." << std::endl;
+    a = std::numeric_limits<double>::min();
+  }
+
+  if(tFinal <= static_cast<unsigned>(0)){// OverFlow
+    std::cout << "tFinal Overflow." << std::endl;
+    tFinal = std::numeric_limits<unsigned>::max();
+  }
+
+  // Print some information.
+  std::cout << "\t<INFO>: Performing LVQ1 learning with parameters:\n"
+	    <<"Init constant = " << m_initConst <<", ethaZero = "
+	    << ethaZero << ", ethaFinal = " << ethaFinal
+	    <<", numSweep = " << numSweep << ", tFinal= " << tFinal
+	    <<", learn coeff. = " << a << "\nPrototypes will be stored in "
+	    << outPut << std::endl;
+  
+  // Start the training
+  std::cout << "\t<INFO> Starting to train Per Class Example (LVQ1)....." 
+	    << std::endl;
+  
+  for(unsigned int time = 0; time < tFinal; time++){
+    //Write progress to std::cerr
+    if( (time % 100000) == 0){
+      std::cerr << " ." ;
+    }
+
+    int    protoIndex       = 0;
+    double distance         = 0.0;
+    double minProtoDistance = std::numeric_limits<float>::max();//1000000.0;
+
+    double ethaT = (ethaZero) / (1.0 + (a * static_cast<double>(time)));
+    // ethaT can become too small
+    if( ethaT <= (1.50 * std::numeric_limits<double>::min())){
+      ethaT  = std::numeric_limits<double>::min();
+      std::cout <<"Very small ethaT" << std::endl;
+    }
+
+    // select number of classes, random examples
+    for(unsigned int exa = 0; exa < m_ClassIndex.size(); exa++){
+      indices[exa] = (int) trand.Uniform(m_ClassIndex[exa].first, m_ClassIndex[exa].second);
+    }
+
+    for(unsigned int k = 0; k < indices.size(); k++){
+      int index = indices[k];
+      
+      // Compute the distance to all available LVQ proto-types
+      for(unsigned int ix = 0; ix < m_LVQProtos.size(); ix++){
+	distance = ComputeDist( *(m_EventsData[index].second), *(m_LVQProtos[ix].second) );
+	
+	if(distance < minProtoDistance){
+	  minProtoDistance = distance;//minimum distance
+	  protoIndex  = ix;//index of the prototype with min dist
+	}
+      }// END for(ix)
+      
+      // We need to update the (winner) prototype
+      int delta = 0;
+
+      // determine delta
+      if( m_EventsData[index].first == m_LVQProtos[protoIndex].first ){
+	// Equal labels
+	delta = 1;
+      }
+      else{
+	// Diff. Labels
+	delta = -1;
+      }// delta is calculated
+    
+      // Update the LVQ prototype
+      UpdateProto( *(m_EventsData[index].second), *(m_LVQProtos[protoIndex].second), delta, ethaT);
+    }//End for(k=0)
+  }//End for(times)
+  std::cerr << std::endl;
+  // Write the coordinates of the prototypes to the file
+  WriteToProtoFile(outPut);
+}
+
+void PndLVQTrain::Train21Sec(const int numProto, const char* outPut)
+{
+  /////////////////////////////////
+  TRandom3 trand(435573);
+  std::vector<unsigned int> indices(m_ClassNames.size(),0);
+  
+  // Container to store distances.
+  std::vector <PndLVQDistObj*> distances;
+  
+  // Init LVQ protoTypes.
+  if(numProto <= 0){
+    std::cerr << "\t<ERROR:> The number of prototypes MUST\n"
+	      <<"be greater than zero" << std::endl;
+    return;
+  }
+
+  if(!outPut){
+    std::cerr << "You need to specify the output file." << std::endl;
+    return;
+  }
+
+  //InitProtoTypes(numProto);
+  InitProtoTypesWithClsMean(numProto);
+    
+  // Initialize distance container.
+  for(unsigned int i = 0; i < m_LVQProtos.size(); i++)
+  {
+    PndLVQDistObj* dd = new PndLVQDistObj();
+    distances.push_back(dd);
+  }
+  
+  // All protypes are initialized. We can perform the training
+  // Compute learning rate constant "a"
+  float windowSize = 0.2;// A value between0.2 & 0.3 is recommended.
+  float s = (1 - windowSize)/(1 + windowSize);//Define the surrounding.
+  
+  double ethaZero     = m_ethaZero;//0.1;
+  double ethaFinal    = m_ethaFinal;//0.001;
+  int    numSweep     = m_NumSweep;//100;
+  unsigned int tFinal = numSweep * ( m_EventsData.size() );
+  long double a       = (ethaZero - ethaFinal)/(ethaFinal * static_cast<double>(tFinal));
+  
+  if(a < 0.00){//Underflow
+    std::cout << "Too small value for a." << std::endl;
+    a = std::numeric_limits<double>::min();
+  }
+  
+  if(tFinal <= static_cast<unsigned>(0)){// OverFlow
+    std::cout << "tFinal Overflow." << std::endl;
+    tFinal = std::numeric_limits<unsigned>::max();
+  }
+  
+  // Print some information.
+  std::cout << "\t<INFO>: Performing LVQ2.1 learning with parameters:\n"
+	    <<"Init constant = " << m_initConst << ", ethaZero =" 
+	    << ethaZero << ", ethaFinal = " << ethaFinal
+	    <<", numSweep = " << numSweep << ", tFinal= "<< tFinal 
+	    <<", learn coeff. = " << a << ", Window = " << windowSize 
+	    <<", surroun. = "<< s << "\nPrototypes will be stored in "
+	    << outPut <<std::endl;
+  
+  //Start learning
+  std::cout << "Starting to train (LVQ2.1)....." << std::endl;
+  for(unsigned int time = 0; time < tFinal; time++){
+    if( (time % 100000) == 0){
+      std::cerr << " ." ;
+    }
+    double distance         = 0.0;
+    double ethaT = (ethaZero) / (1.0 + (a * static_cast<double>(time)));
+    
+    if( ethaT <= (1.50 * std::numeric_limits<double>::min())){
+      ethaT  = std::numeric_limits<double>::min();
+      std::cout <<"Very small ethaT" << std::endl;
+    }
+
+    // select number of classes, random examples
+    for(unsigned int exa = 0; exa < m_ClassIndex.size(); exa++){
+      indices[exa] = (int) trand.Uniform(m_ClassIndex[exa].first, m_ClassIndex[exa].second);
+    }
+    
+    for(unsigned int k = 0; k < indices.size(); k++){
+      int index = indices[k];
+
+      // Compute the distance to all available LVQ proto-types
+      for(unsigned int ix = 0; ix < m_LVQProtos.size(); ix++){
+	distance = ComputeDist( *(m_EventsData[index].second), *(m_LVQProtos[ix].second) );
+	
+	// Store distance.
+	(distances[ix])->m_idx   = ix;
+	(distances[ix])->m_dist = distance;
+	(distances[ix])->m_cls  = m_LVQProtos[ix].first;
+      }// All distances are determined.
+      
+      // Sort the distances.
+      sort(distances.begin(), distances.end());
+      
+      /*
+       * We need to Select the two nearest codebooks and update
+       * them. Per definition the first one has index zero (0), thus we
+       * need to find the second one.
+       */
+      int idxSame = 0; int idx2d = 0;
+      if( m_EventsData[index].first == (distances[idxSame])->m_cls ){
+	//Same labels
+	idx2d = 1;
+      }
+      else{//Diff. labels
+	idxSame = 1;
+      }
+      if(idxSame == 0){
+	//Find one with a diff. label
+	while(m_EventsData[index].first == (distances[idx2d])->m_cls){
+	  idx2d++;
+	}
+      }
+    else{//Find one with the same label.
+      while(m_EventsData[index].first != (distances[idxSame])->m_cls){
+	idxSame++;
+      }
+    }
+      
+      //Found two prototypes, one with the same lablel and one with a diff. one
+      if(minFunct( (distances[idxSame])->m_dist / (distances[idx2d])->m_dist ,
+		   (distances[idx2d])->m_dist   / (distances[idxSame])->m_dist ) > s){
+	
+	// Update the LVQ prototype
+	int deltaEqCls = 1; int deltaNonEqCls = -1;
+	
+	// Update equal label prototype.
+	UpdateProto( *(m_EventsData[index].second), *(m_LVQProtos[idxSame].second), deltaEqCls, ethaT);
+	
+	// Update different label prototype.
+	UpdateProto( *(m_EventsData[index].second), *(m_LVQProtos[idx2d].second), deltaNonEqCls, ethaT);
+      }
+    }//END for(k=0)
+  }// (for time = 0;)Training is finished
+  
+  std::cerr << std::endl;
+  // Write the coordinates of the prototypes (Codebook) to a file.
+  WriteToProtoFile(outPut);
+  
+  // We are done. Clean distances.
+  for(unsigned int i = 0; i < distances.size(); i++){
+    delete distances[i];
+  }
+  distances.clear();  
+  //////////////////////////////////
 }

@@ -95,6 +95,10 @@ class PndLVQTrain{
   { m_initConst = initConst; m_ethaZero = etZ; 
     m_ethaFinal = etF; m_NumSweep = Nswp;};
   
+  // Modified training schemes, May BE deleted after testing
+  void TrainSec  (const int numProto, const char* OutPut);
+  void Train21Sec(const int numProto, const char* OutPut);
+
   // =========== Protected functions and variables ============
  protected:
   /**
@@ -107,7 +111,8 @@ class PndLVQTrain{
   /**
    * Updates the LVQ prototypes.
    */
-  void UpdateProto( const std::vector<float> &EvtData, std::vector<float> &proto, 
+  void UpdateProto( const std::vector<float> &EvtData, 
+		    std::vector<float> &proto, 
 		    const int delta, const double ethaT);
 
   // ============= Private functions and variables ===========
@@ -125,8 +130,9 @@ class PndLVQTrain{
   void cleanProtoList();
   
   template <typename T>
-    const T& minFunct ( const T& a, const T& b ) const {
-    return (a < b) ? a : b; // or: return comp(a,b)?a:b; for the comp version
+    const T& minFunct ( const T& a, const T& b ) const{
+    // or: return comp(a,b)?a:b; for the comp version
+    return (a < b) ? a : b;
   }
   
   /**
