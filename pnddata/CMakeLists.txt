@@ -22,7 +22,10 @@ link_directories( ${LINK_DIRECTORIES})
 set(PNDDATA_SRCS
 PndStack.cxx 
 PndMCTrack.cxx
+
 DskData/PndDskCerenkov.cxx
+DskData/PndDskParticle.cxx
+DskData/PndDskTrackPoint.cxx
 
 DrcData/PndDrcPDPoint.cxx 
 DrcData/PndDrcBarPoint.cxx

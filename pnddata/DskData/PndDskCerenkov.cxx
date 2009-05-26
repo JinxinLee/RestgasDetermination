@@ -3,6 +3,7 @@
 // -----                 Created 21/03/08  by P. Koch                     -----
 // ----------------------------------------------------------------------------
 
+#include "TMath.h"
 #include <iostream>
 using std::cout;
 using std::endl;
@@ -19,11 +20,14 @@ PndDskCerenkov::PndDskCerenkov()
     fMotherTrackID(-1),
     fMotherPdgCode(-1),
     fMotherPdgName(TString()),
-    fDetNumber(0),
-    fDetType(0),
+    fDetNumber(-1),
+    fDetType(-1),
     fDetTime(0.),
     fDetMomentum(TVector3()),
+    fLastPos(TVector3()),
     fNofReflections(0),
+    f5RefPosition(TVector3()),
+    fTotalRefAngle(0.),
     fPWay(0.),
     fPrimaryHitAngle(0.),
     fPrimaryAngleToCerenkov(0.)
@@ -44,11 +48,14 @@ PndDskCerenkov::PndDskCerenkov(Int_t trackID, Int_t detectorID,
     fMotherTrackID(motherTrackID),
     fMotherPdgCode(motherPdgCode),
     fMotherPdgName(motherPdgName),
-    fDetNumber(0),
-    fDetType(0),
+    fDetNumber(-1),
+    fDetType(-1),
     fDetTime(0.),
     fDetMomentum(TVector3()),
+    fLastPos(position),
     fNofReflections(0),
+    f5RefPosition(TVector3()),
+    fTotalRefAngle(0.),
     fPWay(0.),
     fPrimaryHitAngle(0.),
     fPrimaryAngleToCerenkov(0.)
@@ -84,17 +91,36 @@ PndDskCerenkov::Print(const Option_t* opt) const {
 
 // -----   Public method SetFinalValues   -------------------------------------
 void
-PndDskCerenkov::SetFinalValues(Int_t detNumber, UShort_t detType, Double_t detTime,
-        TVector3 detMomentum, Double_t primaryHitAngle, Double_t primaryAngleToCerenkov)
+PndDskCerenkov::SetFinalValues(Int_t detNumber, Short_t detType, Double_t detTime,
+        TVector3 detMomentum, Double_t length,
+        Double_t primaryHitAngle, Double_t primaryAngleToCerenkov)
 {
   fDetNumber   = detNumber;
   fDetType     = detType;
   fDetTime     = detTime;
   fDetMomentum = detMomentum;
+  fLength      = length;
   fPrimaryHitAngle        = primaryHitAngle;
   fPrimaryAngleToCerenkov = primaryAngleToCerenkov;
 }
 // ----------------------------------------------------------------------------
+
+
+
+// -----   Public method AddPWay   -------------------------------------
+void
+PndDskCerenkov::AddPWay(TVector3 pos)
+{
+// printf("..... %11.6lf %11.6lf %11.6lf - %11.6lf %11.6lf %11.6lf    -> %11.6lf\n",
+//   fLastPos.X(), fLastPos.Y(), fLastPos.Z(),
+//   pos.X(), pos.Y(), pos.Z(),
+//   TMath::Sqrt( (fLastPos.X()-pos.X())*(fLastPos.X()-pos.X())
+//              + (fLastPos.Y()-pos.Y())*(fLastPos.Y()-pos.Y()) )
+// );
+  fPWay += TMath::Sqrt( (fLastPos.X()-pos.X())*(fLastPos.X()-pos.X())
+                      + (fLastPos.Y()-pos.Y())*(fLastPos.Y()-pos.Y()) );
+  fLastPos = pos;
+}
 
 
 

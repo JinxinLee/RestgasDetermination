@@ -8,7 +8,7 @@
 
 #include "FairMCPoint.h"
 
-class PndDskCerenkov : public FairMCPoint 
+class PndDskCerenkov : public FairMCPoint
 {
 
  public:
@@ -45,40 +45,45 @@ class PndDskCerenkov : public FairMCPoint
   virtual void Print(const Option_t* opt) const;
 
   /** Accessors **/
-  Double_t GetEnergy()        const { return fEnergy; };
-  Double_t GetWavelength()    const { return fWavelength; };
-  Int_t    GetMotherTrackID() const { return fMotherTrackID; };
-  Int_t    GetMotherPdgCode() const { return fMotherPdgCode; };
-  TString  GetMotherPdgName() const { return fMotherPdgName; };
-  Int_t    GetDetNumber()     const { return fDetNumber; };
-  UShort_t GetDetType()       const { return fDetType; };
-  Double_t GetDetTime()       const { return fDetTime; };
-  TVector3 GetDetMomentum()   const { return fDetMomentum; };
-  Double_t GetPrimaryHitAngle()        const { return fPrimaryHitAngle; };
-  Double_t GetPrimaryAngleToCerenkov() const { return fPrimaryAngleToCerenkov; };
-// This Time Of Flight would be without primarys flighttime within the disk
-//   Double_t GetTof()            const { return fDetTime - fTime; };
-  Double_t GetNofReflections() const { return fNofReflections; };
+  Double_t GetEnergy()        const { return fEnergy; }
+  Double_t GetWavelength()    const { return fWavelength; }
+  Int_t    GetMotherTrackID() const { return fMotherTrackID; }
+  Int_t    GetMotherPdgCode() const { return fMotherPdgCode; }
+  TString  GetMotherPdgName() const { return fMotherPdgName; }
+  Int_t    GetDetNumber()     const { return fDetNumber; }
+  Short_t  GetDetType()       const { return fDetType; }
+  Double_t GetDetTime()       const { return fDetTime; }
+  TVector3 GetDetMomentum()   const { return fDetMomentum; }
+  Double_t GetPrimaryHitAngle()        const { return fPrimaryHitAngle; }
+  Double_t GetPrimaryAngleToCerenkov() const { return fPrimaryAngleToCerenkov; }
+  Double_t GetNofReflections() const { return fNofReflections; }
+  Double_t GetPWay()           const { return fPWay; }
+  TVector3 Get5RefPosition()   const { return f5RefPosition; }
+  Double_t GetTotalRefAngle()  const { return fTotalRefAngle; }
+  TVector3 GetLastPosition()   const { return fLastPos; }
 
   /** Modifiers **/
-  void AddReflection() { fNofReflections++; };
-  void SetFinalValues(Int_t detNumber, UShort_t detType,
-               Double_t detTime, TVector3 detMomentum,
+  void AddReflection() { fNofReflections++; }
+  void AddPWay(TVector3 pos);
+  void SetFinalValues(Int_t detNumber, Short_t detType,
+               Double_t detTime, TVector3 detMomentum, Double_t length,
                Double_t primaryHitAngle, Double_t primaryAngleToCerenkov);
+  void Set5RefPosition(TVector3 pos) { f5RefPosition = pos; }
+  void SetTotalRefAngle(Double_t angle) { fTotalRefAngle = angle; }
 
- 
  protected:
 
   Double_t fEnergy;             ///< Energy of Cerenkov when created [eV]
   Double_t fWavelength;         ///< Vacuum wavelength hc/energy [nm]
-  Double_t fPWay;               //! Projected Way [cm]
+  Double_t fPWay;               ///< Projected Way [cm]
+  TVector3 fLastPos;            //!  The Last known position of the Cerenkov - needed to calculate the fPWay
 
   Int_t    fMotherTrackID;      ///< Track ID of particle that emitted the Cerenkov
   Int_t    fMotherPdgCode;      ///< PDG Code of particle that emitted the Cerenkov
   TString  fMotherPdgName;      ///< PDG Name of particle that emitted the Cerenkov
 
   Int_t    fDetNumber;          ///< Detector number that finally registered the photon.
-  UShort_t fDetType;            ///< Detector type
+  Short_t  fDetType;            ///< Detector type
   Double_t fDetTime;            ///< Global time when detected [ns]
   TVector3 fDetMomentum;        ///< Momentum when detected [eV]
 
@@ -86,6 +91,9 @@ class PndDskCerenkov : public FairMCPoint
 
   Double_t fPrimaryHitAngle;        ///< Angle to the z-Axis when first registered
   Double_t fPrimaryAngleToCerenkov; ///< Angle between momentum of eachs first appearance
+
+  TVector3 f5RefPosition;       ///< Just for debug. Stores position afer 5 refelctions
+  Double_t fTotalRefAngle;      ///< Total reflection angle
 
   ClassDef(PndDskCerenkov,1)
 };

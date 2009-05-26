@@ -35,7 +35,7 @@ class PndDsk : public FairDetector
   virtual ~PndDsk();
 
   /** Virtual method Initialize
-   ** Initialises detector. Stores volume IDs for DIRC detector and mirror.
+   ** Initialises detector.
    **/
   virtual void Initialize();
 
@@ -100,6 +100,12 @@ class PndDsk : public FairDetector
    **/
   virtual Bool_t CheckIfSensitive(std::string name);
 
+  /** Method DichroicMirrorTransmitted
+   **
+   ** simulates dichroic mirrors
+   **/
+  Bool_t DichroicMirrorTransmitted(Double_t wavelength, Int_t detector_type);
+  
   /** Method AddCerenkov
    **
    ** Adds a Cerenkov to the collection
@@ -131,63 +137,37 @@ class PndDsk : public FairDetector
   void SetStoreCerenkovs(Bool_t storeCerenkovs) { fStoreCerenkovs = storeCerenkovs; }
   void SetStoreParticles(Bool_t storeParticles) { fStoreParticles = storeParticles; }
   void SetStoreTrackPoints(Bool_t storeTrackPoints) { fStoreTrackPoints = storeTrackPoints; }
-  void SetDskVersion(TString geoVersion) { fGeoVersion = geoVersion; }
 
 
  private:
 
-  /** Private method CheckIfSensitiveTOP
+  /** Private method ProcessHitsCerenkov
    **
-   ** Decide if volume is sensitive in the TOP-design
-   *@param name  Name of the volume to check
-   **/
-  Bool_t CheckIfSensitiveTOP(std::string name);
-
-  /** Private method CheckIfSensitiveLG
-   **
-   ** Decide if volume is sensitive in the LG-design
-   *@param name  Name of the volume to check
-   **/
-  Bool_t CheckIfSensitiveLG(std::string name) {; };
-
-  /** Private method ProcessHitsCerenkovTOP
-   **
-   ** Defines the action to be taken in the TOP design when
+   ** Defines the action to be taken when
    ** Cerenkov does a step inside the active volume.
    ** Creates and adds Cerenkovs to collection
    *@param vol  Pointer to the active volume
    **/
-  Bool_t ProcessHitsCerenkovTOP(FairVolume* vol = 0);
+  Bool_t ProcessHitsCerenkov(FairVolume* vol = 0);
 
-  /** Private method ProcessHitsCerenkovLG
+  /** Private method ProcessHitsParticle
    **
-   ** Defines the action to be taken in the LG design when
-   ** Cerenkov does a step inside the active volume.
-   ** Creates and adds Cerenkovs to collection
-   *@param vol  Pointer to the active volume
-   **/
-  Bool_t ProcessHitsCerenkovLG(FairVolume* vol = 0) {; };
-
-  /** Private method ProcessHitsParticleTOP
-   **
-   ** Defines the action to be taken in the TOP design when
+   ** Defines the action to be taken when
    ** Particle does a step inside the active volume.
    ** Creates and adds Particles to collection
    *@param vol  Pointer to the active volume
    **/
-  Bool_t ProcessHitsParticleTOP(FairVolume* vol = 0);
+  Bool_t ProcessHitsParticle(FairVolume* vol = 0);
 
-  /** Private method ProcessHitsParticleLG
+  /** Method TrackCerenkov
    **
-   ** Defines the action to be taken in the LG design when
-   ** Particle does a step inside the active volume.
-   ** Creates and adds Particles to collection
-   *@param vol  Pointer to the active volume
+   ** Decides weather to track a Cerenkov or not
    **/
-  Bool_t ProcessHitsParticleLG(FairVolume* vol = 0) {; };
+  Bool_t DoNotTrackCerenkov();
 
 
-  TString       fGeoVersion;              //! Design to be used (TOP, LG)
+
+
   Int_t         fDebugLevel;              //! Debug level
 
   TClonesArray* fDskCerenkovCollection;   //! Cerenkov collection
@@ -197,6 +177,8 @@ class PndDsk : public FairDetector
   Bool_t        fStoreCerenkovs;          //! Whether to store Cerenkovs (default) or not
   Bool_t        fStoreParticles;          //! Whether to store Particles (default) or not
   Bool_t        fStoreTrackPoints;        //! Whether to store TrackPoints or not (default)
+  Bool_t        fCalcPWay;                //! Whether to calc Projected Way or not (default)
+  Bool_t        fMeasureTotalRefAngle;    //! Whether to measure total reflection angle or not (default)
 
   Int_t         fTrackID;                 //! Index of MCTrack
   Int_t         fDetectorID;              //! Detector ID (volume)
@@ -215,7 +197,7 @@ class PndDsk : public FairDetector
   Int_t         fMotherPdgCode;           //! PDG code of the particle that emitted this Cerenkov
   TString       fMotherPdgName;           //! translation of PDG code
 
-  UShort_t      fDetType;                 //! Detectortype that registered the Cerenkov
+  Short_t       fDetType;                 //! Detectortype that registered the Cerenkov
   Int_t         fDetNumber;               //! Number of the Detector that registered the Cerenkov
   Double_t      fDetTime;                 //! Global time when Cerenkov was detected [ns]
   TVector3      fDetMomentum;             //! Momentum when detected [eV]
@@ -229,10 +211,6 @@ class PndDsk : public FairDetector
   Double_t      fEndTime;                 //! Time when particle disappears
   TVector3      fEndMomentum;             //! Momentum when particle disappears
   Double_t      fEndEnergy;               //! Energy when particle disappears
-
-  Int_t         fDetectorsPerArray;       //! total number of detectors per array
-  Int_t         fDetectorTypes;           //! number of detector types
-  Bool_t        fUsingMirrors;            //! whether to use mirrors or not
 
   TLorentzVector tmpLVec;                 //! often needed, avoid allocation
 
