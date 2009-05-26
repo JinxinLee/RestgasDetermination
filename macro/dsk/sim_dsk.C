@@ -28,13 +28,13 @@ sim_dsk(
   fHitPhi = 0.;
   fHitX = fDiskDistanzZ*TMath::Tan(fHitTheta*TMath::DegToRad())*TMath::Cos(fHitPhi*TMath::DegToRad());
   fHitY = fDiskDistanzZ*TMath::Tan(fHitTheta*TMath::DegToRad())*TMath::Sin(fHitPhi*TMath::DegToRad());
-  fHitZ = fDiskDistanzZ
+  fHitZ = fDiskDistanzZ;
   fVertexPos.SetXYZ(fHitX,fHitY,fHitZ);
   fVertexPos *= (fDiskDistanzZ-1.)/fDiskDistanzZ; // one cm before disk
   fThetaMin = fHitTheta;
   fThetaMax = fThetaMin;
   fPhiMin = fHitPhi;
-  fPhiMax = fPhiMin
+  fPhiMax = fPhiMin;
   // by position
 //   fHitX = 0.;
 //   fHitY = 60.;

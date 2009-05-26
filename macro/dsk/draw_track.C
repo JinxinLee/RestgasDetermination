@@ -12,16 +12,10 @@ void draw_track(TString the_RunName = "test", Bool_t do_plot = kTRUE)
   TString  fRootFile = TString("sim_dsk.").Append(the_RunName).Append(".root");
 
   // libs
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
+  rootlogon();
   basiclibs();
-  gSystem->Load("libGeoBase");
-  gSystem->Load("libParBase");
-  gSystem->Load("libBase");
-  gSystem->Load("libField");
-  gSystem->Load("libGen");
-  gSystem->Load("libPassive");
-  gSystem->Load("libPndData");
-  gSystem->Load("libGeom.so");
   gSystem->Load("libDsk");
 
   // select trees in RootFile
