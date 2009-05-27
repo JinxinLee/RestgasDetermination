@@ -173,17 +173,54 @@ public:
    */
   TVector3 getMom() const {return getCardinalRep()->getMom();}
 
+  /** @brief Get momentum at DetPlane
+   *
+   * The track will be extrapolated to DetPlane to get the momentum there.
+   * The track will not be modified. Cardinal representation is used.
+   */
+  TVector3 getMom(const DetPlane& pl) const {return getCardinalRep()->getMom(pl);}
+
   /** @brief Get present position
    *
    * Cardinal representation is used.
    */
   TVector3 getPos() const {return getCardinalRep()->getPos();}
 
+  /** @brief Get position at DetPlane
+   *
+   * The track will be extrapolated to DetPlane to get the position there.
+   * The track will not be modified. Cardinal representation is used.
+   */
+  TVector3 getPos(const DetPlane& pl) const {return getCardinalRep()->getPos(pl);}
+
+  /** @brief Get position, momentum, and 6x6 covariance at current position
+   *
+   * Cardinal representation is used.
+   */
+  void getPosMomCov(TVector3& pos,TVector3& mom,TMatrixT<double>& cov){
+    getCardinalRep()->getPosMomCov(pos,mom,cov);
+  }
+
+  /** @brief Get position, momentum, and 6x6 covariance at DetPlane
+   *
+   * The track will be extrapolated to DetPlane to get everything there.
+   * The track will not be modified. Cardinal representation is used.
+   */
+  void getPosMomCov(const DetPlane& pl,TVector3& pos,TVector3& mom,TMatrixT<double>& cov){
+    getCardinalRep()->getPosMomCov(pl,pos,mom,cov);
+  }
+
   /** @brief Get chi2
    *
    * Cardinal representation is used.
    */
   double getChiSqu() const {return getCardinalRep()->getChiSqu();}
+
+  /** @brief Get chi2/NDF
+   *
+   * Cardinal representation is used.
+   */
+  double getRedChiSqu() const {return getCardinalRep()->getRedChiSqu();}
 
   /** @brief Get charge from fit
    *

@@ -447,8 +447,15 @@ GeaneTrackRep::getPosMom(const DetPlane& pl,TVector3& pos, TVector3& mom)
 
   mom.SetMag(1./fabs(statePred[0][0]));
   pos = pl.getO()+(statePred[3][0]*pl.getU())+(statePred[4][0]*pl.getV());
+}
 
 
+void
+GeaneTrackRep::getPosMomCov(const DetPlane& pl,TVector3& pos,TVector3& mom,TMatrixT<double>& cov){
+  cov.ResizeTo(6,6);
+  std::cerr<<"insert brain here " << __FILE__ << " " << __LINE__
+	   << " ->abort" <<std::endl;
+  throw;
 }
  
 ClassImp(GeaneTrackRep)

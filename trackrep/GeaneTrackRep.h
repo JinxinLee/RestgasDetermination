@@ -92,6 +92,7 @@ public:
   virtual TVector3 getPos(const DetPlane&) ;
   virtual TVector3 getMom(const DetPlane&) ;
   virtual void getPosMom(const DetPlane&,TVector3& pos,TVector3& mom) ;
+  virtual void getPosMomCov(const DetPlane& pl,TVector3& pos,TVector3& mom,TMatrixT<double>& cov);
   virtual double getCharge()const {return state[0][0] > 0 ? 1.: -1.;}
   int getPropDir() {return _backw;} 
   FairGeanePro* getPropagator() {return _geane;}

@@ -179,10 +179,21 @@ class AbsTrackRep : public TObject{
   virtual TVector3 getPos(const DetPlane& pl)=0; 
   virtual TVector3 getMom(const DetPlane& pl)=0; 
   virtual void getPosMom(const DetPlane& pl,TVector3& pos,TVector3& mom)=0;
+
+  //! method which gets position, momentum and 6x6 covariance matrix
+  /*! 
+   * default implementation in cxx file, if a ConcreteTrackRep can 
+   * not implement this functionality
+   */
+  virtual void getPosMomCov(const DetPlane& pl,TVector3& pos,TVector3& mom,TMatrixT<double>& cov);
+
   virtual double getCharge()const =0;
 
   TVector3 getPos() {return getPos(_refPlane);}
   TVector3 getMom() {return getMom(_refPlane);}
+  void getPosMomCov(TVector3& pos,TVector3& mom,TMatrixT<double>& cov){
+    getPosMomCov(_refPlane,pos,mom,cov);
+  }
 
   inline TMatrixT<double> getStartState() const {
     return startState;

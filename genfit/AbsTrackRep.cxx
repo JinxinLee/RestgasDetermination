@@ -57,6 +57,10 @@ void AbsTrackRep::stepalong(double h){
   Abort("stepalong()");
 }
 
+void AbsTrackRep::getPosMomCov(const DetPlane& pl,TVector3& pos,TVector3& mom,TMatrixT<double>& cov){
+  Abort("getPosMomCov()");
+}
+
 void AbsTrackRep::setReferencePlane(const DetPlane& pl){
   _refPlane=pl;
 }
