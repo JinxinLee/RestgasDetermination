@@ -419,8 +419,8 @@ PndDsk::ProcessHitsCerenkov(FairVolume* vol)
 // and this is what is is at the moment:
     if ((vol->getName()).BeginsWith("mirror")) {
 
-//       sscanf((vol->getName()).Data(),"mcp%d",fDetType);
-      sscanf((vol->getName()).Data(),"mirror%d",&fDetType);
+//       sscanf((vol->getName()).Data(),"mcp%hu",&fDetType);
+      sscanf((vol->getName()).Data(),"mirror%hu",&fDetType);
 
       
       // decide if photon is detected
