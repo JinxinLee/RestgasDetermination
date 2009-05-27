@@ -109,7 +109,8 @@ void PndLheTrackFinderIdeal::Exec(Option_t * option) {
     cmhit->SetUsage(kFALSE);
 
     Int_t trackID = ghit->GetTrackID();
-    
+    if (trackID==-1) continue;
+
     PndTpcLheTrack* cand=candlist[trackID];
     if(cand==NULL){
       cand=new PndTpcLheTrack();

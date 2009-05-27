@@ -1,7 +1,7 @@
 #include "PndTpcLheTrackFitter.h"
 #include "PndTpcLheTrack.h"
 
-#include "lhe.h"
+//#include "lhe.h"
 
 #include "FairTrackParH.h"
 #include "FairField.h"
@@ -10,6 +10,7 @@
 #include "FairRootManager.h"
 
 #include <cmath>
+#include "TMinuit.h"
 
 // ---------------------------------------------------------------
 // --- Interface with TrackFinder and output ---
@@ -35,6 +36,7 @@ PndTpcLheTrackFitter::PndTpcLheTrackFitter() {
   //---
   fVerbose = kFALSE;
   fSimulation = kFALSE;
+  fCircleFit = 0;
   if( !ftInstance ) ftInstance = this;
 }
 
@@ -44,9 +46,8 @@ PndTpcLheTrackFitter::PndTpcLheTrackFitter(const char *name, const char *title)
   //---
   fVerbose = kFALSE;
   fSimulation = kFALSE;
+  fCircleFit = 0;
   if( !ftInstance ) ftInstance = this;
-  //  fOutputTracks = new TClonesArray("TpcFFTrack");
-
 }
 
 //___________________________________________________________
@@ -72,6 +73,20 @@ InitStatus PndTpcLheTrackFitter::Init() {
     return kERROR;
   }
 
+  switch (fCircleFit)
+    {
+    case 0:
+      cout << "-I- PndTpcLheTrackFitter::Init: Using Oleg's fit" << endl;
+      break;
+    case 1:
+      cout << "-I- PndTpcLheTrackFitter::Init: Using TMinuit fit" << endl;
+      break;
+    default:
+      cout << "-E- PndTpcLheTrackFitter::Init: Wrong fitting method" << endl;
+      return kERROR;
+      break;
+    }
+  
   //  get the field in Memory:
   FairRunAna *fRun=FairRunAna::Instance();
   fMagField = (FairField*) fRun->GetField();
@@ -282,6 +297,7 @@ Int_t PndTpcLheTrackFitter::CircleFit(PndTpcLheTrack *track) {
     }
 
     Dy = A1 + xnew*(A22 + 16.*xnew*xnew);
+    if (fabs(Dy) < epsilon) break;  
     xold = xnew;
     xnew = xold - ynew/Dy;
     
@@ -535,14 +551,115 @@ Int_t PndTpcLheTrackFitter::DeepFit(PndTpcLheTrack *track) {
 
 }
 
+void fitCircle(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag)
+{
+
+  TMatrixT<Double_t> *mama = (TMatrixT<Double_t> *)gMinuit->GetObjectFit();
+
+  Double_t chisq = 0;
+  Double_t delta = 0;
+  Int_t hitcounter = mama->GetNrows();
+  for (Int_t i = 0; i < hitcounter; i++)
+    { 
+      delta =sqrt((mama[0][i][0]-par[0])*(mama[0][i][0]-par[0])+(mama[0][i][1]-par[1])*(mama[0][i][1]-par[1])) -par[2];
+      chisq += (delta*delta)/(mama[0][i][2] * mama[0][i][2] + mama[0][i][3] * mama[0][i][3]);
+    }
+  f = chisq; 
+}
+
+Int_t PndTpcLheTrackFitter::SetUpFitVector(PndTpcLheTrack* pTrack, TMatrixT<Double_t> &fitvect)
+{
+    
+  Int_t counter = 0;
+  TObjArray* lheList = pTrack->GetRHits();
+  Int_t nHits = lheList->GetEntriesFast();
+  fitvect.ResizeTo(nHits, 4); // x y errx erry 
+  
+  for (Int_t lh=0; lh < nHits; lh++)
+    {
+      PndLheHit* lhit = (PndLheHit*)lheList->At(lh);
+      fitvect[counter][0] = lhit->GetX();
+      fitvect[counter][1] = lhit->GetY();
+      fitvect[counter][2] = lhit->GetDx();
+      fitvect[counter][3] = lhit->GetDy();
+      counter++;
+    }
+  
+  if(nHits != counter) {
+    fitvect.ResizeTo(counter, 4); // x y errx erry
+  }
+  return counter;
+}
+
+//_____________________________________________________________________________
+Int_t PndTpcLheTrackFitter::FastCircleFit(PndTpcLheTrack *track, Double_t prefit[]) {
+  //--- Circular fit using only three points
+  TObjArray* lheList = track->GetRHits();
+  Int_t nHits = lheList->GetEntriesFast();
+  
+  Double_t x[3], y[3];
+  
+  x[0] = 0.;   
+  x[1] =((PndLheHit*)lheList->At(0))->GetX(); 
+  x[2] =((PndLheHit*)lheList->At(nHits))->GetX(); 
+
+  y[0] = 0.;   
+  y[1] =((PndLheHit*)lheList->At(0))->GetY(); 
+  y[2] =((PndLheHit*)lheList->At(nHits))->GetY(); 
+    
+  fTrackCuts->Circle3pnts(x, y, prefit);
+  
+  return 1;
+}
+
+//_____________________________________________________________________________
+Int_t PndTpcLheTrackFitter::CircleFitMinuit(PndTpcLheTrack *track) {
+  //--- Circular fit on the XY plane using TMinuit
+  TMinuit minimizer(3);
+  TMatrixT<Double_t> fitVect;
+  Int_t nFitHits = SetUpFitVector(track, fitVect);  //  set the object to be fitted
+  minimizer.SetFCN(fitCircle);                       // Setting the fit function
+  
+  Double_t fStart[3];
+  //FastCircleFit(track, fStart);
+  cout << track->GetVertex().GetX() << "\t" << track->GetVertex().GetY() << "\t" << track->GetRadius() << endl;
+  minimizer.DefineParameter(0, "xc", track->GetVertex().GetX(), 0.1, -3000., 3000.); // ???
+  minimizer.DefineParameter(1, "yc", track->GetVertex().GetY(), 0.1, -3000., 3000.); // ??? LIMITS ???
+  minimizer.DefineParameter(2, "r",  track->GetRadius(), 0.1,     1., 3000.);   // ???
+  
+  minimizer.SetObjectFit(&fitVect);
+  minimizer.SetPrintLevel(-1); 
+  minimizer.SetMaxIterations(500);
+  minimizer.Migrad();
+  
+  Double_t chisquare, resultsRadial[3], errorsRadial[3]; 
+  
+  minimizer.GetParameter(0, resultsRadial[0], errorsRadial[0]);
+  minimizer.GetParameter(1, resultsRadial[1], errorsRadial[1]);
+  minimizer.GetParameter(2, resultsRadial[2], errorsRadial[2]);
+    
+  //  minimizer.Eval(3, NULL, chisquare, resultsRadial, 0); // ???
+  
+  cout << "xc: " << resultsRadial[0] << endl; 
+  cout << "yc: " << resultsRadial[1] << endl; 
+  cout << "R:  " << resultsRadial[2] << endl;
+  
+  track->SetCircle( resultsRadial[0], resultsRadial[1], resultsRadial[2]);
+  
+  return 1;
+}
+
 //_____________________________________________________________________________
 Int_t PndTpcLheTrackFitter::HelixFit(PndTpcLheTrack *track) {
   //---  Create helix as fit of array of points
 
-    Int_t isCircle = CircleFit(track);
-    Int_t isDip = DeepFit(track);
+  Int_t isCircle = 0;
+  if (fCircleFit==0) isCircle = CircleFit(track);
+  if (fCircleFit==1) isCircle = CircleFitMinuit(track);
+  
+  Int_t isDip = DeepFit(track);
 
-    return (isCircle+isDip);
+  return (isCircle+isDip);
 
 }
 
