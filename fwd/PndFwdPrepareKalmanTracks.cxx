@@ -92,7 +92,7 @@ PndFwdPrepareKalmanTracks::Init()
       return kERROR;
     } 
 
-    // open input array of PndGemTrackMatches
+    // open input array of PndDchTrackMatches
     fDchTrackMatchArray = (TClonesArray*) ioman->GetObject("PndDchTrackMatch"); 
     if(fDchTrackMatchArray==0){
       Error("PndFwdPrepareKalmanTracks::Init","PndDchTrackMatch array not found!");
@@ -190,7 +190,7 @@ PndFwdPrepareKalmanTracks::Exec(Option_t* opt)
       q = (param->GetQp()==0) ? 0 : param->GetQp()/TMath::Abs(param->GetQp());
       pdg = (Int_t)gemtrack->GetParamLast()->GetQp()-1e6;
     
-      std::cout<<"pozycje i pedy "<<std::endl;
+      std::cout<<"positions and momenta... "<<std::endl;
       pos.Print();
       mom.Print();
       if(mom.Mag()>1e3){
@@ -203,6 +203,9 @@ PndFwdPrepareKalmanTracks::Exec(Option_t* opt)
       TVector3 momerr(mom.X()*startMomAccuracy.X(),
 		      mom.Y()*startMomAccuracy.Y(),
 		      mom.Z()*startMomAccuracy.Z());    
+      mom.SetXYZ(mom.X()*gRandom->Gaus(1,startMomAccuracy.X()),
+		 mom.Y()*gRandom->Gaus(1,startMomAccuracy.Y()),
+		 mom.Z()*gRandom->Gaus(1,startMomAccuracy.Z()));
       TVector3 u(1.,0.,0.);
       TVector3 v(0.,1.,0.);
       
