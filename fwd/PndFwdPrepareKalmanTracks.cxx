@@ -165,7 +165,7 @@ PndFwdPrepareKalmanTracks::Exec(Option_t* opt)
       TrackCand* cand = new TrackCand();
       for(Int_t ihit=0; ihit<nofGemHits; ihit++){
 	Int_t globalHit = gemtrack->GetGemHitIndex(ihit);
-	cand->addHit(kGEM,globalHit);
+	//cand->addHit(kGEM,globalHit);
       }
       for(Int_t ihit=0; ihit<nofDchCylHits; ihit++){
 	Int_t globalCHitNu = dchtrack->GetDchCylinderHitIndex(ihit);

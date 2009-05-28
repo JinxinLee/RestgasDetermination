@@ -286,7 +286,7 @@ PndFwdKalmanTask::Exec(Option_t* opt)
 
 void
 PndFwdKalmanTask::WriteHistograms(){
-  std::cout<<"  PndDchKalmanQATask::WriteHistograms() "<<std::endl;
+  std::cout<<"  PndFwdKalmanTask::WriteHistograms() "<<std::endl;
   TFile* file = FairRootManager::Instance()->GetOutFile();
   file->cd();
   file->mkdir("FwdKalmanQA");
