@@ -32,6 +32,7 @@ protected:
 
   TClonesArray  *fTpcInput;             //! pointers to TPC TCA
   TClonesArray  *fSttInput;             //! pointers to STT TCA
+  TClonesArray  *fSttMCArray;           //! pointers to SttPoint TCA
   TClonesArray  *fEmcInput;             //! pointers to EMC TCA
   TClonesArray  *fMvdStripHitArray;     //!
   TClonesArray  *fMvdPixelHitArray;     //!
@@ -53,7 +54,8 @@ protected:
   Short_t fMvdMode;            // MVD Mode: 0 no MVD, (1) MvdPoint, 2 MvdHit
   Short_t fMvdSimMode;         // MVD Simulation Mode (ideal tracking)
   Short_t fTpcMode;            // TPC Mode: 0 no TPC, (1) TpcPoint, 2 TpcCluster
-  Short_t fSttMode;            // STT Mode: (0) no STT, 1  SttPoint,  2 SttHit, 3 SttHelixHit
+  Short_t fSttMode;            // STT Mode: (0) no STT, 1  SttPoint,  2 SttHit, 3 SttHelixHit 
+  Short_t fSttSimMode;         // STT Simulation Mode (ideal tracking)
   Short_t fEmcMode;            // EMC Mode: (0) no EMC, 2 EmcCluster, 3 EmcBumps
   Bool_t fVerbose;             // Switch ON/OFF debug messages        (defaulf OFF)
   Bool_t fSimulation;          // Switch ON/OFF simulation mode       (default ON)

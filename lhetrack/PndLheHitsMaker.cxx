@@ -41,6 +41,7 @@ PndLheHitsMaker::PndLheHitsMaker() {
   fMvdSimMode    = 1; 
   fTpcMode       = 1; 
   fSttMode       = 0;
+  fSttSimMode    = 1; 
   fEmcMode       = 0;
   fSimulation    = kTRUE;
   fPersistence   = kTRUE;
@@ -60,6 +61,7 @@ PndLheHitsMaker::PndLheHitsMaker(const char *name,
   fMvdSimMode    = 1; 
   fTpcMode       = 1;
   fSttMode       = 0;
+  fSttSimMode    = 1; 
   fEmcMode       = 0;
   fSimulation    = kTRUE;
   fPersistence   = kTRUE;
@@ -138,8 +140,8 @@ InitStatus PndLheHitsMaker::Init() {
       break;
       
     case 1:
-      fSttInput   = (TClonesArray *)fManager->GetObject("STTPoint");
-      if ( ! fSttInput ) 
+      fSttMCArray   = (TClonesArray *)fManager->GetObject("STTPoint");
+      if ( ! fSttMCArray ) 
 	{
 	  cout << "-W- PndLheHitsMaker::Init: No SttPoint array! Switching STT OFF" << endl;
 	  fSttMode = 0;
@@ -175,6 +177,10 @@ InitStatus PndLheHitsMaker::Init() {
 	{
 	  cout << "-I- PndLheHitsMaker::Init: Using PndSttHelixHit" << endl;
 	}
+      
+      fSttMCArray = (TClonesArray*) fManager->GetObject("STTPoint");
+      if ( ! fSttMCArray )         fSttSimMode = 0; 
+      
       break;
       
     default:
@@ -560,8 +566,8 @@ void PndLheHitsMaker::GetSttPoints() {
     cout << " PndLheHitsMaker::GetSttHits(): Stt points entries " << fSttInput->GetEntriesFast() <<endl;
   
   
-  for (int j=0; j < fSttInput->GetEntriesFast(); j++ ) {
-    PndSttPoint* point = (PndSttPoint*) fSttInput->At(j);
+  for (int j=0; j < fSttMCArray->GetEntriesFast(); j++ ) {
+    PndSttPoint* point = (PndSttPoint*) fSttMCArray->At(j);
     
     if (fVerbose) point->Print(" "); //PR(point->GetTrackID());
 
@@ -683,11 +689,14 @@ void PndLheHitsMaker::GetSttHelixHit() {
     hit->SetDz(.5);
 
     hit->SetDetectorID(kSttHelixHit);
-    hit->SetTrackID(hit->GetRefIndex());
+    hit->SetTrackID(-1);
+    if ( (fSttSimMode) && (sttHit->GetRefIndex()!=-1) )
+      {
+	PndSttPoint* myPoint = (PndSttPoint*)(fSttMCArray->At(sttHit->GetRefIndex()));
+	hit->SetTrackID(myPoint->GetTrackID());
+      }
     hit->SetRefIndex(j);
-    
     if (fVerbose)  hit->Print();
-    
   }  // end of SttHelixHit loop  
 } 
 
