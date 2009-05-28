@@ -50,10 +50,6 @@ public:
   void SetTrackBranchName(const TString& name) {fTrackBranchName=name;}
   void SetPersistence(Bool_t opt=kTRUE) {fPersistence=opt;}
 
-  void SetMomentum(Double_t momentum) {fMomentum=momentum;};
-  void SetTheta(Int_t theta) {fTheta = theta;};
-  void SetPhi(Int_t phi) {fPhi = phi;};
-
   /** public method SetNumIterations(Int_t i) **/
   void SetNumIterations(Int_t i){fNumIt=i;}
 
@@ -68,10 +64,6 @@ public:
   void WriteHistograms();
 
 private:
-
-  Double_t fMomentum;
-  Int_t fTheta;
-  Int_t fPhi;
 
   // Private Data Members ------------
   TClonesArray* fTrackArray;

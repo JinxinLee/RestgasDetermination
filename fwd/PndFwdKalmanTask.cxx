@@ -28,6 +28,7 @@
 
 // Collaborating Class Headers --------
 #include "FairRootManager.h"
+#include "PndDetectorList.h"
 #include "TClonesArray.h"
 #include "Track.h"
 #include "TDatabasePDG.h"
@@ -63,10 +64,6 @@ PndFwdKalmanTask::PndFwdKalmanTask()
   : FairTask("Kalman Filter"), fPersistence(kFALSE)
 {
   fTrackBranchName = "FSTracks";
-
-  fMomentum = 1.;
-  fTheta = 5;
-  fPhi = 0;
 }
 
 
@@ -106,14 +103,14 @@ PndFwdKalmanTask::Init()
     Error("PndFwdKalmanTask::Init","GEMHit array not found");
   } else {
     fTheRecoHitFactory->addProducer
-      (2,new RecoHitProducer<PndGemHit,PndGemRecoHit>(gemHitArray));
+      (kGEM,new RecoHitProducer<PndGemHit,PndGemRecoHit>(gemHitArray));
   }
   TClonesArray* dchCylHitArray=(TClonesArray*) ioman->GetObject("PndDchCylinderHit");
   if(dchCylHitArray==0){ //TODO Convention on detector number needed
     Error("PndFwdKalmanTask::Init","PndDchCylinderHit array not found");
   } else {
     fTheRecoHitFactory->addProducer
-      (1,new RecoHitProducer<PndDchCylinderHit,PndDchRecoHit2>(dchCylHitArray));
+      (kDCH,new RecoHitProducer<PndDchCylinderHit,PndDchRecoHit2>(dchCylHitArray));
   }
 
   fPro = new FairGeanePro();

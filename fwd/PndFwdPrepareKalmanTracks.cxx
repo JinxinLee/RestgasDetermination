@@ -7,6 +7,7 @@
 
 // Panda Headers ----------------------
 #include "FairRootManager.h"
+#include "PndDetectorList.h"
 #include "Track.h"
 #include "TrackCand.h"
 #include "PndMCTrack.h"
@@ -164,11 +165,11 @@ PndFwdPrepareKalmanTracks::Exec(Option_t* opt)
       TrackCand* cand = new TrackCand();
       for(Int_t ihit=0; ihit<nofGemHits; ihit++){
 	Int_t globalHit = gemtrack->GetGemHitIndex(ihit);
-	cand->addHit(2,globalHit);
+	cand->addHit(kGEM,globalHit);
       }
       for(Int_t ihit=0; ihit<nofDchCylHits; ihit++){
 	Int_t globalCHitNu = dchtrack->GetDchCylinderHitIndex(ihit);
-	cand->addHit(1,globalCHitNu);
+	cand->addHit(kDCH,globalCHitNu);
       }
  
       for(Int_t ihit=0; ihit<cand->getNHits(); ihit++){
