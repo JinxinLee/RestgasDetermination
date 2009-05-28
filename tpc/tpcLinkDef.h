@@ -57,7 +57,7 @@
 #pragma link C++ class BiCubSpline+;
 #pragma link C++ class BSpline+;
 #pragma link C++ class PndTpcLaserCorrectionTask;
-#pragma link C++ class PndTpcSimpleEvtGen;
+
 
 
 #endif
