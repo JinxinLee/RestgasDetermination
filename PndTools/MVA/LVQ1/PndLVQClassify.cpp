@@ -136,7 +136,9 @@ void PndLVQClassify::Classify(std::vector<float> &EvtData,
   // Normalize Event
   for(unsigned int k=0; k < m_VarNames.size(); k++)
   {
-    EvtData[k] = EvtData[k] / m_normFact[m_VarNames[k]];
+    if(m_normFact[m_VarNames[k]] > 0){
+	EvtData[k] = EvtData[k] / m_normFact[m_VarNames[k]];
+      }
   }
   
   // Loop trough the prototypes list and compute the distances

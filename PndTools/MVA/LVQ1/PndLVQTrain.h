@@ -48,6 +48,9 @@ class PndLVQDistObj{
   std::string m_cls;/**< Class name of the prototype. */
 };
 
+// Which normalization scheme
+typedef enum {VARX = 1, MINMAX = 2, MEDIAN = 3} NormType;
+
 class PndLVQTrain{
  public:
   /**
@@ -95,7 +98,15 @@ class PndLVQTrain{
   { m_initConst = initConst; m_ethaZero = etZ; 
     m_ethaFinal = etF; m_NumSweep = Nswp;};
   
-  // Modified training schemes, May BE deleted after testing
+  void SelNormMethod(const NormType type)
+  {
+    m_Ntype = type;
+    //=== Normalize dataSet
+    NormalizeDataSet(m_Ntype);
+  };
+  
+  // Test functions Modified training schemes, May BE deleted after
+  // testing
   void TrainSec  (const int numProto, const char* OutPut);
   void Train21Sec(const int numProto, const char* OutPut);
 
@@ -108,15 +119,10 @@ class PndLVQTrain{
   float ComputeDist(const std::vector<float> &EvtData, 
 		    const std::vector<float> &Example);
 
-  /**
-   * Updates the LVQ prototypes.
-   */
-  void UpdateProto( const std::vector<float> &EvtData, 
-		    std::vector<float> &proto, 
-		    const int delta, const double ethaT);
-
   // ============= Private functions and variables ===========
  private:
+  void readInput(const char *InPut);
+  void NormalizeDataSet(const NormType t);
 
   /**
    * Initialize LVQ prototypes (Code books).
@@ -128,13 +134,20 @@ class PndLVQTrain{
    * Clean prototype container.
    */
   void cleanProtoList();
-  
+
   template <typename T>
-    const T& minFunct ( const T& a, const T& b ) const{
+    inline const T& minFunct ( const T& a, const T& b ) const{
     // or: return comp(a,b)?a:b; for the comp version
     return (a < b) ? a : b;
   }
   
+  /**
+   * Updates the LVQ prototypes.
+   */
+  void UpdateProto( const std::vector<float> &EvtData, 
+		    std::vector<float> &proto, 
+		    const int delta, const double ethaT);
+
   /**
    * Class conditional mean for a given class. Stored in class
    * conditional means container.
@@ -163,29 +176,14 @@ class PndLVQTrain{
   void ComputeVariance();
   
   /**
-   * Normalize the loaded DataSet using the computed Var(X).
-   */
-  void NormalizeWithVariance();
-  
-  /**
    * Determines the median for parameters of the loaded DataSet.
    */
   void DetermineMediaan();
   
   /**
-   * Normalize the loaded DataSet using Median and inter-quartile
-   * distance.
-   */
-  void NormalizeWithMedian();
-  
-  /**
    * Determine Min Max difference.
    */
   void MinMaxDiff();
-  /**
-   * Normalize dataset using the min max distance (spread)
-   */
-  void NormalizeWithMinMax();
 
   //! Class names
   std::vector<std::string> m_ClassNames;
@@ -219,5 +217,6 @@ class PndLVQTrain{
   
   //! Number of sweeps through example set.
   int m_NumSweep;
+  NormType m_Ntype;
 };
 #endif //end of interface definition

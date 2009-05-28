@@ -47,15 +47,18 @@ int main(int argc, char** argv)
   float initC  = 0.3;
   float ethaZ  = 0.1;
   float ethaF  = 0.00001;
-  int numSweep = 10;
+  int numSweep = 1;
 
   tr.SetLearnPrameters(initC, ethaZ, ethaF, numSweep);
   
-  //tr.Train  (numProto, OutFile);
+  NormType ty = MINMAX;
+  tr.SelNormMethod(ty);
+
+  tr.Train  (numProto, OutFile);
   //tr.TrainSec(numProto, OutFile);
   
   //tr.Train21(numProto, OutFile);
-  tr.Train21Sec(numProto, OutFile);
+  //tr.Train21Sec(numProto, OutFile);
   return 0;
 }
 /*

@@ -21,82 +21,12 @@ PndLVQTrain::PndLVQTrain(const char* InPut,
   m_ClassNames = ClassNames;
   m_VarNames   = VarNames;
   
-  // Open the input file for reading the event data.
-  TFile* m_InPutFile = new TFile(InPut,"READ");
-  
-  int minIdx,maxIdx;
-  minIdx = 0; maxIdx = -1;
-  
-  // Fetch the class trees and read the event data.
-  for(unsigned int cls = 0; cls < m_ClassNames.size(); cls++)
-  {
-    // Tree name
-    const char *name = m_ClassNames[cls].c_str();
-    
-    // Get the tree object
-    TTree *t = (TTree*) m_InPutFile->Get(name);
-    
-    // Init a container to bind to the tree branches
-    std::vector<float> ev (m_VarNames.size(),0.0);
-    
-    // Bind the parameters to the tree branches
-    for(unsigned int j = 0; j < m_VarNames.size(); j++)
-    {
-      const char* branchName = m_VarNames[j].c_str();
-      //Binding the branches
-      t->SetBranchAddress(branchName, &(ev[j]));
-    }// Tree parameters are bounded
-    
-    // Fetch the number of examples available for the current class
-    m_perClsExamples.insert(std::make_pair(m_ClassNames[cls],
-					   t->GetEntriesFast()));
-    // Find-out the min and max indices  per class
-    maxIdx = maxIdx + t->GetEntriesFast();
-    m_ClassIndex.push_back(std::make_pair(minIdx,maxIdx));
-    minIdx = maxIdx + 1;
-    
-    // Fetch and store the variables to per class variable container
-    for(unsigned int k = 0; k < t->GetEntriesFast(); k++)
-    {
-      t->GetEntry(k);
-      
-      // Container to store the vent data read from the input tree
-      std::vector<float>* EvtDat = new std::vector<float>();
-      
-      for(unsigned int idx = 0; idx < m_VarNames.size(); idx++)
-      {
-	EvtDat->push_back(ev[idx]);
-      }
-      
-      // Store the event and its class name
-      m_EventsData.push_back(std::make_pair(m_ClassNames[cls], EvtDat));
-    }
-    
-    // We are done and can delete the tree pointer
-    delete t;
-  }// End of for(cls) loop for all classes
-  
-  // Close the open file and delete the file pointer
-  m_InPutFile->Close();
-  delete m_InPutFile;
-  
-  /* 
-   * Set the initial values for the learning constants. Note, One
-   * needs to change these for better learning result.
-   */
+  /* Read event data */
+  readInput(InPut);
+
+  // Set learning constants.
   m_initConst = 0.8; m_ethaZero = 0.1; 
-  m_ethaFinal = 0.0001; m_NumSweep = 500;
-  
-  // ====== Normalize the loaded dataSet
-  
-  // NormalizeWithMedian();
-  // WriteDataToFile("InputMedianNormalized.root");
-  
-  //NormalizeWithVariance();
-  //WriteDataToFile("InputVarianceNormalized.root");
-  
-  // NormalizeWithMinMax();
-  // WriteDataToFile("InputMinMaxNormalized.root");
+  m_ethaFinal = 0.0001; m_NumSweep = 900;
   
 }// End of constructor
 
@@ -146,22 +76,23 @@ void PndLVQTrain::Train(const int numProto, const char* outPut)
   TRandom3 trand(435775);
   
   // Init LVQ protoTypes.
-  if(numProto > 0)
-  {
-    //InitProtoTypes(numProto);
-    InitProtoTypesWithClsMean(numProto);
-  }
-  else
+  if(numProto <= 0)
   {
     std::cerr << "<ERROR> The number of prototypes\n" 
 	      << " MUST be greater than zero (0)."<< std::endl;
     return;
   }
+
   if(!outPut)
   {
     std::cerr << "You need to specify the output file" << std::endl;
     return;
   }
+  // Init Proto types
+
+  //InitProtoTypes(numProto);
+  InitProtoTypesWithClsMean(numProto);
+
   // All protypes are initialized. We can perform the training
   // Compute learning rate constant "a"
   double ethaZero     = m_ethaZero;//0.1;
@@ -170,12 +101,14 @@ void PndLVQTrain::Train(const int numProto, const char* outPut)
   unsigned int tFinal = numSweep * ( m_EventsData.size() );
   long double a       = (ethaZero - ethaFinal)/(ethaFinal * static_cast<double>(tFinal) );
   
-  if(a < 0.00){//Underflow
+  if(a < 0.00)
+  {//Underflow
     std::cout << "Too small value for a." << std::endl;
     a = std::numeric_limits<double>::min();
   }
 
-  if(tFinal <= static_cast<unsigned>(0)){// OverFlow
+  if(tFinal <= static_cast<unsigned>(0))
+  {// OverFlow
     std::cout << "tFinal Overflow." << std::endl;
     tFinal = std::numeric_limits<unsigned>::max();
   }
@@ -196,12 +129,14 @@ void PndLVQTrain::Train(const int numProto, const char* outPut)
     {
       std::cerr << " ." ;
     }
+
     int    protoIndex       = 0;
     double distance         = 0.0;
     double minProtoDistance = std::numeric_limits<float>::max();//1000000.0;
     
     double ethaT = (ethaZero) / (1.0 + (a * static_cast<double>(time)));
     
+    // ethaT can become very small
     if( ethaT <= (1.50 * std::numeric_limits<double>::min()))
     {
       ethaT  = std::numeric_limits<double>::min();
@@ -227,11 +162,13 @@ void PndLVQTrain::Train(const int numProto, const char* outPut)
     int delta = 0;
     // determine delta
     if( m_EventsData[index].first == m_LVQProtos[protoIndex].first )
-    {// Equal labels
+    {
+      // Equal labels
       delta = 1;
     }
     else
-    {// Diff. Labels
+    {
+      // Diff. Labels
       delta = -1;
     }// delta is calculated
     
@@ -239,6 +176,7 @@ void PndLVQTrain::Train(const int numProto, const char* outPut)
     UpdateProto( *(m_EventsData[index].second), *(m_LVQProtos[protoIndex].second), delta, ethaT);
   }
   std::cerr << std::endl;
+  
   // Write the coordinates of the prototypes to the file
   WriteToProtoFile(outPut);
 }
@@ -258,12 +196,7 @@ void PndLVQTrain::Train21(const int numProto, const char* outPut)
   std::vector <PndLVQDistObj*> distances;
   
   // Init LVQ protoTypes.
-  if(numProto > 0)
-  {
-    //InitProtoTypes(numProto);
-    InitProtoTypesWithClsMean(numProto);
-  }
-  else
+  if(numProto <= 0)
   {
     std::cerr << "\t<ERROR:> The number of prototypes MUST\n"
 	      <<"be greater than zero" << std::endl;
@@ -275,6 +208,10 @@ void PndLVQTrain::Train21(const int numProto, const char* outPut)
     std::cerr << "You need to specify the output file." << std::endl;
     return;
   }
+  
+  // Init proto types
+  //InitProtoTypes(numProto);
+  InitProtoTypesWithClsMean(numProto);
   
   // Initialize distance container.
   for(unsigned int i = 0; i < m_LVQProtos.size(); i++)
@@ -294,12 +231,14 @@ void PndLVQTrain::Train21(const int numProto, const char* outPut)
   unsigned int tFinal = numSweep * ( m_EventsData.size() );
   long double a       = (ethaZero - ethaFinal)/(ethaFinal * static_cast<double>(tFinal));
   
-  if(a < 0.00){//Underflow
+  if(a < 0.00)
+  {//Underflow
     std::cout << "Too small value for a." << std::endl;
     a = std::numeric_limits<double>::min();
   }
   
-  if(tFinal <= static_cast<unsigned>(0)){// OverFlow
+  if(tFinal <= static_cast<unsigned>(0))
+  {// OverFlow
     std::cout << "tFinal Overflow." << std::endl;
     tFinal = std::numeric_limits<unsigned>::max();
   }
@@ -323,7 +262,7 @@ void PndLVQTrain::Train21(const int numProto, const char* outPut)
     }
     double distance         = 0.0;
     double ethaT = (ethaZero) / (1.0 + (a * static_cast<double>(time)));
-    
+    // ethaT can become very small
     if( ethaT <= (1.50 * std::numeric_limits<double>::min()))
     {
       ethaT  = std::numeric_limits<double>::min();
@@ -354,22 +293,26 @@ void PndLVQTrain::Train21(const int numProto, const char* outPut)
      */
     int idxSame = 0; int idx2d = 0;
     if( m_EventsData[index].first == (distances[idxSame])->m_cls )
-    {//Same labels
+    {
+      //Equal labels
       idx2d = 1;
     }
     else
-    {//Diff. labels
+    {
+      //Diff. labels
       idxSame = 1;
     }
     if(idxSame == 0)
-    {//Find one with a diff. label
+    {
+      //Find one with a diff. label
       while(m_EventsData[index].first == (distances[idx2d])->m_cls)
       {
 	idx2d++;
       }
     }
     else
-    {//Find one with the same label.
+    {
+      //Find one with the same label.
       while(m_EventsData[index].first != (distances[idxSame])->m_cls)
       {
 	idxSame++;
@@ -380,9 +323,7 @@ void PndLVQTrain::Train21(const int numProto, const char* outPut)
     if(minFunct( (distances[idxSame])->m_dist / (distances[idx2d])->m_dist ,
 		 (distances[idx2d])->m_dist   / (distances[idxSame])->m_dist ) > s)
     {
-      
       // Update the LVQ prototype
-      //int deltaEqCls = 1; int deltaNonEqCls = 0;
       int deltaEqCls = 1; int deltaNonEqCls = -1;
       
       // Update equal label prototype.
@@ -394,19 +335,35 @@ void PndLVQTrain::Train21(const int numProto, const char* outPut)
   }// (for time = 0;)Training is finished
   
   std::cerr << std::endl;
+  
   // Write the coordinates of the prototypes (Codebook) to a file.
   WriteToProtoFile(outPut);
   
   // We are done. Clean distances.
-  for(unsigned int i = 0; i < distances.size(); i++)
-  {
+  for(unsigned int i = 0; i < distances.size(); i++){
     delete distances[i];
   }
   distances.clear();
 }
 
 ////////////////////////// Protected functions ///////////
+/**
+ * Computes the Euclidean distance between two given vectors of
+ * event features.
+ */
+float PndLVQTrain::ComputeDist(const std::vector<float> &EvtData, 
+			       const std::vector<float> &Ex)
+{
+  float dist = 0.0;
+  
+  for(unsigned int i = 0; i< Ex.size(); i++)
+  {
+    dist += (EvtData[i] - Ex[i]) * (EvtData[i] - Ex[i]);
+  }
+  return sqrt(dist);
+}
 
+///////////////////////////// Private functions /////////////////
 /**
  * Initialize LVQ prototypes (Code books).
  */
@@ -465,9 +422,9 @@ void PndLVQTrain::InitProtoTypes(const int numProto)
       
       // proto type is initialized, add to the container
       m_LVQProtos.push_back(std::make_pair(m_EventsData[index].first, proto));
-
+      
     }//END for(i = 0; i < numProto)
-  }
+  }// END for(cl = 0)
 }
 
 /**
@@ -482,24 +439,6 @@ void PndLVQTrain::UpdateProto( const std::vector<float> &EvtData, std::vector<fl
     proto[i] = proto[i] + ( ethaT * static_cast<double>(delta) * (EvtData[i] - proto[i]) );
   }
 }
-
-/**
- * Computes the Euclidean distance between two given vectors of
- * event features.
- */
-float PndLVQTrain::ComputeDist(const std::vector<float> &EvtData, 
-			       const std::vector<float> &Ex)
-{
-  float dist = 0.0;
-  
-  for(unsigned int i = 0; i< Ex.size(); i++)
-  {
-    dist += (EvtData[i] - Ex[i]) * (EvtData[i] - Ex[i]);
-  }
-  return sqrt(dist);
-}
-
-///////////////////////////// Private functions /////////////////
 
 /**
  * Compute the class conditional mean for a given class and store
@@ -584,13 +523,13 @@ void PndLVQTrain::WriteToProtoFile(const char* outPut)
     {
       if(m_LVQProtos[i].first == treename)
       {
-	for(unsigned int k = 0; k < vars.size(); k++)
-	{
+	for(unsigned int k = 0; k < vars.size(); k++){
 	  vars[k] = (m_LVQProtos[i].second)->at(k);
 	}
 	sig.Fill();
       }
     }  
+  
     // Write the created tree
     sig.Write();
   }// End for cls = 0;
@@ -722,29 +661,6 @@ void PndLVQTrain::DetermineMediaan()
 }
 
 /**
- * Normalize the loaded DataSet using Median and inter-quartile
- * distance.
- */
-void PndLVQTrain::NormalizeWithMedian()
-{
-  std::cout << "\t<INFO> Normalizing the dataset "
-	    << "using Median and Inter Quartile Distance."
-	    << std::endl;
-  DetermineMediaan();
-  
-  // Event Loop
-  for(unsigned int ev = 0; ev < m_EventsData.size(); ev++)
-  {
-    // Variable loop
-    for(unsigned int i = 0; i < m_VarNames.size(); i++)
-    {
-      std::string vName = m_VarNames[i];
-      (m_EventsData[ev].second)->at(i) = ( (m_EventsData[ev].second)->at(i) )/ m_normFact[vName];
-    }
-  }
-}
-
-/**
  * Determine the Min Max distance.
  */
 void PndLVQTrain::MinMaxDiff()
@@ -770,26 +686,6 @@ void PndLVQTrain::MinMaxDiff()
     std::cout << "\t\t diff = " << diff << std::endl;
   }
 }
-
-/**
- * Normalize the dataset using Min Max distance.
- */
-void PndLVQTrain::NormalizeWithMinMax()
-{
-  MinMaxDiff();
-  std::cout << "<INFO>\tNormalizing dataset using Min Max spread." 
-	    <<std::endl;
-  for(unsigned int ev = 0; ev < m_EventsData.size(); ev++)
-  {
-    for(unsigned int i = 0; i < m_VarNames.size(); i++)
-    {
-      std::string varName = m_VarNames[i];
-      //Store values
-      (m_EventsData[ev].second)->at(i) = (m_EventsData[ev].second)->at(i) / (m_normFact[varName]);
-    }
-  }
-}
-
 
 /**
  * Computes Variance (unbiased estimator) for each parameter in the
@@ -833,26 +729,113 @@ void PndLVQTrain::ComputeVariance()
   }
 }
 
-/**
- * Normalize the loaded DataSet using the computed Var(X).
- */
-void PndLVQTrain::NormalizeWithVariance()
+void PndLVQTrain::NormalizeDataSet(const NormType t)
 {
-  std::cout << "\t<INFO> Normalizing the dataset "
-	    << "using samle Variance. "
-	    << std::endl;
-  ComputeVariance();
-
-  // Event Loop
-  for(unsigned int ev = 0; ev < m_EventsData.size(); ev++)
+  m_normFact.clear();
+  
+  switch(t){
+  case VARX:
+    std::cout << "\t<INFO> Normalizing the dataset "
+	      << "using samle Variance. "
+	      << std::endl;
+    ComputeVariance();
+    break;
+  case MINMAX:
+    MinMaxDiff();
+    std::cout << "<INFO>\tNormalizing dataset using Min Max spread." 
+	      <<std::endl;
+    break;
+  case MEDIAN:
+    std::cout << "\t<INFO> Normalizing the dataset "
+	      << "using Median and Inter Quartile Distance."
+	      << std::endl;
+    DetermineMediaan();
+    break;
+  default:
+    std::cout << "<INFO> No normalization scheme was selected." 
+	      << std::endl;
+  }
+  
+  if(m_normFact.size() != 0)
   {
-    // Parameters Loop
-    for(unsigned int i = 0; i < m_VarNames.size(); i++)
+    // Event Loop
+    for(unsigned int ev = 0; ev < m_EventsData.size(); ev++)
     {
-      std::string varName = m_VarNames[i];
-      (m_EventsData[ev].second)->at(i) = (m_EventsData[ev].second)->at(i) / (m_normFact[varName]);
+      // Parameters Loop
+      for(unsigned int i = 0; i < m_VarNames.size(); i++)
+      {
+	std::string varName = m_VarNames[i];
+	(m_EventsData[ev].second)->at(i) = (m_EventsData[ev].second)->at(i) / (m_normFact[varName]);
+      }
     }
   }
+  //WriteDataToFile("InputVarianceNormalized.root");
+  //WriteDataToFile("InputMinMaxNormalized.root");
+  //WriteDataToFile("InputMedianNormalized.root");
+}
+
+void PndLVQTrain::readInput(const char *InPut)
+{
+  std::cout << "<INFO> Reading data from  "<< InPut 
+	    << std::endl;
+  // Open the input file for reading the event data.
+  TFile* m_InPutFile = new TFile(InPut,"READ");
+  
+  int minIdx,maxIdx;
+  minIdx = 0; maxIdx = -1;
+  
+  // Fetch the class trees and read the event data.
+  for(unsigned int cls = 0; cls < m_ClassNames.size(); cls++)
+  {
+    // Tree name
+    const char *name = m_ClassNames[cls].c_str();
+    
+    // Get the tree object
+    TTree *t = (TTree*) m_InPutFile->Get(name);
+    
+    // Init a container to bind to the tree branches
+    std::vector<float> ev (m_VarNames.size(),0.0);
+    
+    // Bind the parameters to the tree branches
+    for(unsigned int j = 0; j < m_VarNames.size(); j++)
+    {
+      const char* branchName = m_VarNames[j].c_str();
+      //Binding the branches
+      t->SetBranchAddress(branchName, &(ev[j]));
+    }// Tree parameters are bounded
+    
+    // Fetch the number of examples available for the current class
+    m_perClsExamples.insert(std::make_pair(m_ClassNames[cls],
+					   t->GetEntriesFast()));
+    // Find-out the min and max indices  per class
+    maxIdx = maxIdx + t->GetEntriesFast();
+    m_ClassIndex.push_back(std::make_pair(minIdx,maxIdx));
+    minIdx = maxIdx + 1;
+    
+    // Fetch and store the variables to per class variable container
+    for(unsigned int k = 0; k < t->GetEntriesFast(); k++)
+    {
+      t->GetEntry(k);
+      
+      // Container to store the vent data read from the input tree
+      std::vector<float>* EvtDat = new std::vector<float>();
+      
+      for(unsigned int idx = 0; idx < m_VarNames.size(); idx++)
+      {
+	EvtDat->push_back(ev[idx]);
+      }
+      
+      // Store the event and its class name
+      m_EventsData.push_back(std::make_pair(m_ClassNames[cls], EvtDat));
+    }
+    
+    // We are done and can delete the tree pointer
+    delete t;
+  }// End of for(cls) loop for all classes
+  
+  // Close the open file and delete the file pointer
+  m_InPutFile->Close();
+  delete m_InPutFile;
 }
 // End of class implementation.
 
