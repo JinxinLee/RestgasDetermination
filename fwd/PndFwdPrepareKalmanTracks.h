@@ -34,11 +34,6 @@ public:
   /**  Destructor **/
   ~PndFwdPrepareKalmanTracks();
 
-  /** public method AddHitBranch(detID, hitBranchName) adds 
-   more hit branches to be included in the Kalman analysis,
-  here used as if private **/
-  void AddHitBranch(unsigned int detId, const TString& m){fHitBranchNameMap[detId]=m;};
-
   /** public method SetPersistence(Bool_t opt) **/
   void SetPersistence(Bool_t opt=kTRUE) {fPersistence=opt;}
 
@@ -82,8 +77,6 @@ private:
   TClonesArray* fGemHitArray;            ///<input array of PndGemHits
   TClonesArray* fDchHitArray;            ///<input array of PndDchHits
 
-  std::map<unsigned int,TString> fHitBranchNameMap;   ///< map of relevant <detID,name of hit branch>
-  std::map<unsigned int,TClonesArray*> fHitBranchMap; ///< map of relevant <detID, hit array>
   Int_t fMinNofGemHits;    ///< minimum number of hits to further process a track
   Int_t fMinNofDchHits;    ///< minimum number of hits to further process a track
   Bool_t fPersistence;    ///< persistance flag

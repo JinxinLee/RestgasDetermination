@@ -58,28 +58,18 @@ PndFwdPrepareKalmanTracks::Init()
 {
   //Get ROOT Manager
   FairRootManager* ioman= FairRootManager::Instance();
-
+  
   if(ioman==0)
     {
       Error("PndFwdPrepareKalmanTracks::Init","RootManager not instantiated!");
       return kERROR;
     }
- 
-  AddHitBranch(1,"GEMHit");
-
-  // open hit arrays
-  std::map<unsigned int,TString>::iterator iter=fHitBranchNameMap.begin();
-  while(iter!=fHitBranchNameMap.end()){
-    TClonesArray* ar=(TClonesArray*) ioman->GetObject(iter->second);
-    if(ar==0){
-      Error("DemoPRTask::Init","hit-array %s not found!",iter->second.Data());
-    }
-    else{ 
-      fHitBranchMap[iter->first] = ar;
-    }
-    ++iter;
-  }//end loops over hit types
-  fGemHitArray = fHitBranchMap[1];
+  
+  fGemHitArray = (TClonesArray*) ioman->GetObject("GEMHit");
+  if(fGemHitArray==0){
+    Error("PndFwdPrepareKalmanTracks::Init","gem hit array not found!");
+    return kERROR;
+  } 
   
   if(fUseMC){
     // open MCTruth array

@@ -198,8 +198,8 @@ PndFwdKalmanTask::Exec(Option_t* opt)
       TVector3 beforePos = trac->getPos();
       TVector3 beforeMom = trac->getMom();
 
-      beforePos.SetXYZ(0.,0.,0.);
-      beforeMom.SetMagThetaPhi(fMomentum,TMath::DegToRad()*(Double_t)fTheta,TMath::DegToRad()*(Double_t)fPhi);
+      //      beforePos.SetXYZ(0.,0.,0.);
+      //     beforeMom.SetMagThetaPhi(fMomentum,TMath::DegToRad()*(Double_t)fTheta,TMath::DegToRad()*(Double_t)fPhi);
 
       Double_t rad = TMath::Sqrt(beforePos.X()*beforePos.X()+beforePos.Y()*beforePos.Y());
       if ( rad > 20 ) 
@@ -207,19 +207,19 @@ PndFwdKalmanTask::Exec(Option_t* opt)
     
     // Starting values for guessing
       Int_t PDGCode= 211;
-//     TVector3 StartPos    = TVector3 (beforePos.X()+gRandom->Gaus(0,0.1),
-// 				     beforePos.Y()+gRandom->Gaus(0,0.1),
-// 				     beforePos.Z()+gRandom->Gaus(0,0.1));
-    TVector3 StartPos    = TVector3 (0.,0.,0.);
+     TVector3 StartPos    = TVector3 (beforePos.X()+gRandom->Gaus(0,0.1),
+ 				     beforePos.Y()+gRandom->Gaus(0,0.1),
+ 				     beforePos.Z()+gRandom->Gaus(0,0.1));
+     //    TVector3 StartPos    = TVector3 (0.,0.,0.);
 
 				     //1.0,0.0,0.0);//cmn
     TVector3 StartPosErr = TVector3(0.01,0.01,0.01);
     TVector3 StartMom    = TVector3 (1.,0.,1.); 
     std::cout << "setting mag to " << beforeMom.Mag() << std::endl;
-//     StartMom.SetMagThetaPhi(beforeMom.Mag()-0.5  ,//gRandom->Gaus(0,0.1),
-//  			    beforeMom.Theta(),//+gRandom->Gaus(0,0.1),
-//  			    beforeMom.Phi()  );//+gRandom->Gaus(0,0.1));
-    StartMom.SetMagThetaPhi(fMomentum+0.05,TMath::DegToRad()*(Double_t)fTheta,TMath::DegToRad()*(Double_t)fPhi);
+     StartMom.SetMagThetaPhi(beforeMom.Mag()-0.5  ,//gRandom->Gaus(0,0.1),
+  			    beforeMom.Theta(),//+gRandom->Gaus(0,0.1),
+  			    beforeMom.Phi()  );//+gRandom->Gaus(0,0.1));
+     //    StartMom.SetMagThetaPhi(fMomentum+0.05,TMath::DegToRad()*(Double_t)fTheta,TMath::DegToRad()*(Double_t)fPhi);
     std::cout << "momenta set to " << StartMom.Mag() << std::endl;
 //    StartMom.SetMagThetaPhi(2.,10.*TMath::Pi()/180.,0.);
     //5.05 , 30.*TMath::Pi()/360. , 0.);
