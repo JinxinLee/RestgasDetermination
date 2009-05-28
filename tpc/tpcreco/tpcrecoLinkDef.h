@@ -24,5 +24,6 @@
 #pragma link C++ class PndTpcSimpleDxEvalPoint++;
 #pragma link C++ class PndTpcRiemannMCResidual++;
 #pragma link C++ class PndTpcSPHit++;
+#pragma link C++ class PndTpcdEdxTask++;
 #endif
 

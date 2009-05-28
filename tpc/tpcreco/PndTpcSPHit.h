@@ -33,14 +33,15 @@ class PndTpcCluster;
 typedef RecoHitIfc<SpacepointHitPolicy> SpacepointRecoHit;
 
 class PndTpcSPHit : public SpacepointRecoHit {
+
 public:
 
   // Constructors/Destructors ---------
   PndTpcSPHit();
   PndTpcSPHit(double x, double y, double z,
-	       double sigx, double sigy, double sigz);
+	      double sigx, double sigy, double sigz);
   PndTpcSPHit(const TVector3& pos,
-	    const TVector3& sig);
+	      const TVector3& sig);
   PndTpcSPHit(FairMCPoint* point);
   PndTpcSPHit(PndTpcCluster* cluster);
 
@@ -52,12 +53,13 @@ public:
   virtual void setHMatrix(const AbsTrackRep* stateVector,
                           const TMatrixT<double>& state);
 
-
+  double amp() {return _amp;}
   
 private:
 
   // Private Data Members ------------
   static const int NparHitRep = 3;
+  double _amp;
 
   // Private Methods -----------------
 

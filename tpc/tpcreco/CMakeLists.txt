@@ -62,6 +62,7 @@ PndTpcClusterTrack.cxx
 PndTpcTFSInfo.cxx
 PndTpcSPHit.cxx	
 MatrixChi2.cxx
+PndTpcdEdxTask.cxx
 )
 
 if(RULE_CHECKER_FOUND)

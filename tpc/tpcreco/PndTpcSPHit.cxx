@@ -39,12 +39,12 @@ PndTpcSPHit::~PndTpcSPHit()
 {}
 
 PndTpcSPHit::PndTpcSPHit()
-  : SpacepointRecoHit(NparHitRep)
+  : SpacepointRecoHit(NparHitRep), _amp(0.)
 {}
 
 PndTpcSPHit::PndTpcSPHit(double x, double y, double z,
-			   double sigx, double sigy, double sigz)
-  : SpacepointRecoHit(NparHitRep)
+			 double sigx, double sigy, double sigz)
+  : SpacepointRecoHit(NparHitRep), _amp(0.)
 {
   _hitCoord[0][0] = x;
   _hitCoord[1][0] = y;
@@ -56,8 +56,8 @@ PndTpcSPHit::PndTpcSPHit(double x, double y, double z,
 }
 
 PndTpcSPHit::PndTpcSPHit(const TVector3& pos,
-		 const TVector3& sig)
-  : SpacepointRecoHit(NparHitRep)
+			 const TVector3& sig)
+  : SpacepointRecoHit(NparHitRep), _amp(0.)
 {
   _hitCoord[0][0] = pos.X();
   _hitCoord[1][0] = pos.Y();
@@ -69,7 +69,7 @@ PndTpcSPHit::PndTpcSPHit(const TVector3& pos,
 }
 
 PndTpcSPHit::PndTpcSPHit(FairMCPoint* point)
-  : SpacepointRecoHit(NparHitRep)
+  : SpacepointRecoHit(NparHitRep), _amp(0.)
 {
   _hitCoord[0][0] = point->GetX();
   _hitCoord[1][0] = point->GetY();
@@ -92,6 +92,8 @@ PndTpcSPHit::PndTpcSPHit(PndTpcCluster* cluster)
   _hitCov[0][0] = sig.X()*sig.X();
   _hitCov[1][1] = sig.Y()*sig.Y();
   _hitCov[2][2] = sig.Z()*sig.Z();
+
+  _amp = cluster->amp();
 
 }
 

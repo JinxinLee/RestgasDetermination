@@ -45,7 +45,7 @@ PndTpcSpaceChargeTask::PndTpcSpaceChargeTask()		//default constructor
 	_rBinCount(26),
 	_zBinCount(75),
 	_angle(0.17453),              //TODO: parameter management!
-	_ionDriftVelocity(1.766e-6),  //...
+	_ionDriftVelocity(1.766e-6),  // [cm/ns]
 	_time(0),               
 	_errorCount(0),
 	_primChargeOnly(false),
