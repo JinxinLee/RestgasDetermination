@@ -75,7 +75,7 @@ PndGemRecoHit::PndGemRecoHit(PndGemHit* hit)
 {
 
   std::cout<<" -I- PndGemRecoHit::PndGemRecoHit(PndGemHit*) called."<<std::endl;
-  std::cout<<*hit<<std::endl;
+  //  std::cout<<*hit<<std::endl;
 
   TString id =  hit->GetDetName();
 
@@ -84,22 +84,18 @@ PndGemRecoHit::PndGemRecoHit(PndGemHit* hit)
   //  PndGemGeoHandling* fGeoH = new PndGemGeoHandling(fGeoFile.Data());
   //TString path = fGeoH->GetPath(id);
 
-  Double_t hitX = hit->GetX(), hitY = hit->GetY();
-  Double_t phiAValue = TMath::ATan(hitX/hitY);
-  if ( hitY < 0 ) phiAValue += TMath::Pi();
-  else if ( hitX < 0 ) phiAValue +=  2.*TMath::Pi();
+  Double_t hitX = hit->GetX();
+  Double_t hitY = hit->GetY();
 
   TVector3 oo (0.,0.,hit->GetZ()),
-//            uu ( TMath::Cos(phiAValue),TMath::Sin(phiAValue),0),
-//            vv (-TMath::Sin(phiAValue),TMath::Cos(phiAValue),0);
-    uu ( TMath::Sin(phiAValue), TMath::Cos(phiAValue),0),
-    vv ( TMath::Cos(phiAValue),-TMath::Sin(phiAValue),0);
+    uu ( 1.0, 0.0, 0.0),
+    vv ( 0.0, 1.0, 0.0);
+  
+  _hitCoord[0][0] = hitX;
+  _hitCoord[1][0] = hitY;
 
-  _hitCoord[0][0] = TMath::Sqrt(hitX*hitX+hitY*hitY);
-  _hitCoord[1][0] = 0.;
-
-  _hitCov[0][0] = hit->GetDr();
-  _hitCov[1][1] = hit->GetDp();
+  _hitCov[0][0] = 0.0001;
+  _hitCov[1][1] = 0.0001;
 
   setDetPlane(DetPlane(oo,uu,vv));
 //============================================================================
@@ -107,6 +103,42 @@ PndGemRecoHit::PndGemRecoHit(PndGemHit* hit)
 
 }
 
+/*
+PndGemRecoHit::PndGemRecoHit(PndGemHit* hit)
+  : RecoHitIfc<PlanarHitPolicy>(fNparHitRep)
+{
+
+   std::cout<<" -I- PndGemRecoHit::PndGemRecoHit(PndGemHit*) called."<<std::endl;
+   //  std::cout<<*hit<<std::endl;
+
+   TString id =  hit->GetDetName();
+
+   FairRootManager* ioman = FairRootManager::Instance();
+   TString fGeoFile = ioman->GetInFile()->GetName();
+   //  PndGemGeoHandling* fGeoH = new PndGemGeoHandling(fGeoFile.Data());
+   //TString path = fGeoH->GetPath(id);
+
+   Double_t hitX = hit->GetX(), hitY = hit->GetY();
+   Double_t phiAValue = TMath::ATan(hitX/hitY);
+   if ( hitY < 0 ) phiAValue += TMath::Pi();
+   else if ( hitX < 0 ) phiAValue +=  2.*TMath::Pi();
+
+   TVector3 oo (0.,0.,hit->GetZ()),
+ //            uu ( TMath::Cos(phiAValue),TMath::Sin(phiAValue),0),
+ //            vv (-TMath::Sin(phiAValue),TMath::Cos(phiAValue),0);
+     uu ( TMath::Sin(phiAValue), TMath::Cos(phiAValue),0),
+     vv ( TMath::Cos(phiAValue),-TMath::Sin(phiAValue),0);
+
+   _hitCoord[0][0] = TMath::Sqrt(hitX*hitX+hitY*hitY);
+   _hitCoord[1][0] = 0.;
+
+   _hitCov[0][0] = hit->GetDr()*hit->GetDr();
+   _hitCov[1][1] = hit->GetDp()*hit->GetDp();
+
+   setDetPlane(DetPlane(oo,uu,vv));
+ //============================================================================
+}
+*/
 
 void
 PndGemRecoHit::setHMatrix(const AbsTrackRep* stateVector,

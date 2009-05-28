@@ -119,7 +119,7 @@ void PndGemIdealHitProducer::Exec(Option_t* opt) {
   Double_t dr, dp;
   Double_t radius, innerR;
   
-  for ( Int_t iPoint=fPointArray->GetEntriesFast()-1 ; iPoint >= 0 ; iPoint--) {
+  for ( Int_t iPoint = 0 ; iPoint < fPointArray->GetEntriesFast() ; iPoint++ ) {
     PndGemMCPoint* currentPndGemMCPoint = (PndGemMCPoint*)fPointArray->At(iPoint);
     
     Double_t posIn[3] = {currentPndGemMCPoint->GetX(),

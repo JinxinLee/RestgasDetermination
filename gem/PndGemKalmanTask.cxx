@@ -62,6 +62,10 @@ PndGemKalmanTask::PndGemKalmanTask()
   : FairTask("Kalman Filter"), fPersistence(kFALSE)
 {
   fTrackBranchName = "FSTracks";
+
+  fMomentum = 1.;
+  fTheta = 5;
+  fPhi = 0;
 }
 
 
@@ -117,9 +121,16 @@ PndGemKalmanTask::Init()
   fhMomentumX2D = new TH2D("fhMomentumX2D","fhMomentumX2D",1000,-5.,5.,1000,-5.,5.);
   fhMomentumY2D = new TH2D("fhMomentumY2D","fhMomentumY2D",1000,-5.,5.,1000,-5.,5.);
   fhMomentumZ2D = new TH2D("fhMomentumZ2D","fhMomentumZ2D",2000,-20.,20.,2000,-20.,20.);
+  fhMomentumM2D = new TH2D("fhMomentumM2D","fhMomentumM2D",2000,  0.,20.,2000,  0.,20.);
+  fhMomentumT2D = new TH2D("fhMomentumT2D","fhMomentumT2D",2100, -3.5,3.5,2100, -3.5,3.5);
+  fhMomentumP2D = new TH2D("fhMomentumP2D","fhMomentumP2D",2100, -3.5,3.5,2100, -3.5,3.5);
   fhMomentumX1D = new TH1D("fhMomentumX1D","fhMomentumX1D",2000,-10.,10.);
   fhMomentumY1D = new TH1D("fhMomentumY1D","fhMomentumY1D",2000,-10.,10.);
   fhMomentumZ1D = new TH1D("fhMomentumZ1D","fhMomentumZ1D",2000,-10.,10.);
+  fhMomentumM1D = new TH1D("fhMomentumM1D","fhMomentumM1D",2000,-10.,10.);
+  fhMomentumT1D = new TH1D("fhMomentumT1D","fhMomentumT1D",2100,  -7.,7.);
+  fhMomentumP1D = new TH1D("fhMomentumP1D","fhMomentumP1D",2100,  -7.,7.);
+  fhMomentumRes = new TH2D("fhMomentumRes","fhMomentumRes",40,0.,20.,2000,-20.,20.);
 
   fhPositionX2D = new TH2D("fhPositionX2D","fhPositionX2D",2000,-100.,100.,2000,-100.,100.);
   fhPositionY2D = new TH2D("fhPositionY2D","fhPositionY2D",2000,-100.,100.,2000,-100.,100.);
@@ -181,48 +192,61 @@ PndGemKalmanTask::Exec(Option_t* opt)
       Track* trac = (Track*)fTrackArray->At(itr);
       TrackCand trcnd = (TrackCand)trac->getCand();
       TVector3 beforePos = trac->getPos();
-      std::cout << "******** " 
-		<< beforePos.X() << " " 
-		<< beforePos.Y() << " " 
-		<< beforePos.Z() << std::endl;
       TVector3 beforeMom = trac->getMom();
-      std::cout << "******** " 
-		<< beforeMom.X() << " " 
-		<< beforeMom.Y() << " " 
-		<< beforeMom.Z() << std::endl;
 
+      beforePos.SetXYZ(0.,0.,0.);
+      beforeMom.SetMagThetaPhi(fMomentum,TMath::DegToRad()*(Double_t)fTheta,TMath::DegToRad()*(Double_t)fPhi);
+
+      Double_t rad = TMath::Sqrt(beforePos.X()*beforePos.X()+beforePos.Y()*beforePos.Y());
+      if ( rad > 20 ) 
+	std::cout << "RADIUS BIGGER THAN 20" << std::endl;
     
     // Starting values for guessing
-    Int_t PDGCode= 2212;
-    TVector3 StartPos    = TVector3 (beforePos.X()+gRandom->Gaus(0,0.1),
-				     beforePos.Y()+gRandom->Gaus(0,0.1),
-				     beforePos.Z()+gRandom->Gaus(0,0.1));
+      Int_t PDGCode= 211;
+//     TVector3 StartPos    = TVector3 (beforePos.X()+gRandom->Gaus(0,0.1),
+// 				     beforePos.Y()+gRandom->Gaus(0,0.1),
+// 				     beforePos.Z()+gRandom->Gaus(0,0.1));
+    TVector3 StartPos    = TVector3 (0.,0.,0.);
 
 				     //1.0,0.0,0.0);//cmn
-    TVector3 StartPosErr = TVector3(0,0,0);
-    TVector3 StartMom    = TVector3 (1.,0.,1.);
-    StartMom.SetMagThetaPhi(beforeMom.Mag()  +gRandom->Gaus(0,0.5),
- 			    beforeMom.Theta()+gRandom->Gaus(0,0.1),
- 			    beforeMom.Phi()  +gRandom->Gaus(0,0.1));
+    TVector3 StartPosErr = TVector3(0.01,0.01,0.01);
+    TVector3 StartMom    = TVector3 (1.,0.,1.); 
+    std::cout << "setting mag to " << beforeMom.Mag() << std::endl;
+//     StartMom.SetMagThetaPhi(beforeMom.Mag()-0.5  ,//gRandom->Gaus(0,0.1),
+//  			    beforeMom.Theta(),//+gRandom->Gaus(0,0.1),
+//  			    beforeMom.Phi()  );//+gRandom->Gaus(0,0.1));
+    StartMom.SetMagThetaPhi(fMomentum+0.05,TMath::DegToRad()*(Double_t)fTheta,TMath::DegToRad()*(Double_t)fPhi);
+    std::cout << "momenta set to " << StartMom.Mag() << std::endl;
 //    StartMom.SetMagThetaPhi(2.,10.*TMath::Pi()/180.,0.);
     //5.05 , 30.*TMath::Pi()/360. , 0.);
 //     StartMom.SetXYZ(0.01*TMath::Ceil(100.*beforeMom.X()),
 // 		    0.01*TMath::Ceil(100.*beforeMom.Y()),
 // 		    0.01*TMath::Ceil(100.*beforeMom.Z()));
     //   StartMom.SetMag(1.1);
-    TVector3 StartMomErr = TVector3(0,0,0);
+    TVector3 StartMomErr = TVector3(0.1*StartMom);//1.,1.,1.);
     TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
     TParticlePDG *fParticle= fdbPDG->GetParticle(PDGCode);
-    Double_t  fCharge= fParticle->Charge();
+    Double_t  fCharge= fParticle->Charge()/3.;
     // what to guess here?
     TVector3 U(1.,0.,0.);
     TVector3 V(0.,1.,0.);
     DetPlane start_pl(StartPos,U,V);
+
     AbsTrackRep* rep = new GeaneTrackRep(fPro,
-					 start_pl,StartMom,
-					 StartPosErr,StartMomErr,
-					 fCharge,PDGCode);
+ 					 start_pl,StartMom,
+ 					 StartPosErr,StartMomErr,
+ 					 fCharge,PDGCode);
     
+    /*    TVector3 dir=StartMom.Unit();
+    Double_t dxdz=dir.X()/dir.Z();
+    Double_t dydz=dir.Y()/dir.Z();
+    Double_t qp=fCharge/StartMom.Mag();
+    std::cout << "2momenta set to " << StartMom.Mag() << " but fcharge = " << fCharge << std::endl;
+    std::cout << "moment moment " << dxdz << " " << dydz << " " << qp << std::endl;
+    AbsTrackRep* rep = new LSLTrackRep(StartPos.Z(),StartPos.X(),StartPos.Y(),dxdz,dydz,qp,
+				       StartPosErr.X(),StartPosErr.Y(),0.1,0.1,0.1,NULL);
+    */
+  
     Track* trk= new Track(rep);
 
 
@@ -267,8 +291,12 @@ PndGemKalmanTask::Exec(Option_t* opt)
       fChi2H->Fill(chi2);
     }
 
+    DetPlane plane(TVector3(0,0,0.1),TVector3(1,0,0),TVector3(0,1,0));
+      TVector3 resultMom=trk->getTrackRep(0)->getMom(plane);
+ 
     TVector3 resultPos = trk->getPos();
-    TVector3 resultMom = trk->getMom();
+    //TVector3 resultMom = trk->getMom();
+    std::cout << "PHIMC = " << beforeMom.Phi() << " PHIRECO = " << resultMom.Phi() << std::endl;
 
     std::cout << "********************************************************" << std::endl;
     std::cout << "result pos = (" 
@@ -278,15 +306,24 @@ PndGemKalmanTask::Exec(Option_t* opt)
     std::cout << "result mom = (" 
 	      << resultMom.X() << ","
 	      << resultMom.Y() << ","
-	      << resultMom.Z() << ")" << std::endl;
+	      << resultMom.Z() << ") ----> " << resultMom.Mag() << std::endl;
 
+    GeaneTrackRep* tempRep = (GeaneTrackRep*)trac->getTrackRep(0);
+    std::cout << "BUT IT WAS " << tempRep->getPDG() << std::endl;
 
     fhMomentumX2D->Fill(beforeMom.X(),resultMom.X());
     fhMomentumY2D->Fill(beforeMom.Y(),resultMom.Y());
     fhMomentumZ2D->Fill(beforeMom.Z(),resultMom.Z());
+    fhMomentumM2D->Fill(beforeMom.Mag(),resultMom.Mag());
+    fhMomentumT2D->Fill(beforeMom.Theta(),resultMom.Theta());
+    fhMomentumP2D->Fill(beforeMom.Phi(),resultMom.Phi());
     fhMomentumX1D->Fill(beforeMom.X()+resultMom.X());
     fhMomentumY1D->Fill(beforeMom.Y()+resultMom.Y());
     fhMomentumZ1D->Fill(beforeMom.Z()+resultMom.Z());
+    fhMomentumM1D->Fill(beforeMom.Mag()-resultMom.Mag());
+    fhMomentumT1D->Fill(beforeMom.Theta()-resultMom.Theta());
+    fhMomentumP1D->Fill(beforeMom.Phi()-resultMom.Phi());
+    fhMomentumRes->Fill(beforeMom.Mag(),100.*(beforeMom.Mag()-resultMom.Mag())/beforeMom.Mag());
     
     fhPositionX2D->Fill(beforePos.X(),resultPos.X());
     fhPositionY2D->Fill(beforePos.Y(),resultPos.Y());
@@ -344,10 +381,17 @@ PndGemKalmanTask::WriteHistograms(){
 
   fhMomentumX2D->Write();
   fhMomentumY2D->Write();
-  fhMomentumZ2D->Write();
+  fhMomentumZ2D->Write(); 
+  fhMomentumM2D->Write();
+  fhMomentumT2D->Write();
+  fhMomentumP2D->Write();
   fhMomentumX1D->Write();
   fhMomentumY1D->Write();
   fhMomentumZ1D->Write();
+  fhMomentumM1D->Write();
+  fhMomentumT1D->Write();
+  fhMomentumP1D->Write();
+  fhMomentumRes->Write();
 
   fhPositionX2D->Write();
   fhPositionY2D->Write();
@@ -357,9 +401,16 @@ PndGemKalmanTask::WriteHistograms(){
   delete fhMomentumX2D;
   delete fhMomentumY2D;
   delete fhMomentumZ2D;
+  delete fhMomentumM2D;  
+  delete fhMomentumT2D;
+  delete fhMomentumP2D;
   delete fhMomentumX1D;
   delete fhMomentumY1D;
-  delete fhMomentumZ1D;
+  delete fhMomentumZ1D; 
+  delete fhMomentumM1D;
+  delete fhMomentumT1D;
+  delete fhMomentumP1D;
+  delete fhMomentumRes;
 
   delete fhPositionX2D;
   delete fhPositionY2D;
@@ -369,9 +420,16 @@ PndGemKalmanTask::WriteHistograms(){
   fhMomentumX2D = NULL;
   fhMomentumY2D = NULL;
   fhMomentumZ2D = NULL;
+  fhMomentumM2D = NULL;
+  fhMomentumT2D = NULL;
+  fhMomentumP2D = NULL;
   fhMomentumX1D = NULL;
   fhMomentumY1D = NULL;
   fhMomentumZ1D = NULL;
+  fhMomentumM1D = NULL;
+  fhMomentumT1D = NULL;
+  fhMomentumP1D = NULL;
+  fhMomentumRes = NULL;
 
   fhPositionX2D = NULL;
   fhPositionY2D = NULL;

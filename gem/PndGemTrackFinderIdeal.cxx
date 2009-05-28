@@ -232,11 +232,16 @@ Int_t PndGemTrackFinderIdeal::DoFind(TClonesArray* hitArray,
  	 << tlVec.Z() << " , " 
  	 << tlVec.T() << ") " << endl;
 
-    if(mom != 0) {
-      gemTrack->GetParamLast()->SetQp(1./mom);
-    } else {
-      gemTrack->GetParamLast()->SetQp(0);
-    }
+//     if(mom != 0) {
+//       gemTrack->GetParamLast()->SetQp(1./mom);
+//     } else {
+//       gemTrack->GetParamLast()->SetQp(0);
+//     }
+
+//    gemTrack->GetParamLast()->SetQp(1e6+mcTrack->GetPdgCode());
+    gemTrack->GetParamLast()->SetQp(1e6+mcTrack->GetPdgCode());
+    gemTrack->GetParamLast()->SetZ(1e6+iMCTrack);
+
     trackMap[iMCTrack] = nTracks;
     
     nTracks++;

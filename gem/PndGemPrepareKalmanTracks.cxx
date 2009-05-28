@@ -137,7 +137,7 @@ PndGemPrepareKalmanTracks::Exec(Option_t* opt)
     TrackCand* cand = new TrackCand();
     for(Int_t ihit=0; ihit<nofHits; ihit++){
       Int_t globalHit = gemtrack->GetGemHitIndex(ihit);
-      cand->addHit(1,globalHit);
+      cand->addHit(2,globalHit);
     }
     for(Int_t ihit=0; ihit<nofHits; ihit++){
       unsigned int temp2= 1234, temp3=1234;
@@ -196,7 +196,7 @@ PndGemPrepareKalmanTracks::Exec(Option_t* opt)
       param->Position(pos);
       param->Momentum(mom);
       q = (param->GetQp()==0) ? 0 : param->GetQp()/TMath::Abs(param->GetQp());
-      pdg = fPDG;
+      pdg = (Int_t)gemtrack->GetParamLast()->GetQp()-1e6;
     }
     
     std::cout<<"pozycje i pedy "<<std::endl;
