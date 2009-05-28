@@ -193,74 +193,15 @@ PndFwdKalmanTask::Exec(Option_t* opt)
     std::cout<<"starting track"<<itr<<std::endl;
     //     AbsTrackRep* rep = new LSLTrackRep();
 
-      Track* trac = (Track*)fTrackArray->At(itr);
-      TrackCand trcnd = (TrackCand)trac->getCand();
-      TVector3 beforePos = trac->getPos();
-      TVector3 beforeMom = trac->getMom();
-
-      //      beforePos.SetXYZ(0.,0.,0.);
-      //     beforeMom.SetMagThetaPhi(fMomentum,TMath::DegToRad()*(Double_t)fTheta,TMath::DegToRad()*(Double_t)fPhi);
-
-      Double_t rad = TMath::Sqrt(beforePos.X()*beforePos.X()+beforePos.Y()*beforePos.Y());
-      if ( rad > 20 ) 
-	std::cout << "RADIUS BIGGER THAN 20" << std::endl;
-    
-    // Starting values for guessing
-      Int_t PDGCode= 211;
-     TVector3 StartPos    = TVector3 (beforePos.X()+gRandom->Gaus(0,0.1),
- 				     beforePos.Y()+gRandom->Gaus(0,0.1),
- 				     beforePos.Z()+gRandom->Gaus(0,0.1));
-     //    TVector3 StartPos    = TVector3 (0.,0.,0.);
-
-				     //1.0,0.0,0.0);//cmn
-    TVector3 StartPosErr = TVector3(0.01,0.01,0.01);
-    TVector3 StartMom    = TVector3 (1.,0.,1.); 
-    std::cout << "setting mag to " << beforeMom.Mag() << std::endl;
-     StartMom.SetMagThetaPhi(beforeMom.Mag()-0.5  ,//gRandom->Gaus(0,0.1),
-  			    beforeMom.Theta(),//+gRandom->Gaus(0,0.1),
-  			    beforeMom.Phi()  );//+gRandom->Gaus(0,0.1));
-     //    StartMom.SetMagThetaPhi(fMomentum+0.05,TMath::DegToRad()*(Double_t)fTheta,TMath::DegToRad()*(Double_t)fPhi);
-    std::cout << "momenta set to " << StartMom.Mag() << std::endl;
-//    StartMom.SetMagThetaPhi(2.,10.*TMath::Pi()/180.,0.);
-    //5.05 , 30.*TMath::Pi()/360. , 0.);
-//     StartMom.SetXYZ(0.01*TMath::Ceil(100.*beforeMom.X()),
-// 		    0.01*TMath::Ceil(100.*beforeMom.Y()),
-// 		    0.01*TMath::Ceil(100.*beforeMom.Z()));
-    //   StartMom.SetMag(1.1);
-    TVector3 StartMomErr = TVector3(0.1*StartMom);//1.,1.,1.);
-    TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
-    TParticlePDG *fParticle= fdbPDG->GetParticle(PDGCode);
-    Double_t  fCharge= fParticle->Charge()/3.;
-    // what to guess here?
-    TVector3 U(1.,0.,0.);
-    TVector3 V(0.,1.,0.);
-    DetPlane start_pl(StartPos,U,V);
-
-    AbsTrackRep* rep = new GeaneTrackRep(fPro,
- 					 start_pl,StartMom,
- 					 StartPosErr,StartMomErr,
- 					 fCharge,PDGCode);
-    
-    /*    TVector3 dir=StartMom.Unit();
-    Double_t dxdz=dir.X()/dir.Z();
-    Double_t dydz=dir.Y()/dir.Z();
-    Double_t qp=fCharge/StartMom.Mag();
-    std::cout << "2momenta set to " << StartMom.Mag() << " but fcharge = " << fCharge << std::endl;
-    std::cout << "moment moment " << dxdz << " " << dydz << " " << qp << std::endl;
-    AbsTrackRep* rep = new LSLTrackRep(StartPos.Z(),StartPos.X(),StartPos.Y(),dxdz,dydz,qp,
-				       StartPosErr.X(),StartPosErr.Y(),0.1,0.1,0.1,NULL);
-    */
-  
-    Track* trk= new Track(rep);
-
-
-    trk->setCandidate(trcnd);
-    //Track* trk=(Track*)fTrackArray->At(itr);
+    Track* trac = (Track*)fTrackArray->At(itr);
+    TrackCand trcnd = (TrackCand)trac->getCand();
+    TVector3 beforePos = trac->getPos();
+    TVector3 beforeMom = trac->getMom();
     
     // Load RecoHits
     try {
-      trk->addHitVector(fTheRecoHitFactory->createMany(trk->getCand()));
-      std::cout<<trk->getNumHits()<<" hits in track "
+      trac->addHitVector(fTheRecoHitFactory->createMany(trac->getCand()));
+      std::cout<<trac->getNumHits()<<" hits in track "
 	       <<itr<<std::endl;
     }
     catch(FitterException& e) {
@@ -271,32 +212,32 @@ PndFwdKalmanTask::Exec(Option_t* opt)
     // Start Fitter
     try{
       std::cout<<"starting fit"<<std::endl;
-      fitter.processTrack(trk);
+      fitter.processTrack(trac);
     }
     catch (FitterException e){
       std::cout<<e.what()<<std::endl;
     }
     
     // Print Track Parameters after fit
-    if(trk->getTrackRep(0)->getStatusFlag()==0){
-      //trk->getTrackRep(0)->Print();
+    if(trac->getTrackRep(0)->getStatusFlag()==0){
+      //trac->getTrackRep(0)->Print();
       DetPlane plane(TVector3(0,0,0.1),TVector3(1,0,0),TVector3(0,1,0));
-      TVector3 p3=trk->getTrackRep(0)->getMom(plane);
-      Double_t p=trk->getMom().Mag();
+      TVector3 p3=trac->getTrackRep(0)->getMom(plane);
+      Double_t p=trac->getMom().Mag();
       fPH->Fill(p);
       
       TLorentzVector* p4=new TLorentzVector();
       p4->SetXYZM(p3.X(),p3.Y(),p3.Z(),0.493677);
       particles.push_back(p4);
-      signs.push_back((Int_t)trk->getTrackRep(0)->getCharge());
+      signs.push_back((Int_t)trac->getTrackRep(0)->getCharge());
       
-      Double_t chi2=trk->getChiSqu();
+      Double_t chi2=trac->getChiSqu();
       std::cout<<"ChiSq="<<chi2<<std::endl;
       fChi2H->Fill(chi2);
     }
 
-    TVector3 resultPos = trk->getPos();
-    TVector3 resultMom = trk->getMom();
+    TVector3 resultPos = trac->getPos();
+    TVector3 resultMom = trac->getMom();
 
     std::cout << "********************************************************" << std::endl;
     std::cout << "result pos = (" 

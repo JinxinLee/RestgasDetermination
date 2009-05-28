@@ -191,14 +191,16 @@ PndFwdPrepareKalmanTracks::Exec(Option_t* opt)
       pdg = (Int_t)gemtrack->GetParamLast()->GetQp()-1e6;
     
       std::cout<<"positions and momenta... "<<std::endl;
+      std::cout<<"position: " << std::flush;
       pos.Print();
+      std::cout<<"momentum: " << std::flush;
       mom.Print();
       if(mom.Mag()>1e3){
 	Error("PndFwdPrepareKalmanTracks::Exec","Track was incorrectly prefitted - abandoned in Kalman!");
 	continue;
       }
-      Double_t startPosAccuracy = 0.5;
-      TVector3 poserr(startPosAccuracy,startPosAccuracy,3.*startPosAccuracy);
+      Double_t startPosAccuracy = 0.1;
+      TVector3 poserr(startPosAccuracy,startPosAccuracy,startPosAccuracy);
       TVector3 startMomAccuracy(0.1,0.1,0.1);
       TVector3 momerr(mom.X()*startMomAccuracy.X(),
 		      mom.Y()*startMomAccuracy.Y(),
@@ -208,6 +210,11 @@ PndFwdPrepareKalmanTracks::Exec(Option_t* opt)
 		 mom.Z()*gRandom->Gaus(1,startMomAccuracy.Z()));
       TVector3 u(1.,0.,0.);
       TVector3 v(0.,1.,0.);
+
+      pos.SetXYZ(pos.X()+gRandom->Gaus(0,startPosAccuracy),
+		 pos.Y()+gRandom->Gaus(0,startPosAccuracy),
+		 pos.Z()+gRandom->Gaus(0,startPosAccuracy));
+      mom.SetMag(mom.Mag()+0.05);
       
       // create track-representation object and initialize with start values
       AbsTrackRep* rep=0;
@@ -248,3 +255,6 @@ PndFwdPrepareKalmanTracks::Exec(Option_t* opt)
 }
 
 ClassImp(PndFwdPrepareKalmanTracks)
+
+
+
