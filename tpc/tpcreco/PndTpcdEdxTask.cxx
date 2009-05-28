@@ -41,8 +41,8 @@
 #include "TFile.h"
 #include "TGeoTrack.h"
 #include "TGeoManager.h"
-#include "TLorentzVector.h"
 #include "DetPlane.h"
+#include "PndTpcdEdx.h"
 
 #include "AbsRecoHit.h"
 #include "TVector3.h"
@@ -58,7 +58,7 @@
 PndTpcdEdxTask::PndTpcdEdxTask()
   : FairTask("dE/dx Task"), _persistence(kFALSE)
 {
-  _trackBranchName = "Track";
+  _trackBranchName = "Track_out";
 }
 
 
@@ -87,6 +87,9 @@ PndTpcdEdxTask::Init()
       return kERROR;
     }
    
+  _dEdxOutArray = new TClonesArray("PndTpcdEdx");
+  ioman->Register("dEdx","PndTpc",_dEdxOutArray,kTRUE);
+
   //TClonesArray* ar=(TClonesArray*) ioman->GetObject("PndTpcCluster");
   // if(ar==0){
   //   Error("PndTpcdEdxTask::Init","PndTpcCluster array not found");
@@ -105,7 +108,8 @@ void
 PndTpcdEdxTask::Exec(Option_t* opt)
 {
   std::cout<<"PndTpcdEdxTask::Exec"<<std::endl;
-  
+  _dEdxOutArray->Delete();
+
   Int_t ntracks=_trackArray->GetEntriesFast();
   
   if(ntracks>2000){
@@ -126,9 +130,9 @@ PndTpcdEdxTask::Exec(Option_t* opt)
       return;
     }
 
-    GeaneTrackRep* theRep = (GeaneTrackRep*) absrep->clone();
-
-        
+    AbsTrackRep* theRep = absrep->clone();
+	((GeaneTrackRep*)theRep)->setPropDir(0);
+	
     std::vector<AbsRecoHit*> hits = trk->getHits();
     std::cout<<"\nstd::vector<AbsRecoHit*> hits has "<< hits.size()<<" entries"<<std::endl;
     
@@ -138,14 +142,69 @@ PndTpcdEdxTask::Exec(Option_t* opt)
       PndTpcSPHit* the_sphit = dynamic_cast<PndTpcSPHit*>(*it);
       //erase non-TPC hits
       if(the_sphit==NULL)
-	hits.erase(it);
+		hits.erase(it);
     }
-    
-    std::cout<<"\n0th hit position: "<<std::endl;
-    (hits[0])->getRawHitCoord().Print();
-    (((AbsTrackRep*)theRep)->getPos()).Print();
-    
-     
+	   
+	PndTpcdEdx dedx;
+
+	bool unsorted =false;
+	
+	for(int i=1;i<hits.size()-1;++i){
+	  	  
+	  TVector3 pos,mom;
+	  
+	  try{
+		pos = theRep->getPos();
+		mom = theRep->getMom();
+	  }
+	  catch(FitterException& e){
+		e.what();
+		return;
+		//
+
+	  }
+
+
+	  TMatrixT<double> statePred(5,1);
+	  TMatrixT<double> covPred(5,5);
+
+	  bool backwards;
+	  double dist;
+	  DetPlane pl;
+	  try{
+		std::cout << "########## " << i << " of " << hits.size() << std::endl;
+		pos.Print();
+		hits.at(i+1)->getRawHitCoord().Print();
+		pl = hits.at(i+1)->getDetPlane(theRep);
+		pl.Print();
+		TVector3 dir=pl.dist(pos);
+		backwards = (dir*mom)<0;
+		std::cout << "########## " << backwards << std::endl;
+		dist = theRep->extrapolate(pl,statePred,covPred);
+	  }
+	  catch(FitterException& e){
+		std::cerr << e.what() << std::endl;
+		return;
+
+		//
+	  }
+	  dedx.add(((PndTpcSPHit*)hits.at(i+1))->amp(),dist);
+	  if(backwards) {
+		dist*=-1;
+		unsorted=true;
+	  }
+	  
+	  _distHist->Fill(dist);
+
+	  theRep->setState(statePred);
+	  theRep->setCov(covPred);
+	  theRep->setReferencePlane(pl);
+
+	}
+	_dirHist->Fill(unsorted);
+	
+	int size = _dEdxOutArray->GetEntriesFast();
+	new((*_dEdxOutArray)[size]) PndTpcdEdx(dedx);
     return;
   }
 }
@@ -153,7 +212,7 @@ PndTpcdEdxTask::Exec(Option_t* opt)
 
 void 
 PndTpcdEdxTask::WriteHistograms(const TString& filename){
-  TFile* file = new TFile(filename,"UPDATE");
+  TFile* file = new TFile(filename,"RECREATE");
   file->mkdir("DEDX");
   file->cd("DEDX");
 

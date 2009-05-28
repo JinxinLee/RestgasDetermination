@@ -63,6 +63,7 @@ PndTpcTFSInfo.cxx
 PndTpcSPHit.cxx	
 MatrixChi2.cxx
 PndTpcdEdxTask.cxx
+PndTpcdEdx.cxx
 )
 
 if(RULE_CHECKER_FOUND)

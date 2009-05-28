@@ -3,19 +3,19 @@
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 1;
-
+gSystem->Load("libGeane");
 
   // Input file (RAW events)
   TString inDir=gSystem->Getenv("VMCWORKDIR");
-  TString digiDir=inDir+"/DATA/dEdx/";
+  inDir=inDir+"/../workdir/";
   
-  TString jobname="dEdx";
-  TString inFile=digiDir+jobname;
+  TString jobname="dEdxKaonMono";
+  TString inFile=inDir+jobname;
   
   inFile+=".raw.root";
   
-  TString mcFile=inDir+jobname;
-  mcFile+=".mc.root";
+  TString mcFile=inFile;
+mcFile.ReplaceAll("raw.root","mc.root");
   
   
   TString outFile = inFile;
@@ -136,8 +136,8 @@
   fRun->AddTask(fitstat);
 
   
-  PndTpcRecoDEdxTask* dEdx=new PndTpcRecoDEdxTask();
-  dEdx->SetPersistence();
+//PndTpcRecoDEdxTask* dEdx=new PndTpcRecoDEdxTask();
+// dEdx->SetPersistence();
 //fRun->AddTask(dEdx);
 
 
@@ -195,7 +195,7 @@ V0Selector* V0Sel2 = new V0Selector();
 //  tpcSPR->WriteHistograms("RecoHistos.root");
 //kalman->WriteHistograms("RecoHistos.root");
 //fitstat->WriteHistograms("RecoHistos.root");
-//dEdx->WriteHistograms("RecoHistos.root");
+dEdx->WriteHistograms("RecoHistos.root");
 
   DebugLogger::Instance()->WriteFiles();
 
