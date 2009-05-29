@@ -68,7 +68,7 @@ PndTpcLaserTask::Init()
   
   if(_primArray==0)
     {
-      Error("PndTpcDriftTask::Init","PrimaryElectron-array not found!");
+      Error("PndTpcLaserTask::Init","PrimaryElectron-array not found!");
       return kERROR;
     }
 
