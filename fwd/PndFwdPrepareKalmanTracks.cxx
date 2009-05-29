@@ -31,6 +31,7 @@
 
 // ROOT Class Headers --------
 #include "TClonesArray.h"
+#include "TDatabasePDG.h"
 
 // C/C++ Headers ----------------------
 #include <algorithm>
@@ -39,7 +40,7 @@
 //using namespace::std;
 
 PndFwdPrepareKalmanTracks::PndFwdPrepareKalmanTracks()
-  : FairTask("Translation of PndFwdTracks to Tracks"), fPersistence(kFALSE), fUseGeane(kFALSE), fUseMC(kFALSE), fPDG(11), fMinNofGemHits(6), fMinNofDchHits(30)
+  : FairTask("Translation of PndFwdTracks to Tracks"), fPersistence(kFALSE), fUseGeane(kFALSE), fUseMC(kFALSE), fPDG(11), fMinNofGemHits(6), fMinNofDchHits(30), fUseGem(kTRUE), fUseDch(kTRUE)
 {
 }
 
@@ -134,6 +135,10 @@ PndFwdPrepareKalmanTracks::Exec(Option_t* opt)
     std::cout<<"      PndFwdPrepareKalmanTracks::Exec                      "<<std::endl;
     std::cout<<"-------------------------------------------------------"<<std::endl;
   }
+  if(fUseGem || fUseDch ==kFALSE){
+    std::cout<<"You want to run reconstruction with no detector??"<<std::endl;
+    return;
+  }
   if(fTrackArray==0) Fatal("PndFwdPrepareKalmanTracks::Exec)","No TrackArray");
   fTrackArray->Delete();
   
@@ -150,7 +155,7 @@ PndFwdPrepareKalmanTracks::Exec(Option_t* opt)
     if(fVerbose>0)
       std::cout<<"PndFwdPrepareKalmanTracks::Exec(): I found here "<<nofGemHits<<" hits \n";
     
-    Int_t gemMCTrackID = (Int_t)gemtrack->GetParamLast()->GetZ()-1e6;
+    Int_t gemMCTrackID = (Int_t)(gemtrack->GetParamLast()->GetZ()-1e6);
     std::cout << "!!!!!!!! THIS TRACK HAD MC ID " << gemMCTrackID << " !!!!!!" << std::endl;
     
     for (Int_t idchtr=0; idchtr<fDchTrackMatchArray->GetEntries(); idchtr++){
@@ -163,13 +168,17 @@ PndFwdPrepareKalmanTracks::Exec(Option_t* opt)
       Int_t nofDchCylHits = dchtrack->GetNofDchCylinderHits();
 
       TrackCand* cand = new TrackCand();
-      for(Int_t ihit=0; ihit<nofGemHits; ihit++){
-	Int_t globalHit = gemtrack->GetGemHitIndex(ihit);
-	//cand->addHit(kGEM,globalHit);
+      if(fUseGem){
+	for(Int_t ihit=0; ihit<nofGemHits; ihit++){
+	  Int_t globalHit = gemtrack->GetGemHitIndex(ihit);
+	  cand->addHit(kGEM,globalHit);
+	}
       }
-      for(Int_t ihit=0; ihit<nofDchCylHits; ihit++){
-	Int_t globalCHitNu = dchtrack->GetDchCylinderHitIndex(ihit);
-	cand->addHit(kDCH,globalCHitNu);
+      if(fUseDch){
+	for(Int_t ihit=0; ihit<nofDchCylHits; ihit++){
+	  Int_t globalCHitNu = dchtrack->GetDchCylinderHitIndex(ihit);
+	  cand->addHit(kDCH,globalCHitNu);
+	}
       }
  
       for(Int_t ihit=0; ihit<cand->getNHits(); ihit++){
@@ -184,25 +193,60 @@ PndFwdPrepareKalmanTracks::Exec(Option_t* opt)
       Int_t pdg;
       Double_t q;
       TVector3 pos, mom;
+      FairMCPoint* firstPoint;
     
-      FairTrackParam* param = gemtrack->GetParamFirst();
-      param->Position(pos);
-      param->Momentum(mom);
-      q = (param->GetQp()==0) ? 0 : param->GetQp()/TMath::Abs(param->GetQp());
-      pdg = (Int_t)gemtrack->GetParamLast()->GetQp()-1e6;
-    
-      std::cout<<"positions and momenta... "<<std::endl;
+     //  FairTrackParam* param = gemtrack->GetParamFirst();
+//       param->Position(pos);
+//       param->Momentum(mom);
+//       q = (param->GetQp()==0) ? 0 : param->GetQp()/TMath::Abs(param->GetQp());
+//       pdg = (Int_t)(gemtrack->GetParamLast()->GetQp()-1e6);
+
+      unsigned int whichDet, whichHit;
+      cand->getHit(0, whichDet, whichHit);
+      if(whichDet==kGEM){
+	std::cout<<"First Hit is from GEMS so I init track from first GEM point"<<std::endl;
+	for(Int_t idx=0; idx<fGemPointArray->GetEntries(); idx++){
+	  firstPoint = (FairMCPoint*)fGemPointArray->At(0);
+	  if(firstPoint->GetTrackID()==gemMCTrackID)
+	    break;
+	}
+      }
+      else if(whichDet==kDCH){
+	std::cout<<"First Hit is from DCHs so I init track from first DCH point"<<std::endl;
+	for(Int_t idx=0; idx<fDchPointArray->GetEntries(); idx++){
+	  firstPoint = (FairMCPoint*)fDchPointArray->At(0);
+	  if(firstPoint->GetTrackID()==gemMCTrackID)
+	    break;
+	}
+      }
+      else{
+	std::cout<<"WHICH KIND OF DETECTOR IS IN THIS TRACK THEN? "<<
+	  whichDet<<std::endl;
+      }
+
+      if(!firstPoint){
+	std::cout<<"MCPoint for this track not found at all"<<std::endl;
+	break;
+      }
+      firstPoint->Position(pos);
+      firstPoint->Momentum(mom);
+      PndMCTrack* mctrack = (PndMCTrack*)fMcArray->At(gemMCTrackID);
+      pdg = mctrack->GetPdgCode();
+      q   = TDatabasePDG::Instance()->GetParticle(pdg)->Charge()/3.; 
+      
+      std::cout<<"positions and momenta initialised as follows: ... "<<std::endl;
       std::cout<<"position: " << std::flush;
       pos.Print();
       std::cout<<"momentum: " << std::flush;
       mom.Print();
       if(mom.Mag()>1e3){
-	Error("PndFwdPrepareKalmanTracks::Exec","Track was incorrectly prefitted - abandoned in Kalman!");
+	Error("PndFwdPrepareKalmanTracks::Exec",
+	      "Track was incorrectly prefitted - abandoned in Kalman!");
 	continue;
       }
-      Double_t startPosAccuracy = 0.1;
+      Double_t startPosAccuracy = 0.01;
       TVector3 poserr(startPosAccuracy,startPosAccuracy,startPosAccuracy);
-      TVector3 startMomAccuracy(0.1,0.1,0.1);
+      TVector3 startMomAccuracy(0.001,0.001,0.001);
       TVector3 momerr(mom.X()*startMomAccuracy.X(),
 		      mom.Y()*startMomAccuracy.Y(),
 		      mom.Z()*startMomAccuracy.Z());    
@@ -221,7 +265,7 @@ PndFwdPrepareKalmanTracks::Exec(Option_t* opt)
       AbsTrackRep* rep=0;
       if(fUseGeane){
 	DetPlane pl(pos,u,v);
-	GeaneTrackRep *grep=new GeaneTrackRep(fGeanePro,pl,mom,poserr,momerr,q,pdg);
+	GeaneTrackRep *grep=new GeaneTrackRep(fGeanePro,pl,mom,100.*poserr,100.*momerr,q,pdg);
 	grep->setPropDir(1); // propagate in flight direction
 	//  if(fVerbose>0){
 	std::cout<<" ^^^^^^^^^^^^^I prepare the following GeaneTrackRep:"<<std::endl;

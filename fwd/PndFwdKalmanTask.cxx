@@ -180,6 +180,7 @@ PndFwdKalmanTask::Exec(Option_t* opt)
 
   // Fitting ---------------- can go to another task!
   Kalman fitter;
+  fitter.setLazy(1);
   fitter.setNumIterations(fNumIt);
   //   fitter.setVerbose(fVerbose);
 

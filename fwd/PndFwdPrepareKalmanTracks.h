@@ -46,6 +46,9 @@ public:
   /** public method UseMC(Bool_t f) to switch on init from mc or to 0 if not needed**/
   void UseMC(Bool_t f=kTRUE){fUseMC=f;}
 
+  /** public method UseGemDchMC(Bool_t f, Bool_t h) to in/exclude one of the detectors from reco**/
+  void UseGemDch(Bool_t f, Bool_t h){fUseGem=f; fUseDch=h;}
+
   /** public method SetMinNuOfHits(Int_t nu) sets lower limit 
       for number of hits in a processable track **/
   void SetMinNofGemHits(Int_t nu=6){fMinNofGemHits=nu;}
@@ -82,6 +85,8 @@ private:
   Bool_t fPersistence;    ///< persistance flag
   Bool_t fUseGeane;       ///< flag switching on/off use of Geane
   Bool_t fUseMC;          ///< flag switching on/off initialisation of track params from MC
+  Bool_t fUseGem;          ///< flag switching on/off GEMs from reco
+  Bool_t fUseDch;          ///< flag switching on/off DCHs from reco
   Int_t fPDG;  ///< hipothesis of PDG value 
     //It  (shouldn't be here)!!!!
 
