@@ -10,7 +10,7 @@
 //      Software developed for the PANDA Detector at FAIR.
 //
 // Author List:
-//      Sebastian Neubert    TUM            (original author)
+//      Felix Boehmer, Christian Hoeppner     TUM         
 //
 //
 //-----------------------------------------------------------
@@ -40,7 +40,7 @@
 #include "TH1D.h"
 #include "TFile.h"
 #include "TGeoTrack.h"
-#include "TGeoManager.h"
+
 #include "DetPlane.h"
 #include "PndTpcdEdx.h"
 
@@ -124,15 +124,18 @@ PndTpcdEdxTask::Exec(Option_t* opt)
 
     AbsTrackRep* absrep = trk->getCardinalRep();
     
-
+    //check for GEANE trackrep
     if(dynamic_cast<GeaneTrackRep*>(absrep) == NULL) {
       std::cerr<<"WRONG trackrep! Need GEANE to process ... skipping track"<<std::endl;
       return;
     }
 
+    //temporary fix
     AbsTrackRep* theRep = absrep->clone();
-	((GeaneTrackRep*)theRep)->setPropDir(0);
-	
+    ((GeaneTrackRep*)theRep)->setPropDir(0);
+
+
+    
     std::vector<AbsRecoHit*> hits = trk->getHits();
     std::cout<<"\nstd::vector<AbsRecoHit*> hits has "<< hits.size()<<" entries"<<std::endl;
     
@@ -142,69 +145,71 @@ PndTpcdEdxTask::Exec(Option_t* opt)
       PndTpcSPHit* the_sphit = dynamic_cast<PndTpcSPHit*>(*it);
       //erase non-TPC hits
       if(the_sphit==NULL)
-		hits.erase(it);
+	hits.erase(it);
     }
 	   
-	PndTpcdEdx dedx;
+    PndTpcdEdx dedx;
+    
+    bool unsorted =false;
+    
+    for(int i=1;i<hits.size()-1;++i){
+      TVector3 pos,mom;
+      
+      try{
+	pos = theRep->getPos();
+	mom = theRep->getMom();
+      }
+      catch(FitterException& e){
+	e.what();
+	return;
+	//TODO: exception handling
+      }
+      
+      
+      TMatrixT<double> statePred(5,1);
+      TMatrixT<double> covPred(5,5);
+      
+      bool backwards;
+      double dist;
+      DetPlane pl;
+      try{
+	std::cout << "########## " << i << " of " << hits.size() << std::endl;
+	pos.Print();
+	hits.at(i+1)->getRawHitCoord().Print();
+	pl = hits.at(i+1)->getDetPlane(theRep);
+	pl.Print();
+	TVector3 dir=pl.dist(pos);
+	backwards = (dir*mom)<0;
+	//std::cout << "########## " << backwards << std::endl;
+	dist = theRep->extrapolate(pl,statePred,covPred);
+      }
+      catch(FitterException& e){
+	std::cerr << e.what() << std::endl;
+	return;
 
-	bool unsorted =false;
-	
-	for(int i=1;i<hits.size()-1;++i){
-	  	  
-	  TVector3 pos,mom;
-	  
-	  try{
-		pos = theRep->getPos();
-		mom = theRep->getMom();
-	  }
-	  catch(FitterException& e){
-		e.what();
-		return;
-		//
+	//TODO: exception handling
+      }
+      dedx.add(((PndTpcSPHit*)hits.at(i+1))->amp(),dist);
+      
+      //check for wrong sorting
+      if(backwards) {
+	dist*=-1;
+	unsorted=true;
+      }
 
-	  }
-
-
-	  TMatrixT<double> statePred(5,1);
-	  TMatrixT<double> covPred(5,5);
-
-	  bool backwards;
-	  double dist;
-	  DetPlane pl;
-	  try{
-		std::cout << "########## " << i << " of " << hits.size() << std::endl;
-		pos.Print();
-		hits.at(i+1)->getRawHitCoord().Print();
-		pl = hits.at(i+1)->getDetPlane(theRep);
-		pl.Print();
-		TVector3 dir=pl.dist(pos);
-		backwards = (dir*mom)<0;
-		std::cout << "########## " << backwards << std::endl;
-		dist = theRep->extrapolate(pl,statePred,covPred);
-	  }
-	  catch(FitterException& e){
-		std::cerr << e.what() << std::endl;
-		return;
-
-		//
-	  }
-	  dedx.add(((PndTpcSPHit*)hits.at(i+1))->amp(),dist);
-	  if(backwards) {
-		dist*=-1;
-		unsorted=true;
-	  }
-	  
-	  _distHist->Fill(dist);
-
-	  theRep->setState(statePred);
-	  theRep->setCov(covPred);
-	  theRep->setReferencePlane(pl);
-
-	}
-	_dirHist->Fill(unsorted);
-	
-	int size = _dEdxOutArray->GetEntriesFast();
-	new((*_dEdxOutArray)[size]) PndTpcdEdx(dedx);
+      //TODO: handle wrong sorting
+      
+      _distHist->Fill(dist);
+      
+      theRep->setState(statePred);
+      theRep->setCov(covPred);
+      theRep->setReferencePlane(pl);
+      
+    }
+    _dirHist->Fill(unsorted);
+    
+    int size = _dEdxOutArray->GetEntriesFast();
+    new((*_dEdxOutArray)[size]) PndTpcdEdx(dedx);
     return;
   }
 }
