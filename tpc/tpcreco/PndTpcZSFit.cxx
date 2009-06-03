@@ -67,12 +67,6 @@ PndTpcZSFit::extrapolate(const DetPlane& plane,
   return 0;
 }
 
-void 
-PndTpcZSFit::stepalong(double h)
-{
-  throw;
-}
-
 TVector3 
 PndTpcZSFit::getPos(const DetPlane& pl)
 {

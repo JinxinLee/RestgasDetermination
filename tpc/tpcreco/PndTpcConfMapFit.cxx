@@ -68,11 +68,6 @@ PndTpcConfMapFit::extrapolate(const DetPlane& plane,
   return 0;
 }
 
-void 
-PndTpcConfMapFit::stepalong(double h){
-  throw;
-}
-
 
 TVector3 
 PndTpcConfMapFit::getPos(const DetPlane& pl)

@@ -55,8 +55,6 @@ public:
 
 
 
-  virtual void stepalong(double h);
-
   virtual TVector3 getPos(const DetPlane& pl);
   virtual TVector3 getMom(const DetPlane& pl);
   void getPosMom(const DetPlane& pl,TVector3& pos,TVector3& mom){}

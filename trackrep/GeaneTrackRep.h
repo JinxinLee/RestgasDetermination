@@ -71,7 +71,6 @@ public:
   virtual double extrapolate(const DetPlane&, 
 			   TMatrixT<double>& statePred,
 			   TMatrixT<double>& covPred);
-  virtual void stepalong(double h){}
 
   //these two are overwritting ABsTrackRep methods
   void extrapolateToPoca(const TVector3& pos,
