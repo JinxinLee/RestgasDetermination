@@ -98,10 +98,17 @@ class PndLVQTrain{
   { m_initConst = initConst; m_ethaZero = etZ; 
     m_ethaFinal = etF; m_NumSweep = Nswp;};
   
+  /**
+   * Selects the normalization scheme and normalizes the input data
+   * set. If the value is not set, then the input dataset is used
+   * without any modification.
+   *
+   *@param type Which normalization scheme to use. Possible values
+   *            are: VARX, MINMAX, MEDIAN
+   */  
   void SelNormMethod(const NormType type)
   {
     m_Ntype = type;
-    //=== Normalize dataSet
     NormalizeDataSet(m_Ntype);
   };
   
@@ -121,13 +128,30 @@ class PndLVQTrain{
 
   // ============= Private functions and variables ===========
  private:
+
+  /**
+   * Read input event data.
+   *@param InPut Input file name.
+   */
   void readInput(const char *InPut);
+
+  /**
+   * Normalize event dataset using one of available methods.
+   *@param t Normalization type.
+   */
   void NormalizeDataSet(const NormType t);
 
   /**
    * Initialize LVQ prototypes (Code books).
+   *@param numProto number of code books to use.
    */
   void InitProtoTypes(int numProto);
+
+  /**
+   *Initialize LVQ prototypes (Code books) using class conditional
+   *means vectors.
+   *@param numProto number of code books to use.
+   */
   void InitProtoTypesWithClsMean(const int numProto);
   
   /**
@@ -135,6 +159,9 @@ class PndLVQTrain{
    */
   void cleanProtoList();
 
+  /**
+   * Binary Minimum function.
+   */
   template <typename T>
     inline const T& minFunct ( const T& a, const T& b ) const{
     // or: return comp(a,b)?a:b; for the comp version

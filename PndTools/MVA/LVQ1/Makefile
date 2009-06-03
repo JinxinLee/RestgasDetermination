@@ -3,15 +3,14 @@
 #
 # Setting the linker and compiler flags and options
 
-MAKEFLAGS  =  -w #-k -s
+MAKEFLAGS  =  #-w -k -s
 
 # FLAGSMACHINE=-march=athlon64 -mfpmath=sse -msse2 -m64
 FLAGSMACHINE = -march=core2 -mfpmath=sse -mtune=core2  -msse3 -m64 -m3dnow
 
 CXX       =  g++
-# CCFLAGS   = -Wall -W -g -O0
-# CCFLAGS   = -Wall -W -O1 -fopenmp -g -pg #if profiling
-CCFLAGS   = -Wall -W -Os -O3 -ffast-math ${FLAGSMACHINE}
+# CCFLAGS   = -Wall -W -O1 -g -pg -fopenmp #if profiling
+CCFLAGS   = -Wall -W -O3 -ffast-math ${FLAGSMACHINE}
 CCFLAGS  += -fomit-frame-pointer -funsafe-math-optimizations -fopenmp
 CCFLAGS  += -funroll-loops -fvariable-expansion-in-unroller
 

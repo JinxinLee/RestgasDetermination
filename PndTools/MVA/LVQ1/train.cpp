@@ -16,60 +16,70 @@ int main(int argc, char** argv)
   std::vector<std::string> clas;
   std::vector<std::string> nam;
 
-  if(argc < 4){
+  if(argc < 5){
     std::cerr << "\t<ERROR> Usage\n"
-              <<"\t./train <InputTrainEventFeatureFile> <NumProtoTypes> <OutFile>"
+              <<"\t./train <algNum> <NumProtoTypes> <InputTrainEventFeatureFile> <OutFile>"
               << std::endl;
     return 1;
   }
   
-  std::string ip = argv[1];// InputFile
-  const char* InputFile = ip.c_str();
+  int algNum = atoi(argv[1]);
+  std::cout << "Using algoritme " << algNum << std::endl;
 
   int numProto = 0;
   std::string numstr = argv[2];// Number of proto's
   std::istringstream buff(numstr);
   buff >> numProto;
 
-  std::string ot   = argv[3];// OutPutFile
-  const char* OutFile = ot.c_str();
+  std::string ip = argv[3];// InputFile
+  const char* InputFile = ip.c_str();
+
+  std::string ot      = argv[4];// OutPutFile
+
 
   //Class names
+  /*
+  clas.push_back("electron"); clas.push_back("pion");
+  clas.push_back("kaon");  clas.push_back("muon");
+  clas.push_back("proton"); //clas.push_back("gamma");
+  */
   clas.push_back("Elect"); clas.push_back("Pion");
   clas.push_back("Kaon");  clas.push_back("Muon");
-  clas.push_back("Proton"); //clas.push_back("Gamma");
-  
+  clas.push_back("Proton"); //clas.push_back("gamma");
+
   //Variable names 
   nam.push_back("p");  nam.push_back("tof");  nam.push_back("emc");
   nam.push_back("stt");  nam.push_back("mvd");  nam.push_back("thetaC");
   
-  PndLVQTrain tr (InputFile, clas, nam);
-  float initC  = 0.3;
+  PndLVQTrain tr(InputFile, clas, nam);
+  float initC  = 0.9;
   float ethaZ  = 0.1;
   float ethaF  = 0.00001;
-  int numSweep = 1;
+  int numSweep = 500;
 
   tr.SetLearnPrameters(initC, ethaZ, ethaF, numSweep);
-  
-  NormType ty = MINMAX;
-  tr.SelNormMethod(ty);
 
-  tr.Train  (numProto, OutFile);
-  //tr.TrainSec(numProto, OutFile);
-  
-  //tr.Train21(numProto, OutFile);
-  //tr.Train21Sec(numProto, OutFile);
+  //NormType ty = MINMAX;
+  //tr.SelNormMethod(ty);
+
+  std::string OutFile = ot;
+
+  switch(algNum)
+  {
+  case 1:
+    tr.Train(numProto, OutFile.c_str());
+    break;
+  case 2:
+    tr.TrainSec(numProto, OutFile.c_str());
+    break;
+  case 3:
+      tr.Train21(numProto, OutFile.c_str());
+      break;
+  case 4:
+      tr.Train21Sec(numProto, OutFile.c_str());
+    break;
+  default:
+    std::cerr << "No algorithm selected" << std::endl;
+  }
   return 0;
 }
-/*
-  std::string bla = "haphap.root";
-  std::cout <<" str is " << bla << std::endl;
-  std::string::size_type loc = bla.find( ".root", 0 );
-  if( loc != std::string::npos ){
-  std::cout << "Found Omega at " << loc << std::endl;
-  }else{
-  std::cout << "Didn't find Omega" << std::endl;
-  }
-  bla.erase(loc, bla.size());
-  std::cout <<" str is " << bla << std::endl;
-*/
