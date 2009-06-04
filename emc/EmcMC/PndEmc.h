@@ -115,6 +115,8 @@ class PndEmc : public FairDetector
   // recursively add volumes to the geoManager
   void ExpandNode(TGeoVolume *fVol, TGeoVolume *Cave);
 
+  // general function for chosing the combination of EMC geometry
+  virtual void  SetGeometryVersion(const Int_t GeoNumber);
   // 
   virtual void  SetGeometryFileNameDouble(TString fname, TString fname2, Int_t fwbwchoice=0, TString geoVer="0");
   //
@@ -148,6 +150,8 @@ class PndEmc : public FairDetector
   Bool_t  fwendcap;         //!  Flag for the new FwEndCap geometry
   Bool_t  bwendcap;         //!  Flag for the new BwEndCap geometry
 
+  Int_t MapperVersion;
+  Int_t geomVersion;
   // reset all parameters   
   void ResetParameters();
 

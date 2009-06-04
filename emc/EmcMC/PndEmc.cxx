@@ -13,6 +13,7 @@
 #include "PndEmcPoint.h"
 #include "PndEmcReader.h"
 #include "PndEmcStructure.h"
+#include "PndEmcGeoPar.h"
 
 #include "FairGeoInterface.h"
 #include "FairGeoLoader.h"
@@ -444,6 +445,93 @@ void PndEmc::CopyClones(TClonesArray* cl1, TClonesArray* cl2, Int_t offset ) {
   //  cout << " -I- PndEmc: " << cl2->GetEntriesFast() << " merged entries."
   //   << endl;
 }
+// general function for chosing the combination of EMC geometry
+void PndEmc::SetGeometryVersion(const Int_t GeoNumber) {
+
+
+  MapperVersion =6;
+
+  switch(GeoNumber){
+
+  case 1:
+    SetGeometryFileNameDouble("emc_module1235.dat","emc_module4_StraightGeo26.root",1);
+    MapperVersion =7;
+    break;
+
+  case 2:
+    SetGeometryFileNameDouble("emc_module1235.dat","emc_module4_FwEndCapGeo.root",1);
+    MapperVersion =7;
+    break;
+
+  case 3:
+    SetGeometryFileNameDouble("emc_module1235.dat","emc_module4_StraightGeo24.4.root",1);
+    MapperVersion =7;
+    break;
+
+  case 4:
+    SetGeometryFileName("emc_module1245.dat");
+    MapperVersion =1;
+    break;
+
+  case 5:
+    SetGeometryFileNameTriple("emc_module125.dat","emc_module3new.root","emc_module4_StraightGeo26.root");
+    break;
+
+  case 6:
+    SetGeometryFileName("emc_module3.dat");
+    MapperVersion =1;
+    break;
+
+  case 7:
+    SetGeometryFileName("emc_module4.dat");
+    MapperVersion =1;
+    break;
+
+  case 8:
+    SetGeometryFileName("emc_module3new.root");
+    break;
+
+  case 9:
+    SetGeometryFileName("emc_module4_StraightGeo26.root");
+    break;
+
+  case 10:
+    SetGeometryFileName("emc_module4_StraightGeo26_Al.root");
+    break;
+
+  case 11:
+    SetGeometryFileName("emc_module4_StraightGeo24.4.root");
+    break;
+
+  case 12:
+    SetGeometryFileName("emc_module4_StraightGeo24.4_Al.root");
+    break;
+
+  case 13:
+    SetGeometryFileName("emc_module4_FwEndCapGeo.root");
+    break;
+
+  case 14:
+    SetGeometryFileName("emc_module4_FwEndCapGeo_Al.root");
+    break;
+
+  default:
+    SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root");
+    MapperVersion =2;
+    break;
+  }
+
+  // store geo parameter
+  FairRun *fRun = FairRun::Instance();
+  FairRuntimeDb *rtdb= fRun->GetRuntimeDb();
+  PndEmcGeoPar* par=(PndEmcGeoPar*)(rtdb->getContainer("PndEmcGeoPar"));
+
+  cout <<"MapperVersion == " << MapperVersion<< endl;
+
+  par->SetMapperVersion(MapperVersion);
+  par->setChanged();
+  par->setInputVersion(fRun->GetRunId(),1);
+}
 
 void PndEmc::SetGeometryFileNameDouble(TString fname, TString fname2, Int_t fwbwchoice, TString geoVer)
 {
@@ -506,7 +594,7 @@ void PndEmc::ConstructGeometry() {
       std::cout<< " ====== EMC::  ConstructROOTGeometry() m3 === " <<std::endl;
       std::cout<< " ============================================ " <<std::endl;
       ConstructRootGeometry();
-    } else if(fileName.EndsWith("4_FwEndCapGeo.root") || fileName.EndsWith("4_StraightGeo26.root") || fgeoName.EndsWith("4_StraightGeo26_Al.root")) {
+    } else if(fileName.EndsWith("4_FwEndCapGeo.root") || fileName.EndsWith("4_StraightGeo26.root") || fgeoName.EndsWith("4_StraightGeo26_Al.root") || fileName.EndsWith("4_StraightGeo24.4.root") || fgeoName.EndsWith("4_StraightGeo24.4_Al.root")) {
       std::cout<< "                                              " <<std::endl;
       std::cout<< " ====== EMC::  ConstructROOTGeometry() m4 === " <<std::endl;
       std::cout<< " ============================================ " <<std::endl;
@@ -529,7 +617,7 @@ void PndEmc::ConstructGeometry() {
       std::cout<< " ============================================= " <<std::endl;
       ConstructRootGeometry();
     }
-    if(fgeoName3.EndsWith("4_FwEndCapGeo.root") || fgeoName3.EndsWith("4_StraightGeo26.root") || fgeoName3.EndsWith("4_StraightGeo26_Al.root")) {
+    if(fgeoName3.EndsWith("4_FwEndCapGeo.root") || fgeoName3.EndsWith("4_StraightGeo26.root") || fgeoName3.EndsWith("4_StraightGeo26_Al.root") || fileName.EndsWith("4_StraightGeo24.4.root") || fgeoName.EndsWith("4_StraightGeo24.4_Al.root")) {
       std::cout<< "                                               " <<std::endl;
       std::cout<< " ====== EMC::  ConstructRootGeometry() m4a === " <<std::endl;
       std::cout<< " ============================================= " <<std::endl;
