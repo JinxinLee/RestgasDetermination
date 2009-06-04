@@ -149,7 +149,9 @@ void PndTpcLheTrackFitter::Info4Fit(PndTpcLheTrack *track) {
 
   TObjArray *rhits = (TObjArray* )track->GetRHits();
   Int_t nHits = rhits->GetEntriesFast();
-  
+  map<Int_t, Int_t> fMCTrackList; // MC TrackId, multiplicity
+  map<Int_t, Int_t>::iterator iter;
+
   // alpha = .2998 * magfield / 100 <- for obtain moment in GeV/c
   Double_t alpha = .2998 * .02 ;
   Double_t Q = double(TMath::Sign(1, track->GetCharge()));
@@ -207,8 +209,30 @@ void PndTpcLheTrackFitter::Info4Fit(PndTpcLheTrack *track) {
 
     if (fVerbose) cout <<  " Fitted x, y, z: " << x << " " << y << " " << z
 		       << " px, py, pz: " << px << " " << py << " " << pz << endl;
-  }                    
+    
+    fMCTrackList[hit->GetTrackID()]++;
+  }  
+
+  multimap<Int_t, Int_t> fMCRevertedList; // multiplicity, MC TrackId
+  Int_t count = 0;
+  for (iter=fMCTrackList.begin(); iter!=fMCTrackList.end(); ++iter)
+    {
+      fMCRevertedList.insert(pair<Int_t, Int_t>(-(*iter).second, (*iter).first));
+      count++;
+    }
   
+  TArrayI trackID(count);
+  TArrayI multID(count);
+  
+  count = 0;
+  for (iter=fMCRevertedList.begin(); iter!=fMCRevertedList.end(); ++iter)
+    {
+      trackID[count] = (*iter).second;
+      multID[count] = (*iter).first;
+      count++;
+    }
+  
+   track->SetTrackID(trackID, multID);
 }
 
 //_____________________________________________________________________________

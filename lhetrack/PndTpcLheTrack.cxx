@@ -144,30 +144,6 @@ TrackCand* PndTpcLheTrack::GetTrackCand()
     {
       PndLheHit* lhit = (PndLheHit*)lheList->At(fPointList[hit_dist[ii]]);
       if (fVerbose) cout << "after:\t" << lhit->GetX() << "\t" << lhit->GetY() << "\t" <<lhit->GetZ() << endl;
-      /*
-      switch (lhit->GetDetectorID())
-	{
-	case kTpcCluster:
-	  detId = 2;
-	  break;
-
-	case kSttHelixHit:
-	  detId = 5;
-	  break;
-
-	case kMVDHitsStrip:
-	  detId = 4;
-	  break;
-	  
-	case kMVDHitsPixel:
-	  detId = 3;
-	  break;
-	  
-	default:
-	  cout << "-E- PndTpcLheTrack::GetTrackCand: Wrong Detector ID" << endl;
-	  detId = 0;
-	}
-      */
       trackCand->addHit(lhit->GetDetectorID(), lhit->GetRefIndex());
       if (GetRadius()>0.)  
 	{
@@ -226,6 +202,10 @@ void PndTpcLheTrack ::SetDefaults() {
   fTpcHits = 0;
   fFitTrackIndex = -1;
   fGood = kTRUE;
+
+  fCorrTrackIds.Set(0);
+  fMultTrackIds.Set(0);
+
 }
 
 //______________________________________________________________
