@@ -25,6 +25,9 @@
 #include "SPhit.h"
 #include "StripHit.h"
 
+#include"PndAdapters.h"
+#include"PndTrack.h"
+
 using namespace std;
 
 
@@ -56,8 +59,8 @@ void myhandler(int sig){
 // -----   Public method Init   --------------------------------------------
 InitStatus SPtestTask::Init() {
   signal(8,myhandler);
-  signal(10,myhandler);
-  signal(11,myhandler);
+
+  //signal(11,myhandler);
   // Get RootManager
   FairRootManager* ioman = FairRootManager::Instance();
   if ( ! ioman ) {
@@ -193,6 +196,7 @@ void SPtestTask::Exec(Option_t* opt) {
 						 start_pl,StartMom,
 						 StartPosErr,StartMomErr,
 						 fCharge,PDGCode);
+
 	
 	/*
 	  rep->getState().Print();
@@ -307,7 +311,6 @@ void SPtestTask::Exec(Option_t* opt) {
 	  tr->addHit(aHit,3,i);
 	}
 	
-	
 
 	//tr->addHitVector(hits);
 	Kalman k;
@@ -319,6 +322,9 @@ void SPtestTask::Exec(Option_t* opt) {
 	  std::cerr << "counter some int exception caught: " << e << std::endl;
 	  continue;
 	}
+	PndTrack* pndTrk = GenfitTrack2PndTrack(tr);
+	pndTrk->Print();
+	throw;
 	//std::cout << __FILE__ << __LINE__ << std::endl;
 	AbsTrackRep* result =   tr->getCardinalRep();
 	std::cout << std::endl << std::endl << std::endl<<"resultPlane" << std::endl;

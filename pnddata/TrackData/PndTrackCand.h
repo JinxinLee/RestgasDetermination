@@ -21,6 +21,7 @@
 // Root Class Headers ----------------
 #include "TObject.h"
 
+#include <iostream>
 #include <vector>
 #include <map>
 
@@ -42,6 +43,11 @@ public :
 	Int_t GetHitId()const {return fHitId;}
 	Int_t GetDetId()const {return fDetId;}
 	Double_t GetRho()const {return fRho;}
+
+	void Print(){
+	  std::cout << "hit " << fHitId << " | det " 
+		    << fDetId << " | rho " << fRho << std::endl;
+	}
 
 private :
 	Int_t fHitId;
@@ -82,6 +88,7 @@ public:
 
   void Reset();
 
+  void Print();
 
 private:
 

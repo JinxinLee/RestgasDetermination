@@ -76,3 +76,11 @@ bool operator== (const PndTrackCand& lhs, const PndTrackCand& rhs){
 		return true;
 	return false;
 }
+
+
+void PndTrackCand::Print(){
+  std::cout << "PndTrackCand::Print()" << std::endl;
+  for(unsigned int i=0;i<fHitId.size();++i){
+    fHitId.at(i).Print();
+  }
+}

@@ -292,9 +292,8 @@ TrackFitStatTask::Exec(Option_t* opt)
 	  p=track->getMom().Mag();
 	  //palt=1./fabs(track->getTrackRep(0)->getState()[4][0]);
 	  //pstart=1.0; 
-	  pstart=fabs(track->getTrackRep(0)->getStartState()[4][0]);
 	  q=track->getCharge();
-	
+	  pstart=0;
 	  std::cout<<"p="<<p<<"  q="<<q<<"  pstart="<<pstart<<std::endl;
 	}
 	if(GEANEREP){

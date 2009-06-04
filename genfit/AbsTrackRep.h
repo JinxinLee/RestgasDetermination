@@ -7,6 +7,7 @@
 
 #include<vector>
 #include<list>
+#include<iostream>
 
 #include "TMatrixT.h"
 #include "TVector3.h"
@@ -70,9 +71,14 @@ class AbsTrackRep : public TObject{
   //! The covariance matrix
   TMatrixT<double> cov;   
   
-  TMatrixT<double> startState; 
-  TMatrixT<double> startCov;
-  DetPlane startPlane;  
+
+  //!state, cov and plane for first and last point in fit
+  TMatrixT<double> firstState; 
+  TMatrixT<double> firstCov;
+  DetPlane firstPlane;  
+  TMatrixT<double> lastState; 
+  TMatrixT<double> lastCov;
+  DetPlane lastPlane;  
 
   // detector plane where the track parameters are given
   DetPlane         _refPlane;
@@ -195,14 +201,23 @@ class AbsTrackRep : public TObject{
     getPosMomCov(_refPlane,pos,mom,cov);
   }
 
-  inline TMatrixT<double> getStartState() const {
-    return startState;
+  inline TMatrixT<double> getFirstState() const {
+    return firstState;
   }
-  inline TMatrixT<double> getStartCov() const {
-    return startCov;
+  inline TMatrixT<double> getFirstCov() const {
+    return firstCov;
   }
-  inline DetPlane getStartPlane() const {
-    return startPlane;
+  inline DetPlane getFirstPlane() const {
+    return firstPlane;
+  }
+  inline TMatrixT<double> getLastState() const {
+    return lastState;
+  }
+  inline TMatrixT<double> getLastCov() const {
+    return lastCov;
+  }
+  inline DetPlane getLastPlane() const {
+    return lastPlane;
   }
   inline double getChiSqu() const {
     return chiSqu;
@@ -223,14 +238,23 @@ class AbsTrackRep : public TObject{
   inline void setCov(const TMatrixT<double>& aCov) {
     cov = aCov;
   }
-  inline void setStartState(const TMatrixT<double>& aState) {
-    startState = aState;
+  inline void setFirstState(const TMatrixT<double>& aState) {
+    firstState = aState;
   }
-  inline void setStartCov(const TMatrixT<double>& aCov) {
-    startCov = aCov;
+  inline void setFirstCov(const TMatrixT<double>& aCov) {
+    firstCov = aCov;
   }
-  inline void setStartPlane(const DetPlane& aPlane) {
-    startPlane = aPlane;;
+  inline void setFirstPlane(const DetPlane& aPlane) {
+    firstPlane = aPlane;;
+  }
+  inline void setLastState(const TMatrixT<double>& aState) {
+    lastState = aState;
+  }
+  inline void setLastCov(const TMatrixT<double>& aCov) {
+    lastCov = aCov;
+  }
+  inline void setLastPlane(const DetPlane& aPlane) {
+    lastPlane = aPlane;;
   }
 
   //! sets the referene plane
@@ -273,7 +297,7 @@ class AbsTrackRep : public TObject{
   void Abort(std::string method);
 
 
-  ClassDef(AbsTrackRep,2)
+  ClassDef(AbsTrackRep,3)
 
 };
 

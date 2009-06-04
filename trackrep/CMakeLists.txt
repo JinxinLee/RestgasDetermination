@@ -8,6 +8,7 @@ ${CLHEP_INCLUDE_DIR}
 ${CMAKE_SOURCE_DIR}/trackrep
 ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/trackbase
+${CMAKE_SOURCE_DIR}/pnddata/TrackData
 ${CMAKE_SOURCE_DIR}/geane
 ${GEANT3_INCLUDE_DIR}
 
@@ -25,6 +26,7 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(TRACKREP_SRCS 
 GeaneTrackRep.cxx
+PndAdapters.cxx
 )
 
 if(RULE_CHECKER_FOUND)

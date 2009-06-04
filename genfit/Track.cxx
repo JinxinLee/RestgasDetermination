@@ -98,7 +98,6 @@ Track::fillGeoTrack(TVirtualGeoTrack* geotrk,unsigned int repid) const
   AbsTrackRep* rep=getTrackRep(repid);
   unsigned int n=_cand.getNHits();
   rep->getState().Print();
-  rep->getStartState().Print();
   for(unsigned int i=0; i<n; ++i){// loop over hits
     DetPlane pl=hits[i]->getDetPlane(rep);
     TVector3 pos=rep->getPos(pl);

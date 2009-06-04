@@ -11,6 +11,7 @@ ${CMAKE_SOURCE_DIR}/geane
 ${CMAKE_SOURCE_DIR}/tpc
 ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/trackbase
+${CMAKE_SOURCE_DIR}/pnddata/TrackData
 ${CMAKE_SOURCE_DIR}/trackrep
 ${CMAKE_SOURCE_DIR}/genfit/benchmark
 ${CMAKE_SOURCE_DIR}/genfit/test

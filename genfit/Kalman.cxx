@@ -34,6 +34,30 @@ void Kalman::processTrack(Track* trk){
       trk->setNextHitToFit(trk->getNumHits()-1);
     }
     fittingPass(trk,direction);
+    
+    //save first and last plane,state&cov after the fitting pass
+    if(direction==1){//forward at last hit
+      int nreps=trk->getNumReps();
+      for(int i=0; i<nreps; ++i){
+	trk->getTrackRep(i)->
+	  setLastPlane( trk->getTrackRep(i)->getReferencePlane() );
+	trk->getTrackRep(i)->
+	  setLastState( trk->getTrackRep(i)->getState() );
+	trk->getTrackRep(i)->
+	  setLastCov( trk->getTrackRep(i)->getCov() );
+      }
+    }
+    else{//backward at first hit
+      int nreps=trk->getNumReps();
+      for(int i=0; i<nreps; ++i){
+	trk->getTrackRep(i)->
+	  setFirstPlane( trk->getTrackRep(i)->getReferencePlane() );
+	trk->getTrackRep(i)->
+	  setFirstState( trk->getTrackRep(i)->getState() );
+	trk->getTrackRep(i)->
+	  setFirstCov( trk->getTrackRep(i)->getCov() );
+      }
+    }
 
     //switch direction of fitting and also inside all the reps
     if(direction==1) direction=-1;

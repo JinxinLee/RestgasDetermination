@@ -216,6 +216,12 @@ public:
    */
   double getChiSqu() const {return getCardinalRep()->getChiSqu();}
 
+  /** @brief Get NDF
+   *
+   * Cardinal representation is used.
+   */
+  double getNDF() const {return getCardinalRep()->getNDF();}
+
   /** @brief Get chi2/NDF
    *
    * Cardinal representation is used.

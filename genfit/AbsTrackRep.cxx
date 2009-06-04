@@ -1,14 +1,16 @@
 #include "AbsTrackRep.h"
 #include <iostream>
 
-AbsTrackRep::AbsTrackRep() : dimension(5),state(5,1), cov(5,5), startState(5,1), startCov(5,5),chiSqu(0), statusFlag(0), inverted(false)
+AbsTrackRep::AbsTrackRep() : dimension(5),state(5,1), cov(5,5), chiSqu(0), statusFlag(0), inverted(false), firstState(5,1), firstCov(5,5), lastState(5,1), lastCov(5,5)
 {
-  
+  chiSqu=0.;
+  ndf=0;
 }
 
-AbsTrackRep::AbsTrackRep(int dim) : dimension(dim), state(dim,1), cov(dim,dim), startState(dim,1), startCov(dim,dim), chiSqu(0), statusFlag(0), inverted(false)
+AbsTrackRep::AbsTrackRep(int dim) : dimension(dim), state(dim,1), cov(dim,dim), chiSqu(0), statusFlag(0), inverted(false), firstState(dim,1), firstCov(dim,dim), lastState(dim,1), lastCov(dim,dim)
 {
- 
+  chiSqu=0.;
+  ndf=0; 
 }
 
 AbsTrackRep::~AbsTrackRep() {}
@@ -72,8 +74,10 @@ AbsTrackRep::reset(){
   _refPlane.set(nullVec,nullVec,nullVec);
   state.Zero();
   cov.Zero();
-  startState.Zero();
-  startCov.Zero();
+  firstState.Zero();
+  firstCov.Zero();
+  lastState.Zero();
+  lastCov.Zero();
 }
 
 void
