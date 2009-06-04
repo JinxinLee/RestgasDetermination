@@ -39,7 +39,7 @@ link_directories( ${LINK_DIRECTORIES})
 set(FWD_SRCS
 PndFwdPrepareKalmanTracks.cxx
 PndFwdKalmanTask.cxx
-PullTask.cxx
+PullTaskFwd.cxx
 )
 set (FWD_RULECHECKER_SRCS ${FWD_SRCS})
 

@@ -1,5 +1,5 @@
-#ifndef PULLTASK_HH
-#define PULLTASK_HH
+#ifndef PULLTASKFWD_HH
+#define PULLTASKFWD_HH
 
 // Base Class Headers ----------------
 #include "FairTask.h"
@@ -15,12 +15,12 @@ class TrackCand;
 class Track;
 class TGeoManager; 
 
-class PullTask : public FairTask {
+class PullTaskFwd : public FairTask {
 public:
 
   // Constructors/Destructors ---------
-  PullTask();
-  ~PullTask();
+  PullTaskFwd();
+  ~PullTaskFwd();
 
   // Operators
   
@@ -47,7 +47,7 @@ private:
   TH1F *hrpx, *hrpy, *hrpz,* hrp, *hrtv, *hrtw,* hrv, *hrw;
   int fPdgCode;
   int evtcounter, cutmom, cutexc;
-  ClassDef(PullTask,1);
+  ClassDef(PullTaskFwd,1);
 
 };
 

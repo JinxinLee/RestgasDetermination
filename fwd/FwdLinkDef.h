@@ -12,7 +12,7 @@
 
 #pragma link C++ class PndFwdPrepareKalmanTracks+;
 #pragma link C++ class PndFwdKalmanTask+;
-#pragma link C++ class PullTask+;
+#pragma link C++ class PullTaskFwd+;
 
 #endif
 

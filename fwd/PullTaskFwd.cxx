@@ -17,7 +17,7 @@
 // Panda Headers ----------------------
 
 // This Class' Header ------------------
-#include "PullTask.h"
+#include "PullTaskFwd.h"
 
 #include <iostream>
 
@@ -38,12 +38,12 @@
 #include "GeaneTrackRep.h"
 
 
-PullTask::PullTask(){
+PullTaskFwd::PullTaskFwd(){
 }
 
-PullTask::~PullTask(){}
+PullTaskFwd::~PullTaskFwd(){}
 
-InitStatus PullTask::Init()
+InitStatus PullTaskFwd::Init()
 {
 
    hhrecop = new TH1F("hhrecop", "lhe reco p: mc - reco", 100, 0.5, 1.5);
@@ -69,7 +69,7 @@ InitStatus PullTask::Init()
 
   if(ioman==0)
     {
-      Error("PullTask::Init","RootManager not instantiated!");
+      Error("PullTaskFwd::Init","RootManager not instantiated!");
       return kERROR;
     }
   
@@ -77,7 +77,7 @@ InitStatus PullTask::Init()
   fTrackArray = (TClonesArray*) ioman->GetObject("FSTracks");
   if(fTrackArray == 0)
     {
-      Error("PullTask::Init","FSTrack-array not found!");
+      Error("PullTaskFwd::Init","FSTrack-array not found!");
       return kERROR;
     }
   
@@ -85,7 +85,7 @@ InitStatus PullTask::Init()
   fMCTrackArray = (TClonesArray*) ioman->GetObject("MCTrack");
   if(fMCTrackArray == 0)
     {
-      Error("PullTask::Init","MCTrack-array not found!");
+      Error("PullTaskFwd::Init","MCTrack-array not found!");
       return kERROR;
     }
   
@@ -93,7 +93,7 @@ InitStatus PullTask::Init()
   // open PndGemTrack array
   fGemTrackArray = (TClonesArray*) ioman->GetObject("PndGemTrack");
   if(fGemTrackArray == 0){
-    Error("PullTask::Init","PndGemTrack-array not found!");
+    Error("PullTaskFwd::Init","PndGemTrack-array not found!");
     return kERROR;
   }
   evtcounter = 0;
@@ -101,7 +101,7 @@ InitStatus PullTask::Init()
 }
 
 
-void PullTask::Exec(Option_t* opt)
+void PullTaskFwd::Exec(Option_t* opt)
 {
   if(evtcounter%100 == 0) std::cout << evtcounter << std::endl;
   evtcounter++;
@@ -113,7 +113,7 @@ void PullTask::Exec(Option_t* opt)
   Int_t nGemTracks = fGemTrackArray->GetEntriesFast();
 
   if(nGemTracks != nMCTracks){
-    std::cout<<"PullTask: I do not know which Tracks corresponds to which MCTrack"<<std::endl;
+    std::cout<<"PullTaskFwd: I do not know which Tracks corresponds to which MCTrack"<<std::endl;
     //    return;
   }
 
@@ -195,13 +195,13 @@ void PullTask::Exec(Option_t* opt)
 
 
 //_________________________________________________________________
-void PullTask::WriteHistograms(){
+void PullTaskFwd::WriteHistograms(){
 
 
   TFile* file = FairRootManager::Instance()->GetOutFile();
   file->cd();
-  file->mkdir("PullTask");
-  file->cd("PullTask");
+  file->mkdir("PullTaskFwd");
+  file->cd("PullTaskFwd");
   
   hhrecop->Write();
   delete hhrecop;
@@ -237,4 +237,4 @@ void PullTask::WriteHistograms(){
 
 }
 
-ClassImp(PullTask);
+ClassImp(PullTaskFwd);

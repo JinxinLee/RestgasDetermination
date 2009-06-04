@@ -135,7 +135,7 @@ PndFwdPrepareKalmanTracks::Exec(Option_t* opt)
     std::cout<<"      PndFwdPrepareKalmanTracks::Exec                      "<<std::endl;
     std::cout<<"-------------------------------------------------------"<<std::endl;
   }
-  if(fUseGem || fUseDch ==kFALSE){
+  if((fUseGem || fUseDch) ==kFALSE){
     std::cout<<"You want to run reconstruction with no detector??"<<std::endl;
     return;
   }
