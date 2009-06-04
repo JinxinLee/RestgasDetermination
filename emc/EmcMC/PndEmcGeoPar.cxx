@@ -1,4 +1,4 @@
-//*-- AUTHOR :
+//*-- AUTHOR  :
 //*-- Created : 20/05/2009
 
 using namespace std;

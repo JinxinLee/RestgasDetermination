@@ -19,8 +19,8 @@ public:
   void putParams(FairParamList*);
   Bool_t getParams(FairParamList*);
  
-  //TObjArray             *GetGeometryVersion(const Int_t geomVersion){return fGeometryVersion;}
-  //TObjArray         *GetGeometryVersion(){return fGeometryVersion;}
+   //TObjArray             *GetGeometryVersion(const Int_t geomVersion){return fGeometryVersion;}
+   //TObjArray         *GetGeometryVersion(){return fGeometryVersion;}
   Int_t  GetMapperVersion(){return fMapperVersion;}
   void   SetMapperVersion(Int_t mapperVersion){    //AB
      fMapperVersion = mapperVersion;
