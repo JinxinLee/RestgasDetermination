@@ -15,6 +15,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
+#include <vector>
 
 #include "TNtuple.h"
 #include "TVector3.h"
@@ -22,6 +23,7 @@
 #include "RhoBase/TConstraint.h"
 #include "RhoBase/TFitParams.h"
 #include "RhoBase/TCandList.h"
+
 
 class VAbsMicroCandidate;
 class VAbsVertex;
@@ -74,7 +76,8 @@ protected:
     
     // Daughters
     TCandList *fDaugList;	    //! List of daughters
-    TCandidate* fDaughters[5];	    //! Array of daughters
+//    TCandidate* fDaughters[15];	    //! Array of daughters
+    std::vector<TCandidate*>  fDaughters; //! List of Daughters
     Short_t nDaug;		    //! Number of daughters
 
     // Constraints

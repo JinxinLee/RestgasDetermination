@@ -47,7 +47,7 @@ class PndMicroCandidate : public VAbsMicroCandidate
     Int_t     GetCharge() const {return fCharge;}
     TVector3  GetPosition() const{return TVector3(fXposition,fYposition,fZposition);}
     TVector3  GetMomentum() const{return TVector3(fXmomentum,fYmomentum,fZmomentum);}
-	Float_t   GetEnergy() const{return fEnergy;}
+	Double_t  GetEnergy() const{return fEnergy;}
     TLorentzVector GetLorentzVector() const{return TLorentzVector(fXmomentum,fYmomentum,fZmomentum,fEnergy);}
 	
     TVector3  GetFirstHit() const{return TVector3(fFirstHitX,fFirstHitX,fFirstHitX);}
@@ -225,7 +225,8 @@ protected:
     Char_t  fCharge;		// The electrical charge
     Float_t fXposition,		// The origin in x
 	    fYposition,		// The origin in y
-	    fZposition,		// The origin in z
+	    fZposition;		// The origin in z
+	Double_t
 	    fXmomentum,		// The momentum in x
 	    fYmomentum,		// The momentum in y
 	    fZmomentum,		// The momentum in z

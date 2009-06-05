@@ -167,9 +167,14 @@ TCandidate::TCandidate( const TCandidate& o )
   
     fDaugList = 0;
     nDaug = o.nDaug;
+    fDaughters.clear();
+    
     if (o.nDaug > 0) {
 	for (int i=0;i<nDaug;i++) {
-	    fDaughters[i] = o.fDaughters[i];
+	    //****** changed due to std::list
+	    //fDaughters[i] = o.fDaughters[i];
+	    fDaughters.push_back(o.fDaughters[i]);
+	    
 	    fDaughters[i]->fTheMother = this;
 	}
     }
@@ -654,12 +659,16 @@ TCandidate::AddDaughterLinkSimple( const TCandidate* cand )
     if( nDaug==0 ) SetCharge(0);
     SetCharge( Charge()+cand->Charge() );
 	
-    if (nDaug>=5) {
+/*    if (nDaug>=5) {
 	cerr << "TCandidate::SetMotherLinkSimple: Can not add more than 5 daughters." << endl;
 	return;
-    }
+    }*/
 	
-    fDaughters[nDaug++] = d;
+	// *** Changed experimentally to std::list
+    //fDaughters[nDaug++] = d;
+    
+    fDaughters.push_back(d);
+    nDaug=fDaughters.size();
 
     // set the daughter's mother link 
     // ******** modified K Goetzen
@@ -1010,6 +1019,9 @@ void TCandidate::RemoveAssociations()
     
     // ADDED BY K GOETZEN *********************************
     nDaug=0;
+    //now clear std::vector
+    fDaughters.clear();
+    
     // ************************
     
     //if (fDecayVtx!=0) { delete fDecayVtx; fDecayVtx = 0; }

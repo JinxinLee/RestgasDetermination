@@ -41,7 +41,7 @@ class VAbsMicroCandidate : public TObject
     virtual Int_t    GetCharge() const =0;
     virtual TVector3 GetPosition() const =0;
     virtual TVector3 GetMomentum() const =0;
-	virtual Float_t  GetEnergy() const =0;
+	virtual Double_t GetEnergy() const =0;
     virtual TLorentzVector GetLorentzVector() const =0;
 	
     virtual TVector3  GetFirstHit() const=0;
