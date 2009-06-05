@@ -747,8 +747,19 @@ int DoJob(unsigned int *info, job_description *job, double *time_elapsed, double
 
   if (!dummy_mode) 
     {
-      mkdir(command,0777);
-      chdir(command);
+      if (!(0==mkdir(command,0777)))
+	{
+	  fprintf(stderr,"<W:%i> Error creating directory \"%s\": %s\n",rank,command,strerror(errno));
+	  fflush(stderr);
+	  return JOB_INPUT_ERROR;
+	}
+      
+      if (!(0==chdir(command)))
+	{
+	  fprintf(stderr,"<W:%i> Error changing to directory \"%s\": %s\n",rank,command,strerror(errno));
+	  fflush(stderr);
+	  return JOB_INPUT_ERROR;
+	}
     }
 
   if (verbose_mode || dummy_mode)
