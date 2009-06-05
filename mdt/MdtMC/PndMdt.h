@@ -25,6 +25,7 @@ public:
     ~PndMdt();
     
     void SetMdtVersion(TString);
+    inline void SetMdtMagnet(bool opt=false) { mdtMagnet = opt; return; };
 
 // hit
     inline void Register() { FairRootManager::Instance()->Register("MdtPoint","Mdt",fMdtCollection,kTRUE); };
@@ -36,9 +37,9 @@ public:
     void Reset();
 
 /** Accessors **/
-    inline Int_t GetPosIndex()               const { return fPosIndex; };
-    inline Int_t GetLayerID()                const { return fDetectorID<50 ? (Int_t)(fDetectorID/2) : fDetectorID-50;}; 
-    inline Int_t GetModule()                 const { return fDetectorID<50 ? 1 : 2;             };
+    inline Int_t GetPosIndex()            const { return fPosIndex;              };
+    inline Int_t GetLayerID()             const { return fDetectorID<200 ? fDetectorID%8 : (fDetectorID-200)%8; };
+    inline Int_t GetModule()              const { return fDetectorID<200 ? 1 : 2; };
 
     TClonesArray* GetCollection(Int_t iColl) const ;
     
@@ -54,7 +55,6 @@ public:
     inline void SetVerbosity(Bool_t verbosity) { fVerboseLevel = verbosity; };
 
     void ConstructGeometry();
-    void CreateGeometryToUpd(TString outName);
     void Initialize();
     void BeginEvent();
     Bool_t ProcessHits(FairVolume* vol);
@@ -68,12 +68,11 @@ public:
     
 private:
     TString version;
-    void ConstructGeometryTo();
-    void ConstructGeometryDu();
-    void ConstructGeometryToUpd();
-    Bool_t ProcessHitsTo(FairVolume* vol);
-    Bool_t ProcessHitsDu(FairVolume* vol);
-    Bool_t ProcessHitsToUpd(FairVolume* vol);
+    void PndMdtMagnet(); //!
+    void ConstructGeometryTo(); //!
+    void ConstructGeometryDu(); //!
+    Bool_t ProcessHitsTo(FairVolume* vol); //!
+    Bool_t ProcessHitsDu(FairVolume* vol); //!
 
 // hit
     TClonesArray* fMdtCollection; //!
@@ -82,27 +81,12 @@ private:
     TLorentzVector fPos;  
     TLorentzVector fMom;  
 
-// geometry
-    void SetBE();
-
-    TString ffn;          
-    Double_t displacement;
-    
-    struct {
-	Double_t dx1;
-	Double_t dx2;
-	Double_t dy1;
-	Double_t dy2;
-	Double_t dz;
-	Double_t x0;
-	Double_t y0;
-	Double_t z0;
-    } be;                 //! barrel edge needed by mdt and mag
-
 // detector
     Bool_t fVerboseLevel; 
     PndGeoMdtPar* par;   //! 
-    TString fVolumeName;  
+    TString ffn;
+    bool mdtMagnet; //!
+
 };
 
 #endif /* !PNDMDT_H */

@@ -17,7 +17,6 @@
 
 #include "FairVolume.h"
 // add on for debug
-//#include "FairGeoG3Builder.h"
 #include "FairRuntimeDb.h"
 #include "FairRun.h"
 #include "FairModule.h"
@@ -38,9 +37,7 @@ PndMdt::PndMdt()
     fMdtCollection        = new TClonesArray("PndMdtPoint");
     fPosIndex   = 0;
     ResetParameters();
-    displacement = 148.;
     SetVerbosity(kFALSE);
-    fVolumeName = "kk";
 }
 // -------------------------------------------------------------------------
 
@@ -51,9 +48,7 @@ PndMdt::PndMdt(const char* name, Bool_t active) : FairDetector(name,active)
     fMdtCollection        = new TClonesArray("PndMdtPoint");
     fPosIndex   = 0;
     ResetParameters();
-    displacement = 148.;
     SetVerbosity(kFALSE);
-    fVolumeName = "kk";
 }
 // -------------------------------------------------------------------------
 
@@ -125,55 +120,11 @@ void PndMdt::ResetParameters()
 void PndMdt::SetParFile(TString filename)
 {
     ffn = filename;
-    if(version=="torino" || version=="Torino") SetBE();
 }
 // -------------------------------------------------------------------------
 
-// -----   Private method SetBE   ------------------------------------------
-void PndMdt::SetBE()
-{
-//envelope (trd)
-    Double_t edx1;
-    Double_t edx2;
-    Double_t edy1;
-    Double_t edy2;
-    Double_t edz;
-    Double_t ex0;
-    Double_t ey0;
-    Double_t ez0;
 
-    TFile* muof = new TFile(ffn,"READONLY");
-    TTree* muoe = (TTree*)muof->Get("env");
-    (muoe->GetBranch("edx1"))->SetAddress(&edx1);
-    (muoe->GetBranch("edx2"))->SetAddress(&edx2);
-    (muoe->GetBranch("edy1"))->SetAddress(&edy1);
-    (muoe->GetBranch("edy2"))->SetAddress(&edy2);
-    (muoe->GetBranch("edz"))->SetAddress(&edz);
-    (muoe->GetBranch("ex0"))->SetAddress(&ex0);
-    (muoe->GetBranch("ey0"))->SetAddress(&ey0);
-    (muoe->GetBranch("ez0"))->SetAddress(&ez0);
-
-    (muoe->GetBranch("edx1"))->GetEntry(0);
-    (muoe->GetBranch("edx2"))->GetEntry(0);
-    (muoe->GetBranch("edy1"))->GetEntry(0);
-    (muoe->GetBranch("edy2"))->GetEntry(0);
-    (muoe->GetBranch("edz"))->GetEntry(0);
-    (muoe->GetBranch("ex0"))->GetEntry(0);
-    (muoe->GetBranch("ey0"))->GetEntry(0);
-    (muoe->GetBranch("ez0"))->GetEntry(0);
-    
-    be.dx1 = edx1/10.0;
-    be.dx2 = edx2/10.0;
-    be.dy1 = edy1/10.0;
-    be.dy2 = edy2/10.0;
-    be.dz  = edz/10.0;
-    be.x0  = ex0/10.0;
-    be.y0  = ey0/10.0;
-    be.z0  = ez0/10.0;
-    
-}
-// -------------------------------------------------------------------------
-
+// -----   Public method SetMdtVersion   -----------------------------------
 void PndMdt::SetMdtVersion(TString location)
 {
     version = location;
@@ -187,7 +138,6 @@ void PndMdt::ConstructGeometry()
 {
     if(version=="torino" || version=="Torino") ConstructGeometryTo();
     else if(version=="dubna" || version=="Dubna") ConstructGeometryDu();
-    else if(version=="toupd" || version=="ToUpd") ConstructGeometryToUpd();
     else {cout<<"Error in PndMdt::ConstructGeometry: Specify the version and run again!"<<endl; exit(0);};
     
     return;
@@ -222,7 +172,6 @@ Bool_t PndMdt::ProcessHits(FairVolume* vol)
 
     if(version=="torino" || version=="Torino") ph = ProcessHitsTo(vol);
     else if(version=="dubna" || version=="Dubna") ph = ProcessHitsDu(vol);
-    else if(version=="toupd" || version=="ToUpd") ph = ProcessHitsToUpd(vol);
     else {cout<<"Error in PndMdt::ConstructGeometry: Specify the version and run again!"<<endl; exit(0);};
   
   ResetParameters();

@@ -11,13 +11,13 @@
 #include "TGeoMedium.h"
 #include "TGeoArb8.h"
 #include "TGeoTrd2.h"
+#include "TGeoCompositeShape.h"
 #include "TGeoMatrix.h"
 #include "TGeoManager.h"
 #include "TVirtualMC.h"
 
 #include "FairVolume.h"
 // add on for debug
-//#include "FairGeoG3Builder.h"
 #include "FairRuntimeDb.h"
 #include "FairRun.h"
 #include "FairModule.h"
@@ -25,19 +25,35 @@
 #include "PndDetectorList.h"
 #include "PndStack.h"
 #include "PndMdt.h"
+#include "PndMdtGeoConstructorTo.h"
 
 
 using namespace std;
 
 
-// -----   Public method ConstructGeometry   ----------------------------------
+// -----   Public method ConstructGeometryTo   -----------------------------
 void PndMdt::ConstructGeometryTo() 
 {
     TString vname = "cave";
-
-    SetParFile(GetGeometryFileName());
     vname = vname.Strip();
     TGeoVolume* vcave = gGeoManager->FindVolumeFast(vname.Data());
+
+//General definitions
+    TGeoVolume* mdt        = new TGeoVolumeAssembly("Mdt");
+    TGeoVolume* mdtMag     = new TGeoVolumeAssembly("MdtMag");
+    TGeoVolume* mdtBarrel  = new TGeoVolumeAssembly("MdtBarrel");
+    TGeoVolume* mdtEndcap  = new TGeoVolumeAssembly("MdtEndcap");
+    
+//Additional definitions
+    Text_t buffer[30];
+    Text_t longbuffer[250];
+    Double_t mpx, mpy, mpz;
+    Double_t mx0, my0, mz0;
+    Double_t my;
+    int k;
+    Double_t dx1, dx2, dy1, dy2, dz;
+    TGeoRotation tRot, tRotSlice;
+    Double_t angle;
 
 //ArCO2
     Int_t kMatArCO2 = 40;
@@ -54,143 +70,208 @@ void PndMdt::ConstructGeometryTo()
     Int_t kMedArCO2 = 40;
     TGeoMedium* medArCO2 = gGeoManager->Medium("ArCO2", kMedArCO2, kMatArCO2, 1, 1, 30., 10.0, 0.1, 0.1, 0.1, 0.1);
 
-// iron    
-    Int_t kMatIron = 26;
-    Float_t aP1[1] = {55.845};
-    Float_t zP1[1] = {26.0} ;
-    Float_t wP1[3] = {1.0} ;
-    Float_t dP1 = 7.86;
-    Int_t   nP1 = 1;
-    TGeoMaterial* matIron = gGeoManager->Mixture("Iron",aP1,zP1,dP1,nP1,wP1,kMatIron);
+//creating the holes
+    TGeoBBox* hbox1 = new TGeoBBox("hbox1",((Double_t)PndMdt_H01_Length)/10.0,((Double_t)PndMdt_H01_Length)/10.0,((Double_t)PndMdt_SV201)/10.0,0);
+    TGeoBBox* hbox2 = new TGeoBBox("hbox2",((Double_t)PndMdt_H02_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_H02_V)/10.0,0);
+    TGeoBBox* hbox3 = new TGeoBBox("hbox3",((Double_t)PndMdt_H03_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_H03_V)/10.0,0);
+    TGeoBBox* hbox4 = new TGeoBBox("hbox4",((Double_t)PndMdt_H04_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_H04_V)/10.0,0);
+    TGeoBBox* hbox5 = new TGeoBBox("hbox5",((Double_t)PndMdt_H05_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_H05_V)/10.0,0);
+    TGeoBBox* hbox6 = new TGeoBBox("hbox6",((Double_t)PndMdt_H06_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_H06_V)/10.0,0);
+
+//MdtBarrel
+    tRot.RotateX(90.0);
+    mpy = ((Double_t)PndMdt_Barrel_Length)/2.0;
+    mpz = (Double_t)PndMdt_SVThickness;
+    mz0 = (Double_t)PndMdt_Barrel_Displacement;
+    for(int i=0; i<13; i++)
+    {
+	    switch(i)
+	    {
+		case 0:
+	    	    my0 = (Double_t)PndMdt_SV100;
+		    break;
+		case 1:
+	    	    my0 = (Double_t)PndMdt_SV101;
+		    break;
+    		case 2:
+		    my0 = (Double_t)PndMdt_SV102;
+		    break;
+		case 3:
+		    my0 = (Double_t)PndMdt_SV103;
+		    break;
+		case 4:
+		    my0 = (Double_t)PndMdt_SV104;
+		    break;
+		case 5:
+		    my0 = (Double_t)PndMdt_SV105;
+		    break;
+		case 6:
+		    my0 = (Double_t)PndMdt_SV106;
+		    break;
+		case 7:
+		    my0 = (Double_t)PndMdt_SV107;
+		    break;
+		case 8:
+		    my0 = (Double_t)PndMdt_SV108;
+		    break;
+		case 9:
+		    my0 = (Double_t)PndMdt_SV109;
+		    break;
+		case 10:
+		    my0 = (Double_t)PndMdt_SV110;
+		    break;
+		case 11:
+		    my0 = (Double_t)PndMdt_SV111;
+		    break;
+		case 12:
+		    my0 = (Double_t)PndMdt_SV112;
+		    break;
+	    };
+	    my = my0;
+	    mpx = (my - mpz)*(TMath::Tan(TMath::ACos(-1.0)/8.0));
+	    sprintf(buffer,"box%i",i);
+	    TGeoBBox* box = new TGeoBBox(buffer,mpx/10.0,mpy/10.0,mpz/10.0,0);
+	    TGeoTranslation* tgt = new TGeoTranslation(0.0,mz0/10.0,0.0);
+	    tgt->SetName("tgt");
+	    tgt->RegisterYourself();
+	    sprintf(buffer,"box%i:tgt-hbox1",i);
+	    TGeoCompositeShape* tgcs = new TGeoCompositeShape("tgcs",buffer);
+	for(int j=0; j<8; j++)
+	{
+	    if(j==0 || j==4) 
+	    {
+		k=j+2;
+		mx0 = my*TMath::Cos(((Double_t)k)*TMath::ACos(-1.0)/4.0);
+		my0 = my*TMath::Sin(((Double_t)k)*TMath::ACos(-1.0)/4.0);
+		sprintf(buffer,"muon%i",8*i+j);
+		TGeoVolume* volume = new TGeoVolume(buffer,tgcs,gGeoManager->GetMedium("ArCO2"));
+		AddSensitiveVolume(volume);
+		volume->SetLineColor(1);
+		mdtBarrel->AddNode(volume,8*i+j,new TGeoCombiTrans(mx0/10.0,my0/10.0,0.0,new TGeoRotation(tRot)));
+	    }
+	    else
+	    {
+		if(j==2 || j==6) k=j-2;
+		else k=j;
+		mx0 = my*TMath::Cos(((Double_t)k)*TMath::ACos(-1.0)/4.0);
+		my0 = my*TMath::Sin(((Double_t)k)*TMath::ACos(-1.0)/4.0);
+		sprintf(buffer,"muon%i",8*i+j);
+		TGeoVolume* volume = new TGeoVolume(buffer,box,gGeoManager->GetMedium("ArCO2"));
+		AddSensitiveVolume(volume);
+		volume->SetLineColor(1);
+		mdtBarrel->AddNode(volume,8*i+j,new TGeoCombiTrans(mx0/10.0,my0/10.0,mz0/10.0,new TGeoRotation(tRot)));
+	    };
+	    tRot.RotateZ(-45.0);
+	};
+    };
+
+
+//MdtEndcap
     
-    Int_t kMedIron = 26;
-    TGeoMedium* medIron = gGeoManager->Medium("Iron", kMedIron, kMatIron, 1, 1, 30., 10.0, 0.1, 0.1, 0.1, 0.1);
+    TGeoRotation tgrl;
+    tgrl.RotateY(0.0);
+    TGeoRotation* tgr0 = new TGeoRotation(tgrl);
+    tgr0->SetName("tgr0");
+    tgr0->RegisterYourself();
+    tgrl.RotateY(45.0);
+    TGeoRotation* tgr1 = new TGeoRotation(tgrl);
+    tgr1->SetName("tgr1");
+    tgr1->RegisterYourself();
+    tgrl.RotateY(45.0);
+    TGeoRotation* tgr2 = new TGeoRotation(tgrl);
+    tgr2->SetName("tgr2");
+    tgr2->RegisterYourself();
+    tgrl.RotateY(45.0);
+    TGeoRotation* tgr3 = new TGeoRotation(tgrl);
+    tgr3->SetName("tgr3");
+    tgr3->RegisterYourself();
+    tgrl.RotateY(45.0);
+    TGeoRotation* tgr4 = new TGeoRotation(tgrl);
+    tgr4->SetName("tgr4");
+    tgr4->RegisterYourself();
+    tgrl.RotateY(45.0);
+    TGeoRotation* tgr5 = new TGeoRotation(tgrl);
+    tgr5->SetName("tgr5");
+    tgr5->RegisterYourself();
+    tgrl.RotateY(45.0);
+    TGeoRotation* tgr6 = new TGeoRotation(tgrl);
+    tgr6->SetName("tgr6");
+    tgr6->RegisterYourself();
+    tgrl.RotateY(45.0);
+    TGeoRotation* tgr7 = new TGeoRotation(tgrl);
+    tgr7->SetName("tgr7");
+    tgr7->RegisterYourself();
 
-// muon barrel
-    TGeoVolume* sbVa = new TGeoVolumeAssembly("va_sb");
-    TGeoVolume* mdtBarrel = new TGeoVolumeAssembly("MdtBarrel");
+    dx2 = 0.0;
+    dy1 = (Double_t)PndMdt_SVThickness;
+    dy2 = (Double_t)PndMdt_SVThickness;
 
-//muon layer (box)   
-    Double_t mpx;
-    Double_t mpy;
-    Double_t mpz;
-    Double_t mx0;
-    Double_t my0;
-    Double_t mz0;
-
-    Double_t angle;
-    Double_t lx,ly;
-    Double_t lz = displacement;
-
-    Text_t buffer[30];
-    TFile* muof = new TFile(ffn,"READONLY");
-    TTree* muom = (TTree*)muof->Get("box");
-    (muom->GetBranch("mpx"))->SetAddress(&mpx);
-    (muom->GetBranch("mpy"))->SetAddress(&mpy);
-    (muom->GetBranch("mpz"))->SetAddress(&mpz);
-    (muom->GetBranch("mx0"))->SetAddress(&mx0);
-    (muom->GetBranch("my0"))->SetAddress(&my0);
-    (muom->GetBranch("mz0"))->SetAddress(&mz0);
-
-    Int_t nEntries = (Int_t)muom->GetEntries();
-    for(Int_t i=0; i<nEntries; i++)
+    for(int i=0; i<5; i++)
     {
-	(muom->GetBranch("mpx"))->GetEntry(i);
-	(muom->GetBranch("mpy"))->GetEntry(i);
-	(muom->GetBranch("mpz"))->GetEntry(i);
-	(muom->GetBranch("mx0"))->GetEntry(i);
-	(muom->GetBranch("my0"))->GetEntry(i);
-	(muom->GetBranch("mz0"))->GetEntry(i);
-	sprintf(buffer,"muon%i",(int)(i+1));
-	TGeoBBox* box = new TGeoBBox(mpx/10.0,mpy/10.0,mpz/10.0,0);
-	TGeoVolume* volume = new TGeoVolume(buffer,box,gGeoManager->GetMedium("ArCO2"));
-	AddSensitiveVolume(volume);
-	volume->SetLineColor(1);
-	sbVa->AddNode(volume,i,new TGeoCombiTrans(mx0/10.0,my0/10.0,mz0/10.0,new TGeoRotation()));
+	switch(i)
+	{
+	    case 0:
+		mz0 = (Double_t)PndMdt_SV200;
+		break;
+	    case 1:
+		mz0 = (Double_t)PndMdt_SV201;
+		break;
+	    case 2:
+		mz0 = (Double_t)PndMdt_SV202;
+		break;
+	    case 3:
+		mz0 = (Double_t)PndMdt_SV203;
+		break;
+	    case 4:
+		mz0 = (Double_t)PndMdt_SV204;
+		break;
+	};
+	if(i==0) 
+	{
+	    dx1 = ((Double_t)(PndMdt_SV100-15))*(TMath::Tan(TMath::ACos(-1.0)/8.0));
+	    my = ((Double_t)(PndMdt_SV100-15))/2.0;
+	    dz  = ((Double_t)(PndMdt_SV100-15))/2.0;
+	    TGeoTranslation* tgt1 = new TGeoTranslation(0.0,0.0,my/(-10.0));
+	    tgt1->SetName("tgt1");
+	    tgt1->RegisterYourself();
+	    TGeoTrd2* trd = new TGeoTrd2("trd1",dx1/10.0,dx2/10.0,dy1/10.0,dy2/10.0,dz/10.0);
+	} else {
+	    dx1 = ((Double_t)PndMdt_Endcap_Height)*(TMath::Tan(TMath::ACos(-1.0)/8.0));
+	    my = ((Double_t)PndMdt_Endcap_Height)/2.0;
+	    dz  = ((Double_t)PndMdt_Endcap_Height)/2.0;
+	    TGeoTranslation* tgt2 = new TGeoTranslation(0.0,0.0,my/(-10.0));
+	    tgt2->SetName("tgt2");
+	    tgt2->RegisterYourself();
+	    TGeoTrd2* trd = new TGeoTrd2("trd2",dx1/10.0,dx2/10.0,dy1/10.0,dy2/10.0,dz/10.0);
+	};
+	for(int j=0; j<8; j++)
+	{
+	    sprintf(buffer,"tgcs%i",(8*i)+j);
+	    if(i==0) sprintf(longbuffer,"trd1:tgt1-hbox%i:tgr%i",i+2,j);
+	    else sprintf(longbuffer,"trd2:tgt2-hbox%i:tgr%i",i+2,j);
+	    TGeoCompositeShape* tgcs = new TGeoCompositeShape(buffer,longbuffer);
+	    sprintf(buffer,"muon%i",200+8*i+j);
+	    TGeoVolume* volume = new TGeoVolume(buffer,tgcs,gGeoManager->GetMedium("ArCO2"));
+	    AddSensitiveVolume(volume);
+	    volume->SetLineColor(1);
+	    mdtEndcap->AddNode(volume,200+8*i+j,new TGeoCombiTrans(0.0,0.0,mz0/10.0,new TGeoRotation(tRot)));
+	    tRot.RotateZ(-45.0);
+	};
     };
     
-    for(Int_t i=0; i<8; i++)
-    {
-	angle = ((Double_t)i)*TMath::ACos(-1.0)/4.0;
-	lx = TMath::Cos(angle)*be.z0;
-	ly = TMath::Sin(angle)*be.z0;
-	angle *= 180.0/TMath::ACos(-1.0);
-	TGeoRotation tRot;
-	tRot.RotateY(90.0);
-	tRot.RotateZ(angle);
-	mdtBarrel->AddNode(sbVa,i,new TGeoCombiTrans(lx,ly,lz,new TGeoRotation(tRot)));
-    };
-        
+    mdt->AddNode(mdtBarrel,1);
+    mdt->AddNode(mdtEndcap,1);
 
-// muon endcap        
-    TGeoVolume* seVa = new TGeoVolumeAssembly("va_se");
-    TGeoVolume* mdtEndcap = new TGeoVolumeAssembly("MdtEndcap");
+    vcave->AddNode(mdt,1);
 
-    Double_t dx1, dx2, dy1, dy2, dz;
-
-    dx1 = 1.0;
-    dx2 = 1.0;
-    dy1 = 0.0;
-    dy2 = be.dy1;
-    dz  = (be.z0-be.dz)/2.0;
-    lz  = displacement + be.dx1 - 1.0;
-    sprintf(buffer,"muon51");
-    TGeoTrd2* trd = new TGeoTrd2(dx1,dx2,dy1,dy2,dz);
-    TGeoVolume* volume = new TGeoVolume(buffer,trd,gGeoManager->GetMedium("ArCO2"));
-    AddSensitiveVolume(volume);
-    for(Int_t i=0; i<8; i++)
-    {
-	angle = ((Double_t)i)*TMath::ACos(-1.0)/4.0;
-	lx = TMath::Cos(angle)*(be.z0-be.dz)/2.0;
-	ly = TMath::Sin(angle)*(be.z0-be.dz)/2.0;
-	angle *= 180.0/TMath::ACos(-1.0);
-	TGeoRotation tRot;
-	tRot.RotateY(90.0);
-	tRot.RotateZ(angle);
-	mdtEndcap->AddNode(volume,i+1,new TGeoCombiTrans(lx,ly,lz,new TGeoRotation(tRot)));
-    };
-
-
-    lx = 0.0;
-    ly = 0.0;
-    lz = 0.0;
-    for(Int_t i=0; i<6; i++)
-    {
-	dx1 = 1.0;
-	dx2 = 1.0;
-	sprintf(buffer,"muon%i",(int)(i+52));
-	dy1 = 0.0;
-	dy2 = be.dy2;
-	dz  = (be.z0+be.dz)/2.0;
-	TGeoTrd2* trd = new TGeoTrd2(dx1,dx2,dy1,dy2,dz);
-	if(i==0) lx -= 6.0;
-	else lx -= 8.0;
-	TGeoVolume* volume = new TGeoVolume(buffer,trd,gGeoManager->GetMedium("ArCO2"));
-	AddSensitiveVolume(volume);
-	seVa->AddNode(volume,i+52,new TGeoCombiTrans(lx,ly,lz,new TGeoRotation()));
-    };
-
-    lz  = displacement + be.dx1 - 1.0;
-    for(Int_t i=0; i<8; i++)
-    {
-	angle = ((Double_t)i)*TMath::ACos(-1.0)/4.0;
-	lx = TMath::Cos(angle)*(be.z0+be.dz)/2.0;
-	ly = TMath::Sin(angle)*(be.z0+be.dz)/2.0;
-	angle *= 180.0/TMath::ACos(-1.0);
-	TGeoRotation tRot;
-	tRot.RotateY(90.0);
-	tRot.RotateZ(angle);
-	mdtEndcap->AddNode(seVa,i+52,new TGeoCombiTrans(lx,ly,lz,new TGeoRotation(tRot)));
-    };
-
-
-    vcave->AddNode(mdtBarrel,1);
-    vcave->AddNode(mdtEndcap,1);
+    if(mdtMagnet) PndMdtMagnet();
+    
+    return;
 }
 // ----------------------------------------------------------------------------
 
 
-// -----   Public method ProcessHits  --------------------------------------
+// -----   Private method ProcessHitsTo  -----------------------------------
 Bool_t PndMdt::ProcessHitsTo(FairVolume* vol) 
 {
   TString name = vol->GetName();
@@ -211,7 +292,9 @@ Bool_t PndMdt::ProcessHitsTo(FairVolume* vol)
       if ( TrNo == fTrkIn ){
 	TLorentzVector lPos, lMom;
 	int ilayer;
-	sscanf(name,"muon%i",&ilayer);
+	int iplate;
+	sscanf(name,"muon%i",&iplate);
+	ilayer = iplate;
 	gMC->TrackPosition(lPos); // cm
 	gMC->TrackMomentum(lMom); // GeV
 	TClonesArray& clref = *fMdtCollection;
@@ -222,7 +305,7 @@ Bool_t PndMdt::ProcessHitsTo(FairVolume* vol)
         /**if you add a point then tell the stack! here*/
 	PndStack* stack = (PndStack*) gMC->GetStack();
     	stack->AddPoint(kMDT);
-     if ( ( (GetModule()==1) && (TMath::Even(ilayer)) ) ||  (GetModule()==2)  )
+     if ( (GetModule()==1) ||  (GetModule()==2)  )
 	{ // Set the correct MCTrack->GetMdtPoints()
 
 	}
@@ -237,5 +320,6 @@ Bool_t PndMdt::ProcessHitsTo(FairVolume* vol)
   
 }
 // ----------------------------------------------------------------------------
+
 
 ClassImp(PndMdt)
