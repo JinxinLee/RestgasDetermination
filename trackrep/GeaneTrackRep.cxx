@@ -50,7 +50,6 @@ GeaneTrackRep::GeaneTrackRep(FairGeanePro* geane,
 			     int PDGCode) 
   : AbsTrackRep(5), _geane(geane), _pdg(PDGCode), _backw(0)
 {
-  printf("$#$#$##$#$#$#$$#$#$#$# %10.10f\n",mom.Theta()/TMath::Pi()*180.);
   FairTrackParP par(plane.getO(),mom,poserr,momerr,q,plane.getO(),plane.getU(),plane.getV());
 
   _spu=par.GetSPU(); // direction of the momentum
@@ -158,7 +157,7 @@ GeaneTrackRep::extrapolate(const DetPlane& pl,
   }
   if(backprop){
     _geane->setBackProp();
-    std::cout<<"GEANETRACKREP: USING BACKPROPAGATION!" << std::endl;
+    //std::cout<<"GEANETRACKREP: USING BACKPROPAGATION!" << std::endl;
   }
 
   Bool_t prop = kTRUE;
@@ -244,7 +243,7 @@ GeaneTrackRep::extrapolateToPoca(const TVector3& pos,
   if(state[4][0]==0)state[4][0]=1E-4;
   
   FairTrackParP par(state[3][0],state[4][0],state[1][0],state[2][0],state[0][0],cova,ofrom,ufrom,vfrom,_spu);
-  par.Print();
+  //par.Print();
   bool backprop=_backw<0;
   if(_backw==0){
     // check if new point is after or before my position
@@ -252,11 +251,11 @@ GeaneTrackRep::extrapolateToPoca(const TVector3& pos,
 	backprop= (dir*getMom(_refPlane))>0;
   }
   if(!backprop){ // point lies in same direction of flight as momentum
-    std::cout<<" Propagate in flight direction"<<std::endl;
+    //std::cout<<" Propagate in flight direction"<<std::endl;
     _geane->PropagateToVirtualPlaneAtPCA(1);
   }
   else{
-    std::cout<<" backPropagate"<<std::endl;
+    //std::cout<<" backPropagate"<<std::endl;
     _geane->BackTrackToVirtualPlaneAtPCA(1);
   }
 
