@@ -1,4 +1,4 @@
-void gemdch_simBox(Double_t momentum = 1., Double_t theta = 4., Double_t phi = 20., Int_t nEvents = 1000,int verboseLevel = 0)
+void gemdch_simBox(Double_t momentum = 1., Int_t nEvents = 1000,int verboseLevel = 0)
 {
   TStopwatch timer;
   timer.Start();
@@ -6,20 +6,21 @@ void gemdch_simBox(Double_t momentum = 1., Double_t theta = 4., Double_t phi = 2
 
   //FileNames
   TString simOutput;
-  simOutput.Form("GemDch_4Stations_211_%.1fGeV_th%g_ph%g_n%d",momentum,theta,phi,nEvents);
+  simOutput.Form("GemDch_muons_%.1fGeV",momentum);
   TString parOutput=simOutput;
   simOutput+=".root";
   parOutput+=".param.root";
   
 
   // Load basic libraries
-  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  rootlogon();
   FairRunSim *fRun = new FairRunSim();
 
   // set the MC version used
   // ------------------------
 
-  fRun->SetName("TGeant4");
+  fRun->SetName("TGeant3");
   // Choose the Geant Navigation System
 
   fRun->SetOutputFile(simOutput);
@@ -89,15 +90,15 @@ void gemdch_simBox(Double_t momentum = 1., Double_t theta = 4., Double_t phi = 2
   fRun->SetGenerator(primGen);
 
   FairBoxGenerator* boxGen = new FairBoxGenerator(13,1);
-  boxGen->SetThetaRange(theta  ,theta);
-  boxGen->SetPhiRange  (phi    ,phi  );
+  boxGen->SetThetaRange(3.  ,5.);
+  boxGen->SetPhiRange  (0.  ,360. );
   boxGen->SetPRange    (momentum,momentum);
   boxGen->SetXYZ(0.,0.,0.);
   primGen->AddGenerator(boxGen);
 
  // Field Map Definition
   // --------------------
-  fRun->SetBeamMom(15.);
+  fRun->SetBeamMom(7.8);
   PndMultiField *fField= 0;
   fField = new PndMultiField();
   PndTransMap *map_t= new PndTransMap("TransMap", "R");
@@ -118,7 +119,7 @@ void gemdch_simBox(Double_t momentum = 1., Double_t theta = 4., Double_t phi = 2
   fRun->SetField(fField);
 
    // support event display?
-   fRun->SetStoreTraj(kTRUE);
+   fRun->SetStoreTraj(kFALSE);
    
    fRun->SetRadLenRegister(kFALSE);
 
