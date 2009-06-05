@@ -1,16 +1,17 @@
-void gemdch_boxIdealTracks(Int_t nEvents = 1000, Double_t momentum = 2.0, Int_t theta = 10, Int_t phi = 20, int verboseLevel = 0)
+void gemdch_boxIdealTracks(TString baseName="GemDch_4Stations_211_1.0GeV_th4_ph20_n1000", Int_t nEvents=0)
 {
+  Int_t verboseLevel=2;
+  gSystem->Load("libFwd.so");
+
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
-//  Int_t iVerbose = 1;
+  //  Int_t iVerbose = 1;
   // ----  Load libraries   -------------------------------------------------
-  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-   // Input file (MC events)
-  TString baseName;
-  baseName.Form("$VMCWORKDIR/data/GemDch_4Stations_211_%.1fGeV_th%d_ph%d_n%d",momentum,theta,phi,nEvents);
-
+  //gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+  // Input file (MC events)
+ 
   TString MCFile  = baseName + ".root";
-  TString parFile = baseName + "_par.root";
+  TString parFile = baseName + ".param.root";
   // ------------------------------------------------------------------------
   TString outFile = baseName + "_idealTracksFine.root";
   
@@ -48,8 +49,8 @@ void gemdch_boxIdealTracks(Int_t nEvents = 1000, Double_t momentum = 2.0, Int_t 
   fRun->AddTask(gemFinderTask);
   
   PndGemTrackFinderIdeal* gemMCTrackFinder = new  PndGemTrackFinderIdeal();
-  gemMCTrackFinder->SetVerbose(0);  // verbosity level
-  gemMCTrackFinder->SetPrimary(0);  // 1 = Only primary tracks are processed, 0 = all (default)
+  gemMCTrackFinder->SetVerbose(1);  // verbosity level
+  gemMCTrackFinder->SetPrimary(1);  // 1 = Only primary tracks are processed, 0 = all (default)
   gemFinderTask->UseFinder(gemMCTrackFinder);
   //--------------------------------------------------
 
@@ -84,27 +85,9 @@ void gemdch_boxIdealTracks(Int_t nEvents = 1000, Double_t momentum = 2.0, Int_t 
   mcTrackFinder->SetVerbose(0);  
   mcTrackFinder->SetPrimary(1);  // 1 = Only primary tracks are processed, 0 = all (default)
   finderTask->UseFinder(mcTrackFinder);
-  //--------------------------------------------------
-  PndDchMatchTracks *matchTask = new PndDchMatchTracks();//match PndDchTracks and MCTracks
-  matchTask->SetUseHitOrDigi("chit");
-  matchTask->SetVerbose(0);
-  fRun->AddTask(matchTask);
-
-//   PndDchFindTracks* finderTask = new PndDchFindTracks("PndDchFindTracks");
-//   finderTask->SetUseHitOrDigi("hit"); // hit = (default), digi
-//   fRun->AddTask(finderTask);
-  
-//   PndDchTrackFinderIdeal* mcTrackFinder = new  PndDchTrackFinderIdeal();
-//   mcTrackFinder->SetVerbose(3);  // verbosity level
-//   mcTrackFinder->SetPrimary(1);  // 1 = Only primary tracks are processed, 0 = all (default)
-//   finderTask->UseFinder(mcTrackFinder);
-  //--------------------------------------------------
-  
-  
-  
   //------ Match PndDchTracks and MCTracks tracks ----
   PndDchMatchTracks *matchTask = new PndDchMatchTracks();
-  matchTask->SetUseHitOrDigi("hit"); //"hit" - default
+  matchTask->SetUseHitOrDigi("chit"); //"chit" - default
   matchTask->SetVerbose(1);
   fRun->AddTask(matchTask);
   // -------------------------------------------------
@@ -112,8 +95,8 @@ void gemdch_boxIdealTracks(Int_t nEvents = 1000, Double_t momentum = 2.0, Int_t 
   
   
   //------ Quality of PndDchTracks -------------------
-  PndDchFindTracksQa *qualityTrack = new PndDchFindTracksQa();
-  qualityTrack->SetUseHitOrDigi("hit");  //"hit" - default
+   PndDchFindTracksQa *qualityTrack = new PndDchFindTracksQa();
+  qualityTrack->SetUseHitOrDigi("chit");  //"chit" - default
   qualityTrack->SetVerbose(1);
   fRun->AddTask(qualityTrack);
   // -------------------------------------------------
@@ -126,28 +109,30 @@ void gemdch_boxIdealTracks(Int_t nEvents = 1000, Double_t momentum = 2.0, Int_t 
 
   // -----   Prepare tracks for genfit   --------------------------------------------
   PndFwdPrepareKalmanTracks *prepareKalmanTracks = new PndFwdPrepareKalmanTracks();
-  prepareKalmanTracks->SetVerbose(0);
+  prepareKalmanTracks->SetVerbose(1);
   prepareKalmanTracks->UseGeane(kTRUE);
   prepareKalmanTracks->UseMC(kTRUE);
-  prepareKalmanTracks->SetPDG(211);
+  //prepareKalmanTracks->SetPDG(211); we do not use it
   prepareKalmanTracks->SetPersistence();
+  prepareKalmanTracks->UseGemDch(kFALSE,kTRUE);
   fRun->AddTask(prepareKalmanTracks);
   //--------------------------------------------------
 
   // -----   Run Kalman fitter   --------------------------------------------
   PndFwdKalmanTask* fwdKalman = new PndFwdKalmanTask();
-  fwdKalman->SetVerbose(0);
-  fwdKalman->SetNumIterations(6);
-  fwdKalman->SetMomentum(momentum);
-  fwdKalman->SetTheta(theta);
-  fwdKalman->SetPhi(phi);
-  //  fwdKalman->SetSmooth(kFALSE);
+  fwdKalman->SetVerbose(1);
+  fwdKalman->SetNumIterations(3);
   fRun->AddTask(fwdKalman);
+  // ------------------------------------------------- 
+  PullTaskFwd* fwdKalmanQA = new PullTaskFwd();
+  fRun->AddTask(fwdKalmanQA);
   // ------------------------------------------------- 
 
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
   fRun->Run(0,nEvents);
+
+  fwdKalmanQA->WriteHistograms();
 
   // -----   Finish   -------------------------------------------------------
   timer.Stop();

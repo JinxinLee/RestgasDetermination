@@ -1,4 +1,4 @@
-void gemdch_simBox(Double_t momentum = 2., Double_t theta = 10., Double_t phi = 20., Int_t nEvents = 1000,int verboseLevel = 0)
+void gemdch_simBox(Double_t momentum = 1., Double_t theta = 4., Double_t phi = 20., Int_t nEvents = 1000,int verboseLevel = 0)
 {
   TStopwatch timer;
   timer.Start();
@@ -6,10 +6,10 @@ void gemdch_simBox(Double_t momentum = 2., Double_t theta = 10., Double_t phi = 
 
   //FileNames
   TString simOutput;
-  simOutput.Form("$VMCWORKDIR/data/GemDch_4Stations_211_%.1fGeV_th%g_ph%g_n%d",momentum,theta,phi,nEvents);
+  simOutput.Form("GemDch_4Stations_211_%.1fGeV_th%g_ph%g_n%d",momentum,theta,phi,nEvents);
   TString parOutput=simOutput;
   simOutput+=".root";
-  parOutput+="_par.root";
+  parOutput+=".param.root";
   
 
   // Load basic libraries
@@ -44,7 +44,7 @@ void gemdch_simBox(Double_t momentum = 2., Double_t theta = 10., Double_t phi = 
 //  fRun->AddModule(Dipole);
 
   FairModule *Pipe= new PndPipe("PIPE");
-//   Pipe->SetGeometryFileName("pipebeamtarget.geo");
+  Pipe->SetGeometryFileName("pipebeamtarget.geo");
   fRun->AddModule(Pipe);
 
    FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
@@ -88,21 +88,33 @@ void gemdch_simBox(Double_t momentum = 2., Double_t theta = 10., Double_t phi = 
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
-  FairBoxGenerator* boxGen = new FairBoxGenerator(211,1);
-  boxGen->SetThetaRange(theta   -0.01,theta   +0.01);
-  boxGen->SetPhiRange  (phi     -0.01,phi     +0.01);
-  boxGen->SetPRange    (momentum-0.01,momentum+0.01);
+  FairBoxGenerator* boxGen = new FairBoxGenerator(13,1);
+  boxGen->SetThetaRange(theta  ,theta);
+  boxGen->SetPhiRange  (phi    ,phi  );
+  boxGen->SetPRange    (momentum,momentum);
+  boxGen->SetXYZ(0.,0.,0.);
   primGen->AddGenerator(boxGen);
 
-    PndMultiField *fField= new PndMultiField();
-    
-    PndTransMap *map= new PndTransMap("TransMap", "R");
-   PndDipoleMap *map1= new PndDipoleMap("DipoleMap", "R");
-  PndSolenoidMap *map2= new PndSolenoidMap("SolenoidMap", "R");
-   fField->AddField(map);
-   fField->AddField(map1);
-  fField->AddField(map2);
-
+ // Field Map Definition
+  // --------------------
+  fRun->SetBeamMom(15.);
+  PndMultiField *fField= 0;
+  fField = new PndMultiField();
+  PndTransMap *map_t= new PndTransMap("TransMap", "R");
+  PndSolenoidMap *map_s1= new PndSolenoidMap("SolenoidMap1", "R");
+  PndSolenoidMap *map_s2= new PndSolenoidMap("SolenoidMap2", "R");
+  PndSolenoidMap *map_s3= new PndSolenoidMap("SolenoidMap3", "R");
+  PndSolenoidMap *map_s4= new PndSolenoidMap("SolenoidMap4", "R");
+  PndDipoleMap *map_d1= new PndDipoleMap("DipoleMap1", "R");
+  PndDipoleMap *map_d2= new PndDipoleMap("DipoleMap2", "R");
+  fField->AddField(map_t);
+  fField->AddField(map_s1);
+  fField->AddField(map_s2);
+  fField->AddField(map_s3);
+  fField->AddField(map_s4);
+  fField->AddField(map_d1);
+  fField->AddField(map_d2);
+  
   fRun->SetField(fField);
 
    // support event display?
@@ -112,7 +124,6 @@ void gemdch_simBox(Double_t momentum = 2., Double_t theta = 10., Double_t phi = 
 
 
    fRun->Init();
-//   Tpc->Initialize(); // tpc produces too much points, use radlenpoints instead
 
   // Fill the Parameter containers for this run
   //-------------------------------------------
@@ -122,14 +133,19 @@ void gemdch_simBox(Double_t momentum = 2., Double_t theta = 10., Double_t phi = 
   output->open(parOutput.Data(),"RECREATE");
   rtdb->setOutput(output);
 
+ PndMultiFieldPar* fieldPar = 
+    (PndMultiFieldPar*) rtdb->getContainer("PndMultiFieldPar");
+  if(fField)  {  fieldPar->SetParameters(fField); }
+  fieldPar->setInputVersion(fRun->GetRunId(),1);
+  fieldPar->setChanged(kTRUE);
+  
+  rtdb->saveOutput();
+  rtdb->print();
+
   // Transport nEvents
   // -----------------
 
   fRun->Run(nEvents);
-
-  rtdb->saveOutput();
-  rtdb->print();
-
 
   timer.Stop();
   Double_t rtime = timer.RealTime();
