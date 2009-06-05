@@ -1,5 +1,5 @@
-#ifndef ADAPTERS_H
-#define ADAPTERS_H
+#ifndef PNDGENFITADAPTERS_H
+#define PNDGENFITADAPTERS_H
 
 class PndTrack;
 class PndTrackCand;
