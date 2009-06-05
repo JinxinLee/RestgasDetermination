@@ -25,7 +25,7 @@
 #include "SPhit.h"
 #include "StripHit.h"
 
-#include"PndAdapters.h"
+#include"PndGenfitAdapters.h"
 #include"PndTrack.h"
 
 using namespace std;
