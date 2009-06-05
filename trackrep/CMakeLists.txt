@@ -26,7 +26,7 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(TRACKREP_SRCS 
 GeaneTrackRep.cxx
-PndAdapters.cxx
+PndGenfitAdapters.cxx
 )
 
 if(RULE_CHECKER_FOUND)
