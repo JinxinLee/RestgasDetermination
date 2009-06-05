@@ -177,7 +177,7 @@ bool PndEventReader::FillList(TCandList &l, std::string listkey)
 		for (i1=0; i1<fMicroCands->GetEntriesFast(); i1++)
 		{
 			PndMicroCandidate *mic = (PndMicroCandidate *)fMicroCands->At(i1);
-			TCandidate tc(*mic,i1);
+			TCandidate tc(*mic,i1+1);
 			
 			allCands.Add(tc);
 			
