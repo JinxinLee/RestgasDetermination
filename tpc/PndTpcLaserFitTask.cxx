@@ -139,8 +139,8 @@ PndTpcLaserFitTask::Init()
   double lengthR = (_rMax-_rMin);
   double _zMax_mod = _zMax + 0.02*lengthZ;
   double _zMin_mod = _zMin - 0.02*lengthZ;
-  double _rMax_mod = _rMax + 0.02*lengthR;
-  double _rMin_mod = _rMin - 0.02*lengthR;
+  double _rMax_mod = _rMax + 0.05*lengthR;
+  double _rMin_mod = _rMin - 0.05*lengthR;
 
   double stepZ = (_zMax_mod-_zMin_mod)/(_NknotsZ-1); 
   double stepR = (_rMax_mod-_rMin_mod)/(_NknotsR-1); 
