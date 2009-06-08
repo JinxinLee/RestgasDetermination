@@ -14,19 +14,19 @@ eventDisplay()
   FairRunAna *fRun= new FairRunAna();
 
   //TString MCFile = "./data/Mvd_Test.root";
-  TString MCFile = "Mvd_D+D-_10G_addDets.root";
+  TString MCFile = "MvdTpc_D+D-_10G_1000.root";
 
-  PndMvdFileNameCreator creator(MCFile.Data());
-  TString RecoFile = creator.GetRecoFileName(false).c_str();
+//  PndMvdFileNameCreator creator(MCFile.Data());
+  //TString RecoFile = creator.GetRecoFileName(false).c_str();
 //  TString TFindFile  = creator.GetTrackFindingFileName(false).c_str();
 
-  TString TFindFile  = creator.GetIdealTrackFindingFileName(false).c_str();
-  TString DigiFile = creator.GetDigiFileName(false).c_str();
+ // TString TFindFile  = creator.GetIdealTrackFindingFileName(false).c_str();
+ // TString DigiFile = creator.GetDigiFileName(false).c_str();
 
   fRun->SetInputFile(MCFile.Data());
-  fRun->AddFriend(DigiFile.Data());
-  fRun->AddFriend(RecoFile.Data());
-  fRun->AddFriend(TFindFile.Data());
+//  fRun->AddFriend(DigiFile.Data());
+//  fRun->AddFriend(RecoFile.Data());
+//  fRun->AddFriend(TFindFile.Data());
   //fRun->SetInputFile("../dsk/sim_dsk.root");
  // fRun->SetInputFile("../dsk/sim_dsk.g4native.root");
   fRun->SetOutputFile("test.root");
@@ -38,15 +38,15 @@ eventDisplay()
   FairMCTracks *Track =  new FairMCTracks ("Monte-Carlo Tracks");
 
   FairMCPointDraw *MvdPoints =   new FairMCPointDraw ("MVDPoint", kRed, kFullSquare);
-  PndSttMCPointDraw *SttPoints = new PndSttMCPointDraw("STTPoint", kRed, kFullSquare);
+//  PndSttMCPointDraw *SttPoints = new PndSttMCPointDraw("STTPoint", kRed, kFullSquare);
 
 //  FairRiemannPointDraw *MvdRiemann = new FairRiemannPointDraw("MVDHitsPixel");
 //  FairRiemannPointDraw *MvdRiemannStrip = new FairRiemannPointDraw("MVDHitsStrip");
 
-  FairHitDraw *MvdRecoPoints =   new FairHitDraw ("MVDHitsPixel");
-  FairHitDraw *MvdStripRecoPoints = new FairHitDraw("MVDHitsStrip");
+//  FairHitDraw *MvdRecoPoints =   new FairHitDraw ("MVDHitsPixel");
+//  FairHitDraw *MvdStripRecoPoints = new FairHitDraw("MVDHitsStrip");
 
-  FairHitDraw *SttHelixHits = new FairHitDraw("SttHelixHit");
+ // FairHitDraw *SttHelixHits = new FairHitDraw("SttHelixHit");
 
 //  PndMvdDigiPixelDraw* MvdDigis = new PndMvdDigiPixelDraw("MVDPixelDigis");
 
@@ -56,13 +56,13 @@ eventDisplay()
 
   fMan->AddTask(Track);
   fMan->AddTask(MvdPoints);
-  fMan->AddTask(SttPoints);
+ // fMan->AddTask(SttPoints);
  // fMan->AddTask(MvdRiemann);
 //  fMan->AddTask(MvdRiemannStrip);
  // fMan->AddTask(MvdDigis);
-  fMan->AddTask(MvdRecoPoints);
-  fMan->AddTask(MvdStripRecoPoints);
-  fMan->AddTask(SttHelixHits);
+ // fMan->AddTask(MvdRecoPoints);
+ // fMan->AddTask(MvdStripRecoPoints);
+//  fMan->AddTask(SttHelixHits);
 //  fMan->AddTask(MvdTrackCand);
 //  fMan->AddTask(MvdRiemannTrackCand);
 

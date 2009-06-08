@@ -29,10 +29,14 @@ class PndMvdHit : public FairHit
   friend std::ostream& operator<< (std::ostream& out, const PndMvdHit& hit){
     out << "Mvd hit in " << hit.GetDetName() << " at" << std::endl;
     out << "(" << hit.GetX() << ", " << hit.GetY() << ", " << hit.GetZ() << ") cm "
-        << " with " << hit.GetCharge() << " e" << ", Cluster No. " << hit.GetRefIndex();
+        << " with " << hit.GetCharge() << " e" << ", Cluster No. " << hit.GetClusterIndex();
     if (hit.GetBotIndex() > -1)
-    	out << " " << hit.GetBotIndex();
-     out << std::endl;
+    	out << " and bottom " << hit.GetBotIndex();
+    if (hit.GetRefIndex() > -1)
+      out << ", mc point id = " << hit.GetRefIndex();
+    else 
+      out << ", noise hit without mc poit";
+    out << std::endl;
 
     return out;
   }
@@ -53,7 +57,7 @@ class PndMvdHit : public FairHit
    *@param NDigiHits Number of pixels fired for this event
    **/
   PndMvdHit(Int_t detID, TString detName,
-  	    TVector3& pos, TVector3& dpos, Int_t index, Double_t charge, Int_t NDigiHits);
+  	    TVector3& pos, TVector3& dpos, Int_t clindex, Double_t charge, Int_t NDigiHits, Int_t mcindex);
 
   //PndMvdHit(PndMvdHit& c);
   /** Destructor **/
@@ -65,14 +69,17 @@ class PndMvdHit : public FairHit
   void SetDetName(TString name)  { fDetName   = name;}
   void SetCharge(Double_t charge){ fCharge    = charge;}
   void SetNDigiHits(Int_t pixel) { fNDigiHits = pixel;}
-  void SetBotIndex(Int_t id)       { fBotIndex  = id;}
+  void SetClusterIndex(Int_t id) { fClusterIndex = id;}
+  void SetBotIndex(Int_t id)     { fBotIndex  = id;}
   
-  TString 	GetDetName()   const { return fDetName;}
-  Double_t 	GetCharge()    const { return fCharge;}
-  Int_t 	  GetNDigiHits() const { return fNDigiHits;}
-  TVector3  GetPosition()	 const { return TVector3(fX,fY,fZ);}
-  Int_t     GetBotIndex()  const { return fBotIndex;}
-  Double_t  GetEloss()     const { return (fCharge * 3.61e-9);}  // 3.6 eV/Electron in Silicon
+  TString 	GetDetName()      const { return fDetName;}
+  Double_t 	GetCharge()       const { return fCharge;}
+  Int_t 	  GetNDigiHits()    const { return fNDigiHits;}
+  TVector3  GetPosition()	    const { return TVector3(fX,fY,fZ);}
+  Int_t     GetClusterIndex() const { return fClusterIndex;}
+  Int_t     GetTopIndex()     const { return GetClusterIndex();}
+  Int_t     GetBotIndex()     const { return fBotIndex;}
+  Double_t  GetEloss()        const { return (fCharge * 3.61e-9);}  // 3.6 eV/Electron in Silicon
 
 
 //   // CAUTION The errors in the MvdHit are LOCAL, but the coordinates are in the LAB
@@ -100,7 +107,7 @@ class PndMvdHit : public FairHit
   TString fDetName;  // Detector name
   Double_t fCharge; /// deposited Charge
   Int_t fNDigiHits; /// number of fired Digis for this hit,
-                    //if more then in the cluster cand, look for the bottom cluster.
+  Int_t fClusterIndex; /// top/pixel cluster index
   Int_t fBotIndex; /// bottom side of strip clusters
   ClassDef(PndMvdHit,8);
 

@@ -140,7 +140,7 @@ void PndMvdIdealRecoTask::Exec(Option_t* opt)
     // Now the 3D Info is smared inside the FairHit part of PndMvdHit
     new ((*fHitOutputArray)[size]) PndMvdHit(fCurrentPndMvdMCPoint->GetDetectorID(),
 					   (fCurrentPndMvdMCPoint->GetDetName()).Data(),
-      					   pos,dposLocal,iMvdPoint,fCurrentPndMvdMCPoint->GetEnergyLoss(),1);
+      					   pos,dposLocal,-1,fCurrentPndMvdMCPoint->GetEnergyLoss(),1,iMvdPoint);
 
   }//end for PndMvdiMvdPoint
 

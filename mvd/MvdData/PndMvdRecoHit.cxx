@@ -98,14 +98,14 @@ PndMvdRecoHit::PndMvdRecoHit(PndMvdHit* hit)
   hit->PositionError(errPos);  
   errPosLoc = fGeoH->MasterToLocalErrorsId(errPos, id);
   
-//  _hitCov[0][0] = 0.0050 * 0.0050;
-//  _hitCov[1][1] = 0.0050 * 0.0050;
-  _hitCov[0][0] = errPosLoc.X() * errPosLoc.X();
-  _hitCov[1][1] = errPosLoc.Y() * errPosLoc.Y();
+  _hitCov[0][0] = 0.0050 * 0.0050;
+  _hitCov[1][1] = 0.0050 * 0.0050;
+ // _hitCov[0][0] = errPosLoc.X() * errPosLoc.X();
+ // _hitCov[1][1] = errPosLoc.Y() * errPosLoc.Y();
   
   std::cout<<" -I- PndMvdRecoHit::PndMvdRecoHit: Wrote a hit with"
   <<"\n(x,y) = ("<<localpos.X()<<","<<localpos.Y()<<")."
-  <<"\n(dx,dy) = ("<<errPosLoc.X()<<","<<errPosLoc.Y()<<"). \t ??? 0==dz=="<<errPosLoc.Z()
+  <<"\n(dx,dy) = ("<<errPosLoc.X()<<","<<errPosLoc.Y()<<"). \t not used: dz="<<errPosLoc.Z()
   <<std::endl;
 
   setDetPlane(DetPlane(oo,uu,vv));
@@ -158,7 +158,7 @@ PndMvdRecoHit::setHMatrix(const AbsTrackRep* stateVector,
 
   }
   else {
-    std::cerr << "DemoRecoHit can only handle state"
+    std::cerr << "PndMvdRecoHit can only handle state"
               << " vectors of type LSLTrackRep or GeaneTrackRep -> abort"
         << std::endl;
      throw;

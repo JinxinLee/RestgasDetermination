@@ -5,7 +5,7 @@
 
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0;
-  Int_t nStart = 0;
+  Int_t nStart = 400;
   Int_t nEvents  = 1000;
 //   gROOT->Macro("Libs.C");
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");

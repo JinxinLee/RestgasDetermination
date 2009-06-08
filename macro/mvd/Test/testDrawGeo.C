@@ -18,9 +18,9 @@
 //  gSystem->Load("libDrc");
 
   gSystem->Load("libGeom.so");
-  TFile* file = new TFile("testMC.root");
+  TFile* file = new TFile("test.root");
 
-  TGeoManager *geoMan = (TGeoManager*) file->Get("FAIRGeom");
+  TGeoManager *geoMan = (TGeoManager*) file->Get("CADtoROOT");
 
   TCanvas* c1 = new TCanvas("c1", "", 100, 100, 1100, 1100);
   c1->SetFillColor(10);

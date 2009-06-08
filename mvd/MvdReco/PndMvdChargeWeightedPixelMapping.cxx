@@ -8,7 +8,7 @@ PndMvdHit PndMvdChargeWeightedPixelMapping::GetCluster()
 {
 	Double_t col = 0, row = 0, charge = 0;
 	Double_t tempCol = 0, tempRow = 0;
-	Int_t count = 0;
+	Int_t count = 0, mcindex=-1;
 	Double_t local[3], master[3];
 
 	if (fDigiArray.size() == 1){
@@ -29,6 +29,12 @@ PndMvdHit PndMvdChargeWeightedPixelMapping::GetCluster()
 				std::cout << "GetCluster:col/row " << col << " " << row << std::endl;
 			count = 1;
 			charge = fDigiArray[0].GetCharge();
+      for(Int_t mcI = 0; mcI<fDigiArray[0].GetNIndices();mcI++){ 
+        if (fDigiArray[0].GetIndex(mcI) > 0) {
+          mcindex = fDigiArray[0].GetIndex(mcI);
+          break;
+        }
+      }
 		}
 	}
 	else {
@@ -42,6 +48,15 @@ PndMvdHit PndMvdChargeWeightedPixelMapping::GetCluster()
 				row += (tempRow*fDigiArray[i].GetCharge());
 				charge += fDigiArray[i].GetCharge();
 				count++;
+        if(mcindex < 0){
+          for(Int_t mcI = 0; mcI<fDigiArray[i].GetNIndices();mcI++){ 
+            if (fDigiArray[i].GetIndex(mcI) > 0) {
+              mcindex = fDigiArray[i].GetIndex(mcI);
+              break;
+            }
+          }
+        }//mcindex
+        
 			}
 		}
 		if (count > 0){
@@ -70,7 +85,7 @@ PndMvdHit PndMvdChargeWeightedPixelMapping::GetCluster()
 
 
 
-	return (PndMvdHit(fDigiArray[0].GetDetID(),fDigiArray[0].GetDetName().Data(), pos, dpos, -1, charge, fDigiArray.size()));
+	return (PndMvdHit(fDigiArray[0].GetDetID(),fDigiArray[0].GetDetName().Data(), pos, dpos, -1, charge, fDigiArray.size(),mcindex) );
 }
 
 TGeoHMatrix PndMvdChargeWeightedPixelMapping::GetTransformation(std::string detName)

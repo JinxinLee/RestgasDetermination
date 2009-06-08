@@ -43,7 +43,7 @@
   fRun->AddModule(Magnet);
 
   FairModule *Pipe= new PndPipe("PIPE");
-  Pipe->SetGeometryFileName("pipebeamtarget.geo");
+  //Pipe->SetGeometryFileName("pipebeamtarget.geo");
   fRun->AddModule(Pipe);
 
   FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
@@ -112,7 +112,7 @@
 */
   //EvtGen Generator
     FairEvtGenGenerator* evtGen = new
-    FairEvtGenGenerator("/home/stockman/fairroot/cbmsoft/pandaroot/pgenerators/EvtGen/D+D-_10G_1000.evt");
+    FairEvtGenGenerator("D+D-_10G_1000.evt");
     primGen->AddGenerator(evtGen);
 
   // Urqmd  Generator

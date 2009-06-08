@@ -361,8 +361,9 @@ void PndMvdAllDataEventAna::FillHitResolutionHistos()
     std::cout << "HitResolution for: " << detName << std::endl;
     TVector3 recoPos = myHit->GetPosition();
     std::cout << "RecoPos: " << recoPos.X() << " " << recoPos.Y() << " " << recoPos.Z() << std::endl;
-    std::cout << "Hit RefIndex: " << myHit->GetRefIndex() << std::endl;
-    PndMvdCluster *myCand = (PndMvdCluster*)(fClusterArray->At(myHit->GetRefIndex()));
+    std::cout << "MC point RefIndex: " << myHit->GetRefIndex() << std::endl;
+    std::cout << "Cluster Index: " << myHit->GetClusterIndex() << std::endl;
+    PndMvdCluster *myCand = (PndMvdCluster*)(fClusterArray->At(myHit->GetClusterIndex()));
     std::vector<Int_t> points = GetHitPerCluster(myCand);
     for (Int_t i = 0; i < points.size(); i++)
       std::cout << "ClusterPoints: " << points[i] << std::endl;

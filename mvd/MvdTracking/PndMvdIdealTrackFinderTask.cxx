@@ -154,11 +154,11 @@ void PndMvdIdealTrackFinderTask::Exec(Option_t* opt)
 
   Int_t nStripHits = fStripHitArray->GetEntriesFast();
   Int_t nPixelHits = fPixelHitArray->GetEntriesFast();
-
+//TODO: Thi becomes easier now, with the FairHit::GetRefIndex()
   //pixel part
   for (Int_t iHit = 0; iHit < nPixelHits; iHit++){
     PndMvdHit* myHit = (PndMvdHit*)(fPixelHitArray->At(iHit));
-    PndMvdCluster* myCluster = (PndMvdCluster*)(fPixelClusterArray->At(myHit->GetRefIndex()));
+    PndMvdCluster* myCluster = (PndMvdCluster*)(fPixelClusterArray->At(myHit->GetClusterIndex()));
     PndMvdDigiPixel* apixeldigi = (PndMvdDigiPixel*)fPixelDigiArray->At(myCluster->GetDigiIndex(0));
     if (apixeldigi->GetIndex(0) == -1) continue; // sort out noise
     PndMvdMCPoint* myPoint = (PndMvdMCPoint*)(fMcArray->At(apixeldigi->GetIndex(0)));
@@ -167,7 +167,7 @@ void PndMvdIdealTrackFinderTask::Exec(Option_t* opt)
   //strip part
   for (Int_t iHit = 0; iHit < nStripHits; iHit++){
     PndMvdHit* myHit = (PndMvdHit*)(fStripHitArray->At(iHit));
-    PndMvdCluster* myCluster =  (PndMvdCluster*)(fStripClusterArray->At(myHit->GetRefIndex()));
+    PndMvdCluster* myCluster =  (PndMvdCluster*)(fStripClusterArray->At(myHit->GetClusterIndex()));
     PndMvdDigiStrip* astripdigi = (PndMvdDigiStrip*)fStripDigiArray->At(myCluster->GetDigiIndex(0));
     if (astripdigi->GetIndex(0) == -1) continue; // sort out noise
     PndMvdMCPoint* myPoint = (PndMvdMCPoint*)(fMcArray->At(astripdigi->GetIndex(0)));

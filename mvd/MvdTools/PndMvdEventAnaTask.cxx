@@ -497,7 +497,7 @@ int PndMvdEventAnaTask::GetRecoHit(int clIndex, bool pixel) const
 	if (reco != 0){
 		for (int hitIndex = 0; hitIndex < reco->GetEntriesFast(); hitIndex++){
 			PndMvdHit* myHit = (PndMvdHit*)reco->At(hitIndex);
-			if ((myHit->GetRefIndex() == clIndex) || myHit->GetBotIndex() == clIndex){ //test if RecoHit belongs to cluster
+			if ((myHit->GetClusterIndex() == clIndex) || myHit->GetBotIndex() == clIndex){ //test if RecoHit belongs to cluster
 				return hitIndex;
 			}
 		}

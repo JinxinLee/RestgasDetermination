@@ -173,13 +173,13 @@ void PndMvdPixelClusterTask::Exec(Option_t* opt)
     // mapping
     PndMvdChargeWeightedPixelMapping mapping(clusterArray, mappingPar, fGeoFile);
     mapping.SetVerbose(fVerbose);
-    PndMvdHit myCluster = mapping.GetCluster();
-    myCluster.SetRefIndex(i);
+    PndMvdHit myHit = mapping.GetCluster();
+    myHit.SetClusterIndex(i);
     if(fVerbose>1){
       std::cout << "ClusterData: " << std::endl;
-      myCluster.Print();
+      myHit.Print();
     }
-    new ((*fHitArray)[i]) PndMvdHit(myCluster);
+    new ((*fHitArray)[i]) PndMvdHit(myHit);
   }
   if(fVerbose>1)std::cout << std::endl;
   if(fVerbose>0){

@@ -113,7 +113,7 @@ void PndMvdHitProducerIdeal::Exec(Option_t* opt)
 
 
       // Create new hit
-      new ((*fHitArray)[iPoint]) PndMvdHit(detID, point->GetDetName(), position, dpos, iPoint, point->GetEnergyLoss(),1);
+      new ((*fHitArray)[iPoint]) PndMvdHit(detID, point->GetDetName(), position, dpos, -1, point->GetEnergyLoss(),1, iPoint);
 	std::cout << "Hit created for module: " << point->GetDetName() << std::endl;
 
 
