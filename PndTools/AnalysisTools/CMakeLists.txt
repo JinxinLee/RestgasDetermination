@@ -17,6 +17,9 @@ ${CMAKE_SOURCE_DIR}/fsim
 ${CMAKE_SOURCE_DIR}/rho
 ${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools
 ${CMAKE_SOURCE_DIR}/genfit
+${GEANT3_INCLUDE_DIR}
+${CMAKE_SOURCE_DIR}/geane
+${CMAKE_SOURCE_DIR}/trackrep
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})

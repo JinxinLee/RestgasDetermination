@@ -13,7 +13,7 @@ fMinNumberOfHits(4), fVerbose(1)
 	if (fUseZeroPos){
 		TVector3 pos(0.0,0.0,0.0);
 		TVector3 dpos(0.1,0.1,0.1);
-		PndMvdHit* ZeroHit = new PndMvdHit(1, "", pos, dpos, 0, 0, 0); // this is not very nice (one should create a neutral FairHit here
+		PndMvdHit* ZeroHit = new PndMvdHit(1, "", pos, dpos, -1, 0, 0,-1); // this is not very nice (one should create a neutral FairHit here
 		fHits.push_back(ZeroHit);
 	}
 }

@@ -32,7 +32,7 @@ class PndMicroWriter : public FairTask
 	typedef std::map<Int_t, Float_t> mapper;
 
   /** Default constructor **/  
-  PndMicroWriter();
+	PndMicroWriter(TString inArrName = "Track");
 
 
   /** Destructor **/
@@ -82,6 +82,8 @@ class PndMicroWriter : public FairTask
   //output array EventInfo
   TClonesArray* fEventInfo;
 
+  TString fInArrName;
+	
   bool fStoreNeutral;
   bool fStoreTrack;
   bool fStoreLheTrack;
