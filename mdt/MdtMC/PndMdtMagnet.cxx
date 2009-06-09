@@ -64,7 +64,7 @@ void PndMdt::PndMdtMagnet()
     for (Int_t i=0; i<nP; i++) wP[i] *= aP[i]/sumWeight;
     TGeoMaterial* matmdtIron = gGeoManager->Mixture("mdtIron",aP,zP,dP,nP,wP,kMatmdtIron);
     
-    Int_t kMedmdtIron = 40;
+    Int_t kMedmdtIron = 201;
     TGeoMedium* medmdtIron = gGeoManager->Medium("mdtIron", kMedmdtIron, kMatmdtIron, 1, 1, 30., 10.0, 0.1, 0.1, 0.1, 0.1);
 
 //creating the holes

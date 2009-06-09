@@ -55,8 +55,8 @@ void PndMdt::ConstructGeometryTo()
     TGeoRotation tRot, tRotSlice;
     Double_t angle;
 
-//ArCO2
-    Int_t kMatArCO2 = 40;
+//mdtArCO2
+    Int_t kMatmdtArCO2 = 40;
     Float_t aP[3] = {39.948, 12.01, 16.00};
     Float_t zP[3] = {18., 6., 8.} ;
     Float_t wP[3] = {1., 1., 2.} ;
@@ -65,10 +65,10 @@ void PndMdt::ConstructGeometryTo()
     Float_t sumWeight = 0.0;
     for (Int_t i=0; i<nP; i++) sumWeight += aP[i]*wP[i];
     for (Int_t i=0; i<nP; i++) wP[i] *= aP[i]/sumWeight;
-    TGeoMaterial* matArCO2 = gGeoManager->Mixture("ArCO2",aP,zP,dP,nP,wP,kMatArCO2);
+    TGeoMaterial* matmdtArCO2 = gGeoManager->Mixture("mdtArCO2",aP,zP,dP,nP,wP,kMatmdtArCO2);
     
-    Int_t kMedArCO2 = 40;
-    TGeoMedium* medArCO2 = gGeoManager->Medium("ArCO2", kMedArCO2, kMatArCO2, 1, 1, 30., 10.0, 0.1, 0.1, 0.1, 0.1);
+    Int_t kMedmdtArCO2 = 200;
+    TGeoMedium* medmdtArCO2 = gGeoManager->Medium("mdtArCO2", kMedmdtArCO2, kMatmdtArCO2, 1, 1, 30., 10.0, 0.1, 0.1, 0.1, 0.1);
 
 //creating the holes
     TGeoBBox* hbox1 = new TGeoBBox("hbox1",((Double_t)PndMdt_H01_Length)/10.0,((Double_t)PndMdt_H01_Length)/10.0,((Double_t)PndMdt_SV201)/10.0,0);
@@ -144,7 +144,7 @@ void PndMdt::ConstructGeometryTo()
 		mx0 = my*TMath::Cos(((Double_t)k)*TMath::ACos(-1.0)/4.0);
 		my0 = my*TMath::Sin(((Double_t)k)*TMath::ACos(-1.0)/4.0);
 		sprintf(buffer,"muon%i",8*i+j);
-		TGeoVolume* volume = new TGeoVolume(buffer,tgcs,gGeoManager->GetMedium("ArCO2"));
+		TGeoVolume* volume = new TGeoVolume(buffer,tgcs,gGeoManager->GetMedium("mdtArCO2"));
 		AddSensitiveVolume(volume);
 		volume->SetLineColor(1);
 		mdtBarrel->AddNode(volume,8*i+j,new TGeoCombiTrans(mx0/10.0,my0/10.0,0.0,new TGeoRotation(tRot)));
@@ -156,7 +156,7 @@ void PndMdt::ConstructGeometryTo()
 		mx0 = my*TMath::Cos(((Double_t)k)*TMath::ACos(-1.0)/4.0);
 		my0 = my*TMath::Sin(((Double_t)k)*TMath::ACos(-1.0)/4.0);
 		sprintf(buffer,"muon%i",8*i+j);
-		TGeoVolume* volume = new TGeoVolume(buffer,box,gGeoManager->GetMedium("ArCO2"));
+		TGeoVolume* volume = new TGeoVolume(buffer,box,gGeoManager->GetMedium("mdtArCO2"));
 		AddSensitiveVolume(volume);
 		volume->SetLineColor(1);
 		mdtBarrel->AddNode(volume,8*i+j,new TGeoCombiTrans(mx0/10.0,my0/10.0,mz0/10.0,new TGeoRotation(tRot)));
@@ -251,7 +251,7 @@ void PndMdt::ConstructGeometryTo()
 	    else sprintf(longbuffer,"trd2:tgt2-hbox%i:tgr%i",i+2,j);
 	    TGeoCompositeShape* tgcs = new TGeoCompositeShape(buffer,longbuffer);
 	    sprintf(buffer,"muon%i",200+8*i+j);
-	    TGeoVolume* volume = new TGeoVolume(buffer,tgcs,gGeoManager->GetMedium("ArCO2"));
+	    TGeoVolume* volume = new TGeoVolume(buffer,tgcs,gGeoManager->GetMedium("mdtArCO2"));
 	    AddSensitiveVolume(volume);
 	    volume->SetLineColor(1);
 	    mdtEndcap->AddNode(volume,200+8*i+j,new TGeoCombiTrans(0.0,0.0,mz0/10.0,new TGeoRotation(tRot)));
