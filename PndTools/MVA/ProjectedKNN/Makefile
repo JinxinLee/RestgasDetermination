@@ -8,12 +8,15 @@ MAKEFLAGS  =  -w -k #-s
 
 # CCFLAGS  = -Wall -W -g -ggdb -O0 -pg # Profiling and debug
 
+# Define C++ compiler name
 CXX       =  g++
 
-CCFLAGS   = -Wall -W -O3 -fopenmp
-CCFLAGS  += -ffast-math -funsafe-math-optimizations -fomit-frame-pointer
-CCFLAGS  += -funroll-loops -fvariable-expansion-in-unroller ${FLAGSMACHINE}
+# Define compiler flags
+CCFLAGS   = -Wall -W -O3 -fopenmp ${FLAGSMACHINE}
+CCFLAGS  += -funroll-loops -fvariable-expansion-in-unroller
+# CCFLAGS  += -ffast-math -funsafe-math-optimizations -fomit-frame-pointer
 
+# Path to TMVA headers
 HEADS    = /home0/fairroot/fairsoft/tools/root/tmva/inc
 
 INCLUDE   = -I/opt/fairroot/fairsoft/tools/root/tmva/inc
@@ -21,7 +24,6 @@ INCLUDE  += $(shell root-config --cflags) -I./
 
 LIBS     = -lTMVA -lMLP -lTreePlayer -lMinuit
 LIBS    += $(shell root-config --libs) 
-
 
 # Define binary file name.
 BINS = Prclassify #classify train
@@ -33,10 +35,17 @@ all: $(BINS)
 	@echo "-> before running the application."
 	@echo ""
 
-PndKnnTrain: % : %.cpp $(HEADS)/*.h
-	$(CXX) $(CCFLAGS) -c $< $(INCLUDE) -o $@.o
 
 PndKnnClassify: % : %.cpp $(HEADS)/*.h
+	$(CXX) $(CCFLAGS) -c $< $(INCLUDE) -o $@.o
+
+classify: % : %.cpp $(HEADS)/*.h PndKnnClassify
+	$(CXX) $(CCFLAGS) -c $< $(INCLUDE) -o $@.o
+	$(CXX) $(CCFLAGS) classify.o PndKnnClassify.o $(INCLUDE) $(LIBS) -o $@
+	@echo "Done building the classifier."
+	@echo ""
+
+PndKnnTrain: % : %.cpp $(HEADS)/*.h
 	$(CXX) $(CCFLAGS) -c $< $(INCLUDE) -o $@.o
 
 train: % : %.cpp $(HEADS)/*.h PndKnnTrain
@@ -45,15 +54,12 @@ train: % : %.cpp $(HEADS)/*.h PndKnnTrain
 	@echo "Done, building the trainer."
 	@echo ""
 
-classify: % : %.cpp $(HEADS)/*.h PndKnnClassify
+PndProjectedKNN: % : %.cpp $(HEADS)/*.h
 	$(CXX) $(CCFLAGS) -c $< $(INCLUDE) -o $@.o
-	$(CXX) $(CCFLAGS) classify.o PndKnnClassify.o $(INCLUDE) $(LIBS) -o $@
-	@echo "Done building the classifier."
-	@echo ""
 
-Prclassify: % : %.cpp $(HEADS)/*.h PndKnnClassify
+Prclassify: % : %.cpp $(HEADS)/*.h PndProjectedKNN PndKnnClassify
 	$(CXX) $(CCFLAGS) -c $< $(INCLUDE) -o $@.o
-	$(CXX) $(CCFLAGS) Prclassify.o PndKnnClassify.o $(INCLUDE) $(LIBS) -o $@
+	$(CXX) $(CCFLAGS) Prclassify.o PndKnnClassify.o PndProjectedKNN.o $(INCLUDE) $(LIBS) -o $@
 	@echo "Done building the projected classifier."
 	@echo ""
 
