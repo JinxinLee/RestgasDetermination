@@ -236,20 +236,12 @@ InitStatus PndLheHitsMaker::Init() {
 	{
 	  cout << "-I- PndLheHitsMaker::Init: Using MVDHit" << endl;
 	}
-      
-      fMvdStripClusterArray = (TClonesArray*) fManager->GetObject("MVDStripClusterCand");
-      if ( !fMvdStripClusterArray) fMvdSimMode = 0;
-      fMvdPixelClusterArray = (TClonesArray*) fManager->GetObject("MVDClusterCand");
-      if ( !fMvdPixelClusterArray) fMvdSimMode = 0;
-      fMvdStripDigiArray = (TClonesArray*) fManager->GetObject("MVDStripDigis");
-      if ( !fMvdStripDigiArray)    fMvdSimMode = 0;
-      fMvdPixelDigiArray = (TClonesArray*) fManager->GetObject("MVDPixelDigis");
-      if ( !fMvdPixelDigiArray)    fMvdSimMode = 0;
+     
       fMvdMCArray = (TClonesArray*) fManager->GetObject("MVDPoint");
       if ( ! fMvdMCArray )         fMvdSimMode = 0;
 
       if ( fMvdSimMode == 0)  cout << "-W- PndLheHitsMaker::Init: No MVD MC information is available" << endl;
- 
+      
       break;
       
     default:
@@ -291,7 +283,7 @@ InitStatus PndLheHitsMaker::Init() {
       
     default:
       cout << "-E- PndLheHitsMaker::Init: Wrong EMC mode. Switching EMC OFF" << endl;
-      fMvdMode = 0;
+      fEmcMode = 0;
     }
 
   if ((fMvdMode+fTpcMode+fSttMode+fEmcMode)==0)
@@ -408,16 +400,10 @@ void PndLheHitsMaker::GetMvdHits() {
 
       hit->SetDetectorID(kMVDHitsPixel);
       
-      if (fMvdSimMode)
+      if ( (fMvdSimMode) && (hit->GetRefIndex()!=-1) )
 	{
-	  PndMvdHit* myHit = (PndMvdHit*)(fMvdPixelHitArray->At(j2));
-	  PndMvdCluster* myCluster = (PndMvdCluster*)(fMvdPixelClusterArray->At(myHit->GetRefIndex()));
-	  PndMvdDigiPixel* apixeldigi = (PndMvdDigiPixel*)fMvdPixelDigiArray->At(myCluster->GetDigiIndex(0)); 
-	  if (apixeldigi->GetIndex(0)!=-1)
-	    {
-	      PndMvdMCPoint* myPoint = (PndMvdMCPoint*)(fMvdMCArray->At(apixeldigi->GetIndex(0)));
-	      hit->SetTrackID(myPoint->GetTrackID());
-	    }
+	  PndMvdMCPoint* myPoint = (PndMvdMCPoint*)(fMvdMCArray->At(hit->GetRefIndex()));
+	  hit->SetTrackID(myPoint->GetTrackID());
 	}
       hit->SetRefIndex(j2);
       if (fVerbose)  hit->Print();
@@ -450,16 +436,11 @@ void PndLheHitsMaker::GetMvdHits() {
       hit->SetDy(0.005);
       hit->SetDz(0.005);
       hit->SetDetectorID(kMVDHitsStrip);
-      if (fMvdSimMode)
+
+      if ( (fMvdSimMode) && (hit->GetRefIndex()!=-1) )
 	{
-	  PndMvdHit* myHit = (PndMvdHit*)(fMvdStripHitArray->At(j));
-	  PndMvdCluster* myCluster = (PndMvdCluster*)(fMvdStripClusterArray->At(myHit->GetRefIndex()));
-	  PndMvdDigiStrip* apixeldigi = (PndMvdDigiStrip*)fMvdStripDigiArray->At(myCluster->GetDigiIndex(0)); 
-	  if (apixeldigi->GetIndex(0)!=-1)
-	    {
-	      PndMvdMCPoint* myPoint = (PndMvdMCPoint*)(fMvdMCArray->At(apixeldigi->GetIndex(0)));
-	      hit->SetTrackID(myPoint->GetTrackID());
-	    }
+	  PndMvdMCPoint* myPoint = (PndMvdMCPoint*)(fMvdMCArray->At(hit->GetRefIndex()));
+	  hit->SetTrackID(myPoint->GetTrackID());
 	}
       hit->SetRefIndex(j);
       if (fVerbose)  hit->Print();

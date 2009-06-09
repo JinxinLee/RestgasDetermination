@@ -96,10 +96,11 @@ public:
    
   void SetOption(Option_t *option=" ") {fOption = option;  fOption.ToLower();}
   void SetDebugMode(Bool_t debug){ fDebugMode = debug; };
+  void SetDebugFilename(TString filename) { sFile = filename; };	
   void SetVerbose(Bool_t verb)   { fVerbose = verb  ;};
   void SetSimulation(Bool_t sim)         { fSimulation = sim; };
   void SetGeanePro(Bool_t gea = kTRUE)   { fGeanePro = gea; };
-
+	
   static PndLhePidMaker* Instance();
 
   /** Get parameter containers **/
