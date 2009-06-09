@@ -57,6 +57,8 @@ root -l -b -q "run_sim_alldet.C($2,\"$3\",$4,$5,$6,$7,$8,$9,$1)" >> logfile 2>&1
 
 root -l -b -q "run_rec_alldet.C" >> logfile 2>&1
 
+root -l -b -q "ana.C" >> logfile 2>&1
+
 #root -l -b -q "grep_all.C" >> logfile 2>&1
 
 rm points_sttcombi.root
