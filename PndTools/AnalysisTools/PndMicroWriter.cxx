@@ -340,8 +340,8 @@ void PndMicroWriter::Exec(Option_t* opt)
     cout<<"-I- PndMicroWriter::Exec(): Pointer myrep2 "<<myrep2<<endl;
     myrep2->Print();
 
-//    if(false)
-//    {
+    if(false)
+    {
       LSLTrackRep* myrep=dynamic_cast<LSLTrackRep*>(tr1->getCardinalRep());
       //LSLTrackRep* myrep=(LSLTrackRep*)tr1->getCardinalRep();
       //AbsTrackRep* myrep= tr1->getCardinalRep();
@@ -408,8 +408,8 @@ void PndMicroWriter::Exec(Option_t* opt)
 	    micro->SetSttHitIndexArray(stthits, stt_hitidx);
 	    micro->SetTpcHitIndexArray(tpchits, tpc_hitidx);
      
-//    } else
-//    {
+    } else
+    {
       /*
       GeaneTrackRep* myrep=dynamic_cast<GeaneTrackRep*>(tr1->getCardinalRep()); // assuming we know it is GeaneTrackRep
       cout<<"-I- PndMicroWriter::Exec(): Pointer myrep "<<myrep<<endl;
@@ -486,7 +486,7 @@ void PndMicroWriter::Exec(Option_t* opt)
   */    
       
 
- //   }
+    }
 
   }
   
