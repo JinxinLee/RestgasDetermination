@@ -27,7 +27,7 @@ void ana( )
         PndEmcMapper *emcMap=PndEmcMapper::Instance(2);
         std::vector<PndEmcDigi*> list;
 
- TNtuple *tube = new TNtuple("pion","pion","mass:E1:E2:E3:E4:E5");
+ TNtuple *tube = new TNtuple("pion","pion","mass:E1:E2:E3:E4:z22:z20:z40:z42:z44:E1E9:E9E25");
 
 
         for (Int_t j=0; j< t->GetEntriesFast(); j++)
@@ -37,7 +37,7 @@ void ana( )
                 std::vector<PndEmcDigi*>::iterator digiIt;
 		std::vector<float> energyVec;
 		std::vector<float>::iterator it;
-		float val[10];
+		float val[15];
                 for (Int_t i=0; i<cluster_array->GetEntriesFast(); i++)
                 {
                         PndEmcCluster *cluster=(PndEmcCluster*)cluster_array->At(i);
@@ -61,7 +61,25 @@ void ana( )
                         energyVec.pop_back();
 			Esum += energyVec.back();
 			val[4] = Esum/cluster->energy();
+			PndEmcXClMoments mom = cl->Xmoments();
+z22 = mom.AbsZernikeMoment(2,2,15);
+z20 = mom.AbsZernikeMoment(2,0,15);
+z40 = mom.AbsZernikeMoment(4,0,15);
+z42 = mom.AbsZernikeMoment(4,2,15);
+z44 = mom.AbsZernikeMoment(4,4,15);
+
+			val[5] = z22;
+			val[6] = z20;
+			val[7] = z40;
+			val[8] = z42;
+			val[9] = z44;
+		 	PndEmcClusterEnergySums Elat = cl->Esums();
+			val[10] = E1E9();	
+			val[11] = E9E25();	
                         tube->Fill(val);
+
+			
+
                 }
 		list.clear();
         }
