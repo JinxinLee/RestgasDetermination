@@ -1,42 +1,20 @@
-void sim_muo(Int_t nEvents=1000, Float_t pT=2.0){
+void sim_muo(Int_t nEvents=10, Int_t pid=13, Float_t p1=1.0, Float_t p2=-1){
   
   TStopwatch timer;
   timer.Start();
   gDebug=0;
   // Load basic libraries
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-  basiclibs();
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  rootlogon();
 
-  // Load this example libraries
-  gSystem->Load("libGeoBase");
-  gSystem->Load("libParBase");
-  gSystem->Load("libBase");
-  gSystem->Load("libPndData");
-  gSystem->Load("libField");
-  gSystem->Load("libPassive");
-  gSystem->Load("libGen");  
-  gSystem->Load("libEmc"); 
-  gSystem->Load("libgenfit");
-  gSystem->Load("libtpc"); 
-  gSystem->Load("libtpcreco");
-  gSystem->Load("libtrackrep");
-  gSystem->Load("librecotasks");
-  gSystem->Load("libMvd");
-  gSystem->Load("libMvdReco");
-  gSystem->Load("libMdt");
-  gSystem->Load("libLHETrack");
-
- 
   FairRunSim *fRun = new FairRunSim();
   
   // set the MC version used
   // ------------------------
 
   fRun->SetName("TGeant3");
-  // Choose the Geant Navigation System
-  // fRun->SetGeoModel("G3Native");
   
-  fRun->SetOutputFile("points_combi.root");
+  fRun->SetOutputFile("test.root");
 
   // Set Material file Name
   //-----------------------
@@ -51,16 +29,15 @@ void sim_muo(Int_t nEvents=1000, Float_t pT=2.0){
   fRun->AddModule(Cave); 
   
   FairModule *Magnet= new PndMagnet("MAGNET");
-  Magnet->SetGeometryFileName("FullSolenoid.root");
-  fRun->AddModule(Magnet);
+  Magnet->SetGeometryFileName("PandaSolenoidV833.root");
+  //fRun->AddModule(Magnet);
 
   FairModule *Dipole= new PndMagnet("MAGNET");
   Dipole->SetGeometryFileName("dipole.geo");
-  fRun->AddModule(Dipole);
+  //fRun->AddModule(Dipole);
  
   FairModule *Pipe= new PndPipe("PIPE");
-  Pipe->SetGeometryFileName("pipebeamtarget.geo");
-  fRun->AddModule(Pipe);
+  //fRun->AddModule(Pipe);
 
   FairDetector *Tpc = new PndTpcDetector("TPC", kTRUE);
   Tpc->SetGeometryFileName("tpc.geo");
@@ -71,25 +48,25 @@ void sim_muo(Int_t nEvents=1000, Float_t pT=2.0){
   fRun->AddModule(Mvd);
   
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
-  Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root");
+  Emc->SetGeometryFileNameDouble("emc_module124.dat","emc_module3new.root");
   fRun->AddModule(Emc);   
   
   FairDetector *Tof = new PndTof("TOF",kTRUE);
-  Tof->SetGeometryFileName("tofSciF.geo");
+  Tof->SetGeometryFileName("tofbarrel.geo");
   fRun->AddModule(Tof);
  
-  PndMdt* Mdt = new PndMdt("MDT",kTRUE);
-  Mdt->SetMdtVersion("torino");
-  Mdt->SetGeometryFileName("muopars.root");
-  fRun->AddModule(Mdt);
+  PndMdt *Muo = new PndMdt("MDT",kTRUE);
+  Muo->SetMdtVersion("torino");
+  Muo->SetMdtMagnet(true);
+  fRun->AddModule(Muo);
  
-  FairDetector *Drc = new PndDrc("DIRC", kTRUE);
-  Drc->SetGeometryFileName("dirc.geo"); 
+  PndDrc *Drc = new PndDrc("DIRC", kTRUE);
+  Drc->SetRunCherenkov(kFALSE); // for fast sim Cherenkov -> kFALSE
   fRun->AddModule(Drc); 
   
-  FairDetector *Dch = new PndDchDetector("DCH", kTRUE);
-  Dch->SetGeometryFileName("dch.root"); 
-  fRun->AddModule(Dch);
+  //FairDetector *Dch = new PndDchDetector("DCH", kTRUE);
+  //Dch->SetGeometryFileName("dch.root"); 
+  //fRun->AddModule(Dch);
   
   // Create and Set Event Generator
   //-------------------------------
@@ -98,24 +75,33 @@ void sim_muo(Int_t nEvents=1000, Float_t pT=2.0){
   fRun->SetGenerator(primGen);
 
   // Box Generator
-  FairBoxGenerator* boxGen = new FairBoxGenerator(13, 1); // 13 = muon; 1 = multipl.
-  boxGen->SetPRange(pT,pT); // GeV/c
+  FairBoxGenerator* boxGen = new FairBoxGenerator(pid, 1); // 13 = muon; 1 = multipl.
+  if (p2<0.) p2 = p1;
+  boxGen->SetPRange(p1,p2); // GeV/c
   boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
-  boxGen->SetThetaRange(0., 90.); // Polar angle in lab system range [degree]
+  boxGen->SetThetaRange(10., 90.); // Polar angle in lab system range [degree]
   boxGen->SetXYZ(0., 0., 0.); // mm o cm ??
   primGen->AddGenerator(boxGen);
 
-  fRun->SetStoreTraj(kTRUE);
-  
+  fRun->SetBeamMom(15);
   PndMultiField *fField= new PndMultiField();
 
-  PndTransMap *map= new PndTransMap("TransMap", "R");
-  PndDipoleMap *map1= new PndDipoleMap("DipoleMap", "R");
-  PndSolenoidMap *map2= new PndSolenoidMap("SolenoidMap", "R");
-  fField->AddField(map);
-  fField->AddField(map1);
-  fField->AddField(map2);
-  
+  PndTransMap *map_t= new PndTransMap("TransMap", "R");
+  PndDipoleMap *map_d1= new PndDipoleMap("DipoleMap1", "R");
+  PndDipoleMap *map_d2= new PndDipoleMap("DipoleMap2", "R");
+  PndSolenoidMap *map_s1= new PndSolenoidMap("SolenoidMap1", "R");
+  PndSolenoidMap *map_s2= new PndSolenoidMap("SolenoidMap2", "R");
+  PndSolenoidMap *map_s3= new PndSolenoidMap("SolenoidMap3", "R");
+  PndSolenoidMap *map_s4= new PndSolenoidMap("SolenoidMap4", "R");
+
+  fField->AddField(map_t);
+  fField->AddField(map_d1);
+  fField->AddField(map_d2);
+  fField->AddField(map_s1);
+  fField->AddField(map_s2);
+  fField->AddField(map_s3);
+  fField->AddField(map_s4);
+
   fRun->SetField(fField);
   
   fRun->Init();
@@ -129,7 +115,7 @@ void sim_muo(Int_t nEvents=1000, Float_t pT=2.0){
   Par->setChanged();
 
   FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
-  output->open("testparams.root");
+  output->open("params.root");
   rtdb->setOutput(output);
   rtdb->saveOutput();
   rtdb->print();
@@ -144,7 +130,7 @@ void sim_muo(Int_t nEvents=1000, Float_t pT=2.0){
    
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
-  exit(0);
+  //exit(0);
    
 }  
   
