@@ -4,11 +4,13 @@
  * algorithm. An implementation of kd-tree is used to improve the
  * recognition performance.
  */
+// C++
 #include <sstream>
 
-//#include "PndKnnClassify.h"
+// PANDA ROOT
 #include "PndProjectedKNN.h"
 
+// ROOT
 #include "TRandom3.h"
 #include "TStopwatch.h"
 
@@ -43,42 +45,46 @@ int main(int argc, char** argv)
   int NumNei = 0;
   buff >> NumNei;
 
-  TRandom3 myran(4125373);
+  TRandom3 myran(712535);
   std::vector<std::string> clas;
-  std::vector<std::string> nam;
-  
+  std::vector<std::string> stru;
+  std::vector<std::vector<std::string> > names;
+  std::vector<std::string> nam1;// = new std::vector<std::string>();
+  std::vector<std::string> nam2;// = new std::vector<std::string>();
+
   // Classes (container to hold the class names)
-  clas.push_back("Elec"); clas.push_back("Pion"); 
-  clas.push_back("Kaon"); clas.push_back("Gamma"); 
-  clas.push_back("Muon"); clas.push_back("Prot");
+  clas.push_back("Elect"); clas.push_back("Pion"); 
+  clas.push_back("Kaon"); //clas.push_back("Gamma"); 
+  clas.push_back("Muon"); clas.push_back("Proton");
   
-  // Variables (names)
-  nam.push_back("emc"); nam.push_back("tof"); nam.push_back("mvd");
-  nam.push_back("p");   nam.push_back("stt"); nam.push_back("tpc");
+  // Event structure
+  stru.push_back("p"); stru.push_back("stt");   
+  stru.push_back("emc"); stru.push_back("tof");
+  stru.push_back("mvd");
 
+  // Variables (combinations)  
+  nam1.push_back("p");   nam1.push_back("stt");
+  nam2.push_back("emc"); nam2.push_back("tof"); 
+  nam2.push_back("mvd");
 
-  TStopwatch timer;
-  timer.Start();
-
+  names.push_back(nam1); 
+  names.push_back(nam2);
   //Create the classifier object and specify the weight file
-  PndKnnClassify cls (InPutFileName.c_str(), clas, nam);
+
+  //PndKnnClassify cls (InPutFileName.c_str(), clas, nam1);
+  PndProjectedKNN cls (InPutFileName.c_str(), clas, stru, names);
+
   cls.SetEvtParam(0.8,1.0);
   cls.InitKNN();
+
   std::cout << ".......... Init is done." << std::endl;
 
-  timer.Stop();
-  double rtime = timer.RealTime();
-  double ctime = timer.CpuTime();
-  std::cout<< "RealTime = " << rtime << " seconds, CpuTime = " 
-           << ctime <<" Seconds" << std::endl;
-
-  std::vector<float> evt,evt1,evt2;
+  std::vector<float> evt, evt1, evt2;
   
-  evt.clear();
-  for(unsigned int j = 0; j < nam.size(); j++){
-    evt.push_back(myran.Gaus(1,1));
+  for(unsigned int j = 0; j < nam1.size(); j++){
+    evt.push_back(myran.Gaus(1,2));
     evt1.push_back(myran.Uniform(-1,1));
-    evt2.push_back(myran.Uniform(30,50));
+    evt2.push_back(myran.Uniform(3,5));
   }
   
   // Map to store the results
@@ -86,16 +92,19 @@ int main(int argc, char** argv)
   
   TStopwatch ti;
   ti.Start();
+ 
+  cls.Classify(evt, NumNei, res);
+  printResult(res);
+
+  cls.Classify(evt1, NumNei, res);
+  printResult(res);
   
-  for(int i = 0; i < 3; i++){
-    cls.Classify(evt, NumNei, res);
-    //cls.Classify(evt1, NumNei, res);
-    //cls.Classify(evt2, NumNei, res);
-    printResult(res);
-  }
+  cls.Classify(evt2, NumNei, res);
+  printResult(res);
+  
   ti.Stop();
-  rtime = ti.RealTime();
-  ctime = ti.CpuTime();
+  double rtime = ti.RealTime();
+  double ctime = ti.CpuTime();
   std::cout << "timer 1: Classifier timing results:"<< std::endl;
   std::cout<< "RealTime = " << rtime << " seconds, CpuTime = " 
            << ctime <<" Seconds\n" << std::endl;

@@ -57,7 +57,7 @@ train: % : %.cpp $(HEADS)/*.h PndKnnTrain
 PndProjectedKNN: % : %.cpp $(HEADS)/*.h
 	$(CXX) $(CCFLAGS) -c $< $(INCLUDE) -o $@.o
 
-Prclassify: % : %.cpp $(HEADS)/*.h PndProjectedKNN PndKnnClassify
+Prclassify: % : %.cpp $(HEADS)/*.h PndKnnClassify PndProjectedKNN
 	$(CXX) $(CCFLAGS) -c $< $(INCLUDE) -o $@.o
 	$(CXX) $(CCFLAGS) Prclassify.o PndKnnClassify.o PndProjectedKNN.o $(INCLUDE) $(LIBS) -o $@
 	@echo "Done building the projected classifier."
