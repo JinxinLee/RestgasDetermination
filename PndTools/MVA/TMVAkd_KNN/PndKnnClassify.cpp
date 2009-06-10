@@ -100,7 +100,7 @@ void PndKnnClassify::InitKNN()
     "");
   */
   // Close the open file.
-  // m_InPutF->Close();
+  m_InPutF->Close();
   //std::cout << "length is " << m_perClassExamples.size() << std::endl;
   std::cout << "END OT Call to Init()" << std::endl;
 }
