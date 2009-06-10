@@ -52,8 +52,8 @@ PndEmcDigi::PndEmcDigi(Int_t trackid, Int_t id, Float_t energy, Float_t time, In
 	fThetaInd=fTCI->XCoord();
 	fPhiInd=fTCI->YCoord();
 
-	std::map<PndEmcTwoCoordIndex*, PndEmcXtal*> tciXtalMap=PndEmcStructure::Instance()->GetTciXtalMap();
-	PndEmcXtal* xtal = tciXtalMap[fTCI];
+	std::map<PndEmcTwoCoordIndex*, PndEmcXtal*> const &tciXtalMap=PndEmcStructure::Instance()->GetTciXtalMap();
+	PndEmcXtal* xtal = tciXtalMap.find(fTCI)->second;
 	fWhere = algPointer()(xtal);
 	fTheta = fWhere.Theta();
 	fPhi = fWhere.Phi();
@@ -75,8 +75,8 @@ PndEmcDigi::PndEmcDigi( const PndEmcDigi& other )
 	fThetaInd=fTCI->XCoord();
 	fPhiInd=fTCI->YCoord();
 
-	std::map<PndEmcTwoCoordIndex*, PndEmcXtal*> tciXtalMap=PndEmcStructure::Instance()->GetTciXtalMap();
-	PndEmcXtal* xtal = tciXtalMap[fTCI];
+	std::map<PndEmcTwoCoordIndex*, PndEmcXtal*> const &tciXtalMap=PndEmcStructure::Instance()->GetTciXtalMap();
+	PndEmcXtal* xtal = tciXtalMap.find(fTCI)->second;
 	fWhere = algPointer()(xtal);
 	fTheta = fWhere.Theta();
 	fPhi = fWhere.Phi();
@@ -95,8 +95,8 @@ void PndEmcDigi::SetDetectorId(Int_t id)
 	fThetaInd=fTCI->XCoord();
 	fPhiInd=fTCI->YCoord();
 
-	std::map<PndEmcTwoCoordIndex*, PndEmcXtal*> tciXtalMap=PndEmcStructure::Instance()->GetTciXtalMap();
-	PndEmcXtal* xtal = tciXtalMap[fTCI];
+	std::map<PndEmcTwoCoordIndex*, PndEmcXtal*> const &tciXtalMap=PndEmcStructure::Instance()->GetTciXtalMap();
+	PndEmcXtal* xtal = tciXtalMap.find(fTCI)->second;
 	fWhere = algPointer()(xtal);
 	fTheta = fWhere.Theta();
 	fPhi = fWhere.Phi();

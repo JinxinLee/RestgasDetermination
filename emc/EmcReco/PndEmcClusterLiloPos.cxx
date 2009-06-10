@@ -92,12 +92,12 @@ PndEmcClusterLiloPos::liloWhere( const PndEmcCluster *aClus )
 	
 	PndEmcDigiPtrDict::iterator lDigiIter = (*lDigis).begin();
 	
-	std::map<PndEmcTwoCoordIndex*, PndEmcXtal*> tciXtalMap=PndEmcStructure::Instance()->GetTciXtalMap();
+	std::map<PndEmcTwoCoordIndex*, PndEmcXtal*> const &tciXtalMap=PndEmcStructure::Instance()->GetTciXtalMap();
 	
 	while(lDigiIter != (*lDigis).end())
 	{
 		PndEmcDigi *lDigi=lDigiIter->second;
-		PndEmcXtal* xtal = tciXtalMap[lDigi->GetTCI()];
+		PndEmcXtal* xtal = tciXtalMap.find(lDigi->GetTCI())->second;
 		const TVector3 tNormal=xtal->normalToFrontFace();
 		
 		
@@ -150,7 +150,7 @@ PndEmcClusterLiloPos::liloWhere( const PndEmcCluster *aClus )
   
 	assert(lTCI!=0);  
 	
-	const PndEmcXtal *lGeom=tciXtalMap[lTCI];
+	const PndEmcXtal *lGeom=tciXtalMap.find(lTCI)->second;
 	
 	// First, find out if the point is outside the crystal.
 	

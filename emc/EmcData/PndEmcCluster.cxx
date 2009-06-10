@@ -446,9 +446,9 @@ PndEmcCluster::GravWhere( const PndEmcCluster* me )
 
 	assert(theTCI != 0);  
 	
-	std::map<PndEmcTwoCoordIndex*, PndEmcXtal*> tciXtalMap=PndEmcStructure::Instance()->GetTciXtalMap();
+	std::map<PndEmcTwoCoordIndex*, PndEmcXtal*> const &tciXtalMap=PndEmcStructure::Instance()->GetTciXtalMap();
 	
-	const PndEmcXtal *theGeom=tciXtalMap[theTCI];
+	const PndEmcXtal *theGeom=tciXtalMap.find(theTCI)->second;
 	
 	const TVector3 normal = theGeom->normalToFrontFace();
 	
