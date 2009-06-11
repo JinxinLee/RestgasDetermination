@@ -10,9 +10,9 @@ FLAGSMACHINE = -march=core2 -mfpmath=sse -mtune=core2  -msse3 -m64 -m3dnow
 
 CXX       =  g++
 # CCFLAGS   = -Wall -W -O1 -g -pg -fopenmp #if profiling
-CCFLAGS   = -Wall -W -O3 -ffast-math ${FLAGSMACHINE}
-CCFLAGS  += -fomit-frame-pointer -funsafe-math-optimizations -fopenmp
+CCFLAGS   = -Wall -W -O3  -fopenmp ${FLAGSMACHINE}
 CCFLAGS  += -funroll-loops -fvariable-expansion-in-unroller
+#CCFLAGS  += -fomit-frame-pointer -ffast-math -funsafe-math-optimizations
 
 INCLUDE   = $(shell root-config --cflags) -I./
 
@@ -31,21 +31,21 @@ all: $(BINS)
 	@echo "-> before running the application."
 	@echo ""
 
-classify: % : %.cpp PndLVQClassify
-	$(CXX) $(CCFLAGS) -c $< $(INCLUDE) -o $@.o
-	$(CXX) $(CCFLAGS) classify.o PndLVQClassify.o $(INCLUDE) $(LIBS) -o $@
-	@echo "Done building the classifier."
-
 PndLVQClassify: % : %.cpp
-	$(CXX) $(CCFLAGS) -c $< $(INCLUDE) -o $@.o
-
-train: % : %.cpp PndLVQTrain
-	$(CXX) $(CCFLAGS) -c $< $(INCLUDE) -o $@.o
-	$(CXX) $(CCFLAGS) train.o PndLVQTrain.o $(INCLUDE) $(LIBS) -o $@
-	@echo "Done, building the trainer."
+	$(CXX) $(CCFLAGS) $(INCLUDE) -c $< -o $@.o
 
 PndLVQTrain:% : %.cpp
-	$(CXX) $(CCFLAGS) -c $< $(INCLUDE) -o $@.o
+	$(CXX) $(CCFLAGS) $(INCLUDE) -c $< -o $@.o
+
+classify: % : %.cpp PndLVQClassify
+	$(CXX) $(CCFLAGS) $(INCLUDE) -c $< -o $@.o
+	$(CXX) $(CCFLAGS) $(INCLUDE) $(LIBS) PndLVQClassify.o classify.o -o $@
+	@echo "Done building the classifier."
+
+train: % : %.cpp PndLVQTrain
+	$(CXX) $(CCFLAGS) $(INCLUDE) -c $< -o $@.o
+	$(CXX) $(CCFLAGS) $(INCLUDE) $(LIBS) PndLVQTrain.o train.o  -o $@
+	@echo "Done, building the trainer."
 
 clean:
 	rm -f $(BINS) *~ *.o

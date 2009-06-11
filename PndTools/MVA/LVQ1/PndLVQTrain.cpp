@@ -7,6 +7,7 @@
  */
 
 #include "PndLVQTrain.h"
+#define ProgStep 1000000
 
 /**
  * Constructor:
@@ -17,17 +18,11 @@
 PndLVQTrain::PndLVQTrain(const char* InPut,
 			 const std::vector<std::string>& ClassNames, 
 			 const std::vector<std::string>& VarNames)
+  : m_ClassNames(ClassNames), m_VarNames(VarNames), m_initConst(0.8), 
+    m_ethaZero(0.1), m_ethaFinal(0.0001), m_NumSweep(900)
 {
-  m_ClassNames = ClassNames;
-  m_VarNames   = VarNames;
-  
   /* Read event data */
   readInput(InPut);
-
-  // Set learning constants.
-  m_initConst = 0.8; m_ethaZero = 0.1; 
-  m_ethaFinal = 0.0001; m_NumSweep = 900;
-  
 }// End of constructor
 
 /**
@@ -36,6 +31,7 @@ PndLVQTrain::PndLVQTrain(const char* InPut,
 PndLVQTrain::~PndLVQTrain()
 {
   std::cout << "Cleaning all initialized objects." << std::endl;
+
   // Clean up the container for class Conditional means
   std::map< std::string, std::vector<float>* >::iterator it;
   for(it = m_ClassCondMeans.begin(); it != m_ClassCondMeans.end(); ++it)
@@ -73,7 +69,7 @@ PndLVQTrain::~PndLVQTrain()
  */
 void PndLVQTrain::Train(const int numProto, const char* outPut)
 {
-  TRandom3 trand(435775);
+  TRandom3 trand(RND_SEED);
   
   // Init LVQ protoTypes.
   if(numProto <= 0)
@@ -135,13 +131,12 @@ void PndLVQTrain::Train(const int numProto, const char* outPut)
       std::cout <<"\tVery small ethaT" << std::endl;
     }
     
-    if( (time % 100000) == 0)
+    if( (time % ProgStep) == 0)
     {
       std::cerr << ". " ;
     }
       
     // select a random example
-    //int index = (int) trand.Poisson( (time + 2) * 10000) % (m_EventsData.size() - 1);
     int index = static_cast<int>(trand.Uniform(0.0, m_EventsData.size() - 1));
 
     int   protoIndex       = 0;
@@ -192,7 +187,7 @@ void PndLVQTrain::Train(const int numProto, const char* outPut)
  */
 void PndLVQTrain::Train21(const int numProto, const char* outPut)
 {
-  TRandom3 trand(435573);
+  TRandom3 trand(RND_SEED);
   
   // Container to store distances.
   std::vector <PndLVQDistObj*> distances;
@@ -258,7 +253,7 @@ void PndLVQTrain::Train21(const int numProto, const char* outPut)
   std::cout << "Starting to train (LVQ2.1)....." << std::endl;
   for(unsigned int time = 0; time < tFinal; time++)
   {
-    if( (time % 100000) == 0)
+    if( (time % ProgStep) == 0)
     {
       std::cerr << " ." ;
     }
@@ -273,7 +268,6 @@ void PndLVQTrain::Train21(const int numProto, const char* outPut)
     }
     
     // select a random example
-    //int index = (int) trand.Poisson( (time + 2) * 10000) % (m_EventsData.size() - 1);
     int index = static_cast<int>(trand.Uniform( 0, m_EventsData.size() - 1));
 
     // Compute the distance to all available LVQ proto-types
@@ -350,6 +344,62 @@ void PndLVQTrain::Train21(const int numProto, const char* outPut)
   distances.clear();
 }
 
+/**
+ * Normalize event dataset using one of available methods.
+ *@param t Normalization type (VARX, MINMAX, MEDIAN).
+ *@param wrtite Write the normalized data to a file.
+ */
+void PndLVQTrain::NormalizeDataSet(const NormType t, bool write)
+{
+  m_normFact.clear();
+  std::string OutFile;
+  
+  switch(t)
+  {
+  case VARX:
+    std::cout << "\t<INFO> Normalizing the dataset "
+	      << "using samle Variance. "
+	      << std::endl;
+    OutFile = "InputVarianceNormalized.root";
+    ComputeVariance();
+    break;
+  case MINMAX:
+    std::cout << "<INFO>\tNormalizing dataset using Min Max spread." 
+	      <<std::endl;
+    OutFile = "InputMinMaxNormalized.root";
+    MinMaxDiff();
+    break;
+  case MEDIAN:
+    std::cout << "\t<INFO> Normalizing the dataset "
+	      << "using Median and Inter Quartile Distance."
+	      << std::endl;
+    OutFile = "InputMedianNormalized.root";
+    DetermineMediaan();
+    break;
+  default:
+    std::cout << "<INFO> No normalization scheme was selected." 
+	      << std::endl;
+  }
+  
+  if(m_normFact.size() != 0)
+  {
+    // Event Loop
+    for(unsigned int ev = 0; ev < m_EventsData.size(); ev++)
+    {
+      // Parameters Loop
+      for(unsigned int i = 0; i < m_VarNames.size(); i++)
+      {
+	std::string varName = m_VarNames[i];
+	(m_EventsData[ev].second)->at(i) = (m_EventsData[ev].second)->at(i) / (m_normFact[varName]);
+      }
+    }
+    if(write)
+    {
+      WriteDataToFile(OutFile.c_str());
+    }
+  }
+}
+
 ////////////////////////// Protected functions ///////////
 /**
  * Computes the Euclidean distance between two given vectors of
@@ -380,7 +430,7 @@ void PndLVQTrain::InitProtoTypes(const int numProto)
   
   // Initialize LVQ-prototypes.
   double c = m_initConst;//0.8;
-  TRandom3 trand(435375);
+  TRandom3 trand(RND_SEED);
   
   for(unsigned int cl = 0; cl < m_ClassNames.size(); cl++)
   {
@@ -394,7 +444,6 @@ void PndLVQTrain::InitProtoTypes(const int numProto)
       {
 	minIdx = 1;
       }
-      //int index = (int) (trand.Poisson( (float)((maxIdx + minIdx)/2))) % (maxIdx);
       int index = static_cast<int>(trand.Uniform(minIdx, maxIdx));
 
       if(index < minIdx)
@@ -736,53 +785,10 @@ void PndLVQTrain::ComputeVariance()
   }
 }
 
-void PndLVQTrain::NormalizeDataSet(const NormType t)
-{
-  m_normFact.clear();
-  std::string OutFile;
-
-  switch(t){
-  case VARX:
-    std::cout << "\t<INFO> Normalizing the dataset "
-	      << "using samle Variance. "
-	      << std::endl;
-    OutFile = "InputVarianceNormalized.root";
-    ComputeVariance();
-    break;
-  case MINMAX:
-    std::cout << "<INFO>\tNormalizing dataset using Min Max spread." 
-	      <<std::endl;
-    OutFile = "InputMinMaxNormalized.root";
-    MinMaxDiff();
-    break;
-  case MEDIAN:
-    std::cout << "\t<INFO> Normalizing the dataset "
-	      << "using Median and Inter Quartile Distance."
-	      << std::endl;
-    OutFile = "InputMedianNormalized.root";
-    DetermineMediaan();
-    break;
-  default:
-    std::cout << "<INFO> No normalization scheme was selected." 
-	      << std::endl;
-  }
-  
-  if(m_normFact.size() != 0)
-  {
-    // Event Loop
-    for(unsigned int ev = 0; ev < m_EventsData.size(); ev++)
-    {
-      // Parameters Loop
-      for(unsigned int i = 0; i < m_VarNames.size(); i++)
-      {
-	std::string varName = m_VarNames[i];
-	(m_EventsData[ev].second)->at(i) = (m_EventsData[ev].second)->at(i) / (m_normFact[varName]);
-      }
-    }
-    //WriteDataToFile(OutFile.c_str());
-  }
-}
-
+/**
+ * Read input event data.
+ *@param InPut Input file name.
+ */
 void PndLVQTrain::readInput(const char *InPut)
 {
   std::cout << "<INFO> Reading data from  "<< InPut 
@@ -856,6 +862,12 @@ void PndLVQTrain::readInput(const char *InPut)
  */
 
 //=========================== FIXME HIER BEN JE BEZIG. =============//
+
+/**
+ *Initialize LVQ prototypes (Code books) using class conditional
+ *means vectors.
+ *@param numProto number of code books to use.
+ */
 void PndLVQTrain::InitProtoTypesWithClsMean(const int numProto)
 {
   // Clear protypes list
@@ -873,7 +885,7 @@ void PndLVQTrain::InitProtoTypesWithClsMean(const int numProto)
   // Initialize LVQ-prototypes.
   double c = m_initConst;//0.8;
   
-  TRandom3 trand(435375);
+  TRandom3 trand(RND_SEED);
   
   for(unsigned int cl = 0; cl < m_ClassNames.size(); cl++)
   {
@@ -891,7 +903,6 @@ void PndLVQTrain::InitProtoTypesWithClsMean(const int numProto)
       {
 	minIdx = 1;
       }
-      //int index = (int) (trand.Poisson( (float)((maxIdx + minIdx)/2))) % (maxIdx);
       int index = static_cast<int>(trand.Uniform(minIdx, maxIdx));
       
       if(index < minIdx)
@@ -936,7 +947,7 @@ void PndLVQTrain::InitProtoTypesWithClsMean(const int numProto)
 
 void PndLVQTrain::TrainSec(const int numProto, const char* outPut)
 {
-  TRandom3 trand(435775);
+  TRandom3 trand(RND_SEED);
   std::vector<int> indices(m_ClassNames.size(),0);
   
   // Init LVQ protoTypes.
@@ -991,15 +1002,13 @@ void PndLVQTrain::TrainSec(const int numProto, const char* outPut)
   for(unsigned int time = 0; time < tFinal; time++)
   {
     //Write progress to std::cerr
-    if( (time % 100000) == 0)
+    if( (time % ProgStep) == 0)
     {
       std::cerr << " ." ;
     }
 
     int    protoIndex  = 0;
     float  distance    = 0.0;
-
-    //double minProtoDistance = std::numeric_limits<float>::max();//1000000.0;
 
     double ethaT = (ethaZero) / (1.0 + (a * static_cast<double>(time)));
   
@@ -1058,7 +1067,7 @@ void PndLVQTrain::TrainSec(const int numProto, const char* outPut)
 void PndLVQTrain::Train21Sec(const int numProto, const char* outPut)
 {
   /////////////////////////////////
-  TRandom3 trand(435573);
+  TRandom3 trand(RND_SEED);
   std::vector<int> indices(m_ClassNames.size(),0);
   
   // Container to store distances.
@@ -1124,7 +1133,7 @@ void PndLVQTrain::Train21Sec(const int numProto, const char* outPut)
   std::cout << "Starting to train Per class example (LVQ2.1)....." << std::endl;
   for(unsigned int time = 0; time < tFinal; time++)
   {
-    if( (time % 100000) == 0)
+    if( (time % ProgStep) == 0)
     {
       std::cerr << " ." ;
     }

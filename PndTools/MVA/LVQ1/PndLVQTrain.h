@@ -9,6 +9,8 @@
 #ifndef PndLVQTrain_H
 #define PndLVQTrain_H
 
+#define RND_SEED 435775
+
 // Standard C++ libraries
 #include <iostream>
 #include <algorithm>
@@ -48,7 +50,7 @@ class PndLVQDistObj{
   std::string m_cls;/**< Class name of the prototype. */
 };
 
-// Which normalization scheme
+// Normalization schemes
 typedef enum {VARX = 1, MINMAX = 2, MEDIAN = 3} NormType;
 
 class PndLVQTrain{
@@ -99,18 +101,11 @@ class PndLVQTrain{
     m_ethaFinal = etF; m_NumSweep = Nswp;};
   
   /**
-   * Selects the normalization scheme and normalizes the input data
-   * set. If the value is not set, then the input dataset is used
-   * without any modification.
-   *
-   *@param type Which normalization scheme to use. Possible values
-   *            are: VARX, MINMAX, MEDIAN
-   */  
-  void SelNormMethod(const NormType type)
-  {
-    m_Ntype = type;
-    NormalizeDataSet(m_Ntype);
-  };
+   * Normalize event dataset using one of available methods.
+   *@param t Normalization type (VARX, MINMAX, MEDIAN).
+   *@param w write the normalized data to a file.
+   */
+  void NormalizeDataSet(const NormType t, bool w = false);
   
   // Test functions Modified training schemes, May BE deleted after
   // testing
@@ -134,12 +129,6 @@ class PndLVQTrain{
    *@param InPut Input file name.
    */
   void readInput(const char *InPut);
-
-  /**
-   * Normalize event dataset using one of available methods.
-   *@param t Normalization type.
-   */
-  void NormalizeDataSet(const NormType t);
 
   /**
    * Initialize LVQ prototypes (Code books).
@@ -244,6 +233,5 @@ class PndLVQTrain{
   
   //! Number of sweeps through example set.
   int m_NumSweep;
-  NormType m_Ntype;
 };
 #endif //end of interface definition
