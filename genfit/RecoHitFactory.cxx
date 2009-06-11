@@ -49,7 +49,7 @@ std::vector<AbsRecoHit*> RecoHitFactory::createMany(const TrackCand& cand){
     unsigned int detID;
     unsigned int index;
     cand.getHit(i,detID,index);
-	hitVec.push_back( createOne(detID,index) );
+    hitVec.push_back( createOne(detID,index) );
   }
   return hitVec;
 }

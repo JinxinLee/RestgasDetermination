@@ -61,11 +61,13 @@ template <class hit_T,class recoHit_T>
 class RecoHitProducer : public AbsRecoHitProducer {
  private:
   /** @brief pointer to array with cluster data */
-  TClonesArray* hitArray;
+  TClonesArray* hitArrayTClones;
+  std::vector<AbsRecoHit*>* hitArrayVector;
  public:
 
   /** @brief Constructor takes pointer to the cluster array */
   RecoHitProducer(TClonesArray*);
+  RecoHitProducer(std::vector<AbsRecoHit*>*);
   virtual ~RecoHitProducer();
 
   /** @brief Create a RecoHit from the cluster at position index 
@@ -77,21 +79,39 @@ class RecoHitProducer : public AbsRecoHitProducer {
 
 template <class hit_T,class recoHit_T>
 RecoHitProducer<hit_T,recoHit_T>::RecoHitProducer(TClonesArray* theArr) {
-  hitArray = theArr;
+  hitArrayTClones = theArr;
+  hitArrayVector = NULL;
+}
+
+template <class hit_T,class recoHit_T>
+  RecoHitProducer<hit_T,recoHit_T>::RecoHitProducer(std::vector<AbsRecoHit*>* theArr) {
+  hitArrayTClones = NULL;
+  hitArrayVector = theArr;
 }
 
 template <class hit_T,class recoHit_T>
 RecoHitProducer<hit_T,recoHit_T>::~RecoHitProducer() {
+  //we dont assume ownership over the hit arrays
 }
 
 
 template <class hit_T,class recoHit_T>
 AbsRecoHit* RecoHitProducer<hit_T,recoHit_T>::produce(int index) {
-  //the ROOT guys really use 0 and not NULL grrr...
-  if(hitArray->At(index) == 0) {
-	throw FitterException("In RecoHitProducer: index for hit in TClonesArray out of bounds",__LINE__,__FILE__);
+  assert(hitArrayTClones!=NULL || hitArrayVector!=NULL);//at least one exists
+  assert(!(hitArrayTClones!=NULL && hitArrayVector!=NULL));//but not both
+  if(hitArrayTClones!=NULL){
+    //the ROOT guys really use 0 and not NULL grrr...
+    if(hitArrayTClones->At(index) == 0) {
+      throw FitterException("In RecoHitProducer: index for hit in TClonesArray out of bounds",__LINE__,__FILE__);
+    }
+    return ( new recoHit_T( (hit_T*) hitArrayTClones->At(index) ) );
   }
-  return ( new recoHit_T( (hit_T*) hitArray->At(index) ) );
+  else{//after assertions this is save: the hitArrayVector is good
+    if(index >= hitArrayVector->size()) {
+      throw FitterException("In RecoHitProducer: index for hit in std::vector out of bounds",__LINE__,__FILE__);
+    }
+    return ( new recoHit_T( (hit_T*) hitArrayVector->at(index) ) );
+  }
 }
 
 

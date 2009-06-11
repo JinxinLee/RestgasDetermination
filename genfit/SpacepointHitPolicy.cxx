@@ -21,6 +21,8 @@ SpacepointHitPolicy::hitCoord(AbsRecoHit* hit,const DetPlane& plane)
 
   _D *= -1.; 
   _D += hit->getRawHitCoord();
+  //now the vector _D points from the origin of the plane to the hit point
+
 
   _U = plane.getU();
   _V = plane.getV();
