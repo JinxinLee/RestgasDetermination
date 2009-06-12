@@ -833,14 +833,14 @@ Int_t PndEmcMapper::GetDetId(Int_t iTheta,Int_t iPhi)
 		module=2;
 		row=30-iTheta;
 		copy=(iPhi-1)/10+1;
-		crystal=(iPhi-1)%10+1;
+		crystal=10 - (iPhi-1)%10;
 	}
 	else if ((iTheta>29)&&(iTheta<73))
 	{
 		module=1;
 		row=iTheta-29;
 		copy=(iPhi-1)/10+1;
-		crystal=(iPhi-1)%10+1;
+		crystal=10 - (iPhi-1)%10;
 	}
 	if ((iTheta>200)&&(iTheta<300))
 	  {
