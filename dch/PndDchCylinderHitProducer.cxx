@@ -37,7 +37,7 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndDchCylinderHitProducer::PndDchCylinderHitProducer() :
-  FairTask("CylinderHit Producer for DCH") {
+  FairTask("CylinderHit Producer for DCH"), fConstResolution(0.) {
 }
 // -------------------------------------------------------------------------
 
@@ -238,6 +238,7 @@ Bool_t PndDchCylinderHitProducer::Accept(Double_t fracDist){
 Double_t PndDchCylinderHitProducer::Resolution(Double_t fracDist){
   Double_t res;
   res = (0.1568-0.227*fracDist+0.121*fracDist*fracDist);
+  res+= fConstResolution;
   return res;
 }
 

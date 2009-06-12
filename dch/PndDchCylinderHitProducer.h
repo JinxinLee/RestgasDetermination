@@ -42,6 +42,9 @@ class PndDchCylinderHitProducer : public FairTask{
 	/** Virtual method Exec **/
 	virtual void Exec(Option_t* opt);
 
+	/** Virtual method Exec **/
+	void SetConstResolution(Double_t res_cm){fConstResolution = res_cm;};
+
 	/** Public method AddCylinderHit **/
 	PndDchCylinderHit* AddCylinderHit(Int_t digiidx, Double_t xLoc,
 					  Double_t zGlo, Double_t dist, 
@@ -56,6 +59,7 @@ class PndDchCylinderHitProducer : public FairTask{
 	PndDchStructure* fDchStructure; ///< structure of dch setup
 	PndDchMapper* fDchMapper;       ///< mapper of dch
 	PndDchDrifter* fDchDrifter;     ///< drifter of dch
+        Double_t fConstResolution; ///< constant contribution to spatial resolution (cm)
 
         /** Private method with parametrised detection efficiency **/
 	Double_t Efficiency(Double_t fracDist);
