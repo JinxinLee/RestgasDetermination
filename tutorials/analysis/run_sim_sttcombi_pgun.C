@@ -37,8 +37,8 @@ void run_sim_sttcombi_pgun(Int_t nEvents=10, Int_t pid=211, Float_t p1=1.0, Floa
   Dipole->SetGeometryFileName("dipole.geo");
   fRun->AddModule(Dipole);
 
-  FairModule *Pipe= new PndPipe("PIPE");
-  fRun->AddModule(Pipe);
+  //FairModule *Pipe= new PndPipe("PIPE");
+  //fRun->AddModule(Pipe);
 
   FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
   Mvd->SetGeometryFileName("MVD_v1.0_woPassiveTraps.root");
@@ -88,6 +88,7 @@ void run_sim_sttcombi_pgun(Int_t nEvents=10, Int_t pid=211, Float_t p1=1.0, Floa
 	
 	fRun->SetBeamMom( (p2>0.)?(p1+p2)/2.:p1 );
 	PndMultiField *fField= new PndMultiField();
+
 	
 	PndTransMap *map_t= new PndTransMap("TransMap", "R");
 	PndDipoleMap *map_d1= new PndDipoleMap("DipoleMap1", "R");
@@ -104,8 +105,7 @@ void run_sim_sttcombi_pgun(Int_t nEvents=10, Int_t pid=211, Float_t p1=1.0, Floa
 	fField->AddField(map_s2);
 	fField->AddField(map_s3);
 	fField->AddField(map_s4);
-	
-	
+
 	fRun->SetField(fField);
 
 	fRun->SetStoreTraj(kFALSE);

@@ -18,6 +18,7 @@ void run_sim_sttcombi_evtgen(double mom, Int_t nEvents=10)
   }
   
 
+
   TStopwatch timer;
   timer.Start();
   gDebug=0;
@@ -55,8 +56,8 @@ void run_sim_sttcombi_evtgen(double mom, Int_t nEvents=10)
   Dipole->SetGeometryFileName("dipole.geo");
   fRun->AddModule(Dipole);
 
-  FairModule *Pipe= new PndPipe("PIPE");
-  fRun->AddModule(Pipe);
+  //FairModule *Pipe= new PndPipe("PIPE");
+  //fRun->AddModule(Pipe);
 
   FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
   Mvd->SetGeometryFileName("MVD_v1.0_woPassiveTraps.root");
@@ -91,6 +92,7 @@ void run_sim_sttcombi_evtgen(double mom, Int_t nEvents=10)
   // Create and Set Event Generator
   //-------------------------------
 
+
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
@@ -101,6 +103,7 @@ void run_sim_sttcombi_evtgen(double mom, Int_t nEvents=10)
 	
 	fRun->SetBeamMom( p );
 	PndMultiField *fField= new PndMultiField();
+
 	
 	PndTransMap *map_t= new PndTransMap("TransMap", "R");
 	PndDipoleMap *map_d1= new PndDipoleMap("DipoleMap1", "R");
@@ -117,8 +120,7 @@ void run_sim_sttcombi_evtgen(double mom, Int_t nEvents=10)
 	fField->AddField(map_s2);
 	fField->AddField(map_s3);
 	fField->AddField(map_s4);
-	
-	
+
 	fRun->SetField(fField);
 
 	fRun->SetStoreTraj(kFALSE);

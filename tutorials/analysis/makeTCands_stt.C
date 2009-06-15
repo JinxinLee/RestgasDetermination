@@ -7,7 +7,7 @@
 // *******
 
 
-void makeTCands(int nevts=10)
+void makeTCands_stt(int nevts=10)
 {
 	;
   TStopwatch timer;

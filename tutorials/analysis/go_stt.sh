@@ -24,7 +24,7 @@ root -l -q run_reco_sttcombi.C\($nEvts\) &> data/3-reco.log
 echo "Start Kalman Filter."
 root -l -q run_kalman_stt.C\($nEvts\) &> data/4-kalman.log
 echo "Writing TCandas for Analysis."
-root -l -q makeTCands.C\($nEvts\) &> data/5-microwriter.log
+root -l -q makeTCands_stt.C\($nEvts\) &> data/5-microwriter.log
 
 # The analysis pops up a root window and remains in the root shell
 echo "Starting a sample analysis."

@@ -1,23 +1,4 @@
-void run_sim_sttcombi_evtgen(double mom, Int_t nEvents=10)
-{
-  double mp=0.938272;
-  double p=0,M=0;
-  
-  // determine the pbar mom and E_cms for DPM generator
-  if (mom>0) 
-  {
-	p=mom;
-  	double E=sqrt(mp*mp+mom*mom)+mp;
-    M=sqrt(E*E-mom*mom);
-  }
-  else
-  {
-  	M=-mom;
-  	double X = (M*M-2*mp*mp)/(2*mp);
- 	p = sqrt(X*X-mp*mp);  	
-  }
-  
-
+void run_sim_tpccombi_pgun(Int_t nEvents=10, Int_t pid=211, Float_t p1=1.0, Float_t p2=-1){
 
   TStopwatch timer;
   timer.Start();
@@ -32,7 +13,7 @@ void run_sim_sttcombi_evtgen(double mom, Int_t nEvents=10)
 
   fRun->SetName("TGeant3");
 
-  fRun->SetOutputFile("data/points_sttcombi.root");
+  fRun->SetOutputFile("data/points_tpccombi.root");
 
   // Set Material file Name
   //-----------------------
@@ -63,10 +44,10 @@ void run_sim_sttcombi_evtgen(double mom, Int_t nEvents=10)
   Mvd->SetGeometryFileName("MVD_v1.0_woPassiveTraps.root");
   fRun->AddModule(Mvd);
 
-  FairDetector *Stt= new PndStt("STT", kTRUE);
-  Stt->SetGeometryFileName("straws_skewed_blocks_pipe_120cm.geo");
-  fRun->AddModule(Stt);
-
+  FairDetector *Tpc = new PndTpcDetector("TPC", kTRUE);
+  Tpc->SetGeometryFileName("tpc.geo");
+  fRun->AddModule(Tpc);
+    
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
   Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root");
   fRun->AddModule(Emc);
@@ -92,15 +73,20 @@ void run_sim_sttcombi_evtgen(double mom, Int_t nEvents=10)
   // Create and Set Event Generator
   //-------------------------------
 
-
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
-  
-  // EvtGen Generator
-  PndDpmDirect *dpmGen=new PndDpmDirect(p,mode);
-  primGen->AddGenerator(dpmGen);
+
+  // Box Generator
+  FairBoxGenerator* boxGen = new FairBoxGenerator(pid, 1); // 13 = muon; 1 = multipl.
+  if (p2<0) p2 = p1;
+  boxGen->SetPRange(p1,p2); // GeV/c
+  boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
+  boxGen->SetThetaRange(20., 140.); // Polar angle in lab system range [degree]
+  boxGen->SetXYZ(0., 0., 0.); // mm o cm ??
+  primGen->AddGenerator(boxGen);
+
 	
-	fRun->SetBeamMom( p );
+	fRun->SetBeamMom( (p2>0.)?(p1+p2)/2.:p1 );
 	PndMultiField *fField= new PndMultiField();
 
 	
@@ -119,10 +105,10 @@ void run_sim_sttcombi_evtgen(double mom, Int_t nEvents=10)
 	fField->AddField(map_s2);
 	fField->AddField(map_s3);
 	fField->AddField(map_s4);
-
+	  
 	fRun->SetField(fField);
 
-	fRun->SetStoreTraj(kFALSE);
+	fRun->SetStoreTraj(kTRUE);
 	
   fRun->Init();
 
@@ -135,7 +121,7 @@ void run_sim_sttcombi_evtgen(double mom, Int_t nEvents=10)
   Par->setChanged();
 
   FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
-  output->open("data/params_sttcombi.root");
+  output->open("data/params_tpccombi.root");
   rtdb->setOutput(output);
   rtdb->saveOutput();
   rtdb->print();

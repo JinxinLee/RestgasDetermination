@@ -1,16 +1,16 @@
-void run_digi_sttcombi(  Int_t nEvents = 10){
+void run_digi_tpccombi(  Int_t nEvents = 10){
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0;
 
   // Input file (MC events)
-  TString inFile = "data/points_sttcombi.root";
+  TString inFile = "data/points_tpccombi.root";
 
   // Parameter file
-  TString parFile = "data/params_sttcombi.root";
+  TString parFile = "data/params_tpccombi.root";
 
   // Output file
-  TString outFile = "data/digi_sttcombi.root";
+  TString outFile = "data/digi_tpccombi.root";
 
 
   // ----  Load libraries   -------------------------------------------------
@@ -61,34 +61,34 @@ void run_digi_sttcombi(  Int_t nEvents = 10){
   mvdmccls->SetVerbose(iVerbose);
   fRun->AddTask(mvdmccls);
 	
-	// -----   STT analysis tasks   --------------------------------------------
-  // digitize ....
-
-  //PndSttHitProducerIdeal* sttHitProducer = new PndSttHitProducerIdeal();
-  PndSttHitProducerRealFast* sttHitProducer = new PndSttHitProducerRealFast();
-  fRun->AddTask(sttHitProducer);
-	
-	// trackfinding ....
-	PndSttTrackFinderIdeal* sttTrackFinder = new PndSttTrackFinderIdeal(iVerbose);
-	PndSttFindTracks* sttFindTracks = new PndSttFindTracks("Track Finder", "FairTask", sttTrackFinder, iVerbose);
-	sttFindTracks->AddHitCollectionName("STTHit", "STTPoint");
-	fRun->AddTask(sttFindTracks);
-	
-	// trackmatching ....
-	PndSttMatchTracks* sttTrackMatcher = new PndSttMatchTracks("Match tracks", "STT", iVerbose);
-	sttTrackMatcher->AddHitCollectionName("STTHit", "STTPoint");
-	fRun->AddTask(sttTrackMatcher);
-	
-	// trackfitting ....
-	PndSttTrackFitter* sttTrackFitter = new PndSttHelixTrackFitter(0);
-	PndSttFitTracks* sttFitTracks = new PndSttFitTracks("STT Track Fitter", "FairTask", sttTrackFitter);
-	sttFitTracks->AddHitCollectionName("STTHit");
-	fRun->AddTask(sttFitTracks);
-	
-	// helix hit production ....
-	PndSttHelixHitProducer* sttHHProducer = new PndSttHelixHitProducer();
-	fRun->AddTask(sttHHProducer);
-	
+  
+  // -----   TPC digi producers   ---------------------------------
+  PndTpcClusterizerTask* tpcClusterizer = new PndTpcClusterizerTask();
+  //tpcClusterizer->SetPersistence();
+  fRun->AddTask(tpcClusterizer);
+  
+  PndTpcDriftTask* tpcDrifter = new PndTpcDriftTask();
+  // tpcDrifter->SetPersistence();
+  tpcDrifter->SetDistort(false);
+  fRun->AddTask(tpcDrifter);
+  
+  PndTpcGemTask* tpcGem = new PndTpcGemTask();
+  //tpcGem->SetPersistence();
+  fRun->AddTask(tpcGem);
+  
+  PndTpcPadResponseTask* tpcPadResponse = new PndTpcPadResponseTask();
+  tpcPadResponse->SetPersistence();
+  fRun->AddTask(tpcPadResponse);
+  
+  PndTpcElectronicsTask* tpcElec = new PndTpcElectronicsTask();
+  tpcElec->SetPersistence();
+  fRun->AddTask(tpcElec);
+  
+  PndTpcClusterFinderTask* tpcCF = new PndTpcClusterFinderTask();
+  tpcCF->SetPersistence();
+  tpcCF->timeslice(20); // = 4 sample times = 100ns @ 40MHz
+  fRun->AddTask(tpcCF);
+  	
   // -----   EMC hit producers   ---------------------------------
   PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
   fRun->AddTask(emcHitProd); // hit production

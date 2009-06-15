@@ -1,4 +1,4 @@
-void run_sim_sttcombi_evtgen(double mom, Int_t nEvents=10)
+void run_sim_tpccombi_evtgen(double mom, Int_t nEvents=10)
 {
   double mp=0.938272;
   double p=0,M=0;
@@ -18,7 +18,6 @@ void run_sim_sttcombi_evtgen(double mom, Int_t nEvents=10)
   }
   
 
-
   TStopwatch timer;
   timer.Start();
   gDebug=0;
@@ -32,7 +31,7 @@ void run_sim_sttcombi_evtgen(double mom, Int_t nEvents=10)
 
   fRun->SetName("TGeant3");
 
-  fRun->SetOutputFile("data/points_sttcombi.root");
+  fRun->SetOutputFile("data/points_tpccombi.root");
 
   // Set Material file Name
   //-----------------------
@@ -63,10 +62,10 @@ void run_sim_sttcombi_evtgen(double mom, Int_t nEvents=10)
   Mvd->SetGeometryFileName("MVD_v1.0_woPassiveTraps.root");
   fRun->AddModule(Mvd);
 
-  FairDetector *Stt= new PndStt("STT", kTRUE);
-  Stt->SetGeometryFileName("straws_skewed_blocks_pipe_120cm.geo");
-  fRun->AddModule(Stt);
-
+  FairDetector *Tpc = new PndTpcDetector("TPC", kTRUE);
+  Tpc->SetGeometryFileName("tpc.geo");
+  fRun->AddModule(Tpc);
+    
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
   Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root");
   fRun->AddModule(Emc);
@@ -92,13 +91,13 @@ void run_sim_sttcombi_evtgen(double mom, Int_t nEvents=10)
   // Create and Set Event Generator
   //-------------------------------
 
-
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
-  
+
   // EvtGen Generator
-  PndDpmDirect *dpmGen=new PndDpmDirect(p,mode);
-  primGen->AddGenerator(dpmGen);
+  FairEvtGenGenerator* evtGen = new FairEvtGenGenerator("output.evt");
+  primGen->AddGenerator(evtGen);
+  
 	
 	fRun->SetBeamMom( p );
 	PndMultiField *fField= new PndMultiField();
@@ -119,10 +118,10 @@ void run_sim_sttcombi_evtgen(double mom, Int_t nEvents=10)
 	fField->AddField(map_s2);
 	fField->AddField(map_s3);
 	fField->AddField(map_s4);
-
+	  
 	fRun->SetField(fField);
 
-	fRun->SetStoreTraj(kFALSE);
+	fRun->SetStoreTraj(kTRUE);
 	
   fRun->Init();
 
@@ -135,7 +134,7 @@ void run_sim_sttcombi_evtgen(double mom, Int_t nEvents=10)
   Par->setChanged();
 
   FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
-  output->open("data/params_sttcombi.root");
+  output->open("data/params_tpccombi.root");
   rtdb->setOutput(output);
   rtdb->saveOutput();
   rtdb->print();

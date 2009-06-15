@@ -9,32 +9,22 @@ if [ ! -d "data" ]; then
 fi
 
 # reads number of events from first parameter
-mom=5.0
-mode=0
-nEvts=5
+nEvts=0
 if test "$1" != "" ; then 
-  mom=$1
-fi
-
-if test "$2" != ""; then
-  mode=$2
-fi
-
-if test "$3" != ""; then
-  nEvts=$3
+  nEvts=$1
 fi
 
 # let's go
 echo "Start PandaRoot Simulation with $nEvts events."
-root -l -q run_sim_sttcombi_dpm.C\($mom,$mode,$nEvts\) &> data/1-sim.log
+root -l -q run_sim_tpccombi_pgun.C\($nEvts,211,1.,1.2\) &> data/1-sim.log
 echo "Start Digitization"
-root -l -q run_digi_sttcombi.C\($nEvts\) &> data/2-digi.log
+root -l -q run_digi_tpccombi.C\($nEvts\) &> data/2-digi.log
 echo "Start LHE Trackfinding, Prefits and Pid."
-root -l -q run_reco_sttcombi.C\($nEvts\) &> data/3-reco.log
+root -l -q run_reco_tpccombi.C\($nEvts\) &> data/3-reco.log
 echo "Start Kalman Filter."
-root -l -q run_kalman_stt.C\($nEvts\) &> data/4-kalman.log
+root -l -q run_kalman_tpc.C\($nEvts\) &> data/4-kalman.log
 echo "Writing TCandas for Analysis."
-root -l -q makeTCands_stt.C\($nEvts\) &> data/5-microwriter.log
+root -l -q makeTCands_tpc.C\($nEvts\) &> data/5-microwriter.log
 
 # The analysis pops up a root window and remains in the root shell
 echo "Starting a sample analysis."
