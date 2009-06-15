@@ -54,7 +54,6 @@ class PndDchCylinderHitProducer : public FairTask{
  private: 
    
 	TClonesArray* fDigiArray;       ///< input array of PndDchDigis
-	TClonesArray* fPointArray;       
 	TClonesArray* fCylHitArray;     ///< output array of PndDchCylinderHits
 	PndDchStructure* fDchStructure; ///< structure of dch setup
 	PndDchMapper* fDchMapper;       ///< mapper of dch

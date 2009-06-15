@@ -75,13 +75,6 @@ InitStatus PndDchCylinderHitProducer::Init() {
 	      << "Array of PndDchDigis not found!" << std::endl;
     return kERROR;
   }
-  // Get input array
-  fPointArray = (TClonesArray*) ioman->GetObject("PndDchPoint");
-  if( !fPointArray ) {
-    std::cout << "-W- PndDchCylinderHitProducer::Init: "
-	      << "Array of PndDchPoint not found!" << std::endl;
-    return kERROR;
-  }
 
   // Create and register output array
   fCylHitArray = new TClonesArray("PndDchCylinderHit");
@@ -117,7 +110,6 @@ void PndDchCylinderHitProducer::Exec(Option_t* opt) {
 
 	for(Int_t iDigi = 0; iDigi < nDigis; iDigi++){
 	  digi  = (PndDchDigi*) fDigiArray->At(iDigi);
-	  PndDchPoint* point = (PndDchPoint*)fPointArray->At(digi->GetRefIndex());
 	  xLoc = zGlo = dist = distErr = alpha = drTime = cellSize = 0.0;
 	  wi = ch = pl = detID = 0;
 	  end1.Set(0.,0.);
