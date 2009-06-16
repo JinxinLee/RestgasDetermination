@@ -1,66 +1,34 @@
-void runReco(TString inFile){
+{
 
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 1;
 
   // ----  Load libraries   -------------------------------------------------
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-  basiclibs();
-  gSystem->Load("libgeant321");
-  gSystem->Load("libGeoBase");
-  gSystem->Load("libParBase");
-  gSystem->Load("libBase");
-  gSystem->Load("libPndData");
-  gSystem->Load("libField");
-  gSystem->Load("libGen");
-  gSystem->Load("libPassive");
-  gSystem->Load("libEmc");
-  gSystem->Load("libDrcProp");
-  gSystem->Load("libDrc");
-  gSystem->Load("libGen");
-  gSystem->Load("libPGen");
+  //gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
+  //basiclibs();
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  rootlogon();
   
-  gSystem->Load("libTrkBase");
-  gSystem->Load("libGeane");
-  gSystem->Load("libgenfit");
-  gSystem->Load("libtrackrep");
-  gSystem->Load("libtpc");
-  gSystem->Load("libtpcreco");
-  gSystem->Load("librecotasks");
+  TString basedir = gSystem->Getenv("VMCWORKDIR");
+  
+  //Set JOBNAME and JOBDIR
+  // -------------------------------------------------------------------
+
+  TString jobdir = "";
+  TString jobname="Test";
+
  
-  gSystem->Load("libMvd");
-  
-  TString PANDAMC=gSystem->Getenv("PANDAMC");
-
-  // Input file (RAW events)
-<<<<<<< .mine
-  //TString inFile="/afs/e18/panda/DATA/MC_data_snapshot_darmstadt/150cm/digi/150cm_0.8GeV_40deg_withMVD.raw.root";
-//TString jobname="reco1";
-=======
-  TString inDir="/afs/e18/panda/DATA/MC_data_snapshot_darmstadt/150cm/";
-  TString digiDir=inDir+"digi/";
-  
-  TString jobname="150cm_0.8GeV_60deg_withMVD";
-  TString inFile=digiDir+jobname;
+  TString digiDir=(basedir+"/")+jobdir;
+ 
+ 
+  TString inFile=(digiDir+"/")+jobname;
   inFile+=".raw.root";
->>>>>>> .r5035
 
-<<<<<<< .mine
-//TString mcFile="/afs/e18/panda/DATA/MC_data_snapshot_darmstadt/150cm/150cm_1.0GeV_40deg_withMVD.mc.root";
 
   TString mcFile=inFile;
-  mcFile.ReplaceAll("digi/","");
   mcFile.ReplaceAll("raw","mc");
 
-=======
-  TString mcFile=inDir+jobname;
-  mcFile+=".mc.root";
->>>>>>> .r5035
-  
-///inFile.ReplaceAll("$PANDAMC",PANDAMC);
-
-<<<<<<< .mine
   ///TString inDir=inFile(0,inFile.Last('/')+1);
   // make new subdir
   //TString jobDir=inDir; jobDir+=jobname; jobDir+="/";
@@ -71,31 +39,12 @@ void runReco(TString inFile){
   //     <<". Aborting."<<std::endl;
   //  return;
   // }
-=======
-//   TString inDir=inFile(0,inFile.Last('/')+1);
-//   // make new subdir
-//   TString jobDir=inDir; jobDir+=jobname; jobDir+="/";
-//   TString cmd="mkdir ";
-//   cmd+=jobDir; 
-//   if(gSystem->Exec(cmd)){
-//     std::cout<<"Could not create Job-Directory "<<jobDir
-// 	     <<". Aborting."<<std::endl;
-//     return;
-//   }
->>>>>>> .r5035
-  
-<<<<<<< .mine
+
+
   TString outFile = inFile; 
   //outFile.ReplaceAll(inDir,jobDir);
   outFile.ReplaceAll(".raw.root",".reco.root");
-=======
-  TString outFile = inDir+"reco/";
-  outFile+=jobname;
-  outFile+=".reco.root";
-  // outFile.ReplaceAll(inDir,jobDir);
-//   outFile.ReplaceAll(".raw.root",".reco.root");
->>>>>>> .r5035
-  outFile.ReplaceAll("digi","LSLreco");
+
 
   TString paramIn = inFile;
   paramIn.ReplaceAll(".raw.root",".param.root");
@@ -135,13 +84,11 @@ void runReco(TString inFile){
   timer.Start();
   // ------------------------------------------------------------------------
 
-  inFile.ReplaceAll("$PANDAMC",PANDAMC);
   
-
   // -----   Digitization run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
-//mcFile.ReplaceAll("$PANDAMC","/home/felix/simulation/fairsoft/data/Pi_0.2GeV_15deg_withMVD");
+
   fRun->AddFriend(mcFile);
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
@@ -186,11 +133,18 @@ void runReco(TString inFile){
 //  tpcRMC->SetBkgFileName("../data/DPM/test1.mc.root");
 // fRun->AddTask(tpcRMC);
 
+  PndTpcLaserCorrectionTask* laser = new PndTpcLaserCorrectionTask();
+  TString laserfile=basedir+"tpc/laser.new.reco.root";
+  laser->SetLaserRecoFile(laserfile);
+  laser->SetPersistence(true);
+  fRun->AddTask(laser);
+
+  
   PndTpcIdealTrackingTask* tpcIPR = new PndTpcIdealTrackingTask();
-  tpcIPR->useGeane(false);
+  tpcIPR->useGeane(true);
+  tpcIPR->useDistSorting(true);
   fRun->AddTask(tpcIPR);
   tpcIPR->SetPersistence();
-
 
 
 //   PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
@@ -205,8 +159,7 @@ void runReco(TString inFile){
   
   KalmanTask* kalman =new KalmanTask();
   kalman->SetPersistence();
-  kalman->SetLazy(false); // be strict with errors that occur
-  kalman->SetNumIterations(1); // number of fitting iterations (back and forth)
+  kalman->SetNumIterations(3); // number of fitting iterations (back and forth)
   fRun->AddTask(kalman);
 
 
@@ -218,52 +171,48 @@ void runReco(TString inFile){
 		     -TMath::Pi(),   // thetamin 5deg
 		     TMath::Pi(),  // thetamax
 		     5); // nPndTpcPoints
-//fitstat->SetPdgSelection(321);
-//  fitstat->DoResiduals();
+  //fitstat->SetPdgSelection(321);
+  //fitstat->DoResiduals();
   fRun->AddTask(fitstat);
 
   
-  PndTpcRecoDEdxTask* dEdx=new PndTpcRecoDEdxTask();
-  dEdx->SetPersistence();
-//fRun->AddTask(dEdx);
 
-
-  PndTpcTrackVisTask* trkVis = new PndTpcTrackVisTask();
-  trkVis->SetTrackBranchName("TrackPreFit");
-  trkVis->drawFits(true);
-// fRun->AddTask(trkVis);
-
-  LambdaSelector* lambdaSel = new LambdaSelector();
-  lambdaSel->SetTrackBranchName("TrackPreFit");
-  lambdaSel->SetPersistence();
-// fRun->AddTask(lambdaSel);
-
+  // PndTpcTrackVisTask* trkVis = new PndTpcTrackVisTask();
+  // trkVis->SetTrackBranchName("TrackPreFit");
+  //trkVis->drawFits(true);
+  // fRun->AddTask(trkVis);
+  
+  //LambdaSelector* lambdaSel = new LambdaSelector();
+  //lambdaSel->SetTrackBranchName("TrackPreFit");
+  //lambdaSel->SetPersistence();
+  // fRun->AddTask(lambdaSel);
+  
   V0Selector* V0Sel = new V0Selector();
   V0Sel->SetTrackBranchName("TrackPreFit");
-//V0Sel->SetPositivePartMass(0.938272);
-//V0Sel->SetNegativePartMass(0.13957);
-//V0Sel->SetPositivePartMass(511.E-6);
-//V0Sel->SetNegativePartMass(511.E-6);
+  //V0Sel->SetPositivePartMass(0.938272);
+  //V0Sel->SetNegativePartMass(0.13957);
+  //V0Sel->SetPositivePartMass(511.E-6);
+  //V0Sel->SetNegativePartMass(511.E-6);
 
   V0Sel->SetPersistence();
-//  fRun->AddTask(V0Sel);
-
-V0Selector* V0Sel2 = new V0Selector();
+  //  fRun->AddTask(V0Sel);
+  
+  V0Selector* V0Sel2 = new V0Selector();
   V0Sel2->SetTrackBranchName("TrackPreFit");
-//V0Sel2->SetV0BranchName("Lambda");
-//V0Sel->SetPositivePartMass(0.938272);
-//V0Sel->SetNegativePartMass(0.13957);
-//V0Sel2->SetPositivePartMass(0.13957);
-//V0Sel2->SetNegativePartMass(0.13957);
-
+  //V0Sel2->SetV0BranchName("Lambda");
+  //V0Sel->SetPositivePartMass(0.938272);
+  //V0Sel->SetNegativePartMass(0.13957);
+  //V0Sel2->SetPositivePartMass(0.13957);
+  //V0Sel2->SetNegativePartMass(0.13957);
+  
   V0Sel2->SetPersistence();
-//fRun->AddTask(V0Sel2);
+  //fRun->AddTask(V0Sel2);
 
 
 
   LambdaStatTask* lambdaStat = new LambdaStatTask();
- lambdaStat->SetPersistence();
-//fRun->AddTask(lambdaStat);
+  lambdaStat->SetPersistence();
+  //fRun->AddTask(lambdaStat);
 
 
 
@@ -279,10 +228,10 @@ V0Selector* V0Sel2 = new V0Selector();
   // -----   Finish   -------------------------------------------------------
 
   //tpcRMC->WriteHistograms();
-//  tpcSPR->WriteHistograms("RecoHistos.root");
-//kalman->WriteHistograms("RecoHistos.root");
-//fitstat->WriteHistograms("RecoHistos.root");
-//dEdx->WriteHistograms("RecoHistos.root");
+  //  tpcSPR->WriteHistograms("RecoHistos.root");
+  //kalman->WriteHistograms("RecoHistos.root");
+  //fitstat->WriteHistograms("RecoHistos.root");
+  //dEdx->WriteHistograms("RecoHistos.root");
 
   DebugLogger::Instance()->WriteFiles();
 

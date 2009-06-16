@@ -1,72 +1,64 @@
 {
   // ----  Load libraries   -------------------------------------------------
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-  basiclibs();
-  gSystem->Load("libGeoBase");
-  gSystem->Load("libParBase");
-  gSystem->Load("libBase");
-  gSystem->Load("libPndData");
-  gSystem->Load("libField");
-  gSystem->Load("libGen");
-  gSystem->Load("libPassive");
-  gSystem->Load("libtpc");
-  gSystem->Load("libgenfit");
+  //gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
+  //basiclibs();
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  rootlogon();
+  
   // ------------------------------------------------------------------------
 
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 1;
 
-  Int_t nEvents=5000;
-  
-  // Input file (MC events)
-  //TString inDir="/afs/e18/panda/DATA/MC_data_snapshot_darmstadt/150cm/";
-  TString inDir="/afs/e18/panda/DATA/MC_data_snapshot_darmstadt/150cm/";
-  TString jobname="150cm_0.2GeV_15deg_withMVD";
 
-  TString inFile=inDir+jobname;
+  //SET NUMBER OF EVENTS
+  // ------------------------------------------------------------------------
+  Int_t nEvents=1000;
+
+
+  TString basedir = gSystem->Getenv("VMCWORKDIR");
+  
+  // Set INPUT DIRECTORY (MC files) and JOBNAME
+  // ------------------------------------------------------------------------
+  TString inDir="";
+  TString jobname="Test";
+
+
+
+  inDir=(basedir+"/")+inDir;
+  TString inFile=(inDir+"/")+jobname;
   inFile+=".mc.root";
+ 
+
   // make new subdir
   // TString jobDir=inDir; jobDir+=jobname; jobDir+="/";
-//   TString cmd="mkdir ";
-//   cmd+=jobDir; 
-//   if(gSystem->Exec(cmd)){
-//     std::cout<<"Could not create Job-Directory "<<jobDir
-// 	     <<". Aborting."<<std::endl;
-//     return;
-//   }
+  //   TString cmd="mkdir ";
+  //   cmd+=jobDir; 
+  //   if(gSystem->Exec(cmd)){
+  //     std::cout<<"Could not create Job-Directory "<<jobDir
+  // 	     <<". Aborting."<<std::endl;
+  //     return;
+  //   }
 
 
-  TString digiDir="digi/"; 
-  TString outDir=inDir+digiDir;
-  TString outFile = outDir+jobname; 
-  outFile+=".raw.root";
-
+  TString outFile = inFile;
+  outFile.ReplaceAll(".mc.root", ".raw.root");
   TString paramIn = inFile;
   paramIn.ReplaceAll(".mc.root",".param.root");
   TString paramOut = outFile;
   paramOut.ReplaceAll(".raw.root",".param.root");
+  
 
-// // copy this macro to the data directory
-//   cmd="cp macro/tpc/runDigi.C ";
-//   cmd+=jobDir; 
-//  if(gSystem->Exec(cmd)){
-//     std::cout<<"Could not copy runDigi.C to Job-Directory "<<jobDir
-// 	     <<". Aborting."<<std::endl;
-//     return;
-//   }
-
-std::cout<<"Input: "<<inFile<<std::endl;
-std::cout<<"Output: "<<outFile<<std::endl;
-std::cout<<"ParamIn: "<<paramIn<<std::endl;
-std::cout<<"ParamOut: "<<paramOut<<std::endl;
+  std::cout<<"Input: "<<inFile<<std::endl;
+  std::cout<<"Output: "<<outFile<<std::endl;
+  std::cout<<"ParamIn: "<<paramIn<<std::endl;
+  std::cout<<"ParamOut: "<<paramOut<<std::endl;
  
 
 
   // In general, the following parts need not be touched
   // ========================================================================
-
-
 
 
   // -----   Timer   --------------------------------------------------------
@@ -109,18 +101,13 @@ std::cout<<"ParamOut: "<<paramOut<<std::endl;
   fRun->LoadGeometry();
   // ------------------------------------------------------------------------
   
-//  GenfitTask *Genfit= new GenfitTask();
-//  fRun->AddTask(Genfit);
-
-// ----- PndTpc Event Mixer: Mixes background tracks to events -------------
-
+    
     // -----    Digi Sequence  --------------------------------------------
   PndTpcClusterizerTask* tpcClusterizer = new PndTpcClusterizerTask();
   tpcClusterizer->SetPersistence();
   tpcClusterizer->SetMereChargeConversion();  //ONLY USE THIS WHEN USING ALICE SETTINGS WITH GEANT3
   fRun->AddTask(tpcClusterizer);
   
-
   /**   use Alice Style MC    
    				make one hit per collision with atom
 				use other straggling
@@ -137,31 +124,30 @@ std::cout<<"ParamOut: "<<paramOut<<std::endl;
  
   PndTpcDriftTask* tpcDrifter = new PndTpcDriftTask();
   tpcDrifter->SetPersistence();
-  tpcDrifter->SetDistort(false);
-  double deg=TMath::Pi()/180;
-  //tpcDrifter->SetPhiCut(-15*deg,15*deg);
+  tpcDrifter->SetDistort(true);
+  tpcDrifter->SetDeviationFile("tpc/DevMap_Efield_march09_official_B_Maps.dat");
   tpcDrifter->SetQAPlotCol(qa);
   fRun->AddTask(tpcDrifter);
 
   PndTpcGemTask* tpcGem = new PndTpcGemTask();
-//tpcGem->SetPersistence();
+  //tpcGem->SetPersistence();
   fRun->AddTask(tpcGem);
 
   PndTpcPadResponseTask* tpcPadResponse = new PndTpcPadResponseTask();
   tpcPadResponse->SetPersistence();
-  tpcPadResponse->SetQAPlotCol(qa);
+  //tpcPadResponse->SetQAPlotCol(qa);
   fRun->AddTask(tpcPadResponse);
 
 
-//PndTpcEvtMixTask* evtmixer = new PndTpcEvtMixTask();
-//  evtmixer->SetBkgFileName("bkg2.raw.root");
-//  evtmixer->SetNBkgEvts(500);
-//  evtmixer->SetEvtRate(1E7);
-//fRun->AddTask(evtmixer);
+  //PndTpcEvtMixTask* evtmixer = new PndTpcEvtMixTask();
+  //  evtmixer->SetBkgFileName("bkg2.raw.root");
+  //  evtmixer->SetNBkgEvts(500);
+  //  evtmixer->SetEvtRate(1E7);
+  //fRun->AddTask(evtmixer);
 
   PndTpcElectronicsTask* tpcElec = new PndTpcElectronicsTask();
   tpcElec->SetPersistence();
-  tpcElec->SetQAPlotCol(qa);
+  //tpcElec->SetQAPlotCol(qa);
   fRun->AddTask(tpcElec);
 
 
@@ -172,20 +158,18 @@ std::cout<<"ParamOut: "<<paramOut<<std::endl;
   fRun->Run(0,nEvents); // process all events from input file
   // ------------------------------------------------------------------------
 
+  
+  //tpcDrifter->WriteHistograms();
+  //tpcPadResponse->WriteHistograms();
+  //tpcElec->WriteHistograms();
 
-//tpcDrifter->WriteHistograms();
-//tpcPadResponse->WriteHistograms();
-//tpcElec->WriteHistograms();
-
-FairRootManager::Instance()->GetOutFile()->mkdir("QAPlots");
-FairRootManager::Instance()->GetOutFile()->cd("QAPlots");
-qa->Write();
+  FairRootManager::Instance()->GetOutFile()->mkdir("QAPlots");
+  FairRootManager::Instance()->GetOutFile()->cd("QAPlots");
+  qa->Write();
 
   // -----   Finish   -------------------------------------------------------
 
-
-//delete tpcSplitter;
-
+  
   rtdb->saveOutput();
   rtdb->print();
 
