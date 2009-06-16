@@ -11,8 +11,8 @@ Int_t createRootGeoFile(Bool_t builtRICH = kTRUE){
   const Double_t  kFreeSpace      = 2.5-kPlaneThickness-kMylarThicknessPerDL/2.-kWoThicknessPerDL/2.;
   const Int_t    kNumOfSplanes[kNumOfChambers]   = {0, 0, 8, 8, 8, 8, 8, 8};
   const Double_t  kDchDz[kNumOfChambers]       = {0.,0., 10.,10.,10.,10.,10.,10.};
-  const Double_t  kDchDx[kNumOfChambers]       = { 0.,  0., 62., 75., 120., 139., 220., 320.};
-  const Double_t  kDchDy[kNumOfChambers]       = { 0.,  0., 39., 45., 38., 42.5, 79., 94.};
+  const Double_t  kDchDx[kNumOfChambers]       = { 0.,  0., 67., 67., 87.8, 96.8., 164., 190.};
+  const Double_t  kDchDy[kNumOfChambers]       = { 0.,  0., 32., 32., 37.5, 41.4, 54.5, 69.5};
   Double_t  kDchPosition[kNumOfChambers] = {112., 178., 
  						  305., 337.,
  						  418., 462.,
@@ -22,7 +22,7 @@ Int_t createRootGeoFile(Bool_t builtRICH = kTRUE){
   if(builtRICH==kFALSE){
     kDchPosition[kNumOfChambers-1]= kDchPosition[kNumOfChambers-2]+
       kDchDz[kNumOfChambers-2]+kDchDz[kNumOfChambers-1]+5.;
-    TString outfile= "../../geometry/dch_likeSTT_woRich.root";
+    TString outfile= "../../geometry/dch_woRich.root";
   }
   else{
     TString outfile= "../../geometry/dch.root";
@@ -258,11 +258,15 @@ Int_t createRootGeoFile(Bool_t builtRICH = kTRUE){
     nmed=geobuild->createMedium(FairMediumAerogel);
     nmed=geobuild->createMedium(FairMediumC4F10);
      
-    const Double_t kRichPosition = 612.5+(742.5-612.5)/2.;
+    const Double_t kRichPosition = kDchPosition[kNumOfChambers-2]+
+      (kDchPosition[kNumOfChambers-1]-kDchPosition[kNumOfChambers-2])/2.;
     const Double_t kRichDx = kDchDx[kNumOfChambers-1]+20.;
     const Double_t kRichDy = kDchDy[kNumOfChambers-1]+20.;
     const Double_t kRichDz = (kDchPosition[kNumOfChambers-1]-kDchPosition[kNumOfChambers-2])/2.
       -kDchDz[kNumOfChambers-1];
+
+    std::cout<<"Z half size of rich is "<<kRichDz<<std::endl;
+    std::cout<<"Z position of rich is "<<kRichPosition<<std::endl;
     
     Double_t aeroHalfThickness = 4.0;
     
