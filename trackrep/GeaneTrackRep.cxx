@@ -106,7 +106,8 @@ GeaneTrackRep::extrapolate(const DetPlane& pl,
 			   TMatrixT<double>& covPred)
 {
   if(fabs(getMom(_refPlane).Theta()/TMath::Pi()*180.) < THETACUT){
-	FitterException exc("GEANE propagation not possible for p.theta<THETACUT",__LINE__,__FILE__);
+    FitterException exc("GEANE propagation not possible for p.theta<THETACUT",__LINE__,__FILE__);
+    exc.setFatal();
     throw exc;
   }
 
@@ -137,7 +138,8 @@ GeaneTrackRep::extrapolate(const DetPlane& pl,
   // protect against low momentum:
   if(fabs(state[0][0])>10){
     FitterException exc("GeaneTrackRep: PROTECT AGAINST LOW MOMENTA",__LINE__,__FILE__);
-	throw exc;
+    exc.setFatal();
+    throw exc;
   }
 
   // protect against (x,y)=(0,0)
@@ -164,6 +166,7 @@ GeaneTrackRep::extrapolate(const DetPlane& pl,
   prop = _geane->Propagate(&par,&result,_pdg);   //211
   if (prop==kFALSE){
     FitterException exc("GEANE propagation failed",__LINE__,__FILE__);
+    exc.setFatal();
     throw exc;
   }
   
@@ -209,7 +212,8 @@ GeaneTrackRep::extrapolateToPoca(const TVector3& pos,
 				 TVector3& poca,
 				 TVector3& dirInPoca){
   if(fabs(getMom(_refPlane).Theta()/TMath::Pi()*180.) < THETACUT){
-	FitterException exc("GEANE propagation not possible for p.theta<THETACUT",__LINE__,__FILE__);
+    FitterException exc("GEANE propagation not possible for p.theta<THETACUT",__LINE__,__FILE__);
+    exc.setFatal();
     throw exc;
   }
   int dim = getDim();
@@ -235,7 +239,8 @@ GeaneTrackRep::extrapolateToPoca(const TVector3& pos,
   // protect against low momentum:
   if(fabs(state[0][0])>10){
     FitterException exc("GeaneTrackRep: PROTECT AGAINST LOW MOMENTA",__LINE__,__FILE__);
-	throw exc;
+    exc.setFatal();
+    throw exc;
   }
 
   // protect against (x,y)=(0,0)
@@ -264,6 +269,7 @@ GeaneTrackRep::extrapolateToPoca(const TVector3& pos,
   prop = _geane->Propagate(&par,&result,_pdg);   //211
   if (prop==kFALSE) {
     FitterException exc("GEANE propagation failed",__LINE__,__FILE__);
+    exc.setFatal();
     throw exc;
     //pl=_refPlane;
     //return pos;
@@ -298,7 +304,8 @@ GeaneTrackRep::extrapolateToLine(const TVector3& point1,
 				 TVector3& poca_onwire)
 {
   if(fabs(getMom(_refPlane).Theta()/TMath::Pi()*180.) < THETACUT){
-	FitterException exc("GEANE propagation not possible for p.theta<THETACUT",__LINE__,__FILE__);
+    FitterException exc("GEANE propagation not possible for p.theta<THETACUT",__LINE__,__FILE__);
+    exc.setFatal();
     throw exc;
   }
 
@@ -378,7 +385,8 @@ GeaneTrackRep::getPocaOnLine(const TVector3& p1, const TVector3& p2, bool back){
   // protect against low momentum:
   if(fabs(state[0][0])>10){
     FitterException exc("GeaneTrackRep: PROTECT AGAINST LOW MOMENTA",__LINE__,__FILE__);
-	throw exc;
+    exc.setFatal();
+    throw exc;
 
   }
 
@@ -405,6 +413,7 @@ GeaneTrackRep::getPocaOnLine(const TVector3& p1, const TVector3& p2, bool back){
   prop = _geane->Propagate(&par,&result,_pdg);
   if (prop==kFALSE) {
     FitterException exc("GEANE propagation failed",__LINE__,__FILE__);
+    exc.setFatal();
     throw exc;
   }
 

@@ -144,15 +144,20 @@ Kalman::fittingPass(Track* trk, int direction){
 		  processHit(ahit,arep);
 		}
 		catch(FitterException& e) {
-		  if(e.getExcString()==std::string(COVEXC)){//the covariance is zero
-			trk->addFailedHit(irep,ihit);
-		  }
+		  //if(e.getExcString()==std::string(COVEXC)){//the covariance is zero
+		  trk->addFailedHit(irep,ihit);
+		  //}
 		  std::cerr << e.what() << std::endl;
-		  if(!_lazy){
-		    e.info();
-		    if(e.getExcString()!=std::string(COVEXC)) arep->setStatusFlag(1);
+		  e.info();
+
+		  //if(!_lazy){
+		  //e.info();
+		  //if(e.getExcString()!=std::string(COVEXC)) arep->setStatusFlag(1);
+		  if(e.isFatal()) {
+		    arep->setStatusFlag(1);
 		    continue; // go to next rep immediately
 		  }
+		  //}
 		}	
 	  }
     }// end loop over reps
@@ -182,6 +187,7 @@ double Kalman::chi2Increment(const TMatrixT<double>& r,const TMatrixT<double>& H
 
   if(TMath::IsNaN(chisq[0][0])){
 	FitterException exc("chi2 is nan",__LINE__,__FILE__);
+	exc.setFatal();
 	std::vector<double> numbers;
 	numbers.push_back(det);
 	exc.setNumbers("det",numbers);
@@ -305,10 +311,15 @@ Kalman::calcGain(const TMatrixT<double>& cov,
   // invert
   double det=0;
   covsum.Invert(&det);
-  if(TMath::IsNaN(det)) throw FitterException("Kalman Gain: det of covum is nan",__LINE__,__FILE__);
+  if(TMath::IsNaN(det)) {
+    FitterException e("Kalman Gain: det of covum is nan",__LINE__,__FILE__);
+    e.setFatal();
+    throw e;
+  }
   if(det==0){
 	FitterException exc("cannot invert covsum in Kalman Gain - det=0",
 						__LINE__,__FILE__);
+	exc.setFatal();
 	std::vector< TMatrixT<double> > matrices;
 	matrices.push_back(cov);
 	matrices.push_back(HitCov);

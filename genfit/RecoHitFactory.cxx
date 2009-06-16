@@ -17,6 +17,7 @@ RecoHitFactory::~RecoHitFactory(){
 void RecoHitFactory::addProducer(int detID, AbsRecoHitProducer* hitProd) {
   if(hitProdMap[detID] != NULL) {
 	FitterException exc("RecoHitFactory: detID already in use",__LINE__,__FILE__);
+	exc.setFatal();
 	std::vector<double> numbers;
 	numbers.push_back(detID);
 	exc.setNumbers("detID",numbers);
@@ -35,6 +36,7 @@ AbsRecoHit* RecoHitFactory::createOne(int detID, int index) {
 
   else {
 	FitterException exc("RecoHitFactory: no hitProducer for this detID available",__LINE__,__FILE__);
+	exc.setFatal();
 	std::vector<double> numbers;
 	numbers.push_back(detID);
 	exc.setNumbers("detID",numbers);

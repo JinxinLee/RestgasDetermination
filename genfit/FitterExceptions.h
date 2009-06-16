@@ -38,6 +38,7 @@ class FitterException : public std::exception
   std::vector<double> numbers;
   std::vector< TMatrixT<double> > matrices;
 
+  bool fatal;
 
  public:
   /** @brief Initializing constructor 
@@ -51,6 +52,10 @@ class FitterException : public std::exception
   FitterException(std::string, int, std::string);
   virtual ~FitterException() throw();
   
+  /** @brief set fatal flag. if this is true, the fit stops for this track */
+  void setFatal (bool b=true){fatal=b;}
+  /** @brief get fatal flag. */
+  bool isFatal (){return fatal;}
   /** @brief set list of numbers with description */
   void setNumbers (std::string, const std::vector<double>&);
   /** @brief set list of matrices with description */

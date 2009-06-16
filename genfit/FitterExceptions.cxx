@@ -1,6 +1,6 @@
 #include"FitterExceptions.h"
 
-FitterException::FitterException(std::string _excString, int _line, std::string  _file) : excString(_excString), line(_line), file(_file) {
+FitterException::FitterException(std::string _excString, int _line, std::string  _file) : excString(_excString), line(_line), file(_file),fatal(false) {
 }
 
 FitterException::~FitterException() throw() {
@@ -21,8 +21,9 @@ void FitterException::setMatrices(std::string _matricesLabel,
 const char* FitterException::what() const throw(){
   std::ostringstream returnStream;
   returnStream << "FitterException thrown with excString:" 
-			   << std::endl << excString << std::endl 
-			   << "in line: " << line << " in file: " << file;
+	       << std::endl << excString << std::endl 
+	       << "in line: " << line << " in file: " << file << std::endl
+	       << "with fatal flag " << fatal;
   return returnStream.str().c_str();
 }
 

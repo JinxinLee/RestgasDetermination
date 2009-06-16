@@ -103,13 +103,17 @@ AbsRecoHit* RecoHitProducer<hit_T,recoHit_T>::produce(int index) {
   if(hitArrayTClones!=NULL){
     //the ROOT guys really use 0 and not NULL grrr...
     if(hitArrayTClones->At(index) == 0) {
-      throw FitterException("In RecoHitProducer: index for hit in TClonesArray out of bounds",__LINE__,__FILE__);
+      FitterException e("In RecoHitProducer: index for hit in TClonesArray out of bounds",__LINE__,__FILE__);
+      e.setFatal();
+      throw e;
     }
     return ( new recoHit_T( (hit_T*) hitArrayTClones->At(index) ) );
   }
   else{//after assertions this is save: the hitArrayVector is good
     if(index >= hitArrayVector->size()) {
-      throw FitterException("In RecoHitProducer: index for hit in std::vector out of bounds",__LINE__,__FILE__);
+      FitterException e("In RecoHitProducer: index for hit in std::vector out of bounds",__LINE__,__FILE__);
+      e.setFatal();
+      throw e;
     }
     return ( new recoHit_T( (hit_T*) hitArrayVector->at(index) ) );
   }
