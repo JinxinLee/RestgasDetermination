@@ -151,12 +151,16 @@ PndTpcIdealTrackingTask::Exec(Option_t* opt)
   std::map<unsigned int,TrackCand*> candlist;
   for(unsigned int i=0;i<n;i++){ // loop over clusters   
     PndTpcCluster* cl=cll[i];
-    unsigned int trackid=cl->mcId().DominantID().mctrackID();
+    int trackid=cl->mcId().DominantID().mctrackID();
     TrackCand* cand=candlist[trackid];
     if(cand==NULL){
       cand=new TrackCand();
       candlist[trackid]=cand;
-      // get starting values from monta carlo truth
+      
+      //security check for faulty MC events
+      if(trackid < 0 || trackid > _mcTrackArray->GetEntriesFast()-1) 
+	break;
+      
       PndMCTrack* trk=(PndMCTrack*)_mcTrackArray->At(trackid);
       TVector3 mom=trk->GetMomentum();
       double curv=0.3*2.0/mom.Perp(); // 1/R=0.3*B/pt   pt in GeV, B in Tesla
