@@ -172,8 +172,8 @@ void PndGemIdealHitProducer::Exec(Option_t* opt) {
 
     if ( rSmear < innerR || rSmear > sensor->GetOuterRadius() ) rSmear = radius;
     
-    locPosIn[0] = rSmear*TMath::Sin(phiAValue) + pSmear*TMath::Cos(phiAValue);
-    locPosIn[1] = rSmear*TMath::Cos(phiAValue) - pSmear*TMath::Sin(phiAValue);
+    //  locPosIn[0] = rSmear*TMath::Sin(phiAValue) + pSmear*TMath::Cos(phiAValue);
+    // locPosIn[1] = rSmear*TMath::Cos(phiAValue) - pSmear*TMath::Sin(phiAValue);
     
     TVector3 pos(locPosIn[0],locPosIn[1],sensor->GetZ0());
     

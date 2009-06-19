@@ -74,7 +74,7 @@ PndGemRecoHit::PndGemRecoHit(PndGemHit* hit)
   : RecoHitIfc<PlanarHitPolicy>(fNparHitRep)
 {
 
-  std::cout<<" -I- PndGemRecoHit::PndGemRecoHit(PndGemHit*) called."<<std::endl;
+  std::cout<<" -I- PndGemRecoHit::PndGemRecoHit(PndGemHit*) called for hit in detector "<< hit->GetDetName() << std::endl;
   //  std::cout<<*hit<<std::endl;
 
   TString id =  hit->GetDetName();
@@ -103,7 +103,7 @@ PndGemRecoHit::PndGemRecoHit(PndGemHit* hit)
 
 }
 
-/*
+ /*
 PndGemRecoHit::PndGemRecoHit(PndGemHit* hit)
   : RecoHitIfc<PlanarHitPolicy>(fNparHitRep)
 {

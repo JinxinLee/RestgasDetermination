@@ -7,6 +7,7 @@
 
 // Panda Headers ----------------------
 #include "FairRootManager.h"
+#include "PndDetectorList.h"
 #include "Track.h"
 #include "TrackCand.h"
 #include "PndMCTrack.h"
@@ -124,9 +125,9 @@ PndGemPrepareKalmanTracks::Exec(Option_t* opt)
   if(fTrackArray==0) Fatal("PndGemPrepareKalmanTracks::Exec)","No TrackArray");
   fTrackArray->Delete();
   
-  Int_t nuOfTracks = fGemTrackArray->GetEntriesFast();
+  Int_t nofGemTracks = fGemTrackArray->GetEntriesFast();
   // loop over tracks
-  for (Int_t id=0; id<nuOfTracks; id++){
+  for (Int_t id=0; id<nofGemTracks; id++){
     if(fVerbose>0)
       std::cout<<"PndGemPrepareKalmanTracks::Exec(): Processing track id= "<<id<<std::endl;
     PndGemTrack* gemtrack = (PndGemTrack*) fGemTrackArray->At(id);
@@ -137,7 +138,7 @@ PndGemPrepareKalmanTracks::Exec(Option_t* opt)
     TrackCand* cand = new TrackCand();
     for(Int_t ihit=0; ihit<nofHits; ihit++){
       Int_t globalHit = gemtrack->GetGemHitIndex(ihit);
-      cand->addHit(2,globalHit);
+      cand->addHit(kGEM,globalHit);
     }
     for(Int_t ihit=0; ihit<nofHits; ihit++){
       unsigned int temp2= 1234, temp3=1234;
@@ -148,60 +149,23 @@ PndGemPrepareKalmanTracks::Exec(Option_t* opt)
     if(cand->getNHits()<fMinNofHits)
       continue;
     
-    Int_t pdg;
-    Double_t q;
+    Int_t pdg = 13;
+    Double_t q = 1.;
     TVector3 pos, mom;
     
-    /*    if(fUseMC){ 
-      Int_t mcTrID = -1;
-      Int_t idx = 0;
-      while(idx<fGemTrackMatchArray->GetEntries()){
-	PndGemTrackMatch* gemtrmatch = (PndGemTrackMatch*) fGemTrackMatchArray->At(idx);
-	if(gemtrmatch->GetRecTrackID()==id){
-	  mcTrID = gemtrmatch->GetMCTrackID();
-	  break;
-	}
-	idx++;
-      }
-      if(mcTrID<0){
-	Error("PndGemPrepareKalmanTracks::Exec","Matching MCTrack for GemTrack Id=&i not found!",id);
-	continue;
-      }
-      PndMCTrack* mc=(PndMCTrack*)fMcArray->At(mcTrID);
-      if(mc==0){
-	Error("PndGemPrepareKalmanTracks::Exec","MCTrack Id=&i not found!",mcTrID);
-	continue;
-      }
-      mc->Print(mcTrID);
-      pdg  = mc->GetPdgCode();
-      q = TDatabasePDG::Instance()->GetParticle(pdg)->Charge()/3.;
-      Int_t pointidx = 0;
-      while(pointidx<fGemPointArray->GetEntries()){
-	PndGemPoint* pnt=(PndGemPoint*)fGemPointArray->At(pointidx);
-	if(pnt->GetTrackID()==mcTrID){
-	  pnt->Position(pos);
-	  pnt->Momentum(mom);
-//  	  mom.SetXYZ(gRandom->Gaus(mom.X(), 0.05*mom.X()),
-//  		     gRandom->Gaus(mom.Y(), 0.05*mom.Y()),
-//  		     gRandom->Gaus(mom.Z(), 0.05*mom.Z()));
-	  break;
-	}
-	pointidx++;
-      }
-      }
-      else*/
-    
-    { // gem track has been initialised by prefitter
-      FairTrackParam* param = gemtrack->GetParamFirst();
-      param->Position(pos);
-      param->Momentum(mom);
+    FairTrackParam* param = gemtrack->GetParamFirst();
+    param->Position(pos);
+    param->Momentum(mom);
+
+    if ( fUseMC ) { 
       q = (param->GetQp()==0) ? 0 : param->GetQp()/TMath::Abs(param->GetQp());
       pdg = (Int_t)gemtrack->GetParamLast()->GetQp()-1e6;
     }
-    
+
     std::cout<<"pozycje i pedy "<<std::endl;
     pos.Print();
     mom.Print();
+    cout << " ladunek " << q << " i pdg = " << pdg << endl;
     if(mom.Mag()>1e3){
       Error("PndGemPrepareKalmanTracks::Exec","Track was incorrectly prefitted - abandoned in Kalman!");
       continue;
@@ -221,11 +185,11 @@ PndGemPrepareKalmanTracks::Exec(Option_t* opt)
       DetPlane pl(pos,u,v);
       GeaneTrackRep *grep=new GeaneTrackRep(fGeanePro,pl,mom,poserr,momerr,q,pdg);
       grep->setPropDir(1); // propagate in flight direction
-      //  if(fVerbose>0){
+      if(fVerbose>0){
 	std::cout<<" ^^^^^^^^^^^^^I prepare the following GeaneTrackRep:"<<std::endl;
 	grep->Print();
 	std::cout<<" ^^^^^^^^^^^^^End of GeaneTrackRep printout"<<std::endl;
-	//}
+      }
       rep = grep;
     }
     else {
