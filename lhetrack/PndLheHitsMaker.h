@@ -41,7 +41,8 @@ protected:
   TClonesArray  *fMvdStripDigiArray;    //!
   TClonesArray  *fMvdPixelDigiArray;    //!
   TClonesArray  *fMvdMCArray;           //!
-  
+  TClonesArray  *fGemInput;             //! pointers to GEM TCA
+
   TClonesArray  *fLheHits;      //! pointers to LHE hits
 
   TClonesArray  *fListMCtracks;  //! pointers to MC tracks
@@ -57,6 +58,7 @@ protected:
   Short_t fSttMode;            // STT Mode: (0) no STT, 1  SttPoint,  2 SttHit, 3 SttHelixHit 
   Short_t fSttSimMode;         // STT Simulation Mode (ideal tracking)
   Short_t fEmcMode;            // EMC Mode: (0) no EMC, 2 EmcCluster, 3 EmcBumps
+  Short_t fGemMode;            // GEM Mode: (0) no GEM, 1 GemPoint, 2 GemHit
   Bool_t fVerbose;             // Switch ON/OFF debug messages        (defaulf OFF)
   Bool_t fSimulation;          // Switch ON/OFF simulation mode       (default ON)
   Bool_t fPersistence;         // Persistence of LheHit/LheGeantTrack (default ON)
@@ -64,6 +66,7 @@ protected:
   Float_t fTpcResolution;      // Position smearing for TPC Points; (if negative -> no smearing)
   Float_t fMvdResolution;      // Position smearing for MVD Points; (if negative -> no smearing)
   Float_t fSttResolution;      // Position smearing for STT Points; (if negative -> no smearing)
+  Float_t fGemResolution;      // Position smearing for GEM Points; (if negative -> no smearing)
 
 public:    
 
@@ -91,6 +94,8 @@ public:
   void GetSttHelixHit();
   void GetEmcClusters();
   void GetEmcBumps();
+  void GetGemPoints();
+  void GetGemHits();
   void SetOption(Option_t *option=" ") {fOption = option;  fOption.ToLower();}
   void SetTrack(PndLheHit *hit);
   void CheckTracks();
@@ -104,6 +109,7 @@ public:
   void SetMvdMode(Short_t mvd, Float_t res = -1.)  {  fMvdMode       = mvd  ; fMvdResolution = res  ;};
   void SetSttMode(Short_t stt, Float_t res = -1.)  {  fSttMode       = stt  ; fSttResolution = res  ;};
   void SetEmcMode(Short_t emc)                     {  fEmcMode       = emc  ;}
+  void SetGemMode(Short_t gem, Float_t res = -1.)  {  fGemMode       = gem  ; fGemResolution = res  ;};
   void SetVerbose(Bool_t verb)                     {  fVerbose       = verb ;}; 
   void SetSimulation(Bool_t sim)                   {  fSimulation    = sim  ;};
   void SetPersistence(Bool_t pers)                 {  fPersistence   = pers ;};

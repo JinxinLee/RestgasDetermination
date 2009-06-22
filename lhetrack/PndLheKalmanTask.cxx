@@ -33,6 +33,7 @@
 
 
 #include "PndMvdRecoHit.h"
+#include "PndGemRecoHit.h"
 #include "PndTpcSPHit.h"
 #include "PndSttRecoHit.h"
 #include "PndTpcLheTrack.h"
@@ -131,6 +132,16 @@ PndLheKalmanTask::Init()
   else
     {
       fTheRecoHitFactory->addProducer(kSttHelixHit,new RecoHitProducer<PndSttHelixHit,PndSttRecoHit>(sttr));
+    }
+  
+  TClonesArray* gemar=(TClonesArray*) ioman->GetObject("GEMHit");
+  if(gemar==0)
+    {
+      Error("PndLheKalmanTask::Init","GEMHit array not found");
+    }
+  else
+    {
+      fTheRecoHitFactory->addProducer(kGemHit,new RecoHitProducer<PndGemHit,PndGemRecoHit>(gemar));
     }
   
   if (fUseGeane)  fPro = new FairGeanePro();

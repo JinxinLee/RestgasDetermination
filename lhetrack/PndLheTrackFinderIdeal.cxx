@@ -118,7 +118,7 @@ void PndLheTrackFinderIdeal::Exec(Option_t * option) {
     cand->AddHit(ghit);
     Int_t tpcHits = cand->GetTpcHits();
     Int_t mvdHits = cand->GetMvdHits();
-    
+    Int_t gemHits = cand->GetGemHits();
     if ( (ghit->GetDetectorID() == kTpcPoint)     ||
 	 (ghit->GetDetectorID() == kTpcCluster)     )   tpcHits++;
     if ( (ghit->GetDetectorID() == kSttPoint)     ||
@@ -126,9 +126,12 @@ void PndLheTrackFinderIdeal::Exec(Option_t * option) {
     if ( (ghit->GetDetectorID() == kMVDPoint)     || 
 	 (ghit->GetDetectorID() == kMVDHitsStrip) ||
 	 (ghit->GetDetectorID() == kMVDHitsPixel)   )   mvdHits++;
+    if ( (ghit->GetDetectorID() == kGemPoint)     ||
+	 (ghit->GetDetectorID() == kGemHit)         )   gemHits++;
     
     cand->SetTpcHits(tpcHits);
     cand->SetMvdHits(mvdHits); 
+    cand->SetGemHits(gemHits); 
     candlist[trackID] = cand;
   }
   

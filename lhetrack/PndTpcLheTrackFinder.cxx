@@ -158,7 +158,8 @@ void PndTpcLheTrackFinder::AddTrackForFit(PndTpcLheCMTrack *track_in) {
     track->SetCharge(track_in->GetCharge());
  
     Int_t mvdHits = 0;
-    Int_t tpcHits = 0;
+    Int_t tpcHits = 0; 
+    Int_t gemHits = 0;
     for (Int_t lh = 0; lh < NHits; lh++) {
       PndLheHit* hit = dynamic_cast <PndLheHit*> (rhits->At(lh));
       track->AddHit(hit);
@@ -169,9 +170,12 @@ void PndTpcLheTrackFinder::AddTrackForFit(PndTpcLheCMTrack *track_in) {
       if ( (hit->GetDetectorID() == kMVDPoint)     || 
 	   (hit->GetDetectorID() == kMVDHitsStrip) ||
 	   (hit->GetDetectorID() == kMVDHitsPixel)   )   mvdHits++;
+      if ( (hit->GetDetectorID() == kGemPoint)     ||
+	   (hit->GetDetectorID() == kGemHit)         )   gemHits++;
     }
     track->SetTpcHits(tpcHits);
     track->SetMvdHits(mvdHits);
+    track->SetGemHits(gemHits);
   }
 }
 

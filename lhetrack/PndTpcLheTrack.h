@@ -44,6 +44,7 @@ protected:
 
   Int_t fMvdHits;                      // Number of MVD hits
   Int_t fTpcHits;                      // Number of TPC hits
+  Int_t fGemHits;                      // Number of GEM hits
   
   PndTpcLhePoint fVertex;              // track vertex
   PndTpcLhePoint fLastHit;             // last track hit
@@ -99,6 +100,7 @@ public:
 
   Int_t      GetMvdHits()           const { return fMvdHits; }
   Int_t      GetTpcHits()           const { return fTpcHits; }
+  Int_t      GetGemHits()           const { return fGemHits; }
   
   TrackCand* GetTrackCand();
   
@@ -141,7 +143,8 @@ public:
 
   void SetMvdHits(Int_t hits) { fMvdHits = hits; }
   void SetTpcHits(Int_t hits) { fTpcHits = hits; }
-
+  void SetGemHits(Int_t hits) { fGemHits = hits; }
+ 
   void   SetVertex(Double_t vx, Double_t vy, Double_t vz); 
   void   SetLastHit(Double_t vx, Double_t vy, Double_t vz);
   void   SetFirstHit(Double_t vx, Double_t vy, Double_t vz);
@@ -158,7 +161,7 @@ public:
   virtual void   Print(); //
   void   PrintHits();
 
-  ClassDef(PndTpcLheTrack , 3)    // LHE track class  
+  ClassDef(PndTpcLheTrack , 4)    // LHE track class  
 
     };
 

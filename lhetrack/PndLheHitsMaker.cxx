@@ -16,6 +16,8 @@
 #include "PndMvdDigiStrip.h"
 #include "PndEmcCluster.h"
 #include "PndEmcBump.h"
+#include "PndGemMCPoint.h"
+#include "PndGemHit.h"
 #include "PndMCTrack.h"
 #include "FairMCApplication.h"
 #include "FairRootManager.h"
@@ -43,11 +45,13 @@ PndLheHitsMaker::PndLheHitsMaker() {
   fSttMode       = 0;
   fSttSimMode    = 1; 
   fEmcMode       = 0;
+  fGemMode       = 0;  
   fSimulation    = kTRUE;
   fPersistence   = kTRUE;
   fTpcResolution = -1.;
   fMvdResolution = -1.;
   fSttResolution = -1.;
+  fGemResolution = -1.;
   fVerbose       = kFALSE;
 }
 
@@ -62,12 +66,14 @@ PndLheHitsMaker::PndLheHitsMaker(const char *name,
   fTpcMode       = 1;
   fSttMode       = 0;
   fSttSimMode    = 1; 
-  fEmcMode       = 0;
+  fEmcMode       = 0; 
+  fGemMode       = 0;  
   fSimulation    = kTRUE;
   fPersistence   = kTRUE;
   fTpcResolution = -1.;
   fMvdResolution = -1.;
   fSttResolution = -1.;
+  fGemResolution = -1.;
   fVerbose       = kFALSE;
 }
 
@@ -285,8 +291,46 @@ InitStatus PndLheHitsMaker::Init() {
       cout << "-E- PndLheHitsMaker::Init: Wrong EMC mode. Switching EMC OFF" << endl;
       fEmcMode = 0;
     }
+  
+  switch (fGemMode) 
+    {
+    case 0:
+      cout << "-I- PndLheHitsMaker::Init: No GEM detector is used" << endl;
+      break;
+      
+    case 1:
+      fGemInput   = (TClonesArray *)fManager->GetObject("GEMPoint");
+      if ( ! fGemInput ) 
+	{
+	  cout << "-W- PndLheHitsMaker::Init: No GEMPoint array! Switching GEM OFF" << endl;
+	  fGemMode = 0;
+	}
+      else
+	{
+	  if (fGemResolution<0.) cout << "-I- PndLheHitsMaker::Init: Using GEMPoint, no position smearing" << endl;
+	  else cout << "-I- PndLheHitsMaker::Init: Using GEMPoint, position smearing " << fGemResolution << " [cm]" << endl;
+	}
+      break;
+      
+    case 2:
+      fGemInput   = (TClonesArray *)fManager->GetObject("GEMHit");
+      if ( ! fGemInput ) 
+	{
+	  cout << "-W- PndLheHitsMaker::Init: No GEMHit array! Switching GEM OFF" << endl;
+	  fGemMode = 0;
+	}
+      else
+	{
+	  cout << "-I- PndLheHitsMaker::Init: Using GEMHit" << endl;
+	}
+      break;
 
-  if ((fMvdMode+fTpcMode+fSttMode+fEmcMode)==0)
+    default:
+      cout << "-E- PndLheHitsMaker::Init: Wrong GEM mode. Switching GEM OFF" << endl;
+      fGemMode = 0;
+    }
+  
+  if ((fMvdMode+fTpcMode+fSttMode+fEmcMode+fGemMode)==0)
     {
       cout << "-E- PndLheHitsMaker::Init: No active detectors! Exit" << endl;
       return kFATAL;
@@ -751,6 +795,100 @@ void PndLheHitsMaker::GetEmcBumps() {
 } 
 
 //_________________________________________________________________
+void PndLheHitsMaker::GetGemPoints() {
+   // Taking points from PndGemMCPoint
+  
+  if (fVerbose)
+    cout << " PndLheHitsMaker::GetGemHits(): Gem points entries " << fGemInput->GetEntriesFast() <<endl;
+  
+  
+  for (int j=0; j < fGemInput->GetEntriesFast(); j++ ) {
+    PndGemMCPoint* point = (PndGemMCPoint*) fGemInput->At(j);
+    
+    if (fVerbose) point->Print(" "); //PR(point->GetTrackID());
+
+    PndLheHit* hit = AddHit();
+    hit->SetHitNumber(fNHit++);
+    
+    if (fGemResolution<=0.)
+      {
+	hit->SetX(point->GetX());
+	hit->SetY(point->GetY());
+	hit->SetZ(point->GetZ());
+	
+	if (fVerbose) cout << "GEM POINT " 
+			   << hit->GetX() << " " 
+			   << hit->GetY() << " " 
+			   << hit->GetZ() << " RADIUS " 
+			   << sqrt((hit->GetX()*hit->GetX())+(hit->GetY()*hit->GetY())) << "\n";
+	
+	hit->SetDx(0.03);
+	hit->SetDy(0.03);
+	hit->SetDz(0.03);
+      }
+    else
+      {
+	hit->SetX(gRandom->Gaus(point->GetX(),fGemResolution));
+	hit->SetY(gRandom->Gaus(point->GetY(),fGemResolution));
+	hit->SetZ(gRandom->Gaus(point->GetZ(),fGemResolution));
+	
+	if (fVerbose) cout << "GEM POINT SMEARED " 
+			   << hit->GetX() << " " 
+			   << hit->GetY() << " " 
+			   << hit->GetZ() << " RADIUS " 
+			   << sqrt((hit->GetX()*hit->GetX())+(hit->GetY()*hit->GetY())) << "\n";
+	
+	hit->SetDx(fGemResolution);
+	hit->SetDy(fGemResolution);
+	hit->SetDz(fGemResolution);
+      }
+    
+    hit->SetDetectorID(kGemPoint);
+    hit->SetTrackID(point->GetTrackID());
+    hit->SetRefIndex(j);
+    
+    if (fVerbose)  hit->Print();
+  }  // end of TpcPoints loop
+  
+} 
+
+//_________________________________________________________________
+void PndLheHitsMaker::GetGemHits() {
+   // Taking points from PndGemHits
+
+  for (int j=0; j < fGemInput->GetEntriesFast(); j++ ) {
+    PndGemHit* point = (PndGemHit*) fGemInput->At(j);
+    
+    PndLheHit* hit = AddHit();
+    hit->SetHitNumber(fNHit++);
+    
+    hit->SetX(point->GetX());  
+    hit->SetY(point->GetY());
+    hit->SetZ(point->GetZ());
+  
+    
+    if (fVerbose) cout << "GEM HIT " 
+		       << hit->GetX() << " " 
+		       << hit->GetY() << " " 
+		       << hit->GetZ() << " RADIUS " 
+		       << sqrt((hit->GetX()*hit->GetX())+(hit->GetY()*hit->GetY())) << "\n";
+    
+    //hit->SetDx(point->GetX());  
+    //hit->SetDy(point->GetY());
+    //hit->SetDz(point->GetZ());
+    hit->SetDx(0.03);
+    hit->SetDy(0.03);
+    hit->SetDz(0.03);
+
+    hit->SetDetectorID(kGemHit);
+    hit->SetTrackID(-1);
+    hit->SetRefIndex(j);
+    
+    if (fVerbose)  hit->Print();
+    
+  }  // end of TpcCluster loop  
+} 
+//_________________________________________________________________
 void PndLheHitsMaker::Exec(Option_t * option) {
     
   cout << "\n\n  ***  Event # " << ++fNofEvents << endl;
@@ -772,6 +910,9 @@ void PndLheHitsMaker::Exec(Option_t * option) {
   if ((fEmcMode==2) && (fEmcInput->GetEntriesFast()>0))  GetEmcClusters();
   if ((fEmcMode==3) && (fEmcInput->GetEntriesFast()>0))  GetEmcBumps();
   
+  if ((fGemMode==1) && (fGemInput->GetEntriesFast()>0))  GetGemPoints();
+  if ((fGemMode==2) && (fGemInput->GetEntriesFast()>0))  GetGemHits();
+
   cout << "  Total number of hits for tracking: " <<
     setw(5) << fLheHits->GetEntriesFast() << endl;
 

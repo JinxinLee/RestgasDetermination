@@ -16,6 +16,7 @@ ${CMAKE_SOURCE_DIR}/mvd/MvdData
 ${CMAKE_SOURCE_DIR}/emc/EmcData
 ${CMAKE_SOURCE_DIR}/emc/EmcReco
 ${CMAKE_SOURCE_DIR}/emc/EmcTools
+${CMAKE_SOURCE_DIR}/gem
 ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/pnddata
 ${CMAKE_SOURCE_DIR}/pnddata/SttData
@@ -23,6 +24,7 @@ ${CMAKE_SOURCE_DIR}/pnddata/TofData
 ${CMAKE_SOURCE_DIR}/pnddata/MdtData
 ${CMAKE_SOURCE_DIR}/pnddata/DrcData
 ${CMAKE_SOURCE_DIR}/pnddata/MvdData
+${CMAKE_SOURCE_DIR}/pnddata/GemData
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
 ${CMAKE_SOURCE_DIR}/stt/sttreco
 ${CMAKE_SOURCE_DIR}/geane

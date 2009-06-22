@@ -200,6 +200,7 @@ void PndTpcLheTrack ::SetDefaults() {
   fTanDipAngleErr = 0.;
   fMvdHits = 0;
   fTpcHits = 0;
+  fGemHits = 0;
   fFitTrackIndex = -1;
   fGood = kTRUE;
 
