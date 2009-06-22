@@ -1,4 +1,4 @@
-void gem_simBox(Double_t momentum = 2., Double_t theta = 20., Double_t phi = 20., Int_t nEvents = 10000,int verboseLevel = 0)
+void gem_simBox(Double_t momentum = 2., Double_t theta = 15., Double_t phi = 20., Int_t nEvents = 1000,int verboseLevel = 0)
 {
   TStopwatch timer;
   timer.Start();
@@ -6,7 +6,7 @@ void gem_simBox(Double_t momentum = 2., Double_t theta = 20., Double_t phi = 20.
 
   //FileNames
   TString simOutput;
-  simOutput.Form("$VMCWORKDIR/data_scan2/Gem_4Stations_2212_%.1fGeV_th%g_ph%g_n%d",momentum,theta,phi,nEvents);
+  simOutput.Form("$VMCWORKDIR/data/Gem_4Stations_211_%.1fGeV_th%g_ph%g_n%d",momentum,theta,phi,nEvents);
   TString parOutput=simOutput;
   simOutput+=".root";
   parOutput+="_par.root";
@@ -40,9 +40,9 @@ void gem_simBox(Double_t momentum = 2., Double_t theta = 20., Double_t phi = 20.
   Pipe->SetGeometryFileName("pipebeamtarget.geo");
   fRun->AddModule(Pipe);
   
-  FairModule *Magnet= new PndMagnet("MAGNET");
+  //  FairModule *Magnet= new PndMagnet("MAGNET");
   //  Magnet->SetGeometryFileName("PandaSolenoidV833.root");
-  fRun->AddModule(Magnet);
+  //  fRun->AddModule(Magnet);
   
 //   FairModule *dipole= new PndMagnet("MAGNET");
 //   dipole->SetGeometryFileName("dipole.geo");
@@ -58,10 +58,11 @@ void gem_simBox(Double_t momentum = 2., Double_t theta = 20., Double_t phi = 20.
   Gem->SetVerboseLevel(0);
   fRun->AddModule(Gem);
   
+  // Event generator
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
-  FairBoxGenerator* boxGen = new FairBoxGenerator(2212,1);
+  FairBoxGenerator* boxGen = new FairBoxGenerator(211,1);
   boxGen->SetThetaRange(theta   ,theta   );
   boxGen->SetPhiRange  (phi     ,phi     );
   boxGen->SetPRange    (momentum,momentum);
@@ -104,17 +105,22 @@ void gem_simBox(Double_t momentum = 2., Double_t theta = 20., Double_t phi = 20.
   FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
   Bool_t kParameterMerged=kTRUE;
   FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
-  output->open(parOutput.Data(),"RECREATE");
+  output->open(parOutput.Data());
   rtdb->setOutput(output);
+
+  PndMultiFieldPar* fieldPar = 
+    (PndMultiFieldPar*) rtdb->getContainer("PndMultiFieldPar");
+  if(fField)  {  fieldPar->SetParameters(fField); }
+  fieldPar->setInputVersion(fRun->GetRunId(),1);
+  fieldPar->setChanged(kTRUE);
+  
+  rtdb->saveOutput();
+  rtdb->print();
 
   // Transport nEvents
   // -----------------
 
   fRun->Run(nEvents);
-
-  rtdb->saveOutput();
-  rtdb->print();
-
 
   timer.Stop();
   Double_t rtime = timer.RealTime();

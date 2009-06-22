@@ -17,6 +17,8 @@ void gem_sim(Double_t momentum = 15., Int_t nEvents = 100,int verboseLevel = 0)
   gSystem->Load("libGem");
   FairRunSim *fRun = new FairRunSim();
 
+  fRun->SetBeamMom(momentum);
+
   // set the MC version used
   // ------------------------
 
@@ -36,92 +38,62 @@ void gem_sim(Double_t momentum = 15., Int_t nEvents = 100,int verboseLevel = 0)
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave);
 
-//   FairModule *Magnet= new PndMagnet("MAGNET");
-//   Magnet->SetGeometryFileName("FullSolenoid.root");
-//   fRun->AddModule(Magnet);
-
-//  FairModule *Dipole= new PndMagnet("MAGNET");
-//  Dipole->SetGeometryFileName("dipole.geo");
-//  fRun->AddModule(Dipole);
-
   FairModule *Pipe= new PndPipe("PIPE");
-//   Pipe->SetGeometryFileName("pipebeamtarget.geo");
+  Pipe->SetGeometryFileName("pipebeamtarget.geo");
   fRun->AddModule(Pipe);
-
-   FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
-   Mvd->SetGeometryFileName("MVD_v1.0_woPassiveTraps.root");
-   Mvd->SetVerboseLevel(verboseLevel);
-   fRun->AddModule(Mvd);
-
-//   FairDetector *Tpc = new PndTpcDetector("TPC", kFALSE);
-//   Tpc->SetGeometryFileName("tpc.elsa.geo"); // this is the "long" tpc - conflicts with 4 GEM planes
-//   fRun->AddModule(Tpc);
-
-//  PndEmc *Emc = new PndEmc("EMC",kTRUE);
-//  Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root");
-//   fRun->AddModule(Emc);
-
-//  FairDetector *Tof = new PndTof("TOF",kTRUE);
-//  Tof->SetGeometryFileName("tofbarrel.geo");
-//   fRun->AddModule(Tof);
-
-//  FairDetector *Muo = new PndMdt("MDT",kTRUE);
-//  Muo->SetGeometryFileName("muopars.root");
-//   fRun->AddModule(Muo);
-
-//  PndDrc *Drc = new PndDrc("DIRC", kTRUE);
-//  Drc->SetRunCherenkov(kFALSE);
-  //Drc->SetGeometryFileName("dirc.geo");
-//   fRun->AddModule(Drc);
-
-//  FairDetector *Dch = new PndDchDetector("DCH", kTRUE);
-//  Dch->SetGeometryFileName("dch.root");
-//   fRun->AddModule(Dch);
+  
+  //  FairModule *Magnet= new PndMagnet("MAGNET");
+  //  Magnet->SetGeometryFileName("PandaSolenoidV833.root");
+  //  fRun->AddModule(Magnet);
+  
+//   FairModule *dipole= new PndMagnet("MAGNET");
+//   dipole->SetGeometryFileName("dipole.geo");
+//   fRun->AddModule(dipole);
+ 
+  FairDetector *Dch = new PndDchDetector("DCH", kTRUE);
+  Dch->SetGeometryFileName("dch.root");
+  Dch->SetVerboseLevel(0);
+  fRun->AddModule(Dch);
 
   FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
   Gem->SetGeometryFileName("gem_4Stations.root");
-  Gem->SetVerboseLevel(verboseLevel);
+  Gem->SetVerboseLevel(0);
   fRun->AddModule(Gem);
 
-
-
-
+  // Event generator
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
+  PndDpmDirect* dpmGen = new PndDpmDirect(momentum,1); //0. - only inelastic, 2 only elastic, 1 both
+  primGen->AddGenerator(dpmGen);
+  
+  fRun->SetBeamMom(momentum);
 
-  // DPM Generator
-//   if (momentum==1.5){
-//      PndDpmGenerator* dpmGen = new PndDpmGenerator("/d/panda02/elastic/el_1_5GeV.root");
-//      primGen->AddGenerator(dpmGen);
-//   } else if (momentum==6.0){
-//      PndDpmGenerator* dpmGen = new PndDpmGenerator("/d/panda02/elastic/el_6GeV.root");
-//      primGen->AddGenerator(dpmGen);
-//   } else if (momentum==15.0){
-//      PndDpmGenerator* dpmGen = new PndDpmGenerator("/d/panda02/elastic/el_15GeV.root");
-//      primGen->AddGenerator(dpmGen);
-//   } else {
-    PndDpmDirect* dpmGen = new PndDpmDirect(momentum,1); //0. - only inelastic, 2 only elastic, 1 both
-    primGen->AddGenerator(dpmGen);
-//   }
-
-
-    PndMultiField *fField= new PndMultiField();
-    
-    PndTransMap *map= new PndTransMap("TransMap", "R");
-   PndDipoleMap *map1= new PndDipoleMap("DipoleMap", "R");
-  PndSolenoidMap *map2= new PndSolenoidMap("SolenoidMap", "R");
-   fField->AddField(map);
-   fField->AddField(map1);
-  fField->AddField(map2);
-
+  // Field Map Definition
+  // --------------------
+  PndMultiField *fField= 0;
+  fField = new PndMultiField();
+  PndTransMap *map_t= new PndTransMap("TransMap", "R");
+  PndSolenoidMap *map_s1= new PndSolenoidMap("SolenoidMap1", "R");
+  PndSolenoidMap *map_s2= new PndSolenoidMap("SolenoidMap2", "R");
+  PndSolenoidMap *map_s3= new PndSolenoidMap("SolenoidMap3", "R");
+  PndSolenoidMap *map_s4= new PndSolenoidMap("SolenoidMap4", "R");
+  PndDipoleMap *map_d1= new PndDipoleMap("DipoleMap1", "R");
+  PndDipoleMap *map_d2= new PndDipoleMap("DipoleMap2", "R");
+  fField->AddField(map_t);
+  fField->AddField(map_s1);
+  fField->AddField(map_s2);
+  fField->AddField(map_s3);
+  fField->AddField(map_s4);
+  fField->AddField(map_d1);
+  fField->AddField(map_d2);
   fRun->SetField(fField);
+  //-----------end of Bfield stuff
 
    // support event display?
    fRun->SetStoreTraj(kFALSE);
    
    fRun->SetRadLenRegister(kFALSE);
-
 
    fRun->Init();
 //   Tpc->Initialize(); // tpc produces too much points, use radlenpoints instead
@@ -131,17 +103,22 @@ void gem_sim(Double_t momentum = 15., Int_t nEvents = 100,int verboseLevel = 0)
   FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
   Bool_t kParameterMerged=kTRUE;
   FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
-  output->open(parOutput.Data(),"RECREATE");
+  output->open(parOutput.Data());
   rtdb->setOutput(output);
+
+  PndMultiFieldPar* fieldPar = 
+    (PndMultiFieldPar*) rtdb->getContainer("PndMultiFieldPar");
+  if(fField)  {  fieldPar->SetParameters(fField); }
+  fieldPar->setInputVersion(fRun->GetRunId(),1);
+  fieldPar->setChanged(kTRUE);
+  
+  rtdb->saveOutput();
+  rtdb->print();
 
   // Transport nEvents
   // -----------------
 
   fRun->Run(nEvents);
-
-  rtdb->saveOutput();
-  rtdb->print();
-
 
   timer.Stop();
   Double_t rtime = timer.RealTime();

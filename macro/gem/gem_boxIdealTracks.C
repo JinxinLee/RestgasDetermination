@@ -1,4 +1,4 @@
-void gem_boxIdealTracks(Int_t nEvents = 1000, Double_t momentum = 1.0, Int_t theta = 5, Int_t phi = 0, int verboseLevel = 0)
+void gem_boxIdealTracks(Int_t nEvents = 1000, Double_t momentum = 2.0, Int_t theta = 15, Int_t phi = 20, int verboseLevel = 0)
 {
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
@@ -8,12 +8,12 @@ void gem_boxIdealTracks(Int_t nEvents = 1000, Double_t momentum = 1.0, Int_t the
   gSystem->Load("libGem");
   // Input file (MC events)
   TString baseName;
-  baseName.Form("$VMCWORKDIR/data_scan2/G3em_4Stations_2212_%.1fGeV_th%d_ph%d_n%d",momentum,theta,phi,nEvents);
+  baseName.Form("$VMCWORKDIR/data/Gem_4Stations_211_%.1fGeV_th%d_ph%d_n%d",momentum,theta,phi,nEvents);
 
   TString MCFile  = baseName + ".root";
   TString parFile = baseName + "_par.root";
   // ------------------------------------------------------------------------
-  TString outFile = baseName + "_idealTracksRPEr.root";
+  TString outFile = baseName + "_idealTracks.root";
   
   std::cout << "RecoFile: " << outFile.Data()<< std::endl;
   
@@ -35,7 +35,7 @@ void gem_boxIdealTracks(Int_t nEvents = 1000, Double_t momentum = 1.0, Int_t the
   rtdb->setFirstInput(parInput1);
 
   FairParAsciiFileIo* parIo2 = new FairParAsciiFileIo();
-  parIo2->open("../params/gem_4Stations_fine.digi.par","in");
+  parIo2->open("../params/gem_4Stations.digi.par","in");
   rtdb->setSecondInput(parIo2);
 
   fRun->LoadGeometry();
@@ -81,7 +81,8 @@ void gem_boxIdealTracks(Int_t nEvents = 1000, Double_t momentum = 1.0, Int_t the
 
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
-  fRun->Run(0,10);//nEvents);
+  Geane->SetField(fRun->GetField());
+  fRun->Run(0,nEvents);
 
   // -----   Finish   -------------------------------------------------------
   timer.Stop();

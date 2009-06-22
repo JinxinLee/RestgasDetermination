@@ -1,3 +1,6 @@
+// Macro created by Radoslaw Karabowicz
+// This macro takes MC file and produces IDEAL DIGIS, then IDEAL TRACKS, and finally fits the IDEAL TRACKS
+
 void gem_idealTracks(Int_t nEvents = 100, TString addString = "4Stations_15GeV", int verboseLevel = 0)
 {
   // ========================================================================
@@ -13,7 +16,7 @@ void gem_idealTracks(Int_t nEvents = 100, TString addString = "4Stations_15GeV",
   TString MCFile  = baseName + ".root";
   TString parFile = baseName + "_par.root";
   // ------------------------------------------------------------------------
-  TString outFile = baseName + "_idealTracksFine.root";
+  TString outFile = baseName + "_idealTracksFineM5.root";
   
   std::cout << "RecoFile: " << outFile.Data()<< std::endl;
 
@@ -81,6 +84,7 @@ void gem_idealTracks(Int_t nEvents = 100, TString addString = "4Stations_15GeV",
 
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
+  Geane->SetField(fRun->GetField());
   fRun->Run(0,nEvents);
 
   // -----   Finish   -------------------------------------------------------
