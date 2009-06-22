@@ -1,3 +1,6 @@
+// Macro created by Radoslaw Karabowicz
+// This macro takes MC file and produces IDEAL HITS only
+
 void gem_idealHits(Int_t nEvents = 100, TString addString = "4Stations_15GeV", int verboseLevel = 0)
 {
   // ========================================================================

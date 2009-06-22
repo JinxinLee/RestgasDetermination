@@ -1,3 +1,6 @@
+// Macro created by Radoslaw Karabowicz
+// This macro takes MC file and produces digis and hits
+
 void gem_hits(Int_t nEvents = 100, TString addString = "4Stations_15GeV", int verboseLevel = 0)
 {
   // ========================================================================

@@ -1,3 +1,6 @@
+// Macro created by Radoslaw Karabowicz
+// This macro takes MC file and produces digis only
+
 void gem_digi(Double_t momentum = 15., Int_t nEvents = 100,int verboseLevel = 0)
 {
   // ========================================================================

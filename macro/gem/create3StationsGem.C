@@ -160,9 +160,11 @@ void create3StationsGem()
   pout << "#################################################################" << endl;
   pout << "[PndGemDetectors]" << setprecision(4) << endl;
 
+  pout << "parameters:Double_t \\" << endl;
+
   for ( Int_t istat = 0 ; istat < kNofDisks ; istat++ ) {
 
-    pout << (istat?"             ":"parameters:f ") << istat+1 << ",  "
+    pout << "                    " << istat+1 << ",  "
 	 << setw(9) << kDiskZPosition[istat]
 	 << ",  0.0, " << 2 << ", \\" << endl;
     
@@ -203,12 +205,15 @@ void create3StationsGem()
 	   << setprecision(10) << kDiskZPosition[istat]+layerPosition+kLayerThick[ilay]/2. << endl;
 
       if ( kLayerName[ilay].Contains("Gem") && kLayerName[ilay].Contains("Sensor") ) {
-	pout << "               " << sensorNumber+1 << ",  1,  " 
+	Double_t nofStrips = TMath::Ceil(2.*TMath::Pi()*kDiskInnerRadius[istat]/kSensorStripPitch[sensorNumber][0]);
+	Double_t newRadius = nofStrips*kSensorStripPitch[sensorNumber][0]/2./TMath::Pi();
+	cout << "!!!! " << istat << " " << ilay << " > there shall be " << nofStrips << " strips here so the radius should be " << newRadius << endl;
+	pout << "                        " << sensorNumber+1 << ",  1,  " 
 	     << setw(9) << 0. << ",  "
 	     << setw(9) << 0. << ",  " 
 	     << setw(9) << kDiskZPosition[istat]+layerPosition << ",  "
 	     << setw(9) << 0. << ",  "
-	     << setw(9) << kDiskInnerRadius[istat] << ",  "
+	     << setw(9) << newRadius << ",  "
 	     << setw(9) << kDiskOuterRadius[istat] << ",  "
 	     << setw(9) << kLayerThick[ilay] << ",  "
 	     << setw(9) << kSensorStripAngle[sensorNumber][0] << ",  "
