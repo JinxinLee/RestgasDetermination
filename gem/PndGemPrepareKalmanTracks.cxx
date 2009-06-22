@@ -149,7 +149,7 @@ PndGemPrepareKalmanTracks::Exec(Option_t* opt)
     if(cand->getNHits()<fMinNofHits)
       continue;
     
-    Int_t pdg = 13;
+    Int_t pdg = 211;
     Double_t q = 1.;
     TVector3 pos, mom;
     
@@ -178,7 +178,8 @@ PndGemPrepareKalmanTracks::Exec(Option_t* opt)
 		    mom.Z()*startMomAccuracy.Z());    
     TVector3 u(1.,0.,0.);
     TVector3 v(0.,1.,0.);
-    
+    mom.SetMag(mom.Mag()+0.1);    
+
     // create track-representation object and initialize with start values
     AbsTrackRep* rep=0;
     if(fUseGeane){

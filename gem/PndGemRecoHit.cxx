@@ -69,7 +69,7 @@ PndGemRecoHit::PndGemRecoHit(PndGemMCPoint* point)
   setDetPlane(DetPlane(o,u,v));
 
 }
-
+/*
 PndGemRecoHit::PndGemRecoHit(PndGemHit* hit)
   : RecoHitIfc<PlanarHitPolicy>(fNparHitRep)
 {
@@ -99,11 +99,9 @@ PndGemRecoHit::PndGemRecoHit(PndGemHit* hit)
 
   setDetPlane(DetPlane(oo,uu,vv));
 //============================================================================
-
-
 }
+*/
 
- /*
 PndGemRecoHit::PndGemRecoHit(PndGemHit* hit)
   : RecoHitIfc<PlanarHitPolicy>(fNparHitRep)
 {
@@ -138,7 +136,7 @@ PndGemRecoHit::PndGemRecoHit(PndGemHit* hit)
    setDetPlane(DetPlane(oo,uu,vv));
  //============================================================================
 }
-*/
+
 
 void
 PndGemRecoHit::setHMatrix(const AbsTrackRep* stateVector,

@@ -195,7 +195,8 @@ PndGemKalmanTask::Exec(Option_t* opt)
     TVector3 beforePos = trac->getPos();
     TVector3 beforeMom = trac->getMom();
     
-    if ( beforeMom.Mag() < 0.2 ) continue;
+    std::cout << " particle momentum is " << beforeMom.Mag() << std::endl;
+    if ( beforeMom.Mag() < 0.5 ) continue;
 
     // Load RecoHits
     try {
