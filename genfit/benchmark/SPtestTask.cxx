@@ -238,7 +238,7 @@ void SPtestTask::Exec(Option_t* opt) {
 	    }
 
 	  }
-	  rephits->getReferencePlane().Print();
+	  //rephits->getReferencePlane().Print();
 	  //pos.Print();
 	  //mom.Print();
 	  mom.SetMag(1.5);
@@ -277,7 +277,7 @@ void SPtestTask::Exec(Option_t* opt) {
 	  rephits->setCov(covPred);
 	  rephits->setReferencePlane(d);
 	  //statePred.Print();
-	  
+	  if(i==24 || i==13) posR+=TVector3(2.,2.,2.);
 	  points.push_back(posR);
 	  //std::cout << "############" << std::endl;
 	  //std::cout << "fffff" << std::endl;
@@ -288,10 +288,10 @@ void SPtestTask::Exec(Option_t* opt) {
 	
 	DetPlane targetPlane = lastPlane;
 	targetPlane.setO(targetPlane.getO()+targetPlane.getNormal());
-	lastPlane.Print();
+	//lastPlane.Print();
 
-	std::cout << std::endl << std::endl << std::endl<<"targetPlane" << std::endl;
-	targetPlane.Print();
+	//std::cout << std::endl << std::endl << std::endl<<"targetPlane" << std::endl;
+	//targetPlane.Print();
 
 
 
@@ -299,21 +299,29 @@ void SPtestTask::Exec(Option_t* opt) {
 	
 	Track *tr = new Track( rep );
 
+	AbsTrackRep* theclone = rep->clone();
+	TMatrixT<double> S = theclone->getState();
+	S[4][0] = S[4][0]+400.;
+	S[0][0] *= -1.;
+	theclone->setState(S);
+	tr->addTrackRep(theclone);
+
 	for(int i=0;i<(int)points.size();++i){
 	  AbsRecoHit* aHit;
 	  //if(i>=points.size()-12){
 	  //aHit = new StripHit(points.at(i),i,_res);
 	  //}
 	  //else{
-	    //pointsReverse.at(i).Print();
-	    aHit = new SPhit(points.at(i),errors);
-		//}
+	  //pointsReverse.at(i).Print();
+	  aHit = new SPhit(points.at(i),errors);
+	  //}
 	  tr->addHit(aHit,3,i);
 	}
 	
 
 	//tr->addHitVector(hits);
 	Kalman k;
+	k.setOutlierCut(6.);
 	//std::cout << __FILE__ << __LINE__ << std::endl;
 	try{
 	  k.processTrack(tr);
@@ -322,6 +330,8 @@ void SPtestTask::Exec(Option_t* opt) {
 	  std::cerr << "counter some int exception caught: " << e << std::endl;
 	  continue;
 	}
+	
+	exit(1);
 	PndTrack* pndTrk = GenfitTrack2PndTrack(tr);
 	pndTrk->Print();
 	throw;

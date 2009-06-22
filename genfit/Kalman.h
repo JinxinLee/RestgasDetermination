@@ -96,6 +96,12 @@ public:
    */
   void setBlowUpFactor(double f){_blowUpFactor=f;}
 
+  /** @brief set the outlier chi2 rejection threshold
+   * The outlier rejection only comes into effect after the first
+   * fitting pass.
+   */
+  void setOutlierCut(double d){_outlierCut=d;}
+
   // Private Methods -----------------
 private:
   /** @brief One Kalman step.
@@ -104,8 +110,11 @@ private:
    * - Extrapolation to detector plane of the hit
    * - Calculation of residual and Kalman Gain
    * - Update of track representation state and chi2
+   *
+   * return value indicates whether hit passed chi2 cut and is
+   * an outlier
    */
-  void processHit(AbsRecoHit*, AbsTrackRep*);
+  bool processHit(Track*, int, int, bool);
   
   /** @brief Used to switch between forward and backward filtering
    */
@@ -129,12 +138,12 @@ private:
 
   double _blowUpFactor;
   int _initialDirection;
-  bool _nullExtrapolation;
   int _fitPassCounter;
 
   Int_t _lazy; // controls throwing of exceptions
   Int_t _numIt;
 
+  double _outlierCut;
 };
 
 

@@ -63,6 +63,17 @@ protected:
   /// Covariance of raw hit coordinates
   TMatrixT<double> _hitCov;
 
+ private:
+  /** @time of the hit
+   *
+   * This time info is private. There is only a protected setTime method.
+   * This means that it can only be used from derived classes. This is
+   * important, because the private flag hasTime() will be managed only
+   * in the BasRecoHit class
+   */
+  double _time;
+  bool _hasTime;
+
 public:
   virtual ~AbsRecoHit();
 
@@ -196,8 +207,23 @@ public:
   /** @brief Print raw hit coordinates.
    */
   virtual void Print() {_hitCoord.Print();}
+
+  /** @brief Does the hit have a time?
+   */
+  double hasTime() {return _hasTime;}
   
-  ClassDef(AbsRecoHit,1)
+  /** @brief Get time of the hit
+   */
+  double getTime() {return _time;}
+
+ protected:
+  /** @brief Set time of the hit
+   *
+   * This is protected because only subclasses can set this
+   */
+  void setTime(double d) {_time=d;_hasTime=true;}
+
+  ClassDef(AbsRecoHit,2)
 
 };
   

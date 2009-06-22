@@ -22,6 +22,16 @@ PndTrackCand* GenfitTrackCand2PndTrackCand(const TrackCand* cand){
   return retVal;
 }
 
+TrackCand* PndTrackCand2GenfitTrackCand(PndTrackCand* cand){
+  TrackCand* retVal = new TrackCand();
+  unsigned int nhits = cand->GetNHits();
+  for(unsigned int i=0;i<nhits;++i){
+    PndTrackCandHit candHit = cand->GetSortedHit(i);
+    retVal->addHit(candHit.GetDetId(),candHit.GetHitId());
+  }
+  return retVal;
+}
+
 PndTrack* GenfitTrack2PndTrack(const Track* tr){
   AbsTrackRep* clone = tr->getCardinalRep()->clone();
   TMatrixT<double> firstState = clone->getFirstState();
@@ -47,16 +57,16 @@ PndTrack* GenfitTrack2PndTrack(const Track* tr){
 	lastCova[count++]=lastCov[i][j];
       }
     }
-    FairTrackParP *first = new FairTrackParP(firstState[3][0],firstState[4][0],firstState[1][0],firstState[2][0],firstState[0][0],firstCova,firstPlane.getO(),firstPlane.getU(),firstPlane.getV());
-    FairTrackParP *last = new FairTrackParP(lastState[3][0],lastState[4][0],lastState[1][0],lastState[2][0],lastState[0][0],lastCova,lastPlane.getO(),lastPlane.getU(),lastPlane.getV());
+    FairTrackParP first(firstState[3][0],firstState[4][0],firstState[1][0],firstState[2][0],firstState[0][0],firstCova,firstPlane.getO(),firstPlane.getU(),firstPlane.getV());
+    FairTrackParP last(lastState[3][0],lastState[4][0],lastState[1][0],lastState[2][0],lastState[0][0],lastCova,lastPlane.getO(),lastPlane.getU(),lastPlane.getV());
     
     //copy the trackCand
     TrackCand genfitCand = tr->getCand();
-    PndTrackCand * pndCand = GenfitTrackCand2PndTrackCand(&genfitCand);
-    //the ownership of first,last, and pndCand goes to PndTrack
-    PndTrack* retVal =  new PndTrack(first,last,pndCand);
+    PndTrackCand* pndCand = GenfitTrackCand2PndTrackCand(&genfitCand);
+    PndTrack* retVal =  new PndTrack(first,last,*pndCand);
     retVal->SetChi2(tr->getChiSqu());
     retVal->SetNDF(tr->getNDF());
+    delete pndCand;
     return retVal;
   }
   else {

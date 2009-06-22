@@ -100,6 +100,7 @@ double
 LSLTrackRep::extrapolate(const DetPlane& pl, 
 			 TMatrixT<double>& statePred)
 {
+  statePred.ResizeTo(dimension,1);
   double sExtrapolateTo=pl.getO().Z();
   if(sExtrapolateTo<-1000 || sExtrapolateTo>5000)return 0;
   Nystrom rungeKutta(_eqm);
@@ -166,6 +167,8 @@ LSLTrackRep::extrapolate(const DetPlane& pl,
 			 TMatrixT<double>& statePred,
 			 TMatrixT<double>& covPred)
 {
+  statePred.ResizeTo(dimension,1);
+  covPred.ResizeTo(dimension,dimension);
   TMatrixT<double> jacobian;
   //std::cout << "Extr from To: " << s << " " << sExtrapolateTo << std::endl;
   double l=extrapolate(pl,statePred);

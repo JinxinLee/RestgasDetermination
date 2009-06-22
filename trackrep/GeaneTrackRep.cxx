@@ -110,7 +110,8 @@ GeaneTrackRep::extrapolate(const DetPlane& pl,
     exc.setFatal();
     throw exc;
   }
-
+  statePred.ResizeTo(dimension,1);
+  covPred.ResizeTo(dimension,dimension);
   TVector3 o=pl.getO();
   TVector3 u=pl.getU();
   TVector3 v=pl.getV();

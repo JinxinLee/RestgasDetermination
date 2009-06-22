@@ -47,6 +47,10 @@ public:
    */
   void addProducer(int detID, AbsRecoHitProducer* hitProd);
 
+  /** @brief Clear all hit producers
+   */
+  void clear();
+
   /** @brief Creat a RecoHit
    *
    * RecoHits have to implement a Constructor which takes the cluster object

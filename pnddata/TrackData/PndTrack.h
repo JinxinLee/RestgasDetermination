@@ -10,30 +10,17 @@
 
 #include "TObject.h"
 #include "PndTrackCand.h"
-#include "FairTrackPar.h"
+#include "FairTrackParP.h"
 
 
 class PndTrack : public TObject{
 public:
 	PndTrack();
-	//use pointers because of polymorphic use od FairTrackParP/H and not copy the candidate all the time
-	//ownership of first,last, and cand goes to PndTrack
-	PndTrack(FairTrackPar* first, FairTrackPar* last, PndTrackCand* cand);
- private:
-	/*
-	  I can not make a consistent copy ctor, because the polymorphic
-	  FairTrackPar do not have a cloning machanism
-	 */
-	PndTrack(const PndTrack&){}
- public:
-	virtual ~PndTrack();
+	PndTrack(const FairTrackParP& first, const FairTrackParP& last, const PndTrackCand& cand);
 
 	void Print();
 
 
-	 /** Public method SortHits
-	  ** Sorts the hits in downstream direction
-	  **/
 	Int_t GetPidHypo()               const { return fPidHypo; }
 	Int_t GetFlag()                  const { return fFlag; } //Quality flag
 	Double_t GetChi2()               const { return fChi2; }
@@ -42,15 +29,14 @@ public:
 	void SetFlag(Int_t i)            { fFlag=i; }
 	void SetChi2(Double_t d)         { fChi2=d; }
 	void SetNDF(Int_t i)             { fNDF=i; }
-	FairTrackPar* GetParamFirst() { return fTrackParamFirst; }
-	FairTrackPar* GetParamLast()  { return fTrackParamLast ; }
+	FairTrackParP GetParamFirst() { return fTrackParamFirst; }
+	FairTrackParP GetParamLast()  { return fTrackParamLast ; }
 
 private:
-	//use pointers because of polymorphic use od FairTrackParP/H
-	FairTrackPar* fTrackParamFirst;
-	FairTrackPar* fTrackParamLast;
+	FairTrackParP fTrackParamFirst;
+	FairTrackParP fTrackParamLast;
 
-	PndTrackCand* fTrackCand;
+	PndTrackCand fTrackCand;
 
 	Int_t fPidHypo;
 	Int_t fFlag;

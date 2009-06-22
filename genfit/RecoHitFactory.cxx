@@ -7,11 +7,7 @@ RecoHitFactory::RecoHitFactory(){
 }
 
 RecoHitFactory::~RecoHitFactory(){
-  std::map<int, AbsRecoHitProducer*>::iterator it=hitProdMap.begin();
-  while(it!=hitProdMap.end()){
-	delete it->second;
-	++it;
-  }
+  clear();
 }
 
 void RecoHitFactory::addProducer(int detID, AbsRecoHitProducer* hitProd) {
@@ -26,6 +22,15 @@ void RecoHitFactory::addProducer(int detID, AbsRecoHitProducer* hitProd) {
   else {
 	hitProdMap[detID] = hitProd;
   }
+}
+
+void RecoHitFactory::clear(){
+  std::map<int, AbsRecoHitProducer*>::iterator it=hitProdMap.begin();
+  while(it!=hitProdMap.end()){
+	delete it->second;
+	++it;
+  }
+  hitProdMap.clear();
 }
 
 AbsRecoHit* RecoHitFactory::createOne(int detID, int index) {

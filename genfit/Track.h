@@ -16,7 +16,7 @@
 #include "TObjArray.h"
 
 #include "TrackCand.h"
-#include "FailedHits.h"
+#include "HitsBookkeeping.h"
 
 class TVirtualGeoTrack;
 
@@ -44,10 +44,11 @@ private:
   /** @brief Collection of track representations
    * 
    * this array is only to be added to in the addTrackRep method
-   * because the synchronized construction of the std::map<int,int> for 
-   * failedHits is ensured here. NEVER delete elements from this array!
+   * because the synchronized construction of bookkeeping objects
+   * and repAtHit array is ensured there. NEVER delete elements from
+   * this array!
    * If this functionality will be need, it has to be done synchronized
-   * with failedHits!!
+   * with bookkeeping!!
    */
   TObjArray* trackReps; //->
 
@@ -55,12 +56,15 @@ private:
    */
   std::vector<AbsRecoHit*>      hits;//!
   
-  /** @brief Collection of map<int detId,int num> for every trackRep
-   * which contains the number of failed hits
-   * (error in Kalman::processHit() )
+  /** @brief Collection of Bookeeping objects for failed hits
+   * in every trackrep
    */
-  std::vector< FailedHits* > failedHits;
+  std::vector< Bookkeeping* > _bookkeeping;
 
+  /** @brief repAtHit keeps track of at which hit index which rep
+   * is currently defined, to avoid null extrapolations
+   */
+  std::vector<int> _repAtHit;
 
   /** @brief Helper to store the indices of the hits in the track. 
    * See TrackCand for details.
@@ -98,14 +102,25 @@ public:
   void reset();  // deletes the RecoHits!
 
   /** @brief return the number of failed Hits in track fit
-      detId == -1 will just use all detIds in the failedHits map, repId == -1 will use
-      cardinal rep
+   * detId == -1 will just use all detIds in the failedHits map,
+   * repId == -1 will use cardinal rep
   */
   int getFailedHits(int detId=-1,int repId=-1){
 	int theRep;
 	if(repId==-1) theRep=_cardinal_rep;
 	else theRep = repId;
-	return failedHits.at(theRep)->getNum(detId);
+	return _bookkeeping.at(theRep)->getNumFailed(detId);
+  }
+
+  /** @brief return the number of outlier Hits in track fit
+   * detId == -1 will just use all detIds in the failedHits map,
+   * repId == -1 will use cardinal rep
+  */
+  int getNumOutlierHits(int detId=-1,int repId=-1){
+	int theRep;
+	if(repId==-1) theRep=_cardinal_rep;
+	else theRep = repId;
+	return _bookkeeping.at(theRep)->getNumOutlier(detId);
   }
 
   std::vector<AbsRecoHit*> getHits() {return hits;}
@@ -247,15 +262,22 @@ public:
   // ---------------------
 
   void addFailedHit(unsigned int irep,unsigned int ihit){
-	assert(irep<failedHits.size());
+	assert(irep<_bookkeeping.size());
 	unsigned int detId,hitId;
 	_cand.getHit(ihit,detId,hitId);
-	failedHits.at(irep)->add(hitId,detId);
+	_bookkeeping.at(irep)->addFailed(hitId,detId);
   }
 
-  void clearFailedHits(){
-    for(unsigned int i=0;i<failedHits.size();++i){
-      failedHits.at(i)->clear();
+  void addOutlier(unsigned int irep,unsigned int ihit){
+	assert(irep<_bookkeeping.size());
+	unsigned int detId,hitId;
+	_cand.getHit(ihit,detId,hitId);
+	_bookkeeping.at(irep)->addOutlier(hitId,detId);
+  }
+
+  void clearBookkeeping(){
+    for(unsigned int i=0;i<_bookkeeping.size();++i){
+      _bookkeeping.at(i)->clear();
     }
   }
 
@@ -289,7 +311,8 @@ public:
   void addTrackRep(AbsTrackRep* theTrackRep) {
     if(trackReps==NULL)trackReps=new TObjArray(defNumTrackReps);
     trackReps->Add(theTrackRep);
-    failedHits.push_back( new FailedHits() );
+    _bookkeeping.push_back( new Bookkeeping() );
+    _repAtHit.push_back(-1);
   }
     
   void setCandidate(const TrackCand& cand, bool reset=false);
@@ -325,6 +348,32 @@ public:
    */
   void stepalong(double h); // extrapolate track by s cm (using cardinal rep)
   
+
+  /** @brief set the hit index at which plane,state&cov of rep irep is defined
+   */
+  void setRepAtHit(int irep,int ihit){
+    assert(irep<getNumReps());
+    _repAtHit.at(irep) = ihit;
+  }
+
+  /** @brief get the hit index at which plane,state&cov of rep irep is defined
+   */
+  int getRepAtHit(int irep){
+    assert(irep<getNumReps());
+    return _repAtHit.at(irep);
+  }
+
+  /** @brief clear the hit indeces at which plane,state&cov of reps are defined
+   */
+  void clearRepAtHit(){
+    for(unsigned int i=0;i<getNumReps();++i){
+      _repAtHit.at(i)=-1;
+    }
+  }
+
+  /** @brief print bookkeeping on failed hits and outliers
+   */
+  void printBookkeeping();
 public:
   ClassDef(Track,1)
 };

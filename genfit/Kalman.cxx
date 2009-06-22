@@ -14,13 +14,15 @@
 #define COVEXC "cov_is_zero"
 
 
-Kalman::Kalman():_lazy(0),_initialDirection(1),_numIt(3),_blowUpFactor(20.),_nullExtrapolation(false){;}
+Kalman::Kalman():_lazy(0),_initialDirection(1),_numIt(3),_blowUpFactor(20.),_outlierCut(-1.){;}
 
 Kalman::~Kalman(){;}
 
 void Kalman::processTrack(Track* trk){
   int direction=_initialDirection;
   assert(direction==1 || direction==-1);
+  trk->clearBookkeeping();
+  trk->clearRepAtHit();
   /*why is there a factor of two here (in the for statement)?
     Because we consider one full iteration to be one back and
     one forth fitting pass */
@@ -100,15 +102,13 @@ void Kalman::blowUpCovs(Track* trk){
 
 void
 Kalman::fittingPass(Track* trk, int direction){
-
   //loop over hits
   unsigned int nhits=trk->getNumHits();
   unsigned int starthit=trk->getNextHitToFit();
   if(starthit==nhits && direction >0) {
     std::cout<<"Kalman::processTrack::Already at end of Track!"<<std::endl;
     return;
-  }
-  if(starthit==-1 && direction <0) {
+  }  if(starthit==-1 && direction <0) {
     std::cout<<"Kalman::processTrack(backward)::Already at start of Track!"<<std::endl;
     return;
   }
@@ -123,47 +123,44 @@ Kalman::fittingPass(Track* trk, int direction){
     arep->setNDF(0);
   }
 
-  //clear failedHits
-  trk->clearFailedHits();
+  //clear failedHits and outliers
+  trk->clearBookkeeping();
 
   while((ihit<nhits && direction==1) || (ihit>-1 && direction==-1)){
     AbsRecoHit* ahit=trk->getHit(ihit);
-    /* configure the flag that will avoid null extrapolations in processHits() */
-    if( (direction==1 && ihit==0 && _fitPassCounter>0) || (direction==-1 && ihit==nhits-1) ){
-      _nullExtrapolation=true;
-    }
-    else{
-      _nullExtrapolation=false;
-    }
-
     // loop over reps
     for(int irep=0; irep<nreps; ++irep){
 	  AbsTrackRep* arep=trk->getTrackRep(irep);
 	  if(arep->getStatusFlag()==0) { 
-		try {
-		  processHit(ahit,arep);
-		}
-		catch(FitterException& e) {
-		  //if(e.getExcString()==std::string(COVEXC)){//the covariance is zero
-		  trk->addFailedHit(irep,ihit);
-		  //}
-		  std::cerr << e.what() << std::endl;
-		  e.info();
-
-		  //if(!_lazy){
-		  //e.info();
-		  //if(e.getExcString()!=std::string(COVEXC)) arep->setStatusFlag(1);
-		  if(e.isFatal()) {
-		    arep->setStatusFlag(1);
-		    continue; // go to next rep immediately
-		  }
-		  //}
-		}	
+	    try {
+	      bool rejOutliers=false;
+	      if(_outlierCut>0. && _fitPassCounter>1){
+		rejOutliers=true;
+	      }
+	      bool passedOutlier = processHit(trk,ihit,irep,rejOutliers);
+	      if(!passedOutlier){
+		/* trackrep state,cov,refPlane have not been
+		 * updated, do bookkeeping
+		 */
+		trk->addOutlier(irep,ihit);
+	      }
+	    }
+	    catch(FitterException& e) {
+	      trk->addFailedHit(irep,ihit);
+	      std::cerr << e.what() << std::endl;
+	      e.info();
+	      
+	      if(e.isFatal()) {
+		arep->setStatusFlag(1);
+		continue; // go to next rep immediately
+	      }
+	    }	
 	  }
     }// end loop over reps
     ihit+=direction;
-  }// end loop over reps;
+  }// end loop over hits
   trk->setNextHitToFit(ihit-2*direction);
+  //trk->printBookkeeping();
 }
 
 double Kalman::chi2Increment(const TMatrixT<double>& r,const TMatrixT<double>& H,
@@ -230,19 +227,21 @@ Kalman::getChi2Hit(AbsRecoHit* hit, AbsTrackRep* rep)
 }
 
   
-void
-Kalman::processHit(AbsRecoHit* hit, AbsTrackRep* rep){
+bool
+Kalman::processHit(Track* tr, int ihit, int irep, bool rejectOutlier){
+  AbsRecoHit* hit = tr->getHit(ihit);
+  AbsTrackRep* rep = tr->getTrackRep(irep);
 
   // get prototypes for matrices
   int repDim=rep->getDim();
   TMatrixT<double> state(repDim,1);
   TMatrixT<double> cov(repDim,repDim);;
-  DetPlane pl; 
-
-  /* dont do an extrapolation if it is the first hit on a forward pass (except for the
-     first pass) or if it is the last hit on a backwards pass. This is configured in
-     fitting pass. */
-  if(!_nullExtrapolation){
+  DetPlane pl;
+  /* do an extrapolation, if the trackrep irep is not given
+   * at this ihit position. This will usually be the case, but
+   * not is the fit turnes around
+   */
+  if(ihit!=tr->getRepAtHit(irep)){
     // get the (virtual) detector plane
     pl=hit->getDetPlane(rep);
     //do the extrapolation
@@ -285,15 +284,25 @@ Kalman::processHit(AbsRecoHit* hit, AbsTrackRep* rep){
   // filtered residual
   TMatrixT<double> r=hit->residualVector(rep,state,pl);
 
+  double chi2 = chi2Increment(r,H,cov,V);
+  int ndf = r.GetNrows();
 
-  rep->addChiSqu( chi2Increment(r,H,cov,V) );
-  rep->addNDF( r.GetNrows() );
+  if(rejectOutlier){
+    if(chi2/ndf > _outlierCut){
+      return false;
+    }
+  }
+
+  rep->addChiSqu( chi2 );
+  rep->addNDF( ndf );
 
   // if we survive until here: update TrackRep
   rep->setState(state);
   rep->setCov(cov);
   rep->setReferencePlane(pl);
-  // No throwing beyond this point!
+  tr->setRepAtHit(irep,ihit);
+
+  return true;
 }
 
 

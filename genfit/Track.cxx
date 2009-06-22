@@ -27,8 +27,8 @@ Track::~Track() {
   for(unsigned int i=0;i<hits.size();i++) {
     delete hits[i];
   }
-  for(unsigned int i=0;i<failedHits.size();++i){
-    if(failedHits.at(i)!=NULL) delete failedHits.at(i);
+  for(unsigned int i=0;i<_bookkeeping.size();++i){
+    if(_bookkeeping.at(i)!=NULL) delete _bookkeeping.at(i);
   }
 }
 
@@ -43,13 +43,14 @@ Track::Track(const Track& _tr) {
   for(int i=0; i<_tr.getNumReps();i++) {
     addTrackRep( (_tr.getTrackRep(i))->clone() );
   }
-  for(int i=0; i<failedHits.size(); ++i) delete failedHits[i];
-  failedHits.clear();
+  for(int i=0; i<_bookkeeping.size(); ++i) delete _bookkeeping[i];
+  _bookkeeping.clear();
 
-  for(unsigned int i=0;i<_tr.failedHits.size();++i){
-    assert(_tr.failedHits.at(i)!= NULL) ;
-    failedHits.push_back(new FailedHits(*(_tr.failedHits.at(i))));
+  for(unsigned int i=0;i<_tr._bookkeeping.size();++i){
+    assert(_tr._bookkeeping.at(i)!= NULL) ;
+    _bookkeeping.push_back(new Bookkeeping(*(_tr._bookkeeping.at(i))));
   }
+  _repAtHit = _tr._repAtHit;
 }
 
 
@@ -58,12 +59,14 @@ Track::reset(){
   if(trackReps!=NULL){
     for(int i=0;i<getNumReps();i++) {
       delete trackReps->At(i);
+      delete _bookkeeping.at(i);
     }
   }
   for(unsigned int i=0;i<hits.size();i++) {
     delete hits[i];
   }
   hits.clear();
+  _repAtHit.clear();
 }
 
 void
@@ -162,7 +165,14 @@ Track::stepalong(double h){
   if(getNumReps()>1)gotoPoint(pos);
 }
 
+void Track::printBookkeeping(){
+  std::cout << "Track::printBookkeeping()" << std::endl;
+  for(unsigned int i=0;i<getNumReps();++i){
+    std::cout << "trackRep " << i << ":" << std::endl;    
+    _bookkeeping.at(i)->print();
+  }
 
+}
 
 ClassImp(Track)
 
