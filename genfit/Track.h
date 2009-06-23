@@ -235,7 +235,7 @@ public:
    *
    * Cardinal representation is used.
    */
-  double getNDF() const {return getCardinalRep()->getNDF();}
+  unsigned int getNDF() const {return getCardinalRep()->getNDF();}
 
   /** @brief Get chi2/NDF
    *
