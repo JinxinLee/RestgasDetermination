@@ -54,12 +54,15 @@ public:
                           const TMatrixT<double>& state);
 
   double amp() {return _amp;}
+
+  PndTpcCluster* getCluster(){return _cluster;}
   
 private:
 
   // Private Data Members ------------
   static const int NparHitRep = 3;
   double _amp;
+  PndTpcCluster* _cluster;
 
   // Private Methods -----------------
 

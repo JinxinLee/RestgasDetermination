@@ -27,6 +27,7 @@
 // Collaborating Class Declarations --
 class TClonesArray;
 class TH1D;
+class PndTpcDigiPar;
 
 class PndTpcdEdxTask : public FairTask {
 public:
@@ -44,11 +45,14 @@ public:
   // Modifiers -----------------------
   void SetTrackBranchName(const TString& name) {_trackBranchName=name;}
   void SetPersistence(Bool_t opt=kTRUE) {_persistence=opt;}
+  void SetDXgrid(double dx) {_DX = dx;}
   
 
   // Operations ----------------------
   
   virtual InitStatus Init();
+  
+  virtual void SetParContainers();
 
   virtual void Exec(Option_t* opt);
   
@@ -59,13 +63,19 @@ private:
   // Private Data Members ------------
   TClonesArray* _trackArray;
   TClonesArray* _dEdxOutArray;
+  TClonesArray* _dEdxMCOutArray;  
+  TClonesArray* _mcTrackArray;
+  TClonesArray* _pointArray;
+
   TString _trackBranchName;
 
   Bool_t _persistence;
+  double _DX;                       //dx slice size
   
   TH1D* _distHist;
   TH1D* _dirHist;
 
+  PndTpcDigiPar* _par;
 
   
 

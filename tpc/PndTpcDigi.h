@@ -26,6 +26,7 @@
 // Collaborating Class Headers -------
 #include <ostream> // remove if you do not need streaming op
 #include "McIdCollection.h"
+#include <iostream>
 
 // Collaborating Class Declarations --
 
@@ -35,6 +36,7 @@ public:
 
   // Constructors/Destructors ---------
   PndTpcDigi();
+  PndTpcDigi(const PndTpcDigi&);
   PndTpcDigi(const double Amp,
 		  const double t,
 		  const unsigned int PadID,
@@ -63,7 +65,10 @@ public:
 
 
   // Operations ----------------------
-
+  void Print() const {
+    std::cout << "===== PndTpcDigi::print() =====" << std::endl;
+    std::cout << "padId " << padId() << " | amp " << amp() << " | t " << t() << std::endl;
+  }
 private:
 
   // Private Data Members ------------

@@ -31,6 +31,12 @@ PndTpcDigi::PndTpcDigi()
   : _amp(0), _t(0), _padID(0), _tlength(0)
 {}
 
+PndTpcDigi::PndTpcDigi(const PndTpcDigi& d)
+  : _amp(d._amp), _t(d._t), _padID(d._padID), _tlength(d._tlength),
+    _mcid(d._mcid)
+{}
+
+
 
 PndTpcDigi::PndTpcDigi(const double Amp,
 				 const double t,

@@ -88,7 +88,7 @@ public:
   void addDigi(const PndTpcDigi& d){
     digis.push_back(d);
   }
-  PndTpcDigi getDigi(int i) const{
+  const PndTpcDigi& getDigi(int i) const{
     assert (i<digis.size());
     return digis.at(i);
   }
@@ -115,6 +115,7 @@ private:
 
   //for optional saving of raw info that went into the cluster
   std::vector<PndTpcDigi> digis;
+
 
   // Private Methods -----------------
 

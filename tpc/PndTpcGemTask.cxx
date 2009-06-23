@@ -149,9 +149,11 @@ PndTpcGemTask::Exec(Option_t* opt)
     */
     if(!found){
 	  double gainFactor = 1.;
-	  if(_gainFluctuations) {
-		gainFactor = log(1/(1-gRandom->Uniform()));
-	  }
+	  if(_gainFluctuations) 
+	    gainFactor = -log(gRandom->Uniform());
+	  //TODO: implement full set: exp. distr. for first stage,
+	  //representing rest
+	  
       new ((*_avalancheArray)[na]) PndTpcAvalanche(e->x(), e->y(), e->t(),
 						_gain*gainFactor, e);
     }

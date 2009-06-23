@@ -21,24 +21,14 @@ double PndTpcdEdx::simpleMean(){
   else return 0;
 }
 
-double PndTpcdEdx::truncMean(){
+double PndTpcdEdx::truncMean(double trash){
   int N = _data.size();
 
   std::cout<<"N="<<N<<std::endl;
-  //for(int i=0;i<N;++i){
-  //std::cout << _data.at(i).first << "/" <<  _data.at(i).second << " ";
-  //}
-  //std::cout<<std::endl;
-
-
+  
   sort(_data.begin(),_data.end(),dedxSort);
 
-  for(int i=0;i<N;++i){
-	std::cout << _data.at(i).first << "/" <<  _data.at(i).second << "=" <<  _data.at(i).first/_data.at(i).second<< " " ;
-  }
-  std::cout<<std::endl<<std::endl;
-
-  double cut=0.35;
+  double cut=trash;  //throw away this percentage of entries (high tail)
 
   int intCut=cut*N;
 

@@ -17,7 +17,8 @@ public:
   PndTpcdEdx(){}
 
   double simpleMean();
-  double truncMean();
+  double truncMean(double trash = 0.4);
+  unsigned int nEntries(){return _data.size();}
   void add(double dE,double dx){
 	PAIR p;
 	p.first = dE;
