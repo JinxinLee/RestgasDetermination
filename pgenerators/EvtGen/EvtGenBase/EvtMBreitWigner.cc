@@ -1,6 +1,7 @@
 #include "EvtGenBase/EvtPatches.hh"
 #include "EvtGenBase/EvtMBreitWigner.hh"
-
+#include <stdio.h>
+#include <stdlib.h>
 using std::endl;
 
 EvtMBreitWigner::EvtMBreitWigner( const EvtId& id, const vector<string>& args )

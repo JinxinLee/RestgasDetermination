@@ -1,6 +1,8 @@
 #include "EvtGenBase/EvtPatches.hh"
 #include "EvtGenBase/EvtReport.hh"
 #include "EvtGenBase/EvtSpinAmp.hh"
+#include <stdio.h>
+#include <stdlib.h>
 
 using std::endl;
 

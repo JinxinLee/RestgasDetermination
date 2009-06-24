@@ -29,6 +29,9 @@ class HepJamesRandom;
 
 #include <string>
 #include <fstream>
+#include <stdio.h>
+#include <stdlib.h>
+
 using std::endl;
 using std::ofstream;
 

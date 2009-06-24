@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "EvtGenBase/EvtMultiChannelParser.hh"
 #include "EvtGenBase/EvtPto3PAmpFactory.hh"
 #include "EvtGenBase/EvtPDL.hh"

@@ -31,6 +31,8 @@
 #include "EvtGenBase/EvtConst.hh"
 
 #include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
 using std::endl;
 
 

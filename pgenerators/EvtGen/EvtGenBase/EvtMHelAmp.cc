@@ -1,7 +1,8 @@
 #include "EvtGenBase/EvtPatches.hh"
 #include "EvtGenBase/EvtMHelAmp.hh"
 #include "EvtGenBase/EvtKine.hh"
-
+#include <stdio.h>
+#include <stdlib.h>
 using std::endl;
 
 EvtMHelAmp::EvtMHelAmp( const EvtId& id, EvtMLineShape * lineshape, 
