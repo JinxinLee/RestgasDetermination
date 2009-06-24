@@ -18,7 +18,7 @@
 #include "FairDetector.h"
 
 #include "PndLheHit.h"
-#include "PndTpcLheTrack.h"
+#include "PndLheCandidate.h"
 #include "PndTpcLheTrackCuts.h"
 
 class PndLheHitsMaker : public FairTask {
@@ -83,7 +83,7 @@ public:
   virtual ~PndLheHitsMaker();
 
   PndLheHit *AddHit();
-  PndTpcLheTrack *AddTrack(Int_t mT);
+  PndLheCandidate *AddTrack(Int_t mT);
 
   void GetMvdPoints();
   void GetMvdHits();

@@ -2,12 +2,12 @@
 #include "TMath.h"
 
 #include "PndLheHit.h"
-#include "PndTpcLheCMPoint.h"
+#include "PndLheCMPoint.h"
 
-ClassImp(PndTpcLheCMPoint)
+ClassImp(PndLheCMPoint)
 
 //________________________________________________________________
-PndTpcLheCMPoint::PndTpcLheCMPoint() : PndLheHit() {
+PndLheCMPoint::PndLheCMPoint() : PndLheHit() {
     //--- clean all
 
   SetPhi(0.);
@@ -24,20 +24,20 @@ PndTpcLheCMPoint::PndTpcLheCMPoint() : PndLheHit() {
 }
 
 //________________________________________________________________
-PndTpcLheCMPoint::PndTpcLheCMPoint(PndLheHit *point) :
+PndLheCMPoint::PndLheCMPoint(PndLheHit *point) :
   PndLheHit( *point) {
   //---
 
 }
 
 //________________________________________________________________
-PndTpcLheCMPoint::~PndTpcLheCMPoint() {
+PndLheCMPoint::~PndLheCMPoint() {
   //---
 
 }
 
 //________________________________________________________________
-void PndTpcLheCMPoint::SetIntPoint(const Double_t in_x,
+void PndLheCMPoint::SetIntPoint(const Double_t in_x,
 				   const Double_t in_y,
 				   const Double_t in_z,
 				   const Double_t in_x_err,
@@ -57,7 +57,7 @@ void PndTpcLheCMPoint::SetIntPoint(const Double_t in_x,
 }
 
 //________________________________________________________________
-void PndTpcLheCMPoint::SetAllCoord(const PndTpcLheCMPoint *hit) {
+void PndLheCMPoint::SetAllCoord(const PndLheCMPoint *hit) {
 
   // Sets the interaction point, the shifted coordinates,
   // and the conformal mapping coordinates.
@@ -77,7 +77,7 @@ void PndTpcLheCMPoint::SetAllCoord(const PndTpcLheCMPoint *hit) {
 
 
 //________________________________________________________________
-void PndTpcLheCMPoint::SetShiftedCoord() {
+void PndLheCMPoint::SetShiftedCoord() {
   // Sets the coordinates with respect to the given vertex point
 
   SetXv(GetX() - fXt);
@@ -91,7 +91,7 @@ void PndTpcLheCMPoint::SetShiftedCoord() {
 }
 
 //________________________________________________________________
-void PndTpcLheCMPoint::SetConfCoord() {
+void PndLheCMPoint::SetConfCoord() {
   // Calculates the conformal coordinates of one hit.
 
   Double_t r2 = fXv*fXv + fYv*fYv;
@@ -120,7 +120,7 @@ void PndTpcLheCMPoint::SetConfCoord() {
 }
 
 //________________________________________________________________
-void PndTpcLheCMPoint::SetAngles() {
+void PndLheCMPoint::SetAngles() {
   // Calculates the azimutal angle phi and the polar theta for each hit.
 
   TVector3 v(fXv, fYv, fZv);
@@ -130,7 +130,7 @@ void PndTpcLheCMPoint::SetAngles() {
 }
 
 //________________________________________________________________
-void PndTpcLheCMPoint::Setup(PndTpcLhePoint *vertex) {
+void PndLheCMPoint::Setup(PndLhePoint *vertex) {
   // ---  right order is important
 
   SetIntPoint(vertex->GetX(),    vertex->GetY(),    vertex->GetZ(),
@@ -148,7 +148,7 @@ void PndTpcLheCMPoint::Setup(PndTpcLhePoint *vertex) {
 }
 
 //________________________________________________________________
-void PndTpcLheCMPoint::Print() {
+void PndLheCMPoint::Print() {
 
       cout << flush;
       cout << " " << this->GetTrackID();

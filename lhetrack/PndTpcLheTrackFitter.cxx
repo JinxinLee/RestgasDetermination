@@ -1,9 +1,10 @@
 #include "PndTpcLheTrackFitter.h"
-#include "PndTpcLheTrack.h"
-
+#include "PndLheCandidate.h"
+#include "PndTrack.h"
+#include "PndTrackCand.h"
 //#include "lhe.h"
 
-#include "FairTrackParH.h"
+#include "FairTrackParP.h"
 #include "FairField.h"
 #include "FairMCApplication.h"
 #include "FairRunAna.h"
@@ -34,6 +35,7 @@ PndTpcLheTrackFitter::~PndTpcLheTrackFitter() {
 //___________________________________________________________
 PndTpcLheTrackFitter::PndTpcLheTrackFitter() {
   //---
+  fPndTracks = new TClonesArray("PndTrack");
   fVerbose = kFALSE;
   fSimulation = kFALSE;
   fCircleFit = 0;
@@ -44,12 +46,27 @@ PndTpcLheTrackFitter::PndTpcLheTrackFitter() {
 PndTpcLheTrackFitter::PndTpcLheTrackFitter(const char *name, const char *title)
   :FairTask(name) {
   //---
+  fPndTracks = new TClonesArray("PndTrack");
   fVerbose = kFALSE;
   fSimulation = kFALSE;
   fCircleFit = 0;
   if( !ftInstance ) ftInstance = this;
 }
 
+//_________________________________________________________________
+void PndTpcLheTrackFitter::Register() {
+  //---
+  FairRootManager::
+    Instance()->Register("LheTrack",
+  			 "Lhe", fPndTracks, kTRUE);
+}
+
+//________________________________________________________________
+void PndTpcLheTrackFitter::Reset() {
+  //---
+  if (fPndTracks->GetEntriesFast() != 0)  fPndTracks->Clear("C");
+
+}
 //___________________________________________________________
 InitStatus PndTpcLheTrackFitter::Init() {
 
@@ -67,9 +84,9 @@ InitStatus PndTpcLheTrackFitter::Init() {
     //return kERROR;
   }
 
-  fTpcTracks = (TClonesArray *)fManager->GetObject("PndTpcLheTrack");
+  fTpcTracks = (TClonesArray *)fManager->GetObject("LheCandidate");
   if ( ! fTpcTracks ) {
-    cout << "-I- "<< GetName() << "::Init: No PndTpcLheTrack array!" << endl;
+    cout << "-I- "<< GetName() << "::Init: No LheCandidate array!" << endl;
     return kERROR;
   }
 
@@ -92,7 +109,8 @@ InitStatus PndTpcLheTrackFitter::Init() {
   fMagField = (FairField*) fRun->GetField();
 
   fTrackCuts =PndTpcLheTrackCuts::Instance();
-
+  Register();
+  
   return kSUCCESS;
 }
 
@@ -100,7 +118,8 @@ InitStatus PndTpcLheTrackFitter::Init() {
 void PndTpcLheTrackFitter::Exec(Option_t * option) {
 
   cout << " =====   PndTpcLheTrackFitter   ===== " << endl;
-
+ 
+  Reset();
   if (fTpcTracks) {
     cout << " Number of tracks for fitting " <<
       fTpcTracks->GetEntriesFast() << endl;
@@ -110,7 +129,7 @@ void PndTpcLheTrackFitter::Exec(Option_t * option) {
 
   for (Int_t i = 0; i < nTracks; i++) {
 
-    PndTpcLheTrack* track = (PndTpcLheTrack*) fTpcTracks->At(i);
+    PndLheCandidate* track = (PndLheCandidate*) fTpcTracks->At(i);
     if (fVerbose) cout << "\n\n Track " << i << "\n"; 
     //    cout << "\n\n Track " << track->GetTrackNumber() << "\n"; 
 
@@ -144,7 +163,7 @@ void PndTpcLheTrackFitter::Exec(Option_t * option) {
 }
 
 //_____________________________________________________________________________
-void PndTpcLheTrackFitter::Info4Fit(PndTpcLheTrack *track) {
+void PndTpcLheTrackFitter::Info4Fit(PndLheCandidate *track) {
   //---
 
   TObjArray *rhits = (TObjArray* )track->GetRHits();
@@ -156,7 +175,7 @@ void PndTpcLheTrackFitter::Info4Fit(PndTpcLheTrack *track) {
   Double_t alpha = .2998 * .02 ;
   Double_t Q = double(TMath::Sign(1, track->GetCharge()));
   
-  PndTpcLhePoint hel = track->GetCircle();
+  PndLhePoint hel = track->GetCircle();
   
   Double_t xc = hel.GetX();
   Double_t yc = hel.GetY();
@@ -165,54 +184,68 @@ void PndTpcLheTrackFitter::Info4Fit(PndTpcLheTrack *track) {
   TVector2 centre(xc, yc);
   Double_t fi0 = centre.Phi();    // 0 - 2Pi
   Double_t d0 = Q*(TMath::Sqrt(xc*xc + yc*yc) - hel.GetZ());
-  
   TVector2 pivot(-xc, -yc);
-  
   Double_t lam = track->GetTanDipAngle();
-  
   // now suppose that all tracks are primary
   Double_t z0 = track->GetZ0();
   
+  PndTrackCand* trackCand = new PndTrackCand();
+  FairTrackParP* firstPar;
+  FairTrackParP* lastPar;
   // loop over hits
-  
   for (int ih = 0; ih < nHits; ih++) {
-    
     PndLheHit* hit = (PndLheHit*)rhits->At(ih);
     if (NULL==hit) break;
-    TVector2 pnt(hit->GetX() - xc, hit->GetY() - yc);
     
-    Double_t phi = pnt.DeltaPhi(pivot);
-    //  Double_t phi = pnt.DeltaPhi(centre);
-    
-    Double_t x = d0*TMath::Cos(fi0) +
-      rad *(TMath::Cos(fi0) - TMath::Cos(fi0 + phi));   
-    
-    Double_t y = d0*TMath::Sin(fi0) +
-      rad *(TMath::Sin(fi0) - TMath::Sin(fi0 + phi));   
-    
-    //Double_t z = z0 - rad*lam*(phi)*TMath::Sign(-1.,phi);  // OLD
-    Double_t z = z0 - rad*lam*phi; // STE
-    
-    Double_t px = -Q*alpha*rad*TMath::Sin(fi0 + phi);
-    Double_t py =  Q*alpha*rad*TMath::Cos(fi0 + phi);
-    //Double_t pz =  Q*alpha*rad*lam*TMath::Sign(-1.,phi); // OLD
-    Double_t pz =  -alpha*rad*lam; // STE
-    
-    // write momentum into output tree, /sl/ 29.08.07
-    
-    track->SetPx(px);
-    track->SetPy(py);
-    track->SetPz(pz);
-    
-    if (ih==0) track->SetFirstHit(hit->GetX(),hit->GetY(),hit->GetZ());
-    track->SetLastHit(hit->GetX(),hit->GetY(),hit->GetZ());
-
-    if (fVerbose) cout <<  " Fitted x, y, z: " << x << " " << y << " " << z
-		       << " px, py, pz: " << px << " " << py << " " << pz << endl;
-    
+    trackCand->AddHit(hit->GetDetectorID(), hit->GetRefIndex(), hit->GetX()*hit->GetX()+hit->GetY()*hit->GetY()+hit->GetZ()*hit->GetZ());
+    if ((ih==0) || (ih==(nHits-1)) ) // considering only first and last hit
+      {
+	TVector2 pnt(hit->GetX() - xc, hit->GetY() - yc);
+	Double_t phi = pnt.DeltaPhi(pivot);
+	//  Double_t phi = pnt.DeltaPhi(centre);
+	Double_t x = d0*TMath::Cos(fi0) + rad *(TMath::Cos(fi0) - TMath::Cos(fi0 + phi));   
+        Double_t y = d0*TMath::Sin(fi0) + rad *(TMath::Sin(fi0) - TMath::Sin(fi0 + phi));   
+	//Double_t z = z0 - rad*lam*(phi)*TMath::Sign(-1.,phi);  // OLD
+	Double_t z = z0 - rad*lam*phi; // STE
+	
+	Double_t px = -Q*alpha*rad*TMath::Sin(fi0 + phi);
+	Double_t py =  Q*alpha*rad*TMath::Cos(fi0 + phi);
+	//Double_t pz =  Q*alpha*rad*lam*TMath::Sign(-1.,phi); // OLD
+	Double_t pz =  -alpha*rad*lam; // STE
+	
+	if (ih==0) 
+	  {
+	    track->SetFirstHit(hit->GetX(),hit->GetY(),hit->GetZ());
+	    firstPar = new FairTrackParP(TVector3(hit->GetX(),hit->GetY(),hit->GetZ()),
+					 TVector3(px, py, pz),
+					 TVector3(hit->GetDx(),hit->GetDy(),hit->GetDz()),
+					 0.02*TVector3(px, py, pz),
+					 track->GetCharge(),
+					 TVector3(hit->GetX(),hit->GetY(),hit->GetZ()),
+					 TVector3(1.,0.,0.),
+					 TVector3(0.,1.,0.));					 
+	  }
+	if (ih==(nHits-1))
+	  {
+	    track->SetLastHit(hit->GetX(),hit->GetY(),hit->GetZ());
+	    track->SetPx(px);
+	    track->SetPy(py);
+	    track->SetPz(pz);
+	    lastPar = new FairTrackParP(TVector3(hit->GetX(),hit->GetY(),hit->GetZ()),
+					TVector3(px, py, pz),
+					TVector3(hit->GetDx(),hit->GetDy(),hit->GetDz()),
+					0.02*TVector3(px, py, pz),
+					track->GetCharge(),
+					TVector3(hit->GetX(),hit->GetY(),hit->GetZ()),
+					TVector3(1.,0.,0.),
+					TVector3(0.,1.,0.));	
+	    if (fVerbose) cout <<  " Fitted x, y, z: " << x << " " << y << " " << z
+			       << " px, py, pz: " << px << " " << py << " " << pz << endl;
+	  }
+      }
     fMCTrackList[hit->GetTrackID()]++;
   }  
-
+  
   multimap<Int_t, Int_t> fMCRevertedList; // multiplicity, MC TrackId
   Int_t count = 0;
   for (iter=fMCTrackList.begin(); iter!=fMCTrackList.end(); ++iter)
@@ -233,10 +266,19 @@ void PndTpcLheTrackFitter::Info4Fit(PndTpcLheTrack *track) {
     }
   
    track->SetTrackID(trackID, multID);
+
+   // Filling PndTrack TCA
+   TClonesArray &pndtracks = *fPndTracks;
+   Int_t size = pndtracks.GetEntriesFast();
+   trackCand->Sort();
+   PndTrack* pndTrack = new(pndtracks[size]) PndTrack(*firstPar, *lastPar, *trackCand);
+  
 }
 
+
+
 //_____________________________________________________________________________
-Int_t PndTpcLheTrackFitter::CircleFit(PndTpcLheTrack *track) {
+Int_t PndTpcLheTrackFitter::CircleFit(PndLheCandidate *track) {
 
   //---  From Ososkov CircleCOP() Comp.Phys.Com 33, p.329
 
@@ -365,7 +407,7 @@ Int_t PndTpcLheTrackFitter::CircleFit(PndTpcLheTrack *track) {
 
 
 //_____________________________________________________________________________
-Int_t PndTpcLheTrackFitter::DeepFitOleg(PndTpcLheTrack *track) {
+Int_t PndTpcLheTrackFitter::DeepFitOleg(PndLheCandidate *track) {
 
   //---  line fit of array of points
 
@@ -377,7 +419,7 @@ Int_t PndTpcLheTrackFitter::DeepFitOleg(PndTpcLheTrack *track) {
   dx = first->GetX() - track->GetVertex().GetX();
   dy = first->GetY() - track->GetVertex().GetY();;
 
-  PndTpcLhePoint circ = track->GetCircle();
+  PndLhePoint circ = track->GetCircle();
 
   Double_t radius = circ.GetZ();
 
@@ -491,7 +533,7 @@ Int_t PndTpcLheTrackFitter::DeepFitOleg(PndTpcLheTrack *track) {
 }
 
 //_____________________________________________________________________________
-Int_t PndTpcLheTrackFitter::DeepFit(PndTpcLheTrack *track) {
+Int_t PndTpcLheTrackFitter::DeepFit(PndLheCandidate *track) {
 
   //---  line fit of array of points
   //--- Fit on the R vs z plane
@@ -591,7 +633,7 @@ void fitCircle(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t ifl
   f = chisq; 
 }
 
-Int_t PndTpcLheTrackFitter::SetUpFitVector(PndTpcLheTrack* pTrack, TMatrixT<Double_t> &fitvect)
+Int_t PndTpcLheTrackFitter::SetUpFitVector(PndLheCandidate* pTrack, TMatrixT<Double_t> &fitvect)
 {
     
   Int_t counter = 0;
@@ -616,7 +658,7 @@ Int_t PndTpcLheTrackFitter::SetUpFitVector(PndTpcLheTrack* pTrack, TMatrixT<Doub
 }
 
 //_____________________________________________________________________________
-Int_t PndTpcLheTrackFitter::FastCircleFit(PndTpcLheTrack *track, Double_t prefit[]) {
+Int_t PndTpcLheTrackFitter::FastCircleFit(PndLheCandidate *track, Double_t prefit[]) {
   //--- Circular fit using only three points
   TObjArray* lheList = track->GetRHits();
   Int_t nHits = lheList->GetEntriesFast();
@@ -637,7 +679,7 @@ Int_t PndTpcLheTrackFitter::FastCircleFit(PndTpcLheTrack *track, Double_t prefit
 }
 
 //_____________________________________________________________________________
-Int_t PndTpcLheTrackFitter::CircleFitMinuit(PndTpcLheTrack *track) {
+Int_t PndTpcLheTrackFitter::CircleFitMinuit(PndLheCandidate *track) {
   //--- Circular fit on the XY plane using TMinuit
   TMinuit minimizer(3);
   TMatrixT<Double_t> fitVect;
@@ -674,7 +716,7 @@ Int_t PndTpcLheTrackFitter::CircleFitMinuit(PndTpcLheTrack *track) {
 }
 
 //_____________________________________________________________________________
-Int_t PndTpcLheTrackFitter::HelixFit(PndTpcLheTrack *track) {
+Int_t PndTpcLheTrackFitter::HelixFit(PndLheCandidate *track) {
   //---  Create helix as fit of array of points
 
   Int_t isCircle = 0;

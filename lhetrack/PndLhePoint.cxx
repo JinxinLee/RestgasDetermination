@@ -1,9 +1,9 @@
-#include "PndTpcLhePoint.h"
+#include "PndLhePoint.h"
 
-ClassImp(PndTpcLhePoint)
+ClassImp(PndLhePoint)
 
 //________________________________________________________________________
-PndTpcLhePoint::PndTpcLhePoint() {
+PndLhePoint::PndLhePoint() {
   // Default constructor.
 
   SetX(0.);
@@ -17,7 +17,7 @@ PndTpcLhePoint::PndTpcLhePoint() {
 }
 
 //________________________________________________________________________
-PndTpcLhePoint::PndTpcLhePoint(Double_t pos[3], Double_t err[3]) {
+PndLhePoint::PndLhePoint(Double_t pos[3], Double_t err[3]) {
   
   SetX((Double_t) pos[0]);
   SetY((Double_t) pos[1]);
@@ -31,7 +31,7 @@ PndTpcLhePoint::PndTpcLhePoint(Double_t pos[3], Double_t err[3]) {
 
 
 //________________________________________________________________________
-PndTpcLhePoint::PndTpcLhePoint(Double_t x, Double_t y, Double_t z) {
+PndLhePoint::PndLhePoint(Double_t x, Double_t y, Double_t z) {
   
   SetX(x);
   SetY(y);
@@ -39,7 +39,7 @@ PndTpcLhePoint::PndTpcLhePoint(Double_t x, Double_t y, Double_t z) {
 }  
 
 //________________________________________________________________________
-PndTpcLhePoint::~PndTpcLhePoint() {
+PndLhePoint::~PndLhePoint() {
   //---
 }
 

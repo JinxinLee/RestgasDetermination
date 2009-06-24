@@ -7,9 +7,9 @@
 #ifndef PND_LHE_PID_TRACK_H
 #define PND_LHE_PID_TRACK_H
 
-#include "PndTpcLheTrack.h"
+#include "PndLheCandidate.h"
 
-class PndLhePidTrack: public PndTpcLheTrack {
+class PndLhePidTrack: public PndLheCandidate {
   
   //  using namespace std;
 
@@ -58,7 +58,7 @@ public:
   PndLhePidTrack ();                              // constructor
 
   /** Copy constructor **/
-  PndLhePidTrack (const PndTpcLheTrack& track);
+  PndLhePidTrack (const PndLheCandidate& track);
   PndLhePidTrack (const PndLhePidTrack& track);
  
   Float_t GetMvdELoss()               { return fMvdELoss;    };

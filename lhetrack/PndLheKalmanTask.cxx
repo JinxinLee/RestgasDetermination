@@ -36,7 +36,7 @@
 #include "PndGemRecoHit.h"
 #include "PndTpcSPHit.h"
 #include "PndSttRecoHit.h"
-#include "PndTpcLheTrack.h"
+#include "PndLheCandidate.h"
 #include "PndDetectorList.h"
 
 #include "RecoHitFactory.h"
@@ -57,7 +57,7 @@
 PndLheKalmanTask::PndLheKalmanTask(const char* name, Int_t iVerbose)
   : FairTask(name, iVerbose), fPersistence(kFALSE)
 {
-  fTrackBranchName = "PndTpcLheTrack";
+  fTrackBranchName = "LheCandidate";
   fFitTrackArray = new TClonesArray("Track");
   fUseGeane = kFALSE;
   fSmoothing = kFALSE;
@@ -185,7 +185,7 @@ void PndLheKalmanTask::Exec(Option_t* opt)
 
   for(Int_t itr=0;itr<ntracks;++itr){
     if (fVerbose>1) std::cout<<"starting track"<<itr<<std::endl;
-    PndTpcLheTrack *lheTrack = (PndTpcLheTrack*)fTrackArray->At(itr);
+    PndLheCandidate *lheTrack = (PndLheCandidate*)fTrackArray->At(itr);
     if (lheTrack->IsGood()==kFALSE) {
       std::cout<<" -I- PndLheKalmanTask::Exec: Bad track skipped" << std::endl;
       continue;

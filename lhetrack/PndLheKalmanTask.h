@@ -27,7 +27,7 @@
 
 // Collaborating Class Declarations --
 class TClonesArray;
-class PndTpcLheTrack;
+class PndLheCandidate;
 class RecoHitFactory;
 class TrackCand;
 class Track;

@@ -13,7 +13,7 @@
 #include "TObject.h"
 #include "TVector3.h"
 
-class PndTpcLhePoint : public TObject {
+class PndLhePoint : public TObject {
 
 private:
 
@@ -22,14 +22,14 @@ private:
 
 public:
 
-  PndTpcLhePoint();                      //
+  PndLhePoint();                      //
 
   // constructor from array of doubles
-  PndTpcLhePoint(Double_t pos[3], Double_t err[3]); 
+  PndLhePoint(Double_t pos[3], Double_t err[3]); 
 
   // constructor from doubles
-  PndTpcLhePoint(Double_t x, Double_t y, Double_t z);
-  virtual  ~PndTpcLhePoint();
+  PndLhePoint(Double_t x, Double_t y, Double_t z);
+  virtual  ~PndLhePoint();
 
   // getters
   Double_t GetX()     const { return fCoord.X(); }
@@ -49,7 +49,7 @@ public:
   void SetYerr(Double_t f) { fError.SetY(f); }
   void SetZerr(Double_t f) { fError.SetZ(f); }
   
-  ClassDef(PndTpcLhePoint, 1)   //
+  ClassDef(PndLhePoint, 1)   //
 };
 
 #endif

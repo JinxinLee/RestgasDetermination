@@ -15,7 +15,7 @@
 #include "TClonesArray.h"
 #include "assert.h"
 
-#include "PndTpcLheCMPoint.h"
+#include "PndLheCMPoint.h"
 
 class PndTpcLheSegments {
 
@@ -53,12 +53,12 @@ public:
 
   Int_t  GetNumPhiSegments() { return fNumPhiSegment; }  // returns # of phi
   Int_t  GetNumThetaSegments()  { return fNumThetaSegment; }  // returns # of theta
-  Int_t  GetRadiusSegm(const PndTpcLheCMPoint *hit);  // returns # of station
+  Int_t  GetRadiusSegm(const PndLheCMPoint *hit);  // returns # of station
   Int_t  GetRadiusSegm(Int_t segm);        //  number of station segment
-  Int_t  GetThetaSegm(const PndTpcLheCMPoint *hit);    // returns # of theta
+  Int_t  GetThetaSegm(const PndLheCMPoint *hit);    // returns # of theta
   Int_t  GetThetaSegm(Int_t segm);           //  number of theta segment
   Int_t  GetThetaSegm(Double_t s);           //  number of theta segment
-  Int_t  GetPhiSegm(const PndTpcLheCMPoint *hit);    // returns # of phi
+  Int_t  GetPhiSegm(const PndLheCMPoint *hit);    // returns # of phi
   Int_t  GetPhiSegm(Int_t segm);          //  number of phi
   Int_t  GetPhiSegm(Double_t al);          //  number of phi segment
   Int_t  GetStation(Int_t segm);          // returns the station
@@ -76,7 +76,7 @@ public:
 
 
 //_________________________________________________________________
-inline Int_t PndTpcLheSegments::GetThetaSegm(const PndTpcLheCMPoint *hit) {
+inline Int_t PndTpcLheSegments::GetThetaSegm(const PndLheCMPoint *hit) {
   // Returns number of theta segment of a specific hit.
   
   Double_t theta = hit->GetTheta();
@@ -117,7 +117,7 @@ inline Double_t PndTpcLheSegments::GetTheta(Int_t segm) {
 }
 
 //_________________________________________________________________
-inline Int_t PndTpcLheSegments::GetPhiSegm(const PndTpcLheCMPoint *hit) {
+inline Int_t PndTpcLheSegments::GetPhiSegm(const PndLheCMPoint *hit) {
   // Returns number of phi segment of a hit.
 
   Double_t phi = hit->GetPhi();

@@ -1,16 +1,16 @@
 #include "TObjArray.h"
 #include "TClonesArray.h"
 
-#include "PndTpcLheCMTrack.h"
-#include "PndTpcLheCMPoint.h"
+#include "PndLheCMCandidate.h"
+#include "PndLheCMPoint.h"
 
-ClassImp(PndTpcLheCMTrack)
+ClassImp(PndLheCMCandidate)
 
 #define PR(x) cout << #x " = " << x << "\n";
 //#define PR(x) ;
 
 //___________________________________________________________
-  PndTpcLheCMTrack::PndTpcLheCMTrack() : PndTpcLheTrack() {
+  PndLheCMCandidate::PndLheCMCandidate() : PndLheCandidate() {
   // Creates a ObjArray of the hits belonging to the track.
 
   fNMapHits = 0;
@@ -21,8 +21,8 @@ ClassImp(PndTpcLheCMTrack)
 } ///:~
 
 //___________________________________________________________
-PndTpcLheCMTrack::PndTpcLheCMTrack(Int_t tracknumber) :
-  PndTpcLheTrack(tracknumber) {
+PndLheCMCandidate::PndLheCMCandidate(Int_t tracknumber) :
+  PndLheCandidate(tracknumber) {
   // Same as default constructor except that the track number is set.
   
   fNMapHits = 0;
@@ -33,8 +33,8 @@ PndTpcLheCMTrack::PndTpcLheCMTrack(Int_t tracknumber) :
 }
 
 //___________________________________________________________
-PndTpcLheCMTrack::PndTpcLheCMTrack(Int_t tracknumber, Int_t nhits) :
-  PndTpcLheTrack(tracknumber) {
+PndLheCMCandidate::PndLheCMCandidate(Int_t tracknumber, Int_t nhits) :
+  PndLheCandidate(tracknumber) {
   // constructor for nhits
   
   fNMapHits = 0;
@@ -45,7 +45,7 @@ PndTpcLheCMTrack::PndTpcLheCMTrack(Int_t tracknumber, Int_t nhits) :
 }
 
 //___________________________________________________________
-PndTpcLheCMTrack::~PndTpcLheCMTrack() {
+PndLheCMCandidate::~PndLheCMCandidate() {
   //
   //  fMappingHits->Delete(); 
 
@@ -63,7 +63,7 @@ PndTpcLheCMTrack::~PndTpcLheCMTrack() {
 }
 
 //___________________________________________________________
-void PndTpcLheCMTrack::SetTrackID(Int_t number) {
+void PndLheCMCandidate::SetTrackID(Int_t number) {
 
   // Sets the tracknumber.  If the track has already some hits
   // assigned the track number of the hits is also set.
@@ -77,7 +77,7 @@ void PndTpcLheCMTrack::SetTrackID(Int_t number) {
 }
 
 //___________________________________________________________
-void PndTpcLheCMTrack::Copy( const PndTpcLheCMTrack* src) {
+void PndLheCMCandidate::Copy( const PndLheCMCandidate* src) {
   // copy 
 
   fNMapHits = src->GetNumberOfPoints();
@@ -95,7 +95,7 @@ void PndTpcLheCMTrack::Copy( const PndTpcLheCMTrack* src) {
 }
 
 //___________________________________________________________
-void PndTpcLheCMTrack::AddPoint(PndTpcLheCMPoint* point, Bool_t backward) {
+void PndLheCMCandidate::AddPoint(PndLheCMPoint* point, Bool_t backward) {
   // Adds a given point to the track.
 
   Int_t num = fNMapHits;
@@ -123,28 +123,28 @@ void PndTpcLheCMTrack::AddPoint(PndTpcLheCMPoint* point, Bool_t backward) {
 }
 
 //___________________________________________________________
-void PndTpcLheCMTrack::SetPointsUsage() {
+void PndLheCMCandidate::SetPointsUsage() {
 
   //  Release track points
 
 //   cout << " map points " << fMappingHits->GetEntriesFast() << endl;
 
   for (Int_t i = 0; i < fMappingHits->GetEntriesFast(); i++) {    
-    PndTpcLheCMPoint *p = (PndTpcLheCMPoint *)fMappingHits->At(i);
+    PndLheCMPoint *p = (PndLheCMPoint *)fMappingHits->At(i);
     p->SetUsage(kTRUE);
   }
 
 }
 
 //___________________________________________________________
-void PndTpcLheCMTrack::Clear() {
+void PndLheCMCandidate::Clear() {
   //---  
 
 //   cout << " map points " << fMappingHits->GetEntriesFast() << endl;
 
   if(fMappingHits && fMappingHits->GetEntriesFast() != 0) {
     for (Int_t i = 0; i < fMappingHits->GetEntriesFast(); i++) {    
-      PndTpcLheCMPoint *p = (PndTpcLheCMPoint *)fMappingHits->At(i);
+      PndLheCMPoint *p = (PndLheCMPoint *)fMappingHits->At(i);
       p->SetUsage(kFALSE);
     }
 
@@ -155,7 +155,7 @@ void PndTpcLheCMTrack::Clear() {
 }
 
 //______________________________________________________________
-void PndTpcLheCMTrack::Print() {
+void PndLheCMCandidate::Print() {
   //
 
     Int_t nhit =  fMappingHits->GetEntriesFast();
@@ -174,10 +174,10 @@ void PndTpcLheCMTrack::Print() {
     cout << " " << setw(7) <<  fP.Z();
     cout << endl;
 
-    PndTpcLheCMPoint * ghit = NULL;
+    PndLheCMPoint * ghit = NULL;
 
     for (Int_t j=0; j < nhit; j++) {
-      ghit = (PndTpcLheCMPoint *) fMappingHits->At(j);
+      ghit = (PndLheCMPoint *) fMappingHits->At(j);
       ghit->Print();
     }
 

@@ -1,10 +1,8 @@
 #include "PndLheTrackFinderIdeal.h"
 
 #include "PndDetectorList.h"
-#include "PndTpcLheCMTrack.h"
-#include "PndTpcLheCMPoint.h"
+#include "PndLheCMPoint.h"
 #include "PndLheHit.h"
-#include "lhe.h"
 
 #include "FairMCApplication.h"
 #include "FairTask.h"
@@ -23,8 +21,8 @@ ClassImp(PndLheTrackFinderIdeal)
 PndLheTrackFinderIdeal::PndLheTrackFinderIdeal() {
   //---
 
-  fFoundTracks = new TClonesArray("PndTpcLheTrack");
-  fCMHits = new TClonesArray("PndTpcLheCMPoint");
+  fFoundTracks = new TClonesArray("PndLheCandidate");
+  fCMHits = new TClonesArray("PndLheCMPoint");
   fBench = new TBenchmark();
   fVertex = NULL;
   fVerbose = kFALSE;
@@ -35,8 +33,8 @@ PndLheTrackFinderIdeal::
 PndLheTrackFinderIdeal( const char *name, const char *title):FairTask(name) {
   //---
 
-  fFoundTracks = new TClonesArray("PndTpcLheTrack");
-  fCMHits = new TClonesArray("PndTpcLheCMPoint");
+  fFoundTracks = new TClonesArray("PndLheCandidate");
+  fCMHits = new TClonesArray("PndLheCMPoint");
   fBench = new TBenchmark();
   fVertex = NULL;
   fVerbose = kFALSE;
@@ -58,11 +56,11 @@ PndLheTrackFinderIdeal::~PndLheTrackFinderIdeal() {
 void PndLheTrackFinderIdeal::Register() {
   //---
   FairRootManager::
-    Instance()->Register("PndTpcLheTrack",
+    Instance()->Register("LheCandidate",
   			 "Lhe", fFoundTracks, kTRUE);
 
   FairRootManager::
-    Instance()->Register("PndTpcLheCMPoint",
+    Instance()->Register("LheCMPoint",
   			 "Lhe",fCMHits, kTRUE);
 
 }
@@ -80,7 +78,7 @@ InitStatus PndLheTrackFinderIdeal::Init() {
   // create TObjArrays
   fCMTracks = new TObjArray(64);
 
-  fVertex = new PndTpcLhePoint(0.0, 0.0, 0.0);
+  fVertex = new PndLhePoint(0.0, 0.0, 0.0);
   
   return kSUCCESS;
 }
@@ -98,12 +96,12 @@ void PndLheTrackFinderIdeal::Exec(Option_t * option) {
   PndLheHit *ghit = NULL;
   
   Int_t good_hits = 0;
-  std::map<Int_t, PndTpcLheTrack*> candlist;
+  std::map<Int_t, PndLheCandidate*> candlist;
   for (Int_t ih = 0; ih < n_hits; ih++) {
     ghit = (PndLheHit *) fLheHits->At(ih);
     
     TClonesArray &cmhits = *fCMHits;
-    PndTpcLheCMPoint *cmhit = new(cmhits[good_hits++]) PndTpcLheCMPoint(ghit);
+    PndLheCMPoint *cmhit = new(cmhits[good_hits++]) PndLheCMPoint(ghit);
     cmhit->SetHitNumber(ghit->GetHitNumber());
     cmhit->Setup(fVertex);
     cmhit->SetUsage(kFALSE);
@@ -111,9 +109,9 @@ void PndLheTrackFinderIdeal::Exec(Option_t * option) {
     Int_t trackID = ghit->GetTrackID();
     if (trackID==-1) continue;
 
-    PndTpcLheTrack* cand=candlist[trackID];
+    PndLheCandidate* cand=candlist[trackID];
     if(cand==NULL){
-      cand=new PndTpcLheTrack();
+      cand=new PndLheCandidate();
     }
     cand->AddHit(ghit);
     Int_t tpcHits = cand->GetTpcHits();
@@ -135,9 +133,9 @@ void PndLheTrackFinderIdeal::Exec(Option_t * option) {
     candlist[trackID] = cand;
   }
   
-  std::map<Int_t, PndTpcLheTrack*>::iterator  candit;
+  std::map<Int_t, PndLheCandidate*>::iterator  candit;
   for(candit=candlist.begin(); candit!=candlist.end(); ++candit) {
-    PndTpcLheTrack* cand=candit->second; 
+    PndLheCandidate* cand=candit->second; 
     if ( (cand->GetTpcHits()+ cand->GetMvdHits()) >=3 )
       AddTrack(cand);
   }
@@ -167,10 +165,10 @@ void PndLheTrackFinderIdeal::Reset() {
 }
 
 //_________________________________________________________________
-PndTpcLheTrack* PndLheTrackFinderIdeal::AddTrack(PndTpcLheTrack* track) {
+PndLheCandidate* PndLheTrackFinderIdeal::AddTrack(PndLheCandidate* track) {
   // Creates a new hit in the TClonesArray.
   
   TClonesArray& trkRef = *fFoundTracks;
   Int_t size = trkRef.GetEntriesFast();
-  return new(trkRef[size]) PndTpcLheTrack(*track);
+  return new(trkRef[size]) PndLheCandidate(*track);
 }

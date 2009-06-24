@@ -1,5 +1,5 @@
 #include "PndLheHit.h"
-#include "PndTpcLheTrack.h"
+#include "PndLheCandidate.h"
 #include "TrackCand.h"
 #include "TClonesArray.h"
 
@@ -14,31 +14,31 @@ using std::sort;
 
 ////////////////////////////////////////////////////////////////////////
 //                                                                    //
-// PndTpcLheTrack  class - track representation for the LHE              //
+// PndLheCandidate  class - track representation for the LHE              //
 //                                                                    //
 ////////////////////////////////////////////////////////////////////////
 
-ClassImp(PndTpcLheTrack)
+ClassImp(PndLheCandidate)
 
 //______________________________________________________________
-PndTpcLheTrack::PndTpcLheTrack () {
+PndLheCandidate::PndLheCandidate () {
   // Default constructor.
 
   SetDefaults();
 }
 
 //______________________________________________________________
-PndTpcLheTrack::PndTpcLheTrack (Int_t tracknumber) {
+PndLheCandidate::PndLheCandidate (Int_t tracknumber) {
   // the track number is set.
   
-  //  cout << " PndTpcLheTrack (tracknumber)" << endl;
+  //  cout << " PndLheCandidate (tracknumber)" << endl;
 
   SetDefaults();
   SetTrackNumber(tracknumber);
 }
 
 //______________________________________________________________
-PndTpcLheTrack ::~PndTpcLheTrack () {
+PndLheCandidate ::~PndLheCandidate () {
   // Destructor.
 
   //  cout << " Destructor for LheTrack" << endl;
@@ -50,14 +50,14 @@ PndTpcLheTrack ::~PndTpcLheTrack () {
 }
 
 //______________________________________________________________
-Float_t PndTpcLheTrack ::ExtrapolateToZ(TVector3 *mom, TVector3 *vertex, const Float_t z) {
+Float_t PndLheCandidate ::ExtrapolateToZ(TVector3 *mom, TVector3 *vertex, const Float_t z) {
   // Function to extrapolate the momentum and vertex coordinates to a well determined z value
   
   // alpha = .2998 * magfield / 100 <- for obtain moment in GeV/c
   Double_t alpha = .2998 * .02 ;
   Double_t Q = double(TMath::Sign(1, GetCharge()));
   
-  PndTpcLhePoint hel = GetCircle();
+  PndLhePoint hel = GetCircle();
   
   Double_t xc = hel.GetX();
   Double_t yc = hel.GetY();
@@ -71,7 +71,7 @@ Float_t PndTpcLheTrack ::ExtrapolateToZ(TVector3 *mom, TVector3 *vertex, const F
   
   Double_t lam = GetTanDipAngle();
   if (lam==0) {
-    cout << "-W-  PndTpcLheTrack ::ExtrapolateToZ: lam==0 - skipped track" << endl;
+    cout << "-W-  PndLheCandidate ::ExtrapolateToZ: lam==0 - skipped track" << endl;
     return -100000;
   }
   
@@ -104,10 +104,10 @@ Float_t PndTpcLheTrack ::ExtrapolateToZ(TVector3 *mom, TVector3 *vertex, const F
 }
 
 //______________________________________________________________
-Float_t PndTpcLheTrack ::ExtrapolateToR(TVector3 *mom, TVector3 *vertex, const Float_t R) {
+Float_t PndLheCandidate ::ExtrapolateToR(TVector3 *mom, TVector3 *vertex, const Float_t R) {
   
   if (TMath::Tan(GetMomentum().Theta()==0)) {
-    cout << "-W-  PndTpcLheTrack ::ExtrapolateToR: theta==0 - skipped track" << endl;
+    cout << "-W-  PndLheCandidate ::ExtrapolateToR: theta==0 - skipped track" << endl;
     return -100000;
   }
   
@@ -117,33 +117,49 @@ Float_t PndTpcLheTrack ::ExtrapolateToR(TVector3 *mom, TVector3 *vertex, const F
 }
 
 //______________________________________________________________
-TrackCand* PndTpcLheTrack::GetTrackCand()
+void PndLheCandidate::SortHits()
 {
   Int_t fVerbose = 0;
-  TrackCand *trackCand = new TrackCand();
   TObjArray* lheList = GetRHits();
   if (fVerbose) cout << lheList->GetEntriesFast() << " " << GetNumberOfHits() << endl;
   
   map<Float_t, Int_t> fPointList;
-  Int_t hit_counter = 0;
   vector<Float_t> hit_dist;
   for (Int_t lh=0; lh < lheList->GetEntriesFast(); lh++)
     {
       PndLheHit* lhit = (PndLheHit*)lheList->At(lh);
       if (NULL==lhit) break; 
 
-      if (fVerbose) cout << "before:\t" << lhit->GetX() << "\t" << lhit->GetY() << "\t" <<lhit->GetZ() << endl;
+      if (fVerbose) cout << "before:\t" << lhit->GetX() << "\t" << lhit->GetY() << "\t" <<lhit->GetZ() << "\t" << TMath::Sqrt(lhit->GetX()*lhit->GetX()+lhit->GetY()*lhit->GetY()+lhit->GetZ()*lhit->GetZ()) << endl;
       hit_dist.push_back(TMath::Sqrt(lhit->GetX()*lhit->GetX()+lhit->GetY()*lhit->GetY()+lhit->GetZ()*lhit->GetZ()));
       fPointList[TMath::Sqrt(lhit->GetX()*lhit->GetX()+lhit->GetY()*lhit->GetY()+lhit->GetZ()*lhit->GetZ())] = lh;
     }
   
   sort(hit_dist.begin(), hit_dist.end());
-  
-  Int_t detId = 0;
+
+  TObjArray  *fNewHits = new TObjArray(0);
   for (Int_t ii=0; ii< hit_dist.size(); ++ii)
     {
       PndLheHit* lhit = (PndLheHit*)lheList->At(fPointList[hit_dist[ii]]);
-      if (fVerbose) cout << "after:\t" << lhit->GetX() << "\t" << lhit->GetY() << "\t" <<lhit->GetZ() << endl;
+      if (fVerbose) cout << "after:\t" << lhit->GetX() << "\t" << lhit->GetY() << "\t" <<lhit->GetZ() << "\t" << TMath::Sqrt(lhit->GetX()*lhit->GetX()+lhit->GetY()*lhit->GetY()+lhit->GetZ()*lhit->GetZ()) << endl;
+      fNewHits->AddLast(lhit);
+    }
+     
+  hit_dist.clear();
+  fRealHits = fNewHits;
+  return;
+}
+
+//______________________________________________________________
+TrackCand* PndLheCandidate::GetTrackCand()
+{
+  TrackCand *trackCand = new TrackCand();
+  TObjArray* lheList = GetRHits();
+  
+  Int_t detId = 0;
+  for (Int_t ii=0; ii< lheList->GetEntriesFast(); ++ii)
+    {
+      PndLheHit* lhit = (PndLheHit*)lheList->At(ii);
       trackCand->addHit(lhit->GetDetectorID(), lhit->GetRefIndex());
       if (GetRadius()>0.)  
 	{
@@ -157,14 +173,12 @@ TrackCand* PndTpcLheTrack::GetTrackCand()
       trackCand->setDip(TMath::ATan(GetTanDipAngle()));
       trackCand->setInverted(true);
     }
-  hit_dist.clear();
   
   return trackCand;
-   
 }
 
 //___________________________________________________________
-void PndTpcLheTrack ::SetDefaults() {
+void PndLheCandidate ::SetDefaults() {
   // Default setup for the track.
 
   //  fRealHits = new TRefArray();
@@ -210,14 +224,14 @@ void PndTpcLheTrack ::SetDefaults() {
 }
 
 //______________________________________________________________
-void PndTpcLheTrack ::SetTrackNumber(Int_t number) {
+void PndLheCandidate ::SetTrackNumber(Int_t number) {
 
   // Sets the tracknumber for track.
   fTrackNumber = number;
 }
 
 //______________________________________________________________
-void PndTpcLheTrack::SetVertex(Double_t vx, Double_t vy, Double_t vz) {
+void PndLheCandidate::SetVertex(Double_t vx, Double_t vy, Double_t vz) {
 
    fVertex.SetX(vx);
    fVertex.SetY(vy);
@@ -225,7 +239,7 @@ void PndTpcLheTrack::SetVertex(Double_t vx, Double_t vy, Double_t vz) {
 }
 
 //______________________________________________________________
-void PndTpcLheTrack::SetLastHit(Double_t vx, Double_t vy, Double_t vz) {
+void PndLheCandidate::SetLastHit(Double_t vx, Double_t vy, Double_t vz) {
 
    fLastHit.SetX(vx);
    fLastHit.SetY(vy);
@@ -233,14 +247,14 @@ void PndTpcLheTrack::SetLastHit(Double_t vx, Double_t vy, Double_t vz) {
 }
 
 //______________________________________________________________
-void PndTpcLheTrack::SetFirstHit(Double_t vx, Double_t vy, Double_t vz) {
+void PndLheCandidate::SetFirstHit(Double_t vx, Double_t vy, Double_t vz) {
 
    fFirstHit.SetX(vx);
    fFirstHit.SetY(vy);
    fFirstHit.SetZ(vz);
 }
 //______________________________________________________________
-void PndTpcLheTrack::SetCircle(Double_t x, Double_t y, Double_t r) {
+void PndLheCandidate::SetCircle(Double_t x, Double_t y, Double_t r) {
 
    fCircle.SetX(x);
    fCircle.SetY(y);
@@ -248,7 +262,7 @@ void PndTpcLheTrack::SetCircle(Double_t x, Double_t y, Double_t r) {
 }
 
 //______________________________________________________________
- void PndTpcLheTrack::AddHit(PndLheHit* point) {
+ void PndLheCandidate::AddHit(PndLheHit* point) {
   // Adds a hit to the track.
 
   fRealHits->AddLast(point);
@@ -256,7 +270,7 @@ void PndTpcLheTrack::SetCircle(Double_t x, Double_t y, Double_t r) {
 }
 
 //______________________________________________________________
-void PndTpcLheTrack::PrintHits() {
+void PndLheCandidate::PrintHits() {
   //
 
     Int_t nhit = fRealHits->GetEntriesFast();
@@ -272,7 +286,7 @@ void PndTpcLheTrack::PrintHits() {
 }
 
 //______________________________________________________________
-void PndTpcLheTrack::Print() {
+void PndLheCandidate::Print() {
   //
 
     Int_t nhit = fRealHits->GetEntriesFast();

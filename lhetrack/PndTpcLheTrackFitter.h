@@ -15,11 +15,8 @@
 #include "FairField.h"
 #include "FairTrackParH.h"
 
-
-#include "PndTpcLheTrack.h"
+#include "PndLheCandidate.h"
 #include "PndTpcLheTrackCuts.h"
-#include "PndTpcLheCMTrack.h"
-#include "PndTpcLheCMPoint.h"
 
 void fitCircle(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag); // Minimization function for Minuit fit
 
@@ -27,8 +24,9 @@ class PndTpcLheTrackFitter : public FairTask {
 
 protected:
 
-  FairField*     fMagField;       //  
-  TClonesArray* fTpcTracks;      //
+  FairField*     fMagField;       //
+  TClonesArray* fPndTracks;      //!
+  TClonesArray* fTpcTracks;      //!
   TClonesArray* fTpcHits;        //!
   TClonesArray* fTpcPoints;      //!
   
@@ -39,7 +37,7 @@ protected:
   Short_t fCircleFit;       // Circular fit (0 Oleg, 1 TMinuit)
  
   PndTpcLheTrackCuts   *fTrackCuts;       // RO cuts for tracks
-  Int_t FastCircleFit(PndTpcLheTrack *track, Double_t prefit[]);
+  Int_t FastCircleFit(PndLheCandidate *track, Double_t prefit[]);
     
   static PndTpcLheTrackFitter* ftInstance;
 
@@ -52,15 +50,17 @@ public:
   PndTpcLheTrackFitter();
   virtual ~PndTpcLheTrackFitter();
 
+  void  Register();                 //
+  void  Reset();
 
-  Int_t DeepFit(PndTpcLheTrack * tr);           // Fit of DIP angle (Stefano: fit of r vs z)
-  Int_t DeepFitOleg(PndTpcLheTrack * tr);       // Fit of DIP angle (Oleg: s vs z)
-  Int_t CircleFit(PndTpcLheTrack * tr);         // Circular fit (Oleg)
-  Int_t CircleFitMinuit(PndTpcLheTrack * tr);   // Circular fit (Stefano -> TMinuit)
-  Int_t SetUpFitVector(PndTpcLheTrack* pTrack,
+  Int_t DeepFit(PndLheCandidate * tr);           // Fit of DIP angle (Stefano: fit of r vs z)
+  Int_t DeepFitOleg(PndLheCandidate * tr);       // Fit of DIP angle (Oleg: s vs z)
+  Int_t CircleFit(PndLheCandidate * tr);         // Circular fit (Oleg)
+  Int_t CircleFitMinuit(PndLheCandidate * tr);   // Circular fit (Stefano -> TMinuit)
+  Int_t SetUpFitVector(PndLheCandidate* pTrack,
 	        TMatrixT<Double32_t> &fitvect); // Setup of values for minuit fit
-  Int_t HelixFit(PndTpcLheTrack * tr);          // Separation of circular and dip fit
-  void  Info4Fit(PndTpcLheTrack *track);        // Folling final values of Track
+  Int_t HelixFit(PndLheCandidate * tr);          // Separation of circular and dip fit
+  void  Info4Fit(PndLheCandidate *track);        // Folling final values of Track
   void SetOption(Option_t *option=" ") { fOption = option;  fOption.ToLower();}
   void SetVerbose(Bool_t verb)         { fVerbose = verb  ;};
   void SetSimulation(Bool_t sim)       { fSimulation = sim; };

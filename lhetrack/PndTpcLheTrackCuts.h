@@ -13,8 +13,8 @@
 
 #include "TArrayD.h"
 
-#include "PndTpcLheCMTrack.h"
-#include "PndTpcLheCMPoint.h"
+#include "PndLheCMCandidate.h"
+#include "PndLheCMPoint.h"
 #include "lhe.h"
 
 class PndTpcLheTrackCuts {
@@ -61,25 +61,25 @@ public:
 
   // ======================
 
-  Bool_t IsGoodGeantTrack(PndTpcLheTrack *track);
-  Bool_t IsGoodFoundTrack(PndTpcLheCMTrack* track);
+  Bool_t IsGoodGeantTrack(PndLheCandidate *track);
+  Bool_t IsGoodFoundTrack(PndLheCMCandidate* track);
 
-  void CMLineFit(PndTpcLheCMTrack *track, Double_t *a);
-  void DeepAngleFit( const PndTpcLheCMTrack *track, Double_t *a);
+  void CMLineFit(PndLheCMCandidate *track, Double_t *a);
+  void DeepAngleFit( const PndLheCMCandidate *track, Double_t *a);
 
   void LineFit(TArrayD *x, TArrayD *delx,
 	       TArrayD *y, TArrayD *dely,
 	       Double_t *a, Int_t np);
   Double_t const DistFromLine(Double_t Xh, Double_t Yh, Double_t *coeff);
 
-  Double_t GetThetPrediction(PndTpcLheCMTrack *track, Double_t z, Bool_t b);
-  Double_t GetPhiPrediction(PndTpcLheCMTrack *track);
+  Double_t GetThetPrediction(PndLheCMCandidate *track, Double_t z, Bool_t b);
+  Double_t GetPhiPrediction(PndLheCMCandidate *track);
 
-  Bool_t VerifyTrack(PndTpcLheCMTrack *track, PndTpcLheCMPoint *hit, Bool_t back);
+  Bool_t VerifyTrack(PndLheCMCandidate *track, PndLheCMPoint *hit, Bool_t back);
 
-  //  void PredictAngles(PndTpcLheCMTrack *tr, Bool_t bw);
-  Double_t TrackHitAlpha(PndTpcLheCMTrack *t1, PndTpcLheCMPoint *hit, Bool_t bw);
-  Double_t TrackHitCircleDist(PndTpcLheCMTrack *t, PndTpcLheCMPoint *h, Bool_t b);
+  //  void PredictAngles(PndLheCMCandidate *tr, Bool_t bw);
+  Double_t TrackHitAlpha(PndLheCMCandidate *t1, PndLheCMPoint *hit, Bool_t bw);
+  Double_t TrackHitCircleDist(PndLheCMCandidate *t, PndLheCMPoint *h, Bool_t b);
 
 
   void Circle3pnts(Double_t x[],Double_t y[], Double_t r[]);

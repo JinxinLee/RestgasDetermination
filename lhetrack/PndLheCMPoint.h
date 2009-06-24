@@ -11,9 +11,9 @@
 //
 // *************************************************************************
 #include "PndLheHit.h"
-#include "PndTpcLhePoint.h"
+#include "PndLhePoint.h"
 
-class PndTpcLheCMPoint : public PndLheHit {
+class PndLheCMPoint : public PndLheHit {
   
 private:
   
@@ -55,10 +55,10 @@ private:
   
 public:
   
-            PndTpcLheCMPoint();                   //
-            PndTpcLheCMPoint(PndLheHit *point);   // from hit
+            PndLheCMPoint();                   //
+            PndLheCMPoint(PndLheHit *point);   // from hit
 
-  virtual  ~PndTpcLheCMPoint();                   //
+  virtual  ~PndLheCMPoint();                   //
   
   // getters
   Double_t   GetCircleDist() const   { return fCircleDist; }
@@ -108,7 +108,7 @@ public:
   void    SetYverr(Double_t f)       {         fYverr = f; }
   void    SetZverr(Double_t f)       {         fZverr = f; }
   
-  void    Setup(PndTpcLhePoint *vertex);   // does the usual setup in the right order
+  void    Setup(PndLhePoint *vertex);   // does the usual setup in the right order
   void    SetAngles();                   // calculate spherical angles and set values
   void    Print();
   void    SetIntPoint(const Double_t in_x = 0., const Double_t in_y = 0.,
@@ -116,9 +116,9 @@ public:
 		      const Double_t in_y_err = 0., const Double_t in_z_err = 0.);
   void    SetShiftedCoord();             // set shifted coordinates  
   void    SetConfCoord();                // conformal mapping of coordinates
-  void    SetAllCoord(const PndTpcLheCMPoint *hit);   // 
+  void    SetAllCoord(const PndLheCMPoint *hit);   // 
   
-  ClassDef(PndTpcLheCMPoint, 1)   //
+  ClassDef(PndLheCMPoint, 1)   //
 };
 
 #endif

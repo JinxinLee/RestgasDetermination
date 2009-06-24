@@ -1,7 +1,7 @@
 #include "PndLheHitsMaker.h"
 
 #include "PndLheHit.h"
-#include "PndTpcLheTrack.h"
+#include "PndLheCandidate.h"
 
 #include "FairRunAna.h"
 #include "PndTpcPoint.h"
@@ -38,7 +38,7 @@ PndLheHitsMaker::PndLheHitsMaker() {
   //---
 
   fLheHits  = new TClonesArray("PndLheHit");
-  fGeantTracks = new TClonesArray("PndTpcLheTrack");
+  fGeantTracks = new TClonesArray("PndLheCandidate");
   fMvdMode       = 1;   
   fMvdSimMode    = 1; 
   fTpcMode       = 1; 
@@ -60,7 +60,7 @@ PndLheHitsMaker::PndLheHitsMaker(const char *name,
 				       const char *title):FairTask(name) {
   //---
   fLheHits = new TClonesArray("PndLheHit");
-  fGeantTracks = new TClonesArray("PndTpcLheTrack");
+  fGeantTracks = new TClonesArray("PndLheCandidate");
   fMvdMode       = 1; 
   fMvdSimMode    = 1; 
   fTpcMode       = 1;
@@ -1003,7 +1003,7 @@ void PndLheHitsMaker::CheckTracks() {
 
   for (Int_t itrack = 0; itrack < fNTrack; itrack++) {
 
-    PndTpcLheTrack *track = (PndTpcLheTrack*)fGeantTracks->UncheckedAt(itrack);
+    PndLheCandidate *track = (PndLheCandidate*)fGeantTracks->UncheckedAt(itrack);
     tr_num = track->GetTrackNumber();
 
     if(tr_num >= 0 && tr_num < nMCtracks) {
@@ -1059,7 +1059,7 @@ void PndLheHitsMaker::CheckTracks() {
     PndLheHit *hit = (PndLheHit *)fLheHits->UncheckedAt(ih);
     Int_t mTrackNumber = hit->GetTrackID();
     for (Int_t itrack = 0; itrack < fNTrack; itrack++) {
-      PndTpcLheTrack *track = (PndTpcLheTrack*)fGeantTracks->UncheckedAt(itrack);
+      PndLheCandidate *track = (PndLheCandidate*)fGeantTracks->UncheckedAt(itrack);
       Int_t tr_num = track->GetTrackNumber();
       if (mTrackNumber ==  tr_num && !track->IsGood()) {
 	hit->SetUsage(kTRUE);
@@ -1088,13 +1088,13 @@ void PndLheHitsMaker::SetTrack(PndLheHit *hit) {
      cout << endl;
 #endif
 
-  PndTpcLheTrack *track = NULL;
+  PndLheCandidate *track = NULL;
 
   Bool_t newtrack = kTRUE;
   
   if (fNTrack > 0) {
     for (Int_t i = 0; i < fGeantTracks->GetEntriesFast(); i++) {
-      PndTpcLheTrack *currtrk = ((PndTpcLheTrack*) fGeantTracks->At(i));
+      PndLheCandidate *currtrk = ((PndLheCandidate*) fGeantTracks->At(i));
       mTN = currtrk->GetTrackNumber();
       //      PR( currtrk->GetTrackNumber());
       if (mTN == mTrackNumber) {
@@ -1111,11 +1111,11 @@ void PndLheHitsMaker::SetTrack(PndLheHit *hit) {
 }
 
 //________________________________________________________________
-PndTpcLheTrack *PndLheHitsMaker::AddTrack(Int_t mTrackNumber) {
+PndLheCandidate *PndLheHitsMaker::AddTrack(Int_t mTrackNumber) {
 // Add a new track to the list of tracks for this event.
 
   TClonesArray &tracks = *fGeantTracks;
-  PndTpcLheTrack *track = new(tracks[fNTrack++]) PndTpcLheTrack(mTrackNumber);
+  PndLheCandidate *track = new(tracks[fNTrack++]) PndLheCandidate(mTrackNumber);
   return track;
 }
 
@@ -1135,7 +1135,7 @@ void PndLheHitsMaker::PrintTracks(Int_t ntr) {
 
   for (Int_t itrack = 0; itrack < ptracks; itrack++) {
 	
-    PndTpcLheTrack *track = (PndTpcLheTrack *)fGeantTracks->UncheckedAt(itrack);
+    PndLheCandidate *track = (PndLheCandidate *)fGeantTracks->UncheckedAt(itrack);
 
     track->Print(); //
 

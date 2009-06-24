@@ -1,7 +1,7 @@
 #include "PndTpcLheTrackFinder.h"
 #include "PndDetectorList.h"
-#include "PndTpcLheCMTrack.h"
-#include "PndTpcLheCMPoint.h"
+#include "PndLheCMCandidate.h"
+#include "PndLheCMPoint.h"
 #include "PndLheHit.h"
 #include "lhe.h"
 
@@ -22,8 +22,8 @@ ClassImp(PndTpcLheTrackFinder)
 PndTpcLheTrackFinder::PndTpcLheTrackFinder() {
   //---
 
-  fFoundTracks = new TClonesArray("PndTpcLheTrack");
-  fCMHits = new TClonesArray("PndTpcLheCMPoint");
+  fFoundTracks = new TClonesArray("PndLheCandidate");
+  fCMHits = new TClonesArray("PndLheCMPoint");
   fBench = new TBenchmark();
   fVertex = NULL;
   fVerbose = kFALSE;
@@ -34,8 +34,8 @@ PndTpcLheTrackFinder::
 PndTpcLheTrackFinder( const char *name, const char *title):FairTask(name) {
   //---
 
-  fFoundTracks = new TClonesArray("PndTpcLheTrack");
-  fCMHits = new TClonesArray("PndTpcLheCMPoint");
+  fFoundTracks = new TClonesArray("PndLheCandidate");
+  fCMHits = new TClonesArray("PndLheCMPoint");
   fBench = new TBenchmark();
   fVertex = NULL;
   fVerbose = kFALSE;
@@ -59,11 +59,11 @@ PndTpcLheTrackFinder::~PndTpcLheTrackFinder() {
 void PndTpcLheTrackFinder::Register() {
   //---
   FairRootManager::
-    Instance()->Register("PndTpcLheTrack",
+    Instance()->Register("LheCandidate",
   			 "Lhe", fFoundTracks, kTRUE);
 
   FairRootManager::
-    Instance()->Register("PndTpcLheCMPoint",
+    Instance()->Register("LheCMPoint",
   			 "Lhe",fCMHits, kTRUE);
 
 }
@@ -87,7 +87,7 @@ InitStatus PndTpcLheTrackFinder::Init() {
   // create TObjArrays
   fCMTracks = new TObjArray(64);
 
-  fVertex = new PndTpcLhePoint(0.0, 0.0, 0.0);
+  fVertex = new PndLhePoint(0.0, 0.0, 0.0);
 
   fSegment = new PndTpcLheSegments();
   fSegment->Init();
@@ -122,7 +122,7 @@ void PndTpcLheTrackFinder::Exec(Option_t * option) {
   for (Int_t ih = 0; ih < n_hits; ih++) {
     ghit = (PndLheHit *) fLheHits->UncheckedAt(ih);
     TClonesArray &cmhits = *fCMHits;
-    PndTpcLheCMPoint *cmhit = new(cmhits[good_hits++]) PndTpcLheCMPoint(ghit);
+    PndLheCMPoint *cmhit = new(cmhits[good_hits++]) PndLheCMPoint(ghit);
     cmhit->SetHitNumber(ghit->GetHitNumber());
     cmhit->Setup(fVertex);
     cmhit->SetUsage(kFALSE);
@@ -142,7 +142,7 @@ void PndTpcLheTrackFinder::Exec(Option_t * option) {
 }
 
 //________________________________________________________________
-void PndTpcLheTrackFinder::AddTrackForFit(PndTpcLheCMTrack *track_in) {
+void PndTpcLheTrackFinder::AddTrackForFit(PndLheCMCandidate *track_in) {
   //--- Add a new track to the list of tracks for this event.
 
   TClonesArray &tracks = *fFoundTracks;
@@ -154,7 +154,7 @@ void PndTpcLheTrackFinder::AddTrackForFit(PndTpcLheCMTrack *track_in) {
   if (rhits){ 
     NHits = rhits->GetEntriesFast();
 
-    PndTpcLheTrack* track = new(tracks[size]) PndTpcLheTrack(size);
+    PndLheCandidate* track = new(tracks[size]) PndLheCandidate(size);
     track->SetCharge(track_in->GetCharge());
  
     Int_t mvdHits = 0;
@@ -162,6 +162,7 @@ void PndTpcLheTrackFinder::AddTrackForFit(PndTpcLheCMTrack *track_in) {
     Int_t gemHits = 0;
     for (Int_t lh = 0; lh < NHits; lh++) {
       PndLheHit* hit = dynamic_cast <PndLheHit*> (rhits->At(lh));
+      if (NULL==hit) break; 
       track->AddHit(hit);
       if ( (hit->GetDetectorID() == kTpcPoint)     ||
 	   (hit->GetDetectorID() == kTpcCluster)     )   tpcHits++;
@@ -173,6 +174,7 @@ void PndTpcLheTrackFinder::AddTrackForFit(PndTpcLheCMTrack *track_in) {
       if ( (hit->GetDetectorID() == kGemPoint)     ||
 	   (hit->GetDetectorID() == kGemHit)         )   gemHits++;
     }
+    track->SortHits();
     track->SetTpcHits(tpcHits);
     track->SetMvdHits(mvdHits);
     track->SetGemHits(gemHits);
@@ -233,26 +235,26 @@ void PndTpcLheTrackFinder::CheckClones() {
   //---
 
   TIter next(fCMTracks);  next.Reset();
-  PndTpcLheCMTrack* trk;
+  PndLheCMCandidate* trk;
   Int_t ntracks = fCMTracks->GetEntriesFast();
 
   next.Reset();
-  while((trk = (PndTpcLheCMTrack*) next())) {
+  while((trk = (PndLheCMCandidate*) next())) {
     trk->SetGood(kTRUE);
   }
 
   for (Int_t it = 0;it < ntracks; it++) {
-    trk = (PndTpcLheCMTrack*)fCMTracks->At(it);
+    trk = (PndLheCMCandidate*)fCMTracks->At(it);
 
-    PndTpcLhePoint hel_ex = trk->GetCircle();
+    PndLhePoint hel_ex = trk->GetCircle();
     
     Double_t xc_ex = hel_ex.GetX();
     Double_t yc_ex = hel_ex.GetY();
     Double_t rad_ex = hel_ex.GetZ();
 
     for (Int_t jt = it + 1; jt < ntracks; jt++) {
-      PndTpcLheCMTrack* trk_in = (PndTpcLheCMTrack*) fCMTracks->At(jt);
-      PndTpcLhePoint hel_in = trk_in->GetCircle();
+      PndLheCMCandidate* trk_in = (PndLheCMCandidate*) fCMTracks->At(jt);
+      PndLhePoint hel_in = trk_in->GetCircle();
     
       Double_t xc_in = hel_in.GetX();
       Double_t yc_in = hel_in.GetY();
@@ -267,16 +269,16 @@ void PndTpcLheTrackFinder::CheckClones() {
   }
   
   next.Reset();
-  while((trk = (PndTpcLheCMTrack*) next())) {
+  while((trk = (PndLheCMCandidate*) next())) {
     if (trk->IsGood()) AddTrackForFit(trk);
   }
   
 }
 
 //________________________________________________________________
-Bool_t PndTpcLheTrackFinder::TrackExtension(PndTpcLheCMTrack *track) {
+Bool_t PndTpcLheTrackFinder::TrackExtension(PndLheCMCandidate *track) {
 
-  PndTpcLheCMPoint *hit =  (PndTpcLheCMPoint *)(track->GetRHits())->First();
+  PndLheCMPoint *hit =  (PndLheCMPoint *)(track->GetRHits())->First();
 
   Bool_t back;
 
@@ -318,7 +320,7 @@ void PndTpcLheTrackFinder::LoopOverHits() {
   Int_t entries = fCMHits->GetEntriesFast();
 
   for (Int_t nhit = 0; nhit < entries; nhit++) {
-    PndTpcLheCMPoint *hit = (PndTpcLheCMPoint *)fCMHits->At(nhit);
+    PndLheCMPoint *hit = (PndLheCMPoint *)fCMHits->At(nhit);
     if (fVerbose) hit->Print();
     // start hit was used before
     if (!hit->GetUsage() ) {
@@ -330,7 +332,7 @@ void PndTpcLheTrackFinder::LoopOverHits() {
 }
 
 //_______________________________________________________________________
-void PndTpcLheTrackFinder::CreateTrack(PndTpcLheCMPoint *seed_hit) {
+void PndTpcLheTrackFinder::CreateTrack(PndLheCMPoint *seed_hit) {
   //---
 
   Double_t theta_cut = 3.*.0002;
@@ -357,7 +359,7 @@ void PndTpcLheTrackFinder::CreateTrack(PndTpcLheCMPoint *seed_hit) {
       if (cell_entries) {
           
 	for (Int_t hit_num = 0; hit_num < cell_entries; hit_num++) {
-	  PndTpcLheCMPoint *hit = (PndTpcLheCMPoint *)cell->At(hit_num);
+	  PndLheCMPoint *hit = (PndLheCMPoint *)cell->At(hit_num);
             
 	  if( TMath::Abs(seed_hit->GetTheta() - hit->GetTheta()) >
 	      theta_cut) continue;
@@ -367,9 +369,9 @@ void PndTpcLheTrackFinder::CreateTrack(PndTpcLheCMPoint *seed_hit) {
 	      hit->GetHitNumber() != seed_hit->GetHitNumber()) {
 
 	    Int_t ntracks = fCMTracks->GetEntriesFast();
-	    fCMTracks->AddAtAndExpand(new PndTpcLheCMTrack(ntracks), ntracks);
-	    PndTpcLheCMTrack *new_track =
-	      (PndTpcLheCMTrack *)fCMTracks->At(ntracks);
+	    fCMTracks->AddAtAndExpand(new PndLheCMCandidate(ntracks), ntracks);
+	    PndLheCMCandidate *new_track =
+	      (PndLheCMCandidate *)fCMTracks->At(ntracks);
 	    //	    fNTracks++;
 
 	    new_track->AddPoint(seed_hit, kFALSE);
@@ -389,10 +391,10 @@ void PndTpcLheTrackFinder::CreateTrack(PndTpcLheCMPoint *seed_hit) {
 
 //________________________________________________________________
 void PndTpcLheTrackFinder::
-GetClosestHit(PndTpcLheCMTrack *cmtrack, Int_t cur_station, Bool_t back) {
+GetClosestHit(PndLheCMCandidate *cmtrack, Int_t cur_station, Bool_t back) {
   //--- Returns the nearest hit in the next station
  
-  PndTpcLheCMPoint *hit = NULL;
+  PndLheCMPoint *hit = NULL;
  
   TArrayI *philist  = new TArrayI();
   TArrayI *thetalist  = new TArrayI();
@@ -419,7 +421,7 @@ GetClosestHit(PndTpcLheCMTrack *cmtrack, Int_t cur_station, Bool_t back) {
       
       if (entries) {
 	for (Int_t sub_hit_num = 0; sub_hit_num < entries; sub_hit_num++) {
-	  hit = (PndTpcLheCMPoint *)cell->At(sub_hit_num);
+	  hit = (PndLheCMPoint *)cell->At(sub_hit_num);
             
 	  if (!hit->GetUsage()) {     // hit was not used before
 	    if(fTrackCuts->VerifyTrack(cmtrack, hit, back)) {
@@ -442,11 +444,11 @@ GetClosestHit(PndTpcLheCMTrack *cmtrack, Int_t cur_station, Bool_t back) {
 }
 
 //______________________________________________________________________
-void PndTpcLheTrackFinder::GetThetaRange(TArrayI* list,PndTpcLheCMTrack *cmtrack) {
+void PndTpcLheTrackFinder::GetThetaRange(TArrayI* list,PndLheCMCandidate *cmtrack) {
   //---  
 
   TObjArray *trackpoint = cmtrack->GetCMHits();
-  PndTpcLheCMPoint *hit = (PndTpcLheCMPoint *)trackpoint->First();
+  PndLheCMPoint *hit = (PndLheCMPoint *)trackpoint->First();
   Double_t thet = hit->GetTheta();
 
   Int_t theta_high, theta_low;
@@ -470,12 +472,12 @@ void PndTpcLheTrackFinder::GetThetaRange(TArrayI* list,PndTpcLheCMTrack *cmtrack
 }
 
 //______________________________________________________________________
-void PndTpcLheTrackFinder::GetPhiRange(TArrayI* cl1, PndTpcLheCMTrack *cmtrack ) {
+void PndTpcLheTrackFinder::GetPhiRange(TArrayI* cl1, PndLheCMCandidate *cmtrack ) {
   //---  
   
   TObjArray *trackpoint = cmtrack->GetCMHits();
-  PndTpcLheCMPoint *hit = (PndTpcLheCMPoint *)trackpoint->First();
-  PndTpcLheCMPoint *hit1 = (PndTpcLheCMPoint *)trackpoint->Last();
+  PndLheCMPoint *hit = (PndLheCMPoint *)trackpoint->First();
+  PndLheCMPoint *hit1 = (PndLheCMPoint *)trackpoint->Last();
 
   Double_t phi = hit->GetPhi();
 
@@ -489,7 +491,7 @@ void PndTpcLheTrackFinder::GetPhiRange(TArrayI* cl1, PndTpcLheCMTrack *cmtrack )
   Double_t MagField = 2; //    Tesla
   Double_t pt = .2998 * Rad * MagField;  // PR(pt);
 
-  PndTpcLhePoint vert = cmtrack->GetVertex();
+  PndLhePoint vert = cmtrack->GetVertex();
   Double_t xtr_c = vert.GetX()/100.; // m
   Double_t ytr_c = vert.GetY()/100.; // m
 
@@ -584,11 +586,11 @@ void PndTpcLheTrackFinder::CopyClones(TClonesArray* cl1,
   Int_t nEntries = cl1->GetEntriesFast();
 
   TClonesArray& clref = *cl2;
-  PndTpcLheTrack* old = NULL;
+  PndLheCandidate* old = NULL;
 
   for (Int_t i=0; i < nEntries; i++) {
-    old = (PndTpcLheTrack*) cl1->At(i);
-    new (clref[i]) PndTpcLheTrack(*old);
+    old = (PndLheCandidate*) cl1->At(i);
+    new (clref[i]) PndLheCandidate(*old);
   }
   
   cout << " - " << cl2->GetEntriesFast() << " Geant tracks are copied.\n";

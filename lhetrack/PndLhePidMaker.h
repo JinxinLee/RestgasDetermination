@@ -19,7 +19,7 @@
 #include "FairTrackParH.h"
 #include "FairGeanePro.h"
 #include "FairGeane.h"
-#include "PndTpcLheTrack.h"
+#include "PndLheCandidate.h"
 #include "PndMvdGeoHandling.h"
 #include "PndLhePidTrack.h"
 #include "PndLheCorrPar.h"
@@ -29,7 +29,7 @@ class PndLhePidMaker : public FairTask {
 
 protected:
 
-  TClonesArray* fTrackCand;         //! PndTpcLheTrack TCA
+  TClonesArray* fTrackCand;         //! PndLheCandidate TCA
   TClonesArray* fPidTrackCand;      //! PndLhePidTrack TCA
  
   TClonesArray* fMvdHitsStrip;      //! PndMvdHit TCA for strip

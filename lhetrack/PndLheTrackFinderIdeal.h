@@ -19,9 +19,8 @@
 
 #include "FairTask.h"
 
-#include "PndTpcLheCMPoint.h"
-#include "PndTpcLheCMTrack.h"
-#include "PndTpcLheTrack.h"
+#include "PndLheCMPoint.h"
+#include "PndLheCandidate.h"
 #include "PndTpcLheSegments.h"
 #include "PndTpcLheTrackFitter.h"
 
@@ -29,7 +28,7 @@ class PndLheTrackFinderIdeal : public FairTask {
 
 protected:
 
-  PndTpcLhePoint  *fVertex;       // pointer to the vertex
+  PndLhePoint  *fVertex;       // pointer to the vertex
 
   TClonesArray  *fCMHits;       // Array of hits transformed with conformal mapping
   TObjArray     *fCMTracks;     // Array of tracks
@@ -42,7 +41,7 @@ protected:
   TBenchmark   *fBench;         // benchmark object (just for run-time measurements)
   Float_t    mTime;          // total time consumption
   
-  PndTpcLheTrack* AddTrack(PndTpcLheTrack* track);
+  PndLheCandidate* AddTrack(PndLheCandidate* track);
   
 public:
 

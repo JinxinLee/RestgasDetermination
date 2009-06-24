@@ -5,10 +5,10 @@
 ///////////////////////////////////////////////////////////////////////////////////
 
 #include "PndTpcLheSegments.h"
-#include "PndTpcLheCMTrack.h"
-#include "PndTpcLheCMPoint.h"
+#include "PndLheCMPoint.h"
 
 #include "TObjArray.h"
+#include "TMath.h"
 
 #include <iomanip>
 
@@ -99,7 +99,7 @@ void  PndTpcLheSegments::FillSegments(TClonesArray *fCMHits) {
 #endif
   
   for (Int_t i = 0; i < fCMHits->GetEntriesFast(); i++) {
-    PndTpcLheCMPoint* h = (PndTpcLheCMPoint *)fCMHits->At(i);
+    PndLheCMPoint* h = (PndLheCMPoint *)fCMHits->At(i);
     h->SetUsage(kFALSE);
     //    h->Print();
     Int_t iseg =
@@ -136,7 +136,7 @@ void PndTpcLheSegments::PrintSegments() {
 // This function loops over all hits in segment
 
   TObjArray *segment;
-  PndTpcLheCMPoint *hit;
+  PndLheCMPoint *hit;
 
   Int_t st_num = 0;
 
@@ -163,7 +163,7 @@ void PndTpcLheSegments::PrintSegments() {
 	      " entries " << entries << endl;
 
           for (Int_t hit_num = 0; hit_num < entries; hit_num++) {
-            hit = (PndTpcLheCMPoint *)segment->At(hit_num);
+            hit = (PndLheCMPoint *)segment->At(hit_num);
 
 	    cout << "\n hit #" << hit->GetHitNumber();
 	    cout << " trackID " << hit->GetTrackID();
@@ -192,7 +192,7 @@ void PndTpcLheSegments::PrintSegmentContents(Int_t n_seg) {
   if (entries) {
     
     for (Int_t hit_num = 0; hit_num < entries; hit_num++) {
-      PndTpcLheCMPoint* hit = (PndTpcLheCMPoint *)segment->At(hit_num);
+      PndLheCMPoint* hit = (PndLheCMPoint *)segment->At(hit_num);
 
       cout << "\n hit ";
       cout << " geant # " << hit->GetTrackID();

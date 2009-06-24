@@ -1,23 +1,23 @@
 /////////////////////////////////////////////////////////////////////////////////
 //                                                                             //
-// PndTpcLheCMTrack class - representation of one STS track with CM points        //
+// PndLheCMCandidate class - representation of one  track with CM points       //
 //                                                                             //
 /////////////////////////////////////////////////////////////////////////////////
 
-#ifndef PND_STS_CM_Track_H
-#define PND_STS_CM_Track_H
+#ifndef PND_CM_CANDIDATE_H
+#define PND_CM_CANDIDATE_H
 
 #include "TObject.h"
 #include "TObjArray.h"
 #include "TVector3.h"
 
-#include "PndTpcLheTrack.h"
-#include "PndTpcLheCMPoint.h"
+#include "PndLheCandidate.h"
+#include "PndLheCMPoint.h"
 
 #include "Riostream.h"
 
 
-class PndTpcLheCMTrack : public PndTpcLheTrack {
+class PndLheCMCandidate : public PndLheCandidate {
   
 private:
   
@@ -27,16 +27,16 @@ private:
 
 public:
   
-  PndTpcLheCMTrack();                    // constructor
-  PndTpcLheCMTrack(Int_t tracknumber);   // constructor with tracknumber
-  PndTpcLheCMTrack(Int_t tn, Int_t nh);  //
+  PndLheCMCandidate();                    // constructor
+  PndLheCMCandidate(Int_t tracknumber);   // constructor with tracknumber
+  PndLheCMCandidate(Int_t tn, Int_t nh);  //
 
-  virtual  ~PndTpcLheCMTrack();          // destructor
+  virtual  ~PndLheCMCandidate();          // destructor
 
   virtual  void Print();
 
-  void AddPoint(PndTpcLheCMPoint *point, Bool_t bward);  // adds a point
-  void Copy(const PndTpcLheCMTrack* src);  //
+  void AddPoint(PndLheCMPoint *point, Bool_t bward);  // adds a point
+  void Copy(const PndLheCMCandidate* src);  //
 
   // getters
 
@@ -52,7 +52,7 @@ public:
   void   SetPointsUsage();  
   void   Clear();  
 
-   ClassDef(PndTpcLheCMTrack, 1)    // 
+   ClassDef(PndLheCMCandidate, 1)    // 
 
  };
 

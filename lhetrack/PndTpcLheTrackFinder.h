@@ -20,12 +20,11 @@
 #include "FairTask.h"
 
 #include "PndLheHit.h"
-#include "PndTpcLheCMPoint.h"
-#include "PndTpcLheCMTrack.h"
+#include "PndLheCMPoint.h"
+#include "PndLheCMCandidate.h"
 #include "PndTpcLheTrackCuts.h"
 #include "PndTpcLheSegments.h"
 #include "PndTpcLheTrackFitter.h"
-#include "lhe.h"
 
 class PndTpcLheTrackFinder : public FairTask {
 
@@ -33,7 +32,7 @@ protected:
 
   enum Momentum {HIGH, INTERMED, LOW};
 
-  PndTpcLhePoint  *fVertex;       // pointer to the vertex
+  PndLhePoint  *fVertex;       // pointer to the vertex
 
   TClonesArray  *fCMHits;       // Array of hits transformed with conformal mapping
   TObjArray     *fCMTracks;     // Array of tracks
@@ -70,11 +69,11 @@ public:
   // getters
 
 
-  void GetPhiRange(TArrayI* c, PndTpcLheCMTrack *cmtrack);
-  void GetThetaRange(TArrayI* c, PndTpcLheCMTrack *cmtrack);
+  void GetPhiRange(TArrayI* c, PndLheCMCandidate *cmtrack);
+  void GetThetaRange(TArrayI* c, PndLheCMCandidate *cmtrack);
   void CopyClones(TClonesArray* cl1, TClonesArray* cl2);
 
-  PndTpcLhePoint  *GetVertex()     { return fVertex;}
+  PndLhePoint  *GetVertex()     { return fVertex;}
   Int_t   GetNumberOfHits()     { return fCMHits->GetEntriesFast();}
   TObjArray  *GetTracks()       { return fCMTracks;}
 
@@ -83,11 +82,11 @@ public:
   // Tracking procedures:
   void  DoTracking();              // tracking of main vertex tracks
   void  LoopOverHits();                        // loops over hits
-  void  CreateTrack(PndTpcLheCMPoint *hit);   // create track with start at hit
-  void  RemoveTrack(PndTpcLheCMTrack *track);
-  void  GetClosestHit(PndTpcLheCMTrack *tr, Int_t st, Bool_t back);
-  Bool_t TrackExtension(PndTpcLheCMTrack *track);  //
-  void AddTrackForFit(PndTpcLheCMTrack *track);     //
+  void  CreateTrack(PndLheCMPoint *hit);   // create track with start at hit
+  void  RemoveTrack(PndLheCMCandidate *track);
+  void  GetClosestHit(PndLheCMCandidate *tr, Int_t st, Bool_t back);
+  Bool_t TrackExtension(PndLheCMCandidate *track);  //
+  void AddTrackForFit(PndLheCMCandidate *track);     //
   void  TrackingInfo(char* info);           // information about the tracking 
   void CheckClones();
 
@@ -96,7 +95,7 @@ public:
     };
 
 //________________________________________________________________
-inline void PndTpcLheTrackFinder::RemoveTrack(PndTpcLheCMTrack *track) {
+inline void PndTpcLheTrackFinder::RemoveTrack(PndLheCMCandidate *track) {
   //--- Removes track from TObjArray and release the points.
 
   //  track->ClearPoints();        // release points

@@ -73,8 +73,8 @@ void PndTpcLheTrackCuts::SetLowMomTrackCuts() {
 }
 
 //________________________________________________________________
-Bool_t PndTpcLheTrackCuts::VerifyTrack(PndTpcLheCMTrack *track,
-				    PndTpcLheCMPoint *hit, Bool_t back) {
+Bool_t PndTpcLheTrackCuts::VerifyTrack(PndLheCMCandidate *track,
+				    PndLheCMPoint *hit, Bool_t back) {
   // --------------------------------
 
 
@@ -238,7 +238,7 @@ Circle_Circle_Intersection(double x0, double y0, double r0,
 
 //________________________________________________________________
 Double_t PndTpcLheTrackCuts::
-GetPhiPrediction(PndTpcLheCMTrack *track) {
+GetPhiPrediction(PndLheCMCandidate *track) {
   //---
   
     Int_t last = (track->GetRHits())->GetLast();
@@ -273,7 +273,7 @@ GetPhiPrediction(PndTpcLheCMTrack *track) {
 
 //________________________________________________________________
 Double_t PndTpcLheTrackCuts::
-GetThetPrediction(PndTpcLheCMTrack *track, Double_t zst, Bool_t back) {
+GetThetPrediction(PndLheCMCandidate *track, Double_t zst, Bool_t back) {
   //--- return alpha angle in the next plane
 
 
@@ -301,14 +301,14 @@ GetThetPrediction(PndTpcLheCMTrack *track, Double_t zst, Bool_t back) {
 }
 
 //________________________________________________________________
-void PndTpcLheTrackCuts::CMLineFit(PndTpcLheCMTrack *track,
+void PndTpcLheTrackCuts::CMLineFit(PndLheCMCandidate *track,
 				      Double_t *a) {
   //---
 
   TObjArray *trackpoints = track->GetCMHits();
   Int_t n = trackpoints->GetEntriesFast();
 
-  PndTpcLheCMPoint *trackpoint = NULL;
+  PndLheCMPoint *trackpoint = NULL;
 
   TArrayD *x = new TArrayD();       x->Set(n);
   TArrayD *y = new TArrayD();       y->Set(n);
@@ -317,7 +317,7 @@ void PndTpcLheTrackCuts::CMLineFit(PndTpcLheCMTrack *track,
   
   Int_t ip = 0;
   for (Int_t is = 0; is < n; is++) {
-    trackpoint = (PndTpcLheCMPoint *)trackpoints->At(is);
+    trackpoint = (PndLheCMPoint *)trackpoints->At(is);
     //      trackpoint->Print();
     if (trackpoint->GetXprime() != 0.) {
 
@@ -402,7 +402,7 @@ void PndTpcLheTrackCuts::LineFit(TArrayD *x, TArrayD *delx,
 }
 
 //________________________________________________________________
-void PndTpcLheTrackCuts::DeepAngleFit(const PndTpcLheCMTrack *track,
+void PndTpcLheTrackCuts::DeepAngleFit(const PndLheCMCandidate *track,
 				      Double_t *a) {
   //---
 
@@ -416,7 +416,7 @@ void PndTpcLheTrackCuts::DeepAngleFit(const PndTpcLheCMTrack *track,
     TArrayD *delyv = new TArrayD();    delyv->Set(n);
 
     for (Int_t is = 0; is < n; is++) {
-      PndTpcLheCMPoint *trackpoint = (PndTpcLheCMPoint *)trackpoints->At(is);
+      PndLheCMPoint *trackpoint = (PndLheCMPoint *)trackpoints->At(is);
       //      trackpoint->Print();
 
       zv->AddAt(trackpoint->GetZv(), is);  
@@ -442,8 +442,8 @@ void PndTpcLheTrackCuts::DeepAngleFit(const PndTpcLheCMTrack *track,
     delete delyv;
   }
   else {
-      PndTpcLheCMPoint *hit1 = (PndTpcLheCMPoint *)trackpoints->At(0);
-      PndTpcLheCMPoint *hit2 = (PndTpcLheCMPoint *)trackpoints->At(1);
+      PndLheCMPoint *hit1 = (PndLheCMPoint *)trackpoints->At(0);
+      PndLheCMPoint *hit2 = (PndLheCMPoint *)trackpoints->At(1);
       a[0] = (hit1->GetY() - hit2->GetY()) / (hit1->GetZ() - hit2->GetZ());
       a[1] = (hit1->GetY()*hit2->GetZ() - hit2->GetY()*hit1->GetZ()) /
 	(hit2->GetZ() - hit1->GetZ());
@@ -453,7 +453,7 @@ void PndTpcLheTrackCuts::DeepAngleFit(const PndTpcLheCMTrack *track,
 
 
 //__________________________________________________________________
-Bool_t PndTpcLheTrackCuts::IsGoodFoundTrack(PndTpcLheCMTrack* track) {
+Bool_t PndTpcLheTrackCuts::IsGoodFoundTrack(PndLheCMCandidate* track) {
   //---
   
   if (track->GetNumberOfPoints() < 3)
@@ -464,7 +464,7 @@ Bool_t PndTpcLheTrackCuts::IsGoodFoundTrack(PndTpcLheCMTrack* track) {
 }
 
 //__________________________________________________________________
-Bool_t PndTpcLheTrackCuts::IsGoodGeantTrack(PndTpcLheTrack* track) {
+Bool_t PndTpcLheTrackCuts::IsGoodGeantTrack(PndLheCandidate* track) {
   //--- Returns true if the given track fulfills all requirements to
   //be a "good" track.
 

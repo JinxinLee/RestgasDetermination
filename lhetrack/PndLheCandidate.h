@@ -1,11 +1,11 @@
 /////////////////////////////////////////////////////////////////////////////////
 //                                                                             //
-//    PndTpcLheTrack class - implementation of TPC track for LHE tracking         //
+//    PndLheCandidate class - implementation of track for LHE tracking         //
 //                                                                             //
 /////////////////////////////////////////////////////////////////////////////////
 
-#ifndef PND_TPC_LHE_TRACK_H
-#define PND_TPC_LHE_TRACK_H
+#ifndef PND_LHE_CANDIDATE_H
+#define PND_LHE_CANDIDATE_H
 
 #include "TObject.h"
 #include "TVector3.h"
@@ -13,7 +13,7 @@
 #include "TClonesArray.h"
 #include "TLorentzVector.h"
 
-#include "PndTpcLhePoint.h"
+#include "PndLhePoint.h"
 #include "PndLheHit.h"
 //#include "lhe.h"
 
@@ -21,7 +21,7 @@
 
 class TrackCand;
 
-class PndTpcLheTrack: public TObject {
+class PndLheCandidate: public TObject {
   
   //  using namespace std;
 
@@ -46,10 +46,10 @@ protected:
   Int_t fTpcHits;                      // Number of TPC hits
   Int_t fGemHits;                      // Number of GEM hits
   
-  PndTpcLhePoint fVertex;              // track vertex
-  PndTpcLhePoint fLastHit;             // last track hit
-  PndTpcLhePoint fFirstHit;            // first track hit
-  PndTpcLhePoint fCircle;              // circle x,y,R
+  PndLhePoint fVertex;              // track vertex
+  PndLhePoint fLastHit;             // last track hit
+  PndLhePoint fFirstHit;            // first track hit
+  PndLhePoint fCircle;              // circle x,y,R
 
   Int_t fFitTrackIndex;                // Index of TCA Track (genfit)
 
@@ -65,10 +65,10 @@ protected:
 
 public:
   
-  PndTpcLheTrack ();                              // constructor
-  PndTpcLheTrack (Int_t tracknumber);             // constructor with tracknumber
+  PndLheCandidate ();                              // constructor
+  PndLheCandidate (Int_t tracknumber);             // constructor with tracknumber
 
-  virtual  ~PndTpcLheTrack ();                    //
+  virtual  ~PndLheCandidate ();                    //
 
   void SetDefaults();                // performs the default setup for the track
   void AddHit(PndLheHit *point);     // adds a hit to the track
@@ -104,10 +104,10 @@ public:
   
   TrackCand* GetTrackCand();
   
-  PndTpcLhePoint   GetVertex()      const { return fVertex;  }
-  PndTpcLhePoint   GetLastHit()     const { return fLastHit; }
-  PndTpcLhePoint   GetFirstHit()    const { return fFirstHit; }
-  PndTpcLhePoint   GetCircle()      const { return fCircle;  }
+  PndLhePoint   GetVertex()      const { return fVertex;  }
+  PndLhePoint   GetLastHit()     const { return fLastHit; }
+  PndLhePoint   GetFirstHit()    const { return fFirstHit; }
+  PndLhePoint   GetCircle()      const { return fCircle;  }
   Int_t   GetCharge()               const { return fQ; }
 
   Float_t ExtrapolateToZ(TVector3 *mom, TVector3 *vertex, const Float_t z = 0.); // extrapolate momentum and vertex at z=...
@@ -157,16 +157,16 @@ public:
   void   ComesFromMainVertex(Bool_t f) { fFromMainVertex = f; }
   
   void   SetTrackID(const TArrayI track, const TArrayI mult) { fCorrTrackIds = track;  fMultTrackIds = mult; }
-
+  void   SortHits();
   virtual void   Print(); //
   void   PrintHits();
 
-  ClassDef(PndTpcLheTrack , 4)    // LHE track class  
+  ClassDef(PndLheCandidate , 1)    // LHE track class  
 
     };
 
 //________________________________________________________________
-inline void PndTpcLheTrack::SetMoment (Double_t f) {
+inline void PndLheCandidate::SetMoment (Double_t f) {
   //
   fMoment = f* 1.e-3;
 
@@ -183,29 +183,29 @@ inline void PndTpcLheTrack::SetMoment (Double_t f) {
 }
 
 //________________________________________________________________
-inline  Double_t  PndTpcLheTrack::GetTheta () {
+inline  Double_t  PndLheCandidate::GetTheta () {
   return TMath::ATan2 (fP.X(), fP.Z());
 }
 
 //________________________________________________________________
-inline Double_t  PndTpcLheTrack::GetTanAlpha () {
+inline Double_t  PndLheCandidate::GetTanAlpha () {
   return   fP.Y()/TMath::Sqrt(fP.X()*fP.X() + fP.Z()*fP.Z());
 }
 
 //________________________________________________________________
-inline Double_t PndTpcLheTrack::GetP() const {
+inline Double_t PndLheCandidate::GetP() const {
   // Returns total momentum.
   return fP.Mag();
 }
 
 //________________________________________________________________
-inline Double_t PndTpcLheTrack::GetPt() const {
+inline Double_t PndLheCandidate::GetPt() const {
   // Returns transverse momentum.
   return fP.Pt();
 }
 
 //________________________________________________________________
-inline Double_t PndTpcLheTrack::GetPseudoRapidity() const {
+inline Double_t PndLheCandidate::GetPseudoRapidity() const {
   // Returns the pseudorapidity of the particle.
   return 0.5 * TMath::Log((fP.Mag() + fP.Z()) / (fP.Mag() - fP.Z()));  
 }

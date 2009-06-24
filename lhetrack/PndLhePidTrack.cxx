@@ -45,7 +45,7 @@ PndLhePidTrack::PndLhePidTrack () {
 }
 
 //______________________________________________________________
-PndLhePidTrack::PndLhePidTrack (const PndTpcLheTrack& track) : PndTpcLheTrack(track){
+PndLhePidTrack::PndLhePidTrack (const PndLheCandidate& track) : PndLheCandidate(track){
   // Default constructor.
   fMvdELoss = 0;
   fMvdELoss = 0;
@@ -79,7 +79,7 @@ PndLhePidTrack::PndLhePidTrack (const PndTpcLheTrack& track) : PndTpcLheTrack(tr
 }
 
 //______________________________________________________________
-PndLhePidTrack::PndLhePidTrack (const PndLhePidTrack& track) : PndTpcLheTrack((PndTpcLheTrack)track)
+PndLhePidTrack::PndLhePidTrack (const PndLhePidTrack& track) : PndLheCandidate((PndLheCandidate)track)
 {
   // Default constructor.
   fMvdELoss      = track.fMvdELoss; 

@@ -1,6 +1,6 @@
 #include "PndDetectorList.h"
 #include "PndLhePidMaker.h"
-#include "PndTpcLheTrack.h"
+#include "PndLheCandidate.h"
 #include "PndLheHit.h"
 #include "PndLhePidTrack.h"
 
@@ -98,9 +98,9 @@ InitStatus PndLhePidMaker::Init() {
 
   FairRootManager *fManager =FairRootManager::Instance();	
 
-  fTrackCand = (TClonesArray *)fManager->GetObject("PndTpcLheTrack");
+  fTrackCand = (TClonesArray *)fManager->GetObject("LheCandidate");
   if ( ! fTrackCand ) {
-    cout << "-I- PndLhePidMaker::Init: No PndTpcLheTrack array!" << endl;
+    cout << "-I- PndLhePidMaker::Init: No LheCandidate array!" << endl;
     return kERROR;
   }
   
@@ -288,7 +288,7 @@ void PndLhePidMaker::Exec(Option_t * option) {
   for (Int_t i = 0; i < nTracks; i++) {
     Reset();
     
-    PndTpcLheTrack* track = (PndTpcLheTrack*) fTrackCand->At(i);
+    PndLheCandidate* track = (PndLheCandidate*) fTrackCand->At(i);
     if (track->IsGood()==kFALSE) continue;
     
     PndLhePidTrack* pidTrack = 	new PndLhePidTrack(*track);
