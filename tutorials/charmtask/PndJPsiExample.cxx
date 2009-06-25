@@ -10,7 +10,7 @@ of J/Psi: Dipak
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
-#include "PndTpcLheTrack.h"
+#include "PndLheCandidate.h"
 
 #include "TVector3.h"
 #include "FairRun.h"
@@ -47,7 +47,7 @@ InitStatus PndJPsiExample::Init() {
     return kFATAL;
   }
   // Get input array
-  fTrArray = (TClonesArray*) ioman->GetObject("TpcLheTrack");
+  fTrArray = (TClonesArray*) ioman->GetObject("LheCandidate");
   if ( ! fTrArray) {
     cout << "-W- PndJPsiExample::Init: "
 	 << "No TpcTrack array!" << endl;
@@ -88,11 +88,11 @@ void PndJPsiExample::Exec(Option_t* opt) {
   for (Int_t i1=0; i1<nTracks; i1++){
     
     // Get the Tpc Track information
-    PndTpcLheTrack *tr1 = (PndTpcLheTrack*)fTrArray->At(i1);    
+    PndLheCandidate *tr1 = (PndLheCandidate*)fTrArray->At(i1);    
     track1.SetXYZM(tr1->GetPx(), tr1->GetPy(), tr1->GetPz(), 0.000511);
 
     for (Int_t i2=0; i2<nTracks; i2++){
-      PndTpcLheTrack *tr2 = (PndTpcLheTrack*)fTrArray->At(i2);    
+      PndLheCandidate *tr2 = (PndLheCandidate*)fTrArray->At(i2);    
 
       track2.SetXYZM(tr2->GetPx(), tr2->GetPy(), tr2->GetPz(), 0.000511);
       
