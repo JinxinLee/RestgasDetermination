@@ -71,6 +71,8 @@ class MyMainFrame {
 
   PndGemMCPoint* fGemPoint;
 
+  Bool_t fSimRecoFilesRead;
+
 public:
   MyMainFrame(const TGWindow *p,UInt_t w,UInt_t h);
   virtual ~MyMainFrame();
@@ -127,6 +129,7 @@ public:
 MyMainFrame::MyMainFrame(const TGWindow *p,UInt_t w,UInt_t h) {
 
   // Create a main frame
+  fSimRecoFilesRead = kFALSE;
 
   fMain = new TGMainFrame(p,w,h);
 
@@ -390,12 +393,12 @@ void MyMainFrame::DoDraw() {
   outerRim->Draw();
 
   
-  if ( fSimFile ) {
+  if ( fSimRecoFilesRead ) {
+    cout << "TRYING TO DRAW !!!" << endl;
     DrawHitErrors();
     DrawDigis();
     DrawPoints();
     DrawHits();
-
   }
   fInfoStatusBar->SetText(Form("Station %d",fDrawStation+1),0);
 
@@ -765,7 +768,7 @@ void MyMainFrame::ReadPoint() {
 
 //-----------------------------------------------------------------------------
 void MyMainFrame::ReadEvent() {
-  if ( !fSimFile ) {
+  if ( !fSimRecoFilesRead ) {
     fSimFile = TFile::Open(Form("%s.root",fBaseString.Data()));   
 
     if ( !fSimFile ) 
@@ -793,7 +796,7 @@ void MyMainFrame::ReadEvent() {
     fRecTree->SetBranchAddress("GEMDigi",&fGemDigiArray) ;
     //    fGemClusterArray  = new TClonesArray("CbmGemCluster");
     //    fRecTree->SetBranchAddress("STSCluster",&fGemClusterArray) ;
-
+    fSimRecoFilesRead = kTRUE;
   }
 
   Int_t iEvent = fEventToDrawEntry->GetIntNumber();
