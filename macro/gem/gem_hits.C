@@ -1,7 +1,7 @@
 // Macro created by Radoslaw Karabowicz
 // This macro takes MC file and produces digis and hits
 
-void gem_hits(Int_t nEvents = 100, TString addString = "4Stations_15GeV", int verboseLevel = 0)
+void gem_hits(Int_t nEvents = 1000, TString addString = "4Stations_211_2.0GeV_th15_ph20", int verboseLevel = 0)
 {
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
@@ -49,6 +49,9 @@ void gem_hits(Int_t nEvents = 100, TString addString = "4Stations_15GeV", int ve
 
   PndGemFindHits* gemFindHits = new PndGemFindHits("GEM Hit Finder", verboseLevel);
   fRun->AddTask(gemFindHits);
+
+  PndGemMatchHits* gemMatchHits = new PndGemMatchHits("GEM Hit Matcher", verboseLevel);
+  fRun->AddTask(gemMatchHits);
 
 
   // -----   Intialise and run   --------------------------------------------

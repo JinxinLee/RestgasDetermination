@@ -74,7 +74,7 @@ void gem_boxIdealTracks(Int_t nEvents = 1000, Double_t momentum = 2.0, Int_t the
   // -----   Run Kalman fitter   --------------------------------------------
   PndGemKalmanTask* gemKalman = new PndGemKalmanTask();
   gemKalman->SetVerbose(0);
-  gemKalman->SetNumIterations(6);
+  gemKalman->SetNumIterations(3);
   //  gemKalman->SetSmooth(kFALSE);
   fRun->AddTask(gemKalman);
   // ------------------------------------------------- 
