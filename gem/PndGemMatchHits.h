@@ -48,6 +48,9 @@ class PndGemMatchHits : public FairTask
   /** Execution **/
   virtual void Exec(Option_t* opt);
 
+  /** Finish **/
+  virtual void Finish();
+
  private:
 
   PndGemDigiPar* fDigiPar;

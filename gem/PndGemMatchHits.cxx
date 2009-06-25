@@ -89,7 +89,13 @@ void PndGemMatchHits::Exec(Option_t* opt) {
   Int_t nofPoints = fPoints->GetEntriesFast();
   Int_t nofHits = fHits->GetEntriesFast();
 
-  cout << "PndGemMatchHits::Exec() with " << nofPoints << " points and " << nofHits << " hits." << endl;
+  if ( fVerbose )
+    cout << "PndGemMatchHits::Exec() with " << nofPoints << " points and " << nofHits << " hits." << endl;
+
+  Int_t nHits = 0;
+  Int_t nMatchedHits = 0;
+  Int_t nFakeHits = 0;
+  Int_t nMultiHits = 0;
 
   vector<Double_t> pointZ;
   vector<Double_t> pointR;
@@ -109,7 +115,8 @@ void PndGemMatchHits::Exec(Option_t* opt) {
     Double_t pointX = currentPndGemMCPoint->GetX();
     Double_t pointY = currentPndGemMCPoint->GetY();
 
-    cout << " .... " << pointX << "  " << pointY << " " << currentPndGemMCPoint->GetZ() << endl;
+    if ( fVerbose > 1 )
+      cout << " .... " << pointX << "  " << pointY << " " << currentPndGemMCPoint->GetZ() << endl;
 
     Double_t phiAValue = TMath::ATan(pointX/pointY);
     if ( pointY < 0 ) phiAValue += TMath::Pi();
@@ -119,9 +126,9 @@ void PndGemMatchHits::Exec(Option_t* opt) {
     pointR.push_back(TMath::Sqrt(pointX*pointX+pointY*pointY));
     pointP.push_back(phiAValue);
     
-    cout << "point " << iPoint << " at " << nodeName.Data() << " (" << pointZ[pointZ.size()-1] << "," << pointR[pointR.size()-1] << "," << pointP[pointP.size()-1] << ")" << endl;
+    if ( fVerbose > 1 )
+      cout << "point " << iPoint << " at " << nodeName.Data() << " (" << pointZ[pointZ.size()-1] << "," << pointR[pointR.size()-1] << "," << pointP[pointP.size()-1] << ")" << endl;
   }
-  cout << " Got " << pointP.size() << " usable MC points" << endl;
 
   for ( Int_t iHit = 0 ; iHit < nofHits ; iHit++ ) {
     PndGemHit* currentPndGemHit = (PndGemHit*)fHits->At(iHit);
@@ -130,20 +137,23 @@ void PndGemMatchHits::Exec(Option_t* opt) {
     Double_t hitY = currentPndGemHit->GetY();
     Double_t hitZ = currentPndGemHit->GetZ();
 
-    cout << " .... " << hitX << "  " << hitY << " " << currentPndGemHit->GetZ() << endl;
+    if ( fVerbose > 1 )
+      cout << " .... " << hitX << "  " << hitY << " " << currentPndGemHit->GetZ() << endl;
 
     Double_t hitP = TMath::ATan(hitX/hitY);
     if ( hitY < 0 ) hitP += TMath::Pi();
     else if ( hitX < 0 ) hitP +=  2.*TMath::Pi();
     Double_t hitR = TMath::Sqrt(hitX*hitX+hitY*hitY);
     
-    cout << "hit " << iHit << " (" << hitZ << "," << hitR << "," << hitP << ")" << endl;
+    if ( fVerbose > 1 )
+      cout << "hit " << iHit << " (" << hitZ << "," << hitR << "," << hitP << ")" << endl;
     
     Int_t matchPoint = -1;
     Double_t closestDistance = 1000.;
     Bool_t multiHit = kFALSE;
     for ( Int_t iPoint = 0 ; iPoint < pointZ.size() ; iPoint++ ) {
-      cout << "matching with " << " (" << pointZ[pointZ.size()-1] << "," << pointR[pointR.size()-1] << "," << pointP[pointP.size()-1] << ")" << endl;
+      if ( fVerbose > 1 )
+	cout << "matching with " << " (" << pointZ[pointZ.size()-1] << "," << pointR[pointR.size()-1] << "," << pointP[pointP.size()-1] << ")" << endl;
       if ( TMath::Abs(pointZ[iPoint]-hitZ) > currentPndGemHit->GetDz() ) continue;
       if ( TMath::Abs(pointR[iPoint]-hitR) > currentPndGemHit->GetDr()*TMath::Sqrt(3.) ) continue;
       if ( TMath::Tan(TMath::Abs(pointP[iPoint]-hitP)) > currentPndGemHit->GetDp()*TMath::Sqrt(3.)/hitR ) continue;
@@ -153,23 +163,28 @@ void PndGemMatchHits::Exec(Option_t* opt) {
       if ( distance > closestDistance ) continue;
       closestDistance = distance;
       matchPoint = iPoint;   
-      cout << " MATCHING!!!" << endl;
     }
     currentPndGemHit->SetRefIndex(matchPoint);
   
-    fNHits++;
-    if ( matchPoint != -1 ) fNMatchedHits++;
-    else fNFakeHits++;
-    if ( multiHit ) fNMultiHits++;
+    nHits++;
+    if ( matchPoint != -1 ) nMatchedHits++;
+    else nFakeHits++;
+    if ( multiHit ) nMultiHits++;
   }
 
-  cout << "************PndGemMatchHits**************" << endl;
-  cout << " Number of all hits " << fNHits << endl;
-  cout << " Number of matched hits " << fNMatchedHits << " -> " << 100.*(Double_t)fNMatchedHits/(Double_t)fNHits << endl;
-  cout << " Number of fake hits " << fNFakeHits << " -> " << 100.*(Double_t)fNFakeHits/(Double_t)fNHits << endl;
-  cout << " Number of multi hits " << fNMultiHits << " -> " << 100.*(Double_t)fNMultiHits/(Double_t)fNHits << endl;
-  cout << "*****************************************" << endl;
-
+  fNHits        += nHits;
+  fNMatchedHits += nMatchedHits;
+  fNFakeHits    += nFakeHits;
+  fNMultiHits   += nMultiHits;
+  
+  if ( fVerbose ) {
+    cout << "************PndGemMatchHits**************" << endl;
+    cout << " Number of all hits " << nHits << endl;
+    cout << " Number of matched hits " << nMatchedHits << " -> " << 100.*(Double_t)nMatchedHits/(Double_t)nHits << endl;
+    cout << " Number of fake hits " << nFakeHits << " -> " << 100.*(Double_t)nFakeHits/(Double_t)nHits << endl;
+    cout << " Number of multi hits " << nMultiHits << " -> " << 100.*(Double_t)nMultiHits/(Double_t)nHits << endl;
+    cout << "*****************************************" << endl;
+  }
 
 }
 // -------------------------------------------------------------------------
@@ -227,8 +242,16 @@ void PndGemMatchHits::Reset() {
 }
 // -------------------------------------------------------------------------
 
-
-
+// -----   Private method Finish   -----------------------------------------
+void PndGemMatchHits::Finish() {
+  cout << "************PndGemMatchHits summary**************" << endl;
+  cout << " Number of all hits " << fNHits << endl;
+  cout << " Number of matched hits " << fNMatchedHits << " -> " << 100.*(Double_t)fNMatchedHits/(Double_t)fNHits << endl;
+  cout << " Number of fake hits " << fNFakeHits << " -> " << 100.*(Double_t)fNFakeHits/(Double_t)fNHits << endl;
+  cout << " Number of multi hits " << fNMultiHits << " -> " << 100.*(Double_t)fNMultiHits/(Double_t)fNHits << endl;
+  cout << "*************************************************" << endl;
+}
+// -------------------------------------------------------------------------
 
 
 ClassImp(PndGemMatchHits)
