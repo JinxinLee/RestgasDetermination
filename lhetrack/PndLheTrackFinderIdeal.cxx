@@ -26,6 +26,8 @@ PndLheTrackFinderIdeal::PndLheTrackFinderIdeal() {
   fBench = new TBenchmark();
   fVertex = NULL;
   fVerbose = kFALSE;
+  fCanPersistence = kTRUE;
+  fCMPersistence = kFALSE;
 }
 
 //_________________________________________________________________
@@ -38,7 +40,8 @@ PndLheTrackFinderIdeal( const char *name, const char *title):FairTask(name) {
   fBench = new TBenchmark();
   fVertex = NULL;
   fVerbose = kFALSE;
-
+  fCanPersistence = kTRUE;
+  fCMPersistence = kFALSE;
 }
 
 //_________________________________________________________________
@@ -57,11 +60,11 @@ void PndLheTrackFinderIdeal::Register() {
   //---
   FairRootManager::
     Instance()->Register("LheCandidate",
-  			 "Lhe", fFoundTracks, kTRUE);
+  			 "Lhe", fFoundTracks, fCanPersistence);
 
   FairRootManager::
     Instance()->Register("LheCMPoint",
-  			 "Lhe",fCMHits, kTRUE);
+  			 "Lhe",fCMHits, fCMPersistence);
 
 }
 

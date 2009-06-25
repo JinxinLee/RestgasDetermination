@@ -97,7 +97,7 @@ InitStatus PndLheHitsMaker::Init() {
   //  cout << "InitStatus PndLheHitsMaker::Init\n\n";
   cout << "-I- PndLheHitsMaker::Init" << endl;
   
-  fCuts = PndTpcLheTrackCuts::Instance();
+  fCuts = PndLheTrackCuts::Instance();
 
   FairRootManager *fManager =FairRootManager::Instance();	
   

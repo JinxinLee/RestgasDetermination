@@ -22,11 +22,11 @@
 #include "PndLheHit.h"
 #include "PndLheCMPoint.h"
 #include "PndLheCMCandidate.h"
-#include "PndTpcLheTrackCuts.h"
-#include "PndTpcLheSegments.h"
-#include "PndTpcLheTrackFitter.h"
+#include "PndLheTrackCuts.h"
+#include "PndLheSegments.h"
+#include "PndLheTrackFitter.h"
 
-class PndTpcLheTrackFinder : public FairTask {
+class PndLheTrackFinder : public FairTask {
 
 protected:
 
@@ -37,7 +37,7 @@ protected:
   TClonesArray  *fCMHits;       // Array of hits transformed with conformal mapping
   TObjArray     *fCMTracks;     // Array of tracks
 
-  PndTpcLheSegments *fSegment;      //
+  PndLheSegments *fSegment;      //
   TObjArray      *fSegments;     // segments with hits
 
   TClonesArray  *fLheHits;         // Array of event's hits
@@ -46,17 +46,19 @@ protected:
 
   TString fOption;              //  options for operation
   Bool_t fVerbose;              // Switch ON/OFF debug messages (deafault OFF)
+  Bool_t fCanPersistence;       // Persistence of PndLheCandidate
+  Bool_t fCMPersistence;        // Persistence of PndCMPoint
   TBenchmark   *fBench;         // benchmark object (just for run-time measurements)
   Float_t    mTime;          // total time consumption
 
   // Cuts
-  PndTpcLheTrackCuts*     fTrackCuts;       // cuts for tracks
+  PndLheTrackCuts*     fTrackCuts;       // cuts for tracks
 
 public:
 
-  PndTpcLheTrackFinder();            //
-  PndTpcLheTrackFinder(const char *name, const char *title="CBM Task");
-  virtual  ~PndTpcLheTrackFinder();  //
+  PndLheTrackFinder();            //
+  PndLheTrackFinder(const char *name, const char *title="CBM Task");
+  virtual  ~PndLheTrackFinder();  //
 
   virtual void Exec(Option_t * option);
   virtual InitStatus Init();              // 
@@ -66,9 +68,10 @@ public:
   void  Register();                 //
   void SetOption(Option_t *option=" ") {fOption = option;  fOption.ToLower();}
   void SetVerbose(Bool_t verb)   { fVerbose = verb; };
+  void SetCanPersistence(Bool_t pers)  { fCanPersistence = pers; };
+  void SetCMPersistence(Bool_t pers)   { fCMPersistence = pers;  };
+
   // getters
-
-
   void GetPhiRange(TArrayI* c, PndLheCMCandidate *cmtrack);
   void GetThetaRange(TArrayI* c, PndLheCMCandidate *cmtrack);
   void CopyClones(TClonesArray* cl1, TClonesArray* cl2);
@@ -90,12 +93,12 @@ public:
   void  TrackingInfo(char* info);           // information about the tracking 
   void CheckClones();
 
-  ClassDef(PndTpcLheTrackFinder, 1)          //  
+  ClassDef(PndLheTrackFinder, 1)          //  
     
     };
 
 //________________________________________________________________
-inline void PndTpcLheTrackFinder::RemoveTrack(PndLheCMCandidate *track) {
+inline void PndLheTrackFinder::RemoveTrack(PndLheCMCandidate *track) {
   //--- Removes track from TObjArray and release the points.
 
   //  track->ClearPoints();        // release points

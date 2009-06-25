@@ -60,10 +60,10 @@
   trackMS->SetGemMode(2);  // 0 OFF, 1 GEMPoint, 2 GEMHit     // GEMPoint smearing [cm], if negative no smearing 
   fRun->AddTask(trackMS);
   
-  PndTpcLheTrackFinder* trackFinder    = new PndTpcLheTrackFinder();
+  PndLheTrackFinder* trackFinder    = new PndLheTrackFinder();
   fRun->AddTask(trackFinder);
   
-  PndTpcLheTrackFitter* trackFitter    = new PndTpcLheTrackFitter("fitting");
+  PndLheTrackFitter* trackFitter    = new PndLheTrackFitter("fitting");
   fRun->AddTask(trackFitter);
   
   PndLhePidMaker* pidMaker    = new PndLhePidMaker("pid");

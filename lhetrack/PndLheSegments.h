@@ -17,7 +17,7 @@
 
 #include "PndLheCMPoint.h"
 
-class PndTpcLheSegments {
+class PndLheSegments {
 
 protected:
 
@@ -39,9 +39,9 @@ protected:
 
 public:
 
-  PndTpcLheSegments();                   //
-  PndTpcLheSegments(Int_t nTheta, Int_t nPhi);
-  virtual ~PndTpcLheSegments();          //
+  PndLheSegments();                   //
+  PndLheSegments(Int_t nTheta, Int_t nPhi);
+  virtual ~PndLheSegments();          //
 
   void  FillSegments(TClonesArray *hits);     //
   void  PrintSegmentContents(Int_t n);
@@ -71,12 +71,12 @@ public:
   TObjArray *GetSegments()    {return fSegments;}  //
   Int_t  GetSegm(Int_t theta_s, Int_t phi_s);  // returns number of segment
 
-  ClassDef(PndTpcLheSegments, 1)  //  
+  ClassDef(PndLheSegments, 1)  //  
 };
 
 
 //_________________________________________________________________
-inline Int_t PndTpcLheSegments::GetThetaSegm(const PndLheCMPoint *hit) {
+inline Int_t PndLheSegments::GetThetaSegm(const PndLheCMPoint *hit) {
   // Returns number of theta segment of a specific hit.
   
   Double_t theta = hit->GetTheta();
@@ -98,7 +98,7 @@ inline Int_t PndTpcLheSegments::GetThetaSegm(const PndLheCMPoint *hit) {
 }
 
 //_________________________________________________________________
-inline Int_t PndTpcLheSegments::GetThetaSegm(Double_t theta) {
+inline Int_t PndLheSegments::GetThetaSegm(Double_t theta) {
   // Returns number of theta segment of a hit theta.
   
   if (theta > fThetaMax) return fNumThetaSegment - 1; //theta = fThetaMax;
@@ -109,7 +109,7 @@ inline Int_t PndTpcLheSegments::GetThetaSegm(Double_t theta) {
 }
 
 //_________________________________________________________________
-inline Double_t PndTpcLheSegments::GetTheta(Int_t segm) {
+inline Double_t PndLheSegments::GetTheta(Int_t segm) {
   // Returns the angle theta of a given segment.
 
   return segm * (fThetaMax - fThetaMin)/
@@ -117,7 +117,7 @@ inline Double_t PndTpcLheSegments::GetTheta(Int_t segm) {
 }
 
 //_________________________________________________________________
-inline Int_t PndTpcLheSegments::GetPhiSegm(const PndLheCMPoint *hit) {
+inline Int_t PndLheSegments::GetPhiSegm(const PndLheCMPoint *hit) {
   // Returns number of phi segment of a hit.
 
   Double_t phi = hit->GetPhi();
@@ -127,7 +127,7 @@ inline Int_t PndTpcLheSegments::GetPhiSegm(const PndLheCMPoint *hit) {
 }
 
 //_________________________________________________________________
-inline Int_t PndTpcLheSegments::GetPhiSegm(Double_t phi) {
+inline Int_t PndLheSegments::GetPhiSegm(Double_t phi) {
   // Returns number of phi segment of a specific phi.
 
   if (phi > fPhiMax) phi = fPhiMax;
@@ -138,7 +138,7 @@ inline Int_t PndTpcLheSegments::GetPhiSegm(Double_t phi) {
 }
 
 //_________________________________________________________________
-inline Int_t PndTpcLheSegments::GetPhiSegm(Int_t segm) {
+inline Int_t PndLheSegments::GetPhiSegm(Int_t segm) {
   // Returns number of phi segment of a specifiv segment.
 
   return (segm % (fNumThetaSegment * fNumPhiSegment)) %
@@ -146,7 +146,7 @@ inline Int_t PndTpcLheSegments::GetPhiSegm(Int_t segm) {
 }
 
 //_________________________________________________________________
-inline Double_t PndTpcLheSegments::GetPhi(Int_t segm) {
+inline Double_t PndLheSegments::GetPhi(Int_t segm) {
   // Returns the  phi of the given segment.
 
   return segm * (fPhiMax - fPhiMin) /
@@ -154,7 +154,7 @@ inline Double_t PndTpcLheSegments::GetPhi(Int_t segm) {
 }
 
 //_________________________________________________________________
-inline Int_t PndTpcLheSegments::
+inline Int_t PndLheSegments::
 GetSegm(Int_t theta_segm, Int_t phi_segm) {
   // Calculates the volume segment number from the segmented volumes
   //   (segm = segm(theta,phi)).
@@ -177,7 +177,7 @@ GetSegm(Int_t theta_segm, Int_t phi_segm) {
 
 #if 0
 //_________________________________________________________________
-inline Int_t PndTpcLheSegments::GetRadiusSegm(Int_t segm) {
+inline Int_t PndLheSegments::GetRadiusSegm(Int_t segm) {
   // Returns number of station segment of a specifiv segment.
 
   return (segm - GetPhiSegm(segm) - GetThetaSegm(segm)) /
@@ -186,7 +186,7 @@ inline Int_t PndTpcLheSegments::GetRadiusSegm(Int_t segm) {
 #endif
 
 //_________________________________________________________________
-inline Int_t PndTpcLheSegments::GetThetaSegm(Int_t segm) {
+inline Int_t PndLheSegments::GetThetaSegm(Int_t segm) {
   // Returns number of theta segment of a specifiv segment.
 
   return (segm - GetPhiSegm(segm)) % (fNumThetaSegment * fNumPhiSegment) /

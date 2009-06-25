@@ -1,10 +1,10 @@
 ///////////////////////////////////////////////////////////////////////////////////
 //                                                                               //
-// PndTpcLheSegments class - divide $\phi$- $\theta$-station in cells           //
+// PndLheSegments class - divide $\phi$- $\theta$-station in cells           //
 //                                                                               //
 ///////////////////////////////////////////////////////////////////////////////////
 
-#include "PndTpcLheSegments.h"
+#include "PndLheSegments.h"
 #include "PndLheCMPoint.h"
 
 #include "TObjArray.h"
@@ -12,14 +12,14 @@
 
 #include <iomanip>
 
-ClassImp(PndTpcLheSegments)
+ClassImp(PndLheSegments)
 
 //#define TRACKSEG
 
 //#define SEGMENTS
 
 //________________________________________________________________
-PndTpcLheSegments::PndTpcLheSegments() {
+PndLheSegments::PndLheSegments() {
   //---
 
   fVertex = NULL;
@@ -37,7 +37,7 @@ PndTpcLheSegments::PndTpcLheSegments() {
 }
 
 //________________________________________________________________
-PndTpcLheSegments::PndTpcLheSegments( Int_t nTheta, Int_t nPhi) {
+PndLheSegments::PndLheSegments( Int_t nTheta, Int_t nPhi) {
   //
   fVertex = NULL;
 
@@ -49,7 +49,7 @@ PndTpcLheSegments::PndTpcLheSegments( Int_t nTheta, Int_t nPhi) {
 }
 
 //_________________________________________________________________
-PndTpcLheSegments::~PndTpcLheSegments() {
+PndLheSegments::~PndLheSegments() {
   //
   delete fVertex;
 
@@ -59,7 +59,7 @@ PndTpcLheSegments::~PndTpcLheSegments() {
 }
 
 //________________________________________________________________
-void  PndTpcLheSegments::Init() {
+void  PndLheSegments::Init() {
   //---
 
 
@@ -72,7 +72,7 @@ void  PndTpcLheSegments::Init() {
 }
 
 //________________________________________________________________
-void  PndTpcLheSegments::Clear() {
+void  PndLheSegments::Clear() {
   //---
 
   TIter next(fSegments);
@@ -85,7 +85,7 @@ void  PndTpcLheSegments::Clear() {
 }
 
 //________________________________________________________________
-void  PndTpcLheSegments::FillSegments(TClonesArray *fCMHits) {
+void  PndLheSegments::FillSegments(TClonesArray *fCMHits) {
   //---
 
   Clear();
@@ -128,9 +128,9 @@ void  PndTpcLheSegments::FillSegments(TClonesArray *fCMHits) {
 }
 
 //________________________________________________________________
-void PndTpcLheSegments::PrintSegments() {
+void PndLheSegments::PrintSegments() {
 
-  cout << "PndTpcLheSegments::PrintSegments()\n";
+  cout << "PndLheSegments::PrintSegments()\n";
 
 
 // This function loops over all hits in segment
@@ -180,7 +180,7 @@ void PndTpcLheSegments::PrintSegments() {
 }
 
 //________________________________________________________________
-void PndTpcLheSegments::PrintSegmentContents(Int_t n_seg) {
+void PndLheSegments::PrintSegmentContents(Int_t n_seg) {
   //---
 
   TObjArray *segment = (TObjArray *)fSegments->At(n_seg);

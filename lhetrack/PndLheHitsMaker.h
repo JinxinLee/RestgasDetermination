@@ -19,7 +19,7 @@
 
 #include "PndLheHit.h"
 #include "PndLheCandidate.h"
-#include "PndTpcLheTrackCuts.h"
+#include "PndLheTrackCuts.h"
 
 class PndLheHitsMaker : public FairTask {
 
@@ -48,7 +48,7 @@ protected:
   TClonesArray  *fListMCtracks;  //! pointers to MC tracks
   TClonesArray  *fGeantTracks;   //! pointers to selected Geant tracks
 
-  PndTpcLheTrackCuts *fCuts;
+  PndLheTrackCuts *fCuts;
 
   TString fOption;     //  options to choose particles
 

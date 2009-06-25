@@ -21,8 +21,6 @@
 
 #include "PndLheCMPoint.h"
 #include "PndLheCandidate.h"
-#include "PndTpcLheSegments.h"
-#include "PndTpcLheTrackFitter.h"
 
 class PndLheTrackFinderIdeal : public FairTask {
 
@@ -38,6 +36,8 @@ protected:
 
   TString fOption;              //  options for operation
   Bool_t fVerbose;              // Switch ON/OFF debug messages (deafault OFF)
+  Bool_t fCanPersistence;       // Persistence of PndLheCandidate
+  Bool_t fCMPersistence;        // Persistence of PndCMPoint
   TBenchmark   *fBench;         // benchmark object (just for run-time measurements)
   Float_t    mTime;          // total time consumption
   
@@ -56,9 +56,9 @@ public:
   void  Reset();                    //
   void  Register();                 //
   void SetOption(Option_t *option=" ") {fOption = option;  fOption.ToLower();}
-  void SetVerbose(Bool_t verb)   { fVerbose = verb; };
-  // getters
-
+  void SetVerbose(Bool_t verb)         { fVerbose = verb; };
+  void SetCanPersistence(Bool_t pers)  { fCanPersistence = pers; };
+  void SetCMPersistence(Bool_t pers)   { fCMPersistence = pers;  };
  
   ClassDef(PndLheTrackFinderIdeal, 1)          //  
     

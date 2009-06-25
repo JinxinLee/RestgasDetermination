@@ -1,38 +1,38 @@
-#include "PndTpcLheTrackCuts.h"
+#include "PndLheTrackCuts.h"
 
-ClassImp(PndTpcLheTrackCuts)
+ClassImp(PndLheTrackCuts)
 
-PndTpcLheTrackCuts* PndTpcLheTrackCuts::fInstance = 0;
+PndLheTrackCuts* PndLheTrackCuts::fInstance = 0;
 
 //________________________________________________________________
-PndTpcLheTrackCuts* PndTpcLheTrackCuts::Instance() {
+PndLheTrackCuts* PndLheTrackCuts::Instance() {
   //--- Returns instance.
 
   if (fInstance == 0) {
-    fInstance = new PndTpcLheTrackCuts();
+    fInstance = new PndLheTrackCuts();
   }
    return fInstance;
 }
 
 //________________________________________________________________
-PndTpcLheTrackCuts::PndTpcLheTrackCuts() {
+PndLheTrackCuts::PndLheTrackCuts() {
   //---
 
 }
 
 //________________________________________________________________
-PndTpcLheTrackCuts::~PndTpcLheTrackCuts() {
+PndLheTrackCuts::~PndLheTrackCuts() {
   //---
 
 }
 
 //________________________________________________________________
-void PndTpcLheTrackCuts::Reset() {
+void PndLheTrackCuts::Reset() {
 
 }
 
 //________________________________________________________________
-Double_t const PndTpcLheTrackCuts::DistFromLine(Double_t Xh,
+Double_t const PndLheTrackCuts::DistFromLine(Double_t Xh,
                                              Double_t Yh,
                                              Double_t *coeff) {
 // Returns the distance of a point to a straight line.
@@ -46,7 +46,7 @@ Double_t const PndTpcLheTrackCuts::DistFromLine(Double_t Xh,
 }
 
 //________________________________________________________________
-void PndTpcLheTrackCuts::SetHighMomTrackCuts() {
+void PndLheTrackCuts::SetHighMomTrackCuts() {
   //--- Sets cuts of tracks
 
   //  Range for prediction
@@ -62,7 +62,7 @@ void PndTpcLheTrackCuts::SetHighMomTrackCuts() {
 }
 
 //________________________________________________________________
-void PndTpcLheTrackCuts::SetLowMomTrackCuts() {
+void PndLheTrackCuts::SetLowMomTrackCuts() {
   // Sets cuts of tracks for the given vertex constraint.
 
   //  Range for prediction
@@ -73,7 +73,7 @@ void PndTpcLheTrackCuts::SetLowMomTrackCuts() {
 }
 
 //________________________________________________________________
-Bool_t PndTpcLheTrackCuts::VerifyTrack(PndLheCMCandidate *track,
+Bool_t PndLheTrackCuts::VerifyTrack(PndLheCMCandidate *track,
 				    PndLheCMPoint *hit, Bool_t back) {
   // --------------------------------
 
@@ -108,32 +108,32 @@ Bool_t PndTpcLheTrackCuts::VerifyTrack(PndLheCMCandidate *track,
 
 
 //________________________________________________________________
-Double_t PndTpcLheTrackCuts::GetChi2Bend(Int_t pl) {
+Double_t PndLheTrackCuts::GetChi2Bend(Int_t pl) {
   //---
   return fTrackCuts[pl].fBendChi2; 
 }
 
 //________________________________________________________________
-Double_t PndTpcLheTrackCuts::GetChi2Deep(Int_t pl) {
+Double_t PndLheTrackCuts::GetChi2Deep(Int_t pl) {
   //---
   return fTrackCuts[pl].fDeepChi2; 
 }
 
 //________________________________________________________________
-Double_t PndTpcLheTrackCuts::GetDelX(Int_t pl) {
+Double_t PndLheTrackCuts::GetDelX(Int_t pl) {
   //---
   return fTrackCuts[pl].fDelX; 
 }
 
 //________________________________________________________________
-void PndTpcLheTrackCuts::Circle3pnts(Double_t x[],Double_t y[], Double_t r[]) {
+void PndLheTrackCuts::Circle3pnts(Double_t x[],Double_t y[], Double_t r[]) {
   // calc center and R of circle from 3 points
   
   Double_t x_c = 0., y_c = 0.;
   
   if ( (y[1] - y[0])*(x[2] - x[1]) == (x[1] - x[0])*(y[2] - y[1]))
     {
-      cout << " -W- PndTpcLheTrackCuts::Circle3pnts: The points lay on a straight line" << endl; 
+      cout << " -W- PndLheTrackCuts::Circle3pnts: The points lay on a straight line" << endl; 
       x_c = 10000.;
       y_c = 10000.;
     }
@@ -174,7 +174,7 @@ void PndTpcLheTrackCuts::Circle3pnts(Double_t x[],Double_t y[], Double_t r[]) {
 }
 
 //________________________________________________________________
-int PndTpcLheTrackCuts::
+int PndLheTrackCuts::
 Circle_Circle_Intersection(double x0, double y0, double r0,
 			   double x1, double y1, double r1,
 			   double *xi, double *yi,
@@ -237,7 +237,7 @@ Circle_Circle_Intersection(double x0, double y0, double r0,
 }
 
 //________________________________________________________________
-Double_t PndTpcLheTrackCuts::
+Double_t PndLheTrackCuts::
 GetPhiPrediction(PndLheCMCandidate *track) {
   //---
   
@@ -272,7 +272,7 @@ GetPhiPrediction(PndLheCMCandidate *track) {
 }
 
 //________________________________________________________________
-Double_t PndTpcLheTrackCuts::
+Double_t PndLheTrackCuts::
 GetThetPrediction(PndLheCMCandidate *track, Double_t zst, Bool_t back) {
   //--- return alpha angle in the next plane
 
@@ -301,7 +301,7 @@ GetThetPrediction(PndLheCMCandidate *track, Double_t zst, Bool_t back) {
 }
 
 //________________________________________________________________
-void PndTpcLheTrackCuts::CMLineFit(PndLheCMCandidate *track,
+void PndLheTrackCuts::CMLineFit(PndLheCMCandidate *track,
 				      Double_t *a) {
   //---
 
@@ -356,7 +356,7 @@ void PndTpcLheTrackCuts::CMLineFit(PndLheCMCandidate *track,
 }
 
 //________________________________________________________________
-void PndTpcLheTrackCuts::LineFit(TArrayD *x, TArrayD *delx, 
+void PndLheTrackCuts::LineFit(TArrayD *x, TArrayD *delx, 
 			      TArrayD *y, TArrayD *dely,
 			      Double_t *coeff, Int_t np) {
 
@@ -402,7 +402,7 @@ void PndTpcLheTrackCuts::LineFit(TArrayD *x, TArrayD *delx,
 }
 
 //________________________________________________________________
-void PndTpcLheTrackCuts::DeepAngleFit(const PndLheCMCandidate *track,
+void PndLheTrackCuts::DeepAngleFit(const PndLheCMCandidate *track,
 				      Double_t *a) {
   //---
 
@@ -453,7 +453,7 @@ void PndTpcLheTrackCuts::DeepAngleFit(const PndLheCMCandidate *track,
 
 
 //__________________________________________________________________
-Bool_t PndTpcLheTrackCuts::IsGoodFoundTrack(PndLheCMCandidate* track) {
+Bool_t PndLheTrackCuts::IsGoodFoundTrack(PndLheCMCandidate* track) {
   //---
   
   if (track->GetNumberOfPoints() < 3)
@@ -464,7 +464,7 @@ Bool_t PndTpcLheTrackCuts::IsGoodFoundTrack(PndLheCMCandidate* track) {
 }
 
 //__________________________________________________________________
-Bool_t PndTpcLheTrackCuts::IsGoodGeantTrack(PndLheCandidate* track) {
+Bool_t PndLheTrackCuts::IsGoodGeantTrack(PndLheCandidate* track) {
   //--- Returns true if the given track fulfills all requirements to
   //be a "good" track.
 

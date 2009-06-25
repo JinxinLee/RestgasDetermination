@@ -16,11 +16,11 @@
 #include "FairTrackParH.h"
 
 #include "PndLheCandidate.h"
-#include "PndTpcLheTrackCuts.h"
+#include "PndLheTrackCuts.h"
 
 void fitCircle(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t iflag); // Minimization function for Minuit fit
 
-class PndTpcLheTrackFitter : public FairTask {
+class PndLheTrackFitter : public FairTask {
 
 protected:
 
@@ -34,21 +34,22 @@ protected:
   TString fOption;          //  options to choose branches
   Bool_t fVerbose;          // Switch ON/OFF debug messages 
   Bool_t fSimulation;       // Switch simulation diagnostic
+  Bool_t fPersistence;      // Persistence of LheTrack (PndTrack)
   Short_t fCircleFit;       // Circular fit (0 Oleg, 1 TMinuit)
  
-  PndTpcLheTrackCuts   *fTrackCuts;       // RO cuts for tracks
+  PndLheTrackCuts   *fTrackCuts;       // RO cuts for tracks
   Int_t FastCircleFit(PndLheCandidate *track, Double_t prefit[]);
     
-  static PndTpcLheTrackFitter* ftInstance;
+  static PndLheTrackFitter* ftInstance;
 
 public:
 
   virtual void Exec(Option_t * option);
   virtual InitStatus Init();                        //
   
-  PndTpcLheTrackFitter(const char *name, const char *title="Panda Task");
-  PndTpcLheTrackFitter();
-  virtual ~PndTpcLheTrackFitter();
+  PndLheTrackFitter(const char *name, const char *title="Panda Task");
+  PndLheTrackFitter();
+  virtual ~PndLheTrackFitter();
 
   void  Register();                 //
   void  Reset();
@@ -65,10 +66,11 @@ public:
   void SetVerbose(Bool_t verb)         { fVerbose = verb  ;};
   void SetSimulation(Bool_t sim)       { fSimulation = sim; };
   void SetCircleFit(Short_t fit)       { fCircleFit = fit; };
- 
-  static PndTpcLheTrackFitter* Instance();
+  void SetPersistence(Bool_t pers)     { fPersistence   = pers ;};
 
-ClassDef(PndTpcLheTrackFitter,2)   // PndTpcLheTrackFitter
+  static PndLheTrackFitter* Instance();
+
+ClassDef(PndLheTrackFitter,1)   // PndLheTrackFitter
 
 };
 

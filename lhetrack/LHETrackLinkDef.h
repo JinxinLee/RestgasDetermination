@@ -11,11 +11,11 @@
 #pragma link C++ class  PndLheHitsMaker+;
 #pragma link C++ class  PndLheCMPoint+;
 #pragma link C++ class  PndLhePoint+;
-#pragma link C++ class  PndTpcLheSegments+;
+#pragma link C++ class  PndLheSegments+;
 #pragma link C++ class  PndLheCMCandidate+;
-#pragma link C++ class  PndTpcLheTrackFitter+;
-#pragma link C++ class  PndTpcLheTrackCuts+;
-#pragma link C++ class  PndTpcLheTrackFinder+;
+#pragma link C++ class  PndLheTrackFitter+;
+#pragma link C++ class  PndLheTrackCuts+;
+#pragma link C++ class  PndLheTrackFinder+;
 #pragma link C++ class  PndLheTrackFinderIdeal+;
 #pragma link C++ class  PndLhePidMaker+;
 #pragma link C++ class  PndLhePidTrack+;

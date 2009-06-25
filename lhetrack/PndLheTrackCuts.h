@@ -17,7 +17,7 @@
 #include "PndLheCMPoint.h"
 #include "lhe.h"
 
-class PndTpcLheTrackCuts {
+class PndLheTrackCuts {
 
 protected:
 
@@ -38,13 +38,13 @@ protected:
   Cuts fTrackCuts[2];
 
 
-  static PndTpcLheTrackCuts*   fInstance;  // Cuts instance
+  static PndLheTrackCuts*   fInstance;  // Cuts instance
  
 public:
 
-  PndTpcLheTrackCuts();               // default constructor
-  virtual ~PndTpcLheTrackCuts();      // destructor
-  static PndTpcLheTrackCuts* Instance();
+  PndLheTrackCuts();               // default constructor
+  virtual ~PndLheTrackCuts();      // destructor
+  static PndLheTrackCuts* Instance();
   
   // Setters
   void Reset();
@@ -89,12 +89,12 @@ public:
 				 double *xi_prime, double *yi_prime);
   Double_t GetMaxDist(Int_t pl);
 
-  ClassDef(PndTpcLheTrackCuts, 1)  //
+  ClassDef(PndLheTrackCuts, 1)  //
     
   };
 
 //________________________________________________________________
-inline Double_t PndTpcLheTrackCuts::GetMaxDist(Int_t pl) {
+inline Double_t PndLheTrackCuts::GetMaxDist(Int_t pl) {
   //---
   return fTrackCuts[pl].fMaxHitDist; 
 }

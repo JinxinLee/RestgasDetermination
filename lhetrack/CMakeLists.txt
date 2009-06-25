@@ -43,14 +43,14 @@ ${ROOT_LIBRARY_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 set(LHETrack_SRCS
-PndTpcLheTrackFinder.cxx
+PndLheTrackFinder.cxx
 PndLheTrackFinderIdeal.cxx
-PndTpcLheSegments.cxx
-PndTpcLheTrackCuts.cxx      
+PndLheSegments.cxx
+PndLheTrackCuts.cxx      
 PndLheCMPoint.cxx
 PndLheCandidate.cxx
 PndLheCMCandidate.cxx        
-PndTpcLheTrackFitter.cxx
+PndLheTrackFitter.cxx
 PndLheHitsMaker.cxx      
 PndLhePoint.cxx
 PndLheHit.cxx
@@ -67,15 +67,15 @@ endif(RULE_CHECKER_FOUND)
 
 
 set(LHETrack_HEADERS
-PndTpcLheTrackCuts.h 
+PndLheTrackCuts.h 
 PndLheCandidate.h   
 PndLheCMPoint.h  
-PndTpcLheTrackFinder.h
+PndLheTrackFinder.h
 PndLheTrackFinderIdeal.h
-PndTpcLheTrackFitter.h 
+PndLheTrackFitter.h 
 PndLheHitsMaker.h
 PndLheCMCandidate.h   
-PndTpcLheSegments.h 
+PndLheSegments.h 
 PndLhePoint.h 
 PndLheHit.h
 PndLhePidMaker.h
