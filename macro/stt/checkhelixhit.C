@@ -2,28 +2,8 @@
   gROOT->Reset();
   TStopwatch timer;
   timer.Start();
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-  basiclibs();
-  
-  // Load this example libraries
-  gSystem->Load("libGeoBase");
-  gSystem->Load("libParBase");
-  gSystem->Load("libBase");
-  gSystem->Load("libPndData");
-  gSystem->Load("libField");
-  gSystem->Load("libPassive");
-  //gSystem->Load("libMvd");
-  gSystem->Load("libEmc");
-  gSystem->Load("libDrcProp");
-  gSystem->Load("libDrc");
-  gSystem->Load("libGen");
-//   gSystem->Load("libTrkBase");
-//   gSystem->Load("libGeane");
-//   //  gSystem->Load("libPGen");
-  gSystem->Load("libStt");
-  //   gSystem->Load("libgenfit");
-  //   gSystem->Load("libtrackrep");
-  //   gSystem->Load("libSttReco");
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  rootlogon();
   
   // MCpoints
   TFile filerun("testrun.root");

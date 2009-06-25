@@ -19,17 +19,8 @@
   TString outFile = "testreco.root";
   
   // ----  Load libraries   ------------------------------------------------
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-  basiclibs();
-  gSystem->Load("libGeoBase");
-  gSystem->Load("libParBase");
-  gSystem->Load("libBase");
-  gSystem->Load("libTrkBase");
-  gSystem->Load("libPndData");
-  gSystem->Load("libField");
-  gSystem->Load("libPassive");
-  gSystem->Load("libGen");
-  gSystem->Load("libStt");
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  rootlogon();
 
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;

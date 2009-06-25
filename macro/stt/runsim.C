@@ -7,18 +7,8 @@ void runsim(Int_t nEvents=1000, Float_t pT=1.0)
   timer.Start();
   gDebug=0;
   // Load basic libraries
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-  basiclibs();//basic libraries
-
-  // Load this example libraries
-  gSystem->Load("libGeoBase");
-  gSystem->Load("libParBase");
-  gSystem->Load("libBase");
-  gSystem->Load("libField"); 
-  gSystem->Load("libPndData");
-  gSystem->Load("libPassive");
-  gSystem->Load("libStt");
-  gSystem->Load("libGen");
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  rootlogon();//basic libraries
 
   FairRunSim *fRun = new FairRunSim();
   
