@@ -5,19 +5,8 @@
   timer.Start();
   gDebug=0;
   // Load basic libraries
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-  basiclibs();//basic libraries
-
-  // Load this example libraries
-  gSystem->Load("libGeoBase");
-  gSystem->Load("libParBase");
-  gSystem->Load("libBase");
-  gSystem->Load("libField"); 
-  gSystem->Load("libTrkBase");
-  gSystem->Load("libPndData");
-  gSystem->Load("libPassive");
-  gSystem->Load("libStt");
-  gSystem->Load("libGen");
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  rootlogon();//basic libraries
 
   FairRunSim *fRun = new FairRunSim();
   
