@@ -109,7 +109,8 @@ void PndGemDigitize::Exec(Option_t* opt) {
 
   Double_t posCheck[3] = {20.,20.,80.};
 
-  for ( Int_t iPoint=fPoints->GetEntriesFast()-1 ; iPoint >= 0 ; iPoint--) {
+  Int_t nofPoints = fPoints->GetEntriesFast();
+  for ( Int_t iPoint = 0 ; iPoint < nofPoints ; iPoint++ ) {
     PndGemMCPoint* currentPndGemMCPoint = (PndGemMCPoint*)fPoints->At(iPoint);
     
     Double_t posIn[3] = {currentPndGemMCPoint->GetX(),
@@ -127,12 +128,13 @@ void PndGemDigitize::Exec(Option_t* opt) {
     nodeName.Remove(nodeName.Length()-2,2);
 
     sensor = (PndGemSensor*)fDigiPar->GetSensorByName(nodeName.Data());
-
     Double_t locPosIn[4];
 
     curNode->MasterToLocal(posIn,locPosIn);
 
     if ( sensor->GetType()!=1 ) { locPosIn[3] = locPosIn[2]; locPosIn[2] = locPosIn[1]; locPosIn[1] = locPosIn[3]; locPosIn[0] = -locPosIn[0]; }
+
+    Int_t sensorDetId = sensor->GetDetectorId();
 
     Int_t channelNumber = sensor->GetChannel(locPosIn[0],locPosIn[1],0);
     if ( channelNumber == -1 ) {
@@ -140,29 +142,49 @@ void PndGemDigitize::Exec(Option_t* opt) {
       currentPndGemMCPoint->Position(pos);
       TVector3 dposLocal(0.,0.,0.);
       
-      new ((*fHitOutputArray)[nofHitsOutside++]) PndGemHit(sensor->GetDetectorId(),
+      new ((*fHitOutputArray)[nofHitsOutside++]) PndGemHit(sensorDetId,
  							   (currentPndGemMCPoint->GetDetName()).Data(),
  							   pos,dposLocal,iPoint,currentPndGemMCPoint->GetEnergyLoss(),1);
     }
     else {
-      new ((*fDigis)[fNDigis]) PndGemDigi(sensor->GetDetectorId(), 0, channelNumber);
-      fNDigis++;   
+      pair<Int_t, Int_t> a (sensorDetId, channelNumber);
+      if ( fChannelMap.find(a) == fChannelMap.end() ) {
+	// Channel not yet active, create new digi
+	new ((*fDigis)[fNDigis]) PndGemDigi(sensorDetId, 0, channelNumber);
+	fChannelMap[a] = fNDigis;
+	fNDigis++;
+      }
+      else {
+	// Channel already active
+	//	cout << "Channel hit twice!" << endl;
+      }
     }
-    
+
+    sensorDetId += 1;    
+
     channelNumber = sensor->GetChannel(locPosIn[0],locPosIn[1],1);
     if ( channelNumber == -1 ) continue;
 
-    new ((*fDigis)[fNDigis]) PndGemDigi(sensor->GetDetectorId()+1, 1, channelNumber);
-    fNDigis++;   
+    pair<Int_t, Int_t> a (sensorDetId, channelNumber);
+    if ( fChannelMap.find(a) == fChannelMap.end() ) {
+      // Channel not yet active, create new digi
+      new ((*fDigis)[fNDigis]) PndGemDigi(sensorDetId, 1, channelNumber);
+      fChannelMap[a] = fNDigis;
+      fNDigis++;
+    }
+    else {
+      // Channel already active
+      //      cout << "Channel hit twice!" << endl;
+    }
   }
 }
 // -------------------------------------------------------------------------
 
 
- 
+
 // -----   Private method SetParContainers   -------------------------------
 void PndGemDigitize::SetParContainers() {
-
+  
   // Get run and runtime database
   FairRunAna* run = FairRunAna::Instance();
   if ( ! run ) Fatal("SetParContainers", "No analysis run");

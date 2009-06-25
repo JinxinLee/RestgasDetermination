@@ -362,8 +362,12 @@ Int_t PndGemFindHits::FindHits(PndGemSensor* sensor,
       // 	     << xHit << ", " << yHit << ", " << zHit << ")" << endl;
       if ( sensorDetId == -1 ) continue;
       
+      sigmaX = dp;
+      if ( dr > sigmaX ) sigmaX = dr;
+      sigmaY = sigmaX;
+
       pos.SetXYZ(xHit, yHit, zHit);
-      dpos.SetXYZ(sigmaX, sigmaY, 0.);
+      dpos.SetXYZ(sigmaX, sigmaY, sensor->GetD());
       
       new ((*fHits)[nHits++]) PndGemHit(sensorDetId, sensor->GetDetectorName(), pos, dpos,  
 					iDigiF, iDigiB, dr, dp, -1);

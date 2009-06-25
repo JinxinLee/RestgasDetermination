@@ -17,6 +17,7 @@
 #pragma link C++ class PndGemDigiPar+;
 #pragma link C++ class PndGemDigitize+;
 #pragma link C++ class PndGemFindHits+;
+#pragma link C++ class PndGemMatchHits+;
 #pragma link C++ class PndGemStation+;
 #pragma link C++ class PndGemSensor+;
 #pragma link C++ class PndGemIdealHitProducer+;

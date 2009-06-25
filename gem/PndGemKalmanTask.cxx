@@ -213,11 +213,13 @@ PndGemKalmanTask::Exec(Option_t* opt)
     try{
       std::cout<<"starting fit"<<std::endl;
       fitter.processTrack(trac);
+      std::cout << "I am back in KalmanTask" << std::endl;
     }
     catch (FitterException e){
       std::cout<<e.what()<<std::endl;
     }
-    
+    std::cout << "and after the try catch with flag set to " << trac->getTrackRep(0)->getStatusFlag() << std::endl;
+
     // Print Track Parameters after fit
     if(trac->getTrackRep(0)->getStatusFlag()==0){
       //trk->getTrackRep(0)->Print();
@@ -234,50 +236,50 @@ PndGemKalmanTask::Exec(Option_t* opt)
       Double_t chi2=trac->getChiSqu();
       std::cout<<"ChiSq="<<chi2<<std::endl;
       fChi2H->Fill(chi2);
+
+      //      DetPlane plane(TVector3(0,0,0.1),TVector3(1,0,0),TVector3(0,1,0));
+      TVector3 resultMom=trac->getTrackRep(0)->getMom(plane);
+      
+      TVector3 resultPos = trac->getPos();
+      //TVector3 resultMom = trac->getMom();
+      std::cout << "PHIMC = " << beforeMom.Phi() << " PHIRECO = " << resultMom.Phi() << std::endl;
+      
+      std::cout << "********************************************************" << std::endl;
+      std::cout << "result pos = (" 
+		<< resultPos.X() << ","
+		<< resultPos.Y() << ","
+		<< resultPos.Z() << ")" << std::endl;
+      std::cout << "result mom = (" 
+		<< resultMom.X() << ","
+		<< resultMom.Y() << ","
+		<< resultMom.Z() << ") ----> " << resultMom.Mag() << std::endl;
+      
+      GeaneTrackRep* tempRep = (GeaneTrackRep*)trac->getTrackRep(0);
+      
+      fhMomentumX2D->Fill(beforeMom.X(),resultMom.X());
+      fhMomentumY2D->Fill(beforeMom.Y(),resultMom.Y());
+      fhMomentumZ2D->Fill(beforeMom.Z(),resultMom.Z());
+      fhMomentumM2D->Fill(beforeMom.Mag(),resultMom.Mag());
+      fhMomentumT2D->Fill(beforeMom.Theta(),resultMom.Theta());
+      fhMomentumP2D->Fill(beforeMom.Phi(),resultMom.Phi());
+      fhMomentumX1D->Fill(beforeMom.X()+resultMom.X());
+      fhMomentumY1D->Fill(beforeMom.Y()+resultMom.Y());
+      fhMomentumZ1D->Fill(beforeMom.Z()+resultMom.Z());
+      fhMomentumM1D->Fill(beforeMom.Mag()-resultMom.Mag());
+      fhMomentumT1D->Fill(beforeMom.Theta()-resultMom.Theta());
+      fhMomentumP1D->Fill(beforeMom.Phi()-resultMom.Phi());
+      fhMomentumRes->Fill(beforeMom.Mag(),100.*(beforeMom.Mag()-resultMom.Mag())/beforeMom.Mag());
+      
+      fhMomentumM1R->Fill(resultMom.Mag());
+      fhMomentumT1R->Fill(resultMom.Theta());
+      fhMomentumP1R->Fill(resultMom.Phi());
+      
+      fhPositionX2D->Fill(beforePos.X(),resultPos.X());
+      fhPositionY2D->Fill(beforePos.Y(),resultPos.Y());
+      fhPositionX1D->Fill(beforePos.X()-resultPos.X());
+      fhPositionY1D->Fill(beforePos.Y()-resultPos.Y());
+      
     }
-
-    DetPlane plane(TVector3(0,0,0.1),TVector3(1,0,0),TVector3(0,1,0));
-    TVector3 resultMom=trac->getTrackRep(0)->getMom(plane);
-    
-    TVector3 resultPos = trac->getPos();
-    //TVector3 resultMom = trac->getMom();
-    std::cout << "PHIMC = " << beforeMom.Phi() << " PHIRECO = " << resultMom.Phi() << std::endl;
-
-    std::cout << "********************************************************" << std::endl;
-    std::cout << "result pos = (" 
-	      << resultPos.X() << ","
-	      << resultPos.Y() << ","
-	      << resultPos.Z() << ")" << std::endl;
-    std::cout << "result mom = (" 
-	      << resultMom.X() << ","
-	      << resultMom.Y() << ","
-	      << resultMom.Z() << ") ----> " << resultMom.Mag() << std::endl;
-
-    GeaneTrackRep* tempRep = (GeaneTrackRep*)trac->getTrackRep(0);
-
-    fhMomentumX2D->Fill(beforeMom.X(),resultMom.X());
-    fhMomentumY2D->Fill(beforeMom.Y(),resultMom.Y());
-    fhMomentumZ2D->Fill(beforeMom.Z(),resultMom.Z());
-    fhMomentumM2D->Fill(beforeMom.Mag(),resultMom.Mag());
-    fhMomentumT2D->Fill(beforeMom.Theta(),resultMom.Theta());
-    fhMomentumP2D->Fill(beforeMom.Phi(),resultMom.Phi());
-    fhMomentumX1D->Fill(beforeMom.X()+resultMom.X());
-    fhMomentumY1D->Fill(beforeMom.Y()+resultMom.Y());
-    fhMomentumZ1D->Fill(beforeMom.Z()+resultMom.Z());
-    fhMomentumM1D->Fill(beforeMom.Mag()-resultMom.Mag());
-    fhMomentumT1D->Fill(beforeMom.Theta()-resultMom.Theta());
-    fhMomentumP1D->Fill(beforeMom.Phi()-resultMom.Phi());
-    fhMomentumRes->Fill(beforeMom.Mag(),100.*(beforeMom.Mag()-resultMom.Mag())/beforeMom.Mag());
- 
-    fhMomentumM1R->Fill(resultMom.Mag());
-    fhMomentumT1R->Fill(resultMom.Theta());
-    fhMomentumP1R->Fill(resultMom.Phi());
-   
-    fhPositionX2D->Fill(beforePos.X(),resultPos.X());
-    fhPositionY2D->Fill(beforePos.Y(),resultPos.Y());
-    fhPositionX1D->Fill(beforePos.X()-resultPos.X());
-    fhPositionY1D->Fill(beforePos.Y()-resultPos.Y());
-
   }
 
   std::cout<<"Fitting done"<<std::endl;

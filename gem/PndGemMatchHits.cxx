@@ -1,0 +1,235 @@
+//* $Id: */
+
+// -------------------------------------------------------------------------
+// -----                    PndGemMatchHits source file                 -----
+// -----                  Created 12/02/2009 by R. Karabowicz          -----
+// -------------------------------------------------------------------------
+
+// Includes from GEM
+#include "PndGemMatchHits.h"
+
+// Includes from base
+#include "FairRootManager.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
+
+// Includes from ROOT
+#include "TClonesArray.h"
+#include "TObjArray.h"
+#include "TMath.h"
+#include "TGeoManager.h"
+#include "TGeoNode.h"
+
+#include "PndGemHit.h"
+#include "PndGemMCPoint.h"
+#include "PndGemDigiPar.h"
+#include "PndGemSensor.h"
+
+#include <iostream>
+#include <iomanip>
+#include <map>
+
+using std::cout;
+using std::cerr;
+using std::endl;
+using std::pair;
+using std::setw;
+using std::left;
+using std::right;
+using std::fixed;
+using std::setprecision;
+using std::map;
+
+
+
+// -----   Default constructor   ------------------------------------------
+PndGemMatchHits::PndGemMatchHits() : FairTask("GEM MatchHits", 1) {
+  fDigiPar     = NULL;
+  fPoints      = NULL;
+  fHits        = NULL;
+  Reset();
+}
+// -------------------------------------------------------------------------
+
+
+
+// -----   Standard constructor   ------------------------------------------
+PndGemMatchHits::PndGemMatchHits(Int_t iVerbose) 
+  : FairTask("GEM MatchHitsr", iVerbose) { 
+  fDigiPar     = NULL;
+  fPoints      = NULL;
+  fHits        = NULL;
+  Reset();
+}
+// -------------------------------------------------------------------------
+
+
+
+// -----   Constructor with name   -----------------------------------------
+PndGemMatchHits::PndGemMatchHits(const char* name, Int_t iVerbose) 
+  : FairTask(name, iVerbose) { 
+  fDigiPar     = NULL;
+  fPoints      = NULL;
+  fHits        = NULL;
+  Reset();
+}
+// -------------------------------------------------------------------------
+
+
+
+// -----   Destructor   ----------------------------------------------------
+PndGemMatchHits::~PndGemMatchHits() { 
+  if ( fDigiPar)   delete fDigiPar;
+  Reset();
+}
+// -------------------------------------------------------------------------
+
+// -----   Public method Exec   --------------------------------------------
+void PndGemMatchHits::Exec(Option_t* opt) {
+  Int_t nofPoints = fPoints->GetEntriesFast();
+  Int_t nofHits = fHits->GetEntriesFast();
+
+  cout << "PndGemMatchHits::Exec() with " << nofPoints << " points and " << nofHits << " hits." << endl;
+
+  vector<Double_t> pointZ;
+  vector<Double_t> pointR;
+  vector<Double_t> pointP;
+  for ( Int_t iPoint = 0 ; iPoint < nofPoints ; iPoint++ ) {
+    PndGemMCPoint* currentPndGemMCPoint = (PndGemMCPoint*)fPoints->At(iPoint);
+    
+    TString nodeName = currentPndGemMCPoint->GetDetName();
+
+    if ( !nodeName.Contains("_Gem") ) {
+      pointZ.push_back(-1.);
+      pointR.push_back(-1.);
+      pointP.push_back(-1.);
+      continue;
+    }
+
+    Double_t pointX = currentPndGemMCPoint->GetX();
+    Double_t pointY = currentPndGemMCPoint->GetY();
+
+    cout << " .... " << pointX << "  " << pointY << " " << currentPndGemMCPoint->GetZ() << endl;
+
+    Double_t phiAValue = TMath::ATan(pointX/pointY);
+    if ( pointY < 0 ) phiAValue += TMath::Pi();
+    else if ( pointX < 0 ) phiAValue +=  2.*TMath::Pi();
+
+    pointZ.push_back(currentPndGemMCPoint->GetZ());
+    pointR.push_back(TMath::Sqrt(pointX*pointX+pointY*pointY));
+    pointP.push_back(phiAValue);
+    
+    cout << "point " << iPoint << " at " << nodeName.Data() << " (" << pointZ[pointZ.size()-1] << "," << pointR[pointR.size()-1] << "," << pointP[pointP.size()-1] << ")" << endl;
+  }
+  cout << " Got " << pointP.size() << " usable MC points" << endl;
+
+  for ( Int_t iHit = 0 ; iHit < nofHits ; iHit++ ) {
+    PndGemHit* currentPndGemHit = (PndGemHit*)fHits->At(iHit);
+
+    Double_t hitX = currentPndGemHit->GetX();
+    Double_t hitY = currentPndGemHit->GetY();
+    Double_t hitZ = currentPndGemHit->GetZ();
+
+    cout << " .... " << hitX << "  " << hitY << " " << currentPndGemHit->GetZ() << endl;
+
+    Double_t hitP = TMath::ATan(hitX/hitY);
+    if ( hitY < 0 ) hitP += TMath::Pi();
+    else if ( hitX < 0 ) hitP +=  2.*TMath::Pi();
+    Double_t hitR = TMath::Sqrt(hitX*hitX+hitY*hitY);
+    
+    cout << "hit " << iHit << " (" << hitZ << "," << hitR << "," << hitP << ")" << endl;
+    
+    Int_t matchPoint = -1;
+    Double_t closestDistance = 1000.;
+    Bool_t multiHit = kFALSE;
+    for ( Int_t iPoint = 0 ; iPoint < pointZ.size() ; iPoint++ ) {
+      cout << "matching with " << " (" << pointZ[pointZ.size()-1] << "," << pointR[pointR.size()-1] << "," << pointP[pointP.size()-1] << ")" << endl;
+      if ( TMath::Abs(pointZ[iPoint]-hitZ) > currentPndGemHit->GetDz() ) continue;
+      if ( TMath::Abs(pointR[iPoint]-hitR) > currentPndGemHit->GetDr()*TMath::Sqrt(3.) ) continue;
+      if ( TMath::Tan(TMath::Abs(pointP[iPoint]-hitP)) > currentPndGemHit->GetDp()*TMath::Sqrt(3.)/hitR ) continue;
+      Double_t distance = TMath::Sqrt((pointR[iPoint]-hitR)*(pointR[iPoint]-hitR)/currentPndGemHit->GetDr()/currentPndGemHit->GetDr()+
+				      (pointP[iPoint]-hitP)*(pointP[iPoint]-hitP)/currentPndGemHit->GetDp()/currentPndGemHit->GetDp());
+      if ( matchPoint != -1 ) multiHit = kTRUE;
+      if ( distance > closestDistance ) continue;
+      closestDistance = distance;
+      matchPoint = iPoint;   
+      cout << " MATCHING!!!" << endl;
+    }
+    currentPndGemHit->SetRefIndex(matchPoint);
+  
+    fNHits++;
+    if ( matchPoint != -1 ) fNMatchedHits++;
+    else fNFakeHits++;
+    if ( multiHit ) fNMultiHits++;
+  }
+
+  cout << "************PndGemMatchHits**************" << endl;
+  cout << " Number of all hits " << fNHits << endl;
+  cout << " Number of matched hits " << fNMatchedHits << " -> " << 100.*(Double_t)fNMatchedHits/(Double_t)fNHits << endl;
+  cout << " Number of fake hits " << fNFakeHits << " -> " << 100.*(Double_t)fNFakeHits/(Double_t)fNHits << endl;
+  cout << " Number of multi hits " << fNMultiHits << " -> " << 100.*(Double_t)fNMultiHits/(Double_t)fNHits << endl;
+  cout << "*****************************************" << endl;
+
+
+}
+// -------------------------------------------------------------------------
+
+
+
+// -----   Private method SetParContainers   -------------------------------
+void PndGemMatchHits::SetParContainers() {
+  
+  // Get run and runtime database
+  FairRunAna* run = FairRunAna::Instance();
+  if ( ! run ) Fatal("SetParContainers", "No analysis run");
+
+  FairRuntimeDb* db = run->GetRuntimeDb();
+  if ( ! db ) Fatal("SetParContainers", "No runtime database");
+
+  // Get GEM digitisation parameter container
+  fDigiPar = (PndGemDigiPar*)(db->getContainer("PndGemDetectors"));
+
+}
+// -------------------------------------------------------------------------
+
+
+
+// -----   Private method Init   -------------------------------------------
+InitStatus PndGemMatchHits::Init() {
+
+  // Get input array 
+  FairRootManager* ioman = FairRootManager::Instance();
+  if ( ! ioman ) Fatal("Init", "No FairRootManager");
+  fPoints = (TClonesArray*) ioman->GetObject("GEMPoint");
+
+  fHits = (TClonesArray*) ioman->GetObject("GEMHit");
+
+  return kSUCCESS;
+
+}
+// -------------------------------------------------------------------------
+
+
+
+// -----   Private method ReInit   -----------------------------------------
+InitStatus PndGemMatchHits::ReInit() {
+
+  return kSUCCESS;
+
+}
+// -------------------------------------------------------------------------
+
+
+
+// -----   Private method Reset   ------------------------------------------
+void PndGemMatchHits::Reset() {
+  fNHits = fNMatchedHits = fNFakeHits = fNMultiHits = 0;
+}
+// -------------------------------------------------------------------------
+
+
+
+
+
+ClassImp(PndGemMatchHits)
+

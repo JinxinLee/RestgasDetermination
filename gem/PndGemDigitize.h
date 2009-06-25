@@ -75,7 +75,7 @@ class PndGemDigitize : public FairTask
   TStopwatch        fTimer;
 
   /** Map of active channels (pair detectorId, channel number) 
-   ** to index of StsDigi **/
+   ** to index of PndGemDigi **/
   std::map<std::pair<Int_t, Int_t>, Int_t> fChannelMap; //!
  
   TClonesArray* fHitOutputArray;

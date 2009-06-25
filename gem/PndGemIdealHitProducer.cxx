@@ -142,8 +142,6 @@ void PndGemIdealHitProducer::Exec(Option_t* opt) {
 
     curNode->MasterToLocal(posIn,locPosIn);
 
-    TVector3 dposLocal(0.,0.,0.);
-    
     radius = TMath::Sqrt(locPosIn[0]*locPosIn[0]+locPosIn[1]*locPosIn[1]);
     innerR = sensor->GetInnerRadius();
     if ( sensor->GetStripAngle(0) == 0. && sensor->GetStripAngle(1) == 90. ) {
@@ -177,9 +175,13 @@ void PndGemIdealHitProducer::Exec(Option_t* opt) {
     
     TVector3 pos(locPosIn[0],locPosIn[1],sensor->GetZ0());
     
+    Double_t sigma = dp;
+    if ( dr > sigma ) sigma = dr;
+    TVector3 dpos(sigma, sigma, sensor->GetD());
+
     new ((*fHitArray)[nofHits++]) PndGemHit(1,//sensor->GetDetectorId(),
 					    (currentPndGemMCPoint->GetDetName()).Data(), 
-					    pos, dposLocal,  
+					    pos, dpos,  
 					    -1, -1, dr, dp, iPoint);
   }  // end of loop over Points
 }

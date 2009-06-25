@@ -39,6 +39,7 @@ PndGemGeoPar.cxx
 PndGemDigiPar.cxx
 PndGemDigitize.cxx
 PndGemFindHits.cxx
+PndGemMatchHits.cxx
 PndGemStation.cxx
 PndGemSensor.cxx
 PndGemIdealHitProducer.cxx
