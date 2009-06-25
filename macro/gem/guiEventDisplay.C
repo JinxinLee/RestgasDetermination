@@ -51,9 +51,6 @@ class MyMainFrame {
 
   Int_t fDigitSchemeToDraw;
 
-  Int_t fEvent;
-  Int_t fPoint;
-  
   Int_t fNofGemPoints;
   Int_t fNofMCTracks;
   Int_t fNofGemHits;
@@ -83,9 +80,6 @@ public:
   void DrawHitErrors();
   void DrawHits();
   void DoDraw();
-
-  void SelectEventToDraw(char* tempI) { fEvent = atoi(tempI); }
-  void SelectPointToDraw(char* tempI) { fPoint = atoi(tempI); }
 
   void ReadParameters();
 
@@ -138,9 +132,6 @@ MyMainFrame::MyMainFrame(const TGWindow *p,UInt_t w,UInt_t h) {
 
   ChangeBaseString("$VMCWORKDIR/data/Gem_4Stations_211_2.0GeV_th15_ph20_n1000");
   ChangeParFString("$VMCWORKDIR/macro/params/gem_4Stations.digi.par");
-
-  fEvent = 0;
-  fPoint = 0;
 
   fDigitSchemeToDraw = 0;
 
@@ -201,7 +192,6 @@ MyMainFrame::MyMainFrame(const TGWindow *p,UInt_t w,UInt_t h) {
   fEventToDrawEntry = new TGNumberEntryField(eventFrame,-1,0,
 				       TGNumberFormat::kNESInteger);
   eventFrame->AddFrame(fEventToDrawEntry, new TGLayoutHints(kLHintsCenterX,5,5,3,4));
-  fEventToDrawEntry->Connect("TextChanged(char*)","MyMainFrame",this,"SelectEventToDraw(char*)");
 
   TGHorizontalFrame *pointFrame = new TGHorizontalFrame(v2bframe,fWindowSize*.1,fWindowSize*.300);
   v2bframe->AddFrame(pointFrame, new TGLayoutHints(kLHintsCenterX|kLHintsCenterY,2,2,2,2));
@@ -213,7 +203,6 @@ MyMainFrame::MyMainFrame(const TGWindow *p,UInt_t w,UInt_t h) {
   fPointToDrawEntry = new TGNumberEntryField(pointFrame,-1,0,
 				       TGNumberFormat::kNESInteger);
   pointFrame->AddFrame(fPointToDrawEntry, new TGLayoutHints(kLHintsCenterX,5,5,3,4));
-  fPointToDrawEntry->Connect("TextChanged(char*)","MyMainFrame",this,"SelectPointToDraw(char*)");
 
   v2frame->AddFrame(v2bframe, new TGLayoutHints(kLHintsCenterX|kLHintsCenterY,2,2,2,2));
 
