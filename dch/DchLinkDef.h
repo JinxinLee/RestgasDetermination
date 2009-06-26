@@ -42,7 +42,7 @@
 #pragma link C++ class  PndDchKalmanTask2+;
 #pragma link C++ class  PndDchKalmanQATask+;
 #pragma link C++ class  PndDchFindTracksQa++;
-#pragma link C++ class  PullTask++;
+//#pragma link C++ class  PullTask++;
 //#pragma link C++ class  PndDchTest++;
 //#pragma link C++ class  PndDchChamberTracklet+;
 //#pragma link C++ class  PndDchTrackFinderR1+;
