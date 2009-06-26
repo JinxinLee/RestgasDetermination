@@ -1,6 +1,6 @@
 # This script runs PandaRoot macros for the full Sim with
 # STT as Tracker
-# usage: ./go_stt.sh <nEvents>
+# usage: ./go_stt_dpm.sh <momentum> <mode> <nEvents>
 # (06/2009 R. Kliemt)
 
 # make data directory, if not there. all data file go there, makes them easier to move around
@@ -8,7 +8,6 @@ if [ ! -d "data" ]; then
   mkdir data
 fi
 
-# reads number of events from first parameter
 mom=5.0
 mode=0
 nEvts=5

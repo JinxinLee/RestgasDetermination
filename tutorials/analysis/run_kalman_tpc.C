@@ -4,6 +4,7 @@ void run_kalman_tpc(  Int_t nEvents = 10 ){
   Int_t iVerbose = 0;
   // ----  Load libraries   -------------------------------------------------
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+  gSystem->Load("libGem");
 
   // ------------------------------------------------------------------------
   // Output file

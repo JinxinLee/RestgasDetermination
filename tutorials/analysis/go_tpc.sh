@@ -1,6 +1,6 @@
 # This script runs PandaRoot macros for the full Sim with
 # STT as Tracker
-# usage: ./go_stt.sh <nEvents>
+# usage: ./go_tpc.sh <nEvents>
 # (06/2009 R. Kliemt)
 
 # make data directory, if not there. all data file go there, makes them easier to move around

@@ -14,7 +14,7 @@ of J/Psi: Dipak
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
-#include "PndTpcLheTrack.h"
+#include "PndLheCandidate.h"
 #include "PndTpcLhePoint.h"
 #include "PndStack.h"
 #include "PndMCTrack.h"
@@ -197,7 +197,7 @@ void PndStoreTCands::Exec(Option_t* opt)
   
   
   //  cout <<"number of tracks **** "<< nTracks <<endl;
-  //PndTpcLheTrack *tr1;
+  //PndLheCandidate *tr1;
   Track *tr1;
   PndEmcCluster *clus;
   

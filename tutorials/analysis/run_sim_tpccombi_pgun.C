@@ -5,6 +5,7 @@ void run_sim_tpccombi_pgun(Int_t nEvents=10, Int_t pid=211, Float_t p1=1.0, Floa
   gDebug=0;
   // Load basic libraries
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+  gSystem->Load("libGem");
 
   FairRunSim *fRun = new FairRunSim();
 
@@ -48,10 +49,15 @@ void run_sim_tpccombi_pgun(Int_t nEvents=10, Int_t pid=211, Float_t p1=1.0, Floa
   Tpc->SetGeometryFileName("tpc.geo");
   fRun->AddModule(Tpc);
     
+  FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
+  Gem->SetGeometryFileName("gem_3Stations.root");
+  fRun->AddModule(Gem);
+    
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
   Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root");
   fRun->AddModule(Emc);
 
+  
   // This is breaking
 //  FairDetector *Tof = new PndTof("TOF",kTRUE);
 //  Tof->SetGeometryFileName("tofbarrel.geo");

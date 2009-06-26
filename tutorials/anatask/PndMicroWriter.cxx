@@ -19,7 +19,7 @@ Author: K.Goetzen, GSI, 06/2008
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
-#include "PndTpcLheTrack.h"
+#include "PndLheCandidate.h"
 #include "PndTpcLhePoint.h"
 #include "PndLhePidTrack.h"
 #include "PndStack.h"
@@ -250,7 +250,7 @@ void PndMicroWriter::Exec(Option_t* opt)
   
   
   //  cout <<"number of tracks **** "<< nTracks <<endl;
-  //PndTpcLheTrack *tr1;
+  //PndLheCandidate *tr1;
   
   Track *tr1;
   PndEmcCluster *clus;

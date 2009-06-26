@@ -16,6 +16,7 @@ void run_reco_sttcombi(  Int_t nEvents = 10){
 
   // ----  Load libraries   -------------------------------------------------
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+  gSystem->Load("libGem");
   TString sysFile = gSystem->Getenv("VMCWORKDIR");
   // ------------------------------------------------------------------------
   // In general, the following parts need not be touched
@@ -58,6 +59,7 @@ void run_reco_sttcombi(  Int_t nEvents = 10){
   trackMS->SetTpcMode(0);
   trackMS->SetSttMode(3);  // 0 OFF, 1 SttPoint, 2 SttHit, (3) SttHelixHit // SttPoint smearing [cm], if negative no smearing
   trackMS->SetMvdMode(2);  // 0 OFF, 1 MVDPoint, 2 MVDHit     // MVDPoint smearing [cm], if negative no smearing
+  trackMS->SetGemMode(2);  // 0 OFF, 1 GEMPoint, 2 GEMHit     // GEMPoint smearing [cm], if negative no smearing 
   fRun->AddTask(trackMS);
 
   PndTpcLheTrackFinder* trackFinder    = new PndTpcLheTrackFinder();

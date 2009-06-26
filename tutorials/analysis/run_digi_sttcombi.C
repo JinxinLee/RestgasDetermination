@@ -15,6 +15,7 @@ void run_digi_sttcombi(  Int_t nEvents = 10){
 
   // ----  Load libraries   -------------------------------------------------
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+  gSystem->Load("libGem");
   TString sysFile = gSystem->Getenv("VMCWORKDIR");
   // ------------------------------------------------------------------------
 
@@ -110,6 +111,13 @@ void run_digi_sttcombi(  Int_t nEvents = 10){
   PndEmcHdrFiller* emcHdrFiller = new PndEmcHdrFiller();
   fRun->AddTask(emcHdrFiller); // ECM header
 
+  // -----   GEM hit producers   ---------------------------------
+  PndGemDigitize* gemDigitize = new PndGemDigitize("GEM Digitizer", iVerbose);
+  fRun->AddTask(gemDigitize);
+  
+  PndGemFindHits* gemFindHits = new PndGemFindHits("GEM Hit Finder", iVerbose);
+  fRun->AddTask(gemFindHits);
+  
   // -----   TOF hit producers   ---------------------------------
 //
 //  PndTofHitProducerIdeal* tofhit = new PndTofHitProducerIdeal();
