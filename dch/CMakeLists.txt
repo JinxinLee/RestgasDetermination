@@ -53,11 +53,12 @@ DchFitting/PndDchRecoHit.cxx
 DchFitting/PndDchRecoHit2.cxx
 DchFitting/PndDchSimpleFitter.cxx
 DchFitting/PndDchPreFitter.cxx
-DchFitting/PndDchPrepareKalmanTracks.cxx
+#DchFitting/PndDchPrepareKalmanTracks.cxx
 DchFitting/PndDchPrepareKalmanTracks2.cxx
-DchFitting/PndDchKalmanTask.cxx
+#DchFitting/PndDchKalmanTask.cxx
 DchFitting/PndDchKalmanTask2.cxx
 DchFitting/PndDchKalmanQATask.cxx
+DchFitting/PullTask.cxx
 DchTracking/PndDchTrack.cxx
 DchTracking/PndDchTrackFinder.cxx
 DchTracking/PndDchTrackFinderIdeal.cxx

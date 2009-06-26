@@ -23,6 +23,7 @@
 
 class TClonesArray;
 class TH1D;
+class TH1F;
 class TH2D;
 class TCanvas;
 
@@ -68,23 +69,30 @@ private:
   TString fTrackBranchName;         ///< name of a track array to be processed (fitted), default="Track"
   TClonesArray* fTrackArray;        ///< pointer to array of Track objects
   TClonesArray* fMCTrackArray;      ///< pointer to array of MCTracks
+  TClonesArray* fPointArray;      ///< pointer to array of PndDchPoints
   TClonesArray* fDchTrackMatchArray;///< pointer to array of DchTrackMatches
   
   Bool_t fPersistence;   ///< persistence flag
     
-  TH1D* fhP;             ///< momentum pull distribution;
-  TH1D* fhPx;             ///< x-momentum pull distribution;
-  TH1D* fhPy;             ///< y-momentum pull distribution;
-  TH1D* fhPz;             ///< z-momentum pull distribution;
-  TH2D* fThetaH;         ///< theta pull distribution;
-  TH2D* fPhiH;           ///< phi pull distribution;
-  TH1D* fhChi2;          ///< chi2 pull distribution;
-  TCanvas* fCanvas;      ///< pointer to a canvas for drawing fit results
+    TH1D* fhP;             ///< momentum pull distribution;
+    TH1D* fhPx;             ///< x-momentum pull distribution;
+    TH1D* fhPy;             ///< y-momentum pull distribution;
+    TH1D* fhPz;             ///< z-momentum pull distribution;
+    TH2D* fThetaH;         ///< theta pull distribution;
+    TH2D* fPhiH;           ///< phi pull distribution;
+    TH1D* fhChi2;          ///< chi2 pull distribution;
+    TH1F* fHrp;///< momentum residual;
+    TH1F* fHrpx; ///< residual of px;
+    TH1F* fHrpy; ///< residual of py;
+    TH1F* fHrpz; ///< residual of pz;
+    TH1F* fHrtv; ///< residual of txz (tv);
+    TH1F* fHrtw; ///< residual of tyz (tw);
+  TCanvas* fCanvas;      ///< pointer to a canvas for drawing fit results;
   
-  Int_t fTrackcount;       ///< track counter
-  Int_t fEvt;              ///< event counter
-  Int_t fApproach;       ///< choice of where to compare track parameters with MC
-  Bool_t fSignPatch;     ///< flag for correcting wrongly reconstructed sign of p components
+  Int_t fTrackcount;       ///< track counter;
+  Int_t fEvt;              ///< event counter;
+  Int_t fApproach;       ///< choice of where to compare track parameters with MC;
+  Bool_t fSignPatch;     ///< flag for correcting wrongly reconstructed sign of p components;
 
   /** private method WriteHistograms()
       writes out histograms with results of fitting into a file **/

@@ -178,8 +178,8 @@ Bool_t PndDchStructure::SetWireOrientation(void){
     chamber = PndDchMapper::CalculateChamber(detID);
     if (chamber>2){
       if(plane==1 || plane==2 || plane==3 || plane==4)	    wireangle =   0.;
-      else if(plane==5 || plane==6) wireangle =  10.;
-      else if(plane==7 || plane==8) wireangle = -10.;
+      else if(plane==5 || plane==6) wireangle =  1.;
+      else if(plane==7 || plane==8) wireangle = -1.;
       else {result=kFALSE;}
     } else if (chamber==2){
       if(plane==1 || plane==2)      wireangle =   0.;

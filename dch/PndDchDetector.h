@@ -117,10 +117,11 @@ class PndDchDetector : public FairDetector
   void ResetParameters();
   // construct detector from .geo file
   void ConstructASCIIGeometry();
+  Bool_t CheckIfSensitive(std::string name);
   // construct detector from .root file 
-  void ConstructRootGeometry();
+  //void ConstructRootGeometry();
   // recursively add volumes to the geoManager
-  void ExpandNode(TGeoVolume *fVol, TGeoVolume *Cave);
+  //void ExpandNode(TGeoVolume *fVol, TGeoVolume *Cave);
 
   ClassDef(PndDchDetector,1)
 

@@ -181,94 +181,94 @@ void PndDchDetector::ConstructGeometry() {
 }
 
 
-void PndDchDetector::ConstructRootGeometry() {
+// void PndDchDetector::ConstructRootGeometry() {
 
-   TFile *f=new TFile(GetGeometryFileName().Data());
-   TGeoVolume *dchTop=(TGeoVolume *)f->Get("top");
-   TGeoVolume *Cave = gGeoManager->GetTopVolume();
+//    TFile *f=new TFile(GetGeometryFileName().Data());
+//    TGeoVolume *dchTop=(TGeoVolume *)f->Get("top");
+//    TGeoVolume *Cave = gGeoManager->GetTopVolume();
 
-   //***
-    TGeoNode* n = dchTop->GetNode(0);
-//    TGeoVolume* v1= n->GetVolume();
-//    gGeoManager->AddVolume(dchTop);
-   TGeoVoxelFinder *voxels = dchTop->GetVoxels();
-   if (voxels) voxels->SetNeedRebuild();
-    TGeoMatrix *M = n->GetMatrix();
-    M->SetDefaultName();
-    gGeoManager->GetListOfMatrices()->Remove(M);
-    TGeoHMatrix *global = gGeoManager->GetHMatrix();             
-    gGeoManager->GetListOfMatrices()->Remove(global); //Remove the Identity matrix 
-//    Cave->AddNode(v1,0, M);
-   //***/
+//    //***
+//     TGeoNode* n = dchTop->GetNode(0);
+// //    TGeoVolume* v1= n->GetVolume();
+// //    gGeoManager->AddVolume(dchTop);
+//    TGeoVoxelFinder *voxels = dchTop->GetVoxels();
+//    if (voxels) voxels->SetNeedRebuild();
+//     TGeoMatrix *M = n->GetMatrix();
+//     M->SetDefaultName();
+//     gGeoManager->GetListOfMatrices()->Remove(M);
+//     TGeoHMatrix *global = gGeoManager->GetHMatrix();             
+//     gGeoManager->GetListOfMatrices()->Remove(global); //Remove the Identity matrix 
+// //    Cave->AddNode(v1,0, M);
+//    //***/
 
-   ExpandNode(dchTop,Cave);
+//    ExpandNode(dchTop,Cave);
  
-}
+// }
 
-void PndDchDetector::ExpandNode(TGeoVolume *fVol, TGeoVolume *Cave){
+// void PndDchDetector::ExpandNode(TGeoVolume *fVol, TGeoVolume *Cave){
 
-   FairGeoLoader*geoLoad = FairGeoLoader::Instance();
-   FairGeoInterface *geoFace = geoLoad->getGeoInterface();
-   FairGeoMedia *Media =  geoFace->getMedia();
-   FairGeoBuilder *geobuild=geoLoad->getGeoBuilder();
+//    FairGeoLoader*geoLoad = FairGeoLoader::Instance();
+//    FairGeoInterface *geoFace = geoLoad->getGeoInterface();
+//    FairGeoMedia *Media =  geoFace->getMedia();
+//    FairGeoBuilder *geobuild=geoLoad->getGeoBuilder();
   
-   TObjArray *nodeList=fVol->GetNodes();
-   if(fVerboseLevel>2)
-     std::cout<< "DEBUG NodeListEntries = " << nodeList->GetEntries() << std::endl;
+//    TObjArray *nodeList=fVol->GetNodes();
+//    if(fVerboseLevel>2)
+//      std::cout<< "DEBUG NodeListEntries = " << nodeList->GetEntries() << std::endl;
    
-   for (Int_t nod=0; nod < nodeList->GetEntries(); nod++) {
+//    for (Int_t nod=0; nod < nodeList->GetEntries(); nod++) {
      
-     if(fVerboseLevel>2)   std::cout<< "DEBUG nod = " << nod << std::endl;
-     TGeoNode *fNode =(TGeoNode *)nodeList->At(nod);
-     TGeoVolume *v= fNode->GetVolume();
-     if(fNode->GetNdaughters()>0) 	
-       ExpandNode(v, Cave);
+//      if(fVerboseLevel>2)   std::cout<< "DEBUG nod = " << nod << std::endl;
+//      TGeoNode *fNode =(TGeoNode *)nodeList->At(nod);
+//      TGeoVolume *v= fNode->GetVolume();
+//      if(fNode->GetNdaughters()>0) 	
+//        ExpandNode(v, Cave);
      
-     TGeoMedium* med1=v->GetMedium();
-     if(fVerboseLevel>2) std::cout<< "DEBUG NodeName = " << fNode->GetName() << std::endl;
-     if (med1) {
-       if(fVerboseLevel>2) std::cout<< "DEBUG medium  = " << med1->GetName() << std::endl;
-       TGeoMaterial*mat1=v->GetMaterial(); 
-       TGeoMaterial *newMat = gGeoManager->GetMaterial(mat1->GetName());
-       if (newMat==0) {
-	 std::cout<< "Material " << mat1->GetName() << " is not defined " << std::endl;
-	 FairGeoMedium *CbmMedium=Media->getMedium(mat1->GetName());
-	 if (!CbmMedium) {
-	   std::cout << "Material is not defined in ASCII file nor in Root file" << std::endl;
-	   CbmMedium=new FairGeoMedium(mat1->GetName());
-	   Media->addMedium(CbmMedium);
-	 }
-	 std::cout << "Create Medium " << mat1->GetName() << std::endl;
-	 Int_t nmed=geobuild->createMedium(CbmMedium);
-	 v->SetMedium(gGeoManager->GetMedium(nmed));
-	 gGeoManager->SetAllIndex();
-       } else {
-	  if(fVerboseLevel>2)  
-	    std::cout<< "DEBUG material was defined  MaterialName= " << mat1->GetName() << std::endl;
-	  TGeoMedium *med2= gGeoManager->GetMedium(mat1->GetName());
-	  v->SetMedium(med2);
-       }
-     }
-     if (!gGeoManager->FindVolumeFast(v->GetName())) {
-       if(fVerboseLevel>2) std::cout<< "DEBUG registration form"  << std::endl;
-       v->RegisterYourself();
-     }
-     //only dchVolume added to the Node list of Cave
-     TString name = v->GetName();
-     if(fVerboseLevel>2) std::cout<< "DEBUG VolumeName "  <<name<< std::endl;
+//      TGeoMedium* med1=v->GetMedium();
+//      if(fVerboseLevel>2) std::cout<< "DEBUG NodeName = " << fNode->GetName() << std::endl;
+//      if (med1) {
+//        if(fVerboseLevel>2) std::cout<< "DEBUG medium  = " << med1->GetName() << std::endl;
+//        TGeoMaterial*mat1=v->GetMaterial(); 
+//        TGeoMaterial *newMat = gGeoManager->GetMaterial(mat1->GetName());
+//        if (newMat==0) {
+// 	 std::cout<< "Material " << mat1->GetName() << " is not defined " << std::endl;
+// 	 FairGeoMedium *CbmMedium=Media->getMedium(mat1->GetName());
+// 	 if (!CbmMedium) {
+// 	   std::cout << "Material is not defined in ASCII file nor in Root file" << std::endl;
+// 	   CbmMedium=new FairGeoMedium(mat1->GetName());
+// 	   Media->addMedium(CbmMedium);
+// 	 }
+// 	 std::cout << "Create Medium " << mat1->GetName() << std::endl;
+// 	 Int_t nmed=geobuild->createMedium(CbmMedium);
+// 	 v->SetMedium(gGeoManager->GetMedium(nmed));
+// 	 gGeoManager->SetAllIndex();
+//        } else {
+// 	  if(fVerboseLevel>2)  
+// 	    std::cout<< "DEBUG material was defined  MaterialName= " << mat1->GetName() << std::endl;
+// 	  TGeoMedium *med2= gGeoManager->GetMedium(mat1->GetName());
+// 	  v->SetMedium(med2);
+//        }
+//      }
+//      if (!gGeoManager->FindVolumeFast(v->GetName())) {
+//        if(fVerboseLevel>2) std::cout<< "DEBUG registration form"  << std::endl;
+//        v->RegisterYourself();
+//      }
+//      //only dchVolume added to the Node list of Cave
+//      TString name = v->GetName();
+//      if(fVerboseLevel>2) std::cout<< "DEBUG VolumeName "  <<name<< std::endl;
      
-     if (name.Contains("dchVol") || name.Contains("RichBoxVol")) {
-       if(fVerboseLevel>2) std::cout<< "DEBUG AddNode for volume "  <<name<< std::endl;
-       Cave->AddNode(v,0, fNode->GetMatrix());
-     }
-     if (name.Contains("Splane")) {
-       if (nod==0) {
-	 if(fVerboseLevel>2) std::cout<< "DEBUG AddSensitive "  <<name<< std::endl;
-	 AddSensitiveVolume(v);
-       }
-     }
-   }
-}
+//      if (name.Contains("dchVol") || name.Contains("RichBoxVol")) {
+//        if(fVerboseLevel>2) std::cout<< "DEBUG AddNode for volume "  <<name<< std::endl;
+//        Cave->AddNode(v,0, fNode->GetMatrix());
+//      }
+//      if (name.Contains("Splane")) {
+//        if (nod==0) {
+// 	 if(fVerboseLevel>2) std::cout<< "DEBUG AddSensitive "  <<name<< std::endl;
+// 	 AddSensitiveVolume(v);
+//        }
+//      }
+//    }
+// }
 
 
 
@@ -318,6 +318,16 @@ void PndDchDetector::ConstructASCIIGeometry() {
 
 }
 // ----------------------------------------------------------------------------
+// ------------Private method CheckIfSensitive---------------------------------
+Bool_t PndDchDetector::CheckIfSensitive(std::string name){
+  TString tsname = name;
+  if (tsname.Contains("Splane")){
+    return kTRUE;
+  }
+  return false;
+}
+// ----------------------------------------------------------------------------
+
 
 // -----   Private method AddPoint   --------------------------------------------
 // see PndDchPoint for hit description

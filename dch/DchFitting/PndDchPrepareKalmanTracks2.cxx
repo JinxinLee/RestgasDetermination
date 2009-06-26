@@ -174,9 +174,6 @@ PndDchPrepareKalmanTracks2::Exec(Option_t* opt)
 	if(pnt->GetTrackID()==mcTrID){
 	  pnt->Position(pos);
 	  pnt->Momentum(mom);
-//  	  mom.SetXYZ(gRandom->Gaus(mom.X(), 0.05*mom.X()),
-//  		     gRandom->Gaus(mom.Y(), 0.05*mom.Y()),
-//  		     gRandom->Gaus(mom.Z(), 0.05*mom.Z()));
 	  break;
 	}
 	pointidx++;
@@ -199,10 +196,17 @@ PndDchPrepareKalmanTracks2::Exec(Option_t* opt)
     }
     Double_t startPosAccuracy = 0.5;
     TVector3 poserr(startPosAccuracy,startPosAccuracy,3.*startPosAccuracy);
-    TVector3 startMomAccuracy(0.1,0.1,0.1);
+    pos.SetXYZ(gRandom->Gaus(pos.X(), poserr.X()),
+	       gRandom->Gaus(pos.Y(), poserr.Y()),
+	       gRandom->Gaus(pos.Z(), poserr.Z()));
+    
+    TVector3 startMomAccuracy(0.05,0.05,0.05);
     TVector3 momerr(mom.X()*startMomAccuracy.X(),
 		    mom.Y()*startMomAccuracy.Y(),
 		    mom.Z()*startMomAccuracy.Z());    
+    mom.SetXYZ(gRandom->Gaus(mom.X(), momerr.X()),
+	       gRandom->Gaus(mom.Y(), momerr.Y()),
+	       gRandom->Gaus(mom.Z(), momerr.Z()));
     TVector3 u(1.,0.,0.);
     TVector3 v(0.,1.,0.);
     

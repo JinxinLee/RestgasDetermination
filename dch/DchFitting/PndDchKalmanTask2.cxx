@@ -81,7 +81,7 @@ PndDchKalmanTask2::Exec(Option_t* opt)
   Int_t ntracks=fTrackArray->GetEntriesFast();
   
   Kalman fitter;
-  fitter.setLazy(1);
+  fitter.setLazy(0);
   fitter.setNumIterations(fNumIt);
   
   for(Int_t itr=0; itr<ntracks; ++itr){
