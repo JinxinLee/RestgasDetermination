@@ -11,8 +11,10 @@ Int_t createRootGeoFile(Bool_t builtRICH = kTRUE){
   const Double_t  kFreeSpace      = 2.5-kPlaneThickness-kMylarThicknessPerDL/2.-kWoThicknessPerDL/2.;
   const Int_t    kNumOfSplanes[kNumOfChambers]   = {0, 0, 8, 8, 8, 8, 8, 8};
   const Double_t  kDchDz[kNumOfChambers]       = {0.,0., 10.,10.,10.,10.,10.,10.};
-  const Double_t  kDchDx[kNumOfChambers]       = { 0.,  0., 67., 67., 87.8, 96.8., 164., 190.};
+  const Double_t  kDchDx[kNumOfChambers]       = { 0.,  0., 67., 67., 87.8, 96.8, 164., 190.};
   const Double_t  kDchDy[kNumOfChambers]       = { 0.,  0., 32., 32., 37.5, 41.4, 54.5, 69.5};
+//   const Double_t  kDchDx[kNumOfChambers]       = { 0.,  0., 67., 500., 500., 500., 500., 500.};
+//   const Double_t  kDchDy[kNumOfChambers]       = { 0.,  0., 32., 300., 300., 300., 300., 300.};
   Double_t  kDchPosition[kNumOfChambers] = {112., 178., 
  						  305., 337.,
  						  418., 462.,
@@ -28,15 +30,15 @@ Int_t createRootGeoFile(Bool_t builtRICH = kTRUE){
     TString outfile= "../../geometry/dch.root";
   }
   
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-  basiclibs();
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  rootlogon();
   
   // Load this example libraries
-  gSystem->Load("libGeoBase");
-  gSystem->Load("libParBase");
-  gSystem->Load("libBase");
-  gSystem->Load("libMCStack");
-  gSystem->Load("libPassive");
+//   gSystem->Load("libGeoBase");
+//   gSystem->Load("libParBase");
+//   gSystem->Load("libBase");
+//   gSystem->Load("libMCStack");
+//   gSystem->Load("libPassive");
 
   
   FairGeoLoader* geoLoad = new FairGeoLoader("TGeo","FairGeoLoader");
@@ -68,7 +70,8 @@ Int_t createRootGeoFile(Bool_t builtRICH = kTRUE){
     
   //construct the overall box
   cout<<endl<<endl<<endl<<"&&&&&&&&&&&&&&&&&&&&&&&"<<gGeoMan->GetMedium("air")<<endl<<endl;
-  TGeoVolume *top = gGeoMan->MakeBox("top",gGeoMan->GetMedium("air"),400,130,800);
+  TGeoVolume *top = gGeoMan->MakeBox("topOne",gGeoMan->GetMedium("air"),400,130,800);
+  
   gGeoMan->SetTopVolume(top);
 
   TGeoTranslation* tr[kNumOfChambers];
@@ -310,9 +313,18 @@ Int_t createRootGeoFile(Bool_t builtRICH = kTRUE){
 
   
   //gGeoMan->CloseGeometry();
+  TGeoVolumeAssembly *topA = TGeoVolumeAssembly::MakeAssemblyFromVolume(top);
+  topA->SetName("dch");
+  topA->Print();
   
+
+  TGeoVolume *freshtop = gGeoMan->MakeBox("top",gGeoMan->GetMedium("air"),400,130,800);
+  TGeoTranslation* trTopInCave = new TGeoTranslation(0,0,0);
+  trTopInCave->SetName("trTopInCave");
+  freshtop->AddNode(topA, 0, trTopInCave);
+
   TFile* fi = new TFile(outfile,"RECREATE");
-  top->Write();
+  freshtop->Write();
   fi->Close();
   
    //  gGeoManager->SetName("dchGeom");
