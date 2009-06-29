@@ -51,8 +51,6 @@ protected:
   PndLhePoint fFirstHit;            // first track hit
   PndLhePoint fCircle;              // circle x,y,R
 
-  Int_t fFitTrackIndex;                // Index of TCA Track (genfit)
-
   TArrayI fCorrTrackIds;               // A unique list of correlated Ids
   TArrayI fMultTrackIds;               // A unique list of multiplicity of correlated Ids
 
@@ -113,8 +111,6 @@ public:
   Float_t ExtrapolateToZ(TVector3 *mom, TVector3 *vertex, const Float_t z = 0.); // extrapolate momentum and vertex at z=...
   Float_t ExtrapolateToR(TVector3 *mom, TVector3 *vertex, const Float_t R);      // extrapolate momentum and vertex at sqrt(x*x+y*y)=...
   
-  Int_t GetFitTrackIndex()          const { return fFitTrackIndex; }
- 
   Short_t GetNCorrTrackId(void)     const { return fCorrTrackIds.GetSize(); }
   Int_t   GetTrackID(Int_t i=0)     const { return fCorrTrackIds[i]; }
   Int_t   GetMultTrackID(Int_t i=0) const { return fMultTrackIds[i]; }
@@ -153,7 +149,6 @@ public:
   void   SetCharge(Int_t f) {fQ = f; }
   void   SetPid(Int_t f) {fPid = f; }
 
-  void   SetFitTrackIndex(Int_t ind) { fFitTrackIndex = ind; };
   void   ComesFromMainVertex(Bool_t f) { fFromMainVertex = f; }
   
   void   SetTrackID(const TArrayI track, const TArrayI mult) { fCorrTrackIds = track;  fMultTrackIds = mult; }

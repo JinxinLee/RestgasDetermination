@@ -215,7 +215,6 @@ void PndLheCandidate ::SetDefaults() {
   fMvdHits = 0;
   fTpcHits = 0;
   fGemHits = 0;
-  fFitTrackIndex = -1;
   fGood = kTRUE;
 
   fCorrTrackIds.Set(0);

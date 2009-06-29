@@ -36,7 +36,9 @@
 #include "PndGemRecoHit.h"
 #include "PndTpcSPHit.h"
 #include "PndSttRecoHit.h"
-#include "PndLheCandidate.h"
+#include "PndGenfitAdapters.h"
+#include "PndTrack.h"
+#include "PndTrackCand.h"
 #include "PndDetectorList.h"
 
 #include "RecoHitFactory.h"
@@ -57,8 +59,8 @@
 PndLheKalmanTask::PndLheKalmanTask(const char* name, Int_t iVerbose)
   : FairTask(name, iVerbose), fPersistence(kFALSE)
 {
-  fTrackBranchName = "LheCandidate";
-  fFitTrackArray = new TClonesArray("Track");
+  fTrackBranchName = "LheTrack";
+  fFitTrackArray = new TClonesArray("PndTrack");
   fUseGeane = kFALSE;
   fSmoothing = kFALSE;
   fNumIt = 1;
@@ -161,7 +163,6 @@ void PndLheKalmanTask::Exec(Option_t* opt)
   // Reset output Array
   //if(fTrackArray==0) Fatal("Kalman::Exec)","No TrackArray");
   
-  //fFitTrackArray->Delete();
   fFitTrackArray->Clear();
   
   Int_t ntracks=fTrackArray->GetEntriesFast();
@@ -185,51 +186,29 @@ void PndLheKalmanTask::Exec(Option_t* opt)
 
   for(Int_t itr=0;itr<ntracks;++itr){
     if (fVerbose>1) std::cout<<"starting track"<<itr<<std::endl;
-    PndLheCandidate *lheTrack = (PndLheCandidate*)fTrackArray->At(itr);
-    if (lheTrack->IsGood()==kFALSE) {
-      std::cout<<" -I- PndLheKalmanTask::Exec: Bad track skipped" << std::endl;
-      continue;
-    }
-
-    TVector3 StartPos(0., 0., 0.);
-    //TVector3 StartPos    = lheTrack->GetFirstHit().GetCoord();
-    //TVector3 StartPosErr = lheTrack->GetFirstHit().GetError();
-    TVector3 StartMom(0., 0., 0.);
-    //TVector3 StartMom = lheTrack->GetMomentum();
-    Float_t phi = lheTrack->ExtrapolateToZ(&StartMom, &StartPos, 0.);
-    if (phi==-100000)
-      {
-        std::cout<<" -I- PndLheKalmanTask::Exec: Evil Track (lam==0)! skipping" << std::endl;
-        continue; // not valid track
-      }
-    TVector3 StartMomErr = TVector3(0.1*StartMom);
-    TVector3 StartPosErr(0.5, 0.5, 0.5);
-
-    // Starting values for guessing
-    Double_t  fCharge= lheTrack->GetCharge();
-    Int_t PDGCode= -13*(Int_t)fCharge;
-  //  TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
-  //  TParticlePDG *fParticle= fdbPDG->GetParticle(PDGCode);
-   
-    // what to guess here?
-    TVector3 U(1.,0.,0.);
-    TVector3 V(0.,1.,0.);
-    DetPlane start_pl(StartPos,U,V);
-
-    AbsTrackRep* rep = 0;
+    PndTrack *lheTrack = (PndTrack*)fTrackArray->At(itr);
+ 
+    TVector3 StartPos(lheTrack->GetParamFirst().GetX(),lheTrack->GetParamFirst().GetY(),lheTrack->GetParamFirst().GetZ()); 
+    TVector3 StartMom(lheTrack->GetParamFirst().GetPx(),lheTrack->GetParamFirst().GetPy(),lheTrack->GetParamFirst().GetPz());
+    TVector3 StartPosErr(lheTrack->GetParamFirst().GetDX(),lheTrack->GetParamFirst().GetDY(),lheTrack->GetParamFirst().GetDZ()); 
+    TVector3 StartMomErr(lheTrack->GetParamFirst().GetDPx(),lheTrack->GetParamFirst().GetDPy(),lheTrack->GetParamFirst().GetDPz());
     
+    Double_t  fCharge= lheTrack->GetParamFirst().GetQ();
+    Int_t PDGCode= -13*(Int_t)fCharge;
+    DetPlane start_pl(lheTrack->GetParamFirst().GetOrigin(), TVector3(1.,0.,0.), TVector3(0.,1.,0.));
+    
+    AbsTrackRep* rep = 0;
     if (fUseGeane)
       {
 	GeaneTrackRep *grep = new GeaneTrackRep(fPro,
-			   	start_pl,StartMom,
-				StartPosErr,StartMomErr,
-				fCharge,PDGCode);
+						start_pl,StartMom,
+						StartPosErr,StartMomErr,
+						fCharge,PDGCode);
 	grep->setPropDir(1);
         rep = grep;
       }
     else
       {
-	
 	TVector3 dir=StartMom.Unit();
 	Double_t dxdz=dir.X()/dir.Z();
 	Double_t dydz=dir.Y()/dir.Z();
@@ -239,7 +218,8 @@ void PndLheKalmanTask::Exec(Option_t* opt)
       }
     
     Track* trk= new Track(rep);
-    trk->setCandidate(*(TrackCand*)lheTrack->GetTrackCand());
+    PndTrackCand trackCand = lheTrack->GetTrackCand();
+    trk->setCandidate(*PndTrackCand2GenfitTrackCand(&trackCand));
          
     // Load RecoHits
     try {
@@ -256,33 +236,23 @@ void PndLheKalmanTask::Exec(Option_t* opt)
     // Start Fitter
     try{
       fitter.processTrack(trk);
-      //if(fSmoothing)fitter.smoothing(trk);
     }
     catch (FitterException e){
       std::cout<<"*** FITTER EXCEPTION ***"<<std::endl;
       std::cout<<e.what()<<std::endl;
-
     }
-
     if (fVerbose>0) std::cout<<"SUCESSFULL FIT!"<<std::endl;
-
-    AddTrack(trk);
-    lheTrack->SetFitTrackIndex(fFitTrackArray->GetEntriesFast()-1);
     
+    PndTrack *fitTrack = (PndTrack*)GenfitTrack2PndTrack(trk);
+   
+    TClonesArray& trkRef = *fFitTrackArray;
+    Int_t size = trkRef.GetEntriesFast();
+    PndTrack* pndTrack = new(trkRef[size]) PndTrack(fitTrack->GetParamFirst(), fitTrack->GetParamLast(), fitTrack->GetTrackCand());
   }
 
   if (fVerbose>0) std::cout<<"Fitting done"<<std::endl;
 
   return;
-}
-
-//_________________________________________________________________
-Track* PndLheKalmanTask::AddTrack(Track* track) {
-  // Creates a new hit in the TClonesArray.
-  
-  TClonesArray& trkRef = *fFitTrackArray;
-  Int_t size = trkRef.GetEntriesFast();
-  return new(trkRef[size]) Track(*track);
 }
 
 ClassImp(PndLheKalmanTask);

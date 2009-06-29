@@ -217,12 +217,12 @@ void PndLheTrackFitter::Info4Fit(PndLheCandidate *track) {
 	if (ih==0) 
 	  {
 	    track->SetFirstHit(hit->GetX(),hit->GetY(),hit->GetZ());
-	    firstPar = new FairTrackParP(TVector3(hit->GetX(),hit->GetY(),hit->GetZ()),
+	    firstPar = new FairTrackParP(TVector3(x, y, z),
 					 TVector3(px, py, pz),
-					 TVector3(hit->GetDx(),hit->GetDy(),hit->GetDz()),
-					 0.02*TVector3(px, py, pz),
+					 TVector3(0.5, 0.5, 0.5),
+					 0.1*TVector3(px, py, pz),
 					 track->GetCharge(),
-					 TVector3(hit->GetX(),hit->GetY(),hit->GetZ()),
+					 TVector3(x, y, z),
 					 TVector3(1.,0.,0.),
 					 TVector3(0.,1.,0.));					 
 	  }
@@ -232,12 +232,12 @@ void PndLheTrackFitter::Info4Fit(PndLheCandidate *track) {
 	    track->SetPx(px);
 	    track->SetPy(py);
 	    track->SetPz(pz);
-	    lastPar = new FairTrackParP(TVector3(hit->GetX(),hit->GetY(),hit->GetZ()),
+	    lastPar = new FairTrackParP(TVector3(x, y, z),
 					TVector3(px, py, pz),
-					TVector3(hit->GetDx(),hit->GetDy(),hit->GetDz()),
-					0.02*TVector3(px, py, pz),
+					TVector3(0.5, 0.5, 0.5),
+					0.1*TVector3(px, py, pz),
 					track->GetCharge(),
-					TVector3(hit->GetX(),hit->GetY(),hit->GetZ()),
+					TVector3(x, y, z),
 					TVector3(1.,0.,0.),
 					TVector3(0.,1.,0.));	
 	    if (fVerbose) cout <<  " Fitted x, y, z: " << x << " " << y << " " << z
@@ -269,11 +269,13 @@ void PndLheTrackFitter::Info4Fit(PndLheCandidate *track) {
    track->SetTrackID(trackID, multID);
 
    // Filling PndTrack TCA
-   TClonesArray &pndtracks = *fPndTracks;
-   Int_t size = pndtracks.GetEntriesFast();
-   trackCand->Sort();
-   PndTrack* pndTrack = new(pndtracks[size]) PndTrack(*firstPar, *lastPar, *trackCand);
-  
+   if (track->IsGood())
+     {
+       TClonesArray &pndtracks = *fPndTracks;
+       Int_t size = pndtracks.GetEntriesFast();
+       trackCand->Sort();
+       PndTrack* pndTrack = new(pndtracks[size]) PndTrack(*firstPar, *lastPar, *trackCand);
+     }
 }
 
 

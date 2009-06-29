@@ -27,10 +27,7 @@
 
 // Collaborating Class Declarations --
 class TClonesArray;
-class PndLheCandidate;
 class RecoHitFactory;
-class TrackCand;
-class Track;
 class TGeoManager; 
 
 class PndLheKalmanTask : public FairTask {
@@ -80,9 +77,7 @@ private:
   Bool_t fSmoothing;    //! Flag to set on smoothing
   Int_t fNumIt;         //! Number of iterations
 
-  Track* AddTrack(Track* track);
-
-  ClassDef(PndLheKalmanTask,1);
+  ClassDef(PndLheKalmanTask,2);
 
 };
 
