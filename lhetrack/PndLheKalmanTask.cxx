@@ -247,7 +247,8 @@ void PndLheKalmanTask::Exec(Option_t* opt)
    
     TClonesArray& trkRef = *fFitTrackArray;
     Int_t size = trkRef.GetEntriesFast();
-    PndTrack* pndTrack = new(trkRef[size]) PndTrack(fitTrack->GetParamFirst(), fitTrack->GetParamLast(), fitTrack->GetTrackCand());
+    PndTrack* pndTrack = new(trkRef[size]) PndTrack(fitTrack->GetParamFirst(), fitTrack->GetParamLast(), fitTrack->GetTrackCand(),
+						    fitTrack->GetFlag(), fitTrack->GetChi2(), fitTrack->GetNDF(), fitTrack->GetPidHypo());
   }
 
   if (fVerbose>0) std::cout<<"Fitting done"<<std::endl;

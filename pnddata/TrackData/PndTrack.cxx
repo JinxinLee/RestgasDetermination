@@ -11,12 +11,17 @@ ClassImp(PndTrack);
 
 PndTrack::PndTrack()
 {
+  fPidHypo = 0;
+  fFlag    = 0;
+  fChi2    = -1.;
+  fNDF     = 0;
 }
 
 
-PndTrack::PndTrack(const FairTrackParP& first, const FairTrackParP& last, const PndTrackCand& cand):
-	fTrackParamFirst(first), fTrackParamLast(last), fTrackCand(cand)
+PndTrack::PndTrack(const FairTrackParP& first, const FairTrackParP& last, const PndTrackCand& cand, Int_t flag, Double_t chi2, Int_t ndf, Int_t pid):
+  fTrackParamFirst(first), fTrackParamLast(last), fTrackCand(cand), fFlag(flag), fChi2(chi2), fNDF(ndf), fPidHypo(pid)
 {
+
 }
 
 
