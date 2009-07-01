@@ -145,18 +145,28 @@ void PndGemMatchHits::Exec(Option_t* opt) {
     else if ( hitX < 0 ) hitP +=  2.*TMath::Pi();
     Double_t hitR = TMath::Sqrt(hitX*hitX+hitY*hitY);
     
-    if ( fVerbose > 1 )
+    if ( fVerbose > 1 ) {
+      cout << "-------------------------------------------" << endl;
       cout << "hit " << iHit << " (" << hitZ << "," << hitR << "," << hitP << ")" << endl;
-    
+    }
+
     Int_t matchPoint = -1;
     Double_t closestDistance = 1000.;
     Bool_t multiHit = kFALSE;
     for ( Int_t iPoint = 0 ; iPoint < pointZ.size() ; iPoint++ ) {
-      if ( fVerbose > 1 )
-	cout << "matching with " << " (" << pointZ[pointZ.size()-1] << "," << pointR[pointR.size()-1] << "," << pointP[pointP.size()-1] << ")" << endl;
-      if ( TMath::Abs(pointZ[iPoint]-hitZ) > currentPndGemHit->GetDz() ) continue;
-      if ( TMath::Abs(pointR[iPoint]-hitR) > currentPndGemHit->GetDr()*TMath::Sqrt(3.) ) continue;
-      if ( TMath::Tan(TMath::Abs(pointP[iPoint]-hitP)) > currentPndGemHit->GetDp()*TMath::Sqrt(3.)/hitR ) continue;
+      //     if ( fVerbose > 1 )
+      if ( TMath::Abs(pointZ[iPoint]-hitZ) > currentPndGemHit->GetDz() ) { /*cout << "FAILED Z" << endl;*/ continue; }
+      if ( TMath::Abs(pointR[iPoint]-hitR) > currentPndGemHit->GetDr()*TMath::Sqrt(3.) ) { /*cout << "FAILED R" << endl;*/ continue; }
+    
+      if ( hitP < 1.0 && pointP[iPoint] > 5.5 ) hitP += 2.*TMath::Pi();
+      if ( hitP > 5.5 && pointP[iPoint] < 1.0 ) hitP -= 2.*TMath::Pi();
+
+	  if ( TMath::Abs(TMath::Tan(pointP[iPoint]-hitP)) > currentPndGemHit->GetDp()*TMath::Sqrt(3.)/hitR ) { /*cout << "FAILED PHI" << endl;*/ continue; }
+      if ( fVerbose > 1 ) {
+	cout << "matched with " << " (" << pointZ[iPoint] << "," << pointR[iPoint] << "," << pointP[iPoint] << ") " << endl;
+	cout << "DP = " << currentPndGemHit->GetDp() << " after transf. = " << currentPndGemHit->GetDp()*TMath::Sqrt(3.)/hitR << " while p_p = " << pointP[iPoint] << " " << " h_p = " << hitP << endl;
+	cout << "PASSED WITH POINT " << iPoint << endl;
+      }
       Double_t distance = TMath::Sqrt((pointR[iPoint]-hitR)*(pointR[iPoint]-hitR)/currentPndGemHit->GetDr()/currentPndGemHit->GetDr()+
 				      (pointP[iPoint]-hitP)*(pointP[iPoint]-hitP)/currentPndGemHit->GetDp()/currentPndGemHit->GetDp());
       if ( matchPoint != -1 ) multiHit = kTRUE;
