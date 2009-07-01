@@ -74,7 +74,7 @@ MvdData/PndMvdRadDamHit.cxx
 
 TrackData/PndTrackCand.cxx
 TrackData/PndTrack.cxx
-
+TrackData/PndTrackID.cxx
 )
 
 if(RULE_CHECKER_FOUND)

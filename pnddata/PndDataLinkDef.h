@@ -63,6 +63,7 @@
 
 #pragma link C++ class PndTrackCand+;
 #pragma link C++ class PndTrack+;
+#pragma link C++ class PndTrackID+;
 #pragma link C++ class PndTrackCandHit+;
 
 
