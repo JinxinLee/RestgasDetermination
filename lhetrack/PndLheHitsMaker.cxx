@@ -444,9 +444,9 @@ void PndLheHitsMaker::GetMvdHits() {
 
       hit->SetDetectorID(kMVDHitsPixel);
       
-      if ( (fMvdSimMode) && (hit->GetRefIndex()!=-1) )
+      if ( (fMvdSimMode) && (point->GetRefIndex()!=-1) )
 	{
-	  PndMvdMCPoint* myPoint = (PndMvdMCPoint*)(fMvdMCArray->At(hit->GetRefIndex()));
+	  PndMvdMCPoint* myPoint = (PndMvdMCPoint*)(fMvdMCArray->At(point->GetRefIndex()));
 	  hit->SetTrackID(myPoint->GetTrackID());
 	}
       hit->SetRefIndex(j2);
@@ -481,9 +481,9 @@ void PndLheHitsMaker::GetMvdHits() {
       hit->SetDz(0.005);
       hit->SetDetectorID(kMVDHitsStrip);
 
-      if ( (fMvdSimMode) && (hit->GetRefIndex()!=-1) )
+      if ( (fMvdSimMode) && (point->GetRefIndex()!=-1) )
 	{
-	  PndMvdMCPoint* myPoint = (PndMvdMCPoint*)(fMvdMCArray->At(hit->GetRefIndex()));
+	  PndMvdMCPoint* myPoint = (PndMvdMCPoint*)(fMvdMCArray->At(point->GetRefIndex()));
 	  hit->SetTrackID(myPoint->GetTrackID());
 	}
       hit->SetRefIndex(j);
@@ -873,12 +873,12 @@ void PndLheHitsMaker::GetGemHits() {
 		       << hit->GetZ() << " RADIUS " 
 		       << sqrt((hit->GetX()*hit->GetX())+(hit->GetY()*hit->GetY())) << "\n";
     
-    //hit->SetDx(point->GetX());  
-    //hit->SetDy(point->GetY());
-    //hit->SetDz(point->GetZ());
-    hit->SetDx(0.03);
-    hit->SetDy(0.03);
-    hit->SetDz(0.03);
+    hit->SetDx(point->GetDx());  
+    hit->SetDy(point->GetDy());
+    hit->SetDz(point->GetDz());
+    //  hit->SetDx(0.03);
+    //  hit->SetDy(0.03);
+    //  hit->SetDz(0.03);
 
     hit->SetDetectorID(kGemHit);
     hit->SetTrackID(-1);

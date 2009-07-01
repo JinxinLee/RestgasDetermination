@@ -26,6 +26,7 @@ protected:
 
   FairField*     fMagField;       //
   TClonesArray* fPndTracks;      //!
+  TClonesArray* fPndTrackIds;    //!
   TClonesArray* fTpcTracks;      //!
   TClonesArray* fTpcHits;        //!
   TClonesArray* fTpcPoints;      //!

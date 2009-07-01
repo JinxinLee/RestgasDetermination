@@ -1,6 +1,7 @@
 #include "PndLheTrackFitter.h"
 #include "PndLheCandidate.h"
 #include "PndTrack.h"
+#include "PndTrackID.h"
 #include "PndTrackCand.h"
 //#include "lhe.h"
 
@@ -28,14 +29,15 @@ PndLheTrackFitter* PndLheTrackFitter::Instance() {
 //___________________________________________________________
 PndLheTrackFitter::~PndLheTrackFitter() {
   //
-  FairRootManager *fManger =FairRootManager::Instance();
-  fManger->Write();
+  FairRootManager *fManager =FairRootManager::Instance();
+  fManager->Write();
 }
 
 //___________________________________________________________
 PndLheTrackFitter::PndLheTrackFitter() {
   //---
   fPndTracks = new TClonesArray("PndTrack");
+  fPndTrackIds = new TClonesArray("PndTrackID");
   fVerbose = kFALSE;
   fSimulation = kFALSE;
   fCircleFit = 0;
@@ -47,6 +49,7 @@ PndLheTrackFitter::PndLheTrackFitter(const char *name, const char *title)
   :FairTask(name) {
   //---
   fPndTracks = new TClonesArray("PndTrack");
+  fPndTrackIds = new TClonesArray("PndTrackID");
   fVerbose = kFALSE;
   fSimulation = kFALSE;
   fCircleFit = 0;
@@ -57,16 +60,17 @@ PndLheTrackFitter::PndLheTrackFitter(const char *name, const char *title)
 //_________________________________________________________________
 void PndLheTrackFitter::Register() {
   //---
-  FairRootManager::
-    Instance()->Register("LheTrack",
+  FairRootManager::Instance()->Register("LheTrack",
   			 "Lhe", fPndTracks, fPersistence);
+ FairRootManager::Instance()->Register("LheTrackID",
+  			 "Lhe", fPndTrackIds, fPersistence);
 }
 
 //________________________________________________________________
 void PndLheTrackFitter::Reset() {
   //---
   if (fPndTracks->GetEntriesFast() != 0)  fPndTracks->Clear("C");
-
+  if (fPndTrackIds->GetEntriesFast() != 0)  fPndTrackIds->Clear("C");
 }
 //___________________________________________________________
 InitStatus PndLheTrackFitter::Init() {
@@ -171,7 +175,7 @@ void PndLheTrackFitter::Info4Fit(PndLheCandidate *track) {
   Int_t nHits = rhits->GetEntriesFast();
   map<Int_t, Int_t> fMCTrackList; // MC TrackId, multiplicity
   map<Int_t, Int_t>::iterator iter;
-
+  
   // alpha = .2998 * magfield / 100 <- for obtain moment in GeV/c
   Double_t alpha = .2998 * .02 ;
   Double_t Q = double(TMath::Sign(1, track->GetCharge()));
@@ -262,7 +266,7 @@ void PndLheTrackFitter::Info4Fit(PndLheCandidate *track) {
   for (iter=fMCRevertedList.begin(); iter!=fMCRevertedList.end(); ++iter)
     {
       trackID[count] = (*iter).second;
-      multID[count] = (*iter).first;
+      multID[count] = -(*iter).first;
       count++;
     }
   
@@ -272,13 +276,13 @@ void PndLheTrackFitter::Info4Fit(PndLheCandidate *track) {
    if (track->IsGood())
      {
        TClonesArray &pndtracks = *fPndTracks;
+       TClonesArray &pndtrackids = *fPndTrackIds;
        Int_t size = pndtracks.GetEntriesFast();
        trackCand->Sort();
        PndTrack* pndTrack = new(pndtracks[size]) PndTrack(*firstPar, *lastPar, *trackCand);
+       PndTrackID* pndTrackId = new(pndtrackids[size]) PndTrackID(size ,trackID, multID);
      }
 }
-
-
 
 //_____________________________________________________________________________
 Int_t PndLheTrackFitter::CircleFit(PndLheCandidate *track) {
