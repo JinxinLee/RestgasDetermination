@@ -26,6 +26,7 @@ rootlogon()
         gSystem->Load("libMvd");
         gSystem->Load("libMvdReco");
         gSystem->Load("libMvdTrk");
+        gSystem->Load("libGem");
 	gSystem->Load("libTof");
 	gSystem->Load("libDrcProp");
 	gSystem->Load("libDrc");
