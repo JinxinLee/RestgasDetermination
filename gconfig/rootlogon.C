@@ -32,7 +32,7 @@ rootlogon()
 	gSystem->Load("libDrc");
 	gSystem->Load("libMdt");
 	gSystem->Load("libDch");
-        gSystem->Load("libLHETrack");
+        gSystem->Load("libLheTrack");
 	gSystem->Load("libGeane");
 	gSystem->Load("libRpc");
 	gSystem->Load("libLumi");

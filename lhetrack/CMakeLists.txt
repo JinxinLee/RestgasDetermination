@@ -1,4 +1,4 @@
-# Create a library called "libLHETrack" 
+# Create a library called "libLheTrack" 
 
 set(INCLUDE_DIRECTORIES
 ${ROOT_INCLUDE_DIR} 
@@ -42,7 +42,7 @@ ${ROOT_LIBRARY_DIR}
  
 link_directories( ${LINK_DIRECTORIES})
 
-set(LHETrack_SRCS
+set(LheTrack_SRCS
 PndLheTrackFinder.cxx
 PndLheTrackFinderIdeal.cxx
 PndLheSegments.cxx
@@ -62,11 +62,11 @@ PndLheContFact.cxx
 )
 
 if(RULE_CHECKER_FOUND)
-  CHECK_RULES("${LHETrack_SRCS}" "${INCLUDE_DIRECTORIES}" LHETrack_RULES)
+  CHECK_RULES("${LheTrack_SRCS}" "${INCLUDE_DIRECTORIES}" LheTrack_RULES)
 endif(RULE_CHECKER_FOUND)
 
 
-set(LHETrack_HEADERS
+set(LheTrack_HEADERS
 PndLheTrackCuts.h 
 PndLheCandidate.h   
 PndLheCMPoint.h  
@@ -87,16 +87,16 @@ PndLheContFact.h
 
 
 
-set(LHETrack_LINKDEF LHETrackLinkDef.h)
-set(LHETrack_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/LHETrackDict.cxx) 
+set(LheTrack_LINKDEF LheTrackLinkDef.h)
+set(LheTrack_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/LheTrackDict.cxx) 
 
-ROOT_GENERATE_DICTIONARY("${LHETrack_HEADERS}" "${LHETrack_LINKDEF}" "${LHETrack_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
+ROOT_GENERATE_DICTIONARY("${LheTrack_HEADERS}" "${LheTrack_LINKDEF}" "${LheTrack_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
 
 
-set(LHETrack_SRCS ${LHETrack_SRCS} ${LHETrack_DICTIONARY})
+set(LheTrack_SRCS ${LheTrack_SRCS} ${LheTrack_DICTIONARY})
 
-add_library(LHETrack SHARED ${LHETrack_SRCS})
-target_link_libraries(LHETrack ${ROOT_LIBRARIES})
-set_target_properties(LHETrack PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
+add_library(LheTrack SHARED ${LheTrack_SRCS})
+target_link_libraries(LheTrack ${ROOT_LIBRARIES})
+set_target_properties(LheTrack PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 ################ install ###################
-install(TARGETS LHETrack DESTINATION ${CMAKE_BINARY_DIR}/lib)
+install(TARGETS LheTrack DESTINATION ${CMAKE_BINARY_DIR}/lib)
