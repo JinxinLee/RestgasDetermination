@@ -195,17 +195,18 @@ bool PndEmcStructure::crystal_name_analysis(TString node_path,int &module,int &c
 
    	//case new version of forward end-cap (from "emc_module3new.root" file)
    else if (node_path.Contains("QuarterVol")) { 
-      TObjArray *subStrL = TPRegexp("^cave/Emc3_0/QuarterVol_(\\d+)/SubunitVol_(\\d+)/BoxVol_(\\d+)/CrystalVol_(\\d+)$").MatchS(node_path);
-      if(subStrL->GetLast()<4){
+     TObjArray *subStrL = TPRegexp("^cave/Emc3_0/QuarterVol(\\d+)_(\\d+)/SubunitVol(\\d+)_(\\d+)/BoxVol(\\d+)_(\\d+)/CrystalVol(\\d+)_(\\d+)$").MatchS(node_path);
+
+     if(subStrL->GetLast()<4){
 	 cout<<"crystal name in NEW FwEndCap Emc: "<<node_path<<" missmatch pattern"<<endl;
 	 return false;
       }
 
-      copy  = (((TObjString *)subStrL->At(1))->GetString()).Atoi();
+      copy  = (((TObjString *)subStrL->At(2))->GetString()).Atoi();
 
-      Int_t copyNoSub = (((TObjString *)subStrL->At(2))->GetString()).Atoi()-1;//'copyNoSub' should start from zero
-      Int_t copyNoBox  = (((TObjString *)subStrL->At(3))->GetString()).Atoi();
-      Int_t copyNoCrys  = (((TObjString *)subStrL->At(4))->GetString()).Atoi();
+      Int_t copyNoSub = (((TObjString *)subStrL->At(4))->GetString()).Atoi()-1;//'copyNoSub' should start from zero
+      Int_t copyNoBox  = (((TObjString *)subStrL->At(6))->GetString()).Atoi();
+      Int_t copyNoCrys  = (((TObjString *)subStrL->At(8))->GetString()).Atoi();
 
       Int_t col=0, k1=0, nRow=-1, nCrys=-1;
       Int_t subrow=4;   // 4 crystals in each subvolume
