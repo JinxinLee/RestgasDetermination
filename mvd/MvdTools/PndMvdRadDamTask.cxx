@@ -130,8 +130,8 @@ void PndMvdRadDamTask::Exec(Option_t* opt)
 		  TVector3 sensDim = fGeoH->GetSensorDimensionsId(mcPoint->GetDetName().Data());
 		  fMapDetHistos[mcPoint->GetDetName().Data()] = new TH2D(svec.Replace("/","o").c_str(),
 																 fGeoH->GetPath(mcPoint->GetDetName()),
-																 2*sensDim.X()*10,-sensDim.X(),sensDim.X(),	// point resolution mm^2
-																 2*sensDim.Y()*10,-sensDim.Y(),sensDim.Y());
+																 (Int_t)(2*sensDim.X()*10),-sensDim.X(),sensDim.X(),	// point resolution mm^2
+																 (Int_t)(2*sensDim.Y()*10),-sensDim.Y(),sensDim.Y());
 	  }
 	  TVector3 localHit = fGeoH->MasterToLocalId(mcPoint->GetPosition(), mcPoint->GetDetName());
 	  (TH2D*)(fMapDetHistos[mcPoint->GetDetName().Data()])->Fill(localHit.X(), localHit.Y(), weight);
