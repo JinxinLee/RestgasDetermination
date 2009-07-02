@@ -6,8 +6,7 @@
 	Int_t iVerbose = 0; // just forget about it, for the moment
 	
 	// Input file (MC events)
-	TString inFile = "sim_emc.root";
-	
+	TString inFile = "sim_emc.root";	
 	
 	// Number of events to process
 	Int_t nEvents = 0;  // if 0 all the vents will be processed

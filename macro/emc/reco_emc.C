@@ -51,21 +51,20 @@
         parInput1->open(parFile.Data());
 	
         FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
-		  parIo1->open(emcDigiFile.Data(),"in");
+	parIo1->open(emcDigiFile.Data(),"in");
         
-			rtdb->setFirstInput(parInput1);
-			rtdb->setSecondInput(parIo1);
+	rtdb->setFirstInput(parInput1);
+	rtdb->setSecondInput(parIo1);
   	
 	// ----------------------------------------------------
 	fRun->LoadGeometry();
    // ----------------------------------------------------
 
-	PndEmcMakeCluster* emcMakeCluster= new PndEmcMakeCluster();
-	
+	PndEmcMakeCluster* emcMakeCluster= new PndEmcMakeCluster(iVerbose);
 	fRun->AddTask(emcMakeCluster);
-  
+	
+
   // -----   Intialise and run   -----------------------
-  cout << "fRun->Init()" << endl;
   fRun->Init();
   fRun->Run(0,nEvents);
   // ----------------------------------------------------

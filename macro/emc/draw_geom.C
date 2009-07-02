@@ -28,7 +28,7 @@
   TCanvas* c1 = new TCanvas("c1", "", 100, 100, 800, 800); // to create a canvas where to plot the geometry
   c1->SetFillColor(10);
   
-  geoMan->SetVisLevel(5); // Number of folded geo levels; 3 for emc. Try to change the number and to see how the geometry changes.
+  geoMan->SetVisLevel(10); // Number of folded geo levels; 3 for emc. Try to change the number and to see how the geometry changes.
   
   geoMan->GetMasterVolume()->Draw("same");
 }

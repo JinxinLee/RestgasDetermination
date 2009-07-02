@@ -127,8 +127,7 @@
   gSystem->Load("libPndData");
   gSystem->Load("libPassive");
    
-   TString outfile= "../../geometry/emc_module3new.root";
-   
+   TString outfile= "../../geometry/emc_module3new.root";  
    TFile* fi = new TFile(outfile,"RECREATE");  
    
    FairGeoLoader* geoLoad = new FairGeoLoader("TGeo","FairGeoLoader");
@@ -377,12 +376,48 @@
       ttt = new TGeoTranslation(-0.5*sizeOfQuar,-0.5*sizeOfQuar,0.);
     }
 
-      top->AddNode(QuarterVol,q+1,new TGeoCombiTrans(ttt,reflection)); 
+     top->AddNode(QuarterVol,q+1,new TGeoCombiTrans(ttt,reflection)); 
   }
-  
+
+   cout <<"             "<< endl;
+   cout <<"*************************************** "<< endl;
+   TString nameBoxVol = BoxVol->GetName();
+   cout << "Checking overlaps for --------->>>> "<< nameBoxVol <<endl ;
+   gGeoManager->GetVolume(nameBoxVol)->CheckOverlaps(0.001);
+   cout << "And printing..." <<gGeoManager->PrintOverlaps()<<endl;
+
+   cout <<"             "<< endl;
+   cout <<"*************************************** "<< endl;
+   TString nameSubVol = SubunitVol->GetName();
+   cout << "Checking overlaps for --------->>>> "<< nameSubVol <<endl ;
+   gGeoManager->GetVolume(nameSubVol)->CheckOverlaps(0.001);
+   cout << "And printing..." <<gGeoManager->PrintOverlaps()<<endl;
+
+   cout <<"             "<< endl;
+   cout <<"*************************************** "<< endl;
+   TString nameQuarVol = QuarterVol->GetName();
+   cout << "Checking overlaps for --------->>>> "<< nameQuarVol <<endl ;
+   gGeoManager->GetVolume(nameQuarVol)->CheckOverlaps(0.001);
+   cout << "And printing..." <<gGeoManager->PrintOverlaps()<<endl ;
+   
+   cout <<"             "<< endl;
+   cout <<"*************************************** "<< endl;
+   TString nameTopVol = top->GetName();
+   cout << "Checking overlaps for --------->>>> "<< nameTopVol <<endl ;
+   gGeoManager->GetVolume(nameTopVol)->CheckOverlaps(0.001);
+   cout << "And printing..." <<gGeoManager->PrintOverlaps()<<endl;
+
+   cout <<"             "<< endl;
+   cout <<"*************************************** "<< endl;   
+   Int_t NoOfNodesInTop = top->GetNdaughters();
+   cout << "Number of GetNdaughters() == "<< NoOfNodesInTop <<endl ;
+   
+
+
+   
   gGeoMan->CloseGeometry();
   top->Write();
   fi->Close();
-   //gGeoManager->Export(outfile);//
+  //gGeoManager->Export(outfile);//
   //top->Draw();//
 }  
