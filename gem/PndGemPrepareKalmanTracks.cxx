@@ -159,7 +159,7 @@ PndGemPrepareKalmanTracks::Exec(Option_t* opt)
 
     if ( fUseMC ) { 
       q = (param->GetQp()==0) ? 0 : param->GetQp()/TMath::Abs(param->GetQp());
-      pdg = (Int_t)gemtrack->GetParamLast()->GetQp()-1e6;
+      pdg = (Int_t)(gemtrack->GetParamLast()->GetQp()-1e6);
     }
 
     std::cout<<"pozycje i pedy "<<std::endl;
