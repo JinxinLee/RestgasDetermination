@@ -59,10 +59,10 @@
   trackMS->SetMvdMode(2);  // 0 OFF, 1 MVDPoint, 2 MVDHit     // MVDPoint smearing [cm], if negative no smearing
   fRun->AddTask(trackMS);
   
-  PndTpcLheTrackFinder* trackFinder    = new PndTpcLheTrackFinder();
+  PndLheTrackFinder* trackFinder    = new PndLheTrackFinder();
   fRun->AddTask(trackFinder);
   
-  PndTpcLheTrackFitter* trackFitter    = new PndTpcLheTrackFitter("fitting");
+  PndLheTrackFitter* trackFitter    = new PndLheTrackFitter("fitting");
   fRun->AddTask(trackFitter);
   
   PndLhePidMaker* pidMaker    = new PndLhePidMaker("pid");
