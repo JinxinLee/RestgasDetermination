@@ -129,7 +129,7 @@ std::vector<PndMvdDigiStrip> PndMvdConvertApv::Calc(std::vector<PndMvdApvHit> hi
   TString detPath="";
   for(Int_t hitnumber=0;hitnumber<hitlist.size();hitnumber++)
   {
-     Double_t q;
+     Double_t q=0.;
      if(fNoCalib)
      {
        q=1.*hitlist[hitnumber].GetADC();					// no calib adc -> e !!!
@@ -148,7 +148,7 @@ std::vector<PndMvdDigiStrip> PndMvdConvertApv::Calc(std::vector<PndMvdApvHit> hi
 // 	string detPath="SiliconTestStation_1/DummysensorAss_0/";
 //     detPath+="Module";
     TString detPath="Module";
-    Int_t modId;
+    Int_t modId=-1;
     if(fFake)
     {
       if(fTopModuleID==hitlist[hitnumber].GetModuleID() || fBottomModuleID==hitlist[hitnumber].GetModuleID())

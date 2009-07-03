@@ -161,7 +161,7 @@ void PndMvdHybridHitProducer::Exec(Option_t* opt)
   // Loop over PndMvdMCPoints
   Int_t
     nPoints = fPointArray->GetEntriesFast();
-  Int_t iPixel = 0;
+ // Int_t iPixel = 0;
   Int_t iFePixel = 0;
   fPixelHits = 0;
 

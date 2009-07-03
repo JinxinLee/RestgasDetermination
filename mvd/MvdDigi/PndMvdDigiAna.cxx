@@ -113,7 +113,7 @@ void PndMvdDigiAna::Exec(Option_t* opt)
 
   PndMvdDigiStrip* hit = 0;
 
-  for (Int_t iPoint = 0, iPixel = 0; iPoint < nPoints; iPoint++)
+  for (Int_t iPoint = 0; iPoint < nPoints; iPoint++)
     {
 //      hit = (PndMvdDigiPixel*) fHitArray->At(iPoint);
       hit = (PndMvdDigiStrip*) fHitArray->At(iPoint);

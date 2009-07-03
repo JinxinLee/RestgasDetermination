@@ -182,12 +182,12 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
 
    // a std::map is a SORTED container, it is sorted by the identifier
   TString detName;
-  Int_t nPoints = fDigiArray->GetEntriesFast();
+ // Int_t nPoints = fDigiArray->GetEntriesFast();
   Int_t strip;
   SensorSide side;
   PndMvdDigiStrip* myDigi=0;
-  PndMvdCluster* myCandTop=0;
-  PndMvdCluster* myCandBot=0;
+ // PndMvdCluster* myCandTop=0;
+ // PndMvdCluster* myCandBot=0;
 
   // load the Clusterfinder
   if(0==fClusterMod) { fClusterfinder = new PndMvdSimpleStripClusterFinder( fRadChannel ); //search radius in channel no.
@@ -209,7 +209,7 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
   std::vector< Int_t > oneclustertop;
   std::vector< Int_t > oneclusterbot;
   std::vector< Int_t > leftDigis;
-  Int_t detID, mcindex, iDigi, clindex, topIndex, botIndex;
+  Int_t detID, mcindex, clindex, botIndex;
   Double_t mycharge;
   TVector2 meantopPoint, meanbotPoint, onsensorPoint;
   TVector3 hitPos,hitErr;
@@ -225,7 +225,7 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
     if (0<leftDigis.size()){
       std::cout << "There are "<<leftDigis.size()<<" Digis not assigned to"
                 << " clusters:\n";
-      for(int s=0;s<leftDigis.size();s++)
+      for(unsigned int s=0;s<leftDigis.size();s++)
       {
         std::cout<<leftDigis[s]<<"|";
       }
@@ -290,7 +290,7 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
     {
       if(mcindex < 0) {//look for the first digi from a MC point
         for(Int_t mcI = 0; mcI<atopDigi->GetNIndices();mcI++){ 
-          if (atopDigi->GetIndex(mcI) > 0) {
+          if (atopDigi->GetIndex(mcI) > -1) {
             mcindex = atopDigi->GetIndex(mcI);
             break;
           }
@@ -330,7 +330,7 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
             fStripCalcBot->CalcStripPointOnLine(meanbotstrip, meanbotPoint);
             if(mcindex < 0) {//look for the first digi from a MC point
               for(Int_t mcI = 0; mcI<abotDigi->GetNIndices();mcI++){ 
-                if (abotDigi->GetIndex(mcI) > 0) {
+                if (abotDigi->GetIndex(mcI) > -1) {
                   mcindex = abotDigi->GetIndex(mcI);
                   break;
                 }

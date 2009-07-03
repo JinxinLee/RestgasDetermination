@@ -23,14 +23,15 @@
 class PndMvdDigiPixel : public PndMvdDigi
 {
     friend std::ostream& operator<< (std::ostream& out, PndMvdDigiPixel& digi){
-        out << "PndMvd DigiPixel in: " << digi.GetDetName() << " FE: "
+        out << "PndMvdDigiPixel in: " << digi.GetDetName() << " FE: "
         << digi.GetFE() << " Col/Row " << digi.GetPixelColumn() << "/" << digi.GetPixelRow()
         << " charge " << digi.GetCharge() << " e"
         << ", from Point(s) ";
         std::vector<Int_t>indices = digi.GetIndices();
         for (int i = 0; i < indices.size(); i++){
-        	std::cout << indices[i] << " " << std::endl;
+        	std::cout << indices[i] << "  ";
         }
+      std::cout << std::endl;
 
         return out;
       }

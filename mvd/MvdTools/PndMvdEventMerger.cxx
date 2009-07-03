@@ -65,7 +65,7 @@ Int_t PndMvdEventMerger::FillBuffer(TString fileName, TString branchName, Int_t 
 
 	TClonesArray* pointArray= NULL;
 	TClonesArray* mergedPointsArray = NULL;
-	TFile* saveGFile = gFile;
+	//TFile* saveGFile = gFile;
 
 	TFile* bgfile = new TFile(fileName);
 	if ( !bgfile)

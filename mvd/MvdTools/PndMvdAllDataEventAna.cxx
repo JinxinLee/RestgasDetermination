@@ -254,7 +254,7 @@ void PndMvdAllDataEventAna::FillHitHistos()
       fHistos[detName] = new TH2I("MCHisto",detName.Data(), 1000,0,1000,201,0,200);
       //fDrawOption[hit->GetDetName()] = "colz";
     }
-    TH2* tempHisto = (TH2*)(fHistos[detName]);
+    //TH2* tempHisto = (TH2*)(fHistos[detName]);
     gGeoManager->cd(fGeoH->GetPath(detName.Data()));
       TGeoHMatrix* transMat = gGeoManager->GetCurrentMatrix();
 
@@ -321,7 +321,7 @@ void PndMvdAllDataEventAna::FillRecoHistos()
       fRecoHistos[detName] = new TH2I("RecoHisto",detName.Data(), 1000,0,1000,201,0,200);
       //fDrawOption[hit->GetDetName()] = "colz";
     }
-    TH2* tempHisto = (TH2*)(fRecoHistos[detName]);
+    //TH2* tempHisto = (TH2*)(fRecoHistos[detName]);
 
     TVector3 in(myHit->GetX(), myHit->GetY(), myHit->GetZ());
     TVector3 inLocal;

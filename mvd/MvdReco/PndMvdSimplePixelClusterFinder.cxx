@@ -64,7 +64,7 @@ std::vector< std::vector<Int_t> > PndMvdSimplePixelClusterFinder::GetClusters()
 */
 Int_t PndMvdSimplePixelClusterFinder::MoveHit(std::vector<Int_t>* hitVector, Int_t index) const
 {
-	Int_t result;
+	Int_t result = -1;
 	if (index < hitVector->size()){
 		result = hitVector->at(index);
 		hitVector->erase(hitVector->begin()+index);
@@ -80,12 +80,11 @@ bool PndMvdSimplePixelClusterFinder::IsInRange(PndMvdDigiPixel hit1, PndMvdDigiP
 	Int_t row1 = hit1.GetPixelRow()    + (Int_t)((hit1.GetFE()/10) * fParams[2]);
 	Int_t row2 = hit2.GetPixelRow()    + (Int_t)((hit2.GetFE()/10) * fParams[2]);
 	if (fVerbose > 2){
+    std::cout <<" -I- PndMvdSimplePixelClusterFinder::IsInRange():"<<std::endl;
 		std::cout << "Hit1: ";
 		hit1.Print();
-		std::cout << std::endl;
 		std::cout << "Hit2: ";
 		hit2.Print();
-		std::cout << std::endl;
 		std::cout << "col1: " << col1 << " col2: " << col2 << " row1: " << row1 << " row2: " << row2 << std::endl;
 		std::cout << "col1 - col2: " << (col1-col2) << " row1 - row2 " << (row1-row2) << std::endl;
 	}

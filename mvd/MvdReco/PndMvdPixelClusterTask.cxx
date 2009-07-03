@@ -146,7 +146,7 @@ void PndMvdPixelClusterTask::Exec(Option_t* opt)
   finder.SetVerbose(fVerbose);
   // Retrieve the calculated clusters
   std::vector< std::vector< Int_t> > clusters = finder.GetClusters();
-  if(fVerbose>1) std::cout << clusters.size() << std::endl;
+  if(fVerbose>1) std::cout << " -I-  PndMvdPixelClusterTask::Exec(): We have "<<clusters.size()<<" pixel clusters" << std::endl;
   // store the list
   for (Int_t i = 0; i < clusters.size(); i++)
   {
@@ -164,7 +164,7 @@ void PndMvdPixelClusterTask::Exec(Option_t* opt)
   // do the backmapping with charge-weight
   for (Int_t i = 0; i < clusters.size(); i++)
   {
-    if(fVerbose>1) std::cout << clusters[i].size() << " " << std::endl;
+//    if(fVerbose>2) std::cout << clusters[i].size() << " " << std::endl;
     std::vector<PndMvdDigiPixel> clusterArray;
     for (Int_t j=0;j < clusters[i].size();j++)
     { // convert
@@ -176,7 +176,7 @@ void PndMvdPixelClusterTask::Exec(Option_t* opt)
     PndMvdHit myHit = mapping.GetCluster();
     myHit.SetClusterIndex(i);
     if(fVerbose>1){
-      std::cout << "ClusterData: " << std::endl;
+      std::cout << " -I-  PndMvdPixelClusterTask::Exec(): Calculated Hit: " << std::endl;
       myHit.Print();
     }
     new ((*fHitArray)[i]) PndMvdHit(myHit);

@@ -9,7 +9,7 @@ std::vector< std::vector<Int_t> > PndMvdIdealPixelClusterFinder::GetClusters()
   for (Int_t i = 0; i < fHits.size(); i++) posHits.push_back(i);
   std::vector< std::vector< Int_t> > result;
   Int_t sizeTempHits = posHits.size();
-  Int_t actHit = 0;
+ // Int_t actHit = 0;
 
   while (sizeTempHits != 0){
     std::vector<Int_t> tempInt;
@@ -56,7 +56,7 @@ std::vector< std::vector<Int_t> > PndMvdIdealPixelClusterFinder::GetClusters()
 
 Int_t PndMvdIdealPixelClusterFinder::MoveHit(std::vector<Int_t>* hitVector, Int_t index) const
 {
-  Int_t result;
+  Int_t result = -1;
   if (index < hitVector->size()){
     result = hitVector->at(index);
     hitVector->erase(hitVector->begin()+index);

@@ -76,10 +76,10 @@
    trackMS->SetVerbose(3);
    fRun->AddTask(trackMS);
 
-   PndTpcLheTrackFinder* trackFinder    = new PndTpcLheTrackFinder();
+   PndLheTrackFinder* trackFinder    = new PndLheTrackFinder();
    fRun->AddTask(trackFinder);
 
-   PndTpcLheTrackFitter* trackFitter    = new PndTpcLheTrackFitter("fitting");
+   PndLheTrackFitter* trackFitter    = new PndLheTrackFitter("fitting");
    fRun->AddTask(trackFitter);
 
    PndLhePidMaker* pidMaker    = new PndLhePidMaker("pid");

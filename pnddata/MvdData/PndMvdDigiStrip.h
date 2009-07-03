@@ -43,8 +43,10 @@ class PndMvdDigiStrip : public PndMvdDigi
            << ", from Point(s) ";
            std::vector<Int_t>indices = digi.GetIndices();
            for (int i = 0; i < indices.size(); i++){
-           	std::cout << indices[i] << " " << std::endl;
+           	std::cout << indices[i] << "  ";
            }
+           std::cout << std::endl;
+           
            
            return out;
          }

@@ -87,7 +87,7 @@ void PndMvdStripClusterFinder::ClusterIterator(Int_t newCh, Int_t newFrameID, st
 	if (hitmap.find(newCh) == hitmap.end()) return; 						// end of hitmap reached (channel)
 	if (hitmap[newCh].find(newFrameID) == hitmap[newCh].end()) return;		// end of hitmap reached (frame)
 	if (hitmap[newCh][newFrameID][1]==-1) return;							// already identified
-	hitmap[newCh][newFrameID][1]==-1;										// now identified
+	hitmap[newCh][newFrameID][1]=-1;										// now identified
 	onecluster.push_back(hitmap[newCh][newFrameID][0]);									// to clusterlist
 
     for(Int_t channel=(newCh-fNmCh); channel!=(newCh+fNmCh); ++channel)

@@ -77,7 +77,7 @@ void PndMvdStripHitProducer::SetParamSet(Double_t topPitch, Double_t botPitch,
                                          TString sensorType, TString feType)
 {
   FairRun* ana = FairRun::Instance();
-  FairRootManager* ioman = FairRootManager::Instance();
+ // FairRootManager* ioman = FairRootManager::Instance();
   if ( 0==fDigiParRect || 0==fDigiParTrap ) SetParContainers();
   if (fOverrideParams){
     if (sensorType.Contains("Rect")) fCurrentDigiPar = fDigiParRect;
@@ -132,7 +132,7 @@ InitStatus PndMvdStripHitProducer::ReInit()
 // -----   Public method Init   --------------------------------------------
 InitStatus PndMvdStripHitProducer::Init()
 {
-  FairRun* ana = FairRun::Instance();
+ // FairRun* ana = FairRun::Instance();
   FairRootManager* ioman = FairRootManager::Instance();
 
   fGeoH = new PndMvdGeoHandling(gGeoManager);
@@ -302,9 +302,9 @@ void PndMvdStripHitProducer::AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, T
   for(Int_t kstr = 0; kstr < iStrip && found==kFALSE ; kstr++)
   {
 	aDigi = (PndMvdDigiStrip*)fStripArray->At(kstr);
-	if ( aDigi->GetDetID() == detID,
-		 aDigi->GetDetName() == detname,
-		 aDigi->GetFE() == fe,
+	if ( aDigi->GetDetID() == detID &&
+		 aDigi->GetDetName() == detname &&
+		 aDigi->GetFE() == fe &&
 		 aDigi->GetChannel() == chan )
 	{
 		aDigi->AddCharge(charge);

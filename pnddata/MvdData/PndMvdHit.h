@@ -27,7 +27,7 @@
 class PndMvdHit : public FairHit
 {
   friend std::ostream& operator<< (std::ostream& out, const PndMvdHit& hit){
-    out << "Mvd hit in " << hit.GetDetName() << " at" << std::endl;
+    out << "PndMvdHit in " << hit.GetDetName() << " at" << std::endl;
     out << "(" << hit.GetX() << ", " << hit.GetY() << ", " << hit.GetZ() << ") cm "
         << " with " << hit.GetCharge() << " e" << ", Cluster No. " << hit.GetClusterIndex();
     if (hit.GetBotIndex() > -1)
@@ -38,6 +38,9 @@ class PndMvdHit : public FairHit
       out << ", noise hit without mc poit";
     out << std::endl;
 
+    out <<"hit.GetClusterIndex() "<<hit.GetClusterIndex() <<std::endl;
+    out <<" hit.GetBotIndex() "<< hit.GetBotIndex() <<std::endl;
+    out <<"hit.GetRefIndex() "<< hit.GetRefIndex()<<std::endl;
     return out;
   }
 
@@ -82,7 +85,7 @@ class PndMvdHit : public FairHit
   Double_t  GetEloss()        const { return (fCharge * 3.61e-9);}  // 3.6 eV/Electron in Silicon
 
 
-//   // CAUTION The errors in the MvdHit are LOCAL, but the coordinates are in the LAB
+//  FIXME: CAUTION The errors in the MvdHit are LOCAL, but the coordinates are in the LAB
 // 
 //   Double_t GetDxLocal() const { return fDx;};
 //   Double_t GetDyLocal() const { return fDy;};

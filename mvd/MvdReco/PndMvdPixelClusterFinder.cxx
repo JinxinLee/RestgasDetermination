@@ -19,7 +19,7 @@ void PndMvdPixelClusterFinder::Print()
 void PndMvdPixelClusterFinder::PrintResult(std::vector<std::vector< Int_t> > clusters)
 {
 	for (Int_t i = 0; i < clusters.size(); i++){
-		std::cout << "Cluster " << i << ": " << std::endl;
+		std::cout << "PndMvdPixelClusterFinder::PrintResult(): Cluster " << i << ": " << std::endl;
 		for (Int_t j = 0; j < clusters[i].size();j++)
 			fHits[clusters[i][j]].Print();
 	}

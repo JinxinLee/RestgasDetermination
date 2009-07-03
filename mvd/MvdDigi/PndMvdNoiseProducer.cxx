@@ -138,8 +138,9 @@ void PndMvdNoiseProducer::Exec(Option_t* opt)
         nrSensors=0,fe=0,
         chanmax=0,chan=0,
         col=0,row=0,
-        iStrip=0,
-        chanwhite=0,iPix=0,
+       // iStrip=0,
+        chanwhite=0,
+  //iPix=0,
         charge=0,
         nNoisyStripRects=0,
         nNoisyStripTraps=0,
@@ -290,9 +291,9 @@ void PndMvdNoiseProducer::AddDigiStrip(Int_t &noisies, Int_t iPoint, TString det
   for(Int_t kstr = 0; kstr < iStrip && found == kFALSE; kstr++)
   {
 	aDigi = (PndMvdDigiStrip*)fDigiStripArray->At(kstr);
-	if ( aDigi->GetDetID() == detID,
-		 aDigi->GetDetName() == detname,
-		 aDigi->GetFE() == fe,
+	if ( aDigi->GetDetID() == detID &&
+		 aDigi->GetDetName() == detname &&
+		 aDigi->GetFE() == fe &&
 		 aDigi->GetChannel() == chan )
 	{
 		aDigi->AddCharge(charge);
@@ -320,10 +321,10 @@ void PndMvdNoiseProducer::AddDigiPixel(Int_t &noisies, Int_t iPoint, TString det
   for(Int_t kstr = 0; kstr < iPix && found == kFALSE; kstr++)
   {
 	aDigi = (PndMvdDigiPixel*)fDigiPixelArray->At(kstr);
-	if ( aDigi->GetDetID() == detID,
-		 aDigi->GetDetName() == detname,
-		 aDigi->GetFE() == fe,
-		 aDigi->GetPixelColumn() == col,
+	if ( aDigi->GetDetID() == detID &&
+		 aDigi->GetDetName() == detname &&
+		 aDigi->GetFE() == fe &&
+		 aDigi->GetPixelColumn() == col &&
 		 aDigi->GetPixelRow() == row )
 	{
 		aDigi->AddCharge(charge);

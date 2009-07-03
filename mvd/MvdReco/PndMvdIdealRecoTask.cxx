@@ -94,8 +94,8 @@ InitStatus PndMvdIdealRecoTask::Init()
 void PndMvdIdealRecoTask::SetParContainers()
 {
   // Get Base Container
-  FairRun* ana = FairRun::Instance();
-  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
+//  FairRun* ana = FairRun::Instance();
+//  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
 
 }
 

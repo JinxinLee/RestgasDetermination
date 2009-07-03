@@ -36,7 +36,8 @@ double PndMvdChargeWeightingAlgorithms::center_of_gravity(const PndMvdCluster& C
    int nrHits = Cluster.GetClusterSize();
    if(nrHits>0)							// minimum of hits in cluster
    {
-      double x_g=0., error=0., chargesum=0, charge=0;
+      double x_g=0., chargesum=0, charge=0;
+     //double error=0.;
 
       for(int l=0;l<nrHits;++l)     // loop over all hits
       {

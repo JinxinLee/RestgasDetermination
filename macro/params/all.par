@@ -55,7 +55,8 @@ dimY:Double_t 0.01
 threshold:Double_t 1100
 noise:Double_t 200
 FECols:Int_t 104
-FERows:Int_t 104#################################################################
+FERows:Int_t 104
+#################################################################
 # Digitisation and reconstruction parameters for TPC
 # Format:
 # parameter_name:parameter_type(i-integer, d-double) parameter_value

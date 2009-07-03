@@ -158,8 +158,8 @@ InitStatus PndMvdEventAnaTask::Init()
 void PndMvdEventAnaTask::SetParContainers()
 {
   // Get Base Container
-  FairRun* ana = FairRun::Instance();
-  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
+//  FairRun* ana = FairRun::Instance();
+//  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
 
 }
 
@@ -174,7 +174,7 @@ void PndMvdEventAnaTask::Exec(Option_t* opt)
 	std::vector<int> MCTrackOrderRiemann;							//information which riemannTrack belongs to which MCTrack;
 
 	TVector3 MCPos, RecoPos;
-	double MCEnergy, RecoEnergy;
+	double MCEnergy;
 	double TrackP, TrackPt;
 
 	mcHitMap = AssignHitsToTracks();
@@ -289,7 +289,7 @@ void PndMvdEventAnaTask::Exec(Option_t* opt)
 
 		int TrackMatch = 0;
 		int oldmatches = 0;
-		int highestMatch;
+		int highestMatch=-1;
 		for (int i = 0; i < matches.size(); i++){
 			if (oldmatches < matches[i]){
 				oldmatches = matches[i];
@@ -643,7 +643,7 @@ std::map<int, std::vector<int> > PndMvdEventAnaTask::AssignHitsToTracks()
 	std::map<int, std::vector<int> > result;
 	for (int i = 0; i < fMCHits->GetEntriesFast(); i++){											//get all MC Hits
 		PndMvdMCPoint* myPoint = (PndMvdMCPoint*)(fMCHits->At(i));									//sort MCHits with Tracks
-		PndMCTrack* myTrack = (PndMCTrack*)(fMCTracks->At(myPoint->GetTrackID()));
+		//PndMCTrack* myTrack = (PndMCTrack*)(fMCTracks->At(myPoint->GetTrackID()));
 		result[myPoint->GetTrackID()].push_back(i);
 
 	}
