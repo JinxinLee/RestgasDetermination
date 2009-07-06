@@ -108,7 +108,7 @@ class PndLVQTrain{
   void NormalizeDataSet(const NormType t, bool w = false);
   
   // Test functions Modified training schemes, May BE deleted after
-  // testing
+  // testing. At each step: select number of classes random examples.
   void TrainSec  (const int numProto, const char* OutPut);
   void Train21Sec(const int numProto, const char* OutPut);
 

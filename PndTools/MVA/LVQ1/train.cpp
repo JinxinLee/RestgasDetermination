@@ -40,8 +40,8 @@ int main(int argc, char** argv)
   //Class names
     
   clas.push_back("electron"); clas.push_back("pion");
-  //clas.push_back("kaon");  clas.push_back("muon");
-  //clas.push_back("proton"); //clas.push_back("gamma");
+  clas.push_back("kaon");//  clas.push_back("muon");
+  //  clas.push_back("proton"); //clas.push_back("gamma");
 
 
   //clas.push_back("Elect"); clas.push_back("Pion");
@@ -52,21 +52,21 @@ int main(int argc, char** argv)
   nam.push_back("p");
   nam.push_back("emc");
   nam.push_back("thetaC");
-  //nam.push_back("mvd");
-  //nam.push_back("tof");
+  nam.push_back("mvd");
+  nam.push_back("tof");
   //nam.push_back("stt"); 
 
   PndLVQTrain tr(InputFile, clas, nam);
   float initC  = 0.9;
   float ethaZ  = 0.1;
   float ethaF  = 0.0001;
-  int numSweep = 100;
+  int numSweep = 10;
 
   tr.SetLearnPrameters(initC, ethaZ, ethaF, numSweep);
   
   //VARX, MINMAX, MEDIAN
-  NormType ty = VARX;
-  bool w = false;
+  NormType ty = MEDIAN;
+  bool w = true;
   tr.NormalizeDataSet(ty, w);
 
   std::string OutFile = ot;

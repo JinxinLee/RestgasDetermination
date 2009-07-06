@@ -1,10 +1,11 @@
 # Create a library called "libMva" which includes the source files given in
 # the array .
 
-set(
-BOOST_INCLUDE_DIR ${SIMPATH}/basics/boost/include
-BOOST_LIBRARY_DIR   ${SIMPATH}/basics/boost/lib
-)
+# set(
+# BOOST_INCLUDE_DIR ${SIMPATH}/basics/boost/include
+# BOOST_LIBRARY_DIR   ${SIMPATH}/basics/boost/lib
+# )
+
 set(INCLUDE_DIRECTORIES
 ${ROOT_INCLUDE_DIR}
 ${BOOST_INCLUDE_DIR}
@@ -17,14 +18,14 @@ ${CMAKE_SOURCE_DIR}/PndTools/MVA
 ${CMAKE_SOURCE_DIR}/PndTools/MVA/LVQ1
 ${CMAKE_SOURCE_DIR}/PndTools/MVA/TMVAkd_KNN
 ${CMAKE_SOURCE_DIR}/PndTools/MVA/ProjectedKNN
-#${CMAKE_SOURCE_DIR}/PndTools/MVA/kd_KNN
+# ${CMAKE_SOURCE_DIR}/PndTools/MVA/kd_KNN
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
 
 set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}
-${BOOST_LIBRARY_DIR}
+# ${BOOST_LIBRARY_DIR}
 )
  
 link_directories( ${LINK_DIRECTORIES})
@@ -38,15 +39,16 @@ TMVAkd_KNN/PndKnnTrain.cpp
 
 ProjectedKNN/PndProjectedKNN.cpp
 
+# KNN/PndKnnClassify.cpp
+# KNN/PndKnnTrain.cpp
+
+# #########################
+# For the time being we do not want to use the
+# following implementations.
+#
 # kd_KNN/kdtree2.cpp
 # kd_KNN/PndKnnClassify.cpp
 # kd_KNN/PndKnnTrain.cpp
-
-# #########################
-# For the time being we do not want to use the 
-# following implementations.
-# KNN/PndKnnClassify.cpp
-# KNN/PndKnnTrain.cpp
 )
 
 if(RULE_CHECKER_FOUND)

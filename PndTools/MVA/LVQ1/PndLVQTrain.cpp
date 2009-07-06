@@ -18,8 +18,8 @@
 PndLVQTrain::PndLVQTrain(const char* InPut,
 			 const std::vector<std::string>& ClassNames, 
 			 const std::vector<std::string>& VarNames)
-  : m_ClassNames(ClassNames), m_VarNames(VarNames), m_initConst(0.8), 
-    m_ethaZero(0.1), m_ethaFinal(0.0001), m_NumSweep(900)
+  :m_ClassNames(ClassNames), m_VarNames(VarNames), m_initConst(0.8), 
+   m_ethaZero(0.1), m_ethaFinal(0.0001), m_NumSweep(900)
 {
   /* Read event data */
   readInput(InPut);
