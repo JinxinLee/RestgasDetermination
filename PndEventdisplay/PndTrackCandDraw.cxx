@@ -7,13 +7,12 @@
 #include "FairHit.h"
 #include "TEveQuadSet.h"
 #include "FairRootManager.h"
-//#include "TClonesArray.h"
 #include "TObjArray.h"
 #include "FairEventManager.h"
 #include "TEveManager.h"
 #include "TrackCand.h"
 #include "PndTpcCluster.h"
-#include "PndTpcLheTrack.h"
+#include "PndLheCandidate.h"
 #include "PndLhePidTrack.h"
 #include <iostream>
 using std::cout;
