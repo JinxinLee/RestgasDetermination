@@ -21,6 +21,7 @@ using std::endl;
 #include "TString.h"
 #include "TGeoVoxelFinder.h"
 #include "TGeoMatrix.h"
+#include "TParticlePDG.h"
 
 #include "FairGeoInterface.h"
 #include "FairGeoLoader.h"
