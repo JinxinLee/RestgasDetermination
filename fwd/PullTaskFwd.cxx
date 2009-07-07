@@ -58,7 +58,7 @@ InitStatus PullTaskFwd::Init()
   hrpx = new TH1F("hrpx", "px: mc - reco", 50,-1.,1.);
   hrpy = new TH1F("hrpy", "py: mc - reco", 50,-1.,1.);
   hrpz = new TH1F("hrpz", "pz: mc - reco", 50,-1.,1.);
-  hrp  = new TH1F("hrp", "p: mc - reco", 60,-0.3, 0.3);
+  hrp  = new TH1F("hrp", "p: mc - reco", 300,-0.3, 0.3);
   hrtv = new TH1F("hrtv", "tv: mc - reco", 300,-0.3,0.3);
   hrtw = new TH1F("hrtw", "tw: mc - reco", 300,-0.3,0.3);
   hrv  = new TH1F("hrv",  "v: mc - reco", 50,-1.,1.);

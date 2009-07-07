@@ -85,11 +85,19 @@ private:
   TH2D* fhMomentumY2D;
   TH2D* fhMomentumZ2D;
   TH2D* fhMomentumM2D;
+  TH2D* fhMomentumT2D;
+  TH2D* fhMomentumP2D;
   TH1D* fhMomentumX1D;
   TH1D* fhMomentumY1D;
   TH1D* fhMomentumZ1D;
   TH1D* fhMomentumM1D;
+  TH1D* fhMomentumT1D;
+  TH1D* fhMomentumP1D;
   TH2D* fhMomentumRes;
+  TH1D* fhMomentumM1R;
+  TH1D* fhMomentumP1R;
+  TH1D* fhMomentumT1R;
+
 
   TH2D* fhPositionX2D;
   TH2D* fhPositionY2D;

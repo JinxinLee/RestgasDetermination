@@ -127,11 +127,19 @@ PndFwdKalmanTask::Init()
   fhMomentumY2D = new TH2D("fhMomentumY2D","fhMomentumY2D",1000,-5.,5.,1000,-5.,5.);
   fhMomentumZ2D = new TH2D("fhMomentumZ2D","fhMomentumZ2D",2000,-20.,20.,2000,-20.,20.);
   fhMomentumM2D = new TH2D("fhMomentumM2D","fhMomentumM2D",2000,  0.,20.,2000,  0.,20.);
+  fhMomentumT2D = new TH2D("fhMomentumT2D","fhMomentumT2D",2100, -3.5,3.5,2100, -3.5,3.5);
+  fhMomentumP2D = new TH2D("fhMomentumP2D","fhMomentumP2D",2100, -3.5,3.5,2100, -3.5,3.5);
   fhMomentumX1D = new TH1D("fhMomentumX1D","fhMomentumX1D",2000,-10.,10.);
   fhMomentumY1D = new TH1D("fhMomentumY1D","fhMomentumY1D",2000,-10.,10.);
   fhMomentumZ1D = new TH1D("fhMomentumZ1D","fhMomentumZ1D",2000,-10.,10.);
   fhMomentumM1D = new TH1D("fhMomentumM1D","fhMomentumM1D",2000,-10.,10.);
+  fhMomentumT1D = new TH1D("fhMomentumT1D","fhMomentumT1D",2100,  -7.,7.);
+  fhMomentumP1D = new TH1D("fhMomentumP1D","fhMomentumP1D",2100,  -7.,7.);
   fhMomentumRes = new TH2D("fhMomentumRes","fhMomentumRes",40,0.,20.,2000,-20.,20.);
+
+  fhMomentumM1R = new TH1D("fhMomentumM1R","fhMomentumM1R",2000,-10.,10.);
+  fhMomentumT1R = new TH1D("fhMomentumT1R","fhMomentumT1R",2000,-10.,10.);
+  fhMomentumP1R = new TH1D("fhMomentumP1R","fhMomentumP1R",2000,-10.,10.);
 
   fhPositionX2D = new TH2D("fhPositionX2D","fhPositionX2D",2000,-100.,100.,2000,-100.,100.);
   fhPositionY2D = new TH2D("fhPositionY2D","fhPositionY2D",2000,-100.,100.,2000,-100.,100.);
@@ -232,39 +240,50 @@ PndFwdKalmanTask::Exec(Option_t* opt)
       Double_t chi2=trac->getChiSqu();
       std::cout<<"ChiSq="<<chi2<<std::endl;
       fChi2H->Fill(chi2);
+
+      TVector3 resultPos = trac->getPos();
+      TVector3 resultMom = trac->getMom();
+
+      if ( resultPos.Z() < 90. ) {
+	std::cout << "**  SUCCESS  *************************************************" << std::endl;
+      }
+      
+      std::cout << "********************************************************" << std::endl;
+      std::cout << "result pos = (" 
+		<< resultPos.X() << ","
+		<< resultPos.Y() << ","
+		<< resultPos.Z() << ")" << std::endl;
+      std::cout << "result mom = (" 
+		<< resultMom.X() << ","
+		<< resultMom.Y() << ","
+		<< resultMom.Z() << ") ----> " << resultMom.Mag() << std::endl;
+      
+      GeaneTrackRep* tempRep = (GeaneTrackRep*)trac->getTrackRep(0);
+      std::cout << "BUT IT WAS " << tempRep->getPDG() << std::endl;
+      
+      fhMomentumX2D->Fill(beforeMom.X(),resultMom.X());
+      fhMomentumY2D->Fill(beforeMom.Y(),resultMom.Y());
+      fhMomentumZ2D->Fill(beforeMom.Z(),resultMom.Z());
+      fhMomentumM2D->Fill(beforeMom.Mag(),resultMom.Mag());
+      fhMomentumT2D->Fill(beforeMom.Theta(),resultMom.Theta());
+      fhMomentumP2D->Fill(beforeMom.Phi(),resultMom.Phi());
+      fhMomentumX1D->Fill(beforeMom.X()+resultMom.X());
+      fhMomentumY1D->Fill(beforeMom.Y()+resultMom.Y());
+      fhMomentumZ1D->Fill(beforeMom.Z()+resultMom.Z());
+      fhMomentumM1D->Fill(beforeMom.Mag()-resultMom.Mag());
+      fhMomentumT1D->Fill(beforeMom.Theta()-resultMom.Theta());
+      fhMomentumP1D->Fill(beforeMom.Phi()-resultMom.Phi());
+      fhMomentumRes->Fill(beforeMom.Mag(),100.*(beforeMom.Mag()-resultMom.Mag())/beforeMom.Mag());
+      
+      fhMomentumM1R->Fill(resultMom.Mag());
+      fhMomentumT1R->Fill(resultMom.Theta());
+      fhMomentumP1R->Fill(resultMom.Phi());
+      
+      fhPositionX2D->Fill(beforePos.X(),resultPos.X());
+      fhPositionY2D->Fill(beforePos.Y(),resultPos.Y());
+      fhPositionX1D->Fill(beforePos.X()-resultPos.X());
+      fhPositionY1D->Fill(beforePos.Y()-resultPos.Y());
     }
-
-    TVector3 resultPos = trac->getPos();
-    TVector3 resultMom = trac->getMom();
-
-    std::cout << "********************************************************" << std::endl;
-    std::cout << "result pos = (" 
-	      << resultPos.X() << ","
-	      << resultPos.Y() << ","
-	      << resultPos.Z() << ")" << std::endl;
-    std::cout << "result mom = (" 
-	      << resultMom.X() << ","
-	      << resultMom.Y() << ","
-	      << resultMom.Z() << ") ----> " << resultMom.Mag() << std::endl;
-
-    GeaneTrackRep* tempRep = (GeaneTrackRep*)trac->getTrackRep(0);
-    std::cout << "BUT IT WAS " << tempRep->getPDG() << std::endl;
-
-    fhMomentumX2D->Fill(beforeMom.X(),resultMom.X());
-    fhMomentumY2D->Fill(beforeMom.Y(),resultMom.Y());
-    fhMomentumZ2D->Fill(beforeMom.Z(),resultMom.Z());
-    fhMomentumM2D->Fill(beforeMom.Mag(),resultMom.Mag());
-    fhMomentumX1D->Fill(beforeMom.X()+resultMom.X());
-    fhMomentumY1D->Fill(beforeMom.Y()+resultMom.Y());
-    fhMomentumZ1D->Fill(beforeMom.Z()+resultMom.Z());
-    fhMomentumM1D->Fill(beforeMom.Mag()-resultMom.Mag());
-    fhMomentumRes->Fill(beforeMom.Mag(),100.*(beforeMom.Mag()-resultMom.Mag())/beforeMom.Mag());
-    
-    fhPositionX2D->Fill(beforePos.X(),resultPos.X());
-    fhPositionY2D->Fill(beforePos.Y(),resultPos.Y());
-    fhPositionX1D->Fill(beforePos.X()-resultPos.X());
-    fhPositionY1D->Fill(beforePos.Y()-resultPos.Y());
-
   }
 
   std::cout<<"Fitting done"<<std::endl;
@@ -316,13 +335,21 @@ PndFwdKalmanTask::WriteHistograms(){
 
   fhMomentumX2D->Write();
   fhMomentumY2D->Write();
-  fhMomentumZ2D->Write();
+  fhMomentumZ2D->Write(); 
   fhMomentumM2D->Write();
+  fhMomentumT2D->Write();
+  fhMomentumP2D->Write();
   fhMomentumX1D->Write();
   fhMomentumY1D->Write();
   fhMomentumZ1D->Write();
   fhMomentumM1D->Write();
+  fhMomentumT1D->Write();
+  fhMomentumP1D->Write();
   fhMomentumRes->Write();
+
+  fhMomentumM1R->Write();
+  fhMomentumT1R->Write();
+  fhMomentumP1R->Write();
 
   fhPositionX2D->Write();
   fhPositionY2D->Write();
@@ -332,12 +359,20 @@ PndFwdKalmanTask::WriteHistograms(){
   delete fhMomentumX2D;
   delete fhMomentumY2D;
   delete fhMomentumZ2D;
-  delete fhMomentumM2D;
+  delete fhMomentumM2D;  
+  delete fhMomentumT2D;
+  delete fhMomentumP2D;
   delete fhMomentumX1D;
   delete fhMomentumY1D;
-  delete fhMomentumZ1D;
+  delete fhMomentumZ1D; 
   delete fhMomentumM1D;
+  delete fhMomentumT1D;
+  delete fhMomentumP1D;
   delete fhMomentumRes;
+
+  delete fhMomentumM1R;
+  delete fhMomentumP1R;
+  delete fhMomentumT1R;
 
   delete fhPositionX2D;
   delete fhPositionY2D;
@@ -348,17 +383,24 @@ PndFwdKalmanTask::WriteHistograms(){
   fhMomentumY2D = NULL;
   fhMomentumZ2D = NULL;
   fhMomentumM2D = NULL;
+  fhMomentumT2D = NULL;
+  fhMomentumP2D = NULL;
   fhMomentumX1D = NULL;
   fhMomentumY1D = NULL;
   fhMomentumZ1D = NULL;
   fhMomentumM1D = NULL;
+  fhMomentumT1D = NULL;
+  fhMomentumP1D = NULL;
   fhMomentumRes = NULL;
+
+  fhMomentumM1R = NULL;
+  fhMomentumT1R = NULL;
+  fhMomentumP1R = NULL;
 
   fhPositionX2D = NULL;
   fhPositionY2D = NULL;
   fhPositionX1D = NULL;
   fhPositionY1D = NULL;
-
 
   //  file->Close();
   //  delete file;
