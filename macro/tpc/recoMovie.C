@@ -8,6 +8,7 @@
 #include "tpc/PndTpcPadShapePool.h"
 #include "tpc/PndTpcDigi.h"
 #include "tpc/PndTpcCluster.h"
+#include "tpc/PndTpcClusterRadius.h"
 #include "tpc/McIdCollection.h"
 #include "TCanvas.h"
 #include "TFile.h"
@@ -24,6 +25,7 @@
 #include "TMarker.h"
 #include "TVector3.h"
 #include "TGraph.h"
+#include "TError.h"
 #include "TView3D.h"
 #include "TMatrixD.h"
 #include "tpc/TCovEllipse.h"
@@ -43,9 +45,13 @@ void recoMovie(TString datafile, TString padplane, TString padshapes, bool movie
   TCanvas* c=new TCanvas("c1","Tpc Reconstruction",0,0,1200,800);
   c->Divide(4,3);
 
-  TCanvas* c2=new TCanvas("c2","Clustering and Tracklets",10,10,600,800);
-  c2->Divide(1,2);
+  TCanvas* c2=new TCanvas("c2","Clustering and Tracklets",100,100,1200,800);
+  c2->Divide(2,2);
 
+  c2->cd(2)->SetPad(0,0,0.7,0.5);
+  c2->cd(1)->SetPad(0,0.5,0.7,1);
+  c2->cd(4)->SetPad(0.7,0,1,0.5);
+  c2->cd(3)->SetPad(0.7,0.5,1,1);
  
   PndTpcGas* _gas=new PndTpcGas("tpc/NEON-90_CO2-10_B2_PRES1013.asc",400);
 
@@ -85,6 +91,8 @@ void recoMovie(TString datafile, TString padplane, TString padshapes, bool movie
   double planecut=0.0015;
   double szcut=0.5;
   double proxcut=0.01;
+  unsigned int minhits=4;
+
   TLine* planeLine1=new TLine(-planecut,0,-planecut,1);
   planeLine1->SetLineColor(kRed);
   TLine* planeLine2=new TLine(planecut,0,planecut,1);
@@ -103,11 +111,11 @@ void recoMovie(TString datafile, TString padplane, TString padshapes, bool movie
   _trackfinder->addCorrelator(new PndTpcRiemannHTCorrelator(planecut,
 							    proxcut,
 							    szcut));
-   _trackfinder->addCorrelator(new PndTpcClustershapeCorrelator(2));
+  //_trackfinder->addCorrelator(new PndTpcClustershapeCorrelator(2));
   //----------------------------------------------
     
-  // z-window for plotting tracks
-  double zwindow=10;
+  // z-window for plotting and discarding tracks
+  double zwindow=2.5;
 
   
   TTree *t=(TTree*)file->Get("cbmsim") ;
@@ -116,10 +124,21 @@ void recoMovie(TString datafile, TString padplane, TString padshapes, bool movie
   t->SetBranchAddress("PndTpcDigi",&sa);
 
   TH2D* ma=new TH2D("map","Hit pads",420,12,42,200,-10,10);
+  ma->SetStats(false);
   TH1D* hPure=new TH1D("pure","Purity",1000,0.0 ,1.1);
   TH1D* hClPure=new TH1D("clpure","Cluster Purity",1000,0.8 ,1.1);
   TH1D* hNHits=new TH1D("nhits","N Hits per track",100,0,100);
   TH1I* hPieces=new TH1I("pieces","N Pieces per track",20,0,20);
+  TGraph* gNTracks=new TGraph(10000);
+  gNTracks->SetMarkerStyle(22);// active tracks
+  TGraph* gclusters=new TGraph(10000); gclusters->SetTitle("Used Clusters");
+  TGraph* gusedclusters=new TGraph(10000);
+  TGraph* glostclusters=new TGraph(10000);
+  gclusters->SetMarkerStyle(22);
+  gusedclusters->SetMarkerStyle(22);
+  glostclusters->SetMarkerStyle(22);
+
+  TGraph* gclustereff=new TGraph(10000);
   TH1* hCuts=NULL;
   TH1* hRiem=NULL;
   TH1* hDRiem=NULL;
@@ -144,7 +163,8 @@ void recoMovie(TString datafile, TString padplane, TString padshapes, bool movie
   std::vector<PndTpcDigi*> vd;
   std::vector<PndTpcDigi*> vdslice;
   std::vector<PndTpcCluster*> clusters;
-  
+  std::vector<PndTpcCluster*> recoverclusters;
+
   Int_t ndig=0;
   Int_t evt=0;
   while(ndig<1){
@@ -163,28 +183,42 @@ void recoMovie(TString datafile, TString padplane, TString padshapes, bool movie
   Int_t t1=0;
   int counter=0;
   Int_t lastcl=0;
+  Int_t tstep=10; // wait for tstep before doing tracklet building
+  Int_t usedclusters=0;
+  Int_t lostclusters=0;
+  Int_t totalclusters=0;
+  ////////////////////////////////////////
+  /////////// Note: keep small tracklets longer and try to add later!!!
+  ///////////
+  ///////////////////
+  
+
   for(Int_t i=0; i<ndig; ++i){ // loop over digis
     PndTpcDigi *sig=vd[i];
-    if(sig->t()-t1>10){ // process timeslice
+    if(sig->t()-t1>tstep){ // process timeslice
       double z0=PndTpcDigiMapper::getInstance()->z_from_tick(t1);
       t1=sig->t();
      
       // run clusterfinder
+      unsigned int nclb=_cluster_buffer->size();
+      gErrorAbortLevel=kWarning;
       _finder->process(vdslice);
       vdslice.clear();
-      
+      totalclusters+=_cluster_buffer->size()-nclb;
+
+      sort(_cluster_buffer->begin(),_cluster_buffer->end(),PndTpcClusterRadius());
       // run trackfinder
       _trackfinder->buildTracks(*_cluster_buffer,riemannlist);
       //std::cout<<riemannlist.size()<<std::endl;
-
+      gErrorAbortLevel=kFatal;
       TH1* hCuts=DebugLogger::Instance()->GetHisto("riemanncuts");
 
       c2->cd(1);
       // print frame
       std::ostringstream file;
       file<<"frames/digi";
-      if(counter<100)file<<"0";
-      if(counter<10)file<<"0";
+      //if(counter<100)file<<"0";
+      //if(counter<10)file<<"0";
       file<<counter<<".gif";
       ++counter;
       ma->Draw("BOX");
@@ -222,20 +256,52 @@ void recoMovie(TString datafile, TString padplane, TString padshapes, bool movie
       std::map<McId,int> trackpieces;
 
       int ntrk=riemannlist.size();
+      std::vector<PndTpcRiemannTrack*> activetracks;
+      std::vector<PndTpcRiemannTrack*> finishedtracks;
+
       std::cout<<"ntracks="<<ntrk<<std::endl;
+      gNTracks->SetPoint(counter,counter*tstep*0.025,ntrk);
       for(int itrk=0;itrk<ntrk;++itrk){
 	//riemannlist[itrk]->Plot(false);
-	int nhits=riemannlist[itrk]->getNumHits();
-	int pieces=trackpieces[riemannlist[itrk]->mcid().DominantID()];
-	trackpieces[riemannlist[itrk]->mcid().DominantID()]=pieces+1;
-	hNHits->Fill(nhits);
-	hPure->Fill(riemannlist[itrk]->mcid().MaxRelWeight());
-	// check if track is in time window
-        double z1=riemannlist[itrk]->getFirstHit()->cluster()->pos().Z();
+	// check if this track is still in active window...
+	double z1=riemannlist[itrk]->getFirstHit()->cluster()->pos().Z();
 	double z2=riemannlist[itrk]->getLastHit()->cluster()->pos().Z();
 	//std::cout<<"z0z1z2 "<<z0<<"  "<<z1<<"  "<<z2<<std::endl;
+	int nhits=riemannlist[itrk]->getNumHits();
 	// only plot those in the window
-	if((z1<z0-zwindow && z2<z0-zwindow) || (z1>z0+zwindow && z2>z0+zwindow))continue;
+	if((z1<z0-zwindow && z2<z0-zwindow) || (z1>z0+zwindow && z2>z0+zwindow)){
+	  
+	  finishedtracks.push_back(riemannlist[itrk]);
+	  if(nhits>minhits){
+	    hPure->Fill(riemannlist[itrk]->mcid().MaxRelWeight());
+	    int pieces=trackpieces[riemannlist[itrk]->mcid().DominantID()];
+	    trackpieces[riemannlist[itrk]->mcid().DominantID()]=pieces+1;
+	    hNHits->Fill(nhits);
+	    usedclusters+=nhits;
+	  }
+	  else {lostclusters+=nhits;}
+	  
+	  continue;
+	}
+
+	
+	// keep small tracklets for next round
+	if(nhits<=minhits){
+	  for(int ih=0;ih<nhits;++ih){
+	    PndTpcCluster* cl=riemannlist[itrk]->getHit(ih)->cluster();
+	    recoverclusters.push_back(cl);
+	  }//end loop over hits
+	  continue;
+	}
+
+
+	
+	
+	
+	// check if track is in time window
+        
+	
+	activetracks.push_back(riemannlist[itrk]);
 
 	TGraph* track=new TGraph(nhits);
 	for(int ih=0;ih<nhits;++ih){
@@ -244,21 +310,54 @@ void recoMovie(TString datafile, TString padplane, TString padshapes, bool movie
 	}//end loop over hits
 	track->SetMarkerStyle(23);
 	track->SetMarkerSize(0.5);
-	track->SetMarkerColor(kGreen);
-	track->SetLineColor(kGreen);
+	track->SetMarkerColor(kBlue);
+	track->SetLineColor(kBlue);
 	track->Draw("PL");
-	
+
       }// end loop over tracks
      
+      c->cd(1);
+      gNTracks->SetTitle("Active Tracklets");
+      gNTracks->Draw("AP");
+      c2->cd(3);
+      gNTracks->Draw("AP");
+
+
+      c->cd(2);
+      gclusters->SetPoint(counter,counter*tstep*0.025,totalclusters);
+      gusedclusters->SetPoint(counter,counter*tstep*0.025,usedclusters);
+      glostclusters->SetPoint(counter,counter*tstep*0.025,lostclusters);
+      gclusters->Draw("AP");
+      gusedclusters->SetMarkerColor(kBlue);
+      gusedclusters->Draw("P");
+      
+      glostclusters->SetMarkerColor(kRed);
+      glostclusters->Draw("P");
+
+      c2->cd(4);
+      gclusters->Draw("AP");
+      gusedclusters->Draw("P");
+      glostclusters->Draw("P");
+
+      if(usedclusters>0)gclustereff->SetPoint(counter,counter*tstep*0.025,(double)usedclusters/(double)totalclusters);
+
+
+
+
       c->cd(3);
+      gclustereff->Draw("AP");
+
+      c->cd(4);
       //hClPure->Draw();
       hPure->SetLineColor(kRed);
       hPure->Draw();
-      c->cd(4);
-      if(hCuts!=NULL){
-	hCuts->Draw();
-	gPad->SetLogy();
-      }
+
+
+      //c->cd(4);
+      //if(hCuts!=NULL){
+      //	hCuts->Draw();
+      //	gPad->SetLogy();
+      //}
        c->cd(6);
       hRiem=DebugLogger::Instance()->GetHisto("riem_d");
       if(hRiem!=NULL){
@@ -308,14 +407,22 @@ void recoMovie(TString datafile, TString padplane, TString padshapes, bool movie
       c2->SaveAs(file.str().c_str());
       // clean up
       ma->Reset();
-      hPure->Reset();
-      hNHits->Reset();
-      hPieces->Reset();
+      //hPure->Reset();
+      //hNHits->Reset();
+      //hPieces->Reset();
       //for(int icl=0;icl<ncl;++icl){
       //	PndTpcCluster* cl=(*_cluster_buffer)[icl];
       //	delete cl;
       //}
       _cluster_buffer->clear();
+      *_cluster_buffer=recoverclusters;
+      recoverclusters.clear();
+      // reinsert small tracklets into cluster buffer and try to add 
+      // again next time
+      
+      riemannlist.clear();
+      riemannlist=activetracks;
+      activetracks.clear();
     } // end process time slice
     double x,y;
     _padPlane->GetPadXY(sig->padId(),x,y);
