@@ -1,7 +1,7 @@
-void gemdch_boxIdealTracks(TString baseName="GemDch_4Stations_211_1.0GeV_th4_ph20_n1000", Int_t nEvents=0)
+void gemdch_boxIdealTracks(TString baseName="GemDch_4Stations_13_1.0GeV_n1000", Int_t nEvents=0)
 {
-  Int_t verboseLevel=2;
-  gSystem->Load("libFwd.so");
+ 
+ Int_t verboseLevel=2;
 
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
@@ -9,11 +9,12 @@ void gemdch_boxIdealTracks(TString baseName="GemDch_4Stations_211_1.0GeV_th4_ph2
   // ----  Load libraries   -------------------------------------------------
   //gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   // Input file (MC events)
+  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
  
   TString MCFile  = baseName + ".root";
   TString parFile = baseName + ".param.root";
   // ------------------------------------------------------------------------
-  TString outFile = baseName + "_idealTracksFine.root";
+  TString outFile = baseName + "_idealTracks.root";
   
   std::cout << "RecoFile: " << outFile.Data()<< std::endl;
   
@@ -130,6 +131,7 @@ void gemdch_boxIdealTracks(TString baseName="GemDch_4Stations_211_1.0GeV_th4_ph2
 
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
+  Geane->SetField(fRun->GetField());
   fRun->Run(0,nEvents);
 
   fwdKalmanQA->WriteHistograms();

@@ -6,7 +6,8 @@ void gemdch_simBox(Double_t momentum = 1., Int_t nEvents = 1000,int verboseLevel
 
   //FileNames
   TString simOutput;
-  simOutput.Form("GemDch_muons_%.1fGeV",momentum);
+  simOutput.Form("GemDch_4Stations_13_%.1fGeV_n%d",momentum,nEvents);
+
   TString parOutput=simOutput;
   simOutput+=".root";
   parOutput+=".param.root";
@@ -32,65 +33,38 @@ void gemdch_simBox(Double_t momentum = 1., Int_t nEvents = 1000,int verboseLevel
   // Create and add detectors
   //-------------------------
 
+  // Create and add detectors
   FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave);
 
-//   FairModule *Magnet= new PndMagnet("MAGNET");
-//   Magnet->SetGeometryFileName("FullSolenoid.root");
-//   fRun->AddModule(Magnet);
-
-//  FairModule *Dipole= new PndMagnet("MAGNET");
-//  Dipole->SetGeometryFileName("dipole.geo");
-//  fRun->AddModule(Dipole);
-
   FairModule *Pipe= new PndPipe("PIPE");
   Pipe->SetGeometryFileName("pipebeamtarget.geo");
   fRun->AddModule(Pipe);
+  
+  //   FairModule *Magnet= new PndMagnet("MAGNET");
+  //   Magnet->SetGeometryFileName("PandaSolenoidV833.root");
+  //   fRun->AddModule(Magnet);
+  
+  //  FairModule *dipole= new PndMagnet("MAGNET");
+  //  dipole->SetGeometryFileName("dipole.geo");
+  //  fRun->AddModule(dipole);
+ 
+  FairDetector *Dch = new PndDchDetector("DCH", kTRUE);
+  Dch->SetGeometryFileName("dch.root");
+  Dch->SetVerboseLevel(1);
+  fRun->AddModule(Dch);
 
-   FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
-   Mvd->SetGeometryFileName("MVD_v1.0_woPassiveTraps.root");
-   Mvd->SetVerboseLevel(verboseLevel);
-   fRun->AddModule(Mvd);
-
-//   FairDetector *Tpc = new PndTpcDetector("TPC", kFALSE);
-//   Tpc->SetGeometryFileName("tpc.elsa.geo"); // this is the "long" tpc - conflicts with 4 GEM planes
-//   fRun->AddModule(Tpc);
-
-//  PndEmc *Emc = new PndEmc("EMC",kTRUE);
-//  Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root");
-//   fRun->AddModule(Emc);
-
-//  FairDetector *Tof = new PndTof("TOF",kTRUE);
-//  Tof->SetGeometryFileName("tofbarrel.geo");
-//   fRun->AddModule(Tof);
-
-//  FairDetector *Muo = new PndMdt("MDT",kTRUE);
-//  Muo->SetGeometryFileName("muopars.root");
-//   fRun->AddModule(Muo);
-
-//  PndDrc *Drc = new PndDrc("DIRC", kTRUE);
-//  Drc->SetRunCherenkov(kFALSE);
-  //Drc->SetGeometryFileName("dirc.geo");
-//   fRun->AddModule(Drc);
-
-   FairDetector *Dch = new PndDchDetector("DCH", kTRUE);
-   Dch->SetGeometryFileName("dch.root");
-   fRun->AddModule(Dch);
-   
    FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
    Gem->SetGeometryFileName("gem_4Stations.root");
-   Gem->SetVerboseLevel(verboseLevel);
+   Gem->SetVerboseLevel(0);
    fRun->AddModule(Gem);
-   
-
-
 
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
   FairBoxGenerator* boxGen = new FairBoxGenerator(13,1);
-  boxGen->SetThetaRange(3.  ,5.);
+  boxGen->SetThetaRange(3.  ,7.);
   boxGen->SetPhiRange  (0.  ,360. );
   boxGen->SetPRange    (momentum,momentum);
   boxGen->SetXYZ(0.,0.,0.);
@@ -134,7 +108,7 @@ void gemdch_simBox(Double_t momentum = 1., Int_t nEvents = 1000,int verboseLevel
   output->open(parOutput.Data(),"RECREATE");
   rtdb->setOutput(output);
 
- PndMultiFieldPar* fieldPar = 
+  PndMultiFieldPar* fieldPar = 
     (PndMultiFieldPar*) rtdb->getContainer("PndMultiFieldPar");
   if(fField)  {  fieldPar->SetParameters(fField); }
   fieldPar->setInputVersion(fRun->GetRunId(),1);
