@@ -37,7 +37,7 @@ std::string
 ppstate_compare::heartbeat()
 {
   int n=_parent->_neighbours.size();
-  double largestamp=_parent->amp();
+  double largestamp=_parent->amp()*1.5;
   bool lonely=true;
   _parent->_iscenter=true;
   for(int i=0;i<n;++i){
