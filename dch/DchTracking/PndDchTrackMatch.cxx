@@ -40,4 +40,16 @@ PndDchTrackMatch::~PndDchTrackMatch() {}
 // -------------------------------------------------------------------------
 
 
+void PndDchTrackMatch::Print(){
+  std::cout << "%%%%%%%%%%%% TrackMatch::Print() %%%%%%%%%%" << std::endl;
+  std::cout << " fMCTrackID " << fMCTrackID  
+	    << " fRecTrackID " << fRecTrackID
+	    << " fNofTrueHorDs " << fNofTrueHorDs
+	    << " fNofWrongHorDs " << fNofWrongHorDs
+	    << " fNofFakeHorDs " << fNofFakeHorDs
+	    << " fNofMCTracks " << fNofMCTracks << std::endl;
+  
+}
+
+
 ClassImp(PndDchTrackMatch)

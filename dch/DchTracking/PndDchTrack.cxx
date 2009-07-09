@@ -60,17 +60,13 @@ void PndDchTrack::AddDigi(PndDchDigi* digi, Int_t digiID) {
 
 // -----   Public method Print   -------------------------------------------
 void PndDchTrack::Print() {
-  //cout << " Number of attached Dch hits:  "<< fDchHits.GetSize() << endl;
+  cout << " Number of attached Dch hits:  "<< fDchHits.GetSize() << endl;
   cout << " Number of attached Dch chits: "<< fDchCylinderHits.GetSize() << endl;
-	//cout << " Number of attached Dch digis: "<< fDchDigis.GetSize() << endl;
+  cout << " Number of attached Dch digis: "<< fDchDigis.GetSize() << endl;
+  cout << "Printing hit indices of cyl hits:" << endl;
   for(unsigned int i=0;i<fDchCylinderHits.GetSize();++i){
     std::cout << fDchCylinderHits[i] << " " ;
   }
-
-  //std::multimap<Double_t, Int_t>::iterator iter;
-  //for(iter=fDchCylinderHitMultimap.begin();iter!=fDchCylinderHitMultimap.end();++iter){
-  //  std::cout << iter->first << " ";
-  //}
   std::cout << std::endl;
 }
 // -------------------------------------------------------------------------
