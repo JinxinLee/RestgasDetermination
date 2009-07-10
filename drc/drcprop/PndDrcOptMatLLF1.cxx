@@ -112,7 +112,7 @@ bool PndDrcOptMatLLF1::AbsorptionFlag(double lambda, double length) const
   // Rayleigh scattering. 
   // data from Schott data sheets of 10mm sample
 
-  const static double kLam[21] = {1060,    700,   650,   620,   580,
+  const static double kLam[21] = {1060,    700,   660,   620,   580,
 				 546,     500,   460,   436,   420,
 				 405,     400,   390,   380,   370,
 				 365,     350,   334,   320,   310,
@@ -121,7 +121,7 @@ bool PndDrcOptMatLLF1::AbsorptionFlag(double lambda, double length) const
 				 5000,   5000,  5000,  5000,  5000,
 				 5000,   3328,  3328,  1995,  1662,
 				 1245,  550.5, 118.4, 20.78, 7.007,
-				2.556};
+				2.681};
   // C = -10mm /ln (t_i)
 
   double clarity;

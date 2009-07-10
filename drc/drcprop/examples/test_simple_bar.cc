@@ -201,7 +201,7 @@ int main(int argc, char *argv[])
 
   // create a list of photons in bar
 
-  XYZPoint pos(0,-10,1000);
+  XYZPoint pos(0,-10,0);
   XYZVector dir(0,1,1); 
   double   beta = 0.69;
   double range=500;

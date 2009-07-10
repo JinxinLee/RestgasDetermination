@@ -22,7 +22,7 @@ CFLAGS = -O2 -DNDEBUG -Wall
 all:			test_simple_bar test_simple_bar2 test_disk test_sheet test_cylinder \
 			test_focus test_focus2 test_absorption test_test test_titti \
 			test_top test_air_lens test_hook test_barrel1 test_barrel1a test_barrel2  \
-			test_lens
+			test_lens beamtest0809 mppc
 
 test_simple_bar:	$(OBJECTS) test_simple_bar.o
 			g++ -o test_simple_bar test_simple_bar.o $(OBJECTS) $(LDLIBS)
@@ -147,6 +147,23 @@ test_lens:		$(OBJECTS) test_lens.o
 test_lens.o:		test_lens.cc
 			g++ $(CFLAGS) $(INCLFLAGS) -o test_lens.o \
 			-c test_lens.cc
+
+
+beamtest0809_sim:   	$(OBJECTS) beamtest0809_sim.o
+			g++ -o beamtest0809_sim beamtest0809_sim.o $(OBJECTS) $(LDLIBS)
+
+beamtest0809_sim.o:		beamtest0809_sim.cc
+			g++ $(CFLAGS) $(INCLFLAGS) -o beamtest0809_sim.o \
+			-c beamtest0809_sim.cc
+
+
+mppc:			$(OBJECTS) mppc.o
+			g++ -o mppc mppc.o $(OBJECTS) $(LDLIBS)
+
+mppc.o:			mppc.cc
+			g++ $(CFLAGS) $(INCLFLAGS) -o mppc.o \
+			-c mppc.cc
+
 
 ../%.o : ../%.cxx	
 			g++  $(CFLAGS) $(INCLFLAGS) -c $< -o $@

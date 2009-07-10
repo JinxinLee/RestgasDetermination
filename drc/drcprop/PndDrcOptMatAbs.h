@@ -82,6 +82,8 @@ class PndDrcOptMatAbs
     \param lambda wavelength [nm]
   */
   virtual double RefIndexDeriv(const double lambda) const = 0;
+             
+  virtual double Extinction(const double lambda) const = 0;
 
   /*! \brief Absorption flag
 

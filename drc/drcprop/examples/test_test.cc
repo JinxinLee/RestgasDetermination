@@ -86,8 +86,8 @@ int main(int argc, char *argv[])
   //double conical_const = -1; // hyperbola
 
   //int ioption = 1; // parallel beam (0 deg)
-  int ioption = 2; // 0,  +- 20,  +-40 deg
-  //int ioption = 3; // C-cone
+  //int ioption = 2; // 0,  +- 20,  +-40 deg
+  int ioption = 3; // C-cone
   //int ioption = 4; // random in front of lens.
   //int ioption = 5; // single photon for debugging.
   //int ioption = 6; // grid 5 deg
@@ -521,8 +521,8 @@ int main(int argc, char *argv[])
   box.AddSurface(hole2_side2);
   box.AddSurface(hole2_side3);
   box.AddSurface(hole2_side4);
-  box.SetOptMaterial(vacuum);
-  //box.SetOptMaterial(quartz);
+  //box.SetOptMaterial(vacuum);
+  box.SetOptMaterial(quartz);
   box.SetName("box");
 
   XYZPoint t5(-slab_width/2, +slab_height/2, -1000);
@@ -653,7 +653,7 @@ int main(int argc, char *argv[])
   // .x Geo.C 
   // .x Screen.C
   // 
-  manager->Print(geo);
+  //manager->Print(geo);
   
 
   //geo<<"}"<<endl;
@@ -713,7 +713,7 @@ int main(int argc, char *argv[])
       XYZPoint pos(0,-10,-45.0);
       XYZVector dir(0.0,1,-3); 
       double   beta = 0.80;
-      photons_exist = manager->Cerenkov(pos,dir,beta,100,200); // generate photons
+      photons_exist = manager->Cerenkov(pos,dir,beta,5000,200); // generate photons
     }
   if (ioption==4)  
     {

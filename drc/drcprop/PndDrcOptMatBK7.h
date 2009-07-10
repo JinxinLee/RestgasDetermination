@@ -1,39 +1,39 @@
 /*! 
   \brief Class for optical material representation.
 
-  In this case the glass N-LLF1 (extra light flint) from Schott. See 
+  In this case the glass N-BK7 (borosilicate glass) from Schott. See 
   http://www.schott.com/optics_devices/german/products/flash/abbediagramm_flash.html
 
 */
 
 
-#ifndef PNDDRCOPTMATLLF1_H
-#define PNDDRCOPTMATLLF1_H
+#ifndef PNDDRCOPTMATBK7_H
+#define PNDDRCOPTMATBK7_H
 
 
 #include "PndDrcOptMatAbs.h"
 
 #include "TRandom.h"
 
-class PndDrcOptMatLLF1 : public PndDrcOptMatAbs
+class PndDrcOptMatBK7 : public PndDrcOptMatAbs
 {
  public:
 
   //!                                             Empty constructor.
-  PndDrcOptMatLLF1();                
+  PndDrcOptMatBK7();                
 
   /*! Copy constructor.
     /param Object to copy.
   */ 
-  PndDrcOptMatLLF1(const PndDrcOptMatLLF1& mat);
+  PndDrcOptMatBK7(const PndDrcOptMatBK7& mat);
 
   /*! Assignment operator.
     /param Object to assign.
   */ 
-  PndDrcOptMatLLF1& operator=(const PndDrcOptMatLLF1& mat);
+  PndDrcOptMatBK7& operator=(const PndDrcOptMatBK7& mat);
 
   // Implementation of pure virtual functions from base class.
-  PndDrcOptMatLLF1* Clone() const;
+  PndDrcOptMatBK7* Clone() const;
   double RefIndex(const double lambda) const;
   double RefIndexDeriv(const double lambda) const;
   double Extinction(const double lambda) const {return 0;};
@@ -53,7 +53,7 @@ class PndDrcOptMatLLF1 : public PndDrcOptMatAbs
   /*! \brief Auxiliary function for assignment operator and copy constructor..
     \param s The object to copy.
   */
-  void Copy(const PndDrcOptMatLLF1& s);         
+  void Copy(const PndDrcOptMatBK7& s);         
 
  
 };

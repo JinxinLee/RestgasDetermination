@@ -35,6 +35,7 @@ class PndDrcOptMatLiF : public PndDrcOptMatAbs
   PndDrcOptMatLiF* Clone() const;
   double RefIndex(const double lambda) const;
   double RefIndexDeriv(const double lambda) const;
+  double Extinction(const double lambda) const {return 0;};
   bool   AbsorptionFlag(double lambda, double length) const;  //!< not yet implemented.
 
  protected:

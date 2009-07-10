@@ -19,7 +19,7 @@ class PndDrcOptReflPerfect : public PndDrcOptReflAbs
 
   /*! \brief Reflectivity of surface 
 
-  used for mirror surfaces or surfacec with internal reflection.
+  used for mirror surfaces or surfaces with internal reflection.
   \param ph The photon
   \param normal Normal vector of surface
   */

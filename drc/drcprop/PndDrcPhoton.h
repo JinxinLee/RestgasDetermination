@@ -17,6 +17,8 @@ using ROOT::Math::XYZVector;
 #include <fstream>
 using std::fstream;
 
+#include "TRandom.h"
+
 //! A namespace for encapsulation.
 namespace Drc
 {
@@ -168,13 +170,17 @@ class PndDrcPhoton
   \param n_outside The refractive index of or the next volume or the vacuum outside.
   \return True if refraction occured, false if reflection occured.
   */
-  bool Refract(XYZVector normal, double n_inside, double n_outside=1.0);
+  bool Refract(XYZVector normal, double n_in, double ex_in, double n_out=1.0, double ex_out=0.0);
 
   /*! \brief Reflect the photon
     \param normal The normal vector of the surface.
     \sa Refract()
   */
   void Reflect(const XYZVector& normal);
+             
+  void Diffuse(const XYZVector& normal);           
+             
+  bool Fresnel(XYZVector normal, double n_in, double ex_in, double n_out=1.0, double ex_out=0.0);
 
 
   /*! \brief Write photon coordinates to stream in root syntax.
@@ -204,7 +210,7 @@ class PndDrcPhoton
   \param flg Print flag.
   */
   void SetPrintFlag(bool flg){fPrintFlag=flg;};
-
+  
 
  private:
   double           fLambda;                        //!< Wavelength in nm.           
@@ -218,7 +224,7 @@ class PndDrcPhoton
   double           fTime;                          //!< Time of flight.             
   int              fReflectionLimit;               //!< Reflection limit.
   bool             fPrintFlag;                     //!< Print flag, by default true
-  
+
 
   /*! \brief Copy function for assigment and copy operator.
     \param ph The photon

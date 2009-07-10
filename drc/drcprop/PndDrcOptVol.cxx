@@ -261,7 +261,7 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 		}
 	      if (refl == Drc::ReflRefracted)
 		{
-		  if (ph.Refract(norm,OptMaterial().RefIndex(ph.Wavelength())))
+          if (ph.Refract(norm, OptMaterial().RefIndex(ph.Wavelength()), OptMaterial().Extinction(ph.Wavelength()) ))
 		    {
 		      ph.SetFate(Drc::kPhotLost); // Photon refracted in nirvana.
 		      if (Verbosity()>=4) cout<<"     Photon lost"<<endl;
@@ -273,7 +273,7 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 	    {
 	      // Step 3a ----------- Refraction (no reflectivity defined, no couplings)
 	      if (Verbosity()>=4) cout<<"     PndDrcOptVol::reflectivity1b clause"<<endl;
-	      bool refr = ph.Refract(norm,OptMaterial().RefIndex(ph.Wavelength()));
+          bool refr = ph.Refract(norm,OptMaterial().RefIndex(ph.Wavelength()), OptMaterial().Extinction(ph.Wavelength()) );
 	      
 	      if (refr) 
 		{
@@ -393,9 +393,12 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 		      if (opt_mat)
 			{
 			  double n1 = OptMaterial().RefIndex(ph.Wavelength());
+              double ex1 = OptMaterial().Extinction(ph.Wavelength());
 			  double n2 = opt_mat->RefIndex(ph.Wavelength());
-			  bool iref = ph.Refract(surf_closest->Normal(ph.Position()),
-						 n1,n2);
+              double ex2 = opt_mat->Extinction(ph.Wavelength());
+//               cout << "VOLCHECK: " << n1 << " " << ex1 << " " << n2 << " " << ex2 << endl;
+              
+              bool iref = ph.Refract(surf_closest->Normal(ph.Position()),n1,ex1,n2,ex2);
 
 			  if (Verbosity()>=4) cout<<" refract in new volume flag = "
 						  <<iref<<endl;

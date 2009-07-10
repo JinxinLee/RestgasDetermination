@@ -4,7 +4,7 @@
 // 
 // created 2007
 //-----------------------------------------------------
-#include "PndDrcOptMatNLAK33A.h"
+#include "PndDrcOptMatBK7.h"
 #include <algorithm>
 //#include "PndDrcOptMatAbs.h"
 //
@@ -18,6 +18,7 @@ using std::cerr;
 //using std::cin;
 using std::endl;
 //
+#include <cmath>
 //#include <valarray>
 //using std::valarray;
 //
@@ -30,26 +31,24 @@ using std::endl;
 //#include <list>
 //using std::list;
 
-#include <cmath>
-
 //----------------------------------------------------------------------
-PndDrcOptMatNLAK33A::PndDrcOptMatNLAK33A()
+PndDrcOptMatBK7::PndDrcOptMatBK7()
 {
-  fB1 = 1.44116999;
-  fB2 = 0.571749501;
-  fB3 = 1.16605226;
-  fC1 = 0.00680933877;
-  fC2 = 0.0222291824;
-  fC3 = 80.9379555;
+  fB1 = 1.03961212;
+  fB2 = 0.231792344;
+  fB3 = 1.01046945;
+  fC1 = 0.00600069867;
+  fC2 = 0.0200179144;
+  fC3 = 103.560653;
 
 }
 //----------------------------------------------------------------------
-PndDrcOptMatNLAK33A* PndDrcOptMatNLAK33A::Clone() const
+PndDrcOptMatBK7* PndDrcOptMatBK7::Clone() const
 {
-  return new PndDrcOptMatNLAK33A(*this);
+  return new PndDrcOptMatBK7(*this);
 }
 //----------------------------------------------------------------------
-void PndDrcOptMatNLAK33A::Copy(const PndDrcOptMatNLAK33A& mat)
+void PndDrcOptMatBK7::Copy(const PndDrcOptMatBK7& mat)
 {
   fB1  = mat.fB1;
   fC1  = mat.fC1;
@@ -59,19 +58,19 @@ void PndDrcOptMatNLAK33A::Copy(const PndDrcOptMatNLAK33A& mat)
   fC3  = mat.fC3;
   fRan = mat.fRan;
 }//----------------------------------------------------------------------
-PndDrcOptMatNLAK33A::PndDrcOptMatNLAK33A(const PndDrcOptMatNLAK33A& mat)
+PndDrcOptMatBK7::PndDrcOptMatBK7(const PndDrcOptMatBK7& mat)
   : PndDrcOptMatAbs(mat)
 {
-  if (mat.fVerbosity>=1) cout<<"  PndDrcOptMatNLAK33A::PndDrcOptMatNLAK33A"
-			    <<"(const PndDrcOptMatNLAK33A&) "  
+  if (mat.fVerbosity>=1) cout<<"  PndDrcOptMatBK7::PndDrcOptMatBK7"
+			    <<"(const PndDrcOptMatBK7&) "  
 			    <<mat.fName<<endl;
   Copy(mat);
 } 
 //----------------------------------------------------------------------
-PndDrcOptMatNLAK33A& PndDrcOptMatNLAK33A::operator=(const PndDrcOptMatNLAK33A& mat)
+PndDrcOptMatBK7& PndDrcOptMatBK7::operator=(const PndDrcOptMatBK7& mat)
 {
-  if (mat.fVerbosity>=1) cout<<"  PndDrcOptMatNLAK33A::operator="
-			    <<"(const PndDrcOptMatNLAK33A&) "  
+  if (mat.fVerbosity>=1) cout<<"  PndDrcOptMatBK7::operator="
+			    <<"(const PndDrcOptMatBK7&) "  
 			    <<mat.fName<<endl;
   if (&mat != this)
     {
@@ -81,7 +80,7 @@ PndDrcOptMatNLAK33A& PndDrcOptMatNLAK33A::operator=(const PndDrcOptMatNLAK33A& m
   return *this;
 }
 //----------------------------------------------------------------------
-double PndDrcOptMatNLAK33A::RefIndex(const double lambda) const
+double PndDrcOptMatBK7::RefIndex(const double lambda) const
 {
 
   if (lambda<0) return 1.74; // average value.
@@ -94,7 +93,7 @@ double PndDrcOptMatNLAK33A::RefIndex(const double lambda) const
 	      fB3*lam2/(lam2-fC3));
 }  
 //----------------------------------------------------------------------
-double PndDrcOptMatNLAK33A::RefIndexDeriv(const double lambda) const
+double PndDrcOptMatBK7::RefIndexDeriv(const double lambda) const
 {
   double lam  = lambda/1000;
   double lam2 = lam*lam;
@@ -107,7 +106,7 @@ double PndDrcOptMatNLAK33A::RefIndexDeriv(const double lambda) const
 
 }
 //----------------------------------------------------------------------
-bool PndDrcOptMatNLAK33A::AbsorptionFlag(double lambda, double length) const
+bool PndDrcOptMatBK7::AbsorptionFlag(double lambda, double length) const
 {
 
   // Rayleigh scattering. 
@@ -119,11 +118,12 @@ bool PndDrcOptMatNLAK33A::AbsorptionFlag(double lambda, double length) const
 				 365,     350,   334,   320,   310,
 				 300};
   const static double kC[21]   = {5000,   5000,  5000,  5000,  5000,
-				 5000,   5000,  1662,  1106, 828.3,
-				 521.3, 411.6, 298.0, 195.0, 126.5,
-				 100.2, 45.83, 19.64, 9.169, 5.457,
-				 3.404};
-
+				 5000,   5000,  3328,  3328,  3328,
+				 3328,   3328,  2495,  1424,  1106,
+				 828.3,  298.0, 100.2, 38.26, 18.01,
+				8.123};
+  // C = -10mm /ln (t_i)
+ 
   double clarity;
 
   if (lambda>1060)
@@ -147,7 +147,7 @@ bool PndDrcOptMatNLAK33A::AbsorptionFlag(double lambda, double length) const
 	}
       if (ibin==-1)
 	{
-	  cerr<<" *** PndDrcOptMatNLAK33A::absorptionFlag: "
+	  cerr<<" *** PndDrcOptMatBK7::absorptionFlag: "
 	      <<"this line should never been hit"<<endl;
 	  exit(EXIT_FAILURE);
 	}

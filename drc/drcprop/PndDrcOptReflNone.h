@@ -20,7 +20,7 @@ class PndDrcOptReflNone : public PndDrcOptReflAbs
 
   /*! \brief Reflectivity of surface 
 
-  used for mirror surfaces or surfacec with internal reflection.
+  used for areas which are not of interest.
   \param ph The photon
   \param normal Normal vector of surface
   */
