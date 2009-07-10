@@ -1,8 +1,10 @@
-SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
-
+SET(CMAKE_MODULE_PATH /home/felix/simulation/trunk/tpc/tpcCuda/cmake)
+SET(PANDA_BINARY_DIR /home/felix/simulation/build)
 PROJECT(tpcCuda CUDA C CXX)
 
 cmake_minimum_required(VERSION 2.6)
+
+INCLUDE_DIRECTORIES($ENV{ROOTSYS}/include $ENV{VMCWORKDIR}/tpc)
 
 SET(ROOT_LIB $ENV{ROOTSYS}/lib)
 SET(ROOT_BIN $ENV{ROOTSYS}/bin)
@@ -23,15 +25,52 @@ SET(ROOT_LIBS ${ROOT_LIB}/libCore.so
               ${ROOT_LIB}/libMathCore.so
               ${ROOT_LIB}/libMinuit.so
               ${ROOT_LIB}/libMinuit2.so
+	      ${ROOT_LIB}/libGeom.so
+	      ${ROOT_LIB}/libGeomPainter.so
+	      ${ROOT_LIB}/libVMC.so
+	      ${ROOT_LIB}/libEG.so
 	      libdl.so
-              libm.so)
+              libm.so
+	      )
 
-#ADD_LIBRARY(${SOURCES})
+
+#SET(PANDA_LIB ${PANDA_BINARY_DIR}/lib)
+#SET(PANDA_LIBS ${PANDA_LIB}/libGeoBase.so 
+#	       ${PANDA_LIB}/libBase.so
+#	       ${PANDA_LIB}/libtpc.so
+#	       ${PANDA_LIB}/libParBase.so
+#               )
+
+SET(SOURCES     ../McId.cxx 
+                ../PndTpcDigi.cxx
+                ../McIdCollection.cxx
+                ../PndTpcDigiAge.cxx
+                ../PndTpcDigiAmplitude.cxx
+		dataLoader.cc
+		tpcdataDict.cxx
+)
+
+
+ADD_LIBRARY(tpcdata SHARED ${SOURCES})
+
+
+FIND_PROGRAM(ROOT_CINT_EXECUTABLE
+  NAMES rootcint
+  PATHS $ENV{ROOTSYS}/bin
+  NO_DEFAULT_PATH
+)
+
+ADD_CUSTOM_COMMAND(OUTPUT tpcdataDict.cxx
+      COMMAND ${ROOT_CINT_EXECUTABLE}
+      ARGS -f tpcdataDict.cxx -c -DHAVE_CONFIG_H ${INCLUDE_DIRECTORIES}
+           ../PndTpcDigi.h ../McId.h ../McIdCollection.h tpcdataLinkDef.h)
+
+
 
 # Enable warnings and make them errors
-SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror")
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror")
-
+SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -Wall -Werror")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall -Werror")
+SET(CMAKE_LD_FLAGS "${CMAKE_LD_FLAGS} -g")
 
 # Attempt to find dependant libraries
 FIND_PACKAGE(CUDARuntime)
@@ -42,14 +81,10 @@ ELSE(NOT CUDA_RUNTIME_FOUND)
 	INCLUDE_DIRECTORIES(${CUDA_RUNTIME_INCLUDE_DIR})
 ENDIF(NOT CUDA_RUNTIME_FOUND)
 
-INCLUDE_DIRECTORIES($ENV{ROOTSYS}/include $ENV{VMCWORKDIR}/tpc)
+
 
 #SET(SOURCES hello.cxx)
 
-
-
-
-
 ADD_EXECUTABLE(hello hello.cu)
-TARGET_LINK_LIBRARIES(hello ${CUDA_RUNTIME_LIBRARIES} ${ROOT_LIBS})
+TARGET_LINK_LIBRARIES(hello tpcdata ${CUDA_RUNTIME_LIBRARIES} ${ROOT_LIBS})
 

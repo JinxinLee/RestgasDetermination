@@ -1,11 +1,15 @@
 #include <iostream>
 #include "TFile.h"
 #include "TTree.h"
+#include "TBranch.h"
 #include "TH1F.h"
 #include "PndTpcDigi.h"
 #include "TClonesArray.h"
 #include "TCanvas.h"
+#include "dataLoader.h"
 
+using std::cout;
+using std::endl;
 
 //#include "hello.cuh"
 
@@ -15,7 +19,7 @@
 __global__ void readAmps(float* amp_in, float* amp_out) {
   
   int tID = blockIdx.x * gridDim.x + threadIdx.x;
-  amp_out[tID] = amp_in[tID] + 100000.f;
+  amp_out[tID] = amp_in[tID] + 1000.f;
 }
 
 
@@ -23,21 +27,12 @@ __global__ void readAmps(float* amp_in, float* amp_out) {
 int main() {
 
   
-  TFile* file =  new TFile("2Gev_G3_ALICE_L5_1MeV_cuts_with_PIPE_MVD_10k_evts.raw.root");
-  TTree* tr = (TTree*) file->Get("cbmsim");
-  unsigned int entries = tr->GetEntries();
-  
-  std::cout<<"\n\nTree has "<<entries<<" entries ..."<<std::endl;
-  
-  TClonesArray* digis = new TClonesArray("PndTpcDigi");
-  tr->SetBranchAddress("PndTpcDigi", &digis);
+  dataLoader loader("output.root");
 
-  tr->GetEvent(0);
+  unsigned int nDigis=loader.nDigis();
 
-  unsigned int nDigis = digis->GetEntriesFast();
-  
-  std::cout<<"\nNumber of digis: "<<nDigis<<std::endl;
-  std::cout<<"Converting To float array ..."<<std::endl;
+  std::cout<< "Number of Digis: " << nDigis << endl;
+  std::cout<<"Converting To float array ... input floats:"<<std::endl;
 
   float* amp_h;
   float* amp_out_h;
@@ -45,8 +40,10 @@ int main() {
   amp_h = (float*) malloc(nDigis*sizeof(float));
   amp_out_h = (float*) malloc(nDigis*sizeof(float));
 
-  for(unsigned int i=0; i<nDigis; ++i) 
-    amp_h[i] = (float)((PndTpcDigi*)digis->At(i))->amp();
+  for(unsigned int i=0; i<nDigis; ++i){ 
+    amp_h[i] = (float)(loader.getDigiAmp(i));
+    cout << amp_h[i] << endl;
+  }
   
   //device pointers
   float* amp_in_d;
@@ -56,11 +53,13 @@ int main() {
   cudaMalloc((void**) &amp_out_d, nDigis*sizeof(float));
   
   //copy to device
-  cudaMemcpy(amp_in_d, amp_h, nDigis*sizeof(float), cudaMemcpyHostToDevice);
+   cudaMemcpy(amp_in_d, amp_h, nDigis*sizeof(float), cudaMemcpyHostToDevice);
   
 
   int nThreads = 512;
   int nBlocks = nDigis/nThreads +1 ;
+
+  cout << "NBlocks=" << nBlocks << endl;
   
   //launch kernel
   dim3 dimGrid(nBlocks);
@@ -70,11 +69,13 @@ int main() {
   readAmps<<< dimGrid, dimBlock >>>(amp_in_d, amp_out_d);
   std::cout<<"Finished executing kernel" <<std::endl;
   cudaMemcpy(amp_out_h, amp_out_d, nDigis*sizeof(float), 
-	     cudaMemcpyDeviceToHost );
-
-  for(int i=0; i<15; i++) {
-    float in = (float)((PndTpcDigi*)digis->At(i))->amp();
-    std::cout<<"In: "<<in<<"    Out: "<<amp_out_h[i]<<std::endl;
+  	     cudaMemcpyDeviceToHost );
+ 
+ for(int i=0; i<25; i++) {
+    //    double in = ((PndTpcDigi*)(digis->At(i)))->amp();
+    //std::cout << ((PndTpcDigi*)(digis->At(i)))->amp() << endl;
+   double in = loader.getDigiAmp(i);
+   std::cout<<"In: "<<in<<"    Out: "<<amp_out_h[i]<<std::endl;
   }
    
 }
