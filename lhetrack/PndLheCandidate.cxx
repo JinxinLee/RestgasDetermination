@@ -8,7 +8,7 @@
 #include <map>
 
 //using std::map;
-using std::vector;
+using std::multimap;
 using std::sort;
 
 
@@ -123,29 +123,25 @@ void PndLheCandidate::SortHits()
   TObjArray* lheList = GetRHits();
   if (fVerbose) cout << lheList->GetEntriesFast() << " " << GetNumberOfHits() << endl;
   
-  map<Float_t, Int_t> fPointList;
-  vector<Float_t> hit_dist;
+  multimap<Float_t, Int_t> fPointList; // hdistance, hit index
+  multimap<Float_t, Int_t>::iterator iter;
   for (Int_t lh=0; lh < lheList->GetEntriesFast(); lh++)
     {
       PndLheHit* lhit = (PndLheHit*)lheList->At(lh);
       if (NULL==lhit) break; 
 
       if (fVerbose) cout << "before:\t" << lhit->GetX() << "\t" << lhit->GetY() << "\t" <<lhit->GetZ() << "\t" << TMath::Sqrt(lhit->GetX()*lhit->GetX()+lhit->GetY()*lhit->GetY()+lhit->GetZ()*lhit->GetZ()) << endl;
-      hit_dist.push_back(TMath::Sqrt(lhit->GetX()*lhit->GetX()+lhit->GetY()*lhit->GetY()+lhit->GetZ()*lhit->GetZ()));
-      fPointList[TMath::Sqrt(lhit->GetX()*lhit->GetX()+lhit->GetY()*lhit->GetY()+lhit->GetZ()*lhit->GetZ())] = lh;
+      fPointList.insert(pair<Float_t, Int_t>(TMath::Sqrt(lhit->GetX()*lhit->GetX()+lhit->GetY()*lhit->GetY()+lhit->GetZ()*lhit->GetZ()),lh));
     }
-  
-  sort(hit_dist.begin(), hit_dist.end());
-
+ 
   TObjArray  *fNewHits = new TObjArray(0);
-  for (Int_t ii=0; ii< hit_dist.size(); ++ii)
+  for (iter=fPointList.begin(); iter!=fPointList.end(); ++iter)
     {
-      PndLheHit* lhit = (PndLheHit*)lheList->At(fPointList[hit_dist[ii]]);
+      PndLheHit* lhit = (PndLheHit*)lheList->At((*iter).second);
       if (fVerbose) cout << "after:\t" << lhit->GetX() << "\t" << lhit->GetY() << "\t" <<lhit->GetZ() << "\t" << TMath::Sqrt(lhit->GetX()*lhit->GetX()+lhit->GetY()*lhit->GetY()+lhit->GetZ()*lhit->GetZ()) << endl;
       fNewHits->AddLast(lhit);
     }
-     
-  hit_dist.clear();
+    
   fRealHits = fNewHits;
   return;
 }
