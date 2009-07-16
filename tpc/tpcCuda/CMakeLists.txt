@@ -46,6 +46,7 @@ SET(SOURCES     ../McId.cxx
                 ../McIdCollection.cxx
                 ../PndTpcDigiAge.cxx
                 ../PndTpcDigiAmplitude.cxx
+		../PndTpcCluster.cxx
 		dataLoader.cc
 		tpcdataDict.cxx
 )
@@ -63,13 +64,13 @@ FIND_PROGRAM(ROOT_CINT_EXECUTABLE
 ADD_CUSTOM_COMMAND(OUTPUT tpcdataDict.cxx
       COMMAND ${ROOT_CINT_EXECUTABLE}
       ARGS -f tpcdataDict.cxx -c -DHAVE_CONFIG_H ${INCLUDE_DIRECTORIES}
-           ../PndTpcDigi.h ../McId.h ../McIdCollection.h tpcdataLinkDef.h)
+           ../PndTpcDigi.h ../McId.h ../McIdCollection.h ../PndTpcCluster.h tpcdataLinkDef.h)
 
 
 
 # Enable warnings and make them errors
-SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -Wall -Werror")
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall -Werror")
+SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 SET(CMAKE_LD_FLAGS "${CMAKE_LD_FLAGS} -g")
 
 # Attempt to find dependant libraries
@@ -82,9 +83,11 @@ ELSE(NOT CUDA_RUNTIME_FOUND)
 ENDIF(NOT CUDA_RUNTIME_FOUND)
 
 
-
 #SET(SOURCES hello.cxx)
 
 ADD_EXECUTABLE(hello hello.cu)
 TARGET_LINK_LIBRARIES(hello tpcdata ${CUDA_RUNTIME_LIBRARIES} ${ROOT_LIBS})
+
+ADD_EXECUTABLE(hough hough.cu)
+TARGET_LINK_LIBRARIES(hough tpcdata ${CUDA_RUNTIME_LIBRARIES} ${ROOT_LIBS})
 

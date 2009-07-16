@@ -7,6 +7,7 @@
 #include "TClonesArray.h"
 #include "TCanvas.h"
 #include "dataLoader.h"
+#include "device_functions.h"
 
 using std::cout;
 using std::endl;
@@ -19,7 +20,7 @@ using std::endl;
 __global__ void readAmps(float* amp_in, float* amp_out) {
   
   int tID = blockIdx.x * gridDim.x + threadIdx.x;
-  amp_out[tID] = amp_in[tID] + 1000.f;
+  amp_out[tID] = sqrt(amp_in[tID]);
 }
 
 
@@ -27,7 +28,7 @@ __global__ void readAmps(float* amp_in, float* amp_out) {
 int main() {
 
   
-  dataLoader loader("output.root");
+  dataLoader loader("2Gev_G3_ALICE_L5_1MeV_cuts_with_PIPE_MVD_10k_evts.raw.root");
 
   unsigned int nDigis=loader.nDigis();
 
@@ -42,7 +43,7 @@ int main() {
 
   for(unsigned int i=0; i<nDigis; ++i){ 
     amp_h[i] = (float)(loader.getDigiAmp(i));
-    cout << amp_h[i] << endl;
+    //cout << amp_h[i] << endl;
   }
   
   //device pointers
@@ -56,7 +57,7 @@ int main() {
    cudaMemcpy(amp_in_d, amp_h, nDigis*sizeof(float), cudaMemcpyHostToDevice);
   
 
-  int nThreads = 512;
+  int nThreads = 256;
   int nBlocks = nDigis/nThreads +1 ;
 
   cout << "NBlocks=" << nBlocks << endl;
@@ -72,8 +73,6 @@ int main() {
   	     cudaMemcpyDeviceToHost );
  
  for(int i=0; i<25; i++) {
-    //    double in = ((PndTpcDigi*)(digis->At(i)))->amp();
-    //std::cout << ((PndTpcDigi*)(digis->At(i)))->amp() << endl;
    double in = loader.getDigiAmp(i);
    std::cout<<"In: "<<in<<"    Out: "<<amp_out_h[i]<<std::endl;
   }

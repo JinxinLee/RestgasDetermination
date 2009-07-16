@@ -3,6 +3,7 @@
 #include "TTree.h"
 #include "TBranch.h"
 #include "PndTpcDigi.h"
+#include "PndTpcCluster.h"
 #include "TClonesArray.h"
 
 
@@ -11,12 +12,18 @@ class dataLoader {
  public:
   dataLoader(TString filename);
   
+  void setEvent(unsigned int i);
+  
   double getDigiAmp(int i);
-  int nDigis(){return digis->GetEntriesFast();}
+  void getClusterPos(int i, double& x, double& y, double& z);
+  void getClusterPosPolar(int i, double& r, double& phi, double& z);
+  int nDigis(){return _digis->GetEntriesFast();}
+  int nClusters() {return _clusters->GetEntriesFast();}
 
  private:
 
-  TTree* tree;
-  TClonesArray* digis;
+  TTree* _tree;
+  TClonesArray* _digis;
+  TClonesArray* _clusters;
   
 };
