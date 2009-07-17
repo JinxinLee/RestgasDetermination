@@ -14,16 +14,21 @@
 #include <cmath>
 #include <vector>
 #include <map>
+#include <string>
+#include <sstream>
 
 
 void houghCPU() {
 
 
+  bool CUT_CHAMBER=true;   //only collect hits with x>0;
+  double CUT_DIST=0.2;      //cut on c
+  
   unsigned int EVENT=3;
-  double RIEMANNSCALING=50;
+  double RIEMANNSCALING=40;
 
   TString dir = "DATA/";
-  TString project = "Test5";
+  TString project = "Test20";
 
   project=dir+project;
   TString mc_filename = project+".mc.root";
@@ -49,8 +54,9 @@ void houghCPU() {
   
   double r, phi, z, x_R, y_R, z_R;
 
-  int BIN_phi = 200;
-  int BIN_theta = 200;
+  int BIN_phi = 180;
+  int BIN_theta = 180;
+  
   
   TH3D* hist  = new TH3D("bl","fd",100,-1,1,100,-1,1,100,0,1);
   TH3D* hist_mc  = new TH3D("bl31233","fd312321",100,-1,1,100,-1,1,100,0,1);
@@ -61,14 +67,14 @@ void houghCPU() {
   TH2D* histParam  = new TH2D("bl2","Sample of c(#Phi, #Theta)",
 			      BIN_phi,0,180,BIN_theta,0,180);
   TH2D* phi_c  = new TH2D("phic","c-phi projection)",
-			  BIN_phi,0,180,300,-1,1);
+			  BIN_phi,0,180,300,-CUT_DIST,CUT_DIST);
   TH2D* theta_c  = new TH2D("thetac","c-theta projection)",
-			  BIN_theta,0,180,300,-1,1);
+			  BIN_theta,0,180,300,-CUT_DIST,CUT_DIST);
 
   TH2D* phi_c_mc  = new TH2D("phicMC","MC c-phi projection)",
-			  BIN_phi/10,0,180,30,-1,1);
+			  BIN_phi/5,0,180,30,-CUT_DIST,CUT_DIST);
   TH2D* theta_c_mc  = new TH2D("thetacMC","MC c-theta projection)",
-			  BIN_theta/10,0,180,30,-1,1);
+			  BIN_theta/5,0,180,30,-CUT_DIST,CUT_DIST);
   
   histParam->GetXaxis()->SetTitle("#Phi");
   histParam->GetYaxis()->SetTitle("#Theta");
@@ -98,6 +104,8 @@ void houghCPU() {
       PndTpcPoint* thePoint = (PndTpcPoint*)_points->At(p);
       if(thePoint->GetTrackID() == (*it).first) {
 	TVector3 pos;
+	if(CUT_CHAMBER && pos.X() < 0.)
+	  continue;
 	thePoint->Position(pos);
 	pos.SetZ(0.);
 	r = pos.Mag()/RIEMANNSCALING;
@@ -124,6 +132,8 @@ void houghCPU() {
     //get three points on spehere to span the plane
     TVector3 vec1, vec2, vec3, span1, span2, normal;
     vec1 = theVec->at(0); vec1.Print();
+    if(CUT_CHAMBER && vec1.X() < 0.)
+      continue;
     vec3 = theVec->at(size-1); vec3.Print();
     vec2 = theVec->at(size/2); vec2.Print();
     span1 = vec3-vec1;
@@ -152,6 +162,8 @@ void houghCPU() {
   //loop over clusters
   for(int cl=0; cl<nClusters; ++cl) {
     TVector3 pos = ((PndTpcCluster*)_clusters->At(cl))->pos();
+    if(CUT_CHAMBER && pos.X() < 0.)
+      continue;
     //z = pos.Z()/15;
     pos.SetZ(0.);
     r = pos.Mag()/RIEMANNSCALING;
@@ -175,14 +187,29 @@ void houghCPU() {
   double phiBinWidth=(double)180/BIN_phi;
   double thetaBinWidth=(double)180/BIN_theta;
   
+  std::vector<TH2D*> histlist;
+  
   for(int rp=0; rp<riemannList.size(); ++rp) {
     TVector3 point = riemannList[rp];
     //TVector3 point = TVector3(1.,0.,0.);
     point.Print();
+    TH2D* theHist;
     for(int phi=0; phi<BIN_phi; ++phi) {
       TVector3 n = TVector3(1.,0.,0.);
       n.SetPhi((phi+0.5)*phiBinWidth*TMath::Pi()/180);
       for(int theta=0; theta<BIN_theta; ++theta) {
+	if(theta%10==0) {
+	  std::string name = "phic_";
+	  std::stringstream s;
+	  s<<theta;
+	  name.append(s.str());
+	  if(rp==0&&phi==0){
+	    histlist.push_back(new TH2D(name.c_str(),"c-phi projection)",
+				      BIN_phi,0,180,200,-CUT_DIST,CUT_DIST));
+	    (histlist[histlist.size()-1])->GetXaxis()->SetTitle("#Phi");
+	  }
+	}
+	theHist=histlist[(int)theta/10];
 	n.SetTheta(((theta+0.5)*thetaBinWidth)*TMath::Pi()/180);
 	n.SetMag(1.0);
 	double c = point*n;
@@ -190,11 +217,13 @@ void houghCPU() {
 	  histParam->SetBinContent(phi+1,theta+1,fabs(c));
 	blub->Fill((phi+0.5)*phiBinWidth,(theta+0.5)*thetaBinWidth,c);
 	phi_c->Fill((phi+0.5)*phiBinWidth,c);
+	theHist->Fill((phi+0.5)*phiBinWidth,c);	
 	theta_c->Fill((theta+0.5)*thetaBinWidth,c);
+	
       }
     }
   }
-
+  
   std::cout<<"phiBinWidth: "<<phiBinWidth<<std::endl;
   
   TCanvas* c =  new TCanvas();
@@ -203,8 +232,8 @@ void houghCPU() {
   hist->Draw();
   c->cd(2);
   hist_mc->Draw();
-  TCanvas* c2 = new TCanvas();
-  histParam->Draw("SURF1");
+  //TCanvas* c2 = new TCanvas();
+  // histParam->Draw("SURF1");
   TCanvas* c3 =  new TCanvas();
   blub->Draw();
   TCanvas* c4 = new TCanvas();
@@ -219,9 +248,13 @@ void houghCPU() {
   phi_c_mc->Draw("COLZ");
   c5->cd(2);
   theta_c_mc->Draw("COLZ");
- 
+  TCanvas* c6 = new TCanvas();
+  c6->Divide(5,4);
+  for(int c=0; c<histlist.size(); c++) {
+    c6->cd(c+1);
+    (histlist[c])->Draw("COLZ");
+  }
+    
 
-  
-  
 
 }
