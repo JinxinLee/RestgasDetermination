@@ -331,10 +331,10 @@ void SPtestTask::Exec(Option_t* opt) {
 	  continue;
 	}
 	
-	exit(1);
+	//	exit(1);
 	PndTrack* pndTrk = GenfitTrack2PndTrack(tr);
 	pndTrk->Print();
-	throw;
+	//	throw;
 	//std::cout << __FILE__ << __LINE__ << std::endl;
 	AbsTrackRep* result =   tr->getCardinalRep();
 	std::cout << std::endl << std::endl << std::endl<<"resultPlane" << std::endl;
