@@ -21,5 +21,5 @@
 #pragma link C++ class TrackFitStatTask+;
 #pragma link C++ class MCTruthAnnex+;
 #pragma link C++ class TpcMCEvtDeconvTask+;
-
+#pragma link C++ class GlobalTrackMergingTask+;
 #endif

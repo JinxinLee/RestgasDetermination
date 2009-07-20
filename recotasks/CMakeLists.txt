@@ -14,6 +14,10 @@ ${CMAKE_SOURCE_DIR}/pnddata
 ${CMAKE_SOURCE_DIR}/passive
 ${CMAKE_SOURCE_DIR}/mvd
 ${CMAKE_SOURCE_DIR}/mvd/MvdData
+${CMAKE_SOURCE_DIR}/pnddata/GemData
+${CMAKE_SOURCE_DIR}/gem
+${CMAKE_SOURCE_DIR}/dch/DchData
+${CMAKE_SOURCE_DIR}/dch/DchFitting
 ${CMAKE_SOURCE_DIR}/pnddata/MvdData 
 ${CMAKE_SOURCE_DIR}/mvd/MvdTools
 ${CMAKE_SOURCE_DIR}/genfit
@@ -25,6 +29,7 @@ ${CMAKE_SOURCE_DIR}/recotasks/demo
 ${CMAKE_SOURCE_DIR}/trackrep
 ${CMAKE_SOURCE_DIR}/geane
 ${CMAKE_SOURCE_DIR}/trackbase
+${CMAKE_SOURCE_DIR}/pnddata/TrackData
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -51,6 +56,7 @@ LambdaSelector.cxx
 LambdaStatTask.cxx
 MCTruthAnnex.cxx
 TpcMCEvtDeconvTask.cxx
+GlobalTrackMergingTask.cxx
 )
 
 if(RULE_CHECKER_FOUND)

@@ -44,6 +44,16 @@
 #include "TLorentzVector.h"
 #include "DetPlane.h"
 
+#include "PndMvdRecoHit.h"
+#include "PndGemRecoHit.h"
+#include "PndDchRecoHit2.h"
+
+#include "PndDchCylinderHit.h"
+#include "PndMvdHit.h"
+#include "PndGemHit.h"
+
+#include "PndDetectorList.h"
+
 #include "AbsRecoHit.h"
 #include "TVector3.h"
 
@@ -91,12 +101,7 @@ KalmanTask::Init()
     }
   
   // Get input collection
-  _trackArray=(TClonesArray*) ioman->GetObject(_trackBranchName);
-
-  _trackOutArray = new TClonesArray("Track");
-  ioman->Register("Track_out","PndTpc",_trackOutArray,kTRUE);
-  
-  
+  _trackArray=(TClonesArray*) ioman->GetObject("TrackPreFit");
   if(_trackArray==0)
     {
       Error("KalmanTask::Init","track-array not found!");
@@ -114,6 +119,34 @@ KalmanTask::Init()
      _theRecoHitFactory->addProducer(2,new RecoHitProducer<PndTpcCluster,PndTpcSPHit>(ar));
    }
  
+   TClonesArray* mvdHitArray=(TClonesArray*) ioman->GetObject("MVDHit");
+   if(mvdHitArray==0){ //TODO Convention on detector number needed
+     Error("PndFwdKalmanTask::Init","MVDHit array not found");
+   } else {
+     _theRecoHitFactory->addProducer(kMVD,new RecoHitProducer<PndMvdHit,PndMvdRecoHit>(mvdHitArray));
+   }
+   
+   
+   TClonesArray* gemHitArray=(TClonesArray*) ioman->GetObject("GEMHit");
+   if(gemHitArray==0){ //TODO Convention on detector number needed
+     Error("PndFwdKalmanTask::Init","GEMHit array not found");
+   } else {
+     _theRecoHitFactory->addProducer(kGEM,new RecoHitProducer<PndGemHit,PndGemRecoHit>(gemHitArray));
+     _theRecoHitFactory->addProducer(5,new RecoHitProducer<PndGemHit,PndGemRecoHit>(gemHitArray));
+   }
+   
+   
+   
+   TClonesArray* dchCylHitArray=(TClonesArray*) ioman->GetObject("PndDchCylinderHit");
+   if(dchCylHitArray==0){ //TODO Convention on detector number needed
+     Error("PndFwdKalmanTask::Init","PndDchCylinderHit array not found");
+   } else {
+     _theRecoHitFactory->addProducer(kDCH,new RecoHitProducer<PndDchCylinderHit,PndDchRecoHit2>(dchCylHitArray));
+   }
+   
+   _trackOutArray = new TClonesArray("Track");
+   ioman->Register("TrackPostFit","",_trackOutArray,kTRUE);
+
 
   // setup histograms
   _pH=new TH1D("pH","p",100,0.4,0.6);
@@ -143,8 +176,8 @@ KalmanTask::Exec(Option_t* opt)
 
   // Fitting ---------------- can go to another task!
   Kalman fitter;
-  fitter.setLazy(_lazy);
-  fitter.setNumIterations(_numIt);
+  //  fitter.setLazy(_lazy);
+  fitter.setNumIterations(3);
 
   //std::vector<TLorentzVector*> particles;
   //std::vector<int> signs;
@@ -152,8 +185,7 @@ KalmanTask::Exec(Option_t* opt)
   for(Int_t itr=0;itr<ntracks;++itr){
     std::cout<<"starting track"<<itr<<std::endl;
     Track* trk=(Track*)_trackArray->At(itr);
-    std::cout<<"*** Number of clusters in track: "<<trk->getNumHits()<<" ***"<<std::endl;
-          
+    
     // Load RecoHits 
     try {
       trk->addHitVector(_theRecoHitFactory->createMany(trk->getCand()));
@@ -162,9 +194,28 @@ KalmanTask::Exec(Option_t* opt)
     }
     catch(FitterException& e) {
       std::cout << e.what() << std::endl;
+      e.info();
       throw e;
     }
-    
+    std::cout<<"*** Number of clusters in track: "<<trk->getNumHits()<<" ***"<<std::endl;
+    /*
+    trk->getCand().print();
+    trk->getCardinalRep()->Print();
+
+    AbsTrackRep *rep = trk->getCardinalRep();
+    for(int i=0; i<trk->getNumHits();++i){
+      AbsRecoHit *hit = trk->getHit(i);
+      std::cout << "###################hit " << i << std::endl;
+      DetPlane pl = hit->getDetPlane(rep);
+      TMatrixT<double> statePred(5,1);
+      TMatrixT<double> covPred(5,5);
+      rep->extrapolate(pl,statePred,covPred);
+      pl.Print();
+      statePred.Print();
+    }
+    return;
+    */
+    /*
     std::vector<AbsRecoHit*> hits = trk->getHits();
     std::cout<<"\nstd::vector<AbsRecoHit*> hits has "<< hits.size()<<" entries"<<std::endl;
     
@@ -179,7 +230,7 @@ KalmanTask::Exec(Option_t* opt)
       if(hit%4 == 0 && hit>0)
 	std::cout<<std::endl;
     }
-	
+    */	
     // Start Fitter
     try{
       std::cout<<"starting fit"<<std::endl;
