@@ -15,10 +15,15 @@ PndTrackCand* GenfitTrackCand2PndTrackCand(const TrackCand* cand){
   PndTrackCand* retVal = new PndTrackCand();
   unsigned int nhits = cand->getNHits();
   unsigned detId,hitId;
+  double rho;
   for(unsigned int i=0;i<nhits;++i){
-    cand->getHit(i,detId,hitId);
-    retVal->AddHit(detId,hitId,0.);
+    cand->getHit(i,detId,hitId,rho);
+    retVal->AddHit(detId,hitId,rho);
   }
+  retVal->setMcTrackId(cand->getMcTrackId());
+  retVal->setTrackSeed(cand->getPosSeed(),
+		       cand->getDirSeed(),
+		       cand->getQoverPseed());
   return retVal;
 }
 
@@ -27,8 +32,12 @@ TrackCand* PndTrackCand2GenfitTrackCand(PndTrackCand* cand){
   unsigned int nhits = cand->GetNHits();
   for(unsigned int i=0;i<nhits;++i){
     PndTrackCandHit candHit = cand->GetSortedHit(i);
-    retVal->addHit(candHit.GetDetId(),candHit.GetHitId());
+    retVal->addHit(candHit.GetDetId(),candHit.GetHitId(),candHit.GetRho());
   }
+  retVal->setMcTrackId(cand->getMcTrackId());
+  retVal->setTrackSeed(cand->getPosSeed(),
+		       cand->getDirSeed(),
+		       cand->getQoverPseed());
   return retVal;
 }
 
