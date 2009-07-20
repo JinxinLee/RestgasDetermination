@@ -162,7 +162,9 @@ void PndMvdIdealTrackFinderTask::Exec(Option_t* opt)
     PndMvdDigiPixel* apixeldigi = (PndMvdDigiPixel*)fPixelDigiArray->At(myCluster->GetDigiIndex(0));
     if (apixeldigi->GetIndex(0) == -1) continue; // sort out noise
     PndMvdMCPoint* myPoint = (PndMvdMCPoint*)(fMcArray->At(apixeldigi->GetIndex(0)));
+
     AddAndExpand(myPoint->GetTrackID(),apixeldigi->GetDetID(),iHit);
+
   }
   //strip part
   for (Int_t iHit = 0; iHit < nStripHits; iHit++){
@@ -171,6 +173,7 @@ void PndMvdIdealTrackFinderTask::Exec(Option_t* opt)
     PndMvdDigiStrip* astripdigi = (PndMvdDigiStrip*)fStripDigiArray->At(myCluster->GetDigiIndex(0));
     if (astripdigi->GetIndex(0) == -1) continue; // sort out noise
     PndMvdMCPoint* myPoint = (PndMvdMCPoint*)(fMcArray->At(astripdigi->GetIndex(0)));
+
     AddAndExpand(myPoint->GetTrackID(),astripdigi->GetDetID(),iHit);
   }
 
@@ -185,17 +188,31 @@ void PndMvdIdealTrackFinderTask::Exec(Option_t* opt)
   ClearTrackCandMap();
 }
 
-void PndMvdIdealTrackFinderTask::AddAndExpand(Int_t trackID, Int_t detnum, Int_t iHit){
+void PndMvdIdealTrackFinderTask::AddAndExpand(Int_t trackID, Int_t detnum, Int_t iHit,PndMvdHit* theHit){
   if (fTrackCandMap[trackID] == 0){
     TrackCand *myTCand = new TrackCand();
     PndMCTrack* myMCTrack = (PndMCTrack*)fTrackArray->At(trackID);
     myTCand->setCurv(GetTrackCurvature(myMCTrack));
     myTCand->setDip(GetTrackDip(myMCTrack));
     myTCand->setInverted(false);
-    //myTCand->setMCID(trackID);
+    int pdg = myMCTrack->GetPdgCode();
+    double charge;
+    if(pdg<100000000){
+      charge =  TDatabasePDG::Instance()->GetParticle(pdg)->Charge()/3.;
+    }
+    else{
+      charge = 0.;
+    }
+    myTCand->setTrackSeed(
+			  myMCTrack->GetStartVertex(),
+			  myMCTrack->GetMomentum(),
+			  charge/myMCTrack->GetMomentum().Mag()
+			  );
+    myTCand->setMcTrackId(trackID);
     fTrackCandMap[trackID] = myTCand;
   }
-  fTrackCandMap[trackID]->addHit(detnum,iHit);
+
+  fTrackCandMap[trackID]->addHit(detnum,iHit,theHit->GetPosition().Mag());
 }
 
 Double_t PndMvdIdealTrackFinderTask::GetTrackCurvature(PndMCTrack* myTrack)
