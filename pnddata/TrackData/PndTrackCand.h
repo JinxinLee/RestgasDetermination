@@ -20,45 +20,15 @@
 
 // Root Class Headers ----------------
 #include "TObject.h"
+#include "TVector3.h"
 
 #include <iostream>
 #include <vector>
 #include <map>
 
+#include"PndTrackCandHit.h"
+
 typedef std::multimap<Double_t, std::pair<Int_t, Int_t> >::const_iterator mapIter;
-
-class PndTrackCandHit
-{
-public :
-	PndTrackCandHit():fHitId(-1), fDetId(-1), fRho(0){}
-	PndTrackCandHit(Int_t detId, Int_t hitId, Double_t rho):fDetId(detId), fHitId(hitId), fRho(rho){}
-	friend bool operator< (const PndTrackCandHit& lhs, const PndTrackCandHit& rhs)
-		{return lhs.GetRho()<rhs.GetRho();};
-	bool operator== (const PndTrackCandHit& hit){
-		if (GetHitId() == hit.GetHitId() && GetDetId() == hit.GetDetId())
-			return true;
-		return false;
-	}
-
-	Int_t GetHitId()const {return fHitId;}
-	Int_t GetDetId()const {return fDetId;}
-	Double_t GetRho()const {return fRho;}
-
-	void Print(){
-	  std::cout << "hit " << fHitId << " | det " 
-		    << fDetId << " | rho " << fRho << std::endl;
-	}
-
-private :
-	Int_t fHitId;
-	Int_t fDetId;
-	Double_t fRho;		///< sorting parameter
-
-	ClassDef(PndTrackCandHit,1);
-};
-
-
-ClassImp(PndTrackCandHit);
 
 class PndTrackCand : public TObject {
 public:
@@ -77,6 +47,10 @@ public:
 	  return fHitId.at(i);
   }
   UInt_t GetNHits() const {return fHitId.size();}
+  int getMcTrackId() const {return fMcTrackId;}
+  TVector3 getPosSeed() const {return fPosSeed;}
+  TVector3 getDirSeed() const {return fDirSeed;}
+  double getQoverPseed() const {return fQoverPseed;}
 
   std::vector<PndTrackCandHit>GetSortedHits();
   void Sort();
@@ -85,7 +59,10 @@ public:
   void AddHit(UInt_t detId, UInt_t hitId, Double_t rho);
   void DeleteHit(UInt_t detId, UInt_t hitId);
   Int_t HitInTrack(UInt_t detId, UInt_t hitId);
-
+  void setMcTrackId(int i){fMcTrackId=i;}
+  void setTrackSeed(const TVector3& p,const TVector3& d,double qop){
+    fPosSeed=p;fDirSeed=d;fQoverPseed=qop;
+  }
   void Reset();
 
   void Print();
@@ -95,6 +72,10 @@ private:
   // Private Data Members ------------
 	std::vector<PndTrackCandHit> fHitId;  ///< first index is detId, second index is hit Id
 	bool sorted;
+	int fMcTrackId; //track id for MC simulation
+	TVector3 fPosSeed;
+	TVector3 fDirSeed;
+	double fQoverPseed;
 public:
   ClassDef(PndTrackCand,1)
 };

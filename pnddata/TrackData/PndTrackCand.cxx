@@ -25,7 +25,7 @@
 
 ClassImp(PndTrackCand);
 
-PndTrackCand::PndTrackCand():sorted(false){}
+PndTrackCand::PndTrackCand():sorted(false), fMcTrackId(-1),fQoverPseed(0.){}
 
 PndTrackCand::~PndTrackCand(){}
 
@@ -79,7 +79,12 @@ bool operator== (const PndTrackCand& lhs, const PndTrackCand& rhs){
 
 
 void PndTrackCand::Print(){
-  std::cout << "PndTrackCand::Print()" << std::endl;
+  std::cout << "=========== PndTrackCand::Print() ==========" << std::endl;
+  if(fMcTrackId>=0) std::cout << "McTrackId=" << fMcTrackId << std::endl;
+  std::cout << "seed values for pos,direction, and q/p: " << std::endl;
+  fPosSeed.Print();
+  fDirSeed.Print();
+  std::cout << "q/p=" << fQoverPseed << std::endl;
   for(unsigned int i=0;i<fHitId.size();++i){
     fHitId.at(i).Print();
   }
