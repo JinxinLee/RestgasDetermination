@@ -1,6 +1,6 @@
 // Macro for running Fair with Geant3 or Geant4
 
-void runMC(TString base="mc", int nEvents = 10 )
+void runMC(TString base="mc", int nEvents = 100 )
 {
 
   TStopwatch timer;
@@ -9,8 +9,8 @@ void runMC(TString base="mc", int nEvents = 10 )
 
 
   // Load basic libraries
-  //gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  //rootlogon(); 
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  rootlogon(); 
 
 
   FairRunSim *fRun = new FairRunSim();
@@ -73,11 +73,11 @@ void runMC(TString base="mc", int nEvents = 10 )
   FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
   Mvd->SetGeometryFileName("MVD_v1.0_woPassiveTraps.root");
   fRun->AddModule(Mvd);
-  
+  /*
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
   Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root");
   fRun->AddModule(Emc);   
-  
+  */
   FairDetector *Dch = new PndDchDetector("DCH", kTRUE);
   Dch->SetGeometryFileName("dch.root"); //don't use this, is not working! Geometry file in /pandaroot/geometry
   Dch->SetVerboseLevel(0);
@@ -99,10 +99,10 @@ void runMC(TString base="mc", int nEvents = 10 )
   fRun->SetGenerator(primGen);
 
   // Box Generator
-  FairBoxGenerator* boxGen = new FairBoxGenerator(2212, 1); // 13 = muon; 1 = multipl.
-  boxGen->SetPRange(10.,15.); // GeV/c
+  FairBoxGenerator* boxGen = new FairBoxGenerator(2212, 2); // 13 = muon; 1 = multipl.
+  boxGen->SetPRange(1.,1.); // GeV/c
   boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
-  boxGen->SetThetaRange(0.1, 10.); // Polar angle in lab system range [degree]
+  boxGen->SetThetaRange(9, 10.); // Polar angle in lab system range [degree]
   boxGen->SetXYZ(0., 0., 0.); // mm o cm ??
   primGen->AddGenerator(boxGen);
  
@@ -126,7 +126,8 @@ void runMC(TString base="mc", int nEvents = 10 )
   
   FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
   Bool_t kParameterMerged=kTRUE;
-     
+   
+  
   PndMultiFieldPar* Par = (PndMultiFieldPar*) rtdb->getContainer("PndMultiFieldPar");
   if (fField) {  Par->SetParameters(fField); }
   Par->setInputVersion(fRun->GetRunId(),1);
