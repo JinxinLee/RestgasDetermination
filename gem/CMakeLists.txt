@@ -12,6 +12,7 @@ ${CMAKE_SOURCE_DIR}/base
 ${CMAKE_SOURCE_DIR}/field
 ${CMAKE_SOURCE_DIR}/pnddata
 ${CMAKE_SOURCE_DIR}/pnddata/GemData
+${CMAKE_SOURCE_DIR}/pnddata/TrackData
 ${CMAKE_SOURCE_DIR}/passive
 ${CMAKE_SOURCE_DIR}/gem
 ${CMAKE_SOURCE_DIR}/genfit
@@ -51,6 +52,7 @@ PndGemFindTracks.cxx
 PndGemPrepareKalmanTracks.cxx
 PndGemRecoHit.cxx
 PndGemKalmanTask.cxx
+PndGemIdealPatternRecoTask.cxx
 )
 set (GEM_RULECHECKER_SRCS ${GEM_SRCS})
 

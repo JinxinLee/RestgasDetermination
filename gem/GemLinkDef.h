@@ -31,5 +31,7 @@
 #pragma link C++ class PndGemRecoHit+;
 #pragma link C++ class PndGemKalmanTask+;
 
+#pragma link C++ class PndGemIdealPatternRecoTask+;
+
 #endif
 
