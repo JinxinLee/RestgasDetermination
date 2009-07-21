@@ -8,6 +8,7 @@
 #include "TClonesArray.h"
 #include "TH3D.h"
 #include "TH2D.h"
+#include "THnSparse.h"
 #include "TCanvas.h"
 #include "TString.h"
 
@@ -22,13 +23,13 @@ void houghCPU() {
 
 
   bool CUT_CHAMBER=true;   //only collect hits with x>0;
-  double CUT_DIST=0.2;      //cut on c
+  double CUT_DIST=1;      //cut on c
   
-  unsigned int EVENT=3;
+  unsigned int EVENT=6;
   double RIEMANNSCALING=40;
 
-  TString dir = "DATA/";
-  TString project = "Test20";
+  TString dir = "../../DATA/";
+  TString project = "Test10";
 
   project=dir+project;
   TString mc_filename = project+".mc.root";
@@ -57,15 +58,25 @@ void houghCPU() {
   int BIN_phi = 180;
   int BIN_theta = 180;
   
+  int BIN_m = 300;
+  int BIN_t = 300;
+
+  double m_Max = 3.;
+  double m_Min = -3.;
+  double t_Max = 15.;
+  double t_Min = -15.;
+
   
-  TH3D* hist  = new TH3D("bl","fd",100,-1,1,100,-1,1,100,0,1);
-  TH3D* hist_mc  = new TH3D("bl31233","fd312321",100,-1,1,100,-1,1,100,0,1);
-  TH3D* blub  = new TH3D("bl21","Complete Hough Space",
+  TH3D* hitsReco  = new TH3D("bl","fd",100,-1,1,100,-1,1,100,0,1);
+  TH3D* hitsMC  = new TH3D("bl31233","fd312321",100,-1,1,100,-1,1,100,0,1);
+  TH3D* houghSpace  = new TH3D("bl21","Complete Hough Space",
 			 BIN_phi,0,180,BIN_theta,0,180,100,-1,1);
-  blub->GetXaxis()->SetTitle("#Phi");
-  blub->GetYaxis()->SetTitle("#Theta");
-  TH2D* histParam  = new TH2D("bl2","Sample of c(#Phi, #Theta)",
+  houghSpace->GetXaxis()->SetTitle("#Phi");
+  houghSpace->GetYaxis()->SetTitle("#Theta");
+  TH2D* hyperplane3D  = new TH2D("bl2","Sample of c(#Phi, #Theta)",
 			      BIN_phi,0,180,BIN_theta,0,180);
+  hyperplane3D->GetXaxis()->SetTitle("#Phi");
+  hyperplane3D->GetYaxis()->SetTitle("#Theta");
   TH2D* phi_c  = new TH2D("phic","c-phi projection)",
 			  BIN_phi,0,180,300,-CUT_DIST,CUT_DIST);
   TH2D* theta_c  = new TH2D("thetac","c-theta projection)",
@@ -76,12 +87,32 @@ void houghCPU() {
   TH2D* theta_c_mc  = new TH2D("thetacMC","MC c-theta projection)",
 			  BIN_theta/5,0,180,30,-CUT_DIST,CUT_DIST);
   
-  histParam->GetXaxis()->SetTitle("#Phi");
-  histParam->GetYaxis()->SetTitle("#Theta");
+  TH2D* houghRZ = new TH2D("vfg", "RZ hough space", 
+			   BIN_m, m_Min, m_Max, BIN_t, t_Min, t_Max);
+  houghRZ->GetXaxis()->SetTitle("m");
+  houghRZ->GetYaxis()->SetTitle("t");
+  			   
+
+  //A TH2 h("h","h",10, 0., 10., 20, -5., 5.) would correspond to
+  //  Int_t bins[2] = {10, 20};
+  //Double_t xmin[2] = {0., -5.};
+  //Double_t xmax[2] = {10., 5.};
+  //THnSparse hs("hs", "hs", 2, bins, min, max);
+  
+  //dimensions: phi, theta, c, m, t
+  int bins[5] = {BIN_phi, BIN_theta, 100, 200, 200};
+  double mins[5] = {0,0,-1,-3,-15};
+  double maxs[5] = {180, 180, 1, 3, 15};
+  
+
+  THnSparse* fullHough =  new THnSparseF("fullHough", "5D Hough Space",
+					  5, bins, mins, maxs);
+  
 
   //  TH2D* surf  = new TH2D("surf","fdas2",100,0,2*TMath::Pi(),100,-1,1);
 
   std::vector<TVector3> riemannList;
+  std::vector<TVector3> riemannListRZ;
   
 
   //FIND THE DIFFERENT MC TRACKS ----------------------------------------------
@@ -114,7 +145,7 @@ void houghCPU() {
 	double x_R = r * cos(phi)/(1+r*r);
 	double y_R = r * sin(phi)/(1+r*r);
 	double z_R = r*r/(1+r*r);
-	hist_mc->Fill(x_R, y_R, z_R);
+	hitsMC->Fill(x_R, y_R, z_R);
 	
 	theVec->push_back(TVector3(x_R,y_R,z_R));
       }
@@ -153,17 +184,19 @@ void houghCPU() {
     theta_c_mc->Fill(theta,c);
         
   }
-  
-  
-  
+   
 
 
   //RIEMANN TRAFO ON CLUSTERS -----------------------------------------------
   //loop over clusters
   for(int cl=0; cl<nClusters; ++cl) {
     TVector3 pos = ((PndTpcCluster*)_clusters->At(cl))->pos();
+    
     if(CUT_CHAMBER && pos.X() < 0.)
       continue;
+
+    riemannListRZ.push_back(TVector3(pos.Perp(), 0., pos.Z()));
+
     //z = pos.Z()/15;
     pos.SetZ(0.);
     r = pos.Mag()/RIEMANNSCALING;
@@ -175,10 +208,11 @@ void houghCPU() {
 
     //std::cout<<"x_R: "<<x_R<<"  y_R: "<<y_R<<"  z_R: "<<z_R<<std::endl;
     
-    hist->Fill(x_R, y_R, z_R);
+    hitsReco->Fill(x_R, y_R, z_R);
     //surf->Fill(r, phi);
 
     riemannList.push_back(TVector3(x_R,y_R,z_R));
+    
   }
 
 
@@ -186,6 +220,8 @@ void houghCPU() {
 
   double phiBinWidth=(double)180/BIN_phi;
   double thetaBinWidth=(double)180/BIN_theta;
+  
+  double mBinWidth = (m_Max-m_Min)/BIN_m;
   
   std::vector<TH2D*> histlist;
   
@@ -214,28 +250,39 @@ void houghCPU() {
 	n.SetMag(1.0);
 	double c = point*n;
 	if(rp==0) 
-	  histParam->SetBinContent(phi+1,theta+1,fabs(c));
-	blub->Fill((phi+0.5)*phiBinWidth,(theta+0.5)*thetaBinWidth,c);
+	  hyperplane3D->SetBinContent(phi+1,theta+1,fabs(c));
+	houghSpace->Fill((phi+0.5)*phiBinWidth,(theta+0.5)*thetaBinWidth,c);
 	phi_c->Fill((phi+0.5)*phiBinWidth,c);
 	theHist->Fill((phi+0.5)*phiBinWidth,c);	
-	theta_c->Fill((theta+0.5)*thetaBinWidth,c);
-	
+	theta_c->Fill((theta+0.5)*thetaBinWidth,c);	
       }
     }
+    
+    TVector3 pointRZ = riemannListRZ[rp];
+    double perp = pointRZ.X();
+    double z = pointRZ.Z();
+    for(int m=0; m<BIN_m; ++m) {
+      double M = (m+0.5)*mBinWidth + m_Min;
+      double t = perp * M * (-1.) + z;
+      houghRZ->Fill(M,t);
+    }
+
+    
+    
   }
+
   
-  std::cout<<"phiBinWidth: "<<phiBinWidth<<std::endl;
-  
+      
   TCanvas* c =  new TCanvas();
   c->Divide(1,2);
   c->cd(1);
-  hist->Draw();
+  hitsReco->Draw();
   c->cd(2);
-  hist_mc->Draw();
+  hitsMC->Draw();
   //TCanvas* c2 = new TCanvas();
-  // histParam->Draw("SURF1");
+  // hyperplane3D->Draw("SURF1");
   TCanvas* c3 =  new TCanvas();
-  blub->Draw();
+  houghSpace->Draw();
   TCanvas* c4 = new TCanvas();
   c4->Divide(1,2);
   c4->cd(1);
@@ -254,7 +301,8 @@ void houghCPU() {
     c6->cd(c+1);
     (histlist[c])->Draw("COLZ");
   }
-    
+  TCanvas* c7 = new TCanvas();
+  houghRZ->Draw("COLZ");
 
 
 }
