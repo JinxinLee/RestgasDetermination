@@ -62,29 +62,31 @@ void houghCPU() {
   int BIN_t = 100;
   int BIN_c = 40;
 
-  double m_Max = 2.;
-  double m_Min = -2.;
+  double m_Max = 1.;
+  double m_Min = -1.;
   double t_Max = 5.;
   double t_Min = -5.;
+  double phi_Min = 0;
+  double phi_Max = 180;
 
   
   TH3D* hitsReco  = new TH3D("bl","fd",100,-1,1,100,-1,1,100,0,1);
   TH3D* hitsMC  = new TH3D("bl31233","fd312321",100,-1,1,100,-1,1,100,0,1);
   TH3D* houghSpace  = new TH3D("bl21","Complete Hough Space",
-			 BIN_phi,0,180,BIN_theta,0,180,100,-1,1);
+			 BIN_phi,phi_Min,phi_Max,BIN_theta,0,180,100,-1,1);
   houghSpace->GetXaxis()->SetTitle("#Phi");
   houghSpace->GetYaxis()->SetTitle("#Theta");
   TH2D* hyperplane3D  = new TH2D("bl2","Sample of c(#Phi, #Theta)",
-			      BIN_phi,0,180,BIN_theta,0,180);
+			      BIN_phi,phi_Min,phi_Max,BIN_theta,0,180);
   hyperplane3D->GetXaxis()->SetTitle("#Phi");
   hyperplane3D->GetYaxis()->SetTitle("#Theta");
   TH2D* phi_c  = new TH2D("phic","c-phi projection)",
-			  BIN_phi,0,180,300,-CUT_DIST,CUT_DIST);
+			  BIN_phi,phi_Min,phi_Max,300,-CUT_DIST,CUT_DIST);
   TH2D* theta_c  = new TH2D("thetac","c-theta projection)",
 			  BIN_theta,0,180,300,-CUT_DIST,CUT_DIST);
 
   TH2D* phi_c_mc  = new TH2D("phicMC","MC c-phi projection)",
-			  BIN_phi/5,0,180,30,-CUT_DIST,CUT_DIST);
+			  BIN_phi/5,phi_Min,phi_Max,30,-CUT_DIST,CUT_DIST);
   TH2D* theta_c_mc  = new TH2D("thetacMC","MC c-theta projection)",
 			  BIN_theta/5,0,180,30,-CUT_DIST,CUT_DIST);
   
@@ -92,30 +94,20 @@ void houghCPU() {
 			   BIN_m, m_Min, m_Max, BIN_t, t_Min, t_Max);
   houghRZ->GetXaxis()->SetTitle("m");
   houghRZ->GetYaxis()->SetTitle("t");
-  			   
-
-  //A TH2 h("h","h",10, 0., 10., 20, -5., 5.) would correspond to
-  //  Int_t bins[2] = {10, 20};
-  //Double_t xmin[2] = {0., -5.};
-  //Double_t xmax[2] = {10., 5.};
-  //THnSparse hs("hs", "hs", 2, bins, min, max);
-  
-  //dimensions: phi, theta, c, m, t
+ 
+   //dimensions: phi, theta, c, m, t
   int bins[5] = {BIN_phi, BIN_theta, BIN_c, BIN_m, BIN_t};
-  double mins[5] = {0,0,-1,m_Min,t_Min};
-  double maxs[5] = {180, 180, 1, m_Max, t_Max};
+  double mins[5] = {phi_Min,0,-1,m_Min,t_Min};
+  double maxs[5] = {phi_Max, 180, 1, m_Max, t_Max};
 
   int CHUNKSIZE = 64000;
   
-
   THnSparse* fullHough =  new THnSparseF("fullHough", "5D Hough Space",
 					 5, bins, mins, maxs);
 
   std::cout<<"\n &(*^*&^* CHUNK SIZE: "<<fullHough->GetChunkSize()
 	   <<std::endl;
   
-
-  //  TH2D* surf  = new TH2D("surf","fdas2",100,0,2*TMath::Pi(),100,-1,1);
 
   std::vector<TVector3> riemannList;
   std::vector<TVector3> riemannListRZ;
@@ -144,8 +136,8 @@ void houghCPU() {
 	if(CUT_CHAMBER && pos.X() < 0.)
 	  continue;
 	thePoint->Position(pos);
-	pos.SetZ(0.);
-	r = pos.Mag()/RIEMANNSCALING;
+	//pos.SetZ(0.);
+	r = pos.Perp()/RIEMANNSCALING;
 	phi = pos.Phi();
 	
 	double x_R = r * cos(phi)/(1+r*r);
@@ -183,14 +175,17 @@ void houghCPU() {
     std::cout<<"MC-Track "<<t<<" has c: "<<c<<",   phi: "<<phi
 	     <<",   theta: "<<theta<<std::endl;
     
-    if(phi<0) 
-      phi += 180;      
+    // if(phi<0) 
+    //  phi += 180;      
            
     phi_c_mc->Fill(phi,c);
     theta_c_mc->Fill(theta,c);
         
   }
    
+
+  // CLUSTER PART -----------------------------------------------------------
+
 
 
   //RIEMANN TRAFO ON CLUSTERS -----------------------------------------------
@@ -204,8 +199,8 @@ void houghCPU() {
     riemannListRZ.push_back(TVector3(pos.Perp(), 0., pos.Z()));
 
     //z = pos.Z()/15;
-    pos.SetZ(0.);
-    r = pos.Mag()/RIEMANNSCALING;
+    //pos.SetZ(0.);
+    r = pos.Perp()/RIEMANNSCALING;
     phi = pos.Phi();
     
     x_R = r * cos(phi)/(1+r*r);
@@ -216,7 +211,7 @@ void houghCPU() {
     
     hitsReco->Fill(x_R, y_R, z_R);
     //surf->Fill(r, phi);
-
+    pos.Print();
     riemannList.push_back(TVector3(x_R,y_R,z_R));
     
   }
@@ -288,14 +283,16 @@ void houghCPU() {
 
     int count = 0;
     
-    for(int m=0; m<BIN_m; ++m) {
-      double M = (m+0.5)*mBinWidth + m_Min;
-      double t = perp * M * (-1.) + z;
-      houghRZ->Fill(M,t);
+    for(int t=0; t<BIN_t; ++t) {
+      
+      double T = (t+0.5)*tBinWidth + t_Min;
+      double M = (T-z) / (perp*(-1.));
+      
+      houghRZ->Fill(M,T);
             
       for(int phi=0; phi<BIN_phi; ++phi) {
 	TVector3 n = TVector3(1.,0.,0.);
-	n.SetPhi((phi+0.5)*phiBinWidth*TMath::Pi()/180);
+	n.SetPhi((phi+0.5)*phiBinWidth*TMath::Pi()/180 + phi_Min);
 	for(int theta=0; theta<BIN_theta; ++theta) {
 	  if(theta%10==0) {
 	    std::string name = "phic_";
@@ -304,7 +301,8 @@ void houghCPU() {
 	    name.append(s.str());
 	    if(rp==0 && phi==0 && count==0){
 	      histlist.push_back(new TH2D(name.c_str(),"c-phi projection)",
-					  BIN_phi,0,180,200,-CUT_DIST,CUT_DIST));
+					  BIN_phi,phi_Min,phi_Max,200
+					  ,-CUT_DIST,CUT_DIST));
 	      (histlist[histlist.size()-1])->GetXaxis()->SetTitle("#Phi");
 	    }
 	  }
@@ -315,13 +313,15 @@ void houghCPU() {
 	  if(rp==0) 
 	    hyperplane3D->SetBinContent(phi+1,theta+1,fabs(c));
 	  if(count==0) {
-	    houghSpace->Fill((phi+0.5)*phiBinWidth,(theta+0.5)*thetaBinWidth,c);
-	    phi_c->Fill((phi+0.5)*phiBinWidth,c);
-	    theHist->Fill((phi+0.5)*phiBinWidth,c);	
+	    houghSpace->Fill((phi+0.5)*phiBinWidth+phi_Min,
+			     (theta+0.5)*thetaBinWidth,c);
+	    phi_c->Fill((phi+0.5)*phiBinWidth+phi_Min,c);
+	    theHist->Fill((phi+0.5)*phiBinWidth+phi_Min,c);	
 	    theta_c->Fill((theta+0.5)*thetaBinWidth,c);	
 	  }
-	  double x[5] = {(phi+0.5)*phiBinWidth,(theta+0.5)*thetaBinWidth,c,
-			 M, t};
+	  double x[5] = {(phi+0.5)*phiBinWidth+phi_Min,
+			 (theta+0.5)*thetaBinWidth,c,
+			 M, T};
 	  
 	  fullHough->Fill(x);
 	}
@@ -365,6 +365,20 @@ void houghCPU() {
   houghRZ->Draw("COLZ");
 
   TFile* outfile = new TFile("outputSHORT.root", "RECREATE");
+
+  int nbins=fullHough->GetNbins();
+  for(unsingend int ib=0;ib<nbins;++ib){
+    fullHough->GetBinContent(linidx, (Int_t*)coord).
+      
+
+      }
+ After the call, coord will contain the bin coordinate of each axis for the bin
+ with linear index linidx. A possible call would be
+   cout << hs.GetBinContent(0, coord);
+   cout <<" is the content of bin [x = " << coord[0] "
+        << " | y = " << coord[1] << "]" << endl;
+
+
   fullHough->Write();
   outfile->Close();
 }
