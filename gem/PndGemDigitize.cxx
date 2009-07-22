@@ -150,13 +150,15 @@ void PndGemDigitize::Exec(Option_t* opt) {
       pair<Int_t, Int_t> a (sensorDetId, channelNumber);
       if ( fChannelMap.find(a) == fChannelMap.end() ) {
 	// Channel not yet active, create new digi
-	new ((*fDigis)[fNDigis]) PndGemDigi(sensorDetId, 0, channelNumber);
+	new ((*fDigis)[fNDigis]) PndGemDigi(sensorDetId, channelNumber, iPoint);
 	fChannelMap[a] = fNDigis;
 	fNDigis++;
       }
       else {
-	// Channel already active
-	//	cout << "Channel hit twice!" << endl;
+	Int_t iDigi = fChannelMap[a];
+	PndGemDigi* ddigi = dynamic_cast<PndGemDigi*>(fDigis->At(iDigi));
+	//	cout << "another mc point to this digi, last one " << ddigi->GetIndex(ddigi->GetNIndices()-1) << ", now adding " << iPoint << endl;
+	ddigi->AddIndex(iPoint);
       }
     }
 
@@ -168,13 +170,15 @@ void PndGemDigitize::Exec(Option_t* opt) {
     pair<Int_t, Int_t> a (sensorDetId, channelNumber);
     if ( fChannelMap.find(a) == fChannelMap.end() ) {
       // Channel not yet active, create new digi
-      new ((*fDigis)[fNDigis]) PndGemDigi(sensorDetId, 1, channelNumber);
+      new ((*fDigis)[fNDigis]) PndGemDigi(sensorDetId, channelNumber, iPoint);
       fChannelMap[a] = fNDigis;
       fNDigis++;
     }
     else {
-      // Channel already active
-      //      cout << "Channel hit twice!" << endl;
+      Int_t iDigi = fChannelMap[a];
+      PndGemDigi* ddigi = dynamic_cast<PndGemDigi*>(fDigis->At(iDigi));
+      //      cout << "another mc point to this digi, last one " << ddigi->GetIndex(ddigi->GetNIndices()-1) << ", now adding " << iPoint << endl;
+      ddigi->AddIndex(iPoint);
     }
   }
 }

@@ -369,8 +369,14 @@ Int_t PndGemFindHits::FindHits(PndGemSensor* sensor,
       pos.SetXYZ(xHit, yHit, zHit);
       dpos.SetXYZ(sigmaX, sigmaY, sensor->GetD());
       
+      Int_t refIndex = -1;
+      for ( Int_t irf1 = digiF->GetNIndices()-1 ; irf1 >= 0 ; irf1-- ) 
+	for ( Int_t irf2 = digiB->GetNIndices()-1 ; irf2 >= 0 ; irf2-- ) 
+	  if ( digiF->GetIndex(irf1) == digiB->GetIndex(irf2) )
+	    refIndex = digiF->GetIndex(irf1);
+
       new ((*fHits)[nHits++]) PndGemHit(sensorDetId, sensor->GetDetectorName(), pos, dpos,  
-					iDigiF, iDigiB, dr, dp, -1);
+					iDigiF, iDigiB, dr, dp, refIndex);
     }
   }
   
