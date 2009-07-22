@@ -41,8 +41,9 @@ protected:
   TClonesArray  *fMvdStripDigiArray;    //!
   TClonesArray  *fMvdPixelDigiArray;    //!
   TClonesArray  *fMvdMCArray;           //!
+  TClonesArray  *fGemMCArray;           //! pointers to GEMPoint TCA
   TClonesArray  *fGemInput;             //! pointers to GEM TCA
-
+  
   TClonesArray  *fLheHits;      //! pointers to LHE hits
 
   TClonesArray  *fListMCtracks;  //! pointers to MC tracks
@@ -59,6 +60,7 @@ protected:
   Short_t fSttSimMode;         // STT Simulation Mode (ideal tracking)
   Short_t fEmcMode;            // EMC Mode: (0) no EMC, 2 EmcCluster, 3 EmcBumps
   Short_t fGemMode;            // GEM Mode: (0) no GEM, 1 GemPoint, 2 GemHit
+  Short_t fGemSimMode;         // GEM Simulation Mode (ideal tracking)
   Bool_t fVerbose;             // Switch ON/OFF debug messages        (defaulf OFF)
   Bool_t fSimulation;          // Switch ON/OFF simulation mode       (default ON)
   Bool_t fPersistence;         // Persistence of LheHit/LheGeantTrack (default ON)

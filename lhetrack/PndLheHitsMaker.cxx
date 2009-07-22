@@ -45,7 +45,8 @@ PndLheHitsMaker::PndLheHitsMaker() {
   fSttMode       = 0;
   fSttSimMode    = 1; 
   fEmcMode       = 0;
-  fGemMode       = 0;  
+  fGemMode       = 0;
+  fGemSimMode    = 1;  
   fSimulation    = kTRUE;
   fPersistence   = kTRUE;
   fTpcResolution = -1.;
@@ -67,7 +68,8 @@ PndLheHitsMaker::PndLheHitsMaker(const char *name,
   fSttMode       = 0;
   fSttSimMode    = 1; 
   fEmcMode       = 0; 
-  fGemMode       = 0;  
+  fGemMode       = 0; 
+  fGemSimMode    = 1;  
   fSimulation    = kTRUE;
   fPersistence   = kTRUE;
   fTpcResolution = -1.;
@@ -323,8 +325,11 @@ InitStatus PndLheHitsMaker::Init() {
 	{
 	  cout << "-I- PndLheHitsMaker::Init: Using GEMHit" << endl;
 	}
+      
+      fGemMCArray = (TClonesArray*) fManager->GetObject("GEMPoint");
+      if ( ! fGemMCArray )         fGemSimMode = 0; 
       break;
-
+      
     default:
       cout << "-E- PndLheHitsMaker::Init: Wrong GEM mode. Switching GEM OFF" << endl;
       fGemMode = 0;
@@ -787,6 +792,7 @@ void PndLheHitsMaker::GetEmcBumps() {
     hit->SetDetectorID(kEmcBump);
     //hit->SetTrackID(point->GetTrackID());
     hit->SetTrackID(-1);
+
     hit->SetRefIndex(j);
     
     if (fVerbose)  hit->Print();
@@ -799,7 +805,7 @@ void PndLheHitsMaker::GetGemPoints() {
    // Taking points from PndGemMCPoint
   
   if (fVerbose)
-    cout << " PndLheHitsMaker::GetGemHits(): Gem points entries " << fGemInput->GetEntriesFast() <<endl;
+    cout << " PndLheHitsMaker::GetGemPoints(): Gem points entries " << fGemInput->GetEntriesFast() <<endl;
   
   
   for (int j=0; j < fGemInput->GetEntriesFast(); j++ ) {
@@ -876,12 +882,14 @@ void PndLheHitsMaker::GetGemHits() {
     hit->SetDx(point->GetDx());  
     hit->SetDy(point->GetDy());
     hit->SetDz(point->GetDz());
-    //  hit->SetDx(0.03);
-    //  hit->SetDy(0.03);
-    //  hit->SetDz(0.03);
-
+    
     hit->SetDetectorID(kGemHit);
     hit->SetTrackID(-1);
+    if ( (fGemSimMode) && (point->GetRefIndex()!=-1) )
+      {
+	PndGemMCPoint* myPoint = (PndGemMCPoint*)(fGemMCArray->At(point->GetRefIndex()));
+	hit->SetTrackID(myPoint->GetTrackID());
+      }
     hit->SetRefIndex(j);
     
     if (fVerbose)  hit->Print();
