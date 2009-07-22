@@ -28,6 +28,7 @@
 #ifndef PNDGEMDIGI_H
 #define PNDGEMDIGI_H 1
 
+#include <vector>
 
 #include "TObject.h"
 
@@ -47,7 +48,7 @@ class PndGemDigi : public TObject
    **@param iSide     0=front side; 1=back side
    **@param iChannel  channel number
    **/
-  PndGemDigi(Int_t iDetectorId, Int_t iSide, Int_t iChannel);
+  PndGemDigi(Int_t iDetectorId, Int_t iChannel, Int_t index);
 
   /** Destructor **/
   virtual ~PndGemDigi();
@@ -75,6 +76,10 @@ class PndGemDigi : public TObject
   Double_t GetTDC()          const { return fDigiTDC; }
   Double_t GetCor()          const { return fDigiCor; }
 
+  Int_t GetIndex(int i = 0) const{ return fIndex[i];}
+  Int_t GetNIndices() const { return fIndex.size();}
+  void AddIndex(int index){fIndex.push_back(index);}
+
  private:
 
   Int_t    fDetectorId;
@@ -83,6 +88,8 @@ class PndGemDigi : public TObject
   Double_t fDigiADC;
   Double_t fDigiTDC;
   Double_t fDigiCor;
+
+  std::vector<Int_t> fIndex;
 
   ClassDef(PndGemDigi,1);
 

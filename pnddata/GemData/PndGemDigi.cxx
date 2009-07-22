@@ -19,18 +19,20 @@ PndGemDigi::PndGemDigi() {
 
   fDigiADC      =  0.;
   fDigiTDC      =  0.;  
-  fDigiCor      =  0.5;  
+  fDigiCor      =  0.5; 
 }
 // -------------------------------------------------------------------------
 
 
 
 // -----   Standard constructor   ------------------------------------------
-PndGemDigi::PndGemDigi(Int_t iDetectorId, Int_t iSide, Int_t iChannel) {
+PndGemDigi::PndGemDigi(Int_t iDetectorId, Int_t iChannel, Int_t index) {
 
   fDetectorId   = iDetectorId;
   fChannelNr    = iChannel;
   
+  fIndex.push_back(index);
+
   fDigiADC      =  0.;
   fDigiTDC      =  0.;  
   fDigiCor      =  0.5;  
