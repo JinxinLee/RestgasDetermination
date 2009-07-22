@@ -16,8 +16,16 @@ ClassImp(PndGeoDrc)
 PndGeoDrc::PndGeoDrc() {
   // Constructor
   fName="drc";
+
   maxSectors=0;
   maxModules=20;
+
+
+  fRadius       = 51.2;       // Barrel radius
+  fBarHalfThick = 1.7/2.0;    // bar half thickness
+  fBarBoxZDown  = 130.0;      // Downstream coordinate of radiator barrel
+  fBarBoxZUp    =-120.0;      // Upstream coordinate of radiator barrel
+  
  }
 // -------------------------------------------------------------------------
 

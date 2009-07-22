@@ -139,27 +139,28 @@ class PndDrc : public FairDetector
 
   Bool_t fRunCherenkov;            //!  Switch ON/OFF Cherenkov propagation
   Int_t          fTrackID;         //!  track index
-  Int_t          fCopyNo;         //!  volume id
-  TLorentzVector fPos;    //!  position
-  TLorentzVector fMom;    //!  momentum
-  Double32_t     fTime;              //!  time
-  Double32_t     fLength;            //!  length
+  Int_t          fCopyNo;          //!  volume id
+  TLorentzVector fPos;             //!  position
+  TLorentzVector fMom;             //!  momentum
+  Double32_t     fTime;            //!  time
+  Double32_t     fLength;          //!  length
   Double_t       fAngIn;
-  Int_t fNBar;
-  Int_t fPosIndex;      //! 
-  Int_t volDetector;    //!  MC volume ID of drc
-  Double_t fMass;
+  Int_t          fNBar;
+  Int_t          fPosIndex;                 //! 
+  Int_t          volDetector;               //!  MC volume ID of drc
+  Double_t       fMass;
 
-  Double_t fSlabEnd;   //!< Slab end defined in Construction and used in ProcessHits
+  Double_t       fSlabEnd;   //!< Slab end defined in Construction and used in ProcessHits
   
 
+  PndGeoDrc*     fGeo;             //! Pointer to basic DRC geometry data
 
-  Int_t fPdgCode;
-  Double_t fThetaC;
+  Int_t          fPdgCode;
+  Double_t       fThetaC;
 
-  TClonesArray* fDrcPDCollection;        //! Hit collection
-  TClonesArray* fDrcBarCollection;        //! Hit collection in the bar
-  Int_t fEventID;
+  TClonesArray*  fDrcPDCollection;        //! Hit collection
+  TClonesArray*  fDrcBarCollection;        //! Hit collection in the bar
+  Int_t          fEventID;
 
   // reset all parameters   
   void ResetParameters();

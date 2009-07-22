@@ -8,6 +8,7 @@
 #include <iostream>
 #include "stdio.h"
 
+#include "PndGeoDrc.h"
 #include "PndDrcHitProducerIdeal.h"
 #include "FairRootManager.h"
 #include "PndMCTrack.h"
@@ -40,6 +41,8 @@ using std::cout;
 PndDrcHitProducerIdeal::PndDrcHitProducerIdeal() 
 :FairTask("PndDrcHitProducerIdeal")
 {
+  fGeo = new PndGeoDrc();
+  
 }
 // -------------------------------------------------------------------------
 
@@ -48,14 +51,17 @@ PndDrcHitProducerIdeal::PndDrcHitProducerIdeal()
 PndDrcHitProducerIdeal::PndDrcHitProducerIdeal(Int_t verbose) 
   :FairTask("PndDrcHitProducerIdeal")
 {
-   fVerbose = verbose;  
- }
+  fVerbose = verbose;  
+  fGeo = new PndGeoDrc();
+}
 // -------------------------------------------------------------------------
 
 
 // -----   Destructor   ----------------------------------------------------
 PndDrcHitProducerIdeal::~PndDrcHitProducerIdeal()
 {
+  if (fGeo) delete fGeo;
+  
 }
 // -------------------------------------------------------------------------
 
@@ -106,8 +112,6 @@ void PndDrcHitProducerIdeal::Exec(Option_t* option)
    
   if (fVerbose > 0) {
     cout << " ----------------- DRC Hit Producer --------------------" << endl;
-  }
-  if (fVerbose > 0) {
     cout <<" Number of input MC points in the bar: "<<fBarPointArray->GetEntries()<<endl;
   }
 

@@ -84,7 +84,9 @@ public:
   // TObjArray *fVolumeArray;
   // TClonesArray* fListStack;     // Tracks
   
-  PndGeoDrcPar *fPar;           //!
+  PndGeoDrcPar *fPar;           
+
+  PndGeoDrc* fGeo;                 //!< Basic geometry data of barrel DRC.
 
   /** Set the parameters to the default values. **/
   void SetDefaultParameters();

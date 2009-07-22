@@ -5,7 +5,6 @@
 // -----                                                               -----
 // -------------------------------------------------------------------------
 
-#include "PndDrc.h"
 
 #include "PndDrcSurfPolyFlat.h"
 #include "PndDrcOptReflSilver.h"
@@ -18,6 +17,7 @@
 #include "PndDrcBarPoint.h"
 #include "PndGeoDrcPar.h"
 #include "PndDetectorList.h"
+#include "PndDrc.h"
 
 #include "TString.h"
 //#include <iostream>
@@ -65,6 +65,8 @@ PndDrc::PndDrc() {
   fPosIndex   = 0;
   volDetector = 0;
   fRunCherenkov = kTRUE;
+  fGeo         = new PndGeoDrc();
+  
 }
 // -------------------------------------------------------------------------
 
@@ -82,6 +84,7 @@ PndDrc::PndDrc(const char* name, Bool_t active)
     fSenId2 =0;
     fSenIdBar = 0;
     fRunCherenkov = kTRUE;
+    fGeo         = new PndGeoDrc();
 }
 // -------------------------------------------------------------------------
 
@@ -98,6 +101,8 @@ PndDrc::~PndDrc() {
     fDrcBarCollection->Delete();
     delete fDrcBarCollection;
   }
+  
+  if (fGeo) delete fGeo;
   
 }
 // -------------------------------------------------------------------------
@@ -514,16 +519,24 @@ void PndDrc::ConstructGeometry()
   TGeoRotation rot;
   rot.RotateZ(11.25);
 
+
+
+  // units = cm
+
   Double_t eps           = 0.01;                                  // epsilon
 
-  Double_t radius        =  51.2;                                   // radius in the middle of the barbox (x and y)
-  Double_t hthick        =  1.7 / 2;                              // half thickness of the bars
+  Double_t radius        =  fGeo->radius();
+  //51.2;                                   // radius in the middle of the barbox (x and y)
+  Double_t hthick        =  fGeo->barHalfThick();
+  //1.7 / 2;                              // half thickness of the bars
   //Double_t bbox_zdown    =  130.0;                                // bar box z downstream
   //Double_t bbox_zup      = -149.0; //###                                // bar box z upstream
-  Double_t bbox_zdown    =  130.0; //###                                // bar box z downstream
-  Double_t bbox_zup      = -120.0; //###                               // bar box z upstream
-  Double_t bbox_hlen     = 0.5*(bbox_zdown - bbox_zup);           // bar box half length
-  Double_t bbox_shift    = bbox_zup + bbox_hlen;                  // bar box shift
+  Double_t bbox_zdown    =  fGeo->barBoxZDown();
+  //130.0; //###                                // bar box z downstream
+  Double_t bbox_zup      =  fGeo->barBoxZUp();
+  //-120.0; //###                               // bar box z upstream
+  Double_t bbox_hlen     =  0.5*(bbox_zdown - bbox_zup);           // bar box half length
+  Double_t bbox_shift    =  bbox_zup + bbox_hlen;                  // bar box shift
 
 
   
@@ -558,7 +571,7 @@ void PndDrc::ConstructGeometry()
 
   for (Double_t theta=-11.25; theta<360.-22.5; theta+=22.5)
     {
-      n++;
+      n++;                              // first box at -11.25 is #1
       Double_t tht=theta* pi/180.;
       dx=radius*sin(tht);
       dy=radius*cos(tht);
