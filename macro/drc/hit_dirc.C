@@ -19,7 +19,8 @@
     
   
   // ----  Load libraries   -------------------------------------------------
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
+  //gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
+  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   basiclibs();
 
   gSystem->Load("libGeoBase");

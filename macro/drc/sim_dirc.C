@@ -8,8 +8,10 @@
   timer.Start();
   gDebug=0;
   // Load basic libraries
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-  basiclibs();
+  //gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
+  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+
+    basiclibs();
 
   // Load this example libraries
   gSystem->Load("libGeoBase");
@@ -33,9 +35,9 @@
   // fRun->SetGeoModel("G3Native");
   string file_name;
   
-  cout<<" file_name="<<endl;
-  std::cin>>file_name;
-  //file_name = "testrun1.root";
+  //cout<<" file_name="<<endl;
+  //std::cin>>file_name;
+  file_name = "testrun1.root";
   
 
   fRun->SetOutputFile(file_name.c_str());
@@ -56,7 +58,7 @@
   fRun->AddModule(Cave);
       
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
-  //Drc->SetVerboseLevel(5);
+  Drc->SetVerboseLevel(2);
   
   Drc->SetRunCherenkov(kTRUE);
   //Drc->SetRunCherenkov(kFALSE);
@@ -90,15 +92,20 @@
 
 
   Double_t pmom;
-  std::cin>>pmom;
+  //std::cin>>pmom;
+  pmom = 2.0;
   
   Double_t angle,phi;
-  std::cin>>angle;
+  //std::cin>>angle;
   //std::cin>>phi;
+
+  angle = 35;
   phi=5;
   
   Int_t particle;
-  std::cin>>particle;
+  particle = 321;
+  
+  //std::cin>>particle;
   
   // Box Generator
   FairBoxGenerator* boxGen = new FairBoxGenerator(particle, 1); // 321 K+; 1 = multipl.
