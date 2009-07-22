@@ -26,7 +26,7 @@ namespace Drc
     An enum holding the fate of a photon. */
   enum kPhotonFate
     {
-      kPhotFlying,                                //!<   Photon is still propagating.                     
+      kPhotFlying,                                //!< Photon is still propagating.                     
       kPhotMeasured,                              //!< Photon has hit measuring device.
       kPhotLost,                                  //!< Photon got lost outside.
       kPhotAbsorbed                               //!< Photon got lost inside.
@@ -166,11 +166,15 @@ class PndDrcPhoton
 
   After this routine, the photons direction, position and fate is set.
   \param normal The normal vector of the surface of the volume the photon is in.
-  \param n_inside  The refractive index of the current medium
+  \param n_inside The refractive index of the current medium
+  \param ex_inside The extinction coefficient of the current medium
   \param n_outside The refractive index of or the next volume or the vacuum outside.
+  \param ex_outside The extinction coefficient of or the next volume or the vacuum outside.
+  \param fresnel Fresnel reflection.
+  \param diffuse Diffused reflection probability. 
   \return True if refraction occured, false if reflection occured.
   */
-  bool Refract(XYZVector normal, double n_in, double ex_in, double n_out=1.0, double ex_out=0.0);
+  bool Refract(XYZVector normal, double n_in, double ex_in, double n_out=1.0, double ex_out=0.0, bool fresnelFlag=true, double diffuseProb = 0);
 
   /*! \brief Reflect the photon
     \param normal The normal vector of the surface.
@@ -196,8 +200,6 @@ class PndDrcPhoton
     \return Color number.
   */
   int ColorNumber(double lambda) const;
-
-
 
 
   /*! \brief Print flag of photon to write its way to the data stream

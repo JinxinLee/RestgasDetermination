@@ -19,7 +19,7 @@ namespace Drc
       ReflTransmitted,         //!< Photon is transmitted (internal refl, dichr. mirr.)
       ReflAbsorbed,            //!< Photon is absorbed (mirror).
       ReflReflected,           //!< Photon is reflected (mirror).
-      ReflRefracted            //!< Photon will be refracted (int. reflection or not)
+      ReflRefracted,           //!< Photon will be refracted (int. reflection or not)
     };
 }
 
@@ -49,7 +49,7 @@ class PndDrcOptReflAbs
 
   /*! \brief Reflectivity of surface 
 
-  used for mirror surfaces or surfacec with internal reflection.
+  used for mirror surfaces or surfaces with internal reflection.
   \param ph The photon
   \param normal The normal vector of the surface.
   */

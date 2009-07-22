@@ -16,13 +16,14 @@ HEADERS = $(wildcard ../*.h)
 OBJECTS = $(patsubst ../%.cxx,../%.o,$(wildcard ../*.cxx))
 
 
+#debugger ddd: compile everything with CFLAGS option -g instead of -O2
 CFLAGS = -O2 -DNDEBUG -Wall
 
 
 all:			test_simple_bar test_simple_bar2 test_disk test_sheet test_cylinder \
 			test_focus test_focus2 test_absorption test_test test_titti \
 			test_top test_air_lens test_hook test_barrel1 test_barrel1a test_barrel2  \
-			test_lens beamtest0809_sim mppc
+			test_lens beamtest0809_sim beamtest0909_sim mppc
 
 test_simple_bar:	$(OBJECTS) test_simple_bar.o
 			g++ -o test_simple_bar test_simple_bar.o $(OBJECTS) $(LDLIBS)
@@ -155,6 +156,14 @@ beamtest0809_sim:   	$(OBJECTS) beamtest0809_sim.o
 beamtest0809_sim.o:	beamtest0809_sim.cc
 			g++ $(CFLAGS) $(INCLFLAGS) -o beamtest0809_sim.o \
 			-c beamtest0809_sim.cc
+
+
+beamtest0909_sim:	$(OBJECTS) beamtest0909_sim.o
+			g++ -o beamtest0909_sim beamtest0909_sim.o $(OBJECTS) $(LDLIBS)
+
+beamtest0909_sim.o:	beamtest0909_sim.cc
+			g++ $(CFLAGS) $(INCLFLAGS) -o beamtest0909_sim.o \
+			-c beamtest0909_sim.cc
 
 
 mppc:			$(OBJECTS) mppc.o

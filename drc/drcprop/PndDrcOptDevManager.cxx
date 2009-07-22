@@ -687,9 +687,19 @@ void PndDrcOptDevManager::SetPhotonList(list<PndDrcPhoton>& photon_list,
 void PndDrcOptDevManager::Propagate()
 {
   list<PndDrcPhoton>::iterator iph;
+  int photonTotal = fListPhoton.size();
+  int counter_phot = 0;
+  int counter_step = 0;
 
   for (iph = fListPhoton.begin(); iph != fListPhoton.end(); ++iph)
     {
+      counter_phot++;
+      if( counter_phot == 1000 * counter_step + 1 )
+      {
+          counter_step++;
+          cout << "photon #" << counter_phot << " of " << photonTotal << endl;
+      }
+      
       PndDrcOptDev* dev = (*iph).Device();
       dev->Propagate((*iph));
     }

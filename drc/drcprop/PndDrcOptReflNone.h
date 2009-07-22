@@ -5,7 +5,7 @@
 /*! 
   \brief Class for reflectivity of surfaces. 
 
-  Defines the reflectivity of balck surface, that is no reflectivity. 
+  Defines the reflectivity of black surface, that is no reflectivity. 
 */
 
 #include "PndDrcOptReflAbs.h"
