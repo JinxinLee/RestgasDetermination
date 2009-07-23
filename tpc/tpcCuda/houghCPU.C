@@ -4,13 +4,13 @@
 #include "TVector3.h"
 #include "PndTpcCluster.h"
 #include "PndTpcPoint.h"
-//#include "FairMCPoint.h"
 #include "TClonesArray.h"
 #include "TH3D.h"
 #include "TH2D.h"
 #include "THnSparse.h"
 #include "TCanvas.h"
 #include "TString.h"
+#include "TVectorD.h"
 
 #include <cmath>
 #include <vector>
@@ -19,8 +19,17 @@
 #include <sstream>
 
 
-void houghCPU() {
+void houghCPU(bool fillSparseHist=true, 
+	      std::string filename = "output.root") {
 
+
+
+  //READ data and CREATE histograms and data containers ---------------------
+
+  bool FILLSPARSE = fillSparseHist;
+  bool KTREE = kTreeSearch;
+  
+  std::string file = filename;
 
   bool CUT_CHAMBER=true;   //only collect hits with x>0;
   double CUT_DIST=1;      //cut on c
@@ -45,7 +54,7 @@ void houghCPU() {
   TClonesArray* _clusters = new TClonesArray("PndTpcCluster");
   reco_tree->SetBranchAddress("PndTpcCluster", &_clusters);
   reco_tree->GetEntry(EVENT);
-
+ 
   TClonesArray* _points = new TClonesArray("PndTpcPoint");
   mc_tree->SetBranchAddress("PndTpcPoint", &_points);
   mc_tree->GetEntry(EVENT);
@@ -55,12 +64,19 @@ void houghCPU() {
   
   double r, phi, z, x_R, y_R, z_R;
 
-  int BIN_phi = 40;
-  int BIN_theta = 40;
+  unsigned int BIN_phi = 180;
+  unsigned int BIN_theta = 180;
   
-  int BIN_m = 100;
-  int BIN_t = 100;
-  int BIN_c = 40;
+  //unsigned int BIN_phi = 40;
+  //unsigned int BIN_theta = 40;
+  
+  unsigned int BIN_m = 500;
+  unsigned int BIN_t = 500;
+  unsigned int BIN_c = 100;
+
+  //unsigned int BIN_m = 100;
+  //unsigned int BIN_t = 100;
+  //unsigned int BIN_c = 40;
 
   double m_Max = 1.;
   double m_Min = -1.;
@@ -70,14 +86,15 @@ void houghCPU() {
   double phi_Max = 180;
 
   
-  TH3D* hitsReco  = new TH3D("bl","fd",100,-1,1,100,-1,1,100,0,1);
-  TH3D* hitsMC  = new TH3D("bl31233","fd312321",100,-1,1,100,-1,1,100,0,1);
-  TH3D* houghSpace  = new TH3D("bl21","Complete Hough Space",
+  TH3D* hitsReco  = new TH3D("hitsReco","fd",100,-1,1,100,-1,1,100,0,1);
+  TH3D* hitsMC  = new TH3D("hitsMC","fd312321",100,-1,1,100,-1,1,100,0,1);
+  TH3D* houghSpace  = new TH3D("hough3D","Complete Hough Space",
 			 BIN_phi,phi_Min,phi_Max,BIN_theta,0,180,100,-1,1);
   houghSpace->GetXaxis()->SetTitle("#Phi");
   houghSpace->GetYaxis()->SetTitle("#Theta");
-  TH2D* hyperplane3D  = new TH2D("bl2","Sample of c(#Phi, #Theta)",
-			      BIN_phi,phi_Min,phi_Max,BIN_theta,0,180);
+  TH2D* hyperplane3D  = new TH2D("c_over_theta_phi",
+				 "Sample of c(#Phi, #Theta)",
+				 BIN_phi,phi_Min,phi_Max,BIN_theta,0,180);
   hyperplane3D->GetXaxis()->SetTitle("#Phi");
   hyperplane3D->GetYaxis()->SetTitle("#Theta");
   TH2D* phi_c  = new TH2D("phic","c-phi projection)",
@@ -100,18 +117,19 @@ void houghCPU() {
   double mins[5] = {phi_Min,0,-1,m_Min,t_Min};
   double maxs[5] = {phi_Max, 180, 1, m_Max, t_Max};
 
-  int CHUNKSIZE = 64000;
-  
   THnSparse* fullHough =  new THnSparseF("fullHough", "5D Hough Space",
 					 5, bins, mins, maxs);
 
-  std::cout<<"\n &(*^*&^* CHUNK SIZE: "<<fullHough->GetChunkSize()
-	   <<std::endl;
+  //std::cout<<"\n &(*^*&^* CHUNK SIZE: "<<fullHough->GetChunkSize()
+  //   <<std::endl;
   
 
   std::vector<TVector3> riemannList;
   std::vector<TVector3> riemannListRZ;
   
+
+
+
 
   //FIND THE DIFFERENT MC TRACKS ----------------------------------------------
   std::map<int,int> trackIDs;
@@ -136,7 +154,6 @@ void houghCPU() {
 	if(CUT_CHAMBER && pos.X() < 0.)
 	  continue;
 	thePoint->Position(pos);
-	//pos.SetZ(0.);
 	r = pos.Perp()/RIEMANNSCALING;
 	phi = pos.Phi();
 	
@@ -151,7 +168,7 @@ void houghCPU() {
   }
   
   //BUILD ONE PLANE PER MC TRACK and get c, phi, theta.
-  for(int t=0; t<list.size(); t++) {
+  for(unsigned int t=0; t<list.size(); t++) {
     std::vector<TVector3>* theVec = list[t];
     int size = theVec->size();
     if(size < 10){
@@ -226,113 +243,68 @@ void houghCPU() {
    double tBinWidth = (t_Max-t_Min)/BIN_t;
   
    std::vector<TH2D*> histlist;
-  
-//   for(int rp=0; rp<riemannList.size(); ++rp) {
-//     TVector3 point = riemannList[rp];
-//     //TVector3 point = TVector3(1.,0.,0.);
-//     point.Print();
-//     TH2D* theHist;
-//     for(int phi=0; phi<BIN_phi; ++phi) {
-//       TVector3 n = TVector3(1.,0.,0.);
-//       n.SetPhi((phi+0.5)*phiBinWidth*TMath::Pi()/180);
-//       for(int theta=0; theta<BIN_theta; ++theta) {
-// 	if(theta%10==0) {
-// 	  std::string name = "phic_";
-// 	  std::stringstream s;
-// 	  s<<theta;
-// 	  name.append(s.str());
-// 	  if(rp==0&&phi==0){
-// 	    histlist.push_back(new TH2D(name.c_str(),"c-phi projection)",
-// 				      BIN_phi,0,180,200,-CUT_DIST,CUT_DIST));
-// 	    (histlist[histlist.size()-1])->GetXaxis()->SetTitle("#Phi");
-// 	  }
-// 	}
-// 	theHist=histlist[(int)theta/10];
-// 	n.SetTheta(((theta+0.5)*thetaBinWidth)*TMath::Pi()/180);
-// 	n.SetMag(1.0);
-// 	double c = point*n;
-// 	if(rp==0) 
-// 	  hyperplane3D->SetBinContent(phi+1,theta+1,fabs(c));
-// 	houghSpace->Fill((phi+0.5)*phiBinWidth,(theta+0.5)*thetaBinWidth,c);
-// 	phi_c->Fill((phi+0.5)*phiBinWidth,c);
-// 	theHist->Fill((phi+0.5)*phiBinWidth,c);	
-// 	theta_c->Fill((theta+0.5)*thetaBinWidth,c);	
-//       }
-//     }
-    
-//     TVector3 pointRZ = riemannListRZ[rp];
-//     double perp = pointRZ.X();
-//     double z = pointRZ.Z();
-//     for(int m=0; m<BIN_m; ++m) {
-//       double M = (m+0.5)*mBinWidth + m_Min;
-//       double t = perp * M * (-1.) + z;
-//       houghRZ->Fill(M,t);
-//     }
-//   }
 
-
-  for(int rp=0; rp<riemannList.size(); ++rp) {
-    TVector3 point = riemannList[rp];
-    //TVector3 point = TVector3(1.,0.,0.);
-    point.Print();
-    TH2D* theHist;
-
-    TVector3 pointRZ = riemannListRZ[rp];
-    double perp = pointRZ.X();
-    double z = pointRZ.Z();
-
-    int count = 0;
-    
-    for(int t=0; t<BIN_t; ++t) {
-      
-      double T = (t+0.5)*tBinWidth + t_Min;
-      double M = (T-z) / (perp*(-1.));
-      
-      houghRZ->Fill(M,T);
-            
-      for(int phi=0; phi<BIN_phi; ++phi) {
-	TVector3 n = TVector3(1.,0.,0.);
-	n.SetPhi((phi+0.5)*phiBinWidth*TMath::Pi()/180 + phi_Min);
-	for(int theta=0; theta<BIN_theta; ++theta) {
-	  if(theta%10==0) {
-	    std::string name = "phic_";
-	    std::stringstream s;
-	    s<<theta;
-	    name.append(s.str());
-	    if(rp==0 && phi==0 && count==0){
-	      histlist.push_back(new TH2D(name.c_str(),"c-phi projection)",
-					  BIN_phi,phi_Min,phi_Max,200
-					  ,-CUT_DIST,CUT_DIST));
-	      (histlist[histlist.size()-1])->GetXaxis()->SetTitle("#Phi");
-	    }
-	  }
-	  theHist=histlist[(int)theta/10];
-	  n.SetTheta(((theta+0.5)*thetaBinWidth)*TMath::Pi()/180);
-	  n.SetMag(1.0);
-	  double c = point*n;
-	  if(rp==0) 
-	    hyperplane3D->SetBinContent(phi+1,theta+1,fabs(c));
-	  if(count==0) {
-	    houghSpace->Fill((phi+0.5)*phiBinWidth+phi_Min,
-			     (theta+0.5)*thetaBinWidth,c);
-	    phi_c->Fill((phi+0.5)*phiBinWidth+phi_Min,c);
-	    theHist->Fill((phi+0.5)*phiBinWidth+phi_Min,c);	
-	    theta_c->Fill((theta+0.5)*thetaBinWidth,c);	
-	  }
-	  double x[5] = {(phi+0.5)*phiBinWidth+phi_Min,
-			 (theta+0.5)*thetaBinWidth,c,
-			 M, T};
-	  
-	  fullHough->Fill(x);
-	}
-      }
-      count++;
-    } 
-  }
-
-
-  
-      
+   for(unsigned int rp=0; rp<riemannList.size(); ++rp) {
+     TVector3 point = riemannList[rp];
+     //TVector3 point = TVector3(1.,0.,0.);
+     point.Print();
+     TH2D* theHist;
+     
+     TVector3 pointRZ = riemannListRZ[rp];
+     double perp = pointRZ.X();
+     double z = pointRZ.Z();
+     
+     int count = 0;
+     
+     for(unsigned int t=0; t<BIN_t; ++t) {
+       
+       double T = (t+0.5)*tBinWidth + t_Min;
+       double M = (T-z) / (perp*(-1.));
+       
+       houghRZ->Fill(M,T);
+       
+       for(unsigned int phi=0; phi<BIN_phi; ++phi) {
+	 TVector3 n = TVector3(1.,0.,0.);
+	 n.SetPhi((phi+0.5)*phiBinWidth*TMath::Pi()/180 + phi_Min);
+	 for(unsigned int theta=0; theta<BIN_theta; ++theta) {
+	   if(theta%10==0) {
+	     std::string name = "phic_";
+	     std::stringstream s;
+	     s<<theta;
+	     name.append(s.str());
+	     if(rp==0 && phi==0 && count==0){
+	       histlist.push_back(new TH2D(name.c_str(),"c-phi projection)",
+					   BIN_phi,phi_Min,phi_Max,200
+					   ,-CUT_DIST,CUT_DIST));
+	       (histlist[histlist.size()-1])->GetXaxis()->SetTitle("#Phi");
+	     }
+	   }
+	   theHist=histlist[(int)theta/10];
+	   n.SetTheta(((theta+0.5)*thetaBinWidth)*TMath::Pi()/180);
+	   n.SetMag(1.0);
+	   double c = point*n;
+	   if(rp==0) 
+	     hyperplane3D->SetBinContent(phi+1,theta+1,fabs(c));
+	   if(count==0) {
+	     houghSpace->Fill((phi+0.5)*phiBinWidth+phi_Min,
+			      (theta+0.5)*thetaBinWidth,c);
+	     phi_c->Fill((phi+0.5)*phiBinWidth+phi_Min,c);
+	     theHist->Fill((phi+0.5)*phiBinWidth+phi_Min,c);	
+	     theta_c->Fill((theta+0.5)*thetaBinWidth,c);	
+	   }
+	   if(FILLSPARSE) {
+	     double x[5] = {(phi+0.5)*phiBinWidth+phi_Min,
+			    (theta+0.5)*thetaBinWidth,c,
+			    M, T};
+	     fullHough->Fill(x);
+	   }
+	 }
+       }
+       count++;
+     } 
+   }
+   
+     
   TCanvas* c =  new TCanvas();
   c->Divide(1,2);
   c->cd(1);
@@ -364,21 +336,63 @@ void houghCPU() {
   TCanvas* c7 = new TCanvas();
   houghRZ->Draw("COLZ");
 
-  TFile* outfile = new TFile("outputSHORT.root", "RECREATE");
+  TFile* outfile = new TFile(file.c_str(), "RECREATE");
 
-  int nbins=fullHough->GetNbins();
-  for(unsingend int ib=0;ib<nbins;++ib){
-    fullHough->GetBinContent(linidx, (Int_t*)coord).
+
+  if(FILLSPARSE) {
+    
+    int nbins=fullHough->GetNbins();
+    unsigned int nmax=50;
+    vector<double> maxima(nmax);
+    vector<TVectorD> coords(nmax,TVectorD(5));
+    for(unsigned int i=0;i<nmax; ++i){
+      maxima[i]=(0.01*(double)(nmax-i));
+    cout << maxima[i] << endl;
+    }
+    
+    cout << "Starting search in "<<nbins<<" entries ..." << endl;
+    Int_t coord[5];
+    for(unsigned int ib=0;ib<nbins;++ib){
+      double mymax=fullHough->GetBinContent(ib, (Int_t*)coord);
+      //apply cuts
+      //TODO: automatic bin resolving
+      if(coord[2]<20 && coord[2]>23)continue;
+      if(coord[1]<15 && coord[2]>18)continue;
+      if(coord[4]<40 && coord[2]>60)continue;
       
-
+      //cout << ib << "..." << mymax << endl;
+      for(unsigned int i=0;i<nmax; ++i){
+	if(maxima[i]<mymax){
+	  maxima[i]=mymax;
+	  for(unsigned int j=0;j<5;++j)
+	    coords[i][j]=coord[j];
+	  break;
+	}
       }
- After the call, coord will contain the bin coordinate of each axis for the bin
- with linear index linidx. A possible call would be
-   cout << hs.GetBinContent(0, coord);
-   cout <<" is the content of bin [x = " << coord[0] "
-        << " | y = " << coord[1] << "]" << endl;
+    }// end loop
+    
+    // print 10 maxima
+    for(unsigned int i=0;i<nmax; ++i){
+      cout  << maxima[i] << endl;
+      coords[i].Print();
+    }
+    fullHough->Write();
+  }
 
 
-  fullHough->Write();
+  //write plots to file
+  hitsReco->Write(); 
+  hitsMC->Write(); 
+  houghSpace->Write();
+  hyperplane3D->Write();
+  phi_c->Write(); 
+  theta_c->Write();
+  phi_c_mc->Write(); 
+  theta_c_mc->Write(); 
+  houghRZ->Write();
+  
+  for(unsigned int i=0; i<histlist.size(); i++) 
+    (histlist[i])->Write();
+  
   outfile->Close();
 }
