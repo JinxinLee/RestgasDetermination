@@ -30,7 +30,8 @@ public:
 	void SetFlag(Int_t i)            { fFlag=i; }
 	void SetChi2(Double_t d)         { fChi2=d; }
 	void SetNDF(Int_t i)             { fNDF=i; }
-        PndTrackCand GetTrackCand()      { return fTrackCand; }
+  PndTrackCand GetTrackCand()      { return fTrackCand; }
+  PndTrackCand* GetTrackCandPtr()  { return &fTrackCand; }
 	FairTrackParP GetParamFirst() { return fTrackParamFirst; }
 	FairTrackParP GetParamLast()  { return fTrackParamLast ; }
 
