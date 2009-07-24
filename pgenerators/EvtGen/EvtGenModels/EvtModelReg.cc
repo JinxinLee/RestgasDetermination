@@ -98,6 +98,7 @@
 #include "EvtGenModels/EvtPhiDalitz.hh"
 #include "EvtGenModels/EvtPpbarGammaGamma.hh"
 #include "EvtGenModels/EvtPpbarPi0Gamma.hh"
+#include "EvtGenModels/EvtElectronPositron.hh"
 //#include "EvtGenModels/EvtPpbarPi0Pi0.hh"
 
 #include "EvtGenModels/EvtLNuGamma.hh"
@@ -200,6 +201,7 @@ EvtModelReg::EvtModelReg()
 
     modelist.Register(new EvtPpbarGammaGamma);
     modelist.Register(new EvtPpbarPi0Gamma);
+    modelist.Register(new EvtElectronPositron); // [Gosia Sudol 24/07/09]
 //    modelist.Register(new EvtPpbarPi0Pi0); 
 
     modelist.Register(new EvtBTo4piCP);
