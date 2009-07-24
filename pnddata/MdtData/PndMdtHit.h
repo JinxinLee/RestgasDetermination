@@ -25,8 +25,8 @@ class PndMdtHit : public FairHit {
   void Clear();
 
   /** Accessors **/
-  Int_t GetLayerID()             const { return fDetectorID<200 ? fDetectorID%8 : (fDetectorID-200)%8; };
-  Int_t GetModule()              const { return fDetectorID<200 ? 1 : 2; };
+    inline Int_t GetLayerID()             const { return fDetectorID<200 ? fDetectorID%8 : fDetectorID<300 ? (fDetectorID-200)%8 : (fDetectorID-300)%8; };
+    inline Int_t GetModule()              const { return fDetectorID<200 ? 1 : fDetectorID<300 ? 2 : 3; };
   inline Int_t GetSector(); 
 
  private:

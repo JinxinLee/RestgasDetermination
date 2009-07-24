@@ -57,7 +57,9 @@ void sim_muo(Int_t nEvents=10, Int_t pid=13, Float_t p1=1.0, Float_t p2=-1){
  
   PndMdt *Muo = new PndMdt("MDT",kTRUE);
   Muo->SetMdtVersion("torino");
-  Muo->SetMdtMagnet(true);
+  Muo->SetMdtMagnet(kTRUE);
+  Muo->SetMdtMF(kTRUE);
+  Muo->SetMdtMFIron(kTRUE);
   fRun->AddModule(Muo);
  
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);

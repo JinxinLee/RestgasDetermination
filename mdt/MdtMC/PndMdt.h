@@ -26,6 +26,8 @@ public:
     
     void SetMdtVersion(TString);
     inline void SetMdtMagnet(bool opt=false) { mdtMagnet = opt; return; };
+    inline void SetMdtMF(bool opt=false) { mdtMF = opt; return; };
+    inline void SetMdtMFIron(bool opt=false) { mdtMFI = opt; return; };
 
 // hit
     inline void Register() { FairRootManager::Instance()->Register("MdtPoint","Mdt",fMdtCollection,kTRUE); };
@@ -38,8 +40,8 @@ public:
 
 /** Accessors **/
     inline Int_t GetPosIndex()            const { return fPosIndex;              };
-    inline Int_t GetLayerID()             const { return fDetectorID<200 ? fDetectorID%8 : (fDetectorID-200)%8; };
-    inline Int_t GetModule()              const { return fDetectorID<200 ? 1 : 2; };
+    inline Int_t GetLayerID()             const { return fDetectorID<200 ? fDetectorID%8 : fDetectorID<300 ? (fDetectorID-200)%8 : (fDetectorID-300)%8; };
+    inline Int_t GetModule()              const { return fDetectorID<200 ? 1 : fDetectorID<300 ? 2 : 3; };
 
     TClonesArray* GetCollection(Int_t iColl) const ;
     
@@ -69,6 +71,8 @@ public:
 private:
     TString version;
     void PndMdtMagnet(); //!
+    void PndMdtMuonFilter(); //!
+    void PndMdtMFIron(); //!
     void ConstructGeometryTo(); //!
     void ConstructGeometryDu(); //!
     Bool_t ProcessHitsTo(FairVolume* vol); //!
@@ -86,6 +90,8 @@ private:
     PndGeoMdtPar* par;   //! 
     TString ffn;
     bool mdtMagnet; //!
+    bool mdtMF; //!
+    bool mdtMFI; //!
 
 };
 

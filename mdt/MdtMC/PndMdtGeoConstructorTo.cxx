@@ -42,7 +42,26 @@ void PndMdt::ConstructGeometryTo()
     TGeoVolume* mdt        = new TGeoVolumeAssembly("Mdt");
     TGeoVolume* mdtMag     = new TGeoVolumeAssembly("MdtMag");
     TGeoVolume* mdtBarrel  = new TGeoVolumeAssembly("MdtBarrel");
+    TGeoVolume* mdtBL00    = new TGeoVolumeAssembly("MdtBarrelLayer00");
+    TGeoVolume* mdtBL01    = new TGeoVolumeAssembly("MdtBarrelLayer01");
+    TGeoVolume* mdtBL02    = new TGeoVolumeAssembly("MdtBarrelLayer02");
+    TGeoVolume* mdtBL03    = new TGeoVolumeAssembly("MdtBarrelLayer03");
+    TGeoVolume* mdtBL04    = new TGeoVolumeAssembly("MdtBarrelLayer04");
+    TGeoVolume* mdtBL05    = new TGeoVolumeAssembly("MdtBarrelLayer05");
+    TGeoVolume* mdtBL06    = new TGeoVolumeAssembly("MdtBarrelLayer06");
+    TGeoVolume* mdtBL07    = new TGeoVolumeAssembly("MdtBarrelLayer07");
+    TGeoVolume* mdtBL08    = new TGeoVolumeAssembly("MdtBarrelLayer08");
+    TGeoVolume* mdtBL09    = new TGeoVolumeAssembly("MdtBarrelLayer09");
+    TGeoVolume* mdtBL10    = new TGeoVolumeAssembly("MdtBarrelLayer10");
+    TGeoVolume* mdtBL11    = new TGeoVolumeAssembly("MdtBarrelLayer11");
+    TGeoVolume* mdtBL12    = new TGeoVolumeAssembly("MdtBarrelLayer12");
     TGeoVolume* mdtEndcap  = new TGeoVolumeAssembly("MdtEndcap");
+    TGeoVolume* mdtEL00    = new TGeoVolumeAssembly("MdtEndcapLayer00");
+    TGeoVolume* mdtEL01    = new TGeoVolumeAssembly("MdtEndcapLayer01");
+    TGeoVolume* mdtEL02    = new TGeoVolumeAssembly("MdtEndcapLayer02");
+    TGeoVolume* mdtEL03    = new TGeoVolumeAssembly("MdtEndcapLayer03");
+    TGeoVolume* mdtEL04    = new TGeoVolumeAssembly("MdtEndcapLayer04");
+    TGeoVolume* mdtEL05    = new TGeoVolumeAssembly("MdtEndcapLayer05");
     
 //Additional definitions
     Text_t buffer[30];
@@ -147,7 +166,49 @@ void PndMdt::ConstructGeometryTo()
 		TGeoVolume* volume = new TGeoVolume(buffer,tgcs,gGeoManager->GetMedium("mdtArCO2"));
 		AddSensitiveVolume(volume);
 		volume->SetLineColor(1);
-		mdtBarrel->AddNode(volume,8*i+j,new TGeoCombiTrans(mx0/10.0,my0/10.0,0.0,new TGeoRotation(tRot)));
+//		mdtBarrel->AddNode(volume,8*i+j,new TGeoCombiTrans(mx0/10.0,my0/10.0,0.0,new TGeoRotation(tRot)));
+		switch(i)
+		{
+		    case 0:
+			mdtBL00->AddNode(volume,8*i+j,new TGeoCombiTrans(mx0/10.0,my0/10.0,0.0,new TGeoRotation(tRot)));
+			break;
+		    case 1:
+			mdtBL01->AddNode(volume,8*i+j,new TGeoCombiTrans(mx0/10.0,my0/10.0,0.0,new TGeoRotation(tRot)));
+			break;
+    		    case 2:
+			mdtBL02->AddNode(volume,8*i+j,new TGeoCombiTrans(mx0/10.0,my0/10.0,0.0,new TGeoRotation(tRot)));
+			break;
+		    case 3:
+			mdtBL03->AddNode(volume,8*i+j,new TGeoCombiTrans(mx0/10.0,my0/10.0,0.0,new TGeoRotation(tRot)));
+			break;
+		    case 4:
+			mdtBL04->AddNode(volume,8*i+j,new TGeoCombiTrans(mx0/10.0,my0/10.0,0.0,new TGeoRotation(tRot)));
+			break;
+		    case 5:
+			mdtBL05->AddNode(volume,8*i+j,new TGeoCombiTrans(mx0/10.0,my0/10.0,0.0,new TGeoRotation(tRot)));
+			break;
+		    case 6:
+			mdtBL06->AddNode(volume,8*i+j,new TGeoCombiTrans(mx0/10.0,my0/10.0,0.0,new TGeoRotation(tRot)));
+			break;
+		    case 7:
+			mdtBL07->AddNode(volume,8*i+j,new TGeoCombiTrans(mx0/10.0,my0/10.0,0.0,new TGeoRotation(tRot)));
+			break;
+		    case 8:
+			mdtBL08->AddNode(volume,8*i+j,new TGeoCombiTrans(mx0/10.0,my0/10.0,0.0,new TGeoRotation(tRot)));
+			break;
+		    case 9:
+			mdtBL09->AddNode(volume,8*i+j,new TGeoCombiTrans(mx0/10.0,my0/10.0,0.0,new TGeoRotation(tRot)));
+			break;
+		    case 10:
+			mdtBL10->AddNode(volume,8*i+j,new TGeoCombiTrans(mx0/10.0,my0/10.0,0.0,new TGeoRotation(tRot)));
+			break;
+		    case 11:
+			mdtBL11->AddNode(volume,8*i+j,new TGeoCombiTrans(mx0/10.0,my0/10.0,0.0,new TGeoRotation(tRot)));
+			break;
+		    case 12:
+			mdtBL12->AddNode(volume,8*i+j,new TGeoCombiTrans(mx0/10.0,my0/10.0,0.0,new TGeoRotation(tRot)));
+			break;
+		};
 	    }
 	    else
 	    {
@@ -159,7 +220,49 @@ void PndMdt::ConstructGeometryTo()
 		TGeoVolume* volume = new TGeoVolume(buffer,box,gGeoManager->GetMedium("mdtArCO2"));
 		AddSensitiveVolume(volume);
 		volume->SetLineColor(1);
-		mdtBarrel->AddNode(volume,8*i+j,new TGeoCombiTrans(mx0/10.0,my0/10.0,mz0/10.0,new TGeoRotation(tRot)));
+//		mdtBarrel->AddNode(volume,8*i+j,new TGeoCombiTrans(mx0/10.0,my0/10.0,mz0/10.0,new TGeoRotation(tRot)));
+		switch(i)
+		{
+		    case 0:
+			mdtBL00->AddNode(volume,8*i+j,new TGeoCombiTrans(mx0/10.0,my0/10.0,mz0/10.0,new TGeoRotation(tRot)));
+			break;
+		    case 1:
+			mdtBL01->AddNode(volume,8*i+j,new TGeoCombiTrans(mx0/10.0,my0/10.0,mz0/10.0,new TGeoRotation(tRot)));
+			break;
+    		    case 2:
+			mdtBL02->AddNode(volume,8*i+j,new TGeoCombiTrans(mx0/10.0,my0/10.0,mz0/10.0,new TGeoRotation(tRot)));
+			break;
+		    case 3:
+			mdtBL03->AddNode(volume,8*i+j,new TGeoCombiTrans(mx0/10.0,my0/10.0,mz0/10.0,new TGeoRotation(tRot)));
+			break;
+		    case 4:
+			mdtBL04->AddNode(volume,8*i+j,new TGeoCombiTrans(mx0/10.0,my0/10.0,mz0/10.0,new TGeoRotation(tRot)));
+			break;
+		    case 5:
+			mdtBL05->AddNode(volume,8*i+j,new TGeoCombiTrans(mx0/10.0,my0/10.0,mz0/10.0,new TGeoRotation(tRot)));
+			break;
+		    case 6:
+			mdtBL06->AddNode(volume,8*i+j,new TGeoCombiTrans(mx0/10.0,my0/10.0,mz0/10.0,new TGeoRotation(tRot)));
+			break;
+		    case 7:
+			mdtBL07->AddNode(volume,8*i+j,new TGeoCombiTrans(mx0/10.0,my0/10.0,mz0/10.0,new TGeoRotation(tRot)));
+			break;
+		    case 8:
+			mdtBL08->AddNode(volume,8*i+j,new TGeoCombiTrans(mx0/10.0,my0/10.0,mz0/10.0,new TGeoRotation(tRot)));
+			break;
+		    case 9:
+			mdtBL09->AddNode(volume,8*i+j,new TGeoCombiTrans(mx0/10.0,my0/10.0,mz0/10.0,new TGeoRotation(tRot)));
+			break;
+		    case 10:
+			mdtBL10->AddNode(volume,8*i+j,new TGeoCombiTrans(mx0/10.0,my0/10.0,mz0/10.0,new TGeoRotation(tRot)));
+			break;
+		    case 11:
+			mdtBL11->AddNode(volume,8*i+j,new TGeoCombiTrans(mx0/10.0,my0/10.0,mz0/10.0,new TGeoRotation(tRot)));
+			break;
+		    case 12:
+			mdtBL12->AddNode(volume,8*i+j,new TGeoCombiTrans(mx0/10.0,my0/10.0,mz0/10.0,new TGeoRotation(tRot)));
+			break;
+		};
 	    };
 	    tRot.RotateZ(-45.0);
 	};
@@ -254,17 +357,55 @@ void PndMdt::ConstructGeometryTo()
 	    TGeoVolume* volume = new TGeoVolume(buffer,tgcs,gGeoManager->GetMedium("mdtArCO2"));
 	    AddSensitiveVolume(volume);
 	    volume->SetLineColor(1);
-	    mdtEndcap->AddNode(volume,200+8*i+j,new TGeoCombiTrans(0.0,0.0,mz0/10.0,new TGeoRotation(tRot)));
+//	    mdtEndcap->AddNode(volume,200+8*i+j,new TGeoCombiTrans(0.0,0.0,mz0/10.0,new TGeoRotation(tRot)));
+	    switch(i)
+	    {
+		case 0:
+		    mdtEL00->AddNode(volume,200+8*i+j,new TGeoCombiTrans(0.0,0.0,mz0/10.0,new TGeoRotation(tRot)));
+		    break;
+		case 1:
+		    mdtEL01->AddNode(volume,200+8*i+j,new TGeoCombiTrans(0.0,0.0,mz0/10.0,new TGeoRotation(tRot)));
+		    break;
+		case 2:
+		    mdtEL02->AddNode(volume,200+8*i+j,new TGeoCombiTrans(0.0,0.0,mz0/10.0,new TGeoRotation(tRot)));
+		    break;
+		case 3:
+		    mdtEL03->AddNode(volume,200+8*i+j,new TGeoCombiTrans(0.0,0.0,mz0/10.0,new TGeoRotation(tRot)));
+		    break;
+		case 4:
+		    mdtEL04->AddNode(volume,200+8*i+j,new TGeoCombiTrans(0.0,0.0,mz0/10.0,new TGeoRotation(tRot)));
+		    break;
+	    };
 	    tRot.RotateZ(-45.0);
 	};
     };
     
+    mdtBarrel->AddNode(mdtBL00,1);
+    mdtBarrel->AddNode(mdtBL01,1);
+    mdtBarrel->AddNode(mdtBL02,1);
+    mdtBarrel->AddNode(mdtBL03,1);
+    mdtBarrel->AddNode(mdtBL04,1);
+    mdtBarrel->AddNode(mdtBL05,1);
+    mdtBarrel->AddNode(mdtBL06,1);
+    mdtBarrel->AddNode(mdtBL07,1);
+    mdtBarrel->AddNode(mdtBL08,1);
+    mdtBarrel->AddNode(mdtBL09,1);
+    mdtBarrel->AddNode(mdtBL10,1);
+    mdtBarrel->AddNode(mdtBL11,1);
+    mdtBarrel->AddNode(mdtBL12,1);
     mdt->AddNode(mdtBarrel,1);
+    mdtEndcap->AddNode(mdtEL00,1);
+    mdtEndcap->AddNode(mdtEL01,1);
+    mdtEndcap->AddNode(mdtEL02,1);
+    mdtEndcap->AddNode(mdtEL03,1);
+    mdtEndcap->AddNode(mdtEL04,1);
     mdt->AddNode(mdtEndcap,1);
 
     vcave->AddNode(mdt,1);
 
     if(mdtMagnet) PndMdtMagnet();
+    if(mdtMF) PndMdtMuonFilter();
+    if(mdtMFI) PndMdtMFIron();
     
     return;
 }
@@ -278,6 +419,11 @@ Bool_t PndMdt::ProcessHitsTo(FairVolume* vol)
   if (!(name.BeginsWith("muon"))) 
     cout << "Error <PndMdt::ProcessHits> : " << name << " not MDT volume" << endl;
   else {
+
+  Int_t pdgc= gMC->TrackPid();
+  if(TMath::Abs(pdgc)==211 || TMath::Abs(pdgc)==13)
+  {
+
     if (gMC->IsTrackEntering() || gMC->IsNewTrack() ){
       fPos_In.SetXYZM(0.,0.,0.,0.);
       fMom_In.SetXYZM(0.,0.,0.,0.);
@@ -288,7 +434,7 @@ Bool_t PndMdt::ProcessHitsTo(FairVolume* vol)
 
     if (gMC->IsTrackExiting() || gMC->IsTrackStop() || gMC->IsTrackDisappeared() ){
       Int_t TrNo=gMC->GetStack()->GetCurrentTrackNumber();
-      Int_t pdg= gMC->TrackPid();	  
+      Int_t pdg= gMC->TrackPid();
       if ( TrNo == fTrkIn ){
 	TLorentzVector lPos, lMom;
 	int ilayer;
@@ -315,7 +461,9 @@ Bool_t PndMdt::ProcessHitsTo(FairVolume* vol)
       ResetParameters();
     };
 
-  }
+  };
+  };
+  
   return kTRUE;
   
 }

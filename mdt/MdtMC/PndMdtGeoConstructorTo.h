@@ -27,7 +27,7 @@
 #define PndMdt_SV112 2225
 
 //Mdt Endcap octagon slice = 5 sensitive volumes (layers)
-#define PndMdt_Endcap_Height 2390
+#define PndMdt_Endcap_Height 2240
 //center positions
 #define PndMdt_SV200 2470
 #define PndMdt_SV201 2560

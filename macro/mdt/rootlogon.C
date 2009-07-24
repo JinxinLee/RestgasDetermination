@@ -26,12 +26,13 @@ rootlogon()
         gSystem->Load("libMvd");
         gSystem->Load("libMvdReco");
         gSystem->Load("libMvdTrk");
+        gSystem->Load("libGem");
 	gSystem->Load("libTof");
 	gSystem->Load("libDrcProp");
 	gSystem->Load("libDrc");
 	gSystem->Load("libMdt");
 	gSystem->Load("libDch");
-        gSystem->Load("libLHETrack");
+        gSystem->Load("libLheTrack");
 	gSystem->Load("libGeane");
 	gSystem->Load("libRpc");
 	gSystem->Load("libLumi");
