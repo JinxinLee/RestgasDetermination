@@ -68,6 +68,7 @@ DchTracking/PndDchFindTracks.cxx
 DchTracking/PndDchTrackMatch.cxx
 DchTracking/PndDchMatchTracks.cxx
 DchTracking/PndDchFindTracksQa.cxx
+DchTracking/PndDchConvertTrackCandTask.cxx
 #DchFitting/PndDchTest.cxx
 #DchTracking/PndDchChamber.cxx
 #DchTracking/PndDchChamberTracklet.cxx
