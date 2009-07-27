@@ -1,14 +1,17 @@
 #vpath %.h ../
-#vpath %.cxx ../ 
+#vpath %.cxx ../
 #vpath %.h $(ROOTSYS)/include
 
-INCLFLAGS  = -I$(ROOTSYS)/include -I../
-LDLIBS     = $(shell root-config --glibs) \
-		-lMathCore
-#		-L/home/carsten/src/panda/cbmsoft/tools/root/lib -lMathCore -lMathMore
 
-#LDLIBS     = $(shell root-config --glibs) 
-# -lMinuit
+# set a global environment variable MYROOT to use also the standard root installation on your private machine
+# tested with Gentoo gcc-4.3.2 root-5.22
+ifdef $(MYROOT)
+	INCLFLAGS  = -I $(ROOTSYS)/include/root -I ../
+	LDLIBS     = $(shell root-config --glibs) -lMathMore -lGenVector
+else # std. root-installation at GSI
+	INCLFLAGS  = -I $(ROOTSYS)/include -I ../
+	LDLIBS     = $(shell root-config --glibs) -lMathCore
+endif
 
 
 SOURCES = $(wildcard ../*.cxx)
@@ -174,14 +177,14 @@ mppc.o:			mppc.cc
 			-c mppc.cc
 
 
-../%.o : ../%.cxx	
+../%.o : ../%.cxx
 			g++  $(CFLAGS) $(INCLFLAGS) -c $< -o $@
 
 
-../%.d : ../%.cxx	
+../%.d : ../%.cxx
 			@set -e; rm -f $@; \
 			g++ -MM $(CFLAGS) $< > $@.$$$$; \
-			sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; 
+			sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@;
 
 #			$(SHELL) -ec '$(CXX) -MM $< \
 #
