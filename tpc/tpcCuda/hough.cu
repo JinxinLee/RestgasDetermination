@@ -41,7 +41,7 @@ int main() {
   pos_h = (float3*) malloc(nClusters*sizeof(float));
   pos_out_h = (float3*) malloc(nClusters*sizeof(float));
 
-  std::vector<TVector3
+  std::vector<TVector3> blub;
 
   for(unsigned int i=0; i<nClusters; ++i){ 
     float3 pos;

@@ -4,7 +4,7 @@ PROJECT(tpcCuda CUDA C CXX)
 
 cmake_minimum_required(VERSION 2.6)
 
-INCLUDE_DIRECTORIES($ENV{ROOTSYS}/include $ENV{VMCWORKDIR}/tpc)
+INCLUDE_DIRECTORIES($ENV{ROOTSYS}/include $ENV{VMCWORKDIR}/tpc $ENV{VMCWORKDIR}/base)
 
 SET(ROOT_LIB $ENV{ROOTSYS}/lib)
 SET(ROOT_BIN $ENV{ROOTSYS}/bin)
@@ -47,6 +47,7 @@ SET(SOURCES     ../McId.cxx
                 ../PndTpcDigiAge.cxx
                 ../PndTpcDigiAmplitude.cxx
 		../PndTpcCluster.cxx
+		Hough2DNode.cxx
 		dataLoader.cc
 		tpcdataDict.cxx
 )
@@ -90,4 +91,9 @@ TARGET_LINK_LIBRARIES(hello tpcdata ${CUDA_RUNTIME_LIBRARIES} ${ROOT_LIBS})
 
 ADD_EXECUTABLE(hough hough.cu)
 TARGET_LINK_LIBRARIES(hough tpcdata ${CUDA_RUNTIME_LIBRARIES} ${ROOT_LIBS})
+
+ADD_EXECUTABLE(fastHough fastHoughCPU.C)
+TARGET_LINK_LIBRARIES(fastHough tpcdata ${ROOT_LIBS})
+
+
 
