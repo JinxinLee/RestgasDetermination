@@ -1,8 +1,8 @@
-/*! 
+/*!
 
   \brief Representation of a photon.
 
- 
+
 */
 
 #ifndef PNDDRCPHOTON_H
@@ -26,7 +26,7 @@ namespace Drc
     An enum holding the fate of a photon. */
   enum kPhotonFate
     {
-      kPhotFlying,                                //!< Photon is still propagating.                     
+      kPhotFlying,                                //!< Photon is still propagating.
       kPhotMeasured,                              //!< Photon has hit measuring device.
       kPhotLost,                                  //!< Photon got lost outside.
       kPhotAbsorbed                               //!< Photon got lost inside.
@@ -36,15 +36,15 @@ namespace Drc
 class PndDrcOptDev;
 
 
-/*! 
-  \brief Representation of a photon. 
+/*!
+  \brief Representation of a photon.
 */
 class PndDrcPhoton
 {
  public:
 
   //! Empty constructor.
-  PndDrcPhoton();                          
+  PndDrcPhoton();
   /*! \brief Copy constructor
     \param ph The photon
   */
@@ -56,16 +56,16 @@ class PndDrcPhoton
   PndDrcPhoton& operator=(const PndDrcPhoton& ph);
 
   //! Destructor.
-  virtual ~PndDrcPhoton(){};               
+  virtual ~PndDrcPhoton(){};
 
 
   /*! \brief Verbosity
 
-  Set the verbosity. Range is 0 to 5. 
+  Set the verbosity. Range is 0 to 5.
   \verbatim
-  0=quiet, 
+  0=quiet,
   1=constructors,destructors,
-  2=member functions, 
+  2=member functions,
   3=functionality
   4=photons
   5=everything
@@ -104,7 +104,7 @@ class PndDrcPhoton
   \return The limit
   */
   int ReflectionLimit() const {return fReflectionLimit;};
-  
+
 
   /*! \brief Set reflection limit
 
@@ -114,7 +114,7 @@ class PndDrcPhoton
   \param limit The limit
   */
   void SetReflectionLimit(int limit) {fReflectionLimit=limit;};
-  
+
 
   /*! \brief Position
     \return Position.
@@ -171,19 +171,19 @@ class PndDrcPhoton
   \param n_outside The refractive index of or the next volume or the vacuum outside.
   \param ex_outside The extinction coefficient of or the next volume or the vacuum outside.
   \param fresnel Fresnel reflection.
-  \param diffuse Diffused reflection probability. 
+  \param diffuse Diffused reflection probability.
   \return True if refraction occured, false if reflection occured.
   */
-  bool Refract(XYZVector normal, double n_in, double ex_in, double n_out=1.0, double ex_out=0.0, bool fresnelFlag=true, double diffuseProb = 0);
+  bool Refract(XYZVector normal, double n_in, double ex_in, double n_out=1.0, double ex_out=0.0, bool fresnelFlag=false, double diffuseProb = 0, bool test=false);
 
   /*! \brief Reflect the photon
     \param normal The normal vector of the surface.
     \sa Refract()
   */
   void Reflect(const XYZVector& normal);
-             
-  void Diffuse(const XYZVector& normal);           
-             
+
+  void Diffuse(const XYZVector& normal);
+
   bool Fresnel(XYZVector normal, double n_in, double ex_in, double n_out=1.0, double ex_out=0.0);
 
 
@@ -208,22 +208,22 @@ class PndDrcPhoton
   */
   bool PrintFlag() const {return fPrintFlag;};
  /*! \brief Set print flag of photon to write its way to the data stream
-    \sa  Print(fstream& stream) 
+    \sa  Print(fstream& stream)
   \param flg Print flag.
   */
   void SetPrintFlag(bool flg){fPrintFlag=flg;};
-  
+
 
  private:
-  double           fLambda;                        //!< Wavelength in nm.           
-  XYZPoint         fPosition;                      //!< Actual position of photon.          
-  XYZPoint         fPositionOld;                   //!< Old position of photon.      
-  XYZVector        fDirection;                     //!< Normalized direction of photon.       
-  Drc::kPhotonFate fFate;                          //!< The fate of the photon.              
-  int              fReflections;                   //!< Number of suffered reflections.     
-  int              fVerbosity;                     //!< Verbosity level 0-5.         
-  PndDrcOptDev*    fDev;                           //!< Pointer to device where photon is.              
-  double           fTime;                          //!< Time of flight.             
+  double           fLambda;                        //!< Wavelength in nm.
+  XYZPoint         fPosition;                      //!< Actual position of photon.
+  XYZPoint         fPositionOld;                   //!< Old position of photon.
+  XYZVector        fDirection;                     //!< Normalized direction of photon.
+  Drc::kPhotonFate fFate;                          //!< The fate of the photon.
+  int              fReflections;                   //!< Number of suffered reflections.
+  int              fVerbosity;                     //!< Verbosity level 0-5.
+  PndDrcOptDev*    fDev;                           //!< Pointer to device where photon is.
+  double           fTime;                          //!< Time of flight.
   int              fReflectionLimit;               //!< Reflection limit.
   bool             fPrintFlag;                     //!< Print flag, by default true
 

@@ -1,7 +1,7 @@
 // ----------------------------------------------------
 // This file belongs to the ray tracing framework
 // for the use with Cherenkov detectors
-// 
+//
 // created 2007
 //-----------------------------------------------------
 #include "PndDrcOptMatAbs.h"

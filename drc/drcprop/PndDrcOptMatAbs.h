@@ -1,4 +1,4 @@
-/*! 
+/*!
   \brief Class for optical material representation.
 
   It is assumed that for all DIRC option radiator material is used
@@ -18,7 +18,7 @@ class PndDrcOptMatAbs
  public:
 
   //!                                             Empty constructor.
-  PndDrcOptMatAbs();                       
+  PndDrcOptMatAbs();
 
 
   /*! \brief Virtual copy constructor.
@@ -28,27 +28,27 @@ class PndDrcOptMatAbs
 
   /*! Copy constructor.
     /param Object to copy.
-  */ 
+  */
   PndDrcOptMatAbs(const PndDrcOptMatAbs& mat);
 
   /*! Assignment operator.
     /param Object to assign.
-  */ 
+  */
   PndDrcOptMatAbs& operator=(const PndDrcOptMatAbs& mat);
 
 
   //! Destructor.
-  virtual ~PndDrcOptMatAbs();            
+  virtual ~PndDrcOptMatAbs();
 
 
 
   /*! \brief Verbosity
 
-  Set the verbosity. Range is 0 to 5. 
+  Set the verbosity. Range is 0 to 5.
   \verbatim
-  0=quiet, 
+  0=quiet,
   1=constructors,destructors,
-  2=member functions, 
+  2=member functions,
   3=functionality
   4=photons
   5=everything
@@ -63,27 +63,33 @@ class PndDrcOptMatAbs
   */
   const int Verbosity() const {return fVerbosity;};
 
+
   /*! \brief Set the name of the volume.
     \param name The name.
   */
   void SetName(string name){fName=name;};
+
   /*! \brief The name of the volume.
     \return The name.
   */
   string Name() const {return fName;};
 
 
-
-  /*! \brief Refraction index. 
+  /*! \brief Refraction index.
     \param lambda wavelength [nm]
   */
   virtual double RefIndex(const double lambda) const = 0;
-  /*!\brief  Dervative of refraction index with respect to wavelength. 
+
+  /*!\brief  Derivative of refraction index with respect to wavelength.
     \param lambda wavelength [nm]
   */
   virtual double RefIndexDeriv(const double lambda) const = 0;
-             
+
+  /*!\brief  Derivative of extinction with respect to wavelength.
+    \param lambda wavelength [nm]
+  */
   virtual double Extinction(const double lambda) const = 0;
+
 
   /*! \brief Absorption flag
 
@@ -94,12 +100,12 @@ class PndDrcOptMatAbs
   \param length The pathlength in [mm].
   \return Absorption flag.
   */
-  virtual bool AbsorptionFlag(double lambda, double length) const = 0;   
+  virtual bool AbsorptionFlag(double lambda, double length) const = 0;
 
  protected:
 
-  string            fName;                        //!< Name of surface.     
-  int               fVerbosity;                   //!< Verbosity from 0 to 5.         
+  string            fName;                        //!< Name of surface.
+  int               fVerbosity;                   //!< Verbosity from 0 to 5.
 
 };
 

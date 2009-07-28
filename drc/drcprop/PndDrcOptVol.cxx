@@ -1,7 +1,7 @@
 // ----------------------------------------------------
 // This file belongs to the ray tracing framework
 // for the use with Cherenkov detectors
-// 
+//
 // created 2007
 //-----------------------------------------------------
 #include "PndDrcOptVol.h"
@@ -55,15 +55,17 @@ using std::endl;
 #include <limits>
 using std::numeric_limits;
 
+#include <TMath.h>
+
 //----------------------------------------------------------------------
 PndDrcOptVol::PndDrcOptVol()
 {
-  fOptMat      = 0; 
+  fOptMat      = 0;
 }
 //----------------------------------------------------------------------
 PndDrcOptVol::~PndDrcOptVol()
 {
-  delete fOptMat; 
+  delete fOptMat;
 }
 //----------------------------------------------------------------------
 PndDrcOptVol* PndDrcOptVol::Clone() const
@@ -79,12 +81,12 @@ void PndDrcOptVol::Copy(const PndDrcOptVol& d)
     cerr<<"                          vol name =  "<<Name()<<endl;
     exit(EXIT_FAILURE);
   }
-  
+
   if (&(d.OptMaterial())) fOptMat = (d.OptMaterial()).Clone();
 }
 //----------------------------------------------------------------------
 PndDrcOptVol::PndDrcOptVol(const PndDrcOptVol& d) : PndDrcOptDev(d)
-{  
+{
   if (d.fVerbosity>=1) cout<<"  PndDrcOptVol::PndDrcOptVol"
         <<"(const PndDrcOptVol&) name,copy: "
         <<d.fName<<" "<<d.fCopyNumber<<endl;
@@ -115,19 +117,18 @@ void PndDrcOptVol::SetOptMaterial(const PndDrcOptMatAbs& mat)
 //----------------------------------------------------------------------
 void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 {
-  
+//   fVerbosity=4;
   static const double kEps = 1.0e-9;
 
   if (Verbosity()>=4) cout<<"    PndDrcOptVol::propagate, you are in "<<Name()<<endl;
   //if (verbosity()>=4) ph.print();
   list<PndDrcSurfAbs*>::const_iterator kSurf;
 
- 
+
   while (ph.Fate() == Drc::kPhotFlying)
   {// while
 
-
-    if (ph.Reflections() > ph.ReflectionLimit()) 
+    if (ph.Reflections() > ph.ReflectionLimit())
     {
       cout<<" PndDrcOptVol::propagate: killed (absorbed) photon after "
           <<ph.Reflections()
@@ -135,16 +136,15 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
       ph.SetFate(Drc::kPhotAbsorbed);
       break; // leave while loop
     }
-      
 
 
     ph.SetDevice(this);
       //---------------
-      // search the closest surface which is not the surface where the photon is 
-      // right now. 
+      // search the closest surface which is not the surface where the photon is
+      // right now.
     PndDrcSurfAbs* surf_closest=0;
     double path_length_min = numeric_limits<double>::max();
-    for(kSurf=fListSurf.begin(); kSurf != fListSurf.end(); ++kSurf) 
+    for(kSurf=fListSurf.begin(); kSurf != fListSurf.end(); ++kSurf)
     {
       if (Verbosity()>=4) cout<<"     check "<<(*kSurf)->Name()
             <<" (surface coupling = "
@@ -163,7 +163,7 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
       }
       else
       {
-        if (Verbosity()>=4) 
+        if (Verbosity()>=4)
         {
           cout<<"     no hit "<<(*kSurf)->Name()<<endl;
           cout<<"     for ph x,xdir :"<<ph.Position().X()<<" "<<ph.Direction().X()<<endl;
@@ -171,15 +171,15 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
           cout<<"     for ph z,zdir :"<<ph.Position().Z()<<" "<<ph.Direction().Z()<<endl;
 // 		  ph.print();
         }
-	      
+
       }
 
     }
     if (surf_closest==0)
     {
-      if (ph.Fate() == Drc::kPhotFlying) 
+      if (ph.Fate() == Drc::kPhotFlying)
       {
-        if (Verbosity()>=4) 
+        if (Verbosity()>=4)
           cout<<"     no hit with any surface ->edge hit->lost"<<endl;
         if (fPhotonTrace) ph.Print(*fPhotonTraceStream);
         ph.SetFate(Drc::kPhotLost);
@@ -198,14 +198,14 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
     if (surf_closest->SurfaceHit(ph,pos_new,path_length))
     {// hit surf_closest
 
-      if (Verbosity()>=4) 
+      if (Verbosity()>=4)
       {
         XYZPoint  pos_old(ph.Position());
         XYZVector dir_old(ph.Direction());
         cout<<"     hit, set pos from "<<pos_old<<endl;
         cout<<"                  to   "<<pos_new<<endl;
         cout<<"              dir old  "<<dir_old<<endl;
-	      
+
       }
 
 	  //if (ph.fate()!=PndDrc::kPhotFlying) return;
@@ -226,25 +226,32 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
         if (fPhotonTrace) ph.Print(*fPhotonTraceStream);
         if (ph.Fate()!=Drc::kPhotFlying) break;//###1
       }
-	  
-	  
-	  
-	  //  Step 2 ------------ Reflectivity ------------- 
+
+
+
+	  //  Step 2 ------------ Reflectivity -------------
       XYZVector norm = surf_closest->Normal(ph.Position());
       Drc::Reflectivity refl;
-	  
+
       if (&(surf_closest->Reflectivity())) // Reflectivity defined
       {
         if (Verbosity()>=4) cout<<"     PndDrcOptVol::reflectivity1a clause"<<endl;
         ph.SetDevice(this);
-	      
+
         refl = Drc::ReflReflected; // needless ???
         refl = surf_closest->Reflectivity().Reflectivity(ph,norm);
-			   
 
         if (refl == Drc::ReflAbsorbed)
         {
-          if (Verbosity()>=4) 
+          if( surf_closest->Name() == "lens_side1" || surf_closest->Name() == "lens_side2" || surf_closest->Name() == "lens_side3"
+              || surf_closest->Name() == "lens_side4")
+//           if( surf_closest->Name() == "slab_side1")
+//           if( surf_closest->Name() == "lens_sphere")
+          {
+            bool blub = ph.Refract(norm, OptMaterial().RefIndex(ph.Wavelength()),OptMaterial().Extinction(ph.Wavelength()),1,0,false,0,true);
+          }
+
+          if (Verbosity()>=4)
             cout<<"     PndDrcOptVol::propagate: mirror absorbed"<<endl;
           ph.SetFate(Drc::kPhotAbsorbed);
           return;
@@ -273,19 +280,19 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
       {
 	      // Step 3a ----------- Refraction (no reflectivity defined, no couplings)
         if (Verbosity()>=4) cout<<"     PndDrcOptVol::reflectivity1b clause"<<endl;
-        
-        bool refr;// = ph.Refract(norm,OptMaterial().RefIndex(ph.Wavelength()), OptMaterial().Extinction(ph.Wavelength()) );
-        
-        if( surf_closest->Name() == "box_side2" || surf_closest->Name() == "box_side3" || surf_closest->Name() == "box_side4" 
-            || surf_closest->Name() == "box_side6")
-          refr = ph.Refract(norm,OptMaterial().RefIndex(ph.Wavelength()), OptMaterial().Extinction(ph.Wavelength()),1,0,false,0);
-        else
-          refr = ph.Refract(norm,OptMaterial().RefIndex(ph.Wavelength()), OptMaterial().Extinction(ph.Wavelength()) );
-  
-        if (refr) 
+
+        bool refr = ph.Refract(norm,OptMaterial().RefIndex(ph.Wavelength()), OptMaterial().Extinction(ph.Wavelength()) );
+
+//         if( surf_closest->Name() == "box_side2" || surf_closest->Name() == "box_side3" || surf_closest->Name() == "box_side4"
+//             || surf_closest->Name() == "box_side6")
+//           refr = ph.Refract(norm,OptMaterial().RefIndex(ph.Wavelength()), OptMaterial().Extinction(ph.Wavelength()),1,0,false,0);
+//         else
+//           refr = ph.Refract(norm,OptMaterial().RefIndex(ph.Wavelength()), OptMaterial().Extinction(ph.Wavelength()) );
+
+        if (refr)
         {
           if ( ph.Fate() == Drc::kPhotFlying) // otherwise different fate alread assigned
-          {    
+          {
             ph.SetFate(Drc::kPhotLost); // Photon refracted in nirvana.
             if (Verbosity()>=4) cout<<"     Photon lost"<<endl;
             break;
@@ -293,9 +300,9 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
         }
         else
           continue; // while loop
-      }   
-	      
-	    
+      }
+
+
 
 	  // Step 3b ------------ Coupled volumes
 
@@ -310,10 +317,10 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
       {// if surf_closest coupled
         list<PndDrcOptDev*>::const_iterator  kDev_coupled;
         list<PndDrcSurfAbs*>::const_iterator kSurf_coupled;
-	      
+
         for (kDev_coupled  = (surf_closest->CoupledDeviceList()).begin(),
-             kSurf_coupled = (surf_closest->CoupledSurfaceList()).begin(); 
-             kDev_coupled != (surf_closest->CoupledDeviceList()).end(); 
+             kSurf_coupled = (surf_closest->CoupledSurfaceList()).begin();
+             kDev_coupled != (surf_closest->CoupledDeviceList()).end();
              ++kDev_coupled, ++kSurf_coupled)
         {
           if (Verbosity()>=4) cout<<"     coupling to dev,copy,surf= "
@@ -323,11 +330,11 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 
 		  // deal with kEps problem in sphere and parabolid
           PndDrcPhoton ph1(ph);
-		  //if (! (*kSurf_coupled)->isFlat()) 
+		  //if (! (*kSurf_coupled)->isFlat())
 		  // taken out 27.02.08 after problems in test_barrel1
           {
             ph1.SetPosition(ph.Position()-ph.Direction()*0.1);
-            if (Verbosity()>=4) 
+            if (Verbosity()>=4)
             {
               cout<<"     bring back from "
                   <<ph.Position()<<" to "
@@ -338,14 +345,14 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 		  //(*kSurf_coupled)->setVerbosity(5);//###
           bool hit = (*kSurf_coupled)->SurfaceHit(ph1,pos_new,path_length);
 
-          if (Verbosity()>=4) 
+          if (Verbosity()>=4)
           {
             cout<<"     hit="<<hit<<" with "<<(*kSurf_coupled)->Name()<<endl;
             cout<<"     x,px = "<<ph.Position().X()<<" "<<ph.Direction().X()<<endl;
             cout<<"     y,py = "<<ph.Position().Y()<<" "<<ph.Direction().Y()<<endl;
             cout<<"     z,pz = "<<ph.Position().Z()<<" "<<ph.Direction().Z()<<endl;
           }
-          
+
 
           if (hit)
           {
@@ -353,16 +360,16 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
             XYZVector norm = (*kSurf_coupled)->Normal(ph.Position());
             if (&((*kSurf_coupled)->Reflectivity())) // Reflectivity defined
             {
-              if (Verbosity()>=4) 
+              if (Verbosity()>=4)
                 cout<<"     PndDrcOptVol::reflectivity2a clause"<<endl;
 			  // check reflectivity
               Drc::Reflectivity refl = Drc::ReflReflected;
               refl = (*kSurf_coupled)->Reflectivity().Reflectivity(ph,norm);
-		      
-		      
+
+
               if (refl == Drc::ReflAbsorbed)
               {
-                if (Verbosity()>=4) 
+                if (Verbosity()>=4)
                   cout<<"     PndDrcOptVol::propagate: mirror absorbed"<<endl;
                 ph.SetFate(Drc::kPhotAbsorbed);
                 return;
@@ -381,11 +388,11 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
               }
 
             }
-		      
+
 
 		      // bring photon inside coupled volume
 		      // to prevent infinite recursion of coupled surface hits.
-		      // The factor 2 comes from comparisons with same kEps in 
+		      // The factor 2 comes from comparisons with same kEps in
 		      // surfaceHit.
 
             PndDrcOptMatAbs* opt_mat = &((*kDev_coupled)->OptMaterial());
@@ -397,8 +404,11 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
               double n2 = opt_mat->RefIndex(ph.Wavelength());
               double ex2 = opt_mat->Extinction(ph.Wavelength());
 //               cout << "VOLCHECK: " << n1 << " " << ex1 << " " << n2 << " " << ex2 << endl;
-              
+
               bool iref = ph.Refract(surf_closest->Normal(ph.Position()), n1, ex1, n2, ex2 );
+
+              if( surf_closest->Name() == "slab_side1" && !iref )
+                cout << "wrong" << endl;
 
               if (Verbosity()>=4) cout<<" refract in new volume flag = "
                     <<iref<<endl;
@@ -423,9 +433,9 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
             if (ph.Fate() != Drc::kPhotFlying) break;
           }
         }
-      }	  
+      }
       if (ph.Fate() != Drc::kPhotFlying) break; // while loop
-    } // if surf_closest... 
+    } // if surf_closest...
   } // while
 
 
@@ -434,10 +444,7 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 
 
   if (ph.Fate() == Drc::kPhotMeasured)
-  {
     PositionCorrection(ph);
-  }
-
 }
 //----------------------------------------------------------------------
 void PndDrcOptVol::PositionCorrection(PndDrcPhoton& ph)

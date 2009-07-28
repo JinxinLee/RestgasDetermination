@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
   double pi=3.1415926535;
 
   PndDrcOptReflPerfect refl_perfect;
-  PndDrcOptReflNone    refl_none;
+  PndDrcOptReflNone    refl_none; // absorbed
 
   double slab_width  = 17;
   double slab_height = 35;
@@ -167,7 +167,7 @@ int main(int argc, char *argv[])
 //   cout << endl;
 
 
-  double lensBase = 5; // roughly measured lens thickness: 7.5 ; old: 5
+  double lensBase = 7.5; // roughly measured lens thickness: 7.5 ; old: 5
   cout << "lens thickness should be greater than: |" << lens_sphere.LimitingPoint(0).Z() << "|" << " and is currently " << lensBase << " mm" << endl;
 
   q0+=XYZVector(0,0,-lensBase);
@@ -217,10 +217,12 @@ int main(int argc, char *argv[])
 //     cout << lens_sphere.LimitingPoint(3) << endl << endl;
 
 
-//   lens_side1.SetReflectivity(refl_none);
-//   lens_side2.SetReflectivity(refl_none);
-//   lens_side3.SetReflectivity(refl_none);
-//   lens_side4.SetReflectivity(refl_none);
+  lens_side1.SetReflectivity(refl_none);
+  lens_side2.SetReflectivity(refl_none);
+  lens_side3.SetReflectivity(refl_none);
+  lens_side4.SetReflectivity(refl_none);
+//   lens_base.SetReflectivity(refl_none);
+  lens_sphere.SetReflectivity(refl_none);
 
 
   PndDrcOptVol lens;
@@ -386,12 +388,12 @@ int main(int argc, char *argv[])
   slab_side6.AddPoint(t7);
   slab_side6.SetName("slab_side6");
 
-  //slab_side1.SetReflectivity(refl_perfect);
-  //slab_side2.SetReflectivity(refl_perfect);
-  //slab_side3.SetReflectivity(refl_perfect);
-  //slab_side4.SetReflectivity(refl_perfect);
-  //slab_side5.SetReflectivity(refl_perfect);
-  //slab_side6.SetReflectivity(refl_perfect);
+//   slab_side1.SetReflectivity(refl_none);
+//   slab_side2.SetReflectivity(refl_perfect);
+//   slab_side3.SetReflectivity(refl_perfect);
+//   slab_side4.SetReflectivity(refl_perfect);
+//   slab_side5.SetReflectivity(refl_perfect);
+//   slab_side6.SetReflectivity(refl_perfect);
 
   PndDrcOptVol slab;
   //slab.SetVerbosity(5);
@@ -594,6 +596,7 @@ int main(int argc, char *argv[])
   smallBox_side6.SetReflectivity(refl_none);
   smallBox_side6.SetName("smallBox_side6");
 
+//   smallBox_lens_sphere.SetReflectivity(refl_none);
 
   PndDrcOptVol smallBox;
   smallBox.SetVerbosity(0);
@@ -636,11 +639,11 @@ int main(int argc, char *argv[])
 //     opt_system.CoupleDevice("slab","box","slab_side1","box_side1");
 
   opt_system.CoupleDevice("slab","lens","slab_side1", "lens_base");
-  opt_system.CoupleDevice("lens","smallBox","lens_side1","smallBox_lens_side1");
-  opt_system.CoupleDevice("lens","smallBox","lens_side2","smallBox_lens_side2");
-  opt_system.CoupleDevice("lens","smallBox","lens_side3","smallBox_lens_side3");
-  opt_system.CoupleDevice("lens","smallBox","lens_side4","smallBox_lens_side4");
-  opt_system.CoupleDevice("lens","smallBox","lens_sphere","smallBox_lens_sphere");
+//   opt_system.CoupleDevice("lens","smallBox","lens_side1","smallBox_lens_side1");
+//   opt_system.CoupleDevice("lens","smallBox","lens_side2","smallBox_lens_side2");
+//   opt_system.CoupleDevice("lens","smallBox","lens_side3","smallBox_lens_side3");
+//   opt_system.CoupleDevice("lens","smallBox","lens_side4","smallBox_lens_side4");
+//   opt_system.CoupleDevice("lens","smallBox","lens_sphere","smallBox_lens_sphere");
   opt_system.CoupleDevice("smallBox","box","smallBox_side5","box_side1");
 
 
@@ -766,7 +769,7 @@ int main(int argc, char *argv[])
     // hit pos. on bar (slab_width / 2, Y, -500) is now independent of the incidence angle
     double startX = 20;
     double startY = 0;
-    double startZ = -300; // -500
+    double startZ = -500; // -500
 
     double stepsToBar = (startX - slab_width / 2);
     startZ = startZ - stepsToBar * dirZ;
@@ -838,21 +841,21 @@ int main(int argc, char *argv[])
 
     // draw chosen photons (for Geo)
     //==========================================================================================
-    list_photon = manager->PhotonList();
-    list<PndDrcPhoton>::iterator iph;
-
-    int icnt=0;
-
-    for(iph=list_photon.begin(); iph != list_photon.end(); ++iph)
-    {
-      icnt++;
-
-      if( icnt == 45 )
-        (*iph).SetPrintFlag(true);
-      else
-        (*iph).SetPrintFlag(false);
-    }
-    manager->SetPhotonList(list_photon,"slab","opt_system",0,0);
+//     list_photon = manager->PhotonList();
+//     list<PndDrcPhoton>::iterator iph;
+//
+//     int icnt=0;
+//
+//     for(iph=list_photon.begin(); iph != list_photon.end(); ++iph)
+//     {
+//       icnt++;
+//
+//       if( icnt == 28 )
+//         (*iph).SetPrintFlag(true);
+//       else
+//         (*iph).SetPrintFlag(false);
+//     }
+//     manager->SetPhotonList(list_photon,"slab","opt_system",0,0);
 
   }
   if (ioption==4)
@@ -1023,7 +1026,7 @@ int main(int argc, char *argv[])
   {
     n_iph++;
 
-    if ((*iph).Fate()==Drc::kPhotMeasured)
+    if ((*iph).Fate()==Drc::kPhotAbsorbed)//Measured
     {
       icnt_measured++;
 

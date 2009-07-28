@@ -1,7 +1,7 @@
 // ----------------------------------------------------
 // This file belongs to the ray tracing framework
 // for the use with Cherenkov detectors
-// 
+//
 // created 2007
 //-----------------------------------------------------
 #include "PndDrcOptDevManager.h"
@@ -104,22 +104,22 @@ void PndDrcOptDevManager::Copy(const PndDrcOptDevManager& m)
 {
   cerr<<" *** PndDrcOptDevManager::copy() may not be called."<<endl;
   cerr<<"                                 this is a single instanton!"<<endl;
-  exit(EXIT_FAILURE);  
+  exit(EXIT_FAILURE);
 }
 //----------------------------------------------------------------------
 PndDrcOptDevManager::~PndDrcOptDevManager()
 {
   list<PndDrcOptDevSys*>::const_iterator kSys;
 
-  for(kSys=fListDevSys.begin(); kSys != fListDevSys.end(); ++kSys) 
+  for(kSys=fListDevSys.begin(); kSys != fListDevSys.end(); ++kSys)
     {
       delete (*kSys);
    }
 }
 //----------------------------------------------------------------------
 PndDrcOptDev* PndDrcOptDevManager::Device(string s,
-					  string sys, 
-					  int    icopy, 
+					  string sys,
+					  int    icopy,
 					  int    isys_copy)
 {
   string     str = s + "_" + itoa(icopy,6) + sys + "_" + itoa(isys_copy,6);
@@ -138,9 +138,9 @@ PndDrcOptDev* PndDrcOptDevManager::Device(string s,
 	  for (idev= fMapDev.begin(); idev!= fMapDev.end(); idev++)
 	    {
 	      cerr<<(*idev).first<<endl;
-	      
+
 	    }
-	  
+
 	  exit(EXIT_FAILURE);
     }
   return dev;
@@ -152,28 +152,28 @@ PndDrcOptDev* PndDrcOptDevManager::Device(string s,
   *tmp = sys;
   fListDevSys.push_back(tmp);
 
-  
+
   // add for fast finding of devices per name the combined name and copy number to
   // a map;
 
   list<PndDrcOptDev*>::const_iterator kDev;
   list<string>::const_iterator        kSys;
   list<int>::const_iterator           kSys_copy;
-  
-  
+
+
   for (kDev        = tmp->DeviceList().begin(),
 	kSys      = tmp->ListSysOri().begin(),
 	kSys_copy = tmp->ListSysOriCopy().begin();
-      kDev != tmp->DeviceList().end(); 
+      kDev != tmp->DeviceList().end();
       ++kDev,
 	++kSys,
-	++kSys_copy) 
+	++kSys_copy)
     {
-      
+
       string str = (*kDev)->Name() + "_" + itoa((*kDev)->CopyNumber(),6)
 	+ (*kSys) + "_" + itoa((*kSys_copy),6);
-      
-      
+
+
       pair<string,PndDrcOptDev*> p(str,(*kDev));
       pair< map<string,PndDrcOptDev*>::iterator, bool > idev1 = fMapDev.insert(p);
 
@@ -190,7 +190,7 @@ PndDrcOptDev* PndDrcOptDevManager::Device(string s,
 	  //cout<<" inserted "<<str<<endl;//###
 	}
     }
-  
+
 
 
 }
@@ -210,14 +210,14 @@ void PndDrcOptDevManager::coupleDevice(string dev1,    string dev2,
   if (d1 && d2)
     {
       list<PndDrcSurfAbs*>::const_iterator isurf;
-      for(isurf=(d1->surfaceList()).begin(); 
-	  isurf != (d1->surfaceList()).end(); ++isurf) 
+      for(isurf=(d1->surfaceList()).begin();
+	  isurf != (d1->surfaceList()).end(); ++isurf)
 	{
-	  if ((*isurf)->name()== surf1) s1=(*isurf); 
+	  if ((*isurf)->name()== surf1) s1=(*isurf);
 	}
-      for(isurf=d2->surfaceList().begin(); isurf != d2->surfaceList().end(); ++isurf) 
+      for(isurf=d2->surfaceList().begin(); isurf != d2->surfaceList().end(); ++isurf)
 	{
-	  if ((*isurf)->name()== surf2) s2=(*isurf); 
+	  if ((*isurf)->name()== surf2) s2=(*isurf);
 	}
       if (s1 && s2)
 	{
@@ -252,13 +252,13 @@ void PndDrcOptDevManager::Print(fstream& stream) const
       if (fVerbosity>=3) cout<<" PndDrcOptDevManager::print: set print flag for "
 			      <<(*kSys)->Name()<<" "<<(*kSys)->CopyNumber()<<endl;
       (*kSys)->Print(stream);
-    } 
+    }
 }
 //----------------------------------------------------------------------
-bool PndDrcOptDevManager::Intersect(const XYZPoint&  pos, 
+bool PndDrcOptDevManager::Intersect(const XYZPoint&  pos,
 				    const XYZVector& dir,
-				    list<XYZPoint>&  p_in, 
-				    list<XYZPoint>&  p_out, 
+				    list<XYZPoint>&  p_in,
+				    list<XYZPoint>&  p_out,
 				    list<string>&    vol_name,
 				    list<string>&    sys_name,
 				    list<int>&       vol_copy,
@@ -284,7 +284,7 @@ bool PndDrcOptDevManager::Intersect(const XYZPoint&  pos,
   list< pair<string,int> >        vol_list;
   list< pair<string,int> >        sys_ori_list;
 
-  
+
 
 
   //HitMapType::iterator    hit_map_iter;
@@ -293,7 +293,7 @@ bool PndDrcOptDevManager::Intersect(const XYZPoint&  pos,
   list< pair<XYZPoint,XYZPoint> >::iterator hit_list_iter;
   list< pair<string,int> >::iterator        vol_list_iter;
   list< pair<string,int> >::iterator        sys_ori_list_iter;
-  
+
 
 
 
@@ -304,14 +304,14 @@ bool PndDrcOptDevManager::Intersect(const XYZPoint&  pos,
 
   list<string>::const_iterator           kSys_ori;
   list<int>::const_iterator              kSys_ori_copy;
-  
+
   double path_length;
   bool   hit;
-  
+
   pair<XYZPoint,XYZPoint> hit_pair;
 
   if (fVerbosity>=3) cout<<" PndDrcOptDevManager::intersect: start loop ------------------"<<endl;
-  
+
   for (kSys=fListDevSys.begin(); kSys != fListDevSys.end(); ++kSys)
     {
       PndDrcOptDevSys* sys = (*kSys);
@@ -320,8 +320,8 @@ bool PndDrcOptDevManager::Intersect(const XYZPoint&  pos,
 			      <<sys->Name()<<" "<<sys->CopyNumber()<<endl;
       for (kDev=list_dev.begin(),
 	     kSys_ori=sys->ListSysOri().begin(),
-	     kSys_ori_copy=sys->ListSysOriCopy().begin(); 
-	   kDev != list_dev.end(); 
+	     kSys_ori_copy=sys->ListSysOriCopy().begin();
+	   kDev != list_dev.end();
 	   kDev++,
 	     kSys_ori++,
 	     kSys_ori_copy++)
@@ -340,7 +340,7 @@ bool PndDrcOptDevManager::Intersect(const XYZPoint&  pos,
 
 
 	      //########################
-		  
+
 
 	      PndDrcOptDev* dev = (*kDev);
 	      if (fVerbosity>=3) cout<<" PndDrcOptDevManager::intersect: check device "
@@ -377,15 +377,15 @@ bool PndDrcOptDevManager::Intersect(const XYZPoint&  pos,
 		      if (fVerbosity>=3) cout<<" PndDrcOptDevManager::intersect: hit# "<<hit<<endl;
 		      ph.SetPosition(pos_new+ph.Direction()*2*kEps); // bring it in.
 		      ihit++;
-		      if (ihit%2 == 1) 
+		      if (ihit%2 == 1)
 			{
 			  hit_pair.first  = pos_new;
 			}
-		      else if (ihit%2 == 0) 
+		      else if (ihit%2 == 0)
 			{
 			  hit_pair.second = pos_new;
 
-	
+
 			  //hit_map.insert( HitValuePair(path_length,hit_pair) );
 			  hit_list.push_back(hit_pair);
 			  pair<string,int> vol_pair;
@@ -393,7 +393,7 @@ bool PndDrcOptDevManager::Intersect(const XYZPoint&  pos,
 			  vol_pair.second = dev->CopyNumber();
 			  //vol_map.insert( VolValuePair(path_length,vol_pair) );
 			  vol_list.push_back(vol_pair);
-			  if (fVerbosity>=3) 
+			  if (fVerbosity>=3)
 			    {
 			      cout<<" PndDrcOptDevManager::intersect: hit pair"
 				  <<" added "
@@ -403,18 +403,18 @@ bool PndDrcOptDevManager::Intersect(const XYZPoint&  pos,
 			      cout<<" PndDrcOptDevManager::intersect: size of vol_map "
 				  <<vol_list.size()<<endl;
 			    }
-			  
+
 			  pair<string,int> sys_ori_pair;
 			  sys_ori_pair.first  = (*kSys_ori);
 			  sys_ori_pair.second = (*kSys_ori_copy);
 			  //sys_ori_map.insert(SysOriValuePair(path_length,sys_ori_pair));
 			  sys_ori_list.push_back(sys_ori_pair);
-			}	      
+			}
 		    }
 		}
 	    }
-	} 
-    } 
+	}
+    }
 
 
   if (fVerbosity>=3) cout<<" PndDrcOptDevManager::intersect: stop loop ------------------"<<endl;
@@ -441,18 +441,18 @@ bool PndDrcOptDevManager::Intersect(const XYZPoint&  pos,
 
       for (vol_list_iter=vol_list.begin(),
 	     hit_list_iter=hit_list.begin(),
-	     sys_ori_list_iter=sys_ori_list.begin(); 
+	     sys_ori_list_iter=sys_ori_list.begin();
 
-	   vol_list_iter != vol_list.end(); 
+	   vol_list_iter != vol_list.end();
 
-	   ++ vol_list_iter, 
+	   ++ vol_list_iter,
 	     ++ hit_list_iter,
 	     ++ sys_ori_list_iter)
 	{
 	  pair<XYZPoint,XYZPoint> r = (*hit_list_iter);//.second;
 	  pair<string,int> v = (*vol_list_iter);//.second;
 	  pair<string,int> s = (*sys_ori_list_iter);//.second;
-	  
+
 	  if ((r.first-r.second).Mag2() > 1.0e-18) // no flat devices.
 	    {
 
@@ -471,19 +471,19 @@ bool PndDrcOptDevManager::Intersect(const XYZPoint&  pos,
 	    {
 	      if (fVerbosity>=3) cout<<" PndDrcOptDevManager::intersect: did not add "
 				      <<v.first<<endl;
-	      
+
 	    }
-	  
+
 	}
-      
+
       return (p_in.size() >0) ? true : false;
     }
-  
+
   return false;
 }
 //----------------------------------------------------------------------
-bool PndDrcOptDevManager::Cerenkov(const XYZPoint& pos, const XYZVector& dir, 
-				double beta, int n, double range, 
+bool PndDrcOptDevManager::Cerenkov(const XYZPoint& pos, const XYZVector& dir,
+				double beta, int n, double range,
 				   double nu1, double nu2,
 				   int refl_limit)
 {
@@ -495,7 +495,7 @@ bool PndDrcOptDevManager::Cerenkov(const XYZPoint& pos, const XYZVector& dir,
   list<string>   sys_name_list;
   list<int>      sys_copy_list;
 
-  
+
   if(Intersect(pos,dir,
 	       p_in_list,p_out_list,
 	       vol_name_list,sys_name_list,
@@ -507,7 +507,7 @@ bool PndDrcOptDevManager::Cerenkov(const XYZPoint& pos, const XYZVector& dir,
       list<int>::const_iterator      kit_vol_copy;
       list<string>::const_iterator   kit_sys_name;
       list<int>::const_iterator      kit_sys_copy;
-	  
+
       bool result = false;
 
       for (kit_p_in = p_in_list.begin(),
@@ -530,17 +530,17 @@ bool PndDrcOptDevManager::Cerenkov(const XYZPoint& pos, const XYZVector& dir,
 	  int    vol_copy = (*kit_vol_copy);
 	  string sys_name = (*kit_sys_name);
 	  int    sys_copy = (*kit_sys_copy);
-	  
+
 
 	  //cout<<" r1= "<<r1.X()<<" "<<r1.Y()<<" "<<r1.Z()<<endl;//###
 	  //cout<<" r2= "<<r2.X()<<" "<<r2.Y()<<" "<<r2.Z()<<endl;//###
 	  if (fVerbosity>=3) cout<<" PndDrcOptDevManager::cerenkov: vol "<<vol_name<<endl;
 
 	  if (Cerenkov(vol_name,sys_name,vol_copy,sys_copy,r1,r2,beta,n,nu1,nu2,refl_limit)) result = true;
-	  
+
 
 	}
-      
+
       return result;
     }
 
@@ -548,8 +548,8 @@ bool PndDrcOptDevManager::Cerenkov(const XYZPoint& pos, const XYZVector& dir,
 }
 //----------------------------------------------------------------------
 bool PndDrcOptDevManager::Cerenkov(const string& vol_name, const string& sys_name,
-				   int vol_copy, int sys_copy, 
-				   const XYZPoint& r1, const XYZPoint& r2, 
+				   int vol_copy, int sys_copy,
+				   const XYZPoint& r1, const XYZPoint& r2,
 				   double beta, int inum, double lam1, double lam2,int refl_limit)
 {
   static bool first=true;
@@ -571,13 +571,13 @@ bool PndDrcOptDevManager::Cerenkov(const string& vol_name, const string& sys_nam
       double kk   = 370;           // cm-1 eV-1, PRD 50 (1994) 1261
       double c    = 2.99792458e10; // cm/s
       double hbar = 6.5821220e-16; // eV s
-      
+
       double nu1  = c/(lam1*1.0e-7); // s-1 lower end of visible spectrum
       double nu2  = c/(lam2*1.0e-7); // s-1 upper end
-  
+
       fn0 = kk*(hbar*2*kPi)*(nu1-nu2); // cm-1
-      fn0 *= 0.1;                     // mm-1 
-      if (fVerbosity>=3) 
+      fn0 *= 0.1;                     // mm-1
+      if (fVerbosity>=3)
 	{
 	  cout<<" N0 = "<<fn0<<" mm-1"
 	      <<" for nu1,nu2 = "<<lam1<<"-"<<lam2<<endl;
@@ -587,7 +587,7 @@ bool PndDrcOptDevManager::Cerenkov(const string& vol_name, const string& sys_nam
 
 
 
-  if (beta>1.001) 
+  if (beta>1.001)
     {
       cerr<<"*   : PndDrcOptDevManager::cerenkov: beta="<<beta<<endl;
       cerr<<"      reset beta=0.9999"<<endl;
@@ -602,7 +602,7 @@ bool PndDrcOptDevManager::Cerenkov(const string& vol_name, const string& sys_nam
   double ref_index = dev->OptMaterial().RefIndex(nu_mean);
   double costh = 1.0/(ref_index*beta);
   if (costh>1) return 0; // particle too slow
-  
+
 
   //cout<<"inum="<<fn0<<" "<<(r1-r2).Mag()<<" "<<(1-costh*costh)<<endl;//###
 
@@ -630,7 +630,7 @@ bool PndDrcOptDevManager::Cerenkov(const string& vol_name, const string& sys_nam
     {
       do
 	{
-	  // sample a lambda distribution with a 1/lambda^2 shape. 
+	  // sample a lambda distribution with a 1/lambda^2 shape.
 	  x1     = 1.0/lam2;               // inv. lambda start at x1
 	  x2     = 1.0/lam1;               // inv. lambda end at x2
 	  x      = fRan.Uniform(x1,x2);  // inv. lambda random range
@@ -638,12 +638,12 @@ bool PndDrcOptDevManager::Cerenkov(const string& vol_name, const string& sys_nam
 	  //cout<<" x,lambda="<<x<<" "<<lambda<<endl;//###
 	  double n = dev->OptMaterial().RefIndex(lambda);
 	  costh = 1.0L/(beta*n);
-	} while (costh>1); 
+	} while (costh>1);
 
       diff = r2 - r1;
       r    = r1 + fRan.Uniform(1.0)*diff;
       beta_ph   = diff.Unit();      // velocity vector with length 1
-      dphi      = fRan.Uniform(0,2*kPi); 
+      dphi      = fRan.Uniform(0,2*kPi);
 
 
       //cout<<dphi<<endl;//###
@@ -663,20 +663,20 @@ bool PndDrcOptDevManager::Cerenkov(const string& vol_name, const string& sys_nam
       fListPhoton.push_back(ph);
 
     }
-     
+
   return true;
 
 }
 //----------------------------------------------------------------------
 void PndDrcOptDevManager::SetPhotonList(list<PndDrcPhoton>& photon_list,
-					string vol_name, string sys_name, 
+					string vol_name, string sys_name,
 					int ivol_copy, int isys_copy)
 {
   fListPhoton = photon_list;
 
   // find the internal device pointer
   PndDrcOptDev* dev=Device(vol_name,sys_name,ivol_copy,isys_copy);
-  
+
   list<PndDrcPhoton>::iterator iph;
   for (iph = fListPhoton.begin(); iph != fListPhoton.end(); ++iph)
   {
@@ -694,12 +694,12 @@ void PndDrcOptDevManager::Propagate()
   for (iph = fListPhoton.begin(); iph != fListPhoton.end(); ++iph)
     {
       counter_phot++;
-      if( counter_phot == 1000 * counter_step + 1 )
+      if( counter_phot == 100 * counter_step + 1 ) // normally use factor 1000
       {
           counter_step++;
           cout << "photon #" << counter_phot << " of " << photonTotal << endl;
       }
-      
+
       PndDrcOptDev* dev = (*iph).Device();
       dev->Propagate((*iph));
     }
