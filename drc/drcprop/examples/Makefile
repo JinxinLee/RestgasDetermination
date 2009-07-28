@@ -5,8 +5,7 @@
 
 # set a global environment variable MYROOT to use also the standard root installation on your private machine
 # tested with Gentoo gcc-4.3.2 root-5.22
-LOCAL = $(MYROOT)
-ifdef LOCAL
+ifneq ($(MYROOT),)
 	INCLFLAGS  = -I $(ROOTSYS)/include/root -I ../
 	LDLIBS     = $(shell root-config --glibs) -lGenVector
 else # std. root-installation at GSI
