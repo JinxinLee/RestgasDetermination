@@ -1,33 +1,55 @@
 #include "TFile.h"
 #include "TTree.h"
-#include "TMath.h"
 #include "TVector3.h"
 #include "PndTpcCluster.h"
-#include "PndTpcPoint.h"
 #include "TClonesArray.h"
-#include "TH3D.h"
 #include "TH2D.h"
 #include "TCanvas.h"
 #include "TString.h"
 #include "TVectorD.h"
+#include "TApplication.h"
+#include "TROOT.h"
+#include "TSystem.h"
+#include "TStyle.h"
+#include "TH2D.h"
+#include "TBox.h"
 
 #include <cmath>
 #include <vector>
 #include <map>
 #include <string>
+#include <cstdlib>
 
 #include "Hough2DNode.h"
 
 
-int main() {
+int main(int argc, char** argv) {
 
+  extern char *optarg;
+  int c;
+  
+  int TREE_DEPTH = 6;  //number of space divisions
+  int THRESHOLD = 40;
+ 
+
+  while ((c = getopt(argc, argv, "t:d:")) != -1)
+    switch (c) {
+    case 't':
+      THRESHOLD = atoi(optarg);
+      break;
+    case 'd':
+      TREE_DEPTH = atoi(optarg);
+      break;
+    }
+
+
+  TApplication* app = new TApplication("blub", NULL, NULL);
+
+  
 
 
   //READ data and CREATE histograms and data containers ---------------------
 
-  int TREE_DEPTH = 8;  //number of space divisions
-  int THRESHOLD = 45;
- 
 
   bool CUT_CHAMBER=true;   //only collect hits with x>0;
     
@@ -62,7 +84,6 @@ int main() {
   double r, phi, z, x_R, y_R, z_R;
 
   //list of riemann points
-  std::vector<TVector3> riemannList;
   std::vector<TVector3> riemannListRZ;
   
 
@@ -72,6 +93,9 @@ int main() {
   double t_Min = -5.;
   double phi_Min = 0;
   double phi_Max = 180;
+
+  int BIN_m = 500;
+  int BIN_t = 500;
   
 
   //RIEMANN TRAFO ON CLUSTERS -----------------------------------------------
@@ -93,6 +117,32 @@ int main() {
     
     //     riemannList.push_back(TVector3(x_R,y_R,z_R));
   }
+
+
+  // PLOT RZ Hough Histogram ----------------------------------------------
+  
+  TH2D* houghRZ = new TH2D("vfg", "RZ hough space", 
+			   BIN_m, m_Min, m_Max, BIN_t, t_Min, t_Max);
+
+  double tBinWidth = (t_Max - t_Min)/BIN_t;
+  
+  for(unsigned int rp=0; rp<riemannListRZ.size(); ++rp) {
+    
+    TVector3 pointRZ = riemannListRZ[rp];
+    double perp = pointRZ.X();
+    double z = pointRZ.Z();
+            
+    for(unsigned int t=0; t<BIN_t; ++t) {
+      
+      double T = (t+0.5)*tBinWidth + t_Min;
+      double M = (T-z) / (perp*(-1.));
+      houghRZ->Fill(M,T);
+    }
+  }
+
+  
+
+
   
   
   // FAST HOUGH SEARCH -----------------------------------------------------
@@ -156,9 +206,9 @@ int main() {
   //int counter = 0;
   while(parent_list.size()>0) {
     Hough2DNode* the_node = parent_list[0];
-    std::cout<<"Starting with mother:"<<std::endl;
-    the_node->print();
-    if(the_node->getLevel() > TREE_DEPTH) {
+    //std::cout<<"Starting with mother:"<<std::endl;
+    //the_node->print();
+    if(the_node->getLevel() >= TREE_DEPTH) {
       solution_list.push_back(the_node);
       parent_list.erase(parent_list.begin());
       continue;
@@ -169,8 +219,8 @@ int main() {
       float m_c = sons[s*2];
       float t_c = sons[s*2+1];
       float center[2] = {m_c, t_c};
-      std::cout<<" . . . creating son at m_c: "<<m_c<<"    t_c: "
-	       <<t_c<<std::endl;
+      //std::cout<<" . . . creating son at m_c: "<<m_c<<"    t_c: "
+      //	       <<t_c<<std::endl;
       parent_list.push_back(new Hough2DNode(center, the_node->getLevel()+1,
 					    points));
       
@@ -213,7 +263,7 @@ int main() {
             
     } //end loop over sons
     //std::cout<<" . . . erasing mother . . . ";
-    (*parent_list.begin())->print();
+    //(*parent_list.begin())->print();
     parent_list.erase(parent_list.begin());
     //std::cout<<"parent_list now: "<<std::endl;
     //for(int p=0; p<parent_list.size(); p++) 
@@ -224,12 +274,39 @@ int main() {
     
   std::cout<<"There have been "<<solution_list.size()
 	   <<" solutions: \n"<<std::endl;
+
+  std::vector<TBox*> boxlist;
+    
   for(int s=0; s<solution_list.size(); s++) {
     (solution_list[s])->print();
+    float* center = (solution_list[s])->getCenter();
+    float length = (solution_list[s])->getSideLength();
+    float x1 = (center[0] - 0.5*length)*(m_Max-m_Min);
+    float x2 = (center[0] + 0.5*length)*(m_Max-m_Min);
+    float y1 = (center[1] - 0.5*length)*(t_Max-t_Min);
+    float y2 = (center[1] + 0.5*length)*(t_Max-t_Min);
+    boxlist.push_back(new TBox(x1,y1,x2,y2));
   }
   
 
   std::cout<<"Side Length of root: "<<root->getSideLength()<<std::endl;
 
+  gStyle->SetPalette(1);
+  
+  TCanvas* canv = new TCanvas();
+  //canv->SetGrayscale();
+  houghRZ->Draw();
+
+
+  for(int b=0; b<boxlist.size(); ++b) {
+    (boxlist[b])->SetLineColor(kPink+10);
+    (boxlist[b])->SetFillStyle(0);
+    (boxlist[b])->Draw("l");
+  }
+
+    
+  gApplication->SetReturnFromRun(true);
+  gSystem->Run();
+  
   
 }
