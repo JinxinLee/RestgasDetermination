@@ -49,6 +49,7 @@ PndGemTrackFinder.cxx
 PndGemTrackFinderIdeal.cxx
 PndGemTrackFinderOnHits.cxx
 PndGemFindTracks.cxx
+PndGemTrackFinderQA.cxx
 PndGemPrepareKalmanTracks.cxx
 PndGemRecoHit.cxx
 PndGemKalmanTask.cxx

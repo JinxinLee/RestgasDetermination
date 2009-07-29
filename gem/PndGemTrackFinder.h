@@ -40,6 +40,10 @@ public:
    **/
   virtual void Init() { };
   
+  /** Virtual method SetParContainers. If needed, to be implemented in the
+   *  concrete class.
+   **/
+  virtual void SetParContainers() { };
   
   /** Abstract method DoFind. To be implemented in the concrete class.
    *  Task: Read the hit/digi array and fill the track array,

@@ -178,7 +178,7 @@ PndGemPrepareKalmanTracks::Exec(Option_t* opt)
 		    mom.Z()*startMomAccuracy.Z());    
     TVector3 u(1.,0.,0.);
     TVector3 v(0.,1.,0.);
-    mom.SetMag(mom.Mag()+0.1);    
+    mom.SetMag(mom.Mag());    
 
     // create track-representation object and initialize with start values
     AbsTrackRep* rep=0;

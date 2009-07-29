@@ -175,7 +175,14 @@ void PndGemMatchHits::Exec(Option_t* opt) {
       matchPoint = iPoint;   
     }
     currentPndGemHit->SetRefIndex(matchPoint);
-  
+    if ( matchPoint != -1 ) {
+      PndGemMCPoint* matchp = (PndGemMCPoint*)fPoints->At(matchPoint);
+      currentPndGemHit->SetBotIndex(matchp->GetTrackID());
+    }
+    else {
+      currentPndGemHit->SetBotIndex(-1);
+    }
+
     nHits++;
     if ( matchPoint != -1 ) nMatchedHits++;
     else nFakeHits++;

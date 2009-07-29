@@ -8,10 +8,8 @@
  *  \date 19.03.2009
  *  \brief OnHits track finding algorithm
  * 
- *  Track finding procedure operates on mc data.
- *  Reads MC truth (MCTracks and MCPoints), creates
- *  one PndTrack for each MCTrack and attaches the hits according
- *	to the MCTrack of the corresponding MCPoint
+ *  Track finding procedure operates on reco hits.
+ *  Reads GEM hits, creates array of PndGemTracks
  **/
 
 
@@ -24,6 +22,18 @@
 #include "PndGemHit.h"
 #include "PndGemTrack.h"
 #include "PndGemTrackFinder.h"
+#include "PndGemDigiPar.h"
+
+#include <vector>
+
+struct TrackSegment {
+  Int_t stationIndex[2];
+  Int_t hitIndex[4];
+  Double_t trackMom;
+  Double_t trackPhi;
+  Double_t trackTheta;
+  Int_t recoTrackIndex;
+};
 
 class PndGemTrackFinderOnHits : public PndGemTrackFinder
 {
@@ -35,9 +45,6 @@ class PndGemTrackFinderOnHits : public PndGemTrackFinder
 
   /** Destructor **/
   virtual ~PndGemTrackFinderOnHits();
-
-  /** Initialisation **/
-  virtual void Init();
 
   /** DoFind method
    * \param hitArray    Array of Gem hits
@@ -53,6 +60,8 @@ class PndGemTrackFinderOnHits : public PndGemTrackFinder
 
   
  private:
+
+  PndGemDigiPar* fDigiPar;
 
   /** Arrays of MC information **/
   TClonesArray* fMCTrackArray;
@@ -86,6 +95,20 @@ class PndGemTrackFinderOnHits : public PndGemTrackFinder
   Int_t fGhostRecoTracks;
   Int_t fCloneRecoTracks;
 
+  std::vector<TrackSegment> fTrackSegments;
+  Int_t FindTrackSegments(TClonesArray* hitArray, Int_t stat1Id, Int_t stat2Id);
+  Int_t MatchTrackSegments();
+  void RemoveCloneTracks(Int_t nofRecoTracks);
+  Int_t CreateTracks(TClonesArray* hitArray, TClonesArray* trackArray, Int_t nofRecoTracks);
+
+  void PrintTrackSegments(TClonesArray* hitArray);
+  void PrintTracks(TClonesArray* hitArray, Int_t nofRecoTracks);
+
+  /** Get parameter containers **/
+  virtual void SetParContainers();
+
+  /** Initialisation **/
+  virtual void Init();
 
   ClassDef(PndGemTrackFinderOnHits,1);
 
