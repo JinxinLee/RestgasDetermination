@@ -48,6 +48,8 @@ SET(SOURCES     ../McId.cxx
                 ../PndTpcDigiAmplitude.cxx
 		../PndTpcCluster.cxx
 		Hough2DNode.cxx
+		Hough5DNode.cxx
+		Hyperplane5D.cxx
 		dataLoader.cc
 		tpcdataDict.cxx
 )
@@ -95,5 +97,6 @@ TARGET_LINK_LIBRARIES(hough tpcdata ${CUDA_RUNTIME_LIBRARIES} ${ROOT_LIBS})
 ADD_EXECUTABLE(fastHoughCPU fastHoughCPU.C)
 TARGET_LINK_LIBRARIES(fastHoughCPU tpcdata ${ROOT_LIBS})
 
-
+ADD_EXECUTABLE(fastHoughCPU_5D fastHoughCPU_5D.C)
+TARGET_LINK_LIBRARIES(fastHoughCPU_5D tpcdata ${ROOT_LIBS})
 

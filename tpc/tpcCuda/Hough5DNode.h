@@ -1,18 +1,18 @@
 // NOTE: requires NORMALIZED root parameter space with side length 1.
 
-#ifndef HOUGH2DNODE_H
-#define HOUGH2DNODE_H
+#ifndef HOUGH5DNODE_H
+#define HOUGH5DNODE_H
 
 
 
-class Hough2DNode {
+class Hough5DNode {
 
   
 public:
 
   // Constructors/Destructors ---------
-  Hough2DNode();
-  Hough2DNode(float* center, int level, int nHyperplanes); 
+  Hough5DNode();
+  Hough5DNode(float* center, int level, int nHyperplanes); 
 
   float* getCenter() {return _center;}
   int getLevel() {return _level;}
@@ -49,3 +49,6 @@ private:
 
 #endif
 
+//--------------------------------------------------------------
+// $Log$
+//--------------------------------------------------------------

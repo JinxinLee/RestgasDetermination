@@ -16,6 +16,7 @@
 
 #include <cmath>
 #include <vector>
+#include <list>
 #include <map>
 #include <string>
 #include <cstdlib>
@@ -48,7 +49,7 @@ int main(int argc, char** argv) {
   
 
 
-  //READ data and CREATE histograms and data containers ---------------------
+  //READ data and CREATE histograms and data containers -----------------
 
 
   bool CUT_CHAMBER=true;   //only collect hits with x>0;
@@ -98,7 +99,7 @@ int main(int argc, char** argv) {
   int BIN_t = 500;
   
 
-  //RIEMANN TRAFO ON CLUSTERS -----------------------------------------------
+  //RIEMANN TRAFO ON CLUSTERS -------------------------------------------
   //loop over clusters
   for(int cl=0; cl<nClusters; ++cl) {
     TVector3 pos = ((PndTpcCluster*)_clusters->At(cl))->pos();
@@ -119,7 +120,7 @@ int main(int argc, char** argv) {
   }
 
 
-  // PLOT RZ Hough Histogram ----------------------------------------------
+  // PLOT RZ Hough Histogram --------------------------------------------
   
   TH2D* houghRZ = new TH2D("vfg", "RZ hough space", 
 			   BIN_m, m_Min, m_Max, BIN_t, t_Min, t_Max);
@@ -141,11 +142,9 @@ int main(int argc, char** argv) {
   }
 
   
-
-
+ 
   
-  
-  // FAST HOUGH SEARCH -----------------------------------------------------
+  // FAST HOUGH SEARCH --------------------------------------------------
 
   unsigned int points = riemannListRZ.size();
 
@@ -154,7 +153,7 @@ int main(int argc, char** argv) {
   float center[2] = {0.f,0.f};
   Hough2DNode* root = new Hough2DNode(center, 0, points); 
 
-  std::vector<Hough2DNode*> parent_list;
+  std::list<Hough2DNode*> parent_list;
   std::vector<Hough2DNode*> solution_list;
   
   for(int i=0; i<points; i++) {
@@ -166,7 +165,7 @@ int main(int argc, char** argv) {
     float* corners = root->getCorners();
     std::map<int,int> signs; //store signs of "g(corner)-corner"
     
-    //brute force (optimize: only calculate g once per m)
+    //optimize: only calculate m t_m once per m;
     for(int k=0; k<4; k++) {
       float m = corners[k*2];
       float t = corners[k*2+1];
@@ -186,7 +185,8 @@ int main(int argc, char** argv) {
   }
 
   std::cout << "\nThere have been "<<root->getVote()
-	    <<" of "<<points<<" hyperplane crossings in root"<<std::endl;
+	    <<" of "<<points<<" hyperplane crossings in root"
+	    <<std::endl;
   if(root->getVote() < THRESHOLD)
     return 0;
   
@@ -198,19 +198,19 @@ int main(int argc, char** argv) {
   //}
 
   
-  // made it through root, begin oct-tree search ------------------
+  // made it through root, begin oct-tree search ------------------------
   
   parent_list.push_back(root);
   std::cout<<"Starting Oct-Tree search ..."<<std::endl;
 
   //int counter = 0;
   while(parent_list.size()>0) {
-    Hough2DNode* the_node = parent_list[0];
+    Hough2DNode* the_node = (*parent_list.begin());
     //std::cout<<"Starting with mother:"<<std::endl;
     //the_node->print();
     if(the_node->getLevel() >= TREE_DEPTH) {
       solution_list.push_back(the_node);
-      parent_list.erase(parent_list.begin());
+      parent_list.pop_front();
       continue;
     }
     float* sons = the_node->getSonArray();
@@ -221,10 +221,11 @@ int main(int argc, char** argv) {
       float center[2] = {m_c, t_c};
       //std::cout<<" . . . creating son at m_c: "<<m_c<<"    t_c: "
       //	       <<t_c<<std::endl;
-      parent_list.push_back(new Hough2DNode(center, the_node->getLevel()+1,
+      parent_list.push_back(new Hough2DNode(center, 
+					    the_node->getLevel()+1,
 					    points));
       
-      Hough2DNode* the_son = parent_list[parent_list.size()-1];
+      Hough2DNode* the_son = parent_list.back();
       //the_son->print();
 
       //now loop over points for this son and do hit check
@@ -232,7 +233,7 @@ int main(int argc, char** argv) {
 	//we don't need to check if mother wasn't hit
 	if(!hitList[i])
 	  continue;
-	
+		
 	float R = (riemannListRZ[i]).X();
 	float Z = (riemannListRZ[i]).Z();
 	
@@ -258,17 +259,19 @@ int main(int argc, char** argv) {
       //       <<std::endl;	
       if(the_son->getVote() < THRESHOLD) {
 	//std::cout<<"Deleting SON from list"<<std::endl;
-	parent_list.erase(parent_list.end()-1);
+	parent_list.pop_back();
       }
             
     } //end loop over sons
     //std::cout<<" . . . erasing mother . . . ";
     //(*parent_list.begin())->print();
-    parent_list.erase(parent_list.begin());
+    parent_list.pop_front();
     //std::cout<<"parent_list now: "<<std::endl;
-    //for(int p=0; p<parent_list.size(); p++) 
-    //  (parent_list[p])->print();
-    //std::cout<<" ------------------------------------------ \n"<<std::endl;
+    //std::list<Hough2DNode*>::iterator it;
+    //for(it = parent_list.begin(); it!=parent_list.end(); it++) 
+    // (*it)->print();
+    //std::cout<<" ------------------------------------------ \n"
+    //     <<std::endl;
    
   }
     
@@ -289,7 +292,8 @@ int main(int argc, char** argv) {
   }
   
 
-  std::cout<<"Side Length of root: "<<root->getSideLength()<<std::endl;
+  std::cout<<"Side Length of root: "<<root->getSideLength()
+	   <<std::endl;
 
   gStyle->SetPalette(1);
   
