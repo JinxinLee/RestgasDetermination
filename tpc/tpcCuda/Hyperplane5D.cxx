@@ -93,13 +93,56 @@ Hyperplane5D::testIntersect(Hough5DNode& node) {
   
   //3D test ----------------------------------------------------
 
+  std::set<float> phiCoords;
+  std::set<float> thetaCoords;
+  std::set<float> cCoords;
+  
+    
+  for(int i=0; i<32; ++i) {
+    phiCoords.insert(corners[i*5]);
+    thetaCoords.insert(corners[i*5+1]);
+    cCoords.insert(corners[i*5+2]);    
+  }
+  
+  //assert(phiCoords.size() == 2 && thetaCoords.size() == 2
+  // && cCoords.size() == 2 );
+  
+  
+  std::set<float>::iterator it = cCoords.begin();
+  float c1 = (*it) * (_maxs[2] - _mins[2]);
+  it++;  
+  float c2 = (*it) * (_maxs[2] - _mins[2]);
+  
+  
+  float phi1 = (*phiCoords.begin()) * (_maxs[0] - _mins[0]) + 90;
+  float phi2 = (*phiCoords.begin()++) * (_maxs[0] - _mins[0]) + 90;
+  float phi_vals[2] = {phi1,phi2};
 
+  float theta1 = (*thetaCoords.begin()) * (_maxs[1] - _mins[1]) +90;
+  float theta2 = (*thetaCoords.begin()++) * (_maxs[1] - _mins[1]) + 90;
+  float theta_vals[2] = {theta1,theta2};
 
-  else {
+  std::map<int,int> signs_3D;
+
+  for(int p=0; p<2; p++)
+    for(int t=0; t<2; t++) {
+      TVector3 n(1.f,0.f,0.f);
+      TVector3 x(_params[0],_params[1],_params[2]);
+      n.SetPhi(phi_vals[p]);
+      n.SetTheta(theta_vals[t]);
+      float c = n*x;
+      signs_3D[(c1-c > 0) - (c1-c < 0)]++;
+      signs_3D[(c2-c > 0) - (c2-c < 0)]++;
+      //std::cout<<"c: "<<c<<"   c1: "<<c1<<"   c2: "<<c2<<std::endl;
+    }
+
+  if (signs_3D.size() == 2 ) {
     node.setHit(_index);
     node.vote();
     return true;
   }
+  else
+    return false;
   
 }
 

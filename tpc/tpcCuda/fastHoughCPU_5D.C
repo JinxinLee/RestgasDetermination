@@ -167,82 +167,58 @@ int main(int argc, char** argv) {
     return 0;
   
     
-//   // made it through root, begin oct-tree search ------------------------
+  // made it through root, begin oct-tree search ------------------------
   
-//   parent_list.push_back(root);
-//   std::cout<<"Starting Oct-Tree search ..."<<std::endl;
+  parent_list.push_back(root);
+  std::cout<<"Starting Oct-Tree search ..."<<std::endl;
 
-//   //int counter = 0;
-//   while(parent_list.size()>0) {
-//     Hough2DNode* the_node = (*parent_list.begin());
-//     //std::cout<<"Starting with mother:"<<std::endl;
-//     //the_node->print();
-//     if(the_node->getLevel() >= TREE_DEPTH) {
-//       solution_list.push_back(the_node);
-//       parent_list.pop_front();
-//       continue;
-//     }
-//     float* sons = the_node->getSonArray();
-//     bool* hitList = the_node->getHitList();
-//     for(int s=0; s<4; s++) {
-//       float m_c = sons[s*2];
-//       float t_c = sons[s*2+1];
-//       float center[2] = {m_c, t_c};
-//       //std::cout<<" . . . creating son at m_c: "<<m_c<<"    t_c: "
-//       //	       <<t_c<<std::endl;
-//       parent_list.push_back(new Hough2DNode(center, 
-// 					    the_node->getLevel()+1,
-// 					    points));
+  //int counter = 0;
+  while(parent_list.size()>0) {
+    Hough5DNode* the_node = (*parent_list.begin());
+    //std::cout<<"Starting with mother:"<<std::endl;
+    //the_node->print();
+    if(the_node->getLevel() >= TREE_DEPTH) {
+      solution_list.push_back(the_node);
+      parent_list.pop_front();
+      continue;
+    }
+    float* sons = the_node->getSonArray();
+    bool* hitList = the_node->getHitList();
+    for(int s=0; s<32; s++) {
       
-//       Hough2DNode* the_son = parent_list.back();
-//       //the_son->print();
+      parent_list.push_back(new Hough5DNode(sons+5*s, 
+					    the_node->getLevel()+1,
+					    points));
+      
+      Hough5DNode* the_son = parent_list.back();
+      //the_son->print();
 
-//       //now loop over points for this son and do hit check
-//       for(int i=0; i<points; i++) {
-// 	//we don't need to check if mother wasn't hit
-// 	if(!hitList[i])
-// 	  continue;
-		
-// 	float R = (riemannListRZ[i]).X();
-// 	float Z = (riemannListRZ[i]).Z();
+      //now loop over points for this son and do hit check
+      for(int i=0; i<points; i++) {
+	//we don't need to check if mother wasn't hit
+	if(!hitList[i])
+	  continue;
+	Hyperplane5D plane =  hyperplanes[i];
+	plane.testIntersect(*the_son);
+      }
 	
-// 	float* corners = the_son->getCorners();
-// 	std::map<int,int> signs; //store signs of "g(corner)-corner"
-	
-// 	//brute force (optimize: only calculate g once per m)
-// 	for(int k=0; k<4; k++) {
-// 	  float m = corners[k*2];
-// 	  float t = corners[k*2+1];
-// 	  //scale m to the real parameter space
-// 	  float t_m = -R*(m*(m_Max-m_Min)) + Z;
-// 	  float diff = t*(t_Max-t_Min) - t_m;
-// 	  int sign = (diff > 0) - (diff < 0);
-// 	  signs[sign]++;      
-// 	}
-// 	if(signs.size() == 2) {
-// 	  the_son->setHit(i);
-// 	  the_son->vote();
-// 	}
-//       }
-//       //std::cout<<"           son got vote of "<<the_son->getVote()
-//       //       <<std::endl;	
-//       if(the_son->getVote() < THRESHOLD) {
-// 	//std::cout<<"Deleting SON from list"<<std::endl;
-// 	parent_list.pop_back();
-//       }
-            
-//     } //end loop over sons
-//     //std::cout<<" . . . erasing mother . . . ";
-//     //(*parent_list.begin())->print();
-//     parent_list.pop_front();
-//     //std::cout<<"parent_list now: "<<std::endl;
-//     //std::list<Hough2DNode*>::iterator it;
-//     //for(it = parent_list.begin(); it!=parent_list.end(); it++) 
-//     // (*it)->print();
-//     //std::cout<<" ------------------------------------------ \n"
-//     //     <<std::endl;
-   
-//   }
+      if(the_son->getVote() < THRESHOLD) {
+	//std::cout<<"Deleting SON from list"<<std::endl;
+	parent_list.pop_back();
+      }
+      
+    } //end loop over sons
+      //std::cout<<" . . . erasing mother . . . ";
+    //(*parent_list.begin())->print();
+    parent_list.pop_front();
+    //std::cout<<"parent_list now: "<<std::endl;
+    //std::list<Hough5DNode*>::iterator it;
+    //for(it = parent_list.begin(); it!=parent_list.end(); it++) 
+    // (*it)->print();
+    //std::cout<<" ------------------------------------------ \n"
+    //     <<std::endl;
+    
+  }
     
   std::cout<<"There have been "<<solution_list.size()
 	   <<" solutions: \n"<<std::endl;
