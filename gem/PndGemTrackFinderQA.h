@@ -15,8 +15,8 @@
 #ifndef PNDGEMTRACKFINDERQA_H
 #define PNDGEMTRACKFINDERQA_H
 
-#include "TH1F.h";
-#include "TH2F.h";
+#include "TH1F.h"
+#include "TH2F.h"
 
 #include "FairMCPoint.h"
 #include "FairTask.h"
