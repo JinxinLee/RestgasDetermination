@@ -23,7 +23,7 @@ void create3StationsGem()
 					    "space",
 					    "Gem3F_copper","Gem3_kapton","Gem3B_copper",
 					    "space",
-					    "PadF_copper","Pad_Sensor_kapton","Pad_copper",
+					    "PadF_copper","Pad_kapton","Pad_copper",
 					    "space",
 					    "Gem4F_copper","Gem4_kapton","Gem4B_copper",
 					    "space",
@@ -100,7 +100,7 @@ void create3StationsGem()
   FairGeoMedium *CbmMediumAluminium = Media->getMedium("aluminium");
   FairGeoMedium *CbmMediumCopper    = Media->getMedium("copper");
   FairGeoMedium *CbmMediumKapton    = Media->getMedium("kapton");
-  FairGeoMedium *CbmMediumArCO2     = Media->getMedium("arco2_91_2atm");
+  FairGeoMedium *CbmMediumArCO2     = Media->getMedium("GEMmixture");
 
   Int_t nmed=geobuild->createMedium(CbmMediumAir);
   nmed=geobuild->createMedium(CbmMediumPWO);
@@ -169,15 +169,11 @@ void create3StationsGem()
 	 << ",  0.0, " << 2 << ", \\" << endl;
     
     DiskShape[istat] = new TGeoTube  (Form("disk%dshape",istat+1),kDiskInnerRadius[istat],kDiskOuterRadius[istat],kHalfStationThickness);
-    DiskVol  [istat] = new TGeoVolume(Form("Gem_Disk%d_Volume",istat+1),DiskShape[istat],gGeoMan->GetMedium("arco2_91_2atm"));
-    //    DiskVol  [istat] = new TGeoVolume(Form("Gem_Disk%d_Volume",istat+1),DiskShape[istat],gGeoMan->GetMedium("air"));
+    DiskVol  [istat] = new TGeoVolume(Form("Gem_Disk%d_Volume",istat+1),DiskShape[istat],gGeoMan->GetMedium("GEMmixture"));
     DiskTrans[istat] = new TGeoTranslation(0.,0.,kDiskZPosition[istat]);
     cout << "station " << kDiskInnerRadius[istat] << " " << kDiskOuterRadius[istat] << " at " << kDiskZPosition[istat] << endl;
-    //    cout << "tutaj" << endl;
     DiskCombi[istat] = new TGeoCombiTrans(*DiskTrans[istat],*dummyrot); 
-    //    cout << "tutaj1" << endl;
     DiskCombi[istat]->SetName(Form("Gem_Disk%d_Volume",istat+1));
-    //    cout << "tutaj2" << endl;
     DiskCombi[istat]->RegisterYourself();
 
     Double_t layerPosition = firstLayerOffset;//-kLayerThick[0]/2.;
