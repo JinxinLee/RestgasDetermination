@@ -192,6 +192,9 @@ void PndGemTrackFinderQA::Exec(Option_t* opt) {
   Int_t nofMCTracks = fMCTrackArray->GetEntriesFast();
   Int_t nofRecoTracks = fGemTrackArray->GetEntriesFast();
 
+  fhNofMCTracksPerEvent  ->Fill(fNofEvents-1,nofMCTracks);
+  fhNofRecoTracksPerEvent->Fill(fNofEvents-1,nofRecoTracks);
+
   PndMCTrack* mcTrack;
   PndGemTrack* gemTrack;
   PndGemHit* gemHit;
@@ -300,9 +303,12 @@ void PndGemTrackFinderQA::Exec(Option_t* opt) {
     fhNofOthTHitsPerRecoTrack->Fill(nofOthTHits);
     fhNofNoTrHitsPerRecoTrack->Fill(nofNoTrHits);
 
-    for ( Int_t irtr2 = irtr+1 ; irtr2 < nofRecoTracks ; irtr2++ ) {
+    for ( Int_t irtr2 = 0 ; irtr2 < nofRecoTracks ; irtr2++ ) {
+      if ( irtr == irtr2 ) continue;
       if ( fRecoTrackMCMatch[irtr2] == fRecoTrackMCMatch[irtr] ) {
+	fhNofHitsPerClone->Fill(gemTrack->GetNofGemHits());
 	nofRecoClones ++;
+	break;
       }
     }
   }
@@ -512,9 +518,11 @@ void PndGemTrackFinderQA::CreateHistos() {
   fhNofHitsPerTrack = new TH1F("hNofHitsPerTrack","nof hits per track;# hits;yield [a.u.]",pntBins,minPnt,maxPnt);
   fhNofHitsPerRecoTrack = new TH1F("hNofHitsPerRecoTrack","nof hits per reco track;# hits;yield [a.u.]",pntBins,minPnt,maxPnt);
   fhNofHitsPerGhost = new TH1F("hNofHitsPerGhost","nof hits per ghost track;# hits;yield [a.u.]",pntBins,minPnt,maxPnt);
+  fhNofHitsPerClone = new TH1F("hNofHitsPerClone","nof hits per clone track;# hits;yield [a.u.]",pntBins,minPnt,maxPnt);
   fHistoList->Add(fhNofHitsPerTrack);
   fHistoList->Add(fhNofHitsPerRecoTrack);
   fHistoList->Add(fhNofHitsPerGhost);
+  fHistoList->Add(fhNofHitsPerClone);
 
   fhNofCorrHitsPerRecoTrack = new TH1F("hNofCorrHitsPerRecoTrack","nof hits with correct MCId per track;# hits;yield [a.u.]",pntBins,minPnt,maxPnt);
   fhNofOthTHitsPerRecoTrack = new TH1F("hNofOthTHitsPerRecoTrack","nof hits with different MCId per track;# hits;yield [a.u.]",pntBins,minPnt,maxPnt);
@@ -522,6 +530,12 @@ void PndGemTrackFinderQA::CreateHistos() {
   fHistoList->Add(fhNofCorrHitsPerRecoTrack);
   fHistoList->Add(fhNofOthTHitsPerRecoTrack);
   fHistoList->Add(fhNofNoTrHitsPerRecoTrack);
+
+
+  fhNofMCTracksPerEvent   = new TH1F("hNofMCTracksPerEvent","nof MC tracks per event;event no;nof mc tracks",100001,-0.5,100000.5);
+  fhNofRecoTracksPerEvent = new TH1F("hNofRecoTracksPerEvent","nof reco tracks per event;event no;nof mc tracks",100001,-0.5,100000.5);
+  fHistoList->Add(fhNofMCTracksPerEvent);
+  fHistoList->Add(fhNofRecoTracksPerEvent);
 }
 // ------------------------------------------------------------
 
@@ -544,8 +558,8 @@ void PndGemTrackFinderQA::Finish() {
   cout << " MC Tracks:     " << setw(10) << fNofMCAll << endl;
   cout << " reconstruable: " << setw(10) << fNofMCAcc  << " reconstructed: " << setw(10) << fNofRecoAcc  << " >>>> " << effAcc  << "%" << endl;
   cout << " primaries    : " << setw(10) << fNofMCPrim << " reconstructed: " << setw(10) << fNofRecoPrim << " >>>> " << effPrim << "%" << endl;
-  cout << " secondaries  : " << setw(10) << fNofMCSec  << " reconstructed: " << setw(10) << fNofRecoSec  << " >>>> " << effSec  << "%" << endl;
   cout << " reference    : " << setw(10) << fNofMCRef  << " reconstructed: " << setw(10) << fNofRecoRef  << " >>>> " << effRef  << "%" << endl;
+  cout << " secondaries  : " << setw(10) << fNofMCSec  << " reconstructed: " << setw(10) << fNofRecoSec  << " >>>> " << effSec  << "%" << endl;
   cout << " ghosts       : " << setw(10) << fNofRecoGhosts << " clones:        " << setw(10) << fNofRecoClones << endl;
   cout << "---------------------------------------------------------------------" << endl; 
 

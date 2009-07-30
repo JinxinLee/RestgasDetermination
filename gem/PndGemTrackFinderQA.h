@@ -112,10 +112,13 @@ class PndGemTrackFinderQA : public FairTask
   TH1F* fhNofHitsPerTrack;
   TH1F* fhNofHitsPerRecoTrack;
   TH1F* fhNofHitsPerGhost;
+  TH1F* fhNofHitsPerClone;
 
   TH1F* fhNofCorrHitsPerRecoTrack;
   TH1F* fhNofOthTHitsPerRecoTrack;
   TH1F* fhNofNoTrHitsPerRecoTrack;
+
+  TH1F* fhNofMCTracksPerEvent, *fhNofRecoTracksPerEvent;
 
   void CreateHistos();
   void PrepareMCTracks();
