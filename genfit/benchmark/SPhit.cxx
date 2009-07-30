@@ -6,7 +6,7 @@
 
 // Collaborating Class Headers --------
 #include "GeaneTrackRep.h"
-#include "TestGeaneTrackRep.h"
+#include "GeaneTrackRepNew.h"
 #include "DetPlane.h"
 #include "TRandom.h"
 
@@ -75,7 +75,7 @@ SPhit::setHMatrix(const AbsTrackRep* stateVector,
     _HMatrix[1][3] = 0.;
     _HMatrix[1][4] = 1.;
  }
- else  if (dynamic_cast<const TestGeaneTrackRep*>(stateVector) != NULL) {
+ else  if (dynamic_cast<const GeaneTrackRepNew*>(stateVector) != NULL) {
     //I know, since this is the same everytime, it could be done in the
     //the constructor, but I do it here anyway, to make clear that in the
     //case of several track-reps per hit, it would have to be done here

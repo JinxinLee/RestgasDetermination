@@ -5,6 +5,7 @@
 #include "FairTask.h"
 #include "TVector3.h"
 #include "FairGeanePro.h"
+#include "FairGeaneProNew.h"
 
 #include "TGraph.h"
 #include "TPolyLine3D.h"
@@ -77,6 +78,7 @@ class SPtestTask : public FairTask
   ClassDef(SPtestTask,1);
   Int_t fEvent;
   FairGeanePro *fPro;
+  FairGeaneProNew *fProNew;
 };
 
 #endif

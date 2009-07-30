@@ -17,6 +17,7 @@
 
 #include "DetPlane.h"
 #include "GeaneTrackRep.h"
+#include "GeaneTrackRepNew.h"
 #include "PndTpcPoint.h"
 #include"FitterExceptions.h"
 
@@ -27,7 +28,7 @@
 
 #include"PndGenfitAdapters.h"
 #include"PndTrack.h"
-
+#include"FairGeaneProNew.h"
 using namespace std;
 
 
@@ -75,6 +76,7 @@ InitStatus SPtestTask::Init() {
   // Create and register output array
 
   fPro = new FairGeanePro();
+  fProNew = new FairGeaneProNew();
 
   return kSUCCESS;
 
@@ -188,11 +190,11 @@ void SPtestTask::Exec(Option_t* opt) {
 	std::cerr << StartMomChanged.Phi()/TMath::Pi()*180. << std::endl;
 	
 
-	AbsTrackRep* rep = new GeaneTrackRep(fPro,
+	AbsTrackRep* rep = new GeaneTrackRepNew(fProNew,
 					     start_plChanged,StartMomChanged,
 					     StartPosErr,StartMomErr,
 					     fCharge,PDGCode);
-	AbsTrackRep* rephits = new GeaneTrackRep(fPro,
+	AbsTrackRep* rephits = new GeaneTrackRepNew(fProNew,
 						 start_pl,StartMom,
 						 StartPosErr,StartMomErr,
 						 fCharge,PDGCode);
@@ -299,12 +301,12 @@ void SPtestTask::Exec(Option_t* opt) {
 	
 	Track *tr = new Track( rep );
 
-	AbsTrackRep* theclone = rep->clone();
-	TMatrixT<double> S = theclone->getState();
-	S[4][0] = S[4][0]+400.;
-	S[0][0] *= -1.;
-	theclone->setState(S);
-	tr->addTrackRep(theclone);
+	//AbsTrackRep* theclone = rep->clone();
+	//TMatrixT<double> S = theclone->getState();
+	//S[4][0] = S[4][0]+400.;
+	//S[0][0] *= -1.;
+	//theclone->setState(S);
+	//tr->addTrackRep(theclone);
 
 	for(int i=0;i<(int)points.size();++i){
 	  AbsRecoHit* aHit;
@@ -332,8 +334,8 @@ void SPtestTask::Exec(Option_t* opt) {
 	}
 	
 	//	exit(1);
-	PndTrack* pndTrk = GenfitTrack2PndTrack(tr);
-	pndTrk->Print();
+	//PndTrack* pndTrk = GenfitTrack2PndTrack(tr);
+	//pndTrk->Print();
 	//	throw;
 	//std::cout << __FILE__ << __LINE__ << std::endl;
 	AbsTrackRep* result =   tr->getCardinalRep();
