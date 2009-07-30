@@ -88,6 +88,8 @@ int main(int argc, char** argv) {
   double t_Min = -5.;
   double phi_Min = 0;
   double phi_Max = 180;
+  double c_Max = 1.;
+  double c_Min = -1.;
 
   int BIN_m = 500;
   int BIN_t = 500;
@@ -223,16 +225,22 @@ int main(int argc, char** argv) {
   std::cout<<"There have been "<<solution_list.size()
 	   <<" solutions: \n"<<std::endl;
 
+
+  TFile* file = new TFile("plots.root");
+  TH2D* phic = (TH2D*)file->Get("phic_80");
+  
+
+
   std::vector<TBox*> boxlist;
     
   for(int s=0; s<solution_list.size(); s++) {
     (solution_list[s])->print();
     float* center = (solution_list[s])->getCenter();
     float length = (solution_list[s])->getSideLength();
-    float x1 = (center[0] - 0.5*length)*(m_Max-m_Min);
-    float x2 = (center[0] + 0.5*length)*(m_Max-m_Min);
-    float y1 = (center[1] - 0.5*length)*(t_Max-t_Min);
-    float y2 = (center[1] + 0.5*length)*(t_Max-t_Min);
+    float x1 = (center[3] - 0.5*length)*(m_Max-m_Min);
+    float x2 = (center[3] + 0.5*length)*(m_Max-m_Min);
+    float y1 = (center[4] - 0.5*length)*(t_Max-t_Min);
+    float y2 = (center[4] + 0.5*length)*(t_Max-t_Min);
     boxlist.push_back(new TBox(x1,y1,x2,y2));
   }
   
@@ -252,6 +260,30 @@ int main(int argc, char** argv) {
     (boxlist[b])->SetFillStyle(0);
     (boxlist[b])->Draw("l");
   }
+
+  TCanvas* canv2 = new TCanvas();
+  phic->Draw("COLZ");
+
+  std::vector<TBox*> boxlist2;
+    
+  for(int s=0; s<solution_list.size(); s++) {
+    //(solution_list[s])->print();
+    float* center = (solution_list[s])->getCenter();
+    float length = (solution_list[s])->getSideLength();
+    float x1 = (center[0] - 0.5*length)*(phi_Max-phi_Min) +90;
+    float x2 = (center[0] + 0.5*length)*(phi_Max-phi_Min) +90;
+    float y1 = (center[2] - 0.5*length)*(c_Max-c_Min);
+    float y2 = (center[2] + 0.5*length)*(c_Max-c_Min);
+    boxlist2.push_back(new TBox(x1,y1,x2,y2));
+    //boxlist.back()->Print();
+  }
+
+  for(int b=0; b<boxlist2.size(); ++b) {
+    (boxlist2[b])->SetLineColor(kPink+10);
+    (boxlist2[b])->SetFillStyle(0);
+    (boxlist2[b])->Draw("l");
+  }
+  
 
     
   gApplication->SetReturnFromRun(true);
