@@ -1,16 +1,21 @@
 #vpath %.h ../
 #vpath %.cxx ../
 #vpath %.h $(ROOTSYS)/include
-
+	
 
 # set a global environment variable MYROOT to use also the standard root installation on your private machine
 # tested with Gentoo gcc-4.3.2 root-5.22
 ifneq ($(MYROOT),)
 	INCLFLAGS  = -I $(ROOTSYS)/include/root -I ../
 	LDLIBS     = $(shell root-config --glibs) -lGenVector
-else # std. root-installation at GSI
+else # std. root-installation at GSI 
+	MYDEBIAN   = $(shell cat /etc/debian_version)
 	INCLFLAGS  = -I $(ROOTSYS)/include -I ../
-	LDLIBS     = $(shell root-config --glibs) -lMathCore
+	ifeq ($(MYDEBIAN),4.0)
+	        LDLIBS  = $(shell root-config --glibs) -lGenVector
+	else
+		LDLIBS	= $(shell root-config --glibs) -lMathCore
+	endif
 endif
 
 
@@ -21,6 +26,7 @@ OBJECTS = $(patsubst ../%.cxx,../%.o,$(wildcard ../*.cxx))
 
 #debugger ddd: compile everything with CFLAGS option -g instead of -O2
 CFLAGS = -O2 -DNDEBUG -Wall
+
 
 
 all:			test_simple_bar test_simple_bar2 test_disk test_sheet test_cylinder \
@@ -201,7 +207,7 @@ mppc.o:			mppc.cc
 .PHONY :        	clean
 
 clean :
-			rm -f $(OBJECTS) test*.o ../*.d.*
+			rm -f $(OBJECTS) *.o ../*.d.*
 
 #print: 			$(SOURCES)
 #			echo $(CFLAGS)
