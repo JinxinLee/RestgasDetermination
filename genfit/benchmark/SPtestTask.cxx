@@ -75,7 +75,7 @@ InitStatus SPtestTask::Init() {
   fPointArray = (TClonesArray*) ioman->GetObject("PndTpcPoint");
   // Create and register output array
 
-  fPro = new FairGeanePro();
+  //fPro = new FairGeanePro();
   fProNew = new FairGeaneProNew();
 
   return kSUCCESS;
@@ -86,9 +86,57 @@ InitStatus SPtestTask::Init() {
 void SPtestTask::setFileName(std::string _fileName){
   fileName = _fileName;
 }
+/*
+void SPtestTask::Exec(Option_t* opt) {
+  
+ TFile *file = TFile::Open("dreggn.root","RECREATE");
+
+ TH1D *h = new TH1D("h","h",500,.03,.04);
 
 
+ for(int i=0;i<1;++i){
+   DetPlane startPl;
+   startPl.setO(TVector3(0.,0.,0.));
+   startPl.setU(TVector3(1.,0.,0.));
+   startPl.setV(TVector3(0.,1.,0.));
+   AbsTrackRep* rep = new GeaneTrackRepNew(fProNew,
+					   startPl,TVector3(2.,0.,2.),
+					   TVector3(1.,1.,1.),
+					   TVector3(0.4,0.4,0.4),
+					   -1,13);
+   std::cout << "event " << i << std::endl;
+   DetPlane endPl;
+   endPl.setO(TVector3(0.,0.,19.));
+   endPl.setU(TVector3(1.,0.,0.));
+   endPl.setV(TVector3(0.,1.,0.));
+   
+   TMatrixT<double> st(5,1);
+   TMatrixT<double> cov(5,5);
+   rep->getState().Print();
 
+   TMatrixT<double> c(5,5);
+   for(int i=0;i<5;++i){
+     c[i][i]=0.01;
+   }
+   rep->setCov(c);
+
+   try{
+     std::cout<<"BEFORE"<<std::endl;
+     rep->extrapolate(endPl,st,cov);
+     std::cout<<"AFTER"<<std::endl;
+   }
+   catch(FitterException e){
+     std::cerr<<e.what()<<std::endl;
+   }
+   cov.Print();
+
+   
+   delete rep;
+ }
+ h->Write();
+ file->Close();
+}
+*/
 // -----   Public method Exec   --------------------------------------------
 void SPtestTask::Exec(Option_t* opt) {
 
@@ -243,6 +291,7 @@ void SPtestTask::Exec(Option_t* opt) {
 	  //rephits->getReferencePlane().Print();
 	  //pos.Print();
 	  //mom.Print();
+
 	  mom.SetMag(1.5);
 	  DetPlane d(pos+mom,mom);
 	  //d.Print();
@@ -275,11 +324,13 @@ void SPtestTask::Exec(Option_t* opt) {
 	      exit(1);
 	    }
 	  }
+	  //d.Print();
+	  //statePred.Print();
 	  rephits->setState(statePred);
 	  rephits->setCov(covPred);
 	  rephits->setReferencePlane(d);
 	  //statePred.Print();
-	  if(i==24 || i==13) posR+=TVector3(2.,2.,2.);
+	  //if(i==24 || i==13) posR+=TVector3(2.,2.,2.);
 	  points.push_back(posR);
 	  //std::cout << "############" << std::endl;
 	  //std::cout << "fffff" << std::endl;
@@ -287,7 +338,7 @@ void SPtestTask::Exec(Option_t* opt) {
 		lastPlane = d;
 	  }
 	}  
-	
+	//throw;
 	DetPlane targetPlane = lastPlane;
 	targetPlane.setO(targetPlane.getO()+targetPlane.getNormal());
 	//lastPlane.Print();
