@@ -34,14 +34,19 @@ PndFieldAdaptor::PndFieldAdaptor(FairField* field)
   : _field(field)
 {}
 
-TVectorT<double> 
-PndFieldAdaptor::get(const TVectorT<double>& pos) const {
+TVector3
+PndFieldAdaptor::get(const TVector3& pos) const {
   assert(_field!=NULL);
+  Double_t x[3];
+  x[0] = pos.X();
+  x[1] = pos.Y();
+  x[2] = pos.Z();
+
   Double_t f[3];
-  _field->GetFieldValue(pos.GetMatrixArray(),f);
+  _field->GetFieldValue(x,f);
   // convert from kG to T
   f[0]*=0.1;
   f[1]*=0.1;
   f[2]*=0.1;
-  return TVectorT<double>(3,f);
+  return TVector3(f[0],f[1],f[2]);
 }

@@ -39,11 +39,11 @@ LSLEQM::eval(const TVectorT<double>&u,
   if(u[2]>200.)Bz=0.;
   if(u[2]>350. && u[2]<450.)By=0.5;
 
-  
+  TVector3 uu(u[0],u[1],u[2]);
   if(_field!=NULL){ 
     //std::cout<<"using fieldmap"<<std::endl;
-    TVectorT<double> B=_field->get(u);
-    Bx=B[0];By=B[1];Bz=B[2];
+    TVector3 B=_field->get(uu);
+    Bx=B.X();By=B.Y();Bz=B.Z();;
   }
   
   //if(uprim[0]!=1.)

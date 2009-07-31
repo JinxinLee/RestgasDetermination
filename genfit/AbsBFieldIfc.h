@@ -10,7 +10,7 @@
 #ifndef ABSBFIELDIFC_H
 #define ABSBFIELDIFC_H
 
-#include "TVectorT.h"
+#include "TVector3.h"
 
 class AbsBFieldIfc {
 public:
@@ -20,7 +20,7 @@ public:
   virtual ~AbsBFieldIfc(){;}
 
   // Accessors -----------------------
-  virtual TVectorT<double> get(const TVectorT<double>& pos) const =0;
+  virtual TVector3 get(const TVector3&) const =0;
  
 };
 
