@@ -15,6 +15,7 @@ ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/tpc
 ${CMAKE_SOURCE_DIR}/lhetrack
 ${CMAKE_SOURCE_DIR}/eventdisplay
+${CMAKE_SOURCE_DIR}/pnddata
 ${CMAKE_SOURCE_DIR}/PndEventdisplay
 )
 
