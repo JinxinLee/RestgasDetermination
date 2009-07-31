@@ -82,8 +82,6 @@ Hyperplane5D::testIntersect(Hough5DNode& node) {
   float* thetaCoords = node.getProjection1();
   float* cCoords = node.getProjection2();
     
-
-
   float c1 = cCoords[0] * (_maxs[2] - _mins[2]);
   float c2 = cCoords[1] * (_maxs[2] - _mins[2]);
 

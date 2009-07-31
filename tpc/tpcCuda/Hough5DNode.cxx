@@ -6,6 +6,21 @@
 
 //5-dim hypercube; dimensions: (x,y,z,v,w)
 
+Hough5DNode::Hough5DNode() {
+
+  _hitList = NULL;
+  _center = NULL;
+  _corners = NULL;
+  _proj0 = NULL;
+  _proj1 = NULL;
+  _proj2 = NULL;
+  _proj3 = NULL;
+  _proj4 = NULL;
+
+}
+
+
+
 Hough5DNode::Hough5DNode(float* center, int level, int nHyperplanes) {
   _nPlanes = nHyperplanes;
   _hitList = (bool*) malloc(_nPlanes*sizeof(bool));
@@ -55,9 +70,31 @@ Hough5DNode::Hough5DNode(float* center, int level, int nHyperplanes) {
   _proj3[1]=_center[3] - 0.5*_length;
   _proj4[0]=_center[4] + 0.5*_length;
   _proj4[1]=_center[4] - 0.5*_length;
-
-    
+   
 }
+
+
+
+Hough5DNode::~Hough5DNode() {
+  
+  if(_hitList != NULL)
+    free(_hitList); 
+  if(_center != NULL)
+    free(_center);
+  if(_corners != NULL)
+    free(_corners); 
+  if(_proj0 != NULL)
+    free(_proj0); 
+  if(_proj1 != NULL)
+    free(_proj1); 
+  if(_proj2 != NULL)
+    free(_proj2); 
+  if(_proj3 != NULL)
+    free(_proj3); 
+  if(_proj4 != NULL)
+    free(_proj4);
+}
+
 
 float*
 Hough5DNode::getSonArray() {

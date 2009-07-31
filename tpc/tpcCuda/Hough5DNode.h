@@ -12,6 +12,8 @@ public:
   // Constructors/Destructors ---------
   Hough5DNode();
   Hough5DNode(float* center, int level, int nHyperplanes); 
+  
+  ~Hough5DNode();
 
   float* getCenter() {return _center;}
   int getLevel() {return _level;}

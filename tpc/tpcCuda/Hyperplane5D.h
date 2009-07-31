@@ -18,8 +18,7 @@ public:
   bool testIntersect(Hough5DNode& node);
   void setRiemannScaling(float sc) {_RIEMANNSCALING = sc;}
   void setParamSpace(float*, float*);
-  
-  
+    
   float* getParams() {return _params;}
   int getID() {return _index;}
 
@@ -36,6 +35,8 @@ private:
 
   float* _mins;
   float* _maxs;  //minima and maxima of the 5 parameter dimensions
+
+  
   
   
   // Private Methods -----------------

@@ -206,12 +206,14 @@ int main(int argc, char** argv) {
 	
       if(the_son->getVote() < THRESHOLD) {
 	//std::cout<<"Deleting SON from list"<<std::endl;
+	delete parent_list.back();
 	parent_list.pop_back();
       }
       
     } //end loop over sons
       //std::cout<<" . . . erasing mother . . . ";
     //(*parent_list.begin())->print();
+    delete parent_list.front();
     parent_list.pop_front();
     //std::cout<<"parent_list now: "<<std::endl;
     //std::list<Hough5DNode*>::iterator it;
