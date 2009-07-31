@@ -8,5 +8,9 @@
 #pragma link off all functions;
 
 #pragma link C++ class GeaneTrackRep+;
+//#pragma link C++ class GeaneTrackRepNew+;
+//#pragma link C++ class FairGeaneProNew+;
+//#pragma link C++ class FairGeaneNew+;
+//#pragma link C++ class GeaneMCApplication+;
 
 #endif
