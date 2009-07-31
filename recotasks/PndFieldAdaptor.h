@@ -35,7 +35,7 @@ public:
   PndFieldAdaptor(FairField* field);
   
   // Accessors -----------------------
-  TVectorT<double> get(const TVectorT<double>& pos) const;
+  TVector3 get(const TVector3&) const;
 
 
 private:
