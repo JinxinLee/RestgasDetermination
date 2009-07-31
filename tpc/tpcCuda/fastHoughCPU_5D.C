@@ -217,13 +217,21 @@ int main(int argc, char** argv) {
 	Hyperplane5D plane =  hyperplanes[i];
 	plane.testIntersect(*the_son);
       }
-	
-      if(the_son->getVote() < THRESHOLD) {
-	//std::cout<<"Deleting SON from list"<<std::endl;
-	delete parent_list.back();
-	parent_list.pop_back();
+      if(the_son->getLevel() < 4) {
+	if(the_son->getVote() < THRESHOLD) {
+	  //std::cout<<"Deleting SON from list"<<std::endl;
+	  delete parent_list.back();
+	  parent_list.pop_back();
+	}
       }
-      
+      else{
+	if(the_son->getVote() < the_node->getVote()*0.95) {
+	  //std::cout<<"Deleting SON from list"<<std::endl;
+	  delete parent_list.back();
+	  parent_list.pop_back();
+	}
+
+      }
     } //end loop over sons
       //std::cout<<" . . . erasing mother . . . ";
     //(*parent_list.begin())->print();
