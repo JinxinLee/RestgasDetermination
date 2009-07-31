@@ -1,5 +1,4 @@
 #include "Hyperplane5D.h"
-#include "TVector3.h"
 #include "TMath.h"
 
 #include <cmath>
@@ -11,7 +10,7 @@ Hyperplane5D::Hyperplane5D(PndTpcCluster* cl, int index) {
 
   _index = index;
   _RIEMANNSCALING = 40; //default value
-  _params = (float*) malloc(5*sizeof(float));
+  _coords = (float*) malloc(5*sizeof(float));
   _mins = (float*) malloc(5*sizeof(float));
   _maxs = (float*) malloc(5*sizeof(float));
 
@@ -19,22 +18,22 @@ Hyperplane5D::Hyperplane5D(PndTpcCluster* cl, int index) {
   float r = (float) pos.Perp();
   float phi = (float) pos.Phi();
   
-  _params[3] = r;
-  _params[4] = (float) pos.Z();
+  _coords[3] = r;
+  _coords[4] = (float) pos.Z();
   r = r/_RIEMANNSCALING;
-  _params[0] = r * cos(phi)/(1+r*r);
-  _params[1] = r * sin(phi)/(1+r*r);
-  _params[2] = r*r/(1+r*r); 
+  _coords[0] = r * cos(phi)/(1+r*r);
+  _coords[1] = r * sin(phi)/(1+r*r);
+  _coords[2] = r*r/(1+r*r); 
   
   _mins[0] = 0.f;       //phi
-  _mins[1] = 70.f;       //theta
-  _mins[2] = -1.f;      //c
+  _mins[1] = 60.f;       //theta
+  _mins[2] = -0.1f;      //c
   _mins[3] = -1.f;      //m
   _mins[4] = -5.f;      //t
     
   _maxs[0] = 180.f;
-  _maxs[1] = 80.f;
-  _maxs[2] = 1.0f;
+  _maxs[1] = 100.f;
+  _maxs[2] = 0.1f;
   _maxs[3] = 1.f;
   _maxs[4] = 5.f;  
     
@@ -44,37 +43,62 @@ Hyperplane5D::Hyperplane5D(PndTpcCluster* cl, int index) {
 bool
 Hyperplane5D::testIntersect(Hough5DNode& node) {
 
-  float m_Max = 1.f;
-  float m_Min = -1.f;
-  float t_Max = 5.f;
-  float t_Min = -5.f;
+  int level = node.getLevel();
   
+  //if(_hitmap.size()<level+1)
+  // _hitmap.push_back( new std::map<std::vector<float>, bool>() ) ;
+  //std::cout<<"\n ^&*^% _hitmap size: "<<_hitmap.size()<<std::endl;
+  //std::map<std::vector<float>, bool>* the_map = _hitmap.back();
+  //std::cout<<"\n ^&*^% the_map size: "<<the_map->size()<<std::endl;
+  float PI_180 = 3.14159/180;
+
   float* corners = node.getCorners();
+  float* center = node.getCenter();
+  
   //first test in R-Z Hough space ---------------------------
   
   float* mCoords = node.getProjection3();
   float* tCoords = node.getProjection4();
     
-  //std::map<int,int> signs; //store signs of "g(corner)-corner"
-   
-  //TODO: optimize
-  int signs2 = 0;
-  for(int m_it=0; m_it<2; m_it++) {
-    float t_m = -_params[3]*(mCoords[m_it]*(m_Max-m_Min)) + _params[4];
-    for(int t_it=0; t_it<2; t_it++) {
-      float diff = tCoords[t_it]*(t_Max-t_Min) - t_m;
-      signs2+=(diff > 0);
+  //std::vector<float> coords(2);
+  //std::cout<<"\n ^&*%&^ vector size: "<<coords.size()<<std::endl;
+  //coords[0] = center[0];
+  //coords[1] = center[1];
+  
+  bool found2D;
+  bool skip=false;
+  
+  // if((_hitmap[level])->find(coords) != (_hitmap[level])->end()) {
+//        found2D = (*_hitmap[level-1])[coords];
+//        if(!found2D)
+//          return false;
+//        else
+//          skip=true;
+//      }
+  
+  
+  if(!skip) {
+    //TODO: optimize
+    int signs2 = 0;
+    for(int m_it=0; m_it<2; m_it++) {
+      float t_m = -_coords[3]*(mCoords[m_it]*(_maxs[3]-_mins[3])) + _coords[4];
+      for(int t_it=0; t_it<2; t_it++) {
+	float diff = tCoords[t_it]*(_maxs[4]-_mins[4]) - t_m;
+	signs2+=(diff > 0);
+      }
     }
+    
+    if(signs2 == 4 || signs2 == 0) {
+      //(*the_map)[coords] = false;
+      return false;} //we don't need to proceed
+    else {
+      //(*the_map)[coords] = true;
+    //  node.setHit(_index);
+    }
+    //  node.vote();
+    //  return true;   
+    //}
   }
- 
-  if(signs2 == 4 || signs2 == 0) 
-    return false; //we don't need to proceed
-  //else {
-  //  node.setHit(_index);
-  //  node.vote();
-  //  return true;   
-  //}
-
   
   //3D test ----------------------------------------------------
 
@@ -99,11 +123,18 @@ Hyperplane5D::testIntersect(Hough5DNode& node) {
   bool hit=false;
   for(int p=0; p<2; p++)
     for(int t=0; t<2; t++) {
-      TVector3 n(1.f,0.f,0.f);
-      TVector3 x(_params[0],_params[1],_params[2]);
-      n.SetMagThetaPhi(1., theta_vals[t]*TMath::Pi()/180,
-		       phi_vals[p]*TMath::Pi()/180);
-      float c = n*x;
+      //TVector3 n(1.f,0.f,0.f);
+      //TVector3 x(_coords[0],_coords[1],_coords[2]);
+      //n.SetMagThetaPhi(1., theta_vals[t]*TMath::Pi()/180,
+      //		       phi_vals[p]*TMath::Pi()/180);
+      float x[3] = {_coords[0],_coords[1],_coords[2]};
+      float n[3] = {sin(theta_vals[t]*PI_180)*cos(phi_vals[p]*PI_180),
+		    sin(theta_vals[t]*PI_180)*sin(phi_vals[p]*PI_180),
+		    cos(theta_vals[t]*PI_180)};
+      
+      //float c = n*x;
+      float c = x[0]*n[0] + x[1]*n[1] + x[2]*n[2];
+      
       sign=(int)(c1-c > 0);
       if(count>0 && (lastSign!=sign)) {
 	hit=true;
@@ -125,8 +156,12 @@ Hyperplane5D::testIntersect(Hough5DNode& node) {
     return true;
   }
   else
-    return false;
-  
+    return false;  
 }
 
 
+void 
+Hyperplane5D::setParamSpace(float* mins, float* maxs) {
+  _mins = mins;
+  _maxs = maxs;  
+}    

@@ -23,8 +23,8 @@ public:
   bool* getHitList() {return _hitList;}
   int getVote() {return _votes;}
   
-  float* getProjection0() {return _proj0;}   //return the two coordinates of the 
-  float* getProjection1() {return _proj1;}  //corners projected onto one 
+  float* getProjection0() {return _proj0;} //return the two coordinates of the 
+  float* getProjection1() {return _proj1;} //corners projected onto one 
   float* getProjection2() {return _proj2;} //dimension of the parameter space;
   float* getProjection3() {return _proj3;}
   float* getProjection4() {return _proj4;}

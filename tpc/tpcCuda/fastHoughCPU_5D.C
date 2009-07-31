@@ -13,6 +13,7 @@
 #include "TStyle.h"
 #include "TH2D.h"
 #include "TBox.h"
+#include "THnSparse.h"
 
 #include <cmath>
 #include <vector>
@@ -33,6 +34,20 @@ int main(int argc, char** argv) {
   int TREE_DEPTH = 6;  //number of space divisions
   int THRESHOLD = 40;
  
+  float m_Max = 1.;
+  float m_Min = -1.;
+  float t_Max = 5.;
+  float t_Min = -5.;
+  float phi_Min = 0;
+  float phi_Max = 180;
+  float theta_Min = 65;
+  float theta_Max = 95;
+  float c_Min = -0.1;
+  float c_Max = 0.1;
+
+  float mins[5] = {phi_Min, theta_Min, c_Min, m_Min, t_Min};
+  float maxs[5] = {phi_Max, theta_Max, c_Max, m_Max, t_Max};
+  
 
   while ((c = getopt(argc, argv, "t:d:")) != -1)
     switch (c) {
@@ -47,8 +62,6 @@ int main(int argc, char** argv) {
 
   TApplication* app = new TApplication("blub", NULL, NULL);
 
-  
-
 
   //READ data and CREATE histograms and data containers -----------------
 
@@ -61,36 +74,31 @@ int main(int argc, char** argv) {
   TString project = "Test10";
 
   project=dir+project;
-  TString mc_filename = project+".mc.root";
+  //TString mc_filename = project+".mc.root";
   TString reco_filename = project+".reco.root";
 
+  TString sparse_file = project+"outputSHORT.root";
   
   TFile* reco_file =  new TFile(reco_filename);
   TTree* reco_tree = (TTree*)reco_file->Get("cbmsim");
 
-  TFile* mc_file =  new TFile(mc_filename);
-  TTree* mc_tree = (TTree*)mc_file->Get("cbmsim");
+  TFile* sparseF = new TFile(sparse_file);
+  THnSparse* sparse = (THnSparseF*) sparseF->Get("fullHough");
+
+  //TFile* mc_file =  new TFile(mc_filename);
+  //TTree* mc_tree = (TTree*)mc_file->Get("cbmsim");
 
   TClonesArray* _clusters = new TClonesArray("PndTpcCluster");
   reco_tree->SetBranchAddress("PndTpcCluster", &_clusters);
   reco_tree->GetEntry(EVENT);
  
-  TClonesArray* _points = new TClonesArray("PndTpcPoint");
-  mc_tree->SetBranchAddress("PndTpcPoint", &_points);
-  mc_tree->GetEntry(EVENT);
+  // TClonesArray* _points = new TClonesArray("PndTpcPoint");
+//   mc_tree->SetBranchAddress("PndTpcPoint", &_points);
+//   mc_tree->GetEntry(EVENT);
   
   int nClusters = _clusters->GetEntriesFast();
-  int nPoints = _points->GetEntriesFast();
+  //int nPoints = _points->GetEntriesFast();
   
-  double m_Max = 1.;
-  double m_Min = -1.;
-  double t_Max = 5.;
-  double t_Min = -5.;
-  double phi_Min = 0;
-  double phi_Max = 180;
-  double c_Max = 1.;
-  double c_Min = -1.;
-
   int BIN_m = 500;
   int BIN_t = 500;
   
@@ -109,6 +117,7 @@ int main(int argc, char** argv) {
     
     riemannListRZ.push_back(TVector3(pos.Perp(), 0., pos.Z()));
     hyperplanes.push_back(Hyperplane5D(cl,count));
+    (hyperplanes.back()).setParamSpace(mins, maxs);
     count++;
     
   }
@@ -146,7 +155,10 @@ int main(int argc, char** argv) {
   std::cout<<"Init root node: "<<std::endl;
   float center[5] = {0.f,0.f,0.f,0.f,0.f};
   Hough5DNode* root = new Hough5DNode(center, 0, points); 
-
+  
+  //setting up parameter space
+  //root->setParamSpace(mins, maxs);
+  
   std::list<Hough5DNode*> parent_list;
   std::vector<Hough5DNode*> solution_list;
   
@@ -193,6 +205,8 @@ int main(int argc, char** argv) {
 					    points));
       
       Hough5DNode* the_son = parent_list.back();
+      //the_son->setParamSpace(the_node->getParamMins(),
+      //		     the_node->getParamMaxs());
       //the_son->print();
 
       //now loop over points for this son and do hit check
@@ -236,7 +250,7 @@ int main(int argc, char** argv) {
   std::vector<TBox*> boxlist;
     
   for(int s=0; s<solution_list.size(); s++) {
-    (solution_list[s])->print();
+    //(solution_list[s])->print();
     float* center = (solution_list[s])->getCenter();
     float length = (solution_list[s])->getSideLength();
     float x1 = (center[3] - 0.5*length)*(m_Max-m_Min);
@@ -287,7 +301,31 @@ int main(int argc, char** argv) {
   }
   
 
-    
+  TH2D* sebastian_stinkt = new TH2D("seb", "Sebastian riecht streng",
+				    100,phi_Min,phi_Max, 100, m_Min, m_Max);
+  TCanvas* canv3 = new TCanvas();
+
+
+  std::vector<TBox*> boxlist3;
+  //sparse->Projection(0,3)->Draw("COLZ");
+  sebastian_stinkt->Draw();
+  for(int s=0; s<solution_list.size(); s++) {
+    float* center = (solution_list[s])->getCenter();
+    float length = (solution_list[s])->getSideLength();
+    float x1 = (center[0] - 0.5*length)*(phi_Max-phi_Min) +90;
+    float x2 = (center[0] + 0.5*length)*(phi_Max-phi_Min) +90;
+    float y1 = (center[3] - 0.5*length)*(m_Max-m_Min);
+    float y2 = (center[3] + 0.5*length)*(m_Max-m_Min);
+    boxlist3.push_back(new TBox(x1,y1,x2,y2));
+    //boxlist.back()->Print();
+  }
+
+  for(int b=0; b<boxlist3.size(); ++b) {
+    (boxlist3[b])->SetLineColor(kPink+10);
+    (boxlist3[b])->SetFillStyle(0);
+    (boxlist3[b])->Draw("l");
+  }
+      
   gApplication->SetReturnFromRun(true);
   gSystem->Run();
   

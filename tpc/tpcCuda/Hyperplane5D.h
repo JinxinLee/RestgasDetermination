@@ -1,4 +1,5 @@
-
+#include <map>
+#include <vector>
 #include "PndTpcCluster.h"
 #include "Hough5DNode.h"
 
@@ -17,18 +18,23 @@ public:
   
   bool testIntersect(Hough5DNode& node);
   void setRiemannScaling(float sc) {_RIEMANNSCALING = sc;}
-  void setParamSpace(float*, float*);
-    
-  float* getParams() {return _params;}
-  int getID() {return _index;}
 
+  //set minima and maxima of parameter space
+  void setParamSpace(float* mins, float* maxs);    
+    
   
+  //getters ---------------------------
+  float* getParamMins() {return _mins;}
+  float* getParamMaxs() {return _maxs;}
+  float* getCoords() {return _coords;}
+  int getID() {return _index;}
   
+    
 
 private:
 
   // Private Data Members ------------
-  float* _params;           //(x_R, y_R, z_R, R, Z)
+  float* _coords;           //(x_R, y_R, z_R, R, Z)
   float _RIEMANNSCALING;
 
   int _index;   //hyperplane ID
@@ -36,7 +42,7 @@ private:
   float* _mins;
   float* _maxs;  //minima and maxima of the 5 parameter dimensions
 
-  
+  std::vector<std::map<std::vector<float>,bool>*> _hitmap;
   
   
   // Private Methods -----------------
