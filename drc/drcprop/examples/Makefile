@@ -1,21 +1,18 @@
-#vpath %.h ../
-#vpath %.cxx ../
-#vpath %.h $(ROOTSYS)/include
-	
+INCLFLAGS  = -I $(shell root-config --incdir) -I ../
 
-# set a global environment variable MYROOT to use also the standard root installation on your private machine
-# tested with Gentoo gcc-4.3.2 root-5.22
-ifneq ($(MYROOT),)
-	INCLFLAGS  = -I $(ROOTSYS)/include/root -I ../
-	LDLIBS     = $(shell root-config --glibs) -lGenVector
-else # std. root-installation at GSI 
-	MYDEBIAN   = $(shell cat /etc/debian_version)
-	INCLFLAGS  = -I $(ROOTSYS)/include -I ../
-	ifeq ($(MYDEBIAN),4.0)
-	        LDLIBS  = $(shell root-config --glibs) -lGenVector
-	else
-		LDLIBS	= $(shell root-config --glibs) -lMathCore
-	endif
+# ROOT version format X.XX/XX
+ROOTVERFULL = $(shell root-config --version)
+ROOTVERMAIN = $(shell echo $(ROOTVERFULL) | sed 's/\/.*//' | sed 's/\./''/')
+
+
+ifeq ($(shell expr $(ROOTVERMAIN) '>=' 516),0)
+$(error Require ROOT version >= 5.16)
+endif
+
+ifeq ($(shell expr $(ROOTVERMAIN) '<=' 520),1)
+LDLIBS	= $(shell root-config --glibs) -lMathCore
+else
+LDLIBS  = $(shell root-config --glibs) -lGenVector
 endif
 
 
@@ -33,6 +30,7 @@ all:			test_simple_bar test_simple_bar2 test_disk test_sheet test_cylinder \
 			test_focus test_focus2 test_absorption test_test test_titti \
 			test_top test_air_lens test_hook test_barrel1 test_barrel1a test_barrel2  \
 			test_lens beamtest0809_sim beamtest0909_sim mppc
+
 
 test_simple_bar:	$(OBJECTS) test_simple_bar.o
 			g++ -o test_simple_bar test_simple_bar.o $(OBJECTS) $(LDLIBS)
