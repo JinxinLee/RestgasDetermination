@@ -694,7 +694,7 @@ void PndDrcOptDevManager::Propagate()
   for (iph = fListPhoton.begin(); iph != fListPhoton.end(); ++iph)
     {
       counter_phot++;
-      if( counter_phot == 100 * counter_step + 1 ) // normally use factor 1000
+      if( counter_phot == 1000 * counter_step + 1 ) // normally use factor 1000
       {
           counter_step++;
           cout << "photon #" << counter_phot << " of " << photonTotal << endl;

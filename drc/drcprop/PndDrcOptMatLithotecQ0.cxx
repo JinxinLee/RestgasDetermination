@@ -1,7 +1,7 @@
 // ----------------------------------------------------
 // This file belongs to the ray tracing framework
 // for the use with Cherenkov detectors
-// 
+//
 // created 2007
 //-----------------------------------------------------
 #include "PndDrcOptMatLithotecQ0.h"
@@ -58,15 +58,15 @@ PndDrcOptMatLithotecQ0::PndDrcOptMatLithotecQ0(const PndDrcOptMatLithotecQ0& mat
   : PndDrcOptMatAbs(mat)
 {
   if (mat.fVerbosity>=1) cout<<"  PndDrcOptMatLithotecQ0::PndDrcOptMatLithotecQ0"
-			    <<"(const PndDrcOptMatLithotecQ0&) "  
+			    <<"(const PndDrcOptMatLithotecQ0&) "
 			    <<mat.fName<<endl;
   Copy(mat);
-} 
+}
 //----------------------------------------------------------------------
 PndDrcOptMatLithotecQ0& PndDrcOptMatLithotecQ0::operator=(const PndDrcOptMatLithotecQ0& mat)
 {
   if (mat.fVerbosity>=1) cout<<"  PndDrcOptMatLithotecQ0::operator="
-			    <<"(const PndDrcOptMatLithotecQ0&) "  
+			    <<"(const PndDrcOptMatLithotecQ0&) "
 			    <<mat.fName<<endl;
   if (&mat != this)
     {
@@ -85,12 +85,12 @@ double PndDrcOptMatLithotecQ0::RefIndex(const double lambda) const
 
   //cout<<" PndDrcOptMatLithotecQ0::refIndex: lambda = "<<lambda<<endl;//###
   double e = 2*kPi*kHbarc/lambda; // energy [eV]
-  
+
   if (e<fE1)
     {
       // refraction index
       return sqrt(1.0L + fF1/(fE1*fE1-e*e) + fF2/(fE2*fE2-e*e));
-    }     
+    }
   else
     {
       cerr<<" *** PndDrcOptMatLithotecQ0::refIndex: too short wavelength. "
@@ -98,8 +98,8 @@ double PndDrcOptMatLithotecQ0::RefIndex(const double lambda) const
       exit(EXIT_FAILURE);
     }
 
-  return 1.47; 
-}  
+  return 1.47;
+}
 //----------------------------------------------------------------------
 double PndDrcOptMatLithotecQ0::RefIndexDeriv(const double lambda) const
 {
@@ -107,14 +107,14 @@ double PndDrcOptMatLithotecQ0::RefIndexDeriv(const double lambda) const
   static const double kHbarc = 197.3269602;  // Mev fm
 
   double e = 2*kPi*kHbarc/lambda; // energy [eV]
-  
+
   if (e<fE1)
     {
       // refraction index
-      return e/RefIndex(lambda) * ( fF1/(fE1*fE1-e*e)/(fE1*fE1-e*e) + 
-				    fF2/(fE2*fE2-e*e)/(fE2*fE2-e*e)  ) 
+      return e/RefIndex(lambda) * ( fF1/(fE1*fE1-e*e)/(fE1*fE1-e*e) +
+				    fF2/(fE2*fE2-e*e)/(fE2*fE2-e*e)  )
 	* (-2*kPi*kHbarc/lambda/lambda);
-    }     
+    }
   else
     {
       cerr<<" *** PndDrcOptMatLithotecQ0::refIndexDeriv: too short wavelength. "
@@ -127,17 +127,17 @@ double PndDrcOptMatLithotecQ0::RefIndexDeriv(const double lambda) const
 //----------------------------------------------------------------------
 bool PndDrcOptMatLithotecQ0::AbsorptionFlag(double lambda, double length) const
 {
-  // Rayleigh scattering. 
-  static const double kClarity = 2100*1000; // @ 633 nm in mm (2100 m) (=278m at 400nm)
+  // Rayleigh scattering.
+  static const double kClarity = 2100*1000; // BaBar: @ 633 nm in mm (2100 m) (=335m at 400nm)
 
-  double trans = exp(-(length)/(kClarity*pow(lambda/663,4)));
+  double trans = exp(-(length)/(kClarity*pow(lambda/633,4)));
   double cmp   = fRan.Uniform(1.0);
 
 
   if (cmp>trans)
     {
       return true; // absorbed
-    } 
+    }
 
   return false; // no absorption.
 }

@@ -57,6 +57,9 @@ using std::numeric_limits;
 
 #include <TMath.h>
 
+#include <stdlib.h> // system
+#include <TString.h>
+
 //----------------------------------------------------------------------
 PndDrcOptVol::PndDrcOptVol()
 {
@@ -217,6 +220,14 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 	      //ph.setPosition(ph.position()+path_length*ph.direction());
         if (fPhotonTrace) ph.Print(*fPhotonTraceStream);
         ph.SetFate(Drc::kPhotAbsorbed);
+//         //
+//         TString waveString;
+//         waveString += ph.Wavelength();
+//         waveString.Remove( TString::kLeading , ' ' );
+//
+//         TString shellString = "echo " + waveString + " >> waveabsorb.tmp";
+//         system( shellString );
+//         //
         break; // leave while loop
       }
       else
@@ -224,7 +235,7 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
         ph.SetPosition(pos_new);
         if (Verbosity()>=4) cout<<"     new position set."<<endl;
         if (fPhotonTrace) ph.Print(*fPhotonTraceStream);
-        if (ph.Fate()!=Drc::kPhotFlying) break;//###1
+        if (ph.Fate()!=Drc::kPhotFlying) break;//###1 // measured photons
       }
 
 
@@ -243,13 +254,14 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 
         if (refl == Drc::ReflAbsorbed)
         {
-          if( surf_closest->Name() == "lens_side1" || surf_closest->Name() == "lens_side2" || surf_closest->Name() == "lens_side3"
-              || surf_closest->Name() == "lens_side4")
-//           if( surf_closest->Name() == "slab_side1")
+//           if( surf_closest->Name() == "lens_side1" || surf_closest->Name() == "lens_side2" || surf_closest->Name() == "lens_side3"
+//               || surf_closest->Name() == "lens_side4")
 //           if( surf_closest->Name() == "lens_sphere")
-          {
-            bool blub = ph.Refract(norm, OptMaterial().RefIndex(ph.Wavelength()),OptMaterial().Extinction(ph.Wavelength()),1,0,false,0,true);
-          }
+//           if( surf_closest->Name() == "lens_sphere")
+//           {
+//             cout << "ja" << endl;
+//             bool blub = ph.Refract(norm, OptMaterial().RefIndex(ph.Wavelength()),OptMaterial().Extinction(ph.Wavelength()),1,0,false,0,true);
+//           }
 
           if (Verbosity()>=4)
             cout<<"     PndDrcOptVol::propagate: mirror absorbed"<<endl;
@@ -407,8 +419,8 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 
               bool iref = ph.Refract(surf_closest->Normal(ph.Position()), n1, ex1, n2, ex2 );
 
-              if( surf_closest->Name() == "slab_side1" && !iref )
-                cout << "wrong" << endl;
+//               if( surf_closest->Name() == "slab_side1" && !iref )
+//                 cout << "wrong" << endl;
 
               if (Verbosity()>=4) cout<<" refract in new volume flag = "
                     <<iref<<endl;

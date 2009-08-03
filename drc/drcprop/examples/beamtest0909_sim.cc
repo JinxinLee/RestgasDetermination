@@ -81,6 +81,13 @@ using ROOT::Math::Rotation3D;
 
 int main(int argc, char *argv[])
 {
+  cout << "Parameter usage:" << endl;
+  cout << "  1. Par.: incidence angle [deg] (default: 57 deg)" << endl;
+  cout << "  2. Par.: hit pos. X on bar [mm] (default: 1/2 slab width 8.5 mm )" << endl;
+  cout << "  3. Par.: hit pos. Y on bar [mm] (default: 0 mm)" << endl;
+  cout << "  4. Par.: hit pos. Z on bar [mm] (default: -500 mm); NEGATIVE NUMBER !!!" << endl;
+  cout << "  if one parameter was set filename is \"Screen_beamspot_Xdeg_X_Y_Z.C\" (deault Screen.C)" << endl << endl;
+
 	double conical_const =  0; //sphere
 // 	double conical_const = 0.5; //parabola
 
@@ -169,7 +176,7 @@ int main(int argc, char *argv[])
 // 	cout << endl;
 
 
-	double lensBase = 5; // roughly measured lens thickness: 7.5 ; old: 5
+    double lensBase = 7.5; // roughly measured lens thickness: 7.5 ; old: 5
 	cout << "lens thickness should be greater than: |" << lens_sphere.LimitingPoint(0).Z() << "|" << " and is currently " << lensBase << " mm" << endl;
 
 	q0+=XYZVector(0,0,-lensBase);
@@ -224,7 +231,7 @@ int main(int argc, char *argv[])
 // 	lens_side3.SetReflectivity(refl_none);
 // 	lens_side4.SetReflectivity(refl_none);
 // 	lens_sphere.SetReflectivity(refl_none);
-	lens_sphere.SetPixel();
+// 	lens_sphere.SetPixel();
 // 	lens_side1.SetPixel();
 // 	lens_side2.SetPixel();
 // 	lens_side3.SetPixel();
@@ -323,7 +330,7 @@ int main(int argc, char *argv[])
 // 	box_side3.SetReflectivity(refl_none);
 // 	box_side4.SetReflectivity(refl_none);
 // 	box_side6.SetReflectivity(refl_none);
-// 	box_side5.SetPixel();
+	box_side5.SetPixel();
 
 
 	PndDrcOptVol box;
@@ -642,8 +649,8 @@ int main(int argc, char *argv[])
 	opt_system.SetVerbosity(0);
 	opt_system.AddDevice(slab);
 	opt_system.AddDevice(lens);
-// 	opt_system.AddDevice(smallBox);
-// 	opt_system.AddDevice(box);
+	opt_system.AddDevice(smallBox);
+	opt_system.AddDevice(box);
 
 
     // couple surface 1 of device 1 with surface 2 of device 2
@@ -653,12 +660,12 @@ int main(int argc, char *argv[])
 // 	opt_system.CoupleDevice("slab","box","slab_side1","box_side1");
 
 	opt_system.CoupleDevice("slab","lens","slab_side1", "lens_base");
-// 	opt_system.CoupleDevice("lens","smallBox","lens_side1","smallBox_lens_side1");
-// 	opt_system.CoupleDevice("lens","smallBox","lens_side2","smallBox_lens_side2");
-// 	opt_system.CoupleDevice("lens","smallBox","lens_side3","smallBox_lens_side3");
-// 	opt_system.CoupleDevice("lens","smallBox","lens_side4","smallBox_lens_side4");
-// 	opt_system.CoupleDevice("lens","smallBox","lens_sphere","smallBox_lens_sphere");
-// 	opt_system.CoupleDevice("smallBox","box","smallBox_side5","box_side1");
+	opt_system.CoupleDevice("lens","smallBox","lens_side1","smallBox_lens_side1");
+	opt_system.CoupleDevice("lens","smallBox","lens_side2","smallBox_lens_side2");
+	opt_system.CoupleDevice("lens","smallBox","lens_side3","smallBox_lens_side3");
+	opt_system.CoupleDevice("lens","smallBox","lens_side4","smallBox_lens_side4");
+	opt_system.CoupleDevice("lens","smallBox","lens_sphere","smallBox_lens_sphere");
+	opt_system.CoupleDevice("smallBox","box","smallBox_side5","box_side1");
 
 
 	PndDrcOptDevManager* manager = new PndDrcOptDevManager();
@@ -672,7 +679,7 @@ int main(int argc, char *argv[])
 	geo.open("Geo.C",std::ios::out);
 	geo<<"{"<<endl;
 	geo<<"    TCanvas *c1 = new TCanvas(\"c1\"); "<<endl;
-	cout<<" root version: "<< int((TROOT*)gROOT -> GetVersionInt())<<endl;
+	cout << endl << " root version: "<< int((TROOT*)gROOT -> GetVersionInt()) << endl << endl;
 	if ( ((TROOT*)gROOT)->GetVersionInt() < 51600)
 	{
 		geo<<"    TView *view = new TView(1);"<<endl;
@@ -698,7 +705,7 @@ int main(int argc, char *argv[])
   // .x Geo.C
   // .x Screen.C
 
-	manager->Print(geo); // switcher: comment out means no visual simualtion => faster
+// 	manager->Print(geo); // switcher: comment out means no visual simualtion => faster
 
 
 
@@ -708,6 +715,12 @@ int main(int argc, char *argv[])
 
 	PndDrcPhoton ph;
 	ph.SetReflectionLimit(200);
+
+    // for option 3
+    double inci = -666; // incidence angle
+    double startX_center = -666; // hit pos. X on bar
+    double startY_center = -666; // hit pos. Y on bar
+    double startZ_center = -666; // hit pos. Z on bar
 
 
 	double beta = 0;
@@ -778,10 +791,15 @@ int main(int argc, char *argv[])
 		double kinE = 2.3; // kinetic energy in GeV
 		double mass_p = 0.938; // proton mass in GeV
 		beta = sqrt( 1 - pow( mass_p / (kinE + mass_p) ,2 ) ); // E = T + E0 = gamma * E0
+
 		cout << "beta = " << beta << endl;
 
 
-		double inci = 57; // in degree
+		inci = 57; // in degree
+
+        if( argc == 2)
+          inci = atof( argv[1]);
+
 		cout << "incidence angle of particles (theta): " << inci << " deg" << endl;
 
 
@@ -793,14 +811,10 @@ int main(int argc, char *argv[])
 		cout << "particle flight direction: (" << dirX << ", " << dirY << ", " << dirZ << ")" << endl;
 
 
-    // hit pos. on bar (slab_width / 2, Y, -500) is now independent of the incidence angle
-		double startX = 20;
-		double startY = 0;
-		double startZ = -500;
-
-		double stepsToBar = (startX - slab_width / 2);
-		startZ = startZ - stepsToBar * dirZ;
-
+        // hit pos. on bar is now independent of the incidence angle
+        double startX = slab_width / 2; // slab_width / 2
+        double startY = 0; // 0
+        double startZ = -500; // -500
 
 		XYZPoint  pos;
 		if( argc == 5 )
@@ -809,73 +823,148 @@ int main(int argc, char *argv[])
 			startY = atof(argv[2]);
 			startZ = atof(argv[3]);
 			pos = XYZVector(startX,startY,startZ);
-			cout << "start point (particle): X: " << startX << " Y: " << startY << " Z: " << startZ << endl;
 		}
 		else
 			pos = XYZVector(startX,startY,startZ);
 
-		cout << "start pos: (" << startX << ", " << startY << ", " << startZ << ")" << endl;
-		cout << "hit pos  : (" << startX + stepsToBar * dirX << ", " << startY + stepsToBar * dirY << ", " << startZ + stepsToBar * dirZ << ")" << endl;
+        // center position of beamspot for the output filename
+        startX_center = startX;
+        startY_center = startY;
+        startZ_center = startZ;
+
+		cout << "hit pos: (" << startX << ", " << startY << ", " << startZ << ")" << endl;
 
 
 		int photon_number = 100; // 100
-		float     range = 100;//100
-		photons_exist = manager->Cerenkov(pos,dir,beta,photon_number,range);
+// 		float     range = 1000;
+// 		photons_exist = manager->Cerenkov(pos,dir,beta,photon_number,range);
 
 
 
     // beamSpot simulation
     //==========================================================================================
-// 		TVector3 z = TVector3(0,0,1);
-// 		TVector3 ortho;
-// 		ortho = z.Orthogonal();
-// 		TRandom3 rand;
-// 		TVector3 helper;
-// 		TVector3 helper2;
-// 		double gausSmear; // gaus smearing
-// 		double radius = 0; // radius in mm is 1 sigma of the gaus smearing
-// 		double transX = startX; // for the translation-(shift) (see above)
-// 		double transY = startY;
-// 		double transZ = startZ; // -200 ???
-// 		double spotX;
-// 		double spotY;
-// 		double spotZ;
-// 		XYZPoint spotPos;
-//
-// 		for(int i=0; i<1; i++) // number of particles (300)
-// 		{
-// 			helper=ortho; // (-1,0,0) is the orthogonal of (0,0,1)
-// 			helper.RotateZ(rand.Rndm()*2*pi);
-// 			gausSmear=rand.Gaus(0,radius);
-// 			helper2 = TVector3(helper.X()*gausSmear, helper.Y()*gausSmear, helper.Z()*gausSmear);
-// 			helper2.RotateY( (-90+inci)/180.*pi ); // rotation in the right direction
-// 			spotX = helper2.X()+transX; // translation-(shift)
-// 			spotY = helper2.Y()+transY;
-// 			spotZ = helper2.Z()+transZ;
-// 			spotPos = XYZVector(spotX,spotY,spotZ);
-// 			manager->Cerenkov(spotPos,dir,beta,photon_number,range);
-// 		}
-// 		photons_exist = true; // maybe it is needed (if last particle in the loop don't hit the bar, this value will be set as false)
+        double limit = 50; // beam spot radius limit in mm
+        double x_shift = cos((90-inci)/180.*pi) * limit;
+        double z_shift = tan(inci/180.*pi) * x_shift;
+        startX += x_shift;
+        startZ -= z_shift;
+        double z_shift2 = sin((90-inci)/180.*pi) * limit;
+        TVector3 shift( startX + x_shift, startY, startZ + z_shift2 );
+        TVector3 endBar( slab_width / 2, startY, 0 );
+        double maxrange = (shift - endBar).Mag();
+        cout << "maximum range (to generate photons only in bar): " << maxrange << endl;
 
+        TVector3 z = TVector3(0,0,1);
+		TVector3 ortho;
+		ortho = z.Orthogonal();
+		TRandom3 rand;
+		TVector3 helper;
+		TVector3 helper2;
+		double gausSmear; // gaus smearing
+		double transX = startX; // for the translation-(shift) (see above)
+		double transY = startY;
+		double transZ = startZ; // -200 ???
+		double spotX;
+		double spotY;
+		double spotZ;
+		XYZPoint spotPos;
+
+        double radius = 20; // radius in mm is 1 sigma of the gaus smearing
+        cout << "beam spot radius (1-sigma): " << radius << endl << endl;
+
+
+
+//         fstream beamspot;
+//         beamspot.open("beamspot_end.C",std::ios::out);
+//
+//         beamspot << "{" << endl;
+//         beamspot << "gStyle->SetCanvasColor(0);"       << endl;
+//         beamspot << "gStyle->SetCanvasBorderMode(0);"  << endl;
+//         beamspot << "gStyle->SetFrameBorderMode(0);"   << endl;
+//         beamspot << "gStyle->SetTitleFillColor(0);"    << endl;
+//         beamspot << "gStyle->SetTitleFontSize(0.05);"  << endl;
+//         beamspot << "TCanvas *c1 = new TCanvas( \"c1\", \"\" ,200, 10, 700, 500 );" << endl;
+//         beamspot << "TString title=\"y-z plane [mm] \";"<< endl;
+//         beamspot << "TH1F *hgr = new TH1F(\"hgr1\",title,100,-600,-400);"<<endl;
+//         beamspot << "hgr->SetStats( 0 );" << endl;
+//         beamspot << "hgr->SetMarkerStyle(7);"<<endl;
+//         beamspot << "hgr->SetMarkerSize(1);"<<endl;
+//         beamspot << "hgr->SetMinimum(-100);"<<endl;
+//         beamspot << "hgr->SetMaximum(+100);"<<endl;
+//         beamspot << "hgr->Draw(\"POL\");"<<endl << endl;
+//
+//         beamspot << "TLine *l1 = new TLine(-600,-17.5,-400,-17.5);"    << endl;
+//         beamspot << "TLine *l2 = new TLine(-600,17.5,-400,17.5);"     << endl;
+//         beamspot << "l1->SetLineWidth(3);" << endl;
+//         beamspot << "l2->SetLineWidth(3);" << endl;
+//         beamspot << "l1->Draw(\"same\");" << endl;
+//         beamspot << "l2->Draw(\"same\");" << endl;
+
+
+		for(int i=0; i<300; i++) // number of particles (300)
+		{
+			helper=ortho; // (-1,0,0) is the orthogonal of (0,0,1)
+			helper.RotateZ(rand.Rndm()*2*pi);
+			gausSmear=rand.Gaus(0,radius);
+            if( fabs(gausSmear) > limit ) // beam spot limit
+              continue;
+			helper2 = TVector3(helper.X()*gausSmear, helper.Y()*gausSmear, helper.Z()*gausSmear);
+			helper2.RotateY( (-90+inci)/180.*pi ); // rotation in the right direction
+			spotX = helper2.X()+transX; // translation-(shift)
+			spotY = helper2.Y()+transY;
+			spotZ = helper2.Z()+transZ;
+			spotPos = XYZVector(spotX,spotY,spotZ);
+            manager->Cerenkov(spotPos,dir,beta,photon_number,maxrange); // maxrange instead of range
+
+
+            if( spotX < slab_width / 2)
+            {
+              cout << "particle origin production is in the bar !!!" << endl;
+              cout << spotX << " " << spotY << " " << spotZ << endl;
+              cout << x_shift << " " << z_shift << endl << endl;
+            }
+
+            if( spotZ / cos((90-inci)/180.*pi) > maxrange )
+            {
+              cout << "particle trajectory can cross the lens and/or the fishtank" << endl;
+              cout << spotX << " " << spotY << " " << spotZ << endl;
+              cout << x_shift << " " << z_shift << endl << endl;
+            }
+
+
+//             cout << spotX << " " << spotY << " " << spotZ << endl;
+
+//             beamspot << "TMarker* t = new TMarker("<<  spotZ + stepsToBar * dirZ <<","<< spotY + stepsToBar * dirY <<",20);"<<endl;
+//             if( spotY + stepsToBar * dirY >= 17.5 || spotY + stepsToBar * dirY <= -17.5)
+//               beamspot << "t->SetMarkerColor(4);" << endl;
+//             else
+//               beamspot << "t->SetMarkerColor(2);" << endl;
+//             beamspot << "t->SetMarkerStyle(20);"<<endl;
+//             beamspot << "t->SetMarkerSize(1);"<<endl;
+//             beamspot << "t->Draw();"<<endl;
+
+		}
+		photons_exist = true; // maybe it is needed (if last particle in the loop don't hit the bar, this value will be set as false)
+//         beamspot << "}" << endl;
 
     // draw chosen photons (for Geo)
     //==========================================================================================
-		list_photon = manager->PhotonList();
-		list<PndDrcPhoton>::iterator iph;
-
-		int icnt = 0;
-
-		for(iph=list_photon.begin(); iph != list_photon.end(); ++iph)
-		{
-			icnt++;
-
-			if( icnt == 70 )
-				(*iph).SetPrintFlag(true);
-			else
-				(*iph).SetPrintFlag(false);
-		}
-
-		manager->SetPhotonList(list_photon,"slab","opt_system",0,0);
+// 		list_photon = manager->PhotonList();
+// 		list<PndDrcPhoton>::iterator iph;
+//
+// 		int icnt = 0;
+//
+// 		for(iph=list_photon.begin(); iph != list_photon.end(); ++iph)
+// 		{
+// 			icnt++;
+//
+// 			if( icnt == 70 )
+// 				(*iph).SetPrintFlag(true);
+// 			else
+// 				(*iph).SetPrintFlag(false);
+// 		}
+//
+// 		manager->SetPhotonList(list_photon,"slab","opt_system",0,0);
 
 	}
 	if (ioption==4)
@@ -990,18 +1079,34 @@ int main(int argc, char *argv[])
   // write to screen...
 
 
-	string  screeni;
-	if( argc == 5 )
+	TString  outFile_str;
+	if( argc >= 2 )
 	{
-		screeni = argv[4];
-//         screeni = screeni + ".C";
-		cout << "FILE: " << screeni << endl;
+        TString inci_str;
+        TString startX_str;
+        TString startY_str;
+        TString startZ_str;
+
+        inci_str += inci;
+        inci_str.Remove( TString::kLeading , ' ' );
+        startX_str += startX_center;
+        startX_str.Remove( TString::kLeading , ' ' );
+        startY_str += startY_center;
+        startY_str.Remove( TString::kLeading , ' ' );
+        startZ_str += startZ_center;
+        startZ_str.Remove( TString::kLeading , ' ' );
+
+        outFile_str = "Screen_" + inci_str + "deg_" + startX_str + "_" + startY_str + "_" + startZ_str + ".C" ;
 	}
 	else
-		screeni = "Screen.C";
+		outFile_str = "Screen.C";
+
+    cout << "FILE: " << outFile_str << endl;
+
 
 	fstream scr;
-	scr.open(screeni.c_str(),std::ios::out);
+	scr.open(outFile_str,std::ios::out);
+
 	scr << "{" << endl;
 	scr << "gStyle->SetCanvasColor(0);"       << endl;
 	scr << "gStyle->SetCanvasBorderMode(0);"  << endl;
@@ -1009,42 +1114,49 @@ int main(int argc, char *argv[])
 	scr << "gStyle->SetTitleFillColor(0);"    << endl;
 	scr << "gStyle->SetTitleFontSize(0.05);"  << endl;
 	scr << "TCanvas *c1 = new TCanvas( \"c1\", \"\" ,200, 10, 700, 500 );" << endl;
-//   scr<<"    TCanvas *c1 = new TCanvas(\"c1\"); "<<endl;
+
 	TString str_beta;
 	beta = floor( beta * pow(10 ,4) + 0.5 ) * pow(10, -4); // round beta to 4 digits (after point)
 	str_beta+=beta;
 	str_beta.Remove(TString::kLeading,' ');
-	scr << "TString title;"<<endl;
+
+	scr << "TString title;" << endl;
 //     scr << "title=\"spatial position [mm] (beta=" << str_beta << ", #lambda =435nm)\";"<< endl;
-	scr << "title=\"spatial position [mm] (beta=" << str_beta << ")\";"<< endl;
-//     scr<<"    TH1F *hgr = new TH1F(\"hgr1\",title,600,-150,150);"<<endl;
-	scr << "    TH1F *hgr = new TH1F(\"hgr1\",title,600,-400,400);"<<endl;
-	scr << "hgr->SetStats( 0 );" << endl;
-	scr << "    hgr->SetMarkerStyle(7);"<<endl;
-	scr << "    hgr->SetMarkerSize(0.5);"<<endl;
-	scr<<"    hgr->SetMinimum(-400);"<<endl;
-	scr<<"    hgr->SetMaximum(+400);"<<endl;
-//     scr << "    hgr->SetMinimum(-100);"<<endl;
-//     scr << "    hgr->SetMaximum(+100);"<<endl;
-	scr << "    hgr->Draw(\"POL\");"<<endl << endl;
-	int icnt_measured = 0;
+	scr << "title=\"spatial position [mm] (beta=" << str_beta << ")\";" << endl;
+    scr << "TH1F *hgr = new TH1F(\"hgr1\",title,600,-150,150);" << endl;
+// 	scr << "TH1F *hgr = new TH1F(\"hgr1\",title,600,-400,400);" << endl;
+	scr << "hgr->SetStats( 0 );"     << endl;
+	scr << "hgr->SetMarkerStyle(7);" << endl;
+	scr << "hgr->SetMarkerSize(0.5);"<< endl;
+// 	scr << "hgr->SetMinimum(-400);"  << endl;
+// 	scr << "hgr->SetMaximum(+400);"  << endl;
+    scr << "hgr->SetMinimum(-100);"  << endl;
+    scr << "hgr->SetMaximum(+100);"  << endl;
+	scr << "hgr->Draw(\"POL\");"     << endl << endl;
+
+    int icnt_measured = 0;
 	int icnt_flying   = 0;
 	int icnt_lost     = 0;
 	int icnt_absorbed = 0;
 
-  //TRotation rotInv_screen = rot_screen.Inverse();
+
 	list<PndDrcPhoton>::iterator iph;
 	PndDrcPhoton ph_old;
 
 
 	fstream measured_dat;
 	fstream absorbed_dat;
+    fstream lost_dat;
 	fstream measured_wave_dat;
 	fstream absorbed_wave_dat;
+    fstream lost_wave_dat;
+
 	measured_dat.open("measured.tmp",std::ios::out);
 	absorbed_dat.open("absorbed.tmp",std::ios::out);
+    lost_dat.open("lost.tmp",std::ios::out);
 	measured_wave_dat.open("measured_wave.tmp",std::ios::out);
 	absorbed_wave_dat.open("absorbed_wave.tmp",std::ios::out);
+    lost_wave_dat.open("lost_wave.tmp",std::ios::out);
 
 	int n_iph = 0;
 
@@ -1086,15 +1198,21 @@ int main(int argc, char *argv[])
 		else
 		{
 			icnt_lost++;
+
+            lost_dat << n_iph << endl;
+            lost_wave_dat << wavi << endl;
 		}
 	}
+
 	measured_dat.close();
 	absorbed_dat.close();
+    lost_dat.close();
 	measured_wave_dat.close();
 	absorbed_wave_dat.close();
+    lost_wave_dat.close();
 
 
-  // MCP position
+    // MCP position
 	scr << endl;
 	scr << "TLine *l1 = new TLine(-19.125,-13.625,-70.125,-13.625);"    << endl;
 	scr << "TLine *l2 = new TLine(-70.125,-13.625,-70.125,37.375);"     << endl;
@@ -1123,10 +1241,6 @@ int main(int argc, char *argv[])
 	scr << "l8->Draw(\"same\");" << endl;
 
 
-
-//   scr<<"}"<<endl;
-//   scr.close();
-
 	int icnt = icnt_measured+icnt_flying+icnt_lost+icnt_absorbed;
 	cout << endl << endl;
 	cout<<" generated photons: "<<icnt<<endl;
@@ -1134,8 +1248,10 @@ int main(int argc, char *argv[])
 	cout<<" absorbed  photons: "<<icnt_absorbed<<endl;
 	cout<<" lost      photons: "<<icnt_lost<<endl<<endl;
 
-	scr << endl;
+
+    scr << endl;
 	scr << "TPaveText *stat = new TPaveText(0.8,0.88,0.98,0.98,\"brNDC\");" << endl;
+
 	TString str_icnt;
 	str_icnt+=icnt;
 	str_icnt.Remove(TString::kLeading,' ');
@@ -1143,7 +1259,8 @@ int main(int argc, char *argv[])
 	int det = icnt - icnt_lost - icnt_absorbed;
 	str_icnt_det+=det;
 	str_icnt_det.Remove(TString::kLeading,' ');
-	scr << "stat->AddText(\"gen.: " << str_icnt << "\");" << endl;
+
+    scr << "stat->AddText(\"gen.: " << str_icnt << "\");" << endl;
 	scr << "stat->AddText(\"det.: " << str_icnt_det << "\");" << endl;
 	scr << "stat->SetFillColor(0);" << endl;
 	scr << "stat->Draw();" << endl;
@@ -1154,5 +1271,4 @@ int main(int argc, char *argv[])
 	delete manager;
 
 	return EXIT_SUCCESS;
-
 }

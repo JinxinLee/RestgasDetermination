@@ -125,6 +125,7 @@ bool PndDrcPhoton::Refract(XYZVector normal, double n1, double ex1, double n2, d
   double alpha1 = acos(norm.Dot(dir1));
   double alpha2;
 
+
   if(test)
   {
     double angle = alpha1 / TMath::Pi() * 180;
@@ -137,6 +138,7 @@ bool PndDrcPhoton::Refract(XYZVector normal, double n1, double ex1, double n2, d
     TString shellString = "echo " + angleString + " >> angle.tmp";
     system( shellString );
   }
+
 
   bool reflect;
   if( fresnelFlag )

@@ -1,7 +1,7 @@
 // ----------------------------------------------------
 // This file belongs to the ray tracing framework
 // for the use with Cherenkov detectors
-// 
+//
 // created 2007
 //-----------------------------------------------------
 #include "PndDrcSurfPolyFlat.h"
@@ -65,7 +65,7 @@ PndDrcSurfPolyFlat::PndDrcSurfPolyFlat()
 //----------------------------------------------------------------------
 PndDrcSurfPolyFlat* PndDrcSurfPolyFlat::Clone() const
 {
-  return new PndDrcSurfPolyFlat(*this); 
+  return new PndDrcSurfPolyFlat(*this);
 }
 //----------------------------------------------------------------------
 void PndDrcSurfPolyFlat::Copy(const PndDrcSurfPolyFlat& s)
@@ -79,7 +79,7 @@ void PndDrcSurfPolyFlat::Copy(const PndDrcSurfPolyFlat& s)
 PndDrcSurfPolyFlat::PndDrcSurfPolyFlat(const PndDrcSurfPolyFlat& s) : PndDrcSurfAbs(s)
 {
   if (s.fVerbosity>=1) cout<<"  PndDrcSurfPolyFlat::PndDrcSurfPolyFlat"
-			    <<"(const PndDrcSurfPolyFlat&) name,copy: "  
+			    <<"(const PndDrcSurfPolyFlat&) name,copy: "
 			    <<s.fName<<" "<<s.fCopyNumber<<endl;
   Copy(s);
 }
@@ -87,7 +87,7 @@ PndDrcSurfPolyFlat::PndDrcSurfPolyFlat(const PndDrcSurfPolyFlat& s) : PndDrcSurf
 PndDrcSurfPolyFlat&  PndDrcSurfPolyFlat::operator=(const PndDrcSurfPolyFlat& s)
 {
   if (s.fVerbosity>=1) cout<<"  PndDrcSurfPolyFlat::operator="
-			    <<"(const PndDrcSurfPolyFlat&) name,copy: "  
+			    <<"(const PndDrcSurfPolyFlat&) name,copy: "
 			    <<s.fName<<" "<<s.fCopyNumber<<endl;
   if (&s != this)
     {
@@ -112,7 +112,7 @@ void PndDrcSurfPolyFlat::AddPoint(XYZPoint point)
       for (int i=2; i<isize; i++)
 	{
 	  XYZVector normal = ((fP[i-1]-fP[i-2]).Cross(fP[i]-fP[i-1]));
-	      
+
 	  if (normal.Mag2() > length2)
 	    {
 	      length2 = normal.Mag2();
@@ -121,7 +121,7 @@ void PndDrcSurfPolyFlat::AddPoint(XYZPoint point)
 	}
     }
 
-  
+
 
 
   if (Verbosity()>=5)
@@ -147,26 +147,26 @@ bool PndDrcSurfPolyFlat::LineCross(const XYZPoint& pa, const XYZPoint& pb,
 				const XYZPoint& qa, const XYZPoint& qb) const
 {
   const double kEps = 1.0e-9;
- 
+
   TVector3 p((pb-pa).x(), (pb-pa).y(), (pb-pa).z());
   TVector3 q((qb-qa).x(), (qb-qa).y(), (qb-qa).z());
- 
 
 
+  // Mag instead of Mag2 otherwise this contraint cannot be true
   if (fabs(p.Dot(q)/(p.Mag2()*q.Mag2())) > 1.0L-kEps) return false; // directions parallel
 
   // calculate closest distance
   TVector3 n0   = (p.Cross(q)).Unit();
-  double   dist = fabs((pb-qb).Dot(n0));   
-  if (dist>kEps) return false;
+  double   dist = fabs((pb-qb).Dot(n0)); // ??? n0 is only perpendicular to pb-qb if pa is in the plane (qb,qa) and hence also the coord. origin
+  if (dist>kEps) return false; // return if pb-qb is not perpendicular to n0
 
   TVector3 pp(pa.x(),pa.y(),pa.z());
   TVector3 qq(qa.x(),qa.y(),qa.z());
   // solve
   // P + p*s = Q + q*t
-  // 
+  //
   // d**2 = ((P+ps) - (Q+qt))**2
-  // 
+  //
   // d/ds d**2 = d/dt d**2 => (P-Q) + (sp-tq) = 0
   //
   // This linear equation is for the minimum distance between both lines
@@ -176,7 +176,7 @@ bool PndDrcSurfPolyFlat::LineCross(const XYZPoint& pa, const XYZPoint& pb,
   // Solve linear equation
   //
   //    px  -qx   s     Qx-Px
-  //    py  -qy   t  =  Qy-Py   
+  //    py  -qy   t  =  Qy-Py
   //    pz  -qz         Qz-Pz
   //
   TMatrixD mat_a(3,2);
@@ -198,17 +198,17 @@ bool PndDrcSurfPolyFlat::LineCross(const XYZPoint& pa, const XYZPoint& pb,
 
   if (!svd.Solve(vec_b)) return false;
   //cout<<" crossing "<<B[0]<<" "<<B[1]<<endl;//###
-  
+
   if (vec_b[0]>-kEps && vec_b[0]<1+kEps && vec_b[1]>-kEps && vec_b[1]<1+kEps) return true;
   return false;
 
 }
 //----------------------------------------------------------------------
-bool PndDrcSurfPolyFlat::SurfaceHit(PndDrcPhoton& ph, 
-				 XYZPoint&        pos_new, 
+bool PndDrcSurfPolyFlat::SurfaceHit(PndDrcPhoton& ph,
+				 XYZPoint&        pos_new,
 				 double&          path_length) const
 {
-  if (Verbosity()>=4) 
+  if (Verbosity()>=4)
     {
       cout<<"      PndDrcSurfPolyFlat::surfaceHit: name="<<Name()<<endl;
     }
@@ -239,7 +239,7 @@ bool PndDrcSurfPolyFlat::SurfaceHit(PndDrcPhoton& ph,
   // dir*fNormal > 0 , see condition above
 
   double h = dir.Dot(fNormal);
-  if (h==0) 
+  if (h==0)
     {
       if (Verbosity()>=4) cout<<"      PndDrcSurfPolyFlat::surfaceHit: dir perp norm\n";
      return false;
@@ -263,14 +263,14 @@ bool PndDrcSurfPolyFlat::SurfaceHit(PndDrcPhoton& ph,
     {
       if (Verbosity()>=4) cout<<"      PndDrcSurfPolyFlat::surfaceHit: wrong dir "
 			  <<" lambda par ="<<lambda<<endl;
-      return false; 
+      return false;
     }
 
   path_length = fabs(lambda);
 
-  if (WithinSurface(pos_new)) 
+  if (WithinSurface(pos_new))
     {
-      if (fPixel) 
+      if (fPixel)
 	{
 	  ph.SetFate(Drc::kPhotMeasured);
 	}
@@ -278,13 +278,13 @@ bool PndDrcSurfPolyFlat::SurfaceHit(PndDrcPhoton& ph,
     }
 
   return false;
-} 
+}
 //----------------------------------------------------------------------
 bool PndDrcSurfPolyFlat::WithinSurface(XYZPoint& point) const
 {
   // check if pos_new is within area.
   //
-  // 
+  //
   //
   //         p3-------------------------p2
   //         /                          /
@@ -296,7 +296,7 @@ bool PndDrcSurfPolyFlat::WithinSurface(XYZPoint& point) const
   //   p4-------------------p1         normal vector to top
   //
   // if the line ab intersects the borders an equal number the point is inside
-  // for odd numbers it is outside. 
+  // for odd numbers it is outside.
 
   unsigned int isize = fP.size();
 
@@ -324,7 +324,7 @@ bool PndDrcSurfPolyFlat::WithinSurface(XYZPoint& point) const
   for (unsigned int i=0; i<isize-1; i++)
     {
       if (LineCross(p_out,point,fP[i],fP[i+1])) intersections++;
-      /*     
+      /*
 	     cout<<" nst "<<i<<" "<<intersections<<" "
 	     <<fP[i].X()<<" "
 	     <<fP[i].Y()<<" "
@@ -335,9 +335,9 @@ bool PndDrcSurfPolyFlat::WithinSurface(XYZPoint& point) const
       */
     }
 
-  if (intersections%2 == 0) 
+  if (intersections%2 == 0)
     {
-      if (Verbosity()>=4) 
+      if (Verbosity()>=4)
 	{
 	  cout<<"      PndDrcSurfPolyFlat::withinSurface:"<<Name()<<" no hit "
 	      <<"intersections="<<intersections<<endl;
@@ -345,9 +345,9 @@ bool PndDrcSurfPolyFlat::WithinSurface(XYZPoint& point) const
 	  cout<<"      pin  = "<<point<<endl;
 
 	}
-      return false; 
+      return false;
     }
-  if (Verbosity()>=4) 
+  if (Verbosity()>=4)
     {
       cout<<"      PndDrcSurfPolyFlat::withinSurface:"<<Name()<<" hit intersections="
 	  <<intersections<<endl;
