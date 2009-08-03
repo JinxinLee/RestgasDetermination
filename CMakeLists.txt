@@ -126,7 +126,7 @@ add_subdirectory (PndTools/riemannfit)
 add_subdirectory(PndTools/AnalysisTools)
 add_subdirectory (PndTools/MVA)
 add_subdirectory(lumi)
-
+add_subdirectory (pid)
 
 if(RULE_CHECKER_FOUND)
 
