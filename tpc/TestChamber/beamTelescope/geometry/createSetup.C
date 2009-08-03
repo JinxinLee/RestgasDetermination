@@ -124,7 +124,7 @@ void createSetup()
   FairGeoLoader *geoLoad = new FairGeoLoader("TGeo","FairGeoLoader");
   FairGeoInterface *geoFace = geoLoad->getGeoInterface();
   //Creating media for setup
-  geoFace->setMediaFile("../../../../../geometry/media_pnd.geo");
+  geoFace->setMediaFile("../../../../geometry/media_pnd.geo");
   geoFace->readMedia();
   geoFace->print();
   FairGeoMedia *Media =  geoFace->getMedia();
