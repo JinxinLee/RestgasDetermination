@@ -1,0 +1,87 @@
+{
+  // ========================================================================
+  // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
+  Int_t iVerbose = 0;
+  Int_t nEvents = 0;
+  // ----  Load libraries   -------------------------------------------------
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  rootlogon();
+  TString sysFile = gSystem->Getenv("VMCWORKDIR");
+  // ------------------------------------------------------------------------
+  // Output file
+  TString parFile = "params_tpccombi.root";
+  TString inSimuFile = "points_tpccombi.root";
+  TString inDigiFile = "digi_tpccombi.root";
+  TString inRecoFile = "reco_tpccombi.root";
+
+  TString outFile = "pid_tpccombi.root";
+   
+  // ---  Now choose concrete engines for the different tasks   -------------
+  // ------------------------------------------------------------------------
+
+
+  // In general, the following parts need not be touched
+  // ========================================================================
+
+  // -----   Timer   --------------------------------------------------------
+  TStopwatch timer;
+  timer.Start();
+  // ------------------------------------------------------------------------
+
+
+
+  // -----   Reconstruction run   -------------------------------------------
+  FairRunAna *fRun= new FairRunAna();
+  fRun->SetInputFile(inSimuFile);
+  fRun->AddFriend(inDigiFile);
+  fRun->AddFriend(inRecoFile);
+  
+  
+  fRun->SetOutputFile(outFile.Data());
+  // ------------------------------------------------------------------------
+
+  // THIS IS STRONGLY NEEDED
+  FairGeane *Geane = new FairGeane(inSimuFile);
+  PndEmcMapper *emcMap = PndEmcMapper::Instance(2,inSimuFile);
+
+  // -----  Parameter database   --------------------------------------------
+  TString allDigiFile = sysFile+"/macro/params/all.par";
+
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairParRootFileIo* parInput1 = new FairParRootFileIo();
+  parInput1->open(parFile.Data());
+
+  FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
+  parIo1->open(allDigiFile.Data(),"in");
+
+  rtdb->setFirstInput(parInput1);
+  rtdb->setSecondInput(parIo1);
+  fRun->LoadGeometry();
+
+  // ------------------------------------------------------------------------
+  
+  PndPidCorrelator* corr = new PndPidCorrelator();
+  corr->SetInputBranch("LheTrack");
+  corr->SetDebugMode(kTRUE);
+  fRun->AddTask(corr);
+  
+  // -----   Intialise and run   --------------------------------------------
+  fRun->Init();
+  Geane->SetField(fRun->GetField());
+  fRun->Run(0,nEvents);
+  // ------------------------------------------------------------------------
+  rtdb->print();
+  // -----   Finish   -------------------------------------------------------
+  timer.Stop();
+  Double_t rtime = timer.RealTime();
+  Double_t ctime = timer.CpuTime();
+  cout << endl << endl;
+  cout << "Macro finished succesfully." << endl;
+  cout << "Output file is "    << outFile << endl;
+  cout << "Parameter file is " << parFile << endl;
+  cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
+  cout << endl;
+  // ------------------------------------------------------------------------
+
+
+}

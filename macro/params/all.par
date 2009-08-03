@@ -55,8 +55,7 @@ dimY:Double_t 0.01
 threshold:Double_t 1100
 noise:Double_t 200
 FECols:Int_t 104
-FERows:Int_t 104
-#################################################################
+FERows:Int_t 104#################################################################
 # Digitisation and reconstruction parameters for TPC
 # Format:
 # parameter_name:parameter_type(i-integer, d-double) parameter_value
@@ -206,3 +205,19 @@ parameters:Double_t \
                     3,   180.0000,  0.0, 2, \
                         1,  1,     0.0000,     0.0000,   179.3803,     0.0000,     5.0006,    90.0000,     0.0050,     0.0000,    90.0000,     0.0200,     0.0200, \
                         2,  1,     0.0000,     0.0000,   180.6207,     0.0000,     5.0038,    90.0000,     0.0050,    60.0000,   -60.0000,     0.0300,     0.0300  \
+#################################################################
+# Correlation Parameter for PID 
+# Format:
+# parameter_name:parameter_type(i-integer, d-double) parameter_value
+#################################################################
+[PndPidCorrPar]
+TofRadius:Float_t 43.6
+TofCut:Float_t 20.
+Emc12Thr:Float_t 0.02
+Emc12Radius:Float_t 63.
+Emc12Cut:Float_t 20.
+MdtRadius:Float_t 155.
+MdtCut:Float_t 20.
+DrcRadius:Float_t 49.
+DrcCut:Float_t 20.
+#################################################################

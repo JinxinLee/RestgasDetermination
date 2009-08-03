@@ -1,0 +1,63 @@
+/* ***************************************
+ * KNN based classifier.                 *
+ * Author: M.Babai@rug.nl                *
+ * Edited: E.A.Dijck@student.rug.nl      *
+ * Version: 0.1 beta1                    *
+ * license:                              *
+ * ***************************************
+ * Based on the straight KNN algorithm
+ * Using a linear search data structure.
+ */
+#pragma once
+#ifndef PndKnnClassify_H
+#define PndKnnClassify_H
+
+// Local includes
+#include "PndGpidClassifier.h"
+
+/*
+ * KNN based classification alg. implementation.
+ */
+class PndStdKnnClassify : public PndGpidClassifier 
+{
+ public:
+  /*
+   * @param inputFile: The name of the file that holds the weits
+   * @param classNames: The names of classes to which an event might be
+   * assigned to.
+   * @param varNames: Variable names from which the feature vector is
+   * built.
+   */
+  PndStdKnnClassify(const std::string& inputFile,
+		    const std::vector<std::string>& classNames, 
+		    const std::vector<std::string>& varNames);
+
+  //! Destructor  
+  virtual ~PndStdKnnClassify();
+
+  /* 
+   * Classification function.
+   * @param EvtData: Feature vector of the current event which we want
+   * to classify.
+   * @param result: Holds the normalized results of classification
+   * for every class of events.
+   */
+  void Classify(std::vector<float> eventData,
+		std::map<std::string,float>& result);
+
+  /**
+   * @param Neighbours: Number of Neighbours.
+   */
+  inline  void SetKNN(const unsigned int nNeighbours)
+  { m_Knn = nNeighbours; };
+
+ private:
+  PndStdKnnClassify(const PndStdKnnClassify& other);
+  PndStdKnnClassify& operator=(const PndStdKnnClassify& other);
+
+  //! Number of Neighbours.
+  unsigned int m_Knn;
+
+  std::vector<PndMvaDistObj> m_distances;
+};
+#endif //End of PndStdKnnClassify definitions.
