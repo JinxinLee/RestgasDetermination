@@ -30,16 +30,25 @@ using std::map;
 
 #include <cmath>
 
+
+#include "TCanvas.h"
+#include "TH1.h"
+#include "TFile.h"
+#include "TLine.h"
+#include "TMarker.h"
+#include "TMath.h"
+#include "TMatrixD.h"
 #include "TROOT.h"
 #include "TRint.h"
-#include "TVector3.h"
 #include "TRandom.h"
 #include "TRandom3.h"
 #include "TRotation.h"
 #include "TPaveText.h"
 #include "TString.h"
-#include "TMatrixD.h"
-#include "TMath.h"
+#include "TStyle.h"
+#include "TTree.h"
+#include "TVector3.h"
+
 
 #include "Math/Vector3D.h"
 using ROOT::Math::XYZVector;
@@ -88,6 +97,8 @@ int main(int argc, char *argv[])
   cout << "  4. Par.: hit pos. Z on bar [mm] (default: -500 mm); NEGATIVE NUMBER !!!" << endl;
   cout << "  if one parameter was set filename is \"Screen_beamspot_Xdeg_X_Y_Z.C\" (deault Screen.C)" << endl << endl;
 
+
+
 	double conical_const =  0; //sphere
 // 	double conical_const = 0.5; //parabola
 
@@ -114,20 +125,20 @@ int main(int argc, char *argv[])
 	double lambda = 435;
 
 
-// 	double wavelength[4];
-// 	wavelength[0]=300;
-// 	wavelength[1]=435;
-// 	wavelength[2]=532;
-// 	wavelength[3]=589;
+// 	double waveLength[4];
+// 	waveLength[0]=300;
+// 	waveLength[1]=435;
+// 	waveLength[2]=532;
+// 	waveLength[3]=589;
 // 	for( int i=0; i < 4; i++ )
 // 	{
-// 		cout << "n_quartz    (" << wavelength[i] << " nm) = " << quartz.RefIndex(wavelength[i])     << endl;
-// 		cout << "n_vacuum    (" << wavelength[i] << " nm) = " << vacuum.RefIndex(wavelength[i])     << endl;
-// 		cout << "n_nlak33a   (" << wavelength[i] << " nm) = " << nlak33a.RefIndex(wavelength[i])    << endl;
-// 		cout << "n_llf1      (" << wavelength[i] << " nm) = " << llf1.RefIndex(wavelength[i])       << endl;
-// 		cout << "n_bk7       (" << wavelength[i] << " nm) = " << bk7.RefIndex(wavelength[i])        << endl;
-// 		cout << "n_lensIndex (" << wavelength[i] << " nm) = " << lensIndex.RefIndex(wavelength[i])  << endl;
-// 		cout << "n_oilIndex  (" << wavelength[i] << " nm) = " << oilIndex.RefIndex(wavelength[i])   << endl << endl;
+// 		cout << "n_quartz    (" << waveLength[i] << " nm) = " << quartz.RefIndex(waveLength[i])     << endl;
+// 		cout << "n_vacuum    (" << waveLength[i] << " nm) = " << vacuum.RefIndex(waveLength[i])     << endl;
+// 		cout << "n_nlak33a   (" << waveLength[i] << " nm) = " << nlak33a.RefIndex(waveLength[i])    << endl;
+// 		cout << "n_llf1      (" << waveLength[i] << " nm) = " << llf1.RefIndex(waveLength[i])       << endl;
+// 		cout << "n_bk7       (" << waveLength[i] << " nm) = " << bk7.RefIndex(waveLength[i])        << endl;
+// 		cout << "n_lensIndex (" << waveLength[i] << " nm) = " << lensIndex.RefIndex(waveLength[i])  << endl;
+// 		cout << "n_oilIndex  (" << waveLength[i] << " nm) = " << oilIndex.RefIndex(waveLength[i])   << endl << endl;
 // 	}
 
 
@@ -835,7 +846,7 @@ int main(int argc, char *argv[])
 		cout << "hit pos: (" << startX << ", " << startY << ", " << startZ << ")" << endl;
 
 
-		int photon_number = 100; // 100
+		int photon_number = 1; // 100
 // 		float     range = 1000;
 // 		photons_exist = manager->Cerenkov(pos,dir,beta,photon_number,range);
 
@@ -917,7 +928,7 @@ int main(int argc, char *argv[])
             manager->Cerenkov(spotPos,dir,beta,photon_number,maxrange); // maxrange instead of range
 
 
-            if( spotX < slab_width / 2)
+            if( spotX < slab_width / 2) // should never happen
             {
               cout << "particle origin production is in the bar !!!" << endl;
               cout << spotX << " " << spotY << " " << spotZ << endl;
@@ -1076,116 +1087,140 @@ int main(int argc, char *argv[])
   //exit(1);
 	geo.close();
 
-  // write to screen...
 
 
-	TString  outFile_str;
-	if( argc >= 2 )
-	{
-        TString inci_str;
-        TString startX_str;
-        TString startY_str;
-        TString startZ_str;
+// ROOT file output
+//==============================================================================
+    TString outFilename;
 
-        inci_str += inci;
-        inci_str.Remove( TString::kLeading , ' ' );
-        startX_str += startX_center;
-        startX_str.Remove( TString::kLeading , ' ' );
-        startY_str += startY_center;
-        startY_str.Remove( TString::kLeading , ' ' );
-        startZ_str += startZ_center;
-        startZ_str.Remove( TString::kLeading , ' ' );
+    if( argc >= 2 )
+    {
+      TString inci_str;
+      TString startX_str;
+      TString startY_str;
+      TString startZ_str;
 
-        outFile_str = "Screen_" + inci_str + "deg_" + startX_str + "_" + startY_str + "_" + startZ_str + ".C" ;
-	}
-	else
-		outFile_str = "Screen.C";
+      inci_str += inci;
+      inci_str.Remove( TString::kLeading , ' ' );
+      startX_str += startX_center;
+      startX_str.Remove( TString::kLeading , ' ' );
+      startY_str += startY_center;
+      startY_str.Remove( TString::kLeading , ' ' );
+      startZ_str += startZ_center;
+      startZ_str.Remove( TString::kLeading , ' ' );
 
-    cout << "FILE: " << outFile_str << endl;
+      outFilename = "beamtest0909_" + inci_str + "deg_" + startX_str + "_" + startY_str + "_" + startZ_str + ".root" ;
+    }
+    else
+      outFilename = "beamtest0909.root";
+
+    cout << "FILE: " << outFilename << endl;
 
 
-	fstream scr;
-	scr.open(outFile_str,std::ios::out);
+    TFile *outFile  = new TFile( outFilename, "RECREATE" ); // treename is ntuple
+    TTree *outTree  = new TTree( "ntuple", outFilename );
 
-	scr << "{" << endl;
-	scr << "gStyle->SetCanvasColor(0);"       << endl;
-	scr << "gStyle->SetCanvasBorderMode(0);"  << endl;
-	scr << "gStyle->SetFrameBorderMode(0);"   << endl;
-	scr << "gStyle->SetTitleFillColor(0);"    << endl;
-	scr << "gStyle->SetTitleFontSize(0.05);"  << endl;
-	scr << "TCanvas *c1 = new TCanvas( \"c1\", \"\" ,200, 10, 700, 500 );" << endl;
 
-	TString str_beta;
+    double wavelength, posX, posY;
+    bool measured, absorbed, lost;
+
+    outTree->Branch( "wavelength" , &wavelength , "wavelength/D"); // D: Double_t
+    outTree->Branch( "posX"       , &posX       , "posX/D"      );
+    outTree->Branch( "posY"       , &posY       , "posY/D"      );
+    outTree->Branch( "measured"   , &measured   , "measured/O"  ); // O: Bool_t
+    outTree->Branch( "absorbed"   , &absorbed   , "absorbed/O"  );
+    outTree->Branch( "lost"       , &lost       , "lost/O"      );
+
+
+// Plot declarations
+//==============================================================================
+
+    // set some global options
+    gStyle->SetCanvasColor( 0 );        // white
+    gStyle->SetCanvasBorderMode( 0 );   // no yellow frame
+    gStyle->SetFrameBorderMode( 0 );    // no red frame
+    gStyle->SetTitleFillColor( 0 );     // white; not saved in the root file
+    gStyle->SetTitleFontSize( 0.05 );
+    gStyle->SetPalette( 1 );            // better color palette
+    gStyle->SetStatColor( 0 );          // stat. box color
+
+    TCanvas *canvas = new TCanvas( "c1", "" ,200, 10, 700, 500 );
+
+
+	TString beta_str;
 	beta = floor( beta * pow(10 ,4) + 0.5 ) * pow(10, -4); // round beta to 4 digits (after point)
-	str_beta+=beta;
-	str_beta.Remove(TString::kLeading,' ');
+	beta_str+=beta;
+	beta_str.Remove(TString::kLeading,' ');
 
-	scr << "TString title;" << endl;
-//     scr << "title=\"spatial position [mm] (beta=" << str_beta << ", #lambda =435nm)\";"<< endl;
-	scr << "title=\"spatial position [mm] (beta=" << str_beta << ")\";" << endl;
-    scr << "TH1F *hgr = new TH1F(\"hgr1\",title,600,-150,150);" << endl;
-// 	scr << "TH1F *hgr = new TH1F(\"hgr1\",title,600,-400,400);" << endl;
-	scr << "hgr->SetStats( 0 );"     << endl;
-	scr << "hgr->SetMarkerStyle(7);" << endl;
-	scr << "hgr->SetMarkerSize(0.5);"<< endl;
-// 	scr << "hgr->SetMinimum(-400);"  << endl;
-// 	scr << "hgr->SetMaximum(+400);"  << endl;
-    scr << "hgr->SetMinimum(-100);"  << endl;
-    scr << "hgr->SetMaximum(+100);"  << endl;
-	scr << "hgr->Draw(\"POL\");"     << endl << endl;
+    TString title;
+    title= "spatial position [mm] (beta=" + beta_str + ")";
+//     title= "spatial position [mm] (beta=" + beta_str + ", #lambda =435nm)";
 
-    int icnt_measured = 0;
-	int icnt_flying   = 0;
-	int icnt_lost     = 0;
-	int icnt_absorbed = 0;
+    TH1F *screen = new TH1F( "screen", title, 600, -150, 150 );
+//     TH1F *screen = new TH1F( "screen", title, 600, -400, 400 );
+
+    screen->SetStats( 0 );
+    screen->SetMarkerStyle(7);
+    screen->SetMarkerSize(0.5);
+    screen->SetMinimum(-100);
+    screen->SetMaximum(+100);
+//     screen->SetMinimum(-400);
+//     screen->SetMaximum(+400);
+    screen->Draw("POL");
 
 
-	list<PndDrcPhoton>::iterator iph;
-	PndDrcPhoton ph_old;
+
+
 
 
 	fstream measured_dat;
 	fstream absorbed_dat;
     fstream lost_dat;
-	fstream measured_wave_dat;
-	fstream absorbed_wave_dat;
-    fstream lost_wave_dat;
 
 	measured_dat.open("measured.tmp",std::ios::out);
 	absorbed_dat.open("absorbed.tmp",std::ios::out);
     lost_dat.open("lost.tmp",std::ios::out);
-	measured_wave_dat.open("measured_wave.tmp",std::ios::out);
-	absorbed_wave_dat.open("absorbed_wave.tmp",std::ios::out);
-    lost_wave_dat.open("lost_wave.tmp",std::ios::out);
+
+
+    list<PndDrcPhoton>::iterator iph;
+    PndDrcPhoton ph_old;
+
+    int icnt_measured = 0;
+    int icnt_flying   = 0;
+    int icnt_lost     = 0;
+    int icnt_absorbed = 0;
 
 	int n_iph = 0;
 
 	for(iph=list_photon.begin(); iph != list_photon.end(); ++iph)
 	{
 		n_iph++;
-		double wavi = (*iph).Wavelength();
+
+		wavelength = (*iph).Wavelength();
+        posX = -666; // just initialize it
+        posY = -666;
+
+        measured = false;
+        absorbed = false;
+        lost     = false;
 
 		if ((*iph).Fate()==Drc::kPhotMeasured)
 		{
 			icnt_measured++;
 
 			measured_dat << n_iph << endl;
-			measured_wave_dat << wavi << endl;
-
+            measured = true;
 
 			XYZPoint pos = (*iph).Position();
-			double x     = pos.X();
-			double y     = pos.Y();
+			posX = pos.X();
+			posY = pos.Y();
 
-//       if( x <= 150 && x >= -150 && y <= 100 && y >= -100 ){
-			scr<<"    TMarker* t = new TMarker("<<x<<","<<y<<",20);"<<endl;
-			scr<<"    t->SetMarkerStyle(7);"<<endl;
-			scr<<"    t->SetMarkerColor("<<(*iph).ColorNumber((*iph).Wavelength())<<");"<<endl;
-			scr<<"    t->SetMarkerSize(0.7);"<<endl;
-			scr<<"    t->Draw();"<<endl;
-//       }
+            TMarker* t = new TMarker( posX, posY, 7);
+            t->SetMarkerColor( (*iph).ColorNumber((*iph).Wavelength()) );
+            t->SetMarkerSize(0.7);
+            t->Draw();
+
 			ph_old = (*iph);
-
 		}
 		else if ((*iph).Fate()==Drc::kPhotFlying)   icnt_flying++; // should never happen.
 		else if ((*iph).Fate()==Drc::kPhotAbsorbed)
@@ -1193,52 +1228,49 @@ int main(int argc, char *argv[])
 			icnt_absorbed++;
 
 			absorbed_dat << n_iph << endl;
-			absorbed_wave_dat << wavi << endl;
+            absorbed = true;
 		}
 		else
 		{
 			icnt_lost++;
 
             lost_dat << n_iph << endl;
-            lost_wave_dat << wavi << endl;
+            lost = true;
 		}
+
+        outTree->Fill();
 	}
 
 	measured_dat.close();
 	absorbed_dat.close();
     lost_dat.close();
-	measured_wave_dat.close();
-	absorbed_wave_dat.close();
-    lost_wave_dat.close();
 
 
     // MCP position
-	scr << endl;
-	scr << "TLine *l1 = new TLine(-19.125,-13.625,-70.125,-13.625);"    << endl;
-	scr << "TLine *l2 = new TLine(-70.125,-13.625,-70.125,37.375);"     << endl;
-	scr << "TLine *l3 = new TLine(-70.125,37.375,-19.125,37.375);"      << endl;
-	scr << "TLine *l4 = new TLine(-19.125,37.375,-19.125,-13.625);"     << endl;
-	scr << "l1->SetLineWidth(3);" << endl;
-	scr << "l2->SetLineWidth(3);" << endl;
-	scr << "l3->SetLineWidth(3);" << endl;
-	scr << "l4->SetLineWidth(3);" << endl;
-	scr << "l1->Draw(\"same\");" << endl;
-	scr << "l2->Draw(\"same\");" << endl;
-	scr << "l3->Draw(\"same\");" << endl;
-	scr << "l4->Draw(\"same\");" << endl;
-	scr << endl;
-	scr << "TLine *l5 = new TLine(19.125,-13.625,70.125,-13.625);"  << endl;
-	scr << "TLine *l6 = new TLine(70.125,-13.625,70.125,37.375);"   << endl;
-	scr << "TLine *l7 = new TLine(70.125,37.375,19.125,37.375);"    << endl;
-	scr << "TLine *l8 = new TLine(19.125,37.375,19.125,-13.625);"   << endl;
-	scr << "l5->SetLineWidth(3);" << endl;
-	scr << "l6->SetLineWidth(3);" << endl;
-	scr << "l7->SetLineWidth(3);" << endl;
-	scr << "l8->SetLineWidth(3);" << endl;
-	scr << "l5->Draw(\"same\");" << endl;
-	scr << "l6->Draw(\"same\");" << endl;
-	scr << "l7->Draw(\"same\");" << endl;
-	scr << "l8->Draw(\"same\");" << endl;
+	TLine *l1 = new TLine(-19.125,-13.625,-70.125,-13.625);
+	TLine *l2 = new TLine(-70.125,-13.625,-70.125,37.375);
+	TLine *l3 = new TLine(-70.125,37.375,-19.125,37.375);
+	TLine *l4 = new TLine(-19.125,37.375,-19.125,-13.625);
+	l1->SetLineWidth(3);
+	l2->SetLineWidth(3);
+	l3->SetLineWidth(3);
+	l4->SetLineWidth(3);
+	l1->Draw("same");
+	l2->Draw("same");
+	l3->Draw("same");
+	l4->Draw("same");
+	TLine *l5 = new TLine(19.125,-13.625,70.125,-13.625);
+	TLine *l6 = new TLine(70.125,-13.625,70.125,37.375);
+	TLine *l7 = new TLine(70.125,37.375,19.125,37.375);
+	TLine *l8 = new TLine(19.125,37.375,19.125,-13.625);
+	l5->SetLineWidth(3);
+	l6->SetLineWidth(3);
+	l7->SetLineWidth(3);
+	l8->SetLineWidth(3);
+	l5->Draw("same");
+	l6->Draw("same");
+	l7->Draw("same");
+	l8->Draw("same");
 
 
 	int icnt = icnt_measured+icnt_flying+icnt_lost+icnt_absorbed;
@@ -1249,9 +1281,6 @@ int main(int argc, char *argv[])
 	cout<<" lost      photons: "<<icnt_lost<<endl<<endl;
 
 
-    scr << endl;
-	scr << "TPaveText *stat = new TPaveText(0.8,0.88,0.98,0.98,\"brNDC\");" << endl;
-
 	TString str_icnt;
 	str_icnt+=icnt;
 	str_icnt.Remove(TString::kLeading,' ');
@@ -1260,12 +1289,22 @@ int main(int argc, char *argv[])
 	str_icnt_det+=det;
 	str_icnt_det.Remove(TString::kLeading,' ');
 
-    scr << "stat->AddText(\"gen.: " << str_icnt << "\");" << endl;
-	scr << "stat->AddText(\"det.: " << str_icnt_det << "\");" << endl;
-	scr << "stat->SetFillColor(0);" << endl;
-	scr << "stat->Draw();" << endl;
-	scr<<"}"<<endl;
-	scr.close();
+
+    TPaveText *stat = new TPaveText(0.8,0.88,0.98,0.98,"brNDC");
+
+    stat->SetFillColor(0);
+    stat->AddText( "gen.: " + str_icnt    );
+	stat->AddText( "det.: " + str_icnt_det);
+	stat->Draw();
+
+    canvas->Write("Screen");
+
+
+    canvas->Close();
+
+    outFile->Write();
+    outFile->Close();
+    cout << "Root-file " << outFilename << " was written" << endl;
 
 
 	delete manager;
