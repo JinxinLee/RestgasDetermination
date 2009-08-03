@@ -6,8 +6,8 @@ PROJECT(alignment)
 cmake_minimum_required(VERSION 2.4)
 
 
-INCLUDE_DIRECTORIES($ENV{ROOTSYS}/include $ENV{ROOTSYS}/include/Math/ /afs/e18/panda/SIM/sdorheim/gemMonitor/src/ ../../src)
-LINK_DIRECTORIES(../../../ /afs/e18/panda/SIM/sdorheim/gemMonitor/src/)
+INCLUDE_DIRECTORIES($ENV{ROOTSYS}/include $ENV{ROOTSYS}/include/Math/ /home/sverre/work/gemMonitor/gemMonitor/src/CsGEM/ ../../src)
+LINK_DIRECTORIES(../../../ /home/sverre/work/gemMonitor/gemMonitor/lib/)
 
  
 SET(SOURCES tracking.cxx helpers.cpp ../../../src/TChough2.cxx)
@@ -26,6 +26,6 @@ SET(CMAKE_CXX_FLAGS "-g -Wall -Wno-long-long -msse2")
 
 ADD_EXECUTABLE(tracker ${SOURCES})
 TARGET_LINK_LIBRARIES(tracker  ${ROOT_LIBS})
-TARGET_LINK_LIBRARIES(tracker /afs/e18/panda/SIM/sdorheim/gemMonitor/src/libCsGEMPlane_gcc4.1.2_ROOT5.20.00.so)
+TARGET_LINK_LIBRARIES(tracker /home/sverre/work/gemMonitor/gemMonitor/lib/libCsGEM.so)
 TARGET_LINK_LIBRARIES(tracker testChamber)
 SET_TARGET_PROPERTIES(tracker PROPERTIES LINKER_LANGUAGE CXX)

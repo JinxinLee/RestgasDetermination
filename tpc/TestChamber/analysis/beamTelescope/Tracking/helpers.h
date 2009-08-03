@@ -23,6 +23,12 @@ class HistContainer{
   void fillRes(TCtrack* track,std::string alignmentFile);
   void write(std::string filename="clusterMultipCut.root");
   void ampFiller(int detID, double amp, double noise,double ratioA1A3=0, double ratioA2A3=0);
+  
+  TH2D *hitmapGM1;
+  TH2D *hitmapGM2;
+  TH2D *hitmapSI1;
+  TH2D *hitmapSI2;
+
   TH1I *histogramSI1X;
   TH1I *histogramSI1Y;
   TH1I *histogramSI2X;
@@ -201,10 +207,26 @@ void ampDiffCut(const std::list<CsGEMCluster*> &clusterList,std::vector<TCcluste
   Does a cut on the ratio a1/a2 and a0/a2, a cut on the bananaplot
   Cuts away clusters with a1/a2>cut1 and a0/a2>cut0
 */
-void ampRatioCut(const std::list<CsGEMCluster*> &clusterList,std::vector<TCcluster> &tcClusters, double cutA1A3, double cutA2A3, int detID,std::string alignmentFile, int& counter, HistContainer* hcont, double umin =-1, double umax=-1);
-void ampRatioNoiseCut(const std::list<CsGEMCluster*> &clusterList,std::vector<TCcluster> &tcClusters, double cutA1A3, double cutA2A3,double cut, int detID,std::string alignmentFile, int& counter, HistContainer* hcont, double umin =-1, double umax=-1);
-void clusterFiller(TCcluster cl, std::vector<TCcluster>& clusters, TH1D* hitPointHist,TH1D* uHist, TH1D* errHist, TGraph* graph, int& counter, bool x);
-void dispDraw(TCtrack* track1, TCtrack* track2, TGraph* clFit_x1,TGraph* clFit_y1, TGraph* clFit_x2, TGraph* clFit_y2 ,  TGraph* x_event,TGraph* y_event);
+void ampRatioCut(const std::list<CsGEMCluster*> &clusterList,
+		 std::vector<TCcluster> &tcClusters, 
+		 double cutA1A3, double cutA2A3, 
+		 int detID,std::string alignmentFile, 
+		 int& counter, HistContainer* hcont, 
+		 double umin =-1, double umax=-1);
+void ampRatioNoiseCut(const std::list<CsGEMCluster*> &clusterList,
+		      std::vector<TCcluster> &tcClusters, 
+		      double cutA1A3, double cutA2A3,double cut, 
+		      int detID,std::string alignmentFile, 
+		      int& counter, HistContainer* hcont, 
+		      double umin =-1, double umax=-1);
+void clusterFiller(TCcluster cl, std::vector<TCcluster>& clusters, 
+		   TH1D* hitPointHist,TH1D* uHist, 
+		   TH1D* errHist, TGraph* graph, 
+		   int& counter, bool x);
+void dispDraw(TCtrack* track1, TCtrack* track2, 
+	      TGraph* clFit_x1,TGraph* clFit_y1, 
+	      TGraph* clFit_x2, TGraph* clFit_y2 ,  
+	      TGraph* x_event,TGraph* y_event);
 
 
 #endif

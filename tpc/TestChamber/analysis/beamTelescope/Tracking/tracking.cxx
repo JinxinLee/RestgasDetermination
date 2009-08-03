@@ -5,6 +5,8 @@
 
 #include <TApplication.h>
 #include <TROOT.h>
+#include <TSystem.h>
+
 #include <TObject.h>
 #include <TChain.h>
 #include <TFile.h>
@@ -126,6 +128,7 @@ int main(int argc,char **argv){
   int nZero=0;
   int noiseCut=0;
   int ratioCut=0;
+  int nClusters=0;
   for(int i_ev=0;i_ev<nEvents;i_ev++) {
     if (i_ev==117) {
       std::cout<<"\n\nOk, ok - I will continue, but please wash yourself, man!"
@@ -134,7 +137,7 @@ int main(int argc,char **argv){
       continue;
     }
     if(i_ev%250==0){
-      std::cout<<i_ev<<", nTrackTries: "<<n_tracks<<", To Many cl: "<<nToMany<< ", Empty: "<<nZero<<", noiseCut: "<<noiseCut<<", ratioCut: "<<ratioCut<<"********************************************************************"<<std::endl;
+      std::cout<<i_ev<<"n clusters"<<nClusters<<", nTrackTries: "<<n_tracks<<", To Many cl: "<<nToMany<< ", Empty: "<<nZero<<", noiseCut: "<<noiseCut<<", ratioCut: "<<ratioCut<<"********************************************************************"<<std::endl;
     }
     tree->GetEntry(i_ev);
     event->clear();
@@ -148,14 +151,30 @@ int main(int argc,char **argv){
     std::vector<TCcluster> clGM2X;
     std::vector<TCcluster> clGM2Y;
     //cout<<"befoore cuts"<<endl;
-    ampRatioNoiseCut(SI01X1->GetClusters(), clSI1X, 0.45,0.45,7,3,alignmentFile, ratioCut,histContainer/*,1.2,2*/);
-    ampRatioNoiseCut(SI01Y1->GetClusters(), clSI1Y, 0.45,0.45,7,4,alignmentFile, ratioCut,histContainer);
-    ampRatioNoiseCut(SI02X1->GetClusters(), clSI2X, 0.45,0.45,7,5,alignmentFile, ratioCut,histContainer/*,0,0.8*/);
-    ampRatioNoiseCut(SI02Y1->GetClusters(), clSI2Y, 0.45,0.45,7,6,alignmentFile, ratioCut,histContainer);
-    ampRatioNoiseCut(GM01X1->GetClusters(), clGM1X, 0.9,1.1,7,1,alignmentFile, ratioCut,histContainer/*,5,7.5*/);
-    ampRatioNoiseCut(GM01Y1->GetClusters(), clGM1Y, 1.1,1.1,7,2,alignmentFile, ratioCut,histContainer/*,4.8,7.3*/);
-    ampRatioNoiseCut(GM02X1->GetClusters(), clGM2X, 0.2,0.9,7,7,alignmentFile, ratioCut,histContainer);
-    ampRatioNoiseCut(GM02Y1->GetClusters(), clGM2Y, 0.3,0.9,7,8,alignmentFile, ratioCut,histContainer);
+    ampRatioNoiseCut(SI01X1->GetClusters(), clSI1X, 
+		     1.1,0.8,7,3,alignmentFile, 
+		     ratioCut,histContainer/*,1.2,2*/);
+    ampRatioNoiseCut(SI01Y1->GetClusters(), clSI1Y, 
+		     1.1,0.8,7,4,alignmentFile, 
+		     ratioCut,histContainer);
+    ampRatioNoiseCut(SI02X1->GetClusters(), clSI2X, 
+		     1.1,0.9,7,5,alignmentFile, 
+		     ratioCut,histContainer/*,0,0.8*/);
+    ampRatioNoiseCut(SI02Y1->GetClusters(), clSI2Y, 
+		     1.1,0.9,7,6,alignmentFile, 
+		     ratioCut,histContainer);
+    ampRatioNoiseCut(GM01X1->GetClusters(), clGM1X, 
+		     0.9,0.55,7,1,alignmentFile, 
+		     ratioCut,histContainer/*,5,5.5*/);
+    ampRatioNoiseCut(GM01Y1->GetClusters(), clGM1Y, 
+		     0.9,0.45,7,2,alignmentFile, 
+		     ratioCut,histContainer/*,4.8,7.3*/);
+    ampRatioNoiseCut(GM02X1->GetClusters(), clGM2X,
+		     1.1,0.9,7,7,alignmentFile, 
+		     ratioCut,histContainer);
+    ampRatioNoiseCut(GM02Y1->GetClusters(), clGM2Y,
+		     1.1,0.9,7,8,alignmentFile, 
+		     ratioCut,histContainer);
     //    cout<<"after cuts"<<endl;
     /*
     ampDiffCut(clSI1X, 5,3,alignmentFile, noiseCut,histContainer,1.2,2);
@@ -177,6 +196,7 @@ int main(int argc,char **argv){
       histContainer->histogramGM1Y->Fill(clGM2Y.size());   
       histContainer->histogramGM2X->Fill(clGM1X.size());
       histContainer->histogramGM2Y->Fill(clGM1Y.size());
+      nClusters=nClusters+clSI1X.size()+clSI1Y.size()+clSI2X.size()+clSI2Y.size()+clGM2X.size()+clGM2Y.size()+clGM1X.size()+clGM1Y.size();
       histContainer->histogramEvent->Fill(event->nClusters());
     }
     vector<TCcluster> startClusters;
@@ -189,7 +209,7 @@ int main(int argc,char **argv){
           histContainer->histogramGM1XYratio->Fill(ratio);
           histContainer->histogramGM1YXratio->Fill(1/ratio);
         }
-        double x = clGM1X.at(i).getAmp();    double y = clGM1Y.at(j).getAmp()*1.05;
+        double x = clGM1X.at(i).getAmp()*1.05;    double y = clGM1Y.at(j).getAmp();
         if(x>y){
           ratio2=y/x;
         }else{
@@ -280,19 +300,36 @@ int main(int argc,char **argv){
     vector<TCcluster> clYZ;
     for(unsigned int i=0;i<startClusters.size()/2;i++){
       int id =2*i;
+      histContainer->hitmapGM1->Fill(startClusters.at(id).posUVW().x(),startClusters.at(id+1).posUVW().x());
       clusterFiller(startClusters.at(id),clXZ,histContainer->histogramGM1Xhitpoint,
 		    histContainer->histogramGM1XU, histContainer->histogramGM1Xerr,x_event,n_points, true);
     }
     for(unsigned int i=0;i<clSI1X.size();++i){
       clusterFiller(clSI1X.at(i),clXZ,histContainer->histogramSI1Xhitpoint,
 		    histContainer->histogramSI1XU, histContainer->histogramSI1Xerr,x_event,n_points, true);
+      for(unsigned int j=0;j<clSI1Y.size();++j){
+	histContainer->hitmapSI1->Fill(clSI1X.at(i).posUVW().x(),clSI1Y.at(j).posUVW().x());
+	if(i==0){
+	  clusterFiller(clSI1Y.at(j),clYZ,histContainer->histogramSI1Yhitpoint,
+			histContainer->histogramSI1YU, histContainer->histogramSI1Yerr,y_event,n_points, false);
+	}
+      }
     }
     for(unsigned int i=0;i<clSI2X.size();++i){
       clusterFiller(clSI2X.at(i),clXZ, histContainer->histogramSI2Xhitpoint,
 		    histContainer->histogramSI2XU, histContainer->histogramSI2Xerr,x_event,n_points, true);
+      for(unsigned int j=0;j<clSI2Y.size();++j){
+	histContainer->hitmapSI2->Fill(clSI2X.at(i).posUVW().x(),clSI2Y.at(j).posUVW().x());
+	if(i==0){
+	  clusterFiller(clSI2Y.at(j),clYZ,histContainer->histogramSI2Yhitpoint,
+			histContainer->histogramSI2YU, histContainer->histogramSI2Yerr,y_event,n_points, false);
+	}
+    }
+
     }
     for(unsigned int i=0;i<endClusters.size()/2;i++){
       int id =2*i;
+      histContainer->hitmapGM2->Fill(endClusters.at(id).posUVW().x(),endClusters.at(id+1).posUVW().x());
       clusterFiller(endClusters.at(id),clXZ,histContainer->histogramGM2Xhitpoint,
                     histContainer->histogramGM2XU, histContainer->histogramGM2Xerr,x_event,n_points, true);
     }
@@ -302,14 +339,7 @@ int main(int argc,char **argv){
       clusterFiller(startClusters.at(id),clYZ,histContainer->histogramGM1Yhitpoint,
                     histContainer->histogramGM1YU, histContainer->histogramGM1Yerr,y_event,n_points, false);
     }
-    for(unsigned int i=0;i<clSI1Y.size();++i){
-      clusterFiller(clSI1Y.at(i),clYZ,histContainer->histogramSI1Yhitpoint,
-                    histContainer->histogramSI1YU, histContainer->histogramSI1Yerr,y_event,n_points, false);
-    }
-    for(unsigned int i=0;i<clSI2Y.size();++i){
-      clusterFiller(clSI2Y.at(i),clYZ,histContainer->histogramSI2Yhitpoint,
-                    histContainer->histogramSI2YU, histContainer->histogramSI2Yerr,y_event,n_points, false);
-    }
+   
     for(unsigned int i=0;i<endClusters.size()/2;i++){
       int id =2*i+1;
       clusterFiller(endClusters.at(id),clYZ,histContainer->histogramGM2Yhitpoint,
@@ -514,9 +544,13 @@ int main(int argc,char **argv){
         }//end event display
       }//end if fit true
     }//end fit
+    //    if(i_ev>5000){ 
+    //break;
+    //}
     if(event->nTracks()==0){
        continue;
     }
+
     //cout<<"before fill"<<endl;
     eventTreeOut->Fill();
     //    cout<<"before fill"<<endl;
@@ -524,7 +558,7 @@ int main(int argc,char **argv){
 
   // histogramTrack->Fill(event->nTracks());  
   //  
-  //if(n_tracks>1000) break;
+
   std::cout<<nEvents<<", nTrackTries: "<<n_tracks<<", To Many cl: "
 	   <<nToMany<< ", Empty: "<<nZero<<", noiseCut: "<<noiseCut
 	   <<", ratioCut: "<<ratioCut<<"********************************************************************"<<std::endl;

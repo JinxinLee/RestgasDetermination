@@ -109,14 +109,15 @@ void ampDiffCut(const std::list<CsGEMCluster*> &clusterList, std::vector<TCclust
   a->read(alignmentFile);
   double pitch=a->getPitch(detID);
   for(std::list<CsGEMCluster*>::const_iterator it =clusterList.begin();it!=clusterList.end();it++ ){
-    double amp3=(*it)->GetAmp3();
+    vector<float> amps = (*it)->GetAmp();
+    double amp3=amps.at(2);
     double noise=(*it)->GetNoise();
-    double amp1=(*it)->GetAmp1();
+    double amp1=amps.at(0);
     //    double time=(*it)->GetTime();
 
     if((amp3-amp1>cut*noise)){
       hcont->ampFiller(detID,amp3,noise);
-      double x=((*it)->GetCenter())*pitch;
+      double x=((*it)->GetPosition())*pitch;
       //      cout<<"difcut umin: "<<umin<<" x "<<x<<" umax "<<umax<<endl;
      //  if(time==1000){
 //         continue;
@@ -126,15 +127,17 @@ void ampDiffCut(const std::list<CsGEMCluster*> &clusterList, std::vector<TCclust
         //cout<<"si"<<detID<<" "<<time<<endl;
         //cout<<"true"<<endl;
         TVector3 pos(x,0,0);
-        //TVector3 err(((*it)->GetErrCenter())*pitch,0.1,0.1);
-        TVector3 err(0.0369,0.1,0.1);
-        if(detID==5||detID==6){
+        TVector3 err(((*it)->GetPositionErr())*pitch,0.1,0.1);
+	
+	/*
+	  TVector3 err(0.0369,0.1,0.1);
+	  if(detID==5||detID==6){
           err=TVector3(0.0369,0.1,0.1);
-        }else{
+	  }else{
           err=TVector3(0.0020,0.1,0.1);
-        }
-        double amp((*it)->GetAmp3());
-        TCcluster _c(pos,err,amp,detID);
+	*/
+	  
+        TCcluster _c(pos,err,amp3,detID);
         _c.setFit(true);
         tcClusters.push_back(_c);
       }else{
@@ -152,35 +155,34 @@ std::vector<TCcluster> &tcClusters,  double cutA1A3, double cutA2A3, int detID,s
   a->read(alignmentFile);
   double pitch = a->getPitch(detID);
   for(std::list<CsGEMCluster*>::const_iterator it =clusterList.begin();it!=clusterList.end();it++ ){
-    double amp3=(*it)->GetAmp3();
+    vector<float> amps = (*it)->GetAmp();
+    double amp3=amps.at(2);
     double noise=(*it)->GetNoise();
-    double ratioA2A3=((*it)->GetAmp2())/(amp3);
-    double ratioA1A3=((*it)->GetAmp1())/(amp3);
+    double ratioA2A3=(amps.at(1))/(amp3);
+    double ratioA1A3=(amps.at(0))/(amp3);
     
     if(ratioA1A3<cutA1A3 || ratioA2A3<cutA2A3){
       hcont->ampFiller(detID,amp3,noise);
-      double x=((*it)->GetCenter())*pitch;
+      double x=((*it)->GetPosition())*pitch;
       //      cout<<"ratiocut umin: "<<umin<<" x "<<x<<" umax "<<umax<<endl;
-      if((umin==-1&&umax==-1)||(x>=umin&&x<=umax)){
+      //      if((umin==-1&&umax==-1)||(x>=umin&&x<=umax)){
         //        cout<<"true"<<endl;
 
-        TVector3 pos(x,0,0);
-        TVector3 err(0,0,0);
-        if(detID==7||detID==8){
-          err=TVector3(0.5,5.0,0.1);
-        }else{
-          err=TVector3(((*it)->GetErrCenter())*pitch,0.5,0.1);
-          err=TVector3(0.007,0.5,0.1);
-        }
-        double amp((*it)->GetAmp3());
-        //        double time((*it)->GetTime());
-        // cout<<time<<endl;
-        TCcluster _c(pos,err,amp,detID);
-        _c.setFit(true);
-        tcClusters.push_back(_c);
-     } else{
+      TVector3 pos(x,0,0);
+      TVector3 err(0,0,0);
+      err=TVector3(((*it)->GetPositionErr())*pitch,0.5,0.1);      
+    
+      double amp((*it)->GetAmp().at(2));
+      //        double time((*it)->GetTime());
+      // cout<<time<<endl;
+      TCcluster _c(pos,err,amp,detID);
+      _c.setFit(true);
+      tcClusters.push_back(_c);
+      /*
+	} else{
         counter++;
-     }
+	}
+	*/
     }else{
       counter++;
     }
@@ -195,41 +197,34 @@ void ampRatioNoiseCut(const std::list<CsGEMCluster*> &clusterList,std::vector<TC
   TRandom3 rand(0);
 
   for(std::list<CsGEMCluster*>::const_iterator it =clusterList.begin();it!=clusterList.end();it++ ){
-    double amp3=(*it)->GetAmp3();
-    double amp1=(*it)->GetAmp1();
-    double amp2=(*it)->GetAmp2();
+    vector<float> amps =(*it)->GetAmp();
+    double amp3=amps.at(2);
+    double amp1=amps.at(0);
+    double amp2=amps.at(1);
     double ratioA2A3=(amp2+rand.Uniform(-0.5,0.5))/(amp3);
     double ratioA1A3=(amp1+rand.Uniform(-0.5,0.5))/(amp3);
     double noise=(*it)->GetNoise();
     
     hcont->ampFiller(detID,amp3,noise, ratioA1A3,ratioA2A3);
-    if((ratioA1A3<cutA1A3 || ratioA2A3<cutA2A3)&&(amp3-amp1>cut*noise)){
+    if((ratioA1A3<cutA1A3 || ratioA2A3<cutA2A3)&&(amp3>cut*noise)){
       
-      double x=((*it)->GetCenter())*pitch;
+      double x=((*it)->GetPosition())*pitch;
       //      cout<<"ratiocut umin: "<<umin<<" x "<<x<<" umax "<<umax<<endl;
-      if((umin==-1&&umax==-1)||(x>=umin&&x<=umax)){
+      //if((umin==-1&&umax==-1)||(x>=umin&&x<=umax)){
         //        cout<<"true"<<endl;
 
-        TVector3 pos(x,0,0);
-        TVector3 err(0,0,0);
-        if(detID==7||detID==8){
-          err=TVector3(0.5,5.0,0.1);
-        }else if(detID==1||detID==2){
-          err=TVector3(((*it)->GetErrCenter())*pitch,0.5,0.1);
-          err=TVector3(0.007,0.5,0.1);
-        }else if(detID==5||detID==6){
-          err=TVector3(0.0369,0.1,0.1);
-        }else if(detID==3||detID==4){
-          err=TVector3(0.0020,0.1,0.1);
-        }
-        //        double time((*it)->GetTime());
-        // cout<<time<<endl;
-        TCcluster _c(pos,err,amp3,detID);
-        _c.setFit(true);
-        tcClusters.push_back(_c);
-     } else{
-        counter++;
-     }
+      TVector3 pos(x,0,0);
+      TVector3 err(0,0,0);
+      err=TVector3(((*it)->GetPositionErr())*pitch,0.5,0.1);
+      
+      //        double time((*it)->GetTime());
+      // cout<<time<<endl;
+      TCcluster _c(pos,err,amp3,detID);
+      _c.setFit(true);
+      tcClusters.push_back(_c);
+      //    } else{
+      //         counter++;
+      //      }
     }else{
       counter++;
     }
@@ -252,6 +247,12 @@ void clusterFiller(TCcluster cl, std::vector<TCcluster>& clusters, TH1D* hitPoin
   counter++;
 }
 HistContainer::HistContainer(){
+
+  hitmapGM1 =new TH2D("HitMapGM1", "HitMapGM1", 256, 0,10.24, 256, 0,10.24);
+  hitmapGM2 =new TH2D("HitMapGM2", "HitMapGM2", 256, 0,10.24, 256, 0,10.24);
+  hitmapSI1 =new TH2D("HitMapSI1", "HitMapSI1", 192, 0,1.92, 192, 0,1.92);
+  hitmapSI2 =new TH2D("HitMapSI2", "HitMapSI2", 192, 0,1.92, 192, 0,1.92);
+
   histogramSI1X = new TH1I("Multiplicity  SI01X", "Multiplicity  SI01X", 20, 0, 20);
   histogramSI1Y = new TH1I("Multiplicity  SI01Y", "Multiplicity  SI01Y", 20, 0, 20);
   histogramSI2X = new TH1I("Multiplicity  SI02X", "Multiplicity  SI02X", 20, 0, 20);
@@ -261,14 +262,14 @@ HistContainer::HistContainer(){
   histogramGM2X = new TH1I("Multiplicity  GM02X", "Multiplicity  GM02X", 20, 0, 20);
   histogramGM2Y = new TH1I("Multiplicity  GM02Y", "Multiplicity  GM02Y", 20, 0, 20);
 
-  histogramSI1XampRatio=new TH2D("ampRatioSI1X", "ampRatioSI1X", 50, -0.5,2,50, -0.5,2);
-  histogramSI1YampRatio=new TH2D("ampRatioSI1Y", "ampRatioSI1Y", 50, -0.5,2,50, -0.5,2);
-  histogramSI2XampRatio=new TH2D("ampRatioSI2X", "ampRatioSI2X", 50, -0.5,2,50, -0.5,2);
-  histogramSI2YampRatio=new TH2D("ampRatioSI2Y", "ampRatioSI2Y", 50, -0.5,2,50, -0.5,2);
-  histogramGM1XampRatio=new TH2D("ampRatioGM1X", "ampRatioGM1X", 50, -0.5,2,50, -0.5,2);
-  histogramGM1YampRatio=new TH2D("ampRatioGM1Y", "ampRatioGM1Y", 50, -0.5,2,50, -0.5,2);
-  histogramGM2XampRatio=new TH2D("ampRatioGM2X", "ampRatioGM2X", 50, -0.5,2,50, -0.5,2);
-  histogramGM2YampRatio=new TH2D("ampRatioGM2Y", "ampRatioGM2Y", 50, -0.5,2,50, -0.5,2);
+  histogramSI1XampRatio=new TH2D("ampRatioSI1X", "ampRatioSI1X", 50, -0,2,50, -0,2);
+  histogramSI1YampRatio=new TH2D("ampRatioSI1Y", "ampRatioSI1Y", 50, -0,2,50, -0,2);
+  histogramSI2XampRatio=new TH2D("ampRatioSI2X", "ampRatioSI2X", 50, -0,2,50, -0,2);
+  histogramSI2YampRatio=new TH2D("ampRatioSI2Y", "ampRatioSI2Y", 50, -0,2,50, -0,2);
+  histogramGM1XampRatio=new TH2D("ampRatioGM1X", "ampRatioGM1X", 50, -0,2,50, -0,2);
+  histogramGM1YampRatio=new TH2D("ampRatioGM1Y", "ampRatioGM1Y", 50, -0,2,50, -0,2);
+  histogramGM2XampRatio=new TH2D("ampRatioGM2X", "ampRatioGM2X", 50, -0,2,50, -0,2);
+  histogramGM2YampRatio=new TH2D("ampRatioGM2Y", "ampRatioGM2Y", 50, -0,2,50, -0,2);
 
   histogramSI1XclNoise = new TH1D("clNoise SI1X", "clNoise SI1X", 2000, 0,20);
   histogramSI1YclNoise = new TH1D("clNoise SI1Y", "clNoise SI1Y", 2000, 0,20);
@@ -296,14 +297,14 @@ HistContainer::HistContainer(){
   histogramGM2Xhitpoint = new TH1D("hitpoint GM2X", "hitpoint GM2X", 200, 5, 25);
   histogramGM2Yhitpoint = new TH1D("hitpoint GM2Y", "hitpoint GM2Y", 200, 15,30);
 
-  histogramSI1XAmp = new TH1D("Amp SI1X", "Amp SI1X", 768, 0,768);
-  histogramSI1YAmp = new TH1D("Amp SI1Y", "Amp SI1Y", 768, 0,768);
-  histogramSI2XAmp = new TH1D("Amp SI2X", "Amp SI2X", 768, 0,768);
-  histogramSI2YAmp = new TH1D("Amp SI2Y", "Amp SI2Y", 768, 0,768);
-  histogramGM1XAmp = new TH1D("Amp GM1X", "Amp GM1X", 2400, 0,2400);
-  histogramGM1YAmp = new TH1D("Amp GM1Y", "Amp GM1Y", 2400, 0,2400);
-  histogramGM2XAmp = new TH1D("Amp GM2X", "Amp GM2X", 2400, 0,2400);
-  histogramGM2YAmp = new TH1D("Amp GM2Y", "Amp GM2Y", 2400, 0,2400);
+  histogramSI1XAmp = new TH1D("Amp SI1X", "Amp SI1X", 384, 0,768);
+  histogramSI1YAmp = new TH1D("Amp SI1Y", "Amp SI1Y", 384, 0,768);
+  histogramSI2XAmp = new TH1D("Amp SI2X", "Amp SI2X", 384, 0,768);
+  histogramSI2YAmp = new TH1D("Amp SI2Y", "Amp SI2Y", 384, 0,768);
+  histogramGM1XAmp = new TH1D("Amp GM1X", "Amp GM1X", 1200, 0,2400);
+  histogramGM1YAmp = new TH1D("Amp GM1Y", "Amp GM1Y", 1200, 0,2400);
+  histogramGM2XAmp = new TH1D("Amp GM2X", "Amp GM2X", 1200, 0,2400);
+  histogramGM2YAmp = new TH1D("Amp GM2Y", "Amp GM2Y", 1200, 0,2400);
 
   histogramSI1XU = new TH1D("U SI1X", "U SI1X", 400, 0,2);
   histogramSI1YU = new TH1D("U SI1Y", "U SI1Y", 400, 0,2);
@@ -349,7 +350,7 @@ HistContainer::HistContainer(){
   histogramGM1Yresi = new TH1D("resGM1Y", "resGM1Y", 400, -0.3, 0.3);
   histogramGM2Xresi = new TH1D("resGM2X", "resGM2X", 400, -3, 3);
   histogramGM2Yresi = new TH1D("resGM2Y", "resGM2Y", 400, -3, 3);
-
+ 
   histogramSI1XresiVu2d = new TH2D("resVu2dSI1X", "resVu2dSI1X", 200, 0,2,1000, -0.05,0.05);
   histogramSI1YresiVu2d = new TH2D("resVu2dSI1Y", "resVu2dSI1Y", 200, 0,2,1000, -0.05,0.05);
   histogramSI2XresiVu2d = new TH2D("resVu2dSI2X", "resVu2dSI2X", 200, 0,2,1000, -0.7,0.7);
@@ -426,6 +427,7 @@ void HistContainer::fillRes(TCtrack* track,string alignmentFile){
   double dummyD;
     
   
+
   for(unsigned int i=0;i<track->nCl();++i){
     
     TCcluster tmpcl = track->getCl(i);
@@ -599,6 +601,12 @@ void HistContainer::ampFiller(int detId, double amp, double noise, double ratioA
 }
 void HistContainer::write(string filename){
   TFile* file = new TFile(filename.c_str(),"RECREATE");
+  
+  hitmapGM1->Write();
+  hitmapGM2->Write();
+  hitmapSI1->Write();
+  hitmapSI2->Write();
+
   histogramGM1XYratio->Write();
   histogramGM2XYratio->Write();
   histogramGM1YXratio->Write();
@@ -765,6 +773,11 @@ void HistContainer::write(string filename){
 }
 
 HistContainer::~HistContainer(){
+  delete hitmapGM1;
+  delete hitmapGM2;
+  delete hitmapSI1;
+  delete hitmapSI2;
+  
   delete histogramTrackErrMatrix;
   delete histogramSI1Xerr;
   delete histogramSI1Yerr;

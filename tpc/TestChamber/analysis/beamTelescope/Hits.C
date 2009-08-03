@@ -4,19 +4,6 @@
 #include <TStyle.h>
 #include <TCanvas.h>
 
-bool Hits::loadNext(){
-  static int count(0);
-  if (fChain == 0) return false;
-   
-  static Long64_t nentries = fChain->GetEntriesFast();
-  if(count >= nentries) return false;
-  
-  //std::cout << "loading event " << count << std::endl;
-  fChain->GetEntry(count++);
-  return true;
-}
-
-
 void Hits::Loop()
 {
 //   In a ROOT session, you can do:
@@ -50,8 +37,7 @@ void Hits::Loop()
    for (Long64_t jentry=0; jentry<nentries;jentry++) {
       Long64_t ientry = LoadTree(jentry);
       if (ientry < 0) break;
-      nb = fChain->GetEntry(jentry);  
-      nbytes += nb;
+      nb = fChain->GetEntry(jentry);   nbytes += nb;
       // if (Cut(ientry) < 0) continue;
    }
 }
