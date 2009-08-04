@@ -225,7 +225,7 @@ int main(int argc, char** argv) {
 	}
       }
       else{
-	if(the_son->getVote() < the_node->getVote()*0.95) {
+	if(the_son->getVote() < the_node->getVote()*0.99) {
 	  //std::cout<<"Deleting SON from list"<<std::endl;
 	  delete parent_list.back();
 	  parent_list.pop_back();

@@ -54,7 +54,7 @@ int main() {
   cudaMalloc((void**) &amp_out_d, nDigis*sizeof(float));
   
   //copy to device
-   cudaMemcpy(amp_in_d, amp_h, nDigis*sizeof(float), cudaMemcpyHostToDevice);
+  cudaMemcpy(amp_in_d, amp_h, nDigis*sizeof(float), cudaMemcpyHostToDevice);
   
 
   int nThreads = 256;

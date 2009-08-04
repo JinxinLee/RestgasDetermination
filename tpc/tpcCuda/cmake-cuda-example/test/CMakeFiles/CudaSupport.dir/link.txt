@@ -1,1 +1,0 @@
-/usr/bin/c++    -Wall -Werror   CMakeFiles/CudaSupport.dir/CudaSupport.cc.o CMakeFiles/CudaSupport.dir/CudaSupport_kernels.cu.o  -o CudaSupport -rdynamic /usr/local/cuda/lib/libcudart.so -Wl,-rpath,/usr/local/cuda/lib 

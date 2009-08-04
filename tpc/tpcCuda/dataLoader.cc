@@ -44,7 +44,15 @@ dataLoader::getClusterPos(int i, double& x, double& y, double& z) {
   y = pos.Y();
   z = pos.Z();
 }
-  
+ 
+void
+dataLoader::getClusterPosF(int i, float& x, float& y, float& z) {
+  TVector3 pos = ((PndTpcCluster*)_clusters->At(i))->pos();
+  x = (float)pos.X();
+  y = (float)pos.Y();
+  z = (float)pos.Z();
+}
+ 
 void
 dataLoader::getClusterPosPolar(int i, double& r, double& phi, double& z) {
   TVector3 pos = ((PndTpcCluster*)_clusters->At(i))->pos();

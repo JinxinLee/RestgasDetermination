@@ -16,6 +16,7 @@ class dataLoader {
   
   double getDigiAmp(int i);
   void getClusterPos(int i, double& x, double& y, double& z);
+  void getClusterPosF(int i, float& x, float& y, float& z);
   void getClusterPosPolar(int i, double& r, double& phi, double& z);
   int nDigis(){return _digis->GetEntriesFast();}
   int nClusters() {return _clusters->GetEntriesFast();}

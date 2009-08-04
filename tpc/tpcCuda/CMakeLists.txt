@@ -1,5 +1,6 @@
 SET(CMAKE_MODULE_PATH /home/felix/simulation/trunk/tpc/tpcCuda/cmake)
 SET(PANDA_BINARY_DIR /home/felix/simulation/build)
+SET(CMAKE_VERBOSE_MAKEFILE ON)
 PROJECT(tpcCuda CUDA C CXX)
 
 cmake_minimum_required(VERSION 2.6)
@@ -68,13 +69,13 @@ ADD_CUSTOM_COMMAND(OUTPUT tpcdataDict.cxx
       COMMAND ${ROOT_CINT_EXECUTABLE}
       ARGS -f tpcdataDict.cxx -c -DHAVE_CONFIG_H ${INCLUDE_DIRECTORIES}
            ../PndTpcDigi.h ../McId.h ../McIdCollection.h ../PndTpcCluster.h tpcdataLinkDef.h)
-
-
+	 
 
 # Enable warnings and make them errors
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 SET(CMAKE_LD_FLAGS "${CMAKE_LD_FLAGS} -g")
+SET(CMAKE_CUDA_FLAGS "-g -arch=sm_13")
 
 # Attempt to find dependant libraries
 FIND_PACKAGE(CUDARuntime)
@@ -88,15 +89,18 @@ ENDIF(NOT CUDA_RUNTIME_FOUND)
 
 #SET(SOURCES hello.cxx)
 
-ADD_EXECUTABLE(hello hello.cu)
-TARGET_LINK_LIBRARIES(hello tpcdata ${CUDA_RUNTIME_LIBRARIES} ${ROOT_LIBS})
+#ADD_EXECUTABLE(hello hello.cu)
+#TARGET_LINK_LIBRARIES(hello tpcdata ${CUDA_RUNTIME_LIBRARIES} ${ROOT_LIBS})
 
-ADD_EXECUTABLE(hough hough.cu)
-TARGET_LINK_LIBRARIES(hough tpcdata ${CUDA_RUNTIME_LIBRARIES} ${ROOT_LIBS})
+#ADD_EXECUTABLE(hough hough.cu)
+#TARGET_LINK_LIBRARIES(hough tpcdata ${CUDA_RUNTIME_LIBRARIES} ${ROOT_LIBS})
 
-ADD_EXECUTABLE(fastHoughCPU fastHoughCPU.C)
-TARGET_LINK_LIBRARIES(fastHoughCPU tpcdata ${ROOT_LIBS})
+ADD_EXECUTABLE(fastHoughGPU fastHoughGPU.cu)
+TARGET_LINK_LIBRARIES(fastHoughGPU tpcdata ${CUDA_RUNTIME_LIBRARIES} ${ROOT_LIBS})
 
-ADD_EXECUTABLE(fastHoughCPU_5D fastHoughCPU_5D.C)
+#ADD_EXECUTABLE(fastHoughCPU fastHoughCPU.cc)
+#TARGET_LINK_LIBRARIES(fastHoughCPU tpcdata ${ROOT_LIBS})
+
+ADD_EXECUTABLE(fastHoughCPU_5D fastHoughCPU_5D.cc)
 TARGET_LINK_LIBRARIES(fastHoughCPU_5D tpcdata ${ROOT_LIBS})
 
