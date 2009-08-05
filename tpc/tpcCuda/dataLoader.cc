@@ -8,7 +8,7 @@ dataLoader::dataLoader(TString filename){
   _tree = (TTree*) file->Get("cbmsim");
   unsigned int entries = _tree->GetEntries();
   
-  _tree->Print();
+  //_tree->Print();
   //tr->Scan("PndTpcDigi._amp");
 
   std::cout<<"\n\nTree has "<<entries<<" entries ..."<<std::endl;

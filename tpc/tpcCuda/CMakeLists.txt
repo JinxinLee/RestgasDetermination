@@ -1,6 +1,6 @@
 SET(CMAKE_MODULE_PATH /home/felix/simulation/trunk/tpc/tpcCuda/cmake)
 SET(PANDA_BINARY_DIR /home/felix/simulation/build)
-SET(CMAKE_VERBOSE_MAKEFILE ON)
+#SET(CMAKE_VERBOSE_MAKEFILE ON)
 PROJECT(tpcCuda CUDA C CXX)
 
 cmake_minimum_required(VERSION 2.6)
@@ -75,7 +75,7 @@ ADD_CUSTOM_COMMAND(OUTPUT tpcdataDict.cxx
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 SET(CMAKE_LD_FLAGS "${CMAKE_LD_FLAGS} -g")
-SET(CMAKE_CUDA_FLAGS "-g -arch=sm_13")
+SET(CMAKE_CUDA_FLAGS "-g -G -arch=sm_13")
 
 # Attempt to find dependant libraries
 FIND_PACKAGE(CUDARuntime)
