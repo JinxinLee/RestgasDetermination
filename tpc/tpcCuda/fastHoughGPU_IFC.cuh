@@ -18,12 +18,13 @@ extern "C"
   void setParameterSpace(float* mins, float* maxs);
 
   void callRiemannKernel(float* pos_d, float* data_d, 
-			 int nCl, float SCALING);
+			 int nCl, float SCALING, int threads, int blocks);
 
   void callIntersectKernel(int nodes, int level, int nCL,
 			   float* data_d, float* p0_d,
 			   float* _p1_d, float* _p2_d, float* _p3_d,
-			   float* _p4_d, uint* _votes_d);
+			   float* _p4_d, uint* _votes_d, int threads,
+			   int blocks);
 
   
 } //extern C

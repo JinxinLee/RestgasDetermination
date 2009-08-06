@@ -51,12 +51,20 @@ SET(SOURCES     ../McId.cxx
 		Hough2DNode.cxx
 		Hough5DNode.cxx
 		Hyperplane5D.cxx
+		fastHoughGPU_IFC.cxx
 		dataLoader.cc
 		tpcdataDict.cxx
 )
 
+SET(CUDASOURCES fastHoughGPU_IFC.cu
+                #fastHoughGPU_kernel.cu not needed
+		)
+  
 
+
+ADD_LIBRARY(tpccuda SHARED ${CUDASOURCES})
 ADD_LIBRARY(tpcdata SHARED ${SOURCES})
+
 
 
 FIND_PROGRAM(ROOT_CINT_EXECUTABLE
@@ -95,12 +103,13 @@ ENDIF(NOT CUDA_RUNTIME_FOUND)
 #ADD_EXECUTABLE(hough hough.cu)
 #TARGET_LINK_LIBRARIES(hough tpcdata ${CUDA_RUNTIME_LIBRARIES} ${ROOT_LIBS})
 
-ADD_EXECUTABLE(fastHoughGPU fastHoughGPU.cu)
-TARGET_LINK_LIBRARIES(fastHoughGPU tpcdata ${CUDA_RUNTIME_LIBRARIES} ${ROOT_LIBS})
+ADD_EXECUTABLE(fastHoughGPU fastHoughGPU.cxx)
+TARGET_LINK_LIBRARIES(fastHoughGPU tpccuda tpcdata
+  ${CUDA_RUNTIME_LIBRARIES} ${ROOT_LIBS})
 
 #ADD_EXECUTABLE(fastHoughCPU fastHoughCPU.cc)
 #TARGET_LINK_LIBRARIES(fastHoughCPU tpcdata ${ROOT_LIBS})
 
-ADD_EXECUTABLE(fastHoughCPU_5D fastHoughCPU_5D.cc)
-TARGET_LINK_LIBRARIES(fastHoughCPU_5D tpcdata ${ROOT_LIBS})
+#ADD_EXECUTABLE(fastHoughCPU_5D fastHoughCPU_5D.cc)
+#TARGET_LINK_LIBRARIES(fastHoughCPU_5D tpcdata ${ROOT_LIBS})
 

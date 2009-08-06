@@ -1,9 +1,12 @@
 #include "fastHoughGPU_IFC.h"
 #include <TVector3.h>
 #include <assert.h>
+#include <stdlib.h>
+#include "fastHoughGPU_IFC.cuh"
 
 
-fastHoughGPU_IFC::fastHoughGPU_IFC(int SCALING, int MAXSIZE) {
+
+fastHoughGPU_IFC::fastHoughGPU_IFC(float SCALING , int MAXSIZE) {
   
   _initP = false;
   _initC = false;
@@ -38,11 +41,11 @@ fastHoughGPU_IFC::~fastHoughGPU_IFC() {
 
 
 void
-fastHoughGPU_IFC()::initClusters(std::vector<PndTpcCluster*> clist) {
+fastHoughGPU_IFC::initClusters(std::vector<PndTpcCluster*> clist) {
   
   int size=0;
   for(int i=0; i<clist.size(); ++i) {
-    TVector3 pos = (clist[i])->Pos();
+    TVector3 pos = (clist[i])->pos();
     if(pos.X()>0)
       size++;    
   }
@@ -59,20 +62,20 @@ fastHoughGPU_IFC()::initClusters(std::vector<PndTpcCluster*> clist) {
   
   //fill host position array
   for(int i=0; i<clist.size(); ++i) {
-    TVector3 pos = (clist[i])->Pos();
+    TVector3 pos = (clist[i])->pos();
     if(pos.X()<0) {
       count++;
       continue;
     }
-    _clusterPos[3*(c-count)] = (float)pos.X();
-    _clusterPos[3*(c-count)+1] = (float)pos.Y();
-    _clusterPos[3*(c-count)+2] = (float)pos.Z(); 
+    _clusterPos[3*(i-count)] = (float)pos.X();
+    _clusterPos[3*(i-count)+1] = (float)pos.Y();
+    _clusterPos[3*(i-count)+2] = (float)pos.Z(); 
   }
 
   copyArrayToDevice(_clusterPos_d, _clusterPos,_nClusters*3*sizeof(float));
   //kernel invocation via wrapper:
   callRiemannKernel(_clusterPos_d, _clusterData_d, _nClusters, 
-		    _RIEMANNSCALING);
+		    _RIEMANNSCALING, _threads, _blocks);
   //result resides on the GPU and will not be copied back to host!
 
   _initC=true;
@@ -80,7 +83,7 @@ fastHoughGPU_IFC()::initClusters(std::vector<PndTpcCluster*> clist) {
 
 
 void
-fastHoughGPU_IFC()::initParameterSpace(std::vector<float> mins,
+fastHoughGPU_IFC::initParameterSpace(std::vector<float> mins,
 				       std::vector<float> maxs) {
 
   assert(mins.size()==5);
@@ -99,11 +102,29 @@ fastHoughGPU_IFC()::initParameterSpace(std::vector<float> mins,
   
   _initP=true;
 }
+
+void
+fastHoughGPU_IFC::initParameterSpace(float* mins,
+				     float* maxs) {
+  
+  float _mins[5];
+  float _maxs[5];
+
+  for(int i=0; i<5; i++) {
+    _mins[i] = mins[i];
+    _maxs[i] = maxs[i];
+  }
+
+  //wrapper function call
+  setParameterSpace(_mins, _maxs);
+  
+  _initP=true;
+}
     
   
   
 void
-fastHoughGPU_IFC()::testIntersect(std::vector<Hough5DNode*> nodes,
+fastHoughGPU_IFC::testIntersect(std::vector<Hough5DNode*> nodes,
 				  int level, int THRESHOLD) {
 
   assert(nodes.size()<_MAXSIZE);
@@ -122,7 +143,7 @@ fastHoughGPU_IFC()::testIntersect(std::vector<Hough5DNode*> nodes,
       _p1[2*n] = p1[0];
       _p1[2*n+1] = p1[1];
       _p2[2*n] = p2[0];
-      _p2[*n+1] = p2[1];
+      _p2[2*n+1] = p2[1];
       _p3[2*n] = p3[0];
       _p3[2*n+1] = p3[1];
       _p4[2*n] = p4[0];
@@ -137,7 +158,7 @@ fastHoughGPU_IFC()::testIntersect(std::vector<Hough5DNode*> nodes,
 
     //kernel call
     callIntersectKernel(nodes.size(),level,_nClusters,_clusterData_d,
-			_p0_d,_p1_d,_p2_d,_p3_d,_p4_d,_votes_d);
+			_p0_d,_p1_d,_p2_d,_p3_d,_p4_d,_votes_d, _threads, _blocks);
     
     copyArrayFromDevice(_votes, _votes_d, 
 			nodes.size()*sizeof(uint));
@@ -146,7 +167,7 @@ fastHoughGPU_IFC()::testIntersect(std::vector<Hough5DNode*> nodes,
   
   
 void
-fastHoughGPU_IFC()::setKernelPars(uint threads) {
+fastHoughGPU_IFC::setKernelPars(uint threads) {
   _threads = threads;
   _blocks = _nClusters/threads+1;
 }

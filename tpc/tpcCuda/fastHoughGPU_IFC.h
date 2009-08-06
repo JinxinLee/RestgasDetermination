@@ -4,7 +4,7 @@
 
 #include "PndTpcCluster.h"
 #include "Hough5DNode.h"
-#include "fastHoughGPU_kernel.cuh"
+//#include "fastHoughGPU_kernel.cuh"
 #include <vector>
 
 
@@ -17,22 +17,23 @@ class fastHoughGPU_IFC {
 
  public:
 
-  fastHoughGPU_IFC(float RIEMANNSCALING = 40, int MAXSIZE=1000000)
+  fastHoughGPU_IFC(float RIEMANNSCALING=40.f, int MAXSIZE=1000000);
   ~fastHoughGPU_IFC();
 
   void initClusters(std::vector<PndTpcCluster*>);
 
   // takes mins and maxs in format (phi, theta, c, m, t)
   void initParameterSpace(std::vector<float> mins, std::vector<float> maxs);
+  void initParameterSpace(float* mins, float* maxs);
   
   void testIntersect(std::vector<Hough5DNode*> nodes,
 		     int level, int THRESHOLD);
   uint* getVotes() {return _votes;}
 
-  void setKernelPars(uint threadsPerBlock, uint blocks);
+  void setKernelPars(uint threadsPerBlock);
   
   
- private:
+   private:
 
   bool _initC;
   bool _initP;
@@ -74,7 +75,7 @@ class fastHoughGPU_IFC {
   int _MAXSIZE;    //size of allocated arrays (has to be bigger than 
                    //nNodes (sons)
   
-  int _RIEMANNSCALING; //scaling of the padplane to be in the scale
+  float _RIEMANNSCALING; //scaling of the padplane to be in the scale
                        //of the Riemann Sphere
 
   bool _CUTX;      //only use clusters with X>0? (standard)

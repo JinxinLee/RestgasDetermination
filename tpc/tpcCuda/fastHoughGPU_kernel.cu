@@ -1,13 +1,12 @@
-#inlclude "fastHoughGPU_kernel.cuh"
+#include "fastHoughGPU_kernel.cuh"
 
 
 //__constant__ float* clusterPos_d;
 
 //TODO: make clusterPos (paramPos, outp of riemannTransform) CONSTANT
 
-__device__ __constant__ float globalMins_d[5];
-__device__ __constant__ float globalMaxs_d[5];
-
+__constant__ float globalMins_d[5];
+__constant__ float globalMaxs_d[5];
 
 
 __global__ void riemannTransform(float* clPos, float* paramPos, int nClusters,
@@ -52,7 +51,7 @@ __global__ void testIntersect(int nNodes, int level, int nClusters,
 			      float* clusterData_d, 
 			      float* proj0, float* proj1, float* proj2,
 			      float* proj3, float* proj4, 
-			      uint* votes, float* test) {
+			      uint* votes) {
 
   float* _mins = globalMins_d;  
   float* _maxs = globalMaxs_d;
@@ -124,8 +123,6 @@ __global__ void testIntersect(int nNodes, int level, int nClusters,
 	  sign+=(int)(c1-c > 0);
 	  sign+=(int)(c2-c > 0);
 	}
-      
-      test[tID] = sign;
       
       if(sign == 32 || sign==0)
 	continue;

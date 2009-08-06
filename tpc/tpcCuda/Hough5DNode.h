@@ -11,7 +11,8 @@ public:
 
   // Constructors/Destructors ---------
   Hough5DNode();
-  Hough5DNode(float* center, int level, int nHyperplanes); 
+  //TODO: get should not depend on nHyperplanes
+  Hough5DNode(float* center, int level, int nHyperplanes=100000); 
   
   ~Hough5DNode();
 
