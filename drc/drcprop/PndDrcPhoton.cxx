@@ -31,32 +31,34 @@ static TRandom grandi; // not a fine solution ?
 //----------------------------------------------------------------------
 PndDrcPhoton::PndDrcPhoton()
 {
-  fLambda      = 0;
-  fPosition    = XYZPoint(0,0,0);
-  fPositionOld = XYZPoint(0,0,0);
-  fDirection   = XYZPoint(0,0,0);
-  fFate        = Drc::kPhotFlying;
-  fReflections = 0;
-  fVerbosity   = 0;
-  fTime        = 0;
-  fDev         = 0;
-  fReflectionLimit = 1000;
+  fLambda           = 0;
+  fPosition         = XYZPoint(0,0,0);
+  fPositionOld      = XYZPoint(0,0,0);
+  fDirection        = XYZPoint(0,0,0);
+  fOriginDirection  = XYZPoint(0,0,0);
+  fFate             = Drc::kPhotFlying;
+  fReflections      = 0;
+  fVerbosity        = 0;
+  fTime             = 0;
+  fDev              = 0;
+  fReflectionLimit  = 1000;
   fPrintFlag   = true;
 }
 //----------------------------------------------------------------------
 void PndDrcPhoton::Copy(const PndDrcPhoton& ph)
 {
-  fLambda      = ph.fLambda;
-  fPosition    = ph.fPosition;
-  fPositionOld = ph.fPositionOld;
-  fDirection   = ph.fDirection;
-  fFate        = ph.fFate;
-  fReflections = ph.fReflections;
-  fVerbosity   = ph.fVerbosity;
-  fTime        = ph.fTime;
-  fDev         = ph.fDev;
-  fReflectionLimit = ph.fReflectionLimit;
-  fPrintFlag   = ph.fPrintFlag;
+  fLambda           = ph.fLambda;
+  fPosition         = ph.fPosition;
+  fPositionOld      = ph.fPositionOld;
+  fDirection        = ph.fDirection;
+  fOriginDirection  = ph.fOriginDirection;
+  fFate             = ph.fFate;
+  fReflections      = ph.fReflections;
+  fVerbosity        = ph.fVerbosity;
+  fTime             = ph.fTime;
+  fDev              = ph.fDev;
+  fReflectionLimit  = ph.fReflectionLimit;
+  fPrintFlag        = ph.fPrintFlag;
 }
 //----------------------------------------------------------------------
 PndDrcPhoton::PndDrcPhoton(const PndDrcPhoton& ph)

@@ -120,6 +120,7 @@ class PndDrcPhoton
     \return Position.
   */
   XYZPoint Position() const {return fPosition;};
+
   /*! \brief Set position
     \param pos Position.
   */
@@ -129,10 +130,21 @@ class PndDrcPhoton
     \return Normalized direction.
   */
   XYZVector Direction() const {return fDirection;};
+
   /*! \brief Set normalized direction
     \param dir Direction.
   */
   void SetDirection(const XYZVector& dir) {fDirection=dir.Unit();};
+
+  /*! \brief Origin direction
+    \return Normalized origin direction.
+   */
+  XYZVector OriginDirection() const {return fOriginDirection;};
+
+  /*! \brief Set normalized origin direction (at photon production)
+    \param dir Origin direction.
+   */
+  void SetOriginDirection(const XYZVector& org) {fOriginDirection=org.Unit();};
 
   /*! \brief Wavelength
     \return Wavelength in nm.
@@ -174,7 +186,7 @@ class PndDrcPhoton
   \param diffuse Diffused reflection probability.
   \return True if refraction occured, false if reflection occured.
   */
-  bool Refract(XYZVector normal, double n_in, double ex_in, double n_out=1.0, double ex_out=0.0, bool fresnelFlag=false, double diffuseProb = 0, bool test=false);
+  bool Refract(XYZVector normal, double n_in, double ex_in, double n_out=1.0, double ex_out=0.0, bool fresnelFlag=true, double diffuseProb = 0, bool test=false);
 
   /*! \brief Reflect the photon
     \param normal The normal vector of the surface.
@@ -219,6 +231,7 @@ class PndDrcPhoton
   XYZPoint         fPosition;                      //!< Actual position of photon.
   XYZPoint         fPositionOld;                   //!< Old position of photon.
   XYZVector        fDirection;                     //!< Normalized direction of photon.
+  XYZVector        fOriginDirection;               //!< Normalized origin direction of photon.
   Drc::kPhotonFate fFate;                          //!< The fate of the photon.
   int              fReflections;                   //!< Number of suffered reflections.
   int              fVerbosity;                     //!< Verbosity level 0-5.

@@ -32,11 +32,15 @@ using std::map;
 
 
 #include "TCanvas.h"
+#include "TGraph.h"
 #include "TH1.h"
 #include "TFile.h"
 #include "TLine.h"
 #include "TMarker.h"
 #include "TMath.h"
+using TMath::Abs;
+using TMath::Nint;
+using TMath::Pi;
 #include "TMatrixD.h"
 #include "TROOT.h"
 #include "TRint.h"
@@ -110,7 +114,7 @@ int main(int argc, char *argv[])
 // 	int ioption = 6; // grid 5 deg
 
 // 	double pi=3.1415926535;
-	double pi = TMath::Pi();
+	double pi = Pi();
 
 	PndDrcOptReflPerfect refl_perfect;
 	PndDrcOptReflNone    refl_none; // absorbed
@@ -720,6 +724,22 @@ int main(int argc, char *argv[])
 
 
 
+// ROOT canvas
+//==============================================================================
+
+    // set some global options
+    gStyle->SetCanvasColor( 0 );        // white
+    gStyle->SetCanvasBorderMode( 0 );   // no yellow frame
+    gStyle->SetFrameBorderMode( 0 );    // no red frame
+    gStyle->SetTitleFillColor( 0 );     // white; not saved in the root file
+    gStyle->SetTitleFontSize( 0.05 );
+    gStyle->SetPalette( 1 );            // better color palette
+    gStyle->SetStatColor( 0 );          // stat. box color
+
+    TCanvas *canvas = new TCanvas( "c1", "" ,200, 10, 700, 500 );
+
+
+
 // photon propagation
 //==============================================================================
 	list<PndDrcPhoton> list_photon; // get list
@@ -830,9 +850,9 @@ int main(int argc, char *argv[])
 		XYZPoint  pos;
 		if( argc == 5 )
 		{
-			startX = atof(argv[1]);
-			startY = atof(argv[2]);
-			startZ = atof(argv[3]);
+			startX = atof(argv[2]);
+			startY = atof(argv[3]);
+			startZ = atof(argv[4]);
 			pos = XYZVector(startX,startY,startZ);
 		}
 		else
@@ -846,7 +866,7 @@ int main(int argc, char *argv[])
 		cout << "hit pos: (" << startX << ", " << startY << ", " << startZ << ")" << endl;
 
 
-		int photon_number = 1; // 100
+		int photon_number = 100; // 100
 // 		float     range = 1000;
 // 		photons_exist = manager->Cerenkov(pos,dir,beta,photon_number,range);
 
@@ -874,7 +894,7 @@ int main(int argc, char *argv[])
 		double gausSmear; // gaus smearing
 		double transX = startX; // for the translation-(shift) (see above)
 		double transY = startY;
-		double transZ = startZ; // -200 ???
+		double transZ = startZ;
 		double spotX;
 		double spotY;
 		double spotZ;
@@ -884,32 +904,32 @@ int main(int argc, char *argv[])
         cout << "beam spot radius (1-sigma): " << radius << endl << endl;
 
 
+        // beampsot plot
+        TString beamspot_title  = "beamspot on bar";
+        TString beamspot_titleX = "z [mm]";
+        TString beamspot_titleY = "y [mm]";
 
-//         fstream beamspot;
-//         beamspot.open("beamspot_end.C",std::ios::out);
-//
-//         beamspot << "{" << endl;
-//         beamspot << "gStyle->SetCanvasColor(0);"       << endl;
-//         beamspot << "gStyle->SetCanvasBorderMode(0);"  << endl;
-//         beamspot << "gStyle->SetFrameBorderMode(0);"   << endl;
-//         beamspot << "gStyle->SetTitleFillColor(0);"    << endl;
-//         beamspot << "gStyle->SetTitleFontSize(0.05);"  << endl;
-//         beamspot << "TCanvas *c1 = new TCanvas( \"c1\", \"\" ,200, 10, 700, 500 );" << endl;
-//         beamspot << "TString title=\"y-z plane [mm] \";"<< endl;
-//         beamspot << "TH1F *hgr = new TH1F(\"hgr1\",title,100,-600,-400);"<<endl;
-//         beamspot << "hgr->SetStats( 0 );" << endl;
-//         beamspot << "hgr->SetMarkerStyle(7);"<<endl;
-//         beamspot << "hgr->SetMarkerSize(1);"<<endl;
-//         beamspot << "hgr->SetMinimum(-100);"<<endl;
-//         beamspot << "hgr->SetMaximum(+100);"<<endl;
-//         beamspot << "hgr->Draw(\"POL\");"<<endl << endl;
-//
-//         beamspot << "TLine *l1 = new TLine(-600,-17.5,-400,-17.5);"    << endl;
-//         beamspot << "TLine *l2 = new TLine(-600,17.5,-400,17.5);"     << endl;
-//         beamspot << "l1->SetLineWidth(3);" << endl;
-//         beamspot << "l2->SetLineWidth(3);" << endl;
-//         beamspot << "l1->Draw(\"same\");" << endl;
-//         beamspot << "l2->Draw(\"same\");" << endl;
+        int minX = Nint( startZ_center - 100 );
+        int maxX = Nint( startZ_center + 100 );
+
+        TH1F *beamspot = new TH1F( "beamspot", beamspot_title, 100, minX, maxX );
+
+        beamspot->SetStats( 0 );
+        beamspot->SetMinimum(-limit);
+        beamspot->SetMaximum(+limit);
+        beamspot->GetXaxis()->SetTitle( beamspot_titleX );
+        beamspot->GetXaxis()->CenterTitle();
+        beamspot->GetYaxis()->SetTitle( beamspot_titleY );
+        beamspot->GetYaxis()->CenterTitle();
+        beamspot->Draw( "POL" );
+
+        // bar border in beamspot plot
+        TLine *top    = new TLine( minX, -slab_height/2, maxX, -slab_height/2 );
+        TLine *bottom = new TLine( minX,  slab_height/2, maxX,  slab_height/2 );
+        top   ->SetLineWidth( 3 );
+        bottom->SetLineWidth( 3 );
+        top   ->Draw( "same" );
+        bottom->Draw( "same");
 
 
 		for(int i=0; i<300; i++) // number of particles (300)
@@ -917,7 +937,7 @@ int main(int argc, char *argv[])
 			helper=ortho; // (-1,0,0) is the orthogonal of (0,0,1)
 			helper.RotateZ(rand.Rndm()*2*pi);
 			gausSmear=rand.Gaus(0,radius);
-            if( fabs(gausSmear) > limit ) // beam spot limit
+            if( Abs(gausSmear) > limit ) // beam spot limit
               continue;
 			helper2 = TVector3(helper.X()*gausSmear, helper.Y()*gausSmear, helper.Z()*gausSmear);
 			helper2.RotateY( (-90+inci)/180.*pi ); // rotation in the right direction
@@ -925,38 +945,51 @@ int main(int argc, char *argv[])
 			spotY = helper2.Y()+transY;
 			spotZ = helper2.Z()+transZ;
 			spotPos = XYZVector(spotX,spotY,spotZ);
-            manager->Cerenkov(spotPos,dir,beta,photon_number,maxrange); // maxrange instead of range
 
+
+            double stepsToBar = (spotX - slab_width / 2) / Abs(dirX);
+            double hitX = spotX + stepsToBar * dirX;
+            double hitY = spotY + stepsToBar * dirY;
+            double hitZ = spotZ + stepsToBar * dirZ;
+
+//             cout << "start pos: (" << spotX << ", " << spotY << ", " << spotZ << ")" << endl;
+//             cout << "hit pos  : (" << hitX  << ", " << hitY  << ", " << hitZ  << ")" << endl << endl;
 
             if( spotX < slab_width / 2) // should never happen
             {
               cout << "particle origin production is in the bar !!!" << endl;
-              cout << spotX << " " << spotY << " " << spotZ << endl;
-              cout << x_shift << " " << z_shift << endl << endl;
+              cout << "start pos: (" << spotX << ", " << spotY << ", " << spotZ << ")" << endl;
+              cout << "hit pos  : (" << hitX  << ", " << hitY  << ", " << hitZ  << ")" << endl << endl;
+              continue;
             }
 
-            if( spotZ / cos((90-inci)/180.*pi) > maxrange )
+            if( Abs(spotZ / cos((90-inci)/180.*pi)) < maxrange )
             {
-              cout << "particle trajectory can cross the lens and/or the fishtank" << endl;
-              cout << spotX << " " << spotY << " " << spotZ << endl;
-              cout << x_shift << " " << z_shift << endl << endl;
+              cout << "particle trajectory cross the lens and/or the fishtank" << endl;
+              cout << "start pos: (" << spotX << ", " << spotY << ", " << spotZ << ")" << endl;
+              cout << "hit pos  : (" << hitX  << ", " << hitY  << ", " << hitZ  << ")" << endl << endl;
+              continue;
             }
 
 
-//             cout << spotX << " " << spotY << " " << spotZ << endl;
+            // for beampot plot
+            TMarker* t = new TMarker( hitZ, hitY, 20 );
 
-//             beamspot << "TMarker* t = new TMarker("<<  spotZ + stepsToBar * dirZ <<","<< spotY + stepsToBar * dirY <<",20);"<<endl;
-//             if( spotY + stepsToBar * dirY >= 17.5 || spotY + stepsToBar * dirY <= -17.5)
-//               beamspot << "t->SetMarkerColor(4);" << endl;
-//             else
-//               beamspot << "t->SetMarkerColor(2);" << endl;
-//             beamspot << "t->SetMarkerStyle(20);"<<endl;
-//             beamspot << "t->SetMarkerSize(1);"<<endl;
-//             beamspot << "t->Draw();"<<endl;
+            if( Abs( hitY ) >= slab_height / 2 )
+              t->SetMarkerColor( 4 );
+            else
+              t->SetMarkerColor( 2 );
 
+            t->SetMarkerStyle(20);
+            t->SetMarkerSize(1);
+            t->Draw();
+
+
+            manager->Cerenkov(spotPos,dir,beta,photon_number,maxrange); // maxrange instead of range
 		}
+
 		photons_exist = true; // maybe it is needed (if last particle in the loop don't hit the bar, this value will be set as false)
-//         beamspot << "}" << endl;
+
 
     // draw chosen photons (for Geo)
     //==========================================================================================
@@ -1121,10 +1154,13 @@ int main(int argc, char *argv[])
     TTree *outTree  = new TTree( "ntuple", outFilename );
 
 
-    double wavelength, posX, posY;
+    double wavelength, originDirX, originDirY, originDirZ, posX, posY;
     bool measured, absorbed, lost;
 
     outTree->Branch( "wavelength" , &wavelength , "wavelength/D"); // D: Double_t
+    outTree->Branch( "originDirX" , &originDirX , "originDirX/D");
+    outTree->Branch( "originDirY" , &originDirY , "originDirY/D");
+    outTree->Branch( "originDirZ" , &originDirZ , "originDirY/D");
     outTree->Branch( "posX"       , &posX       , "posX/D"      );
     outTree->Branch( "posY"       , &posY       , "posY/D"      );
     outTree->Branch( "measured"   , &measured   , "measured/O"  ); // O: Bool_t
@@ -1132,19 +1168,11 @@ int main(int argc, char *argv[])
     outTree->Branch( "lost"       , &lost       , "lost/O"      );
 
 
-// Plot declarations
+// plot declarations
 //==============================================================================
-
-    // set some global options
-    gStyle->SetCanvasColor( 0 );        // white
-    gStyle->SetCanvasBorderMode( 0 );   // no yellow frame
-    gStyle->SetFrameBorderMode( 0 );    // no red frame
-    gStyle->SetTitleFillColor( 0 );     // white; not saved in the root file
-    gStyle->SetTitleFontSize( 0.05 );
-    gStyle->SetPalette( 1 );            // better color palette
-    gStyle->SetStatColor( 0 );          // stat. box color
-
-    TCanvas *canvas = new TCanvas( "c1", "" ,200, 10, 700, 500 );
+    // beamspot plot in option 3
+    canvas->Write("beamspot");
+    canvas->Clear();
 
 
 	TString beta_str;
@@ -1152,27 +1180,28 @@ int main(int argc, char *argv[])
 	beta_str+=beta;
 	beta_str.Remove(TString::kLeading,' ');
 
-    TString title;
-    title= "spatial position [mm] (beta=" + beta_str + ")";
-//     title= "spatial position [mm] (beta=" + beta_str + ", #lambda =435nm)";
+    TString screen_title = "spatial position [mm] (beta=" + beta_str + ")";
+//     TString screen_title = "spatial position [mm] (beta=" + beta_str + ", #lambda =435nm)";
+    TString screen_titleX = "x [mm]";
+    TString screen_titleY = "y [mm]";
 
-    TH1F *screen = new TH1F( "screen", title, 600, -150, 150 );
-//     TH1F *screen = new TH1F( "screen", title, 600, -400, 400 );
+    TH1F *screen = new TH1F( "screen", screen_title, 600, -150, 150 );
+//     TH1F *screen = new TH1F( "screen", screen_title, 600, -400, 400 );
 
     screen->SetStats( 0 );
-    screen->SetMarkerStyle(7);
-    screen->SetMarkerSize(0.5);
     screen->SetMinimum(-100);
     screen->SetMaximum(+100);
+    screen->GetXaxis()->SetTitle( screen_titleX );
+    screen->GetXaxis()->CenterTitle();
+    screen->GetYaxis()->SetTitle( screen_titleY );
+    screen->GetYaxis()->CenterTitle();
 //     screen->SetMinimum(-400);
 //     screen->SetMaximum(+400);
     screen->Draw("POL");
 
 
-
-
-
-
+// get photon information from photon lsit
+//==============================================================================
 	fstream measured_dat;
 	fstream absorbed_dat;
     fstream lost_dat;
@@ -1197,6 +1226,12 @@ int main(int argc, char *argv[])
 		n_iph++;
 
 		wavelength = (*iph).Wavelength();
+
+        XYZVector originDir = (*iph).OriginDirection();
+        originDirX = originDir.X();
+        originDirY = originDir.Y();
+        originDirZ = originDir.Z();
+
         posX = -666; // just initialize it
         posY = -666;
 
@@ -1246,47 +1281,48 @@ int main(int argc, char *argv[])
     lost_dat.close();
 
 
-    // MCP position
-	TLine *l1 = new TLine(-19.125,-13.625,-70.125,-13.625);
-	TLine *l2 = new TLine(-70.125,-13.625,-70.125,37.375);
-	TLine *l3 = new TLine(-70.125,37.375,-19.125,37.375);
-	TLine *l4 = new TLine(-19.125,37.375,-19.125,-13.625);
-	l1->SetLineWidth(3);
-	l2->SetLineWidth(3);
-	l3->SetLineWidth(3);
-	l4->SetLineWidth(3);
-	l1->Draw("same");
-	l2->Draw("same");
-	l3->Draw("same");
-	l4->Draw("same");
-	TLine *l5 = new TLine(19.125,-13.625,70.125,-13.625);
-	TLine *l6 = new TLine(70.125,-13.625,70.125,37.375);
-	TLine *l7 = new TLine(70.125,37.375,19.125,37.375);
-	TLine *l8 = new TLine(19.125,37.375,19.125,-13.625);
-	l5->SetLineWidth(3);
-	l6->SetLineWidth(3);
-	l7->SetLineWidth(3);
-	l8->SetLineWidth(3);
-	l5->Draw("same");
-	l6->Draw("same");
-	l7->Draw("same");
-	l8->Draw("same");
+    // MCP position in beamtest 2008
+// 	TLine *l1 = new TLine(-19.125,-13.625,-70.125,-13.625);
+// 	TLine *l2 = new TLine(-70.125,-13.625,-70.125,37.375);
+// 	TLine *l3 = new TLine(-70.125,37.375,-19.125,37.375);
+// 	TLine *l4 = new TLine(-19.125,37.375,-19.125,-13.625);
+// 	l1->SetLineWidth(3);
+// 	l2->SetLineWidth(3);
+// 	l3->SetLineWidth(3);
+// 	l4->SetLineWidth(3);
+// 	l1->Draw("same");
+// 	l2->Draw("same");
+// 	l3->Draw("same");
+// 	l4->Draw("same");
+// 	TLine *l5 = new TLine(19.125,-13.625,70.125,-13.625);
+// 	TLine *l6 = new TLine(70.125,-13.625,70.125,37.375);
+// 	TLine *l7 = new TLine(70.125,37.375,19.125,37.375);
+// 	TLine *l8 = new TLine(19.125,37.375,19.125,-13.625);
+// 	l5->SetLineWidth(3);
+// 	l6->SetLineWidth(3);
+// 	l7->SetLineWidth(3);
+// 	l8->SetLineWidth(3);
+// 	l5->Draw("same");
+// 	l6->Draw("same");
+// 	l7->Draw("same");
+// 	l8->Draw("same");
 
 
-	int icnt = icnt_measured+icnt_flying+icnt_lost+icnt_absorbed;
+	int icnt = icnt_measured + icnt_flying + icnt_lost + icnt_absorbed;
+
 	cout << endl << endl;
-	cout<<" generated photons: "<<icnt<<endl;
-	cout<<" measured  photons: "<<icnt_measured<<endl;
-	cout<<" absorbed  photons: "<<icnt_absorbed<<endl;
-	cout<<" lost      photons: "<<icnt_lost<<endl<<endl;
+	cout << " generated photons: " <<icnt          << endl;
+	cout << " measured  photons: " <<icnt_measured << endl;
+	cout << " absorbed  photons: " <<icnt_absorbed << endl;
+	cout << " lost      photons: " <<icnt_lost     << endl << endl;
 
 
 	TString str_icnt;
-	str_icnt+=icnt;
+	str_icnt += icnt;
 	str_icnt.Remove(TString::kLeading,' ');
 	TString str_icnt_det;
 	int det = icnt - icnt_lost - icnt_absorbed;
-	str_icnt_det+=det;
+	str_icnt_det += det;
 	str_icnt_det.Remove(TString::kLeading,' ');
 
 
@@ -1298,6 +1334,7 @@ int main(int argc, char *argv[])
 	stat->Draw();
 
     canvas->Write("Screen");
+    canvas->Clear();
 
 
     canvas->Close();

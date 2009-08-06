@@ -657,6 +657,7 @@ bool PndDrcOptDevManager::Cerenkov(const string& vol_name, const string& sys_nam
       PndDrcPhoton ph;
       ph.SetPosition(r);
       ph.SetDirection(beta_ph);
+      ph.SetOriginDirection(beta_ph);
       ph.SetWavelength(lambda);
       ph.SetDevice(dev);
       ph.SetReflectionLimit(refl_limit);
