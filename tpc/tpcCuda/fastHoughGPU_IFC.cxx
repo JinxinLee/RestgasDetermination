@@ -14,7 +14,7 @@ fastHoughGPU_IFC::fastHoughGPU_IFC(float SCALING , int MAXSIZE) {
   _RIEMANNSCALING = SCALING;
   _CUTX = true;
 
-  _threads = 128;
+  _threads = 64;
   
   _p0 = (float*) malloc(2*MAXSIZE*sizeof(float));
   _p1 = (float*) malloc(2*MAXSIZE*sizeof(float));
@@ -22,8 +22,10 @@ fastHoughGPU_IFC::fastHoughGPU_IFC(float SCALING , int MAXSIZE) {
   _p3 = (float*) malloc(2*MAXSIZE*sizeof(float));
   _p4 = (float*) malloc(2*MAXSIZE*sizeof(float));
 
-  _votes = (uint*) malloc(2*MAXSIZE*sizeof(uint));
+  _votes = (uint*) malloc(MAXSIZE*sizeof(uint));
 
+  allocateArray((void**)&_votes_d, _MAXSIZE*sizeof(uint));
+  
   allocateArray((void**)&_p0_d, _MAXSIZE*2*sizeof(float));
   allocateArray((void**)&_p1_d, _MAXSIZE*2*sizeof(float));
   allocateArray((void**)&_p2_d, _MAXSIZE*2*sizeof(float));
@@ -77,6 +79,15 @@ fastHoughGPU_IFC::initClusters(std::vector<PndTpcCluster*> clist) {
   callRiemannKernel(_clusterPos_d, _clusterData_d, _nClusters, 
 		    _RIEMANNSCALING, _threads, _blocks);
   //result resides on the GPU and will not be copied back to host!
+
+  //test
+  float* clusterData = (float*) malloc(5*size*sizeof(float));
+  copyArrayFromDevice(clusterData, _clusterData_d, size*5*sizeof(float));
+
+  for(int c=0; c<size; ++c) 
+    std::cout<<clusterData[c*5]<<"   "<<clusterData[c*5+1]<<"   "
+	     <<clusterData[c*5+2]<<"   "<<clusterData[c*5+3]<<"   "
+	     <<clusterData[c*5+4]<<"   "<<std::endl;
 
   _initC=true;
 }
@@ -149,7 +160,12 @@ fastHoughGPU_IFC::testIntersect(std::vector<Hough5DNode*> nodes,
       _p4[2*n] = p4[0];
       _p4[2*n+1] = p4[1];
     }
-    
+
+    for(int v=0; v<nodes.size(); ++v) 
+      _votes[v] = 0;
+
+    copyArrayToDevice(_votes_d, _votes,nodes.size()*sizeof(uint));
+	
     copyArrayToDevice(_p0_d, _p0,nodes.size()*2*sizeof(float));
     copyArrayToDevice(_p1_d, _p1,nodes.size()*2*sizeof(float));
     copyArrayToDevice(_p2_d, _p2,nodes.size()*2*sizeof(float));

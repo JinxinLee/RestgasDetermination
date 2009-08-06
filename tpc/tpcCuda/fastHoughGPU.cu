@@ -30,8 +30,8 @@ typedef unsigned int uint;
 
 //TODO: make clusterPos (paramPos, outp of riemannTransform) CONSTANT/ TEXTURE
 
-extern __device__ __constant__ float globalMins_d[5];
-extern __device__ __constant__ float globalMaxs_d[5];
+__device__ __constant__ float globalMins_d[5];
+__device__ __constant__ float globalMaxs_d[5];
 
 
 

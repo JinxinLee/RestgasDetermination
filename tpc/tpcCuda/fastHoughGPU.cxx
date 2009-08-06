@@ -115,7 +115,7 @@ int main(int argc, char** argv) {
   IFC->initClusters(clusterList);
   IFC->initParameterSpace(mins, maxs);
   
-  std::vector<Hough5DNode*> nodelist;
+  std::vector<Hough5DNode*>* nodelist= new std::vector<Hough5DNode*>();
   unsigned int* votes;
 
   
@@ -126,19 +126,49 @@ int main(int argc, char** argv) {
    
 
   //test root node only for intersection
-  nodelist.push_back(root);
-  IFC->testIntersect(nodelist,0,THRESHOLD);
+  nodelist->push_back(root);
+  IFC->testIntersect(*nodelist,0,THRESHOLD);
   votes = IFC->getVotes();
 
   std::cout<<"\nroot node received "<<votes[0]
 	   <<" of "<<nClusters<<" votes"<<std::endl;
   
+  if(votes[0]<THRESHOLD) {
+    std::cout<<"not enough votes for root! Something's wrong, aborting . . ."<<std::endl;
+    return 0;
+  }
   
-    
     
   // made it through root, begin oct-tree search ------------------------
   
-      
+   
+  for(int l=1; l<TREE_DEPTH; ++l) {
+    
+    std::vector<Hough5DNode*>* new_nodes = new std::vector<Hough5DNode*>();
+    //create new nodes
+    for(int n=0; n<nodelist->size(); ++n) {
+      Hough5DNode* the_node=nodelist->at(n);
+      float* sons = the_node->getSonArray();
+      if(votes[n]>=THRESHOLD) {
+	for(int s=0; s<32; ++s) 
+	  new_nodes->push_back(new Hough5DNode(sons+5*s,l,nClusters));
+      }
+      delete nodelist->at(n);
+    }
+    nodelist->clear();
+    nodelist=new_nodes;    
+
+    //test root node only for intersection
+    IFC->testIntersect(*nodelist,l,THRESHOLD);
+    votes = IFC->getVotes();
+
+    int count=0;
+    for(int k=0; k<nodelist->size(); ++k)
+      if(votes[k]>=THRESHOLD)
+	count++;
+    std::cout<<"LEVEL "<<l<<":  "<<count<<" of "<<nodelist->size()<<" checked the test"<<std::endl;
+    
+  }
     
   
 }

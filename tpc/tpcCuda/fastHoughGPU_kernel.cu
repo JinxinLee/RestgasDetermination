@@ -5,15 +5,15 @@
 
 //TODO: make clusterPos (paramPos, outp of riemannTransform) CONSTANT
 
-__constant__ float globalMins_d[5];
-__constant__ float globalMaxs_d[5];
+__device__ __constant__ float globalMins_d[5];
+__device__ __constant__ float globalMaxs_d[5];
 
 
 __global__ void riemannTransform(float* clPos, float* paramPos, int nClusters,
 				 float SCALING) {
   //can we make something SHARED here?
   int tID = blockIdx.x * blockDim.x + threadIdx.x;
-
+  
   if(tID<nClusters) {
     
     float x,y,z;
@@ -53,8 +53,8 @@ __global__ void testIntersect(int nNodes, int level, int nClusters,
 			      float* proj3, float* proj4, 
 			      uint* votes) {
 
-  float* _mins = globalMins_d;  
-  float* _maxs = globalMaxs_d;
+  //float* _mins = globalMins_d;  
+  //float* _maxs = globalMaxs_d;
     
   float _side = 1.f/(powf(2,level));
   float PI_180 = 3.141592654f / 180.f;
@@ -84,11 +84,12 @@ __global__ void testIntersect(int nNodes, int level, int nClusters,
       
       //test for intersection in M-T space -------------------
       int signs1 = 0;
-      for(int m_it=0; m_it<2; m_it++) {
-	float t_m = -R*(mCoords[m_it]*(_maxs[3]-_mins[3])) + Z;
-	for(int t_it=0; t_it<2; t_it++) {
-	  float diff = tCoords[t_it]*(_maxs[4]-_mins[4]) - t_m;
-	  signs1+=(int)(diff > 0);
+      float t_m, diff;
+      for(uint m_it=0; m_it<2; m_it++) {
+	t_m = -R*(mCoords[m_it]*(globalMaxs_d[3]-globalMins_d[3])) + Z;
+	for(uint t_it=0; t_it<2; t_it++) {
+	  diff = tCoords[t_it]*(globalMaxs_d[4]-globalMins_d[4]) - t_m;
+	  signs1+=(uint)(diff > 0);
 	}
       }
 
@@ -99,17 +100,29 @@ __global__ void testIntersect(int nNodes, int level, int nClusters,
            
       //test for interesection in (phi, theta, c) ------------
       
-      float phi1 = proj0[n*2]*(_maxs[0] - _mins[0]) + 90; 
-      float phi2 = proj0[n*2+1]*(_maxs[0] - _mins[0]) + 90;
+      float phi1 = __fadd_rn(proj0[n*2]*(globalMaxs_d[0] - globalMins_d[0]), 90.f); 
+      float phi2 = __fadd_rn(proj0[n*2+1]*(globalMaxs_d[0] - globalMins_d[0]), 90.f);
+      //DOES NOT WORK WITH NORMAL "+", GIVES 90 FOR PHI2 !!!!!
+
       float phiCoords[2] = {phi1, phi2};
       
-      float theta1 = (proj1[n*2] + 0.5)* (_maxs[1] - _mins[1]) +_mins[1];
-      float theta2 = (proj1[n*2+1] + 0.5)* (_maxs[1] - _mins[1]) +_mins[1];
+      float theta1 = __fadd_rn(proj1[n*2], 0.5f);
+      theta1 = __fmul_rn(theta1, __fadd_rn(globalMaxs_d[1], - globalMins_d[1]));
+      theta1 = __fadd_rn(theta1, globalMins_d[1]);
+      
+      float theta2 = __fadd_rn(proj1[n*2+1], 0.5f);
+      theta2 = __fmul_rn(theta2, __fadd_rn(globalMaxs_d[1], - globalMins_d[1]));
+      theta2 = __fadd_rn(theta2, globalMins_d[1]);
+
+      
+      //float theta1 = __fadd_rn((proj1[n*2] + 0.5)* (globalMaxs_d[1] - globalMins_d[1]), globalMins_d[1]);
+      //float theta2 = __fadd_rn((proj1[n*2+1] + 0.5)* (globalMaxs_d[1] - globalMins_d[1]) ,globalMins_d[1]);
       float thetaCoords[2] = {theta1, theta2};
 
-      float c1 = proj2[n*2] * (_maxs[2] - _mins[2]);
-      float c2 = proj2[n*2+1] * (_maxs[2] - _mins[2]) ;
-      
+      float c1 = __fadd_rn(globalMaxs_d[2], - globalMins_d[2]);
+      c1 = __fmul_rn(c1, proj2[n*2]);
+      float c2 = __fadd_rn(globalMaxs_d[2], - globalMins_d[2]);
+      c2 = __fmul_rn(c2, proj2[n*2+1]);
       int sign=0;
       
       for(int p=0; p<2; p++)
@@ -124,10 +137,8 @@ __global__ void testIntersect(int nNodes, int level, int nClusters,
 	  sign+=(int)(c2-c > 0);
 	}
       
-      if(sign == 32 || sign==0)
-	continue;
-          
-      atomicAdd(&(votes[n]),(uint)1);           		
+      if(!(sign == 32 || sign==0 || signs1 == 4 || signs1 == 0))
+	atomicAdd(&(votes[n]),(uint)1);           		
     }
   }
 }

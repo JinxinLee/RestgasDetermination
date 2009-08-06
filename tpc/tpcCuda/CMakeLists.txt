@@ -107,9 +107,13 @@ ADD_EXECUTABLE(fastHoughGPU fastHoughGPU.cxx)
 TARGET_LINK_LIBRARIES(fastHoughGPU tpccuda tpcdata
   ${CUDA_RUNTIME_LIBRARIES} ${ROOT_LIBS})
 
+#ADD_EXECUTABLE(fastHoughGPU_cu fastHoughGPU.cu)
+#TARGET_LINK_LIBRARIES(fastHoughGPU_cu tpccuda tpcdata
+#  ${CUDA_RUNTIME_LIBRARIES} ${ROOT_LIBS})
+
 #ADD_EXECUTABLE(fastHoughCPU fastHoughCPU.cc)
 #TARGET_LINK_LIBRARIES(fastHoughCPU tpcdata ${ROOT_LIBS})
 
-#ADD_EXECUTABLE(fastHoughCPU_5D fastHoughCPU_5D.cc)
-#TARGET_LINK_LIBRARIES(fastHoughCPU_5D tpcdata ${ROOT_LIBS})
+ADD_EXECUTABLE(fastHoughCPU_5D fastHoughCPU_5D.cc)
+TARGET_LINK_LIBRARIES(fastHoughCPU_5D tpccuda tpcdata ${ROOT_LIBS})
 
