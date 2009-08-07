@@ -90,11 +90,8 @@ class PndGemTrackFinderOnHits : public PndGemTrackFinder
   /** Event counter **/
   Int_t fNofEvents;  ///< event counter
   
-  Int_t fNofRecoTracks;
-  Int_t fGoodRecoTracks;
-  Int_t fGhostRecoTracks;
-  Int_t fCloneRecoTracks;
-
+  Int_t fNofExpectedTrackSegments;
+  Int_t fNofFoundTrackSegments;
   std::vector<TrackSegment> fTrackSegments;
   Int_t FindTrackSegments(TClonesArray* hitArray, Int_t stat1Id, Int_t stat2Id);
   Int_t MatchTrackSegments();

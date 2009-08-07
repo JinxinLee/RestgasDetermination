@@ -94,20 +94,22 @@ class PndGemTrackFinderQA : public FairTask
 
   TList* fHistoList;
   // number of mc tracks, reco tracks, efficiency as function of MOMENTUM
-  TH1F* fhMCAllVsP, *fhMCAccVsP, *fhMCPrimVsP, *fhMCSecVsP;
-  TH1F* fhRecoAccVsP, *fhRecoPrimVsP, *fhRecoSecVsP;
-  TH1F* fhEffAccVsP, *fhEffPrimVsP, *fhEffSecVsP;
+  TH1F* fhMCAllVsP, *fhMCAccVsP, *fhMCPrimVsP, *fhMCSecVsP, *fhMCRefVsP;
+  TH1F* fhRecoAccVsP, *fhRecoPrimVsP, *fhRecoSecVsP, *fhRecoRefVsP;
+  TH1F* fhEffAccVsP, *fhEffPrimVsP, *fhEffSecVsP, *fhEffRefVsP;
   // number of mc tracks, reco tracks, efficiency as function of THETA
-  TH1F* fhMCAllVsT, *fhMCAccVsT, *fhMCPrimVsT, *fhMCSecVsT;
-  TH1F* fhRecoAccVsT, *fhRecoPrimVsT, *fhRecoSecVsT;
-  TH1F* fhEffAccVsT, *fhEffPrimVsT, *fhEffSecVsT;
+  TH1F* fhMCAllVsT, *fhMCAccVsT, *fhMCPrimVsT, *fhMCSecVsT, *fhMCRefVsT;
+  TH1F* fhRecoAccVsT, *fhRecoPrimVsT, *fhRecoSecVsT, *fhRecoRefVsT;
+  TH1F* fhEffAccVsT, *fhEffPrimVsT, *fhEffSecVsT, *fhEffRefVsT;
   // number of mc tracks, reco tracks, efficiency as function of NUMBER OF POINTS
-  TH1F* fhMCAllVsN, *fhMCAccVsN, *fhMCPrimVsN, *fhMCSecVsN;
-  TH1F* fhRecoAccVsN, *fhRecoPrimVsN, *fhRecoSecVsN;
-  TH1F* fhEffAccVsN, *fhEffPrimVsN, *fhEffSecVsN;
+  TH1F* fhMCAllVsN, *fhMCAccVsN, *fhMCPrimVsN, *fhMCSecVsN, *fhMCRefVsN;
+  TH1F* fhRecoAccVsN, *fhRecoPrimVsN, *fhRecoSecVsN, *fhRecoRefVsN;
+  TH1F* fhEffAccVsN, *fhEffPrimVsN, *fhEffSecVsN, *fhEffRefVsN;
 
   // momentum resolution vs MOMENTUM
-  TH2F* fhMomResAcc, *fhMomResPrim, *fhMomResSec;
+  TH2F* fhMomResAccVsP, *fhMomResPrimVsP, *fhMomResSecVsP, *fhMomResRefVsP;
+  // momentum resolution vs THETA
+  TH2F* fhMomResAccVsT, *fhMomResPrimVsT, *fhMomResSecVsT, *fhMomResRefVsT;
 
   TH1F* fhNofHitsPerTrack;
   TH1F* fhNofHitsPerRecoTrack;
