@@ -1,4 +1,23 @@
-// NOTE: requires NORMALIZED root parameter space with side length 1.
+//-----------------------------------------------------------
+//
+// Description:
+//      Representation of a 5-dimensional cube for the
+//      FHT algorithm: (phi, theta, c, m, t)
+//      
+//
+//
+// Environment:
+//      Software developed for the PANDA Detector at FAIR.
+//
+// Author List:
+//      Felix Boehmer      TU Munich       (original author)
+//
+//
+//-----------------------------------------------------------
+
+
+
+// NOTE: assumes NORMALIZED root parameter space with side length 1.
 
 #ifndef HOUGH5DNODE_H
 #define HOUGH5DNODE_H
@@ -32,6 +51,7 @@ public:
   
   
   void setHit(int j) {_hitList[j] = true;} //hyperplane was a hit
+  void setVotes(int votes)  {_votes = votes;}
   void vote() {_votes++;}
 
   void print();

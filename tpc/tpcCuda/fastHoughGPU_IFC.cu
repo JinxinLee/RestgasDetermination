@@ -1,37 +1,58 @@
+//-----------------------------------------------------------
+//
+// Description:
+//      C-style wrapper functions for the CUDA calls
+//      -- implementation
+//      
+//
+// Environment:
+//      Software developed for the PANDA Detector at FAIR.
+//
+// Author List:
+//      Felix Boehmer      TU Munich       (original author)
+//
+//
+//-----------------------------------------------------------
+
 
 #include "fastHoughGPU_kernel.cu"
 #include "fastHoughGPU_IFC.cuh"
 #include <iostream>
-//#include <cudart.h>
+#include <cutil_inline.h>
+
 
 extern "C" {
 
   void allocateArray(void **devPtr, int size) {
-    cudaMalloc(devPtr, size);  
+    cutilSafeCall(cudaMalloc(devPtr, size));  
   }
   
   void freeArray(void *devPtr) {
-    cudaFree(devPtr);
+    cutilSafeCall(cudaFree(devPtr));
   }
   
   void threadSync() {
-    cudaThreadSynchronize();
+    cutilSafeCall(cudaThreadSynchronize());
   }
   
   void copyArrayFromDevice(void* host, const void* device, 
 			   int size) {
-    cudaMemcpy(host, device, size, cudaMemcpyDeviceToHost);
+    cutilSafeCall(cudaMemcpy(host, device, size, cudaMemcpyDeviceToHost));
   }
   
   void copyArrayToDevice(void* device, const void* host, int size) {
     
-    cudaMemcpy(device, host, size, cudaMemcpyHostToDevice);
+    cutilSafeCall(cudaMemcpy(device, host, size, cudaMemcpyHostToDevice));
+  }
+
+  void copyArrayToSymbol(float* host) {
+   cutilSafeCall(cudaMemcpyToSymbol(clusterDataConst_d,host, 10000*sizeof(float)));
   }
   
-  //copy to constant memory
+  
   void setParameterSpace(float* mins, float* maxs){
-    cudaMemcpyToSymbol(globalMins_d, mins, 5*sizeof(float));
-    cudaMemcpyToSymbol(globalMaxs_d, maxs, 5*sizeof(float));  
+    cutilSafeCall(cudaMemcpyToSymbol(globalMins_d, mins, 5*sizeof(float)));
+    cutilSafeCall(cudaMemcpyToSymbol(globalMaxs_d, maxs, 5*sizeof(float)));  
   }
   
   void callRiemannKernel(float* pos_d, float* data_d, 
@@ -44,28 +65,67 @@ extern "C" {
     
     riemannTransform<<< dimGrid, dimBlock >>>(pos_d, data_d,
 					      nCl, SCALING);
+    threadSync();
     std::cout<<"Finished executing RiemannKernel" <<std::endl;
+    
     
   }
 
   
   void callIntersectKernel(int nodes, int level, int nCl,
-			   float* data_d, float* p0_d,
+			   //float* data_d, 
+			   float* p0_d,
 			   float* p1_d, float* p2_d, float* p3_d,
 			   float* p4_d, uint* votes_d,
 			   int threads, int blocks) {
     
+    
     dim3 dimGrid(blocks);
     dim3 dimBlock(threads);
+    
+
+    dim3 dimBlock2 = 512;
+    dim3 dimGrid2 = nodes / 512 + 1;
+    
+    cleanUpVotes<<< dimGrid2, dimBlock2 >>> (nodes, votes_d);
+    
+    threadSync();
+
     std::cout<<"Starting IntersectKernel ..."<<std::endl;
     std::cout<<"BLOCKS: "<<blocks<<"   THREADS: "<<threads<<std::endl;
     
     testIntersect<<< dimGrid, dimBlock >>> (nodes, level, nCl,
-					  data_d, p0_d, p1_d, p2_d,
-					  p3_d, p4_d, votes_d);
-   
+					    //data_d, 
+					    p0_d, p1_d, p2_d,
+					    p3_d, p4_d, votes_d);
+    threadSync();
   }
   
-  
+  void callIntersectKernel2(int nodes, int level, int nCl,
+			    float* p0_d,
+			    float* p1_d, float* p2_d, float* p3_d,
+			    float* p4_d, uint* votes_d,
+			    int threads, int blocks) {
+    
+    
+    dim3 dimGrid(blocks);
+    dim3 dimBlock(threads);
+    
+
+    dim3 dimBlock2 = 512;
+    dim3 dimGrid2 = nodes / 512 + 1;
+    
+    cleanUpVotes<<< dimGrid2, dimBlock2 >>> (nodes, votes_d);
+    
+    threadSync();
+
+    std::cout<<"Starting IntersectKernel2 ..."<<std::endl;
+    std::cout<<"BLOCKS: "<<blocks<<"   THREADS: "<<threads<<std::endl;
+    
+    testIntersect2<<< dimGrid, dimBlock >>> (nodes, level, nCl,
+					     p0_d, p1_d, p2_d,
+					     p3_d, p4_d, votes_d);
+    threadSync();
+  }
 
 }

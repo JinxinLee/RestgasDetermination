@@ -1,3 +1,22 @@
+//-----------------------------------------------------------
+//
+// Description:
+//      Interface class for the Fast Hough Transfom (FHT)
+//      algorithm based on CUDA.  
+//      Takes framework clusters and hands them to the 
+//      GPU for processing.
+//      
+//
+// Environment:
+//      Software developed for the PANDA Detector at FAIR.
+//
+// Author List:
+//      Felix Boehmer      TU Munich       (original author)
+//
+//
+//-----------------------------------------------------------
+
+
 
 #ifndef GPU_INTERFACE_H
 #define GPU_INTERFACE_H
@@ -26,14 +45,16 @@ class fastHoughGPU_IFC {
   void initParameterSpace(std::vector<float> mins, std::vector<float> maxs);
   void initParameterSpace(float* mins, float* maxs);
   
-  void testIntersect(std::vector<Hough5DNode*> nodes,
-		     int level, int THRESHOLD);
+  
+  void testIntersection(std::vector<Hough5DNode*> nodes,
+			int level, int THRESHOLD);
   uint* getVotes() {return _votes;}
+  float* getCenter() {return _center;}
 
   void setKernelPars(uint threadsPerBlock);
   
   
-   private:
+ private:
 
   bool _initC;
   bool _initP;
@@ -41,8 +62,7 @@ class fastHoughGPU_IFC {
   uint* _votes;
   uint _level;
   
-  uint _threads;
-  uint _blocks;
+  uint _threads;   //threads per block
   
 
   //CPU data arrays
@@ -57,9 +77,11 @@ class fastHoughGPU_IFC {
   float* _mins;
   float* _maxs;
 
+  float* _center;
+
   //GPU data arrays
   float* _clusterPos_d;
-  float* _clusterData_d; //MAKE CONSTANT /TEXTURE
+  float* _clusterData_d; //will be moved to __constant__
     
   float* _p0_d;
   float* _p1_d;
@@ -67,16 +89,19 @@ class fastHoughGPU_IFC {
   float* _p3_d;
   float* _p4_d;
 
+  float* _center_d;
+
   uint* _votes_d;
-  
+
   //parameters are CONSTANT on GPU, defined in the KERNEL cu
+  //same applies to result of the Riemann Trafo
 
 
   int _MAXSIZE;    //size of allocated arrays (has to be bigger than 
-                   //nNodes (sons)
+                   //potential nNodes (sons))
   
   float _RIEMANNSCALING; //scaling of the padplane to be in the scale
-                       //of the Riemann Sphere
+                         //of the Riemann Sphere
 
   bool _CUTX;      //only use clusters with X>0? (standard)
   

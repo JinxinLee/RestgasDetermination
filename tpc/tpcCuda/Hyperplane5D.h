@@ -1,3 +1,21 @@
+//-----------------------------------------------------------
+//
+// Description:
+//      Representation of a Hyperplane in 5-dimensional
+//      Hough-Space.
+//      
+//      
+//
+// Environment:
+//      Software developed for the PANDA Detector at FAIR.
+//
+// Author List:
+//      Felix Boehmer      TU Munich       (original author)
+//
+//
+//-----------------------------------------------------------
+
+
 #include <map>
 #include <vector>
 #include "PndTpcCluster.h"
@@ -26,7 +44,9 @@ public:
   //getters ---------------------------
   float* getParamMins() {return _mins;}
   float* getParamMaxs() {return _maxs;}
-  float* getCoords() {return _coords;}
+  
+  float* getCoords() {return _coords;} //returns (phi,theta,c,m,t);
+  
   int getID() {return _index;}
   
     

@@ -1,3 +1,21 @@
+//-----------------------------------------------------------
+//
+// Description:
+//      Representation of a 5-dimensional cube for the
+//      FHT algorithm
+//      -- implementation
+//      
+//
+//
+// Environment:
+//      Software developed for the PANDA Detector at FAIR.
+//
+// Author List:
+//      Felix Boehmer      TU Munich       (original author)
+//
+//
+//-----------------------------------------------------------
+
 #include "Hough5DNode.h"
 #include <cmath>
 #include <iostream>
@@ -123,7 +141,8 @@ void
 Hough5DNode::print() {
   
   std::cout<<"**Hough5DNode**   level: "<<_level<<"   center: "
-	   <<_center[0]<<", "<<_center[1]<<"   votes: "
+	   <<_center[0]<<", "<<_center[1]<<", "<<_center[2]
+	   <<", "<<_center[3]<<", "<<_center[4]<<"   votes: "
 	   <<_votes<<std::endl; 
 
 }

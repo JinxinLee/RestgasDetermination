@@ -1,3 +1,22 @@
+//-----------------------------------------------------------
+//
+// Description:
+//      Driver program for CPU-based FHT algorithm in 
+//      5 dimensions
+//      
+//
+//
+// Environment:
+//      Software developed for the PANDA Detector at FAIR.
+//
+// Author List:
+//      Felix Boehmer      TU Munich       (original author)
+//
+//
+//-----------------------------------------------------------
+
+
+
 #include "TFile.h"
 #include "TTree.h"
 #include "TVector3.h"
@@ -41,7 +60,7 @@ int main(int argc, char** argv) {
   float phi_Min = 0;
   float phi_Max = 180;
   float theta_Min = 65;
-  float theta_Max = 95;
+  float theta_Max = 100;
   float c_Min = -0.1;
   float c_Max = 0.1;
 
@@ -118,6 +137,10 @@ int main(int argc, char** argv) {
     riemannListRZ.push_back(TVector3(pos.Perp(), 0., pos.Z()));
     hyperplanes.push_back(Hyperplane5D(cl,count));
     (hyperplanes.back()).setParamSpace(mins, maxs);
+    //float* coords = (hyperplanes.back()).getCoords();
+    //for(int i=0; i<5; i++)
+    //  std::cout<<coords[i]<<"  ";
+    std::cout<<std::endl;
     count++;
     
   }
@@ -217,7 +240,7 @@ int main(int argc, char** argv) {
 	Hyperplane5D plane =  hyperplanes[i];
 	plane.testIntersect(*the_son);
       }
-      if(the_son->getLevel() < 4) {
+      if(the_son->getLevel() < 6) {
 	if(the_son->getVote() < THRESHOLD) {
 	  //std::cout<<"Deleting SON from list"<<std::endl;
 	  delete parent_list.back();
@@ -225,7 +248,7 @@ int main(int argc, char** argv) {
 	}
       }
       else{
-	if(the_son->getVote() < the_node->getVote()*0.99) {
+	if(the_son->getVote() < the_node->getVote()*0.95) {
 	  //std::cout<<"Deleting SON from list"<<std::endl;
 	  delete parent_list.back();
 	  parent_list.pop_back();
@@ -248,8 +271,10 @@ int main(int argc, char** argv) {
     
   std::cout<<"There have been "<<solution_list.size()
 	   <<" solutions: \n"<<std::endl;
-
-
+      
+  
+  //for(int s=0; s<solution_list.size(); s++)  
+  // (solution_list[s])->print();
   TFile* file = new TFile("plots.root");
   TH2D* phic = (TH2D*)file->Get("phic_80");
   

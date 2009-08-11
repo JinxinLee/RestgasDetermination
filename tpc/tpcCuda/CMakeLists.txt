@@ -5,7 +5,8 @@ PROJECT(tpcCuda CUDA C CXX)
 
 cmake_minimum_required(VERSION 2.6)
 
-INCLUDE_DIRECTORIES($ENV{ROOTSYS}/include $ENV{VMCWORKDIR}/tpc $ENV{VMCWORKDIR}/base)
+INCLUDE_DIRECTORIES($ENV{ROOTSYS}/include $ENV{VMCWORKDIR}/tpc $ENV{VMCWORKDIR}/base
+                    $ENV{CUDA_SDK}/common/inc)
 
 SET(ROOT_LIB $ENV{ROOTSYS}/lib)
 SET(ROOT_BIN $ENV{ROOTSYS}/bin)
@@ -83,7 +84,7 @@ ADD_CUSTOM_COMMAND(OUTPUT tpcdataDict.cxx
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 SET(CMAKE_LD_FLAGS "${CMAKE_LD_FLAGS} -g")
-SET(CMAKE_CUDA_FLAGS "-g -G -arch=sm_13")
+SET(CMAKE_CUDA_FLAGS "-g -G -arch=sm_11 --ptxas-options -v")
 
 # Attempt to find dependant libraries
 FIND_PACKAGE(CUDARuntime)

@@ -1,3 +1,20 @@
+//-----------------------------------------------------------
+//
+// Description:
+//      Representation of a Hyperplane in 5-dimensional
+//      Hough-Space.
+//      -- implementation
+//      
+//
+// Environment:
+//      Software developed for the PANDA Detector at FAIR.
+//
+// Author List:
+//      Felix Boehmer      TU Munich       (original author)
+//
+//
+//-----------------------------------------------------------
+
 #include "Hyperplane5D.h"
 #include "TMath.h"
 
@@ -45,38 +62,18 @@ Hyperplane5D::testIntersect(Hough5DNode& node) {
 
   int level = node.getLevel();
   
-  //if(_hitmap.size()<level+1)
-  // _hitmap.push_back( new std::map<std::vector<float>, bool>() ) ;
-  //std::cout<<"\n ^&*^% _hitmap size: "<<_hitmap.size()<<std::endl;
-  //std::map<std::vector<float>, bool>* the_map = _hitmap.back();
-  //std::cout<<"\n ^&*^% the_map size: "<<the_map->size()<<std::endl;
   float PI_180 = 3.14159/180;
 
-  float* corners = node.getCorners();
-  float* center = node.getCenter();
   
   //first test in R-Z Hough space ---------------------------
   
   float* mCoords = node.getProjection3();
   float* tCoords = node.getProjection4();
     
-  //std::vector<float> coords(2);
-  //std::cout<<"\n ^&*%&^ vector size: "<<coords.size()<<std::endl;
-  //coords[0] = center[0];
-  //coords[1] = center[1];
-  
   bool found2D;
   bool skip=false;
   
-  // if((_hitmap[level])->find(coords) != (_hitmap[level])->end()) {
-//        found2D = (*_hitmap[level-1])[coords];
-//        if(!found2D)
-//          return false;
-//        else
-//          skip=true;
-//      }
-  
-  
+    
   if(!skip) {
     //TODO: optimize
     int signs2 = 0;
@@ -90,13 +87,12 @@ Hyperplane5D::testIntersect(Hough5DNode& node) {
     
     if(signs2 == 4 || signs2 == 0) {
       //(*the_map)[coords] = false;
-      return false;} //we don't need to proceed
-    else {
+      return false; } //we don't need to proceed
+    // else {
       //(*the_map)[coords] = true;
-    //  node.setHit(_index);
-    }
-    //  node.vote();
-    //  return true;   
+    //node.setHit(_index);
+    //node.vote();
+    //return true;   
     //}
   }
   
@@ -121,12 +117,9 @@ Hyperplane5D::testIntersect(Hough5DNode& node) {
   int lastSign=0;
   int count=0;
   bool hit=false;
-  for(int p=0; p<2; p++)
+  for(int p=0; p<2&&!hit; p++)
     for(int t=0; t<2; t++) {
-      //TVector3 n(1.f,0.f,0.f);
-      //TVector3 x(_coords[0],_coords[1],_coords[2]);
-      //n.SetMagThetaPhi(1., theta_vals[t]*TMath::Pi()/180,
-      //		       phi_vals[p]*TMath::Pi()/180);
+      
       float x[3] = {_coords[0],_coords[1],_coords[2]};
       float n[3] = {sin(theta_vals[t]*PI_180)*cos(phi_vals[p]*PI_180),
 		    sin(theta_vals[t]*PI_180)*sin(phi_vals[p]*PI_180),
@@ -156,7 +149,23 @@ Hyperplane5D::testIntersect(Hough5DNode& node) {
     return true;
   }
   else
-    return false;  
+  return false;  
+
+//       sign+=(int)(c1-c > 0);
+//       sign+=(int)(c2-c > 0);
+
+//     }
+
+//   if(sign < 8 &&  sign > 0) {    
+//     node.setHit(_index);
+//     node.vote();
+    
+//     return true;
+//   }
+//   else
+//     return false;
+    
+    
 }
 
 

@@ -1,4 +1,18 @@
-// first try
+//-----------------------------------------------------------
+//
+// Description:
+//      Driver programm for the pandaroot-CUDA interface
+//      
+//      
+//
+// Environment:
+//      Software developed for the PANDA Detector at FAIR.
+//
+// Author List:
+//      Felix Boehmer      TU Munich       (original author)
+//
+//
+//-----------------------------------------------------------
 
 #include <iostream>
 #include "TFile.h"
@@ -8,6 +22,12 @@
 #include "PndTpcDigi.h"
 #include "TClonesArray.h"
 #include "TCanvas.h"
+#include "TApplication.h"
+#include "TROOT.h"
+#include "TSystem.h"
+#include "TStyle.h"
+#include "TH2D.h"
+#include "TBox.h"
 
 #include <cmath>
 #include <vector>
@@ -26,23 +46,27 @@ int main(int argc, char** argv) {
   
   int TREE_DEPTH = 6;  //number of space divisions
   int THRESHOLD = 40;
+
+  int THREADS = 64;
+  float SCALE =0.95;
+
  
-  float m_Max = 1.;
-  float m_Min = -1.;
-  float t_Max = 5.;
-  float t_Min = -5.;
-  float phi_Min = 0;
-  float phi_Max = 180;
-  float theta_Min = 65;
-  float theta_Max = 100;
-  float c_Min = -0.1;
-  float c_Max = 0.1;
+  float m_Max = 1.f;
+  float m_Min = -1.f;
+  float t_Max = 5.f;
+  float t_Min = -5.f;
+  float phi_Min = 0.f;
+  float phi_Max = 180.f;
+  float theta_Min = 0.f;
+  float theta_Max = 180.f;
+  float c_Min = -0.1f;
+  float c_Max = 0.1f;
 
   float mins[5] = {phi_Min, theta_Min, c_Min, m_Min, t_Min};
   float maxs[5] = {phi_Max, theta_Max, c_Max, m_Max, t_Max};
   
 
-  while ((c = getopt(argc, argv, "t:d:")) != -1)
+  while ((c = getopt(argc, argv, "t:d:T:")) != -1)
     switch (c) {
     case 't':
       THRESHOLD = atoi(optarg);
@@ -50,14 +74,20 @@ int main(int argc, char** argv) {
     case 'd':
       TREE_DEPTH = atoi(optarg);
       break;
+    case 'T':
+      THREADS = atoi(optarg);
+      break;
+      
     }
 
 
+  TApplication* app = new TApplication("blub", NULL, NULL);
   
 
   //READ data and CREATE histograms and data containers -----------------
 
-  
+
+
   unsigned int EVENT=6;
   
 
@@ -80,15 +110,10 @@ int main(int argc, char** argv) {
  
     
   int size = _clusters->GetEntriesFast();
-  
-  
-  int BIN_m = 500;
-  int BIN_t = 500;
-  
+      
   std::vector<PndTpcCluster*> clusterList;
   std::vector<TVector3> riemannListRZ;
 
-  
   //loop over clusters --------------------------------------------------
   for(int c=0; c<size; ++c) {
     PndTpcCluster* cl = ((PndTpcCluster*)_clusters->At(c));
@@ -99,19 +124,44 @@ int main(int argc, char** argv) {
       continue;
     
     riemannListRZ.push_back(TVector3(pos.Perp(), 0., pos.Z()));
+  } 
+
+
+  // PLOT RZ Hough Histogram --------------------------------------------
+  
+  TH2D* houghRZ = new TH2D("vfg", "RZ hough space", 
+			   500, m_Min, m_Max, 500, t_Min, t_Max);
+
+  double tBinWidth = (t_Max - t_Min)/500;
+  
+  for(unsigned int rp=0; rp<riemannListRZ.size(); ++rp) {
+    
+    TVector3 pointRZ = riemannListRZ[rp];
+    double perp = pointRZ.X();
+    double z = pointRZ.Z();
+            
+    for(unsigned int t=0; t<500; ++t) {
+      
+      double T = (t+0.5)*tBinWidth + t_Min;
+      double M = (T-z) / (perp*(-1.));
+      houghRZ->Fill(M,T);
+    }
   }
 
   
-   
+ 
+
+  
   
   // FAST HOUGH SEARCH --------------------------------------------------
 
   //instantiate interface object:
 
-  fastHoughGPU_IFC* IFC = new fastHoughGPU_IFC();
+  fastHoughGPU_IFC* IFC = new fastHoughGPU_IFC(40, 10000000);
   int nClusters = riemannListRZ.size();
   
   //set up the IFC
+  IFC->setKernelPars(THREADS);
   IFC->initClusters(clusterList);
   IFC->initParameterSpace(mins, maxs);
   
@@ -127,7 +177,7 @@ int main(int argc, char** argv) {
 
   //test root node only for intersection
   nodelist->push_back(root);
-  IFC->testIntersect(*nodelist,0,THRESHOLD);
+  IFC->testIntersection(*nodelist,0,THRESHOLD);
   votes = IFC->getVotes();
 
   std::cout<<"\nroot node received "<<votes[0]
@@ -142,33 +192,184 @@ int main(int argc, char** argv) {
   // made it through root, begin oct-tree search ------------------------
   
    
+  
+  std::vector<Hough5DNode*>* last_nodes = new std::vector<Hough5DNode*>();
+
   for(int l=1; l<TREE_DEPTH; ++l) {
     
     std::vector<Hough5DNode*>* new_nodes = new std::vector<Hough5DNode*>();
+    
+    
     //create new nodes
     for(int n=0; n<nodelist->size(); ++n) {
       Hough5DNode* the_node=nodelist->at(n);
       float* sons = the_node->getSonArray();
-      if(votes[n]>=THRESHOLD) {
-	for(int s=0; s<32; ++s) 
-	  new_nodes->push_back(new Hough5DNode(sons+5*s,l,nClusters));
+      
+      if(l<6) {
+	if(votes[n]>=THRESHOLD) {
+	  for(int s=0; s<32; ++s) {
+	    the_node->setVotes(votes[n]);
+	    new_nodes->push_back(new Hough5DNode(sons+5*s,l,nClusters));
+	  }
+	}
+	else {
+	  delete nodelist->at(n);
+	  nodelist->at(n) = NULL;
+	}
       }
-      delete nodelist->at(n);
+      else {
+	//working, but not fitting with fixed THR of testIntersect
+	if(votes[n] >= last_nodes->at((int)n/32)->getVote()*SCALE) {
+	  for(int s=0; s<32; ++s) {
+	    the_node->setVotes(votes[n]);
+	    new_nodes->push_back(new Hough5DNode(sons+5*s,l,nClusters));
+	  }
+	} 
+	else {
+	  delete nodelist->at(n);
+	  nodelist->at(n) = NULL;
+	}
+      }
     }
+
+    for(int x=0; x<last_nodes->size(); x++)
+      delete last_nodes->at(x);
+
+    if(l<TREE_DEPTH-1)
+      last_nodes->clear();
+    
+    int lcount=0;
+    for(int n=0; n<nodelist->size(); n++)
+      if(nodelist->at(n) != NULL) {
+	lcount++;
+	last_nodes->push_back(nodelist->at(n));
+      }
+    
+    
+    std::cout<<"Added "<<last_nodes->size()<<" last_nodes"<<std::endl;
     nodelist->clear();
     nodelist=new_nodes;    
 
-    //test root node only for intersection
-    IFC->testIntersect(*nodelist,l,THRESHOLD);
+    //for(int i=0; i<last_nodes->size(); i++)
+    //  last_nodes->at(i)->print();
+    
+    
+    IFC->testIntersection(*nodelist,l,THRESHOLD);
     votes = IFC->getVotes();
-
+    
     int count=0;
     for(int k=0; k<nodelist->size(); ++k)
       if(votes[k]>=THRESHOLD)
 	count++;
-    std::cout<<"LEVEL "<<l<<":  "<<count<<" of "<<nodelist->size()<<" checked the test"<<std::endl;
+    std::cout<<"LEVEL "<<l<<":  "<<count<<" of "
+	     <<nodelist->size()<<" checked the test"<<std::endl;
     
   }
+  
+  for(int n=0; n<nodelist->size(); n++){
+    (nodelist->at(n))->setVotes(votes[n]);
+  }
+
+
+  // --------------------- END FHT ------------------------------------------------
+
+
+  
+
+  TFile* file = new TFile("plots.root");
+  TH2D* phic = (TH2D*)file->Get("phic_80");
+  
     
+  
+  std::vector<TBox*> boxlist;
+  
+  for(int n=0; n<nodelist->size(); n++) {
+    //(solution_list[s])->print();
+    //if(nodelist->at(n)->getVote() > last_nodes->at((int)n/32)->getVote()*SCALE) {
+    if(nodelist->at(n)->getVote() >= THRESHOLD*0.85) {
+      float* center = (nodelist->at(n))->getCenter();
+      float length = (nodelist->at(n))->getSideLength();
+      float x1 = (center[3] - 0.5*length)*(m_Max-m_Min);
+      float x2 = (center[3] + 0.5*length)*(m_Max-m_Min);
+      float y1 = (center[4] - 0.5*length)*(t_Max-t_Min);
+      float y2 = (center[4] + 0.5*length)*(t_Max-t_Min);
+      boxlist.push_back(new TBox(x1,y1,x2,y2));
+    }
+  }
+  
+  gStyle->SetPalette(1);
+  
+  TCanvas* canv = new TCanvas();
+  //canv->SetGrayscale();
+  houghRZ->Draw();
+  
+  
+  for(int b=0; b<boxlist.size(); ++b) {
+    (boxlist[b])->SetLineColor(kPink+10);
+    (boxlist[b])->SetFillStyle(0);
+    (boxlist[b])->Draw("l");
+  }
+
+  std::vector<TBox*> boxlist2;
+    
+  for(int s=0; s<nodelist->size(); s++) {
+    //if(nodelist->at(s)->getVote() > last_nodes->at((int)s/32)->getVote()*SCALE) {
+    if(nodelist->at(s)->getVote() >= THRESHOLD*0.85) {
+      float* center = (nodelist->at(s))->getCenter();
+      float length = (nodelist->at(s))->getSideLength();
+      float x1 = (center[0] - 0.5*length)*(phi_Max-phi_Min) +90;
+      float x2 = (center[0] + 0.5*length)*(phi_Max-phi_Min) +90;
+      float y1 = (center[2] - 0.5*length)*(c_Max-c_Min);
+      float y2 = (center[2] + 0.5*length)*(c_Max-c_Min);
+      boxlist2.push_back(new TBox(x1,y1,x2,y2));
+    }
+  }
+
+  TCanvas* canv2 = new TCanvas();
+  phic->Draw("COLZ");
+  
+  for(int b=0; b<boxlist2.size(); ++b) {
+    (boxlist2[b])->SetLineColor(kPink+10);
+    (boxlist2[b])->SetFillStyle(0);
+    (boxlist2[b])->Draw("l");
+  }
+  
+  
+  TH2D* sebastian_stinkt = new TH2D("seb", "Sebastian riecht streng",
+				    100,phi_Min,phi_Max, 100, m_Min, m_Max);
+  TCanvas* canv3 = new TCanvas();
+
+
+  std::vector<TBox*> boxlist3;
+  //sparse->Projection(0,3)->Draw("COLZ");
+  sebastian_stinkt->Draw();
+  for(int s=0; s<nodelist->size(); s++) {
+    if(nodelist->at(s)->getVote() >= THRESHOLD*0.85) {
+      float* center = (nodelist->at(s))->getCenter();
+      float length = (nodelist->at(s))->getSideLength();
+      float x1 = (center[0] - 0.5*length)*(phi_Max-phi_Min) +90;
+      float x2 = (center[0] + 0.5*length)*(phi_Max-phi_Min) +90;
+      float y1 = (center[3] - 0.5*length)*(m_Max-m_Min);
+      float y2 = (center[3] + 0.5*length)*(m_Max-m_Min);
+      boxlist3.push_back(new TBox(x1,y1,x2,y2));
+    }
+  }
+
+  for(int b=0; b<boxlist3.size(); ++b) {
+    (boxlist3[b])->SetLineColor(kPink+10);
+    (boxlist3[b])->SetFillStyle(0);
+    (boxlist3[b])->Draw("l");
+  }
+
+
+  
+  gApplication->SetReturnFromRun(true);
+  gSystem->Run();
+
+
+
+
+
+
   
 }

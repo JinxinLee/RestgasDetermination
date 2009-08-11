@@ -1,3 +1,24 @@
+//-----------------------------------------------------------
+//
+// Description:
+//      Interface class for the Fast Hough Transfom (FHT)
+//      algorithm based on CUDA.  
+//      Takes framework clusters and hands them to the 
+//      GPU for processing.
+//      -- implementaion
+//      
+//
+// Environment:
+//      Software developed for the PANDA Detector at FAIR.
+//
+// Author List:
+//      Felix Boehmer      TU Munich       (original author)
+//
+//
+//-----------------------------------------------------------
+
+
+
 #include "fastHoughGPU_IFC.h"
 #include <TVector3.h>
 #include <assert.h>
@@ -14,7 +35,7 @@ fastHoughGPU_IFC::fastHoughGPU_IFC(float SCALING , int MAXSIZE) {
   _RIEMANNSCALING = SCALING;
   _CUTX = true;
 
-  _threads = 64;
+  _threads = 128; //standard value
   
   _p0 = (float*) malloc(2*MAXSIZE*sizeof(float));
   _p1 = (float*) malloc(2*MAXSIZE*sizeof(float));
@@ -24,13 +45,15 @@ fastHoughGPU_IFC::fastHoughGPU_IFC(float SCALING , int MAXSIZE) {
 
   _votes = (uint*) malloc(MAXSIZE*sizeof(uint));
 
-  allocateArray((void**)&_votes_d, _MAXSIZE*sizeof(uint));
+  allocateArray((void**)&_votes_d, MAXSIZE*sizeof(uint));
   
   allocateArray((void**)&_p0_d, _MAXSIZE*2*sizeof(float));
   allocateArray((void**)&_p1_d, _MAXSIZE*2*sizeof(float));
   allocateArray((void**)&_p2_d, _MAXSIZE*2*sizeof(float));
   allocateArray((void**)&_p3_d, _MAXSIZE*2*sizeof(float));
   allocateArray((void**)&_p4_d, _MAXSIZE*2*sizeof(float));
+
+  allocateArray((void**)&_center_d, _MAXSIZE*5*sizeof(float));
      
 }
 
@@ -52,8 +75,7 @@ fastHoughGPU_IFC::initClusters(std::vector<PndTpcCluster*> clist) {
       size++;    
   }
   _nClusters=size;
-  _blocks=_nClusters/_threads+1;
-    
+  
   //allocate host and GPU arrays 
   _clusterPos = (float*) malloc(3*size*sizeof(float));
   allocateArray((void**)&_clusterPos_d, 3*size*sizeof(float));
@@ -76,19 +98,20 @@ fastHoughGPU_IFC::initClusters(std::vector<PndTpcCluster*> clist) {
 
   copyArrayToDevice(_clusterPos_d, _clusterPos,_nClusters*3*sizeof(float));
   //kernel invocation via wrapper:
+  int blocks = _nClusters / _threads + 1;
   callRiemannKernel(_clusterPos_d, _clusterData_d, _nClusters, 
-		    _RIEMANNSCALING, _threads, _blocks);
-  //result resides on the GPU and will not be copied back to host!
-
-  //test
-  float* clusterData = (float*) malloc(5*size*sizeof(float));
-  copyArrayFromDevice(clusterData, _clusterData_d, size*5*sizeof(float));
-
-  for(int c=0; c<size; ++c) 
-    std::cout<<clusterData[c*5]<<"   "<<clusterData[c*5+1]<<"   "
-	     <<clusterData[c*5+2]<<"   "<<clusterData[c*5+3]<<"   "
-	     <<clusterData[c*5+4]<<"   "<<std::endl;
-
+		    _RIEMANNSCALING, _threads, blocks);
+  
+  //result resides on the GPU 
+  //can this be done without going through the host?
+  
+  assert(_nClusters<2000);
+  float* temp = (float*) malloc(10000*sizeof(float));
+  copyArrayFromDevice(temp, _clusterData_d, 10000*sizeof(float));
+  copyArrayToSymbol(temp);
+  free(temp);
+  
+  
   _initC=true;
 }
 
@@ -110,6 +133,7 @@ fastHoughGPU_IFC::initParameterSpace(std::vector<float> mins,
 
   //wrapper function call
   setParameterSpace(_mins, _maxs);
+
   
   _initP=true;
 }
@@ -135,19 +159,20 @@ fastHoughGPU_IFC::initParameterSpace(float* mins,
   
   
 void
-fastHoughGPU_IFC::testIntersect(std::vector<Hough5DNode*> nodes,
-				  int level, int THRESHOLD) {
+fastHoughGPU_IFC::testIntersection(std::vector<Hough5DNode*> nodes,
+				   int level, int THRESHOLD) {
 
   assert(nodes.size()<_MAXSIZE);
   if(_initP && _initC) {
 
-    for(int n=0; n<nodes.size(); ++n) {
-      //TODO: implement ONE call in Hough5DNode
+    for(int n=0; n<nodes.size(); n++) {
+      //TODO: implement ONE call in Hough5DNode, make ONE array
       float* p0 = (nodes[n])->getProjection0();
       float* p1 = (nodes[n])->getProjection1();
       float* p2 = (nodes[n])->getProjection2();
       float* p3 = (nodes[n])->getProjection3();
       float* p4 = (nodes[n])->getProjection4();
+      
       
       _p0[2*n] = p0[0];
       _p0[2*n+1] = p0[1];
@@ -159,25 +184,43 @@ fastHoughGPU_IFC::testIntersect(std::vector<Hough5DNode*> nodes,
       _p3[2*n+1] = p3[1];
       _p4[2*n] = p4[0];
       _p4[2*n+1] = p4[1];
+      _votes[n] = (uint)0;
     }
 
-    for(int v=0; v<nodes.size(); ++v) 
-      _votes[v] = 0;
-
-    copyArrayToDevice(_votes_d, _votes,nodes.size()*sizeof(uint));
-	
+    
     copyArrayToDevice(_p0_d, _p0,nodes.size()*2*sizeof(float));
     copyArrayToDevice(_p1_d, _p1,nodes.size()*2*sizeof(float));
     copyArrayToDevice(_p2_d, _p2,nodes.size()*2*sizeof(float));
     copyArrayToDevice(_p3_d, _p3,nodes.size()*2*sizeof(float));
     copyArrayToDevice(_p4_d, _p4,nodes.size()*2*sizeof(float));
+    
+    
 
-    //kernel call
-    callIntersectKernel(nodes.size(),level,_nClusters,_clusterData_d,
-			_p0_d,_p1_d,_p2_d,_p3_d,_p4_d,_votes_d, _threads, _blocks);
+    //choose the kernel to call based on nClusters and nNodes
+    if(_nClusters > nodes.size()) {
+      
+      int blocks = _nClusters / _threads + 1;
+      //kernel call (does a threadSync)
+      callIntersectKernel(nodes.size(),level,_nClusters,//_clusterData_d,
+			  _p0_d,_p1_d,_p2_d,_p3_d,_p4_d,_votes_d, 
+			  _threads, blocks);
+      
+      threadSync();
+    }
+
+    else {
+      
+      int blocks = nodes.size() / _threads + 1;
+      //kernel call (does a threadSync)
+      callIntersectKernel2(nodes.size(),level,_nClusters,
+			   _p0_d,_p1_d,_p2_d,_p3_d,_p4_d,_votes_d, 
+			   _threads, blocks);
+      
+    }
     
     copyArrayFromDevice(_votes, _votes_d, 
 			nodes.size()*sizeof(uint));
+      
   }
 }
   
@@ -185,6 +228,5 @@ fastHoughGPU_IFC::testIntersect(std::vector<Hough5DNode*> nodes,
 void
 fastHoughGPU_IFC::setKernelPars(uint threads) {
   _threads = threads;
-  _blocks = _nClusters/threads+1;
 }
 
