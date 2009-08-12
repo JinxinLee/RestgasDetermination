@@ -48,7 +48,7 @@ int main(int argc, char** argv) {
   int THRESHOLD = 40;
 
   int THREADS = 64;
-  float SCALE =0.95;
+  float SCALE =0.90;
 
  
   float m_Max = 1.f;
@@ -59,8 +59,8 @@ int main(int argc, char** argv) {
   float phi_Max = 180.f;
   float theta_Min = 0.f;
   float theta_Max = 180.f;
-  float c_Min = -0.1f;
-  float c_Max = 0.1f;
+  float c_Min = -0.5f;
+  float c_Max = 0.5f;
 
   float mins[5] = {phi_Min, theta_Min, c_Min, m_Min, t_Min};
   float maxs[5] = {phi_Max, theta_Max, c_Max, m_Max, t_Max};
@@ -195,6 +195,12 @@ int main(int argc, char** argv) {
   
   std::vector<Hough5DNode*>* last_nodes = new std::vector<Hough5DNode*>();
 
+
+  float thresh_min=35;
+  float thresh_step = (THRESHOLD-thresh_min)/TREE_DEPTH;
+  std::cout<<"thresh_step: "<<thresh_step<<std::endl;
+  
+
   for(int l=1; l<TREE_DEPTH; ++l) {
     
     std::vector<Hough5DNode*>* new_nodes = new std::vector<Hough5DNode*>();
@@ -205,7 +211,7 @@ int main(int argc, char** argv) {
       Hough5DNode* the_node=nodelist->at(n);
       float* sons = the_node->getSonArray();
       
-      if(l<6) {
+      if(l<5) {
 	if(votes[n]>=THRESHOLD) {
 	  for(int s=0; s<32; ++s) {
 	    the_node->setVotes(votes[n]);
@@ -254,7 +260,14 @@ int main(int argc, char** argv) {
     //  last_nodes->at(i)->print();
     
     
-    IFC->testIntersection(*nodelist,l,THRESHOLD);
+
+    //std::cout<<"Calling Intersect-Kernel with THRESHOLD: "
+    //<<THRESHOLD-l*thresh_step<<std::endl;
+    //if(l<6)
+      IFC->testIntersection(*nodelist,l,THRESHOLD);
+      //else
+      //IFC->testIntersection(*nodelist,l,35);
+    //IFC->testIntersection(*nodelist,l,THRESHOLD-l*thresh_step);
     votes = IFC->getVotes();
     
     int count=0;
@@ -365,11 +378,5 @@ int main(int argc, char** argv) {
   
   gApplication->SetReturnFromRun(true);
   gSystem->Run();
-
-
-
-
-
-
-  
+    
 }
