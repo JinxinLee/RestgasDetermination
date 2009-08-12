@@ -74,7 +74,7 @@ class PndAnalysis : public FairTask
 
  private: 
    
-  /** Input array of TpcLheTrack **/
+  /** Input array of LheTrack **/
   TClonesArray* fChargedArray;
   TClonesArray* fNeutralArray;
  

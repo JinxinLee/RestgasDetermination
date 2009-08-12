@@ -48,7 +48,7 @@ class PndJPsiExample : public FairTask
 
  private: 
    
-  /** Input array of TpcLheTrack **/
+  /** Input array of LheTrack **/
   TClonesArray* fTrArray;
 
  

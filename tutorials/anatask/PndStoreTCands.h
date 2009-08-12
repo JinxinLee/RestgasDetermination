@@ -50,7 +50,7 @@ class PndStoreTCands : public FairTask
  private: 
   int       evtcnt; //event counter for output
    
-  /** Input array of TpcLheTrack **/
+  /** Input array of LheTrack **/
   TClonesArray* fTrArray;
   
   /** Input array of EmcCandidates **/
