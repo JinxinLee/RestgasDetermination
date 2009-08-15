@@ -100,3 +100,6 @@ bool TCclusterSortXYZ::operator()(TCcluster c1, TCcluster c2){
     }
   }
 }
+bool TCclusterSortZ::operator()(TCcluster c1, TCcluster c2){
+  return c1.posXYZ().Z()<  c2.posXYZ().Z();
+}

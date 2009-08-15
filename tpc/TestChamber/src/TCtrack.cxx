@@ -30,7 +30,8 @@ TCtrack::TCtrack():errorMatrix(4,4){
 
 TCtrack::~TCtrack(){
   //std::cout << "dstor " << canvDraw << " " << canvDrawClust << std::endl;
-  delete canvDraw;delete canvDrawClust;
+  delete canvDraw;
+  delete canvDrawClust;
 }
 
 void glob_fcn(Int_t &npar, Double_t *gin, Double_t &f,
@@ -71,7 +72,7 @@ bool TCtrack::fit(int id1,int id2,int id3,int id4,int id5,int id6,int id7,int id
   //copy clusters to global variable for static fit function (grrrr)
   glob_clusters.clear();//call destructors (www.cplusplus.com)
   glob_clusters = cl;
-  std::sort(glob_clusters.begin(),glob_clusters.end(),TCclusterSortXYZ());
+  std::sort(glob_clusters.begin(),glob_clusters.end(),TCclusterSortZ());
   bool foundFirst = false;
   TVector3 first;
   TVector3 last;
@@ -164,7 +165,7 @@ bool TCtrack::fit(int id1,int id2,int id3,int id4,int id5,int id6,int id7,int id
       cl.at(i).setResid(par);
       chi2+=glob_clusters.at(i).getChi2(par);
       NDF+=glob_clusters.at(i).getNDF();
-	  //std::cout << "$$$ " << cl.at(i).posUVW().Y() << std::endl;
+	  //std::cout << "$$$  " << cl.at(i).posUVW().Y() << std::endl;
     }
   }
   //std::cout << "$$$$$$" << std::endl;

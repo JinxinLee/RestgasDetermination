@@ -17,4 +17,9 @@ class TCclusterSortXYZ{
   bool operator()(TCcluster c1, TCcluster c2);
 };
 
+class TCclusterSortZ{
+ public:
+  bool operator()(TCcluster c1, TCcluster c2);
+};
+
 #endif
