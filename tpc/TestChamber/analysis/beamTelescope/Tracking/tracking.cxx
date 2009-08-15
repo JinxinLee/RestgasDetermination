@@ -2,7 +2,7 @@
 #include <iostream>
 #include <string>
 #include <cassert>
-
+#include <signal.h>
 #include <TApplication.h>
 #include <TROOT.h>
 #include <TSystem.h>
@@ -24,6 +24,20 @@
 #include "../../../src/TCevent.h"
 #include "../Hits.h"
 #include "helpers.h"
+
+static bool controlC=false;
+static int  controlCs=0;
+
+void signalHandler(int signal) {
+  if (signal==SIGINT) {
+    controlC = true;
+    if (controlCs!=0) {
+      exit(1);
+    }
+    controlCs++;
+  }
+}
+
 int main(int argc,char **argv){
   using std::vector;
   using std::cout;
@@ -33,6 +47,8 @@ int main(int argc,char **argv){
   using std::list;
   using std::string;
   
+  signal(SIGINT, signalHandler);
+
   if(!(argc==4||argc==5)){
     cerr<<"Wrong number of arguments, "<<argc<<endl
         <<"Syntax should be ./tracker infile alignmentfile mode histfile"<<endl;
@@ -114,6 +130,7 @@ int main(int argc,char **argv){
   /*
     Creating an instance of TCallign to assure wich alignmentfile is used
   */
+  cout<<"before alignment"<<endl;
   TCalign* a = TCalign::getInstance(alignmentFile);
   a->clear();
   a->read(alignmentFile);
@@ -130,14 +147,8 @@ int main(int argc,char **argv){
   int ratioCut=0;
   int nClusters=0;
   for(int i_ev=0;i_ev<nEvents;i_ev++) {
-    if (i_ev==117) {
-      std::cout<<"\n\nOk, ok - I will continue, but please wash yourself, man!"
-               <<std::endl;
-      std::cout<<"I too have feelings, you know ... "<<std::endl;
-      continue;
-    }
     if(i_ev%250==0){
-      std::cout<<i_ev<<"n clusters"<<nClusters<<", nTrackTries: "<<n_tracks<<", To Many cl: "<<nToMany<< ", Empty: "<<nZero<<", noiseCut: "<<noiseCut<<", ratioCut: "<<ratioCut<<"********************************************************************"<<std::endl;
+      std::cout<<i_ev<<" n clusters "<<nClusters<<", nTrackTries: "<<n_tracks<<", To Many cl: "<<nToMany<< ", Empty: "<<nZero<<", noiseCut: "<<noiseCut<<", ratioCut: "<<ratioCut<<"********************************************************************"<<std::endl;
     }
     tree->GetEntry(i_ev);
     event->clear();
@@ -152,29 +163,37 @@ int main(int argc,char **argv){
     std::vector<TCcluster> clGM2Y;
     //cout<<"befoore cuts"<<endl;
     ampRatioNoiseCut(SI01X1->GetClusters(), clSI1X, 
-		     1.1,0.8,7,3,alignmentFile, 
+		     1.1,0.8,7,
+		     3,alignmentFile, 
 		     ratioCut,histContainer/*,1.2,2*/);
     ampRatioNoiseCut(SI01Y1->GetClusters(), clSI1Y, 
-		     1.1,0.8,7,4,alignmentFile, 
+		     1.1,0.8,7,
+		     4,alignmentFile, 
 		     ratioCut,histContainer);
     ampRatioNoiseCut(SI02X1->GetClusters(), clSI2X, 
-		     1.1,0.9,7,5,alignmentFile, 
+		     1.1,0.9,7,
+		     5,alignmentFile, 
 		     ratioCut,histContainer/*,0,0.8*/);
     ampRatioNoiseCut(SI02Y1->GetClusters(), clSI2Y, 
-		     1.1,0.9,7,6,alignmentFile, 
+		     1.1,0.9,7,
+		     6,alignmentFile, 
 		     ratioCut,histContainer);
     ampRatioNoiseCut(GM01X1->GetClusters(), clGM1X, 
-		     0.9,0.55,7,1,alignmentFile, 
-		     ratioCut,histContainer/*,5,5.5*/);
+		     0.9,0.55,7,
+		     1,alignmentFile, 
+		     ratioCut,histContainer,4.2,5.65);
     ampRatioNoiseCut(GM01Y1->GetClusters(), clGM1Y, 
-		     0.9,0.45,7,2,alignmentFile, 
-		     ratioCut,histContainer/*,4.8,7.3*/);
+		     0.9,0.45,7,
+		     2,alignmentFile, 
+		     ratioCut,histContainer,5.5,6.9);
     ampRatioNoiseCut(GM02X1->GetClusters(), clGM2X,
-		     1.1,0.9,7,7,alignmentFile, 
-		     ratioCut,histContainer);
+		     1.1,0.9,7,
+		     7,alignmentFile, 
+		     ratioCut,histContainer,2.1,3.6);
     ampRatioNoiseCut(GM02Y1->GetClusters(), clGM2Y,
-		     1.1,0.9,7,8,alignmentFile, 
-		     ratioCut,histContainer);
+		     1.1,0.9,7,
+		     8,alignmentFile, 
+		     ratioCut,histContainer,5.55,6.85);
     //    cout<<"after cuts"<<endl;
     /*
     ampDiffCut(clSI1X, 5,3,alignmentFile, noiseCut,histContainer,1.2,2);
@@ -354,40 +373,55 @@ int main(int argc,char **argv){
    
     if(fit&&brute) {
       double chiStore=99999999;
-      for(unsigned int i=0;i<startClusters.size()/2;i++){
-        for(unsigned int j=0;j<clSI1X.size();++j){
-           for(unsigned int k=0;k<clSI2X.size();++k){
+      for(unsigned int endI=0;endI<endClusters.size()/2;++endI){
+	for(unsigned int i=0;i<startClusters.size()/2;i++){
+	  for(unsigned int j=0;j<clSI1X.size();++j){
+	    for(unsigned int k=0;k<clSI2X.size();++k){
               for(unsigned int l=0;l<clSI1Y.size();++l){
                 for(unsigned int m=0;m<clSI2Y.size();++m){
                   int id1X =2*i;
                   int id1Y =2*i+1;
-                  TCtrack* track=new TCtrack();
+                  int id2X =2*endI;
+                  int id2Y =2*endI+1;
+                  TCtrack* track=new TCtrack();//clean up memory mess
                   vector<TCcluster> trackCl;
                   trackCl.push_back(startClusters.at(id1X));
                   trackCl.push_back(clSI1X.at(j));
                   trackCl.push_back(clSI2X.at(k));
+		  trackCl.push_back(endClusters.at(id2X));
                   trackCl.push_back(startClusters.at(id1Y));
                   trackCl.push_back(clSI1Y.at(l));
                   trackCl.push_back(clSI2Y.at(m));
+		  trackCl.push_back(endClusters.at(id2Y));
                   n_tracks++;
                   track->addClusters(trackCl);
-                  track->fit(1,2,3,4,5,6);
-                  if(track->getChi2()/track->getNDF()<chiStore){
+                  if(track->fit(1,2,3,4,5,6,7,8)/*&&track->getChi2()/track->getNDF()<chiStore*/){
                     store=track;
                     chiStore=track->getChi2()/track->getNDF();
-                  } 
+		    event->addTrack(store);
+		    histContainer->histogramChi2->Fill(store->getChi2()/store->getNDF());
+		    histContainer->histogramChi2rough->Fill(store->getChi2()/store->getNDF());
+		    histContainer->histogramNDF->Fill(store->getNDF());
+		    histContainer->fillRes(store,alignmentFile);
+
+                  } else{
+		    delete track;
+		  }
                 } //end clSI2Y m
               } //end clSI1Y l
-           } // end clSI2X k
-        } //end clSI1X j
-      } // end startClusters i 2i and 2i+1
-      if(store!=NULL/*&&(store->getChi2()/store->getNDF())<15*/){
-        event->addTrack(store);
-        histContainer->histogramChi2->Fill(store->getChi2()/store->getNDF());
-        histContainer->histogramChi2rough->Fill(store->getChi2()/store->getNDF());
-        histContainer->histogramNDF->Fill(store->getNDF());
-        histContainer->fillRes(store,alignmentFile);
+	    } // end clSI2X k
+	  } //end clSI1X j
+	} // end startClusters i 2i and 2i+1
+      }//end end clusters
+      /*
+	if(store!=NULL&&(store->getChi2()/store->getNDF())<15){
+	event->addTrack(store);
+	histContainer->histogramChi2->Fill(store->getChi2()/store->getNDF());
+	histContainer->histogramChi2rough->Fill(store->getChi2()/store->getNDF());
+	histContainer->histogramNDF->Fill(store->getNDF());
+	histContainer->fillRes(store,alignmentFile);
       }
+      */
     }
     if(fit&&twoPoint){
       double chiStore=99999999;
@@ -543,23 +577,34 @@ int main(int argc,char **argv){
 	  gROOT->Reset();
         }//end event display
       }//end if fit true
+      delete track1;
+      delete track2;
+      delete clFit_x1;
+      delete clFit_x2;
+      delete clFit_y1;
+      delete clFit_y2;
+      
     }//end fit
-    //    if(i_ev>5000){ 
-    //break;
-    //}
+    delete x_event;
+    delete y_event;
+    
     if(event->nTracks()==0){
        continue;
     }
 
     //cout<<"before fill"<<endl;
     eventTreeOut->Fill();
+    
+    if(controlC){ 
+      break;
+    }
     //    cout<<"before fill"<<endl;
   }//end looping of eventTree
-
+  event->clear();
   // histogramTrack->Fill(event->nTracks());  
   //  
 
-  std::cout<<nEvents<<", nTrackTries: "<<n_tracks<<", To Many cl: "
+  std::cout<<nEvents<<" , nTrackTries: "<<n_tracks<<", To Many cl: "
 	   <<nToMany<< ", Empty: "<<nZero<<", noiseCut: "<<noiseCut
 	   <<", ratioCut: "<<ratioCut<<"********************************************************************"<<std::endl;
   
@@ -567,7 +612,7 @@ int main(int argc,char **argv){
 
   trackOutFile->Close();
   delete trackOutFile;
-  
+  delete tree;
   delete GM01X1;
   delete GM01Y1;
   delete GM02X1;

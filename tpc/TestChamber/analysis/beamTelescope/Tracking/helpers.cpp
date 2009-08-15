@@ -103,6 +103,7 @@ void dispDraw(TCtrack* track1, TCtrack* track2,  TGraph* clFit_x1,TGraph* clFit_
   c->Update();
   c->Modified();
 }
+    //amplitude noise not used anymore clean up
 void ampDiffCut(const std::list<CsGEMCluster*> &clusterList, std::vector<TCcluster> &tcClusters, double cut, int detID,string alignmentFile, int& counter, HistContainer* hcont,double umin, double umax){
   TCalign* a = TCalign::getInstance("../../../alignment/AlignmentFiles/simRealAlign.txt");
   a->clear();
@@ -189,7 +190,11 @@ std::vector<TCcluster> &tcClusters,  double cutA1A3, double cutA2A3, int detID,s
   }
 }
 
-void ampRatioNoiseCut(const std::list<CsGEMCluster*> &clusterList,std::vector<TCcluster> &tcClusters, double cutA1A3, double cutA2A3,double cut, int detID,std::string alignmentFile, int& counter, HistContainer* hcont, double umin, double umax){
+void ampRatioNoiseCut(const std::list<CsGEMCluster*> &clusterList,
+		      std::vector<TCcluster> &tcClusters, 
+		      double cutA1A3, double cutA2A3,
+		      double cut, int detID,
+		      std::string alignmentFile, int& counter, HistContainer* hcont, double umin, double umax){
   TCalign* a = TCalign::getInstance("../../../alignment/AlignmentFiles/simRealAlign.txt");
   a->clear();
   a->read(alignmentFile);
@@ -210,23 +215,25 @@ void ampRatioNoiseCut(const std::list<CsGEMCluster*> &clusterList,std::vector<TC
       
       double x=((*it)->GetPosition())*pitch;
       //      cout<<"ratiocut umin: "<<umin<<" x "<<x<<" umax "<<umax<<endl;
-      //if((umin==-1&&umax==-1)||(x>=umin&&x<=umax)){
-        //        cout<<"true"<<endl;
-
-      TVector3 pos(x,0,0);
-      TVector3 err(0,0,0);
-      err=TVector3(((*it)->GetPositionErr())*pitch,0.5,0.1);
-      
-      //        double time((*it)->GetTime());
-      // cout<<time<<endl;
-      TCcluster _c(pos,err,amp3,detID);
-      _c.setFit(true);
-      tcClusters.push_back(_c);
-      //    } else{
-      //         counter++;
-      //      }
-    }else{
-      counter++;
+      if((umin==-1&&umax==-1)||(x>=umin&&x<=umax)){
+	TVector3 pos(x,0,0);
+	TVector3 err(0,0,0);
+	if(detID==3||detID==4||detID==5||detID==6){
+	  err=TVector3(0.0015,0.5,0.1);
+	}else{
+	  err=TVector3(((*it)->GetPositionErr())*pitch,0.5,0.1);
+	}
+	//        double time((*it)->GetTime());
+	// cout<<time<<endl;
+	TCcluster _c(pos,err,amp3,detID);
+	_c.setFit(true);
+	tcClusters.push_back(_c);
+	//    } else{
+	//         counter++;
+	//      }
+      }else{
+	counter++;
+      }
     }
   }
 
@@ -285,17 +292,17 @@ HistContainer::HistContainer(){
   histogramEnd = new TH1I("End cluster multiplicity", "End cluster multiplicity", 20, 0, 20);
   histogramTrack = new TH1I("Track multiplicity", "Track multiplicity", 40, 0, 40);
   histogramChi2rough = new TH1D("Chi2rough", "Chi2rough", 10000, 0, 100000);
-  histogramChi2 = new TH1D("Chi2", "Chi2", 10000, 0, 1000);
+  histogramChi2 = new TH1D("Chi2", "Chi2", 5000, 0, 1000);
   histogramNDF = new TH1D("NDF", "NDF", 8, 0, 8);
 
-  histogramSI1Xhitpoint = new TH1D("hitpoint SI1X", "hitpoint SI1X", 200, 10,20);
-  histogramSI1Yhitpoint = new TH1D("hitpoint SI1Y", "hitpoint SI1Y", 200, 20,30);
-  histogramSI2Xhitpoint = new TH1D("hitpoint SI2X", "hitpoint SI2X", 200, 10,20);
-  histogramSI2Yhitpoint = new TH1D("hitpoint SI2Y", "hitpoint SI2Y", 200, 20,30);
-  histogramGM1Xhitpoint = new TH1D("hitpoint GM1X", "hitpoint GM1X", 200, 5, 25);
-  histogramGM1Yhitpoint = new TH1D("hitpoint GM1Y", "hitpoint GM1Y", 200, 15,30);
-  histogramGM2Xhitpoint = new TH1D("hitpoint GM2X", "hitpoint GM2X", 200, 5, 25);
-  histogramGM2Yhitpoint = new TH1D("hitpoint GM2Y", "hitpoint GM2Y", 200, 15,30);
+  histogramSI1Xhitpoint = new TH1D("hitpoint SI1X", "hitpoint SI1X", 200, 10,10);
+  histogramSI1Yhitpoint = new TH1D("hitpoint SI1Y", "hitpoint SI1Y", 200, 10,10);
+  histogramSI2Xhitpoint = new TH1D("hitpoint SI2X", "hitpoint SI2X", 200, 10,10);
+  histogramSI2Yhitpoint = new TH1D("hitpoint SI2Y", "hitpoint SI2Y", 200, 10,10);
+  histogramGM1Xhitpoint = new TH1D("hitpoint GM1X", "hitpoint GM1X", 200, 10, 10);
+  histogramGM1Yhitpoint = new TH1D("hitpoint GM1Y", "hitpoint GM1Y", 200, 10,10);
+  histogramGM2Xhitpoint = new TH1D("hitpoint GM2X", "hitpoint GM2X", 200, 10, 10);
+  histogramGM2Yhitpoint = new TH1D("hitpoint GM2Y", "hitpoint GM2Y", 200, 10,10);
 
   histogramSI1XAmp = new TH1D("Amp SI1X", "Amp SI1X", 384, 0,768);
   histogramSI1YAmp = new TH1D("Amp SI1Y", "Amp SI1Y", 384, 0,768);
@@ -324,14 +331,14 @@ HistContainer::HistContainer(){
   histogramGM2Xerr = new TH1D("err GM2X", "err GM2X", 400, 0,0.5);
   histogramGM2Yerr = new TH1D("err GM2Y", "err GM2Y", 400, 0,0.5);
 
-  histogramSI1XhitpointBbest = new TH1D("brute best hitpoint SI1X", "brute best hitpoint SI1X", 200, 10,20);
-  histogramSI1YhitpointBbest = new TH1D("brute best hitpoint SI1Y", "brute best hitpoint SI1Y", 200, 20,30);
-  histogramSI2XhitpointBbest = new TH1D("brute best hitpoint SI2X", "brute best hitpoint SI2X", 200, 10,20);
-  histogramSI2YhitpointBbest = new TH1D("brute best hitpoint SI2Y", "brute best hitpoint SI2Y", 200, 20,30);
-  histogramGM1XhitpointBbest = new TH1D("brute best hitpoint GM1X", "brute best hitpoint GM1X", 200, 5, 25);
-  histogramGM1YhitpointBbest = new TH1D("brute best hitpoint GM1Y", "brute best hitpoint GM1Y", 200, 15,30);
-  histogramGM2XhitpointBbest = new TH1D("brute best hitpoint GM2X", "brute best hitpoint GM2X", 200, 5, 25);
-  histogramGM2YhitpointBbest = new TH1D("brute best hitpoint GM2Y", "brute best hitpoint GM2Y", 200, 15,30);
+  histogramSI1XhitpointBbest = new TH1D("brute best hitpoint SI1X", "brute best hitpoint SI1X", 200, -10,10);
+  histogramSI1YhitpointBbest = new TH1D("brute best hitpoint SI1Y", "brute best hitpoint SI1Y", 200, -10,10);
+  histogramSI2XhitpointBbest = new TH1D("brute best hitpoint SI2X", "brute best hitpoint SI2X", 200, -10,10);
+  histogramSI2YhitpointBbest = new TH1D("brute best hitpoint SI2Y", "brute best hitpoint SI2Y", 200, -10,10);
+  histogramGM1XhitpointBbest = new TH1D("brute best hitpoint GM1X", "brute best hitpoint GM1X", 200, -10,10);
+  histogramGM1YhitpointBbest = new TH1D("brute best hitpoint GM1Y", "brute best hitpoint GM1Y", 200, -10,10);
+  histogramGM2XhitpointBbest = new TH1D("brute best hitpoint GM2X", "brute best hitpoint GM2X", 200, -10,10);
+  histogramGM2YhitpointBbest = new TH1D("brute best hitpoint GM2Y", "brute best hitpoint GM2Y", 200, -10,10);
 
   histogramSI1XUbBest = new TH1D("brute best U SI1X", "brute best U SI1X", 400, 0,2);
   histogramSI1YUbBest = new TH1D("brute best U SI1Y", "brute best U SI1Y", 400, 0,2);
@@ -342,23 +349,23 @@ HistContainer::HistContainer(){
   histogramGM2XUbBest = new TH1D("brute best U GM2X", "brute best U GM2X", 400, 0,10.3);
   histogramGM2YUbBest = new TH1D("brute best U GM2Y", "brute best U GM2Y", 400, 0,10.3);
   
-  histogramSI1Xresi = new TH1D("resSI1X", "resSI1X", 400, -0.05, 0.05);
-  histogramSI1Yresi = new TH1D("resSI1Y", "resSI1Y", 400, -0.05,0.05);
-  histogramSI2Xresi = new TH1D("resSI2X", "resSI2X", 400, -0.7,0.7);
-  histogramSI2Yresi = new TH1D("resSI2Y", "resSI2Y", 400, -0.7,0.7);
-  histogramGM1Xresi = new TH1D("resGM1X", "resGM1X", 400, -0.3, 0.3);
-  histogramGM1Yresi = new TH1D("resGM1Y", "resGM1Y", 400, -0.3, 0.3);
-  histogramGM2Xresi = new TH1D("resGM2X", "resGM2X", 400, -3, 3);
-  histogramGM2Yresi = new TH1D("resGM2Y", "resGM2Y", 400, -3, 3);
+  histogramSI1Xresi = new TH1D("resSI1X", "resSI1X", 4000, -0.1, 0.1);
+  histogramSI1Yresi = new TH1D("resSI1Y", "resSI1Y", 4000, -0.1,0.1);
+  histogramSI2Xresi = new TH1D("resSI2X", "resSI2X", 4000, -0.1,0.1);
+  histogramSI2Yresi = new TH1D("resSI2Y", "resSI2Y", 4000, -0.1,0.1);
+  histogramGM1Xresi = new TH1D("resGM1X", "resGM1X", 4000, -1.0, 1.0);
+  histogramGM1Yresi = new TH1D("resGM1Y", "resGM1Y", 4000, -1.0, 1.0);
+  histogramGM2Xresi = new TH1D("resGM2X", "resGM2X", 4000, -1.0, 1.0);
+  histogramGM2Yresi = new TH1D("resGM2Y", "resGM2Y", 4000, -1.0, 1.0);
  
-  histogramSI1XresiVu2d = new TH2D("resVu2dSI1X", "resVu2dSI1X", 200, 0,2,1000, -0.05,0.05);
-  histogramSI1YresiVu2d = new TH2D("resVu2dSI1Y", "resVu2dSI1Y", 200, 0,2,1000, -0.05,0.05);
-  histogramSI2XresiVu2d = new TH2D("resVu2dSI2X", "resVu2dSI2X", 200, 0,2,1000, -0.7,0.7);
-  histogramSI2YresiVu2d = new TH2D("resVu2dSI2Y", "resVu2dSI2Y", 200, 0,2,1000, -0.7,0.7);
+  histogramSI1XresiVu2d = new TH2D("resVu2dSI1X", "resVu2dSI1X", 1000, 0,2,1000, -0.1,0.1);
+  histogramSI1YresiVu2d = new TH2D("resVu2dSI1Y", "resVu2dSI1Y", 1000, 0,2,1000, -0.1,0.1);
+  histogramSI2XresiVu2d = new TH2D("resVu2dSI2X", "resVu2dSI2X", 1000, 0,2,1000, -0.1,0.1);
+  histogramSI2YresiVu2d = new TH2D("resVu2dSI2Y", "resVu2dSI2Y", 1000, 0,2,1000, -0.1,0.1);
   histogramGM1XresiVu2d = new TH2D("resVu2dGM1X", "resVu2dGM1X", 1000, 0,10,1000, -0.3,0.3);
   histogramGM1YresiVu2d = new TH2D("resVu2dGM1Y", "resVu2dGM1Y", 1000, 0,10,1000, -0.3,0.3);
-  histogramGM2XresiVu2d = new TH2D("resVu2dGM2X", "resVu2dGM2X", 1000, 0,10,1000, -10,10);
-  histogramGM2YresiVu2d = new TH2D("resVu2dGM2Y", "resVu2dGM2Y", 1000, 0,10,1000, -10,10);
+  histogramGM2XresiVu2d = new TH2D("resVu2dGM2X", "resVu2dGM2X", 1000, 0,10,1000, -0.3,0.30);
+  histogramGM2YresiVu2d = new TH2D("resVu2dGM2Y", "resVu2dGM2Y", 1000, 0,10,1000, -0.3,0.30);
 
   histogramSI1XresiVu = new TProfile("resVuSI1X", "resVuSI1X", 400, 0,2,-10,10);
   histogramSI1YresiVu = new TProfile("resVuSI1Y", "resVuSI1Y", 400, 0,2,-10,10);
@@ -375,6 +382,8 @@ HistContainer::HistContainer(){
   histogramSI2YunBiResi = new TH1D("unBiResSI2Y", "unBiResSI2Y", 2000, -3.,3.);
   histogramGM1XunBiResi = new TH1D("unBiResGM1X", "unBiResGM1X", 2000, -2.,2.);
   histogramGM1YunBiResi = new TH1D("unBiResGM1Y", "unBiResGM1Y", 2000, -3.,3.);
+  histogramGM2XunBiResi = new TH1D("unBiResGM2X", "unBiResGM2X", 2000, -2.,2.);
+  histogramGM2YunBiResi = new TH1D("unBiResGM2Y", "unBiResGM2Y", 2000, -3.,3.);
 
   histogramSI1XunBiResiVu2d = new TH2D("unBiResVu2dSI1X", "unBiResVu2dSI1X", 2000, 10,20,1000, -2.,2.);
   histogramSI1YunBiResiVu2d = new TH2D("unBiResVu2dSI1Y", "unBiResVu2dSI1Y", 2000, 20,30,1000, -2.,2.);
@@ -382,6 +391,8 @@ HistContainer::HistContainer(){
   histogramSI2YunBiResiVu2d = new TH2D("unBiResVu2dSI2Y", "unBiResVu2dSI2Y", 2000, 20,30,1000, -3.0,3.0);
   histogramGM1XunBiResiVu2d = new TH2D("unBiResVu2dGM1X", "unBiResVu2dGM1X", 2000, 5,25,1000, -2.0,2.0);
   histogramGM1YunBiResiVu2d = new TH2D("unBiResVu2dGM1Y", "unBiResVu2dGM1Y", 2000, 15,30,1000, -3.0,3.0);
+  histogramGM2XunBiResiVu2d = new TH2D("unBiResVu2dGM2X", "unBiResVu2dGM2X", 2000, 5,25,1000, -2.0,2.0);
+  histogramGM2YunBiResiVu2d = new TH2D("unBiResVu2dGM2Y", "unBiResVu2dGM2Y", 2000, 15,30,1000, -3.0,3.0);
 
   histogramSI1XtrackErr = new TH1D("trackErrSI1X", "trackErrSI1X", 4000, -0.02, 0.02);
   histogramSI1YtrackErr = new TH1D("trackErrSI1Y", "trackErrSI1Y", 4000, -0.02,0.02);
@@ -675,10 +686,17 @@ void HistContainer::write(string filename){
   histogramGM1Yresi->Write();
   histogramGM2Xresi->Write();
   histogramGM2Yresi->Write();
+
   histogramSI1XresiVu->Write();
   histogramSI1YresiVu->Write();
   histogramSI2XresiVu->Write();
   histogramSI2YresiVu->Write();
+
+
+  histogramGM1XresiVu->Write();
+  histogramGM1YresiVu->Write();
+  histogramGM2XresiVu->Write();
+  histogramGM2YresiVu->Write();
   
   histogramSI1XresiVu2d->Write(); 
   histogramSI1YresiVu2d->Write(); 
@@ -702,6 +720,8 @@ void HistContainer::write(string filename){
   histogramSI2YunBiResiVu2d->Write(); 
   histogramGM1XunBiResiVu2d->Write(); 
   histogramGM1YunBiResiVu2d->Write(); 
+  histogramGM2XunBiResiVu2d->Write(); 
+  histogramGM2YunBiResiVu2d->Write(); 
 
 
   histogramSI1XU->Write();
