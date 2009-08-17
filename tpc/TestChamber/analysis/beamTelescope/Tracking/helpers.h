@@ -12,6 +12,7 @@ class TCcluster;
 class TCevent;
 class TCtrack;
 class TGraph;
+class TGraph2D;
 class TH1D;
 class TH2D;
 class TH1I;
@@ -37,6 +38,24 @@ class HistContainer{
   TH1I *histogramGM1Y;
   TH1I *histogramGM2X;
   TH1I *histogramGM2Y;
+
+  TH1I *histogramNhitsSI1X;
+  TH1I *histogramNhitsSI1Y;
+  TH1I *histogramNhitsSI2X;
+  TH1I *histogramNhitsSI2Y;
+  TH1I *histogramNhitsGM1X;
+  TH1I *histogramNhitsGM1Y;
+  TH1I *histogramNhitsGM2X;
+  TH1I *histogramNhitsGM2Y;
+
+  TH1I *histogramNclustersSI1X;
+  TH1I *histogramNclustersSI1Y;
+  TH1I *histogramNclustersSI2X;
+  TH1I *histogramNclustersSI2Y;
+  TH1I *histogramNclustersGM1X;
+  TH1I *histogramNclustersGM1Y;
+  TH1I *histogramNclustersGM2X;
+  TH1I *histogramNclustersGM2Y;
 
   TH2D *histogramSI1XampRatio;
   TH2D *histogramSI1YampRatio;
@@ -221,7 +240,8 @@ void ampRatioNoiseCut(const std::list<CsGEMCluster*> &clusterList,
 		      double umin =-1, double umax=-1);
 void clusterFiller(TCcluster cl, std::vector<TCcluster>& clusters, 
 		   TH1D* hitPointHist,TH1D* uHist, 
-		   TH1D* errHist, TGraph* graph, 
+		   TH1D* errHist, TGraph2D* graph2d, 
+		   TGraph* graph, 
 		   int& counter, bool x);
 void dispDraw(TCtrack* track1, TCtrack* track2, 
 	      TGraph* clFit_x1,TGraph* clFit_y1, 

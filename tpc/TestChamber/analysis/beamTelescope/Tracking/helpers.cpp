@@ -8,6 +8,7 @@
 #include "../../../src/TCalign.h"
 #include <TH1D.h>
 #include <TGraph.h>
+#include <TGraph2D.h>
 #include <TH2D.h>
 #include <TProfile.h>
 #include <TF1.h>
@@ -16,7 +17,10 @@
 #include <math.h>
 #include <TRandom3.h>
 using namespace std;
-void dispDraw(TCtrack* track1, TCtrack* track2,  TGraph* clFit_x1,TGraph* clFit_y1, TGraph* clFit_x2, TGraph* clFit_y2,TGraph* x_event,TGraph* y_event){
+void dispDraw(TCtrack* track1, TCtrack* track2,  
+	      TGraph* clFit_x1,TGraph* clFit_y1, 
+	      TGraph* clFit_x2, TGraph* clFit_y2,
+	      TGraph* x_event,TGraph* y_event){
   gROOT->SetStyle("Plain");
   gStyle->SetPalette(1);
   TCanvas * c = new TCanvas("Event display","Event Display",1,1,1200,480);
@@ -219,7 +223,7 @@ void ampRatioNoiseCut(const std::list<CsGEMCluster*> &clusterList,
 	TVector3 pos(x,0,0);
 	TVector3 err(0,0,0);
 	if(detID==3||detID==4||detID==5||detID==6){
-	  err=TVector3(0.0015,0.5,0.1);
+	  err=TVector3(0.0030,0.5,0.1);
 	}else{
 	  err=TVector3(((*it)->GetPositionErr())*pitch,0.5,0.1);
 	}
@@ -238,7 +242,12 @@ void ampRatioNoiseCut(const std::list<CsGEMCluster*> &clusterList,
   }
 
 }
-void clusterFiller(TCcluster cl, std::vector<TCcluster>& clusters, TH1D* hitPointHist,TH1D* uHist, TH1D* errHist, TGraph* graph, int& counter, bool x){
+void clusterFiller(TCcluster cl, 
+		   std::vector<TCcluster>& clusters, 
+		   TH1D* hitPointHist,TH1D* uHist, 
+		   TH1D* errHist, TGraph2D* graph2d, 
+		   TGraph* graph, 
+		   int& counter, bool x){
   clusters.push_back(cl);
   TVector3 spacePoint = cl.posXYZ();
   double point;
@@ -250,6 +259,13 @@ void clusterFiller(TCcluster cl, std::vector<TCcluster>& clusters, TH1D* hitPoin
   hitPointHist->Fill(point);
   uHist->Fill(cl.posUVW().x());
   errHist->Fill(cl.getErr().x());
+  if(cl.getId()>2&&cl.getId()<7){
+    graph2d->SetPoint(counter, spacePoint.z(),point,cl.getAmp()*10);
+    // cout<<"SI cl amp for ID "<<cl.getId()<<" is "<<cl.getAmp()<<endl;
+  }else{
+    graph2d->SetPoint(counter, spacePoint.z(),point,cl.getAmp());
+    //cout<<"GM cl amp for ID"<<cl.getId()<<" is "<<cl.getAmp()<<endl;
+  }
   graph->SetPoint(counter, spacePoint.z(),point);
   counter++;
 }
@@ -259,6 +275,24 @@ HistContainer::HistContainer(){
   hitmapGM2 =new TH2D("HitMapGM2", "HitMapGM2", 256, 0,10.24, 256, 0,10.24);
   hitmapSI1 =new TH2D("HitMapSI1", "HitMapSI1", 192, 0,1.92, 192, 0,1.92);
   hitmapSI2 =new TH2D("HitMapSI2", "HitMapSI2", 192, 0,1.92, 192, 0,1.92);
+
+  histogramNhitsSI1X = new TH1I("N hits  SI01X", "N hits  SI01X", 40, 0, 40);
+  histogramNhitsSI1Y = new TH1I("N hits  SI01Y", "N hits  SI01Y", 40, 0, 40);
+  histogramNhitsSI2X = new TH1I("N hits  SI02X", "N hits  SI02X", 40, 0, 40);
+  histogramNhitsSI2Y = new TH1I("N hits  SI02Y", "N hits  SI02Y", 40, 0, 40);
+  histogramNhitsGM1X = new TH1I("N hits  GM01X", "N hits  GM02X", 40, 0, 40);
+  histogramNhitsGM1Y = new TH1I("N hits  GM01Y", "N hits  GM02Y", 40, 0, 40);
+  histogramNhitsGM2X = new TH1I("N hits  GM02X", "N hits  GM02X", 40, 0, 40);
+  histogramNhitsGM2Y = new TH1I("N hits  GM02Y", "N hits  GM02Y", 40, 0, 40);
+
+  histogramNclustersSI1X = new TH1I("N clusters  SI01X", "N clusters  SI01X", 20, 0, 20);
+  histogramNclustersSI1Y = new TH1I("N clusters  SI01Y", "N clusters  SI01Y", 20, 0, 20);
+  histogramNclustersSI2X = new TH1I("N clusters  SI02X", "N clusters  SI02X", 20, 0, 20);
+  histogramNclustersSI2Y = new TH1I("N clusters  SI02Y", "N clusters  SI02Y", 20, 0, 20);
+  histogramNclustersGM1X = new TH1I("N clusters  GM01X", "N clusters  GM01X", 20, 0, 20);
+  histogramNclustersGM1Y = new TH1I("N clusters  GM01Y", "N clusters  GM01Y", 20, 0, 20);
+  histogramNclustersGM2X = new TH1I("N clusters  GM02X", "N clusters  GM02X", 20, 0, 20);
+  histogramNclustersGM2Y = new TH1I("N clusters  GM02Y", "N clusters  GM02Y", 20, 0, 20);
 
   histogramSI1X = new TH1I("Multiplicity  SI01X", "Multiplicity  SI01X", 20, 0, 20);
   histogramSI1Y = new TH1I("Multiplicity  SI01Y", "Multiplicity  SI01Y", 20, 0, 20);
@@ -612,6 +646,24 @@ void HistContainer::ampFiller(int detId, double amp, double noise, double ratioA
 }
 void HistContainer::write(string filename){
   TFile* file = new TFile(filename.c_str(),"RECREATE");
+
+  histogramNhitsSI1X->Write();
+  histogramNhitsSI1Y->Write();
+  histogramNhitsSI2X->Write();
+  histogramNhitsSI2Y->Write();
+  histogramNhitsGM1X->Write();
+  histogramNhitsGM1Y->Write();
+  histogramNhitsGM2X->Write();
+  histogramNhitsGM2Y->Write();
+
+  histogramNclustersSI1X->Write();
+  histogramNclustersSI1Y->Write();
+  histogramNclustersSI2X->Write();
+  histogramNclustersSI2Y->Write();
+  histogramNclustersGM1X->Write();
+  histogramNclustersGM1Y->Write();
+  histogramNclustersGM2X->Write();
+  histogramNclustersGM2Y->Write();
   
   hitmapGM1->Write();
   hitmapGM2->Write();
@@ -797,6 +849,24 @@ HistContainer::~HistContainer(){
   delete hitmapGM2;
   delete hitmapSI1;
   delete hitmapSI2;
+
+  delete histogramNhitsSI1X;
+  delete histogramNhitsSI1Y;
+  delete histogramNhitsSI2X;
+  delete histogramNhitsSI2Y;
+  delete histogramNhitsGM1X;
+  delete histogramNhitsGM1Y;
+  delete histogramNhitsGM2X;
+  delete histogramNhitsGM2Y;
+
+  delete histogramNclustersSI1X;
+  delete histogramNclustersSI1Y;
+  delete histogramNclustersSI2X;
+  delete histogramNclustersSI2Y;
+  delete histogramNclustersGM1X;
+  delete histogramNclustersGM1Y;
+  delete histogramNclustersGM2X;
+  delete histogramNclustersGM2Y;
   
   delete histogramTrackErrMatrix;
   delete histogramSI1Xerr;

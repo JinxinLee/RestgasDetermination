@@ -11,6 +11,7 @@ LINK_DIRECTORIES(../../../ /home/sverre/work/gemMonitor/gemMonitor/lib/)
 
  
 SET(SOURCES tracking.cxx helpers.cpp ../../../src/TChough2.cxx)
+SET(SOURCES2 retrack.cxx helpers.cpp)
 
 
 EXEC_PROGRAM(
@@ -29,3 +30,7 @@ TARGET_LINK_LIBRARIES(tracker  ${ROOT_LIBS})
 TARGET_LINK_LIBRARIES(tracker /home/sverre/work/gemMonitor/gemMonitor/lib/libCsGEM.so)
 TARGET_LINK_LIBRARIES(tracker testChamber)
 SET_TARGET_PROPERTIES(tracker PROPERTIES LINKER_LANGUAGE CXX)
+ADD_EXECUTABLE(retrack ${SOURCES2})
+TARGET_LINK_LIBRARIES(retrack  ${ROOT_LIBS})
+TARGET_LINK_LIBRARIES(retrack testChamber)
+SET_TARGET_PROPERTIES(retrack PROPERTIES LINKER_LANGUAGE CXX)
