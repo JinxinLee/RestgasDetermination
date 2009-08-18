@@ -44,6 +44,9 @@ class fastHoughGPU_IFC {
   // takes mins and maxs in format (phi, theta, c, m, t)
   void initParameterSpace(std::vector<float> mins, std::vector<float> maxs);
   void initParameterSpace(float* mins, float* maxs);
+
+  //takes hitlist of all ACTIVE NODES as input and CREATES 
+  //hitlists of the sons --- copies both to the device 
   void setHitList(char* hl, int activeNodes); 
   
   void testIntersection(std::vector<Hough5DNode*> nodes,

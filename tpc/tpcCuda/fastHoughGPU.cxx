@@ -38,6 +38,17 @@
 #include "fastHoughGPU_IFC.h"
 
 
+bool getBit(char* c, int n) {
+  int i = (int) (c[n>>3] & (1 << (n & 7)));
+  return (bool) i;
+}
+
+
+void clearBit(char* c, int n) {
+  c[n>>3] = c[n>>3] & ~(1 << (n & 7 ));
+}
+
+
 
 int main(int argc, char** argv) {
 
@@ -51,16 +62,16 @@ int main(int argc, char** argv) {
   float SCALE =0.90;
 
  
-  float m_Max = 10.f;
-  float m_Min = -10.f;
-  float t_Max = 200.f;
-  float t_Min = -200.f;
+  float m_Max = 1.f;
+  float m_Min = -1.f;
+  float t_Max = 5.f;
+  float t_Min = -5.f;
   float phi_Min = 0.f;
   float phi_Max = 180.f;
-  float theta_Min = 0.f;
-  float theta_Max = 180.f;
-  float c_Min = -0.5f;
-  float c_Max = 0.5f;
+  float theta_Min = 20.f;
+  float theta_Max = 160.f;
+  float c_Min = -0.2f;
+  float c_Max = 0.2f;
 
   float mins[5] = {phi_Min, theta_Min, c_Min, m_Min, t_Min};
   float maxs[5] = {phi_Max, theta_Max, c_Max, m_Max, t_Max};
@@ -207,33 +218,51 @@ int main(int argc, char** argv) {
   
   
   char* new_hitlist;
-  char* old_hitlist;
-  //initialize virgin hitlist to 1-bits only
-  memset(old_hitlist,0xFF,nClusters);
-  //size of one node-hitlist in units of char
-  int chunk = nClusters/sizeof(char) + 1;
+  char* old_hitlist = (char*) malloc(nClusters/sizeof(char) + 1);
   
+  //size of one node-hitlist in units of char
+  int chunk = nClusters/(sizeof(char)*8) + 1;
+
+  //initialize virgin hitlist to 1-bits only
+  memset(old_hitlist,0xFF,chunk);
+  
+  //TEST
+  //clearBit(old_hitlist, 3);
+
+  
+  std::cout<<"\nROOT NODE HITLIST:"<<std::endl;
+  for(int l=0; l<nClusters; l++) 
+    std::cout<<getBit(old_hitlist, l);
+  std::cout<<"\n\n"<<std::endl;
 
   for(int l=1; l<TREE_DEPTH; ++l) {
     
     std::vector<Hough5DNode*>* new_nodes = new std::vector<Hough5DNode*>();
-    new_hitlist = (char*) malloc(nodelist->size()*32*nClusters);
+    new_hitlist = (char*) malloc(nodelist->size()*32*chunk);
     if(l>1)
       old_hitlist = IFC->getHitList();
-    
+        
     int counter=0;
     //create new nodes
     for(int n=0; n<nodelist->size(); ++n) {
+       // for(int c=0; c<nClusters; c++)
+// 	 std::cout<<getBit(old_hitlist+chunk*n, c);
+//        std::cout<<"\n"<<votes[n]<<"\n"<<std::endl;
       Hough5DNode* the_node=nodelist->at(n);
       float* sons = the_node->getSonArray();
       if(l<5) {
 	if(votes[n]>=THRESHOLD) {
-	  memcpy(new_hitlist+chunk*counter, old_hitlist+n*chunk, chunk/sizeof(char));
-	  counter++;
-	  for(int s=0; s<32; ++s) {
-	    the_node->setVotes(votes[n]);
+	  
+	  the_node->setVotes(votes[n]);
+	  //copy this nodes' hitlist to the new one
+	  //son hitlist duplication happens in the IFC
+	  
+	  memcpy(new_hitlist+chunk*counter, 
+		 old_hitlist+n*chunk, chunk);
+	  for(int s=0; s<32; s++) {
 	    new_nodes->push_back(new Hough5DNode(sons+5*s,l,nClusters));
 	  }
+	  counter++;
 	  
 	}
 	else {
@@ -244,7 +273,8 @@ int main(int argc, char** argv) {
       else {
 	//working, but not fitting with fixed THR of testIntersect
 	if(votes[n] >= last_nodes->at((int)n/32)->getVote()*SCALE) {
-	  memcpy(new_hitlist+chunk*counter, old_hitlist+n*chunk, chunk/sizeof(char));
+	  memcpy(new_hitlist+chunk*counter, 
+		 old_hitlist+n*chunk, chunk);
 	  counter++;
 	  for(int s=0; s<32; ++s) {
 	    the_node->setVotes(votes[n]);
@@ -271,18 +301,27 @@ int main(int argc, char** argv) {
 	last_nodes->push_back(nodelist->at(n));
       }
     
+       
+    IFC->setHitList(new_hitlist,counter);
+
+    //TEST: COMES BACK RIGHT FROM THE IFC
+    // char* test = IFC->getHitList();
+//     for(int bl=0; bl<nodelist->size(); bl++) {
+//       for(int s=0; s<32; s++) {
+// 	for(int c=0; c<nClusters; c++) 
+// 	  std::cout<<getBit(test+chunk*(32*bl+s), c);
+// 	std::cout<<"\n"<<std::endl;
+//       }
+//     }
     
     std::cout<<"Added "<<last_nodes->size()<<" last_nodes"<<std::endl;
     nodelist->clear();
     nodelist=new_nodes;    
-
-    IFC->setHitList(new_hitlist,counter);
+	
     
     //for(int i=0; i<last_nodes->size(); i++)
     //  last_nodes->at(i)->print();
     
-    
-
     //std::cout<<"Calling Intersect-Kernel with THRESHOLD: "
     //<<THRESHOLD-l*thresh_step<<std::endl;
     //if(l<6)

@@ -79,11 +79,11 @@ fastHoughGPU_IFC::initClusters(std::vector<PndTpcCluster*> clist) {
   _nClusters=size;
 
   //allocate hitlist arrays
-  _hitlist = (char*) malloc(_nClusters*100000);
-  _hitlist_lastgen = (char*) malloc(_nClusters*10000);
+  _hitlist = (char*) malloc(_nClusters*5000000);
+  _hitlist_lastgen = (char*) malloc(_nClusters*300000);
   
-  allocateArray((void**)&_hitlist_d, _nClusters*100000);
-  allocateArray((void**)&_hitlist_lastgen_d, _nClusters*10000);
+  allocateArray((void**)&_hitlist_d, _nClusters*5000000);
+  allocateArray((void**)&_hitlist_lastgen_d, _nClusters*300000);
   
   
   std::cout<<"\fastHoughGPU_IFC::initClusters: Iitialized with "
@@ -139,7 +139,6 @@ fastHoughGPU_IFC::setHitList(char* hl, int activeNodes) {
       memcpy(_hitlist+CHUNK*(n*32+s), _hitlist_lastgen+n*CHUNK, CHUNK);
     }
   }
-  
   
   copyArrayToDevice(_hitlist_lastgen_d, _hitlist_lastgen, activeNodes*CHUNK);
   copyArrayToDevice(_hitlist_d, _hitlist, activeNodes*CHUNK*32);
@@ -231,7 +230,8 @@ fastHoughGPU_IFC::testIntersection(std::vector<Hough5DNode*> nodes,
     
 
     //choose the kernel to call based on nClusters and nNodes
-    if(_nClusters > nodes.size()) {
+    if(0) {
+    //if(_nClusters > nodes.size()) {
       
       int blocks = _nClusters / _threads + 1;
       //kernel call (does a threadSync)
@@ -253,11 +253,13 @@ fastHoughGPU_IFC::testIntersection(std::vector<Hough5DNode*> nodes,
 			   _threads, blocks);
       
     }
+
+    int CHUNK = _nClusters/(sizeof(char)*8)+1;
     
     copyArrayFromDevice(_votes, _votes_d, 
 			nodes.size()*sizeof(uint));
     copyArrayFromDevice(_hitlist, _hitlist_d, 
-			_nClusters*nodes.size()*32/8*sizeof(char));
+			CHUNK*nodes.size()*32);
           
   }
 }

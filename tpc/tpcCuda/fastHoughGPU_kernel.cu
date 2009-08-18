@@ -34,7 +34,8 @@ __device__ __constant__ float globalMaxs_d[5];
 
 
 __device__ bool getBit(char* c, int n) {
-  return (c[n>>3] & (1 << (n & 7)))!=0;
+  int temp = (int) (c[n>>3] & (1 << (n & 7)));
+  return (bool) temp;
 }
 
 
@@ -95,7 +96,7 @@ __global__ void testIntersect(int nNodes, int level, int nClusters,
   
   int tID = blockIdx.x * blockDim.x + threadIdx.x;
 
-  //size in bits for one chunk of the hitlist
+  //size in BYTES for one chunk of the hitlist
   int HITLISTCHUNK = nClusters/(sizeof(char)*8)+1;
   
    if(tID<nClusters) {
@@ -113,7 +114,7 @@ __global__ void testIntersect(int nNodes, int level, int nClusters,
         
        //check in mothers' hitlist
        if(level>1)  {
-	 if(!(getBit(hitlist_lastgen_d, n/32*HITLISTCHUNK + tID)))
+	 if(!(getBit(hitlist_lastgen_d + ((int)(n/32))*HITLISTCHUNK, tID )))
 	   continue;
        }
 	       
@@ -180,7 +181,7 @@ __global__ void testIntersect(int nNodes, int level, int nClusters,
 	atomicInc(votes+n,(uint)nClusters+1);           		
       }
       else
-	clearBit(hitlist_d, n*HITLISTCHUNK + tID);	
+	clearBit(hitlist_d + n*HITLISTCHUNK, tID);	
 	
      }
    }
@@ -206,6 +207,8 @@ __global__ void testIntersect2(int nNodes, int level, int nClusters,
   
    if(tID<nNodes) {
 
+     //get Node data
+
      float mCoords[2];
      mCoords[0] = proj3[tID*2];
      mCoords[1] = proj3[tID*2+1];
@@ -228,17 +231,15 @@ __global__ void testIntersect2(int nNodes, int level, int nClusters,
      float c2 = proj2[2*tID+1] * (globalMaxs_d[2] - globalMins_d[2]);
 
      
-     //get Node data
-     
+       
      for(int n=0; n<nClusters; ++n) {
        
        if(level>1)  {
-	 if(!(getBit(hitlist_lastgen_d, tID/32*HITLISTCHUNK + n)))
-	   continue;
+	 if(!(getBit(hitlist_lastgen_d + ((int)tID/32)*HITLISTCHUNK, n)))
+	 continue;
        }
        
        
-
        //get this hyperplanes' data:
        float x_R = clusterData_d[n*5];
        float y_R = clusterData_d[n*5+1];
@@ -287,7 +288,7 @@ __global__ void testIntersect2(int nNodes, int level, int nClusters,
 	 atomicInc(votes+tID,(uint)nClusters+1);
        }
        else
-	 clearBit(hitlist_d, tID*HITLISTCHUNK + n);	
+	 clearBit(hitlist_d + tID*HITLISTCHUNK, n);	
      }
    }
 }
