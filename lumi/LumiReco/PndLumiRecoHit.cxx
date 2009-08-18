@@ -12,12 +12,19 @@ PndLumiRecoHit::PndLumiRecoHit()
 
 }
 
-PndLumiRecoHit::PndLumiRecoHit(TVector3 MCPos, TVector3 RecoPos,
-		Double_t RecoEnergy, Int_t nhits)
+PndLumiRecoHit::PndLumiRecoHit(TVector3 MCPos, TVector3 RecoPos)
 {
-	fRecoEnergy = RecoEnergy;
 	fMCPosition = MCPos;
 	fRecoPosition = RecoPos;
-	fNHits = nhits;
 }
+void PndLumiRecoHit::Print(const Option_t* opt) const
+{
+	std::cout << std::endl
+		  << "*** Process Reconstruction for LM : " << std::endl
+	      << " MC Hit Position : (" << fMCPosition.X() << " , " << fMCPosition.Y() << " , " << fMCPosition.Z() << ") [cm]"  <<std:: endl
+	      << " RC Hit Position : (" << fRecoPosition.X() << " , " << fRecoPosition.Y() << ", " << fRecoPosition.Z() << ") [cm]" << std::endl
+	      << "------------------------------------------------------------------" <<std::endl;
+
+}
+
 ClassImp(PndLumiRecoHit)

@@ -12,26 +12,27 @@
 
 #include "TVector3.h"
 
+#include <iostream>
+using std::cout;
+using std::endl;
+
 class PndLumiRecoHit : public FairHit
 {
 public:
 	/** Default constructor */
 	PndLumiRecoHit();
 
-	PndLumiRecoHit(TVector3 MCPos, TVector3 RecoPos,
-			Double_t RecoEnergy, Int_t nhits);
+	PndLumiRecoHit(TVector3 MCPos, TVector3 RecoPos);
 
 	virtual ~PndLumiRecoHit(){;}
 
 	TVector3 GetMCPosition() const {return fMCPosition;}
 	TVector3 GetRecoPosition() const {return fRecoPosition;}
-	Double_t GetRecoEnergy() const {return fRecoEnergy;}
-	Int_t GetHitNumber() const {return fNHits;}
+
+	virtual void Print(const Option_t* opt = 0) const;
 
 private:
 	TVector3 fMCPosition, fRecoPosition;
-	Double_t fRecoEnergy;
-	Int_t fNHits;
 
 	ClassDef(PndLumiRecoHit,1);
 };

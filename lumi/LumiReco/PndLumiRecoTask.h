@@ -25,9 +25,7 @@ class PndLumiRecoTask : public FairTask
 {
 public:
 	/** Constructors */
-	PndLumiRecoTask(){;}
-	PndLumiRecoTask(Double_t pitch, Double_t sigma,
-			Double_t orient);
+	PndLumiRecoTask();
 
 	virtual ~PndLumiRecoTask(){;}
 
@@ -37,23 +35,19 @@ public:
 	/** Virtual method Exec */
 	virtual void Exec(Option_t* opt);
 
+	void Print() const;
+
 private:
 	/** Input array */
-	TClonesArray *fLumiClusterArrayFront;
-	TClonesArray *fLumiClusterArrayBack;
+	TClonesArray *fLumiClusterArray;
+
 	/** Output array */
 	TClonesArray *fLumiRecoArray;
 
-	Double_t fSigma, fPitch, fOrient;
-
-	Double_t SmearPosition(Double_t p);
-	TVector3 StripDirtoLoc(Double_t angle,
-				FairGeoVector loc);
-
+	TVector2 CalcLineCross(Double_t yf, Double_t yb,
+            Double_t of, Double_t ob) const;
 
 	ClassDef(PndLumiRecoTask, 1);
-
-
 };
 
 #endif /* PNDLUMIRECOTASK_H_ */

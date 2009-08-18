@@ -32,39 +32,33 @@ class PndLumiCluster: public TObject
 {
 public:
 	PndLumiCluster();
-	PndLumiCluster(TString detname, Double_t side,TVector3 pos_strip,
-			TVector3 pos_glo, std::map<Int_t, PndLumiStrip> cluster,
-			TGeoHMatrix transMat, TVector3 sensordim, Int_t nhits,
-			TVector2 stripzero, Double_t pitch, Double_t orient);
+	PndLumiCluster(TString detname, TVector3 mcpos, Double_t ClusterPositionFront,
+			Double_t ClusterPositionBack,TGeoHMatrix trans,	TVector3 sensdim,
+			Double_t pitch, Double_t orient_front, Double_t orient_back);
 
 	virtual ~PndLumiCluster();
 
 	//Accessory methods
 	TString GetDetName() const {return fDetName;}
-	Int_t GetLeftId() const {return fLeftId;}
-	Int_t GetRightId() const {return fRightId;}
-	Double_t GetRightCharge() const {return fQ_r;}
-	Double_t GetLeftCharge() const {return fQ_l;}
-	Int_t GetClusterSize() const {return fSize;}
-	TVector3 GetStripPosition() const {return fPositionStrip;}
+	Double_t GetClusterPositionFront() const {return fPosFront;}
+	Double_t GetClusterPositionBack() const {return fPosBack;}
 	TVector3 GetMCPosition() const {return fMCPosition;}
 	TGeoHMatrix GetTransformationMatrix() const {return fTransMatrix;}
 	TVector3 GetSensorDimension() const {return fSensorDim;}
-	Int_t GetHitNumber() const {return fNHits;}
-	Double_t GetStripZeroId();
+	Double_t GetStripOrientFront() const {return fOrient_front;}
+	Double_t GetStripOrientBack() const {return fOrient_back;}
+	//Int_t GetHitNumber() const {return fNHits;}
+	//Double_t GetStripZeroId();
 
 private:
-	Int_t fLeftId, fRightId;
-	Double_t fQ_l, fQ_r;
-	Int_t fSize;
 	TString fDetName;
-	Double_t fSide;
-	TVector3 fPositionStrip, fMCPosition;
+	TVector3 fMCPosition;
 	TGeoHMatrix fTransMatrix;
 	TVector3 fSensorDim;
-	Int_t fNHits;
-	TVector2 fStripZeroId;
-	Double_t fPitch, fOrient;
+	Double_t fPitch, fOrient_front, fOrient_back;
+	Double_t fPosFront, fPosBack;
+
+
 
 	ClassDef(PndLumiCluster,1);
 

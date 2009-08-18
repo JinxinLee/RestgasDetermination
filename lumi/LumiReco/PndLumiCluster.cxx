@@ -9,10 +9,6 @@
 
 PndLumiCluster::PndLumiCluster()
 {
-	fSide = 0;
-	fSize = -1;
-	fQ_l = 0.0;
-	fQ_r = 0.0;
 }
 
 PndLumiCluster::~PndLumiCluster()
@@ -20,23 +16,20 @@ PndLumiCluster::~PndLumiCluster()
 
 }
 
-PndLumiCluster::PndLumiCluster(TString detname, Double_t side,
-		TVector3 pos_strip, TVector3 mcpos, std::map<Int_t, PndLumiStrip> cluster,
-		TGeoHMatrix trans, TVector3 sensdim, Int_t nhits, TVector2 stripzero,
-		Double_t pitch, Double_t orient)
+PndLumiCluster::PndLumiCluster(TString detname, TVector3 mcpos,
+		Double_t ClusterPositionFront, Double_t ClusterPositionBack,TGeoHMatrix trans,
+		TVector3 sensdim, Double_t pitch, Double_t orient_front, Double_t orient_back)
 {
 	fDetName = detname;
-	fSide = side;
-	fPositionStrip = pos_strip;
 	fMCPosition = mcpos;
-	fSize = cluster.size();
+	fPosFront = ClusterPositionFront;
+	fPosBack = ClusterPositionBack;
 	fTransMatrix = trans;
 	fSensorDim = sensdim;
-	fNHits = nhits;
-	fStripZeroId = stripzero;
 	fPitch = pitch;
-	fOrient = orient;
-
+	fOrient_front = orient_front;
+	fOrient_back = orient_back;
+/*
 	std::map<Int_t, PndLumiStrip>::iterator it_clust;
 	Double_t Q_l , Q_r;
 	Int_t lId, rId;
@@ -83,7 +76,7 @@ PndLumiCluster::PndLumiCluster(TString detname, Double_t side,
 
 			/** Identify left and right strip in the cluster
 			 * and determine respective charge collected */
-
+/*
 			if((cluster.find(stripId_max-1)->second).GetCharge() >
 					(cluster.find(stripId_max+1)->second).GetCharge()){
 				lId = (cluster.find(stripId_max-1)->second).GetIndex();
@@ -121,8 +114,9 @@ PndLumiCluster::PndLumiCluster(TString detname, Double_t side,
 	fRightId = rId ;
 	fQ_l = Q_l ;
 	fQ_r = Q_r;
-
+*/
 }
+/*
 Double_t PndLumiCluster::GetStripZeroId()
 {
 	Double_t zeroId;
@@ -130,5 +124,5 @@ Double_t PndLumiCluster::GetStripZeroId()
 			(fStripZeroId.Y()*cos(fOrient)))/fPitch);
 	return zeroId;
 }
-
+*/
 ClassImp(PndLumiCluster)
