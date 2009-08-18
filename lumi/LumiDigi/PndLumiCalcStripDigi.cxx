@@ -401,7 +401,7 @@ Double_t PndLumiCalcStripDigi:: AddNoise(Double_t charge)
 Double_t PndLumiCalcStripDigi::ChargeDiffusion(Double_t x, Double_t y,
 		Double_t path, Double_t dir, Double_t eLoss)
 {
-	Int_t N = 100000;
+	Int_t N = 300;
 	Double_t DQ = 0.;
 	Double_t ds = path/N;
 	Double_t dQ = eLoss/N;
