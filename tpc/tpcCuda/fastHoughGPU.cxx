@@ -51,10 +51,10 @@ int main(int argc, char** argv) {
   float SCALE =0.90;
 
  
-  float m_Max = 1.f;
-  float m_Min = -1.f;
-  float t_Max = 5.f;
-  float t_Min = -5.f;
+  float m_Max = 10.f;
+  float m_Min = -10.f;
+  float t_Max = 200.f;
+  float t_Min = -200.f;
   float phi_Min = 0.f;
   float phi_Max = 180.f;
   float theta_Min = 0.f;
@@ -93,11 +93,16 @@ int main(int argc, char** argv) {
 
   
   TString dir = "../../DATA/";
+  
   TString project = "Test10";
+
+  //TString project = "EvtMixExample2";
+  
 
   project=dir+project;
   //TString mc_filename = project+".mc.root";
   TString reco_filename = project+".reco.root";
+  
 
     
   TFile* reco_file =  new TFile(reco_filename);
@@ -200,23 +205,36 @@ int main(int argc, char** argv) {
   float thresh_step = (THRESHOLD-thresh_min)/TREE_DEPTH;
   std::cout<<"thresh_step: "<<thresh_step<<std::endl;
   
+  
+  char* new_hitlist;
+  char* old_hitlist;
+  //initialize virgin hitlist to 1-bits only
+  memset(old_hitlist,0xFF,nClusters);
+  //size of one node-hitlist in units of char
+  int chunk = nClusters/sizeof(char) + 1;
+  
 
   for(int l=1; l<TREE_DEPTH; ++l) {
     
     std::vector<Hough5DNode*>* new_nodes = new std::vector<Hough5DNode*>();
+    new_hitlist = (char*) malloc(nodelist->size()*32*nClusters);
+    if(l>1)
+      old_hitlist = IFC->getHitList();
     
-    
+    int counter=0;
     //create new nodes
     for(int n=0; n<nodelist->size(); ++n) {
       Hough5DNode* the_node=nodelist->at(n);
       float* sons = the_node->getSonArray();
-      
       if(l<5) {
 	if(votes[n]>=THRESHOLD) {
+	  memcpy(new_hitlist+chunk*counter, old_hitlist+n*chunk, chunk/sizeof(char));
+	  counter++;
 	  for(int s=0; s<32; ++s) {
 	    the_node->setVotes(votes[n]);
 	    new_nodes->push_back(new Hough5DNode(sons+5*s,l,nClusters));
 	  }
+	  
 	}
 	else {
 	  delete nodelist->at(n);
@@ -226,6 +244,8 @@ int main(int argc, char** argv) {
       else {
 	//working, but not fitting with fixed THR of testIntersect
 	if(votes[n] >= last_nodes->at((int)n/32)->getVote()*SCALE) {
+	  memcpy(new_hitlist+chunk*counter, old_hitlist+n*chunk, chunk/sizeof(char));
+	  counter++;
 	  for(int s=0; s<32; ++s) {
 	    the_node->setVotes(votes[n]);
 	    new_nodes->push_back(new Hough5DNode(sons+5*s,l,nClusters));
@@ -256,6 +276,8 @@ int main(int argc, char** argv) {
     nodelist->clear();
     nodelist=new_nodes;    
 
+    IFC->setHitList(new_hitlist,counter);
+    
     //for(int i=0; i<last_nodes->size(); i++)
     //  last_nodes->at(i)->print();
     

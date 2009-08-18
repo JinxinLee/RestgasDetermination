@@ -44,16 +44,18 @@ fastHoughGPU_IFC::fastHoughGPU_IFC(float SCALING , int MAXSIZE) {
   _p4 = (float*) malloc(2*MAXSIZE*sizeof(float));
 
   _votes = (uint*) malloc(MAXSIZE*sizeof(uint));
-
-  allocateArray((void**)&_votes_d, MAXSIZE*sizeof(uint));
   
+    
+  allocateArray((void**)&_votes_d, MAXSIZE*sizeof(uint));
+
+   
   allocateArray((void**)&_p0_d, _MAXSIZE*2*sizeof(float));
   allocateArray((void**)&_p1_d, _MAXSIZE*2*sizeof(float));
   allocateArray((void**)&_p2_d, _MAXSIZE*2*sizeof(float));
   allocateArray((void**)&_p3_d, _MAXSIZE*2*sizeof(float));
   allocateArray((void**)&_p4_d, _MAXSIZE*2*sizeof(float));
 
-  allocateArray((void**)&_center_d, _MAXSIZE*5*sizeof(float));
+  // allocateArray((void**)&_center_d, _MAXSIZE*5*sizeof(float));
      
 }
 
@@ -75,6 +77,17 @@ fastHoughGPU_IFC::initClusters(std::vector<PndTpcCluster*> clist) {
       size++;    
   }
   _nClusters=size;
+
+  //allocate hitlist arrays
+  _hitlist = (char*) malloc(_nClusters*100000);
+  _hitlist_lastgen = (char*) malloc(_nClusters*10000);
+  
+  allocateArray((void**)&_hitlist_d, _nClusters*100000);
+  allocateArray((void**)&_hitlist_lastgen_d, _nClusters*10000);
+  
+  
+  std::cout<<"\fastHoughGPU_IFC::initClusters: Iitialized with "
+	   <<_nClusters<<" Clusters"<<std::endl;
   
   //allocate host and GPU arrays 
   _clusterPos = (float*) malloc(3*size*sizeof(float));
@@ -103,17 +116,38 @@ fastHoughGPU_IFC::initClusters(std::vector<PndTpcCluster*> clist) {
 		    _RIEMANNSCALING, _threads, blocks);
   
   //result resides on the GPU 
-  //can this be done without going through the host?
-  
-  assert(_nClusters<2000);
-  float* temp = (float*) malloc(10000*sizeof(float));
-  copyArrayFromDevice(temp, _clusterData_d, 10000*sizeof(float));
-  copyArrayToSymbol(temp);
-  free(temp);
-  
-  
+    
   _initC=true;
 }
+
+
+uint*
+fastHoughGPU_IFC::getVotes() {
+
+  return _votes;
+  
+}
+
+void 
+fastHoughGPU_IFC::setHitList(char* hl, int activeNodes) {
+
+  _hitlist_lastgen = hl;
+  //size in bytes
+  int CHUNK = _nClusters/(sizeof(char)*8)+1;
+  for(int n=0; n<activeNodes; n++) {
+    for(int s=0; s<32; s++) {
+      memcpy(_hitlist+CHUNK*(n*32+s), _hitlist_lastgen+n*CHUNK, CHUNK);
+    }
+  }
+  
+  
+  copyArrayToDevice(_hitlist_lastgen_d, _hitlist_lastgen, activeNodes*CHUNK);
+  copyArrayToDevice(_hitlist_d, _hitlist, activeNodes*CHUNK*32);
+	    
+  std::cout<<"Copied new hitlist to device"<<std::endl;
+  
+}
+ 
 
 
 void
@@ -201,7 +235,8 @@ fastHoughGPU_IFC::testIntersection(std::vector<Hough5DNode*> nodes,
       
       int blocks = _nClusters / _threads + 1;
       //kernel call (does a threadSync)
-      callIntersectKernel(nodes.size(),level,_nClusters,//_clusterData_d,
+      callIntersectKernel(nodes.size(),level,_nClusters,_clusterData_d,
+			  _hitlist_d, _hitlist_lastgen_d,
 			  _p0_d,_p1_d,_p2_d,_p3_d,_p4_d,_votes_d, 
 			  _threads, blocks);
       
@@ -212,7 +247,8 @@ fastHoughGPU_IFC::testIntersection(std::vector<Hough5DNode*> nodes,
       
       int blocks = nodes.size() / _threads + 1;
       //kernel call (does a threadSync)
-      callIntersectKernel2(nodes.size(),level,_nClusters,
+      callIntersectKernel2(nodes.size(),level,_nClusters, _clusterData_d,
+			   _hitlist_d, _hitlist_lastgen_d,
 			   _p0_d,_p1_d,_p2_d,_p3_d,_p4_d,_votes_d, 
 			   _threads, blocks);
       
@@ -220,7 +256,9 @@ fastHoughGPU_IFC::testIntersection(std::vector<Hough5DNode*> nodes,
     
     copyArrayFromDevice(_votes, _votes_d, 
 			nodes.size()*sizeof(uint));
-      
+    copyArrayFromDevice(_hitlist, _hitlist_d, 
+			_nClusters*nodes.size()*32/8*sizeof(char));
+          
   }
 }
   

@@ -104,3 +104,5 @@ TARGET_LINK_LIBRARIES(fastHoughGPU tpccuda tpcdata
 ADD_EXECUTABLE(fastHoughCPU_5D fastHoughCPU_5D.cc)
 TARGET_LINK_LIBRARIES(fastHoughCPU_5D tpccuda tpcdata ${ROOT_LIBS})
 
+ADD_EXECUTABLE(testBit testBitmask.cxx)
+

@@ -29,7 +29,7 @@ extern "C"
 			 int size);
 
   //copy Riemann-results to constant memory
-  void copyArrayToSymbol(float* host);
+  //void copyArrayToSymbol(float* host);
   
   //copy parameter settings to constant memory
   void setParameterSpace(float* mins, float* maxs);
@@ -39,7 +39,8 @@ extern "C"
 
   //parallel on Clusters
   void callIntersectKernel(int nodes, int level, int nCL,
-			   //float* data_d, 
+			   float* data_d, 
+			   char* hl, char* hl_lg,
 			   float* p0_d,
 			   float* _p1_d, float* _p2_d, float* _p3_d,
 			   float* _p4_d, uint* _votes_d, int threads,
@@ -47,10 +48,14 @@ extern "C"
 
   //version parallel on Nodes
   void callIntersectKernel2(int nodes, int level, int nCL,
+			    float* data_d, 
+			    char* hl, char* hl_lg,
 			    float* p0_d,
 			    float* _p1_d, float* _p2_d, float* _p3_d,
 			    float* _p4_d, uint* _votes_d, int threads,
 			    int blocks);
 
+  /*void callJanitor(char* _hitlist_d, char* _hitlist_lastgen_d,
+    int nodes, int clusters, int _threads, int blocks); */
   
 } //extern C

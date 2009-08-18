@@ -45,9 +45,9 @@ extern "C" {
     cutilSafeCall(cudaMemcpy(device, host, size, cudaMemcpyHostToDevice));
   }
 
-  void copyArrayToSymbol(float* host) {
-   cutilSafeCall(cudaMemcpyToSymbol(clusterDataConst_d,host, 10000*sizeof(float)));
-  }
+  //void copyArrayToSymbol(float* host) {
+  // cutilSafeCall(cudaMemcpyToSymbol(clusterDataConst_d,host, 10000*sizeof(float)));
+  //}
   
   
   void setParameterSpace(float* mins, float* maxs){
@@ -73,7 +73,8 @@ extern "C" {
 
   
   void callIntersectKernel(int nodes, int level, int nCl,
-			   //float* data_d, 
+			   float* data_d, 
+			   char* hl, char* hl_lg,
 			   float* p0_d,
 			   float* p1_d, float* p2_d, float* p3_d,
 			   float* p4_d, uint* votes_d,
@@ -95,13 +96,16 @@ extern "C" {
     std::cout<<"BLOCKS: "<<blocks<<"   THREADS: "<<threads<<std::endl;
     
     testIntersect<<< dimGrid, dimBlock >>> (nodes, level, nCl,
-					    //data_d, 
+					    data_d,
+					    hl, hl_lg,
 					    p0_d, p1_d, p2_d,
 					    p3_d, p4_d, votes_d);
     threadSync();
   }
   
   void callIntersectKernel2(int nodes, int level, int nCl,
+			    float* data_d, 
+			    char* hl, char* hl_lg,
 			    float* p0_d,
 			    float* p1_d, float* p2_d, float* p3_d,
 			    float* p4_d, uint* votes_d,
@@ -123,9 +127,28 @@ extern "C" {
     std::cout<<"BLOCKS: "<<blocks<<"   THREADS: "<<threads<<std::endl;
     
     testIntersect2<<< dimGrid, dimBlock >>> (nodes, level, nCl,
+					     data_d, 
+					     hl, hl_lg,
 					     p0_d, p1_d, p2_d,
 					     p3_d, p4_d, votes_d);
     threadSync();
   }
 
-}
+  /* void callJanitor(char* _hitlist_d, char* _hitlist_lastgen_d,
+		   int nodes, int clusters,int threads, int blocks) {
+  
+  
+    int CHUNK = clusters/(sizeof(char)*8)+1;
+    
+    dim3 dimGrid(blocks);
+    dim3 dimBlock(threads);
+
+    std::cout<<"Calling janitor ..."<<std::endl;
+    std::cout<<"BLOCKS: "<<blocks<<"   THREADS: "<<threads<<std::endl;
+    
+    hitlistJanitor<<< dimGrid, dimBlock >>> (_hitlist_d, _hitlist_lastgen_d,
+					     nodes, clusters, CHUNK);
+					     }*/
+					     
+
+} //extern C

@@ -44,12 +44,13 @@ class fastHoughGPU_IFC {
   // takes mins and maxs in format (phi, theta, c, m, t)
   void initParameterSpace(std::vector<float> mins, std::vector<float> maxs);
   void initParameterSpace(float* mins, float* maxs);
-  
+  void setHitList(char* hl, int activeNodes); 
   
   void testIntersection(std::vector<Hough5DNode*> nodes,
 			int level, int THRESHOLD);
-  uint* getVotes() {return _votes;}
-  float* getCenter() {return _center;}
+  uint* getVotes();
+  //float* getCenter() {return _center;}
+  char* getHitList() {return _hitlist;}
 
   void setKernelPars(uint threadsPerBlock);
   
@@ -77,8 +78,10 @@ class fastHoughGPU_IFC {
   float* _mins;
   float* _maxs;
 
-  float* _center;
-
+  char* _hitlist;
+  char* _hitlist_lastgen;
+  
+  
   //GPU data arrays
   float* _clusterPos_d;
   float* _clusterData_d; //will be moved to __constant__
@@ -88,14 +91,16 @@ class fastHoughGPU_IFC {
   float* _p2_d;
   float* _p3_d;
   float* _p4_d;
-
-  float* _center_d;
-
+  
   uint* _votes_d;
 
-  //parameters are CONSTANT on GPU, defined in the KERNEL cu
-  //same applies to result of the Riemann Trafo
+  char* _hitlist_d;
+  char* _hitlist_lastgen_d;
 
+
+
+  //parameters are CONSTANT on GPU, defined in the KERNEL cu
+  
 
   int _MAXSIZE;    //size of allocated arrays (has to be bigger than 
                    //potential nNodes (sons))
