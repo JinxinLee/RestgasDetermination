@@ -152,6 +152,7 @@ int main(int argc,char **argv){
     Creating an instance of TCallign to assure wich alignmentfile is used
   */
   cout<<"before alignment"<<endl;
+  
   TCalign* a = TCalign::getInstance(alignmentFile);
   a->clear();
   a->read(alignmentFile);
@@ -884,6 +885,8 @@ int main(int argc,char **argv){
     }//end fit
     delete x_event;
     delete y_event;
+    delete x_eventAmp;
+    delete y_eventAmp;
     
     if(event->nTracks()==0){
       continue;
@@ -907,8 +910,11 @@ int main(int argc,char **argv){
   eventTreeOut->Write();
 
   trackOutFile->Close();
+  delete houghYZ;
+  delete houghXZ;
   delete trackOutFile;
   delete tree;
+  delete event;
   delete GM01X1;
   delete GM01Y1;
   delete GM02X1;
@@ -918,6 +924,8 @@ int main(int argc,char **argv){
   delete SI02X1;
   delete SI02Y1;
   histContainer->write(outHist);
+  a->clear();
+  delete a;
   delete histContainer;
   return 0;
 } 

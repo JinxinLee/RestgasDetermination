@@ -103,7 +103,6 @@ void dispDraw(TCtrack* track1, TCtrack* track2,
   yGraph->Draw("AP");
   tf2->Draw("LSAME");
   tf4->Draw("LSAME");
-  
   c->Update();
   c->Modified();
 }
@@ -223,7 +222,7 @@ void ampRatioNoiseCut(const std::list<CsGEMCluster*> &clusterList,
 	TVector3 pos(x,0,0);
 	TVector3 err(0,0,0);
 	if(detID==3||detID==4||detID==5||detID==6){
-	  err=TVector3(0.0030,0.5,0.1);
+	  err=TVector3(0.0015,0.5,0.1);
 	}else{
 	  err=TVector3(((*it)->GetPositionErr())*pitch,0.5,0.1);
 	}
@@ -761,6 +760,8 @@ void HistContainer::write(string filename){
 
   histogramGM1XunBiResi->Write();
   histogramGM1YunBiResi->Write();
+  histogramGM2XunBiResi->Write();
+  histogramGM2YunBiResi->Write();
   histogramSI1XunBiResi->Write();
   histogramSI1YunBiResi->Write();
   histogramSI2XunBiResi->Write();
@@ -972,9 +973,11 @@ HistContainer::~HistContainer(){
   delete histogramSI1XunBiResi;
   delete histogramSI1YunBiResi;
   delete histogramSI2XunBiResi;
-  delete histogramSI2YunBiResi;
+  delete histogramSI2YunBiResi; 
   delete histogramGM1XunBiResi;
-  delete histogramGM1YunBiResi;
+  delete histogramGM1YunBiResi; 
+  delete histogramGM2XunBiResi;
+  delete histogramGM2YunBiResi;
  
   delete histogramSI1XunBiResiVu2d; 
   delete histogramSI1YunBiResiVu2d; 
