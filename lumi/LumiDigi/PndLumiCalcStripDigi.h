@@ -43,8 +43,7 @@ public:
 	/** Constructor */
 	PndLumiCalcStripDigi(Double_t pitch, Double_t orient,
 			Double_t width, Double_t length, Double_t threshold,
-			Double_t noise, Double_t sigma,	TVector2 stripzeroId);
-
+			Double_t noise, Double_t sigma,TVector2 Zero);
 	/** Destructor */
 	~PndLumiCalcStripDigi();
 
