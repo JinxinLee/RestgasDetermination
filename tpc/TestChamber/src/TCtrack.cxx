@@ -135,8 +135,10 @@ bool TCtrack::fit(int id1,int id2,int id3,int id4,int id5,int id6,int id7,int id
   
   //std::cout << "fit.cxx @@@@@@@@ Minuit fit status (0 is convergence): " << ierflg << std::endl;
 
-  if(ierflg!=0) return false;
-
+  if(ierflg!=0) {
+    delete myMinuit;
+    return false;
+  }
   myMinuit->GetParameter(0,ax,dax);
   myMinuit->GetParameter(1,bx,dbx);
   myMinuit->GetParameter(2,ay,day);
