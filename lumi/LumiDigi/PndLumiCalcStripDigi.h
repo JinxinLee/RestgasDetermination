@@ -59,9 +59,6 @@ public:
 	std::vector<PndLumiStrip> GetStripsDigi(FairGeoVector in,
 			FairGeoVector out, Double_t eLoss);
 
-	std::map<Int_t,PndLumiStrip> GetClusters(std::vector<PndLumiStrip>
-	strip);
-
 	/** Compute StripID from a Hit : This corresponds to the y-position
 	 * of the hit in the strip orientation coordinate system
 	 */

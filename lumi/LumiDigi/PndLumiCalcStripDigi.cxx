@@ -443,22 +443,6 @@ Double_t PndLumiCalcStripDigi::CalcStripFromHit(Double_t x, Double_t y)
 
 }
 
-
-std::map<Int_t,PndLumiStrip> PndLumiCalcStripDigi::GetClusters(std::vector<PndLumiStrip> strip)
-{
-	std::map<Int_t,PndLumiStrip> clust;
-	std::map<Int_t,PndLumiStrip>::iterator it;
-	clust.clear();
-
-	for (Int_t j = 0; j < strip.size(); j++){
-		clust[strip[j].GetIndex()] = strip[j];
-	}
-
-	
-	return clust;
-
-}
-
 bool PndLumiCalcStripDigi::AboveThreshold(Double_t Q)
 {
 	if (Q >= fThreshold){
