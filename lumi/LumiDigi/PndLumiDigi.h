@@ -38,6 +38,7 @@ public:
 	Double_t GetEnergyLoss()  const {return fEnergyLoss;}
 	TString GetDetName() const {return fDetName;}
 
+	void Print(const Option_t* opt) const;
 
 private:
 

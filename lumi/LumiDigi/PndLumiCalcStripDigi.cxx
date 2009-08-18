@@ -14,7 +14,7 @@ PndLumiCalcStripDigi::PndLumiCalcStripDigi()
 
 PndLumiCalcStripDigi::PndLumiCalcStripDigi(Double_t pitch, Double_t orient,
 		Double_t width, Double_t length, Double_t threshold, Double_t noise,
-		Double_t sigma, TVector2 stripzeroId)
+		Double_t sigma,TVector2 stripzeroId)
 {
 	fPitch = pitch;
 	fOrient = orient;
@@ -70,7 +70,7 @@ std::vector<PndLumiStrip> PndLumiCalcStripDigi::GetStrips(FairGeoVector in, Fair
     if (nuIn == nuOut){
     	// this strip collected the entire charge
     	strip.push_back(PndLumiStrip( nuIn , path , Q ));
-		cout << "PndLumiCalcStrip : "<<strip.back( ) << endl;
+		//cout << "PndLumiCalcStrip : "<<strip.back( ) << endl;
 
     } else {
     	Int_t nrHits = 0;
@@ -82,7 +82,7 @@ std::vector<PndLumiStrip> PndLumiCalcStripDigi::GetStrips(FairGeoVector in, Fair
         	dp = ((nuIn + 1) - inStripId) / d;
         	dQ = Q * dp;
         	strip.push_back(PndLumiStrip( nuIn , (dp * path), dQ ));
-            cout << "PndLumiCalcStrip : "<<strip.back( ) << endl;
+            //cout << "PndLumiCalcStrip : "<<strip.back( ) << endl;
         	nrHits++;
             Q -= dQ;
             path -=(dp * path);
@@ -91,7 +91,7 @@ std::vector<PndLumiStrip> PndLumiCalcStripDigi::GetStrips(FairGeoVector in, Fair
         	dp = (inStripId - nuIn) / d ;
         	dQ = Q * dp;
             strip.push_back(PndLumiStrip( nuIn , (dp * path), dQ ));
-            cout << "PndLumiCalcStrip : "<<strip.back( ) << endl;
+            //cout << "PndLumiCalcStrip : "<<strip.back( ) << endl;
             nrHits++;
             Q -= dQ;
             path -=(dp * path);
@@ -104,7 +104,7 @@ std::vector<PndLumiStrip> PndLumiCalcStripDigi::GetStrips(FairGeoVector in, Fair
         	dp = (( nuOut + 1) - outStripId) / d;
         	dQ = Q * dp;
         	strip.push_back(PndLumiStrip( nuOut , (dp * path) , dQ ));
-            cout << "PndLumiCalcStrip : "<<strip.back( ) << endl;
+            //cout << "PndLumiCalcStrip : "<<strip.back( ) << endl;
         	nrHits++;
             Q -= dQ;
             path -= (dp * path);
@@ -113,7 +113,7 @@ std::vector<PndLumiStrip> PndLumiCalcStripDigi::GetStrips(FairGeoVector in, Fair
         	dp = (outStripId - nuOut) / d;
         	dQ = Q * dp;
         	strip.push_back(PndLumiStrip( nuOut , (dp * path) , dQ ));
-            cout << "PndLumiCalcStrip : "<<strip.back( ) << endl;
+            //cout << "PndLumiCalcStrip : "<<strip.back( ) << endl;
         	nrHits++;
             Q -= dQ;
             path -= (dp * path);
@@ -131,14 +131,14 @@ std::vector<PndLumiStrip> PndLumiCalcStripDigi::GetStrips(FairGeoVector in, Fair
         		for ( Int_t iStrip = nuIn +1 ; iStrip < nuOut; iStrip++){
         			if (sQ >= fThreshold)
         				strip.push_back(PndLumiStrip( iStrip , (dp * path) , sQ));
-        			cout << "PndLumiCalcStrip : "<<strip.back( ) << endl;
+        			//cout << "PndLumiCalcStrip : "<<strip.back( ) << endl;
         			nrHits++;
         		}
         	}else {
         		for (Int_t iStrip = nuOut +1 ; iStrip < nuIn; iStrip++){
         			if (sQ >= fThreshold)
         				strip.push_back(PndLumiStrip( iStrip , (dp * path) , sQ));
-        			cout << "PndLumiCalcStrip : "<<strip.back( ) << endl;
+        			//cout << "PndLumiCalcStrip : "<<strip.back( ) << endl;
         			nrHits++;
         		}
         	}
@@ -152,7 +152,7 @@ std::vector<PndLumiStrip> PndLumiCalcStripDigi::GetStripsDigi(FairGeoVector in,
 		FairGeoVector out, Double_t eLoss)
 {
 	std::vector<PndLumiStrip> strips = GetStrips(in,out,eLoss);
-	cout << " Number of strips initially fired : "<< strips.size()<<endl;
+	//cout << " Number of strips initially fired : "<< strips.size()<<endl;
 
 	Double_t inStripId = CalcStripFromHit(in.getX(),in.getY());
 	Double_t outStripId = CalcStripFromHit(out.getX(),out.getY());
@@ -431,13 +431,15 @@ Double_t PndLumiCalcStripDigi::ChargeDiffusion(Double_t x, Double_t y,
 
 Double_t PndLumiCalcStripDigi::CalcStripFromHit(Double_t x, Double_t y)
 {
+
 	Double_t a = fStripZeroId.X();
 	Double_t b = fStripZeroId.Y();
 	Double_t zero;
 	zero =TMath::Abs(( -a*sin(fOrient) + b*cos(fOrient))/fPitch);
+
 	Double_t nr = (-x*sin(fOrient) + y *cos(fOrient))/fPitch;
 
-	return (nr + zero);
+	return zero + nr;
 
 }
 

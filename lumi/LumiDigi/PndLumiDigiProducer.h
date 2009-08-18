@@ -25,7 +25,7 @@ class PndLumiDigiProducer : public FairTask
 {
 public:
 	PndLumiDigiProducer();
-	PndLumiDigiProducer(Double_t Z0, Double_t pitch, Double_t orient, Double_t width,
+	PndLumiDigiProducer(Double_t Z0, Double_t pitch, Double_t of, Double_t ob, Double_t width,
 			Double_t length, Double_t detdistance, Double_t distplan, Double_t threshold,
 			Double_t noise,	Double_t side, Double_t sigma, Int_t verbose);
 	~PndLumiDigiProducer();
@@ -45,8 +45,8 @@ private:
 	/**To identify the two strips which collect the highest Energy deposited
 	 * in the sensor : these two strips are identified as left and right
 	 */
-	std::map<Int_t,Double_t> GetLeftAndRight(std::map<Int_t,PndLumiStrip> clust,
-			std::vector<PndLumiStrip> digi, Int_t mean);
+	std::map<Int_t,Double_t> GetLeftAndRight(std::map<Int_t,PndLumiStrip> clust);
+
 
 	/** Pointer to input array of PndLumiPoints */
 	TClonesArray* fLumiPointCollection;
@@ -58,7 +58,7 @@ private:
     Double_t fZ0;
 
     Double_t fPitch;
-    Double_t fOrient;
+    Double_t fOrient_front, fOrient_back;
 
     Double_t fSensorWidth;
     Double_t fSensorLength;

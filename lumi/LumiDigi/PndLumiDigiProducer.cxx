@@ -6,7 +6,8 @@ PndLumiDigiProducer::PndLumiDigiProducer()
 	fVerboseLevel = 0 ;
 	fZ0 = 0. ;
 	fPitch = 0. ;
-	fOrient = 0. ;
+	fOrient_front = 0. ;
+	fOrient_back = 0.;
 	fSensorWidth = 0. ;
 	fSensorLength = 0. ;
 	fRadialDistance = 0. ;
@@ -18,15 +19,16 @@ PndLumiDigiProducer::PndLumiDigiProducer()
 
 }
 
-PndLumiDigiProducer:: PndLumiDigiProducer(Double_t Z0, Double_t pitch, Double_t orient,
-		Double_t width, Double_t length, Double_t r, Double_t d, Double_t threshold,
-		Double_t noise, Double_t side, Double_t sigma, Int_t verbose)
+PndLumiDigiProducer:: PndLumiDigiProducer(Double_t Z0, Double_t pitch, Double_t of,
+		Double_t ob,Double_t width, Double_t length, Double_t r, Double_t d,
+		Double_t threshold,	Double_t noise, Double_t side, Double_t sigma, Int_t verbose)
 : FairTask("Lumi Digi Producer")
 {
 	fVerboseLevel = verbose ;
 	fZ0 = Z0 ;
 	fPitch = pitch ;
-	fOrient =  orient;
+	fOrient_front =  of;
+	fOrient_back =  ob;
 	fSensorWidth =  width;
 	fSensorLength =  length;
 	fRadialDistance =  r;
@@ -107,6 +109,10 @@ void PndLumiDigiProducer::Exec(Option_t* opt)
 
     std::vector<PndLumiStrip>::iterator strip_iterator;
 
+    Double_t zero;
+
+    Double_t dir;
+
     // Loop over LumiPoints
     Int_t nPoints = fLumiPointCollection->GetEntriesFast();
 
@@ -130,7 +136,7 @@ void PndLumiDigiProducer::Exec(Option_t* opt)
 		std::string detname = point->GetDetName().Data();
 
 		cout << endl;
-		cout << "Detector Hit : "<< detname << endl;
+		//cout << "Detector Hit : "<< detname << endl;
 
 		FairGeoVector posInL, posOutL;
 		FairGeoVector loc;
@@ -138,14 +144,8 @@ void PndLumiDigiProducer::Exec(Option_t* opt)
 
 		PndLumiTransposition trans(fVerboseLevel);
 		trans.GetLocalHitPoints(point, posInL, posOutL);
-		xin = posInL.getX(); yin =  posInL.getY(); zin = posInL.getZ();
-		xout = posOutL.getX(); yout =  posOutL.getY(); zout = posOutL.getZ();
 
-		loc.setX(xin); loc.setY(yin); loc.setZ(zin);
-
-		//Double_t a = (strip_orient.Y())/fPitch;
-
-		LocEntryPos.SetXYZ(xin, yin, zin);
+		LocEntryPos.SetXYZ(posInL.getX(),posInL.getX(),posInL.getZ());
 
 		planId = static_cast<int>((entryPos.Z()-fZ0)/fDistancePlan);
 
@@ -157,41 +157,36 @@ void PndLumiDigiProducer::Exec(Option_t* opt)
 		TVector2 stripzeroId;
 
 		if (fSide > 0){
-			cout << "Front side: fOrient" <<endl;
-			strip_orient = trans.LocalToStripOrientation(fOrient, posInL);
+			// Process Digitization at the Front Side
+			dir = fOrient_front;
+			strip_orient = trans.LocalToStripOrientation(fOrient_front, posInL);
 			stripzeroId.Set(fSensorWidth, 0.0);
 
 		}
 
 		if (fSide < 0){
-			cout << "Back side : -(90-fOrient) "<<endl;
-			strip_orient = trans.LocalToStripOrientation(-((TMath::Pi()/2)-fOrient), posOutL);
+			//Process Digitization at the Back Side
+			dir = fOrient_back;
+			strip_orient = trans.LocalToStripOrientation(fOrient_back, posOutL);
 			stripzeroId.Set(0.0, 0.0);
 
 		}
 
-
-		PndLumiCalcStripDigi StripDigi(fPitch, fOrient, fSensorWidth, fSensorLength,
+		PndLumiCalcStripDigi StripDigi(fPitch, dir, fSensorWidth, fSensorLength,
 						fThreshold, fNoise, fSigma, stripzeroId);
 		digi = StripDigi.GetStripsDigi(posInL, posOutL, eLoss);
 
-		inStripId = StripDigi.CalcStripFromHit(posInL.getX(), posInL.getY());
-		outStripId  = StripDigi.CalcStripFromHit(posOutL.getX(), posOutL.getY());
 		if (fSide > 0){
 			nrStrips = StripDigi.CalcStripFromHit(0.0, fSensorLength);
 		}
 		if (fSide < 0){
 			nrStrips = StripDigi.CalcStripFromHit(fSensorWidth, fSensorLength);
 		}
-		cout << "# total of strips : " << nrStrips << endl;
-		StripId = 0.5 * (inStripId + outStripId);
+		//---------Define Cluster : Order strip by strip ID-----------
 
 		clust = GetClusters(digi);
 
-		digisize = digi.size();
 		clustsize = clust.size();
-		cout << " Number of strips fired : " << clustsize << endl;
-
 
 		Double_t Q_r = 0.;
 		Double_t Q_l = 0.;
@@ -199,7 +194,7 @@ void PndLumiDigiProducer::Exec(Option_t* opt)
 		Int_t lId;
 
 		if (clustsize!=0){
-			IdEnergy =  GetLeftAndRight(clust, digi, Int_t(StripId));
+			IdEnergy =  GetLeftAndRight(clust);
 
 			for ( it = IdEnergy.begin(); it != IdEnergy.end(); it++){
 				Id.push_back((*it).first);
@@ -212,19 +207,16 @@ void PndLumiDigiProducer::Exec(Option_t* opt)
 			Q_r = IdEnergy.find(max)->second;
 			Q_l = IdEnergy.find(min)->second;
 		}
+
+
 		for (strip_iterator = digi.begin(); strip_iterator != digi.end(); ++strip_iterator){
 			new ((*fLumiDigiCollection)[iDigi]) PndLumiDigi( detID, LocEntryPos, dpos,
 					nPoints, planId,  sensorId,  clustsize, *strip_iterator, Q_r, Q_l, inStripId,
 					outStripId,	rId,  eLoss, detname );
-				iDigi++;
+			iDigi++;
 		}
-  }  // Loop over MCPoints
-
-    cout <<"-I- PndLumiDigiProducer: " << nPoints << " MCPoints - "<<  iDigi << " Digis created."<< std::endl;
-    cout << "--------------------------------------------------------- "<< endl;
-
-   //Print();
-
+    }  // Loop over MCPoints
+    Print();
 }
 
 std::map<Int_t,PndLumiStrip> PndLumiDigiProducer::GetClusters(std::vector<PndLumiStrip> strip)
@@ -236,8 +228,6 @@ std::map<Int_t,PndLumiStrip> PndLumiDigiProducer::GetClusters(std::vector<PndLum
 	for (Int_t j = 0; j < strip.size(); j++){
 		clust[strip[j].GetIndex()] = strip[j];
 	}
-	for ( it=clust.begin() ; it != clust.end(); it++ )
-		cout << " ** PndLumiCalcStripDigi : "<< (*it).second << endl;
 	return clust;
 
 }
@@ -245,18 +235,19 @@ std::map<Int_t,PndLumiStrip> PndLumiDigiProducer::GetClusters(std::vector<PndLum
 //Identification of the left and the right strip in a cluster
 //return to a map with size two
 std::map<Int_t,Double_t> PndLumiDigiProducer::
-GetLeftAndRight(std::map<Int_t,PndLumiStrip> clust,	std::vector<PndLumiStrip> digi, Int_t mean)
+GetLeftAndRight(std::map<Int_t,PndLumiStrip> clust)
 {
 	std::map<Int_t,Double_t> IdEnergy;
 	std::map<Int_t,Double_t>::iterator it;
+	std::map<Int_t,PndLumiStrip>::iterator its;
 	IdEnergy.clear();
 
 	std::vector<Int_t> Index;
 	Int_t Id[2];
 	Double_t Energy[2];
 
-	for (Int_t i = 0; i < digi.size(); i++){
-		Index.push_back(digi[i].GetIndex());
+	for (its = clust.begin(); its!= clust.end(); its++){
+		Index.push_back((*its).first);
 	}
 	Int_t min = *min_element(Index.begin(),Index.end());
 	Int_t max = *max_element(Index.begin(),Index.end());
@@ -311,28 +302,14 @@ GetLeftAndRight(std::map<Int_t,PndLumiStrip> clust,	std::vector<PndLumiStrip> di
 			}
 
 		}
-		if (clust.size() > 3){
-			double q_l;
-			double q_r;
-			Id[1] = mean +1;
-			Id[0] = mean;
-			for (int i = min; i <= mean; i++){
-				q_l = (clust.find(i)->second).GetCharge();
-				Energy[0] += q_l;
-			}
-			for (int i = mean +1 ; i <= max; i++){
-				q_r = (clust.find(i)->second).GetCharge();
-				Energy[1] += q_r;
-			}
-
-		}
 	}
 	for (Int_t j = 0; j < 2; j++){
 		IdEnergy[Id[j]] = Energy[j];
 	}
+	//for ( it=IdEnergy.begin() ; it !=IdEnergy.end(); it++ )
+			//cout << "!!!! : "<< (*it).first << " , " << (*it).second << endl;
 	return IdEnergy;
 }
-
 
 void PndLumiDigiProducer::Print() const
 {

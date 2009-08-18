@@ -29,6 +29,18 @@ PndLumiDigi::PndLumiDigi(Int_t detID, TVector3 pos, TVector3 dpos,
 PndLumiDigi::~PndLumiDigi()
 {
 }
+void PndLumiDigi::Print(const Option_t* opt) const
+{
+    std::cout << " ******* LUMI DIGITIZATION **************************************************************** " << std::endl
+    <<" * Detector hit	: "<<fDetName<<std::endl
+	      << " * Plan ID	: " << fPlanID << std::endl
+	      << " * Sensor ID	: " << fSensorID << std::endl
+	      << " * Multiplicity	: " << fMultiplicity << std::endl
+	      << " * Entry Position	: (" << fPosition.X() << ", " << fPosition.Y() << ", " << fPosition.Z() << ") [cm]" << std::endl
+	      << " * Strip Involved	: " << fStrip << std::endl
+	      << " ***************************************************************************************** "<< std::endl;
+
+}
 
 ClassImp(PndLumiDigi)
 
