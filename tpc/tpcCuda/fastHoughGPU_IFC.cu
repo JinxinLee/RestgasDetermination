@@ -134,6 +134,21 @@ extern "C" {
     threadSync();
   }
 
+
+  void callCutoffKernel(float cutoff, int nodes, uint* votes, 
+			int threads, int blocks) {
+
+    dim3 dimGrid(blocks);
+    dim3 dimBlock(threads);
+    
+    std::cout<<"Calling cutoff Kernel ..."<<std::endl;
+    std::cout<<"BLOCKS: "<<blocks<<"   THREADS: "<<threads<<std::endl;
+  
+    cutoffKernel<<< dimGrid, dimBlock >>> (cutoff, nodes, votes);
+    
+
+  }
+
   /* void callJanitor(char* _hitlist_d, char* _hitlist_lastgen_d,
 		   int nodes, int clusters,int threads, int blocks) {
   

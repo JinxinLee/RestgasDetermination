@@ -20,11 +20,18 @@
 
 #include "fastHoughGPU_kernel.cuh"
 #include <cmath>
-
+//#include <cstdlib>
 
 //global Hough parameter space
 __device__ __constant__ float globalMins_d[5];
 __device__ __constant__ float globalMaxs_d[5];
+
+
+
+
+__device__ int compare (const void * a, const void * b) {
+  return ( *(int*)a - *(int*)b );
+}
 
 
 
@@ -304,6 +311,51 @@ __global__ void cleanUpVotes(int nNodes, uint* votes) {
   if(tID<nNodes)
     votes[tID] = (uint)0;
 }
+
+
+
+
+//kill the weaker fraction (<cutoff*32) of each mothers' sons
+
+__global__ void cutoffKernel(float cutoff, int nodes, uint* votes) {
+
+  int tID = blockIdx.x * blockDim.x + threadIdx.x;
+
+  if(tID%32==0) {
+
+    uint temp[32];
+    for(int i=0; i<32; i++) 
+      temp[i] = votes[tID+i];
+    
+    //qsort(temp, 32, sizeof(uint), compare);
+
+    //best sorting algorithm of all times.
+    for(int l=0; l<32; l++) 
+      for(int k=l+1; k<32; k++) 
+	if(temp[l]>temp[k]) {
+	  uint furz;
+	  furz=temp[l];
+	  temp[l]=temp[k];
+	  temp[k]=furz;
+	}
+
+    
+    int last_element=(int)(cutoff*32.f);
+      
+    //set votes of nodes with less votes than cutoff element to zero
+    for(int j=0; j<32; j++) {
+      int bla = temp[last_element];
+      int blub = votes[tID+j];
+      int diff = bla-blub;
+      //int diff = (int)(temp[last_element]-votes[tID+j]);
+      votes[tID+j]*=signbit(diff);  //1 for negative, 0 for positive
+    }
+  }
+}
+
+  
+
+
 
 
 /*

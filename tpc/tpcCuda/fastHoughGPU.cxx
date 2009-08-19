@@ -58,8 +58,8 @@ int main(int argc, char** argv) {
   int TREE_DEPTH = 6;  //number of space divisions
   int THRESHOLD = 40;
 
-  int THREADS = 64;
-  float SCALE =0.90;
+  int THREADS = 128;
+  float SCALE =0.95;
 
  
   float m_Max = 1.f;
@@ -70,8 +70,8 @@ int main(int argc, char** argv) {
   float phi_Max = 180.f;
   float theta_Min = 20.f;
   float theta_Max = 160.f;
-  float c_Min = -0.2f;
-  float c_Max = 0.2f;
+  float c_Min = -0.3f;
+  float c_Max = 0.3f;
 
   float mins[5] = {phi_Min, theta_Min, c_Min, m_Min, t_Min};
   float maxs[5] = {phi_Max, theta_Max, c_Max, m_Max, t_Max};
@@ -171,10 +171,22 @@ int main(int argc, char** argv) {
   
   // FAST HOUGH SEARCH --------------------------------------------------
 
+
   //instantiate interface object:
 
   fastHoughGPU_IFC* IFC = new fastHoughGPU_IFC(40, 10000000);
   int nClusters = riemannListRZ.size();
+
+  
+  char* root_hitlist = (char*) malloc(nClusters/sizeof(char) + 1);
+  
+  //size of one node-hitlist in units of char
+  int chunk = nClusters/(sizeof(char)*8) + 1;
+
+  //initialize virgin hitlist to 1-bits only
+  memset(root_hitlist,0xFF,chunk);
+
+  
   
   //set up the IFC
   IFC->setKernelPars(THREADS);
@@ -184,6 +196,8 @@ int main(int argc, char** argv) {
   std::vector<Hough5DNode*>* nodelist= new std::vector<Hough5DNode*>();
   unsigned int* votes;
 
+
+  IFC->setHitList(root_hitlist,1);
   
   //init rood node
   std::cout<<"Init root node: "<<std::endl;
@@ -204,6 +218,7 @@ int main(int argc, char** argv) {
     return 0;
   }
   
+  free(root_hitlist);
     
   // made it through root, begin oct-tree search ------------------------
   
@@ -212,17 +227,15 @@ int main(int argc, char** argv) {
   std::vector<Hough5DNode*>* last_nodes = new std::vector<Hough5DNode*>();
 
 
-  float thresh_min=35;
-  float thresh_step = (THRESHOLD-thresh_min)/TREE_DEPTH;
-  std::cout<<"thresh_step: "<<thresh_step<<std::endl;
+  // float thresh_min=35;
+//   float thresh_step = (THRESHOLD-thresh_min)/TREE_DEPTH;
+//   std::cout<<"thresh_step: "<<thresh_step<<std::endl;
   
   
   char* new_hitlist;
   char* old_hitlist = (char*) malloc(nClusters/sizeof(char) + 1);
   
-  //size of one node-hitlist in units of char
-  int chunk = nClusters/(sizeof(char)*8) + 1;
-
+  
   //initialize virgin hitlist to 1-bits only
   memset(old_hitlist,0xFF,chunk);
   
@@ -235,19 +248,24 @@ int main(int argc, char** argv) {
     std::cout<<getBit(old_hitlist, l);
   std::cout<<"\n\n"<<std::endl;
 
+  int count=1;
+
   for(int l=1; l<TREE_DEPTH; ++l) {
     
     std::vector<Hough5DNode*>* new_nodes = new std::vector<Hough5DNode*>();
-    new_hitlist = (char*) malloc(nodelist->size()*32*chunk);
+    std::cout << nodelist->size();
+    std::cout.flush();
+    new_hitlist = (char*) malloc(count*32*chunk);
+    std::cout << " " << (void*) new_hitlist << std::endl;
     if(l>1)
       old_hitlist = IFC->getHitList();
         
     int counter=0;
     //create new nodes
     for(int n=0; n<nodelist->size(); ++n) {
-       // for(int c=0; c<nClusters; c++)
-// 	 std::cout<<getBit(old_hitlist+chunk*n, c);
-//        std::cout<<"\n"<<votes[n]<<"\n"<<std::endl;
+      // for(int c=0; c<nClusters; c++)
+// 	std::cout<<getBit(old_hitlist+chunk*n, c);
+//       std::cout<<"\n"<<votes[n]<<"\n"<<std::endl;
       Hough5DNode* the_node=nodelist->at(n);
       float* sons = the_node->getSonArray();
       if(l<5) {
@@ -286,7 +304,9 @@ int main(int argc, char** argv) {
 	  nodelist->at(n) = NULL;
 	}
       }
+      free(sons);
     }
+   
 
     for(int x=0; x<last_nodes->size(); x++)
       delete last_nodes->at(x);
@@ -301,8 +321,9 @@ int main(int argc, char** argv) {
 	last_nodes->push_back(nodelist->at(n));
       }
     
-       
+    std::cout<<"setting hitlist"<<std::endl;
     IFC->setHitList(new_hitlist,counter);
+    free(new_hitlist);
 
     //TEST: COMES BACK RIGHT FROM THE IFC
     // char* test = IFC->getHitList();
@@ -331,7 +352,7 @@ int main(int argc, char** argv) {
     //IFC->testIntersection(*nodelist,l,THRESHOLD-l*thresh_step);
     votes = IFC->getVotes();
     
-    int count=0;
+    count=0;
     for(int k=0; k<nodelist->size(); ++k)
       if(votes[k]>=THRESHOLD)
 	count++;
@@ -435,6 +456,9 @@ int main(int argc, char** argv) {
     (boxlist3[b])->Draw("l");
   }
 
+  uint temp[32] = {32,30,31,28,29,26,27,24,25,22,23,20,21,18,19,26,17,14,15,
+		   12,13,10,11,8,9,6,7,4,5,2,3,1};
+  
 
   
   gApplication->SetReturnFromRun(true);

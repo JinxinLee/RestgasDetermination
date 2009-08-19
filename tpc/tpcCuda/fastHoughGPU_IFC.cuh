@@ -55,6 +55,9 @@ extern "C"
 			    float* _p4_d, uint* _votes_d, int threads,
 			    int blocks);
 
+  void callCutoffKernel(float cutoff, int nodes, uint* votes, 
+			int threads, int blocks);
+  
   /*void callJanitor(char* _hitlist_d, char* _hitlist_lastgen_d,
     int nodes, int clusters, int _threads, int blocks); */
   
