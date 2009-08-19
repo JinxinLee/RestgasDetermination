@@ -51,6 +51,9 @@ public:
   
   
   void setHit(int j) {_hitList[j] = true;} //hyperplane was a hit
+  void removeHit(int j) {_hitList[j] = false; _votes--; }
+  //ask if hyperplane was a hit
+  bool checkHit(int j) {return _hitList[j];}
   void setVotes(int votes)  {_votes = votes;}
   void vote() {_votes++;}
 

@@ -30,6 +30,7 @@
 #include "TBox.h"
 
 #include <cmath>
+#include <algorithm>
 #include <vector>
 #include <string>
 #include <cstdlib>
@@ -46,6 +47,11 @@ bool getBit(char* c, int n) {
 
 void clearBit(char* c, int n) {
   c[n>>3] = c[n>>3] & ~(1 << (n & 7 ));
+}
+
+//helper functor for node sorting
+bool compareNodes (Hough5DNode* n1, Hough5DNode* n2) { 
+  return (n1->getVote() > n2->getVote()); 
 }
 
 
@@ -355,9 +361,19 @@ int main(int argc, char** argv) {
   }
 
 
+ 
+    
+  
+  // for(int i=0; i<nodelist->size(); i++)
+//     std::cout<<nodelist->at(i)->getVote()<<" ";
+//   std::cout<<std::endl;
+  
+  
+  
+
   // --------------------- END FHT ------------------------------------------------
 
-
+  
   
 
   TFile* file = new TFile("plots.root");
@@ -445,9 +461,160 @@ int main(int argc, char** argv) {
     (boxlist3[b])->Draw("l");
   }
 
-  uint temp[32] = {32,30,31,28,29,26,27,24,25,22,23,20,21,18,19,26,17,14,15,
-		   12,13,10,11,8,9,6,7,4,5,2,3,1};
   
+
+ //purge the results and extract clusters -------------
+  
+ 
+ 
+  //make new clusterList
+  std::vector<PndTpcCluster*> finalClist;
+  for(int i=0; i<clusterList.size(); i++) {
+    TVector3 pos = (clusterList[i])->pos();
+    if(pos.X()>0)
+      finalClist.push_back(clusterList[i]);
+  }
+  assert(finalClist.size() == nClusters);
+
+
+
+  //get hitlist and store in the nodes
+
+  char* hitlist = IFC->getHitList();
+  for(int n=0; n<nodelist->size(); n++) 
+    if(nodelist->at(n)->getVote()>0) {
+      int c=0;
+      for(int v=0; v<nClusters; v++) 
+	if(getBit(hitlist+n*chunk,v)) {
+	  nodelist->at(n)->setHit(v);
+	  c++;
+	}
+      assert(c==nodelist->at(n)->getVote());
+    }
+
+  free(hitlist);
+  
+  //sort nodes by final votes
+  sort((*nodelist).begin(), (*nodelist).end(), compareNodes);
+
+  //extract clusters from best node
+  bool* bestHitList = nodelist->front()->getHitList();
+  
+  std::cout<<nodelist->front()->getVote()<<std::endl;
+  for(int b=0; b<nClusters; b++)
+    std::cout<<bestHitList[b]<<" ";
+  std::cout<<std::endl;
+    
+  
+  std::vector<PndTpcCluster*> firstSol;
+    
+  for(int c=0; c<nClusters; c++) 
+    if(bestHitList[c])
+      firstSol.push_back(finalClist[c]);
+
+  std::cout<<"\nfirstSol size: "<<firstSol.size()<<std::endl;
+  
+  TH2D* solhist1 = new TH2D("sol1", "Cluster extraction1", 100,-42,42,100,-42,42);
+  solhist1->SetMarkerColor(kBlue);
+  
+  int blub=0;
+  for(int s=0; s<firstSol.size(); s++) {
+    TVector3 pos = (firstSol[s])->pos();
+    solhist1->Fill(pos.X(), pos.Y());
+    blub++;
+  }
+
+  std::cout<<"\nClusters in first solution: "<<blub<<std::endl;
+
+  TCanvas* solc = new TCanvas();
+
+  solhist1->Draw();
+
+
+  //remove hits for first node from all others
+  for(int p=0; p<nClusters; p++) {
+    if(!bestHitList[p])
+      continue;
+    for(int n=0; n<nodelist->size(); n++)
+      if(nodelist->at(n)->checkHit(p))
+	nodelist->at(n)->removeHit(p);
+  }
+
+  //sort nodes by final votes
+  sort((*nodelist).begin(), (*nodelist).end(), compareNodes);
+
+  //extract clusters from best node
+  bool* secondHitList = nodelist->front()->getHitList();
+  
+  std::cout<<nodelist->front()->getVote()<<std::endl;
+  for(int b=0; b<nClusters; b++)
+    std::cout<<secondHitList[b]<<" ";
+  std::cout<<std::endl;
+    
+  
+  std::vector<PndTpcCluster*> secondSol;
+    
+  for(int c=0; c<nClusters; c++) 
+    if(secondHitList[c])
+      secondSol.push_back(finalClist[c]);
+
+  std::cout<<"\nsecondSol size: "<<secondSol.size()<<std::endl;
+  
+  TH2D* solhist2 = new TH2D("sol2", "Cluster extraction2", 100,-42,42,100,-42,42);
+  solhist2->SetMarkerColor(kRed);
+  
+  for(int s=0; s<secondSol.size(); s++) {
+    TVector3 pos = (secondSol[s])->pos();
+    solhist2->Fill(pos.X(), pos.Y());
+  }
+
+  solhist2->Draw("same");
+  
+  //remove hits for first node from all others
+  for(int p=0; p<nClusters; p++) {
+    if(!secondHitList[p])
+      continue;
+    for(int n=0; n<nodelist->size(); n++)
+      if(nodelist->at(n)->checkHit(p))
+	nodelist->at(n)->removeHit(p);
+  }
+
+  //sort nodes by final votes
+  sort((*nodelist).begin(), (*nodelist).end(), compareNodes);
+
+  //extract clusters from best node
+  bool* thridHitList = nodelist->front()->getHitList();
+  
+  std::cout<<nodelist->front()->getVote()<<std::endl;
+  for(int b=0; b<nClusters; b++)
+    std::cout<<thridHitList[b]<<" ";
+  std::cout<<std::endl;
+    
+  
+  std::vector<PndTpcCluster*> thridSol;
+    
+  for(int c=0; c<nClusters; c++) 
+    if(thridHitList[c])
+      thridSol.push_back(finalClist[c]);
+
+  std::cout<<"\nthridSol size: "<<thridSol.size()<<std::endl;
+  
+  TH2D* solhist3 = new TH2D("sol3", "Cluster extraction2", 100,-42,42,100,-42,42);
+  solhist3->SetMarkerColor(kGreen);
+  
+  for(int s=0; s<thridSol.size(); s++) {
+    TVector3 pos = (thridSol[s])->pos();
+    solhist3->Fill(pos.X(), pos.Y());
+  }
+
+  solhist3->Draw("same");
+  
+
+  
+  
+
+
+
 
   
   gApplication->SetReturnFromRun(true);
