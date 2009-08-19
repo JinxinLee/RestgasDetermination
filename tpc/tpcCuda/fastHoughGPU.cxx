@@ -239,10 +239,6 @@ int main(int argc, char** argv) {
   //initialize virgin hitlist to 1-bits only
   memset(old_hitlist,0xFF,chunk);
   
-  //TEST
-  //clearBit(old_hitlist, 3);
-
-  
   std::cout<<"\nROOT NODE HITLIST:"<<std::endl;
   for(int l=0; l<nClusters; l++) 
     std::cout<<getBit(old_hitlist, l);
@@ -255,16 +251,18 @@ int main(int argc, char** argv) {
     std::vector<Hough5DNode*>* new_nodes = new std::vector<Hough5DNode*>();
     std::cout << nodelist->size();
     std::cout.flush();
+    
     new_hitlist = (char*) malloc(count*32*chunk);
     std::cout << " " << (void*) new_hitlist << std::endl;
+    
     if(l>1)
       old_hitlist = IFC->getHitList();
         
     int counter=0;
     //create new nodes
     for(int n=0; n<nodelist->size(); ++n) {
-      // for(int c=0; c<nClusters; c++)
-// 	std::cout<<getBit(old_hitlist+chunk*n, c);
+     //  for(int c=0; c<nClusters; c++)
+//  	std::cout<<getBit(old_hitlist+chunk*n, c);
 //       std::cout<<"\n"<<votes[n]<<"\n"<<std::endl;
       Hough5DNode* the_node=nodelist->at(n);
       float* sons = the_node->getSonArray();
@@ -325,15 +323,6 @@ int main(int argc, char** argv) {
     IFC->setHitList(new_hitlist,counter);
     free(new_hitlist);
 
-    //TEST: COMES BACK RIGHT FROM THE IFC
-    // char* test = IFC->getHitList();
-//     for(int bl=0; bl<nodelist->size(); bl++) {
-//       for(int s=0; s<32; s++) {
-// 	for(int c=0; c<nClusters; c++) 
-// 	  std::cout<<getBit(test+chunk*(32*bl+s), c);
-// 	std::cout<<"\n"<<std::endl;
-//       }
-//     }
     
     std::cout<<"Added "<<last_nodes->size()<<" last_nodes"<<std::endl;
     nodelist->clear();
@@ -346,9 +335,9 @@ int main(int argc, char** argv) {
     //std::cout<<"Calling Intersect-Kernel with THRESHOLD: "
     //<<THRESHOLD-l*thresh_step<<std::endl;
     //if(l<6)
-      IFC->testIntersection(*nodelist,l,THRESHOLD);
-      //else
-      //IFC->testIntersection(*nodelist,l,35);
+    IFC->testIntersection(*nodelist,l,THRESHOLD);
+    //else
+    //IFC->testIntersection(*nodelist,l,35);
     //IFC->testIntersection(*nodelist,l,THRESHOLD-l*thresh_step);
     votes = IFC->getVotes();
     

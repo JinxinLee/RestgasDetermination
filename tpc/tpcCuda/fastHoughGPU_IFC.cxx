@@ -57,8 +57,6 @@ fastHoughGPU_IFC::fastHoughGPU_IFC(float SCALING , int MAXSIZE) {
 
   _hitlist = NULL;
 
-  // allocateArray((void**)&_center_d, _MAXSIZE*5*sizeof(float));
-     
 }
 
 fastHoughGPU_IFC::~fastHoughGPU_IFC() {
@@ -90,12 +88,12 @@ fastHoughGPU_IFC::initClusters(std::vector<PndTpcCluster*> clist) {
   allocateArray((void**)&_clusterData_d, 5*size*sizeof(float));
   
 
-  //allocate hitlist arrays
-  _hitlist = (char*) malloc(600000000);
-  _hitlist_lastgen = (char*) malloc(100000000);
+  // //allocate hitlist arrays
+//   _hitlist = (char*) malloc(600000000);
+//   _hitlist_lastgen = (char*) malloc(100000000);
   
-  allocateArray((void**)&_hitlist_d, 600000000);
-  allocateArray((void**)&_hitlist_lastgen_d, 100000000);
+//   allocateArray((void**)&_hitlist_d, 600000000);
+//   allocateArray((void**)&_hitlist_lastgen_d, 100000000);
 
 
   int count=0;
@@ -137,20 +135,20 @@ fastHoughGPU_IFC::setHitList(char* hl, int activeNodes) {
   //size in bytes
   int CHUNK = _nClusters/(sizeof(char)*8)+1;
   
-//   if(_hitlist!=NULL){
-//     free(_hitlist);
-//     free(_hitlist_lastgen);
-//     freeArray(_hitlist_d);
-//     freeArray(_hitlist_lastgen_d);
-//   }  
-//   std::cout<<"fdasfkaos[f"<<std::endl;
+  if(_hitlist!=NULL){
+    free(_hitlist);
+    free(_hitlist_lastgen);
+    freeArray(_hitlist_d);
+    freeArray(_hitlist_lastgen_d);
+  }  
+  std::cout<<"fdasfkaos[f"<<std::endl;
   
-//   //allocate hitlist arrays
-//   _hitlist = (char*) malloc(32*CHUNK*activeNodes);
-//   _hitlist_lastgen = (char*) malloc(CHUNK*activeNodes);
+  //allocate hitlist arrays
+  _hitlist = (char*) malloc(32*CHUNK*activeNodes);
+  _hitlist_lastgen = (char*) malloc(CHUNK*activeNodes);
   
-//   allocateArray((void**)&_hitlist_d, 32*CHUNK*activeNodes);
-//   allocateArray((void**)&_hitlist_lastgen_d, CHUNK*activeNodes);
+  allocateArray((void**)&_hitlist_d, 32*CHUNK*activeNodes);
+  allocateArray((void**)&_hitlist_lastgen_d, CHUNK*activeNodes);
     
   memcpy(_hitlist_lastgen, hl, CHUNK*activeNodes);
   
@@ -275,7 +273,7 @@ fastHoughGPU_IFC::testIntersection(std::vector<Hough5DNode*> nodes,
     }
 
     //throw away cutoff*100% of each mothers' sons
-    float cutoff = 0.5f;
+    float cutoff = 0.7f;
     
     int blocks = nodes.size() /_threads + 1;
     
@@ -288,7 +286,7 @@ fastHoughGPU_IFC::testIntersection(std::vector<Hough5DNode*> nodes,
     copyArrayFromDevice(_votes, _votes_d, 
 			nodes.size()*sizeof(uint));
     copyArrayFromDevice(_hitlist, _hitlist_d, 
-			CHUNK*nodes.size()*32);
+			CHUNK*nodes.size());
           
   }
 }
