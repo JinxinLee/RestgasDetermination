@@ -33,3 +33,7 @@ void TCabsHough::convert(std::vector<TCcluster>& _c){
   
 }
 
+void TCabsHough::make(std::vector<TCcluster>& _c){
+  convert(_c);
+  doHough();
+}

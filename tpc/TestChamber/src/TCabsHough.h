@@ -16,10 +16,7 @@ class TCabsHough{
   virtual void convert(std::vector<TCcluster>& _c);
   virtual void doHough()=0;
 
-  virtual void make(std::vector<TCcluster>& _c){
-	convert(_c);
-	doHough();
-  }
+  virtual void make(std::vector<TCcluster>& _c);
 
   virtual bool hot(int index)=0;
 
