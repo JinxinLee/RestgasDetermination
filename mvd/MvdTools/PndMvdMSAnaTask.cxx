@@ -181,11 +181,49 @@ void PndMvdMSAnaTask::Exec(Option_t* opt)
 
 				std::cout << std::endl;
 				std::cout << "Propagation Points: " << std::endl;
-				std::cout << fRes->GetX() << " +/- " << fRes->GetDX() << std::endl;
-				std::cout << fRes->GetY() << " +/- " << fRes->GetDY() << std::endl;
-				std::cout << fRes->GetZ() << " +/- " << fRes->GetDZ() << std::endl;
+				std::cout << fRes->GetX() << ", ";//" +/- " << fRes->GetDX() << std::endl;
+				std::cout << fRes->GetY() << ", ";//" +/- " << fRes->GetDY() << std::endl;
+				std::cout << fRes->GetZ(); //" +/- " << fRes->GetDZ() << std::endl;
 				std::cout << std::endl;
 
+				std::cout << "Propagation Momentum: " << std::endl;
+
+				std::cout << fRes->GetPx() << ", "; //" +/- " << fRes->GetDPx() << std::endl;
+				std::cout << fRes->GetPy() << ", "; //" +/- " << fRes->GetDPy() << std::endl;
+				std::cout << fRes->GetPz() << std::endl;//<< " +/- " << fRes->GetDPz() << std::endl;
+
+				std::cout << "Charge: " << fRes->GetQ() << std::endl;
+
+				std::cout << "Porpagation Covariance Matrix: " << std::endl;
+
+				Double_t CovMatrix[15];
+				Double_t CovMatrix66[6][6];
+				fRes->GetCov(CovMatrix);
+				fRes->GetMARSCov(CovMatrix66);
+
+/*				for (int i = 0; i < 5; i++){
+					for (int j = 0; j < 5-i; j++){
+						std::cout << CovMatrix[i*5+j] << " ";
+					}
+					std::cout << std::endl;
+				}
+*/
+				std::cout << CovMatrix66[3][3] << ", " << CovMatrix66[3][4] << ", " << CovMatrix66[3][5] << std::endl;
+				std::cout << CovMatrix66[4][4] << ", " << CovMatrix66[4][5] << ", " << CovMatrix66[5][5] << std::endl;
+				std::cout << CovMatrix66[0][3] << ", " << CovMatrix66[1][3] << ", " << CovMatrix66[2][3] << std::endl;
+				std::cout << CovMatrix66[0][4] << ", " << CovMatrix66[1][4] << ", " << CovMatrix66[2][4] << std::endl;
+				std::cout << CovMatrix66[0][5] << ", " << CovMatrix66[1][5] << ", " << CovMatrix66[2][5] << std::endl;
+				std::cout << CovMatrix66[0][0] << ", " << CovMatrix66[0][1] << ", " << CovMatrix66[0][2] << std::endl;
+				std::cout << CovMatrix66[1][1] << ", " << CovMatrix66[1][2] << ", " << CovMatrix66[2][2] << std::endl;
+				std::cout << std::endl;
+
+/*				for (int i = 0; i < 6; i++){
+					for (int j = 0; j < 6; j++){
+						std::cout << CovMatrix66[i][j] << " ";
+					}
+					std::cout << std::endl;
+				}
+*/
 				TVector3 global(fRes->GetX(), fRes->GetY(), fRes->GetZ());
 				TVector3 local = fGeoH->MasterToLocalId(global, myPoint->GetDetName());
 

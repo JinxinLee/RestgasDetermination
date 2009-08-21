@@ -11,6 +11,9 @@ PndMvdFileNameCreator::PndMvdFileNameCreator(){
   fExtTrackF = "trackF";
   fExtIdealTrackF = "idealTrackF";
   fExtKalman = "kalman";
+  fExtRiemann = "riemann";
+  fExtCombinedRiemann = "combRiemann";
+
   fVerbose = 0;
 }
 PndMvdFileNameCreator::PndMvdFileNameCreator(std::string fileName){
@@ -21,6 +24,9 @@ PndMvdFileNameCreator::PndMvdFileNameCreator(std::string fileName){
   fExtTrackF = "trackF";
   fExtIdealTrackF = "idealTrackF";
   fExtKalman = "kalman";
+  fExtRiemann = "riemann";
+  fExtCombinedRiemann = "combRiemann";
+
   fVerbose = 0;
 }
 
@@ -51,6 +57,16 @@ std::string PndMvdFileNameCreator::GetTrackFindingFileName(bool cut)
 std::string PndMvdFileNameCreator::GetIdealTrackFindingFileName(bool cut)
 {
 	return GetCustomFileName(fExtIdealTrackF, cut);
+}
+
+std::string PndMvdFileNameCreator::GetRiemannFileName(bool cut)
+{
+	return GetCustomFileName(fExtRiemann, cut);
+}
+
+std::string PndMvdFileNameCreator::GetCombinedRiemannFileName(bool cut)
+{
+	return GetCustomFileName(fExtCombinedRiemann, cut);
 }
 
 
@@ -94,6 +110,18 @@ std::string PndMvdFileNameCreator::GetKalmanFileName(std::string inputFileName, 
 {
 	fFileName = inputFileName;
 	return GetKalmanFileName(cut);
+}
+
+std::string PndMvdFileNameCreator::GetRiemannFileName(std::string inputFileName, bool cut)
+{
+	fFileName = inputFileName;
+	return GetRiemannFileName(cut);
+}
+
+std::string PndMvdFileNameCreator::GetCombinedRiemannFileName(std::string inputFileName, bool cut)
+{
+	fFileName = inputFileName;
+	return GetCombinedRiemannFileName(cut);
 }
 
 std::string PndMvdFileNameCreator::GetCustomFileName(std::string ext, bool cut)

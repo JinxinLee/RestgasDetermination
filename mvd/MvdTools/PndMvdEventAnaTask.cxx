@@ -202,7 +202,6 @@ void PndMvdEventAnaTask::Exec(Option_t* opt)
 			std::cout << "Pt: " << TrackPt << " GeV/c; P: " << TrackP << " GeV/c" << std::endl;
 			std::cout << "StartVertex: " << startVertex.X() << " " << startVertex.Y() << " " << startVertex.Z() << std::endl;
 		}
-
 		for (int p = 0; p < MChits.size(); p++){											//go through all hits in track
 			PndMvdMCPoint* myPoint = (PndMvdMCPoint*)(fMCHits->At(MChits[p]));
 			if (fPrintMCHit){

@@ -25,6 +25,9 @@ class PndMvdFileNameCreator : public TObject
 			std::string GetDigiFileName(bool cut = false);
 			std::string GetRecoFileName(bool cut = false);
 			std::string GetTrackFindingFileName(bool cut = false);
+			std::string GetRiemannFileName(bool cut = false);
+			std::string GetCombinedRiemannFileName(bool cut = false);
+
 			std::string GetIdealTrackFindingFileName(bool cut = false);
 			std::string GetKalmanFileName(bool cut = false);
 
@@ -32,6 +35,8 @@ class PndMvdFileNameCreator : public TObject
 			std::string GetDigiFileName(std::string inputFileName, bool cut = false);
 			std::string GetRecoFileName(std::string inputFileName, bool cut = false);
 			std::string GetTrackFindingFileName(std::string inputFileName, bool cut = false);
+			std::string GetRiemannFileName(std::string inputFileName, bool cut = false);
+			std::string GetCombinedRiemannFileName(std::string inputFileName, bool cut = false);
 			std::string GetIdealTrackFindingFileName(std::string inputFileName, bool cut = false);
 			std::string GetKalmanFileName(std::string inputFileName, bool cut = false);
 			std::string GetCustomFileName(std::string ext, bool cut = false);
@@ -44,6 +49,8 @@ class PndMvdFileNameCreator : public TObject
 			std::string fExtReco;
 			std::string fExtTrackF;
 			std::string fExtIdealTrackF;
+			std::string fExtRiemann;
+			std::string fExtCombinedRiemann;
 			std::string fExtKalman;
 			std::string TruncateFileName(bool cut);
       Int_t fVerbose;
