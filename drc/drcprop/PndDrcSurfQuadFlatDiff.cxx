@@ -59,6 +59,9 @@ using std::endl;
 //#include <vector>
 //using std::vector;
 
+#include "TPolyLine3D.h"
+
+
 //----------------------------------------------------------------------
 PndDrcSurfQuadFlatDiff::PndDrcSurfQuadFlatDiff()
 {
@@ -386,6 +389,19 @@ void PndDrcSurfQuadFlatDiff::Print(fstream& stream) const
 		<<fS2p2.Z()<<");"<<endl;
 	stream<<" l->SetLineColor("<<fPrintColor<<");"<<endl;
 	stream<<" l->Draw();"<<endl;
+
+	// for an opened canvas
+	TPolyLine3D *l1 = new TPolyLine3D(2);
+	l1->SetPoint( 0, fS1p1.X(), fS1p1.Y(), fS1p1.Z() );
+	l1->SetPoint( 1, fS2p1.X(), fS2p1.Y(), fS2p1.Z() );
+	l1->SetLineColor(fPrintColor);
+	l1->Draw();
+
+	TPolyLine3D *l2 = new TPolyLine3D(2);
+	l2->SetPoint( 0, fS1p2.X(), fS1p2.Y(), fS1p2.Z() );
+	l2->SetPoint( 1, fS2p2.X(), fS2p2.Y(), fS2p2.Z() );
+	l2->SetLineColor(fPrintColor);
+	l2->Draw();
 }
 //----------------------------------------------------------------------
 void PndDrcSurfQuadFlatDiff::Print() const

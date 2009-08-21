@@ -17,7 +17,10 @@ using ROOT::Math::XYZVector;
 #include <fstream>
 using std::fstream;
 
-#include "TRandom.h"
+#include <list>
+using std::list;
+
+#include "TRandom3.h"
 
 //! A namespace for encapsulation.
 namespace Drc
@@ -80,16 +83,30 @@ class PndDrcPhoton
   */
   const int Verbosity() const {return fVerbosity;};
 
+
   /*! \brief Set fate of photon
     \param fate The fate
     \sa PndDrc::kPhotonFate
   */
   void SetFate(Drc::kPhotonFate fate) {fFate=fate;};
+
   /*! \brief Fate of photon
     \return The fate
     \sa PndDrc::kPhotonFate
   */
   const Drc::kPhotonFate Fate() const {return fFate;};
+
+
+  /*! \brief Particle ID number
+    \return Particle ID number.
+  */
+  int ParticleIDnumber() const {return fParticleIDnumber;};
+
+  /*! \brief Set associated particle ID number
+    \param pos Particle ID number.
+  */
+  void SetParticleIDnumber(int particleIDnumber) {fParticleIDnumber=particleIDnumber;};
+
 
   /*! \brief Reflections
     \return Reflections.
@@ -104,7 +121,6 @@ class PndDrcPhoton
   \return The limit
   */
   int ReflectionLimit() const {return fReflectionLimit;};
-
 
   /*! \brief Set reflection limit
 
@@ -126,6 +142,47 @@ class PndDrcPhoton
   */
   void SetPosition(const XYZPoint& pos);
 
+  /*! \brief Position X list
+    \return Position X list.
+  */
+  list<double>& PositionXlist(){return fPositionXlist;};
+
+  /*! \brief Add position X in list
+    \param posXlist Position.
+  */
+  void SetPositionXlist(double posX){fPositionXlist.push_back(posX);};
+
+  /*! \brief Position Y list
+    \return Position Y list.
+  */
+  list<double>& PositionYlist(){return fPositionYlist;};
+
+  /*! \brief Add position Y in list
+    \param posYlist Position.
+  */
+  void SetPositionYlist(double posY){fPositionYlist.push_back(posY);};
+
+  /*! \brief Position Z list
+    \return Position Z list.
+  */
+  list<double>& PositionZlist(){return fPositionZlist;};
+
+  /*! \brief Add position Z in list
+    \param posZlist Position.
+  */
+  void SetPositionZlist(double posZ){fPositionZlist.push_back(posZ);};
+
+  /*! \brief Position list flag to write it out
+    \return position list flag.
+  */
+  bool PositionListFlag() const {return fPositionListFlag;};
+
+  /*! \brief Set position list flag to write it out
+    \param flg position list flag.
+  */
+  void SetPositionListFlag(bool flg){fPositionListFlag=flg;};
+
+
   /*! \brief Direction
     \return Normalized direction.
   */
@@ -146,14 +203,38 @@ class PndDrcPhoton
    */
   void SetOriginDirection(const XYZVector& org) {fOriginDirection=org.Unit();};
 
+
+  /*! \brief Cherenkov angle
+  \return Cherenkov angle.
+  */
+  double ThetaC() const {return fThetaC;};
+
+  /*! \brief Set Cherenkov angle
+  \param theta Cherenkov angle.
+  */
+  void SetThetaC(double thetac){fThetaC=thetac;};
+
+  /*! \brief Cherenkov (polar) angle
+  \return Cherenkov (polar) angle
+  */
+  double PhiC() const {return fPhiC;};
+
+  /*! \brief Set Cherenkov (polar) angle
+  \param phi Cherenkov (polar) angle.
+  */
+  void SetPhiC(double phic){fPhiC=phic;};
+
+
   /*! \brief Wavelength
     \return Wavelength in nm.
   */
   double Wavelength() const {return fLambda;};
+
  /*! \brief Set wavelength
   \param lambda Wavelength in nm.
   */
   void SetWavelength(double lambda){fLambda=lambda;};
+
 
   /*! \brief Device where photon is
     \return Device.
@@ -174,8 +255,8 @@ class PndDrcPhoton
   */
   void SetTime(double tim){fTime=tim;};
 
-  /*! \brief Handles refraction and reflection of photon.
 
+  /*! \brief Handles refraction and reflection of photon.
   After this routine, the photons direction, position and fate is set.
   \param normal The normal vector of the surface of the volume the photon is in.
   \param n_inside The refractive index of the current medium
@@ -186,7 +267,7 @@ class PndDrcPhoton
   \param diffuse Diffused reflection probability.
   \return True if refraction occured, false if reflection occured.
   */
-  bool Refract(XYZVector normal, double n_in, double ex_in, double n_out=1.0, double ex_out=0.0, bool fresnelFlag=true, double diffuseProb = 0, bool test=false);
+  bool Refract(XYZVector normal, double n_in, double ex_in, double n_out=1.0, double ex_out=0.0, bool fresnelFlag=true, double diffuseProb = 0);
 
   /*! \brief Reflect the photon
     \param normal The normal vector of the surface.
@@ -194,8 +275,20 @@ class PndDrcPhoton
   */
   void Reflect(const XYZVector& normal);
 
+  /*! \brief Reflect diffusely the photon
+    \param normal The normal vector of the surface.
+    \sa Diffuse()
+  */
   void Diffuse(const XYZVector& normal);
 
+  /*! \brief Fresnel reflection
+    \param normal The normal vector of the surface.
+    \param n_inside The refractive index of the current medium
+    \param ex_inside The extinction coefficient of the current medium
+    \param n_outside The refractive index of or the next volume or the vacuum outside.
+    \param ex_outside The extinction coefficient of or the next volume or the vacuum outside.
+    \sa Fresnel()
+  */
   bool Fresnel(XYZVector normal, double n_in, double ex_in, double n_out=1.0, double ex_out=0.0);
 
 
@@ -227,9 +320,16 @@ class PndDrcPhoton
 
 
  private:
+  int              fParticleIDnumber;              //!< Associated particle
+  double           fThetaC;                        //!< Cherenkov angle
+  double           fPhiC;                          //!< Cherenkov (polar) angle
   double           fLambda;                        //!< Wavelength in nm.
   XYZPoint         fPosition;                      //!< Actual position of photon.
   XYZPoint         fPositionOld;                   //!< Old position of photon.
+  list<double>     fPositionXlist;                 //!< List of position X
+  list<double>     fPositionYlist;                 //!< List of position Y
+  list<double>     fPositionZlist;                 //!< List of position Z
+  bool             fPositionListFlag;              //!< Position list flag, by default false
   XYZVector        fDirection;                     //!< Normalized direction of photon.
   XYZVector        fOriginDirection;               //!< Normalized origin direction of photon.
   Drc::kPhotonFate fFate;                          //!< The fate of the photon.

@@ -23,6 +23,7 @@ using namespace TMath;
 
 #include <stdlib.h> // system
 #include <TString.h>
+#include "TRandom.h"
 
 
 static TRandom grandi; // not a fine solution ?
@@ -31,6 +32,7 @@ static TRandom grandi; // not a fine solution ?
 //----------------------------------------------------------------------
 PndDrcPhoton::PndDrcPhoton()
 {
+  fParticleIDnumber = 0;
   fLambda           = 0;
   fPosition         = XYZPoint(0,0,0);
   fPositionOld      = XYZPoint(0,0,0);
@@ -39,22 +41,32 @@ PndDrcPhoton::PndDrcPhoton()
   fFate             = Drc::kPhotFlying;
   fReflections      = 0;
   fVerbosity        = 0;
+  fThetaC           = 0;
+  fPhiC             = 0;
   fTime             = 0;
   fDev              = 0;
   fReflectionLimit  = 1000;
-  fPrintFlag   = true;
+  fPrintFlag        = true;
+  fPositionListFlag = false;
 }
 //----------------------------------------------------------------------
 void PndDrcPhoton::Copy(const PndDrcPhoton& ph)
 {
+  fParticleIDnumber = ph.fParticleIDnumber;
   fLambda           = ph.fLambda;
   fPosition         = ph.fPosition;
   fPositionOld      = ph.fPositionOld;
+  fPositionXlist    = ph.fPositionXlist;
+  fPositionYlist    = ph.fPositionYlist;
+  fPositionZlist    = ph.fPositionZlist;
+  fPositionListFlag = ph.fPositionListFlag;
   fDirection        = ph.fDirection;
   fOriginDirection  = ph.fOriginDirection;
   fFate             = ph.fFate;
   fReflections      = ph.fReflections;
   fVerbosity        = ph.fVerbosity;
+  fThetaC           = ph.fThetaC;
+  fPhiC             = ph.fPhiC;
   fTime             = ph.fTime;
   fDev              = ph.fDev;
   fReflectionLimit  = ph.fReflectionLimit;
@@ -94,7 +106,7 @@ void PndDrcPhoton::SetPosition(const XYZPoint& pos)
   fPosition    = pos;
 };
 //----------------------------------------------------------------------
-bool PndDrcPhoton::Refract(XYZVector normal, double n1, double ex1, double n2, double ex2, bool fresnelFlag, double diffuseProb, bool test)
+bool PndDrcPhoton::Refract(XYZVector normal, double n1, double ex1, double n2, double ex2, bool fresnelFlag, double diffuseProb)
 {
 
 //   cout << "VOLCHECK2: " << n1 << " " << ex1 << " " << n2 << " " << ex2 << "  flag: " << fresnelFlag << " " << "diffuseProb: " << diffuseProb << endl;
@@ -127,22 +139,8 @@ bool PndDrcPhoton::Refract(XYZVector normal, double n1, double ex1, double n2, d
   double alpha1 = acos(norm.Dot(dir1));
   double alpha2;
 
-
-  if(test)
-  {
-    double angle = alpha1 / TMath::Pi() * 180;
-//     cout << angle << endl;
-
-    TString angleString;
-    angleString += angle;
-    angleString.Remove( TString::kLeading , ' ' );
-
-    TString shellString = "echo " + angleString + " >> angle.tmp";
-    system( shellString );
-  }
-
-
   bool reflect;
+
   if( fresnelFlag )
     reflect = Fresnel( normal, n1, ex1, n2, ex2 );
   else

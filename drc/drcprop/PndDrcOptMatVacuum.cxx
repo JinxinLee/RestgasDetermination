@@ -1,7 +1,7 @@
 // ----------------------------------------------------
 // This file belongs to the ray tracing framework
 // for the use with Cherenkov detectors
-// 
+//
 // created 2007
 //-----------------------------------------------------
 #include "PndDrcOptMatVacuum.h"
@@ -34,6 +34,7 @@ using std::endl;
 //----------------------------------------------------------------------
 PndDrcOptMatVacuum::PndDrcOptMatVacuum()
 {
+	fName = "vacuum";
 }
 //----------------------------------------------------------------------
 PndDrcOptMatVacuum* PndDrcOptMatVacuum::Clone() const
@@ -48,15 +49,15 @@ PndDrcOptMatVacuum::PndDrcOptMatVacuum(const PndDrcOptMatVacuum& mat)
   : PndDrcOptMatAbs(mat)
 {
   if (mat.fVerbosity>=1) cout<<"  PndDrcOptMatVacuum::PndDrcOptMatVacuum"
-			    <<"(const PndDrcOptMatVacuum&) "  
+			    <<"(const PndDrcOptMatVacuum&) "
 			    <<mat.fName<<endl;
   Copy(mat);
-} 
+}
 //----------------------------------------------------------------------
 PndDrcOptMatVacuum& PndDrcOptMatVacuum::operator=(const PndDrcOptMatVacuum& mat)
 {
   if (mat.fVerbosity>=1) cout<<"  PndDrcOptMatVacuum::operator="
-			    <<"(const PndDrcOptMatVacuum&) "  
+			    <<"(const PndDrcOptMatVacuum&) "
 			    <<mat.fName<<endl;
   if (&mat != this)
     {
@@ -68,8 +69,8 @@ PndDrcOptMatVacuum& PndDrcOptMatVacuum::operator=(const PndDrcOptMatVacuum& mat)
 //----------------------------------------------------------------------
 double PndDrcOptMatVacuum::RefIndex(const double lambda) const
 {
-  return 1.00; 
-}  
+  return 1.00;
+}
 //----------------------------------------------------------------------
 double PndDrcOptMatVacuum::RefIndexDeriv(const double lambda) const
 {

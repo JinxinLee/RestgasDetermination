@@ -133,9 +133,9 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 
     if (ph.Reflections() > ph.ReflectionLimit())
     {
-      cout<<" PndDrcOptVol::propagate: killed (absorbed) photon after "
-          <<ph.Reflections()
-          <<" reflections"<<endl;
+//       cout<<" PndDrcOptVol::propagate: killed (absorbed) photon after "
+//           <<ph.Reflections()
+//           <<" reflections"<<endl;
       ph.SetFate(Drc::kPhotAbsorbed);
       break; // leave while loop
     }
@@ -233,6 +233,14 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
       else
       {
         ph.SetPosition(pos_new);
+
+		if( ph.PositionListFlag() )
+		{
+		  ph.SetPositionXlist( pos_new.X() );
+		  ph.SetPositionYlist( pos_new.Y() );
+		  ph.SetPositionZlist( pos_new.Z() );
+		}
+
         if (Verbosity()>=4) cout<<"     new position set."<<endl;
         if (fPhotonTrace) ph.Print(*fPhotonTraceStream);
         if (ph.Fate()!=Drc::kPhotFlying) break;//###1 // measured photons
@@ -255,12 +263,11 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
         if (refl == Drc::ReflAbsorbed)
         {
 //           if( surf_closest->Name() == "lens_side1" || surf_closest->Name() == "lens_side2" || surf_closest->Name() == "lens_side3"
-//               || surf_closest->Name() == "lens_side4")
-//           if( surf_closest->Name() == "lens_sphere")
+//               || surf_closest->Name() == "lens_side4" )
 //           if( surf_closest->Name() == "lens_sphere")
 //           {
 //             cout << "ja" << endl;
-//             bool blub = ph.Refract(norm, OptMaterial().RefIndex(ph.Wavelength()),OptMaterial().Extinction(ph.Wavelength()),1,0,false,0,true);
+//             bool blub = ph.Refract(norm, OptMaterial().RefIndex(ph.Wavelength()),OptMaterial().Extinction(ph.Wavelength()),1,0,true,0,true);
 //           }
 
           if (Verbosity()>=4)

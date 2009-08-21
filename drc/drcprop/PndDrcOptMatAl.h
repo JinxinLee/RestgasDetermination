@@ -1,7 +1,7 @@
-/*! 
+/*!
   \brief Class for optical material representation.
 
-  In this case the glass N-Al (extra light flint) from Schott. See 
+  In this case the glass N-Al (extra light flint) from Schott. See
   http://www.schott.com/optics_devices/german/products/flash/abbediagramm_flash.html
 
 */
@@ -13,23 +13,23 @@
 
 #include "PndDrcOptMatAbs.h"
 
-#include "TRandom.h"
+#include "TRandom3.h"
 
 class PndDrcOptMatAl : public PndDrcOptMatAbs
 {
  public:
 
   //!                                             Empty constructor.
-  PndDrcOptMatAl();                
+  PndDrcOptMatAl();
 
   /*! Copy constructor.
     /param Object to copy.
-  */ 
+  */
   PndDrcOptMatAl(const PndDrcOptMatAl& mat);
 
   /*! Assignment operator.
     /param Object to assign.
-  */ 
+  */
   PndDrcOptMatAl& operator=(const PndDrcOptMatAl& mat);
 
   // Implementation of pure virtual functions from base class.
@@ -37,15 +37,16 @@ class PndDrcOptMatAl : public PndDrcOptMatAbs
   double RefIndex(const double lambda) const;
   double RefIndexDeriv(const double lambda) const;
   double Extinction(const double lambda) const;
-  bool   AbsorptionFlag(double lambda, double length) const;  
+  bool   AbsorptionFlag(double lambda, double length) const;
+  string Name() const {return fName;};
 
 
  private:
   /*! \brief Auxiliary function for assignment operator and copy constructor..
     \param s The object to copy.
   */
-  void Copy(const PndDrcOptMatAl& s);         
+  void Copy(const PndDrcOptMatAl& s);
 
- 
+
 };
 #endif

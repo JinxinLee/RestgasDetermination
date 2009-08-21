@@ -483,9 +483,8 @@ bool PndDrcOptDevManager::Intersect(const XYZPoint&  pos,
 }
 //----------------------------------------------------------------------
 bool PndDrcOptDevManager::Cerenkov(const XYZPoint& pos, const XYZVector& dir,
-				double beta, int n, double range,
-				   double nu1, double nu2,
-				   int refl_limit)
+				double beta, int n, double range, double nu1, double nu2,
+				   int refl_limit, int particleIDnumber)
 {
 
   list<XYZPoint> p_in_list;
@@ -536,7 +535,7 @@ bool PndDrcOptDevManager::Cerenkov(const XYZPoint& pos, const XYZVector& dir,
 	  //cout<<" r2= "<<r2.X()<<" "<<r2.Y()<<" "<<r2.Z()<<endl;//###
 	  if (fVerbosity>=3) cout<<" PndDrcOptDevManager::cerenkov: vol "<<vol_name<<endl;
 
-	  if (Cerenkov(vol_name,sys_name,vol_copy,sys_copy,r1,r2,beta,n,nu1,nu2,refl_limit)) result = true;
+	  if (Cerenkov(vol_name,sys_name,vol_copy,sys_copy,r1,r2,beta,n,nu1,nu2,refl_limit,particleIDnumber)) result = true;
 
 
 	}
@@ -548,9 +547,8 @@ bool PndDrcOptDevManager::Cerenkov(const XYZPoint& pos, const XYZVector& dir,
 }
 //----------------------------------------------------------------------
 bool PndDrcOptDevManager::Cerenkov(const string& vol_name, const string& sys_name,
-				   int vol_copy, int sys_copy,
-				   const XYZPoint& r1, const XYZPoint& r2,
-				   double beta, int inum, double lam1, double lam2,int refl_limit)
+				   int vol_copy, int sys_copy,const XYZPoint& r1, const XYZPoint& r2,
+				   double beta, int inum, double lam1, double lam2,int refl_limit, int particleIDnumber)
 {
   static bool first=true;
 
@@ -658,6 +656,9 @@ bool PndDrcOptDevManager::Cerenkov(const string& vol_name, const string& sys_nam
       ph.SetPosition(r);
       ph.SetDirection(beta_ph);
       ph.SetOriginDirection(beta_ph);
+	  ph.SetThetaC(dtheta);
+	  ph.SetPhiC(dphi);
+	  ph.SetParticleIDnumber(particleIDnumber);
       ph.SetWavelength(lambda);
       ph.SetDevice(dev);
       ph.SetReflectionLimit(refl_limit);

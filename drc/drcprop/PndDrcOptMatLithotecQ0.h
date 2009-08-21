@@ -1,4 +1,4 @@
-/*! 
+/*!
   \brief Class for optical material representation.
 
   In this case the fused silica grade Q0 from Lithotec.
@@ -18,23 +18,23 @@
 
 #include "PndDrcOptMatAbs.h"
 
-#include "TRandom.h"
+#include "TRandom3.h"
 
 class PndDrcOptMatLithotecQ0 : public PndDrcOptMatAbs
 {
  public:
 
   //!                                             Empty constructor.
-  PndDrcOptMatLithotecQ0();                
+  PndDrcOptMatLithotecQ0();
 
   /*! Copy constructor.
     /param Object to copy.
-  */ 
+  */
   PndDrcOptMatLithotecQ0(const PndDrcOptMatLithotecQ0& mat);
 
   /*! Assignment operator.
     /param Object to assign.
-  */ 
+  */
   PndDrcOptMatLithotecQ0& operator=(const PndDrcOptMatLithotecQ0& mat);
 
   // Implementation of pure virtual functions from base class.
@@ -42,22 +42,24 @@ class PndDrcOptMatLithotecQ0 : public PndDrcOptMatAbs
   double RefIndex(const double lambda) const;
   double RefIndexDeriv(const double lambda) const;
   double Extinction(const double lambda) const {return 0;};
-  bool   AbsorptionFlag(double lambda, double length) const;  
+  bool   AbsorptionFlag(double lambda, double length) const;
+  string Name() const {return fName;};
+
  protected:
 
-  double  fF1;                          //!<  Sellmeier coefficient for refractive index. 
-  double  fE1;                          //!<  Sellmeier coefficient for refractive index. 
-  double  fF2;                          //!<  Sellmeier coefficient for refractive index.  
-  double  fE2;                          //!<  Sellmeier coefficient for refractive index.  
-  mutable TRandom fRan;                 //!<  Random generator.              
+  double  fF1;                          //!<  Sellmeier coefficient for refractive index.
+  double  fE1;                          //!<  Sellmeier coefficient for refractive index.
+  double  fF2;                          //!<  Sellmeier coefficient for refractive index.
+  double  fE2;                          //!<  Sellmeier coefficient for refractive index.
+  mutable TRandom3 fRan;                //!<  Random generator.
 
  private:
   /*! \brief Auxiliary function for assignment operator and copy constructor..
     \param s The object to copy.
   */
-  void Copy(const PndDrcOptMatLithotecQ0& s);         
+  void Copy(const PndDrcOptMatLithotecQ0& s);
 
 
- 
+
 };
 #endif

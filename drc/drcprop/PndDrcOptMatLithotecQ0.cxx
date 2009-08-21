@@ -35,6 +35,8 @@ using std::endl;
 //----------------------------------------------------------------------
 PndDrcOptMatLithotecQ0::PndDrcOptMatLithotecQ0()
 {
+  fName = "Lithotec Q0";
+
   fF1 = 28.17847;
   fE1 = 10.28086;
   fF2 = 207.5092;

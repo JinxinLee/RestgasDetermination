@@ -1,7 +1,7 @@
 // ----------------------------------------------------
 // This file belongs to the ray tracing framework
 // for the use with Cherenkov detectors
-// 
+//
 // created 2007
 //-----------------------------------------------------
 #include "PndDrcOptMatConstIndex.h"
@@ -34,6 +34,7 @@ using std::endl;
 //----------------------------------------------------------------------
 PndDrcOptMatConstIndex::PndDrcOptMatConstIndex( double refIndex )
 {
+	fName = "fixed refractive index";
     fRefIndex = refIndex;
 }
 //----------------------------------------------------------------------
@@ -50,15 +51,15 @@ PndDrcOptMatConstIndex::PndDrcOptMatConstIndex(const PndDrcOptMatConstIndex& mat
   : PndDrcOptMatAbs(mat)
 {
   if (mat.fVerbosity>=1) cout<<"  PndDrcOptMatConstIndex::PndDrcOptMatConstIndex"
-			    <<"(const PndDrcOptMatConstIndex&) "  
+			    <<"(const PndDrcOptMatConstIndex&) "
 			    <<mat.fName<<endl;
   Copy(mat);
-} 
+}
 //----------------------------------------------------------------------
 PndDrcOptMatConstIndex& PndDrcOptMatConstIndex::operator=(const PndDrcOptMatConstIndex& mat)
 {
   if (mat.fVerbosity>=1) cout<<"  PndDrcOptMatConstIndex::operator="
-			    <<"(const PndDrcOptMatConstIndex&) "  
+			    <<"(const PndDrcOptMatConstIndex&) "
 			    <<mat.fName<<endl;
   if (&mat != this)
     {
@@ -70,8 +71,8 @@ PndDrcOptMatConstIndex& PndDrcOptMatConstIndex::operator=(const PndDrcOptMatCons
 //----------------------------------------------------------------------
 double PndDrcOptMatConstIndex::RefIndex(const double lambda) const
 {
-    return fRefIndex; 
-}  
+    return fRefIndex;
+}
 //----------------------------------------------------------------------
 double PndDrcOptMatConstIndex::RefIndexDeriv(const double lambda) const
 {

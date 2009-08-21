@@ -1,7 +1,7 @@
 // ----------------------------------------------------
 // This file belongs to the ray tracing framework
 // for the use with Cherenkov detectors
-// 
+//
 // created 2007
 //-----------------------------------------------------
 #include "PndDrcOptMatNLAK33A.h"
@@ -35,13 +35,14 @@ using std::endl;
 //----------------------------------------------------------------------
 PndDrcOptMatNLAK33A::PndDrcOptMatNLAK33A()
 {
+	fName = "NLAK33A";
+
   fB1 = 1.44116999;
   fB2 = 0.571749501;
   fB3 = 1.16605226;
   fC1 = 0.00680933877;
   fC2 = 0.0222291824;
   fC3 = 80.9379555;
-
 }
 //----------------------------------------------------------------------
 PndDrcOptMatNLAK33A* PndDrcOptMatNLAK33A::Clone() const
@@ -63,15 +64,15 @@ PndDrcOptMatNLAK33A::PndDrcOptMatNLAK33A(const PndDrcOptMatNLAK33A& mat)
   : PndDrcOptMatAbs(mat)
 {
   if (mat.fVerbosity>=1) cout<<"  PndDrcOptMatNLAK33A::PndDrcOptMatNLAK33A"
-			    <<"(const PndDrcOptMatNLAK33A&) "  
+			    <<"(const PndDrcOptMatNLAK33A&) "
 			    <<mat.fName<<endl;
   Copy(mat);
-} 
+}
 //----------------------------------------------------------------------
 PndDrcOptMatNLAK33A& PndDrcOptMatNLAK33A::operator=(const PndDrcOptMatNLAK33A& mat)
 {
   if (mat.fVerbosity>=1) cout<<"  PndDrcOptMatNLAK33A::operator="
-			    <<"(const PndDrcOptMatNLAK33A&) "  
+			    <<"(const PndDrcOptMatNLAK33A&) "
 			    <<mat.fName<<endl;
   if (&mat != this)
     {
@@ -87,12 +88,12 @@ double PndDrcOptMatNLAK33A::RefIndex(const double lambda) const
   if (lambda<0) return 1.74; // average value.
 
   double lam2 = lambda/1000 * lambda/1000; // um2
-  
-  return sqrt(1.0L + 
+
+  return sqrt(1.0L +
 	      fB1*lam2/(lam2-fC1) +
 	      fB2*lam2/(lam2-fC2) +
 	      fB3*lam2/(lam2-fC3));
-}  
+}
 //----------------------------------------------------------------------
 double PndDrcOptMatNLAK33A::RefIndexDeriv(const double lambda) const
 {
@@ -102,7 +103,7 @@ double PndDrcOptMatNLAK33A::RefIndexDeriv(const double lambda) const
 
   return (   (-fB1*fC1*lam)/((lam2-fC1)*(lam2-fC1)) +
 	     (-fB2*fC2*lam)/((lam2-fC2)*(lam2-fC2)) +
-	     (-fB3*fC3*lam)/((lam2-fC3)*(lam2-fC3))  ) 
+	     (-fB3*fC3*lam)/((lam2-fC3)*(lam2-fC3))  )
     / RefIndex(lambda) / 1000;
 
 }
@@ -110,7 +111,7 @@ double PndDrcOptMatNLAK33A::RefIndexDeriv(const double lambda) const
 bool PndDrcOptMatNLAK33A::AbsorptionFlag(double lambda, double length) const
 {
 
-  // Rayleigh scattering. 
+  // Rayleigh scattering.
   // data from Schott data sheets of 10mm sample
 
   const static double kLam[21] = {1060,    700,   660,   620,   580,
@@ -166,7 +167,7 @@ bool PndDrcOptMatNLAK33A::AbsorptionFlag(double lambda, double length) const
   if (cmp>trans)
     {
       return true; // absorbed
-    } 
+    }
 
   return false; // no absorption.
 }

@@ -1,7 +1,7 @@
 // ----------------------------------------------------
 // This file belongs to the ray tracing framework
 // for the use with Cherenkov detectors
-// 
+//
 // created 2007
 //-----------------------------------------------------
 #include "PndDrcOptMatAl.h"
@@ -34,6 +34,7 @@ using std::endl;
 //----------------------------------------------------------------------
 PndDrcOptMatAl::PndDrcOptMatAl()
 {
+	fName = "aluminium";
 }
 //----------------------------------------------------------------------
 PndDrcOptMatAl* PndDrcOptMatAl::Clone() const
@@ -48,15 +49,15 @@ PndDrcOptMatAl::PndDrcOptMatAl(const PndDrcOptMatAl& mat)
     : PndDrcOptMatAbs(mat)
 {
     if (mat.fVerbosity>=1) cout<<"  PndDrcOptMatAl::PndDrcOptMatAl"
-                <<"(const PndDrcOptMatAl&) "  
+                <<"(const PndDrcOptMatAl&) "
                 <<mat.fName<<endl;
     Copy(mat);
-} 
+}
 //----------------------------------------------------------------------
 PndDrcOptMatAl& PndDrcOptMatAl::operator=(const PndDrcOptMatAl& mat)
 {
     if (mat.fVerbosity>=1) cout<<"  PndDrcOptMatAl::operator="
-                <<"(const PndDrcOptMatAl&) "  
+                <<"(const PndDrcOptMatAl&) "
                 <<mat.fName<<endl;
     if (&mat != this)
     {
@@ -67,68 +68,68 @@ PndDrcOptMatAl& PndDrcOptMatAl::operator=(const PndDrcOptMatAl& mat)
 }
 //----------------------------------------------------------------------
 double PndDrcOptMatAl::RefIndex(const double lambda) const
-{  
+{
     // values from  http://ee.byu.edu/photonics/opticalconstants.phtml (metallic aluminium)
     const static double kLam[57] = { // lambda in nm
-        300.0, 
+        300.0,
         310.0,
-        317.9, 
-        326.3, 
-        335.1, 
-        344.4, 
-        350.0, 
-        354.2, 
-        364.7, 
-        375.7, 
-        387.5, 
-        400.0, 
-        413.3, 
-        427.5, 
-        442.8, 
-        450.0, 
-        459.2, 
-        476.9, 
-        495.9, 
-        500.0, 
-        506.1, 
-        516.6, 
-        527.6, 
-        539.1, 
-        550.0, 
-        551.0, 
-        563.6, 
-        576.7, 
-        590.4, 
-        600.0, 
-        604.8, 
-        619.9, 
-        635.8, 
-        650.0, 
-        652.6, 
-        670.2, 
-        688.8, 
-        700.0, 
-        708.5, 
-        729.3, 
-        750.0, 
-        751.4, 
-        774.9, 
-        799.9, 
-        825.0, 
-        826.6, 
-        850.0, 
-        855.1, 
-        875.0, 
-        885.6, 
-        900.0, 
-        918.4, 
-        925.0, 
-        950.0, 
-        953.7, 
-        991.9, 
+        317.9,
+        326.3,
+        335.1,
+        344.4,
+        350.0,
+        354.2,
+        364.7,
+        375.7,
+        387.5,
+        400.0,
+        413.3,
+        427.5,
+        442.8,
+        450.0,
+        459.2,
+        476.9,
+        495.9,
+        500.0,
+        506.1,
+        516.6,
+        527.6,
+        539.1,
+        550.0,
+        551.0,
+        563.6,
+        576.7,
+        590.4,
+        600.0,
+        604.8,
+        619.9,
+        635.8,
+        650.0,
+        652.6,
+        670.2,
+        688.8,
+        700.0,
+        708.5,
+        729.3,
+        750.0,
+        751.4,
+        774.9,
+        799.9,
+        825.0,
+        826.6,
+        850.0,
+        855.1,
+        875.0,
+        885.6,
+        900.0,
+        918.4,
+        925.0,
+        950.0,
+        953.7,
+        991.9,
         1000.0
     };
-    
+
     const static double kI[57] = { // refractive Index
         0.2760,
         0.2940,
@@ -219,7 +220,7 @@ double PndDrcOptMatAl::RefIndex(const double lambda) const
         double frac = (kLam[ibin-1]-lambda)/(kLam[ibin-1]-kLam[ibin]);
         return( kI[ibin-1] + frac * (kI[ibin]-kI[ibin-1]) );
     }
-}  
+}
 //----------------------------------------------------------------------
 double PndDrcOptMatAl::RefIndexDeriv(const double lambda) const
 {
@@ -227,68 +228,68 @@ double PndDrcOptMatAl::RefIndexDeriv(const double lambda) const
 }
 //----------------------------------------------------------------------
 double PndDrcOptMatAl::Extinction(const double lambda) const
-{  
+{
     // values from  http://ee.byu.edu/photonics/opticalconstants.phtml (metallic aluminium)
     const static double kLam[57] = { // lambda in nm
-        300.0, 
+        300.0,
         310.0,
-        317.9, 
-        326.3, 
-        335.1, 
-        344.4, 
-        350.0, 
-        354.2, 
-        364.7, 
-        375.7, 
-        387.5, 
-        400.0, 
-        413.3, 
-        427.5, 
-        442.8, 
-        450.0, 
-        459.2, 
-        476.9, 
-        495.9, 
-        500.0, 
-        506.1, 
-        516.6, 
-        527.6, 
-        539.1, 
-        550.0, 
-        551.0, 
-        563.6, 
-        576.7, 
-        590.4, 
-        600.0, 
-        604.8, 
-        619.9, 
-        635.8, 
-        650.0, 
-        652.6, 
-        670.2, 
-        688.8, 
-        700.0, 
-        708.5, 
-        729.3, 
-        750.0, 
-        751.4, 
-        774.9, 
-        799.9, 
-        825.0, 
-        826.6, 
-        850.0, 
-        855.1, 
-        875.0, 
-        885.6, 
-        900.0, 
-        918.4, 
-        925.0, 
-        950.0, 
-        953.7, 
-        991.9, 
+        317.9,
+        326.3,
+        335.1,
+        344.4,
+        350.0,
+        354.2,
+        364.7,
+        375.7,
+        387.5,
+        400.0,
+        413.3,
+        427.5,
+        442.8,
+        450.0,
+        459.2,
+        476.9,
+        495.9,
+        500.0,
+        506.1,
+        516.6,
+        527.6,
+        539.1,
+        550.0,
+        551.0,
+        563.6,
+        576.7,
+        590.4,
+        600.0,
+        604.8,
+        619.9,
+        635.8,
+        650.0,
+        652.6,
+        670.2,
+        688.8,
+        700.0,
+        708.5,
+        729.3,
+        750.0,
+        751.4,
+        774.9,
+        799.9,
+        825.0,
+        826.6,
+        850.0,
+        855.1,
+        875.0,
+        885.6,
+        900.0,
+        918.4,
+        925.0,
+        950.0,
+        953.7,
+        991.9,
         1000.0
     };
-    
+
     const static double kE[57] = { // extinction coefficients
         -3.6100,
         -3.7400,
@@ -378,7 +379,7 @@ double PndDrcOptMatAl::Extinction(const double lambda) const
         double frac = (kLam[ibin-1]-lambda)/(kLam[ibin-1]-kLam[ibin]);
         return( kE[ibin-1] + frac * (kE[ibin]-kE[ibin-1]) );
     }
-}  
+}
 //----------------------------------------------------------------------
 bool PndDrcOptMatAl::AbsorptionFlag(double lambda, double length) const
 {

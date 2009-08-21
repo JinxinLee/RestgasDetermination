@@ -64,7 +64,7 @@ class PndDrcOptMatAbs
   const int Verbosity() const {return fVerbosity;};
 
 
-  /*! \brief Set the name of the volume.
+  /*! \brief Set the name of the material.
     \param name The name.
   */
   void SetName(string name){fName=name;};
@@ -72,7 +72,7 @@ class PndDrcOptMatAbs
   /*! \brief The name of the volume.
     \return The name.
   */
-  string Name() const {return fName;};
+  virtual string Name() const = 0;
 
 
   /*! \brief Refraction index.

@@ -1,6 +1,6 @@
-/*! 
-  \brief Class to manage devices. 
-  There is only one instance per application allowed. 
+/*!
+  \brief Class to manage devices.
+  There is only one instance per application allowed.
   Access this instance with \sa Instance().
 */
 
@@ -8,7 +8,7 @@
 #define PNDDRCOPTDEVMANAGER_H
 
 
-#include "TRandom.h"
+#include "TRandom3.h"
 #include "PndDrcOptDev.h"
 #include <map>
 #include <list>
@@ -23,7 +23,7 @@ class PndDrcOptDevManager
 {
  public:
   //!                                             Empty constructor.
-  PndDrcOptDevManager();                   
+  PndDrcOptDevManager();
 
   /*! \brief Copy constructor.
 
@@ -41,7 +41,7 @@ class PndDrcOptDevManager
   PndDrcOptDevManager& operator=(const PndDrcOptDevManager& d);
 
   //!                                             Destructor.
-  virtual ~PndDrcOptDevManager();          
+  virtual ~PndDrcOptDevManager();
 
   /*! \brief Instance of manager.
     \return Pointer to manager.
@@ -50,11 +50,11 @@ class PndDrcOptDevManager
 
   /*! \brief Verbosity
 
-  Set the verbosity. Range is 0 to 5. 
+  Set the verbosity. Range is 0 to 5.
   \verbatim
-  0=quiet, 
+  0=quiet,
   1=constructors,destructors,
-  2=member functions, 
+  2=member functions,
   3=functionality
   4=photons
   5=everything
@@ -68,13 +68,13 @@ class PndDrcOptDevManager
     \param sys The system to register.
   */
   void AddDeviceSystem(const PndDrcOptDevSys& sys);
-  
+
   /* \brief Couple two devices such that photons can propagate from
     one to the other.
     \param dev1  The first optical device to couple.
     \param dev2  The first optical device to couple.
-    \param surf1 The surface of dev1 to couple. 
-    \param surf2 The surface of dev2 to couple. 
+    \param surf1 The surface of dev1 to couple.
+    \param surf2 The surface of dev2 to couple.
     \param copy1 Optional copy number if system exists several times.
     \param copy2 Optional copy number if system exists several times.
   */
@@ -111,10 +111,10 @@ class PndDrcOptDevManager
 
 
   This routine fails when surfaces, e.g. mirrors are embedded in a volume.
-  Do not hit such surfaces by defining a maximum particle range. An entrance-exit pair 
+  Do not hit such surfaces by defining a maximum particle range. An entrance-exit pair
   is not added to the lists, when the exit is beyond the range.
 
-  It works with embedded volumes.  
+  It works with embedded volumes.
 
 
     \param pos      Particles origing.
@@ -128,10 +128,10 @@ class PndDrcOptDevManager
     \param range    Max. particle range.
     \return         Flag if valid intersections found.
    */
-  bool Intersect(const XYZPoint&  pos, 
+  bool Intersect(const XYZPoint&  pos,
 		 const XYZVector& dir,
-		 list<XYZPoint>&  p_in, 
-		 list<XYZPoint>&  p_out, 
+		 list<XYZPoint>&  p_in,
+		 list<XYZPoint>&  p_out,
 		 list<string>&    vol_name,
 		 list<string>&    sys_name,
 		 list<int>&       vol_copy,
@@ -146,7 +146,7 @@ class PndDrcOptDevManager
   the charge Z=1.
 
   Some quantities depending on lambda1 and lambda2 are calculated at first call.
-  Therefore, do not change lambda1 and lamda2 at successive calls. 
+  Therefore, do not change lambda1 and lamda2 at successive calls.
 
   \param pos Particle start position [mm].
   \param dir Particle direction.
@@ -159,14 +159,15 @@ class PndDrcOptDevManager
 
   \return Flag if internal photon list has entries.
   */
-  bool Cerenkov(const XYZPoint&  pos, 
-		const XYZVector& dir, 
-		double           beta, 
-		int              n=0, 
-		double           range=1.0e16, 
-		double           nu1=250, 
-		double           nu2=650,
-		int              refl_limit=1000);
+  bool Cerenkov(const XYZPoint&  pos,
+		const XYZVector& dir,
+		double           beta,
+		int              n=0,
+		double           range=1.0e16,
+		double           nu1=300,
+		double           nu2=700,
+		int              refl_limit=1000,
+		int              particleIDnumber=0);
 
 
   /*! \brief Generate cerenkov radiation
@@ -177,7 +178,7 @@ class PndDrcOptDevManager
   where the particle is.
 
   Some quantities depending on lambda1 and lambda2 are calculated at first call.
-  Therefore, do not change lambda1 and lamda2 at successive calls. 
+  Therefore, do not change lambda1 and lamda2 at successive calls.
 
   \param vol_name Name of hit volume.
   \param sys_name Name of \ref originating "originating" system of the volume.
@@ -190,20 +191,21 @@ class PndDrcOptDevManager
   \param nu1 Smallest wavelength.
   \param nu2 Largest wavelength.
   \param refl_limit Maximum number of reflections.
-  
+
   \return Flag if internal photon list has entries.
   */
-  bool Cerenkov(const string&   vol_name, 
-		const string&   sys_name, 
-		int             vol_copy, 
-		int             sys_copy, 
-		const XYZPoint& r1, 
-		const XYZPoint& r2, 
-		double          beta, 
-		int             n=0, 
-		double          nu1=250, 
-		double          nu2=650,
-		int             refl_limit=1000);
+  bool Cerenkov(const string&   vol_name,
+		const string&   sys_name,
+		int             vol_copy,
+		int             sys_copy,
+		const XYZPoint& r1,
+		const XYZPoint& r2,
+		double          beta,
+		int             n=0,
+		double          nu1=300,
+		double          nu2=700,
+		int             refl_limit=1000,
+        int             particleIDnumber=0);
 
 
 
@@ -222,8 +224,8 @@ class PndDrcOptDevManager
 
   /*! \brief Set listist of photons.
 
-  This is mainly for debugging. You have to set at least the position and the 
-  direction of the photon. 
+  This is mainly for debugging. You have to set at least the position and the
+  direction of the photon.
   \param photon_list List of photons.
   \param vol_name The name of the volume where the photon is.
   \param sys_name The name of the \ref originating "originating" system.
@@ -231,7 +233,7 @@ class PndDrcOptDevManager
   \param sys_copy Copy number of the \ref originating "originating" system where the photon is.
   */
   //void setPhotonList(list<PndDrcPhoton>& list, string vol_name, int copy=0);
-  void SetPhotonList(list<PndDrcPhoton>& photon_list, 
+  void SetPhotonList(list<PndDrcPhoton>& photon_list,
 		     string vol_name,   string sys_name="unnamed",
 		     int    vol_copy=0, int sys_copy=0);
 
@@ -239,7 +241,7 @@ class PndDrcOptDevManager
 
   /*! \brief Add transformation
 
-  The tranform from the root framework is a rotation followed by a shift 
+  The tranform from the root framework is a rotation followed by a shift
   and is represented by a 4x4 matrix, rotation + shift vector.
 
   \param trans The transformation.
@@ -252,17 +254,17 @@ class PndDrcOptDevManager
 
  private:
   static PndDrcOptDevManager* fgInstance;         //!< The instance.
-  int                         fVerbosity;         //!< Verbosity from 0 to 5.  
-  TRandom                     fRan;               //!< Random generator.            
-  map<string,PndDrcOptDev*>   fMapDev;            //!< Map of device pointers.  
+  int                         fVerbosity;         //!< Verbosity from 0 to 5.
+  TRandom3                    fRan;               //!< Random generator.
+  map<string,PndDrcOptDev*>   fMapDev;            //!< Map of device pointers.
   list<PndDrcOptDevSys*>      fListDevSys;        //!< List of optical devices.
-  list<PndDrcPhoton>          fListPhoton;        //!< List of photons.    
+  list<PndDrcPhoton>          fListPhoton;        //!< List of photons.
 
   /*! \brief Copy function fir assignment operator and copy constructor.
     \param m The manager to copy.
   */
   void Copy(const PndDrcOptDevManager& m);
-  
+
 
 
 

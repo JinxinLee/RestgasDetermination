@@ -1,52 +1,41 @@
 
+//==========
+// STD C/C++
+//==========
+#include <cstdlib>
+using std::abort;
 #include <iostream>
 using std::cout;
-using std::cerr;
-using std::cin;
 using std::endl;
-
-#include <valarray>
-using std::valarray;
-
-#include <vector>
-using std::vector;
-
+#include <fstream>
+using std::fstream;
+#include <list>
+using std::list;
 #include <string>
 using std::string;
 
-#include <list>
-using std::list;
 
-#include <limits>
-
-#include <fstream>
-using std::fstream;
-
-#include <utility>
-using std::pair;
-
-#include <map>
-using std::map;
-
-#include <cmath>
-
-
+//======
+// ROOT
+//======
 #include "TCanvas.h"
-#include "TGraph.h"
-#include "TH1.h"
+#include "TF1.h"
 #include "TFile.h"
+#include "TH1.h"
 #include "TLine.h"
 #include "TMarker.h"
 #include "TMath.h"
 using TMath::Abs;
+using TMath::ACos;
+using TMath::Cos;
 using TMath::Nint;
 using TMath::Pi;
-#include "TMatrixD.h"
-#include "TROOT.h"
-#include "TRint.h"
-#include "TRandom.h"
+using TMath::Power;
+using TMath::Sin;
+using TMath::Sqrt;
+using TMath::Tan;
 #include "TRandom3.h"
-#include "TRotation.h"
+#include "TROOT.h"
 #include "TPaveText.h"
 #include "TString.h"
 #include "TStyle.h"
@@ -54,184 +43,984 @@ using TMath::Pi;
 #include "TVector3.h"
 
 
-#include "Math/Vector3D.h"
-using ROOT::Math::XYZVector;
-
+//==========
+// ROOT Math
+//==========
 #include "Math/Point3D.h"
 using ROOT::Math::XYZPoint;
-
 #include "Math/Transform3D.h"
 using ROOT::Math::Transform3D;
-
-#include "Math/RotationX.h"
-using ROOT::Math::RotationX;
-#include "Math/RotationY.h"
-using ROOT::Math::RotationY;
-#include "Math/RotationZ.h"
-using ROOT::Math::RotationZ;
-#include "Math/Rotation3D.h"
-using ROOT::Math::Rotation3D;
+#include "Math/Vector3D.h"
+using ROOT::Math::XYZVector;
+using ROOT::Math::Polar3DVector;
 
 
+//========
+// drcprop
+//========
 #include "PndDrcPhoton.h"
 #include "PndDrcSurfPolyFlat.h"
 #include "PndDrcSurfQuadFlatDiff.h"
 #include "PndDrcSurfPolyAsphere.h"
-#include "PndDrcSurfPolySphere.h"
-#include "PndDrcSurfPolyPara.h"
-#include "PndDrcSurfPolyAsphere.h"
-#include "PndDrcOptReflSilver.h"
 #include "PndDrcOptReflNone.h"
 #include "PndDrcOptReflPerfect.h"
+#include "PndDrcOptMatAbs.h"
 #include "PndDrcOptMatLithotecQ0.h"
 #include "PndDrcOptMatBK7.h"
 #include "PndDrcOptMatVacuum.h"
 #include "PndDrcOptDevSys.h"
 #include "PndDrcOptVol.h"
 #include "PndDrcOptDevManager.h"
-#include "PndDrcUtil.h"
+
 
 
 int main(int argc, char *argv[])
 {
-  cout << "Parameter usage:" << endl;
-  cout << "  1. Par.: incidence angle [deg] (default: 57 deg)" << endl;
-  cout << "  2. Par.: hit pos. X on bar [mm] (default: 1/2 slab width 8.5 mm )" << endl;
-  cout << "  3. Par.: hit pos. Y on bar [mm] (default: 0 mm)" << endl;
-  cout << "  4. Par.: hit pos. Z on bar [mm] (default: -500 mm); NEGATIVE NUMBER !!!" << endl;
-  cout << "  if one parameter was set filename is \"Screen_beamspot_Xdeg_X_Y_Z.C\" (deault Screen.C)" << endl << endl;
+	cout << "Parameter usage:" << endl;
+	cout << "  1. Par.: incidence angle [deg] (default: 57 deg)" << endl;
+	cout << "  2. Par.: hit pos. X on bar [mm] (default: 1/2 slab width 8.5 mm )" << endl;
+	cout << "  3. Par.: hit pos. Y on bar [mm] (default: 0 mm)" << endl;
+	cout << "  4. Par.: hit pos. Z on bar [mm] (default: -500 mm); NEGATIVE NUMBER !!!" << endl;
+	cout << "  5. Par.: filename PREFIX (default beamtest0909)" << endl;
+	cout << "If one parameter was set, filename will be \"PREFIX_Xdeg_X_Y_Z.C\"." << endl;
+	cout << "There are further parameters which can be changed in the code." << endl;
+	cout << endl;
+
+
+	// math constants
+	const double pi = Pi();
+	const double degree = pi/180.;
 
 
 
-	double conical_const =  0; //sphere
-// 	double conical_const = 0.5; //parabola
+//==============================================================================
+// Simulation options
+//==============================================================================
 
-// 	int ioption = 1; // parallel beam (0 deg)
-// 	int ioption = 2; // 0,  +- 20,  +-40 deg
-	int ioption = 3; // C-cone
-// 	int ioption = 4; // random in front of lens.
-// 	int ioption = 5; // single photon for debugging.
-// 	int ioption = 6; // grid 5 deg
+	// main options
+	bool opt_beamtest     = true;  // beamtest simulation 2009
+	bool opt_photonCannon = false; // photon cannon at bar end
+	bool opt_singlePhoton = false; // single photon for debugging
 
-// 	double pi=3.1415926535;
-	double pi = Pi();
+	cout << "simulation options:" << endl;
 
-	PndDrcOptReflPerfect refl_perfect;
-	PndDrcOptReflNone    refl_none; // absorbed
-
-	double slab_width  = 17;
-	double slab_height = 35;
-
-	PndDrcOptMatLithotecQ0  quartz;
-	PndDrcOptMatVacuum      vacuum;
-	PndDrcOptMatBK7         bk7;
-
-	double lambda = 435;
+	if( opt_beamtest )
+		cout << "  main: \"beamtest\"" << endl;
+	if( opt_photonCannon )
+		cout << "  main: \"photon cannon\"" << endl;
+	if( opt_singlePhoton )
+		cout << "  main: \"single photon\" " << endl;
 
 
+	// sub options
+	bool opt_mirror               = false; // mirror at slab face
+	bool opt_fishtankBlack_bottom = true; // absorbed fishtank side
+	bool opt_fishtankBlack_sides  = false;
+	bool opt_fishtankBlack_top    = true;
+	bool opt_Cherenkov_onlyInBar  = false;  // Cherenkov photons are only generated in bar (slab)
+	bool opt_alongBar             = false; // particles hits the bar at slab face (front end)
+	bool opt_woLens               = false; // w/o lens
+	bool opt_photonPosList        = false; // write out photon position list ; true takes much longer
+// 	bool opt_debug	              = false; // stdout > log file
+// 	bool opt_noFresnel_slab       = false;
+// 	bool opt_noFresnel_lens       = false;
+// 	bool opt_noFresnel_airBox     = false;
+// 	bool opt_noFresnel_fishtank   = false;
+
+	cout << "  sub:  ";
+	if( opt_mirror )
+		cout << "\"mirror\" ";
+	if( opt_fishtankBlack_bottom )
+		cout << "\"black fishtank bottom\" ";
+	if( opt_fishtankBlack_sides )
+		cout << "\"black fishtank sides\" ";
+	if( opt_fishtankBlack_top )
+		cout << "\"black fishtank top\" ";
+	if( opt_Cherenkov_onlyInBar )
+		cout << "\"photon production only in bar\" ";
+	if( opt_alongBar )
+		cout << "\"along Bar\" ";
+	if( opt_woLens )
+		cout << "\"w/o lens\" ";
+	if( opt_photonPosList )
+		cout << "\"photon position list\" ";
+	cout << endl;
+
+
+	int check_opt = opt_beamtest + opt_photonCannon + opt_singlePhoton;
+
+	if( check_opt > 1 || check_opt == 0 )
+	{
+		cout << "*** ERROR: Select only one simulation option !" << endl;
+		cout << "available simulation options:" << endl;
+		cout << "  beamtest" << endl;
+		cout << "  photon cannon" << endl;
+		cout << "  own photons" << endl;
+		cout << "    add. options:" << endl;
+		cout << "      mirror" << endl;
+		cout << "      fishtank black (bottom)" << endl;
+		cout << "      fishtank black (sides)" << endl;
+		cout << "      fishtank black (top)" << endl;
+		cout << "      Photon production only in bar" << endl;
+		cout << "      along Bar" << endl;
+		cout << "      w/o lens" << endl;
+		cout << "      photon position list" << endl;
+
+		abort();
+	}
+
+
+//==============================================================================
+// Changable parameters
+//==============================================================================
+
+	// material
+	PndDrcOptMatLithotecQ0  *quartz = new PndDrcOptMatLithotecQ0();
+	PndDrcOptMatVacuum      *vacuum = new PndDrcOptMatVacuum();
+	PndDrcOptMatBK7         *bk7    = new PndDrcOptMatBK7();
+
+	PndDrcOptMatAbs *mat_slab     = quartz; // default: quartz
+	PndDrcOptMatAbs *mat_lens     = bk7; // default: vacuum
+	PndDrcOptMatAbs *mat_airBox   = vacuum; // default: bk7
+	PndDrcOptMatAbs *mat_fishtank = quartz; // default: quartz
+
+
+	// dimensions
+	double slab_width  = 17; // default: 17 mm
+	double slab_height = 35; // default: 35 mm
+	double slab_length = 800; // default: 800 mm
+
+	double lens_radius    = 77.52; // f = R/(n-1) ; BK7 Newport f = 150 mm at 589 nm => R = 77.52 mm
+	double lens_thickness = 7.5; // measured lens thickness: 7.5 mm ; old: 5 mm
+
+	double airgap = 10; // default: 10 mm ; distance between slab and fishtank ; 0 means no air box
+
+	double fishtank_width  = 300; // default: 300 mm ; old: 400 mm
+	double fishtank_height = 200; // default: 200 mm ; old: 400 mm
+	double fishtank_length = 200; // default: 200 mm ; old: 220 mm
+
+
+	// particle properties
+	const double mass_p  = 0.9383; // proton mass in GeV
+	const double mass_K  = 0.4937; // kaon mass
+	const double mass_pi = 0.1396; // pion mass
+	const double mass_e  = 0.0005; // electron mass
+	const double mass_mu = 0.1057; // muon mass
+
+	double mass = mass_p; // default: proton mass
+	double kinE = 2.3; // default: 2.3 GeV kinetic energy
+	double beta = Sqrt( 1 - Power( mass / (kinE + mass), 2 ) ); // E = T + E0 = gamma * E0
+
+	double radius = 20; // default: 20 mm 1-sigma beam spot radius (gaus smeared)
+	double limit = 15; // default: 50 mm beam spot radius limit
+
+	int particle_number = 300; // default: 300
+	int photon_number = 200; // default: 100 per particle; 0 means realistic number of Cherenkov photons
+
+	double lambda_min = 300; // default: 300 nm ; lowest Cherenkov wavelength
+	double lambda_max = 700; // default: 700 nm ; highest Cherenkov wavelength
+
+	int refl_limit = 1000; // default: 1000 reflections
+
+
+	// input parameter (default values)
+	double inci = 57; // default: 57 degree
+	double hitBarX = slab_width/2; // default: slab_width/2
+	double hitBarY = 0; // default: 0 mm
+	double hitBarZ = -500; // default: -500 mm
+
+
+	// photon cannon
+	int shoots = photon_number; // default: photon_number
+	double gridXstep = 0; // default: 0 mm ; grid constant in X ; 0 means cannon is in the center
+	double gridYstep = 0; // default: 0 mm
+
+
+
+//==============================================================================
+// Input parameters & derived parameters
+//==============================================================================
+
+	//                    detector              alongBar option:
+	//                       ^ z
+	//                       |                       detector
+	//                       |                          ^
+	//                 x<----|                          |
+	//                     exit                         |
+	//                   --------                       |
+	//       particle    |                    |                  |
+	//       trajectory  |                    |                  |
+	//              \    |                    |        bar       |
+	//              /\   |                    |                  |
+	//             /  \  |  bar               -------------------- face (front end)
+	//            /    \ |                             /|\.
+	//           /-theta\|                            / | \.
+	// perp. ------------|                           /  |  \.
+	//           \+theta/|                          /   |   \.
+	//            \    / |                         /    |    \.
+	//             \  /  |                        /     |     \.
+	//              \/   |                       /-theta|+theta\.
+	//              /    |                      /       |       \.
+	//       particle    |                 particle     |      particle
+	//       trajectory  |               trajectory    perp.   trajectory
+
+
+	// incidence angle
+	if( argc >= 2 && opt_beamtest )
+		inci = atof( argv[1]);
+
+
+	// particle flight (parallel to x-z plane)
+	double parDirX, parDirY, parDirZ;
+
+	if( opt_alongBar )
+	{
+		parDirX = Tan(inci*degree);
+		parDirY = 0;
+		parDirZ = 1;
+	}
+	else
+	{
+		parDirX = -1;
+		parDirY = 0;
+		parDirZ = Tan(inci*degree);
+	}
+
+	XYZVector parDir( parDirX, parDirY, parDirZ );
+
+
+	// hit position on bar (is independent of the incidence angle)
+
+	//              Y     exit
+	//              ^    z
+	//              |   ^
+	//              |  /
+	//              | /
+	//              |/
+	//   x <--------x
+
+	// origin x is centered at the slab exit (back end)
+
+	//                    exit
+	//               s8----------s5
+	//              /|     _    /|      _ (0,0,0) origin
+	//             / |         / |
+	//            /  s7-------/--s6
+	//           /  /        /  /
+	//          /  /        /  /
+	//         /  /        /  /
+	//        /  /        /  /
+	//      s4----------s1  /
+	//      |  /        |  /
+	//      | /  face   | /
+	//      s3----------s2
+
+
+	if( opt_alongBar )
+		hitBarZ = -slab_length; // is fixed at slab face (front end)
+
+	XYZPoint  pos;
+
+	if( argc >= 3 && opt_beamtest )
+	{
+		double par2 = atof(argv[2]);
+		if( opt_alongBar )
+		{
+			hitBarX = par2;
+			if( hitBarX < -slab_width/2 || hitBarX > slab_width/2 )
+			{
+				cout << "*** ERROR: hit position X is not on bar surface ! " << endl;
+				abort();
+			}
+		}
+		else
+		{
+			if( par2 != slab_width/2 )
+				cout << "*** WARN: hit position X is fixed at 8.5 mm (1/2 slab width)" << endl << endl;
+		}
+	}
+
+	if( argc >= 4 && opt_beamtest )
+		hitBarY = atof(argv[3]);
+
+	if( argc >= 5 && opt_beamtest )
+	{
+		double par4 = atof(argv[4]);
+		if( !opt_alongBar )
+		{
+			hitBarZ = par4;
+			if( hitBarZ < -slab_length || hitBarZ > 0 )
+			{
+				cout << "*** ERROR: hit position Z is not on bar surface ! " << endl;
+				abort();
+			}
+		}
+		else
+		{
+			if( par4 != -slab_length )
+				cout << "*** WARN: hit position Z is fixed at -800 mm (slab front end)" << endl << endl;
+		}
+	}
+
+	pos = XYZVector(hitBarX, hitBarY, hitBarZ);
+
+
+	// prefix
+	TString prefix = "beamtest0909";
+	if( argc >= 6 )
+		prefix = argv[5];
+
+
+
+//==============================================================================
+// Parameter output
+//==============================================================================
+	cout << "material:" << endl;
+
+	string mat_slab_str     = mat_slab->Name();
+	string mat_lens_str     = mat_lens->Name();
+	string mat_airBox_str   = mat_airBox->Name();
+	string mat_fishtank_str = mat_fishtank->Name();
+
+	cout <<     "  slab:     " << mat_slab_str << endl;
+	if( !opt_woLens )
+		cout << "  lens:     " << mat_lens_str << endl;
+	cout <<     "  airBox:   " << mat_airBox_str << endl;
+	cout <<     "  fishtank: " << mat_fishtank_str << endl;
+
+
+	// refractive index check
 // 	double waveLength[4];
 // 	waveLength[0]=300;
-// 	waveLength[1]=435;
+// 	waveLength[1]=405;
 // 	waveLength[2]=532;
 // 	waveLength[3]=589;
 // 	for( int i=0; i < 4; i++ )
 // 	{
-// 		cout << "n_quartz    (" << waveLength[i] << " nm) = " << quartz.RefIndex(waveLength[i])     << endl;
-// 		cout << "n_vacuum    (" << waveLength[i] << " nm) = " << vacuum.RefIndex(waveLength[i])     << endl;
-// 		cout << "n_nlak33a   (" << waveLength[i] << " nm) = " << nlak33a.RefIndex(waveLength[i])    << endl;
-// 		cout << "n_llf1      (" << waveLength[i] << " nm) = " << llf1.RefIndex(waveLength[i])       << endl;
-// 		cout << "n_bk7       (" << waveLength[i] << " nm) = " << bk7.RefIndex(waveLength[i])        << endl;
-// 		cout << "n_lensIndex (" << waveLength[i] << " nm) = " << lensIndex.RefIndex(waveLength[i])  << endl;
-// 		cout << "n_oilIndex  (" << waveLength[i] << " nm) = " << oilIndex.RefIndex(waveLength[i])   << endl << endl;
+// 		cout << "  n_quartz    (" << waveLength[i] << " nm) = " << quartz->RefIndex(waveLength[i])     << endl;
+// 		cout << "  n_bk7       (" << waveLength[i] << " nm) = " << bk7->RefIndex(waveLength[i])        << endl;
 // 	}
 
 
-  // Note: wrong x-orientation for the points to declare a surface but only surfaces were coupled later
-  //       therefore it should be no problem
+	cout << "dimensions [mm]:" << endl;
+
+	cout << "  slab width:  " << slab_width << endl;
+	cout << "  slab heigth: " << slab_height << endl;
+	cout << "  slab length: " << slab_length << endl;
+
+	if( !opt_woLens )
+	{
+		cout << "  lens radius:    " << lens_radius << endl;
+		cout << "  lens thickness: " << lens_thickness << endl;
+	}
+
+	if( lens_thickness > airgap && !opt_woLens )
+	{
+		cout << "*** ERROR: no air gap possible" << endl;
+		abort();
+	}
+
+	cout << "  air gap: " << airgap << endl;
+
+	cout << "  fishtank width:  " << fishtank_width << endl;
+	cout << "  fishtank heigth: " << fishtank_height << endl;
+	cout << "  fishtank length: " << fishtank_length << endl;
+
+
+	if( opt_beamtest )
+	{
+		cout << "particle properties:" << endl;
+
+		if( mass == mass_p)
+			cout << "  sort:    proton" << endl;
+		else if( mass == mass_K )
+			cout << "  sort:    kaon" << endl;
+		else if( mass == mass_pi )
+			cout << "  sort:    pion" << endl;
+		else if( mass == mass_e )
+			cout << "  sort:    electron" << endl;
+		else if( mass == mass_mu )
+			cout << "  sort:    muon" << endl;
+		else
+			cout << "*** WARN: undefined particle sort" << endl;
+
+		cout <<     "  T [GeV]: " << kinE << endl;
+		cout <<     "  beta:    " << beta << endl;
+
+		cout <<     "  incidence angle:    " << inci << " deg" << endl;
+		cout <<     "  flight direction:   (" << parDirX << ", " << parDirY << ", " << parDirZ << ")" << endl;
+		cout <<     "  hit pos:            (" << hitBarX << ", " << hitBarY << ", " << hitBarZ << ")" << endl;
+
+		cout <<     "  beam spot radius:   " << radius << " mm" << endl;
+		cout <<     "  radius limit:       " << limit << " mm" << endl;
+
+		cout <<     "  particle number:    " << particle_number << endl;
+
+		if( photon_number == 0 )
+			cout << "  photon number:      realistic" << endl;
+		else
+			cout << "  photon number:      " << photon_number << endl;
+
+		cout <<     "  Cherenkov spectrum: [" << lambda_min <<", " << lambda_max << "] nm" << endl;
+		cout <<     "  reflection limit:   " << refl_limit << endl;
+	}
+
+
+	if( opt_photonCannon )
+	{
+		cout << "photon cannon:" << endl;
+		if( gridXstep == 0 || gridYstep == 0 )
+			cout << "  photon number: " << shoots << endl;
+		else
+		{
+			cout << "  photon number: " << shoots << " per mesh" << endl;
+			cout << "  grid const. X: " << gridXstep << " mm" << endl;
+			cout << "  grid const. Y: " << gridYstep << " mm" << endl;
+		}
+	}
+
+
+
+//==============================================================================
+// ROOT output file
+//==============================================================================
+
+// ROOT file content:
+// 	photonList (TTree)
+// 	particleList (TTree)
+// 	info (TTree) for global parameter like e.g. lens thickness
+// 	default plots: Screen, beamspot, Setup geometry
+
+// to analyze this root-file there are two macros:
+//	1. mcpPos.cc for fast plotting the effect of different MCP positions
+//	2. analyze.cc create a further root-file with a lot of plots (canvases)
+
+
+// file name
+//==============================================================================
+
+	TString outFilename;
+
+	if( argc >= 2 && opt_beamtest )
+	{
+		TString inci_str;
+		TString hitBarX_str;
+		TString hitBarY_str;
+		TString hitBarZ_str;
+
+		inci_str += inci;
+		inci_str.Remove( TString::kLeading , ' ' );
+		hitBarX_str += hitBarX;
+		hitBarX_str.Remove( TString::kLeading , ' ' );
+		hitBarY_str += hitBarY;
+		hitBarY_str.Remove( TString::kLeading , ' ' );
+		hitBarZ_str += hitBarZ;
+		hitBarZ_str.Remove( TString::kLeading , ' ' );
+
+		outFilename = prefix + "_" + inci_str + "deg_" + hitBarX_str + "_" + hitBarY_str + "_" + hitBarZ_str + ".root" ;
+	}
+	else
+	{
+		if( opt_beamtest )
+			outFilename = "beamtest0909.root";
+		else
+		{
+			if( opt_photonCannon )
+				outFilename = "kBarList.root";
+			else
+				outFilename = "test.root";
+		}
+	}
+
+	cout << "ROOT output file: " << outFilename << endl;
+
+	int rootVer = gROOT->GetVersionInt();
+	cout << "ROOT version: "<< rootVer << endl << endl;
+
+
+	TFile *outFile  = new TFile( outFilename, "RECREATE" );
+
+	// todo: TFile( ,"CREATE"), check with IsOpen if not then add "_COUNTER"
+
+
+
+// trees
+//==============================================================================
+	TTree *photonTree  	= new TTree( "photonList", outFilename );
+	TTree *particleTree = new TTree( "particleList", outFilename );
+	TTree *infoTree  	= new TTree( "info", outFilename );
+
+
+	// photonTree
+	double wavelength = -666;
+	int color = -666;
+	double originDirX = -666;
+	double originDirY = -666;
+	double originDirZ = -666;
+	double hitPosX = -666;
+	double hitPosY = -666;
+	double hitPosZ = -666;
+	double hitDirX = -666;
+	double hitDirY = -666;
+	double hitDirZ = -666;
+// 	vector<double> posX; // needed ROOT >= 5.2
+	double posX[1001]; // start position + 1000 reflections (limit)
+	double posY[1001];
+	double posZ[1001];
+	for( int i=0; i < 1001; i++)
+	{
+		posX[i] = -666;
+		posY[i] = -666;
+		posZ[i] = -666;
+	}
+	int index_pos = -666;
+	int particleID = -666;
+	double thetaC = -666;
+	double phiC = -666;
+	double time = -666;
+	int nRefl = -666;
+	bool measured = false;
+	bool absorbed = false;
+	bool lost = false;
+
+	photonTree->Branch( "wavelength", &wavelength, "wavelength/D" ); // D: Double_t
+	photonTree->Branch( "color"     , &color     , "color/I" ); // I: Int_t ;  definition: see PndDrcPhoton.cxx::ColorNumber
+	photonTree->Branch( "originDirX", &originDirX, "originDirX/D" );
+	photonTree->Branch( "originDirY", &originDirY, "originDirY/D" );
+	photonTree->Branch( "originDirZ", &originDirZ, "originDirY/D" );
+	photonTree->Branch( "hitPosX"   , &hitPosX   , "hitPosX/D" );
+	photonTree->Branch( "hitPosY"   , &hitPosY   , "hitPosY/D" );
+	photonTree->Branch( "hitPosZ"   , &hitPosZ   , "hitPosZ/D" );
+	photonTree->Branch( "hitDirX"   , &hitDirX   , "hitDirX/D" );
+	photonTree->Branch( "hitDirY"   , &hitDirY   , "hitDirY/D" );
+	photonTree->Branch( "hitDirZ"   , &hitDirZ   , "hitDirY/D" );
+	if( opt_photonPosList )
+	{
+		photonTree->Branch( "posX[1001]", posX       , "posX[1001]/D");
+		photonTree->Branch( "posY[1001]", posY       , "posY[1001]/D");
+		photonTree->Branch( "posZ[1001]", posZ       , "posZ[1001]/D");
+		photonTree->Branch( "index_pos" , &index_pos , "index_pos/I");
+	}
+	if( !opt_photonCannon )
+		photonTree->Branch( "particleID", &particleID,"particleID/I" );
+	photonTree->Branch( "thetaC"    , &thetaC    , "thetaC/D" );
+	photonTree->Branch( "phiC"      , &phiC      , "phiC/D" );
+	photonTree->Branch( "time"      , &time      , "time/D" );
+	photonTree->Branch( "nRefl"     , &nRefl     , "nRefl/I" );
+	photonTree->Branch( "measured"  , &measured  , "measured/O" ); // O: Bool_t
+	photonTree->Branch( "absorbed"  , &absorbed  , "absorbed/O" );
+	photonTree->Branch( "lost"      , &lost      , "lost/O" );
+
+
+	// particleTree
+	double spotX = -666;
+	double spotY = -666;
+	double spotZ = -666;
+	double hitOnBarX = -666;
+	double hitOnBarY = -666;
+	double hitOnBarZ = -666;
+	double spotEndX = -666;
+	double spotEndY = -666;
+	double spotEndZ = -666;
+	double range = -666;
+
+	if( !opt_photonCannon)
+	{
+		particleTree->Branch( "spotX"     , &spotX    , "spotX/D");
+		particleTree->Branch( "spotY"     , &spotY    , "spotY/D");
+		particleTree->Branch( "spotZ"     , &spotZ    , "spotZ/D");
+		particleTree->Branch( "hitOnBarX" , &hitOnBarX, "hitOnBarX/D");
+		particleTree->Branch( "hitOnBarY" , &hitOnBarY, "hitOnBarY/D");
+		particleTree->Branch( "hitOnBarZ" , &hitOnBarZ, "hitOnBarZ/D");
+		particleTree->Branch( "spotEndX"  , &spotEndX , "spotEndX/D");
+		particleTree->Branch( "spotEndY"  , &spotEndY , "spotEndY/D");
+		particleTree->Branch( "spotEndZ"  , &spotEndZ , "spotEndZ/D");
+		particleTree->Branch( "pathlength", &range    , "pathlength/D");
+	}
+
+
+
+	// infoTree (parameter list)
+
+//******************************************************************************
+// Note:
+// Unfortunetly TTree allows only basic c-types (no strings) and no-const types
+//******************************************************************************
+
+	const char *slab_mat_helper = mat_slab_str.c_str(); // includes \0
+	const char *lens_mat_helper = mat_lens_str.c_str();
+	const char *airBox_mat_helper = mat_airBox_str.c_str();
+	const char *fishtank_mat_helper = mat_fishtank_str.c_str();
+
+	char slab_material[64];
+	char lens_material[64];
+	char airBox_material[64];
+	char fishtank_material[64];
+
+	strcpy(slab_material, slab_mat_helper);
+	strcpy(lens_material, lens_mat_helper);
+	strcpy(airBox_material, airBox_mat_helper);
+	strcpy(fishtank_material, fishtank_mat_helper);
+
+
+	infoTree->Branch( "root_version"     , &rootVer          , "root_version/I");
+	infoTree->Branch( "slab_material"    , &slab_material    , "slab_material/C");
+	if( !opt_woLens )
+	{
+		infoTree->Branch( "lens_material" , &lens_material , "lens_material/C");
+		infoTree->Branch( "lens_radius"   , &lens_radius   , "lens_radius/D");
+		infoTree->Branch( "lens_thickness", &lens_thickness, "lens_thickness/D");
+
+		if( airgap == 0 )
+			infoTree->Branch( "airBox_material", &airBox_material, "airBox_material/C");
+	}
+	infoTree->Branch( "fishtank_material", &fishtank_material, "fishtank_material/C");
+	infoTree->Branch( "slab_width"       , &slab_width       , "slab_width/D");
+	infoTree->Branch( "slab_height"      , &slab_height      , "slab_height/D");
+	infoTree->Branch( "slab_length"      , &slab_length      , "slab_length/D");
+	infoTree->Branch( "airgap"           , &airgap           , "airgap/D");
+	infoTree->Branch( "fishtank_width"   , &fishtank_width   , "fishtank_width/D");
+	infoTree->Branch( "fishtank_height"  , &fishtank_height  , "fishtank_height/D");
+	infoTree->Branch( "fishtank_length"  , &fishtank_length  , "fishtank_length/D");
+	infoTree->Branch( "photon_number"    , &photon_number    , "photon_number/I");
+	infoTree->Branch( "lambda_min"       , &lambda_min       , "lambda_min/I");
+	infoTree->Branch( "lambda_max"       , &lambda_max       , "lambda_max/I");
+	infoTree->Branch( "refl_limit"       , &refl_limit       , "refl_limit/I");
+	if( !opt_photonCannon )
+	{
+		infoTree->Branch( "particle_mass"  , &mass           , "particle_mass/D");
+		infoTree->Branch( "incidenceAngle" , &inci           , "incidenceAngle/D");
+		infoTree->Branch( "hitBarX"        , &hitBarX        , "hitBarX/D");
+		infoTree->Branch( "hitBarY"        , &hitBarY        , "hitBarY/D");
+		infoTree->Branch( "hitBarZ"        , &hitBarZ        , "hitBarZ/D");
+		infoTree->Branch( "spot_radius"    , &radius         , "spot_radius/D");
+		infoTree->Branch( "spot_limit"     , &limit          , "spot_limit/D");
+		infoTree->Branch( "particle_number", &particle_number, "particle_number/I");
+	}
+	else
+	{
+		infoTree->Branch( "gridXstep", &gridXstep, "gridXstep/D");
+		infoTree->Branch( "gridYstep", &gridYstep, "gridYstep/D");
+	}
+
+	infoTree->Fill();
+
+
+// plot declarations
+//==============================================================================
+
+    // set some global options
+	gStyle->SetCanvasColor( 0 );        // white
+	gStyle->SetCanvasBorderMode( 0 );   // no yellow frame
+	gStyle->SetFrameFillColor( 0 );
+	gStyle->SetFrameBorderMode( 0 );    // no red frame
+	gStyle->SetHistFillColor( 0 );
+	gStyle->SetPadColor( 0 );
+	gStyle->SetTitleFillColor( 0 );     // white; not saved in the root file
+	gStyle->SetTitleFontSize( 0.05 );
+	gStyle->SetPalette( 1 );            // better color palette
+	gStyle->SetStatColor( 0 );          // stat. box color
+
+	TCanvas *canvas = new TCanvas( "c1", "" ,200, 10, 700, 510 );
+	canvas->Draw();
+
+
+	// beampsot plot
+	TString beamspot_title  = "beamspot on bar";
+	TString beamspot_titleX;
+	TString beamspot_titleY = "y [mm]";
+	double center;
+
+	if( opt_alongBar )
+	{
+		beamspot_titleX = "x [mm]";
+		center = hitBarX;
+	}
+	else
+	{
+		beamspot_titleX = "z [mm]";
+		center = hitBarZ;
+	}
+
+
+	int minX = Nint( center - 100 );
+	int maxX = Nint( center + 100 );
+
+	TH1F *beamspot = new TH1F( "beamspot", beamspot_title, 100, minX, maxX );
+
+	beamspot->SetStats( 0 );
+	beamspot->SetMinimum(-limit);
+	beamspot->SetMaximum(+limit);
+	beamspot->GetXaxis()->SetTitle( beamspot_titleX );
+	beamspot->GetXaxis()->CenterTitle();
+	beamspot->GetYaxis()->SetTitle( beamspot_titleY );
+	beamspot->GetYaxis()->CenterTitle();
+	beamspot->Draw( "POL" );
+
+
+	TLine *left   = new TLine(-666,-666,-666,-666);
+	TLine *right  = new TLine(-666,-666,-666,-666);
+	TLine *top    = new TLine(-666,-666,-666,-666);
+	TLine *bottom = new TLine(-666,-666,-666,-666);
+	left  ->SetLineWidth( 3 );
+	right ->SetLineWidth( 3 );
+	top   ->SetLineWidth( 3 );
+	bottom->SetLineWidth( 3 );
+
+	if( maxX > 0  && !opt_alongBar)
+	{
+		left->SetX1(0);
+		left->SetY1(-slab_height/2);
+		left->SetX2(0);
+		left->SetY2(+slab_height/2);
+
+		top->SetX1(minX);
+		top->SetY1(-slab_height/2);
+		top->SetX2(0);
+		top->SetY2(-slab_height/2);
+
+		bottom->SetX1(minX);
+		bottom->SetY1(slab_height/2);
+		bottom->SetX2(0);
+		bottom->SetY2(slab_height/2);
+	}
+	else if( minX < -slab_length && !opt_alongBar)
+	{
+		right->SetX1(-slab_length);
+		right->SetY1(-slab_height/2);
+		right->SetX2(-slab_length);
+		right->SetY2(+slab_height/2);
+
+		top->SetX1(-slab_length);
+		top->SetY1(-slab_height/2);
+		top->SetX2(maxX);
+		top->SetY2(-slab_height/2);
+
+		bottom->SetX1(-slab_length);
+		bottom->SetY1(slab_height/2);
+		bottom->SetX2(maxX);
+		bottom->SetY2(slab_height/2);
+	}
+	else if( !opt_alongBar )
+	{
+		top->SetX1(minX);
+		top->SetY1(-slab_height/2);
+		top->SetX2(maxX);
+		top->SetY2(-slab_height/2);
+
+		bottom->SetX1(minX);
+		bottom->SetY1(slab_height/2);
+		bottom->SetX2(maxX);
+		bottom->SetY2(slab_height/2);
+	}
+	if( opt_alongBar )
+	{
+		left->SetX1(-slab_width/2);
+		left->SetY1(-slab_height/2);
+		left->SetX2(-slab_width/2);
+		left->SetY2(+slab_height/2);
+
+		right->SetX1(+slab_width/2);
+		right->SetY1(-slab_height/2);
+		right->SetX2(+slab_width/2);
+		right->SetY2(+slab_height/2);
+
+		top->SetX1(-slab_width/2);
+		top->SetY1(+slab_height/2);
+		top->SetX2(+slab_width/2);
+		top->SetY2(+slab_height/2);
+
+		bottom->SetX1(-slab_width/2);
+		bottom->SetY1(-slab_height/2);
+		bottom->SetX2(+slab_width/2);
+		bottom->SetY2(-slab_height/2);
+	}
+
+	left  ->Draw( "same" );
+	right ->Draw( "same" );
+	top   ->Draw( "same" );
+	bottom->Draw( "same" );
+
+
+	// screen plot
+	TString screen_titleX = "x [mm]";
+	TString screen_titleY = "y [mm]";
+
+	TH1F *screen = new TH1F( "screen", "", 600, -fishtank_width/2, fishtank_width/2 );
+
+	screen->SetStats( 0 );
+	screen->SetMinimum(-fishtank_height/2);
+	screen->SetMaximum(+fishtank_height/2);
+	screen->GetXaxis()->SetTitle( screen_titleX );
+	screen->GetXaxis()->CenterTitle();
+	screen->GetYaxis()->SetTitle( screen_titleY );
+	screen->GetYaxis()->CenterTitle();
+
+
+
+//==============================================================================
+// Optical device declarations
+//==============================================================================
+
+	// reflectivity
+
+//******************************************************************************
+// Note:
+// Unfortunately Fresnel reflection is hard-coded in PndDrcPhoton.h
+// to disable these kind of reflection set in the method "Refract" the fresnelFlag to false
+// currently a fresnelFlag for a certain surface is not implemented yet
+//******************************************************************************
+
+	PndDrcOptReflPerfect refl_perfect;  // reflected (mirror)
+	PndDrcOptReflNone    refl_none;     // absorbed (black)
+
+	// coordination system for device sketches
+
+	//             top
+	//
+	//              Y     exit
+	//              ^    z
+	//              |   ^
+	//              |  /
+	//     left     | /    right
+	//              |/
+	//   x <--------x
+	//
+	//           bottom
+
+	// origin x is centered at the slab end
+
+
+// quartz bar (slab)
+//==============================================================================
+
+	//                    exit
+	//               s8----------s5
+	//              /|     _    /|      _ (0,0,0) origin
+	//             / |         / |
+	//            /  s7-------/--s6
+	//           /  /        /  /
+	//          /  /        /  /
+	//         /  /        /  /
+	//        /  /        /  /
+	//      s4----------s1  /
+	//      |  /        |  /
+	//      | / face    | /
+	//      s3----------s2
+
+
+	XYZPoint s1(-slab_width/2, +slab_height/2, -slab_length);
+	XYZPoint s2(-slab_width/2, -slab_height/2, -slab_length);
+	XYZPoint s3(+slab_width/2, -slab_height/2, -slab_length);
+	XYZPoint s4(+slab_width/2, +slab_height/2, -slab_length);
+
+	XYZPoint s5(-slab_width/2, +slab_height/2, 0);
+	XYZPoint s6(-slab_width/2, -slab_height/2, 0);
+	XYZPoint s7(+slab_width/2, -slab_height/2, 0);
+	XYZPoint s8(+slab_width/2, +slab_height/2, 0);
+
+
+	// surface creation by AddPoint function only works for closed curves which don't cross itself
+
+	PndDrcSurfPolyFlat slab_exit; // slab end
+	slab_exit.AddPoint(s5);
+	slab_exit.AddPoint(s6);
+	slab_exit.AddPoint(s7);
+	slab_exit.AddPoint(s8);
+	slab_exit.SetName("slab_exit");
+
+	PndDrcSurfPolyFlat slab_left;
+	slab_left.AddPoint(s8);
+	slab_left.AddPoint(s7);
+	slab_left.AddPoint(s3);
+	slab_left.AddPoint(s4);
+	slab_left.SetName("slab_left");
+
+	PndDrcSurfPolyFlat slab_right;
+	slab_right.AddPoint(s5);
+	slab_right.AddPoint(s6);
+	slab_right.AddPoint(s2);
+	slab_right.AddPoint(s1);
+	slab_right.SetName("slab_right");
+
+	PndDrcSurfPolyFlat slab_bottom;
+	slab_bottom.AddPoint(s6);
+	slab_bottom.AddPoint(s2);
+	slab_bottom.AddPoint(s3);
+	slab_bottom.AddPoint(s7);
+	slab_bottom.SetName("slab_bottom");
+
+	PndDrcSurfPolyFlat slab_top;
+	slab_top.AddPoint(s5);
+	slab_top.AddPoint(s1);
+	slab_top.AddPoint(s4);
+	slab_top.AddPoint(s8);
+	slab_top.SetName("slab_top");
+
+	PndDrcSurfPolyFlat slab_face;
+	slab_face.AddPoint(s1);
+	slab_face.AddPoint(s2);
+	slab_face.AddPoint(s3);
+	slab_face.AddPoint(s4);
+	slab_face.SetName("slab_face");
+
+
+// 	slab_exit.SetVerbosity(4);
+
+	if( opt_mirror )
+		slab_face.SetReflectivity(refl_perfect);
+
+// 	slab_exit.SetPixel();
+
+
+	PndDrcOptVol slab;
+	slab.SetVerbosity(0);
+	slab.AddSurface(slab_exit);
+	slab.AddSurface(slab_left);
+	slab.AddSurface(slab_right);
+	slab.AddSurface(slab_bottom);
+	slab.AddSurface(slab_top);
+	slab.AddSurface(slab_face);
+	slab.SetOptMaterial( (*mat_slab) );
+	slab.SetName("slab");
 
 
 
 // lens
 //==============================================================================
+	double conical_const =  0; // sphere (default)
+// 	double conical_const = 0.5; //parabola
+
+
 	XYZPoint q0(-slab_width/2, +slab_height/2, 0);
 	XYZPoint q1(-slab_width/2, -slab_height/2, 0);
 	XYZPoint q2(+slab_width/2, -slab_height/2, 0);
 	XYZPoint q3(+slab_width/2, +slab_height/2, 0);
 
+
 	PndDrcSurfPolyAsphere lens_sphere;
-	lens_sphere.SetVerbosity(0);
 	lens_sphere.AddPoint(q0);
 	lens_sphere.AddPoint(q1);
 	lens_sphere.AddPoint(q2);
 	lens_sphere.AddPoint(q3);
-	lens_sphere.SetRadius(77.52); // f = R/(n-1) prev R: 75mm (BK7 Newport f=150 R=77.52 at 589nm)
+	lens_sphere.SetRadius(lens_radius);
 	lens_sphere.SetPrintColor(2);
 	lens_sphere.SetConicalConstant(conical_const);
 	lens_sphere.SetName("lens_sphere");
-	double dist = lens_sphere.CenterPoint().Z(); // in general the lens radius 77.52
+
+	double dist = lens_sphere.CenterPoint().Z(); // in general the lens radius
 // 	cout << "dist = " << dist << endl;
-	lens_sphere.AddTransform(Transform3D(XYZVector(0,0,-(dist)))); // ( dist |  =>  |(
+	lens_sphere.AddTransform( Transform3D( XYZVector(0,0,-(dist)) ) ); // ( dist |  =>  |(
 
 
-// 	cout << "Transform3D:" << endl;
-// 	TMatrixD m(3,4);
-// 	Transform3D transi = Transform3D(XYZVector(0,0,-(dist)));
-// 	Transform3D transid; // identy rotation + zero translation
-// //   Transform3D addtrans = transi * transid;
-// //   Transform3D transInv = addtrans.Inverse();
-// 	transi.GetComponents(m.GetMatrixArray());
-// 	for(int i=0;i<3;i++)
-// 	{
-// 		for(int j=0;j<4;j++)
-// 		{
-// 			cout << m[i][j] << " ";
-// 		}
-// 		cout << endl;
-// 	}
-// 	cout << endl;
+	double lensMinThickness = Abs( lens_sphere.LimitingPoint(0).Z() );
 
-
-    double lensBase = 7.5; // roughly measured lens thickness: 7.5 ; old: 5
-	cout << "lens thickness should be greater than: |" << lens_sphere.LimitingPoint(0).Z() << "|" << " and is currently " << lensBase << " mm" << endl;
-
-	q0+=XYZVector(0,0,-lensBase);
-	q1+=XYZVector(0,0,-lensBase);
-	q2+=XYZVector(0,0,-lensBase);
-	q3+=XYZVector(0,0,-lensBase);
-
-	PndDrcSurfPolyFlat lens_base;
-	lens_base.SetVerbosity(0);
-	lens_base.AddPoint(q0);
-	lens_base.AddPoint(q1);
-	lens_base.AddPoint(q2);
-	lens_base.AddPoint(q3);
-	lens_base.SetPrintColor(2);
-	lens_base.SetName("lens_base");
-
-	PndDrcSurfQuadFlatDiff lens_side1;
-	lens_side1.AddSurface(lens_base, q0,q1);
-	lens_side1.AddSurface(lens_sphere, lens_sphere.LimitingPoint(0),lens_sphere.LimitingPoint(1));
-	lens_side1.SetPrintColor(2);
-	lens_side1.SetName("lens_side1");
-
-	PndDrcSurfQuadFlatDiff lens_side2;
-	lens_side2.SetVerbosity(0);
-	lens_side2.AddSurface(lens_base, q1,q2);
-	lens_side2.AddSurface(lens_sphere, lens_sphere.LimitingPoint(1),lens_sphere.LimitingPoint(2));
-	lens_side2.SetPrintColor(2);
-	lens_side2.SetName("lens_side2");
-
-	PndDrcSurfQuadFlatDiff lens_side3;
-	lens_side3.AddSurface(lens_base, q2,q3);
-	lens_side3.AddSurface(lens_sphere, lens_sphere.LimitingPoint(2),lens_sphere.LimitingPoint(3));
-	lens_side3.SetPrintColor(2);
-	lens_side3.SetName("lens_side3");
-
-	PndDrcSurfQuadFlatDiff lens_side4;
-	lens_side4.AddSurface(lens_base, q3,q0);
-	lens_side4.AddSurface(lens_sphere, lens_sphere.LimitingPoint(3),lens_sphere.LimitingPoint(0));
-	lens_side4.SetPrintColor(2);
-	lens_side4.SetName("lens_side4");
+	if( lensMinThickness > lens_thickness && !opt_woLens)
+	{
+		cout << "*** lens thickness have to be greater than: " << lensMinThickness
+				<< " (currently " << lens_thickness << " mm)" << endl;
+		abort();
+	}
 
 
 // 	cout << "LimitingPoint:" << endl;
@@ -241,1071 +1030,804 @@ int main(int argc, char *argv[])
 // 	cout << lens_sphere.LimitingPoint(3) << endl << endl;
 
 
-// 	lens_side1.SetReflectivity(refl_none);
-// 	lens_side2.SetReflectivity(refl_none);
-// 	lens_side3.SetReflectivity(refl_none);
-// 	lens_side4.SetReflectivity(refl_none);
+	q0 += XYZVector(0, 0, -lens_thickness);
+	q1 += XYZVector(0, 0, -lens_thickness);
+	q2 += XYZVector(0, 0, -lens_thickness);
+	q3 += XYZVector(0, 0, -lens_thickness);
+
+
+	PndDrcSurfPolyFlat lens_base;
+	lens_base.AddPoint(q0);
+	lens_base.AddPoint(q1);
+	lens_base.AddPoint(q2);
+	lens_base.AddPoint(q3);
+	lens_base.SetPrintColor(2);
+	lens_base.SetName("lens_base");
+
+	PndDrcSurfQuadFlatDiff lens_right;
+	lens_right.AddSurface(lens_base, q0,q1);
+	lens_right.AddSurface(lens_sphere, lens_sphere.LimitingPoint(0),lens_sphere.LimitingPoint(1));
+	lens_right.SetPrintColor(2);
+	lens_right.SetName("lens_right");
+
+	PndDrcSurfQuadFlatDiff lens_bottom;
+	lens_bottom.AddSurface(lens_base, q1,q2);
+	lens_bottom.AddSurface(lens_sphere, lens_sphere.LimitingPoint(1),lens_sphere.LimitingPoint(2));
+	lens_bottom.SetPrintColor(2);
+	lens_bottom.SetName("lens_bottom");
+
+	PndDrcSurfQuadFlatDiff lens_left;
+	lens_left.AddSurface(lens_base, q2,q3);
+	lens_left.AddSurface(lens_sphere, lens_sphere.LimitingPoint(2),lens_sphere.LimitingPoint(3));
+	lens_left.SetPrintColor(2);
+	lens_left.SetName("lens_left");
+
+	PndDrcSurfQuadFlatDiff lens_top;
+	lens_top.AddSurface(lens_base, q3,q0);
+	lens_top.AddSurface(lens_sphere, lens_sphere.LimitingPoint(3),lens_sphere.LimitingPoint(0));
+	lens_top.SetPrintColor(2);
+	lens_top.SetName("lens_top");
+
+
+// 	lens_base.SetVerbosity(4);
+// 	lens_left.SetVerbosity(4);
+// 	lens_right.SetVerbosity(4);
+// 	lens_bottom.SetVerbosity(4);
+// 	lens_top.SetVerbosity(4);
+// 	lens_sphere.SetVerbosity(4);
+
+// 	lens_left.SetReflectivity(refl_none);
+// 	lens_right.SetReflectivity(refl_none);
+// 	lens_bottom.SetReflectivity(refl_none);
+// 	lens_top.SetReflectivity(refl_none);
 // 	lens_sphere.SetReflectivity(refl_none);
+
+// 	lens_left.SetPixel();
+// 	lens_right.SetPixel();
+// 	lens_bottom.SetPixel();
+// 	lens_top.SetPixel();
 // 	lens_sphere.SetPixel();
-// 	lens_side1.SetPixel();
-// 	lens_side2.SetPixel();
-// 	lens_side3.SetPixel();
-// 	lens_side4.SetPixel();
-// 	lens_side1.SetVerbosity(4);
-// 	lens_side2.SetVerbosity(4);
-// 	lens_side3.SetVerbosity(4);
-// 	lens_side4.SetVerbosity(4);
 
 
 	PndDrcOptVol lens;
 	lens.SetVerbosity(0);
 	lens.AddSurface(lens_base);
 	lens.AddSurface(lens_sphere);
-	lens.AddSurface(lens_side1);
-	lens.AddSurface(lens_side2);
-	lens.AddSurface(lens_side3);
-	lens.AddSurface(lens_side4);
-    lens.SetOptMaterial(bk7);//bk7
-	cout << "lens: bk7" << endl;
+	lens.AddSurface(lens_left);
+	lens.AddSurface(lens_right);
+	lens.AddSurface(lens_bottom);
+	lens.AddSurface(lens_top);
+	lens.SetOptMaterial( (*mat_lens) );
 	lens.SetName("lens");
 
-	double lens_shift = lensBase; // lensBase
-// 	if( -lens_sphere.LimitingPoint(0).Z() > lens_shift )
-// 		cout << " *** need a bigger lens shift" << endl;
-	lens.AddTransform(Transform3D(XYZVector(0,0,lens_shift)));
+	double lens_shift = lens_thickness;
+	lens.AddTransform(Transform3D(XYZVector(0,0,lens_shift))); // |(  =>  (|
 
 
 
-// box (fishtank) with oil
+// fishtank with oil
 //==============================================================================
-	double vacBoxwidth = 10; // old: 4.5 ; new: 10
-	if( lensBase > vacBoxwidth )
-		cout << " *** no air gap possible" << endl;
 
-  // old: X & Y [-300,300] new: X [-150,150] & Y [-100,100]
-  //                                                           screen
-	XYZPoint p1(-150.0, +100.0, vacBoxwidth);  //            p5----------p8
-	XYZPoint p2(-150.0, -100.0, vacBoxwidth);  //           /|          /|
-	XYZPoint p3(+150.0, -100.0, vacBoxwidth);  //          / |         / |
-	XYZPoint p4(+150.0, +100.0, vacBoxwidth);  //         /  p6-------/--p7
-	//                                                   /  /        /  /
-	//                                                  /  /        /  /
-	//                                                 /  /        /  /
-	//                                                /  /        /  /
-	XYZPoint p5(-150.0, +100.0, +230); //           p1----------p4  /
-	XYZPoint p6(-150.0, -100.0, +230); //           |  /        |  /
-	XYZPoint p7(+150.0, -100.0, +230); //           | /         | /
-	XYZPoint p8(+150.0, +100.0, +230); //           p2----------p3
+	//                   screen
+	//               b8----------b5
+	//              /|          /|
+	//             / |         / |
+	//            /  b7-------/--b6
+	//           /  /        /  /
+	//          /  /        /  /
+	//         /  /        /  /
+	//        /  /        /  /
+	//      b4----------b1  /
+	//      |  /        |  /
+	//      | /         | /
+	//      b3----------b2
 
 
-	PndDrcSurfPolyFlat box_side1;
-	box_side1.AddPoint(p1);
-	box_side1.AddPoint(p2);
-	box_side1.AddPoint(p3);
-	box_side1.AddPoint(p4);
-	box_side1.SetName("box_side1");
-
-	PndDrcSurfPolyFlat box_side2;
-	box_side2.AddPoint(p2);
-	box_side2.AddPoint(p3);
-	box_side2.AddPoint(p7);
-	box_side2.AddPoint(p6);
-	box_side2.SetName("box_side2");
-
-	PndDrcSurfPolyFlat box_side3;
-	box_side3.AddPoint(p3);
-	box_side3.AddPoint(p4);
-	box_side3.AddPoint(p8);
-	box_side3.AddPoint(p7);
-	box_side3.SetName("box_side3");
-
-	PndDrcSurfPolyFlat box_side4;
-	box_side4.AddPoint(p1);
-	box_side4.AddPoint(p4);
-	box_side4.AddPoint(p8);
-	box_side4.AddPoint(p5);
-	box_side4.SetName("box_side4");
-
-	PndDrcSurfPolyFlat box_side5;
-	box_side5.AddPoint(p5);
-	box_side5.AddPoint(p6);
-	box_side5.AddPoint(p7);
-	box_side5.AddPoint(p8);
-	box_side5.SetName("box_side5");
-
-	PndDrcSurfPolyFlat box_side6;
-	box_side6.AddPoint(p5);
-	box_side6.AddPoint(p6);
-	box_side6.AddPoint(p2);
-	box_side6.AddPoint(p1);
-	box_side6.SetName("box_side6");
+	double fishtank_posZ = fishtank_length + airgap; // default: 210 mm
 
 
-// 	box_side2.SetReflectivity(refl_none);
-// 	box_side3.SetReflectivity(refl_none);
-// 	box_side4.SetReflectivity(refl_none);
-// 	box_side6.SetReflectivity(refl_none);
-	box_side5.SetPixel();
+	XYZPoint b1(-fishtank_width/2, +fishtank_height/2, airgap);
+	XYZPoint b2(-fishtank_width/2, -fishtank_height/2, airgap);
+	XYZPoint b3(+fishtank_width/2, -fishtank_height/2, airgap);
+	XYZPoint b4(+fishtank_width/2, +fishtank_height/2, airgap);
+
+	XYZPoint b5(-fishtank_width/2, +fishtank_height/2, +fishtank_posZ);
+	XYZPoint b6(-fishtank_width/2, -fishtank_height/2, +fishtank_posZ);
+	XYZPoint b7(+fishtank_width/2, -fishtank_height/2, +fishtank_posZ);
+	XYZPoint b8(+fishtank_width/2, +fishtank_height/2, +fishtank_posZ);
 
 
-	PndDrcOptVol box;
-	box.SetVerbosity(0);
-	box.AddSurface(box_side1);
-	box.AddSurface(box_side2);
-	box.AddSurface(box_side3);
-	box.AddSurface(box_side4);
-	box.AddSurface(box_side5);
-	box.AddSurface(box_side6);
-	box.SetOptMaterial(quartz);
-	cout << "box (oil): quartz" << endl;
-	box.SetName("box");
+	PndDrcSurfPolyFlat fishtank_face;
+	fishtank_face.AddPoint(b1);
+	fishtank_face.AddPoint(b2);
+	fishtank_face.AddPoint(b3);
+	fishtank_face.AddPoint(b4);
+	fishtank_face.SetName("fishtank_face");
+
+	PndDrcSurfPolyFlat fishtank_left;
+	fishtank_left.AddPoint(b3);
+	fishtank_left.AddPoint(b4);
+	fishtank_left.AddPoint(b8);
+	fishtank_left.AddPoint(b7);
+	fishtank_left.SetName("fishtank_left");
+
+	PndDrcSurfPolyFlat fishtank_right;
+	fishtank_right.AddPoint(b5);
+	fishtank_right.AddPoint(b6);
+	fishtank_right.AddPoint(b2);
+	fishtank_right.AddPoint(b1);
+	fishtank_right.SetName("fishtank_right");
+
+	PndDrcSurfPolyFlat fishtank_bottom;
+	fishtank_bottom.AddPoint(b2);
+	fishtank_bottom.AddPoint(b3);
+	fishtank_bottom.AddPoint(b7);
+	fishtank_bottom.AddPoint(b6);
+	fishtank_bottom.SetName("fishtank_bottom");
+
+	PndDrcSurfPolyFlat fishtank_top;
+	fishtank_top.AddPoint(b1);
+	fishtank_top.AddPoint(b4);
+	fishtank_top.AddPoint(b8);
+	fishtank_top.AddPoint(b5);
+	fishtank_top.SetName("fishtank_top");
+
+	PndDrcSurfPolyFlat fishtank_screen;
+	fishtank_screen.AddPoint(b5);
+	fishtank_screen.AddPoint(b6);
+	fishtank_screen.AddPoint(b7);
+	fishtank_screen.AddPoint(b8);
+	fishtank_screen.SetName("fishtank_screen");
+
+
+	if( opt_fishtankBlack_bottom )
+		fishtank_bottom.SetReflectivity(refl_none);
+
+	if ( opt_fishtankBlack_sides )
+	{
+		fishtank_left.SetReflectivity(refl_none);
+		fishtank_right.SetReflectivity(refl_none);
+	}
+
+	if( opt_fishtankBlack_top )
+		fishtank_top.SetReflectivity(refl_none);
+
+	fishtank_screen.SetPixel();
+// 	fishtank_face.SetPixel();
+
+
+	PndDrcOptVol fishtank;
+	fishtank.SetVerbosity(0);
+	fishtank.AddSurface(fishtank_face);
+	fishtank.AddSurface(fishtank_left);
+	fishtank.AddSurface(fishtank_right);
+	fishtank.AddSurface(fishtank_bottom);
+	fishtank.AddSurface(fishtank_top);
+	fishtank.AddSurface(fishtank_screen);
+	fishtank.SetOptMaterial( (*mat_fishtank) );
+	fishtank.SetName("fishtank");
 
 
 
-// quartz bar (slab)
+// air box
 //==============================================================================
-	XYZPoint s5(-slab_width/2, +slab_height/2, 0);
-	XYZPoint s6(+slab_width/2, +slab_height/2, 0);
-	XYZPoint s7(-slab_width/2, -slab_height/2, 0);
-	XYZPoint s8(+slab_width/2, -slab_height/2, 0);
-	XYZPoint t5(-slab_width/2, +slab_height/2, -800);
-	XYZPoint t6(+slab_width/2, +slab_height/2, -800);
-	XYZPoint t7(-slab_width/2, -slab_height/2, -800);
-	XYZPoint t8(+slab_width/2, -slab_height/2, -800);
-    // comment ???
-  //s 5 6 at dist-1
-  //  7 8
-	//
-  //t 5 6 at dist-1-1000
-  //  7 8
-	//
-	PndDrcSurfPolyFlat slab_side1;
-	slab_side1.SetVerbosity(0);
-	slab_side1.AddPoint(s5); // face
-	slab_side1.AddPoint(s6);
-	slab_side1.AddPoint(s8);
-	slab_side1.AddPoint(s7);
-	slab_side1.SetName("slab_side1");
 
-	PndDrcSurfPolyFlat slab_side2;
-	slab_side2.AddPoint(s5);//left
-	slab_side2.AddPoint(s7);
-	slab_side2.AddPoint(t7);
-	slab_side2.AddPoint(t5);
-	slab_side2.SetName("slab_side2");
-
-	PndDrcSurfPolyFlat slab_side3;
-	slab_side3.AddPoint(s7);//down
-	slab_side3.AddPoint(s8);
-	slab_side3.AddPoint(t8);
-	slab_side3.AddPoint(t7);
-	slab_side3.SetName("slab_side3");
-
-	PndDrcSurfPolyFlat slab_side4;
-	slab_side4.AddPoint(s6);//right
-	slab_side4.AddPoint(s8);
-	slab_side4.AddPoint(t8);
-	slab_side4.AddPoint(t6);
-	slab_side4.SetName("slab_side4");
-
-	PndDrcSurfPolyFlat slab_side5;
-	slab_side5.AddPoint(s5);//top
-	slab_side5.AddPoint(s6);
-	slab_side5.AddPoint(t6);
-	slab_side5.AddPoint(t5);
-	slab_side5.SetName("slab_side5");
-
-	PndDrcSurfPolyFlat slab_side6;
-	slab_side6.AddPoint(t5); // face
-	slab_side6.AddPoint(t6);
-	slab_side6.AddPoint(t8);
-	slab_side6.AddPoint(t7);
-	slab_side6.SetName("slab_side6");
-
-//   slab_side1.SetReflectivity(refl_none);
-//   slab_side2.SetReflectivity(refl_perfect);
-//   slab_side3.SetReflectivity(refl_perfect);
-//   slab_side4.SetReflectivity(refl_perfect);
-//   slab_side5.SetReflectivity(refl_perfect);
-//   slab_side6.SetReflectivity(refl_perfect);
-//   slab_side1.SetPixel();
-
-	PndDrcOptVol slab;
-  //slab.SetVerbosity(5);
-	slab.AddSurface(slab_side1);
-	slab.AddSurface(slab_side2);
-	slab.AddSurface(slab_side3);
-	slab.AddSurface(slab_side4);
-	slab.AddSurface(slab_side5);
-	slab.AddSurface(slab_side6);
-	slab.SetOptMaterial(quartz);
-	cout << "slab: quartz" << endl;
-	slab.SetName("slab");
+	//               a8----------a5
+	//              /|          /|
+	//             / |         / |
+	//            /  a7-------/--a6
+	//           /  /        /  /
+	//          /  /        /  /
+	//         /  /        /  /
+	//        /  /        /  /
+	//      a4----------a1  /
+	//      |  /  _     |  /      _ (0,0,0) origin
+	//      | /         | /
+	//      a3----------a2
 
 
+	XYZPoint a1(-fishtank_width/2, +fishtank_height/2, 0);
+	XYZPoint a2(-fishtank_width/2, -fishtank_height/2, 0);
+	XYZPoint a3(+fishtank_width/2, -fishtank_height/2, 0);
+	XYZPoint a4(+fishtank_width/2, +fishtank_height/2, 0);
 
-// small air box
+	XYZPoint a5(-fishtank_width/2, +fishtank_height/2, airgap);
+	XYZPoint a6(-fishtank_width/2, -fishtank_height/2, airgap);
+	XYZPoint a7(+fishtank_width/2, -fishtank_height/2, airgap);
+	XYZPoint a8(+fishtank_width/2, +fishtank_height/2, airgap);
+
+	PndDrcSurfPolyFlat airBox_face;
+	airBox_face.AddPoint(a1);
+	airBox_face.AddPoint(a2);
+	airBox_face.AddPoint(a3);
+	airBox_face.AddPoint(a4);
+	airBox_face.SetName("airBox_face");
+
+	PndDrcSurfPolyFlat airBox_bottom;
+	airBox_bottom.AddPoint(a2);
+	airBox_bottom.AddPoint(a3);
+	airBox_bottom.AddPoint(a7);
+	airBox_bottom.AddPoint(a6);
+	airBox_bottom.SetName("airBox_bottom");
+
+	PndDrcSurfPolyFlat airBox_left;
+	airBox_left.AddPoint(a3);
+	airBox_left.AddPoint(a4);
+	airBox_left.AddPoint(a8);
+	airBox_left.AddPoint(a7);
+	airBox_left.SetName("airBox_left");
+
+	PndDrcSurfPolyFlat airBox_top;
+	airBox_top.AddPoint(a1);
+	airBox_top.AddPoint(a4);
+	airBox_top.AddPoint(a8);
+	airBox_top.AddPoint(a5);
+	airBox_top.SetName("airBox_top");
+
+	PndDrcSurfPolyFlat airBox_exit;
+	airBox_exit.AddPoint(a5);
+	airBox_exit.AddPoint(a6);
+	airBox_exit.AddPoint(a7);
+	airBox_exit.AddPoint(a8);
+	airBox_exit.SetName("airBox_exit");
+
+	PndDrcSurfPolyFlat airBox_right;
+	airBox_right.AddPoint(a5);
+	airBox_right.AddPoint(a6);
+	airBox_right.AddPoint(a2);
+	airBox_right.AddPoint(a1);
+	airBox_right.SetName("airBox_right");
+
+
+	airBox_left.SetReflectivity(refl_none);
+	airBox_right.SetReflectivity(refl_none);
+	airBox_bottom.SetReflectivity(refl_none);
+	airBox_top.SetReflectivity(refl_none);
+
+
+	PndDrcOptVol airBox;
+	airBox.SetVerbosity(0);
+	airBox.AddSurface(airBox_face);
+	airBox.AddSurface(airBox_bottom);
+	airBox.AddSurface(airBox_left);
+	airBox.AddSurface(airBox_top);
+	airBox.AddSurface(airBox_exit);
+	airBox.AddSurface(airBox_right);
+	airBox.SetOptMaterial( (*mat_airBox) );
+	airBox.SetName("airBox");
+
+
+
+// air box with hole for air lens
 //==============================================================================
-//     XYZPoint b1(-300.0, +300.0, 0); //                    b5----------b8
-//     XYZPoint b2(-300.0, -300.0, 0); //                   /|          /|
-//     XYZPoint b3(+300.0, -300.0, 0); //                  / |         / |
-//     XYZPoint b4(+300.0, +300.0, 0); //                 /  b6-------/--b7
-	//     //                                                /  /        /  /
-	//     //                                               /  /        /  /
-	//     //                                              /  /        /  /
-	//     //                                             /  /        /  /
-	//     XYZPoint b5(-300.0, +300.0, vacBoxwidth); //  b1----------b4 /
-	//     XYZPoint b6(-300.0, -300.0, vacBoxwidth); //  | /         | /
-	//     XYZPoint b7(+300.0, -300.0, vacBoxwidth); //  |/          |/
-//     XYZPoint b8(+300.0, +300.0, vacBoxwidth); //  b2---------b3
-	//
-//     PndDrcSurfPolyFlat smallBox_side1;
-//     smallBox_side1.AddPoint(b1);
-//     smallBox_side1.AddPoint(b2);
-//     smallBox_side1.AddPoint(b3);
-//     smallBox_side1.AddPoint(b4);
-//     smallBox_side1.SetName("smallBox_side1");
-	//
-//     PndDrcSurfPolyFlat smallBox_side2;
-//     smallBox_side2.AddPoint(b2);
-//     smallBox_side2.AddPoint(b3);
-//     smallBox_side2.AddPoint(b7);
-//     smallBox_side2.AddPoint(b6);
-//     smallBox_side2.SetReflectivity(refl_none);
-//     smallBox_side2.SetName("smallBox_side2");
-	//
-//     PndDrcSurfPolyFlat smallBox_side3;
-//     smallBox_side3.AddPoint(b3);
-//     smallBox_side3.AddPoint(b4);
-//     smallBox_side3.AddPoint(b8);
-//     smallBox_side3.AddPoint(b7);
-//     smallBox_side3.SetReflectivity(refl_none);
-//     smallBox_side3.SetName("smallBox_side3");
-	//
-//     PndDrcSurfPolyFlat smallBox_side4;
-//     smallBox_side4.AddPoint(b1);
-//     smallBox_side4.AddPoint(b4);
-//     smallBox_side4.AddPoint(b8);
-//     smallBox_side4.AddPoint(b5);
-//     smallBox_side4.SetReflectivity(refl_none);
-//     smallBox_side4.SetName("smallBox_side4");
-	//
-//     PndDrcSurfPolyFlat smallBox_side5;
-//     smallBox_side5.AddPoint(b5);
-//     smallBox_side5.AddPoint(b6);
-//     smallBox_side5.AddPoint(b7);
-//     smallBox_side5.AddPoint(b8);
-//     smallBox_side5.SetName("smallBox_side5");
-	//
-//     PndDrcSurfPolyFlat smallBox_side6;
-//     smallBox_side6.AddPoint(b5);
-//     smallBox_side6.AddPoint(b6);
-//     smallBox_side6.AddPoint(b2);
-//     smallBox_side6.AddPoint(b1);
-//     smallBox_side6.SetReflectivity(refl_none);
-//     smallBox_side6.SetName("smallBox_side6");
-	//
-	//
-//     PndDrcOptVol smallBox;
-//     smallBox.SetVerbosity(0);
-//     smallBox.AddSurface(smallBox_side1);
-//     smallBox.AddSurface(smallBox_side2);
-//     smallBox.AddSurface(smallBox_side3);
-//     smallBox.AddSurface(smallBox_side4);
-//     smallBox.AddSurface(smallBox_side5);
-//     smallBox.AddSurface(smallBox_side6);
-//     smallBox.SetOptMaterial(vacuum);
-//     cout << "small box: vacuum" << endl;
-//     smallBox.SetName("smallBox");
-	//
+
+	//              a8----------a5
+	//             /|          / |
+	//            / |         /  |
+	//           /  |        /   |
+	//          /   |       /    |
+	//         /    |      /     |
+	//        /     a7----/------a6
+	//       /     /     /       /
+	//      a4--h4--h1--a1      /
+	//      |   |   |   |      /
+	//      |   |   |   |     /
+	//      |---s8--s5--|    /
+	//      |   | H |   |   /       H: lens-hole
+	//      |---s7--s6--|  /
+	//      |   |   |   | /
+	//      |   |   |   |/
+	//      a3--h3--h2--a2
 
 
-// small box with hole for air_lens
-//==============================================================================
-	XYZPoint b1(-300.0, +300.0, 0);             //             b5--------- b8
-	XYZPoint b2(-300.0, -300.0, 0);             //            /|          / |
-	XYZPoint b3(+300.0, -300.0, 0);             //           / |         /  |
-	XYZPoint b4(+300.0, +300.0, 0);             //          /  |        /   |
-	XYZPoint b5(-300.0, +300.0, vacBoxwidth);   //         /   |       /    |
-	XYZPoint b6(-300.0, -300.0, vacBoxwidth);   //        /    |      /     |
-	XYZPoint b7(+300.0, -300.0, vacBoxwidth);   //       /     b6----/------b7
-	XYZPoint b8(+300.0, +300.0, vacBoxwidth);   //      /    /      /       /
-	//                                                b1--s1--s4--b4       /
-	XYZPoint s1(-slab_width/2, +300.0, 0);      //    |   |   |   |       /
-	XYZPoint s2(-slab_width/2, -300.0, 0);      //    |   |   |   |      /
-	XYZPoint s3(+slab_width/2, -300.0, 0);      //    |---s5--s6--|     /
-	XYZPoint s4(+slab_width/2, +300.0, 0);      //    |   | H |   |    /       H: lens-hole
-	//                                                |---s7--s8--|   /
-	//                                                |   |   |   |  /
-	//                                                |   |   |   | /
-  //                                                b2--s2--s3--b3
+	XYZPoint h1(-slab_width/2, +fishtank_height/2, 0);
+	XYZPoint h2(-slab_width/2, -fishtank_height/2, 0);
+	XYZPoint h3(+slab_width/2, -fishtank_height/2, 0);
+	XYZPoint h4(+slab_width/2, +fishtank_height/2, 0);
 
 
-	PndDrcSurfPolyFlat smallBox_side1a;
-	smallBox_side1a.AddPoint(b1);
-	smallBox_side1a.AddPoint(b2);
-	smallBox_side1a.AddPoint(s2);
-	smallBox_side1a.AddPoint(s1);
-	smallBox_side1a.SetReflectivity(refl_none);
-	smallBox_side1a.SetName("smallBox_side1a");
+	PndDrcSurfPolyFlat airLens_faceLeft;
+	airLens_faceLeft.AddPoint(h4);
+	airLens_faceLeft.AddPoint(h3);
+	airLens_faceLeft.AddPoint(a3);
+	airLens_faceLeft.AddPoint(a4);
+	airLens_faceLeft.SetReflectivity(refl_none);
+	airLens_faceLeft.SetName("airLens_faceLeft");
 
-	PndDrcSurfPolyFlat smallBox_side1b;
-	smallBox_side1b.AddPoint(s4);
-	smallBox_side1b.AddPoint(s3);
-	smallBox_side1b.AddPoint(b3);
-	smallBox_side1b.AddPoint(b4);
-	smallBox_side1b.SetReflectivity(refl_none);
-	smallBox_side1b.SetName("smallBox_side1b");
+	PndDrcSurfPolyFlat airLens_faceRight;
+	airLens_faceRight.AddPoint(a1);
+	airLens_faceRight.AddPoint(a2);
+	airLens_faceRight.AddPoint(h2);
+	airLens_faceRight.AddPoint(h1);
+	airLens_faceRight.SetReflectivity(refl_none);
+	airLens_faceRight.SetName("airLens_faceRight");
 
-	PndDrcSurfPolyFlat smallBox_side1c;
-	smallBox_side1c.AddPoint(s1);
-	smallBox_side1c.AddPoint(s5);
-	smallBox_side1c.AddPoint(s6);
-	smallBox_side1c.AddPoint(s4);
-	smallBox_side1c.SetReflectivity(refl_none);
-	smallBox_side1c.SetName("smallBox_side1c");
+	PndDrcSurfPolyFlat airLens_faceBottom;
+	airLens_faceBottom.AddPoint(s6);
+	airLens_faceBottom.AddPoint(h2);
+	airLens_faceBottom.AddPoint(h3);
+	airLens_faceBottom.AddPoint(s7);
+	airLens_faceBottom.SetReflectivity(refl_none);
+	airLens_faceBottom.SetName("airLens_faceBottom");
 
-	PndDrcSurfPolyFlat smallBox_side1d;
-	smallBox_side1d.AddPoint(s7);
-	smallBox_side1d.AddPoint(s2);
-	smallBox_side1d.AddPoint(s3);
-	smallBox_side1d.AddPoint(s8);
-	smallBox_side1d.SetReflectivity(refl_none);
-	smallBox_side1d.SetName("smallBox_side1d");
+	PndDrcSurfPolyFlat airLens_faceTop;
+	airLens_faceTop.AddPoint(h1);
+	airLens_faceTop.AddPoint(s5);
+	airLens_faceTop.AddPoint(s8);
+	airLens_faceTop.AddPoint(h4);
+	airLens_faceTop.SetReflectivity(refl_none);
+	airLens_faceTop.SetName("airLens_faceTop");
 
 
-	lens_sphere.AddTransform(Transform3D(XYZVector(0,0,lens_shift)));
-	lens_side1.AddTransform(Transform3D(XYZVector(0,0,lens_shift)));
-	lens_side2.AddTransform(Transform3D(XYZVector(0,0,lens_shift)));
-	lens_side3.AddTransform(Transform3D(XYZVector(0,0,lens_shift)));
-	lens_side4.AddTransform(Transform3D(XYZVector(0,0,lens_shift)));
+	lens_sphere.AddTransform( Transform3D(XYZVector(0, 0, lens_shift)) );
+	lens_left.AddTransform( Transform3D(XYZVector(0, 0, lens_shift)) );
+	lens_right.AddTransform( Transform3D(XYZVector(0, 0, lens_shift)) );
+	lens_bottom.AddTransform( Transform3D(XYZVector(0, 0, lens_shift)) );
+	lens_top.AddTransform( Transform3D(XYZVector(0, 0, lens_shift)) );
 
-	PndDrcSurfPolyAsphere smallBox_lens_sphere = lens_sphere;
-	PndDrcSurfQuadFlatDiff smallBox_lens_side1 = lens_side1;
-	PndDrcSurfQuadFlatDiff smallBox_lens_side2 = lens_side2;
-	PndDrcSurfQuadFlatDiff smallBox_lens_side3 = lens_side3;
-	PndDrcSurfQuadFlatDiff smallBox_lens_side4 = lens_side4;
+	PndDrcSurfPolyAsphere  airLens_lens_sphere 	= lens_sphere;
+	PndDrcSurfQuadFlatDiff airLens_lens_left 	= lens_left;
+	PndDrcSurfQuadFlatDiff airLens_lens_right 	= lens_right;
+	PndDrcSurfQuadFlatDiff airLens_lens_bottom 	= lens_bottom;
+	PndDrcSurfQuadFlatDiff airLens_lens_top 	= lens_top;
 
-	smallBox_lens_sphere.SetName("smallBox_lens_sphere");
-	smallBox_lens_side1.SetName("smallBox_lens_side1");
-	smallBox_lens_side2.SetName("smallBox_lens_side2");
-	smallBox_lens_side3.SetName("smallBox_lens_side3");
-	smallBox_lens_side4.SetName("smallBox_lens_side4");
+	airLens_lens_sphere.SetName("airLens_lens_sphere");
+	airLens_lens_left.SetName("airLens_lens_left");
+	airLens_lens_right.SetName("airLens_lens_right");
+	airLens_lens_bottom.SetName("airLens_lens_bottom");
+	airLens_lens_top.SetName("airLens_lens_top");
 
-	PndDrcSurfPolyFlat smallBox_side2;
-	smallBox_side2.AddPoint(b2);
-	smallBox_side2.AddPoint(b3);
-	smallBox_side2.AddPoint(b7);
-	smallBox_side2.AddPoint(b6);
-	smallBox_side2.SetReflectivity(refl_none);
-	smallBox_side2.SetName("smallBox_side2");
 
-	PndDrcSurfPolyFlat smallBox_side3;
-	smallBox_side3.AddPoint(b3);
-	smallBox_side3.AddPoint(b4);
-	smallBox_side3.AddPoint(b8);
-	smallBox_side3.AddPoint(b7);
-	smallBox_side3.SetReflectivity(refl_none);
-	smallBox_side3.SetName("smallBox_side3");
+	PndDrcSurfPolyFlat airLens_left;
+	airLens_left.AddPoint(a3);
+	airLens_left.AddPoint(a4);
+	airLens_left.AddPoint(a8);
+	airLens_left.AddPoint(a7);
+	airLens_left.SetReflectivity(refl_none);
+	airLens_left.SetName("airLens_left");
 
-	PndDrcSurfPolyFlat smallBox_side4;
-	smallBox_side4.AddPoint(b1);
-	smallBox_side4.AddPoint(b4);
-	smallBox_side4.AddPoint(b8);
-	smallBox_side4.AddPoint(b5);
-	smallBox_side4.SetReflectivity(refl_none);
-	smallBox_side4.SetName("smallBox_side4");
+	PndDrcSurfPolyFlat airLens_right;
+	airLens_right.AddPoint(a2);
+	airLens_right.AddPoint(a1);
+	airLens_right.AddPoint(a5);
+	airLens_right.AddPoint(a6);
+	airLens_right.SetReflectivity(refl_none);
+	airLens_right.SetName("airLens_right");
 
-	PndDrcSurfPolyFlat smallBox_side5;
-	smallBox_side5.AddPoint(b5);
-	smallBox_side5.AddPoint(b6);
-	smallBox_side5.AddPoint(b7);
-	smallBox_side5.AddPoint(b8);
-	smallBox_side5.SetName("smallBox_side5");
+	PndDrcSurfPolyFlat airLens_bottom;
+	airLens_bottom.AddPoint(a2);
+	airLens_bottom.AddPoint(a3);
+	airLens_bottom.AddPoint(a7);
+	airLens_bottom.AddPoint(a6);
+	airLens_bottom.SetReflectivity(refl_none);
+	airLens_bottom.SetName("airLens_bottom");
 
-	PndDrcSurfPolyFlat smallBox_side6;
-	smallBox_side6.AddPoint(b5);
-	smallBox_side6.AddPoint(b6);
-	smallBox_side6.AddPoint(b2);
-	smallBox_side6.AddPoint(b1);
-	smallBox_side6.SetReflectivity(refl_none);
-	smallBox_side6.SetName("smallBox_side6");
+	PndDrcSurfPolyFlat airLens_top;
+	airLens_top.AddPoint(a1);
+	airLens_top.AddPoint(a4);
+	airLens_top.AddPoint(a8);
+	airLens_top.AddPoint(a5);
+	airLens_top.SetReflectivity(refl_none);
+	airLens_top.SetName("airLens_top");
 
-//   smallBox_lens_sphere.SetReflectivity(refl_none);
+	PndDrcSurfPolyFlat airLens_exit;
+	airLens_exit.AddPoint(a5);
+	airLens_exit.AddPoint(a6);
+	airLens_exit.AddPoint(a7);
+	airLens_exit.AddPoint(a8);
+	airLens_exit.SetName("airLens_exit");
 
-	PndDrcOptVol smallBox;
-	smallBox.SetVerbosity(0);
-	smallBox.AddSurface(smallBox_side1a);
-	smallBox.AddSurface(smallBox_side1b);
-	smallBox.AddSurface(smallBox_side1c);
-	smallBox.AddSurface(smallBox_side1d);
 
-	smallBox.AddSurface(smallBox_lens_sphere);
-	smallBox.AddSurface(smallBox_lens_side1);
-	smallBox.AddSurface(smallBox_lens_side2);
-	smallBox.AddSurface(smallBox_lens_side3);
-	smallBox.AddSurface(smallBox_lens_side4);
+	PndDrcOptVol airLens;
+	airLens.SetVerbosity(0);
+	airLens.AddSurface(airLens_faceLeft);
+	airLens.AddSurface(airLens_faceRight);
+	airLens.AddSurface(airLens_faceBottom);
+	airLens.AddSurface(airLens_faceTop);
 
-	smallBox.AddSurface(smallBox_side2);
-	smallBox.AddSurface(smallBox_side3);
-	smallBox.AddSurface(smallBox_side4);
-	smallBox.AddSurface(smallBox_side5);
-	smallBox.AddSurface(smallBox_side6);
-	smallBox.SetOptMaterial(vacuum);
-	cout << "small box: vacuum" << endl;
-	smallBox.SetName("smallBox");
+	airLens.AddSurface(airLens_lens_sphere);
+	airLens.AddSurface(airLens_lens_left);
+	airLens.AddSurface(airLens_lens_right);
+	airLens.AddSurface(airLens_lens_bottom);
+	airLens.AddSurface(airLens_lens_top);
+
+	airLens.AddSurface(airLens_left);
+	airLens.AddSurface(airLens_right);
+	airLens.AddSurface(airLens_bottom);
+	airLens.AddSurface(airLens_top);
+	airLens.AddSurface(airLens_exit);
+	airLens.SetOptMaterial( (*mat_airBox) );
+	airLens.SetName("airLens");
 
 
 
-// connect all objects
+// connect optical devices
 //==============================================================================
 	PndDrcOptDevSys opt_system;
 	opt_system.SetNameCopyNumber("opt_system");
 	opt_system.SetVerbosity(0);
-	opt_system.AddDevice(slab);
-	opt_system.AddDevice(lens);
-	opt_system.AddDevice(smallBox);
-	opt_system.AddDevice(box);
 
+	if( opt_woLens )
+	{
+		opt_system.AddDevice(slab);
+		if( airgap > 0 )
+			opt_system.AddDevice(airBox);
+		opt_system.AddDevice(fishtank);
 
-    // couple surface 1 of device 1 with surface 2 of device 2
-    //                       dev1   dev2    surf1     surf2
+		if( airgap > 0 )
+		{
+			opt_system.CoupleDevice("slab","airBox","slab_exit","airBox_face");
+			opt_system.CoupleDevice("airBox","fishtank","airBox_exit","fishtank_face");
+		}
+		else
+			opt_system.CoupleDevice("slab","fishtank","slab_exit","fishtank_face");
 
-// 	opt_system.CoupleDevice("slab","smallBox","slab_side1","smallBox_side1");
-// 	opt_system.CoupleDevice("slab","box","slab_side1","box_side1");
+	}
+	else
+	{
+		opt_system.AddDevice(slab);
+		opt_system.AddDevice(lens);
+		opt_system.AddDevice(airLens);
+		opt_system.AddDevice(fishtank);
 
-	opt_system.CoupleDevice("slab","lens","slab_side1", "lens_base");
-	opt_system.CoupleDevice("lens","smallBox","lens_side1","smallBox_lens_side1");
-	opt_system.CoupleDevice("lens","smallBox","lens_side2","smallBox_lens_side2");
-	opt_system.CoupleDevice("lens","smallBox","lens_side3","smallBox_lens_side3");
-	opt_system.CoupleDevice("lens","smallBox","lens_side4","smallBox_lens_side4");
-	opt_system.CoupleDevice("lens","smallBox","lens_sphere","smallBox_lens_sphere");
-	opt_system.CoupleDevice("smallBox","box","smallBox_side5","box_side1");
+		opt_system.CoupleDevice("slab","lens","slab_exit","lens_base");
+		opt_system.CoupleDevice("lens","airLens","lens_left","airLens_lens_left");
+		opt_system.CoupleDevice("lens","airLens","lens_right","airLens_lens_right");
+		opt_system.CoupleDevice("lens","airLens","lens_bottom","airLens_lens_bottom");
+		opt_system.CoupleDevice("lens","airLens","lens_top","airLens_lens_top");
+		opt_system.CoupleDevice("lens","airLens","lens_sphere","airLens_lens_sphere");
+		opt_system.CoupleDevice("airLens","fishtank","airLens_exit","fishtank_face");
+	}
 
 
 	PndDrcOptDevManager* manager = new PndDrcOptDevManager();
 	manager->AddDeviceSystem(opt_system);
 
 
-
-// create visual photon propagation in the system
 //==============================================================================
-	fstream geo;
-	geo.open("Geo.C",std::ios::out);
-	geo<<"{"<<endl;
-	geo<<"    TCanvas *c1 = new TCanvas(\"c1\"); "<<endl;
-	cout << endl << " root version: "<< int((TROOT*)gROOT -> GetVersionInt()) << endl << endl;
-	if ( ((TROOT*)gROOT)->GetVersionInt() < 51600)
-	{
-		geo<<"    TView *view = new TView(1);"<<endl;
-	}
-	else
-	{
-		geo<<"    TView *view = TView::CreateView(1);"<<endl;
-	}
-	geo<<"    view->SetRange(-450,-450,-900,450,450,900);"<<endl;
-	geo<<"    Int_t i;"<<endl;
-	geo<<"    view->SetView(180,45,90,i);"<<endl;
-	geo<<"    view->SetView(90,0,90,i);"<<endl;
-	geo<<"    view->Zoom();"<<endl;
-	geo<<"    view->Zoom();"<<endl;
-	geo<<"    view->Zoom();"<<endl;
-	geo<<"    view->Zoom();"<<endl;
-	geo<<"    view->Zoom();"<<endl;
-	geo<<"    view->Zoom();"<<endl;
-	geo<<"    view->Zoom();"<<endl;
-
-  // the following command sets a flag within the manager and all photons from
-  // now on will be traced and can be plotted by calling within root
-  // .x Geo.C
-  // .x Screen.C
-
-// 	manager->Print(geo); // switcher: comment out means no visual simualtion => faster
-
-
-
-// ROOT canvas
+// Photon propagation
 //==============================================================================
 
-    // set some global options
-    gStyle->SetCanvasColor( 0 );        // white
-    gStyle->SetCanvasBorderMode( 0 );   // no yellow frame
-    gStyle->SetFrameBorderMode( 0 );    // no red frame
-    gStyle->SetTitleFillColor( 0 );     // white; not saved in the root file
-    gStyle->SetTitleFontSize( 0.05 );
-    gStyle->SetPalette( 1 );            // better color palette
-    gStyle->SetStatColor( 0 );          // stat. box color
+	// 1. simulation for beamtest_2009 with or w/o lens and beamtest_2008
+	// 2. photon cannon
+	// 3. single photon for debugging
 
-    TCanvas *canvas = new TCanvas( "c1", "" ,200, 10, 700, 500 );
+	list<PndDrcPhoton> list_photon;
 
 
-
-// photon propagation
+// beamtest simulation
 //==============================================================================
-	list<PndDrcPhoton> list_photon; // get list
-
-	PndDrcPhoton ph;
-	ph.SetReflectionLimit(200);
-
-    // for option 3
-    double inci = -666; // incidence angle
-    double startX_center = -666; // hit pos. X on bar
-    double startY_center = -666; // hit pos. Y on bar
-    double startZ_center = -666; // hit pos. Z on bar
-
-
-	double beta = 0;
-	bool photons_exist = false;
-
-	if (ioption==1)
+	if( opt_beamtest )
 	{
-		for( int i=0; i<10000; i++)
+		double x_shift = Sin(Abs(inci)*degree) * limit; // move exterior beam spot particle in bar to bar border
+		double z_shift = Tan(inci*degree) * x_shift; // => hit position on bar doesn't change
+		double parOriginX; // new particle creation position
+		double parOriginY;
+		double parOriginZ;
+
+		if( opt_alongBar )
 		{
-			ph.SetPosition(XYZPoint(0,0,-100));
-			ph.SetDirection(XYZVector(0,0,1));
-			ph.SetWavelength(lambda);
-			list_photon.push_back(ph);
-		}
-
-		photons_exist = true;
-		manager->SetPhotonList(list_photon,"slab","opt_system",0,0);
-
-
-    // draw chosen photons (for Geo)
-    //==========================================================================================
-// 		list_photon = manager->PhotonList();
-// 		list<PndDrcPhoton>::iterator iph;
-//
-// 		int icnt=0;
-//
-// 		for(iph=list_photon.begin(); iph != list_photon.end(); ++iph)
-// 		{
-// 			icnt++;
-//
-// 			if( icnt == 9680 )
-// 				(*iph).SetPrintFlag(true);
-// 			else
-// 				(*iph).SetPrintFlag(false);
-// 		}
-//
-// 		manager->SetPhotonList(list_photon,"slab","opt_system",0,0);
-
-	}
-
-	if (ioption==2)
-	{
-		for (double angle1=-30; angle1<30.5; angle1+=5.0)
-		{
-			for (double xx=-0.2*slab_width; xx<=0.21*slab_width; xx+=.40*slab_width)
-			{
-				double yy=0;
-	      //for (double lambda1=330; lambda1<631; lambda1+=100)
-				{
-					double angle;
-					double lambda1 = lambda;
-					ph.SetPosition(XYZPoint(xx,yy,-500.5));
-
-					angle = pi/180.0 * angle1;
-					ph.SetDirection(XYZVector(sin(+angle),0,cos(+angle)));
-					ph.SetWavelength(lambda1);
-					list_photon.push_back(ph);
-
-
-				}
-			}
-		}
-		photons_exist = true;
-		manager->SetPhotonList(list_photon,"slab","opt_system",0,0);
-	}
-	if (ioption==3)
-	{
-		double kinE = 2.3; // kinetic energy in GeV
-		double mass_p = 0.938; // proton mass in GeV
-		beta = sqrt( 1 - pow( mass_p / (kinE + mass_p) ,2 ) ); // E = T + E0 = gamma * E0
-
-		cout << "beta = " << beta << endl;
-
-
-		inci = 57; // in degree
-
-        if( argc == 2)
-          inci = atof( argv[1]);
-
-		cout << "incidence angle of particles (theta): " << inci << " deg" << endl;
-
-
-		double dirX = -1;
-		double dirY = 0;
-		double dirZ = tan(inci/180.*pi);
-
-		XYZVector dir( dirX, dirY, dirZ ); // particle flight direction
-		cout << "particle flight direction: (" << dirX << ", " << dirY << ", " << dirZ << ")" << endl;
-
-
-        // hit pos. on bar is now independent of the incidence angle
-        double startX = slab_width / 2; // slab_width / 2
-        double startY = 0; // 0
-        double startZ = -500; // -500
-
-		XYZPoint  pos;
-		if( argc == 5 )
-		{
-			startX = atof(argv[2]);
-			startY = atof(argv[3]);
-			startZ = atof(argv[4]);
-			pos = XYZVector(startX,startY,startZ);
+			parOriginX = hitBarX - z_shift - parDirX; // (+-) - (+-) ; - parDir to be sure particle isn't on border (rounding issue)
+			parOriginY = hitBarY           - parDirY;
+			parOriginZ = hitBarZ - x_shift - parDirZ; // (-) - (+)
 		}
 		else
-			pos = XYZVector(startX,startY,startZ);
-
-        // center position of beamspot for the output filename
-        startX_center = startX;
-        startY_center = startY;
-        startZ_center = startZ;
-
-		cout << "hit pos: (" << startX << ", " << startY << ", " << startZ << ")" << endl;
+		{
+			parOriginX = hitBarX + x_shift - parDirX; // (+) + (+)
+			parOriginY = hitBarY           - parDirY;
+			parOriginZ = hitBarZ - z_shift - parDirZ; // (-) - (+-)
+		}
 
 
-		int photon_number = 100; // 100
-// 		float     range = 1000;
-// 		photons_exist = manager->Cerenkov(pos,dir,beta,photon_number,range);
-
-
-
-    // beamSpot simulation
-    //==========================================================================================
-        double limit = 50; // beam spot radius limit in mm
-        double x_shift = cos((90-inci)/180.*pi) * limit;
-        double z_shift = tan(inci/180.*pi) * x_shift;
-        startX += x_shift;
-        startZ -= z_shift;
-        double z_shift2 = sin((90-inci)/180.*pi) * limit;
-        TVector3 shift( startX + x_shift, startY, startZ + z_shift2 );
-        TVector3 endBar( slab_width / 2, startY, 0 );
-        double maxrange = (shift - endBar).Mag();
-        cout << "maximum range (to generate photons only in bar): " << maxrange << endl;
-
-        TVector3 z = TVector3(0,0,1);
+		TVector3 z = TVector3(0,0,1);
 		TVector3 ortho;
 		ortho = z.Orthogonal();
 		TRandom3 rand;
 		TVector3 helper;
 		TVector3 helper2;
-		double gausSmear; // gaus smearing
-		double transX = startX; // for the translation-(shift) (see above)
-		double transY = startY;
-		double transZ = startZ;
-		double spotX;
-		double spotY;
-		double spotZ;
+		double gausSmear; // beam spot is gaus smeared
+		double transX = parOriginX; // for the translation-(shift) (see above)
+		double transY = parOriginY;
+		double transZ = parOriginZ;
 		XYZPoint spotPos;
 
-        double radius = 20; // radius in mm is 1 sigma of the gaus smearing
-        cout << "beam spot radius (1-sigma): " << radius << endl << endl;
 
-
-        // beampsot plot
-        TString beamspot_title  = "beamspot on bar";
-        TString beamspot_titleX = "z [mm]";
-        TString beamspot_titleY = "y [mm]";
-
-        int minX = Nint( startZ_center - 100 );
-        int maxX = Nint( startZ_center + 100 );
-
-        TH1F *beamspot = new TH1F( "beamspot", beamspot_title, 100, minX, maxX );
-
-        beamspot->SetStats( 0 );
-        beamspot->SetMinimum(-limit);
-        beamspot->SetMaximum(+limit);
-        beamspot->GetXaxis()->SetTitle( beamspot_titleX );
-        beamspot->GetXaxis()->CenterTitle();
-        beamspot->GetYaxis()->SetTitle( beamspot_titleY );
-        beamspot->GetYaxis()->CenterTitle();
-        beamspot->Draw( "POL" );
-
-        // bar border in beamspot plot
-        TLine *top    = new TLine( minX, -slab_height/2, maxX, -slab_height/2 );
-        TLine *bottom = new TLine( minX,  slab_height/2, maxX,  slab_height/2 );
-        top   ->SetLineWidth( 3 );
-        bottom->SetLineWidth( 3 );
-        top   ->Draw( "same" );
-        bottom->Draw( "same");
-
-
-		for(int i=0; i<300; i++) // number of particles (300)
+		for(int i=0; i < particle_number; i++)
 		{
+			int particleNumber = i+1;
+
 			helper=ortho; // (-1,0,0) is the orthogonal of (0,0,1)
 			helper.RotateZ(rand.Rndm()*2*pi);
 			gausSmear=rand.Gaus(0,radius);
-            if( Abs(gausSmear) > limit ) // beam spot limit
-              continue;
+			if( Abs(gausSmear) > limit ) // beam spot limit
+				continue;
 			helper2 = TVector3(helper.X()*gausSmear, helper.Y()*gausSmear, helper.Z()*gausSmear);
-			helper2.RotateY( (-90+inci)/180.*pi ); // rotation in the right direction
+
+			if( opt_alongBar )
+				helper2.RotateY(inci*degree );
+			else
+				helper2.RotateY( (-90+inci)*degree ); // rotation in the right direction
+
 			spotX = helper2.X()+transX; // translation-(shift)
 			spotY = helper2.Y()+transY;
 			spotZ = helper2.Z()+transZ;
 			spotPos = XYZVector(spotX,spotY,spotZ);
 
 
-            double stepsToBar = (spotX - slab_width / 2) / Abs(dirX);
-            double hitX = spotX + stepsToBar * dirX;
-            double hitY = spotY + stepsToBar * dirY;
-            double hitZ = spotZ + stepsToBar * dirZ;
+			double stepsToBar;
+			if( opt_alongBar )
+				stepsToBar = (-spotZ - slab_length) / parDirZ;
+			else
+				stepsToBar = (spotX - slab_width/2) / Abs(parDirX);
+
+			hitOnBarX = spotX + stepsToBar * parDirX;
+			hitOnBarY = spotY + stepsToBar * parDirY;
+			hitOnBarZ = spotZ + stepsToBar * parDirZ;
 
 //             cout << "start pos: (" << spotX << ", " << spotY << ", " << spotZ << ")" << endl;
-//             cout << "hit pos  : (" << hitX  << ", " << hitY  << ", " << hitZ  << ")" << endl << endl;
+//             cout << "hit pos  : (" << hitOnBarX  << ", " << hitOnBarY  << ", " << hitOnBarZ  << ")" << endl << endl;
 
-            if( spotX < slab_width / 2) // should never happen
-            {
-              cout << "particle origin production is in the bar !!!" << endl;
-              cout << "start pos: (" << spotX << ", " << spotY << ", " << spotZ << ")" << endl;
-              cout << "hit pos  : (" << hitX  << ", " << hitY  << ", " << hitZ  << ")" << endl << endl;
-              continue;
-            }
 
-            if( Abs(spotZ / cos((90-inci)/180.*pi)) < maxrange )
-            {
-              cout << "particle trajectory cross the lens and/or the fishtank" << endl;
-              cout << "start pos: (" << spotX << ", " << spotY << ", " << spotZ << ")" << endl;
-              cout << "hit pos  : (" << hitX  << ", " << hitY  << ", " << hitZ  << ")" << endl << endl;
-              continue;
-            }
+			if( ( spotX < (slab_width / 2) ) || ( opt_alongBar && spotZ > slab_length) ) // should never happen
+			{
+				cout << spotX << " " << (slab_width / 2) << endl;
+				cout << "*** WARN: particle origin production is in the bar (should never happen)" << endl;
+				cout << "start pos: (" << spotX << ", " << spotY << ", " << spotZ << ")" << endl;
+				cout << "hit pos  : (" << hitOnBarX  << ", " << hitOnBarY  << ", " << hitOnBarZ  << ")" << endl << endl;
+				continue;
+			}
+
+
+			double stepsToBarExit = (-spotZ) / parDirZ;
+			double stepsToScreen  = (fishtank_posZ - spotZ) / parDirZ;
+			double stepsToBarFace = (-slab_length - spotZ) / parDirZ;
+			double stepsTo;
+
+			if( inci >= 0 )
+			{
+				stepsTo = stepsToScreen;
+				if( opt_Cherenkov_onlyInBar )
+					stepsTo = stepsToBarExit;
+			}
+			else // inci < 0
+				stepsTo = stepsToBarFace;
+
+			if( inci == 0 && !opt_alongBar )
+				stepsTo = slab_width - 2 * parDirX; // to prevent NAN
+
+			spotEndX = spotX + stepsTo * parDirX;
+			spotEndY = spotY + stepsTo * parDirY;
+			spotEndZ = spotZ + stepsTo * parDirZ;
+			TVector3 spotEnd(spotEndX-spotX, spotEndY-spotY, spotEndZ-spotZ);
+
+			range = spotEnd.Mag();
+// 			cout << "range: " << range << endl;
 
 
             // for beampot plot
-            TMarker* t = new TMarker( hitZ, hitY, 20 );
+			double hitOnBarPlot;
+			if( opt_alongBar )
+				hitOnBarPlot = hitOnBarX;
+			else
+				hitOnBarPlot = hitOnBarZ;
 
-            if( Abs( hitY ) >= slab_height / 2 )
-              t->SetMarkerColor( 4 );
-            else
-              t->SetMarkerColor( 2 );
+			TMarker* t = new TMarker( hitOnBarPlot, hitOnBarY, 20 );
 
-            t->SetMarkerStyle(20);
-            t->SetMarkerSize(1);
-            t->Draw();
+			if( Abs( hitOnBarY ) >= slab_height / 2 )
+				t->SetMarkerColor( 4 );
+			else
+				t->SetMarkerColor( 2 );
+
+			t->SetMarkerStyle(20);
+			t->SetMarkerSize(1);
+			t->Draw();
 
 
-            manager->Cerenkov(spotPos,dir,beta,photon_number,maxrange); // maxrange instead of range
+			particleTree->Fill();
+
+			manager->Cerenkov(spotPos, parDir, beta, photon_number, range, lambda_min, lambda_max, refl_limit, particleNumber);
 		}
 
-		photons_exist = true; // maybe it is needed (if last particle in the loop don't hit the bar, this value will be set as false)
-
-
-    // draw chosen photons (for Geo)
-    //==========================================================================================
-// 		list_photon = manager->PhotonList();
-// 		list<PndDrcPhoton>::iterator iph;
-//
-// 		int icnt = 0;
-//
-// 		for(iph=list_photon.begin(); iph != list_photon.end(); ++iph)
-// 		{
-// 			icnt++;
-//
-// 			if( icnt == 70 )
-// 				(*iph).SetPrintFlag(true);
-// 			else
-// 				(*iph).SetPrintFlag(false);
-// 		}
-//
-// 		manager->SetPhotonList(list_photon,"slab","opt_system",0,0);
-
+		canvas->Write("Beamspot");
+		canvas->Clear();
 	}
-	if (ioption==4)
+
+
+
+// photon cannon
+//==============================================================================
+	if( opt_photonCannon )
 	{
-		TRandom ran;
-		for (int ii=0; ii<30; ii++)
+		PndDrcPhoton ph;
+
+		if( refl_limit > 5 )
+			ph.SetReflectionLimit(5);
+		else
+			ph.SetReflectionLimit(refl_limit);
+
+// 		TF1 *f1 = new TF1("f1","1/x",300,700);
+		TRandom3 rand;
+
+		for( double gridX = -slab_width; gridX <= slab_width; gridX += gridXstep)
 		{
-			ph.SetPosition(XYZPoint(0,0,dist-20));
-			double phi =   ran.Uniform(0,2*pi);
-			double costh = ran.Uniform(-1,1);
-			double sinth = sqrt(1-costh*costh);
-			ph.SetDirection(XYZVector(sinth*sin(phi),sinth*cos(phi),costh));
-			ph.SetWavelength(lambda);
-			list_photon.push_back(ph);
-		}
-
-		photons_exist = true;
-		manager->SetPhotonList(list_photon,"slab","opt_system",0,0);
-	}
-	if (ioption==5)
-	{
-		double angle = pi/180.0 * 0;
-		ph.SetDirection(XYZVector(0,sin(+angle),cos(+angle)));
-
-		ph.SetPosition(XYZPoint(0,5,-5));
-		ph.SetWavelength(400);
-		list_photon.push_back(ph);
-		ph.SetPosition(XYZPoint(0,-5,-5));
-		ph.SetWavelength(400);
-		list_photon.push_back(ph);
-
-
-		ph.SetPosition(XYZPoint(0,5,-5));
-		ph.SetWavelength(600);
-		list_photon.push_back(ph);
-		ph.SetPosition(XYZPoint(0,-5,-5));
-		ph.SetWavelength(600);
-		list_photon.push_back(ph);
-
-
-
-		photons_exist = true;
-		manager->SetPhotonList(list_photon,"slab","opt_system",0,0);
-	}
-	if (ioption==6)
-	{
-      // straight lines.
-		TRandom ran;
-		for (double angle=5; angle<=40.5; angle+=5)
-		{
-
-			cout<<" angle = "<<angle<<endl;
-			for (double lambda1=630; lambda1>329; lambda1-=100)
+			for( double gridY = -slab_height; gridY <= slab_height; gridY += gridYstep)
 			{
-	      //double lambda1=lambda;
-	      // go in x dir
-				double y1 = tan(angle*pi/180);
-				double x1 = y1;
-				double scale = 3/angle;
-				for (double y=-y1; y<= y1; y+= 2*y1/3*scale)
+				for( int i=0; i<photon_number; i++)
 				{
-					double xx=ran.Uniform(-0.5*slab_width,0.5*slab_width);
-					double yy=ran.Uniform(-0.5*slab_height,0.5*slab_height);
-					ph.SetPosition(XYZPoint(xx,yy,-0.5));
-					double x = x1;
-					ph.SetDirection(XYZVector(x,y,1).Unit());
-					ph.SetWavelength(lambda1);
-					list_photon.push_back(ph);
-					ph.SetDirection(XYZVector(-x,y,1).Unit());
-					ph.SetWavelength(lambda1);
+// 					double lambda = f1->GetRandom(); // seems to be wrong ; check it later
+					double x1     = 1.0 / lambda_max;
+					double x2     = 1.0 / lambda_min;
+					double x      = rand.Uniform(x1,x2);
+					double lambda = 1.0/x;
+
+					double costheta = rand.Uniform(0.0, 1.0);
+					double phi = rand.Uniform(0.0, 2*pi);
+
+					Polar3DVector photDir(1, ACos(costheta), phi);
+					photDir = photDir.Unit();
+					XYZVector photDirXYZ( photDir.X(), photDir.Y(), photDir.Z() );
+
+					if( gridXstep == 0 || gridYstep == 0 )
+						ph.SetPosition( XYZPoint(0, 0, -1)); // z = -1 to be sure in the bar
+					else
+						ph.SetPosition( XYZPoint(gridX, gridY, -1));
+
+					ph.SetDirection(photDirXYZ);
+					ph.SetWavelength(lambda);
 					list_photon.push_back(ph);
 				}
 
-				for (double x=-x1; x<= x1; x+= 2*y1/3*scale)
-				{
-					double xx=ran.Uniform(-0.5*slab_width,0.5*slab_width);
-					double yy=ran.Uniform(-0.5*slab_height,0.5*slab_height);
-					ph.SetPosition(XYZPoint(xx,yy,-0.5));
-					double y = y1;
-					ph.SetDirection(XYZVector(x,y,1).Unit());
-					ph.SetWavelength(lambda1);
-					list_photon.push_back(ph);
-					ph.SetDirection(XYZVector(x,-y,1).Unit());
-					ph.SetWavelength(lambda1);
-					list_photon.push_back(ph);
-				}
-
+				if( gridXstep == 0 || gridYstep == 0 )
+					break;
 			}
+
+			if( gridXstep == 0 || gridYstep == 0 )
+				break;
 		}
-		photons_exist = true;
-		manager->SetPhotonList(list_photon,"slab","opt_system");
+
+		manager->SetPhotonList(list_photon,"slab","opt_system",0,0);
 	}
 
-	if (photons_exist)
-	{
-		manager->Propagate();                           // propagate photons
-	}
 
+
+// propagation & setup plot
+//==============================================================================
+	fstream geo;
+	geo.open("geo.tmp",std::ios::out);
+	manager->Print(geo); //draw setup also in canvas
+
+	list<PndDrcPhoton>::iterator iph;
 	list_photon = manager->PhotonList(); // get list
 
+	for( iph = list_photon.begin(); iph != list_photon.end(); ++iph)
+	{
+		(*iph).SetPrintFlag(false); // don't draw photon trace
+		if( opt_photonPosList )
+			(*iph).SetPositionListFlag(true); // write out photon position
+	}
 
+	manager->SetPhotonList(list_photon,"slab","opt_system",0,0);
 
+	manager->Propagate(); // propagate photons
 
-	geo<<"}"<<endl;
-	//
-  // the intention is to play around with routines.
-
-  // create a list of photons in bar
-  //exit(1);
 	geo.close();
+	canvas->Write("Setup");
+	canvas->Clear();
 
 
 
-// ROOT file output
 //==============================================================================
-    TString outFilename;
-
-    if( argc >= 2 )
-    {
-      TString inci_str;
-      TString startX_str;
-      TString startY_str;
-      TString startZ_str;
-
-      inci_str += inci;
-      inci_str.Remove( TString::kLeading , ' ' );
-      startX_str += startX_center;
-      startX_str.Remove( TString::kLeading , ' ' );
-      startY_str += startY_center;
-      startY_str.Remove( TString::kLeading , ' ' );
-      startZ_str += startZ_center;
-      startZ_str.Remove( TString::kLeading , ' ' );
-
-      outFilename = "beamtest0909_" + inci_str + "deg_" + startX_str + "_" + startY_str + "_" + startZ_str + ".root" ;
-    }
-    else
-      outFilename = "beamtest0909.root";
-
-    cout << "FILE: " << outFilename << endl;
-
-
-    TFile *outFile  = new TFile( outFilename, "RECREATE" ); // treename is ntuple
-    TTree *outTree  = new TTree( "ntuple", outFilename );
-
-
-    double wavelength, originDirX, originDirY, originDirZ, posX, posY;
-    bool measured, absorbed, lost;
-
-    outTree->Branch( "wavelength" , &wavelength , "wavelength/D"); // D: Double_t
-    outTree->Branch( "originDirX" , &originDirX , "originDirX/D");
-    outTree->Branch( "originDirY" , &originDirY , "originDirY/D");
-    outTree->Branch( "originDirZ" , &originDirZ , "originDirY/D");
-    outTree->Branch( "posX"       , &posX       , "posX/D"      );
-    outTree->Branch( "posY"       , &posY       , "posY/D"      );
-    outTree->Branch( "measured"   , &measured   , "measured/O"  ); // O: Bool_t
-    outTree->Branch( "absorbed"   , &absorbed   , "absorbed/O"  );
-    outTree->Branch( "lost"       , &lost       , "lost/O"      );
-
-
-// plot declarations
+// Photon list
 //==============================================================================
-    // beamspot plot in option 3
-    canvas->Write("beamspot");
-    canvas->Clear();
+	screen->Draw("POL");
 
+	list_photon = manager->PhotonList();
+	PndDrcPhoton ph_old;
 
-	TString beta_str;
-	beta = floor( beta * pow(10 ,4) + 0.5 ) * pow(10, -4); // round beta to 4 digits (after point)
-	beta_str+=beta;
-	beta_str.Remove(TString::kLeading,' ');
-
-    TString screen_title = "spatial position [mm] (beta=" + beta_str + ")";
-//     TString screen_title = "spatial position [mm] (beta=" + beta_str + ", #lambda =435nm)";
-    TString screen_titleX = "x [mm]";
-    TString screen_titleY = "y [mm]";
-
-    TH1F *screen = new TH1F( "screen", screen_title, 600, -150, 150 );
-//     TH1F *screen = new TH1F( "screen", screen_title, 600, -400, 400 );
-
-    screen->SetStats( 0 );
-    screen->SetMinimum(-100);
-    screen->SetMaximum(+100);
-    screen->GetXaxis()->SetTitle( screen_titleX );
-    screen->GetXaxis()->CenterTitle();
-    screen->GetYaxis()->SetTitle( screen_titleY );
-    screen->GetYaxis()->CenterTitle();
-//     screen->SetMinimum(-400);
-//     screen->SetMaximum(+400);
-    screen->Draw("POL");
-
-
-// get photon information from photon lsit
-//==============================================================================
-	fstream measured_dat;
-	fstream absorbed_dat;
-    fstream lost_dat;
-
-	measured_dat.open("measured.tmp",std::ios::out);
-	absorbed_dat.open("absorbed.tmp",std::ios::out);
-    lost_dat.open("lost.tmp",std::ios::out);
-
-
-    list<PndDrcPhoton>::iterator iph;
-    PndDrcPhoton ph_old;
-
-    int icnt_measured = 0;
-    int icnt_flying   = 0;
-    int icnt_lost     = 0;
-    int icnt_absorbed = 0;
+	int icnt_measured = 0;
+	int icnt_flying   = 0;
+	int icnt_lost     = 0;
+	int icnt_absorbed = 0;
 
 	int n_iph = 0;
 
-	for(iph=list_photon.begin(); iph != list_photon.end(); ++iph)
+	for( iph = list_photon.begin(); iph != list_photon.end(); ++iph )
 	{
 		n_iph++;
 
-		wavelength = (*iph).Wavelength();
+		wavelength  = (*iph).Wavelength();
+		color       = (*iph).ColorNumber(wavelength);
+		time        = (*iph).Time();
+		nRefl       = (*iph).Reflections();
+		particleID  = (*iph).ParticleIDnumber();
 
-        XYZVector originDir = (*iph).OriginDirection();
-        originDirX = originDir.X();
-        originDirY = originDir.Y();
-        originDirZ = originDir.Z();
+		XYZVector originDir = (*iph).OriginDirection();
+		originDirX = originDir.X();
+		originDirY = originDir.Y();
+		originDirZ = originDir.Z();
 
-        posX = -666; // just initialize it
-        posY = -666;
+		XYZVector hitDir = (*iph).Direction();
+		hitDirX = hitDir.X();
+		hitDirY = hitDir.Y();
+		hitDirZ = hitDir.Z();
 
-        measured = false;
-        absorbed = false;
-        lost     = false;
+		XYZPoint hitPos = (*iph).Position();
+		hitPosX = hitPos.X();
+		hitPosY = hitPos.Y();
+
+
+		int n_posX = 0;
+		int n_posY = 0;
+		int n_posZ = 0;
+		list<double>::iterator ipos;
+
+		list<double> list_positionX = (*iph).PositionXlist();
+		for( ipos = list_positionX.begin(); ipos != list_positionX.end(); ++ipos )
+		{
+			posX[n_posX] = (*ipos);
+			n_posX++;
+		}
+
+		list<double> list_positionY = (*iph).PositionYlist();
+		for( ipos = list_positionY.begin(); ipos != list_positionY.end(); ++ipos )
+		{
+			posY[n_posY] = (*ipos);
+			n_posY++;
+		}
+
+		list<double> list_positionZ = (*iph).PositionZlist();
+		for( ipos = list_positionZ.begin(); ipos != list_positionZ.end(); ++ipos )
+		{
+			posZ[n_posZ] = (*ipos);
+			n_posZ++;
+		}
+
+		if( n_posX != n_posY || n_posY != n_posZ )
+		{
+			cout << "*** ERROR: photon position list for X,Y and Z has not the same length" << endl;
+			abort();
+		}
+		else
+			index_pos = n_posX;
+
+
+		thetaC = (*iph).ThetaC();
+		phiC = (*iph).PhiC();
+
+		measured = false;
+		absorbed = false;
+		lost     = false;
 
 		if ((*iph).Fate()==Drc::kPhotMeasured)
 		{
 			icnt_measured++;
+			measured = true;
 
-			measured_dat << n_iph << endl;
-            measured = true;
-
-			XYZPoint pos = (*iph).Position();
-			posX = pos.X();
-			posY = pos.Y();
-
-            TMarker* t = new TMarker( posX, posY, 7);
-            t->SetMarkerColor( (*iph).ColorNumber((*iph).Wavelength()) );
-            t->SetMarkerSize(0.7);
-            t->Draw();
+			TMarker* t = new TMarker( hitPosX, hitPosY, 7);
+			t->SetMarkerColor( (*iph).ColorNumber((*iph).Wavelength()) );
+			t->SetMarkerSize(0.7);
+			t->Draw();
 
 			ph_old = (*iph);
 		}
-		else if ((*iph).Fate()==Drc::kPhotFlying)   icnt_flying++; // should never happen.
-		else if ((*iph).Fate()==Drc::kPhotAbsorbed)
+		else if( (*iph).Fate()==Drc::kPhotFlying )
+		{
+			icnt_flying++; // should never happen.
+			cout << "*** WARN: photon fate is still \"flying\" (should never happen)" << endl;
+		}
+		else if( (*iph).Fate()==Drc::kPhotAbsorbed )
 		{
 			icnt_absorbed++;
-
-			absorbed_dat << n_iph << endl;
-            absorbed = true;
+			absorbed = true;
 		}
 		else
 		{
 			icnt_lost++;
-
-            lost_dat << n_iph << endl;
-            lost = true;
+			lost = true;
 		}
 
-        outTree->Fill();
+		photonTree->Fill();
 	}
-
-	measured_dat.close();
-	absorbed_dat.close();
-    lost_dat.close();
-
-
-    // MCP position in beamtest 2008
-// 	TLine *l1 = new TLine(-19.125,-13.625,-70.125,-13.625);
-// 	TLine *l2 = new TLine(-70.125,-13.625,-70.125,37.375);
-// 	TLine *l3 = new TLine(-70.125,37.375,-19.125,37.375);
-// 	TLine *l4 = new TLine(-19.125,37.375,-19.125,-13.625);
-// 	l1->SetLineWidth(3);
-// 	l2->SetLineWidth(3);
-// 	l3->SetLineWidth(3);
-// 	l4->SetLineWidth(3);
-// 	l1->Draw("same");
-// 	l2->Draw("same");
-// 	l3->Draw("same");
-// 	l4->Draw("same");
-// 	TLine *l5 = new TLine(19.125,-13.625,70.125,-13.625);
-// 	TLine *l6 = new TLine(70.125,-13.625,70.125,37.375);
-// 	TLine *l7 = new TLine(70.125,37.375,19.125,37.375);
-// 	TLine *l8 = new TLine(19.125,37.375,19.125,-13.625);
-// 	l5->SetLineWidth(3);
-// 	l6->SetLineWidth(3);
-// 	l7->SetLineWidth(3);
-// 	l8->SetLineWidth(3);
-// 	l5->Draw("same");
-// 	l6->Draw("same");
-// 	l7->Draw("same");
-// 	l8->Draw("same");
 
 
 	int icnt = icnt_measured + icnt_flying + icnt_lost + icnt_absorbed;
@@ -1326,25 +1848,24 @@ int main(int argc, char *argv[])
 	str_icnt_det.Remove(TString::kLeading,' ');
 
 
-    TPaveText *stat = new TPaveText(0.8,0.88,0.98,0.98,"brNDC");
+	TPaveText *stat = new TPaveText(0.8,0.88,0.98,0.98,"brNDC");
 
-    stat->SetFillColor(0);
-    stat->AddText( "gen.: " + str_icnt    );
+	stat->SetFillColor(0);
+	stat->AddText( "gen.: " + str_icnt    );
 	stat->AddText( "det.: " + str_icnt_det);
 	stat->Draw();
 
-    canvas->Write("Screen");
-    canvas->Clear();
+	canvas->Write("Screen");
+	canvas->Clear();
+	canvas->Close();
 
 
-    canvas->Close();
-
-    outFile->Write();
-    outFile->Close();
-    cout << "Root-file " << outFilename << " was written" << endl;
+	outFile->Write();
+	outFile->Close();
+	cout << "Root-file " << outFilename << " was written" << endl;
 
 
-	delete manager;
+// 	delete manager; // segmentation violation with opt_photonList
 
 	return EXIT_SUCCESS;
 }
