@@ -19,7 +19,8 @@
 #include "FairTrackParP.h"
 #include "PndFwdPrepareKalmanTracks.h"
 #include "PndGemMCPoint.h"
-#include "PndGemTrack.h"
+#include "PndTrackCand.h"
+#include "PndTrackCandHit.h"
 //#include "PndGemTrackMatch.h"
 #include "PndGemHit.h"
 
@@ -103,7 +104,7 @@ PndFwdPrepareKalmanTracks::Init()
   }
   
   // open input array of PndGemTracks
-  fGemTrackArray = (TClonesArray*) ioman->GetObject("PndGemTrack"); 
+  fGemTrackArray = (TClonesArray*) ioman->GetObject("GEMTrackCand"); 
   if(fGemTrackArray==0){
     Error("PndFwdPrepareKalmanTracks::Init","PndGemTrack array not found!");
     return kERROR;
@@ -150,14 +151,14 @@ PndFwdPrepareKalmanTracks::Exec(Option_t* opt)
   for (Int_t igemtr=0; igemtr<nofGemTracks; igemtr++){
     if(fVerbose>0)
       std::cout<<"PndFwdPrepareKalmanTracks::Exec(): Processing gem track id= "<<igemtr<<std::endl;
-    PndGemTrack* gemtrack = (PndGemTrack*) fGemTrackArray->At(igemtr);
-    Int_t nofGemHits = gemtrack->GetNofGemHits();
+    PndTrackCand* gemTrackCand = (PndTrackCand*) fGemTrackArray->At(igemtr);
+    Int_t nofGemHits = gemTrackCand->GetNHits();
     if(fVerbose>0)
-      std::cout<<"PndFwdPrepareKalmanTracks::Exec(): I found here "<<nofGemHits<<" hits \n";
+      std::cout<<"PndGemPrepareKalmanTracks::Exec(): I found here "<<nofGemHits<<" hits \n";
     
-    Int_t gemMCTrackID = (Int_t)(gemtrack->GetParamLast()->GetZ()-1e6);
+    Int_t gemMCTrackID = gemTrackCand->getMcTrackId();
     std::cout << "!!!!!!!! THIS TRACK HAD MC ID " << gemMCTrackID << " !!!!!!" << std::endl;
-    
+
     for (Int_t idchtr=0; idchtr<fDchTrackMatchArray->GetEntries(); idchtr++){
       PndDchTrackMatch* dchtrmatch = (PndDchTrackMatch*) fDchTrackMatchArray->At(idchtr);
       if ( dchtrmatch->GetMCTrackID() != gemMCTrackID ) continue;
@@ -171,8 +172,8 @@ PndFwdPrepareKalmanTracks::Exec(Option_t* opt)
 
       if(fUseGem){
 	for(Int_t ihit=0; ihit<nofGemHits; ihit++){
-	  Int_t globalHit = gemtrack->GetGemHitIndex(ihit);
-	  cand->addHit(kGEM,globalHit);
+	  PndTrackCandHit tch = gemTrackCand->GetSortedHit(ihit);
+	  cand->addHit(kGEM,tch.GetHitId());
 	}
       }
       if(fUseDch){
@@ -190,7 +191,7 @@ PndFwdPrepareKalmanTracks::Exec(Option_t* opt)
       
       if(cand->getNHits()<fMinNofGemHits+fMinNofDchHits)
 	continue;
-    
+
       Int_t pdg;
       Double_t q;
       TVector3 pos, mom;

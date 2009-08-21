@@ -30,7 +30,7 @@
 #include "TH1F.h"
 #include "TFile.h"
 
-#include "PndGemTrack.h"
+#include "PndTrackCand.h"
 #include "PndMCTrack.h"
 
 #include "TGeoManager.h"
@@ -91,7 +91,7 @@ InitStatus PullTaskFwd::Init()
   
 
   // open PndGemTrack array
-  fGemTrackArray = (TClonesArray*) ioman->GetObject("PndGemTrack");
+  fGemTrackArray = (TClonesArray*) ioman->GetObject("GEMTrackCand");
   if(fGemTrackArray == 0){
     Error("PullTaskFwd::Init","PndGemTrack-array not found!");
     return kERROR;
@@ -126,8 +126,8 @@ void PullTaskFwd::Exec(Option_t* opt)
     }
 
     //get corresponding MCTrack
-    PndGemTrack* gemTrack = (PndGemTrack*) fGemTrackArray->At(itr);
-    Int_t mcidx = (Int_t)(gemTrack->GetParamLast()->GetZ()-1e6);
+    PndTrackCand* gemTrackCand = (PndTrackCand*) fGemTrackArray->At(itr);
+    Int_t mcidx = gemTrackCand->getMcTrackId();
     PndMCTrack* MCTrack = (PndMCTrack*) fMCTrackArray->At(mcidx);
 
   
