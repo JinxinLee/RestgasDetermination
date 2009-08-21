@@ -10,7 +10,7 @@
 //      Software developed for the PANDA Detector at FAIR.
 //
 // Author List:
-//      Tobias Stockmanns (IKP - Jülich) during the Panda Meeting 03/09
+//      Tobias Stockmanns (IKP - Juelich) during the Panda Meeting 03/09
 //
 //
 //-----------------------------------------------------------

@@ -10,7 +10,7 @@
 //      Software developed for the PANDA Detector at FAIR.
 //
 // Author List:
-//      Tobias Stockmanns (IKP - Jülich) during the Panda Meeting 03/09
+//      Tobias Stockmanns (IKP - Juelich) during the Panda Meeting 03/09
 //
 //
 //-----------------------------------------------------------
@@ -36,18 +36,18 @@ public:
       return true;
     return false;
   }
-  
+
   Int_t GetHitId()const {return fHitId;}
   Int_t GetDetId()const {return fDetId;}
   Double_t GetRho()const {return fRho;}
-  
+
   void Print();
-  
+
  private :
   Int_t fHitId;
   Int_t fDetId;
   Double_t fRho;		///< sorting parameter
-  
+
   ClassDef(PndTrackCandHit,1);
 };
 
