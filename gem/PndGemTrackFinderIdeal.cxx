@@ -136,7 +136,7 @@ Int_t PndGemTrackFinderIdeal::DoFind(TClonesArray* hitArray,
   PndGemHit*   gemHit   = NULL;
   FairMCPoint*  mcPoint  = NULL;
   PndMCTrack*  mcTrack  = NULL;
-  PndGemTrack* gemTrack = NULL;
+  PndTrackCand* gemTrackCand = NULL;
 
   // Declare variables outside the loop
   Int_t ptIndex = 0;       // MC point index
@@ -220,9 +220,9 @@ Int_t PndGemTrackFinderIdeal::DoFind(TClonesArray* hitArray,
     }
     if ( !hitMap[iMCTrack] ) continue;
 
-    new((*trackArray)[nTracks]) PndGemTrack();
+    new((*trackArray)[nTracks]) PndTrackCand();
     
-    gemTrack = (PndGemTrack*) trackArray->At(nTracks);
+    gemTrackCand = (PndTrackCand*) trackArray->At(nTracks);
     TLorentzVector tlVec = mcTrack->Get4Momentum();
     //    Double_t mom = tlVec.Mag();
     Double_t mom = trackPMap[iMCTrack];
@@ -238,9 +238,8 @@ Int_t PndGemTrackFinderIdeal::DoFind(TClonesArray* hitArray,
 //       gemTrack->GetParamLast()->SetQp(0);
 //     }
 
-//    gemTrack->GetParamLast()->SetQp(1e6+mcTrack->GetPdgCode());
-    gemTrack->GetParamLast()->SetQp(1e6+mcTrack->GetPdgCode());
-    gemTrack->GetParamLast()->SetZ(1e6+iMCTrack);
+//     gemTrackCand->GetParamLast()->SetQp(1e6+mcTrack->GetPdgCode());
+    gemTrackCand->setMcTrackId(iMCTrack);
 
     trackMap[iMCTrack] = nTracks;
     
@@ -276,9 +275,9 @@ Int_t PndGemTrackFinderIdeal::DoFind(TClonesArray* hitArray,
     
     if(trackMap.find(mcTrackIndex) == trackMap.end()) continue;
     trackIndex = trackMap[mcTrackIndex];
-    gemTrack = (PndGemTrack*) trackArray->At(trackIndex);
+    gemTrackCand = (PndTrackCand*) trackArray->At(trackIndex);
     
-    if( !gemTrack ) {
+    if( !gemTrackCand ) {
       cout << "-E- "<< GetName() <<"::DoFind: "
 	   << "No GemTrack pointer. " << iHit << " " << ptIndex
 	   << " " << mcTrackIndex << " " << trackIndex << endl;
@@ -286,11 +285,8 @@ Int_t PndGemTrackFinderIdeal::DoFind(TClonesArray* hitArray,
       continue;
     }
     
-    //    if(gemHit->GetDetectorID() > relDetID) {// Only Gem chamber in forward spectrometer
-      gemTrack->AddHit(gemHit, iHit);
-      //    }
-      //      gemTrack->SortHits();
-      //    cout << "gemTrack " << trackIndex << " has " << gemTrack->GetNofGemHits() << endl;
+    gemTrackCand->AddHit(kGEM,iHit,gemHit->GetZ());
+    //    cout << "gemTrack " << trackIndex << " has " << gemTrack->GetNofGemHits() << endl;
     
     if(fVerbose > 3) {
       cout << "GEM hit " << iHit << " from GEM point "
@@ -301,27 +297,23 @@ Int_t PndGemTrackFinderIdeal::DoFind(TClonesArray* hitArray,
   
   // Sorting hits
   for(Int_t iTrack = 0; iTrack < nTracks; iTrack++) {
-    gemTrack = (PndGemTrack*) trackArray->At(iTrack);
-    gemTrack->SortHits();
+    gemTrackCand = (PndTrackCand*) trackArray->At(iTrack);
+    gemTrackCand->Sort();
     //    cout << "gemTrack " << iTrack << " has " << gemTrack->GetNofGemHits() << endl;
+    PndTrackCandHit tch = gemTrackCand->GetSortedHit(0);
 
-    gemHit = (PndGemHit*) hitArray->At(gemTrack->GetGemHitIndex(0));
-
+    gemHit = (PndGemHit*) hitArray->At(tch.GetHitId());
+    
     TVector3 pos;
     TVector3 mom;
-
+    
     ptIndex = gemHit->GetRefIndex();
     mcPoint = (FairMCPoint*) fMCPointArray->At(ptIndex);
 
     gemHit->Position(pos);
     mcPoint->Momentum(mom);
 
-    gemTrack->GetParamFirst()->SetPosition(pos);
-    gemTrack->GetParamFirst()->SetQp(1./mom.Mag());
-    gemTrack->GetParamFirst()->SetTx(mom.X()/mom.Z());
-    gemTrack->GetParamFirst()->SetTy(mom.Y()/mom.Z());
-    const TMatrixFSym* covMatrix = new TMatrixFSym(15);
-    gemTrack->GetParamFirst()->SetCovMatrix(*covMatrix);    
+    gemTrackCand->setTrackSeed(pos,mom.Unit(),1./mom.Mag());
   }
   
   if(fVerbose) {

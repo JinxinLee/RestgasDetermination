@@ -23,7 +23,7 @@
 #include "PndMCTrack.h"
 
 #include "PndGemHit.h"
-#include "PndGemTrack.h"
+#include "PndTrackCand.h"
 #include "PndGemDigiPar.h"
 
 #include <vector>

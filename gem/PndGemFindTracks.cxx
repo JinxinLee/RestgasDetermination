@@ -28,7 +28,7 @@ class iostream;
 class FairBaseParSet;
 class PndGemHit;
 class PndGemDigi;
-class PndGemTrack;
+class PndTrackCand;
 
 // -----   Default constructor   -------------------------------------------
 PndGemFindTracks::PndGemFindTracks() {
@@ -104,8 +104,8 @@ InitStatus PndGemFindTracks::Init() {
   }
   
   // Create and register GemTrack array
-  fTrackArray = new TClonesArray("PndGemTrack",100);
-  ioman->Register("PndGemTrack", "Gem", fTrackArray, kTRUE);
+  fTrackArray = new TClonesArray("PndTrackCand",100);
+  ioman->Register("GEMTrackCand", "Gem Track Candidates", fTrackArray, kTRUE);
   
   // Call the Init method of the track finder
   fFinder->Init();

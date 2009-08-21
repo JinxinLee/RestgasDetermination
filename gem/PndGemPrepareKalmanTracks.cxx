@@ -19,7 +19,8 @@
 #include "FairTrackParP.h"
 #include "PndGemPrepareKalmanTracks.h"
 #include "PndGemMCPoint.h"
-#include "PndGemTrack.h"
+#include "PndTrackCand.h"
+#include "PndTrackCandHit.h"
 //#include "PndGemTrackMatch.h"
 #include "PndGemHit.h"
 
@@ -98,7 +99,7 @@ PndGemPrepareKalmanTracks::Init()
   }
   
   // open input array of PndGemTracks
-  fGemTrackArray = (TClonesArray*) ioman->GetObject("PndGemTrack"); 
+  fGemTrackArray = (TClonesArray*) ioman->GetObject("GEMTrackCand"); 
   if(fGemTrackArray==0){
     Error("PndGemPrepareKalmanTracks::Init","PndGemTrack array not found!");
     return kERROR;
@@ -130,15 +131,15 @@ PndGemPrepareKalmanTracks::Exec(Option_t* opt)
   for (Int_t id=0; id<nofGemTracks; id++){
     if(fVerbose>0)
       std::cout<<"PndGemPrepareKalmanTracks::Exec(): Processing track id= "<<id<<std::endl;
-    PndGemTrack* gemtrack = (PndGemTrack*) fGemTrackArray->At(id);
-    Int_t nofHits = gemtrack->GetNofGemHits();
+    PndTrackCand* gemTrackCand = (PndTrackCand*) fGemTrackArray->At(id);
+    Int_t nofHits = gemTrackCand->GetNHits();
     if(fVerbose>0)
       std::cout<<"PndGemPrepareKalmanTracks::Exec(): I found here "<<nofHits<<" hits \n";
     
     TrackCand* cand = new TrackCand();
     for(Int_t ihit=0; ihit<nofHits; ihit++){
-      Int_t globalHit = gemtrack->GetGemHitIndex(ihit);
-      cand->addHit(kGEM,globalHit);
+      PndTrackCandHit tch = gemTrackCand->GetSortedHit(ihit);
+      cand->addHit(kGEM,tch.GetHitId());
     }
     for(Int_t ihit=0; ihit<nofHits; ihit++){
       unsigned int temp2= 1234, temp3=1234;
@@ -153,14 +154,18 @@ PndGemPrepareKalmanTracks::Exec(Option_t* opt)
     Double_t q = 1.;
     TVector3 pos, mom;
     
-    FairTrackParam* param = gemtrack->GetParamFirst();
-    param->Position(pos);
-    param->Momentum(mom);
+    pos = gemTrackCand->getPosSeed();
+    mom = (TMath::Abs(1./gemTrackCand->getQoverPseed()))*gemTrackCand->getDirSeed();
 
-    if ( fUseMC ) { 
-      q = (param->GetQp()==0) ? 0 : param->GetQp()/TMath::Abs(param->GetQp());
-      pdg = (Int_t)(gemtrack->GetParamLast()->GetQp()-1e6);
+    if ( gemTrackCand->getQoverPseed() ) {
+      pdg *= -1;
+      q   *= -1;
     }
+
+//     if ( fUseMC ) { 
+//       q = (param->GetQp()==0) ? 0 : param->GetQp()/TMath::Abs(param->GetQp());
+//       pdg = (Int_t)(gemTrackCand->GetParamLast()->GetQp()-1e6);
+//     }
 
     std::cout<<"pozycje i pedy "<<std::endl;
     pos.Print();

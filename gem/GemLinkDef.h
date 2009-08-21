@@ -21,7 +21,6 @@
 #pragma link C++ class PndGemStation+;
 #pragma link C++ class PndGemSensor+;
 #pragma link C++ class PndGemIdealHitProducer+;
-#pragma link C++ class PndGemTrack+;
 #pragma link C++ class PndGemTrackFinder+;
 #pragma link C++ class PndGemTrackFinderIdeal+;
 #pragma link C++ class PndGemTrackFinderOnHits+;

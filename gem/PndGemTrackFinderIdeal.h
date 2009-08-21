@@ -23,7 +23,8 @@
 #include "PndMCTrack.h"
 
 #include "PndGemHit.h"
-#include "PndGemTrack.h"
+#include "PndTrackCand.h"
+#include "PndTrackCandHit.h"
 #include "PndGemTrackFinder.h"
 
 class PndGemTrackFinderIdeal : public PndGemTrackFinder
@@ -61,9 +62,6 @@ class PndGemTrackFinderIdeal : public PndGemTrackFinder
 
   /** fGemStructure **/
   //  PndGemStructure *fGemStructure;
-
-  /** Track candidate **/
-  PndGemTrack *fGemTrack; 
 
   /** Verbosity level.
    ** 0 - quit

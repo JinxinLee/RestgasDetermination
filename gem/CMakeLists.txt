@@ -44,7 +44,6 @@ PndGemMatchHits.cxx
 PndGemStation.cxx
 PndGemSensor.cxx
 PndGemIdealHitProducer.cxx
-PndGemTrack.cxx
 PndGemTrackFinder.cxx
 PndGemTrackFinderIdeal.cxx
 PndGemTrackFinderOnHits.cxx

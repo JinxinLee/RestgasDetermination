@@ -13,6 +13,7 @@
 #include "FairTrackParam.h"
 #include "PndGemMCPoint.h"
 #include "PndGemDigiPar.h"
+#include "PndTrackCandHit.h"
 #include "FairRootManager.h"
 #include "PndDetectorList.h"
 // ROOT includes
@@ -105,7 +106,7 @@ InitStatus PndGemTrackFinderQA::Init() {
   }
 
   // Get Gem track Array
-  fGemTrackArray  = (TClonesArray*) ioman->GetObject("PndGemTrack");
+  fGemTrackArray  = (TClonesArray*) ioman->GetObject("GEMTrackCand");
   if ( !fGemTrackArray ) {
     cout << "-E- " << GetName() << "::Init: No PndGemTrack array!" << endl;
     return kERROR;
@@ -196,7 +197,7 @@ void PndGemTrackFinderQA::Exec(Option_t* opt) {
   fhNofRecoTracksPerEvent->Fill(fNofEvents-1,nofRecoTracks);
 
   PndMCTrack* mcTrack;
-  PndGemTrack* gemTrack;
+  PndTrackCand* gemTrackCand;
   PndGemHit* gemHit;
 
   for ( Int_t imct = 0 ; imct < nofMCTracks ; imct++ ) {
@@ -258,23 +259,23 @@ void PndGemTrackFinderQA::Exec(Option_t* opt) {
 
     for ( Int_t irtr = 0 ; irtr < nofRecoTracks ; irtr++ ) {
       if ( fRecoTrackMCMatch[irtr] != imct ) continue;
-      gemTrack = (PndGemTrack*) fGemTrackArray->At(irtr);
+      gemTrackCand = (PndTrackCand*) fGemTrackArray->At(irtr);
       
       nofRecoAcc ++;
 
       fhRecoAccVsP->Fill(mcMomMag);
       fhRecoAccVsT->Fill(mcMomThe);
       fhRecoAccVsN->Fill(mcPoints);
-      fhMomResAccVsP->Fill(mcMomMag,100.*(mcMomMag-1./TMath::Abs(gemTrack->GetParamFirst()->GetQp()))/mcMomMag);
-      fhMomResAccVsT->Fill(mcMomThe,100.*(mcMomMag-1./TMath::Abs(gemTrack->GetParamFirst()->GetQp()))/mcMomMag);
+      fhMomResAccVsP->Fill(mcMomMag,100.*(mcMomMag-1./TMath::Abs(gemTrackCand->getQoverPseed()))/mcMomMag);
+      fhMomResAccVsT->Fill(mcMomThe,100.*(mcMomMag-1./TMath::Abs(gemTrackCand->getQoverPseed()))/mcMomMag);
 
       if ( isRefP ) {
 	fhRecoRefVsT->Fill(mcMomThe);
-	fhMomResRefVsT->Fill(mcMomThe,100.*(mcMomMag-1./TMath::Abs(gemTrack->GetParamFirst()->GetQp()))/mcMomMag);
+	fhMomResRefVsT->Fill(mcMomThe,100.*(mcMomMag-1./TMath::Abs(gemTrackCand->getQoverPseed()))/mcMomMag);
       }
       if ( isRefT ) {
 	fhRecoRefVsP->Fill(mcMomMag);
-	fhMomResRefVsP->Fill(mcMomMag,100.*(mcMomMag-1./TMath::Abs(gemTrack->GetParamFirst()->GetQp()))/mcMomMag);
+	fhMomResRefVsP->Fill(mcMomMag,100.*(mcMomMag-1./TMath::Abs(gemTrackCand->getQoverPseed()))/mcMomMag);
       }
       if ( isRefP && isRefT ) {
 	nofRecoRef ++;
@@ -285,38 +286,39 @@ void PndGemTrackFinderQA::Exec(Option_t* opt) {
 	fhRecoPrimVsP->Fill(mcMomMag);
 	fhRecoPrimVsT->Fill(mcMomThe);
 	fhRecoPrimVsN->Fill(mcPoints);
-	fhMomResPrimVsP->Fill(mcMomMag,100.*(mcMomMag-1./TMath::Abs(gemTrack->GetParamFirst()->GetQp()))/mcMomMag);
-	fhMomResPrimVsT->Fill(mcMomThe,100.*(mcMomMag-1./TMath::Abs(gemTrack->GetParamFirst()->GetQp()))/mcMomMag);
+	fhMomResPrimVsP->Fill(mcMomMag,100.*(mcMomMag-1./TMath::Abs(gemTrackCand->getQoverPseed()))/mcMomMag);
+	fhMomResPrimVsT->Fill(mcMomThe,100.*(mcMomMag-1./TMath::Abs(gemTrackCand->getQoverPseed()))/mcMomMag);
       }
       else {
 	nofRecoSec ++;
 	fhRecoSecVsP->Fill(mcMomMag);
 	fhRecoSecVsT->Fill(mcMomThe);
 	fhRecoSecVsN->Fill(mcPoints);
-	fhMomResSecVsP->Fill(mcMomMag,100.*(mcMomMag-1./TMath::Abs(gemTrack->GetParamFirst()->GetQp()))/mcMomMag);
-	fhMomResSecVsT->Fill(mcMomThe,100.*(mcMomMag-1./TMath::Abs(gemTrack->GetParamFirst()->GetQp()))/mcMomMag);
+	fhMomResSecVsP->Fill(mcMomMag,100.*(mcMomMag-1./TMath::Abs(gemTrackCand->getQoverPseed()))/mcMomMag);
+	fhMomResSecVsT->Fill(mcMomThe,100.*(mcMomMag-1./TMath::Abs(gemTrackCand->getQoverPseed()))/mcMomMag);
       }
       break; //do not include clones, is good for efficiency plots but bad(?) for momentum resolution
     }
   }
 
   for ( Int_t irtr = 0 ; irtr < nofRecoTracks ; irtr++ ) {
-    gemTrack = (PndGemTrack*) fGemTrackArray->At(irtr);
+    gemTrackCand = (PndTrackCand*) fGemTrackArray->At(irtr);
 
-    fhNofHitsPerTrack->Fill(gemTrack->GetNofGemHits());
+    fhNofHitsPerTrack->Fill(gemTrackCand->GetNHits());
 
     if ( fRecoTrackMCMatch[irtr] == -1 ) {
       nofRecoGhosts ++;
-      fhNofHitsPerGhost->Fill(gemTrack->GetNofGemHits());
+      fhNofHitsPerGhost->Fill(gemTrackCand->GetNHits());
       continue;
     }
-    fhNofHitsPerRecoTrack->Fill(gemTrack->GetNofGemHits());
+    fhNofHitsPerRecoTrack->Fill(gemTrackCand->GetNHits());
 
     Int_t nofCorrHits = 0;
     Int_t nofOthTHits = 0;
     Int_t nofNoTrHits = 0;
-    for ( Int_t ihit = 0 ; ihit < gemTrack->GetNofGemHits() ; ihit++ ) { 
-      gemHit = (PndGemHit*) fGemHitArray->At(gemTrack->GetGemHitIndex(ihit));
+    for ( Int_t ihit = 0 ; ihit < gemTrackCand->GetNHits() ; ihit++ ) { 
+      PndTrackCandHit tch = gemTrackCand->GetSortedHit(ihit);
+      gemHit = (PndGemHit*) fGemHitArray->At(tch.GetHitId());
       if ( gemHit->GetRefIndex() == -1 ) { nofNoTrHits++; continue; }
       if ( gemHit->GetRefIndex() != fRecoTrackMCMatch[irtr] ) { nofCorrHits++; continue; }
       nofCorrHits ++;
@@ -329,7 +331,7 @@ void PndGemTrackFinderQA::Exec(Option_t* opt) {
     for ( Int_t irtr2 = 0 ; irtr2 < nofRecoTracks ; irtr2++ ) {
       if ( irtr == irtr2 ) continue;
       if ( fRecoTrackMCMatch[irtr2] == fRecoTrackMCMatch[irtr] ) {
-	fhNofHitsPerClone->Fill(gemTrack->GetNofGemHits());
+	fhNofHitsPerClone->Fill(gemTrackCand->GetNHits());
 	nofRecoClones ++;
 	break;
       }
@@ -422,16 +424,17 @@ void PndGemTrackFinderQA::MatchRecoTracks() {
 
   PndGemHit* gemHit;
   FairMCPoint* mcPoint;
-  PndGemTrack* gemTrack;
+  PndTrackCand* gemTrackCand;
 
   const Int_t nsh = 2*fDigiPar->GetNStations();
 
   for ( Int_t irtr = 0 ; irtr < nofRecoTracks ; irtr++ ) {
-    gemTrack = (PndGemTrack*) fGemTrackArray->At(irtr);
+    gemTrackCand = (PndTrackCand*) fGemTrackArray->At(irtr);
     for ( Int_t itm = 0 ; itm < 100 ; itm++ ) nofTrMCId[itm] = 0;
  
-    for ( Int_t ihit = 0 ; ihit < gemTrack->GetNofGemHits() ; ihit++ ) { 
-      gemHit = (PndGemHit*) fGemHitArray->At(gemTrack->GetGemHitIndex(ihit));
+    for ( Int_t ihit = 0 ; ihit < gemTrackCand->GetNHits() ; ihit++ ) { 
+      PndTrackCandHit tch = gemTrackCand->GetSortedHit(ihit);
+      gemHit = (PndGemHit*) fGemHitArray->At(tch.GetHitId());
       if ( gemHit->GetRefIndex() == -1 ) { continue; }
       mcPoint = (FairMCPoint*) fMCPointArray->At(gemHit->GetRefIndex());
       nofTrMCId[mcPoint->GetTrackID()] += 1;  
@@ -443,7 +446,7 @@ void PndGemTrackFinderQA::MatchRecoTracks() {
       if ( nofTrMCId[itm]  > largestNofMCId ) { bestMCId = itm; largestNofMCId = nofTrMCId[itm]; }
     }
     if ( bestMCId == -1 ) { continue; }
-    if ( largestNofMCId < fMinQuota*gemTrack->GetNofGemHits() ) continue;
+    if ( largestNofMCId < fMinQuota*gemTrackCand->GetNHits() ) continue;
 
     fRecoTrackMCMatch[irtr] = bestMCId;
   }

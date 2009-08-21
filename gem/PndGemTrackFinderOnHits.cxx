@@ -163,7 +163,7 @@ Int_t PndGemTrackFinderOnHits::DoFind(TClonesArray* hitArray,
   PndGemHit*   gemHit2   = NULL;
   FairMCPoint*  mcPoint  = NULL;
   PndMCTrack*  mcTrack  = NULL;
-  PndGemTrack* gemTrack = NULL;
+  PndTrackCand* gemTrackCand = NULL;
 
   // Declare variables outside the loop
   Int_t ptIndex = 0;       // MC point index
@@ -306,7 +306,7 @@ Int_t PndGemTrackFinderOnHits::CreateTracks(TClonesArray* hitArray, TClonesArray
   Double_t meanThe[nrt];
   Int_t nofTS[nrt];
 
-  PndGemTrack* gemTrack;
+  PndTrackCand* gemTrackCand;
   PndGemHit* gemHit;
 
   for ( Int_t itr = 0 ; itr < nofRecoTracks ; itr++ ) {
@@ -339,28 +339,23 @@ Int_t PndGemTrackFinderOnHits::CreateTracks(TClonesArray* hitArray, TClonesArray
     meanPhi[itr] = meanPhi[itr]/nofTS[itr];
     meanThe[itr] = meanThe[itr]/nofTS[itr];
 
-    new((*trackArray)[nofCreatedTracks]) PndGemTrack();
+    new((*trackArray)[nofCreatedTracks]) PndTrackCand();
     
-    gemTrack = (PndGemTrack*) trackArray->At(nofCreatedTracks);
+    gemTrackCand = (PndTrackCand*) trackArray->At(nofCreatedTracks);
 
     for ( Int_t ih = 0 ; ih < nsh ; ih++ ) {
       if ( hitIndices[itr][ih] == -1 ) continue;
       gemHit = (PndGemHit*)hitArray->At(hitIndices[itr][ih]);
-      gemTrack->AddHit(gemHit, hitIndices[itr][ih]);
+      gemTrackCand->AddHit(kGEM,hitIndices[itr][ih],gemHit->GetZ());
     }
     
-    gemTrack->SortHits();
+    gemTrackCand->Sort();
 
     TVector3 pos = (0.,0.,0.);
     TVector3 mom;
-    mom.SetMagThetaPhi(meanMom[itr],meanThe[itr]*TMath::DegToRad(),meanPhi[itr]*TMath::DegToRad());
+    mom.SetMagThetaPhi(TMath::Abs(meanMom[itr]),meanThe[itr]*TMath::DegToRad(),meanPhi[itr]*TMath::DegToRad());
 
-    gemTrack->GetParamFirst()->SetPosition(pos);
-    gemTrack->GetParamFirst()->SetQp(1./mom.Mag());
-    gemTrack->GetParamFirst()->SetTx(mom.X()/mom.Z());
-    gemTrack->GetParamFirst()->SetTy(mom.Y()/mom.Z());
-    const TMatrixFSym* covMatrix = new TMatrixFSym(15);
-    gemTrack->GetParamFirst()->SetCovMatrix(*covMatrix);    
+    gemTrackCand->setTrackSeed(pos,mom.Unit(),1./meanMom[itr]);//mom.Mag());
 
     nofCreatedTracks++;
   }
