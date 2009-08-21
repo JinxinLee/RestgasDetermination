@@ -29,17 +29,17 @@ using namespace std;
 
 
 
-class PndMvdMCPoint : public FairMCPoint 
+class PndMvdMCPoint : public FairMCPoint
 {
   friend std::ostream& operator<< (std::ostream& out, const PndMvdMCPoint& point){
-    out << "-I- PndMvdMCPoint: PndMvd Point for track " << point.GetTrackID() 
+    out << "-I- PndMvdMCPoint: PndMvd Point for track " << point.GetTrackID()
          << " in detector " << point.GetDetectorID() << " with name "
        << point.GetDetName() << std::endl;
     out << "    Position in  (" << point.GetX() << ", " << point.GetY() << ", " << point.GetZ() << ") cm" << std::endl;
     out << "    Position out (" << point.GetXOut() << ", " << point.GetYOut() << ", " << point.GetZOut() << ") cm" << std::endl;
     out << "    Momentum (" << point.GetPx() << ", " << point.GetPy() << ", " << point.GetPz()
        << ") GeV" << std::endl;
-    out << "    Time " << point.GetTime() << " ns,  Length " << point.GetLength() 
+    out << "    Time " << point.GetTime() << " ns,  Length " << point.GetLength()
        << " cm,  Energy loss " << point.GetEnergyLoss()*1.0e06 << " keV" << std::endl;
     return out;
   }
@@ -53,7 +53,7 @@ class PndMvdMCPoint : public FairMCPoint
   /** Constructor with arguments
    *@param trackID       Index of MCTrack
    *@param detID         Detector ID
-   *@param detName		   Full nameId of the detector, see PndMvdGeoHandling 
+   *@param detName		   Full nameId of the detector, see PndMvdGeoHandling
    *@param posIn         Coordinates of ingoing point[cm]
    *@param posOut	 Coordinates of outgoing point[cm]
    *@param momIn         Momentum of track at entrance [GeV]
@@ -110,7 +110,7 @@ class PndMvdMCPoint : public FairMCPoint
   TString fDetName;
 
 
-  ClassDef(PndMvdMCPoint,2);
+  ClassDef(PndMvdMCPoint,3);
 
 };
 
