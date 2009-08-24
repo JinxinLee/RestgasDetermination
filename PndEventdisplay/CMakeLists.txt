@@ -29,6 +29,7 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(PNDEVEDISP_SRCS
 PndTrackCandDraw.cxx
+PndTPCRecoPointDraw.cxx
 )
 
 if(RULE_CHECKER_FOUND)
