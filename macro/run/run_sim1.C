@@ -13,7 +13,7 @@
   // set the MC version used
   // ------------------------
 
-  fRun->SetName("TGeant3");
+  fRun->SetName("TGeant4");
   // Choose the Geant Navigation System
   // fRun->SetGeoModel("G3Native");
   
@@ -56,7 +56,7 @@
     fRun->AddModule(Stt);
   */
 
- /* FairDetector *Tpc = new PndTpcDetector("TPC", kTRUE);
+  FairDetector *Tpc = new PndTpcDetector("TPC", kTRUE);
   Tpc->SetGeometryFileName("tpc.geo");
   fRun->AddModule(Tpc);
 
@@ -71,16 +71,16 @@
   FairDetector *Tof = new PndTof("TOF",kTRUE);
   Tof->SetGeometryFileName("tofbarrel.geo");
   fRun->AddModule(Tof);
-*/
+
   FairDetector *Drc = new PndDrc("DIRC", kTRUE);
   Drc->SetGeometryFileName("dirc.geo"); 
   fRun->AddModule(Drc); 
-/*
+
   PndMdt *Muo = new PndMdt("MDT",kTRUE);
   Muo->SetGeometryFileName("muopars.root");
   Muo->SetMdtVersion("torino");
   fRun->AddModule(Muo);
-*/
+
   FairDetector *Dch = new PndDchDetector("DCH", kTRUE);
   Dch->SetGeometryFileName("dch.root"); 
   fRun->AddModule(Dch);
@@ -217,7 +217,7 @@
   // Transport nEvents
   // -----------------1
   
-  Int_t nEvents = 1;
+  Int_t nEvents = 5;
   fRun->Run(nEvents);
      
   timer.Stop();
@@ -228,7 +228,7 @@
    
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
-  //exit(0);
+  exit(0);
 
 }  
   

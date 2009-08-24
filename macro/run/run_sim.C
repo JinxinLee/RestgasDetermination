@@ -28,13 +28,13 @@
   // Create and add detectors
   //-------------------------
 
- FairModule *Cave= new PndCave("CAVE");
+  FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave); 
   
-//  FairModule *Magnet= new PndMagnet("MAGNET");
-//  Magnet->SetGeometryFileName("FullSolenoid.root");
-//  fRun->AddModule(Magnet);
+  FairModule *Magnet= new PndMagnet("MAGNET");
+  Magnet->SetGeometryFileName("FullSolenoid.root");
+  fRun->AddModule(Magnet);
 
   FairModule *Dipole= new PndMagnet("MAGNET");
   Dipole->SetGeometryFileName("dipole.geo");
@@ -199,7 +199,7 @@
    
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
-//  exit(0);
+  exit(0);
 
 }  
   
