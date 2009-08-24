@@ -32,14 +32,13 @@
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave); 
   
-  FairModule *Magnet= new PndMagnet("MAGNET");
-  Magnet->SetGeometryFileName("FullSolenoid.root");
-  fRun->AddModule(Magnet);
+//  FairModule *Magnet= new PndMagnet("MAGNET");
+//  Magnet->SetGeometryFileName("FullSolenoid.root");
+//  fRun->AddModule(Magnet);
 
   FairModule *Dipole= new PndMagnet("MAGNET");
   Dipole->SetGeometryFileName("dipole.geo");
   fRun->AddModule(Dipole);
-
 
   FairDetector *Stt= new PndStt("STT", kTRUE);
   Stt->SetGeometryFileName("straws_skewed_blocks.geo");
@@ -200,7 +199,7 @@
    
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
-  exit(0);
+//  exit(0);
 
 }  
   

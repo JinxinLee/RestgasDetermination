@@ -122,6 +122,11 @@ Bool_t PndEmc::ProcessHits(FairVolume* vol) {
     TString namBox     = gMC->CurrentVolOffName(1); // Box name  
     TString namSub     = gMC->CurrentVolOffName(2); // Subunit name 
     TString namQuar    = gMC->CurrentVolOffName(3); // Quarter name 
+    
+     Int_t CopyNumber;
+       cout << "PndEMC MC id "<< vol->getMCid() << "TGeo : " <<gGeoManager->GetUID(vol->GetName()) << "  gMC : "<< gMC->CurrentVolID(CopyNumber) << endl; 
+
+
 
     if (namQuar.Contains("QuarterVol")){
        
