@@ -19,8 +19,9 @@
 #include "Hough5DNode.h"
 #include <cmath>
 #include <iostream>
-#include "stdlib.h"
-#include <set>
+#include <cstdlib>
+#include <cstdio>
+#include <cstring>
 
 //5-dim hypercube; dimensions: (x,y,z,v,w)
 
@@ -39,9 +40,12 @@ Hough5DNode::Hough5DNode() {
 
 
 
-Hough5DNode::Hough5DNode(float* center, int level, int nHyperplanes) {
+Hough5DNode::Hough5DNode(float* center, uint level, uint nHyperplanes) {
   _nPlanes = nHyperplanes;
+
   _hitList = (bool*) malloc(_nPlanes*sizeof(bool));
+  memset(_hitList, 0x00, _nPlanes);
+
   _center = (float*) malloc(5*sizeof(float));
   _corners = (float*) malloc(32*5*sizeof(float));
   _proj0 = (float*) malloc(2*sizeof(float));

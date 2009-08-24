@@ -88,14 +88,6 @@ fastHoughGPU_IFC::initClusters(std::vector<PndTpcCluster*> clist) {
   allocateArray((void**)&_clusterData_d, 5*size*sizeof(float));
   
 
-  // //allocate hitlist arrays
-//   _hitlist = (char*) malloc(600000000);
-//   _hitlist_lastgen = (char*) malloc(100000000);
-  
-//   allocateArray((void**)&_hitlist_d, 600000000);
-//   allocateArray((void**)&_hitlist_lastgen_d, 100000000);
-
-
   int count=0;
   
   //fill host position array
@@ -141,8 +133,7 @@ fastHoughGPU_IFC::setHitList(char* hl, int activeNodes) {
     freeArray(_hitlist_d);
     freeArray(_hitlist_lastgen_d);
   }  
-  std::cout<<"fdasfkaos[f"<<std::endl;
-  
+    
   //allocate hitlist arrays
   _hitlist = (char*) malloc(32*CHUNK*activeNodes);
   _hitlist_lastgen = (char*) malloc(CHUNK*activeNodes);
@@ -157,8 +148,6 @@ fastHoughGPU_IFC::setHitList(char* hl, int activeNodes) {
       memcpy(_hitlist+CHUNK*(n*32+s), _hitlist_lastgen+n*CHUNK, CHUNK);
     }
   }
-  
-  std::cout<<"Copying hitlist to device ... "<<std::endl;
   
   copyArrayToDevice(_hitlist_lastgen_d, _hitlist_lastgen, activeNodes*CHUNK);
   copyArrayToDevice(_hitlist_d, _hitlist, activeNodes*CHUNK*32);

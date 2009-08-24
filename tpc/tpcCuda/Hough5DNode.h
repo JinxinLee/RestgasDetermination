@@ -23,15 +23,17 @@
 #define HOUGH5DNODE_H
 
 
-class Hough5DNode {
+typedef unsigned int uint;
 
+class Hough5DNode {
+  
   
 public:
-
+  
   // Constructors/Destructors ---------
   Hough5DNode();
   //TODO: get should not depend on nHyperplanes
-  Hough5DNode(float* center, int level, int nHyperplanes=100000); 
+  Hough5DNode(float* center, uint level, uint nHyperplanes=100000); 
   
   ~Hough5DNode();
 
@@ -54,7 +56,7 @@ public:
   void removeHit(int j) {_hitList[j] = false; _votes--; }
   //ask if hyperplane was a hit
   bool checkHit(int j) {return _hitList[j];}
-  void setVotes(int votes)  {_votes = votes;}
+  void setVotes(uint votes)  {_votes = votes;}
   void vote() {_votes++;}
 
   void print();
@@ -75,8 +77,8 @@ private:
   float* _proj3;
   float* _proj4;
 
-  int _votes;
-  int _level;
+  uint _votes;
+  uint _level;
   
 
   // Private Methods -----------------

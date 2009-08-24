@@ -28,12 +28,15 @@
 #include "TStyle.h"
 #include "TH2D.h"
 #include "TBox.h"
+#include "TStopwatch.h"
 
 #include <cmath>
 #include <algorithm>
 #include <vector>
 #include <string>
 #include <cstdlib>
+#include <sstream>
+#include <string>
 
 #include "Hough5DNode.h"
 #include "fastHoughGPU_IFC.h"
@@ -67,9 +70,11 @@ int main(int argc, char** argv) {
   int THREADS = 128;
   float SCALE =0.95;
 
+  int minCL = 5;
+
  
-  float m_Max = 1.f;
-  float m_Min = -1.f;
+  float m_Max = 2.f;
+  float m_Min = -2.f;
   float t_Max = 5.f;
   float t_Min = -5.f;
   float phi_Min = 0.f;
@@ -79,6 +84,18 @@ int main(int argc, char** argv) {
   float c_Min = -0.3f;
   float c_Max = 0.3f;
 
+//    float m_Max = 10.f;
+//    float m_Min = -10.f;
+//    float t_Max = 200.f;
+//    float t_Min = -200.f;
+//    float phi_Min = 0.f;
+//    float phi_Max = 180.f;
+//    float theta_Min = 20.f;
+//    float theta_Max = 160.f;
+//    float c_Min = -1.f;
+//    float c_Max = 1.f;
+
+  
   float mins[5] = {phi_Min, theta_Min, c_Min, m_Min, t_Min};
   float maxs[5] = {phi_Max, theta_Max, c_Max, m_Max, t_Max};
   
@@ -111,9 +128,10 @@ int main(int argc, char** argv) {
   
   TString dir = "../../DATA/";
   
-  TString project = "Test10";
+  TString project = "Test10";  //with event 6!
+  //TString project = "Test20";  //with event 5!
 
-  //TString project = "EvtMixExample2";
+  //TString project = "EvtMixExample";
   
 
   project=dir+project;
@@ -171,10 +189,11 @@ int main(int argc, char** argv) {
   }
 
   
- 
+  TStopwatch timer;
+  timer.Start();
+  
 
-  
-  
+
   // FAST HOUGH SEARCH --------------------------------------------------
 
 
@@ -192,8 +211,7 @@ int main(int argc, char** argv) {
   //initialize virgin hitlist to 1-bits only
   memset(root_hitlist,0xFF,chunk);
 
-  
-  
+    
   //set up the IFC
   IFC->setKernelPars(THREADS);
   IFC->initClusters(clusterList);
@@ -220,7 +238,8 @@ int main(int argc, char** argv) {
 	   <<" of "<<nClusters<<" votes"<<std::endl;
   
   if(votes[0]<THRESHOLD) {
-    std::cout<<"not enough votes for root! Something's wrong, aborting . . ."<<std::endl;
+    std::cout<<"not enough votes for root! Something's wrong, aborting . . ."
+	     <<std::endl;
     return 0;
   }
   
@@ -360,20 +379,12 @@ int main(int argc, char** argv) {
     (nodelist->at(n))->setVotes(votes[n]);
   }
 
-
  
-    
-  
-  // for(int i=0; i<nodelist->size(); i++)
-//     std::cout<<nodelist->at(i)->getVote()<<" ";
-//   std::cout<<std::endl;
-  
-  
   
 
   // --------------------- END FHT ------------------------------------------------
 
-  
+  timer.Stop();
   
 
   TFile* file = new TFile("plots.root");
@@ -463,10 +474,9 @@ int main(int argc, char** argv) {
 
   
 
- //purge the results and extract clusters -------------
+ //PURGE NODES AND EXTRACT CLUSTERS --------------------------
   
- 
- 
+
   //make new clusterList
   std::vector<PndTpcCluster*> finalClist;
   for(int i=0; i<clusterList.size(); i++) {
@@ -477,144 +487,117 @@ int main(int argc, char** argv) {
   assert(finalClist.size() == nClusters);
 
 
-
-  //get hitlist and store in the nodes
-
+  bool cont=true;
   char* hitlist = IFC->getHitList();
+
+  //list of clusters for each found track
+  std::vector<std::vector<PndTpcCluster*>*> solutions;
+  
+  std::vector<TH2D*> hists;
+
+  std::vector<Color_t> colors;
+  colors.push_back(kGreen);
+  colors.push_back(kGreen-9);
+  colors.push_back(kSpring+8);
+  colors.push_back(kOrange-2);
+  colors.push_back(kOrange+7);
+  colors.push_back(kRed+3);
+  colors.push_back(kRed);
+  colors.push_back(kMagenta+2);
+  colors.push_back(kBlue-6);
+  colors.push_back(kBlue+1);
+  colors.push_back(kAzure-3);
+
+  //set votes in node objects
   for(int n=0; n<nodelist->size(); n++) 
-    if(nodelist->at(n)->getVote()>0) {
-      int c=0;
-      for(int v=0; v<nClusters; v++) 
-	if(getBit(hitlist+n*chunk,v)) {
-	  nodelist->at(n)->setHit(v);
-	  c++;
-	}
-      assert(c==nodelist->at(n)->getVote());
-    }
+      if(nodelist->at(n)->getVote()>0) {
+	int c=0;
+	for(int v=0; v<nClusters; v++) 
+	  if(getBit(hitlist+n*chunk,v)) {
+	    nodelist->at(n)->setHit(v);
+	    c++;
+	  }
+	assert(c==nodelist->at(n)->getVote());
+      }
+  
+  
+  
+  
 
-  free(hitlist);
-  
-  //sort nodes by final votes
-  sort((*nodelist).begin(), (*nodelist).end(), compareNodes);
+  //extract tracks until solutions have less clusters than minCL
+  while(cont) {
 
-  //extract clusters from best node
-  bool* bestHitList = nodelist->front()->getHitList();
-  
-  std::cout<<nodelist->front()->getVote()<<std::endl;
-  for(int b=0; b<nClusters; b++)
-    std::cout<<bestHitList[b]<<" ";
-  std::cout<<std::endl;
+    //sort nodes by final votes
+    sort((*nodelist).begin(), (*nodelist).end(), compareNodes);
     
-  
-  std::vector<PndTpcCluster*> firstSol;
+    //extract clusters from best node
+    bool* bestHitList = nodelist->front()->getHitList();
     
-  for(int c=0; c<nClusters; c++) 
+    std::cout<<nodelist->front()->getVote()<<std::endl;
+    for(int b=0; b<nClusters; b++)
+      std::cout<<(bool)bestHitList[b]<<" ";
+    std::cout<<std::endl;
+    
+    std::vector<PndTpcCluster*>* sol = new std::vector<PndTpcCluster*>();
+    
+    for(int c=0; c<nClusters; c++) 
     if(bestHitList[c])
-      firstSol.push_back(finalClist[c]);
-
-  std::cout<<"\nfirstSol size: "<<firstSol.size()<<std::endl;
-  
-  TH2D* solhist1 = new TH2D("sol1", "Cluster extraction1", 100,-42,42,100,-42,42);
-  solhist1->SetMarkerColor(kBlue);
-  
-  int blub=0;
-  for(int s=0; s<firstSol.size(); s++) {
-    TVector3 pos = (firstSol[s])->pos();
-    solhist1->Fill(pos.X(), pos.Y());
-    blub++;
-  }
-
-  std::cout<<"\nClusters in first solution: "<<blub<<std::endl;
-
-  TCanvas* solc = new TCanvas();
-
-  solhist1->Draw();
-
-
-  //remove hits for first node from all others
-  for(int p=0; p<nClusters; p++) {
-    if(!bestHitList[p])
+      sol->push_back(finalClist[c]);
+    
+    if(sol->size()<minCL) {
+      cont=false;
       continue;
-    for(int n=0; n<nodelist->size(); n++)
-      if(nodelist->at(n)->checkHit(p))
-	nodelist->at(n)->removeHit(p);
+    }
+  
+    //remove hits for first node from all others
+    for(int p=0; p<nClusters; p++) {
+      if(!bestHitList[p])
+	continue;
+      for(int n=0; n<nodelist->size(); n++)
+	if(nodelist->at(n)->checkHit(p))
+	  nodelist->at(n)->removeHit(p);
+    }
+    
+    solutions.push_back(sol);
+    
+    
   }
 
-  //sort nodes by final votes
-  sort((*nodelist).begin(), (*nodelist).end(), compareNodes);
+  TCanvas* blub = new TCanvas();
 
-  //extract clusters from best node
-  bool* secondHitList = nodelist->front()->getHitList();
-  
-  std::cout<<nodelist->front()->getVote()<<std::endl;
-  for(int b=0; b<nClusters; b++)
-    std::cout<<secondHitList[b]<<" ";
-  std::cout<<std::endl;
-    
-  
-  std::vector<PndTpcCluster*> secondSol;
-    
-  for(int c=0; c<nClusters; c++) 
-    if(secondHitList[c])
-      secondSol.push_back(finalClist[c]);
 
-  std::cout<<"\nsecondSol size: "<<secondSol.size()<<std::endl;
-  
-  TH2D* solhist2 = new TH2D("sol2", "Cluster extraction2", 100,-42,42,100,-42,42);
-  solhist2->SetMarkerColor(kRed);
-  
-  for(int s=0; s<secondSol.size(); s++) {
-    TVector3 pos = (secondSol[s])->pos();
-    solhist2->Fill(pos.X(), pos.Y());
+  for(int i=0; i<solutions.size(); i++) {
+    std::string tr = "track_";
+    std::stringstream ss;
+    ss<<i;
+    tr.append(ss.str());
+    hists.push_back(new TH2D(tr.c_str(), "Cluster extraction", 
+			     100,-42,42,100,-42,42));
+    //fill hist with positions;
+    for(int p=0; p<(solutions[i])->size(); p++) {
+      TVector3 pos = (solutions[i])->at(p)->pos();
+      hists.back()->Fill(pos.X(), pos.Y());
+    }
+    std::cout<<"\nFound Track with "<<(solutions[i])->size()
+	     <<" clusters"<<std::endl;
+
+    hists.back()->SetMarkerColor(colors[i]);
+    hists.back()->SetMarkerStyle(20);
+    hists.back()->SetMarkerSize(0.5);
+    
+    //hists.back()->SetLineWidth(3);
+    if(i>0)
+      hists.back()->Draw("same");
+    else
+      hists.back()->Draw();
   }
-
-  solhist2->Draw("same");
-  
-  //remove hits for first node from all others
-  for(int p=0; p<nClusters; p++) {
-    if(!secondHitList[p])
-      continue;
-    for(int n=0; n<nodelist->size(); n++)
-      if(nodelist->at(n)->checkHit(p))
-	nodelist->at(n)->removeHit(p);
-  }
-
-  //sort nodes by final votes
-  sort((*nodelist).begin(), (*nodelist).end(), compareNodes);
-
-  //extract clusters from best node
-  bool* thridHitList = nodelist->front()->getHitList();
-  
-  std::cout<<nodelist->front()->getVote()<<std::endl;
-  for(int b=0; b<nClusters; b++)
-    std::cout<<thridHitList[b]<<" ";
-  std::cout<<std::endl;
-    
-  
-  std::vector<PndTpcCluster*> thridSol;
-    
-  for(int c=0; c<nClusters; c++) 
-    if(thridHitList[c])
-      thridSol.push_back(finalClist[c]);
-
-  std::cout<<"\nthridSol size: "<<thridSol.size()<<std::endl;
-  
-  TH2D* solhist3 = new TH2D("sol3", "Cluster extraction2", 100,-42,42,100,-42,42);
-  solhist3->SetMarkerColor(kGreen);
-  
-  for(int s=0; s<thridSol.size(); s++) {
-    TVector3 pos = (thridSol[s])->pos();
-    solhist3->Fill(pos.X(), pos.Y());
-  }
-
-  solhist3->Draw("same");
-  
-
   
   
+  std::cout<<"Track qualification: more than "<<minCL
+	   <<" (minCL) hits\n\n"<<std::endl;
 
-
-
+  std::cout<<"\n\nFHT took "<<timer.RealTime()<<" seconds to process"
+	   <<std::endl;
 
   
   gApplication->SetReturnFromRun(true);
