@@ -94,25 +94,25 @@ echo "The $compiler compiler includes are"
 echo $sysinclist
 
 defoptions="-I. -DEVTSTANDALONE"
-echo "The default $compiler options are "
-echo $defoptions
-echo "Enter any other options that you would like"
-echo "to use in compilation.  Examples -g -pg -o4 etc"
-
-read useroptions
-defoptions="$defoptions $useroptions" 
+#echo "The default $compiler options are "
+#echo $defoptions
+#echo "Enter any other options that you would like"
+#echo "to use in compilation.  Examples -g -pg -o4 etc"
+#
+#read useroptions
+#defoptions="$defoptions $useroptions" 
 echo "The following options will be used by default"
 echo $defoptions
 
 
-deflinkopt=" "
-echo "The default link options are $deflinkopt"
-echo "for the test program."
-echo "Please enter any others that you would like to use"
-echo "(such as '-lRIO -lSQL -lNet' with ROOT >= 5.16)" 
-read userlinkopt
-
-deflinkopt="$deflinkopt $userlinkopt"
+deflinkopt="-lRIO -lSQL -lNet"
+#echo "The default link options are $deflinkopt"
+#echo "for the test program."
+#echo "Please enter any others that you would like to use"
+#echo "(such as '-lRIO -lSQL -lNet' with ROOT >= 5.16)" 
+#read userlinkopt
+#
+#deflinkopt="$deflinkopt $userlinkopt"
 
 #autodetect pythia/photos/pdf lib names
 pylibs=`ls $CERN_ROOT/lib/libpythia*.a  | awk '{print $1}' |tr '/' ' ' | awk '{print $NF}' | tr '.' ' ' | awk '{print substr($1,4,100)}'`
@@ -135,7 +135,7 @@ echo "EVTPYLIB=$pylibs" >> config.mk
 echo "EVTPHLIB=$phlibs" >> config.mk
 echo "EVTPDLIB=$pdlibs" >> config.mk
 
-echo "Done. Type make lib then make bin"
+echo "Done. Type make then make bin"
 
 
 
