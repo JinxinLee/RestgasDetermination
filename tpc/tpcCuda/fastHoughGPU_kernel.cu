@@ -34,21 +34,22 @@ __device__ int compare (const void * a, const void * b) {
 }
 
 
-
-//MINITS NUMBER OF CLUSTERS TO 2000 !!! has to go later on, or 
-//nvidia builds cards with bigger constant memory :)
-//__device__ __constant__ float clusterDataConst_d[10000];
-
-
 __device__ bool getBit(char* c, int n) {
   int temp = (int) (c[n>>3] & (1 << (n & 7)));
   return (bool) temp;
 }
 
-
+/*
 __device__ void clearBit(char* c, int n) {
-  c[n>>3] = c[n>>3] & ~(1 << (n & 7 ));
-}
+  c[n>>3] = c[n>>3] & ~(1 << (n & 7)) ;
+  }*/
+
+
+//only clear bit if ok=0
+//doe NOT clear bit if ok=255
+__device__ void clearBit(char* c, int n, uint ok) {
+  c[n>>3] = c[n>>3] & ~((1 << (n & 7)) & (~ok));
+  }
 
 
 __global__ void riemannTransform(float* clPos, float* paramPos, int nClusters,
@@ -91,6 +92,8 @@ __global__ void riemannTransform(float* clPos, float* paramPos, int nClusters,
 
 
 //parallel on Cluster-level
+//BOKEN since introduction of hitlist
+//TODO: FIX THIS 
 __global__ void testIntersect(int nNodes, int level, int nClusters,
 			      float* clusterData_d, 
 			      char* hitlist_d, char* hitlist_lastgen_d,
@@ -188,7 +191,8 @@ __global__ void testIntersect(int nNodes, int level, int nClusters,
 	atomicInc(votes+n,(uint)nClusters+1);           		
       }
       else
-	clearBit(hitlist_d + n*HITLISTCHUNK, tID);	
+	clearBit(hitlist_d + n*HITLISTCHUNK, tID, 1);	
+      //clearBit(hitlist_d + n*HITLISTCHUNK, tID);	
 	
      }
    }
@@ -203,7 +207,10 @@ __global__ void testIntersect2(int nNodes, int level, int nClusters,
 			       float* proj0, float* proj1, float* proj2,
 			       float* proj3, float* proj4,
 			       uint* votes) {
-  
+
+
+  uint control1, control2, control3, control4;
+    
   float _side = 1.f/powf(2,level);
   float PI_180 = 3.141592654f / 180.f;
   
@@ -241,9 +248,12 @@ __global__ void testIntersect2(int nNodes, int level, int nClusters,
        
      for(int n=0; n<nClusters; ++n) {
        
+
+       
        if(level>1)  {
+	 //always identical for the 32 sons of one mother!
 	 if(!(getBit(hitlist_lastgen_d + ((int)tID/32)*HITLISTCHUNK, n)))
-	 continue;
+       	   continue;
        }
        
        
@@ -267,8 +277,13 @@ __global__ void testIntersect2(int nNodes, int level, int nClusters,
 	   signs1+=signbit(diff);
 	 }
        }
+
+       control1 = (uint) signs1;
+       control2 = (uint) (signs1-4);
        
-       
+       //aborting here would cause branching and do more harm than
+       //benefit.
+
        //test for interesection in (phi, theta, c) ------------
        
        int sign=0;
@@ -290,12 +305,21 @@ __global__ void testIntersect2(int nNodes, int level, int nClusters,
 	   
 	 }
        }
+       control3 = (uint) sign;
+       control4 = (uint) (sign-8);
+
+       bool ok = (bool)(__umul24(__umul24(control1,control2),__umul24(control3,control4)));
        
-       if(!(sign == 8 || sign == 0 || signs1 == 4 || signs1 == 0)) {
+       //if-free version, benefit is minimal
+       atomicAdd(votes+tID, (uint)(ok));
+       clearBit(hitlist_d + tID*HITLISTCHUNK, n, ((uint)(ok))*255);	
+
+       /*if(!(sign == 8 || sign == 0 || signs1 == 4 || signs1 == 0)) {
 	 atomicInc(votes+tID,(uint)nClusters+1);
        }
        else
-	 clearBit(hitlist_d + tID*HITLISTCHUNK, n);	
+       clearBit(hitlist_d + tID*HITLISTCHUNK, n);	*/
+       
      }
    }
 }

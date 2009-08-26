@@ -122,14 +122,14 @@ int main(int argc, char** argv) {
 
 
 
-  unsigned int EVENT=6;
+  unsigned int EVENT=5;
   
 
   
   TString dir = "../../DATA/";
   
-  TString project = "Test10";  //with event 6!
-  //TString project = "Test20";  //with event 5!
+  //TString project = "Test10";  //with event 6!
+  TString project = "Test20";  //with event 5!
 
   //TString project = "EvtMixExample";
   

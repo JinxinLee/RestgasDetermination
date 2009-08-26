@@ -84,7 +84,7 @@ ADD_CUSTOM_COMMAND(OUTPUT tpcdataDict.cxx
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 SET(CMAKE_LD_FLAGS "${CMAKE_LD_FLAGS} -g")
-SET(CMAKE_CUDA_FLAGS "-g -G -arch=sm_11 --ptxas-options -v")
+SET(CMAKE_CUDA_FLAGS "-g -G -arch=sm_11 --ptxas-options -v -use_fast_math")
 
 # Attempt to find dependant libraries
 FIND_PACKAGE(CUDARuntime)
@@ -105,4 +105,6 @@ ADD_EXECUTABLE(fastHoughCPU_5D fastHoughCPU_5D.cc)
 TARGET_LINK_LIBRARIES(fastHoughCPU_5D tpccuda tpcdata ${ROOT_LIBS})
 
 ADD_EXECUTABLE(testBit testBitmask.cxx)
+
+
 
