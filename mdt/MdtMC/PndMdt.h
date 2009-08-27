@@ -40,7 +40,8 @@ public:
 
 /** Accessors **/
     inline Int_t GetPosIndex()            const { return fPosIndex;              };
-    inline Int_t GetLayerID()             const { return fDetectorID<200 ? fDetectorID%8 : fDetectorID<300 ? (fDetectorID-200)%8 : (fDetectorID-300)%8; };
+    inline Int_t GetLayerID()             const { return fDetectorID<200 ? (fDetectorID - fDetectorID%8)/8 : fDetectorID<300 ? (fDetectorID-200 - (fDetectorID-200)%8)/8 : (fDetectorID-300 - (fDetectorID-300)%8)/8; };
+
     inline Int_t GetModule()              const { return fDetectorID<200 ? 1 : fDetectorID<300 ? 2 : 3; };
 
     TClonesArray* GetCollection(Int_t iColl) const ;
