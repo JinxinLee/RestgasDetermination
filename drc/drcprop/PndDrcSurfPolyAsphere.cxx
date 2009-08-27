@@ -689,12 +689,13 @@ void PndDrcSurfPolyAsphere::Print(fstream& stream) const
 
 				fP1 = fTrans*fP1;
 
-				stream<<" l->SetPoint("<<(icnt++)<<","
+				stream<<" l->SetPoint("<<icnt<<","
 					<<fP1.X()<<","
 					<<fP1.Y()<<","
 					<<fP1.Z()<<");"<<endl;
 
 				l->SetPoint( icnt, fP1.X(), fP1.Y(), fP1.Z()); // for an opened canvas
+				icnt++;
 			}
 		}
 
@@ -702,7 +703,7 @@ void PndDrcSurfPolyAsphere::Print(fstream& stream) const
 		fP1.SetZ(ZVal(fP1.X(),fP1.Y())); // fP1.Z()=0...
 
 		fP1 = fTrans*fP1;
-		stream<<" l->SetPoint("<<(icnt++)<<","
+		stream<<" l->SetPoint("<<icnt<<","
 			<<fP1.X()<<","
 			<<fP1.Y()<<","
 			<<fP1.Z()<<");"<<endl;
@@ -713,6 +714,7 @@ void PndDrcSurfPolyAsphere::Print(fstream& stream) const
 		l->SetPoint( icnt, fP1.X(), fP1.Y(), fP1.Z() );
 		l->SetLineColor(fPrintColor);
 		l->Draw();
+		icnt++;
 	}
 
 }

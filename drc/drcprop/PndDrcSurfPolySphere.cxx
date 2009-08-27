@@ -361,12 +361,13 @@ void PndDrcSurfPolySphere::Print(fstream& stream) const
 	      //fP1.Transform(fRot);
 	      //fP1 += fShift;
 
-				stream<<" l->SetPoint("<<(icnt++)<<","
+				stream<<" l->SetPoint("<<icnt<<","
 					<<fP1.X()<<","
 					<<fP1.Y()<<","
 					<<fP1.Z()<<");"<<endl;
 
 				l->SetPoint( icnt, fP1.X(), fP1.Y(), fP1.Z() ); // for an opened canvas
+				icnt++;
 			}
 		}
 
@@ -378,7 +379,7 @@ void PndDrcSurfPolySphere::Print(fstream& stream) const
       //fP1.Transform(fRot);
       //fP1 += fShift;
 
-		stream<<" l->SetPoint("<<(icnt++)<<","
+		stream<<" l->SetPoint("<<icnt<<","
 			<<fP1.X()<<","
 			<<fP1.Y()<<","
 			<<fP1.Z()<<");"<<endl;
@@ -389,6 +390,7 @@ void PndDrcSurfPolySphere::Print(fstream& stream) const
 		l->SetPoint( icnt, fP1.X(), fP1.Y(), fP1.Z());
 		l->SetLineColor(fPrintColor);
 		l->Draw();
+		icnt++;
 	}
 
 }

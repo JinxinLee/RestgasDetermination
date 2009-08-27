@@ -2,13 +2,14 @@
 //======
 // ROOT
 //======
-#include <TH2.h>
-#include <TString.h>
-#include <TFile.h>
-#include <TTree.h>
 #include <TCanvas.h>
+#include <TFile.h>
+#include <TH2.h>
 #include <TLine.h>
-#include <TMath.h>
+#include <TPad.h>
+#include <TString.h>
+#include <TStyle.h>
+#include <TTree.h>
 
 
 //=========
@@ -36,7 +37,7 @@ void mcpPos( TString inFilename = "", Double_t minX_dim = 0, Double_t minY_dim =
 //==============================================================================
 	TFile *inFile   = new TFile( inFilename );
 	TTree *inTree   = (TTree*) inFile->Get("photonList");
-	TCanvas *screen = (TCanvas*) inFile->Get("Screen"); // use saved screen
+	TCanvas *screen = (TCanvas*) inFile->Get("Screen");
 
 
 	Double_t hitPosX, hitPosY;
@@ -64,6 +65,7 @@ void mcpPos( TString inFilename = "", Double_t minX_dim = 0, Double_t minY_dim =
 	TCanvas *canvas = new TCanvas( "canvas", "" ,200, 10, 1200, 500 );
 	canvas->Draw();
 	canvas->cd();
+
 	TPad *pad1 = new TPad( "p1", "", 0, 0, 0.58, 1 );
 	TPad *pad2 = new TPad( "p2", "", 0.6, 0, 1, 1 );
 	pad1->Draw();

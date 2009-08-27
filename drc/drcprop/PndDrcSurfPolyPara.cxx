@@ -354,12 +354,13 @@ void PndDrcSurfPolyPara::Print(fstream& stream) const
 
 				fP1 = fTrans * fP1;
 
-				stream<<" l->SetPoint("<<(icnt++)<<","
+				stream<<" l->SetPoint("<<icnt<<","
 					<<fP1.X()<<","
 					<<fP1.Y()<<","
 					<<fP1.Z()<<");"<<endl;
 
 				l->SetPoint( icnt, fP1.X(), fP1.Y(), fP1.Z() ); // for an opened canvas
+				icnt++;
 			}
 		}
 		fP1 = fP[0]*frac;
@@ -368,7 +369,7 @@ void PndDrcSurfPolyPara::Print(fstream& stream) const
 
 		fP1 = fTrans * fP1;
 
-		stream<<" l->SetPoint("<<(icnt++)<<","
+		stream<<" l->SetPoint("<<icnt<<","
 			<<fP1.X()<<","
 			<<fP1.Y()<<","
 			<<fP1.Z()<<");"<<endl;
@@ -379,6 +380,7 @@ void PndDrcSurfPolyPara::Print(fstream& stream) const
 		l->SetPoint( icnt, fP1.X(), fP1.Y(), fP1.Z());
 		l->SetLineColor(fPrintColor);
 		l->Draw();
+		icnt++;
 	}
 
 

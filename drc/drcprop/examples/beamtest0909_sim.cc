@@ -26,9 +26,9 @@ using std::string;
 #include "TMarker.h"
 #include "TMath.h"
 using TMath::Abs;
+using TMath::CeilNint;
 using TMath::ACos;
 using TMath::Cos;
-using TMath::Nint;
 using TMath::Pi;
 using TMath::Power;
 using TMath::Sin;
@@ -199,6 +199,9 @@ int main(int argc, char *argv[])
 	double fishtank_height = 200; // default: 200 mm ; old: 400 mm
 	double fishtank_length = 200; // default: 200 mm ; old: 220 mm
 
+	double fishtank_width_offset = 0; // default: 0 mm ; != 0 means bar is not centered
+	double fishtank_height_offset = 50; // default: 0 mm
+
 
 	// particle properties
 	const double mass_p  = 0.9383; // proton mass in GeV
@@ -212,10 +215,10 @@ int main(int argc, char *argv[])
 	double beta = Sqrt( 1 - Power( mass / (kinE + mass), 2 ) ); // E = T + E0 = gamma * E0
 
 	double radius = 20; // default: 20 mm 1-sigma beam spot radius (gaus smeared)
-	double limit = 15; // default: 50 mm beam spot radius limit
+	double limit = 20; // default: 50 mm beam spot radius limit
 
 	int particle_number = 300; // default: 300
-	int photon_number = 200; // default: 100 per particle; 0 means realistic number of Cherenkov photons
+	int photon_number = 100; // default: 100 per particle; 0 means realistic number of Cherenkov photons
 
 	double lambda_min = 300; // default: 300 nm ; lowest Cherenkov wavelength
 	double lambda_max = 700; // default: 700 nm ; highest Cherenkov wavelength
@@ -425,6 +428,9 @@ int main(int argc, char *argv[])
 	cout << "  fishtank width:  " << fishtank_width << endl;
 	cout << "  fishtank heigth: " << fishtank_height << endl;
 	cout << "  fishtank length: " << fishtank_length << endl;
+
+	cout << "  fishtank width offset : " << fishtank_width_offset << endl;
+	cout << "  fishtank height offset: " << fishtank_height_offset << endl;
 
 
 	if( opt_beamtest )
@@ -671,21 +677,23 @@ int main(int argc, char *argv[])
 		infoTree->Branch( "lens_radius"   , &lens_radius   , "lens_radius/D");
 		infoTree->Branch( "lens_thickness", &lens_thickness, "lens_thickness/D");
 
-		if( airgap == 0 )
+		if( airgap > 0 )
 			infoTree->Branch( "airBox_material", &airBox_material, "airBox_material/C");
 	}
-	infoTree->Branch( "fishtank_material", &fishtank_material, "fishtank_material/C");
-	infoTree->Branch( "slab_width"       , &slab_width       , "slab_width/D");
-	infoTree->Branch( "slab_height"      , &slab_height      , "slab_height/D");
-	infoTree->Branch( "slab_length"      , &slab_length      , "slab_length/D");
-	infoTree->Branch( "airgap"           , &airgap           , "airgap/D");
-	infoTree->Branch( "fishtank_width"   , &fishtank_width   , "fishtank_width/D");
-	infoTree->Branch( "fishtank_height"  , &fishtank_height  , "fishtank_height/D");
-	infoTree->Branch( "fishtank_length"  , &fishtank_length  , "fishtank_length/D");
-	infoTree->Branch( "photon_number"    , &photon_number    , "photon_number/I");
-	infoTree->Branch( "lambda_min"       , &lambda_min       , "lambda_min/I");
-	infoTree->Branch( "lambda_max"       , &lambda_max       , "lambda_max/I");
-	infoTree->Branch( "refl_limit"       , &refl_limit       , "refl_limit/I");
+	infoTree->Branch( "fishtank_material"     , &fishtank_material     , "fishtank_material/C");
+	infoTree->Branch( "slab_width"            , &slab_width            , "slab_width/D");
+	infoTree->Branch( "slab_height"           , &slab_height           , "slab_height/D");
+	infoTree->Branch( "slab_length"           , &slab_length           , "slab_length/D");
+	infoTree->Branch( "airgap"                , &airgap                , "airgap/D");
+	infoTree->Branch( "fishtank_width"        , &fishtank_width        , "fishtank_width/D");
+	infoTree->Branch( "fishtank_height"       , &fishtank_height       , "fishtank_height/D");
+	infoTree->Branch( "fishtank_length"       , &fishtank_length       , "fishtank_length/D");
+	infoTree->Branch( "fishtank_width_offset" , &fishtank_width_offset , "fishtank_width_offset/D");
+	infoTree->Branch( "fishtank_height_offset", &fishtank_height_offset, "fishtank_height_offset/D");
+	infoTree->Branch( "photon_number"         , &photon_number         , "photon_number/I");
+	infoTree->Branch( "lambda_min"            , &lambda_min            , "lambda_min/I");
+	infoTree->Branch( "lambda_max"            , &lambda_max            , "lambda_max/I");
+	infoTree->Branch( "refl_limit"            , &refl_limit            , "refl_limit/I");
 	if( !opt_photonCannon )
 	{
 		infoTree->Branch( "particle_mass"  , &mass           , "particle_mass/D");
@@ -743,8 +751,8 @@ int main(int argc, char *argv[])
 	}
 
 
-	int minX = Nint( center - 100 );
-	int maxX = Nint( center + 100 );
+	int minX = CeilNint( center - limit/Cos(inci*degree) );
+	int maxX = CeilNint( center + limit/Cos(inci*degree) );
 
 	TH1F *beamspot = new TH1F( "beamspot", beamspot_title, 100, minX, maxX );
 
@@ -755,7 +763,6 @@ int main(int argc, char *argv[])
 	beamspot->GetXaxis()->CenterTitle();
 	beamspot->GetYaxis()->SetTitle( beamspot_titleY );
 	beamspot->GetYaxis()->CenterTitle();
-	beamspot->Draw( "POL" );
 
 
 	TLine *left   = new TLine(-666,-666,-666,-666);
@@ -841,16 +848,17 @@ int main(int argc, char *argv[])
 	top   ->Draw( "same" );
 	bottom->Draw( "same" );
 
+	beamspot->Draw( "POL" );
 
 	// screen plot
 	TString screen_titleX = "x [mm]";
 	TString screen_titleY = "y [mm]";
 
-	TH1F *screen = new TH1F( "screen", "", 600, -fishtank_width/2, fishtank_width/2 );
+	TH1F *screen = new TH1F( "screen", "", 600, -fishtank_width/2 + fishtank_width_offset, fishtank_width/2  + fishtank_width_offset );
 
 	screen->SetStats( 0 );
-	screen->SetMinimum(-fishtank_height/2);
-	screen->SetMaximum(+fishtank_height/2);
+	screen->SetMinimum(-fishtank_height/2 + fishtank_height_offset);
+	screen->SetMaximum(+fishtank_height/2 + fishtank_height_offset);
 	screen->GetXaxis()->SetTitle( screen_titleX );
 	screen->GetXaxis()->CenterTitle();
 	screen->GetYaxis()->SetTitle( screen_titleY );
@@ -1126,15 +1134,15 @@ int main(int argc, char *argv[])
 	double fishtank_posZ = fishtank_length + airgap; // default: 210 mm
 
 
-	XYZPoint b1(-fishtank_width/2, +fishtank_height/2, airgap);
-	XYZPoint b2(-fishtank_width/2, -fishtank_height/2, airgap);
-	XYZPoint b3(+fishtank_width/2, -fishtank_height/2, airgap);
-	XYZPoint b4(+fishtank_width/2, +fishtank_height/2, airgap);
+	XYZPoint b1(-fishtank_width/2 + fishtank_width_offset, +fishtank_height/2 + fishtank_height_offset, airgap);
+	XYZPoint b2(-fishtank_width/2 + fishtank_width_offset, -fishtank_height/2 + fishtank_height_offset, airgap);
+	XYZPoint b3(+fishtank_width/2 + fishtank_width_offset, -fishtank_height/2 + fishtank_height_offset, airgap);
+	XYZPoint b4(+fishtank_width/2 + fishtank_width_offset, +fishtank_height/2 + fishtank_height_offset, airgap);
 
-	XYZPoint b5(-fishtank_width/2, +fishtank_height/2, +fishtank_posZ);
-	XYZPoint b6(-fishtank_width/2, -fishtank_height/2, +fishtank_posZ);
-	XYZPoint b7(+fishtank_width/2, -fishtank_height/2, +fishtank_posZ);
-	XYZPoint b8(+fishtank_width/2, +fishtank_height/2, +fishtank_posZ);
+	XYZPoint b5(-fishtank_width/2 + fishtank_width_offset, +fishtank_height/2 + fishtank_height_offset, +fishtank_posZ);
+	XYZPoint b6(-fishtank_width/2 + fishtank_width_offset, -fishtank_height/2 + fishtank_height_offset, +fishtank_posZ);
+	XYZPoint b7(+fishtank_width/2 + fishtank_width_offset, -fishtank_height/2 + fishtank_height_offset, +fishtank_posZ);
+	XYZPoint b8(+fishtank_width/2 + fishtank_width_offset, +fishtank_height/2 + fishtank_height_offset, +fishtank_posZ);
 
 
 	PndDrcSurfPolyFlat fishtank_face;
@@ -1226,15 +1234,15 @@ int main(int argc, char *argv[])
 	//      a3----------a2
 
 
-	XYZPoint a1(-fishtank_width/2, +fishtank_height/2, 0);
-	XYZPoint a2(-fishtank_width/2, -fishtank_height/2, 0);
-	XYZPoint a3(+fishtank_width/2, -fishtank_height/2, 0);
-	XYZPoint a4(+fishtank_width/2, +fishtank_height/2, 0);
+	XYZPoint a1(-fishtank_width/2 + fishtank_width_offset, +fishtank_height/2 + fishtank_height_offset, 0);
+	XYZPoint a2(-fishtank_width/2 + fishtank_width_offset, -fishtank_height/2 + fishtank_height_offset, 0);
+	XYZPoint a3(+fishtank_width/2 + fishtank_width_offset, -fishtank_height/2 + fishtank_height_offset, 0);
+	XYZPoint a4(+fishtank_width/2 + fishtank_width_offset, +fishtank_height/2 + fishtank_height_offset, 0);
 
-	XYZPoint a5(-fishtank_width/2, +fishtank_height/2, airgap);
-	XYZPoint a6(-fishtank_width/2, -fishtank_height/2, airgap);
-	XYZPoint a7(+fishtank_width/2, -fishtank_height/2, airgap);
-	XYZPoint a8(+fishtank_width/2, +fishtank_height/2, airgap);
+	XYZPoint a5(-fishtank_width/2 + fishtank_width_offset, +fishtank_height/2 + fishtank_height_offset, airgap);
+	XYZPoint a6(-fishtank_width/2 + fishtank_width_offset, -fishtank_height/2 + fishtank_height_offset, airgap);
+	XYZPoint a7(+fishtank_width/2 + fishtank_width_offset, -fishtank_height/2 + fishtank_height_offset, airgap);
+	XYZPoint a8(+fishtank_width/2 + fishtank_width_offset, +fishtank_height/2 + fishtank_height_offset, airgap);
 
 	PndDrcSurfPolyFlat airBox_face;
 	airBox_face.AddPoint(a1);
@@ -1754,6 +1762,7 @@ int main(int argc, char *argv[])
 		XYZPoint hitPos = (*iph).Position();
 		hitPosX = hitPos.X();
 		hitPosY = hitPos.Y();
+		hitPosZ = hitPos.Z();
 
 
 		int n_posX = 0;
