@@ -47,6 +47,7 @@ public:
 	virtual Int_t NumberOfDigis() const;
 	virtual Double_t RnumberOfDigis() const;
 
+        Int_t GetClusterIndex()  { return fClusterIndex; };
 
 protected:
   // Data members
