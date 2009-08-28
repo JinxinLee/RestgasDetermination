@@ -17,6 +17,7 @@ LINK_DIRECTORIES(../../../ /home/sverre/work/gemMonitor/gemMonitor/lib/)
  
 SET(SOURCES convert.cxx)
 SET(SOURCES2 patternReco.cxx ../../../src/TCfast2Dhough.cxx ../../../../tpcCuda/Hyperplane2D.cxx ../../../../tpcCuda/Hough2DNode.cxx)
+SET(SOURCES3 fit.cxx histContainers.cxx)
 
 
 EXEC_PROGRAM(
@@ -39,3 +40,7 @@ ADD_EXECUTABLE(patternReco ${SOURCES2})
 TARGET_LINK_LIBRARIES(patternReco  ${ROOT_LIBS})
 TARGET_LINK_LIBRARIES(patternReco testChamber)
 SET_TARGET_PROPERTIES(patternReco PROPERTIES LINKER_LANGUAGE CXX)
+ADD_EXECUTABLE(fit ${SOURCES3})
+TARGET_LINK_LIBRARIES(fit  ${ROOT_LIBS})
+TARGET_LINK_LIBRARIES(fit testChamber)
+SET_TARGET_PROPERTIES(fit PROPERTIES LINKER_LANGUAGE CXX)

@@ -41,6 +41,7 @@ void failedConf(std::string var){
 }
 int main(int argc,char **argv){
   using namespace std;
+   signal(SIGINT, signalHandler2);
   if(!(argc==2)){
     cerr<<"Wrong number of arguments, "<<argc<<endl
         <<"Syntax should be ./tracker configFile"<<endl;
@@ -82,7 +83,7 @@ int main(int argc,char **argv){
     if(!(cf.readInto(s, name.c_str()) )) failedConf(name.c_str());
     istringstream iss(s);
     double noise,a0a2,a1a2,minU,maxU;
-    iss>>noise>>a0a2>>a1a2>>minU>>maxU;
+    iss>>noise>>a1a2>>a0a2>>minU>>maxU;
     cout<<i<<" noise "<<noise
 	<<" a0a2 "<<a0a2
 	<<" a1a2 "<<a1a2
@@ -132,6 +133,7 @@ int main(int argc,char **argv){
   vector<int> nCuts;
   int totClusters=0;
   int totCut=0;
+  int posCut=0;
   for(int i=0;i<8;++i){
     nClusters.push_back(0);
     nCuts.push_back(0);
@@ -144,13 +146,13 @@ int main(int argc,char **argv){
       break;
     }
     if(i_ev%250==0){
-      cout<<i_ev<<" n clusters "<<totClusters<<" totCut "<<totCut<<endl;
+      cout<<i_ev<<" n clusters "<<totClusters<<" totCut "<<totCut<<" pos cut "<<posCut<<endl;
     }
     
     inTree->GetEntry(i_ev);
     outEvent->Clear();
     vector<TCcluster> eventClusters;
-    for(int i=0;i<detectorPlanes.size();++i){
+    for(unsigned int i=0;i<detectorPlanes.size();++i){
       double pitch=a->getPitch(i+1);
       double res=a->getRes(i+1);
       //cout<<detectorPlanes.at(i)->GetName()<<endl;
@@ -169,7 +171,7 @@ int main(int argc,char **argv){
 	  if(x>=cutMinU.at(i)&&x<=cutMaxU.at(i)){
 	    TVector3 pos(x,0,0);
 	    TVector3 err(0,0,0);
-	    if(i>1&&i<6){
+	    if(i>1&&i<7){
 	      err=TVector3(res,0.5,0.1);
 	    }else{
 	      err=TVector3(((*it)->GetPositionErr())*pitch,0.5,0.1);
@@ -179,6 +181,8 @@ int main(int argc,char **argv){
 	    nClusters.at(i)++;
 	    totClusters++;
 	    //	    cout<<i+1<<" x "<<_c.posXYZ().x()<<" y "<<_c.posXYZ().y()<<endl;
+	  }else{
+	    posCut++;
 	  }
 	  
 	}else{
@@ -198,7 +202,7 @@ int main(int argc,char **argv){
   outEvent->Clear();
   outFile->Write();
   outFile->Close();
-  for(int i=0;i<detectorPlanes.size();++i){
+  for(unsigned int i=0;i<detectorPlanes.size();++i){
     delete detectorPlanes.at(i);
   }
   detectorPlanes.clear();

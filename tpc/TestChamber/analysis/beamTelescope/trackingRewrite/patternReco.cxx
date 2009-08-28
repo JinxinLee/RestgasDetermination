@@ -48,6 +48,7 @@ void failedConf(std::string var){
 
 int main(int argc,char **argv){
   using namespace std;
+  signal(SIGINT, signalHandler2);  
   if(!(argc==2)){
     cerr<<"Wrong number of arguments, "<<argc<<endl
         <<"Syntax should be ./tracker configFile"<<endl;
@@ -55,47 +56,77 @@ int main(int argc,char **argv){
   }
   TApplication theApp("theApp",NULL,NULL);
   //reading configFile
-
+  TCanvas * c=NULL;
   string infilePath;
   string outFilePath;
   string alignmentFilePath;
   string histFilePath;
-
-   ConfigFile cf( argv[1] );
+  string mode;
+  ConfigFile cf( argv[1] );
+  bool hough = true;
+  bool maxAmp=false;
+  bool disp=false;
+  int houghThreshold;
+  int houghDepth;
   
   if(!(cf.readInto(infilePath , "inFile") )) failedConf("infile");
   if(!(cf.readInto(outFilePath , "outFile") )) failedConf("alignmentFile");
   if(!(cf.readInto(alignmentFilePath , "alignmentFile") )) failedConf("alignmentFile");
   if(!(cf.readInto(histFilePath , "histFile") )) failedConf("histFile");
+  if(!(cf.readInto(mode , "mode") )) failedConf("mode");
+  if(mode=="hough"){
+    hough=true;
+    maxAmp=false;
+    disp=false;
+    if(!(cf.readInto(houghThreshold , "houghThreshold") )) failedConf("houghThreshold");
+    if(!(cf.readInto(houghDepth , "houghDepth") )) failedConf("houghDepth");
+  }else if(mode=="maxAmp"){
+    hough=false;
+    maxAmp=true;
+    disp=false;
+    houghDepth=0;
+    houghThreshold=0;
+  }else if(mode=="eventDisp"){
+    hough=false;
+    maxAmp=false;
+    disp=true;
+    houghDepth=0;
+    houghThreshold=0;
+  }else{
+    std::cerr << "Unknown mode  " << mode << " from conf file ->abort"
+	      << std::endl;
+    throw;
+  }
   
   TFile::Open(infilePath.c_str());
   TTree *inTree = (TTree*)gROOT->FindObject("at_cl");
-
   TCevent *inEvent = new TCevent();
   TCevent *outEvent = new TCevent();
-
   TBranch *branchEvent=inTree->GetBranch("event");
   branchEvent->SetAddress(&inEvent);
-
   int nEvents=inTree->GetEntries();
   /*
     outTree wil contain events with clusters, and track candidates.
   */
 
-  //  TFile* outFile = new TFile(outFilePath.c_str(),"RECREATE");
+  TFile* outFile = new TFile(outFilePath.c_str(),"RECREATE");
   TTree* eventTreeOut = new TTree("at_pr","testBench analysis tree");
   eventTreeOut->Branch("event","TCevent",&outEvent,32000,99);
   int totClusters=0;
+
   TVector3 x(1,0,0);
   TVector3 y(0,1,0);
   TVector3 z(0,0,1);
-  TCfast2DHough* houghXZ = new TCfast2DHough(z,x);
-  TCfast2DHough* houghYZ = new TCfast2DHough(z,y);
+  TCfast2DHough* houghXZ = new TCfast2DHough(-x,z,true);
+  TCfast2DHough* houghYZ = new TCfast2DHough(y,z,true);
+  houghXZ->setThreshold(houghThreshold);
+  houghXZ->setDepth(houghDepth);
+  houghYZ->setThreshold(houghThreshold);
+  houghYZ->setDepth(houghDepth);
 
   TCalign* a = TCalign::getInstance(alignmentFilePath);
   a->clear();
   a->read(alignmentFilePath);
-
 
   for(int i_ev=0;i_ev<nEvents;i_ev++) {
     inTree->GetEntry(i_ev);
@@ -106,6 +137,8 @@ int main(int argc,char **argv){
     if(i_ev%250==0){
       cout<<i_ev<<" n clusters "<<totClusters<<endl;
     }
+    outEvent->clear();
+    
     TGraph* x_event =new TGraph();
     TGraph* y_event =new TGraph();
 
@@ -113,40 +146,178 @@ int main(int argc,char **argv){
     vector<TCcluster> x_clusters;
     int x_count=0;
     int y_count=0;
-    cout<<"nr cluster"<<inEvent->nClusters()<<endl;
-    for(unsigned int iCl=0;iCl<inEvent->nClusters();++iCl) {
-      TCcluster cl=inEvent->getCluster(iCl);
-      int detID=cl.getId();
+    //cout<<"nr cluster"<<inEvent->nClusters()<<endl;
+      
+   double maxAmpSI1x=-1;
+   double maxAmpSI1y=-1;
+   double maxAmpSI2x=-1;
+   double maxAmpSI2y=-1;
+   double maxAmpGM1x=-1;
+   double maxAmpGM1y=-1;
+   double maxAmpGM2x=-1;
+   double maxAmpGM2y=-1;
+
+   int maxPosSI1x=-1;
+   int maxPosSI1y=-1;
+   int maxPosSI2x=-1;
+   int maxPosSI2y=-1;
+   int maxPosGM1x=-1;
+   int maxPosGM1y=-1;
+   int maxPosGM2x=-1;
+   int maxPosGM2y=-1;
+   vector<TCcluster> outClusters;
+   vector<TCtrack*> outTracks;
+   for(unsigned int iCl=0;iCl<inEvent->nClusters();++iCl) {
+
+
+ 
+     TCcluster cl=inEvent->getCluster(iCl);
+     outClusters.push_back(cl);
+     int detID=cl.getId();
       if(detID%2==0){
 	y_clusters.push_back(cl);
 	y_count++;
 	y_event->SetPoint(y_count, cl.posXYZ().z(), cl.posXYZ().y());
-	cout<<"z "<<cl.posXYZ().z()<<"   y "<<cl.posXYZ().y()<<endl;
+	if(disp)
+	  cout<<"z "<<cl.posXYZ().z()<<"   y "<<cl.posXYZ().y()<<endl;
       }else{
 	x_clusters.push_back(cl);
 	x_event->SetPoint(x_count, cl.posXYZ().z(), cl.posXYZ().x());
 	x_count++;
-	cout<<"z "<<cl.posXYZ().z()<<"   x "<<cl.posXYZ().x()<<endl;
+	if(disp)
+	  cout<<"z "<<cl.posXYZ().z()<<"   x "<<cl.posXYZ().x()<<endl;
+      }
+      if(maxAmp){
+	switch(detID){
+	case 1:
+	  if(cl.getAmp()>maxAmpGM1x){
+	    maxAmpGM1x=cl.getAmp();
+	    maxPosGM1x=iCl;
+	  }
+	  break;
+	case 2:
+	  if(cl.getAmp()>maxAmpGM1y){
+	    maxAmpGM1y=cl.getAmp();
+	    maxPosGM1y=iCl;
+	  }
+	  break;
+	case 3:
+	  if(cl.getAmp()>maxAmpSI1x){
+	    maxAmpSI1x=cl.getAmp();
+	    maxPosSI1x=iCl;
+	  }
+	  break;
+	case 4:
+	  if(cl.getAmp()>maxAmpSI1y){
+	    maxAmpSI1y=cl.getAmp();
+	    maxPosSI1y=iCl;
+	  }
+	  break;
+	case 5:
+	  if(cl.getAmp()>maxAmpSI2x){
+	    maxAmpSI2x=cl.getAmp();
+	    maxPosSI2x=iCl;
+	  }
+	  break;
+	case 6:
+	  if(cl.getAmp()>maxAmpSI2y){
+	    maxAmpSI2y=cl.getAmp();
+	    maxPosSI2y=iCl;
+	  }
+	  break;
+	case 7:
+	  if(cl.getAmp()>maxAmpGM2x){
+	    maxAmpGM2x=cl.getAmp();
+	    maxPosGM2x=iCl;
+	  }
+	  break;
+	case 8:
+	  if(cl.getAmp()>maxAmpGM2y){
+	    maxAmpGM2y=cl.getAmp();
+	    maxPosGM2y=iCl;
+	  }
+	  break;
+	default:
+	  break;
+	}
       }
     }
-    
-    cout<<"hough XZ make on "<<x_count<<" clusters"<<endl;
-    houghXZ->make(x_clusters);
-    houghXZ->draw(false);
-    cout<<"hough YZ  on "<<y_count<<" clusters"<<endl;
-    houghYZ->make(y_clusters);    
-    houghYZ->draw(false,800);
-
-    TCanvas * c = new TCanvas("Event display","Event Display",1280,1,960,480);
-    c->Divide(2,1);
-    (c->cd(1))->Clear();
-    x_event->Draw("AP*");
-    
-    (c->cd(2))->Clear();
-    y_event->Draw("AP*");
-    
-    gApplication->SetReturnFromRun(kTRUE);
-    gSystem->Run();
-    gROOT->Reset();
-  }
+    if(maxAmp){
+      vector<TCcluster> clTrack;
+      if(maxPosGM1x>-1){
+	inEvent->getCluster(maxPosGM1x).setFit();
+	clTrack.push_back(inEvent->getCluster(maxPosGM1x));
+	++totClusters;
+      }
+      if(maxPosGM1y>-1){
+	inEvent->getCluster(maxPosGM1y).setFit();
+	clTrack.push_back(inEvent->getCluster(maxPosGM1y));
+	++totClusters;
+      }
+      if(maxPosSI1x>-1){
+	inEvent->getCluster(maxPosSI1x).setFit();
+	clTrack.push_back(inEvent->getCluster(maxPosSI1x));
+	++totClusters;
+      }
+      if(maxPosSI1y>-1){
+	inEvent->getCluster(maxPosSI1y).setFit();
+	clTrack.push_back(inEvent->getCluster(maxPosSI1y));
+	++totClusters;
+      }
+      if(maxPosSI2x>-1){
+	inEvent->getCluster(maxPosSI2x).setFit();
+	clTrack.push_back(inEvent->getCluster(maxPosSI2x));
+	++totClusters;
+      }
+      if(maxPosSI2y>-1){
+	inEvent->getCluster(maxPosSI2y).setFit();
+	clTrack.push_back(inEvent->getCluster(maxPosSI2y));
+	++totClusters;
+      }
+      if(maxPosGM2x>-1){
+	inEvent->getCluster(maxPosGM2x).setFit();
+	clTrack.push_back(inEvent->getCluster(maxPosGM2x));
+	++totClusters;
+      }
+      if(maxPosGM2y>-1){
+	inEvent->getCluster(maxPosGM2y).setFit();
+	clTrack.push_back(inEvent->getCluster(maxPosGM2y));
+	++totClusters;
+      }
+      outTracks.push_back(new TCtrack());
+      for(unsigned int i=0;i<clTrack.size();++i){
+	clTrack.at(i).setFit();
+      }
+      (outTracks.back())->addClusters(clTrack);
+      //cout<<outTracks.back()->nClFit()<<endl;
+    }
+    if(hough){
+      cout<<"hough XZ make on "<<x_count<<" clusters"<<endl;
+      houghXZ->make(x_clusters);
+      cout<<"hough YZ  on "<<y_count<<" clusters"<<endl;
+      houghYZ->make(y_clusters);    
+    }
+    if(disp){
+      houghXZ->draw(false );    
+      houghYZ->draw(false,800);
+      if(c==NULL){
+	delete c;
+      }
+      c = new TCanvas("Event display","Event Display",1280,1,960,480);
+      c->Divide(2,1);
+      (c->cd(1))->Clear();
+      x_event->Draw("AP*");
+      (c->cd(2))->Clear();
+      y_event->Draw("AP*");
+      gApplication->SetReturnFromRun(kTRUE);
+      gSystem->Run();
+      gROOT->Reset();
+    }
+    for(unsigned int i = 0; i<outTracks.size();++i){
+      outEvent->addTrack(outTracks.at(i));
+    }
+    eventTreeOut->Fill();
+  }//end event loop
+  eventTreeOut->Write();
+  outFile->Close();
 }
