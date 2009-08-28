@@ -30,9 +30,10 @@ Hyperplane2D::Hyperplane2D(float coord1, float coord2, int index) {
   _mins = (float*) malloc(2*sizeof(float));
   _maxs = (float*) malloc(2*sizeof(float));
   
-  _coords[0] = coord1;
-  _coords[1] = coord2;
-  _mins[0] = -1.4f;       //m x=m*z+t
+  _coords[0] = coord1; //mostly x/y
+  _coords[1] = coord2; //mostly z
+  //  x=m*z+t
+  _mins[0] = -1.4f;       //m 
   _mins[1] = -1.f;       //t
      
   _maxs[0] = 0.4f;
@@ -55,9 +56,11 @@ Hyperplane2D::testIntersect(Hough2DNode& node) {
     //TODO: optimize
     int signs2 = 0;
     for(int m_it=0; m_it<2; m_it++) {
-      float t_m = -_coords[0]*(mCoords[m_it]*(_maxs[0]-_mins[0])) + _coords[1];
+      float m=(mCoords[m_it]+0.5)*(_maxs[0]-_mins[0])+_mins[0];
+      float t_m = -_coords[1]*m + _coords[0];  //t= -m*z+(x or y)
       for(int t_it=0; t_it<2; t_it++) {
-	float diff = tCoords[t_it]*(_maxs[1]-_mins[1]) - t_m;
+	float t=(tCoords[t_it]+0.5)*(_maxs[1]-_mins[1])+_mins[1];
+	float diff =  t- t_m;
 	signs2+=(diff > 0);
       }
     }

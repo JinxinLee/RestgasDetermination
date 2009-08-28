@@ -44,7 +44,7 @@ public:
   float* getParamMins() {return _mins;}
   float* getParamMaxs() {return _maxs;}
   
-  float* getCoords() {return _coords;} //returns (phi,theta,c,m,t);
+  float* getCoords() {return _coords;} //returns (m,t);
   
   int getID() {return _index;}
   
