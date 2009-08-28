@@ -14,6 +14,7 @@
 #include "TNtuple.h"
 #include "TString.h"
 #include "TClonesArray.h"
+#include <map>
 
 #include "FairTask.h"
 #include "FairField.h"
@@ -26,18 +27,22 @@
 #include "PndPidCorrPar.h"
 #include "PndPidCandidate.h"
 
+using std::map;
+
 class TGeant3;
 class PndPidCorrelator : public FairTask {
 
 protected:
 
   TClonesArray* fTrack;             //! PndTrack TCA
-  TClonesArray* fPidChargedCand;    //! PndPidCandidate TCA
-  
+  TClonesArray* fPidChargedCand;    //! PndPidCandidate TCA for charged particles
+  TClonesArray* fPidNeutralCand;    //! PndPidCandidate TCA for neutral particles
+   
   TClonesArray* fMvdHitsStrip;      //! PndMvdHit TCA for strip
   TClonesArray* fMvdHitsPixel;      //! PndMvdHit TCA for pixel
   TClonesArray* fTofHit;            //! PndTofHit TCA
-  TClonesArray* fEmcCluster;        //! PndEmcCluster TCA
+  TClonesArray* fEmcCluster;        //! PndEmcCluster TCA 
+  TClonesArray* fEmcBump;           //! PndEmcBump TCA
   TClonesArray* fMdtHit;            //! PndMdtHit TCA
   TClonesArray* fDrcHit;            //! PndDrcHit TCA
   TClonesArray* fSttHit;            //! PndSttHit/PndSttHelixHit TCA
@@ -56,6 +61,7 @@ protected:
   Double_t fMvdPath;                // MVD path crossed by the particle
   Int_t fMvdHitCount;               // Number of mvd hits
     
+  map<Int_t, Bool_t> fClusterList;  // List of clusters correlated to tracks
   TString fTrackBranch;             //  options to choose branches
   Bool_t fVerbose;                  // Switch ON/OFF debug messages 
   Bool_t fSimulation;               // Switch simulation diagnostic
@@ -73,8 +79,20 @@ protected:
   TString sDir;                      // Ntuple output directory
   TString sFile;                     // Ntuple output file
   
-  static PndPidCorrelator* ftInstance;
-
+  void ConstructChargedCandidate();
+  void ConstructNeutralCandidate();
+   
+  PndPidCandidate* AddChargedCandidate(PndPidCandidate* cand); 
+  PndPidCandidate* AddNeutralCandidate(PndPidCandidate* cand);
+ 
+  void GetTrackInfo(PndTrack* track, PndPidCandidate* pid); 
+  void GetMvdInfo  (PndTrack* track, PndPidCandidate* pid); 
+  void GetSttInfo  (PndTrack* track, PndPidCandidate* pid); 
+  void GetTofInfo  (FairTrackParH* helix, PndPidCandidate* pid); 
+  void GetEmcInfo  (FairTrackParH* helix, PndPidCandidate* pid); 
+  void GetMdtInfo  (FairTrackParH* helix, PndPidCandidate* pid);   
+  void GetDrcInfo  (FairTrackParH* helix, PndPidCandidate* pid); 
+  
 public:
 
   virtual void Exec(Option_t * option);
@@ -87,15 +105,7 @@ public:
   PndPidCorrelator();
   virtual ~PndPidCorrelator();
 
-  PndPidCandidate* AddCandidate(PndPidCandidate* cand);
  
-  void GetTrackInfo(PndTrack* track, PndPidCandidate* pid); 
-  void GetMvdInfo  (PndTrack* track, PndPidCandidate* pid); 
-  void GetSttInfo  (PndTrack* track, PndPidCandidate* pid); 
-  void GetTofInfo  (FairTrackParH* helix, PndPidCandidate* pid); 
-  void GetEmcInfo  (FairTrackParH* helix, PndPidCandidate* pid); 
-  void GetMdtInfo  (FairTrackParH* helix, PndPidCandidate* pid);   
-  void GetDrcInfo  (FairTrackParH* helix, PndPidCandidate* pid); 
    
   Float_t ExtrapolateToZ(FairTrackParH* helix, TVector3 *mom, TVector3 *vertex, const Float_t z = 0.); // extrapolate momentum and vertex at z=...
   Float_t ExtrapolateToR(FairTrackParH* helix, TVector3 *mom, TVector3 *vertex, const Float_t R);      // extrapolate momentum and vertex at sqrt(x*x+y*y)
@@ -108,8 +118,6 @@ public:
   void SetSimulation(Bool_t sim)          { fSimulation = sim; };
   void SetGeanePro(Bool_t gea = kTRUE)    { fGeanePro = gea; };
 	
-  static PndPidCorrelator* Instance();
-
   /** Get parameter containers **/
   virtual void SetParContainers();
   virtual void Finish();
