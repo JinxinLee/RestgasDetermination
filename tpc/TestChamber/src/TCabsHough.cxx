@@ -26,7 +26,7 @@ void TCabsHough::convert(std::vector<TCcluster>& _c){
   for(unsigned int i=0;i<_c.size();++i){
 	TVector3 hitPrime = S * _c.at(i).posXYZ();
 	//xprime isnt needed
-
+	std::cout<<"hough y "<<hitPrime.Y()<<" z "<<hitPrime.Z()<<std::endl;
 	ypHit.push_back(hitPrime.Y());
 	zpHit.push_back(hitPrime.Z());
   }

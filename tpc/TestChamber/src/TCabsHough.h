@@ -22,7 +22,7 @@ class TCabsHough{
 
   virtual void draw(bool stop=true,int _x=50,int _y=50,int _w=600,int _h=600,TCevent* mcTruth= NULL)=0;
 
-  void clear(){
+  virtual void clear(){
 	ypHit.clear();
 	zpHit.clear();
   }
