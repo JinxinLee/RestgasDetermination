@@ -239,7 +239,7 @@ InitStatus PndPidCorrelator::Init() {
       tofCorr = new TNtuple("tofCorr","TRACK-TOF Correlation",
 			    "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:tof_x:tof_y:tof_z:tof_phi:chi2:dphi:len:glen");
       emcCorr = new TNtuple("emcCorr","TRACK-EMC Correlation",
-			    "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:emc_x:emc_y:emc_z:emc_phi:chi2:dphi:emc_ene:glen");
+			    "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:emc_x:emc_y:emc_z:emc_phi:chi2:dphi:emc_ene:glen:emc_mod");
       mdtCorr = new TNtuple("mdtCorr","TRACK-MDT Correlation",
 			    "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:mdt_x:mdt_y:mdt_z:mdt_phi:chi2:mdt_mod:dphi:glen");
       drcCorr = new TNtuple("drcCorr","TRACK-DRC Correlation",
@@ -565,9 +565,10 @@ void PndPidCorrelator::GetTofInfo(FairTrackParH* helix, PndPidCandidate* pidCand
 //_________________________________________________________________
 void PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCand) { 
   //---
+  Float_t trackTheta = helix->GetMomentum().Theta()*TMath::RadToDeg();
   PndEmcCluster *emcHit = NULL;
   Int_t emcEntries = fEmcCluster->GetEntriesFast();
-  Int_t emcIndex = -1;
+  Int_t emcIndex = -1, emcModuleCorr = -1;
   Float_t emcEloss = 0., emcElossCorr = 0., emcGLength = -1000;
   Float_t emcQuality = 1000000;
 
@@ -578,10 +579,13 @@ void PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCand
   for (Int_t ee = 0; ee<emcEntries; ee++)
     {
       emcHit = (PndEmcCluster*)fEmcCluster->At(ee);
-
-      //if (((PndEmcDigi*)emcHit->Maxima())->GetModule()>2) continue;
       if (emcHit->energy() < fCorrPar->GetEmc12Thr()) continue;
-
+      Int_t emcModule = ((PndEmcDigi*)emcHit->Maxima())->GetModule();
+      if (emcModule>4) continue;
+      if ( (trackTheta>130.) && ((emcModule==1)||(emcModule==3)) ) continue;
+      if ( (trackTheta<130.) && (emcModule==4) ) continue;
+      if ( (trackTheta<40.)  && ((emcModule==2)||(emcModule==4)) ) continue;
+      
       emcPos = emcHit->where();
       Float_t ex = ExtrapolateToR(helix, &momentum, &vertex, fCorrPar->GetEmc12Radius());
 
@@ -610,6 +614,7 @@ void PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCand
 	  emcQuality = dist;
 	  emcEloss = emcHit->energy();
 	  emcElossCorr = emcHit->GetEnergyCorrected();
+	  emcModuleCorr == emcModule;
 	}
 
       if (fDebugMode)
@@ -617,7 +622,7 @@ void PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCand
 	  Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(),
 			      helix->GetMomentum().Mag(), helix->GetQ(), helix->GetMomentum().Theta(), helix->GetZ(),
 			      emcPos.X(), emcPos.Y(), emcPos.Z(), emcPos.Phi(),
-			      dist, vertex.DeltaPhi(emcPos), emcHit->energy(), emcGLength};
+			      dist, vertex.DeltaPhi(emcPos), emcHit->energy(), emcGLength, emcModule};
 	  emcCorr->Fill(ntuple);
 	}
     }
@@ -628,14 +633,13 @@ void PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCand
       pidCand->SetEmcRawEnergy(emcEloss);
       pidCand->SetEmcCalEnergy(emcElossCorr);
       pidCand->SetEmcIndex(emcIndex);
+      pidCand->SetEmcModule(emcModuleCorr);
     }
 }
 
 //_________________________________________________________________
 void PndPidCorrelator::GetMdtInfo(FairTrackParH* helix, PndPidCandidate* pidCand) {
   //---
-  if (fGeanePro) fPro->PropagateToVolume("MdtBarrel",0,1);
-  
   PndMdtHit *mdtHit = NULL;
   Int_t mdtEntries = fMdtHit->GetEntriesFast();
   Int_t mdtIndex = -1, mdtMod = 0;
@@ -650,24 +654,23 @@ void PndPidCorrelator::GetMdtInfo(FairTrackParH* helix, PndPidCandidate* pidCand
     {
       mdtHit = (PndMdtHit*)fMdtHit->At(mm);
       if (mdtHit->GetLayerID()!=0) continue;
-      
-      if (mdtHit->GetModule()!=1) continue;
+      if (mdtHit->GetModule()>2) continue;
       
       mdtHit->Position(mdtPos);
       Float_t ex = ExtrapolateToR(helix, &momentum, &vertex, fCorrPar->GetMdtRadius());
 
       if (fGeanePro) // Overwrites vertex if Geane is used
-	{
+	{ 
+	  FairGeanePro *fProMdt = new FairGeanePro();
+	  fProMdt->SetPoint(mdtPos);
+	  fProMdt->PropagateToPCA(1, 1);
+          vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
 	  FairTrackParH *fRes= new FairTrackParH();
-	  Bool_t rc =  fPro->Propagate(helix, fRes, -13*(Int_t)helix->GetQ()); 
+	  Bool_t rc =  fProMdt->Propagate(helix, fRes, -13*(Int_t)helix->GetQ()); 
 	  if (rc)
 	    {
 	      vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
-	      mdtGLength = fPro->GetLengthAtPCA();
-	    }
-	  else
-	    {
-	      vertex.SetXYZ(-10000., -10000.,-10000.);
+	      mdtGLength = fProMdt->GetLengthAtPCA();
 	    }
 	}
       

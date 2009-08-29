@@ -112,6 +112,7 @@ class PndPidCandidate : public TObject //VAbsMicroCandidate
   Float_t		GetEmcQuality()   const{return fEmcQuality;}
   Int_t		GetEmcNumberOfCrystals() const{return fEmcNumberOfCrystals;}
   Int_t		GetEmcNumberOfBumps() const{return fEmcNumberOfBumps;}
+  Int_t                 GetEmcModule()    const { return fEmcModule; }
   Int_t                 GetEmcIndex()     const { return fEmcIndex; }
 	
   // MUO
@@ -203,8 +204,8 @@ class PndPidCandidate : public TObject //VAbsMicroCandidate
   void	SetEmcQuality(Double_t val)       { fEmcQuality=(Float_t) val;}
   void	SetEmcNumberOfCrystals(Int_t val) { fEmcNumberOfCrystals= val;}
   void	SetEmcNumberOfBumps(Int_t val)    { fEmcNumberOfBumps= val;}
+  void  SetEmcModule(Int_t val)           { fEmcModule = val; }
   void  SetEmcIndex(Int_t val)            { fEmcIndex = val; }
-	
   // MUO
   void	SetMuoNumberOfLayers(Int_t val) { fMuoNumberOfLayers= val;}
   void	SetMuoProbability(Double_t val) { fMuoProbability=(Float_t) val;}
@@ -294,8 +295,9 @@ class PndPidCandidate : public TObject //VAbsMicroCandidate
   Float_t       fEmcQuality;
   Int_t		fEmcNumberOfCrystals;
   Int_t		fEmcNumberOfBumps;
+  Int_t         fEmcModule;
   Int_t         fEmcIndex;
-
+  
   // MUO
   Int_t		fMuoNumberOfLayers;
   Float_t 	fMuoProbability;

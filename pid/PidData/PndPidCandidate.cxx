@@ -186,6 +186,7 @@ void PndPidCandidate::SetDefault()
   fEmcQuality = -1.;
   fEmcNumberOfCrystals = 0;
   fEmcNumberOfBumps = 0;
+  fEmcModule = -1; 
   fEmcIndex = -1;
   fMuoNumberOfLayers = 0;
   fMuoProbability = 0.;
