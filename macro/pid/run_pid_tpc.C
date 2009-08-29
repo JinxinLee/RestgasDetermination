@@ -61,7 +61,8 @@
   // ------------------------------------------------------------------------
   
   PndPidCorrelator* corr = new PndPidCorrelator();
-  corr->SetInputBranch("LheTrack");
+  //corr->SetVerbose();
+  corr->SetInputBranch("LheGenTrack");
   corr->SetDebugMode(kTRUE);
   fRun->AddTask(corr);
   

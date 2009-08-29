@@ -45,7 +45,7 @@
   tofq->GetXaxis()->SetTitle("TOF Quality [cm^{2}]");
 
   c1.cd(11);
-  TH1F *mdtq = new TH1F("mdtq","mdtq",100,-1,50);
+  TH1F *mdtq = new TH1F("mdtq","mdtq",100,-1,1000);
   mdtCorr->Draw("chi2>>mdtq","","");
   mdtq->GetXaxis()->SetTitle("MDT Quality [cm^{2}]");
 

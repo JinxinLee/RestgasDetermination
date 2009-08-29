@@ -68,8 +68,8 @@
   
   PndLheKalmanTask* lheKalman = new PndLheKalmanTask();
   lheKalman->SetVerbose(0);
-  lheKalman->SetGeane(kTRUE);
-  lheKalman->SetNumIterations(3);
+  //lheKalman->SetGeane(kTRUE);
+  //lheKalman->SetNumIterations(3);
   fRun->AddTask(lheKalman);
  
   // -----   Intialise and run   --------------------------------------------
