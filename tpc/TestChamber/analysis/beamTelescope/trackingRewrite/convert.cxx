@@ -145,7 +145,7 @@ int main(int argc,char **argv){
       cout<<"jumping out of for loop"<<endl;
       break;
     }
-    if(i_ev%250==0){
+    if(i_ev%500==0){
       cout<<i_ev<<" n clusters "<<totClusters<<" totCut "<<totCut<<" pos cut "<<posCut<<endl;
     }
     

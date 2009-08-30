@@ -56,7 +56,7 @@ int main(int argc,char **argv){
   }
   TApplication theApp("theApp",NULL,NULL);
   //reading configFile
-  TCanvas * c=NULL;
+  //  TCanvas * c=NULL;
   string infilePath;
   string outFilePath;
   string alignmentFilePath;
@@ -86,7 +86,7 @@ int main(int argc,char **argv){
   int nEvents=inTree->GetEntries();
 
   TFile* outFile = new TFile(outFilePath.c_str(),"RECREATE");
-  TTree* eventTreeOut = new TTree("at_pr","testBench analysis tree");
+  TTree* eventTreeOut = new TTree("at_tr","testBench analysis tree");
   eventTreeOut->Branch("event","TCevent",&outEvent,32000,99);
   int totClusters=0;
 
@@ -96,7 +96,9 @@ int main(int argc,char **argv){
 
   
   for(int i_ev=0;i_ev<nEvents;i_ev++) {
+    //cout<<"bla"<<endl;
     inTree->GetEntry(i_ev);
+    outEvent->clear();   
     if(controlC){ 
       cout<<"jumping out of for loop"<<endl;
       break;
@@ -104,16 +106,27 @@ int main(int argc,char **argv){
     if(i_ev%250==0){
       cout<<i_ev<<" n clusters "<<totClusters<<endl;
     }
-    outEvent->clear();
     for(unsigned int iCl=0;iCl<inEvent->nTracks();++iCl) {
       TCtrack* track = inEvent->getTrack(iCl);
-      //      cout<<track->nClFit()<<endl;
-      if(track->nClFit()>5&&track->fit(1,2,3,4,5,6,7,8)){
-	histCont->fillRes(track);
+      TCtrack* outTrack=new TCtrack;//cout<<track->nClFit()<<endl;
+     
+      for(unsigned int i=0;i<track->nCl();++i){
+	TCcluster cl=track->getCl(i);
+	outTrack->addCluster(cl);
+      }
+      if(outTrack->nClFit()>5&&outTrack->fit(1,2,3,4,5,6,7,8)){
+	histCont->fillRes(outTrack);
+	outEvent->addTrack(outTrack);
 	//	cout<<"test"<<endl;
+      }else{
+	delete outTrack;
       }
     }
+    eventTreeOut->Fill();
+
   }
+  eventTreeOut->Write();
+  outFile->Close();
   histCont->write(histFilePath);
   delete histCont;
 }

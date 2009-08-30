@@ -15,6 +15,11 @@ void trackHistContainer::fillRes(TCtrack* track){
   TMatrixT<double> rot(3,3);
   TVector3 dummyV;
   double dummyD;
+
+  histogramChi2->Fill(track->getChi2()/track->getNDF());
+  histogramChi2rough->Fill(track->getChi2()/track->getNDF());
+  histogramChi2Rrough->Fill(track->getChi2()/track->getNDF());
+  histogramNDF->Fill(track->getNDF());
   for(unsigned int i=0;i<track->nCl();++i){
       
     TCcluster tmpcl = track->getCl(i);
@@ -37,10 +42,6 @@ void trackHistContainer::fillRes(TCtrack* track){
     T[3][0]=0; T[3][1]=1;
     TMatrixT<double> T_T=T.T();
     T.T();
-    histogramChi2->Fill(track->getChi2()/track->getNDF());
-    histogramChi2rough->Fill(track->getChi2()/track->getNDF());
-    histogramChi2Rrough->Fill(track->getChi2()/track->getNDF());
-    histogramNDF->Fill(track->getNDF());
     TMatrixT<double> sigmaU= D_T*T_T*coVarTrackParam*T*D;
     //    double dx=1;//sqrt(z*z*dax*dax+dbx*dbx+2*z*covar[0][1]);
     //double dy=1;//sqrt(z*z*day*day+dby*dby+2*z*covar[2][3]);
