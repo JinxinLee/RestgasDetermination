@@ -368,7 +368,8 @@ void PndPidCorrelator::GetTrackInfo(PndTrack* track, PndPidCandidate* pidCand)
   Int_t ierr = 0;
   FairTrackParH *helix = new FairTrackParH(&par, ierr);
   TVector3 momentum, vertex;
-  Float_t ex = ExtrapolateToZ(helix, &momentum, &vertex); // Extrapolation to z=0
+  Float_t ex = ExtrapolateToZ(helix, &momentum, &vertex); // Extrapolation to z=0a
+  Float_t energy = TMath::Sqrt(momentum.Mag2()+138.*138.);
   if (fGeanePro) // Overwrites vertex if Geane is used
     {
       FairGeanePro *fPro0 = new FairGeanePro();
@@ -379,6 +380,37 @@ void PndPidCorrelator::GetTrackInfo(PndTrack* track, PndPidCandidate* pidCand)
       if (rc)
 	{
 	  vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
+          Int_t ierr = 0;
+          FairTrackParP *fParab = new FairTrackParP(fRes, TVector3(1.,0.,0.), TVector3(0.,1.,0.), ierr);
+          Double_t globalCov[6][6];
+	  fParab->GetMARSCov(globalCov);
+	  TMatrixD mat(7,7);
+	  Int_t ii,jj;
+	  for (ii=0;ii<6;ii++) for(jj=0;jj<6;jj++) mat[ii][jj]=globalCov[ii][jj];
+
+          energy = TMath::Sqrt(fParab->GetMomentum().Mag2()+138.*138.);
+          //Extend matrix for energy (with default pion hypothesis) -> Klaus Goetzen
+          Double_t invE = 1./(energy);
+          mat[0+3][3+3] = mat[3+3][0+3] =
+(fRes->GetX()*mat[0+3][0+3]+fRes->GetY()*mat[0+3][1+3]+fRes->GetZ()*mat[0+3][2+3])*invE;
+          mat[1+3][3+3] = mat[3+3][1+3] =
+(fRes->GetX()*mat[0+3][1+3]+fRes->GetY()*mat[1+3][1+3]+fRes->GetZ()*mat[1+3][2+3])*invE;
+          mat[2+3][3+3] = mat[3+3][2+3] =
+(fRes->GetX()*mat[0+3][2+3]+fRes->GetY()*mat[1+3][2+3]+fRes->GetZ()*mat[2+3][2+3])*invE;
+          mat[3+3][3+3] =
+(fRes->GetX()*fRes->GetX()*mat[0+3][0+3]+fRes->GetY()*fRes->GetY()*mat[1+3][1+3]+fRes->GetZ()*fRes->GetZ()*mat[2+3][2+3]
+		  	+2.0*fRes->GetX()*fRes->GetY()*mat[0+3][1+3]
+	  		+2.0*fRes->GetX()*fRes->GetZ()*mat[0+3][2+3]
+  			+2.0*fRes->GetY()*fRes->GetZ()*mat[1+3][2+3])*invE*invE;
+			
+          mat[3+3][4-4] = mat[4-4][3+3] =
+(fRes->GetX()*mat[0+3][4-4]+fRes->GetY()*mat[1+3][4-4]+fRes->GetZ()*mat[2+3][4-4])*invE;
+          mat[3+3][5-4] = mat[5-4][3+3] =
+(fRes->GetX()*mat[0+3][5-4]+fRes->GetY()*mat[1+3][5-4]+fRes->GetZ()*mat[2+3][5-4])*invE;
+          mat[3+3][6-4] = mat[6-4][3+3] =
+(fRes->GetX()*mat[0+3][6-4]+fRes->GetY()*mat[1+3][6-4]+fRes->GetZ()*mat[2+3][6-4])*invE;
+
+          pidCand->SetCov7(mat);
 	}
       else
 	{
@@ -387,9 +419,9 @@ void PndPidCorrelator::GetTrackInfo(PndTrack* track, PndPidCandidate* pidCand)
     }
   pidCand->SetPosition(vertex);
   pidCand->SetMomentum(momentum);
+  pidCand->SetEnergy(energy);
   pidCand->SetFirstHit(first);
   pidCand->SetLastHit(last);
-  // pidCand->SetCov7(); // ????????????????
   //pidCand->SetMcIndex(); // ??? dummy, for the moment
   
   pidCand->SetDegreesOfFreedom(track->GetNDF());
