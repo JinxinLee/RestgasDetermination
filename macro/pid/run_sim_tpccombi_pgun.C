@@ -66,6 +66,10 @@ void run_sim_tpccombi_pgun(Int_t nEvents=10, Int_t pid=13, Float_t p1=1.0, Float
   Drc->SetRunCherenkov(kFALSE); // for fast sim Cherenkov -> kFALSE
   fRun->AddModule(Drc); 
   
+  FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
+  Gem->SetGeometryFileName("gem_3Stations.root");
+  fRun->AddModule(Gem);
+ 
   //FairDetector *Dch = new PndDchDetector("DCH", kTRUE);
   //Dch->SetGeometryFileName("dch.root"); 
   //fRun->AddModule(Dch);
@@ -81,7 +85,7 @@ void run_sim_tpccombi_pgun(Int_t nEvents=10, Int_t pid=13, Float_t p1=1.0, Float
   if (p2<0.) p2 = p1;
   boxGen->SetPRange(p1,p2); // GeV/c
   boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
-  boxGen->SetThetaRange(20., 140.); // Polar angle in lab system range [degree]
+  boxGen->SetThetaRange(5., 140.); // Polar angle in lab system range [degree]
   boxGen->SetXYZ(0., 0., 0.); // mm o cm ??
   primGen->AddGenerator(boxGen);
 
