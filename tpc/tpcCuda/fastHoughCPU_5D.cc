@@ -218,11 +218,12 @@ int main(int argc, char** argv) {
   parent_list->push_back(root);
   std::vector<Hough5DNode*>* temp_sons = new std::vector<Hough5DNode*>();
   
-
+  uint MAXSIZE = 10000000;
 
   for(int l=0; l<TREE_DEPTH; ++l) {
   
     std::vector<Hough5DNode*>* new_nodes = new std::vector<Hough5DNode*>();
+    new_nodes->reserve(MAXSIZE);
       
     std::cout<<"level: "<<l<<std::endl;
     std::cout<<"parent_list size: "<<parent_list->size()<<std::endl;
@@ -254,7 +255,7 @@ int main(int argc, char** argv) {
 	  plane.testIntersect(the_son);
 	}	
 	
-	if(the_son->getLevel() < 5) {
+	if(the_son->getLevel() < 4) {
 	  if(the_son->getVote() < THRESHOLD) {
 	    //TODO: optimize
 	    delete temp_sons->at(temp_sons->size()-1);
@@ -264,7 +265,6 @@ int main(int argc, char** argv) {
 	//dynamic thresholding
 	else{
 	  if(the_son->getVote() < the_node->getVote()*SCALE) {
-	    //std::cout<<"Deleting SON from list"<<std::endl;
 	    delete temp_sons->at(temp_sons->size()-1);
 	    temp_sons->at(temp_sons->size()-1) = NULL;
 	  }

@@ -81,15 +81,15 @@ ADD_CUSTOM_COMMAND(OUTPUT tpcdataDict.cxx
 	 
 
 # With debug symbols
-SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
-SET(CMAKE_LD_FLAGS "${CMAKE_LD_FLAGS} -g")
-SET(CMAKE_CUDA_FLAGS "-g -G -arch=sm_11 --ptxas-options -v -use_fast_math")
+#SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
+#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
+#SET(CMAKE_LD_FLAGS "${CMAKE_LD_FLAGS} -g")
+#SET(CMAKE_CUDA_FLAGS "-g -G -arch=sm_11 --ptxas-options -v -use_fast_math")
 
-#SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
-#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-#SET(CMAKE_LD_FLAGS "${CMAKE_LD_FLAGS}")
-#SET(CMAKE_CUDA_FLAGS "-arch=sm_11 --ptxas-options -v -use_fast_math")
+SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+SET(CMAKE_LD_FLAGS "${CMAKE_LD_FLAGS}")
+SET(CMAKE_CUDA_FLAGS "-arch=sm_11 --ptxas-options -v -use_fast_math")
 
 
 # Attempt to find dependant libraries

@@ -73,8 +73,8 @@ int main(int argc, char** argv) {
   int minCL = 5;
 
  
-  float m_Max = 1.f;
-  float m_Min = -1.f;
+  float m_Max = 2.f;
+  float m_Min = -2.f;
   float t_Max = 5.f;
   float t_Min = -5.f;
   float phi_Min = 0.f;
@@ -122,14 +122,14 @@ int main(int argc, char** argv) {
 
 
 
-  unsigned int EVENT=6;
+  unsigned int EVENT=7;
   
 
   
   TString dir = "../../DATA/";
   
-  TString project = "Test10";  //with event 6!
-  //TString project = "Test20";  //with event 7!
+  //TString project = "Test10";  //with event 6!
+  TString project = "Test20";  //with event 7!
 
   //TString project = "EvtMixExample";
   
@@ -270,11 +270,17 @@ int main(int argc, char** argv) {
   std::cout<<"\n\n"<<std::endl;
 
   int count=1;
+  uint MAXSIZE = 10000000;
 
   for(int l=1; l<TREE_DEPTH; ++l) {
     
     std::vector<Hough5DNode*>* new_nodes = new std::vector<Hough5DNode*>();
+    //avoid resizing
+    new_nodes->reserve(MAXSIZE);
+
+			       
     std::cout << nodelist->size();
+
     std::cout.flush();
     
     new_hitlist = (char*) malloc(count*32*chunk);
@@ -328,14 +334,14 @@ int main(int argc, char** argv) {
 	}
       }
       //not necessary?
-      //free(sons);
+      free(sons);
     }
    
 
     for(int x=0; x<last_nodes->size(); x++)
       delete last_nodes->at(x);
 
-    if(l<TREE_DEPTH-1)
+    if(l<=TREE_DEPTH-1)
       last_nodes->clear();
     
     int lcount=0;
@@ -350,7 +356,8 @@ int main(int argc, char** argv) {
     free(new_hitlist);
 
     
-    std::cout<<"Added "<<last_nodes->size()<<" last_nodes"<<std::endl;
+    std::cout<<"Added "<<last_nodes->size()<<" last_nodes"
+	     <<"     (count="<<count<<")"<<std::endl;
     nodelist->clear();
     nodelist=new_nodes;    
 	
@@ -377,8 +384,8 @@ int main(int argc, char** argv) {
 	if(votes[k] >= last_nodes->at((int)k/32)->getVote()*SCALE) 
 	  count++;
     }
-    //std::cout<<"LEVEL "<<l<<":  "<<count<<" of "
-    //     <<nodelist->size()<<" checked the test"<<std::endl;
+    std::cout<<"LEVEL "<<l<<":  "<<count<<" of "
+         <<nodelist->size()<<" checked the test"<<std::endl;
       
   }
   
@@ -482,123 +489,123 @@ int main(int argc, char** argv) {
 
   
 
-//  //PURGE NODES AND EXTRACT CLUSTERS --------------------------
+ //PURGE NODES AND EXTRACT CLUSTERS --------------------------
   
 
-//   //make new clusterList
-//   std::vector<PndTpcCluster*> finalClist;
-//   for(int i=0; i<clusterList.size(); i++) {
-//     TVector3 pos = (clusterList[i])->pos();
-//     if(pos.X()>0)
-//       finalClist.push_back(clusterList[i]);
-//   }
-//   assert(finalClist.size() == nClusters);
+  //make new clusterList
+  std::vector<PndTpcCluster*> finalClist;
+  for(int i=0; i<clusterList.size(); i++) {
+    TVector3 pos = (clusterList[i])->pos();
+    if(pos.X()>0)
+      finalClist.push_back(clusterList[i]);
+  }
+  assert(finalClist.size() == nClusters);
 
 
-//   bool cont=true;
-//   char* hitlist = IFC->getHitList();
+  bool cont=true;
+  char* hitlist = IFC->getHitList();
 
-//   //list of clusters for each found track
-//   std::vector<std::vector<PndTpcCluster*>*> solutions;
+  //list of clusters for each found track
+  std::vector<std::vector<PndTpcCluster*>*> solutions;
   
-//   std::vector<TH2D*> hists;
+  std::vector<TH2D*> hists;
 
-//   std::vector<Color_t> colors;
-//   colors.push_back(kGreen);
-//   colors.push_back(kGreen-9);
-//   colors.push_back(kSpring+8);
-//   colors.push_back(kOrange-2);
-//   colors.push_back(kOrange+7);
-//   colors.push_back(kRed+3);
-//   colors.push_back(kRed);
-//   colors.push_back(kMagenta+2);
-//   colors.push_back(kBlue-6);
-//   colors.push_back(kBlue+1);
-//   colors.push_back(kAzure-3);
+  std::vector<Color_t> colors;
+  colors.push_back(kGreen);
+  colors.push_back(kGreen-9);
+  colors.push_back(kSpring+8);
+  colors.push_back(kOrange-2);
+  colors.push_back(kOrange+7);
+  colors.push_back(kRed+3);
+  colors.push_back(kRed);
+  colors.push_back(kMagenta+2);
+  colors.push_back(kBlue-6);
+  colors.push_back(kBlue+1);
+  colors.push_back(kAzure-3);
 
-//   //set votes in node objects
-//   for(int n=0; n<nodelist->size(); n++) 
-//       if(nodelist->at(n)->getVote()>0) {
-// 	int c=0;
-// 	for(int v=0; v<nClusters; v++) 
-// 	  if(getBit(hitlist+n*chunk,v)) {
-// 	    nodelist->at(n)->setHit(v);
-// 	    c++;
-// 	  }
-// 	assert(c==nodelist->at(n)->getVote());
-//       }
-  
-  
+  //set votes in node objects
+  for(int n=0; n<nodelist->size(); n++) 
+      if(nodelist->at(n)->getVote()>0) {
+	int c=0;
+	for(int v=0; v<nClusters; v++) 
+	  if(getBit(hitlist+n*chunk,v)) {
+	    nodelist->at(n)->setHit(v);
+	    c++;
+	  }
+	assert(c==nodelist->at(n)->getVote());
+      }
   
   
-
-//   //extract tracks until solutions have less clusters than minCL
-//   while(cont) {
-
-//     //sort nodes by final votes
-//     sort((*nodelist).begin(), (*nodelist).end(), compareNodes);
-    
-//     //extract clusters from best node
-//     bool* bestHitList = nodelist->front()->getHitList();
-    
-//     std::cout<<nodelist->front()->getVote()<<std::endl;
-//     for(int b=0; b<nClusters; b++)
-//       std::cout<<(bool)bestHitList[b]<<" ";
-//     std::cout<<std::endl;
-    
-//     std::vector<PndTpcCluster*>* sol = new std::vector<PndTpcCluster*>();
-    
-//     for(int c=0; c<nClusters; c++) 
-//     if(bestHitList[c])
-//       sol->push_back(finalClist[c]);
-    
-//     if(sol->size()<minCL) {
-//       cont=false;
-//       continue;
-//     }
   
-//     //remove hits for first node from all others
-//     for(int p=0; p<nClusters; p++) {
-//       if(!bestHitList[p])
-// 	continue;
-//       for(int n=0; n<nodelist->size(); n++)
-// 	if(nodelist->at(n)->checkHit(p))
-// 	  nodelist->at(n)->removeHit(p);
-//     }
-    
-//     solutions.push_back(sol);
-    
-    
-//   }
+  
 
-//   TCanvas* blub = new TCanvas();
+  //extract tracks until solutions have less clusters than minCL
+  while(cont) {
 
-
-//   for(int i=0; i<solutions.size(); i++) {
-//     std::string tr = "track_";
-//     std::stringstream ss;
-//     ss<<i;
-//     tr.append(ss.str());
-//     hists.push_back(new TH2D(tr.c_str(), "", 
-// 			     100,-42,42,100,-42,42));
-//     //fill hist with positions;
-//     for(int p=0; p<(solutions[i])->size(); p++) {
-//       TVector3 pos = (solutions[i])->at(p)->pos();
-//       hists.back()->Fill(pos.X(), pos.Y());
-//     }
-//     std::cout<<"\nFound Track with "<<(solutions[i])->size()
-// 	     <<" clusters"<<std::endl;
-
-//     hists.back()->SetMarkerColor(colors[i]);
-//     hists.back()->SetMarkerStyle(20);
-//     hists.back()->SetMarkerSize(0.5);
+    //sort nodes by final votes
+    sort((*nodelist).begin(), (*nodelist).end(), compareNodes);
     
-//     //hists.back()->SetLineWidth(3);
-//     if(i>0)
-//       hists.back()->Draw("same");
-//     else
-//       hists.back()->Draw();
-//   }
+    //extract clusters from best node
+    bool* bestHitList = nodelist->front()->getHitList();
+    
+    std::cout<<nodelist->front()->getVote()<<std::endl;
+    for(int b=0; b<nClusters; b++)
+      std::cout<<(bool)bestHitList[b]<<" ";
+    std::cout<<std::endl;
+    
+    std::vector<PndTpcCluster*>* sol = new std::vector<PndTpcCluster*>();
+    
+    for(int c=0; c<nClusters; c++) 
+    if(bestHitList[c])
+      sol->push_back(finalClist[c]);
+    
+    if(sol->size()<minCL) {
+      cont=false;
+      continue;
+    }
+  
+    //remove hits for first node from all others
+    for(int p=0; p<nClusters; p++) {
+      if(!bestHitList[p])
+	continue;
+      for(int n=0; n<nodelist->size(); n++)
+	if(nodelist->at(n)->checkHit(p))
+	  nodelist->at(n)->removeHit(p);
+    }
+    
+    solutions.push_back(sol);
+    
+    
+  }
+
+  TCanvas* blub = new TCanvas();
+
+
+  for(int i=0; i<solutions.size(); i++) {
+    std::string tr = "track_";
+    std::stringstream ss;
+    ss<<i;
+    tr.append(ss.str());
+    hists.push_back(new TH2D(tr.c_str(), "", 
+			     100,-42,42,100,-42,42));
+    //fill hist with positions;
+    for(int p=0; p<(solutions[i])->size(); p++) {
+      TVector3 pos = (solutions[i])->at(p)->pos();
+      hists.back()->Fill(pos.X(), pos.Y());
+    }
+    std::cout<<"\nFound Track with "<<(solutions[i])->size()
+	     <<" clusters"<<std::endl;
+
+    hists.back()->SetMarkerColor(colors[i]);
+    hists.back()->SetMarkerStyle(20);
+    hists.back()->SetMarkerSize(0.5);
+    
+    //hists.back()->SetLineWidth(3);
+    if(i>0)
+      hists.back()->Draw("same");
+    else
+      hists.back()->Draw();
+  }
   
   
   std::cout<<"Track qualification: more than "<<minCL

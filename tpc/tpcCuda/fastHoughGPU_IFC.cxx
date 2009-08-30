@@ -265,6 +265,7 @@ fastHoughGPU_IFC::testIntersection(std::vector<Hough5DNode*>* nodes,
     float cutoff = 0.7f;
     
     int blocks = nodes->size() /_threads + 1;
+     
     
     if(level>4) {
       callCutoffKernel(cutoff, nodes->size(), _votes_d, _threads, blocks);
