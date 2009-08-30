@@ -44,6 +44,8 @@
 #include "Hough5DNode.h"
 #include "Hyperplane5D.h"
 
+#include "TStopwatch.h"
+
 
 int main(int argc, char** argv) {
 
@@ -52,6 +54,8 @@ int main(int argc, char** argv) {
   
   int TREE_DEPTH = 6;  //number of space divisions
   int THRESHOLD = 40;
+  float SCALE = 0.95f;
+
  
   float m_Max = 1.;
   float m_Min = -1.;
@@ -59,10 +63,10 @@ int main(int argc, char** argv) {
   float t_Min = -5.;
   float phi_Min = 0;
   float phi_Max = 180;
-  float theta_Min = 65;
-  float theta_Max = 100;
-  float c_Min = -0.1;
-  float c_Max = 0.1;
+  float theta_Min = 20;
+  float theta_Max = 160;
+  float c_Min = -0.5;
+  float c_Max = 0.5;
 
   float mins[5] = {phi_Min, theta_Min, c_Min, m_Min, t_Min};
   float maxs[5] = {phi_Max, theta_Max, c_Max, m_Max, t_Max};
@@ -91,6 +95,7 @@ int main(int argc, char** argv) {
   
   TString dir = "../../DATA/";
   TString project = "Test10";
+  //TString project = "Test20";
 
   project=dir+project;
   //TString mc_filename = project+".mc.root";
@@ -204,6 +209,9 @@ int main(int argc, char** argv) {
     return 0;
   
     
+  TStopwatch timer;
+  timer.Start();
+
   // made it through root, begin oct-tree search ------------------------
   
   parent_list.push_back(root);
@@ -240,7 +248,7 @@ int main(int argc, char** argv) {
 	Hyperplane5D plane =  hyperplanes[i];
 	plane.testIntersect(*the_son);
       }
-      if(the_son->getLevel() < 6) {
+      if(the_son->getLevel() < 5) {
 	if(the_son->getVote() < THRESHOLD) {
 	  //std::cout<<"Deleting SON from list"<<std::endl;
 	  delete parent_list.back();
@@ -248,7 +256,7 @@ int main(int argc, char** argv) {
 	}
       }
       else{
-	if(the_son->getVote() < the_node->getVote()*0.95) {
+	if(the_son->getVote() < the_node->getVote()*SCALE) {
 	  //std::cout<<"Deleting SON from list"<<std::endl;
 	  delete parent_list.back();
 	  parent_list.pop_back();
@@ -268,6 +276,10 @@ int main(int argc, char** argv) {
     //     <<std::endl;
     
   }
+
+  timer.Stop();
+  
+  
     
   std::cout<<"There have been "<<solution_list.size()
 	   <<" solutions: \n"<<std::endl;
@@ -298,6 +310,7 @@ int main(int argc, char** argv) {
 	   <<std::endl;
 
   gStyle->SetPalette(1);
+  
   
   TCanvas* canv = new TCanvas();
   //canv->SetGrayscale();
@@ -359,6 +372,9 @@ int main(int argc, char** argv) {
     (boxlist3[b])->Draw("l");
   }
       
+  std::cout<<"\n\nFHT took "<<timer.RealTime()<<" seconds to process"
+	   <<std::endl;
+
   gApplication->SetReturnFromRun(true);
   gSystem->Run();
   
