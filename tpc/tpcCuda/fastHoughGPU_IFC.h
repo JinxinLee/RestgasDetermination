@@ -49,7 +49,7 @@ class fastHoughGPU_IFC {
   //hitlists of the sons --- copies both to the device 
   void setHitList(char* hl, int activeNodes); 
   
-  void testIntersection(std::vector<Hough5DNode*> nodes,
+  void testIntersection(std::vector<Hough5DNode*>* nodes,
 			int level, int THRESHOLD);
   uint* getVotes();
   //float* getCenter() {return _center;}

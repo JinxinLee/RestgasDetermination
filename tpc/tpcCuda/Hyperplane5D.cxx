@@ -168,7 +168,97 @@ Hyperplane5D::testIntersect(Hough5DNode& node) {
     
 }
 
+bool
+Hyperplane5D::testIntersect(Hough5DNode* node) {
 
+  int level = node->getLevel();
+  
+  float PI_180 = 3.14159/180;
+
+  
+  //first test in R-Z Hough space ---------------------------
+  
+  float* mCoords = node->getProjection3();
+  float* tCoords = node->getProjection4();
+    
+  bool found2D;
+  bool skip=false;
+  
+    
+  if(!skip) {
+    //TODO: optimize
+    int signs2 = 0;
+    for(int m_it=0; m_it<2; m_it++) {
+      float t_m = -_coords[3]*(mCoords[m_it]*(_maxs[3]-_mins[3])) + _coords[4];
+      for(int t_it=0; t_it<2; t_it++) {
+	float diff = tCoords[t_it]*(_maxs[4]-_mins[4]) - t_m;
+	signs2+=(diff > 0);
+      }
+    }
+    
+    if(signs2 == 4 || signs2 == 0) {
+      return false; } //we don't need to proceed
+   
+  }
+  
+  //3D test ----------------------------------------------------
+
+  float* phiCoords = node->getProjection0();
+  float* thetaCoords = node->getProjection1();
+  float* cCoords = node->getProjection2();
+    
+  float c1 = cCoords[0] * (_maxs[2] - _mins[2]);
+  float c2 = cCoords[1] * (_maxs[2] - _mins[2]);
+
+  float phi1 = phiCoords[0] * (_maxs[0] - _mins[0]) + 90;
+  float phi2 = phiCoords[1] * (_maxs[0] - _mins[0]) + 90;
+  float phi_vals[2] = {phi1,phi2};
+
+  float theta1 = (thetaCoords[0] + 0.5)* (_maxs[1] - _mins[1]) +_mins[1];
+  float theta2 = (thetaCoords[1] + 0.5)* (_maxs[1] - _mins[1]) +_mins[1];
+  float theta_vals[2] = {theta1,theta2};
+
+  int sign=0;
+  int lastSign=0;
+  int count=0;
+  bool hit=false;
+  for(int p=0; p<2&&!hit; p++)
+    for(int t=0; t<2; t++) {
+      
+      float x[3] = {_coords[0],_coords[1],_coords[2]};
+      float n[3] = {sin(theta_vals[t]*PI_180)*cos(phi_vals[p]*PI_180),
+		    sin(theta_vals[t]*PI_180)*sin(phi_vals[p]*PI_180),
+		    cos(theta_vals[t]*PI_180)};
+      
+      //float c = n*x;
+      float c = x[0]*n[0] + x[1]*n[1] + x[2]*n[2];
+      
+      sign=(int)(c1-c > 0);
+      if(count>0 && (lastSign!=sign)) {
+	hit=true;
+	break;
+      }
+      lastSign=sign;
+      sign=(int)(c2-c > 0);
+      if(lastSign!=sign) {
+	hit=true;
+	break;
+      }       
+      lastSign=sign;
+      count++;
+    }
+  
+  if (hit) {
+    node->setHit(_index);
+    node->vote();
+    return true;
+  }
+  else
+  return false;  
+
+    
+    
+}
 void 
 Hyperplane5D::setParamSpace(float* mins, float* maxs) {
   _mins = mins;

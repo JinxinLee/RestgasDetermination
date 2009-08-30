@@ -201,19 +201,19 @@ fastHoughGPU_IFC::initParameterSpace(float* mins,
   
   
 void
-fastHoughGPU_IFC::testIntersection(std::vector<Hough5DNode*> nodes,
+fastHoughGPU_IFC::testIntersection(std::vector<Hough5DNode*>* nodes,
 				   int level, int THRESHOLD) {
 
-  assert(nodes.size()<_MAXSIZE);
+  assert(nodes->size()<_MAXSIZE);
   if(_initP && _initC) {
 
-    for(int n=0; n<nodes.size(); n++) {
+    for(int n=0; n<nodes->size(); n++) {
       //TODO: implement ONE call in Hough5DNode, make ONE array
-      float* p0 = (nodes[n])->getProjection0();
-      float* p1 = (nodes[n])->getProjection1();
-      float* p2 = (nodes[n])->getProjection2();
-      float* p3 = (nodes[n])->getProjection3();
-      float* p4 = (nodes[n])->getProjection4();
+      float* p0 = (nodes->at(n))->getProjection0();
+      float* p1 = (nodes->at(n))->getProjection1();
+      float* p2 = (nodes->at(n))->getProjection2();
+      float* p3 = (nodes->at(n))->getProjection3();
+      float* p4 = (nodes->at(n))->getProjection4();
       
       
       _p0[2*n] = p0[0];
@@ -230,19 +230,19 @@ fastHoughGPU_IFC::testIntersection(std::vector<Hough5DNode*> nodes,
     }
 
     
-    copyArrayToDevice(_p0_d, _p0,nodes.size()*2*sizeof(float));
-    copyArrayToDevice(_p1_d, _p1,nodes.size()*2*sizeof(float));
-    copyArrayToDevice(_p2_d, _p2,nodes.size()*2*sizeof(float));
-    copyArrayToDevice(_p3_d, _p3,nodes.size()*2*sizeof(float));
-    copyArrayToDevice(_p4_d, _p4,nodes.size()*2*sizeof(float));
+    copyArrayToDevice(_p0_d, _p0,nodes->size()*2*sizeof(float));
+    copyArrayToDevice(_p1_d, _p1,nodes->size()*2*sizeof(float));
+    copyArrayToDevice(_p2_d, _p2,nodes->size()*2*sizeof(float));
+    copyArrayToDevice(_p3_d, _p3,nodes->size()*2*sizeof(float));
+    copyArrayToDevice(_p4_d, _p4,nodes->size()*2*sizeof(float));
     
     
     //choose the kernel to call based on nClusters and nNodes
     if(0) {
-    //if(_nClusters > nodes.size()) {
+    //if(_nClusters > nodes->size()) {
       int blocks = _nClusters / _threads + 1;      
       //kernel call (does a threadSync)
-      callIntersectKernel(nodes.size(),level,_nClusters,_clusterData_d,
+      callIntersectKernel(nodes->size(),level,_nClusters,_clusterData_d,
 			  _hitlist_d, _hitlist_lastgen_d,
 			  _p0_d,_p1_d,_p2_d,_p3_d,_p4_d,_votes_d, 
 			  _threads, blocks);
@@ -252,9 +252,9 @@ fastHoughGPU_IFC::testIntersection(std::vector<Hough5DNode*> nodes,
 
     else {
       
-      int blocks = nodes.size() / _threads + 1;
+      int blocks = nodes->size() / _threads + 1;
       //kernel call (does a threadSync)
-      callIntersectKernel2(nodes.size(),level,_nClusters, _clusterData_d,
+      callIntersectKernel2(nodes->size(),level,_nClusters, _clusterData_d,
 			   _hitlist_d, _hitlist_lastgen_d,
 			   _p0_d,_p1_d,_p2_d,_p3_d,_p4_d,_votes_d, 
 			   _threads, blocks);
@@ -264,18 +264,18 @@ fastHoughGPU_IFC::testIntersection(std::vector<Hough5DNode*> nodes,
     //throw away cutoff*100% of each mothers' sons
     float cutoff = 0.7f;
     
-    int blocks = nodes.size() /_threads + 1;
+    int blocks = nodes->size() /_threads + 1;
     
     if(level>4) {
-      callCutoffKernel(cutoff, nodes.size(), _votes_d, _threads, blocks);
+      callCutoffKernel(cutoff, nodes->size(), _votes_d, _threads, blocks);
     }
 
     int CHUNK = _nClusters/(sizeof(char)*8)+1;
     
     copyArrayFromDevice(_votes, _votes_d, 
-			nodes.size()*sizeof(uint));
+			nodes->size()*sizeof(uint));
     copyArrayFromDevice(_hitlist, _hitlist_d, 
-			CHUNK*nodes.size());
+			CHUNK*nodes->size());
           
   }
 }

@@ -73,8 +73,8 @@ int main(int argc, char** argv) {
   int minCL = 5;
 
  
-  float m_Max = 2.f;
-  float m_Min = -2.f;
+  float m_Max = 1.f;
+  float m_Min = -1.f;
   float t_Max = 5.f;
   float t_Min = -5.f;
   float phi_Min = 0.f;
@@ -122,14 +122,14 @@ int main(int argc, char** argv) {
 
 
 
-  unsigned int EVENT=7;
+  unsigned int EVENT=6;
   
 
   
   TString dir = "../../DATA/";
   
-  //TString project = "Test10";  //with event 6!
-  TString project = "Test20";  //with event 7!
+  TString project = "Test10";  //with event 6!
+  //TString project = "Test20";  //with event 7!
 
   //TString project = "EvtMixExample";
   
@@ -231,7 +231,7 @@ int main(int argc, char** argv) {
 
   //test root node only for intersection
   nodelist->push_back(root);
-  IFC->testIntersection(*nodelist,0,THRESHOLD);
+  IFC->testIntersection(nodelist,0,THRESHOLD);
   votes = IFC->getVotes();
 
   std::cout<<"\nroot node received "<<votes[0]
@@ -311,8 +311,8 @@ int main(int argc, char** argv) {
 	  nodelist->at(n) = NULL;
 	}
       }
+      //dynamic thresholding based on last generation's vote
       else {
-	//working, but not fitting with fixed THR of testIntersect
 	if(votes[n] >= last_nodes->at((int)n/32)->getVote()*SCALE) {
 	  memcpy(new_hitlist+chunk*counter, 
 		 old_hitlist+n*chunk, chunk);
@@ -327,7 +327,8 @@ int main(int argc, char** argv) {
 	  nodelist->at(n) = NULL;
 	}
       }
-      free(sons);
+      //not necessary?
+      //free(sons);
     }
    
 
@@ -360,23 +361,29 @@ int main(int argc, char** argv) {
     //std::cout<<"Calling Intersect-Kernel with THRESHOLD: "
     //<<THRESHOLD-l*thresh_step<<std::endl;
     //if(l<6)
-    IFC->testIntersection(*nodelist,l,THRESHOLD);
+    IFC->testIntersection(nodelist,l,THRESHOLD);
     //else
     //IFC->testIntersection(*nodelist,l,35);
     //IFC->testIntersection(*nodelist,l,THRESHOLD-l*thresh_step);
     votes = IFC->getVotes();
     
     count=0;
-    for(int k=0; k<nodelist->size(); ++k)
-      if(votes[k]>=THRESHOLD)
-	count++;
-    std::cout<<"LEVEL "<<l<<":  "<<count<<" of "
-	     <<nodelist->size()<<" checked the test"<<std::endl;
-    
+        
+    for(int k=0; k<nodelist->size(); ++k) {
+      if(l<5)  {
+	if(votes[k] >= THRESHOLD)
+	  count++; }
+      else
+	if(votes[k] >= last_nodes->at((int)k/32)->getVote()*SCALE) 
+	  count++;
+    }
+    //std::cout<<"LEVEL "<<l<<":  "<<count<<" of "
+    //     <<nodelist->size()<<" checked the test"<<std::endl;
+      
   }
   
-  for(int n=0; n<nodelist->size(); n++){
-    (nodelist->at(n))->setVotes(votes[n]);
+  for(int x=0; x<nodelist->size(); x++){
+    (nodelist->at(x))->setVotes(votes[x]);
   }
 
  

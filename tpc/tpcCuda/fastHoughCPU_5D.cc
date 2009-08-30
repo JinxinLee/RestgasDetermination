@@ -187,9 +187,8 @@ int main(int argc, char** argv) {
   //setting up parameter space
   //root->setParamSpace(mins, maxs);
   
-  std::list<Hough5DNode*> parent_list;
-  std::vector<Hough5DNode*> solution_list;
-  
+  std::vector<Hough5DNode*>* parent_list = new std::vector<Hough5DNode*>();
+    
   float* corners = root->getCorners();
   for(int i=0; i<160; i++) {
     if(i%5==0)
@@ -212,9 +211,84 @@ int main(int argc, char** argv) {
   TStopwatch timer;
   timer.Start();
 
-  // made it through root, begin oct-tree search ------------------------
   
-  parent_list.push_back(root);
+  // made it through root, begin oct-tree search ------------------------
+ 
+  
+  parent_list->push_back(root);
+  std::vector<Hough5DNode*>* temp_sons = new std::vector<Hough5DNode*>();
+  
+
+
+  for(int l=0; l<TREE_DEPTH; ++l) {
+  
+    std::vector<Hough5DNode*>* new_nodes = new std::vector<Hough5DNode*>();
+      
+    std::cout<<"level: "<<l<<std::endl;
+    std::cout<<"parent_list size: "<<parent_list->size()<<std::endl;
+        
+    int counter=0;
+    //create new nodes
+    for(int n=0; n<parent_list->size(); ++n) {
+    
+      Hough5DNode* the_node=parent_list->at(n);
+      float* sons = the_node->getSonArray();
+      
+      //hitlist of the mother
+      bool* hitList = the_node->getHitList();
+      
+      //create sons
+      for(int s=0; s<32; s++) {
+	temp_sons->push_back(new Hough5DNode(sons+5*s, 
+					    the_node->getLevel()+1,
+					    points));
+
+	Hough5DNode* the_son = temp_sons->at(temp_sons->size()-1);
+	//now loop over points for this son and do hit check
+	for(int i=0; i<points; i++) {
+	  //we don't need to check if mother wasn't hit
+	  if(!hitList[i])
+	    continue;
+	  //std::cout<<"intersection test for son "<<s<<std::endl;
+	  Hyperplane5D plane =  hyperplanes[i];
+	  plane.testIntersect(the_son);
+	}	
+	
+	if(the_son->getLevel() < 5) {
+	  if(the_son->getVote() < THRESHOLD) {
+	    //TODO: optimize
+	    delete temp_sons->at(temp_sons->size()-1);
+	    temp_sons->at(temp_sons->size()-1) = NULL;
+	  }
+	}
+	//dynamic thresholding
+	else{
+	  if(the_son->getVote() < the_node->getVote()*SCALE) {
+	    //std::cout<<"Deleting SON from list"<<std::endl;
+	    delete temp_sons->at(temp_sons->size()-1);
+	    temp_sons->at(temp_sons->size()-1) = NULL;
+	  }
+	}
+      } //end loop over sons
+
+      //keep sons that passed the test
+      for(int s=0; s<32; s++) {
+	if(temp_sons->at(s)!=NULL)
+	  new_nodes->push_back(temp_sons->at(s));
+      }
+      temp_sons->clear();
+      //erase parent (no longer needed)
+      if(l!=TREE_DEPTH-1)
+	delete parent_list->at(n);
+
+    } //end loop over parent_list
+	  
+    if(l!=TREE_DEPTH-1)
+      parent_list = new_nodes;
+  }
+
+ 
+  /*  parent_list.push_back(root);
   std::cout<<"Starting Oct-Tree search ..."<<std::endl;
 
   //int counter = 0;
@@ -277,11 +351,12 @@ int main(int argc, char** argv) {
     
   }
 
+  */
+
   timer.Stop();
   
   
-    
-  std::cout<<"There have been "<<solution_list.size()
+  std::cout<<"There have been "<<parent_list->size()
 	   <<" solutions: \n"<<std::endl;
       
   
@@ -294,10 +369,10 @@ int main(int argc, char** argv) {
 
   std::vector<TBox*> boxlist;
     
-  for(int s=0; s<solution_list.size(); s++) {
+  for(int s=0; s<parent_list->size(); s++) {
     //(solution_list[s])->print();
-    float* center = (solution_list[s])->getCenter();
-    float length = (solution_list[s])->getSideLength();
+    float* center = (parent_list->at(s))->getCenter();
+    float length = (parent_list->at(s))->getSideLength();
     float x1 = (center[3] - 0.5*length)*(m_Max-m_Min);
     float x2 = (center[3] + 0.5*length)*(m_Max-m_Min);
     float y1 = (center[4] - 0.5*length)*(t_Max-t_Min);
@@ -328,10 +403,10 @@ int main(int argc, char** argv) {
 
   std::vector<TBox*> boxlist2;
     
-  for(int s=0; s<solution_list.size(); s++) {
-    //(solution_list[s])->print();
-    float* center = (solution_list[s])->getCenter();
-    float length = (solution_list[s])->getSideLength();
+  for(int s=0; s<parent_list->size(); s++) {
+    //(parent_list->at(s))->print();
+    float* center = (parent_list->at(s))->getCenter();
+    float length = (parent_list->at(s))->getSideLength();
     float x1 = (center[0] - 0.5*length)*(phi_Max-phi_Min) +90;
     float x2 = (center[0] + 0.5*length)*(phi_Max-phi_Min) +90;
     float y1 = (center[2] - 0.5*length)*(c_Max-c_Min);
@@ -355,9 +430,9 @@ int main(int argc, char** argv) {
   std::vector<TBox*> boxlist3;
   //sparse->Projection(0,3)->Draw("COLZ");
   sebastian_stinkt->Draw();
-  for(int s=0; s<solution_list.size(); s++) {
-    float* center = (solution_list[s])->getCenter();
-    float length = (solution_list[s])->getSideLength();
+  for(int s=0; s<parent_list->size(); s++) {
+    float* center = (parent_list->at(s))->getCenter();
+    float length = (parent_list->at(s))->getSideLength();
     float x1 = (center[0] - 0.5*length)*(phi_Max-phi_Min) +90;
     float x2 = (center[0] + 0.5*length)*(phi_Max-phi_Min) +90;
     float y1 = (center[3] - 0.5*length)*(m_Max-m_Min);

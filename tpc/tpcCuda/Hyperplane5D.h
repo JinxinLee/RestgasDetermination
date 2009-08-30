@@ -35,6 +35,7 @@ public:
   Hyperplane5D(PndTpcCluster*, int); 
   
   bool testIntersect(Hough5DNode& node);
+  bool testIntersect(Hough5DNode* node);
   void setRiemannScaling(float sc) {_RIEMANNSCALING = sc;}
 
   //set minima and maxima of parameter space
