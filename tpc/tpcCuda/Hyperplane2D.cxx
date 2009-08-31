@@ -79,6 +79,43 @@ Hyperplane2D::testIntersect(Hough2DNode& node) {
   return false;
 }
 
+bool 
+Hyperplane2D::testIntersect(Hough2DNode* node) {
+
+  float* mCoords = node->getProjection0();
+  float* tCoords = node->getProjection1();
+    
+  //  bool found2D;
+  bool skip=false;
+  
+    
+  if(!skip) {
+    //TODO: optimize
+    int signs2 = 0;
+    for(int m_it=0; m_it<2; m_it++) {
+      float m=(mCoords[m_it]+0.5)*(_maxs[0]-_mins[0])+_mins[0];
+      float t_m = -_coords[1]*m + _coords[0];  //t= -m*z+(x or y)
+      for(int t_it=0; t_it<2; t_it++) {
+	float t=(tCoords[t_it]+0.5)*(_maxs[1]-_mins[1])+_mins[1];
+	float diff =  t- t_m;
+	signs2+=(diff > 0);
+      }
+    }
+    
+    if(signs2 == 4 || signs2 == 0) {
+      //(*_hitmap)[coords] = false;
+      return false; 
+    }else {
+      //(*_hitmap)[coords] = true;
+     node->setHit(_index);
+     node->vote();
+     return true;   
+    }
+  }
+  
+  return false;
+}
+
 
 void 
 Hyperplane2D::setParamSpace(float* mins, float* maxs) {

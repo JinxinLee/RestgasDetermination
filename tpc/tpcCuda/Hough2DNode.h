@@ -30,6 +30,7 @@ public:
   bool checkHit(int j) {return _hitList[j];}
   void removeHit(int j) {_hitList[j] = false; _votes--; }
   void print();
+  int getNplanes(){return _nPlanes;}
   
 
 private:

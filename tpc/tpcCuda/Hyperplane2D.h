@@ -35,6 +35,7 @@ public:
   Hyperplane2D(float x,float z, int); 
   
   bool testIntersect(Hough2DNode& node);
+ bool testIntersect(Hough2DNode* node);
 
   //set minima and maxima of parameter space
   void setParamSpace(float* mins, float* maxs);    
@@ -53,7 +54,7 @@ public:
 private:
 
   // Private Data Members ------------
-  float* _coords;           //(x_R, y_R, z_R, R, Z)
+  float* _coords;           //(x_R, y_R)
 
   int _index;   //hyperplane ID
 
