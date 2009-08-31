@@ -61,7 +61,7 @@ PndLheKalmanTask::PndLheKalmanTask(const char* name, Int_t iVerbose)
 {
   fTrackBranchName = "LheTrack";
   fFitTrackArray = new TClonesArray("PndTrack");
-  fUseGeane = kFALSE;
+  fUseGeane = kTRUE;
   fSmoothing = kFALSE;
   fNumIt = 1;
 }
