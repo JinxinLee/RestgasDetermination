@@ -11,7 +11,18 @@ Hough2DNode::Hough2DNode() {
   _proj0 = NULL;
   _proj1 = NULL;
 }
-
+Hough2DNode::~Hough2DNode(){
+  if(_hitList != NULL)
+    free(_hitList); 
+  if(_center != NULL)
+    free(_center);
+  if(_corners != NULL)
+    free(_corners); 
+  if(_proj0 != NULL)
+    free(_proj0); 
+  if(_proj1 != NULL)
+    free(_proj1); 
+}
 
 Hough2DNode::Hough2DNode(float* center, int level, int nHyperplanes) {
   _nPlanes = nHyperplanes;

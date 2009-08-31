@@ -11,6 +11,8 @@ public:
   Hough2DNode();
   Hough2DNode(float* center, int level, int nHyperplanes); 
 
+  ~Hough2DNode();
+
   float* getCenter() {return _center;}
   int getLevel() {return _level;}
   float* getSonArray();  //return center positions of sons
@@ -25,7 +27,8 @@ public:
   void setHit(int j) {_hitList[j] = true;} //hyperplane was a hit
   void setVotes(int votes)  {_votes = votes;}
   void vote() {_votes++;}
-
+  bool checkHit(int j) {return _hitList[j];}
+  void removeHit(int j) {_hitList[j] = false; _votes--; }
   void print();
   
 
