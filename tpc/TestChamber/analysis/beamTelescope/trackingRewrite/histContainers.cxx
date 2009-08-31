@@ -89,10 +89,10 @@ trackHistContainer::trackHistContainer(){
     u.push_back(new TH1D(name.c_str(),name.c_str(),4000,0,10.24));
     name="trackErr_det";
     name+=buf;
-    trackErr.push_back(new TH1D(name.c_str(),name.c_str(),4000,-1,1));
+    trackErr.push_back(new TH1D(name.c_str(),name.c_str(),4000,-0.01,0.01));
     name="trackErrPro_det";
     name+=buf;
-    trackErrProfile.push_back(new TProfile(name.c_str(), name.c_str(), 400, 0,10.24,-1,1));
+    trackErrProfile.push_back(new TProfile(name.c_str(), name.c_str(), 400, 0,10.24,-0.1,0.1));
   }
 }
 trackHistContainer::~trackHistContainer(){

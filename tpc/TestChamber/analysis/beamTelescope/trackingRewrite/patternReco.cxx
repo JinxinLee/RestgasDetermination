@@ -68,7 +68,7 @@ int main(int argc,char **argv){
   bool disp=false;
   int houghThreshold;
   int houghDepth;
-  
+  bool debug =true;
   if(!(cf.readInto(infilePath , "inFile") )) failedConf("infile");
   if(!(cf.readInto(outFilePath , "outFile") )) failedConf("alignmentFile");
   if(!(cf.readInto(alignmentFilePath , "alignmentFile") )) failedConf("alignmentFile");
@@ -87,11 +87,11 @@ int main(int argc,char **argv){
     houghDepth=0;
     houghThreshold=0;
   }else if(mode=="eventDisp"){
-    hough=false;
+    hough=true;
     maxAmp=false;
     disp=true;
-    houghDepth=0;
-    houghThreshold=0;
+    if(!(cf.readInto(houghThreshold , "houghThreshold") )) failedConf("houghThreshold");
+    if(!(cf.readInto(houghDepth , "houghDepth") )) failedConf("houghDepth");
   }else{
     std::cerr << "Unknown mode  " << mode << " from conf file ->abort"
 	      << std::endl;
@@ -119,6 +119,7 @@ int main(int argc,char **argv){
   TVector3 z(0,0,1);
   TCfast2DHough* houghXZ = new TCfast2DHough(-x,z,true);
   TCfast2DHough* houghYZ = new TCfast2DHough(y,z,true);
+  cout<<"thresholds "<<endl<<houghThreshold<<endl<<houghDepth<<endl;
   houghXZ->setThreshold(houghThreshold);
   houghXZ->setDepth(houghDepth);
   houghYZ->setThreshold(houghThreshold);
@@ -134,7 +135,7 @@ int main(int argc,char **argv){
       cout<<"jumping out of for loop"<<endl;
       break;
     }
-    if(i_ev%500==0){
+    if(i_ev%1==0){
       cout<<i_ev<<" n clusters "<<totClusters<<endl;
     }
     outEvent->clear();
@@ -168,9 +169,6 @@ int main(int argc,char **argv){
    vector<TCcluster> outClusters;
    vector<TCtrack*> outTracks;
    for(unsigned int iCl=0;iCl<inEvent->nClusters();++iCl) {
-
-
- 
      TCcluster cl=inEvent->getCluster(iCl);
      outClusters.push_back(cl);
      int detID=cl.getId();
@@ -292,10 +290,35 @@ int main(int argc,char **argv){
       //cout<<outTracks.back()->nClFit()<<endl;
     }
     if(hough){
-      cout<<"hough XZ make on "<<x_count<<" clusters"<<endl;
+      outTracks.push_back(new TCtrack());
+      vector<TCcluster> clTrack;
+      if(disp||debug){
+	houghXZ->setDebug(true);
+	houghYZ->setDebug(true);
+      }
+      if(disp||debug){
+	cout<<"hough XZ make on "<<x_count<<" clusters *************************************************"<<endl;
+      }
       houghXZ->make(x_clusters);
-      cout<<"hough YZ  on "<<y_count<<" clusters"<<endl;
-      houghYZ->make(y_clusters);    
+      if(disp||debug){
+	cout<<"hough YZ  on "<<y_count<<" clusters*******************************************************"<<endl;
+      }
+      houghYZ->make(y_clusters);
+      if(houghXZ->getNmax()>0&&houghYZ->getNmax()){
+	for(unsigned int i=0;i<x_clusters.size();++i){
+	  if(houghXZ->hot(i)){
+	    x_clusters.at(i).setFit();
+	  }
+	  clTrack.push_back(x_clusters.at(i));
+	}
+	for(unsigned int i=0;i<y_clusters.size();++i){
+	  if(houghYZ->hot(i)){
+	    y_clusters.at(i).setFit();
+	  }
+	  clTrack.push_back(y_clusters.at(i));
+	}
+	(outTracks.back())->addClusters(clTrack);
+      }
     }
     if(disp){
       houghXZ->draw(false );    
@@ -316,7 +339,9 @@ int main(int argc,char **argv){
     for(unsigned int i = 0; i<outTracks.size();++i){
       outEvent->addTrack(outTracks.at(i));
     }
-    eventTreeOut->Fill();
+    if(outTracks.size()>0){
+      eventTreeOut->Fill();
+    }
   }//end event loop
   eventTreeOut->Write();
   outFile->Close();
