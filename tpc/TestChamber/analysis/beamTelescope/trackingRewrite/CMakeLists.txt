@@ -9,10 +9,11 @@ cmake_minimum_required(VERSION 2.4)
 INCLUDE_DIRECTORIES($ENV{ROOTSYS}/include 
   $ENV{ROOTSYS}/include/Math/ 
   /home/sverre/work/gemMonitor/gemMonitor/src/CsGEM/ 
-  ../../../src/ 
-  ../../../../tpcCuda/
-  ../../../../)
-LINK_DIRECTORIES(../../../ /home/sverre/work/gemMonitor/gemMonitor/lib/)
+  $ENV{VMCWORKDIR}/tpc/TestChamber/src/ 
+  $ENV{VMCWORKDIR}/tpc/tpcCuda/
+  $ENV{VMCWORKDIR}/tpc
+  $ENV{SIMPATH}/basics/boost/boost)
+LINK_DIRECTORIES(../../../ /home/sverre/work/gemMonitor/gemMonitor/lib/  $ENV{SIMPATH}/basics/boost/lib)
 
  
 SET(SOURCES convert.cxx)
