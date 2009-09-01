@@ -43,7 +43,7 @@ class PndEmcHitProducer : public FairTask
 	/** Virtual method Exec **/
 	virtual void Exec(Option_t* opt);
 
-   PndEmcHit* AddHit(Int_t trackID, Int_t detID, Float_t energy, Float_t time);
+   PndEmcHit* AddHit(Int_t trackID, Int_t detID, Float_t energy, Float_t time,std::vector <Int_t> &mctruth);
 
    PndEmcHit* AddHit(Int_t trackID, Int_t detID, Float_t energy, Float_t time,std::vector<PndEmcPoint*> pointList);
   //void CreateStructure();

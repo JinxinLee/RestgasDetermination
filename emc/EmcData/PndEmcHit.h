@@ -31,6 +31,8 @@ class PndEmcHit : public FairHit
 
   PndEmcHit(Int_t trackid, Int_t id, Float_t energy, Float_t time, Float_t X, Float_t Y, Float_t Z, std::vector<PndEmcPoint*> PointList);
 
+  PndEmcHit(Int_t trackid, Int_t id, Float_t energy, Float_t time, Float_t X, Float_t Y, Float_t Z, std::vector<Int_t> McTruth);
+
   /** Copy **/
   PndEmcHit(const PndEmcHit &);
   
@@ -58,6 +60,7 @@ class PndEmcHit : public FairHit
   Short_t GetYPad()        const;
   
   std::vector<PndEmcPoint*> &GetPointList() {return fPointList;}
+  std::vector<Int_t> &GetMcList() {return fMcList;}
 
  protected:
   Double32_t fEnergy;    // hit amplitude
@@ -65,6 +68,7 @@ class PndEmcHit : public FairHit
  
 
   std::vector<PndEmcPoint*> fPointList; //  points contributed to hit
+  std::vector<Int_t> fMcList; //  Mc TrackIndex contributed to hit
 
   ClassDef(PndEmcHit,2)
 };

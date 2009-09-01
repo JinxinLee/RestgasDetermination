@@ -49,6 +49,10 @@ private:
 	/** Input array of CbmDigis **/
 	TClonesArray* fDigiArray;
 	
+	/** Input array of Hits and MC Tracks ... needed for MC **/
+	TClonesArray* fHitArray;
+	TClonesArray* fMCTrackArray;
+
 	/** Output array of PndEmcClusters **/
 	TClonesArray* fClusterArray;
 	  

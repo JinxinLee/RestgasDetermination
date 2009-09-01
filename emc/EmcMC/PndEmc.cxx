@@ -104,7 +104,13 @@ void PndEmc::BeginEvent(){
 Bool_t PndEmc::ProcessHits(FairVolume* vol) {  
   
   
-  if (gMC->Edep()<=0) return kTRUE; // skip all the points which have no energy loss (i.e. Entering)
+  if (gMC->Edep()<=0){
+	  // skip all the points which have no energy loss (i.e. Entering)
+	  // problem for MC truth!
+	  // ((Idea: Check if particle was produced inside crystal or outside))
+	  // ANY particle ENTERING and not being a NEW TRACK the crystal produces a hit
+	  if ( gMC->IsNewTrack() || !gMC->IsTrackEntering()) return kTRUE;
+  }
   
   TString nam = gMC->CurrentVolName();
 

@@ -137,8 +137,10 @@ void PndEmcHitProducer::Exec(Option_t* opt) {
   PndEmcPoint* point  = NULL;
   map<Int_t, Float_t> fTrackEnergy;
   map<Int_t, Float_t> fTrackTime;  //time of first point
+  map<Int_t, std::vector <Int_t> > fTrackMcTruth;  //McTruth
   fTrackEnergy.clear();
   fTrackTime.clear();
+  fTrackMcTruth.clear();
   map<Int_t, Float_t>::const_iterator p;
   
   std::vector<PndEmcPoint*> fPointList;// to pass to EmcHit
@@ -153,25 +155,34 @@ void PndEmcHitProducer::Exec(Option_t* opt) {
     fTrackEnergy[point->GetDetectorID()] += point->GetEnergyLoss();
 	 point_time=point ->GetTime();
 	 if (point_time<fTrackTime[point->GetDetectorID()]) fTrackTime[point->GetDetectorID()] =point_time;
+
+	 // Check and save MC truth information
+	 // Eloss==0 tracks are only stored in point, if track is entering detector from outside
+	 // and thats what we are interested in...
+	 if(point->GetEnergyLoss()==0){
+		 fTrackMcTruth[point->GetDetectorID()].push_back(point->GetTrackID());
+//			cout << "ELoss==0 : ID " << point->GetTrackID()<<","<<point->GetDetectorID()<<","<<point->GetXPad()<<","<<point->GetYPad()<<endl;
+	 }
   }
   // Loop over EmcPoint
   
   // Loop to register EmcHit
   for(p=fTrackEnergy.begin(); p!=fTrackEnergy.end(); ++p) {
     if ((*p).second>fEnergyThreshold)
-      AddHit(1, (*p).first, (*p).second, fTrackTime[(*p).first]); 
+   	 // Check and save MC truth information B.S.
+      AddHit(1, (*p).first, (*p).second, fTrackTime[(*p).first], fTrackMcTruth[(*p).first]);
   }
   
 }
 // -------------------------------------------------------------------------
 
 // -----   Private method AddDigi   --------------------------------------------
-PndEmcHit* PndEmcHitProducer::AddHit(Int_t trackID,Int_t detID, Float_t energy, Float_t time){
+PndEmcHit* PndEmcHitProducer::AddHit(Int_t trackID,Int_t detID, Float_t energy, Float_t time, std::vector <Int_t> &mctruth){
   // It fills the PndEmcHit category
   //cout << "PndEmcHitProducer: track " << trackID << " evt " << eventID << " sec " << sec << " plane " << pla << " strip " << strip << "box " << box << " tube " << tub << endl;
   TClonesArray& clref = *fDigiArray;
   Int_t size = clref.GetEntriesFast();
-  return new(clref[size]) PndEmcHit(trackID, detID, energy, time, emcX[detID], emcY[detID], emcZ[detID]);
+  return new(clref[size]) PndEmcHit(trackID, detID, energy, time, emcX[detID], emcY[detID], emcZ[detID], mctruth);
 }
 // ----
 

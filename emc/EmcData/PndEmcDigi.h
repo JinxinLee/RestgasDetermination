@@ -68,6 +68,7 @@ class PndEmcDigi : public TObject
 	virtual Double_t GetEnergy()  const;
 	Double_t GetTime()  const { return fTime     ;};
 	Int_t GetTrackId()    const { return fTrackId    ;};
+	Int_t GetHitIndex()    const { return fHitIndex    ;};
 	Int_t GetDetectorId() const { return fDetectorId ;};
 	PndEmcTwoCoordIndex* GetTCI() const { return fTCI ;};
 	Int_t GetThetaInt() const {return fThetaInd;};

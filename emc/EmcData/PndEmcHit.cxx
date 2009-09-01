@@ -29,6 +29,17 @@ PndEmcHit::PndEmcHit(Int_t trackid, Int_t id, Float_t energy, Float_t time, Floa
   
 }
 // -----   Constructor           -------------------------------------------
+PndEmcHit::PndEmcHit(Int_t trackid, Int_t id, Float_t energy, Float_t time, Float_t X, Float_t Y, Float_t Z, std::vector<Int_t> McList)
+{
+  fTime = time;
+  fEnergy = energy;
+  fRefIndex = trackid;
+  fDetectorID = id;
+  fX = X;  fY = Y;  fZ = Z;
+  fDx = 0.;  fDy = 0.;  fDz = 0.;
+  fMcList = McList;
+}
+// -----   Constructor           -------------------------------------------
 PndEmcHit::PndEmcHit(Int_t trackid, Int_t id, Float_t energy, Float_t time, Float_t X, Float_t Y, Float_t Z, std::vector<PndEmcPoint*> PointList)
 {
   fTime = time;
@@ -50,6 +61,7 @@ PndEmcHit::PndEmcHit(const PndEmcHit &copy)
 	fX=copy.fX;
 	fY=copy.fY;
 	fZ=copy.fZ;
+	// PointList and McList not copied...
 }
 // -----   Destructor   ----------------------------------------------------
 PndEmcHit::~PndEmcHit() {}

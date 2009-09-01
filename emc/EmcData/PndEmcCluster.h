@@ -149,6 +149,8 @@ protected:
 	std::vector<PndEmcDigi*> fDigiList;
 	PndEmcDigiPtrDict* fMemberDigiMap;//!
 
+	std::vector <Int_t> fMcList;
+
 	// Cachable data
 	mutable bool fEnergyValid;
 	mutable Double_t fEnergy;
