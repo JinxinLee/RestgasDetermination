@@ -194,7 +194,7 @@ void PndLheKalmanTask::Exec(Option_t* opt)
     TVector3 StartMomErr(lheTrack->GetParamFirst().GetDPx(),lheTrack->GetParamFirst().GetDPy(),lheTrack->GetParamFirst().GetDPz());
     
     Double_t  fCharge= lheTrack->GetParamFirst().GetQ();
-    Int_t PDGCode= -13*(Int_t)fCharge;
+    Int_t PDGCode= -13*(Int_t)TMath::Sign(1.,fCharge);
     DetPlane start_pl(lheTrack->GetParamFirst().GetOrigin(), TVector3(1.,0.,0.), TVector3(0.,1.,0.));
     
     AbsTrackRep* rep = 0;
@@ -248,7 +248,7 @@ void PndLheKalmanTask::Exec(Option_t* opt)
     TClonesArray& trkRef = *fFitTrackArray;
     Int_t size = trkRef.GetEntriesFast();
     PndTrack* pndTrack = new(trkRef[size]) PndTrack(fitTrack->GetParamFirst(), fitTrack->GetParamLast(), fitTrack->GetTrackCand(),
-						    fitTrack->GetFlag(), fitTrack->GetChi2(), fitTrack->GetNDF(), fitTrack->GetPidHypo());
+						    fitTrack->GetFlag(), fitTrack->GetChi2(), fitTrack->GetNDF(), fitTrack->GetPidHypo(), itr);
   }
 
   if (fVerbose>0) std::cout<<"Fitting done"<<std::endl;

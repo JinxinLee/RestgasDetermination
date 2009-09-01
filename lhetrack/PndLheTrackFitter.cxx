@@ -142,7 +142,7 @@ void PndLheTrackFitter::Exec(Option_t * option) {
 
     if (HelixFit(track)>1)
       {   
-	Info4Fit(track);
+	Info4Fit(track, i);
       }
     else
       {
@@ -168,7 +168,7 @@ void PndLheTrackFitter::Exec(Option_t * option) {
 }
 
 //_____________________________________________________________________________
-void PndLheTrackFitter::Info4Fit(PndLheCandidate *track) {
+void PndLheTrackFitter::Info4Fit(PndLheCandidate *track, Int_t idx) {
   //---
 
   TObjArray *rhits = (TObjArray* )track->GetRHits();
@@ -280,6 +280,7 @@ void PndLheTrackFitter::Info4Fit(PndLheCandidate *track) {
        Int_t size = pndtracks.GetEntriesFast();
        trackCand->Sort();
        PndTrack* pndTrack = new(pndtracks[size]) PndTrack(*firstPar, *lastPar, *trackCand);
+       pndTrack->SetRefIndex(idx);
        PndTrackID* pndTrackId = new(pndtrackids[size]) PndTrackID(size ,trackID, multID);
      }
 }

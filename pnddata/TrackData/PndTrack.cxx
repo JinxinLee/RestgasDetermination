@@ -15,11 +15,12 @@ PndTrack::PndTrack()
   fFlag    = 0;
   fChi2    = -1.;
   fNDF     = 0;
+  fRefIndex = -1;
 }
 
 
-PndTrack::PndTrack(const FairTrackParP& first, const FairTrackParP& last, const PndTrackCand& cand, Int_t flag, Double_t chi2, Int_t ndf, Int_t pid):
-  fTrackParamFirst(first), fTrackParamLast(last), fTrackCand(cand), fFlag(flag), fChi2(chi2), fNDF(ndf), fPidHypo(pid)
+PndTrack::PndTrack(const FairTrackParP& first, const FairTrackParP& last, const PndTrackCand& cand, Int_t flag, Double_t chi2, Int_t ndf, Int_t pid, Int_t id):
+  fTrackParamFirst(first), fTrackParamLast(last), fTrackCand(cand), fFlag(flag), fChi2(chi2), fNDF(ndf), fPidHypo(pid), fRefIndex(id)
 {
 
 }
@@ -33,4 +34,5 @@ void PndTrack::Print(){
   fTrackParamLast.Print();
   std::cout << "chi2 " << fChi2 << std::endl;
   std::cout << "ndf " << fNDF << std::endl;
+  std::cout << "fRefIndex " << fRefIndex << std::endl;
 }

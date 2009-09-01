@@ -17,7 +17,7 @@ class PndTrack : public TObject{
 public:
 	PndTrack();
 	PndTrack(const FairTrackParP& first, const FairTrackParP& last, const PndTrackCand& cand,
-		 Int_t flag = 0, Double_t chi2 = -1., Int_t ndf = 0, Int_t pid = 0);
+		 Int_t flag = 0, Double_t chi2 = -1., Int_t ndf = 0, Int_t pid = 0, Int_t id = -1);
 
 	void Print();
 
@@ -26,10 +26,12 @@ public:
 	Int_t GetFlag()                  const { return fFlag; } //Quality flag
 	Double_t GetChi2()               const { return fChi2; }
 	Int_t GetNDF()                   const { return fNDF; }
+        Int_t GetRefIndex()              const { return fRefIndex; }
 	void SetPidHypo(Int_t i)         { fPidHypo=i; }
 	void SetFlag(Int_t i)            { fFlag=i; }
 	void SetChi2(Double_t d)         { fChi2=d; }
 	void SetNDF(Int_t i)             { fNDF=i; }
+        void SetRefIndex(Int_t i)        { fRefIndex=i; }
   PndTrackCand GetTrackCand()      { return fTrackCand; }
   PndTrackCand* GetTrackCandPtr()  { return &fTrackCand; }
 	FairTrackParP GetParamFirst() { return fTrackParamFirst; }
@@ -45,6 +47,7 @@ private:
 	Int_t fFlag;
 	Double_t fChi2;
 	Int_t fNDF;
+        Int_t fRefIndex;
 
 public:
 	ClassDef(PndTrack,1)

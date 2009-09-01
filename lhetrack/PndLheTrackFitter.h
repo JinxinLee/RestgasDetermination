@@ -58,11 +58,11 @@ public:
   Int_t DeepFit(PndLheCandidate * tr);           // Fit of DIP angle (Stefano: fit of r vs z)
   Int_t DeepFitOleg(PndLheCandidate * tr);       // Fit of DIP angle (Oleg: s vs z)
   Int_t CircleFit(PndLheCandidate * tr);         // Circular fit (Oleg)
-  Int_t CircleFitMinuit(PndLheCandidate * tr);   // Circular fit (Stefano -> TMinuit)
+  Int_t CircleFitMinuit(PndLheCandidate * tr);   // Circular fit (Stefano -> TMinuit) * now working
   Int_t SetUpFitVector(PndLheCandidate* pTrack,
-	        TMatrixT<Double32_t> &fitvect); // Setup of values for minuit fit
+	        TMatrixT<Double32_t> &fitvect);  // Setup of values for minuit fit
   Int_t HelixFit(PndLheCandidate * tr);          // Separation of circular and dip fit
-  void  Info4Fit(PndLheCandidate *track);        // Folling final values of Track
+  void  Info4Fit(PndLheCandidate *track, Int_t idx); // Filling final values of Track
   void SetOption(Option_t *option=" ") { fOption = option;  fOption.ToLower();}
   void SetVerbose(Bool_t verb)         { fVerbose = verb  ;};
   void SetSimulation(Bool_t sim)       { fSimulation = sim; };
