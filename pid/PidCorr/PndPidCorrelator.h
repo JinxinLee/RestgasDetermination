@@ -66,9 +66,7 @@ protected:
   Bool_t fVerbose;                  // Switch ON/OFF debug messages 
   Bool_t fSimulation;               // Switch simulation diagnostic
   Bool_t fGeanePro;                 // Use GEANE propagation
-
-  FairGeanePro *fPro;     // Geane Propagator
-  
+ 
   PndMvdGeoHandling* geoH;           // Object to retrieve MVD geometry
   
   TFile *r;                          // File for debug ntuples

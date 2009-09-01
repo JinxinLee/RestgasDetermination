@@ -228,7 +228,6 @@ InitStatus PndPidCorrelator::Init() {
 
   if (fGeanePro)
     {
-      fPro = new FairGeanePro();
       cout << "-I- PndPidCorrelator::Init: Using Geane for Track propagation" << endl;
     }
   
@@ -356,8 +355,8 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
 //_________________________________________________________________
 void PndPidCorrelator::GetTrackInfo(PndTrack* track, PndPidCandidate* pidCand) 
 {
-  pidCand->SetCharge((Int_t)(track->GetParamFirst().GetQ()));
-   //  pidCand->SetEnergy(0.); // ??? No PID no energy
+  pidCand->SetCharge((Int_t)TMath::Sign(1., track->GetParamFirst().GetQ()));
+     
   TVector3 first(track->GetParamFirst().GetX(),
 		 track->GetParamFirst().GetY(),
 		 track->GetParamFirst().GetZ());
@@ -444,6 +443,8 @@ void PndPidCorrelator::GetMvdInfo(PndTrack* track, PndPidCandidate* pidCand)
       
       if (candHit.GetDetId()==kMVDHitsPixel) mvdHit = (PndMvdHit*)fMvdHitsPixel->At(candHit.GetHitId());
       if (candHit.GetDetId()==kMVDHitsStrip) mvdHit = (PndMvdHit*)fMvdHitsStrip->At(candHit.GetHitId());
+      TVector3 mvdPos;
+      mvdHit->Position(mvdPos);
       mvdCounts++;
       TGeoNode *mvdNode = (TGeoNode*)gGeoManager->FindNode(mvdHit->GetX(), mvdHit->GetY(), mvdHit->GetZ());
       TGeoVolume *mvdVol = (TGeoVolume*)mvdNode->GetVolume();
@@ -457,10 +458,29 @@ void PndPidCorrelator::GetMvdInfo(PndTrack* track, PndPidCandidate* pidCand)
       Int_t ierr = 0;
       FairTrackParH *helix = new FairTrackParH(&par, ierr);
       Float_t ex = ExtrapolateToZ(helix, &momentum, &vertex, mvdHit->GetZ()); // track momentum at the strip/pixel
-      Double_t cos = TMath::Cos(momentum.Angle(zaxis)); // cos of the angle between the track and the strip/pixel normal axis
+      Double_t cos = 0.;
+      if (ex) cos = TMath::Cos(momentum.Angle(zaxis)); // cos of the angle between the track and the strip/pixel normal axis
+      
+      if (fGeanePro) // Overwrites vertex if Geane is used
+    	{
+	  FairGeanePro *fProMvd = new FairGeanePro();
+	  fProMvd->SetPoint(mvdPos);
+	  fProMvd->PropagateToPCA(1, 1);
+          vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
+          FairTrackParH *fRes= new FairTrackParH();
+          Bool_t rc =  fProMvd->Propagate(helix, fRes, -13*(Int_t)helix->GetQ()); // First propagation at module
+          if (rc)
+	    {
+	      cos = TMath::Cos(fRes->GetMomentum().Angle(zaxis)); 
+	    }
+	  else
+	    {
+	      cos = 0.;
+	    }
+	}
       Float_t thickness = 0.;
       
-      if ( (fabs(cos)<0.000001) || (!ex) )
+      if (fabs(cos)<0.000001)
 	{
 	  cout << "-W- PndPidCorrelator::GetMvdInfo: Track perpendicular to MVD strip/pixel! Not added to MVD eloss" << endl;     
 	}
@@ -524,7 +544,6 @@ void PndPidCorrelator::GetTofInfo(FairTrackParH* helix, PndPidCandidate* pidCand
 
   if ((helix->GetMomentum().Theta()*TMath::RadToDeg())<20.) return; 
   if ((helix->GetMomentum().Theta()*TMath::RadToDeg())>150.) return;
-  if (fGeanePro) fPro->PropagateToVolume("tofB01",0,1);
   
   //---
   PndTofHit *tofHit = NULL;
@@ -545,19 +564,16 @@ void PndPidCorrelator::GetTofInfo(FairTrackParH* helix, PndPidCandidate* pidCand
        Float_t ex = ExtrapolateToR(helix, &momentum, &vertex, fCorrPar->GetTofRadius()); // Important even to calculate phi for path length
       
       if (fGeanePro) // Overwrites vertex if Geane is used
-	{
+	{ 
+	  FairGeanePro *fProTof = new FairGeanePro();
+	  fProTof->SetPoint(tofPos);
+	  fProTof->PropagateToPCA(1, 1);
 	  FairTrackParH *fRes= new FairTrackParH();
-	  if (fVerbose)
-	    {
-	      cout << "TOF: helix" << endl;
-	      helix->Print();
-	    }
-	  
-	  Bool_t rc =  fPro->Propagate(helix, fRes, -13*(Int_t)helix->GetQ());	
+	  Bool_t rc =  fProTof->Propagate(helix, fRes, -13*(Int_t)helix->GetQ());	
 	  if (rc)
 	    {
 	      vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
-	      tofGLength = fPro->GetLengthAtPCA();
+	      tofGLength = fProTof->GetLengthAtPCA();
 	    }
 	  else
 	    {
@@ -628,7 +644,7 @@ void PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCand
 	  fProEmc->PropagateToPCA(1, 1);
           vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
           FairTrackParH *fRes= new FairTrackParH();
-          Bool_t rc =  fProEmc->Propagate(helix, fRes, -13*(Int_t)helix->GetQ()); // First propagation at module
+          Bool_t rc =  fProEmc->Propagate(helix, fRes, -13*pidCand->GetCharge()); // First propagation at module
           if (rc)
 	    {
 	      emcGLength = fProEmc->GetLengthAtPCA();
@@ -737,7 +753,7 @@ void PndPidCorrelator::GetMdtInfo(FairTrackParH* helix, PndPidCandidate* pidCand
 //_________________________________________________________________
 void PndPidCorrelator::GetDrcInfo(FairTrackParH* helix, PndPidCandidate* pidCand) {
   if ((helix->GetMomentum().Theta()*TMath::RadToDeg())<20.) return;
-  if (fGeanePro) fPro->PropagateToVolume("DrcBase",0,1);
+ 
   //---
   PndDrcHit *drcHit = NULL;
   Int_t drcEntries = fDrcHit->GetEntriesFast();
@@ -757,12 +773,16 @@ void PndPidCorrelator::GetDrcInfo(FairTrackParH* helix, PndPidCandidate* pidCand
 
       if (fGeanePro) // Overwrites vertex if Geane is used
 	{
+	  FairGeanePro *fProDrc = new FairGeanePro();
+	  fProDrc->SetPoint(drcPos);
+	  fProDrc->PropagateToPCA(1, 1);
+          vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
 	  FairTrackParH *fRes= new FairTrackParH();
-	  Bool_t rc =  fPro->Propagate(helix, fRes, -13*(Int_t)helix->GetQ()); 	
+	  Bool_t rc =  fProDrc->Propagate(helix, fRes, -13*(Int_t)helix->GetQ()); 	
 	  if (rc)
 	    {
 	      vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
-	      drcGLength = fPro->GetLengthAtPCA();
+	      drcGLength = fProDrc->GetLengthAtPCA();
 	    }
 	  else
 	    {
