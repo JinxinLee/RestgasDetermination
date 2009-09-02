@@ -35,6 +35,7 @@ class PndPidCorrelator : public FairTask {
 protected:
 
   TClonesArray* fTrack;             //! PndTrack TCA
+  TClonesArray* fTrackID;           //! PndTrackID TCA
   TClonesArray* fPidChargedCand;    //! PndPidCandidate TCA for charged particles
   TClonesArray* fPidNeutralCand;    //! PndPidCandidate TCA for neutral particles
    
@@ -62,7 +63,8 @@ protected:
   Int_t fMvdHitCount;               // Number of mvd hits
     
   map<Int_t, Bool_t> fClusterList;  // List of clusters correlated to tracks
-  TString fTrackBranch;             //  options to choose branches
+  TString fTrackBranch;             //  options to choose PndTrack branches
+  TString fTrackIDBranch;           //  options to choose PndTrackID branches
   Bool_t fVerbose;                  // Switch ON/OFF debug messages 
   Bool_t fSimulation;               // Switch simulation diagnostic
   Bool_t fGeanePro;                 // Use GEANE propagation
@@ -112,6 +114,7 @@ public:
   void SetDebugMode(Bool_t debug)         { fDebugMode = debug; };
   void SetDebugFilename(TString filename) { sFile = filename; };
   void SetInputBranch(TString branch)     { fTrackBranch = branch; };	
+  void SetInputIDBranch(TString branch)   { fTrackIDBranch = branch; };	
   void SetVerbose(Bool_t verb)            { fVerbose = verb  ;};
   void SetSimulation(Bool_t sim)          { fSimulation = sim; };
   void SetGeanePro(Bool_t gea = kTRUE)    { fGeanePro = gea; };

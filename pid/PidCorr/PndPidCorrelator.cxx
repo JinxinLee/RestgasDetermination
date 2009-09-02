@@ -2,6 +2,7 @@
 #include "PndPidCorrelator.h"
 #include "PndPidCandidate.h"
 #include "PndTrack.h"
+#include "PndTrackID.h"
 
 #include "PndTofHit.h"
 #include "PndEmcBump.h"
@@ -41,6 +42,7 @@ PndPidCorrelator::~PndPidCorrelator() {
 PndPidCorrelator::PndPidCorrelator() {
   //---
   fTrack = new TClonesArray("PndTrack");
+  fTrackID = new TClonesArray("PndTrackID");
   fPidChargedCand = new TClonesArray("PndPidCandidate");
   fPidNeutralCand = new TClonesArray("PndPidCandidate");
   fDebugMode = kFALSE;
@@ -57,6 +59,7 @@ PndPidCorrelator::PndPidCorrelator() {
   emcCorr = 0; 
   drcCorr = 0;
   fTrackBranch = "";
+  fTrackIDBranch = "";
   sDir = "./";
   sFile = "./pidcorrelator.root";
   Reset();
@@ -67,6 +70,7 @@ PndPidCorrelator::PndPidCorrelator(const char *name, const char *title)
   :FairTask(name) {
   //---
   fTrack = new TClonesArray("PndTrack");
+  fTrackID = new TClonesArray("PndTrackID");
   fPidChargedCand = new TClonesArray("PndPidCandidate"); 
   fPidNeutralCand = new TClonesArray("PndPidCandidate");
   fGeanePro = kTRUE;
@@ -82,6 +86,7 @@ PndPidCorrelator::PndPidCorrelator(const char *name, const char *title)
   emcCorr = 0;
   drcCorr = 0;
   fTrackBranch = "";
+  fTrackIDBranch = "";
   sDir = "./";
   sFile = "./pidcorrelator.root";
   Reset();
@@ -99,6 +104,15 @@ InitStatus PndPidCorrelator::Init() {
     cout << "-I- PndPidCorrelator::Init: No PndTrack array!" << endl;
     return kERROR;
   }
+
+  if (fTrackIDBranch!="")
+    {
+      fTrackID = (TClonesArray *)fManager->GetObject(fTrackIDBranch);
+      if ( ! fTrackID ) {
+	cout << "-I- PndPidCorrelator::Init: No PndTrackID array! Switching MC propagation OFF" << endl;
+	fTrackIDBranch = "";
+      }
+    }
   
   // *** STT ***
   fSttHit = (TClonesArray*) fManager->GetObject("SttHelixHit");
@@ -291,13 +305,20 @@ void PndPidCorrelator::ConstructChargedCandidate() {
   Int_t nTracks = fTrack->GetEntriesFast();
   for (Int_t i = 0; i < nTracks; i++) {
     PndTrack* track = (PndTrack*) fTrack->At(i);
+    PndTrackID* trackID = (PndTrackID*) fTrackID->At(i);
     Int_t ierr = 0;
     FairTrackParP par = track->GetParamLast();
     if ((par.GetMomentum().Mag()<0.1) || (par.GetMomentum().Mag()>15.) )continue;
     FairTrackParH *helix = new FairTrackParH(&par, ierr);
     
     PndPidCandidate* pidCand = 	new PndPidCandidate();
-    
+    if (fTrackIDBranch!="")
+      {
+	if (trackID->GetNCorrTrackId()>0)
+	  {
+	    pidCand->SetMcIndex(trackID->GetCorrTrackID());
+	  }
+      }
     GetTrackInfo(track, pidCand);
     GetMvdInfo(track, pidCand); 
     if ( (fSttMode==3) && (fSttHit    ->GetEntriesFast()>0) ) GetSttInfo(track, pidCand);
@@ -349,6 +370,7 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
       pidCand->SetEmcRawEnergy(bump->energy());
       pidCand->SetEmcCalEnergy(bump->GetEnergyCorrected());
       pidCand->SetEmcIndex(i);
+      pidCand->SetMcIndex(-1);
       AddNeutralCandidate(pidCand);
     }
 }
