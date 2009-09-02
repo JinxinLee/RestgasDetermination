@@ -233,55 +233,18 @@ void PndEmcMakeCluster::Exec(Option_t* opt)
 				inx=m->GetHitIndex();
 
 				if(inx>=0){
-					Double_t e_max=-1.;
-					Int_t inx_max=-1;
-					std::vector <Int_t> &tmplist=((PndEmcHit*) fHitArray->At(inx))->GetMcList();
+					const std::vector <Int_t> &tmplist=((PndEmcHit*) fHitArray->At(inx))->GetMcList();
 
-					// Two choices, either copy complete list or only the highest energy particle
+					// I copy the complete list instead of only the highest energy particle
+					// highest energy might be a problem for Hits which belong to two real clusters?
 					for(Int_t k=0; k<tmplist.size(); k++){
-//						newlist.push_back(tmplist[k]);
-						Int_t mc_inx;
-						Double_t e;
-						mc_inx=tmplist[k];// MC Track Id
-						e=((PndMCTrack*)fMCTrackArray->At(mc_inx))->Get4Momentum().E();
-						if(e>e_max){
-							e_max=e;
-							inx_max=mc_inx;
-						}
-					}
-					if(inx_max>-1 && e_max>1e-2){// 10MeV Cut on most energetic particle entering cluster
-						newlist.push_back(inx_max);
+						newlist.push_back(tmplist[k]);
 					}
 				}
 			}
-			// Sort list...
-			std::sort( newlist.begin(), newlist.end());
-			// and copy every id only once (even so it might be in the list several times)
-			std::unique_copy( newlist.begin(), newlist.end(), std::back_inserter( tmpclust->fMcList ) );
-
-			// Now check if mother or (grand)^x-mother are already in the list
-			// (which means i am a secondary)... if so, remove myself
-			for(Int_t j=tmpclust->fMcList.size()-1; j>=0; j--){
-				bool flag;
-				PndMCTrack *pt;
-				pt=((PndMCTrack*)fMCTrackArray->At(tmpclust->fMcList[j]));
-				if(pt->GetMotherID()<0) continue;
-				flag=false;
-				while(!flag){
-					Int_t id;
-					id=pt->GetMotherID();
-					if(id<0) break;
-					pt=(PndMCTrack*)fMCTrackArray->At(id);
-
-					for(Int_t k=j-1; k>=0; k--){
-						if(tmpclust->fMcList[k]==id){
-							tmpclust->fMcList.erase(tmpclust->fMcList.begin()+j);
-							flag=true;
-							break;
-						}
-					}
-				}
-			}
+			// if( fMCTrackArray) checked above already
+	        cleansortmclist(newlist,fMCTrackArray);
+			tmpclust->fMcList=newlist;
 		}
 	}
 	
@@ -294,6 +257,41 @@ void PndEmcMakeCluster::Exec(Option_t* opt)
 		Double_t ctime = timer.CpuTime();
 		cout << "PndEmcMakeCluster, Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
 	}	
+}
+
+// Helper function, does not depend on class, identical to the one in PndEmcHitProducer
+void PndEmcMakeCluster::cleansortmclist( std::vector <Int_t> &newlist,TClonesArray* mcTrackArray)
+{
+	std::vector <Int_t> tmplist;
+	// Sort list...
+	std::sort( newlist.begin(), newlist.end());
+	// and copy every id only once (even so it might be in the list several times)
+	std::unique_copy( newlist.begin(), newlist.end(), std::back_inserter( tmplist ) );
+
+	// Now check if mother or (grand)^x-mother are already in the list
+	// (which means i am a secondary)... if so, remove myself
+	for(Int_t j=tmplist.size()-1; j>=0; j--){
+		bool flag;
+		PndMCTrack *pt;
+		pt=((PndMCTrack*)mcTrackArray->At(tmplist[j]));
+		if(pt->GetMotherID()<0) continue;
+		flag=false;
+		while(!flag){
+			Int_t id;
+			id=pt->GetMotherID();
+			if(id<0) break;
+			pt=(PndMCTrack*)mcTrackArray->At(id);
+
+			for(Int_t k=j-1; k>=0; k--){
+				if(tmplist[k]==id){
+					tmplist.erase(tmplist.begin()+j);
+					flag=true;
+					break;
+				}
+			}
+		}
+	}
+	newlist=tmplist;
 }
 
 void PndEmcMakeCluster::SetParContainers() {

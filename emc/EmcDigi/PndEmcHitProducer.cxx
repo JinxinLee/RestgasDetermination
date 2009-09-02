@@ -15,6 +15,7 @@
 #include "PndEmcHit.h"
 #include "PndEmcPoint.h"
 #include "PndEmcDigiPar.h"		
+#include "PndMCTrack.h"
 
 #include "FairRootManager.h"
 #include "FairRunAna.h"
@@ -81,7 +82,15 @@ InitStatus PndEmcHitProducer::Init() {
 	 << "No EmcPoint array!" << endl;
     return kERROR;
   }
-  
+
+	// Get input array
+	fMCTrackArray = (TClonesArray*) ioman->GetObject("MCTrack");
+	if ( ! fMCTrackArray ) {
+		cout << "-W- PndEmcMakeCluster::Init: "
+		<< "No MCTrack array! Needed for MC Truth" << endl;
+//		return kERROR;
+	}
+
   // Create and register output array
   fDigiArray = new TClonesArray("PndEmcHit");
   
@@ -124,6 +133,41 @@ void PndEmcHitProducer::SetParContainers() {
 
 // -------------------------------------------------------------------------
 
+// Helper function, does not depend on class, identical to the one in PndEmcMakeCluster
+void PndEmcHitProducer::cleansortmclist( std::vector <Int_t> &newlist,TClonesArray* mcTrackArray)
+{
+	std::vector <Int_t> tmplist;
+	// Sort list...
+	std::sort( newlist.begin(), newlist.end());
+	// and copy every id only once (even so it might be in the list several times)
+	std::unique_copy( newlist.begin(), newlist.end(), std::back_inserter( tmplist ) );
+
+	// Now check if mother or (grand)^x-mother are already in the list
+	// (which means i am a secondary)... if so, remove myself
+	for(Int_t j=tmplist.size()-1; j>=0; j--){
+		bool flag;
+		PndMCTrack *pt;
+		pt=((PndMCTrack*)mcTrackArray->At(tmplist[j]));
+		if(pt->GetMotherID()<0) continue;
+		flag=false;
+		while(!flag){
+			Int_t id;
+			id=pt->GetMotherID();
+			if(id<0) break;
+			pt=(PndMCTrack*)mcTrackArray->At(id);
+
+			for(Int_t k=j-1; k>=0; k--){
+				if(tmplist[k]==id){
+					tmplist.erase(tmplist.begin()+j);
+					flag=true;
+					break;
+				}
+			}
+		}
+	}
+	newlist=tmplist;
+}
+
 // -----   Public method Exec   --------------------------------------------
 void PndEmcHitProducer::Exec(Option_t* opt) {
 
@@ -165,17 +209,19 @@ void PndEmcHitProducer::Exec(Option_t* opt) {
 	 }
   }
   // Loop over EmcPoint
-  
+
   // Loop to register EmcHit
   for(p=fTrackEnergy.begin(); p!=fTrackEnergy.end(); ++p) {
-    if ((*p).second>fEnergyThreshold)
-   	 // Check and save MC truth information B.S.
+	if ((*p).second>fEnergyThreshold){
+	  // Check and save MC truth information B.S.
+	  // remove MC Truth particles which are not needed (eg grand^x-daugherts)
+      if( fMCTrackArray) cleansortmclist(fTrackMcTruth[(*p).first],fMCTrackArray);
       AddHit(1, (*p).first, (*p).second, fTrackTime[(*p).first], fTrackMcTruth[(*p).first]);
+    }
   }
   
 }
 // -------------------------------------------------------------------------
-
 // -----   Private method AddDigi   --------------------------------------------
 PndEmcHit* PndEmcHitProducer::AddHit(Int_t trackID,Int_t detID, Float_t energy, Float_t time, std::vector <Int_t> &mctruth){
   // It fills the PndEmcHit category

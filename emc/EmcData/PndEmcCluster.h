@@ -136,6 +136,8 @@ public:
 	
 	Double_t GetEnergyCorrected() const;
 
+	const std::vector<Int_t> &GetMcList() {return fMcList;}
+
 private:
 	
 	friend class PndEmcMakeCluster;

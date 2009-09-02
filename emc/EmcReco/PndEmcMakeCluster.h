@@ -75,6 +75,8 @@ private:
 	Int_t fVerbose;
 
 	Bool_t fStoreClusters;
+
+	void cleansortmclist( std::vector <Int_t> &newlist,TClonesArray* mcTrackArray);
 	
 	ClassDef(PndEmcMakeCluster,1)
 };

@@ -54,6 +54,7 @@ class PndEmcHitProducer : public FairTask
    
 	/** Input array of PndEmcPoints **/
 	TClonesArray* fPointArray;
+	TClonesArray* fMCTrackArray;
 	
 	/** Output array of PndEmcHit **/
 	TClonesArray* fDigiArray;  
@@ -76,7 +77,9 @@ class PndEmcHitProducer : public FairTask
 	virtual void SetParContainers();
 
 	Bool_t         fStoreHits; // Flag which specify whether hits are stored or not
- 
+
+	void cleansortmclist( std::vector <Int_t> &newlist,TClonesArray* mcTrackArray);
+
   ClassDef(PndEmcHitProducer,1);
   
 };

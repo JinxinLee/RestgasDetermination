@@ -60,7 +60,7 @@ class PndEmcHit : public FairHit
   Short_t GetYPad()        const;
   
   std::vector<PndEmcPoint*> &GetPointList() {return fPointList;}
-  std::vector<Int_t> &GetMcList() {return fMcList;}
+  const std::vector<Int_t> &GetMcList() {return fMcList;}
 
  protected:
   Double32_t fEnergy;    // hit amplitude
