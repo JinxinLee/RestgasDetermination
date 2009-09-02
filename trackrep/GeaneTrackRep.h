@@ -96,6 +96,7 @@ public:
   int getPropDir() {return _backw;} 
   FairGeanePro* getPropagator() {return _geane;}
   int getPDG() {return _pdg;};
+  double getSPU() {return _spu;}
 
   void setPropagator(FairGeanePro* g){_geane=g;}
   void setPropDir(int d){_backw=d;} 

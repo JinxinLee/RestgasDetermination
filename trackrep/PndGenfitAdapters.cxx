@@ -66,8 +66,9 @@ PndTrack* GenfitTrack2PndTrack(const Track* tr){
 	lastCova[count++]=lastCov[i][j];
       }
     }
-    FairTrackParP first(firstState[3][0],firstState[4][0],firstState[1][0],firstState[2][0],firstState[0][0],firstCova,firstPlane.getO(),firstPlane.getU(),firstPlane.getV());
-    FairTrackParP last(lastState[3][0],lastState[4][0],lastState[1][0],lastState[2][0],lastState[0][0],lastCova,lastPlane.getO(),lastPlane.getU(),lastPlane.getV());
+    double spu = gtr->getSPU();
+    FairTrackParP first(firstState[3][0],firstState[4][0],firstState[1][0],firstState[2][0],firstState[0][0],firstCova,firstPlane.getO(),firstPlane.getU(),firstPlane.getV(),spu);
+    FairTrackParP last(lastState[3][0],lastState[4][0],lastState[1][0],lastState[2][0],lastState[0][0],lastCova,lastPlane.getO(),lastPlane.getU(),lastPlane.getV(),spu);
     
     //copy the trackCand
     TrackCand genfitCand = tr->getCand();
