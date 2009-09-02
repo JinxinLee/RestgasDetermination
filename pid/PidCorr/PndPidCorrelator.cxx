@@ -368,7 +368,7 @@ void PndPidCorrelator::GetTrackInfo(PndTrack* track, PndPidCandidate* pidCand)
   FairTrackParH *helix = new FairTrackParH(&par, ierr);
   TVector3 momentum, vertex;
   Float_t ex = ExtrapolateToZ(helix, &momentum, &vertex); // Extrapolation to z=0a
-  Float_t energy = TMath::Sqrt(momentum.Mag2()+138.*138.);
+  Float_t energy = TMath::Sqrt(momentum.Mag2()+0.13957*0.13957); // Pion hypothesis
   if (fGeanePro) // Overwrites vertex if Geane is used
     {
       FairGeanePro *fPro0 = new FairGeanePro();
