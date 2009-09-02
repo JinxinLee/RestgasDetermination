@@ -30,6 +30,7 @@ class PndMvdFileNameCreator : public TObject
 
 			std::string GetIdealTrackFindingFileName(bool cut = false);
 			std::string GetKalmanFileName(bool cut = false);
+			std::string GetVertexFileName(bool cut = false);
 
 			std::string GetSimFileName(std::string inputFileName, bool cut = false);
 			std::string GetDigiFileName(std::string inputFileName, bool cut = false);
@@ -39,6 +40,8 @@ class PndMvdFileNameCreator : public TObject
 			std::string GetCombinedRiemannFileName(std::string inputFileName, bool cut = false);
 			std::string GetIdealTrackFindingFileName(std::string inputFileName, bool cut = false);
 			std::string GetKalmanFileName(std::string inputFileName, bool cut = false);
+			std::string GetVertexFileName(std::string inputFileName, bool cut = false);
+
 			std::string GetCustomFileName(std::string ext, bool cut = false);
 			std::string GetCustomFileName(std::string inputFileName, std::string ext, bool cut = false);
 
@@ -52,6 +55,8 @@ class PndMvdFileNameCreator : public TObject
 			std::string fExtRiemann;
 			std::string fExtCombinedRiemann;
 			std::string fExtKalman;
+			std::string fVertex;
+
 			std::string TruncateFileName(bool cut);
       Int_t fVerbose;
 	ClassDef(PndMvdFileNameCreator, 1);

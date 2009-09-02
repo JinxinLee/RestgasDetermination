@@ -81,10 +81,10 @@ InitStatus PndMvdRadDamTask::Init()
 
 void PndMvdRadDamTask::InitWeightLists()
 {
-	fElectronList = new PndMvdRadDamList("$SIMPATH/pandaroot/mvd/MvdTools/MvdRadDamage/electronsWeight.root");
-	fProtonList = new PndMvdRadDamList("$SIMPATH/pandaroot/mvd/MvdTools/MvdRadDamage/protonsWeight.root");
-	fNeutronList = new PndMvdRadDamList("$SIMPATH/pandaroot/mvd/MvdTools/MvdRadDamage/neutronsWeight.root");
-	fPionList = new PndMvdRadDamList("$SIMPATH/pandaroot/mvd/MvdTools/MvdRadDamage/pionsWeight.root");
+	fElectronList = new PndMvdRadDamList("$VMCWORKDIR/pandaroot/mvd/MvdTools/MvdRadDamage/electronsWeight.root");
+	fProtonList = new PndMvdRadDamList("$VMCWORKDIR/pandaroot/mvd/MvdTools/MvdRadDamage/protonsWeight.root");
+	fNeutronList = new PndMvdRadDamList("$VMCWORKDIR/pandaroot/mvd/MvdTools/MvdRadDamage/neutronsWeight.root");
+	fPionList = new PndMvdRadDamList("$VMCWORKDIR/pandaroot/mvd/MvdTools/MvdRadDamage/pionsWeight.root");
 
 	fWeightListsMap[11] = fElectronList;		//e-
 	fWeightListsMap[-11] = fElectronList;		//e+

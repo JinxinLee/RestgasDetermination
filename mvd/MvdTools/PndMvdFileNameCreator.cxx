@@ -13,6 +13,7 @@ PndMvdFileNameCreator::PndMvdFileNameCreator(){
   fExtKalman = "kalman";
   fExtRiemann = "riemann";
   fExtCombinedRiemann = "combRiemann";
+  fVertex = "vertex";
 
   fVerbose = 0;
 }
@@ -26,6 +27,7 @@ PndMvdFileNameCreator::PndMvdFileNameCreator(std::string fileName){
   fExtKalman = "kalman";
   fExtRiemann = "riemann";
   fExtCombinedRiemann = "combRiemann";
+  fVertex = "vertex";
 
   fVerbose = 0;
 }
@@ -75,6 +77,11 @@ std::string PndMvdFileNameCreator::GetKalmanFileName(bool cut)
 	return GetCustomFileName(fExtKalman, cut);
 }
 
+std::string PndMvdFileNameCreator::GetVertexFileName(bool cut)
+{
+	return GetCustomFileName(fVertex, cut);
+}
+
 
 std::string PndMvdFileNameCreator::GetSimFileName(std::string inputFileName, bool cut)
 {
@@ -110,6 +117,12 @@ std::string PndMvdFileNameCreator::GetKalmanFileName(std::string inputFileName, 
 {
 	fFileName = inputFileName;
 	return GetKalmanFileName(cut);
+}
+
+std::string PndMvdFileNameCreator::GetVertexFileName(std::string inputFileName, bool cut)
+{
+	fFileName = inputFileName;
+	return GetVertexFileName(cut);
 }
 
 std::string PndMvdFileNameCreator::GetRiemannFileName(std::string inputFileName, bool cut)
