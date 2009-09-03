@@ -1,8 +1,9 @@
-C-------------------------- Last edition 05.04.07 V.Uzhinsky -----
-      SUBROUTINE INIT1(Plab, seed, Elastic)
+
+C-----------------ast edition 05.04.07 V.Uzhinsky-----
+       SUBROUTINE INIT1(Plab, seed, Elastic, tetmin)
 C-----------------------------------------------------------------------
-      COMMON/UZHI/SqrtS,Ecms,Vcms,Gamma,Proc_Prob(7),P_5str,CS_in,
-     ,            CS_el,A1,T1,A2,T2,A3,Tmax,Weight1
+       COMMON/UZHI/SqrtS,Ecms,Vcms,Gamma,Proc_Prob(7),P_5str,CS_in,
+     ,            CS_el,A1,T1,A2,T2,A3,Tmax,Tmin,Weight1
 C-----------------------------------------------------------------------
 C             PARAMETERS OF QUARK-GLUON STRING MODEL
 C-----------------------------------------------------------------------
@@ -15,11 +16,18 @@ C-----------------------------------------------------------------------
       COMMON/LIMMAS/IDSTAB(180), SUMKM(533), AML(180), FI0ML(180)
 C
       COMMON/PRINT/ ISYS   /IDGB/ IDGB, IDG
+      COMMON/AB/aelm,betav, sigma_tot, parB, rho      !aida
+      common/prob_el/prob_col, prob_int, prob_had          !aida
+
 C
 C-----------------------------------------------------------------------
       double precision seed
+      
 C-----------------------------------------------------------------------
+c aida        print*, plab, seed, Elastic, tetmin
+
       Elab=sqrt(0.88+Plab**2)
+      Etot=Elab+0.938
       S=1.76+2.*0.938*Elab
       SS=sqrt(S)
       SqrtS=SS
@@ -165,19 +173,103 @@ C-------------------------------------------------------------
       T2=-2.979+3.353*exp(-Plab/483.4)
       A3=0.8372+39.53*exp(-Plab/0.765)
 
-
+      If(Elastic .eq. 0.) then
       Tmin=0.
       Tmax=-4.*Pcms**2
       Weight1=A3*T2*(1.-exp(Tmax/T2))/(
      (A1*T1*(1.-exp(Tmax/T1))+A1*A2**2*T2*(1.-exp(Tmax/T2))-
      -2.*A1*A2*2.*T1*T2/(T1+T2)*(1.-exp(Tmax*(T1+T2)/2./T1/T2))+
-     +A3*T2*(1.-exp(Tmax/T2))                                     )
+     +A3*T2*(1.-exp(Tmax/T2))      )
+      endif
 
-*	write(6,*)'A1 ',A1,' t1 ',T1
-*	write(6,*)'A2 ',A2,' t2 ',T2
-*	write(6,*)'A3 ',A3
-*	write(6,*)' Tmax Weight',Tmax,Weight1
+      If(Elastic .gt. 0.) then
+ 
+      Tetmin=tetmin*3.1416/180.
+      Tantet2=(sin(Tetmin)/cos(Tetmin))**2       !9.06.09
+      Plmin=2*0.938*Plab/(2*0.938+Etot*Tantet2)  !9.06.09      
+      Ptmin=Plmin*sin(Tetmin)/cos(Tetmin)
+      
+      sqmin=Plmin**2+Ptmin**2+0.938**2
+      Tmin=2*(Plmin*Plab+0.938**2-Elab*sqrt(sqmin))
 
+      Tmax=-4.*Pcms**2
+      tsito=2.*(plab**2)*(1.-cos(tetmin))     !T by Tsito formul
+      bbb=(Plab*sin(Tetmin))**2               !T by approx formul
+caida  bbbmax=(Plab*sin(0.0082))**2              !11.06.09 dlya lumi
+
+      Tmin=-bbb
+caida  Tmax=-bbbmax
+
+
+       Weight1=A3*T2*(exp(Tmin/T2)-exp(Tmax/T2))/(
+     & A1*T1*(exp(Tmin/T1)-exp(Tmax/T1))+
+     & A1*A2**2*T2*(exp(Tmin/T2)-exp(Tmax/T2))-
+     & 2.*A1*A2*2.*T1*T2/(T1+T2)*(exp(Tmin*(T1+T2)/2./T1/T2)
+     &  -exp(Tmax*(T1+T2)/2./T1/T2))+
+     &  A3*T2*(exp(Tmin/T2) - exp(Tmax/T2)) )
+
+*   aida begin parameters
+       betav=Plab/Elab
+       rho=-sqrt(A3)/(sqrt(A1)*(1-A2))
+       parB=(A1/T1+A1*(A2**2)/T2-2*A1*A2*(1./2./T1+1./2./T2)+
+     & A3/T2)/(A1*(1-A2)**2+A3)
+       
+       sigma_tot=4*sqrt(3.1416*A1*0.1/5.067**2)*(1-A2)*10
+caida       print *, 'sigma_tot',sigma_tot,' B',parB,' ro',rho;
+       aelm = 1./137.036    !  0- not Colomb and Interf, 
+*  aida end parameters    
+***  aida calculation of integrals Colomb, 
+      Ndiv=100000
+      dt=(Tmax-Tmin)/float(Ndiv)
+       SIG_col=0.
+      do i=1,Ndiv
+      T11=Tmin+(i-1)*dt
+      T22=T11+dt
+      df_col=DSIG_COL(T22)+DSIG_COL(T11)
+      
+      SIG_COL=sig_col+(0.5*df_col*abs(dt))
+      enddo
+caida      PRINT *,'sig_col',SIG_COL
+
+* aida calculation of integral interfer
+      SIG_INTER=0.
+      SIG_IEXACT=0.
+      do i=1,Ndiv
+      T11=Tmin+(i-1)*dt
+      T22=T11+dt
+      df_int=DSIG_INTER(T22)+DSIG_INTER(T11)
+      SIG_INTER=SIG_INTER+(0.5*df_int*abs(dt))
+      df_iex=DSIG_INT_Ex(T22)+DSIG_INT_Ex(T11)
+      SIG_IEXACT=SIG_IEXACT+(0.5* df_iex*abs(dt))              
+      enddo
+caida      PRINT *,'sig_inter',sig_inter
+!  numerical calculation of SIG_had using form.(1)
+      sig_had=dsig_had(0.)/parB-dsig_had(Tmax)/parB
+caida      PRINT *,'sig_had_el', sig_had
+!     calculation of sigma_hadron using our parametrization
+      sig_had_p=SIG_HADi(Tmin)-SIG_HADi(Tmax)
+caida      PRINT *,'sig_had_p',sig_had_p
+    
+!       sig_col=0              ! kulon ==0
+!        sig_inter=0             ! inter ==0 
+!       sig_had_p=0             ! hadron ==0  
+
+      SIG_MAG=SIG_COL+SIG_INTER+SIG_HAD_p      
+
+      SIG_NORM=SIG_COL+SIG_IEXACT+SIG_HAD_p      
+
+caida      print*, 'Xtotal', Xtotal, ' Xelast, hadronic part', Xelast
+caida      PRINT *,'sigma_tot', sigma_tot, 'sig_mag', SIG_MAG
+caida      PRINT *,'sig_iexact ',sig_iexact,'SIGMA_norm ',sig_norm
+
+!calculation of probability hadron, colomb, interf- elastic
+      prob_col=1./sig_mag * sig_col   
+      prob_int=1./sig_mag * sig_inter
+      prob_had=1./sig_mag * sig_had_p         !our parametr
+caida      print *,'prob_col   prob_inter   prob_had'
+caida      print*, prob_col, prob_int, prob_had
+      endif                                    ! aida end of elastic
+     
 c ---------------------------- Determination of processes prababilities
       CS_a=0.4*( 129./sqrt(S)-147./S+41./S**1.5)   
       CS_b=0.6*( 129./sqrt(S)-147./S+41./S**1.5)   
@@ -895,5 +987,54 @@ C************NZK3
    53 CONTINUE
     3 CONTINUE
     2 CONTINUE
+      RETURN
+      END
+
+      FUNCTION DSIG_COL(T)
+      COMMON/ab/ aelm, betav, sigma_tot, parB, rho
+      G4=((1+abs(T)/0.71)**(-2))**4 
+      pkoef= 10./(5.0677**2)        !/10.  
+      DSIG_COL=4*3.1416*aelm**2*G4*pkoef/((betav * T)**2)
+      RETURN 
+      END
+
+      Function  DSIG_INTER(T)
+      COMMON/ab/ aelm, betav, sigma_tot, parB, rho
+      G2=((1+abs(T)/0.71)**(-2))**2
+      DSIG_INTER=aelm*sigma_tot*G2*exp(0.5*parB*T)*
+     & sqrt(1+rho**2)/ betav/abs(T)
+      RETURN
+      END
+
+      Function  DSIG_INT_Ex(T)
+      COMMON/ab/ aelm, betav, sigma_tot, parB, rho
+      G2=((1+abs(T)/0.71)**(-2))**2
+      delT=aelm*(0.577+log(parB*abs(T)/2.+ 4*abs(T)/0.71)+
+     &  4.*abs(T)/0.71*log(4.*abs(T)/0.71)+2.*abs(T)/0.71)
+      DSIG_INT_Ex=aelm*sigma_tot*G2*exp(0.5*parB*T)*
+     & (rho*cos(delT) + sin(delT))/ betav/abs(T)
+      RETURN
+      END
+
+
+      FUNCTION SIG_HADi(T)
+      COMMON/UZHI/SqrtS,Ecms,Vcms,Gamma,Proc_Prob(7),P_5str,CS_in,
+     ,            CS_el,A1,T1,A2,T2,A3,Tmax,Tmin,Weight1
+      
+      pk=0.1/(5.0677**2)     !normir 
+      SIG_HADi= A1*T1*exp(T/T1)+A1*(A2**2)*T2*exp(T/T2)-
+     - 4.*A1*A2*T1*T2/(T1+T2)*exp(T*(T1+T2)/(2.*T1*T2))+
+     + A3*T2*exp(T/T2)                                     
+
+       RETURN 
+       END
+
+
+      FUNCTION DSIG_HAD(T)
+      COMMON/UZHI/SqrtS,Ecms,Vcms,Gamma,Proc_Prob(7),P_5str,CS_in,
+     ,            CS_el,A1,T1,A2,T2,A3,Tmax,Tmin,Weight1
+      COMMON/ab/ aelm, betav, sigma_tot, parB, rho
+       pk=(5.0677**2)/10.     !normirovka  
+      DSIG_HAD=sigma_tot**2*(1+rho**2)*exp(parB*T)/16./3.1416*pk
       RETURN
       END
