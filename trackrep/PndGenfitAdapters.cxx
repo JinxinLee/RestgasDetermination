@@ -10,6 +10,7 @@
 #include"FairTrackParP.h"
 
 #include"GeaneTrackRep.h"
+#include <cmath>
 
 PndTrackCand* GenfitTrackCand2PndTrackCand(const TrackCand* cand){
   PndTrackCand* retVal = new PndTrackCand();
@@ -66,9 +67,15 @@ PndTrack* GenfitTrack2PndTrack(const Track* tr){
 	lastCova[count++]=lastCov[i][j];
       }
     }
-    double spu = gtr->getSPU();
-    FairTrackParP first(firstState[3][0],firstState[4][0],firstState[1][0],firstState[2][0],firstState[0][0],firstCova,firstPlane.getO(),firstPlane.getU(),firstPlane.getV(),spu);
-    FairTrackParP last(lastState[3][0],lastState[4][0],lastState[1][0],lastState[2][0],lastState[0][0],lastCova,lastPlane.getO(),lastPlane.getU(),lastPlane.getV(),spu);
+
+    //  calculation of spu = sign[p·(DJ x DK)]  
+    double first_pro = gtr->getMom(firstPlane).Dot(firstPlane.getNormal());
+    double first_spu = first_pro/fabs(first_pro);
+    double last_pro = gtr->getMom(lastPlane).Dot(lastPlane.getNormal());
+    double last_spu = last_pro/fabs(last_pro);
+    
+    FairTrackParP first(firstState[3][0],firstState[4][0],firstState[1][0],firstState[2][0],firstState[0][0],firstCova,firstPlane.getO(),firstPlane.getU(),firstPlane.getV(),first_spu);
+    FairTrackParP last(lastState[3][0],lastState[4][0],lastState[1][0],lastState[2][0],lastState[0][0],lastCova,lastPlane.getO(),lastPlane.getU(),lastPlane.getV(),last_spu);
     
     //copy the trackCand
     TrackCand genfitCand = tr->getCand();
