@@ -35,7 +35,7 @@ extern "C" {
 
 }
 
-extern "C" int init1_(float* Plab, double* seed, float* Elastic );//install DPM 
+extern "C" int init1_(float* Plab, double* seed, float* Elastic, float* tetmin);//install DPM 
 extern "C" int dpm_gen__(float* Generator, double* seed ); //to generate events
 
 
@@ -46,7 +46,7 @@ PndDpmDirect::PndDpmDirect() {
 // ------------------------------------------------------------------------
 
 // -----   Standard constructor   -----------------------------------------
-PndDpmDirect::PndDpmDirect(Double_t Mom, Int_t Mode) {
+PndDpmDirect::PndDpmDirect(Double_t Mom, Int_t Mode,  Float_t tetmin) {
    fMom=Mom;
    fMode=Mode;
 
@@ -58,8 +58,9 @@ PndDpmDirect::PndDpmDirect(Double_t Mom, Int_t Mode) {
    cout << "<I> Momentum = " << fMom << endl;
    cout << "<I> Seed     = " << fSeed << endl;
    cout << "<I> Mode     = " << fMode << endl;
-
-   init1_(&fMom,&fSeed,&fMode);     // init the DPM generator  
+   if (fMode!=0 && tetmin == 0. )  cout << "--W-- Mode with Elastc interactions but Theta Min. is not set" << endl; 
+  
+   init1_(&fMom,&fSeed,&fMode, &tetmin);     // init the DPM generator  
 }
 // ------------------------------------------------------------------------
 

@@ -36,7 +36,7 @@ class PndDpmDirect : public FairGenerator
    *  @param Mode = 1. - Elastic and inelastic interactions
    *  @param Mode = 2. - Only elastic scattering, no inelastic one
    **/
-  PndDpmDirect(Double_t Mom, Int_t Mode);
+  PndDpmDirect(Double_t Mom, Int_t Mode, Float_t tetmin=0.0);
 
   /** Destructor **/
   virtual ~PndDpmDirect();
