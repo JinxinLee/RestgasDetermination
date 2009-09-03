@@ -1,5 +1,5 @@
 //
-// $Id: main.cc,v 1.18 2004/03/04 15:09:11 ritman Exp $
+//  main.cc,v 1.18 2004/03/04 15:09:11 ritman Exp $
 //
 // C++ program to call DPM event generator for PBAP P interactions 
 // Original author:   A.Galoyan        
@@ -14,6 +14,7 @@
 #include <time.h>
 #include "TROOT.h"
 #include "TFile.h"
+#include "TH1F.h"
 #include "TClonesArray.h"
 #include "TTree.h"
 #include "TStopwatch.h"
@@ -24,22 +25,25 @@ extern struct {
     int n, k[2000];  
     float p[5000];   	
 } lujets_;
+
 // n   - number of produced particles, 
 // k[] - Pythia particle identifiers
 // p[] - kinematical characteristics of particles
 
- extern "C" int init1_(float* Plab, double* seed, float* Elastic );//install DPM 
- extern "C" int dpm_gen__(float* Generator, double* seed ); //to generate events
+extern "C" int init1_(float* Plab, double* seed, float* Elastic, 
+float* tetmin); // to install DPM generator
+ extern "C" int dpm_gen__(float* Generator, double* seed); //to generate events
+
  
  int main()
 {
- float Plab, Elastic;                    // Plab  momentum in Lab.Sys.
+ float Plab, Elastic, tetmin;          // Plab - PBAP momentum in Lab.Sys. 
  double seed;
  int ntot, Ieven, npart, i;	
  double Px[1000],Py[1000],Pz[1000],E[1000],Pm[1000],Wh[1000];
  int Id[1000];
 //	Elastic=0.;	 // No elastic scattering, only inelastic
-//	Elastic=1. ;       // Elastic and inelastic interactions
+	Elastic=1. ;       // Elastic and inelastic interactions
 //	Elastic=2.;	 // Only elastic scattering, no inelastic one
 
 
@@ -48,7 +52,6 @@ extern struct {
  TFile f1("Background-micro.root","RECREATE","ROOT_Tree"); 
 
  float Generator=0.;
-
  Double_t weight = 1.0;
  Int_t activeCnt=0;
  TTree* fTree = new TTree("data","DPM Background");
@@ -58,10 +61,9 @@ extern struct {
  fTree->Branch("Npart",&activeCnt,"Npart/I");
  fTree->Branch("Weigth",&weight,"Weight/D");
  fTree->Branch("Seed",&seed,"Weight/D");
-
  fTree->Branch("Particles",&fEvt, 32000,99);
 
- 
+
  std::cout<<" Give as seed a large float number (eg. 123456.): ";
  std::cin>>seed;
  if (!seed){  // if the seed is 0 then take the time
@@ -69,12 +71,6 @@ extern struct {
    int a = Time/100000;
    seed = Time - a*100000 + a/100000.;
  }
-
-/*
- TTree* fTreeGen = new TTree("RndmGen","RndmGen");
- fTreeGen->Branch("Seed",&seed,"Seed/D");
- fTreeGen->Fill(); 
-*/
  
  std::cout << " Enter  P_lab(GeV/c), ";   
  std::cin >> Plab ;    
@@ -84,8 +80,13 @@ extern struct {
 	"1. - Elastic and inelastic interactions" << "\n" <<     
 	"2. - Only elastic scattering, no inelastic one"<< "\n";   
  std::cin >> Elastic ;    
+ if((Elastic==1.) || (Elastic==2.)) {  
 
- init1_(&Plab,&seed,&Elastic);     // installation of the DPM generator  
+ std::cout << " Teta_min (degree) ";   
+ std::cin >> tetmin;    
+ }
+ else  {tetmin=0;}
+ init1_(&Plab,&seed,&Elastic, &tetmin);  // installation of the DPM generator  
  
 std::cout << " Enter  N_Events ";
  std::cin >> ntot;
@@ -102,7 +103,6 @@ std::cout << " Enter  N_Events ";
      std::cout << "Event number = " << Ieven << std::endl; 
 
    dpm_gen__(&Generator, &seed);
-
    fEvt->Clear();
    Int_t cnt = 0;
 
@@ -132,14 +132,10 @@ std::cout << " Enter  N_Events ";
      E[i]=lujets_.p[i+3000];
      Wh[i]=1.0;
 
-
-
      Mom.SetPxPyPzE(Px[i],Py[i],Pz[i],E[i]);
      TParticle  fparticle(Id[i],1,0,0,0,0,Mom,V);
      new((*fEvt)[cnt++]) TParticle(fparticle);
-
-   }
-
+}
    activeCnt = cnt;
 
    fTree->Fill();                     //!
