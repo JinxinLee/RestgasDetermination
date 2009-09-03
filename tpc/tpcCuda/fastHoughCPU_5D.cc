@@ -57,8 +57,8 @@ int main(int argc, char** argv) {
   float SCALE = 0.95f;
 
  
-  float m_Max = 1.;
-  float m_Min = -1.;
+  float m_Max = 2.;
+  float m_Min = -2.;
   float t_Max = 5.;
   float t_Min = -5.;
   float phi_Min = 0;
@@ -91,11 +91,11 @@ int main(int argc, char** argv) {
 
   bool CUT_CHAMBER=true;   //only collect hits with x>0;
     
-  unsigned int EVENT=6;
+  unsigned int EVENT=7;
   
   TString dir = "../../DATA/";
-  TString project = "Test10";
-  //TString project = "Test20";
+  //TString project = "Test10";
+  TString project = "Test20";
 
   project=dir+project;
   //TString mc_filename = project+".mc.root";

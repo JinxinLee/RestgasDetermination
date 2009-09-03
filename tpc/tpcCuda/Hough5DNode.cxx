@@ -35,6 +35,7 @@ Hough5DNode::Hough5DNode() {
   _proj2 = NULL;
   _proj3 = NULL;
   _proj4 = NULL;
+  _sonsAllocd=false;
 
 }
 
@@ -60,6 +61,8 @@ Hough5DNode::Hough5DNode(float* center, uint level, uint nHyperplanes) {
   _center[2] = center[2];
   _center[3] = center[3];
   _center[4] = center[4];
+
+  _sonsAllocd=false;
   
   _length = 1.f/(pow(2,level));
 
@@ -103,6 +106,8 @@ Hough5DNode::~Hough5DNode() {
     free(_hitList); 
   if(_center != NULL)
     free(_center);
+  if(_sonsAllocd)
+    free(_sons);
   if(_corners != NULL)
     free(_corners); 
   if(_proj0 != NULL)
@@ -121,7 +126,7 @@ Hough5DNode::~Hough5DNode() {
 float*
 Hough5DNode::getSonArray() {
     
-  float* arr = (float*) malloc(32*5*sizeof(float));
+  _sons = (float*) malloc(32*5*sizeof(float));
 
   int count=0;
   
@@ -130,15 +135,15 @@ Hough5DNode::getSonArray() {
       for(int z=-1; z<2; z+=2)
 	for(int v=-1; v<2; v+=2)
 	  for(int w=-1; w<2; w+=2) {
-	    arr[count*5] = _center[0] + 0.25*x*_length;
-	    arr[count*5+1] = _center[1] + 0.25*y*_length;
-	    arr[count*5+2] = _center[2] + 0.25*z*_length;
-	    arr[count*5+3] = _center[3] + 0.25*v*_length;
-	    arr[count*5+4] = _center[4] + 0.25*w*_length;
+	    _sons[count*5] = _center[0] + 0.25*x*_length;
+	    _sons[count*5+1] = _center[1] + 0.25*y*_length;
+	    _sons[count*5+2] = _center[2] + 0.25*z*_length;
+	    _sons[count*5+3] = _center[3] + 0.25*v*_length;
+	    _sons[count*5+4] = _center[4] + 0.25*w*_length;
 	    count++;
 	  }
   
-  return arr;
+  return _sons;
 }
 
 void

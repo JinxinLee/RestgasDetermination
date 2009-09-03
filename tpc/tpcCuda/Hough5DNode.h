@@ -70,6 +70,8 @@ private:
   float _length;
   float* _center;				
   float* _corners;
+  float* _sons;
+  bool _sonsAllocd;
 
   float* _proj0;
   float* _proj1;
