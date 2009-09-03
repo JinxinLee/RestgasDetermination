@@ -1,7 +1,13 @@
-C-------------------- Last edition 25.08.05 V.Uzhinsky--------------------
+C------Last edition 25.08.05 V.Uzhinsky--------------------
+C------modify by A.Galoyan 10.09.08--------------------
       subroutine DPM_GEN(Pluto, Seed)
       COMMON /LUJETS/ N,K(1000,2),P(1000,5)
-
+      
+      COMMON/UZHI/SqrtS,Ecms,Vcms,Gamma,Proc_Prob(7),P_5str,CS_in,
+     ,            CS_el,A1,T1,A2,T2,A3,Tmax,Tmin,Weight1
+ 
+      COMMON/AB/aelm,betav, sigma_tot, parB, rho      !aida
+      COMMON /AGT/ TTR 
       double precision Seed
 
       call DPM_EVENT(Nhad)
@@ -18,8 +24,10 @@ C-------------------- Last edition 25.08.05 V.Uzhinsky--------------------
 
       SUBROUTINE DPM_EVENT(Nhad)
 C-----------------------------------------------------------------------
+      
       COMMON/UZHI/SqrtS,Ecms,Vcms,Gamma,Proc_Prob(7),P_5str,CS_in,
-     ,            CS_el,A1,T1,A2,T2,A3,Tmax,Weight1
+     ,            CS_el,A1,T1,A2,T2,A3,Tmax,Tmin,Weight1
+ 
 C-----------------------------------------------------------------------
 C             PARAMETERS OF QUARK-GLUON STRING MODEL
 C-----------------------------------------------------------------------
@@ -34,9 +42,12 @@ C =========================================================================
      *PXM(1000),PYM(1000),PZM(1000),HEM(1000),AMM(1000),ICHM(1000),
      *IBARM(1000),ANM(1000),NREM(1000)
       REAL*8 ANM
+      common/prob_el/prob_col, prob_int, prob_had    !aida
+      COMMON/AB/aelm,betav, sigma_tot, parB, rho      !aida
 
       COMMON/PART/ANAME(180),AM(180),GA(180),TAU(180),ICH(180),IBAR(180)
      ,           ,K1(180),K2(180)
+      COMMON /AGT/ TTR
       REAL*8 ANAME
 
 C-----------------------------------------------------------------------
@@ -886,28 +897,92 @@ c--------- Putting all hadrons on mass-shell -----------------
 C############################################################################
 C                   Simulation of elastic scattering
 C############################################################################
+*      print *, 'started 700', prob_col, prob_int      
       Pcms=sqrt(Ecms**2-0.88)
+      X0=RNDM1(-1)
+      IF(X0.LE.prob_col) then 
+! modeling colomb part
+c         print *, 'now is modeling colomb part'
+*1100    T=Tmin/(RNDM1(-1))              !abs(Tmin) ili net?
+1100     T=Tmin/(1.-RNDM1(-1)*(1-Tmin/Tmax) )
+         
+        Gbrak4=1./((1.+abs(T)/0.71)**8)
+        if(RNDM1(-1).gt.Gbrak4) goto 1100  
+        endif
+       
+      IF(X0.LE.(prob_col+prob_int) .and. X0.GT.prob_col) then 
+! modeling interf part
+c         print *, 'now is modeling interf part'
+*1200   T=2./parB * log(RNDM1(-1))+Tmin
+1200    T=2./parB*log(exp(parB*Tmin/2.)-RNDM1(-1)*
+     &  (exp(parB*Tmin/2.) - exp(parB*Tmax/2.) ) )
 
-      IF(RNDM1(-1).le.Weight1) then
-        T=T2*ALOG(1.-RNDM1(-1)*(1.-exp(Tmax/T2))) ! Last exponent
+       PBrac=abs(Tmin)/abs(T)*1./((1.+abs(T)/0.71)**4)
+       if(RNDM1(-1).gt.PBrac) goto 1200
+       endif
+
+       IF(X0.GT.(prob_col+prob_int)) then   !modeling hadron part
+c         print *, 'now is modelin hadron part' 
+   
+       IF(RNDM1(-1).le.Weight1) then    !model hadron elast 
+c       T=T2*ALOG(1.-RNDM1(-1)*(1.-exp(Tmax/T2))) !Last exponent
+        T=T2*ALOG(exp(Tmin/T2)-
+     & RNDM1(-1)*(exp(Tmin/T2)-exp(Tmax/T2))) ! Last exponent
+
       ELSE
-        W1=A1*T1*(1.-exp(Tmax/T1))/
-     /  (A1*T1*(1.-exp(Tmax/T1))+A1*A2**2*T2*(1.-exp(Tmax/T2)))
+c        W1=A1*T1*(1.-exp(Tmax/T1))/
+c     /  (A1*T1*(1.-exp(Tmax/T1))+A1*A2**2*T2*(1.-exp(Tmax/T2)))
+
+         W1=A1*T1*(exp(Tmin/T1)-exp(Tmax/T1))/
+     &  (A1*T1*(exp(Tmin/T1)-exp(Tmax/T1))+
+     &   A1*A2**2*T2*(exp(Tmin/T2)-exp(Tmax/T2)))
+
 
  710    continue
         IF(RNDM1(-1).le.W1) then
-          T=T1*ALOG(1.-RNDM1(-1)*(1.-exp(Tmax/T1))) ! First exponent
+c        T=T1*ALOG(1.-RNDM1(-1)*(1.-exp(Tmax/T1))) ! First exponent
+         T=T1*ALOG(exp(Tmin/T1)-
+     &   RNDM1(-1)*(exp(Tmin/T1)-exp(Tmax/T1))) ! First exponent
         ELSE
-          T=T2*ALOG(1.-RNDM1(-1)*(1.-exp(Tmax/T2))) ! Second exponent
-        ENDIF
+c        T=T2*ALOG(1.-RNDM1(-1)*(1.-exp(Tmax/T2))) ! Second exponent
+         T=T2*ALOG(exp(Tmin/T2)-
+     &   RNDM1(-1)*(exp(Tmin/T2)-exp(Tmax/T2))) ! Second exponent
+         ENDIF
         W2=(exp(T/2./T1)-A2*exp(T/2./T2))**2/(exp(T/T1)+A2**2*exp(T/T2))
         IF(RNDM1(-1).gt.W2) GO TO 710
-      ENDIF
+       ENDIF
+      
+      endif      !end if modeling hadron part
 
+*      print *, ' calculation of brac factor'
+      Fp=((1+abs(T)/0.71)**(-2))
+      DeltaT=abs(T)/0.71
+      pkoef1=10./(5.0677**2)          !/10. naoborot
+      DSIG_C=4*3.1416*aelm**2*(Fp**4)*pkoef1/((betav * T)**2)
+
+      delt=aelm*(0.577+log(parB*abs(T)/2.+ 4*DeltaT)+
+     & 4*DeltaT*log(4*DeltaT) + 2*DeltaT) 
+      
+      DSIG_I=aelm*sigma_tot*(Fp**2)*exp(0.5*parB*T)*
+     & (rho*cos(delt)+sin(delt)) / betav/ abs(T)   
+
+       DSIG_IM=aelm*sigma_tot*(Fp**2)*exp(0.5*parB*T)*
+     & (1+rho**2) / betav/ abs(T)
+       
+       DSIG_H=A1*((exp(T/2./T1)-A2*exp(T/2./T2))**2) + 
+     &  A3*exp(T/T2)
+
+      ds_dt  = DSIG_C+DSIG_I +DSIG_H
+      ds_dtM = DSIG_C+DSIG_IM + DSIG_H
+       IF(RNDM1(-1).GT.(ds_dt/ds_dtM))goto 700
+*      print*, 'T ', T 
+      TTR=T
       Cos_Theta=1.+T/2./Pcms**2
       Sin_Theta=sqrt(ABS(1.-Cos_Theta**2))
       Pz=Pcms*Cos_Theta
       Pt=Pcms*Sin_Theta
+*      print*, ' Pz', Pz, ' pt', Pt
+*      read (5,*)ccc
 
       FI=RNDM1(-1)*6.28318
 c                                  Storing of Pbar
@@ -956,6 +1031,7 @@ c-------------- End of event simulation ----------------------
        SumPz=SumPz+PZF(i)
        HEF(i)=Sqrt(AMF(i)**2+PXF(i)**2+PYF(i)**2+PZF(i)**2)
        SumE=SumE+HEF(i)
+       
       enddo
 
       RETURN
@@ -964,7 +1040,6 @@ c-------------- End of event simulation ----------------------
       SUBROUTINE TOPITH(Nhad)
 C =========================================================================
       COMMON /LUJETS/ N,K(1000,2),P(1000,5)
-
 C =========================================================================
       COMMON/FINPAR/PXF(10000),PYF(10000),PZF(10000),HEF(10000),
      *AMF(10000),ICHF(10000),IBARF(10000),ANF(10000),NREF(10000)
@@ -1018,7 +1093,6 @@ C
       SUBROUTINE TOPLUTO(Nhad)
 C =========================================================================
       COMMON /LUJETS/ N,K(1000,2),P(1000,5)
-
 C =========================================================================
       COMMON/FINPAR/PXF(10000),PYF(10000),PZF(10000),HEF(10000),
      *AMF(10000),ICHF(10000),IBARF(10000),ANF(10000),NREF(10000)
