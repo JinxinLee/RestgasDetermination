@@ -319,6 +319,7 @@ void PndPidCorrelator::ConstructChargedCandidate() {
 	    pidCand->SetMcIndex(trackID->GetCorrTrackID());
 	  }
       }
+    pidCand->SetTrackIndex(i);
     GetTrackInfo(track, pidCand);
     GetMvdInfo(track, pidCand); 
     if ( (fSttMode==3) && (fSttHit    ->GetEntriesFast()>0) ) GetSttInfo(track, pidCand);
@@ -349,15 +350,21 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
   for (Int_t i = 0; i < nBumps; i++)
     {
       PndEmcBump* bump;
+      PndEmcCluster *clu;
       if (fEmcMode==2) 
-	{
+	{ 
+	  if (fClusterList[i]) continue;
 	  bump = (PndEmcBump*) fEmcCluster->At(i);
+	  clu  = (PndEmcBump*) fEmcCluster->At(i);
 	}
       else
 	{
 	  bump = (PndEmcBump*) fEmcBump->At(i);
 	  if (fClusterList[bump->GetClusterIndex()]) continue; // skip correlated clusters
+	  clu = (PndEmcCluster*)fEmcCluster->At(bump->GetClusterIndex());
+	  
 	}
+
       
       TVector3 vtx(0,0,0);
       TVector3 v1=bump->where();
@@ -370,14 +377,20 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
       pidCand->SetEmcRawEnergy(bump->energy());
       pidCand->SetEmcCalEnergy(bump->GetEnergyCorrected());
       pidCand->SetEmcIndex(i);
-      pidCand->SetMcIndex(-1);
+
+      std::vector<Int_t> mclist = clu->GetMcList();
+      if (mclist.size()>0)
+	{
+	  pidCand->SetMcIndex(mclist[0]);
+	}
       AddNeutralCandidate(pidCand);
     }
 }
 //_________________________________________________________________
 void PndPidCorrelator::GetTrackInfo(PndTrack* track, PndPidCandidate* pidCand) 
 {
-  pidCand->SetCharge((Int_t)TMath::Sign(1., track->GetParamFirst().GetQ()));
+  Int_t charge =   (Int_t)TMath::Sign(1., track->GetParamFirst().GetQ());
+  pidCand->SetCharge(charge);
      
   TVector3 first(track->GetParamFirst().GetX(),
 		 track->GetParamFirst().GetY(),
@@ -391,16 +404,18 @@ void PndPidCorrelator::GetTrackInfo(PndTrack* track, PndPidCandidate* pidCand)
   TVector3 momentum, vertex;
   Float_t ex = ExtrapolateToZ(helix, &momentum, &vertex); // Extrapolation to z=0a
   Float_t energy = TMath::Sqrt(momentum.Mag2()+0.13957*0.13957); // Pion hypothesis
+  
   if (fGeanePro) // Overwrites vertex if Geane is used
     {
       FairGeanePro *fPro0 = new FairGeanePro();
       FairTrackParH *fRes= new FairTrackParH();
       fPro0->SetPoint(TVector3(0,0,0));
       fPro0->PropagateToPCA(1, -1);
-      Bool_t rc =  fPro0->Propagate(helix, fRes, -13*(Int_t)helix->GetQ());	
+      Bool_t rc =  fPro0->Propagate(helix, fRes, -13*charge);	
       if (rc)
 	{
 	  vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
+	  momentum = fRes->GetMomentum();
           Int_t ierr = 0;
           FairTrackParP *fParab = new FairTrackParP(fRes, TVector3(1.,0.,0.), TVector3(0.,1.,0.), ierr);
           Double_t globalCov[6][6];
@@ -409,7 +424,7 @@ void PndPidCorrelator::GetTrackInfo(PndTrack* track, PndPidCandidate* pidCand)
 	  Int_t ii,jj;
 	  for (ii=0;ii<6;ii++) for(jj=0;jj<6;jj++) mat[ii][jj]=globalCov[ii][jj];
 
-          energy = TMath::Sqrt(fParab->GetMomentum().Mag2()+138.*138.);
+          energy = TMath::Sqrt(fParab->GetMomentum().Mag2()+0.13957*0.13957);
           //Extend matrix for energy (with default pion hypothesis) -> Klaus Goetzen
           Double_t invE = 1./(energy);
           mat[0+3][3+3] = mat[3+3][0+3] =
@@ -490,7 +505,7 @@ void PndPidCorrelator::GetMvdInfo(PndTrack* track, PndPidCandidate* pidCand)
 	  fProMvd->PropagateToPCA(1, 1);
           vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
           FairTrackParH *fRes= new FairTrackParH();
-          Bool_t rc =  fProMvd->Propagate(helix, fRes, -13*(Int_t)helix->GetQ()); // First propagation at module
+          Bool_t rc =  fProMvd->Propagate(helix, fRes, -13*pidCand->GetCharge()); // First propagation at module
           if (rc)
 	    {
 	      cos = TMath::Cos(fRes->GetMomentum().Angle(zaxis)); 
@@ -591,7 +606,7 @@ void PndPidCorrelator::GetTofInfo(FairTrackParH* helix, PndPidCandidate* pidCand
 	  fProTof->SetPoint(tofPos);
 	  fProTof->PropagateToPCA(1, 1);
 	  FairTrackParH *fRes= new FairTrackParH();
-	  Bool_t rc =  fProTof->Propagate(helix, fRes, -13*(Int_t)helix->GetQ());	
+	  Bool_t rc =  fProTof->Propagate(helix, fRes, -13*pidCand->GetCharge());	
 	  if (rc)
 	    {
 	      vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
@@ -649,12 +664,12 @@ void PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCand
   for (Int_t ee = 0; ee<emcEntries; ee++)
     {
       emcHit = (PndEmcCluster*)fEmcCluster->At(ee);
-      if (emcHit->energy() < fCorrPar->GetEmc12Thr()) continue;
+      //if (emcHit->energy() < fCorrPar->GetEmc12Thr()) continue;
       Int_t emcModule = ((PndEmcDigi*)emcHit->Maxima())->GetModule();
       if (emcModule>4) continue;
-      if ( (trackTheta>130.) && ((emcModule==1)||(emcModule==3)) ) continue;
-      if ( (trackTheta<130.) && (emcModule==4) ) continue;
-      if ( (trackTheta<40.)  && ((emcModule==2)||(emcModule==4)) ) continue;
+     //  if ( (trackTheta>130.) && ((emcModule==1)||(emcModule==3)) ) continue;
+//       if ( (trackTheta<130.) && (emcModule==4) ) continue;
+//       if ( (trackTheta<40.)  && ((emcModule==2)||(emcModule==4)) ) continue;
       
       emcPos = emcHit->where();
       Float_t ex = ExtrapolateToR(helix, &momentum, &vertex, fCorrPar->GetEmc12Radius());
@@ -736,7 +751,7 @@ void PndPidCorrelator::GetMdtInfo(FairTrackParH* helix, PndPidCandidate* pidCand
 	  fProMdt->PropagateToPCA(1, 1);
           vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
 	  FairTrackParH *fRes= new FairTrackParH();
-	  Bool_t rc =  fProMdt->Propagate(helix, fRes, -13*(Int_t)helix->GetQ()); 
+	  Bool_t rc =  fProMdt->Propagate(helix, fRes, -13*pidCand->GetCharge()); 
 	  if (rc)
 	    {
 	      vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
@@ -764,9 +779,9 @@ void PndPidCorrelator::GetMdtInfo(FairTrackParH* helix, PndPidCandidate* pidCand
   
   if (mdtQuality<fCorrPar->GetMdtCut())
     {
-      //pidCand->SetMuoIndex(mdtIndex);
+      pidCand->SetMuoIndex(mdtIndex);
       pidCand->SetMuoQuality(mdtQuality);
-      //track->SetMdtModule(mdtMod);
+      pidCand->SetMuoModule(mdtMod);
       pidCand->SetMuoNumberOfLayers(1);
     }
   
@@ -800,7 +815,7 @@ void PndPidCorrelator::GetDrcInfo(FairTrackParH* helix, PndPidCandidate* pidCand
 	  fProDrc->PropagateToPCA(1, 1);
           vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
 	  FairTrackParH *fRes= new FairTrackParH();
-	  Bool_t rc =  fProDrc->Propagate(helix, fRes, -13*(Int_t)helix->GetQ()); 	
+	  Bool_t rc =  fProDrc->Propagate(helix, fRes, -13*pidCand->GetCharge()); 	
 	  if (rc)
 	    {
 	      vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
