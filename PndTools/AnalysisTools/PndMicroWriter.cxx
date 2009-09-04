@@ -30,6 +30,9 @@ Author: K.Goetzen, GSI, 06/2008
 #include "FairGeanePro.h"
 #include "PndEmcCluster.h"
 #include "PndDetectorList.h"
+#include "PndTrack.h"
+#include "PndPidCandidate.h"
+#include "PndPidProbability.h"
 
 #include "TVector3.h"
 #include "TVectorD.h"
@@ -77,8 +80,12 @@ InitStatus PndMicroWriter::Init()
  
   fStoreNeutral=false;
   fStoreTrack=false;
+  fStorePndTrack=false;
+  fStorePndCand=false;
+  fStoreProb=false;
   fStoreLheTrack=false;
   fStoreMC=false;
+  
  
   //TDatabasePDG *dbpdg=TDatabasePDG::Instance();
   
@@ -98,17 +105,54 @@ InitStatus PndMicroWriter::Init()
     return kFATAL;
   }
   
-  // Get input array
-  fTrArray = (TClonesArray*) ioman->GetObject(fInArrName);
-  if ( ! fTrArray) {
-    cout << "-W- PndMicroWriter::Init: "
-	 << "No Track array!" << endl;
-    fTrArray=new TClonesArray("Track");
- 
-   // return kERROR;
-  } else    fStoreTrack=true;
   
-  // Get input array
+  // Look for PndPidCandidates
+  fPndChdCndArray = (TClonesArray*) ioman->GetObject("PidChargedCand");
+  fPndNeuCndArray = (TClonesArray*) ioman->GetObject("PidNeutralCand");
+  if ( ! fPndChdCndArray || ! fPndNeuCndArray) {
+    cout << "-W- PndMicroWriter::Init: "
+    << "No PidCandidate array while searching for PndPidCandidates!" << endl;   
+    fPndChdCndArray=new TClonesArray("PndPidCandidate");
+    fPndNeuCndArray=new TClonesArray("PndPidCandidate");
+  } else {
+    fStoreTrack=false; // we have them inside the candidates
+    fStoreNeutral=false; // we have them inside the candidates
+    fStorePndCand=true;
+    fPndChdPrbArray = (TClonesArray*) ioman->GetObject("PidChargedProbabilityIdeal");
+    fPndNeuPrbArray = (TClonesArray*) ioman->GetObject("PidNeutralProbabilityIdeal");
+    if( ! fPndChdPrbArray || ! fPndNeuPrbArray){
+      cout << "-W- PndMicroWriter::Init: "
+      << "No PndPidProbability array! You will miss them. " << endl;   
+      fPndChdPrbArray=new TClonesArray("PndPidProbability");      
+      fPndNeuPrbArray=new TClonesArray("PndPidProbability");      
+    } else 
+      fStoreProb=true;
+  }
+  
+  // Look for PndTracks or Tracks only when there is no PidCandidate
+    fPndTrArray = (TClonesArray*) ioman->GetObject("LheGenTrack");
+    if ( ! fPndTrArray || fStorePndCand) {
+      cout << "-W- PndMicroWriter::Init: "
+      << "No LheGenTrack array while searching for PndTracks! Try LheTrack now..." << endl;
+      fPndTrArray = (TClonesArray*) ioman->GetObject("LheTrack");
+      if ( ! fPndTrArray || fStorePndCand) {
+        cout << "-W- PndMicroWriter::Init: "
+        << "No LheTrack array while searching for PndTracks!" << endl;
+        fLheTrArray=new TClonesArray("PndTrack");
+      } else fStorePndTrack=true;
+    } else fStorePndTrack=true;
+
+  // Get input array holding Track objects.
+  fTrArray = (TClonesArray*) ioman->GetObject(fInArrName);
+  if ( ! fTrArray || fStorePndCand || fStorePndTrack) {
+    cout << "-W- PndMicroWriter::Init: "
+    << "No Track array present or another array is used already!" << endl;
+    fTrArray=new TClonesArray("Track");     
+    // return kERROR;
+  } else    fStoreTrack=true;
+    
+    
+    // Get old LHE input array
   fLheTrArray = (TClonesArray*) ioman->GetObject("LhePidTrack");
   if ( ! fLheTrArray) {
     cout << "-W- PndMicroWriter::Init: "
@@ -118,8 +162,11 @@ InitStatus PndMicroWriter::Init()
   } else 
      fStoreLheTrack=true;
  
+  // Get neutral input
+  //TODO switch off, when PidCandidates also hold neutrals
+  // if ( ! fStorePndCand )
   fEmcArray = (TClonesArray*) ioman->GetObject("EmcCluster");
-  if ( ! fEmcArray) {
+  if ( ! fEmcArray || fStorePndCand) {
     cout << "-W- PndMicroWriter::Init: "
 	 << "No EmcCluster array!" << endl;
 	 fEmcArray = new TClonesArray("EmcCluster");
@@ -189,6 +236,9 @@ void PndMicroWriter::Exec(Option_t* opt)
   Int_t nLheTracks = 0;
   if (fStoreLheTrack) nLheTracks=fLheTrArray->GetEntriesFast();
   
+  Int_t nPndTracks = 0;
+  if (fStorePndTrack) nPndTracks=fPndTrArray->GetEntriesFast();
+  
   Int_t nCluster = 0;
   if (fStoreNeutral) nCluster=fEmcArray->GetEntriesFast();
   
@@ -217,7 +267,10 @@ void PndMicroWriter::Exec(Option_t* opt)
   TVector3 McAvgVtx(0,0,0);
   
   int nPrimary=0;
-  
+
+  // ************************
+  // Loop over the MC Truth
+  // ************************
   for (Int_t imc=0; imc<nMCTrack; imc++)
   {
     Int_t mcsize = mctracks.GetEntriesFast();
@@ -250,17 +303,15 @@ void PndMicroWriter::Exec(Option_t* opt)
   }
   McAvgVtx*=1./(double)nPrimary;
   
-  
-    cout <<"number of tracks **** "<< nTracks <<endl;
+  cout <<"number of tracks **** "<< nTracks <<endl;
   
   Track *tr1;
   PndEmcCluster *clus;
   PndLhePidTrack *lhetr;
     
-   // *************************
+  // ************************
   // Loop over the charged LHE tracks
   // ************************
-  
   for (Int_t i=0; i<nLheTracks; i++)
   {
     //Int_t chcandsize = chrgCandidates.GetEntriesFast();
@@ -305,13 +356,232 @@ void PndMicroWriter::Exec(Option_t* opt)
   	micro->SetMvdMeanDEdx(lhetr->GetMvdDEDX());
   }
   
-  // *************************
+  
+  
+  Int_t nPndChdCands = 0;
+  if (fStorePndCand) nPndChdCands=fPndChdCndArray->GetEntriesFast();
+  Int_t nPndNeuCands = 0;
+  if (fStorePndCand) nPndNeuCands=fPndNeuCndArray->GetEntriesFast();
+  PndPidCandidate *pndcnd;
+  PndPidProbability *pidprob;
+  // ************************
+  // Loop over the CHARGED PndPidCandidates
+  // ************************
+  for (Int_t i=0; i<nPndChdCands; i++)
+  {
+    Int_t micsize = microCandidates.GetEntriesFast();
+    pndcnd = (PndPidCandidate *)fPndChdCndArray->At(i);
+    TVector3 pos = pndcnd->GetPosition();
+    TLorentzVector lv = pndcnd->GetLorentzVector();
+    TVector3 firsthit = pndcnd->GetFirstHit();
+    TVector3 lasthit = pndcnd->GetLastHit();
+    
+// Do we still need that?
+//    Int_t chcandsize = chrgCandidates.GetEntriesFast();
+//    TCandidate *tcand=new (chrgCandidates[chcandsize]) TCandidate(lv,pndcnd->GetCharge());
+//    tcand->SetPos(pos);
+//    TMatrixD mat = pndcnd->Cov7();
+//    tcand->SetCov7(mat);
+//    
+//    l.Add(*tcand);
+
+	  // create the PndMicroCandidate
+	  PndMicroCandidate *micro=new (microCandidates[micsize])  PndMicroCandidate();
+
+    micro->SetCharge(pndcnd->GetCharge());
+    micro->SetPosition(pos);
+    micro->SetLorentzVector(lv);
+    micro->SetCov7(pndcnd->Cov7());
+    micro->SetFirstHit(firsthit);
+    micro->SetLastHit(lasthit);    
+    micro->SetMcIndex(pndcnd->GetMcIndex());
+
+    if(i<fPndChdPrbArray->GetEntriesFast())
+    {
+      pidprob = (PndPidProbability*)fPndChdPrbArray->At(i);
+      if (fVerbose>1) { 
+        std::cout << "-I- PndMicroWriter: Setting PndMicroCandidate from PndPidCandidate with likelihoods of:";
+      }              
+      micro->SetElectronPidLH(pidprob->GetElectronPidProb());
+      micro->SetMuonPidLH(pidprob->GetMuonPidProb());
+      micro->SetPionPidLH(pidprob->GetPionPidProb());
+      micro->SetKaonPidLH(pidprob->GetKaonPidProb());
+      micro->SetProtonPidLH(pidprob->GetProtonPidProb());    
+    }
+    
+    // more detailed detector measurements
+    micro->SetMvdMeanDEdx(pndcnd->GetMvdDEDX());
+ //   micro->SetMvdDEdxErr(pndcnd->GetMvdDEdxErr());
+ //   Int_t *mvdindarr = (Int_t*)pndcnd->GetMvdHitIndexArray();
+ //   micro->SetMvdHitIndexArray(pndcnd->GetMvdHits(),mvdindarr);
+
+    micro->SetSttMeanDEdx(pndcnd->GetSttMeanDEDX());
+ //   micro->SetSttDEdxErr(pndcnd->GetSttDEdxErr());
+ //   Int_t *sttindarr =(Int_t*) pndcnd->GetSttHitIndexArray();
+ //   micro->SetSttHitIndexArray(pndcnd->GetSttHits(),sttindarr);
+    
+    micro->SetTpcMeanDEdx(pndcnd->GetTpcMeanDEDX());
+  //  micro->SetTpcDEdxErr(pndcnd->GetTpcDEdxErr());
+   // Int_t *tpcindarr = (Int_t*)pndcnd->GetTpcHitIndexArray();
+   // micro->SetTpcHitIndexArray(pndcnd->GetTpcHits(), tpcindarr);
+    
+    micro->SetTofStopTime(pndcnd->GetTofStopTime());
+    micro->SetTofM2(pndcnd->GetTofM2());
+//    micro->SetTofM2Err(pndcnd->GetTofM2Err());
+    
+    micro->SetBarrelDrcThetaC(pndcnd->GetDrcThetaC());
+    micro->SetBarrelDrcThetaCErr(pndcnd->GetDrcThetaCErr());
+    micro->SetBarrelDrcNumberOfPhotons(pndcnd->GetDrcNumberOfPhotons());
+    
+    micro->SetDiscDrcThetaC(pndcnd->GetDiscThetaC());
+    micro->SetDiscDrcThetaCErr(pndcnd->GetDiscThetaCErr());
+    micro->SetDiscDrcNumberOfPhotons(pndcnd->GetDiscNumberOfPhotons());
+    
+    micro->SetRichThetaC(pndcnd->GetRichThetaC());
+    micro->SetRichThetaCErr(pndcnd->GetRichThetaCErr());
+    micro->SetRichNumberOfPhotons(pndcnd->GetRichNumberOfPhotons());
+    
+    micro->SetEmcRawEnergy(pndcnd->GetEmcRawEnergy());
+    micro->SetEmcCalEnergy(pndcnd->GetEmcCalEnergy());
+    micro->SetEmcNumberOfCrystals(pndcnd->GetEmcNumberOfCrystals());
+    micro->SetEmcNumberOfBumps(pndcnd->GetEmcNumberOfBumps());
+    
+    micro->SetMuoNumberOfLayers(pndcnd->GetMuoNumberOfLayers());
+    micro->SetMuoProbability(pndcnd->GetMuoProbability());
+    
+//    micro->SetTrackLength(pndcnd->GetTrackLength());
+    micro->SetDegreesOfFreedom(pndcnd->GetDegreesOfFreedom());
+    micro->SetFitStatus(pndcnd->GetFitStatus());
+//    micro->SetProbability(pndcnd->GetProbability());
+    micro->SetChiSquared(pndcnd->GetChiSquared());
+      
+  }
+
+  
+  
+  // ************************
+  // Loop over the NEUTRAL PndPidCandidates
+  // ************************
+  for (Int_t i=0; i<nPndNeuCands; i++)
+  {
+    Int_t micsize = microCandidates.GetEntriesFast();
+    pndcnd = (PndPidCandidate *)fPndNeuCndArray->At(i);
+    TVector3 pos = pndcnd->GetPosition();
+    TLorentzVector lv = pndcnd->GetLorentzVector();
+    TVector3 firsthit = pndcnd->GetFirstHit();
+    TVector3 lasthit = pndcnd->GetLastHit();
+    
+    // Do we still need that?
+    //    Int_t chcandsize = chrgCandidates.GetEntriesFast();
+    //    TCandidate *tcand=new (chrgCandidates[chcandsize]) TCandidate(lv,pndcnd->GetCharge());
+    //    tcand->SetPos(pos);
+    //    TMatrixD mat = pndcnd->Cov7();
+    //    tcand->SetCov7(mat);
+    //    
+    //    l.Add(*tcand);
+    
+	  // create the PndMicroCandidate
+	  PndMicroCandidate *micro=new (microCandidates[micsize])  PndMicroCandidate();
+    
+    micro->SetCharge(pndcnd->GetCharge());
+    micro->SetPosition(pos);
+    micro->SetLorentzVector(lv);
+    micro->SetCov7(pndcnd->Cov7());
+    micro->SetFirstHit(firsthit);
+    micro->SetLastHit(lasthit);    
+    micro->SetMcIndex(pndcnd->GetMcIndex());
+    
+    if(i<fPndNeuPrbArray->GetEntriesFast())
+    {
+      pidprob = (PndPidProbability*)fPndNeuPrbArray->At(i);
+      if (fVerbose>1) { 
+        std::cout << "-I- PndMicroWriter: Setting PndMicroCandidate from PndPidCandidate with likelihoods of:";
+      }              
+      micro->SetElectronPidLH(pidprob->GetElectronPidProb());
+      micro->SetMuonPidLH(pidprob->GetMuonPidProb());
+      micro->SetPionPidLH(pidprob->GetPionPidProb());
+      micro->SetKaonPidLH(pidprob->GetKaonPidProb());
+      micro->SetProtonPidLH(pidprob->GetProtonPidProb());    
+    }
+    
+    // more detailed detector measurements
+    micro->SetMvdMeanDEdx(pndcnd->GetMvdDEDX());
+    //   micro->SetMvdDEdxErr(pndcnd->GetMvdDEdxErr());
+    //   Int_t *mvdindarr = (Int_t*)pndcnd->GetMvdHitIndexArray();
+    //   micro->SetMvdHitIndexArray(pndcnd->GetMvdHits(),mvdindarr);
+    
+    micro->SetSttMeanDEdx(pndcnd->GetSttMeanDEDX());
+    //   micro->SetSttDEdxErr(pndcnd->GetSttDEdxErr());
+    //   Int_t *sttindarr =(Int_t*) pndcnd->GetSttHitIndexArray();
+    //   micro->SetSttHitIndexArray(pndcnd->GetSttHits(),sttindarr);
+    
+    micro->SetTpcMeanDEdx(pndcnd->GetTpcMeanDEDX());
+    //  micro->SetTpcDEdxErr(pndcnd->GetTpcDEdxErr());
+    // Int_t *tpcindarr = (Int_t*)pndcnd->GetTpcHitIndexArray();
+    // micro->SetTpcHitIndexArray(pndcnd->GetTpcHits(), tpcindarr);
+    
+    micro->SetTofStopTime(pndcnd->GetTofStopTime());
+    micro->SetTofM2(pndcnd->GetTofM2());
+    //    micro->SetTofM2Err(pndcnd->GetTofM2Err());
+    
+    micro->SetBarrelDrcThetaC(pndcnd->GetDrcThetaC());
+    micro->SetBarrelDrcThetaCErr(pndcnd->GetDrcThetaCErr());
+    micro->SetBarrelDrcNumberOfPhotons(pndcnd->GetDrcNumberOfPhotons());
+    
+    micro->SetDiscDrcThetaC(pndcnd->GetDiscThetaC());
+    micro->SetDiscDrcThetaCErr(pndcnd->GetDiscThetaCErr());
+    micro->SetDiscDrcNumberOfPhotons(pndcnd->GetDiscNumberOfPhotons());
+    
+    micro->SetRichThetaC(pndcnd->GetRichThetaC());
+    micro->SetRichThetaCErr(pndcnd->GetRichThetaCErr());
+    micro->SetRichNumberOfPhotons(pndcnd->GetRichNumberOfPhotons());
+    
+    micro->SetEmcRawEnergy(pndcnd->GetEmcRawEnergy());
+    micro->SetEmcCalEnergy(pndcnd->GetEmcCalEnergy());
+    micro->SetEmcNumberOfCrystals(pndcnd->GetEmcNumberOfCrystals());
+    micro->SetEmcNumberOfBumps(pndcnd->GetEmcNumberOfBumps());
+    
+    micro->SetMuoNumberOfLayers(pndcnd->GetMuoNumberOfLayers());
+    micro->SetMuoProbability(pndcnd->GetMuoProbability());
+    
+    //    micro->SetTrackLength(pndcnd->GetTrackLength());
+    micro->SetDegreesOfFreedom(pndcnd->GetDegreesOfFreedom());
+    micro->SetFitStatus(pndcnd->GetFitStatus());
+    //    micro->SetProbability(pndcnd->GetProbability());
+    micro->SetChiSquared(pndcnd->GetChiSquared());
+    
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  // ************************
+  // Loop over the charged PndTracks
+  // ************************
+//  for (Int_t i=0; i<nPndTracks; i++)
+//  {
+//    Int_t micsize = microCandidates.GetEntriesFast();
+//    //TODO: remove output
+//    if (fVerbose>-1){
+//    cout<<"-I- PndMicroWriter::Exec(): Array fPndTrArray "<<fPndTrArray<<" with "
+//    << fPndTrArray->GetEntriesFast() <<" entries, tried to acces entry "<<i<<"."<<endl;
+//    fPndTrArray->Print();
+//    }
+//    pndtr = (PndTrack *)fPndTrArray->At(i);  
+//    // ... nnothing happens here yet
+//  }
+  
+  
+  
+  // ************************
   // Loop over the charged genfit tracks
   // ************************
-  
 //  std::vector<TVector3>       posCache;
 //  std::vector<TLorentzVector> p4Cache;
-  
   for (Int_t i=0; i<nTracks; i++)
   {
     
@@ -490,9 +760,7 @@ void PndMicroWriter::Exec(Option_t* opt)
   // *************************
   // Loop over the neutral clusters
   // ************************
-  
   double calFactor=1.035;
-  
   for (Int_t i=0; i<nCluster; i++)
   {
     Int_t ncandsize = neutCandidates.GetEntriesFast();

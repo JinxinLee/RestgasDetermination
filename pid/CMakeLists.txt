@@ -50,6 +50,7 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(Pid_SRCS
 PidData/PndPidCandidate.cxx
+PidData/PndPidProbability.cxx
 PidCorr/PndPidCorrPar.cxx
 PidCorr/PndPidCorrelator.cxx
 PndPidContFact.cxx
@@ -65,6 +66,8 @@ PidClassifier/TMVAkd_KNN/PndProjectedKNN.cpp
 ###### Trainers.
 PidClassifier/PndMvaTrainer.cpp
 PidClassifier/LVQ1/PndLVQTrain.cpp
+###### Dummy
+PidClassifier/PndPidIdealAssociatorTask.cxx
 )
 
 if(RULE_CHECKER_FOUND)
@@ -74,6 +77,7 @@ endif(RULE_CHECKER_FOUND)
 
 set(Pid_HEADERS
 PidData/PndPidCandidate.h
+PidData/PndPidProbability.h
 PidCorr/PndPidCorrPar.h
 PidCorr/PndPidCorrelator.h
 PndPidContFact.h
@@ -81,6 +85,10 @@ PndPidContFact.h
 ############ Classifier headers
 PidClassifier/PndMvaClass.h
 PidClassifier/PndMvaVariable.h
+
+###### Dummy
+PidClassifier/PndPidIdealAssociatorTask.h
+
 )
 
 

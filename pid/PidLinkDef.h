@@ -8,5 +8,7 @@
 #pragma link C++ class  PndPidCorrPar+;
 #pragma link C++ class  PndPidCorrelator+;
 #pragma link C++ class  PndPidContFact+;
+#pragma link C++ class  PndPidIdealAssociatorTask+;
+#pragma link C++ class  PndPidProbability+;
 #endif
 

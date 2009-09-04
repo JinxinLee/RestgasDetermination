@@ -15,9 +15,11 @@
 
 #include <assert.h>
 
-#include "VAbsMicroCandidate.h"
+//#include "VAbsMicroCandidate.h"
 #include "TArrayI.h"
 #include "TMatrixD.h"
+#include "TVector3.h"
+#include "TLorentzVector.h"
 
 //class VAbsPidInfo;
 
@@ -320,7 +322,7 @@ class PndPidCandidate : public TObject //VAbsMicroCandidate
   ClassDef(PndPidCandidate,1) // Abstract base class for MicroDST candidates
     };
 
-std::ostream&  operator << (std::ostream& o, const VAbsMicroCandidate&);
+//std::ostream&  operator << (std::ostream& o, const VAbsMicroCandidate&);
 
 #endif                                           
 

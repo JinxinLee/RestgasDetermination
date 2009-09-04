@@ -64,6 +64,15 @@ class PndMicroWriter : public FairTask
   /** Input array of Genfit Tracks **/
   TClonesArray* fTrArray;
   
+  /** Input array of PndTracks **/
+  TClonesArray* fPndTrArray;
+  
+  /** Input array of PndPidCandidates **/
+  TClonesArray* fPndChdCndArray;
+  TClonesArray* fPndNeuCndArray;
+  TClonesArray* fPndChdPrbArray;
+  TClonesArray* fPndNeuPrbArray;
+  
   /** Input array of LHE Tracks **/
   TClonesArray* fLheTrArray;
   
@@ -86,6 +95,9 @@ class PndMicroWriter : public FairTask
 	
   bool fStoreNeutral;
   bool fStoreTrack;
+  bool fStorePndTrack;
+  bool fStorePndCand;
+  bool fStoreProb;
   bool fStoreLheTrack;
   bool fStoreMC;
   
