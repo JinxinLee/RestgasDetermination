@@ -43,6 +43,9 @@ void Alignment::generateTracks(int amount,
 void Alignment::readTracks(string tracks){
   TFile* file= TFile::Open(tracks.c_str());
   TTree *t =(TTree*)gROOT->FindObject("at2");
+  if(t==NULL){
+    t=(TTree*)gROOT->FindObject("at_tr");
+  }
   int nEvt = t->GetEntries();
   TCevent *ev = 0;
   
@@ -60,35 +63,47 @@ void Alignment::readTracks(string tracks){
       bool a4 =false;
       bool a5 =false;
       bool a6 =false;
-      for(int j=0;j<track.nClFit();j++){
-        int id = track.getCl(j).getId();
-        if(id==1){
-          a1=true;
-        }
-        if(id==2){
-          a2=true;
-        }
-        if(id==3){
-          a3=true;
-        }
-        if(id==4){
-          a4=true;
-        }
-        if(id==6){
-          a5=true;
-        }
-        if(id==6){
-          a6=true;
-        }
-      }
-      if(a1&&a2&&a3&&a4&&a5&&a6){
+      bool a7 =false;
+      bool a8 =false;
+      
+       for(int j=0;j<track.nCl();j++){
+         int id = track.getCl(j).getId();
+         if(id==1){
+           a1=true;
+         }
+         if(id==2){
+           a2=true;
+         }
+         if(id==3){
+           a3=true;
+         }
+         if(id==4){
+           a4=true;
+         }
+         if(id==5){
+           a5=true;
+         }
+         if(id==6){
+           a6=true;
+         }
+	 if(id==7){
+	   a7=true;
+	 }
+	 if(id==8){
+	   a8=true;
+	 }
+       }
+       if(a1&&a2&&a3&&a4&&a5&&a6&&a7&&a8){
         tracks_real.push_back(track);
         ++counter;
-      }
+       }
+       
 
     }
+    
 
   }
+
   cout<<"total tracks "<<counter<<endl;;  
   file->Close();
 }
