@@ -43,6 +43,8 @@ LSLEQM::eval(const TVectorT<double>&u,
   if(_field!=NULL){ 
     //std::cout<<"using fieldmap"<<std::endl;
     TVector3 B=_field->get(uu);
+    //B field is now in kGauss, so convert to Tesla
+    B*=0.1;
     Bx=B.X();By=B.Y();Bz=B.Z();;
   }
   

@@ -44,9 +44,5 @@ PndFieldAdaptor::get(const TVector3& pos) const {
 
   Double_t f[3];
   _field->GetFieldValue(x,f);
-  // convert from kG to T
-  f[0]*=0.1;
-  f[1]*=0.1;
-  f[2]*=0.1;
   return TVector3(f[0],f[1],f[2]);
 }
