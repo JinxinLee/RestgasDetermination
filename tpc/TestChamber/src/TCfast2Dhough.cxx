@@ -11,6 +11,7 @@
 #include <TStyle.h>
 #include <TApplication.h>
 #include <TSystem.h>
+#include <TROOT.h>
 
 #include "TCabsHough.h"
 #include "TCfast2Dhough.h"
@@ -23,30 +24,33 @@ using std::cout;
 using std::endl;
 TCfast2DHough::TCfast2DHough(const TVector3 firstAxis, const TVector3 secondAxis)
   :TCabsHough(firstAxis,secondAxis){
+  dynamicParSpace=false;
+  canv=NULL;
+  houghSpace=NULL;
   clear();
   m_Max =0.2f;
   m_Min =-0.2f;
   t_Max = 1.5f;
   t_Min =-1.5f;
-  dynamicParSpace=false;
-  canv=NULL;
-  houghSpace=NULL;
-  TREE_DEPTH = 5;  //number of space divisions
+    TREE_DEPTH = 5;  //number of space divisions
   THRESHOLD = 4;
+ 
 }
 TCfast2DHough::TCfast2DHough(const TVector3 firstAxis, const TVector3 secondAxis,bool dynamicParSpace_)
   :TCabsHough(firstAxis,secondAxis){
+   debug=false;
+  canv=NULL;
+  houghSpace=NULL;
   clear();
   m_Max =0.2;
   m_Min =-0.2f;
   t_Max = 1.5f;
   t_Min =-1.5f;
   dynamicParSpace=dynamicParSpace_;
-  debug=false;
-  canv=NULL;
-  houghSpace=NULL;
+ 
   TREE_DEPTH = 5;  //number of space divisions
   THRESHOLD = 4;
+
 }
 void TCfast2DHough::make(std::vector<TCcluster>& _c){
 
@@ -64,13 +68,18 @@ void TCfast2DHough::make(std::vector<TCcluster>& _c){
   } 
   int BIN_m=500;
   int BIN_t=500;
+  
   static TRandom r1(0);
   char buf[20];
   sprintf(buf,"houghspace%f",r1.Uniform());
   if(houghSpace==NULL){
-    houghSpace = new TH2D(buf, "hough space", 
+    if(debug){
+      cout<<"houghSpace created"<<endl;
+    }
+    houghSpace = new TH2D(buf, buf, 
 			  BIN_m, m_Min, m_Max, BIN_t, t_Min, t_Max);
   }
+  
 
   float tBinWidth = (t_Max - t_Min)/BIN_t;
   
@@ -120,7 +129,7 @@ void TCfast2DHough::doHough(){
 	      <<" of "<<nClusters<<" hyperplane crossings in root"
 	      <<std::endl;
     if(root->getVote() < THRESHOLD){
-      cout<<"top noe not enougxh votes"<<endl;
+      cout<<"top node not enough votes"<<endl;
     }
   }
   parent_list.push_back(root);
@@ -189,7 +198,7 @@ void TCfast2DHough::doHough(){
      }
      int counter=0;
      //create new nodes
-     for(int n=0; n<parent_list.size(); ++n) {
+     for(unsigned int n=0; n<parent_list.size(); ++n) {
     
        Hough2DNode* the_node=parent_list.at(n);
        float* sons = the_node->getSonArray();
@@ -200,8 +209,8 @@ void TCfast2DHough::doHough(){
        //create sons
        for(int s=0; s<4; ++s) {
 	 temp_sons.push_back(new Hough2DNode(sons+2*s, 
-					      the_node->getLevel()+1,
-					      nClusters));
+					     the_node->getLevel()+1,
+					     nClusters));
 
 	 Hough2DNode* the_son = temp_sons.at(temp_sons.size()-1);
 	 //now loop over points for this son and do hit check
@@ -229,7 +238,9 @@ void TCfast2DHough::doHough(){
 	     temp_sons.at(temp_sons.size()-1) = NULL;
 	   }
 	 }
+	 
        } //end loop over sons
+       free(sons);//should find alternative measure
 
        //keep sons that passed the test
        for(int s=0; s<4; s++) {
@@ -248,7 +259,7 @@ void TCfast2DHough::doHough(){
    }
 
 
-
+ 
 
 
 
@@ -266,21 +277,25 @@ void TCfast2DHough::doHough(){
   if(parent_list.size()>0){
     bool cont=true;
     int counter =0;
-    debug=true;
+    //   debug=true;
     while(cont) {
       counter++;
       //sort nodes by final votes
       bool* bestHitList = parent_list.front()->getHitList();
       
-      if(debug){
+       if(debug){
 	std::cout<<parent_list.front()->getVote()<<std::endl;
+	std::cout<<std::endl;	  
 	for(int b=0; b<nClusters; b++){
-	  std::cout<<" bool nr "<<b<<": "<<bestHitList[b]<<endl;
+	  //std::cout<<" bool nr "<<b<<": "<<*((bool*)(bestHitList+b*sizeof(bool)) )<<endl;
+	  if(*((bool*)(bestHitList+b*sizeof(bool)) )) printf("bool nr %d is true\n",b);
+	  else printf("bool nr %d is false\n",b);
+
 	}
-	std::cout<<std::endl;
+
       }
     
-      sort(parent_list.begin(), parent_list.end(), compareNodes);
+       sort(parent_list.begin(), parent_list.end(), compareNodes);
       //extract clusters from best node
       bestHitList = parent_list.front()->getHitList();
       if(debug){
@@ -291,17 +306,27 @@ void TCfast2DHough::doHough(){
 	std::cout<<std::endl;
       }
     
-      int hits=-1;
+      int hits=0;
       for(int c=0; c<nClusters; c++) {
 	if(bestHitList[c]){
-	  cout<<"c "<<c<<": "<<bestHitList[c]<<" ";
+	  if(debug){
+	    cout<<"c "<<c<<": "<<bestHitList[c]<<" ";
+	  }
 	  ++hits;
 	}
       }
-      cout<<endl;
-      if(hits<4) {
+      if(debug){
+	cout<<endl;
+      }
+      if(hits<THRESHOLD) {
+	if(debug){
+	  cout<<"to few hits aborting********************************************************"<<endl;
+	}
 	cont=false;
 	continue;
+      }
+      for(int i=0;i<nClusters;++i){
+	solution_list.push_back(bestHitList[i]);
       }
       //remove hits for first node from all others
       for(int p=0; p<nClusters; p++) {
@@ -309,26 +334,66 @@ void TCfast2DHough::doHough(){
 	  continue;
 	}
 	for(unsigned int n=0; n<parent_list.size(); n++){
-	  cout<<" node n planes "<<parent_list.at(n)->getNplanes()<<" n clusters "<<nClusters<<endl;
+	  if(debug){
+	    cout<<" node n planes "<<parent_list.at(n)->getNplanes()<<" n clusters "<<nClusters<<endl;
+	  }
 	  if(parent_list.at(n)->checkHit(p)){
-	    cout<<"hit "<<p<<" removed from node "<<n<<endl;
+	    if(debug){
+	      cout<<"hit "<<p<<" removed from node "<<n<<endl;
+	    }
 	    parent_list.at(n)->removeHit(p);
 	  }
 	}
       }
-      for(int i=0;i<nClusters;++i){
-	solution_list.push_back(bestHitList[i]);
-      }
+     
       solution_node_list.push_back(parent_list.front());
     }
+    if(debug){
+      std::cout<<"amount of maxima: "<<solution_node_list.size()<<endl;
+    }
+  }
+  if(debug){
+    cout<<"corners in solution node list************************************"<<endl;
+  }
+  for(unsigned int nli=0;nli<solution_node_list.size();++nli){
+    float* corners2 = solution_node_list.at(nli)->getCorners();
+    if(debug){
+      cout<<"solution "<<nli<<endl;
+    }
+    if(debug){
+      for(int ii=0; ii<8; ii++) {
+	if(ii%2==0)
+	std::cout<<std::endl;
+	if(ii%2==0){
+	  std::cout<<((corners2[ii]+0.5)*(m_Max-m_Min)+m_Min)<<"   ";
+	}else{
+	  std::cout<<((corners2[ii]+0.5)*(t_Max-t_Min)+t_Min)<<"   ";
+	}
+      }
+    }
+
   }
 }
 void TCfast2DHough::draw(bool stop,int _x,int _y,int _w,int _h,TCevent* mcTruth){
-  std::vector<TBox*> boxlist;
+  static TRandom r(0);
+  char buf[10];
+  sprintf(buf,"c%5.5f",r.Uniform());
+  if(canv==NULL){
+    cout<<endl<<endl<<"canvas created"<<endl<<endl<<endl;
+    canv = new TCanvas(buf,buf,_x,_y,_w,_h);
+  }else{
+    delete canv;
+    cout<<endl<<endl<<"new canvas created"<<endl<<endl<<endl;
+    canv = new TCanvas(buf,buf,_x,_y,_w,_h);
+  }
+  
+ 
+  gROOT->SetSelectedPad(canv->cd(1));
+  
   for(unsigned int s=0; s<solution_node_list.size(); s++) {
-
     float* center = (solution_node_list[s])->getCenter();
-    std::cout<<"maxima "<<(center[0]+0.5)*(m_Max-m_Min)<<" "<<(center[1]+0.5)*(t_Max-t_Min)<<std::endl;
+    std::cout<<"maxima "<<(center[0]+0.5)*(m_Max-m_Min)
+	     <<" "<<(center[1]+0.5)*(t_Max-t_Min)<<std::endl;
     float length = (solution_node_list[s])->getSideLength();
     float x1 = (center[0] - 0.5*length+0.5)*(m_Max-m_Min)+m_Min;
     float x2 = (center[0] + 0.5*length+0.5)*(m_Max-m_Min)+m_Min;
@@ -337,19 +402,14 @@ void TCfast2DHough::draw(bool stop,int _x,int _y,int _w,int _h,TCevent* mcTruth)
     boxlist.push_back(new TBox(x1,y1,x2,y2));
   }
   gStyle->SetPalette(1);
-  
-  static TRandom r(0);
-  char buf[10];
-  sprintf(buf,"c%5.5f",r.Uniform());
-  if(canv==NULL){
-    canv = new TCanvas(buf,"Hough",_x,_y,_w,_h);
-  }
   houghSpace->Draw();
   for(unsigned int b=0; b<boxlist.size(); ++b) {
     (boxlist[b])->SetLineColor(kPink+10);
     (boxlist[b])->SetFillStyle(0);
     (boxlist[b])->Draw("l");
   }
+  canv->Modified();
+  canv->Update();
   if(stop){
     gApplication->SetReturnFromRun(true);
     gSystem->Run();
@@ -369,6 +429,11 @@ TCfast2DHough::~TCfast2DHough(){
   if(canv!=NULL){
     delete canv;
   }
+
+  for(unsigned int i=0;i<boxlist.size();++i){
+    delete (boxlist.at(i));
+  }
+  boxlist.clear();
 }
 void TCfast2DHough::convert(std::vector<TCcluster>& _c){
   TVector3 xp=yp.Cross(zp);
@@ -426,13 +491,15 @@ void TCfast2DHough::convert(std::vector<TCcluster>& _c){
   t_Max=yMax-m_Min*zMax+0.1;
 }
 void TCfast2DHough::clear(){
+   
+ 
   if(canv!=NULL){
     canv->Clear();
   }
   if(houghSpace!=NULL){
-    houghSpace->Clear();
+    delete houghSpace;
+    houghSpace=NULL;
   }
-  
   ypHit.clear();
   zpHit.clear();
   for(unsigned int i=0;i<hyperplanes.size();++i){
@@ -441,7 +508,10 @@ void TCfast2DHough::clear(){
   for(unsigned int i=0;i<node_list.size();++i){
     delete (node_list.at(i));
   }
-
+  for(unsigned int i=0;i<boxlist.size();++i){
+    delete (boxlist.at(i));
+  }
+  boxlist.clear();
   hyperplanes.clear();
   solution_list.clear();//content deleted with node_list
   solution_node_list.clear();//content deleted with node_list

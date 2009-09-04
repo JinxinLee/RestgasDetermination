@@ -22,6 +22,9 @@ class TCfast2DHough : public TCabsHough{
   virtual void convert(std::vector<TCcluster>& _c);
   bool hot(int index){
     if(index<nClusters){
+      if(debug){
+	std::cout<<solution_list.at(index)<<" hot"<<std::endl;
+      }
       return solution_list.at(index);
     }else{
       return false;
@@ -39,6 +42,7 @@ class TCfast2DHough : public TCabsHough{
   void clear();
  protected:
   bool debug;
+  std::vector<TBox*> boxlist;
   std::vector<Hyperplane2D*> hyperplanes;
   std::vector<bool> solution_list;
   std::vector<Hough2DNode*> solution_node_list;
