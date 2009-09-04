@@ -273,7 +273,7 @@ void PndLheTrackFitter::Info4Fit(PndLheCandidate *track, Int_t idx) {
    track->SetTrackID(trackID, multID);
 
    // Filling PndTrack TCA
-   if (track->IsGood())
+   if (track->IsGood()&&track->GetMomentum().Mag()>0.1&&track->GetMomentum().Mag()<20.)
      {
        TClonesArray &pndtracks = *fPndTracks;
        TClonesArray &pndtrackids = *fPndTrackIds;
