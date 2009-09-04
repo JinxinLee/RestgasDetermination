@@ -20,6 +20,7 @@
 
 // Base Class Headers ----------------
 #include "AbsBField.h"
+#include"TObject.h"
 
 // Collaborating Class Headers -------
 #include <ostream> // remove if you do not need streaming op
@@ -28,10 +29,11 @@
 class FairField;
 
 
-class PndFieldAdaptor : public AbsBField {
+class PndFieldAdaptor : public AbsBField, public TObject {
 public:
 
   // Constructors/Destructors ---------
+  PndFieldAdaptor(){_field=NULL;}
   PndFieldAdaptor(FairField* field);
   
   // Accessors -----------------------
@@ -44,6 +46,9 @@ private:
   FairField* _field;
 
   // Private Methods -----------------
+
+ public:
+  ClassDef(PndFieldAdaptor,1);
 
 };
 

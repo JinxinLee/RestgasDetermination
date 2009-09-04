@@ -2,10 +2,11 @@
 #include "TVirtualMC.h"
 #include <iostream>
 #include "TSystem.h"
+#include"assert.h"
 
 GeaneMCApplication::GeaneMCApplication()
 {
-
+  field=NULL;
 }
 
 void GeaneMCApplication::ConstructGeometry(){
@@ -20,10 +21,13 @@ void GeaneMCApplication::InitMC(){
 
 void GeaneMCApplication::Field(const Double_t* x, Double_t* b) const
 {
-  
-  b[0]=0;
-  b[1]=0;
-  b[2]=20.;
+  assert(field!=NULL);
+  TVector3 pos(x[0],x[1],x[2]);
+  TVector3 B = field->get(pos);
+  B.Print();
+  b[0]=B.X();
+  b[1]=B.Y();
+  b[2]=B.Z();
 }
 
 

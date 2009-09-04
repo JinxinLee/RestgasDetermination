@@ -46,3 +46,5 @@ PndFieldAdaptor::get(const TVector3& pos) const {
   _field->GetFieldValue(x,f);
   return TVector3(f[0],f[1],f[2]);
 }
+
+ClassImp(PndFieldAdaptor);

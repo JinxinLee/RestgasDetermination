@@ -21,7 +21,8 @@ FairGeaneNew::FairGeaneNew(const char* name){
   TGeoManager* geom = new TGeoManager("Geometry", "Geane geometry");
   TGeoManager::Import(name);
   //FairMCApplication * app = new FairMCApplication(kTRUE);
-  GeaneMCApplication * app = new GeaneMCApplication();
+
+  app = new GeaneMCApplication();
   //  new GeaneMCApplication();
   gSystem->Load("libgeant321.so");
   //  new  TGeant3TGeo("C++ Interface to Geant3");

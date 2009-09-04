@@ -71,7 +71,7 @@
   fRun->SetGenerator(primGen);
 
   PndConstField *fMagField=new PndConstField();
-  fMagField->SetField(0, 0 ,20. ); // values are in kG
+  fMagField->SetField(0, 0 ,15. ); // values are in kG
   // MinX=-75, MinY=-40,MinZ=-12 ,MaxX=75, MaxY=40 ,MaxZ=124 );  // values are in cm
   fMagField->SetFieldRegion(-500, 500,-500, 500, -200, 2000);
 

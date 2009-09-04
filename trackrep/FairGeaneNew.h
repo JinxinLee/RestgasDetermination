@@ -8,6 +8,11 @@
 #include "TObject.h"
 #include "TString.h"
 
+#include "GeaneMCApplication.h"
+
+//#include "FairField.h"
+//#include "PndFieldAdaptor.h"
+#include "AbsBField.h"
 
 class FairGeaneNew : public TObject
 {
@@ -18,7 +23,18 @@ class FairGeaneNew : public TObject
 
   FairGeaneNew(const char* name);
 
+
+
   virtual ~FairGeaneNew();
+
+  private:
+  
+  GeaneMCApplication* app;
+  
+  public:
+
+  void SetField(AbsBField* f){app->setField(f);}
+//app->setField(new PndFieldAdaptor(f));}
 
   ClassDef(FairGeaneNew,1)
 }; 

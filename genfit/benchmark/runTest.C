@@ -36,7 +36,7 @@
   fRun->SetOutputFile(outFile);
 
 
-  FairGeane *Geane = new FairGeane(inFile);
+  FairGeaneNew *Geane = new FairGeaneNew(inFile);
   //  POCAtestTask4 *poca= new POCAtestTask4();
   //  fRun->AddTask(poca);
   SPtestTask *SPT = new SPtestTask();
@@ -63,7 +63,8 @@
   fRun->Init();
   rtdb->print();
   // Set the field(if any) to Geane
-  Geane->SetField(fRun->GetField());
+  //  Geane->SetField(fRun->GetField());
+  Geane->SetField(new PndFieldAdaptor(fRun->GetField()));
 
 
   // Transport nEvents

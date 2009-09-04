@@ -7,12 +7,14 @@
 #include "TGeoManager.h"
 #include<iostream>
 
+#include "AbsBField.h"
+
 class GeaneMCApplication : public TVirtualMCApplication
 {
 
   public:
     GeaneMCApplication();
-
+    void setField(AbsBField* f){field=f;}
     virtual ~GeaneMCApplication(){;}
     void InitMC();
     /** Construct user geometry */
@@ -33,7 +35,7 @@ class GeaneMCApplication : public TVirtualMCApplication
     virtual void          BeginPrimary(){;}
     virtual void          Stepping(){;}
 private:
-
+    AbsBField* field;
 public:
     ClassDef(GeaneMCApplication,1)
 };
