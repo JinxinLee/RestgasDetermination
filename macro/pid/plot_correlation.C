@@ -1,56 +1,92 @@
 {
   gStyle->SetOptTitle(0);
+  gStyle->SetFillColor(0);
   gStyle->SetTitleOffset(.85,"X");gStyle->SetTitleOffset(.85,"Y");
+  gStyle->SetTitleSize(.05,"X");gStyle->SetTitleSize(.05,"Y");
+  gStyle->SetLabelSize(.05,"X");gStyle->SetLabelSize(.05,"Y");
+  gStyle->SetHistFillColor(0);
+  gStyle->SetHistLineWidth(2);
   TFile *inFile = TFile::Open("pidcorrelator.root");
 
-  TCanvas* c1 = new TCanvas("LHETRACK Correlation", "LHETRACK Correlation", 100, 100, 1200, 800);
-
+  TCanvas* c1 = new TCanvas("LHETRACK Correlation - Barrel", "LHETRACK Correlation - Barrel", 100, 100, 1200, 800);
+  TCanvas* c2 = new TCanvas("LHETRACK Correlation - Forward Endcap", "LHETRACK Correlation - Forward Endcap", 100, 100, 1200, 800);
   c1.Divide(4,3);
   c1.cd(1);
-  emcCorr->Draw("track_z-emc_z>>emcz(100,-20,20)","");
+  emcCorr->Draw("track_z-emc_z>>emcz(100,-20,20)","emc_mod<3");
   emcz->GetXaxis()->SetTitle("Z_{LHE} - Z_{EMC} [cm]");
-
+  emcz->SetLineWidth(2);
   c1.cd(2);
   tofCorr->Draw("track_z-tof_z>>tofz(100,-20,20)","","");
   tofz->GetXaxis()->SetTitle("Z_{LHE} - Z_{TOF} [cm]");
-
+  tofz->SetLineWidth(2);
   c1.cd(3);
   TH1F *mdtz = new TH1F("mdtz","mdtz",100,-100,100);
-  mdtCorr->Draw("track_z-mdt_z>>mdtz","","");
+  mdtCorr->Draw("track_z-mdt_z>>mdtz","mdt_mod==1");
   mdtz->GetXaxis()->SetTitle("Z_{LHE} - Z_{MDT} [cm]"); 
-
+  mdtz->SetLineWidth(2);
   c1.cd(5);
-  emcCorr->Draw("dphi*TMath::RadToDeg()>>emcphi(100,-10,10)","");
+  emcCorr->Draw("dphi*TMath::RadToDeg()>>emcphi(100,-10,10)","emc_mod<3");
   emcphi->GetXaxis()->SetTitle("#phi_{LHE} - #phi_{EMC} [°]");
-  
+  emcphi->SetLineWidth(2);
   c1.cd(6);
   tofCorr->Draw("dphi*TMath::RadToDeg()>>tofphi(100,-10,10)","");
   tofphi->GetXaxis()->SetTitle("#phi_{LHE} - #phi_{TOF} [°]");
-
+  tofphi->SetLineWidth(2);
   c1.cd(7);
   TH1F *mdtphi = new TH1F("mdtphi","mdtphi",100,-50,50);
-  mdtCorr->Draw("dphi*TMath::RadToDeg()>>mdtphi","");
+  mdtCorr->Draw("dphi*TMath::RadToDeg()>>mdtphi","mdt_mod==1");
   mdtphi->GetXaxis()->SetTitle("#phi_{LHE} - #phi_{MDT} [°]");
-
+  mdtphi->SetLineWidth(2);
   c1.cd(8);
   drcCorr->Draw("dphi*TMath::RadToDeg()>>drcphi(100,-10,10)","");
   drcphi->GetXaxis()->SetTitle("#phi_{LHE} - #phi_{DRC} [°]");
-
+  drcphi->SetLineWidth(2);
   c1.cd(9);
-  emcCorr->Draw("chi2>>emcq(100,-1,50)","");
+  emcCorr->Draw("chi2>>emcq(100,-1,20)","emc_mod<3");
   emcq->GetXaxis()->SetTitle("EMC Quality [cm^{2}]");
-
+  emcq->SetLineWidth(2);
   c1.cd(10);
-  tofCorr->Draw("chi2>>tofq(100,-1,50)","","");
+  tofCorr->Draw("chi2>>tofq(100,-1,20)","","");
   tofq->GetXaxis()->SetTitle("TOF Quality [cm^{2}]");
-
+  tofq->SetLineWidth(2);
   c1.cd(11);
   TH1F *mdtq = new TH1F("mdtq","mdtq",100,-1,1000);
-  mdtCorr->Draw("chi2>>mdtq","","");
+  mdtCorr->Draw("chi2>>mdtq","mdt_mod==1","");
   mdtq->GetXaxis()->SetTitle("MDT Quality [cm^{2}]");
-
+  mdtq->SetLineWidth(2);
   c1.cd(12);
   drcCorr->Draw("chi2>>drcq(100,-1,50)","","");
   drcq->GetXaxis()->SetTitle("DIRC Quality [°^{2}]");
+  drcq->SetLineWidth(2);
+ 
+  c2.Divide(2,3);
+  c2.cd(1);
+  emcCorr->Draw("track_x-emc_x>>emcx(100,-20,20)","emc_mod>2");
+  emcx->GetXaxis()->SetTitle("X_{LHE} - X_{EMC} [cm]");
+  emcx->SetLineWidth(2);
+  c2.cd(2);
+  TH1F *mdtx = new TH1F("mdtx","mdtx",100,-100,100);
+  mdtCorr->Draw("track_x-mdt_x>>mdtx","mdt_mod>1");
+  mdtx->GetXaxis()->SetTitle("X_{LHE} - X_{MDT} [cm]"); 
+  mdtx->SetLineWidth(2);
+  c2.cd(3);
+  emcCorr->Draw("track_y-emc_y>>emcy(100,-20,20)","emc_mod>2");
+  emcy->GetXaxis()->SetTitle("Y_{LHE} - Y_{EMC} [cm]");
+  emcy->SetLineWidth(2);
+  c2.cd(4);
+  TH1F *mdty = new TH1F("mdty","mdty",100,-100,100);
+  mdtCorr->Draw("track_y-mdt_y>>mdty","mdt_mod>1");
+  mdty->GetXaxis()->SetTitle("Y_{LHE} - Y_{MDT} [cm]"); 
+  mdty->SetLineWidth(2);
+  c2.cd(5);
+  emcCorr->Draw("chi2>>emcq2(100,-1,20)","emc_mod>2");
+  emcq2->GetXaxis()->SetTitle("EMC Quality [cm^{2}]");
+  emcq2->SetLineWidth(2);
+  c2.cd(6);
+  TH1F *mdtq2 = new TH1F("mdtq2","mdtq2",100,-1,1000);
+  mdtCorr->Draw("chi2>>mdtq2","mdt_mod>1","");
+  mdtq2->GetXaxis()->SetTitle("MDT Quality [cm^{2}]");
+  mdtq2->SetLineWidth(2);
   c1.cd();
+
 }
