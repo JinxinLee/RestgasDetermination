@@ -244,8 +244,6 @@ void PndLheKalmanTask::Exec(Option_t* opt)
     if (fVerbose>0) std::cout<<"SUCESSFULL FIT!"<<std::endl;
     
     PndTrack *fitTrack = (PndTrack*)GenfitTrack2PndTrack(trk);
-    std::cout << "Track: " << trk->getMom().Theta()*TMath::RadToDeg() << std::endl;
-    std::cout << "PndTrack: first " << fitTrack->GetParamFirst().GetMomentum().Theta()*TMath::RadToDeg() << " last " << fitTrack->GetParamLast().GetMomentum().Theta()*TMath::RadToDeg() << std::endl;  
     TClonesArray& trkRef = *fFitTrackArray;
     Int_t size = trkRef.GetEntriesFast();
     PndTrack* pndTrack = new(trkRef[size]) PndTrack(fitTrack->GetParamFirst(), fitTrack->GetParamLast(), fitTrack->GetTrackCand(),
