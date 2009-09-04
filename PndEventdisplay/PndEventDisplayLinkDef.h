@@ -5,6 +5,7 @@
 #pragma link off all functions;
 
 #pragma link C++ class  PndTrackCandDraw;
+#pragma link C++ class  PndTPCRecoPointDraw;
 
 #endif
 

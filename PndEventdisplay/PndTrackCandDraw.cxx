@@ -126,6 +126,9 @@ TVector3 PndTrackCandDraw::GetVector(Int_t detId, Int_t hitId)
 		}
 		return (TVector3(p->GetX(), p->GetY(), p->GetZ()));
 	}
+	else if (detId == kTpcCluster){
+		return ((PndTpcCluster*)fTpcClusterList->At(hitId))->pos();
+	}
 	else
 		std::cout
 				<< "-E- PndTrackCandDraw::GetVector : Unknown Detector with ID: "
