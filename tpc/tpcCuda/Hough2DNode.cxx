@@ -1,7 +1,9 @@
 #include "Hough2DNode.h"
 #include <cmath>
 #include <iostream>
-#include "stdlib.h"
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
 
 Hough2DNode::Hough2DNode() {
 
@@ -31,7 +33,9 @@ Hough2DNode::Hough2DNode(float* center, int level, int nHyperplanes) {
   _corners = (float*) malloc(8*sizeof(float));
   _proj0 = (float*) malloc(2*sizeof(float));
   _proj1 = (float*) malloc(2*sizeof(float));
-  
+
+  memset(_hitList, 0x00, _nPlanes);
+
   _votes = 0;
   _level = level;
   _center[0] = center[0];
@@ -77,3 +81,11 @@ Hough2DNode::print() {
 }
 
 
+void Hough2DNode::removeHit(int j) {
+  if(j>=_nPlanes){
+    std::cout<<"removing hit "<<j<<" nplanes "<<_nPlanes<<std::endl;
+  }
+  
+  _hitList[j] = false; 
+  _votes--; 
+}

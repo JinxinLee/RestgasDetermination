@@ -2,7 +2,7 @@
 
 #ifndef HOUGH2DNODE_H
 #define HOUGH2DNODE_H
-
+#include <iostream>
 class Hough2DNode {
 
   
@@ -24,11 +24,19 @@ public:
   float* getProjection0() {return _proj0;} //return the two coordinates of the 
   float* getProjection1() {return _proj1;} //corners projected onto one 
     
-  void setHit(int j) {_hitList[j] = true;} //hyperplane was a hit
+  void setHit(int j) {
+    if(j<_nPlanes){
+    _hitList[j] = true;
+    }else{
+      std::cerr << "trying to set hit on hyperplane " << j << ", _nPlanes is "<<_nPlanes<<" out of range"
+	    << std::endl;
+      throw;
+    }
+  } //hyperplane was a hit
   void setVotes(int votes)  {_votes = votes;}
   void vote() {_votes++;}
   bool checkHit(int j) {return _hitList[j];}
-  void removeHit(int j) {_hitList[j] = false; _votes--; }
+  void removeHit(int j) ;
   void print();
   int getNplanes(){return _nPlanes;}
   
