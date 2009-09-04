@@ -59,7 +59,8 @@ class PndPidCandidate : public TObject //VAbsMicroCandidate
   TMatrixD& Cov7() const;
   TMatrixD& P4Cov() const ;
   Int_t     GetMcIndex() const{return fMcIndex;}
-	
+  Int_t     GetTrackIndex() const{return fTrackIndex;}	
+
   // ************************
   // detector specific stuff
   // ************************
@@ -119,6 +120,8 @@ class PndPidCandidate : public TObject //VAbsMicroCandidate
   Int_t		GetMuoNumberOfLayers()const {return fMuoNumberOfLayers;}
   Float_t		GetMuoProbability() const{return fMuoProbability;}
   Float_t		GetMuoQuality() const{return fMuoQuality;}
+  Int_t                 GetMuoModule()    const { return fMuoModule; }
+  Int_t                 GetMuoIndex()     const { return fMuoIndex; }
 
   // Tracking
  
@@ -150,7 +153,8 @@ class PndPidCandidate : public TObject //VAbsMicroCandidate
   void	SetCov7(const TMatrixD &cov7 );
   void	SetP4Cov(const TMatrixD &covP4 );
   void	SetMcIndex(int idx) {fMcIndex=idx; }
-	
+  void  SetTrackIndex(int idx) {fTrackIndex=idx; }	
+
   // ************************
   // detector specific stuff
   // ************************
@@ -210,7 +214,9 @@ class PndPidCandidate : public TObject //VAbsMicroCandidate
   void	SetMuoNumberOfLayers(Int_t val) { fMuoNumberOfLayers= val;}
   void	SetMuoProbability(Double_t val) { fMuoProbability=(Float_t) val;}
   void	SetMuoQuality(Double_t val)     { fMuoQuality=(Float_t) val;}
-  
+  void  SetMuoModule(Int_t val)           { fMuoModule = val; }
+  void  SetMuoIndex(Int_t val)            { fMuoIndex = val; }
+
   // Tracking
   void   	SetDegreesOfFreedom(Int_t val) { fDegreesOfFreedom=val;}
   void    SetFitStatus(Int_t val) { fFitStatus= val;}
@@ -240,10 +246,11 @@ class PndPidCandidate : public TObject //VAbsMicroCandidate
     fLastHitY,
     fLastHitZ;
 			
-  Int_t		fMcIndex;	// MC truth index
-  Float_t		fErrP7[28];  	// The symmetric 7*7 error matrix
-  Float_t		fParams[5];		// The helix fit parameters
-  Float_t		fCov[15];		// The helix error matrix
+  Int_t		fMcIndex;    // MC truth index
+  Int_t         fTrackIndex; // PndTrack index
+  Float_t	fErrP7[28];  // The symmetric 7*7 error matrix
+  Float_t	fParams[5];  // The helix fit parameters
+  Float_t	fCov[15];    // The helix error matrix
 		
   // detector quantities
   // MVD
@@ -302,7 +309,9 @@ class PndPidCandidate : public TObject //VAbsMicroCandidate
   Int_t		fMuoNumberOfLayers;
   Float_t 	fMuoProbability;
   Float_t       fMuoQuality;
-
+  Int_t         fMuoModule;
+  Int_t         fMuoIndex;
+  
   // Tracking
   Int_t	        fDegreesOfFreedom;
   Int_t	        fFitStatus;

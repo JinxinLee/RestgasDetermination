@@ -154,7 +154,8 @@ void PndPidCandidate::SetDefault()
   fLastHitX = 0.;		
   fLastHitY = 0.;		
   fLastHitZ = 0.;		
-  fMcIndex = -1,
+  fMcIndex = -1;
+  fTrackIndex = -1;
   fMvdDEDX = 0.;
   fMvdHits = 0;
   fSttMeanDEDX = 0.;
@@ -191,6 +192,8 @@ void PndPidCandidate::SetDefault()
   fMuoNumberOfLayers = 0;
   fMuoProbability = 0.;
   fMuoQuality = -1.;
+  fMuoModule = -1; 
+  fMuoIndex = -1;
   fDegreesOfFreedom = 0;
   fFitStatus = 0;
   fChiSquared = 0.;  
