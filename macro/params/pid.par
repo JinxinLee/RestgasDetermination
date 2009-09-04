@@ -5,12 +5,12 @@
 #################################################################
 [PndPidCorrPar]
 TofRadius:Float_t 43.6
-TofCut:Float_t 20.
+TofCut:Float_t 10.
 Emc12Thr:Float_t 0.02
 Emc12Radius:Float_t 63.
-Emc12Cut:Float_t 20.
+Emc12Cut:Float_t 10.
 MdtRadius:Float_t 155.
-MdtCut:Float_t 200.
+MdtCut:Float_t 400.
 DrcRadius:Float_t 49.
 DrcCut:Float_t 20.
 #################################################################
