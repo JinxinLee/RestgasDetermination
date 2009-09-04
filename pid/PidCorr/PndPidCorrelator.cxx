@@ -241,8 +241,7 @@ InitStatus PndPidCorrelator::Init() {
   geoH = new PndMvdGeoHandling(gGeoManager);
 
   if (fGeanePro)
-    {
-      cout << "-I- PndPidCorrelator::Init: Using Geane for Track propagation" << endl;
+    {      cout << "-I- PndPidCorrelator::Init: Using Geane for Track propagation" << endl;
     }
   
   if (fDebugMode)
@@ -759,7 +758,15 @@ void PndPidCorrelator::GetMdtInfo(FairTrackParH* helix, PndPidCandidate* pidCand
 	    }
 	}
       
-      Float_t dist = (mdtPos-vertex).Mag2();
+      Float_t dist;
+      if (mdtHit->GetModule()==1) 
+	{
+	  dist = (mdtPos-vertex).Mag2();
+	}
+      else
+	{
+	  dist = (vertex.X()-mdtPos.X())*(vertex.X()-mdtPos.X())+(vertex.Y()-mdtPos.Y())*(vertex.Y()-mdtPos.Y());
+	}
       
       if ( mdtQuality > dist)
 	{
