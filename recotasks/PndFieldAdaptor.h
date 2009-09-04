@@ -19,7 +19,7 @@
 #define PNDFIELDADAPTOR_HH
 
 // Base Class Headers ----------------
-#include "AbsBFieldIfc.h"
+#include "AbsBField.h"
 
 // Collaborating Class Headers -------
 #include <ostream> // remove if you do not need streaming op
@@ -28,7 +28,7 @@
 class FairField;
 
 
-class PndFieldAdaptor : public AbsBFieldIfc {
+class PndFieldAdaptor : public AbsBField {
 public:
 
   // Constructors/Destructors ---------

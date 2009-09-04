@@ -24,7 +24,7 @@
 #include <iostream>
 #include "TMath.h"
 // Collaborating Class Headers --------
-#include "AbsBFieldIfc.h"
+#include "AbsBField.h"
 
 // Class Member definitions -----------
 

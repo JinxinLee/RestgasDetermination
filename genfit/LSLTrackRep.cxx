@@ -7,7 +7,7 @@
 
 #include "LSLTrackRep/Nystrom.h"
 #include "AbsRecoHit.h"
-#include "AbsBFieldIfc.h"
+#include "AbsBField.h"
 #include "LSLTrackRep/LSLEQM.h"
 #include "LSLTrackRep/AbsNystromEQM.h"
 
@@ -25,7 +25,7 @@ LSLTrackRep::LSLTrackRep(double z, double x, double y,
 			 double sigx, double sigy, 
 			 double sigdxdz, double sigdydz, 
 			 double siginvp,
-			 AbsBFieldIfc* field) 
+			 AbsBField* field) 
   : AbsTrackRep(5), s(0), _acc(1E-2), _adaptive(false)
 {
   s=z;
@@ -67,7 +67,7 @@ LSLTrackRep::init(const TVector3& pos,
 		  double sigx, double sigy, 
 		  double sigdxdz, double sigdydz, 
 		  double siginvp, 
-		  AbsBFieldIfc* field) 
+		  AbsBField* field) 
 {
   s=pos.Z();
   state[0][0]=pos.X();
@@ -90,7 +90,7 @@ LSLTrackRep::init(const TVector3& pos,
 
 
 void 
-LSLTrackRep::SetBField(AbsBFieldIfc* b)
+LSLTrackRep::SetBField(AbsBField* b)
 {
   if(_eqm!=NULL)delete _eqm;
   _eqm=new LSLEQM(b);

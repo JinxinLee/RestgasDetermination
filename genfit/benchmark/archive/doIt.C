@@ -1,7 +1,7 @@
 void doIt(){
-  gROOT->ProcessLine("TFile::Open(\"0.50GeV_0.025cmRes_65.00deg_10000ev.root\");");
-  gROOT->ProcessLine(".x ../trunk/tpc/TestChamber/macro/christian_style.C");
-  gROOT->ProcessLine(" .L ../trunk/genfit/benchmark/plotPulls.C+ ");
+  //  gROOT->ProcessLine("TFile::Open(\"1.00GeV_0.025cmRes_45.00deg_50000ev.root\");");
+  gROOT->ProcessLine(".x ../../trunk2/tpc/TestChamber/macro/christian_style.C");
+  gROOT->ProcessLine(" .L ../../trunk2/genfit/benchmark/archive/plotPulls.C+ ");
   gROOT->ProcessLine("plotPulls p(t)");
-  gROOT->ProcessLine("p.Loop(\"0.5 GeV/c muons under #theta = 65^{#circ}\")");
+  gROOT->ProcessLine("p.Loop(\"\")");
 }

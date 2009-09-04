@@ -25,19 +25,19 @@
 #include <ostream> // remove if you do not need streaming op
 
 // Collaborating Class Declarations --
-class AbsBFieldIfc;
+class AbsBField;
 
 class LSLEQM : public AbsNystromEQM {
 public:
 
   // Constructors/Destructors ---------
-  LSLEQM(AbsBFieldIfc* f):_field(f){;}
+  LSLEQM(AbsBField* f):_field(f){;}
   ~LSLEQM(){;}
 
   TVectorT<double> eval(const TVectorT<double>&u,const TVectorT<double>& uprim, const TVectorT<double>& par); 
 
 private:
-  AbsBFieldIfc* _field;
+  AbsBField* _field;
   
 };
 

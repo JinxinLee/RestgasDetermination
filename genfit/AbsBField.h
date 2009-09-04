@@ -7,17 +7,17 @@
  * 
  */
 
-#ifndef ABSBFIELDIFC_H
-#define ABSBFIELDIFC_H
+#ifndef ABSBFIELD_H
+#define ABSBFIELD_H
 
 #include "TVector3.h"
 
-class AbsBFieldIfc {
+class AbsBField {
 public:
 
   // Constructors/Destructors ---------
-  AbsBFieldIfc(){;}
-  virtual ~AbsBFieldIfc(){;}
+  AbsBField(){;}
+  virtual ~AbsBField(){;}
 
   // Accessors -----------------------
   virtual TVector3 get(const TVector3&) const =0;

@@ -38,11 +38,11 @@ void plotPulls::Loop(std::string title)
    TH1D* phi = new TH1D("phi","",100,-360.,360.);
 
    std::map<std::string,std::string> axes;
-   axes["PP"] = "pull of momentum";
-   axes["UU"] = "pull of coordinate u";
-   axes["VV"] = "pull of coordinate v";
-   axes["UpUp"] = "pull of slope u'";
-   axes["VpVp"] = "pull of slope v'";
+   axes["PP"] = "(p_{fit}-p_{true})/#sigma_{p}";
+   axes["UU"] = "(u_{fit}-u_{true})/#sigma_{u}";
+   axes["VV"] = "(v_{fit}-v_{true})/#sigma_{v}";
+   axes["UpUp"] = "(u'_{fit}-u'_{true})/#sigma_{u'}";
+   axes["VpVp"] = "(v'_{fit}-v'_{true})/#sigma_{v'}";
 
    std::cout << "Tree has entries #" << nentries << std::endl;
 
@@ -61,7 +61,7 @@ void plotPulls::Loop(std::string title)
       phi->Fill(phiTr/TMath::Pi()*180.);
       theta->Fill(thTr/TMath::Pi()*180.);
 
-      if(jentry==7500) break;
+      //if(jentry==49000) break;
       // if (Cut(ientry) < 0) continue;
    }
 
@@ -78,17 +78,22 @@ void plotPulls::Loop(std::string title)
 
    double mPP=gPP->GetParameter(1);
    double sPP=gPP->GetParameter(2);
+   double mPPe=gPP->GetParError(1);
+   double sPPe=gPP->GetParError(2);
    TPaveText *tPP = new TPaveText(0.6,0.68,.87,.8,"NDC");
-   sprintf(buf,"mean = %1.3f",mPP);
+   sprintf(buf,"mean = %1.3f #pm %1.3f",mPP,fabs(mPPe));
    tPP->AddText(buf);
-   sprintf(buf,"#sigma    = %1.3f",fabs(sPP));
+   sprintf(buf,"#sigma    = %1.3f #pm %1.3f",fabs(sPP),fabs(sPPe));
    tPP->AddText(buf);
    tPP->SetTextFont(102);
+   tPP->SetTextSize(0.037);
    tPP->SetBorderSize(0);
 
    pullPP->SetTitle(title.c_str());
    pullPP->GetXaxis()->SetTitle(axes["PP"].c_str());
+   pullPP->GetYaxis()->SetTitle("number of tracks");
    pullPP->Draw();
+   pullPP->GetYaxis()->SetRangeUser(0.,4000.);
    tPP->Draw();
    cPP->SaveAs("PP.eps");
    cPP->SaveAs("PP.pdf");
@@ -104,17 +109,22 @@ void plotPulls::Loop(std::string title)
 
    double mUU=gUU->GetParameter(1);
    double sUU=gUU->GetParameter(2);
+   double mUUe=gUU->GetParError(1);
+   double sUUe=gUU->GetParError(2);
    TPaveText *tUU = new TPaveText(0.6,0.68,.87,.8,"NDC");
-   sprintf(buf,"mean = %1.3f",mUU);
+   sprintf(buf,"mean = %1.3f #pm %1.3f",mUU,mUUe);
    tUU->AddText(buf);
-   sprintf(buf,"#sigma    = %1.3f",fabs(sUU));
+   sprintf(buf,"#sigma    = %1.3f #pm %1.3f",fabs(sUU),sUUe);
    tUU->AddText(buf);
    tUU->SetTextFont(102);
+   tUU->SetTextSize(0.037);
    tUU->SetBorderSize(0);
 
    pullUU->SetTitle(title.c_str());
    pullUU->GetXaxis()->SetTitle(axes["UU"].c_str());
+   pullUU->GetYaxis()->SetTitle("number of tracks");
    pullUU->Draw();
+   pullUU->GetYaxis()->SetRangeUser(0.,4000.);
    tUU->Draw();
    cUU->SaveAs("UU.eps");
    cUU->SaveAs("UU.pdf");
@@ -130,17 +140,22 @@ void plotPulls::Loop(std::string title)
 
    double mVV=gVV->GetParameter(1);
    double sVV=gVV->GetParameter(2);
+   double mVVe=gVV->GetParError(1);
+   double sVVe=gVV->GetParError(2);
    TPaveText *tVV = new TPaveText(0.6,0.68,.87,.8,"NDC");
-   sprintf(buf,"mean = %1.3f",mVV);
+   sprintf(buf,"mean = %1.3f #pm %1.3f",mVV,mVVe);
    tVV->AddText(buf);
-   sprintf(buf,"#sigma    = %1.3f",fabs(sVV));
+   sprintf(buf,"#sigma    = %1.3f #pm %1.3f",fabs(sVV),sVVe);
    tVV->AddText(buf);
    tVV->SetTextFont(102);
+   tVV->SetTextSize(0.037);
    tVV->SetBorderSize(0);
 
    pullVV->SetTitle(title.c_str());
    pullVV->GetXaxis()->SetTitle(axes["VV"].c_str());
+   pullVV->GetYaxis()->SetTitle("number of tracks");
    pullVV->Draw();
+   pullVV->GetYaxis()->SetRangeUser(0.,4000.);
    tVV->Draw();
    cVV->SaveAs("VV.eps");
    cVV->SaveAs("VV.pdf");
@@ -156,17 +171,22 @@ void plotPulls::Loop(std::string title)
 
    double mUpUp=gUpUp->GetParameter(1);
    double sUpUp=gUpUp->GetParameter(2);
+   double mUpUpe=gUpUp->GetParError(1);
+   double sUpUpe=gUpUp->GetParError(2);
    TPaveText *tUpUp = new TPaveText(0.6,0.68,.87,.8,"NDC");
-   sprintf(buf,"mean = %1.3f",mUpUp);
+   sprintf(buf,"mean = %1.3f #pm %1.3f",mUpUp,mUpUpe);
    tUpUp->AddText(buf);
-   sprintf(buf,"#sigma    = %1.3f",fabs(sUpUp));
+   sprintf(buf,"#sigma    = %1.3f #pm %1.3f",fabs(sUpUp),sUpUpe);
    tUpUp->AddText(buf);
    tUpUp->SetTextFont(102);
+   tUpUp->SetTextSize(0.037);
    tUpUp->SetBorderSize(0);
 
    pullUpUp->SetTitle(title.c_str());
    pullUpUp->GetXaxis()->SetTitle(axes["UpUp"].c_str());
+   pullUpUp->GetYaxis()->SetTitle("number of tracks");
    pullUpUp->Draw();
+   pullUpUp->GetYaxis()->SetRangeUser(0.,4000.);
    tUpUp->Draw();
    cUpUp->SaveAs("UpUp.eps");
    cUpUp->SaveAs("UpUp.pdf");
@@ -182,27 +202,32 @@ void plotPulls::Loop(std::string title)
 
    double mVpVp=gVpVp->GetParameter(1);
    double sVpVp=gVpVp->GetParameter(2);
+   double mVpVpe=gVpVp->GetParError(1);
+   double sVpVpe=gVpVp->GetParError(2);
    TPaveText *tVpVp = new TPaveText(0.6,0.68,.87,.8,"NDC");
-   sprintf(buf,"mean = %1.3f",mVpVp);
+   sprintf(buf,"mean = %1.3f #pm %1.3f",mVpVp,mVpVpe);
    tVpVp->AddText(buf);
-   sprintf(buf,"#sigma    = %1.3f",fabs(sVpVp));
+   sprintf(buf,"#sigma    = %1.3f #pm %1.3f",fabs(sVpVp),sVpVpe);
    tVpVp->AddText(buf);
    tVpVp->SetTextFont(102);
+   tVpVp->SetTextSize(0.037);
    tVpVp->SetBorderSize(0);
 
    pullVpVp->SetTitle(title.c_str());
    pullVpVp->GetXaxis()->SetTitle(axes["VpVp"].c_str());
+   pullVpVp->GetYaxis()->SetTitle("number of tracks");
    pullVpVp->Draw();
+   pullVpVp->GetYaxis()->SetRangeUser(0.,4000.);
    tVpVp->Draw();
    cVpVp->SaveAs("VpVp.eps");
    cVpVp->SaveAs("VpVp.pdf");
    //   cVpVp->SaveAs("VpVp.C");
 
-   sprintf(buf,"%f",rand.Uniform());
-   TCanvas *cPhi = new TCanvas(buf,buf);
-   phi->Draw();
-   sprintf(buf,"%f",rand.Uniform());
-   TCanvas *cTheta = new TCanvas(buf,buf);
-   theta->Draw();
+   //sprintf(buf,"%f",rand.Uniform());
+   //TCanvas *cPhi = new TCanvas(buf,buf);
+   //phi->Draw();
+   //sprintf(buf,"%f",rand.Uniform());
+   //TCanvas *cTheta = new TCanvas(buf,buf);
+   //theta->Draw();
 
 }

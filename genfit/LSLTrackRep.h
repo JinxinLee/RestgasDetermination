@@ -18,7 +18,7 @@
 #include "AbsTrackRep.h"
 
 // Collaborating Class Declarations --
-class AbsBFieldIfc;
+class AbsBField;
 class AbsNystromEQM;
 
 /** @brief a local straight line track representation
@@ -53,7 +53,7 @@ public:
 	      double sigx, double sigy, 
 	      double sigdxdz, double sigdydz, 
 	      double siginvp, 
-	      AbsBFieldIfc* field);
+	      AbsBField* field);
   LSLTrackRep(const LSLTrackRep& rep); // copy ctor
 
   virtual ~LSLTrackRep();
@@ -72,10 +72,10 @@ public:
 	    double sigx, double sigy,
 	    double sigdxdz, double sigdydz, 
 	    double siginvp,
-	    AbsBFieldIfc* field);
+	    AbsBField* field);
 
   // Modifiers
-  void SetBField(AbsBFieldIfc* b);
+  void SetBField(AbsBField* b);
   void setReferencePlane(const DetPlane& pl) {s=pl.getO().Z();
                                               _refPlane=pl;}
   void setRungeKuttaAcc(double acc){_acc=acc;}
