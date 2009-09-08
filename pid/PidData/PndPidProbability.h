@@ -20,7 +20,7 @@ class PndPidProbability : public TObject
  public:
 
   PndPidProbability();
-  PndPidProbability(Float_t e, Float_t mu, Float_t pi, Float_t K, Float_t p);
+  PndPidProbability(Float_t e, Float_t mu, Float_t pi, Float_t k, Float_t p);
   ~PndPidProbability();
 
 	Float_t		GetElectronPidProb() const { return fElectronPidProb; }

@@ -52,6 +52,7 @@ class PndMicroWriter : public FairTask
  protected:
   
   void propagate(TLorentzVector &l, TVector3 &p, float charge);
+  Bool_t SearchInput();
   
   TLorentzVector track1; 
   TLorentzVector track2; 

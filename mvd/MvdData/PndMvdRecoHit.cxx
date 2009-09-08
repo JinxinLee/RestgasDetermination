@@ -75,8 +75,8 @@ PndMvdRecoHit::PndMvdRecoHit(PndMvdHit* hit)
   : RecoHitIfc<PlanarHitPolicy>(fNparHitRep)
 {
 
-  std::cout<<" -I- PndMvdRecoHit::PndMvdRecoHit(PndMvdHit*) called."<<std::endl;
-  std::cout<<*hit<<std::endl;
+//  std::cout<<" -I- PndMvdRecoHit::PndMvdRecoHit(PndMvdHit*) called."<<std::endl;
+//  std::cout<<*hit<<std::endl;
 
   TString id =  hit->GetDetName();
 
@@ -84,7 +84,7 @@ PndMvdRecoHit::PndMvdRecoHit(PndMvdHit* hit)
   TString fGeoFile = ioman->GetInFile()->GetName();
   PndMvdGeoHandling* fGeoH = new PndMvdGeoHandling(fGeoFile.Data());
   TString path = fGeoH->GetPath(id);
-  std::cout<<"Detector path: "<<path.Data()<<std::endl;
+//  std::cout<<"Detector path: "<<path.Data()<<std::endl;
   TVector3 oo, uu, vv;
   fGeoH->GetOUVId(id, oo,uu,vv);
 
@@ -103,10 +103,10 @@ PndMvdRecoHit::PndMvdRecoHit(PndMvdHit* hit)
  // _hitCov[0][0] = errPosLoc.X() * errPosLoc.X();
  // _hitCov[1][1] = errPosLoc.Y() * errPosLoc.Y();
   
-  std::cout<<" -I- PndMvdRecoHit::PndMvdRecoHit: Wrote a hit with"
-  <<"\n(x,y) = ("<<localpos.X()<<","<<localpos.Y()<<")."
-  <<"\n(dx,dy) = ("<<errPosLoc.X()<<","<<errPosLoc.Y()<<"). \t not used: dz="<<errPosLoc.Z()
-  <<std::endl;
+//  std::cout<<" -I- PndMvdRecoHit::PndMvdRecoHit: Wrote a hit with"
+//  <<"\n(x,y) = ("<<localpos.X()<<","<<localpos.Y()<<")."
+//  <<"\n(dx,dy) = ("<<errPosLoc.X()<<","<<errPosLoc.Y()<<"). \t not used: dz="<<errPosLoc.Z()
+//  <<std::endl;
 
   setDetPlane(DetPlane(oo,uu,vv));
 }

@@ -106,74 +106,11 @@ InitStatus PndMicroWriter::Init()
   }
   
   
-  // Look for PndPidCandidates
-  fPndChdCndArray = (TClonesArray*) ioman->GetObject("PidChargedCand");
-  fPndNeuCndArray = (TClonesArray*) ioman->GetObject("PidNeutralCand");
-  if ( ! fPndChdCndArray || ! fPndNeuCndArray) {
-    cout << "-W- PndMicroWriter::Init: "
-    << "No PidCandidate array while searching for PndPidCandidates!" << endl;   
-    fPndChdCndArray=new TClonesArray("PndPidCandidate");
-    fPndNeuCndArray=new TClonesArray("PndPidCandidate");
-  } else {
-    fStoreTrack=false; // we have them inside the candidates
-    fStoreNeutral=false; // we have them inside the candidates
-    fStorePndCand=true;
-    fPndChdPrbArray = (TClonesArray*) ioman->GetObject("PidChargedProbabilityIdeal");
-    fPndNeuPrbArray = (TClonesArray*) ioman->GetObject("PidNeutralProbabilityIdeal");
-    if( ! fPndChdPrbArray || ! fPndNeuPrbArray){
-      cout << "-W- PndMicroWriter::Init: "
-      << "No PndPidProbability array! You will miss them. " << endl;   
-      fPndChdPrbArray=new TClonesArray("PndPidProbability");      
-      fPndNeuPrbArray=new TClonesArray("PndPidProbability");      
-    } else 
-      fStoreProb=true;
+  if (SearchInput()==kFALSE) {
+    std::cout<<"-E- PndMicroWriter::Init(): No Input found. Abort."<<std::endl;
+    return kERROR;
   }
   
-  // Look for PndTracks or Tracks only when there is no PidCandidate
-    fPndTrArray = (TClonesArray*) ioman->GetObject("LheGenTrack");
-    if ( ! fPndTrArray || fStorePndCand) {
-      cout << "-W- PndMicroWriter::Init: "
-      << "No LheGenTrack array while searching for PndTracks! Try LheTrack now..." << endl;
-      fPndTrArray = (TClonesArray*) ioman->GetObject("LheTrack");
-      if ( ! fPndTrArray || fStorePndCand) {
-        cout << "-W- PndMicroWriter::Init: "
-        << "No LheTrack array while searching for PndTracks!" << endl;
-        fLheTrArray=new TClonesArray("PndTrack");
-      } else fStorePndTrack=true;
-    } else fStorePndTrack=true;
-
-  // Get input array holding Track objects.
-  fTrArray = (TClonesArray*) ioman->GetObject(fInArrName);
-  if ( ! fTrArray || fStorePndCand || fStorePndTrack) {
-    cout << "-W- PndMicroWriter::Init: "
-    << "No Track array present or another array is used already!" << endl;
-    fTrArray=new TClonesArray("Track");     
-    // return kERROR;
-  } else    fStoreTrack=true;
-    
-    
-    // Get old LHE input array
-  fLheTrArray = (TClonesArray*) ioman->GetObject("LhePidTrack");
-  if ( ! fLheTrArray) {
-    cout << "-W- PndMicroWriter::Init: "
-	 << "No LhePidTrack array!" << endl;
-    fLheTrArray=new TClonesArray("PndLhePidTrack");
-//    return kERROR;
-  } else 
-     fStoreLheTrack=true;
- 
-  // Get neutral input
-  //TODO switch off, when PidCandidates also hold neutrals
-  // if ( ! fStorePndCand )
-  fEmcArray = (TClonesArray*) ioman->GetObject("EmcCluster");
-  if ( ! fEmcArray || fStorePndCand) {
-    cout << "-W- PndMicroWriter::Init: "
-	 << "No EmcCluster array!" << endl;
-	 fEmcArray = new TClonesArray("EmcCluster");
-  //  return kERROR;
-  } else 
-      fStoreNeutral=true;
-
   
   fMCTrack = (TClonesArray*) ioman->GetObject("MCTrack");
   if ( ! fMCTrack) {
@@ -209,6 +146,115 @@ InitStatus PndMicroWriter::Init()
 
 }
 
+
+Bool_t PndMicroWriter::SearchInput() {
+  // Order to look:
+  //
+  //  - PndPidCandidates (shall be default)
+  //
+  //     OR
+  //
+  //  - PndTracks or
+  //    Tracks (genfit raw) or
+  //    PndLhePidTrack (old Lhe)
+  //  - EmcCluster (neutrals)
+
+  fStorePndCand=false;
+  fStoreProb=false;
+
+  fStoreTrack=false;
+  fStorePndTrack=false;
+  fStoreLheTrack=false;
+
+  fStoreNeutral=false;
+  
+  FairRootManager* ioman = FairRootManager::Instance();
+  if ( ! ioman ) {
+    std::cout << "-E- PndMicroWriter::SearchInput: RootManager not instantiated!" << std::endl;
+    return kFALSE;
+  }
+  
+  
+  // Look for PndPidCandidates
+  fPndChdCndArray = (TClonesArray*) ioman->GetObject("PidChargedCand");
+  fPndNeuCndArray = (TClonesArray*) ioman->GetObject("PidNeutralCand");
+  if ( ! fPndChdCndArray || ! fPndNeuCndArray) {
+    std::cout << "-W- PndMicroWriter::SearchInput: No PidCandidate array while searching for PndPidCandidates! Continue with something else." << std::endl;   
+    fPndChdCndArray=new TClonesArray("PndPidCandidate");
+    fPndNeuCndArray=new TClonesArray("PndPidCandidate");
+  } else {
+    fStorePndCand=true;
+    fPndChdPrbArray = (TClonesArray*) ioman->GetObject("PidChargedProbability");
+    fPndNeuPrbArray = (TClonesArray*) ioman->GetObject("PidNeutralProbability");
+    if( ! fPndChdPrbArray || ! fPndNeuPrbArray){
+      std::cout << "-W- PndMicroWriter::SearchInput: No PndPidProbability array! You will miss them. " << std::endl;   
+      fPndChdPrbArray=new TClonesArray("PndPidProbability");      
+      fPndNeuPrbArray=new TClonesArray("PndPidProbability");      
+    } else {
+      fStoreProb=true;
+    }
+    // we found something, so we're done already
+    return kTRUE;
+  }
+  
+  // default not found.. look first for neutrals:
+  fEmcArray = (TClonesArray*) ioman->GetObject("EmcCluster");
+  if ( ! fEmcArray || fStorePndCand) {
+    std::cout << "-W- PndMicroWriter::SearchInput: No EmcCluster array! There will be no neutrals." << std::endl;
+    fEmcArray = new TClonesArray("EmcCluster");
+  } else {
+    fStoreNeutral=true;  
+  }
+  
+  // Look for PndTracks or Tracks and return on success.
+  fPndTrArray = (TClonesArray*) ioman->GetObject("LheGenTrack");
+  if ( ! fPndTrArray) {
+    std::cout << "-W- PndMicroWriter::SearchInput: No LheGenTrack array while searching for PndTracks! Try LheTrack now..." << std::endl;
+    fPndTrArray = (TClonesArray*) ioman->GetObject("LheTrack");
+    if ( ! fPndTrArray) {
+      std::cout << "-W- PndMicroWriter::SearchInput: No LheTrack array while searching for PndTracks!" << std::endl;
+      fLheTrArray=new TClonesArray("PndTrack");
+    } else {
+      fStorePndTrack=true;
+      return kTRUE;
+    }
+  } else {
+    fStorePndTrack=true;
+    return kTRUE;
+  }
+  
+  // Get input array holding Track objects.
+  fTrArray = (TClonesArray*) ioman->GetObject(fInArrName);
+  if ( ! fTrArray || fStorePndCand || fStorePndTrack) {
+    std::cout << "-W- PndMicroWriter::SearchInput: No Track array present or another array is used already!" << std::endl;
+    fTrArray=new TClonesArray("Track");     
+  } else {
+    fStoreTrack=true;
+    return kTRUE;
+  }
+  
+  
+  // Get old LHE input array
+  fLheTrArray = (TClonesArray*) ioman->GetObject("LhePidTrack");
+  if ( ! fLheTrArray) {
+    std::cout << "-W- PndMicroWriter::SearchInput: No LhePidTrack array!" << std::endl;
+    fLheTrArray=new TClonesArray("PndLhePidTrack");
+  } else {
+    fStoreLheTrack=true;
+    return kTRUE;
+  }
+  
+  // no charged found, but neutrals
+  if(fStoreNeutral) {
+    std::cout<<"-I- PndMicroWriter::SearchInput: Only EmcClusters found. No Charged Tracks available."<<std::endl;
+    return kTRUE;
+  }
+  
+  // ouch.. NOTHING found
+  return kFALSE;
+}
+
+
 void PndMicroWriter::SetParContainers() {
 
   // Get run and runtime database
@@ -230,6 +276,12 @@ void PndMicroWriter::Exec(Option_t* opt)
     cout <<"evt: "<<evtcnt<<endl;
   
   // find # in input array
+  Int_t nPndChdCands = 0;
+  if (fStorePndCand) nPndChdCands=fPndChdCndArray->GetEntriesFast();
+
+  Int_t nPndNeuCands = 0;
+  if (fStorePndCand) nPndNeuCands=fPndNeuCndArray->GetEntriesFast();
+
   Int_t nTracks = 0;
   if (fStoreTrack) nTracks=fTrArray->GetEntriesFast();
   
@@ -247,6 +299,22 @@ void PndMicroWriter::Exec(Option_t* opt)
   //PndStack *fStack=(PndStack*)gMC->GetStack();  
   //int nMCTracks=fStack->GetNtrack();
 
+  if(fVerbose>1) {
+    std::cout << "-I- PndMicroWriter::Exec:"
+    << " PndChdCands: "<< nPndChdCands
+    << " PndTracks: "<< nPndTracks
+    << " LheTracks: "<< nLheTracks
+    << " Tracks: "<< nTracks 
+    << " -- PndNeuCands: "<< nPndNeuCands
+    << " EmcClusters: "<< nCluster
+    << " -- MCTruths: "<<nMCTrack
+    << std::endl;
+  
+  }
+  
+  
+  
+  
    // Reset output array
   if (fChargedCandidates->GetEntriesFast() != 0)  fChargedCandidates->Clear("C");
   if (fNeutralCandidates->GetEntriesFast() != 0)  fNeutralCandidates->Clear("C");
@@ -303,7 +371,6 @@ void PndMicroWriter::Exec(Option_t* opt)
   }
   McAvgVtx*=1./(double)nPrimary;
   
-  cout <<"number of tracks **** "<< nTracks <<endl;
   
   Track *tr1;
   PndEmcCluster *clus;
@@ -358,10 +425,6 @@ void PndMicroWriter::Exec(Option_t* opt)
   
   
   
-  Int_t nPndChdCands = 0;
-  if (fStorePndCand) nPndChdCands=fPndChdCndArray->GetEntriesFast();
-  Int_t nPndNeuCands = 0;
-  if (fStorePndCand) nPndNeuCands=fPndNeuCndArray->GetEntriesFast();
   PndPidCandidate *pndcnd;
   PndPidProbability *pidprob;
   // ************************
@@ -400,7 +463,10 @@ void PndMicroWriter::Exec(Option_t* opt)
     {
       pidprob = (PndPidProbability*)fPndChdPrbArray->At(i);
       if (fVerbose>1) { 
-        std::cout << "-I- PndMicroWriter: Setting PndMicroCandidate from PndPidCandidate with likelihoods of:";
+        std::cout << "-I- PndMicroWriter: PndPidCandidate probabilities:"
+        << "  e:" << pidprob->GetElectronPidProb() << "  mu:" << pidprob->GetMuonPidProb() 
+        << "  pi:" << pidprob->GetPionPidProb() << "  K:" << pidprob->GetKaonPidProb() 
+        << "  P:" << pidprob->GetProtonPidProb() << std::endl;
       }              
       micro->SetElectronPidLH(pidprob->GetElectronPidProb());
       micro->SetMuonPidLH(pidprob->GetMuonPidProb());
@@ -495,7 +561,10 @@ void PndMicroWriter::Exec(Option_t* opt)
     {
       pidprob = (PndPidProbability*)fPndNeuPrbArray->At(i);
       if (fVerbose>1) { 
-        std::cout << "-I- PndMicroWriter: Setting PndMicroCandidate from PndPidCandidate with likelihoods of:";
+        std::cout << "-I- PndMicroWriter: PndPidCandidate probabilities:"
+                  << "  e:" << pidprob->GetElectronPidProb() << "  mu:" << pidprob->GetMuonPidProb() 
+                  << "  pi:" << pidprob->GetPionPidProb() << "  K:" << pidprob->GetKaonPidProb() 
+                  << "  P:" << pidprob->GetProtonPidProb() << std::endl;
       }              
       micro->SetElectronPidLH(pidprob->GetElectronPidProb());
       micro->SetMuonPidLH(pidprob->GetMuonPidProb());
@@ -763,6 +832,9 @@ void PndMicroWriter::Exec(Option_t* opt)
   double calFactor=1.035;
   for (Int_t i=0; i<nCluster; i++)
   {
+    if(fVerbose>1){
+      std::cout<<"netrals"<<std::endl;
+    }
     Int_t ncandsize = neutCandidates.GetEntriesFast();
     Int_t micsize = microCandidates.GetEntriesFast();
    
@@ -798,11 +870,26 @@ void PndMicroWriter::Exec(Option_t* opt)
   PndEventInfo *eventInfo=new (evtInfo[evtInfo.GetEntriesFast()]) PndEventInfo();
   eventInfo->SetIPTruth(McAvgVtx);
   eventInfo->SetCmFrame(McSumP4);
-  eventInfo->SetCharged(nTracks);
-  eventInfo->SetNeutrals(nCluster);
-  
+
+  if (fStorePndCand) {
+    eventInfo->SetCharged(nPndChdCands);
+    eventInfo->SetNeutrals(nPndNeuCands);
+  } else {
+    if (fStorePndTrack) eventInfo->SetCharged(nPndTracks);    
+    else if (fStoreLheTrack) eventInfo->SetCharged(nLheTracks);
+    else if (fStoreTrack) eventInfo->SetCharged(nTracks);
+    eventInfo->SetNeutrals(nCluster);
+  }  
   TEventShape shape(l);
   eventInfo->SetEventShape(shape);
+  
+//  if(fVerbose>2) {
+//    std::cout << "-I- PndMicroWiter::Exec: Detailed list of produced Candidates in that event."<< std::endl;
+//    for(int i=0; i<fMicroCandidates->GetEntriesFast();i++){
+//      PndMicroCandidate* cnd = (PndMicroCandidate*)fMicroCandidates->At(i);
+//      std::cout<<*cnd<<std::endl;
+//    }
+//  }
   
   
   // some cleanup 
@@ -810,10 +897,10 @@ void PndMicroWriter::Exec(Option_t* opt)
   TFactory::Instance()->Reset();
   
 
-  if (fTrArray) fTrArray->Delete();
-  if (fLheTrArray) fLheTrArray->Delete();
-  if (fEmcArray) fEmcArray->Delete();
-  if (fMCTrack) fMCTrack->Delete();
+//  if (fTrArray) fTrArray->Delete();
+//  if (fLheTrArray) fLheTrArray->Delete();
+//  if (fEmcArray) fEmcArray->Delete();
+//  if (fMCTrack) fMCTrack->Delete();
  
 }
 // -------------------------------------------------------------------------

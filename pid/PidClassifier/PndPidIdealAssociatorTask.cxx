@@ -82,9 +82,9 @@ void PndPidIdealAssociatorTask::Exec(Option_t * option) {
     PndPidCandidate* pidcand = (PndPidCandidate*)fPidChargedCand->At(i);
     TClonesArray& pidRef = *fPidChargedProb;
     PndPidProbability* prob = new(pidRef[i]) PndPidProbability();// initializes with zeros
-    std::cout<<"-I- PndPidIdealAssociatorTask Ch BEFORE  "<< pidcand->GetLorentzVector().M()<<std::endl;;
+    if(fVerbose>1) std::cout<<"-I- PndPidIdealAssociatorTask Ch BEFORE  "<< pidcand->GetLorentzVector().M()<<std::endl;;
     DoPidMatch(pidcand,prob);
-    std::cout<<"-I- PndPidIdealAssociatorTask Ch AFTER   "<< pidcand->GetLorentzVector().M()<<std::endl;;
+    if(fVerbose>1) std::cout<<"-I- PndPidIdealAssociatorTask Ch AFTER   "<< pidcand->GetLorentzVector().M()<<std::endl;;
   }
   for(Int_t i=0; i<fPidNeutralCand->GetEntriesFast(); i++){
     PndPidCandidate* pidcand = (PndPidCandidate*)fPidNeutralCand->At(i);
@@ -97,17 +97,16 @@ void PndPidIdealAssociatorTask::Exec(Option_t * option) {
 
 void PndPidIdealAssociatorTask::DoPidMatch(PndPidCandidate* pidcand, PndPidProbability* prob)
 {
-  // Cheating for each Pid Candidate. Even the PDG code is set by hand.
+  // Cheating for each Pid Candidate.
   
   Int_t mcid = pidcand->GetMcIndex();
   if(-1==mcid) return; // no specified MC id... do nothing
   PndMCTrack *mctrack = (PndMCTrack*)fMCTrack->At(mcid);
-  if( 0==mctrack) return; // better do nothing on a nill pointer
+  if( 0==mctrack) return; // better do nothing on a null pointer
   Int_t mcpdg = mctrack->GetPdgCode();
   
   TLorentzVector lv = pidcand->GetLorentzVector();
   Double_t mass = TDatabasePDG::Instance()->GetParticle(mcpdg)->Mass();
-  std::cout<<"Mass : "<<mass<<std::endl;
   lv.SetXYZM(lv.X(), lv.Y(), lv.Z(), mass);
 
   pidcand->SetLorentzVector(lv);
@@ -152,9 +151,9 @@ void PndPidIdealAssociatorTask::DoPidMatch(PndPidCandidate* pidcand, PndPidProba
 void PndPidIdealAssociatorTask::Register() {
   //---
   FairRootManager::Instance()->
-  Register("PidChargedProbabilityIdeal","Pid", fPidChargedProb, kTRUE); 
+  Register("PidChargedProbability","Pid", fPidChargedProb, kTRUE); 
   FairRootManager::Instance()->
-  Register("PidNeutralProbabilityIdeal","Pid", fPidNeutralProb, kTRUE);
+  Register("PidNeutralProbability","Pid", fPidNeutralProb, kTRUE);
 }
 
 //_________________________________________________________________
