@@ -30,6 +30,7 @@ ${CMAKE_SOURCE_DIR}/stt/sttreco
 ${CMAKE_SOURCE_DIR}/geane
 ${CMAKE_SOURCE_DIR}/trackrep
 ${CMAKE_SOURCE_DIR}/lhetrack
+${CMAKE_SOURCE_DIR}/rho
 ${CMAKE_SOURCE_DIR}/rho/RhoBase
 ${CMAKE_SOURCE_DIR}/pid
 ${CMAKE_SOURCE_DIR}/pid/PidData
