@@ -3,6 +3,9 @@
 #include <string>
 #include <iostream>
 
+using std::cout;
+using std::endl;
+
 #include "TTree.h"
 #include "TChain.h"
 #include "TClonesArray.h"
@@ -11,13 +14,16 @@
 
 #include "RhoBase/TCandidate.h"
 #include "RhoBase/TCandList.h"
+//#include "PndPidCandidate.h"
 #include "RhoBase/VAbsPidSelector.h"
+//#include "RhoBase/PndMicroCandidate.h"
 #include "RhoBase/TFactory.h"
-#include "RhoBase/PndMicroCandidate.h"
+#include "RhoBase/VAbsMicroCandidate.h"
 #include "RhoSelector/TPidSelector.h"
 #include "RhoTools/PndPidListMaker.h"
 #include "RhoBase/PndEventInfo.h"
 #include "RhoTools/TEventShape.h"
+
 
 PndEventReader::PndEventReader(TChain *t) :
 	fEvtCount(0),
@@ -87,8 +93,8 @@ void PndEventReader::Init()
 	Reset();
 	if (0==fOwnChain) fOwnChain=new TChain(fTreeName.c_str());
 	
-    fOwnChain->SetBranchAddress("PndChargedCandidates",&fChargedCands);
-    fOwnChain->SetBranchAddress("PndNeutralCandidates",&fNeutralCands);
+    fOwnChain->SetBranchAddress("PidChargedCand",&fChargedCands);
+    fOwnChain->SetBranchAddress("PidNeutralCand",&fNeutralCands);
     fOwnChain->SetBranchAddress("PndMcTracks",&fMcCands);
 	fOwnChain->SetBranchAddress("PndMicroCandidates",&fMicroCands);
 //	fOwnChain->SetBranchAddress("PndEventSummary",&fCurrentEventInfo);
@@ -176,7 +182,7 @@ bool PndEventReader::FillList(TCandList &l, std::string listkey)
 	{
 		for (i1=0; i1<fMicroCands->GetEntriesFast(); i1++)
 		{
-			PndMicroCandidate *mic = (PndMicroCandidate *)fMicroCands->At(i1);
+			VAbsMicroCandidate *mic = (VAbsMicroCandidate *)fMicroCands->At(i1);
 			TCandidate tc(*mic,i1+1);
 			
 			allCands.Add(tc);
@@ -187,24 +193,30 @@ bool PndEventReader::FillList(TCandList &l, std::string listkey)
 				neutralCands.Add(tc);
 		}
 	}
-	else  // for compatibility reasons keep temporary the TCandidate readin
+	// removed now compatibility to TCandidate readin ... instead read PndPidCandidates
+	else  
 	{
 		if (fNeutralCands && neutralCands.GetLength()==0)
 		for (i1=0; i1<fNeutralCands->GetEntriesFast(); i1++)
 		{
-			tc = (TCandidate *)fNeutralCands->At(i1);
-			neutralCands.Add(*tc);
-			allCands.Add(*tc);
+			VAbsMicroCandidate *mic = (VAbsMicroCandidate *)fNeutralCands->At(i1);		
+			TCandidate tc(*mic,i1+1);
+			
+			neutralCands.Add(tc);
+			allCands.Add(tc);
 		}
 		
 		if (fChargedCands && chargedCands.GetLength()==0)
 		for (int i1=0; i1<fChargedCands->GetEntriesFast(); i1++)
 		{
-			tc = (TCandidate *)fChargedCands->At(i1);
-			chargedCands.Add(*tc);
-			allCands.Add(*tc);
+			VAbsMicroCandidate *mic = (VAbsMicroCandidate *)fChargedCands->At(i1);
+			TCandidate tc(*mic,i1+1);
+			
+			chargedCands.Add(tc);
+			allCands.Add(tc);
 		}
 	}
+	
 	
 	// set the base list for the PID list maker
 	fPidListMaker->SetBaseList(chargedCands);

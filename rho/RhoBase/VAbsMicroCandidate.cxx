@@ -38,7 +38,7 @@ void VAbsMicroCandidate::PrintOn(std::ostream &o) const
 	o << " ======= Track Quality ======= " 
 	  << "\n Fit quality         : Ndof " << GetDegreesOfFreedom()<< " chi2 " << GetChiSquared() 
 	  << "\n number of hits      : MVD  " << GetMvdHits()<< " Stt " << GetSttHits() << " TPC "<<GetTpcHits() 
-	  << "\n track length        : " << GetTrackLength()<<endl; 
+	  << endl;//"\n track length        : " << GetTrackLength()<<endl; 
     }
     
     o << " ======= Calor Neutral Quality ======= " << endl ; 
@@ -48,14 +48,14 @@ void VAbsMicroCandidate::PrintOn(std::ostream &o) const
         
     if (GetCharge() != 0) {
 	o << " ======= Pid Quality ======= " << endl ; 
-	o << " Fit Quality         : Nphot DRC Barrel " << GetBarrelDrcNumberOfPhotons()
-			                      << " DRC Disc " << GetDiscDrcNumberOfPhotons()
+	o << " Fit Quality         : Nphot DRC Barrel " << GetDrcNumberOfPhotons()
+			                      << " DRC Disc " << GetDiscNumberOfPhotons()
 			                      << " RICH " << GetRichNumberOfPhotons()<<endl; 
-	o << " Cherenkov angle     :  Barrel " << GetBarrelDrcThetaC() << " +- " << GetBarrelDrcThetaCErr()
-			                  <<" Disc "<< GetDiscDrcThetaC() << " +- " << GetDiscDrcThetaCErr()
+	o << " Cherenkov angle     :  Barrel " << GetDrcThetaC() << " +- " << GetDrcThetaCErr()
+			                  <<" Disc "<< GetDiscThetaC() << " +- " << GetDiscThetaCErr()
 			                  <<" RICH "<< GetRichThetaC() << " +- " << GetRichThetaCErr()<<endl; 
-	o << " dEdx                :  MVD " << GetMvdMeanDEdx() 
-		                     << " STT " << GetSttMeanDEdx() << " TPC " << GetTpcMeanDEdx() << endl; 
+	o << " dEdx                :  MVD " << GetMvdDEDX() 
+		                     << " STT " << GetSttMeanDEDX() << " TPC " << GetTpcMeanDEDX() << endl; 
    } 
 } 
 /*

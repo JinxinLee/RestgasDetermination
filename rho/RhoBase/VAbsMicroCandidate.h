@@ -49,68 +49,90 @@ class VAbsMicroCandidate : public TObject
     
 	virtual const Float_t* GetErrorP7() const=0;
     virtual const Float_t* GetCov()const =0;
+	virtual const Float_t* GetParams()const=0;
+	
 	virtual TMatrixD& Cov7() const =0;
 	virtual TMatrixD& P4Cov() const =0;
     virtual Int_t    GetMcIndex() const =0;
-	virtual const Float_t* GetParams()const=0;
+    virtual Int_t     GetTrackIndex() const=0;	
 	
 	// ************************
 	// detector specific stuff
 	// ************************
 	
 	// MVD
-    virtual Float_t		GetMvdMeanDEdx() const =0;
-	virtual Float_t		GetMvdDEdxErr() const =0;
+    //virtual Float_t		GetMvdMeanDEdx() const =0;
+	//virtual Float_t		GetMvdDEdxErr() const =0;
+	
+	virtual Float_t     GetMvdDEDX() const=0;
 	virtual Int_t		GetMvdHits() const=0;
-	virtual const Int_t* GetMvdHitIndexArray() =0;
+	//virtual const Int_t* GetMvdHitIndexArray() =0;
 	
 	// STT
-    virtual Float_t		GetSttMeanDEdx() const =0;
-	virtual Float_t		GetSttDEdxErr() const =0;
+    //virtual Float_t		GetSttMeanDEdx() const =0;
+	//virtual Float_t		GetSttDEdxErr() const =0;
+	
+	virtual Float_t		GetSttMeanDEDX() const=0; 
 	virtual Int_t		GetSttHits() const=0;
-	virtual const Int_t* GetSttHitIndexArray() =0;
+	//virtual const Int_t* GetSttHitIndexArray() =0;
 	
 	// TPC
-    virtual Float_t		GetTpcMeanDEdx() const =0;
-	virtual Float_t		GetTpcDEdxErr() const =0;
+    //virtual Float_t		GetTpcMeanDEdx() const =0;
+	//virtual Float_t		GetTpcDEdxErr() const =0;
+    virtual Float_t		GetTpcMeanDEDX() const=0;
 	virtual Int_t		GetTpcHits() const=0;
-	virtual const Int_t* GetTpcHitIndexArray() =0;
+	//virtual const Int_t* GetTpcHitIndexArray() =0;
 	
 	// TOF
     virtual Float_t		GetTofStopTime() const =0;
     virtual Float_t		GetTofM2() const =0;
-	virtual Float_t		GetTofM2Err() const =0;
+	//virtual Float_t		GetTofM2Err() const =0;
+  	virtual Float_t		GetTofTrackLength() const=0;
+  	virtual Float_t		GetTofQuality()     const=0;
+  	virtual Int_t       GetTofIndex()       const=0;
 	
 	// Barrel DIRC
-    virtual Float_t		GetBarrelDrcThetaC() const =0;
-    virtual Float_t		GetBarrelDrcThetaCErr() const =0;
-    virtual Int_t		GetBarrelDrcNumberOfPhotons() const =0;
+    virtual Float_t		GetDrcThetaC() const =0;
+    virtual Float_t		GetDrcThetaCErr() const =0;
+    virtual Int_t		GetDrcNumberOfPhotons() const =0;
+  	virtual Float_t		GetDrcQuality() const =0;
+	virtual Int_t       GetDrcIndex() const=0;
 	
 	// Disc DIRC
-    virtual Float_t		GetDiscDrcThetaC() const =0;
-    virtual Float_t		GetDiscDrcThetaCErr() const =0;
-    virtual Int_t		GetDiscDrcNumberOfPhotons() const =0;
+    virtual Float_t		GetDiscThetaC() const =0;
+    virtual Float_t		GetDiscThetaCErr() const =0;
+    virtual Int_t		GetDiscNumberOfPhotons() const =0;
+	virtual Float_t		GetDiscQuality() const=0;
+    virtual Int_t       GetDiscIndex() const=0;
 	
 	// RICH
     virtual Float_t		GetRichThetaC() const =0;
     virtual Float_t		GetRichThetaCErr() const =0;
     virtual Int_t		GetRichNumberOfPhotons() const =0;
+	virtual Float_t		GetRichQuality() const=0;
+	virtual Int_t       GetRichIndex() const=0;
 	
 	// EMC
     virtual Float_t		GetEmcRawEnergy() const =0;
     virtual Float_t		GetEmcCalEnergy() const =0;
+	virtual Float_t		GetEmcQuality()   const=0;
     virtual Int_t		GetEmcNumberOfCrystals() const =0;
     virtual Int_t		GetEmcNumberOfBumps() const =0;
+	virtual Int_t       GetEmcModule() const=0;
+	virtual Int_t       GetEmcIndex()     const=0;
 	
 	// MUO
 	virtual Int_t		GetMuoNumberOfLayers() const=0;
 	virtual Float_t		GetMuoProbability() const=0;	 
+  	virtual Float_t		GetMuoQuality() const=0;
+  	virtual Int_t       GetMuoModule()    const=0;
+  	virtual Int_t       GetMuoIndex() const=0;
 	
 	// Tracking
-    virtual Float_t		GetTrackLength() const =0;
+    //virtual Float_t		GetTrackLength() const =0;
     virtual Int_t    	GetDegreesOfFreedom() const =0;
     virtual Int_t    	GetFitStatus() const =0;
-    virtual Float_t  	GetProbability() const =0;
+    //virtual Float_t  	GetProbability() const =0;
     virtual Float_t  	GetChiSquared() const =0;
 	    
 	//PID

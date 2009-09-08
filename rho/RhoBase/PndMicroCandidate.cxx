@@ -17,178 +17,27 @@
 //  ===== PndMicroCandidate - Class definig the AOD interface           ====
 //  ========================================================================
 
-PndMicroCandidate::PndMicroCandidate() :
-	fLocked(false),
-    fCharge(0),		
-    fXposition(0),		
-	fYposition(0),		
-	fZposition(0),		
-	fXmomentum(0),		
-	fYmomentum(0),		
-	fZmomentum(0),		
-	fEnergy(0),		
-    fFirstHitX(0),		
-	fFirstHitY(0),		
-	fFirstHitZ(0),		
-    fLastHitX(0),		
-	fLastHitY(0),		
-	fLastHitZ(0),		
-	fMcIndex(-1),
-	fMvdMeanDEdx(0),
-	fMvdDEdxErr(0),
-	fMvdHits(0),
-    fSttMeanDEdx(0),
-	fSttDEdxErr(0),
-	fSttHits(0),
-	fTpcMeanDEdx(0),
-	fTpcDEdxErr(0),
-	fTpcHits(0),
-	fTofStopTime(0),
-	fTofM2(0),
-	fTofM2Err(0),
-	fBarrelDrcThetaC(0),
-    fBarrelDrcThetaCErr(0),
-    fBarrelDrcNumberOfPhotons(0),
-	fDiscDrcThetaC(0),
-    fDiscDrcThetaCErr(0),
-    fDiscDrcNumberOfPhotons(0),
-	fRichThetaC(0),
-    fRichThetaCErr(0),
-    fRichNumberOfPhotons(0),
-	fEmcRawEnergy(0),
-    fEmcCalEnergy(0),
-    fEmcNumberOfCrystals(0),
-    fEmcNumberOfBumps(0),
-	fMuoNumberOfLayers(0),
-	fMuoProbability(0),
-	fTrackLength(0),
-    fDegreesOfFreedom(0),
-    fFitStatus(0),
-	fProbability(0),
-	fChiSquared(0)
+PndMicroCandidate::PndMicroCandidate()		
 {	
-	fMvdHitIndexArray.Reset();
-	fSttHitIndexArray.Reset();
-	fTpcHitIndexArray.Reset();
-	
-    int i;
-    for (i=0; i<28;i++) fErrP7[i] = 0;
-    for (i=0; i<5;i++) fParams[i] = 0;
-    for (i=0; i<15;i++) fCov[i] = 0;
+  SetDefault();
 }
 
-PndMicroCandidate::PndMicroCandidate(Int_t charge, TVector3 &pos, TLorentzVector &p4, TMatrixD &cov7 ) :
-	fLocked(false),
-    fCharge(charge),		
-    fFirstHitX(0),		
-	fFirstHitY(0),		
-	fFirstHitZ(0),		
-    fLastHitX(0),		
-	fLastHitY(0),		
-	fLastHitZ(0),		
-	fMcIndex(-1),
-	fMvdMeanDEdx(0),
-	fMvdDEdxErr(0),
-	fMvdHits(0),
-    fSttMeanDEdx(0),
-	fSttDEdxErr(0),
-	fSttHits(0),
-	fTpcMeanDEdx(0),
-	fTpcDEdxErr(0),
-	fTpcHits(0),
-	fTofStopTime(0),
-	fTofM2(0),
-	fTofM2Err(0),
-	fBarrelDrcThetaC(0),
-    fBarrelDrcThetaCErr(0),
-    fBarrelDrcNumberOfPhotons(0),
-	fDiscDrcThetaC(0),
-    fDiscDrcThetaCErr(0),
-    fDiscDrcNumberOfPhotons(0),
-	fRichThetaC(0),
-    fRichThetaCErr(0),
-    fRichNumberOfPhotons(0),
-	fEmcRawEnergy(0),
-    fEmcCalEnergy(0),
-    fEmcNumberOfCrystals(0),
-    fEmcNumberOfBumps(0),
-	fMuoNumberOfLayers(0),
-	fMuoProbability(0),
-	fTrackLength(0),
-    fDegreesOfFreedom(0),
-    fFitStatus(0),
-	fProbability(0),
-	fChiSquared(0)
+PndMicroCandidate::PndMicroCandidate(Int_t charge, TVector3 &pos, TLorentzVector &p4, TMatrixD &cov7 )
 {
-	fMvdHitIndexArray.Reset();
-	fSttHitIndexArray.Reset();
-	fTpcHitIndexArray.Reset();
-	
-    int i;
-    for (i=0; i<5;i++) fParams[i] = 0;
-    for (i=0; i<15;i++) fCov[i] = 0;
-	
-	SetPosition(pos);
-	SetLorentzVector(p4);
-	SetCov7(cov7);
+  SetDefault();
+  SetPosition(pos);
+  SetLorentzVector(p4);
+  SetCov7(cov7);
+  SetCharge(charge);
 }
 
-PndMicroCandidate::PndMicroCandidate(Int_t charge, TVector3 &pos, TLorentzVector &p4) :
-	fLocked(false),
-    fCharge(charge),		
-    fFirstHitX(0),		
-	fFirstHitY(0),		
-	fFirstHitZ(0),		
-    fLastHitX(0),		
-	fLastHitY(0),		
-	fLastHitZ(0),		
-	fMcIndex(-1),
-	fMvdMeanDEdx(0),
-	fMvdDEdxErr(0),
-	fMvdHits(0),
-    fSttMeanDEdx(0),
-	fSttDEdxErr(0),
-	fSttHits(0),
-	fTpcMeanDEdx(0),
-	fTpcDEdxErr(0),
-	fTpcHits(0),
-	fTofStopTime(0),
-	fTofM2(0),
-	fTofM2Err(0),
-	fBarrelDrcThetaC(0),
-    fBarrelDrcThetaCErr(0),
-    fBarrelDrcNumberOfPhotons(0),
-	fDiscDrcThetaC(0),
-    fDiscDrcThetaCErr(0),
-    fDiscDrcNumberOfPhotons(0),
-	fRichThetaC(0),
-    fRichThetaCErr(0),
-    fRichNumberOfPhotons(0),
-	fEmcRawEnergy(0),
-    fEmcCalEnergy(0),
-    fEmcNumberOfCrystals(0),
-    fEmcNumberOfBumps(0),
-	fMuoNumberOfLayers(0),
-	fMuoProbability(0),
-	fTrackLength(0),
-    fDegreesOfFreedom(0),
-    fFitStatus(0),
-	fProbability(0),
-	fChiSquared(0)
+PndMicroCandidate::PndMicroCandidate(Int_t charge, TVector3 &pos, TLorentzVector &p4)
 {
-	fMvdHitIndexArray.Reset();
-	fSttHitIndexArray.Reset();
-	fTpcHitIndexArray.Reset();
-	
-    int i;
-    for (i=0; i<28;i++) fErrP7[i] = 0;
-    for (i=0; i<5;i++) fParams[i] = 0;
-    for (i=0; i<15;i++) fCov[i] = 0;
-	
-    SetPosition(pos);
-    SetLorentzVector(p4);
+  SetDefault();
+  SetPosition(pos);
+  SetLorentzVector(p4);
+  SetCharge(charge);
 }
-
 	
 PndMicroCandidate::~PndMicroCandidate()
 {
@@ -289,4 +138,70 @@ void PndMicroCandidate::SetP4Cov(const TMatrixD &covP4 )
     fErrP7[27] = covP4(3,3);
 }
 
+void PndMicroCandidate::SetDefault()
+{
+  fLocked = kFALSE;
+  fCharge = 0;
+  fXposition = 0.;		
+  fYposition = 0.;		
+  fZposition = 0.;		
+  fXmomentum = 0.;		
+  fYmomentum = 0.;		
+  fZmomentum = 0.;		
+  fEnergy = 0.;		
+  fFirstHitX = 0.;		
+  fFirstHitY = 0.;		
+  fFirstHitZ = 0.;		
+  fLastHitX = 0.;		
+  fLastHitY = 0.;		
+  fLastHitZ = 0.;		
+  fMcIndex = -1;
+  fTrackIndex = -1;
+  fMvdDEDX = 0.;
+  fMvdHits = 0;
+  fSttMeanDEDX = 0.;
+  fSttHits = 0;
+  fTpcMeanDEDX = 0.;
+  fTpcHits = 0;
+  fTofStopTime = 0.;
+  fTofM2 = 0.;
+  fTofTrackLength = 0.;
+  fTofQuality = -1.;
+  fTofIndex = -1;
+  fDrcThetaC = 0.;
+  fDrcThetaCErr = 0.;
+  fDrcQuality = -1.;
+  fDrcNumberOfPhotons = 0;
+  fDrcIndex = -1;
+  fDiscThetaC = 0.;
+  fDiscThetaCErr = 0.;
+  fDiscQuality = -1.;
+  fDiscNumberOfPhotons = 0;
+  fDiscIndex = -1;
+  fRichThetaC = 0.;
+  fRichThetaCErr = 0.;
+  fRichQuality = -1.;
+  fRichNumberOfPhotons = 0;
+  fRichIndex = -1;
+  fEmcRawEnergy = 0.;
+  fEmcCalEnergy = 0.;
+  fEmcQuality = -1.;
+  fEmcNumberOfCrystals = 0;
+  fEmcNumberOfBumps = 0;
+  fEmcModule = -1; 
+  fEmcIndex = -1;
+  fMuoNumberOfLayers = 0;
+  fMuoProbability = 0.;
+  fMuoQuality = -1.;
+  fMuoModule = -1; 
+  fMuoIndex = -1;
+  fDegreesOfFreedom = 0;
+  fFitStatus = 0;
+  fChiSquared = 0.;  
+  
+  Int_t i;
+  for (i=0; i<28;i++) fErrP7[i] = 0;
+  for (i=0; i<5;i++) fParams[i] = 0;
+  for (i=0; i<15;i++) fCov[i] = 0;
+}
 
