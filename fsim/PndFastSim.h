@@ -80,8 +80,8 @@ class PndFastSim : public FairTask
    
   /** Output array of Candidates **/
   TClonesArray* fMcCandidates;
-  TClonesArray* fChargedCandidates;
-  TClonesArray* fNeutralCandidates; 
+  TClonesArray* fPidChargedCand;
+  TClonesArray* fPidNeutralCand; 
   TClonesArray* fMicroCandidates;
   
   //output array EventInfo

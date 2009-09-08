@@ -25,6 +25,7 @@
 #include "RhoBase/TSimpleVertex.h"
 #include "RhoBase/TRho.h"
 #include "RhoBase/PndMicroCandidate.h"
+#include "PidData/PndPidCandidate.h"
 #include "RhoBase/PndEventInfo.h"
 #include "RhoBase/TCandList.h"
 #include "RhoTools/TEventShape.h"
@@ -74,10 +75,12 @@ PndFastSim::~PndFastSim() {
     FairRootManager *fManager =FairRootManager::Instance();
    fManager->Write();
 
-  if (fChargedCandidates) {fChargedCandidates->Delete(); delete fChargedCandidates;}
-  if (fNeutralCandidates) {fNeutralCandidates->Delete(); delete fNeutralCandidates;}
+  //if (fChargedCandidates) {fChargedCandidates->Delete(); delete fChargedCandidates;}
+  //if (fNeutralCandidates) {fNeutralCandidates->Delete(); delete fNeutralCandidates;}
   if (fMcCandidates) {fMcCandidates->Delete(); delete fMcCandidates;}
   if (fMicroCandidates) {fMicroCandidates->Delete(); delete fMicroCandidates;}
+  if (fPidChargedCand) {fPidChargedCand->Delete(); delete fPidChargedCand;}
+  if (fPidNeutralCand) {fPidNeutralCand->Delete(); delete fPidNeutralCand;}
   if (fEventInfo) {fEventInfo->Delete(); delete fEventInfo;}
 
   if (fDetFac) delete fDetFac;
@@ -95,14 +98,22 @@ void PndFastSim::Register() {
   //fPndCandidates = new TClonesArray("TCandidate");
   //FairRootManager::Instance()->Register("PndCandidates","FastSim", fPndCandidates, kTRUE);
 
-  fChargedCandidates = new TClonesArray("TCandidate");
-  FairRootManager::Instance()->Register("PndChargedCandidates","FastSim", fChargedCandidates, kTRUE);
+  //fChargedCandidates = new TClonesArray("TCandidate");
+  //FairRootManager::Instance()->Register("PndChargedCandidates","FastSim", fChargedCandidates, kTRUE);
 
-  fNeutralCandidates = new TClonesArray("TCandidate");
-  FairRootManager::Instance()->Register("PndNeutralCandidates","FastSim", fNeutralCandidates, kTRUE);
+  //fNeutralCandidates = new TClonesArray("TCandidate");
+  //FairRootManager::Instance()->Register("PndNeutralCandidates","FastSim", fNeutralCandidates, kTRUE);
 
-  fMicroCandidates = new TClonesArray("PndMicroCandidate");
-  FairRootManager::Instance()->Register("PndMicroCandidates","FastSim", fMicroCandidates, kTRUE);
+  //fMicroCandidates = new TClonesArray("PndMicroCandidate");
+  //FairRootManager::Instance()->Register("PndMicroCandidates","FastSim", fMicroCandidates, kTRUE);
+
+
+  fPidChargedCand = new TClonesArray("PndPidCandidate");
+  FairRootManager::Instance()->Register("PidChargedCand","FastSim", fPidChargedCand, kTRUE);
+
+  fPidNeutralCand = new TClonesArray("PndPidCandidate");
+  FairRootManager::Instance()->Register("PidNeutralCand","FastSim", fPidNeutralCand, kTRUE);
+
 
   fEventInfo = new TClonesArray("PndEventInfo");
   FairRootManager::Instance()->Register("PndEventSummary","FastSim", fEventInfo, kTRUE);
@@ -313,6 +324,9 @@ bool PndFastSim::AddDetector(PndFsmAbsDet* det)
 // -----   Public method Exec   --------------------------------------------
 void PndFastSim::Exec(Option_t* opt) 
 {
+  int nCharged = 0;
+  int nNeutral = 0;
+
   if ((++evtcnt)%100==0)
     cout <<"evt: "<<evtcnt<<endl;
   
@@ -322,15 +336,15 @@ void PndFastSim::Exec(Option_t* opt)
 
    // Reset output array
   if (fMcCandidates->GetEntriesFast() != 0)  fMcCandidates->Clear("C");
-  if (fChargedCandidates->GetEntriesFast() != 0)  fChargedCandidates->Clear("C");
-  if (fNeutralCandidates->GetEntriesFast() != 0)  fNeutralCandidates->Clear("C");
-  if (fMicroCandidates->GetEntriesFast() != 0) fMicroCandidates->Clear("C");
+  if (fPidChargedCand->GetEntriesFast() != 0)  fPidChargedCand->Clear("C");
+  if (fPidNeutralCand->GetEntriesFast() != 0)  fPidNeutralCand->Clear("C");
+  //if (fMicroCandidates->GetEntriesFast() != 0) fMicroCandidates->Clear("C");
   if (fEventInfo->GetEntriesFast() != 0) fEventInfo->Clear("C");
 
   TClonesArray &mctracks = *fMcCandidates;
-  TClonesArray &chrgCandidates= *fChargedCandidates;
-  TClonesArray &neutCandidates= *fNeutralCandidates;
-  TClonesArray &microCandidates = *fMicroCandidates;
+  TClonesArray &chrgCandidates= *fPidChargedCand;
+  TClonesArray &neutCandidates= *fPidNeutralCand;
+  //TClonesArray &microCandidates = *fMicroCandidates;
   TClonesArray &evtInfo         = *fEventInfo;
 
   if (fVb)cout <<"number of tracks **** "<< nTracks <<endl;
@@ -346,7 +360,7 @@ void PndFastSim::Exec(Option_t* opt)
     Int_t mcsize = mctracks.GetEntriesFast();
     Int_t chcandsize = chrgCandidates.GetEntriesFast();
     Int_t neucandsize = neutCandidates.GetEntriesFast();
-    Int_t miccandsize = microCandidates.GetEntriesFast();
+    //Int_t miccandsize = microCandidates.GetEntriesFast();
 
     TParticle *t = fStack->GetParticle(iPoint);
     if (fVb>1) t->Print();
@@ -384,34 +398,42 @@ void PndFastSim::Exec(Option_t* opt)
     if (smearTrack(ft)) {
       TSimpleVertex *svtx=new TSimpleVertex(ft->startVtx());
       
-      TCandidate *tcand;
-      PndMicroCandidate *micro;
+      //TCandidate *tcand;
+      
+      //PndMicroCandidate *micro;
       TLorentzVector miclv=ft->p4();
       TVector3 pos=ft->startVtx();
       
       // assign pion mass to all charged and 0 to all neutral cands
       if (fabs(ft->charge())>0.001) 
+      {
         miclv.SetVectM(miclv.Vect(),fdbPdg->GetParticle(211)->Mass());
+        nCharged++;
+      }
       else
+      {
         miclv.SetVectM(miclv.Vect(),0.0);
+        nNeutral++;
+      }
       
+      /*
       micro=new (microCandidates[miccandsize]) PndMicroCandidate((Int_t)ft->charge(),pos,miclv);
 
       micro->SetMcIndex(iPoint);
-      micro->SetMvdMeanDEdx( ft->detResponse()->MvddEdx() );
-      micro->SetMvdDEdxErr( ft->detResponse()->MvddEdxErr() );
-      micro->SetSttMeanDEdx( ft->detResponse()->SttdEdx() );
-      micro->SetSttDEdxErr( ft->detResponse()->SttdEdxErr() );
-      micro->SetTpcMeanDEdx( ft->detResponse()->TpcdEdx() );
-      micro->SetTpcDEdxErr( ft->detResponse()->TpcdEdxErr() );
+      micro->SetMvdDEDX( ft->detResponse()->MvddEdx() );
+      //micro->SetMvdDEdxErr( ft->detResponse()->MvddEdxErr() );
+      micro->SetSttMeanDEDX( ft->detResponse()->SttdEdx() );
+      //micro->SetSttDEdxErr( ft->detResponse()->SttdEdxErr() );
+      micro->SetTpcMeanDEDX( ft->detResponse()->TpcdEdx() );
+      //micro->SetTpcDEdxErr( ft->detResponse()->TpcdEdxErr() );
       micro->SetTofM2( ft->detResponse()->m2() );
       micro->SetTofM2Err( ft->detResponse()->m2Err() );
-      micro->SetBarrelDrcThetaC( ft->detResponse()->DrcBarrelThtc() );
-      micro->SetBarrelDrcThetaCErr( ft->detResponse()->DrcBarrelThtcErr() );
-      micro->SetBarrelDrcNumberOfPhotons(0);
-      micro->SetDiscDrcThetaC( ft->detResponse()->DrcDiscThtc() );
-      micro->SetDiscDrcThetaCErr( ft->detResponse()->DrcDiscThtcErr() );
-      micro->SetDiscDrcNumberOfPhotons(0);
+      micro->SetDrcThetaC( ft->detResponse()->DrcBarrelThtc() );
+      micro->SetDrcThetaCErr( ft->detResponse()->DrcBarrelThtcErr() );
+      micro->SetDrcNumberOfPhotons(0);
+      micro->SetDiscThetaC( ft->detResponse()->DrcDiscThtc() );
+      micro->SetDiscThetaCErr( ft->detResponse()->DrcDiscThtcErr() );
+      micro->SetDiscNumberOfPhotons(0);
       micro->SetRichThetaC( ft->detResponse()->RichThtc() );
       micro->SetRichThetaCErr( ft->detResponse()->RichThtcErr() );
       micro->SetRichNumberOfPhotons(0);
@@ -422,11 +444,55 @@ void PndFastSim::Exec(Option_t* opt)
       micro->SetKaonPidLH(ft->detResponse()->LHKaon());
       micro->SetProtonPidLH(ft->detResponse()->LHProton());
       
+      if (fPropagate && fabs(ft->charge())>1e-6) {
+         micro->SetCov7( ft->Cov7() );
+      }
+      */
+      
+	  
+	  PndPidCandidate *pidCand;
+	  
+	  if (fabs(ft->charge())>1e-6)
+		pidCand = new (chrgCandidates[chcandsize]) PndPidCandidate((Int_t)ft->charge(),pos,miclv);
+	  else
+		pidCand = new (neutCandidates[neucandsize]) PndPidCandidate((Int_t)ft->charge(),pos,miclv);
+	  
+	  pidCand->SetMcIndex(iPoint);
+      pidCand->SetMvdDEDX( ft->detResponse()->MvddEdx() );
+      //pidCand->SetMvdDEdxErr( ft->detResponse()->MvddEdxErr() );
+      pidCand->SetSttMeanDEDX( ft->detResponse()->SttdEdx() );
+      //pidCand->SetSttDEdxErr( ft->detResponse()->SttdEdxErr() );
+      pidCand->SetTpcMeanDEDX( ft->detResponse()->TpcdEdx() );
+      //pidCand->SetTpcDEdxErr( ft->detResponse()->TpcdEdxErr() );
+      pidCand->SetTofM2( ft->detResponse()->m2() );
+      //pidCand->SetTofM2Err( ft->detResponse()->m2Err() );
+      pidCand->SetDrcThetaC( ft->detResponse()->DrcBarrelThtc() );
+      pidCand->SetDrcThetaCErr( ft->detResponse()->DrcBarrelThtcErr() );
+      pidCand->SetDrcNumberOfPhotons(0);
+      pidCand->SetDiscThetaC( ft->detResponse()->DrcDiscThtc() );
+      pidCand->SetDiscThetaCErr( ft->detResponse()->DrcDiscThtcErr() );
+      pidCand->SetDiscNumberOfPhotons(0);
+      pidCand->SetRichThetaC( ft->detResponse()->RichThtc() );
+      pidCand->SetRichThetaCErr( ft->detResponse()->RichThtcErr() );
+      pidCand->SetRichNumberOfPhotons(0);
+      
+      pidCand->SetElectronPidLH(ft->detResponse()->LHElectron());
+      pidCand->SetMuonPidLH(ft->detResponse()->LHMuon());
+      pidCand->SetPionPidLH(ft->detResponse()->LHPion());
+      pidCand->SetKaonPidLH(ft->detResponse()->LHKaon());
+      pidCand->SetProtonPidLH(ft->detResponse()->LHProton());
+	  
+      if (fPropagate && fabs(ft->charge())>1e-6) {
+         pidCand->SetCov7( ft->Cov7() );
+      }
+	  
+	  /*
       if (fabs(ft->charge())>1e-6) 
         tcand=new (chrgCandidates[chcandsize]) TCandidate(ft->p4(),ft->charge(),svtx);
       else 
         tcand=new (neutCandidates[neucandsize]) TCandidate(ft->p4(),ft->charge(),svtx);
 
+	  
       // the likelihood values;
       tcand->SetPidInfo( 0, ft->detResponse()->LHElectron());
       tcand->SetPidInfo( 1, ft->detResponse()->LHMuon());
@@ -466,8 +532,11 @@ void PndFastSim::Exec(Option_t* opt)
         tcand->SetMass(fdbPdg->GetParticle(211)->Mass());
       } else
         tcand->SetMass(0.0);
-        
-      l.Add(*tcand);
+	  */
+		
+      TCandidate tcand(ft->p4(),ft->charge(),svtx);
+		
+      l.Add(tcand);
     
       /*	
       tcand=new (pndCandidates[pndcandsize]) TCandidate(ft->p4(),ft->charge(),svtx);
@@ -514,15 +583,21 @@ void PndFastSim::Exec(Option_t* opt)
           lv.SetRho(mom);
           lv.SetE(lv.P());
           
+          /*
           PndMicroCandidate *micro=new (microCandidates[microCandidates.GetEntriesFast()])
               PndMicroCandidate(0,pos,lv);
           micro->SetMcIndex(-1);
+          */
           
-          TCandidate *tcand=new (neutCandidates[neutCandidates.GetEntriesFast()]) TCandidate(lv,0.0);
-          tcand->SetMcIdx(-1);
-          tcand->SetType(22);
           
-          l.Add(*tcand);
+		  PndPidCandidate *pidCand=new (neutCandidates[neutCandidates.GetEntriesFast()]) PndPidCandidate(0,pos,lv);
+		  pidCand->SetMcIndex(-1);
+		  
+          TCandidate tcand(lv,0.0);
+          tcand.SetMcIdx(-1);
+          tcand.SetType(22);
+          
+          l.Add(tcand);
           
           //tcand=new (pndCandidates[pndCandidates.GetEntriesFast()]) TCandidate(lv,0.0);
           //tcand->SetMcIdx(-1);
@@ -541,8 +616,8 @@ void PndFastSim::Exec(Option_t* opt)
   
   eventInfo->SetIPTruth(McAvgVtx);
   eventInfo->SetCmFrame(McSumP4);
-  eventInfo->SetCharged(chrgCandidates.GetEntriesFast());
-  eventInfo->SetNeutrals(neutCandidates.GetEntriesFast());
+  eventInfo->SetCharged(nCharged);
+  eventInfo->SetNeutrals(nNeutral);
   
   TEventShape shape(l);
   eventInfo->SetEventShape(shape);

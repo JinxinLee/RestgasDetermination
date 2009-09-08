@@ -590,13 +590,13 @@ void PndSimpleAnalysis::Exec(Option_t* opt)
 						case 154: theArF[off+k]=cur->fList[k].Daughter(4)->M(); break;
 
 						// PID Info based on PndMicroCandidate entries
-						case 160: if (mic) theArF[off+k]=mic->GetBarrelDrcThetaC(); break; 	// Barrel DIRC tht_c
-						case 161: if (mic) theArF[off+k]=mic->GetDiscDrcThetaC(); break; 	// Disc DIRC tht_c
+						case 160: if (mic) theArF[off+k]=mic->GetDrcThetaC(); break; 	// Barrel DIRC tht_c
+						case 161: if (mic) theArF[off+k]=mic->GetDiscThetaC(); break; 	// Disc DIRC tht_c
 						case 162: if (mic) theArF[off+k]=mic->GetRichThetaC(); break; 		// RICH tht_c
 						case 163: if (mic) theArF[off+k]=mic->GetTofM2(); break; 			// TOF m^2
-						case 164: if (mic) theArF[off+k]=mic->GetMvdMeanDEdx(); break; 		// MVD dEdx	
-						case 165: if (mic) theArF[off+k]=mic->GetSttMeanDEdx(); break; 		// STT dEdx
-						case 166: if (mic) theArF[off+k]=mic->GetTpcMeanDEdx(); break; 		// TPC dEdx
+						case 164: if (mic) theArF[off+k]=mic->GetMvdDEDX(); break; 		// MVD dEdx	
+						case 165: if (mic) theArF[off+k]=mic->GetSttMeanDEDX(); break; 		// STT dEdx
+						case 166: if (mic) theArF[off+k]=mic->GetTpcMeanDEDX(); break; 		// TPC dEdx
 						
 						case 170: if (mic) theArF[off+k]=mic->GetElectronPidLH(); break; 	// Electron LH
 						case 171: if (mic) theArF[off+k]=mic->GetMuonPidLH(); break; 		// Muon LH

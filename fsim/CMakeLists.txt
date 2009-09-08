@@ -12,6 +12,7 @@ ${CMAKE_SOURCE_DIR}/passive
 ${CMAKE_SOURCE_DIR}/tpc
 ${CMAKE_SOURCE_DIR}/lhetrack
 ${CMAKE_SOURCE_DIR}/fsim
+${CMAKE_SOURCE_DIR}/pid
 ${CMAKE_SOURCE_DIR}/rho
 ${CMAKE_SOURCE_DIR}/rho/RhoBase
 ${CMAKE_SOURCE_DIR}/rho/RhoSelector
