@@ -44,9 +44,9 @@ PndFieldAdaptor::get(const TVector3& pos) const {
 
   Double_t f[3];
   _field->GetFieldValue(x,f);
-  std::cout << "PndFieldAdapter::get() field at "
-	    <<x[0]<<","<<x[1]<<","<<x[2]<<" has value "
-	    <<f[0]<<","<<f[1]<<","<<f[2]<<std::endl;
+  //std::cout << "PndFieldAdapter::get() field at "
+  //	    <<x[0]<<","<<x[1]<<","<<x[2]<<" has value "
+  //        <<f[0]<<","<<f[1]<<","<<f[2]<<std::endl;
   return TVector3(f[0],f[1],f[2]);
 }
 
