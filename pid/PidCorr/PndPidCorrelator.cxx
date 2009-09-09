@@ -388,7 +388,7 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
 //_________________________________________________________________
 void PndPidCorrelator::GetTrackInfo(PndTrack* track, PndPidCandidate* pidCand) 
 {
-  Int_t charge =   (Int_t)TMath::Sign(1., track->GetParamFirst().GetQ());
+  Int_t charge =   TMath::Sign(1, track->GetParamFirst().GetQ());
   pidCand->SetCharge(charge);
      
   TVector3 first(track->GetParamFirst().GetX(),
@@ -886,7 +886,7 @@ Float_t PndPidCorrelator::ExtrapolateToZ(FairTrackParH* helix, TVector3 *mom, TV
   Double_t pt     = helix->GetMomentum().Pt();
   Double_t lambda = helix->GetLambda();
   Double_t lam = TMath::Tan(helix->GetLambda());
-  Double_t Q = TMath::Sign(1., helix->GetQ());
+  Int_t Q = TMath::Sign(1, helix->GetQ());
 
   if ( (lam==0) || (pt==0) || (Q==0) ) {
     cout << "-W-  PndPidCorrelator ::ExtrapolateToZ: lambda/pt/Q==0 - skipped track" << endl;
