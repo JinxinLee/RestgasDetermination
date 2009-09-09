@@ -27,7 +27,6 @@
 
   fRun->Init();
   rtdb->print();
-
   RKT->setField(new PndFieldAdaptor(fRun->GetField()));
 
 

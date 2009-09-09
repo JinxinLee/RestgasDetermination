@@ -10,9 +10,11 @@
 
 #pragma link C++ class SPhit+;
 #pragma link C++ class StripHit+;
+#pragma link C++ class PixHit+;
 #pragma link C++ class IllustrateTask+;
 #pragma link C++ class SPtestTask+;
 #pragma link C++ class RKtestTask+;
+#pragma link C++ class RKtrackingTask+;
 #pragma link C++ class GeaneTestTask+;
 #pragma link C++ class TestGeaneTrackRep+;
 

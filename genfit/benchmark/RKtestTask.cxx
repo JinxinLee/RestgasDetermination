@@ -74,9 +74,10 @@ void RKtestTask::Exec(Option_t* opt) {
 
     std::cerr << "@@@@@@@@@@@@@@@@ Doing event #" << counter << std::endl;
     
-    TVector3 pos    = TVector3 (0.,0.1,0.);
+    TVector3 pos    = TVector3 (0.,0.,0.);
     TVector3 posErr = TVector3(1.,1.,1.);
-    TVector3 mom    = TVector3 (0.,0.,1.);
+    TVector3 mom    = TVector3 (1.,0.,2.);
+    mom.SetMag(0.3);
     TVector3 momErr    = TVector3 (.3,0.3,.3);
     
     AbsTrackRep* rephits = new RKtrackRep(pos,mom,posErr,momErr,1.,13,field);
@@ -85,16 +86,17 @@ void RKtestTask::Exec(Option_t* opt) {
     
 	
 
-    const int NPOINTS=25;
+    const int NPOINTS=500;
     DetPlane tarPlane;
-    tarPlane.setU(1.,0.,0.);
-    tarPlane.setV(0.,1.,0.);
+    //tarPlane.setU(1.,0.,0.);
+    //tarPlane.setV(0.,1.,0.);
+    tarPlane.setNormal(0.,0.,1.);
     tarPlane.setO(0.,0.,1.);
     TPolyMarker3D *points = new TPolyMarker3D(NPOINTS,20);
     for(int i=0;i<NPOINTS;++i){
       //std::cout << "eeeee" << std::endl;
       
-      tarPlane.setO(0.,0.,tarPlane.getO().Z()+10.);
+      tarPlane.setO(0.,0.,tarPlane.getO().Z()+1.);
       TMatrixT<double> statePred(5,1);
       TMatrixT<double> covPred(5,5);
       {
@@ -103,10 +105,21 @@ void RKtestTask::Exec(Option_t* opt) {
 	  rephits->extrapolate(tarPlane,statePred,covPred);
 	}
 	catch(FitterException& e){
-	  e.what();
-	  std::cerr<<"Exceptions in RKtestTask wont be further handled _.exit(1)"<<std::endl;
-	  exit(1);
+	  std::cout<<e.what()<<std::endl;
+	  e.info();
+	  if(e.isFatal()){
+	    std::cerr<<"Exceptions in RKtestTask wont be further handled ->exit(1)"<<std::endl;
+	    exit(1);
+	  }
+	  else{
+	    continue;
+	  }
 	}
+      }
+
+      if(fabs(statePred[2][0])>10. || fabs(statePred[3][0])>10.){
+	std::cout << "breaking for large slope" << std::endl;
+	break;
       }
 
       rephits->setState(statePred);

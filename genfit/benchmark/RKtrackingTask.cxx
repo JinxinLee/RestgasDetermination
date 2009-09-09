@@ -18,20 +18,19 @@
 
 
 #include "PndGemMCPoint.h"
+#include "PndMvdMCPoint.h"
+#include "PndDchPoint.h"
 
-#include "TRandom2.h"
-
+#include"assert.h"
 
 // -----   Default constructor   -------------------------------------------
 RKtrackingTask::RKtrackingTask() :
-  FairTask("RK tracking") { 
-  fDigiPar     = NULL;
+  FairTask("RK tracking"),field(NULL) { 
 }
 
 // -----   Constructor   ---------------------------------------------------
 RKtrackingTask::RKtrackingTask(const char* name, Int_t iVerbose) 
-  : FairTask(name, iVerbose) { 
-  fDigiPar     = NULL;
+  : FairTask(name, iVerbose),field(NULL) { 
 }
 
 
@@ -95,22 +94,23 @@ InitStatus RKtrackingTask::Init() {
 // -----   Public method Exec   --------------------------------------------
 void RKtrackingTask::Exec(Option_t* opt) {
 
+  assert(field!=NULL);
   std::vector<TVector3> points;
 
   for ( Int_t iPoint = 0 ; iPoint < fMvdPointArray->GetEntriesFast() ; iPoint++ ) {
-    PndMvdMCPoint* point = (PndMvdMCPoint*)fMvdPointArray->At(iPoint);
-    TVector3 pos(point->GetX(),point.GetY(),point.getZ());
-    points.push_back(point);
+    FairMCPoint* point = (PndMvdMCPoint*)fMvdPointArray->At(iPoint);
+    TVector3 pos(point->GetX(),point->GetY(),point->GetZ());
+    points.push_back(pos);
   }  // end of loop over Points
   for ( Int_t iPoint = 0 ; iPoint < fGemPointArray->GetEntriesFast() ; iPoint++ ) {
-    PndGemMCPoint* point = (PndGemMCPoint*)fGemPointArray->At(iPoint);
-    TVector3 pos(point->GetX(),point.GetY(),point.getZ());
-    points.push_back(point);
+    FairMCPoint* point = (PndGemMCPoint*)fGemPointArray->At(iPoint);
+    TVector3 pos(point->GetX(),point->GetY(),point->GetZ());
+    points.push_back(pos);
   }  // end of loop over Points
   for ( Int_t iPoint = 0 ; iPoint < fDchPointArray->GetEntriesFast() ; iPoint++ ) {
-    PndDchPoint* point = (PndDchPoint*)fDchPointArray->At(iPoint);
-    TVector3 pos(point->GetX(),point.GetY(),point.getZ());
-    points.push_back(point);
+    FairMCPoint* point = (PndDchPoint*)fDchPointArray->At(iPoint);
+    TVector3 pos(point->GetX(),point->GetY(),point->GetZ());
+    points.push_back(pos);
   }  // end of loop over Points
 
   TPolyMarker3D *drawpoints = new TPolyMarker3D(points.size(),20);

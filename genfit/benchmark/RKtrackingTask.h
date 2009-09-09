@@ -33,11 +33,11 @@ class RKtrackingTask : public FairTask{
 	/** Virtual method Exec **/
 	virtual void Exec(Option_t* opt);
 	
-
+	void setField(AbsBField* f){field=f;}
 
  private: 
    
-	PndGemDigiPar* fDigiPar;
+	AbsBField* field;
 
 	TClonesArray* fMvdPointArray;
 	TClonesArray* fGemPointArray;

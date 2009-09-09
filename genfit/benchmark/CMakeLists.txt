@@ -7,10 +7,15 @@ ${ROOT_INCLUDE_DIR}
 ${CLHEP_INCLUDE_DIR}
 ${GEANT3_INCLUDE_DIR}
 ${CMAKE_SOURCE_DIR}/base
+${CMAKE_SOURCE_DIR}/parbase
 ${CMAKE_SOURCE_DIR}/geane
 ${CMAKE_SOURCE_DIR}/tpc
 ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/trackbase
+${CMAKE_SOURCE_DIR}/pnddata/MvdData
+${CMAKE_SOURCE_DIR}/pnddata/GemData
+${CMAKE_SOURCE_DIR}/dch
+${CMAKE_SOURCE_DIR}/dch/DchData
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
 ${CMAKE_SOURCE_DIR}/trackrep
 ${CMAKE_SOURCE_DIR}/genfit/benchmark
@@ -29,9 +34,11 @@ set(BENCHMARK_SRCS
 SPhit.cxx
 IllustrateTask.cxx
 StripHit.cxx
+PixHit.cxx
 TestGeaneTrackRep.cxx
 SPtestTask.cxx
 RKtestTask.cxx
+RKtrackingTask.cxx
 GeaneTestTask.cxx
 )
 
@@ -44,7 +51,8 @@ set(BENCHMARK_LINKDEF  benchmarkLinkdef.h)
 set(BENCHMARK_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/benchmarkDict.cxx) 
 
 #########
-set(BENCHMARK_HEADERS  GeaneTestTask.h TestGeaneTrackRep.h SPhit.h StripHit.h SPtestTask.h IllustrateTask.h RKtestTask.h)
+set(BENCHMARK_HEADERS  GeaneTestTask.h TestGeaneTrackRep.h SPhit.h StripHit.h PixHit.h SPtestTask.h IllustrateTask.h RKtestTask.h RKtrackingTask.h)
+
 #########
 
 ROOT_GENERATE_DICTIONARY("${BENCHMARK_HEADERS}" "${BENCHMARK_LINKDEF}" "${BENCHMARK_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
