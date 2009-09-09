@@ -63,12 +63,12 @@ class RecoHitProducer : public AbsRecoHitProducer {
  private:
   /** @brief pointer to array with cluster data */
   TClonesArray* hitArrayTClones;
-  std::vector<AbsRecoHit*>* hitArrayVector;
+  //std::vector<AbsRecoHit*>* hitArrayVector;
  public:
 
   /** @brief Constructor takes pointer to the cluster array */
   RecoHitProducer(TClonesArray*);
-  RecoHitProducer(std::vector<AbsRecoHit*>*);
+  //RecoHitProducer(std::vector<AbsRecoHit*>*);
   virtual ~RecoHitProducer();
 
   /** @brief Create a RecoHit from the cluster at position index 
@@ -81,14 +81,15 @@ class RecoHitProducer : public AbsRecoHitProducer {
 template <class hit_T,class recoHit_T>
 RecoHitProducer<hit_T,recoHit_T>::RecoHitProducer(TClonesArray* theArr) {
   hitArrayTClones = theArr;
-  hitArrayVector = NULL;
+  //hitArrayVector = NULL;
 }
-
+/*
 template <class hit_T,class recoHit_T>
   RecoHitProducer<hit_T,recoHit_T>::RecoHitProducer(std::vector<AbsRecoHit*>* theArr) {
   hitArrayTClones = NULL;
   hitArrayVector = theArr;
 }
+*/
 
 template <class hit_T,class recoHit_T>
 RecoHitProducer<hit_T,recoHit_T>::~RecoHitProducer() {
@@ -98,25 +99,26 @@ RecoHitProducer<hit_T,recoHit_T>::~RecoHitProducer() {
 
 template <class hit_T,class recoHit_T>
 AbsRecoHit* RecoHitProducer<hit_T,recoHit_T>::produce(int index) {
-  assert(hitArrayTClones!=NULL || hitArrayVector!=NULL);//at least one exists
-  assert(!(hitArrayTClones!=NULL && hitArrayVector!=NULL));//but not both
-  if(hitArrayTClones!=NULL){
+  assert(hitArrayTClones!=NULL);
+  //assert(hitArrayTClones!=NULL || hitArrayVector!=NULL);//at least one exists
+  //assert(!(hitArrayTClones!=NULL && hitArrayVector!=NULL));//but not both
+  //if(hitArrayTClones!=NULL){
     //the ROOT guys really use 0 and not NULL grrr...
-    if(hitArrayTClones->At(index) == 0) {
-      FitterException e("In RecoHitProducer: index for hit in TClonesArray out of bounds",__LINE__,__FILE__);
-      e.setFatal();
-      throw e;
-    }
-    return ( new recoHit_T( (hit_T*) hitArrayTClones->At(index) ) );
+  if(hitArrayTClones->At(index) == 0) {
+    FitterException e("In RecoHitProducer: index for hit in TClonesArray out of bounds",__LINE__,__FILE__);
+    e.setFatal();
+    throw e;
   }
-  else{//after assertions this is save: the hitArrayVector is good
-    if(index >= hitArrayVector->size()) {
-      FitterException e("In RecoHitProducer: index for hit in std::vector out of bounds",__LINE__,__FILE__);
-      e.setFatal();
-      throw e;
-    }
-    return ( new recoHit_T( (hit_T*) hitArrayVector->at(index) ) );
-  }
+  return ( new recoHit_T( (hit_T*) hitArrayTClones->At(index) ) );
+  //}
+  //else{//after assertions this is save: the hitArrayVector is good
+  //  if(index >= hitArrayVector->size()) {
+  //    FitterException e("In RecoHitProducer: index for hit in std::vector out of bounds",__LINE__,__FILE__);
+  //    e.setFatal();
+  //    throw e;
+  //  }
+  //  return ( new recoHit_T( (hit_T*) hitArrayVector->at(index) ) );
+  //}
 }
 
 
