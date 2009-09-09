@@ -29,6 +29,7 @@
 #include "FitterExceptions.h"
 
 #include"assert.h"
+#include"math.h"
 #include<algorithm>
 
 // -----   Default constructor   -------------------------------------------
