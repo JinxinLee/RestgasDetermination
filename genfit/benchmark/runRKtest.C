@@ -7,31 +7,16 @@
   TString outFile = "geane.root";
   TString parFile = "tpcMC.param.root"; 
 
-  gDebug=0;
   // Load basic libraries
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-  gSystem->Load("libbenchmark");  
-
+  gSystem->Load("libbenchmark");
   FairRunAna *fRun = new FairRunAna();
   fRun->SetInputFile(inFile); 
   fRun->SetOutputFile(outFile);
 
+  RKtestTask *RKT = new RKtestTask();
 
-  FairGeaneNew *Geane = new FairGeaneNew(inFile);
-  //  POCAtestTask4 *poca= new POCAtestTask4();
-  //  fRun->AddTask(poca);
-  SPtestTask *SPT = new SPtestTask();
-
-  SPT->_nEv=1;
-  SPT->_mom=1.;
-  double theta=41.;
-  SPT->_th=TMath::Pi()*(theta/180.);
-  SPT->_res=0.025;
-  char buf[200];
-  sprintf(buf,"%.2fGeV_%.3fcmRes_%.2fdeg_%dev.root",SPT->_mom,SPT->_res,theta,SPT->_nEv);
-  std::string fileName(buf);
-  SPT->setFileName(fileName);
-  fRun->AddTask(SPT);
+  fRun->AddTask(RKT);
 
   // -----  Parameter database   --------------------------------------------
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
@@ -40,29 +25,23 @@
   rtdb->setFirstInput(parInput1);
   // -----  Parameter database   --------------------------------------------
 
-
   fRun->Init();
   rtdb->print();
-  // Set the field(if any) to Geane
-  //  Geane->SetField(fRun->GetField());
 
-  Geane->SetField(new PndFieldAdaptor(fRun->GetField()));
+  RKT->setField(new PndFieldAdaptor(fRun->GetField()));
 
 
   // Transport nEvents
   // -----------------
   TStopwatch timer;
   timer.Start();
-
     
-  Int_t nEvents = 1;
-  fRun->Run(0,nEvents);
+  fRun->Run(0,1);
   timer.Stop();
 
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
-  //  poca->WriteToFile();
 
 }  
   

@@ -29,9 +29,9 @@ set(BENCHMARK_SRCS
 SPhit.cxx
 IllustrateTask.cxx
 StripHit.cxx
-StripHit.cxx
 TestGeaneTrackRep.cxx
 SPtestTask.cxx
+RKtestTask.cxx
 GeaneTestTask.cxx
 )
 
@@ -44,7 +44,7 @@ set(BENCHMARK_LINKDEF  benchmarkLinkdef.h)
 set(BENCHMARK_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/benchmarkDict.cxx) 
 
 #########
-set(BENCHMARK_HEADERS  GeaneTestTask.h TestGeaneTrackRep.h SPhit.h StripHit.h SPtestTask.h IllustrateTask.h)
+set(BENCHMARK_HEADERS  GeaneTestTask.h TestGeaneTrackRep.h SPhit.h StripHit.h SPtestTask.h IllustrateTask.h RKtestTask.h)
 #########
 
 ROOT_GENERATE_DICTIONARY("${BENCHMARK_HEADERS}" "${BENCHMARK_LINKDEF}" "${BENCHMARK_DICTIONARY}" "${INCLUDE_DIRECTORIES}")

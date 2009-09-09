@@ -4,19 +4,8 @@
   TStopwatch timer;
   timer.Start();
   gDebug=0;
- //  // Load basic libraries
-//   gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-//   basiclibs();
-//   // Load this example libraries
-//   gSystem->Load("libGeoBase");
-//   gSystem->Load("libParBase");
-//   gSystem->Load("libBase");
-//   gSystem->Load("libPndData");
-//   gSystem->Load("libField");
-//   gSystem->Load("libPassive");
-//   gSystem->Load("libGen");
-//   gSystem->Load("libtpc");
-//   //  gSystem->Load("libPGen");
+
+  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 
 
   Int_t nEvents = 1;
@@ -71,16 +60,10 @@
   fRun->SetGenerator(primGen);
 
   PndConstField *fMagField=new PndConstField();
-  fMagField->SetField(0, 0 ,15. ); // values are in kG
-  // MinX=-75, MinY=-40,MinZ=-12 ,MaxX=75, MaxY=40 ,MaxZ=124 );  // values are in cm
-  fMagField->SetFieldRegion(-500, 500,-500, 500, -200, 2000);
-
+  fMagField->SetField(0, 20. ,0. ); // values are in kG
+  fMagField->SetFieldRegion(-500, 500,-500, 500, 50., 100);
   fRun->SetField(fMagField);
    
-  fRun->SetStoreTraj(kTRUE);
-   //fRun->SetStoreTraj(kFALSE);
-    
-
   fRun->Init();
 
 
