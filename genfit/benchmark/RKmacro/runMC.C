@@ -1,6 +1,6 @@
 // Macro for running Fair with Geant3 or Geant4
 
-void runMC(TString base="mc", int nEvents = 100 )
+void runMC(TString base="mc", int nEvents = 1000 )
 {
 
   TStopwatch timer;

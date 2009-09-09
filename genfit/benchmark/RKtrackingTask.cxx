@@ -92,7 +92,30 @@ InitStatus RKtrackingTask::Init() {
     return kERROR;
   }
   
+  file = new TFile("dreggn.root","RECREATE");
+  tree = new TTree("t","RKtrackingTask output");
+  tree->Branch("momRe",&momRe,"momRe/D");
+  tree->Branch("momTr",&momTr,"momTr/D");
+  tree->Branch("momSi",&momSi,"momSi/D");
+  tree->Branch("momPu",&momPu,"momPu/D");
+  tree->Branch("xRe",&xRe,"xRe/D");
+  tree->Branch("xTr",&xTr,"xTr/D");
+  tree->Branch("xSi",&xSi,"xSi/D");
+  tree->Branch("xPu",&xPu,"xPu/D");
 
+  tree->Branch("yRe",&yRe,"yRe/D");
+  tree->Branch("yTr",&yTr,"yTr/D");
+  tree->Branch("ySi",&ySi,"ySi/D");
+  tree->Branch("yPu",&yPu,"yPu/D");
+  tree->Branch("xpRe",&xpRe,"xpRe/D");
+  tree->Branch("xpTr",&xpTr,"xpTr/D");
+  tree->Branch("xpSi",&xpSi,"xpSi/D");
+  tree->Branch("xpPu",&xpPu,"xpPu/D");
+  tree->Branch("ypRe",&ypRe,"ypRe/D");
+  tree->Branch("ypTr",&ypTr,"ypTr/D");
+  tree->Branch("ypSi",&ypSi,"ypSi/D");
+  tree->Branch("ypPu",&ypPu,"ypPu/D");
+  tree->Branch("chi2",&chi2,"chi2/D");
   
   std::cout << "-I- RKtrackingTask: Intialization successfull" << std::endl;
   return kSUCCESS;
@@ -105,6 +128,9 @@ bool vecSort(const TVector3& v1,const TVector3& v2){
 
 // -----   Public method Exec   --------------------------------------------
 void RKtrackingTask::Exec(Option_t* opt) {
+
+  static int counter(0);
+  std::cout << "RKtrackingTask::Exec for event " << counter++ << std::endl;
 
   assert(field!=NULL);
   std::vector<TVector3> points;
@@ -152,7 +178,7 @@ void RKtrackingTask::Exec(Option_t* opt) {
   std::vector<TVector3> pointsFilt;
   double lastZ=-1.E100;
   for(int i=0;i<points.size();++i){
-    assert(points.at(i).Z()-lastZ > 0.);//check if sorted
+    assert(points.at(i).Z()-lastZ >= 0.);//check if sorted
     if(points.at(i).Z()-lastZ > 0.1){
       pointsFilt.push_back(points.at(i));
     }
@@ -210,18 +236,50 @@ void RKtrackingTask::Exec(Option_t* opt) {
 
   TMatrixT<double> finalState = rep->getState();
 
-  startPos.Print();
-  startMom.Print();
-  startPosMod.Print();
-  startMomMod.Print();
-  rep->getPos().Print();
-  rep->getMom().Print();
-  startState.Print();
-  finalState.Print();
-  TCanvas *c1 = new TCanvas("c1");
-  drawpoints->Draw();
-  gApplication->SetReturnFromRun(kTRUE);
-  gSystem->Run();
+  if(rep->getStatusFlag()==0){
+    double invmom = (rep->getState())[4][0];
+    double sigmasqustate = (rep->getCov())[4][4];
+    double sigma_p = 1/pow(invmom,4.) * sigmasqustate;
+    momSi=TMath::Sqrt(sigma_p);
+    momRe=rep->getMom().Mag();
+    momTr=startMom.Mag();
+    momPu=(momRe-momTr)/momSi;
+
+    //make sure we are comparing at the same z position
+    if(fabs(rep->getPos().Z()-startPos.Z())>1.e-3) return;
+    xRe = rep->getPos().X();
+    xTr = startPos.X();
+    xSi = TMath::Sqrt((rep->getCov())[0][0]);
+    xPu = (xRe-xTr)/xSi;
+    yRe = rep->getPos().Y();
+    yTr = startPos.Y();
+    ySi = TMath::Sqrt((rep->getCov())[1][1]);
+    yPu = (yRe-yTr)/ySi;
+    xpRe = (rep->getState())[2][0];
+    xpTr = startMom.X()/startMom.Z();
+    xpSi = TMath::Sqrt((rep->getCov())[2][2]);
+    xpPu = (xRe-xTr)/xSi;
+    ypRe = (rep->getState())[3][0];
+    ypTr = startMom.Y()/startMom.Z();
+    ypSi = TMath::Sqrt((rep->getCov())[3][3]);
+    ypPu = (yRe-yTr)/ySi;
+    chi2 = rep->getRedChiSqu();
+    std::cout << "fill" << std::endl;
+    tree->Fill();
+  }
+
+  //startPos.Print();
+  //startMom.Print();
+  //startPosMod.Print();
+  //startMomMod.Print();
+  //rep->getPos().Print();
+  //rep->getMom().Print();
+  //startState.Print();
+  //finalState.Print();
+  //TCanvas *c1 = new TCanvas("c1");
+  //drawpoints->Draw();
+  //gApplication->SetReturnFromRun(kTRUE);
+  //gSystem->Run();
 
 
 }

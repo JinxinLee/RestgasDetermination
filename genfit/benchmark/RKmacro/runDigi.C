@@ -85,12 +85,15 @@ void runDigi(TString base="mc", int nEvents = 0 )
 
   gROOT->FindObject("FAIRGeom")->Write();
 
+  std::cout << "########$$$$" << std::endl;
+  myTask->writeFile();
+
   rtdb->saveOutput();
   rtdb->print();
 
   //DemoKalman->WriteHistograms();
   //DemoTools->WriteHistograms();
-
+  
 
   // ------------------------------------------------------------------------
   // -----   Finish   -------------------------------------------------------
