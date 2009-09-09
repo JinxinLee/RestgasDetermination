@@ -45,6 +45,12 @@ DetPlane::setO(const TVector3& o)
   _o=o;
   sane();
 }
+void 
+DetPlane::setO(double X,double Y,double Z)
+{
+  _o.SetXYZ(X,Y,Z);
+  sane();
+}
 
 void 
 DetPlane::setU(const TVector3& u)
@@ -52,11 +58,23 @@ DetPlane::setU(const TVector3& u)
   _u=u;
   sane();
 }
+void 
+DetPlane::setU(double X,double Y,double Z)
+{
+  _u.SetXYZ(X,Y,Z);
+  sane();
+}
 
 void 
 DetPlane::setV(const TVector3& v)
 {
   _v=v;
+  sane();
+}
+void 
+DetPlane::setV(double X,double Y,double Z)
+{
+  _v.SetXYZ(X,Y,Z);
   sane();
 }
 
@@ -68,6 +86,12 @@ DetPlane::getNormal() const
   return result;
 }
 
+
+void
+DetPlane::setNormal(double X,double Y,double Z){
+  TVector3 N(X,Y,Z);
+  setNormal(N);
+}
 void
 DetPlane::setNormal(TVector3 n){
   n.SetMag(1.);

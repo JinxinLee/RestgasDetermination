@@ -60,12 +60,16 @@ public:
 	   const TVector3& v); 
 
   void setO(const TVector3& o);
+  void setO(double,double,double);
   void setU(const TVector3& u);
+  void setU(double,double,double);
   void setV(const TVector3& v);
+  void setV(double,double,double);
 
   // Operations ----------------------
   TVector3 getNormal() const;
   void setNormal(TVector3 n);
+  void setNormal(double,double,double);
   void setNormal(const double& theta, const double& phi);
   // projecting a direction into the plane:
   TVector2 project(const TVector3& x) const;
