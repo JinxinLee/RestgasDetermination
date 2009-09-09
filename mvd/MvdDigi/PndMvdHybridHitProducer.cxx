@@ -147,8 +147,8 @@ void PndMvdHybridHitProducer::Exec(Option_t* opt)
   // Reset output array
   if ( ! fPixelArray )
     Fatal("Exec", "No PixelArray");
-  //   fHitArray->Clear();
-  fPixelArray->Clear();
+  //   fHitArray->Delete();
+  fPixelArray->Delete();
   fPixelList.clear();
 //   fFePixelArray->Clear();
 

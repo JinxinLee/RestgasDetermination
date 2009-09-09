@@ -85,7 +85,7 @@ void PndMvdPidIdealTask::SetParContainers()
 void PndMvdPidIdealTask::Exec(Option_t* opt)
 {
   if ( ! fTrackOutputArray ) Fatal("Exec", "No fTrackOutputArray");
-  fTrackOutputArray->Clear();
+  fTrackOutputArray->Delete();
 
   // the dE/dx information of PndmvdPidCand is obtained by PndMvdMCPoints
   std::map<int, PndMvdPidCand*> pidcand;

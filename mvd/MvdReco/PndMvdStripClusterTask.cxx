@@ -176,9 +176,9 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
   std::vector<PndMvdDigiStrip> digiStripArray;
   // Reset output array
   if ( ! fClusterArray ) Fatal("Exec", "No ClusterArray");
-  fClusterArray->Clear();
+  fClusterArray->Delete();
   if ( ! fHitArray ) Fatal("Exec", "No HitArray");
-  fHitArray->Clear();
+  fHitArray->Delete();
 
    // a std::map is a SORTED container, it is sorted by the identifier
   TString detName;

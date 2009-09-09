@@ -106,7 +106,7 @@ void PndMvdRadDamTask::Exec(Option_t* opt)
   // Reset output array
   if ( ! fRadDamHits )
     Fatal("Exec", "No RadDamArray");
-  fRadDamHits->Clear();
+  fRadDamHits->Delete();
 
   PndMvdMCPoint* mcPoint;
   PndMCTrack* mcTrack;

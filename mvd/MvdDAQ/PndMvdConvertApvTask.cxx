@@ -56,7 +56,7 @@ InitStatus PndMvdConvertApvTask::Init()
 void PndMvdConvertApvTask::Exec(Option_t* opt)
 {
     // Reset output array
-	fStripArray->Clear();
+	fStripArray->Delete();
 	std::vector<PndMvdDigiStrip> strips = fApvConvert->ReadNext();
 	for (std::vector<PndMvdDigiStrip>::iterator strip=strips.begin(); strip!=strips.end(); ++strip)
 	{

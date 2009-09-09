@@ -39,7 +39,7 @@ void PndMvdMCEventAna::AnaHitNr(Int_t Nr)
 {
   TVector3 vecs;
 
-  fHitArray->Clear();
+  fHitArray->Delete();
   fTree->GetEntry(fActiveEvent);
   PndMvdMCPoint *hit=(PndMvdMCPoint*)fHitArray->At(Nr);
   if (hit->GetDetName().Contains(fSelection)){

@@ -128,10 +128,10 @@ void PndMvdPixelClusterTask::Exec(Option_t* opt)
   std::vector<PndMvdDigiPixel> DigiPixelArray;
   // Reset output array
   if ( ! fClusterArray ) Fatal("Exec", "No ClusterArray");
-  fClusterArray->Clear();
+  fClusterArray->Delete();
 
   if ( ! fHitArray ) Fatal("Exec", "No HitArray");
-  fHitArray->Clear();
+  fHitArray->Delete();
 
   Int_t nPoints = fDigiArray->GetEntriesFast();
 

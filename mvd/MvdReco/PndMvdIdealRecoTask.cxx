@@ -108,7 +108,7 @@ void PndMvdIdealRecoTask::Exec(Option_t* opt)
 
 
  	if ( ! fHitOutputArray ) Fatal("Exec", "No fHitOutputArray");
- 	fHitOutputArray->Clear();
+ 	fHitOutputArray->Delete();
 
   std::map<Int_t, PndMvdHit*> clusterMap;
 

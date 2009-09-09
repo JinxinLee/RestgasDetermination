@@ -148,10 +148,10 @@ void PndMvdAllDataEventAna::ClearHistos()
 
 void PndMvdAllDataEventAna::AnaHits()
 {
-  fHitArray->Clear();
-  fDigiArray->Clear();
-  fClusterArray->Clear();
-  fRecoArray->Clear();
+  fHitArray->Delete();
+  fDigiArray->Delete();
+  fClusterArray->Delete();
+  fRecoArray->Delete();
 
   fTree->GetEntry(fActiveEvent);
 

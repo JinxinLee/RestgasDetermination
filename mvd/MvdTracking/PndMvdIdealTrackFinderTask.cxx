@@ -150,7 +150,7 @@ void PndMvdIdealTrackFinderTask::Exec(Option_t* opt)
   // Reset output array
   if ( ! fTrackCandArray )
     Fatal("Exec", "No trackCandArray");
-  fTrackCandArray->Clear();
+  fTrackCandArray->Delete();
 
   Int_t nStripHits = fStripHitArray->GetEntriesFast();
   Int_t nPixelHits = fPixelHitArray->GetEntriesFast();

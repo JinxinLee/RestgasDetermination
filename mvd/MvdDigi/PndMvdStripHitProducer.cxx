@@ -201,7 +201,7 @@ InitStatus PndMvdStripHitProducer::Init()
 void PndMvdStripHitProducer::Exec(Option_t* opt)
 {
   // Reset output array
-  fStripArray->Clear();
+  fStripArray->Delete();
 
   // Declare some variables
   PndMvdMCPoint *point = NULL;

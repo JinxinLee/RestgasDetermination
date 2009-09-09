@@ -175,7 +175,7 @@ void PndMvdDetector::EndOfEvent()
   if (fVerboseLevel)
     Print();
 
-  fPndMvdCollection->Clear();
+  fPndMvdCollection->Delete();
   fPosIndex = 0;
 }
 // -------------------------------------------------------------------------
@@ -225,7 +225,7 @@ void PndMvdDetector::Print() const
 // -----   Public method Reset   -------------------------------------------
 void PndMvdDetector::Reset()
 {
-  fPndMvdCollection->Clear();
+  fPndMvdCollection->Delete();
   ResetParameters();
 }
 // -------------------------------------------------------------------------

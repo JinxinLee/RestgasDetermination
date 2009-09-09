@@ -112,7 +112,7 @@ void PndMvdRiemannTrackFinderTask::Exec(Option_t* opt)
   // Reset output array
   if ( ! fTrackCandArray )
     Fatal("Exec", "No trackCandArray");
-  fTrackCandArray->Clear();
+  fTrackCandArray->Delete();
  // fRiemannTrackArray->Clear();
 
   PndRiemannTrackFinder trackFinder;
@@ -138,7 +138,7 @@ void PndMvdRiemannTrackFinderTask::Exec(Option_t* opt)
 
 void PndMvdRiemannTrackFinderTask::FinishEvent()
 {
-	fTrackCandArray->Clear();
+	fTrackCandArray->Delete();
 }
 
 ClassImp(PndMvdRiemannTrackFinderTask);

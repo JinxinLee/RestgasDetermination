@@ -78,7 +78,7 @@ void PndMvdHitProducerIdeal::Exec(Option_t* opt)
   if ( ! fHitArray )
     Fatal("Exec", "No HitArray");
 
-  fHitArray->Clear();
+  fHitArray->Delete();
 
   // Declare some variables
   PndMvdMCPoint *point = 0;

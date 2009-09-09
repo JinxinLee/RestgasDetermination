@@ -105,7 +105,7 @@ void PndMvdEventMergerTask::Exec(Option_t* opt)
 		bg = fMerger->GetEvent(fEventNr);
 	else bg = fMerger->GetEvent(0);
 
-	fMergedArray->Clear();
+	fMergedArray->Delete();
 
 	if (fSignalIsBg == false){
 		fMerger->AddTClonesArray(bg, fSignalArray);

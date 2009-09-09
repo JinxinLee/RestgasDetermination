@@ -124,7 +124,7 @@ void PndMvdTpcRiemannCorrelatorTask::Exec(Option_t* opt)
   // Reset output array
   if ( ! fCombinedArray )
     Fatal("Exec", "No CombinedTrackCandArray");
-  fCombinedArray->Clear();
+  fCombinedArray->Delete();
 
   std::vector<TH1*> distHistos;
   std::vector<TH1*> szDistHistos;

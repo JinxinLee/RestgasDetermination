@@ -37,7 +37,7 @@ void PndMvdDigiEventAna::InitHistos()
 
 void PndMvdDigiEventAna::AnaHitNr(Int_t Nr)
 {
-	fHitArray->Clear();
+	fHitArray->Delete();
 	fTree->GetEntry(fActiveEvent);
 	PndMvdDigiPixel *hit = (PndMvdDigiPixel*)fHitArray->At(Nr);
 	//if (hit->GetDetName().Contains("119_2")){
