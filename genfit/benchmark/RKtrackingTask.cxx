@@ -21,7 +21,15 @@
 #include "PndMvdMCPoint.h"
 #include "PndDchPoint.h"
 
+#include "AbsRecoHit.h"
+#include "PixHit.h"
+#include "RKtrackRep.h"
+#include "Track.h"
+#include "Kalman.h"
+#include "FitterExceptions.h"
+
 #include"assert.h"
+#include<algorithm>
 
 // -----   Default constructor   -------------------------------------------
 RKtrackingTask::RKtrackingTask() :
@@ -91,32 +99,125 @@ InitStatus RKtrackingTask::Init() {
 
 }
 
+bool vecSort(const TVector3& v1,const TVector3& v2){
+  return v1.Z() < v2.Z();
+}
+
 // -----   Public method Exec   --------------------------------------------
 void RKtrackingTask::Exec(Option_t* opt) {
 
   assert(field!=NULL);
   std::vector<TVector3> points;
 
+  bool foundStartValues(false);
+  TVector3 startPos;
+  TVector3 startMom;
+
   for ( Int_t iPoint = 0 ; iPoint < fMvdPointArray->GetEntriesFast() ; iPoint++ ) {
+
     FairMCPoint* point = (PndMvdMCPoint*)fMvdPointArray->At(iPoint);
+    if(!foundStartValues){
+      foundStartValues = true;
+      point->Position(startPos);
+      point->Momentum(startMom);
+    }
     TVector3 pos(point->GetX(),point->GetY(),point->GetZ());
     points.push_back(pos);
   }  // end of loop over Points
   for ( Int_t iPoint = 0 ; iPoint < fGemPointArray->GetEntriesFast() ; iPoint++ ) {
     FairMCPoint* point = (PndGemMCPoint*)fGemPointArray->At(iPoint);
+    if(!foundStartValues){
+      foundStartValues = true;
+      point->Position(startPos);
+      point->Momentum(startMom);
+    }
     TVector3 pos(point->GetX(),point->GetY(),point->GetZ());
     points.push_back(pos);
   }  // end of loop over Points
   for ( Int_t iPoint = 0 ; iPoint < fDchPointArray->GetEntriesFast() ; iPoint++ ) {
     FairMCPoint* point = (PndDchPoint*)fDchPointArray->At(iPoint);
+    if(!foundStartValues){
+      foundStartValues = true;
+      point->Position(startPos);
+      point->Momentum(startMom);
+    }
     TVector3 pos(point->GetX(),point->GetY(),point->GetZ());
     points.push_back(pos);
   }  // end of loop over Points
 
-  TPolyMarker3D *drawpoints = new TPolyMarker3D(points.size(),20);
+
+  sort(points.begin(),points.end(),vecSort);
+
+  //filter out points which are closer than 0.1cm otgether in Z
+  std::vector<TVector3> pointsFilt;
+  double lastZ=-1.E100;
   for(int i=0;i<points.size();++i){
-    drawpoints->SetPoint(i,points.at(i).X(),points.at(i).Y(),points.at(i).Z());
+    assert(points.at(i).Z()-lastZ > 0.);//check if sorted
+    if(points.at(i).Z()-lastZ > 0.1){
+      pointsFilt.push_back(points.at(i));
+    }
+    lastZ = points.at(i).Z();
   }
+
+  //make PolyMarker3D out of filtered points for VIS
+  //and RecoHits for fitting
+  std::vector<AbsRecoHit*> recoHits;
+  TPolyMarker3D *drawpoints = new TPolyMarker3D(pointsFilt.size(),20);
+  static const double RESOLUTION = 0.1;// in cm
+  for(int i=0;i<pointsFilt.size();++i){
+    drawpoints->SetPoint(i,pointsFilt.at(i).X(),
+			 pointsFilt.at(i).Y(),
+			 pointsFilt.at(i).Z());
+    recoHits.push_back( new PixHit(pointsFilt.at(i),RESOLUTION));
+  }
+
+  
+
+  TVector3 posErr(1.,1.,1.);
+  TVector3 momErr(1.,1.,1.);
+  TVector3 startPosMod = startPos;
+  TVector3 startMomMod = startMom;
+  TVector3 momUnit = startMom;
+  momUnit.SetMag(1.);
+  //startPosMod.SetX(startPosMod.X()-momUnit.X());
+  //startPosMod.SetY(startPosMod.Y()-momUnit.Y());
+  //startPosMod.SetZ(startPosMod.Z()-momUnit.Z());
+  startPosMod.SetX(gRandom->Gaus(startPosMod.X(),0.9));
+  startPosMod.SetY(gRandom->Gaus(startPosMod.Y(),0.9));
+  startPosMod.SetZ(gRandom->Gaus(startPosMod.Z(),0.9));
+  startMomMod.SetX(gRandom->Gaus(startMomMod.X(),0.3));
+  startMomMod.SetY(gRandom->Gaus(startMomMod.Y(),0.3));
+  startMomMod.SetZ(gRandom->Gaus(startMomMod.Z(),0.3));
+  
+  AbsTrackRep* rep = new RKtrackRep(startPosMod,startMomMod,posErr,momErr,-1.,2212,field);
+  TMatrixT<double> startState = rep->getState();
+  Track t(rep);
+
+  for(int i=0;i<recoHits.size();++i){
+    t.addHit(recoHits.at(i),3,i);
+  }
+  t.addHitVector(recoHits);
+
+
+  Kalman k;
+  try{
+    k.processTrack(&t);
+  }
+  catch(FitterException& e){
+    std::cout << e.what() << std::endl;
+    throw e;
+  }
+
+  TMatrixT<double> finalState = rep->getState();
+
+  startPos.Print();
+  startMom.Print();
+  startPosMod.Print();
+  startMomMod.Print();
+  rep->getPos().Print();
+  rep->getMom().Print();
+  startState.Print();
+  finalState.Print();
   TCanvas *c1 = new TCanvas("c1");
   drawpoints->Draw();
   gApplication->SetReturnFromRun(kTRUE);

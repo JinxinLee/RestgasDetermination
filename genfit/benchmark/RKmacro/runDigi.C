@@ -75,10 +75,10 @@ void runDigi(TString base="mc", int nEvents = 0 )
   //fRun->SetStoreTraj(kFALSE);  
   fRun->Init();  
 
-  double x[3] = {10.,10.,10.};
-  double f[3];
-  fRun->GetField()->GetFieldValue(x,f);
-  std::cout << "######### " << f[2] << std::endl;
+  //double x[3] = {10.,10.,10.};
+  //double f[3];
+  //fRun->GetField()->GetFieldValue(x,f);
+  //std::cout << "######### " << f[2] << std::endl;
   myTask->setField(new PndFieldAdaptor(fRun->GetField()));
 
   fRun->Run(0,nEvents);
