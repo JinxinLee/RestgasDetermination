@@ -5,6 +5,7 @@
 #include"assert.h"
 #include"math.h"
 #include"TMath.h"
+#include"TGeoManager.h"
 
 #include"FitterExceptions.h"
 
@@ -52,19 +53,51 @@ RKtrackRep::RKtrackRep(const TVector3& pos,
 }
 
 TVector3 RKtrackRep::getPos(const DetPlane& pl){
-  TVector3 retVal(state[0][0],state[1][0],_refPlane.getO().Z());
-  return retVal;
+  if(pl!=_refPlane){
+    TMatrixT<double> s(5,1);
+    TMatrixT<double> c(5,5);
+    extrapolate(pl,s,c);
+    TVector3 retVal(s[0][0],s[1][0],pl.getO().Z());
+    return retVal;
+  }
+  else{
+    TVector3 retVal(state[0][0],state[1][0],_refPlane.getO().Z());
+    return retVal;    
+  }
 }
 TVector3 RKtrackRep::getMom(const DetPlane& pl){
-  TVector3 retVal(state[2][0],state[3][0],1.);
-  retVal.SetMag(fabs(1./state[4][0]));
-  return retVal;
+  if(pl!=_refPlane){
+    TMatrixT<double> s(5,1);
+    TMatrixT<double> c(5,5);
+    extrapolate(pl,s,c);
+    TVector3 retVal(s[2][0],s[3][0],1.);
+    retVal.SetMag(fabs(1./s[4][0]));
+    return retVal;
+  }
+  else{
+    TVector3 retVal(state[2][0],state[3][0],1.);
+    retVal.SetMag(fabs(1./state[4][0]));
+    return retVal;    
+  }
 }
 void RKtrackRep::getPosMom(const DetPlane& pl,TVector3& pos,
 			   TVector3& mom){
   mom.SetXYZ(state[2][0],state[3][0],1.);
   mom.SetMag(fabs(1./state[4][0]));
   pos.SetXYZ(state[0][0],state[1][0],_refPlane.getO().Z());
+  if(pl!=_refPlane){
+    TMatrixT<double> s(5,1);
+    TMatrixT<double> c(5,5);
+    extrapolate(pl,s,c);
+    mom.SetXYZ(s[2][0],s[3][0],1.);
+    mom.SetMag(fabs(1./s[4][0]));
+    pos.SetXYZ(s[0][0],s[1][0],pl.getO().Z());
+  }
+  else{
+    mom.SetXYZ(state[2][0],state[3][0],1.);
+    mom.SetMag(fabs(1./state[4][0]));
+    pos.SetXYZ(state[0][0],state[1][0],_refPlane.getO().Z());
+  }
 }
 
 double RKtrackRep::extrapolate(const DetPlane& pl, 
@@ -77,11 +110,55 @@ double RKtrackRep::extrapolate(const DetPlane& pl,
     //exc.setFatal();
     throw exc;
   }
+
+  std::cout << "###############%$%$%$%$$ " << gGeoManager << std::endl;
+  TVector3 pos;
+  TVector3 mom;
+  getPosMom(_refPlane,pos,mom);
+  mom.SetMag(1.);
+  gGeoManager->InitTrack(pos.X(),pos.Y(),pos.Z(),mom.X(),mom.Y(),mom.Z());
+  std::cout << gGeoManager->GetPath() << std::endl;
+  TGeoNode *cnode = gGeoManager->GetCurrentNode(); 
+  cnode->Print();
+  // then: 
+  TGeoVolume *cvol = cnode->GetVolume();    // (*) 
+  // then: 
+  TGeoMaterial *cmat = cvol->GetMedium()->GetMaterial();
+  std::cout << "radlen " << cmat->GetRadLen() << std::endl;
+
+  gGeoManager->FindNextBoundaryAndStep(71.)->Print();
+  std::cout << gGeoManager->GetStep() << std::endl;
+  gGeoManager->FindNextBoundaryAndStep()->Print();
+  std::cout << gGeoManager->GetStep() << std::endl;
+
+
   TMatrixT<double> cov15(15,1);
   double zFinal(-1.E300);
   double dist = this->Extrap(pl.getO().Z(),zFinal,statePred,cov15);
   covPred = cov15to25(cov15);
   return dist;
+}
+
+void RKtrackRep::addNoise(double x,double RadLen,const TMatrixT<double>& state,TMatrixT<double>& cov15){
+  if(state[4][0] == 0.) return; // momentum not known. Do nothing.
+  
+  double len   =  x / RadLen;
+
+  // Lynch and Dahl aproximation for Sigma(Theta_proj) of mult. scatt.
+  double SigTheta = 0.0136*fabs(state[4][0]) * sqrt(len) * (1.+0.038*log(len));
+ 
+  // Noise matrix calculation (NIM A329 (1993) 493-500)
+  // Transverse displacement of the track is ignored.
+  double p3 = state[2][0];
+  double p4 = state[3][0];
+
+  double p3p3 = SigTheta*SigTheta * (1 + p3*p3) * (1 + p3*p3 + p4*p4);
+  double p4p4 = SigTheta*SigTheta * (1 + p4*p4) * (1 + p3*p3 + p4*p4);
+  double p3p4 = SigTheta*SigTheta * p3*p4       * (1 + p3*p3 + p4*p4);
+
+  cov15[5][0] = cov15[5][0]+p3p3;
+  cov15[8][0] = cov15[8][0]+p3p4;
+  cov15[9][0] = cov15[9][0]+p4p4;
 }
 
 double RKtrackRep::myZ() const{

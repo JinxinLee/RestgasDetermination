@@ -61,6 +61,7 @@ private:
   TMatrixT<double> cov15to25(const TMatrixT<double>& cov15) const;
   TMatrixT<double> cov25to15(const TMatrixT<double>& cov25) const;
 
+  void addNoise(double x,double RadLen,const TMatrixT<double>& state,TMatrixT<double>& cov15);
   bool RKutta (double* SU,double* VO, double& Path) const;
   double Extrap( double Z, double& zOut, TMatrixT<double>& stateOut, TMatrixT<double>& covOut) const;
  public:
