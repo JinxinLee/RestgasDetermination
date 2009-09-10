@@ -66,6 +66,7 @@ class RKtrackingTask : public FairTask{
   double xpPu;
   double ypPu;
   double chi2;
+  double ndf;
 
 	TFile* file;
 	TTree* tree;

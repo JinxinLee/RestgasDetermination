@@ -99,7 +99,7 @@ void runMC(TString base="mc", int nEvents = 1000 )
   fRun->SetGenerator(primGen);
 
   // Box Generator
-  FairBoxGenerator* boxGen = new FairBoxGenerator(2212, 1); // 13 = muon; 1 = multipl.
+  FairBoxGenerator* boxGen = new FairBoxGenerator(13, 1); // 13 = muon; 1 = multipl.
   boxGen->SetPRange(3.,3.); // GeV/c
   boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
   boxGen->SetThetaRange(5, 6.); // Polar angle in lab system range [degree]

@@ -117,6 +117,7 @@ InitStatus RKtrackingTask::Init() {
   tree->Branch("ypSi",&ypSi,"ypSi/D");
   tree->Branch("ypPu",&ypPu,"ypPu/D");
   tree->Branch("chi2",&chi2,"chi2/D");
+  tree->Branch("ndf",&ndf,"ndf/D");
   
   std::cout << "-I- RKtrackingTask: Intialization successfull" << std::endl;
   return kSUCCESS;
@@ -139,10 +140,13 @@ void RKtrackingTask::Exec(Option_t* opt) {
   bool foundStartValues(false);
   TVector3 startPos;
   TVector3 startMom;
-
+  bool hitMvd(false);
+  bool hitGem(false);
+  bool hitDch(false);
   for ( Int_t iPoint = 0 ; iPoint < fMvdPointArray->GetEntriesFast() ; iPoint++ ) {
-
+    hitMvd=true;
     FairMCPoint* point = (PndMvdMCPoint*)fMvdPointArray->At(iPoint);
+    if(point->GetTrackID()!=0) continue;
     if(!foundStartValues){
       foundStartValues = true;
       point->Position(startPos);
@@ -152,7 +156,9 @@ void RKtrackingTask::Exec(Option_t* opt) {
     points.push_back(pos);
   }  // end of loop over Points
   for ( Int_t iPoint = 0 ; iPoint < fGemPointArray->GetEntriesFast() ; iPoint++ ) {
+    hitGem=true;
     FairMCPoint* point = (PndGemMCPoint*)fGemPointArray->At(iPoint);
+    if(point->GetTrackID()!=0) continue;
     if(!foundStartValues){
       foundStartValues = true;
       point->Position(startPos);
@@ -162,7 +168,9 @@ void RKtrackingTask::Exec(Option_t* opt) {
     points.push_back(pos);
   }  // end of loop over Points
   for ( Int_t iPoint = 0 ; iPoint < fDchPointArray->GetEntriesFast() ; iPoint++ ) {
+    hitDch=true;
     FairMCPoint* point = (PndDchPoint*)fDchPointArray->At(iPoint);
+    if(point->GetTrackID()!=0) continue;
     if(!foundStartValues){
       foundStartValues = true;
       point->Position(startPos);
@@ -172,6 +180,8 @@ void RKtrackingTask::Exec(Option_t* opt) {
     points.push_back(pos);
   }  // end of loop over Points
 
+  //only accept tracks which hit mvd,gem&dch
+  if(!(hitMvd&&hitGem&&hitDch)) return;
 
   sort(points.begin(),points.end(),vecSort);
 
@@ -180,7 +190,7 @@ void RKtrackingTask::Exec(Option_t* opt) {
   double lastZ=-1.E100;
   for(int i=0;i<points.size();++i){
     assert(points.at(i).Z()-lastZ >= 0.);//check if sorted
-    if(points.at(i).Z()-lastZ > 0.1){
+    if(points.at(i).Z()-lastZ > 4){
       pointsFilt.push_back(points.at(i));
     }
     lastZ = points.at(i).Z();
@@ -190,15 +200,24 @@ void RKtrackingTask::Exec(Option_t* opt) {
   //and RecoHits for fitting
   std::vector<AbsRecoHit*> recoHits;
   TPolyMarker3D *drawpoints = new TPolyMarker3D(pointsFilt.size(),20);
-  static const double RESOLUTION = 0.1;// in cm
+  static const double RESOLUTION = 0.05;// in cm
   for(int i=0;i<pointsFilt.size();++i){
+    pointsFilt.at(i).Print();
     drawpoints->SetPoint(i,pointsFilt.at(i).X(),
 			 pointsFilt.at(i).Y(),
 			 pointsFilt.at(i).Z());
     recoHits.push_back( new PixHit(pointsFilt.at(i),RESOLUTION));
   }
 
-  
+  std::cout << " #####   " << recoHits.size() << std::endl;
+
+  //cut first point in front of SM
+  if(!(pointsFilt.at(0).Z()<300.)) return;
+
+  if(!(pointsFilt.at(pointsFilt.size()-1).Z()>700.)) return;
+  if(!(pointsFilt.at(pointsFilt.size()-2).Z()>600.)) return;
+  if(!(pointsFilt.at(pointsFilt.size()-3).Z()>450.)) return;
+
 
   TVector3 posErr(1.,1.,1.);
   TVector3 momErr(1.,1.,1.);
@@ -259,12 +278,13 @@ void RKtrackingTask::Exec(Option_t* opt) {
     xpRe = (rep->getState())[2][0];
     xpTr = startMom.X()/startMom.Z();
     xpSi = TMath::Sqrt((rep->getCov())[2][2]);
-    xpPu = (xRe-xTr)/xSi;
+    xpPu = (xpRe-xpTr)/xpSi;
     ypRe = (rep->getState())[3][0];
     ypTr = startMom.Y()/startMom.Z();
     ypSi = TMath::Sqrt((rep->getCov())[3][3]);
-    ypPu = (yRe-yTr)/ySi;
+    ypPu = (ypRe-ypTr)/ypSi;
     chi2 = rep->getRedChiSqu();
+    ndf = rep->getNDF();
     std::cout << "fill" << std::endl;
     tree->Fill();
   }
