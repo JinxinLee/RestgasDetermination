@@ -159,32 +159,35 @@ void PndMvaDataSet::NormalizeDataSet(const NormType type)
 {
   switch(type)
   {
-  case NONE:
-    cout << "<INFO> No normalization scheme was selected."
-	 << endl;
-    break;
-
   case MINMAX:
-    cout << "<INFO>\tNormalizing dataset using Min Max spread."
+    cout << "<INFO> Normalizing dataset using Min, Max spread and mid."
 	 << endl;
     MinMaxDiff();
     break;
     
   case MEDIAN:
-    cout << "\t<INFO> Normalizing the dataset "
-	 << "using Median and Inter Quartile Distance."
+    cout << "<INFO> Normalizing the dataset "
+	 << "using Median and Inter Quartile Distance (IQR)."
 	 << endl;
     DetermineMedian();
     break;
     
-  default:
-    //case VARX:
-    cout << "\t<INFO> Normalizing the dataset "
-	 << "using samle Variance."
+  case VARX:
+    cout << "<INFO> Normalizing the dataset "
+	 << "using samle Variance and mean."
 	 << endl;
     ComputeVariance();
+    break;
+    
+  default:
+    // case NONE:
+    cout << "\n<INFO> No normalization scheme was selected.\n"
+	 << endl;
+    break;
   }
-  
+  std::cout << "===================================================" 
+	    << std::endl;
+
   // Event Loop
   for(size_t ev = 0; ev < m_events.size(); ev++)
   {
@@ -221,7 +224,7 @@ void PndMvaDataSet::WriteDataSet(const string& outFile)
   cerr << "<INFO> Writing events input file to "
        << outFile << endl;
   /* Open out put file and write coordinates of the prototypes */
-  TFile out (outFile.c_str(), "RECREATE");
+  TFile out (outFile.c_str(),"RECREATE","DataSetOutput", 9);
   
   for(size_t cls = 0; cls < m_classes.size(); cls++)
   {
@@ -341,6 +344,8 @@ void PndMvaDataSet::ReadInput()
   {
     // Tree name
     const char *name = m_classes[cls].Name.c_str();
+    std::cout << "<INFO> Reading events for "
+	      <<  m_classes[cls].Name << std::endl;
     
     // Get the tree object
     TTree *t = (TTree*) InPutFile.Get(name);

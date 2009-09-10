@@ -1,4 +1,4 @@
-#pragma once
+//#pragma once
 #ifndef PNDPROJECTEDKNN_H
 #define PNDPROJECTEDKNN_H
 
@@ -17,8 +17,11 @@ class PndProjectedKNN: public PndGpidClassifier
   virtual ~PndProjectedKNN();
 
   //! Classify
-  void Classify(std::vector<float> eventData,
-                std::map<std::string, float>& result);
+  void GetMvaValues(std::vector<float> eventData,
+		    std::map<std::string, float>& result);
+
+  const std::string& Classify(std::vector<float> EvtData)const;
+
   //! Set params
   inline void SetEvtParam(const float scFact, const double weight)
   {m_ScaleFact = scFact; m_weight = weight; };

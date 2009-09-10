@@ -6,8 +6,10 @@
  * ***************************************
  */
 
+#define ProgStep  1000
+#define ErrorStep 10
+
 #include "PndLVQTrain.h"
-#define ProgStep 1000000
 
 /**
  * Constructor:
@@ -98,13 +100,17 @@ void PndLVQTrain::Train()
     {
       std::cerr << ". " ;
     }
-    
+
+    if( (time % ErrorStep) == 0)
+    {
+      EvalClassifierError(time);
+    }
     // select a random example
     int index = static_cast<int>(trand.Uniform(0.0, events.size() - 1));
 
     testSetIter = m_testSet_indices.find(index);
 
-    // Selected event in test set
+    // Selected event NOT in the test set
     while( testSetIter != m_testSet_indices.end())
     {
       index = static_cast<int>(trand.Uniform(0.0, events.size() - 1));
@@ -177,7 +183,7 @@ void PndLVQTrain::Train21()
   std::set <int>::const_iterator testSetIter;
 
   // Compute learning rate constant "a"
-  float windowSize = 0.25;// A value between0.2 & 0.3 is recommended.
+  float windowSize = 0.3;// A value between0.2 & 0.3 is recommended.
   float s = (1 - windowSize)/(1 + windowSize);//Define the surrounding.
   
   double ethaZero     = m_ethaZero;//0.1;
@@ -214,6 +220,11 @@ void PndLVQTrain::Train21()
     {
       std::cerr << " ." ;
     }
+    if( (time % ErrorStep) == 0)
+    {
+      EvalClassifierError(time);
+    }
+
     double distance = 0.0;
     double ethaT    = (ethaZero) / (1.0 + (a * static_cast<double>(time)));
     
@@ -229,7 +240,7 @@ void PndLVQTrain::Train21()
     
     testSetIter = m_testSet_indices.find(index);
 
-    // Selected event in test set
+    // Selected event NOT in the test set
     while( testSetIter != m_testSet_indices.end())
     {
       index = static_cast<int>(trand.Uniform(0.0, events.size() - 1));
@@ -390,7 +401,7 @@ void PndLVQTrain::InitProtoTypes()
  */
 void PndLVQTrain::cleanProtoList()
 {
-  std::cout << "\t<INFO> Cleaning the prototype list." 
+  std::cout << "<INFO> Cleaning the prototype list." 
             << std::endl;
 
   // Clean up the container for proto-types
@@ -412,4 +423,78 @@ void PndLVQTrain::UpdateProto(const std::vector<float>& EvtData,
   {
     proto[i] = proto[i] + ( ethaT * static_cast<double>(delta) * (EvtData[i] - proto[i]) );
   }
+}
+
+void PndLVQTrain::EvalClassifierError(unsigned int stp)
+{
+  const std::vector<std::pair<std::string, std::vector<float>*> >& events = m_dataSets.GetData();
+  std::set <int>::const_iterator iter;
+
+  int TrError, TsError;// Test and trai error
+  TrError = TsError = 0;
+
+
+  //========== Classify Test Set
+  for(iter = m_testSet_indices.begin(); iter != m_testSet_indices.end(); ++iter)
+  {
+    std::string WinClassName;
+    float dist    = 0.0; // Current distance
+    float minDist = std::numeric_limits<float>::max();// Winner dist
+    int idx = *iter;
+
+    std::vector<float>* EvtVect = (events.at(idx)).second;
+
+    for(size_t i = 0; i < m_LVQProtos.size(); i++)
+    {
+      dist = ComputeDist(*EvtVect, *(m_LVQProtos[i].second));
+
+      if(dist < minDist)
+      { 
+	minDist = dist;
+	WinClassName = m_LVQProtos[i].first;
+      }
+    }
+    if(WinClassName != (events.at(idx)).first)
+    {// Wrong
+      TsError++;
+    }
+  }
+
+  //========== Classify train set
+  // Event loop
+  for(unsigned int evt = 0; evt < events.size(); evt++)
+  {
+    std::string WinClassName;
+    float dist    = 0.0; // Current distance
+    float minDist = std::numeric_limits<float>::max();// Winner dist
+
+    if(m_testSet_indices.find(evt) == m_testSet_indices.end())
+    {// Event not in the Test Set
+
+      std::vector<float>* EvtVect = events[evt].second;
+
+      // Proto loop
+      for(size_t k = 0; k < m_LVQProtos.size(); k++)
+      {
+	dist = ComputeDist(*EvtVect, *(m_LVQProtos[k].second));
+	
+	if(dist < minDist)
+	{
+	  minDist = dist;
+	  WinClassName = m_LVQProtos[k].first;
+	}
+      }
+      if(WinClassName != events[evt].first)
+      {// Wrong
+	TrError++;
+      }
+    }
+  }
+  float tsEr, trEr;
+  tsEr = (TsError * 100.00) / static_cast<float>(m_testSet_indices.size());
+  trEr = (TrError * 100.00) / static_cast<float>(events.size() - m_testSet_indices.size());
+  // Add to container
+  StepError StpEr (stp, trEr, tsEr);
+  m_StepErro.push_back(StpEr);
+  TrError = TsError = 0;
 }

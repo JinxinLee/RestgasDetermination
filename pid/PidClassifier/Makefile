@@ -9,35 +9,33 @@
 # -ansi -std=c++98  -Wunsafe-loop-optimizations
 # -fprofile-generate -fprofile-use -ftest-coverage
 
-MAKEFLAGS  = -wk #s
+MAKEFLAGS  = -wkr --no-print-directory # -s
 
-FLAGSMACHINE = -march=native -mtune=native -mfpmath=sse -msse3 -m3dnow #-m64
+FLAGSMACHINE = -march=native -mtune=native -mfpmath=sse
+FLAGSMACHINE += -msse3 -m3dnow -m64 -mssse3 -mpc64 
+FLAGSMACHINE += -m128bit-long-double -mcx16 
 
-export FLAGSMACHINE
-
-export CXX = g++
-
-# CCFLAGS   = -O0 -g -pg #if profiling
-CCFLAGS  = -Wall -W -Wredundant-decls -Wshadow -Werror
-CCFLAGS += -O3 -fopenmp ${FLAGSMACHINE} -ftracer
+# CCFLAGS = -O0 -g -pg # if profiling
+CCFLAGS  = -Wall -W -Wredundant-decls -Wshadow -Werror -O3
+CCFLAGS += -ftracer ${FLAGSMACHINE} -fopenmp
 CCFLAGS += -funsafe-loop-optimizations -fvariable-expansion-in-unroller
 CCFLAGS += -funroll-loops -fsplit-ivs-in-unroller -fprefetch-loop-arrays
-
-export CCFLAGS
+CCFLAGS += -malign-double  -momit-leaf-frame-pointer -fomit-frame-pointer #-fprofile-use
+CCFLAGS += -Wcoverage-mismatch -maccumulate-outgoing-args
+CCFLAGS += -fdiagnostics-show-option -fdiagnostics-show-location=every-line
 
 INCLUDE = $(shell root-config --cflags) -I./ -I../
 
-export INCLUDE
-
 LIBS  = $(shell root-config --libs) -lTMVA -lTreePlayer -lMinuit 
-LIBS += -lMLP -lXMLIO #-fprofile-generate
+LIBS += -lMLP -lXMLIO -fopenmp # -fprofile-generate
 
-export LIBS
+.EXPORT_ALL_VARIABLES:
+
+# .SUFFIXES: % : %.cpp
+# .PHONY: all
 
 # Define targets
-TRGTS = PndMvaUtil PndMvaDataSet PndGpidClassifier Classifiers PndMvaTrainer examples 
-
-# .SUFFIXES: .cpp
+TRGTS = PndMvaUtil PndMvaDataSet PndGpidClassifier PndMvaTrainer Classifiers CreateRandomDataSet examples
 
 all: $(TRGTS)
 	@echo ""
@@ -46,30 +44,36 @@ all: $(TRGTS)
 	@echo ""
 
 PndGpidClassifier: % : %.cpp
-	$(CXX) $(CCFLAGS) $(INCLUDE) -c $< -o build/$@.o
+	$(CXX) $(CCFLAGS) $(INCLUDE) -c $< -o ./build/$@.o
 	@echo "Done building:" $@
 
 PndMvaDataSet: % : %.cpp
-	$(CXX) $(CCFLAGS) $(INCLUDE) -c $< -o build/$@.o
+	$(CXX) $(CCFLAGS) $(INCLUDE) -c $< -o ./build/$@.o
 	@echo "Done building:" $@
 
-PndMvaUtil: % : %.cpp
-	$(CXX) $(CCFLAGS) $(INCLUDE) -c $< -o build/$@.o
+PndMvaUtil:  % : %.cpp
+	$(CXX) $(CCFLAGS) $(INCLUDE) -c $< -o ./build/$@.o
 	@echo "Done building:" $@
 
 PndMvaTrainer: % : %.cpp
-	$(CXX) $(CCFLAGS) $(INCLUDE) -c $< -o build/$@.o
+	$(CXX) $(CCFLAGS) $(INCLUDE) -c $< -o ./build/$@.o
+	@echo "Done building:" $@
+
+CreateRandomDataSet: % : %.cpp
+	$(CXX) $(CCFLAGS) $(INCLUDE) -c $< -o ./build/$@.o
 	@echo "Done building:" $@
 
 Classifiers:
-	$(MAKE) -C KNN
-	$(MAKE) -C TMVAkd_KNN
-	$(MAKE) -C LVQ1
+	$(MAKE) -C KNN;
+	$(MAKE) -C LVQ1;
+	$(MAKE) -C TMVAkd_KNN;
+	$(MAKE) -C TMVA_PDE_FOAM;
 
 examples: PndMvaUtil PndMvaDataSet PndGpidClassifier Classifiers
 	@echo ""
 	@echo "       =++++++ Linking example applications. ++++++="
 	@echo ""
+
 	$(CXX) $(LIBS) build/classifyStdKnn.o  build/PndStdKnnClassify.o build/PndGpidClassifier.o \
 	build/PndMvaUtil.o build/PndMvaDataSet.o -o build/classifyStdKnn
 
@@ -88,8 +92,17 @@ examples: PndMvaUtil PndMvaDataSet PndGpidClassifier Classifiers
 	$(CXX) $(LIBS) build/KnnTrain.o build/PndMvaTrainer.o build/PndMvaUtil.o build/PndKnnTrain.o \
 	build/PndMvaDataSet.o -o build/KNNTrain
 
+	$(CXX) $(LIBS) build/FoamTrainTest.o build/PndMvaTrainer.o build/PndMvaUtil.o \
+	build/PndPDEFoamTrain.o build/PndMvaDataSet.o -o build/FoamTrainTest
+
+	$(CXX) $(LIBS) build/FoamClassifyTest.o build/PndPDEFoamClassify.o build/PndGpidClassifier.o \
+	build/PndMvaDataSet.o build/PndMvaUtil.o -o build/FoamClassifyTest
+
+	$(CXX) $(LIBS) build/CreateRandomDataSet.o -o build/CreateRandomDataSet
 clean:
 	rm -f *~ *.o *.root build/*
 	cd KNN ; $(MAKE) clean
 	cd LVQ1; $(MAKE) clean
 	cd TMVAkd_KNN; $(MAKE) clean
+	cd TMVA_PDE_FOAM; $(MAKE) clean
+

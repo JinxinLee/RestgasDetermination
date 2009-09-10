@@ -23,4 +23,4 @@ classifyStdKnn: % : %.cpp PndStdKnnClassify
 	@echo "Done building:" $@
 
 clean:
-	rm -f *~
+	rm -f *~ *.o

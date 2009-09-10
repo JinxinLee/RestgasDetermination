@@ -95,7 +95,7 @@ int main(int argc, char** argv)
   ti.Start();
   
   for(int i = 0; i < 3; i++){
-    cls.Classify(evt, res);
+    cls.GetMvaValues(evt, res);
     //cls.Classify(evt1, NumNei, res);
     //cls.Classify(evt2, NumNei, res);
     printResult(res);

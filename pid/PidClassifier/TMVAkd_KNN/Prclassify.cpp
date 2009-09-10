@@ -96,13 +96,13 @@ int main(int argc, char** argv)
   TStopwatch ti;
   ti.Start();
  
-  cls.Classify(evt, res);
+  cls.GetMvaValues(evt, res);
   printResult(res);
 
-  cls.Classify(evt1, res);
+  cls.GetMvaValues(evt1, res);
   printResult(res);
   
-  cls.Classify(evt2, res);
+  cls.GetMvaValues(evt2, res);
   printResult(res);
   
   ti.Stop();

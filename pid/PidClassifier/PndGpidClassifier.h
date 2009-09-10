@@ -7,7 +7,7 @@
  * **********************************************
  */
 
-#pragma once
+//#pragma once
 #ifndef PndGPIDCLASSIFIER_H
 #define PndGPIDCLASSIFIER_H
 
@@ -41,9 +41,11 @@ class PndGpidClassifier
    * @param result:  Classification results. Currently the shortest
    *  distance for each class is stored in result.
    */
-  virtual void Classify(std::vector<float> EvtData, 
-			std::map<std::string,float>& result) = 0;
+  virtual void GetMvaValues(std::vector<float> EvtData,
+			    std::map<std::string,float>& result) = 0;
   
+  virtual const std::string& Classify(std::vector<float> EvtData)const = 0;
+
  protected:
   //! Data set. Holds event Weights
   PndMvaDataSet m_dataSets;

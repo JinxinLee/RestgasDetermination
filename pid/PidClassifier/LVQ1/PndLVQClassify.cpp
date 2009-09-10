@@ -30,22 +30,32 @@ PndLVQClassify::PndLVQClassify(const string& inputFile,
 PndLVQClassify::~PndLVQClassify()
 {}
 
+const std::string& PndLVQClassify::Classify(std::vector<float> EvtData)const
+{
+  EvtData.clear();
+  std::string* re = new std::string();
+  std::cout << "Not implemented Yet" << std::endl;
+  return *re;
+}
+
 /**
  * @param eventData: Event data to be classified.
  * @param result:  Classification results. Currently the shortest
  *                 distance for each class is stored in result.
  */
-void PndLVQClassify::Classify(vector<float> eventData,
-			      map<string,float>& result)
+void PndLVQClassify::GetMvaValues(vector<float> eventData,
+				  map<string,float>& result)
 {
   // Holds the number of available examples per class
   const vector<PndMvaVariable>& vars = m_dataSets.GetVars();
   const vector<PndMvaClass>& classes = m_dataSets.GetClasses();
-  const vector<pair<string, vector<float>*> >& events = m_dataSets.GetData();
+  const vector<pair<string, vector<float>*> >& ProtoList = m_dataSets.GetData();
   
   // Initialize results
   result.clear();
-  for(size_t id = 0; id < classes.size(); id++){
+  
+  for(size_t id = 0; id < classes.size(); id++)
+  {
     result.insert(make_pair(classes[id].Name, numeric_limits<float>::max()));
   }
 
@@ -59,15 +69,31 @@ void PndLVQClassify::Classify(vector<float> eventData,
   
   // Loop trough the prototypes list and compute the distances
   float dist = 0.0;
-  for(size_t i = 0; i < events.size(); i++)
+  for(size_t i = 0; i < ProtoList.size(); i++)
   {
-    string clsName = events[i].first;
-    vector<float>* ev = events[i].second;
+    string clsName    = ProtoList[i].first;
+    vector<float>* ev = ProtoList[i].second;
     
     dist = ComputeDist(*ev, eventData);
     
-    if(dist < result[clsName]){
+    if( dist < result[clsName] ){
       result[clsName] = dist;
     }
   }
+  
+  // Normalize Resul map
+  float Sum = 0.0;
+  for(size_t i = 0; i < classes.size(); i++)
+  {
+    string clsName = classes[i].Name;
+    Sum += result[clsName];
+  }
+  
+  for(size_t i = 0; i < classes.size(); i++)
+  {
+    string clsName = classes[i].Name;
+    result[clsName] /= Sum;
+    // result[clsName] = 1.0 - result[clsName]; // Do we need this?
+  }
+  
 }

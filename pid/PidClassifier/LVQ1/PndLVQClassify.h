@@ -8,7 +8,7 @@
  * ***************************************
  */
 
-#pragma once
+//#pragma once
 #ifndef PndLVQClassify_H
 #define PndLVQClassify_H
 
@@ -41,8 +41,10 @@ class PndLVQClassify: public PndGpidClassifier
    * @param result:  Classification results. Currently the shortest
    *  distance for each class is stored in result.
    */
-  void Classify(std::vector<float> eventData, 
-		std::map<std::string, float>& result);
+  void GetMvaValues(std::vector<float> eventData, 
+		    std::map<std::string, float>& result);
+
+  const std::string& Classify(std::vector<float> EvtData)const;
 
  private:
   PndLVQClassify(const PndLVQClassify& other);

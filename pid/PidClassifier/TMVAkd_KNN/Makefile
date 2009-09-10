@@ -37,4 +37,4 @@ Prclassify: % : %.cpp PndProjectedKNN
 	$(CXX) $(CCFLAGS) $(INCLUDE) -c $< -o ../build/$@.o
 	@echo "Done building"$@
 clean:
-	rm -f *~
+	rm -f *~ *.o

@@ -1,4 +1,4 @@
-#pragma once
+//#pragma once
 #ifndef PndKnnClassify_H
 #define PndKnnClassify_H
 
@@ -33,8 +33,11 @@ class PndKnnClassify: public PndGpidClassifier
    * @param eventData: Feature vector of the current event.
    * @param result: Holds the normalized results of classification
    */
-  void Classify(std::vector<float> eventData, 
-		std::map<std::string, float>& result);
+  void GetMvaValues(std::vector<float> eventData, 
+		    std::map<std::string, float>& result);
+
+  const std::string& Classify(std::vector<float> EvtData)const;
+
   /**
    * Set the scalefactor and the event weight for KNN classifier.
    * @param scFact  Scale factor.

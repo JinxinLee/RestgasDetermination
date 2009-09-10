@@ -40,7 +40,11 @@ void readEvents(const char* infile, const std::vector<std::string>& varNames,
     
     // Get the tree object
     TTree *t = (TTree*) inf.Get(name);
-
+    if(!t)
+    {
+      std::cout << "Could not find tree named: " << name << std::endl;
+      return;
+    }
     // Init a container to bind to the tree branches
     std::vector<float> ev (varNames.size(), 0.0);
 
@@ -117,6 +121,8 @@ int main(int argc, char** argv)
   std::vector<std::pair<std::string, std::vector<float>* > > events;
   
   // Classes
+  //clas.push_back("electron");
+  //clas.push_back("pion");
   clas.push_back("Elect"); 
   clas.push_back("Pion");
   //clas.push_back("Kaon"); 
@@ -132,7 +138,7 @@ int main(int argc, char** argv)
   //nam.push_back("mvd"); 
 
   // Create classifier.
-  PndLVQClassify cls (inF.c_str(), clas, nam);
+  PndLVQClassify cls (inF, clas, nam);
 
   // Read events.
   readEvents(evtF.c_str(), nam, clas, events);
@@ -158,7 +164,7 @@ int main(int argc, char** argv)
     for(unsigned int k = 0; k < events.size(); k++){
       if(curClsName == (events[k]).first){
 	std::vector<float>* evt = (events[k]).second;
-	cls.Classify(*evt, res);
+	cls.GetMvaValues(*evt, res);
 	totNumEvt++;
 	
 	// Perform winner takes all.
@@ -170,12 +176,14 @@ int main(int argc, char** argv)
 	       << " Original className " << (events[k]).first << std::endl
 	       << " Classifier output name " << tmpClsName << std::endl;
 
-	/*
-	  for( std::map<std::string,float>::iterator it = res.begin(); 
-	  it != res.end(); ++it){
+	
+	for( std::map<std::string,float>::iterator it = res.begin(); 
+	     it != res.end(); ++it)
+	{
 	  OutPut << (*it).first << " => " << (*it).second
-	  << std::endl;}
-	*/
+		 << " ";
+	}
+	OutPut << std::endl;
 	OutPut<< "======================================= \n";
 
 	if(tmpClsName == curClsName){// Correct Label

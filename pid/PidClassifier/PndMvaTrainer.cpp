@@ -8,6 +8,9 @@
  */
 
 #include "PndMvaTrainer.h"
+
+using namespace std;
+
 //! Constructor
 PndMvaTrainer::PndMvaTrainer(const std::string& InPut,
 			     const std::vector<std::string>& ClassNames, 
@@ -21,9 +24,6 @@ PndMvaTrainer::PndMvaTrainer(const std::string& InPut,
     m_dataSets.Trim();
   }
 
-  // Normalize data Set
-  NormalizeData();
-  
   // Initialize class conditional means.
   m_dataSets.InitClsCondMeans();
   
@@ -39,7 +39,16 @@ PndMvaTrainer::PndMvaTrainer(const std::string& InPut,
 
 //! Destructor
 PndMvaTrainer::~PndMvaTrainer()
-{}
+{
+  // CLean Error container
+  /*
+  for(size_t i = 0; i < m_StepErro.size(); i++)
+  {
+    delete m_StepErro[i];
+  }
+  m_StepErro.clear();
+  */
+}
 
 /**
  * Creates test and train data sets.
@@ -66,6 +75,25 @@ void PndMvaTrainer::splitTetsSet(int percent)
   }
 }
 
+void PndMvaTrainer::WriteErroVect(const std::string FileName)
+{
+  std::ofstream Outfile;
+
+  Outfile.open(FileName.c_str(),ios::out| ios::trunc);
+
+  Outfile << "# Error vector output\n";
+  Outfile << "#<Step number> \t<Train Error> \t<Test Error>\n";
+
+  for(size_t i = 0; i < m_StepErro.size(); i++)
+  {
+    Outfile << " " << (m_StepErro[i]).m_step  <<"\t"
+	    << " " << (m_StepErro[i]).m_trErr <<"\t"
+	    << " " << (m_StepErro[i]).m_tsErr 
+	    << std::endl;
+  }
+  Outfile << flush;
+  Outfile.close();
+}
 /**
  * Write the training and normalization data to outFile.
  */
@@ -79,9 +107,8 @@ void PndMvaTrainer::WriteToWeightFile(const std::vector< std::pair<std::string,
   const std::vector<PndMvaVariable>& vars = m_dataSets.GetVars();
  
   /* 
-   * Open out put file and write coordinates.
+   * Open out-put file and write coordinates.
    */
-  TFile out (m_outFile.c_str(), "RECREATE");
   if(m_outFile == "")
   {
     std::cerr << "<ERROR> The output file name could not be an empty string.\n"
@@ -89,6 +116,8 @@ void PndMvaTrainer::WriteToWeightFile(const std::vector< std::pair<std::string,
 	      << " the generated weights." << std::endl;
     return;
   }
+
+  TFile out (m_outFile.c_str(), "RECREATE", "WeightOutput", 9);
 
   for(size_t cls = 0; cls < classes.size(); cls++)
   {
@@ -185,4 +214,89 @@ void PndMvaTrainer::WriteToWeightFile(const std::vector< std::pair<std::string,
   
   //Close open file
   out.Close();
+}
+
+void PndMvaTrainer::WriteToWeightFile(const std::vector<TMVA::PDEFoam*>& foamList)
+{
+  std::cerr << "<INFO> Writing Foams to file "
+	    << m_outFile << std::endl;
+  /* 
+   * Open out-put file and write coordinates.
+   */
+  if(m_outFile == "")
+  {
+    std::cerr << "<ERROR> The output file name could not be an empty string.\n"
+	      << "        Set the outPut name if you want to store"
+	      << " the generated weights." << std::endl;
+    return;
+  }
+  
+  TFile rootFile (m_outFile.c_str(), "RECREATE", "foamfile", 9);
+
+  for(size_t j = 0; j < foamList.size(); j++)
+  {
+    foamList[j]->Write(foamList[j]->GetFoamName().Data());
+
+    // DEBUG FIXME
+    foamList[j]->Print();
+    std::cout << "  i is: " 
+	      << typeid(foamList[j]).name() 
+	      << std::endl;
+  }
+  
+  const std::vector<PndMvaVariable>& vars = m_dataSets.GetVars();
+  // Write normFactors
+  std::vector<float> buffer(vars.size(), 0.0);
+  std::string name = "NormFact";
+  std::string desc = "desc of " + name;
+  
+  TTree fact(name.c_str(), desc.c_str());
+  
+  // Create branches and bind the variables
+  for(size_t j = 0; j < vars.size(); j++)
+  {
+    std::string vname = vars[j].Name;
+    std::string leaf  = vname + "/F" ;
+    const char* bname = vname.c_str();
+    const char* lname = leaf.c_str();
+    
+    // Bind the parameters to the tree elements.
+    fact.Branch(bname, &buffer[j], lname);
+  }
+  // Fill the trees.
+  for(size_t i = 0; i < vars.size(); i++)
+  {
+    buffer[i] = vars[i].NormFactor;
+  }
+  fact.Fill();
+  fact.Write();
+  
+  // Write mean
+  name = "Means";
+  desc = "desc of " + name;
+  
+  TTree meanTree(name.c_str(), desc.c_str());
+  
+  // Create branches and bind the variables
+  for(size_t j = 0; j < vars.size(); j++)
+  {
+    std::string vname = vars[j].Name;
+    std::string leaf  = vname + "/F" ;
+    const char* bname = vname.c_str();
+    const char* lname = leaf.c_str();
+    
+    // Bind the parameters to the tree elements.
+    meanTree.Branch(bname, &buffer[j], lname);
+  }
+  
+  // Fill the trees.
+  for(size_t i = 0; i < vars.size(); i++)
+  {
+    buffer[i] = vars[i].Mean;
+  }
+  meanTree.Fill();
+  meanTree.Write();
+  
+  // Close open file
+  rootFile.Close();
 }

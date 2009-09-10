@@ -8,7 +8,8 @@
  * Based on the straight KNN algorithm
  * Using a linear search data structure.
  */
-#pragma once
+
+//#pragma once
 #ifndef PndKnnClassify_H
 #define PndKnnClassify_H
 
@@ -42,8 +43,10 @@ class PndStdKnnClassify : public PndGpidClassifier
    * @param result: Holds the normalized results of classification
    * for every class of events.
    */
-  void Classify(std::vector<float> eventData,
-		std::map<std::string,float>& result);
+  void GetMvaValues(std::vector<float> eventData,
+		    std::map<std::string,float>& result);
+
+  const std::string& Classify(std::vector<float> EvtData)const;
 
   /**
    * @param Neighbours: Number of Neighbours.

@@ -1,4 +1,4 @@
-#pragma once
+//#pragma once
 #ifndef PNDMVADATASET_H
 #define PNDMVADATASET_H
 
@@ -7,16 +7,19 @@
 #include <map>
 #include <set>
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <algorithm>
 #include <cmath>
 #include <cassert>
 #include <limits>
+#include <typeinfo>
 
 // ROOT
 #include "TFile.h"
 #include "TTree.h"
 #include "TRandom3.h"
+#include "TMVA/PDEFoam.h"
 
 // Local includes
 #include "PndMvaClass.h"
@@ -26,40 +29,6 @@
 // Normalization schemes
 typedef enum {NONE = 1, VARX = 2, MINMAX = 3, MEDIAN = 4} NormType;
 
-// ========================================================================
-// ========================================================================
-/**
- * Class to hold the computed Euclidean distances between the current
- * example and the available LVQ protoTypes (codeBook) in LVQ2.1
- * implementation.
- */
-struct PndMvaDistObj
-{
-  //! Constructor
- PndMvaDistObj():m_idx(-1), m_dist(0.0), m_cls("UNKNOWN"){};
-  
- PndMvaDistObj(const int id, const float dist, const std::string& cls)
-   : m_idx(id), m_dist(dist), m_cls(cls){};
-  
-  // Destructor
-  virtual ~PndMvaDistObj(){};
-  
-  //! Operator < 
-  inline bool operator< (const PndMvaDistObj& other)const{
-    return (m_dist < other.m_dist);
-  };
-  
-  //! Operator > 
-  inline bool operator> (const PndMvaDistObj& other)const{
-    return (m_dist > other.m_dist);
-  };
-  
-  int m_idx;/**< Index of the prototype. */
-  float m_dist;/**< Distance to the current example. */
-  std::string m_cls;/**< Class name of the prototype. */
-};
-
-// ========================================================================
 // ========================================================================
 class PndMvaDataSet
 {
@@ -75,7 +44,7 @@ class PndMvaDataSet
    * Normalize event dataset using one of available methods.
    * @param t Normalization type (VARX, MINMAX, MEDIAN).
    */
-  void NormalizeDataSet(const NormType type);
+  void NormalizeDataSet(const NormType type = NONE);
 
   /**
    * Write the normalized DataSet to the out-put file.

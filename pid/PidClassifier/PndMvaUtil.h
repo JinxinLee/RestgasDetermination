@@ -6,16 +6,86 @@
  * License:                                   *
  * *******************************************
  */
-#pragma once
+//#pragma once
 #ifndef PND_MVA_UTIL_H
 #define PND_MVA_UTIL_H
 
-//#include <typeinfo>
+#include <typeinfo>
+#include <string>
 #include <vector>
 #include <cmath>
 #include <cassert>
 
-#include "PndMvaDataSet.h"
+// ========================================================================
+struct StepError
+{
+  //! Constructor
+   StepError():m_step(0), m_trErr(0.0),m_tsErr(0.0){};
+   StepError(unsigned int step, float trErr, float tsErr)
+   : m_step(step), m_trErr(trErr),m_tsErr(tsErr){};
+  
+  //! Destructor
+  ~StepError(){};
+
+  StepError(const StepError& ot)
+  {
+    m_step  = ot.m_step;
+    m_trErr = ot.m_trErr;
+    m_tsErr = ot.m_tsErr;
+  };
+
+  StepError& operator=(const StepError& ot)
+  {
+    StepError* locTmp = new StepError();
+    locTmp->m_step = ot.m_step;
+    locTmp->m_trErr = ot.m_trErr;
+    locTmp->m_tsErr = ot.m_tsErr;
+    return *locTmp;
+  };
+
+  unsigned int m_step;
+  float m_trErr;
+  float m_tsErr;
+
+private:
+  //! Operator <
+  inline bool operator<(const StepError& other)const;
+  //! Operator >
+  inline bool operator>(const StepError& other)const;
+};
+// ========================================================================
+
+/**
+ * Class to hold the computed Euclidean distances between the current
+ * example and the available LVQ protoTypes (codeBook) in LVQ2.1
+ * implementation.
+ */
+struct PndMvaDistObj
+{
+  //! Constructor
+PndMvaDistObj():m_idx(-1), m_dist(0.0), m_cls("UNKNOWN"){};
+  
+PndMvaDistObj(const int id, const float dist, const std::string& cls)
+: m_idx(id), m_dist(dist), m_cls(cls){};
+  
+  // Destructor
+  virtual ~PndMvaDistObj(){};
+  
+  //! Operator < 
+  inline bool operator<(const PndMvaDistObj& other)const{
+    return (m_dist < other.m_dist);
+  };
+  
+  //! Operator > 
+  inline bool operator>(const PndMvaDistObj& other)const{
+    return (m_dist > other.m_dist);
+  };
+  
+  int m_idx;/**< Index of the prototype. */
+  float m_dist;/**< Distance to the current example. */
+  std::string m_cls;/**< Class name of the prototype. */
+};
+// ========================================================================
 
 /**
  * Binary Minimum function.
@@ -23,13 +93,12 @@
 
 template <typename T>
 inline const T& minFunct ( const T& a, const T& b )
-{
-  // or: return comp(a,b)?a:b; for the comp version
+{// or: return comp(a,b)?a:b; for the comp version
   return (a < b) ? a : b;
 }
 
 template<typename T>
-inline bool compare(const T* a, const T* b)
+inline bool compareL(const T* a, const T* b)
 { return ( (*a) < (*b) );}
 
 

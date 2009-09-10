@@ -1,4 +1,4 @@
-#pragma once
+//#pragma once
 #ifndef PndKnnTrain_H
 #define PndKnnTrain_H
 

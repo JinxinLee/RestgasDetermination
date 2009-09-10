@@ -17,9 +17,10 @@ int main(int argc, char** argv)
   std::vector<std::string> clas;
   std::vector<std::string> nam;
 
-  if(argc < 5){
+  if(argc < 6){
     std::cerr << "\t<ERROR> Usage\n"
-              <<"\t./train <algNum> <NumProtoTypes> <InputTrainEventFeatureFile> <OutFile>"
+              <<"\t./train <algNum> <NumProtoTypes> <numSweep> <InputTrainEventFeatureFile> <OutFile>"
+	      << " <ErroFileName>"
               << std::endl;
     return 1;
   }
@@ -31,11 +32,19 @@ int main(int argc, char** argv)
   std::string numstr = argv[2];// Number of proto's
   std::istringstream buff(numstr);
   buff >> numProto;
+  std::cout << " numProto = " << numProto << " ";
 
-  std::string ip = argv[3];// InputFile
-  const char* InputFile = ip.c_str();
+  int numSweep = atoi(argv[3]);
+  std::cout << " numSweep = " << numSweep << " ";
 
-  std::string ot      = argv[4];// OutPutFile
+  std::string ip = argv[4];// InputFile
+  std::cout << " TrainFile = " << ip << " ";
+
+  std::string ot      = argv[5];// OutPutFile
+  std::cout << " outPut = " << ot << " ";
+
+  std::string OutErr = argv[6];
+  std::cout << " ErrorFile = " << OutErr << std::endl;
 
 
   //Class names
@@ -46,7 +55,7 @@ int main(int argc, char** argv)
 
 
   clas.push_back("Elect"); clas.push_back("Pion");
-  //clas.push_back("Kaon");  //clas.push_back("Muon");
+  //clas.push_back("Kaon");  clas.push_back("Muon");
   //clas.push_back("Proton"); //clas.push_back("gamma");
 
   //Variable names 
@@ -57,17 +66,18 @@ int main(int argc, char** argv)
   nam.push_back("tof");
   //nam.push_back("stt"); 
 
-  PndLVQTrain tr(InputFile, clas, nam, true);
+  PndLVQTrain tr(ip, clas, nam, true);
   float initC  = 0.9;
   float ethaZ  = 0.1;
   float ethaF  = 0.0001;
-  int numSweep = 100;
 
   tr.SetLearnPrameters(initC, ethaZ, ethaF, numSweep);
   tr.SetNumberOfProto(numProto);
-  tr.splitTetsSet(10);
+  tr.splitTetsSet(10);//10 % (DEFAULT)
 
-
+  //VARX, MINMAX, MEDIAN, NONE(DEFAULT)
+  tr.NormalizeData(VARX);
+  
   std::string OutFile = ot;
   tr.SetOutPutFile(ot);
 
@@ -88,5 +98,7 @@ int main(int argc, char** argv)
   default:
     std::cerr << "No algorithm selected" << std::endl;
   }
+
+  tr.WriteErroVect(OutErr);
   return 0;
 }

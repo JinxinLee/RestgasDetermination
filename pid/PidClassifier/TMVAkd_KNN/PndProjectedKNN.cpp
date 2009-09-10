@@ -19,7 +19,15 @@ PndProjectedKNN::~PndProjectedKNN()
   destroy();
 }
 
-void PndProjectedKNN::Classify(vector<float> eventData,
+const std::string& PndProjectedKNN::Classify(std::vector<float> EvtData)const
+{
+  EvtData.clear();
+  std::string* re = new std::string();
+  std::cout << "Not implemented yet." << std::endl;
+  return *re;
+}
+
+void PndProjectedKNN::GetMvaValues(vector<float> eventData,
 			       map<string, float>& result)
 {
   if(m_knn == 0)
@@ -62,7 +70,7 @@ void PndProjectedKNN::Classify(vector<float> eventData,
     }
     
     PndKnnClassify* clsfy = m_classifiers[i].first;
-    clsfy->Classify(evt, *rs);
+    clsfy->GetMvaValues(evt, *rs);
     tempResult.push_back(rs);
   }
   
@@ -125,6 +133,7 @@ void PndProjectedKNN::InitKNN()
     
     cls->SetEvtParam(m_ScaleFact, m_weight);
     cls->SetKnn(m_knn);
+    
     // FIXME <WARNING> Maybe this must be changed. 
     // The input file is read n-times.
     cls->InitKNN();

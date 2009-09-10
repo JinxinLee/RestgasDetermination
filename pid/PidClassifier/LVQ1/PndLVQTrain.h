@@ -5,11 +5,10 @@
  * LICENSE:                              *
  * ***************************************
  */
-#pragma once
+
+//#pragma once
 #ifndef Pnd_LVQ_Train_H
 #define Pnd_LVQ_Train_H
-
-#define ProgStep 1000000
 
 //Local includes
 #include "PndMvaTrainer.h"
@@ -67,6 +66,9 @@ class PndLVQTrain: public PndMvaTrainer
   {m_numProto = numProto; };
   
  private:
+
+  void EvalClassifierError(unsigned int stp);
+
   PndLVQTrain(const PndLVQTrain& other);
   PndLVQTrain& operator=(const PndLVQTrain& other);
 
@@ -104,6 +106,7 @@ class PndLVQTrain: public PndMvaTrainer
   
   //! Number of sweeps through example set.
   unsigned int m_NumSweep;
+
   //! number of proto-types to train
   unsigned int m_numProto;
 };

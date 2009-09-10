@@ -7,25 +7,26 @@
 #LIBS      = $(shell root-config --libs)
 
 # Define targets
-TARGETS = PndLVQClassify PndLVQTrain LVQtrain LVQclassify
+TARGETS = PndPDEFoamTrain FoamTrainTest PndPDEFoamClassify FoamClassifyTest
+
 
 all: $(TARGETS)
 
-PndLVQClassify: % : %.cpp
+PndPDEFoamTrain: % : %.cpp
 	$(CXX) $(CCFLAGS) $(INCLUDE) -c $< -o ../build/$@.o
-	@echo "Done building:" $@
+	@echo "Done building "$@.o
 
-PndLVQTrain:% : %.cpp
+PndPDEFoamClassify: % : %.cpp
 	$(CXX) $(CCFLAGS) $(INCLUDE) -c $< -o ../build/$@.o
-	@echo "Done building:" $@
+	@echo "Done building "$@.o
 
-LVQclassify: % : %.cpp PndLVQClassify
+FoamClassifyTest: % : %.cpp PndPDEFoamClassify
 	$(CXX) $(CCFLAGS) $(INCLUDE) -c $< -o ../build/$@.o
-	@echo "Done building:" $@
+	@echo "Done building "$@
 
-LVQtrain: % : %.cpp PndLVQTrain
+FoamTrainTest: % : %.cpp  PndPDEFoamTrain
 	$(CXX) $(CCFLAGS) $(INCLUDE) -c $< -o ../build/$@.o
-	@echo "Done building:" $@
+	@echo "Done building "$@
 
 clean:
-	rm -f *~ *.o
+	rm -f $(BINS) *~ *.o

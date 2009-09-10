@@ -89,7 +89,7 @@ int main(int argc, char** argv)
   
   for(int i = 0; i < 3; i++)
   {
-    cls.Classify(evt, res);
+    cls.GetMvaValues(evt, res);
     //cls.Classify(evt1, res);
     //cls.Classify(evt2, res);
     printResult(res);

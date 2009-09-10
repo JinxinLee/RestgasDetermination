@@ -54,8 +54,16 @@ void PndKnnClassify::InitKNN()
   cout << "<INFO> Done initializing." << endl;
 }
 
-void PndKnnClassify::Classify(vector<float> eventData, 
-			      map<string, float>& result)
+const std::string& PndKnnClassify::Classify(std::vector<float> EvtData)const
+{
+  EvtData.clear();
+  std::string* re = new std::string();
+  std::cout << "Not implemented yet."<<std::endl;
+  return *re;
+}
+
+void PndKnnClassify::GetMvaValues(vector<float> eventData, 
+				  map<string, float>& result)
 {
   if(m_knn == 0)
   {

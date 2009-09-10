@@ -29,8 +29,16 @@ PndStdKnnClassify::PndStdKnnClassify(const string& inputFile,
 PndStdKnnClassify::~PndStdKnnClassify()
 {}
 
-void PndStdKnnClassify::Classify(vector<float> eventData,
-				 map<string, float>& result)
+const std::string& PndStdKnnClassify::Classify(std::vector<float> EvtData)const
+{
+  EvtData.clear();
+  std::string* re = new std::string();
+  std::cout << "Not implemented yet" << std::endl;
+  return *re;
+}
+
+void PndStdKnnClassify::GetMvaValues(vector<float> eventData,
+				     map<string, float>& result)
 {
   if(m_Knn == 0)
   {
