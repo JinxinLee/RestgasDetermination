@@ -111,39 +111,65 @@ double RKtrackRep::extrapolate(const DetPlane& pl,
     throw exc;
   }
 
-  std::cout << "###############%$%$%$%$$ " << gGeoManager << std::endl;
+  double dz = pl.getO().Z()-_refPlane.getO().Z();
+  double dist = sqrt(dz*dz*(1.+state[2][0]*state[2][0]+state[3][0]*state[3][0]));
+
   TVector3 pos;
-  TVector3 mom;
-  getPosMom(_refPlane,pos,mom);
-  mom.SetMag(1.);
-  gGeoManager->InitTrack(pos.X(),pos.Y(),pos.Z(),mom.X(),mom.Y(),mom.Z());
-  std::cout << gGeoManager->GetPath() << std::endl;
-  TGeoNode *cnode = gGeoManager->GetCurrentNode(); 
-  cnode->Print();
-  // then: 
-  TGeoVolume *cvol = cnode->GetVolume();    // (*) 
-  // then: 
-  TGeoMaterial *cmat = cvol->GetMedium()->GetMaterial();
-  std::cout << "radlen " << cmat->GetRadLen() << std::endl;
+  TVector3 dir;
+  getPosMom(_refPlane,pos,dir);
+  dir.SetMag(1.);
+  if(dir.Z() < 0){//particle flying downstream
+    if(dz<0.){//backward extrap
+      dir *= -1.;
+    }
+  }
+  else{//flying upstream
+    if(dz>0.){//backward extrap
+      dir *= -1.;
+    }
+  }
+  
+  //TAG
+  
+  gGeoManager->InitTrack(pos.X(),pos.Y(),pos.Z(),dir.X(),dir.Y(),dir.Z());
 
-  gGeoManager->FindNextBoundaryAndStep(71.)->Print();
-  std::cout << gGeoManager->GetStep() << std::endl;
-  gGeoManager->FindNextBoundaryAndStep()->Print();
-  std::cout << gGeoManager->GetStep() << std::endl;
+  double XX0(0.);  
+  double X(0.);
+  //std::cout << "before stepping dist is " << dist << std::endl;
+  while(dist>1.e-3){//10 micron
+    double radLen = gGeoManager->GetCurrentVolume()->GetMedium()->GetMaterial()->GetRadLen();
+    //std::cout << "stepping" << std::endl;
+    //gGeoManager->GetCurrentNode()->Print();
+    gGeoManager->FindNextBoundaryAndStep(dist);
+    //gGeoManager->GetCurrentNode()->Print();
+    double step = gGeoManager->GetStep();
+    dist -= step;
+    XX0 += step/radLen;
+    X += step;
+  }
 
+  //std::cout << "crossed " << X << "cm and XX0 is " << XX0 << std::endl;
+  /*
+  std::cout << "next node will be " << std::endl;
+  gGeoManager->FindNextBoundaryAndStep(0.1)->Print();
+  gGeoManager->FindNextBoundaryAndStep(0.1)->Print();
+  gGeoManager->FindNextBoundaryAndStep(0.1)->Print();
+  gGeoManager->FindNextBoundaryAndStep(0.1)->Print();
+  */
 
   TMatrixT<double> cov15(15,1);
   double zFinal(-1.E300);
-  double dist = this->Extrap(pl.getO().Z(),zFinal,statePred,cov15);
+  double distance = this->Extrap(pl.getO().Z(),zFinal,statePred,cov15);
+  addNoise(XX0,cov15);
   covPred = cov15to25(cov15);
-  return dist;
+  //std::cout << "helix distance is " << distance << std::endl;
+  return distance;
+
 }
 
-void RKtrackRep::addNoise(double x,double RadLen,const TMatrixT<double>& state,TMatrixT<double>& cov15){
+void RKtrackRep::addNoise(double len,TMatrixT<double>& cov15){
   if(state[4][0] == 0.) return; // momentum not known. Do nothing.
   
-  double len   =  x / RadLen;
-
   // Lynch and Dahl aproximation for Sigma(Theta_proj) of mult. scatt.
   double SigTheta = 0.0136*fabs(state[4][0]) * sqrt(len) * (1.+0.038*log(len));
  

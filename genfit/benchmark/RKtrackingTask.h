@@ -40,7 +40,6 @@ class RKtrackingTask : public FairTask{
 	void writeFile(){
 	  std::cout << "RKtrackingTask: writing output file" << std::endl;
 	  tree->Write();
-	  tree->Print();
 	  file->Write();
 	  file->Close();
 	}
