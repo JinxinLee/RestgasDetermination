@@ -6,6 +6,7 @@
 #include"math.h"
 #include"TMath.h"
 #include"TGeoManager.h"
+#include"TDatabasePDG.h"
 
 #include"MeanExcEnergy.h"
 #include"energyLoss.h"
@@ -15,7 +16,7 @@ RKtrackRep::~RKtrackRep(){
   //we do NOT assume ownership over field
 }
 
-RKtrackRep::RKtrackRep() : AbsTrackRep(5),field(NULL),pdg(0){
+RKtrackRep::RKtrackRep() : AbsTrackRep(5),field(NULL),pdg(0),mass(0.),direction(true){
 }
 
 RKtrackRep::RKtrackRep(const TVector3& pos,
@@ -25,7 +26,8 @@ RKtrackRep::RKtrackRep(const TVector3& pos,
 		       const double& q,
 		       const int& PDGCode,
 		       const AbsBField* f) :
-  AbsTrackRep(5),field(f),pdg(PDGCode){
+  AbsTrackRep(5),field(f),direction(true){
+  setPDG(PDGCode);
   TVector3 orig(0.,0.,pos.Z());
   static const TVector3 u(1.,0.,0.);
   static const TVector3 v(0.,1.,0.);
@@ -52,6 +54,17 @@ RKtrackRep::RKtrackRep(const TVector3& pos,
     (mom.X()*mom.X()*momerr.X()*momerr.X()+
      mom.Y()*mom.Y()*momerr.Y()*momerr.Y()+
      mom.Z()*mom.Z()*momerr.Z()*momerr.Z());
+}
+
+void RKtrackRep::setPDG(int i){
+  pdg = i;
+  TParticlePDG * part = TDatabasePDG::Instance()->GetParticle(pdg);
+  if(part == 0){
+    std::cerr << "RKtrackRep::setPDG particle " << i 
+	      << " not known to TDatabasePDG -> abort" << std::endl;
+    exit(1);
+  }
+  mass = part->Mass();
 }
 
 TVector3 RKtrackRep::getPos(const DetPlane& pl){
@@ -146,8 +159,7 @@ double RKtrackRep::extrapolate(const DetPlane& pl,
     double dedx = 0.;
     if(mat->GetZ()>1.E-3){
       double p = getMom(_refPlane).Mag();
-      double m = 0.105;
-      dedx = energyLoss(p/sqrt(m*m+p*p),//beta
+      dedx = energyLoss(p/sqrt(mass*mass+p*p),//beta
 			getCharge(),//particle charge
 			mat->GetDensity(),//material density
 			mat->GetZ()/mat->GetA(),//material Z/A

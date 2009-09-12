@@ -52,12 +52,18 @@ public:
 
   virtual double getCharge()const {return (state[4][0]>0. ? 1. : -1.);}
 
-  void switchDirection(){;}
+  void switchDirection(){direction = (!direction);}
+
+  void setPDG(int);
 
 private:
+  bool direction;
   const AbsBField *field;//!
   int pdg;
+  double mass;
+
   double myZ() const;
+
   TMatrixT<double> cov15to25(const TMatrixT<double>& cov15) const;
   TMatrixT<double> cov25to15(const TMatrixT<double>& cov25) const;
 
