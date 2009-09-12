@@ -50,7 +50,7 @@ public:
   virtual TVector3 getMom(const DetPlane&);
   virtual void getPosMom(const DetPlane&,TVector3& pos,TVector3& mom);
 
-  virtual double getCharge()const {;}
+  virtual double getCharge()const {return (state[4][0]>0. ? 1. : -1.);}
 
   void switchDirection(){;}
 

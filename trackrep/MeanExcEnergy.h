@@ -3,6 +3,8 @@
 
 #include<iostream>
 
+class TGeoMaterial;
+
 class MeanExcEnergy{
  private:
   MeanExcEnergy(){};
@@ -14,6 +16,7 @@ class MeanExcEnergy{
     assert(Z>0&&Z<=NELEMENTS);
     return vals[Z-1];
   }
+  static float get(TGeoMaterial*);
 
 };
 

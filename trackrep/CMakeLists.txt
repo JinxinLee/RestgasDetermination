@@ -32,6 +32,8 @@ PndGenfitAdapters.cxx
 #FairGeaneNew.cxx
 #GeaneMCApplication.cxx
 RKtrackRep.cxx
+MeanExcEnergy.cxx
+energyLoss.cxx
 )
 
 if(RULE_CHECKER_FOUND)

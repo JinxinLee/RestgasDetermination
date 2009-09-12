@@ -7,6 +7,8 @@
 #include"TMath.h"
 #include"TGeoManager.h"
 
+#include"MeanExcEnergy.h"
+#include"energyLoss.h"
 #include"FitterExceptions.h"
 
 RKtrackRep::~RKtrackRep(){
@@ -137,9 +139,23 @@ double RKtrackRep::extrapolate(const DetPlane& pl,
   double X(0.);
   //std::cout << "before stepping dist is " << dist << std::endl;
   while(dist>1.e-3){//10 micron
-    double radLen = gGeoManager->GetCurrentVolume()->GetMedium()->GetMaterial()->GetRadLen();
-    //std::cout << "stepping" << std::endl;
-    //gGeoManager->GetCurrentNode()->Print();
+    TGeoMaterial * mat = gGeoManager->GetCurrentVolume()->GetMedium()->GetMaterial();
+    double radLen = mat->GetRadLen();
+ 
+    //dont calculate dedx for Z==0, i.e. vacuum
+    double dedx = 0.;
+    if(mat->GetZ()>1.E-3){
+      double p = getMom(_refPlane).Mag();
+      double m = 0.105;
+      dedx = energyLoss(p/sqrt(m*m+p*p),//beta
+			getCharge(),//particle charge
+			mat->GetDensity(),//material density
+			mat->GetZ()/mat->GetA(),//material Z/A
+			MeanExcEnergy::get(mat)//mean exc energy
+			);
+      //std::cout << "stepping" << std::endl;
+      //gGeoManager->GetCurrentNode()->Print();
+    }
     gGeoManager->FindNextBoundaryAndStep(dist);
     //gGeoManager->GetCurrentNode()->Print();
     double step = gGeoManager->GetStep();
@@ -149,17 +165,13 @@ double RKtrackRep::extrapolate(const DetPlane& pl,
   }
 
   //std::cout << "crossed " << X << "cm and XX0 is " << XX0 << std::endl;
-  /*
-  std::cout << "next node will be " << std::endl;
-  gGeoManager->FindNextBoundaryAndStep(0.1)->Print();
-  gGeoManager->FindNextBoundaryAndStep(0.1)->Print();
-  gGeoManager->FindNextBoundaryAndStep(0.1)->Print();
-  gGeoManager->FindNextBoundaryAndStep(0.1)->Print();
-  */
 
   TMatrixT<double> cov15(15,1);
   double zFinal(-1.E300);
   double distance = this->Extrap(pl.getO().Z(),zFinal,statePred,cov15);
+  //correct radiation length for helix path length as compared to straight line
+  XX0*=distance/X;
+  //add multiple scattering to covariance matrix
   addNoise(XX0,cov15);
   covPred = cov15to25(cov15);
   //std::cout << "helix distance is " << distance << std::endl;
@@ -167,6 +179,18 @@ double RKtrackRep::extrapolate(const DetPlane& pl,
 
 }
 
+/*
+  virtual void extrapolateToPoca(const TVector3& point,
+				 TVector3& poca,
+				 TVector3& dirInPoca); 
+
+  virtual void extrapolateToLine(const TVector3& point1, 
+				 const TVector3& point2,
+				 TVector3& poca,
+				 TVector3& dirInPoca,
+				 TVector3& poca_onwire);
+
+ */
 void RKtrackRep::addNoise(double len,TMatrixT<double>& cov15){
   if(state[4][0] == 0.) return; // momentum not known. Do nothing.
   
