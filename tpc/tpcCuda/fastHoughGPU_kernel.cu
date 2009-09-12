@@ -345,37 +345,48 @@ __global__ void cutoffKernel(float cutoff, int nodes, uint* votes) {
 
   int tID = blockIdx.x * blockDim.x + threadIdx.x;
 
+  __shared__ uint warpVotes[32];
+  __shared__ uint memory[32];  //remember the votesarray
+  __shared__ uint last_element;
+
+  //load votes array for this set of sons into shared memory
+ 
+  uint temp = votes[tID];
+  warpVotes[tID%32] = temp;		
+  memory[tID%32] = temp;		
+  __syncthreads();
+
+  
+  //simple bubblesort on the shared array
   if(tID%32==0) {
 
-    uint temp[32];
-    for(int i=0; i<32; i++) 
-      temp[i] = votes[tID+i];
-    
     //qsort(temp, 32, sizeof(uint), compare);
 
     //best sorting algorithm of all times.
     for(int l=0; l<32; l++) 
       for(int k=l+1; k<32; k++) 
-	if(temp[l]>temp[k]) {
+	if(warpVotes[l]>warpVotes[k]) {
 	  uint furz;
-	  furz=temp[l];
-	  temp[l]=temp[k];
-	  temp[k]=furz;
+	  furz=warpVotes[l];
+	  warpVotes[l]=warpVotes[k];
+	  warpVotes[k]=furz;
 	}
 
     
-    int last_element=(int)(cutoff*32.f);
-      
-    //set votes of nodes with less votes than cutoff element to zero
-    for(int j=0; j<32; j++) {
-      int bla = temp[last_element];
-      int blub = votes[tID+j];
-      int diff = bla-blub;
-      //int diff = (int)(temp[last_element]-votes[tID+j]);
-      votes[tID+j]*=signbit(diff);  //1 for negative, 0 for positive
-    }
+    last_element=(uint)(cutoff*32.f);
   }
+  __syncthreads();
+      
+  //set votes of nodes with less votes than cutoff element to zero
+    
+  uint bla = warpVotes[last_element];
+  uint blub = memory[tID%32];
+  int diff = bla-blub;
+  //int diff = (int)(warpVotes[last_element]-votes[tID+j]);
+  votes[tID]*=signbit(diff);  //1 for negative, 0 for positive
+
 }
+
 
   
 

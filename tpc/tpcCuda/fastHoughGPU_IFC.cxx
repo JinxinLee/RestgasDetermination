@@ -37,6 +37,9 @@ fastHoughGPU_IFC::fastHoughGPU_IFC(float SCALING , int MAXSIZE) {
 
   _threads = 128; //standard value
   
+  _cutoff = 0.7f;    //default values
+  _cutoffLevel = 4;
+  
   _p0 = (float*) malloc(2*MAXSIZE*sizeof(float));
   _p1 = (float*) malloc(2*MAXSIZE*sizeof(float));
   _p2 = (float*) malloc(2*MAXSIZE*sizeof(float));
@@ -262,13 +265,11 @@ fastHoughGPU_IFC::testIntersection(std::vector<Hough5DNode*>* nodes,
     }
 
     //throw away cutoff*100% of each mothers' sons
-    float cutoff = 0.7f;
-    
     int blocks = nodes->size() /_threads + 1;
      
     
-    if(level>4) {
-      callCutoffKernel(cutoff, nodes->size(), _votes_d, _threads, blocks);
+    if(level>_cutoffLevel) {
+      callCutoffKernel(_cutoff, nodes->size(), _votes_d, _threads, blocks);
     }
 
     int CHUNK = _nClusters/(sizeof(char)*8)+1;

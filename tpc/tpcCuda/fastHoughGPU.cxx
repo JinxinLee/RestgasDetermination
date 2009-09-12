@@ -70,6 +70,10 @@ int main(int argc, char** argv) {
   int THREADS = 320;
   float SCALE =0.90f;
 
+  uint cutoffDec = 7;
+  uint cutoffLevel = 4;
+  
+
   int minCL = 5;
   
   int dynLevel = 5;
@@ -98,12 +102,12 @@ int main(int argc, char** argv) {
 //    float c_Min = -1.f;
 //    float c_Max = 1.f;
 
-  
+
   float mins[5] = {phi_Min, theta_Min, c_Min, m_Min, t_Min};
   float maxs[5] = {phi_Max, theta_Max, c_Max, m_Max, t_Max};
   
 
-  while ((c = getopt(argc, argv, "t:d:T:l:s")) != -1)
+  while ((c = getopt(argc, argv, "t:d:T:l:s:c:cl")) != -1)
     switch (c) {
     case 't':
       THRESHOLD = atoi(optarg);
@@ -120,6 +124,12 @@ int main(int argc, char** argv) {
     case 's':
       tracking = true;
       break;
+    case 'c':
+      cutoffDec = atoi(optarg);
+      break;
+    case 'cl':
+      cutoffLevel = atoi(optarg);
+      break;
     default :
       std::cout<<"\n\nFast Hough Transformation on the GPU -------\n\n"
 	       <<"Options:\n\n"
@@ -130,6 +140,9 @@ int main(int argc, char** argv) {
 	       <<"     -T:  Number of threads per kernel block (default:"
 	       <<" 128)\n"
 	       <<"     -s:  Search for tracks after FHT search is finished\n"
+	       <<"     -c:  First decimal of fraction of nodes to kill in "
+	       <<" cutoff\n"
+	       <<"     -cl:  Level at which to start cutoff\n"
 	       <<std::endl;
       return 0;
     }
@@ -236,6 +249,8 @@ int main(int argc, char** argv) {
   IFC->setKernelPars(THREADS);
   IFC->initClusters(clusterList);
   IFC->initParameterSpace(mins, maxs);
+  IFC->setCutoff((float)cutoffDec/10);
+  IFC->setCutoffLevel(cutoffLevel);
   
   std::vector<Hough5DNode*>* nodelist= new std::vector<Hough5DNode*>();
   unsigned int* votes;

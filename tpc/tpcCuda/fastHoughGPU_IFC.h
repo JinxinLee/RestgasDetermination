@@ -55,6 +55,9 @@ class fastHoughGPU_IFC {
   //float* getCenter() {return _center;}
   char* getHitList() {return _hitlist;}
 
+  void setCutoff(float cutoff) {_cutoff = cutoff;}
+  void setCutoffLevel(uint level) {_cutoffLevel = level;}
+
   void setKernelPars(uint threadsPerBlock);
   
   
@@ -65,6 +68,9 @@ class fastHoughGPU_IFC {
   uint _nClusters;
   uint* _votes;
   uint _level;
+
+  float _cutoff;
+  uint _cutoffLevel;
   
   uint _threads;   //threads per block
   
