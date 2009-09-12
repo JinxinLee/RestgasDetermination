@@ -2,6 +2,7 @@
 #define MEANEXCENERGY_H
 
 #include<iostream>
+#include <assert.h>
 
 class TGeoMaterial;
 
