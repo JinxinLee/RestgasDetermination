@@ -81,11 +81,12 @@ void runDigi(TString base="mc", int nEvents = 0 )
   //std::cout << "######### " << f[2] << std::endl;
   myTask->setField(new PndFieldAdaptor(fRun->GetField()));
 
+  myTask->setPDG(2212);
+
   fRun->Run(0,nEvents);
 
   gROOT->FindObject("FAIRGeom")->Write();
 
-  std::cout << "########$$$$" << std::endl;
   myTask->writeFile();
 
   rtdb->saveOutput();

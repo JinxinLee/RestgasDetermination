@@ -43,34 +43,38 @@ class RKtrackingTask : public FairTask{
 	  file->Write();
 	  file->Close();
 	}
- private: 
-     double momRe;
-  double momTr;
-  double momSi;
-  double momPu;
-  double xRe;
-  double xTr;
-  double yRe;
-  double yTr;
-  double xSi;
-  double ySi;
-  double xPu;
-  double yPu;
-  double xpRe;
-  double xpTr;
-  double ypRe;
-  double ypTr;
-  double xpSi;
-  double ypSi;
-  double xpPu;
-  double ypPu;
-  double chi2;
-  double ndf;
+	
+	void setPDG(int i){pdgCode=i;}
 
+ private: 
+	double momRe;
+	double momTr;
+	double momSi;
+	double momPu;
+	double xRe;
+	double xTr;
+	double yRe;
+	double yTr;
+	double xSi;
+	double ySi;
+	double xPu;
+	double yPu;
+	double xpRe;
+	double xpTr;
+	double ypRe;
+	double ypTr;
+	double xpSi;
+	double ypSi;
+	double xpPu;
+	double ypPu;
+	double chi2;
+	double ndf;
+	
 	TFile* file;
 	TTree* tree;
 
 	AbsBField* field;
+	int pdgCode;
 
 	TClonesArray* fMvdPointArray;
 	TClonesArray* fGemPointArray;

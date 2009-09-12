@@ -34,12 +34,12 @@
 
 // -----   Default constructor   -------------------------------------------
 RKtrackingTask::RKtrackingTask() :
-  FairTask("RK tracking"),field(NULL) { 
+  FairTask("RK tracking"),field(NULL),pdgCode(2000000) { 
 }
 
 // -----   Constructor   ---------------------------------------------------
 RKtrackingTask::RKtrackingTask(const char* name, Int_t iVerbose) 
-  : FairTask(name, iVerbose),field(NULL) { 
+  : FairTask(name, iVerbose),field(NULL),pdgCode(2000000) { 
 }
 
 
@@ -144,9 +144,9 @@ void RKtrackingTask::Exec(Option_t* opt) {
   bool hitGem(false);
   bool hitDch(false);
   for ( Int_t iPoint = 0 ; iPoint < fMvdPointArray->GetEntriesFast() ; iPoint++ ) {
-    hitMvd=true;
     FairMCPoint* point = (PndMvdMCPoint*)fMvdPointArray->At(iPoint);
     if(point->GetTrackID()!=0) continue;
+    hitMvd=true;
     if(!foundStartValues){
       foundStartValues = true;
       point->Position(startPos);
@@ -156,9 +156,9 @@ void RKtrackingTask::Exec(Option_t* opt) {
     points.push_back(pos);
   }  // end of loop over Points
   for ( Int_t iPoint = 0 ; iPoint < fGemPointArray->GetEntriesFast() ; iPoint++ ) {
-    hitGem=true;
     FairMCPoint* point = (PndGemMCPoint*)fGemPointArray->At(iPoint);
     if(point->GetTrackID()!=0) continue;
+    hitGem=true;
     if(!foundStartValues){
       foundStartValues = true;
       point->Position(startPos);
@@ -168,9 +168,9 @@ void RKtrackingTask::Exec(Option_t* opt) {
     points.push_back(pos);
   }  // end of loop over Points
   for ( Int_t iPoint = 0 ; iPoint < fDchPointArray->GetEntriesFast() ; iPoint++ ) {
-    hitDch=true;
     FairMCPoint* point = (PndDchPoint*)fDchPointArray->At(iPoint);
     if(point->GetTrackID()!=0) continue;
+    hitDch=true;
     if(!foundStartValues){
       foundStartValues = true;
       point->Position(startPos);
@@ -235,7 +235,7 @@ void RKtrackingTask::Exec(Option_t* opt) {
   startMomMod.SetY(gRandom->Gaus(startMomMod.Y(),0.3));
   startMomMod.SetZ(gRandom->Gaus(startMomMod.Z(),0.3));
   
-  AbsTrackRep* rep = new RKtrackRep(startPosMod,startMomMod,posErr,momErr,-1.,2212,field);
+  AbsTrackRep* rep = new RKtrackRep(startPosMod,startMomMod,posErr,momErr,-1.,pdgCode,field);
   TMatrixT<double> startState = rep->getState();
   Track t(rep);
 

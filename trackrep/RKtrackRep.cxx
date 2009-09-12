@@ -150,6 +150,8 @@ double RKtrackRep::extrapolate(const DetPlane& pl,
 
   double XX0(0.);  
   double X(0.);
+  double dP(0.);
+  double p = getMom(_refPlane).Mag();
   //std::cout << "before stepping dist is " << dist << std::endl;
   while(dist>1.e-3){//10 micron
     TGeoMaterial * mat = gGeoManager->GetCurrentVolume()->GetMedium()->GetMaterial();
@@ -158,7 +160,7 @@ double RKtrackRep::extrapolate(const DetPlane& pl,
     //dont calculate dedx for Z==0, i.e. vacuum
     double dedx = 0.;
     if(mat->GetZ()>1.E-3){
-      double p = getMom(_refPlane).Mag();
+
       dedx = energyLoss(p/sqrt(mass*mass+p*p),//beta
 			getCharge(),//particle charge
 			mat->GetDensity(),//material density
@@ -171,12 +173,14 @@ double RKtrackRep::extrapolate(const DetPlane& pl,
     gGeoManager->FindNextBoundaryAndStep(dist);
     //gGeoManager->GetCurrentNode()->Print();
     double step = gGeoManager->GetStep();
+    double DE = step * dedx;
+    dP += p - sqrt(p*p-2*sqrt(p*p+mass*mass)*DE+DE*DE);
     dist -= step;
     XX0 += step/radLen;
     X += step;
   }
 
-  //std::cout << "crossed " << X << "cm and XX0 is " << XX0 << std::endl;
+  //  std::cout << "crossed " << X << "cm and XX0 is " << XX0  << " and dP/P is " << dP/p  << std::endl;
 
   TMatrixT<double> cov15(15,1);
   double zFinal(-1.E300);
