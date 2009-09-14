@@ -60,6 +60,6 @@ jgm:
 	$(EVTCXX) $(EVTLINK) $(EVTLINKOPT) -o jgmEvtGen jgmEvtGen.o -lEvtGen -lEvtGenModels -lEvtGenBase  -lCLHEP -l$(EVTPYLIB) -l$(EVTPDLIB) -lpacklib -lmathlib -l$(EVTPHLIB) -lCore -lCint -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -ldl $(EVTSYSLIB) -lm -lMathCore -lThread
 
 irina:
-        $(EVTCXX) $(EVTLINK) $(EVTLINKOPT) -o irinaEvtGen irinaEvtGen.o -lEvtGen -lEvtGenModels -lEvtGenBa\se  -lCLHEP -l$(EVTPYLIB) -l$(EVTPDLIB) -lpacklib -lmathlib -l$(EVTPHLIB) -lCore -lCint -lHist -lGraf -lGr\af3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -ldl $(EVTSYSLIB) -lm -lMathCore -lThread
+	$(EVTCXX) $(EVTLINK) $(EVTLINKOPT) -o irinaEvtGen irinaEvtGen.o -lEvtGen -lEvtGenModels -lEvtGenBase  -lCLHEP -l$(EVTPYLIB) -l$(EVTPDLIB) -lpacklib -lmathlib -l$(EVTPHLIB) -lCore -lCint -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -ldl $(EVTSYSLIB) -lm -lMathCore -lThread
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 
