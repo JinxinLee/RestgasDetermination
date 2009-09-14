@@ -37,5 +37,6 @@ rootlogon()
 	gSystem->Load("libRpc");
 	gSystem->Load("libLumi");
         gSystem->Load("libRho");
+	gSystem->Load("libTMVA.so");
         gSystem->Load("libPid");
 }
