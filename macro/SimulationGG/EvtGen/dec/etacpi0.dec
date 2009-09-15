@@ -1,7 +1,7 @@
 Decay ppbar
   #1.0 gamma gamma PpbarGammaGamma;
   #1.0 pi0 pi0 PHSP;
-  #1.0 eta_c pi0 PHSP;
+  1.0 eta_c pi0 PHSP;
   #1.0 eta_c gamma PHSP;
   #1.0 pi0 gamma PpbarPi0Gamma;
 Enddecay
