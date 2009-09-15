@@ -76,12 +76,14 @@ void EvtPpbarGammaGamma::decay(EvtParticle* p)
   
   // Parametrization of experimental data in the cos(theta) range 0-0.6375
 	double prob;
-	double maxprob=(1/(1-pow(0.6,2))*(pow(((2.9*(pow(p4.d3mag(),2)/10.4),(-1.1))/pow(p4.d3mag(),4)),2)+pow((8.2*pow((pow(p4.d3mag(),2)/10.4),(-1.1))/pow(p4.d3mag(),4)),2)*pow(0.6,2)));
+	double maxprob=50.963125;
 	if ((x>0.6)||(x<-0.6))
 		prob =0;
 	else
 	//  prob =0.5184-0.3077*x-4.6771*x*x+25.570*pow(x,3)+40.692*pow(x,4)-190.463*pow(x,5)-5.561*pow(x,6)+354.568*pow(x,7); //sin^2(theta)
-	prob=(1/(1-pow(x,2))*(pow(((2.9*(pow(p4.d3mag(),2)/10.4),(-1.1))/pow(p4.d3mag(),4)),2)+pow((8.2*pow((pow(p4.d3mag(),2)/10.4),(-1.1))/pow(p4.d3mag(),4)),2)*pow(x,2)));
+	
+	prob=(8.2*8.2*pow(x,2)+2.9*2.9)/1-pow(x,2);
+	/*(1/(1-pow(x,2))*(pow(((2.9*(pow(p4.d3mag(),2)/10.4),(-1.1))/pow(p4.d3mag(),4)),2)+pow((8.2*pow((pow(p4.d3mag(),2)/10.4),(-1.1))/pow(p4.d3mag(),4)),2)*pow(x,2)))*/;
 	prob*=1./maxprob; // normalization factor (maximum value of the function)
 	setProb(prob);
 

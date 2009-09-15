@@ -81,7 +81,7 @@ void EvtPpbarPi0Gamma::decay(EvtParticle* p)
 		}
 	else{
 
-prob = 1./pow(1.-pow(x,2.),2.)*(3.42*3.42+pow(x,2.)*9.67*9.67);//sin^2(theta)
+prob = (3.42*3.42+pow(x,2.)*9.67*9.67)/pow(1.-pow(x,2.),2.);//sin^2(theta)
 	prob*=1./110.741;
 }	 
  //prob =0.5184-0.3077*x-4.6771*x*x+25.570*pow(x,3)+40.692*pow(x,4)-190.463*pow(x,5)-5.561*pow(x,6)+354.568*pow(x,7); //sin^2(theta)
