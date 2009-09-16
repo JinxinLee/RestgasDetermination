@@ -1,6 +1,6 @@
 // Macro for running Fair with Geant3 or Geant4
 
-void runMC(TString base="mc", int nEvents = 1000 )
+void runMC(TString base="mc", int nEvents = 50000 )
 {
 
   TStopwatch timer;
@@ -99,8 +99,8 @@ void runMC(TString base="mc", int nEvents = 1000 )
   fRun->SetGenerator(primGen);
 
   // Box Generator
-  FairBoxGenerator* boxGen = new FairBoxGenerator(2212, 1); // 13 = muon; 1 = multipl.
-  boxGen->SetPRange(7.,7.); // GeV/c
+  FairBoxGenerator* boxGen = new FairBoxGenerator(13, 1); // 13 = muon; 1 = multipl.
+  boxGen->SetPRange(5.,5.); // GeV/c
   boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
   boxGen->SetThetaRange(5, 6.); // Polar angle in lab system range [degree]
   boxGen->SetXYZ(0., 0., 0.); // mm o cm ??

@@ -115,25 +115,12 @@ void RKtrackRep::getPosMom(const DetPlane& pl,TVector3& pos,
   }
 }
 
-double RKtrackRep::extrapolate(const DetPlane& pl, 
-			       TMatrixT<double>& statePred,
-			       TMatrixT<double>& covPred){
-  //perpendicularity cut for plane being perp to the z-axis
-  static const double cosPerpCut = cos(1/180.*TMath::Pi());
-  if(fabs(pl.getNormal().Z())<cosPerpCut){
-    FitterException exc("RKtrackRep only works for DetPlane perpendicular to beam axis - fabs(pl.getNormal().Z())<cosPerpCut",__LINE__,__FILE__);
-    //exc.setFatal();
-    throw exc;
-  }
-
-  double dz = pl.getO().Z()-_refPlane.getO().Z();
-  double dist = sqrt(dz*dz*(1.+state[2][0]*state[2][0]+state[3][0]*state[3][0]));
-
-  TVector3 pos;
-  TVector3 dir;
-  getPosMom(_refPlane,pos,dir);
+double RKtrackRep::getStep(const double& zFinal, const double& distance, const TVector3& pos, const TVector3& mom,double& XX0, double& dP){
+  double dist = distance;
+  double dz = zFinal-pos.Z();
+  TVector3 dir = mom;
   dir.SetMag(1.);
-  if(dir.Z() < 0){//particle flying downstream
+  if(dir.Z() > 0){//particle flying downstream
     if(dz<0.){//backward extrap
       dir *= -1.;
     }
@@ -144,15 +131,12 @@ double RKtrackRep::extrapolate(const DetPlane& pl,
     }
   }
   
-  //TAG
-  
   gGeoManager->InitTrack(pos.X(),pos.Y(),pos.Z(),dir.X(),dir.Y(),dir.Z());
 
-  double XX0(0.);  
+  XX0 = 0.;  
   double X(0.);
-  double dP(0.);
-  double p = getMom(_refPlane).Mag();
-  //std::cout << "before stepping dist is " << dist << std::endl;
+  dP = 0.;
+  double p = mom.Mag();
   while(dist>1.e-3){//10 micron
     TGeoMaterial * mat = gGeoManager->GetCurrentVolume()->GetMedium()->GetMaterial();
     double radLen = mat->GetRadLen();
@@ -160,39 +144,136 @@ double RKtrackRep::extrapolate(const DetPlane& pl,
     //dont calculate dedx for Z==0, i.e. vacuum
     double dedx = 0.;
     if(mat->GetZ()>1.E-3){
-
       dedx = energyLoss(p/sqrt(mass*mass+p*p),//beta
 			getCharge(),//particle charge
 			mat->GetDensity(),//material density
 			mat->GetZ()/mat->GetA(),//material Z/A
 			MeanExcEnergy::get(mat)//mean exc energy
 			);
-      //std::cout << "stepping" << std::endl;
-      //gGeoManager->GetCurrentNode()->Print();
     }
     gGeoManager->FindNextBoundaryAndStep(dist);
-    //gGeoManager->GetCurrentNode()->Print();
     double step = gGeoManager->GetStep();
     double DE = step * dedx;
-    dP += p - sqrt(p*p-2*sqrt(p*p+mass*mass)*DE+DE*DE);
-    dist -= step;
+    double DP = p - sqrt(p*p-2*sqrt(p*p+mass*mass)*DE+DE*DE);
+    static const double maxPloss = .01;
+    if(dP + DP > p*maxPloss){
+      double fraction = (p*maxPloss-dP)/DP;
+      assert(fraction>0.&&fraction<1.);
+      dP+=fraction*DP;
+      X+=fraction*step;
+      XX0+=fraction*step/radLen;
+      break;
+    }
+    dP += DP;
     XX0 += step/radLen;
     X += step;
+    dist -= step;
   }
+  return (pos+X*dir).Z();
+}
 
-  //  std::cout << "crossed " << X << "cm and XX0 is " << XX0  << " and dP/P is " << dP/p  << std::endl;
+void RKtrackRep::extrapolateToPoca(const TVector3& pos,
+				   TVector3& poca,
+				   TVector3& dirInPoca){
+  DetPlane d;
+  d.setU(1.,0.,0.);
+  d.setV(0.,1.,0.);
+  d.setO(0.,0.,pos.Z());
+  TMatrixT<double> s(5,1);
+  TMatrixT<double> c(5,5);
+  extrapolate(d,s,c);
+  poca.SetXYZ(s[0][0],s[1][0],pos.Z());
+  dirInPoca.SetXYZ(0.,0.,1.);
+}
+  
+void RKtrackRep::extrapolateToLine(const TVector3& point1,
+				   const TVector3& point2,
+				   TVector3& poca,
+				   TVector3& dirInPoca,
+				   TVector3& poca_onwire){
+  TVector3 line = point1-point2;
+  line.SetMag(1.);
+  if(acos(line.Z())/TMath::Pi()*180.>1.){
+    FitterException exc("arcos(line.Z())/TMath::Pi()*180.>1.",__LINE__,__FILE__);
+    throw exc;
+  }
+  double z = (0.5*(point1+point2)).Z();
+  DetPlane d;
+  d.setU(1.,0.,0.);
+  d.setV(0.,1.,0.);
+  d.setO(0.,0.,z);
+  TMatrixT<double> s(5,1);
+  TMatrixT<double> c(5,5);
+  extrapolate(d,s,c);
+  poca.SetXYZ(s[0][0],s[1][0],z);
+  dirInPoca.SetXYZ(0.,0.,1.);
+  double t = 1./((point2-point1)*(point2-point1))*(poca*(point2-point1)+point1*point1-point1*point2);
+  poca_onwire = point1+t*(point2-point1);
+}
 
-  TMatrixT<double> cov15(15,1);
-  double zFinal(-1.E300);
-  double distance = this->Extrap(pl.getO().Z(),zFinal,statePred,cov15);
-  //correct radiation length for helix path length as compared to straight line
-  XX0*=distance/X;
-  //add multiple scattering to covariance matrix
-  addNoise(XX0,cov15);
-  covPred = cov15to25(cov15);
+
+double RKtrackRep::extrapolate(const DetPlane& pl, 
+			       TMatrixT<double>& statePred,
+			       TMatrixT<double>& covPred){
+  //perpendicularity cut for plane being perp to the z-axis
+  static const double cosPerpCut = cos(1/180.*TMath::Pi());
+  if(fabs(pl.getNormal().Z())<cosPerpCut){
+    FitterException exc("RKtrackRep only works for DetPlane perpendicular to beam axis - fabs(pl.getNormal().Z())<cosPerpCut",__LINE__,__FILE__);
+    //exc.setFatal();
+    throw exc;
+  }
+  TMatrixT<double> covExtrapIn = cov25to15(cov);
+  TMatrixT<double> covExtrapOut(15,1);
+  TMatrixT<double> stateExtrapIn = state;
+  TMatrixT<double> stateExtrapOut(5,1);
+  double zFrom(_refPlane.getO().Z());
+  double zExtrap(0.);
+  double distance(0.);
+  int counter(0);
+  while(true){
+    double dz = pl.getO().Z()-zFrom;
+    double dist = sqrt(dz*dz*(1.+stateExtrapIn[2][0]*stateExtrapIn[2][0]+stateExtrapIn[3][0]*stateExtrapIn[3][0]));
+    
+    TVector3 pos(stateExtrapIn[0][0],stateExtrapIn[1][0],zFrom);
+    TVector3 mom(stateExtrapIn[2][0],stateExtrapIn[3][0],1.);
+    mom.SetMag(fabs(1./stateExtrapIn[4][0]));
+    
+    double XX0,dP;
+    zExtrap = getStep(pl.getO().Z(), dist,  pos,  mom, XX0,  dP);
+    
+    bool breakFlag(false);
+    static const double CUT = 1.e-3;
+    if(fabs(zExtrap-pl.getO().Z())<CUT){
+      zExtrap = pl.getO().Z();
+      breakFlag = true;
+    }
+
+    if(dz>0.) {
+      assert(zExtrap<pl.getO().Z()+CUT);
+    }
+    else{
+      assert(zExtrap>pl.getO().Z()-CUT);
+    }
+
+    double zFinal(-1.E300);
+    double thisDistance = this->Extrap(zExtrap,zFrom,zFinal,stateExtrapIn,stateExtrapOut,covExtrapIn,covExtrapOut);
+    //correct radiation length for helix path length as compared to straight line
+    distance+=thisDistance;
+    XX0*=thisDistance/dist;
+    //add multiple scattering to covariance matrix
+    addNoise(XX0,stateExtrapIn,covExtrapOut);
+    //  std::cout << "dP/P " << dP/mom.Mag() << std::endl;
+    if(direction)  stateExtrapOut[4][0] = getCharge()/(mom.Mag()-dP);
+    else stateExtrapOut[4][0] = getCharge()/(mom.Mag()+dP);
+    stateExtrapIn = stateExtrapOut;
+    covExtrapIn = covExtrapOut;
+    zFrom = zExtrap;
+    if(breakFlag) break;
+  }
+  covPred = cov15to25(covExtrapOut);
+  statePred = stateExtrapOut;
   //std::cout << "helix distance is " << distance << std::endl;
   return distance;
-
 }
 
 /*
@@ -207,16 +288,16 @@ double RKtrackRep::extrapolate(const DetPlane& pl,
 				 TVector3& poca_onwire);
 
  */
-void RKtrackRep::addNoise(double len,TMatrixT<double>& cov15){
-  if(state[4][0] == 0.) return; // momentum not known. Do nothing.
+void RKtrackRep::addNoise(double len,const TMatrixT<double>& s, TMatrixT<double>& cov15){
+  if(s[4][0] == 0.) return; // momentum not known. Do nothing.
   
   // Lynch and Dahl aproximation for Sigma(Theta_proj) of mult. scatt.
-  double SigTheta = 0.0136*fabs(state[4][0]) * sqrt(len) * (1.+0.038*log(len));
+  double SigTheta = 0.0136*fabs(s[4][0]) * sqrt(len) * (1.+0.038*log(len));
  
   // Noise matrix calculation (NIM A329 (1993) 493-500)
   // Transverse displacement of the track is ignored.
-  double p3 = state[2][0];
-  double p4 = state[3][0];
+  double p3 = s[2][0];
+  double p4 = s[3][0];
 
   double p3p3 = SigTheta*SigTheta * (1 + p3*p3) * (1 + p3*p3 + p4*p4);
   double p4p4 = SigTheta*SigTheta * (1 + p4*p4) * (1 + p3*p3 + p4*p4);
@@ -227,9 +308,6 @@ void RKtrackRep::addNoise(double len,TMatrixT<double>& cov15){
   cov15[9][0] = cov15[9][0]+p4p4;
 }
 
-double RKtrackRep::myZ() const{
-  return _refPlane.getO().Z();
-}
 
 TMatrixT<double> RKtrackRep::cov15to25(const TMatrixT<double>& cov15) const{
   TMatrixT<double> retVal(5,5);
@@ -420,24 +498,24 @@ bool RKtrackRep::RKutta (double* SU,double* VO, double& Path) const {
 }
 
 
-double RKtrackRep::Extrap( double Z, double& zOut, TMatrixT<double>& stateOut, TMatrixT<double>& covOut) const{
+double RKtrackRep::Extrap( double Z, const double& zFrom,double& zOut, const TMatrixT<double>& stateIn, TMatrixT<double>& stateOut, const TMatrixT<double>& cov15,TMatrixT<double>& covOut) const{
 
   // for historical reasons here GEANT3 coodinate system is used 
   // (X along the beam, Z - upward)
 
   stateOut.ResizeTo(5,1);
   covOut.ResizeTo(15,1);
-  TMatrixT<double> cov15 = cov25to15(cov);
+  assert(cov15.GetNrows()==15);  
 
   const double RKuttaMinStep = 0.0100;  // Ringe Kutta minimal step (100 mic)
   double xlast = Z;
 
-  double xfirst = this->myZ();
+  double xfirst = zFrom;
   double s(0);
 
   if(fabs(xlast-xfirst) < RKuttaMinStep) { // very short step
     zOut = xlast;
-    stateOut = state;
+    stateOut = stateIn;
     covOut = cov15;
     return fabs(xlast-xfirst);
   }
@@ -445,14 +523,14 @@ double RKtrackRep::Extrap( double Z, double& zOut, TMatrixT<double>& stateOut, T
   //
   // Undefined momentum. Do straight line extrapolation.
   //
-  if(state[4][0] == 0.){
+  if(stateIn[4][0] == 0.){
     double dx=xlast-xfirst;
     zOut = xlast;
-    stateOut[0][0]=state[0][0]+state[2][0]*dx;
-    stateOut[1][0]=state[1][0]+state[3][0]*dx;
-    stateOut[2][0]=state[2][0];
-    stateOut[3][0]=state[3][0];
-    stateOut[4][0]=state[4][0];
+    stateOut[0][0]=stateIn[0][0]+stateIn[2][0]*dx;
+    stateOut[1][0]=stateIn[1][0]+stateIn[3][0]*dx;
+    stateOut[2][0]=stateIn[2][0];
+    stateOut[3][0]=stateIn[3][0];
+    stateOut[4][0]=stateIn[4][0];
     
     // Cov matrix propagation
     covOut[0][0] = cov15[0][0] + cov15[3][0]*dx + (cov15[3][0] + cov15[5][0]*dx)*dx;
@@ -472,8 +550,8 @@ double RKtrackRep::Extrap( double Z, double& zOut, TMatrixT<double>& stateOut, T
     covOut[14][0]= cov15[14][0];
     
     return sqrt(dx*dx+
-		(stateOut[0][0]-state[0][0])*(stateOut[0][0]-state[0][0])+
-		(stateOut[1][0]-state[1][0])*(stateOut[1][0]-state[1][0])
+		(stateOut[0][0]-stateIn[0][0])*(stateOut[0][0]-stateIn[0][0])+
+		(stateOut[1][0]-stateIn[1][0])*(stateOut[1][0]-stateIn[1][0])
 		);
   }
     
@@ -482,10 +560,10 @@ double RKtrackRep::Extrap( double Z, double& zOut, TMatrixT<double>& stateOut, T
   //
 
   // cut on  P < 100 MeV
-  if(fabs(1./state[4][0]) < 0.100) {
+  if(fabs(1./stateIn[4][0]) < 0.100) {
     std::ostringstream ostr;
     ostr<<"RKtrackRep::Extrap() ==> Too low momentum for Runge-Kutta propagation: "
-	<<fabs(1./state[4][0]) <<" GeV";
+	<<fabs(1./stateIn[4][0]) <<" GeV";
     FitterException exc(ostr.str(),__LINE__,__FILE__);
     exc.setFatal();
     throw exc;
@@ -501,13 +579,13 @@ double RKtrackRep::Extrap( double Z, double& zOut, TMatrixT<double>& stateOut, T
 
   // Prepare track parameters
 
-  double x  = this->myZ();
-  double y  = state[0][0];
-  double z  = state[1][0];
-  double ax = 1./sqrt(state[2][0]*state[2][0] + state[3][0]*state[3][0] + 1);
-  double ay = state[2][0]*ax;
-  double az = state[3][0]*ax;
-  double qP = state[4][0];
+  double x  = zFrom;
+  double y  = stateIn[0][0];
+  double z  = stateIn[1][0];
+  double ax = 1./sqrt(stateIn[2][0]*stateIn[2][0] + stateIn[3][0]*stateIn[3][0] + 1);
+  double ay = stateIn[2][0]*ax;
+  double az = stateIn[3][0]*ax;
+  double qP = stateIn[4][0];
   
   // Prepare Jacobian dP/dH where 
   //
@@ -642,11 +720,11 @@ double RKtrackRep::Extrap( double Z, double& zOut, TMatrixT<double>& stateOut, T
      covOut[14][0]< 0){
     FitterException exc("RKtrackRep::Extrap() ==> output cov. matrix is wrong",__LINE__,__FILE__);
     std::vector< TMatrixT<double> > matrices;
-    matrices.push_back(state);
+    matrices.push_back(stateIn);
     matrices.push_back(cov15);
     matrices.push_back(stateOut);
     matrices.push_back(covOut);
-    exc.setMatrices("state cov15 stateOut cov15Out",matrices);
+    exc.setMatrices("stateIn cov15 stateOut cov15Out",matrices);
     exc.setFatal();
     throw exc;
   }

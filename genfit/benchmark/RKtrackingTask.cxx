@@ -200,16 +200,16 @@ void RKtrackingTask::Exec(Option_t* opt) {
   //and RecoHits for fitting
   std::vector<AbsRecoHit*> recoHits;
   TPolyMarker3D *drawpoints = new TPolyMarker3D(pointsFilt.size(),20);
-  static const double RESOLUTION = 0.05;// in cm
+  static const double RESOLUTION = 1;// in cm
   for(int i=0;i<pointsFilt.size();++i){
-    pointsFilt.at(i).Print();
+    //pointsFilt.at(i).Print();
     drawpoints->SetPoint(i,pointsFilt.at(i).X(),
 			 pointsFilt.at(i).Y(),
 			 pointsFilt.at(i).Z());
     recoHits.push_back( new PixHit(pointsFilt.at(i),RESOLUTION));
   }
 
-  std::cout << " #####   " << recoHits.size() << std::endl;
+  //std::cout << " #####   " << recoHits.size() << std::endl;
 
   //cut first point in front of SM
   if(!(pointsFilt.at(0).Z()<300.)) return;
@@ -228,12 +228,12 @@ void RKtrackingTask::Exec(Option_t* opt) {
   //startPosMod.SetX(startPosMod.X()-momUnit.X());
   //startPosMod.SetY(startPosMod.Y()-momUnit.Y());
   //startPosMod.SetZ(startPosMod.Z()-momUnit.Z());
-  startPosMod.SetX(gRandom->Gaus(startPosMod.X(),0.9));
-  startPosMod.SetY(gRandom->Gaus(startPosMod.Y(),0.9));
-  startPosMod.SetZ(gRandom->Gaus(startPosMod.Z(),0.9));
-  startMomMod.SetX(gRandom->Gaus(startMomMod.X(),0.3));
-  startMomMod.SetY(gRandom->Gaus(startMomMod.Y(),0.3));
-  startMomMod.SetZ(gRandom->Gaus(startMomMod.Z(),0.3));
+  startPosMod.SetX(gRandom->Gaus(startPosMod.X(),0.3));
+  startPosMod.SetY(gRandom->Gaus(startPosMod.Y(),0.3));
+  startPosMod.SetZ(gRandom->Gaus(startPosMod.Z(),0.3));
+  startMomMod.SetX(gRandom->Gaus(startMomMod.X(),0.1));
+  startMomMod.SetY(gRandom->Gaus(startMomMod.Y(),0.1));
+  startMomMod.SetZ(gRandom->Gaus(startMomMod.Z(),0.1));
   
   AbsTrackRep* rep = new RKtrackRep(startPosMod,startMomMod,posErr,momErr,-1.,pdgCode,field);
   TMatrixT<double> startState = rep->getState();

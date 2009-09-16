@@ -34,17 +34,17 @@ public:
 			   TMatrixT<double>& statePred,
 			   TMatrixT<double>& covPred);
 
-  /*
-  void extrapolateToPoca(const TVector3& pos,
-			 TVector3& poca,
-			 TVector3& dirInPoca);
-
-  void extrapolateToLine(const TVector3& point1,
-	 		 const TVector3& point2,
-			 TVector3& poca,
-			 TVector3& dirInPoca,
-			 TVector3& poca_onwire);
-  */
+  
+  virtual void extrapolateToPoca(const TVector3& pos,
+				 TVector3& poca,
+				 TVector3& dirInPoca);
+  
+  virtual void extrapolateToLine(const TVector3& point1,
+				 const TVector3& point2,
+				 TVector3& poca,
+				 TVector3& dirInPoca,
+				 TVector3& poca_onwire);
+  
 
   virtual TVector3 getPos(const DetPlane&);
   virtual TVector3 getMom(const DetPlane&);
@@ -62,14 +62,13 @@ private:
   int pdg;
   double mass;
 
-  double myZ() const;
-
   TMatrixT<double> cov15to25(const TMatrixT<double>& cov15) const;
   TMatrixT<double> cov25to15(const TMatrixT<double>& cov25) const;
 
-  void addNoise(double len,TMatrixT<double>& cov15);
+  double getStep(const double& zFinal, const double& distance, const TVector3& pos, const TVector3& mom,double& XX0, double& dP);
+  void addNoise(double len,const TMatrixT<double>& s,TMatrixT<double>& cov15);
   bool RKutta (double* SU,double* VO, double& Path) const;
-  double Extrap( double Z, double& zOut, TMatrixT<double>& stateOut, TMatrixT<double>& covOut) const;
+  double Extrap( double Z, const double& zFrom,double& zOut, const TMatrixT<double>& stateIn,TMatrixT<double>& stateOut, const TMatrixT<double>& covIn,TMatrixT<double>& covOut) const;
  public:
   ClassDef(RKtrackRep,1)
 
