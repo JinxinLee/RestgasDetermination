@@ -250,6 +250,7 @@ void PndLheKalmanTask::Exec(Option_t* opt)
     catch (FitterException e){
       std::cout<<"*** PndGenfitAdapters EXCEPTION ***"<<std::endl;
       std::cout<<e.what()<<std::endl;
+      continue;
     }
 
     TClonesArray& trkRef = *fFitTrackArray;
