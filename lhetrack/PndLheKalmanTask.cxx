@@ -243,7 +243,15 @@ void PndLheKalmanTask::Exec(Option_t* opt)
     }
     if (fVerbose>0) std::cout<<"SUCESSFULL FIT!"<<std::endl;
     
-    PndTrack *fitTrack = (PndTrack*)GenfitTrack2PndTrack(trk);
+    PndTrack *fitTrack = 0;
+    try{ 
+      fitTrack = (PndTrack*)GenfitTrack2PndTrack(trk);
+    }
+    catch (FitterException e){
+      std::cout<<"*** PndGenfitAdapters EXCEPTION ***"<<std::endl;
+      std::cout<<e.what()<<std::endl;
+    }
+
     TClonesArray& trkRef = *fFitTrackArray;
     Int_t size = trkRef.GetEntriesFast();
     PndTrack* pndTrack = new(trkRef[size]) PndTrack(fitTrack->GetParamFirst(), fitTrack->GetParamLast(), fitTrack->GetTrackCand(),
