@@ -19,7 +19,7 @@ int main(int argc, char** argv)
 
   clas.push_back("Elect"); clas.push_back("Pion");
   clas.push_back("Kaon");  clas.push_back("Muon");
-  //clas.push_back("Proton"); //clas.push_back("Gamma");
+  clas.push_back("Proton"); clas.push_back("Gamma");
 
   // ==== Variable names 
   vars.push_back("p");

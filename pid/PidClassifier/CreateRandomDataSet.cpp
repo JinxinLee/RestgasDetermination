@@ -1,3 +1,11 @@
+/* *****************************************
+ * Creates sample datafiles. The variables *
+ * can have any distribution.              *
+ * Author: M.Babai.                        *
+ * E-Mail: M.Babai@rug.nl                  *
+ * License:                                *
+ * Verion:                                 *
+ *******************************************/
 #include <stdlib.h>
 
 #include <iostream>
@@ -6,6 +14,11 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TRandom3.h"
+
+#ifdef _OPENMP
+//#undef _OPENMP
+#include<omp.h>
+#endif
 
 int main(int argc, char**argv)
 {
@@ -82,29 +95,37 @@ int main(int argc, char**argv)
 	    << std::endl;
 
   // generate per class ,#number of events.
-  double sigma = 2.00;
-  double mean  = 1.00;
-
   std::cout << "<INFO>: Generating events."
 	    << std::endl;
  //class loop
-  for(size_t cls = 0; cls < clas.size(); cls++)
+  int NumClasses = clas.size();
+  int cls = 0;
+  double sigma = 2.00;
+  double mean  = 1.00;
+#ifdef _OPENMP
+#pragma omp parallel shared(NumClasses) private(cls)
   {
-    double mt = mean + cls + vars.size();
-    double st = sigma;
+#pragma omp for
+#endif
+  for(cls = 0; cls < NumClasses; cls++)
+  {
     //Event loop
     for(int ev = 0; ev < numevt; ev++)
     {
       //Variable loop
       for(size_t var = 0; var < vars.size(); var++)
       {
-	(varContainer[cls])->at(var) = static_cast<float>(rand.Gaus(mt, st));
-	mt++;
+	//(varContainer[cls])->at(var) = static_cast<float>(rand.Gaus(mean, sigma));
+	(varContainer[cls])->at(var) = static_cast<float>(rand.Uniform(mean, sigma));
       }
       trees[cls]->Fill();
-      mt -= static_cast<double>(vars.size());
     }
+    mean = sigma;
+    sigma += 2;
   }
+#ifdef _OPENMP
+  }
+#endif
   //Write to file;
   std::cout << "Writing to file." << std::endl;
 

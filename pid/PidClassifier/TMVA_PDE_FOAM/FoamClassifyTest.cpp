@@ -15,8 +15,10 @@ int main()
   name.push_back("thetaC"); name.push_back("mvd");
   name.push_back("tof");
  
-  PndPDEFoamClassify bb ("../ProgsTest/TestFoam.root", clas, name);
-  //PndPDEFoamClassify aa ("", clas, name);
+  PndPDEFoamClassify bb ("../TrainProtoFiles/UniformFoam.root", clas, name);
+  std::vector<float>evt(5 , 0.3);
+  std::map<std::string, float> res;
+  bb.GetMvaValues(evt, res);
   return 0;
 }
 /*

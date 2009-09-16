@@ -31,11 +31,11 @@ LIBS += -lMLP -lXMLIO -fopenmp # -fprofile-generate
 
 .EXPORT_ALL_VARIABLES:
 
-# .SUFFIXES: % : %.cpp
+.SUFFIXES: .cpp .o
 # .PHONY: all
 
 # Define targets
-TRGTS = PndMvaUtil PndMvaDataSet PndGpidClassifier PndMvaTrainer Classifiers CreateRandomDataSet examples
+TRGTS = PndMvaUtil PndMvaDataSet PndGpidClassifier PndMvaTrainer CreateRandomDataSet Classifiers examples
 
 all: $(TRGTS)
 	@echo ""

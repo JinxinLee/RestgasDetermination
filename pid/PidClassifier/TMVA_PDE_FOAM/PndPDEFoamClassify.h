@@ -18,7 +18,9 @@
 #include "TMVA/PDEFoam.h"
 #include "TMVA/Event.h"
 
-class PndPDEFoamClassify
+using namespace std;
+
+class PndPDEFoamClassify//: public PndGpidClassifier
 {
  public:
   PndPDEFoamClassify(const std::string& inputFile,
@@ -40,9 +42,14 @@ class PndPDEFoamClassify
   PndPDEFoamClassify& operator=(const PndPDEFoamClassify& other);
 
   // Variables.
-  std::vector<TMVA::PDEFoam*> m_foams;
+  // Comment:
+  /*
+   * Mabe wee need to inherit from classifiers in order to avoid
+   * double implementation. For the time being, lets use this.
+   */
   std::string m_inputFile;
-  std::vector<std::string> m_classNames;
-  std::vector<std::string> m_varNames;
+  std::vector<TMVA::PDEFoam*> m_foams;
+  std::vector<PndMvaVariable> m_vars;
+  std::vector<PndMvaClass> m_classes;
 };
 #endif// end of interface definition
