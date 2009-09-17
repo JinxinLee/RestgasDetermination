@@ -141,7 +141,7 @@ class PndTof : public FairDetector
 
  private:
   
-  PndGeoTofPar *par;
+//  PndGeoTofPar *par;
   Int_t          fTrackID;           //  track index
   Int_t          fVolumeID;          //  volume id
   Int_t          fEventID;           //  event id

@@ -11,19 +11,19 @@
 
 class  PndGeoTof : public FairGeoSet {
 protected:
- /*  char modName[20];  // name of module */
-/*   char eleName[20];  // substring for elements in module */
-  char modName[4];  // name of module
-  char eleName[4];  // substring for elements in module
+   char modName[20];  // name of module 
+   char eleName[20];  // substring for elements in module 
+ // char modName[4];  // name of module
+ // char eleName[4];  // substring for elements in module
 
   
 public:
   PndGeoTof();
   ~PndGeoTof() {}
-//  const char* getModuleName(Int_t);
-//  const char* getEleName(Int_t);
+  const char* getModuleName(Int_t);
+  const char* getEleName(Int_t);
   
-  ClassDef(PndGeoTof,0) // Class for Tof
+  ClassDef(PndGeoTof,1) // Class for Tof
 };
 
 #endif  /* !PNDGEOTOF_H */

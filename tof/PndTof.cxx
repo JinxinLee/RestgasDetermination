@@ -116,9 +116,7 @@ void PndTof::Initialize() {
   //TGeoMedium *Si= gGeoManager->GetMedium("polypropylene");
   TGeoMedium *Si= gGeoManager->GetMedium("polyvinyltoluene");
   
-  SiId=  Si->GetId();
-  
- 
+  if (Si!=0) SiId=  Si->GetId();
   
   
 }
