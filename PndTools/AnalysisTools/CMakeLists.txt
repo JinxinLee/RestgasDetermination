@@ -18,7 +18,10 @@ ${CMAKE_SOURCE_DIR}/emc/EmcData
 ${CMAKE_SOURCE_DIR}/emc/EmcReco
 ${CMAKE_SOURCE_DIR}/fsim
 ${CMAKE_SOURCE_DIR}/rho
+${CMAKE_SOURCE_DIR}/rho/RhoBase
+${CMAKE_SOURCE_DIR}/rho/RhoTools
 ${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools
+${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools/Fitter
 ${CMAKE_SOURCE_DIR}/genfit
 ${GEANT3_INCLUDE_DIR}
 ${CMAKE_SOURCE_DIR}/geane
@@ -35,12 +38,20 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(AnalysisTools_SRCS
 PndMicroWriter.cxx
+PndSimplePidInfo.cxx
+PndMicroCandidate.cxx
+PndEventInfo.cxx
+PndEventReader.cxx
+PndPidListMaker.cxx
+Fitter/VtxFitterParticle.cxx
+Fitter/VtxFitter_Init.cxx
+Fitter/VtxFitterError.cxx
+Fitter/PndVtxFitter.cxx
+Fitter/PndMassFitter.cxx
+Fitter/Pnd4CFitter.cxx
 )
 
-set(AnalysisTools_HEADERS
-PndMicroWriter.h
-)
-
+CHANGE_FILE_EXTENSION(*.cxx *.h AnalysisTools_HEADERS "${AnalysisTools_SRCS}")
 
 
 set(AnalysisTools_LINKDEF AnalysisToolsLinkDef.h)

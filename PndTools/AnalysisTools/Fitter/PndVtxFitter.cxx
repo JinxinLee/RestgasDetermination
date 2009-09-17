@@ -7,12 +7,14 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
-#include "RhoFitter/PndVtxFitter.h"
+
+#include "PndVtxFitter.h"
+
 #include "RhoBase/TCandListIterator.h"
 
-#include "RhoFitter/VtxFitterParticle.h"
-#include "RhoFitter/VtxFitter_Init.h"
-#include "RhoFitter/VtxFitterError.h"
+#include "VtxFitterParticle.h"
+#include "VtxFitter_Init.h"
+#include "VtxFitterError.h"
 #include "RhoBase/TFactory.h"
 
 using namespace std;

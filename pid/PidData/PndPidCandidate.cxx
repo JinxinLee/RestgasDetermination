@@ -28,6 +28,7 @@ PndPidCandidate::PndPidCandidate(Int_t charge, TVector3 &pos, TLorentzVector &p4
   SetPosition(pos);
   SetLorentzVector(p4);
   SetCov7(cov7);
+  SetCharge(charge);
 }
 
 PndPidCandidate::PndPidCandidate(Int_t charge, TVector3 &pos, TLorentzVector &p4)
@@ -35,6 +36,7 @@ PndPidCandidate::PndPidCandidate(Int_t charge, TVector3 &pos, TLorentzVector &p4
   SetDefault();
   SetPosition(pos);
   SetLorentzVector(p4);
+  SetCharge(charge);
 }
 
 	
@@ -203,5 +205,4 @@ void PndPidCandidate::SetDefault()
   for (i=0; i<5;i++) fParams[i] = 0;
   for (i=0; i<15;i++) fCov[i] = 0;
 }
-
 

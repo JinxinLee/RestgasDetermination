@@ -16,13 +16,13 @@ using std::endl;
 #include "RhoBase/TCandList.h"
 //#include "PndPidCandidate.h"
 #include "RhoBase/VAbsPidSelector.h"
-//#include "RhoBase/PndMicroCandidate.h"
+//#include "PndMicroCandidate.h"
 #include "RhoBase/TFactory.h"
 #include "RhoBase/VAbsMicroCandidate.h"
 #include "RhoSelector/TPidSelector.h"
-#include "RhoTools/PndPidListMaker.h"
-#include "RhoBase/PndEventInfo.h"
 #include "RhoTools/TEventShape.h"
+#include "PndPidListMaker.h"
+#include "PndEventInfo.h"
 
 
 PndEventReader::PndEventReader(TChain *t) :
@@ -153,10 +153,8 @@ int PndEventReader::GetEvent(int n)
 
 bool PndEventReader::FillList(TCandList &l, std::string listkey)
 {
-	TCandidate *tc;
 	l.Cleanup();
 	
-	int i1;
 	
 	// when the first list is requested read in the event
 	//if (fOwnChain->GetReadEntry()!=fEvtCount-1) fOwnChain->GetEntry(fEvtCount-1,1);
@@ -171,7 +169,7 @@ bool PndEventReader::FillList(TCandList &l, std::string listkey)
 	{
 		if (fMcCands)
 		for (int i1=0; i1<fMcCands->GetEntriesFast(); i1++){
-			tc = (TCandidate *)fMcCands->At(i1);
+			TCandidate* tc = (TCandidate *)fMcCands->At(i1);
 			l.Add(*tc);
 		}
 		return true;
@@ -180,7 +178,7 @@ bool PndEventReader::FillList(TCandList &l, std::string listkey)
 	// fill all, neutral and charged from the PndMicroCandidate Array
 	if (fMicroCands && allCands.GetLength()==0)
 	{
-		for (i1=0; i1<fMicroCands->GetEntriesFast(); i1++)
+		for (int i1=0; i1<fMicroCands->GetEntriesFast(); i1++)
 		{
 			VAbsMicroCandidate *mic = (VAbsMicroCandidate *)fMicroCands->At(i1);
 			TCandidate tc(*mic,i1+1);
@@ -197,7 +195,7 @@ bool PndEventReader::FillList(TCandList &l, std::string listkey)
 	else  
 	{
 		if (fNeutralCands && neutralCands.GetLength()==0)
-		for (i1=0; i1<fNeutralCands->GetEntriesFast(); i1++)
+		for (int i1=0; i1<fNeutralCands->GetEntriesFast(); i1++)
 		{
 			VAbsMicroCandidate *mic = (VAbsMicroCandidate *)fNeutralCands->At(i1);		
 			TCandidate tc(*mic,i1+1);

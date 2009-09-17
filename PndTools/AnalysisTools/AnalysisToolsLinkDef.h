@@ -9,5 +9,18 @@
 
 //#pragma link C++ class  vector<double>;
 
+#pragma link C++ class PndEventInfo;
+#pragma link C++ function operator << ( ostream &, const PndEventInfo & );
+#pragma link C++ class PndMicroCandidate;
+#pragma link C++ class PndSimplePidInfo;
+#pragma link C++ class PndVtxFitter;
+#pragma link C++ class PndMassFitter;
+#pragma link C++ class Pnd4CFitter;
+#pragma link C++ class VtxFitterParticle;
+#pragma link C++ class PndEventReader;
+#pragma link C++ class PndPidListMaker;
+
+
+
 #endif
 

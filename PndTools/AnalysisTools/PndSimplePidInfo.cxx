@@ -10,7 +10,7 @@
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 
-#include "RhoBase/PndSimplePidInfo.h"
+#include "PndSimplePidInfo.h"
 
 ClassImp(PndSimplePidInfo)
 

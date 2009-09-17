@@ -35,8 +35,6 @@
 
 #pragma link C++ class TEventInfo;
 #pragma link C++ function operator << ( ostream &, const TEventInfo & );
-#pragma link C++ class PndEventInfo;
-#pragma link C++ function operator << ( ostream &, const PndEventInfo & );
 
 #pragma link C++ class TFactory;
 #pragma link C++ class TSmartPointer;
@@ -55,10 +53,8 @@
 #pragma link C++ function operator << ( ostream &, const VAbsTag & );
 #pragma link C++ class VAbsMicroCandidate;
 #pragma link C++ function operator << ( ostream &, const VAbsMicroCandidate & );
-#pragma link C++ class PndMicroCandidate;
 #pragma link C++ class VAbsPidInfo;
 
-#pragma link C++ class PndSimplePidInfo;
 
 // Collection
 #pragma link C++ class VAbsCollection;
@@ -137,12 +133,7 @@
 #pragma link C++ class TTreeNavigator;
 #pragma link C++ class TUnaryOperator;
 #pragma link C++ class VAbsFitter;
-#pragma link C++ class PndVtxFitter;
-#pragma link C++ class PndMassFitter;
-#pragma link C++ class Pnd4CFitter;
-#pragma link C++ class VtxFitterParticle;
-#pragma link C++ class PndEventReader;
-#pragma link C++ class PndPidListMaker;
+
 
 //#################### RhoHistogram #######################
 

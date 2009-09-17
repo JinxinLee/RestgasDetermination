@@ -15,7 +15,7 @@
 
 #include <assert.h>
 
-//#include "VAbsMicroCandidate.h"
+//#include "RhoBase/VAbsMicroCandidate.h"
 #include "TArrayI.h"
 #include "TMatrixD.h"
 #include "TVector3.h"
@@ -27,7 +27,7 @@
 //  ===== PndPidCandidate - Class definig the AOD interface           ====
 //  ========================================================================
 
-class PndPidCandidate : public TObject //VAbsMicroCandidate
+class PndPidCandidate : public TObject //VAbsMicroCandidate 
 {
 
  public:
@@ -131,6 +131,7 @@ class PndPidCandidate : public TObject //VAbsMicroCandidate
   Int_t    	GetFitStatus() const{return fFitStatus;}
   Float_t  	GetChiSquared() const{return fChiSquared;}
 	    
+  
   // ************************
   // MODIFIER METHODS
   // ************************
@@ -223,6 +224,7 @@ class PndPidCandidate : public TObject //VAbsMicroCandidate
   void   	SetDegreesOfFreedom(Int_t val) { fDegreesOfFreedom=val;}
   void    SetFitStatus(Int_t val) { fFitStatus= val;}
   void  	SetChiSquared(Double_t val) { fChiSquared=(Float_t) val;}
+	  
 	
   void SetDefault();
  protected:
@@ -318,12 +320,12 @@ class PndPidCandidate : public TObject //VAbsMicroCandidate
   Int_t	        fDegreesOfFreedom;
   Int_t	        fFitStatus;
   Float_t 	fChiSquared;
-	
+  
+
   ClassDef(PndPidCandidate,1) // Abstract base class for MicroDST candidates
     };
 
 //std::ostream&  operator << (std::ostream& o, const VAbsMicroCandidate&);
 
 #endif                                           
-
 

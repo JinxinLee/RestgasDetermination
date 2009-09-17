@@ -72,7 +72,7 @@ void PndPidListMaker::SetBaseList(TCandList &l)
 
 bool PndPidListMaker::FillList(TCandList &l, std::string listkey)
 {
-	TCandidate *tc;
+	//TCandidate *tc;
 	l.Cleanup();
 	
 	if (listkey=="Charged") 

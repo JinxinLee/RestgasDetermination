@@ -42,12 +42,13 @@ Author: K.Goetzen, GSI, 06/2008
 #include <iostream>
 
 #include "RhoBase/TCandidate.h"
-#include "RhoBase/PndMicroCandidate.h"
 #include "RhoTools/TEventShape.h"
 #include "RhoBase/TCandList.h"
-#include "RhoBase/PndEventInfo.h"
 #include "RhoBase/TFactory.h"
 #include "RhoBase/TRho.h"
+
+#include "PndMicroCandidate.h"
+#include "PndEventInfo.h"
 
 using std::cout;
 using std::endl;

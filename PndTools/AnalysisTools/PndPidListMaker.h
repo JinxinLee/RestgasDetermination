@@ -5,17 +5,7 @@
 #include <vector>
 
 #include "RhoBase/TCandList.h"
-
-class TPidChargedSelector;
-class TPidNeutralSelector;
-class TPidPlusSelector;
-class TPidMinusSelector;
-
-class TPidSimpleElectronSelector;
-class TPidSimpleMuonSelector;
-class TPidSimplePionSelector;
-class TPidSimpleKaonSelector;
-class TPidSimpleProtonSelector;
+#include "RhoSelector/TPidSelector.h"
 
 
 class PndPidListMaker

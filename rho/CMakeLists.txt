@@ -39,6 +39,7 @@ RhoMath/TPointErr.cxx
 RhoMath/TPoissonConsistency.cxx
 RhoMath/TProbab.cxx
 RhoMath/TVectorErr.cxx
+
 RhoBase/TFitParams.cxx
 RhoBase/TCandidate.cxx
 RhoBase/TCandList.cxx
@@ -64,7 +65,7 @@ RhoBase/VAbsVertex.cxx
 RhoBase/VAbsVertexer.cxx
 RhoBase/VAbsVertexSelector.cxx
 RhoBase/VAbsWriter.cxx
-RhoBase/PndSimplePidInfo.cxx
+
 RhoSelector/TPidSelector.cxx
 RhoSelector/TSimpleVertexSelector.cxx
 RhoTools/TAdd4Vertexer.cxx
@@ -100,20 +101,12 @@ RhoTools/TTotalMomentum.cxx
 RhoTools/TTreeNavigator.cxx
 RhoTools/TUnaryOperator.cxx
 RhoTools/VAbsFitter.cxx
-RhoTools/PndEventReader.cxx
-RhoTools/PndPidListMaker.cxx
-RhoFitter/PndVtxFitter.cxx
-RhoFitter/PndMassFitter.cxx
-RhoFitter/Pnd4CFitter.cxx
-RhoFitter/VtxFitterParticle.cxx
-RhoFitter/VtxFitter_Init.cxx
-RhoFitter/VtxFitterError.cxx
+
 #RhoHistogram/TColumn.cxx
 #RhoHistogram/THistID.cxx
 #RhoHistogram/THistogram.cxx
 #RhoHistogram/TTuple.cxx
-RhoBase/PndMicroCandidate.cxx
-RhoBase/PndEventInfo.cxx
+
 )
 
 if(RULE_CHECKER_FOUND)

@@ -11,7 +11,7 @@
 //									//
 //////////////////////////////////////////////////////////////////////////
 
-#include "RhoBase/PndEventInfo.h"
+#include "PndEventInfo.h"
 #include <assert.h>
 
 ClassImp(PndEventInfo)
