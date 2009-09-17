@@ -72,10 +72,10 @@ hypReco/PndHypIdealRecoTask.cxx
 hypReco/PndHypStripClusterBuilder.cxx
 hypReco/PndHypStripClusterTask.cxx
 
-hypFullAna/PndHypFullAna.cxx
-hypFullAna/PndHypMicroWriter.cxx
-hypFullAna/PndHypFullIdealAna.cxx
-hypFullAna/PndHypMicroIdealWriter.cxx
+#hypFullAna/PndHypFullAna.cxx
+#hypFullAna/PndHypMicroWriter.cxx
+#hypFullAna/PndHypFullIdealAna.cxx
+#hypFullAna/PndHypMicroIdealWriter.cxx
 
 hypTools/PndHypGeoHandling.cxx
 hypTools/PndStringVector.cxx

@@ -46,10 +46,10 @@
 #pragma link C++ class PndHypStripClusterTask+;
 
 //fullana
-#pragma link C++ class PndHypFullAna+;
-#pragma link C++ class PndHypFullIdealAna+;
-#pragma link C++ class PndHypMicroWriter+;
-#pragma link C++ class PndHypMicroIdealWriter+;
+//#pragma link C++ class PndHypFullAna+;
+//#pragma link C++ class PndHypFullIdealAna+;
+//#pragma link C++ class PndHypMicroWriter+;
+//#pragma link C++ class PndHypMicroIdealWriter+;
 
 //tools
 #pragma link C++ class PndHypGeoHandling+;
