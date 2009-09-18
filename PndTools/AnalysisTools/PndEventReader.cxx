@@ -15,6 +15,7 @@ using std::endl;
 #include "RhoBase/TCandidate.h"
 #include "RhoBase/TCandList.h"
 //#include "PndPidCandidate.h"
+#include "PndPidProbability.h"
 #include "RhoBase/VAbsPidSelector.h"
 //#include "PndMicroCandidate.h"
 #include "RhoBase/TFactory.h"
@@ -93,9 +94,13 @@ void PndEventReader::Init()
 	Reset();
 	if (0==fOwnChain) fOwnChain=new TChain(fTreeName.c_str());
 	
-    fOwnChain->SetBranchAddress("PidChargedCand",&fChargedCands);
-    fOwnChain->SetBranchAddress("PidNeutralCand",&fNeutralCands);
-    fOwnChain->SetBranchAddress("PndMcTracks",&fMcCands);
+  fOwnChain->SetBranchAddress("PidChargedCand",&fChargedCands);
+  fOwnChain->SetBranchAddress("PidNeutralCand",&fNeutralCands);
+  fOwnChain->SetBranchAddress("PidChargedProbability",&fChargedProbability);
+  fOwnChain->SetBranchAddress("PidNeutralProbability",&fNeutralProbability);
+  
+  fOwnChain->SetBranchAddress("PndMcTracks",&fMcCands);
+
 	fOwnChain->SetBranchAddress("PndMicroCandidates",&fMicroCands);
 //	fOwnChain->SetBranchAddress("PndEventSummary",&fCurrentEventInfo);
 	fOwnChain->SetBranchAddress("PndEventSummary",&fEventInfo);
@@ -191,25 +196,42 @@ bool PndEventReader::FillList(TCandList &l, std::string listkey)
 				neutralCands.Add(tc);
 		}
 	}
-	// removed now compatibility to TCandidate readin ... instead read PndPidCandidates
-	else  
-	{
+	else if (allCands.GetLength() == 0) // do only when we didn't read something yet.
+	{ 	// removed now compatibility to TCandidate readin ... instead read PndPidCandidates
 		if (fNeutralCands && neutralCands.GetLength()==0)
 		for (int i1=0; i1<fNeutralCands->GetEntriesFast(); i1++)
 		{
 			VAbsMicroCandidate *mic = (VAbsMicroCandidate *)fNeutralCands->At(i1);		
 			TCandidate tc(*mic,i1+1);
-			
+      // TODO: Do we want to set something here? It is neutrals anyway.
+      if(i1<fNeutralProbability->GetEntriesFast())
+      {
+        PndPidProbability *neuProb = (PndPidProbability*)fNeutralProbability->At(i1);
+        // numbering see PndPidListMaker
+        tc.SetPidInfo(0,neuProb->GetElectronPidProb());
+        tc.SetPidInfo(1,neuProb->GetMuonPidProb());
+        tc.SetPidInfo(2,neuProb->GetPionPidProb());
+        tc.SetPidInfo(3,neuProb->GetKaonPidProb());
+        tc.SetPidInfo(4,neuProb->GetProtonPidProb());
+      }        
 			neutralCands.Add(tc);
 			allCands.Add(tc);
 		}
-		
 		if (fChargedCands && chargedCands.GetLength()==0)
 		for (int i1=0; i1<fChargedCands->GetEntriesFast(); i1++)
 		{
 			VAbsMicroCandidate *mic = (VAbsMicroCandidate *)fChargedCands->At(i1);
 			TCandidate tc(*mic,i1+1);
-			
+      if(i1<fChargedProbability->GetEntriesFast())
+      {
+        PndPidProbability *chProb = (PndPidProbability*)fChargedProbability->At(i1);
+        // numbering see PndPidListMaker
+        tc.SetPidInfo(0,chProb->GetElectronPidProb());
+        tc.SetPidInfo(1,chProb->GetMuonPidProb());
+        tc.SetPidInfo(2,chProb->GetPionPidProb());
+        tc.SetPidInfo(3,chProb->GetKaonPidProb());
+        tc.SetPidInfo(4,chProb->GetProtonPidProb());
+      }        
 			chargedCands.Add(tc);
 			allCands.Add(tc);
 		}

@@ -57,6 +57,8 @@ private:
 	
 	TClonesArray *fChargedCands;
 	TClonesArray *fNeutralCands;
+  TClonesArray* fChargedProbability;
+  TClonesArray* fNeutralProbability;
 	TClonesArray *fMcCands;
 	TClonesArray *fMicroCands;
 	

@@ -106,8 +106,8 @@ InitStatus PndMicroWriter::Init()
     return kFATAL;
   }
   
-  
-  if (SearchInput()==kFALSE) {
+  bool success = SearchInput();
+  if (  success  ==  kFALSE  ) {
     std::cout<<"-E- PndMicroWriter::Init(): No Input found. Abort."<<std::endl;
     return kERROR;
   }
