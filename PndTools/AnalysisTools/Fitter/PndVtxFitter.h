@@ -14,8 +14,8 @@
 #include "TMatrixD.h"
 #include "RhoBase/TCandList.h"
 
-#include "VtxFitterParticle.h"
-class VtxFitterParticle;
+#include "PndVtxFitterParticle.h"
+class PndVtxFitterParticle;
 class TCandidate;
  
 class PndVtxFitter : public VAbsFitter
@@ -26,7 +26,7 @@ public:
     void Fit();
     
 private:    
-  //  unsigned   _fit2(VtxFitterParticleCollection& ); // small Matrix
+  //  unsigned   _fit2(PndVtxFitterParticleCollection& ); // small Matrix
   
   TCandList   fDaughters;
   
@@ -59,7 +59,7 @@ private:
   void RetriveInfo();
   void RetriveInfoFromTCand();
 
-  VtxFitterParticle *it;
+  PndVtxFitterParticle *it;
   TCandidate*       tcand;
   //virtual unsigned m_setInputSubMatrix(void) = 0;
 

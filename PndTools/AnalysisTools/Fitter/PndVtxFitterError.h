@@ -1,5 +1,5 @@
-#ifndef VTXFITTERERROR_H
-#define VTXFITTERERROR_H
+#ifndef PNDVTXFITTERERROR_H
+#define PNDVTXFITTERERROR_H
 
 //No error
 const unsigned int KF_NO_ERROR   = 0;

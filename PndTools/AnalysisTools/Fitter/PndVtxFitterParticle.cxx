@@ -1,17 +1,17 @@
 /*****************************************************
- Description: Class VtxFitterParticle
+ Description: Class PndVtxFitterParticle
 Base class for particles used for Vertex fitting
  Authors: Dipak K. Mishra
 *****************************************************/
-#include "VtxFitterParticle.h"
+#include "PndVtxFitterParticle.h"
 
-VtxFitterParticle::VtxFitterParticle()
+PndVtxFitterParticle::PndVtxFitterParticle()
 {
   for(Int_t i=0;i<28;i++)fCovMatrix[i] = 0;
   
 }
 
-VtxFitterParticle::VtxFitterParticle(TLorentzVector p,TVector3 x,const TMatrixDSym& covM, Double_t q)
+PndVtxFitterParticle::PndVtxFitterParticle(TLorentzVector p,TVector3 x,const TMatrixDSym& covM, Double_t q)
 {
   m_momentum_b = p;
   m_position_b = x;
@@ -26,7 +26,7 @@ VtxFitterParticle::VtxFitterParticle(TLorentzVector p,TVector3 x,const TMatrixDS
     }
 }
 
-VtxFitterParticle::VtxFitterParticle(const VtxFitterParticle& p)
+PndVtxFitterParticle::PndVtxFitterParticle(const PndVtxFitterParticle& p)
   :m_momentum_b(p.m_momentum_b),
    m_position_b(p.m_position_b),
    m_cov(p.m_cov),
@@ -37,10 +37,10 @@ VtxFitterParticle::VtxFitterParticle(const VtxFitterParticle& p)
 }
 
 
-VtxFitterParticle::~VtxFitterParticle()
+PndVtxFitterParticle::~PndVtxFitterParticle()
 {}
 
-TMatrixDSym VtxFitterParticle::GetErrorCovMatrix()const
+TMatrixDSym PndVtxFitterParticle::GetErrorCovMatrix()const
 {
   TMatrixDSym covMat(7);
   Int_t ind = 0;
@@ -55,7 +55,7 @@ TMatrixDSym VtxFitterParticle::GetErrorCovMatrix()const
 /*
 Convert the Cov matrices from x,y,z,px,py,pz ==> px,py,pz,x,y,z
 or vice versa*/
-TMatrixD VtxFitterParticle::GetConverted6(TMatrixD tmpMat)const
+TMatrixD PndVtxFitterParticle::GetConverted6(TMatrixD tmpMat)const
 {
 	TMatrixD cMat(6,6);
 	for(Int_t i=0;i<6;i++){
@@ -75,7 +75,7 @@ TMatrixD VtxFitterParticle::GetConverted6(TMatrixD tmpMat)const
 /*
 Convert the Cov matrices from x,y,z,px,py,pz ==> px,py,pz,x,y,z
 or vice versa*/
-TMatrixDSym VtxFitterParticle::GetConverted6(TMatrixDSym tmpMat)const
+TMatrixDSym PndVtxFitterParticle::GetConverted6(TMatrixDSym tmpMat)const
 {
 	TMatrixDSym cMat(6);
 	for(Int_t i=0;i<6;i++){
@@ -93,7 +93,7 @@ TMatrixDSym VtxFitterParticle::GetConverted6(TMatrixDSym tmpMat)const
 	return cMat;
 }
 //convert cov matrices x,y,z,px,py,pz,E (7x7) ==> px,py,pz,E,x,y,z (7x7)
-TMatrixDSym VtxFitterParticle::GetCovMat1(TMatrixD tmpMat)const
+TMatrixDSym PndVtxFitterParticle::GetCovMat1(TMatrixD tmpMat)const
 {
 	TMatrixDSym cMat(7);
 	for(Int_t i=0;i<7;i++){
@@ -112,7 +112,7 @@ TMatrixDSym VtxFitterParticle::GetCovMat1(TMatrixD tmpMat)const
 }
 
 // Convert the Cov matrices from px,py,pz,E,x,y,z ==> x,y,z,px,py,pz,E
-TMatrixD VtxFitterParticle::GetConverted7(TMatrixD tmpMat)const
+TMatrixD PndVtxFitterParticle::GetConverted7(TMatrixD tmpMat)const
 {
 	TMatrixD cMat(7,7);
 	for(Int_t i=0;i<7;i++){
@@ -131,7 +131,7 @@ TMatrixD VtxFitterParticle::GetConverted7(TMatrixD tmpMat)const
 }
 
 // Convert x,y,z,px,py,pz,E (7x7) ==> px,py,pz,x,y,z (6x6)
-TMatrixDSym VtxFitterParticle::GetCovMat(TMatrixD tmpMat)const
+TMatrixDSym PndVtxFitterParticle::GetCovMat(TMatrixD tmpMat)const
 {
 	TMatrixDSym cMat(6);
 	for(Int_t i=0;i<6;i++){
@@ -151,7 +151,7 @@ TMatrixDSym VtxFitterParticle::GetCovMat(TMatrixD tmpMat)const
 
 
 TMatrixDSym 
-VtxFitterParticle::GetErrVertex()const
+PndVtxFitterParticle::GetErrVertex()const
 {
   TMatrixDSym m_errvtx(3);
   Int_t ind = 0;
@@ -164,7 +164,7 @@ VtxFitterParticle::GetErrVertex()const
   return m_errvtx;
 }
 
-void VtxFitterParticle::SetErrVertex(const TMatrixDSym& errVtx)
+void PndVtxFitterParticle::SetErrVertex(const TMatrixDSym& errVtx)
 {
   Int_t ind=0;
   for(int i=0;i<3;i++){
@@ -175,7 +175,7 @@ void VtxFitterParticle::SetErrVertex(const TMatrixDSym& errVtx)
 
 //used in mass constraint fitter
 TMatrixDSym 
-VtxFitterParticle::GetErrVertexOut()const
+PndVtxFitterParticle::GetErrVertexOut()const
 {
   TMatrixDSym m_errvtxM(3);
   Int_t ind = 0;
@@ -189,7 +189,7 @@ VtxFitterParticle::GetErrVertexOut()const
   return m_errvtxM;
 }
 //used in Mass constraint fitter
-void VtxFitterParticle::SetErrVertexIn(const TMatrixDSym& errVtxM)
+void PndVtxFitterParticle::SetErrVertexIn(const TMatrixDSym& errVtxM)
 {
   Int_t ind=0;
   for(int i=0;i<3;i++){
@@ -199,7 +199,7 @@ void VtxFitterParticle::SetErrVertexIn(const TMatrixDSym& errVtxM)
 }
 
 
-void VtxFitterParticle::SetErrorCovMatrix(const TMatrixDSym& covMat)
+void PndVtxFitterParticle::SetErrorCovMatrix(const TMatrixDSym& covMat)
 {
   Int_t ind=0;
   for(int i=0;i<7;i++){
@@ -209,7 +209,7 @@ void VtxFitterParticle::SetErrorCovMatrix(const TMatrixDSym& covMat)
 }
 
 
-TMatrixD VtxFitterParticle::GetFitParameter() const
+TMatrixD PndVtxFitterParticle::GetFitParameter() const
 {
   TMatrixD a(6,1);
   a[0][0] = m_momentum_b.X();
@@ -223,7 +223,7 @@ TMatrixD VtxFitterParticle::GetFitParameter() const
 
 
 //converting 7x7 cov matrix to 6x6 matrix
-TMatrixDSym VtxFitterParticle::GetFitError(TMatrixDSym e) const
+TMatrixDSym PndVtxFitterParticle::GetFitError(TMatrixDSym e) const
 {
   TMatrixDSym err(6);
   for(unsigned i=0;i<3;++i){
@@ -242,7 +242,7 @@ TMatrixDSym VtxFitterParticle::GetFitError(TMatrixDSym e) const
 
 
 // converting 6x6 cov matrices to 7x7
-TMatrixD VtxFitterParticle::GetFitError(TLorentzVector p,TMatrixD e) const
+TMatrixD PndVtxFitterParticle::GetFitError(TLorentzVector p,TMatrixD e) const
 {
 // 		Error(6x6,e) ==> Error(7x7,output(hsm)) using Momentum(p).
 	TMatrixD hsm(7,7);
@@ -274,7 +274,7 @@ TMatrixD VtxFitterParticle::GetFitError(TLorentzVector p,TMatrixD e) const
 
 
 
-Double_t VtxFitterParticle::SetFitParameter(Int_t n)
+Double_t PndVtxFitterParticle::SetFitParameter(Int_t n)
 {
   if(n==0){return m_momentum_b.X();}
   else if(n==1){return m_momentum_b.Y();}
@@ -285,4 +285,4 @@ Double_t VtxFitterParticle::SetFitParameter(Int_t n)
   else{return 0;}
 }
 
-ClassImp(VtxFitterParticle)
+ClassImp(PndVtxFitterParticle)

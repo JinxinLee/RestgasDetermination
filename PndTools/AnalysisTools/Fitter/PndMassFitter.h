@@ -13,9 +13,9 @@
 #include "TMatrixDSym.h"
 #include "TMatrixD.h"
 #include "RhoBase/TCandList.h"
-#include "VtxFitterParticle.h"
+#include "PndVtxFitterParticle.h"
 
-class VtxFitterParticle;
+class PndVtxFitterParticle;
 class TCandidate;
  
 class PndMassFitter : public VAbsFitter
@@ -50,7 +50,7 @@ private:
 
  
  private:
- //from VtxFitterBase1.h
+ //from PndVtxFitterBase1.h
   //virtual unsigned m_setInputSubMatrix(void) = 0;
 
   //these were from Base2 
@@ -115,7 +115,7 @@ private:
   unsigned   m_isFixMass;
 
 
-  VtxFitterParticle*   it;
+  PndVtxFitterParticle*   it;
   TCandidate*          tcand;
   
   

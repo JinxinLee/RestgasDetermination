@@ -16,7 +16,7 @@
 #pragma link C++ class PndVtxFitter;
 #pragma link C++ class PndMassFitter;
 #pragma link C++ class Pnd4CFitter;
-#pragma link C++ class VtxFitterParticle;
+#pragma link C++ class PndVtxFitterParticle;
 #pragma link C++ class PndEventReader;
 #pragma link C++ class PndPidListMaker;
 

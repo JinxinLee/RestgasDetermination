@@ -12,9 +12,9 @@
 
 #include "RhoBase/TCandListIterator.h"
 
-#include "VtxFitterParticle.h"
-#include "VtxFitter_Init.h"
-#include "VtxFitterError.h"
+#include "PndVtxFitterParticle.h"
+#include "PndVtxFitter_Init.h"
+#include "PndVtxFitterError.h"
 #include "RhoBase/TFactory.h"
 
 using namespace std;
@@ -507,7 +507,7 @@ unsigned PndVtxFitter::SetInputMatrix()
   TMatrixDSym tmp_ErrCov(KF_NUM6);
 //   m_trackNum = fArr->GetEntriesFast();
   
-  it =new VtxFitterParticle;
+  it =new PndVtxFitterParticle;
    
   for(Int_t i=0;i<fDaughters.GetLength();i++)
     {

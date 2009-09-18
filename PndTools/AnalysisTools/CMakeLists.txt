@@ -43,9 +43,9 @@ PndMicroCandidate.cxx
 PndEventInfo.cxx
 PndEventReader.cxx
 PndPidListMaker.cxx
-Fitter/VtxFitterParticle.cxx
-Fitter/VtxFitter_Init.cxx
-Fitter/VtxFitterError.cxx
+Fitter/PndVtxFitterParticle.cxx
+Fitter/PndVtxFitter_Init.cxx
+Fitter/PndVtxFitterError.cxx
 Fitter/PndVtxFitter.cxx
 Fitter/PndMassFitter.cxx
 Fitter/Pnd4CFitter.cxx

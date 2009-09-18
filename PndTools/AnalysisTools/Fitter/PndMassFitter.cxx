@@ -10,9 +10,9 @@
 #include "PndMassFitter.h"
 #include "RhoBase/TCandListIterator.h"
 
-#include "VtxFitterParticle.h"
-#include "VtxFitter_Init.h"
-#include "VtxFitterError.h"
+#include "PndVtxFitterParticle.h"
+#include "PndVtxFitter_Init.h"
+#include "PndVtxFitterError.h"
 #include "RhoBase/TFactory.h"
 
 using namespace std;
@@ -253,7 +253,7 @@ unsigned PndMassFitter::SetInputMatrix()
 
     Int_t nTra = fDaughters.GetLength();
     
-    it =new VtxFitterParticle;
+    it =new PndVtxFitterParticle;
     
     for(Int_t i=0;i<nTra;i++)
     {
@@ -306,7 +306,7 @@ unsigned PndMassFitter::SetInputMatrix()
 
     Int_t nTra = fDaughters.GetLength();
     
-    it =new VtxFitterParticle;
+    it =new PndVtxFitterParticle;
     
     for(Int_t i=0;i<nTra;i++)
     {

@@ -15,8 +15,8 @@
 #include "TLorentzVector.h"
 #include "RhoBase/TCandList.h"
 
-#include "VtxFitterParticle.h"
-class VtxFitterParticle;
+#include "PndVtxFitterParticle.h"
+class PndVtxFitterParticle;
 class TCandidate;
  
 class Pnd4CFitter : public VAbsFitter
@@ -30,7 +30,7 @@ public:
 	void PrintTree(TCandidate *c, int l=0);
     
 private:    
-  //  unsigned   _fit2(VtxFitterParticleCollection& ); // small Matrix
+  //  unsigned   _fit2(PndVtxFitterParticleCollection& ); // small Matrix
   
   TCandList   fDaughters;
   

@@ -1,11 +1,11 @@
 /**********************************************************
- Description: Class VtxFitterParticle
+ Description: Class PndVtxFitterParticle
  Base class for particles used for Vertex fitting
  Authors: Dipak K. Mishra
 ***********************************************************/
 
-#ifndef VTXFITTERPARTICLE_H
-#define VTXFITTERPARTICLE_H
+#ifndef PNDVTXFITTERPARTICLE_H
+#define PNDVTXFITTERPARTICLE_H
 
 #include <TMatrixT.h>
 #include <TMatrixD.h>
@@ -15,23 +15,23 @@
 #include <TLorentzVector.h>
 
 
-#include "VtxFitter_Init.h"
+#include "PndVtxFitter_Init.h"
 
 #include "FairRootManager.h"
 #include "FairTask.h"
 
-class VtxFitterParticle : public TObject
+class PndVtxFitterParticle : public TObject
 {
  public:
   //constructor
-  VtxFitterParticle();
+  PndVtxFitterParticle();
  
-  VtxFitterParticle(TLorentzVector, TVector3, const TMatrixDSym&, Double_t);
+  PndVtxFitterParticle(TLorentzVector, TVector3, const TMatrixDSym&, Double_t);
 
-  VtxFitterParticle(const VtxFitterParticle&);
+  PndVtxFitterParticle(const PndVtxFitterParticle&);
 
   //destructor
-  virtual ~VtxFitterParticle();
+  virtual ~PndVtxFitterParticle();
 
 
   
@@ -88,7 +88,7 @@ class VtxFitterParticle : public TObject
 
 
   //operator
-  VtxFitterParticle & operator = (const VtxFitterParticle &);
+  PndVtxFitterParticle & operator = (const PndVtxFitterParticle &);
 
 private:
   //before fit
@@ -110,7 +110,7 @@ private:
   Double_t      fErrVtx[6];
   Double_t      fErrVtxM[6];
   
-  ClassDef(VtxFitterParticle,1);
+  ClassDef(PndVtxFitterParticle,1);
 };
 
 
@@ -118,54 +118,54 @@ private:
 //access functions
 
 inline TLorentzVector 
-VtxFitterParticle::GetMomentum()const
+PndVtxFitterParticle::GetMomentum()const
 {return m_momentum_b;}
 
 inline TVector3 
-VtxFitterParticle::GetPosition()const
+PndVtxFitterParticle::GetPosition()const
 {return m_position_b;}
 
 inline Double_t 
-VtxFitterParticle::GetCharge()const
+PndVtxFitterParticle::GetCharge()const
 {return m_charge;}
 
 inline TMatrixDSym 
-VtxFitterParticle::GetError()const
+PndVtxFitterParticle::GetError()const
 {return m_error_b;}
 
 inline TVector3 
-VtxFitterParticle::GetVertex()const
+PndVtxFitterParticle::GetVertex()const
 {return m_vertex;}
 
 inline Double_t
-VtxFitterParticle::GetCalDgf()const
+PndVtxFitterParticle::GetCalDgf()const
 {return m_dof;}
 
 
 // set functions
 inline void 
-VtxFitterParticle::SetMomentum(TLorentzVector p)
+PndVtxFitterParticle::SetMomentum(TLorentzVector p)
 {m_momentum_b = p;}
 
 inline void 
-VtxFitterParticle::SetPosition(TVector3 x)
+PndVtxFitterParticle::SetPosition(TVector3 x)
 {m_position_b = x;}
 
 inline void 
-VtxFitterParticle::SetCharge(Double_t q)
+PndVtxFitterParticle::SetCharge(Double_t q)
 {m_charge = q;}
 
 inline void 
-VtxFitterParticle::SetError(const TMatrixDSym& e)
+PndVtxFitterParticle::SetError(const TMatrixDSym& e)
 {m_error_b = e;}
 
-inline void VtxFitterParticle::SetVertex(TVector3 v) 
+inline void PndVtxFitterParticle::SetVertex(TVector3 v) 
 {m_vertex = v;}
 
-inline void VtxFitterParticle::SetCalDgf(Double_t d)
+inline void PndVtxFitterParticle::SetCalDgf(Double_t d)
 {m_dof = d;}
 /*
-  inline Int_t VtxFitterParticle::SetBeamConstraint(Int_t d)
+  inline Int_t PndVtxFitterParticle::SetBeamConstraint(Int_t d)
   {mbc = d}
 */
 #endif

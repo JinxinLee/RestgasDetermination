@@ -1,7 +1,7 @@
 // kfitter_ini of KFitter
 //
-#ifndef VTXFITTER_INIT_H
-#define VTXFITTER_INIT_H
+#ifndef PNDVTXFITTER_INIT_H
+#define PNDVTXFITTER_INIT_H
 
 const unsigned KF_PARAMETER_NUMBER    =  6;
 const unsigned KF_SUBPARAMETER_NUMBER =  7;

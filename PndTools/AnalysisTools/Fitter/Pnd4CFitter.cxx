@@ -10,9 +10,9 @@
 #include "Pnd4CFitter.h"
 #include "RhoBase/TCandListIterator.h"
 
-#include "VtxFitterParticle.h"
-#include "VtxFitter_Init.h"
-#include "VtxFitterError.h"
+#include "PndVtxFitterParticle.h"
+#include "PndVtxFitter_Init.h"
+#include "PndVtxFitterError.h"
 #include "RhoBase/TFactory.h"
 
 using namespace std;
