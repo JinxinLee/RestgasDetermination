@@ -16,6 +16,7 @@ ${CMAKE_SOURCE_DIR}/pid
 ${CMAKE_SOURCE_DIR}/rho
 ${CMAKE_SOURCE_DIR}/rho/RhoBase
 ${CMAKE_SOURCE_DIR}/rho/RhoSelector
+${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})

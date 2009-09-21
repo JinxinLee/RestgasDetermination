@@ -22,7 +22,6 @@ rootlogon()
         gSystem->Load("libtpcreco");
         gSystem->Load("libStt");
         gSystem->Load("libSttReco");
-        gSystem->Load("librecotasks");
         gSystem->Load("libMvd");
         gSystem->Load("libMvdReco");
         gSystem->Load("libMvdTrk");
@@ -39,4 +38,5 @@ rootlogon()
         gSystem->Load("libRho");
 	gSystem->Load("libTMVA.so");
         gSystem->Load("libPid");
+        gSystem->Load("libAnalysisTools");
 }

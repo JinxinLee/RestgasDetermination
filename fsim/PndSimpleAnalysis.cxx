@@ -44,7 +44,7 @@ Author: K.Goetzen, GSI, 06/2008
 #include "RhoSelector/TPidSelector.h"
 #include "RhoBase/TFactory.h"
 #include "RhoBase/TRho.h"
-#include "RhoBase/PndMicroCandidate.h"
+#include "PndMicroCandidate.h"
 		
 		
 using std::cout;
