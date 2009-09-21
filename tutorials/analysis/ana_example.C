@@ -3,8 +3,7 @@ void ana_example(TString fname="data/tcands.root",int nevts=0)
   	TStopwatch timer;
   	timer.Start();
 	
-	gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");basiclibs();
-	gSystem->Load("libRho");
+	gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 	
 	// the PndEventReader takes care about file/event handling
 	PndEventReader evr(fname);

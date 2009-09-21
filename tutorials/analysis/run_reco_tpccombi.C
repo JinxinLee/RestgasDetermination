@@ -12,11 +12,9 @@ void run_reco_tpccombi(  Int_t nEvents = 10){
 
   // Output file
   TString outFile = "data/reco_tpccombi.root";
-  TString lhefile = "data/lhepidmaker.root";
 
   // ----  Load libraries   -------------------------------------------------
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-  gSystem->Load("libGem");
   TString sysFile = gSystem->Getenv("VMCWORKDIR");
   // ------------------------------------------------------------------------
   // In general, the following parts need not be touched
@@ -67,12 +65,6 @@ void run_reco_tpccombi(  Int_t nEvents = 10){
 
   PndLheTrackFitter* trackFitter    = new PndLheTrackFitter("fitting");
   fRun->AddTask(trackFitter);
-
-  PndLhePidMaker* pidMaker    = new PndLhePidMaker("pid");
-  pidMaker->SetGeanePro(kFALSE);  // Switch Geane propagation
-  pidMaker->SetDebugMode(kTRUE);  // Debug ntuples
-  pidMaker->SetDebugFilename(lhefile);
-  fRun->AddTask(pidMaker);
 
   // -----   Initialise and run   --------------------------------------------
   fRun->Init();
