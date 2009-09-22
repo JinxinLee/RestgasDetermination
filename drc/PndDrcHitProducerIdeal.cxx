@@ -162,19 +162,19 @@ void PndDrcHitProducerIdeal::Exec(Option_t* option)
  
     //  cout << "hit phi: "<< acos(fXHit/r) << endl;
     
-    TVector3 fPosHit(fXHit,fYHit,fZHit);
+    fPosHit.SetXYZ(fXHit,fYHit,fZHit);
 
     Double_t fDPosXHit = 0.5; //mm
     Double_t fDPosYHit = 0.5;
     Double_t fDPosZHit = 0.;
-    TVector3 fDPosHit(fDPosXHit,fDPosYHit,fDPosZHit);
+    fDPosHit.SetXYZ(fDPosXHit,fDPosYHit,fDPosZHit);
 
-    Double_t fThetaC = gRandom->Gaus(pt->GetThetaC(),0.008);
-    Double_t fErrThetaC = 0.; //rad
+    fThetaC = gRandom->Gaus(pt->GetThetaC(),0.008);
+    fErrThetaC = 0.; //rad
 
-    Int_t fRefIndex = j;
+    fRefIndex = j;
 
-    PndMCTrack* tr = NULL;
+   // PndMCTrack* tr = NULL;
 
     AddHit(fDetectorID, 
 	   fPosHit, 
