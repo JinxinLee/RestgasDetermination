@@ -12,12 +12,22 @@ eventDisplay()
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
   //fRun->SetInputFile("points.x3872.jpsipipi.phsp.root");
-  fRun->SetInputFile("sim_with_vis.root");
-  
+ // fRun->SetInputFile("../qa/lhetrack/points_tpccombi.root");
+   fRun->SetInputFile("sim_with_vis.root");
   //fRun->SetInputFile("../dsk/sim_dsk.root");
  // fRun->SetInputFile("../dsk/sim_dsk.g4native.root");
-  fRun->SetOutputFile("test.root");
-  fRun->LoadGeometry();
+  fRun->SetOutputFile("tst.root");
+ // fRun->LoadGeometry();
+
+  
+  
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairParRootFileIo* parInput1 = new FairParRootFileIo();
+  parInput1->open("params_with_vis.root");
+  
+       
+  rtdb->setFirstInput(parInput1);
+ 
 
   FairEventManager *fMan= new FairEventManager();
   FairMCTracks *Track =  new FairMCTracks ("Monte-Carlo Tracks");
