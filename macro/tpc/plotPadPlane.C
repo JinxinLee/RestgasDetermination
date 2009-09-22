@@ -45,7 +45,15 @@ void plotPadPlane(TString padshapes, TString padplane, bool drawlinks=false){
 
   
   for(int i=0;i<npads;++i){
-    PndTpcPad* apad=_padPlane->GetPad(i);
+    PndTpcPad* apad=0;
+    try{
+      apad=_padPlane->GetPad(i);
+    }
+    catch (std::exception &e){
+      cout << e.what() << endl;
+      cout.flush();
+      continue;
+    }
     int sectorid=apad->sectorId();
     apad->Draw(sectorid%10+1);
     unsigned int nn=apad->nNeighbours();
