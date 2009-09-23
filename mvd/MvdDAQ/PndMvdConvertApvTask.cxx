@@ -60,11 +60,11 @@ void PndMvdConvertApvTask::Exec(Option_t* opt)
 	std::vector<PndMvdDigiStrip> strips = fApvConvert->ReadNext();
 	for (std::vector<PndMvdDigiStrip>::iterator strip=strips.begin(); strip!=strips.end(); ++strip)
 	{
-		Int_t iStrip = fStripArray->GetEntriesFast();
+		Int_t stripnum = fStripArray->GetEntriesFast();
 // 		std::cout<<" -I- PndMvdConvertApvTask::Exec(): Adding a strip digi at position "<<iStrip
 // 				 <<"\n in sensor "<<(*strip).GetDetName().Data() <<std::endl;
-		new ((*fStripArray)[iStrip]) PndMvdDigiStrip(*strip);
-// 		new ((*fStripArray)[iStrip]) PndMvdDigiStrip((*strip).GetIndex(), (*strip).GetDetID(), (*strip).GetDetName(), (*strip).GetFE(), (*strip).GetChannel(), (*strip).GetCharge(), (*strip).GetTimestamp()) ;
+		new ((*fStripArray)[stripnum]) PndMvdDigiStrip(*strip);
+// 		new ((*fStripArray)[stripnum]) PndMvdDigiStrip((*strip).GetIndex(), (*strip).GetDetID(), (*strip).GetDetName(), (*strip).GetFE(), (*strip).GetChannel(), (*strip).GetCharge(), (*strip).GetTimestamp()) ;
 	}
 // std::cout<<" -I- fStripArray size: "<<fStripArray->GetEntriesFast()<<endl;;
 }

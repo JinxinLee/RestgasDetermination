@@ -50,8 +50,8 @@ private:
     std::vector< std::vector<TH1*> > fHSZDistVector;
     std::vector< std::vector<TH1*> > fHSZChi2Vector;
     
-    double fMaxSZ;
     double fMaxDist;
+    double fMaxSZ;
     double fMaxSZChi2;
     
     int fEventNr;

@@ -147,7 +147,7 @@ std::vector<PndMvdDigiStrip> PndMvdConvertApv::Calc(std::vector<PndMvdApvHit> hi
 //TODO: Detektornamen mit Geometrie sinnvoll verheiraten. 
 // 	string detPath="SiliconTestStation_1/DummysensorAss_0/";
 //     detPath+="Module";
-    TString detPath="Module";
+    detPath="Module";
     Int_t modId=-1;
     if(fFake)
     {

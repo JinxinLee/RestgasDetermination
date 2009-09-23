@@ -10,7 +10,7 @@ std::vector< std::vector<Int_t> > PndMvdSimplePixelClusterFinder::GetClusters()
 	for (Int_t i = 0; i < fHits.size(); i++) posHits.push_back(i);
 	std::vector< std::vector< Int_t> > result;
 	Int_t sizeTempHits = posHits.size();
-	Int_t actHit = 0;
+	//Int_t actHit = 0;
 
 	while (sizeTempHits != 0){
 		std::vector<Int_t> tempInt;

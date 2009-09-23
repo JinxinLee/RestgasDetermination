@@ -100,9 +100,9 @@ class PndMvdApvHit : public TObject
         Int_t GetTriggerID() const { return fTriggerID; }
 
    private :
-	Int_t fFeID;		/// store fe ID (should be betwen 0 and 2)
 	long int fEventID;	/// store event ID
 	Int_t fModuleID;	/// store moduleID
+	Int_t fFeID;		/// store fe ID (should be betwen 0 and 2)
 	Int_t fTriggerID;	/// store trigger ID
 	Int_t fChannel;		/// store channel (should be betwen 0 and 127)
 	Int_t fTimestamp;	/// store timestamp

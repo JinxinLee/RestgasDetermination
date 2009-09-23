@@ -256,7 +256,7 @@ void PndMvdAllDataEventAna::FillHitHistos()
     }
     //TH2* tempHisto = (TH2*)(fHistos[detName]);
     gGeoManager->cd(fGeoH->GetPath(detName.Data()));
-      TGeoHMatrix* transMat = gGeoManager->GetCurrentMatrix();
+     // TGeoHMatrix* transMat = gGeoManager->GetCurrentMatrix();
 
     TVector3 in(myPoint->GetX(), myPoint->GetY(), myPoint->GetZ());
     TVector3 out(myPoint->GetXOut(), myPoint->GetYOut(), myPoint->GetZOut());
@@ -365,8 +365,8 @@ void PndMvdAllDataEventAna::FillHitResolutionHistos()
     std::cout << "Cluster Index: " << myHit->GetClusterIndex() << std::endl;
     PndMvdCluster *myCand = (PndMvdCluster*)(fClusterArray->At(myHit->GetClusterIndex()));
     std::vector<Int_t> points = GetHitPerCluster(myCand);
-    for (Int_t i = 0; i < points.size(); i++)
-      std::cout << "ClusterPoints: " << points[i] << std::endl;
+    for (Int_t k = 0; k < points.size(); i++)
+      std::cout << "ClusterPoints: " << points[k] << std::endl;
     TVector3 hitPos = CalcMeanHitPos(points);
     std::cout << "HitPos: " << hitPos.X() << " " << hitPos.Y() << " " << hitPos.Z() << std::endl;
     if (fHitResolutionHistos[detName] == 0){

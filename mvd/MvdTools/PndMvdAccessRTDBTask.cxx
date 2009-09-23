@@ -16,7 +16,7 @@ void PndMvdAccessRTDBTask::SetParContainers()
 
 InitStatus PndMvdAccessRTDBTask::Init()
 {
-
+  return kSUCCESS;
 }
 
 InitStatus PndMvdAccessRTDBTask::ReInit()

@@ -74,8 +74,8 @@ InitStatus PndMvdPidIdealTask::Init()
 void PndMvdPidIdealTask::SetParContainers()
 {
   // Get Base Container
-  FairRun* ana = FairRun::Instance();
-  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
+//  FairRun* ana = FairRun::Instance();
+//  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
 
 }
 

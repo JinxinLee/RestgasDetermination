@@ -27,8 +27,8 @@
 
 // -----   Default constructor   -------------------------------------------
 PndMvdIdealRecoTask::PndMvdIdealRecoTask() :
-  fHitCovMatrix(3,3),
-  FairTask("Ideal reconstruction task for PANDA PndMvd")
+  FairTask("Ideal reconstruction task for PANDA PndMvd"),
+  fHitCovMatrix(3,3)
 {
   fSigmaX=0.;
   fSigmaY=0.;
@@ -39,8 +39,8 @@ PndMvdIdealRecoTask::PndMvdIdealRecoTask() :
 
 // -----   Constructor   ---------------------------------------------------
 PndMvdIdealRecoTask::PndMvdIdealRecoTask(Double_t sx, Double_t sy, Double_t sz) :
-  fHitCovMatrix(3,3),
-  FairTask("Ideal reconstruction task for PANDA PndMvd")
+  FairTask("Ideal reconstruction task for PANDA PndMvd"),
+  fHitCovMatrix(3,3)
 {
   fSigmaX=sx;
   fSigmaY=sy;

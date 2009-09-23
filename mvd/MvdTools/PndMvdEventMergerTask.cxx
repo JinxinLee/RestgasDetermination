@@ -48,8 +48,8 @@ void PndMvdEventMergerTask::SetParContainers()
 {
   // called before Init()
   // Get Base Container
-  FairRun* ana = FairRun::Instance();
-  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
+  //FairRun* ana = FairRun::Instance();
+  //FairRuntimeDb* rtdb=ana->GetRuntimeDb();
 }
 
 InitStatus PndMvdEventMergerTask::ReInit()
@@ -61,7 +61,7 @@ InitStatus PndMvdEventMergerTask::ReInit()
 // -----   Public method Init   --------------------------------------------
 InitStatus PndMvdEventMergerTask::Init()
 {
-    FairRun* ana = FairRun::Instance();
+    //FairRun* ana = FairRun::Instance();
     FairRootManager* ioman = FairRootManager::Instance();
 
   if ( ! ioman )

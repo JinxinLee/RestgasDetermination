@@ -61,11 +61,8 @@ class PndMvdMSAnaTask : public FairTask
 		
 		FairGeanePro* fPro;
 		PndMvdGeoHandling* fGeoH;
+    int fEventNr;
 		bool fUseMVDPoint;
-		
-				
-		
-		int fEventNr;
 		
 		std::map<int, std::vector<int> > fTrackPixHitIdMap;				//Track -> PixHitId
 		std::map<int, std::vector<int> > fTrackStripHitIdMap;			//Track -> StripHitId

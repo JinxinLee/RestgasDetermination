@@ -23,7 +23,7 @@ std::vector<PndMvdPixel> PndMvdCalcFePixel::CalcFEHits()
 
 std::vector<PndMvdPixel> PndMvdCalcFePixel::CalcSensorHits(const std::vector<PndMvdPixel> FePixel)
 {
-	Int_t col, row, dummy;
+	//Int_t col, row, dummy;
 	std::vector<PndMvdPixel> result;
 	for (Int_t i = 0; i < FePixel.size(); i++){
 		result.push_back(CalcSensorHit(FePixel[i]));

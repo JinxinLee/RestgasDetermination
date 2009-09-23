@@ -113,9 +113,9 @@ private :
     Double_t fOrient;     /// strip orientation angle to x axis
     Int_t fNrStrips;      /// Nr. of strips on active area
     Int_t fNrFeChannels;  /// Nr of Channels per FE
+    TVector2 fAnchor;   /// anchor point on first strip
     Double_t fThreshold;  /// charge threshold
     Double_t fNoise;      /// ENC
-    TVector2 fAnchor;   /// anchor point on first strip
     TVector2 fStripDir; /// vector perpendicular to strip direction
     TVector2 fOrthoDir; /// vector orthogonal to strip direction
     TRandom3* fRNG;     /// Random Number Generator

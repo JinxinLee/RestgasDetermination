@@ -38,10 +38,10 @@ private:
 
     int fEventNr;
 
+  double fMaxDist;
+  double fMinPointDist;
   double fMaxSZChi2;
   double fMaxSZDist;
-  double fMinPointDist;
-  double fMaxDist;
 
 
 

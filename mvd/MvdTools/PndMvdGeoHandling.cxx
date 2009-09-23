@@ -37,7 +37,7 @@ PndMvdGeoHandling::PndMvdGeoHandling()
 PndMvdGeoHandling::PndMvdGeoHandling(TString fileName)
 {
 	if (gROOT->FindObjectAny("FAIRGeom") == 0){
-		 TGeoManager* fGeoMan = new TGeoManager("geoMan","geoMan");
+		   fGeoMan = new TGeoManager("geoMan","geoMan");
   		 fGeoMan->Import(fileName.Data());
 	}
 	fGeoMan = gGeoManager;

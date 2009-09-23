@@ -85,8 +85,8 @@ InitStatus PndMvdMSAnaTask::Init()
 void PndMvdMSAnaTask::SetParContainers()
 {
   // Get Base Container
-  FairRun* ana = FairRun::Instance();
-  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
+ /// FairRun* ana = FairRun::Instance();
+ //s FairRuntimeDb* rtdb=ana->GetRuntimeDb();
 
 }
 
@@ -246,7 +246,7 @@ std::map<int, std::vector<int> > PndMvdMSAnaTask::AssignHitsToTracks()
 	std::map<int, std::vector<int> > result;
 	for (int i = 0; i < fMCHits->GetEntriesFast(); i++){											//get all MC Hits
 		PndMvdMCPoint* myPoint = (PndMvdMCPoint*)(fMCHits->At(i));									//sort MCHits with Tracks
-		PndMCTrack* myTrack = (PndMCTrack*)(fMCTracks->At(myPoint->GetTrackID()));
+		//PndMCTrack* myTrack = (PndMCTrack*)(fMCTracks->At(myPoint->GetTrackID()));
 		result[myPoint->GetTrackID()].push_back(i);
 
 	}

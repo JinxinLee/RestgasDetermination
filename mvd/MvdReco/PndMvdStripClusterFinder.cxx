@@ -65,7 +65,7 @@ std::cout<<"beim Cluster"<<std::endl;
 			// loop over all frames in hitmap in this channel
 			for (std::map<Int_t,std::vector<Int_t> >::const_iterator ts = ch->second.begin(); ts!=ch->second.end(); ++ts)
 			{
-				std::vector< Int_t > onecluster;
+//				std::vector< Int_t > onecluster;
 				ClusterIterator(ch->first,ts->first,hitmap,onecluster);		// new Cluster from ch and ts
 				if (onecluster.size()>0)
       			{

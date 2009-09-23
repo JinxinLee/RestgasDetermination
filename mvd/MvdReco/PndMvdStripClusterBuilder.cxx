@@ -45,16 +45,28 @@ PndMvdCluster PndMvdStripClusterBuilder::GetCluster(Int_t i)
 {
   if(0<=i && fClusters.size() < i)
     return fClusters[i];
+  else{
+    std::cout<<"-E- PndMvdStripClusterBuilder::GetCluster: Out of bounds i="<<i<<" at size="<<fBotclusters.size()<<std::endl;
+    //return; // ??? what to do?
+  }
 }
 PndMvdCluster PndMvdStripClusterBuilder::GetTopCluster(Int_t i)
 {
   if(0<=i && fTopclusters.size() < i)
   return fClusters[ (fTopclusters[i]) ];
+  else{
+    std::cout<<"-E- PndMvdStripClusterBuilder::GetTopCluster: Out of bounds i="<<i<<" at size="<<fBotclusters.size()<<std::endl;
+    //return; // ??? what to do?
+  }
 }
 PndMvdCluster PndMvdStripClusterBuilder::GetBotCluster(Int_t i)
 {
   if(0<=i && fBotclusters.size() < i)
-  return fClusters[ (fBotclusters[i]) ];
+    return fClusters[ (fBotclusters[i]) ];
+  else {
+    std::cout<<"-E- PndMvdStripClusterBuilder::GetBotCluster: Out of bounds i="<<i<<" at size="<<fBotclusters.size()<<std::endl;
+    //return; // ??? what to do?
+  }
 }
 
 
