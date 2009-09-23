@@ -3,7 +3,7 @@
 //------------------
 
 #include "TGeoMatrix.h"
-
+#include "TGeoManager.h"
 #include "FairRootManager.h"
 
 #include "PndDchMapper.h"
@@ -35,8 +35,8 @@ PndDchMapper::PndDchMapper() {
   // Geometry loading
   FairRootManager* ioman = FairRootManager::Instance();
   TFile *infile = ioman->GetInFile();
-  TGeoManager *geoMan = (TGeoManager*) infile->Get("FAIRGeom");
-  fDchStructure = PndDchStructure::Instance(geoMan);
+  //TGeoManager *geoMan = (TGeoManager*) infile->Get("FAIRGeom");
+  fDchStructure = PndDchStructure::Instance(gGeoManager);
 }
 
 PndDchMapper::~PndDchMapper() {} 

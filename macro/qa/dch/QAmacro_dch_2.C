@@ -18,6 +18,11 @@
   rtdb->setFirstInput(parInput1);
   rtdb->Print();
 
+
+ FairGeane *Geane = new FairGeane();
+  fRun->AddTask(Geane);
+
+
   // -----   Add tasks
   // ------------------------------------------------- 
   PndDchDigiProducer* digiProducer= new PndDchDigiProducer();
@@ -44,9 +49,7 @@
   matchTask->SetUseHitOrDigi("chit");
   matchTask->SetVerbose(0);
   fRun->AddTask(matchTask);
-  // ----- Prepare GEANE --------------------------------------------
-  // this will load Geant3 and execute setup macros to initialize geometry:
-  FairGeane *Geane = new FairGeane(inFile);
+  
   // ------------------------------------------------- 
     PndDchPreFitterTR* dchPreFitter = new PndDchPreFitterTR();
   dchPreFitter->SetVerbose(0);
@@ -75,7 +78,14 @@
   fRun->AddTask(dchKalmanQA);
   // ------------------------------------------------- 
 */
+ 
+  
   fRun->Init();
+  
+  // ----- Prepare GEANE --------------------------------------------
+  // this will load Geant3 and execute setup macros to initialize geometry:
+  
+  
   Geane->SetField(fRun->GetField());
   fRun->Run(0,nEvents);
 

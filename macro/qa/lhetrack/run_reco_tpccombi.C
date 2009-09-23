@@ -34,7 +34,8 @@
   fRun->SetInputFile(inDigiFile);
   fRun->AddFriend(inSimFile);
   fRun->SetOutputFile(outFile);
-  FairGeane *Geane = new FairGeane(inSimFile.Data());
+  FairGeane *Geane = new FairGeane();
+  fRun->AddTask(Geane);
   PndEmcMapper::Instance(2,inSimFile);
   // ------------------------------------------------------------------------
 
