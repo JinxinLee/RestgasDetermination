@@ -10,6 +10,8 @@
 #include "TEveManager.h"
 #include "TEveBoxSet.h"
 #include "TrackCand.h"
+#include "PndTrackCand.h"
+#include "PndTrackCandHit.h"
 #include "FairRootManager.h"
 #include "PndTpcCluster.h"
 #include "PndLhePidTrack.h"
@@ -68,13 +70,20 @@ InitStatus PndTrackCandDraw::Init()
 
 void PndTrackCandDraw::AddBoxes(TEveBoxSet* set, TObject* obj, Int_t i)
 {
+
+	if (0 == strcmp(obj->ClassName(), "TrackCand") || 0 == strcmp(obj->ClassName(), "PndLhePidTrack"))
+		AddBoxesTrackCand(set, obj, i);
+	else if (0 == strcmp(obj->ClassName(), "PndTrackCand"))
+		AddBoxesPndTrackCand(set, obj, i);
+}
+
+
+void PndTrackCandDraw::AddBoxesTrackCand(TEveBoxSet* set, TObject* obj, Int_t i)
+{
 	   TrackCand *tc;
 	   PndLhePidTrack *pidtc;
-//	   PndTpcLheTrack *lhetc;
-//	   PndHit *p;
-	//   Reset();
-	 //  cout<<  "PndTrackCandDraw::Exec() " << fPointList->GetEntriesFast() << endl;
-	      if( 0 == strcmp(obj->ClassName() , "TrackCand") ) {
+
+	      if( 0 == strcmp(obj->ClassName() , "TrackCand")) {
 	        tc=(TrackCand *)obj;
 	        std::cout<<"fTrackCandList is full of TrackCands"<<std::endl;
 	      } else if ( 0 == strcmp(obj->ClassName() , "PndLhePidTrack") ) {
@@ -101,17 +110,22 @@ void PndTrackCandDraw::AddBoxes(TEveBoxSet* set, TObject* obj, Int_t i)
 	      }
 }
 
+void PndTrackCandDraw::AddBoxesPndTrackCand(TEveBoxSet* set, TObject* obj, Int_t i)
+{
+	PndTrackCand* pndtc = (PndTrackCand*)obj;
+	for (Int_t j = 0; j < pndtc->GetNHits(); j++){
+		PndTrackCandHit hit = pndtc->GetSortedHit(j);
+		TVector3 point = GetVector(hit.GetDetId(), hit.GetHitId());
+		set->AddBox(point.X(), point.Y(), point.Z());
+		set->DigitValue(i);
+	}
+}
 
 TVector3 PndTrackCandDraw::GetVector(Int_t detId, Int_t hitId)
 {
 	FairHit * p;
-	//if (detId == kTpcCluster){
-	if (detId == 3){
-		PndTpcCluster* cluster = (PndTpcCluster*)fTpcClusterList->At(hitId);
-		return (cluster->pos());
-	}
 
-	else if (detId == kMVDHitsStrip || detId == kMVDHitsPixel || detId == kSttHelixHit)
+	if (detId == kMVDHitsStrip || detId == kMVDHitsPixel || detId == kSttHelixHit)
 	{
 		if (detId == kMVDHitsPixel)
 		{

@@ -41,6 +41,9 @@ protected:
 	  virtual TVector3 GetVector(Int_t detId, Int_t hitId);
 	  //virtual Int_t GetValue(TObject* obj,Int_t i);
 	  virtual void AddBoxes(TEveBoxSet* set, TObject* obj, Int_t i = 0);
+	  virtual void AddBoxesTrackCand(TEveBoxSet* set, TObject* obj, Int_t i = 0);
+	  virtual void AddBoxesPndTrackCand(TEveBoxSet* set, TObject* obj, Int_t i = 0);
+
 
   TClonesArray *fPixPointList; //!
   TClonesArray *fStripPointList; //!
