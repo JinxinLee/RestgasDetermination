@@ -376,13 +376,13 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
           if (hit)
           {
 
-            XYZVector norm = (*kSurf_coupled)->Normal(ph.Position());
+            norm = (*kSurf_coupled)->Normal(ph.Position());
             if (&((*kSurf_coupled)->Reflectivity())) // Reflectivity defined
             {
               if (Verbosity()>=4)
                 cout<<"     PndDrcOptVol::reflectivity2a clause"<<endl;
 			  // check reflectivity
-              Drc::Reflectivity refl = Drc::ReflReflected;
+              refl = Drc::ReflReflected;
               refl = (*kSurf_coupled)->Reflectivity().Reflectivity(ph,norm);
 
 

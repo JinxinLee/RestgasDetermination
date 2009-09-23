@@ -257,7 +257,7 @@ bool PndDrcSurfQuadFlatDiff::SurfaceHit(PndDrcPhoton& ph,
       //                 no addition between XYZPoints possible
 		ref.SetX(1.01*ref.X()); // bend it a little bit outside
 		ref.SetY(1.01*ref.Y()); // so that dir points a little bit inside.
-		XYZVector dir = (XYZPoint(pos_new)-ref).Unit();
+		dir = (XYZPoint(pos_new)-ref).Unit();
 
 		ph1.SetDirection(dir);
 
@@ -302,7 +302,7 @@ bool PndDrcSurfQuadFlatDiff::SurfaceHit(PndDrcPhoton& ph,
       //                 no addition between XYZPoints possible
 		ref.SetX(1.01*ref.X()); // bend it a little bit outside
 		ref.SetY(1.01*ref.Y()); // so that dir points a little bit inside.
-		XYZVector dir = (XYZPoint(pos_new)-ref).Unit();
+		dir = (XYZPoint(pos_new)-ref).Unit();
 
 		ph1.SetDirection(dir);
 

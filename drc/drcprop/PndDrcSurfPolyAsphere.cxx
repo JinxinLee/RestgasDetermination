@@ -261,8 +261,8 @@ bool PndDrcSurfPolyAsphere::SurfaceHit(PndDrcPhoton& ph,
 	if (fabs(fConConst+1)<1.0e-4)
 	{// parabola
 		long double h2 = dir.X()*dir.X()+dir.Y()*dir.Y();
-		long double a = 2*(pos.X()*dir.X()+pos.Y()*dir.Y()+fRadius*dir.Z());
-		long double b = 2*fRadius*(pos.Z()-fRadius) + pos.X()*pos.X() + pos.Y()*pos.Y();
+		a = 2*(pos.X()*dir.X()+pos.Y()*dir.Y()+fRadius*dir.Z());
+		b = 2*fRadius*(pos.Z()-fRadius) + pos.X()*pos.X() + pos.Y()*pos.Y();
 		if (fabs(h2)<1.0e-9)
 		{
 			if (a==0)
