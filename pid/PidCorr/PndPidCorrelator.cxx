@@ -415,7 +415,6 @@ void PndPidCorrelator::GetTrackInfo(PndTrack* track, PndPidCandidate* pidCand)
 	{
 	  vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
 	  momentum = fRes->GetMomentum();
-          Int_t ierr = 0;
           FairTrackParP *fParab = new FairTrackParP(fRes, TVector3(1.,0.,0.), TVector3(0.,1.,0.), ierr);
           Double_t globalCov[6][6];
 	  fParab->GetMARSCov(globalCov);
@@ -467,8 +466,8 @@ void PndPidCorrelator::GetTrackInfo(PndTrack* track, PndPidCandidate* pidCand)
 //_________________________________________________________________
 void PndPidCorrelator::GetMvdInfo(PndTrack* track, PndPidCandidate* pidCand) 
 {
-  Float_t fMvdELoss = 0.; // total energy lost in MVD;
-  Float_t fMvdPath = 0.;  // total thickness crossed in MVD
+  Float_t mvdELoss = 0.; // total energy lost in MVD;
+  Float_t mvdPath = 0.;  // total thickness crossed in MVD
   Int_t mvdCounts = 0;
   PndTrackCand trackCand = track->GetTrackCand();
   for (Int_t ii=0; ii<trackCand.GetNHits(); ii++)
@@ -523,14 +522,14 @@ void PndPidCorrelator::GetMvdInfo(PndTrack* track, PndPidCandidate* pidCand)
       else
 	{
 	  thickness = actBox->GetDZ()*2./fabs(cos);
-	  fMvdELoss += mvdHit->GetEloss();
-	  fMvdPath += thickness;
+	  mvdELoss += mvdHit->GetEloss();
+	  mvdPath += thickness;
 	  fMvdHitCount++;
 	}
       if (fVerbose) cout << mvdHit->GetDetName() << "\t" << mvdHit->GetEloss() << "\t" << thickness << endl;
     }
   
-  if (fMvdPath>0.) pidCand->SetMvdDEDX(fMvdELoss/fMvdPath);
+  if (mvdPath>0.) pidCand->SetMvdDEDX(mvdELoss/mvdPath);
   //pidCand->SetMvdHits(mvdCounts);
 }
 

@@ -465,7 +465,7 @@ void PndLhePidMaker::GetTofInfo(PndLhePidTrack* track) {
       Float_t dzs = (vertex.Z()-tofHit->GetZ()-fCorrPar->GetTofZ0()) / fCorrPar->GetTofSigmaZ();
       Float_t dphi = (vertex.DeltaPhi(tofPos)-fCorrPar->GetTofPhi0()) / fCorrPar->GetTofSigmaPhi();
  
-      Float_t chi2 = dphi * dphi + dzs * dzs;
+      chi2 = dphi * dphi + dzs * dzs;
       //Float_t chi2 = dzs * dzs;
       
       if ( tofQuality > chi2)
@@ -549,7 +549,7 @@ void PndLhePidMaker::GetEmcInfo(PndLhePidTrack* track) {
       
       Float_t dzs = (vertex.Z()-emcPos.Z()-fCorrPar->GetEmc12Z0()) / fCorrPar->GetEmc12SigmaZ();
       Float_t dphi = (vertex.DeltaPhi(emcPos)-fCorrPar->GetEmc12Phi0()) / fCorrPar->GetEmc12SigmaPhi();
-      Float_t chi2 = dphi * dphi + dzs * dzs;
+      chi2 = dphi * dphi + dzs * dzs;
       //Float_t chi2 = dzs * dzs;
       if ( emcQuality > chi2 ) 
 	{
@@ -624,7 +624,7 @@ void PndLhePidMaker::GetMdtInfo(PndLhePidTrack* track) {
       Float_t dphi = (vertex.DeltaPhi(mdtPos)-fCorrPar->GetMdtPhi0()) / fCorrPar->GetMdtSigmaPhi();
  
       //Float_t chi2 = dphi * dphi + dzs * dzs;
-      Float_t chi2 = dzs * dzs;
+      chi2 = dzs * dzs;
       
       if ( mdtQuality > chi2)
 	{
