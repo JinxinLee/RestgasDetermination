@@ -263,7 +263,7 @@ void TCfast2DHough::doHough(){
 
 
 
-  int maxVote=-1;
+   maxVote=-1;
   Hough2DNode* maxNode=NULL;
   for(std::vector<Hough2DNode*>::iterator it=parent_list.begin();it!=parent_list.end();++it){
     if((*it)->getVote()>maxVote){

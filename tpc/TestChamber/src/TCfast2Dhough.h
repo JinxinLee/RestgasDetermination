@@ -36,6 +36,7 @@ class TCfast2DHough : public TCabsHough{
   void setDebug(bool debug_=true){
     debug=debug_;
   }
+  int getMaxVote(){return maxVote;}
   void draw(bool stop=true,int _x=50,int _y=50,
 	    int _w=600,int _h=600,TCevent* mcTruth= NULL);
   virtual void make(std::vector<TCcluster>& _c);
@@ -57,5 +58,6 @@ class TCfast2DHough : public TCabsHough{
   float t_Min;
   int TREE_DEPTH;  //number of space divisions
   int THRESHOLD;
+  int maxVote;
 };
 #endif
