@@ -8,6 +8,10 @@
 	
 	TFile* f = new TFile("full_emc.root"); //file you want to analyse
 	TTree *t=(TTree *) f->Get("cbmsim") ;
+         
+        TFile* fpar = new TFile("simparams.root"); 
+        fpar->Get("FairBaseParSet");
+
 	TClonesArray* cluster_array=new TClonesArray("PndEmcCluster");
 	t->SetBranchAddress("EmcCluster",&cluster_array);
 

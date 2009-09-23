@@ -82,11 +82,11 @@ InitStatus PndEmcApdHitProducer::Init() {
 	// Geometry loading
 // 	TFile *infile = ioman->GetInFile();
 // 	TGeoManager *geoMan = (TGeoManager*) infile->Get("FAIRGeom");
-	TGeoManager *geoMan = (TGeoManager*) gROOT->FindObject("FAIRGeom");
+//	TGeoManager *geoMan = (TGeoManager*) gROOT->FindObject("FAIRGeom");
 	
 	fMapVersion=1;
 	PndEmcMapper *map=PndEmcMapper::Instance(fMapVersion);
-	fEmcStr=PndEmcStructure::Instance(geoMan);
+	fEmcStr=PndEmcStructure::Instance(gGeoManager);
   
 	emcX=fEmcStr->GetEmcX();
 	emcY=fEmcStr->GetEmcY();
