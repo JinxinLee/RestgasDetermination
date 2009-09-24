@@ -79,40 +79,54 @@
   primGen->AddGenerator(boxGen);
 
   FairBoxGenerator* boxGen1 = new FairBoxGenerator(22, 10); // 13 = muon; 1 = multipl. // 211 = pi+
-  boxGen1->SetPRange(1.,1.); // GeV/c
-  boxGen1->SetPhiRange(0., 360.); // Azimuth angle range [degree]
-  boxGen1->SetThetaRange(0., 180.); // Polar angle in lab system range [degree]
-  boxGen1->SetXYZ(0., 0., 0.); // vertex coordinates [mm]
-  primGen->AddGenerator(boxGen1);  
+   boxGen1->SetPRange(1.,1.); // GeV/c
+   boxGen1->SetPhiRange(0., 360.); // Azimuth angle range [degree]
+   boxGen1->SetThetaRange(0., 180.); // Polar angle in lab system range [degree]
+   boxGen1->SetXYZ(0., 0., 0.); // vertex coordinates [mm]
+   primGen->AddGenerator(boxGen1);  
 
-  FairBoxGenerator* boxGen2 = new FairBoxGenerator(-211, 5); // 13 = muon; 1 = multipl. // 211 = pi+
-  boxGen2->SetPRange(2.192840326,2.192840326); // GeV/c
-  boxGen2->SetPtRange(0.798217349,0.798217349); // GeV/c
-  boxGen2->SetXYZ(0., 0., 0.); // vertex coordinates [mm]
-  primGen->AddGenerator(boxGen2);  
+   FairBoxGenerator* boxGen2 = new FairBoxGenerator(-211, 5); // 13 = muon; 1 = multipl. // 211 = pi+
+   boxGen2->SetPRange(2.192840326,2.192840326); // GeV/c
+   boxGen2->SetPtRange(0.798217349,0.798217349); // GeV/c
+   boxGen2->SetXYZ(0., 0., 0.); // vertex coordinates [mm]
+   primGen->AddGenerator(boxGen2);  
 
-  FairBoxGenerator *fBox = new FairBoxGenerator(211, 5);
-  fBox->SetPRange(0.1,2.5); // GeV/c
-  fBox->SetPhiRange(0.,360); // Azimuth angle range [degree]
-  fBox->SetThetaRange(5,150); // Polar angle in lab system range [degree]
-  fBox->SetXYZ(0., 0., 0.); // vertex coordinates [mm]
-  primGen->AddGenerator(fBox);
+   FairBoxGenerator *fBox = new FairBoxGenerator(211, 5);
+   fBox->SetPRange(0.1,2.5); // GeV/c
+   fBox->SetPhiRange(0.,360); // Azimuth angle range [degree]
+   fBox->SetThetaRange(5,150); // Polar angle in lab system range [degree]
+   fBox->SetXYZ(0., 0., 0.); // vertex coordinates [mm]
+   primGen->AddGenerator(fBox);
+
+
+   /** Set the field*/
+   fRun->SetBeamMom(15);
+   PndMultiField *fField= new PndMultiField();
+
+   PndTransMap *map_t= new PndTransMap("TransMap", "R");
+   PndDipoleMap *map_d1= new PndDipoleMap("DipoleMap1", "R");
+   PndDipoleMap *map_d2= new PndDipoleMap("DipoleMap2", "R");
+   PndSolenoidMap *map_s1= new PndSolenoidMap("SolenoidMap1", "R");
+   PndSolenoidMap *map_s2= new PndSolenoidMap("SolenoidMap2", "R");
+   PndSolenoidMap *map_s3= new PndSolenoidMap("SolenoidMap3", "R");
+   PndSolenoidMap *map_s4= new PndSolenoidMap("SolenoidMap4", "R");
+
+   fField->AddField(map_t);
+   fField->AddField(map_d1);
+   fField->AddField(map_d2);
+   fField->AddField(map_s1);
+   fField->AddField(map_s2);
+   fField->AddField(map_s3);
+   fField->AddField(map_s4);
+
+
+   fRun->SetField(fField);
+   fRun->Init();
+ 
 
 
 
-  /** Set the field*/
-  PndMultiField *fField= new PndMultiField();
 
-  PndTransMap *map= new PndTransMap("TransMap", "R");
-  PndDipoleMap *map1= new PndDipoleMap("DipoleMap", "R");
-  PndSolenoidMap *map2= new PndSolenoidMap("SolenoidMap", "R");
-  fField->AddField(map);
-  fField->AddField(map1);
-  fField->AddField(map2);
-  
-  fRun->SetField(fField);
-
-  fRun->Init();
   // 
   //   // Fill the Parameter containers for this run
   //   //-------------------------------------------

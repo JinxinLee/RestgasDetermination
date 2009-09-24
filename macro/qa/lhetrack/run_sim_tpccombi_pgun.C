@@ -85,18 +85,29 @@ void run_sim_tpccombi_pgun(Int_t nEvents=100, Int_t pid=13, Float_t p1=1.0, Floa
 
   //fRun->SetStoreTraj(kTRUE);
   
-  PndMultiField *fField= new PndMultiField();
+  /** Set the field*/
+   fRun->SetBeamMom(15);
+   PndMultiField *fField= new PndMultiField();
 
-  PndTransMap *map= new PndTransMap("TransMap", "R");
-  PndDipoleMap *map1= new PndDipoleMap("DipoleMap", "R");
-  PndSolenoidMap *map2= new PndSolenoidMap("SolenoidMap", "R");
-  fField->AddField(map);
-  fField->AddField(map1);
-  fField->AddField(map2);
-  
-  fRun->SetField(fField);
-  
-  fRun->Init();
+   PndTransMap *map_t= new PndTransMap("TransMap", "R");
+   PndDipoleMap *map_d1= new PndDipoleMap("DipoleMap1", "R");
+   PndDipoleMap *map_d2= new PndDipoleMap("DipoleMap2", "R");
+   PndSolenoidMap *map_s1= new PndSolenoidMap("SolenoidMap1", "R");
+   PndSolenoidMap *map_s2= new PndSolenoidMap("SolenoidMap2", "R");
+   PndSolenoidMap *map_s3= new PndSolenoidMap("SolenoidMap3", "R");
+   PndSolenoidMap *map_s4= new PndSolenoidMap("SolenoidMap4", "R");
+
+   fField->AddField(map_t);
+   fField->AddField(map_d1);
+   fField->AddField(map_d2);
+   fField->AddField(map_s1);
+   fField->AddField(map_s2);
+   fField->AddField(map_s3);
+   fField->AddField(map_s4);
+
+
+   fRun->SetField(fField);
+   fRun->Init();
   
   FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
   Bool_t kParameterMerged=kTRUE;
