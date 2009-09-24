@@ -82,9 +82,9 @@ InitStatus PndDchCylinderHitProducer::Init() {
   ioman->Register("PndDchCylinderHit","Dch",fCylHitArray,kTRUE);
 
   // Geometry loading
-  TFile *infile = ioman->GetInFile();
-  TGeoManager *geoMan = (TGeoManager*) infile->Get("FAIRGeom");
-  fDchStructure = PndDchStructure::Instance(geoMan);
+//  TFile *infile = ioman->GetInFile();
+//  TGeoManager *geoMan = (TGeoManager*) infile->Get("FAIRGeom");
+  fDchStructure = PndDchStructure::Instance(gGeoManager);
 
   std::cout << "-I- PndDchCylinderHitProducer: Intialization successfull" << std::endl;
   return kSUCCESS;

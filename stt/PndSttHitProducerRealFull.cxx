@@ -68,10 +68,10 @@ InitStatus PndSttHitProducerRealFull::Init() {
   ioman->Register("STTHitInfo", "STT", fHitInfoArray, kTRUE);
 
   // Geometry loading
-  TFile *tstfile=ioman->GetInFile();
+ // TFile *tstfile=ioman->GetInFile();
   
-  TGeoManager *geoMan = (TGeoManager*) tstfile->Get("FAIRGeom");
-  fVolumeArray = geoMan->GetListOfVolumes();
+//  TGeoManager *geoMan = (TGeoManager*) tstfile->Get("FAIRGeom");
+//  fVolumeArray = geoMan->GetListOfVolumes();
 
   fVolumeArray = gGeoManager->GetListOfVolumes();
   

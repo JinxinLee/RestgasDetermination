@@ -36,8 +36,7 @@
   fRun->SetOutputFile(outFile);
   FairGeane *Geane = new FairGeane();
   fRun->AddTask(Geane);
-  PndEmcMapper::Instance(2,inSimFile);
-  // ------------------------------------------------------------------------
+   // ------------------------------------------------------------------------
 
   // -----  Parameter database   --------------------------------------------
    TString allDigiFile = sysFile+"/macro/params/all.par";
@@ -51,7 +50,7 @@
         
   rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parIo1);
-  fRun->LoadGeometry();
+ // fRun->LoadGeometry();
   // ------------------------------------------------------------------------
   // -----   LHETRACK  ---------------------------------
   
@@ -73,6 +72,7 @@
   
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
+  PndEmcMapper::Instance(2,inSimFile);
   Geane->SetField(fRun->GetField());
   fRun->Run(0, nEvents);
 

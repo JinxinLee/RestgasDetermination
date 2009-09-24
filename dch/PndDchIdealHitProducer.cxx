@@ -65,9 +65,9 @@ InitStatus PndDchIdealHitProducer::Init() {
   ioman->Register("PndDchHit","Dch",fHitArray,kTRUE);
   
   // Geometry loading
-  TFile *infile = ioman->GetInFile();
-  TGeoManager *geoMan = (TGeoManager*) infile->Get("FAIRGeom");
-  fDchStructure = PndDchStructure::Instance(geoMan);
+ // TFile *infile = ioman->GetInFile();
+ // TGeoManager *geoMan = (TGeoManager*) infile->Get("FAIRGeom");
+  fDchStructure = PndDchStructure::Instance(gGeoManager);
   
   // Create histograms
   CreateHistos();

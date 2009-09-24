@@ -26,21 +26,25 @@
 
 PndMvdGeoHandling::PndMvdGeoHandling()
 {
-	if (gROOT->FindObjectAny("FAIRGeom") == 0){
+	if (gGeoManager) {
+		fGeoMan = gGeoManager;
+	}else if (gROOT->FindObjectAny("FAIRGeom") == 0){
 		std::cout << " -E- PndMvdGeoHandling: No Geometry existing!" << std::endl;
 		return;
 	}
-	fGeoMan = gGeoManager;
+//	fGeoMan = gGeoManager;
   fVerbose = 0;
 }
 
 PndMvdGeoHandling::PndMvdGeoHandling(TString fileName)
 {
-	if (gROOT->FindObjectAny("FAIRGeom") == 0){
+	if (gGeoManager) {
+		fGeoMan = gGeoManager;
+	}else if (gROOT->FindObjectAny("FAIRGeom") == 0){
 		   fGeoMan = new TGeoManager("geoMan","geoMan");
   		 fGeoMan->Import(fileName.Data());
 	}
-	fGeoMan = gGeoManager;
+//	fGeoMan = gGeoManager;
   fVerbose = 0;
 }
 

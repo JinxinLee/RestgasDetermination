@@ -80,7 +80,8 @@ InitStatus PndDchPreFitterTR::Init() {
 	 << "RootManager not instantiated!" << endl;
     return kFATAL;
   }
-  TGeoManager *geoMan = (TGeoManager*) infile->Get("FAIRGeom");
+ // TGeoManager *geoMan = (TGeoManager*) infile->Get("FAIRGeom");
+	TGeoManager *geoMan =gGeoManager;
   fStructure = PndDchStructure::Instance(geoMan);
 
   // Get input point array - only to get real value of momentum!

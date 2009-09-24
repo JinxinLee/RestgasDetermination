@@ -79,9 +79,9 @@ void PndDchTrackFinderIdeal::Init() {
 	cout <<"fMCPointArray #: "<< fMCPointArray->GetEntriesFast() << endl;
 
 	// Geometry loading
-	TFile *infile = ioman->GetInFile();
-	TGeoManager *geoMan = (TGeoManager*) infile->Get("FAIRGeom");
-	fDchStructure = PndDchStructure::Instance(geoMan);
+	//TFile *infile = ioman->GetInFile();
+//	TGeoManager *geoMan = (TGeoManager*) infile->Get("FAIRGeom");
+	fDchStructure = PndDchStructure::Instance(gGeoManager);
 
 	std::cout << "-I- "<< GetName() <<": Intialization successfull" << std::endl;
 }

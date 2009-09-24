@@ -13,6 +13,7 @@
 #include "TH1F.h"
 #include "TMath.h"
 #include "TFile.h"
+#include "TGeoManager.h"
 
 #include "FairRootManager.h"
 #include "FairRunAna.h"
@@ -73,9 +74,9 @@ InitStatus PndDchPreFitter::Init() {
   
   // Get RootManager
   FairRootManager* ioman = FairRootManager::Instance();
-  TFile *infile = ioman->GetInFile();
-  TGeoManager *geoMan = (TGeoManager*) infile->Get("FAIRGeom");
-  fStructure = PndDchStructure::Instance(geoMan);
+ // TFile *infile = ioman->GetInFile();
+ // TGeoManager *geoMan = (TGeoManager*) infile->Get("FAIRGeom");
+  fStructure = PndDchStructure::Instance(gGeoManager);
 
   if ( ! ioman ) {
     cout << "-E- PndDchPreFitter::Init():\n\t "
