@@ -147,7 +147,7 @@ PndTpcPadResponseTask::Exec(Option_t* opt)
     double yAv=Aval->y();
     double r=sqrt(xAv*xAv+yAv*yAv);
     if(r<_rmin || r>_rmax) {
-      Warning("Exec","Avalanche outside of allowed region! r=%f",r);
+      //Warning("Exec","Avalanche outside of allowed region! r=%f",r);
       continue;
     }
     _padPlane->GetPadList(xAv,yAv,

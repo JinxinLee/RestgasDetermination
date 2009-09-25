@@ -80,6 +80,7 @@ PndTpcEvtMixTask.cxx
 PndTpcMCEvtMixTask.cxx
 PndTpcMCTracklet.cxx
 PndTpcEvtTime.cxx 		    
+PndTpcEvtTimeGenTask.cxx 		    
 PndTpcElectronicsTask.cxx 	 
 PndTpcClusterFinder.cxx   
 PndTpcClusterFinderSimple.cxx   

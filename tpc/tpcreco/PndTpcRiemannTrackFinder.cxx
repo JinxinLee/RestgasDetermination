@@ -123,9 +123,9 @@ PndTpcRiemannTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
     else {
       // add hit to best match
       // use the bestMatch from deepest level
-      std::cout<<"bestMatch[0]="<<_bestMatchIndex[0]
-	       <<"   bestMatch[1]="<<_bestMatchIndex[1]<<std::endl;
-      std::cout<<"choosing "<<_bestMatchIndex[maxlevel]<<std::endl;
+      // std::cout<<"bestMatch[0]="<<_bestMatchIndex[0]
+// 	       <<"   bestMatch[1]="<<_bestMatchIndex[1]<<std::endl;
+//       std::cout<<"choosing "<<_bestMatchIndex[maxlevel]<<std::endl;
       PndTpcRiemannTrack* theTrk=candlist[_bestMatchIndex[maxlevel]];
       theTrk->addHit(rhit);
       if(theTrk->getNumHits()>=_minHitsForFit){

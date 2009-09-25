@@ -3,8 +3,7 @@
 // $Id$
 //
 // Description:
-//      Task that mixes (copies) events from an other input file to the 
-//      current data stream. Only PndTpcSignals are added for the moment
+// Attaches an event time to the event
 //
 // Environment:
 //      Software developed for the PANDA Detector at FAIR.
@@ -15,78 +14,60 @@
 //
 //-----------------------------------------------------------
 
-#ifndef TPCEVTMIXTASK_HH
-#define TPCEVTMIXTASK_HH
+#ifndef TPCEVTTIMEGENTASK_HH
+#define TPCEVTTIMEGENTASK_HH
 
 // Base Class Headers ----------------
 #include "FairTask.h"
 
 // Collaborating Class Headers -------
 #include <ostream> // remove if you do not need streaming op
-#include <set>
 
 // Collaborating Class Declarations --
 class TClonesArray;
 class TFile;
 class TTree;
 class TBranch;
-class PndTpcPadPlane;
-class PndTpcDigiPar;
 
-class PndTpcEvtMixTask : public FairTask {
+class PndTpcEvtTimeGenTask : public FairTask {
 public:
 
   // Constructors/Destructors ---------
-  PndTpcEvtMixTask();
-  ~PndTpcEvtMixTask();
+  PndTpcEvtTimeGenTask();
+  ~PndTpcEvtTimeGenTask();
 
   // Operators
   
   // Accessors -----------------------
-
+  Double_t MeanEvtSpacing() const {return _meanEvtSpacing;}
 
   // Modifiers -----------------------
-  void SetInBranchName(const TString& name) {_inBranchName=name;}
-  void SetBkgBranchName(const TString& name) {_bkgBranchName=name;}
-  void SetBkgFileName(const TString& name) {_bkgFileName=name;}
   void SetPersistence(Bool_t opt=kTRUE) {_persistence=opt;}
-  void SetNBkgEvts(Int_t n) {_nbkgEvts=n;}
-  void AddSector(UInt_t id){_sectors.insert(id);}
+  void SetMeanEvtSpacing(Double_t deltaT) {_meanEvtSpacing=deltaT;} // [ns]
+  void SetEvtRate(Double_t evt_per_sec) {_meanEvtSpacing=1/evt_per_sec*1.E9;}
+  void SetT0(Double_t t0) {_t0=t0;}
 
   // Operations ----------------------
   virtual InitStatus Init();
-  virtual void SetParContainers();
+  
   virtual void Exec(Option_t* opt);
 
 private:
 
-  // Private Data Members ------------
-  TString _inBranchName;
-  TString _bkgBranchName;
-  TString _bkgFileName;
- 
 
-  TClonesArray* _signalArray;
-  TClonesArray* _bkgArray;
   TClonesArray* _timeArray;
 
-  TFile* _inFile;
-  TTree* _bkgTree;
-  TBranch* _bkgBranch;
-
   Bool_t _persistence;
-  Int_t _nbkgEvts;
 
-  std::set<unsigned int> _sectors;
-  PndTpcDigiPar* _par;
-
-  const PndTpcPadPlane* _padPlane;
- 
+  Double_t _meanEvtSpacing;
+  Double_t _t0;
+  Double_t _tevent;
+  unsigned int _eventid;
 
   // Private Methods -----------------
 
 public:
-  ClassDef(PndTpcEvtMixTask,1);
+  ClassDef(PndTpcEvtTimeGenTask,1);
 
 };
 

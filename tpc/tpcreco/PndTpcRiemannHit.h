@@ -41,7 +41,7 @@ public:
   
   // Accessors -----------------------
   const TVector3& x() const {return _x;}
-  const PndTpcCluster* cluster() const {return _cluster;}
+  PndTpcCluster* cluster() const {return _cluster;}
   double s() const {return _s;}
   double z() const;
   double alpha() const {return _alpha;}

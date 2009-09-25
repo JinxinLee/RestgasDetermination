@@ -33,6 +33,7 @@
 #pragma link C++ class PndTpcMCEvtMixTask+;
 #pragma link C++ class PndTpcMCTracklet+;
 #pragma link C++ class PndTpcEvtTime+;
+#pragma link C++ class PndTpcEvtTimeGenTask+;
 #pragma link C++ class PndTpcElectronicsTask+;
 #pragma link C++ class PndTpcClusterFinderTask+;
 #pragma link C++ class PndTpcCluster+;

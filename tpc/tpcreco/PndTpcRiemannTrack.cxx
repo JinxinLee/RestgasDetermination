@@ -151,20 +151,28 @@ PndTpcRiemannTrack::getClosestHit(PndTpcRiemannHit* hit,
 				  double& dist, 
 				  TVector3& outdir){
   hitIt it2=getClosestHit(hit,dist);
-  // catch the case where we are at boundary
-  hitIt it1=it2;
-  if(it2!=_hits.begin())--it1;
-  //else std::cout<<"at beginning"<<std::endl;
-  hitIt it3=it2;
-  if(it2!=--_hits.end())++it3;
-  //else std::cout<<"at end"<<std::endl;
- 
-  TVector3 pos1=(*it1)->cluster()->pos(); //next point
-  TVector3 pos3=(*it3)->cluster()->pos();
-  // construct general direction of track from these three
-
-  outdir=(pos3-pos1);
-  outdir.SetMag(1);
+  if(_hits.size()>1){
+    // catch the case where we are at boundary
+    hitIt it1=it2;
+    if(it2!=_hits.begin())--it1;
+    //else std::cout<<"at beginning"<<std::endl;
+    hitIt it3=it2;
+    if(it2!=--_hits.end())++it3;
+    //else std::cout<<"at end"<<std::endl;
+    
+    TVector3 pos1=(*it1)->cluster()->pos(); //next point
+    TVector3 pos3=(*it3)->cluster()->pos();
+    // construct general direction of track from these three
+    
+    outdir=(pos3-pos1);
+    outdir.SetMag(1);
+  }
+  else {
+    TVector3 pos=hit->cluster()->pos(); //next point
+    TVector3 pos2=(*it2)->cluster()->pos();
+    outdir=(pos2-pos);
+    outdir.SetMag(1);
+  }
   return it2;
 }
 
