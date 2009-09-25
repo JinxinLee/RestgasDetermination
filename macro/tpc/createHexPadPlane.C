@@ -29,8 +29,8 @@ createHexPadPlane(){
   double startx=-outerR;
   double starty=startx;
 
-  int nrings=1;
-  int nslices=1;
+  int nrings=5;
+  int nslices=16;
 
   double dring=(outerR-innerR)/(double)nrings;
 

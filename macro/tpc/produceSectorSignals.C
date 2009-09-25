@@ -22,9 +22,11 @@ Int_t nevents=2000;
 
   // Input file (MC events)
   TString prodjob="DPM";
-  TString jobname="sigSlice1";
+  TString jobname="sigSlice2";
  
-  TString inFile = "/afs/e18/panda/DATA/fboehmer/dipl_data/SpaceCharge/07_01_2009/new_PndTpcDetector/GEANT3_ALICE_L5_1MeV_cuts_withPIPE_MVD/2Gev_G3_ALICE_L5_1MeV_cuts_with_PIPE_MVD_10k_evts.mc.root";
+//TString inFile = "/afs/e18/panda/DATA/fboehmer/dipl_data/SpaceCharge/07_01_2009/new_PndTpcDetector/GEANT3_ALICE_L5_1MeV_cuts_withPIPE_MVD/2Gev_G3_ALICE_L5_1MeV_cuts_with_PIPE_MVD_10k_evts.mc.root";
+
+TString inFile = "../../data/DPM/FELIX/GEANT3_ALICE_L5_1MeV_cuts_withPIPE_MVD/2Gev_G3_ALICE_L5_1MeV_cuts_with_PIPE_MVD_10k_evts.mc.root";
 
   TString inDir=inFile(0,inFile.Last('/')+1);
   // make new subdir
@@ -79,7 +81,7 @@ std::cout<<"ParamOut: "<<paramOut<<std::endl;
   parInput1->open(paramIn.Data());
   FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
   TString tpcDigiFile = gSystem->Getenv("VMCWORKDIR");
-  tpcDigiFile += "/tpc/tpc.fullplane.par";
+  tpcDigiFile += "/tpc/tpc.par";
   parInput2->open(tpcDigiFile.Data(),"in");
 
   rtdb->setFirstInput(parInput2);
@@ -111,7 +113,7 @@ std::cout<<"ParamOut: "<<paramOut<<std::endl;
   PndTpcDriftTask* tpcDrifter = new PndTpcDriftTask();
   tpcDrifter->SetDistort(false);
   double deg=TMath::Pi()/180;
-  tpcDrifter->SetPhiCut(-12*deg,12*deg);
+  tpcDrifter->SetPhiCut(-90*deg,90*deg);
   fRun->AddTask(tpcDrifter);
 
   PndTpcGemTask* tpcGem = new PndTpcGemTask();
@@ -121,12 +123,17 @@ std::cout<<"ParamOut: "<<paramOut<<std::endl;
 
   PndTpcPadResponseTask* tpcPadResponse = new PndTpcPadResponseTask();
   tpcPadResponse->SetPersistence();
-  unsigned int ids[14]={0,1,2,3,4,5,6,217,218,219,220,221,222,223};
-  for(int i=0;i<14;++i)tpcPadResponse->SelectSector(ids[i]);
+//unsigned int ids[14]={0,1,2,3,4,5,6,217,218,219,220,221,222,223};
+//for(int i=0;i<14;++i)tpcPadResponse->SelectSector(ids[i]);
 
   fRun->AddTask(tpcPadResponse);
 
+  PndTpcEvtTimeGenTask* evttimegen = new PndTpcEvtTimeGenTask();
+  evttimegen->SetPersistence();
+  evttimegen->SetEvtRate(1E7);
+  evttimegen->SetT0(-evttimegen->MeanEvtSpacing()*0.5*nevents);
 
+fRun->AddTask(evttimegen);
 
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();

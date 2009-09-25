@@ -14,7 +14,7 @@
 #include "sstream"
 #include "tpc/PndTpcDigiAge.h"
 
-void plotDigis(TString datafile, TString padplane, TString padshapes, bool movie=false){
+void plotDigis(TTree* t, TString padplane, TString padshapes, bool movie=false){
 
   gStyle->SetFillColor(kWhite);
 
@@ -40,10 +40,10 @@ void plotDigis(TString datafile, TString padplane, TString padshapes, bool movie
   PndTpcDigiMapper::getInstance(false)->init(_padPlane,_gem,_gas,-40,-60000,40);
   
 
-  TFile* file = new TFile(datafile);
+  //TFile* file = new TFile(datafile);
   //TGeoManager *geoMan = (TGeoManager*) file->Get("FAIRGeom");
   
-  TTree *t=(TTree*)file->Get("cbmsim") ;
+  //TTree *t=(TTree*)file->Get("cbmsim") ;
   
   TClonesArray *sa=new TClonesArray("PndTpcDigi");
   t->SetBranchAddress("PndTpcDigi",&sa);
@@ -51,7 +51,7 @@ void plotDigis(TString datafile, TString padplane, TString padshapes, bool movie
   TH2D* ma=new TH2D("map","Hit pads",420,0,42,200,-42,42);
   TH2D* mz=new TH2D("mapz","hmapz",200,-50,150,100,0,42);
 
-  for (Int_t j=0; j< t->GetEntriesFast(); j++)	{
+  for (Int_t j=0; j< t->GetEntries(); j++)	{
     t->GetEntry(j);
     for (Int_t i=0; i<sa->GetEntriesFast(); i++)	{
       PndTpcDigi *sig=(PndTpcDigi*)sa->At(i);
@@ -64,8 +64,8 @@ void plotDigis(TString datafile, TString padplane, TString padshapes, bool movie
     }
   }
 
- mz->SetDrawOption("BOX");
- mz->Draw();
+ ma->SetDrawOption("BOX");
+ ma->Draw();
  
 
   if(movie){
@@ -80,7 +80,7 @@ void plotDigis(TString datafile, TString padplane, TString padshapes, bool movie
   t->GetEntry(0);
 
   std::vector<PndTpcDigi*> vd;
-  Int_t ndig=sa->GetEntriesFast();
+  Int_t ndig=sa->GetEntries();
   for (Int_t i=0; i<ndig; ++i){
     PndTpcDigi *sig=(PndTpcDigi*)sa->At(i);
     vd.push_back(sig);

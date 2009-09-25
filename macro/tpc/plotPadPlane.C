@@ -71,5 +71,18 @@ void plotPadPlane(TString padshapes, TString padplane, bool drawlinks=false){
   c->Update();
   c->Draw();
 
+  cout << "Sectors for x>0:" << endl;
+  std::vector<unsigned int> sectors=_padPlane->GetSectorIds();
+  unsigned int ns=sectors.size();
+  unsigned int nselected=0;
+  for(unsigned int is=0;is<ns;++is){
+    PndTpcPadPlane::bounding_box bx=_padPlane->GetSector(sectors[is]);
+    if(bx.minx>0){
+      cout << "," << is;
+      ++nselected;
+    }
+  }
+  cout << endl << nselected << " out of " << ns << " sectors." << endl;
+
   c->SaveAs("padplane.eps");
 }
