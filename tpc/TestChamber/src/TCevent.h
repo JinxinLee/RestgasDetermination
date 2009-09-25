@@ -27,7 +27,15 @@ class TCevent : public TObject{
   TCtrack* getTrack(int i) {return tracks.at(i);};
   TCcluster getCluster(int i) {return clusters.at(i);};
 
+  int getEventNumber(){
+    return eventNumber;
+  }
+  void setEventNumber(int number){
+    eventNumber=number;
+  }
+
  private:
+  int eventNumber;
   TCevent& operator=(const TCevent&){throw;};//dont need this!
   std::vector<TCtrack*> tracks;
   std::vector<TCcluster> clusters;

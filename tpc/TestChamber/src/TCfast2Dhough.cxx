@@ -68,15 +68,24 @@ void TCfast2DHough::make(std::vector<TCcluster>& _c){
   } 
   int BIN_m=500;
   int BIN_t=500;
-  
-  static TRandom r1(0);
-  char buf[20];
-  sprintf(buf,"houghspace%f",r1.Uniform());
+    char buf[50];
+    char bufName[50];
+    if(yp.x()==-1&&zp.z()==1){
+      sprintf(buf,"houghspaceXZ");
+      sprintf(bufName,"Hough Space XZ");
+    }else if(yp.y()==1&&zp.z()==1){
+      sprintf(buf,"houghspaceYZ");
+      sprintf(bufName,"Hough Space YZ");
+    }else{
+      static TRandom r(0);
+      sprintf(buf,"houghspace%f",r.Uniform());
+      sprintf(bufName,"Hough Space%f",r.Uniform());
+    }
   if(houghSpace==NULL){
     if(debug){
       cout<<"houghSpace created"<<endl;
     }
-    houghSpace = new TH2D(buf, buf, 
+    houghSpace = new TH2D(buf, bufName, 
 			  BIN_m, m_Min, m_Max, BIN_t, t_Min, t_Max);
   }
   
@@ -84,9 +93,18 @@ void TCfast2DHough::make(std::vector<TCcluster>& _c){
   float tBinWidth = (t_Max - t_Min)/BIN_t;
   
   for(unsigned int m=0; m<ypHit.size(); ++m) {
-    
+    char buf[50];
+    char bufName[50];
     float y = ypHit.at(m);
     float z = zpHit.at(m);
+    sprintf(buf,"%f-%f*x",y,z);
+    sprintf(bufName,"copy%f-%f*x",y,z);
+    cout<<"m_Min"<<m_Min<<endl;
+    houghLines.push_back(new TF1(bufName,buf,m_Min,m_Max));
+    //	  houghLinesYZ[i]->SetLineColor(kBlue);
+    houghLines.back()->SetLineStyle(1);
+    houghLines.back()->SetLineWidth(1);
+    /*
     for(int t=0; t<BIN_t; ++t) {
       float T = (t+0.5)*tBinWidth + t_Min;
       float M = (T-y) / (z*(-1.));
@@ -98,6 +116,7 @@ void TCfast2DHough::make(std::vector<TCcluster>& _c){
 	cout<<"clIn "<<m<<" m "<<M<<" t "<<T<<endl;
       }
     }
+    */
   }
   doHough();
 }
@@ -262,7 +281,7 @@ void TCfast2DHough::doHough(){
  
 
 
-
+   
    maxVote=-1;
   Hough2DNode* maxNode=NULL;
   for(std::vector<Hough2DNode*>::iterator it=parent_list.begin();it!=parent_list.end();++it){
@@ -402,12 +421,19 @@ void TCfast2DHough::draw(bool stop,int _x,int _y,int _w,int _h,TCevent* mcTruth)
     boxlist.push_back(new TBox(x1,y1,x2,y2));
   }
   gStyle->SetPalette(1);
+  houghSpace->SetStats(kFALSE);
   houghSpace->Draw();
+  for(unsigned int h=0;h<ypHit.size();++h){
+    houghLines.at(h)->Draw("same");
+  }
   for(unsigned int b=0; b<boxlist.size(); ++b) {
     (boxlist[b])->SetLineColor(kPink+10);
     (boxlist[b])->SetFillStyle(0);
+    (boxlist[b])->SetLineWidth(2);
     (boxlist[b])->Draw("l");
   }
+  houghSpace->GetXaxis()->SetTitle("m");
+  houghSpace->GetYaxis()->SetTitle("t (cm)");
   canv->Modified();
   canv->Update();
   if(stop){
@@ -434,6 +460,10 @@ TCfast2DHough::~TCfast2DHough(){
     delete (boxlist.at(i));
   }
   boxlist.clear();
+  for(unsigned int i=0;i<houghLines.size();++i){
+    delete houghLines.at(i);
+  }
+  houghLines.clear();
 }
 void TCfast2DHough::convert(std::vector<TCcluster>& _c){
   TVector3 xp=yp.Cross(zp);
@@ -511,6 +541,11 @@ void TCfast2DHough::clear(){
   for(unsigned int i=0;i<boxlist.size();++i){
     delete (boxlist.at(i));
   }
+
+  for(unsigned int i=0;i<houghLines.size();++i){
+    delete (houghLines.at(i));
+  }
+  houghLines.clear();
   boxlist.clear();
   hyperplanes.clear();
   solution_list.clear();//content deleted with node_list

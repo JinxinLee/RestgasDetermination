@@ -30,13 +30,13 @@ class TCfast2DHough : public TCabsHough{
       return false;
     }
   } //not valid
+  int getMaxVote(){return maxVote;}
   int getNmax(){
     return solution_list.size();
   }
   void setDebug(bool debug_=true){
     debug=debug_;
   }
-  int getMaxVote(){return maxVote;}
   void draw(bool stop=true,int _x=50,int _y=50,
 	    int _w=600,int _h=600,TCevent* mcTruth= NULL);
   virtual void make(std::vector<TCcluster>& _c);
@@ -45,6 +45,7 @@ class TCfast2DHough : public TCabsHough{
   bool debug;
   std::vector<TBox*> boxlist;
   std::vector<Hyperplane2D*> hyperplanes;
+  std::vector<TF1*> houghLines;
   std::vector<bool> solution_list;
   std::vector<Hough2DNode*> solution_node_list;
   std::vector<Hough2DNode*> node_list;
@@ -59,5 +60,6 @@ class TCfast2DHough : public TCabsHough{
   int TREE_DEPTH;  //number of space divisions
   int THRESHOLD;
   int maxVote;
+
 };
 #endif
