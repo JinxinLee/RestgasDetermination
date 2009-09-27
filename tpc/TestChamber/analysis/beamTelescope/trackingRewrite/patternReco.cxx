@@ -12,6 +12,7 @@
 #include <TRandom3.h>
 #include <TSystem.h>
 #include <TROOT.h>
+#include <TAxis.h>
 //TestChamber includes
 
 #include "TCcluster.h"
@@ -55,6 +56,7 @@ int main(int argc,char **argv){
     throw;
   }
   TApplication theApp("theApp",NULL,NULL);
+  gROOT->SetStyle("Plain");
   //reading configFile
   TCanvas * c=NULL;
   string infilePath;
@@ -129,7 +131,7 @@ int main(int argc,char **argv){
   TCalign* a = TCalign::getInstance(alignmentFilePath);
   a->clear();
   a->read(alignmentFilePath);
-
+  int nTracks2=0;
   for(int i_ev=0;i_ev<nEvents;i_ev++) {
     inTree->GetEntry(i_ev);
     if(controlC){ 
@@ -137,12 +139,16 @@ int main(int argc,char **argv){
       break;
     }
     if(i_ev%250==0){
-      cout<<i_ev<<" n clusters "<<totClusters<<endl;
-    }else if(debug&&i_ev%1){
-      cout<<endl<<endl<<endl<<endl<<endl<<endl<<endl<<i_ev<<" n clusters "<<totClusters<<endl;
+      cout<<i_ev<<" n clusters "<<totClusters<<" nTracks "<<nTracks2<<" ____ ";
+    }else if((disp||debug)){
+      cout<<endl<<endl<<endl<<endl<<endl<<endl<<endl<<i_ev<<" n clusters "<<totClusters<<"********************************************************************************************************"<<endl;
+    }
+    if(i_ev%1000==0){
+      cout<<endl;
     }
     outEvent->clear();
-    
+    //    cout<<inEvent->getEventNumber()<<endl;
+    outEvent->setEventNumber(inEvent->getEventNumber());
     TGraph* x_event =new TGraph();
     TGraph* y_event =new TGraph();
     
@@ -175,7 +181,7 @@ int main(int argc,char **argv){
     vector<TCcluster> outClusters;
     vector<TCtrack*> outTracks;
     if(disp){
-      cout<<"nclusters "<<inEvent->nClusters()<<endl;
+      cout<<"nclusters "<<inEvent->nClusters()<<" tracks "<<nTracks2<<endl;
     }
     for(unsigned int iCl=0;iCl<inEvent->nClusters();++iCl) {
       TCcluster cl=inEvent->getCluster(iCl);
@@ -194,6 +200,7 @@ int main(int argc,char **argv){
 	if(disp)
 	  cout<<"z "<<cl.posXYZ().z()<<"   x "<<cl.posXYZ().x()<<endl;
       }
+
       if(maxAmp){
 	switch(detID){
 	case 1:
@@ -202,7 +209,7 @@ int main(int argc,char **argv){
 	    maxPosGM1x=iCl;
 	  }
 	  break;
-	case 2:
+        case 2:
 	  if(cl.getAmp()>maxAmpGM1y){
 	    maxAmpGM1y=cl.getAmp();
 	    maxPosGM1y=iCl;
@@ -250,53 +257,68 @@ int main(int argc,char **argv){
       }
     }
     if(maxAmp){
+      int xmax=0;
+      int ymax=0;
       vector<TCcluster> clTrack;
       if(maxPosGM1x>-1){
 	inEvent->getCluster(maxPosGM1x).setFit();
 	clTrack.push_back(inEvent->getCluster(maxPosGM1x));
 	++totClusters;
+        ++xmax;
       }
       if(maxPosGM1y>-1){
 	inEvent->getCluster(maxPosGM1y).setFit();
 	clTrack.push_back(inEvent->getCluster(maxPosGM1y));
 	++totClusters;
+        ++ymax;
       }
       if(maxPosSI1x>-1){
 	inEvent->getCluster(maxPosSI1x).setFit();
 	clTrack.push_back(inEvent->getCluster(maxPosSI1x));
 	++totClusters;
+        ++xmax;
       }
       if(maxPosSI1y>-1){
-	inEvent->getCluster(maxPosSI1y).setFit();
+        inEvent->getCluster(maxPosSI1y).setFit();
 	clTrack.push_back(inEvent->getCluster(maxPosSI1y));
 	++totClusters;
+        ++ymax;
       }
       if(maxPosSI2x>-1){
 	inEvent->getCluster(maxPosSI2x).setFit();
 	clTrack.push_back(inEvent->getCluster(maxPosSI2x));
 	++totClusters;
+        ++xmax;
       }
       if(maxPosSI2y>-1){
 	inEvent->getCluster(maxPosSI2y).setFit();
 	clTrack.push_back(inEvent->getCluster(maxPosSI2y));
 	++totClusters;
+        ++ymax;
       }
       if(maxPosGM2x>-1){
 	inEvent->getCluster(maxPosGM2x).setFit();
 	clTrack.push_back(inEvent->getCluster(maxPosGM2x));
 	++totClusters;
+        ++xmax;
       }
       if(maxPosGM2y>-1){
 	inEvent->getCluster(maxPosGM2y).setFit();
 	clTrack.push_back(inEvent->getCluster(maxPosGM2y));
 	++totClusters;
+        ++ymax;
       }
-      outTracks.push_back(new TCtrack());
-      for(unsigned int i=0;i<clTrack.size();++i){
-	clTrack.at(i).setFit();
+      if(xmax>3&&ymax>3){
+        outTracks.push_back(new TCtrack());
+        for(unsigned int i=0;i<clTrack.size();++i){
+          clTrack.at(i).setFit();
+        }
+        (outTracks.back())->addClusters(clTrack);
+        //cout<<outTracks.back()->nClFit()<<endl;
+        // cout<<xmax<<" , "<<ymax<<endl;
+      }else{
+        //        cout<<"bla"<<endl;
       }
-      (outTracks.back())->addClusters(clTrack);
-      //cout<<outTracks.back()->nClFit()<<endl;
     }
     if(disp){
       cout<<"xClusters "<<x_clusters.size()<<endl;
@@ -331,10 +353,24 @@ int main(int argc,char **argv){
 	cout<<endl<<endl<<endl<<"hough YZ  on "<<y_count<<" clusters*******************************************************"<<endl;
       }
       houghYZ->make(y_clusters);
-      if(houghXZ->getNmax()>0&&houghYZ->getNmax()>0){
-	int x_n=0;
-	int y_n=0;
-	for(unsigned int i=0;i<x_clusters.size();++i){
+   
+      int yDet=0;
+      int xDet=0;
+      int n1 =0;
+      int n2 =0;
+      int n3 =0;
+      int n4 =0;
+      int n5 =0;
+      int n6 =0;
+      int n7 =0;
+      int n8 =0;
+      if(disp){
+        cout<<"before hough selection"<<endl;
+      }
+      if(houghXZ->getNmax()>0&&houghYZ->getNmax()>0&&houghXZ->getMaxVote()>2&&houghYZ->getMaxVote()>2){
+        int x_n=0;
+        int y_n=0;
+        for(unsigned int i=0;i<x_clusters.size();++i){
 	  if(houghXZ->hot(i)){
 	    double ztmp=0;
 	    double xtmp=0;
@@ -381,10 +417,107 @@ int main(int argc,char **argv){
 	}
 	
 	(outTracks.back())->addClusters(clTrack);
+        
+
+      
+        bool a1 =false;
+        bool a2 =false;
+        bool a3 =false;
+        bool a4 =false;
+        bool a5 =false;
+        bool a6 =false;
+        bool a7 =false;
+        bool a8 =false;
+
+  
+
+        //cout<<endl;
+        for(unsigned int j=0;j<outTracks.back()->nCl();j++){
+          int id = outTracks.back()->getCl(j).getId();
+          if(!outTracks.back()->getCl(j).getFit()){
+            continue;
+          }
+          
+          if(!a1&&id==1){
+            xDet++;
+            //cout<<" a1 ";
+            a1=true;
+          }
+          if(!a2&&id==2){
+            yDet++;
+            a2=true;
+            //cout<<" a2 ";
+          }
+          if(!a3&&id==3){
+            xDet++;
+            a3=true;
+            //cout<<" a3 ";
+          }
+          if(!a4&&id==4){
+            yDet++;
+            a4=true;
+            //cout<<" a4 ";
+          }
+          if(!a5&&id==5){
+            xDet++;
+            a5=true;
+            //cout<<" a5 ";
+          }
+          if(!a6&&id==6){
+            yDet++;
+            a6=true;
+            //cout<<" a6 ";
+          }
+          if(!a7&&id==7){
+            xDet++;
+            a7=true;
+            //cout<<" a7 ";
+          }
+          if(!a8&&id==8){
+            yDet++;
+            a8=true;
+            //cout<<" a8 ";
+          }   
+
+       
+          if(id==1){
+            n1++;
+          }
+          if(id==2){
+            n2++;
+                    }
+          if(id==3){
+            n3++;
+          }
+          if(id==4){
+            n4++;
+          }
+          if(id==5){
+            n5++;
+          }
+          if(id==6){
+            n6++;
+          }
+          if(id==7){
+            n7++;
+          }
+          if(id==8){
+            n8++;
+          }
+        }
+        //cout<<endl;
+        //cout<<"nDetx "<<xDet<<endl;
+        //cout<<"nDety "<<yDet<<endl;
       }
-      if(y_n>2&&x_n>2){
+      
+      //cout<<"nDetx "<<xDet<<endl;
+      //cout<<"nDety "<<yDet<<endl;
+      if(yDet<4||xDet<4||n1>1||n2>1||n3>1||n4>1||n5>1||n6>1||n7>1||n8>1){
+        //cout<<"outTrack deleted"<<endl;
 	delete outTracks.back();
 	outTracks.clear();
+      }else{
+	houghdone=true;
       }
     }
     if(disp){
@@ -404,15 +537,13 @@ int main(int argc,char **argv){
       c->Divide(2,1);
       (c->cd(1))->Clear();
 
-      
-      
       if(x_SelEvent->GetN()>0){
 	x_SelEvent->SetMarkerColor(3);
 	x_SelEvent->SetMarkerSize(1);
 	cout<<"drawing selected x clusters "<<x_SelEvent->GetN()<<endl;
 	x_event->Draw("AP*");	
 	x_SelEvent->Draw("*SAME");
-	for(unsigned int bla=0;bla<x_SelEvent->GetN();++bla){
+	for(int bla=0;bla<x_SelEvent->GetN();++bla){
 	  double ztmp=0;
 	  double xtmp=0;
 	  x_SelEvent->GetPoint(bla,  
@@ -420,7 +551,7 @@ int main(int argc,char **argv){
 			       xtmp);
 	  cout<<ztmp<<", "<<xtmp<<endl;
 	}
-	
+
       }else{
 	x_event->Draw("AP*");
       }
@@ -435,7 +566,7 @@ int main(int argc,char **argv){
 	y_event->Draw("AP*");	
 	y_SelEvent->Draw("*SAME");
 	cout<<"drawing selected y clusters "<<y_SelEvent->GetN()<<endl;
-	for(unsigned int bla=0;bla<y_SelEvent->GetN();++bla){
+	for(int bla=0;bla<y_SelEvent->GetN();++bla){
 	  double ztmp=0;
 	  double ytmp=0;
 	  y_SelEvent->GetPoint(bla,  
@@ -443,13 +574,18 @@ int main(int argc,char **argv){
 			       ytmp);
 	  cout<<ztmp<<", "<<ytmp<<endl;
 	}
-
       }else{
 	y_event->Draw("AP*");     
+
       }
       
       
-
+      x_event->GetXaxis()->SetTitle("z (cm)");
+      x_event->GetYaxis()->SetTitle("x (cm)");
+      y_event->GetXaxis()->SetTitle("z (cm)");
+      y_event->GetYaxis()->SetTitle("y (cm)");
+	
+          
       gApplication->SetReturnFromRun(kTRUE);
       gSystem->Run();
       gROOT->Reset();
@@ -458,8 +594,10 @@ int main(int argc,char **argv){
     }
     for(unsigned int i = 0; i<outTracks.size();++i){
       outEvent->addTrack(outTracks.at(i));
+      nTracks2++;
     }
     if(outTracks.size()>0){
+      outEvent->addClusters(outClusters);
       eventTreeOut->Fill();
     }
     delete x_event;
