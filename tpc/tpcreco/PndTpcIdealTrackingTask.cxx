@@ -58,7 +58,7 @@ ClassImp(PndTpcIdealTrackingTask)
 PndTpcIdealTrackingTask::PndTpcIdealTrackingTask()
   : FairTask("PndTpc Ideal Pattern Reco"),
     _persistence(kFALSE),_useGeane(kFALSE),_geanePro(NULL), 
-    _useDistSorting(kFALSE)
+  _useDistSorting(kFALSE), _secondarySuppression(kFALSE)
 {
   myrandom.SetSeed(1);
   _clusterBranchName = "PndTpcCluster";
@@ -137,12 +137,6 @@ PndTpcIdealTrackingTask::Exec(Option_t* opt)
     std::cout<<"\n **** using DISTANCE presorting of PndTpcClusters ****"<<std::endl;
     int errcount=0;
     double mag=0;
-    for(int i=0; i<cll.size(); i++)
-      if (((cll[i])->pos()).Mag() < mag)
-	errcount++;
-    if (errcount>0) //debug
-      std::cout<<"\n      WARNING: SORTING NOT RIGHT ! ! ! ! ("
-	       <<errcount<<" errors)"<<std::endl;
   }
   else
     std::sort(cll.begin(),cll.end(),PndTpcClusterZ(false)); 
@@ -152,6 +146,11 @@ PndTpcIdealTrackingTask::Exec(Option_t* opt)
   for(unsigned int i=0;i<n;i++){ // loop over clusters   
     PndTpcCluster* cl=cll[i];
     int trackid=cl->mcId().DominantID().mctrackID();
+    
+    if(_secondarySuppression)
+      if(trackid!=0)
+	continue;
+    
     TrackCand* cand=candlist[trackid];
     if(cand==NULL){
       cand=new TrackCand();

@@ -22,7 +22,7 @@
 #include <cmath>
 // C/C++ Headers ----------------------
 #include <iostream>
-#include <assert.h>
+#include <assert.h> 
 
 // Collaborating Class Headers --------
 #include "FairRootManager.h"
@@ -66,7 +66,7 @@
 PndTpcdEdxTask::PndTpcdEdxTask()
   : FairTask("dE/dx Task"), _persistence(kFALSE), _DX(1.)
 {
-  _trackBranchName = "Track_out";
+  _trackBranchName = "TrackPostFit";
 }
 
 
@@ -79,7 +79,7 @@ PndTpcdEdxTask::Init()
 {
   //Get ROOT Manager
   FairRootManager* ioman= FairRootManager::Instance();
-
+  
   if(ioman==0)
     {
       Error("PndTpcdEdxTask::Init","RootManager not instantiated!");
@@ -88,13 +88,14 @@ PndTpcdEdxTask::Init()
   
   // Get input collection
   _trackArray=(TClonesArray*) ioman->GetObject(_trackBranchName);
-   
+  
+  
   if(_trackArray==0)
     {
       Error("PndTpcdEdxTask::Init","track-array not found!");
       return kERROR;
     }
-   
+
   _mcTrackArray=(TClonesArray*) ioman->GetObject("MCTrack");
   
   if(_mcTrackArray==0)
@@ -134,7 +135,7 @@ PndTpcdEdxTask::Init()
   // setup histograms
   _distHist=new TH1D("distHist","Stepping lentghs",500,-3.,3.);
   _dirHist=new TH1D("dirHist","direction abundances",10,-2.,2.);
-  
+ 
   return kSUCCESS;
 }
 
@@ -164,7 +165,6 @@ PndTpcdEdxTask::SetParContainers() {
 void
 PndTpcdEdxTask::Exec(Option_t* opt)
 {
-  std::cout<<"PndTpcdEdxTask::Exec"<<std::endl;
   _dEdxOutArray->Delete();
   _dEdxMCOutArray->Delete();
   
@@ -181,12 +181,12 @@ PndTpcdEdxTask::Exec(Option_t* opt)
     return;
 
   for(Int_t itr=0;itr<ntracks;++itr){
-    std::cout<<"starting track"<<itr<<std::endl;
+    std::cout<<"PndTpcdEdxTask::Exec(): starting track "<<itr<<std::endl;
     Track* trk=(Track*)_trackArray->At(itr);
     std::cout<<"*** Number of clusters in track: "<<trk->getNumHits()<<" ***"<<std::endl;
     
     AbsTrackRep* absrep = trk->getCardinalRep();
-    
+     
     //check for GEANE trackrep
     if(dynamic_cast<GeaneTrackRep*>(absrep) == NULL) {
       std::cerr<<"WRONG trackrep! Need GEANE to process ... skipping track"<<std::endl;
