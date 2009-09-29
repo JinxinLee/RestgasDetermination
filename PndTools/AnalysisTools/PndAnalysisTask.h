@@ -1,5 +1,5 @@
-#ifndef PNDANALYSIS_H
-#define PNDANALYSIS_H 1
+#ifndef PNDANALYSISTASK_H
+#define PNDANALYSISTASK_H 1
 
 
 #include "FairTask.h"
@@ -18,18 +18,18 @@ class TPidMassSelector;
 class TPidSimpleKaonSelector;
 class TPidSimplePionSelector;
 
-class PndAnalysis : public FairTask
+class PndAnalysisTask : public FairTask
 {
 
  public:
 	typedef std::map<Int_t, Float_t> mapper;
 
   /** Default constructor **/  
-  PndAnalysis();
+  PndAnalysisTask();
 
 
   /** Destructor **/
-  ~PndAnalysis();
+  ~PndAnalysisTask();
 
 
   /** Virtual method Init **/
@@ -85,7 +85,7 @@ class PndAnalysis : public FairTask
 	virtual void SetParContainers();
 
  
-  ClassDef(PndAnalysis,1);
+  ClassDef(PndAnalysisTask,1);
   
 };
 

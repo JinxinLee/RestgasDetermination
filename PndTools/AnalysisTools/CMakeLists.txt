@@ -20,6 +20,7 @@ ${CMAKE_SOURCE_DIR}/fsim
 ${CMAKE_SOURCE_DIR}/rho
 ${CMAKE_SOURCE_DIR}/rho/RhoBase
 ${CMAKE_SOURCE_DIR}/rho/RhoTools
+${CMAKE_SOURCE_DIR}/rho/RhoSelector
 ${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools
 ${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools/Fitter
 ${CMAKE_SOURCE_DIR}/genfit
@@ -43,6 +44,9 @@ PndMicroCandidate.cxx
 PndEventInfo.cxx
 PndEventReader.cxx
 PndPidListMaker.cxx
+PndAnalysis.cxx
+PndSimpleAnalysis.cxx
+PndAnalysisTask.cxx
 Fitter/PndVtxFitterParticle.cxx
 Fitter/PndVtxFitter_Init.cxx
 Fitter/PndVtxFitterError.cxx

@@ -4,8 +4,6 @@
 #pragma link off all classes;
 #pragma link off all functions;
  
-//#pragma link C++ class  PndAnalysis+;
-#pragma link C++ class  PndMicroWriter+;
 
 //#pragma link C++ class  vector<double>;
 
@@ -17,8 +15,12 @@
 #pragma link C++ class PndMassFitter;
 #pragma link C++ class Pnd4CFitter;
 #pragma link C++ class PndVtxFitterParticle;
-#pragma link C++ class PndEventReader;
+#pragma link C++ class PndMicroWriter+;
+#pragma link C++ class PndEventReader+;
 #pragma link C++ class PndPidListMaker;
+#pragma link C++ class PndAnalysis+;
+#pragma link C++ class PndSimpleAnalysis+;
+#pragma link C++ class PndAnalysisTask+;
 
 
 

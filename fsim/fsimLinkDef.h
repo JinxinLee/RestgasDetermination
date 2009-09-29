@@ -5,8 +5,8 @@
 #pragma link off all functions;
  
 #pragma link C++ class  PndFastSim+;
-#pragma link C++ class  PndSimpleAnalysis+;
-#pragma link C++ class  PndAnalysis+;
+//#pragma link C++ class  PndSimpleAnalysis+;
+//#pragma link C++ class  PndAnalysis+;
 #pragma link C++ class  PndListProvider+;
 #pragma link C++ class  PndListDefiner+;
 //#pragma link C++ class  PndEventLoop+;

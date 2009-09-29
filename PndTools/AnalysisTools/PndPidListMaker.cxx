@@ -106,7 +106,7 @@ bool PndPidListMaker::FillList(TCandList &l, std::string listkey)
 	int ctype=(i%12)/3;			// criterion: 0=veryLoose,..., 3=veryTight	
 	int select_chrg=(i%3);		// select charge: 0=all, 1=plus, 2=minus
 
-	VAbsPidSelector *pidSel;
+	VAbsPidSelector *pidSel=NULL;
 	
 	if (select_chrg==1) 
 		l.Select(fBaseList,plusSel);
@@ -121,6 +121,7 @@ bool PndPidListMaker::FillList(TCandList &l, std::string listkey)
 	case 3: pidSel = kSel;  break;
 	case 4: pidSel = pSel;  break;
 	}
+  if (NULL==pidSel) return false;
 	
 	switch (ctype)
 	{

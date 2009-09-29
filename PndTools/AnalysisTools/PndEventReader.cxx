@@ -26,6 +26,9 @@ using std::endl;
 #include "PndEventInfo.h"
 
 
+ClassImp(PndEventReader)
+
+
 PndEventReader::PndEventReader(TChain *t) :
 	fEvtCount(0),
 	fChainEntries(0),

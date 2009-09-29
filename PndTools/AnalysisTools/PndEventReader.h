@@ -27,8 +27,8 @@ public:
 	
 	~PndEventReader();
 	
-	Int_t Add(TString fname) { Add(fname.Data());}
-	Int_t Add(std::string fname) { Add(fname.c_str());}
+	Int_t Add(TString fname) { return Add(fname.Data());}
+	Int_t Add(std::string fname) { return Add(fname.c_str());}
 	Int_t Add(const char* fname);
 	Int_t Add(TChain *chain);
 	

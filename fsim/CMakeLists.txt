@@ -52,8 +52,8 @@ PndFsmTof.cxx
 PndFsmSimpleTracker.cxx
 PndFsmCmpDet.cxx
 PndFsmRandom.cxx
-PndSimpleAnalysis.cxx
-PndAnalysis.cxx
+#PndSimpleAnalysis.cxx
+#PndAnalysis.cxx
 PndListProvider.cxx
 PndListDefiner.cxx
 #PndEventLoop.cxx
@@ -86,8 +86,8 @@ PndFsmTof.h
 PndFsmSimpleTracker.h
 PndFsmCmpDet.h
 PndFsmRandom.h
-PndSimpleAnalysis.h
-PndAnalysis.h
+#PndSimpleAnalysis.h
+#PndAnalysis.h
 PndListProvider.h
 PndListDefiner.h
 #PndEventLoop.h
