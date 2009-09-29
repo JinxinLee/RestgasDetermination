@@ -43,8 +43,8 @@ public:
 
 
   // Modifiers -----------------------
-  void SetSampleBranchName(const TString& name) {_sampleBranchName=name;}
-  void SetPersistence(Bool_t opt=kTRUE) {_persistence=opt;}
+  void SetSampleBranchName(const TString& name) {fsampleBranchName=name;}
+  void SetPersistence(Bool_t opt=kTRUE) {fpersistence=opt;}
   
 
   // Operations ----------------------
@@ -57,14 +57,14 @@ public:
 private:
 
   // Private Data Members ------------
-  TString _sampleBranchName;
-  TClonesArray* _sampleArray;
-  TClonesArray* _digiArray;
+  TString fsampleBranchName;
+  TClonesArray* fsampleArray;
+  TClonesArray* fdigiArray;
   
-  Bool_t _persistence;
+  Bool_t fpersistence;
  
-  PndTpcFrontend* _frontend;
-  PndTpcAbsPSAStrategy* _psa;
+  PndTpcFrontend* ffrontend;
+  PndTpcAbsPSAStrategy* fpsa;
 
   
 

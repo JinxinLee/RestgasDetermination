@@ -44,35 +44,35 @@ public:
   friend std::ostream& operator<< (std::ostream& s, const PndTpcSignal& me);
 
   // Accessors -----------------------
-  double t() const {return _t;}
-  double amp() const {return _amp;}
-  unsigned int padId() const {return _padId;}
+  double t() const {return ft;}
+  double amp() const {return famp;}
+  unsigned int padId() const {return fpadId;}
   unsigned int mcTrackId() const; 
   unsigned int mcHitId() const; 
-  unsigned int mcEventId() const {return _mcEventId;}
+  unsigned int mcEventId() const {return fmcEventId;}
   McId mcId() const {return McId(mcEventId(),mcTrackId());}
-  PndTpcAvalanche* mother() const {return _mother;}
+  PndTpcAvalanche* mother() const {return fmother;}
   
   // Modifiers -----------------------
-  void sett(const double t) {_t=t;}
-  void setamp(const double A) {_amp=A;}
-  void setpadId(const unsigned int PadID) {_padId=PadID;}
-  void setmcTrackId(const unsigned int ID) {_mcTrackId=ID;}
-  void setmcHitId(const unsigned int ID) {_mcHitId=ID;}
-  void setmcEventId(const unsigned int ID) {_mcEventId=ID;}
+  void sett(const double t) {ft=t;}
+  void setamp(const double A) {famp=A;}
+  void setpadId(const unsigned int PadID) {fpadId=PadID;}
+  void setmcTrackId(const unsigned int ID) {fmcTrackId=ID;}
+  void setmcHitId(const unsigned int ID) {fmcHitId=ID;}
+  void setmcEventId(const unsigned int ID) {fmcEventId=ID;}
  
   // Operations ----------------------
 
 private:
 
   // Private Data Members ------------
-  double _t;  // Start time
-  double _amp;  // Amplitude
-  unsigned int _padId;
-  unsigned int _mcTrackId;
-  unsigned int _mcHitId;
-  unsigned int _mcEventId;
-  PndTpcAvalanche* _mother;
+  double ft;  // Start time
+  double famp;  // Amplitude
+  unsigned int fpadId;
+  unsigned int fmcTrackId;
+  unsigned int fmcHitId;
+  unsigned int fmcEventId;
+  PndTpcAvalanche* fmother;
 
   // Private Methods -----------------
 

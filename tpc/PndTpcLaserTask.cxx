@@ -37,19 +37,19 @@
 PndTpcLaserTask::PndTpcLaserTask()
   : FairTask("TPC Laser")
 {
-  _laserList = new std::vector<PndTpcLaser*>;
-  _is_end = false;
+  flaserList = new std::vector<PndTpcLaser*>;
+  fis_end = false;
   addCounter = 0;
   NEcount = 0;
 }
 
 PndTpcLaserTask::~PndTpcLaserTask()
 {
-  for(unsigned int j=0;j<_laserList->size();j++)
-    delete (PndTpcLaser*)_laserList->at(j);
-  delete _laserList;
-  delete _currentLaser;
-  delete _laserArray;
+  for(unsigned int j=0;j<flaserList->size();j++)
+    delete (PndTpcLaser*)flaserList->at(j);
+  delete flaserList;
+  delete fcurrentLaser;
+  delete flaserArray;
 }
 
 InitStatus
@@ -64,23 +64,23 @@ PndTpcLaserTask::Init()
       return kERROR;
     }
   // Get input collection
-  _primArray=(TClonesArray*) ioman->GetObject("PndTpcPrimaryCluster");
+  fprimArray=(TClonesArray*) ioman->GetObject("PndTpcPrimaryCluster");
   
-  if(_primArray==0)
+  if(fprimArray==0)
     {
       Error("PndTpcLaserTask::Init","PrimaryElectron-array not found!");
       return kERROR;
     }
 
   //clear input array of any real "physical" hits
-  _primArray->Delete();
+  fprimArray->Delete();
 
    
   //read in parameters
-  _zMin=_par->getZGem();
-  _zMax=_par->getZMax();
-  _rMin=_par->getRMin();
-  _rMax=_par->getRMax();
+  fzMin=fpar->getZGem();
+  fzMax=fpar->getZMax();
+  frMin=fpar->getRMin();
+  frMax=fpar->getRMax();
   
   return kSUCCESS;
 }
@@ -101,8 +101,8 @@ PndTpcLaserTask::SetParContainers() {
   if ( ! db ) Fatal("SetParContainers", "No runtime database");
 
   // Get PndTpc digitisation parameter container
-  _par= (PndTpcDigiPar*) db->getContainer("PndTpcDigiPar");
-  if (! _par ) Fatal("SetParContainers", "PndTpcDigiPar not found");
+  fpar= (PndTpcDigiPar*) db->getContainer("PndTpcDigiPar");
+  if (! fpar ) Fatal("SetParContainers", "PndTpcDigiPar not found");
 }
 
 
@@ -110,19 +110,19 @@ PndTpcLaserTask::SetParContainers() {
 void
 PndTpcLaserTask::Exec(Option_t* opt)
 {
-  // _laserArray = new TClonesArray("PndTpcPrimaryCluster"); 
-  int size = _laserList->size(); //comes from "readFromFile()"
+  // flaserArray = new TClonesArray("PndTpcPrimaryCluster"); 
+  int size = flaserList->size(); //comes from "readFromFile()"
  
   for(int i=0;i<size;i++)
   {
-    _currentLaser = _laserList->at(i);
-    _currentLaser->activate();
-    _laserArray = _currentLaser->getTrack();
-    if(_currentLaser->getNE()>0)
+    fcurrentLaser = flaserList->at(i);
+    fcurrentLaser->activate();
+    flaserArray = fcurrentLaser->getTrack();
+    if(fcurrentLaser->getNE()>0)
       NEcount++;
-    Int_t nPrim = _primArray->GetEntriesFast();
-    Int_t nLaser = _laserArray->GetEntriesFast();
-    PndTpcPrimaryCluster* test = (PndTpcPrimaryCluster*) _primArray->At(0);
+    Int_t nPrim = fprimArray->GetEntriesFast();
+    Int_t nLaser = flaserArray->GetEntriesFast();
+    PndTpcPrimaryCluster* test = (PndTpcPrimaryCluster*) fprimArray->At(0);
     //unsigned int trackID = test->mcTrackId();
     //unsigned int hitID = test->mcHitId();
     if(nLaser>0)
@@ -130,18 +130,18 @@ PndTpcLaserTask::Exec(Option_t* opt)
     
     for(Int_t j=0; j<nLaser; j++)
     { 
-      PndTpcPrimaryCluster* cl=(PndTpcPrimaryCluster*) _laserArray->At(j);
+      PndTpcPrimaryCluster* cl=(PndTpcPrimaryCluster*) flaserArray->At(j);
          
       if(cl!=NULL){
 	TVector3 cl_pos = cl->pos();
-	if(cl_pos.Perp()<_rMin || cl_pos.Perp()>_rMax)
+	if(cl_pos.Perp()<frMin || cl_pos.Perp()>frMax)
 	  continue;
-	if(cl_pos.Z()<_zMin || cl_pos.Z()>_zMax)
+	if(cl_pos.Z()<fzMin || cl_pos.Z()>fzMax)
 	  continue;   
 	
-	//new((*_primArray)[_primArray->GetEntriesFast()]) PndTpcPrimaryCluster(cl->t(),cl->q(),
+	//new((*fprimArray)[fprimArray->GetEntriesFast()]) PndTpcPrimaryCluster(cl->t(),cl->q(),
 	//					 cl->pos(),trackID,hitID);
-	new((*_primArray)[_primArray->GetEntriesFast()]) PndTpcPrimaryCluster(cl->t(),cl->q(),
+	new((*fprimArray)[fprimArray->GetEntriesFast()]) PndTpcPrimaryCluster(cl->t(),cl->q(),
 							     cl->pos(),1,1);
       }
     }
@@ -162,20 +162,20 @@ PndTpcLaserTask::addLaser(double startX,double startY, double startZ,
 {
   TVector3 start = TVector3(startX, startY, startZ);
   TVector3 direction = TVector3(dirX, dirY, dirZ);
-  _laserList->push_back(new PndTpcLaser(start,direction,iondens,width,time,is_end));
+  flaserList->push_back(new PndTpcLaser(start,direction,iondens,width,time,is_end));
 }
 
 void
 PndTpcLaserTask::setLaserFile(const char* filename, bool quiet)
 {
-  _filename = filename;
+  ffilename = filename;
   readFromFile(quiet);
 }
 
 void
 PndTpcLaserTask::readFromFile(bool quiet) //ugly, needs a shapeup
 {
-  std::ifstream infile(_filename, std::fstream::in);
+  std::ifstream infile(ffilename, std::fstream::in);
   if (!infile.good()) 
   {
     Fatal("PndTpcLaserTask::readFromFile", "Laser-File not found!");
@@ -202,17 +202,17 @@ PndTpcLaserTask::readFromFile(bool quiet) //ugly, needs a shapeup
       char* marker = strchr(line,'!');
       if (marker != 0)
       {
-	strncpy(_dir_or_end, line+1,12);
-	if(strcmp(_dir_or_end,"direction")==0){
+	strncpy(fdir_or_end, line+1,12);
+	if(strcmp(fdir_or_end,"direction")==0){
 	  std::cout<<"\n\nPndTpcLaserTask::readFromFile : Found string after marker: "
-		   <<_dir_or_end<<std::endl;
+		   <<fdir_or_end<<std::endl;
 	  init=true;
 	  continue;
 	}
-	if(strcmp(_dir_or_end,"end")==0){
+	if(strcmp(fdir_or_end,"end")==0){
 	  std::cout<<"\n\nPndTpcLaserTask::readFromFile : Found string after marker: "
-		   <<_dir_or_end<<std::endl;
-	  _is_end=true;
+		   <<fdir_or_end<<std::endl;
+	  fis_end=true;
 	  init=true;
 	  continue;
 	}
@@ -221,12 +221,12 @@ PndTpcLaserTask::readFromFile(bool quiet) //ugly, needs a shapeup
     }//end of initialisation
 
     //the standard read-in
-    infile>>_startX>>_startY>>_startZ>>_dirX>>_dirY>>_dirZ>>_iondens>>_width
-	  >>_time;
-    PndTpcLaser* laser = new PndTpcLaser(TVector3(_startX,_startY,_startZ),
-				    TVector3(_dirX,_dirY,_dirZ),
-				    _iondens,_width,_time,_is_end);
-    _laserList->push_back(laser);
+    infile>>fstartX>>fstartY>>fstartZ>>fdirX>>fdirY>>fdirZ>>fiondens>>fwidth
+	  >>ftime;
+    PndTpcLaser* laser = new PndTpcLaser(TVector3(fstartX,fstartY,fstartZ),
+				    TVector3(fdirX,fdirY,fdirZ),
+				    fiondens,fwidth,ftime,fis_end);
+    flaserList->push_back(laser);
     if(!quiet){
       std::cout<<"\nAdded Laser:";
       laser->print();

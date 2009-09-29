@@ -25,11 +25,11 @@
 #include <iostream>
 #include <vector>
 
-#define _C1 0
-#define _C2 0
-#define _C3 0
-#define _C4 0
-#define _PULSEDELAYFACTOR 0.3
+#define fC1 0
+#define fC2 0
+#define fC3 0
+#define fC4 0
+#define fPULSEDELAYFACTOR 0.3
 
 using std::max;
 
@@ -39,8 +39,8 @@ using std::max;
 
 // Class Member definitions -----------
 PndTpcPSA_TOT1::PndTpcPSA_TOT1()
-  : PndTpcAbsPSAStrategy(), _currentPadID(0), _inprogress(false),
-  _amp(0),_t(0),_threshold(10)
+  : PndTpcAbsPSAStrategy(), fcurrentPadID(0), finprogress(false),
+  famp(0),ft(0),fthreshold(10)
 {}
 
 
@@ -72,10 +72,10 @@ void PndTpcPSA_TOT1::Process(const std::vector<PndTpcSample*> & samples,
   bool inpulse=false;
   std::vector<PndTpcSample*> samplesInPulse;
 
-  //  std::cout << __FILE__ << " " << __LINE__ << std::endl;
+  //  std::cout << _FILE__ << " " << f_LINE__ << std::endl;
 
   for(int i=0;i<samples.size();i++) {
-	//	std::cout << __FILE__ << " " << __LINE__ << std::endl;
+	//	std::cout << _FILE__ << " " << f_LINE__ << std::endl;
 
 	amp=samples[i]->amp();
 	if(i>2) {
@@ -85,7 +85,7 @@ void PndTpcPSA_TOT1::Process(const std::vector<PndTpcSample*> & samples,
 	  deriv_1=deriv_0;
 	}
 	if(i>0) {	//true for second sample
-	  //	  std::cout << __FILE__ << " " << __LINE__ << std::endl;
+	  //	  std::cout << _FILE__ << " " << _LINE__ << std::endl;
 	  prevamp=samples[i-1]->amp();
 	  deriv_0=amp-prevamp;
 	}
@@ -95,7 +95,7 @@ void PndTpcPSA_TOT1::Process(const std::vector<PndTpcSample*> & samples,
 	
 	///////////////////////////
 	if(!inpulse) {
-	  if(deriv_0>_C1 && deriv_1>=_C2 && amp>padThreshold) {//start new pulse	//false for first sample (deriv_0>_C1)
+	  if(deriv_0>fC1 && deriv_1>=fC2 && amp>padThreshold) {//start new pulse	//false for first sample (deriv_0>fC1)
 		inpulse = true;											//true for second sample, if first sample amp
 		mcid.ClearData();											//smaler second signal amp
 		//mcid.AddID(samples[i-2]->mcId());
@@ -107,7 +107,7 @@ void PndTpcPSA_TOT1::Process(const std::vector<PndTpcSample*> & samples,
 	  }
 	}
 	else {// in active pulse
-	  if((deriv_0>=_C3 && deriv_1<_C4) || amp<padThreshold) {//done with pulse
+	  if((deriv_0>=fC3 && deriv_1<fC4) || amp<padThreshold) {//done with pulse
 		inpulse=false;
 		double t0,A,length;
 		processPulse(samplesInPulse,t0,A,length);
@@ -117,7 +117,7 @@ void PndTpcPSA_TOT1::Process(const std::vector<PndTpcSample*> & samples,
 		digi->tlength(length);
 		digis.push_back(digi);
 
-		if(deriv_0>_C1 && amp>padThreshold) {//start new pulse
+		if(deriv_0>fC1 && amp>padThreshold) {//start new pulse
 		  inpulse = true;
 		  mcid.ClearData();
 		  //mcid.AddID(samples[i-2]->mcId());
@@ -146,28 +146,28 @@ void PndTpcPSA_TOT1::Process(const std::vector<PndTpcSample*> & samples,
 	unsigned int newPadID=samples[i]->padId();
 	unsigned int newamp=samples[i]->amp();
 
-	if(_inprogress){
-	  if(newPadID==_currentPadID && newamp>=_threshold){
-		if(newamp>_amp){
-		  _amp=newamp;
+	if(finprogress){
+	  if(newPadID==fcurrentPadID && newamp>=fthreshold){
+		if(newamp>famp){
+		  famp=newamp;
 		}
-		_mcid.AddID(samples[i]->mcId());
+		fmcid.AddID(samples[i]->mcId());
 	  }
 	  else{
-		PndTpcDigi* digi=new PndTpcDigi(_amp,_t,_currentPadID,_mcid);
-		_inprogress=false;
+		PndTpcDigi* digi=new PndTpcDigi(famp,ft,fcurrentPadID,fmcid);
+		finprogress=false;
 
 		digis.push_back(digi);
 	  }
 	}
-	else if(newamp>_threshold){ // start new pulse!
-	  _currentPadID=newPadID;
-	  _amp=newamp;
-	  _t=samples[i]->t();
-	  _mcid.ClearData();
-	  _mcid.AddID(samples[i]->mcId());
+	else if(newamp>fthreshold){ // start new pulse!
+	  fcurrentPadID=newPadID;
+	  famp=newamp;
+	  ft=samples[i]->t();
+	  fmcid.ClearData();
+	  fmcid.AddID(samples[i]->mcId());
 	  startIndex = i;
-	  _inprogress=true;
+	  finprogress=true;
 	}
 	
 	
@@ -183,7 +183,7 @@ void PndTpcPSA_TOT1::processPulse(std::vector<PndTpcSample*> samples,
 	A+=samples[i]->amp();
   }
   length=samples[samples.size()-1]->t()-samples[0]->t();
-  t0=samples[0]->t() + _PULSEDELAYFACTOR*length;
+  t0=samples[0]->t() + fPULSEDELAYFACTOR*length;
 
 }
 

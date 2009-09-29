@@ -45,8 +45,8 @@ public:
   friend std::ostream& operator<< (std::ostream& s, const McIdCollection& me);
 
   // Accessors -----------------------
-  unsigned int nIDs() const {return _MCIDs.size();}
-  const McId& ID(unsigned int i) const {return _MCIDs[i];}
+  unsigned int nIDs() const {return fMCIDs.size();}
+  const McId& ID(unsigned int i) const {return fMCIDs[i];}
 
   // Modifiers -----------------------
 
@@ -56,7 +56,7 @@ public:
   bool AddIDCollection(const McIdCollection& coll,double weight=1);
   // Operations ----------------------
 
-  void ClearData(){_MCIDs.clear();}
+  void ClearData(){fMCIDs.clear();}
   double Renormalize(); // renormalize weights
   double TotalWeight() const;
   double MaxRelWeight() const;
@@ -64,7 +64,7 @@ public:
 private:
 
   // Private Data Members ------------
-  std::vector<McId> _MCIDs;
+  std::vector<McId> fMCIDs;
   
   // Private Methods -----------------
 

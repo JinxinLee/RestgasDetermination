@@ -45,10 +45,10 @@ public:
   friend std::ostream& operator<< (std::ostream& s, const PndTpcSample& me);
 
   // Accessors -----------------------
-  int amp() const {return _amp;}
-  int t() const {return _t;}
-  unsigned int padId() const {return _padId;}
-  const McIdCollection& mcId() const {return _mcId;}
+  int amp() const {return famp;}
+  int t() const {return ft;}
+  unsigned int padId() const {return fpadId;}
+  const McIdCollection& mcId() const {return fmcId;}
 
   // Modifiers -----------------------
 
@@ -58,11 +58,11 @@ public:
 private:
 
   // Private Data Members ------------
-  int _amp;
-  int _t;
-  unsigned int _padId;
+  int famp;
+  int ft;
+  unsigned int fpadId;
 
-  McIdCollection _mcId;
+  McIdCollection fmcId;
   // Private Methods -----------------
 
 public:

@@ -47,19 +47,19 @@ public:
   friend std::ostream& operator<< (std::ostream& s, const PndTpcFrontend& me);
 
   // Accessors -----------------------
-  double adcThreshold() const {return _adcThreshold;}
-  double samplingFrequency() const {return 1000./_dt;}
-  double t0() const {return _t0;}
-  double dt() const {return _dt;}
-  double adcbits() const {return _adcbits;}
-  double adcmax() const {return _adcmax;}
-  double adcstep() const {return _adcstep;}
-  unsigned int psaThreshold() const {return _psaThreshold;}
-  double tdiff() const {return _tdiff;}
-  double tint() const {return _tint;}
-  double tsig() const {return _tsig;}
+  double adcThreshold() const {return fadcThreshold;}
+  double samplingFrequency() const {return 1000./fdt;}
+  double t0() const {return ft0;}
+  double dt() const {return fdt;}
+  double adcbits() const {return fadcbits;}
+  double adcmax() const {return fadcmax;}
+  double adcstep() const {return fadcstep;}
+  unsigned int psaThreshold() const {return fpsaThreshold;}
+  double tdiff() const {return ftdiff;}
+  double tint() const {return ftint;}
+  double tsig() const {return ftsig;}
   // Modifiers -----------------------
-  void setAdcThreshold(double newThreshold) { _adcThreshold=newThreshold;	} 
+  void setAdcThreshold(double newThreshold) { fadcThreshold=newThreshold;	} 
 
   // Operations ----------------------
   unsigned int Clock(double const t) const;
@@ -71,20 +71,20 @@ public:
 private:
 
   // Private Data Members ------------
-  double _adcThreshold;
-  double _adcmax;         // value at adc input which gives full count
-  int _adcbits;           // number of adc bits
-  double _adcstep;        // range between two adc counts
-  unsigned int _maxcounts;
-  double _dt;              // time between two samples
-  double _t0;
-  int _timebits;          // number of bits in timestamp
-  unsigned int _maxsamples;
-  unsigned int _psaThreshold;
+  double fadcThreshold;
+  double fadcmax;         // value at adc input which gives full count
+  int fadcbits;           // number of adc bits
+  double fadcstep;        // range between two adc counts
+  unsigned int fmaxcounts;
+  double fdt;              // time between two samples
+  double ft0;
+  int ftimebits;          // number of bits in timestamp
+  unsigned int fmaxsamples;
+  unsigned int fpsaThreshold;
   // preamp time constants
-  double _tint;
-  double _tdiff;
-  double _tsig;
+  double ftint;
+  double ftdiff;
+  double ftsig;
 
   // Private Methods -----------------
   // disallow

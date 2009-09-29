@@ -16,8 +16,8 @@
 PndTpcTestChamberOutputTask::PndTpcTestChamberOutputTask()
   : FairTask("TPC Cluster Finder"), outtree(NULL)
 {
-  _sampleBranchName = "PndTpcSample";
-  _filename = "dreggn.root";
+  fsampleBranchName = "PndTpcSample";
+  ffilename = "dreggn.root";
 }
 
 
@@ -44,9 +44,9 @@ PndTpcTestChamberOutputTask::Init()
     }
   
   // Get input collection
-  _sampleArray=(TClonesArray*) ioman->GetObject(_sampleBranchName);
+  fsampleArray=(TClonesArray*) ioman->GetObject(fsampleBranchName);
   
-  if(_sampleArray==0)
+  if(fsampleArray==0)
     {
       Error("PndTpcTestChamberOutputTask::Init","sample-array not found!");
       return kERROR;
@@ -63,7 +63,7 @@ PndTpcTestChamberOutputTask::Init()
 
 
 
-  outfile = TFile::Open(_filename,"RECREATE");
+  outfile = TFile::Open(ffilename,"RECREATE");
   
   outtree = new TTree("datatree_m","MC tree from PandaROOT");
   outtree->Branch("trigger",&outstruct.trigger,"trigger/i");
@@ -110,9 +110,9 @@ PndTpcTestChamberOutputTask::Exec(Option_t* opt)
 
     
 
-  Int_t nsamp=_sampleArray->GetEntriesFast();
+  Int_t nsamp=fsampleArray->GetEntriesFast();
   for(Int_t isamp=0;isamp<nsamp;++isamp){
-    PndTpcSample *s=(PndTpcSample*)_sampleArray->At(isamp);
+    PndTpcSample *s=(PndTpcSample*)fsampleArray->At(isamp);
     unsigned int padId = s->padId();
     int time = s->t();
     assert(time>=0);

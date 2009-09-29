@@ -46,8 +46,8 @@ public:
 
 
   // Modifiers -----------------------
-  void SetDigiBranchName(const TString& name) {_digiBranchName=name;}
-  void SetPersistence(Bool_t opt=kTRUE) {_persistence=opt;}
+  void SetDigiBranchName(const TString& name) {fdigiBranchName=name;}
+  void SetPersistence(Bool_t opt=kTRUE) {fpersistence=opt;}
   virtual void SetParContainers();
   
   // Operations ----------------------
@@ -61,23 +61,23 @@ public:
 private:
 
   // Private Data Members ------------
-  TString _digiBranchName;
-  TClonesArray* _digiArray;
+  TString fdigiBranchName;
+  TClonesArray* fdigiArray;
   
-  Bool_t _persistence;
+  Bool_t fpersistence;
  
-  PndTpcDigiPar* _par;
+  PndTpcDigiPar* fpar;
 
-  const PndTpcFrontend* _frontend;
-  PndTpcDigiMapper* _mapper;
+  const PndTpcFrontend* ffrontend;
+  PndTpcDigiMapper* fmapper;
 
-  TH1D* _hTimesOverThres;
-  TH2D* _hTimesXY;
-  TH2D* _hTimesR;
-  TH2D* _hDigiLengthR;
-  TH2D* _hDigiLengthXY;
-  TH1D* _hContOT;
-  TH2D* _hContOTR;
+  TH1D* fhTimesOverThres;
+  TH2D* fhTimesXY;
+  TH2D* fhTimesR;
+  TH2D* fhDigiLengthR;
+  TH2D* fhDigiLengthXY;
+  TH1D* fhContOT;
+  TH2D* fhContOTR;
 
   // Private Methods -----------------
 

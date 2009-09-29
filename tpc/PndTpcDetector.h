@@ -109,7 +109,7 @@ public:
   // the ALICE TPC MC
 
 
-  // __________________________________________________________________________________
+  // f_________________________________________________________________________________
   // found at http://www-aix.gsi.de/~miranov/AliRoot/roothtml/TPC/src/AliTPCv3.cxx.html
   Float_t AliTPCv3_InitDetector();
   Float_t AliTPCv3_BetheBloch(Float_t bg);

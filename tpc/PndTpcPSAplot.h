@@ -31,13 +31,13 @@ class PndTpcPSAplot {
   void Draw();
 
  private:
-  TGraph* _sampG;
-  TGraph* _digiG;
-  TLine** _digiLines;
-  int _nDigiLines;
-  TLine** _sigLines;
-  int _nSigLines;
-  std::string _name;
+  TGraph* fsampG;
+  TGraph* fdigiG;
+  TLine** fdigiLines;
+  int fnDigiLines;
+  TLine** fsigLines;
+  int fnSigLines;
+  std::string fname;
 };
 
 

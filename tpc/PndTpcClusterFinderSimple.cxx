@@ -17,7 +17,7 @@
 
 
 PndTpcPrelimCluster::PndTpcPrelimCluster(PndTpcPadPlane* p, double t, int id) :
-  _amp(0.), _cogT(-1.), _padplane(p), _timeslice(t), _id(id)
+  famp(0.), fcogT(-1.), fpadplane(p), ftimeslice(t), fid(id)
 {
 }
 
@@ -26,33 +26,33 @@ PndTpcPrelimCluster::~PndTpcPrelimCluster()
 }
 
 void PndTpcPrelimCluster::addHit(const PndTpcDigi& digi,bool noXclust) {
-  _digis.push_back(digi);
+  fdigis.push_back(digi);
   //  cog();
-  _cogT=0.;
-  _amp=0;
-  for(unsigned int i=0;i<_digis.size();++i) {
-	_cogT+=_digis.at(i).amp()*_digis.at(i).t();
-	_amp+=_digis.at(i).amp();
+  fcogT=0.;
+  famp=0;
+  for(unsigned int i=0;i<fdigis.size();++i) {
+	fcogT+=fdigis.at(i).amp()*fdigis.at(i).t();
+	famp+=fdigis.at(i).amp();
   }
-  _cogT*=1./_amp;
+  fcogT*=1./famp;
 
-  _possiblePads.insert(digi.padId());	
-  PndTpcPad* pad = _padplane->GetPad(digi.padId());
+  fpossiblePads.insert(digi.padId());	
+  PndTpcPad* pad = fpadplane->GetPad(digi.padId());
 
     for(unsigned int ineigh=0;ineigh<pad->nNeighbours();++ineigh){
-    PndTpcPad* neigh = _padplane->GetPad( pad->getNeighbour(ineigh) );
+    PndTpcPad* neigh = fpadplane->GetPad( pad->getNeighbour(ineigh) );
 
     bool useThisNeighbor=true;
     if(noXclust){
       if(fabs(pad->x()-neigh->x())>0.01) useThisNeighbor=false;//gt 0.1mm
     }
-    if(useThisNeighbor) _possiblePads.insert(pad->getNeighbour(ineigh));	
+    if(useThisNeighbor) fpossiblePads.insert(pad->getNeighbour(ineigh));	
   }
 
 }
 
 bool PndTpcPrelimCluster::isInTimeWindow(const PndTpcDigi* const digi){
-  if( fabs(digi->t() - _cogT) <= _timeslice ) {
+  if( fabs(digi->t() - fcogT) <= ftimeslice ) {
 	return true;
   }
   else {
@@ -63,7 +63,7 @@ bool PndTpcPrelimCluster::isInTimeWindow(const PndTpcDigi* const digi){
 bool PndTpcPrelimCluster::isInCluster(const PndTpcDigi* const digi) {
   int padID = digi->padId();
 
-  if(_possiblePads.count(padID) == 0) {
+  if(fpossiblePads.count(padID) == 0) {
 	return false;
   }
   else {
@@ -80,11 +80,11 @@ PndTpcCluster* PndTpcPrelimCluster::convPndTpcCluster(bool saveRaw) {
   std::set<int> nPadX;
   std::set<int> nPadY;
 
-  for(unsigned int i=0;i<_digis.size();++i){
-	nPad.insert(_digis.at(i).padId());
+  for(unsigned int i=0;i<fdigis.size();++i){
+	nPad.insert(fdigis.at(i).padId());
 
 	TVector3 tempPos;
-	PndTpcDigiMapper::getInstance()->map(&(_digis.at(i)),tempPos);
+	PndTpcDigiMapper::getInstance()->map(&(fdigis.at(i)),tempPos);
 	double tempD = tempPos.x() * 1000.;
 	int tempI = (int)tempD;
 	nPadX.insert(tempI);
@@ -93,14 +93,14 @@ PndTpcCluster* PndTpcPrelimCluster::convPndTpcCluster(bool saveRaw) {
 	nPadY.insert(tempI);
   }
 
-  PndTpcCluster* c = new PndTpcCluster(_pos,_err,_amp,_id,_digis.size());
+  PndTpcCluster* c = new PndTpcCluster(fpos,ferr,famp,fid,fdigis.size());
   c->nPad(nPad.size());
   c->nPadX(nPadX.size());
   c->nPadY(nPadY.size());
 
   if(saveRaw){//defined in PndTpcAbsClusterFinder.h and default false
-    for(unsigned int i=0;i<_digis.size();++i){
-      c->addDigi(_digis.at(i));
+    for(unsigned int i=0;i<fdigis.size();++i){
+      c->addDigi(fdigis.at(i));
     }
   }
 
@@ -109,14 +109,14 @@ PndTpcCluster* PndTpcPrelimCluster::convPndTpcCluster(bool saveRaw) {
 }
 
 void PndTpcPrelimCluster::cog(){
-  _pos.SetXYZ(0,0,0);
-  _amp=0;
-  _cogT=0.;
-  _err.SetXYZ(0,0,0);
+  fpos.SetXYZ(0,0,0);
+  famp=0;
+  fcogT=0.;
+  ferr.SetXYZ(0,0,0);
   McIdCollection mcid;
-  unsigned int ndigis=_digis.size();
+  unsigned int ndigis=fdigis.size();
   for(unsigned int id=0;id<ndigis;++id){
-	PndTpcDigi adigi=_digis[id];
+	PndTpcDigi adigi=fdigis[id];
 	mcid.AddIDCollection(adigi.mcId());
 	double a=(double)adigi.amp();
 	TVector3 thispos;
@@ -147,37 +147,37 @@ void PndTpcPrelimCluster::cog(){
 	double sigmaZ_sq = zDiff*zDiff/12. + diffSigmaL*diffSigmaL;
 	
 	TVector3 thissig(sigmaX_sq,sigmaY_sq,sigmaZ_sq);
-	_err+=a*a*thissig;
+	ferr+=a*a*thissig;
 	
-	_cogT+=a*adigi.t();
-	_pos+=a*thispos;
-	_amp+=a;
+	fcogT+=a*adigi.t();
+	fpos+=a*thispos;
+	famp+=a;
   }
-  _pos*=1./_amp;
+  fpos*=1./famp;
 
 #ifdef TESTCHAMBER
   for(unsigned int id=0;id<ndigis;++id){
-	PndTpcDigi adigi=_digis[id];
+	PndTpcDigi adigi=fdigis[id];
 	TVector3 thispos;
 	PndTpcDigiMapper::getInstance()->map(&adigi,thispos);
-	double _m,_s;
-	Pedestals::getPedestal(adigi.padId(),_m,_s);
-	double sigmaAi = _s;
-	TVector3 temp(pow(thispos.X()-_pos.X(),2.),
-				  pow(thispos.Y()-_pos.Y(),2.),
-				  pow(thispos.Z()-_pos.Z(),2.));
+	double fm,fs;
+	Pedestals::getPedestal(adigi.padId(),fm,fs);
+	double sigmaAi = fs;
+	TVector3 temp(pow(thispos.X()-fpos.X(),2.),
+				  pow(thispos.Y()-fpos.Y(),2.),
+				  pow(thispos.Z()-fpos.Z(),2.));
 	temp *= sigmaAi*sigmaAi;
-	_err += temp;
+	ferr += temp;
   }
 #endif
 
-  _cogT*=1./_amp;
-  _err.SetX(sqrt(_err.X())/_amp);
-  _err.SetY(sqrt(_err.Y())/_amp);
-  _err.SetZ(sqrt(_err.Z())/_amp);
+  fcogT*=1./famp;
+  ferr.SetX(sqrt(ferr.X())/famp);
+  ferr.SetY(sqrt(ferr.Y())/famp);
+  ferr.SetZ(sqrt(ferr.Z())/famp);
   
-  //  PndTpcCluster* cl=new PndTpcCluster(_pos,_err,(unsigned int)_amp,id,ndigis);
-  _dominant_mcid = mcid.DominantID();
+  //  PndTpcCluster* cl=new PndTpcCluster(fpos,ferr,(unsigned int)famp,id,ndigis);
+  fdominant_mcid = mcid.DominantID();
   
 }
 
@@ -185,7 +185,7 @@ void PndTpcPrelimCluster::cog(){
 PndTpcClusterFinderSimple::PndTpcClusterFinderSimple(PndTpcPadPlane* p,
 						     std::vector<PndTpcCluster*>* ob,
 						     unsigned int timeslice)
-  : _padplane(p), _output_buffer(ob), _dt(timeslice), noXclust(false)
+  : fpadplane(p), foutput_buffer(ob), fdt(timeslice), noXclust(false)
 {
 
 }
@@ -208,10 +208,10 @@ PndTpcClusterFinderSimple::process(std::vector<PndTpcDigi*>& digis)
 
   int prelimClusterCounter=0;
 
-  prelimClusters.push_back(new PndTpcPrelimCluster(_padplane,_dt,prelimClusterCounter++));
+  prelimClusters.push_back(new PndTpcPrelimCluster(fpadplane,fdt,prelimClusterCounter++));
   prelimClusters.at(0)->addHit(*(digis.at(ndigi-1)),noXclust);
-  for(unsigned int _idigi=0;_idigi<ndigi-1;++_idigi) {
-    int idigi = ndigi - 2 - _idigi;
+  for(unsigned int fidigi=0;fidigi<ndigi-1;++fidigi) {
+    int idigi = ndigi - 2 - fidigi;
     std::vector<unsigned int> selClusters;
     for(unsigned int iclust=0;iclust<prelimClusters.size();++iclust) {
       if(prelimClusters.at(iclust)->isInCluster(digis.at(idigi)) ) {
@@ -221,26 +221,26 @@ PndTpcClusterFinderSimple::process(std::vector<PndTpcDigi*>& digis)
     unsigned int nselclust = selClusters.size();
     
     if(nselclust == 0){
-      PndTpcPrelimCluster* _c = new PndTpcPrelimCluster(_padplane,_dt,prelimClusterCounter++);
-      _c->addHit(*(digis.at(idigi)),noXclust);
-      prelimClusters.push_back(_c);
+      PndTpcPrelimCluster* fc = new PndTpcPrelimCluster(fpadplane,fdt,prelimClusterCounter++);
+      fc->addHit(*(digis.at(idigi)),noXclust);
+      prelimClusters.push_back(fc);
     }
     else {
       if(nselclust == 1) {
 	prelimClusters.at(selClusters.at(0))->addHit(*(digis.at(idigi)),noXclust);
       }
       else{
-	double _a = (double)digis.at(idigi)->amp();
-	PndTpcDigi _d = *(digis.at(idigi));
-	_d.amp(_a/nselclust);
+	double fa = (double)digis.at(idigi)->amp();
+	PndTpcDigi fd = *(digis.at(idigi));
+	fd.amp(fa/nselclust);
 	for(int i=0;i<nselclust;++i) {
-	  prelimClusters.at(selClusters.at(i))->addHit(_d,noXclust);
+	  prelimClusters.at(selClusters.at(i))->addHit(fd,noXclust);
 	}
       }
     }
   }
   for(unsigned int i=0;i<prelimClusters.size();++i){
-    _output_buffer->push_back(prelimClusters.at(i)->convPndTpcCluster(_saveRaw));
+    foutput_buffer->push_back(prelimClusters.at(i)->convPndTpcCluster(fsaveRaw));
     delete prelimClusters.at(i);
   }
 }

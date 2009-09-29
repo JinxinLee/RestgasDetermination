@@ -32,15 +32,15 @@ public:
 
   // Constructors/Destructors ---------
   PndTpcEvtTime(){}
-  PndTpcEvtTime(double t0, unsigned int id):_t0(t0),_id(id){}
+  PndTpcEvtTime(double t0, unsigned int id):ft0(t0),fid(id){}
   ~PndTpcEvtTime(){}
 
   // Operators
  
 
   // Accessors -----------------------
-  double t0() const {return _t0;}
-  unsigned int id() const {return _id;}
+  double t0() const {return ft0;}
+  unsigned int id() const {return fid;}
 
   // Modifiers -----------------------
 
@@ -50,8 +50,8 @@ public:
 private:
 
   // Private Data Members ------------
-  double _t0;
-  unsigned int _id;
+  double ft0;
+  unsigned int fid;
 
   // Private Methods -----------------
 

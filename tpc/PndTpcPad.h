@@ -48,31 +48,31 @@ public:
   friend std::ostream& operator<< (std::ostream& s, const PndTpcPad& me);
 
   // Accessors -----------------------
-  double x() const {return _x;}
-  double y() const {return _y;}
-  double angle() const {return _angle;}
+  double x() const {return fx;}
+  double y() const {return fy;}
+  double angle() const {return fangle;}
   double pos(const int i) const {
-    if(i==0) return _x;
-    else if(i==1) return _y;
-    else if(i==2) return _angle;
+    if(i==0) return fx;
+    else if(i==1) return fy;
+    else if(i==2) return fangle;
     else throw;}
-  PndTpcAbsPadShape* shape() const {return _shape;}
-  unsigned int sectorId() const {return _sectorId;};
-  unsigned int padId() const {return _id;}
-  unsigned int id() const{return _id;} 
+  PndTpcAbsPadShape* shape() const {return fshape;}
+  unsigned int sectorId() const {return fsectorId;};
+  unsigned int padId() const {return fid;}
+  unsigned int id() const{return fid;} 
   // Modifiers -----------------------
-  void setx(const double x){_x=x;}
-  void sety(const double y){_y=y;}
+  void setx(const double x){fx=x;}
+  void sety(const double y){fy=y;}
   void setangle(const double angle){
-    _angle=angle;
+    fangle=angle;
     EvalBoundingRect();}
   void setshape(PndTpcAbsPadShape* const shape){
-    _shape = shape;
+    fshape = shape;
     EvalBoundingRect();}
-  void setsectorId(const unsigned int id){_sectorId=id;}
-  void addNeighbour(const unsigned int& id){_neighbourIds.push_back(id);}
-  unsigned int nNeighbours() const {return _neighbourIds.size();}
-  unsigned int getNeighbour(const unsigned int& id) const {return _neighbourIds[id];}
+  void setsectorId(const unsigned int id){fsectorId=id;}
+  void addNeighbour(const unsigned int& id){fneighbourIds.push_back(id);}
+  unsigned int nNeighbours() const {return fneighbourIds.size();}
+  unsigned int getNeighbour(const unsigned int& id) const {return fneighbourIds[id];}
 
   // Operations ----------------------
   bool Contains(const double x, const double y) const;
@@ -91,19 +91,19 @@ private:
 
   // Private Data Members ------------
   // Center of gravity
-  double _x;
-  double _y;
+  double fx;
+  double fy;
   //angle (in math. direction of rotation, in rad) between padplane and shape
-  double _angle;
+  double fangle;
   //The minimal sizes for a bounding box with the origin in the centre
-  double _width;
-  double _height;
+  double fwidth;
+  double fheight;
 
-  PndTpcAbsPadShape* _shape;
-  unsigned int _sectorId;
-  unsigned int _id;
+  PndTpcAbsPadShape* fshape;
+  unsigned int fsectorId;
+  unsigned int fid;
 
-  std::vector<unsigned int> _neighbourIds;
+  std::vector<unsigned int> fneighbourIds;
 
   // Private Methods -----------------
   void ToShapeCoord(double& xP, double& yP) const;

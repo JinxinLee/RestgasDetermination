@@ -50,7 +50,7 @@ public:
 private:
 
   // Private Data Members ------------
-  int _c;
+  int fc;
 
   // Private Methods -----------------
 

@@ -52,9 +52,9 @@ public:
 private:
 
   // Private Data Members ------------
-  double _Tint;
-  double _Tdif;
-  double _Tsig;
+  double fTint;
+  double fTdif;
+  double fTsig;
  
 
   // Private Methods -----------------

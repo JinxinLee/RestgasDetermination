@@ -39,9 +39,9 @@
 
 PndTpcEvtTimeGenTask::PndTpcEvtTimeGenTask()
   : FairTask("TPC Background Event Timer"),
-     _persistence(kFALSE),
-    _meanEvtSpacing(100),
-    _t0(0),_eventid(1)
+     fpersistence(kFALSE),
+    fmeanEvtSpacing(100),
+    ft0(0),feventid(1)
 {}
 
 PndTpcEvtTimeGenTask::~PndTpcEvtTimeGenTask()
@@ -64,10 +64,10 @@ PndTpcEvtTimeGenTask::Init()
     }
 
 
-  _timeArray = new TClonesArray("PndTpcEvtTime");
-  ioman->Register("PndTpcEvtTime","PndTpc",_timeArray,_persistence);
+  ftimeArray = new TClonesArray("PndTpcEvtTime");
+  ioman->Register("PndTpcEvtTime","PndTpc",ftimeArray,fpersistence);
 
-  _tevent=_t0;
+  ftevent=ft0;
 
   return kSUCCESS;
 }
@@ -79,11 +79,11 @@ PndTpcEvtTimeGenTask::Exec(Option_t* opt)
 {
   std::cout<< "PndTpcEvtTimeGenTask::Exec" << std::endl;
 
-  // clean up _bkgArray;
-  _timeArray->Delete();
+  // clean up fbkgArray;
+  ftimeArray->Delete();
 
-  _tevent+=gRandom->Exp(_meanEvtSpacing);
-  new ((*_timeArray)[0]) PndTpcEvtTime(_tevent,_eventid++);
+  ftevent+=gRandom->Exp(fmeanEvtSpacing);
+  new ((*ftimeArray)[0]) PndTpcEvtTime(ftevent,feventid++);
 
   return;
 }

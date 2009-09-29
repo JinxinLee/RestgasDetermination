@@ -19,16 +19,16 @@ class PndTpcDigiMapper {
   virtual ~PndTpcDigiMapper();
   PndTpcDigiMapper(bool autoinit);
 
-  static PndTpcDigiMapper *_instance;
+  static PndTpcDigiMapper *finstance;
 
-  const PndTpcGas *_gas;
-  const PndTpcGem *_gem;
-  const PndTpcPadShapePool *_padShapes;
-  PndTpcPadPlane *_padPlane;
+  const PndTpcGas *fgas;
+  const PndTpcGem *fgem;
+  const PndTpcPadShapePool *fpadShapes;
+  PndTpcPadPlane *fpadPlane;
 
-  double _zGem;
-  double _t0;
-  double _tbin; // ns
+  double fzGem;
+  double ft0;
+  double ftbin; // ns
 
  public:
   
@@ -41,30 +41,30 @@ class PndTpcDigiMapper {
 
   void padsize(const unsigned int id,
 	       double& dx, double& dy);
-  void map(const PndTpcDigi* const _dig, TVector3& _vec);
+  void map(const PndTpcDigi* const fdig, TVector3& fvec);
   
   double t_from_z(double z);
   double z_from_tick(double t,double vdr=-1.);
 
-  PndTpcPadPlane* getPadPlane() {return _padPlane;}
+  PndTpcPadPlane* getPadPlane() {return fpadPlane;}
 
-  const PndTpcGas* const getGas() {return _gas;}
+  const PndTpcGas* const getGas() {return fgas;}
 
-  double zGem() const {return _zGem;}
+  double zGem() const {return fzGem;}
 
   PndTpcPad* getPad(unsigned int id);
 
   inline static PndTpcDigiMapper* getInstance(bool autoinit=true) {
-	if(_instance == NULL) {
-	  _instance = new PndTpcDigiMapper(autoinit);
+	if(finstance == NULL) {
+	  finstance = new PndTpcDigiMapper(autoinit);
 	}
-	return _instance;
+	return finstance;
   }
 
   inline static void destruct() {
-	if(_instance != NULL) {
-	  delete _instance;
-	  _instance = NULL;
+	if(finstance != NULL) {
+	  delete finstance;
+	  finstance = NULL;
 	}
   }
 

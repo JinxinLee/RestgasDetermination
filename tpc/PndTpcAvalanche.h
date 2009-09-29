@@ -45,33 +45,33 @@ public:
   // Operators
   friend bool operator== (const PndTpcAvalanche&, const PndTpcAvalanche&);
   friend bool operator<  (const PndTpcAvalanche& lhs,const PndTpcAvalanche& rhs)
-  {return lhs._t < rhs._t;}
+  {return lhs.ft < rhs.ft;}
 
   friend std::ostream& operator<< (std::ostream& s, const PndTpcAvalanche& me);
 
 
   // Accessors -----------------------
-  double x() const {return _x;}
-  double y() const {return _y;}
-  double t() const {return _t;}
-  double amp() const {return _amp;}
+  double x() const {return fx;}
+  double y() const {return fy;}
+  double t() const {return ft;}
+  double amp() const {return famp;}
   unsigned int mcTrackId() const; 
 
   unsigned int mcHitId() const; 
 
-  PndTpcDriftedElectron* mother() const {return _mother;}
+  PndTpcDriftedElectron* mother() const {return fmother;}
   
   // Modifiers -----------------------
-  void addAmp(double a){_amp+=a;}
+  void addAmp(double a){famp+=a;}
 
 private:
 
   // Private Data Members ------------
-  double _x;
-  double _y;
-  double _t;
-  double _amp;
-  PndTpcDriftedElectron* _mother;
+  double fx;
+  double fy;
+  double ft;
+  double famp;
+  PndTpcDriftedElectron* fmother;
   
   // Private Methods -----------------
 

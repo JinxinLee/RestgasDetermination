@@ -43,15 +43,15 @@ public:
 
 
   // Modifiers -----------------------
-  void SetMCTrackBranchName(const TString& name) {_mcTrackBranchName=name;}
-  void SetTpcPointBranchName(const TString& name) {_tpcPointBranchName=name;}
-  void SetBkgFileName(const TString& name) {_bkgFileName=name;}
-  void SetPersistence(Bool_t opt=kTRUE) {_persistence=opt;}
-  void SetMeanEvtSpacing(Double_t deltaT) {_meanEvtSpacing=deltaT;} // [ns]
-  void SetEvtRate(Double_t evt_per_sec) {_meanEvtSpacing=1/evt_per_sec*1.E9;}
-  void SetNBkgEvts(Int_t n) {_nbkgEvts=n;}
-  void SetMinP(Double_t p){_minp=p;}
-  void SetVDrift(double v){_vdrift=v;} // cm/ns
+  void SetMCTrackBranchName(const TString& name) {fmcTrackBranchName=name;}
+  void SetTpcPointBranchName(const TString& name) {ftpcPointBranchName=name;}
+  void SetBkgFileName(const TString& name) {fbkgFileName=name;}
+  void SetPersistence(Bool_t opt=kTRUE) {fpersistence=opt;}
+  void SetMeanEvtSpacing(Double_t deltaT) {fmeanEvtSpacing=deltaT;} // [ns]
+  void SetEvtRate(Double_t evt_per_sec) {fmeanEvtSpacing=1/evt_per_sec*1.E9;}
+  void SetNBkgEvts(Int_t n) {fnbkgEvts=n;}
+  void SetMinP(Double_t p){fminp=p;}
+  void SetVDrift(double v){fvdrift=v;} // cm/ns
 
   // Operations ----------------------
   virtual InitStatus Init();
@@ -60,29 +60,29 @@ public:
 private:
 
   // Private Data Members ------------
-  TString _mcTrackBranchName;
-  TString _tpcPointBranchName;
-  TString _bkgFileName;
+  TString fmcTrackBranchName;
+  TString ftpcPointBranchName;
+  TString fbkgFileName;
  
 
-  TClonesArray* _mcTrackArray;
-  TClonesArray* _mcPointArray;
-  TClonesArray* _bkgTrackArray;
-  TClonesArray* _bkgPointArray;
-  TClonesArray* _timeArray;
-  TClonesArray* _trackArray;
+  TClonesArray* fmcTrackArray;
+  TClonesArray* fmcPointArray;
+  TClonesArray* fbkgTrackArray;
+  TClonesArray* fbkgPointArray;
+  TClonesArray* ftimeArray;
+  TClonesArray* ftrackArray;
 
-  TFile* _inFile;
-  TTree* _bkgTree;
-  TBranch* _bkgTrackBranch;
-  TBranch* _bkgPointBranch;
+  TFile* finFile;
+  TTree* fbkgTree;
+  TBranch* fbkgTrackBranch;
+  TBranch* fbkgPointBranch;
 
-  Bool_t _persistence;
+  Bool_t fpersistence;
 
-  Double_t _meanEvtSpacing;
-  Int_t _nbkgEvts;
-  Double_t _minp; // lower p cut for reconstructed tracks
-  Double_t _vdrift; // electron drift velocity
+  Double_t fmeanEvtSpacing;
+  Int_t fnbkgEvts;
+  Double_t fminp; // lower p cut for reconstructed tracks
+  Double_t fvdrift; // electron drift velocity
 
   // Private Methods -----------------
   void buildTracks(TClonesArray* tpcpoints, TClonesArray* mctracks,

@@ -44,30 +44,30 @@
 
 PndTpcMCEvtMixTask::PndTpcMCEvtMixTask()
   : FairTask("TPC MC Background Event Addmixer"),
-    _mcTrackBranchName("MCTrack"),
-    _tpcPointBranchName("PndTpcPoint"),
-    _bkgFileName(""),
-    _persistence(kFALSE),
-    _meanEvtSpacing(100),
-    _nbkgEvts(0),
-    _minp(0.1),
-    _vdrift(0.0027314) // standard velocity in NeCO2(90/10) @ 400V/cm
+    fmcTrackBranchName("MCTrack"),
+    ftpcPointBranchName("PndTpcPoint"),
+    fbkgFileName(""),
+    fpersistence(kFALSE),
+    fmeanEvtSpacing(100),
+    fnbkgEvts(0),
+    fminp(0.1),
+    fvdrift(0.0027314) // standard velocity in NeCO2(90/10) @ 400V/cm
 {}
 
 PndTpcMCEvtMixTask::~PndTpcMCEvtMixTask()
 {
-  if(_bkgTrackBranch!=NULL){
-    delete _bkgTrackBranch;
+  if(fbkgTrackBranch!=NULL){
+    delete fbkgTrackBranch;
   }
-  if(_bkgPointBranch!=NULL){
-    delete _bkgPointBranch;
+  if(fbkgPointBranch!=NULL){
+    delete fbkgPointBranch;
   }
-  if(_bkgTree!=NULL){
-    delete _bkgTree;
+  if(fbkgTree!=NULL){
+    delete fbkgTree;
   }
-  if(_inFile!=NULL){
-    _inFile->Close();
-    delete _inFile;
+  if(finFile!=NULL){
+    finFile->Close();
+    delete finFile;
   }
 }
 
@@ -87,61 +87,61 @@ PndTpcMCEvtMixTask::Init()
     }
 
   // Get input collection
-  _mcTrackArray=(TClonesArray*) ioman->GetObject(_mcTrackBranchName);
+  fmcTrackArray=(TClonesArray*) ioman->GetObject(fmcTrackBranchName);
 
-  if(_mcTrackArray==0)
+  if(fmcTrackArray==0)
     {
       Error("Init","mctrack-array not found!");
       return kERROR;
     }
 
-  _mcPointArray=(TClonesArray*) ioman->GetObject(_tpcPointBranchName);
+  fmcPointArray=(TClonesArray*) ioman->GetObject(ftpcPointBranchName);
 
-  if(_mcPointArray==0)
+  if(fmcPointArray==0)
     {
       Error("Init","tcppoint-array not found!");
       return kERROR;
     }
 
 
-  _timeArray = new TClonesArray("PndTpcEvtTime");
-  ioman->Register("PndTpcEvtTime","PndTpc",_timeArray,_persistence);
+  ftimeArray = new TClonesArray("PndTpcEvtTime");
+  ioman->Register("PndTpcEvtTime","PndTpc",ftimeArray,fpersistence);
 
-  _trackArray = new TClonesArray("PndTpcMCTracklet");
-  ioman->Register("PndTpcMCTracklet","PndTpc",_trackArray,_persistence);
+  ftrackArray = new TClonesArray("PndTpcMCTracklet");
+  ioman->Register("PndTpcMCTracklet","PndTpc",ftrackArray,fpersistence);
 
   // open input file with background events
-  if(_bkgFileName.IsNull())
+  if(fbkgFileName.IsNull())
     { 
       Error("Init","background file not found");
       return kERROR;
     }
-  _inFile=TFile::Open(_bkgFileName,"READ");
-  if(!_inFile->IsOpen())
+  finFile=TFile::Open(fbkgFileName,"READ");
+  if(!finFile->IsOpen())
     {
       Error("Init","background file could not be opened");
       return kERROR;
   }
-  _bkgTree=(TTree*)_inFile->Get("cbmsim");
-  if(_bkgTree==NULL)
+  fbkgTree=(TTree*)finFile->Get("cbmsim");
+  if(fbkgTree==NULL)
     {
       Error("Init","cbmsim tree not found in bkgfile");
       return kERROR;
     }
  
   //check if there are enough bkg events in tree
-  Int_t n=_bkgTree->GetEntries();
-  if(n<_nbkgEvts)
+  Int_t n=fbkgTree->GetEntries();
+  if(n<fnbkgEvts)
     {
       Error("Init","Not enough events in bkg file. Setting nbkgEvents to %i",n);
-      _nbkgEvts=n;
+      fnbkgEvts=n;
     }
   
   // Create bkgArray
-  _bkgTrackArray = new TClonesArray("PndMCTrack");
-  _bkgTree->SetBranchAddress(_mcTrackBranchName,&_bkgTrackArray);
-  _bkgPointArray = new TClonesArray(_tpcPointBranchName);
-  _bkgTree->SetBranchAddress(_tpcPointBranchName,&_bkgPointArray);
+  fbkgTrackArray = new TClonesArray("PndMCTrack");
+  fbkgTree->SetBranchAddress(fmcTrackBranchName,&fbkgTrackArray);
+  fbkgPointArray = new TClonesArray(ftpcPointBranchName);
+  fbkgTree->SetBranchAddress(ftpcPointBranchName,&fbkgPointArray);
 
   return kSUCCESS;
 }
@@ -153,35 +153,35 @@ PndTpcMCEvtMixTask::Exec(Option_t* opt)
 {
   std::cout<< "PndTpcMCEvtMixTask::Exec" << std::endl;
 
-  // clean up _bkgArray;
-  _timeArray->Delete();
-  _trackArray->Delete();
+  // clean up fbkgArray;
+  ftimeArray->Delete();
+  ftrackArray->Delete();
 
   // Look at this event geantHits in the TPC:
-  Int_t iout=_mcPointArray->GetEntriesFast();
+  Int_t iout=fmcPointArray->GetEntriesFast();
   std::cout<<iout<<" tpcpoints in Array"<<std::endl;
 
-  buildTracks(_mcPointArray,_mcTrackArray,0,0); // physics event t0=0, id=0
+  buildTracks(fmcPointArray,fmcTrackArray,0,0); // physics event t0=0, id=0
 
 
-  Double_t tevent=-_nbkgEvts*0.5*_meanEvtSpacing; // time of first event
+  Double_t tevent=-fnbkgEvts*0.5*fmeanEvtSpacing; // time of first event
 
   // Get background event
-  for(Int_t i=0;i<_nbkgEvts;++i){
+  for(Int_t i=0;i<fnbkgEvts;++i){
     // determine time offset of this event
-    tevent+=gRandom->Exp(_meanEvtSpacing);
-    new ((*_timeArray)[_timeArray->GetEntriesFast()]) PndTpcEvtTime(tevent,i+1);
+    tevent+=gRandom->Exp(fmeanEvtSpacing);
+    new ((*ftimeArray)[ftimeArray->GetEntriesFast()]) PndTpcEvtTime(tevent,i+1);
     //std::cout<<"tevent="<<tevent<<std::endl;
     // Load bkg array
-    _bkgTree->GetEntry(i);
-    if(_bkgTrackArray==NULL) Fatal("PndTpcMCEvtMixTask::Exec","bkgTrackArray not loadable");
-    if(_bkgPointArray==NULL) Fatal("PndTpcMCEvtMixTask::Exec","bkgPointArray not loadable");
+    fbkgTree->GetEntry(i);
+    if(fbkgTrackArray==NULL) Fatal("PndTpcMCEvtMixTask::Exec","bkgTrackArray not loadable");
+    if(fbkgPointArray==NULL) Fatal("PndTpcMCEvtMixTask::Exec","bkgPointArray not loadable");
     
-    buildTracks(_bkgPointArray,_bkgTrackArray,tevent,i+1);
+    buildTracks(fbkgPointArray,fbkgTrackArray,tevent,i+1);
     
   }
     
-  std::cout<<"Created "<<_trackArray->GetEntriesFast()<<" mctracklets"<<std::endl;
+  std::cout<<"Created "<<ftrackArray->GetEntriesFast()<<" mctracklets"<<std::endl;
 
 }
 
@@ -192,7 +192,7 @@ PndTpcMCEvtMixTask::buildTracks(TClonesArray* tpcpoints,TClonesArray* mctracks,
 				Double_t evttime, Int_t evtId)
 {
   // loop over TpcPoints -> create a track at every first point in the tpc
-  // leave away all tracks with p<_minp
+  // leave away all tracks with p<fminp
   int np=tpcpoints->GetEntriesFast();
   int oldtrackid=-99999;
   for(int i=0;i<np;++i){ // loop over tpcpoints
@@ -207,7 +207,7 @@ PndTpcMCEvtMixTask::buildTracks(TClonesArray* tpcpoints,TClonesArray* mctracks,
     mom.SetY(gRandom->Gaus(mom.Y(),mom.Y()*0.01));
     mom.SetZ(gRandom->Gaus(mom.Z(),mom.Z()*0.01));
 
-    if(mom.Perp()<_minp)continue; // check minimal momentum for track
+    if(mom.Perp()<fminp)continue; // check minimal momentum for track
     // fetch mc-truth
     PndMCTrack* mct=(PndMCTrack*)mctracks->At(oldtrackid);
     Int_t pdg=mct->GetPdgCode();
@@ -228,9 +228,9 @@ PndTpcMCEvtMixTask::buildTracks(TClonesArray* tpcpoints,TClonesArray* mctracks,
     pos.SetZ(gRandom->Gaus(pos.Z(),0.05));
 
     // adjust reconstructed position in tpc according to event time:
-    double offset=evttime*_vdrift;
+    double offset=evttime*fvdrift;
     pos.SetZ(pos.Z()+offset);
-    new ((*_trackArray)[_trackArray->GetEntriesFast()])
+    new ((*ftrackArray)[ftrackArray->GetEntriesFast()])
       PndTpcMCTracklet(pos,mom,
 		       q,pdg,
 		       oldtrackid,evtId);

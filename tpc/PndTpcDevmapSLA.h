@@ -46,8 +46,8 @@ class PndTpcDevmapSLA : public PndTpcDevmapCyl {
  private:
   
                                       //slopes for straight lines for
-  std::vector<double> _slopesR;       //dev. in R
-  std::vector<double> _slopesPerpR;   //dev. perp to R
+  std::vector<double> fslopesR;       //dev. in R
+  std::vector<double> fslopesPerpR;   //dev. perp to R
 
 };
 

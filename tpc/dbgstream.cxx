@@ -16,7 +16,7 @@
 //-----------------------------------------------------------
 
 // Panda Headers ----------------------
-#ifndef __CINT__
+#ifndef f_CINT__
 // This Class' Header ------------------
 #include "dbgstream.h"
 
@@ -41,9 +41,9 @@ odbgstream dbgstrm;
 std::ofstream devnull("/dev/null");
 
 dbgstrmbuf::dbgstrmbuf(streambuf* sb) 
-  : streambuf(), _sbuf(sb), _cache(EOF),
-    _prfx(NULL),_len(0),_newline(true),
-    _active(true)
+  : streambuf(), fsbuf(sb), fcache(EOF),
+    fprfx(NULL),flen(0),fnewline(true),
+    factive(true)
 {
   setp(0,0); // no buffering by this buffer
   setg(0,0,0);
@@ -51,48 +51,48 @@ dbgstrmbuf::dbgstrmbuf(streambuf* sb)
 
 void
 dbgstrmbuf::setprfx(const string& p){
-  _len=p.size();
-  _prfx=strcpy(new char[_len+1],p.c_str());
+  flen=p.size();
+  fprfx=strcpy(new char[flen+1],p.c_str());
 }
 
 void 
 dbgstrmbuf::setbuf(streambuf* sb){
-  _sbuf=sb;
+  fsbuf=sb;
 }
 
 int
 dbgstrmbuf::underflow(){
-  if(_cache==EOF){
-    _cache = _sbuf->sbumpc();
-    return _cache;
+  if(fcache==EOF){
+    fcache = fsbuf->sbumpc();
+    return fcache;
   }
-  else return _cache;
+  else return fcache;
 }
 
 int
 dbgstrmbuf::uflow(){
-  if(_cache==EOF){
-    int rc= _sbuf->sbumpc();
+  if(fcache==EOF){
+    int rc= fsbuf->sbumpc();
     return rc;
   }
   else {
-    int rc=_cache;
-    _cache = EOF;
+    int rc=fcache;
+    fcache = EOF;
     return rc;
   }
 }
 
 int
 dbgstrmbuf::overflow(int c){
-  if(!_active)return 0;
+  if(!factive)return 0;
   if(c!=EOF){
-    if(_newline)
-      if(_sbuf->sputn(_prfx,_len)!=_len)
+    if(fnewline)
+      if(fsbuf->sputn(fprfx,flen)!=flen)
 	return EOF;
-      else _newline=false;
+      else fnewline=false;
 
-    int rc= _sbuf->sputc(c);
-    if(c == '\n') _newline=true;
+    int rc= fsbuf->sputc(c);
+    if(c == '\n') fnewline=true;
     return rc;
   }
   return 0;
@@ -101,7 +101,7 @@ dbgstrmbuf::overflow(int c){
 // ------------------------------------------------------------------------
 //int
 //dbgstrmbuf::sync(){
-//  _sbuf->sync();
+//  fsbuf->sync();
 //  return 0;
 //}
 
@@ -111,7 +111,7 @@ idbgstream::idbgstream(streambuf* sb)
 {}
 
 odbgstream::odbgstream()
-  : ostream(new dbgstrmbuf(devnull.rdbuf())), _minlevel(0)
+  : ostream(new dbgstrmbuf(devnull.rdbuf())), fminlevel(0)
 {
   addbuffer(devnull.rdbuf());
   addbuffer(std::cout.rdbuf());
@@ -137,33 +137,33 @@ odbgstream::~odbgstream()
 
 unsigned int 
 odbgstream::addbuffer(streambuf* sb){
-  _slots.push_back(sb);
-  return _slots.size()-1;
+  fslots.push_back(sb);
+  return fslots.size()-1;
 }
 
 odbgstream& 
 odbgstream::setlevel(unsigned int l){
-  _level=l;
+  flevel=l;
   dbgstrmbuf* mybuf=dynamic_cast<dbgstrmbuf*>(rdbuf());
-  mybuf->setbuf(_slots.at(slot(_path,_line,_level)));
-  //_levelblock=l<_minlevel;
+  mybuf->setbuf(fslots.at(slot(fpath,fline,flevel)));
+  //flevelblock=l<fminlevel;
   //mybuf->off(block());
   return *this;
 }
 
 odbgstream& 
 odbgstream::setpos(string f, unsigned int l){
-  _path=f;
-  _file=f.substr(f.find_last_of("/")+1);
-  _line=l;
+  fpath=f;
+  ffile=f.substr(f.find_last_of("/")+1);
+  fline=l;
 
   dbgstrmbuf* mybuf=dynamic_cast<dbgstrmbuf*>(rdbuf());
-  mybuf->setbuf(_slots.at(slot(_path,_line,_level)));
+  mybuf->setbuf(fslots.at(slot(fpath,fline,flevel)));
   
   
 
   std::stringstream prfx;
-  prfx<<_file<<"("<<_line<<"): ";
+  prfx<<ffile<<"("<<fline<<"): ";
  
   mybuf->setprfx(prfx.str());
   return *this;
@@ -172,16 +172,16 @@ odbgstream::setpos(string f, unsigned int l){
 unsigned int 
 odbgstream::slot(string path,unsigned int line, unsigned int level)
 {
-  if(level<_minlevel)return 0;
+  if(level<fminlevel)return 0;
   unsigned int slot=0;
-  unsigned int nr=_rules.size();
+  unsigned int nr=frules.size();
   //std::cout<<"checking "<<nr<<" rules. ";
   for(int i=0;i<nr;++i){
-    slot=std::max(slot,_rules[i]->rule(path,line,level));
+    slot=std::max(slot,frules[i]->rule(path,line,level));
   }
   //std::cout<<"("<<path<<","
   //	   <<line<<") -> selected slot "<<slot<<std::endl;
-  if(slot<_slots.size())return slot;
+  if(slot<fslots.size())return slot;
   else return 0;
 }
 
@@ -192,7 +192,7 @@ odbgstream::slot(string path,unsigned int line, unsigned int level)
 
 odbgstream&
 level::operator()(odbgstream& os) const {
-  os.setlevel(_l);
+  os.setlevel(fl);
   return os;
 }
 
@@ -204,13 +204,13 @@ odbgstream &operator<<(odbgstream &out, level al)
 
 logrule::logrule(string path,unsigned int minline,unsigned int maxline,
 		 unsigned int output)
-  : _file(path), _min(minline), _max(maxline), _output(output)
+  : ffile(path), fmin(minline), fmax(maxline), foutput(output)
 {}
 
 unsigned int 
 logrule::rule(string path,unsigned int line, unsigned int level){
-  if(path.find(_file)!=string::npos && _min<=line && line<=_max)
-    return _output;
+  if(path.find(ffile)!=string::npos && fmin<=line && line<=fmax)
+    return foutput;
   else return 0;
 }
 

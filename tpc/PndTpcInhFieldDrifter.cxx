@@ -45,13 +45,13 @@ PndTpcInhFieldDrifter(PndTpcEFieldCyl* eField,
 		      const int rBins, const int zBins, 
 		      const int split)
   :
-	_outFile(outFile),
-	_paramFile(paramFile),
-	_rBins(rBins),
-        _zBins(zBins),
-	_split(split)
+	foutFile(outFile),
+	fparamFile(paramFile),
+	frBins(rBins),
+        fzBins(zBins),
+	fsplit(split)
 {
-  if(_split >= 0 && split >= _rBins) {   //in the case split was manually set...
+  if(fsplit >= 0 && split >= frBins) {   //in the case split was manually set...
     std::cout << "PndTpcInhFieldDrifter::PndTpcInhFieldDrifter : "
 	      <<"invalid row number requested! ABORTING"<<std::endl;
     throw 1;
@@ -60,12 +60,12 @@ PndTpcInhFieldDrifter(PndTpcEFieldCyl* eField,
   //init parameters
   initParams();
   
-  double vDrift = ((PndTpcGas*)_par->getGas())->VDrift();
+  double vDrift = ((PndTpcGas*)fpar->getGas())->VDrift();
   double eNomZ = (eField->nominal()).Z();
-  _friction = 1e-5 * eNomZ / vDrift;  // friction term, see Rolandi Blum    
+  ffriction = 1e-5 * eNomZ / vDrift;  // friction term, see Rolandi Blum    
     
-  _runKut = new PndTpcRungeKutta(1e-16, 1e-6, 1e-2, 1e-3,
-			      _sc, eField,bField, _friction);
+  frunKut = new PndTpcRungeKutta(1e-16, 1e-6, 1e-2, 1e-3,
+			      fsc, eField,bField, ffriction);
   
 }
 
@@ -78,13 +78,13 @@ PndTpcInhFieldDrifter(const char* eFieldFile,
 		      const int rBins, const int zBins, 
 		      const int split)
   :
-	_outFile(outFile),
-	_paramFile(paramFile),
-	_rBins(rBins),
-        _zBins(zBins),
-	_split(split)
+	foutFile(outFile),
+	fparamFile(paramFile),
+	frBins(rBins),
+        fzBins(zBins),
+	fsplit(split)
 {
-  if(_split >= 0 && split >= _rBins) {   //in the case split was manually set...
+  if(fsplit >= 0 && split >= frBins) {   //in the case split was manually set...
     std::cout << "PndTpcInhFieldDrifter::PndTpcInhFieldDrifter : "
 	      <<"invalid row number requested! ABORTING"<<std::endl;
     throw 1;
@@ -93,14 +93,14 @@ PndTpcInhFieldDrifter(const char* eFieldFile,
   //init parameters
   initParams();
   
-  double vDrift = ((PndTpcGas*)_par->getGas())->VDrift();
+  double vDrift = ((PndTpcGas*)fpar->getGas())->VDrift();
   
   PndTpcEFieldCyl* efield = new PndTpcEFieldCyl(eFieldFile);
   double eNomZ = (efield->nominal()).Z();
-  _friction = 1e-5 * eNomZ / vDrift;  // friction term, see Rolandi Blum    
+  ffriction = 1e-5 * eNomZ / vDrift;  // friction term, see Rolandi Blum    
     
-  _runKut = new PndTpcRungeKutta(1e-16, 1e-6, 1e-2, 1e-3,
-			      _sc, eFieldFile,bFieldFile, _friction);
+  frunKut = new PndTpcRungeKutta(1e-16, 1e-6, 1e-2, 1e-3,
+			      fsc, eFieldFile,bFieldFile, ffriction);
   delete efield;
 }
 
@@ -108,11 +108,11 @@ PndTpcInhFieldDrifter(const char* eFieldFile,
 
 PndTpcInhFieldDrifter::~PndTpcInhFieldDrifter()
 {
-  delete _runKut;
-  int size = _velocity_control->size();
+  delete frunKut;
+  int size = fvelocity_control->size();
   for (int i=0; i<size; i++)
-    delete _velocity_control->at(i);
-  delete _velocity_control;
+    delete fvelocity_control->at(i);
+  delete fvelocity_control;
 }
 
 
@@ -120,42 +120,42 @@ void
 PndTpcInhFieldDrifter::run()
 {
   // Calculate the Binning
-  _rBinWidth = (double)(_tpcMaxR - _tpcMinR) / _rBins;
-  _zBinWidth = (double)(_tpcMaxZ - _tpcMinZ) / _zBins;
+  frBinWidth = (double)(ftpcMaxR - ftpcMinR) / frBins;
+  fzBinWidth = (double)(ftpcMaxZ - ftpcMinZ) / fzBins;
 
   // Init the fields
   
   //TODO: dangerous!!! change to pointers inside 
-  for (int nr = 0; nr < _rBins; nr++)
+  for (int nr = 0; nr < frBins; nr++)
   {
-    _devX.push_back(std::vector<double>(_zBins, 0));
-    _devY.push_back(std::vector<double>(_zBins, 0));
-    _time.push_back(std::vector<double>(_zBins, 0));
-    _stepCount.push_back(std::vector<int>(_zBins, 0));
-    _pathLength.push_back(std::vector<double>(_zBins, 0));
+    fdevX.push_back(std::vector<double>(fzBins, 0));
+    fdevY.push_back(std::vector<double>(fzBins, 0));
+    ftime.push_back(std::vector<double>(fzBins, 0));
+    fstepCount.push_back(std::vector<int>(fzBins, 0));
+    fpathLength.push_back(std::vector<double>(fzBins, 0));
     
   }
 
-  _velocity_control = new std::vector<std::vector<double>*>;
-  _velocity_control->push_back(new std::vector<double>(4, 0)); //first position
+  fvelocity_control = new std::vector<std::vector<double>*>;
+  fvelocity_control->push_back(new std::vector<double>(4, 0)); //first position
 
   std::cout << "\nCalculating the Deviation Map with Runge-Kutta "<<std::endl;
   int errorcount = 0;
   
   
   //Calculate the Deviation-Map with Runge Kutta
-  for (int nr = 0; nr < _rBins; nr++)
+  for (int nr = 0; nr < frBins; nr++)
   {
-    if(_split != -1) {  //we want to split: only calculate one row in r
-      if(nr != _split)
+    if(fsplit != -1) {  //we want to split: only calculate one row in r
+      if(nr != fsplit)
 	continue;
     }
-    for (int nz = 0; nz < _zBins; nz++)
+    for (int nz = 0; nz < fzBins; nz++)
     {
       double rPos, zPos, dx, dy, dz;
 
-      rPos = (double)(_tpcMinR + (nr+0.5)*_rBinWidth)/100.; // [m]
-      zPos = (double)(_tpcMinZ + (nz+0.5)*_zBinWidth)/100.; 
+      rPos = (double)(ftpcMinR + (nr+0.5)*frBinWidth)/100.; // [m]
+      zPos = (double)(ftpcMinZ + (nz+0.5)*fzBinWidth)/100.; 
 
       // Create the speed/position-vector for RungeKutta
       double x[6]; // x[0-2] = speed, x[3-5] = pos. (SI)
@@ -172,12 +172,12 @@ PndTpcInhFieldDrifter::run()
       for (int n=0; n<=5; n++)
         xCopy[n] = x[n];
       
-      _runKut->setTimeStep(1e-16);
+      frunKut->setTimeStep(1e-16);
       double time_temp;
 
       for (int i=0; ; i++)  // get serious
       {
-        if (x[5]>(_tpcMaxZ)/100. || x[5]<(_tpcMinZ/100.))	   
+        if (x[5]>(ftpcMaxZ)/100. || x[5]<(ftpcMinZ/100.))	   
 	  break;   	// finished when we reach the "Pads"
 	
 	double xTemp[3]; //needed for the drift path monitoring
@@ -186,31 +186,31 @@ PndTpcInhFieldDrifter::run()
 
         for (int j=0; ; j++)	//one step of RungeKutta
 	{
-	  time_temp = _runKut->getTimeStep();//store BEFORE step 
-	  if (_runKut->getTimeStep() == 0)
-	    _runKut->setTimeStep(1e-16);
-	  if (_runKut->stepForwards(x))  //try until successful
+	  time_temp = frunKut->getTimeStep();//store BEFORE step 
+	  if (frunKut->getTimeStep() == 0)
+	    frunKut->setTimeStep(1e-16);
+	  if (frunKut->stepForwards(x))  //try until successful
 	    break;
 	}
-	_time.at(nr).at(nz) += time_temp;;
-	_stepCount.at(nr).at(nz) ++;
+	ftime.at(nr).at(nz) += time_temp;;
+	fstepCount.at(nr).at(nz) ++;
 	
         dx = x[3] - xTemp[0];
 	dy = x[4] - xTemp[1]; //coordinate changes of the last RK step
         dz = x[5] - xTemp[2];
-        _pathLength.at(nr).at(nz) += sqrt(dx*dx + dy*dy + dz*dz);
+        fpathLength.at(nr).at(nz) += sqrt(dx*dx + dy*dy + dz*dz);
 	
 	//build the velocity-control array (in just one bin)
-	if (nr == (int) std::floor((double)_rBins/2) 
-	    && nz == (int) std::floor((double)_zBins/2))
+	if (nr == (int) std::floor((double)frBins/2) 
+	    && nz == (int) std::floor((double)fzBins/2))
 	{
-	  if ((_stepCount.at(nr).at(nz))%100 == 0) 
+	  if ((fstepCount.at(nr).at(nz))%100 == 0) 
 	  {
 	    std::vector<double>* temp_vec = new std::vector<double>(4);
 	    for(int i = 0; i <= 2; i++)
 	      temp_vec->at(i) = x[i];    //fill vector with components of V
-	    temp_vec->at(3) = _runKut->getTimeStep();
-	    _velocity_control->push_back(temp_vec);
+	    temp_vec->at(3) = frunKut->getTimeStep();
+	    fvelocity_control->push_back(temp_vec);
 	
 	  }
 	}  
@@ -221,8 +221,8 @@ PndTpcInhFieldDrifter::run()
         errorcount++;
 
       // Now fill the 2 deviation fields with the values
-      _devX.at(nr).at(nz) = (x[3]-xCopy[3]) * 100;    //[cm]
-      _devY.at(nr).at(nz) = (x[4]-xCopy[4]) * 100;
+      fdevX.at(nr).at(nz) = (x[3]-xCopy[3]) * 100;    //[cm]
+      fdevY.at(nr).at(nz) = (x[4]-xCopy[4]) * 100;
     }
   std::cout<<"* "<<std::endl;
   } 	// Finish Loop over all bins
@@ -230,7 +230,7 @@ PndTpcInhFieldDrifter::run()
   std::cout << "\n\nAll done! \nThere have been " << errorcount 
        << " unprocessed bins..." << std::endl;
 
-  writeToFile(_outFile);
+  writeToFile(foutFile);
 }
 
 void
@@ -241,40 +241,40 @@ PndTpcInhFieldDrifter::writeToFile(const char* out_file)
 
   std::string filename(out_file);
 
-  if(_split >= 0) {
+  if(fsplit >= 0) {
     std::string s;
     std::stringstream stream;
-    stream << _split;
+    stream << fsplit;
     stream >> s;
     filename += s;
   }
   
   std::ofstream outfile(filename.c_str(), std::fstream::out);
 
-  if(_split == 0 || _split == -1) {
+  if(fsplit == 0 || fsplit == -1) {
     outfile<<std::setprecision(6);
-    outfile<<_rBins<<"   "<<_zBins<<"   "<<_tpcMinR<<"   "<<_tpcMaxR
-	   <<"   "<<_tpcMinZ<<"   "<<_tpcMaxZ<<std::endl;
+    outfile<<frBins<<"   "<<fzBins<<"   "<<ftpcMinR<<"   "<<ftpcMaxR
+	   <<"   "<<ftpcMinZ<<"   "<<ftpcMaxZ<<std::endl;
   }
 
-  for (int nr=0; nr<_rBins; nr++)
+  for (int nr=0; nr<frBins; nr++)
   {
-    if (_split>=0) {
-      if (nr != _split)
+    if (fsplit>=0) {
+      if (nr != fsplit)
 	continue;
     }
       
-    for (int nz=0; nz<_zBins; nz++) 
+    for (int nz=0; nz<fzBins; nz++) 
     {
       outfile<<std::setprecision(8)<<std::setw(8);
-      outfile<<_devX.at(nr).at(nz)<<"   "
-	     <<_devY.at(nr).at(nz)<<"   "<<_time.at(nr).at(nz)*1e9<<"   " 
-	     <<_stepCount.at(nr).at(nz)<<"   "<<_pathLength.at(nr).at(nz)*100
+      outfile<<fdevX.at(nr).at(nz)<<"   "
+	     <<fdevY.at(nr).at(nz)<<"   "<<ftime.at(nr).at(nz)*1e9<<"   " 
+	     <<fstepCount.at(nr).at(nz)<<"   "<<fpathLength.at(nr).at(nz)*100
 	     <<std::endl;
     }
   }
 
-  if(_split == _rBins-1 || _split == -1) {
+  if(fsplit == frBins-1 || fsplit == -1) {
   outfile<<std::endl;
   outfile<<"\n\n#Format: First Line - Bins in r, Bins in z, minR, maxR, minZ, maxZ" 
 	 <<"\n#Each Following Line: x-deviation [cm], y-deviation, total Runge-Kutta-Time [ns],"
@@ -288,15 +288,15 @@ PndTpcInhFieldDrifter::writeToFile(const char* out_file)
 //   std::ofstream outfile2("DEVMAP_VELOCITY_FILE.dat", std::fstream::out);
 //   outfile<<std::setprecision(8);
 
-//   long int length = _velocity_control->size();
+//   long int length = fvelocity_control->size();
 
 //   for (int a=0; a<length; a++)
 //   {
 //     outfile2<<std::setprecision(8)<<std::setw(8);
-//     outfile2<<"\n"<<_velocity_control->at(a)->at(0)*1e-7<<"   "
-//             <<_velocity_control->at(a)->at(1)*1e-7<<"   "
-//             <<_velocity_control->at(a)->at(2)*1e-7<<"   "
-//             <<_velocity_control->at(a)->at(3)*1e9;
+//     outfile2<<"\n"<<fvelocity_control->at(a)->at(0)*1e-7<<"   "
+//             <<fvelocity_control->at(a)->at(1)*1e-7<<"   "
+//             <<fvelocity_control->at(a)->at(2)*1e-7<<"   "
+//             <<fvelocity_control->at(a)->at(3)*1e9;
 //   }
 //   outfile2<<std::endl;
 //   outfile2<<"#Format: v_x, v_y, v_z, corresponding Runge-Kutta-time"<<std::endl;
@@ -311,38 +311,38 @@ PndTpcInhFieldDrifter::initParams() {
   FairParAsciiFileIo* input = new FairParAsciiFileIo();
   
   //ugly test for valid param file
-  std::ifstream paramf(_paramFile, std::fstream::in);
+  std::ifstream paramf(fparamFile, std::fstream::in);
   if(!paramf.good()) {
     std::cout<<"PndTpcInhFieldDrifter::initParams() "
 	     <<"- parameter file IO error - ABORTING"<<std::endl;
     throw 1;
   }
     
-  input->open(_paramFile, "in");
+  input->open(fparamFile, "in");
   
   //create dummy run manager and load database
   FairRunAna* fRun = new FairRunAna();   
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();  
   rtdb->setFirstInput(input);
-  _par = (PndTpcDigiPar*) rtdb->getContainer("PndTpcDigiPar");
+  fpar = (PndTpcDigiPar*) rtdb->getContainer("PndTpcDigiPar");
   
-  _par->FairParSet::init();
+  fpar->FairParSet::init();
   
   //read in parameters
-  _tpcMinR = _par->getRMin();
-  _tpcMaxR = _par->getRMax();
-  _tpcMinZ = _par->getZGem();
-  _tpcMaxZ = _par->getZMax();
+  ftpcMinR = fpar->getRMin();
+  ftpcMaxR = fpar->getRMax();
+  ftpcMinZ = fpar->getZGem();
+  ftpcMaxZ = fpar->getZMax();
 
   std::cout<<"\n\nPndTpcInhFieldDrifter::initParams()\n"
 	   <<"---------- Used Parameters ---------------------------"<<std::endl;
-  std::cout<<"MinR: "<<_tpcMinR<<",   MaxR: "<<_tpcMaxR<<std::endl;
-  std::cout<<"MinZ: "<<_tpcMinZ<<",   MaxZ: "<<_tpcMaxZ<<std::endl;std::cout<<std::endl;
-  std::cout<<"Bins in R: "<<_rBins<<",   Bins in Z: "<<_zBins<<std::endl;
+  std::cout<<"MinR: "<<ftpcMinR<<",   MaxR: "<<ftpcMaxR<<std::endl;
+  std::cout<<"MinZ: "<<ftpcMinZ<<",   MaxZ: "<<ftpcMaxZ<<std::endl;std::cout<<std::endl;
+  std::cout<<"Bins in R: "<<frBins<<",   Bins in Z: "<<fzBins<<std::endl;
   
   std::cout<<"------------------------------------------------------"<<std::endl;
   std::cout<<std::endl;  
-  _sc = -1e-6*299792458*299792458/0.510998902;
+  fsc = -1e-6*299792458*299792458/0.510998902;
 
   
 }

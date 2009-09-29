@@ -50,34 +50,34 @@ public:
   // Operators
   friend bool operator<  (const PndTpcPrimaryCluster& lhs,
 			  const PndTpcPrimaryCluster& rhs)
-  {return lhs._t<rhs._t;}
+  {return lhs.ft<rhs.ft;}
 
   // Accessors -----------------------
-  double t() const {return _t;}
-  int q() const {return _q;}
-  const TVector3& pos() const {return _pos;}
-  double pos(int i) const {return _pos(i);}
-  double x() const {return _pos(0);}
-  double y() const {return _pos(1);}
-  double z() const {return _pos(2);}
+  double t() const {return ft;}
+  int q() const {return fq;}
+  const TVector3& pos() const {return fpos;}
+  double pos(int i) const {return fpos(i);}
+  double x() const {return fpos(0);}
+  double y() const {return fpos(1);}
+  double z() const {return fpos(2);}
   unsigned int mcTrackId() const;
   unsigned int mcHitId() const;
 
   // Modifiers -----------------------
-  void sett(const double t){_t=t;}
-  void setq(const int q){_q=q;}
+  void sett(const double t){ft=t;}
+  void setq(const int q){fq=q;}
   void setpos(const double x, const double y, const double z)
-  {_pos(0)=x;_pos(1)=y;_pos(2)=z;}
+  {fpos(0)=x;fpos(1)=y;fpos(2)=z;}
   
 
 private:
 
   // Private Data Members ------------
-  double _t;               // time of creation
-  int _q;                  // charge
-  unsigned int _mcTrackId;      // internal mc id if GEANT is not used
-  unsigned int _mcHitId;
-  TVector3 _pos;         // position
+  double ft;               // time of creation
+  int fq;                  // charge
+  unsigned int fmcTrackId;      // internal mc id if GEANT is not used
+  unsigned int fmcHitId;
+  TVector3 fpos;         // position
 
   // Private Methods -----------------
 

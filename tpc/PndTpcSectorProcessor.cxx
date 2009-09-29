@@ -37,12 +37,12 @@
 PndTpcSectorProcessor::~PndTpcSectorProcessor()
 {
   // clean up PadProcessors
-  std::map<unsigned int,padprocessor*>::iterator ipad=_pproc.begin();
-  while(ipad!=_pproc.end()){
+  std::map<unsigned int,padprocessor*>::iterator ipad=fpproc.begin();
+  while(ipad!=fpproc.end()){
     delete ipad->second;
     ++ipad;
   }
-  _pproc.clear();
+  fpproc.clear();
 }
 
 void
@@ -50,16 +50,16 @@ PndTpcSectorProcessor::Init(PndTpcPadPlane* p,
 			 unsigned int id,
 			 std::vector<PndTpcCluster*>* ob)
 {
-  _padplane=p;
-  _SectorId=id;
-  _output_buffer=ob;
+  fpadplane=p;
+  fSectorId=id;
+  foutput_buffer=ob;
 
   // Build PadProcessors
-  std::map<unsigned int, PndTpcPad*>* pads=_padplane->GetSectorList(_SectorId);
+  std::map<unsigned int, PndTpcPad*>* pads=fpadplane->GetSectorList(fSectorId);
   std::map<unsigned int,PndTpcPad*>::iterator ipad=pads->begin();
   while(ipad!=pads->end()){
-    _pproc[ipad->second->id()]=new padprocessor(ipad->second->id());
-    _pproc[ipad->second->id()]->setClusterBuffer(&_cluster_buffer);
+    fpproc[ipad->second->id()]=new padprocessor(ipad->second->id());
+    fpproc[ipad->second->id()]->setClusterBuffer(&fcluster_buffer);
     ++ipad;
   }
   // Connect PadProcessor neighbours
@@ -68,8 +68,8 @@ PndTpcSectorProcessor::Init(PndTpcPadPlane* p,
     unsigned int nneighb=ipad->second->nNeighbours();
     for(unsigned int in=0; in<nneighb; ++in){
       unsigned int neighID=ipad->second->getNeighbour(in);
-      if(_pproc[neighID]!=0){
-        _pproc[ipad->second->id()]->addNeighbour(_pproc[neighID]);
+      if(fpproc[neighID]!=0){
+        fpproc[ipad->second->id()]->addNeighbour(fpproc[neighID]);
         //cout << "Pad " << ipad->second->id() << " connects to Pad " << neighID <<endl;
       }
       else std::cout << "Neighbour " << neighID 
@@ -82,23 +82,23 @@ PndTpcSectorProcessor::Init(PndTpcPadPlane* p,
 void
 PndTpcSectorProcessor::process(){
   
-  //_cluster_buffer.clear();
+  //fcluster_buffer.clear();
 
-  unsigned int ndigis=_digi_buffer.size();
+  unsigned int ndigis=fdigi_buffer.size();
   if(ndigis==0)return;
-  //if(ndigis>0)std::cout<<ndigis<<" digis in sector "<<_SectorId<<std::endl;
+  //if(ndigis>0)std::cout<<ndigis<<" digis in sector "<<fSectorId<<std::endl;
   // loop over digis
   for(unsigned int i=0; i<ndigis; ++i){
     // fill padprocessors
-    //std::cout<<"fill data in pproc "<<(_digi_buffer[i])->padId()<<std::endl;
-    //unsigned int digisid=_padplane->GetPad((_digi_buffer[i])->padId())->sectorId();
-    //std::cout<<"in sector digisid="<<digisid<<" should be sector"<<_SectorId<<std::endl;
-    padprocessor* pp=_pproc[_digi_buffer[i]->padId()];
+    //std::cout<<"fill data in pproc "<<(fdigi_buffer[i])->padId()<<std::endl;
+    //unsigned int digisid=fpadplane->GetPad((fdigi_buffer[i])->padId())->sectorId();
+    //std::cout<<"in sector digisid="<<digisid<<" should be sector"<<fSectorId<<std::endl;
+    padprocessor* pp=fpproc[fdigi_buffer[i]->padId()];
     assert(pp!=NULL);
-    pp->setData(_digi_buffer[i]);
+    pp->setData(fdigi_buffer[i]);
     // activate pad processor by putting it into active list
     // this way only thos pads that have been hit are processing
-    _activepads[_digi_buffer[i]->padId()]=pp;
+    factivepads[fdigi_buffer[i]->padId()]=pp;
   } // end loop over digis
 
 
@@ -110,8 +110,8 @@ PndTpcSectorProcessor::process(){
     //cout<<"beat! ***************"<<endl;
     ++counter;
     GoOn=false;
-    std::map<unsigned int, padprocessor*>::iterator ip=_activepads.begin();
-    for(;ip!=_activepads.end(); ++ip){
+    std::map<unsigned int, padprocessor*>::iterator ip=factivepads.begin();
+    for(;ip!=factivepads.end(); ++ip){
       std::string nextstate=ip->second->heartbeat();
       if(nextstate!="end"){
 	GoOn=true;
@@ -124,40 +124,40 @@ PndTpcSectorProcessor::process(){
 
     // check number of digis still here
     //unsigned int numdig=0;
-    //std::map<unsigned int, padprocessor*>::iterator ppit=_pproc.begin();
-    //while(ppit!=_pproc.end()){
+    //std::map<unsigned int, padprocessor*>::iterator ppit=fpproc.begin();
+    //while(ppit!=fpproc.end()){
     //  numdig+=ppit->second->ndata();
     //  ++ppit;
       //}
     
 
   }// end heartbeats
-  if(counter>=39)std::cout<<"SectorProc"<<_SectorId
+  if(counter>=39)std::cout<<"SectorProc"<<fSectorId
 			  <<" terminated after 40beats loosing data"
 			  <<std::endl;
   //std::cout<<counter<<" heartbeats done"<<std::endl;
   //add digis in clusters
   unsigned int numdig=0;
-  for(unsigned int ic=0;ic<_cluster_buffer.size();++ic){
-    _cluster_buffer[ic];
-    numdig+= _cluster_buffer[ic]->size();
+  for(unsigned int ic=0;ic<fcluster_buffer.size();++ic){
+    fcluster_buffer[ic];
+    numdig+= fcluster_buffer[ic]->size();
   }
 
   int dif=(int)ndigis-(int)numdig;
-  if(numdig!=ndigis)std::cout<<"SectorProc"<<_SectorId
+  if(numdig!=ndigis)std::cout<<"SectorProc"<<fSectorId
 			     <<" lost "<<dif
 			     <<" digis"<<std::endl;
 
-  //if(_cluster_buffer.size()!=0){
-  // std::cout<<"Sector "<<_SectorId<<": "
+  //if(fcluster_buffer.size()!=0){
+  // std::cout<<"Sector "<<fSectorId<<": "
   //  	     <<numdig<<" digis used out of "
   //  	     <<ndigis<<" digis."<<std::endl;
   //}
 
   
   // cleanup ************
-  //_activepads.clear();
-  //_digi_buffer.clear();
+  //factivepads.clear();
+  //fdigi_buffer.clear();
   
   // calculate cog and create PndTpcClusters;
   cog();
@@ -166,24 +166,24 @@ PndTpcSectorProcessor::process(){
 void
 PndTpcSectorProcessor::reset()
 {
- _digi_buffer.clear();
- _cluster_buffer.clear();
- std::map<unsigned int, padprocessor*>::iterator ppit=_activepads.begin();
- while(ppit!=_activepads.end()){
+ fdigi_buffer.clear();
+ fcluster_buffer.clear();
+ std::map<unsigned int, padprocessor*>::iterator ppit=factivepads.begin();
+ while(ppit!=factivepads.end()){
    //std::cout<<"still "<<ppit->second->ndata()<<" data on padproc"<<std::endl;
    ppit->second->reset();
    ++ppit;
  }
- _activepads.clear();
+ factivepads.clear();
 }
 
 void
 PndTpcSectorProcessor::cog(){
-  assert(_padplane!=NULL);
-  assert(_output_buffer!=NULL);
+  assert(fpadplane!=NULL);
+  assert(foutput_buffer!=NULL);
   // Calculate COG
-  for(unsigned int ic=0;ic<_cluster_buffer.size();++ic){
-    std::vector<PndTpcDigi*>* digis=_cluster_buffer[ic];
+  for(unsigned int ic=0;ic<fcluster_buffer.size();++ic){
+    std::vector<PndTpcDigi*>* digis=fcluster_buffer[ic];
     TVector3 pos(0,0,0);
     double amp=0;
     TVector3 sig(0,0,0);
@@ -258,6 +258,6 @@ PndTpcSectorProcessor::cog(){
     cov*=1./(double)ndigis;
     cl->SetCov(cov);
 
-    _output_buffer->push_back(cl);
+    foutput_buffer->push_back(cl);
   }
 }

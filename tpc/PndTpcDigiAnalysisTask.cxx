@@ -43,9 +43,9 @@
 
 
 PndTpcDigiAnalysisTask::PndTpcDigiAnalysisTask()
-  : FairTask("TPC DigiAnalysis"), _persistence(kFALSE)
+  : FairTask("TPC DigiAnalysis"), fpersistence(kFALSE)
  {
-  _digiBranchName = "PndTpcDigi";
+  fdigiBranchName = "PndTpcDigi";
  }
 
 
@@ -66,34 +66,34 @@ PndTpcDigiAnalysisTask::Init()
     }
   
   // Get input collection
-  _digiArray=(TClonesArray*) ioman->GetObject(_digiBranchName);
+  fdigiArray=(TClonesArray*) ioman->GetObject(fdigiBranchName);
   
-  if(_digiArray==0)
+  if(fdigiArray==0)
     {
       Error("PndTpcDigiAnalysisTask::Init","Digi-array not found!");
       return kERROR;
     }
   
-  _hTimesOverThres=new TH1D("TimesOverThres","Total TimesOverThres",800,0,20000);
- _hContOT=new TH1D("ContOT","Continuous TimesOverThres",200,0,5000);
-  _hTimesXY=new TH2D("TimesXY","TimesOverThres on Pads",420,-42.01,39.99,420,-42.01,39.99);
+  fhTimesOverThres=new TH1D("TimesOverThres","Total TimesOverThres",800,0,20000);
+ fhContOT=new TH1D("ContOT","Continuous TimesOverThres",200,0,5000);
+  fhTimesXY=new TH2D("TimesXY","TimesOverThres on Pads",420,-42.01,39.99,420,-42.01,39.99);
 
-  _hTimesR=new TH2D("TimesR","TimesOverThres vs R",42,0,42,800,0,20000);
-  _hContOTR=new TH2D("ContTimesR","Continuous TimesOverThres vs R",42,0,42,200,0,5000);
-  _hDigiLengthR=new TH2D("DigiLengthR","DigiLength vs R",42,0,42,80,0,2000);
-  _hDigiLengthXY=new TH2D("DigiLengthXY","DigiLength on Pads",420,-42.01,39.99,420,-42.01,39.99);
+  fhTimesR=new TH2D("TimesR","TimesOverThres vs R",42,0,42,800,0,20000);
+  fhContOTR=new TH2D("ContTimesR","Continuous TimesOverThres vs R",42,0,42,200,0,5000);
+  fhDigiLengthR=new TH2D("DigiLengthR","DigiLength vs R",42,0,42,80,0,2000);
+  fhDigiLengthXY=new TH2D("DigiLengthXY","DigiLength on Pads",420,-42.01,39.99,420,-42.01,39.99);
 
 
-  _frontend= _par->getFrontend();
+  ffrontend= fpar->getFrontend();
 
-  _mapper=PndTpcDigiMapper::getInstance(0);
+  fmapper=PndTpcDigiMapper::getInstance(0);
 
-   _mapper->init(_par->getPadPlane(),
-            _par->getGem(),
-            _par->getGas(),
-            _par->getZGem(),
-            _frontend->t0(),
-            _frontend->samplingFrequency());
+   fmapper->init(fpar->getPadPlane(),
+            fpar->getGem(),
+            fpar->getGas(),
+            fpar->getZGem(),
+            ffrontend->t0(),
+            ffrontend->samplingFrequency());
 
   return kSUCCESS;
 }
@@ -108,7 +108,7 @@ PndTpcDigiAnalysisTask::Exec(Option_t* opt)
   std::map<unsigned int, double> conttimes;
   std::map<unsigned int, int> lastdigi;
   
-  int ndigi=_digiArray->GetEntriesFast();
+  int ndigi=fdigiArray->GetEntriesFast();
   std::cout<<ndigi<<" Digis in event."<<std::endl;
 
   if(ndigi==0)return;
@@ -116,25 +116,25 @@ PndTpcDigiAnalysisTask::Exec(Option_t* opt)
 
   double meanl=0;
   for(int i=0;i<ndigi;++i){
-    PndTpcDigi* digi=(PndTpcDigi*)_digiArray->At(i);
+    PndTpcDigi* digi=(PndTpcDigi*)fdigiArray->At(i);
     unsigned int padId=digi->padId();
     
-    double dt=_frontend->dt();
+    double dt=ffrontend->dt();
     double l=digi->tlength()*dt;
     meanl+=l;
     times[padId]+=l;
-    double x=_mapper->getPad(padId)->x();
-    double y=_mapper->getPad(padId)->y();
+    double x=fmapper->getPad(padId)->x();
+    double y=fmapper->getPad(padId)->y();
     double r=sqrt(x*x+y*y);
-    _hDigiLengthR->Fill(r,l);
-    _hDigiLengthXY->Fill(x,y,l);
+    fhDigiLengthR->Fill(r,l);
+    fhDigiLengthXY->Fill(x,y,l);
 
     // check if last contiuous pulse is over
     if(lastdigi[padId]!=0){
-      PndTpcDigi* ldigi=(PndTpcDigi*)_digiArray->At(lastdigi[padId]-1);
+      PndTpcDigi* ldigi=(PndTpcDigi*)fdigiArray->At(lastdigi[padId]-1);
       if(digi->t()*dt-0.3*l>ldigi->t()*dt+(0.7*ldigi->tlength()+1.0)*dt){
-	_hContOT->Fill(conttimes[padId]);
-	_hContOTR->Fill(r,conttimes[padId]);
+	fhContOT->Fill(conttimes[padId]);
+	fhContOTR->Fill(r,conttimes[padId]);
 	conttimes[padId]=0;
       }
     }
@@ -152,12 +152,12 @@ PndTpcDigiAnalysisTask::Exec(Option_t* opt)
   std::map<unsigned int,double>::iterator it=times.begin();
   while(it!=times.end()){
     meantimeoverthres+=it->second;
-    _hTimesOverThres->Fill(it->second);
-    double x=_mapper->getPad(it->first)->x();
-    double y=_mapper->getPad(it->first)->y();
-    _hTimesXY->Fill(x,y,it->second);
+    fhTimesOverThres->Fill(it->second);
+    double x=fmapper->getPad(it->first)->x();
+    double y=fmapper->getPad(it->first)->y();
+    fhTimesXY->Fill(x,y,it->second);
     double r=sqrt(x*x+y*y);
-    _hTimesR->Fill(r,it->second);
+    fhTimesR->Fill(r,it->second);
     ++it;
   }
   meantimeoverthres/=(double)times.size();
@@ -170,11 +170,11 @@ PndTpcDigiAnalysisTask::Exec(Option_t* opt)
   std::map<unsigned int,double>::iterator itc=conttimes.begin();
   while(itc!=conttimes.end()){
     meanctimeot+=itc->second;
-    _hContOT->Fill(itc->second);
-    double x=_mapper->getPad(itc->first)->x();
-    double y=_mapper->getPad(itc->first)->y();
+    fhContOT->Fill(itc->second);
+    double x=fmapper->getPad(itc->first)->x();
+    double y=fmapper->getPad(itc->first)->y();
     double r=sqrt(x*x+y*y);
-    _hContOTR->Fill(r,itc->second);
+    fhContOTR->Fill(r,itc->second);
     ++itc;
   }
   meanctimeot/=(double)conttimes.size();
@@ -202,8 +202,8 @@ PndTpcDigiAnalysisTask::SetParContainers() {
   if ( ! db ) Fatal("SetParContainers", "No runtime database");
 
   // Get PndTpc digitisation parameter container
-  _par= (PndTpcDigiPar*) db->getContainer("PndTpcDigiPar");
-  if (! _par ) Fatal("SetParContainers", "PndTpcDigiPar not found");
+  fpar= (PndTpcDigiPar*) db->getContainer("PndTpcDigiPar");
+  if (! fpar ) Fatal("SetParContainers", "PndTpcDigiPar not found");
 }
 
 
@@ -212,13 +212,13 @@ PndTpcDigiAnalysisTask::WriteHistos()
 {
   TFile* outfile=FairRootManager::Instance()->GetOutFile();
   outfile->cd();
-  _hTimesOverThres->Write();
-  _hTimesXY->Write();
-  _hTimesR->Write();
-  _hDigiLengthR->Write();
-  _hDigiLengthXY->Write();
-  _hContOT->Write();
-  _hContOTR->Write();
+  fhTimesOverThres->Write();
+  fhTimesXY->Write();
+  fhTimesR->Write();
+  fhDigiLengthR->Write();
+  fhDigiLengthXY->Write();
+  fhContOT->Write();
+  fhContOTR->Write();
 }
 
 ClassImp(PndTpcDigiAnalysisTask)

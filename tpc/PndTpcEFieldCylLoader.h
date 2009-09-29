@@ -39,9 +39,9 @@ public:
 
 private:
 
-  const char* _fileName;
-  PndTpcEFieldCyl* _field;
-  std::vector<std::vector<TVector3*>*>* _fieldmap;
+  const char* ffileName;
+  PndTpcEFieldCyl* ffield;
+  std::vector<std::vector<TVector3*>*>* ffieldmap;
   
 };
 

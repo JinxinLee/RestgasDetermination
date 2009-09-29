@@ -45,16 +45,16 @@ using namespace std;
 // Class Member definitions -----------
 
 PndTpcMCDEdxTask::PndTpcMCDEdxTask()
-  : FairTask("dEdx"), _persistence(kFALSE), _combineHitsLength(false),_combineHitsNumber(false), _catchRemaining(kFALSE),_combineLength(0.5),_combineNumber(10),_startHit(0), _pdgselect(false), _pdgId(0), _pmin(0.00001), _pmax(100.0), _thetamin(0), 
-    _thetamax(TMath::TwoPi()), _minTpcHits(0), _maxTpcHits(100000)
+  : FairTask("dEdx"), fpersistence(kFALSE), fcombineHitsLength(false),fcombineHitsNumber(false), fcatchRemaining(kFALSE),fcombineLength(0.5),fcombineNumber(10),fstartHit(0), fpdgselect(false), fpdgId(0), fpmin(0.00001), fpmax(100.0), fthetamin(0), 
+    fthetamax(TMath::TwoPi()), fminTpcHits(0), fmaxTpcHits(100000)
 {
 	//these Branches store the inforamtion for calculating dedx
-	_mcTrackBranchName = "MCTrack";
-	_mcPointBranchName = "PndTpcPoint";
+	fmcTrackBranchName = "MCTrack";
+	fmcPointBranchName = "PndTpcPoint";
 	
-	_HistoDEdx=NULL;
-	_HistoSumDESumdx=NULL;
-	_HistoTruncSumDESumdx=NULL;
+	fHistoDEdx=NULL;
+	fHistoSumDESumdx=NULL;
+	fHistoTruncSumDESumdx=NULL;
 }
 
 PndTpcMCDEdxTask::~PndTpcMCDEdxTask()
@@ -75,35 +75,35 @@ PndTpcMCDEdxTask::Init()
 		
 	// Get input collection
 	//Get  MonteCarlo Track
-	 _mcTrackArray=(TClonesArray*) ioman->GetObject(_mcTrackBranchName);
-	if(_mcTrackArray==0)   {
+	 fmcTrackArray=(TClonesArray*) ioman->GetObject(fmcTrackBranchName);
+	if(fmcTrackArray==0)   {
      	Error("PndTpcMCDEdxTask::Init","MC-Truth not found!");
       	return kERROR;
     	}
 	
 	//Get the MC-TpcHits
-	_mcTpcHitArray=(TClonesArray*) ioman->GetObject(_mcPointBranchName);
-  	if(_mcTpcHitArray==0)	{
+	fmcTpcHitArray=(TClonesArray*) ioman->GetObject(fmcPointBranchName);
+  	if(fmcTpcHitArray==0)	{
      	Error("PndTpcMCDEdxTask::Init","Tpc MC-Hits not found!");
       	return kERROR;
     	}
 
  	 // create and register output array
 	 // the calculated dedx values will be stored here
-	_dEdxArray = new TClonesArray("PndTpcRawDEdxCollection");
-	if(_dEdxArray==0)	{
+	fdEdxArray = new TClonesArray("PndTpcRawDEdxCollection");
+	if(fdEdxArray==0)	{
 		Error("PndTpcMCDEdxTask::Init", "dEdxArray==0");
 		return kERROR;
 	}
-	ioman->Register("PndTpcRawDEdx", "PndTpc", _dEdxArray, _persistence);
+	ioman->Register("PndTpcRawDEdx", "PndTpc", fdEdxArray, fpersistence);
 	 
 	  
-	//_____________________________________
+	//f____________________________________
 	//Some output histograms
-	//_HistoDEdx=new TH2F("HistoDEdx","dE/dx",600,0,3, 10000, 0, 20000 );
+	//fHistoDEdx=new TH2F("HistoDEdx","dE/dx",600,0,3, 10000, 0, 20000 );
 	/*
-	_HistoSumDESumdx=new TH2F("HistoSumDESumdx","sum_dE/sum_dx",300,0,3, 10000, 0, 20000);
-	_HistoTruncSumDESumdx=new TH2F("HistoTruncSumDESumdx","Trunc(sum_dE/sum_dx)",300,0,3, 10000, 0, 20000);
+	fHistoSumDESumdx=new TH2F("HistoSumDESumdx","sum_dE/sum_dx",300,0,3, 10000, 0, 20000);
+	fHistoTruncSumDESumdx=new TH2F("HistoTruncSumDESumdx","Trunc(sum_dE/sum_dx)",300,0,3, 10000, 0, 20000);
 	*/
 
 	return kSUCCESS;
@@ -111,13 +111,13 @@ PndTpcMCDEdxTask::Init()
 
 void PndTpcMCDEdxTask::ValidateArrays() const
 {
-	if(_dEdxArray==0) { 
+	if(fdEdxArray==0) { 
 		Fatal("PndTpcMCDEdxTask::Exec","No DEdx Output Array");
 	}
-	if(_mcTpcHitArray==0)	{
+	if(fmcTpcHitArray==0)	{
 		Fatal("PndTpcMCDEdxTask::Exec","No Cluster Array");
 	}
-	if(_mcTrackArray==0)	{
+	if(fmcTrackArray==0)	{
 		Fatal("PndTpcMCDEdxTask::Exec","No Track Array");
 	}
 }
@@ -129,17 +129,17 @@ PndTpcMCDEdxTask::Exec(Option_t* opt)
 	ValidateArrays();
 	
 	// clear output
-  	_dEdxArray->Delete();
+  	fdEdxArray->Delete();
 
 	// loop over mc-tracks in this event
-	int nmctrks=_mcTrackArray->GetEntriesFast();
+	int nmctrks=fmcTrackArray->GetEntriesFast();
 	cout << "PndTpcMCDEdxTask::Exec: " << "Number of Tracks: " << nmctrks << endl;
 	vector<PndTpcPoint *> HitsInTrack;
 	vector<PndTpcDEDXStorageHelper> DEDXPoints;
 	for(int imc=0; imc<nmctrks;++imc) 
 	{
 		//cout << "TrackNr: " << imc << endl;
-		PndMCTrack *mc=(PndMCTrack*)_mcTrackArray->At(imc);
+		PndMCTrack *mc=(PndMCTrack*)fmcTrackArray->At(imc);
 
 		Int_t nPDG = mc->GetPdgCode();
 		if(!CheckPDG(nPDG))					{ continue;}
@@ -153,14 +153,14 @@ PndTpcMCDEdxTask::Exec(Option_t* opt)
 		PndTpcHitMerger HitMerger;
 		vector <PndTpcDEDXStorageHelper> DEDXInTrack;
 		HitMerger.ConvertHits(HitsInTrack, DEDXInTrack);
-		HitMerger.CatchRemaining(_catchRemaining);
-		if(_combineHitsLength)	{
+		HitMerger.CatchRemaining(fcatchRemaining);
+		if(fcombineHitsLength)	{
 			DEDXPoints.clear();
-			HitMerger.MaxDxMerging( _combineLength, DEDXInTrack,DEDXPoints );
+			HitMerger.MaxDxMerging( fcombineLength, DEDXInTrack,DEDXPoints );
 			cout << "Merging Hits by Length active!" << endl;
 		}
-		else if(_combineHitsNumber)	{
-			HitMerger.CombineHits( _combineNumber, DEDXInTrack,DEDXPoints );
+		else if(fcombineHitsNumber)	{
+			HitMerger.CombineHits( fcombineNumber, DEDXInTrack,DEDXPoints );
 			cout << "Merging Hits by Number active!" << endl;		
 		}
 		else	{
@@ -169,7 +169,7 @@ PndTpcMCDEdxTask::Exec(Option_t* opt)
 		}
 		
 		cout << "Starting real work..." << endl;
-		Int_t size=_dEdxArray->GetEntriesFast();
+		Int_t size=fdEdxArray->GetEntriesFast();
 		//PndTpcRawDEdxCollection* dedxinf=new PndTpcRawDEdxCollection;
 		std::sort(DEDXPoints.begin(), DEDXPoints.end());
 	
@@ -185,7 +185,7 @@ PndTpcMCDEdxTask::Exec(Option_t* opt)
 		}
 		
 		if(DEDXPoints.size())	{
-		PndTpcRawDEdxCollection* dedxinf=new ((*_dEdxArray)[size]) PndTpcRawDEdxCollection;
+		PndTpcRawDEdxCollection* dedxinf=new ((*fdEdxArray)[size]) PndTpcRawDEdxCollection;
 		if(dedxinf)	{
 			dedxinf->SetTrackNr(imc);
 			dedxinf->SetPDG(nPDG);
@@ -206,7 +206,7 @@ PndTpcMCDEdxTask::Exec(Option_t* opt)
 		}
 		DEDXPoints.clear();
 		HitsInTrack.clear();
-		//PndTpcRawDEdxCollection* dedxinf2=new ((*_dEdxArray)[size]) PndTpcRawDEdxCollection;
+		//PndTpcRawDEdxCollection* dedxinf2=new ((*fdEdxArray)[size]) PndTpcRawDEdxCollection;
 		//(*dedxinf2)=(*dedxinf);
 		//delete dedxinf;
 		cout << "...Done real work" << endl;
@@ -218,11 +218,11 @@ PndTpcMCDEdxTask::Exec(Option_t* opt)
 
 void PndTpcMCDEdxTask::GetHitsInTrack(int nTrackNr, std::vector<PndTpcPoint*> &Hits) const
 {
-	int ntpcMChits=_mcTpcHitArray->GetEntriesFast();
-	int startHit=_startHit;
+	int ntpcMChits=fmcTpcHitArray->GetEntriesFast();
+	int startHit=fstartHit;
 	for(int jmc=startHit; jmc<ntpcMChits; ++jmc)
 	{
-		PndTpcPoint *pPoint=(PndTpcPoint*)_mcTpcHitArray->At(jmc);
+		PndTpcPoint *pPoint=(PndTpcPoint*)fmcTpcHitArray->At(jmc);
 		assert(pPoint);
 		Int_t nID=pPoint->GetTrackID();
 		if( nID == nTrackNr )	{	
@@ -233,9 +233,9 @@ void PndTpcMCDEdxTask::GetHitsInTrack(int nTrackNr, std::vector<PndTpcPoint*> &H
 
 bool PndTpcMCDEdxTask::CheckPDG(Int_t nPDG) const
 {
-	if( !( _pdgId == nPDG || !_pdgselect ) )	{	//if pdgselect is deactivated, always false
+	if( !( fpdgId == nPDG || !fpdgselect ) )	{	//if pdgselect is deactivated, always false
 		cout <<  "PndTpcMCDEdxTask::Exec: " << "Info: Track " << " will be skipped..." << endl;
-		cout <<  "...Reason: PDG: " << nPDG << " not equal to " << _pdgId << endl;
+		cout <<  "...Reason: PDG: " << nPDG << " not equal to " << fpdgId << endl;
 		return false;	
 	}
 	return true;
@@ -244,7 +244,7 @@ bool PndTpcMCDEdxTask::CheckPDG(Int_t nPDG) const
 bool PndTpcMCDEdxTask::CheckMomentum(Double_t P) const
 {
 	//cout << "P: - " << P << endl;	
-	if( P >  _pmax || P < _pmin )	{
+	if( P >  fpmax || P < fpmin )	{
 		cout <<  "PndTpcMCDEdxTask::Exec: " <<  "Skipping Track" << "!" << endl;
 		cout <<  "...Reason: Momentum P: " << P << " out of Range" << endl;
 		return false;
@@ -255,7 +255,7 @@ bool PndTpcMCDEdxTask::CheckMomentum(Double_t P) const
 bool PndTpcMCDEdxTask::CheckHits(unsigned int nHits) const
 {
 	//cout << "nHits: " << nHits << endl;
-	if(nHits < _minTpcHits || nHits > _maxTpcHits)	{	
+	if(nHits < fminTpcHits || nHits > fmaxTpcHits)	{	
 		//cout <<  "PndTpcMCDEdxTask::Exec: " <<  "Skipping Track" << "!" << endl;
 		//cout <<  "...Reason: Number of TpcHits: " << nHits << " out of Range" << endl;			
 		return false;
@@ -274,21 +274,21 @@ PndTpcMCDEdxTask::WriteHistograms(const TString& filename){
      file->mkdir("dEdx");
      file->cd("dEdx");
      
-	if(_HistoDEdx)	{
-		_HistoDEdx->Write();
-		delete _HistoDEdx;
-		_HistoDEdx=NULL;
+	if(fHistoDEdx)	{
+		fHistoDEdx->Write();
+		delete fHistoDEdx;
+		fHistoDEdx=NULL;
 	}
 	
-	if(_HistoSumDESumdx)	{
-		_HistoSumDESumdx->Write();
-		delete _HistoSumDESumdx;
-		_HistoSumDESumdx=NULL;
+	if(fHistoSumDESumdx)	{
+		fHistoSumDESumdx->Write();
+		delete fHistoSumDESumdx;
+		fHistoSumDESumdx=NULL;
 	}
-	if(_HistoTruncSumDESumdx)	{
-		_HistoTruncSumDESumdx->Write();
-		delete _HistoTruncSumDESumdx;
-		_HistoTruncSumDESumdx=NULL;
+	if(fHistoTruncSumDESumdx)	{
+		fHistoTruncSumDESumdx->Write();
+		delete fHistoTruncSumDESumdx;
+		fHistoTruncSumDESumdx=NULL;
      }
 	
      file->Close();

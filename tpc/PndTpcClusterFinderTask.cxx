@@ -44,10 +44,10 @@
 
 
 PndTpcClusterFinderTask::PndTpcClusterFinderTask()
-  : FairTask("TPC Cluster Finder"), _persistence(kFALSE),_trivial(kFALSE),
-    _timeslice(2), _mode(0)
+  : FairTask("TPC Cluster Finder"), fpersistence(kFALSE),ftrivial(kFALSE),
+    ftimeslice(2), fmode(0)
 {
-  _digiBranchName = "PndTpcDigi";
+  fdigiBranchName = "PndTpcDigi";
 }
 
 
@@ -69,8 +69,8 @@ PndTpcClusterFinderTask::SetParContainers() {
   if ( ! db ) Fatal("SetParContainers", "No runtime database");
 
   // Get PndTpc digitisation parameter container
-  _par= (PndTpcDigiPar*) db->getContainer("PndTpcDigiPar");
-  if (! _par ) Fatal("SetParContainers", "PndTpcDigiPar not found");
+  fpar= (PndTpcDigiPar*) db->getContainer("PndTpcDigiPar");
+  if (! fpar ) Fatal("SetParContainers", "PndTpcDigiPar not found");
 }
 
 
@@ -87,37 +87,37 @@ PndTpcClusterFinderTask::Init()
     }
   
   // Get input collection
-  _digiArray=(TClonesArray*) ioman->GetObject(_digiBranchName);
+  fdigiArray=(TClonesArray*) ioman->GetObject(fdigiBranchName);
   
-  if(_digiArray==0)
+  if(fdigiArray==0)
     {
       Error("PndTpcClusterFinderTask::Init","Digi-array not found!");
       return kERROR;
     }
   
   // create and register output array
-  _clusterArray = new TClonesArray("PndTpcCluster"); 
-  ioman->Register("PndTpcCluster","PndTpc",_clusterArray,_persistence);
+  fclusterArray = new TClonesArray("PndTpcCluster"); 
+  ioman->Register("PndTpcCluster","PndTpc",fclusterArray,fpersistence);
 
   
   //TODO: Get this from Database!
-  _par->printParams();
-  _frontend= _par->getFrontend();
-  _padplane= _par->getPadPlane();
-  _gas=      _par->getGas();
-  _zGem=     _par->getZGem();
-  double sf= _par->getFrontend()->samplingFrequency();
-  double t0= _par->getFrontend()->t0();
+  fpar->printParams();
+  ffrontend= fpar->getFrontend();
+  fpadplane= fpar->getPadPlane();
+  fgas=      fpar->getGas();
+  fzGem=     fpar->getZGem();
+  double sf= fpar->getFrontend()->samplingFrequency();
+  double t0= fpar->getFrontend()->t0();
 
-  PndTpcDigiMapper::getInstance(false)->init(_padplane,_gem,_gas,_zGem,t0,sf);
+  PndTpcDigiMapper::getInstance(false)->init(fpadplane,fgem,fgas,fzGem,t0,sf);
  
-  _cluster_buffer=new std::vector<PndTpcCluster*>;
-  _finder=new PndTpcClusterFinder(PndTpcDigiMapper::getInstance()->getPadPlane(),
-			       _cluster_buffer,
-			       _timeslice, _mode);
+  fcluster_buffer=new std::vector<PndTpcCluster*>;
+  ffinder=new PndTpcClusterFinder(PndTpcDigiMapper::getInstance()->getPadPlane(),
+			       fcluster_buffer,
+			       ftimeslice, fmode);
   
-  _finder->checkConsistency();
-  _finder->setTrivialClustering(_trivial);
+  ffinder->checkConsistency();
+  ffinder->setTrivialClustering(ftrivial);
 
   return kSUCCESS;
 }
@@ -128,49 +128,49 @@ PndTpcClusterFinderTask::Exec(Option_t* opt)
 {
   std::cout<<"PndTpcClusterFinderTask::Exec"<<std::endl;
   // Reset output Array
-  if(_clusterArray==0) Fatal("PndTpcClusterFinder::Exec)","No ClusterArray");
-   _clusterArray->Delete();
+  if(fclusterArray==0) Fatal("PndTpcClusterFinder::Exec)","No ClusterArray");
+   fclusterArray->Delete();
 
-   _finder->reset();
+   ffinder->reset();
 
    //for sorting
    std::vector<PndTpcDigi*>digis;
    
 
   // For now: trivial clustering;
-   Int_t ndigis=_digiArray->GetEntriesFast();
+   Int_t ndigis=fdigiArray->GetEntriesFast();
    for(Int_t i=0;i<ndigis;++i){
-     PndTpcDigi* digi=(PndTpcDigi*)_digiArray->At(i);
+     PndTpcDigi* digi=(PndTpcDigi*)fdigiArray->At(i);
      digis.push_back(digi);
    }
 
-   _finder->process(digis);
+   ffinder->process(digis);
    //sort(digis.begin(),digis.end(),PndTpcDigiAge());
 
    /*for(Int_t i=0;i<ndigis;++i){
      PndTpcDigi* digi=digis[i];
      TVector3 pos;
      PndTpcDigiMapper::getInstance()->map(digi,pos);
-     PndTpcCluster* c=new((*_clusterArray)[i]) PndTpcCluster(pos,digi->amp());
+     PndTpcCluster* c=new((*fclusterArray)[i]) PndTpcCluster(pos,digi->amp());
      c->SetMcId(digi->mcId().DominantID());
      }*/
 
    // put clusters into array and clean up buffer
-   unsigned int ncl=_cluster_buffer->size();
+   unsigned int ncl=fcluster_buffer->size();
    unsigned int ndig=0;
    for(unsigned int icl=0;icl<ncl;++icl){
-     PndTpcCluster* cl=new((*_clusterArray)[icl]) PndTpcCluster(*(*_cluster_buffer)[icl]);
+     PndTpcCluster* cl=new((*fclusterArray)[icl]) PndTpcCluster(*(*fcluster_buffer)[icl]);
      cl->SetIndex(icl);
-     ndig+=(*_cluster_buffer)[icl]->size();
-     delete (*_cluster_buffer)[icl];
+     ndig+=(*fcluster_buffer)[icl]->size();
+     delete (*fcluster_buffer)[icl];
    }
 
 
-   std::cout<<_clusterArray->GetEntriesFast()<<" cluster created "
+   std::cout<<fclusterArray->GetEntriesFast()<<" cluster created "
 	    <<" containing "<<ndig<<" digis"
 	    <<" from "<<ndigis<<std::endl;
    
-   _cluster_buffer->clear();
+   fcluster_buffer->clear();
    digis.clear();
    
   return;

@@ -44,10 +44,10 @@
 
 
 PndTpcLaserCorrectionTask::PndTpcLaserCorrectionTask()
-  : FairTask("TPC LaserCorrection"), _persistence(kFALSE)
+  : FairTask("TPC LaserCorrection"), fpersistence(kFALSE)
 {
-  _clusterBranchName = "PndTpcCluster";
-  _recoFileName = "laser.new.reco.root";
+  fclusterBranchName = "PndTpcCluster";
+  frecoFileName = "laser.new.reco.root";
 }
 
 
@@ -69,32 +69,32 @@ PndTpcLaserCorrectionTask::Init()
     }
   
   // Get input collection
-  _clusterArray=(TClonesArray*) ioman->GetObject(_clusterBranchName);
+  fclusterArray=(TClonesArray*) ioman->GetObject(fclusterBranchName);
   
-  if(_clusterArray==0)
+  if(fclusterArray==0)
     {
       Error("PndTpcLaserCorrectionTask::Init","Cluster-array not found!");
       return kERROR;
     }
   
   // create and register output array
-  _backupBranchName = _clusterBranchName.Append("_uncorrected");
-  _backupArray = new TClonesArray("PndTpcPrimaryCluster"); 
-  ioman->Register(_backupBranchName,"PndTpc",_backupArray,_persistence);
+  fbackupBranchName = fclusterBranchName.Append("funcorrected");
+  fbackupArray = new TClonesArray("PndTpcPrimaryCluster"); 
+  ioman->Register(fbackupBranchName,"PndTpc",fbackupArray,fpersistence);
 
-  _zMin=_par->getZGem();
-  _zMax=_par->getZMax();
-  _rMin=_par->getRMin();
-  _rMax=_par->getRMax();
+  fzMin=fpar->getZGem();
+  fzMax=fpar->getZMax();
+  frMin=fpar->getRMin();
+  frMax=fpar->getRMax();
 
-  _recoFile = new TFile(_recoFileName);
+  frecoFile = new TFile(frecoFileName);
   
-  if(_recoFile->IsZombie()) {
+  if(frecoFile->IsZombie()) {
     Error("PndTpcLaserCorrectionTask::Init","LaserReco-File not valid! Aborting ...");
     return kERROR;
   }
   
-  TTree* tr = (TTree*) _recoFile->Get("cbmsim");
+  TTree* tr = (TTree*) frecoFile->Get("cbmsim");
   if(tr==NULL) {
     Error("PndTpcLaserCorrectionTask::Init",
 	  "Could not read tree from LaserReco-File! Aborting ...");
@@ -109,9 +109,9 @@ PndTpcLaserCorrectionTask::Init()
   }
   tr->GetEvent(0);
   PndTpcLaserFitTaskStat* stat = (PndTpcLaserFitTaskStat*) arr->At(0);
-  _recoMapR = stat->getRecoMapR_Spline();
-  _recoMapPerp = stat->getRecoMapPerp_Spline();
-  if(_recoMapR == NULL || _recoMapPerp == NULL) {
+  frecoMapR = stat->getRecoMapR_Spline();
+  frecoMapPerp = stat->getRecoMapPerp_Spline();
+  if(frecoMapR == NULL || frecoMapPerp == NULL) {
     Error("PndTpcLaserCorrectionTask::Init",
 	  "Could not read Spline objects from LaserReco-File! Aborting ...");
   }
@@ -135,8 +135,8 @@ PndTpcLaserCorrectionTask::SetParContainers() {
   if ( ! db ) Fatal("SetParContainers", "No runtime database");
 
   // Get PndTpc digitisation parameter container
-  _par= (PndTpcDigiPar*) db->getContainer("PndTpcDigiPar");
-  if (! _par ) Fatal("SetParContainers", "PndTpcDigiPar not found");
+  fpar= (PndTpcDigiPar*) db->getContainer("PndTpcDigiPar");
+  if (! fpar ) Fatal("SetParContainers", "PndTpcDigiPar not found");
 }
 
 
@@ -146,21 +146,21 @@ void
 PndTpcLaserCorrectionTask::Exec(Option_t* opt)
 {
   // Reset output Array
-  if(_backupArray==0) Fatal("PndTpcLaserCorrectionTask::Exec)","No BackupClusterArray");
-  _backupArray->Delete();
+  if(fbackupArray==0) Fatal("PndTpcLaserCorrectionTask::Exec)","No BackupClusterArray");
+  fbackupArray->Delete();
 
-  Int_t ncl=_clusterArray->GetEntriesFast();
+  Int_t ncl=fclusterArray->GetEntriesFast();
 
   TVector3 clpos;
   
   //begin looping over clusters
   for(unsigned int clust=0; clust<ncl; ++clust) {
     
-    PndTpcCluster* cl = (PndTpcCluster*) _clusterArray->At(clust);
+    PndTpcCluster* cl = (PndTpcCluster*) fclusterArray->At(clust);
         
     //make and store copy of uncorrected cluster
     
-    //PndTpcCluster* cl_back = new((*_backupArray)[clust]) PndTpcCluster(*cl);
+    //PndTpcCluster* cl_back = new((*fbackupArray)[clust]) PndTpcCluster(*cl);
     
     clpos = cl->pos();
 
@@ -172,14 +172,14 @@ PndTpcLaserCorrectionTask::Exec(Option_t* opt)
     double z = clpos.Z();
     
     //read reco-deviations
-    double reco_dr = _recoMapR->eval(z,r);
-    double reco_dperp = _recoMapPerp->eval(z,r);
+    double reco_dr = frecoMapR->eval(z,r);
+    double reco_dperp = frecoMapPerp->eval(z,r);
     
     clpos.SetXYZ(r-reco_dr,-reco_dperp,z);
     
     //rotate back
     clpos.RotateZ(phi);
-    cl->_pos = clpos;
+    cl->fpos = clpos;
         
   } //end loop over clusters
 

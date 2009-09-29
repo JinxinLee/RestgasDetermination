@@ -33,8 +33,8 @@ class PndTpcPadShapeSquare: public PndTpcAbsPadShape {
 public:
 
   // Constructors/Destructors ---------
-  PndTpcPadShapeSquare(const double _d,
-		       const unsigned int _ID);
+  PndTpcPadShapeSquare(const double fd,
+		       const unsigned int fID);
   virtual ~PndTpcPadShapeSquare();
 
   // Operators

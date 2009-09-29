@@ -50,7 +50,7 @@ class PndTpcLaserTask : public FairTask {
 // Accessors ------------------------------------------------
 
   PndTpcLaser* getLaser(const TVector3& start){;} //TODO: implement
-  std::vector<PndTpcLaser*>* getLaserList() {return _laserList;}
+  std::vector<PndTpcLaser*>* getLaserList() {return flaserList;}
 
 // Modifiers ------------------------------------------------
 
@@ -73,21 +73,21 @@ class PndTpcLaserTask : public FairTask {
 
  private:
 
-  TClonesArray* _primArray;
-  TClonesArray* _laserArray;
-  std::vector<PndTpcLaser*>* _laserList;  
-  PndTpcLaser* _currentLaser;
-  const char* _filename;
-  char _dir_or_end[15];
-  bool _is_end;
-  double _startX,_startY,_startZ,_dirX,_dirY,_dirZ,_iondens,_width,_time;
+  TClonesArray* fprimArray;
+  TClonesArray* flaserArray;
+  std::vector<PndTpcLaser*>* flaserList;  
+  PndTpcLaser* fcurrentLaser;
+  const char* ffilename;
+  char fdir_or_end[15];
+  bool fis_end;
+  double fstartX,fstartY,fstartZ,fdirX,fdirY,fdirZ,fiondens,fwidth,ftime;
   unsigned int addCounter, NEcount;
 
   void readFromFile(bool);
 
-  double _zMin,_zMax,_rMin,_rMax;
+  double fzMin,fzMax,frMin,frMax;
 
-  PndTpcDigiPar* _par;
+  PndTpcDigiPar* fpar;
   
   
 public:

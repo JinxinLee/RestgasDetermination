@@ -29,35 +29,35 @@
 ClassImp(McId);
 
 McId::McId()
-  : _mceventID(0), _mctrackID(0), _weight(1)
+  : fmceventID(0), fmctrackID(0), fweight(1)
 {;}
 
 McId::McId(const unsigned int eventid,
 	   const unsigned int trackid,
 	   const double weight)
-  : _mceventID(eventid), _mctrackID(trackid), _weight(weight)
+  : fmceventID(eventid), fmctrackID(trackid), fweight(weight)
 {;}
 
 McId::~McId(){}
 
 bool 
 operator== (const McId& lhs, const McId& rhs){
-  return lhs._mceventID==rhs._mceventID &&
-    lhs._mctrackID==rhs._mctrackID;
+  return lhs.fmceventID==rhs.fmceventID &&
+    lhs.fmctrackID==rhs.fmctrackID;
 }
 
 bool 
 operator< (const McId& lhs, const McId& rhs){
-  return lhs._mceventID<rhs._mceventID ||
-    (lhs._mceventID==rhs._mceventID && lhs._mctrackID<rhs._mctrackID);
+  return lhs.fmceventID<rhs.fmceventID ||
+    (lhs.fmceventID==rhs.fmceventID && lhs.fmctrackID<rhs.fmctrackID);
 }
 
 
 
 std::ostream& operator<< (std::ostream& s, const McId& me){
   s << "McID: \n"
-    << "  Event "<<me._mceventID<<"\n"
-    << "  Track "<<me._mctrackID<<"\n"
-    << "  weight "<<me._weight;
+    << "  Event "<<me.fmceventID<<"\n"
+    << "  Track "<<me.fmctrackID<<"\n"
+    << "  weight "<<me.fweight;
   return s;
 }

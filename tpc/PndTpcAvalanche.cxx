@@ -33,8 +33,8 @@ ClassImp(PndTpcAvalanche)
 // Class Member definitions -----------
 
 PndTpcAvalanche::PndTpcAvalanche()
-  : _x(0),_y(0),_t(0),_amp(0),
-    _mother(0)
+  : fx(0),fy(0),ft(0),famp(0),
+    fmother(0)
 {;}
 
 PndTpcAvalanche::PndTpcAvalanche(const double x, 
@@ -42,38 +42,38 @@ PndTpcAvalanche::PndTpcAvalanche(const double x,
 			   const double t,
 			   const double Amp,
 			   PndTpcDriftedElectron* tpcDElectronp)
-  : _x(x),_y(y),_t(t),_amp(Amp),
-    _mother(tpcDElectronp)
+  : fx(x),fy(y),ft(t),famp(Amp),
+    fmother(tpcDElectronp)
 {;}
 
 
 unsigned int 
 PndTpcAvalanche::mcTrackId() const {
-  if (_mother==0) return 0;
-  return _mother->mcTrackId();
+  if (fmother==0) return 0;
+  return fmother->mcTrackId();
 }
 
 unsigned int
 PndTpcAvalanche::mcHitId() const {
-  if (_mother==0) return 0;
-  return _mother->mcHitId();
+  if (fmother==0) return 0;
+  return fmother->mcHitId();
 }
 
 
 bool operator== (const PndTpcAvalanche& lhs,const PndTpcAvalanche& rhs)
 {
-  double dx=lhs._x - rhs._x;
-  double dy=lhs._y - rhs._y;
-  double dt=lhs._t - rhs._t;
+  double dx=lhs.fx - rhs.fx;
+  double dy=lhs.fy - rhs.fy;
+  double dt=lhs.ft - rhs.ft;
   double d2=dx*dx+dy*dy;
   return (d2<1E-10) && (fabs(dt)<1E-4);
 }
 
 std::ostream& operator<< (std::ostream& s, const PndTpcAvalanche& me){
   s << "PndTpcAvalanche:\n"
-    << "   t    ="<<me._t<<"\n"
-    << "   x    ="<<me._x<<"\n"
-    << "   y    ="<<me._y<<"\n"
-    << "   Amp  ="<<me._amp<<"\n";
+    << "   t    ="<<me.ft<<"\n"
+    << "   x    ="<<me.fx<<"\n"
+    << "   y    ="<<me.fy<<"\n"
+    << "   Amp  ="<<me.famp<<"\n";
   return s;
 }

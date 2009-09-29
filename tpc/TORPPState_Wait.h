@@ -50,8 +50,8 @@ public:
 private:
 
   // Private Data Members ------------
-  int _ndata;
-  int _counter;
+  int fndata;
+  int fcounter;
 
   // Private Methods -----------------
 

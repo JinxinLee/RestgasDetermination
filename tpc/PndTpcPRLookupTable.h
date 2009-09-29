@@ -56,9 +56,9 @@ public:
   // Operations ----------------------
   void BuildTable(const PndTpcGem& a, 
 		  const PndTpcAbsPadShape& pad, 
-		  const double _range,      
-		  const double _step,
-		  const double _intStep);
+		  const double frange,      
+		  const double fstep,
+		  const double fintStep);
 
 private:
 

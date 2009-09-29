@@ -43,15 +43,15 @@ public:
 
 
   // Modifiers -----------------------
-  void SetPointBranchName(const TString& name) {_pointBranchName=name;}
-  void SetPersistence(Bool_t opt=kTRUE) {_persistence=opt;}
+  void SetPointBranchName(const TString& name) {fpointBranchName=name;}
+  void SetPersistence(Bool_t opt=kTRUE) {fpersistence=opt;}
   
     /**
   	if activeated there will be no Interpolation between hits
 	This has to be set
 	if the ALICE Monte Carlo is activeated in PndTpcDetector
   */
-  void SetMereChargeConversion(Bool_t opt=kTRUE)	{_mereChargeConversion=opt;}
+  void SetMereChargeConversion(Bool_t opt=kTRUE)	{fmereChargeConversion=opt;}
 
 
   // Operations ----------------------
@@ -70,15 +70,15 @@ private:
   // Private Data Members ------------
   
   
-  TString _pointBranchName;
-  TClonesArray* _pointArray;
-  TClonesArray* _primArray;
+  TString fpointBranchName;
+  TClonesArray* fpointArray;
+  TClonesArray* fprimArray;
   
-  const PndTpcGas* _gas;
-  PndTpcDigiPar* _par;
+  const PndTpcGas* fgas;
+  PndTpcDigiPar* fpar;
 
-  Bool_t _persistence;
-  Bool_t _mereChargeConversion;
+  Bool_t fpersistence;
+  Bool_t fmereChargeConversion;
 
   // Private Methods -----------------
 

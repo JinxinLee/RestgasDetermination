@@ -44,28 +44,28 @@ public:
 			  const PndTpcDriftedElectron& rhs);
 
   friend bool operator<  (const PndTpcDriftedElectron& lhs,
-			  const PndTpcDriftedElectron& rhs){return lhs._t < rhs._t;}
+			  const PndTpcDriftedElectron& rhs){return lhs.ft < rhs.ft;}
 
   // Accessors -----------------------
-  double x() const {return _x;}
-  double y() const {return _y;}
-  double t() const {return _t;}
+  double x() const {return fx;}
+  double y() const {return fy;}
+  double t() const {return ft;}
   unsigned int mcTrackId() const;
   unsigned int mcHitId() const;
 
-  PndTpcPrimaryCluster* tpcPClusterp() const {return _tpcPClusterp;}
+  PndTpcPrimaryCluster* tpcPClusterp() const {return ftpcPClusterp;}
   
-  void addtox(double dx) {_x+=dx;}
-  void addtoy(double dy) {_y+=dy;}
-  void addtot(double dt) {_t+=dt;}
+  void addtox(double dx) {fx+=dx;}
+  void addtoy(double dy) {fy+=dy;}
+  void addtot(double dt) {ft+=dt;}
 
 private:
 
   // Private Data Members ------------
-  double _x;
-  double _y;
-  double _t;
-  PndTpcPrimaryCluster* _tpcPClusterp; //->
+  double fx;
+  double fy;
+  double ft;
+  PndTpcPrimaryCluster* ftpcPClusterp; //->
     
   // Private Methods -----------------
 

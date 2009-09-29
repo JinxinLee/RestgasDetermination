@@ -48,12 +48,12 @@ public:
 
 
   // Modifiers -----------------------
-  void SetDigiBranchName(const TString& name) {_digiBranchName=name;}
-  void SetPersistence(Bool_t opt=kTRUE) {_persistence=opt;}
-  void SetTrivialClustering(Bool_t opt=kTRUE) {_trivial=opt;}
-  void SetMode(int mode){_mode=mode;}
+  void SetDigiBranchName(const TString& name) {fdigiBranchName=name;}
+  void SetPersistence(Bool_t opt=kTRUE) {fpersistence=opt;}
+  void SetTrivialClustering(Bool_t opt=kTRUE) {ftrivial=opt;}
+  void SetMode(int mode){fmode=mode;}
   
-  void timeslice(unsigned int t){_timeslice=t;}
+  void timeslice(unsigned int t){ftimeslice=t;}
 
   // Operations ----------------------
   
@@ -66,25 +66,25 @@ public:
 private:
 
   // Private Data Members ------------
-  TString _digiBranchName;
-  TClonesArray* _clusterArray;
-  TClonesArray* _digiArray;
+  TString fdigiBranchName;
+  TClonesArray* fclusterArray;
+  TClonesArray* fdigiArray;
   
-  Bool_t _persistence;
-  Bool_t _trivial;
-  int _mode;
-  unsigned int _timeslice;
+  Bool_t fpersistence;
+  Bool_t ftrivial;
+  int fmode;
+  unsigned int ftimeslice;
 
-  const PndTpcFrontend* _frontend;
-  PndTpcPadPlane* _padplane;
-  const PndTpcGem* _gem;
-  const PndTpcGas* _gas;
-  double _zGem;
-  PndTpcAbsClusterFinder* _finder;
+  const PndTpcFrontend* ffrontend;
+  PndTpcPadPlane* fpadplane;
+  const PndTpcGem* fgem;
+  const PndTpcGas* fgas;
+  double fzGem;
+  PndTpcAbsClusterFinder* ffinder;
 
-  PndTpcDigiPar* _par;
+  PndTpcDigiPar* fpar;
  
-  std::vector<PndTpcCluster*>* _cluster_buffer;
+  std::vector<PndTpcCluster*>* fcluster_buffer;
   // Private Methods -----------------
 
 public:

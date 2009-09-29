@@ -25,7 +25,7 @@
 template <class t>
 PndTpcAbsField<t>::PndTpcAbsField(const t& nominalValue,
 			       const TVector3& relPosition)
-      :_relPosition(relPosition), _nominal(nominalValue), _scale(1)
+      :frelPosition(relPosition), fnominal(nominalValue), fscale(1)
 {;}
 
 template <class t>
@@ -44,7 +44,7 @@ PndTpcAbsField<t>::derivative(const TVector3& point, TVector3& direction) const
   if(i==10 || f == 0.)                        //given up
   {
     direction=TVector3(0,0,0);
-    return(_nominal-_nominal);                //return "0"
+    return(fnominal-fnominal);                //return "0"
   }
   return (value(point+direction)-value(point-direction)) * (1/f);
 }
@@ -54,9 +54,9 @@ void
 PndTpcAbsField<t>::print(std::ostream& s) const
 {
   s << "Field\n"
-    << "nominal = "<<_nominal<<"\n"
-    << "relPosition = ("<<_relPosition.X()<<", "<<_relPosition.Y()<<", "
-    << _relPosition.Z()<<")";
+    << "nominal = "<<fnominal<<"\n"
+    << "relPosition = ("<<frelPosition.X()<<", "<<frelPosition.Y()<<", "
+    << frelPosition.Z()<<")";
 }
 
 template <>
@@ -64,9 +64,9 @@ void
 PndTpcAbsField<TVector3>::print(std::ostream& s) const
 {
   s << "Field\n"
-    << "nominal = ("<<_nominal.X()<<", "<<_nominal.Y()<<", "<<_nominal.Z()<<")\n"
-    << "relPosition = ("<<_relPosition.X()<<", "<<_relPosition.Y()<<", "
-    << _relPosition.Z()<<")";
+    << "nominal = ("<<fnominal.X()<<", "<<fnominal.Y()<<", "<<fnominal.Z()<<")\n"
+    << "relPosition = ("<<frelPosition.X()<<", "<<frelPosition.Y()<<", "
+    << frelPosition.Z()<<")";
 }
 
 template <>

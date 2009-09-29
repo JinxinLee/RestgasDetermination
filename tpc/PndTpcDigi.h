@@ -49,19 +49,19 @@ public:
   friend std::ostream& operator<< (std::ostream& s, const PndTpcDigi& me);
 
   // Accessors -----------------------
-  double amp() const {return _amp;}
-  double t() const {return _t;}
-  unsigned int padId() const {return _padID;}
-  const McIdCollection& mcId() const {return _mcid;}
-  double tlength() const {return _tlength;}
+  double amp() const {return famp;}
+  double t() const {return ft;}
+  unsigned int padId() const {return fpadID;}
+  const McIdCollection& mcId() const {return fmcid;}
+  double tlength() const {return ftlength;}
   // Modifiers -----------------------
-  void amp(double val)  {_amp=val;}
-  void t(double val) { _t=val;}
-  void padId(unsigned int val) {_padID=val;}
-  void mcId(const McIdCollection& val) {_mcid=val;}
-  unsigned int nMcIds() const {return _mcid.nIDs();}
-  double maxMcWeight() const {return _mcid.MaxRelWeight();}
-  void tlength(double dt){_tlength=dt;}
+  void amp(double val)  {famp=val;}
+  void t(double val) { ft=val;}
+  void padId(unsigned int val) {fpadID=val;}
+  void mcId(const McIdCollection& val) {fmcid=val;}
+  unsigned int nMcIds() const {return fmcid.nIDs();}
+  double maxMcWeight() const {return fmcid.MaxRelWeight();}
+  void tlength(double dt){ftlength=dt;}
 
 
   // Operations ----------------------
@@ -72,13 +72,13 @@ public:
 private:
 
   // Private Data Members ------------
-  double _amp;
-  double _t;
-  unsigned int _padID;
+  double famp;
+  double ft;
+  unsigned int fpadID;
 
-  double _tlength; // optional: range in t from which digi was constructed //TODO: Initalize correctly?
+  double ftlength; // optional: range in t from which digi was constructed //TODO: Initalize correctly?
 
-  McIdCollection _mcid;
+  McIdCollection fmcid;
   // Private Methods -----------------
 
 public:

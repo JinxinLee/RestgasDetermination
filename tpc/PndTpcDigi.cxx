@@ -28,12 +28,12 @@
 // Class Member definitions -----------
 
 PndTpcDigi::PndTpcDigi()
-  : _amp(0), _t(0), _padID(0), _tlength(0)
+  : famp(0), ft(0), fpadID(0), ftlength(0)
 {}
 
 PndTpcDigi::PndTpcDigi(const PndTpcDigi& d)
-  : _amp(d._amp), _t(d._t), _padID(d._padID), _tlength(d._tlength),
-    _mcid(d._mcid)
+  : famp(d.famp), ft(d.ft), fpadID(d.fpadID), ftlength(d.ftlength),
+    fmcid(d.fmcid)
 {}
 
 
@@ -42,26 +42,26 @@ PndTpcDigi::PndTpcDigi(const double Amp,
 				 const double t,
 				 const unsigned int PadID,
 				 const McIdCollection& mcid)
-  : _amp(Amp), _t(t), _padID(PadID), _mcid(mcid), _tlength(0)
+  : famp(Amp), ft(t), fpadID(PadID), fmcid(mcid), ftlength(0)
 {}
 
 bool 
 operator==(const PndTpcDigi& lhs, const PndTpcDigi& rhs)
 {
-  return lhs._amp==rhs._amp && lhs._t==rhs._t && lhs._padID==rhs._padID;
+  return lhs.famp==rhs.famp && lhs.ft==rhs.ft && lhs.fpadID==rhs.fpadID;
 }
 
 bool
 operator<(const PndTpcDigi& lhs, const PndTpcDigi& rhs)
 {
-  return lhs._t<rhs._t;
+  return lhs.ft<rhs.ft;
 }
 
 std::ostream& operator<< (std::ostream& s, const PndTpcDigi& me){
   s << "PndTpcDigi:\n"
-    << "    Amp   ="<<me._amp<<"\n"
-    << "    t     ="<<me._t<<"\n"
-    << "    PadID ="<<me._padID<<"\n";
+    << "    Amp   ="<<me.famp<<"\n"
+    << "    t     ="<<me.ft<<"\n"
+    << "    PadID ="<<me.fpadID<<"\n";
   return s;
 }
 

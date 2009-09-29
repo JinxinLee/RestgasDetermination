@@ -42,24 +42,24 @@ public:
   
 
   // Accessors -----------------------
-  TMatrixT<double> getCov() const {return _cov;}
+  TMatrixT<double> getCov() const {return fcov;}
 
   // Modifiers -----------------------
   void setCov(const TMatrixT<double>& cov);
   void setMean(double x, double y);
-  void select(int i, int j){_i=i;_j=j;recalc();}
+  void select(int i, int j){fi=i;fj=j;recalc();}
 
   // Operations ----------------------
 
 private:
 
   // Private Data Members ------------
-  TMatrixT<double> _cov;
-  double _sig;
-  double _x0;
-  double _y0;
+  TMatrixT<double> fcov;
+  double fsig;
+  double fx0;
+  double fy0;
 
-  int _i,_j; // row and column index to be plotted
+  int fi,fj; // row and column index to be plotted
 
   // Private Methods -----------------
   void recalc();

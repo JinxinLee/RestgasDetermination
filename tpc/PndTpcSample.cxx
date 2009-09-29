@@ -31,14 +31,14 @@ ClassImp(PndTpcSample)
 
 
 PndTpcSample::PndTpcSample()
-  : _amp(0),_t(0),_padId(0)
+  : famp(0),ft(0),fpadId(0)
 {;}
 
 PndTpcSample::PndTpcSample( const int t, 
 		      const int Amp, 
 		      const unsigned int PadID,
 		      const McIdCollection& mcid)
-  : _amp(Amp),_t(t),_padId(PadID),_mcId(mcid)
+  : famp(Amp),ft(t),fpadId(PadID),fmcId(mcid)
 {;}
 
 PndTpcSample::~PndTpcSample()
@@ -48,18 +48,18 @@ PndTpcSample::~PndTpcSample()
 
 bool 
 operator== (const PndTpcSample& lhs, const PndTpcSample& rhs){
-  return lhs._t==rhs._t && lhs._amp==rhs._amp && lhs._padId==rhs._padId;
+  return lhs.ft==rhs.ft && lhs.famp==rhs.famp && lhs.fpadId==rhs.fpadId;
 }
 
 bool 
 operator< (const PndTpcSample& lhs, const PndTpcSample& rhs){
-  return lhs._t<rhs._t;
+  return lhs.ft<rhs.ft;
 }
 
 std::ostream& operator<< (std::ostream& s, const PndTpcSample& me){
   s << "PndTpcSample:\n"
-    << "   t    ="<<me._t<<"\n"
-    << "   Amp  ="<<me._amp<<"\n"
-    << "   PadID="<<me._padId<<"\n";
+    << "   t    ="<<me.ft<<"\n"
+    << "   Amp  ="<<me.famp<<"\n"
+    << "   PadID="<<me.fpadId<<"\n";
   return s;
 }

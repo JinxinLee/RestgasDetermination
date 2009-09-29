@@ -31,7 +31,7 @@
 ClassImp(PndTpcDriftedElectron)
 
 PndTpcDriftedElectron::PndTpcDriftedElectron():
-  _x(0),_y(0),_t(0),_tpcPClusterp(0)
+  fx(0),fy(0),ft(0),ftpcPClusterp(0)
 {;}
 
 
@@ -40,27 +40,27 @@ PndTpcDriftedElectron::PndTpcDriftedElectron(const double x,
 				       const double y,
 				       const double t,
 				       PndTpcPrimaryCluster* tPCp)
-  : _x(x),_y(y),_t(t),
-    _tpcPClusterp(tPCp)
+  : fx(x),fy(y),ft(t),
+    ftpcPClusterp(tPCp)
 {;}
 
 unsigned int 
 PndTpcDriftedElectron::mcTrackId() const {
-  if(_tpcPClusterp==0)return 0;
-  return _tpcPClusterp->mcTrackId();
+  if(ftpcPClusterp==0)return 0;
+  return ftpcPClusterp->mcTrackId();
 }
 
 unsigned int
 PndTpcDriftedElectron::mcHitId() const {
-  if(_tpcPClusterp==0)return 0;
-  return _tpcPClusterp->mcHitId();
+  if(ftpcPClusterp==0)return 0;
+  return ftpcPClusterp->mcHitId();
 }
 
 bool operator== (const PndTpcDriftedElectron& lhs, const PndTpcDriftedElectron& rhs)
 {
-  double dx=lhs._x - rhs._x;
-  double dy=lhs._y - rhs._y;
-  double dt=lhs._t - rhs._t;
+  double dx=lhs.fx - rhs.fx;
+  double dy=lhs.fy - rhs.fy;
+  double dt=lhs.ft - rhs.ft;
   double d2=dx*dx+dy*dy;
   return (d2<1E-10) && (fabs(dt)<1E-4);
 }

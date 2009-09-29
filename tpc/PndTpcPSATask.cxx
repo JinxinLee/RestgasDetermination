@@ -38,16 +38,16 @@
 
 
 PndTpcPSATask::PndTpcPSATask()
-  : FairTask("TPC Pulse shape analyser"), _persistence(kFALSE)
+  : FairTask("TPC Pulse shape analyser"), fpersistence(kFALSE)
 {
-  _sampleBranchName = "PndTpcSample";
+  fsampleBranchName = "PndTpcSample";
 }
 
 
 PndTpcPSATask::~PndTpcPSATask()
 {
-  if(_frontend!=0)delete _frontend;
-  if(_psa!=0)delete _psa;
+  if(ffrontend!=0)delete ffrontend;
+  if(fpsa!=0)delete fpsa;
 }
 
 InitStatus
@@ -63,21 +63,21 @@ PndTpcPSATask::Init()
     }
   
   // Get input collection
-  _sampleArray=(TClonesArray*) ioman->GetObject(_sampleBranchName);
+  fsampleArray=(TClonesArray*) ioman->GetObject(fsampleBranchName);
   
-  if(_sampleArray==0)
+  if(fsampleArray==0)
     {
       Error("PndTpcPSATask::Init","Sample-array not found!");
       return kERROR;
     }
   
   // create and register output array
-  _digiArray = new TClonesArray("PndTpcDigi"); 
-  ioman->Register("PndTpcDigi","PndTpc",_digiArray,_persistence);
+  fdigiArray = new TClonesArray("PndTpcDigi"); 
+  ioman->Register("PndTpcDigi","PndTpc",fdigiArray,fpersistence);
 
   
   //TODO: Get this from Database!
-  _frontend= new PndTpcFrontend(100,    // AdcThreshold
+  ffrontend= new PndTpcFrontend(100,    // AdcThreshold
 			     100000, // adcmax
 			     10,     // adcbits
 			     40,     // SamplingFreq_Mhz
@@ -85,7 +85,7 @@ PndTpcPSATask::Init()
 			     30,     // timebits
 			     10);     // PSAthreshold
 
-  _psa= new PndTpcSimplePSAStrategy(10); // threshold (in adc channels)
+  fpsa= new PndTpcSimplePSAStrategy(10); // threshold (in adc channels)
 
   return kSUCCESS;
 }
@@ -96,15 +96,15 @@ PndTpcPSATask::Exec(Option_t* opt)
 {
   std::cout<<"PndTpcPSATask::Exec"<<std::endl;
   // Reset output Array
-  if(_digiArray==0) Fatal("PndTpcPSA::Exec)","No DigiArray");
-  _digiArray->Delete();
+  if(fdigiArray==0) Fatal("PndTpcPSA::Exec)","No DigiArray");
+  fdigiArray->Delete();
   std::vector <PndTpcSample*> samplev;
   std::vector <PndTpcDigi*> digis;
   
-  Int_t ns=_sampleArray->GetEntriesFast();
+  Int_t ns=fsampleArray->GetEntriesFast();
   if(ns>0){
     for(Int_t is=0;is<ns;++is){
-      PndTpcDigi* digi=_psa->ProcessNext((PndTpcSample*)_sampleArray->At(is));
+      PndTpcDigi* digi=fpsa->ProcessNext((PndTpcSample*)fsampleArray->At(is));
       if(digi!=0)digis.push_back(digi);
     }
   }
@@ -116,11 +116,11 @@ PndTpcPSATask::Exec(Option_t* opt)
   //copy data into digi_array (TClonesvector)
   int ndigi=digis.size();
   for(int idigi=0;idigi<ndigi;++idigi) {
-    new((*_digiArray)[idigi]) PndTpcDigi(*(digis[idigi]));
+    new((*fdigiArray)[idigi]) PndTpcDigi(*(digis[idigi]));
     delete digis[idigi]; // clean up temporay store
   }
 
-  std::cout<<_digiArray->GetEntriesFast()<<" Digis created"<<std::endl;
+  std::cout<<fdigiArray->GetEntriesFast()<<" Digis created"<<std::endl;
   return;
 }
 

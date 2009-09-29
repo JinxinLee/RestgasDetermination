@@ -43,6 +43,7 @@ StdDiscriminantFcn.cxx
 PndTpcRiemannHit.cxx
 PndTpcRiemannTrack.cxx
 PndTpcRiemannTrackFinder.cxx
+PndTpcRiemannHough.cxx
 PndTpcProximityHTCorrelator.cxx
 PndTpcRiemannHTCorrelator.cxx
 PndTpcClustershapeCorrelator.cxx

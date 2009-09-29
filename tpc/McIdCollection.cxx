@@ -34,20 +34,20 @@ McIdCollection::McIdCollection(){;}
 
 McIdCollection::~McIdCollection()
 {
-  _MCIDs.clear();
+  fMCIDs.clear();
 }
 
 McIdCollection::McIdCollection(const McIdCollection& coll)
- : _MCIDs(coll._MCIDs)
+ : fMCIDs(coll.fMCIDs)
 {}
 
 
 bool
 McIdCollection::AddID(const McId& ID, double w){
-  vector<McId>::iterator it=find(_MCIDs.begin(),_MCIDs.end(),ID);
-  if(it==_MCIDs.end()){
-    _MCIDs.push_back(ID);  
-    _MCIDs.back().setweight(ID.weight()*w);
+  vector<McId>::iterator it=find(fMCIDs.begin(),fMCIDs.end(),ID);
+  if(it==fMCIDs.end()){
+    fMCIDs.push_back(ID);  
+    fMCIDs.back().setweight(ID.weight()*w);
     return true;
   }
   else {
@@ -71,7 +71,7 @@ McIdCollection::TotalWeight() const {
   unsigned int n=nIDs();
   double result=0;
   for(unsigned int i=0; i<n;++i){
-    result+=_MCIDs[i].weight();
+    result+=fMCIDs[i].weight();
   }
   return result;
 }
@@ -82,7 +82,7 @@ McIdCollection::Renormalize(){
   double tot=TotalWeight();
   unsigned int n=nIDs();
   for(unsigned int i=0; i<n;++i){
-    _MCIDs[i].setweight(_MCIDs[i].weight()/tot);
+    fMCIDs[i].setweight(fMCIDs[i].weight()/tot);
   }
 }
 
@@ -92,7 +92,7 @@ McIdCollection::MaxRelWeight() const {
   double total=0;
   unsigned int n=nIDs();
   for(unsigned int i=0; i<n;++i){
-    double w=_MCIDs[i].weight();
+    double w=fMCIDs[i].weight();
     result=std::max(result,w);
     total+=w;
   }
@@ -106,17 +106,17 @@ McIdCollection::DominantID() const {
   unsigned int index=0;
   double maxw=0;
   for(unsigned int i=0; i<n;++i){
-    double w=_MCIDs[i].weight();
+    double w=fMCIDs[i].weight();
     if(maxw<w){
       maxw=w;
       index=i;
     }
   }
-  return _MCIDs[index];
+  return fMCIDs[index];
 }
 
 std::ostream& operator<< (std::ostream& s, const McIdCollection& me){
   s << "MCID-Collection:\n";
-  for(unsigned int i=0; i<me._MCIDs.size(); ++i)s<<me._MCIDs[i]<<std::endl;
+  for(unsigned int i=0; i<me.fMCIDs.size(); ++i)s<<me.fMCIDs[i]<<std::endl;
   return s;
 }

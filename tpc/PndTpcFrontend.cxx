@@ -37,34 +37,34 @@ PndTpcFrontend::PndTpcFrontend(const double tint,
 			 const double t0,
 			 const int timebits,
 			 const unsigned int PSAthreshold)
-  : _adcThreshold(AdcThreshold),
-    _adcmax(adcmax),
-    _adcbits(adcbits),
-    _t0(t0),_timebits(timebits),
-    _psaThreshold(PSAthreshold),
-    _tint(tint),_tdiff(tdiff),_tsig(tsig)
+  : fadcThreshold(AdcThreshold),
+    fadcmax(adcmax),
+    fadcbits(adcbits),
+    ft0(t0),ftimebits(timebits),
+    fpsaThreshold(PSAthreshold),
+    ftint(tint),ftdiff(tdiff),ftsig(tsig)
 {
-  _dt=1/SamplingFreq_Mhz * 1000.; // conversion to ns;
-  assert(_adcbits<=32);
-  assert(_timebits<=32);
-  _maxsamples=(unsigned int)pow(2.,_timebits);
-  _maxcounts=(unsigned int)pow(2.,_adcbits);
-  _adcstep=_adcmax/_maxcounts;
+  fdt=1/SamplingFreq_Mhz * 1000.; // conversion to ns;
+  assert(fadcbits<=32);
+  assert(ftimebits<=32);
+  fmaxsamples=(unsigned int)pow(2.,ftimebits);
+  fmaxcounts=(unsigned int)pow(2.,fadcbits);
+  fadcstep=fadcmax/fmaxcounts;
 }
 
 unsigned int
 PndTpcFrontend::Clock(double const t) const {
-  assert(t>=_t0);
-  double trel=t-_t0;
-  unsigned int c=((unsigned int)floor(trel/_dt))%_maxsamples;
+  assert(t>=ft0);
+  double trel=t-ft0;
+  unsigned int c=((unsigned int)floor(trel/fdt))%fmaxsamples;
   return c;
 }
 
 double
 PndTpcFrontend::ClockFine(double const t) const {
-  assert(t>=_t0);
-  double trel=t-_t0;
-  return trel/_dt;
+  assert(t>=ft0);
+  double trel=t-ft0;
+  return trel/fdt;
 }
 
 double
@@ -76,15 +76,15 @@ PndTpcFrontend::TimeAtClock(double const t) const {
 
 double 
 PndTpcFrontend::Clock2Time(unsigned int const clock) const {
-  double tnew=_dt*(double)clock+_t0;
+  double tnew=fdt*(double)clock+ft0;
   return tnew;
 }
 
 unsigned int
 PndTpcFrontend::A2D(double const amp) const {
   if(amp<0)return 0;
-  unsigned int d=(unsigned int)floor(amp/_adcstep);
-  if(d>_maxcounts)d=_maxcounts;
+  unsigned int d=(unsigned int)floor(amp/fadcstep);
+  if(d>fmaxcounts)d=fmaxcounts;
   return d;
 }
 

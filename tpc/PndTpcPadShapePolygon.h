@@ -35,7 +35,7 @@ public:
   // Constructors/Destructors ---------
   PndTpcPadShapePolygon(const std::vector<double>& x,
 		     const std::vector<double>& y,
-		     const unsigned int _ID);
+		     const unsigned int fID);
   virtual ~PndTpcPadShapePolygon();
 
   // Operators

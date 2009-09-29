@@ -34,9 +34,9 @@ public:
 	
 private:
 	//! List of 1D histograms
-	TClonesArray* _H1Dlist;
+	TClonesArray* fH1Dlist;
 	//! List of 2D histograms
-	TClonesArray* _H2Dlist;
+	TClonesArray* fH2Dlist;
 	
 	
 	ClassDef(QAPlotCollection,1)

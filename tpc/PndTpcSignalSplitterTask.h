@@ -46,9 +46,9 @@ public:
 
 
   // Modifiers -----------------------
-  void SetSignalBranchName(const TString& name) {_signalBranchName=name;}
-  void SetOutfileBase(const TString& name){_base=name;}
-  void SelectSector(int id){_secid=id; _single=true;}
+  void SetSignalBranchName(const TString& name) {fsignalBranchName=name;}
+  void SetOutfileBase(const TString& name){fbase=name;}
+  void SelectSector(int id){fsecid=id; fsingle=true;}
  
   // Operations ----------------------
   
@@ -61,17 +61,17 @@ public:
 private:
 
   // Private Data Members ------------
-  TString _signalBranchName;
-  TString _base;
-  TClonesArray* _signalArray;
-  PndTpcDigiMapper* _mapper;
-  FairEventHeader* _evtHeader;
+  TString fsignalBranchName;
+  TString fbase;
+  TClonesArray* fsignalArray;
+  PndTpcDigiMapper* fmapper;
+  FairEventHeader* fevtHeader;
 
-  int _secid;
-  int _single;
+  int fsecid;
+  int fsingle;
 
-  std::vector<TString> _files;
-  std::vector<unsigned int> _emptycounter;
+  std::vector<TString> ffiles;
+  std::vector<unsigned int> femptycounter;
 
   // methods
   void TranicateBranchNames(TTree *fTree, const char *folderName);

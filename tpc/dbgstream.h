@@ -47,8 +47,8 @@ public:
   void setprfx(const std::string& p);
   void setbuf(std::streambuf *sb);
   // Operations ----------------------
-  void off(bool flag=true){_active=!flag;}
-  void on(bool flag=true){_active=flag;}
+  void off(bool flag=true){factive=!flag;}
+  void on(bool flag=true){factive=flag;}
 
 protected:
   
@@ -60,12 +60,12 @@ protected:
 private:
 
   // Private Data Members ------------
-  std::streambuf *_sbuf;
-  int _cache; // cache a read character
-  char* _prfx;
-  unsigned int _len;
-  bool _newline;
-  bool _active;
+  std::streambuf *fsbuf;
+  int fcache; // cache a read character
+  char* fprfx;
+  unsigned int flen;
+  bool fnewline;
+  bool factive;
 
   // Private Methods -----------------
 
@@ -97,25 +97,25 @@ public:
   friend class DebugLogger; // a singleton interface to configure the stream
 
 protected:
-  void addrule(abslogrule* rule){_rules.push_back(rule);}
+  void addrule(abslogrule* rule){frules.push_back(rule);}
   unsigned int addbuffer(std::streambuf* sb);
-  void minlevel(unsigned int l){_minlevel=l;}
+  void minlevel(unsigned int l){fminlevel=l;}
 
 private:
-  std::vector<std::streambuf*> _slots; //buffers to choose from
-  std::vector<abslogrule*> _rules;
-  std::string _file;
-  std::string _path;
-  unsigned int _line;
-  unsigned int _minlevel;
-  unsigned int _level;
+  std::vector<std::streambuf*> fslots; //buffers to choose from
+  std::vector<abslogrule*> frules;
+  std::string ffile;
+  std::string fpath;
+  unsigned int fline;
+  unsigned int fminlevel;
+  unsigned int flevel;
   void setslot(unsigned int i); // choose buffer;
-  bool _fileblock;
-  bool _levelblock;
+  bool ffileblock;
+  bool flevelblock;
   
   unsigned int slot(std::string path,unsigned int line, unsigned int level);
 
-  bool block(){return _fileblock || _levelblock;}
+  bool block(){return ffileblock || flevelblock;}
 };
 
 extern odbgstream dbgstrm;
@@ -129,10 +129,10 @@ extern odbgstream dbgstrm;
 
 class level {
 public:
-  level(unsigned int l): _l(l){}
+  level(unsigned int l): fl(l){}
   odbgstream& operator()(odbgstream&) const;
 private:
-  unsigned int _l;
+  unsigned int fl;
 };
 
 odbgstream &operator<<(odbgstream &out, level al);
@@ -158,10 +158,10 @@ public:
   unsigned int rule(std::string path,unsigned int line,unsigned int level);
 
 private:
-  std::string _file; // file to log
-  unsigned int _min; // linerange:
-  unsigned int _max;
-  unsigned int _output;
+  std::string ffile; // file to log
+  unsigned int fmin; // linerange:
+  unsigned int fmax;
+  unsigned int foutput;
 };
 
 

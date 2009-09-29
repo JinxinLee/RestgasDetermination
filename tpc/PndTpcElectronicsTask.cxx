@@ -58,15 +58,15 @@
 
 
 PndTpcElectronicsTask::PndTpcElectronicsTask()
-  : FairTask("TPC Electronics response"), _persistence(kFALSE),_samplePersistence(kFALSE), _initialized(kFALSE), _qa(NULL)
+  : FairTask("TPC Electronics response"), fpersistence(kFALSE),fsamplePersistence(kFALSE), finitialized(kFALSE), fqa(NULL)
  {
-  _signalBranchName = "PndTpcSignal";
+  fsignalBranchName = "PndTpcSignal";
  }
 
 
 PndTpcElectronicsTask::~PndTpcElectronicsTask()
 {
-  if(_psa!=0)delete _psa;
+  if(fpsa!=0)delete fpsa;
 }
 
 
@@ -84,8 +84,8 @@ PndTpcElectronicsTask::SetParContainers() {
   if ( ! db ) Fatal("SetParContainers", "No runtime database");
 
   // Get PndTpc digitisation parameter container
-  _par= (PndTpcDigiPar*) db->getContainer("PndTpcDigiPar");
-  if (! _par ) Fatal("SetParContainers", "PndTpcDigiPar not found");
+  fpar= (PndTpcDigiPar*) db->getContainer("PndTpcDigiPar");
+  if (! fpar ) Fatal("SetParContainers", "PndTpcDigiPar not found");
 }
 
 
@@ -93,7 +93,7 @@ InitStatus
 PndTpcElectronicsTask::Init()
 {
 	
-	_initialized=kFALSE;
+	finitialized=kFALSE;
   //Get ROOT Manager
   FairRootManager* ioman= FairRootManager::Instance();
 
@@ -104,35 +104,35 @@ PndTpcElectronicsTask::Init()
     }
   
   // Get input collection
-  _signalArray=(TClonesArray*) ioman->GetObject(_signalBranchName);
+  fsignalArray=(TClonesArray*) ioman->GetObject(fsignalBranchName);
   
-  if(_signalArray==0)
+  if(fsignalArray==0)
     {
       Error("PndTpcElectronicsTask::Init","Signal-array not found!");
       return kERROR;
     }
   
   // create and register output array
-  _digiArray = new TClonesArray("PndTpcDigi"); 
-  ioman->Register("PndTpcDigi","PndTpc",_digiArray,_persistence);
+  fdigiArray = new TClonesArray("PndTpcDigi"); 
+  ioman->Register("PndTpcDigi","PndTpc",fdigiArray,fpersistence);
   
-  _sampleArray = new TClonesArray("PndTpcSample");
-  ioman->Register("PndTpcSample","PndTpc",_sampleArray,_samplePersistence);
+  fsampleArray = new TClonesArray("PndTpcSample");
+  ioman->Register("PndTpcSample","PndTpc",fsampleArray,fsamplePersistence);
 
   
   //TODO: Get this from Database!
-  _frontend= _par->getFrontend();
+  ffrontend= fpar->getFrontend();
 
-  _pulseshape= new PndTpcCRRCPulseshape(_frontend->tdiff(),
-				     _frontend->tint(),
-				     _frontend->tsig());
+  fpulseshape= new PndTpcCRRCPulseshape(ffrontend->tdiff(),
+				     ffrontend->tint(),
+				     ffrontend->tsig());
 					
-   if( _par->getPSA() == 0)	{
-  	_psa= new PndTpcSimplePSAStrategy(_frontend->psaThreshold());
+   if( fpar->getPSA() == 0)	{
+  	fpsa= new PndTpcSimplePSAStrategy(ffrontend->psaThreshold());
 	std::cout << "Using Simple PSA strategy!" << std::endl;
    }
-   else if( _par->getPSA() == 1)	{
-  	_psa= new PndTpcPSA_TOT1();
+   else if( fpar->getPSA() == 1)	{
+  	fpsa= new PndTpcPSA_TOT1();
 	std::cout << "Using PSA_TOT strategy!" << std::endl;
   }
   else	{
@@ -140,13 +140,13 @@ PndTpcElectronicsTask::Init()
   }
 
   // check in QA plots
-  if(_qa!=NULL){
-	  double maxSamp=_frontend->adcmax()/_frontend->adcstep();
-	  _sampleAmpH=_qa->getTH1D("SamplAmp","Sample amplitudes",1000,0,maxSamp);
-	  _meanDigiTH=_qa->getTH1D("MeanDigiT","Mean Digi t - Mean Signal t",1000,-20,20);
+  if(fqa!=NULL){
+	  double maxSamp=ffrontend->adcmax()/ffrontend->adcstep();
+	  fsampleAmpH=fqa->getTH1D("SamplAmp","Sample amplitudes",1000,0,maxSamp);
+	  fmeanDigiTH=fqa->getTH1D("MeanDigiT","Mean Digi t - Mean Signal t",1000,-20,20);
   }
   
-  _initialized=kTRUE;
+  finitialized=kTRUE;
   return kSUCCESS;
 }
 
@@ -156,19 +156,19 @@ PndTpcElectronicsTask::Exec(Option_t* opt)
 {
   std::cout<<"PndTpcElectronicsTask::Exec"<<std::endl;
   // Reset output Array
-  if(_digiArray==0) Fatal("PndTpcElectronics::Exec)","No DigiArray");
-  _digiArray->Delete();
-  if(_samplePersistence)	{
-	if(_sampleArray==0) Fatal("PndTpcElectronics::Exec)","No SampleArray");
-		_sampleArray->Delete();
+  if(fdigiArray==0) Fatal("PndTpcElectronics::Exec)","No DigiArray");
+  fdigiArray->Delete();
+  if(fsamplePersistence)	{
+	if(fsampleArray==0) Fatal("PndTpcElectronics::Exec)","No SampleArray");
+		fsampleArray->Delete();
    }
 	
   //partition data according to pads
   std::cout<<"Building up padmap ...";
   std::map<unsigned int,std::vector<PndTpcSignal*>* > padmap;
-  Int_t ns=_signalArray->GetEntriesFast();
+  Int_t ns=fsignalArray->GetEntriesFast();
   for(Int_t is=0;is<ns;++is){
-    PndTpcSignal* sig=(PndTpcSignal*)_signalArray->At(is);
+    PndTpcSignal* sig=(PndTpcSignal*)fsignalArray->At(is);
     unsigned int id=sig->padId();
     if(padmap[id]==NULL)padmap[id]=new std::vector<PndTpcSignal*>;
     padmap[id]->push_back(sig);
@@ -176,8 +176,8 @@ PndTpcElectronicsTask::Exec(Option_t* opt)
   std::cout<<"finished. "<<padmap.size()<<" pads hit"<<std::endl;
   int tenpercent=padmap.size()/10;
   if(tenpercent==0)tenpercent=1;
-  // cleanup _signal_array;
-  //_signalArray->Clear();
+  // cleanup fsignal_array;
+  //fsignalArray->Clear();
 
   // process each pad individually:
   std::map<unsigned int,std::vector<PndTpcSignal*>* >::iterator padIt=padmap.begin();
@@ -190,10 +190,10 @@ PndTpcElectronicsTask::Exec(Option_t* opt)
     // --- ADC ------------------------------------------
     std::vector<PndTpcSignal*>* sv=padIt->second;
     std::vector<PndTpcSample*> samplelist;
-    PndTpcDigitizationPolicy().Digitize(sv,&samplelist,_frontend,_pulseshape);
+    PndTpcDigitizationPolicy().Digitize(sv,&samplelist,ffrontend,fpulseshape);
 
     PresetNullSample(&samplelist);
-    if(_samplePersistence)	{
+    if(fsamplePersistence)	{
     		StoreSamples(&samplelist);
     }
 
@@ -212,16 +212,16 @@ PndTpcElectronicsTask::Exec(Option_t* opt)
 
     // --- PSA ------------------------------------------
     std::vector<PndTpcDigi*> digis;
-    _psa->Process(samplelist,digis,_frontend->psaThreshold());
+    fpsa->Process(samplelist,digis,ffrontend->psaThreshold());
 
 
 
     int nsamp=samplelist.size();
     int ndigi=digis.size();
 
-    if(_qa!=NULL){
+    if(fqa!=NULL){
     	for(int i=0;i<nsamp;++i){
-    		_sampleAmpH->Fill(samplelist[i]->amp());
+    		fsampleAmpH->Fill(samplelist[i]->amp());
     	}
     }
 	/*
@@ -234,14 +234,14 @@ PndTpcElectronicsTask::Exec(Option_t* opt)
 
 	for(int iSig=0;iSig<nsig;iSig++) {
 	  std::cout << ((*sv)[iSig])->t() << " " 
-				<< _frontend->ClockFine( ((*sv)[iSig])->t() ) 
+				<< ffrontend->ClockFine( ((*sv)[iSig])->t() ) 
 				<< std::endl;
 	}
 
 
 	
 	if(nsamp>0) {
-	  PndTpcPSAplot myplot(&samplelist,&digis,sv,_frontend);
+	  PndTpcPSAplot myplot(&samplelist,&digis,sv,ffrontend);
 	  myplot.Draw();
 	}
 	*/
@@ -258,22 +258,22 @@ PndTpcElectronicsTask::Exec(Option_t* opt)
     //copy data into digi_array (TClonesvector)
 	//    int ndigi=digis.size();
     double meandigit=0;
-    int iarray=_digiArray->GetEntriesFast();
+    int iarray=fdigiArray->GetEntriesFast();
     for(int idigi=0;idigi<ndigi;++idigi) {
-      PndTpcDigi* dig=new((*_digiArray)[iarray+idigi]) PndTpcDigi(*(digis[idigi]));
+      PndTpcDigi* dig=new((*fdigiArray)[iarray+idigi]) PndTpcDigi(*(digis[idigi]));
       delete digis[idigi]; // clean up temporay store
       meandigit=dig->t();
     }
     if(ndigi>0){
     	meandigit/=ndigi;
     	double dt=meandigit-meansigt;
-    	if(_qa!=0)_meanDigiTH->Fill(dt);
+    	if(fqa!=0)fmeanDigiTH->Fill(dt);
     }
     
     ++padIt;
   } // end loop over hit pads
   
-  std::cout<<std::endl<<_digiArray->GetEntriesFast()<<" Digis created"<<std::endl;
+  std::cout<<std::endl<<fdigiArray->GetEntriesFast()<<" Digis created"<<std::endl;
   return;
 }
 
@@ -294,22 +294,22 @@ void  PndTpcElectronicsTask::PresetNullSample(std::vector<PndTpcSample*> *sample
 
 void PndTpcElectronicsTask::StoreSamples(std::vector<PndTpcSample*> *samplelist)
 {
-	int iarray=_sampleArray->GetEntriesFast();
+	int iarray=fsampleArray->GetEntriesFast();
 	for(int i=0;i<samplelist->size();i++) {
-			new((*_sampleArray)[iarray+i]) PndTpcSample(*((*samplelist)[i]));
+			new((*fsampleArray)[iarray+i]) PndTpcSample(*((*samplelist)[i]));
 	}
 }
 
 
 void 
 PndTpcElectronicsTask::WriteHistograms(){
-	if(!_initialized || _qa==NULL)return;
+	if(!finitialized || fqa==NULL)return;
 	TFile* outfile=FairRootManager::Instance()->GetOutFile();
 	
 	outfile->mkdir("PndTpcElectronicsTask");
 	outfile->cd("PndTpcElectronicsTask");
 	
-	_sampleAmpH->Write();
+	fsampleAmpH->Write();
 	
 }
 

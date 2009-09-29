@@ -63,8 +63,8 @@ public:
 
   // Operations ----------------------
   void WriteFiles();
-  TH1* GetHisto(std::string name) {return _histomap[name];}
-  TH2* GetHisto2D(std::string name) {return _histomap2D[name];}
+  TH1* GetHisto(std::string name) {return fhistomap[name];}
+  TH2* GetHisto2D(std::string name) {return fhistomap2D[name];}
 
 
 protected:
@@ -73,15 +73,15 @@ protected:
 
 private:
   // The singleton instance
-  static DebugLogger* _instance;
+  static DebugLogger* finstance;
 
   // Private Methods -----------------
 bool findFuncInSource(std::string file,std::string function,
 		      unsigned int& startline, unsigned int& endline);
   // Private Data Members ------------
-  TFile* _outfile;
-  std::map<std::string, TH1*> _histomap;
-  std::map<std::string, TH2*> _histomap2D;
+  TFile* foutfile;
+  std::map<std::string, TH1*> fhistomap;
+  std::map<std::string, TH2*> fhistomap2D;
 
 public:
   ClassDef(DebugLogger,1)

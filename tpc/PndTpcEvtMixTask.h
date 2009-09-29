@@ -46,12 +46,12 @@ public:
 
 
   // Modifiers -----------------------
-  void SetInBranchName(const TString& name) {_inBranchName=name;}
-  void SetBkgBranchName(const TString& name) {_bkgBranchName=name;}
-  void SetBkgFileName(const TString& name) {_bkgFileName=name;}
-  void SetPersistence(Bool_t opt=kTRUE) {_persistence=opt;}
-  void SetNBkgEvts(Int_t n) {_nbkgEvts=n;}
-  void AddSector(UInt_t id){_sectors.insert(id);}
+  void SetInBranchName(const TString& name) {finBranchName=name;}
+  void SetBkgBranchName(const TString& name) {fbkgBranchName=name;}
+  void SetBkgFileName(const TString& name) {fbkgFileName=name;}
+  void SetPersistence(Bool_t opt=kTRUE) {fpersistence=opt;}
+  void SetNBkgEvts(Int_t n) {fnbkgEvts=n;}
+  void AddSector(UInt_t id){fsectors.insert(id);}
 
   // Operations ----------------------
   virtual InitStatus Init();
@@ -61,26 +61,26 @@ public:
 private:
 
   // Private Data Members ------------
-  TString _inBranchName;
-  TString _bkgBranchName;
-  TString _bkgFileName;
+  TString finBranchName;
+  TString fbkgBranchName;
+  TString fbkgFileName;
  
 
-  TClonesArray* _signalArray;
-  TClonesArray* _bkgArray;
-  TClonesArray* _timeArray;
+  TClonesArray* fsignalArray;
+  TClonesArray* fbkgArray;
+  TClonesArray* ftimeArray;
 
-  TFile* _inFile;
-  TTree* _bkgTree;
-  TBranch* _bkgBranch;
+  TFile* finFile;
+  TTree* fbkgTree;
+  TBranch* fbkgBranch;
 
-  Bool_t _persistence;
-  Int_t _nbkgEvts;
+  Bool_t fpersistence;
+  Int_t fnbkgEvts;
 
-  std::set<unsigned int> _sectors;
-  PndTpcDigiPar* _par;
+  std::set<unsigned int> fsectors;
+  PndTpcDigiPar* fpar;
 
-  const PndTpcPadPlane* _padPlane;
+  const PndTpcPadPlane* fpadPlane;
  
 
   // Private Methods -----------------

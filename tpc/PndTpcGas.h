@@ -46,23 +46,23 @@ public:
 	 double const E);
 
   // accessors
-  double VDrift() const {return _VDrift;} 
-  double Dl() const {return _Dl;}      
-  double Dt() const {return _Dt;}  
-  double VDrift(double const E, double const B) const {return _VDrift;} 
-  double Dl(double const E, double const B) const {return _Dl;}      
-  double Dt(double const E, double const B) const {return _Dt;}      
-  double k() const {return _k;}       
-  double W() const {return _W;}       
-  double CSD(int i) const {return _CSD.at(i);}
-  const std::vector<double>& CSD() const {return _CSD;}
-  int nCSD() const {return _CSD.size();}       
-  double CSDEpol() const {return _CSDEpol;} 
+  double VDrift() const {return fVDrift;} 
+  double Dl() const {return fDl;}      
+  double Dt() const {return fDt;}  
+  double VDrift(double const E, double const B) const {return fVDrift;} 
+  double Dl(double const E, double const B) const {return fDl;}      
+  double Dt(double const E, double const B) const {return fDt;}      
+  double k() const {return fk;}       
+  double W() const {return fW;}       
+  double CSD(int i) const {return fCSD.at(i);}
+  const std::vector<double>& CSD() const {return fCSD;}
+  int nCSD() const {return fCSD.size();}       
+  double CSDEpol() const {return fCSDEpol;} 
 
-  double E() const {return _E;}
-  double B() const {return _B;}
-  double T() const {return _T;}       
-  double p() const {return _p;}
+  double E() const {return fE;}
+  double B() const {return fB;}
+  double T() const {return fT;}       
+  double p() const {return fp;}
     
   int GetRandomCS(double const r) const;
 
@@ -72,28 +72,28 @@ public:
   friend std::ostream& operator<< (std::ostream&, const PndTpcGas&);
 
   // modifiers
-  void SetE(double const E){_E=E;}  // later this method should also retrieve
+  void SetE(double const E){fE=E;}  // later this method should also retrieve
                                     // updated gas values for the new field!
-  void SetB(double const B){_B=B;}
-  void SetT(double const T){_T=T;}
-  void Setp(double const p){_p=p;}
+  void SetB(double const B){fB=B;}
+  void SetT(double const T){fT=T;}
+  void Setp(double const p){fp=p;}
   void SetCSD(const std::vector<double>& CSD);
-  void SetCSDEpol(double const CSDEpol){_CSDEpol=CSDEpol;}
+  void SetCSDEpol(double const CSDEpol){fCSDEpol=CSDEpol;}
 
 private:
-  double _E;        // electric field [V/cm](some gas parameters depend on it)
-  double _B;        // B field [T] assumption: B || E !!! 
-  double _T;        // Temperature [K]
-  double _p;        // pressure [mbar]
+  double fE;        // electric field [V/cm](some gas parameters depend on it)
+  double fB;        // B field [T] assumption: B || E !!! 
+  double fT;        // Temperature [K]
+  double fp;        // pressure [mbar]
 
-  double _VDrift;   // electron Drift velocity [cm/ns]
-  double _Dl;       // longitudinal diffusion coefficient [sqrt(cm)]
-  double _Dt;       // transversal diffusion coefficient [sqrt(cm)]
-  double _k;        // attachment coefficient[1/cm]
-  double _W;        // effective ionisation energy [eV]
-  std::vector<double> _CSD;     // Cluster size distribution
-  double _CSDEpol;  // Constant used for the inverse quadratic extrapolation
-                    // of Cluster Sizes bigger than _nCSD
+  double fVDrift;   // electron Drift velocity [cm/ns]
+  double fDl;       // longitudinal diffusion coefficient [sqrt(cm)]
+  double fDt;       // transversal diffusion coefficient [sqrt(cm)]
+  double fk;        // attachment coefficient[1/cm]
+  double fW;        // effective ionisation energy [eV]
+  std::vector<double> fCSD;     // Cluster size distribution
+  double fCSDEpol;  // Constant used for the inverse quadratic extrapolation
+                    // of Cluster Sizes bigger than fnCSD
 
   double LinExpolation(double const inTable, const double* const table,
 		       int const nTable);

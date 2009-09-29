@@ -38,19 +38,19 @@
 
 PndTpcSpaceChargeTask::PndTpcSpaceChargeTask()		//default constructor
   : 	FairTask("TPC Space Charge"),
-	//_tpcMinR(15.5),	
-	//_tpcMaxR(41.5),         //these are all default values
-	//_tpcMinZ(-39.5),        //change with set-functions individually
-	//_tpcMaxZ(109.5),
-	_rBinCount(26),
-	_zBinCount(75),
-	_angle(0.17453),              //TODO: parameter management!
-	_ionDriftVelocity(1.766e-6),  // [cm/ns]
-	_time(0),               
-	_errorCount(0),
-	_primChargeOnly(false),
-	_ALICEmode(false),	 
-        _pointBranchName("PndTpcPoint")
+	//ftpcMinR(15.5),	
+	//ftpcMaxR(41.5),         //these are all default values
+	//ftpcMinZ(-39.5),        //change with set-functions individually
+	//ftpcMaxZ(109.5),
+	frBinCount(26),
+	fzBinCount(75),
+	fangle(0.17453),              //TODO: parameter management!
+	fionDriftVelocity(1.766e-6),  // [cm/ns]
+	ftime(0),               
+	ferrorCount(0),
+	fprimChargeOnly(false),
+	fALICEmode(false),	 
+        fpointBranchName("PndTpcPoint")
 {}
 
 PndTpcSpaceChargeTask::~PndTpcSpaceChargeTask()
@@ -70,44 +70,44 @@ PndTpcSpaceChargeTask::Init()
     }
 
   // Get input collection
-  _pointArray=(TClonesArray*) ioman->GetObject(_pointBranchName);
+  fpointArray=(TClonesArray*) ioman->GetObject(fpointBranchName);
   
-  if(_pointArray==0)
+  if(fpointArray==0)
     {
       Error("PndTpcSpaceChargeTask::Init","MC-Point-array not found!");
       return kERROR;
     }
 
-  _supression=_par->getSupression();
-  _tpcMaxR=_par->getRMax();  //make sure these are the values for the ACTIVE detector region  
-  _tpcMinR=_par->getRMin();  //see geometry/tpc.geo      
-  _tpcMaxZ=_par->getZMax();  
-  _tpcMinZ=_par->getZGem();    
+  fsupression=fpar->getSupression();
+  ftpcMaxR=fpar->getRMax();  //make sure these are the values for the ACTIVE detector region  
+  ftpcMinR=fpar->getRMin();  //see geometry/tpc.geo      
+  ftpcMaxZ=fpar->getZMax();  
+  ftpcMinZ=fpar->getZGem();    
   			
-  _gemGain=_par->getGain();
-  _rate=_par->getRate();              
+  fgemGain=fpar->getGain();
+  frate=fpar->getRate();              
 
-  _gas=_par->getGas();
-  _WGas = _gas->W();
+  fgas=fpar->getGas();
+  fWGas = fgas->W();
  
-  _gemCharge = _supression * _gemGain;
-  _distPerTime = _ionDriftVelocity / _rate; 	//Ion travel distance per event
+  fgemCharge = fsupression * fgemGain;
+  fdistPerTime = fionDriftVelocity / frate; 	//Ion travel distance per event
 
-  _rBinWidth = ((_tpcMaxR - _tpcMinR) / _rBinCount);
-  _zBinWidth = ((_tpcMaxZ - _tpcMinZ) / _zBinCount);
+  frBinWidth = ((ftpcMaxR - ftpcMinR) / frBinCount);
+  fzBinWidth = ((ftpcMaxZ - ftpcMinZ) / fzBinCount);
 
   std::cout<<"\n\n--------- PndTpcSpaceChargeTask working parameters ----------"<<std::endl;
-  std::cout<<"\nSupression: "<<_supression<<";   Gain: "<<_gemGain
-	   <<";   Rate: "<<_rate<<"   WGas: "<<_WGas<<std::endl;
-  std::cout<<"Geometry:\n"<<"MinR: "<<_tpcMinR<<";   MaxR: "<<_tpcMaxR<<std::endl;
-  std::cout<<"MinZ: "<<_tpcMinZ<<";   MaxZ: "<<_tpcMaxZ<<std::endl;
+  std::cout<<"\nSupression: "<<fsupression<<";   Gain: "<<fgemGain
+	   <<";   Rate: "<<frate<<"   WGas: "<<fWGas<<std::endl;
+  std::cout<<"Geometry:\n"<<"MinR: "<<ftpcMinR<<";   MaxR: "<<ftpcMaxR<<std::endl;
+  std::cout<<"MinZ: "<<ftpcMinZ<<";   MaxZ: "<<ftpcMaxZ<<std::endl;
   std::cout<<"-------------------------------------------------------------\n\n"<<std::endl;
   std::cout.flush();  
   
 
 // Initialize the charge-map (empty at the start...)
-  for (int nr = 0; nr < _rBinCount; nr++)
-	_chargeMap.push_back(std::vector<int>(_zBinCount, 0));  
+  for (int nr = 0; nr < frBinCount; nr++)
+	fchargeMap.push_back(std::vector<int>(fzBinCount, 0));  
 
   return kSUCCESS;
 }
@@ -126,8 +126,8 @@ PndTpcSpaceChargeTask::SetParContainers() {
   if ( ! db ) Fatal("SetParContainers", "No runtime database");
 
   // Get PndTpc digitisation parameter container
-  _par= (PndTpcDigiPar*) db->getContainer("PndTpcDigiPar");
-  if (! _par ) Fatal("SetParContainers", "PndTpcDigiPar not found");
+  fpar= (PndTpcDigiPar*) db->getContainer("PndTpcDigiPar");
+  if (! fpar ) Fatal("SetParContainers", "PndTpcDigiPar not found");
 }
 
 void
@@ -138,21 +138,21 @@ PndTpcSpaceChargeTask::Exec(Option_t* opt)
   const Float_t w_ion = 35.97e-9; // energy for the ion-electron pair creation 
 
   PndTpcPoint* currentPoint;
-  int np = _pointArray->GetEntriesFast();	//number of MC points 
+  int np = fpointArray->GetEntriesFast();	//number of MC points 
 
-  if(_time%500==0) {
+  if(ftime%500==0) {
     std::cout<<". ";
     std::cout.flush();
   }
   
   for(int n=0; n<np; n++)			//Loop over all MC points
   {
-    currentPoint = (PndTpcPoint*) _pointArray->At(n);
+    currentPoint = (PndTpcPoint*) fpointArray->At(n);
     int qPoint=0;
     
     //misleading - has nothing to do with G3 "ALICE", just different method
     //TODO: make sure the DETECTOR class works right
-    if(_ALICEmode) {
+    if(fALICEmode) {
       if(n==0 && time==0)
 	std::cout<<"\n------- USING ALICE CHARGE CONVERSION MODE --------------------------"<<std::endl;
       if((currentPoint->GetEnergyLoss())-poti > 0.)
@@ -160,49 +160,49 @@ PndTpcSpaceChargeTask::Exec(Option_t* opt)
       //qPoint = TMath::Min(qPoint,300); // 300 electrons corresponds to 10 keV ??
     }
     else
-      qPoint = (int)(currentPoint->GetEnergyLoss()*1e9 / _WGas); // [eV]
+      qPoint = (int)(currentPoint->GetEnergyLoss()*1e9 / fWGas); // [eV]
     
     double posX = currentPoint->GetX();
     double posY = currentPoint->GetY();
     double r = sqrt(posX*posX + posY*posY);
 
-    int rBin = (int)(std::fabs(r - _tpcMinR) / _rBinWidth);
-    int zBin = (int)(std::fabs(currentPoint->GetZ() - _tpcMinZ) / _zBinWidth);
+    int rBin = (int)(std::fabs(r - ftpcMinR) / frBinWidth);
+    int zBin = (int)(std::fabs(currentPoint->GetZ() - ftpcMinZ) / fzBinWidth);
 
-    if(rBin >= _rBinCount || zBin >= _zBinCount)
+    if(rBin >= frBinCount || zBin >= fzBinCount)
     {
       //Error("PndTpcSpaceChargeTask::Exec", "Hit occured outside the PndTpc-Volume!");
-      _errorCount++;
+      ferrorCount++;
       continue;
     }
 
     //Now fill in the point-charge into the charge-map
-    _chargeMap.at(rBin).at(zBin) += qPoint;
+    fchargeMap.at(rBin).at(zBin) += qPoint;
 
     //At the same x-y-coordinates Ions are created on the gem-plane by the 
     //impact of the drifted electrons (assuming instant electron drift) in 
     //the gems
-    if(!_primChargeOnly)
-      _chargeMap.at(rBin).at(0) += (int)(qPoint*_gemCharge);
+    if(!fprimChargeOnly)
+      fchargeMap.at(rBin).at(0) += (int)(qPoint*fgemCharge);
 
   } 		//end Loop over all Points of this track/event
 
-  _time++;	//ticks every event
+  ftime++;	//ticks every event
 
   //Drift all the charge one bin in z-direction when enough "time" has passed
   //This takes a lot of time. Normally not used, instead done by a macro
   
-  if( fmod((double)_time * _distPerTime, _zBinWidth) < _distPerTime)
+  if( fmod((double)ftime * fdistPerTime, fzBinWidth) < fdistPerTime)
   {
-    std::cout<<"\n**** Drifting all the charge after  "<<_time<<" events ****"
+    std::cout<<"\n**** Drifting all the charge after  "<<ftime<<" events ****"
              <<std::endl;
 
-    for(int nr=0; nr<_rBinCount; nr++)
-	for(int nz=_zBinCount-1; nz>0; nz--)
-	   _chargeMap.at(nr).at(nz) = _chargeMap.at(nr).at(nz-1);
+    for(int nr=0; nr<frBinCount; nr++)
+	for(int nz=fzBinCount-1; nz>0; nz--)
+	   fchargeMap.at(nr).at(nz) = fchargeMap.at(nr).at(nz-1);
 
-    for(int nr=0; nr<_rBinCount; nr++)
-	_chargeMap.at(nr).at(0) = 0;
+    for(int nr=0; nr<frBinCount; nr++)
+	fchargeMap.at(nr).at(0) = 0;
   }
   return;
 }
@@ -212,36 +212,36 @@ void PndTpcSpaceChargeTask::writeToFile(const char* filename)
   
   std::cout<< "\n\n**** Writing Charge Density to File " << filename 
            << " ****" << std::endl;
-  std::cout<<"\nAll done. There have been "<<_errorCount<<" hits outside the volume."<<std::endl;
+  std::cout<<"\nAll done. There have been "<<ferrorCount<<" hits outside the volume."<<std::endl;
   double innerR, outerR, xy_area, volume;
   double pi = std::acos( -1.0 );
   double e_charge = 1.602176462e-19;
 
-  //calculate the charge density from _chargeMap and geometry
-  std::vector< std::vector <double> > _chargeDens;
-  for (int nr=0; nr<_rBinCount; nr++)
-    _chargeDens.push_back(std::vector<double>(_zBinCount, 0));
+  //calculate the charge density from fchargeMap and geometry
+  std::vector< std::vector <double> > fchargeDens;
+  for (int nr=0; nr<frBinCount; nr++)
+    fchargeDens.push_back(std::vector<double>(fzBinCount, 0));
 
-  for (int nr=0; nr<_rBinCount; nr++)
+  for (int nr=0; nr<frBinCount; nr++)
   {
-    innerR = nr * _rBinWidth + _tpcMinR;	//inner radius of the bin
-    outerR = (nr + 1) * _rBinWidth + _tpcMinR;
-    xy_area = (pi - _angle) * (outerR*outerR - innerR*innerR);
-    volume = xy_area*_zBinWidth;
-    for (int nz=0; nz<_zBinCount; nz++)
-	_chargeDens.at(nr).at(nz)=(double) _chargeMap.at(nr).at(nz)*e_charge/volume;                     //[C]
+    innerR = nr * frBinWidth + ftpcMinR;	//inner radius of the bin
+    outerR = (nr + 1) * frBinWidth + ftpcMinR;
+    xy_area = (pi - fangle) * (outerR*outerR - innerR*innerR);
+    volume = xy_area*fzBinWidth;
+    for (int nz=0; nz<fzBinCount; nz++)
+	fchargeDens.at(nr).at(nz)=(double) fchargeMap.at(nr).at(nz)*e_charge/volume;                     //[C]
   }  
 	
   //write file with 2D charge distribution density
  
   std::ofstream outfile(filename, std::fstream::out);
   outfile<<std::setprecision(6);
-  outfile<<_tpcMinR<<" "<<_rBinWidth<<" "<<_rBinCount<<" "
-	 <<_tpcMinZ<<" "<<_zBinWidth<<" "<<_zBinCount;
+  outfile<<ftpcMinR<<" "<<frBinWidth<<" "<<frBinCount<<" "
+	 <<ftpcMinZ<<" "<<fzBinWidth<<" "<<fzBinCount;
   //z runs first
-  for (int nr=0; nr<_rBinCount; nr++)
-    for (int nz=0; nz<_zBinCount; nz++)
-      outfile<<"\n"<<_chargeDens.at(nr).at(nz);
+  for (int nr=0; nr<frBinCount; nr++)
+    for (int nz=0; nz<fzBinCount; nz++)
+      outfile<<"\n"<<fchargeDens.at(nr).at(nz);
   outfile<<std::endl;
   outfile.close();
 }

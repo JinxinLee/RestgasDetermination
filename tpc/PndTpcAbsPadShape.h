@@ -31,7 +31,7 @@ class PndTpcAbsPadShape {
 public:
 
   // Constructors/Destructors ---------
-  PndTpcAbsPadShape(const unsigned int _ID);
+  PndTpcAbsPadShape(const unsigned int fID);
   virtual ~PndTpcAbsPadShape();
 
   // Operators

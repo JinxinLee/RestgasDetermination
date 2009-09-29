@@ -46,21 +46,21 @@ public:
 
   // Accessors -----------------------
   virtual TVector3 value(const TVector3&) const;
-  const double vDrift(){return _vDrift;}
-  bool loaded() const {return _loaded;}
+  const double vDrift(){return fvDrift;}
+  bool loaded() const {return floaded;}
 
   // Modifiers -----------------------
 
 
  protected:
 
-  bool _loaded;
+  bool floaded;
   
  private:
   // Private Data Members ------------
   
   PndTpcDevmapCylLoader* loader;  //this class takes care of the file I/O
-  double _vDrift;
+  double fvDrift;
       
 };
 

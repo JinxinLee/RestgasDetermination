@@ -29,7 +29,7 @@
 ClassImp(PndTpcSignal)
 
 PndTpcSignal::PndTpcSignal()
-  : _t(0),_amp(0),_padId(0),_mcTrackId(0),_mcHitId(0),_mcEventId(0),_mother(0)
+  : ft(0),famp(0),fpadId(0),fmcTrackId(0),fmcHitId(0),fmcEventId(0),fmother(0)
 {;}
 
 PndTpcSignal::PndTpcSignal(double t, 
@@ -37,33 +37,33 @@ PndTpcSignal::PndTpcSignal(double t,
 		     unsigned int PadID, 
 		     unsigned int EventID,
 		     PndTpcAvalanche* Mo)
-  : _t(t),_amp(Amp),_padId(PadID),_mcTrackId(0),_mcHitId(0),_mcEventId(EventID),_mother(Mo)
+  : ft(t),famp(Amp),fpadId(PadID),fmcTrackId(0),fmcHitId(0),fmcEventId(EventID),fmother(Mo)
 {;}
 
 
 unsigned int 
 PndTpcSignal::mcTrackId() const {
-  if(_mother==0) return _mcTrackId;
-  return _mother->mcTrackId();
+  if(fmother==0) return fmcTrackId;
+  return fmother->mcTrackId();
 }
 
 unsigned int 
 PndTpcSignal::mcHitId() const {
-  if(_mother==0) return _mcHitId;
-  return _mother->mcHitId();
+  if(fmother==0) return fmcHitId;
+  return fmother->mcHitId();
 }
 
 bool operator== (const PndTpcSignal& lhs, const PndTpcSignal& rhs) {
-  return fabs(lhs._t-rhs._t)<1E-4 && lhs._padId==rhs._padId;
+  return fabs(lhs.ft-rhs.ft)<1E-4 && lhs.fpadId==rhs.fpadId;
 }
 
 bool operator< (const PndTpcSignal& lhs, const PndTpcSignal& rhs) {
-  return lhs._t<rhs._t;
+  return lhs.ft<rhs.ft;
 }
 
 std::ostream& operator<< (std::ostream& s, const PndTpcSignal& me){
   return s<<"PndTpcSignal:\n"
-	  <<"     t="<<me._t<<"\n"
-	  <<"     Amp="<<me._amp<<"\n"
-	  <<"     PadID="<<me._padId<<"\n";
+	  <<"     t="<<me.ft<<"\n"
+	  <<"     Amp="<<me.famp<<"\n"
+	  <<"     PadID="<<me.fpadId<<"\n";
 }

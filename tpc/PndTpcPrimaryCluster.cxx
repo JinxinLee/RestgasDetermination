@@ -31,7 +31,7 @@
 ClassImp(PndTpcPrimaryCluster);
 
 PndTpcPrimaryCluster::PndTpcPrimaryCluster()
-  : _t(0), _q(0), _mcTrackId(0),_mcHitId(0),_pos(0,0,0)
+  : ft(0), fq(0), fmcTrackId(0),fmcHitId(0),fpos(0,0,0)
 {}
 
 PndTpcPrimaryCluster::PndTpcPrimaryCluster(const double t, 
@@ -39,7 +39,7 @@ PndTpcPrimaryCluster::PndTpcPrimaryCluster(const double t,
 				     const TVector3& pos,
 				     const unsigned int mcTrackId,
 				     const unsigned int mcHitId)
-  : _t(t), _q(q), _mcTrackId(mcTrackId),_mcHitId(mcHitId),_pos(pos)
+  : ft(t), fq(q), fmcTrackId(mcTrackId),fmcHitId(mcHitId),fpos(pos)
 {}
 
 
@@ -48,10 +48,10 @@ PndTpcPrimaryCluster::~PndTpcPrimaryCluster()
 
 unsigned int 
 PndTpcPrimaryCluster::mcTrackId() const {
-  return _mcTrackId;
+  return fmcTrackId;
 }
 
 unsigned int
 PndTpcPrimaryCluster::mcHitId() const {
-  return _mcHitId;
+  return fmcHitId;
 }

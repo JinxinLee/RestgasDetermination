@@ -58,73 +58,73 @@ void setOpeningAngle(double);            //Opening angle of the thought cone
                                          //that contains the track 
 	                                       //(not yet implemented)
 
-void SetPersistence(Bool_t opt=kTRUE) {_persistence=kTRUE;} 
+void SetPersistence(Bool_t opt=kTRUE) {fpersistence=kTRUE;} 
 
-void setXYresiduals(Bool_t xyres) {_XYresidual = xyres;}
+void setXYresiduals(Bool_t xyres) {fXYresidual = xyres;}
 
 void setSplineMeshKnots(unsigned int nZ, unsigned int nR) 
-{_NknotsZ=nZ; _NknotsR=nR;}
+{fNknotsZ=nZ; fNknotsR=nR;}
 
-void setLaserGridFile(std::string gridfile) {_gridFile=gridfile;}
+void setLaserGridFile(std::string gridfile) {fgridFile=gridfile;}
 
-void setPlotSplineFits(Bool_t opt) {_plot=opt;}
+void setPlotSplineFits(Bool_t opt) {fplot=opt;}
 
 
 private:
 
- TString _clusterBranchName;
+ TString fclusterBranchName;
  
- std::string _gridFile;
+ std::string fgridFile;
 
- Bool_t _persistence;            
- Bool_t _plot;                   
- Bool_t _XYresidual;              //flag for residual calculation
+ Bool_t fpersistence;            
+ Bool_t fplot;                   
+ Bool_t fXYresidual;              //flag for residual calculation
                                   //set true if z component should be ignored.
 
  //fitting parameters
- double _maxDist;                 //max allowed distance at the ENDPLATE (z=109.5)
- double _openingAngle;            //not implemented yet
- double _rMin;                   
- double _rMax;                   
- double _zMin;                   
- double _zMax;                    
- unsigned int _NknotsZ;           
- unsigned int _NknotsR;          
- unsigned int _NlamdaZ;          
- unsigned int _NlamdaR;           
+ double fmaxDist;                 //max allowed distance at the ENDPLATE (z=109.5)
+ double fopeningAngle;            //not implemented yet
+ double frMin;                   
+ double frMax;                   
+ double fzMin;                   
+ double fzMax;                    
+ unsigned int fNknotsZ;           
+ unsigned int fNknotsR;          
+ unsigned int fNlamdaZ;          
+ unsigned int fNlamdaR;           
  
- PndTpcLaserTask* _lasertask;
+ PndTpcLaserTask* flasertask;
  PndTpcCluster* cl;
 
- std::vector<PndTpcLaser*>* _laserList;            
- std::vector<PndTpcLaserTrack*>* _trackList;       
+ std::vector<PndTpcLaser*>* flaserList;            
+ std::vector<PndTpcLaserTrack*>* ftrackList;       
 
- std::vector<double> _knotsZ;
- std::vector<double> _knotsR;  
+ std::vector<double> fknotsZ;
+ std::vector<double> fknotsR;  
 
 
  /*2D cubic Splines and associated data vectors for the fits */
- BiCubSpline* _devMapR;
- BiCubSpline* _devMapPerp;
- BiCubSpline* _recoMapR;
- BiCubSpline* _recoMapPerp;
+ BiCubSpline* fdevMapR;
+ BiCubSpline* fdevMapPerp;
+ BiCubSpline* frecoMapR;
+ BiCubSpline* frecoMapPerp;
 
  //reconstructed deviation maps: (dr, dperp) at (r,perp)
- std::vector<std::vector<double>*> _devMapR_data;
- std::vector<std::vector<double>*> _devMapPerp_data;
+ std::vector<std::vector<double>*> fdevMapR_data;
+ std::vector<std::vector<double>*> fdevMapPerp_data;
  //maps FOR reconstruction of MEASURED points: (dr, dperp) at (r+dr, perp+dperp)
- std::vector<std::vector<double>*> _recoMapR_data;     
- std::vector<std::vector<double>*> _recoMapPerp_data;
+ std::vector<std::vector<double>*> frecoMapR_data;     
+ std::vector<std::vector<double>*> frecoMapPerp_data;
  
  
- TClonesArray* _clusterArray;
- TClonesArray* _statArray;
- TClonesArray* _trackArray;
- TClonesArray* _fitStatArray;
+ TClonesArray* fclusterArray;
+ TClonesArray* fstatArray;
+ TClonesArray* ftrackArray;
+ TClonesArray* ffitStatArray;
 
- void buildLaserList(bool quiet);   //creates the _laserList 
+ void buildLaserList(bool quiet);   //creates the flaserList 
                                                 
- PndTpcDigiPar* _par;                 
+ PndTpcDigiPar* fpar;                 
 
  
 

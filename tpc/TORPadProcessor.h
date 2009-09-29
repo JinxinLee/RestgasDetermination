@@ -42,13 +42,13 @@ public:
   // Operators
  
   // Accessors -----------------------
-  unsigned int id() const {return _myid;}
-  bool isCenter() const {return _iscenter;}
-  double amp() const {if(_mydata==0) return 0;
-                            else return _mydata->amp();}
-  PndTpcDigi* mydata() const {return _mydata;}
-  unsigned int ndata() const {return _data.size();}
-  unsigned int domNeighbour() const {if(_dominant_neighb!=-1)return _neighbours[_dominant_neighb]->id();
+  unsigned int id() const {return fmyid;}
+  bool isCenter() const {return fiscenter;}
+  double amp() const {if(fmydata==0) return 0;
+                            else return fmydata->amp();}
+  PndTpcDigi* mydata() const {return fmydata;}
+  unsigned int ndata() const {return fdata.size();}
+  unsigned int domNeighbour() const {if(fdominant_neighb!=-1)return fneighbours[fdominant_neighb]->id();
   else return 0;}
   // Modifiers -----------------------
   void setData(PndTpcDigi* mydata); // resets data buffer!
@@ -57,16 +57,16 @@ public:
   void addState(ppstate* state, std::string name);
 
   void put(PndTpcDigi* data); // transport data into this pad
-  PndTpcDigi* get(unsigned int i) {return _data[i];}
+  PndTpcDigi* get(unsigned int i) {return fdata[i];}
 
   // Operations ----------------------
   std::string heartbeat(); // heartbeat of finite state machine 
                                   // returns state at end of heartbeat
   void setState(std::string name);
-  std::string getCurrentState() const {return _astate;}
+  std::string getCurrentState() const {return fastate;}
   void reset();
   void setClusterBuffer(std::vector<std::vector<PndTpcDigi*>*>* clb)
-  {_cluster_buffer=clb;}
+  {fcluster_buffer=clb;}
 
   friend class ppstate_initial;
   friend class ppstate_compare;
@@ -77,19 +77,19 @@ public:
 private:
 
   // Private Data Members ------------    
-  unsigned int _myid;
-  PndTpcDigi* _mydata;
-  std::vector<PndTpcDigi*> _data;   // _data[0]=mydata
-  std::vector<padprocessor*> _neighbours;
-  bool _iscenter;
-  int _dominant_neighb;
+  unsigned int fmyid;
+  PndTpcDigi* fmydata;
+  std::vector<PndTpcDigi*> fdata;   // fdata[0]=mydata
+  std::vector<padprocessor*> fneighbours;
+  bool fiscenter;
+  int fdominant_neighb;
 
-  std::map<std::string,ppstate*> _states;
-  ppstate* _active_state;
-  std::string _astate;
+  std::map<std::string,ppstate*> fstates;
+  ppstate* factive_state;
+  std::string fastate;
 
 
-  std::vector<std::vector<PndTpcDigi*>*>* _cluster_buffer;
+  std::vector<std::vector<PndTpcDigi*>*>* fcluster_buffer;
 
   // Private Methods -----------------
 

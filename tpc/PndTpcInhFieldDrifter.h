@@ -62,48 +62,48 @@ public:
   void run();	//start
   
   /*Easy way to set constant fields without changing input files */
-  void setConstE(TVector3 cE) {_runKut->setConstE(cE);} 
-  void setConstB(TVector3 cB) {_runKut->setConstB(cB);}
+  void setConstE(TVector3 cE) {frunKut->setConstE(cE);} 
+  void setConstB(TVector3 cB) {frunKut->setConstB(cB);}
 
 
  
 private:
  
-  int    _rBins,
-         _zBins,
-         _split;  /*split the task for evaluation on cluster? 
+  int    frBins,
+         fzBins,
+         fsplit;  /*split the task for evaluation on cluster? 
 		    -1: no split
 		    any other int: number of row (in r) to process */
   
-  double _tpcMinR, 
-         _tpcMaxR,
-         _tpcMinZ,
-         _tpcMaxZ,
-         _rBinWidth,
-         _zBinWidth,
-         _sc,
-         _friction; 	
+  double ftpcMinR, 
+         ftpcMaxR,
+         ftpcMinZ,
+         ftpcMaxZ,
+         frBinWidth,
+         fzBinWidth,
+         fsc,
+         ffriction; 	
 
-  const char* _outFile;
-  const char* _paramFile;
+  const char* foutFile;
+  const char* fparamFile;
 
   
   void writeToFile(const char* bla);
   void initParams();   //create parameter environment and read in
   
   
-  PndTpcRungeKutta* _runKut;
-  PndTpcDigiPar* _par;
+  PndTpcRungeKutta* frunKut;
+  PndTpcDigiPar* fpar;
   
-  std::vector< std::vector<double> > _devX;        //x-deviation
-  std::vector< std::vector<double> > _devY;        //y-deviation
-  std::vector< std::vector<double> > _time;        //total RK-time
-  std::vector< std::vector<int> > _stepCount;      //amount of RK-steps
-  std::vector< std::vector<double> > _pathLength;  //total real drift-path 
+  std::vector< std::vector<double> > fdevX;        //x-deviation
+  std::vector< std::vector<double> > fdevY;        //y-deviation
+  std::vector< std::vector<double> > ftime;        //total RK-time
+  std::vector< std::vector<int> > fstepCount;      //amount of RK-steps
+  std::vector< std::vector<double> > fpathLength;  //total real drift-path 
   
   //control vector for the evolution of the drift velocity.
   //contains vectors of 3 components of the vector v and the Runge Kutta time
-  std::vector<std::vector<double>*>* _velocity_control;
+  std::vector<std::vector<double>*>* fvelocity_control;
   
 };
 

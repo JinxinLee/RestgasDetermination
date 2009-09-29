@@ -24,14 +24,14 @@
 
 PndTpcDevmapCyl::PndTpcDevmapCyl(const char* const fileName, double vDrift)
   :PndTpcFieldCylGrid<TVector3>(TVector3(0.,0.,0.),
-			     0.,0.,0.,0.), _loaded(false)
+			     0.,0.,0.,0.), floaded(false)
 {
 
   //TODO: redesign, get vDrift from param management
-  _vDrift = vDrift;
+  fvDrift = vDrift;
   loader = new PndTpcDevmapCylLoader(this, fileName);
-  if(loader->load()==0)_loaded=true;
-  if (!_loaded)
+  if(loader->load()==0)floaded=true;
+  if (!floaded)
     Error("PndTpcDevmapCyl::PndTpcDevmapCyl()",
 	  "Failed to load field data - check deviation-map file!");
   evalMaxPoint();
@@ -50,7 +50,7 @@ PndTpcDevmapCyl::print(std::ostream& s) const
 TVector3
 PndTpcDevmapCyl::value(const TVector3& point) const
 {
-  if(!_loaded)return TVector3(0,0,0);
+  if(!floaded)return TVector3(0,0,0);
   //std::cout<<"PndTpcDevmapCyl::value("<<point.X()<<","<<point.Y()<<","
   //	   <<point.Z()<<")"<<std::endl;
   if (pointOk(point) == true)
@@ -60,7 +60,7 @@ PndTpcDevmapCyl::value(const TVector3& point) const
   else //return value for boundary point next to point 
   {
     //Error("PndTpcDevmapCyl::value()", "Point outside of tpc volume!");
-    TVector3 boundPoint = point - _relPosition;
+    TVector3 boundPoint = point - frelPosition;
     double r2 = boundPoint.X()*boundPoint.X()+boundPoint.Y()*boundPoint.Y();
     if (r2 >= maxR()*maxR())
     {
@@ -77,6 +77,6 @@ PndTpcDevmapCyl::value(const TVector3& point) const
     else if (boundPoint.Z() < minZ())
       boundPoint.SetZ(minZ());
     //recursive: guarantees, that the point is inside volume
-    return value(boundPoint + _relPosition);
+    return value(boundPoint + frelPosition);
   }
 }

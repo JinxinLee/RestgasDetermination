@@ -46,19 +46,19 @@ class PndTpcLaserTrack : public TObject {
 
 // Acessors -------------------------------------------------
 
-  std::vector<PndTpcLaserStat*>* getStatList() {return _statList;}
+  std::vector<PndTpcLaserStat*>* getStatList() {return fstatList;}
   std::vector<PndTpcCluster*>* getClusterList();
-  unsigned int getID() {return _ID;}
-  const TVector3& getStart() const {return _start;}
-  const TVector3& getDir() const {return _dir;}
+  unsigned int getID() {return fID;}
+  const TVector3& getStart() const {return fstart;}
+  const TVector3& getDir() const {return fdir;}
 
  private:
 
-  std::vector<PndTpcLaserStat*>* _statList;  //! //statistic objects
-  TVector3 _start;
-  TVector3 _dir;
-  TVector3 _end;
-  unsigned int _ID;
+  std::vector<PndTpcLaserStat*>* fstatList;  //! //statistic objects
+  TVector3 fstart;
+  TVector3 fdir;
+  TVector3 fend;
+  unsigned int fID;
 
 public:
   ClassDef(PndTpcLaserTrack,1)

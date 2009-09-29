@@ -81,16 +81,16 @@ PndTpcPRLookupTable::GetValue(const double dx, const double dy) const{
 void 
 PndTpcPRLookupTable::BuildTable(const PndTpcGem& gem, 
 			     const PndTpcAbsPadShape& pad, 
-			     const double _range,      
-			     const double _step,
-			     const double _intStep){
+			     const double frange,      
+			     const double fstep,
+			     const double fintStep){
   if(table!=0){
     for(int i=0;i<2*nx;++i){
       delete [] table[i];
     }
     delete [] table;
   }
-  range=_range; step=_step;
+  range=frange; step=fstep;
   double padwidth;
   double padheight;
   pad.EvalBoundingRect(padwidth, padheight, 0);
@@ -109,7 +109,7 @@ PndTpcPRLookupTable::BuildTable(const PndTpcGem& gem,
     for(int iy=-ny;iy<ny;++iy){
       double thisx=ix*step;
       double thisy=iy*step;
-      table[ix+nx][iy+ny]=Integrate(gem,pad,_intStep,thisx,thisy);
+      table[ix+nx][iy+ny]=Integrate(gem,pad,fintStep,thisx,thisy);
     }
   }
   s<<std::endl;

@@ -29,24 +29,24 @@
 // Class Member definitions -----------
 
 ppstate_wait::ppstate_wait(padprocessor* pp)
-  : ppstate(pp), _ndata(0), _counter(0)
+  : ppstate(pp), fndata(0), fcounter(0)
 {}
 
 std::string
 ppstate_wait::heartbeat()
 {
-  //++_counter;
-  //if(_counter%2==0)return "wait";
+  //++fcounter;
+  //if(fcounter%2==0)return "wait";
 
-  if(_ndata==_parent->_data.size()){
+  if(fndata==fparent->fdata.size()){
     // no change in last iteration;
     
-    _ndata=0;
-    _parent->setState("output");
+    fndata=0;
+    fparent->setState("output");
     return "output";
   }
   else {
-    _ndata=_parent->_data.size();
+    fndata=fparent->fdata.size();
     return "wait";
   }
 }

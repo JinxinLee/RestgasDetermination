@@ -37,29 +37,29 @@ using std::string;
 ClassImp(DebugLogger)
 
 DebugLogger* 
-DebugLogger::_instance=NULL;
+DebugLogger::finstance=NULL;
 
 DebugLogger*
 DebugLogger::Instance() {
-  if(_instance==0){
-    _instance = new DebugLogger();
+  if(finstance==0){
+    finstance = new DebugLogger();
   }
-  return _instance;
+  return finstance;
 }
 
 DebugLogger::DebugLogger() : TNamed()
 {
-  if(_instance!=NULL)throw;
-  _instance=this;
-  _outfile=new TFile("log.root","RECREATE");
+  if(finstance!=NULL)throw;
+  finstance=this;
+  foutfile=new TFile("log.root","RECREATE");
 }
 
 DebugLogger::~DebugLogger()
 {
   std::cout<<"Destructing DebugLogger"<<std::endl;
-  if(_outfile!=NULL){
-    _outfile->Close();
-    delete _outfile;
+  if(foutfile!=NULL){
+    foutfile->Close();
+    delete foutfile;
   }
 }
 
@@ -67,10 +67,10 @@ DebugLogger::~DebugLogger()
 void
 DebugLogger::Histo(string name, double value, 
 		   double x0, double x1, int bins){
-  if(_histomap[name]==NULL){
-    _histomap[name]=new TH1D(name.c_str(),name.c_str(),bins,x0,x1);
+  if(fhistomap[name]==NULL){
+    fhistomap[name]=new TH1D(name.c_str(),name.c_str(),bins,x0,x1);
   }
-  _histomap[name]->Fill(value);
+  fhistomap[name]->Fill(value);
   return;
 }
 
@@ -78,11 +78,11 @@ void
 DebugLogger::Histo2D(string name, double xvalue, double yvalue, 
 	    double xmin, double xmax, int xbins,
 	    double ymin, double ymax, int ybins){
-  if(_histomap2D[name]==NULL){
-    _histomap2D[name]=new TH2D(name.c_str(),name.c_str(),xbins,xmin,xmax,
+  if(fhistomap2D[name]==NULL){
+    fhistomap2D[name]=new TH2D(name.c_str(),name.c_str(),xbins,xmin,xmax,
 			       ybins,ymin,ymax);
   }
-  _histomap2D[name]->Fill(xvalue,yvalue);
+  fhistomap2D[name]->Fill(xvalue,yvalue);
   return;
 }
 
@@ -90,25 +90,31 @@ DebugLogger::Histo2D(string name, double xvalue, double yvalue,
 
 void 
 DebugLogger::WriteFiles(){
-  _outfile->cd();
-  std::map<string, TH1*>::iterator it=_histomap.begin();
-  while(it!=_histomap.end()){
+  foutfile->cd();
+  std::map<string, TH1*>::iterator it=fhistomap.begin();
+  while(it!=fhistomap.end()){
     std::cout<<"DebugLogger::Writing histogram "<<it->first<<std::endl;
-    it->second->Write();
-    delete it->second;
+    if(it->second!=NULL){
+      it->second->Write();
+      delete it->second;
+      it->second=NULL;
+    }
     ++it;
   }
-  std::map<string, TH2*>::iterator it2=_histomap2D.begin();
-  while(it2!=_histomap2D.end()){
+  std::map<string, TH2*>::iterator it2=fhistomap2D.begin();
+  while(it2!=fhistomap2D.end()){
     std::cout<<"DebugLogger::Writing histogram "<<it2->first<<std::endl;
+    if(it2->second!=NULL){
     it2->second->Write();
     delete it2->second;
+    it2->second=NULL;
+    }
     ++it2;
   }
 
-  if(_outfile!=NULL){
-    _outfile->Close();
-    delete _outfile;
+  if(foutfile!=NULL){
+    foutfile->Close();
+    delete foutfile;
   }
 }
 
@@ -116,7 +122,7 @@ DebugLogger::WriteFiles(){
 void
 DebugLogger::addRule(abslogrule* rule){
   dbgstrm.addrule(rule);
-  //std::cout<<"number of rules="<<dbgstrm._rules.size()<<std::endl;
+  //std::cout<<"number of rules="<<dbgstrm.frules.size()<<std::endl;
 }
 
 void 
@@ -134,7 +140,7 @@ DebugLogger::addRule(string file, string function, unsigned int output){
 
 unsigned int 
 DebugLogger::addOutput(ostream& os){
-  //std::cout<<"number of slots="<<dbgstrm._slots.size()+1<<std::endl;
+  //std::cout<<"number of slots="<<dbgstrm.fslots.size()+1<<std::endl;
   return dbgstrm.addbuffer(os.rdbuf());
 }
 

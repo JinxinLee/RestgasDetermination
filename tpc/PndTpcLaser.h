@@ -39,49 +39,49 @@ class PndTpcLaser {
 
 //Modifiers -------------------------------------------------
 
-  void setEndPos(TVector3 end) {_end = end;}
-  void setDirection(TVector3 dir) {_dir = dir * (1/(double)dir.Mag());} 
-  void setIonDens(double iondens) {_ionDens = iondens;}
-  void setWidth(double width) {_width = width;}
-  void setTime(double time) {_time = time;}
+  void setEndPos(TVector3 end) {fend = end;}
+  void setDirection(TVector3 dir) {fdir = dir * (1/(double)dir.Mag());} 
+  void setIonDens(double iondens) {fionDens = iondens;}
+  void setWidth(double width) {fwidth = width;}
+  void setTime(double time) {ftime = time;}
 
   void activate();       //fires the laser
 
 //Acessors --------------------------------------------------
 
-  TVector3 getStart() {return _start;} 
-  TVector3 getDir() {return _dir;}
-  TVector3 getEnd() {return _end;}
-  double getIonDens() const {return _ionDens;}
-  double getWidth() const {return _width;}
-  double getTime() const {return _time;}
+  TVector3 getStart() {return fstart;} 
+  TVector3 getDir() {return fdir;}
+  TVector3 getEnd() {return fend;}
+  double getIonDens() const {return fionDens;}
+  double getWidth() const {return fwidth;}
+  double getTime() const {return ftime;}
   unsigned int getNE() const {return totalNE;}
   
   void print();
 
-  TClonesArray* getTrack() const {return _laserArray;}
+  TClonesArray* getTrack() const {return flaserArray;}
 
 // ----------------------------------------------------------
 
 
  private:
 
-  TVector3 _start;     //starting position
-  TVector3 _end;              //end point
-  TVector3 _dir;              //direction, normalized
+  TVector3 fstart;     //starting position
+  TVector3 fend;              //end point
+  TVector3 fdir;              //direction, normalized
 
-  double _ionDens;           //mean ion density on track 
+  double fionDens;           //mean ion density on track 
                              //[electrons/cm]
-  double _width;             //width of laser beam
-  double _time;              //fire time
-  double _trackLength;       //length of laser track in TPC
+  double fwidth;             //width of laser beam
+  double ftime;              //fire time
+  double ftrackLength;       //length of laser track in TPC
 
   unsigned int totalNE;      //total number of electrons
   
 
-  double _rMin, _rMax, _zMin, _zMax;   //PndTpc geometry.
+  double frMin, frMax, fzMin, fzMax;   //PndTpc geometry.
 
-  TClonesArray* _laserArray;   //array of PndTpcPrimaryClusters
+  TClonesArray* flaserArray;   //array of PndTpcPrimaryClusters
                                //with only 1 electron each
 
   void evalGeometry();   //evaluates endpoint or direction

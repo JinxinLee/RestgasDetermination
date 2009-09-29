@@ -241,9 +241,11 @@ PndTpcIdealTrackingTask::Exec(Option_t* opt)
       double dxdz=dir.X()/dir.Z();
       double dydz=dir.Y()/dir.Z();
       double qp=q/mom.Mag();
-      rep=new LSLTrackRep(pos.Z(),pos.X(),pos.Y(),dxdz,dydz,qp,
+      LSLTrackRep* lrep=new LSLTrackRep(pos.Z(),pos.X(),pos.Y(),dxdz,dydz,qp,
 			  poserr.X(),poserr.Y(),0.1,0.1,0.1,NULL);
-      
+      // check inversion
+      if(dir.Theta()>TMath::Pi()*0.5)lrep->setInverted();
+      rep=lrep;
     }
     
     

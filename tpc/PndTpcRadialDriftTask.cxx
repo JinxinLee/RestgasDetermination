@@ -50,27 +50,27 @@ using std::sqrt;
 
 
 PndTpcRadialDriftTask::PndTpcRadialDriftTask()
-  : CbmTask("TPC RadialDrift"), _persistence(kFALSE), 
-    _attach(kTRUE), _diffuseL(kTRUE), _diffuseT(kTRUE), _distort(kFALSE), _phicut(kFALSE), _initialized(kFALSE),
-    _qa(NULL),_rGem(39.5),_rInner(5), _LorentzAngle(0.175), _HV(10000)
+  : CbmTask("TPC RadialDrift"), fpersistence(kFALSE), 
+    fattach(kTRUE), fdiffuseL(kTRUE), fdiffuseT(kTRUE), fdistort(kFALSE), fphicut(kFALSE), finitialized(kFALSE),
+    fqa(NULL),frGem(39.5),frInner(5), fLorentzAngle(0.175), fHV(10000)
 {
-  _primBranchName = "PndTpcPrimaryCluster";
-  _devFile = "DevMap_29-06-07_E_and_B_new_fieldclass.dat"; //default
-  //_gas= new PndTpcGas("NEON-90_CO2-10_B2_PRES1013.asc",400);
-  //std::cout<<*_gas<<std::endl;
+  fprimBranchName = "PndTpcPrimaryCluster";
+  fdevFile = "DevMap_29-06-07_E_and_B_new_fieldclass.dat"; //default
+  //fgas= new PndTpcGas("NEON-90_CO2-10_B2_PRES1013.asc",400);
+  //std::cout<<*fgas<<std::endl;
 }
 
 
 PndTpcRadialDriftTask::~PndTpcRadialDriftTask()
 {
-if(_devmap!=NULL)delete _devmap;
+if(fdevmap!=NULL)delete fdevmap;
 }
 
 InitStatus
 PndTpcRadialDriftTask::Init()
 { 
 
-  _initialized=false;
+  finitialized=false;
 
   //Get ROOT Manager
   CbmRootManager* ioman= CbmRootManager::Instance();
@@ -82,54 +82,54 @@ PndTpcRadialDriftTask::Init()
     }
   
   // Get input collection
-  _primArray=(TClonesArray*) ioman->GetObject(_primBranchName);
+  fprimArray=(TClonesArray*) ioman->GetObject(fprimBranchName);
   
-  if(_primArray==0)
+  if(fprimArray==0)
     {
       Error("PndTpcRadialDriftTask::Init","PrimaryElectron-array not found!");
       return kERROR;
     }
   
   // create and register output array
-  _driftedArray = new TClonesArray("PndTpcDriftedElectron"); 
-  ioman->Register("PndTpcDriftedElectron","PndTpc",_driftedArray,_persistence);
+  fdriftedArray = new TClonesArray("PndTpcDriftedElectron"); 
+  ioman->Register("PndTpcDriftedElectron","PndTpc",fdriftedArray,fpersistence);
 
   // create histograms with x- and y-shifts
   // these will later be stored in a separate root file
-  if(_qa!=NULL){
-  _xVariation = _qa->getTH1D("xShifts",
+  if(fqa!=NULL){
+  fxVariation = fqa->getTH1D("xShifts",
 			 "x-coordinate shifts from drifting", 200, -0.7, 0.7);
-  _yVariation = _qa->getTH1D("yShifts",
+  fyVariation = fqa->getTH1D("yShifts",
 			 "y-coordinate shifts from drifting" , 200, -0.7, 0.7);
-  _xVarAndDriftL = _qa->getTH2D("xDrift_vs_DriftLength", 
+  fxVarAndDriftL = fqa->getTH2D("xDrift_vs_DriftLength", 
 			    "x-shifts vs. DriftLength",
 			    200,-0.7,0.7,200,0,100);
-  _yVarAndDriftL = _qa->getTH2D("yDrift_vs_DriftLength", 
+  fyVarAndDriftL = fqa->getTH2D("yDrift_vs_DriftLength", 
 			    "y-shift vs. DriftLength",
 			    200,-0.7,0.7,200,0,100);
   }
   
  //TODO: get form GEOM!
-  //_zGem=_par->getZGem();
-  _gas=_par->getGas();
-  _diffuseL=_par->getDiffuseL();
-  _diffuseT=_par->getDiffuseT();
-  _attach=_par->getAttach();
-  _mobility=_gas->VDrift()/_gas->E();
+  //fzGem=fpar->getZGem();
+  fgas=fpar->getGas();
+  fdiffuseL=fpar->getDiffuseL();
+  fdiffuseT=fpar->getDiffuseT();
+  fattach=fpar->getAttach();
+  fmobility=fgas->VDrift()/fgas->E();
   
-  _frac=_rGem/_rInner;
+  ffrac=frGem/frInner;
 
 //Instantiate deviation map
-  if(_distort){
-    _devmap = new PndTpcDevmapCyl(_devFile,_gas->VDrift());
-    if(!_devmap->loaded()){
+  if(fdistort){
+    fdevmap = new PndTpcDevmapCyl(fdevFile,fgas->VDrift());
+    if(!fdevmap->loaded()){
       Error("PndTpcRadialDriftTask::Init","Deviation Map not loaded! Switching off distortions.");
-      _distort=false;
+      fdistort=false;
     }
   }
-  else _devmap=NULL;
+  else fdevmap=NULL;
 
-  _initialized=true;
+  finitialized=true;
   return kSUCCESS;
 }
 
@@ -147,8 +147,8 @@ PndTpcRadialDriftTask::SetParContainers() {
   if ( ! db ) Fatal("SetParContainers", "No runtime database");
 
   // Get PndTpc digitisation parameter container
-  _par= (PndTpcDigiPar*) db->getContainer("PndTpcDigiPar");
-  if (! _par ) Fatal("SetParContainers", "PndTpcDigiPar not found");
+  fpar= (PndTpcDigiPar*) db->getContainer("PndTpcDigiPar");
+  if (! fpar ) Fatal("SetParContainers", "PndTpcDigiPar not found");
 }
 
 
@@ -157,17 +157,17 @@ void
 PndTpcRadialDriftTask::Exec(Option_t* opt)
 {
   // Reset output Array
-  if(_driftedArray==0) Fatal("PndTpcPrimCluster::Exec)","No DriftedElectronArray");
-  _driftedArray->Delete();
+  if(fdriftedArray==0) Fatal("PndTpcPrimCluster::Exec)","No DriftedElectronArray");
+  fdriftedArray->Delete();
 
   //loop over incoming electrons
-  Int_t nc=_primArray->GetEntriesFast();
+  Int_t nc=fprimArray->GetEntriesFast();
   for(int ic=0;ic<nc;++ic){
-    PndTpcPrimaryCluster* pcl=(PndTpcPrimaryCluster*)_primArray->At(ic);
+    PndTpcPrimaryCluster* pcl=(PndTpcPrimaryCluster*)fprimArray->At(ic);
 
-    if(_phicut){
+    if(fphicut){
       double phi=pcl->pos().Phi();
-      if(phi<_phimin || phi>_phimax)continue;
+      if(phi<fphimin || phi>fphimax)continue;
     }
 
     //create single electrons
@@ -179,33 +179,33 @@ PndTpcRadialDriftTask::Exec(Option_t* opt)
       double r=pcl->pos().Perp();
       TVector3 radial=pcl->pos();
       radial.SetZ(0);
-      double sigmaPhi=_gas->Dt()*TMath::Sqrt((_rGem-r)*_rGem/r);
+      double sigmaPhi=fgas->Dt()*TMath::Sqrt((frGem-r)*frGem/r);
       double d=gRandom->Gaus(0,sigmaPhi);
       TVector3 displace=radial.Orthogonal();
       displace.SetMag(d);
       displace.Rotate(gRandom->Uniform(0,TMath::TwoPi()),radial);
       
       // Lorentzdrift:
-      double phishift=_LorentzAngle*TMath::Log(_rGem/r);
+      double phishift=fLorentzAngle*TMath::Log(frGem/r);
       radial.RotateZ(phishift);
-      radial.SetMag(_rGem);
+      radial.SetMag(frGem);
       radial+=displace;
      
       //calculate drift time
-      double driftl=_rGem-r;
+      double driftl=frGem-r;
       if(driftl<0)continue;
       //attachment
-      if(_attach){
-	if ( exp( -driftl * _gas->k() ) < gRandom->Uniform())
+      if(fattach){
+	if ( exp( -driftl * fgas->k() ) < gRandom->Uniform())
 	  continue;
       }
 
-      double dt=_frac/(_HV*_mobility)*(_rGem*_rGem-r*r);
+      double dt=ffrac/(fHV*fmobility)*(frGem*frGem-r*r);
 
 
-      Int_t size = _driftedArray->GetEntriesFast();
+      Int_t size = fdriftedArray->GetEntriesFast();
       // for radial drift x=z; y=phi; 
-      new((*_driftedArray)[size]) PndTpcDriftedElectron(pcl->pos().Z()+radial.Z(),
+      new((*fdriftedArray)[size]) PndTpcDriftedElectron(pcl->pos().Z()+radial.Z(),
 						       radial.Phi(),
 						       pcl->t()+dt,
 						       pcl);
@@ -215,36 +215,36 @@ PndTpcRadialDriftTask::Exec(Option_t* opt)
     } // end loop over electrons
 
   } // end loop over clusters 
-  std::cout<<_driftedArray->GetEntriesFast()<<" electrons arriving at readout"
+  std::cout<<fdriftedArray->GetEntriesFast()<<" electrons arriving at readout"
 	   <<std::endl;
   return;
 }
 
 void PndTpcRadialDriftTask::FillHistograms(double x, double y, double dl) {
-	if(_qa!=NULL){
-		_xVariation->Fill(x);
-		_yVariation->Fill(y);
-		_xVarAndDriftL->Fill(x, dl);
-		_yVarAndDriftL->Fill(y, dl);
+	if(fqa!=NULL){
+		fxVariation->Fill(x);
+		fyVariation->Fill(y);
+		fxVarAndDriftL->Fill(x, dl);
+		fyVarAndDriftL->Fill(y, dl);
 	}
 }
 
 //WriteHistograms() has to be called once in the runDigi.C macro!
 void PndTpcRadialDriftTask::WriteHistograms() {
-  if(!_initialized)return;
+  if(!finitialized)return;
   TFile* file=CbmRootManager::Instance()->GetOutFile();
 
   file->mkdir("PndTpcRadialDriftTask");
   file->cd("PndTpcRadialDriftTask");
 
-  _xVariation->Write();
-  delete _xVariation;
-  _yVariation->Write();
-  delete _yVariation;
-  _xVarAndDriftL->Write();
-  delete _xVarAndDriftL;
-  _yVarAndDriftL->Write();
-  delete _yVarAndDriftL;
+  fxVariation->Write();
+  delete fxVariation;
+  fyVariation->Write();
+  delete fyVariation;
+  fxVarAndDriftL->Write();
+  delete fxVarAndDriftL;
+  fyVarAndDriftL->Write();
+  delete fyVarAndDriftL;
 
  }
 

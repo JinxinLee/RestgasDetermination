@@ -45,27 +45,27 @@
 
 PndTpcEvtMixTask::PndTpcEvtMixTask()
   : FairTask("TPC Background Event Addmixer"),
-    _inBranchName("PndTpcSignal"),
-    _bkgBranchName("PndTpcSignal"),
-    _bkgFileName(""),
-    _signalArray(NULL),
-    _timeArray(NULL),
-    _bkgArray(NULL),
-    _persistence(kFALSE),
-    _nbkgEvts(0)
+    finBranchName("PndTpcSignal"),
+    fbkgBranchName("PndTpcSignal"),
+    fbkgFileName(""),
+    fsignalArray(NULL),
+    ftimeArray(NULL),
+    fbkgArray(NULL),
+    fpersistence(kFALSE),
+    fnbkgEvts(0)
 {}
 
 PndTpcEvtMixTask::~PndTpcEvtMixTask()
 {
-  if(_bkgBranch!=NULL){
-    delete _bkgBranch;
+  if(fbkgBranch!=NULL){
+    delete fbkgBranch;
   }
-  if(_bkgTree!=NULL){
-    delete _bkgTree;
+  if(fbkgTree!=NULL){
+    delete fbkgTree;
   }
-  if(_inFile!=NULL){
-    _inFile->Close();
-    delete _inFile;
+  if(finFile!=NULL){
+    finFile->Close();
+    delete finFile;
   }
 }
 
@@ -84,8 +84,8 @@ PndTpcEvtMixTask::SetParContainers() {
   if ( ! db ) Fatal("SetParContainers", "No runtime database");
 
   // Get PndTpc digitisation parameter container
-  _par= (PndTpcDigiPar*) db->getContainer("PndTpcDigiPar");
-  if (! _par ) Fatal("SetParContainers", "PndTpcDigiPar not found");
+  fpar= (PndTpcDigiPar*) db->getContainer("PndTpcDigiPar");
+  if (! fpar ) Fatal("SetParContainers", "PndTpcDigiPar not found");
 }
 
 
@@ -106,56 +106,49 @@ PndTpcEvtMixTask::Init()
     }
 
   // Get input collections
-  _signalArray=(TClonesArray*) ioman->GetObject(_inBranchName);
+  fsignalArray=(TClonesArray*) ioman->GetObject(finBranchName);
 
-  if(_signalArray==0)
+  if(fsignalArray==0)
     {
       Error("Init","signal-array not found!");
       return kERROR;
     }
   
-  
-  _timeArray =(TClonesArray*) ioman->GetObject("PndTpcEvtTime");
-    if(_timeArray==0)
-    {
-      Error("Init","time-array not found!");
-      return kERROR;
-    }
-  
-
-
   // open input file with background events
-  if(_bkgFileName.IsNull())
+  if(fbkgFileName.IsNull())
     { 
       Error("Init","background file not found");
       return kERROR;
     }
-  _inFile=TFile::Open(_bkgFileName,"READ");
-  if(!_inFile->IsOpen())
+  finFile=TFile::Open(fbkgFileName,"READ");
+  if(!finFile->IsOpen())
     {
       Error("Init","background file could not be opened");
       return kERROR;
   }
-  _bkgTree=(TTree*)_inFile->Get("cbmsim");
-  if(_bkgTree==NULL)
+  fbkgTree=(TTree*)finFile->Get("cbmsim");
+  if(fbkgTree==NULL)
     {
       Error("Init","cbmsim tree not found in bkgfile");
       return kERROR;
     }
  
   //check if there are enough bkg events in tree
-  Int_t n=_bkgTree->GetEntries();
-  if(n<_nbkgEvts)
+  Int_t n=fbkgTree->GetEntries();
+  if(n<fnbkgEvts)
     {
       Error("Init","Not enough events in bkg file. Setting nbkgEvents to %i",n);
-      _nbkgEvts=n;
+      fnbkgEvts=n;
     }
   
   // Create bkgArray
-  _bkgArray = new TClonesArray(_bkgBranchName);
-  _bkgTree->SetBranchAddress(_bkgBranchName,&_bkgArray);
+  fbkgArray = new TClonesArray(fbkgBranchName);
+  ftimeArray = new TClonesArray("PndTpcEvtTime");
+  fbkgTree->SetBranchAddress(fbkgBranchName,&fbkgArray);
+   fbkgTree->SetBranchAddress("PndTpcEvtTime",&ftimeArray);
+  
 
-  _padPlane= _par->getPadPlane();
+  fpadPlane= fpar->getPadPlane();
 
 
   return kSUCCESS;
@@ -169,24 +162,24 @@ PndTpcEvtMixTask::Exec(Option_t* opt)
   std::cout<< "PndTpcEvtMixTask::Exec" << std::endl;
 
   // Look at this event geantHits in the TPC:
-  Int_t iout=_signalArray->GetEntriesFast();
+  Int_t iout=fsignalArray->GetEntriesFast();
   std::cout<<iout<<" signals in signalArray"<<std::endl;
 
   
   // Get background event
-  for(Int_t i=0;i<_nbkgEvts;++i){
-    double tevent=((PndTpcEvtTime*)_timeArray->At(0))->t0();
+  for(Int_t i=0;i<fnbkgEvts;++i){
+    fbkgTree->GetEntry(i);
+    double tevent=((PndTpcEvtTime*)ftimeArray->At(0))->t0();
     //std::cout<<"tevent="<<tevent<<std::endl;
     // Load bkg array
-    _bkgTree->GetEntry(i);
-    if(_bkgArray==NULL) Fatal("PndTpcEvtMixTask::Exec","bkgArray not loadable");
+    if(fbkgArray==NULL) Fatal("PndTpcEvtMixTask::Exec","bkgArray not loadable");
     // copy bkg array into output array
-    Int_t nsig=_bkgArray->GetEntriesFast();
+    Int_t nsig=fbkgArray->GetEntriesFast();
     for(Int_t ip=0;ip<nsig;++ip){
-      PndTpcSignal* sig=(PndTpcSignal*)_bkgArray->At(ip);
+      PndTpcSignal* sig=(PndTpcSignal*)fbkgArray->At(ip);
       // check if signal lies in region of interest
-      unsigned int sec=_padPlane->GetPad(sig->padId())->sectorId();
-      if(_sectors.size()>0 && _sectors.find(sec)==_sectors.end()){
+      unsigned int sec=fpadPlane->GetPad(sig->padId())->sectorId();
+      if(fsectors.size()>0 && fsectors.find(sec)==fsectors.end()){
 	// std::cout << "Skipping sig. Sector" 
 // 		  << sec << " not in list." << std::endl;
 	continue;
@@ -195,11 +188,11 @@ PndTpcEvtMixTask::Exec(Option_t* opt)
       sig->sett(sig->t()+tevent);
       sig->setmcEventId(i+1);
       // Add background to point-array of this event
-      new((*_signalArray)[iout++]) PndTpcSignal(*sig);
+      new((*fsignalArray)[iout++]) PndTpcSignal(*sig);
     }
   }
-    //_bkgArray->Print();
-  std::cout<<_signalArray->GetEntriesFast()<<" total signals in signalArray"<<std::endl;
+    //fbkgArray->Print();
+  std::cout<<fsignalArray->GetEntriesFast()<<" total signals in signalArray"<<std::endl;
 
 }
 

@@ -43,11 +43,11 @@
 
 
 PndTpcPadResponseTask::PndTpcPadResponseTask()
-  : FairTask("TPC PadResponse"), _persistence(kFALSE), _minSignalAmp(0),
-    _rmin(15.5), _rmax(41.5), _selected(false), _initialized(kFALSE), _qa(NULL)
+  : FairTask("TPC PadResponse"), fpersistence(kFALSE), fminSignalAmp(0),
+    frmin(15.5), frmax(41.5), fselected(false), finitialized(kFALSE), fqa(NULL)
     //TODO: parameter management
 {
-  _avalancheBranchName = "PndTpcAvalanche";
+  favalancheBranchName = "PndTpcAvalanche";
 }
 
 
@@ -68,8 +68,8 @@ PndTpcPadResponseTask::SetParContainers() {
   if ( ! db ) Fatal("SetParContainers", "No runtime database");
 
   // Get PndTpc digitisation parameter container
-  _par= (PndTpcDigiPar*) db->getContainer("PndTpcDigiPar");
-  if (! _par ) Fatal("SetParContainers", "PndTpcDigiPar not found");
+  fpar= (PndTpcDigiPar*) db->getContainer("PndTpcDigiPar");
+  if (! fpar ) Fatal("SetParContainers", "PndTpcDigiPar not found");
 }
 
 
@@ -78,7 +78,7 @@ PndTpcPadResponseTask::SetParContainers() {
 InitStatus
 PndTpcPadResponseTask::Init()
 {
-  _initialized=false;
+  finitialized=false;
 
   //Get ROOT Manager
   FairRootManager* ioman= FairRootManager::Instance();
@@ -90,43 +90,43 @@ PndTpcPadResponseTask::Init()
     }
   
   // Get input collection
-  _avalancheArray=(TClonesArray*) ioman->GetObject(_avalancheBranchName);
+  favalancheArray=(TClonesArray*) ioman->GetObject(favalancheBranchName);
   
-  if(_avalancheArray==0)
+  if(favalancheArray==0)
     {
       Error("PndTpcPadResponseTask::Init","Avalanche-array not found!");
       return kERROR;
     }
   
   // create and register output array
-  _signalArray = new TClonesArray("PndTpcSignal"); 
-  ioman->Register("PndTpcSignal","PndTpc",_signalArray,_persistence);
+  fsignalArray = new TClonesArray("PndTpcSignal"); 
+  ioman->Register("PndTpcSignal","PndTpc",fsignalArray,fpersistence);
 
   
-  _padPlane= _par->getPadPlane();
-  std::cout<<*_padPlane<<std::endl;
+  fpadPlane= fpar->getPadPlane();
+  std::cout<<*fpadPlane<<std::endl;
   
-  _gem=_par->getGem();
+  fgem=fpar->getGem();
 
-  _rmin=_par->getRMin();
-  _rmax=_par->getRMax();
-  _minSignalAmp=_par->getMinSigAmp();
+  frmin=fpar->getRMin();
+  frmax=fpar->getRMax();
+  fminSignalAmp=fpar->getMinSigAmp();
 
-  _eventcounter=0;
+  feventcounter=0;
 
   //Create Histograms for recording spread of Avalanche-centre to hit Pads
-  if(_qa!=NULL){
-	  _xVariation = _qa->getTH1D("xSpread","Hit Pad x-coordinates around Avalanche centre", 
+  if(fqa!=NULL){
+	  fxVariation = fqa->getTH1D("xSpread","Hit Pad x-coordinates around Avalanche centre", 
 			 200, -0.3, 0.3);
-	  _yVariation = _qa->getTH1D("ySpread", 
+	  fyVariation = fqa->getTH1D("ySpread", 
 			 "Hit Pad y-coordinates around Avalanche centre", 
 			 200, -0.3, 0.3);
-	  _2DHisto = _qa->getTH2D("xySpread","xSpread vs ySpread",
+	  f2DHisto = fqa->getTH2D("xySpread","xSpread vs ySpread",
 		      200,-0.3,0.3,200,-0.3,0.3);
   }
-  _selected=_secids.size()>0;
+  fselected=fsecids.size()>0;
 
-  _initialized=true;
+  finitialized=true;
   return kSUCCESS;
 }
 
@@ -135,23 +135,23 @@ void
 PndTpcPadResponseTask::Exec(Option_t* opt)
 {
   // Reset output Array
-  if(_signalArray==0) Fatal("PndTpcPadResponse::Exec)","No SignalArray");
-  _signalArray->Delete(); // Note: signals will be cleand up in the adc!
+  if(fsignalArray==0) Fatal("PndTpcPadResponse::Exec)","No SignalArray");
+  fsignalArray->Delete(); // Note: signals will be cleand up in the adc!
   int nValidHits=0;
-  Int_t na=_avalancheArray->GetEntriesFast();
+  Int_t na=favalancheArray->GetEntriesFast();
   for(Int_t ia=0;ia<na;++ia){
-    PndTpcAvalanche* Aval=(PndTpcAvalanche*)_avalancheArray->At(ia);
+    PndTpcAvalanche* Aval=(PndTpcAvalanche*)favalancheArray->At(ia);
 
     std::vector<PndTpcPad*> hitPads;
     double xAv=Aval->x();
     double yAv=Aval->y();
     double r=sqrt(xAv*xAv+yAv*yAv);
-    if(r<_rmin || r>_rmax) {
+    if(r<frmin || r>frmax) {
       //Warning("Exec","Avalanche outside of allowed region! r=%f",r);
       continue;
     }
-    _padPlane->GetPadList(xAv,yAv,
-                         _gem->spread()*3,
+    fpadPlane->GetPadList(xAv,yAv,
+                         fgem->spread()*3,
                          hitPads);
     // Build Signals
     int nHits=hitPads.size();
@@ -159,22 +159,22 @@ PndTpcPadResponseTask::Exec(Option_t* opt)
 
     for(int iHit=0; iHit<nHits; ++iHit){
       PndTpcPad* pad=hitPads[iHit];
-      if(_selected){
+      if(fselected){
 		// find sectorid
-		std::map<unsigned int,bool>::iterator it=_secids.find(pad->sectorId());
-		if(it==_secids.end())continue;
+		std::map<unsigned int,bool>::iterator it=fsecids.find(pad->sectorId());
+		if(it==fsecids.end())continue;
       }
       double Amp=Aval->amp()*pad->GetValue(xAv,yAv);
-      if(_par->getGaussianNoise()){
-	Amp+=gRandom->Gaus(0.,_par->getGaussianNoiseAmp());
+      if(fpar->getGaussianNoise()){
+	Amp+=gRandom->Gaus(0.,fpar->getGaussianNoiseAmp());
       }
       //Fill Histograms with these Values
 
       FillHistograms(xAv, yAv, pad->x(), pad->y() );      
 
       // cut on amplitude
-      if(Amp>=_minSignalAmp){
-        PndTpcSignal* sig=new((*_signalArray)[nValidHits]) PndTpcSignal(Aval->t(),Amp,
+      if(Amp>=fminSignalAmp){
+        PndTpcSignal* sig=new((*fsignalArray)[nValidHits]) PndTpcSignal(Aval->t(),Amp,
                                      pad->id(),0,
                                      0);
         sig->setmcTrackId(Aval->mcTrackId());
@@ -182,24 +182,24 @@ PndTpcPadResponseTask::Exec(Option_t* opt)
         ++nValidHits;
       }
       else {
-	//std::cout<<"PadAmp too small! Amp="<<Amp<<"<"<<_minSignalAmp<<std::endl;
+	//std::cout<<"PadAmp too small! Amp="<<Amp<<"<"<<fminSignalAmp<<std::endl;
       }
     } // end loop over hit pads
 
   } // end loop over avalanches
 
-  ++_eventcounter;
-  std::cout<<_signalArray->GetEntriesFast()<<" Signals created"<<std::endl;
+  ++feventcounter;
+  std::cout<<fsignalArray->GetEntriesFast()<<" Signals created"<<std::endl;
 
   return;
 }
 
 void PndTpcPadResponseTask::FillHistograms(double xAv, double yAv,
 					double xPad, double yPad) {
-  if(_qa!=NULL){
-	  _xVariation->Fill(xAv - xPad);
-	  _yVariation->Fill(yAv - yPad);
-	  _2DHisto->Fill(xAv - xPad, yAv - yPad);
+  if(fqa!=NULL){
+	  fxVariation->Fill(xAv - xPad);
+	  fyVariation->Fill(yAv - yPad);
+	  f2DHisto->Fill(xAv - xPad, yAv - yPad);
   }
 }
 
@@ -207,14 +207,14 @@ void PndTpcPadResponseTask::FillHistograms(double xAv, double yAv,
 //! This method is deprecated - replaced by the QAPlotcollection!
 void PndTpcPadResponseTask::WriteHistograms() {
 
-  if(!_initialized || _qa==NULL)return;
+  if(!finitialized || fqa==NULL)return;
   TFile* file = FairRootManager::Instance()->GetOutFile();
   file->mkdir("PndTpcPadResponse");
   file->cd("PndTpcPadResponse");
 
-  _xVariation->Write();
-  _yVariation->Write();
-  _2DHisto->Write();
+  fxVariation->Write();
+  fyVariation->Write();
+  f2DHisto->Write();
 
 }
 

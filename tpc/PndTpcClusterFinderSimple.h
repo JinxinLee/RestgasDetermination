@@ -16,19 +16,19 @@ class PndTpcPrelimCluster{
  private:
   void cog();
 
-  TVector3 _pos;
-  TVector3 _err;
-  double _amp;
-  double _cogT;
-  int _id;
+  TVector3 fpos;
+  TVector3 ferr;
+  double famp;
+  double fcogT;
+  int fid;
 
-  std::vector<PndTpcDigi> _digis;
-  std::set<unsigned int> _possiblePads;
+  std::vector<PndTpcDigi> fdigis;
+  std::set<unsigned int> fpossiblePads;
 
 
-  PndTpcPadPlane* _padplane;
-  double _timeslice;
-  McId _dominant_mcid;
+  PndTpcPadPlane* fpadplane;
+  double ftimeslice;
+  McId fdominant_mcid;
 
   bool isInTimeWindow(const PndTpcDigi* const);
 
@@ -60,10 +60,10 @@ public:
   void setNoXclust(bool b=true){noXclust=b;}
 
 private:
-  PndTpcPadPlane* _padplane;
-  std::vector<PndTpcCluster*>* _output_buffer;
+  PndTpcPadPlane* fpadplane;
+  std::vector<PndTpcCluster*>* foutput_buffer;
   bool noXclust;
-  unsigned int _dt; // time slice in units of sample time
+  unsigned int fdt; // time slice in units of sample time
 
 
 

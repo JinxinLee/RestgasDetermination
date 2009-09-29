@@ -34,9 +34,9 @@ public:
   PndTpcPadShapePool();
   PndTpcPadShapePool(const char* const filename,
 		    const PndTpcGem& gem, 
-		    const double _range,      
-		    const double _step,
-		    const double _intStep);
+		    const double frange,      
+		    const double fstep,
+		    const double fintStep);
   PndTpcPadShapePool(const char* const filename);
   ~PndTpcPadShapePool();
 
@@ -45,20 +45,20 @@ public:
   
 
   // Accessors -----------------------
-  PndTpcAbsPadShape* GetPadShape(const unsigned int _ID) const;
+  PndTpcAbsPadShape* GetPadShape(const unsigned int fID) const;
 
   // Modifiers -----------------------
   //PadShapePool will take ownership
   // The user is responsible for Building the PRLookupTable
   void AddPadShape(PndTpcAbsPadShape* padshape);
-  void RemovePadShape(const unsigned int _ID);//deletes it
+  void RemovePadShape(const unsigned int fID);//deletes it
   //PadShapePool will take ownership
   // PadShapePool will build the PRLookupTables
   void ReadFromFile(const char* const filename);
   void BuildLookupTable(const PndTpcGem& gem,
-			const double _range,      
-			const double _step,
-			const double _intStep);
+			const double frange,      
+			const double fstep,
+			const double fintStep);
 private:
 
   // Private Data Members ------------

@@ -10,50 +10,50 @@
 
 class PndTpcMCTracklet : public TObject {
  public:
-  PndTpcMCTracklet():_q(0),_pdg(0),_t0(-9999),_ID(19999,0),_V0res(9999),_status(0),_zpoca(999,999,999){};
+  PndTpcMCTracklet():fq(0),fpdg(0),ft0(-9999),fID(19999,0),fV0res(9999),fstatus(0),fzpoca(999,999,999){};
   ~PndTpcMCTracklet(){};
   PndTpcMCTracklet(const TVector3& pos,
 		   const TVector3& mom,
 		   const double& q,
 		   const int& pdg,
 		   const Int_t trackid,
-		   const Int_t evtid) : _pos(pos),_mom(mom),
-                                        _q(q),_pdg(pdg),
-    _ID(evtid,trackid),_t0(-9999),_V0res(9999),_status(0),_zpoca(999,999,999)
+		   const Int_t evtid) : fpos(pos),fmom(mom),
+                                        fq(q),fpdg(pdg),
+    fID(evtid,trackid),ft0(-9999),fV0res(9999),fstatus(0),fzpoca(999,999,999)
     {}
   
-  const McId& mcid() const {return _ID;}
-  const TVector3& mom() const {return _mom;}
-  const TVector3& pos() const {return _pos;}
-  const Double_t& q() const {return _q;}
-  const Int_t& pdg() const {return _pdg;}
-  Int_t nmvd() const {return _mvdhits.size();}
+  const McId& mcid() const {return fID;}
+  const TVector3& mom() const {return fmom;}
+  const TVector3& pos() const {return fpos;}
+  const Double_t& q() const {return fq;}
+  const Int_t& pdg() const {return fpdg;}
+  Int_t nmvd() const {return fmvdhits.size();}
   Int_t nmvdAcc(Double_t cut);
-  Int_t nemc() const {return _emchits.size();}
-  Double_t V0res() const {return _V0res;}
-  Int_t status() const {return _status;}
-  const Double_t& t0() const {return _t0;}
-  const TVector3& zpoca() const {return _zpoca;}
+  Int_t nemc() const {return femchits.size();}
+  Double_t V0res() const {return fV0res;}
+  Int_t status() const {return fstatus;}
+  const Double_t& t0() const {return ft0;}
+  const TVector3& zpoca() const {return fzpoca;}
 
-  void setMvdHits(const std::vector<double>& v){_mvdhits=v;}
-  void setEmcHits(const std::vector<double>& v){_emchits=v;}
-  void setT0(Double_t t){_t0=t;}
-  void setV0Res(Double_t r){_V0res=r;}
-  void setStatus(Int_t s){_status=s;}
-  void setZPoca(const TVector3& x){_zpoca=x;}
+  void setMvdHits(const std::vector<double>& v){fmvdhits=v;}
+  void setEmcHits(const std::vector<double>& v){femchits=v;}
+  void setT0(Double_t t){ft0=t;}
+  void setV0Res(Double_t r){fV0res=r;}
+  void setStatus(Int_t s){fstatus=s;}
+  void setZPoca(const TVector3& x){fzpoca=x;}
 
  private:
-  McId _ID;
-  TVector3 _mom;
-  TVector3 _pos;
-  Double_t _q;
-  Int_t _pdg;
-  std::vector<double> _mvdhits; // residuals to mvd hits
-  std::vector<double> _emchits; // residuals to emc hits
-  Double_t _t0;    // reconstructed t0 for this event
-  Double_t _V0res; // residual for V0 vertex
-  Int_t _status;
-  TVector3 _zpoca; // poca to z-axis
+  McId fID;
+  TVector3 fmom;
+  TVector3 fpos;
+  Double_t fq;
+  Int_t fpdg;
+  std::vector<double> fmvdhits; // residuals to mvd hits
+  std::vector<double> femchits; // residuals to emc hits
+  Double_t ft0;    // reconstructed t0 for this event
+  Double_t fV0res; // residual for V0 vertex
+  Int_t fstatus;
+  TVector3 fzpoca; // poca to z-axis
 
  public:
   ClassDef(PndTpcMCTracklet,5)

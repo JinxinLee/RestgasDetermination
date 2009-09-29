@@ -48,10 +48,10 @@ public:
 
 
   // Modifiers -----------------------
-  void SetSignalBranchName(const TString& name) {_signalBranchName=name;}
-  void SetPersistence(Bool_t opt=kTRUE) 	{_persistence=opt;}
-  void SetSamplePersistence(Bool_t opt=kTRUE)	{_samplePersistence=opt;}
-  void SetQAPlotCol(QAPlotCollection* col){_qa=col;}
+  void SetSignalBranchName(const TString& name) {fsignalBranchName=name;}
+  void SetPersistence(Bool_t opt=kTRUE) 	{fpersistence=opt;}
+  void SetSamplePersistence(Bool_t opt=kTRUE)	{fsamplePersistence=opt;}
+  void SetQAPlotCol(QAPlotCollection* col){fqa=col;}
   // Operations ----------------------
   
   virtual InitStatus Init();
@@ -65,29 +65,29 @@ public:
 private:
 
   // Private Data Members ------------
-  TString _signalBranchName;
-  TClonesArray* _signalArray;
-  TClonesArray* _sampleArray;
-  TClonesArray* _digiArray;
+  TString fsignalBranchName;
+  TClonesArray* fsignalArray;
+  TClonesArray* fsampleArray;
+  TClonesArray* fdigiArray;
   
-  Bool_t _persistence;
-  Bool_t _samplePersistence;
-  const PndTpcFrontend* _frontend;
-  PndTpcAbsPulseshape* _pulseshape;
-  PndTpcAbsPSAStrategy* _psa;
+  Bool_t fpersistence;
+  Bool_t fsamplePersistence;
+  const PndTpcFrontend* ffrontend;
+  PndTpcAbsPulseshape* fpulseshape;
+  PndTpcAbsPSAStrategy* fpsa;
 
-  PndTpcDigiPar* _par;
+  PndTpcDigiPar* fpar;
 
   //! QA Histograms
-  QAPlotCollection* _qa;
+  QAPlotCollection* fqa;
   
   //! Sample amplitudes
-  TH1D* _sampleAmpH;
-  TH1D* _meanDigiTH;
+  TH1D* fsampleAmpH;
+  TH1D* fmeanDigiTH;
   //! number samples recorded per number of signals
-  TH1D* _nSampRelSig;
+  TH1D* fnSampRelSig;
   
-  Bool_t _initialized; 
+  Bool_t finitialized; 
   // Private Methods -----------------
   void PresetNullSample(std::vector<PndTpcSample*> *samplelist);
   void StoreSamples(std::vector<PndTpcSample*> *samplelist);

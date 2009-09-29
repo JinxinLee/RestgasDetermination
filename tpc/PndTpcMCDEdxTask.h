@@ -43,7 +43,7 @@ public:
 
   
   // Modifiers -----------------------
-  void SetPersistence(Bool_t opt=kTRUE) {_persistence=opt;}
+  void SetPersistence(Bool_t opt=kTRUE) {fpersistence=opt;}
   
   /**
   	if activeated PndTpcMCDEdxTask will use PndTpcHitMerger to
@@ -52,20 +52,20 @@ public:
 	This is particulary useful to investigate the output
 	if the ALICE Monte Carlo is activeated in PndTpcDetector
   */
-  void SetHitCombineLength(Bool_t opt=kTRUE, double length=0.5, Bool_t CatchRemaining=kFALSE) {_combineHitsLength=opt; _combineLength=length; _catchRemaining=CatchRemaining; }
-  void SetHitCombineNumber(Bool_t opt=kTRUE, unsigned int number=10, Bool_t CatchRemaining=kFALSE) { _combineHitsNumber=opt; _combineNumber=number; _catchRemaining=CatchRemaining;	}
+  void SetHitCombineLength(Bool_t opt=kTRUE, double length=0.5, Bool_t CatchRemaining=kFALSE) {fcombineHitsLength=opt; fcombineLength=length; fcatchRemaining=CatchRemaining; }
+  void SetHitCombineNumber(Bool_t opt=kTRUE, unsigned int number=10, Bool_t CatchRemaining=kFALSE) { fcombineHitsNumber=opt; fcombineNumber=number; fcatchRemaining=CatchRemaining;	}
   
   // it is useful for the ALICE-MC because the step max in the PndTpcDetector is
   // called not for the first hit
-  void SetStartHit(int StartHit) {_startHit=StartHit;}	// useful values are 0 or 1
+  void SetStartHit(int StartHit) {fstartHit=StartHit;}	// useful values are 0 or 1
 
-  void SetMCTrackBranchName(const TString& name) {_mcTrackBranchName=name;}
-  void SetClusterBranchName(const TString& name) {_mcPointBranchName=name;}
-  void SetPmin(const Double_t& pmin)	{_pmin=pmin;}
-  void SetPmax(const Double_t& pmax)	{_pmax=pmax;}
-  void SetMinTpcHists(const Int_t& min)	{_minTpcHits=min;}
-  void SetMaxTpcHists(const Int_t& max)	{_maxTpcHits=max;}  
-  void SetPdgSelection(Int_t pdgcode){_pdgId=pdgcode;_pdgselect=true;}
+  void SetMCTrackBranchName(const TString& name) {fmcTrackBranchName=name;}
+  void SetClusterBranchName(const TString& name) {fmcPointBranchName=name;}
+  void SetPmin(const Double_t& pmin)	{fpmin=pmin;}
+  void SetPmax(const Double_t& pmax)	{fpmax=pmax;}
+  void SetMinTpcHists(const Int_t& min)	{fminTpcHits=min;}
+  void SetMaxTpcHists(const Int_t& max)	{fmaxTpcHits=max;}  
+  void SetPdgSelection(Int_t pdgcode){fpdgId=pdgcode;fpdgselect=true;}
   
   // Operations ----------------------
   virtual InitStatus Init();
@@ -75,40 +75,40 @@ public:
 
 private:
   // Private Data Members ------------
-  Bool_t _persistence;
-  Bool_t _combineHitsLength;
-  Bool_t _combineHitsNumber;
-  Bool_t _catchRemaining;
-  double _combineLength;
-  unsigned int _combineNumber;
-  int _startHit;	
+  Bool_t fpersistence;
+  Bool_t fcombineHitsLength;
+  Bool_t fcombineHitsNumber;
+  Bool_t fcatchRemaining;
+  double fcombineLength;
+  unsigned int fcombineNumber;
+  int fstartHit;	
   
    //requiered inforamtion for dEdx
-  TString _mcTrackBranchName;
-  TString _mcPointBranchName;
+  TString fmcTrackBranchName;
+  TString fmcPointBranchName;
 
   //inforamtion to cut on
-  TClonesArray* _mcTpcHitArray;
-  TClonesArray* _mcTrackArray;
+  TClonesArray* fmcTpcHitArray;
+  TClonesArray* fmcTrackArray;
   
    //Output Array
-  TClonesArray* _dEdxArray;
+  TClonesArray* fdEdxArray;
   
    //some cuts
    
-  bool _pdgselect;
-  Int_t _pdgId;
-  Double_t _pmin;
-  Double_t _pmax;
-  Double_t _thetamin;
-  Double_t _thetamax;
-  Int_t _minTpcHits;
-  Int_t _maxTpcHits;
+  bool fpdgselect;
+  Int_t fpdgId;
+  Double_t fpmin;
+  Double_t fpmax;
+  Double_t fthetamin;
+  Double_t fthetamax;
+  Int_t fminTpcHits;
+  Int_t fmaxTpcHits;
 
   //Output histograms
-  TH2F* _HistoDEdx;
-  TH2F* _HistoSumDESumdx;
-  TH2F* _HistoTruncSumDESumdx;
+  TH2F* fHistoDEdx;
+  TH2F* fHistoSumDESumdx;
+  TH2F* fHistoTruncSumDESumdx;
   
   // Private Methods -----------------
   bool CheckMomentum(Double_t P) const;

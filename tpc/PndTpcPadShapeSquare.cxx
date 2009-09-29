@@ -26,9 +26,9 @@
 
 // Class Member definitions -----------
 
-PndTpcPadShapeSquare::PndTpcPadShapeSquare(const double _d,
-				     const unsigned int _ID)
-  :PndTpcAbsPadShape(_ID),d(_d)
+PndTpcPadShapeSquare::PndTpcPadShapeSquare(const double fd,
+				     const unsigned int fID)
+  :PndTpcAbsPadShape(fID),d(fd)
 {
   lookupTable = new PndTpcPRLookupTable();
 }

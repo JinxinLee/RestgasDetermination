@@ -43,8 +43,8 @@ public:
 
 
   // Modifiers -----------------------
-  void SetSignalBranchName(const TString& name) {_signalBranchName=name;}
-  void SetPersistence(Bool_t opt=kTRUE) {_persistence=opt;}
+  void SetSignalBranchName(const TString& name) {fsignalBranchName=name;}
+  void SetPersistence(Bool_t opt=kTRUE) {fpersistence=opt;}
   
 
   // Operations ----------------------
@@ -57,14 +57,14 @@ public:
 private:
 
   // Private Data Members ------------
-  TString _signalBranchName;
-  TClonesArray* _sampleArray;
-  TClonesArray* _signalArray;
+  TString fsignalBranchName;
+  TClonesArray* fsampleArray;
+  TClonesArray* fsignalArray;
   
-  Bool_t _persistence;
+  Bool_t fpersistence;
  
-  PndTpcFrontend* _frontend;
-  PndTpcAbsPulseshape* _pulseshape;
+  PndTpcFrontend* ffrontend;
+  PndTpcAbsPulseshape* fpulseshape;
 
   
 

@@ -29,44 +29,44 @@
 // Class Member definitions -----------
 
 ppstate_send::ppstate_send(padprocessor* pp)
-  : ppstate(pp), _c(0)
+  : ppstate(pp), fc(0)
 {}
 
 std::string
 ppstate_send::heartbeat()
 {
-  unsigned int ndata=_parent->ndata();
+  unsigned int ndata=fparent->ndata();
   if(ndata==0){
-    if(_c>5){
+    if(fc>5){
       // check 
-      int n=_parent->_neighbours.size();
+      int n=fparent->fneighbours.size();
       for(int i=0;i<n;++i){
-	if(_parent->_neighbours[i]->_data.size()!=0)
-	  std::cout<<"Pad"<<_parent->_myid
+	if(fparent->fneighbours[i]->fdata.size()!=0)
+	  std::cout<<"Pad"<<fparent->fmyid
 		   <<" Neighb still has data("
-		   <<_parent->_neighbours[i]->_data.size()
+		   <<fparent->fneighbours[i]->fdata.size()
 		   <<") and is in state "
-		   <<_parent->_neighbours[i]->getCurrentState()<<std::endl;
+		   <<fparent->fneighbours[i]->getCurrentState()<<std::endl;
       }
       
-      _parent->setState("end");
-      _c=0;
+      fparent->setState("end");
+      fc=0;
       return "end";
     }
     else {
-      ++_c;
-      _parent->setState("send");
+      ++fc;
+      fparent->setState("send");
       return "send";
     }
   }
   else {
     for(unsigned int idata=0; idata<ndata; ++idata){
-      _parent->_neighbours[_parent->_dominant_neighb]->put(_parent->_data[idata]);
+      fparent->fneighbours[fparent->fdominant_neighb]->put(fparent->fdata[idata]);
     }
-    --_c;
-    _parent->_data.clear();
-    _parent->_mydata=NULL;
-    _parent->setState("send");
+    --fc;
+    fparent->fdata.clear();
+    fparent->fmydata=NULL;
+    fparent->setState("send");
     return "send";
   }
 }

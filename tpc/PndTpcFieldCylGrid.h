@@ -55,30 +55,30 @@ public:
 
 //in x,z derivative uses the next grid points => independent of length of direction
  
-  double minR() const {return(_minX);}
-  double minZ() const {return(_minZ);}
-  double spacingR() const {return(_spacingX);}
-  double spacingZ() const {return(_spacingZ);}
-  double maxR() const {return(_maxX);}
-  double maxZ() const {return(_maxZ);}
+  double minR() const {return(fminX);}
+  double minZ() const {return(fminZ);}
+  double spacingR() const {return(fspacingX);}
+  double spacingZ() const {return(fspacingZ);}
+  double maxR() const {return(fmaxX);}
+  double maxZ() const {return(fmaxZ);}
   
   // Modifiers -----------------------
   void setMinR(const double minR) {
-    _minX=minR;
+    fminX=minR;
     evalMaxPoint();}
   void setMinZ(const double minZ) {
-    _minZ=minZ;
+    fminZ=minZ;
     evalMaxPoint();}
   void setSpacingR(const double spacingR) {
-    _spacingX=spacingR;
+    fspacingX=spacingR;
     evalMaxPoint();}
   void setSpacingZ(const double spacingZ) {
-    _spacingZ=spacingZ;
+    fspacingZ=spacingZ;
     evalMaxPoint();}
 
 protected:
   // Protected Data Members ------------
-  std::vector<std::vector<t*>*>* _pGrid;  //fieldmap
+  std::vector<std::vector<t*>*>* fpGrid;  //fieldmap
   
   // Protected Methods -----------------
 
@@ -90,17 +90,17 @@ protected:
   //I don't like this implementaion - next update will change it to void
 
 
-  void evalMaxPoint();     //evaluates the plane within _pGrid is defined
+  void evalMaxPoint();     //evaluates the plane within fpGrid is defined
 
-  int _xBins;
-  int _zBins;
+  int fxBins;
+  int fzBins;
   
-  double _minX;//min. x (and r) where pGrid is defined (rel. to the origin of the grid)
-  double _minZ;//min. z  where pGrid is defined (relative to the origin of the grid)
-  double _spacingX;  //the space between two grid points 
-  double _spacingZ;
-  double _maxX;//max. x (and r) where pGrid is defined (rel. to the origin of the grid)
-  double _maxZ;//max. z  where pGrid is defined (relative to the origin of the grid)
+  double fminX;//min. x (and r) where pGrid is defined (rel. to the origin of the grid)
+  double fminZ;//min. z  where pGrid is defined (relative to the origin of the grid)
+  double fspacingX;  //the space between two grid points 
+  double fspacingZ;
+  double fmaxX;//max. x (and r) where pGrid is defined (rel. to the origin of the grid)
+  double fmaxZ;//max. z  where pGrid is defined (relative to the origin of the grid)
 
 private:
 

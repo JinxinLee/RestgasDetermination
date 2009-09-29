@@ -32,7 +32,7 @@ class ppstate {
 public:
 
   // Constructors/Destructors ---------
-  ppstate(padprocessor* const parent) : _parent(parent){}
+  ppstate(padprocessor* const parent) : fparent(parent){}
   virtual ~ppstate(){;}
 
   // Operators
@@ -50,7 +50,7 @@ public:
 protected:
 
   // Protected Data Members ------------
-  padprocessor* _parent;
+  padprocessor* fparent;
 
 private:
 

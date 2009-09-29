@@ -30,7 +30,7 @@ PndTpcEFieldCyl::PndTpcEFieldCyl(const char* const fileName)
 {
   loader = new PndTpcEFieldCylLoader(this, fileName);
   loader->load();
-  if (_pGrid == 0)
+  if (fpGrid == 0)
     Fatal("PndTpcEFieldCyl::PndTpcEFieldCyl()",
 	  "Failed to load field data - check E-field file!");
   evalMaxPoint();
@@ -56,7 +56,7 @@ PndTpcEFieldCyl::value(const TVector3& point) const
   else //return value for boundary point next to point 
   {
     Error("PndTpcEFieldCyl::value()", "Point outside of tpc volume!");
-    TVector3 boundPoint = point - _relPosition;
+    TVector3 boundPoint = point - frelPosition;
     double r2 = boundPoint.X()*boundPoint.X()+boundPoint.Y()*boundPoint.Y();
     if (r2 >= maxR()*maxR())
     {
@@ -73,7 +73,7 @@ PndTpcEFieldCyl::value(const TVector3& point) const
     else if (boundPoint.Z() < minZ())
       boundPoint.SetZ(minZ());
     //recursive: guarantees, that the point is inside volume
-    return value(boundPoint + _relPosition);
+    return value(boundPoint + frelPosition);
   }
 }
 

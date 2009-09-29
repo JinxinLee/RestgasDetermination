@@ -38,30 +38,30 @@ class PndTpcLaserStat : public TObject {
 
 // Acessors -------------------------------------------------
 
-  unsigned int getLaserID() {return _laserID;}
-  unsigned int getClusterID() {return _clusterID;}
-  const TVector3& getRes() {return _res;}
-  const TVector3& getPos() {return _pos;}
-  const TVector3& getProjection() {return _pP;}
-  const TVector3& getResSig() {return _sig;}      //uncertainty of the reconst. residual 
-  const TVector3& getProjectionSig() {return _sigpP;} //uncertainty of the proj. point 
+  unsigned int getLaserID() {return flaserID;}
+  unsigned int getClusterID() {return fclusterID;}
+  const TVector3& getRes() {return fres;}
+  const TVector3& getPos() {return fpos;}
+  const TVector3& getProjection() {return fpP;}
+  const TVector3& getResSig() {return fsig;}      //uncertainty of the reconst. residual 
+  const TVector3& getProjectionSig() {return fsigpP;} //uncertainty of the proj. point 
   
-  PndTpcCluster* getCluster() {return _clust;}
+  PndTpcCluster* getCluster() {return fclust;}
 
 // Modifiers ------------------------------------------------
 
  
  private:
 
-  unsigned int _clusterID; 
-  unsigned int _laserID;
-  TVector3 _pos;
-  //double _posX, _posY, _posZ;
-  TVector3 _res;
-  TVector3 _pP;   //Projection Point on the Track
-  TVector3 _sig;  //uncertainties of the rec. residual
-  TVector3 _sigpP;  //uncertainties of the rec. proj. point
-  PndTpcCluster* _clust; //!
+  unsigned int fclusterID; 
+  unsigned int flaserID;
+  TVector3 fpos;
+  //double fposX, fposY, fposZ;
+  TVector3 fres;
+  TVector3 fpP;   //Projection Point on the Track
+  TVector3 fsig;  //uncertainties of the rec. residual
+  TVector3 fsigpP;  //uncertainties of the rec. proj. point
+  PndTpcCluster* fclust; //!
 
 public:
   ClassDef(PndTpcLaserStat,1)

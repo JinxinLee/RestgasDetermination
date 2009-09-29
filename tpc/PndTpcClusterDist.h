@@ -24,14 +24,14 @@ class PndTpcClusterDist {
 public:
 
   // Constructors/Destructors ---------
-  PndTpcClusterDist(bool dir=1): _dir(dir){;}
+  PndTpcClusterDist(bool dir=1): fdir(dir){;}
   ~PndTpcClusterDist(){;}
 
   // Operators
   bool operator()(PndTpcCluster* s1, PndTpcCluster* s2);
   
 private:
-  bool _dir; // true=> sorting from back to front; false=> forward sorting
+  bool fdir; // true=> sorting from back to front; false=> forward sorting
 
 };
 

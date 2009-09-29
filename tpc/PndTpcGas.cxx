@@ -7,17 +7,17 @@
 
 //#include "ErrLogger/ErrLog.hh"
 
-PndTpcGas::PndTpcGas():_E(0),
-		 _B(0),
-		 _T(293.),
-		 _p(1024.),
-		 _VDrift(0),
-		 _Dl(0),
-		 _Dt(0),
-		 _k(0),
-		 _W(0),
-		 _CSD(0),		
-		 _CSDEpol(0)
+PndTpcGas::PndTpcGas():fE(0),
+		 fB(0),
+		 fT(293.),
+		 fp(1024.),
+		 fVDrift(0),
+		 fDl(0),
+		 fDt(0),
+		 fk(0),
+		 fW(0),
+		 fCSD(0),		
+		 fCSDEpol(0)
 {}
 
 PndTpcGas::PndTpcGas(double const E,
@@ -30,28 +30,28 @@ PndTpcGas::PndTpcGas(double const E,
 	       double const k,
 	       double const W,
 	       const std::vector<double>& CSD,	   
-	       double const CSDEpol):_E(E),
-				     _B(B),
-				     _T(T),
-				     _p(p),
-				     _VDrift(VDrift),
-				     _Dl(Dl),
-				     _Dt(Dt),
-				     _k(k),
-				     _W(W),
-				     _CSD(CSD),				   
-				     _CSDEpol(CSDEpol)
+	       double const CSDEpol):fE(E),
+				     fB(B),
+				     fT(T),
+				     fp(p),
+				     fVDrift(VDrift),
+				     fDl(Dl),
+				     fDt(Dt),
+				     fk(k),
+				     fW(W),
+				     fCSD(CSD),				   
+				     fCSDEpol(CSDEpol)
 {}
 
 PndTpcGas::PndTpcGas(const std::string& Filename,
-	       double const E):_E(E)
+	       double const E):fE(E)
 {
   //Reading the GasFile
 	std::cout<<"PndTpcGas: Reading data file: "<<Filename.c_str()<<std::endl;
   std::ifstream infile(Filename.c_str(), std::fstream::in);
   if (!infile.good())
     Fatal("PndTpcGas::PndTpcGas","Input File is not found");
-  //ReadGasBegin returns the number of electric fields (and sets _T, _B, _p)
+  //ReadGasBegin returns the number of electric fields (and sets fT, fB, fp)
   int noent = ReadGasBegin(&infile);
   if (noent <= 0)
     Fatal("PndTpcGas::PndTpcGas","Number of electric fields nonpositive?\nCould not read File.\nExecution aborted.");
@@ -62,7 +62,7 @@ PndTpcGas::PndTpcGas(const std::string& Filename,
   double k[noent];                          //attachment coefficient in 1/cm
 
   //ReadGasArrays returns the number of entries in cluster size distribution
-  //and sets the values in the assigned arrays (and _W)
+  //and sets the values in the assigned arrays (and fW)
   int nCSDFile = ReadGasArrays(&infile, noent,
 				e, vdrift, dt, dl, k);
   if (nCSDFile < 2)
@@ -71,9 +71,9 @@ PndTpcGas::PndTpcGas(const std::string& Filename,
   //cluster size distribution: first entry is the rel. number of clusters with
   //1 electron,the last entry the rel. nr. of clusters with more than nCSDFile
   //so the last entry may not be transferred
-  int _nCSD = nCSDFile-1;            //omit the last
-  _CSD.resize(_nCSD);
-  for (int i=0; i < _nCSD;i++)infile >> _CSD[i];
+  int fnCSD = nCSDFile-1;            //omit the last
+  fCSD.resize(fnCSD);
+  for (int i=0; i < fnCSD;i++)infile >> fCSD[i];
   if (!infile.good())
     Fatal("PndTpcGas::PndTpcGas","Could not read cluster size distribution in File.\nExecution aborted.");
   infile.close();
@@ -83,21 +83,21 @@ PndTpcGas::PndTpcGas(const std::string& Filename,
 
   double inTable=GetPositionOfE(noent, e);
   /*The down rounded value of inTable is the index of the e field (in e)
-    that is smaller than _E.
-    (Exception: neg. Value , if _E is smaller than the smallest value in e)
+    that is smaller than fE.
+    (Exception: neg. Value , if fE is smaller than the smallest value in e)
     The decimal places render about the position between two entries in e*/
 
   if (inTable < 0 || inTable > noent -1)
     Warning("PndTpcGas::PndTpcGas","E field out of the range defined in input file");
-  _VDrift = LinExpolation(inTable, vdrift, noent);
-  _Dl = LinExpolation(inTable, dl, noent);
-  _Dt = LinExpolation(inTable, dt, noent);
-  _k = LinExpolation(inTable, k, noent);
+  fVDrift = LinExpolation(inTable, vdrift, noent);
+  fDl = LinExpolation(inTable, dl, noent);
+  fDt = LinExpolation(inTable, dt, noent);
+  fk = LinExpolation(inTable, k, noent);
   
   //Define the constant for the quadratic CSD extrapolation in such a way
   //that the csd is continous (the inverse quadratic approximation
   //is rather improper anyhow)
-  _CSDEpol = _CSD[_nCSD-1]*(_nCSD-1)*(_nCSD-1);
+  fCSDEpol = fCSD[fnCSD-1]*(fnCSD-1)*(fnCSD-1);
 }
 
 PndTpcGas::~PndTpcGas(){}
@@ -105,32 +105,32 @@ PndTpcGas::~PndTpcGas(){}
 void
 PndTpcGas::operator=(const PndTpcGas& GasToCopy)
 {
-  _VDrift = GasToCopy._VDrift;
-  _Dl = GasToCopy._Dl;
-  _Dt = GasToCopy._Dt;
-  _k = GasToCopy._k;
-  _W = GasToCopy._W;
-  _CSDEpol= GasToCopy._CSDEpol;
+  fVDrift = GasToCopy.fVDrift;
+  fDl = GasToCopy.fDl;
+  fDt = GasToCopy.fDt;
+  fk = GasToCopy.fk;
+  fW = GasToCopy.fW;
+  fCSDEpol= GasToCopy.fCSDEpol;
 
-  _E = GasToCopy._E;
-  _B = GasToCopy._B;
-  _T = GasToCopy._T;
-  _p = GasToCopy._p;
+  fE = GasToCopy.fE;
+  fB = GasToCopy.fB;
+  fT = GasToCopy.fT;
+  fp = GasToCopy.fp;
   
-  _CSD=GasToCopy._CSD;
+  fCSD=GasToCopy.fCSD;
 }
 
 int
 PndTpcGas::GetRandomCS(double const r) const {
   int i=0;
-  double sum=_CSD[0];
-  while(r>sum && ++i<_CSD.size()){
-    sum+=_CSD[i];
+  double sum=fCSD[0];
+  while(r>sum && ++i<fCSD.size()){
+    sum+=fCSD[i];
   }
-  if (_CSDEpol > 0)
+  if (fCSDEpol > 0)
     while(r>sum && i < 100)//sum could converge < 1
     {
-      sum += _CSDEpol/i/i++;
+      sum += fCSDEpol/i/i++;
     }
   return i+1;	//if r<=sum then 1 electron is in the cluster
 }
@@ -138,33 +138,33 @@ PndTpcGas::GetRandomCS(double const r) const {
 void
 PndTpcGas::SetCSD(const std::vector<double>& CSD)
 {
-  _CSD=CSD;
+  fCSD=CSD;
 }
 
 std::ostream& operator<< (std::ostream& stream, const PndTpcGas& g)
 {
   stream << "--------------------------------------------------------\n"
 	 << "PndTpc gas parameters: \n"
-	 << "       drift velocity  VDrift="<<g._VDrift<<"cm/ns \n"
-	 << "       long.diffusion  Dl    ="<<g._Dl<<"sqrt(cm) \n"
-	 << "       trans.diffusion Dt    ="<<g._Dt<<"sqrt(cm) \n"
-	 << "       attachment      k     ="<<g._k<<"1/cm\n"
-	 << "       eff. ionisation W     ="<<g._W<<"eV \n"
+	 << "       drift velocity  VDrift="<<g.fVDrift<<"cm/ns \n"
+	 << "       long.diffusion  Dl    ="<<g.fDl<<"sqrt(cm) \n"
+	 << "       trans.diffusion Dt    ="<<g.fDt<<"sqrt(cm) \n"
+	 << "       attachment      k     ="<<g.fk<<"1/cm\n"
+	 << "       eff. ionisation W     ="<<g.fW<<"eV \n"
          << "       ClusterSizeDistribution CSD:";
   for (int i=0; i<g.nCSD();i++)
   {
     if (i%3 == 0)
       stream<<"\n       ";
-    stream<<i+1<<": "<<g._CSD[i]<<"  ";
+    stream<<i+1<<": "<<g.fCSD[i]<<"  ";
   }
   stream << "\n"
-         << "       extrapol. const CSDEpol="<<g._CSDEpol 
+         << "       extrapol. const CSDEpol="<<g.fCSDEpol 
 	 << "\n"
 	 << "Gas parameters given for this environment: \n"
-	 << "       drift field     E="<<g._E<<"V/cm \n"
-	 << "       magnetic field  B="<<g._B<<"T \n"
-	 << "       pressure        p="<<g._p<<"mbar \n"
-	 << "       temperature     T="<<g._T<<"K \n"
+	 << "       drift field     E="<<g.fE<<"V/cm \n"
+	 << "       magnetic field  B="<<g.fB<<"T \n"
+	 << "       pressure        p="<<g.fp<<"mbar \n"
+	 << "       temperature     T="<<g.fT<<"K \n"
 	 << "--------------------------------------------------------\n";
   return stream;
 }
@@ -177,11 +177,11 @@ PndTpcGas::ReadGasBegin(std::ifstream* const pinfile)
   (*pinfile).ignore(256, '\n' );
   (*pinfile).ignore(256, '\n' );
   (*pinfile).ignore(256, ':');
-  (*pinfile) >> _T;                        //temperature
+  (*pinfile) >> fT;                        //temperature
   (*pinfile).ignore(256, ':');
-  (*pinfile) >> _p;                        //pressure
+  (*pinfile) >> fp;                        //pressure
   (*pinfile).ignore(256, ':');
-  (*pinfile) >> _B;                        //b field
+  (*pinfile) >> fB;                        //b field
   (*pinfile).ignore(256, ':' );
   (*pinfile).ignore(256, ':');
   (*pinfile) >> noent;
@@ -215,7 +215,7 @@ PndTpcGas::ReadGasArrays(std::ifstream* const pinfile, int const noent,
     (*pinfile).ignore(256, '\n' );
   //Cluster size distribution
   (*pinfile).ignore(512, ':' );
-  (*pinfile) >>  _W;                                  //effective ionisation
+  (*pinfile) >>  fW;                                  //effective ionisation
   (*pinfile).ignore(512, ':');
   (*pinfile).ignore(256, ':');
   (*pinfile) >> nCSDFile;
@@ -228,15 +228,15 @@ PndTpcGas::GetPositionOfE(int const noent, const double* const e)
   double inTable=0;
   for (int i=0; i<noent; i++)
    {
-     if (e[i] >= _E && i == 0)
+     if (e[i] >= fE && i == 0)
      {
-       inTable = i - (e[i]-_E)/(e[1]-e[0]);
+       inTable = i - (e[i]-fE)/(e[1]-e[0]);
        break;
      }
      if (i == noent-1 || 
- 	(e[i] >= _E && i != 0))
+ 	(e[i] >= fE && i != 0))
      {
-       inTable = i - (e[i]-_E)/(e[i]-e[i-1]);
+       inTable = i - (e[i]-fE)/(e[i]-e[i-1]);
        break;
      }
   }

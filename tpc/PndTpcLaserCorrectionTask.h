@@ -47,9 +47,9 @@ class PndTpcLaserCorrectionTask : public FairTask {
 
 
   // Modifiers -----------------------
-  void SetClusterBranchName(const TString& name) {_clusterBranchName=name;}
-  void SetPersistence(Bool_t opt=kTRUE) {_persistence=opt;}
-  void SetLaserRecoFile(const TString& recofile) {_recoFileName=recofile;}
+  void SetClusterBranchName(const TString& name) {fclusterBranchName=name;}
+  void SetPersistence(Bool_t opt=kTRUE) {fpersistence=opt;}
+  void SetLaserRecoFile(const TString& recofile) {frecoFileName=recofile;}
   
   
   // Operations ----------------------
@@ -63,22 +63,22 @@ class PndTpcLaserCorrectionTask : public FairTask {
 private:
 
   // Private Data Members ------------
-  TString _clusterBranchName;
-  TString _backupBranchName;
-  TString _recoFileName;
-  TFile* _recoFile;
+  TString fclusterBranchName;
+  TString fbackupBranchName;
+  TString frecoFileName;
+  TFile* frecoFile;
   
-  TClonesArray* _clusterArray;
-  TClonesArray* _backupArray;
+  TClonesArray* fclusterArray;
+  TClonesArray* fbackupArray;
   
-  BiCubSpline* _recoMapR;
-  BiCubSpline* _recoMapPerp;
+  BiCubSpline* frecoMapR;
+  BiCubSpline* frecoMapPerp;
   
-  Bool_t _persistence;
+  Bool_t fpersistence;
 
-  double _zMin, _zMax, _rMin, _rMax;
+  double fzMin, fzMax, frMin, frMax;
 
-  PndTpcDigiPar* _par;
+  PndTpcDigiPar* fpar;
   
   
   // Private Methods -----------------

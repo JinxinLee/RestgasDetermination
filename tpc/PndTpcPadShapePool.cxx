@@ -37,12 +37,12 @@ PndTpcPadShapePool::PndTpcPadShapePool()
 
 PndTpcPadShapePool::PndTpcPadShapePool(const char* const filename,
 				 const PndTpcGem& gem,
-				 const double _range,      
-				 const double _step,
-				 const double _intStep)
+				 const double frange,      
+				 const double fstep,
+				 const double fintStep)
 {
   ReadFromFile(filename);
-  BuildLookupTable(gem, _range, _step, _intStep);
+  BuildLookupTable(gem, frange, fstep, fintStep);
 }
 
 // CTOR without GEMs will not build LookUpTable!!!
@@ -63,11 +63,11 @@ PndTpcPadShapePool::~PndTpcPadShapePool()
 }
 
 PndTpcAbsPadShape*
-PndTpcPadShapePool::GetPadShape(const unsigned int _ID) const
+PndTpcPadShapePool::GetPadShape(const unsigned int fID) const
 {
-  if (references.size() <= _ID)
+  if (references.size() <= fID)
     return(0);
-  return(references[_ID]);
+  return(references[fID]);
 }
 
 void
@@ -78,18 +78,18 @@ PndTpcPadShapePool::AddPadShape(PndTpcAbsPadShape* padshape)
 }
 
 void
-PndTpcPadShapePool::RemovePadShape(const unsigned int _ID)
+PndTpcPadShapePool::RemovePadShape(const unsigned int fID)
 {
-  if (_ID >= references.size() || references[_ID] == 0)
+  if (fID >= references.size() || references[fID] == 0)
   {
-    Warning("PndTpcPadShapePool::RemovePadShape","There is no PndTpcAbsPadShape with the ID=%i",_ID);
+    Warning("PndTpcPadShapePool::RemovePadShape","There is no PndTpcAbsPadShape with the ID=%i",fID);
     return;
   }
-  delete references[_ID];
-  references[_ID] = 0;
-  if (_ID == references.size()-1)
+  delete references[fID];
+  references[fID] = 0;
+  if (fID == references.size()-1)
   {
-    int i=_ID;
+    int i=fID;
     while (i>=0 && references[i] == 0)
       i--;
     references.resize(i+1,0);
@@ -116,13 +116,13 @@ PndTpcPadShapePool::ReadFromFile(const char* const filename)
 
 void
 PndTpcPadShapePool::BuildLookupTable(const PndTpcGem& gem,
-				  const double _range,      
-				  const double _step,
-				  const double _intStep){
+				  const double frange,      
+				  const double fstep,
+				  const double fintStep){
   for (int i=0; i<references.size(); i++)
     if (references[i] != 0 && !references[i]->GetLookupTable()->IsBuilt())
       references[i]->GetLookupTable()->BuildTable(gem, *references[i],
-						  _range, _step, _intStep);
+						  frange, fstep, fintStep);
 }
 
 bool

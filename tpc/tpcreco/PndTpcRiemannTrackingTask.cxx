@@ -31,6 +31,7 @@
 #include "PndTpcCluster.h"
 #include "PndTpcRiemannTrackFinder.h"
 #include "PndTpcRiemannTrack.h"
+#include "PndTpcRiemannHough.h"
 #include "PndTpcRiemannHit.h"
 #include "PndTpcRiemannHTCorrelator.h"
 #include "PndTpcProximityHTCorrelator.h"
@@ -195,9 +196,14 @@ if(_riemannHitArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No RiemannHi
   //    clusterlist.push_back(new PndTpcCluster(pos,1,imvd));
   //  }
   //}
-  
+
   std::vector<PndTpcRiemannTrack*> riemannlist;
-  _trackfinder->buildTracks(clusterlist,riemannlist);
+  PndTpcRiemannHough hough;
+  hough.buildTracks(clusterlist,riemannlist);
+  
+  return;
+
+  //_trackfinder->buildTracks(clusterlist,riemannlist);
 
   // build trackcands
   std::vector<TrackCand*> candlist;

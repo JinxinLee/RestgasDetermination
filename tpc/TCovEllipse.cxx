@@ -30,7 +30,7 @@
 ClassImp(TCovEllipse)
 
 TCovEllipse::TCovEllipse()
-  : TEllipse(), _sig(1)
+  : TEllipse(), fsig(1)
 {
   SetFillStyle(0);
 }
@@ -38,7 +38,7 @@ TCovEllipse::TCovEllipse()
 TCovEllipse::TCovEllipse(const TMatrixT<double>& cov,
 			 double x0, double y0,
 			 int i, int j)
-  : TEllipse(),_cov(cov), _x0(x0), _y0(y0), _i(i), _j(j)
+  : TEllipse(),fcov(cov), fx0(x0), fy0(y0), fi(i), fj(j)
 {
   recalc(); 
   SetFillStyle(0);
@@ -47,7 +47,7 @@ TCovEllipse::TCovEllipse(const TMatrixT<double>& cov,
 void
 TCovEllipse::setCov(const TMatrixT<double>& cov)
 {
-  _cov=cov;
+  fcov=cov;
   recalc();
 }
 
@@ -61,26 +61,26 @@ TCovEllipse::setMean(double x, double y)
 void
 TCovEllipse::recalc()
 {
-  double sig1=sqrt(_cov[_i][_i]);
-  double sig2=sqrt(_cov[_j][_j]);
-  double rho=_cov[_i][_j]/(sig1*sig2);
+  double sig1=sqrt(fcov[fi][fi]);
+  double sig2=sqrt(fcov[fj][fj]);
+  double rho=fcov[fi][fj]/(sig1*sig2);
   double theta=0;
-  if(_cov[_i][_i]!=_cov[_j][_j]){
-    double term=2.*rho*sig1*sig2/(_cov[_i][_i]-_cov[_j][_j]);
+  if(fcov[fi][fi]!=fcov[fj][fj]){
+    double term=2.*rho*sig1*sig2/(fcov[fi][fi]-fcov[fj][fj]);
     theta=TMath::ATan(term)*0.5;
   }
   //std::cout<<theta<<std::endl;
-  double num=_cov[_i][_i]*_cov[_j][_j]*(1-rho*rho);
+  double num=fcov[fi][fi]*fcov[fj][fj]*(1-rho*rho);
   double mixed=2*rho*sig1*sig2*sin(theta)*cos(theta);
   double sin2=sin(theta)*sin(theta);
   double cos2=cos(theta)*cos(theta);
-  double p12_=_cov[_j][_j]*cos2-mixed+_cov[_i][_i]*sin2;
-  double p22_=_cov[_j][_j]*sin2+mixed+_cov[_i][_i]*cos2; 
+  double p12_=fcov[fj][fj]*cos2-mixed+fcov[fi][fi]*sin2;
+  double p22_=fcov[fj][fj]*sin2+mixed+fcov[fi][fi]*cos2; 
   double p1=sqrt(num/p12_);
   double p2=sqrt(num/p22_);
   SetTheta(theta*57.2958);
   SetR1(p1);
   SetR2(p2);
-  SetX1(_x0);
-  SetY1(_y0);
+  SetX1(fx0);
+  SetY1(fy0);
 }

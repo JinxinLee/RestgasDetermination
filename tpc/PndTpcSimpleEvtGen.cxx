@@ -36,8 +36,8 @@
 PndTpcSimpleEvtGen::PndTpcSimpleEvtGen()
   : FairTask("TPC Simple Event Gen")
 {
-  _mode = "iron55";
-  _pos = TVector3(0.,0.,0.);
+  fmode = "iron55";
+  fpos = TVector3(0.,0.,0.);
 }
 
 PndTpcSimpleEvtGen::~PndTpcSimpleEvtGen()
@@ -57,18 +57,18 @@ PndTpcSimpleEvtGen::Init()
       return kERROR;
     }
   // Get input collection
-  _primArray=(TClonesArray*) ioman->GetObject("PndTpcPrimaryCluster");
+  fprimArray=(TClonesArray*) ioman->GetObject("PndTpcPrimaryCluster");
   
-  if(_primArray==0)
+  if(fprimArray==0)
     {
       Error("PndTpcSimpleEvtGen::Init","PrimaryElectron-array not found!");
       return kERROR;
     }
 
   //clear input array of any real "physical" hits
-  _primArray->Delete();
+  fprimArray->Delete();
 
-  std::cerr<<"\n\nPndTpcSimpleEvtGen: running in mode *** "<<_mode.c_str()
+  std::cerr<<"\n\nPndTpcSimpleEvtGen: running in mode *** "<<fmode.c_str()
 	   <<" ***\n"<<std::endl;
 
    return kSUCCESS;
@@ -90,8 +90,8 @@ PndTpcSimpleEvtGen::SetParContainers() {
   if ( ! db ) Fatal("SetParContainers", "No runtime database");
 
   // Get PndTpc digitisation parameter container
-  _par = (PndTpcDigiPar*) db->getContainer("PndTpcDigiPar");
-  if (! _par ) Fatal("SetParContainers", "PndTpcDigiPar not found");
+  fpar = (PndTpcDigiPar*) db->getContainer("PndTpcDigiPar");
+  if (! fpar ) Fatal("SetParContainers", "PndTpcDigiPar not found");
 }
 
 
@@ -99,27 +99,27 @@ PndTpcSimpleEvtGen::SetParContainers() {
 void
 PndTpcSimpleEvtGen::Exec(Option_t* opt)
 {  
-  if(_mode.compare("iron55") == 0) {
-    Int_t nPrim = _primArray->GetEntriesFast();
+  if(fmode.compare("iron55") == 0) {
+    Int_t nPrim = fprimArray->GetEntriesFast();
     if(nPrim!=0) 
       Fatal("PndTpcSimpleEvtGen::Exec","Input-Array not empty!");
       
-    std::cerr<<"\n\nPndTpcSimpleEvtGen: running in mode *** "<<_mode.c_str()
+    std::cerr<<"\n\nPndTpcSimpleEvtGen: running in mode *** "<<fmode.c_str()
 	     <<" ***\n"<<std::endl;
-    std::cerr<<"PndTpcSimpleEvtGen: Position: ("<<_pos.X()<<", "
-	     <<_pos.Y()<<", "<<_pos.Z()<<")"<<std::endl;
+    std::cerr<<"PndTpcSimpleEvtGen: Position: ("<<fpos.X()<<", "
+	     <<fpos.Y()<<", "<<fpos.Z()<<")"<<std::endl;
     
     TRandom3 randm;
     randm.SetSeed(1);
     
     for(unsigned int n=0; n<207; ++n) {
-      TVector3 postemp = _pos+TVector3(randm.Uniform(-0.01,0.01),
+      TVector3 postemp = fpos+TVector3(randm.Uniform(-0.01,0.01),
 				       randm.Uniform(-0.01,0.01),
 				       randm.Uniform(-0.01,0.01));
 				      
-      nPrim = _primArray->GetEntriesFast();
-      new((*_primArray)[nPrim]) PndTpcPrimaryCluster(n,1,postemp,1,1);
-      //new((*_primArray)[nPrim]) PndTpcPrimaryCluster(1,293,postemp,1,1);
+      nPrim = fprimArray->GetEntriesFast();
+      new((*fprimArray)[nPrim]) PndTpcPrimaryCluster(n,1,postemp,1,1);
+      //new((*fprimArray)[nPrim]) PndTpcPrimaryCluster(1,293,postemp,1,1);
     }
   }
 }   

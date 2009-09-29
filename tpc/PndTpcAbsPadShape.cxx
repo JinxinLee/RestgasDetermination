@@ -26,8 +26,8 @@
 #include "PndTpcPRLookupTable.h"
 // Class Member definitions -----------
 
-PndTpcAbsPadShape::PndTpcAbsPadShape(const unsigned int _ID)
-  :lookupTable(0), ID(_ID)
+PndTpcAbsPadShape::PndTpcAbsPadShape(const unsigned int fID)
+  :lookupTable(0), ID(fID)
 {;}
 PndTpcAbsPadShape::~PndTpcAbsPadShape()
 {
@@ -61,10 +61,10 @@ PndTpcAbsPadShape::Draw(double x, double y, double alpha, int color) const {
   double ca=TMath::Cos(alpha);
   double sa=TMath::Sin(alpha);
   for(unsigned int i=0; i<n; ++i){
-    double _x; double _y;
-    GetBoundaryPoint(i,_x,_y);
-    double u=ca*_x-sa*_y+x;
-    double v=sa*_x+ca*_y+y;
+    double fx; double fy;
+    GetBoundaryPoint(i,fx,fy);
+    double u=ca*fx-sa*fy+x;
+    double v=sa*fx+ca*fy+y;
     line->SetPoint(i,u,v);
   }
   line->SetLineColor(color);

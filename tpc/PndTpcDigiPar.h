@@ -26,77 +26,77 @@ public :
   Bool_t getParams(FairParamList* list);
 
   // Accessors (partially catched!)
-  double getZGem()const {return _zGem;}
-  double getZMax() const {return _zMax;}
-  double getTDiff() const {return _tdiff;}
-  double getTInt() const {return _tint;}
-  double getTSig() const {return _tsig;}
-  double getRMin() const {return _rmin;}
-  double getRMax() const {return _rmax;}
-  bool getAttach() const {return _attach>0;}
-  bool getDiffuseL() const {return _diffuseL>0;}
-  bool getDiffuseT() const {return _diffuseT>0;}
-  double getGain() const {return _gain;}
-  double getSupression() const {return _supression;}
-  double getRate() const {return _rate;}
-  double getMinSigAmp() const {return _minSignalAmp;}
-  int getPSA() const {return _psa;}
+  double getZGem()const {return fzGem;}
+  double getZMax() const {return fzMax;}
+  double getTDiff() const {return ftdiff;}
+  double getTInt() const {return ftint;}
+  double getTSig() const {return ftsig;}
+  double getRMin() const {return frmin;}
+  double getRMax() const {return frmax;}
+  bool getAttach() const {return fattach>0;}
+  bool getDiffuseL() const {return fdiffuseL>0;}
+  bool getDiffuseT() const {return fdiffuseT>0;}
+  double getGain() const {return fgain;}
+  double getSupression() const {return fsupression;}
+  double getRate() const {return frate;}
+  double getMinSigAmp() const {return fminSignalAmp;}
+  int getPSA() const {return fpsa;}
   const PndTpcGas* getGas();
   const PndTpcGem* getGem();
   PndTpcPadPlane* getPadPlane();
   const PndTpcFrontend* getFrontend();
 
-  bool getGaussianNoise() const {return _gaussianNoise != 0;}
-  int getGaussianNoiseAmp() const {return _gaussianNoiseAmp;}
+  bool getGaussianNoise() const {return fgaussianNoise != 0;}
+  int getGaussianNoiseAmp() const {return fgaussianNoiseAmp;}
 
 private :
-  Int_t _tpcGasFile;
-  TString _tpcGasFileName;
-  Double_t _EField;
-  Int_t _attach;
-  Int_t _diffuseL;
-  Int_t _diffuseT;
-  Int_t _distort;
-  Double_t _zGem; // get from Geom!
-  Double_t _zMax; // get from Geom!
+  Int_t ftpcGasFile;
+  TString ftpcGasFileName;
+  Double_t fEField;
+  Int_t fattach;
+  Int_t fdiffuseL;
+  Int_t fdiffuseT;
+  Int_t fdistort;
+  Double_t fzGem; // get from Geom!
+  Double_t fzMax; // get from Geom!
 
-  Double_t _gain;
-  Double_t _supression;
-  Double_t _spread;
-  Double_t _rate;
+  Double_t fgain;
+  Double_t fsupression;
+  Double_t fspread;
+  Double_t frate;
 
-  Double_t _minSignalAmp; // cut on signal amplitude
-  Double_t _rmin, _rmax; // cuts on the TPC volume in r should come from Geom!
-  Int_t _padPlaneFile;
-  TString _padPlaneFileName;
-  Int_t _padShapes;
-  TString _padShapesName;
-  Double_t _shaperange; // range for padresponse lookuptable calculation
-  Double_t _shapestep;  // LOT entry steps
-  Double_t _intstep;    // integration step for LOT point calculation
+  Double_t fminSignalAmp; // cut on signal amplitude
+  Double_t frmin, frmax; // cuts on the TPC volume in r should come from Geom!
+  Int_t fpadPlaneFile;
+  TString fpadPlaneFileName;
+  Int_t fpadShapes;
+  TString fpadShapesName;
+  Double_t fshaperange; // range for padresponse lookuptable calculation
+  Double_t fshapestep;  // LOT entry steps
+  Double_t fintstep;    // integration step for LOT point calculation
 
-  int _adcthres; // adc threshold
-  int _adcmax; // adc dynamic range maximum
-  int _adcbits; // adc # bits
-  double _samplefreq; // sampling frequency
-  double _t0; // t0 of time stamps
-  int _timebits; // bits for timestamps
-  int _psathres; // threshold for pulseshape analysis
-  double _tdiff; // pulseshape: preamp differentiation time
-  double _tint; // pulseshape: preamp integration time
-  double _tsig; // pulseshape: signal risetime
+  int fadcthres; // adc threshold
+  int fadcmax; // adc dynamic range maximum
+  int fadcbits; // adc # bits
+  double fsamplefreq; // sampling frequency
+  double ft0; // t0 of time stamps
+  int ftimebits; // bits for timestamps
+  int fpsathres; // threshold for pulseshape analysis
+  double ftdiff; // pulseshape: preamp differentiation time
+  double ftint; // pulseshape: preamp integration time
+  double ftsig; // pulseshape: signal risetime
   
-  int _psa;	//0 -> Simple PSA, 1 -> TOTPSA
+  int fpsa;	//0 -> Simple PSA, 1 -> TOTPSA
 
-  int _gaussianNoise;
-  int _gaussianNoiseAmp;
+  int fgaussianNoise;
+  int fgaussianNoiseAmp;
 
   // interface pointers (will be created on the fly):
-  PndTpcGas* _gas; //!
-  PndTpcGem* _gem; //!
-  PndTpcPadPlane* _padplane; //!
-  PndTpcFrontend* _frontend; //!
-  PndTpcPadShapePool* _padshapepool; //!
+  PndTpcGas* fgas; //!
+  PndTpcGem* fgem; //!
+  PndTpcPadPlane* fpadplane; //!
+  PndTpcFrontend* ffrontend; //!
+  PndTpcPadShapePool* fpadshapepool; //!
 
   const PndTpcPadShapePool* getPadShapes();
   TString readString(int i);

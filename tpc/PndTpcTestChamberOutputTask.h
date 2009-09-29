@@ -33,8 +33,8 @@ public:
 
 
   // Modifiers -----------------------
-  void SetSampleBranchName(const TString& name) {_sampleBranchName=name;}
-  void SetOutfileName(const TString& _s){_filename=_s;}
+  void SetSampleBranchName(const TString& name) {fsampleBranchName=name;}
+  void SetOutfileName(const TString& fs){ffilename=fs;}
   // Operations ----------------------
 
 
@@ -49,15 +49,15 @@ public:
 private:
 
   // Private Data Members ------------
-  TString _sampleBranchName;
+  TString fsampleBranchName;
   
-  TClonesArray* _sampleArray;
+  TClonesArray* fsampleArray;
   TClonesArray* MCTarray;
 
   multitree_t outstruct;
   TTree *outtree;
   TFile *outfile;
-  TString _filename;
+  TString ffilename;
 
 public:
   ClassDef(PndTpcTestChamberOutputTask,1)

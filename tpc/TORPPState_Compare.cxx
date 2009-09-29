@@ -36,37 +36,37 @@ ppstate_compare::ppstate_compare(padprocessor* pp)
 std::string
 ppstate_compare::heartbeat()
 {
-  int n=_parent->_neighbours.size();
-  double largestamp=_parent->amp()*1.5;
+  int n=fparent->fneighbours.size();
+  double largestamp=fparent->amp()*1.5;
   bool lonely=true;
-  _parent->_iscenter=true;
+  fparent->fiscenter=true;
   for(int i=0;i<n;++i){
-    if(_parent->_neighbours[i]->amp()!=0)lonely=false;
-    if(largestamp<_parent->_neighbours[i]->amp()){
+    if(fparent->fneighbours[i]->amp()!=0)lonely=false;
+    if(largestamp<fparent->fneighbours[i]->amp()){
       // check if this neighbour is sending me data
-      padprocessor* nei=_parent->_neighbours[i];
-      if(nei->_dominant_neighb!=-1){
-	if(nei->_neighbours[nei->_dominant_neighb]==_parent){
-	  //assert(nei->amp()==_parent->amp());
+      padprocessor* nei=fparent->fneighbours[i];
+      if(nei->fdominant_neighb!=-1){
+	if(nei->fneighbours[nei->fdominant_neighb]==fparent){
+	  //assert(nei->amp()==fparent->amp());
 	  std::cout<<"already getting data"<<std::endl;
 	  continue;
 	}
       }
-      largestamp=_parent->_neighbours[i]->amp();
-      _parent->_iscenter=false;
-      _parent->_dominant_neighb=i;
+      largestamp=fparent->fneighbours[i]->amp();
+      fparent->fiscenter=false;
+      fparent->fdominant_neighb=i;
     }
   } // end loop over neighbours
   //if(lonely && n<6){ // kill this one it's a boundary deffect
-  //  _parent->reset();
-  //  _parent->setState("initial");
+  //  fparent->reset();
+  //  fparent->setState("initial");
   //return "initial";
   //}
-  if(!_parent->_iscenter){
-    _parent->setState("send");
+  if(!fparent->fiscenter){
+    fparent->setState("send");
     return "send";
   }
-  else _parent->setState("wait");
+  else fparent->setState("wait");
   return "wait";
 }
 

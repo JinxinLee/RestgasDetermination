@@ -6,8 +6,8 @@
 PndTpcPSAplot::PndTpcPSAplot(std::vector<PndTpcSample*>* samples,
 					   std::vector<PndTpcDigi*>* alldigis,
 					   std::vector<PndTpcSignal*>* signals,
-					   const PndTpcFrontend* const _frontend = NULL,
-					   std::string name="") : _name(name) {
+					   const PndTpcFrontend* const ffrontend = NULL,
+					   std::string name="") : fname(name) {
 
 
   std::vector<PndTpcDigi*>* digis = new std::vector<PndTpcDigi*>;
@@ -33,17 +33,17 @@ PndTpcPSAplot::PndTpcPSAplot(std::vector<PndTpcSample*>* samples,
   double xDigiG[ndigi];
   double yDigiG[ndigi];
   
-  _nDigiLines = ndigi;
-  _nSigLines = nsig;
+  fnDigiLines = ndigi;
+  fnSigLines = nsig;
 
 
 
-  _digiLines = new TLine*[ndigi];
+  fdigiLines = new TLine*[ndigi];
   if(signals != NULL) {
-	_sigLines = new TLine*[nsig]; 
+	fsigLines = new TLine*[nsig]; 
   }
   else {
-	_sigLines = NULL;
+	fsigLines = NULL;
   }
   
   int maxAmpSamp=0;
@@ -56,13 +56,13 @@ PndTpcPSAplot::PndTpcPSAplot(std::vector<PndTpcSample*>* samples,
 	}
   }
 
-  _sampG = new TGraph(nsamp,xSampG,ySampG);
+  fsampG = new TGraph(nsamp,xSampG,ySampG);
 
 
   for(int iDigiG=0; iDigiG<ndigi; iDigiG++) {
 	xDigiG[iDigiG] = (*digis)[iDigiG]->t();
 	yDigiG[iDigiG] = (*digis)[iDigiG]->amp() / 10;
-	_digiLines[iDigiG] = new TLine((*digis)[iDigiG]->t(),0.,(*digis)[iDigiG]->t(),_sampG->GetYaxis()->GetXmax());
+	fdigiLines[iDigiG] = new TLine((*digis)[iDigiG]->t(),0.,(*digis)[iDigiG]->t(),fsampG->GetYaxis()->GetXmax());
   }
   
   
@@ -75,15 +75,15 @@ PndTpcPSAplot::PndTpcPSAplot(std::vector<PndTpcSample*>* samples,
   
   
 	for(int iSig=0;iSig<nsig;iSig++) {
-	  _sigLines[iSig] = new TLine(_frontend->ClockFine( ((*signals)[iSig])->t())  ,
+	  fsigLines[iSig] = new TLine(ffrontend->ClockFine( ((*signals)[iSig])->t())  ,
 								  0.,
-								  _frontend->ClockFine( ((*signals)[iSig])->t())  ,
+								  ffrontend->ClockFine( ((*signals)[iSig])->t())  ,
 								  ((*signals)[iSig])->amp() * maxAmpSamp/maxAmpSig);
 	}
   }
   
-  //  _sampG = new TGraph(nsamp,xSampG,ySampG);
-  _digiG = new TGraph(ndigi,xDigiG,yDigiG);
+  //  fsampG = new TGraph(nsamp,xSampG,ySampG);
+  fdigiG = new TGraph(ndigi,xDigiG,yDigiG);
   //	  char buf[20];
   
 }
@@ -91,13 +91,13 @@ PndTpcPSAplot::PndTpcPSAplot(std::vector<PndTpcSample*>* samples,
 
 
 PndTpcPSAplot::~PndTpcPSAplot(){
-  delete _sampG;
-  delete _digiG;
-  for(int i=0;i<_nDigiLines;i++) {
-	delete _digiLines[i];
+  delete fsampG;
+  delete fdigiG;
+  for(int i=0;i<fnDigiLines;i++) {
+	delete fdigiLines[i];
   }
-  for(int i=0;i<_nSigLines;i++) {
-	delete _sigLines[i];
+  for(int i=0;i<fnSigLines;i++) {
+	delete fsigLines[i];
   }
 }
 
@@ -106,35 +106,35 @@ void PndTpcPSAplot::Draw() {
 
   //	sprintf(buf,"graph%i",i);
   //	graph->SetName(buf);
-  _sampG->SetMarkerStyle(20);
-  _sampG->SetMarkerSize(.5);
-  _sampG->SetMarkerColor(kBlue);
-  _sampG->SetFillColor(kBlue);
-  _digiG->SetMarkerStyle(21);
-  _digiG->SetMarkerSize(.75);
-  _digiG->SetMarkerColor(kRed);
-  _sampG->SetTitle(_name.c_str());
-  _sampG->GetXaxis()->SetTitle("time [100ns]");
-  _sampG->GetYaxis()->SetTitle("arb. units");
+  fsampG->SetMarkerStyle(20);
+  fsampG->SetMarkerSize(.5);
+  fsampG->SetMarkerColor(kBlue);
+  fsampG->SetFillColor(kBlue);
+  fdigiG->SetMarkerStyle(21);
+  fdigiG->SetMarkerSize(.75);
+  fdigiG->SetMarkerColor(kRed);
+  fsampG->SetTitle(fname.c_str());
+  fsampG->GetXaxis()->SetTitle("time [100ns]");
+  fsampG->GetYaxis()->SetTitle("arb. units");
   /*
-  _sampG->GetYaxis()->SetTitleOffset(1.3);
-  _sampG->GetXaxis()->SetTitleFont(102);
-  _sampG->GetXaxis()->SetLabelFont(102);
-  _sampG->GetYaxis()->SetTitleFont(102);
-  _sampG->GetYaxis()->SetLabelFont(102);
+  fsampG->GetYaxis()->SetTitleOffset(1.3);
+  fsampG->GetXaxis()->SetTitleFont(102);
+  fsampG->GetXaxis()->SetLabelFont(102);
+  fsampG->GetYaxis()->SetTitleFont(102);
+  fsampG->GetYaxis()->SetLabelFont(102);
   */
-  _sampG->Draw("AB");
-  _digiG->Draw("P");
-  if(_sigLines != NULL) {
-	for(int iLines=0;iLines<_nSigLines;iLines++) {
-	  _sigLines[iLines]->SetLineColor(kGreen);
-	  _sigLines[iLines]->SetLineWidth(3);
-	  _sigLines[iLines]->Draw("same");
+  fsampG->Draw("AB");
+  fdigiG->Draw("P");
+  if(fsigLines != NULL) {
+	for(int iLines=0;iLines<fnSigLines;iLines++) {
+	  fsigLines[iLines]->SetLineColor(kGreen);
+	  fsigLines[iLines]->SetLineWidth(3);
+	  fsigLines[iLines]->Draw("same");
 	}
   }
-  for(int iLines=0;iLines<_nDigiLines;iLines++) {
-	_digiLines[iLines]->SetLineColor(kRed);
-	_digiLines[iLines]->Draw("same");
+  for(int iLines=0;iLines<fnDigiLines;iLines++) {
+	fdigiLines[iLines]->SetLineColor(kRed);
+	fdigiLines[iLines]->Draw("same");
   }
   gApplication->SetReturnFromRun(kTRUE);
   gSystem->Run();

@@ -24,34 +24,34 @@ ClassImp(PndTpcLaserStat)
 
 PndTpcLaserStat::PndTpcLaserStat() 
   :
-  _laserID(0),
-  _clusterID(0),
-  _res(TVector3(0,0,0)),
-  //_resX(_res.X()),
-  //_resY(_res.Y()), 
-  //_resZ(_res.Z()),
-  _clust(NULL),
-  _pos(TVector3(0,0,0)),
-  //_posX(_pos.X()),
-  //_posY(_pos.Y()),
-  //_posZ(_pos.Z()),
-  _pP(TVector3(0,0,0))
+  flaserID(0),
+  fclusterID(0),
+  fres(TVector3(0,0,0)),
+  //fresX(fres.X()),
+  //fresY(fres.Y()), 
+  //fresZ(fres.Z()),
+  fclust(NULL),
+  fpos(TVector3(0,0,0)),
+  //fposX(fpos.X()),
+  //fposY(fpos.Y()),
+  //fposZ(fpos.Z()),
+  fpP(TVector3(0,0,0))
 {;}
   
 PndTpcLaserStat::PndTpcLaserStat(unsigned int laserID, PndTpcCluster* clust,
 				 const TVector3& residual, const TVector3& res_sig, const TVector3& pP, 
 				 const TVector3& sigpP)
   :
-  _laserID(laserID),
-  _res(residual),
-  _pP(pP),
-  _sig(res_sig),
-  _sigpP(sigpP)
+  flaserID(laserID),
+  fres(residual),
+  fpP(pP),
+  fsig(res_sig),
+  fsigpP(sigpP)
 {
   assert(clust);
-  _clust=clust;
-  _clusterID=_clust->index();
-  _pos=_clust->pos();
+  fclust=clust;
+  fclusterID=fclust->index();
+  fpos=fclust->pos();
 }
 
 PndTpcLaserStat::~PndTpcLaserStat()

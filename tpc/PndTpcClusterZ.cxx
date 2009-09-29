@@ -25,7 +25,7 @@ PndTpcClusterZ::operator()(PndTpcCluster* s1, PndTpcCluster* s2)
 {
   double r1=s1->pos().Z();
   double r2=s2->pos().Z();
-  if(_dir)return r1>r2;
+  if(fdir)return r1>r2;
   else return r1<r2;
 }
 

@@ -48,18 +48,18 @@ class PndTpcSimpleEvtGen : public FairTask {
 
 // Modifiers ------------------------------------------------
 
-  void setMode(std::string mode) {_mode = mode;}
-  void setPos(TVector3 pos) {_pos = pos;}
+  void setMode(std::string mode) {fmode = mode;}
+  void setPos(TVector3 pos) {fpos = pos;}
   
 
   
  private:
 
-  TClonesArray* _primArray;
-  std::string _mode;
-  TVector3 _pos;
+  TClonesArray* fprimArray;
+  std::string fmode;
+  TVector3 fpos;
 
-  PndTpcDigiPar* _par;  
+  PndTpcDigiPar* fpar;  
     
   
 public:

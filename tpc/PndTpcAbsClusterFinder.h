@@ -7,17 +7,17 @@ class PndTpcDigi;
 
 class PndTpcAbsClusterFinder{
  public:
-  PndTpcAbsClusterFinder(){_trcl=false;_saveRaw=false;}
+  PndTpcAbsClusterFinder(){ftrcl=false;fsaveRaw=false;}
   virtual ~PndTpcAbsClusterFinder(){}
   virtual void process(std::vector<PndTpcDigi*>&)=0;
   virtual void reset()=0;
-  void setTrivialClustering(bool flag=true){_trcl=flag;}
+  void setTrivialClustering(bool flag=true){ftrcl=flag;}
   virtual void checkConsistency()=0;
   
-  void saveRaw(bool b=true){_saveRaw=b;}
+  void saveRaw(bool b=true){fsaveRaw=b;}
  protected:
-  bool _saveRaw;
-  bool _trcl;
+  bool fsaveRaw;
+  bool ftrcl;
 };
 
 #endif

@@ -35,14 +35,14 @@ ppstate_initial::ppstate_initial(padprocessor* pp)
 std::string
 ppstate_initial::heartbeat()
 {
-  //std::cout<<"Pad("<<_parent->id()<<")._amps.size()="
-  //   <<_parent->_amps.size()<<std::endl;
-  if(_parent->mydata()!=0){
-    _parent->setState("compare");
+  //std::cout<<"Pad("<<fparent->id()<<").famps.size()="
+  //   <<fparent->famps.size()<<std::endl;
+  if(fparent->mydata()!=0){
+    fparent->setState("compare");
     return "compare";
   }
   else {
-    _parent->setState("end");
+    fparent->setState("end");
     return "end";
   }
 }

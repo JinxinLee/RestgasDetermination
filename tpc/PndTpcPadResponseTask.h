@@ -47,10 +47,10 @@ public:
 
 
   // Modifiers -----------------------
-  void SetAvalancheBranchName(const TString& name) {_avalancheBranchName=name;}
-  void SetPersistence(Bool_t opt=kTRUE) {_persistence=opt;}
-   void SelectSector(unsigned int id){_secids[id]=true;}
-   void SetQAPlotCol(QAPlotCollection* col){_qa=col;}
+  void SetAvalancheBranchName(const TString& name) {favalancheBranchName=name;}
+  void SetPersistence(Bool_t opt=kTRUE) {fpersistence=opt;}
+   void SelectSector(unsigned int id){fsecids[id]=true;}
+   void SetQAPlotCol(QAPlotCollection* col){fqa=col;}
 
   // Operations ----------------------
   
@@ -66,30 +66,30 @@ public:
 private:
 
   // Private Data Members ------------
-  TString _avalancheBranchName;
-  TClonesArray* _avalancheArray;
-  TClonesArray* _signalArray;
+  TString favalancheBranchName;
+  TClonesArray* favalancheArray;
+  TClonesArray* fsignalArray;
 
-  Bool_t _persistence;
-  Double_t _minSignalAmp;
-  Double_t _rmin, _rmax;
+  Bool_t fpersistence;
+  Double_t fminSignalAmp;
+  Double_t frmin, frmax;
 
-  const PndTpcPadPlane* _padPlane;
-  const PndTpcGem* _gem;
+  const PndTpcPadPlane* fpadPlane;
+  const PndTpcGem* fgem;
   
-  PndTpcDigiPar* _par;  
+  PndTpcDigiPar* fpar;  
 
-  Int_t _eventcounter;
+  Int_t feventcounter;
 
-  TH1D* _xVariation;
-  TH1D* _yVariation;
-  TH2D* _2DHisto;
+  TH1D* fxVariation;
+  TH1D* fyVariation;
+  TH2D* f2DHisto;
 
-  std::map<unsigned int,bool> _secids;
-  bool _selected; // true if only selected sectors are processed
+  std::map<unsigned int,bool> fsecids;
+  bool fselected; // true if only selected sectors are processed
 
-  Bool_t _initialized;
-  QAPlotCollection* _qa;
+  Bool_t finitialized;
+  QAPlotCollection* fqa;
   
   // Private Methods -----------------
 

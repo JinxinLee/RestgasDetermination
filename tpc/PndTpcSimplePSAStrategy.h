@@ -54,13 +54,13 @@ public:
 private:
 
   // Private Data Members ------------
-  unsigned int _currentPadID;
-  bool _inprogress;
-  unsigned int _amp;
-  unsigned int _t;
-  unsigned int _threshold;
+  unsigned int fcurrentPadID;
+  bool finprogress;
+  unsigned int famp;
+  unsigned int ft;
+  unsigned int fthreshold;
   
-  McIdCollection _mcid;
+  McIdCollection fmcid;
   // Private Methods -----------------
 
 };

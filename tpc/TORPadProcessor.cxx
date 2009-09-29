@@ -39,8 +39,8 @@
 
 
 padprocessor::padprocessor(unsigned int id)
-  : _iscenter(true), _active_state(0), _dominant_neighb(-1), 
-    _myid(id), _cluster_buffer(0), _mydata(NULL)
+  : fiscenter(true), factive_state(0), fdominant_neighb(-1), 
+    fmyid(id), fcluster_buffer(0), fmydata(NULL)
 {
   ppstate* init=new ppstate_initial(this);
   addState(init,"initial");
@@ -60,12 +60,12 @@ padprocessor::padprocessor(unsigned int id)
 
 padprocessor::~padprocessor()
 {
-  std::map<std::string,ppstate*>::iterator istate=_states.begin();
-  while(istate!=_states.end()){
+  std::map<std::string,ppstate*>::iterator istate=fstates.begin();
+  while(istate!=fstates.end()){
     delete istate->second;
     ++istate;
   }
-  _states.clear();
+  fstates.clear();
   std::cout<<" %%%%%%%%%%%%destructing padprocessor! %%%%%%%%%%%%" <<std::endl;
 }
 
@@ -73,7 +73,7 @@ void
 padprocessor::addNeighbour(padprocessor* pp)
 {
   // TODO: check for double adding!
-  _neighbours.push_back(pp);
+  fneighbours.push_back(pp);
 }
 
 
@@ -81,28 +81,28 @@ void
 padprocessor::setData(PndTpcDigi* data) // resets data buffer NOT anymore !
 {
   //reset();
-  if(_mydata==NULL) _mydata=data;
-  else if(data->amp()>_mydata->amp())_mydata=data;
+  if(fmydata==NULL) fmydata=data;
+  else if(data->amp()>fmydata->amp())fmydata=data;
   put(data);
 }
 
 void
 padprocessor::reset()
 {
-  _dominant_neighb=-1;
-  _iscenter=true;
-  if(_data.size()!=0)std::cout<<"PProc"<<_myid
-			      <<" throwing "<<_data.size()
+  fdominant_neighb=-1;
+  fiscenter=true;
+  if(fdata.size()!=0)std::cout<<"PProc"<<fmyid
+			      <<" throwing "<<fdata.size()
 			      <<" data away!"<<std::endl;
-  _data.clear();
-  _mydata=NULL;
+  fdata.clear();
+  fmydata=NULL;
   setState("initial");
 }
 
 std::string
 padprocessor::heartbeat(){
-  if(_active_state!=0)
-    return _active_state->heartbeat();
+  if(factive_state!=0)
+    return factive_state->heartbeat();
   else std::cerr<<"No active state defined!"<<std::endl;
   return std::string("not active");
 }
@@ -110,22 +110,22 @@ padprocessor::heartbeat(){
 
 void 
 padprocessor::addState(ppstate* state, std::string name){
-  _states[name]=state; // existing state will be overridden!
+  fstates[name]=state; // existing state will be overridden!
 }
 
 void 
 padprocessor::setState(std::string name){
-  if(_states[name]!=0){
-    _active_state=_states[name];
-    _astate=name;
-    //std::cout<<"Pad("<<_myid<<"):: switching to state "<<name<<std::endl;
+  if(fstates[name]!=0){
+    factive_state=fstates[name];
+    fastate=name;
+    //std::cout<<"Pad("<<fmyid<<"):: switching to state "<<name<<std::endl;
   }
-  else std::cerr<<"Pad("<<_myid<<"):: Unknown State "<<name<<"!"<<std::endl;
+  else std::cerr<<"Pad("<<fmyid<<"):: Unknown State "<<name<<"!"<<std::endl;
   
 
 }
 
 void 
 padprocessor::put(PndTpcDigi* data) {
-  _data.push_back(data);
+  fdata.push_back(data);
 }

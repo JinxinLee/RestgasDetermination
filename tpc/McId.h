@@ -45,22 +45,22 @@ public:
   friend std::ostream& operator<< (std::ostream& s, const McId& me);
 
   // Accessors -----------------------
-  unsigned int mceventID() const {return _mceventID;}
-  unsigned int mctrackID() const {return _mctrackID;}
-  double weight() const {return _weight;}
+  unsigned int mceventID() const {return fmceventID;}
+  unsigned int mctrackID() const {return fmctrackID;}
+  double weight() const {return fweight;}
 
   // Modifiers -----------------------
-  void setweight(double w) {_weight=w;}
+  void setweight(double w) {fweight=w;}
 
   // Operations ----------------------
-  double IncWeight(double w=1) {return _weight+=w;}
+  double IncWeight(double w=1) {return fweight+=w;}
 
 private:
 
   // Private Data Members ------------
-  unsigned int _mceventID;
-  unsigned int _mctrackID;
-  double _weight;
+  unsigned int fmceventID;
+  unsigned int fmctrackID;
+  double fweight;
   
   // Private Methods -----------------
 

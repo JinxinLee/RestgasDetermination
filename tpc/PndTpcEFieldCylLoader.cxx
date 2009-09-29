@@ -32,8 +32,8 @@
 PndTpcEFieldCylLoader::PndTpcEFieldCylLoader(PndTpcEFieldCyl* field,
 				       const char* const fileName)
 {
-  _field = field;
-  _fileName = fileName;
+  ffield = field;
+  ffileName = fileName;
 }
 
 
@@ -44,7 +44,7 @@ void
 PndTpcEFieldCylLoader::load()
 {
   // try to find and open the file
-  std::ifstream infile(_fileName, std::fstream::in);
+  std::ifstream infile(ffileName, std::fstream::in);
   if (!infile.good()) 
   {
     Fatal("PndTpcEFieldCylLoader::load()","field-file could not be found.");
@@ -61,36 +61,36 @@ PndTpcEFieldCylLoader::load()
   //so this is an awkward correction     
   //REMOVED FOR MORE CLARITY! BE SURE TO HAVE A PROPER FIELD FILE!!!
 
-  _field->setNominal(TVector3(0.,0.,eFieldNomZ));
-  _field->setMinR(rMin);
-  _field->setSpacingR(dr);
-  _field->setMinZ(zMin);
-  _field->setSpacingZ(dz);
+  ffield->setNominal(TVector3(0.,0.,eFieldNomZ));
+  ffield->setMinR(rMin);
+  ffield->setSpacingR(dr);
+  ffield->setMinZ(zMin);
+  ffield->setSpacingZ(dz);
   
   // Initialize the field-map 
-  _fieldmap = new std::vector<std::vector<TVector3*>*>;  
+  ffieldmap = new std::vector<std::vector<TVector3*>*>;  
 
   // fill the matrix from the file; z-Index runs first
   for (int nr=0; nr< rSteps; nr++)
   {
-    _fieldmap->push_back(new std::vector<TVector3*>(zSteps));
+    ffieldmap->push_back(new std::vector<TVector3*>(zSteps));
     for (int nz=0; nz< zSteps; nz++)
     {
       double eFieldR, eFieldZ;
       infile >> eFieldR >> eFieldZ;
-      _fieldmap->at(nr)->at(nz) = new TVector3(eFieldR, 0., eFieldZ);      
+      ffieldmap->at(nr)->at(nz) = new TVector3(eFieldR, 0., eFieldZ);      
     }
   }
   std::cout<<"\n\n\nPndTpcEFieldCylLoader::load(): successfully initialized the E-field"
 	   <<std::endl;
   
   //just a test
-  int lengthr = _fieldmap->size();
-  int lengthz = _fieldmap->at(0)->size();
+  int lengthr = ffieldmap->size();
+  int lengthz = ffieldmap->at(0)->size();
   std::cout << "fieldmap has " << lengthr <<" bins in r and \n"
        << lengthz << " bins in z direction.\n\n";
   std::cout.flush();
-  _field->_pGrid = _fieldmap;       //PndTpcEFieldCyl takes ownership
+  ffield->fpGrid = ffieldmap;       //PndTpcEFieldCyl takes ownership
   infile.close();
 }
 

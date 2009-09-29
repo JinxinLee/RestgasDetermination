@@ -7,10 +7,10 @@ ClassImp(PndTpcMCTracklet)
 
 Int_t 
 PndTpcMCTracklet::nmvdAcc(Double_t cut){
-  unsigned int n=_mvdhits.size();
+  unsigned int n=fmvdhits.size();
   Int_t found=0;
   for(unsigned int i=0;i<n;++i){
-    if(fabs(_mvdhits[i]<cut))++found;
+    if(fabs(fmvdhits[i]<cut))++found;
   }
   return found;
 }

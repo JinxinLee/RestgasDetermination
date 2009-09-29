@@ -43,10 +43,10 @@ using std::log;
 
 
 PndTpcGemTask::PndTpcGemTask()
-  : FairTask("TPC Gem"), _persistence(kFALSE), _gainFluctuations(kFALSE),
-    _initialized(kFALSE)
+  : FairTask("TPC Gem"), fpersistence(kFALSE), fgainFluctuations(kFALSE),
+    finitialized(kFALSE)
 {
-  _driftedBranchName = "PndTpcDriftedElectron";
+  fdriftedBranchName = "PndTpcDriftedElectron";
 }
 
 
@@ -68,8 +68,8 @@ PndTpcGemTask::SetParContainers() {
   if ( ! db ) Fatal("SetParContainers", "No runtime database");
 
   // Get PndTpc digitisation parameter container
-  _par= (PndTpcDigiPar*) db->getContainer("PndTpcDigiPar");
-  if (! _par ) Fatal("SetParContainers", "PndTpcDigiPar not found");
+  fpar= (PndTpcDigiPar*) db->getContainer("PndTpcDigiPar");
+  if (! fpar ) Fatal("SetParContainers", "PndTpcDigiPar not found");
 }
 
 
@@ -77,7 +77,7 @@ InitStatus
 PndTpcGemTask::Init()
 {
 
-  _initialized=false;
+  finitialized=false;
   //Get ROOT Manager
   FairRootManager* ioman= FairRootManager::Instance();
 
@@ -88,21 +88,21 @@ PndTpcGemTask::Init()
     }
   
   // Get input collection
-  _driftedArray=(TClonesArray*) ioman->GetObject(_driftedBranchName);
+  fdriftedArray=(TClonesArray*) ioman->GetObject(fdriftedBranchName);
   
-  if(_driftedArray==0)
+  if(fdriftedArray==0)
     {
       Error("PndTpcGemTask::Init","DriftedElectron-array not found!");
       return kERROR;
     }
   
   // create and register output array
-  _avalancheArray = new TClonesArray("PndTpcAvalanche"); 
-  ioman->Register("PndTpcAvalanche","PndTpc",_avalancheArray,_persistence);
+  favalancheArray = new TClonesArray("PndTpcAvalanche"); 
+  ioman->Register("PndTpcAvalanche","PndTpc",favalancheArray,fpersistence);
 
-  _gain=_par->getGem()->gain();
+  fgain=fpar->getGem()->gain();
 
-  _initialized=true;
+  finitialized=true;
   return kSUCCESS;
 }
 
@@ -111,20 +111,20 @@ void
 PndTpcGemTask::Exec(Option_t* opt)
 {
   // Reset output Array
-  if(_avalancheArray==0) Fatal("PndTpcPrimCluster::Exec)","No AvalancheArray");
-  _avalancheArray->Delete();
+  if(favalancheArray==0) Fatal("PndTpcPrimCluster::Exec)","No AvalancheArray");
+  favalancheArray->Delete();
   Int_t counter=0;
-  Int_t nd=_driftedArray->GetEntriesFast();
+  Int_t nd=fdriftedArray->GetEntriesFast();
   std::cout<<"Aggregating drifted electrons into avalanches ";
   // loop over drifted electrons
   for(Int_t id=0;id<nd;++id){
-    PndTpcDriftedElectron* e=(PndTpcDriftedElectron*)_driftedArray->At(id);
-    int na=_avalancheArray->GetEntriesFast();
+    PndTpcDriftedElectron* e=(PndTpcDriftedElectron*)fdriftedArray->At(id);
+    int na=favalancheArray->GetEntriesFast();
     // look if there is already an avalanche where we can put this electron
     bool found=false;
     /*if(na%1000==0)std::cout<<".";std::cout.flush();
     for(int ia=0; ia<na; ++ia){
-      PndTpcAvalanche* a=(PndTpcAvalanche*)_avalancheArray->At(ia);
+      PndTpcAvalanche* a=(PndTpcAvalanche*)favalancheArray->At(ia);
       // calculate distance in t and cut
       double dt=e->t()-a->t(); 
       if(fabs(dt)>20) {
@@ -140,7 +140,7 @@ PndTpcGemTask::Exec(Option_t* opt)
       	continue; // cut on dr>1mm
       }
       // if electron survived enlarge amplitude of avalanche
-      a->addAmp(_gain);
+      a->addAmp(fgain);
       found=true;
       ++counter;
       //std::cout<<"Combined an electron into an existing avalanche"<<std::endl;
@@ -149,17 +149,17 @@ PndTpcGemTask::Exec(Option_t* opt)
     */
     if(!found){
 	  double gainFactor = 1.;
-	  if(_gainFluctuations) 
+	  if(fgainFluctuations) 
 	    gainFactor = -log(gRandom->Uniform());
 	  //TODO: implement full set: exp. distr. for first stage,
 	  //representing rest
 	  
-      new ((*_avalancheArray)[na]) PndTpcAvalanche(e->x(), e->y(), e->t(),
-						_gain*gainFactor, e);
+      new ((*favalancheArray)[na]) PndTpcAvalanche(e->x(), e->y(), e->t(),
+						fgain*gainFactor, e);
     }
   } // end loop over drifted electrons
   std::cout<<" finished."<<std::endl;
-  std::cout<<_avalancheArray->GetEntriesFast()
+  std::cout<<favalancheArray->GetEntriesFast()
 	   <<" Avalanches created"<<std::endl;
   std::cout<<counter<<" aggregations done."<<std::endl;
   return;

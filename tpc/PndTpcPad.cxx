@@ -29,7 +29,7 @@
 // Class Member definitions -----------
 
 PndTpcPad::PndTpcPad()
-  : _x(0),_y(0),_angle(0),_width(0),_height(0),_shape(0),_sectorId(0),_id(0)
+  : fx(0),fy(0),fangle(0),fwidth(0),fheight(0),fshape(0),fsectorId(0),fid(0)
 {;}
 
 PndTpcPad::PndTpcPad(const double x,
@@ -38,7 +38,7 @@ PndTpcPad::PndTpcPad(const double x,
 	       PndTpcAbsPadShape* const shape,
 	       const unsigned int sectorID,
 	       const unsigned int ID)
-  : _x(x),_y(y),_angle(angle),_shape(shape),_sectorId(sectorID),_id(ID)
+  : fx(x),fy(y),fangle(angle),fshape(shape),fsectorId(sectorID),fid(ID)
 {
   EvalBoundingRect();
 }
@@ -46,20 +46,20 @@ PndTpcPad::PndTpcPad(const double x,
 bool
 PndTpcPad::Contains(const double x, const double y) const
 {
-  if (_shape == 0)
+  if (fshape == 0)
     Fatal("PndTpcPad::Contains","No AbsPadShapePolygon assigned.");
   double xSh = x;
   double ySh = y;
   ToShapeCoord(xSh, ySh);
-  return(_shape->Contains(xSh, ySh));
+  return(fshape->Contains(xSh, ySh));
 }
 
 bool
 PndTpcPad::CircleIntersection(const double x, const double y,
 			   const double r) const
 {
-  double dx=std::fabs(_x-x); double dy=std::fabs(_y-y);
-  double hw = 0.5*_width; double hh = 0.5*_height;
+  double dx=std::fabs(fx-x); double dy=std::fabs(fy-y);
+  double hw = 0.5*fwidth; double hh = 0.5*fheight;
   //most Pads are far away
   if (dx > hw+r || dy > hh+r )
     return(false);
@@ -70,88 +70,88 @@ PndTpcPad::CircleIntersection(const double x, const double y,
 double
 PndTpcPad::GetValue(const double x, const double y) const
 {
-  if (_shape == 0)
+  if (fshape == 0)
     Fatal("PndTpcPad::GetValue","No AbsPadShape assigned.");
   double xSh = x;
   double ySh = y;
   ToShapeCoord(xSh, ySh);
-  return(_shape->GetValue(xSh, ySh));
+  return(fshape->GetValue(xSh, ySh));
 }
 
 int
 PndTpcPad::GetNBoundaryPoints() const
 {
-  if (_shape == 0)
+  if (fshape == 0)
     Fatal("PndTpcPad::GetNBoundaryPoints","No AbsPadShape assigned.");
-  return(_shape->GetNBoundaryPoints());
+  return(fshape->GetNBoundaryPoints());
 }
 
 void
 PndTpcPad::GetBoundaryPoint(const int index, double& x, double& y) const
 {
-  if (_shape == 0)
+  if (fshape == 0)
     Fatal("PndTpcPad::GetBoundaryPoint","No AbsPadShape assigned.");
-   _shape->GetBoundaryPoint(index, x, y);
+   fshape->GetBoundaryPoint(index, x, y);
    ToPlaneCoord(x, y);
 }
 
 bool operator== (const PndTpcPad& lhs, const PndTpcPad& rhs)
 {
   //true if same position, angle and shape
-  double dx=lhs._x-rhs._x;
-  double dy=lhs._y-rhs._y;
-  double da=lhs._angle-rhs._angle;
-  return lhs._shape==rhs._shape &&
+  double dx=lhs.fx-rhs.fx;
+  double dy=lhs.fy-rhs.fy;
+  double da=lhs.fangle-rhs.fangle;
+  return lhs.fshape==rhs.fshape &&
     (dx*dx<1E-10) && (dy*dy<1E-10) && (da*da<1E-10);
 }
 
 bool operator< (const PndTpcPad& lhs, const PndTpcPad& rhs){
   //true if lhs below (y) or left (x) of rhs
-  double dy=lhs._y-rhs._y;
-  double dx=lhs._x-rhs._x;
+  double dy=lhs.fy-rhs.fy;
+  double dx=lhs.fx-rhs.fx;
   bool flag=(dy*dy<1E-10) && (dx<-1E-5);
     return (dy<-1E-5) || flag;
 }
 
 std::ostream& operator<< (std::ostream& s, const PndTpcPad& me){
   return s << "PndTpcPad\n"
-           << "sectorID="<<me._sectorId<<"\n"
-	   << "ID="<<me._id<<"\n"
-	   << "x="<<me._x<<"    y="<<me._y<<"    angle="<<me._angle<<"\n"
-           << "shape="<<me._shape<<"\n";
+           << "sectorID="<<me.fsectorId<<"\n"
+	   << "ID="<<me.fid<<"\n"
+	   << "x="<<me.fx<<"    y="<<me.fy<<"    angle="<<me.fangle<<"\n"
+           << "shape="<<me.fshape<<"\n";
 }
 
 void 
 PndTpcPad::ToShapeCoord(double& xP, double& yP) const
 {
-  double xori=xP-_x;
-  double yori=yP-_y;
-  xP = xori*std::cos(_angle) + yori*std::sin(_angle);
-  yP = -xori*std::sin(_angle) + yori*std::cos(_angle);
+  double xori=xP-fx;
+  double yori=yP-fy;
+  xP = xori*std::cos(fangle) + yori*std::sin(fangle);
+  yP = -xori*std::sin(fangle) + yori*std::cos(fangle);
 }
 
 void 
 PndTpcPad::ToPlaneCoord(double& xP, double& yP) const
 {
-  double xori = xP*std::cos(-_angle) + yP*std::sin(-_angle);
-  yP = -xori*std::sin(-_angle) + yP*std::cos(-_angle)+_y;
-  xP = xori+_x;
+  double xori = xP*std::cos(-fangle) + yP*std::sin(-fangle);
+  yP = -xori*std::sin(-fangle) + yP*std::cos(-fangle)+fy;
+  xP = xori+fx;
 }
 
 void
 PndTpcPad::EvalBoundingRect()
 {
-  if (_shape == 0)
+  if (fshape == 0)
   {
-    _width = 0;
-    _height =0;
+    fwidth = 0;
+    fheight =0;
     return;
   }
-  _shape->EvalBoundingRect(_width, _height, _angle);
+  fshape->EvalBoundingRect(fwidth, fheight, fangle);
 }
 
 void
 PndTpcPad::Draw(int c) const
 {
-  _shape->Draw(_x,_y,_angle, c);
+  fshape->Draw(fx,fy,fangle, c);
 }

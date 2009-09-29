@@ -39,13 +39,13 @@ public:
   // Operators
   
   // Accessors -----------------------
-  Double_t MeanEvtSpacing() const {return _meanEvtSpacing;}
+  Double_t MeanEvtSpacing() const {return fmeanEvtSpacing;}
 
   // Modifiers -----------------------
-  void SetPersistence(Bool_t opt=kTRUE) {_persistence=opt;}
-  void SetMeanEvtSpacing(Double_t deltaT) {_meanEvtSpacing=deltaT;} // [ns]
-  void SetEvtRate(Double_t evt_per_sec) {_meanEvtSpacing=1/evt_per_sec*1.E9;}
-  void SetT0(Double_t t0) {_t0=t0;}
+  void SetPersistence(Bool_t opt=kTRUE) {fpersistence=opt;}
+  void SetMeanEvtSpacing(Double_t deltaT) {fmeanEvtSpacing=deltaT;} // [ns]
+  void SetEvtRate(Double_t evt_per_sec) {fmeanEvtSpacing=1/evt_per_sec*1.E9;}
+  void SetT0(Double_t t0) {ft0=t0;}
 
   // Operations ----------------------
   virtual InitStatus Init();
@@ -55,14 +55,14 @@ public:
 private:
 
 
-  TClonesArray* _timeArray;
+  TClonesArray* ftimeArray;
 
-  Bool_t _persistence;
+  Bool_t fpersistence;
 
-  Double_t _meanEvtSpacing;
-  Double_t _t0;
-  Double_t _tevent;
-  unsigned int _eventid;
+  Double_t fmeanEvtSpacing;
+  Double_t ft0;
+  Double_t ftevent;
+  unsigned int feventid;
 
   // Private Methods -----------------
 

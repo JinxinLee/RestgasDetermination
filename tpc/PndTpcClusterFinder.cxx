@@ -40,10 +40,10 @@ PndTpcClusterFinder::PndTpcClusterFinder(PndTpcPadPlane* p,
 					 std::vector<PndTpcCluster*>* ob,
 					 unsigned int timeslice, 
 					 int mode, int sectorid)
-  : _padplane(p), _output_buffer(ob), _dt(timeslice), _mode(mode)
+  : fpadplane(p), foutput_buffer(ob), fdt(timeslice), fmode(mode)
 {
   // construct sector processors
-  std::vector<unsigned int> ids=_padplane->GetSectorIds();
+  std::vector<unsigned int> ids=fpadplane->GetSectorIds();
   if(sectorid>=0){
     unsigned int myid=(unsigned int)sectorid;
     if(std::count(ids.begin(),ids.end(),myid)==0){
@@ -59,21 +59,21 @@ PndTpcClusterFinder::PndTpcClusterFinder(PndTpcPadPlane* p,
   unsigned int nsec=ids.size();
   for(unsigned int is=0;is<nsec;++is){
     unsigned int sectorid=ids[is];
-    _sproc[sectorid]=new PndTpcSectorProcessor(_saveRaw);
-    _sproc[sectorid]->Init(_padplane,sectorid,ob);
-    _sectormap[sectorid]=new std::vector<PndTpcDigi*>();
+    fsproc[sectorid]=new PndTpcSectorProcessor(fsaveRaw);
+    fsproc[sectorid]->Init(fpadplane,sectorid,ob);
+    fsectormap[sectorid]=new std::vector<PndTpcDigi*>();
   }
   std::cout<<"PndTpcClusterFinder: "
-	   <<_sproc.size()<<" SectorProcessors instantiated."<<std::endl;
+	   <<fsproc.size()<<" SectorProcessors instantiated."<<std::endl;
 }
 
 PndTpcClusterFinder::~PndTpcClusterFinder(){
-  std::map<unsigned int,PndTpcSectorProcessor*>::iterator secIt=_sproc.begin();
-  while(secIt!=_sproc.end()){
+  std::map<unsigned int,PndTpcSectorProcessor*>::iterator secIt=fsproc.begin();
+  while(secIt!=fsproc.end()){
     delete secIt->second;
     ++secIt;
   }
-  _sproc.clear();
+  fsproc.clear();
 }
 
 
@@ -86,30 +86,30 @@ PndTpcClusterFinder::process(std::vector<PndTpcDigi*>& digis)
   unsigned int ndigis=digis.size();
   if(ndigis==0)return;
 
-  if(_trcl){// trivial clustering;
+  if(ftrcl){// trivial clustering;
     for(unsigned int i=0;i<ndigis;++i){
       TVector3 pos;
       PndTpcDigiMapper::getInstance()->map(digis[i],pos);
       McIdCollection id=digis[i]->mcId();
       PndTpcCluster* cl=new PndTpcCluster(pos,digis[i]->amp(),0);
-      if(_saveRaw){
+      if(fsaveRaw){
 	cl->addDigi(*(digis[i]));
       }
       cl->SetMcId(id);
-      _output_buffer->push_back(cl);
+      foutput_buffer->push_back(cl);
     }
     return;
   }
   // ---------------------- MODE 0 - global time bins ------------------
-  if(_mode==0){
+  if(fmode==0){
     double oldt=digis[0]->t();
     unsigned int i=0;
     while(i<ndigis){
-      if(digis[i]->t()-_dt>oldt){
+      if(digis[i]->t()-fdt>oldt){
 	// trigger processing
 	//std::cout<<"Beginning cluster finding cycle at t="<<oldt<<std::endl;
-	std::map<unsigned int,PndTpcSectorProcessor*>::iterator secIt=_sproc.begin();
-	while(secIt!=_sproc.end()){
+	std::map<unsigned int,PndTpcSectorProcessor*>::iterator secIt=fsproc.begin();
+	while(secIt!=fsproc.end()){
 	  secIt->second->process();
 	  secIt->second->reset();
 	  ++secIt;
@@ -120,25 +120,25 @@ PndTpcClusterFinder::process(std::vector<PndTpcDigi*>& digis)
       ++i;
     }// end loop over digis
     // process remaining
-    std::map<unsigned int,PndTpcSectorProcessor*>::iterator secIt=_sproc.begin();
-    while(secIt!=_sproc.end()){
+    std::map<unsigned int,PndTpcSectorProcessor*>::iterator secIt=fsproc.begin();
+    while(secIt!=fsproc.end()){
       secIt->second->process();
       secIt->second->reset();
       ++secIt;
     }
   }
   // ---------------------- MODE 1 - individual time bins ------------------
-  else if(_mode==1){
+  else if(fmode==1){
     // make the time binning in each sector separately:
   // build sectormap
   for(int idi=0;idi<ndigis;++idi){//loop over
-    unsigned int sectorId=_padplane->GetPad(digis[idi]->padId())->sectorId();
-    _sectormap[sectorId]->push_back(digis[idi]);
+    unsigned int sectorId=fpadplane->GetPad(digis[idi]->padId())->sectorId();
+    fsectormap[sectorId]->push_back(digis[idi]);
   }
 
   // now process each sectorprocessor independently
-  std::map<unsigned int,std::vector<PndTpcDigi*>* >::iterator secIt=_sectormap.begin();
-  while(secIt!=_sectormap.end()){ // loop over sectors
+  std::map<unsigned int,std::vector<PndTpcDigi*>* >::iterator secIt=fsectormap.begin();
+  while(secIt!=fsectormap.end()){ // loop over sectors
     std::vector<PndTpcDigi*>* digiList=secIt->second;
     unsigned int ndinsec=digiList->size();
     if(ndinsec==0){ 
@@ -153,25 +153,25 @@ PndTpcClusterFinder::process(std::vector<PndTpcDigi*>& digis)
       PndTpcDigi* adigi=(*digiList)[i];
       // check if pad was hit already or timeslice filled 
       // if so process sector before going on
-      if(padmap[adigi->padId()] || adigi->t()-_dt>oldt){
+      if(padmap[adigi->padId()] || adigi->t()-fdt>oldt){
 	//std::cout<<"digi_t="<<adigi->t()<<"   old_t="<<oldt<<std::endl;
     	  // process
-    	  _sproc[secIt->first]->process();
+    	  fsproc[secIt->first]->process();
     	  // reset
-    	  _sproc[secIt->first]->reset();
+    	  fsproc[secIt->first]->reset();
     	  padmap.clear();
     	  // set next time window at next! digi
     	  if(i<ndinsec-1)oldt=adigi->t();
       }
       padmap[adigi->padId()]=true;
-      _sproc[secIt->first]->putDigi(adigi);
+      fsproc[secIt->first]->putDigi(adigi);
       ++i;
     }// end loop over digis in this sector
     // process remaining digis
     // process
-    _sproc[secIt->first]->process();
+    fsproc[secIt->first]->process();
     // reset
-    _sproc[secIt->first]->reset();
+    fsproc[secIt->first]->reset();
     secIt->second->clear();
     ++secIt;
   }// end loop over sectors
@@ -183,8 +183,8 @@ PndTpcClusterFinder::process(std::vector<PndTpcDigi*>& digis)
 void 
 PndTpcClusterFinder::reset()
 {
-  std::map<unsigned int,PndTpcSectorProcessor*>::iterator secIt=_sproc.begin();
-  while(secIt!=_sproc.end()){
+  std::map<unsigned int,PndTpcSectorProcessor*>::iterator secIt=fsproc.begin();
+  while(secIt!=fsproc.end()){
     secIt->second->reset();
     ++secIt;
   }
@@ -194,24 +194,24 @@ PndTpcClusterFinder::reset()
 void
 PndTpcClusterFinder::putDigi(PndTpcDigi* digi)
 {
-  PndTpcPad* pad=_padplane->GetPad(digi->padId());
+  PndTpcPad* pad=fpadplane->GetPad(digi->padId());
   unsigned int sectorId=pad->sectorId();
   //std::cout<<"putting digi("<<digi->padId()<<") in sector "<<sectorId<<std::endl;
-  _sproc[sectorId]->putDigi(digi);
+  fsproc[sectorId]->putDigi(digi);
 }
 
 
 void
 PndTpcClusterFinder::checkConsistency()
 {
-  assert(_padplane!=NULL);
-  std::vector<PndTpcPad*> buffer=_padplane->GetPads();
+  assert(fpadplane!=NULL);
+  std::vector<PndTpcPad*> buffer=fpadplane->GetPads();
   unsigned int npads=buffer.size();
   std::cout<<"PndTpcClusterFinder::checkConsistency: "
 	   <<npads<<" pads in PadList"<<std::endl;
   unsigned int npproc=0;
-  std::map<unsigned int, PndTpcSectorProcessor*>::iterator secit=_sproc.begin();
-  std::map<unsigned int, PndTpcSectorProcessor*>::iterator secend=_sproc.end();
+  std::map<unsigned int, PndTpcSectorProcessor*>::iterator secit=fsproc.begin();
+  std::map<unsigned int, PndTpcSectorProcessor*>::iterator secend=fsproc.end();
   while(secit!=secend){// loop over sectors
     PndTpcSectorProcessor* secproc=secit->second;
     npproc+=secproc->getNPads();
@@ -223,11 +223,11 @@ PndTpcClusterFinder::checkConsistency()
   for(int ip=0;ip<npads;++ip){
     unsigned int sid=buffer[ip]->sectorId();
     unsigned int pid=buffer[ip]->id();
-    const padprocessor* pp=_sproc[sid]->getPP(pid);
+    const padprocessor* pp=fsproc[sid]->getPP(pid);
     
     if(pp==NULL){
       std::cout<<"Padprocessor#"<<pid<<" not instantiated!"<<std::endl;
     }
   }
-  //std::cout<<_sproc[72]->getId()<<std::endl;
+  //std::cout<<fsproc[72]->getId()<<std::endl;
 }

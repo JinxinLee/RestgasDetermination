@@ -39,10 +39,10 @@ public:
 
 private:
 
-  const char* _fileName;
-  PndTpcDevmapCyl* _devmap;
-  std::vector<std::vector<TVector3*>*>* _fieldmap;
-  double _vDrift;
+  const char* ffileName;
+  PndTpcDevmapCyl* fdevmap;
+  std::vector<std::vector<TVector3*>*>* ffieldmap;
+  double fvDrift;
   
 };
 

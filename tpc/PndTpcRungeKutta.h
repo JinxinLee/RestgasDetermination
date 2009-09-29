@@ -31,8 +31,8 @@ public:
   
   ~PndTpcRungeKutta();
 
-  void setTimeStep(const double newTimeStep) {_dt=newTimeStep;}
-  double getTimeStep() const {return(_dt);}
+  void setTimeStep(const double newTimeStep) {fdt=newTimeStep;}
+  double getTimeStep() const {return(fdt);}
 
   /*Easy way to set constant fields without changing input files */
   void setConstE(TVector3);
@@ -44,30 +44,30 @@ public:
 
  private:
   
-  double _dt;  		//time step
-  double _epsilon; 	//the error may be _epsilon* the old position  +
-  double _epsilonDeriv; // _epsilonDeriv * the velocity at the old position +
-  double _epsilonAbs; 	// + _epsilonAbs
-  double _sc;  		//specific charge
-  double _friction;
+  double fdt;  		//time step
+  double fepsilon; 	//the error may be fepsilon* the old position  +
+  double fepsilonDeriv; // fepsilonDeriv * the velocity at the old position +
+  double fepsilonAbs; 	// + fepsilonAbs
+  double fsc;  		//specific charge
+  double ffriction;
    
-  PndTpcEFieldCyl* _eField; 	//e-field generated from DOLFIN output
-  PndMultiField* _bField;       //b-field generated from combined field maps
-  PndTpcEFieldCyl* _bFieldCyl;
-  double _dglmat[6][6];   // this matrix and this 
-  double _dgladd[6];      // vector contain the differential equation
+  PndTpcEFieldCyl* feField; 	//e-field generated from DOLFIN output
+  PndMultiField* fbField;       //b-field generated from combined field maps
+  PndTpcEFieldCyl* fbFieldCyl;
+  double fdglmat[6][6];   // this matrix and this 
+  double fdgladd[6];      // vector contain the differential equation
 
 
   //constants used for Runge Kutta fifth order by Cash and Carp (see W.H Pres)
-  double _rk5b[6][5];
-  double _rk5c1[6];
-  double _rk5c2[6];
+  double frk5b[6][5];
+  double frk5c1[6];
+  double frk5c2[6];
 
-  bool _constE_flag;
-  bool _constB_flag;
+  bool fconstE_flag;
+  bool fconstB_flag;
 
-  TVector3 _constE;
-  TVector3 _constB;
+  TVector3 fconstE;
+  TVector3 fconstB;
   
   void getNextPoint(double* Point, double* errorEstimate);
   void derivates(const double*  const point, double*derivate);

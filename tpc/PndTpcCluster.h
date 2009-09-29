@@ -52,31 +52,31 @@ public:
 
   friend std::ostream& operator<< (std::ostream& s, const PndTpcCluster& me);
   // Accessors -----------------------
-  const TVector3& pos() const {return _pos;}
-  const TVector3& sig() const {return _sig;}
-  const TMatrixD& cov() const {return _cov;}
+  const TVector3& pos() const {return fpos;}
+  const TVector3& sig() const {return fsig;}
+  const TMatrixD& cov() const {return fcov;}
   TVector3 axis() const {return calcAxis();}
-  double amp() const {return _amp;}
-  unsigned int size() const {return _size;}
-  unsigned int nPad() const {return _nPad;}
-  unsigned int nPadX() const {return _nPadX;}
-  unsigned int nPadY() const {return _nPadY;}
-  unsigned int index() const {return _index;}
-  const McIdCollection& mcId() const {return _mcid;}
-  unsigned int nMcIds() const {return _mcid.nIDs();}
-  double maxMcWeight() const {return _mcid.MaxRelWeight();}
+  double amp() const {return famp;}
+  unsigned int size() const {return fsize;}
+  unsigned int nPad() const {return fnPad;}
+  unsigned int nPadX() const {return fnPadX;}
+  unsigned int nPadY() const {return fnPadY;}
+  unsigned int index() const {return findex;}
+  const McIdCollection& mcId() const {return fmcid;}
+  unsigned int nMcIds() const {return fmcid.nIDs();}
+  double maxMcWeight() const {return fmcid.MaxRelWeight();}
 
   // Modifiers -----------------------
-  void SetMcId(const McIdCollection& m){_mcid=m;}
-  void SetIndex(unsigned int id){_index=id;}
-  void SetCov(const TMatrixD& cov){_cov=cov;_hasaxis=false;}
+  void SetMcId(const McIdCollection& m){fmcid=m;}
+  void SetIndex(unsigned int id){findex=id;}
+  void SetCov(const TMatrixD& cov){fcov=cov;fhasaxis=false;}
   
-  void SetIndexInTrack(int indexInTrack ) {_indexInTrack=indexInTrack; }//for spatial sorting
-  int GetIndexInTrack() const {return _indexInTrack; }	//for spatial sorting
+  void SetIndexInTrack(int indexInTrack ) {findexInTrack=indexInTrack; }//for spatial sorting
+  int GetIndexInTrack() const {return findexInTrack; }	//for spatial sorting
   
-  void nPad(unsigned int i) {_nPad=i;}
-  void nPadX(unsigned int i) {_nPadX=i;}
-  void nPadY(unsigned int i) {_nPadY=i;}
+  void nPad(unsigned int i) {fnPad=i;}
+  void nPadX(unsigned int i) {fnPadX=i;}
+  void nPadY(unsigned int i) {fnPadY=i;}
 
 
   // Operations ----------------------
@@ -98,20 +98,20 @@ public:
 private:
 
   // Private Data Members ------------
-  TVector3 _pos;
-  TVector3 _sig; // errors
-  TMatrixD _cov; // 2nd moment of cluster shape
-  TVector3 _axis; // main axis of the cluster EXPERIMENTAL
-  bool _hasaxis;
-  double _amp;
-  unsigned int _size;
-  unsigned int _nPad;
-  unsigned int _nPadX;
-  unsigned int _nPadY;
-  unsigned int _index;
-  McIdCollection _mcid;
+  TVector3 fpos;
+  TVector3 fsig; // errors
+  TMatrixD fcov; // 2nd moment of cluster shape
+  TVector3 faxis; // main axis of the cluster EXPERIMENTAL
+  bool fhasaxis;
+  double famp;
+  unsigned int fsize;
+  unsigned int fnPad;
+  unsigned int fnPadX;
+  unsigned int fnPadY;
+  unsigned int findex;
+  McIdCollection fmcid;
   
-  int _indexInTrack;	//index in track //for spatial sorting
+  int findexInTrack;	//index in track //for spatial sorting
 
   //for optional saving of raw info that went into the cluster
   std::vector<PndTpcDigi> digis;

@@ -37,23 +37,23 @@ class PndTpcSectorProcessor {
 public:
 
   // Constructors/Destructors ---------
-  PndTpcSectorProcessor(bool b=false){_saveRaw=b;}
+  PndTpcSectorProcessor(bool b=false){fsaveRaw=b;}
   ~PndTpcSectorProcessor();
 
   // Operators
   
 
   // Accessors -----------------------
-  unsigned int getNPads() const {return _pproc.size();}
-  const padprocessor* getPP(unsigned int id){return _pproc[id];}
-  unsigned int getId() const {return _SectorId;}
+  unsigned int getNPads() const {return fpproc.size();}
+  const padprocessor* getPP(unsigned int id){return fpproc[id];}
+  unsigned int getId() const {return fSectorId;}
   
 
   // Modifiers -----------------------
   void Init(PndTpcPadPlane* p,
 	    unsigned int id,
 	    std::vector<PndTpcCluster*>* ob);
-  void putDigi(PndTpcDigi* d){_digi_buffer.push_back(d);}
+  void putDigi(PndTpcDigi* d){fdigi_buffer.push_back(d);}
 
   // Operations ----------------------
   void process();
@@ -62,18 +62,18 @@ public:
 private:
 
   // Private Data Members ------------
-  std::map<unsigned int, padprocessor*> _pproc;
-  std::map<unsigned int, padprocessor*> _activepads;
+  std::map<unsigned int, padprocessor*> fpproc;
+  std::map<unsigned int, padprocessor*> factivepads;
   
-  std::vector<std::vector<PndTpcDigi*>*> _cluster_buffer;
-  std::vector<PndTpcCluster*>* _output_buffer;
+  std::vector<std::vector<PndTpcDigi*>*> fcluster_buffer;
+  std::vector<PndTpcCluster*>* foutput_buffer;
   
-  PndTpcPadPlane* _padplane;
-  unsigned int _SectorId;
+  PndTpcPadPlane* fpadplane;
+  unsigned int fSectorId;
 
-  std::vector<PndTpcDigi*> _digi_buffer;
+  std::vector<PndTpcDigi*> fdigi_buffer;
 
-  bool _saveRaw;
+  bool fsaveRaw;
 
   // Private Methods -----------------
   void cog(); // center of gravity

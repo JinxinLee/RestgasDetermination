@@ -44,6 +44,7 @@ PndTpcPrimaryCluster.cxx
 LinearInterpolPolicy.cxx 	    
 PndTpcDriftedElectron.cxx 	    
 PndTpcDriftTask.cxx 		    
+#PndTpcRadialDriftTask.cxx 		    
 PndTpcAvalanche.cxx 		    
 PndTpcGem.cxx 			    
 PndTpcGemTask.cxx 		    

@@ -42,24 +42,24 @@ public:
   friend std::ostream& operator<<(std::ostream&, const PndTpcGem&);
 
   // Accessors -----------------------
-  double gain() const {return _gain;}
-  double spread() const {return _spread;}
+  double gain() const {return fgain;}
+  double spread() const {return fspread;}
 
-  const TF1* cloudShape() const {return _cloudShape;}
+  const TF1* cloudShape() const {return fcloudShape;}
 
   void PrintAll(std::ostream& s) const {s<<*this;}
 
   // Modifiers -----------------------
-  void setgain(const double G){_gain=G;}
-  void setspread(const double S){_spread=S;}
+  void setgain(const double G){fgain=G;}
+  void setspread(const double S){fspread=S;}
 
 private:
 
   // Private Data Members ------------
-  double _gain;
-  double _spread;
+  double fgain;
+  double fspread;
   
-  TF1* _cloudShape;
+  TF1* fcloudShape;
   
   // Private Methods -----------------
   bool operator<  (const PndTpcGem&) const; // forbidden, PndTpcGem

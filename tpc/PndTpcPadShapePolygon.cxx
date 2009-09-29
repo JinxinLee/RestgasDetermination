@@ -28,8 +28,8 @@
 
 PndTpcPadShapePolygon::PndTpcPadShapePolygon(const std::vector<double>& x,
 				       const std::vector<double>& y,
-				       const unsigned int _ID)
-  :PndTpcAbsPadShape(_ID)
+				       const unsigned int fID)
+  :PndTpcAbsPadShape(fID)
 {
   if (x.size() != y.size())
     Fatal("PndTpcPadShapePolygon::PndTpcPadShapePolygon","The size of x coordinates is different from the size of y coordinates. Constructing a PndTpcPadShapePolygon is impossible.");

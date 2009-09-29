@@ -34,8 +34,8 @@ PndTpcFieldCylGrid<t>::PndTpcFieldCylGrid(const t& nominalValue,
 				       const TVector3& relPosition,
 				       std::vector<std::vector<t*>*>* pGrid)
   : PndTpcAbsField<t>(nominalValue, relPosition),
-    _pGrid(pGrid), _minX(minR), _minZ(minZ),
-    _spacingX(spacingR), _spacingZ(spacingZ) 
+    fpGrid(pGrid), fminX(minR), fminZ(minZ),
+    fspacingX(spacingR), fspacingZ(spacingZ) 
 {
   evalMaxPoint();
 }
@@ -44,11 +44,11 @@ template <class t>
 PndTpcFieldCylGrid<t>::PndTpcFieldCylGrid(const PndTpcFieldCylGrid& aFCG):
   PndTpcAbsField<t>(aFCG.nominal(), aFCG.relPosition())
 {
-  _pGrid = new std::vector<std::vector<t*>*>(*aFCG._pGrid);  
-  _minX = aFCG.minR();        
-  _minZ = aFCG.minZ();
-  _spacingX = aFCG.spacingR();
-  _spacingZ = aFCG.spacingZ();
+  fpGrid = new std::vector<std::vector<t*>*>(*aFCG.fpGrid);  
+  fminX = aFCG.minR();        
+  fminZ = aFCG.minZ();
+  fspacingX = aFCG.spacingR();
+  fspacingZ = aFCG.spacingZ();
   evalMaxPoint();
 }
 
@@ -66,15 +66,15 @@ PndTpcFieldCylGrid<t>::~PndTpcFieldCylGrid()
 // PndTpcFieldCylGrid<t>::PndTpcFieldCylGrid<t>& 
 // PndTpcFieldCylGrid<t>::operator=(const PndTpcFieldCylGrid<t>& aFCG)
 // {
-//   delete _pGrid;
+//   delete fpGrid;
 //   PndTpcAbsField<t>::operator=(aFCG);
 
 //   // like the copy constructor
-//   _pGrid = new std::vector<std::vector<t*>*>(*aFCG._pGrid);
-//   _minX = aFCG.minR();
-//   _minZ = aFCG.minZ();
-//   _spacingX = aFCG.spacingR();
-//   _spacingZ = aFCG.spacingZ();
+//   fpGrid = new std::vector<std::vector<t*>*>(*aFCG.fpGrid);
+//   fminX = aFCG.minR();
+//   fminZ = aFCG.minZ();
+//   fspacingX = aFCG.spacingR();
+//   fspacingZ = aFCG.spacingZ();
 //   evalMaxPoint();
 //   return(*this);
 // }
@@ -86,8 +86,8 @@ PndTpcFieldCylGrid<t>::print(std::ostream& s) const
   s << "PndTpcFieldCylGrid\n"
     << "nominal="<<this->nominal()<<"\n"
     << "scale=" <<this->scale()<< "\n"
-    << "minX="<<_minX << "; minZ="<<_minZ <<"\n"
-    << "maxX="<<_maxX << "; maxZ="<<_maxZ;
+    << "minX="<<fminX << "; minZ="<<fminZ <<"\n"
+    << "maxX="<<fmaxX << "; maxZ="<<fmaxZ;
 }
 
 template <>
@@ -99,8 +99,8 @@ PndTpcFieldCylGrid<TVector3>::print(std::ostream& s) const
     <<", "<<this->nominal().Z()
     << ")\n"
     << "scale=" <<this->scale()<< "\n"
-    << "minX="<<_minX << "; minZ="<<_minZ <<"\n"
-    << "maxX="<<_maxX << "; maxZ="<<_maxZ;
+    << "minX="<<fminX << "; minZ="<<fminZ <<"\n"
+    << "maxX="<<fmaxX << "; maxZ="<<fmaxZ;
 }
 
 
@@ -119,11 +119,11 @@ PndTpcFieldCylGrid<t>::pointOk(const TVector3& point) const
 {
   TVector3 aPoint = point - this-> relPosition();
   double r2 =(aPoint.X()*aPoint.X())+(aPoint.Y()*aPoint.Y());
-  if (r2 < _minX*_minX ||
-      aPoint.Z() < _minZ)
+  if (r2 < fminX*fminX ||
+      aPoint.Z() < fminZ)
     return(false);
-  if (r2  >= _maxX*_maxX ||
-      aPoint.Z() >= _maxZ)
+  if (r2  >= fmaxX*fmaxX ||
+      aPoint.Z() >= fmaxZ)
     return(false);
   return(true);
 }
@@ -153,11 +153,11 @@ template <class t>
 void
 PndTpcFieldCylGrid<t>::evalMaxPoint()   
 {
-  if (_pGrid == 0)
+  if (fpGrid == 0)
     return;
    
-  _maxX = _minX + _spacingX * _pGrid->size();
-  _maxZ = _minZ + _spacingZ * _pGrid->at(0)->size();   
+  fmaxX = fminX + fspacingX * fpGrid->size();
+  fmaxZ = fminZ + fspacingZ * fpGrid->at(0)->size();   
 }
 
 
@@ -168,8 +168,8 @@ template <class t>
 t 
 PndTpcFieldCylGrid<t>::evalValue(const TVector3& point) const
 {
-  //check if _pGrid exists
-  if (_pGrid == 0)
+  //check if fpGrid exists
+  if (fpGrid == 0)
     Fatal("PndTpcFieldCylGrid::evalDerivOrValue", "Field Data does not exist!");
   //check if we are in our volume
   if (pointOk(point) == false )
@@ -183,14 +183,14 @@ PndTpcFieldCylGrid<t>::evalValue(const TVector3& point) const
   // find grid point next to us
   double phi = aPoint.Phi();
   aPoint.RotateZ(-phi);
-  double difX = aPoint.X()-_minX;
-  double difZ = aPoint.Z()-_minZ;
-  int xIndex = (int)std::floor( difX / _spacingX );
-  int zIndex = (int)std::floor( difZ / _spacingZ );
+  double difX = aPoint.X()-fminX;
+  double difZ = aPoint.Z()-fminZ;
+  int xIndex = (int)std::floor( difX / fspacingX );
+  int zIndex = (int)std::floor( difZ / fspacingZ );
   
   //actual deviations from the grid-field's "center of mass"
-  double dx = difX - (xIndex + 0.5)*_spacingX;
-  double dz = difZ - (zIndex + 0.5)*_spacingZ;
+  double dx = difX - (xIndex + 0.5)*fspacingX;
+  double dz = difZ - (zIndex + 0.5)*fspacingZ;
   
   const t value = startInterpolation(xIndex, zIndex, dx, dz);
   return (rotate(value, phi));
@@ -210,62 +210,62 @@ PndTpcFieldCylGrid<t>::startInterpolation(int& xBin, int& zBin, double dx, doubl
   if(dx>=0 && dz>=0)
     return (interpolate(xBin, zBin, dx, dz));
   if(dx>=0 && dz<0)
-    return (interpolate(xBin, zBin, dx, dz+_spacingZ));
+    return (interpolate(xBin, zBin, dx, dz+fspacingZ));
   if(dx<0 && dz<0)
-    return (interpolate(xBin, zBin, dx+_spacingX, dz+_spacingZ));
+    return (interpolate(xBin, zBin, dx+fspacingX, dz+fspacingZ));
   if(dx<0 && dz>=0)
-    return (interpolate(xBin, zBin, dx+_spacingX, dz));
+    return (interpolate(xBin, zBin, dx+fspacingX, dz));
 
 }
 
 template <class t>
 t 
-PndTpcFieldCylGrid<t>::interpolate(int& xBin, int& zBin, double _dx, double _dz) const
+PndTpcFieldCylGrid<t>::interpolate(int& xBin, int& zBin, double fdx, double fdz) const
 {
-  double dx = _dx;
-  double dz = _dz;
+  double dx = fdx;
+  double dz = fdz;
   
   if (zBin<0)              //catch the cases we are out of bound  
   {   
     zBin++;                                      
     return (interpolate(xBin, zBin, dx, 0));
   }
-  if (zBin==(int)_pGrid->at(0)->size()-1)
+  if (zBin==(int)fpGrid->at(0)->size()-1)
     dz = 0;
   if (xBin<0)
   {
     xBin++;
     return (interpolate(xBin, zBin, 0, dz));
   }
-  if (xBin==(int)_pGrid->size()-1)
+  if (xBin==(int)fpGrid->size()-1)
     dx = 0;
 
-  t b1, b2, b3, b4;      //the 4 surrounding _pGrid values 
+  t b1, b2, b3, b4;      //the 4 surrounding fpGrid values 
 
-  double U = dx/_spacingX;  //normalize to binWidth
-  double T = dz/_spacingZ;
+  double U = dx/fspacingX;  //normalize to binWidth
+  double T = dz/fspacingZ;
   
-  b1 = *(_pGrid->at(xBin)->at(zBin));       //starting grid-bin, ok in any case
+  b1 = *(fpGrid->at(xBin)->at(zBin));       //starting grid-bin, ok in any case
 
   if(dx==0 && dz==0)
     return b1;                              //no interpolation at all.
  
   if(dx==0)
   {
-    b2 = *(_pGrid->at(xBin)->at(zBin+1));
+    b2 = *(fpGrid->at(xBin)->at(zBin+1));
     return (1-T)*b1 + T*b2;
   }
   
   if(dz==0)
   {
-    b4 = *(_pGrid->at(xBin+1)->at(zBin));
+    b4 = *(fpGrid->at(xBin+1)->at(zBin));
     return (1-U)*b1 + U*b4;
   }    
   
   //the general case, we are not at the boundaries of the grid
-  b2 = *(_pGrid->at(xBin)->at(zBin+1));
-  b3 = *(_pGrid->at(xBin+1)->at(zBin+1));
-  b4 = *(_pGrid->at(xBin+1)->at(zBin));
+  b2 = *(fpGrid->at(xBin)->at(zBin+1));
+  b3 = *(fpGrid->at(xBin+1)->at(zBin+1));
+  b4 = *(fpGrid->at(xBin+1)->at(zBin));
 
   return ((1-T)*(1-U)*b1 + T*(1-U)*b2 + T*U*b3 + (1-T)*U*b4);
 }
@@ -274,17 +274,17 @@ template <class t>
 void
 PndTpcFieldCylGrid<t>::deleteGrid()
 {
-  if(_pGrid == 0)
+  if(fpGrid == 0)
     return;
   
-  for(unsigned int i=0; i<_pGrid->size(); i++)
-    for(unsigned int j=0; j<_pGrid->at(0)->size(); j++)
-      delete _pGrid->at(i)->at(j);
+  for(unsigned int i=0; i<fpGrid->size(); i++)
+    for(unsigned int j=0; j<fpGrid->at(0)->size(); j++)
+      delete fpGrid->at(i)->at(j);
 
-  for(unsigned int i=0; i<_pGrid->size(); i++)
-    delete _pGrid->at(i);
+  for(unsigned int i=0; i<fpGrid->size(); i++)
+    delete fpGrid->at(i);
 
-  delete _pGrid;
+  delete fpGrid;
 }
 
 

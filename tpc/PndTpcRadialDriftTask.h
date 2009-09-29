@@ -47,12 +47,12 @@ public:
 
 
   // Modifiers -----------------------
-  void SetPrimBranchName(const TString& name) {_primBranchName=name;}
-  void SetPersistence(Bool_t opt=kTRUE) {_persistence=opt;}
-  void SetDistort(Bool_t opt=kTRUE) {_distort=opt;}
-  void SetDeviationFile(const char* file) {_devFile = file;}
-  void SetPhiCut(double phimin, double phimax){_phicut=true;_phimin=phimin;_phimax=phimax;}
-  void SetQAPlotCol(QAPlotCollection* col){_qa=col;}
+  void SetPrimBranchName(const TString& name) {fprimBranchName=name;}
+  void SetPersistence(Bool_t opt=kTRUE) {fpersistence=opt;}
+  void SetDistort(Bool_t opt=kTRUE) {fdistort=opt;}
+  void SetDeviationFile(const char* file) {fdevFile = file;}
+  void SetPhiCut(double phimin, double phimax){fphicut=true;fphimin=phimin;fphimax=phimax;}
+  void SetQAPlotCol(QAPlotCollection* col){fqa=col;}
   // Operations ----------------------
   
   virtual InitStatus Init();
@@ -63,47 +63,47 @@ public:
 
   void FillHistograms(double, double, double);   //to keep track of the drifts
   void WriteHistograms();                        //has to be called in Digi macro
-  void SetR(double r){_rGem=r;}
-  void SetHV(double U){_HV=U;}
-  void SetLorentz(double l){_LorentzAngle=l;}
+  void SetR(double r){frGem=r;}
+  void SetHV(double U){fHV=U;}
+  void SetLorentz(double l){fLorentzAngle=l;}
   
 private:
 
   // Private Data Members ------------
-  TString _primBranchName;
-  TClonesArray* _primArray;
-  TClonesArray* _driftedArray;
+  TString fprimBranchName;
+  TClonesArray* fprimArray;
+  TClonesArray* fdriftedArray;
 
   
-  QAPlotCollection* _qa;
-  TH1D* _xVariation;
-  TH1D* _yVariation;
-  TH2D* _xVarAndDriftL;
-  TH2D* _yVarAndDriftL;
+  QAPlotCollection* fqa;
+  TH1D* fxVariation;
+  TH1D* fyVariation;
+  TH2D* fxVarAndDriftL;
+  TH2D* fyVarAndDriftL;
 
-  const PndTpcGas* _gas;
-  PndTpcDigiPar* _par;
-  PndTpcDevmapCyl* _devmap;
-  Double_t _rGem; // get from Geom!
-  Double_t _rInner;
-  Double_t _frac; //= ln rGem/rInner
-  Double_t _LorentzAngle;
-  Double_t _HV;
-  Double_t _mobility;
+  const PndTpcGas* fgas;
+  PndTpcDigiPar* fpar;
+  PndTpcDevmapCyl* fdevmap;
+  Double_t frGem; // get from Geom!
+  Double_t frInner;
+  Double_t ffrac; //= ln rGem/rInner
+  Double_t fLorentzAngle;
+  Double_t fHV;
+  Double_t fmobility;
   
 
-  Bool_t _phicut;
-  double _phimin, _phimax;
+  Bool_t fphicut;
+  double fphimin, fphimax;
   
-  Bool_t _persistence;
-  Bool_t _attach;
-  Bool_t _diffuseL;
-  Bool_t _diffuseT;
-  Bool_t _distort;
+  Bool_t fpersistence;
+  Bool_t fattach;
+  Bool_t fdiffuseL;
+  Bool_t fdiffuseT;
+  Bool_t fdistort;
 
-  Bool_t _initialized;
+  Bool_t finitialized;
 
-  const char* _devFile;
+  const char* fdevFile;
 
   // Private Methods -----------------
 

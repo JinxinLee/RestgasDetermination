@@ -47,9 +47,9 @@ using std::floor;
 
 
 PndTpcClusterizerTask::PndTpcClusterizerTask()
-  : FairTask("TPC Clusterizer"), _persistence(kFALSE),_mereChargeConversion(kFALSE)
+  : FairTask("TPC Clusterizer"), fpersistence(kFALSE),fmereChargeConversion(kFALSE)
 {
-  _pointBranchName = "PndTpcPoint";
+  fpointBranchName = "PndTpcPoint";
 }
 
 
@@ -70,8 +70,8 @@ PndTpcClusterizerTask::SetParContainers() {
   if ( ! db ) Fatal("SetParContainers", "No runtime database");
 
   // Get PndTpc digitisation parameter container
-  _par= (PndTpcDigiPar*) db->getContainer("PndTpcDigiPar");
-  if (! _par ) Fatal("SetParContainers", "PndTpcDigiPar not found");
+  fpar= (PndTpcDigiPar*) db->getContainer("PndTpcDigiPar");
+  if (! fpar ) Fatal("SetParContainers", "PndTpcDigiPar not found");
 }
 
 
@@ -89,19 +89,19 @@ PndTpcClusterizerTask::Init()
     }
   
   // Get input collection
-  _pointArray=(TClonesArray*) ioman->GetObject(_pointBranchName);
+  fpointArray=(TClonesArray*) ioman->GetObject(fpointBranchName);
   
-  if(_pointArray==0)
+  if(fpointArray==0)
     {
       Error("PndTpcClusterizerTask::Init","Point-array not found!");
       return kERROR;
     }
   
   // create and register output array
-  _primArray = new TClonesArray("PndTpcPrimaryCluster"); 
-  ioman->Register("PndTpcPrimaryCluster","PndTpc",_primArray,_persistence);
+  fprimArray = new TClonesArray("PndTpcPrimaryCluster"); 
+  ioman->Register("PndTpcPrimaryCluster","PndTpc",fprimArray,fpersistence);
 
-  _gas=_par->getGas();
+  fgas=fpar->getGas();
 
   return kSUCCESS;
 }
@@ -110,16 +110,16 @@ void
 PndTpcClusterizerTask::Exec(Option_t* opt)
 {
   // Reset output Array
-  if(_primArray==0) Fatal("PndTpcPrimCluster::Exec)","No PrimClusterArray");
-  _primArray->Delete();
+  if(fprimArray==0) Fatal("PndTpcPrimCluster::Exec)","No PrimClusterArray");
+  fprimArray->Delete();
 
-  Int_t np=_pointArray->GetEntriesFast();
+  Int_t np=fpointArray->GetEntriesFast();
   if(np<2){
     Warning("PndTpcClusterizerTask::Exec","Not enough Hits in PndTpc for Digitization (<2)");
     return;
   }
   
-  if(_mereChargeConversion)	{
+  if(fmereChargeConversion)	{
   	ChargeConversion();
   	return; //goodbye, you wretched world!
   }
@@ -127,10 +127,10 @@ PndTpcClusterizerTask::Exec(Option_t* opt)
   PndTpcPoint* point;
   PndTpcPoint* theLastPoint;
   Int_t icluster=0; 
-  theLastPoint= (PndTpcPoint*)_pointArray->At(0);
+  theLastPoint= (PndTpcPoint*)fpointArray->At(0);
 
   for(int ip=1;ip<np;++ip){
-    point=(PndTpcPoint*) _pointArray->At(ip);
+    point=(PndTpcPoint*) fpointArray->At(ip);
     //point->Print();
 
     // check if points are not too far from each other
@@ -153,7 +153,7 @@ PndTpcClusterizerTask::Exec(Option_t* opt)
 	theLastPoint=point;
         continue;
       }
-      unsigned int q_total =(unsigned int)floor(fabs(dE / _gas->W()));
+      unsigned int q_total =(unsigned int)floor(fabs(dE / fgas->W()));
       unsigned int q_cluster=0;
       unsigned int ncluster=0;
       //Step 1: Create Clusters
@@ -162,12 +162,12 @@ PndTpcClusterizerTask::Exec(Option_t* opt)
 
       while(q_total>0){
         //roll dice for next clustersize
-        q_cluster=_gas->GetRandomCS(gRandom->Uniform());
+        q_cluster=fgas->GetRandomCS(gRandom->Uniform());
         if(q_cluster>q_total)q_cluster=q_total;
         q_total-=q_cluster;
         // create cluster
-	Int_t size = _primArray->GetEntriesFast();
-	new((*_primArray)[size]) PndTpcPrimaryCluster(point->GetTime(),
+	Int_t size = fprimArray->GetEntriesFast();
+	new((*fprimArray)[size]) PndTpcPrimaryCluster(point->GetTime(),
 						   q_cluster,
 						   TVector3(0,0,0),
 						   point->GetTrackID(),
@@ -177,13 +177,13 @@ PndTpcClusterizerTask::Exec(Option_t* opt)
      }// finish loop for cluster creation
 
       //Step 2: Distribute Clusters along track segment
-      LinearInterpolPolicy().Interpolate(theLastPoint,point,_primArray,icluster,ncluster);
+      LinearInterpolPolicy().Interpolate(theLastPoint,point,fprimArray,icluster,ncluster);
       icluster+=ncluster;
       }//end check for same track
     theLastPoint=point;
   } // finish loop over GHits
 
-  std::cout<<"PndTpcClusterizer:: "<<_primArray->GetEntriesFast()<<" clusters created"<<std::endl;
+  std::cout<<"PndTpcClusterizer:: "<<fprimArray->GetEntriesFast()<<" clusters created"<<std::endl;
 
   return;
 }
@@ -192,15 +192,15 @@ void PndTpcClusterizerTask::ChargeConversion()
 {
   const Float_t poti = 20.77e-9; // first ionization potential for Ne/CO2
   const Float_t w_ion = 35.97e-9; // energy for the ion-electron pair creation 
-  Int_t np=_pointArray->GetEntriesFast();	
+  Int_t np=fpointArray->GetEntriesFast();	
   for(int ip=1;ip<np;++ip)
   {
-  	PndTpcPoint* point=(PndTpcPoint*) _pointArray->At(ip);
+  	PndTpcPoint* point=(PndTpcPoint*) fpointArray->At(ip);
 	//Do no clustering just convert energy deposition to ionisation
   	Int_t nel = (Int_t)(((point->GetEnergyLoss())-poti)/w_ion) + 1;	//imported from ALICE
   	//nel=TMath::Min(nel,300); // 300 electrons corresponds to 10 keV
-	Int_t size = _primArray->GetEntriesFast();
-	new((*_primArray)[size]) PndTpcPrimaryCluster(point->GetTime(),
+	Int_t size = fprimArray->GetEntriesFast();
+	new((*fprimArray)[size]) PndTpcPrimaryCluster(point->GetTime(),
 						   nel,
 						   TVector3(point->GetX(),point->GetY(),point->GetZ()),
 						   point->GetTrackID(),

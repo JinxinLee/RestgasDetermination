@@ -48,56 +48,56 @@ void writeToFile(const char*);
 
 // these have to be called BEFORE the Init() function is called in the macro!
 
-void setMinR(double rmin) {_tpcMinR = rmin;}
-void setMaxR(double rmax) {_tpcMaxR = rmax;}
-void setMinZ(double zmin) {_tpcMinZ = zmin;}
-void setMaxZ(double zmax) {_tpcMaxZ = zmax;}
+void setMinR(double rmin) {ftpcMinR = rmin;}
+void setMaxR(double rmax) {ftpcMaxR = rmax;}
+void setMinZ(double zmin) {ftpcMinZ = zmin;}
+void setMaxZ(double zmax) {ftpcMaxZ = zmax;}
 
-void setRBins(int r) {_rBinCount=r;}
-void setZBins(int z) {_zBinCount=z;}
+void setRBins(int r) {frBinCount=r;}
+void setZBins(int z) {fzBinCount=z;}
 
-void setBins(int rbins, int zbins) {_rBinCount = rbins; _zBinCount = zbins;}
-void setRate(double rate) {_rate = rate;}
-void setSupression(double sup) {_supression = sup;}
-void setGain(double gain) {_gemGain = gain;}
-void setPrimChargeMode(bool opt) {_primChargeOnly = opt;}
+void setBins(int rbins, int zbins) {frBinCount = rbins; fzBinCount = zbins;}
+void setRate(double rate) {frate = rate;}
+void setSupression(double sup) {fsupression = sup;}
+void setGain(double gain) {fgemGain = gain;}
+void setPrimChargeMode(bool opt) {fprimChargeOnly = opt;}
 
-void setAliceMode(bool opt) {_ALICEmode = opt;} //experimental, should not be used
+void setAliceMode(bool opt) {fALICEmode = opt;} //experimental, should not be used
 
 private:
 
- TString _pointBranchName;
- TClonesArray* _pointArray;
- const PndTpcGas* _gas;
+ TString fpointBranchName;
+ TClonesArray* fpointArray;
+ const PndTpcGas* fgas;
  
- double _writeDownTime;   	//timestep to write file [ns]
- double _rate; 			//inverse time between 2 events [1/ns]
- double _ionDriftVelocity;	//[cm/ns]
- double _supression;		//supression-factor of ion-creation at the gems
- double _tpcMinR;		//starting radius for the Space-Charge-Map [cm]
- double _tpcMaxR;
- double _tpcMinZ;		//Z geometry
- double _tpcMaxZ;
- int _rBinCount;		//number of segments in r direction
- int _zBinCount;
- double _rBinWidth;		//size of one Bin
- double _zBinWidth;
+ double fwriteDownTime;   	//timestep to write file [ns]
+ double frate; 			//inverse time between 2 events [1/ns]
+ double fionDriftVelocity;	//[cm/ns]
+ double fsupression;		//supression-factor of ion-creation at the gems
+ double ftpcMinR;		//starting radius for the Space-Charge-Map [cm]
+ double ftpcMaxR;
+ double ftpcMinZ;		//Z geometry
+ double ftpcMaxZ;
+ int frBinCount;		//number of segments in r direction
+ int fzBinCount;
+ double frBinWidth;		//size of one Bin
+ double fzBinWidth;
  
- double _angle;			//opening angle between the 2 tpc volumes [rad]	
+ double fangle;			//opening angle between the 2 tpc volumes [rad]	
  
- int _time;			//controls Ion-drift. Steered by _rate
- int _errorCount;                //keep track of # of hits outside the volume
- double _distPerTime;		//Ion-travel-distance each time-step
- double _gemGain;		//gain factor of the gem. Set by hand atm
- double _gemCharge;		//net charge produced at the gems
- double _WGas;			//obtained from PndTpcGas-Object
+ int ftime;			//controls Ion-drift. Steered by frate
+ int ferrorCount;                //keep track of # of hits outside the volume
+ double fdistPerTime;		//Ion-travel-distance each time-step
+ double fgemGain;		//gain factor of the gem. Set by hand atm
+ double fgemCharge;		//net charge produced at the gems
+ double fWGas;			//obtained from PndTpcGas-Object
 
- bool _primChargeOnly;          //no Charge is created at gems if true
- bool _ALICEmode;
+ bool fprimChargeOnly;          //no Charge is created at gems if true
+ bool fALICEmode;
  
- std::vector< std::vector<int> > _chargeMap;	//segmented map of net charge
+ std::vector< std::vector<int> > fchargeMap;	//segmented map of net charge
  
- PndTpcDigiPar* _par;
+ PndTpcDigiPar* fpar;
  
  public:
   ClassDef(PndTpcSpaceChargeTask,1)

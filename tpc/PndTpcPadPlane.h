@@ -61,8 +61,8 @@ public:
 
   const std::vector<PndTpcPad*>& GetPads() const {return PadReferences;}
 
-  const unsigned int GetNSectors() const {return _nSectors;}
-  std::map<unsigned int,PndTpcPad*>* GetSectorList(unsigned int sectorId) {return _SectorLists[sectorId];}
+  const unsigned int GetNSectors() const {return fnSectors;}
+  std::map<unsigned int,PndTpcPad*>* GetSectorList(unsigned int sectorId) {return fSectorLists[sectorId];}
   std::vector<unsigned int> GetSectorIds()const;
 
 
@@ -72,7 +72,7 @@ public:
     double minx,maxx,miny,maxy;
   };
   
-  bounding_box& GetSector(unsigned int i) {return _Sectors[i];}
+  bounding_box& GetSector(unsigned int i) {return fSectors[i];}
 
   const int GetNX() const {return nx;}
   const int GetNY() const {return nx;}
@@ -93,13 +93,13 @@ public:
   
   // Operations ----------------------
   struct PadIndexer {
-    PadIndexer(int _nx,
-	       int _ny,
-	       double _xbin,
-	       double _ybin,
-	       double _x0,
-	       double _y0)
-      : nx(_nx),ny(_ny),xbin(_xbin),ybin(_ybin),x0(_x0),y0(_y0){;}
+    PadIndexer(int fnx,
+	       int fny,
+	       double fxbin,
+	       double fybin,
+	       double fx0,
+	       double fy0)
+      : nx(fnx),ny(fny),xbin(fxbin),ybin(fybin),x0(fx0),y0(fy0){;}
 
     int operator()(PndTpcPad* p) const
     {
@@ -142,9 +142,9 @@ private:
   std::vector<PndTpcPad*> PadReferences;
 
 
-  std::map<unsigned int,bounding_box> _Sectors;  
-  std::map<unsigned int,std::map<unsigned int,PndTpcPad*>* > _SectorLists;
-  unsigned int _nSectors; // assume Sectors are enumerated 0...(n-1)
+  std::map<unsigned int,bounding_box> fSectors;  
+  std::map<unsigned int,std::map<unsigned int,PndTpcPad*>* > fSectorLists;
+  unsigned int fnSectors; // assume Sectors are enumerated 0...(n-1)
                           // a sector represents the collection of pads
                           // that is read out by one front end processor
 

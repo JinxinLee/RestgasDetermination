@@ -36,11 +36,11 @@ ppstate_output::ppstate_output(padprocessor* pp)
 std::string
 ppstate_output::heartbeat()
 {
-  assert(_parent->_cluster_buffer!=NULL);
-  std::vector<PndTpcDigi*>* list=new std::vector<PndTpcDigi*>(_parent->_data);
-  _parent->_cluster_buffer->push_back(list);
-  _parent->_data.clear();
-  _parent->setState("end");
+  assert(fparent->fcluster_buffer!=NULL);
+  std::vector<PndTpcDigi*>* list=new std::vector<PndTpcDigi*>(fparent->fdata);
+  fparent->fcluster_buffer->push_back(list);
+  fparent->fdata.clear();
+  fparent->setState("end");
   return "end";
 }
 

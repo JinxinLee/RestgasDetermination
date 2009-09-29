@@ -32,14 +32,14 @@
 // Class Member definitions -----------
 
 
-PndTpcPadPlane::PndTpcPadPlane(int _nx, 
-			 int _ny, 
-			 double _xbin,
-			 double _ybin,
-			 double _x0,
-			 double _y0)
-  : nx(_nx),ny(_ny),xbin(_xbin),ybin(_ybin),x0(_x0),y0(_y0), 
-    _nSectors(0), Indexer(_nx,_ny,_xbin,_ybin,_x0,_y0)
+PndTpcPadPlane::PndTpcPadPlane(int fnx, 
+			 int fny, 
+			 double fxbin,
+			 double fybin,
+			 double fx0,
+			 double fy0)
+  : nx(fnx),ny(fny),xbin(fxbin),ybin(fybin),x0(fx0),y0(fy0), 
+    fnSectors(0), Indexer(fnx,fny,fxbin,fybin,fx0,fy0)
 {
   int nRegions=nx*ny;
   for(int iRegion=0; iRegion<nRegions; ++iRegion){
@@ -74,23 +74,23 @@ PndTpcPadPlane::PndTpcPadPlane(const char* const filename,
     //reading the values
     ppSub = &(ppSub[strlen("PadPlaneSubDivision")]);
     char* rest;
-    int _nx = (int) strtol(ppSub, &rest, 10);
-    int _ny = (int) strtol(rest, &rest, 10);
-    double _xbin = strtod(rest,&rest);
-    double _ybin = strtod(rest,&rest);
-    double _x0 = strtod(rest,&rest);
+    int fnx = (int) strtol(ppSub, &rest, 10);
+    int fny = (int) strtol(rest, &rest, 10);
+    double fxbin = strtod(rest,&rest);
+    double fybin = strtod(rest,&rest);
+    double fx0 = strtod(rest,&rest);
     char* end;
-    double _y0 = strtod(rest,&end);
-    if (rest == end)//It was impossible to read double _y0
+    double fy0 = strtod(rest,&end);
+    if (rest == end)//It was impossible to read double fy0
       Fatal("PndTpcPadPlane::PndTpcPadPlane","Too less arguments in input file.");
 
     //Create the Indexer and the regions (like in  the simple constructor)
-    Indexer.nx = nx =_nx;
-    Indexer.ny = ny =_ny;
-    Indexer.xbin = xbin =_xbin;
-    Indexer.ybin = ybin =_ybin;
-    Indexer.x0 = x0 =_x0;
-    Indexer.y0 = y0 =_y0;
+    Indexer.nx = nx =fnx;
+    Indexer.ny = ny =fny;
+    Indexer.xbin = xbin =fxbin;
+    Indexer.ybin = ybin =fybin;
+    Indexer.x0 = x0 =fx0;
+    Indexer.y0 = y0 =fy0;
     int nRegions=nx*ny;
     for(int iRegion=0; iRegion<nRegions; ++iRegion)
       Regions.push_back(new std::vector<PndTpcPad*>);
@@ -174,12 +174,12 @@ PndTpcPadPlane::AddPad(PndTpcPad* pad)
   int i=Indexer(pad);
   try {
     Regions.at(i)->push_back(pad);
-    _Sectors[pad->sectorId()].minx=std::min(_Sectors[pad->sectorId()].minx,pad->x());
-    _Sectors[pad->sectorId()].miny=std::min(_Sectors[pad->sectorId()].miny,pad->y());
-    _Sectors[pad->sectorId()].maxx=std::max(_Sectors[pad->sectorId()].maxx,pad->x());
-    _Sectors[pad->sectorId()].maxy=std::max(_Sectors[pad->sectorId()].maxy,pad->y());
+    fSectors[pad->sectorId()].minx=std::min(fSectors[pad->sectorId()].minx,pad->x());
+    fSectors[pad->sectorId()].miny=std::min(fSectors[pad->sectorId()].miny,pad->y());
+    fSectors[pad->sectorId()].maxx=std::max(fSectors[pad->sectorId()].maxx,pad->x());
+    fSectors[pad->sectorId()].maxy=std::max(fSectors[pad->sectorId()].maxy,pad->y());
     // this assumes continually nummbered sectors:
-    if(pad->sectorId()>=_nSectors)_nSectors=pad->sectorId()+1;
+    if(pad->sectorId()>=fnSectors)fnSectors=pad->sectorId()+1;
   }
   catch (std::exception& e) {
     std::cerr<<"Index="<<i<<std::endl;
@@ -195,8 +195,8 @@ PndTpcPadPlane::AddPad(PndTpcPad* pad)
   {
     if(PadReferences.size()<=ID)PadReferences.resize(ID+1,0);
     PadReferences[ID]=pad;
-    if(_SectorLists[pad->sectorId()]==0)_SectorLists[pad->sectorId()]=new std::map<unsigned int, PndTpcPad*>;
-    (*_SectorLists[pad->sectorId()])[pad->padId()]=pad;
+    if(fSectorLists[pad->sectorId()]==0)fSectorLists[pad->sectorId()]=new std::map<unsigned int, PndTpcPad*>;
+    (*fSectorLists[pad->sectorId()])[pad->padId()]=pad;
     return;
   }
   //the padID is not unknown=> some other pad has this ID
@@ -297,9 +297,9 @@ PndTpcPadPlane::ReadLine(const char* const line,
 
 std::vector<unsigned int> 
 PndTpcPadPlane::GetSectorIds()const {
-  std::map<unsigned int,std::map<unsigned int,PndTpcPad*>*>::const_iterator sIt=_SectorLists.begin();
+  std::map<unsigned int,std::map<unsigned int,PndTpcPad*>*>::const_iterator sIt=fSectorLists.begin();
   std::vector<unsigned int> ids;
-  while(sIt!=_SectorLists.end()){
+  while(sIt!=fSectorLists.end()){
     ids.push_back(sIt->first);
     ++sIt;
   }

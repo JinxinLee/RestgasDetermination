@@ -32,8 +32,8 @@ using std::max;
 
 // Class Member definitions -----------
 PndTpcSimplePSAStrategy::PndTpcSimplePSAStrategy(const unsigned int threshold)
-  : PndTpcAbsPSAStrategy(), _currentPadID(0), _inprogress(false),
-    _amp(0),_t(0),_threshold(threshold)
+  : PndTpcAbsPSAStrategy(), fcurrentPadID(0), finprogress(false),
+    famp(0),ft(0),fthreshold(threshold)
 {}
 
 
@@ -43,32 +43,32 @@ PndTpcSimplePSAStrategy::ProcessNext(const PndTpcSample* sample)
   unsigned int newPadID=sample->padId();
   unsigned int newamp=sample->amp();
   //  std::cout << newPadID << " " << newamp << std::endl;
-  if(_inprogress){
-    if(newPadID==_currentPadID && newamp>=_threshold){
-      if(newamp>_amp){
-	_amp=newamp;
-	//_t=sample->t();
+  if(finprogress){
+    if(newPadID==fcurrentPadID && newamp>=fthreshold){
+      if(newamp>famp){
+	famp=newamp;
+	//ft=sample->t();
       }
-      _mcid.AddIDCollection(sample->mcId(),newamp);
+      fmcid.AddIDCollection(sample->mcId(),newamp);
     }
     else{
-      PndTpcDigi* digi=new PndTpcDigi(_amp,_t,_currentPadID,_mcid);
-      if(newamp>=_threshold){ // start new pulse on different pad
-		_currentPadID=newPadID;
-		_amp=sample->amp();
-		_t=sample->t();
+      PndTpcDigi* digi=new PndTpcDigi(famp,ft,fcurrentPadID,fmcid);
+      if(newamp>=fthreshold){ // start new pulse on different pad
+		fcurrentPadID=newPadID;
+		famp=sample->amp();
+		ft=sample->t();
       }
-      else _inprogress=false;
+      else finprogress=false;
       return digi;
     }
   }
-  else if(newamp>_threshold){ // start new pulse!
-    _currentPadID=newPadID;
-    _amp=newamp;
-    _t=sample->t();
-    _mcid.ClearData();
-    _mcid.AddIDCollection(sample->mcId(),newamp);
-    _inprogress=true;
+  else if(newamp>fthreshold){ // start new pulse!
+    fcurrentPadID=newPadID;
+    famp=newamp;
+    ft=sample->t();
+    fmcid.ClearData();
+    fmcid.AddIDCollection(sample->mcId(),newamp);
+    finprogress=true;
   }
   return 0;
 }
@@ -89,29 +89,29 @@ void PndTpcSimplePSAStrategy::Process(const std::vector<PndTpcSample*> & samples
 	unsigned int newPadID=samples[i]->padId();
 	unsigned int newamp=samples[i]->amp();
 
-	if(_inprogress){
-	  if(newPadID==_currentPadID && newamp>=_threshold){
-		if(newamp>_amp){
-		  _amp=newamp;
+	if(finprogress){
+	  if(newPadID==fcurrentPadID && newamp>=fthreshold){
+		if(newamp>famp){
+		  famp=newamp;
 		}
-		_mcid.AddIDCollection(samples[i]->mcId(),newamp);
+		fmcid.AddIDCollection(samples[i]->mcId(),newamp);
 	  }
 	  else{
-		PndTpcDigi* digi=new PndTpcDigi(_amp,_t,_currentPadID,_mcid);
-		digi->tlength(samples[i]->t()-_t);
-		_inprogress=false;
+		PndTpcDigi* digi=new PndTpcDigi(famp,ft,fcurrentPadID,fmcid);
+		digi->tlength(samples[i]->t()-ft);
+		finprogress=false;
 
 		digis.push_back(digi);
 	  }
 	}
-	else if(newamp>_threshold){ // start new pulse!
-	  _currentPadID=newPadID;
-	  _amp=newamp;
-	  _t=samples[i]->t();
-	  _mcid.ClearData();
-	  _mcid.AddIDCollection(samples[i]->mcId(),newamp);
+	else if(newamp>fthreshold){ // start new pulse!
+	  fcurrentPadID=newPadID;
+	  famp=newamp;
+	  ft=samples[i]->t();
+	  fmcid.ClearData();
+	  fmcid.AddIDCollection(samples[i]->mcId(),newamp);
 	  startIndex = i;
-	  _inprogress=true;
+	  finprogress=true;
 	}
 	
 	

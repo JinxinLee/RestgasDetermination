@@ -55,7 +55,7 @@ public:
 
   // Mode==0 --> global time slices
   // Mode==1 --> sector wise time slices; pad cannot be hit twice
-  void setMode(int mode) {_mode=mode;}
+  void setMode(int mode) {fmode=mode;}
 
 
   // Operations ----------------------
@@ -69,13 +69,13 @@ private:
   void putDigi(PndTpcDigi* digi);
 
   // Private Data Members ------------
-  std::map<unsigned int, PndTpcSectorProcessor*> _sproc;
-  std::map<unsigned int, std::vector<PndTpcDigi*>* > _sectormap;
-  PndTpcPadPlane* _padplane;
-  std::vector<PndTpcCluster*>* _output_buffer;
+  std::map<unsigned int, PndTpcSectorProcessor*> fsproc;
+  std::map<unsigned int, std::vector<PndTpcDigi*>* > fsectormap;
+  PndTpcPadPlane* fpadplane;
+  std::vector<PndTpcCluster*>* foutput_buffer;
 
-  unsigned int _dt; // time slice in units of sample time
-  int _mode;
+  unsigned int fdt; // time slice in units of sample time
+  int fmode;
 
   // Private Methods -----------------
 

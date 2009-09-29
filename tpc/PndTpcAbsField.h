@@ -41,9 +41,9 @@ public:
 
   //Accessors ------------------------------------------------
 
-  t nominal() const {return _nominal;}
-  TVector3 relPosition() const {return _relPosition;}
-  double scale() const {return _scale;}
+  t nominal() const {return fnominal;}
+  TVector3 relPosition() const {return frelPosition;}
+  double scale() const {return fscale;}
   virtual void print(std::ostream&) const;
 
   // the following functions are special cases. Use only on the appropriate 
@@ -58,7 +58,7 @@ public:
 
   // this is the derived classes' job:
 
-  // return the field value (t) at the given position (multiply with _scale)
+  // return the field value (t) at the given position (multiply with fscale)
   virtual t value(const TVector3&) const = 0;
   
   // check if the queried point lies within the the field boundaries:
@@ -70,15 +70,15 @@ public:
   
   // Modifiers ---------------------------------------------
 
-  void setNominal(const t& nominal) {_nominal = nominal;}
-  void setRelPosition(const TVector3& relPos) {_relPosition = relPos;}
-  void setScale(const double scale) {_scale = scale;}
+  void setNominal(const t& nominal) {fnominal = nominal;}
+  void setRelPosition(const TVector3& relPos) {frelPosition = relPos;}
+  void setScale(const double scale) {fscale = scale;}
 
 protected:
 
-  TVector3 _relPosition;
-  t _nominal;
-  double _scale;
+  TVector3 frelPosition;
+  t fnominal;
+  double fscale;
 
 private:
 

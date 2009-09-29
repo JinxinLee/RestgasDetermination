@@ -23,18 +23,18 @@ ClassImp(PndTpcDigiPar)
 PndTpcDigiPar::PndTpcDigiPar(const char* name,const char* title,
 			     const char* context)
   : FairParGenericSet(name,title,context),
-    _gas(NULL), _gem(NULL), _padplane(NULL), _frontend(NULL), _padshapepool(NULL)
+    fgas(NULL), fgem(NULL), fpadplane(NULL), ffrontend(NULL), fpadshapepool(NULL)
 {
 	clear();
 }
 
 PndTpcDigiPar::~PndTpcDigiPar()
 {
-  if(_gas!=NULL)delete _gas;
-  if(_gem!=NULL)delete _gem;
-  if(_padplane!=NULL)delete _padplane;
-  if(_padshapepool!=NULL)delete _padshapepool;
-  if(_frontend!=NULL)delete _frontend;
+  if(fgas!=NULL)delete fgas;
+  if(fgem!=NULL)delete fgem;
+  if(fpadplane!=NULL)delete fpadplane;
+  if(fpadshapepool!=NULL)delete fpadshapepool;
+  if(ffrontend!=NULL)delete ffrontend;
 
 }
 
@@ -42,140 +42,140 @@ PndTpcDigiPar::~PndTpcDigiPar()
 void PndTpcDigiPar::putParams(FairParamList* list)
 {
 	if(!list) return;
-	list->add("PndTpcGasFile",_tpcGasFile);
-	list->add("EField",_EField);
-	list->add("AttachFlag",_attach);
-	list->add("LogitudinaldiffusionFlag",_diffuseL);
-	list->add("TransversediffusionFlag",_diffuseT);
-	list->add("DriftDistortionFlag",_distort);
-	list->add("zGem",_zGem);
-	list->add("zMax",_zMax);
-	list->add("Gain",_gain);
-	list->add("Supression", _supression);
-	list->add("Spread",_spread);
-	list->add("MinSignalAmp",_minSignalAmp);
-	list->add("rMin",_rmin);
-	list->add("rMax",_rmax);
-	list->add("PadPlaneFile",_padPlaneFile);
-	list->add("PadShapeFile",_padShapes);
-	list->add("PadShapeRange",_shaperange);
-	list->add("PadShapeStep",_shapestep);
-	list->add("PadShapeIntStep",_intstep);
-	list->add("ADCThreshold",_adcthres);
-	list->add("ADCMax",_adcmax);
-	list->add("ADCBits",_adcbits);
-	list->add("SamplingFreq",_samplefreq);
-	list->add("T0_wallclock",_t0);
-	list->add("TimeBits",_timebits);
-	list->add("PSAThreshold",_psathres);
-	list->add("Shaper_tDiff",_tdiff);
-	list->add("Shaper_tInt",_tint);
-	list->add("Shaper_tSig",_tsig);
-	list->add("TOTPSA",_psa);
-	list->add("GAUSSIANNOISE",_gaussianNoise);
-	list->add("GAUSSIANNOISEAMP",_gaussianNoiseAmp);
-	list->add("Rate",_rate);
+	list->add("PndTpcGasFile",ftpcGasFile);
+	list->add("EField",fEField);
+	list->add("AttachFlag",fattach);
+	list->add("LogitudinaldiffusionFlag",fdiffuseL);
+	list->add("TransversediffusionFlag",fdiffuseT);
+	list->add("DriftDistortionFlag",fdistort);
+	list->add("zGem",fzGem);
+	list->add("zMax",fzMax);
+	list->add("Gain",fgain);
+	list->add("Supression", fsupression);
+	list->add("Spread",fspread);
+	list->add("MinSignalAmp",fminSignalAmp);
+	list->add("rMin",frmin);
+	list->add("rMax",frmax);
+	list->add("PadPlaneFile",fpadPlaneFile);
+	list->add("PadShapeFile",fpadShapes);
+	list->add("PadShapeRange",fshaperange);
+	list->add("PadShapeStep",fshapestep);
+	list->add("PadShapeIntStep",fintstep);
+	list->add("ADCThreshold",fadcthres);
+	list->add("ADCMax",fadcmax);
+	list->add("ADCBits",fadcbits);
+	list->add("SamplingFreq",fsamplefreq);
+	list->add("T0_wallclock",ft0);
+	list->add("TimeBits",ftimebits);
+	list->add("PSAThreshold",fpsathres);
+	list->add("Shaper_tDiff",ftdiff);
+	list->add("Shaper_tInt",ftint);
+	list->add("Shaper_tSig",ftsig);
+	list->add("TOTPSA",fpsa);
+	list->add("GAUSSIANNOISE",fgaussianNoise);
+	list->add("GAUSSIANNOISEAMP",fgaussianNoiseAmp);
+	list->add("Rate",frate);
 }
 
 Bool_t PndTpcDigiPar::getParams(FairParamList* list)
 {
  	if (!list) {std::cout<<"list not found"<<std::endl; return kFALSE;}
-	if(!list->fill("EField",&_EField)) 
+	if(!list->fill("EField",&fEField)) 
 	  {std::cout<<"par: EField not found"<<std::endl; return kFALSE;}
-	if(!list->fill("PndTpcGasFile",&_tpcGasFile)) 
+	if(!list->fill("PndTpcGasFile",&ftpcGasFile)) 
 	  {std::cout<<"par: PndTpcGasFile not found"<<std::endl; return kFALSE;}
-	if(!list->fill("AttachFlag",&_attach)) 
+	if(!list->fill("AttachFlag",&fattach)) 
 	  {std::cout<<"par: AttachFlag not found"<<std::endl; return kFALSE;}
-	if(!list->fill("LogitudinaldiffusionFlag",&_diffuseL)) 
+	if(!list->fill("LogitudinaldiffusionFlag",&fdiffuseL)) 
 	  {std::cout<<"par: LogitudinaldiffusionFlag not found"<<std::endl; return kFALSE;}
-	if(!list->fill("TransversediffusionFlag",&_diffuseT)) 
+	if(!list->fill("TransversediffusionFlag",&fdiffuseT)) 
 	  {std::cout<<"par: TransversediffusionFlag not found"<<std::endl; return kFALSE;}
-	if(!list->fill("DriftDistortionFlag",&_distort)) 
+	if(!list->fill("DriftDistortionFlag",&fdistort)) 
 	  {std::cout<<"par: DriftDistortionFlag not found"<<std::endl; return kFALSE;}
-	if(!list->fill("zGem",&_zGem)) 
+	if(!list->fill("zGem",&fzGem)) 
 	  {std::cout<<"par: zGem not found"<<std::endl; return kFALSE;}
-	if(!list->fill("zMax",&_zMax)) 
+	if(!list->fill("zMax",&fzMax)) 
 	  {std::cout<<"par: zMax not found"<<std::endl; return kFALSE;}
-	if(!list->fill("Gain",&_gain)) 
+	if(!list->fill("Gain",&fgain)) 
 	  {std::cout<<"par: Gain not found"<<std::endl; return kFALSE;}
-	if(!list->fill("Supression",&_supression)) 
+	if(!list->fill("Supression",&fsupression)) 
 	  {std::cout<<"par: Supression not found"<<std::endl; return kFALSE;}
-	if(!list->fill("Spread",&_spread)) 
+	if(!list->fill("Spread",&fspread)) 
 	  {std::cout<<"par: Spread not found"<<std::endl; return kFALSE;}
-	if(!list->fill("MinSignalAmp",&_minSignalAmp)) 
+	if(!list->fill("MinSignalAmp",&fminSignalAmp)) 
 	  {std::cout<<"par: MinSignalAmp not found"<<std::endl; return kFALSE;}
-	if(!list->fill("rMin",&_rmin)) 
+	if(!list->fill("rMin",&frmin)) 
 	  {std::cout<<"par: rMin not found"<<std::endl; return kFALSE;}
-	if(!list->fill("rMax",&_rmax)) 
+	if(!list->fill("rMax",&frmax)) 
 	  {std::cout<<"par: rMax not found"<<std::endl; return kFALSE;}
-	if(!list->fill("PadPlaneFile",&_padPlaneFile)) 
+	if(!list->fill("PadPlaneFile",&fpadPlaneFile)) 
 	  {std::cout<<"par: PadPlaneFile not found"<<std::endl; return kFALSE;}
-	if(!list->fill("PadShapeFile",&_padShapes)) 
+	if(!list->fill("PadShapeFile",&fpadShapes)) 
 	  {std::cout<<"par: PadShapeFile not found"<<std::endl; return kFALSE;}
-	if(!list->fill("PadShapeRange",&_shaperange)) 
+	if(!list->fill("PadShapeRange",&fshaperange)) 
 	  {std::cout<<"par: PadShapeRange not found"<<std::endl; return kFALSE;}
-	if(!list->fill("PadShapeStep",&_shapestep)) 
+	if(!list->fill("PadShapeStep",&fshapestep)) 
 	  {std::cout<<"par: PadShapeStep not found"<<std::endl; return kFALSE;}
-	if(!list->fill("PadShapeIntStep",&_intstep)) 
+	if(!list->fill("PadShapeIntStep",&fintstep)) 
 	  {std::cout<<"par: PadShapeIntStep not found"<<std::endl; return kFALSE;}
-	if(!list->fill("ADCThreshold",&_adcthres)) 
+	if(!list->fill("ADCThreshold",&fadcthres)) 
 	  {std::cout<<"par: ADCThreshold not found"<<std::endl; return kFALSE;}
-	if(!list->fill("ADCMax",&_adcmax)) 
+	if(!list->fill("ADCMax",&fadcmax)) 
 	  {std::cout<<"par: ADCMax not found"<<std::endl; return kFALSE;}
-	if(!list->fill("ADCBits",&_adcbits)) 
+	if(!list->fill("ADCBits",&fadcbits)) 
 	  {std::cout<<"par: ADCBits not found"<<std::endl; return kFALSE;}
-	if(!list->fill("SamplingFreq",&_samplefreq)) 
+	if(!list->fill("SamplingFreq",&fsamplefreq)) 
 	  {std::cout<<"par: SamplingFreq not found"<<std::endl; return kFALSE;}
-	if(!list->fill("T0_wallclock",&_t0)) 
+	if(!list->fill("T0_wallclock",&ft0)) 
 	  {std::cout<<"par: T0_wallclock not found"<<std::endl; return kFALSE;}
-	if(!list->fill("TimeBits",&_timebits)) 
+	if(!list->fill("TimeBits",&ftimebits)) 
 	  {std::cout<<"par: TimeBits not found"<<std::endl; return kFALSE;}
-	if(!list->fill("PSAThreshold",&_psathres)) 
+	if(!list->fill("PSAThreshold",&fpsathres)) 
 	  {std::cout<<"par: PSAThreshold not found"<<std::endl; return kFALSE;}
-	if(!list->fill("Shaper_tDiff",&_tdiff)) 
+	if(!list->fill("Shaper_tDiff",&ftdiff)) 
 	  {std::cout<<"par: Shaper_tDiff not found"<<std::endl; return kFALSE;}
-	if(!list->fill("Shaper_tInt",&_tint)) 
+	if(!list->fill("Shaper_tInt",&ftint)) 
 	  {std::cout<<"par: Shaper_tInt not found"<<std::endl; return kFALSE;}
-	if(!list->fill("Shaper_tSig",&_tsig)) 
+	if(!list->fill("Shaper_tSig",&ftsig)) 
 	  {std::cout<<"par: Shaper_tSig not found"<<std::endl; return kFALSE;}
-	if(!list->fill("TOTPSA",&_psa)) 
+	if(!list->fill("TOTPSA",&fpsa)) 
 	  {std::cout<<"par: TOTPSA not found"<<std::endl; return kFALSE;}
-	if(!list->fill("GAUSSIANNOISE",&_gaussianNoise)) 
+	if(!list->fill("GAUSSIANNOISE",&fgaussianNoise)) 
 	  {std::cout<<"par: GAUSSIANNOISE not found"<<std::endl; return kFALSE;}
-	if(!list->fill("GAUSSIANNOISEAMP",&_gaussianNoiseAmp)) 
+	if(!list->fill("GAUSSIANNOISEAMP",&fgaussianNoiseAmp)) 
 	  {std::cout<<"par: GAUSSIANNOISEAMP not found"<<std::endl; return kFALSE;}
-	if(!list->fill("Rate",&_rate)) 
+	if(!list->fill("Rate",&frate)) 
 	  {std::cout<<"par: Rate not found"<<std::endl; return kFALSE;}  
 	
 	// read strings
-	_tpcGasFileName=readString(_tpcGasFile);
-	_padPlaneFileName=readString(_padPlaneFile);
-	_padShapesName=readString(_padShapes);
+	ftpcGasFileName=readString(ftpcGasFile);
+	fpadPlaneFileName=readString(fpadPlaneFile);
+	fpadShapesName=readString(fpadShapes);
 	
 
 	// update interfaces!
 	// Todo: implement chaching!
 	try{
-	if(_gas!=NULL){
-	  delete _gas;
+	if(fgas!=NULL){
+	  delete fgas;
 	  getGas();
 	}
-	if(_gem!=NULL){
-	  delete _gem;
+	if(fgem!=NULL){
+	  delete fgem;
 	  getGem();
 	}
 	
-	if(_padplane!=NULL){
-	  delete _padplane;
-	  if(_padshapepool!=NULL){
-	    delete _padshapepool;
+	if(fpadplane!=NULL){
+	  delete fpadplane;
+	  if(fpadshapepool!=NULL){
+	    delete fpadshapepool;
 	    // padshapes should be reloaded by padplane
 	  }
 	  getPadPlane();
 	}
 
-	if(_frontend!=NULL){
-	  delete _frontend;
+	if(ffrontend!=NULL){
+	  delete ffrontend;
 	  getFrontend();
 	}
 	}
@@ -189,47 +189,47 @@ Bool_t PndTpcDigiPar::getParams(FairParamList* list)
 
 const PndTpcGas* 
 PndTpcDigiPar::getGas(){
-  if(_gas==NULL){
+  if(fgas==NULL){
     // load gasfile
-    _gas=new PndTpcGas(_tpcGasFileName.Data(),_EField);
+    fgas=new PndTpcGas(ftpcGasFileName.Data(),fEField);
   }
-  return _gas;
+  return fgas;
 }
 
 const PndTpcGem* 
 PndTpcDigiPar::getGem(){
-  if(_gem==NULL){
-    _gem=new PndTpcGem(_gain,_spread);
+  if(fgem==NULL){
+    fgem=new PndTpcGem(fgain,fspread);
   }
-  return _gem;
+  return fgem;
 }
 
 PndTpcPadPlane* 
 PndTpcDigiPar::getPadPlane(){
-  if(_padplane==NULL){
-    _padplane=new PndTpcPadPlane(_padPlaneFileName.Data(),getPadShapes());
+  if(fpadplane==NULL){
+    fpadplane=new PndTpcPadPlane(fpadPlaneFileName.Data(),getPadShapes());
   }
-  return _padplane;
+  return fpadplane;
 }
 
 const PndTpcPadShapePool* 
 PndTpcDigiPar::getPadShapes(){
-  if(_padshapepool==NULL){
-    _padshapepool=new PndTpcPadShapePool(_padShapesName.Data(),*getGem(),
-				   _shaperange,_shapestep,_intstep);
+  if(fpadshapepool==NULL){
+    fpadshapepool=new PndTpcPadShapePool(fpadShapesName.Data(),*getGem(),
+				   fshaperange,fshapestep,fintstep);
   }
-  return _padshapepool;
+  return fpadshapepool;
 }
 
 const PndTpcFrontend* 
 PndTpcDigiPar::getFrontend(){
-  if(_frontend==NULL){
-    _frontend=new PndTpcFrontend(_tint,_tdiff,_tsig,
-			      _adcthres,_adcmax,_adcbits,
-			      _samplefreq,_t0,_timebits,
-			      _psathres);
+  if(ffrontend==NULL){
+    ffrontend=new PndTpcFrontend(ftint,ftdiff,ftsig,
+			      fadcthres,fadcmax,fadcbits,
+			      fsamplefreq,ft0,ftimebits,
+			      fpsathres);
   }
-  return _frontend;
+  return ffrontend;
 }
 
 TString

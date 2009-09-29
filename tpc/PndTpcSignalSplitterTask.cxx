@@ -51,10 +51,10 @@
 
 
 PndTpcSignalSplitterTask::PndTpcSignalSplitterTask()
-  : FairTask("TPC SignalSplitter response"), _single(false)
+  : FairTask("TPC SignalSplitter response"), fsingle(false)
 {
-  _signalBranchName = "PndTpcSignal";
-  _base = "PndTpcSigRegion";
+  fsignalBranchName = "PndTpcSignal";
+  fbase = "PndTpcSigRegion";
  }
 
 
@@ -76,37 +76,37 @@ PndTpcSignalSplitterTask::Init()
     }
   
   // Get input collection
-  _signalArray=(TClonesArray*) ioman->GetObject(_signalBranchName);
+  fsignalArray=(TClonesArray*) ioman->GetObject(fsignalBranchName);
   
-  if(_signalArray==0)
+  if(fsignalArray==0)
     {
       Error("PndTpcSignalSplitterTask::Init","Signal-array not found!");
       return kERROR;
     }
 
   ioman->ActivateBranch("EventHeader.");
-  _evtHeader=(FairEventHeader*) ioman->GetObject("EventHeader.");
-  if(_evtHeader==0)
+  fevtHeader=(FairEventHeader*) ioman->GetObject("EventHeader.");
+  if(fevtHeader==0)
     {
       Error("PndTpcSignalSplitterTask::Init","EventHeader not found!");
       return kERROR;
     }
 
-  _mapper=PndTpcDigiMapper::getInstance();
+  fmapper=PndTpcDigiMapper::getInstance();
 
   // prepare files for splitting
   TFolder* out=(TFolder*) gROOT->GetRootFolder()->FindObjectAny("cbmout");
   out->SetName("cbmout_old");
 
-  unsigned int nsec=_mapper->getPadPlane()->GetNSectors();
+  unsigned int nsec=fmapper->getPadPlane()->GetNSectors();
   //prepare empty sector counters
-  _emptycounter.resize(nsec,0);
+  femptycounter.resize(nsec,0);
 
-  if(_single)nsec=1;
+  if(fsingle)nsec=1;
   
 
   for(int isec=0; isec<nsec; isec++){
-    TString outfilename=_base;
+    TString outfilename=fbase;
     outfilename+=isec;
     outfilename+=".root";
 
@@ -116,7 +116,7 @@ PndTpcSignalSplitterTask::Init()
     TFile* outfile=new TFile(outfilename,"recreate");
     if(outfile==0)continue;
     
-    _files.push_back(outfilename);
+    ffiles.push_back(outfilename);
     
     outfile->cd();
     TFolder* cbmout=(TFolder*)gROOT->FindObjectAny("cbmout");
@@ -127,7 +127,7 @@ PndTpcSignalSplitterTask::Init()
     
     TFolder* header=cbmout->AddFolder("EvtHeader","EvtHeader");
     //header->SetName("EventHeader.");
-    header->Add(_evtHeader);
+    header->Add(fevtHeader);
 
     TClonesArray* sigarray=new TClonesArray("PndTpcSignal");
     TFolder* folder= cbmout->AddFolder("PndTpc","PndTpc");
@@ -164,10 +164,10 @@ PndTpcSignalSplitterTask::Exec(Option_t* opt)
   std::cout<<"Building up sectormap ...";
   std::cout.flush();
   std::map<unsigned int,std::vector<PndTpcSignal*>* > secmap;
-  Int_t ns=_signalArray->GetEntriesFast();
+  Int_t ns=fsignalArray->GetEntriesFast();
   for(Int_t is=0;is<ns;++is){
-    PndTpcSignal* sig=(PndTpcSignal*)_signalArray->At(is);
-    unsigned int id=_mapper->getPad(sig->padId())->sectorId();
+    PndTpcSignal* sig=(PndTpcSignal*)fsignalArray->At(is);
+    unsigned int id=fmapper->getPad(sig->padId())->sectorId();
     if(secmap[id]==NULL)secmap[id]=new std::vector<PndTpcSignal*>;
     secmap[id]->push_back(sig);
     if(is%10000==0){
@@ -175,13 +175,13 @@ PndTpcSignalSplitterTask::Exec(Option_t* opt)
     }
   }
   std::cout<<"finished. "<<secmap.size()<<" sectors hit"<<std::endl;
-  // cleanup _signal_array;
-  //_signalArray->Clear();
+  // cleanup fsignal_array;
+  //fsignalArray->Clear();
 
   // increase emptycounter for each sector!
-  unsigned int nsec=_files.size();
+  unsigned int nsec=ffiles.size();
   for(unsigned int isec=0; isec<nsec; ++isec){
-    _emptycounter[isec]+=1;
+    femptycounter[isec]+=1;
   }
   
   
@@ -189,18 +189,18 @@ PndTpcSignalSplitterTask::Exec(Option_t* opt)
   while(secIt!=secmap.end()){
 
     TString outfilename;
-    if(_single){
-      if(secIt->first!=_secid){
+    if(fsingle){
+      if(secIt->first!=fsecid){
 	continue;
       }
-      outfilename=_files[0];
+      outfilename=ffiles[0];
     }
     else { 
-      outfilename=_files[secIt->first];
+      outfilename=ffiles[secIt->first];
     }
 
-    // this sector was hit => decrease the _emptycounter again!
-    _emptycounter[secIt->first]-=1;
+    // this sector was hit => decrease the femptycounter again!
+    femptycounter[secIt->first]-=1;
     
     TClonesArray* sigarray=new TClonesArray("PndTpcSignal");
         
@@ -208,14 +208,14 @@ PndTpcSignalSplitterTask::Exec(Option_t* opt)
     outfile->cd();
     TTree* tree=(TTree*)outfile->Get("cbmsim");
     tree->SetBranchAddress("PndTpcSignal",&sigarray);
-    tree->SetBranchAddress("EventHeader.",&_evtHeader);
+    tree->SetBranchAddress("EventHeader.",&fevtHeader);
     
     // fill empty events according to counter
-    unsigned int ne=_emptycounter[secIt->first];
+    unsigned int ne=femptycounter[secIt->first];
     if(ne!=0)std::cout<<"Sector "<<secIt->first<<": filling "<<ne<<" empty events"<<std::endl;
     for(unsigned int ie=0;ie<ne;++ie)tree->Fill();
     // CAREFULL: All empty events will have the same event header!!
-    _emptycounter[secIt->first]=0;
+    femptycounter[secIt->first]=0;
 
     std::vector<PndTpcSignal*>* sigv=secIt->second;
     if(sigv!=0){ // only put signals if there are some!
@@ -271,7 +271,7 @@ PndTpcSignalSplitterTask::TranicateBranchNames(TTree *fTree, const char *folderN
     delete  BrIter;
  }
 }
-//_____________________________________________________________________________
+//f____________________________________________________________________________
 void 
 PndTpcSignalSplitterTask::TranicateBranchNames(TBranch *b, TString ffn)
 {
@@ -292,9 +292,9 @@ PndTpcSignalSplitterTask::TranicateBranchNames(TBranch *b, TString ffn)
 
 void
 PndTpcSignalSplitterTask::FillEmptyEvents(){
-  unsigned int nsec=_files.size();
+  unsigned int nsec=ffiles.size();
   for(unsigned int isec=0; isec<nsec; ++isec){
-    TString outfilename=_files[isec];
+    TString outfilename=ffiles[isec];
 
     TClonesArray* sigarray=new TClonesArray("PndTpcSignal");
     
@@ -302,14 +302,14 @@ PndTpcSignalSplitterTask::FillEmptyEvents(){
     outfile->cd();
     TTree* tree=(TTree*)outfile->Get("cbmsim");
     tree->SetBranchAddress("PndTpcSignal",&sigarray);
-    tree->SetBranchAddress("EventHeader.",&_evtHeader);
+    tree->SetBranchAddress("EventHeader.",&fevtHeader);
     
     // fill empty events according to counter
-    unsigned int ne=_emptycounter[isec];
+    unsigned int ne=femptycounter[isec];
     if(ne!=0)std::cout<<"Sector "<<isec<<": filling "<<ne<<" empty events"<<std::endl;
     for(unsigned int ie=0;ie<ne;++ie)tree->Fill();
     // CAREFULL: All empty events will have the same event header!!
-    _emptycounter[isec]=0;
+    femptycounter[isec]=0;
     tree->Fill();
     tree->Write();
     outfile->Close();

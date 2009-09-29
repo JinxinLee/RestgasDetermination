@@ -47,13 +47,13 @@ public:
 
 
   // Modifiers -----------------------
-  void SetPrimBranchName(const TString& name) {_primBranchName=name;}
-  void SetPersistence(Bool_t opt=kTRUE) {_persistence=opt;}
-  void SetDistort(Bool_t opt=kTRUE) {_distort=opt;}
-  void SetDeviationFile(const char* file) {_devFile = file;}
-  void SetPhiCut(double phimin, double phimax){_phicut=true;_phimin=phimin;_phimax=phimax;}
-  void SetQAPlotCol(QAPlotCollection* col){_qa=col;}
-  void SetShortTPC(Bool_t opt=kTRUE) {_shortTpc=opt;}
+  void SetPrimBranchName(const TString& name) {fprimBranchName=name;}
+  void SetPersistence(Bool_t opt=kTRUE) {fpersistence=opt;}
+  void SetDistort(Bool_t opt=kTRUE) {fdistort=opt;}
+  void SetDeviationFile(const char* file) {fdevFile = file;}
+  void SetPhiCut(double phimin, double phimax){fphicut=true;fphimin=phimin;fphimax=phimax;}
+  void SetQAPlotCol(QAPlotCollection* col){fqa=col;}
+  void SetShortTPC(Bool_t opt=kTRUE) {fshortTpc=opt;}
   // Operations ----------------------
   
   virtual InitStatus Init();
@@ -68,36 +68,36 @@ public:
 private:
 
   // Private Data Members ------------
-  TString _primBranchName;
-  TClonesArray* _primArray;
-  TClonesArray* _driftedArray;
+  TString fprimBranchName;
+  TClonesArray* fprimArray;
+  TClonesArray* fdriftedArray;
 
   
-  QAPlotCollection* _qa;
-  TH1D* _xVariation;
-  TH1D* _yVariation;
-  TH2D* _xVarAndDriftL;
-  TH2D* _yVarAndDriftL;
+  QAPlotCollection* fqa;
+  TH1D* fxVariation;
+  TH1D* fyVariation;
+  TH2D* fxVarAndDriftL;
+  TH2D* fyVarAndDriftL;
 
-  const PndTpcGas* _gas;
-  PndTpcDigiPar* _par;
-  PndTpcDevmapCyl* _devmap;
-  Double_t _zGem; // get from Geom!
+  const PndTpcGas* fgas;
+  PndTpcDigiPar* fpar;
+  PndTpcDevmapCyl* fdevmap;
+  Double_t fzGem; // get from Geom!
 
-  Bool_t _phicut;
-  double _phimin, _phimax;
+  Bool_t fphicut;
+  double fphimin, fphimax;
   
-  Bool_t _persistence;
-  Bool_t _attach;
-  Bool_t _diffuseL;
-  Bool_t _diffuseT;
-  Bool_t _distort;
+  Bool_t fpersistence;
+  Bool_t fattach;
+  Bool_t fdiffuseL;
+  Bool_t fdiffuseT;
+  Bool_t fdistort;
 
-  Bool_t _initialized;
+  Bool_t finitialized;
 
-  Bool_t _shortTpc;   //shorten TPC to 120cm length 
+  Bool_t fshortTpc;   //shorten TPC to 120cm length 
 
-  const char* _devFile;
+  const char* fdevFile;
 
   // Private Methods -----------------
 
