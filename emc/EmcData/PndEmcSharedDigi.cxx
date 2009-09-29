@@ -25,9 +25,9 @@
 //----------------
 // Constructors --
 //----------------
-PndEmcSharedDigi::PndEmcSharedDigi( const PndEmcDigi &theDigi, const double weight )
+PndEmcSharedDigi::PndEmcSharedDigi( const PndEmcDigi &theDigi, const double w )
   : PndEmcDigi( theDigi ),
-    fWeight( weight ),
+    fWeight( w ),
     fDigi( (PndEmcDigi*)&theDigi  )
 {
 }

@@ -128,20 +128,20 @@ PndEmcStructure::PndEmcStructure(TGeoManager *geoMan)
 		if (module==5) {
 			TGeoBBox *box = (TGeoBBox *) node->GetVolume()->GetShape();
 			
-			TGeoTrap crystal(box->GetDZ(), 0, 0,
+			TGeoTrap crystal_shape(box->GetDZ(), 0, 0,
 			box->GetDY(), box->GetDX(), box->GetDX(), 0,
 			box->GetDY(), box->GetDX(), box->GetDX(), 0);
 
-			xtal=new PndEmcXtal(tci,crystal,pos,geoRot);
+			xtal=new PndEmcXtal(tci,crystal_shape,pos,geoRot);
 		}
 		else{
 			
 			TGeoTrap *trap1 = (TGeoTrap*) node->GetVolume()->GetShape();
 			
-			TGeoTrap crystal(trap1->GetDz(), trap1->GetTheta(), trap1->GetPhi(),
+			TGeoTrap crystal_shape(trap1->GetDz(), trap1->GetTheta(), trap1->GetPhi(),
 			trap1->GetH1(), trap1->GetBl1(), trap1->GetTl1(), trap1->GetAlpha1(),
 			trap1->GetH2(), trap1->GetBl2(), trap1->GetTl2(), trap1->GetAlpha2());
-			xtal=new PndEmcXtal(tci,crystal,pos,geoRot);
+			xtal=new PndEmcXtal(tci,crystal_shape,pos,geoRot);
 		}
 		
 		fTciXtalMap[tci]=xtal;

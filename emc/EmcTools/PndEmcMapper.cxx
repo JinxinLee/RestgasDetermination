@@ -56,7 +56,7 @@ PndEmcMapper::~PndEmcMapper()
   
 PndEmcMapper::PndEmcMapper(Int_t MapVersion):fMapVersion(MapVersion)
 {
-	PndEmcTwoCoordIndex _tci;
+	PndEmcTwoCoordIndex *_tci;
 	Int_t iTheta, iPhi, detId, detId_tmp, iX, iY;
 	iTheta = iPhi = detId = detId_tmp =iX = iY = 0;
 	
@@ -77,7 +77,7 @@ PndEmcMapper::PndEmcMapper(Int_t MapVersion):fMapVersion(MapVersion)
 						iTheta=-row+30;
 					
 						detId =  module*100000000 + row*1000000 + copy*10000 + crystal;	
-						PndEmcTwoCoordIndex* _tci=new PndEmcTwoCoordIndex(iTheta,iPhi,detId);
+						_tci=new PndEmcTwoCoordIndex(iTheta,iPhi,detId);
 						fIntTwoCoordMap[detId]=_tci;
 					}	
 			}
@@ -91,7 +91,7 @@ PndEmcMapper::PndEmcMapper(Int_t MapVersion):fMapVersion(MapVersion)
 						iTheta=row+29;
 						
 						detId =  module*100000000 + row*1000000 + copy*10000 + crystal;	
-						PndEmcTwoCoordIndex* _tci=new PndEmcTwoCoordIndex(iTheta,iPhi,detId);
+						_tci=new PndEmcTwoCoordIndex(iTheta,iPhi,detId);
 						fIntTwoCoordMap[detId]=_tci;
 					}
 			}
@@ -108,7 +108,7 @@ PndEmcMapper::PndEmcMapper(Int_t MapVersion):fMapVersion(MapVersion)
 						
 					        detId =  module*100000000 + row*1000000 + copy*10000 + crystal;	
 						
-						PndEmcTwoCoordIndex* _tci=new PndEmcTwoCoordIndex(iX+250,iY+250,detId);
+						_tci=new PndEmcTwoCoordIndex(iX+250,iY+250,detId);
 						fIntTwoCoordMap[detId]=_tci;
 					}	
 			}			
@@ -125,7 +125,7 @@ PndEmcMapper::PndEmcMapper(Int_t MapVersion):fMapVersion(MapVersion)
 					
 					        detId =  module*100000000 + row*1000000 + copy*10000 + crystal;	
 						
-						PndEmcTwoCoordIndex* _tci=new PndEmcTwoCoordIndex(iX+350,iY+350,detId);
+						_tci=new PndEmcTwoCoordIndex(iX+350,iY+350,detId);
 						fIntTwoCoordMap[detId]=_tci;
 					}	
 			}
@@ -142,7 +142,7 @@ PndEmcMapper::PndEmcMapper(Int_t MapVersion):fMapVersion(MapVersion)
 					
 					        detId =  module*100000000 + row*1000000 + copy*10000 + crystal;	
 						
-						PndEmcTwoCoordIndex* _tci=new PndEmcTwoCoordIndex(iX+450,iY+450,detId);
+						_tci=new PndEmcTwoCoordIndex(iX+450,iY+450,detId);
 						fIntTwoCoordMap[detId]=_tci;
 					}	
 			}
@@ -157,7 +157,7 @@ PndEmcMapper::PndEmcMapper(Int_t MapVersion):fMapVersion(MapVersion)
 				  
 				  detId =  module*100000000 + row*1000000 + copy*10000 + crystal;	
 				  
-				  PndEmcTwoCoordIndex* _tci=new PndEmcTwoCoordIndex(iX+550,iY+550,detId);
+				  _tci=new PndEmcTwoCoordIndex(iX+550,iY+550,detId);
 				  fIntTwoCoordMap[detId]=_tci;
 				}	
 			  }
@@ -184,7 +184,7 @@ PndEmcMapper::PndEmcMapper(Int_t MapVersion):fMapVersion(MapVersion)
 			   iTheta=-row+30;
 			   
 			   detId =  module*100000000 + row*1000000 + copy*10000 + crystal;
-			   PndEmcTwoCoordIndex* _tci=new PndEmcTwoCoordIndex(iTheta,iPhi,detId);
+			   _tci=new PndEmcTwoCoordIndex(iTheta,iPhi,detId);
 			   fIntTwoCoordMap[detId]=_tci;
 			}
 	       }
@@ -198,7 +198,7 @@ PndEmcMapper::PndEmcMapper(Int_t MapVersion):fMapVersion(MapVersion)
 			   iTheta=row+29;
 			   
 			   detId =  module*100000000 + row*1000000 + copy*10000 + crystal;
-			   PndEmcTwoCoordIndex* _tci=new PndEmcTwoCoordIndex(iTheta,iPhi,detId);
+			   _tci=new PndEmcTwoCoordIndex(iTheta,iPhi,detId);
 			   fIntTwoCoordMap[detId]=_tci;
 			}
 	       }
@@ -215,7 +215,7 @@ PndEmcMapper::PndEmcMapper(Int_t MapVersion):fMapVersion(MapVersion)
 			   
 			   detId =  module*100000000 + row*1000000 + copy*10000 + crystal;
 			   
-			   PndEmcTwoCoordIndex* _tci=new PndEmcTwoCoordIndex(iX+250,iY+250,detId);
+			   _tci=new PndEmcTwoCoordIndex(iX+250,iY+250,detId);
 			   fIntTwoCoordMap[detId]=_tci;
 			}
 	       }
@@ -233,7 +233,7 @@ PndEmcMapper::PndEmcMapper(Int_t MapVersion):fMapVersion(MapVersion)
 			   
 			   detId =  module*100000000 + row*1000000 + copy*10000 + crystal;
 			   
-			   PndEmcTwoCoordIndex* _tci=new PndEmcTwoCoordIndex(iX+350,iY+350,detId);
+			   _tci=new PndEmcTwoCoordIndex(iX+350,iY+350,detId);
 			   fIntTwoCoordMap[detId]=_tci;
 			}		  
 	       }
@@ -251,7 +251,7 @@ PndEmcMapper::PndEmcMapper(Int_t MapVersion):fMapVersion(MapVersion)
 			   
 			   detId =  module*100000000 + row*1000000 + copy*10000 + crystal;
 			   
-			   PndEmcTwoCoordIndex* _tci=new PndEmcTwoCoordIndex(iX+450,iY+450,detId);
+			   _tci=new PndEmcTwoCoordIndex(iX+450,iY+450,detId);
 			   fIntTwoCoordMap[detId]=_tci;
 			}
 	       }
@@ -267,7 +267,7 @@ PndEmcMapper::PndEmcMapper(Int_t MapVersion):fMapVersion(MapVersion)
 			 
 			 detId =  module*100000000 + row*1000000 + copy*10000 + crystal;
 			 
-			 PndEmcTwoCoordIndex* _tci=new PndEmcTwoCoordIndex(iX+550,iY+550,detId);
+			 _tci=new PndEmcTwoCoordIndex(iX+550,iY+550,detId);
 			 fIntTwoCoordMap[detId]=_tci;
 		      }
 	       }	    
@@ -290,7 +290,7 @@ PndEmcMapper::PndEmcMapper(Int_t MapVersion):fMapVersion(MapVersion)
 		 
 		 detId =  module*100000000 + row*1000000 + copy*10000 + crystal;	
 		 
-		 PndEmcTwoCoordIndex* _tci=new PndEmcTwoCoordIndex(iX+250,iY+250,detId);
+		 _tci=new PndEmcTwoCoordIndex(iX+250,iY+250,detId);
 		 fIntTwoCoordMap[detId]=_tci;
 	      }	
      }	
@@ -310,7 +310,7 @@ PndEmcMapper::PndEmcMapper(Int_t MapVersion):fMapVersion(MapVersion)
 		 if (copy==4) {  iX =  row;   iY =  crystal;   }
 		 
 		 detId =  module*100000000 + row*1000000 + copy*10000 + crystal;	
-		 PndEmcTwoCoordIndex* _tci=new PndEmcTwoCoordIndex(iX+250,iY+250,detId);
+		 _tci=new PndEmcTwoCoordIndex(iX+250,iY+250,detId);
 		 fIntTwoCoordMap[detId]=_tci;
 
 	      }	
@@ -331,7 +331,7 @@ PndEmcMapper::PndEmcMapper(Int_t MapVersion):fMapVersion(MapVersion)
 		 if (copy==4) {  iX =  row;   iY =  crystal;   }
 		 
 		 detId =  module*100000000 + row*1000000 + copy*10000 + crystal;	
-		 PndEmcTwoCoordIndex* _tci=new PndEmcTwoCoordIndex(iX+250,iY+250,detId);
+		 _tci=new PndEmcTwoCoordIndex(iX+250,iY+250,detId);
 		 fIntTwoCoordMap[detId]=_tci;
 	      }	
      }	
@@ -352,7 +352,7 @@ PndEmcMapper::PndEmcMapper(Int_t MapVersion):fMapVersion(MapVersion)
 						iTheta=-row+30;
 					
 						detId =  module*100000000 + row*1000000 + copy*10000 + crystal;	
-						PndEmcTwoCoordIndex* _tci=new PndEmcTwoCoordIndex(iTheta,iPhi,detId);
+						_tci=new PndEmcTwoCoordIndex(iTheta,iPhi,detId);
 						fIntTwoCoordMap[detId]=_tci;
 					}	
 			}
@@ -366,7 +366,7 @@ PndEmcMapper::PndEmcMapper(Int_t MapVersion):fMapVersion(MapVersion)
 						iTheta=row+29;
 						
 						detId =  module*100000000 + row*1000000 + copy*10000 + crystal;	
-						PndEmcTwoCoordIndex* _tci=new PndEmcTwoCoordIndex(iTheta,iPhi,detId);
+						_tci=new PndEmcTwoCoordIndex(iTheta,iPhi,detId);
 						fIntTwoCoordMap[detId]=_tci;
 					}
 			}
@@ -384,7 +384,7 @@ PndEmcMapper::PndEmcMapper(Int_t MapVersion):fMapVersion(MapVersion)
 			   
 			   detId =  module*100000000 + row*1000000 + copy*10000 + crystal;
 			   
-			   PndEmcTwoCoordIndex* _tci=new PndEmcTwoCoordIndex(iX+250,iY+250,detId);
+			   _tci=new PndEmcTwoCoordIndex(iX+250,iY+250,detId);
 			   fIntTwoCoordMap[detId]=_tci;
 			}
 	       }
@@ -401,7 +401,7 @@ PndEmcMapper::PndEmcMapper(Int_t MapVersion):fMapVersion(MapVersion)
 					
 					        detId =  module*100000000 + row*1000000 + copy*10000 + crystal;	
 						
-						PndEmcTwoCoordIndex* _tci=new PndEmcTwoCoordIndex(iX+350,iY+350,detId);
+						_tci=new PndEmcTwoCoordIndex(iX+350,iY+350,detId);
 						fIntTwoCoordMap[detId]=_tci;					
 					}	
 			}
@@ -418,7 +418,7 @@ PndEmcMapper::PndEmcMapper(Int_t MapVersion):fMapVersion(MapVersion)
 					
 					        detId =  module*100000000 + row*1000000 + copy*10000 + crystal;	
 						
-						PndEmcTwoCoordIndex* _tci=new PndEmcTwoCoordIndex(iX+450,iY+450,detId);
+						_tci=new PndEmcTwoCoordIndex(iX+450,iY+450,detId);
 						fIntTwoCoordMap[detId]=_tci;
 					}	
 			}
@@ -433,7 +433,7 @@ PndEmcMapper::PndEmcMapper(Int_t MapVersion):fMapVersion(MapVersion)
 				  
 				  detId =  module*100000000 + row*1000000 + copy*10000 + crystal;	
 				  
-				  PndEmcTwoCoordIndex* _tci=new PndEmcTwoCoordIndex(iX+550,iY+550,detId);
+				  _tci=new PndEmcTwoCoordIndex(iX+550,iY+550,detId);
 				  fIntTwoCoordMap[detId]=_tci;
 				}	
 			  }
@@ -457,7 +457,7 @@ PndEmcMapper::PndEmcMapper(Int_t MapVersion):fMapVersion(MapVersion)
 						iTheta=-row+30;
 					
 						detId =  module*100000000 + row*1000000 + copy*10000 + crystal;	
-						PndEmcTwoCoordIndex* _tci=new PndEmcTwoCoordIndex(iTheta,iPhi,detId);
+						_tci=new PndEmcTwoCoordIndex(iTheta,iPhi,detId);
 						fIntTwoCoordMap[detId]=_tci;
 					}	
 			}
@@ -471,7 +471,7 @@ PndEmcMapper::PndEmcMapper(Int_t MapVersion):fMapVersion(MapVersion)
 						iTheta=row+29;
 						
 						detId =  module*100000000 + row*1000000 + copy*10000 + crystal;	
-						PndEmcTwoCoordIndex* _tci=new PndEmcTwoCoordIndex(iTheta,iPhi,detId);
+						_tci=new PndEmcTwoCoordIndex(iTheta,iPhi,detId);
 						fIntTwoCoordMap[detId]=_tci;
 					}
 			}
@@ -489,7 +489,7 @@ PndEmcMapper::PndEmcMapper(Int_t MapVersion):fMapVersion(MapVersion)
 			   
 			   detId =  module*100000000 + row*1000000 + copy*10000 + crystal;
 			   
-			   PndEmcTwoCoordIndex* _tci=new PndEmcTwoCoordIndex(iX+250,iY+250,detId);
+			   _tci=new PndEmcTwoCoordIndex(iX+250,iY+250,detId);
 			   fIntTwoCoordMap[detId]=_tci;
 			}
 	       }
@@ -506,7 +506,7 @@ PndEmcMapper::PndEmcMapper(Int_t MapVersion):fMapVersion(MapVersion)
 					
 					        detId =  module*100000000 + row*1000000 + copy*10000 + crystal;	
 						
-						PndEmcTwoCoordIndex* _tci=new PndEmcTwoCoordIndex(iX+350,iY+350,detId);
+						_tci=new PndEmcTwoCoordIndex(iX+350,iY+350,detId);
 						fIntTwoCoordMap[detId]=_tci;					
 					}	
 			}
@@ -523,7 +523,7 @@ PndEmcMapper::PndEmcMapper(Int_t MapVersion):fMapVersion(MapVersion)
 					
 					        detId =  module*100000000 + row*1000000 + copy*10000 + crystal;	
 						
-						PndEmcTwoCoordIndex* _tci=new PndEmcTwoCoordIndex(iX+450,iY+450,detId);
+						_tci=new PndEmcTwoCoordIndex(iX+450,iY+450,detId);
 						fIntTwoCoordMap[detId]=_tci;
 					}	
 			}
@@ -538,7 +538,7 @@ PndEmcMapper::PndEmcMapper(Int_t MapVersion):fMapVersion(MapVersion)
 				  
 				  detId =  module*100000000 + row*1000000 + copy*10000 + crystal;	
 				  
-				  PndEmcTwoCoordIndex* _tci=new PndEmcTwoCoordIndex(iX+550,iY+550,detId);
+				  _tci=new PndEmcTwoCoordIndex(iX+550,iY+550,detId);
 				  fIntTwoCoordMap[detId]=_tci;
 				}	
 			  }
@@ -553,7 +553,7 @@ PndEmcMapper::PndEmcMapper(Int_t MapVersion):fMapVersion(MapVersion)
 	std::map <int,PndEmcTwoCoordIndex* >::const_iterator tciIter; 
 	for(tciIter=fIntTwoCoordMap.begin();tciIter!=fIntTwoCoordMap.end();++tciIter)
 	{
-		PndEmcTwoCoordIndex* _tci=tciIter->second;
+		_tci=tciIter->second;
 		detId=tciIter->first;
 		iTheta=_tci->XCoord();
 		iPhi=_tci->YCoord();
@@ -600,7 +600,7 @@ PndEmcMapper::PndEmcMapper(Int_t MapVersion):fMapVersion(MapVersion)
 	std::map <int,PndEmcTwoCoordIndex* >::const_iterator tciIter; 
 	for(tciIter=fIntTwoCoordMap.begin();tciIter!=fIntTwoCoordMap.end();++tciIter)
 	{
-		PndEmcTwoCoordIndex* _tci=tciIter->second;
+		_tci=tciIter->second;
 		detId=tciIter->first;
 		iTheta=_tci->XCoord();
 		iPhi=_tci->YCoord();
@@ -647,7 +647,7 @@ PndEmcMapper::PndEmcMapper(Int_t MapVersion):fMapVersion(MapVersion)
 	std::map <int,PndEmcTwoCoordIndex* >::const_iterator tciIter; 
 	for(tciIter=fIntTwoCoordMap.begin();tciIter!=fIntTwoCoordMap.end();++tciIter)
 	  {
-	     PndEmcTwoCoordIndex* _tci=tciIter->second;
+	     _tci=tciIter->second;
 	     detId=tciIter->first;
 	     iTheta=_tci->XCoord();
 	     iPhi=_tci->YCoord();
@@ -675,7 +675,7 @@ PndEmcMapper::PndEmcMapper(Int_t MapVersion):fMapVersion(MapVersion)
 	std::map <int,PndEmcTwoCoordIndex* >::const_iterator tciIter; 
 	for(tciIter=fIntTwoCoordMap.begin();tciIter!=fIntTwoCoordMap.end();++tciIter)
 	{
-		PndEmcTwoCoordIndex* _tci=tciIter->second;
+		_tci=tciIter->second;
 		detId=tciIter->first;
 		iTheta=_tci->XCoord();
 		iPhi=_tci->YCoord();
@@ -724,7 +724,7 @@ PndEmcMapper::PndEmcMapper(Int_t MapVersion):fMapVersion(MapVersion)
 	std::map <int,PndEmcTwoCoordIndex* >::const_iterator tciIter; 
 	for(tciIter=fIntTwoCoordMap.begin();tciIter!=fIntTwoCoordMap.end();++tciIter)
 	{
-		PndEmcTwoCoordIndex* _tci=tciIter->second;
+		_tci=tciIter->second;
 		detId=tciIter->first;
 		iTheta=_tci->XCoord();
 		iPhi=_tci->YCoord();

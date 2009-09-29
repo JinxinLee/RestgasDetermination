@@ -147,8 +147,8 @@ PndEmcWaveform::getNormalisation() const
 	newWaveform.update_waveform(gevHit);
  	delete gevHit;
 
-	Double_t max=newWaveform.max();
-	return max;
+	Double_t maximum=newWaveform.max();
+	return maximum;
 }
 
     

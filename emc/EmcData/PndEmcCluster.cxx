@@ -395,14 +395,14 @@ PndEmcCluster::Major_axis() const
 
 	for (current=fDigiList.begin();current!=fDigiList.end();++current)
 	{
-		Double_t x=0.,y=0.,e=0.,t=0.;
-		x=FindPhiDiff((*current)->GetPhi(),phi_clu);
-		y=(*current)->GetTheta()-theta_clu;
+		Double_t xx=0.,yy=0.,e=0.,t=0.;
+		xx=FindPhiDiff((*current)->GetPhi(),phi_clu);
+		yy=(*current)->GetTheta()-theta_clu;
 		e=(*current)->GetEnergy();
 		e*=e;                     // Will use e squared
-		t=(x-phi_wtd)*e;
+		t=(xx-phi_wtd)*e;
 		st2+=t*t;
-		maj+=t*(y-theta_wtd)*e;
+		maj+=t*(yy-theta_wtd)*e;
 	}
 	
 	// The major axis is found by the slope of a line through 
@@ -513,18 +513,18 @@ PndEmcCluster::GetEnergyCorrected() const
 {
 	Double_t e=this->energy();
 	TVector3 clusterPosition= this->where();
-	Double_t theta=clusterPosition.Theta();
+	Double_t theta_cluster=clusterPosition.Theta();
 		
 	Double_t e1=e;
-	Double_t theta1=theta;
+	Double_t theta1=theta_cluster;
 	
-	if ( (clusterPosition.Z() < 180.0)&&(theta<140.*TMath::Pi()/180.))
+	if ( (clusterPosition.Z() < 180.0)&&(theta_cluster<140.*TMath::Pi()/180.))
 	{
 		if (e<0.03) e1 = 0.03;
 		if (e>8.0)  e1 = 8.0 ;
 	}
 	
-	if ( (clusterPosition.Z() < 180.0)&&(theta>140.*TMath::Pi()/180.))
+	if ( (clusterPosition.Z() < 180.0)&&(theta_cluster>140.*TMath::Pi()/180.))
 	{
 		if (e<0.03) e1 = 0.03;
 		if (e>2.0)  e1 = 2.0 ;
@@ -643,9 +643,9 @@ PndEmcCluster::GetEnergyCorrected() const
 
 	if ( clusterPosition.Z() > 500.0)
 		return eout4;
-	else if ( (clusterPosition.Z() < 180.0)&&(theta>140.*TMath::Pi()/180.))
+	else if ( (clusterPosition.Z() < 180.0)&&(theta_cluster>140.*TMath::Pi()/180.))
 		return eout3;
-	else  if ( (clusterPosition.Z() < 180.0)&&(theta<140.*TMath::Pi()/180.))
+	else  if ( (clusterPosition.Z() < 180.0)&&(theta_cluster<140.*TMath::Pi()/180.))
 		return eout1;
 	else 
 		return eout2;
@@ -792,7 +792,7 @@ TMatrixD PndEmcCluster::GetErrorMatrix() const{
 	
 	TMatrixD trans(4,3);
 	if(clusterInComponent==barrel){
-		Double_t barrelRadius=scaleFactor[barrel]*100.;
+		barrelRadius=scaleFactor[barrel]*100.;
 		
 		trans(0,0)=1.;                       //dE/dE
 		trans(0,1)=0.;                       //dE/dz
@@ -843,9 +843,9 @@ TMatrixD PndEmcCluster::GetErrorMatrix() const{
 TMatrixD PndEmcCluster::Get4MomentumErrorMatrix() const {
 	// Conversion from (E, theta, phi, r) to ( px, py, pz, E )
 	
-	double z = where().Z();
+	double z_cluster = where().Z();
 	double perp = where().Perp();
-	double cos_theta = z;
+	double cos_theta = z_cluster;
 	double sin_theta = perp;
 	double sin_phi = where().Y() / perp;
 	double cos_phi = where().X() / perp;
