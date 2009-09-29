@@ -34,7 +34,9 @@
 
   // ----- Prepare GEANE --------------------------------------------
   // this will load Geant3 and execute setup macros to initialize geometry:
-  FairGeane *Geane = new FairGeane(inFile);
+  FairGeane *Geane = new FairGeane();
+  fRun->AddTask(Geane);
+   // ------------------------------------------------------------------------
 
   // ------------------------------------------------------------------------
   // -----  Parameter database   --------------------------------------------

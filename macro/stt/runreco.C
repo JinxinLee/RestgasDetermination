@@ -34,7 +34,11 @@
   fRun->AddFriend(inFile2);
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
-
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairParRootFileIo* parInput1 = new FairParRootFileIo();
+  parInput1->open(parFile.Data());
+  rtdb->setFirstInput(parInput1);
+ 
   // trackfinding ....
   PndSttTrackFinderIdeal* sttTrackFinder = new PndSttTrackFinderIdeal(iVerbose);
   PndSttFindTracks* sttFindTracks = new PndSttFindTracks("Track Finder", "FairTask", sttTrackFinder, iVerbose);
