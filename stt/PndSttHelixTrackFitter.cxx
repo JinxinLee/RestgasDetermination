@@ -1176,7 +1176,7 @@ Bool_t PndSttHelixTrackFitter::ZFinder(PndSttTrack* pTrack, Int_t pidHypo) {
     if(wiredirection == TVector3(0.,0.,1.)) continue;
     wireOk++;
    
-    Double_t sigz = 1.; // CHECK
+    sigz = 1.; // CHECK
     
     // FIRST CHOICE .................
     TVector3 *vi = (TVector3*) ZPointsArray->At(okcounter);
@@ -1385,8 +1385,7 @@ void PndSttHelixTrackFitter::Hough(TVector3* choice, Double_t Phi0, Double_t x0,
   Double_t a = -TMath::Pi()/2.;
   Double_t tga;
   Double_t b = -150;
-  Double_t ycalc;
-  
+   
   // 200 step per -pi/2 < a < pi/2
   for(Int_t i = 0; i < 200; i++) {
     b = -150;
@@ -1655,7 +1654,7 @@ PndSttHit* PndSttHelixTrackFitter::GetHitFromCollections(Int_t hitCounter) const
 }
 
 
-Double_t PndSttHelixTrackFitter::CalculateScosl(Double_t h, Double_t d0,  Double_t phi0, Double_t R, Double_t x, Double_t y)
+Double_t PndSttHelixTrackFitter::CalculateScosl(Double_t hh, Double_t d0,  Double_t phi0, Double_t R, Double_t x, Double_t y)
 {
 
   Double_t x_0 = (d0 + R) * TMath::Cos(phi0);
@@ -1669,7 +1668,7 @@ Double_t PndSttHelixTrackFitter::CalculateScosl(Double_t h, Double_t d0,  Double
   //  cout << "calculate Phi0: " << Phi0 << " v0: " << x0 << " " << y0 << endl;
   //  cout << "phi: " << phi0 << " Phi0: " << Phi0 << endl;
 
-  Double_t scos = h * R * TMath::ATan2((y - y0) * TMath::Cos(Phi0) - (x - x0) * TMath::Sin(Phi0) , R + (x - x0) * TMath::Cos(Phi0) + (y - y0) * TMath::Sin(Phi0));
+  Double_t scos = hh * R * TMath::ATan2((y - y0) * TMath::Cos(Phi0) - (x - x0) * TMath::Sin(Phi0) , R + (x - x0) * TMath::Cos(Phi0) + (y - y0) * TMath::Sin(Phi0));
 
   return scos;
 

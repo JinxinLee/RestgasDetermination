@@ -160,7 +160,9 @@ private:
 
   // Input for the medium
 
-  Double_t PClus[20], CO2Clus[20], CumClus[21], CH4Clus[20];
+  //  Double_t PClus[20], CO2Clus[20], CumClus[21], CH4Clus[20];
+  Double_t CumClus[21], CH4Clus[20]; // shadows deleted 
+
  
   Double_t Wi;
   Double_t ArPerc, CO2Perc, CH4Perc;  // volume percentages

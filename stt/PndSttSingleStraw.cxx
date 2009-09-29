@@ -606,28 +606,28 @@ Int_t PndSttSingleStraw::Eject() {
 // =============================================================
 
 
-Double_t  PndSttSingleStraw::RRise(Double_t gamma) {
+Double_t  PndSttSingleStraw::RRise(Double_t gamma2) {
 
   // interpolate the relativisic rise of the
   // number of cluster per cm, starting from the one
   // measured at the ionization minimum
 
   Double_t Rise;
-  Double_t lg = log10(gamma);
+  Double_t lg = log10(gamma2);
 
-  if(1.<=gamma && gamma <= 2.2){
+  if(1.<=gamma2 && gamma2 <= 2.2){
     Rise = -2.159*lg +1.7;
   }
-  else if(2.2<=gamma && gamma <= 6.){
+  else if(2.2<=gamma2 && gamma2 <= 6.){
     Rise = 1.;
   }
-  else if(6.<=gamma && gamma <= 200.){
+  else if(6.<=gamma2 && gamma2 <= 200.){
     Rise = 0.302*lg + 0.765;
   }
-  else if(200.<=gamma && gamma <= 1000.){
+  else if(200.<=gamma2 && gamma2 <= 1000.){
     Rise = 0.1431*lg + 1.131;
   }
-  else if(1000.<=gamma){
+  else if(1000.<=gamma2){
     Rise = 1.54;
   }
   else{
