@@ -1,12 +1,17 @@
 #ifndef PNDMDTTRKPRODUCER_H
 #define PNDMDTTRKPRODUCER_H 1
 
+#include <map>
+#include <vector>
 
 #include "FairTask.h"
 #include "PndMdtTrk.h"
 #include "PndMdtRecoPar.h"
 
 class TClonesArray;
+
+using std::map;
+using std::vector;
 
 class PndMdtTrkProducer : public FairTask
 {
@@ -28,28 +33,29 @@ class PndMdtTrkProducer : public FairTask
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
 
-  PndMdtTrk* AddTrk(PndMdtTrk* track);
-
-  Bool_t UseSimulation()        const { return fUseSimulation; };
-
-  void SetSimulation(Bool_t sim)      { fUseSimulation = sim; };
-   
   virtual void SetParContainers();
   
-   private: 
-
-  /** Input array of PndMdtPoint **/
-  TClonesArray* fPointArray; 
-
+ private: 
+  
+  PndMdtTrk* AddTrk(PndMdtTrk* track);
+  
+  Bool_t MdtMapping(); // Creates maps of MDT hits
+  void Reset();        // reset maps
+  void SetGeometry();  // setting layer positions
+  
   /** Input array of PndMdtHit **/
   TClonesArray* fHitArray; 
-
-    /** Output array of PndMdtTrk **/
+  
+  /** Output array of PndMdtTrk **/
   TClonesArray* fTrkArray; 
-
+  
   PndMdtRecoPar *fRecoPar;
-  Bool_t fUseSimulation;
-   
+ 
+  map<Int_t, vector<Int_t> >mapMdtBarrel;
+  map<Int_t, vector<Int_t> >mapMdtEndcap;
+
+  Float_t mdtLayerPos[2][12];
+  
   ClassDef(PndMdtTrkProducer,1);
 
 };

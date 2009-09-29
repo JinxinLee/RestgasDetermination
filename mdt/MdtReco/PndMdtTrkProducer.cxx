@@ -4,14 +4,13 @@
 // -------------------------------------------------------------------------
 
 #include "PndMdtTrkProducer.h"
-
+#include "PndMdtMuonFilter.h"
+#include "PndMdtGeoConstructorTo.h"
 #include "PndMdtTrk.h"
 #include "PndMdtHit.h"
-#include "PndMdtPoint.h"
 #include "PndDetectorList.h"
 
 #include "FairRootManager.h"
-#include "FairDetector.h"
 #include "FairRun.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
@@ -26,8 +25,9 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndMdtTrkProducer::PndMdtTrkProducer() :
-  FairTask(" MDT Tracklet Producer") { 
-  fUseSimulation = kTRUE;
+  FairTask(" MDT Tracklet Producer") {
+  Reset();
+  SetGeometry();
 }
 // -------------------------------------------------------------------------
 
@@ -53,22 +53,6 @@ InitStatus PndMdtTrkProducer::Init() {
 	 << "RootManager not instantiated!" << endl;
     return kFATAL;
   }
-  
-  if (fUseSimulation) // use MC for extrapolation
-    {
-      fPointArray = (TClonesArray*) ioman->GetObject("MdtPoint");
-      if ( ! fPointArray ) {
-	cout << "-W- PndMdtTrkProducer::Init: "
-	     << "No MdtPoint array!" << endl;
-	return kERROR;
-      }
-    }
-  else
-    {
-      cout << "-W- PndMdtTrkProducer::Init: "
-	   << "At the moment only Simulation Mode available. Please switch simulation mode ON" << endl;
-      return kERROR;
-    }
   
   fHitArray = (TClonesArray*) ioman->GetObject("MdtHit");
   if ( ! fHitArray ) {
@@ -104,126 +88,220 @@ void PndMdtTrkProducer::SetParContainers() {
   
 }
 
+//______________________________________________________
+void PndMdtTrkProducer::SetGeometry() {
+  // Setting the position of muon layers
+  mdtLayerPos[0][0] =  PndMdt_SV100;
+  mdtLayerPos[0][1] =  PndMdt_SV101;
+  mdtLayerPos[0][2] =  PndMdt_SV103;
+  mdtLayerPos[0][3] =  PndMdt_SV104;
+  mdtLayerPos[0][4] =  PndMdt_SV105;
+  mdtLayerPos[0][5] =  PndMdt_SV106;
+  mdtLayerPos[0][6] =  PndMdt_SV107;
+  mdtLayerPos[0][7] =  PndMdt_SV108;
+  mdtLayerPos[0][8] =  PndMdt_SV109; 
+  mdtLayerPos[0][9] =  PndMdt_SV110;
+  mdtLayerPos[0][10]=  PndMdt_SV111; 
+  mdtLayerPos[0][11]=  PndMdt_SV112;
+
+  mdtLayerPos[1][0] =  PndMdt_SV200;
+  mdtLayerPos[1][1] =  PndMdt_SV201;
+  mdtLayerPos[1][2] =  PndMdt_SV202;
+  mdtLayerPos[1][3] =  PndMdt_SV203;
+  mdtLayerPos[1][4] =  PndMdt_SV204;
+  mdtLayerPos[1][5] =  PndMdt_SV300;
+  mdtLayerPos[1][6] =  PndMdt_SV301;
+  mdtLayerPos[1][7] =  PndMdt_SV302;
+  mdtLayerPos[1][8] =  PndMdt_SV303;
+  mdtLayerPos[1][9] =  PndMdt_SV304;
+  mdtLayerPos[1][10]=  PndMdt_SV305;
+}
+
 // -----   Public method Exec   --------------------------------------------
-void PndMdtTrkProducer::Exec(Option_t* opt) {
-  
+void PndMdtTrkProducer::Exec(Option_t* opt)
+{
   // Reset output array
-  if ( ! fTrkArray ) Fatal("Exec", "No TrkArray");
-  
   fTrkArray->Clear();
   
-  Int_t nHits = fHitArray->GetEntriesFast();
-  if (nHits==0) return; // exit if the event contains no Mdt hits
+  if (!MdtMapping()) return; // exit if the event contains no Mdt hits
   
-  PndMdtHit    *mdtHit0 = NULL;
-  PndMdtPoint  *mdtPoint0 = NULL;
-  
-  // Loop over layer 0
-  for (Int_t iHit0=0; iHit0<nHits; iHit0++) {  
-    mdtHit0  = (PndMdtHit*) fHitArray->At(iHit0);
-    if (mdtHit0->GetLayerID()!=0) continue; // select only inner hits
-    mdtPoint0 = (PndMdtPoint*)fPointArray->At(mdtHit0->GetRefIndex());
-
-    Int_t mdtCount = 1;
-    Int_t mdtLayerCount = 1;
-    PndMdtTrk *mdtTrk = new PndMdtTrk();
-
-    // Set the first hit of layer0
-    mdtTrk->SetHitNumber(0, iHit0);
-    mdtTrk->SetModule(mdtHit0->GetModule());
-    
-    TVector3 pos0(0.,0.,0.);
-    mdtHit0->Position(pos0);
-    TVector3 mom0(mdtPoint0->GetPx(),mdtPoint0->GetPy(),mdtPoint0->GetPz());
-    
-    if (mdtHit0->GetModule()==1) 
-      { // select barrel
-	// transformation in local coordinates
-	Float_t xt0, yt0;
-	xt0 = (cos(-mdtHit0->GetSector()*45*TMath::DegToRad())*pos0.X() - sin(-mdtHit0->GetSector()*45*TMath::DegToRad())*pos0.Y());
-	yt0 =  sin(-mdtHit0->GetSector()*45*TMath::DegToRad())*pos0.X() +  cos(-mdtHit0->GetSector()*45*TMath::DegToRad())*pos0.Y();
-	mom0.SetPhi(mom0.Phi()-mdtHit0->GetSector()*45.*TMath::DegToRad());
-	if (mom0.X()==0)
-	  {
-	    cout << "PndMdtTrkProducer:: Exec: Px == 0 error"<< endl;
-	    continue;
-	  }
-	Float_t xlayer0 = -fRecoPar->GetLayerPos(mdtHit0->GetModule()-1,0);
-	 
-	for (Int_t iHit=0; iHit<nHits; iHit++) {
-	    
-	  PndMdtHit *mdtHit  = (PndMdtHit*) fHitArray->At(iHit);
-	  if (mdtHit->GetLayerID()==0) continue; // skip inner hits
+  if (mapMdtBarrel.size()>0)
+    {
+      vector<Int_t>vecMdt0 = mapMdtBarrel[0];
+      TVector3 oldPos(0., 0., 0.);
+      TVector3 newPos(0., 0., 0.);
+      
+      for (Int_t iMap = 0; iMap < vecMdt0.size(); iMap++) // loop over hits in layer0
+	{
+	  Int_t layerCount = 1;
+	  PndMdtTrk *mdtTrk = new PndMdtTrk();
+	  mdtTrk->SetHitNumber(0, vecMdt0[iMap]);
+	  mdtTrk->SetModule(1);
 	  
-	  Float_t xlayer = -fRecoPar->GetLayerPos(mdtHit0->GetModule()-1,mdtHit->GetLayerID());
-	  Float_t yproj = yt0 + (xlayer - xt0) * mom0.Y() / mom0.X();
-	  Float_t zproj = pos0.Z() + (xlayer - xt0) * mom0.Z() / mom0.X(); 
+	  PndMdtHit* mdtHit0  = (PndMdtHit*) fHitArray->At(vecMdt0[iMap]);
+	  mdtHit0->Position(oldPos);
 	  
-	  TVector3 pos(0.,0.,0.);
-	  mdtHit->Position(pos);
-	  Float_t xt = (cos(-mdtHit0->GetSector()*45*TMath::DegToRad())*pos.X() - sin(-mdtHit0->GetSector()*45*TMath::DegToRad())*pos.Y());
-	  Float_t yt =  sin(-mdtHit0->GetSector()*45*TMath::DegToRad())*pos.X() +  cos(-mdtHit0->GetSector()*45*TMath::DegToRad())*pos.Y();
-	  //Float_t dist = sqrt(((yproj[yy]-yt0)*(yproj[yy]-yt0))+((zproj[yy]-hpos.Z())*(zproj[yy]-hpos.Z())));
-	  TVector3 vext(xlayer-xlayer0, yproj-yt0, zproj-pos0.Z());
-	  TVector3 vhit(xlayer-xlayer0, yt-yt0   , pos.Z()-pos0.Z());
-	  Float_t angle = vext.Angle(vhit);
-
-	  if (((mdtHit->GetLayerID()!=1)&&(angle>(fRecoPar->GetAngleCut(mdtHit0->GetModule()-1)*TMath::DegToRad()))) ||
-	      ((mdtHit->GetLayerID()==1)&&(angle>(fRecoPar->GetAngleCut(mdtHit0->GetModule()-1)*TMath::DegToRad()*1.5)))) 
-	    continue; // hit too far
-	  
-	  if (mdtTrk->GetHitBit(mdtHit->GetLayerID())==0) // if the layer is not used
+	  map<Int_t, vector<Int_t> >::const_iterator layer_iter;
+	  for (layer_iter=mapMdtBarrel.begin();layer_iter!=mapMdtBarrel.end();++layer_iter) // layer loop
 	    {
-	      mdtTrk->SetHitNumber(mdtHit->GetLayerID(), iHit);
-	      mdtTrk->SetHitMult  (mdtHit->GetLayerID(), mdtTrk->GetHitMult(mdtHit->GetLayerID())+1); 
-	      mdtTrk->SetHitAngle (mdtHit->GetLayerID(), angle);
-	      mdtCount++;
-	      mdtLayerCount++;
-	    }
-	  else
-	    {
-	      mdtTrk->SetHitMult  (mdtHit->GetLayerID(), mdtTrk->GetHitMult(mdtHit->GetLayerID())+1); 
-	      mdtCount++;
-	      if (mdtTrk->GetHitAngle(mdtHit->GetLayerID())> angle)
+	      if (((*layer_iter).first)==0) continue; // skip first layer
+	      
+	      vector<Int_t>vecMdt = (*layer_iter).second;
+	      Float_t corrDist = -1;
+	      Int_t corrId = -1;
+	      TVector3 corrPos(0., 0., 0.);
+	      for (Int_t hit_iter = 0; hit_iter < vecMdt.size(); ++hit_iter)
 		{
-		  mdtTrk->SetHitNumber(mdtHit->GetLayerID(), iHit);
-		  mdtTrk->SetHitAngle (mdtHit->GetLayerID(), angle);
+		  PndMdtHit* mdtHit  = (PndMdtHit*) fHitArray->At(vecMdt[hit_iter]);
+		  mdtHit->Position(newPos);
+		  Float_t hitDist = (oldPos-newPos).Mag2();
+		  if ( (corrDist<0.) || (corrDist > hitDist) ) // find closes hit
+		    {
+		      corrDist = hitDist;
+		      corrId = vecMdt[hit_iter];
+		      corrPos = newPos;
+		    }
 		}
-	    }
-	   
-	} // end of outer layer loop
-      } // end of barrel loop
-
-    mdtTrk->SetHitCount(mdtCount);
-    mdtTrk->SetLayerCount(mdtLayerCount);
-    
-    if (mdtLayerCount>1)  AddTrk(mdtTrk);
-  } // loop over layer0
+	      
+	      if ( (corrDist>0.) && ((TMath::Sqrt(corrDist)*10./(mdtLayerPos[mdtTrk->GetModule()-1][(*layer_iter).first] - mdtLayerPos[mdtTrk->GetModule()-1][(*layer_iter).first-1])) < 2.5) ) // if there in one correlated hit closer than 2.5 layer distance
+		{
+		  mdtTrk->SetHitNumber((*layer_iter).first, corrId);
+		  mdtTrk->SetHitDist((*layer_iter).first, corrDist);
+		  mdtTrk->SetHitMult((*layer_iter).first, mdtTrk->GetHitMult((*layer_iter).first)+1);
+		  layerCount++;
+		  oldPos = corrPos; // reset position for next mdt layer
+		}
+	      
+	    } // end of layer loop
+	  
+	    mdtTrk->SetLayerCount(layerCount);
+            AddTrk(mdtTrk); // storing the PndMdtTrk object  
+	    } // end of layer0 loop
+    }
   
-   
+  if (mapMdtEndcap.size()>0)
+    {
+      vector<Int_t>vecMdt0 = mapMdtEndcap[0];
+      TVector3 oldPos(0., 0., 0.);
+      TVector3 newPos(0., 0., 0.);
+      
+      for (Int_t iMap = 0; iMap < vecMdt0.size(); iMap++) // loop over hits in layer0
+	{
+	  Int_t layerCount = 1;
+	  PndMdtTrk *mdtTrk = new PndMdtTrk();
+	  mdtTrk->SetHitNumber(0, vecMdt0[iMap]);
+	  mdtTrk->SetModule(2);
+	  
+	  PndMdtHit* mdtHit0  = (PndMdtHit*) fHitArray->At(vecMdt0[iMap]);
+	  mdtHit0->Position(oldPos);
+	  
+	  map<Int_t, vector<Int_t> >::const_iterator layer_iter;
+	  for (layer_iter=mapMdtEndcap.begin();layer_iter!=mapMdtEndcap.end();++layer_iter) // layer loop
+	    {
+	      if (((*layer_iter).first)==0) continue; // skip first layer
+	      
+	      vector<Int_t>vecMdt = (*layer_iter).second;
+	      Float_t corrDist = -1;
+	      Int_t corrId = -1;
+	      TVector3 corrPos(0., 0., 0.);
+	      for (Int_t hit_iter = 0; hit_iter < vecMdt.size(); ++hit_iter)
+		{
+		  PndMdtHit* mdtHit  = (PndMdtHit*) fHitArray->At(vecMdt[hit_iter]);
+		  mdtHit->Position(newPos);
+		  Float_t hitDist = (oldPos-newPos).Mag2();
+		  if ( (corrDist<0.) || (corrDist > hitDist) ) // find closes hit
+		    {
+		      corrDist = hitDist;
+		      corrId = vecMdt[hit_iter];
+		      corrPos = newPos;
+		    }
+		}
+	      
+	        if ( (corrDist>0.) && ((TMath::Sqrt(corrDist)*10./(mdtLayerPos[mdtTrk->GetModule()-1][(*layer_iter).first] - mdtLayerPos[mdtTrk->GetModule()-1][(*layer_iter).first-1])) < 2.5) ) // if there in one correlated hit closer than 2.5 later distance
+		{
+		  mdtTrk->SetHitNumber((*layer_iter).first, corrId);
+		  mdtTrk->SetHitDist((*layer_iter).first, corrDist);
+		  mdtTrk->SetHitMult((*layer_iter).first, mdtTrk->GetHitMult((*layer_iter).first)+1);
+		  layerCount++;
+		  oldPos = corrPos; // reset position for next mdt layer
+		}
+	      
+	    } // end of layer loop
+	    
+	  mdtTrk->SetLayerCount(layerCount);
+	  AddTrk(mdtTrk); // storing the PndMdtTrk object  
+	} // end of layer0 loop
+    } // end of endcap block
+      
 }
-// -------------------------------------------------------------------------
+
+// -----   Private method MdtMapping   --------------------------------------------
+Bool_t PndMdtTrkProducer::MdtMapping() 
+{
+  Int_t nHits = fHitArray->GetEntriesFast();
+  if (nHits==0) return kFALSE;
+  
+  Reset();
+  PndMdtHit *mdtHit = NULL;
+  for (Int_t iHit=0; iHit<nHits; iHit++) 
+    {  
+      mdtHit  = (PndMdtHit*) fHitArray->At(iHit);
+      Int_t mdtModule = -1, mdtLayer = -1;
+
+      switch (mdtHit->GetModule())
+	{
+	case 1:
+	  mdtModule = 1;
+	  mdtLayer = mdtHit->GetLayerID();
+	  mapMdtBarrel[mdtLayer].push_back(iHit);
+	  break;
+	  
+	case 2:
+	  mdtModule = 2;
+	  mdtLayer = mdtHit->GetLayerID();
+	  mapMdtEndcap[mdtLayer].push_back(iHit);
+	  break;
+
+	case 3:
+	  mdtModule = 2;
+	  mdtLayer = mdtHit->GetLayerID()+5;
+	  mapMdtEndcap[mdtLayer].push_back(iHit);
+	  break;
+	
+	default:
+	  cout << "-E- PndMdtTrkProducer::Init: Wrong MDT Module" << endl;
+	  return kFALSE;
+	}
+    }
+  
+  return kTRUE;  
+}
 
 // -----   Private method AddTrk   --------------------------------------------
 PndMdtTrk* PndMdtTrkProducer::AddTrk(PndMdtTrk* track) {
   // Creates a new hit in the TClonesArray.
   
-  Float_t chi2=0;
-  for (Int_t ll=1; ll<10; ll++)
-    {
-      if (track->GetHitBit(ll)==0) continue;
-      if (ll==1)
-	chi2 = chi2 + (track->GetHitAngle(ll)/1.5)*(track->GetHitAngle(ll)/1.5); // manual correction for the first layer
-      else
-	chi2 = chi2 + track->GetHitAngle(ll)*track->GetHitAngle(ll);
-    }
-  track->SetChi2(chi2);
+ //  Float_t chi2=0;
+//   for (Int_t ll=1; ll<10; ll++)
+//     {
+//       if (track->GetHitBit(ll)==0) continue;
+//       if (ll==1)
+// 	chi2 = chi2 + (track->GetHit(ll)/1.5)*(track->GetHitAngle(ll)/1.5); // manual correction for the first layer
+//       else
+// 	chi2 = chi2 + track->GetHitAngle(ll)*track->GetHitAngle(ll);
+//     }
+//   track->SetChi2(chi2);
   
   TClonesArray& trkRef = *fTrkArray;
   Int_t size = trkRef.GetEntriesFast();
   return new(trkRef[size]) PndMdtTrk(*track);
 }
-// ----
 
+// -----   Public method Reset   --------------------------------------------
+void PndMdtTrkProducer::Reset() {
+  // reset maps
+  mapMdtBarrel.clear();
+  mapMdtEndcap.clear();
+}
 
 ClassImp(PndMdtTrkProducer)

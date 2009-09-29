@@ -17,7 +17,7 @@ void PndMdtTrk::Clear()
   for (Int_t ii=0; ii<15; ii++)
     { fHitList[ii]  = -1;
       fHitMult[ii]  =  0;
-      fHitAngle[ii] = -1.;
+      fHitDist[ii] = -1.;
     }
   fHitCount = 0;
   fLayerCount = 0;
