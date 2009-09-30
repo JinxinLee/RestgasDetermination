@@ -10,8 +10,7 @@
   // Load basic libraries
   //gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-
-    basiclibs();
+   basiclibs();
 
   // Load this example libraries
   gSystem->Load("libGeoBase");
@@ -69,9 +68,9 @@
   Tof->SetGeometryFileName("tofbarrel.geo"); 
   // fRun->AddModule(Tof);
 
-  FairModule *Pipe= new PndPipe("PIPE");
-  Pipe->SetGeometryFileName("pipe.geo");
-  fRun->AddModule(Pipe);
+//  FairModule *Pipe= new PndPipe("PIPE");
+//  Pipe->SetGeometryFileName("pipe.geo");
+//  fRun->AddModule(Pipe);
 
   //FairModule *Magnet= new PndMagnet("MAGNET");
   //Magnet->SetGeometryFileName("magnet.geo");
@@ -129,30 +128,43 @@
   //FairIonGenerator *fIongen= new FairIonGenerator(79, 197,79,1, 0.,0., 25, 0.,0.,-1.);
   //  primGen->AddGenerator(fIongen);
 
-  fRun->SetStoreTraj(kTRUE);
+   fRun->SetStoreTraj(kTRUE);
 
-  //magnetic field
-  PndMultiField *fField= new PndMultiField();
+   fRun->SetBeamMom(15);
+   PndMultiField *fField= new PndMultiField();
 
-  //PndTransMap *map= new PndTransMap("TransMap", "R");
-  //PndDipoleMap *map1= new PndDipoleMap("DipoleMap", "R");
-  PndSolenoidMap *map2= new PndSolenoidMap("SolenoidMap", "R");
-  //fField->AddField(map);
-  //fField->AddField(map1);
-  fField->AddField(map2);
+ //  PndTransMap *map_t= new PndTransMap("TransMap", "R");
+ //  PndDipoleMap *map_d1= new PndDipoleMap("DipoleMap1", "R");
+ //  PndDipoleMap *map_d2= new PndDipoleMap("DipoleMap2", "R");
+   PndSolenoidMap *map_s1= new PndSolenoidMap("SolenoidMap1", "R");
+   PndSolenoidMap *map_s2= new PndSolenoidMap("SolenoidMap2", "R");
+   PndSolenoidMap *map_s3= new PndSolenoidMap("SolenoidMap3", "R");
+   PndSolenoidMap *map_s4= new PndSolenoidMap("SolenoidMap4", "R");
 
+  // fField->AddField(map_t);
+  // fField->AddField(map_d1);
+  // fField->AddField(map_d2);
+   fField->AddField(map_s1);
+   fField->AddField(map_s2);
+   fField->AddField(map_s3);
+   fField->AddField(map_s4);
 
-  PndConstField *fMagField=new PndConstField();
-  fMagField->SetField(0.,0.,20.); // values are in kG
-  //fMagField->SetField(0.,0.,0.);
-  fMagField->SetFieldRegion(-50, 50,-50, 50, -150, 20); // values are in cm (xmivoln,xmax,ymin,ymax,zmin,zmax)
-  //fMagField->SetFieldRegion(-50, 50,-50, 50, -150, 110); // values are in cm (xmivoln,xmax,ymin,ymax,zmin,zmax)
-  //  fField->AddField(fMagField);
-  
   fRun->SetField(fField);
   fRun->Init();
-   
-  
+    
+    
+    // -Trajectories Visualization
+ // ----------------------------
+     FairTrajFilter* trajFilter = FairTrajFilter::Instance();
+ // Set cuts for storing the trajectpries
+     trajFilter->SetStepSizeCut(0.04); // 1 cm
+//     trajFilter->SetVertexCut(-2000., -2000., 4., 2000., 2000., 100.);
+//     trajFilter->SetMomentumCutP(10e-3); // p_lab > 10 MeV
+//     trajFilter->SetEnergyCut(0., 1.02); // 0 < Etot < 1.04 GeV
+     trajFilter->SetStorePrimaries(kTRUE);
+     trajFilter->SetStoreSecondaries(kTRUE);
+
+ 
   // Fill the Parameter containers for this run
   //-------------------------------------------
   
@@ -167,7 +179,7 @@
   // Transport nEvents
   // -----------------
      
-  Int_t nEvents = 100;
+  Int_t nEvents = 10;
 
   fRun->Run(nEvents);
      
