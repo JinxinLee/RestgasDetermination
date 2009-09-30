@@ -16,7 +16,8 @@
   emcz->GetXaxis()->SetTitle("Z_{LHE} - Z_{EMC} [cm]");
   emcz->SetLineWidth(2);
   c1.cd(2);
-  tofCorr->Draw("track_z-tof_z>>tofz(100,-20,20)","","");
+  TH1F *tofz = new TH1F("tofz","tofz",100,-20,20);
+  tofCorr->Draw("track_z-tof_z>>tofz","","");
   tofz->GetXaxis()->SetTitle("Z_{LHE} - Z_{TOF} [cm]");
   tofz->SetLineWidth(2);
   c1.cd(3);
@@ -29,8 +30,9 @@
   emcphi->GetXaxis()->SetTitle("#phi_{LHE} - #phi_{EMC} [°]");
   emcphi->SetLineWidth(2);
   c1.cd(6);
-  tofCorr->Draw("dphi*TMath::RadToDeg()>>tofphi(100,-10,10)","");
-  tofphi->GetXaxis()->SetTitle("#phi_{LHE} - #phi_{TOF} [°]");
+  TH1F *tofphi = new TH1F("tofphi","tofphi",100,-10,10);
+  tofCorr->Draw("dphi*TMath::RadToDeg()>>tofphi","");
+  tofphi->GetXaxis()->SetTitle("#phi_{LHE} - #phi_{TOF} [^{0}]");
   tofphi->SetLineWidth(2);
   c1.cd(7);
   TH1F *mdtphi = new TH1F("mdtphi","mdtphi",100,-50,50);
@@ -46,7 +48,8 @@
   emcq->GetXaxis()->SetTitle("EMC Quality [cm^{2}]");
   emcq->SetLineWidth(2);
   c1.cd(10);
-  tofCorr->Draw("chi2>>tofq(100,-1,20)","","");
+  TH1F *tofq = new TH1F("tofq","tofq",100,-1,20);
+  tofCorr->Draw("chi2>>tofq","","");
   tofq->GetXaxis()->SetTitle("TOF Quality [cm^{2}]");
   tofq->SetLineWidth(2);
   c1.cd(11);
