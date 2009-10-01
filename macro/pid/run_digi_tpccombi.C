@@ -134,7 +134,7 @@
   mdtHitProd->SetPositionSmearing(0.2); // position smearing [cm]
   fRun->AddTask(mdtHitProd);
   
-   PndMdtTrkProducerIdeal* mdtTrkProd = new PndMdtTrkProducerIdeal();
+  PndMdtTrkProducer* mdtTrkProd = new PndMdtTrkProducer();
   fRun->AddTask(mdtTrkProd);
 
   // -----   DRC hit producers   ---------------------------------
