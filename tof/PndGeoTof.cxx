@@ -16,7 +16,7 @@ ClassImp(PndGeoTof)
 PndGeoTof::PndGeoTof() {
   // Constructor
   fName="t";
-  maxSectors=0;
+  maxSectors=1;
   maxModules=10;
   strcpy(modName,"t");
   strcpy(eleName,"t");
@@ -26,7 +26,7 @@ PndGeoTof::PndGeoTof() {
 const char* PndGeoTof::getModuleName(Int_t m) {
   // Returns the module name of muo number m
 
-  sprintf(modName,"stg0%i",m+1);
+  sprintf(modName,"tofB0%i",m+1);
   return modName;
  //cout << "MODNAME: " << modName << endl;
 }
@@ -34,7 +34,7 @@ const char* PndGeoTof::getModuleName(Int_t m) {
 const char* PndGeoTof::getEleName(Int_t m) {
   // Returns the element name of muo number m
  
-  sprintf(eleName,"stglay%i",m+1);
+  sprintf(eleName,"tof0%i",m+1);
   return eleName;
 // cout << "ELENAME: " << eleName << endl;
 }
