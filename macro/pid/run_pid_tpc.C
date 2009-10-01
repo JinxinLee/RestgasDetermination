@@ -16,10 +16,6 @@
 
   TString outFile = "pid_tpccombi.root";
    
-  // ---  Now choose concrete engines for the different tasks   -------------
-  // ------------------------------------------------------------------------
-
-
   // In general, the following parts need not be touched
   // ========================================================================
 
@@ -27,23 +23,15 @@
   TStopwatch timer;
   timer.Start();
   // ------------------------------------------------------------------------
-
-
-
+  
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inSimuFile);
   fRun->AddFriend(inDigiFile);
   fRun->AddFriend(inRecoFile);
-  
-  
   fRun->SetOutputFile(outFile.Data());
-  // ------------------------------------------------------------------------
-
-  // THIS IS STRONGLY NEEDED
-  FairGeane *Geane = new FairGeane(inSimuFile);
-  PndEmcMapper *emcMap = PndEmcMapper::Instance(2,inSimuFile);
-
+  FairGeane *Geane = new FairGeane();
+  fRun->AddTask(Geane);
   // -----  Parameter database   --------------------------------------------
   TString allDigiFile = sysFile+"/macro/params/all.par";
 
@@ -56,8 +44,6 @@
 
   rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parIo1);
-  fRun->LoadGeometry();
-
   // ------------------------------------------------------------------------
   
   PndPidCorrelator* corr = new PndPidCorrelator();
@@ -69,7 +55,7 @@
   
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
-  Geane->SetField(fRun->GetField());
+  PndEmcMapper *emcMap = PndEmcMapper::Instance(2,inSimuFile);
   fRun->Run(0,nEvents);
   // ------------------------------------------------------------------------
   rtdb->print();

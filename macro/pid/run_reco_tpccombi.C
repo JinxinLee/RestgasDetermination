@@ -34,8 +34,8 @@
   fRun->SetInputFile(inDigiFile);
   fRun->AddFriend(inSimFile);
   fRun->SetOutputFile(outFile);
-  FairGeane *Geane = new FairGeane(inSimFile.Data());
-  PndEmcMapper::Instance(2,inSimFile);
+  FairGeane *Geane = new FairGeane();
+  fRun->AddTask(Geane);
   // ------------------------------------------------------------------------
 
   // -----  Parameter database   --------------------------------------------
@@ -50,7 +50,6 @@
         
   rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parIo1);
-  fRun->LoadGeometry();
   // ------------------------------------------------------------------------
   // -----   LHETRACK  ---------------------------------
   
@@ -69,13 +68,12 @@
   
   PndLheKalmanTask* lheKalman = new PndLheKalmanTask();
   lheKalman->SetVerbose(0);
-  //lheKalman->SetGeane(kTRUE);
   //lheKalman->SetNumIterations(3);
   fRun->AddTask(lheKalman);
  
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
-  Geane->SetField(fRun->GetField());
+  PndEmcMapper *emcMap = PndEmcMapper::Instance(2,inSimFile);
   fRun->Run(0, nEvents);
 
   rtdb->saveOutput();
