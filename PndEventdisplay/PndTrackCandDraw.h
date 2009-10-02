@@ -18,7 +18,7 @@
 #include "FairHitDraw.h"
 #include "TClonesArray.h"
 
-class PndTrackCandDraw : public FairHitDraw {
+class PndTrackCandDraw : public FairBoxSetDraw {
 
  public:
 
@@ -36,13 +36,15 @@ class PndTrackCandDraw : public FairHitDraw {
   virtual ~PndTrackCandDraw();
   virtual InitStatus Init();
 
+  virtual void AddBoxesTrackCand(TEveBoxSet* set, TObject* obj, Int_t i = 0);
+  virtual void AddBoxesPndTrackCand(TEveBoxSet* set, TObject* obj, Int_t i = 0);
+
+
 protected:
-	  //virtual TVector3 GetVector(TObject* obj);
+	  virtual TVector3 GetVector(TObject* obj){};
 	  virtual TVector3 GetVector(Int_t detId, Int_t hitId);
 	  //virtual Int_t GetValue(TObject* obj,Int_t i);
 	  virtual void AddBoxes(TEveBoxSet* set, TObject* obj, Int_t i = 0);
-	  virtual void AddBoxesTrackCand(TEveBoxSet* set, TObject* obj, Int_t i = 0);
-	  virtual void AddBoxesPndTrackCand(TEveBoxSet* set, TObject* obj, Int_t i = 0);
 
 
   TClonesArray *fPixPointList; //!

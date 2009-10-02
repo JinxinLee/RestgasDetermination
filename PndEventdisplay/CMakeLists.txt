@@ -16,6 +16,7 @@ ${CMAKE_SOURCE_DIR}/tpc
 ${CMAKE_SOURCE_DIR}/lhetrack
 ${CMAKE_SOURCE_DIR}/eventdisplay
 ${CMAKE_SOURCE_DIR}/pnddata
+${CMAKE_SOURCE_DIR}/pnddata/SttData
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
 ${CMAKE_SOURCE_DIR}/PndEventdisplay
 )
@@ -30,7 +31,9 @@ link_directories( ${LINK_DIRECTORIES})
 
 set(PNDEVEDISP_SRCS
 PndTrackCandDraw.cxx
+PndTrackDraw.cxx
 PndTPCRecoPointDraw.cxx
+PndSttMCPointDraw.cxx
 )
 
 if(RULE_CHECKER_FOUND)

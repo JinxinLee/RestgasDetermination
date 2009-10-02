@@ -23,7 +23,7 @@ using std::cout;
 using std::endl;
 
 // -----   Standard constructor   ------------------------------------------
-PndTrackCandDraw::PndTrackCandDraw(const char* TrackCandName, Int_t iVerbose):FairHitDraw(TrackCandName, iVerbose)
+PndTrackCandDraw::PndTrackCandDraw(const char* TrackCandName, Int_t iVerbose):FairBoxSetDraw(TrackCandName, iVerbose)
 {
 }
 // -------------------------------------------------------------------------
@@ -32,7 +32,7 @@ InitStatus PndTrackCandDraw::Init()
 	FairBoxSetDraw::Init();
 
    if(fVerbose>1)  cout<<  "PndTrackCandDraw::Init()" << endl;
-   FairRootManager* fManager = FairRootManager::Instance();
+   fManager = FairRootManager::Instance();
    fPixPointList = (TClonesArray *)fManager->GetObject("MVDHitsPixel");
    fStripPointList = (TClonesArray *)fManager->GetObject("MVDHitsStrip");
    fTpcClusterList = (TClonesArray *)fManager->GetObject("PndTpcCluster");
