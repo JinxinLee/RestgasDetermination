@@ -309,7 +309,7 @@ Bool_t PndTof::ProcessHits(FairVolume* vol)
 	     // cout<<" sciF "<< fVolumeID<<" "<<vol->getMCid()<<nam3<<endl;
 	     
 	     
-	     ostringstream matName;
+	    // ostringstream matName;
 	    TString mat[4]={"CAbs","Si","Be","Al"};
 	    
 	    matName <<gMC->CurrentVolPath();

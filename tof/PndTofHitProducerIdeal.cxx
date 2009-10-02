@@ -295,7 +295,7 @@ void PndTofHitProducerIdeal::Exec(Option_t* opt)
 
 }
 // -------------------------------------------------------------------------
-void PndTofHitProducerIdeal::smear(Double_t& time, Double_t& fdt)
+void PndTofHitProducerIdeal::smear(Double_t& time, Double_t& dt)
 {
 /// smear a 3d vector
 
@@ -303,7 +303,7 @@ void PndTofHitProducerIdeal::smear(Double_t& time, Double_t& fdt)
   //std::cout<<" time "<<time<<std::endl;
   Double_t sigt;
   
-  sigt=gRandom->Gaus(0,fdt);
+  sigt=gRandom->Gaus(0,dt);
   t += sigt;
   time = t;
   return;
