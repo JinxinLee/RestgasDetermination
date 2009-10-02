@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include "TArrayF.h"
 #include "stdlib.h"
@@ -10,7 +9,10 @@ Int_t PndSolenoidMap::fNumberOfRegions=0;
 using namespace std;
 // -------------   Default constructor  ----------------------------------
 PndSolenoidMap::PndSolenoidMap()
-  :PndFieldMap()
+  :PndFieldMap(),
+   fRegionNo(0),
+   fHemiX(0),
+   fHemiY(0)
 { 
   fType = 2;
 }
@@ -21,26 +23,26 @@ PndSolenoidMap::PndSolenoidMap()
 // -------------   Standard constructor   ---------------------------------
 PndSolenoidMap::PndSolenoidMap(const char* mapName, 
 				 const char* fileType)
-  : PndFieldMap(mapName, fileType) { 
+  : PndFieldMap(mapName, fileType), 
+    fRegionNo(0),
+    fHemiX(0),
+    fHemiY(0)
+{ 
   fType = 2;
-  fNumberOfRegions++;
+  fNumberOfRegions++; 
   fRegionNo=fNumberOfRegions;
 }
 // ------------------------------------------------------------------------
 
 // ------------   Constructor from PndFieldPar   --------------------------
 PndSolenoidMap::PndSolenoidMap(PndMapPar* fieldPar) 
-  : PndFieldMap() {
-  fType = 2;
-  fPosX  = fPosY  = fPosZ  = 0.;
-  fXmin  = fYmin  = fZmin  = 0.;
-  fXmax  = fYmax  = fZmax  = 0.;
-  fXstep = fYstep = fZstep = 0.;
-  fNx    = fNy    = fNz    = 0;
-  fScale = 1.;
-  funit = 10.0;
-  fBx    = fBy    = fBz    = NULL;
-  if ( ! fieldPar ) {
+  : PndFieldMap(),
+    fRegionNo(fNumberOfRegions++),
+    fHemiX(0),
+    fHemiY(0)
+{
+   fType = 2;
+   if ( ! fieldPar ) {
     cerr << "-W- PndSolenoidMap::PndSolenoidMap: empty parameter container!"
 	 << endl;
     fName     = "";

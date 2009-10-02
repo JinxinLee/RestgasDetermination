@@ -31,11 +31,11 @@ PndDipoleMap::PndDipoleMap(const char* mapName,
   if(fRun){
     Double_t BeamMom= fRun->GetBeamMom();
     if(fRun->UseBeamMom() && BeamMom){
-      if(BeamMom< 2)Suffix=".0150" ;
-      else if (BeamMom< 5.0 )Suffix=".0406";
-      else if (BeamMom< 10.0 )Suffix=".0890" ;
-      else if (BeamMom< 12.0 )Suffix=".1191";
-      else  Suffix=".1500";
+      if(BeamMom< 3)Suffix=".0150" ;
+      else if (BeamMom< 6.0 && BeamMom >= 3.0)Suffix=".0406";
+      else if (BeamMom< 10.0 && BeamMom >= 6.0 )Suffix=".0890" ;
+      else if (BeamMom< 13.0 && BeamMom >= 10.0)Suffix=".1191";
+      else if (BeamMom> 13.0) Suffix=".1500";
     }else{
       Suffix="";
     }

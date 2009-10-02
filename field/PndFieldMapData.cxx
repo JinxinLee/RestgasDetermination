@@ -1,23 +1,27 @@
-// -------------------------------------------------------------------------
-// -----                    PndFieldMapData source file                -----
-// -----                V. Friese                14/02/06              -----
-// -------------------------------------------------------------------------
-
-
 #include "TArrayF.h"
-
 #include "PndFieldMap.h"
 #include "PndFieldMapData.h"
 
 
 
 // -------------   Default constructor  ----------------------------------
-PndFieldMapData::PndFieldMapData() {
-  fType  = 1;
-  fXmin  = fYmin  = fZmin  = 0.;
-  fXmax  = fYmax  = fZmax  = 0.;
-  fNx    = fNy    = fNz    = 0;
-  fBx    = fBy    = fBz    = NULL;
+PndFieldMapData::PndFieldMapData()
+ :fType(1),
+  fXmin(0), 
+  fXmax(0),
+  fYmin(0), 
+  fYmax(0),
+  fZmin(0), 
+  fZmax(0),
+  fUnit(0),
+  fNx(0), 
+  fNy(0), 
+  fNz(0),
+  fBx(0), 
+  fBy(0), 
+  fBz(0)
+{
+
 }
 // ------------------------------------------------------------------------
 
@@ -25,12 +29,22 @@ PndFieldMapData::PndFieldMapData() {
 
 // -------------   Standard constructor   ---------------------------------
 PndFieldMapData::PndFieldMapData(const char* mapName)
-  : TNamed(mapName, "PND Field Map Data") {
-  fType  = 1;
-  fXmin  = fYmin  = fZmin  = 0.;
-  fXmax  = fYmax  = fZmax  = 0.;
-  fNx    = fNy    = fNz    = 0;
-  fBx    = fBy    = fBz    = NULL;
+   :TNamed(mapName, "PND Field Map Data"),
+   fType(1),
+   fXmin(0), 
+   fXmax(0),
+   fYmin(0), 
+   fYmax(0),
+   fZmin(0), 
+   fZmax(0),
+   fUnit(0),
+   fNx(0), 
+   fNy(0), 
+   fNz(0),
+   fBx(0), 
+   fBy(0), 
+   fBz(0)
+{
 }
 // ------------------------------------------------------------------------
 
@@ -39,22 +53,23 @@ PndFieldMapData::PndFieldMapData(const char* mapName)
 // -----   Constructor from PndFieldMap   ------------------------------
 PndFieldMapData::PndFieldMapData(const char* name,
 				 const PndFieldMap& map) 
-: TNamed(name, "PND Field Map Data") {
-
-  fType  = map.GetType();
-  fXmin  = map.GetXmin();
-  fYmin  = map.GetYmin();
-  fZmin  = map.GetZmin();
-  fXmax  = map.GetXmax();
-  fYmax  = map.GetYmax();
-  fZmax  = map.GetZmax();
-  fNx    = map.GetNx();
-  fNy    = map.GetNy();
-  fNz    = map.GetNz();
-  fBx = new TArrayF(*(map.GetBx()));
-  fBy = new TArrayF(*(map.GetBy()));
-  fBz = new TArrayF(*(map.GetBz()));
-  fUnit = map.GetUnit();
+  :TNamed(name, "PND Field Map Data"),
+  fType( map.GetType()),
+  fXmin( map.GetXmin()),
+  fXmax( map.GetXmax()),
+  fYmin( map.GetYmin()),
+  fYmax( map.GetYmax()),
+  fZmin( map.GetZmin()),
+  fZmax( map.GetZmax()),
+  fUnit( map.GetUnit()), 
+  fNx(   map.GetNx()),
+  fNy(   map.GetNy()),
+  fNz(   map.GetNz()),
+  fBx( new TArrayF(*(map.GetBx()))),
+  fBy( new TArrayF(*(map.GetBy()))),
+  fBz( new TArrayF(*(map.GetBz())))
+ 
+{
 
   // Take out scaling factor and convert from kG to T
   Double_t factor = map.GetScale() * 10.; 

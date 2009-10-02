@@ -29,16 +29,17 @@ static PndFieldCreator gPndFieldCreator;
 
 
 PndFieldCreator::PndFieldCreator()
-	:FairFieldFactory()
+	:FairFieldFactory(),
+     fFieldPar(0),
+     fSPar(0),
+     fDPar(0),
+     fTPar(0),
+     fCPar(0),
+     fMPar(0)
+    
 {
 	fCreator=this;
-  fSPar=0;
-  fDPar=0;
-  fTPar=0;
-  fCPar=0;
-  fMPar=0;
-  fFieldPar=0;
-
+ 
 }
 PndFieldCreator::~PndFieldCreator()
 {

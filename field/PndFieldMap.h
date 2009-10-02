@@ -1,24 +1,17 @@
 // -------------------------------------------------------------------------
 // -----                      PndFieldMap header file                  -----
-// -----          Created 12/01/04  by M. Al/Turany (FairField.h)       -----
-// -----                Redesign 13/02/06  by V. Friese                -----
+// -----          Created 12/01/04  by M. Al/Turany                    -----
 // -------------------------------------------------------------------------
 
 
 /** PndFieldMap.h
  ** @author M.Al/Turany <m.al-turany@gsi.de>
- ** @author V.Friese <v.friese@gsi.de>
- ** @since 12.01.2004
- ** @version1.0
- **
  ** Magnetic field map on a 3-D grid.
  ** Field values are hold and returned in kG.
  **/
 
-
 #ifndef PNDFIELDMAP_H
 #define PNDFIELDMAP_H 1
-
 
 #include "FairField.h"
 
@@ -31,7 +24,6 @@ class PndFieldMap : public FairField {
 
 
 public:
-
 
   /** Default constructor **/
   PndFieldMap();

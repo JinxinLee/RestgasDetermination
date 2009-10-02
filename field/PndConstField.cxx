@@ -13,8 +13,17 @@
 using namespace std;
 
 // -----   Default constructor   -------------------------------------------
-PndConstField::PndConstField() {
-  fXmin = fXmax = fYmin = fYmax = fZmin = fZmax = fBx = fBy = fBz = 0.;
+PndConstField::PndConstField() 
+: fXmin(0),   
+  fXmax(0),
+  fYmin(0),
+  fYmax(0),
+  fZmin(0),
+  fZmax(0),
+  fBx(0),
+  fBy(0),
+  fBz(0)
+{
   fType = 0;
 }
 // -------------------------------------------------------------------------
@@ -27,16 +36,18 @@ PndConstField::PndConstField(const char* name, Double_t xMin,
 			     Double_t yMax, Double_t zMin,
 			     Double_t zMax, Double_t bX, 
 			     Double_t bY, Double_t bZ) 
-  : FairField(name) {
-  fXmin = xMin;
-  fXmax = xMax;
-  fYmin = yMin;
-  fYmax = yMax;
-  fZmin = zMin;
-  fZmax = zMax;
-  fBx   = bX;
-  fBy   = bY;
-  fBz   = bZ;
+  : FairField(name),
+    fXmin(xMin),   
+    fXmax(xMax),
+    fYmin(yMin),
+    fYmax(yMax),
+    fZmin(zMin),
+    fZmax(zMax),
+    fBx(bX),
+    fBy(bY),
+    fBz(bZ)
+
+{
   fType = 0;
 }
 // -------------------------------------------------------------------------
@@ -45,13 +56,20 @@ PndConstField::PndConstField(const char* name, Double_t xMin,
 
 // --------   Constructor from PndFieldPar   -------------------------------
 PndConstField::PndConstField(PndConstPar* fieldPar) 
-:FairField()
+ : FairField(), 
+   fXmin(0),   
+   fXmax(0),
+   fYmin(0),
+   fYmax(0),
+   fZmin(0),
+   fZmax(0),
+   fBx(0),
+   fBy(0),
+   fBz(0)
  {
   if ( ! fieldPar ) {
-    cerr << "-W- PndConstField::PndConstField: empty parameter container!"
-	 << endl;
-  fXmin = fXmax = fYmin = fYmax = fZmin = fZmax = fBx = fBy = fBz = 0.;
-  fType= -1;
+    cerr << "-W- PndConstField::PndConstField: empty parameter container!"<< endl;
+    fType= -1;
   }
   else {
     fXmin = fieldPar->GetXmin();

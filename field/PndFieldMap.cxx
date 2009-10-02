@@ -23,15 +23,15 @@ using namespace std;
 // -------------   Default constructor  ----------------------------------
 PndFieldMap::PndFieldMap() 
   : FairField(),
-    fPosX(0), fPosY(0), fPosZ(0),
-    fXmin(0), fYmin(0), fZmin(0),
-    fXmax(0), fYmax(0), fZmax(0),
-    fXstep(0), fYstep(0),fZstep(0),
-    fNx(0),fNy(0),fNz(0),
+	fFileName(""),
     fScale(1.0),
     funit(10.0),
-    fBx(NULL), fBy(NULL), fBz(NULL),
-    fFileName("")
+    fPosX(0), fPosY(0), fPosZ(0),
+    fXmin(0), fXmax(0), fXstep(0),
+	fYmin(0), fYmax(0), fYstep(0),
+    fZmin(0), fZmax(0), fZstep(0),
+    fNx(0),fNy(0),fNz(0),
+    fBx(NULL), fBy(NULL), fBz(NULL)   
 {
   SetName("");
   fType = 1;
@@ -43,14 +43,15 @@ PndFieldMap::PndFieldMap()
 // -------------   Standard constructor   ---------------------------------
 PndFieldMap::PndFieldMap(const char* mapName, const char* fileType)
   : FairField(mapName),
-    fPosX(0), fPosY(0), fPosZ(0),
-    fXmin(0), fYmin(0), fZmin(0),
-    fXmax(0), fYmax(0), fZmax(0),
-    fXstep(0), fYstep(0),fZstep(0),
-    fNx(0),fNy(0),fNz(0),
+    fFileName(TString("")),
     fScale(1.0),
     funit(10.0),
-    fBx(NULL), fBy(NULL), fBz(NULL)
+    fPosX(0), fPosY(0), fPosZ(0),
+    fXmin(0), fXmax(0), fXstep(0),
+    fYmin(0), fYmax(0), fYstep(0),
+    fZmin(0), fZmax(0), fZstep(0),
+    fNx(0),fNy(0),fNz(0),
+    fBx(NULL), fBy(NULL), fBz(NULL)   
 {
   SetName(mapName);
   TString dir = getenv("VMCWORKDIR");
@@ -66,22 +67,22 @@ PndFieldMap::PndFieldMap(const char* mapName, const char* fileType)
 // ------------   Constructor from PndFieldPar   --------------------------
 PndFieldMap::PndFieldMap(PndFieldPar* fieldPar) 
   : FairField(),
-    fPosX(0), fPosY(0), fPosZ(0),
-    fXmin(0), fYmin(0), fZmin(0),
-    fXmax(0), fYmax(0), fZmax(0),
-    fXstep(0), fYstep(0),fZstep(0),
-    fNx(0),fNy(0),fNz(0),
+	fFileName(TString("")),
     fScale(1.0),
     funit(10.0),
-    fBx(NULL), fBy(NULL), fBz(NULL)
+    fPosX(0), fPosY(0), fPosZ(0),
+    fXmin(0), fXmax(0), fXstep(0),
+    fYmin(0), fYmax(0), fYstep(0),
+    fZmin(0), fZmax(0), fZstep(0),
+    fNx(0),fNy(0),fNz(0),
+    fBx(NULL), fBy(NULL), fBz(NULL)   
 {
   fType = 1;
   if ( ! fieldPar ) {
     cerr << "-W- PndConstField::PndConstField: empty parameter container!"
 	 << endl;
     SetName("");
-    fFileName = "";
-    fType     = -1;
+	fType     = -1;
   }
   else {
     TString Name=GetName();
@@ -399,7 +400,7 @@ void PndFieldMap::Reset() {
 void PndFieldMap::ReadAsciiFile(const char* fileName) {
 
   Double_t bx=0., by=0., bz=0.;
-//  Double_t  xx, yy, zz;
+  Double_t  xx, yy, zz;
   // Open file
   cout << "-I- PndFieldMap: Reading field map from ASCII file " 
        << fileName << endl;
@@ -473,8 +474,8 @@ void PndFieldMap::ReadAsciiFile(const char* fileName) {
 	  Double_t perc = TMath::Nint(100.*index/nTot);
 	  cout << "\b\b\b\b\b\b" << setw(3) << perc << " % " << flush;
 	}
-	//mapFile >> xx>>yy>>zz>>  bx >> by >> bz ;
-	mapFile >>  bx >> by >> bz ;
+	mapFile >> xx>>yy>>zz>>  bx >> by >> bz ;
+	//mapFile >>  bx >> by >> bz ;
 	//cout  << " x= " <<xx <<" y= " << yy<<" z= " << zz<<" bx= " <<  bx <<" by= " <<by <<" bz= " << bz<< endl;
 	fBx->AddAt(factor*bx, index);
 	fBy->AddAt(factor*by, index);

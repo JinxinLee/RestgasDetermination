@@ -9,22 +9,38 @@ using namespace std;
 // ------   Constructor   --------------------------------------------------
 PndMapPar::PndMapPar(const char* name, const char* title,
 			 const char* context) 
-  : FairParGenericSet(name, title, context) {
-  fType = -1;
-  fXmin = fXmax = fYmin = fYmax = fZmin = fZmax = 0.;
-  fMapName = "";
-  fPosX = fPosY = fPosZ = 0.;
-  fScale = 0.;
+  : FairParGenericSet(name, title, context),
+    fType(-1),
+    fXmin(0),
+    fXmax(0),
+    fYmin(0),
+    fYmax(0),
+    fZmin(0),
+    fZmax(0),
+    fMapName(TString("")),
+    fPosX(0),
+    fPosY(0),
+    fPosZ(0),
+    fScale(0)
+{
 }
 // -------------------------------------------------------------------------
 
 PndMapPar::PndMapPar() 
- {
-  fType = -1;
-  fXmin = fXmax = fYmin = fYmax = fZmin = fZmax = 0.;
-  fMapName = "";
-  fPosX = fPosY = fPosZ = 0.;
-  fScale = 0.;
+   :fType(-1),
+   fXmin(0),
+   fXmax(0),
+   fYmin(0),
+   fYmax(0),
+   fZmin(0),
+   fZmax(0),
+   fMapName(TString("")),
+   fPosX(0),
+   fPosY(0),
+   fPosZ(0),
+   fScale(0)
+{
+  
 }
 // -------------------------------------------------------------------------
 
@@ -80,7 +96,7 @@ void PndMapPar::SetParameters(FairField* field) {
   }
    
     PndFieldMap* fieldMap = (PndFieldMap*) field;
-    fXmin = fXmax = fYmin = fYmax = fZmin = fZmax = 0.;
+    
     fMapName = field->GetName();
     fPosX   = fieldMap->GetPositionX();
     fPosY   = fieldMap->GetPositionY();

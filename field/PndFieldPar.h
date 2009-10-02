@@ -1,56 +1,37 @@
-// -------------------------------------------------------------------------
-// -----                      PndFieldPar header file                  -----
-// -----                   Created 20/02/06  by V. Friese              -----
-// -------------------------------------------------------------------------
-
-
 /** PndFieldPar.h
- ** @author V.Friese <v.friese@gsi.de>
- ** @since 20.02.2006
- ** @version 1.0
  **
  ** Parameter set for the PND magnetic field. For the runtime database.
  **/
 
-
 #ifndef PNDFIELDPAR_H
 #define PNDFIELDPAR_H 1
-
 
 #include "FairField.h"
 #include "FairParGenericSet.h"
 
-
 class FairParamList;
-
 
 class PndFieldPar : public FairParGenericSet
 {
-
  public:
 
-  
   /** Standard constructor  **/
   PndFieldPar(const char* name, const char* title, const char* context);
 
-/** default constructor  **/
+  /** default constructor  **/
   PndFieldPar();
   
   /** Destructor **/
   ~PndFieldPar();
 
-
   /** Put parameters **/
   virtual void putParams(FairParamList* list);
-
 
   /** Get parameters **/
   virtual Bool_t getParams(FairParamList* list);
 
-
   /** Set parameters from FairField  **/
   void SetParameters(FairField* field);
-
 
   /** Accessors **/
   Int_t    GetType()      const { return fType; }
@@ -69,7 +50,6 @@ class PndFieldPar : public FairParGenericSet
   Double_t GetPositionZ() const { return fPosZ; }
   Double_t GetScale()     const { return fScale; }
 
-
  private:
 
   /** Field type
@@ -80,31 +60,24 @@ class PndFieldPar : public FairParGenericSet
    **/
   Int_t fType;
 
-
   /** Field limits in case of constant field **/
   Double_t fXmin, fXmax;
   Double_t fYmin, fYmax;
   Double_t fZmin, fZmax;
 
-
   /** Field values in case of constant field [kG] **/
   Double_t fBx, fBy, fBz;
-
 
   /** Field map name in case of field map **/
   TString fMapName;
 
-
   /** Field centre position for field map **/
   Double_t fPosX, fPosY, fPosZ;
-
 
   /** Scaling factor for field map **/
   Double_t fScale;
 
-
   ClassDef(PndFieldPar,1);
-
 };
 
 
