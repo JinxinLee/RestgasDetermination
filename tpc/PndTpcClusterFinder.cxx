@@ -195,6 +195,10 @@ void
 PndTpcClusterFinder::putDigi(PndTpcDigi* digi)
 {
   PndTpcPad* pad=fpadplane->GetPad(digi->padId());
+  if(pad==NULL){
+    std::cout<<"Unkown pad ID. Throwing."<<std::endl;
+    throw unknown_padID();
+  }
   unsigned int sectorId=pad->sectorId();
   //std::cout<<"putting digi("<<digi->padId()<<") in sector "<<sectorId<<std::endl;
   fsproc[sectorId]->putDigi(digi);
@@ -221,8 +225,14 @@ PndTpcClusterFinder::checkConsistency()
 	   <<npads<<" pad processors available"<<std::endl;
   assert(npads=npproc);
   for(int ip=0;ip<npads;++ip){
-    unsigned int sid=buffer[ip]->sectorId();
-    unsigned int pid=buffer[ip]->id();
+    PndTpcPad* mypad=buffer[ip];
+    if(mypad==NULL){
+      std::cout<<"Pad ID#"<<ip<<" not used."<<std::endl;
+      continue;
+    }
+
+    unsigned int sid=mypad->sectorId();
+    unsigned int pid=mypad->id();
     const padprocessor* pp=fsproc[sid]->getPP(pid);
     
     if(pp==NULL){
