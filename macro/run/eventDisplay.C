@@ -14,7 +14,7 @@ eventDisplay()
   //fRun->SetInputFile("points.x3872.jpsipipi.phsp.root");
  // fRun->SetInputFile("../qa/lhetrack/points_tpccombi.root");
    fRun->SetInputFile("sim_with_vis.root");
-  //fRun->SetInputFile("../dsk/sim_dsk.root");
+//  fRun->SetInputFile("../drc/testrun1.root");
  // fRun->SetInputFile("../dsk/sim_dsk.g4native.root");
   fRun->SetOutputFile("tst.root");
  // fRun->LoadGeometry();
@@ -23,8 +23,8 @@ eventDisplay()
   
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo();
+//  parInput1->open("../drc/testparams.root");
   parInput1->open("params_with_vis.root");
-  
        
   rtdb->setFirstInput(parInput1);
  

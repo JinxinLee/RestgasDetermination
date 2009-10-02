@@ -28,7 +28,7 @@
  FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave); 
-  
+  /*
   FairModule *Magnet= new PndMagnet("MAGNET");
   Magnet->SetGeometryFileName("FullSolenoid.root");
   fRun->AddModule(Magnet);
@@ -49,11 +49,11 @@
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
   Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root"); // if you want to use new geometry for FwEndCap
   fRun->AddModule(Emc);
-  
+  */
   FairDetector *Tof = new PndTof("TOF",kTRUE);
   Tof->SetGeometryFileName("tofbarrel.geo");
   fRun->AddModule(Tof);
-
+/*
   FairDetector *Drc = new PndDrc("DIRC", kTRUE);
   Drc->SetGeometryFileName("dirc.geo"); 
   fRun->AddModule(Drc); 
@@ -62,7 +62,7 @@
   Muo->SetGeometryFileName("muopars.root");
   Muo->SetMdtVersion("torino");
   fRun->AddModule(Muo);
-
+*/
  /* FairDetector *Dch = new PndDchDetector("DCH", kTRUE);
   Dch->SetGeometryFileName("dch.root"); 
   fRun->AddModule(Dch);
