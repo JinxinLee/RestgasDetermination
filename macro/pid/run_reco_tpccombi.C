@@ -36,6 +36,7 @@
   fRun->SetOutputFile(outFile);
   FairGeane *Geane = new FairGeane();
   fRun->AddTask(Geane);
+  PndEmcMapper *emcMap = PndEmcMapper::Instance(2,parFile);
   // ------------------------------------------------------------------------
 
   // -----  Parameter database   --------------------------------------------
@@ -73,7 +74,6 @@
  
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
-  PndEmcMapper *emcMap = PndEmcMapper::Instance(2,inSimFile);
   fRun->Run(0, nEvents);
 
   rtdb->saveOutput();

@@ -28,28 +28,25 @@
   timer.Start();
   // ------------------------------------------------------------------------
 
-
-
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inSimuFile);
   fRun->AddFriend(inDigiFile);
   fRun->AddFriend(inRecoFile);
   
-  
   fRun->SetOutputFile(outFile.Data());
   // ------------------------------------------------------------------------
 
   // THIS IS STRONGLY NEEDED
-  FairGeane *Geane = new FairGeane(inSimuFile);
-  PndEmcMapper *emcMap = PndEmcMapper::Instance(2,inSimuFile);
+  FairGeane *Geane = new FairGeane();
+  fRun->AddTask(Geane);
+  PndEmcMapper *emcMap = PndEmcMapper::Instance(2,parFile);
 
   // -----  Parameter database   --------------------------------------------
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open(parFile.Data());
   rtdb->setFirstInput(parInput1);
-  //fRun->LoadGeometry();
 
   // ------------------------------------------------------------------------
   
@@ -61,7 +58,6 @@
   
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
-  Geane->SetField(fRun->GetField());
   fRun->Run(0,nEvents);
   // ------------------------------------------------------------------------
   rtdb->print();

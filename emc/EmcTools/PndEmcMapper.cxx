@@ -16,6 +16,7 @@
 
 #include "PndEmcMapper.h"
 #include "PndEmcTwoCoordIndex.h"
+#include "FairBaseParSet.h"
 #include "TGeoManager.h"
 #include "TGeoVolume.h"
 		
@@ -31,8 +32,11 @@ PndEmcMapper* PndEmcMapper::_instance = 0;
 PndEmcMapper* PndEmcMapper::Instance (Int_t MapVersion, TString geoFile)
 {
   TFile *geoF;
-  if (geoFile!="") geoF = TFile::Open(geoFile,"READ");
-	if (_instance == 0) {
+  if (geoFile!="") geoF = TFile::Open(geoFile,"READ");	
+  if (!gGeoManager) {
+    geoF->Get("FairBaseParSet"); 
+  }
+  if (_instance == 0) {
 		if (MapVersion==0){
 			cout<<"Map version 0 does not exist"<<endl;
 			return 0;

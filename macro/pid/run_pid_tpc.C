@@ -32,6 +32,7 @@
   fRun->SetOutputFile(outFile.Data());
   FairGeane *Geane = new FairGeane();
   fRun->AddTask(Geane);
+  PndEmcMapper *emcMap = PndEmcMapper::Instance(2,parFile);
   // -----  Parameter database   --------------------------------------------
   TString allDigiFile = sysFile+"/macro/params/all.par";
 
@@ -55,7 +56,6 @@
   
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
-  PndEmcMapper *emcMap = PndEmcMapper::Instance(2,inSimuFile);
   fRun->Run(0,nEvents);
   // ------------------------------------------------------------------------
   rtdb->print();

@@ -24,7 +24,7 @@ class PndEmcMapper: public TObject
 {
 
 public:
-  static PndEmcMapper* Instance(Int_t, TString geoName="");
+  static PndEmcMapper* Instance(Int_t MapVersion, TString geoName="");
 	const std::map<Int_t,PndEmcTwoCoordIndex* >& GetTciMap();
 
 	/** Destructor **/
