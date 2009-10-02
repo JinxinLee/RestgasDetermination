@@ -238,7 +238,7 @@ Bool_t PndHyp::ProcessHits(FairVolume* vol)
 	 {
 	   fTrackID  = gMC->GetStack()->GetCurrentTrackNumber();
 	   
-	   TString nam = gMC->CurrentVolName();   
+	   nam = gMC->CurrentVolName();   
 	   if ((nam.Contains("Si"))) {
 	     sscanf(nam,"stglSi%d#01", &nSiL);
 	     // cout << "hyp::ProcessHits> : " << nam <<" # "
@@ -345,7 +345,7 @@ Bool_t PndHyp::ProcessHits(FairVolume* vol)
 	   gMC->TrackPosition(fPosOut);
 	   gMC->TrackMomentum(fMomOut);
 	   
-	   ostringstream matName;
+	   //ostringstream matName;
 	   TString mat[4]={"CAbs","Si","Be","Al"};
 	   if (medId==CId) matName<<"CAbs";
 	   if (medId==SiId) matName<<"Si";

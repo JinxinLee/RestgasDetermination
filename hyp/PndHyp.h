@@ -155,7 +155,7 @@ class PndHyp : public FairDetector
 
   private:
   
-  PndGeoHypPar *par;
+  //PndGeoHypPar *par;
   Int_t          fTrackID;           //  track index
   Int_t          fVolumeID;          //  volume id
   Int_t          fEventID;           //  event id
