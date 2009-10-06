@@ -91,32 +91,31 @@
 
   fRun->AddFriend(mcFile);
   fRun->SetOutputFile(outFile);
+  
+  FairGeane *Geane = new FairGeane();
+  fRun->AddTask(Geane);
+  std::cout<<"\nGEANE initialised"<<std::endl;
   // ------------------------------------------------------------------------
 
-  //prepare GEANE
-  FairGeane *Geane = new FairGeane(mcFile);
-  
+   
 
   // -----  Parameter database   --------------------------------------------
-  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  FairParRootFileIo* parInput1 = new FairParRootFileIo();
-  parInput1->open(paramIn.Data());
-  rtdb->setFirstInput(parInput1);
   
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairParRootFileIo* parInput1 = new FairParRootFileIo(kTRUE);
+  parInput1->open(paramIn.Data());
+  
+  FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
+  TString tpcDigiFile = gSystem->Getenv("VMCWORKDIR");
+  tpcDigiFile += "/tpc/tpc.par";
+  parInput2->open(tpcDigiFile.Data(),"in");
+
+  rtdb->setFirstInput(parInput2); //root file IO tends to fail, use ASCII first
+  rtdb->setSecondInput(parInput1);
+
   rtdb->Print();
 
-  FairParRootFileIo* parOutput1 = new FairParRootFileIo(kTRUE);
-  parOutput1->open(paramOut.Data());
-  rtdb->setOutput(parOutput1);
-  rtdb->saveOutput();
-
-
-  fRun->LoadGeometry();
-
-
-  std::cout<<"setting GEANE field to "<<fRun->GetField();
-  // Set the field(if any) to Geane
-  Geane->SetField(fRun->GetField());
+  
   // ------------------------------------------------------------------------
   
 
@@ -219,7 +218,7 @@
 
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
-  Geane->SetField(fRun->GetField());
+  
   fRun->Run(0,0);
   // ------------------------------------------------------------------------
 
