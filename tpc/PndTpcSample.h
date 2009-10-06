@@ -11,7 +11,7 @@
 //
 // Author List:
 //      Sebastian Neubert    TUM            (original author)
-//
+//	Xiaodong Zhang       TUM       (modify it on Oct. 06, 2009) 
 //
 //-----------------------------------------------------------
 
@@ -36,7 +36,11 @@ public:
   PndTpcSample(const int t, 
 	    const int Amp, 
 	    const unsigned int PadID, 
-	    const McIdCollection& mcid);
+	    const McIdCollection& mcid); 
+  PndTpcSample(const int t,                       
+            const int Amp,
+            const unsigned int PadID,
+            const unsigned int ElectronicChId);// added by X.Zhang, Oct. 06, 2009
   ~PndTpcSample();
 
   // Operators
@@ -48,6 +52,7 @@ public:
   int amp() const {return famp;}
   int t() const {return ft;}
   unsigned int padId() const {return fpadId;}
+  unsigned int electronicChId() const {return felectronicChId;}  //added by X.Zhang, Oct. 06, 2009 
   const McIdCollection& mcId() const {return fmcId;}
 
   // Modifiers -----------------------
@@ -61,6 +66,7 @@ private:
   int famp;
   int ft;
   unsigned int fpadId;
+  unsigned int felectronicChId;                // added by X. Zhang, Oct. 06, 2009 
 
   McIdCollection fmcId;
   // Private Methods -----------------
@@ -74,6 +80,12 @@ public:
 
 //--------------------------------------------------------------
 // $Log: PndTpcSample.hh,v $
+//
+// Revision 1.5 2009/10/06 10:47 X. Zhang
+// add the felectronicChId member,
+//	the new constructor, and
+//	the electronicChId() function.
+// 
 // Revision 1.4  2006/02/24 14:39:34  sneubert
 // moved McIds to package MciData
 //
