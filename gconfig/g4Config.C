@@ -50,8 +50,14 @@ void Config()
    configm1 = configm + "/gconfig/g4config.in";
    cout << " -I g4Config() using g4conf  macro: " << configm1 << endl;
 
-   //set geant4 specific stuff
-  geant4->SetMaxNStep(10000);  // default is 30000
+     //set geant4 specific stuff
+   geant4->SetMaxNStep(10000);  // default is 30000
+
+  Text_t buffer[50];
+  sprintf(buffer,"/random/SetSeeds %i  %i ",gRandom->GetSeed(), gRandom->GetSeed());
+  geant4->ProcessGeantCommand(buffer);
+ 
   geant4->ProcessGeantMacro(configm1.Data());
+
 
 }
