@@ -31,11 +31,11 @@ PndEmcMapper* PndEmcMapper::_instance = 0;
     
 PndEmcMapper* PndEmcMapper::Instance (Int_t MapVersion, TString geoFile)
 {
-  TFile *geoF;
-  if (geoFile!="") geoF = TFile::Open(geoFile,"READ");	
-  if (!gGeoManager) {
-    geoF->Get("FairBaseParSet"); 
-  }
+//  TFile *geoF;
+//  if (geoFile!="") geoF = TFile::Open(geoFile,"READ");	
+//  if (!gGeoManager) {
+ //   geoF->Get("FairBaseParSet"); 
+ // }
   if (_instance == 0) {
 		if (MapVersion==0){
 			cout<<"Map version 0 does not exist"<<endl;
