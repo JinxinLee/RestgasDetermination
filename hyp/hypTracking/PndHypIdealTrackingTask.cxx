@@ -21,9 +21,9 @@
 
 // PndHyp includes
 #include "PndHypRecoHit.h"
-// #include "PndHypTrackCand.h"
-#include "../../genfit/Track.h"
-#include "../../genfit/TrackCand.h"
+// #include "PndHypGFTrackCand.h"
+#include "../../genfit/GFTrack.h"
+#include "../../genfit/GFTrackCand.h"
 #include "PndHypHit.h"
 #include "PndHypPoint.h"
 #include "PndHypCluster.h"
@@ -85,7 +85,7 @@ InitStatus PndHypIdealTrackingTask::Init()
     return kERROR;  }
 
   // Create and register output array
-  fTrackOutputArray = new TClonesArray("TrackCand");
+  fTrackOutputArray = new TClonesArray("GFTrackCand");
   ioman->Register("HypTrackCand", "PndHyp ideal tracklets", fTrackOutputArray, kTRUE);
 
 
@@ -118,7 +118,7 @@ void PndHypIdealTrackingTask::Exec(Option_t* opt)
   }
 
   // BUILD TRACK Candidates
-  std::map<Int_t, TrackCand*> trackMap;
+  std::map<Int_t, GFTrackCand*> trackMap;
 
   Int_t nPndHypHits=fHitArray->GetEntriesFast();
   cout<<nPndHypHits<<endl;
@@ -162,7 +162,7 @@ void PndHypIdealTrackingTask::Exec(Option_t* opt)
       {Int_t size = fTrackOutputArray->GetEntriesFast();
 	//caution this should be an intrinsic assignment, so trackMap and
 	//fTrackOutputArray contain the same pointers.
-	trackMap[MCid]=new ((*fTrackOutputArray)[size]) TrackCand();
+	trackMap[MCid]=new ((*fTrackOutputArray)[size]) GFTrackCand();
 	
 	Int_t pdgcode;
 	if( mcmap[MCid]==0)continue;

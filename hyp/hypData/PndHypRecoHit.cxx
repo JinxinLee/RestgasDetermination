@@ -43,7 +43,7 @@
 #include "FairMCPoint.h"
 #include "LSLTrackRep.h"
 #include "GeaneTrackRep.h"
-#include "DetPlane.h"
+#include "GFDetPlane.h"
 // This Class' Header ------------------
 #include "PndHypRecoHit.h"
 #include "PndHypPoint.h"
@@ -62,34 +62,34 @@ PndHypRecoHit::~PndHypRecoHit()
 }
 
 PndHypRecoHit::PndHypRecoHit()
-  : RecoHitIfc<PlanarHitPolicy>(fNparHitRep)
+  : GFRecoHitIfc<GFPlanarHitPolicy>(fNparHitRep)
 {
   fGeoH = new PndHypGeoHandling(gGeoManager);
 }
 
 
 PndHypRecoHit::PndHypRecoHit(PndHypPoint* point)
-  : RecoHitIfc<PlanarHitPolicy>(fNparHitRep)
+  : GFRecoHitIfc<GFPlanarHitPolicy>(fNparHitRep)
 {
   std::cout<<" -I- PndHypRecoHit::PndHypRecoHit(PndHypMCPoint*) called."<<std::endl;
  
 
-  _hitCoord[0][0] = point->GetX();
-  _hitCoord[1][0] =  point->GetY();
+  fHitCoord[0][0] = point->GetX();
+  fHitCoord[1][0] =  point->GetY();
  
-  _hitCov[0][0] = 0.01;//cost*sigx*sigx;
-  _hitCov[1][1] = 0.01;//cost*sigy*sigy;
+  fHitCov[0][0] = 0.01;//cost*sigx*sigx;
+  fHitCov[1][1] = 0.01;//cost*sigy*sigy;
 
    TVector3 o(0.,0.,point->GetZ()), 
     u(1.,0.,0.), 
     v(0.,1.,0.);
 
-  setDetPlane(DetPlane(o,u,v));
+  fPolicy.setDetPlane(GFDetPlane(o,u,v));
  
 }
 
 PndHypRecoHit::PndHypRecoHit(PndHypHit* hit)
-  : RecoHitIfc<PlanarHitPolicy>(fNparHitRep)
+  : GFRecoHitIfc<GFPlanarHitPolicy>(fNparHitRep)
 {
 
   std::cout<<" -I- PndHypRecoHit::PndHypRecoHit(PndHypHit*) called."<<std::endl;
@@ -107,62 +107,59 @@ PndHypRecoHit::PndHypRecoHit(PndHypHit* hit)
   TVector3 position = hit->GetPosition();
   TVector3 localpos =  fGeoH->MasterToLocalId(position, id);
   
-  _hitCoord[0][0] = localpos.X();
-  _hitCoord[1][0] = localpos.Y();
+  fHitCoord[0][0] = localpos.X();
+  fHitCoord[1][0] = localpos.Y();
 
-  _hitCov[0][0] = 0.0050 * 0.0050;
-  _hitCov[1][1] = 0.0050 * 0.0050;
+  fHitCov[0][0] = 0.0050 * 0.0050;
+  fHitCov[1][1] = 0.0050 * 0.0050;
 
-  setDetPlane(DetPlane(oo,uu,vv));
+  fPolicy.setDetPlane(GFDetPlane(oo,uu,vv));
 
 
 }
 
 
-void 
-PndHypRecoHit::setHMatrix(const AbsTrackRep* stateVector,
-       const TMatrixT<Double_t>& state)
+TMatrixT<double>
+PndHypRecoHit::getHMatrix(const GFAbsTrackRep* stateVector)
 {
 
   // !! TODO I copied this from the DemoRecoHit - check validity!!!
   if (dynamic_cast<const GeaneTrackRep*>(stateVector) != NULL) {
     // Uses TrackParP (q/p,v',w',v,w)
     // coordinates are defined by detplane!
-    _HMatrix.ResizeTo(fNparHitRep,5);
+    TMatrixT<double> HMatrix(fNparHitRep,5);
 
-    _HMatrix[0][0] = 0.;
-    _HMatrix[0][1] = 0.;
-    _HMatrix[0][2] = 0.;
-    _HMatrix[0][3] = 1.;
-    _HMatrix[0][4] = 0.;
+    HMatrix[0][0] = 0.;
+    HMatrix[0][1] = 0.;
+    HMatrix[0][2] = 0.;
+    HMatrix[0][3] = 1.;
+    HMatrix[0][4] = 0.;
 
-    _HMatrix[1][0] = 0.;
-    _HMatrix[1][1] = 0.;
-    _HMatrix[1][2] = 0.;
-    _HMatrix[1][3] = 0.;
-    _HMatrix[1][4] = 1.;
+    HMatrix[1][0] = 0.;
+    HMatrix[1][1] = 0.;
+    HMatrix[1][2] = 0.;
+    HMatrix[1][3] = 0.;
+    HMatrix[1][4] = 1.;
+    return HMatrix;
   }
   else if (dynamic_cast<const LSLTrackRep*>(stateVector) != NULL) {
-    //I know, since this is the same everytime, it could be done in the
-    //the constructor, but I do it here anyway, to make clear that in the
-    //case of several track-reps per hit, it would have to be done here
     // LSLTrackRep (x,y,x',y',q/p)
-    _HMatrix.ResizeTo(fNparHitRep,5);
+    TMatrixT<double> HMatrix(fNparHitRep,5);
   
  
 
-    _HMatrix[0][0] = 1.;
-    _HMatrix[0][1] = 0.;
-    _HMatrix[0][2] = 0.;
-    _HMatrix[0][3] = 0.;
-    _HMatrix[0][4] = 0.;
+    HMatrix[0][0] = 1.;
+    HMatrix[0][1] = 0.;
+    HMatrix[0][2] = 0.;
+    HMatrix[0][3] = 0.;
+    HMatrix[0][4] = 0.;
 
-    _HMatrix[1][0] = 0.;
-    _HMatrix[1][1] = 1.;
-    _HMatrix[1][2] = 0.;
-    _HMatrix[1][3] = 0.;
-    _HMatrix[1][4] = 0.;
-
+    HMatrix[1][0] = 0.;
+    HMatrix[1][1] = 1.;
+    HMatrix[1][2] = 0.;
+    HMatrix[1][3] = 0.;
+    HMatrix[1][4] = 0.;
+    return HMatrix;
 
   }
   else {
@@ -175,7 +172,7 @@ PndHypRecoHit::setHMatrix(const AbsTrackRep* stateVector,
 }
 
 Double_t 
-PndHypRecoHit::residualScalar(AbsTrackRep* stateVector,
+PndHypRecoHit::residualScalar(GFAbsTrackRep* stateVector,
           const TMatrixT<Double_t>& state)
 {
   throw;

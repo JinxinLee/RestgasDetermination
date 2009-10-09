@@ -10,9 +10,9 @@ for Hypernuclei.
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
-//#include "PndTpcLheTrack.h"
+//#include "PndTpcLheGFTrack.h"
 
-//#include "PndTpcLheTrack.h"
+//#include "PndTpcLheGFTrack.h"
 #include "PndHypHit.h"
 #include "PndHypPoint.h"
 #include "../../hypGe/PndHypGePoint.h"
@@ -29,7 +29,7 @@ for Hypernuclei.
 #include <string>
 #include <iostream>
 
-#include "Track.h"
+#include "GFTrack.h"
 #include "LSLTrackRep.h"
 
 //RHO stuff

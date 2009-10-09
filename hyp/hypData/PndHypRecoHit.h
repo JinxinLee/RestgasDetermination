@@ -25,8 +25,8 @@
 #define PNDHYPRECOHIT_HH
 
 // Base Class Headers ----------------
-#include "RecoHitIfc.h"
-#include "PlanarHitPolicy.h"
+#include "GFRecoHitIfc.h"
+#include "GFPlanarHitPolicy.h"
 #include "PndHypGeoHandling.h"
 
 // Collaborating Class Headers -------
@@ -38,7 +38,7 @@ class PndHypPoint;
 class PndHypHit;
 
 
-class PndHypRecoHit : public RecoHitIfc<PlanarHitPolicy> {
+class PndHypRecoHit : public GFRecoHitIfc<GFPlanarHitPolicy> {
 public:
 
   // Constructors/Destructors ---------
@@ -55,16 +55,15 @@ public:
 
   virtual ~PndHypRecoHit();
 
-  virtual AbsRecoHit* clone(){return new PndHypRecoHit(*this);};
+  virtual GFAbsRecoHit* clone(){return new PndHypRecoHit(*this);};
 
 
 
   // Operations ----------------------
-  virtual void setHMatrix(const AbsTrackRep* stateVector,
-                          const TMatrixT<Double_t>& state);
+  virtual TMatrixT<double> getHMatrix(const GFAbsTrackRep* stateVector);
 
 
-  virtual Double_t residualScalar(AbsTrackRep* stateVector,
+  virtual Double_t residualScalar(GFAbsTrackRep* stateVector,
                                 const TMatrixT<Double_t>& state);
 
   

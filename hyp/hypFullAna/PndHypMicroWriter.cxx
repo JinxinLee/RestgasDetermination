@@ -24,7 +24,7 @@ modified by A. Sanchez for hyp purpose
 #include "PndStack.h"
 #include "PndMCTrack.h"
 
-#include "Track.h"
+#include "GFTrack.h"
 #include "LSLTrackRep.h"
 
 #include "PndHypHit.h"
@@ -94,7 +94,7 @@ InitStatus PndHypMicroWriter::Init()
     return kFATAL;
   }
   // Get input array
-  fTrArray = (TClonesArray*) ioman->GetObject("Track");
+  fTrArray = (TClonesArray*) ioman->GetObject("GFTrack");
   if ( ! fTrArray) {
     cout << "-W- PndHypMicroWriter::Init: "
 	 << "No TpcTrack array!" << endl;
@@ -213,7 +213,7 @@ void PndHypMicroWriter::Exec(Option_t* opt)
   // Loop over the charged tracks
   // ************************
    LSLTrackRep* grep=0;
-   AbsTrackRep* rep=0;
+   GFAbsTrackRep* rep=0;
   
   for (Int_t i=0; i<nTracks; i++)
   {

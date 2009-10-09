@@ -117,7 +117,7 @@ InitStatus PndHypIdealTrackFinderTask::Init()
   
 
   
-  fTrackCandArray = new TClonesArray("TrackCand");
+  fTrackCandArray = new TClonesArray("GFTrackCand");
   ioman->Register("HypTrackCand", "HYP", fTrackCandArray, kTRUE);
   
   std::cout << "-I- PndHypIdealTrackFinderTask: Initialisation successfull" << std::endl;
@@ -153,9 +153,9 @@ void PndHypIdealTrackFinderTask::Exec(Option_t* opt)
   if(fVerbose>0) PrintResult();
 
   Int_t i = 0;
-  for (std::map<Int_t,TrackCand*>::const_iterator ci=fTrackCandMap.begin();
+  for (std::map<Int_t,GFTrackCand*>::const_iterator ci=fTrackCandMap.begin();
        ci != fTrackCandMap.end(); ci++){
-    new((*fTrackCandArray)[i]) TrackCand(*(ci->second));
+    new((*fTrackCandArray)[i]) GFTrackCand(*(ci->second));
     i++;
   }
   ClearTrackCandMap();
@@ -167,7 +167,7 @@ void PndHypIdealTrackFinderTask::Exec(Option_t* opt)
 
 void PndHypIdealTrackFinderTask::AddAndExpand(Int_t trackID, Int_t detnum, Int_t iHit){
   if (fTrackCandMap[trackID] == 0){
-    TrackCand *myTCand = new TrackCand();
+    GFTrackCand *myTCand = new GFTrackCand();
     PndMCTrack* myMCTrack = (PndMCTrack*)fTrackArray->At(trackID);
     myTCand->setCurv(GetTrackCurvature(myMCTrack));
     myTCand->setDip(GetTrackDip(myMCTrack));
@@ -195,10 +195,10 @@ void PndHypIdealTrackFinderTask::PrintResult()
 {
   std::cout << "**** TrackFinding *****" << std::endl; 
   Int_t nStripHits = fStripHitArray->GetEntriesFast();
-   for (std::map<Int_t, TrackCand*>::const_iterator ci=fTrackCandMap.begin();
+   for (std::map<Int_t, GFTrackCand*>::const_iterator ci=fTrackCandMap.begin();
         ci != fTrackCandMap.end(); ci++){
      std::cout << "TrackID: " << ci->first << std::endl;
-     TrackCand* trackCand = ci->second;
+     GFTrackCand* trackCand = ci->second;
      for (unsigned int i = 0; i < trackCand->getNHits(); i++){
        unsigned int detId, hitId;
        trackCand->getHit(i, detId, hitId);
@@ -212,7 +212,7 @@ void PndHypIdealTrackFinderTask::PrintResult()
 
 void PndHypIdealTrackFinderTask::ClearTrackCandMap()
 {
-  for (std::map<Int_t,TrackCand*>::const_iterator ci=fTrackCandMap.begin();
+  for (std::map<Int_t,GFTrackCand*>::const_iterator ci=fTrackCandMap.begin();
           ci != fTrackCandMap.end(); ci++){
     delete(ci->second);
   }

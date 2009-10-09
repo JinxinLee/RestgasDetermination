@@ -3,7 +3,7 @@
 // $Id$
 //
 // Description:
-//      Kalman Filter Task
+//      GFKalman Filter Task
 //
 // Environment:
 //      Software developed for the PANDA Detector at FAIR.
@@ -26,7 +26,7 @@
 
 // Collaborating Class Declarations --
 class TClonesArray;
-class RecoHitFactory;
+class GFRecoHitFactory;
 class TH1D;
 class TH2D;
 class TGeoManager; 
@@ -67,7 +67,7 @@ private:
   
   Bool_t _persistence;
 
-  RecoHitFactory* _theRecoHitFactory;
+  GFRecoHitFactory* _theRecoHitFactory;
   
 
   TH1D* _pH; // momentum histo;

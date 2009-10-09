@@ -28,7 +28,7 @@
 // Collaborating Class Headers --------
 #include "FairRootManager.h"
 #include "TClonesArray.h"
-#include "Track.h"
+#include "GFTrack.h"
 //#include "PndTpcPoint.h"
 //#include "DemoRecoHit.h"
 //#include "DemoSPHit.h"
@@ -38,9 +38,9 @@
 #include "FairHit.h"
 #include "LSLTrackRep.h"
 #include "GeaneTrackRep.h"
-#include "RecoHitFactory.h"
-#include "Kalman.h"
-#include "FitterExceptions.h"
+#include "GFRecoHitFactory.h"
+#include "GFKalman.h"
+#include "GFException.h"
 #include "TH1D.h"
 #include "TH2D.h"
 #include "TFile.h"
@@ -85,11 +85,11 @@ PndHypDKalmanTask::Init()
   //}
   
   // create and register output array
-  //_trackArray = new TClonesArray("Track"); 
+  //_trackArray = new TClonesArray("GFTrack"); 
   //ioman->Register("TrackPreFit","GenFit",_trackArray,_persistence);
  
   // Build hit factory -----------------------------
-  _theRecoHitFactory = new RecoHitFactory();
+  _theRecoHitFactory = new GFRecoHitFactory();
   std::map<unsigned int,TString>::iterator iter=_hitBranchMap.begin();
   while(iter!=_hitBranchMap.end()){
    TClonesArray* ar=(TClonesArray*) ioman->GetObject(iter->second);
@@ -98,7 +98,7 @@ PndHypDKalmanTask::Init()
    }
    else{ 
      // the next lines is not general because it will work only for CmMCPoints!
-     _theRecoHitFactory->addProducer(iter->first,new RecoHitProducer<PndHypHit,PndHypRecoHit>(ar));
+     _theRecoHitFactory->addProducer(iter->first,new GFRecoHitProducer<PndHypHit,PndHypRecoHit>(ar));
      //FairHit,PndHypDSPHit>(ar));PndHypPoint,PndHypRecoHit
    }
   ++iter;
@@ -131,11 +131,11 @@ PndHypDKalmanTask::Exec(Option_t* opt)
   
 
   // Fitting ---------------- can go to another task!
-  Kalman fitter;
+  GFKalman fitter;
   fitter.setLazy(1); // tell the fitter to skip hits if error occurs  
   fitter.setNumIterations(3);
   for(Int_t itr=0;itr<ntracks;++itr){
-    Track* trk=(Track*)_trackArray->At(itr);
+    GFTrack* trk=(GFTrack*)_trackArray->At(itr);
     // Load RecoHits 
     try {
       trk->addHitVector(_theRecoHitFactory->createMany(trk->getCand()));
@@ -143,7 +143,7 @@ PndHypDKalmanTask::Exec(Option_t* opt)
 	       <<itr<<std::endl;
     }
    
-    catch(FitterException& e) {
+    catch(GFException& e) {
       std::cout << e.what() << std::endl;
       throw e;
     }
@@ -167,7 +167,7 @@ PndHypDKalmanTask::Exec(Option_t* opt)
       fitter.processTrack(trk);
       
     }
-    catch (FitterException e){
+    catch (GFException e){
       std::cout<<"*** FITTER EXCEPTION ***"<<std::endl;
       std::cout<<e.what()<<std::endl;
       
@@ -181,7 +181,7 @@ PndHypDKalmanTask::Exec(Option_t* opt)
       GeaneTrackRep* gtrk=dynamic_cast<GeaneTrackRep*>(trk->getTrackRep(0));
       if(gtrk!=NULL)gtrk->setPropDir(-1);
       trk->getCardinalRep()->Print();
-      //DetPlane pl(TVector3(0,0,0),TVector3(1,0,0),TVector3(0,1,0));
+      //GFDetPlane pl(TVector3(0,0,0),TVector3(1,0,0),TVector3(0,1,0));
       double p=trk->getTrackRep(0)->getMom().Mag();
       std::cout<<" momentum "<<p<<std::endl;
       

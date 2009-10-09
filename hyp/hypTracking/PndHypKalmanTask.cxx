@@ -28,7 +28,7 @@
 // Collaborating Class Headers --------
 #include "FairRootManager.h"
 #include "TClonesArray.h"
-#include "Track.h"
+#include "GFTrack.h"
 #include "TDatabasePDG.h"
 // #include "PndHypHit.h"
 #include "FairMCPoint.h"
@@ -36,15 +36,15 @@
 #include "PndHypRecoHit.h"
 
 
-#include "RecoHitFactory.h"
-#include "Kalman.h"
-#include "FitterExceptions.h"
+#include "GFRecoHitFactory.h"
+#include "GFKalman.h"
+#include "GFException.h"
 #include "TH1D.h"
 #include "TFile.h"
 #include "TGeoTrack.h"
 #include "TGeoManager.h"
 #include "TLorentzVector.h"
-#include "DetPlane.h"
+#include "GFDetPlane.h"
 
 #include "TDatabasePDG.h"
 #include "FairTrackParH.h"
@@ -91,7 +91,7 @@ PndHypKalmanTask::Init()
   
 
   // Build hit factory -----------------------------
-  fTheRecoHitFactory = new RecoHitFactory();
+  fTheRecoHitFactory = new GFRecoHitFactory();
 
   TClonesArray* ar=(TClonesArray*) ioman->GetObject("HypHit");
    if(ar==0){
@@ -99,7 +99,7 @@ PndHypKalmanTask::Init()
    }
    else{ 
 
-  fTheRecoHitFactory->addProducer(2,new RecoHitProducer<PndHypHit,PndHypRecoHit>(ar));
+  fTheRecoHitFactory->addProducer(2,new GFRecoHitProducer<PndHypHit,PndHypRecoHit>(ar));
   
   
    }
@@ -131,7 +131,7 @@ PndHypKalmanTask::Exec(Option_t* opt)
     std::cout<< " Detailed Debug info on the tracks:"<<std::endl;
     unsigned int detid=12345, index=12345;
     for(Int_t itr=0;itr<ntracks;++itr){
-      TrackCand* trcnd = (TrackCand*)fTrackArray->At(itr);
+      GFTrackCand* trcnd = (GFTrackCand*)fTrackArray->At(itr);
       std::cout<< "TrackCand no. "<<itr<<" has "<<trcnd->getNHits()<<" hits."<<std::endl;
       std::cout<<"[ ihit | detid | index";
       for(unsigned int ihit=0;ihit<trcnd->getNHits();ihit++){
@@ -148,14 +148,14 @@ PndHypKalmanTask::Exec(Option_t* opt)
   }
 
   // Fitting ---------------- can go to another task!
-  Kalman fitter;
+  GFKalman fitter;
 
   std::vector<TLorentzVector*> particles;
   std::vector<Int_t> signs;
   
   for(Int_t itr=0;itr<ntracks;++itr){
     std::cout<<"starting track"<<itr<<std::endl;
-    //AbsTrackRep* rep = new LSLTrackRep();
+    //GFAbsTrackRep* rep = new LSLTrackRep();
    
 
    // Starting values for guessing
@@ -172,23 +172,23 @@ PndHypKalmanTask::Exec(Option_t* opt)
     // what to guess here?
     TVector3 U(1.,0.,0.);
     TVector3 V(0.,1.,0.);
-    DetPlane start_pl(StartPos,U,V);
-    AbsTrackRep* rep = new GeaneTrackRep(fPro,
+    GFDetPlane start_pl(StartPos,U,V);
+    GFAbsTrackRep* rep = new GeaneTrackRep(fPro,
 					 start_pl,StartMom,
 					 StartPosErr,StartMomErr,
 					 fCharge,PDGCode);
    
-    Track* trk= new Track(rep);
-    trk->setCandidate(*(TrackCand*)fTrackArray->At(itr));
-    //Track* trk=(Track*)fTrackArray->At(itr);
+    GFTrack* trk= new GFTrack(rep);
+    trk->setCandidate(*(GFTrackCand*)fTrackArray->At(itr));
+    //GFTrack* trk=(GFTrack*)fTrackArray->At(itr);
     // Load RecoHits 
 	try {
 	  trk->addHitVector(fTheRecoHitFactory->createMany(trk->getCand()));
 	  std::cout<<trk->getNumHits()<<" hits in track "
 			   <<itr<<std::endl;
     }
-	catch(FitterException& e) {
-	  std::cout << e.what() << std::endl;
+	catch(GFException& e) {
+	  std::cout << e.what();
 	  throw e;
 	}
     // Start Fitter
@@ -196,14 +196,14 @@ PndHypKalmanTask::Exec(Option_t* opt)
       std::cout<<"starting fit"<<std::endl;
       fitter.processTrack(trk);
     }
-    catch (FitterException e){
+    catch (GFException e){
       std::cout<<e.what()<<std::endl;
     }
 
     // Print Track Parameters after fit
     if(trk->getTrackRep(0)->getStatusFlag()==0){
       //trk->getTrackRep(0)->Print();
-      DetPlane plane(TVector3(0,0,0.1),TVector3(1,0,0),TVector3(0,1,0));
+      GFDetPlane plane(TVector3(0,0,0.1),TVector3(1,0,0),TVector3(0,1,0));
       TVector3 p3=trk->getTrackRep(0)->getMom(plane);
       Double_t p=trk->getMom().Mag();
       std::cout<<" oye"<<p<<std::endl;

@@ -16,7 +16,7 @@
 #include "PndHypPoint.h"
 //#include "PndHypPixel.h"
 //#include "PndHypClusterCand.h"
-#include "TrackCand.h"
+#include "GFTrackCand.h"
 #include "PndHypCluster.h"
 #include <string>
 #include <vector>
@@ -68,7 +68,7 @@ class PndHypIdealTrackFinderTask : public FairTask
 
   /** Output array of PndHypHits **/
       TClonesArray* fTrackCandArray;
-      std::map<Int_t, TrackCand*> fTrackCandMap;
+      std::map<Int_t, GFTrackCand*> fTrackCandMap;
       
       Int_t fVerbose;
 
