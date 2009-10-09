@@ -20,8 +20,8 @@
 #define DEMOSPHIT_HH
 
 // Base Class Headers ----------------
-#include "RecoHitIfc.h"
-#include "SpacepointHitPolicy.h"
+#include "GFRecoHitIfc.h"
+#include "GFSpacepointHitPolicy.h"
 
 // Collaborating Class Headers -------
 #include <ostream> // remove if you do not need streaming op
@@ -29,7 +29,7 @@
 // Collaborating Class Declarations --
 class FairMCPoint;
 
-typedef RecoHitIfc<SpacepointHitPolicy> SpacepointRecoHit;
+typedef GFRecoHitIfc<GFSpacepointHitPolicy> SpacepointRecoHit;
 
 class DemoSPHit : public SpacepointRecoHit {
 public:
@@ -44,12 +44,10 @@ public:
 
   virtual ~DemoSPHit();
 
-  virtual AbsRecoHit* clone();
+  virtual GFAbsRecoHit* clone();
   
   // Operations ----------------------
-  virtual void setHMatrix(const AbsTrackRep* stateVector,
-                          const TMatrixT<double>& state);
-
+  virtual TMatrixT<double> getHMatrix(const GFAbsTrackRep* stateVector);
 
   
 private:

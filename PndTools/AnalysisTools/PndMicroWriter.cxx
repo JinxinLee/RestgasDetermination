@@ -24,7 +24,7 @@ Author: K.Goetzen, GSI, 06/2008
 #include "PndMCTrack.h"
 #include "FairMCPoint.h"
 
-#include "Track.h"
+#include "GFTrack.h"
 #include "LSLTrackRep.h"
 #include "GeaneTrackRep.h"
 #include "FairGeanePro.h"
@@ -156,7 +156,7 @@ Bool_t PndMicroWriter::SearchInput() {
   //     OR
   //
   //  - PndTracks or
-  //    Tracks (genfit raw) or
+  //    GFTracks (genfit raw) or
   //    PndLhePidTrack (old Lhe)
   //  - EmcCluster (neutrals)
 
@@ -228,7 +228,7 @@ Bool_t PndMicroWriter::SearchInput() {
   fTrArray = (TClonesArray*) ioman->GetObject(fInArrName);
   if ( ! fTrArray || fStorePndCand || fStorePndTrack) {
     std::cout << "-W- PndMicroWriter::SearchInput: No Track array present or another array is used already!" << std::endl;
-    fTrArray=new TClonesArray("Track");     
+    fTrArray=new TClonesArray("GFTrack");     
   } else {
     fStoreTrack=true;
     return kTRUE;
@@ -373,7 +373,7 @@ void PndMicroWriter::Exec(Option_t* opt)
   McAvgVtx*=1./(double)nPrimary;
   
   
-  Track *tr1;
+  GFTrack *tr1;
   PndEmcCluster *clus;
   PndLhePidTrack *lhetr;
     
@@ -662,7 +662,7 @@ void PndMicroWriter::Exec(Option_t* opt)
     cout<<"-I- PndMicroWriter::Exec(): Array fTrArray "<<fTrArray<<" with "
     << fTrArray->GetEntriesFast() <<" entries, tried to acces entry "<<i<<"."<<endl;
     fTrArray->Print();
-	  tr1 = (Track *)fTrArray->At(i);  
+	  tr1 = (GFTrack *)fTrArray->At(i);  
     if(tr1 == 0){
       cout<<"-E- PndMicroWriter::Exec(): Track object is not there. Array fTrArray with "
         << fTrArray->GetEntriesFast() <<" entries, tried to acces entry "<<i<<"."<<endl;
@@ -673,7 +673,7 @@ void PndMicroWriter::Exec(Option_t* opt)
     cout<<"\n\tcharge "<<tr1->getCharge()<<" \tchisquare "<<tr1->getChiSqu()<<" \tcardinal rep. pointer"<<tr1->getCardinalRep();
     cout<<endl;
 
-    AbsTrackRep* myrep2=tr1->getCardinalRep();
+    GFAbsTrackRep* myrep2=tr1->getCardinalRep();
     cout<<"-I- PndMicroWriter::Exec(): Pointer myrep2 "<<myrep2<<endl;
     myrep2->Print();
 
@@ -681,7 +681,7 @@ void PndMicroWriter::Exec(Option_t* opt)
     {
       LSLTrackRep* myrep=dynamic_cast<LSLTrackRep*>(tr1->getCardinalRep());
       //LSLTrackRep* myrep=(LSLTrackRep*)tr1->getCardinalRep();
-      //AbsTrackRep* myrep= tr1->getCardinalRep();
+      //GFAbsTrackRep* myrep= tr1->getCardinalRep();
       cout<<"-I- PndMicroWriter::Exec(): Pointer myrep "<<myrep<<endl;
       TVectorD d(6);
       d = myrep->getGlobal();

@@ -21,7 +21,7 @@
 #define TPCCONFMAPFIT_HH
 
 // Base Class Headers ----------------
-#include "AbsTrackRep.h"
+#include "GFAbsTrackRep.h"
 
 // Collaborating Class Headers -------
 #include <ostream> // remove if you do not need streaming op
@@ -31,15 +31,15 @@
 
 
 
-class PndTpcConfMapFit : public AbsTrackRep {
+class PndTpcConfMapFit : public GFAbsTrackRep {
 public:
 
   // Constructors/Destructors ---------
   PndTpcConfMapFit();
   ~PndTpcConfMapFit(){;}
 
-  virtual AbsTrackRep* clone()const;
-  virtual AbsTrackRep* prototype()const;
+  virtual GFAbsTrackRep* clone()const;
+  virtual GFAbsTrackRep* prototype()const;
 
   // Accessors -----------------------
 
@@ -48,20 +48,20 @@ public:
 
 
   // Operations ----------------------
-  virtual double extrapolate(const DetPlane& plane, TMatrixT<double>& statePred);
+  virtual double extrapolate(const GFDetPlane& plane, TMatrixT<double>& statePred);
   
-  virtual double extrapolate(const DetPlane& plane,
+  virtual double extrapolate(const GFDetPlane& plane,
 			     TMatrixT<double>& statePred,
 			     TMatrixT<double>& covPred);
 
   
-  virtual TVector3 getPos(const DetPlane& pl);
-  virtual TVector3 getMom(const DetPlane& pl);
-  void getPosMom(const DetPlane& pl,TVector3& pos,TVector3& mom){}
+  virtual TVector3 getPos(const GFDetPlane& pl);
+  virtual TVector3 getMom(const GFDetPlane& pl);
+  void getPosMom(const GFDetPlane& pl,TVector3& pos,TVector3& mom){}
   virtual double getCharge() const {return 1;}
   const TVector2& getOrigin() const {return _origin;}
 
-  virtual void setReferencePlane(const DetPlane& pl);
+  virtual void setReferencePlane(const GFDetPlane& pl);
   void setOrigin(double x, double y) {_origin.Set(x,y);}
 
   double getR2();

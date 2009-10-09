@@ -28,7 +28,7 @@
 
 // Collaborating Class Declarations --
 class TClonesArray;
-class RecoHitFactory;
+class GFRecoHitFactory;
 class TH1D;
 class TH2D;
 class TGeoManager;
@@ -72,7 +72,7 @@ private:
   Bool_t fPersistence;
   Int_t fNumIt;          ///< number of iterations
 
-  RecoHitFactory* fTheRecoHitFactory;
+  GFRecoHitFactory* fTheRecoHitFactory;
 
 
   TH1D* fPH; // momentum histo;

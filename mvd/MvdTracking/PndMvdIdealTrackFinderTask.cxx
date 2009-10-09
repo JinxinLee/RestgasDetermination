@@ -133,7 +133,7 @@ InitStatus PndMvdIdealTrackFinderTask::Init()
 
 
 
-  fTrackCandArray = new TClonesArray("TrackCand");
+  fTrackCandArray = new TClonesArray("GFTrackCand");
   ioman->Register("MVDIdealTrackCand", "MVD", fTrackCandArray, kTRUE);
 
   std::cout << "-I- PndMvdIdealTrackFinderTask: Initialisation successfull" << std::endl;
@@ -180,9 +180,9 @@ void PndMvdIdealTrackFinderTask::Exec(Option_t* opt)
   if(fVerbose>0) PrintResult();
 
   Int_t i = 0;
-  for (std::map<Int_t,TrackCand*>::const_iterator kIt=fTrackCandMap.begin();
+  for (std::map<Int_t,GFTrackCand*>::const_iterator kIt=fTrackCandMap.begin();
       kIt != fTrackCandMap.end(); kIt++){
-    new((*fTrackCandArray)[i]) TrackCand(*(kIt->second));
+    new((*fTrackCandArray)[i]) GFTrackCand(*(kIt->second));
     i++;
   }
   ClearTrackCandMap();
@@ -190,7 +190,7 @@ void PndMvdIdealTrackFinderTask::Exec(Option_t* opt)
 
 void PndMvdIdealTrackFinderTask::AddAndExpand(Int_t trackID, Int_t detnum, Int_t iHit,PndMvdHit* theHit){
   if (fTrackCandMap[trackID] == 0){
-    TrackCand *myTCand = new TrackCand();
+    GFTrackCand *myTCand = new GFTrackCand();
     PndMCTrack* myMCTrack = (PndMCTrack*)fTrackArray->At(trackID);
     myTCand->setCurv(GetTrackCurvature(myMCTrack));
     myTCand->setDip(GetTrackDip(myMCTrack));
@@ -231,10 +231,10 @@ void PndMvdIdealTrackFinderTask::PrintResult()
 {
   std::cout << "**** TrackFinding *****" << std::endl;
   Int_t nStripHits = fStripHitArray->GetEntriesFast();
-   for (std::map<Int_t, TrackCand*>::const_iterator kIt=fTrackCandMap.begin();
+   for (std::map<Int_t, GFTrackCand*>::const_iterator kIt=fTrackCandMap.begin();
         kIt != fTrackCandMap.end(); kIt++){
      std::cout << "TrackID: " << kIt->first << std::endl;
-     TrackCand* trackCand = kIt->second;
+     GFTrackCand* trackCand = kIt->second;
      for (unsigned int i = 0; i < trackCand->getNHits(); i++){
        unsigned int detId, hitId;
        trackCand->getHit(i, detId, hitId);
@@ -249,7 +249,7 @@ void PndMvdIdealTrackFinderTask::PrintResult()
 
 void PndMvdIdealTrackFinderTask::ClearTrackCandMap()
 {
-  for (std::map<Int_t,TrackCand*>::const_iterator kIt=fTrackCandMap.begin();
+  for (std::map<Int_t,GFTrackCand*>::const_iterator kIt=fTrackCandMap.begin();
           kIt != fTrackCandMap.end(); kIt++){
     delete(kIt->second);
   }

@@ -31,9 +31,9 @@ using std::endl;
 
 // Collaborating Class Headers --------
 #include "TClonesArray.h"
-#include "Track.h"
-#include "TrackCand.h"
-#include "Kalman.h"
+#include "GFTrack.h"
+#include "GFTrackCand.h"
+#include "GFKalman.h"
 #include "PndTpcConfMapRecoHit.h"
 #include "PndTpcConfMapFit.h"
 #include "PndTpcZSFit.h"
@@ -72,14 +72,14 @@ PndTpcConfTrackFinder::configure(double xcut, double ycut, double zcut,
 
 void
 PndTpcConfTrackFinder::buildTracks(TClonesArray* clusterarray,
-				std::vector<TrackCand*>& candlist)
+				std::vector<GFTrackCand*>& candlist)
 {
   throw "PndTpcConfTrackFinder::not implemented";
 }
 
 void
 PndTpcConfTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
-				std::vector<TrackCand*>& candlist)
+				std::vector<GFTrackCand*>& candlist)
 {
   std::cout<<"PndTpcConfTrackFinder::buildTracks:: starting."<<std::endl;
 
@@ -96,7 +96,7 @@ PndTpcConfTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
   std::sort(cll.begin(),cll.end(),PndTpcClusterRadius());
   unsigned int ncl=cll.size();
   std::list<PndTpcConfMapRecoHit*> hits;
-  //std::vector<Track*> trks; // all tracks
+  //std::vector<GFTrack*> trks; // all tracks
 
   for(unsigned int icl=0;icl<ncl;++icl){//loop over clusters from large radius inwards
     
@@ -122,7 +122,7 @@ PndTpcConfTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
     
     unsigned int ntrks=_trks.size();
     for(unsigned int itrk=0;itrk<ntrks;++itrk){//loop over track candidates
-      Track* trk=_trks[itrk];
+      GFTrack* trk=_trks[itrk];
       double hitMatchQuality;
       double confMatchQuality;
       if(trk==NULL)continue;
@@ -149,8 +149,8 @@ PndTpcConfTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
       //std::cout<<"create new track"<<std::endl;
       //std::cout<<"hitMatchQuality="<<bestHitMatchQuality<<std::endl;
       //std::cout<<"confMatchQuality="<<bestConfMatchQuality<<std::endl;
-      Track* newtrk=new Track(new PndTpcConfMapFit());
-      AbsTrackRep* zsfit=new PndTpcZSFit();
+      GFTrack* newtrk=new GFTrack(new PndTpcConfMapFit());
+      GFAbsTrackRep* zsfit=new PndTpcZSFit();
       newtrk->addTrackRep(zsfit);
       _trks.push_back(newtrk);
       addHit2Track(hit,newtrk);
@@ -166,13 +166,13 @@ PndTpcConfTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
     hits.clear();
     unsigned int ntrks=_trks.size();
     for(unsigned int itrk=0;itrk<ntrks;++itrk){// loop over tracks
-      Track* trk=_trks[itrk];
+      GFTrack* trk=_trks[itrk];
       
       if(trk==NULL)continue;
       unsigned int nhits_intrk=trk->getNumHits();
       if(nhits_intrk>=_minHitsForFit)continue;
       for(unsigned int ih=0;ih<nhits_intrk;++ih){
-	AbsRecoHit* abshit=trk->getHit(ih);
+	GFAbsRecoHit* abshit=trk->getHit(ih);
 	PndTpcConfMapRecoHit* hitpointer=dynamic_cast<PndTpcConfMapRecoHit*>(abshit);
 	hits.push_back(hitpointer);
       }// end loop over hits in track
@@ -187,12 +187,12 @@ PndTpcConfTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
   if(_domerge)merge(_trks); // be carefull this might delete tracks!!!
 
   // ----------------------------------------
-  // output of TrackCandidates
+  // output of GFTrackCandidates
   unsigned int nfound=0;
   
   unsigned int ntrks=_trks.size();
   for(unsigned int itrk=0;itrk<ntrks;++itrk){
-    Track* trk=_trks[itrk];
+    GFTrack* trk=_trks[itrk];
     if(trk==NULL)continue;
     ++nfound;
     if(trk->getNumHits()>=_minHitsForFit){
@@ -206,7 +206,7 @@ PndTpcConfTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
       }
       //std::cout<<"Track with radius r="<<r<<std::endl;
       //std::cout<<"Hits in cand="<<trk->getCand().getNHits()<<std::endl;
-      TrackCand* cand=new TrackCand(trk->getCand());
+      GFTrackCand* cand=new GFTrackCand(trk->getCand());
       if(r==0)r=1E-12;
       cand->setCurv(1./r);
       cand->setDip(d);
@@ -222,7 +222,7 @@ PndTpcConfTrackFinder::buildTracks(std::vector<PndTpcCluster*>& cll,
 
 bool
 PndTpcConfTrackFinder::matchHitTrack(PndTpcConfMapRecoHit* hit,
-				  Track* trk,
+				  GFTrack* trk,
 				  double& matchQuality)
 {
   if(trk==NULL)return false;
@@ -238,7 +238,7 @@ PndTpcConfTrackFinder::matchHitTrack(PndTpcConfMapRecoHit* hit,
 
 bool
 PndTpcConfTrackFinder::matchConfTrack(PndTpcConfMapRecoHit* hit,
-				  Track* trk,
+				  GFTrack* trk,
 				  double& matchQuality)
 {
   if(trk==NULL)return false;
@@ -246,7 +246,7 @@ PndTpcConfTrackFinder::matchConfTrack(PndTpcConfMapRecoHit* hit,
   hit->setRotated(fit->isRotated());
   hit->setReferencePoint(fit->getOrigin().X(),
 			 fit->getOrigin().Y());
-  Kalman myfitter;
+  GFKalman myfitter;
   double ConfMatchQuality=myfitter.getChi2Hit(hit,trk->getTrackRep(0));
   DebugLogger::Instance()->Histo("ConfMatchQuality",ConfMatchQuality,0,200,100);
   double ZSmatchQuality=999.;
@@ -277,7 +277,7 @@ PndTpcConfTrackFinder::matchConfTrack(PndTpcConfMapRecoHit* hit,
 }
 
 void
-PndTpcConfTrackFinder::merge(std::vector<Track*>& trks)
+PndTpcConfTrackFinder::merge(std::vector<GFTrack*>& trks)
   // careful: will delete tracks!!!
 {
   //std::cout<<"Beginning track merge"<<std::endl;
@@ -285,7 +285,7 @@ PndTpcConfTrackFinder::merge(std::vector<Track*>& trks)
   unsigned int ntrks=trks.size();
   if(ntrks<2)return;
   for(unsigned int itrk=0;itrk<ntrks;++itrk){
-    Track* thetrk=trks[itrk];
+    GFTrack* thetrk=trks[itrk];
     if(thetrk==NULL) continue;
     if(thetrk->getNumHits()<_minHitsForFit)continue;
     //chi2
@@ -297,7 +297,7 @@ PndTpcConfTrackFinder::merge(std::vector<Track*>& trks)
     PndTpcConfMapRecoHit* hit1a=dynamic_cast<PndTpcConfMapRecoHit*>(thetrk->getHit(0));
     PndTpcConfMapRecoHit* hit1b=dynamic_cast<PndTpcConfMapRecoHit*>(thetrk->getHit(thetrk->getNumHits()-1));
     for(unsigned int j=itrk+1;j<ntrks;++j){
-      Track* atrk=trks[j];
+      GFTrack* atrk=trks[j];
       if(atrk==NULL)continue;
       if(atrk->getNumHits()<_minHitsForFit)continue;
       // chi2
@@ -343,10 +343,10 @@ PndTpcConfTrackFinder::merge(std::vector<Track*>& trks)
 }
 
 void
-PndTpcConfTrackFinder::mergeTracks(Track* trkA,Track* trkB)
+PndTpcConfTrackFinder::mergeTracks(GFTrack* trkA,GFTrack* trkB)
   // trkB will be deleted!
 {
-  Kalman myfitter;
+  GFKalman myfitter;
   // remember to remap the confhits!!!
   trkA->mergeHits(trkB); // thetrk will disappear
   
@@ -381,7 +381,7 @@ PndTpcConfTrackFinder::hitDist(PndTpcConfMapRecoHit* hit1,
 
 bool
 PndTpcConfTrackFinder::addHit2Track(PndTpcConfMapRecoHit* hit,
-				 Track* trk)
+				 GFTrack* trk)
 {
   hit->calc_s(dynamic_cast<PndTpcConfMapFit*>(trk->getTrackRep(0))->getR());
   // here is a problem because we cannot calculate s meaningfull 
@@ -402,13 +402,13 @@ PndTpcConfTrackFinder::addHit2Track(PndTpcConfMapRecoHit* hit,
   trk->addHit(hit,2,hit->index());
 
   if(trk->getNumHits()==_minHitsForFit){ // first round of fits
-    Kalman myfitter;
+    GFKalman myfitter;
     // for a first pass turn off zs-fit:
     trk->getTrackRep(1)->setStatusFlag(13);
     // set starting values
     PndTpcConfMapRecoHit* chit1=dynamic_cast<PndTpcConfMapRecoHit*>(trk->getHit(0));
     PndTpcConfMapRecoHit* chit2=dynamic_cast<PndTpcConfMapRecoHit*>(trk->getHit(1));
-    double dyp=chit2->getHitCoord(DetPlane())[0][0]-chit1->getHitCoord(DetPlane())[0][0];
+    double dyp=chit2->getHitCoord(GFDetPlane())[0][0]-chit1->getHitCoord(GFDetPlane())[0][0];
     double dxp=chit2->getXcf()-chit1->getXcf();
     if(dxp==0)dxp=1E-12;
     double m=dyp/dxp;
@@ -425,7 +425,7 @@ PndTpcConfTrackFinder::addHit2Track(PndTpcConfMapRecoHit* hit,
       
     }
     
-    double t=chit1->getHitCoord(DetPlane())[0][0]-m*chit1->getXcf();
+    double t=chit1->getHitCoord(GFDetPlane())[0][0]-m*chit1->getXcf();
     TMatrixT<double> state=trk->getTrackRep(0)->getState();
     state[0][0]=m;
     state[1][0]=t;
@@ -446,7 +446,7 @@ PndTpcConfTrackFinder::addHit2Track(PndTpcConfMapRecoHit* hit,
   }
   else if(trk->getNumHits()>_minHitsForFit){ // regular fits
     hit->setRotated((dynamic_cast<PndTpcConfMapFit*>(trk->getTrackRep(0))->isRotated()));
-    Kalman myfitter;
+    GFKalman myfitter;
     myfitter.fittingPass(trk,1);
   }
   

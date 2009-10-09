@@ -1,6 +1,6 @@
 #include "PndLheHit.h"
 #include "PndLheCandidate.h"
-#include "TrackCand.h"
+#include "GFTrackCand.h"
 #include "TClonesArray.h"
 
 #include "Riostream.h"
@@ -147,9 +147,9 @@ void PndLheCandidate::SortHits()
 }
 
 //______________________________________________________________
-TrackCand* PndLheCandidate::GetTrackCand()
+GFTrackCand* PndLheCandidate::GetTrackCand()
 {
-  TrackCand *trackCand = new TrackCand();
+  GFTrackCand *trackCand = new GFTrackCand();
   TObjArray* lheList = GetRHits();
   
   Int_t detId = 0;

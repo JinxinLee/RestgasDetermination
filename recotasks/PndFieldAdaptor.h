@@ -3,7 +3,7 @@
 // $Id$
 //
 // Description:
-//      Adapts a PndField to genfit AbsBFieldIfc
+//      Adapts a PndField to genfit GFAbsBFieldIfc
 //
 //
 // Environment:
@@ -19,7 +19,7 @@
 #define PNDFIELDADAPTOR_HH
 
 // Base Class Headers ----------------
-#include "AbsBField.h"
+#include "GFAbsBField.h"
 #include"TObject.h"
 
 // Collaborating Class Headers -------
@@ -29,7 +29,7 @@
 class FairField;
 
 
-class PndFieldAdaptor : public AbsBField, public TObject {
+class PndFieldAdaptor : public GFAbsBField, public TObject {
 public:
 
   // Constructors/Destructors ---------

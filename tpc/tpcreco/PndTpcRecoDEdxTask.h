@@ -150,7 +150,7 @@ private:
   void SetMCTrackNR(Int_t nMCTrackNR);
   void ResetOutputInfo();
   void FillData(const std::vector<PndTpcDEDXStorageHelper> &data, PndTpcRawDEdxCollection* Col) const;
-  void PrepareClusterList(std::vector<PndTpcCluster *> &PreparedClusterList, Track *track) const;
+  void PrepareClusterList(std::vector<PndTpcCluster *> &PreparedClusterList, GFTrack *track) const;
 public:
   ClassDef(PndTpcRecoDEdxTask,1)
 

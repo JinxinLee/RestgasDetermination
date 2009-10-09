@@ -132,7 +132,7 @@ void PndRiemannTrackFinder::FindTracks()
 	for (int n = 0; n < fHitsInTracks.size(); n++)
 	{
 		//		fTracks[n].szfit();
-		TrackCand myTrackCand;
+		GFTrackCand myTrackCand;
 		myTrackCand.setCurv(1/fTracks[n].r());
 		//myTrackCand.setCurvError(fTracks[n].dR()/(fTracks[n].r() * fTracks[n].r()));
 		myTrackCand.setDip(fTracks[n].dip());
@@ -329,7 +329,7 @@ void PndRiemannTrackFinder::MergeTracks()
 			while (selectedTracksSize != 0){
 				TracksToMerge = FindTracksWithSimilarHits(SelectedTracks);
 				selectedTracksSize = SelectedTracks.size();
-				TrackCand newCand = CreateOneTrackCand(TracksToMerge);
+				GFTrackCand newCand = CreateOneTrackCand(TracksToMerge);
 				fMergedTrackCand.push_back(newCand);
 				if (fVerbose > 1){
 					std::cout << "New TrackCand:" << std::endl;
@@ -344,7 +344,7 @@ void PndRiemannTrackFinder::MergeTracks()
 std::vector<int> PndRiemannTrackFinder::FindTracksWithSimilarParameters(int TrackInd, std::vector<int>& TracksToTest, double curvDiff, double dipDiff)
 {
 	std::vector<int> result;
-	TrackCand testTrack = fTrackCand[TrackInd];
+	GFTrackCand testTrack = fTrackCand[TrackInd];
 	result.push_back(TrackInd);
 	RemoveTrack(TrackInd, TracksToTest);
 	int tracksToTestSize = TracksToTest.size();
@@ -353,7 +353,7 @@ std::vector<int> PndRiemannTrackFinder::FindTracksWithSimilarParameters(int Trac
 		std::cout << "TrackInd: " << TrackInd << " tracksToTest: " << tracksToTestSize << std::endl;
 	}
 	for (int i = 0; i < tracksToTestSize; i++){
-		TrackCand myTrack = fTrackCand[TracksToTest[i]];
+		GFTrackCand myTrack = fTrackCand[TracksToTest[i]];
 		if ((fabs(testTrack.getCurv() - myTrack.getCurv()) < curvDiff) &&
 			(fabs(testTrack.getDip()- myTrack.getDip()) < dipDiff))
 		{
@@ -367,7 +367,7 @@ std::vector<int> PndRiemannTrackFinder::FindTracksWithSimilarParameters(int Trac
 		std::cout << "Tracks with similar parameters: curv: " << testTrack.getCurv() <<
 				  " dip: " << testTrack.getDip() << std::endl;
 		for(int j = 0; j < result.size();  j++){
-			TrackCand printTrack = fTrackCand[result[j]];
+			GFTrackCand printTrack = fTrackCand[result[j]];
 			PrintTrackCand(&printTrack);
 		}
 	}
@@ -379,7 +379,7 @@ std::vector<int> PndRiemannTrackFinder::FindTracksWithSimilarHits(std::vector<in
 	std::vector<int> result;
 	std::map<std::pair<unsigned int,unsigned int>, int > hitCount;
 	int TrackInd = TracksToTest[0];
-	TrackCand testTrack = fTrackCand[TrackInd];
+	GFTrackCand testTrack = fTrackCand[TrackInd];
 	result.push_back(TrackInd);
 	RemoveTrack(TrackInd, TracksToTest);
 	unsigned int detId, hitId;
@@ -391,7 +391,7 @@ std::vector<int> PndRiemannTrackFinder::FindTracksWithSimilarHits(std::vector<in
 	}
 	int tracksToTestSize = TracksToTest.size();
 	for (int j = 0; j < tracksToTestSize; j++){
-		TrackCand myTrack = fTrackCand[TracksToTest[j]];
+		GFTrackCand myTrack = fTrackCand[TracksToTest[j]];
 		int NHits = 0;
 		unsigned int myTrackDetId, myTrackHitId;
 		for (int k = 0; k < myTrack.getNHits(); k++){
@@ -476,7 +476,7 @@ int PndRiemannTrackFinder::HitTooClose(std::vector<Int_t> hitsInUse, FairHit* ne
 	return -1;
 }
 
-void PndRiemannTrackFinder::PrintTrackCand(TrackCand* cand, bool shortOutput)
+void PndRiemannTrackFinder::PrintTrackCand(GFTrackCand* cand, bool shortOutput)
 {
   unsigned int det, hit;
      if(shortOutput == false) std::cout << "TrackCand: " << cand->getCurv() <<" curv, " //<< " +/- " << cand->getCurvError() <<" curv, "
@@ -489,12 +489,12 @@ void PndRiemannTrackFinder::PrintTrackCand(TrackCand* cand, bool shortOutput)
      std::cout << "\n";
 }
 
-TrackCand PndRiemannTrackFinder::CreateOneTrackCand(std::vector<int> tracks)
+GFTrackCand PndRiemannTrackFinder::CreateOneTrackCand(std::vector<int> tracks)
 {
-	TrackCand result;
+	GFTrackCand result;
 	std::map<std::pair<unsigned int, unsigned int>, int > hits;
 	for (int i = 0; i < tracks.size(); i++){
-		TrackCand myTrackCand = fTrackCand[tracks[i]];
+		GFTrackCand myTrackCand = fTrackCand[tracks[i]];
 		unsigned int detId, hitId;
 		for (int j = 0; j < myTrackCand.getNHits(); j++){
 			myTrackCand.getHit(j, detId, hitId);
@@ -509,7 +509,7 @@ TrackCand PndRiemannTrackFinder::CreateOneTrackCand(std::vector<int> tracks)
 	return result;
 }
 
-void PndRiemannTrackFinder::RefitTrackCand(TrackCand& cand)
+void PndRiemannTrackFinder::RefitTrackCand(GFTrackCand& cand)
 {
 	PndRiemannTrack myTrack;
 	unsigned int detId, hitId;

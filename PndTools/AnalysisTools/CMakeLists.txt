@@ -26,7 +26,8 @@ ${CMAKE_SOURCE_DIR}/PndTools/AnalysisTools/Fitter
 ${CMAKE_SOURCE_DIR}/genfit
 ${GEANT3_INCLUDE_DIR}
 ${CMAKE_SOURCE_DIR}/geane
-${CMAKE_SOURCE_DIR}/trackrep
+${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
+${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/LSLtrackRep
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})

@@ -26,7 +26,9 @@ ${CMAKE_SOURCE_DIR}/tpc/tpcreco
 ${CMAKE_SOURCE_DIR}/tpcreco
 ${CMAKE_SOURCE_DIR}/recotasks 
 ${CMAKE_SOURCE_DIR}/recotasks/demo
-${CMAKE_SOURCE_DIR}/trackrep
+${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
+${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/LSLtrackRep
+${CMAKE_SOURCE_DIR}/GenfitTools/adapters
 ${CMAKE_SOURCE_DIR}/geane
 ${CMAKE_SOURCE_DIR}/trackbase
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
@@ -51,9 +53,9 @@ KalmanTask.cxx
 TrackVisTask.cxx 
 TrackFitStat.cxx
 TrackFitStatTask.cxx
-V0Selector.cxx
-LambdaSelector.cxx
-LambdaStatTask.cxx
+#V0Selector.cxx
+#LambdaSelector.cxx
+#LambdaStatTask.cxx
 MCTruthAnnex.cxx
 TpcMCEvtDeconvTask.cxx
 GlobalTrackMergingTask.cxx

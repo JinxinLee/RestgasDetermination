@@ -30,7 +30,7 @@
 #include "PndTpcDigiMapper.h"
 
 // Collaborating Class Declarations --
-class Track;
+class GFTrack;
 
 class PndTpcCluster : public TObject{
 

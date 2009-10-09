@@ -28,21 +28,21 @@
 // Collaborating Class Headers --------
 #include "FairRootManager.h"
 #include "TClonesArray.h"
-#include "Track.h"
+#include "GFTrack.h"
 #include "PndTpcCluster.h"
 #include "PndTpcPlanarRecoHit.h"
 #include "PndTpcSPHit.h"
 
 #include "LSLTrackRep.h"
-#include "RecoHitFactory.h"
-#include "Kalman.h"
-#include "FitterExceptions.h"
+#include "GFRecoHitFactory.h"
+#include "GFKalman.h"
+#include "GFException.h"
 #include "TH1D.h"
 #include "TFile.h"
 #include "TGeoTrack.h"
 #include "TGeoManager.h"
 #include "TLorentzVector.h"
-#include "DetPlane.h"
+#include "GFDetPlane.h"
 
 #include "PndMvdRecoHit.h"
 #include "PndGemRecoHit.h"
@@ -54,7 +54,7 @@
 
 #include "PndDetectorList.h"
 
-#include "AbsRecoHit.h"
+#include "GFAbsRecoHit.h"
 #include "TVector3.h"
 
 #include <signal.h>
@@ -110,20 +110,20 @@ KalmanTask::Init()
   
 
   // Build hit factory -----------------------------
-  _theRecoHitFactory = new RecoHitFactory();
+  _theRecoHitFactory = new GFRecoHitFactory();
   TClonesArray* ar=(TClonesArray*) ioman->GetObject("PndTpcCluster");
    if(ar==0){
      Error("KalmanTask::Init","PndTpcCluster array not found");
    }
    else{ 
-     _theRecoHitFactory->addProducer(2,new RecoHitProducer<PndTpcCluster,PndTpcSPHit>(ar));
+     _theRecoHitFactory->addProducer(2,new GFRecoHitProducer<PndTpcCluster,PndTpcSPHit>(ar));
    }
  
    TClonesArray* mvdHitArray=(TClonesArray*) ioman->GetObject("MVDHit");
    if(mvdHitArray==0){ //TODO Convention on detector number needed
      Error("PndFwdKalmanTask::Init","MVDHit array not found");
    } else {
-     _theRecoHitFactory->addProducer(kMVD,new RecoHitProducer<PndMvdHit,PndMvdRecoHit>(mvdHitArray));
+     _theRecoHitFactory->addProducer(kMVD,new GFRecoHitProducer<PndMvdHit,PndMvdRecoHit>(mvdHitArray));
    }
    
    
@@ -131,8 +131,8 @@ KalmanTask::Init()
    if(gemHitArray==0){ //TODO Convention on detector number needed
      Error("PndFwdKalmanTask::Init","GEMHit array not found");
    } else {
-     _theRecoHitFactory->addProducer(kGEM,new RecoHitProducer<PndGemHit,PndGemRecoHit>(gemHitArray));
-     _theRecoHitFactory->addProducer(5,new RecoHitProducer<PndGemHit,PndGemRecoHit>(gemHitArray));
+     _theRecoHitFactory->addProducer(kGEM,new GFRecoHitProducer<PndGemHit,PndGemRecoHit>(gemHitArray));
+     _theRecoHitFactory->addProducer(5,new GFRecoHitProducer<PndGemHit,PndGemRecoHit>(gemHitArray));
    }
    
    
@@ -141,10 +141,10 @@ KalmanTask::Init()
    if(dchCylHitArray==0){ //TODO Convention on detector number needed
      Error("PndFwdKalmanTask::Init","PndDchCylinderHit array not found");
    } else {
-     _theRecoHitFactory->addProducer(kDCH,new RecoHitProducer<PndDchCylinderHit,PndDchRecoHit2>(dchCylHitArray));
+     _theRecoHitFactory->addProducer(kDCH,new GFRecoHitProducer<PndDchCylinderHit,PndDchRecoHit2>(dchCylHitArray));
    }
    
-   _trackOutArray = new TClonesArray("Track");
+   _trackOutArray = new TClonesArray("GFTrack");
    ioman->Register("TrackPostFit","",_trackOutArray,kTRUE);
 
 
@@ -175,7 +175,7 @@ KalmanTask::Exec(Option_t* opt)
   }
 
   // Fitting ---------------- can go to another task!
-  Kalman fitter;
+  GFKalman fitter;
   //  fitter.setLazy(_lazy);
   fitter.setNumIterations(3);
 
@@ -184,7 +184,7 @@ KalmanTask::Exec(Option_t* opt)
   
   for(Int_t itr=0;itr<ntracks;++itr){
     std::cout<<"starting track"<<itr<<std::endl;
-    Track* trk=(Track*)_trackArray->At(itr);
+    GFTrack* trk=(GFTrack*)_trackArray->At(itr);
     
     // Load RecoHits 
     try {
@@ -192,7 +192,7 @@ KalmanTask::Exec(Option_t* opt)
       std::cout<<trk->getNumHits()<<" hits in track "
 	       <<itr<<std::endl;
     }
-    catch(FitterException& e) {
+    catch(GFException& e) {
       std::cout << e.what() << std::endl;
       e.info();
       throw e;
@@ -202,11 +202,11 @@ KalmanTask::Exec(Option_t* opt)
     trk->getCand().print();
     trk->getCardinalRep()->Print();
 
-    AbsTrackRep *rep = trk->getCardinalRep();
+    GFAbsTrackRep *rep = trk->getCardinalRep();
     for(int i=0; i<trk->getNumHits();++i){
-      AbsRecoHit *hit = trk->getHit(i);
+      GFAbsRecoHit *hit = trk->getHit(i);
       std::cout << "###################hit " << i << std::endl;
-      DetPlane pl = hit->getDetPlane(rep);
+      GFDetPlane pl = hit->getDetPlane(rep);
       TMatrixT<double> statePred(5,1);
       TMatrixT<double> covPred(5,5);
       rep->extrapolate(pl,statePred,covPred);
@@ -216,8 +216,8 @@ KalmanTask::Exec(Option_t* opt)
     return;
     */
     /*
-    std::vector<AbsRecoHit*> hits = trk->getHits();
-    std::cout<<"\nstd::vector<AbsRecoHit*> hits has "<< hits.size()<<" entries"<<std::endl;
+    std::vector<GFAbsRecoHit*> hits = trk->getHits();
+    std::cout<<"\nstd::vector<GFAbsRecoHit*> hits has "<< hits.size()<<" entries"<<std::endl;
     
     // HACK: print out hit positions:
 
@@ -237,18 +237,18 @@ KalmanTask::Exec(Option_t* opt)
       std::cerr << "Calling processTrack" << std::endl;
       fitter.processTrack(trk);
     }
-    catch (FitterException e){
+    catch (GFException e){
       std::cout<<e.what()<<std::endl;
     }
 
     Int_t size = _trackOutArray->GetEntriesFast();
-    Track* trkCopy = new((*_trackOutArray)[size]) Track(*trk);
+    GFTrack* trkCopy = new((*_trackOutArray)[size]) GFTrack(*trk);
 
 
     // Print Track Parameters after fit
     if(trk->getTrackRep(0)->getStatusFlag()==0){
       trk->getTrackRep(0)->Print();
-      //DetPlane plane(TVector3(0,0,0.1),TVector3(1,0,0),TVector3(0,1,0));
+      //GFDetPlane plane(TVector3(0,0,0.1),TVector3(1,0,0),TVector3(0,1,0));
       //TVector3 p3=trk->getTrackRep(0)->getMom(plane);
       double p=trk->getMom().Mag();
       _pH->Fill(p);

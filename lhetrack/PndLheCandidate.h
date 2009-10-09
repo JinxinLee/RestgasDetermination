@@ -19,7 +19,7 @@
 
 #include "Riostream.h"
 
-class TrackCand;
+class GFTrackCand;
 
 class PndLheCandidate: public TObject {
   
@@ -100,7 +100,7 @@ public:
   Int_t      GetTpcHits()           const { return fTpcHits; }
   Int_t      GetGemHits()           const { return fGemHits; }
   
-  TrackCand* GetTrackCand();
+  GFTrackCand* GetTrackCand();
   
   PndLhePoint   GetVertex()      const { return fVertex;  }
   PndLhePoint   GetLastHit()     const { return fLastHit; }

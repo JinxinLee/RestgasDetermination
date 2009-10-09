@@ -17,6 +17,7 @@ rootlogon()
 	gSystem->Load("libEmc"); 
         gSystem->Load("libgenfit");
 	gSystem->Load("libtrackrep");
+	gSystem->Load("libgenfitAdapters");
         gSystem->Load("libriemann");
         gSystem->Load("libtpc"); 
         gSystem->Load("libtpcreco");
@@ -39,4 +40,5 @@ rootlogon()
 	gSystem->Load("libTMVA.so");
         gSystem->Load("libPid");
         gSystem->Load("libAnalysisTools");
+        gSystem->Load("librecotasks");
 }

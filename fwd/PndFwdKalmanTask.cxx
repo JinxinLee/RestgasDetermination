@@ -30,7 +30,7 @@
 #include "FairRootManager.h"
 #include "PndDetectorList.h"
 #include "TClonesArray.h"
-#include "Track.h"
+#include "GFTrack.h"
 #include "TDatabasePDG.h"
 
 // #include "PndFwdHit.h"
@@ -41,11 +41,11 @@
 
 #include "RecoHitFactory.h"
 #include "Kalman.h"
-#include "FitterExceptions.h"
+#include "GFException.h"
 #include "TH1D.h"
 #include "TH2D.h"
 #include "TFile.h"
-#include "TGeoTrack.h"
+#include "TGeoGFTrack.h"
 #include "TGeoManager.h"
 #include "TLorentzVector.h"
 #include "DetPlane.h"
@@ -197,7 +197,7 @@ PndFwdKalmanTask::Exec(Option_t* opt)
 
   for(Int_t itr=0;itr<ntracks;++itr){
     std::cout<<"starting track"<<itr<<std::endl;
-    //     AbsTrackRep* rep = new LSLTrackRep();
+    //     GFAbsTrackRep* rep = new LSLTrackRep();
 
     Track* trac = (Track*)fTrackArray->At(itr);
     TrackCand trcnd = (TrackCand)trac->getCand();
@@ -210,7 +210,7 @@ PndFwdKalmanTask::Exec(Option_t* opt)
       std::cout<<trac->getNumHits()<<" hits in track "
 	       <<itr<<std::endl;
     }
-    catch(FitterException& e) {
+    catch(GFException& e) {
       std::cout << e.what() << std::endl;
       throw e;
     }
@@ -220,7 +220,7 @@ PndFwdKalmanTask::Exec(Option_t* opt)
       std::cout<<"starting fit"<<std::endl;
       fitter.processTrack(trac);
     }
-    catch (FitterException e){
+    catch (GFException e){
       std::cout<<e.what()<<std::endl;
     }
     

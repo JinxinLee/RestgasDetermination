@@ -21,7 +21,7 @@
 #define TPCZSFIT_HH
 
 // Base Class Headers ----------------
-#include "AbsTrackRep.h"
+#include "GFAbsTrackRep.h"
 
 // Collaborating Class Headers -------
 #include <ostream> // remove if you do not need streaming op
@@ -30,15 +30,15 @@
 #include "TMath.h"
 
 
-class PndTpcZSFit : public AbsTrackRep {
+class PndTpcZSFit : public GFAbsTrackRep {
 public:
 
   // Constructors/Destructors ---------
   PndTpcZSFit();
   ~PndTpcZSFit(){;}
 
-  virtual AbsTrackRep* clone()const;
-  virtual AbsTrackRep* prototype()const;
+  virtual GFAbsTrackRep* clone()const;
+  virtual GFAbsTrackRep* prototype()const;
 
   // Accessors -----------------------
 
@@ -47,22 +47,22 @@ public:
 
 
   // Operations ----------------------
-  virtual double extrapolate(const DetPlane& plane, TMatrixT<double>& statePred);
+  virtual double extrapolate(const GFDetPlane& plane, TMatrixT<double>& statePred);
   
-  virtual double extrapolate(const DetPlane& plane,
+  virtual double extrapolate(const GFDetPlane& plane,
 			     TMatrixT<double>& statePred,
 			     TMatrixT<double>& covPred);
 
 
 
-  virtual TVector3 getPos(const DetPlane& pl);
-  virtual TVector3 getMom(const DetPlane& pl);
-  void getPosMom(const DetPlane& pl,TVector3& pos,TVector3& mom){}
+  virtual TVector3 getPos(const GFDetPlane& pl);
+  virtual TVector3 getMom(const GFDetPlane& pl);
+  void getPosMom(const GFDetPlane& pl,TVector3& pos,TVector3& mom){}
   virtual double getCharge() const {return 1;}
 
-  double getDip() const {return TMath::Cos(TMath::ATan(state[0][0]));} // pt=p*dip
+  double getDip() const {return TMath::Cos(TMath::ATan(fState[0][0]));} // pt=p*dip
 
-  virtual void setReferencePlane(const DetPlane& pl);
+  virtual void setReferencePlane(const GFDetPlane& pl);
   virtual void switchDirection(){};
 private:
   

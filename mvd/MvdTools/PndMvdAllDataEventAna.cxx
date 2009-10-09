@@ -1,7 +1,7 @@
 #include "PndMvdAllDataEventAna.h"
 #include "PndMvdMCPoint.h"
 #include "PndMvdPixel.h"
-#include "TrackCand.h"
+#include "GFTrackCand.h"
 #include "TVector3.h"
 #include "TGeoManager.h"
 #include "TGeoBBox.h"
@@ -104,7 +104,7 @@ void PndMvdAllDataEventAna::Init(TString fileName)
   fClusterArray = new TClonesArray("PndMvdCluster");
   fRecoArray = new TClonesArray("PndMvdHit");
   fGeoTrackArray = new TClonesArray("TGeoTrack");
-  fTrackFArray = new TClonesArray("TrackCand");
+  fTrackFArray = new TClonesArray("GFTrackCand");
 
   fTree->SetBranchAddress("MVDPoint",&fHitArray);
   fTree->SetBranchAddress("MVDPixelDigis",&fDigiArray);
@@ -401,7 +401,7 @@ void PndMvdAllDataEventAna::FillHitProjHistos()
   TVector3 vec;
 
   for (Int_t i = 0; i < fTrackFArray->GetEntries(); i++){
-    TrackCand* trackC = (TrackCand*)fTrackFArray->At(i);
+    GFTrackCand* trackC = (GFTrackCand*)fTrackFArray->At(i);
     TH2D* myHistoXY = new TH2D("recohisxy","MVD Reco Points, xy view",400,-15.,15.,400,-15.,15.);
     myHistoXY->SetMarkerStyle(7);
     myHistoXY->SetMarkerColor(i+1);

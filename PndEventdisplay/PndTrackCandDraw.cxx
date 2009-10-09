@@ -9,13 +9,13 @@
 #include "TObjArray.h"
 #include "TEveManager.h"
 #include "TEveBoxSet.h"
-#include "TrackCand.h"
+#include "GFTrackCand.h"
 #include "PndTrackCand.h"
 #include "PndTrackCandHit.h"
 #include "FairRootManager.h"
 #include "PndTpcCluster.h"
-#include "PndLhePidTrack.h"
-//#include "PndTpcLheTrack.h"
+#include "PndLhePidGFTrack.h"
+//#include "PndTpcLheGFTrack.h"
 
 #include "PndDetectorList.h"
 #include <iostream>

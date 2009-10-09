@@ -6,7 +6,7 @@
 #include "FairHit.h"
 
 #include "TClonesArray.h"
-#include "TrackCand.h"
+#include "GFTrackCand.h"
 
 #include <vector>
 #include <map>
@@ -27,9 +27,9 @@ public:
 	int NTracks(){return fTrackCand.size();};					///< Returns the number of found tracks
 	PndRiemannTrack GetTrack(int i){return fTracks[i];};	///< Returns the track with the index i
 	std::vector<Int_t> GetTrackCandidates(int i){return fHitsInTracks[i];};	///< Returns the hits belonging to track i
-	std::vector<TrackCand> GetTrackCand(){return fTrackCand;}
-	std::vector<TrackCand> GetMergedTrackCands(){return fMergedTrackCand;}
-	TrackCand GetTrackCand(int i) {return fTrackCand[i];}
+	std::vector<GFTrackCand> GetTrackCand(){return fTrackCand;}
+	std::vector<GFTrackCand> GetMergedTrackCands(){return fMergedTrackCand;}
+	GFTrackCand GetTrackCand(int i) {return fTrackCand[i];}
 	double HitDistance(FairHit* h1, FairHit* h2);				///< Calculates the distance between two hits
 	int HitTooClose(std::vector<Int_t> hitsInUse, FairHit* newHit, double threshold); ///< returns if and which hit was too close to the hit which is tested
 	
@@ -48,8 +48,8 @@ private:
 	std::vector<FairHit*> fHits;							///< Vector of FairHits used for track finding (fitting)
 	std::vector<PndRiemannTrack> fTracks;				///< Resulting Riemann Tracks
 	std::vector<std::vector<Int_t> > fHitsInTracks;		///< Vector of indizes which hits where used in which track
-	std::vector<TrackCand> fTrackCand;
-	std::vector<TrackCand> fMergedTrackCand;
+	std::vector<GFTrackCand> fTrackCand;
+	std::vector<GFTrackCand> fMergedTrackCand;
 	std::vector< std::vector<int> > fHitsTooClose;		///< matrix of TrackNr and hits which are too close to one of the three starting points
 //	std::vector<int> fTooCloseFirst;
 //	std::vector<int> fTooCloseSecond;
@@ -81,9 +81,9 @@ private:
 	std::vector<int> FindTracksWithSimilarParameters(int TrackInd, std::vector<int>& TracksToTest, double curvDiff, double dipDiff);
 	std::vector<int> FindTracksWithSimilarHits(std::vector<int>& TracksToTest);
 	void RemoveTrack(int TrackInd, std::vector<int>& TrackList);
-	void PrintTrackCand(TrackCand* cand, bool shortOutput = false);
-	TrackCand CreateOneTrackCand(std::vector<int> tracks);
-	void RefitTrackCand(TrackCand& cand);
+	void PrintTrackCand(GFTrackCand* cand, bool shortOutput = false);
+	GFTrackCand CreateOneTrackCand(std::vector<int> tracks);
+	void RefitTrackCand(GFTrackCand& cand);
 	// Fast method to figure out if a combination of hits is already used as a track
 	//Problem: It does not work for more than 32 hits
 //	std::vector<Int_t> fHitsInTracks; ///< one int stands for the hits used in one track. The hits are encoded as bits in an int32

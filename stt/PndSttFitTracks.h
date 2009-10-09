@@ -77,7 +77,7 @@ class PndSttFitTracks : public FairTask
   void AddAllCollections(); 
   void AddHitCollection(char const *collectionName);
 
-  PndSttTrackFitter* fFitter;    // Pointer to TrackFinder concrete class
+  PndSttTrackFitter* fFitter;    // Pointer to GFTrackFinder concrete class
   TClonesArray* fTrackArray;     // Input array of STT tracks
   Int_t fNofTracks;              // Number of tracks successfully fitted
   std::vector<std::string> fHitCollectionNames;

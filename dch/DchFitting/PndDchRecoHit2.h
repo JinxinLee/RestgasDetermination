@@ -13,12 +13,12 @@
 #define PNDDCHRECOHIT2_H 1
 
 // Pnd includes
-#include "RecoHitIfc.h"
-#include "WireHitPolicy.h"
+#include "GFRecoHitIfc.h"
+#include "GFWireHitPolicy.h"
 
 class PndDchCylinderHit;
 
-typedef RecoHitIfc<WireHitPolicy> WireRecoHit;
+typedef GFRecoHitIfc<GFWireHitPolicy> WireRecoHit;
 
 class PndDchRecoHit2 : public WireRecoHit {
 
@@ -33,14 +33,13 @@ public:
   virtual ~PndDchRecoHit2();
 
   /** Public method clone(...) creates a clone of argument**/
-   virtual AbsRecoHit* clone(){return new PndDchRecoHit2(*this);};
+   virtual GFAbsRecoHit* clone(){return new PndDchRecoHit2(*this);};
 
   /** Public method Print() **/
   virtual void  Print();
 
  // Operations ----------------------
-  virtual void setHMatrix(const AbsTrackRep* stateVector,
-                          const TMatrixT<double>& state);
+  virtual TMatrixT<double> getHMatrix(const GFAbsTrackRep* stateVector);
 
  private:
   

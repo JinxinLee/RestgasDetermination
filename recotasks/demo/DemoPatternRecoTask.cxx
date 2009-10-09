@@ -27,14 +27,14 @@
 // Collaborating Class Headers --------
 #include "FairRootManager.h"
 #include "TClonesArray.h"
-#include "Track.h"
-#include "TrackCand.h"
+#include "GFTrack.h"
+#include "GFTrackCand.h"
 #include "FairMCPoint.h"
 #include "PndMCTrack.h"
 #include "LSLTrackRep.h"
 #include "GeaneTrackRep.h"
-#include "Kalman.h"
-#include "FitterExceptions.h"
+#include "GFKalman.h"
+#include "GFException.h"
 #include "FairGeanePro.h"
 #include "FairTrackParP.h"
 #include "TRandom.h"
@@ -85,7 +85,7 @@ DemoPatternRecoTask::Init()
   }
    
   // create and register output array
-  _trackArray = new TClonesArray("Track"); 
+  _trackArray = new TClonesArray("GFTrack"); 
   ioman->Register("Track","GenFit",_trackArray,_persistence);
  
   
@@ -105,7 +105,7 @@ DemoPatternRecoTask::Exec(Option_t* opt)
    _trackArray->Delete();
 
    // use McId to distinguish data from different tracks
-   std::map<unsigned int,TrackCand*> candmap;
+   std::map<unsigned int,GFTrackCand*> candmap;
 
 
    std::map<unsigned int,TClonesArray*>::iterator iter=_hitBranchMap.begin();
@@ -122,7 +122,7 @@ DemoPatternRecoTask::Exec(Option_t* opt)
 	   if(candmap[id]==NULL){
 		 // create new track
 		 std::cout<<"Creating new track candidate with id="<<id<<std::endl;
-		 candmap[id]=new TrackCand;
+		 candmap[id]=new GFTrackCand;
 	   }
 	   // add hit to track
 	   // set detectorid=2;
@@ -135,9 +135,9 @@ DemoPatternRecoTask::Exec(Option_t* opt)
    // try to find some starting values
    // loop over tracks
    
-   std::map<unsigned int,TrackCand*>::iterator candIter=candmap.begin();
+   std::map<unsigned int,GFTrackCand*>::iterator candIter=candmap.begin();
    while(candIter!=candmap.end()){
-     TrackCand* cand=candIter->second;
+     GFTrackCand* cand=candIter->second;
      if(cand->getNHits()<10){
        ++candIter;
        continue;
@@ -169,9 +169,9 @@ DemoPatternRecoTask::Exec(Option_t* opt)
      //v.SetMag(1.);
 
      // create track-representation object and initialize with start values
-     AbsTrackRep* rep=0;
+     GFAbsTrackRep* rep=0;
      if(_useGeane){
-       DetPlane pl(pos,u,v);
+       GFDetPlane pl(pos,u,v);
        GeaneTrackRep* grep=new GeaneTrackRep(_geanePro,pl,mom,poserr,momerr,q,pdg);
        grep->setPropDir(1); // propagate in flight direction!
        rep=grep;
@@ -194,7 +194,7 @@ DemoPatternRecoTask::Exec(Option_t* opt)
      
 
      // create track object
-     Track* trk=new((*_trackArray)[_trackArray->GetEntriesFast()]) Track(rep);
+     GFTrack* trk=new((*_trackArray)[_trackArray->GetEntriesFast()]) GFTrack(rep);
      trk->setCandidate(*cand); // here the candidate is copied! 
               
 

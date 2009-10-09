@@ -84,7 +84,7 @@ class PndSttFindTracks : public FairTask
   void AddAllCollections(); 
   void AddHitCollection(char const *collectionName, char const *pointCollectionName);
 
-  PndSttTrackFinder* fFinder;    // Pointer to TrackFinder concrete class
+  PndSttTrackFinder* fFinder;    // Pointer to GFTrackFinder concrete class
   TClonesArray* fTrackArray;     // Output array of PndSttTracks 
 
   Int_t fNofTracks;              // Number of tracks created

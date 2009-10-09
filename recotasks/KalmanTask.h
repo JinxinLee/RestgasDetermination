@@ -26,7 +26,7 @@
 
 // Collaborating Class Declarations --
 class TClonesArray;
-class RecoHitFactory;
+class GFRecoHitFactory;
 class TH1D;
 class TGeoManager; 
 
@@ -68,7 +68,7 @@ private:
   Bool_t _lazy;
   Int_t _numIt; // number of fitting iterations (back and forth)
 
-  RecoHitFactory* _theRecoHitFactory;
+  GFRecoHitFactory* _theRecoHitFactory;
   
 
   TH1D* _pH; // momentum histo;

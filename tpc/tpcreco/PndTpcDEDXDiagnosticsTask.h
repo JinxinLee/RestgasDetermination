@@ -21,7 +21,7 @@
 // Base Class Headers ----------------
 #include "FairTask.h"
 
-class RecoHitFactory;
+class GFRecoHitFactory;
 class PndTpcDEDXDiagnosticsTask : public FairTask
 {
 public:

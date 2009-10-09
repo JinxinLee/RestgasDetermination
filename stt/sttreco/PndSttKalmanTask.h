@@ -10,7 +10,7 @@
 
 // Collaborating Class Declarations --
 class TClonesArray;
-class RecoHitFactory;
+class GFRecoHitFactory;
 class TGeoManager; 
 
 class PndSttKalmanTask : public FairTask {
@@ -43,7 +43,7 @@ private:
   TString _trackBranchName;
   std::map<unsigned int,TString> _hitBranchMap;
   TClonesArray* fTrackArray;
-  RecoHitFactory* _theRecoHitFactory;
+  GFRecoHitFactory* _theRecoHitFactory;
   
 
 

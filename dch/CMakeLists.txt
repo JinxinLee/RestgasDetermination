@@ -10,7 +10,8 @@ ${CMAKE_SOURCE_DIR}/geobase
 ${CMAKE_SOURCE_DIR}/base 
 ${CMAKE_SOURCE_DIR}/parbase 
 ${CMAKE_SOURCE_DIR}/field
-${CMAKE_SOURCE_DIR}/trackrep
+${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
+${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/LSLtrackRep
 ${CMAKE_SOURCE_DIR}/trackbase
 ${CMAKE_SOURCE_DIR}/geane
 ${CMAKE_SOURCE_DIR}/genfit

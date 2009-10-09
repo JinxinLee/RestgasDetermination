@@ -9,7 +9,7 @@
 // PandaRoot includes
 #include "FairTask.h"
 #include "FairRootManager.h"
-#include "PndLhePidTrack.h"
+#include "PndLhePidGFTrack.h"
 #include "PndTpcPoint.h"
 #include "PndPidCand.h"
 //#include "PndMvdMCPoint.h"

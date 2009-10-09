@@ -20,19 +20,19 @@
 #define TPCCLUSTERTRACK_HH
 
 class PndTpcCluster;
-class Track;
+class GFTrack;
 #include <functional>
 
 class PndTpcClusterTrack: public std::binary_function<PndTpcCluster*,PndTpcCluster*,bool>  {
 public:
 	// Constructors/Destructors ---------
-	PndTpcClusterTrack(Track *track):_track(track){;}
+	PndTpcClusterTrack(GFTrack *track):_track(track){;}
 	~PndTpcClusterTrack(){;}
 	
 	// Operators
 	bool operator()(PndTpcCluster* s1, PndTpcCluster* s2) const;
 private:
-	Track *_track;
+	GFTrack *_track;
 
 };
 

@@ -3,8 +3,8 @@
 #include "PndSttPatternRecoTask2.h"
 #include "PndSttTrackMatch.h"
 #include "PndSttTrack.h"
-#include "Track.h"
-#include "TrackCand.h"
+#include "GFTrack.h"
+#include "GFTrackCand.h"
 #include "FairRootManager.h"
 #include "TClonesArray.h"
 #include <iostream>
@@ -16,8 +16,8 @@
 #include "PndSttRecoHit.h"
 // #include "PndSttHit.h"
 #include "PndSttHelixHit.h"
-#include "Kalman.h"
-#include "FitterExceptions.h"
+#include "GFKalman.h"
+#include "GFException.h"
 #include "FairGeanePro.h"
 #include "FairTrackParP.h"
 #include "PndMCTrack.h"
@@ -91,8 +91,8 @@ InitStatus PndSttPatternRecoTask2::Init()
     return kERROR;
   }
   
-  // Create and register Track array
-  fTrackArray = new TClonesArray("Track",100);
+  // Create and register GFTrack array
+  fTrackArray = new TClonesArray("GFTrack",100);
   ioman->Register("Track", "GenFit", fTrackArray, kTRUE);
   
   fPro = new FairGeanePro();
@@ -175,18 +175,18 @@ void PndSttPatternRecoTask2:: Exec(Option_t* opt)
      
       TVector3 u(0.,1.,0.);
       TVector3 v(0.,0.,1.);
-      DetPlane pl(StartPos,u,v);
+      GFDetPlane pl(StartPos,u,v);
       
-      AbsTrackRep* rep = 0;
+      GFAbsTrackRep* rep = 0;
       GeaneTrackRep *grep = new GeaneTrackRep(fPro,pl,StartMom,StartPosErr,StartMomErr,fCharge,pdg);
       grep->setPropDir(1); // propagate in flight direction!
       rep=grep;
 
 
-      Track* trk = new((*fTrackArray)[fTrackArray->GetEntriesFast()]) Track(rep);
+      GFTrack* trk = new((*fTrackArray)[fTrackArray->GetEntriesFast()]) GFTrack(rep);
       TMatrixT<double> status = trk->getTrackRep(0)->getState();
 
-      TrackCand *cand = new TrackCand();
+      GFTrackCand *cand = new GFTrackCand();
 
       for(int iPoint = 0; iPoint < track->GetNofHelixHits(); iPoint++)
  	{

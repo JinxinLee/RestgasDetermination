@@ -306,7 +306,7 @@ Bool_t  PndStt::ProcessHits(FairVolume* vol)
 	  // 	    }
  	//for ex2
 	fpostot.SetXYZM((fpostotin.X() +  fpostotout.X())/2., (fpostotin.Y() + fpostotout.Y())/2., (fpostotin.Z() + fpostotout.Z())/2.,0.0); // da cancellare
-	//for Kalman
+	//for GFKalman
 	//fpostot.SetXYZM(fpostotout.X(), fpostotout.Y(), fpostotout.Z(), 0.0);
 
 

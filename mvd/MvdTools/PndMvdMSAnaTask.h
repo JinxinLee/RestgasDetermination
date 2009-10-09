@@ -18,7 +18,7 @@
 // framework includes
 #include "FairTask.h"
 #include "TH1.h"
-#include "TrackCand.h"
+#include "GFTrackCand.h"
 #include "FairGeanePro.h"
 
 #include "PndMvdGeoHandling.h"

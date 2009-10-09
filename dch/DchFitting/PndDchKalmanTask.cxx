@@ -7,15 +7,15 @@
 // Panda Headers ----------------------
 #include "FairRootManager.h"
 #include "PndDchKalmanTask.h"
-#include "Track.h"
+#include "GFTrack.h"
 #include "PndMCTrack.h"
 #include "PndDchRecoHit.h"
 #include "PndDchCylinderHit.h"
 #include "LSLTrackRep.h"
 #include "GeaneTrackRep.h"
-#include "RecoHitFactory.h"
-#include "Kalman.h"
-#include "FitterExceptions.h"
+#include "GFRecoHitFactory.h"
+#include "GFKalman.h"
+#include "GFException.h"
 
 // C/C++ Headers ----------------------
 #include <algorithm>
@@ -27,7 +27,7 @@
 #include "TH1D.h"
 #include "TH2D.h"
 #include "TFile.h"
-#include "TGeoTrack.h"
+#include "TGeoGFTrack.h"
 #include "TGeoManager.h"
 #include "TMath.h"
 #include "TCanvas.h"
@@ -127,7 +127,7 @@ PndDchKalmanTask::Exec(Option_t* opt)
       std::cout<<"\t"<<trk->getNumHits()<<" reco hits were created for track "
 	       <<itr<<std::endl;
     }
-    catch(FitterException& e) {
+    catch(GFException& e) {
       std::cout<<"Creation of reco hits failed :-( "<<std::endl;
       std::cout << e.what() << std::endl;
       throw e;
@@ -137,7 +137,7 @@ PndDchKalmanTask::Exec(Option_t* opt)
     try{
       fitter.processTrack(trk);
     }
-    catch (FitterException e){
+    catch (GFException e){
       std::cout<<"*** FITTER EXCEPTION ***"<<std::endl;
       std::cout<<e.what()<<std::endl;
       
@@ -146,8 +146,8 @@ PndDchKalmanTask::Exec(Option_t* opt)
     // Fill some histos after fit
 
     if(trk->getTrackRep(0)->getStatusFlag()==0){
-      AbsRecoHit* firstHit = trk->getHit(0);
-      AbsTrackRep* rep = trk->getCardinalRep()->clone();
+      GFAbsRecoHit* firstHit = trk->getHit(0);
+      GFAbsTrackRep* rep = trk->getCardinalRep()->clone();
       std::cout<<"************ Track at the last hit: \n\t Momentum ="<<
 	rep->getMom().Mag()<<"\t theta="<<rep->getMom().Theta()*TMath::RadToDeg()<<
 	"\t phi="<<rep->getMom().Phi()*TMath::RadToDeg()<<"\n";
@@ -165,7 +165,7 @@ PndDchKalmanTask::Exec(Option_t* opt)
 	continue;
       }
       TVector3 mcmom = mc->GetMomentum();
-      DetPlane pl(TVector3(0,0,0),TVector3(1,0,0),TVector3(0,1,0));
+      GFDetPlane pl(TVector3(0,0,0),TVector3(1,0,0),TVector3(0,1,0));
       TVector3 mom0=rep->getMom(pl);
 
       std::cout<<"************ Track at the target: \n\t Momentum ="<<
@@ -179,7 +179,7 @@ PndDchKalmanTask::Exec(Option_t* opt)
 
 
       for(Int_t ihit = 0; ihit<trk->getNumHits(); ihit++){
-	AbsRecoHit* hit = trk->getHit(ihit);
+	GFAbsRecoHit* hit = trk->getHit(ihit);
 	Double_t z = hit->getDetPlane(rep).getO().Z();
 	Double_t chi2hit = fitter.getChi2Hit(hit,rep);
 	//	fChi2HitversusZ->Fill(z,chi2hit);

@@ -6,13 +6,13 @@
 
 // Panda Headers ----------------------
 #include "FairRootManager.h"
-#include "Track.h"
-#include "TrackCand.h"
+#include "GFTrack.h"
+#include "GFTrackCand.h"
 #include "PndMCTrack.h"
 #include "LSLTrackRep.h"
 #include "GeaneTrackRep.h"
-#include "Kalman.h"
-#include "FitterExceptions.h"
+#include "GFKalman.h"
+#include "GFException.h"
 #include "FairGeanePro.h"
 #include "FairTrackParP.h"
 #include "PndDchPrepareKalmanTracks.h"
@@ -99,7 +99,7 @@ PndDchPrepareKalmanTracks::Init()
  
  
   // create and register output array
-  fTrackArray = new TClonesArray("Track"); 
+  fTrackArray = new TClonesArray("GFTrack"); 
   ioman->Register("Track","GenFit",fTrackArray,fPersistence);
   std::cout<<"Track array created "<< fTrackArray<<std::endl;
  
@@ -122,7 +122,7 @@ PndDchPrepareKalmanTracks::Exec(Option_t* opt)
   if(fTrackArray==0) Fatal("PndDchPrepareKalmanTracks::Exec)","No TrackArray");
   fTrackArray->Delete();
 
-   std::map<unsigned int,TrackCand*> candmap;
+   std::map<unsigned int,GFTrackCand*> candmap;
    
    Int_t nuOfTracks = fDchTrackArray->GetEntriesFast();
 
@@ -134,7 +134,7 @@ PndDchPrepareKalmanTracks::Exec(Option_t* opt)
      std::cout<<"PndDchPrepareKalmanTracks::Exec(): I found here "<<nuOfChits<<" cyl hits \n";
 
      if(candmap[id]==NULL){ 
-       candmap[id]=new TrackCand;
+       candmap[id]=new GFTrackCand;
      } else { std::cout<<"PndDchPrepareKalmanTracks::Exec()...:"<<
 	 "this track ID was used already!"<<std::endl;
      }
@@ -149,9 +149,9 @@ PndDchPrepareKalmanTracks::Exec(Option_t* opt)
    // try to find some starting values
    // loop over tracks
    
-   std::map<unsigned int,TrackCand*>::iterator candIter=candmap.begin();
+   std::map<unsigned int,GFTrackCand*>::iterator candIter=candmap.begin();
    while(candIter!=candmap.end()){
-     TrackCand* cand=candIter->second;
+     GFTrackCand* cand=candIter->second;
      if(cand->getNHits()<10){
        ++candIter;
        continue;
@@ -199,9 +199,9 @@ PndDchPrepareKalmanTracks::Exec(Option_t* opt)
      TVector3 v(0.,1.,0.);
 
      // create track-representation object and initialize with start values
-     AbsTrackRep* rep=0;
+     GFAbsTrackRep* rep=0;
      if(fUseGeane){
-       DetPlane pl(pos,u,v);
+       GFDetPlane pl(pos,u,v);
        rep=new GeaneTrackRep(fGeanePro,pl,mom,poserr,momerr,q,pdg);
        std::cout<<" ^^^^^^^^^^^^^I prepare the following GeaneTrackRep:"<<std::endl;
        rep->Print();

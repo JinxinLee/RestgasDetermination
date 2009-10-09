@@ -33,12 +33,12 @@
 #include "TClonesArray.h"
 #include "GeaneTrackRep.h"
 #include "FairGeanePro.h"
-#include "DetPlane.h"
+#include "GFDetPlane.h"
 #include "PndTpcMCTracklet.h"
 #include "TMath.h"
 #include "PndMvdHit.h"
 #include "PndMvdRecoHit.h"
-#include "FitterExceptions.h"
+#include "GFException.h"
 
 // Class Member definitions -----------
 
@@ -118,7 +118,7 @@ TpcMCEvtDeconvTask::Exec(Option_t* opt)
     // setup a trackrepresentation
     TVector3 mom=trk->mom();
     // setup detplane orthogonal to momentum vector
-    DetPlane pl(trk->pos(),mom);
+    GFDetPlane pl(trk->pos(),mom);
     //pl.Print();
 
     TVector3 momerr=momerr*0.01; // 1% error
@@ -134,7 +134,7 @@ TpcMCEvtDeconvTask::Exec(Option_t* opt)
     try{
       v0=rep->getPocaOnLine(za1,za2,true); 
     }
-    catch (FitterException e){
+    catch (GFException e){
       std::cout<<e.what();
       properror=1;
     }
@@ -162,7 +162,7 @@ TpcMCEvtDeconvTask::Exec(Option_t* opt)
 	try{
 	  trkl->setMvdHits(ConnectMVD(rep));
 	}
-	catch (FitterException e){
+	catch (GFException e){
 	  std::cout<<e.what();
 	  properror=2;
 	}
@@ -239,7 +239,7 @@ TpcMCEvtDeconvTask::ConnectMVD(GeaneTrackRep* rep){
     TVector3 pos=hit->GetPosition();
     
     TVector3 d,dir;
-    rep->extrapolateToPoca(pos,d,dir);
+    rep->extrapolateToPoint(pos,d,dir);
     //pos.Print();
     //d.Print();
     double dx=(pos-d).Mag();
@@ -252,11 +252,11 @@ TpcMCEvtDeconvTask::ConnectMVD(GeaneTrackRep* rep){
     TMatrixT<double> state(repDim,1);
     TMatrixT<double> cov(repDim,repDim);;
     TMatrixT<double> jacobian(repDim,repDim);
-    DetPlane pl=recohit.getDetPlane(rep);
+    GFDetPlane pl=recohit.getDetPlane(rep);
     rep->predict(pl,state,cov,jacobian);
     recohit.setHMatrix(rep,state);
     //hit->setHMatrix(s,pred,);
-    TMatrixT<double> H=recohit.getHMatrix();
+//    TMatrixT<double> H=recohit.getHMatrix();
     // get hit covariances
     TMatrixT<double> V=recohit.getHitCov(pl);
     TMatrixT<double> r=recohit.residualVector(rep,state);

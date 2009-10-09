@@ -23,7 +23,7 @@
 #include <map>
 
 class TClonesArray;
-class RecoHitFactory;
+class GFRecoHitFactory;
 class TH1D;
 class TH2D;
 class TCanvas;
@@ -77,7 +77,7 @@ private:
   TClonesArray* fTrackArray;   ///< pointer to array of 
   TClonesArray* fMCTrackArray; ///< pointer to array of MCTracks
   
-  RecoHitFactory* fTheRecoHitFactory; ///< factory producing PndDchRecoHits of PndDchCylinderHits
+  GFRecoHitFactory* fTheRecoHitFactory; ///< factory producing PndDchRecoHits of PndDchCylinderHits
   
   TH1D* fhP;             ///< momentum histogram;
   TH2D* fThetaH;         ///< theta histogram;

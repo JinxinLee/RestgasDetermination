@@ -36,7 +36,7 @@
 #include "DebugLogger.h"
 #include "PndTpcClusterRadius.h"
 #include "PndTpcClusterZ.h"
-#include "TrackCand.h"
+#include "GFTrackCand.h"
 #include "PndTpcCluster.h"
 #include "PndTpcRiemannTrack.h"
 #include "PndTpcRiemannHit.h"

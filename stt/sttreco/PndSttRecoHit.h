@@ -2,8 +2,8 @@
 #define PNDSTTRECOHIT_HH
 
 // Base Class Headers ----------------
-#include "RecoHitIfc.h"
-#include "WirepointHitPolicy.h"
+#include "GFRecoHitIfc.h"
+#include "GFWirepointHitPolicy.h"
 #include "PndSttHit.h"
 #include "PndSttHelixHit.h"
 
@@ -14,7 +14,7 @@
 class PndSttHit;
 class PndSttHelixHit;
 
-typedef RecoHitIfc<WirepointHitPolicy> WirepointRecoHit;
+typedef GFRecoHitIfc<GFWirepointHitPolicy> WirepointRecoHit;
 
 class PndSttRecoHit : public WirepointRecoHit {
 public:
@@ -26,12 +26,10 @@ public:
 
   virtual ~PndSttRecoHit();
 
-  virtual AbsRecoHit* clone(){return new PndSttRecoHit(*this);};
+  virtual GFAbsRecoHit* clone(){return new PndSttRecoHit(*this);};
 
   // Operations ----------------------
-  virtual void setHMatrix(const AbsTrackRep* stateVector,
-                          const TMatrixT<double>& state);
-
+  virtual TMatrixT<double> getHMatrix(const GFAbsTrackRep* stateVector);
 
 private:
 

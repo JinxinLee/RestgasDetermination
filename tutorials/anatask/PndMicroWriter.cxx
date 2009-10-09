@@ -21,12 +21,12 @@ Author: K.Goetzen, GSI, 06/2008
 #include "FairRuntimeDb.h"
 #include "PndLheCandidate.h"
 #include "PndTpcLhePoint.h"
-#include "PndLhePidTrack.h"
+#include "PndLhePidGFTrack.h"
 #include "PndStack.h"
 #include "PndMCTrack.h"
 #include "FairMCPoint.h"
 
-#include "Track.h"
+#include "GFTrack.h"
 #include "LSLTrackRep.h"
 #include "PndEmcCluster.h"
 
@@ -101,7 +101,7 @@ InitStatus PndMicroWriter::Init()
   if ( ! fTrArray) {
     cout << "-W- PndMicroWriter::Init: "
 	 << "No Track array!" << endl;
-    fTrArray=new TClonesArray("Track");
+    fTrArray=new TClonesArray("GFTrack");
  
     //return kERROR;
   } else    fStoreTrack=true;

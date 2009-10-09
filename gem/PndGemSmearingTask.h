@@ -75,7 +75,7 @@ class PndGemSmearingTask : public FairTask
   void InitTransMat();
   void smear(TVector3& pos);
   void smearLocal(TVector3& pos);
-  void CalcDetPlane(TVector3& o,TVector3& u,TVector3& v);
+  void CalcGFDetPlane(TVector3& o,TVector3& u,TVector3& v);
 
 
   void Register();

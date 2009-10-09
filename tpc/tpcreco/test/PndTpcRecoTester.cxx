@@ -29,17 +29,17 @@
 // Collaborating Class Headers --------
 #include "TApplication.h"
 #include "PndTpcCluster.h"
-#include "Kalman.h"
+#include "GFKalman.h"
 #include "PndTpcClusterRadius.h"
 #include "PndTpcClusterZ.h"
 #include "TSystem.h"
 #include "TCanvas.h"
 #include "PndTpcConfMapRecoHit.h"
 #include "PndTpcConfMapFit.h"
-#include "DetPlane.h"
+#include "GFDetPlane.h"
 #include "PndTpcConfTrackFinder.h"
-#include "TrackCand.h"
-#include "Track.h"
+#include "GFTrackCand.h"
+#include "GFTrack.h"
 #include "TCovEllipse.h"
 #include "TGraph.h"
 #include "TFile.h"
@@ -79,7 +79,7 @@ PndTpcRecoTester::testConfMap(){
     hits->SetPoint(i,cll[i]->pos().X(),cll[i]->pos().Y());
     PndTpcConfMapRecoHit hit(cll[i]);
     confhits->SetPoint(i,hit.getXcf(),
-		       hit.getHitCoord(DetPlane())[0][0]);
+		       hit.getHitCoord(GFDetPlane())[0][0]);
   }
 
   cll.clear();
@@ -92,7 +92,7 @@ PndTpcRecoTester::testConfMap(){
     hits2->SetPoint(i,cll[i]->pos().X(),cll[i]->pos().Y());
     PndTpcConfMapRecoHit hit(cll[i]);
     confhits2->SetPoint(i,hit.getXcf(),
-		       hit.getHitCoord(DetPlane())[0][0]);
+		       hit.getHitCoord(GFDetPlane())[0][0]);
   }
 
 
@@ -131,7 +131,7 @@ PndTpcRecoTester::testConfMapFit(){
   std::cout<<"Residual:"<<std::endl;
   hit.residualVector(&myfit,myfit.getState()).Print();
 
-  Kalman myfitter;
+  GFKalman myfitter;
   double chi2=myfitter.getChi2Hit(&hit,&myfit);
   std::cout<<"Chi2="<<chi2<<std::endl;
   */
@@ -154,7 +154,7 @@ PndTpcRecoTester::testBasicConfFit(){
   trk->getTrackRep(0)->setState(par);
   trk->getTrackRep(0)->Print();
   
-   Kalman myfitter;
+   GFKalman myfitter;
   double chi2=myfitter.getChi2Hit(&hit1,trk->getTrackRep(0));
   std::cout<<"Chi2 for hit1="<<chi2<<std::endl;
 
@@ -219,7 +219,7 @@ PndTpcRecoTester::testConfFinder(){
     for(unsigned int ih=0;ih<nh;++ih){//loop over hits in track
       PndTpcConfMapRecoHit* conf=dynamic_cast<PndTpcConfMapRecoHit*>(trks[i]->getHit(ih));
       confhits->SetPoint(hitcounter,conf->getXcf(),
-			 conf->getHitCoord(DetPlane())[0][0]);
+			 conf->getHitCoord(GFDetPlane())[0][0]);
       zshits->SetPoint(hitcounter++,conf->s(),
 			 conf->z());
     }// end loop over hits in track
@@ -236,13 +236,13 @@ PndTpcRecoTester::testConfFinder(){
 void
 PndTpcRecoTester::testRotated(){
   PndTpcConfMapRecoHit hit1(new PndTpcCluster(TVector3(5,5,3),1,0));
-  std::cout<<hit1.getHitCoord(DetPlane())[0][0]<<" "
+  std::cout<<hit1.getHitCoord(GFDetPlane())[0][0]<<" "
 	   <<hit1.getXcf()<<std::endl;
   hit1.setRotated();
-  std::cout<<hit1.getHitCoord(DetPlane())[0][0]<<" "
+  std::cout<<hit1.getHitCoord(GFDetPlane())[0][0]<<" "
 	   <<hit1.getXcf()<<std::endl;
   hit1.setRotated(false);
-  std::cout<<hit1.getHitCoord(DetPlane())[0][0]<<" "
+  std::cout<<hit1.getHitCoord(GFDetPlane())[0][0]<<" "
 	   <<hit1.getXcf()<<std::endl;
 }
 
@@ -1047,9 +1047,9 @@ PndTpcRecoTester::maketoyhits(int ntrk,std::vector<double>& rv,
       //PndTpcConfMapRecoHit conf(cl);
       //conf.setRotated();
       cll.push_back(cl);
-      //confhits->SetPoint(hitcounter,conf.getXcf(),conf.getHitCoord(DetPlane())[0][0]);
+      //confhits->SetPoint(hitcounter,conf.getXcf(),conf.getHitCoord(GFDetPlane())[0][0]);
       //conf.setReferencePoint(start.X(),start.Y());
-      //confhits_shift->SetPoint(hitcounter,conf.getXcf(),conf.getHitCoord(DetPlane())[0][0]);
+      //confhits_shift->SetPoint(hitcounter,conf.getXcf(),conf.getHitCoord(GFDetPlane())[0][0]);
       ++hitcounter;
       ++hitsintrk;
     }

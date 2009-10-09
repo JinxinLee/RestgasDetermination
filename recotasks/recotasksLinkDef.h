@@ -9,9 +9,9 @@
 
 #pragma link C++ class KalmanTask+;
 #pragma link C++ class TrackVisTask+;
-#pragma link C++ class LambdaSelector+;
-#pragma link C++ class V0Selector+;
-#pragma link C++ class LambdaStatTask+;
+//#pragma link C++ class LambdaSelector+;
+//#pragma link C++ class V0Selector+;
+//#pragma link C++ class LambdaStatTask+;
 #pragma link C++ class DemoRecoHit+;
 #pragma link C++ class DemoSPHit+;
 #pragma link C++ class DemoPatternRecoTask+;

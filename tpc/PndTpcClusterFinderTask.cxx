@@ -37,7 +37,7 @@
 #include "PndTpcGem.h"
 #include "PndTpcPadPlane.h"
 #include "PndTpcDigiMapper.h"
-#include "RecoHitFactory.h"
+#include "GFRecoHitFactory.h"
 #include "PndTpcClusterFinder.h"
 
 // Class Member definitions -----------

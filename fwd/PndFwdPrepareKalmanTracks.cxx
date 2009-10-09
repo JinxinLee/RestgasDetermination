@@ -8,13 +8,13 @@
 // Panda Headers ----------------------
 #include "FairRootManager.h"
 #include "PndDetectorList.h"
-#include "Track.h"
-#include "TrackCand.h"
+#include "GFTrack.h"
+#include "GFTrackCand.h"
 #include "PndMCTrack.h"
 #include "LSLTrackRep.h"
 #include "GeaneTrackRep.h"
 #include "Kalman.h"
-#include "FitterExceptions.h"
+#include "GFException.h"
 #include "FairGeanePro.h"
 #include "FairTrackParP.h"
 #include "PndFwdPrepareKalmanTracks.h"
@@ -118,7 +118,7 @@ PndFwdPrepareKalmanTracks::Init()
   }
 
   // create and register output array
-  fTrackArray = new TClonesArray("Track"); 
+  fTrackArray = new TClonesArray("GFTrack"); 
   ioman->Register("FSTracks","GenFit",fTrackArray,fPersistence);
   
   // GeanePro will get Geometry and BField from the Run
@@ -264,7 +264,7 @@ PndFwdPrepareKalmanTracks::Exec(Option_t* opt)
       mom.SetMag(mom.Mag()+0.05);
       
       // create track-representation object and initialize with start values
-      AbsTrackRep* rep=0;
+      GFAbsTrackRep* rep=0;
       if(fUseGeane){
 	DetPlane pl(pos,u,v);
 	GeaneTrackRep *grep=new GeaneTrackRep(fGeanePro,pl,mom,100.*poserr,100.*momerr,q,pdg);

@@ -29,7 +29,7 @@
 #include "PndTpcCluster.h"
 class TClonesArray;
 class PndTpcFrontend;
-class RecoHitFactory;
+class GFRecoHitFactory;
 class TH1I;
 class TH1D;
 class FairGeanePro;
@@ -78,7 +78,7 @@ private:
   TH1D* _trackPurityH;
   TH1D* _trackMcIdsH;
 
-  RecoHitFactory* _theRecoHitFactory;
+  GFRecoHitFactory* _theRecoHitFactory;
   FairGeanePro* _geanePro;
 
   TRandom3 myrandom;

@@ -11,8 +11,8 @@
 // preliminary propagation must be performed to the point of closest approach to
 // the firing wire.
 // The plane is a virtual detector plane defined via:
-// dj = wvi - vpf     (U coordinate in DetPlane)
-// dk = wiredirection (V coordinate in DetPlane)
+// dj = wvi - vpf     (U coordinate in GFDetPlane)
+// dk = wiredirection (V coordinate in GFDetPlane)
 //
 // input: 7 entries
 // 0-1-2 ==> x,y,z of the 1st extremity of the firing wire;
@@ -23,10 +23,10 @@
 #include "PndDchRecoHit2.h"
 #include "PndDchCylinderHit.h"
 #include "GeaneTrackRep.h"
-#include "DetPlane.h"
+#include "GFDetPlane.h"
 #include "FairGeanePro.h"
 #include "FairGeaneUtil.h"
-#include "FitterExceptions.h"
+#include "GFException.h"
 
 //ROOT includes
 #include "TMath.h"
@@ -59,19 +59,19 @@ PndDchRecoHit2::PndDchRecoHit2(const PndDchCylinderHit* cylHit): WireRecoHit(Npa
   TVector2 end2 = cylHit->GetWireEnd2();
   Double_t z = cylHit->GetWireZcoordGlobal();
   
- _hitCoord[0][0] = end1.X();
- _hitCoord[1][0] = end1.Y();
- _hitCoord[2][0] = z;
- _hitCoord[3][0] = end2.X();
- _hitCoord[4][0] = end2.Y();
- _hitCoord[5][0] = z;
- _hitCoord[6][0] = cylHit->GetDistance();
+ fHitCoord[0][0] = end1.X();
+ fHitCoord[1][0] = end1.Y();
+ fHitCoord[2][0] = z;
+ fHitCoord[3][0] = end2.X();
+ fHitCoord[4][0] = end2.Y();
+ fHitCoord[5][0] = z;
+ fHitCoord[6][0] = cylHit->GetDistance();
 
   for(int i = 0; i < NparHitRep; i++) 
     for(int j = 0; j < NparHitRep; j++) 
-      _hitCov[i][j] = 0.;
+      fHitCov[i][j] = 0.;
   Double_t sigr = cylHit->GetDistanceError();
-  _hitCov[6][6] = sigr*sigr;
+  fHitCov[6][6] = sigr*sigr;
 
   //cylHit->Print();
   //Print();
@@ -79,26 +79,25 @@ PndDchRecoHit2::PndDchRecoHit2(const PndDchCylinderHit* cylHit): WireRecoHit(Npa
 
 //------------------------------------------------------------------------------
 void  PndDchRecoHit2::Print(){
-  std::cout<<"hitCoord:"; _hitCoord.Print();
+  std::cout<<"hitCoord:"; fHitCoord.Print();
   // std::cout<<"hit HMatrix:";getHMatrix().Print();
-//   std::cout<<"hit DetPlane:";getDetPlane(0).Print();
+//   std::cout<<"hit GFDetPlane:";getDetPlane(0).Print();
 //   std::cout<<"\n hitCov:";getHitCov(getDetPlane(0)).Print();
   std::cout<<"EOHEOHEOHEOHEOHEOHEOHEOHEOHEOHEOHEOHEOHEOHEOHEOHEOHEOH"<<std::endl;
   
 }
 
-void PndDchRecoHit2::setHMatrix(const AbsTrackRep* stateVector,
-				const TMatrixT<double>& state)
+TMatrixT<double> PndDchRecoHit2::getHMatrix(const GFAbsTrackRep* stateVector)
 {
   if (dynamic_cast<const GeaneTrackRep*>(stateVector) != NULL) {
-    _HMatrix.ResizeTo(1,5);
+    TMatrixT<double> HMatrix(1,5);
 
-    _HMatrix[0][0] = 0.;
-    _HMatrix[0][1] = 0.;
-    _HMatrix[0][2] = 0.;
-    _HMatrix[0][3] = 1.;
-    _HMatrix[0][4] = 0.;
-
+    HMatrix[0][0] = 0.;
+    HMatrix[0][1] = 0.;
+    HMatrix[0][2] = 0.;
+    HMatrix[0][3] = 1.;
+    HMatrix[0][4] = 0.;
+    return HMatrix;
   }
   else {
     std::cerr << "PndDchRecoHit2 can only handle state"

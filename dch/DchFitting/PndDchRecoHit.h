@@ -16,8 +16,8 @@
 #define PNDDCHRECOHIT_H 1
 
 // Pnd includes
-#include "RecoHitIfc.h"
-#include "PlanarHitPolicy.h"
+#include "GFRecoHitIfc.h"
+#include "GFPlanarHitPolicy.h"
 
 // c++ headers
 #include <ostream> 
@@ -25,7 +25,7 @@
 class PndDchCylinderHit;
 
 
-typedef RecoHitIfc<PlanarHitPolicy> PlanarRecoHit;
+typedef GFRecoHitIfc<GFPlanarHitPolicy> PlanarRecoHit;
 
 class PndDchRecoHit : public PlanarRecoHit {
 
@@ -41,16 +41,15 @@ public:
   virtual ~PndDchRecoHit();
   
   /** Public method clone() **/
-  virtual AbsRecoHit* clone();
+  virtual GFAbsRecoHit* clone();
   
   /** Public method residualVector(...) **/
-  TMatrixT<double> residualVector(const AbsTrackRep* stateVector,
+  TMatrixT<double> residualVector(const GFAbsTrackRep* stateVector,
 				  const TMatrixT<double>& state,
-				  const DetPlane& d);
+				  const GFDetPlane& d);
 
   /** Operations **/
-  virtual void setHMatrix(const AbsTrackRep* stateVector,
-                          const TMatrixT<double>& state);
+  virtual TMatrixT<double> getHMatrix(const GFAbsTrackRep* stateVector);
 
   virtual void  Print();
 

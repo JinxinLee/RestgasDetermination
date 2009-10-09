@@ -27,7 +27,7 @@
 // Collaborating Class Headers --------
 #include "FairRootManager.h"
 #include "TClonesArray.h"
-#include "Track.h"
+#include "GFTrack.h"
 #include "PndTpcCluster.h"
 #include "PndTpcDigiMapper.h"
 #include "PndTpcFrontend.h"
@@ -41,18 +41,18 @@
 #include "PndTpcDigiPar.h"
 
 #include "GeaneTrackRep.h"
-#include "AbsTrackRep.h"
-#include "RecoHitFactory.h"
-#include "Kalman.h"
-#include "FitterExceptions.h"
+#include "GFAbsTrackRep.h"
+#include "GFRecoHitFactory.h"
+#include "GFKalman.h"
+#include "GFException.h"
 #include "TH1D.h"
 #include "TFile.h"
 #include "TGeoTrack.h"
 
-#include "DetPlane.h"
+#include "GFDetPlane.h"
 #include "PndTpcdEdx.h"
 
-#include "AbsRecoHit.h"
+#include "GFAbsRecoHit.h"
 #include "TVector3.h"
 
 #include <signal.h>
@@ -182,10 +182,10 @@ PndTpcdEdxTask::Exec(Option_t* opt)
 
   for(Int_t itr=0;itr<ntracks;++itr){
     std::cout<<"PndTpcdEdxTask::Exec(): starting track "<<itr<<std::endl;
-    Track* trk=(Track*)_trackArray->At(itr);
+    GFTrack* trk=(GFTrack*)_trackArray->At(itr);
     std::cout<<"*** Number of clusters in track: "<<trk->getNumHits()<<" ***"<<std::endl;
     
-    AbsTrackRep* absrep = trk->getCardinalRep();
+    GFAbsTrackRep* absrep = trk->getCardinalRep();
      
     //check for GEANE trackrep
     if(dynamic_cast<GeaneTrackRep*>(absrep) == NULL) {
@@ -194,18 +194,18 @@ PndTpcdEdxTask::Exec(Option_t* opt)
     }
 
     //temporary fix
-    AbsTrackRep* theRep = absrep->clone();
+    GFAbsTrackRep* theRep = absrep->clone();
     ((GeaneTrackRep*)theRep)->setPropDir(0);
 
     
-    std::vector<AbsRecoHit*> hits = trk->getHits();
-    std::cout<<"\nstd::vector<AbsRecoHit*> hits has "<< hits.size()<<" entries"<<std::endl;
+    std::vector<GFAbsRecoHit*> hits = trk->getHits();
+    std::cout<<"\nstd::vector<GFAbsRecoHit*> hits has "<< hits.size()<<" entries"<<std::endl;
     
     //skip evil events
     if(hits.size() > 500)
       continue;
     
-    std::vector<AbsRecoHit*>::iterator it;
+    std::vector<GFAbsRecoHit*>::iterator it;
     
     for(it = hits.begin(); it!=hits.end(); it++) {
       PndTpcSPHit* the_sphit = dynamic_cast<PndTpcSPHit*>(*it);
@@ -264,13 +264,13 @@ PndTpcdEdxTask::Exec(Option_t* opt)
       pos = theRep->getPos();
       mom = theRep->getMom();
     }
-    catch(FitterException& e){
+    catch(GFException& e){
       e.what();
       continue;
       //TODO: exception handling
     }
 
-    DetPlane here,next;
+    GFDetPlane here,next;
     here.setO(pos);
     here.setNormal(mom);
     int counter(0);
@@ -282,12 +282,12 @@ PndTpcdEdxTask::Exec(Option_t* opt)
       TVector3 poca,dirInPoca;
       double dist;
       try{
-	theRep->extrapolateToPoca(destination,poca,dirInPoca);
+	theRep->extrapolateToPoint(destination,poca,dirInPoca);
 	next.setO(poca);
 	next.setNormal(dirInPoca);
 	dist = theRep->extrapolate(next);
       }
-      catch(FitterException& e){
+      catch(GFException& e){
 	e.what();
 	exc=true;
 	break;

@@ -15,7 +15,7 @@
 
 
 // PndMvd includes
-// #include "PndMvdTrackCand.h"
+// #include "PndMvdGFTrackCand.h"
 
 
 
@@ -94,7 +94,7 @@ void PndMvdTrackFinderAnaTask::Exec(Option_t* opt)
   std::cout << "<<<<<<<<<<<< Event " << fEventNr++ << " >>>>>>>>>>>>>>" << std::endl;
   for (int i = 0; i < fRiemannTrackCandArray->GetEntriesFast(); i++){
 	  hitsInTrack.clear();
-	  TrackCand* myTrackCand = (TrackCand*)(fRiemannTrackCandArray->At(i));
+	  GFTrackCand* myTrackCand = (GFTrackCand*)(fRiemannTrackCandArray->At(i));
 	  std::cout << "RiemannTrack" << i << ": ";
 	  for (int j = 0; j < myTrackCand->getNHits(); j++){
 		  myTrackCand->getHit(j, detID, hitID);
@@ -112,7 +112,7 @@ void PndMvdTrackFinderAnaTask::Exec(Option_t* opt)
 
   for (int k = 0; k < fIdealTrackCandArray->GetEntriesFast(); k++){
 	  std::map<int, std::vector<int> > IdealHitsInTrack;
-  	  TrackCand* myIdealTrackCand = (TrackCand*)(fIdealTrackCandArray->At(k));
+  	  GFTrackCand* myIdealTrackCand = (GFTrackCand*)(fIdealTrackCandArray->At(k));
   	  std::cout << "IdealTrack" << k << ": ";
   	  for (int l = 0; l < myIdealTrackCand->getNHits(); l++){
   		  myIdealTrackCand->getHit(l, detID, hitID);
@@ -125,7 +125,7 @@ void PndMvdTrackFinderAnaTask::Exec(Option_t* opt)
   	int idealHits = NHitsInTrack(IdealHitsInTrack);
 
   	std::cout << "TrackIncluded: " << foundHits << std::endl;
-  	//if (myIdealTrackCand->getMCID() < 6)
+  	//if (myIdealGFTrackCand->getMCID() < 6)
   		hitsPerTrack->Fill(idealHits);
   	if (idealHits > 2){
 /*	  	if (foundHits == NHitsInTrack(IdealHitsInTrack)){

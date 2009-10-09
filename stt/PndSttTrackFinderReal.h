@@ -3,7 +3,7 @@
 
 #include "PndSttTrackFinder.h"
 #include "PndMCTrack.h"
-// #include "CbmMCTrack.h"
+// #include "CbmMCGFTrack.h"
 
 #include "TList.h"
 #include "TClonesArray.h"
@@ -119,7 +119,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
   void WriteHistograms();
 
-  /** Track finding algorithm **/
+  /** GFTrack finding algorithm **/
   virtual Int_t DoFind(TClonesArray* mHitArray);
   
   virtual void AddHitCollection(TClonesArray* mHitArray, TClonesArray* mPointArray) {fHitCollectionList.Add(mHitArray); fPointCollectionList.Add(mPointArray);}

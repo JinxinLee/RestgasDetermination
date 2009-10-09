@@ -19,8 +19,8 @@
 #define TPCCONFMAPRECOHIT_HH
 
 // Base Class Headers ----------------
-#include "RecoHitIfc.h"
-#include "PlanarHitPolicy.h"
+#include "GFRecoHitIfc.h"
+#include "GFPlanarHitPolicy.h"
 
 // Collaborating Class Headers -------
 #include <ostream> // remove if you do not need streaming op
@@ -30,7 +30,7 @@
 
 
 
-class PndTpcConfMapRecoHit : public RecoHitIfc<PlanarHitPolicy> {
+class PndTpcConfMapRecoHit : public GFRecoHitIfc<GFPlanarHitPolicy> {
 public:
 
   // Constructors/Destructors ---------
@@ -38,7 +38,7 @@ public:
   PndTpcConfMapRecoHit(double xp, double yp); //set conformal coordinates directly
   PndTpcConfMapRecoHit(PndTpcCluster* cl);
   virtual ~PndTpcConfMapRecoHit(){;}
-  virtual AbsRecoHit* clone();
+  virtual GFAbsRecoHit* clone();
 
   
 
@@ -58,12 +58,11 @@ public:
   void setRotated(bool flag=true){_isRotated=flag;reMap();}
 
   // Operations ----------------------
-  virtual void setHMatrix(const AbsTrackRep* stateVector,
-                          const TMatrixT<double>& state);
+  virtual TMatrixT<double> getHMatrix(const GFAbsTrackRep* stateVector);
 
   // overwrite residualVector since we will use this RecoHit 
   // in two independent fits! Tricky!
-  virtual TMatrixT<double> residualVector(const AbsTrackRep* stateVector,
+  virtual TMatrixT<double> residualVector(const GFAbsTrackRep* stateVector,
                                           const TMatrixT<double>& state);
   
 

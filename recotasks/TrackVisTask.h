@@ -22,7 +22,7 @@
 #include "FairTask.h"
 
 // Collaborating Class Headers -------
-#include "Track.h"
+#include "GFTrack.h"
 
 #include "TApplication.h"
 
@@ -56,9 +56,9 @@ public:
 
 private:
 
-  void drawHitsAndTracks(std::vector<Track*> tracks);
-  void drawLSLHitsAndTracks(std::vector<Track*> tracks);
-  void doDraw(std::vector<Track*> tracks);
+  void drawHitsAndTracks(std::vector<GFTrack*> tracks);
+  void drawLSLHitsAndTracks(std::vector<GFTrack*> tracks);
+  void doDraw(std::vector<GFTrack*> tracks);
 
   // Private Data Members ------------
   //TApplication app;

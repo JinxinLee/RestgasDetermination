@@ -23,7 +23,7 @@
 #include <map>
 
 class TClonesArray;
-class RecoHitFactory;
+class GFRecoHitFactory;
 class TH1D;
 class TH2D;
 class TCanvas;
@@ -64,7 +64,7 @@ private:
   std::map<unsigned int,TString> fHitBranchMap;  ///< map of <detID, name of corresponding hit array>
   TClonesArray* fTrackArray;   ///< pointer to array of Track objects
   TClonesArray* fMCTrackArray; ///< pointer to array of MCTracks
-  RecoHitFactory* fTheRecoHitFactory; ///< factory producing PndDchRecoHits of PndDchCylinderHits
+  GFRecoHitFactory* fTheRecoHitFactory; ///< factory producing PndDchRecoHits of PndDchCylinderHits
   Int_t fTrackCount;     ///< track counter
   Int_t fEvtCount;       ///< event counter
   Bool_t fPersistence;   ///< persistence flag

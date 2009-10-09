@@ -9,9 +9,9 @@
 #include "FairRootManager.h"
 
 #include "PndTpcCluster.h"
-#include "Track.h"
-#include "TrackCand.h"
-#include "RecoHitFactory.h"
+#include "GFTrack.h"
+#include "GFTrackCand.h"
+#include "GFRecoHitFactory.h"
 #include "PndTpcPlanarRecoHit.h"
 #include "LSLTrackRep.h"
 
@@ -83,8 +83,8 @@ void PndTpcDEDXDiagnosticsTask::Exec(Option_t* opt)
 		//Create output object, store inforamtion
 		Int_t size=_dEdxDiagnostics->GetEntriesFast();
 		PndTpcDEDXDiagnostics* dedxdia=new ((*_dEdxDiagnostics)[size]) PndTpcDEDXDiagnostics();
-		Track* track=(Track*)_trackArray->At(i);
-		TrackCand cand=track->getCand();		//get list of hits
+		GFTrack* track=(GFTrack*)_trackArray->At(i);
+		GFTrackCand cand=track->getCand();		//get list of hits
 		unsigned int nHits=cand.getNHits();
 		cout << "Size of cand list: " << nHits << endl;
 		for(unsigned int ih=0; ih<nHits; ++ih)

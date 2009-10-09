@@ -28,15 +28,15 @@
 // Collaborating Class Headers --------
 #include "FairRootManager.h"
 #include "TClonesArray.h"
-#include "Track.h"
+#include "GFTrack.h"
 //#include "PndTpcPoint.h"
 #include "DemoRecoHit.h"
 #include "FairMCPoint.h"
 #include "LSLTrackRep.h"
 #include "GeaneTrackRep.h"
-#include "RecoHitFactory.h"
-#include "Kalman.h"
-#include "FitterExceptions.h"
+#include "GFRecoHitFactory.h"
+#include "GFKalman.h"
+#include "GFException.h"
 #include "TH1D.h"
 #include "TFile.h"
 #include "TGeoTrack.h"
@@ -93,7 +93,7 @@ DemoToolsTask::Exec(Option_t* opt)
   
   // Get the length along the track between the first and the last hit
   for(Int_t itr=0;itr<ntracks;++itr){
-    Track* trk=(Track*)_trackArray->At(itr);
+    GFTrack* trk=(GFTrack*)_trackArray->At(itr);
     // check that track has been fitted
     if(trk->getCardinalRep()->getStatusFlag()!=0){
       std::cout<< "Discarding track. Status flag !=0" <<std::endl;
@@ -101,13 +101,13 @@ DemoToolsTask::Exec(Option_t* opt)
     }
 
     // get first and lst hit from track
-    AbsRecoHit* firstHit=trk->getHit(0);
-    AbsRecoHit* prelastHit=trk->getHit(trk->getNumHits()-2);
-    AbsRecoHit* lastHit=trk->getHit(trk->getNumHits()-1);
+    GFAbsRecoHit* firstHit=trk->getHit(0);
+    GFAbsRecoHit* prelastHit=trk->getHit(trk->getNumHits()-2);
+    GFAbsRecoHit* lastHit=trk->getHit(trk->getNumHits()-1);
     
     // Let's make a copy of the trackrep in oder not to disturb the track.
     // For this you have to use the clone function!!!
-    AbsTrackRep* rep=trk->getCardinalRep()->clone();
+    GFAbsTrackRep* rep=trk->getCardinalRep()->clone();
 
     rep->getReferencePlane().Print();
 
@@ -125,7 +125,7 @@ DemoToolsTask::Exec(Option_t* opt)
     // fill a histo
     _lengthH->Fill(length);
 
-    DetPlane p=lastHit->getDetPlane(rep);
+    GFDetPlane p=lastHit->getDetPlane(rep);
     double z=p.getO().Z();
     double x=lastHit->getHitCoord(p)[0][0];
     double y=lastHit->getHitCoord(p)[1][0];
@@ -138,7 +138,7 @@ DemoToolsTask::Exec(Option_t* opt)
 
     if(grep!=0){
       TVector3 poca,dirInPoca;
-      grep->extrapolateToPoca(pos,poca,dirInPoca);
+      grep->extrapolateToPoint(pos,poca,dirInPoca);
       poca.Print();
       grep->Print();
     }

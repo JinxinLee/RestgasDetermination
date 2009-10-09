@@ -26,11 +26,11 @@
 // Collaborating Class Headers --------
 #include "FairRootManager.h"
 #include "TClonesArray.h"
-#include "RecoHitFactory.h"
-#include "FitterExceptions.h"
+#include "GFRecoHitFactory.h"
+#include "GFException.h"
 #include "PndTpcConfTrackFinder.h"
-#include "TrackCand.h"
-#include "Track.h"
+#include "GFTrackCand.h"
+#include "GFTrack.h"
 #include "LSLTrackRep.h"
 #include "TH1I.h"
 #include "TH1D.h"
@@ -102,7 +102,7 @@ PndTpcPatternRecoTask::Init()
     }
 
   // create and register output array
-  _trackArray = new TClonesArray("Track");
+  _trackArray = new TClonesArray("GFTrack");
   ioman->Register("TrackPreFit","GenFit",_trackArray,_persistence);
 
   
@@ -145,7 +145,7 @@ PndTpcPatternRecoTask::Exec(Option_t* opt)
     clusterlist.push_back((PndTpcCluster*)_clusterArray->At(icl));
   }
 
-  std::vector<TrackCand*> candlist;
+  std::vector<GFTrackCand*> candlist;
   _trackfinder->buildTracks(clusterlist,candlist);
 
   std::cout<<"PndTpcPatternRecoTask::Exec:: "
@@ -158,7 +158,7 @@ PndTpcPatternRecoTask::Exec(Option_t* opt)
   // build tracks
   unsigned int ncand=candlist.size();
   for(unsigned int ic=0; ic<ncand; ++ic){
-    TrackCand* cand=candlist[ic];
+    GFTrackCand* cand=candlist[ic];
     if(cand->getNHits()<6){
       std::cout<<"Track initialization went wrong not enough hits in track"<<std::endl;
       continue;
@@ -180,7 +180,7 @@ PndTpcPatternRecoTask::Exec(Option_t* opt)
     // create track object
     LSLTrackRep* rep=new LSLTrackRep();
     //rep->SetBField(_fieldIfc);
-    Track* trk=new((*_trackArray)[_trackArray->GetEntriesFast()]) Track(rep);
+    GFTrack* trk=new((*_trackArray)[_trackArray->GetEntriesFast()]) GFTrack(rep);
     trk->setCandidate(*cand); // here the candidate is copied!
     //Is this what we want?
 
@@ -229,7 +229,7 @@ PndTpcPatternRecoTask::Exec(Option_t* opt)
     cov[3][3]=16;
     cov[4][4]=5;
     trk->getTrackRep(0)->setCov(cov);
-    DetPlane pl(pos1+TVector3(0,0,-10E-4),TVector3(1,0,0),TVector3(0,1,0));
+    GFDetPlane pl(pos1+TVector3(0,0,-10E-4),TVector3(1,0,0),TVector3(0,1,0));
     trk->getTrackRep(0)->setReferencePlane(pl);
     //    trk->getTrackRep(0)->setStartS(pos1.Z()-10E-4);
   }// end loop over tracks

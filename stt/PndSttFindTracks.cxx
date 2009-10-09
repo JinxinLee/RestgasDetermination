@@ -21,7 +21,7 @@ using std::string;
 
 // -----   Default constructor   -------------------------------------------
 PndSttFindTracks::PndSttFindTracks() 
-  : FairTask("STT Find Tracks") 
+  : FairTask("STT Find GFTracks") 
 {
   fFinder      = NULL;
   fTrackArray  = NULL;
@@ -36,7 +36,7 @@ PndSttFindTracks::PndSttFindTracks()
 // -----   Standard constructor   ------------------------------------------
 PndSttFindTracks::PndSttFindTracks(PndSttTrackFinder* finder, 
 				   Int_t verbose)
-  : FairTask("STT Find Tracks") 
+  : FairTask("STT Find GFTracks") 
 {
   fFinder      = finder;
   fTrackArray  = NULL;
@@ -78,7 +78,7 @@ PndSttFindTracks::~PndSttFindTracks()
 // -----   Public method Init (abstract in base class)  --------------------
 InitStatus PndSttFindTracks::Init() 
 {
-  // Check for Track finder
+  // Check for GFTrack finder
   if (! fFinder) {
     cout << "-E- PndSttFindTracks::Init: No track finder selected!" << endl;
     return kERROR;

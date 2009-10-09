@@ -26,7 +26,7 @@
 
 // Collaborating Class Declarations --
 class TClonesArray;
-class RecoHitFactory;
+class GFRecoHitFactory;
 class AbsBFieldIfc;
 class FairField;
 class FairGeanePro;
@@ -72,7 +72,7 @@ private:
   Bool_t _persistence;
   Bool_t _useGeane;
 
-  RecoHitFactory* _theRecoHitFactory;
+  GFRecoHitFactory* _theRecoHitFactory;
  
   FairField* _field;
   FairGeanePro* _geanePro;

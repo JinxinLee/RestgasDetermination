@@ -23,7 +23,7 @@
 #include "FairMCPoint.h"
 #include "LSLTrackRep.h"
 #include "GeaneTrackRep.h"
-#include "DetPlane.h"
+#include "GFDetPlane.h"
 // This Class' Header ------------------
 #include "PndMvdRecoHit.h"
 #include "PndMvdMCPoint.h"
@@ -45,34 +45,34 @@ PndMvdRecoHit::~PndMvdRecoHit()
 }
 
 PndMvdRecoHit::PndMvdRecoHit()
-  : RecoHitIfc<PlanarHitPolicy>(fNparHitRep)
+  : GFRecoHitIfc<GFPlanarHitPolicy>(fNparHitRep)
 {
   fGeoH = new PndMvdGeoHandling(gGeoManager);
 }
 
 
 PndMvdRecoHit::PndMvdRecoHit(PndMvdMCPoint* point)
-  : RecoHitIfc<PlanarHitPolicy>(fNparHitRep)
+  : GFRecoHitIfc<GFPlanarHitPolicy>(fNparHitRep)
 {
   std::cout<<" -I- PndMvdRecoHit::PndMvdRecoHit(PndMvdMCPoint*) called."<<std::endl;
 
-  _hitCoord[0][0] =  point->GetX();
-  _hitCoord[1][0] =  point->GetY();
+  fHitCoord[0][0] =  point->GetX();
+  fHitCoord[1][0] =  point->GetY();
 
   // we set the covariances to (50mu)^2 by hand.
-  _hitCov[0][0] = 0.0050 * 0.0050;//cm //TODO: cm is rigt?
-  _hitCov[1][1] = 0.0050 * 0.0050;//cm //TODO: cm is rigt?
+  fHitCov[0][0] = 0.0050 * 0.0050;//cm //TODO: cm is rigt?
+  fHitCov[1][1] = 0.0050 * 0.0050;//cm //TODO: cm is rigt?
 
   TVector3  o(0.,0.,point->GetZ()),
             u(1.,0.,0.),
             v(0.,1.,0.);
 
-  setDetPlane(DetPlane(o,u,v));
+  fPolicy.setDetPlane(GFDetPlane(o,u,v));
 
 }
 
 PndMvdRecoHit::PndMvdRecoHit(PndMvdHit* hit)
-  : RecoHitIfc<PlanarHitPolicy>(fNparHitRep)
+  : GFRecoHitIfc<GFPlanarHitPolicy>(fNparHitRep)
 {
 
 //  std::cout<<" -I- PndMvdRecoHit::PndMvdRecoHit(PndMvdHit*) called."<<std::endl;
@@ -91,71 +91,68 @@ PndMvdRecoHit::PndMvdRecoHit(PndMvdHit* hit)
   TVector3 position = hit->GetPosition();
   TVector3 localpos =  fGeoH->MasterToLocalId(position, id);
 
-  _hitCoord[0][0] = localpos.X();
-  _hitCoord[1][0] = localpos.Y();
+  fHitCoord[0][0] = localpos.X();
+  fHitCoord[1][0] = localpos.Y();
 
   TVector3 errPos, errPosLoc;
   hit->PositionError(errPos);  
   errPosLoc = fGeoH->MasterToLocalErrorsId(errPos, id);
   
-  _hitCov[0][0] = 0.0050 * 0.0050;
-  _hitCov[1][1] = 0.0050 * 0.0050;
- // _hitCov[0][0] = errPosLoc.X() * errPosLoc.X();
- // _hitCov[1][1] = errPosLoc.Y() * errPosLoc.Y();
+  fHitCov[0][0] = 0.0050 * 0.0050;
+  fHitCov[1][1] = 0.0050 * 0.0050;
+ // fHitCov[0][0] = errPosLoc.X() * errPosLoc.X();
+ // fHitCov[1][1] = errPosLoc.Y() * errPosLoc.Y();
   
 //  std::cout<<" -I- PndMvdRecoHit::PndMvdRecoHit: Wrote a hit with"
 //  <<"\n(x,y) = ("<<localpos.X()<<","<<localpos.Y()<<")."
 //  <<"\n(dx,dy) = ("<<errPosLoc.X()<<","<<errPosLoc.Y()<<"). \t not used: dz="<<errPosLoc.Z()
 //  <<std::endl;
 
-  setDetPlane(DetPlane(oo,uu,vv));
+  fPolicy.setDetPlane(GFDetPlane(oo,uu,vv));
 }
   //============================================================================
 
 
 
-void
-PndMvdRecoHit::setHMatrix(const AbsTrackRep* stateVector,
-       const TMatrixT<Double_t>& state)
+TMatrixT<double>
+PndMvdRecoHit::getHMatrix(const GFAbsTrackRep* stateVector)
 {
 
   // !! TODO I copied this from the DemoRecoHit - check validity!!!
   if (dynamic_cast<const GeaneTrackRep*>(stateVector) != NULL) {
     // Uses TrackParP (q/p,v',w',v,w)
     // coordinates are defined by detplane!
-    _HMatrix.ResizeTo(fNparHitRep,5);
+    TMatrixT<double> HMatrix(fNparHitRep,5);
 
-    _HMatrix[0][0] = 0.;
-    _HMatrix[0][1] = 0.;
-    _HMatrix[0][2] = 0.;
-    _HMatrix[0][3] = 1.;
-    _HMatrix[0][4] = 0.;
+    HMatrix[0][0] = 0.;
+    HMatrix[0][1] = 0.;
+    HMatrix[0][2] = 0.;
+    HMatrix[0][3] = 1.;
+    HMatrix[0][4] = 0.;
 
-    _HMatrix[1][0] = 0.;
-    _HMatrix[1][1] = 0.;
-    _HMatrix[1][2] = 0.;
-    _HMatrix[1][3] = 0.;
-    _HMatrix[1][4] = 1.;
+    HMatrix[1][0] = 0.;
+    HMatrix[1][1] = 0.;
+    HMatrix[1][2] = 0.;
+    HMatrix[1][3] = 0.;
+    HMatrix[1][4] = 1.;
+    return HMatrix;
   }
   else if (dynamic_cast<const LSLTrackRep*>(stateVector) != NULL) {
-    //I know, since this is the same everytime, it could be done in the
-    //the constructor, but I do it here anyway, to make clear that in the
-    //case of several track-reps per hit, it would have to be done here
     // LSLTrackRep (x,y,x',y',q/p) recohits are (Xloc,Yloc,0.)
     // The virtual detector plane in LSL is perpendicular to Zlab
-    _HMatrix.ResizeTo(fNparHitRep,5);
-    _HMatrix[0][0] = 1.;
-    _HMatrix[0][1] = 0.;
-    _HMatrix[0][2] = 0.;
-    _HMatrix[0][3] = 0.;
-    _HMatrix[0][4] = 0.;
+    TMatrixT<double> HMatrix(fNparHitRep,5);
+    HMatrix[0][0] = 1.;
+    HMatrix[0][1] = 0.;
+    HMatrix[0][2] = 0.;
+    HMatrix[0][3] = 0.;
+    HMatrix[0][4] = 0.;
 
-    _HMatrix[1][0] = 0.;
-    _HMatrix[1][1] = 1.;
-    _HMatrix[1][2] = 0.;
-    _HMatrix[1][3] = 0.;
-    _HMatrix[1][4] = 0.;
-
+    HMatrix[1][0] = 0.;
+    HMatrix[1][1] = 1.;
+    HMatrix[1][2] = 0.;
+    HMatrix[1][3] = 0.;
+    HMatrix[1][4] = 0.;
+    return HMatrix;
   }
   else {
     std::cerr << "PndMvdRecoHit can only handle state"
@@ -167,7 +164,7 @@ PndMvdRecoHit::setHMatrix(const AbsTrackRep* stateVector,
 }
 
 Double_t
-PndMvdRecoHit::residualScalar(AbsTrackRep* stateVector,
+PndMvdRecoHit::residualScalar(GFAbsTrackRep* stateVector,
           const TMatrixT<Double_t>& state)
 {
   throw;

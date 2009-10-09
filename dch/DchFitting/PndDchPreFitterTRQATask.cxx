@@ -7,7 +7,7 @@
 #include "PndDchPreFitterTRQATask.h"
 #include "FairRootManager.h"
 #include "PndMCTrack.h"
-#include "FitterExceptions.h"
+#include "GFException.h"
 #include "PndDchTrackMatch.h"
 #include "PndDchTrack.h"
 

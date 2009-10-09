@@ -6,13 +6,13 @@
 
 // Panda Headers ----------------------
 #include "FairRootManager.h"
-#include "Track.h"
-#include "TrackCand.h"
+#include "GFTrack.h"
+#include "GFTrackCand.h"
 #include "PndMCTrack.h"
 #include "LSLTrackRep.h"
 #include "GeaneTrackRep.h"
-#include "Kalman.h"
-#include "FitterExceptions.h"
+#include "GFKalman.h"
+#include "GFException.h"
 #include "FairGeanePro.h"
 #include "FairTrackParP.h"
 #include "PndDchPrepareKalmanTracks2.h"
@@ -102,7 +102,7 @@ PndDchPrepareKalmanTracks2::Init()
     return kERROR;
   }
   // create and register output array
-  fTrackArray = new TClonesArray("Track"); 
+  fTrackArray = new TClonesArray("GFTrack"); 
   ioman->Register("FSTracks","GenFit",fTrackArray,fPersistence);
   
   // GeanePro will get Geometry and BField from the Run
@@ -133,7 +133,7 @@ PndDchPrepareKalmanTracks2::Exec(Option_t* opt)
     if(fVerbose>0)
       std::cout<<"PndDchPrepareKalmanTracks2::Exec(): I found here "<<nuOfChits<<" cyl hits \n";
     
-    TrackCand* cand = new TrackCand();
+    GFTrackCand* cand = new GFTrackCand();
     for(Int_t nuhit=0; nuhit<nuOfChits; nuhit++){
       Int_t globalCHitNu = dchtrack->GetDchCylinderHitIndex(nuhit);
       cand->addHit(1,globalCHitNu);
@@ -211,9 +211,9 @@ PndDchPrepareKalmanTracks2::Exec(Option_t* opt)
     TVector3 v(0.,1.,0.);
     
     // create track-representation object and initialize with start values
-    AbsTrackRep* rep=0;
+    GFAbsTrackRep* rep=0;
     if(fUseGeane){
-      DetPlane pl(pos,u,v);
+      GFDetPlane pl(pos,u,v);
       GeaneTrackRep *grep=new GeaneTrackRep(fGeanePro,pl,mom,poserr,momerr,q,pdg);
       grep->setPropDir(1); // propagate in flight direction
       //  if(fVerbose>0){
@@ -237,7 +237,7 @@ PndDchPrepareKalmanTracks2::Exec(Option_t* opt)
       }
     }
     // create track object
-    Track* trk=new((*fTrackArray)[fTrackArray->GetEntriesFast()]) Track(rep);
+    GFTrack* trk=new((*fTrackArray)[fTrackArray->GetEntriesFast()]) GFTrack(rep);
     trk->setCandidate(*cand);
   }// end loop over dchtracks
   if(fVerbose>0)

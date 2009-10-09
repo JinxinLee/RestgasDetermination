@@ -19,7 +19,7 @@
 #include <map>
 
 class TClonesArray;
-class RecoHitFactory;
+class GFRecoHitFactory;
 class AbsBFieldIfc;
 class FairField;
 class FairGeanePro;
@@ -62,7 +62,7 @@ public:
   virtual InitStatus Init();
 
   /** public method Exec(Option_t* opt)
-      creates TrackCands, find starting values for Kalman and creates Track objects **/
+      creates GFTrackCands, find starting values for Kalman and creates Track objects **/
   virtual void Exec(Option_t* opt);
 
 

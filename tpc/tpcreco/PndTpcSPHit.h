@@ -20,8 +20,8 @@
 #define TPCSPHIT_HH
 
 // Base Class Headers ----------------
-#include "RecoHitIfc.h"
-#include "SpacepointHitPolicy.h"
+#include "GFRecoHitIfc.h"
+#include "GFSpacepointHitPolicy.h"
 
 // Collaborating Class Headers -------
 #include <ostream> // remove if you do not need streaming op
@@ -30,7 +30,7 @@
 class FairMCPoint;
 class PndTpcCluster;
 
-typedef RecoHitIfc<SpacepointHitPolicy> SpacepointRecoHit;
+typedef GFRecoHitIfc<GFSpacepointHitPolicy> SpacepointRecoHit;
 
 class PndTpcSPHit : public SpacepointRecoHit {
 
@@ -47,11 +47,10 @@ public:
 
   virtual ~PndTpcSPHit();
 
-  virtual AbsRecoHit* clone();
+  virtual GFAbsRecoHit* clone();
   
   // Operations ----------------------
-  virtual void setHMatrix(const AbsTrackRep* stateVector,
-                          const TMatrixT<double>& state);
+  virtual TMatrixT<double> getHMatrix(const GFAbsTrackRep* stateVector);
 
   double amp() {return _amp;}
 

@@ -28,7 +28,7 @@
 #include "PndTpcCluster.h"
 class TClonesArray;
 class PndTpcFrontend;
-class RecoHitFactory;
+class GFRecoHitFactory;
 class PndTpcConfTrackFinder;
 class TH1I;
 class TH1D;
@@ -82,7 +82,7 @@ private:
 
   PndTpcConfTrackFinder* _trackfinder;
 
-  RecoHitFactory* _theRecoHitFactory;
+  GFRecoHitFactory* _theRecoHitFactory;
 
 
   // Private Methods -----------------

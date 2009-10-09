@@ -7,13 +7,13 @@
 class TVector3;
 class PndTpcDxEvalPoint;
 class PndTpcCluster;
-class Track;
+class GFTrack;
 
 class PndTpcDXCalculator
 {
 public:
 	//use this constructor to calculate distances between clusters along a track
-	PndTpcDXCalculator(Track *track);
+	PndTpcDXCalculator(GFTrack *track);
 	
 	//use this constructor to just take distances between clusters as they are
 	//this should give reasonable results if diffusion is turned off
@@ -33,7 +33,7 @@ public:
 	friend std::ostream& operator<< (std::ostream& s, const PndTpcDXCalculator& me);
 private:
 	std::vector<PndTpcDxEvalPoint*> _points;
-	Track *_track;
+	GFTrack *_track;
 	bool DistanceAlongTrack;
 	
 	void RemoveUnusedPoint();

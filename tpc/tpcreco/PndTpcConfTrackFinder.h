@@ -28,10 +28,10 @@
 
 // Collaborating Class Declarations --
 class PndTpcCluster;
-class TrackCand;
+class GFTrackCand;
 class TClonesArray;
 class PndTpcConfMapRecoHit;
-class Track;
+class GFTrack;
 class TH2D;
 
 class PndTpcConfTrackFinder {
@@ -43,10 +43,10 @@ public:
 
   // Operations ----------------------
   void buildTracks(std::vector<PndTpcCluster*>& clusters,
-		   std::vector<TrackCand*>& candlist);
+		   std::vector<GFTrackCand*>& candlist);
 
   void buildTracks(TClonesArray* clusterArray,
-		   std::vector<TrackCand*>& candlist);
+		   std::vector<GFTrackCand*>& candlist);
 
   void configure(double xcut, double ycut, double zcut,
 		 double chi2cut,
@@ -61,7 +61,7 @@ public:
 			 _conffitcov=c;}
 
   void setMaxHitsInTrack(unsigned int m){_maxHitsInTrack=m;}
-  std::vector<Track*>& getTrkListRef(){return _trks;}
+  std::vector<GFTrack*>& getTrkListRef(){return _trks;}
 
 private:
 
@@ -79,29 +79,29 @@ private:
 
   std::vector<TMatrixT<double> >* _conffitresults;
   std::vector<TMatrixT<double> >* _conffitcov;
-  std::vector<Track*> _trks; // all tracks
+  std::vector<GFTrack*> _trks; // all tracks
 
   // Private Methods -----------------
   PndTpcConfTrackFinder(const PndTpcConfTrackFinder&); // prohibit copying
 
   bool matchHitTrack(PndTpcConfMapRecoHit* hit,
-		     Track* trk,
+		     GFTrack* trk,
 		     double& matchQuality);
 
   bool matchConfTrack(PndTpcConfMapRecoHit* hit,
-		      Track* trk,
+		      GFTrack* trk,
 		      double& matchQuality);
   
   bool addHit2Track(PndTpcConfMapRecoHit* hit,
-		    Track* trk);
+		    GFTrack* trk);
   bool applyProximityCuts(PndTpcConfMapRecoHit* hit,
 			  PndTpcConfMapRecoHit* hitontrk);
 
   double hitDist(PndTpcConfMapRecoHit* hit1,
 		 PndTpcConfMapRecoHit* hit2);
 
-  void merge(std::vector<Track*>& trks);
-  void mergeTracks(Track* trkA,Track* trkB);
+  void merge(std::vector<GFTrack*>& trks);
+  void mergeTracks(GFTrack* trkA,GFTrack* trkB);
 
 };
 

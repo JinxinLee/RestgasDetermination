@@ -232,7 +232,7 @@ void PndSttMatchTracks::Exec(Option_t* opt)
       nFakeSum    += nFake;
       nMCTrackSum += nMCTracks;
 
-    } // Track loop
+    } // GFTrack loop
 
   // Event statistics
 
@@ -258,7 +258,7 @@ void PndSttMatchTracks::Exec(Option_t* opt)
     cout << endl;
     cout << "-------------------------------------------------------" 
 	 << endl;
-    cout << "-I-              STT Track Matching                 -I-"
+    cout << "-I-              STT GFTrack Matching                 -I-"
 	 << endl;
     cout << "Reconstructed STTTracks : " << nTracks << endl;;
     cout << "True  hit assignments   : " << qTrue  << " %" << endl;

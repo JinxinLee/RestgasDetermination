@@ -19,7 +19,7 @@
 #include "FairTask.h"
 #include "FairHit.h"
 #include "TH1.h"
-#include "TrackCand.h"
+#include "GFTrackCand.h"
 
 #include <vector>
 #include <map>
@@ -159,7 +159,7 @@ class PndMvdEventAnaTask : public FairTask
 		void PrintClusterDigiInfo(int clIndex, std::vector<Int_t> digiInd, bool pixel);
 		void PrintRecoHitInfo(int hitInd, int digiSize, TVector3 MCPos, double MCEnergy, bool pixel) const;
 
-		void PrintTrackCand(TrackCand* cand) const;
+		void PrintTrackCand(GFTrackCand* cand) const;
   void Register();
 
   void Reset();

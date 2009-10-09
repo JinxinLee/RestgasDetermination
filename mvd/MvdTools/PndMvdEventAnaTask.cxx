@@ -24,7 +24,7 @@
 #include "PndMvdDigiStrip.h"
 #include "PndMvdHit.h"
 #include "PndMvdCluster.h"
-#include "TrackCand.h"
+#include "GFTrackCand.h"
 #include "PndRiemannTrack.h"
 
 #include <vector>
@@ -294,7 +294,7 @@ void PndMvdEventAnaTask::Exec(Option_t* opt)
 				oldmatches = matches[i];
 				highestMatch = i;
 			}
-			TrackCand* myCand = (TrackCand*)fTrackCand->At(candidates[i]);
+			GFTrackCand* myCand = (GFTrackCand*)fTrackCand->At(candidates[i]);
 			PndRiemannTrack myRiemannTrack;
 			MCTrackOrderRiemann.push_back(kIt->first);
 			myRiemannTrack.SetVerbose(1);
@@ -359,7 +359,7 @@ void PndMvdEventAnaTask::Exec(Option_t* opt)
 
 
 		if (matches.size() > 0){					// there are riemann tracks to a MC Track
-			TrackCand* myCand = (TrackCand*)fTrackCand->At(candidates[highestMatch]);
+			GFTrackCand* myCand = (GFTrackCand*)fTrackCand->At(candidates[highestMatch]);
 			double curv = myCand->getCurv();
 			double dip = myCand->getDip();
 			double pt = 1/curv;
@@ -417,7 +417,7 @@ void PndMvdEventAnaTask::Exec(Option_t* opt)
 		std::cout << "----Ghost TrackCandidates:-------" << std::endl;
 		for (int tcIndex = 0; tcIndex < fGhostCand.size(); tcIndex++){
 			if (fGhostCand[tcIndex] < 3){
-				TrackCand* myTrackCand = (TrackCand*)fTrackCand->At(tcIndex);
+				GFTrackCand* myTrackCand = (GFTrackCand*)fTrackCand->At(tcIndex);
 				PrintTrackCand(myTrackCand);
 				fHRiemannRes->Fill(-1); //Ghosts
 				fNGhostTracks++;
@@ -606,7 +606,7 @@ void PndMvdEventAnaTask::GetTrackCandsForMCTrack(std::vector<int> pixHitId, std:
 
 	if (fTrackCand != 0){
 		for (int i = 0; i < fTrackCand->GetEntriesFast(); i++){
-			TrackCand* myTrackCand = (TrackCand*)fTrackCand->At(i);
+			GFTrackCand* myTrackCand = (GFTrackCand*)fTrackCand->At(i);
 			hitMatch = 0;
 			for (int j = 0; j < myTrackCand->getNHits(); j++){
 				myTrackCand->getHit(j, detId, hitId);
@@ -649,7 +649,7 @@ std::map<int, std::vector<int> > PndMvdEventAnaTask::AssignHitsToTracks()
 	return result;
 }
 
-void PndMvdEventAnaTask::PrintTrackCand(TrackCand* cand) const
+void PndMvdEventAnaTask::PrintTrackCand(GFTrackCand* cand) const
 {
   unsigned int det, hit;
      std::cout << "TrackCand: " << cand->getCurv() << " curv, " << cand->getDip() << " dip, " << (int)(cand->inverted()) << " inverted." << "\n";

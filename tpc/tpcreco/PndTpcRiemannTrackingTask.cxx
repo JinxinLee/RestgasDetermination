@@ -26,8 +26,8 @@
 // Collaborating Class Headers --------
 #include "FairRootManager.h"
 #include "TClonesArray.h"
-#include "RecoHitFactory.h"
-#include "FitterExceptions.h"
+#include "GFRecoHitFactory.h"
+#include "GFException.h"
 #include "PndTpcCluster.h"
 #include "PndTpcRiemannTrackFinder.h"
 #include "PndTpcRiemannTrack.h"
@@ -35,8 +35,8 @@
 #include "PndTpcRiemannHit.h"
 #include "PndTpcRiemannHTCorrelator.h"
 #include "PndTpcProximityHTCorrelator.h"
-#include "TrackCand.h"
-#include "Track.h"
+#include "GFTrackCand.h"
+#include "GFTrack.h"
 #include "LSLTrackRep.h"
 #include "GeaneTrackRep.h"
 #include "TH1I.h"
@@ -44,7 +44,7 @@
 #include "McIdCollection.h"
 #include "TVector3.h"
 #include "FairMCPoint.h"
-#include "DetPlane.h"
+#include "GFDetPlane.h"
 #include "TDatabasePDG.h"
 //#include "AbsBFieldIfc.h"
 //#include "FairFieldAdaptor.h"
@@ -123,7 +123,7 @@ PndTpcRiemannTrackingTask::Init()
 
 
   // create and register output array
-  _trackArray = new TClonesArray("Track");
+  _trackArray = new TClonesArray("GFTrack");
   ioman->Register("TrackPreFit","GenFit",_trackArray,_persistence);
 
   _riemannTrackArray = new TClonesArray("PndTpcRiemannTrack");
@@ -206,7 +206,7 @@ if(_riemannHitArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No RiemannHi
   //_trackfinder->buildTracks(clusterlist,riemannlist);
 
   // build trackcands
-  std::vector<TrackCand*> candlist;
+  std::vector<GFTrackCand*> candlist;
   unsigned int nr=riemannlist.size();
   for(unsigned int ir=0;ir<nr;++ir){
     // store pattern reco information
@@ -222,7 +222,7 @@ if(_riemannHitArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No RiemannHi
     // build tracks
     if(nhits<_minpoints)continue;
     trk->szFit();
-    TrackCand* cand=new TrackCand();
+    GFTrackCand* cand=new GFTrackCand();
     // reverse order!
     std::cout<<"nhits="<<nhits<<std::endl;
 
@@ -258,7 +258,7 @@ if(_riemannHitArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No RiemannHi
   // build tracks
   unsigned int ncand=candlist.size();
   for(unsigned int ic=0; ic<ncand; ++ic){
-    TrackCand* cand=candlist[ic];
+    GFTrackCand* cand=candlist[ic];
     if(cand->getNHits()<6){
       std::cout<<"Track initialization went wrong not enough hits in track"<<std::endl;
       continue;
@@ -319,9 +319,9 @@ if(_riemannHitArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No RiemannHi
     double one_o_p=cand->getCurv()*fabs(cand->getDip())*166.67; 
     state[4][0]=one_o_p; 
 
-    AbsTrackRep* rep=0;
+    GFAbsTrackRep* rep=0;
     if(_geane) {
-      DetPlane pl(pos1, pos1.Orthogonal(), pos1.Cross(pos1.Orthogonal()));
+      GFDetPlane pl(pos1, pos1.Orthogonal(), pos1.Cross(pos1.Orthogonal()));
       TVector3 poserr(2,2,2);
       TVector3 mom = delta*(1/one_o_p);
       TVector3 momerr = 0.5*mom;
@@ -335,7 +335,7 @@ if(_riemannHitArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No RiemannHi
     
       rep->setInverted(cand->inverted());
       //rep->SetBField(_fieldIfc);
-      Track* trk=new((*_trackArray)[_trackArray->GetEntriesFast()]) Track(rep);
+      GFTrack* trk=new((*_trackArray)[_trackArray->GetEntriesFast()]) GFTrack(rep);
       trk->setCandidate(*cand); // here the candidate is copied!
       //Is this what we want?
       
@@ -348,7 +348,7 @@ if(_riemannHitArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No RiemannHi
       cov[3][3]=16;
       cov[4][4]=5;
       trk->getTrackRep(0)->setCov(cov);
-      DetPlane pl(pos1+TVector3(0,0,-10E-4),TVector3(1,0,0),TVector3(0,1,0));
+      GFDetPlane pl(pos1+TVector3(0,0,-10E-4),TVector3(1,0,0),TVector3(0,1,0));
       trk->getTrackRep(0)->setReferencePlane(pl);
       //      trk->getTrackRep(0)->setStartS(pos1.Z()-10E-4);
     }

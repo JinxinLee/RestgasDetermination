@@ -22,7 +22,7 @@
 #include "FairTask.h"
 
 // Collaborating Class Headers -------
-#include "Track.h"
+#include "GFTrack.h"
 
 #include "TApplication.h"
 

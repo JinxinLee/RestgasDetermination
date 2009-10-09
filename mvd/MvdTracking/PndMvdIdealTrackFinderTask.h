@@ -16,7 +16,7 @@
 #include "PndMvdMCPoint.h"
 #include "PndMvdPixel.h"
 #include "PndMvdCluster.h"
-#include "TrackCand.h"
+#include "GFTrackCand.h"
 
 #include <string>
 #include <vector>
@@ -74,7 +74,7 @@ class PndMvdIdealTrackFinderTask : public FairTask
 
   /** Output array of PndMvdHits **/
       TClonesArray* fTrackCandArray;
-      std::map<Int_t, TrackCand*> fTrackCandMap;
+      std::map<Int_t, GFTrackCand*> fTrackCandMap;
 
 
   void Register();

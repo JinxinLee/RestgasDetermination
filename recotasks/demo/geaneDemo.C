@@ -67,7 +67,7 @@
   TVector3 poserr=TVector3(0.1,0.1,0.1);
   TVector3 momerr=TVector3(0.5,0.5,0.5);
 
-  DetPlane initplane(TVector3(0.0,0.0,0.0),TVector3(1.,0.,0.),TVector3(0.,1.,0.));
+  GFDetPlane initplane(TVector3(0.0,0.0,0.0),TVector3(1.,0.,0.),TVector3(0.,1.,0.));
   double q=-1.;
   
   
@@ -83,7 +83,7 @@
 
   double z=20;
   // now exrapolate the parameters to another plane
-  DetPlane plane(TVector3(0.1,0.1,z),TVector3(1.,0.,0.),TVector3(0.,1.,0.));
+  GFDetPlane plane(TVector3(0.1,0.1,z),TVector3(1.,0.,0.),TVector3(0.,1.,0.));
 
   TMatrixT<double> newpar(5,1);
   TMatrixT<double> newcov(5,5);
@@ -97,12 +97,12 @@
   double y=newpar[4][0]+1.;
 
   // now create a simple recohit:
-  // the DemoRecoHit uses the DetPlane (0,0,z)(1,0,0)(0,1,0) -> u=x v=y
+  // the DemoRecoHit uses the GFDetPlane (0,0,z)(1,0,0)(0,1,0) -> u=x v=y
 
   AbsRecoHit* hit=new DemoSPHit(x,y,z,      // coordinates (u,v,z)
 				0.01,0.01,0.01);   // errors (du,dv)
 
-  DetPlane pl=hit->getDetPlane(rep);
+  GFDetPlane pl=hit->getDetPlane(rep);
 
   pl.Print();
 

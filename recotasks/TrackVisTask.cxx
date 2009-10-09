@@ -28,10 +28,10 @@
 // Collaborating Class Headers --------
 #include "FairRootManager.h"
 #include "TClonesArray.h"
-#include "Track.h"
+#include "GFTrack.h"
 
-#include "AbsTrackRep.h"
-#include "RecoHitFactory.h"
+#include "GFAbsTrackRep.h"
+#include "GFRecoHitFactory.h"
 
 #include "TApplication.h"
 #include "TGeoManager.h"
@@ -93,11 +93,11 @@ void
 TrackVisTask::Exec(Option_t* opt)
 {
   std::cout << "TrackVisTask::Exec" << std::endl;
-    std::vector<Track*> trackvec;
+    std::vector<GFTrack*> trackvec;
 
   Int_t nTracks=_trackArray->GetEntriesFast();
     for(int i=0;i<nTracks;i++) {
-	trackvec.push_back( (Track*)  _trackArray->At(i));
+	trackvec.push_back( (GFTrack*)  _trackArray->At(i));
   }
   _geom->ClearTracks();
 

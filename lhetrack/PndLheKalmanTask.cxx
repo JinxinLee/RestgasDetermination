@@ -28,7 +28,7 @@
 // Collaborating Class Headers --------
 #include "FairRootManager.h"
 #include "TClonesArray.h"
-#include "Track.h"
+#include "GFTrack.h"
 //#include "TDatabasePDG.h"
 
 
@@ -41,12 +41,12 @@
 #include "PndTrackCand.h"
 #include "PndDetectorList.h"
 
-#include "RecoHitFactory.h"
-#include "Kalman.h"
-#include "FitterExceptions.h"
+#include "GFRecoHitFactory.h"
+#include "GFKalman.h"
+#include "GFException.h"
 #include "TGeoManager.h"
 #include "TLorentzVector.h"
-#include "DetPlane.h"
+#include "GFDetPlane.h"
 #include "FairTrackParH.h"
 
 #include "LSLTrackRep.h"
@@ -94,7 +94,7 @@ PndLheKalmanTask::Init()
   
 
   // Build hit factory -----------------------------
-  fTheRecoHitFactory = new RecoHitFactory();
+  fTheRecoHitFactory = new GFRecoHitFactory();
 
   TClonesArray* stripar=(TClonesArray*) ioman->GetObject("MVDHitsStrip");
   if(stripar==0)
@@ -103,7 +103,7 @@ PndLheKalmanTask::Init()
     } 
   else
     {
-      fTheRecoHitFactory->addProducer(kMVDHitsStrip,new RecoHitProducer<PndMvdHit,PndMvdRecoHit>(stripar));
+      fTheRecoHitFactory->addProducer(kMVDHitsStrip,new GFRecoHitProducer<PndMvdHit,PndMvdRecoHit>(stripar));
     }
   
   TClonesArray* pixelar=(TClonesArray*) ioman->GetObject("MVDHitsPixel");
@@ -113,7 +113,7 @@ PndLheKalmanTask::Init()
     } 
   else 
     { //TODO Convention on detector number needed
-      fTheRecoHitFactory->addProducer(kMVDHitsPixel,new RecoHitProducer<PndMvdHit,PndMvdRecoHit>(pixelar));
+      fTheRecoHitFactory->addProducer(kMVDHitsPixel,new GFRecoHitProducer<PndMvdHit,PndMvdRecoHit>(pixelar));
     }
   
   TClonesArray* ar=(TClonesArray*) ioman->GetObject("PndTpcCluster");
@@ -123,7 +123,7 @@ PndLheKalmanTask::Init()
     }
   else
     {
-      fTheRecoHitFactory->addProducer(kTpcCluster,new RecoHitProducer<PndTpcCluster,PndTpcSPHit>(ar));
+      fTheRecoHitFactory->addProducer(kTpcCluster,new GFRecoHitProducer<PndTpcCluster,PndTpcSPHit>(ar));
     }
   
   TClonesArray* sttr=(TClonesArray*) ioman->GetObject("SttHelixHit");
@@ -133,7 +133,7 @@ PndLheKalmanTask::Init()
     }
   else
     {
-      fTheRecoHitFactory->addProducer(kSttHelixHit,new RecoHitProducer<PndSttHelixHit,PndSttRecoHit>(sttr));
+      fTheRecoHitFactory->addProducer(kSttHelixHit,new GFRecoHitProducer<PndSttHelixHit,PndSttRecoHit>(sttr));
     }
   
   TClonesArray* gemar=(TClonesArray*) ioman->GetObject("GEMHit");
@@ -143,7 +143,7 @@ PndLheKalmanTask::Init()
     }
   else
     {
-      fTheRecoHitFactory->addProducer(kGemHit,new RecoHitProducer<PndGemHit,PndGemRecoHit>(gemar));
+      fTheRecoHitFactory->addProducer(kGemHit,new GFRecoHitProducer<PndGemHit,PndGemRecoHit>(gemar));
     }
   
   if (fUseGeane)  fPro = new FairGeanePro();
@@ -180,7 +180,7 @@ void PndLheKalmanTask::Exec(Option_t* opt)
   std::vector<Int_t> signs;
 
   // Fitting ---------------- can go to another task!
-  Kalman fitter;
+  GFKalman fitter;
   fitter.setLazy(1); // tell the fitter to skip hits if error occurs
   fitter.setNumIterations(fNumIt);
 
@@ -195,9 +195,9 @@ void PndLheKalmanTask::Exec(Option_t* opt)
     
     Double_t  fCharge= lheTrack->GetParamFirst().GetQ();
     Int_t PDGCode= -13*(Int_t)TMath::Sign(1.,fCharge);
-    DetPlane start_pl(lheTrack->GetParamFirst().GetOrigin(), TVector3(1.,0.,0.), TVector3(0.,1.,0.));
+    GFDetPlane start_pl(lheTrack->GetParamFirst().GetOrigin(), TVector3(1.,0.,0.), TVector3(0.,1.,0.));
     
-    AbsTrackRep* rep = 0;
+    GFAbsTrackRep* rep = 0;
     if (fUseGeane)
       {
 	GeaneTrackRep *grep = new GeaneTrackRep(fPro,
@@ -217,7 +217,7 @@ void PndLheKalmanTask::Exec(Option_t* opt)
 			      StartPosErr.X(),StartPosErr.Y(),0.1,0.1,0.1,NULL);
       }
     
-    Track* trk= new Track(rep);
+    GFTrack* trk= new GFTrack(rep);
     PndTrackCand trackCand = lheTrack->GetTrackCand();
     trk->setCandidate(*PndTrackCand2GenfitTrackCand(&trackCand));
          
@@ -227,7 +227,7 @@ void PndLheKalmanTask::Exec(Option_t* opt)
       if (fVerbose>0) std::cout<<trk->getNumHits()<<" hits in track "
 			       <<itr<<std::endl;
     }
-    catch(FitterException& e) {
+    catch(GFException& e) {
       std::cout << e.what() << std::endl;
       throw e;
     }
@@ -237,7 +237,7 @@ void PndLheKalmanTask::Exec(Option_t* opt)
     try{
       fitter.processTrack(trk);
     }
-    catch (FitterException e){
+    catch (GFException e){
       std::cout<<"*** FITTER EXCEPTION ***"<<std::endl;
       std::cout<<e.what()<<std::endl;
     }
@@ -247,7 +247,7 @@ void PndLheKalmanTask::Exec(Option_t* opt)
     try{ 
       fitTrack = (PndTrack*)GenfitTrack2PndTrack(trk);
     }
-    catch (FitterException e){
+    catch (GFException e){
       std::cout<<"*** PndGenfitAdapters EXCEPTION ***"<<std::endl;
       std::cout<<e.what()<<std::endl;
       continue;

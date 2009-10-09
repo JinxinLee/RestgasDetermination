@@ -9,7 +9,7 @@
 using namespace std;
 
 
-PndTpcDXCalculator::PndTpcDXCalculator(Track *track):_track(track), DistanceAlongTrack(true)
+PndTpcDXCalculator::PndTpcDXCalculator(GFTrack *track):_track(track), DistanceAlongTrack(true)
 {
 
 }

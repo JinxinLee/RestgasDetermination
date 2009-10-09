@@ -30,7 +30,7 @@ class TClonesArray;
 class PndTpcFrontend;
 class PndTpcRiemannTrack;
 class PndMCTrack;
-class RecoHitFactory;
+class GFRecoHitFactory;
 class TH1I;
 class TH1D;
 class TH2D;

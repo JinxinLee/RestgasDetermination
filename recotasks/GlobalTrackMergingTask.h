@@ -27,7 +27,7 @@ class FairGeanePro;
 
 
 class TClonesArray;
-class TrackCand;
+class GFTrackCand;
 
 class GlobalTrackMergingTask : public FairTask
 {
@@ -72,7 +72,7 @@ class GlobalTrackMergingTask : public FairTask
 
   FairGeanePro* _geanePro;
 
-  bool checkSort(TrackCand*);
+  bool checkSort(GFTrackCand*);
 
 
 

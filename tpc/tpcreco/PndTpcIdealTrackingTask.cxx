@@ -28,13 +28,13 @@
 // Collaborating Class Headers --------
 #include "FairRootManager.h"
 #include "TClonesArray.h"
-#include "RecoHitFactory.h"
-#include "FitterExceptions.h"
+#include "GFRecoHitFactory.h"
+#include "GFException.h"
 #include "PndTpcCluster.h"
 #include "PndTpcClusterZ.h"
 #include "PndTpcClusterDist.h"
-#include "TrackCand.h"
-#include "Track.h"
+#include "GFTrackCand.h"
+#include "GFTrack.h"
 #include "LSLTrackRep.h"
 #include "GeaneTrackRep.h"
 #include "FairGeanePro.h"
@@ -100,7 +100,7 @@ PndTpcIdealTrackingTask::Init()
       return kERROR;
     }
   // create and register output array
-  _trackArray = new TClonesArray("Track");
+  _trackArray = new TClonesArray("GFTrack");
   ioman->Register("TrackPreFit","GenFit",_trackArray,_persistence);
  // GeanePro will get Geometry and BField from the Run
   if(_useGeane)_geanePro=new FairGeanePro();
@@ -142,7 +142,7 @@ PndTpcIdealTrackingTask::Exec(Option_t* opt)
     std::sort(cll.begin(),cll.end(),PndTpcClusterZ(false)); 
 
   // build trackcands
-  std::map<unsigned int,TrackCand*> candlist;
+  std::map<unsigned int,GFTrackCand*> candlist;
   for(unsigned int i=0;i<n;i++){ // loop over clusters   
     PndTpcCluster* cl=cll[i];
     int trackid=cl->mcId().DominantID().mctrackID();
@@ -151,9 +151,9 @@ PndTpcIdealTrackingTask::Exec(Option_t* opt)
       if(trackid!=0)
 	continue;
     
-    TrackCand* cand=candlist[trackid];
+    GFTrackCand* cand=candlist[trackid];
     if(cand==NULL){
-      cand=new TrackCand();
+      cand=new GFTrackCand();
       candlist[trackid]=cand;
       
       //security check for faulty MC events
@@ -174,12 +174,12 @@ PndTpcIdealTrackingTask::Exec(Option_t* opt)
   _multiplicityHisto->Fill(candlist.size());
 
   //loop over track candidates
-  std::map<unsigned int,TrackCand*>::iterator candit=candlist.begin();
+  std::map<unsigned int,GFTrackCand*>::iterator candit=candlist.begin();
   int count =0;
   while(candit!=candlist.end()){
     count++;
     std::cout<<count<<std::endl;
-    TrackCand* cand=candit->second;
+    GFTrackCand* cand=candit->second;
     if(cand->getNHits()<10){
       ++candit;
       continue;
@@ -225,9 +225,9 @@ PndTpcIdealTrackingTask::Exec(Option_t* opt)
     v.SetMag(1.);
     
     // create track-representation object and initialize with start values
-    AbsTrackRep* rep=0;
+    GFAbsTrackRep* rep=0;
     if(_useGeane){
-      DetPlane pl(pos,u,v);
+      GFDetPlane pl(pos,u,v);
       
       GeaneTrackRep* grep=new GeaneTrackRep(_geanePro,pl,mom,poserr,momerr,q,pdg);
       grep->setPropDir(1); // propagate in flight direction!
@@ -250,7 +250,7 @@ PndTpcIdealTrackingTask::Exec(Option_t* opt)
     
     
     // create track object
-    Track* trk=new((*_trackArray)[_trackArray->GetEntriesFast()]) Track(rep);
+    GFTrack* trk=new((*_trackArray)[_trackArray->GetEntriesFast()]) GFTrack(rep);
     trk->setCandidate(*cand); // here the candidate is copied! 
     ++candit;
   

@@ -27,7 +27,7 @@
 
 // Collaborating Class Declarations --
 class TClonesArray;
-class RecoHitFactory;
+class GFRecoHitFactory;
 class TGeoManager; 
 
 class PndLheKalmanTask : public FairTask {
@@ -66,7 +66,7 @@ private:
 
   Bool_t fPersistence;
 
-  RecoHitFactory* fTheRecoHitFactory;
+  GFRecoHitFactory* fTheRecoHitFactory;
   
   Int_t fTrackcount;
   Int_t fEvent;

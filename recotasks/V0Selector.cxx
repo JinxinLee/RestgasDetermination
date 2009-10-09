@@ -29,9 +29,9 @@
 #include "TClonesArray.h"
 #include "TVector3.h"
 #include "TLorentzVector.h"
-#include "Track.h"
-#include "TrackCand.h"
-#include "AbsTrackRep.h"
+#include "GFTrack.h"
+#include "GFTrackCand.h"
+#include "GFAbsTrackRep.h"
 #include "trackProximity.h"
 
 // Class Member definitions -----------
@@ -94,8 +94,8 @@ V0Selector::Exec(Option_t* opt)
   if(ntrks<2 || ntrks>10) return;
   
   // build charged particle list
-  std::vector<Track*> poscands;
-  std::vector<Track*> negcands;
+  std::vector<GFTrack*> poscands;
+  std::vector<GFTrack*> negcands;
 
   for(int itrk=0;itrk<ntrks;++itrk){
     Track* trk=(Track*)_trackArray->At(itrk);

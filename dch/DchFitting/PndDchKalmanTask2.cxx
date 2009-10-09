@@ -7,14 +7,14 @@
 // Panda Headers ----------------------
 #include "FairRootManager.h"
 #include "PndDchKalmanTask2.h"
-#include "Track.h"
+#include "GFTrack.h"
 #include "PndDchRecoHit2.h"
 #include "PndDchCylinderHit.h"
 #include "LSLTrackRep.h"
 #include "GeaneTrackRep.h"
-#include "RecoHitFactory.h"
-#include "Kalman.h"
-#include "FitterExceptions.h"
+#include "GFRecoHitFactory.h"
+#include "GFKalman.h"
+#include "GFException.h"
 
 // C/C++ Headers ----------------------
 #include <algorithm>
@@ -59,13 +59,13 @@ InitStatus PndDchKalmanTask2::Init()
   }
   
   // Build hit factory -----------------------------
-  fTheRecoHitFactory = new RecoHitFactory();
+  fTheRecoHitFactory = new GFRecoHitFactory();
   TClonesArray* ar=(TClonesArray*) ioman->GetObject("PndDchCylinderHit");
   if(ar==0){
     Error("PndDchKalmanTask2::Init","PndDchCylinderHit array not found!");
   }
   else{ 
-    fTheRecoHitFactory->addProducer(1,new RecoHitProducer<PndDchCylinderHit,PndDchRecoHit2>(ar));
+    fTheRecoHitFactory->addProducer(1,new GFRecoHitProducer<PndDchCylinderHit,PndDchRecoHit2>(ar));
   } // "1" stands here for kind of detector
   
 }
@@ -80,12 +80,12 @@ PndDchKalmanTask2::Exec(Option_t* opt)
   
   Int_t ntracks=fTrackArray->GetEntriesFast();
   
-  Kalman fitter;
+  GFKalman fitter;
   fitter.setLazy(0);
   fitter.setNumIterations(fNumIt);
   
   for(Int_t itr=0; itr<ntracks; ++itr){
-    Track* trk = (Track*)fTrackArray->At(itr);
+    GFTrack* trk = (GFTrack*)fTrackArray->At(itr);
     // Load RecoHits 
     try {
       if(fVerbose>0){
@@ -97,7 +97,7 @@ PndDchKalmanTask2::Exec(Option_t* opt)
 	std::cout<<"\t"<<trk->getNumHits()<<" reco hits were created for track "
 		 <<itr<<std::endl;
     }
-    catch(FitterException& e) {
+    catch(GFException& e) {
       std::cout<<"Creation of reco hits failed :-( "<<std::endl;
       std::cout << e.what() << std::endl;
       //throw e;
@@ -108,7 +108,7 @@ PndDchKalmanTask2::Exec(Option_t* opt)
     try{
       fitter.processTrack(trk);
     }
-    catch (FitterException e){
+    catch (GFException e){
       std::cout<<"*** FITTER EXCEPTION ***"<<std::endl;
       std::cout<<e.what()<<std::endl;
     }

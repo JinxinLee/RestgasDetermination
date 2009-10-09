@@ -30,7 +30,7 @@
 #include "FairRootManager.h"
 #include "PndDetectorList.h"
 #include "TClonesArray.h"
-#include "Track.h"
+#include "GFTrack.h"
 #include "TDatabasePDG.h"
 
 // #include "PndGemHit.h"
@@ -38,16 +38,16 @@
 
 #include "PndGemRecoHit.h"
 
-#include "RecoHitFactory.h"
-#include "Kalman.h"
-#include "FitterExceptions.h"
+#include "GFRecoHitFactory.h"
+#include "GFKalman.h"
+#include "GFException.h"
 #include "TH1D.h"
 #include "TH2D.h"
 #include "TFile.h"
 #include "TGeoTrack.h"
 #include "TGeoManager.h"
 #include "TLorentzVector.h"
-#include "DetPlane.h"
+#include "GFDetPlane.h"
 #include "FairTrackParH.h"
 
 #include "LSLTrackRep.h"
@@ -95,14 +95,14 @@ PndGemKalmanTask::Init()
 
 
   // Build hit factory -----------------------------
-  fTheRecoHitFactory = new RecoHitFactory();
+  fTheRecoHitFactory = new GFRecoHitFactory();
 
   TClonesArray* hitar=(TClonesArray*) ioman->GetObject("GEMHit");
   if(hitar==0){ //TODO Convention on detector number needed
     Error("PndGemKalmanTask::Init","GEMHit array not found");
   } else {
     fTheRecoHitFactory->addProducer
-      (kGEM,new RecoHitProducer<PndGemHit,PndGemRecoHit>(hitar));
+      (kGEM,new GFRecoHitProducer<PndGemHit,PndGemRecoHit>(hitar));
   }
 
   fPro = new FairGeanePro();
@@ -159,9 +159,9 @@ PndGemKalmanTask::Exec(Option_t* opt)
     std::cout<< " Detailed Debug info on the tracks:"<<std::endl;
     unsigned int detid=12345, index=12345;
     for(Int_t itr=0;itr<ntracks;++itr){
-      Track* trac = (Track*)fTrackArray->At(itr);
-      TrackCand trcnd = (TrackCand)trac->getCand();
-      //      TrackCand* trcnd = (TrackCand*)fTrackArray->At(itr);
+      GFTrack* trac = (GFTrack*)fTrackArray->At(itr);
+      GFTrackCand trcnd = (GFTrackCand)trac->getCand();
+      //      TrackCand* trcnd = (GFTrackCand*)fTrackArray->At(itr);
       std::cout<< "TrackCand no. "<<itr<<" has "<<trcnd.getNHits()<<" hits."<<std::endl;
       std::cout<<"[ ihit | detid | index";
       for(unsigned int ihit=0;ihit<trcnd.getNHits();ihit++){
@@ -179,7 +179,7 @@ PndGemKalmanTask::Exec(Option_t* opt)
   }
 
   // Fitting ---------------- can go to another task!
-  Kalman fitter;
+  GFKalman fitter;
   fitter.setNumIterations(fNumIt);
   //   fitter.setVerbose(fVerbose);
 
@@ -188,10 +188,10 @@ PndGemKalmanTask::Exec(Option_t* opt)
 
   for(Int_t itr=0;itr<ntracks;++itr){
     std::cout<<"starting track"<<itr<<std::endl;
-    //     AbsTrackRep* rep = new LSLTrackRep();
+    //     GFAbsTrackRep* rep = new LSLTrackRep();
     
-    Track* trac = (Track*)fTrackArray->At(itr);
-    TrackCand trcnd = (TrackCand)trac->getCand();
+    GFTrack* trac = (GFTrack*)fTrackArray->At(itr);
+    GFTrackCand trcnd = (GFTrackCand)trac->getCand();
     TVector3 beforePos = trac->getPos();
     TVector3 beforeMom = trac->getMom();
     
@@ -204,7 +204,7 @@ PndGemKalmanTask::Exec(Option_t* opt)
       std::cout<<trac->getNumHits()<<" hits in track "
 	       <<itr<<std::endl;
     }
-    catch(FitterException& e) {
+    catch(GFException& e) {
       std::cout << e.what() << std::endl;
       throw e;
     }
@@ -215,7 +215,7 @@ PndGemKalmanTask::Exec(Option_t* opt)
       fitter.processTrack(trac);
       std::cout << "I am back in KalmanTask" << std::endl;
     }
-    catch (FitterException e){
+    catch (GFException e){
       std::cout<<e.what()<<std::endl;
     }
     std::cout << "and after the try catch with flag set to " << trac->getTrackRep(0)->getStatusFlag() << std::endl;
@@ -223,7 +223,7 @@ PndGemKalmanTask::Exec(Option_t* opt)
     // Print Track Parameters after fit
     if(trac->getTrackRep(0)->getStatusFlag()==0){
       //trk->getTrackRep(0)->Print();
-      DetPlane plane(TVector3(0,0,0.1),TVector3(1,0,0),TVector3(0,1,0));
+      GFDetPlane plane(TVector3(0,0,0.1),TVector3(1,0,0),TVector3(0,1,0));
       TVector3 p3=trac->getTrackRep(0)->getMom(plane);
       Double_t p=trac->getMom().Mag();
       fPH->Fill(p);
@@ -237,7 +237,7 @@ PndGemKalmanTask::Exec(Option_t* opt)
       std::cout<<"ChiSq="<<chi2<<std::endl;
       fChi2H->Fill(chi2);
 
-      //      DetPlane plane(TVector3(0,0,0.1),TVector3(1,0,0),TVector3(0,1,0));
+      //      GFDetPlane plane(TVector3(0,0,0.1),TVector3(1,0,0),TVector3(0,1,0));
       TVector3 resultMom=trac->getTrackRep(0)->getMom(plane);
       
       TVector3 resultPos = trac->getPos();

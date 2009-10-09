@@ -28,7 +28,9 @@ ${CMAKE_SOURCE_DIR}/pnddata/GemData
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
 ${CMAKE_SOURCE_DIR}/stt/sttreco
 ${CMAKE_SOURCE_DIR}/geane
-${CMAKE_SOURCE_DIR}/trackrep
+${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/LSLtrackRep
+${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
+${CMAKE_SOURCE_DIR}/GenfitTools/adapters
 ${CMAKE_SOURCE_DIR}/lhetrack
 
 

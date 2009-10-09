@@ -5,7 +5,7 @@
 #include "PndMvdHit.h"
 
 #include "PndRiemannTrack.h"
-#include "TrackCand.h"
+#include "GFTrackCand.h"
 
 #include "TString.h"
 #include "TH1.h"
@@ -63,8 +63,8 @@ private:
 	TClonesArray* fCombinedArray;
 //	TClonesArray* fTrackArray;
 
-	PndRiemannTrack GetRiemannTrack(TrackCand* cand);  ///< takes the track candidates and fills a Riemann Track
-	TrackCand AddTPCHits(TrackCand* myTrack); ///< runs through all TPC clusters and checks if they belong to the track. If yes, they are added and a new track is created.
+	PndRiemannTrack GetRiemannTrack(GFTrackCand* cand);  ///< takes the track candidates and fills a Riemann Track
+	GFTrackCand AddTPCHits(GFTrackCand* myTrack); ///< runs through all TPC clusters and checks if they belong to the track. If yes, they are added and a new track is created.
 	
   void Register();
   void Reset();  

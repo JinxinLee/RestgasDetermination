@@ -22,9 +22,9 @@
 #include"math.h"
 
 #include"PndTrackCand.h"
-#include"TrackCand.h"
-#include"Track.h"
-#include"DetPlane.h"
+#include"GFTrackCand.h"
+#include"GFTrack.h"
+#include"GFDetPlane.h"
 #include"GeaneTrackRep.h"
 #include "FairGeanePro.h"
 #include"PndGenfitAdapters.h"
@@ -84,7 +84,7 @@ InitStatus GlobalTrackMergingTask::Init() {
     return kERROR;
   }
 
-  fMvdCandArr  = (TClonesArray*) ioman->GetObject("MVDIdealTrackCand");
+  fMvdCandArr  = (TClonesArray*) ioman->GetObject("MVDIdealGFTrackCand");
   if ( !fMvdCandArr ) {
     std::cout << "-W- GlobalTrackMergingTask::Init: No MvdCand array!" << std::endl;
     return kERROR;
@@ -93,7 +93,7 @@ InitStatus GlobalTrackMergingTask::Init() {
 
 
   // Create and register DchTrack array
-  fTrackArr = new TClonesArray("Track",100);
+  fTrackArr = new TClonesArray("GFTrack",100);
   ioman->Register("TrackPreFit", "", fTrackArr  , kTRUE);
   
 
@@ -123,26 +123,26 @@ void GlobalTrackMergingTask::Exec(Option_t* opt) {
   std::cout << "%%%%%%%%%%%%%%%%%%%%%%$%$%$%$%$%$%%$%$%$" << std::endl;
   fTrackArr->Delete();
   std::set<int> trackIds;
-  std::vector<TrackCand*> candsMvd;
-  std::vector<TrackCand*> candsGem;
-  std::vector<TrackCand*> candsDch;
+  std::vector<GFTrackCand*> candsMvd;
+  std::vector<GFTrackCand*> candsGem;
+  std::vector<GFTrackCand*> candsDch;
   int nMvdCands = fMvdCandArr->GetEntriesFast();
   int nDchCands = fDchCandArr->GetEntriesFast();
   int nGemCands = fGemCandArr->GetEntriesFast();
   for(int i=0;i<nMvdCands;++i){
-    TrackCand *c = new TrackCand(*((TrackCand*)fMvdCandArr->At(i)));
+    GFTrackCand *c = new GFTrackCand(*((GFTrackCand*)fMvdCandArr->At(i)));
     candsMvd.push_back(c);
     if(!checkSort(c)) return;
     trackIds.insert(c->getMcTrackId());
   }
   for(int i=0;i<nDchCands;++i){
-    TrackCand *c = PndTrackCand2GenfitTrackCand( (PndTrackCand*)fDchCandArr->At(i) );
+    GFTrackCand *c = PndTrackCand2GenfitTrackCand( (PndTrackCand*)fDchCandArr->At(i) );
     candsDch.push_back(c);
     if(!checkSort(c)) return;
     trackIds.insert(c->getMcTrackId());
   }
   for(int i=0;i<nGemCands;++i){
-    TrackCand *c = PndTrackCand2GenfitTrackCand( (PndTrackCand*)fGemCandArr->At(i) );
+    GFTrackCand *c = PndTrackCand2GenfitTrackCand( (PndTrackCand*)fGemCandArr->At(i) );
     candsGem.push_back(c);
     if(!checkSort(c)) return;
     trackIds.insert(c->getMcTrackId());
@@ -150,7 +150,7 @@ void GlobalTrackMergingTask::Exec(Option_t* opt) {
   std::set<int>::iterator iter;
   for(iter=trackIds.begin();iter!=trackIds.end();++iter){
     int trackId = *iter;
-    TrackCand *theCand=NULL;
+    GFTrackCand *theCand=NULL;
     for(unsigned int i=0;i<candsMvd.size();++i){
       if(trackId == candsMvd.at(i)->getMcTrackId()) {
 	theCand = candsMvd.at(i);
@@ -206,10 +206,10 @@ void GlobalTrackMergingTask::Exec(Option_t* opt) {
     double q=0.;
     if(qoverp<0.)q=-1;
     if(qoverp>0.)q=1;
-    DetPlane startPlane(pos,dir);
+    GFDetPlane startPlane(pos,dir);
     TVector3 poserr(1.,1.,1.);
     TVector3 momerr(.4,.4,.4);
-    Track theTrack( new GeaneTrackRep(_geanePro,
+    GFTrack theTrack( new GeaneTrackRep(_geanePro,
 				      startPlane,
 				      mom,
 				      poserr,
@@ -221,7 +221,7 @@ void GlobalTrackMergingTask::Exec(Option_t* opt) {
     theTrack.setCandidate(*theCand);
 
     int nentries = fTrackArr->GetEntriesFast();
-    new ((*fTrackArr)[nentries]) Track(theTrack);
+    new ((*fTrackArr)[nentries]) GFTrack(theTrack);
   }
 
   for(unsigned int i=0;i<candsMvd.size();++i){
@@ -238,7 +238,7 @@ void GlobalTrackMergingTask::Exec(Option_t* opt) {
 // -------------------------------------------------------------------------
 
 
-bool GlobalTrackMergingTask::checkSort(TrackCand* c){
+bool GlobalTrackMergingTask::checkSort(GFTrackCand* c){
   std::vector<double> rhos = c->GetRhos();
   if(rhos.size() <= 1) return true;
   for(int i=1;i<rhos.size();++i){

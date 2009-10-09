@@ -31,19 +31,19 @@
 
 
 PndTpcZSFit::PndTpcZSFit()
-  : AbsTrackRep(2)
+  : GFAbsTrackRep(2)
 {
-  cov[0][0]=10;
-  cov[1][1]=10;
+  fCov[0][0]=10;
+  fCov[1][1]=10;
 }
 
-AbsTrackRep*
+GFAbsTrackRep*
 PndTpcZSFit::clone()const 
 {
   return new PndTpcZSFit(*this);
 }
 
-AbsTrackRep* 
+GFAbsTrackRep* 
 PndTpcZSFit::prototype()const
 {
   return new PndTpcZSFit();
@@ -51,36 +51,36 @@ PndTpcZSFit::prototype()const
 
 
 double
-PndTpcZSFit::extrapolate(const DetPlane& plane, TMatrixT<double>& statePred)
+PndTpcZSFit::extrapolate(const GFDetPlane& plane, TMatrixT<double>& statePred)
 {
-  statePred=state;
+  statePred=fState;
   return 0;
 }
 
 double
-PndTpcZSFit::extrapolate(const DetPlane& plane,
+PndTpcZSFit::extrapolate(const GFDetPlane& plane,
 			 TMatrixT<double>& statePred,
 			 TMatrixT<double>& covPred)
 {
-  statePred=state;
-  covPred=cov;
+  statePred=fState;
+  covPred=fCov;
   return 0;
 }
 
 TVector3 
-PndTpcZSFit::getPos(const DetPlane& pl)
+PndTpcZSFit::getPos(const GFDetPlane& pl)
 {
   throw;
 }
 
 TVector3 
-PndTpcZSFit::getMom(const DetPlane& pl)
+PndTpcZSFit::getMom(const GFDetPlane& pl)
 {
   throw;
 }
   
 void 
-PndTpcZSFit::setReferencePlane(const DetPlane& pl)
+PndTpcZSFit::setReferencePlane(const GFDetPlane& pl)
 {
-  //_refPlane=pl;
+  //fRefPlane=pl;
 }

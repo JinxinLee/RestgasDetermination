@@ -31,19 +31,19 @@
 
 
 PndTpcConfMapFit::PndTpcConfMapFit()
-  : AbsTrackRep(2),_isRotated(false)
+  : GFAbsTrackRep(2),_isRotated(false)
 {
-  cov[0][0]=10;
-  cov[1][1]=10;
+  fCov[0][0]=10;
+  fCov[1][1]=10;
 }
 
-AbsTrackRep*
+GFAbsTrackRep*
 PndTpcConfMapFit::clone()const
 {
   return new PndTpcConfMapFit(*this);
 }
 
-AbsTrackRep* 
+GFAbsTrackRep* 
 PndTpcConfMapFit::prototype()const
 {
   return new PndTpcConfMapFit();
@@ -51,40 +51,40 @@ PndTpcConfMapFit::prototype()const
 
 
 double 
-PndTpcConfMapFit::extrapolate(const DetPlane& plane, TMatrixT<double>& statePred)
+PndTpcConfMapFit::extrapolate(const GFDetPlane& plane, TMatrixT<double>& statePred)
 {
-  statePred=state;
+  statePred=fState;
   return 0;
 }
 
 double
-PndTpcConfMapFit::extrapolate(const DetPlane& plane,
+PndTpcConfMapFit::extrapolate(const GFDetPlane& plane,
 			      TMatrixT<double>& statePred,
 			      TMatrixT<double>& covPred)
 
 {
-  statePred=state;
-  covPred=cov;
+  statePred=fState;
+  covPred=fCov;
   return 0;
 }
 
 
 TVector3 
-PndTpcConfMapFit::getPos(const DetPlane& pl)
+PndTpcConfMapFit::getPos(const GFDetPlane& pl)
 {
   throw;
 }
 
 TVector3 
-PndTpcConfMapFit::getMom(const DetPlane& pl)
+PndTpcConfMapFit::getMom(const GFDetPlane& pl)
 {
   throw;
 }
   
 void 
-PndTpcConfMapFit::setReferencePlane(const DetPlane& pl)
+PndTpcConfMapFit::setReferencePlane(const GFDetPlane& pl)
 {
-  //_refPlane=pl;
+  //fRefPlane=pl;
 }
 
 double 
@@ -93,11 +93,11 @@ PndTpcConfMapFit::getR2()
   // (a,b) is center of circle in real space
   
   double b;
-  if(state[1][0]!=0){
-    b=0.5/state[1][0];
+  if(fState[1][0]!=0){
+    b=0.5/fState[1][0];
   }
   else b=1E4;
-  double a=-state[0][0]*b;
+  double a=-fState[0][0]*b;
   return a*a+b*b;
 }
 

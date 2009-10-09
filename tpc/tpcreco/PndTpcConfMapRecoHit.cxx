@@ -24,7 +24,7 @@
 
 
 // Collaborating Class Headers --------
-#include "DetPlane.h"
+#include "GFDetPlane.h"
 #include "PndTpcConfMapFit.h"
 #include "PndTpcZSFit.h"
 
@@ -32,35 +32,35 @@
 
 
 PndTpcConfMapRecoHit::PndTpcConfMapRecoHit()
-  : RecoHitIfc<PlanarHitPolicy>(2), _refx(0), _refy(0), 
+  : GFRecoHitIfc<GFPlanarHitPolicy>(2), _refx(0), _refy(0), 
     _s(1E-4), _isRotated(false), _cl(NULL)
 {}
   
 PndTpcConfMapRecoHit::PndTpcConfMapRecoHit(double xp, double yp)
-  : RecoHitIfc<PlanarHitPolicy>(2), _refx(0), _refy(0),
+  : GFRecoHitIfc<GFPlanarHitPolicy>(2), _refx(0), _refy(0),
     _s(1E-4), _isRotated(false), _cl(NULL)
 {
-  _hitCoord[0][0]=yp;
-  _hitCoord[1][0]=0;
+  fHitCoord[0][0]=yp;
+  fHitCoord[1][0]=0;
   _xcf=xp;
-  _hitCov[0][0]=0.1;
+  fHitCov[0][0]=0.1;
 }
 
 PndTpcConfMapRecoHit::PndTpcConfMapRecoHit(PndTpcCluster* cl)
-  : RecoHitIfc<PlanarHitPolicy>(2), _refx(0), _refy(0)
+  : GFRecoHitIfc<GFPlanarHitPolicy>(2), _refx(0), _refy(0)
     , _s(1E-4), _isRotated(false), _cl(cl)
 {
   _clusterx=cl->pos().X();
   _clustery=cl->pos().Y();
   _clusterz=cl->pos().Z();
   _clusterindex=cl->index();
-  _hitCoord[1][0]=_clusterz;
-  _hitCov[0][0]=0.1;
-  _hitCov[1][1]=_cl->sig().Z();
+  fHitCoord[1][0]=_clusterz;
+  fHitCov[0][0]=0.1;
+  fHitCov[1][1]=_cl->sig().Z();
   reMap();
 }
 
-AbsRecoHit* 
+GFAbsRecoHit* 
 PndTpcConfMapRecoHit::clone()
 {
   return new PndTpcConfMapRecoHit(*this);
@@ -79,42 +79,43 @@ PndTpcConfMapRecoHit::calc_s(double R) {
 
 
 TMatrixT<double> 
-PndTpcConfMapRecoHit::residualVector(const AbsTrackRep* stateVector,
-				  const TMatrixT<double>& state)
- {
-    setHMatrix(stateVector,state);
-    TMatrixT<double> res=( _hitCoord - (_HMatrix*state ));
-    if (dynamic_cast<const PndTpcConfMapFit*>(stateVector) != NULL) {
-      // clear lower entry
-      res[1][0]=0;
-    }
-    else if(dynamic_cast<const PndTpcZSFit*>(stateVector) !=NULL) {
-      // clear upper entry
-      res[0][0]=0;
-    }
-    return res;
- }
-
-
-
-
-void
-PndTpcConfMapRecoHit::setHMatrix(const AbsTrackRep* stateVector,
-			      const TMatrixT<double>& state)
+PndTpcConfMapRecoHit::residualVector(const GFAbsTrackRep* stateVector,
+				     const TMatrixT<double>& state)
 {
+  TMatrixT<double> H = getHMatrix(stateVector);
+  TMatrixT<double> res=( fHitCoord - (H*state ));
   if (dynamic_cast<const PndTpcConfMapFit*>(stateVector) != NULL) {
-    _HMatrix.ResizeTo(2,2);
-    _HMatrix[0][0]=_xcf;
-    _HMatrix[0][1]=1.;
-    _HMatrix[1][0]=0.;
-    _HMatrix[1][1]=0.;
+    // clear lower entry
+    res[1][0]=0;
   }
   else if(dynamic_cast<const PndTpcZSFit*>(stateVector) !=NULL) {
-    _HMatrix.ResizeTo(2,2);
-    _HMatrix[0][0]=0;
-    _HMatrix[0][1]=0;
-    _HMatrix[1][0]=_s;
-    _HMatrix[1][1]=1.;
+    // clear upper entry
+    res[0][0]=0;
+  }
+  return res;
+}
+
+
+
+
+TMatrixT<double>
+PndTpcConfMapRecoHit::getHMatrix(const GFAbsTrackRep* stateVector)
+{
+  if (dynamic_cast<const PndTpcConfMapFit*>(stateVector) != NULL) {
+    TMatrixT<double> HMatrix(2,2);
+    HMatrix[0][0]=_xcf;
+    HMatrix[0][1]=1.;
+    HMatrix[1][0]=0.;
+    HMatrix[1][1]=0.;
+    return HMatrix;
+  }
+  else if(dynamic_cast<const PndTpcZSFit*>(stateVector) !=NULL) {
+    TMatrixT<double> HMatrix(2,2);
+    HMatrix[0][0]=0;
+    HMatrix[0][1]=0;
+    HMatrix[1][0]=_s;
+    HMatrix[1][1]=1.;   
+    return HMatrix;
   }
 
   else {
@@ -157,11 +158,11 @@ PndTpcConfMapRecoHit::reMap()
   double dy=y-y0;
   double r2=dx*dx+dy*dy;
   if(r2!=0){
-    _hitCoord[0][0]=dy/r2;
+    fHitCoord[0][0]=dy/r2;
     _xcf=dx/r2;
   }
   else{
-    _hitCoord[0][0]=1E-12;
+    fHitCoord[0][0]=1E-12;
     _xcf=1E-12;
   }
   // set covariances;
@@ -183,8 +184,8 @@ PndTpcConfMapRecoHit::reMap()
   }
 
 
-  _hitCov[0][0]=dyp_dy*dyp_dy*sigy2 + dyp_dx*dyp_dx*sigx2;
-  if(TMath::IsNaN(_hitCov[0][0])){
+  fHitCov[0][0]=dyp_dy*dyp_dy*sigy2 + dyp_dx*dyp_dx*sigx2;
+  if(TMath::IsNaN(fHitCov[0][0])){
     std::cout<<"hitcov nan! &&&&&&&&&&&&&&&&&&&"<<std::endl;
     std::cout<<r2<<"  "<<dx<<"  "<<dy<<"  "<<dyp_dy<<"  "<<dyp_dx<<std::endl;
   }

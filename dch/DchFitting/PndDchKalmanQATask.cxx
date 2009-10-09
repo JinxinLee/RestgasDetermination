@@ -7,14 +7,14 @@
 // Panda Headers ----------------------
 #include "PndDchKalmanQATask.h"
 #include "FairRootManager.h"
-#include "Track.h"
+#include "GFTrack.h"
 #include "FairMCPoint.h"
 #include "PndMCTrack.h"
 #include "LSLTrackRep.h"
 #include "GeaneTrackRep.h"
-#include "RecoHitFactory.h"
-#include "Kalman.h"
-#include "FitterExceptions.h"
+#include "GFRecoHitFactory.h"
+#include "GFKalman.h"
+#include "GFException.h"
 #include "PndDchTrackMatch.h"
 #include "PndDchPoint.h"
 
@@ -24,7 +24,7 @@
 #include "TH1F.h"
 #include "TH2D.h"
 #include "TFile.h"
-//#include "TGeoTrack.h"
+//#include "TGeoGFTrack.h"
 #include "TGeoManager.h"
 #include "TCanvas.h"
 #include "TMath.h"
@@ -145,10 +145,10 @@ void PndDchKalmanQATask::Exec(Option_t* opt) {
   Int_t ntracks=fTrackArray->GetEntries();
   
   for(Int_t itr=0;itr<ntracks;++itr){
-    Track* trk=new Track(*(Track*) fTrackArray->At(itr));
+    GFTrack* trk=new GFTrack(*(GFTrack*) fTrackArray->At(itr));
     if(trk->getTrackRep(0)->getStatusFlag()==0){
       TVector3 mom0;
-      AbsTrackRep* rep = 0;
+      GFAbsTrackRep* rep = 0;
       rep = trk->getCardinalRep()->clone();
       GeaneTrackRep* grep = 0;
       if(fApproach==0){
@@ -160,7 +160,7 @@ void PndDchKalmanQATask::Exec(Option_t* opt) {
       else if(fApproach==1){
 	// approach one - extrapolating to the plane containing
 	// the target (and perp. to the beam pipe)
-	DetPlane pl(TVector3(0,0,0),TVector3(1,0,0),TVector3(0,1,0));
+	GFDetPlane pl(TVector3(0,0,0),TVector3(1,0,0),TVector3(0,1,0));
 	grep=dynamic_cast<GeaneTrackRep*>(rep);
 	grep->setPropDir(-1);
 	mom0=grep->getMom(pl);
@@ -171,7 +171,7 @@ void PndDchKalmanQATask::Exec(Option_t* opt) {
 	//from the target
 //  	TMatrixT<double> statePred(5,1);
 //  	TMatrixT<double> covPred(5,5);
-//  	DetPlane planePred;
+//  	GFDetPlane planePred;
 //  	grep=dynamic_cast<GeaneTrackRep*>(rep);
 //  	grep->setPropDir(-1);
 	

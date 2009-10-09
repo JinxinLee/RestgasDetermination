@@ -124,7 +124,7 @@ void PndGemSmearingTask::Exec(Option_t* opt)
     //set the plane definition inside the local frame
     //sensor origin in the middle, u^ and v^ are xy plane
     TVector3 o(0.,0.,0.),u(1.,0.,0.),v(0.,1.,0.);
-    CalcDetPlane(o,u,v);
+    CalcGFDetPlane(o,u,v);
     TVector3 pos;
     fCurrentPndGemMCPoint->Position(pos);
     smearLocal(pos);
@@ -210,7 +210,7 @@ void PndGemSmearingTask::smearLocal(TVector3& pos)
 
 
 
-void PndGemSmearingTask::CalcDetPlane(TVector3& oVect, TVector3& uVect,TVector3& vVect)
+void PndGemSmearingTask::CalcGFDetPlane(TVector3& oVect, TVector3& uVect,TVector3& vVect)
 {
   Double_t O[3], U[3], V[3], o[3], u[3], v[3];
   O[0]=oVect.x();  O[1]=oVect.y();  O[2]=oVect.z();
@@ -218,7 +218,7 @@ void PndGemSmearingTask::CalcDetPlane(TVector3& oVect, TVector3& uVect,TVector3&
   V[0]=vVect.x();  V[1]=vVect.y();  V[2]=vVect.z();
 
   if (fVerbose > 1) {
-    std::cout<<"PndGemSmearingTask::CalcDetPlane from Detector "
+    std::cout<<"PndGemSmearingTask::CalcGFDetPlane from Detector "
              <<fCurrentPndGemMCPoint->GetDetName()<<std::endl;
   }
   //make transformation

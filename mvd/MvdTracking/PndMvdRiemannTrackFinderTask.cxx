@@ -17,9 +17,9 @@
 
 // PndMvd includes
 #include "PndMvdRecoHit.h"
-// #include "PndMvdTrackCand.h"
-#include "Track.h"
-#include "TrackCand.h"
+// #include "PndMvdGFTrackCand.h"
+#include "GFTrack.h"
+#include "GFTrackCand.h"
 #include "PndMvdHit.h"
 #include "PndMvdMCPoint.h"
 #include "PndMvdCluster.h"
@@ -95,7 +95,7 @@ InitStatus PndMvdRiemannTrackFinderTask::Init()
      return kERROR;
    }
 
-  fTrackCandArray = new TClonesArray("TrackCand");
+  fTrackCandArray = new TClonesArray("GFTrackCand");
   ioman->Register("MVDRiemannTrackCand", "MVD", fTrackCandArray, kTRUE);
 
 //  fRiemannTrackArray = new TClonesArray("PndRiemannTrack");
@@ -129,9 +129,9 @@ void PndMvdRiemannTrackFinderTask::Exec(Option_t* opt)
 
   std::cout << "Found Tracks: " << trackFinder.NTracks() << " in event no. " << fEventNr++ << std::endl;
   std::cout << "----------------" << std::endl;
- // std::vector<TrackCand> myCand = trackFinder.GetTrackCand();
+ // std::vector<GFTrackCand> myCand = trackFinder.GetTrackCand();
   for (int i = 0; i < trackFinder.NTracks(); i++){
-	  new ((*fTrackCandArray)[i])TrackCand(trackFinder.GetTrackCand(i));
+	  new ((*fTrackCandArray)[i])GFTrackCand(trackFinder.GetTrackCand(i));
 	  //new ((*fRiemannTrackArray)[i])PndRiemannTrack(trackFinder.GetTrack(i));
   }
 }

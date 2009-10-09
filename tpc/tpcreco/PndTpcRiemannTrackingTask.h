@@ -30,7 +30,7 @@
 class TClonesArray;
 class PndTpcFrontend;
 class PndTpcRiemannTrackFinder;
-class RecoHitFactory;
+class GFRecoHitFactory;
 class TH1I;
 class TH1D;
 
@@ -94,7 +94,7 @@ private:
 
   FairGeanePro* _geanePro;
 
-  RecoHitFactory* _theRecoHitFactory;
+  GFRecoHitFactory* _theRecoHitFactory;
 
 
   // Private Methods -----------------

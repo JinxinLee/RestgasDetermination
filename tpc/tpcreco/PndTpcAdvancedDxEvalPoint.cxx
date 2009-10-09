@@ -1,7 +1,7 @@
 #include "PndTpcAdvancedDxEvalPoint.h"
-#include "AbsRecoHit.h"
-#include "AbsTrackRep.h"
-#include "Track.h"
+#include "GFAbsRecoHit.h"
+#include "GFAbsTrackRep.h"
+#include "GFTrack.h"
 #include "PndTpcCluster.h"
 #include <assert.h>
 #include <iostream>
@@ -10,14 +10,14 @@
 
 using namespace std;
 
-PndTpcAdvancedDxEvalPoint::PndTpcAdvancedDxEvalPoint( Track *track, PndTpcCluster *cl):
+PndTpcAdvancedDxEvalPoint::PndTpcAdvancedDxEvalPoint( GFTrack *track, PndTpcCluster *cl):
 _track(track), _cl(cl), _IndexInTrack(cl->GetIndexInTrack()), _EnergyLoss(cl->amp()),
 _Pos(new TVector3(cl->pos()))
 {
 
 }
 
-PndTpcAdvancedDxEvalPoint::PndTpcAdvancedDxEvalPoint( Track *track, TVector3 *pos,unsigned int IndexInTrack, double dE): 
+PndTpcAdvancedDxEvalPoint::PndTpcAdvancedDxEvalPoint( GFTrack *track, TVector3 *pos,unsigned int IndexInTrack, double dE): 
 _track(track),_cl(NULL), _IndexInTrack(IndexInTrack), _EnergyLoss(dE), _Pos(pos)
 {
 }
@@ -32,10 +32,10 @@ PndTpcAdvancedDxEvalPoint::~PndTpcAdvancedDxEvalPoint()
 double PndTpcAdvancedDxEvalPoint::CalculateDX(PndTpcDxEvalPoint *p)
 {
 	assert(p);
-	AbsRecoHit* FirstHit=_track->getHit( GetIndexInTrack() );
-	AbsRecoHit* SecondHit=_track->getHit( p->GetIndexInTrack() );
+	GFAbsRecoHit* FirstHit=_track->getHit( GetIndexInTrack() );
+	GFAbsRecoHit* SecondHit=_track->getHit( p->GetIndexInTrack() );
 	assert(FirstHit); assert(SecondHit);
-	AbsTrackRep* rep=NULL;
+	GFAbsTrackRep* rep=NULL;
 	rep=_track->getCardinalRep()->clone();
 	assert(rep);
 	double distance=0.;

@@ -28,12 +28,12 @@
 // Collaborating Class Headers --------
 #include "FairRootManager.h"
 #include "TClonesArray.h"
-#include "Track.h"
-#include "TrackCand.h"
+#include "GFTrack.h"
+#include "GFTrackCand.h"
 #include "PndTpcCluster.h"
 
-#include "AbsTrackRep.h"
-#include "RecoHitFactory.h"
+#include "GFAbsTrackRep.h"
+#include "GFRecoHitFactory.h"
 
 #include "TApplication.h"
 #include "TGeoManager.h"
@@ -105,11 +105,11 @@ void
 PndTpcTrackVisTask::Exec(Option_t* opt)
 {
   std::cout << "PndTpcTrackVisTask::Exec" << std::endl;
-    std::vector<Track*> trackvec;
+    std::vector<GFTrack*> trackvec;
 
   Int_t nTracks=_trackArray->GetEntriesFast();
     for(int i=0;i<nTracks;i++) {
-	trackvec.push_back( (Track*)  _trackArray->At(i));
+	trackvec.push_back( (GFTrack*)  _trackArray->At(i));
   }
   _geom->ClearTracks();
 
@@ -144,7 +144,7 @@ PndTpcTrackVisTask::Exec(Option_t* opt)
 
 
     // draw hits per track
-    TrackCand cand=trackvec[i]->getCand();
+    GFTrackCand cand=trackvec[i]->getCand();
     TPolyMarker3D* hittrk=new TPolyMarker3D(cand.getNHits());
     hitTrks.push_back(hittrk);
     std::cout<<"Filling hits"<<std::endl;

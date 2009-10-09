@@ -115,7 +115,7 @@ class PndStt : public FairDetector
   
  private:
 
-  /** Track information to be stored until the track leaves the
+  /** GFTrack information to be stored until the track leaves the
       active volume. **/
   Int_t          fTrackID;           //!  track index
   Int_t          fVolumeID;          //!  volume id

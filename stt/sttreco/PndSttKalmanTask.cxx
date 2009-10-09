@@ -12,15 +12,15 @@
 // Collaborating Class Headers --------
 #include "FairRootManager.h"
 #include "TClonesArray.h"
-#include "Track.h"
-#include "RecoHitFactory.h"
+#include "GFTrack.h"
+#include "GFRecoHitFactory.h"
 #include "TGeoTrack.h"
 #include "TGeoManager.h"
 #include "PndSttRecoHit.h"
 #include "PndSttHit.h"
 #include "GeaneTrackRep.h"
-#include "FitterExceptions.h"
-#include "Kalman.h"
+#include "GFException.h"
+#include "GFKalman.h"
 
 using namespace std;
 
@@ -53,7 +53,7 @@ PndSttKalmanTask::Init()
   }
   
   // Build hit factory -----------------------------
-  _theRecoHitFactory = new RecoHitFactory();
+  _theRecoHitFactory = new GFRecoHitFactory();
   
   std::map<unsigned int,TString>::iterator iter=_hitBranchMap.begin();
 
@@ -63,7 +63,7 @@ PndSttKalmanTask::Init()
       Error("PndSttKalmanTask::Init","point-array %s not found!",iter->second.Data());
     }
     else{ 
-      _theRecoHitFactory->addProducer(iter->first,new RecoHitProducer<PndSttHit,PndSttRecoHit>(ar));
+      _theRecoHitFactory->addProducer(iter->first,new GFRecoHitProducer<PndSttHit,PndSttRecoHit>(ar));
     }
     ++iter;
   }//end loops over hit types
@@ -83,10 +83,10 @@ PndSttKalmanTask::Exec(Option_t* opt)
       //      cout << "ntracks " << ntracks << endl;
 
       for(Int_t itr=0;itr<ntracks;++itr){
-	Track* trk = (Track*) fTrackArray->At(itr);
+	GFTrack* trk = (GFTrack*) fTrackArray->At(itr);
 	trk->addHitVector(_theRecoHitFactory->createMany(trk->getCand()));
 	std::cout<<trk->getNumHits()<<" hits in track " <<itr<<std::endl;
-	Kalman k;
+	GFKalman k;
         k.setLazy(1);
 	k.setNumIterations(1);
 	k.processTrack(trk);

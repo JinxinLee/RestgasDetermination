@@ -26,7 +26,7 @@
 
 // Collaborating Class Declarations --
 class PndTpcCluster;
-class TrackCand;
+class GFTrackCand;
 class PndTpcAbsHitTrackCorrelator;
 class PndTpcRiemannTrack;
 class TH3D;

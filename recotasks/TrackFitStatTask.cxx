@@ -30,10 +30,10 @@
 // Collaborating Class Headers --------
 #include "FairRootManager.h"
 #include "TClonesArray.h"
-#include "Track.h"
+#include "GFTrack.h"
 #include "TrackFitStat.h"
-#include "TrackCand.h"
-#include "AbsRecoHit.h"
+#include "GFTrackCand.h"
+#include "GFAbsRecoHit.h"
 #include "PndTpcPlanarRecoHit.h"
 #include "PndTpcPoint.h"
 #include "PndMCTrack.h"
@@ -222,20 +222,23 @@ TrackFitStatTask::Exec(Option_t* opt)
   
   for(Int_t i=0; i<nTracks; ++i)
   { // loop over tracks
-	Track* track=(Track*)_trackArray->At(i);
-	
+	GFTrack* track=(GFTrack*)_trackArray->At(i);
 	//clumsily extract failed hits of cardinal rep and pass to TrackFitStat
-	const TrackCand& cand = track->getCand();
+	const GFTrackCand& cand = track->getCand();
+
 	std::set<unsigned int> detIDs = cand.GetUniqueDetIDs();
 	std::set<unsigned int>::iterator iter;
 	int NFH=0;
+
 	for(iter=detIDs.begin(); iter!=detIDs.end(); ++iter) {
 	  int detID = *iter;
-	  NFH+=track->getFailedHits(detID);
+
+	  NFH+=track->getFailedHits(0);
+
 	}	
 
 	std::cout<<"TrackFitStatTask: recotrack has "<<NFH<<" failed hits"<<std::endl;
-	
+
 	if(track->getTrackRep(0)->getStatusFlag()!=0){
 		std::cout<<"Trackfit not successful!"<<std::endl;
 		continue;
@@ -244,7 +247,7 @@ TrackFitStatTask::Exec(Option_t* opt)
 	TrackFitStat* stat=new ((*_fitstatArray)[size]) TrackFitStat();
 	
 	//decide in which trackrep we are in
-	AbsTrackRep* trackRep = track->getTrackRep(0);
+	GFAbsTrackRep* trackRep = track->getTrackRep(0);
 	
 	//LSL rep
 	bool LSLREP = dynamic_cast<LSLTrackRep*>(trackRep);
@@ -266,7 +269,7 @@ TrackFitStatTask::Exec(Option_t* opt)
 	  unsigned int nh=track->getNumHits();
 
 	  for(unsigned int ih=0; ih<nh; ++ih){ //loop over hits
-	    AbsRecoHit* abshit=track->getHit(ih);
+	    GFAbsRecoHit* abshit=track->getHit(ih);
 	    if(LSLREP) {
 	      PndTpcPlanarRecoHit* tpchit=dynamic_cast<PndTpcPlanarRecoHit*>(abshit);
 	       if(tpchit!=NULL){
@@ -415,6 +418,7 @@ TrackFitStatTask::WriteHistograms(const TString& filename){
 
   file->Close();
   delete file;
+
 }
 
 

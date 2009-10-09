@@ -4,10 +4,10 @@
 // -------------------------------------------------------------------------
 
 #include "PndTrackDraw.h"
-#include "TEveTrack.h"
+#include "TEveGFTrack.h"
 #include <iostream>
 #include "TEveTrackPropagator.h"
-#include "TGeoTrack.h"
+#include "TGeoGFTrack.h"
 #include "TClonesArray.h"
 #include "TObjArray.h"
 #include "TEveManager.h"

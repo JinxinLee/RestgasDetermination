@@ -19,7 +19,7 @@ of J/Psi: Dipak
 #include "PndStack.h"
 #include "PndMCTrack.h"
 
-#include "Track.h"
+#include "GFTrack.h"
 #include "LSLTrackRep.h"
 #include "PndEmcCluster.h"
 
@@ -83,7 +83,7 @@ InitStatus PndStoreTCands::Init() {
   if ( ! fTrArray) {
     cout << "-W- PndStoreTCands::Init: "
 	 << "No TpcTrack array!" << endl;
-    fTrArray=new TClonesArray("Track");
+    fTrArray=new TClonesArray("GFTrack");
     fStoreCharged=false;
     //return kERROR;
   }

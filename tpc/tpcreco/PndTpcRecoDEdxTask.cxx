@@ -18,12 +18,12 @@
 // Panda Headers ----------------------
 #include "PndTpcPoint.h"
 #include "PndTpcCluster.h"
-#include "Track.h"
+#include "GFTrack.h"
 #include "PndTpcPlanarRecoHit.h"
 #include "PndMCTrack.h"
 #include "FairRootManager.h"
-#include "DetPlane.h"
-#include "TrackCand.h"
+#include "GFDetPlane.h"
+#include "GFTrackCand.h"
 //#include "TrackFitStat.h"
 #include "PndTpcTFSInfo.h"
 #include "PndTpcDEDXFits.h"
@@ -187,11 +187,11 @@ void PndTpcRecoDEdxTask::ValidateArrays() const
 	}
 }
 
-double CalculateLengthAlongTrack(Track *track, int nHit1, int nHit2)
+double CalculateLengthAlongTrack(GFTrack *track, int nHit1, int nHit2)
 {
-	AbsRecoHit* previousHit=track->getHit(nHit1);
-	AbsRecoHit* thisHit=track->getHit(nHit2);
-	AbsTrackRep* rep=track->getCardinalRep()->clone();
+	GFAbsRecoHit* previousHit=track->getHit(nHit1);
+	GFAbsRecoHit* thisHit=track->getHit(nHit2);
+	GFAbsTrackRep* rep=track->getCardinalRep()->clone();
 	rep->extrapolate(previousHit->getDetPlane(rep));
 	double length=rep->extrapolate(thisHit->getDetPlane(rep));
 	cout << "Hit1: " << nHit1 << " Hit2: " << nHit2 << " Length along Track: " << length << endl;
@@ -200,10 +200,10 @@ double CalculateLengthAlongTrack(Track *track, int nHit1, int nHit2)
 }
 
 
-void PndTpcRecoDEdxTask::PrepareClusterList(vector<PndTpcCluster *> &PreparedClusterList, Track *track ) const
+void PndTpcRecoDEdxTask::PrepareClusterList(vector<PndTpcCluster *> &PreparedClusterList, GFTrack *track ) const
 {
 	
-	TrackCand cand=track->getCand();		//get list of hits
+	GFTrackCand cand=track->getCand();		//get list of hits
 	int nTpcCluster = _clusterArray->GetEntriesFast();
 	unsigned int nh=cand.getNHits();
 	for(unsigned int ih=0; ih<nh; ++ih)
@@ -256,7 +256,7 @@ PndTpcRecoDEdxTask::Exec(Option_t* opt)
 	for(Int_t i=0; i<nTrack; i++)	
 	{
 		cout << "TrackNr.: " << i << endl; 
-		Track* track=(Track*)_trackArray->At(i);
+		GFTrack* track=(GFTrack*)_trackArray->At(i);
 		
 		PndTpcDEDXDiagnostics* dedxdia=NULL;
 		if(_diagnosticOutput)	{
