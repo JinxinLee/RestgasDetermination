@@ -54,7 +54,7 @@ public:
   unsigned int padId() const {return fpadId;}
   unsigned int electronicChId() const {return felectronicChId;}  //added by X.Zhang, Oct. 06, 2009 
   const McIdCollection& mcId() const {return fmcId;}
-  //** next four functions added by x. zhang on 08.10.2009 ****//
+  //*** next four functions added by x. zhang on 08.10.2009 ****//
   void setAmp(unsigned int amp) { famp = amp; }
   void setSample(unsigned int s) { ft = s; }
   void setPadId(unsigned int pi) { fpadId = pi; }
