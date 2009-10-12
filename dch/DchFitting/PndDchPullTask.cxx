@@ -26,7 +26,7 @@
 #include "FairGeanePro.h"
 #include "FairGeaneUtil.h"
 #include "TClonesArray.h"
-#include "Track.h"
+#include "GFTrack.h"
 #include "TH1F.h"
 #include "TFile.h"
 
@@ -135,19 +135,19 @@ void PndDchPullTask::Exec(Option_t* opt)
 
   for(Int_t itr=0;itr < ntracks;++itr){
 
-    Track *genTrack = (Track*) fTrackArray->At(itr);
+    GFTrack *genTrack = (GFTrack*) fTrackArray->At(itr);
     if(!genTrack || genTrack->getTrackRep(0)->getStatusFlag()!=0 ){
       std::cout<<"Pull Task: Track not existing or fitting unsuccessful"<<std::endl;
       continue;
     }
 
    // fill pull histo
-    DetPlane pl(TVector3(0,0,0),TVector3(1,0,0),TVector3(0,1,0));
-    AbsTrackRep* rep = genTrack->getCardinalRep()->clone();
+    GFDetPlane pl(TVector3(0,0,0),TVector3(1,0,0),TVector3(0,1,0));
+    GFAbsTrackRep* rep = genTrack->getCardinalRep()->clone();
     //GeaneTrackRep* grep = dynamic_cast<GeaneTrackRep*>(genTrack->getCardinalRep());
     GeaneTrackRep* grep = dynamic_cast<GeaneTrackRep*>(rep);
     
-    DetPlane refPlane = grep->getReferencePlane();
+    GFDetPlane refPlane = grep->getReferencePlane();
 
     FairGeanePro *geane = new FairGeanePro();
     grep->setPropagator(geane);
