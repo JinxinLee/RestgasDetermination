@@ -81,7 +81,14 @@ fastHoughGPU_IFC::initClusters(std::vector<PndTpcCluster*> clist) {
   }
   _nClusters=size;
 
-  std::cout<<"\fastHoughGPU_IFC::initClusters: Iitialized with "
+  if(_nClusters<10){
+    std::cerr<<"\nfastHoughGPU_IFC::initClusters: "
+	     <<"Not enough valid clusters ("<<_nClusters<<")!"<<std::endl;
+    std::cerr<<"Aborting ..."<<std::endl;
+    return;
+  }
+
+  std::cout<<"\nfastHoughGPU_IFC::initClusters: Iitialized with "
 	   <<_nClusters<<" Clusters"<<std::endl;
   
   //allocate host and GPU arrays 

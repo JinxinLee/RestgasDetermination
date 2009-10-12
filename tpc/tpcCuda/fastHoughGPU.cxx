@@ -174,16 +174,28 @@ int main(int argc, char** argv) {
 
     
   TFile* reco_file =  new TFile(reco_filename);
-  TTree* reco_tree = (TTree*)reco_file->Get("cbmsim");
-
+  
+  if(reco_file->IsZombie()) {
+    std::cerr<<"Input file "<<reco_filename<<" not existing!"<<std::endl;
+    std::cerr<<"Aborting ... "<<std::endl;
+    return 0;
+  }
     
+  TTree* reco_tree = (TTree*)reco_file->Get("cbmsim");
+  
+      
   TClonesArray* _clusters = new TClonesArray("PndTpcCluster");
   reco_tree->SetBranchAddress("PndTpcCluster", &_clusters);
   reco_tree->GetEntry(EVENT);
  
     
   int size = _clusters->GetEntriesFast();
-      
+  if(size<10) {
+    std::cerr<<"Not enough clusters in data ("<<size<<")!"<<std::endl;
+    std::cerr<<"Aborting ..." <<std::endl;
+    return 0;
+  }
+       
   std::vector<PndTpcCluster*> clusterList;
   std::vector<TVector3> riemannListRZ;
 
