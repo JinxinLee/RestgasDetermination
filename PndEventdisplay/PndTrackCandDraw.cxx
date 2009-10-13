@@ -14,7 +14,7 @@
 #include "PndTrackCandHit.h"
 #include "FairRootManager.h"
 #include "PndTpcCluster.h"
-#include "PndLhePidGFTrack.h"
+#include "PndLhePidTrack.h"
 //#include "PndTpcLheGFTrack.h"
 
 #include "PndDetectorList.h"
@@ -71,7 +71,7 @@ InitStatus PndTrackCandDraw::Init()
 void PndTrackCandDraw::AddBoxes(TEveBoxSet* set, TObject* obj, Int_t i)
 {
 
-	if (0 == strcmp(obj->ClassName(), "TrackCand") || 0 == strcmp(obj->ClassName(), "PndLhePidTrack"))
+	if (0 == strcmp(obj->ClassName(), "GFTrackCand") || 0 == strcmp(obj->ClassName(), "PndLhePidTrack"))
 		AddBoxesTrackCand(set, obj, i);
 	else if (0 == strcmp(obj->ClassName(), "PndTrackCand"))
 		AddBoxesPndTrackCand(set, obj, i);
@@ -80,11 +80,11 @@ void PndTrackCandDraw::AddBoxes(TEveBoxSet* set, TObject* obj, Int_t i)
 
 void PndTrackCandDraw::AddBoxesTrackCand(TEveBoxSet* set, TObject* obj, Int_t i)
 {
-	   TrackCand *tc;
+	   GFTrackCand *tc;
 	   PndLhePidTrack *pidtc;
 
-	      if( 0 == strcmp(obj->ClassName() , "TrackCand")) {
-	        tc=(TrackCand *)obj;
+	      if( 0 == strcmp(obj->ClassName() , "GFTrackCand")) {
+	        tc=(GFTrackCand *)obj;
 	        std::cout<<"fTrackCandList is full of TrackCands"<<std::endl;
 	      } else if ( 0 == strcmp(obj->ClassName() , "PndLhePidTrack") ) {
 	        pidtc=(PndLhePidTrack *)fTrackCandList->At(i);
