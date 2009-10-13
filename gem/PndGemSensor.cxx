@@ -21,15 +21,6 @@ using std::vector;
 // -----   Default constructor   -------------------------------------------
 PndGemSensor::PndGemSensor() {
 
-  TString    fName;             // Station name
-  Int_t    fDetectorId;   // Unique detector ID
-  Int_t    fType;         // Sensor type 
-  Double_t fPosition[3];  // Coordinates of the sensor centre [cm]
-  Double_t fRotation;     // Rotation angle in global c.m. [rad]
-  Double_t fDimension[3]; // Dimensions of the sensor [cm]
-  Double_t fD;            // thickness of the sensor [cm]
-  Double_t fPitch[2];     // Strip readout pitch or pixel size in x/y
-
   fDetectorId = 0;
   fPosition[0] = fPosition[1] = fPosition[2] = fRotation = fInnerRadius = fOuterRadius = fD = fStripAngle[0] = fStripAngle[1] = fPitch[0] = fPitch[1] = 0.;
   fNChannelsFront = fNChannelsBack = 0;
