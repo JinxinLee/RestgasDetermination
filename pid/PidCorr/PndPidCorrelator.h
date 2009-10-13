@@ -44,7 +44,8 @@ protected:
   TClonesArray* fTofHit;            //! PndTofHit TCA
   TClonesArray* fEmcCluster;        //! PndEmcCluster TCA 
   TClonesArray* fEmcBump;           //! PndEmcBump TCA
-  TClonesArray* fMdtHit;            //! PndMdtHit TCA
+  TClonesArray* fMdtHit;            //! PndMdtHit TCA 
+  TClonesArray* fMdtTrk;            //! PndMdtTrk TCA
   TClonesArray* fDrcHit;            //! PndDrcHit TCA
   TClonesArray* fSttHit;            //! PndSttHit/PndSttHelixHit TCA
  

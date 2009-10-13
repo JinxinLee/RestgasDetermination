@@ -10,6 +10,7 @@
 #include "PndEmcStructure.h"
 #include "PndEmcXtal.h"
 #include "PndMvdHit.h"
+#include "PndMdtTrk.h"
 #include "PndSttHit.h"
 #include "PndSttHelixHit.h"
 #include "PndMdtHit.h"
@@ -135,21 +136,6 @@ InitStatus PndPidCorrelator::Init() {
       cout << "-W- PndPidCorrelator::Init: No STT hits array! Switching STT OFF" << endl;
     }
   
-  fMvdHitsPixel = (TClonesArray*) fManager->GetObject("MVDHitsPixel");
-  if ( ! fMvdHitsPixel ) 
-    {
-      cout << "-W- PndPidCorrelator::Init: No MVDHitsPixel array!" << endl;
-    }
-  else fMvdMode = 2;
-  if (( ! fMvdHitsStrip ) &&  ( ! fMvdHitsPixel ))
-    {
-      cout << "-W- PndPidCorrelator::Init: No MDC hits array! Switching MVD OFF" << endl;
-      fMvdMode = 0;
-    }
-  else
-    {
-      cout << "-I- PndPidCorrelator::Init: Using MVDHit" << endl;
-    }
   // *** MVD ***
   fMvdHitsStrip = (TClonesArray*) fManager->GetObject("MVDHitsStrip");
   if ( ! fMvdHitsStrip ) 
@@ -220,6 +206,16 @@ InitStatus PndPidCorrelator::Init() {
       cout << "-I- PndPidCorrelator::Init: Using MdtHit" << endl;
       fMdtMode = 2;
     }
+  fMdtTrk = (TClonesArray*) fManager->GetObject("MdtTrk");
+  if ( ! fMdtTrk ) 
+    {
+      cout << "-W- PndPidCorrelator::Init: No MdtTrk array!" << endl;
+    }
+  else  
+    {
+      cout << "-I- PndPidCorrelator::Init: Using MdtTrk" << endl;
+      fMdtMode = 3;
+    }
 
   // *** DRC ***
   fDrcHit = (TClonesArray*) fManager->GetObject("DrcHit");
@@ -253,7 +249,7 @@ InitStatus PndPidCorrelator::Init() {
       emcCorr = new TNtuple("emcCorr","TRACK-EMC Correlation",
 			    "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:emc_x:emc_y:emc_z:emc_phi:chi2:dphi:emc_ene:glen:emc_mod");
       mdtCorr = new TNtuple("mdtCorr","TRACK-MDT Correlation",
-			    "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:mdt_x:mdt_y:mdt_z:mdt_phi:chi2:mdt_mod:dphi:glen");
+			    "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:mdt_x:mdt_y:mdt_z:mdt_phi:chi2:mdt_mod:dphi:glen:mdt_count");
       drcCorr = new TNtuple("drcCorr","TRACK-DRC Correlation",
 			    "track_x:track_y:track_z:track_phi:track_p:track_charge:track_theta:track_z0:drc_x:drc_y:drc_phi:chi2:drc_thetac:drc_nphot:dphi:glen");
       cout << "-I- PndPidCorrelator::Init: Filling Debug histograms" << endl;
@@ -401,7 +397,6 @@ void PndPidCorrelator::GetTrackInfo(PndTrack* track, PndPidCandidate* pidCand)
   Int_t ierr = 0;
   FairTrackParH *helix = new FairTrackParH(&par, ierr);
   TVector3 momentum, vertex;
-  Float_t ex = ExtrapolateToZ(helix, &momentum, &vertex); // Extrapolation to z=0a
   Float_t energy = TMath::Sqrt(momentum.Mag2()+0.13957*0.13957); // Pion hypothesis
   
   if (fGeanePro) // Overwrites vertex if Geane is used
@@ -492,10 +487,7 @@ void PndPidCorrelator::GetMvdInfo(PndTrack* track, PndPidCandidate* pidCand)
       FairTrackParP par = track->GetParamLast();
       Int_t ierr = 0;
       FairTrackParH *helix = new FairTrackParH(&par, ierr);
-      Float_t ex = ExtrapolateToZ(helix, &momentum, &vertex, mvdHit->GetZ()); // track momentum at the strip/pixel
       Double_t cos = 0.;
-      if (ex) cos = TMath::Cos(momentum.Angle(zaxis)); // cos of the angle between the track and the strip/pixel normal axis
-      
       if (fGeanePro) // Overwrites vertex if Geane is used
     	{
 	  FairGeanePro *fProMvd = new FairGeanePro();
@@ -595,9 +587,7 @@ void PndPidCorrelator::GetTofInfo(FairTrackParH* helix, PndPidCandidate* pidCand
     {
       tofHit = (PndTofHit*)fTofHit->At(tt);
       tofHit->Position(tofPos);
-
-       Float_t ex = ExtrapolateToR(helix, &momentum, &vertex, fCorrPar->GetTofRadius()); // Important even to calculate phi for path length
-      
+  
       if (fGeanePro) // Overwrites vertex if Geane is used
 	{ 
 	  FairGeanePro *fProTof = new FairGeanePro();
@@ -665,13 +655,8 @@ void PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCand
       //if (emcHit->energy() < fCorrPar->GetEmc12Thr()) continue;
       Int_t emcModule = ((PndEmcDigi*)emcHit->Maxima())->GetModule();
       if (emcModule>4) continue;
-     //  if ( (trackTheta>130.) && ((emcModule==1)||(emcModule==3)) ) continue;
-//       if ( (trackTheta<130.) && (emcModule==4) ) continue;
-//       if ( (trackTheta<40.)  && ((emcModule==2)||(emcModule==4)) ) continue;
       
       emcPos = emcHit->where();
-      Float_t ex = ExtrapolateToR(helix, &momentum, &vertex, fCorrPar->GetEmc12Radius());
-
       if (fGeanePro) // Overwrites vertex if Geane is used
     	{
 	  FairGeanePro *fProEmc = new FairGeanePro();
@@ -723,9 +708,19 @@ void PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCand
 //_________________________________________________________________
 void PndPidCorrelator::GetMdtInfo(FairTrackParH* helix, PndPidCandidate* pidCand) {
   //---
+  map<Int_t, Int_t>mapMdtTrk;
+  
+  if (fMdtMode == 3)
+    { 
+      for (Int_t tt = 0; tt<fMdtTrk->GetEntriesFast(); tt++)
+	{
+	  PndMdtTrk *mdtTrk = (PndMdtTrk*)fMdtTrk->At(tt);
+	  mapMdtTrk[mdtTrk->GetHitNumber(0)] = tt;
+	}
+    }
   PndMdtHit *mdtHit = NULL;
   Int_t mdtEntries = fMdtHit->GetEntriesFast();
-  Int_t mdtIndex = -1, mdtMod = 0;
+  Int_t mdtIndex = -1, mdtMod = 0, mdtLayer = 0;
   Float_t mdtGLength = -1000;
   Float_t mdtQuality = 1000000;
   
@@ -738,10 +733,7 @@ void PndPidCorrelator::GetMdtInfo(FairTrackParH* helix, PndPidCandidate* pidCand
       mdtHit = (PndMdtHit*)fMdtHit->At(mm);
       if (mdtHit->GetLayerID()!=0) continue;
       if (mdtHit->GetModule()>2) continue;
-      
       mdtHit->Position(mdtPos);
-      Float_t ex = ExtrapolateToR(helix, &momentum, &vertex, fCorrPar->GetMdtRadius());
-
       if (fGeanePro) // Overwrites vertex if Geane is used
 	{ 
 	  FairGeanePro *fProMdt = new FairGeanePro();
@@ -772,13 +764,20 @@ void PndPidCorrelator::GetMdtInfo(FairTrackParH* helix, PndPidCandidate* pidCand
 	  mdtIndex = mm;
 	  mdtQuality = dist;
 	  mdtMod = mdtHit->GetModule();
+	  mdtLayer = 1;
+	  if (fMdtMode==3)
+	    {
+	      PndMdtTrk *mdtTrk = (PndMdtTrk*)fMdtTrk->At(mapMdtTrk[mdtIndex]);
+	      mdtIndex = mapMdtTrk[mm];
+	      mdtLayer = mdtTrk->GetLayerCount();
+	    }
 	}
       if (fDebugMode)
 	{
 	  Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(), 
 			      helix->GetMomentum().Mag(), helix->GetQ(), helix->GetMomentum().Theta(), helix->GetZ(),
 			      mdtPos.X(), mdtPos.Y(), mdtPos.Z(), mdtPos.Phi(),
-			      dist, mdtHit->GetModule(), vertex.DeltaPhi(mdtPos), mdtGLength};
+			      dist, mdtHit->GetModule(), vertex.DeltaPhi(mdtPos), mdtGLength, mdtLayer};
 	  mdtCorr->Fill(ntuple);
 	}
     }
@@ -788,9 +787,8 @@ void PndPidCorrelator::GetMdtInfo(FairTrackParH* helix, PndPidCandidate* pidCand
       pidCand->SetMuoIndex(mdtIndex);
       pidCand->SetMuoQuality(mdtQuality);
       pidCand->SetMuoModule(mdtMod);
-      pidCand->SetMuoNumberOfLayers(1);
+      pidCand->SetMuoNumberOfLayers(mdtLayer);
     }
-  
 }
 
 //_________________________________________________________________
@@ -810,10 +808,8 @@ void PndPidCorrelator::GetDrcInfo(FairTrackParH* helix, PndPidCandidate* pidCand
   for (Int_t dd = 0; dd<drcEntries; dd++)
     {
       drcHit = (PndDrcHit*)fDrcHit->At(dd);
-           
       drcHit->Position(drcPos);
-      Float_t ex = ExtrapolateToR(helix, &momentum, &vertex, fCorrPar->GetDrcRadius());
-
+      
       if (fGeanePro) // Overwrites vertex if Geane is used
 	{
 	  FairGeanePro *fProDrc = new FairGeanePro();
