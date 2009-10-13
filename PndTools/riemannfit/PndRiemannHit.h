@@ -36,7 +36,7 @@ public:
 
   // Constructors/Destructors ---------
   PndRiemannHit() : fCovX(3,3){};
-  PndRiemannHit(double r,double phi, double z = 0);
+  PndRiemannHit(double x,double y, double z, double dx, double dy, double dz);
   PndRiemannHit(FairHit* cl);
   ~PndRiemannHit();
 
@@ -80,7 +80,7 @@ private:
   // Private Methods -----------------
 
 public:
-  ClassDef(PndRiemannHit,1)
+  ClassDef(PndRiemannHit,2)
 
 };
 

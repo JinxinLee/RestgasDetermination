@@ -63,7 +63,7 @@ public:
   PndRiemannHit* getLastHit() {return getHit(getNumHits()-1);}
   std::vector<PndRiemannHit> getHits(){return fHits;};
 
-  TVector3 calcPosByS(double s);
+  double calcZPosByS(double s);
   int calcIntersection(PndRiemannTrack& track, TVector3& p1, TVector3& p2);
 
   double weight() const {return fweight;};
@@ -90,9 +90,11 @@ public:
   double szChi2(){return fChi2;};
 
   void SetVerbose(int i){fVerbose = i;}
+  void SetVertexCut(double cut){fVertexCut = cut;}
   TVector3 calcErrorPosByS(Double_t s, Double_t dS);
 
   void PrintHits();
+
 private:
 
   // Private Data Members ------------
@@ -107,6 +109,8 @@ private:
   bool fFitDone;
   bool fSZFitDone;
 
+  double fVertexCut;
+
   std::vector<PndRiemannHit> fHits;
   TVectorD fav;  		///< average over all hits
   double fweight; 		///< sum over all weights (1/(sigmaXY*sigmaXY))
@@ -114,6 +118,10 @@ private:
   TMatrixD fjacRXY;  	///< jacobian matrix to transform from c,n1,n2,n2 to r,x,y
   TMatrixD fcovRXY;
   int fVerbose;
+  /////////////////
+    bool ftrefit;
+  ////////////////
+
 
   void calcJacRXY(); 	///< calcualtes fjacRXY
 

@@ -37,12 +37,12 @@
 
 ClassImp(PndRiemannHit)
 
-
-PndRiemannHit::PndRiemannHit(double r, double phi, double z) : fHit(NULL), fCovX(3,3), fZ(z), fVerbose(0)
+PndRiemannHit::PndRiemannHit(double x, double y, double z,double dx, double dy, double dz) : fHit(NULL), fCovX(3,3), fZ(z), fVerbose(0)
 {
-  setXYZ(r*TMath::Cos(phi),r*TMath::Sin(phi),z);
-  setDXYZ(1,1,1);
+	setXYZ(x,y,z);
+	setDXYZ(dx,dy,dz);
 }
+
 
 PndRiemannHit::PndRiemannHit(FairHit* cl) : fHit(cl), fCovX(3,3), fVerbose(0)
 {
@@ -69,7 +69,8 @@ void PndRiemannHit::setDXYZ(double dx, double dy, double dz)
 {
 	  fCovX[0][0] = TMath::Power(dx/RIEMANNSCALE,2);
 	  fCovX[1][1] = TMath::Power(dy/RIEMANNSCALE,2);
-	  fCovX[2][2] = TMath::Power(2*dx*dx,2) + TMath::Power(2*dy*dy,2)/RIEMANNSCALE;
+	  fCovX[2][2] = 4*(TMath::Power(fX.X(),2)*fCovX[0][0] + 2*fX.X()*fX.Y()*dx*dy + TMath::Power(fX.Y(),2)*fCovX[1][1])/TMath::Power(RIEMANNSCALE,2);
+
 	  fDeltaZ = dz/RIEMANNSCALE;
 }
 

@@ -36,21 +36,21 @@
 
 void MatrixOutput(TMatrixD mat)
 {
-	for (int col = 0; col < mat.GetNcols(); col++)
-	{
-		for (int row = 0; row < mat.GetNrows(); row++)
-		{
-			std::cout << mat[row][col] << " ";
-		}
-		std::cout << std::endl;
-	}
+	for (int row = 0; row < mat.GetNrows(); row++)
+			{
+				for (int col = 0; col < mat.GetNcols(); col++)
+				{
+					std::cout << mat[row][col] << " ";
+				}
+				std::cout << std::endl;
+			}
 }
 
 ClassImp(PndRiemannTrack);
 
 PndRiemannTrack::PndRiemannTrack() :
 	fn(3),fav(3), fc(0), fcovPlane(4,4), fjacRXY(3,4), fcovRXY(3,3),
-	fVerbose(0), fFitDone(false), fSZFitDone(false), fweight(0)
+	fVerbose(0), fFitDone(false), fSZFitDone(false), fweight(0),ftrefit(false),fVertexCut(0.5)
 {}
 
 PndRiemannTrack::~PndRiemannTrack()
@@ -112,7 +112,13 @@ void
 PndRiemannTrack::addHit(PndRiemannHit& hit){
   int nbefore=fHits.size();
   fHits.push_back(hit);
-  if (fVerbose > -1) std::cout << "-I- PndRiemannTrack::addHit " << fHits.size() -1 << ": " << hit.x().X() << " " << hit.x().Y() << std::endl;
+  //ADDED by ME//
+  if ( ftrefit ) {
+  fav *= fweight;
+  ftrefit = false;
+  }
+
+  if (fVerbose > 1) std::cout << "-I- PndRiemannTrack::addHit " << fHits.size() -1 << ": " << hit.x().X() << " " << hit.x().Y() << std::endl;
   //fav*=(double)nbefore;
   fav[0]+=hit.x().X() /(hit.sigmaXY()*hit.sigmaXY());
   fav[1]+=hit.x().Y() /(hit.sigmaXY()*hit.sigmaXY());;
@@ -139,12 +145,17 @@ PndRiemannTrack::refit()
 
   TMatrixT<double> my_av(3,1);
   if (fVerbose > 1) std::cout << "fweight: " << fweight << std::endl;
-  fav *= TMath::Power(fweight,-1); //TS
+  //fav *= TMath::Power(fweight,-1); //TS
+  /////////////<-------------------------
+  	  if (!ftrefit){
+  	  fav *= TMath::Power(fweight,-1); //TS
+  	  }
+  ////////////
   my_av[0][0]=fav[0];// *fweight; //TS *fweight added
   my_av[1][0]=fav[1];// *fweight;
   my_av[2][0]=fav[2];// *fweight;
 
-  if (fVerbose > 0) std::cout << "my_av: " << fav[0] << " " << fav[1] << " " << fav[2] << std::endl;
+  if (fVerbose > 0) std::cout << "fav: " << fav[0] << " " << fav[1] << " " << fav[2] << std::endl;
 
   TMatrixD sampleCov(3,3);
 
@@ -208,9 +219,9 @@ PndRiemannTrack::refit()
 		CovNorm += res * (val * eigenValues[i]/TMath::Power(val-eigenValues[i],2));
 	}
   }
-  if (fHits.size() > 5)
-	  CovNorm *= TMath::Power(fHits.size()-5,-1);  //-5 is very strange. According to the paper this value has to be fixed with simulation???
-  else
+//  if (fHits.size() > 5)
+//	  CovNorm *= TMath::Power(fHits.size()-5,-1);  //-5 is very strange. According to the paper this value has to be fixed with simulation???
+//  else
 	  CovNorm *= TMath::Power(fHits.size(),-1);
   if (fVerbose > 1) std::cout << "CovNorm: " << std::endl;
   if (fVerbose > 1) MatrixOutput(CovNorm);
@@ -271,6 +282,17 @@ PndRiemannTrack::refit()
   fcovPlane[1][0] = corr_cn[0];
   fcovPlane[2][0] = corr_cn[1];
   fcovPlane[3][0] = corr_cn[2];
+  /////////////////ADDED by me
+
+     fcovPlane[1][2] = CovNorm[1][0];
+
+     fcovPlane[1][3] = CovNorm[2][0];
+     fcovPlane[2][3] = CovNorm[2][1];
+
+     fcovPlane[0][1] = corr_cn[0];
+     fcovPlane[0][2] = corr_cn[1];
+     fcovPlane[0][3] = corr_cn[2];
+   ///////////////////////////////
 
   //5. Convert plane covariance in start parameter(r,x0,y0) covariances
   calcJacRXY();
@@ -296,6 +318,7 @@ PndRiemannTrack::refit()
 
   fFitDone = true;
   fSZFitDone = false;
+  ftrefit = true;
 }
 
 
@@ -312,7 +335,7 @@ PndRiemannTrack::orig() const {
 double
 PndRiemannTrack::r() const {
   if(fc==0)return 0;
-  if(fabs(fc)>100)return 0;
+  //if(fabs(fc)>100)return 0;???????????????????????????
   double a=2.*fn[2];  // modified for paraboloid
   //if(a==0){
   //  if (fVerbose > 0) std::cout<<"PndRiemannTrack:: a==0 cannot calc r! set r=1E4"<<std::endl;
@@ -390,24 +413,25 @@ PndRiemannTrack::calcSZChi2(PndRiemannHit* hit){
   return f->GetChisquare();
 }
 
-TVector3 PndRiemannTrack::calcPosByS(double s)
+double PndRiemannTrack::calcZPosByS(double s)
 {
-	TVectorD o=orig();
-	const PndRiemannHit* firstHit=getHit(0);
-	assert(firstHit!=NULL);
-	TVector2 k(firstHit->x().X()-o[0],firstHit->x().Y()-o[1]);
-	TVector2 l = k.Rotate(s/r());
+//	TVectorD o=orig();
+//	const PndRiemannHit* firstHit=getHit(0);
+//	assert(firstHit!=NULL);
+//	TVector2 k(firstHit->x().X()-o[0],firstHit->x().Y()-o[1]);
+//	TVector2 l = k.Rotate(s/r());
 	Double_t zCoord = s*m()+t();
-	TVector3 result(l.X()+o[0], l.Y()+o[1], zCoord);
+//	TVector3 result(l.X()+o[0], l.Y()+o[1], zCoord);
 
-	if (fVerbose > 0) std::cout<< "PosByS: s:" << s << " Vector: " << result.x() << " " << result.y() << " " << result.z() << std::endl;
-	return result;
+//	if (fVerbose > 0) std::cout<< "PosByS: s:" << s << " Vector: " << result.x() << " " << result.y() << " " << result.z() << std::endl;
+//	return result;
+	return zCoord;
 }
 
 int PndRiemannTrack::calcIntersection(PndRiemannTrack& track, TVector3& p1, TVector3& p2)
 {
 	const double SMALL = 1E-12;
-	const double VERTEX_CUT = 0.1;
+	const double VERTEX_CUT = fVertexCut;
 	if (track.getNumHits() < 3){
 		if (fVerbose > 0) std::cout << "-I- PndRiemannTrack::clacIntersection: less than 3 hits in track!" << std::cout;
 		return 0;
@@ -483,10 +507,13 @@ int PndRiemannTrack::calcIntersection(PndRiemannTrack& track, TVector3& p1, TVec
 	if (fVerbose > 0) std::cout << "S1 for track2: " << s2 << "+/-" << dS2 << std::endl;
 
 
-	TVector3 vertex1 = calcPosByS(s1);			//backcalculated vertex position from s1 with z-Value
-	TVector3 vertex2 = track.calcPosByS(s2);	//backcalculated vertex position from s2 with z-Value
+	TVector3 vertex1;// = calcPosByS(s1);			//backcalculated vertex position from s1 with z-Value
+	TVector3 vertex2;// = track.calcPosByS(s2);	//backcalculated vertex position from s2 with z-Value
 	TVector3 dVertex1 = calcErrorPosByS(s1, dS1);
 	TVector3 dVertex2 = track.calcErrorPosByS(s2, dS2);
+
+	vertex1.SetXYZ(inter1.X(),inter1.Y(),calcZPosByS(s1)); // skip calculation error (from (Xv,Yv) to S and then back from S to (Xv,Yv))
+	vertex2.SetXYZ(inter1.X(),inter1.Y(),track.calcZPosByS(s2));
 
 	if (fVerbose > -1){
 			std::cout << "vertex candidate1 for hit1: " << vertex1.X() << " " << vertex1.Y() << " " << vertex1.Z()<< std::endl;
@@ -512,8 +539,11 @@ int PndRiemannTrack::calcIntersection(PndRiemannTrack& track, TVector3& p1, TVec
 	double dS2b = calcErrorS(dummy1, dummy2, &track);
 	if (fVerbose > 0) std::cout << "S1b for track2: " << s2b << "+/-" << dS2b << std::endl;
 
-	vertex1 = calcPosByS(s1b);
-	vertex2 = track.calcPosByS(s2b);
+//	vertex1 = calcPosByS(s1b);
+//	vertex2 = track.calcPosByS(s2b);
+
+	vertex1.SetXYZ(inter2.X(),inter2.Y(),calcZPosByS(s1b)); // skip calculation error (from (Xv,Yv) to S and then back from S to (Xv,Yv))
+	vertex2.SetXYZ(inter2.X(),inter2.Y(),track.calcZPosByS(s2b));
 
 	dVertex1 = calcErrorPosByS(s1b, dS1b);
 	dVertex2 = track.calcErrorPosByS(s2b, dS2b);
@@ -720,7 +750,9 @@ double PndRiemannTrack::dDip()
 {
 	if (fSZFitDone == false)
 		szFit();
-	return (fabs(sin(1/(1+fm*fm))) * fmError);
+	//return (fabs(sin(1/(1+fm*fm))) * fmError);
+	//WRONG derivative!!!!!!!
+      return (fabs(sin(atan(fm))/(1+fm*fm)) * fmError);
 }
 
 
@@ -736,11 +768,18 @@ void PndRiemannTrack::calcJacRXY()
 	double val = (TMath::Sqrt(1-fn[2]*fn[2]-4*fc*fn[2]));
 	fjacRXY.Clear();
 	fjacRXY.ResizeTo(3,4);
-	fjacRXY[0][0] = -1/val;
+/*	fjacRXY[0][0] = -1/val;
 	fjacRXY[0][3] = -1/(2*fn[2]) * (fn[2]+2*fc)/val - val/(2*fn[2]*fn[2]);
 	fjacRXY[1][1] = -fn[0]/(2*fn[2]);
 	fjacRXY[1][3] = fn[0]/(2*fn[2]*fn[2]);
 	fjacRXY[2][2] = -fn[1]/(2*fn[2]);
+	fjacRXY[2][3] = fn[1]/(2*fn[2]*fn[2]);*/
+
+	fjacRXY[0][0] = -1/val;
+	fjacRXY[0][3] = -1/(2*fn[2]) * (fn[2]+2*fc)/val - val/(2*fn[2]*fn[2]);
+	fjacRXY[1][1] = -1/(2*fn[2]);//<---------
+	fjacRXY[1][3] = fn[0]/(2*fn[2]*fn[2]);
+	fjacRXY[2][2] = -1/(2*fn[2]);//<---------
 	fjacRXY[2][3] = fn[1]/(2*fn[2]*fn[2]);
 }
 
