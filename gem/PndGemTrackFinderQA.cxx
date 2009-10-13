@@ -532,12 +532,12 @@ void PndGemTrackFinderQA::CreateHistos() {
   fhRecoAccVsN  = new TH1F("hRecoAccVsN" ,"reconstructed tracks;# points;yield [a.u.]",pntBins,minPnt,maxPnt);
   fhRecoPrimVsN = new TH1F("hRecoPrimVsN","reco primary tracks;# points;yield [a.u.]",pntBins,minPnt,maxPnt);
   fhRecoSecVsN  = new TH1F("hRecoSecVsN" ,"reco secondary tracks;# points;yield [a.u.]",pntBins,minPnt,maxPnt);
-  fhEffAccVsN  = new TH1F("hEffAccVsN" ,"eff all tracks;# points;yield [a.u.]",pntBins,minPnt,maxPnt);
-  fhEffPrimVsN = new TH1F("hEffPrimVsN","eff primary tracks;# points;yield [a.u.]",pntBins,minPnt,maxPnt);
-  fhEffSecVsN  = new TH1F("hEffSecVsN" ,"eff secondary tracks;# points;yield [a.u.]",pntBins,minPnt,maxPnt);
+  fhEffAccVsN  = new TH1F("hEffAccVsN" ,"eff all tracks;# points;efficiency [%]",pntBins,minPnt,maxPnt);
+  fhEffPrimVsN = new TH1F("hEffPrimVsN","eff primary tracks;# points;efficiency [%]",pntBins,minPnt,maxPnt);
+  fhEffSecVsN  = new TH1F("hEffSecVsN" ,"eff secondary tracks;# points;efficiency [%]",pntBins,minPnt,maxPnt);
   fhMCRefVsN  = new TH1F("hMCRefVsN" ,"reference mc tracks;# points;yield [a.u.]",pntBins,minPnt,maxPnt);
   fhRecoRefVsN  = new TH1F("hRecoRefVsN" ,"reco reference tracks;# points;yield [a.u.]",pntBins,minPnt,maxPnt);
-  fhEffRefVsN  = new TH1F("hEffRefVsN" ,"eff reference tracks;# points;yield [a.u.]",pntBins,minPnt,maxPnt);
+  fhEffRefVsN  = new TH1F("hEffRefVsN" ,"eff reference tracks;# points;efficiency [%]",pntBins,minPnt,maxPnt);
 
   fHistoList->Add(fhMCAllVsN);
   fHistoList->Add(fhMCAccVsN);
@@ -554,18 +554,18 @@ void PndGemTrackFinderQA::CreateHistos() {
   fHistoList->Add(fhEffRefVsN);
 
   // momentum resolution vs MOMENTUM
-  fhMomResAccVsP  = new TH2F("hMomResAccVsP" ,"momentum resolution for all tracks;p [GeV/c];#delta{p}/p",momBins,minMom,maxMom,400,-20.,20.);
-  fhMomResPrimVsP = new TH2F("hMomResPrimVsP","momentum resolution for primary tracks;p [GeV/c];#delta{p}/p",momBins,minMom,maxMom,400,-20.,20.);
-  fhMomResSecVsP  = new TH2F("hMomResSecVsP" ,"momentum resolution for secondary tracks;p [GeV/c];#delta{p}/p",momBins,minMom,maxMom,400,-20.,20.);
-  fhMomResRefVsP  = new TH2F("hMomResRefVsP" ,"momentum resolution for reference tracks;p [GeV/c];#delta{p}/p",momBins,minMom,maxMom,400,-20.,20.);
+  fhMomResAccVsP  = new TH2F("hMomResAccVsP" ,"momentum resolution for all tracks;p [GeV/c];#delta{p}/p [%]",momBins,minMom,maxMom,400,-20.,20.);
+  fhMomResPrimVsP = new TH2F("hMomResPrimVsP","momentum resolution for primary tracks;p [GeV/c];#delta{p}/p [%]",momBins,minMom,maxMom,400,-20.,20.);
+  fhMomResSecVsP  = new TH2F("hMomResSecVsP" ,"momentum resolution for secondary tracks;p [GeV/c];#delta{p}/p [%]",momBins,minMom,maxMom,400,-20.,20.);
+  fhMomResRefVsP  = new TH2F("hMomResRefVsP" ,"momentum resolution for reference tracks;p [GeV/c];#delta{p}/p [%]",momBins,minMom,maxMom,400,-20.,20.);
   fHistoList->Add(fhMomResAccVsP);
   fHistoList->Add(fhMomResPrimVsP);
   fHistoList->Add(fhMomResSecVsP);
   fHistoList->Add(fhMomResRefVsP);
-  fhMomResAccVsT  = new TH2F("hMomResAccVsT" ,"momentum resolution for all tracks;theta [deg];#delta{p}/p",theBins,minThe,maxThe,400,-20.,20.);
-  fhMomResPrimVsT = new TH2F("hMomResPrimVsT","momentum resolution for primary tracks;theta [deg];#delta{p}/p",theBins,minThe,maxThe,400,-20.,20.);
-  fhMomResSecVsT  = new TH2F("hMomResSecVsT" ,"momentum resolution for secondary tracks;theta [deg];#delta{p}/p",theBins,minThe,maxThe,400,-20.,20.);
-  fhMomResRefVsT  = new TH2F("hMomResRefVsT" ,"momentum resolution for reference tracks;theta [deg];#delta{p}/p",theBins,minThe,maxThe,400,-20.,20.);
+  fhMomResAccVsT  = new TH2F("hMomResAccVsT" ,"momentum resolution for all tracks;theta [deg];#delta{p}/p [%]",theBins,minThe,maxThe,400,-20.,20.);
+  fhMomResPrimVsT = new TH2F("hMomResPrimVsT","momentum resolution for primary tracks;theta [deg];#delta{p}/p [%]",theBins,minThe,maxThe,400,-20.,20.);
+  fhMomResSecVsT  = new TH2F("hMomResSecVsT" ,"momentum resolution for secondary tracks;theta [deg];#delta{p}/p [%]",theBins,minThe,maxThe,400,-20.,20.);
+  fhMomResRefVsT  = new TH2F("hMomResRefVsT" ,"momentum resolution for reference tracks;theta [deg];#delta{p}/p [%]",theBins,minThe,maxThe,400,-20.,20.);
   fHistoList->Add(fhMomResAccVsT);
   fHistoList->Add(fhMomResPrimVsT);
   fHistoList->Add(fhMomResSecVsT);

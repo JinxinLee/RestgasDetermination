@@ -735,6 +735,13 @@ Int_t PndGemTrackFinderOnHits::FindTrackSegments(TClonesArray* hitArray, Int_t s
       tempTS.trackTheta = theta;
       tempTS.recoTrackIndex = -1;      
 
+      if ( fVerbose > 2 || printInfo ) 
+      {
+	cout << " found segment (stat. " << stat1Id << " & " << stat2Id << "), hits "
+	     << iHit << ", " << gemHit->GetNDigiHits() << ", " << iHit2 << ", " << gemHit2->GetNDigiHits() 
+	     << " >>> " << trackMomentum << " GeV, " << trackPhiAngle*TMath::RadToDeg() << " deg, " << theta << " deg." << endl;
+      }
+
       fTrackSegments.push_back(tempTS);
       
     }
