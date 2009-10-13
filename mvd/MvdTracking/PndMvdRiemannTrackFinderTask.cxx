@@ -12,19 +12,11 @@
 #include "FairRootManager.h"
 #include "FairRun.h"
 #include "FairRuntimeDb.h"
-#include "PndMCTrack.h"
-
 
 // PndMvd includes
-#include "PndMvdRecoHit.h"
-// #include "PndMvdGFTrackCand.h"
-#include "GFTrack.h"
-#include "GFTrackCand.h"
-#include "PndMvdHit.h"
-#include "PndMvdMCPoint.h"
-#include "PndMvdCluster.h"
-#include "PndMvdDigi.h"
-#include "PndRiemannTrackFinder.h"
+#include "PndTrackCand.h"
+#include "PndMvdRiemannTrackFinder.h"
+
 
 PndMvdRiemannTrackFinderTask::PndMvdRiemannTrackFinderTask() : FairTask("MVD Riemann Track Finder"),
 	fMaxDist(0.1), fMinPointDist(0.5), fMaxSZChi2(1)
@@ -37,7 +29,6 @@ PndMvdRiemannTrackFinderTask::PndMvdRiemannTrackFinderTask() : FairTask("MVD Rie
 	fMaxDist = 1;
 
 	fEventNr = 0;
-	//fTrackBranch = "MCTrack";
 }
 
 PndMvdRiemannTrackFinderTask::~PndMvdRiemannTrackFinderTask()
@@ -46,33 +37,17 @@ PndMvdRiemannTrackFinderTask::~PndMvdRiemannTrackFinderTask()
 
 void PndMvdRiemannTrackFinderTask::SetParContainers()
 {
-  // Get Base Container
-/*
-  FairRun* ana = FairRun::Instance();
-  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
-  fGeoPar = (PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar"));
-*/
 }
 
 InitStatus PndMvdRiemannTrackFinderTask::ReInit()
 {
-
   InitStatus stat=kERROR;
   return stat;
-
-  /*
-  FairRun* ana = FairRun::Instance();
-  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
-  fGeoPar=(PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar"));
-
-  return kSUCCESS;
-  */
 }
 
 // -----   Public method Init   --------------------------------------------
 InitStatus PndMvdRiemannTrackFinderTask::Init()
 {
-
   FairRootManager* ioman = FairRootManager::Instance();
 
   if ( ! ioman )
@@ -95,11 +70,8 @@ InitStatus PndMvdRiemannTrackFinderTask::Init()
      return kERROR;
    }
 
-  fTrackCandArray = new TClonesArray("GFTrackCand");
+  fTrackCandArray = new TClonesArray("PndTrackCand");
   ioman->Register("MVDRiemannTrackCand", "MVD", fTrackCandArray, kTRUE);
-
-//  fRiemannTrackArray = new TClonesArray("PndRiemannTrack");
-//  ioman->Register("MVDRiemannTrack","MVD",fRiemannTrackArray, kTRUE);
 
   std::cout << "-I- PndMvdRiemannTrackFinderTask: Initialisation successfull" << std::endl;
   return kSUCCESS;
@@ -112,10 +84,10 @@ void PndMvdRiemannTrackFinderTask::Exec(Option_t* opt)
   // Reset output array
   if ( ! fTrackCandArray )
     Fatal("Exec", "No trackCandArray");
-  fTrackCandArray->Delete();
- // fRiemannTrackArray->Clear();
 
-  PndRiemannTrackFinder trackFinder;
+  fTrackCandArray->Clear();
+
+  PndMvdRiemannTrackFinder trackFinder;
   trackFinder.SetVerbose(fVerbose);
 
   trackFinder.AddHits(fHitArray);
@@ -125,20 +97,27 @@ void PndMvdRiemannTrackFinderTask::Exec(Option_t* opt)
   trackFinder.SetMaxPlaneDistance(fMaxDist);
   trackFinder.SetMaxSZDist(fMaxSZDist);
   trackFinder.SetVerbose(fVerbose);
+  trackFinder.SetMinNumberOfHits(4);
+  trackFinder.SetGeoH(fGeoH);
+
+  trackFinder.SetCutDistH(fCutDistH);
+  trackFinder.SetCutChi2H(fCutChi2H);
+
   trackFinder.FindTracks();
+
 
   std::cout << "Found Tracks: " << trackFinder.NTracks() << " in event no. " << fEventNr++ << std::endl;
   std::cout << "----------------" << std::endl;
- // std::vector<GFTrackCand> myCand = trackFinder.GetTrackCand();
+
   for (int i = 0; i < trackFinder.NTracks(); i++){
-	  new ((*fTrackCandArray)[i])GFTrackCand(trackFinder.GetTrackCand(i));
-	  //new ((*fRiemannTrackArray)[i])PndRiemannTrack(trackFinder.GetTrack(i));
+	  new ((*fTrackCandArray)[i])PndTrackCand(trackFinder.GetTrackCand(i));
+
   }
 }
 
 void PndMvdRiemannTrackFinderTask::FinishEvent()
 {
-	fTrackCandArray->Delete();
+	fTrackCandArray->Clear();
 }
 
 ClassImp(PndMvdRiemannTrackFinderTask);

@@ -51,6 +51,8 @@
 #include "GeaneTrackRep.h"
 #include "FairGeanePro.h"
 
+#include "PndDetectorList.h"
+
 // Class Member definitions -----------
 
 
@@ -97,7 +99,7 @@ PndMvdKalmanTask::Init()
     Error("PndMvdKalmanTask::Init","MVDHitsStrip array not found");
   } else {
     fTheRecoHitFactory->addProducer
-      (0,new GFRecoHitProducer<PndMvdHit,PndMvdRecoHit>(stripar));
+      (kMVDHitsStrip,new GFRecoHitProducer<PndMvdHit,PndMvdRecoHit>(stripar));
   }
 
   TClonesArray* pixelar=(TClonesArray*) ioman->GetObject("MVDHitsPixel");
@@ -105,7 +107,7 @@ PndMvdKalmanTask::Init()
     Error("PndMvdKalmanTask::Init","MVDHitsPixel array not found");
   } else { //TODO Convention on detector number needed
     fTheRecoHitFactory->addProducer
-      (1,new GFRecoHitProducer<PndMvdHit,PndMvdRecoHit>(pixelar));
+      (kMVDHitsPixel,new GFRecoHitProducer<PndMvdHit,PndMvdRecoHit>(pixelar));
   }
 
 

@@ -1,16 +1,19 @@
-#ifndef PNDMVDRIEMANNTRACKFINDERTASK_H_
-#define PNDMVDRIEMANNTRACKFINDERTASK_H_
+#ifndef PNDMVDRIEMANNTRACKFINDERASKEFF_H_
+#define PNDMVDRIEMANNTRACKFINDERASKEFF_H_
 
 #include "FairTask.h"
-//#include "PndMvdHit.h"
-#include "TH2F.h"
-#include "PndMvdGeoHandling.h"
+#include "PndMCTrack.h"
+#include "PndTrackCand.h"
 
-class PndMvdRiemannTrackFinderTask : public FairTask
+#include "TString.h"
+#include <vector>
+#include <TH2F.h>
+
+class PndMvdRiemannTrackFinderTaskEff : public FairTask
 {
 public:
-	PndMvdRiemannTrackFinderTask();
-	virtual ~PndMvdRiemannTrackFinderTask();
+	PndMvdRiemannTrackFinderTaskEff();
+	virtual ~PndMvdRiemannTrackFinderTaskEff();
 
 	 /** Virtual method Init **/
     virtual void SetParContainers();
@@ -26,17 +29,20 @@ public:
 	void SetMinPointDist(double val){fMinPointDist = val;}
 	void SetMaxDist(double val)		{fMaxDist = val;}
 
-	void SetCutDistH(TH2F* hist)    {fCutDistH=hist;}
-	void SetCutChi2H(TH2F* hist)    {fCutChi2H=hist;}
-
     void PrintResult();
     void SetVerbose(Int_t verbose){ fVerbose = verbose;};
-    void SetGeoH(PndMvdGeoHandling geoH){ fGeoH=geoH;};
+
+    TH2F* eff0H;
+    TH2F* effH;
+    TH2F* GhH;
 
 private:
 	TString fHitBranch;
 	TString fHitBranch2;
-    TString fTrackBranch;
+    TString fMCTrackBranch;
+
+    TString fIdealTrackBranch;
+    TString fFTrackBranch;
 
     int fEventNr;
 
@@ -45,27 +51,22 @@ private:
   double fMinPointDist;
   double fMaxDist;
 
-
-
 	TClonesArray* fHitArray;
 	TClonesArray* fHitArray2;
 	TClonesArray* fTrackCandArray;
-//	TClonesArray* fRiemannTrackArray;
-//	TClonesArray* fTrackArray;
-
-	TH2F *fCutDistH;
-	TH2F *fCutChi2H;
-
-	PndMvdGeoHandling fGeoH;
-
+	TClonesArray* fIdealTrackCandArray;
+	TClonesArray* fMCTracksArray;
 
   void Register();
   void Reset();
   void ProduceHits();
 
-  ClassDef(PndMvdRiemannTrackFinderTask,1);
+  void ComparingFandR(std::vector<PndTrackCand*>  RecoT);
+  bool CheckRecoTrack(PndTrackCand *cand,PndMCTrack* myTrack);
 
+  void AddGhostTrack(int trackF);
 
+  ClassDef(PndMvdRiemannTrackFinderTaskEff,1)
 };
 
-#endif /*PNDMVDRIEMANNTRACKFINDERTASK_H_*/
+#endif /*PNDMVDRIEMANNTRACKFINDERASKEFF_H_*/

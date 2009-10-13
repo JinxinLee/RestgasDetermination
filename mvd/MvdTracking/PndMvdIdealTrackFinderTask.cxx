@@ -131,9 +131,7 @@ InitStatus PndMvdIdealTrackFinderTask::Init()
     return kERROR;
   }
 
-
-
-  fTrackCandArray = new TClonesArray("GFTrackCand");
+  fTrackCandArray = new TClonesArray("PndTrackCand");
   ioman->Register("MVDIdealTrackCand", "MVD", fTrackCandArray, kTRUE);
 
   std::cout << "-I- PndMvdIdealTrackFinderTask: Initialisation successfull" << std::endl;
@@ -180,9 +178,9 @@ void PndMvdIdealTrackFinderTask::Exec(Option_t* opt)
   if(fVerbose>0) PrintResult();
 
   Int_t i = 0;
-  for (std::map<Int_t,GFTrackCand*>::const_iterator kIt=fTrackCandMap.begin();
+  for (std::map<Int_t,PndTrackCand*>::const_iterator kIt=fTrackCandMap.begin();
       kIt != fTrackCandMap.end(); kIt++){
-    new((*fTrackCandArray)[i]) GFTrackCand(*(kIt->second));
+    new((*fTrackCandArray)[i]) PndTrackCand(*(kIt->second));
     i++;
   }
   ClearTrackCandMap();
@@ -190,11 +188,11 @@ void PndMvdIdealTrackFinderTask::Exec(Option_t* opt)
 
 void PndMvdIdealTrackFinderTask::AddAndExpand(Int_t trackID, Int_t detnum, Int_t iHit,PndMvdHit* theHit){
   if (fTrackCandMap[trackID] == 0){
-    GFTrackCand *myTCand = new GFTrackCand();
+    PndTrackCand *myTCand = new PndTrackCand();
     PndMCTrack* myMCTrack = (PndMCTrack*)fTrackArray->At(trackID);
-    myTCand->setCurv(GetTrackCurvature(myMCTrack));
-    myTCand->setDip(GetTrackDip(myMCTrack));
-    myTCand->setInverted(false);
+//    myTCand->setCurv(GetTrackCurvature(myMCTrack));
+//    myTCand->setDip(GetTrackDip(myMCTrack));
+//    myTCand->setInverted(false);
     int pdg = myMCTrack->GetPdgCode();
     double charge;
     if(pdg<100000000){
@@ -212,7 +210,7 @@ void PndMvdIdealTrackFinderTask::AddAndExpand(Int_t trackID, Int_t detnum, Int_t
     fTrackCandMap[trackID] = myTCand;
   }
 
-  fTrackCandMap[trackID]->addHit(detnum,iHit,theHit->GetPosition().Mag());
+  fTrackCandMap[trackID]->AddHit(detnum,iHit,theHit->GetPosition().Mag());
 }
 
 Double_t PndMvdIdealTrackFinderTask::GetTrackCurvature(PndMCTrack* myTrack)
@@ -231,13 +229,14 @@ void PndMvdIdealTrackFinderTask::PrintResult()
 {
   std::cout << "**** TrackFinding *****" << std::endl;
   Int_t nStripHits = fStripHitArray->GetEntriesFast();
-   for (std::map<Int_t, GFTrackCand*>::const_iterator kIt=fTrackCandMap.begin();
+   for (std::map<Int_t, PndTrackCand*>::const_iterator kIt=fTrackCandMap.begin();
         kIt != fTrackCandMap.end(); kIt++){
      std::cout << "TrackID: " << kIt->first << std::endl;
-     GFTrackCand* trackCand = kIt->second;
-     for (unsigned int i = 0; i < trackCand->getNHits(); i++){
-       unsigned int detId, hitId;
-       trackCand->getHit(i, detId, hitId);
+     PndTrackCand* trackCand = kIt->second;
+     unsigned int detId, hitId;
+     for (unsigned int i = 0; i < trackCand->GetNHits(); i++){
+       detId=trackCand->GetSortedHit(i).GetDetId();
+       hitId=trackCand->GetSortedHit(i).GetHitId();
       PndMvdHit* myHit;
       if(hitId<nStripHits) myHit = (PndMvdHit*)(fStripHitArray->At(hitId));
       else myHit = (PndMvdHit*)(fPixelHitArray->At(hitId - nStripHits));
@@ -249,7 +248,7 @@ void PndMvdIdealTrackFinderTask::PrintResult()
 
 void PndMvdIdealTrackFinderTask::ClearTrackCandMap()
 {
-  for (std::map<Int_t,GFTrackCand*>::const_iterator kIt=fTrackCandMap.begin();
+  for (std::map<Int_t,PndTrackCand*>::const_iterator kIt=fTrackCandMap.begin();
           kIt != fTrackCandMap.end(); kIt++){
     delete(kIt->second);
   }

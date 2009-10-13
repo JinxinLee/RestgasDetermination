@@ -1,16 +1,20 @@
-#ifndef PNDMVDRIEMANNTRACKFINDERTASK_H_
-#define PNDMVDRIEMANNTRACKFINDERTASK_H_
+#ifndef PNDMVDTPCRIEMANNTRACKFINDERTASK_H_
+#define PNDMVDTPCRIEMANNTRACKFINDERTASK_H_
 
 #include "FairTask.h"
 //#include "PndMvdHit.h"
 #include "TH2F.h"
+#include "TVector3.h"
 #include "PndMvdGeoHandling.h"
 
-class PndMvdRiemannTrackFinderTask : public FairTask
+#include "TString.h"
+
+
+class PndMvdTPCRiemannTrackFinderTask : public FairTask
 {
 public:
-	PndMvdRiemannTrackFinderTask();
-	virtual ~PndMvdRiemannTrackFinderTask();
+	PndMvdTPCRiemannTrackFinderTask();
+	virtual ~PndMvdTPCRiemannTrackFinderTask();
 
 	 /** Virtual method Init **/
     virtual void SetParContainers();
@@ -29,6 +33,9 @@ public:
 	void SetCutDistH(TH2F* hist)    {fCutDistH=hist;}
 	void SetCutChi2H(TH2F* hist)    {fCutChi2H=hist;}
 
+	void SetTPCCutDistH(TH2F* hist)    {fTPCCutDistH=hist;}
+	void SetTPCCutChi2H(TH2F* hist)    {fTPCCutChi2H=hist;}
+
     void PrintResult();
     void SetVerbose(Int_t verbose){ fVerbose = verbose;};
     void SetGeoH(PndMvdGeoHandling geoH){ fGeoH=geoH;};
@@ -36,6 +43,7 @@ public:
 private:
 	TString fHitBranch;
 	TString fHitBranch2;
+	TString fHitBranchTPC;
     TString fTrackBranch;
 
     int fEventNr;
@@ -45,27 +53,39 @@ private:
   double fMinPointDist;
   double fMaxDist;
 
-
+	PndMvdGeoHandling fGeoH;
 
 	TClonesArray* fHitArray;
 	TClonesArray* fHitArray2;
+	TClonesArray* fHitArrayTPC;
+
+
 	TClonesArray* fTrackCandArray;
+	TClonesArray* fMVDTPCTrackCandArray;
 //	TClonesArray* fRiemannTrackArray;
 //	TClonesArray* fTrackArray;
+	TClonesArray* fRiemannTracks;
 
 	TH2F *fCutDistH;
 	TH2F *fCutChi2H;
 
-	PndMvdGeoHandling fGeoH;
+	TH2F *fTPCCutDistH;
+	TH2F *fTPCCutChi2H;
+
 
 
   void Register();
   void Reset();
   void ProduceHits();
 
-  ClassDef(PndMvdRiemannTrackFinderTask,1);
+  void CheckTPCHitsForMvdSeeds();
+
+	double GetMaxPlaneDist(double radius, double dip, bool sign);
+	double GetMaxSZChi2(double radius, double dip, bool sign);
+
+  ClassDef(PndMvdTPCRiemannTrackFinderTask,1);
 
 
 };
 
-#endif /*PNDMVDRIEMANNTRACKFINDERTASK_H_*/
+#endif /*PndMvdTPCRiemannTrackFinderTask_H_*/
