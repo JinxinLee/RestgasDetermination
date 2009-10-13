@@ -78,7 +78,7 @@ PndRiemannTrack::~PndRiemannTrack()
 
 void
 PndRiemannTrack::init(double x0_, double y0_, double R_,
-			 double dip, double z0){
+			 double mydip, double z0){
 /*  double x0=x0_/100;
   double y0=y0_/100;
   double R=R_/100;
@@ -103,7 +103,7 @@ PndRiemannTrack::init(double x0_, double y0_, double R_,
 	double fn2 = fn[2] * fn[2];
 	fc = fn2*4*R_*R_-1+fn2/(-4*fn[2]);
 
-	fm = tan(acos(dip));
+	fm = tan(acos(mydip));
 
 }
 
@@ -137,14 +137,14 @@ void
 PndRiemannTrack::refit()
 {
 
-  TMatrixT<double> av(3,1);
+  TMatrixT<double> my_av(3,1);
   if (fVerbose > 1) std::cout << "fweight: " << fweight << std::endl;
   fav *= TMath::Power(fweight,-1); //TS
-  av[0][0]=fav[0];// *fweight; //TS *fweight added
-  av[1][0]=fav[1];// *fweight;
-  av[2][0]=fav[2];// *fweight;
+  my_av[0][0]=fav[0];// *fweight; //TS *fweight added
+  my_av[1][0]=fav[1];// *fweight;
+  my_av[2][0]=fav[2];// *fweight;
 
-  if (fVerbose > 0) std::cout << "av: " << fav[0] << " " << fav[1] << " " << fav[2] << std::endl;
+  if (fVerbose > 0) std::cout << "my_av: " << fav[0] << " " << fav[1] << " " << fav[2] << std::endl;
 
   TMatrixD sampleCov(3,3);
 
@@ -155,7 +155,7 @@ PndRiemannTrack::refit()
     h[1][0]=fHits[i].x().Y();
     h[2][0]=fHits[i].x().Z();
     TMatrixD d(3,1);
-    d=h-av;
+    d=h-my_av;
     TMatrixD dt(TMatrixD::kTransposed,d);
     TMatrixD ddt(d,TMatrixD::kMult,dt);
     ddt *= 1/(fHits[i].sigmaXY()*fHits[i].sigmaXY());  //TS
