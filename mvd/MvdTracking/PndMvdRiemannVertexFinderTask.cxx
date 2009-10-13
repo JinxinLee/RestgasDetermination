@@ -1,6 +1,7 @@
 #include "PndMvdRiemannVertexFinderTask.h"
 
 #include <iostream>
+#include <math.h>
 
 // Root includes
 #include "TROOT.h"
