@@ -12,6 +12,7 @@ ${CMAKE_SOURCE_DIR}/base
 ${CMAKE_SOURCE_DIR}/field
 ${CMAKE_SOURCE_DIR}/pnddata
 ${CMAKE_SOURCE_DIR}/pnddata/MvdData
+${CMAKE_SOURCE_DIR}/pnddata/TrackData
 ${CMAKE_SOURCE_DIR}/passive
 ${CMAKE_SOURCE_DIR}/PndTools/riemannfit
 ${CMAKE_SOURCE_DIR}/mvd/MvdMC
@@ -31,6 +32,7 @@ ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/LSLtrackRep
 ${CMAKE_SOURCE_DIR}/geane
 ${CMAKE_SOURCE_DIR}/tpc
+${CMAKE_SOURCE_DIR}/PndTools/riemannfit
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -156,9 +158,22 @@ MvdPid/PndMvdAdvancedPidAlgo.cxx
 
 MvdTracking/PndMvdIdealTrackFinderTask.cxx
 MvdTracking/PndMvdKalmanTask.cxx
-MvdTracking/PndMvdRiemannTrackFinderTask.cxx
 MvdTracking/PndMvdTrackFinderAnaTask.cxx
+
+MvdTracking/PndMvdRiemannTrackFinderTask.cxx
+MvdTracking/PndMvdRiemannTrackFinder.cxx
+MvdTracking/PndMvdRiemannVertexFinderTask.cxx
+
 MvdTracking/PndMvdTpcRiemannCorrelatorTask.cxx
+MvdTracking/PndMvdTPCRiemannTrackFinderTask.cxx
+MvdTracking/PndMvdTPCRiemannTrackFinderTaskCutPar.cxx
+MvdTracking/PndMvdTPCRiemannTrackFinderTaskEff.cxx
+
+MvdTracking/PndTpcClustPlusRTFTask.cxx
+MvdTracking/PndTpcClustPlusRTFTaskCutPar.cxx
+
+MvdTracking/PndMvdRiemannTrackFinderTaskCutPar.cxx
+MvdTracking/PndMvdRiemannTrackFinderTaskEff.cxx
 
 )
 set (MVD_RULECHECKER_SRCS ${MVD_RULECHECKER_SRCS} ${MVDTRK_SRCS})
