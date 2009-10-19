@@ -86,8 +86,8 @@ class PndGemTrackFinderOnHits : public PndGemTrackFinder
   Int_t fPrimary;
   
   /** Event counter **/
-  Int_t fNofEvents;  ///< event counter
-  
+  Int_t fNofEvents;  // event counter
+
   Int_t fNofExpectedTrackSegments;
   Int_t fNofFoundTrackSegments;
   std::vector<TrackSegment> fTrackSegments;

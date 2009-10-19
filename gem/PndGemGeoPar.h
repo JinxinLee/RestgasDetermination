@@ -1,3 +1,14 @@
+// -------------------------------------------------------------------------
+// -----                PndGemGeoPar header file                       -----
+// -----                Created 15/02/2009  by R.Karabowicz            -----
+// -------------------------------------------------------------------------
+
+/** \class PndGemGeoPar
+ *  \author R. Karabowicz
+ *  \date 15/02/2009
+ *  \Storing list of GEM volumes
+ **/
+
 #ifndef PNDGEMGEOPAR_H
 #define PNDGEMGEOPAR_H
 

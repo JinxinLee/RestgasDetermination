@@ -16,16 +16,11 @@
 #define PNDGEMDETECTOR_H
 
 
-//#include "TClonesArray.h"
 #include "TLorentzVector.h"
-#include "TVector3.h"
 #include "FairDetector.h"
 #include "TString.h"
-// #include "PndGemGeoHandling.h"
 
-#include <string>
 #include <vector>
-#include <map>
 
 class TClonesArray;
 class TGeoNode;
@@ -121,7 +116,7 @@ class PndGemDetector : public FairDetector
 
   void SetExclusiveSensorType(const TString sens);
   void SetRadDamOption(bool val){fUseRadDamOption = val;};
-  bool GetRadDamOption(){return fUseRadDamOption;};
+  bool GetRadDamOption() {return fUseRadDamOption;}
 
   
  private:
@@ -154,7 +149,7 @@ class PndGemDetector : public FairDetector
   PndGemMCPoint* AddHit(Int_t trackID, Int_t detID, TString detName,
 			TVector3 posIn, TVector3 posOut,
 			TVector3 momIn, TVector3 momOut, 
-			Double_t time, Double_t length, Double_t eLoss)const; 
+			Double_t time, Double_t length, Double_t eLoss); 
 
 
   /** Private method ResetParameters

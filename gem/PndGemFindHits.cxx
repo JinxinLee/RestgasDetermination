@@ -5,6 +5,15 @@
 // -----                  Created 15/02/2009 by R. Karabowicz          -----
 // -------------------------------------------------------------------------
 
+/** PndGemFindHits
+ *@author Radoslaw Karabowicz <r.karabowicz@gsi.de>
+ *@since 15.02.2009
+ *@version 1.0
+ **
+ ** PANDA task class for finding PndGemHits from PndGemDigis
+ ** Task level RECO
+ **/
+
 #include "PndGemFindHits.h"
 
 #include "PndGemDigi.h"

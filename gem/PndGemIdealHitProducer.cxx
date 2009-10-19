@@ -3,6 +3,14 @@
 //  Filler of PndGemHit
 ///////////////////////////////////////////////////////////////// 
 
+/** PndGemFindHits
+ *@author Radoslaw Karabowicz <r.karabowicz@gsi.de>
+ *@since 15.02.2009
+ *@version 1.0
+ **
+ ** PANDA task class for producing ideal PndGemHits
+ ** Task level RECO
+ **/
 
 // Includes from GEM
 #include "PndGemDigitize.h"

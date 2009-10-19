@@ -32,7 +32,7 @@ public:
   PndGemPrepareKalmanTracks();
 
   /**  Destructor **/
-  ~PndGemPrepareKalmanTracks();
+  virtual ~PndGemPrepareKalmanTracks();
 
   /** public method AddHitBranch(detID, hitBranchName) adds 
    more hit branches to be included in the Kalman analysis,
@@ -89,7 +89,6 @@ private:
   FairGeanePro* fGeanePro; ///< pointer to Geane object
 
 
-public:
   ClassDef(PndGemPrepareKalmanTracks,1)
 
 };

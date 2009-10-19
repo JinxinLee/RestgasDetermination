@@ -17,9 +17,12 @@
 // ROOT includes
 #include "TClonesArray.h"
 
+#include <iomanip>
+
 // c++ includes
 using std::cout;
 using std::endl;
+using std::setw;
 
 // c++ declaration
 class iostream;
@@ -51,6 +54,11 @@ PndGemFindTracks::PndGemFindTracks(const char* name,
   fTrackArray          = NULL;
   fNofTracks           = 0;
   fUseHitOrDigi        = "hit";
+
+  fTTime      = 0.;
+  fTNofTracks = 0;
+  fTNofEvents = 0;
+
 }
 // -------------------------------------------------------------------------
 
@@ -129,11 +137,19 @@ void PndGemFindTracks::SetParContainers() {
 
 // -----   Public method Exec   --------------------------------------------
 void PndGemFindTracks::Exec(Option_t* opt) {
+
+  fTimer.Start();
+
   fTrackArray->Delete();
   
   fNofTracks = fFinder->DoFind(fGemHitOrDigiArray, fTrackArray);
   
-  
+
+  fTimer.Stop();
+  fTTime      += fTimer.RealTime();
+  fTNofTracks += fNofTracks;
+  fTNofEvents += 1;
+
   //for (Int_t iTrack=0; iTrack<fTrackArray->GetEntriesFast(); iTrack++) {
   //PndGemTrack* track = (PndGemTrack*) fTrackArray->At(iTrack);
   //track->SortHits();
@@ -146,6 +162,13 @@ void PndGemFindTracks::Exec(Option_t* opt) {
 // -----   Public method Finish   ------------------------------------------
 void PndGemFindTracks::Finish() {
   fTrackArray->Clear();
+
+  cout << "-------------------- " << fName.Data() << " : Summary ------------------" << endl;
+  cout << " Events:        " << setw(10) << fTNofEvents << endl;
+  cout << " Tracks:     " << setw(10) << fTNofTracks << "    ( " << (Double_t)fTNofTracks/((Double_t)fTNofEvents) << " per event )" << endl;
+  cout << " Time:       " << setw(10) << fTTime      << "    ( " << fTTime/((Double_t)fTNofEvents) << " per event )" << endl;
+  cout << "                           ( " << fTTime/((Double_t)fTNofTracks) << " per track )" << endl;
+  cout << "---------------------------------------------------------------------" << endl; 
 }
 // -------------------------------------------------------------------------
 

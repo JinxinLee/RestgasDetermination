@@ -287,7 +287,7 @@ Int_t PndGemTrackFinderOnHits::DoFind(TClonesArray* hitArray,
     cout << "------------------------------------------------" << endl;
   }
 
-  return 0;
+  return nr;
 }
 // ------------------------------------------------------------
 
@@ -295,22 +295,22 @@ Int_t PndGemTrackFinderOnHits::DoFind(TClonesArray* hitArray,
 Int_t PndGemTrackFinderOnHits::CreateTracks(TClonesArray* hitArray, TClonesArray* trackArray, Int_t nofRecoTracks) {
   Int_t nofCreatedTracks = 0;
 
-  const Int_t nrt = nofRecoTracks;
-  const Int_t nsh = 2*fDigiPar->GetNStations();
+  const Int_t kNofRecoTracks = nofRecoTracks;
+  const Int_t kNofStatDbl = 2*fDigiPar->GetNStations();
 
-  Int_t hitIndices[nrt][nsh];
-  Int_t nofHits[nrt];
+  Int_t hitIndices[kNofRecoTracks][kNofStatDbl];
+  Int_t nofHits[kNofRecoTracks];
  
-  Double_t meanMom[nrt];
-  Double_t meanPhi[nrt];
-  Double_t meanThe[nrt];
-  Int_t nofTS[nrt];
+  Double_t meanMom[kNofRecoTracks];
+  Double_t meanPhi[kNofRecoTracks];
+  Double_t meanThe[kNofRecoTracks];
+  Int_t nofTS[kNofRecoTracks];
 
   PndTrackCand* gemTrackCand;
   PndGemHit* gemHit;
 
   for ( Int_t itr = 0 ; itr < nofRecoTracks ; itr++ ) {
-    for ( Int_t ih = 0 ; ih < nsh ; ih++ ) hitIndices[itr][ih] = -1;
+    for ( Int_t ih = 0 ; ih < kNofStatDbl ; ih++ ) hitIndices[itr][ih] = -1;
     nofHits[itr] = 0;
     meanMom[itr] = 0.;
     meanPhi[itr] = 0.;
@@ -343,7 +343,7 @@ Int_t PndGemTrackFinderOnHits::CreateTracks(TClonesArray* hitArray, TClonesArray
     
     gemTrackCand = (PndTrackCand*) trackArray->At(nofCreatedTracks);
 
-    for ( Int_t ih = 0 ; ih < nsh ; ih++ ) {
+    for ( Int_t ih = 0 ; ih < kNofStatDbl ; ih++ ) {
       if ( hitIndices[itr][ih] == -1 ) continue;
       gemHit = (PndGemHit*)hitArray->At(hitIndices[itr][ih]);
       gemTrackCand->AddHit(kGEM,hitIndices[itr][ih],gemHit->GetZ());
@@ -371,36 +371,36 @@ void PndGemTrackFinderOnHits::RemoveCloneTracks(Int_t nofRecoTracks) {
   if ( fVerbose > 4 || printInfo ) 
     cout << "Trying to remove clone tracks" << endl;
 
-  const Int_t nrt = nofRecoTracks;
-  const Int_t nsh = 2*fDigiPar->GetNStations();
+  const Int_t kNofRecoTracks = nofRecoTracks;
+  const Int_t kNofStatDbl = 2*fDigiPar->GetNStations();
 
-  Int_t hitIndices[nrt][nsh];
-  Int_t nofHits[nrt];
-  Int_t nofMultiHits[nrt];
+  Int_t hitIndices[kNofRecoTracks][kNofStatDbl];
+  Int_t nofHits[kNofRecoTracks];
+  Int_t nofMultiHits[kNofRecoTracks];
  
-  Double_t meanMom[nrt];
-  Double_t meanPhi[nrt];
-  Double_t meanThe[nrt];
+  Double_t meanMom[kNofRecoTracks];
+  Double_t meanPhi[kNofRecoTracks];
+  Double_t meanThe[kNofRecoTracks];
   
   Int_t nofComb = 0;
   for ( Int_t i1 = 0 ; i1 < fDigiPar->GetNStations() ; i1++ )   for ( Int_t i2 = i1+1 ; i2 < fDigiPar->GetNStations() ; i2++ ) nofComb++;
-  const Int_t nsc = nofComb;
+  const Int_t kNofComb = nofComb;
 
-  Int_t nofTS[nrt];
-  Double_t valMom[nrt][nsc];
-  Double_t valPhi[nrt][nsc];
-  Double_t valThe[nrt][nsc];
-  Double_t trackCons[nrt];
+  Int_t nofTS[kNofRecoTracks];
+  Double_t valMom[kNofRecoTracks][kNofComb];
+  Double_t valPhi[kNofRecoTracks][kNofComb];
+  Double_t valThe[kNofRecoTracks][kNofComb];
+  Double_t trackCons[kNofRecoTracks];
 
   for ( Int_t itr = 0 ; itr < nofRecoTracks ; itr++ ) {
-    for ( Int_t ih = 0 ; ih < nsh ; ih++ ) hitIndices[itr][ih] = -1;
+    for ( Int_t ih = 0 ; ih < kNofStatDbl ; ih++ ) hitIndices[itr][ih] = -1;
     nofHits[itr] = 0;
     nofMultiHits[itr] = 0;
     meanMom[itr] = 0.;
     meanPhi[itr] = 0.;
     meanThe[itr] = 0.; 
     nofTS[itr] = 0;
-    for ( Int_t ic = 0 ; ic < nsc ; ic++ ) {
+    for ( Int_t ic = 0 ; ic < kNofComb ; ic++ ) {
       valMom[itr][ic] = -666.;
       valPhi[itr][ic] = -666.;
       valThe[itr][ic] = -666.;
@@ -443,12 +443,12 @@ void PndGemTrackFinderOnHits::RemoveCloneTracks(Int_t nofRecoTracks) {
   }
 
   for ( Int_t itr = 0 ; itr < nofRecoTracks ; itr++ ) {
-    for ( Int_t ih = 0 ; ih < nsh ; ih++ ) {
+    for ( Int_t ih = 0 ; ih < kNofStatDbl ; ih++ ) {
       if ( hitIndices[itr][ih] == -1 ) continue;
       Bool_t hitFound = kFALSE;
       for ( Int_t itr2 = 0 ; itr2 < nofRecoTracks ; itr2++ ) {
 	if ( itr == itr2 ) continue;
-	for ( Int_t ih2 = 0 ; ih2 < nsh ; ih2++ ) {
+	for ( Int_t ih2 = 0 ; ih2 < kNofStatDbl ; ih2++ ) {
 	  if ( hitIndices[itr2][ih2] == -1 ) continue;
 	  if ( hitIndices[itr2][ih2] == hitIndices[itr][ih] ) {
 	    hitFound = kTRUE;
@@ -462,7 +462,7 @@ void PndGemTrackFinderOnHits::RemoveCloneTracks(Int_t nofRecoTracks) {
 
     Int_t cloneIndicators = 0;
     if ( trackCons[itr] > 1 )                  cloneIndicators++; // TS's too different
-    if ( nofTS[itr] <= nsc*2/3 )               cloneIndicators++; // not enough TS
+    if ( nofTS[itr] <= kNofComb*2/3 )               cloneIndicators++; // not enough TS
     if ( nofMultiHits[itr] >= nofHits[itr]/2 ) cloneIndicators++; // too many hits shared with other tracks
 
     if ( cloneIndicators >= 2 ) { // remove this track candidate
@@ -475,7 +475,7 @@ void PndGemTrackFinderOnHits::RemoveCloneTracks(Int_t nofRecoTracks) {
     }
     if ( fVerbose > 4 || printInfo ) {
       cout << " consistency = " << trackCons[itr]    << ( trackCons[itr] > 1 ? " YES":"") << endl;
-      cout << " segments    = " << nofTS[itr]        << ( nofTS[itr] <= nsc*2/3 ? " YES":"") << endl;
+      cout << " segments    = " << nofTS[itr]        << ( nofTS[itr] <= kNofComb*2/3 ? " YES":"") << endl;
       cout << " multihits   = " << nofMultiHits[itr] << ( nofMultiHits[itr] >= nofHits[itr]/2 ? " YES":"") << endl;
       cout << "TRACK " << itr << " HAS " << nofMultiHits[itr] << " MULTI HITS AND CONSISTENCY = " << trackCons[itr] << (cloneIndicators>=2?" >>> REMOVED!!!! ":"") << endl;
     }
@@ -485,7 +485,7 @@ void PndGemTrackFinderOnHits::RemoveCloneTracks(Int_t nofRecoTracks) {
 
 // --- Private method to print track candidates ---------------
 Int_t PndGemTrackFinderOnHits::MatchTrackSegments() {
-  const Int_t maxNofSegments = fDigiPar->GetNStations()-1;
+  //  const Int_t kMaxNofSegments = fDigiPar->GetNStations()-1;
 
   Bool_t printInfo = kFALSE;//TRUE;
 
@@ -759,20 +759,20 @@ void PndGemTrackFinderOnHits::PrintTrackSegments(TClonesArray* hitArray) {
   PndGemHit* gemHit;
   PndGemMCPoint* mcPoint;
 
-  const Int_t nofMCTracks    = fMCTrackArray->GetEntriesFast();
+  const Int_t kNofMCTracks    = fMCTrackArray->GetEntriesFast();
 
-  vector<Int_t> nofFiredStations(nofMCTracks,0);
-  vector<TVector3> mcTrackMomentum(nofMCTracks,0);
+  vector<Int_t> nofFiredStations(kNofMCTracks,0);
+  vector<TVector3> mcTrackMomentum(kNofMCTracks,0);
 
-  const Int_t nofGemPoints = fMCPointArray->GetEntriesFast();
+  const Int_t kNofGemPoints = fMCPointArray->GetEntriesFast();
 
-  const Int_t nofGemStations = fDigiPar->GetNStations();
-  Int_t nofPointsPerStation[nofMCTracks][nofGemStations];
-  for ( Int_t imct = 0 ; imct < nofMCTracks ; imct++ )
-    for ( Int_t is = 0 ; is < nofGemStations ; is++ )
+  const Int_t kNofGemStations = fDigiPar->GetNStations();
+  Int_t nofPointsPerStation[kNofMCTracks][kNofGemStations];
+  for ( Int_t imct = 0 ; imct < kNofMCTracks ; imct++ )
+    for ( Int_t is = 0 ; is < kNofGemStations ; is++ )
       nofPointsPerStation[imct][is] = 0;
 
-  for ( Int_t imcp = 0 ; imcp < nofGemPoints ; imcp++ ) {
+  for ( Int_t imcp = 0 ; imcp < kNofGemPoints ; imcp++ ) {
     mcPoint = (PndGemMCPoint*)fMCPointArray->At(imcp);
     TString nodeName = mcPoint->GetDetName();
 
@@ -783,10 +783,10 @@ void PndGemTrackFinderOnHits::PrintTrackSegments(TClonesArray* hitArray) {
   }
 
   Int_t nofCGM = 0;
-  for ( Int_t imct = 0 ; imct < nofMCTracks ; imct++ ) {
+  for ( Int_t imct = 0 ; imct < kNofMCTracks ; imct++ ) {
     //    fMCTrackNofCrossedGemStations[imct] = nofCGM;
     nofCGM = 0;
-    for ( Int_t is = 0 ; is < nofGemStations ; is++ )
+    for ( Int_t is = 0 ; is < kNofGemStations ; is++ )
       if ( nofPointsPerStation[imct][is] > 0 ) 
 	nofCGM++;
     nofFiredStations[imct] = nofCGM;
@@ -794,12 +794,12 @@ void PndGemTrackFinderOnHits::PrintTrackSegments(TClonesArray* hitArray) {
     mcTrackMomentum[imct] = mcTrack->GetMomentum();
   }
 
-  vector<Int_t> nofTrSegments(nofMCTracks,0);
-  vector<Int_t> nofTrMCId(nofMCTracks,0);
+  vector<Int_t> nofTrSegments(kNofMCTracks,0);
+  vector<Int_t> nofTrMCId(kNofMCTracks,0);
   vector<Int_t> segmentMCId(fTrackSegments.size(),-1);
 
   for ( Int_t itrc = 0 ; itrc < fTrackSegments.size() ; itrc++ ) {
-    for ( Int_t itr = 0 ; itr < nofMCTracks ; itr++ ) nofTrMCId[itr] = 0;
+    for ( Int_t itr = 0 ; itr < kNofMCTracks ; itr++ ) nofTrMCId[itr] = 0;
     TrackSegment tempTS = fTrackSegments[itrc];
     cout << tempTS.stationIndex[0] << " " << tempTS.stationIndex[1] << " >> segment " << itrc << ": " << flush;
     for ( Int_t ihit = 0 ; ihit < 4 ; ihit++ ) {
@@ -818,7 +818,7 @@ void PndGemTrackFinderOnHits::PrintTrackSegments(TClonesArray* hitArray) {
     }
     cout << setw(11) << tempTS.trackMom << " " << setw(11) << tempTS.trackPhi << " " << setw(11) << tempTS.trackTheta << endl;
     Int_t bestMCId = -1;
-    for ( Int_t itr = 0 ; itr < nofMCTracks ; itr++ ) {
+    for ( Int_t itr = 0 ; itr < kNofMCTracks ; itr++ ) {
       if ( nofTrMCId[itr] != 3 ) continue;
       if ( bestMCId > -1 ) { bestMCId = -1; break; }
       bestMCId = itr;
@@ -837,7 +837,7 @@ void PndGemTrackFinderOnHits::PrintTrackSegments(TClonesArray* hitArray) {
  
   Int_t expNofS = 0;
   Int_t fndNofS = 0;
-  for ( Int_t imct = 0 ; imct < nofMCTracks ; imct++ ) {
+  for ( Int_t imct = 0 ; imct < kNofMCTracks ; imct++ ) {
     if ( nofTrSegments[imct] == 0 || nofFiredStations[imct] == 0 ) continue;
     cout << " track " << imct << " fired " << nofFiredStations[imct] << " stations, and " << nofTrSegments[imct] << " segments were created:" << endl;
 
@@ -869,7 +869,7 @@ void PndGemTrackFinderOnHits::PrintTracks(TClonesArray* hitArray, Int_t nofRecoT
   PndGemHit* gemHit;
   FairMCPoint* mcPoint;
 
-  const Int_t nsh = 2*fDigiPar->GetNStations();
+  const Int_t kNofStatDbl = 2*fDigiPar->GetNStations();
 
   for ( Int_t itr = 0 ; itr < nofRecoTracks ; itr++ ) {
     for ( Int_t itm = 0 ; itm < 100 ; itm++ ) nofTrMCId[itm] = 0;
@@ -881,7 +881,7 @@ void PndGemTrackFinderOnHits::PrintTracks(TClonesArray* hitArray, Int_t nofRecoT
 //      meanPhi = 0.;
 //      meanThe = 0.;
 
-    vector<Int_t> hitIndices(nsh,-1);
+    vector<Int_t> hitIndices(kNofStatDbl,-1);
     cout << "===================== TRACK " << itr << " ======================" << endl;
     Int_t nofTS = 0;
     for ( Int_t its = 0 ; its < fTrackSegments.size() ; its++ ) {	
@@ -906,7 +906,7 @@ void PndGemTrackFinderOnHits::PrintTracks(TClonesArray* hitArray, Int_t nofRecoT
     
     if ( nofTS == 0 ) { cout << "THIS TRACK WAS REMOVED " << endl; continue; }
 
-    for ( Int_t ihit = 0 ; ihit < nsh ; ihit++ ) { 
+    for ( Int_t ihit = 0 ; ihit < kNofStatDbl ; ihit++ ) { 
       cout << ihit << "/" << hitIndices[ihit] << "/" << flush;
       if ( hitIndices[ihit] == -1 ) { cout << "- - " << flush; continue; }
       gemHit = (PndGemHit*) hitArray->At(hitIndices[ihit]);

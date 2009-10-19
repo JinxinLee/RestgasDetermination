@@ -571,6 +571,7 @@ void PndGemTrackFinderQA::CreateHistos() {
   fHistoList->Add(fhMomResSecVsT);
   fHistoList->Add(fhMomResRefVsT);
 
+
   fhNofHitsPerTrack = new TH1F("hNofHitsPerTrack","nof hits per track;# hits;yield [a.u.]",pntBins,minPnt,maxPnt);
   fhNofHitsPerRecoTrack = new TH1F("hNofHitsPerRecoTrack","nof hits per reco track;# hits;yield [a.u.]",pntBins,minPnt,maxPnt);
   fhNofHitsPerGhost = new TH1F("hNofHitsPerGhost","nof hits per ghost track;# hits;yield [a.u.]",pntBins,minPnt,maxPnt);

@@ -74,7 +74,6 @@ class PndGemStation : public TNamed
   
  protected:
   
-  TString    fName;             // Station name
   Int_t      fDetectorId;       // Unique detector ID
   Double32_t fZ;                // z position of station centre [cm]
   Double32_t fRotation;         // Rotation angle in global c.s [rad]

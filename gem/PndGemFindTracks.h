@@ -18,6 +18,7 @@
 #ifndef PNDGEMFINDTRACKS_H
 #define PNDGEMFINDTRACKS_H 1
 
+#include "TStopwatch.h"
 
 #include "FairTask.h"
 
@@ -84,6 +85,10 @@ class PndGemFindTracks : public FairTask
   Int_t fNofTracks;              	    ///< Number of created tracks
   TString fUseHitOrDigi;                ///< Choose use hits or digis, default: hits
   
+  TStopwatch fTimer;
+  Int_t fTNofEvents;
+  Int_t fTNofTracks;
+  Double_t fTTime;
 
   ClassDef(PndGemFindTracks,1);
 

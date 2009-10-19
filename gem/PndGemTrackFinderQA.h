@@ -59,14 +59,6 @@ class PndGemTrackFinderQA : public FairTask
 
   TClonesArray* fGemHitArray;     //
   TClonesArray* fGemTrackArray;     	    ///< Output array of PndGemTracks 
- 
-  /** Verbosity level.
-   ** 0 - quit
-   ** 1 - event level
-   ** 2 - track level
-   ** 3 - debug (maximal output)
-   **/
-  Int_t fVerbose;
 
   /** Event counter **/
   Int_t fNofEvents;  ///< event counter
@@ -129,7 +121,7 @@ class PndGemTrackFinderQA : public FairTask
   /** Get parameter containers **/
   virtual void SetParContainers();
 
-  void DivideHistos(TH1*, TH1*, TH1*);
+  void DivideHistos(TH1* hist1, TH1* hist2, TH1* hist3);
 
   /** Finish **/
   virtual void Finish();

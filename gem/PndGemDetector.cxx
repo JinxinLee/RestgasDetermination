@@ -1,41 +1,44 @@
+/////////////////////////////////////////////////////////////
+// PndGemDetector
+//
+// Class for PndGemDetector
+//
+/////////////////////////////////////////////////////////////
+
 #include "PndGemDetector.h"
 
-#include "FairGeoInterface.h"
-#include "FairGeoLoader.h"
-#include "FairGeoNode.h"
-#include "FairGeoRootBuilder.h"
 #include "FairRootManager.h"
-#include "FairRuntimeDb.h"
-#include "FairRun.h"
-#include "FairGeoMedia.h"
-#include "FairGeoVolume.h"
-#include "FairRunSim.h"
 #include "FairVolume.h"
 
 #include "PndDetectorList.h"
 #include "PndGemMCPoint.h"
 #include "PndStack.h"
 
-// #include "PndGemGeo.h"
-// #include "PndGemGeoPar.h"
-// #include "PndGemGeoHandling.h"
-
 #include "TClonesArray.h"
-#include "TLorentzVector.h"
-#include "TParticle.h"
 #include "TVirtualMC.h"
-#include "TObjArray.h"
-#include "TList.h"
-#include "TKey.h"
 #include "TGeoManager.h"
-#include "TGeoVoxelFinder.h"
-#include "TGeoMatrix.h"
 
 #include <iostream>
 #include <string>
 #include <sstream>
 
-class FairVolume;
+class FairGeoLoader;
+class FairGeoMedia;
+class FairRunSim;
+class FairGeoInterface;
+class FairGeoRootBuilder;
+class FairGeoNode;
+class FairRun;
+class FairRuntimeDb;
+class FairGeoVolume;
+
+class TGeoVoxelFinder;
+class TObjArray;
+class TList;
+class TGeoMatrix;
+class TParticle;
+class TLorentzVector;
+class TKey;
 
 
 // -----   Default constructor   -------------------------------------------
@@ -346,7 +349,7 @@ void PndGemDetector::SetExclusiveSensorType(const TString sens)
 
 // -----   Private method AddHit   -----------------------------------------
 PndGemMCPoint* PndGemDetector::AddHit(Int_t trackID, Int_t detID, TString detName, TVector3 posIn,              TVector3 posOut,TVector3 momIn, TVector3 momOut,
-            Double_t time, Double_t length, Double_t eLoss) const
+            Double_t time, Double_t length, Double_t eLoss)
 {
   TClonesArray&
     clref = *fPndGemCollection;

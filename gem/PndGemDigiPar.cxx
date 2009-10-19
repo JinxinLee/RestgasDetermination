@@ -1,3 +1,19 @@
+//* $Id: */
+
+// -------------------------------------------------------------------------
+// -----                    PndGemDigiPar source file                 -----
+// -----                  Created 12/02/2009 by R. Karabowicz          -----
+// -------------------------------------------------------------------------
+
+/** PndGemDigiPar
+ *@author Radoslaw Karabowicz <r.karabowicz@gsi.de>
+ *@since 12.02.2009
+ *@version 1.0
+ **
+ ** PANDA task class for storing digitization parameters for GEM
+ ** Task level RECO
+ **/
+
 #include <iostream>
 #include "PndGemDigiPar.h"
 

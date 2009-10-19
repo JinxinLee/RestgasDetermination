@@ -1,3 +1,14 @@
+// -------------------------------------------------------------------------
+// -----                PndGemGeoPar source file                       -----
+// -----                Created 15/02/2009  by R.Karabowicz            -----
+// -------------------------------------------------------------------------
+
+/** \class PndGemGeoPar
+ *  \author R. Karabowicz
+ *  \date 15/02/2009
+ *  \Storing list of GEM volumes
+ **/
+
 using namespace std;
 #include "PndGemGeoPar.h"
 #include "FairParamList.h"

@@ -11,14 +11,10 @@ using namespace std;
 #include "FairRuntimeDb.h"
 #include "PndGemGeoPar.h"
 #include "PndGemDigiPar.h"
-#include "FairParRootFileIo.h"
-#include "FairParAsciiFileIo.h"
-#include <iostream>
-#include <iomanip>
-
-ClassImp(PndGemContFact);
 
 static PndGemContFact gPndGemContFact;
+
+ClassImp(PndGemContFact);
 
 PndGemContFact::PndGemContFact() {
   // Constructor (called when the library is loaded)
@@ -34,6 +30,7 @@ void PndGemContFact::setAllContainers() {
 
     FairContainer* p= new FairContainer("PndGemGeoPar","PndGem Geometry Parameters","TestDefaultContext");
     p->addContext("TestNonDefaultContext");
+
     containers->Add(p);
 
     FairContainer* p2 = new FairContainer("PndGemDetectors", "PndGem Digitization Parameters", "TestDefaultContext");
