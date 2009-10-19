@@ -21,11 +21,7 @@ struct PndMvaVariable
 };
 
 inline PndMvaVariable::PndMvaVariable(const std::string& name,
-				      float normFactor, float mean)
-		      :
-		      Name(name),
-		      NormFactor(normFactor),
-		      Mean(mean)
-{}
-
+				      float normFactor,
+				      float mean)
+		      : Name(name), NormFactor(normFactor), Mean(mean){}
 #endif

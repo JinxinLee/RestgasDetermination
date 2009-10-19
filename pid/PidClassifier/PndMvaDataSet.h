@@ -1,3 +1,9 @@
+/***************************************
+ * Class interface of DataSet class.   *
+ * Author: M.Babai (M.Babai@rug.nl)    *
+ * License:                            *
+ * Version:                            *
+ ***************************************/
 //#pragma once
 #ifndef PNDMVADATASET_H
 #define PNDMVADATASET_H
@@ -33,11 +39,16 @@ typedef enum {NONE = 1, VARX = 2, MINMAX = 3, MEDIAN = 4} NormType;
 class PndMvaDataSet
 {
  public:
-
+  /**
+   * Constructor.
+   *@param inputFilename  Input File name.
+   *@param classNames    Names of available classes.
+   *@param varNames     Available variabl names.
+   */
   PndMvaDataSet(const std::string& inputFilename,
 		const std::vector<std::string>& classNames,
 		const std::vector<std::string>& varNames);
-
+  //! Destructor
   virtual ~PndMvaDataSet();
   
   /**
@@ -62,16 +73,20 @@ class PndMvaDataSet
    */
   void Trim();
 
+  //! Get available data.
   const std::vector< std::pair<std::string, std::vector<float>*> >& GetData() const;
+  //! Get the list of available classes.
   const std::vector<PndMvaClass>& GetClasses() const;
+  //! Get the list of available variables.
   const std::vector<PndMvaVariable>& GetVars() const;
+  //! Get classconditional means for all classes.
   const std::map< std::string, std::vector<float>* >& GetClassCondMeans() const;
+  //! Get name of input file name (weight/event file).
   const std::string& GetInFileName() const;
  
  protected:
   /**
    * Read input event data.
-   *@param InPut Input file name.
    */
   void ReadInput();
   

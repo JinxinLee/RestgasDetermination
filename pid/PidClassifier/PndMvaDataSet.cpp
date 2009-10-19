@@ -13,6 +13,12 @@
 using namespace std;
 
 // ============================ Public =====================================
+/**
+ * Constructor.
+ *@param inputFilename  Input File name.
+ *@param classNames    Names of available classes.
+ *@param varNames     Available variabl names.
+ */
 PndMvaDataSet::PndMvaDataSet(const string& inputFilename,
 			     const vector<string>& classNames,
 			     const vector<string>& varNames)
@@ -33,6 +39,7 @@ PndMvaDataSet::PndMvaDataSet(const string& inputFilename,
   ReadInput();
 }
 
+//! Destructor
 PndMvaDataSet::~PndMvaDataSet()
 {
   //Clean up event data container
@@ -326,7 +333,6 @@ void PndMvaDataSet::WriteDataSet(const string& outFile)
 // ============================ Protected ===================================
 /**
  * Read input event data.
- *@param InPut Input file name.
  */
 void PndMvaDataSet::ReadInput()
 {

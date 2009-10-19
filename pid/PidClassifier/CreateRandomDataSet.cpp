@@ -109,6 +109,8 @@ int main(int argc, char**argv)
 #endif
   for(cls = 0; cls < NumClasses; cls++)
   {
+    mean = sigma + 1;
+    sigma += mean;
     //Event loop
     for(int ev = 0; ev < numevt; ev++)
     {
@@ -120,8 +122,6 @@ int main(int argc, char**argv)
       }
       trees[cls]->Fill();
     }
-    mean = sigma;
-    sigma += 2;
   }
 #ifdef _OPENMP
   }

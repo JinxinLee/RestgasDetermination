@@ -18,8 +18,6 @@
 #include "TMVA/PDEFoam.h"
 #include "TMVA/Event.h"
 
-using namespace std;
-
 class PndPDEFoamClassify//: public PndGpidClassifier
 {
  public:

@@ -30,6 +30,11 @@ class PndGpidClassifier
 {
  public:
   //! Constructor
+  /**
+   *@param InPut Input file name containing weights.
+   *@ClassNames Names of available (signal) classes.
+   *@VarNames Names of the used variables(features).
+   */
   PndGpidClassifier(const std::string& InPut,
 		    const std::vector<std::string>& ClassNames,
 		    const std::vector<std::string>& VarNames);
@@ -43,7 +48,10 @@ class PndGpidClassifier
    */
   virtual void GetMvaValues(std::vector<float> EvtData,
 			    std::map<std::string,float>& result) = 0;
-  
+  /**
+   *@param EvtData: Event data to be classified.
+   *@return Name of the class with the best MVA value.
+   */
   virtual const std::string& Classify(std::vector<float> EvtData)const = 0;
 
  protected:

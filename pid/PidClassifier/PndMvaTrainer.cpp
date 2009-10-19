@@ -31,10 +31,6 @@ PndMvaTrainer::PndMvaTrainer(const std::string& InPut,
   time_t seconds;
   seconds = time (NULL);
   m_RND_seed = seconds;
-
-  /// DEBUG
-  //m_dataSets.WriteDataSet("InputVarNormalized.root");
-  ///DEBUG
 }
 
 //! Destructor
@@ -299,4 +295,10 @@ void PndMvaTrainer::WriteToWeightFile(const std::vector<TMVA::PDEFoam*>& foamLis
   
   // Close open file
   rootFile.Close();
+
+  //FIXME Test may delete
+  /*
+    std::cout << "Writing foam to stream\n"
+    <<*(foamList[0]) << std::endl;
+  */
 }

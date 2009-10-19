@@ -55,6 +55,9 @@ class PndMvaTrainer
   void NormalizeData(NormType t = NONE){ 
     m_normType = t;
     m_dataSets.NormalizeDataSet(t);
+    /// DEBUG
+    // m_dataSets.WriteDataSet("InputVarNormalized.root");
+    ///DEBUG
   }
 
   void SetOutPutFile(const std::string& outFile)

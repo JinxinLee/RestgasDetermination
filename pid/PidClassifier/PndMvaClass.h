@@ -1,3 +1,8 @@
+/*************************************
+ * The structure of the classes.     *
+ * Version:                          *
+ * License:                          *
+ *************************************/
 //#pragma once
 #ifndef PND_MVA_CLASS_H
 #define PND_MVA_CLASS_H
@@ -9,6 +14,9 @@
 struct PndMvaClass
 {
   //! Constructor.
+  /**
+   *@Param name Class name.
+   */
   PndMvaClass(const std::string& name);
   
   std::string Name;  /**< Name of the class. */

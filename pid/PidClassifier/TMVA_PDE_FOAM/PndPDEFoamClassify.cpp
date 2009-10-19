@@ -1,5 +1,6 @@
 #include "PndPDEFoamClassify.h"
 
+using namespace std;
 
 PndPDEFoamClassify::PndPDEFoamClassify(const std::string& inputFile,
 				       const std::vector<std::string>& classNames, 
@@ -87,7 +88,7 @@ void PndPDEFoamClassify::ReadInputFile()
   TTree* fact = (TTree*) input.Get("NormFact");
   if(fact)
   {
-    cout << "<INFO> Reading normalization values."<< endl;
+    std::cout << "<INFO> Reading normalization values."<< std::endl;
     vector<float> normVars(m_vars.size(), 0.0);
     
     // Bind the parameters to the tree branches
