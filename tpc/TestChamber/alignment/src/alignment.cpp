@@ -483,7 +483,7 @@ void Alignment::doFit(){
     trans[0]+=dx;
     trans[1]+=dy;
     trans[2]+=dz;
-    pitch=pitch*(1+dp);
+    pitch=pitch*(1-dp);
 
     cout<<"dTheta: "<<dTheta<<endl;
     cout<<"dPitch: "<<dp<<endl;
