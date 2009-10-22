@@ -141,7 +141,7 @@ int main(int argc,char **argv){
     if(i_ev%250==0){
       cout<<i_ev<<" n clusters "<<totClusters<<" nTracks "<<nTracks2<<" ____ ";
     }else if((disp||debug)){
-      cout<<endl<<endl<<endl<<endl<<endl<<endl<<endl<<i_ev<<" n clusters "<<totClusters<<"********************************************************************************************************"<<endl;
+      cout<<endl<<endl<<endl<<endl<<endl<<endl<<endl<<"event number "<<inEvent->getEventNumber()<<" n clusters "<<totClusters<<"********************************************************************************************************"<<endl;
     }
     if(i_ev%1000==0){
       cout<<endl;
@@ -181,7 +181,7 @@ int main(int argc,char **argv){
     vector<TCcluster> outClusters;
     vector<TCtrack*> outTracks;
     if(disp){
-      cout<<"nclusters "<<inEvent->nClusters()<<" tracks "<<nTracks2<<endl;
+      //      cout<<"nclusters "<<inEvent->nClusters()<<" tracks "<<nTracks2<<endl;
     }
     for(unsigned int iCl=0;iCl<inEvent->nClusters();++iCl) {
       TCcluster cl=inEvent->getCluster(iCl);
@@ -191,14 +191,15 @@ int main(int argc,char **argv){
 	y_clusters.push_back(cl);
 	y_event->SetPoint(y_count, cl.posXYZ().z(), cl.posXYZ().y());
 	y_count++;	
-	if(disp)
-	  cout<<"z "<<cl.posXYZ().z()<<"   y "<<cl.posXYZ().y()<<endl;
-      }else{
+        //	if(disp)
+          
+          //	  cout<<"z "<<cl.posXYZ().z()<<"   y "<<cl.posXYZ().y()<<endl;
+        }else{
 	x_clusters.push_back(cl);
 	x_event->SetPoint(x_count, cl.posXYZ().z(), cl.posXYZ().x());
 	x_count++;
-	if(disp)
-	  cout<<"z "<<cl.posXYZ().z()<<"   x "<<cl.posXYZ().x()<<endl;
+        //	if(disp)
+          //	  cout<<"z "<<cl.posXYZ().z()<<"   x "<<cl.posXYZ().x()<<endl;
       }
 
       if(maxAmp){
@@ -321,13 +322,13 @@ int main(int argc,char **argv){
       }
     }
     if(disp){
-      cout<<"xClusters "<<x_clusters.size()<<endl;
-      cout<<"yClusters "<<y_clusters.size()<<endl;
+      //      cout<<"xClusters "<<x_clusters.size()<<endl;
+      //      cout<<"yClusters "<<y_clusters.size()<<endl;
     }
     bool houghdone=false;
     if(hough&&x_clusters.size()>1&&y_clusters.size()>1){
       if(disp){
-	cout<<"hough"<<endl;
+        //	cout<<"hough"<<endl;
       }
       outTracks.push_back(new TCtrack());
       /*
@@ -346,11 +347,11 @@ int main(int argc,char **argv){
 	houghYZ->setDebug(false);
       }
       if(disp||debug){
-	cout<<endl<<endl<<endl<<"hough XZ make on "<<x_count<<" clusters *************************************************"<<endl;
+        //	cout<<endl<<endl<<endl<<"hough XZ make on "<<x_count<<" clusters *************************************************"<<endl;
       }
       houghXZ->make(x_clusters);
       if(disp||debug){
-	cout<<endl<<endl<<endl<<"hough YZ  on "<<y_count<<" clusters*******************************************************"<<endl;
+        //	cout<<endl<<endl<<endl<<"hough YZ  on "<<y_count<<" clusters*******************************************************"<<endl;
       }
       houghYZ->make(y_clusters);
    
@@ -365,7 +366,7 @@ int main(int argc,char **argv){
       int n7 =0;
       int n8 =0;
       if(disp){
-        cout<<"before hough selection"<<endl;
+        //        cout<<"before hough selection"<<endl;
       }
       if(houghXZ->getNmax()>0&&houghYZ->getNmax()>0&&houghXZ->getMaxVote()>2&&houghYZ->getMaxVote()>2){
         int x_n=0;
@@ -382,7 +383,7 @@ int main(int argc,char **argv){
 	      x_SelEvent->GetPoint(x_n,  
 				   ztmp,
 				   xtmp);
-	      cout<<x_n<<" "<<ztmp<<", "<<xtmp<<endl;
+              //	      cout<<x_n<<" "<<ztmp<<", "<<xtmp<<endl;
 	    }
 	    x_n++;
 	    clTrack.push_back(x_clusters.at(i));
@@ -390,7 +391,7 @@ int main(int argc,char **argv){
 	  
 	}
 	if(disp){
-	  cout<<endl<<endl;
+          //	  cout<<endl<<endl;
 	}
 	for(unsigned int i=0;i<y_clusters.size();++i){
 	  if(houghYZ->hot(i)){
@@ -404,7 +405,7 @@ int main(int argc,char **argv){
 	      y_SelEvent->GetPoint(y_n,  
 				   ztmp,
 				   ytmp);
-	      cout<<y_n<<" "<<ztmp<<", "<<ytmp<<endl;
+              //	      cout<<y_n<<" "<<ztmp<<", "<<ytmp<<endl;
 	    }
 	    y_n++;
 	    clTrack.push_back(y_clusters.at(i));  
@@ -412,8 +413,8 @@ int main(int argc,char **argv){
 	  
 	}
 	if(disp){
-	  cout<<"n x clusters chosen "<<x_SelEvent->GetN()<<endl;
-	  cout<<"n y clusters chosen "<<y_SelEvent->GetN()<<endl;
+          //	  cout<<"n x clusters chosen "<<x_SelEvent->GetN()<<endl;
+          //	  cout<<"n y clusters chosen "<<y_SelEvent->GetN()<<endl;
 	}
 	
 	(outTracks.back())->addClusters(clTrack);
@@ -525,7 +526,7 @@ int main(int argc,char **argv){
       cout<<"n y clusters chosen "<<y_SelEvent->GetN()<<endl;
     }
     if(disp&&houghdone){
-      cout<<endl<<endl<<"displaying"<<endl<<endl;
+      //      cout<<endl<<endl<<"displaying"<<endl<<endl;
       houghXZ->draw(false );    
       houghYZ->draw(false,800);
       if(c!=NULL){
@@ -540,7 +541,7 @@ int main(int argc,char **argv){
       if(x_SelEvent->GetN()>0){
 	x_SelEvent->SetMarkerColor(3);
 	x_SelEvent->SetMarkerSize(1);
-	cout<<"drawing selected x clusters "<<x_SelEvent->GetN()<<endl;
+        //	cout<<"drawing selected x clusters "<<x_SelEvent->GetN()<<endl;
 	x_event->Draw("AP*");	
 	x_SelEvent->Draw("*SAME");
 	for(int bla=0;bla<x_SelEvent->GetN();++bla){
@@ -549,7 +550,7 @@ int main(int argc,char **argv){
 	  x_SelEvent->GetPoint(bla,  
 			       ztmp,
 			       xtmp);
-	  cout<<ztmp<<", "<<xtmp<<endl;
+          //	  cout<<ztmp<<", "<<xtmp<<endl;
 	}
 
       }else{
@@ -565,14 +566,14 @@ int main(int argc,char **argv){
 	y_SelEvent->SetMarkerSize(1);
 	y_event->Draw("AP*");	
 	y_SelEvent->Draw("*SAME");
-	cout<<"drawing selected y clusters "<<y_SelEvent->GetN()<<endl;
+        //	cout<<"drawing selected y clusters "<<y_SelEvent->GetN()<<endl;
 	for(int bla=0;bla<y_SelEvent->GetN();++bla){
 	  double ztmp=0;
 	  double ytmp=0;
 	  y_SelEvent->GetPoint(bla,  
 			       ztmp,
 			       ytmp);
-	  cout<<ztmp<<", "<<ytmp<<endl;
+	  //cout<<ztmp<<", "<<ytmp<<endl;
 	}
       }else{
 	y_event->Draw("AP*");     
@@ -596,15 +597,22 @@ int main(int argc,char **argv){
       outEvent->addTrack(outTracks.at(i));
       nTracks2++;
     }
-    if(outTracks.size()>0){
-      outEvent->addClusters(outClusters);
-      eventTreeOut->Fill();
+    if(outTracks.size()>0&&!disp){
+      if(maxAmp){
+        outEvent->addClusters(outClusters);
+        eventTreeOut->Fill();
+      }else{
+        outEvent->addClusters(outClusters);
+        eventTreeOut->Fill();
+      }
     }
     delete x_event;
     delete y_event;
     delete x_SelEvent;
     delete y_SelEvent;
   }//end event loop
-  eventTreeOut->Write();
+  if(!disp){
+    eventTreeOut->Write();
+  }
   outFile->Close();
 }

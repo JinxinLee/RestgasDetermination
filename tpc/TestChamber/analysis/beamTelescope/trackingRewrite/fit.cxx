@@ -21,6 +21,7 @@
 #include "ConfigFile.h"
 #include "histContainers.h"
 
+
 static bool controlC=false;
 static int controlCs=0;
 using std::cout;
@@ -60,13 +61,15 @@ int main(int argc,char **argv){
   string infilePath;
   string outFilePath;
   string alignmentFilePath;
+
+
   string histFilePath;
   string mode;
   trackHistContainer* histCont =new trackHistContainer();
   ConfigFile cf( argv[1] );
   
   bool disp=false;
-
+  bool unbiased=false;
 
   if(!(cf.readInto(infilePath , "inFile") )) failedConf("infile");
   if(!(cf.readInto(outFilePath , "outFile") )) failedConf("alignmentFile");
@@ -75,6 +78,10 @@ int main(int argc,char **argv){
   if(!(cf.readInto(mode , "mode") )) failedConf("mode");
   if(mode=="disp"){
     disp=true;
+  }else if(mode=="unbiasedFit"){
+    disp=false;
+    unbiased=true;
+
   }
 
   TFile::Open(infilePath.c_str());
@@ -96,9 +103,12 @@ int main(int argc,char **argv){
 
   
   for(int i_ev=0;i_ev<nEvents;i_ev++) {
+   
     //cout<<"bla"<<endl;
     inTree->GetEntry(i_ev);
-    outEvent->clear();   
+    outEvent->clear();
+    //    cout<<inEvent->getEventNumber()<<endl;
+    outEvent->setEventNumber(inEvent->getEventNumber());
     if(controlC){ 
       cout<<"jumping out of for loop"<<endl;
       break;
@@ -106,27 +116,54 @@ int main(int argc,char **argv){
     if(i_ev%250==0){
       cout<<i_ev<<" n clusters "<<totClusters<<endl;
     }
-    for(unsigned int iCl=0;iCl<inEvent->nTracks();++iCl) {
-      TCtrack* track = inEvent->getTrack(iCl);
-      TCtrack* outTrack=new TCtrack;//cout<<track->nClFit()<<endl;
-     
-      for(unsigned int i=0;i<track->nCl();++i){
-	TCcluster cl=track->getCl(i);
-	outTrack->addCluster(cl);
+    if(!unbiased){
+      for(unsigned int iTr=0;iTr<inEvent->nTracks();++iTr) {
+        TCtrack* track = inEvent->getTrack(iTr);
+        TCtrack* outTrack=new TCtrack;//cout<<track->nClFit()<<endl;
+        
+        for(unsigned int i=0;i<track->nCl();++i){
+          TCcluster cl=track->getCl(i);
+          outTrack->addCluster(cl);
+        }
+        if(outTrack->nClFit()>5&&outTrack->fit(1,2,3,4,5,6,7,8)){
+          histCont->fillRes(outTrack);
+          outEvent->addTrack(outTrack);
+          //	cout<<"test"<<endl;
+        }else{
+          delete outTrack;
+        }
       }
-      if(outTrack->nClFit()>5&&outTrack->fit(1,2,3,4,5,6,7,8)){
-	histCont->fillRes(outTrack);
-	outEvent->addTrack(outTrack);
-	//	cout<<"test"<<endl;
-      }else{
-	delete outTrack;
+      eventTreeOut->Fill();
+    }else{
+      for(unsigned int iTr=0;iTr<inEvent->nTracks();++iTr) {
+        TCtrack* track = inEvent->getTrack(iTr);
+        
+        for(int i=1;i<9;++i){
+          TCtrack* outTrack=new TCtrack;//cout<<track->nClFit()<<endl;
+          for(unsigned int iCl=0;iCl<track->nCl();++iCl){
+            TCcluster cl=track->getCl(iCl);
+            if(cl.getId()==i){
+              // cout<<"i no fit "<<i<<endl;
+              cl.setFit(false);
+            }
+            outTrack->addCluster(cl);
+          }
+          
+          if(outTrack->nClFit()>6&&outTrack->fit(1,2,3,4,5,6,7,8)){
+            histCont->fillRes(outTrack,true);
+            outEvent->addTrack(outTrack);
+            //	cout<<"test"<<endl;
+          }else{
+            delete outTrack;
+          }
+        }
       }
+      eventTreeOut->Fill();
     }
-    eventTreeOut->Fill();
-
   }
   eventTreeOut->Write();
   outFile->Close();
   histCont->write(histFilePath);
   delete histCont;
+  
 }
