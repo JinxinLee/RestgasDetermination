@@ -86,7 +86,8 @@ private:
 // hit
     TClonesArray* fMdtCollection; //!
     Int_t fPosIndex;      
-    Int_t fDetectorID;               
+    Int_t fDetectorID;              
+    Float_t fELoss; 
     TLorentzVector fPos;  
     TLorentzVector fMom;  
 

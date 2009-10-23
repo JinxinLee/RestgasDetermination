@@ -112,6 +112,7 @@ void PndMdt::ResetParameters()
     fDetectorID = -999;
     fPDG = -999;
     */
+    fELoss = 0.;
     fPos.SetXYZT(0., 0., 0., 0.);
     fMom.SetXYZT(0., 0., 0., 0.) ;
 }
