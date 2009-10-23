@@ -17,12 +17,12 @@ rootlogon()
 	gSystem->Load("libEmc"); 
         gSystem->Load("libgenfit");
 	gSystem->Load("libtrackrep");
+	gSystem->Load("libgenfitAdapters");
         gSystem->Load("libriemann");
         gSystem->Load("libtpc"); 
         gSystem->Load("libtpcreco");
         gSystem->Load("libStt");
         gSystem->Load("libSttReco");
-        gSystem->Load("librecotasks");
         gSystem->Load("libMvd");
         gSystem->Load("libMvdReco");
         gSystem->Load("libMvdTrk");
@@ -36,4 +36,9 @@ rootlogon()
 	gSystem->Load("libGeane");
 	gSystem->Load("libRpc");
 	gSystem->Load("libLumi");
+        gSystem->Load("libRho");
+	gSystem->Load("libTMVA.so");
+        gSystem->Load("libPid");
+        gSystem->Load("libAnalysisTools");
+        gSystem->Load("librecotasks");
 }
