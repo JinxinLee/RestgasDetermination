@@ -416,56 +416,47 @@ void PndMdt::ConstructGeometryTo()
 Bool_t PndMdt::ProcessHitsTo(FairVolume* vol) 
 {
   TString name = vol->GetName();
-  if (!(name.BeginsWith("muon"))) 
-    cout << "Error <PndMdt::ProcessHits> : " << name << " not MDT volume" << endl;
-  else {
-
-  Int_t pdgc= gMC->TrackPid();
-  if(TMath::Abs(pdgc)==211 || TMath::Abs(pdgc)==13)
-  {
-
-    if (gMC->IsTrackEntering() || gMC->IsNewTrack() ){
+  if (!(name.BeginsWith("muon")))
+    {
+      cout << "Error <PndMdt::ProcessHits> : " << name << " not MDT volume" << endl;
+      return kFALSE;
+    }
+  
+  if (gMC->IsTrackEntering() || gMC->IsNewTrack() )
+    {
       fPos_In.SetXYZM(0.,0.,0.,0.);
       fMom_In.SetXYZM(0.,0.,0.,0.);
       gMC->TrackPosition(fPos_In);
       gMC->TrackMomentum(fMom_In);
       fTrkIn = gMC->GetStack()->GetCurrentTrackNumber();
-    }; // end entering
-
-    if (gMC->IsTrackExiting() || gMC->IsTrackStop() || gMC->IsTrackDisappeared() ){
+    } // end entering
+  
+  if (gMC->IsTrackExiting() || gMC->IsTrackStop() || gMC->IsTrackDisappeared() )
+    {
       Int_t TrNo=gMC->GetStack()->GetCurrentTrackNumber();
       Int_t pdg= gMC->TrackPid();
-      if ( TrNo == fTrkIn ){
-	TLorentzVector lPos, lMom;
-	int ilayer;
-	int iplate;
-	sscanf(name,"muon%i",&iplate);
-	ilayer = iplate;
-	gMC->TrackPosition(lPos); // cm
-	gMC->TrackMomentum(lMom); // GeV
-	TClonesArray& clref = *fMdtCollection;
-	Int_t size = fMdtCollection->GetEntriesFast();
-	PndMdtPoint *P= new(clref[size]) PndMdtPoint (TrNo,ilayer, lPos.Vect(), lMom.Vect(), gMC->TrackTime(),
-			  gMC->TrackLength(), gMC->Edep(), gMC->GetStack()->GetCurrentParentTrackNumber(),pdg,
-			  fPos_In.Vect(), fMom_In.Vect());
-        /**if you add a point then tell the stack! here*/
-	PndStack* stack = (PndStack*) gMC->GetStack();
-    	stack->AddPoint(kMDT);
-     if ( (GetModule()==1) ||  (GetModule()==2)  )
-	{ // Set the correct MCTrack->GetMdtPoints()
-
-	}
- 
-      };
-  
+      if ( TrNo == fTrkIn )
+	{
+	  TLorentzVector lPos, lMom;
+	  int ilayer;
+	  int iplate;
+	  sscanf(name,"muon%i",&iplate);
+	  ilayer = iplate;
+	  gMC->TrackPosition(lPos); // cm
+	  gMC->TrackMomentum(lMom); // GeV
+	  TClonesArray& clref = *fMdtCollection;
+	  Int_t size = fMdtCollection->GetEntriesFast();
+	  PndMdtPoint *P= new(clref[size]) PndMdtPoint (TrNo,ilayer, lPos.Vect(), lMom.Vect(), gMC->TrackTime(),
+							gMC->TrackLength(), gMC->Edep(), gMC->GetStack()->GetCurrentParentTrackNumber(),pdg,
+							fPos_In.Vect(), fMom_In.Vect());
+	  /**if you add a point then tell the stack! here*/
+	  PndStack* stack = (PndStack*) gMC->GetStack();
+	  stack->AddPoint(kMDT);
+	};
       ResetParameters();
-    };
-
-  };
-  };
+    }
   
   return kTRUE;
-  
 }
 // ----------------------------------------------------------------------------
 

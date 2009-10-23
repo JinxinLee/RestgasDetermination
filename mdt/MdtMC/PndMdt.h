@@ -70,12 +70,16 @@ public:
 	ClassDef(PndMdt,1)
     
 private:
+
+    Bool_t CheckIfSensitive(std::string name);
+
     TString version;
     void PndMdtMagnet(); //!
     void PndMdtMuonFilter(); //!
     void PndMdtMFIron(); //!
     void ConstructGeometryTo(); //!
     void ConstructGeometryDu(); //!
+    Bool_t CheckIfSensitiveDu(std::string name);
     Bool_t ProcessHitsTo(FairVolume* vol); //!
     Bool_t ProcessHitsDu(FairVolume* vol); //!
 

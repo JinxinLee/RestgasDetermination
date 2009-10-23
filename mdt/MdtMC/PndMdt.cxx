@@ -26,7 +26,7 @@
 
 using namespace std;
 
-Int_t PndMdt::fTrkIn = 0;
+Int_t PndMdt::fTrkIn = -1;
 TLorentzVector PndMdt::fPos_In;
 TLorentzVector PndMdt::fMom_In;
 
@@ -36,6 +36,7 @@ PndMdt::PndMdt()
 {
     fMdtCollection        = new TClonesArray("PndMdtPoint");
     fPosIndex   = 0;
+    fTrkIn = -1;
     ResetParameters();
     SetVerbosity(kFALSE);
 }
@@ -47,6 +48,7 @@ PndMdt::PndMdt(const char* name, Bool_t active) : FairDetector(name,active)
 {
     fMdtCollection        = new TClonesArray("PndMdtPoint");
     fPosIndex   = 0;
+    fTrkIn = -1;
     ResetParameters();
     SetVerbosity(kFALSE);
 }
@@ -169,15 +171,25 @@ void PndMdt::BeginEvent()
 Bool_t PndMdt::ProcessHits(FairVolume* vol) 
 {
     Bool_t ph = kFALSE;
-
     if(version=="torino" || version=="Torino") ph = ProcessHitsTo(vol);
     else if(version=="dubna" || version=="Dubna") ph = ProcessHitsDu(vol);
-    else {cout<<"Error in PndMdt::ConstructGeometry: Specify the version and run again!"<<endl; exit(0);};
+    else 
+      {
+        cout<<"Error in PndMdt::ConstructGeometry: Specify the version and run again!"<<endl; exit(0);
+      };
   
   ResetParameters();
   
   return ph;
   
+}
+
+// -------------------------------------------------------------------------
+Bool_t PndMdt::CheckIfSensitive(std::string name)
+{
+  // Only for Dubna design
+  if(version=="dubna" || version=="Dubna") return CheckIfSensitiveDu(name);
+  return kFALSE;
 }
 
 // ----------------------------------------------------------------------------
