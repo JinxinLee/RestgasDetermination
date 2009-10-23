@@ -62,10 +62,6 @@ void run_sim_tpccombi_pgun(Int_t nEvents=10, Int_t pid=13, Float_t p1=1.0, Float
   Muo->SetMdtMFIron(kTRUE);
   fRun->AddModule(Muo);
  
-  PndDrc *Drc = new PndDrc("DIRC", kTRUE);
-  Drc->SetRunCherenkov(kFALSE); // for fast sim Cherenkov -> kFALSE
-  fRun->AddModule(Drc); 
-  
   FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
   Gem->SetGeometryFileName("gem_3Stations.root");
   fRun->AddModule(Gem);
@@ -74,6 +70,10 @@ void run_sim_tpccombi_pgun(Int_t nEvents=10, Int_t pid=13, Float_t p1=1.0, Float
   //Dch->SetGeometryFileName("dch.root"); 
   //fRun->AddModule(Dch);
   
+  PndDrc *Drc = new PndDrc("DIRC", kTRUE);
+  Drc->SetRunCherenkov(kFALSE); // for fast sim Cherenkov -> kFALSE
+  fRun->AddModule(Drc);
+
   // Create and Set Event Generator
   //-------------------------------
 
