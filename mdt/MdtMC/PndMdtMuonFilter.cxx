@@ -4,11 +4,7 @@
 #include "TClonesArray.h"
 #include "TLorentzVector.h"
 #include "TMath.h"
-#include "TFile.h"
-#include "TTree.h"
 #include "TParticle.h"
-#include "TGeoMaterial.h"
-#include "TGeoMedium.h"
 #include "TGeoArb8.h"
 #include "TGeoTrd2.h"
 #include "TGeoCompositeShape.h"
@@ -17,8 +13,10 @@
 #include "TVirtualMC.h"
 
 #include "FairVolume.h"
-// add on for debug
-//#include "FairGeoG3Builder.h"
+#include "FairGeoMedia.h"
+#include "FairGeoInterface.h"
+#include "FairGeoLoader.h"
+#include "FairGeoBuilder.h"
 #include "FairRuntimeDb.h"
 #include "FairRun.h"
 #include "FairModule.h"
@@ -57,20 +55,12 @@ void PndMdt::PndMdtMuonFilter()
     TGeoRotation tRot, tRotSlice;
     Double_t angle;
 
-//mdtArCO2
-    Int_t kMatmdtArCO2 = 42;
-    Float_t aP[3] = {39.948, 12.01, 16.00};
-    Float_t zP[3] = {18., 6., 8.} ;
-    Float_t wP[3] = {1., 1., 2.} ;
-    Float_t dP = 1.636 ;
-    Int_t   nP = 3;
-    Float_t sumWeight = 0.0;
-    for (Int_t i=0; i<nP; i++) sumWeight += aP[i]*wP[i];
-    for (Int_t i=0; i<nP; i++) wP[i] *= aP[i]/sumWeight;
-    TGeoMaterial* matmdtArCO2 = gGeoManager->Mixture("mdtArCO2",aP,zP,dP,nP,wP,kMatmdtArCO2);
-    
-    Int_t kMedmdtArCO2 = 202;
-    TGeoMedium* medmdtArCO2 = gGeoManager->Medium("mdtArCO2", kMedmdtArCO2, kMatmdtArCO2, 1, 1, 30., 10.0, 0.1, 0.1, 0.1, 0.1);
+    FairGeoLoader*geoLoad = FairGeoLoader::Instance();
+    FairGeoInterface *geoFace = geoLoad->getGeoInterface();
+    FairGeoMedia *Media =  geoFace->getMedia();
+    FairGeoBuilder *geobuild=geoLoad->getGeoBuilder();
+    FairGeoMedium *medmdtArCO2  = Media->getMedium("MDTMixture");
+    Int_t  kMedmdtArCO2=geobuild->createMedium(medmdtArCO2);
 
 //creating the holes
     TGeoBBox* mfhbox2 = new TGeoBBox("mfhbox2",((Double_t)PndMdt_H07_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_H07_V)/10.0,0);
@@ -157,7 +147,7 @@ void PndMdt::PndMdtMuonFilter()
 	    sprintf(longbuffer,"mftrd:mftgt-mfhbox%i:mftgr%i",i+2,j);
 	    TGeoCompositeShape* mftgcs = new TGeoCompositeShape(buffer,longbuffer);
 	    sprintf(buffer,"muon%i",300+8*i+j);
-	    TGeoVolume* volume = new TGeoVolume(buffer,mftgcs,gGeoManager->GetMedium("mdtArCO2"));
+	    TGeoVolume* volume = new TGeoVolume(buffer,mftgcs,gGeoManager->GetMedium("MDTMixture"));
 	    AddSensitiveVolume(volume);
 	    volume->SetLineColor(1);
 //	    mdtmf->AddNode(volume,300+8*i+j,new TGeoCombiTrans(0.0,0.0,mz0/10.0,new TGeoRotation(tRot)));

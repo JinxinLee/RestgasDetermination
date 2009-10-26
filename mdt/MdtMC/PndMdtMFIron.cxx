@@ -7,8 +7,6 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TParticle.h"
-#include "TGeoMaterial.h"
-#include "TGeoMedium.h"
 #include "TGeoArb8.h"
 #include "TGeoTrd2.h"
 #include "TGeoCompositeShape.h"
@@ -17,8 +15,10 @@
 #include "TVirtualMC.h"
 
 #include "FairVolume.h"
-// add on for debug
-//#include "FairGeoG3Builder.h"
+#include "FairGeoMedia.h"
+#include "FairGeoInterface.h"
+#include "FairGeoLoader.h"
+#include "FairGeoBuilder.h"
 #include "FairRuntimeDb.h"
 #include "FairRun.h"
 #include "FairModule.h"
@@ -51,21 +51,12 @@ void PndMdt::PndMdtMFIron()
     TGeoRotation tRot, tRotSlice;
     Double_t angle;
 
-//mdtIron
-    Int_t kMatmdtIron = 47;
-    Float_t aP[1] = {55.845};
-    Float_t zP[1] = {26.} ;
-    Float_t wP[1] = {1.} ;
-    Float_t dP = 7.87;
-    Int_t   nP = 1;
-    Float_t sumWeight = 0.0;
-    for (Int_t i=0; i<nP; i++) sumWeight += aP[i]*wP[i];
-    for (Int_t i=0; i<nP; i++) wP[i] *= aP[i]/sumWeight;
-    TGeoMaterial* matmdtIron = gGeoManager->Mixture("mdtIron",aP,zP,dP,nP,wP,kMatmdtIron);
-    
-    Int_t kMedmdtIron = 203;
-    TGeoMedium* medmdtIron = gGeoManager->Medium("mdtIron", kMedmdtIron, kMatmdtIron, 1, 1, 30., 10.0, 0.1, 0.1, 0.1, 0.1);
-
+    FairGeoLoader*geoLoad = FairGeoLoader::Instance();
+    FairGeoInterface *geoFace = geoLoad->getGeoInterface();
+    FairGeoMedia *Media =  geoFace->getMedia();
+    FairGeoBuilder *geobuild=geoLoad->getGeoBuilder();
+    FairGeoMedium *medIron = Media->getMedium("iron");
+    Int_t  kMedIron=geobuild->createMedium(medIron);
 
 //creating the holes
     TGeoBBox* mfihbox2 = new TGeoBBox("mfihbox2",((Double_t)PndMdtMFIron_H02_H)/10.0,10.0+((Double_t)PndMdtMFIron_Th2)/10.0,((Double_t)PndMdtMFIron_H02_V)/10.0,0);
@@ -148,7 +139,7 @@ void PndMdt::PndMdtMFIron()
 	    sprintf(longbuffer,"mfitrd:mfitgt-mfihbox%i:mfitgr%i",i+2,j);
 	    TGeoCompositeShape* mfitgcs = new TGeoCompositeShape(buffer,longbuffer);
 	    sprintf(buffer,"mag%i",600+8*i+j);
-	    TGeoVolume* volume = new TGeoVolume(buffer,mfitgcs,gGeoManager->GetMedium("mdtIron"));
+	    TGeoVolume* volume = new TGeoVolume(buffer,mfitgcs,gGeoManager->GetMedium("iron"));
 	    volume->SetLineColor(3);
 	    mdtmfi->AddNode(volume,600+8*i+j,new TGeoCombiTrans(0.0,0.0,mz0/10.0,new TGeoRotation(tRot)));
 	    tRot.RotateZ(-45.0);

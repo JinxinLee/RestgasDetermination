@@ -4,11 +4,7 @@
 #include "TClonesArray.h"
 #include "TLorentzVector.h"
 #include "TMath.h"
-#include "TFile.h"
-#include "TTree.h"
 #include "TParticle.h"
-#include "TGeoMaterial.h"
-#include "TGeoMedium.h"
 #include "TGeoArb8.h"
 #include "TGeoTrd2.h"
 #include "TGeoCompositeShape.h"
@@ -17,7 +13,10 @@
 #include "TVirtualMC.h"
 
 #include "FairVolume.h"
-// add on for debug
+#include "FairGeoMedia.h"
+#include "FairGeoInterface.h"
+#include "FairGeoLoader.h"
+#include "FairGeoBuilder.h"
 #include "FairRuntimeDb.h"
 #include "FairRun.h"
 #include "FairModule.h"
@@ -74,21 +73,13 @@ void PndMdt::ConstructGeometryTo()
     TGeoRotation tRot, tRotSlice;
     Double_t angle;
 
-//mdtArCO2
-    Int_t kMatmdtArCO2 = 40;
-    Float_t aP[3] = {39.948, 12.01, 16.00};
-    Float_t zP[3] = {18., 6., 8.} ;
-    Float_t wP[3] = {1., 1., 2.} ;
-    Float_t dP = 1.636 ;
-    Int_t   nP = 3;
-    Float_t sumWeight = 0.0;
-    for (Int_t i=0; i<nP; i++) sumWeight += aP[i]*wP[i];
-    for (Int_t i=0; i<nP; i++) wP[i] *= aP[i]/sumWeight;
-    TGeoMaterial* matmdtArCO2 = gGeoManager->Mixture("mdtArCO2",aP,zP,dP,nP,wP,kMatmdtArCO2);
-    
-    Int_t kMedmdtArCO2 = 200;
-    TGeoMedium* medmdtArCO2 = gGeoManager->Medium("mdtArCO2", kMedmdtArCO2, kMatmdtArCO2, 1, 1, 30., 10.0, 0.1, 0.1, 0.1, 0.1);
-
+    FairGeoLoader*geoLoad = FairGeoLoader::Instance();
+    FairGeoInterface *geoFace = geoLoad->getGeoInterface();
+    FairGeoMedia *Media =  geoFace->getMedia();
+    FairGeoBuilder *geobuild=geoLoad->getGeoBuilder();
+    FairGeoMedium *medmdtArCO2  = Media->getMedium("MDTMixture");
+    Int_t  kMedmdtArCO2=geobuild->createMedium(medmdtArCO2);
+   
 //creating the holes
     TGeoBBox* hbox1 = new TGeoBBox("hbox1",((Double_t)PndMdt_H01_Length)/10.0,((Double_t)PndMdt_H01_Length)/10.0,((Double_t)PndMdt_SV201)/10.0,0);
     TGeoBBox* hbox2 = new TGeoBBox("hbox2",((Double_t)PndMdt_H02_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_H02_V)/10.0,0);
@@ -163,7 +154,7 @@ void PndMdt::ConstructGeometryTo()
 		mx0 = my*TMath::Cos(((Double_t)k)*TMath::ACos(-1.0)/4.0);
 		my0 = my*TMath::Sin(((Double_t)k)*TMath::ACos(-1.0)/4.0);
 		sprintf(buffer,"muon%i",8*i+j);
-		TGeoVolume* volume = new TGeoVolume(buffer,tgcs,gGeoManager->GetMedium("mdtArCO2"));
+		TGeoVolume* volume = new TGeoVolume(buffer,tgcs,gGeoManager->GetMedium("MDTMixture"));
 		AddSensitiveVolume(volume);
 		volume->SetLineColor(1);
 //		mdtBarrel->AddNode(volume,8*i+j,new TGeoCombiTrans(mx0/10.0,my0/10.0,0.0,new TGeoRotation(tRot)));
@@ -217,7 +208,7 @@ void PndMdt::ConstructGeometryTo()
 		mx0 = my*TMath::Cos(((Double_t)k)*TMath::ACos(-1.0)/4.0);
 		my0 = my*TMath::Sin(((Double_t)k)*TMath::ACos(-1.0)/4.0);
 		sprintf(buffer,"muon%i",8*i+j);
-		TGeoVolume* volume = new TGeoVolume(buffer,box,gGeoManager->GetMedium("mdtArCO2"));
+		TGeoVolume* volume = new TGeoVolume(buffer,box,gGeoManager->GetMedium("MDTMixture"));
 		AddSensitiveVolume(volume);
 		volume->SetLineColor(1);
 //		mdtBarrel->AddNode(volume,8*i+j,new TGeoCombiTrans(mx0/10.0,my0/10.0,mz0/10.0,new TGeoRotation(tRot)));
@@ -354,7 +345,7 @@ void PndMdt::ConstructGeometryTo()
 	    else sprintf(longbuffer,"trd2:tgt2-hbox%i:tgr%i",i+2,j);
 	    TGeoCompositeShape* tgcs = new TGeoCompositeShape(buffer,longbuffer);
 	    sprintf(buffer,"muon%i",200+8*i+j);
-	    TGeoVolume* volume = new TGeoVolume(buffer,tgcs,gGeoManager->GetMedium("mdtArCO2"));
+	    TGeoVolume* volume = new TGeoVolume(buffer,tgcs,gGeoManager->GetMedium("MDTMixture"));
 	    AddSensitiveVolume(volume);
 	    volume->SetLineColor(1);
 //	    mdtEndcap->AddNode(volume,200+8*i+j,new TGeoCombiTrans(0.0,0.0,mz0/10.0,new TGeoRotation(tRot)));
@@ -434,26 +425,30 @@ Bool_t PndMdt::ProcessHitsTo(FairVolume* vol)
   fELoss = fELoss + gMC->Edep(); 
   if (gMC->IsTrackExiting() || gMC->IsTrackStop() || gMC->IsTrackDisappeared() )
     {
-      Int_t TrNo=gMC->GetStack()->GetCurrentTrackNumber();
-      Int_t pdg= gMC->TrackPid();
-      if ( TrNo == fTrkIn )
+      if (fELoss>0.)
 	{
-	  TLorentzVector lPos, lMom;
-	  int ilayer;
-	  int iplate;
-	  sscanf(name,"muon%i",&iplate);
-	  ilayer = iplate;
-	  gMC->TrackPosition(lPos); // cm
-	  gMC->TrackMomentum(lMom); // GeV
-	  TClonesArray& clref = *fMdtCollection;
-	  Int_t size = fMdtCollection->GetEntriesFast();
-	  PndMdtPoint *P= new(clref[size]) PndMdtPoint (TrNo,ilayer, lPos.Vect(), lMom.Vect(), gMC->TrackTime(),
-							gMC->TrackLength(), fELoss, gMC->GetStack()->GetCurrentParentTrackNumber(),pdg,
-							fPos_In.Vect(), fMom_In.Vect());
-	  /**if you add a point then tell the stack! here*/
-	  PndStack* stack = (PndStack*) gMC->GetStack();
-	  stack->AddPoint(kMDT);
-	};
+	  Int_t TrNo=gMC->GetStack()->GetCurrentTrackNumber();
+	  Int_t pdg= gMC->TrackPid();
+	  if ( TrNo == fTrkIn )
+	    {
+	      TLorentzVector lPos, lMom;
+	      int ilayer;
+	      int iplate;
+	      sscanf(name,"muon%i",&iplate);
+	      ilayer = iplate;
+	      gMC->TrackPosition(lPos); // cm
+	      gMC->TrackMomentum(lMom); // GeV
+	      TClonesArray& clref = *fMdtCollection;
+	      Int_t size = fMdtCollection->GetEntriesFast();
+	      PndMdtPoint *P= new(clref[size]) PndMdtPoint (TrNo,ilayer, lPos.Vect(), lMom.Vect(), gMC->TrackTime(),
+							    gMC->TrackLength(), fELoss, gMC->GetStack()->GetCurrentParentTrackNumber(),pdg,
+							    fPos_In.Vect(), fMom_In.Vect());
+	      /**if you add a point then tell the stack! here*/
+	      PndStack* stack = (PndStack*) gMC->GetStack();
+	      stack->AddPoint(kMDT);
+	    }
+	  else cout << "******************* MDT ERROR **************************************" << endl;
+	}
       ResetParameters();
     }
   

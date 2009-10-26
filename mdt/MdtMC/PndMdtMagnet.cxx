@@ -4,11 +4,7 @@
 #include "TClonesArray.h"
 #include "TLorentzVector.h"
 #include "TMath.h"
-#include "TFile.h"
-#include "TTree.h"
 #include "TParticle.h"
-#include "TGeoMaterial.h"
-#include "TGeoMedium.h"
 #include "TGeoArb8.h"
 #include "TGeoTrd2.h"
 #include "TGeoCompositeShape.h"
@@ -17,7 +13,10 @@
 #include "TVirtualMC.h"
 
 #include "FairVolume.h"
-// add on for debug
+#include "FairGeoMedia.h"
+#include "FairGeoInterface.h"
+#include "FairGeoLoader.h"
+#include "FairGeoBuilder.h"
 #include "FairRuntimeDb.h"
 #include "FairRun.h"
 #include "FairModule.h"
@@ -52,21 +51,13 @@ void PndMdt::PndMdtMagnet()
     TGeoRotation tRot, tRotSlice;
     Double_t angle;
 
-//mdtIron
-    Int_t kMatmdtIron = 46;
-    Float_t aP[1] = {55.845};
-    Float_t zP[1] = {26.} ;
-    Float_t wP[1] = {1.} ;
-    Float_t dP = 7.87;
-    Int_t   nP = 1;
-    Float_t sumWeight = 0.0;
-    for (Int_t i=0; i<nP; i++) sumWeight += aP[i]*wP[i];
-    for (Int_t i=0; i<nP; i++) wP[i] *= aP[i]/sumWeight;
-    TGeoMaterial* matmdtIron = gGeoManager->Mixture("mdtIron",aP,zP,dP,nP,wP,kMatmdtIron);
+    FairGeoLoader*geoLoad = FairGeoLoader::Instance();
+    FairGeoInterface *geoFace = geoLoad->getGeoInterface();
+    FairGeoMedia *Media =  geoFace->getMedia();
+    FairGeoBuilder *geobuild=geoLoad->getGeoBuilder();
+    FairGeoMedium *medmdtArCO2  = Media->getMedium("MDTMixture");
+    Int_t  kMedmdtArCO2=geobuild->createMedium(medmdtArCO2);
     
-    Int_t kMedmdtIron = 201;
-    TGeoMedium* medmdtIron = gGeoManager->Medium("mdtIron", kMedmdtIron, kMatmdtIron, 1, 1, 30., 10.0, 0.1, 0.1, 0.1, 0.1);
-
 //creating the holes
     TGeoBBox* mhbox1 = new TGeoBBox("mhbox1",((Double_t)PndMdtMagnet_H01_Length)/10.0,((Double_t)PndMdtMagnet_H01_Length)/10.0,((Double_t)PndMdtMagnet_L201)/10.0,0);
     TGeoBBox* mhbox2 = new TGeoBBox("mhbox2",((Double_t)PndMdtMagnet_H02_H)/10.0,10.0+((Double_t)PndMdtMagnet_Th2)/10.0,((Double_t)PndMdtMagnet_H02_V)/10.0,0);
@@ -153,7 +144,7 @@ void PndMdt::PndMdtMagnet()
 		mx0 = my*TMath::Cos(((Double_t)k)*TMath::ACos(-1.0)/4.0);
 		my0 = my*TMath::Sin(((Double_t)k)*TMath::ACos(-1.0)/4.0);
 		sprintf(buffer,"magnet%i",300+8*i+j);
-		TGeoVolume* volume = new TGeoVolume(buffer,mtgcs,gGeoManager->GetMedium("mdtIron"));
+		TGeoVolume* volume = new TGeoVolume(buffer,mtgcs,gGeoManager->GetMedium("iron"));
 		volume->SetLineColor(3);
 		magBarrel->AddNode(volume,300+8*i+j,new TGeoCombiTrans(mx0/10.0,my0/10.0,0.0,new TGeoRotation(tRot)));
 	    }
@@ -164,7 +155,7 @@ void PndMdt::PndMdtMagnet()
 		mx0 = my*TMath::Cos(((Double_t)k)*TMath::ACos(-1.0)/4.0);
 		my0 = my*TMath::Sin(((Double_t)k)*TMath::ACos(-1.0)/4.0);
 		sprintf(buffer,"magnet%i",300+8*i+j);
-		TGeoVolume* volume = new TGeoVolume(buffer,mbox,gGeoManager->GetMedium("mdtIron"));
+		TGeoVolume* volume = new TGeoVolume(buffer,mbox,gGeoManager->GetMedium("iron"));
 		volume->SetLineColor(3);
 		magBarrel->AddNode(volume,300+8*i+j,new TGeoCombiTrans(mx0/10.0,my0/10.0,mz0/10.0,new TGeoRotation(tRot)));
 	    };
@@ -246,7 +237,7 @@ void PndMdt::PndMdtMagnet()
 	    sprintf(longbuffer,"magtrd:magtgt-mhbox%i:magtgr%i",i+2,j);
 	    TGeoCompositeShape* magtgcs = new TGeoCompositeShape(buffer,longbuffer);
 	    sprintf(buffer,"magnet%i",500+8*i+j);
-	    TGeoVolume* volume = new TGeoVolume(buffer,magtgcs,gGeoManager->GetMedium("mdtIron"));
+	    TGeoVolume* volume = new TGeoVolume(buffer,magtgcs,gGeoManager->GetMedium("iron"));
 	    volume->SetLineColor(3);
 	    magEndcap->AddNode(volume,500+8*i+j,new TGeoCombiTrans(0.0,0.0,mz0/10.0,new TGeoRotation(tRot)));
 	    tRot.RotateZ(-45.0);
