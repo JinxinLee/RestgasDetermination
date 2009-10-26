@@ -95,6 +95,7 @@ PndLheKalmanTask::Init()
 
   // Build hit factory -----------------------------
   fTheRecoHitFactory = new GFRecoHitFactory();
+  if (fVerbose<2) GFException::quiet(true);
 
   TClonesArray* stripar=(TClonesArray*) ioman->GetObject("MVDHitsStrip");
   if(stripar==0)
@@ -171,112 +172,118 @@ void PndLheKalmanTask::Exec(Option_t* opt)
   if (fVerbose>1) std::cout << " -I- PndLheKalmanTask: contains " << ntracks << " Tracks."<< std::endl;
     
   // Cut too busy events TODO
-  if(ntracks>20){
-    std::cout<<" -I- PndLheKalmanTask::Exec: ntracks=" << ntracks << " Evil Event! skipping" << std::endl;
-    return;
-  }
+  if(ntracks>20)
+    {
+      std::cout<<" -I- PndLheKalmanTask::Exec: ntracks=" << ntracks << " Evil Event! skipping" << std::endl;
+      return;
+    }
   
   std::vector<TLorentzVector*> particles;
   std::vector<Int_t> signs;
 
   // Fitting ---------------- can go to another task!
   GFKalman fitter;
-  fitter.setLazy(1); // tell the fitter to skip hits if error occurs
   fitter.setNumIterations(fNumIt);
 
-  for(Int_t itr=0;itr<ntracks;++itr){
-    if (fVerbose>1) std::cout<<"starting track"<<itr<<std::endl;
-    PndTrack *lheTrack = (PndTrack*)fTrackArray->At(itr);
-    Double_t  fCharge= lheTrack->GetParamFirst().GetQ();
-    Int_t PDGCode= -13*(Int_t)TMath::Sign(1.,fCharge);
-    
-    TVector3 StartPos(lheTrack->GetParamFirst().GetX(),lheTrack->GetParamFirst().GetY(),lheTrack->GetParamFirst().GetZ()); 
-    TVector3 StartMom(lheTrack->GetParamFirst().GetPx(),lheTrack->GetParamFirst().GetPy(),lheTrack->GetParamFirst().GetPz());
-    TVector3 StartPosErr(lheTrack->GetParamFirst().GetDX(),lheTrack->GetParamFirst().GetDY(),lheTrack->GetParamFirst().GetDZ()); 
-    TVector3 StartMomErr(lheTrack->GetParamFirst().GetDPx(),lheTrack->GetParamFirst().GetDPy(),lheTrack->GetParamFirst().GetDPz());
-    
-    GFAbsTrackRep* rep = 0;
-    if (fUseGeane)
-      {
-	// Calculating params at PCA to Origin
-	FairTrackParP par = lheTrack->GetParamFirst();
-	Int_t ierr = 0;
-	FairTrackParH *helix = new FairTrackParH(&par, ierr);
-	FairGeanePro *fPro0 = new FairGeanePro();
-	FairTrackParH *fRes= new FairTrackParH();
-	fPro0->SetPoint(TVector3(0,0,0));
-	fPro0->PropagateToPCA(1, -1);
-	Bool_t rc =  fPro0->Propagate(helix, fRes, PDGCode);
-	if (rc)
-	  {
-	    StartPos.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
-	    StartMom.SetXYZ(fRes->GetPx(), fRes->GetPy(), fRes->GetPz());
-	    StartPosErr.SetXYZ(fRes->GetDX(), fRes->GetDY(), fRes->GetDZ());
-	    StartMomErr.SetXYZ(fRes->GetDPx(), fRes->GetDPy(), fRes->GetDPz());
-	  }
-	
-	GFDetPlane start_pl(StartPos, TVector3(1.,0.,0.), TVector3(0.,1.,0.));
-	GeaneTrackRep *grep = new GeaneTrackRep(fPro,
-						start_pl,StartMom,
-						StartPosErr,StartMomErr,
-						fCharge,PDGCode);
-	grep->setPropDir(1);
-        rep = grep;
-      }
-    else
-      {
-	TVector3 dir=StartMom.Unit();
-	Double_t dxdz=dir.X()/dir.Z();
-	Double_t dydz=dir.Y()/dir.Z();
-	Double_t qp=fCharge/StartMom.Mag();
-	rep = new LSLTrackRep(StartPos.Z(),StartPos.X(),StartPos.Y(),dxdz,dydz,qp,
-			      StartPosErr.X(),StartPosErr.Y(),0.1,0.1,0.1,NULL);
-      }
-    
-    GFTrack* trk= new GFTrack(rep);
-    PndTrackCand trackCand = lheTrack->GetTrackCand();
-    trk->setCandidate(*PndTrackCand2GenfitTrackCand(&trackCand));
-         
-    // Load RecoHits
-    try {
-      trk->addHitVector(fTheRecoHitFactory->createMany(trk->getCand()));
-      if (fVerbose>0) std::cout<<trk->getNumHits()<<" hits in track "
-			       <<itr<<std::endl;
+  for(Int_t itr=0;itr<ntracks;++itr)
+    {
+      if (fVerbose>1) std::cout<<"starting track"<<itr<<std::endl;
+      PndTrack *lheTrack = (PndTrack*)fTrackArray->At(itr);
+      Double_t  fCharge= lheTrack->GetParamFirst().GetQ();
+      Int_t PDGCode= -13*(Int_t)TMath::Sign(1.,fCharge);
+      
+      TVector3 StartPos(lheTrack->GetParamFirst().GetX(),lheTrack->GetParamFirst().GetY(),lheTrack->GetParamFirst().GetZ()); 
+      TVector3 StartMom(lheTrack->GetParamFirst().GetPx(),lheTrack->GetParamFirst().GetPy(),lheTrack->GetParamFirst().GetPz());
+      TVector3 StartPosErr(lheTrack->GetParamFirst().GetDX(),lheTrack->GetParamFirst().GetDY(),lheTrack->GetParamFirst().GetDZ()); 
+      TVector3 StartMomErr(lheTrack->GetParamFirst().GetDPx(),lheTrack->GetParamFirst().GetDPy(),lheTrack->GetParamFirst().GetDPz());
+      
+      GFAbsTrackRep* rep = 0;
+      if (fUseGeane)
+	{
+	  // Calculating params at PCA to Origin
+	  FairTrackParP par = lheTrack->GetParamFirst();
+	  Int_t ierr = 0;
+	  FairTrackParH *helix = new FairTrackParH(&par, ierr);
+	  FairGeanePro *fPro0 = new FairGeanePro();
+	  FairTrackParH *fRes= new FairTrackParH();
+	  fPro0->SetPoint(TVector3(0,0,0));
+	  fPro0->PropagateToPCA(1, -1);
+	  Bool_t rc =  fPro0->Propagate(helix, fRes, PDGCode);
+	  if (rc)
+	    {
+	      StartPos.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
+	      StartMom.SetXYZ(fRes->GetPx(), fRes->GetPy(), fRes->GetPz());
+	      StartPosErr.SetXYZ(fRes->GetDX(), fRes->GetDY(), fRes->GetDZ());
+	      StartMomErr.SetXYZ(fRes->GetDPx(), fRes->GetDPy(), fRes->GetDPz());
+	    }
+	  
+	  GFDetPlane start_pl(StartPos, TVector3(1.,0.,0.), TVector3(0.,1.,0.));
+	  GeaneTrackRep *grep = new GeaneTrackRep(fPro,
+						  start_pl,StartMom,
+						  StartPosErr,StartMomErr,
+						  fCharge,PDGCode);
+	  grep->setPropDir(1);
+	  rep = grep;
+	}
+      else
+	{
+	  TVector3 dir=StartMom.Unit();
+	  Double_t dxdz=dir.X()/dir.Z();
+	  Double_t dydz=dir.Y()/dir.Z();
+	  Double_t qp=fCharge/StartMom.Mag();
+	  rep = new LSLTrackRep(StartPos.Z(),StartPos.X(),StartPos.Y(),dxdz,dydz,qp,
+				StartPosErr.X(),StartPosErr.Y(),0.1,0.1,0.1,NULL);
+	}
+      
+      GFTrack* trk= new GFTrack(rep);
+      PndTrackCand trackCand = lheTrack->GetTrackCand();
+      trk->setCandidate(*PndTrackCand2GenfitTrackCand(&trackCand));
+      
+      // Load RecoHits
+      try 
+	{
+	  trk->addHitVector(fTheRecoHitFactory->createMany(trk->getCand()));
+	  if (fVerbose>0) std::cout<<trk->getNumHits()<<" hits in track "
+				   <<itr<<std::endl;
+	}
+      catch(GFException& e)
+	{
+	  std::cout << e.what() << std::endl;
+	  throw e;
+	}
+      
+      // Start Fitter
+      try
+	{
+	  fitter.processTrack(trk);
+	}
+      catch (GFException e)
+	{
+	  std::cout<<"*** FITTER EXCEPTION ***"<<std::endl;
+	  std::cout<<e.what()<<std::endl;
+	}
+      if (fVerbose>0) std::cout<<"SUCESSFULL FIT!"<<std::endl;
+      
+      PndTrack *fitTrack = 0;
+      try
+	{ 
+	  fitTrack = (PndTrack*)GenfitTrack2PndTrack(trk);
+	}
+      catch (GFException e)
+	{
+	  std::cout<<"*** PndGenfitAdapters EXCEPTION ***"<<std::endl;
+	  std::cout<<e.what()<<std::endl;
+	  continue;
+	}
+      
+      TClonesArray& trkRef = *fFitTrackArray;
+      Int_t size = trkRef.GetEntriesFast();
+      PndTrack* pndTrack = new(trkRef[size]) PndTrack(fitTrack->GetParamFirst(), fitTrack->GetParamLast(), fitTrack->GetTrackCand(),
+						      fitTrack->GetFlag(), fitTrack->GetChi2(), fitTrack->GetNDF(), fitTrack->GetPidHypo(), itr);
     }
-    catch(GFException& e) {
-      std::cout << e.what() << std::endl;
-      throw e;
-    }
-
-        
-    // Start Fitter
-    try{
-      fitter.processTrack(trk);
-    }
-    catch (GFException e){
-      std::cout<<"*** FITTER EXCEPTION ***"<<std::endl;
-      std::cout<<e.what()<<std::endl;
-    }
-    if (fVerbose>0) std::cout<<"SUCESSFULL FIT!"<<std::endl;
-    
-    PndTrack *fitTrack = 0;
-    try{ 
-      fitTrack = (PndTrack*)GenfitTrack2PndTrack(trk);
-    }
-    catch (GFException e){
-      std::cout<<"*** PndGenfitAdapters EXCEPTION ***"<<std::endl;
-      std::cout<<e.what()<<std::endl;
-      continue;
-    }
-
-    TClonesArray& trkRef = *fFitTrackArray;
-    Int_t size = trkRef.GetEntriesFast();
-    PndTrack* pndTrack = new(trkRef[size]) PndTrack(fitTrack->GetParamFirst(), fitTrack->GetParamLast(), fitTrack->GetTrackCand(),
-						    fitTrack->GetFlag(), fitTrack->GetChi2(), fitTrack->GetNDF(), fitTrack->GetPidHypo(), itr);
-  }
-
+  
   if (fVerbose>0) std::cout<<"Fitting done"<<std::endl;
-
+  
   return;
 }
 
