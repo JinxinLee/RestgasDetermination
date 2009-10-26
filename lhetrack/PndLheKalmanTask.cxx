@@ -187,19 +187,35 @@ void PndLheKalmanTask::Exec(Option_t* opt)
   for(Int_t itr=0;itr<ntracks;++itr){
     if (fVerbose>1) std::cout<<"starting track"<<itr<<std::endl;
     PndTrack *lheTrack = (PndTrack*)fTrackArray->At(itr);
- 
+    Double_t  fCharge= lheTrack->GetParamFirst().GetQ();
+    Int_t PDGCode= -13*(Int_t)TMath::Sign(1.,fCharge);
+    
     TVector3 StartPos(lheTrack->GetParamFirst().GetX(),lheTrack->GetParamFirst().GetY(),lheTrack->GetParamFirst().GetZ()); 
     TVector3 StartMom(lheTrack->GetParamFirst().GetPx(),lheTrack->GetParamFirst().GetPy(),lheTrack->GetParamFirst().GetPz());
     TVector3 StartPosErr(lheTrack->GetParamFirst().GetDX(),lheTrack->GetParamFirst().GetDY(),lheTrack->GetParamFirst().GetDZ()); 
     TVector3 StartMomErr(lheTrack->GetParamFirst().GetDPx(),lheTrack->GetParamFirst().GetDPy(),lheTrack->GetParamFirst().GetDPz());
     
-    Double_t  fCharge= lheTrack->GetParamFirst().GetQ();
-    Int_t PDGCode= -13*(Int_t)TMath::Sign(1.,fCharge);
-    GFDetPlane start_pl(lheTrack->GetParamFirst().GetOrigin(), TVector3(1.,0.,0.), TVector3(0.,1.,0.));
-    
     GFAbsTrackRep* rep = 0;
     if (fUseGeane)
       {
+	// Calculating params at PCA to Origin
+	FairTrackParP par = lheTrack->GetParamFirst();
+	Int_t ierr = 0;
+	FairTrackParH *helix = new FairTrackParH(&par, ierr);
+	FairGeanePro *fPro0 = new FairGeanePro();
+	FairTrackParH *fRes= new FairTrackParH();
+	fPro0->SetPoint(TVector3(0,0,0));
+	fPro0->PropagateToPCA(1, -1);
+	Bool_t rc =  fPro0->Propagate(helix, fRes, PDGCode);
+	if (rc)
+	  {
+	    StartPos.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
+	    StartMom.SetXYZ(fRes->GetPx(), fRes->GetPy(), fRes->GetPz());
+	    StartPosErr.SetXYZ(fRes->GetDX(), fRes->GetDY(), fRes->GetDZ());
+	    StartMomErr.SetXYZ(fRes->GetDPx(), fRes->GetDPy(), fRes->GetDPz());
+	  }
+	
+	GFDetPlane start_pl(StartPos, TVector3(1.,0.,0.), TVector3(0.,1.,0.));
 	GeaneTrackRep *grep = new GeaneTrackRep(fPro,
 						start_pl,StartMom,
 						StartPosErr,StartMomErr,
