@@ -758,7 +758,7 @@ void PndDrc::ConstructGeometry()
   barContainer->AddNode(lens2, 1,new TGeoCombiTrans(0., 0., -(bbox_hlen-eps)+r2 + 0.2 , new TGeoRotation (0)));
   
 
-  gGeoManager->CloseGeometry();
+  //gGeoManager->CloseGeometry();
 
 }
 
