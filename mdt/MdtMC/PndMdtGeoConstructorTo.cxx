@@ -81,7 +81,7 @@ void PndMdt::ConstructGeometryTo()
     Int_t  kMedmdtArCO2=geobuild->createMedium(medmdtArCO2);
    
 //creating the holes
-    TGeoBBox* hbox1 = new TGeoBBox("hbox1",((Double_t)PndMdt_H01_Length)/10.0,((Double_t)PndMdt_H01_Length)/10.0,((Double_t)PndMdt_SV201)/10.0,0);
+    TGeoBBox* hbox1 = new TGeoBBox("hbox1",((Double_t)PndMdt_H01_LengthX)/10.0,((Double_t)PndMdt_H01_LengthZ)/10.0,((Double_t)PndMdt_SVThickness+1.)/10.0,0);
     TGeoBBox* hbox2 = new TGeoBBox("hbox2",((Double_t)PndMdt_H02_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_H02_V)/10.0,0);
     TGeoBBox* hbox3 = new TGeoBBox("hbox3",((Double_t)PndMdt_H03_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_H03_V)/10.0,0);
     TGeoBBox* hbox4 = new TGeoBBox("hbox4",((Double_t)PndMdt_H04_H)/10.0,10.0+((Double_t)PndMdt_SVThickness)/10.0,((Double_t)PndMdt_H04_V)/10.0,0);
@@ -90,7 +90,7 @@ void PndMdt::ConstructGeometryTo()
 
 //MdtBarrel
     tRot.RotateX(90.0);
-    mpy = ((Double_t)PndMdt_Barrel_Length)/2.0;
+    mpy = ((Double_t)PndMdt_Barrel_Length)/2.0; // subtract dead space in yoke
     mpz = (Double_t)PndMdt_SVThickness;
     mz0 = (Double_t)PndMdt_Barrel_Displacement;
     for(int i=0; i<13; i++)
@@ -139,6 +139,7 @@ void PndMdt::ConstructGeometryTo()
 	    };
 	    my = my0;
 	    mpx = (my - mpz)*(TMath::Tan(TMath::ACos(-1.0)/8.0));
+            if (!mdtMagnet) mpx = mpx - 55.;  // STE: If realistic magnet, planes are a bit smaller because of the yoke structure (edges)
 	    sprintf(buffer,"box%i",i);
 	    TGeoBBox* box = new TGeoBBox(buffer,mpx/10.0,mpy/10.0,mpz/10.0,0);
 	    TGeoTranslation* tgt = new TGeoTranslation(0.0,mz0/10.0,0.0);
@@ -261,7 +262,7 @@ void PndMdt::ConstructGeometryTo()
 
 
 //MdtEndcap
-    
+   /* 
     TGeoRotation tgrl;
     tgrl.RotateY(0.0);
     TGeoRotation* tgr0 = new TGeoRotation(tgrl);
@@ -370,7 +371,7 @@ void PndMdt::ConstructGeometryTo()
 	    tRot.RotateZ(-45.0);
 	};
     };
-    
+    */
     mdtBarrel->AddNode(mdtBL00,1);
     mdtBarrel->AddNode(mdtBL01,1);
     mdtBarrel->AddNode(mdtBL02,1);
@@ -385,13 +386,14 @@ void PndMdt::ConstructGeometryTo()
     mdtBarrel->AddNode(mdtBL11,1);
     mdtBarrel->AddNode(mdtBL12,1);
     mdt->AddNode(mdtBarrel,1);
+/*
     mdtEndcap->AddNode(mdtEL00,1);
     mdtEndcap->AddNode(mdtEL01,1);
     mdtEndcap->AddNode(mdtEL02,1);
     mdtEndcap->AddNode(mdtEL03,1);
     mdtEndcap->AddNode(mdtEL04,1);
     mdt->AddNode(mdtEndcap,1);
-
+*/
     vcave->AddNode(mdt,1);
 
     if(mdtMagnet) PndMdtMagnet();

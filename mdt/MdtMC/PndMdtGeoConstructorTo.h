@@ -36,7 +36,8 @@
 #define PndMdt_SV204 2830
 
 //Mdt Barrel half hole
-#define PndMdt_H01_Length 610
+#define PndMdt_H01_LengthX 500
+#define PndMdt_H01_LengthZ 600
 
 //Mdt Endcap half holes (vertical,horizontal)
 #define PndMdt_H02_V 240
