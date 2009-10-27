@@ -262,7 +262,7 @@ void PndMdt::ConstructGeometryTo()
 
 
 //MdtEndcap
-   /* 
+    
     TGeoRotation tgrl;
     tgrl.RotateY(0.0);
     TGeoRotation* tgr0 = new TGeoRotation(tgrl);
@@ -371,7 +371,7 @@ void PndMdt::ConstructGeometryTo()
 	    tRot.RotateZ(-45.0);
 	};
     };
-    */
+    
     mdtBarrel->AddNode(mdtBL00,1);
     mdtBarrel->AddNode(mdtBL01,1);
     mdtBarrel->AddNode(mdtBL02,1);
@@ -386,14 +386,14 @@ void PndMdt::ConstructGeometryTo()
     mdtBarrel->AddNode(mdtBL11,1);
     mdtBarrel->AddNode(mdtBL12,1);
     mdt->AddNode(mdtBarrel,1);
-/*
+
     mdtEndcap->AddNode(mdtEL00,1);
     mdtEndcap->AddNode(mdtEL01,1);
     mdtEndcap->AddNode(mdtEL02,1);
     mdtEndcap->AddNode(mdtEL03,1);
     mdtEndcap->AddNode(mdtEL04,1);
     mdt->AddNode(mdtEndcap,1);
-*/
+
     vcave->AddNode(mdt,1);
 
     if(mdtMagnet) PndMdtMagnet();
