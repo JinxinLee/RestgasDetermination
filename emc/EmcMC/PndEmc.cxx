@@ -305,6 +305,86 @@ Bool_t PndEmc::ProcessHits(FairVolume* vol) {
       nMod=4;
       copyNo = copyNoQuar;
     }
+      else if (namQuar.Contains("QuarterNewVol")){
+      // ----- NEW Backward EndCap - with the FwEndCap geometry ----
+      nMod=4;
+      
+      TString namCrys    = gMC->CurrentVolOffName(0); // Crystal name 
+      TString namBox     = gMC->CurrentVolOffName(1); // Box name  
+      TString namSub     = gMC->CurrentVolOffName(2); // Subunit name 
+      TString namQuar    = gMC->CurrentVolOffName(3); // Quarter name 
+       
+      // Return the current volume off upward in the geometrical tree
+      // ID and copy number
+      idCrys = gMC->CurrentVolOffID(0,copyNoCrys);
+      idBox  = gMC->CurrentVolOffID(1,copyNoBox);
+      idSub  = gMC->CurrentVolOffID(2,copyNoSub)-1;
+      idQuar = gMC->CurrentVolOffID(3,copyNoQuar);
+       
+      Int_t daughtQuar = gMC->NofVolDaughters(namQuar);
+      Int_t daughtSub  = gMC->NofVolDaughters(namSub);
+      Int_t daughtBox  = gMC->NofVolDaughters(namBox);
+      Int_t daughtCrys = gMC->NofVolDaughters(namCrys);
+       
+      Int_t col=0;
+      Int_t next=0;     // starts (from the middle) next column, represents rows
+      copyNoSub-=1;     // When geometry is created, copyNoSub starts from 1-13 
+                        // and the loop below starts from 0-12
+   
+      //  Now, 26.02.2009, 3 crystals in the middle's subunit are added =>
+      // => number of Subunits for BwEncCap & straight geometry is the same   
+      if((copyNoSub >=  0) && (copyNoSub <=  2)){
+	next  = copyNoSub+1;
+	col   = 0;
+      }else if((copyNoSub >=  3) && (copyNoSub <= 6)){
+	next  = (copyNoSub-3);
+	col   = 1;
+      }else if((copyNoSub >= 7) && (copyNoSub <= 10)){
+	next  = (copyNoSub-7);
+	col   = 2;
+      }else if((copyNoSub >= 11) && (copyNoSub <= 13)){
+	next  = (copyNoSub-11);
+	col   = 3;
+      }
+       
+      Int_t flag4=1;
+      // 26.02.2009
+      // "next" means "row", "col" means "col"
+
+      if (next==3  && col==3) flag4=0; // corner's subunit + one below
+      if (next==0  && col==0) flag4=0; // + one to the left
+      
+      if (flag4!=0){
+	if ( (copyNoBox == 0)  || (copyNoBox == 3) ){
+	  if(copyNoCrys == 1 || copyNoCrys == 3){ 
+	    nCrys = next*4 + 3;
+	  }else if (copyNoCrys == 0 || copyNoCrys == 2){
+	    nCrys = next*4 + 4;
+	  }
+	}else if ( (copyNoBox == 1)  || (copyNoBox == 2) ){
+	  if(copyNoCrys == 0 || copyNoCrys == 2){ 
+	    nCrys = next*4 + 2;
+	  }else if (copyNoCrys == 1 || copyNoCrys == 3){
+	    nCrys = next*4 + 1; 
+	  }
+	}
+	if ( (copyNoBox == 0)  || (copyNoBox == 2) ){
+	  if(copyNoCrys == 0 || copyNoCrys == 3){ 
+	    nRow = col*4 + 4;
+	  }else if (copyNoCrys == 1 || copyNoCrys == 2){
+	    nRow = col*4 + 3;
+	  }
+	}else if ( (copyNoBox == 1)  || (copyNoBox == 3) ){
+	  if(copyNoCrys == 0 || copyNoCrys == 3){ 
+	    nRow = col*4 + 2;
+	  }else if (copyNoCrys == 1 || copyNoCrys == 2){
+	    nRow = col*4 + 1; 
+	  }
+	}
+      }
+      nMod=4;
+      copyNo = copyNoQuar;
+    }
   }
 
   // ---------------------------------------------------------------------------------
@@ -623,7 +703,7 @@ void PndEmc::ConstructGeometry() {
       std::cout<< " ============================================= " <<std::endl;
       ConstructRootGeometry();
     }
-    if(fgeoName3.EndsWith("4_FwEndCapGeo.root") || fgeoName3.EndsWith("4_StraightGeo26.root") || fgeoName3.EndsWith("4_StraightGeo26_Al.root") || fileName.EndsWith("4_StraightGeo24.4.root") || fgeoName.EndsWith("4_StraightGeo24.4_Al.root")) {
+    if(fgeoName3.EndsWith("4_FwEndCapGeo.root") || fgeoName3.EndsWith("4_StraightGeo26.root") || fgeoName3.EndsWith("4_StraightGeo26_Al.root") || fgeoName3.EndsWith("4_StraightGeo24.4.root") || fgeoName.EndsWith("4_StraightGeo24.4_Al.root")) {
       std::cout<< "                                               " <<std::endl;
       std::cout<< " ====== EMC::  ConstructRootGeometry() m4a === " <<std::endl;
       std::cout<< " ============================================= " <<std::endl;
