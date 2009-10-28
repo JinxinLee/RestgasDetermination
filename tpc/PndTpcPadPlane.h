@@ -150,7 +150,7 @@ private:
 
 
   // Private Methods -----------------
-  bool ReadLine(const char* const line,
+  bool ReadLine(char* const line,
 		const PndTpcPadShapePool* const pspool);
 };
 

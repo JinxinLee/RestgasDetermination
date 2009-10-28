@@ -227,7 +227,7 @@ PndTpcPadPlane::ReadFromFile(const char* const filename,
 }
 
 bool
-PndTpcPadPlane::ReadLine(const char* const line,
+PndTpcPadPlane::ReadLine(char* const line,
 		      const PndTpcPadShapePool* const pspool)
 {
   //remove comments at end of line
