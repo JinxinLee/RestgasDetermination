@@ -30,11 +30,7 @@ class Alignment{
     bool alignP_;
     /*
      these 3 arrays are for sending information to millepede and for
-     getting them back. It is to be said that the array par isnt used
-     because you can get millepede to write the results to a file
-     This is not yet implemented, but should be only adding another
-     line calling the write part of millepede
-
+     getting them 
     */
     float dergb[NGLB];     //!< vector of global derivatives
     float derlc[NPARTRCK]; //!< vector of local derivatives

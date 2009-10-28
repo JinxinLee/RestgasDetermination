@@ -42,6 +42,7 @@ void Alignment::generateTracks(int amount,
 
 void Alignment::readTracks(string tracks){
   TFile* file= TFile::Open(tracks.c_str());
+
   TTree *t =(TTree*)gROOT->FindObject("at2");
   if(t==NULL){
     t=(TTree*)gROOT->FindObject("at_tr");
@@ -55,8 +56,10 @@ void Alignment::readTracks(string tracks){
     t->GetEntry(i);
     for(unsigned int j=0;j<ev->nTracks();++j){
       TCtrack track = *(ev->getTrack(j));
-
-      
+      /*
+	Making shure the track has hits in all detector planes
+	Hard coded for the beam telescope
+      */
       bool a1 =false;
       bool a2 =false;
       bool a3 =false;
@@ -107,7 +110,10 @@ void Alignment::readTracks(string tracks){
   cout<<"total tracks "<<counter<<endl;;  
   file->Close();
 }
-
+/*
+  Using alignment file to create detector-objects containing
+  alignment information for that detector
+*/
 void Alignment::readDetectors(bool simulation_)
 {
   TCalign *reader = TCalign::getInstance(infile);
@@ -148,7 +154,8 @@ void Alignment::readDetectors(bool simulation_)
     }
   }
   cout<<"before sort"<<endl;
-  sort(detectors.begin(),detectors.end(),sortDetector());//sort based on z. not sure if it is necesary
+  //sort based on z. not sure if it is necesary
+  sort(detectors.begin(),detectors.end(),sortDetector());
   cout<<"after sort"<<endl;
 } 
 
@@ -175,7 +182,6 @@ Alignment::Alignment(string conffile){
   cf.readInto(alignZ_, "AlignZ");
   cf.readInto(alignT_, "AlignT");
   cf.readInto(alignP_, "AlignP");
-  cout<<"align p "<<alignP_<<endl;
   using namespace std;
   using namespace boost;
   /*
@@ -183,7 +189,7 @@ Alignment::Alignment(string conffile){
   */
   
   /*
-    first detectors where u is fixed-----------------------------------------
+    detectors where u is fixed-----------------------------------------
   */
   string s = "this is,  a test";
   cf.readInto(s,"fixU");
@@ -197,7 +203,7 @@ Alignment::Alignment(string conffile){
     lockedU.push_back(number);
   }
   /*
-    first detectors where Z is fixed-----------------------------------------
+    detectors where Z is fixed-----------------------------------------
   */
   s="";
   cf.readInto(s,"fixZ");
@@ -211,7 +217,7 @@ Alignment::Alignment(string conffile){
     lockedZ.push_back(number);
   }
   /*
-    first detectors where T is fixed-----------------------------------------
+    detectors where T is fixed-----------------------------------------
   */
   s="";
   cf.readInto(s,"fixT");
@@ -225,7 +231,7 @@ Alignment::Alignment(string conffile){
     lockedT.push_back(number);
   }
   /*
-    first detectors where p is fixed-----------------------------------------
+    detectors where p is fixed-----------------------------------------
   */
   s="";
   cf.readInto(s,"fixP");
@@ -265,8 +271,8 @@ void Alignment::doFit(){
   */
   zerloc_(dergb,derlc);
   /*
-    setting the iterate flag. Copied call to function from Compass,
-    wil set me down and understand the parameters sendt two it soon
+    setting the iterate flag for the millepede algorithm
+    
   */
   C_INITUN(11,1000000000.0);
   
@@ -277,17 +283,12 @@ void Alignment::doFit(){
     hists_det_testX.push_back(new TH2D(TString::Format("U_vs_X%i",id),TString::Format("Track_x"),200,0,25,200,-5,10));
     hists_det_testY.push_back(new TH2D(TString::Format("U_vs_Y%i",id),TString::Format("Track_y"),200,0,25,200,-5,10));
   }
-  cout<<endl<<"marker1"<<endl;
-  /*
-    Here you can choose which alignment to run
-  */
+
   cout<<"Empty Histograms created"<<endl;
-  cout<<"Starting to send data to Millepede"<<endl;
+  cout<<"Sending data to Millepede"<<endl;
 
   /*
-    for each detector i set the sigma for the detectors to zero for that
-    parameter. This is picked up from the fortran code, and that
-    parameter is excluded from the fit
+    To lock a parameter the sigma of the parameter is set to zero.
   */
   
   for( unsigned int i=0; i<detectors.size(); i++) {
@@ -318,7 +319,7 @@ void Alignment::doFit(){
           
     
   }
-  cout<<endl<<"marker 2 before iteration"<<endl;
+
   if(simulation){
     cout<<"simulation"<<endl;
     cout<<"tracks length "<<tracks_sim.size()<<endl;
@@ -376,8 +377,7 @@ void Alignment::doFit(){
       }
       /*
         Doing a local fit
-        That means fiting the track parameters and calculating submatrixes
-        of the big matrix that needs to be inverted
+	inverting submatrices needed for the final fit
       */
       fitloc_();
     }
@@ -460,6 +460,9 @@ void Alignment::doFit(){
   fitglo_(par); //!< minimize alignment parameters 
   
   C_PRTGLO(20); //!< Dump to screen
+  /*
+    Updating alignment parameters and writing it to the outfile
+   */
   TCalign* reader = TCalign::getInstance(infile);
   reader->clear();
   reader->read(infile);
