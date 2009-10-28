@@ -1,7 +1,7 @@
 
 
 ###################
-PROJECT(alignment)
+PROJECT(tracking)
 #SET(CMAKE_VERBOSE_MAKEFILE ON)
 cmake_minimum_required(VERSION 2.4)
 
