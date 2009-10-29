@@ -46,14 +46,14 @@ PndTpcCluster::PndTpcCluster(const PndTpcCluster& clust)
     digis.push_back(PndTpcDigi((clust.digis)[i]));
 }
 
-PndTpcCluster::PndTpcCluster(const TVector3& pos, double amp, 
-		       unsigned int index, unsigned int size)
-  : fpos(pos), fsig(0.1,0.1,0.01),fcov(3,3), famp(amp), findex(index), fsize(size),findexInTrack(-1)
+PndTpcCluster::PndTpcCluster(const TVector3& Pos, double Amp, 
+		       unsigned int Index, unsigned int Size)
+  : fpos(Pos), fsig(0.1,0.1,0.01),fcov(3,3), famp(Amp), findex(Index), fsize(Size),findexInTrack(-1)
 {}
 
-PndTpcCluster::PndTpcCluster(const TVector3& pos, const TVector3& sig, double amp, 
-		       unsigned int index, unsigned int size)
-  : fpos(pos), fsig(sig) ,fcov(3,3), famp(amp), findex(index), fsize(size),findexInTrack(-1)
+PndTpcCluster::PndTpcCluster(const TVector3& Pos, const TVector3& Sig, double Amp, 
+		       unsigned int Index, unsigned int Size)
+  : fpos(Pos), fsig(Sig) ,fcov(3,3), famp(Amp), findex(Index), fsize(Size),findexInTrack(-1)
 {}
 
 
@@ -65,9 +65,9 @@ PndTpcCluster::calcAxis() const {
   // eigenvalues are sorted according to their value
   // in descendign order -> first one is largest
   TVectorD a=TMatrixDColumn(eigenVec,0);
-  TVector3 axis(a[0],a[1],a[2]);
-  axis.SetMag(1);
-  return axis;
+  TVector3 Axis(a[0],a[1],a[2]);
+  Axis.SetMag(1);
+  return Axis;
 }
 
 

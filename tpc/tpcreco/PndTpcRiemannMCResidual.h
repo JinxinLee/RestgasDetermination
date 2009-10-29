@@ -37,10 +37,10 @@ public:
   // Constructors/Destructors ---------
   PndTpcRiemannMCResidual():_hit(NULL),_track(NULL),_riemd(999),_szd(999){}
 
-  PndTpcRiemannMCResidual(PndTpcRiemannHit* hit,
-			  PndTpcRiemannTrack* track,
+  PndTpcRiemannMCResidual(PndTpcRiemannHit* Hit,
+			  PndTpcRiemannTrack* Track,
 			  const McIdCollection& mcidtrack)
-    : _hit(hit),_track(track),_riemd(999),_szd(999),_mcIdTrack(mcidtrack){}
+    : _hit(Hit),_track(Track),_riemd(999),_szd(999),_mcIdTrack(mcidtrack){}
   ~PndTpcRiemannMCResidual(){}
 
   

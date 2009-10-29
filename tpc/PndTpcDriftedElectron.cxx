@@ -36,11 +36,11 @@ PndTpcDriftedElectron::PndTpcDriftedElectron():
 
 
 
-PndTpcDriftedElectron::PndTpcDriftedElectron(const double x, 
-				       const double y,
-				       const double t,
+PndTpcDriftedElectron::PndTpcDriftedElectron(const double X, 
+				       const double Y,
+				       const double T,
 				       PndTpcPrimaryCluster* tPCp)
-  : fx(x),fy(y),ft(t),
+  : fx(X),fy(Y),ft(T),
     ftpcPClusterp(tPCp)
 {;}
 

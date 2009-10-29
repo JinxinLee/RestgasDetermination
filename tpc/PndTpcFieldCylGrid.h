@@ -36,7 +36,7 @@ public:
   PndTpcFieldCylGrid(const t& nominalValue,
 		  const double minR, const double minZ,
 		  const double spacingR, const double spacingZ,
-		  const TVector3& relPosition = TVector3(0.,0.,0.),
+		  const TVector3& RelPosition = TVector3(0.,0.,0.),
 		  std::vector<std::vector<t*>*>* pGrid = 0); 
 		  
  
@@ -63,17 +63,17 @@ public:
   double maxZ() const {return(fmaxZ);}
   
   // Modifiers -----------------------
-  void setMinR(const double minR) {
-    fminX=minR;
+  void setMinR(const double MinR) {
+    fminX=MinR;
     evalMaxPoint();}
-  void setMinZ(const double minZ) {
-    fminZ=minZ;
+  void setMinZ(const double MinZ) {
+    fminZ=MinZ;
     evalMaxPoint();}
-  void setSpacingR(const double spacingR) {
-    fspacingX=spacingR;
+  void setSpacingR(const double SpacingR) {
+    fspacingX=SpacingR;
     evalMaxPoint();}
-  void setSpacingZ(const double spacingZ) {
-    fspacingZ=spacingZ;
+  void setSpacingZ(const double SpacingZ) {
+    fspacingZ=SpacingZ;
     evalMaxPoint();}
 
 protected:

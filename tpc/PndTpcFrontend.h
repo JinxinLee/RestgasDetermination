@@ -31,14 +31,14 @@ class PndTpcFrontend {
 public:
 
   // Constructors/Destructors ---------
-  PndTpcFrontend(const double tint,
-	      const double tdiff,
-	      const double tsig,
+  PndTpcFrontend(const double Tint,
+	      const double Tdiff,
+	      const double Tsig,
 	      const double adcThreshold, 
-	      const double adcmax,
-	      const int adcbits,
+	      const double Adcmax,
+	      const int Adcbits,
 	      const double samplingfreq_MHz,
-	      const double t0,
+	      const double T0,
 	      const int timebits=16,
 	      const unsigned int PSAthreshold=5); 
   ~PndTpcFrontend();

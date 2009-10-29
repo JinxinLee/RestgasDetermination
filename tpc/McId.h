@@ -36,7 +36,7 @@ public:
 
   McId(const unsigned int eventid,
        const unsigned int trackid,
-       const double weight=1);
+       const double Weight=1);
   virtual ~McId();
 
   // Operators

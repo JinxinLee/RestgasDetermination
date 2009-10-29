@@ -38,7 +38,7 @@ public:
   PndTpcDigi();
   PndTpcDigi(const PndTpcDigi&);
   PndTpcDigi(const double Amp,
-		  const double t,
+		  const double T,
 		  const unsigned int PadID,
 		  const McIdCollection& mcid);
   ~PndTpcDigi(){;}

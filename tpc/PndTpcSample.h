@@ -33,11 +33,11 @@ public:
 
   // Constructors/Destructors ---------
   PndTpcSample();
-  PndTpcSample(const int t, 
+  PndTpcSample(const int T, 
 	    const int Amp, 
 	    const unsigned int PadID, 
 	    const McIdCollection& mcid); 
-  PndTpcSample(const int t,                       
+  PndTpcSample(const int T,                       
             const int Amp,
             const unsigned int PadID,
             const unsigned int ElectronicChId);// added by X.Zhang, Oct. 06, 2009
@@ -55,7 +55,7 @@ public:
   unsigned int electronicChId() const {return felectronicChId;}  //added by X.Zhang, Oct. 06, 2009 
   const McIdCollection& mcId() const {return fmcId;}
   //*** next four functions added by x. zhang on 08.10.2009 ****//
-  void setAmp(unsigned int amp) { famp = amp; }
+  void setAmp(unsigned int Amp) { famp = Amp; }
   void setSample(unsigned int s) { ft = s; }
   void setPadId(unsigned int pi) { fpadId = pi; }
   void setElectronicChId(unsigned int eci) { felectronicChId = eci; }

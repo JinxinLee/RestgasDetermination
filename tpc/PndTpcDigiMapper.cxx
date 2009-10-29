@@ -69,10 +69,10 @@ void
 PndTpcDigiMapper::init(PndTpcPadPlane* plane,
 		    const PndTpcGem* gem,
 		    const PndTpcGas* gas,
-		    double zGem,
+		    double zgem,
 		    double  t0,
 		    double sampleFreq) {
-  fzGem=zGem;
+  fzGem=zgem;
   fgas=gas;
   fpadPlane=plane;
   fgem=gem;

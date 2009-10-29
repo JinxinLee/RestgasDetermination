@@ -53,7 +53,7 @@ public:
   // Operations ----------------------
   // recursively calculate s:
   double calcPosOnTrk(PndTpcRiemannHit* hit, bool refine=true);
-  double setPosOnTrk(double s){_s=s;}
+  double setPosOnTrk(double S){_s=S;}
 
 private:
 

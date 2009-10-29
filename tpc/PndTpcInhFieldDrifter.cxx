@@ -207,8 +207,8 @@ PndTpcInhFieldDrifter::run()
 	  if ((fstepCount.at(nr).at(nz))%100 == 0) 
 	  {
 	    std::vector<double>* temp_vec = new std::vector<double>(4);
-	    for(int i = 0; i <= 2; i++)
-	      temp_vec->at(i) = x[i];    //fill vector with components of V
+	    for(int ii = 0; i <= 2; ii++)
+	      temp_vec->at(ii) = x[ii];    //fill vector with components of V
 	    temp_vec->at(3) = frunKut->getTimeStep();
 	    fvelocity_control->push_back(temp_vec);
 	

@@ -49,7 +49,7 @@ PndTpcRiemannTrack::PndTpcRiemannTrack()
 
 void
 PndTpcRiemannTrack::init(double x0_, double y0_, double R_, 
-			 double dip, double z0){
+			 double Dip, double z0){
   double x0=x0_/100;
   double y0=y0_/100;
   double R=R_/100;
@@ -67,7 +67,7 @@ PndTpcRiemannTrack::init(double x0_, double y0_, double R_,
   _n[1]=B;
   _n[2]=C;
   _c=D;
-  _m=dip;
+  _m=Dip;
   _t=z0;
 }
 
@@ -87,7 +87,7 @@ PndTpcRiemannTrack::getLastHit() const {
 
 hitIt
 PndTpcRiemannTrack::getClosestHit(PndTpcRiemannHit* hit, 
-				  double& dist) {
+				  double& Dist) {
   // check if we start at end or at beginning:
   TVector3 posX=hit->cluster()->pos();
   TVector3 posend=_hits.back()->cluster()->pos();
@@ -142,15 +142,15 @@ PndTpcRiemannTrack::getClosestHit(PndTpcRiemannHit* hit,
   // step back to the minimum
   for(int step=0;step<found;++step) dir>0 ? --it2 : ++it2;
   pos2=(*it2)->cluster()->pos(); //next point
-  dist=(pos2-posX).Mag();
+  Dist=(pos2-posX).Mag();
   return it2;
 }
 
 hitIt
 PndTpcRiemannTrack::getClosestHit(PndTpcRiemannHit* hit, 
-				  double& dist, 
+				  double& Dist, 
 				  TVector3& outdir){
-  hitIt it2=getClosestHit(hit,dist);
+  hitIt it2=getClosestHit(hit,Dist);
   if(_hits.size()>1){
     // catch the case where we are at boundary
     hitIt it1=it2;
@@ -426,10 +426,10 @@ void
 PndTpcRiemannTrack::refit()
 {
   
-  TMatrixT<double> av(3,1);
-  av[0][0]=_av[0];
-  av[1][0]=_av[1];
-  av[2][0]=_av[2];
+  TMatrixT<double> Av(3,1);
+  Av[0][0]=_av[0];
+  Av[1][0]=_av[1];
+  Av[2][0]=_av[2];
 
   TMatrixD sampleCov(3,3);
   
@@ -440,7 +440,7 @@ PndTpcRiemannTrack::refit()
     h[1][0]=(*it)->x().Y();
     h[2][0]=(*it)->x().Z();
     TMatrixD d(3,1);
-    d=h-av;
+    d=h-Av;
     TMatrixD dt(TMatrixD::kTransposed,d);
     TMatrixD ddt(d,TMatrixD::kMult,dt);
     sampleCov+=ddt;  
@@ -514,15 +514,15 @@ PndTpcRiemannTrack::szFit(){
   // get s'es and zs
   it=_hits.begin();
   lastit=it;
-  unsigned int n=getNumHits();
-  for(unsigned int i=0;i<n;++i){
+  unsigned int nn=getNumHits();
+  for(unsigned int i=0;i<nn;++i){
     //(*it)->calcPosOnTrk((*lastit),false);
     g.SetPoint(i,(*it)->s(),(*it)->z());
     lastit=it;
     ++it;
   }
   int errorcode;
-  g.LeastSquareLinearFit(n,_t,_m,errorcode,-999,999);
+  g.LeastSquareLinearFit(nn,_t,_m,errorcode,-999,999);
   //std::cout<<"szFit Error Code:"<<errorcode<<std::endl;
   return;
 }
@@ -589,8 +589,8 @@ PndTpcRiemannTrack::sign() const {
 
 void
 PndTpcRiemannTrack::Plot(bool standalone){
-  TCanvas* c=NULL;
-  if(standalone)c=new TCanvas("c");
+  TCanvas* cc=NULL;
+  if(standalone)cc=new TCanvas("c");
   TPolyMarker3D* maker=new TPolyMarker3D(_hits.size());
   TPolyLine3D* line=new TPolyLine3D(_hits.size());
   std::list<PndTpcRiemannHit*>::iterator it=_hits.begin();
@@ -611,6 +611,6 @@ PndTpcRiemannTrack::Plot(bool standalone){
     gSystem->Run();
     delete maker;
     delete line;
-    delete c;
+    delete cc;
   }
 }

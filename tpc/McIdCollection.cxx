@@ -43,15 +43,15 @@ McIdCollection::McIdCollection(const McIdCollection& coll)
 
 
 bool
-McIdCollection::AddID(const McId& ID, double w){
-  vector<McId>::iterator it=find(fMCIDs.begin(),fMCIDs.end(),ID);
+McIdCollection::AddID(const McId& id, double w){
+  vector<McId>::iterator it=find(fMCIDs.begin(),fMCIDs.end(),id);
   if(it==fMCIDs.end()){
-    fMCIDs.push_back(ID);  
-    fMCIDs.back().setweight(ID.weight()*w);
+    fMCIDs.push_back(id);  
+    fMCIDs.back().setweight(id.weight()*w);
     return true;
   }
   else {
-    (*it).IncWeight(ID.weight()*w);
+    (*it).IncWeight(id.weight()*w);
     return false;
   }
 };

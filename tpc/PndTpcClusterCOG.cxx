@@ -95,8 +95,8 @@ PndTpcClusterCOG::cog(std::vector<PndTpcDigi*>* digis){
 
   // loop again over the digis to calculate 2nd moment
   TMatrixD cov(3,3);
-  for(int id=0;id<ndigis;++id){
-    PndTpcDigi* adigi=(*digis)[id];
+  for(int iid=0;iid<ndigis;++iid){
+    PndTpcDigi* adigi=(*digis)[iid];
     TVector3 thispos;
     PndTpcDigiMapper::getInstance()->map(adigi,thispos);
     TMatrixD c(3,1);

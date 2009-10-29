@@ -35,7 +35,7 @@ class PndTpcDigiMapper {
   void init(PndTpcPadPlane* plane,
 	    const PndTpcGem* gem,
 	    const PndTpcGas* gas,
-	    double zGem,
+	    double zgem,
 	    double t0,
 	    double samplFreqMhz); // does NOT take over Ownership!
 

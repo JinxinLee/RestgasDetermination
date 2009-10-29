@@ -36,7 +36,7 @@ class padprocessor {
 public:
 
   // Constructors/Destructors ---------
-  padprocessor(unsigned int id);
+  padprocessor(unsigned int Id);
   ~padprocessor();
 
   // Operators

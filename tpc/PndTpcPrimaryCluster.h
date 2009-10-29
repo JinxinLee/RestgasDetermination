@@ -39,11 +39,11 @@ public:
   // Constructors/Destructors ---------
   PndTpcPrimaryCluster();
 
-  PndTpcPrimaryCluster(const double t, 
-		    const int q,
-		    const TVector3& pos,
-		    const unsigned int mcTrackId,
-		    const unsigned int mcHitId); // for creation without G4
+  PndTpcPrimaryCluster(const double T, 
+		    const int P,
+		    const TVector3& Pos,
+		    const unsigned int McTrackId,
+		    const unsigned int McHitId); // for creation without G4
 
   ~PndTpcPrimaryCluster();
 
@@ -64,10 +64,10 @@ public:
   unsigned int mcHitId() const;
 
   // Modifiers -----------------------
-  void sett(const double t){ft=t;}
-  void setq(const int q){fq=q;}
-  void setpos(const double x, const double y, const double z)
-  {fpos(0)=x;fpos(1)=y;fpos(2)=z;}
+  void sett(const double T){ft=T;}
+  void setq(const int Q){fq=Q;}
+  void setpos(const double X, const double Y, const double Z)
+  {fpos(0)=X;fpos(1)=Y;fpos(2)=Z;}
   
 
 private:

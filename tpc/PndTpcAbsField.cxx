@@ -24,8 +24,8 @@
 
 template <class t>
 PndTpcAbsField<t>::PndTpcAbsField(const t& nominalValue,
-			       const TVector3& relPosition)
-      :frelPosition(relPosition), fnominal(nominalValue), fscale(1)
+			       const TVector3& RelPosition)
+      :frelPosition(RelPosition), fnominal(nominalValue), fscale(1)
 {;}
 
 template <class t>

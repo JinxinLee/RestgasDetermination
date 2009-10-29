@@ -32,7 +32,7 @@ public:
 
   // Constructors/Destructors ---------
   PndTpcEvtTime(){}
-  PndTpcEvtTime(double t0, unsigned int id):ft0(t0),fid(id){}
+  PndTpcEvtTime(double T0, unsigned int Id):ft0(T0),fid(Id){}
   ~PndTpcEvtTime(){}
 
   // Operators

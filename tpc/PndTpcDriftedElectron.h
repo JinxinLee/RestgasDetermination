@@ -33,9 +33,9 @@ public:
 
   // Constructors/Destructors ---------
   PndTpcDriftedElectron();
-  PndTpcDriftedElectron(const double x, 
-		     const double y,
-		     const double t,
+  PndTpcDriftedElectron(const double X, 
+		     const double Y,
+		     const double T,
 		     PndTpcPrimaryCluster* tpcPClusterp);
   ~PndTpcDriftedElectron(){;}
 

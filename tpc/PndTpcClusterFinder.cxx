@@ -58,10 +58,10 @@ PndTpcClusterFinder::PndTpcClusterFinder(PndTpcPadPlane* p,
   } // only select one sector
   unsigned int nsec=ids.size();
   for(unsigned int is=0;is<nsec;++is){
-    unsigned int sectorid=ids[is];
-    fsproc[sectorid]=new PndTpcSectorProcessor(fsaveRaw);
-    fsproc[sectorid]->Init(fpadplane,sectorid,ob);
-    fsectormap[sectorid]=new std::vector<PndTpcDigi*>();
+    unsigned int Sectorid=ids[is];
+    fsproc[Sectorid]=new PndTpcSectorProcessor(fsaveRaw);
+    fsproc[Sectorid]->Init(fpadplane,Sectorid,ob);
+    fsectormap[Sectorid]=new std::vector<PndTpcDigi*>();
   }
   std::cout<<"PndTpcClusterFinder: "
 	   <<fsproc.size()<<" SectorProcessors instantiated."<<std::endl;

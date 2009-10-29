@@ -32,12 +32,12 @@ PndTpcSignal::PndTpcSignal()
   : ft(0),famp(0),fpadId(0),fmcTrackId(0),fmcHitId(0),fmcEventId(0),fmother(0)
 {;}
 
-PndTpcSignal::PndTpcSignal(double t, 
+PndTpcSignal::PndTpcSignal(double T, 
 		     double Amp, 
 		     unsigned int PadID, 
 		     unsigned int EventID,
 		     PndTpcAvalanche* Mo)
-  : ft(t),famp(Amp),fpadId(PadID),fmcTrackId(0),fmcHitId(0),fmcEventId(EventID),fmother(Mo)
+  : ft(T),famp(Amp),fpadId(PadID),fmcTrackId(0),fmcHitId(0),fmcEventId(EventID),fmother(Mo)
 {;}
 
 

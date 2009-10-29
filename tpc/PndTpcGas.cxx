@@ -24,23 +24,23 @@ PndTpcGas::PndTpcGas(double const E,
 	       double const B,
 	       double const T,
 	       double const p,
-	       double const VDrift,
-	       double const Dl,
-	       double const Dt,
-	       double const k,
-	       double const W,
-	       const std::vector<double>& CSD,	   
-	       double const CSDEpol):fE(E),
+	       double const xVDrift,
+	       double const xDl,
+	       double const xDt,
+	       double const xk,
+	       double const xW,
+	       const std::vector<double>& xCSD,	   
+	       double const xCSDEpol):fE(E),
 				     fB(B),
 				     fT(T),
 				     fp(p),
-				     fVDrift(VDrift),
-				     fDl(Dl),
-				     fDt(Dt),
-				     fk(k),
-				     fW(W),
-				     fCSD(CSD),				   
-				     fCSDEpol(CSDEpol)
+				     fVDrift(xVDrift),
+				     fDl(xDl),
+				     fDt(xDt),
+				     fk(xk),
+				     fW(xW),
+				     fCSD(xCSD),				   
+				     fCSDEpol(xCSDEpol)
 {}
 
 PndTpcGas::PndTpcGas(const std::string& Filename,
@@ -59,12 +59,12 @@ PndTpcGas::PndTpcGas(const std::string& Filename,
   double vdrift[noent];                     //e-drift velocity in cm/ns
   double dt[noent];                         //transverse diffusion in sqrt(cm)
   double dl[noent];                         //longitudinal diff. in sqrt(cm)
-  double k[noent];                          //attachment coefficient in 1/cm
+  double kk[noent];                          //attachment coefficient in 1/cm
 
   //ReadGasArrays returns the number of entries in cluster size distribution
   //and sets the values in the assigned arrays (and fW)
   int nCSDFile = ReadGasArrays(&infile, noent,
-				e, vdrift, dt, dl, k);
+				e, vdrift, dt, dl, kk);
   if (nCSDFile < 2)
     Fatal("PndTpcGas::PndTpcGas","Number of cluster sizes too small in File.\nExecution aborted.");
  
@@ -92,7 +92,7 @@ PndTpcGas::PndTpcGas(const std::string& Filename,
   fVDrift = LinExpolation(inTable, vdrift, noent);
   fDl = LinExpolation(inTable, dl, noent);
   fDt = LinExpolation(inTable, dt, noent);
-  fk = LinExpolation(inTable, k, noent);
+  fk = LinExpolation(inTable, kk, noent);
   
   //Define the constant for the quadratic CSD extrapolation in such a way
   //that the csd is continous (the inverse quadratic approximation
@@ -136,9 +136,9 @@ PndTpcGas::GetRandomCS(double const r) const {
 }
 
 void
-PndTpcGas::SetCSD(const std::vector<double>& CSD)
+PndTpcGas::SetCSD(const std::vector<double>& csd)
 {
-  fCSD=CSD;
+  fCSD=csd;
 }
 
 std::ostream& operator<< (std::ostream& stream, const PndTpcGas& g)
@@ -191,7 +191,7 @@ PndTpcGas::ReadGasBegin(std::ifstream* const pinfile)
 int
 PndTpcGas::ReadGasArrays(std::ifstream* const pinfile, int const noent,
 		      double* const e, double* const vdrift, double* const dt,
-		      double* const dl, double* const k)
+		      double* const dl, double* const kk)
 {
   int nCSDFile = 0;                            //Nr. of ClusterSizes
   for (int i=0; i < noent;i++)
@@ -207,7 +207,7 @@ PndTpcGas::ReadGasArrays(std::ifstream* const pinfile, int const noent,
     (*pinfile) >> dl[i];
   (*pinfile).ignore(256, ':' );
   for (int i=0; i < noent;i++)
-    (*pinfile) >> k[i];
+    (*pinfile) >> kk[i];
   //ignore ion-mobility (in this version)
   (*pinfile).ignore(256, ':' );
   (*pinfile).ignore(256, '\n' );

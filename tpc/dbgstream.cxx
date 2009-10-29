@@ -173,15 +173,15 @@ unsigned int
 odbgstream::slot(string path,unsigned int line, unsigned int level)
 {
   if(level<fminlevel)return 0;
-  unsigned int slot=0;
+  unsigned int Slot=0;
   unsigned int nr=frules.size();
   //std::cout<<"checking "<<nr<<" rules. ";
   for(int i=0;i<nr;++i){
-    slot=std::max(slot,frules[i]->rule(path,line,level));
+    Slot=std::max(Slot,frules[i]->rule(path,line,level));
   }
   //std::cout<<"("<<path<<","
   //	   <<line<<") -> selected slot "<<slot<<std::endl;
-  if(slot<fslots.size())return slot;
+  if(Slot<fslots.size())return Slot;
   else return 0;
 }
 

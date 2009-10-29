@@ -34,18 +34,18 @@ PndTpcSample::PndTpcSample()
 : famp(0),ft(0),fpadId(0),felectronicChId(-1)
 {;}
 
-PndTpcSample::PndTpcSample( const int t, 
+PndTpcSample::PndTpcSample( const int T, 
 		      const int Amp, 
 		      const unsigned int PadID,
 		      const McIdCollection& mcid)
-  : famp(Amp),ft(t),fpadId(PadID),fmcId(mcid),felectronicChId(-1)
+  : famp(Amp),ft(T),fpadId(PadID),fmcId(mcid),felectronicChId(-1)
 {;}
 
-PndTpcSample::PndTpcSample( const int t,
+PndTpcSample::PndTpcSample( const int T,
                       const int Amp,
                       const unsigned int PadID,
                       const unsigned int ElectronicChId)
-  : famp(Amp),ft(t),fpadId(PadID),felectronicChId(ElectronicChId) 
+  : famp(Amp),ft(T),fpadId(PadID),felectronicChId(ElectronicChId) 
 {;}
 
 PndTpcSample::~PndTpcSample()

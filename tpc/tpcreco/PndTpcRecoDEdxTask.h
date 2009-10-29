@@ -139,7 +139,7 @@ private:
   // Private Methods -----------------
   void ValidateArrays() const;
   
-  bool CheckRecoMomentum(Double_t P) const;
+  bool CheckRecoMomentum(Double_t p) const;
   bool CheckHits(unsigned int nHits) const;
   bool CheckDetector(unsigned int DetID) const;
   bool CheckOrder(const std::vector<Double_t> &check) const;

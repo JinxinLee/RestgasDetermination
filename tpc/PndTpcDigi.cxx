@@ -39,10 +39,10 @@ PndTpcDigi::PndTpcDigi(const PndTpcDigi& d)
 
 
 PndTpcDigi::PndTpcDigi(const double Amp,
-				 const double t,
+				 const double T,
 				 const unsigned int PadID,
 				 const McIdCollection& mcid)
-  : famp(Amp), ft(t), fpadID(PadID), fmcid(mcid), ftlength(0)
+  : famp(Amp), ft(T), fpadID(PadID), fmcid(mcid), ftlength(0)
 {}
 
 bool 

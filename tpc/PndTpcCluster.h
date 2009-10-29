@@ -43,10 +43,10 @@ public:
   // Constructors/Destructors ---------
   PndTpcCluster();
   PndTpcCluster(const PndTpcCluster&);
-  PndTpcCluster(const TVector3& pos, double amp, 
-			 unsigned int index, unsigned int size=1);
-  PndTpcCluster(const TVector3& pos, const TVector3& sig, double amp, 
-			 unsigned int index, unsigned int size=1);
+  PndTpcCluster(const TVector3& Pos, double Amp, 
+			 unsigned int Index, unsigned int Size=1);
+  PndTpcCluster(const TVector3& Pos, const TVector3& Sig, double Amp, 
+			 unsigned int Index, unsigned int Size=1);
   
   virtual ~PndTpcCluster();
 
@@ -69,7 +69,7 @@ public:
   // Modifiers -----------------------
   void SetMcId(const McIdCollection& m){fmcid=m;}
   void SetIndex(unsigned int id){findex=id;}
-  void SetCov(const TMatrixD& cov){fcov=cov;fhasaxis=false;}
+  void SetCov(const TMatrixD& Cov){fcov=Cov;fhasaxis=false;}
   
   void SetIndexInTrack(int indexInTrack ) {findexInTrack=indexInTrack; }//for spatial sorting
   int GetIndexInTrack() const {return findexInTrack; }	//for spatial sorting

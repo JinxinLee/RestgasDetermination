@@ -191,10 +191,10 @@ PndTpcMCDEdxTask::Exec(Option_t* opt)
 			dedxinf->SetPDG(nPDG);
 			dedxinf->SetP(TrackMometum);
 			//cout << "try setting dedx... ";
-			vector<PndTpcDEDXStorageHelper>::const_iterator cit;
-			for(cit=DEDXPoints.begin(); cit!=DEDXPoints.end(); cit++)
+			vector<PndTpcDEDXStorageHelper>::const_iterator cIt;
+			for(cIt=DEDXPoints.begin(); cIt!=DEDXPoints.end(); cIt++)
 			{
-				PndTpcDEDXStorageHelper Point=*cit;
+				PndTpcDEDXStorageHelper Point=*cIt;
 				dedxinf->SetRawDEdx(Point.GetEnergyLoss(), Point.GetLength() );
 				//cout << "DE: " << pPoint->GetEnergyLoss() << "DX: " << pPoint->GetLength() << endl;
 			}

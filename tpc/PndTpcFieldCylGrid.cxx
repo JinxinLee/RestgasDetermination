@@ -28,14 +28,14 @@
 
 template <class t>
 PndTpcFieldCylGrid<t>::PndTpcFieldCylGrid(const t& nominalValue,
-				       const double minR, const double minZ,
-				       const double spacingR, 
-				       const double spacingZ,
-				       const TVector3& relPosition,
+				       const double MinR, const double MinZ,
+				       const double SpacingR, 
+				       const double SpacingZ,
+				       const TVector3& RelPosition,
 				       std::vector<std::vector<t*>*>* pGrid)
-  : PndTpcAbsField<t>(nominalValue, relPosition),
-    fpGrid(pGrid), fminX(minR), fminZ(minZ),
-    fspacingX(spacingR), fspacingZ(spacingZ) 
+  : PndTpcAbsField<t>(nominalValue, RelPosition),
+    fpGrid(pGrid), fminX(MinR), fminZ(MinZ),
+    fspacingX(SpacingR), fspacingZ(SpacingZ) 
 {
   evalMaxPoint();
 }
@@ -192,8 +192,8 @@ PndTpcFieldCylGrid<t>::evalValue(const TVector3& point) const
   double dx = difX - (xIndex + 0.5)*fspacingX;
   double dz = difZ - (zIndex + 0.5)*fspacingZ;
   
-  const t value = startInterpolation(xIndex, zIndex, dx, dz);
-  return (rotate(value, phi));
+  const t Value = startInterpolation(xIndex, zIndex, dx, dz);
+  return (rotate(Value, phi));
 }
 
 template <class t>

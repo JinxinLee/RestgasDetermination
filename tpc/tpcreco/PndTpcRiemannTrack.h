@@ -74,14 +74,14 @@ public:
   void insertHit(hitList& hL,PndTpcRiemannHit* hitX,const hitIt& it){hL.insert(it,hitX);} // manually insert hit
 
   // get closest hit in track fill distance and direction of track there
-  hitIt getClosestHit(PndTpcRiemannHit* hit, double& dist, TVector3& dir);
-  hitIt getClosestHit(PndTpcRiemannHit* hit, double& dist);
+  hitIt getClosestHit(PndTpcRiemannHit* hit, double& Dist, TVector3& dir);
+  hitIt getClosestHit(PndTpcRiemannHit* hit, double& Dist);
 
   void setSort(bool k=true){_doSort=k;}
   void resetNit(){_nit=0;}
 
   void init(double x0, double y0, double R, 
-	    double dip, double z0);
+	    double Dip, double z0);
   void setZ0(double z){_t=z;}
 
   // Operations ----------------------

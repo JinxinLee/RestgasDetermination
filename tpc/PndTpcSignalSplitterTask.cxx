@@ -283,8 +283,8 @@ PndTpcSignalSplitterTask::TranicateBranchNames(TBranch *b, TString ffn)
   TIterator* BrIter= Br->MakeIterator();
   BrIter->Reset();
   while((BrObj=BrIter->Next())) {
-    TBranch *b=(TBranch *)BrObj;
-    TranicateBranchNames(b, ffn);
+    TBranch *bb=(TBranch *)BrObj;
+    TranicateBranchNames(bb, ffn);
   }
   delete  BrIter;
 }

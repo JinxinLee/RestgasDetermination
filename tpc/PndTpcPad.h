@@ -61,30 +61,30 @@ public:
   unsigned int padId() const {return fid;}
   unsigned int id() const{return fid;} 
   // Modifiers -----------------------
-  void setx(const double x){fx=x;}
-  void sety(const double y){fy=y;}
-  void setangle(const double angle){
-    fangle=angle;
+  void setx(const double X){fx=X;}
+  void sety(const double Y){fy=Y;}
+  void setangle(const double Angle){
+    fangle=Angle;
     EvalBoundingRect();}
-  void setshape(PndTpcAbsPadShape* const shape){
-    fshape = shape;
+  void setshape(PndTpcAbsPadShape* const Shape){
+    fshape = Shape;
     EvalBoundingRect();}
-  void setsectorId(const unsigned int id){fsectorId=id;}
-  void addNeighbour(const unsigned int& id){fneighbourIds.push_back(id);}
+  void setsectorId(const unsigned int Id){fsectorId=Id;}
+  void addNeighbour(const unsigned int& Id){fneighbourIds.push_back(Id);}
   unsigned int nNeighbours() const {return fneighbourIds.size();}
-  unsigned int getNeighbour(const unsigned int& id) const {return fneighbourIds[id];}
+  unsigned int getNeighbour(const unsigned int& Id) const {return fneighbourIds[Id];}
 
   // Operations ----------------------
-  bool Contains(const double x, const double y) const;
-  bool CircleIntersection(const double x, 
-			  const double y, 
+  bool Contains(const double X, const double Y) const;
+  bool CircleIntersection(const double X, 
+			  const double Y, 
 			  const double r) const;
-  double GetValue(const double x, const double y) const;
+  double GetValue(const double X, const double Y) const;
   //returns the number of points, you can get with GetBoundaryPoint
   int GetNBoundaryPoints() const;
   //returns those points on the boundary, which describe the form
   void GetBoundaryPoint(const int index,
-			double& x, double& y) const;
+			double& X, double& Y) const;
   void Draw(int c=1) const;
 
 private:

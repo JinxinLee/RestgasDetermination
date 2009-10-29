@@ -34,9 +34,9 @@ public:
 
   // Constructors/Destructors ---------
   PndTpcAvalanche();
-  PndTpcAvalanche(const double x, 
-	       const double y,
-	       const double t,
+  PndTpcAvalanche(const double X, 
+	       const double Y,
+	       const double T,
 	       const double Amp,
 	       PndTpcDriftedElectron* tpcDElectronp);
 

@@ -138,15 +138,15 @@ PndTpcConfMapRecoHit::setReferencePoint(double xref, double yref)
 void
 PndTpcConfMapRecoHit::reMap()
 {
-  double x=_clusterx;
+  double X=_clusterx;
   double x0=_refx;
-  double y=_clustery;
+  double Y=_clustery;
   double y0=_refy;
   // see if it is rotated
   if(_isRotated){
-    double xstored=x;
-    x=y;
-    y=-xstored;
+    double xstored=X;
+    X=Y;
+    Y=-xstored;
     double x0stored=x0;
     x0=y0;
     y0=-x0stored;
@@ -154,8 +154,8 @@ PndTpcConfMapRecoHit::reMap()
 
 
   // conformal mapping part
-  double dx=x-x0;
-  double dy=y-y0;
+  double dx=X-x0;
+  double dy=Y-y0;
   double r2=dx*dx+dy*dy;
   if(r2!=0){
     fHitCoord[0][0]=dy/r2;

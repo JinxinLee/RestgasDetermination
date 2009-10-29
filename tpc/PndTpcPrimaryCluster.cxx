@@ -34,12 +34,12 @@ PndTpcPrimaryCluster::PndTpcPrimaryCluster()
   : ft(0), fq(0), fmcTrackId(0),fmcHitId(0),fpos(0,0,0)
 {}
 
-PndTpcPrimaryCluster::PndTpcPrimaryCluster(const double t, 
-				     const int q, 
-				     const TVector3& pos,
-				     const unsigned int mcTrackId,
-				     const unsigned int mcHitId)
-  : ft(t), fq(q), fmcTrackId(mcTrackId),fmcHitId(mcHitId),fpos(pos)
+PndTpcPrimaryCluster::PndTpcPrimaryCluster(const double T, 
+				     const int Q, 
+				     const TVector3& Pos,
+				     const unsigned int McTrackId,
+				     const unsigned int McHitId)
+  : ft(T), fq(Q), fmcTrackId(McTrackId),fmcHitId(McHitId),fpos(Pos)
 {}
 
 

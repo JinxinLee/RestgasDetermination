@@ -331,11 +331,11 @@ if(_riemannHitArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No RiemannHi
       grep->setPropDir(1);
       rep=grep; }
     else {	
-      LSLTrackRep* rep=new LSLTrackRep();
+      LSLTrackRep* lrep=new LSLTrackRep();
     
-      rep->setInverted(cand->inverted());
-      //rep->SetBField(_fieldIfc);
-      GFTrack* trk=new((*_trackArray)[_trackArray->GetEntriesFast()]) GFTrack(rep);
+      lrep->setInverted(cand->inverted());
+      //lrep->SetBField(_fieldIfc);
+      GFTrack* trk=new((*_trackArray)[_trackArray->GetEntriesFast()]) GFTrack(lrep);
       trk->setCandidate(*cand); // here the candidate is copied!
       //Is this what we want?
       
@@ -351,6 +351,7 @@ if(_riemannHitArray==0) Fatal("PndTpcSimpleRiemannTracking::Exec)","No RiemannHi
       GFDetPlane pl(pos1+TVector3(0,0,-10E-4),TVector3(1,0,0),TVector3(0,1,0));
       trk->getTrackRep(0)->setReferencePlane(pl);
       //      trk->getTrackRep(0)->setStartS(pos1.Z()-10E-4);
+      rep=lrep;
     }
   }// end loop over tracks
   

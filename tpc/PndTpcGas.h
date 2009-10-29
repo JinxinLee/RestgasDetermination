@@ -34,13 +34,13 @@ public:
 	 double const B,
 	 double const T,
 	 double const p,
-	 double const VDrift,
-	 double const Dl,
-	 double const Dt,
-	 double const k,
-	 double const W,
-	 const std::vector<double>& CSD,
-	 double const CSDEpol);
+	 double const xVDrift,
+	 double const xDl,
+	 double const xDt,
+	 double const xk,
+	 double const xW,
+	 const std::vector<double>& xCSD,
+	 double const xCSDEpol);
 
   PndTpcGas(const std::string& Filename,
 	 double const E);
@@ -59,10 +59,10 @@ public:
   int nCSD() const {return fCSD.size();}       
   double CSDEpol() const {return fCSDEpol;} 
 
-  double E() const {return fE;}
-  double B() const {return fB;}
-  double T() const {return fT;}       
-  double p() const {return fp;}
+  double GetE() const {return fE;}
+  double GetB() const {return fB;}
+  double GetT() const {return fT;}       
+  double Getp() const {return fp;}
     
   int GetRandomCS(double const r) const;
 
@@ -77,8 +77,8 @@ public:
   void SetB(double const B){fB=B;}
   void SetT(double const T){fT=T;}
   void Setp(double const p){fp=p;}
-  void SetCSD(const std::vector<double>& CSD);
-  void SetCSDEpol(double const CSDEpol){fCSDEpol=CSDEpol;}
+  void SetCSD(const std::vector<double>& csd);
+  void SetCSDEpol(double const csdepol){fCSDEpol=csdepol;}
 
 private:
   double fE;        // electric field [V/cm](some gas parameters depend on it)

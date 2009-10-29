@@ -442,12 +442,12 @@ Int_t PndTpcRecoDEdxTask::GetClusterMCID(const PndTpcCluster &cl) const
 	}
 }
 
-bool PndTpcRecoDEdxTask::CheckRecoMomentum(Double_t P) const
+bool PndTpcRecoDEdxTask::CheckRecoMomentum(Double_t p) const
 {
-	cout << "P: - " << P << endl;
-	if( P >  _pmax || P < _pmin )	{
+	cout << "P: - " << p << endl;
+	if( p >  _pmax || p < _pmin )	{
 		cout <<  "PndTpcRecoDEdxTask::Exec: " <<  "Skipping Track" << "!" << endl;
-		cout <<  "...Reason: Momentum P: " << P << " out of Range" << endl;
+		cout <<  "...Reason: Momentum P: " << p << " out of Range" << endl;
 		return false;
 	}	
 	return true;

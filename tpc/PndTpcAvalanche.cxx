@@ -37,12 +37,12 @@ PndTpcAvalanche::PndTpcAvalanche()
     fmother(0)
 {;}
 
-PndTpcAvalanche::PndTpcAvalanche(const double x, 
-			   const double y,
-			   const double t,
+PndTpcAvalanche::PndTpcAvalanche(const double X, 
+			   const double Y,
+			   const double T,
 			   const double Amp,
 			   PndTpcDriftedElectron* tpcDElectronp)
-  : fx(x),fy(y),ft(t),famp(Amp),
+  : fx(X),fy(Y),ft(T),famp(Amp),
     fmother(tpcDElectronp)
 {;}
 

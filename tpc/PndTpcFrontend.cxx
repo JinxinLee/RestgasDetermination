@@ -27,22 +27,22 @@
 
 
 // Class Member definitions -----------
-PndTpcFrontend::PndTpcFrontend(const double tint,
-			 const double tdiff,
-			 const double tsig,
+PndTpcFrontend::PndTpcFrontend(const double Tint,
+			 const double Tdiff,
+			 const double Tsig,
 			 const double AdcThreshold,
-			 const double adcmax,
-			 const int adcbits,
+			 const double Adcmax,
+			 const int Adcbits,
 			 const double SamplingFreq_Mhz,
-			 const double t0,
+			 const double T0,
 			 const int timebits,
 			 const unsigned int PSAthreshold)
   : fadcThreshold(AdcThreshold),
-    fadcmax(adcmax),
-    fadcbits(adcbits),
-    ft0(t0),ftimebits(timebits),
+    fadcmax(Adcmax),
+    fadcbits(Adcbits),
+    ft0(T0),ftimebits(timebits),
     fpsaThreshold(PSAthreshold),
-    ftint(tint),ftdiff(tdiff),ftsig(tsig)
+    ftint(Tint),ftdiff(Tdiff),ftsig(Tsig)
 {
   fdt=1/SamplingFreq_Mhz * 1000.; // conversion to ns;
   assert(fadcbits<=32);

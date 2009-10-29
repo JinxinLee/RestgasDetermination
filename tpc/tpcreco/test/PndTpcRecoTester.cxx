@@ -523,8 +523,8 @@ PndTpcRecoTester::testRiemannSZFit(double sigma){
   std::vector<PndTpcRiemannHit*> rhits;
   
   int nhits=cll.size();
-  for(int i=0;i<nhits;++i){
-    PndTpcRiemannHit* hit=new PndTpcRiemannHit(cll[i]);
+  for(int ii=0;ii<nhits;++ii){
+    PndTpcRiemannHit* hit=new PndTpcRiemannHit(cll[ii]);
     trk->addHit(hit);
     rhits.push_back(hit);
   }
@@ -590,8 +590,8 @@ PndTpcRecoTester::testRiemannFit(unsigned int ntrk, double r){
     finder.buildTracks(cll,cands);
     
     int ncands=cands.size();
-    for(int i=0;i<ncands;++i){
-      PndTpcRiemannTrack* trk=cands.at(i);
+    for(int ii=0;ii<ncands;++ii){
+      PndTpcRiemannTrack* trk=cands.at(ii);
       if(trk->r()>10000)continue;
       mean+=trk->r()*100;
       rh->Fill(trk->r()*100);
@@ -788,14 +788,14 @@ PndTpcRecoTester::testRiemannSort(double dip, double sigma, int draw){
       point->SetPoint(0,posX.X(),posX.Y(),posX.Z());
       point->SetMarkerColor(kRed);
       point->SetMarkerStyle(23);
-      std::list<PndTpcRiemannHit*>::iterator it=rhits.begin();
+      std::list<PndTpcRiemannHit*>::iterator It=rhits.begin();
       int count=0;
-      while(it!=rhits.end()){
-	TVector3 pos=(*it)->cluster()->pos();
+      while(It!=rhits.end()){
+	TVector3 pos=(*It)->cluster()->pos();
 	//pos.Print();
 	maker->SetPoint(count,pos.X(),pos.Y(),pos.Z());
 	line->SetPoint(count,pos.X(),pos.Y(),pos.Z());
-	++it;
+	++It;
 	++count;
       }
       maker->SetMarkerStyle(23);
@@ -880,9 +880,9 @@ PndTpcRecoTester::testRiemannSortBatch(int ntrk,double sigma){
     std::list<PndTpcRiemannHit*> rhits;
     int dir=0;
     int nhits=cll.size();
-    for(int i=0;i<nhits;++i){
-      PndTpcRiemannHit* hit=new PndTpcRiemannHit(cll[i]);
-      TVector3 posX=cll[i]->pos();
+    for(int ii=0;ii<nhits;++ii){
+      PndTpcRiemannHit* hit=new PndTpcRiemannHit(cll[ii]);
+      TVector3 posX=cll[ii]->pos();
       trk->resetNit();
       std::list<PndTpcRiemannHit*>::iterator it;
       if(rhits.size()<2)rhits.push_back(hit);
@@ -1039,8 +1039,8 @@ PndTpcRecoTester::maketoyhits(int ntrk,std::vector<double>& rv,
       double xhit=point.X()+gRandom->Gaus(0,sig);
       double yhit=point.Y()+gRandom->Gaus(0,sig);
       double zhit=phi*dz_dphi+gRandom->Gaus(0,sig)+z0;
-      double r=TMath::Sqrt(xhit*xhit+yhit*yhit);
-      //if(r<5) continue;
+      double rr=TMath::Sqrt(xhit*xhit+yhit*yhit);
+      //if(rr<5) continue;
       hits->SetPoint(hitcounter,xhit,yhit);
       hitsxz->SetPoint(hitcounter,xhit,zhit);
       PndTpcCluster* cl=new PndTpcCluster(TVector3(xhit,yhit,zhit),1,hitcounter);

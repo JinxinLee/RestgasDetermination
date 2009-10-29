@@ -22,13 +22,13 @@
 // Class Member definitions -----------
 
 
-PndTpcDevmapCyl::PndTpcDevmapCyl(const char* const fileName, double vDrift)
+PndTpcDevmapCyl::PndTpcDevmapCyl(const char* const fileName, double vdrift)
   :PndTpcFieldCylGrid<TVector3>(TVector3(0.,0.,0.),
 			     0.,0.,0.,0.), floaded(false)
 {
 
   //TODO: redesign, get vDrift from param management
-  fvDrift = vDrift;
+  fvDrift = vdrift;
   loader = new PndTpcDevmapCylLoader(this, fileName);
   if(loader->load()==0)floaded=true;
   if (!floaded)

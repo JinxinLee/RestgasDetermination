@@ -34,7 +34,7 @@ public:
 
   // Constructors/Destructors ---------
   PndTpcSignal();
-  PndTpcSignal(double t, double Amp, 
+  PndTpcSignal(double T, double Amp, 
 	    unsigned int PadID, unsigned int MCEventID, PndTpcAvalanche* Mo);
   ~PndTpcSignal(){;}
   
@@ -54,7 +54,7 @@ public:
   PndTpcAvalanche* mother() const {return fmother;}
   
   // Modifiers -----------------------
-  void sett(const double t) {ft=t;}
+  void sett(const double T) {ft=T;}
   void setamp(const double A) {famp=A;}
   void setpadId(const unsigned int PadID) {fpadId=PadID;}
   void setmcTrackId(const unsigned int ID) {fmcTrackId=ID;}

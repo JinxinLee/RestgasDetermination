@@ -38,9 +38,9 @@
 // Class Member definitions -----------
 
 
-padprocessor::padprocessor(unsigned int id)
+padprocessor::padprocessor(unsigned int Id)
   : fiscenter(true), factive_state(0), fdominant_neighb(-1), 
-    fmyid(id), fcluster_buffer(0), fmydata(NULL)
+    fmyid(Id), fcluster_buffer(0), fmydata(NULL)
 {
   ppstate* init=new ppstate_initial(this);
   addState(init,"initial");

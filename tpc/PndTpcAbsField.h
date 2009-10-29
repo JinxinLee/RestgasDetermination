@@ -70,9 +70,9 @@ public:
   
   // Modifiers ---------------------------------------------
 
-  void setNominal(const t& nominal) {fnominal = nominal;}
+  void setNominal(const t& Nominal) {fnominal = Nominal;}
   void setRelPosition(const TVector3& relPos) {frelPosition = relPos;}
-  void setScale(const double scale) {fscale = scale;}
+  void setScale(const double Scale) {fscale = Scale;}
 
 protected:
 

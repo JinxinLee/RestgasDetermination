@@ -52,7 +52,7 @@ public:
 
   // this will ensure, that each entry will be there only once!
   // if weight is set to false additional ids do not increase the weight!
-  bool AddID(const McId& ID, double weight=1); // return true if added, false if already in collection
+  bool AddID(const McId& id, double weight=1); // return true if added, false if already in collection
   bool AddIDCollection(const McIdCollection& coll,double weight=1);
   // Operations ----------------------
 

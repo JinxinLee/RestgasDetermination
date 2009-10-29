@@ -32,33 +32,33 @@ PndTpcPad::PndTpcPad()
   : fx(0),fy(0),fangle(0),fwidth(0),fheight(0),fshape(0),fsectorId(0),fid(0)
 {;}
 
-PndTpcPad::PndTpcPad(const double x,
-	       const double y,
-	       const double angle,
-	       PndTpcAbsPadShape* const shape,
+PndTpcPad::PndTpcPad(const double X,
+	       const double Y,
+	       const double Angle,
+	       PndTpcAbsPadShape* const Shape,
 	       const unsigned int sectorID,
 	       const unsigned int ID)
-  : fx(x),fy(y),fangle(angle),fshape(shape),fsectorId(sectorID),fid(ID)
+  : fx(X),fy(Y),fangle(Angle),fshape(Shape),fsectorId(sectorID),fid(ID)
 {
   EvalBoundingRect();
 }
 
 bool
-PndTpcPad::Contains(const double x, const double y) const
+PndTpcPad::Contains(const double X, const double Y) const
 {
   if (fshape == 0)
     Fatal("PndTpcPad::Contains","No AbsPadShapePolygon assigned.");
-  double xSh = x;
-  double ySh = y;
+  double xSh = X;
+  double ySh = Y;
   ToShapeCoord(xSh, ySh);
   return(fshape->Contains(xSh, ySh));
 }
 
 bool
-PndTpcPad::CircleIntersection(const double x, const double y,
+PndTpcPad::CircleIntersection(const double X, const double Y,
 			   const double r) const
 {
-  double dx=std::fabs(fx-x); double dy=std::fabs(fy-y);
+  double dx=std::fabs(fx-X); double dy=std::fabs(fy-Y);
   double hw = 0.5*fwidth; double hh = 0.5*fheight;
   //most Pads are far away
   if (dx > hw+r || dy > hh+r )
@@ -68,12 +68,12 @@ PndTpcPad::CircleIntersection(const double x, const double y,
 }
 
 double
-PndTpcPad::GetValue(const double x, const double y) const
+PndTpcPad::GetValue(const double X, const double Y) const
 {
   if (fshape == 0)
     Fatal("PndTpcPad::GetValue","No AbsPadShape assigned.");
-  double xSh = x;
-  double ySh = y;
+  double xSh = X;
+  double ySh = Y;
   ToShapeCoord(xSh, ySh);
   return(fshape->GetValue(xSh, ySh));
 }
@@ -87,12 +87,12 @@ PndTpcPad::GetNBoundaryPoints() const
 }
 
 void
-PndTpcPad::GetBoundaryPoint(const int index, double& x, double& y) const
+PndTpcPad::GetBoundaryPoint(const int index, double& X, double& Y) const
 {
   if (fshape == 0)
     Fatal("PndTpcPad::GetBoundaryPoint","No AbsPadShape assigned.");
-   fshape->GetBoundaryPoint(index, x, y);
-   ToPlaneCoord(x, y);
+   fshape->GetBoundaryPoint(index, X, Y);
+   ToPlaneCoord(X, Y);
 }
 
 bool operator== (const PndTpcPad& lhs, const PndTpcPad& rhs)
