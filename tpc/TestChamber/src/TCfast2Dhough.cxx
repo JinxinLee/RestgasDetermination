@@ -99,7 +99,7 @@ void TCfast2DHough::make(std::vector<TCcluster>& _c){
     float z = zpHit.at(m);
     sprintf(buf,"%f-%f*x",y,z);
     sprintf(bufName,"copy%f-%f*x",y,z);
-    cout<<"m_Min"<<m_Min<<endl;
+    //    cout<<"m_Min"<<m_Min<<endl;
     houghLines.push_back(new TF1(bufName,buf,m_Min,m_Max));
     //	  houghLinesYZ[i]->SetLineColor(kBlue);
     houghLines.back()->SetLineStyle(1);
