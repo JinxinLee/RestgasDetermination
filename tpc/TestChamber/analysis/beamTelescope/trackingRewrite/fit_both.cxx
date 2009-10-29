@@ -96,7 +96,7 @@ int main(int argc,char **argv){
   }
 
   TH2D* correlationX = new TH2D("corX","u_TPC vs x_track",5000,-6.4,-2.5,5000,-3.5,3.5);
-  TH2D* correlationY = new TH2D("corY","u_TPC vs x_track",5000,-1,3,5000,-4.5,1);
+  TH2D* correlationY = new TH2D("corY","u_TPC vs x_track",5000,-3,3,5000,-4.5,4.5);
 
   TH2D* hitMap = new TH2D("hitmap","hitmap",1000,-10,10,1000,-10,10);
   TH2D* hitMapTrack = new TH2D("hitmapTr","hitmapTr",1000,-10,10,1000,-10,10);
