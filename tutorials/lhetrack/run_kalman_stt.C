@@ -40,7 +40,7 @@
   // THIS IS STRONGLY NEEDED
   FairGeane *Geane = new FairGeane();
   fRun->AddTask(Geane);
-  PndEmcMapper *emcMap = PndEmcMapper::Instance(2,parFile);
+  //PndEmcMapper *emcMap = PndEmcMapper::Instance(2,parFile);
 
   // -----  Parameter database   --------------------------------------------
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
@@ -58,6 +58,7 @@
   
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
+  PndEmcMapper *emcMap = PndEmcMapper::Instance(2);
   fRun->Run(0,nEvents);
   // ------------------------------------------------------------------------
   rtdb->print();

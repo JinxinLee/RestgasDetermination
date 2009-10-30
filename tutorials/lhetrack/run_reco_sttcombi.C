@@ -36,7 +36,7 @@
   fRun->SetOutputFile(outFile);
   FairGeane *Geane = new FairGeane();
   fRun->AddTask(Geane);
-  PndEmcMapper::Instance(2,parFile);
+  //PndEmcMapper::Instance(2,parFile);
   // ------------------------------------------------------------------------
 
   // -----  Parameter database   --------------------------------------------
@@ -56,7 +56,7 @@
   
   PndLheHitsMaker* trackMS = new PndLheHitsMaker("Tracking routine");
   trackMS->SetSttMode(3);  // 0 OFF, 1 SttPoint, 2 SttHit, (3) SttHelixHit // SttPoint smearing [cm], if negative no smearing
-  trackMS->SetMvdMode(2);  // 0 OFF, 1 MVDPoint, 2 MVDHit     // MVDPoint smearing [cm], if negative no smearing
+  trackMS->SetMvdMode(0);  // 0 OFF, 1 MVDPoint, 2 MVDHit     // MVDPoint smearing [cm], if negative no smearing
   fRun->AddTask(trackMS);
   
   PndLheTrackFinder* trackFinder    = new PndLheTrackFinder();
@@ -72,6 +72,7 @@
   
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
+  PndEmcMapper::Instance(2,parFile);
   fRun->Run(0, nEvents);
 
   rtdb->saveOutput();
