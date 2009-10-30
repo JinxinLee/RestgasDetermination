@@ -159,6 +159,31 @@ fi
 
 if [ "$3" = "1" ];
 then
+#
+# Check whether destination subdirectory exists
+# If it doesnt exist, try to create it.
+# Note that this only works in case SCPPROG is used as CPPROT 
+#
+    if [ ! $host = "root" ]; then
+
+      subdir=${dir%/*}
+
+      isthere="yes"
+      $prot ls $subdir 2>&1 | grep -i "No such file or directory" >> $LOGFILE 2>&1 && isthere="no"
+
+      if [ $isthere = "no" ]; then
+        echo "<W> Destination directory $subdir does not exist, I will try to create it..."
+        $prot mkdir $subdir >> $LOGFILE 2>&1
+        if [ -z "$subdir" ]; then
+          echo "<E> Failed to create directory!"  
+          RETVAL=1
+          exit $RETVAL
+        fi
+      fi
+    fi
+#
+# Copy files....
+#
     FAILURE=1
     while [ $FAILURE != 0 ]
     do
