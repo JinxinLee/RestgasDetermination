@@ -173,7 +173,7 @@ then
 
       if [ $isthere = "no" ]; then
         echo "<W> Destination directory $subdir does not exist, I will try to create it..."
-        $prot mkdir $subdir >> $LOGFILE 2>&1
+        $prot mkdir -p $subdir >> $LOGFILE 2>&1
       fi
     fi
 #
