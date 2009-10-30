@@ -1,6 +1,6 @@
 #include "PndStringVector.h"
 #include <iostream>
-
+#include <sstream>
 
 PndStringVector::PndStringVector (std::string AInput, std::string ADelimiter)
 {
@@ -13,21 +13,21 @@ std::string PndStringVector::GetString (void)
 {
   std::string::size_type pos;
   std::string aString;
-  pos = Input.find_first_of(Delimiter.c_str(), StartPos);
-  if (pos-StartPos == 0) {                //first value at StartPos is a Delimiter
-    StartPos += 1;
+  pos = fInput.find_first_of(fDelimiter.c_str(), fStartPos);
+  if (pos-fStartPos == 0) {                //first value at StartPos is a Delimiter
+    fStartPos += 1;
     return "";
   }
 
   else if (pos != std::string::npos){           // a delimiter was found after StartPos
-    aString = Input.substr(StartPos, pos-StartPos);
-    StartPos = pos + 1;
+    aString = fInput.substr(fStartPos, pos-fStartPos);
+    fStartPos = pos + 1;
     return aString;
   }
 
   else {                          //no delimiter was found after StartPos
-    aString = Input.substr(StartPos, pos-StartPos);
-    StartPos = pos;
+    aString = fInput.substr(fStartPos, pos-fStartPos);
+    fStartPos = pos;
     return aString;
   }
 }
@@ -35,21 +35,29 @@ std::string PndStringVector::GetString (void)
 
 std::vector<std::string> PndStringVector::GetStringVector(void)
 {
-  StartPos = 0;
+  fStartPos = 0;
   std::string value;
-
   ResetVector();
-  while (StartPos != std::string::npos){
+  TestFirst();
+  TestLast();
+  
+  std::cout<<" vector "<<std::endl;
+  std::cout<<" vector "<<std::endl;
+  
+  while (fStartPos != std::string::npos){
     value = GetString();
     if (value.length() > 0)
-      Strings.push_back(value);
+      fStrings.push_back(value);
+    std::cout<<" vector "<<std::endl;
+  
+
   }
-  return Strings;
+  return fStrings;
 }
 
 void PndStringVector::Print()
 {
-  std::cout << "PndStringVector for: " << Input << std::endl;
-  for (Int_t i = 0; i < Strings.size(); i++)
-    std::cout << i << ": " << Strings[i] << std::endl;
+  std::cout << "PndStringVector for: " << fInput << std::endl;
+  for (Int_t i = 0; i < fStrings.size(); i++)
+    std::cout << i << ": " << fStrings[i] << std::endl;
 }
