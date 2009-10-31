@@ -143,7 +143,6 @@ typedef struct {
   pthread_mutex_t mutex;                             // Mutex variable
   char           *command;                           // String containing the system call argument
   int             retval;                            // Return value of the thread
-  char            working;                           // Parameter indicating whether thread work is still in progress
 } system_info;                                       // Structure containing the information necessary to make a threaded system call
 
 typedef struct thread_list {
@@ -196,16 +195,16 @@ void PrintOptions()
 }
 
 //
-// int ReadArguments(unsigned int argc, char **argv, int rank)
-// -----------------------------------------------------------
+// int ReadArguments(unsigned int argc, char **argv)
+// -------------------------------------------------
 //
 // Description: Reads all the command line arguments and fills the corresponding global variables
-// Input:       argv: command line input parameters, argc: number of input parameters, MPI rank number
+// Input:       argv: command line input parameters, argc: number of input parameters
 // Output:      fills static variables, returns 1 on success, 0 in case of an unknown parameter
 // Depends on:  static variables define globally 
 //
 
-int ReadArguments(unsigned int argc,char **argv,int rank)
+int ReadArguments(unsigned int argc,char **argv)
 {
   unsigned int i;
   time_t now;
@@ -513,23 +512,22 @@ void* RunSystem(void *in)
 
   pthread_mutex_lock(&(info->mutex));
   pthread_cond_signal(&(info->cond));
-  info->working = 0;
   pthread_mutex_unlock(&(info->mutex));
 
   pthread_exit(NULL);
 }
 
 //
-// int MakeSystemCallWithTimeOut(int rank, char *command, int to)
-// --------------------------------------------------------------
+// int MakeSystemCallWithTimeOut(char *command, int to)
+// ----------------------------------------------------
 //
 // Description: Makes a system call by creating thread calling RunSystem
-// Input:       Worker's rank number,  "command" for the system call, and timeout "to" (s)
+// Input:       "command" for the system call, and timeout "to" (s)
 // Output:      returns 0 in case of success, otherwise non-zero
 // Depends on:  none
 //
 
-int MakeSystemCallWithTimeOut(int rank, char *command, int to)
+int MakeSystemCallWithTimeOut(char *command, int to)
 {
   int             retval;
   system_info     system_call;
@@ -538,7 +536,6 @@ int MakeSystemCallWithTimeOut(int rank, char *command, int to)
   pthread_t       systemThread;
 
   system_call.command = command;
-  system_call.working = 1;
 
   pthread_mutex_init(&(system_call.mutex),NULL);
   pthread_cond_init(&(system_call.cond),NULL);
@@ -549,6 +546,8 @@ int MakeSystemCallWithTimeOut(int rank, char *command, int to)
       fflush(stdout);
     }
 
+  pthread_mutex_lock(&(system_call.mutex));
+
   retval = pthread_create(&systemThread,
 			  NULL,
 			  (void *) RunSystem,
@@ -556,6 +555,10 @@ int MakeSystemCallWithTimeOut(int rank, char *command, int to)
   if (retval)
     {
       fprintf(stderr,"<W:%i> Error creating thread %d\n",rank,retval);
+
+      pthread_mutex_unlock(&(system_call.mutex));
+      pthread_mutex_destroy(&(system_call.mutex));
+      pthread_cond_destroy(&(system_call.cond));
       return retval;
     }
 
@@ -564,32 +567,27 @@ int MakeSystemCallWithTimeOut(int rank, char *command, int to)
   ts.tv_nsec = tp.tv_usec * 1000;
   ts.tv_sec += to;
 
-  pthread_mutex_lock(&(system_call.mutex));
-
-  while (system_call.working)
+  retval = pthread_cond_timedwait(&(system_call.cond), &(system_call.mutex), &ts);
+  if (retval)
     {
-      retval = pthread_cond_timedwait(&(system_call.cond), &(system_call.mutex), &ts);
-      if (retval)
+      if (ETIMEDOUT == retval) 
         {
-         if (ETIMEDOUT == retval) 
-	   {
-	     fprintf(stderr,"<W:%i> Time-out in waiting for system call \"%s\" to finish!\n",rank,command);
-	     fflush(stderr);
+	  fprintf(stderr,"<W:%i> Time-out in waiting for system call \"%s\" to finish!\n",rank,command);
+	  fflush(stderr);
 	  
-	     KillProcessAndDaughters(rank,system_call.command); 
-	   }
-         else
-	   {
-	     fprintf(stderr,"<W:%i> The value specified by cond, mutex or abstime in pthread_cond-timedwait is invalid.\n",rank);
-	     fflush(stderr);
-
-   	     KillProcessAndDaughters(rank,system_call.command); 
-	   }
-       }
-     else 
-       {
-         retval=system_call.retval;
-       }
+	  KillProcessAndDaughters(rank,system_call.command); 
+        }
+      else
+        {
+	  fprintf(stderr,"<W:%i> The value specified by cond, mutex or abstime in pthread_cond-timedwait is invalid.\n",rank);
+	  fflush(stderr);
+	  
+	  KillProcessAndDaughters(rank,system_call.command); 
+        }
+    }
+  else 
+    {
+      retval=system_call.retval;
     }
 
   pthread_mutex_unlock(&(system_call.mutex));
@@ -654,7 +652,7 @@ void* MoveJob(void *in)
 
   if (!dummy_mode) 
     {
-      retval=MakeSystemCallWithTimeOut(rank,command,info->timeout);
+      retval=MakeSystemCallWithTimeOut(command,info->timeout);
       if (retval)
 	{
 	  fprintf(stderr,"<W:%i> Error executing \"%s\"; return value is %i\n",info->worker,command,retval);
@@ -663,7 +661,7 @@ void* MoveJob(void *in)
 	  if (!keep_buffer)
 	    {
 	      sprintf(command,"%s %s/%u NULL 0 1",info->movecmd,info->scratch,info->jobid);
-	      MakeSystemCallWithTimeOut(rank,command,REMOVE_TIMEOUT);
+	      MakeSystemCallWithTimeOut(command,REMOVE_TIMEOUT);
 	    }
 	}
     }
@@ -691,7 +689,7 @@ void* MoveJob(void *in)
   msg[1]=info->jobid;
   msg[2]=(int) (now-start);
   msg[3]=(int) GetCPUTime(&cstart,&cnow);
-  msg[4]=GetFreeDiskSpace(info->worker);
+  msg[4]=GetFreeDiskSpace();
   msg[5]=number_of_running_jobs;
   msg[6]=(int) (100*GetAverageLoad(0));
 
@@ -793,7 +791,7 @@ int DoJob(unsigned int *info, job_description *job, double *time_elapsed, double
       if (!dummy_mode)
 	{
 	  te=((double) times(&cte)/((double) sysconf(_SC_CLK_TCK)));
-	  retval=MakeSystemCallWithTimeOut(rank,command,(int) (job->timeout-(te-tb)));
+	  retval=MakeSystemCallWithTimeOut(command,(int) (job->timeout-(te-tb)));
 	  if (retval)
 	    {
 	      fprintf(stderr,"<W:%i> Error executing \"%s\"; return value is %i\n",rank,command,retval);
@@ -802,7 +800,7 @@ int DoJob(unsigned int *info, job_description *job, double *time_elapsed, double
 	      if (!keep_buffer)
 		{
 		  sprintf(command,"%s %s/%u NULL 0 1",move_files,scratch_path,info[0]);
-		  retval=MakeSystemCallWithTimeOut(rank,command,REMOVE_TIMEOUT);
+		  retval=MakeSystemCallWithTimeOut(command,REMOVE_TIMEOUT);
 		}
 	      te=((double) times(&cte)/((double) sysconf(_SC_CLK_TCK)));
 	      *time_elapsed=(te-tb);
@@ -826,7 +824,7 @@ int DoJob(unsigned int *info, job_description *job, double *time_elapsed, double
   if (!dummy_mode)
     {
       te=((double) times(&cte)/((double) sysconf(_SC_CLK_TCK)));
-      retval=MakeSystemCallWithTimeOut(rank,command,(int) (job->timeout-(te-tb)));
+      retval=MakeSystemCallWithTimeOut(command,(int) (job->timeout-(te-tb)));
       if (retval)
 	{
 	  fprintf(stderr,"<W:%i> Error executing \"%s\"; return value is %i\n",rank,command,retval);
@@ -835,7 +833,7 @@ int DoJob(unsigned int *info, job_description *job, double *time_elapsed, double
 	  if (!keep_buffer)
 	    {
 	      sprintf(command,"%s %s/%u NULL 0 1",move_files,scratch_path,info[0]);
-	      retval=MakeSystemCallWithTimeOut(rank,command,REMOVE_TIMEOUT);
+	      retval=MakeSystemCallWithTimeOut(command,REMOVE_TIMEOUT);
 	    }  
 	  te=((double) times(&cte)/((double) sysconf(_SC_CLK_TCK)));
 	  *time_elapsed=(te-tb);
@@ -875,7 +873,7 @@ int DoJob(unsigned int *info, job_description *job, double *time_elapsed, double
   if (!dummy_mode) 
     {
       te=((double) times(&cte)/((double) sysconf(_SC_CLK_TCK)));
-      retval=MakeSystemCallWithTimeOut(rank,command,(int) (job->timeout-(te-tb)));
+      retval=MakeSystemCallWithTimeOut(command,(int) (job->timeout-(te-tb)));
       if (retval)
 	{
 	  fprintf(stderr,"<W:%i> Error executing \"%s\"; return value is %i\n",rank,command,retval);
@@ -884,7 +882,7 @@ int DoJob(unsigned int *info, job_description *job, double *time_elapsed, double
 	  if (!keep_buffer)
 	    {
 	      sprintf(command,"%s %s/%u NULL 0 1",move_files,scratch_path,info[0]);
-	      retval=MakeSystemCallWithTimeOut(rank,command,REMOVE_TIMEOUT);
+	      retval=MakeSystemCallWithTimeOut(command,REMOVE_TIMEOUT);
 	    }
 	  te=((double) times(&cte)/((double) sysconf(_SC_CLK_TCK)));
 	  *time_elapsed=(te-tb);
@@ -1543,7 +1541,7 @@ void DoWorker(double* wtime, double *cputime, double *cputime_jobs_success, int*
       msg[1]=-1;
       msg[2]=0;
       msg[3]=0;
-      msg[4]=GetFreeDiskSpace(rank);
+      msg[4]=GetFreeDiskSpace();
       msg[5]=number_of_running_jobs;
       msg[6]=(int) (100*GetAverageLoad(0));
 
@@ -1776,7 +1774,7 @@ int main(int argc, char *argv[])
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-  if (!ReadArguments(argc,argv,rank))
+  if (!ReadArguments(argc,argv))
     {
       MPI_Abort(MPI_COMM_WORLD,errno);
     }
