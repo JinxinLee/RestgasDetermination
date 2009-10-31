@@ -143,6 +143,7 @@ typedef struct {
   pthread_mutex_t mutex;                             // Mutex variable
   char           *command;                           // String containing the system call argument
   int             retval;                            // Return value of the thread
+  char            working;                           // Parameter indicating whether thread work is still in progress
 } system_info;                                       // Structure containing the information necessary to make a threaded system call
 
 typedef struct thread_list {
@@ -508,9 +509,11 @@ void* RunSystem(void *in)
   system_info *info = (system_info *) in;
 
   info->retval=((system(info->command) >> 8) & 255);
+  info->retval=0;
 
   pthread_mutex_lock(&(info->mutex));
   pthread_cond_signal(&(info->cond));
+  info->working = 0;
   pthread_mutex_unlock(&(info->mutex));
 
   pthread_exit(NULL);
@@ -535,6 +538,7 @@ int MakeSystemCallWithTimeOut(int rank, char *command, int to)
   pthread_t       systemThread;
 
   system_call.command = command;
+  system_call.working = 1;
 
   pthread_mutex_init(&(system_call.mutex),NULL);
   pthread_cond_init(&(system_call.cond),NULL);
@@ -561,28 +565,33 @@ int MakeSystemCallWithTimeOut(int rank, char *command, int to)
   ts.tv_sec += to;
 
   pthread_mutex_lock(&(system_call.mutex));
-  retval = pthread_cond_timedwait(&(system_call.cond), &(system_call.mutex), &ts);
-  if (retval)
-    {
-      if (ETIMEDOUT == retval) 
-	{
-	  fprintf(stderr,"<W:%i> Time-out in waiting for system call \"%s\" to finish!\n",rank,command);
-	  fflush(stderr);
-	  
-	  KillProcessAndDaughters(rank,system_call.command); 
-	}
-      else
-	{
-	  fprintf(stderr,"<W:%i> The value specified by cond, mutex or abstime in pthread_cond-timedwait is invalid.\n",rank);
-	  fflush(stderr);
 
-	  KillProcessAndDaughters(rank,system_call.command); 
-	}
-    }
-  else 
+  while (system_call.working)
     {
-      retval=system_call.retval;
+      retval = pthread_cond_timedwait(&(system_call.cond), &(system_call.mutex), &ts);
+      if (retval)
+        {
+         if (ETIMEDOUT == retval) 
+	   {
+	     fprintf(stderr,"<W:%i> Time-out in waiting for system call \"%s\" to finish!\n",rank,command);
+	     fflush(stderr);
+	  
+	     KillProcessAndDaughters(rank,system_call.command); 
+	   }
+         else
+	   {
+	     fprintf(stderr,"<W:%i> The value specified by cond, mutex or abstime in pthread_cond-timedwait is invalid.\n",rank);
+	     fflush(stderr);
+
+   	     KillProcessAndDaughters(rank,system_call.command); 
+	   }
+       }
+     else 
+       {
+         retval=system_call.retval;
+       }
     }
+
   pthread_mutex_unlock(&(system_call.mutex));
 
   pthread_join(systemThread, NULL);
