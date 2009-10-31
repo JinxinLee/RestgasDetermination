@@ -508,7 +508,6 @@ void* RunSystem(void *in)
   system_info *info = (system_info *) in;
 
   info->retval=((system(info->command) >> 8) & 255);
-  info->retval=0;
 
   pthread_mutex_lock(&(info->mutex));
   pthread_cond_signal(&(info->cond));
