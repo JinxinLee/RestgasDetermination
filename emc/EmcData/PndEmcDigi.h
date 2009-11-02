@@ -112,6 +112,7 @@ class PndEmcDigi : public TObject
 private:
 
 	friend class PndEmcWaveformToDigi;
+	friend class PndEmcTmpWaveformToDigi;
 	friend class PndEmcMakeDigi;
 
   static void selectDigiPositionMethod( PositionMethod , 
