@@ -1,5 +1,5 @@
 void runMacro(TString command){
-  gSystem->Load("libpndbase.so");
+  gSystem->Load("libPndBase.so");
   gROOT->ProcessLine(".include $VMCWORKDIR/pndbase/proxydict");
   gROOT->ProcessLine(command);
 
