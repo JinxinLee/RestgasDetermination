@@ -8,6 +8,8 @@ rootlogon()
   	gSystem->Load("libGeoBase");
 	gSystem->Load("libParBase");
 	gSystem->Load("libBase");
+	gSystem->Load("libPndBase");
+	gSystem->Load("libGlobalTasks");
         gSystem->Load("libTrkBase");
 	gSystem->Load("libPndData");
 	gSystem->Load("libField");
