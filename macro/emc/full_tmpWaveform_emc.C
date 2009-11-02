@@ -18,7 +18,7 @@
 	TString digiFile = "emc.par";
   
 	// Output file
-	TString outFile = "full_emc.root";
+	TString outFile = "full_tmpWaveform_emc.root";
 	
 	// Loading libraries
 	// If the macro gives error messages in loading libraries, please check the path of the libs and put it by hands
@@ -58,6 +58,9 @@
   // ------------------------------------------------------------------------
 
 
+	PndGlobalEvtTask*  pndGlobalEvtTask = new PndGlobalEvtTask(); 
+ 	fRun->AddTask(pndGlobalEvtTask); 
+
   // -----   EMC hit producers   ---------------------------------
   // The file name should be the same of the geometry file which was used for the simulation
 
@@ -67,10 +70,10 @@
   PndEmcMakeDigi* emcMakeDigi=new PndEmcMakeDigi();
   //  fRun->AddTask(emcMakeDigi); // fast digitization
 
-  PndEmcHitsToWaveform* emcHitsToWaveform= new PndEmcHitsToWaveform(iVerbose);
-  PndEmcWaveformToDigi* emcWaveformToDigi=new PndEmcWaveformToDigi(iVerbose);
-  fRun->AddTask(emcHitsToWaveform);  // full digitization
-  fRun->AddTask(emcWaveformToDigi);  // full digitization
+  PndEmcHitsToTmpWaveform* emcHitsToTmpWaveform= new PndEmcHitsToTmpWaveform(iVerbose);
+  PndEmcTmpWaveformToDigi* emcTmpWaveformToDigi=new PndEmcTmpWaveformToDigi(iVerbose);
+  fRun->AddTask(emcHitsToTmpWaveform);  // full digitization
+  fRun->AddTask(emcTmpWaveformToDigi);  // full digitization
  
   PndEmcMakeCluster* emcMakeCluster= new PndEmcMakeCluster(iVerbose);
   fRun->AddTask(emcMakeCluster);

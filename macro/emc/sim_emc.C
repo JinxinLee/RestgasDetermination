@@ -14,7 +14,7 @@
   FairRunSim *fRun = new FairRunSim();
   
   // Set the number of events
-  Int_t nEvents = 10; 
+  Int_t nEvents = 1000; 
   
   // set the MC version used
   // ------------------------
