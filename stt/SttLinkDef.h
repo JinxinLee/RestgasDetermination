@@ -25,7 +25,7 @@
 #pragma link C++ class PndSttHitProducerRealFast+;
 #pragma link C++ class PndSttHitProducerRealFull+;
 #pragma link C++ class PndSttHelixHitProducer+;
-#pragma link C++ class PndSttTrackFinderReal+;
+//#pragma link C++ class PndSttTrackFinderReal+;
 
 
 #endif

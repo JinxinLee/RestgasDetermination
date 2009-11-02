@@ -43,7 +43,7 @@ PndSttHelixTrackFitter.cxx
 PndSttHitProducerRealFast.cxx
 PndSttHitProducerRealFull.cxx            
 PndSttHelixHitProducer.cxx
-PndSttTrackFinderReal.cxx
+#PndSttTrackFinderReal.cxx
 )
 
 if(RULE_CHECKER_FOUND)
