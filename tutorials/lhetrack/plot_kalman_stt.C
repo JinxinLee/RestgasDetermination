@@ -12,10 +12,10 @@
   //c1.Divide(2,2);
   //c1.cd(1);
 
-  lhe->Draw("LhePidTrack.GetMomentum().Mag()>>momlhe(100,0.5,1.5)","","goff");
+  lhe->Draw("LheTrack.GetParamFirst().GetMomentum().Mag()>>momlhe(100,0.5,1.5)","","goff");
   momlhe->GetXaxis()->SetTitle("Momentum [GeV/c]");
 
-  fit->Draw("LheGenTrack.getMom().Mag()>>momfit(100,0.5,1.5)","","goff");
+  fit->Draw("LheGenTrack.GetParamFirst().GetMomentum().Mag()>>momfit(100,0.5,1.5)","","goff");
   momfit->GetXaxis()->SetTitle("Momentum [GeV/c]");
 
   momlhe.SetLineColor(2);
