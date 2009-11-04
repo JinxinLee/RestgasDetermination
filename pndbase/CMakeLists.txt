@@ -3,7 +3,8 @@
 # The extension is already found.  Any number of sources could be listed here.
 
 set(INCLUDE_DIRECTORIES
-${ROOT_INCLUDE_DIR} 
+${ROOT_INCLUDE_DIR}
+#${BOOST_INCLUDE_DIR} 
 ${CMAKE_SOURCE_DIR}/geobase 
 ${CMAKE_SOURCE_DIR}/base 
 ${CMAKE_SOURCE_DIR}/parbase 
@@ -12,6 +13,9 @@ ${CMAKE_SOURCE_DIR}/base
 ${CMAKE_SOURCE_DIR}/pndbase/proxydict
 ${CMAKE_SOURCE_DIR}/pndbase/basetasks
 ${CMAKE_SOURCE_DIR}/pndbase/gblenv
+#${CMAKE_SOURCE_DIR}/pndbase/absevent
+${CMAKE_SOURCE_DIR}/pndbase/PndStdUtils
+${CMAKE_SOURCE_DIR}/pndbase/AssocTools
 ${CMAKE_SOURCE_DIR}/pndbase
 )
 
@@ -19,7 +23,9 @@ include_directories( ${INCLUDE_DIRECTORIES})
 
 set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}
+#${BOOST_LIBRARY_DIR}
 )
+
  
 link_directories( ${LINK_DIRECTORIES})
 
@@ -49,6 +55,10 @@ proxydict/IfdTestClasses.cxx
 #proxydict/IfdTypeKey.cxx
 proxydict/IfdTypeKeyIFace.cxx
 gblenv/AbsEnv.cxx
+PndStdUtils/String.cxx
+PndStdUtils/Tokenize.cxx
+AssocTools/AstSTLNameMap.cxx
+AssocTools/AstTestTools.cxx
 )
 
 if(RULE_CHECKER_FOUND)

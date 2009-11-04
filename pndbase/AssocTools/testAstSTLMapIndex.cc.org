@@ -1,0 +1,106 @@
+//--------------------------------------------------------------------------
+// File and Version Information:
+// 	$Id: testAstSTLMapIndex.cc,v 1.1.1.1 2005/03/29 16:49:06 steinke Exp $
+//
+// Description:
+//	testAssocTools
+//          Test program for class AssocTools/AstSTLMapIndex.  Output should
+//          match that in testAMapIndexs.reference
+//
+// Environment:
+//	Software developed for the BaBar Detector at the SLAC B-Factory.
+//
+// Author List:
+//      Phil Strother                     Original Author
+//      Michael Kelsey <kelsey@slac.stanford.edu>
+//
+// Copyright Information:
+//	Copyright (C) 1997                Imperial College
+//
+//------------------------------------------------------------------------
+
+#include "Panda/Panda.hh"
+#include "AssocTools/AstTestTools.hh"
+#include "AssocTools/AstSTLMapIndex.hh"
+#include "CLHEP/Alist/AList.h"
+#include "CLHEP/Alist/AIterator.h"
+#include "ErrLogger/ErrLog.hh"
+
+#include <string>
+#include <vector>
+#include "BbrStdUtils/String.hh"
+
+int main() {
+  AstTestBanner("AstSTLMapIndex");
+
+  HepAList<std::string> dummyList;
+  std::vector<std::string*> dummyList2;
+  std::string *yetMore1 = new std::string("wibble1");
+  std::string *yetMore2 = new std::string("wibble2");
+  std::string *yetMore3 = new std::string("wibble3");
+  std::string *yetMore4 = new std::string("wibble4");
+  std::string *yetMore5 = new std::string("wibble5");
+  dummyList.append(yetMore1);
+  dummyList.append(yetMore2);
+  dummyList.append(yetMore3);
+  dummyList.append(yetMore4);
+  dummyList.append(yetMore5);
+
+  dummyList2.push_back(yetMore1);
+  dummyList2.push_back(yetMore2);
+  dummyList2.push_back(yetMore3);
+  dummyList2.push_back(yetMore4);
+  dummyList2.push_back(yetMore5);
+
+  ErrMsg(routine) << "HepAList constructor" << endmsg;
+
+  AstSTLMapIndex<std::string> hepAListMap(dummyList);
+  HepAListIterator<std::string> dummyIter(dummyList);
+  std::string *nextString(0);
+  while (nextString = dummyIter()){
+    int index;
+    if (hepAListMap.index(nextString, index)){
+      ErrMsg(routine) << "Found string " << *nextString << " at index " 
+		      << index << endmsg;
+    } else {
+      ErrMsg(error) << "Failed to locate " << *nextString << " in map!!" << endmsg;
+    }
+  }
+
+
+  hepAListMap.remove(yetMore1);
+
+  ErrMsg(routine) << "After removal of " << *yetMore1 << " map has " 
+		  << hepAListMap.members() << " entries " << endmsg;
+  
+
+  dummyIter.rewind();
+
+  while (nextString = dummyIter()){
+    int index;
+    if (hepAListMap.index(nextString, index)){
+      ErrMsg(routine) << "Found string " << *nextString << " at index " 
+		      << index << endmsg;
+    } else {
+      ErrMsg(error) << "Failed to locate " << *nextString << " in map!!" << endmsg;
+    }
+  }
+
+  ErrMsg(routine) << "RW Ptr constructor" << endmsg;
+
+  AstSTLMapIndex<std::string> rwPtrMap(dummyList2, &babar::String::rwHash);
+  int kk;
+  for (kk=0;kk<dummyList2.size();kk++){
+    nextString = dummyList2[kk];
+    int index;
+    if (rwPtrMap.index(nextString, index)){
+      ErrMsg(routine) << "Found string " << *nextString << " at index " 
+		      << index << endmsg;
+    } else {
+      ErrMsg(error) << "Failed to locate " << *nextString << " in map!!" << endmsg;
+    }
+  }
+
+
+  return 0;
+}

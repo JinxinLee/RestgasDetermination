@@ -1,0 +1,177 @@
+//--------------------------------------------------------------------------
+// File and Version Information:
+// 	$Id: testAstSTLTwoWayMatch.cc,v 1.1.1.1 2005/03/29 16:49:06 steinke Exp $
+//
+// Description:
+//	testAstSTLTwoWayMatch
+//          Test function for class in AssocTools/AstSTLTwoWayMatch.  Output should
+//	    match that in testAstSTLTwoWayMatch.t.
+//
+// Environment:
+//	Software developed for the BaBar Detector at the SLAC B-Factory.
+//
+// Author List:
+//      Phil Strother                     Original Author
+//      Michael Kelsey <kelsey@slac.stanford.edu>
+//
+// Copyright Information:
+//	Copyright (C) 2000  Princeton University
+//
+//------------------------------------------------------------------------
+
+#include "Panda/Panda.hh"
+#include "AssocTools/AstTestTools.hh"
+#include "AssocTools/AstSTLTwoWayMatch.hh"
+#include "ErrLogger/ErrLog.hh"
+
+#include <string>
+#include <map>
+#include "BbrStdUtils/CollectionUtils.hh"
+#include "BbrStdUtils/String.hh"
+
+int main() {
+  AstTestBanner("AstSTLTwoWayMatch");
+
+  { 
+    // scope of "don't delete" object
+    AstSTLTwoWayMatch<std::string, std::string, std::string> *theTwoWayMatch = 
+      new AstSTLTwoWayMatch<std::string, std::string, std::string>(&babar::String::rwHash, &babar::String::rwHash, false);
+
+    std::string *babar = new std::string("BaBar");
+    std::string *isan  = new std::string("is an");
+    std::string *elephant = new std::string("elephant");
+    std::string *wears = new std::string("wears");
+    std::string *blackshoes = new std::string("black shoes");
+    std::string *celeste = new std::string("Celeste");
+    std::string *married = new std::string("married");
+    std::string *cornelius = new std::string("Cornelius");
+    std::string *is = new std::string("is");
+    std::string *verywise = new std::string("very wise");
+ 
+    std::string *elephant1 = new std::string("elephant");
+    std::string *elephant2 = new std::string("elephant");
+    std::string *babar1 = new std::string("BaBar");
+
+    theTwoWayMatch->insertMatch(babar, isan, elephant);
+    theTwoWayMatch->insertMatch(babar, wears, blackshoes);
+    theTwoWayMatch->insertMatch(celeste, isan, elephant1);
+    theTwoWayMatch->insertMatch(celeste, married, babar1);
+    theTwoWayMatch->insertMatch(cornelius, isan, elephant2);
+    theTwoWayMatch->insertMatch(cornelius, is, verywise);
+
+    std::string *aRWCString;
+
+    ErrMsg(routine)<< "Finding forward match sets: " << endmsg << endmsg;
+
+
+    const std::map<std::string*, std::string*, BbrPtrLess> *anotherMatchingSet1 = 
+      theTwoWayMatch->findMatchSet1(babar);
+
+    std::map<std::string*, std::string*, BbrPtrLess>::const_iterator
+      otherWords = anotherMatchingSet1->begin();
+  
+    ErrMsg(routine)<< *babar << endmsg;
+    while (otherWords != anotherMatchingSet1->end()) { 
+      ErrMsg(routine)<< *(otherWords->first) << " " << *(otherWords->second) << endmsg;
+      ++otherWords;
+    }
+
+
+    ErrMsg(routine)<< "Finding match quality: " << endmsg << endmsg;
+    ErrMsg(routine)<< *celeste << " " << *married << " " 
+		   << *theTwoWayMatch->getMatchQuality(celeste, married) << endmsg;
+
+    ErrMsg(routine)<< "Finding backward match sets: " << endmsg << endmsg;
+
+    const std::map<std::string*, std::string*, BbrPtrLess> *anotherMatchingSet2 = 
+      theTwoWayMatch->findMatchSet2(isan);
+
+    std::map<std::string*, std::string*, BbrPtrLess>::const_iterator
+      otherWords2 = anotherMatchingSet2->begin();
+  
+    while (otherWords2 != anotherMatchingSet2->end()) {
+      ErrMsg(routine)<< *(otherWords2->first) << " " << *isan << " " 
+		     << *(otherWords2 ->second) << endmsg;
+      ++otherWords2;
+    }
+
+    ErrMsg(routine)<< "Removing matches for " << *celeste << endmsg;
+    theTwoWayMatch->removeMatchesForKey1(celeste);
+    if (theTwoWayMatch->findMatchSet1(celeste) || theTwoWayMatch->findMatchSet2(celeste)){
+      ErrMsg(warning)<< "Still found match for " << *celeste << endmsg;
+    } else {
+      ErrMsg(routine)<< "Successfully removed all matches for " << *celeste << endmsg;
+    }
+
+    anotherMatchingSet2 = theTwoWayMatch->findMatchSet2(isan);
+    otherWords2 = anotherMatchingSet2->begin();
+    while (otherWords2 != anotherMatchingSet2->end()) {
+      ErrMsg(routine)<< *(otherWords2->first) << " " << *isan << " " 
+		     << *(otherWords2->second) << endmsg;
+      ++otherWords2;
+    }
+
+    aRWCString = new std::string("Cornelius");
+    if (theTwoWayMatch->contains(cornelius, isan)){
+      ErrMsg(routine)<< "Match object contains the string " << *cornelius << " and "
+		     << *isan << endmsg;
+    } else {
+      ErrMsg(warning)<< "Match object does not contain the string " << *cornelius << " and "
+		     << *isan << endmsg;
+    }
+    if (theTwoWayMatch->removeSpecificMatch(cornelius, isan)){
+      ErrMsg(routine)<< "Successfully removed specific match for " << *cornelius << " " 
+		     << *isan << ", The following remains:" << endmsg;
+      const std::map<std::string*, std::string*, BbrPtrLess> *anotherMatchingSet2 
+	= theTwoWayMatch->findMatchSet1(cornelius);
+      std::map<std::string*, std::string*, BbrPtrLess>::const_iterator 
+	otherWords2 = anotherMatchingSet2->begin();
+      while (otherWords2 != anotherMatchingSet2->end()) {
+	ErrMsg(routine)<< *cornelius << " " << *(otherWords2->first) << " " 
+		       << *(otherWords2->second) << endmsg;
+	++otherWords2;
+      }
+    } else {
+      ErrMsg(warning)<< "Failed to remove match " << *cornelius << " " << *isan << endmsg;
+    }
+
+    delete theTwoWayMatch;
+
+    // Next line should die if delete has destroyed match quality objects
+    
+    verywise->length();
+    
+  }
+
+  { 
+    // scope of "do  delete" object
+    AstSTLTwoWayMatch<std::string, std::string, std::string> *theTwoWayMatch = 
+      new AstSTLTwoWayMatch<std::string, std::string, std::string>(&babar::String::rwHash, &babar::String::rwHash, false);
+
+    std::string *babar = new std::string("BaBar");
+    std::string *isan  = new std::string("is an");
+    std::string *elephant = new std::string("elephant");
+    std::string *wears = new std::string("wears");
+    std::string *blackshoes = new std::string("black shoes");
+    std::string *celeste = new std::string("Celeste");
+    std::string *married = new std::string("married");
+    std::string *cornelius = new std::string("Cornelius");
+    std::string *is = new std::string("is");
+    std::string *verywise = new std::string("very wise");
+ 
+    std::string *elephant1 = new std::string("elephant");
+    std::string *elephant2 = new std::string("elephant");
+    std::string *babar1 = new std::string("BaBar");
+
+    theTwoWayMatch->insertMatch(babar, isan, elephant);
+    theTwoWayMatch->insertMatch(babar, wears, blackshoes);
+    theTwoWayMatch->insertMatch(celeste, isan, elephant1);
+    theTwoWayMatch->insertMatch(celeste, married, babar1);
+    theTwoWayMatch->insertMatch(cornelius, isan, elephant2);
+    theTwoWayMatch->insertMatch(cornelius, is, verywise);
+
+    delete theTwoWayMatch;
+  
+  }
+
+}

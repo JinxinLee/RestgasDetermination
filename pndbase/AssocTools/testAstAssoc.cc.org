@@ -1,0 +1,48 @@
+//--------------------------------------------------------------------------
+// File and Version Information:
+// 	$Id: testAstAssoc.cc,v 1.1.1.1 2005/03/29 16:49:06 steinke Exp $
+//
+// Description:
+//	testAstAssoc
+//          Test function for class AssocTools/AstAssociation and
+//	    AssocTools/AstRefAssociation.  Output should
+//	    match that in testAstMap.t.
+//
+// Environment:
+//	Software developed for the BaBar Detector at the SLAC B-Factory.
+//
+// Author List:
+//      Phil Strother                     Original Author
+//      Michael Kelsey <kelsey@slac.stanford.edu>
+//
+// Copyright Information:
+//	Copyright (C) 2000  Princeton University
+//
+//------------------------------------------------------------------------
+
+#include "Panda/Panda.hh"
+#include "AssocTools/AstTestTools.hh"
+#include "AssocTools/AstAssociation.hh"
+#include "AssocTools/AstRefAssociation.hh"
+#include "ErrLogger/ErrLog.hh"
+
+#include <string>
+using std::endl;
+
+int main() {
+  AstTestBanner("AstAssociation");
+
+  AstAssociation<std::string, std::string>
+    anAssociation(new std::string("Blackpool"), new std::string("Preston"));
+
+  ErrMsg(routine) << *anAssociation.firstArgument() << " will always beat "
+		  << *anAssociation.secondArgument() << endl << endmsg;
+
+  AstTestBanner("AstRefAssociation");
+
+  std::string bfc("Blackpool");
+  std::string pne("Preston");
+  AstRefAssociation<std::string, std::string> aRefAssociation(bfc,pne);
+  ErrMsg(routine)<< aRefAssociation.firstArgument() << " will always beat "
+		 << aRefAssociation.secondArgument() << endl << endmsg;
+}

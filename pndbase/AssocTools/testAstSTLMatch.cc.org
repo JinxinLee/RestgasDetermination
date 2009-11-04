@@ -1,0 +1,188 @@
+//--------------------------------------------------------------------------
+// File and Version Information:
+// 	$Id: testAstSTLMatch.cc,v 1.1.1.1 2005/03/29 16:49:06 steinke Exp $
+//
+// Description:
+//	testAstSTLMatch
+//          Test function for class in AssocTools/AstSTLMatch.  Output should
+//	    match that in testAstSTLMatch.t.
+//
+// Environment:
+//	Software developed for the BaBar Detector at the SLAC B-Factory.
+//
+// Author List:
+//      Matthias Steinke
+//------------------------------------------------------------------------
+
+#include "Panda/Panda.hh"
+#include "AssocTools/AstTestTools.hh"
+#include "AssocTools/AstSTLMatch.hh"
+#include "ErrLogger/ErrLog.hh"
+
+#include <string>
+#include <vector>
+#include <map>
+#include "BbrStdUtils/CollectionUtils.hh"
+#include "BbrStdUtils/String.hh"
+
+int main() {
+  AstTestBanner("AstSTLMatch");
+
+  AstSTLMatch<std::string, std::string, std::string> *theMatch
+    = new AstSTLMatch<std::string, std::string, std::string>(&babar::String::rwHash,
+						    &babar::String::rwHash);
+
+  std::string *babar = new std::string("BaBar");
+  std::string *isan  = new std::string("is an");
+  std::string *elephant = new std::string("elephant");
+  
+  theMatch->insertMatch(babar, isan, elephant);
+
+  std::string *wears = new std::string("wears");
+  std::string *blackshoes = new std::string("black shoes");
+
+  theMatch->insertMatch(babar, wears, blackshoes);
+
+  std::string *celeste = new std::string("Celeste");
+
+  theMatch->insertMatch( celeste, isan, elephant);
+
+  std::string *married = new std::string("married");
+
+  theMatch->insertMatch(celeste, married, babar);
+  
+  std::string *cornelius = new std::string("Cornelius");
+  theMatch->insertMatch(cornelius, isan, elephant);
+
+  std::string *is = new std::string("is");
+  std::string *verywise = new std::string("very wise");
+
+  theMatch->insertMatch(cornelius, is , verywise);
+
+  AstSTLMatch<std::string, std::string, std::string> *theMatch2
+    = new AstSTLMatch<std::string, std::string, std::string>();
+
+  std::string *string1 = new std::string("BaBar");
+  std::string *string2 = new std::string("wears");
+  std::string *string3 = new std::string("a green jacket");
+  std::string *string4 = new std::string("is a");
+  std::string *string5 = new std::string("small damp fish");
+
+  theMatch2->insertMatch(string1, string2, string3);
+  theMatch2->insertMatch(string1, string4, string5);
+
+  std::vector<std::string*> *vecString1 = 
+    new std::vector<std::string*>;
+  vecString1->push_back(new std::string(*string3));
+  vecString1->push_back(new std::string(*blackshoes));
+  std::vector<std::string*> *vecString2 = 
+    new std::vector<std::string*>;
+  vecString2->push_back(new std::string(*string5));
+  vecString2->push_back(new std::string(*elephant));
+
+  AstSTLMatch<std::string, std::string, std::vector<std::string*> > 
+    *vecMatch= new AstSTLMatch<std::string, std::string, 
+    std::vector<std::string*> > (&babar::String::rwHash, &babar::String::rwHash);
+  vecMatch->setMatchQualityCleanerFunction(AstSTLTestCleaner);
+  
+  vecMatch->insertMatch(string1, string2, vecString1);
+  vecMatch->insertMatch(string1, string4, vecString2);
+
+  // Don't want to do much with it, just make sure that the 
+  // destructor doesn't crash. 
+  delete vecMatch;
+
+
+  const std::map<std::string*, std::string*, BbrPtrLess> *theMatchingSet = 
+    theMatch->findMatchSet(babar);
+  std::map<std::string*, std::string*, BbrPtrLess>::const_iterator 
+    theWords = theMatchingSet->begin();
+  
+  ErrMsg(routine)<< *babar << endmsg;
+  while (theWords != theMatchingSet->end()) {
+    ErrMsg(routine)<< *(theWords->first) << " " << *(theWords->second) << endmsg;
+    ++theWords;
+  }
+
+  if (theMatch->getMatchQuality(celeste, married)!=0){
+    ErrMsg(routine)<< *celeste << " " << *married << " " 
+	 << *theMatch->getMatchQuality(celeste, married) << endmsg;
+  } else { 
+    ErrMsg(warning)<< "Failed to find match for " 
+		   <<  *celeste << " " << *married << endmsg;
+  }
+
+  ErrMsg(routine)<< "Removing matches for " << *celeste << endmsg;
+  theMatch->removeMatchesForKey(celeste);
+
+  babar = new std::string("BaBar");
+
+  if (theMatch->findMatchSet(celeste)){
+    ErrMsg(warning)<< "Still found match for " << *celeste << endmsg;
+  } else {
+    ErrMsg(routine)<< "Successfully removed all matches for " 
+		   << *celeste << endmsg;
+  }
+
+  if (theMatch->contains(cornelius, isan)){
+    ErrMsg(routine)<< "Match object contains the string "
+		   << *cornelius << " and "
+	 << *isan << endmsg;
+  } else {
+    ErrMsg(warning)<< "Match object does not contain the string " 
+		   << *cornelius << " and "
+		   << *isan << endmsg;
+  }
+  if (theMatch->removeSpecificMatch(cornelius, isan)){
+    ErrMsg(routine)<< "Successfully removed specific match for " 
+		   << *cornelius << " " 
+		   << *isan << ", The following remains:" << endmsg;
+    const std::map<std::string*, std::string*, BbrPtrLess> *theMatchingSet2 
+      = theMatch->findMatchSet(cornelius);
+    std::map<std::string*, std::string*, BbrPtrLess>::const_iterator 
+      theWords2 = theMatchingSet2->begin();
+    while (theWords2 != theMatchingSet2->end()) {
+      ErrMsg(routine)<< *cornelius << " " << *(theWords2->first) << " " 
+		     << *(theWords2->second) << endmsg;
+      ++theWords2;
+    }
+  } else {
+    ErrMsg(warning)<< "Failed to remove match " 
+		   << *cornelius << " " << *isan << endmsg;
+  }
+
+  const std::map<std::string*, std::string*, BbrPtrLess> *theMatchingSet1 = 
+    theMatch2->findMatchSet(string1);
+  std::map<std::string*, std::string*, BbrPtrLess>::const_iterator 
+    theWords1 = theMatchingSet1->begin();
+  
+  ErrMsg(routine)<< *string1 << endmsg;
+  while (theWords1 != theMatchingSet1->end()) { 
+    ErrMsg(routine)<< *(theWords1->first) << " " << *(theWords1->second) << endmsg;
+    ++theWords1;
+  }
+
+  ErrMsg(routine)<< "Don't worry, I'm fibbing" << endmsg;
+
+  elephant = new std::string("elephant");
+
+
+  // Test deletion of members
+
+  AstSTLMatch<std::string, std::string, std::string> *theMatchDeleteTest
+    = new AstSTLMatch<std::string, std::string, std::string>(&babar::String::rwHash, &babar::String::rwHash);
+
+  babar = new std::string("BaBar");
+  isan  = new std::string("is an");
+  elephant = new std::string("elephant");
+  
+  theMatchDeleteTest->insertMatch(babar, isan, elephant);
+  
+  wears = new std::string("wears");
+  blackshoes = new std::string("black shoes");
+  
+  theMatchDeleteTest->insertMatch(babar, wears, blackshoes);
+  
+  celeste = new std::string("Celeste");
+  theMatchDeleteTest->clearAndDestroy();
+}

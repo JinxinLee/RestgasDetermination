@@ -1,0 +1,201 @@
+//--------------------------------------------------------------------------
+// File and Version Information:
+// 	$Id: testAstCompile.cc,v 1.1.1.1 2005/03/29 16:49:06 steinke Exp $
+//
+// Description:
+//	testAstCompile
+//          Compilation checks for AssocTools classes.  T!, T2, and T3
+// 	    should be different things - this will show up compilation
+// 	    errors which are not shown in the above instantiations
+//
+// Environment:
+//	Software developed for the BaBar Detector at the SLAC B-Factory.
+//
+// Author List:
+//      Phil Strother                     Original Author
+//      Michael Kelsey <kelsey@slac.stanford.edu>
+//
+// Copyright Information:
+//	Copyright (C) 2000  Princeton University
+//
+//------------------------------------------------------------------------
+
+#include "Panda/Panda.hh"
+#include "AssocTools/AstTestTools.hh"
+#include "AssocTools/AstSTLKeyMap.hh"
+#include "AssocTools/AstSTLMap.hh"
+#include "AssocTools/AstSTLMap2.hh"
+#include "AssocTools/AstSTLMatch.hh"
+#include "AssocTools/AstSTLTwoWayMatch.hh"
+#include "AssocTools/AstStringMap.hh"
+#include "AssocTools/AstUniqMap2.hh"
+#include "BdbTime/BdbTime.hh"
+
+#include "ErrLogger/ErrLog.hh"
+
+#include "BbrStdUtils/String.hh"
+
+#include <vector>
+#include <set>
+#include <string>
+
+unsigned int bdbTimeHash( const BdbTime& toHash )
+{
+  return toHash.getGmtSec();
+}
+
+
+int main() {
+  AstTestBanner("AssocTools Compilation Checks");
+
+  AstSTLMap<std::string, BdbTime> testSTLMap;
+
+  // NOTE:  Solaris compiler bug rejects valid ctor below, use wrapper fn.
+  AstSTLKeyMap<std::string, BdbTime> testSTLKeyMap(&strValHashFunction);
+
+  AstSTLMap2<std::string, BdbTime> testSTLMap2;
+  AstUniqMap2<std::string, BdbTime> testUniqMap;
+  
+  // AstMap functions
+
+  std::string *testString = new std::string("Hello world");
+  BdbTime *testDate = new BdbTime();
+  std::vector<BdbTime*> retSTLVector;
+
+  // AstSTLMap functions
+
+  testSTLMap.append(testString, testDate);
+  
+  std::set<std::string*> aSTLHashSet;
+
+  aSTLHashSet.insert(testString);
+
+    
+  testSTLMap.findIntersectionSet(aSTLHashSet, retSTLVector);
+  
+  std::set<std::string*> retSTLSet;
+  
+  testSTLMap.findIntersectionSet(aSTLHashSet, retSTLVector, retSTLSet);
+  
+  std::vector<std::string*> inSTLVect;
+  
+  inSTLVect.push_back(testString);
+  
+  testSTLMap.findIntersectionSet(inSTLVect, retSTLVector);
+
+  testSTLMap.findDifferenceSet(aSTLHashSet, retSTLVector);
+  testSTLMap.findDifferenceSet(aSTLHashSet, retSTLVector, retSTLSet);
+  testSTLMap.findDifferenceSet(inSTLVect, retSTLVector);
+  
+  AstSTLMap<std::string, BdbTime> otherSTLMap;
+  otherSTLMap.append(testString, testDate);
+  
+  testSTLMap.unionMap(otherSTLMap);
+  testSTLMap.intersectionMap(otherSTLMap);
+
+  // AstSTLKeyMap functions
+
+  testSTLKeyMap.append(*testString, testDate);
+  
+  // NOTE:  Solaris compiler bug rejects valid ctor below, use wrapper fn.
+  std::set<std::string> aSTLKeyHashSet;
+
+  aSTLKeyHashSet.insert(*testString);
+  
+  testSTLKeyMap.findIntersectionSet(aSTLKeyHashSet, retSTLVector);
+  
+  std::set<std::string> retSTLKeySet;
+  
+  testSTLKeyMap.findIntersectionSet(aSTLKeyHashSet, retSTLVector, retSTLKeySet);
+  
+  std::vector<std::string> inSTLKeyVect;
+  
+  inSTLKeyVect.push_back(*testString);
+  
+  testSTLKeyMap.findIntersectionSet(inSTLKeyVect, retSTLVector);
+
+  testSTLKeyMap.findDifferenceSet(aSTLKeyHashSet, retSTLVector);
+  testSTLKeyMap.findDifferenceSet(aSTLKeyHashSet, retSTLVector, retSTLKeySet);
+  testSTLKeyMap.findDifferenceSet(inSTLKeyVect, retSTLVector);
+  
+  AstSTLKeyMap<std::string, BdbTime> otherSTLKeyMap(&strValHashFunction);
+  otherSTLKeyMap.append(*testString, testDate);
+  
+  testSTLKeyMap.unionMap(otherSTLKeyMap);
+  testSTLKeyMap.intersectionMap(otherSTLKeyMap);
+
+  // AstSTLMap2 functions
+
+  testSTLMap2.append(testString, testDate);
+  
+  std::vector<BdbTime*> stlRetVector;
+  testSTLMap2.findValue1(testString, stlRetVector);
+
+  std::vector<std::string*> stlRetVector2;
+  
+  testSTLMap2.findValue2(testDate, stlRetVector2);
+  
+  testSTLMap2.findFirstValue1(testString);
+  testSTLMap2.findFirstValue2(testDate);
+  
+  int dummy;
+  dummy  = testSTLMap2.entries1(testString);
+  dummy  = testSTLMap2.entries2(testDate);
+  dummy = testSTLMap2.removeMatchesForKey1(testString);
+  dummy = testSTLMap2.removeMatchesForKey2(testDate);
+  
+  testSTLMap2.contains(testString, testDate);
+  testSTLMap2.containsT1(testString);
+  testSTLMap2.containsT2(testDate);
+  
+  testSTLMap2.remove(testString, testDate);
+  
+  testSTLMap2.clear();
+
+  // AstUniqMap2 functions
+
+  testUniqMap.append(testString, testDate);
+  
+  testUniqMap.find1(testString);
+  
+  testUniqMap.find2(testDate);
+  
+  testUniqMap.remove1(testString);
+  testUniqMap.remove2(testDate);
+  
+  testUniqMap.clear();
+
+  // AstMatch functions
+
+  int *time1 = new int(1);
+
+  AstSTLMatch<std::string, BdbTime, int> testSTLMatch(&babar::String::rwHash, &bdbTimeHash);
+
+  // AstSTLMatch functions
+
+  testSTLMatch.insertMatch(testString, testDate, time1);
+  testSTLMatch.contains(testString, testDate);
+  testSTLMatch.getMatchQuality(testString, testDate);
+  testSTLMatch.findMatchSet(testString);
+
+  testSTLMatch.removeMatchesForKey(testString);
+  
+  testSTLMatch.removeSpecificMatch(testString, testDate);
+
+  // AstStringMap functions
+
+  std::string aString="This is one string", aString2="Another";
+
+  AstStringMap< std::string > testStringMap;
+  testStringMap.insert( aString ) = &aString2;
+  testStringMap.insert( aString2 ) = &aString;
+
+  std::string* getString = testStringMap[ aString ];
+  assert ( getString == &aString2 );
+
+  testStringMap.size();
+  testStringMap.clear();
+
+  return 0;
+}
+

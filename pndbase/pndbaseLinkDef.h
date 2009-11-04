@@ -12,7 +12,7 @@
 /* #pragma link C++ IfdDataProxyIFace-; */
 /* #pragma link C++ IfdDictKey-; */
 /* #pragma link C++ IfdIntKey-; */
-/* #pragma link C++ IfdKey-; */
+// #pragma link C++ IfdKey-; 
 /* #pragma link C++ IfdKeyHash-; */
 /* #pragma link C++ IfdProxyDict-; */
 /* #pragma link C++ IfdProxyDictFrontEnd-; */
@@ -21,6 +21,6 @@
 /* #pragma link C++ IfdStrKey-; */
 /* #pragma link C++ IfdTypeKeyIFace-; */
 /* #pragma link C++ IfdTestClasses-; */
-//#pragma link C++ PndGlobalEvtTask+;
-
+//#pragma link C++ String;
+/* #pragma link C++ RegExp-; */
 #endif

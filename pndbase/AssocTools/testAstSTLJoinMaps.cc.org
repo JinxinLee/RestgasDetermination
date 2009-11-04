@@ -1,0 +1,94 @@
+//--------------------------------------------------------------------------
+// File and Version Information:
+// 	$Id: testAstSTLJoinMaps.cc,v 1.1.1.1 2005/03/29 16:49:06 steinke Exp $
+//
+// Description:
+//	testAstJoinMaps
+//          Test function for class in AssocTools/AstJoinMaps.  Output should
+//	    match that in testAstJoinMaps.t.
+//
+// Environment:
+//	Software developed for the BaBar Detector at the SLAC B-Factory.
+//
+// Author List:
+//      Phil Strother                     Original Author
+//      Michael Kelsey <kelsey@slac.stanford.edu>
+//
+// Copyright Information:
+//	Copyright (C) 2000  Princeton University
+//
+//------------------------------------------------------------------------
+
+#include "Panda/Panda.hh"
+#include "AssocTools/AstTestTools.hh"
+#include "AssocTools/AstSTLJoinMaps.hh"
+#include "AssocTools/AstSTLMap2.hh"
+#include "ErrLogger/ErrLog.hh"
+
+#include <string>
+
+int main() {
+  AstTestBanner("AstJoinMaps");
+
+  SimpleClass *mySP1 = new SimpleClass(4);
+  SimpleClass *mySP2 = new SimpleClass(6);
+  SimpleClass *mySP3 = new SimpleClass(2);
+  
+  std::string *testASA1 = new std::string("Four");
+  std::string *testASA2 = new std::string("Six");
+  std::string *testASA3 = new std::string("Two");
+  
+  AstSTLMap2<std::string, SimpleClass> *jMap1 = 
+    new AstSTLMap2<std::string, SimpleClass>();
+
+  AstSTLMap2<SimpleClass, std::string> *jMap2 = 
+    new AstSTLMap2<SimpleClass, std::string>();
+
+  jMap1->append(testASA1, mySP1);
+  jMap1->append(testASA2, mySP2);
+  jMap1->append(testASA3, mySP3);
+  jMap1->append(testASA3, mySP1);
+
+
+  jMap2->append(mySP1, testASA1);
+  jMap2->append(mySP2, testASA2);
+  jMap2->append(mySP3, testASA3);
+  jMap2->append(mySP1, testASA3);
+
+  AstSTLJoinMaps<std::string, SimpleClass, std::string> joinMaps;
+  AstSTLMap2<std::string, std::string> *newMap = joinMaps.joinMaps(jMap1, jMap2);
+
+  const std::map<std::string*, std::vector<std::string*>,BbrPtrLess > map1 = 
+     newMap->map1();
+  std::map<std::string*, std::vector<std::string*>,
+    BbrPtrLess >::const_iterator iterator1;
+  
+  for (iterator1 = map1.begin(); iterator1 != map1.end(); iterator1++) {
+    ErrMsg(routine) << "String " << *(iterator1->first) 
+		    << " is associated to " << endmsg;
+    std::vector<std::string*>::const_iterator iter;
+    for (iter = iterator1->second.begin(); iter != iterator1->second.end();
+	 iter++) {
+      ErrMsg(routine) << *(*iter) << endmsg;
+    }
+  }
+
+  const std::map<std::string*, std::vector<std::string*>,BbrPtrLess > map2 = 
+     newMap->map2();
+  std::map<std::string*, std::vector<std::string*>,
+    BbrPtrLess >::const_iterator iterator2;
+
+  for (iterator2 = map2.begin(); iterator2 != map2.end(); iterator2++) {
+    ErrMsg(routine) << "String " << *(iterator2->first) 
+		    << " is associated to " << endmsg;
+    std::vector<std::string*>::const_iterator iter;
+    for (iter = iterator2->second.begin(); iter != iterator2->second.end();
+	 iter++) {
+      ErrMsg(routine) << *(*iter) << endmsg;
+    }
+  }
+}
+
+
+
+

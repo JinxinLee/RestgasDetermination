@@ -1,0 +1,69 @@
+//--------------------------------------------------------------------------
+// File and Version Information:
+// 	$Id: testAstUniqMap2.cc,v 1.1.1.1 2005/03/29 16:49:06 steinke Exp $
+//
+// Description:
+//	testAstUniqMap2
+//          Test function for class in AssocTools/AstUniqMap2.  Output should
+//	    match that in testAstUniqMap2.t.
+//
+// Environment:
+//	Software developed for the BaBar Detector at the SLAC B-Factory.
+//
+// Author List:
+//      Phil Strother                     Original Author
+//      Michael Kelsey <kelsey@slac.stanford.edu>
+//
+// Copyright Information:
+//	Copyright (C) 2000  Princeton University
+//
+//------------------------------------------------------------------------
+
+#include "Panda/Panda.hh"
+#include "AssocTools/AstTestTools.hh"
+#include "AssocTools/AstUniqMap2.hh"
+#include "ErrLogger/ErrLog.hh"
+#include "BbrStdUtils/String.hh"
+
+#include <string>
+
+int main() {
+  AstTestBanner("AstUniqMap2");
+
+  std::string *aWord = new std::string("Radiohead");
+  std::string *aWord2 = new std::string("OK Computer");
+  std::string *aWord3 = new std::string("Decon Blue");
+  std::string *aWord4 = new std::string("Raintown");
+  
+  
+  AstUniqMap2<std::string, std::string> aUniqMap(&babar::String::rwHash, &babar::String::rwHash);
+  
+  aUniqMap.append(aWord, aWord2);
+  aUniqMap.append(aWord3, aWord4);
+  
+  const std::string *foundWord = aUniqMap.find1(aWord);
+  if (foundWord !=0){
+    ErrMsg(routine)<< *aWord << " wrote " << *foundWord << endmsg;
+  } else {
+    ErrMsg(warning)<< "Failed to find " << *aWord << " in map." << endmsg;
+  }
+  
+  ErrMsg(routine)<< "Map contains " << aUniqMap.members() << " entries." << endmsg;
+  
+  if (aUniqMap.append(aWord, aWord4)) {
+    ErrMsg(warning)<< "Ooops. Successfully apended " << *aWord << " and " 
+		   << *aWord4 << " to map." << endmsg;
+  } else {
+    ErrMsg(routine)<< "Correctly failed to add " << *aWord << " and " 
+		   << *aWord4 << " to map." << endmsg;
+  }
+  
+  aUniqMap.clear();
+  
+  ErrMsg(routine) << "After clearing, map contains " << aUniqMap.members() << " entries. " << endmsg;
+}
+
+
+
+
+

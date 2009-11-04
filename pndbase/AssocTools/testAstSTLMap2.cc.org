@@ -1,0 +1,108 @@
+//--------------------------------------------------------------------------
+// File and Version Information:
+// 	$Id: testAstSTLMap2.cc,v 1.1.1.1 2005/03/29 16:49:06 steinke Exp $
+//
+// Description:
+//	testAstSTLMap2
+//          Test function for class in AssocTools/AstSTLMap2.  Output should
+//	    match that in testAstSTLMap2.t.
+//
+// Environment:
+//	Software developed for the BaBar Detector at the SLAC B-Factory.
+//
+// Author List:
+//      Phil Strother                     Original Author
+//      Michael Kelsey <kelsey@slac.stanford.edu>
+//
+// Copyright Information:
+//	Copyright (C) 2000  Princeton University
+//
+//------------------------------------------------------------------------
+
+#include "Panda/Panda.hh"
+// #include "AssocTools/AstTestTools.hh"
+#include "AssocTools/AstSTLMap2.hh"
+#include "ErrLogger/ErrLog.hh"
+
+#include <string>
+#include <vector>
+
+int main() {
+  //  AstTestBanner("AstSTLMap2");
+
+  AstSTLMap2<std::string, std::string> *theMap2 = new AstSTLMap2<std::string, std::string>;
+
+  std::string *cornelius = new std::string("Cornelius");
+  std::string *isanele = new std::string("is an elephant");
+
+
+  theMap2->append(cornelius, isanele);
+
+
+  std::string *isvery = new std::string("is very wise");
+
+  theMap2->append(cornelius, isvery);
+
+
+  std::string *pompadore = new std::string("Pompadore");
+  std::string *isafriend = new std::string("is a friend of Cornelius");
+  
+  theMap2->append(pompadore, isafriend);
+
+  std::vector<std::string*> retVal;
+  if (theMap2->findValue1(cornelius, retVal)){
+    ErrMsg(routine)<< "Found the following " 
+	 << retVal.size() << " matches to " << *cornelius << endmsg;    
+    std::string *nextString;
+    int i;
+    for (i=0; i<retVal.size();i++){
+      nextString = retVal[i];
+      ErrMsg(routine)<< *nextString << endmsg;
+    }
+  }
+
+  std::string *foundString = theMap2->findFirstValue1(cornelius);
+  if (foundString!=0){
+    ErrMsg(routine)<< "Found string " << *foundString << " associated to " 
+		   << *cornelius << endmsg;
+  } else {
+    ErrMsg(warning)<< "Failed to locate string " << *cornelius 
+		   << " in the map " << endmsg;
+  }
+  std::string *found2 = theMap2->findFirstValue2(isanele);
+  if (found2!=0){
+    ErrMsg(routine)<< "Made reverse association between  " << *found2 
+		   << " and " << *isanele << endmsg;
+  } else {
+    ErrMsg(warning)<< "But failed to make the reverse association." << endmsg;
+  } 
+      
+  
+  if (theMap2->contains(cornelius, isanele)){
+    ErrMsg(routine)<< "Map contains the string " << *cornelius << " " << *isanele << endmsg;
+  } else { 
+    ErrMsg(warning)<< "Failed to locate string " << endmsg;
+  }
+
+  ErrMsg(routine)<< "There are " << theMap2->entries1(cornelius) 
+		 << " entries for the string " 
+		 << *cornelius << endmsg;
+  ErrMsg(routine)<< "There are " << theMap2->entries2(isanele) 
+		 << " entries for the string " 
+		 << *isanele << endmsg;
+
+  size_t removeCornelius = theMap2->removeMatchesForKey1(cornelius);
+  
+  ErrMsg(routine)<< "Removed " << removeCornelius << " matches for " 
+		 << *cornelius << endmsg;
+  
+  ErrMsg(routine)<< "There now remain " << theMap2->entries1(cornelius) 
+		 << " entries for " 
+		 << *cornelius << endmsg;
+
+  ErrMsg(routine)<< "There remain " << theMap2->members1() << " entries in the map." 
+		 << endmsg;
+  theMap2->clear();
+
+  ErrMsg(routine)<< "Clearing leaves " << theMap2->members1() << " entries " << endmsg;
+}
