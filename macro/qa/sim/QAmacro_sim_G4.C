@@ -22,7 +22,7 @@
   FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave); 
-  
+ /* 
   FairModule *Magnet= new PndMagnet("MAGNET");
   Magnet->SetGeometryFileName("FullSolenoid.root");
   fRun->AddModule(Magnet);
@@ -63,7 +63,7 @@
   FairDetector *Dch = new PndDchDetector("DCH", kTRUE);
   Dch->SetGeometryFileName("dch.root"); 
   fRun->AddModule(Dch);
- 
+ */
   /** Create and Set Event Generator */
   //-------------------------------
 
@@ -101,7 +101,7 @@
 
    /** Set the field*/
    fRun->SetBeamMom(15);
-   PndMultiField *fField= new PndMultiField();
+ /*  PndMultiField *fField= new PndMultiField();
 
    PndTransMap *map_t= new PndTransMap("TransMap", "R");
    PndDipoleMap *map_d1= new PndDipoleMap("DipoleMap1", "R");
@@ -121,6 +121,7 @@
 
 
    fRun->SetField(fField);
+   */
    fRun->Init();
  
 
@@ -133,11 +134,11 @@
   //      
   FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
   Bool_t kParameterMerged=kTRUE;
-  PndMultiFieldPar* Par = (PndMultiFieldPar*) rtdb->getContainer("PndMultiFieldPar");
+/*  PndMultiFieldPar* Par = (PndMultiFieldPar*) rtdb->getContainer("PndMultiFieldPar");
   if (fField) {  Par->SetParameters(fField); }
   Par->setInputVersion(fRun->GetRunId(),1);
   Par->setChanged();
-
+*/
   FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   output->open("g4params.root");
   rtdb->setOutput(output);
@@ -158,6 +159,7 @@
    
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
+  delete fRun;
   exit(0);
 
 }  
