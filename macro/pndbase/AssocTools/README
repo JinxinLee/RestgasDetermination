@@ -1,0 +1,27 @@
+For debugging purposes, the macros:
+
+AstAssocTest.C           
+AstSTLKeyMapTest.C    
+AstSTLTwoWayMatchTest.C
+AstNamedMapVectorTest.C  
+AstSTLMap2Test.C      
+AstStringMapTest.C
+AstSortablesTest.C       
+AstSTLMapIndexTest.C  
+AstUniqMap2Test.C
+AstSTLFracMapTest.C      
+AstSTLMapTest.C     
+AstSTLJoinMapsTest.C     
+AstSTLMatchTest.C
+
+should be steered via the macro "runMacro.C", i.e.:
+
+o to start the individual applications, type:
+
+  root -l runMacro.C'(".x *.C++")'
+
+  with * = name of the macro (e.g. * = AstAssocTest)
+
+o to create only a shared library, type:
+
+  root -l runMacro.C'(".L *.C++")'

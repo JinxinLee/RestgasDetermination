@@ -1,0 +1,119 @@
+#include "AstSTLFracMap.h"
+#include "AstFracElem.h"
+
+#include <vector>
+#include <iostream>
+using std::endl;
+using std::cout;
+
+class letter {
+public:
+  letter(const char* c) {
+    _letter[0] = *c;
+    _letter[1] = *"\0"; }
+  letter() {   _letter[0] = *" "; _letter[1] = *"\0";}
+  ~letter(){}
+  const char* character() const { return _letter; }
+private:
+  char _letter[2];
+};
+
+
+class number {
+public:
+  number(unsigned n) : _number(n){;}
+  number() : _number(0){;}
+  ~number(){}
+  bool operator == (const number& other) const { return _number == other._number; }
+  unsigned value() const { return _number; }
+private:
+  unsigned _number;
+};
+
+
+void AstSTLFracMapTest(){
+
+// build some letters and numbers
+  letter letters[26];
+  number numbers[10];
+  const char* lc[26] = {"a","b","c","d","e","f","g","h","i","j","k",
+                        "l","m","n","o","p","q","r","s","t","u","v",
+                        "w","x","y","z"};
+  unsigned il,in;
+  for(il=0;il<26;il++)
+    letters[il] = letter(lc[il]);
+  for(in=0;in<10;in++)
+    numbers[in]=number(in);
+// associate these according to the telephone keypad
+  AstSTLFracMap<number,letter> telephone(50);
+  telephone.insert(&numbers[2],&letters[0],1.0);
+  telephone.insert(&numbers[2],&letters[1],1.0);
+  telephone.insert(&numbers[2],&letters[2],1.0);
+
+  telephone.insert(&numbers[3],&letters[3],1.0);
+  telephone.insert(&numbers[3],&letters[4],1.0);
+  telephone.insert(&numbers[3],&letters[5],1.0);
+
+  telephone.insert(&numbers[4],&letters[6],1.0);
+  telephone.insert(&numbers[4],&letters[7],1.0);
+  telephone.insert(&numbers[4],&letters[8],1.0);
+
+  telephone.insert(&numbers[5],&letters[9],1.0);
+  telephone.insert(&numbers[5],&letters[10],1.0);
+  telephone.insert(&numbers[5],&letters[11],1.0);
+
+  telephone.insert(&numbers[6],&letters[12],1.0);
+  telephone.insert(&numbers[6],&letters[13],1.0);
+  telephone.insert(&numbers[6],&letters[14],1.0);
+
+  telephone.insert(&numbers[7],&letters[15],1.0);
+  telephone.insert(&numbers[7],&letters[17],1.0);
+  telephone.insert(&numbers[7],&letters[18],1.0);
+
+  telephone.insert(&numbers[8],&letters[19],1.0);
+  telephone.insert(&numbers[8],&letters[20],1.0);
+  telephone.insert(&numbers[8],&letters[21],1.0);
+
+  telephone.insert(&numbers[9],&letters[22],1.0);
+  telephone.insert(&numbers[9],&letters[23],1.0);
+  telephone.insert(&numbers[9],&letters[24],1.0);
+
+  telephone.insert(&numbers[0],&letters[14],1.0);
+  telephone.insert(&numbers[0],&letters[15],1.0);
+  telephone.insert(&numbers[0],&letters[4],1.0);
+  telephone.insert(&numbers[0],&letters[17],1.0);
+
+  std::vector<const number*> nums;
+  telephone.entries(nums);
+
+  cout << "Telephone keypad fractional map created with "
+       << telephone.nAssociations() << " associations and "
+       << nums.size() << " entries. " << endl;
+// renormalize
+  telephone.normalize(1.0);
+
+// test individual weights
+  for(il=0;il<26;il++){
+    for(in=0;in<10;in++){
+      double weight = telephone.weight(&numbers[in],&letters[il]);
+      if(weight > 0.0)
+        cout << "Found weight " << weight << " for number "
+             << numbers[in].value() << " and letter "
+             << letters[il].character() << endl;
+    }
+  }
+
+// test vector interface
+  std::vector<AstFracElem<letter> > lvec;
+  telephone.elements(&numbers[4],lvec);
+
+  cout << " Found " << lvec.size() << " letters matched to number "
+       << numbers[4].value() << ", as follows: " << endl;
+  std::vector<AstFracElem<letter> >::const_iterator iter;
+  for (iter = lvec.begin(); iter != lvec.end(); iter++) {
+    cout << "letter " << iter->element()->character() << " , weight = "
+         << iter->weight() << endl;
+  }
+
+  exit(0);    
+}
