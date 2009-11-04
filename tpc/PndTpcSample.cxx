@@ -69,6 +69,21 @@ std::ostream& operator<< (std::ostream& s, const PndTpcSample& me){
     << "   t(Sample)     ="<<me.ft<<"\n"
     << "   Amp           ="<<me.famp<<"\n"
     << "   PadID         ="<<me.fpadId<<"\n"
+    << "   channelId     ="<<me.fchannelId<<"\n"
+    << "   chipId        ="<<me.fchipId<<"\n"
+    << "   adcId         ="<<me.fadcId<<"\n"
+    << "   sourceId      ="<<me.fsourceId<<"\n"
     << "   ElectronicChId="<<me.felectronicChId<<"\n";
   return s;
+}
+
+void PndTpcSample::reset(){
+  
+  ft = 0;
+  famp = 0;
+  fchannelId = 0;
+  fchipId = 0;
+  //fadcId = 0;
+  //fsourceId = 0;
+
 }

@@ -50,20 +50,29 @@ public:
 
   // Accessors -----------------------
   int amp() const {return famp;}
-  int t() const {return ft;}
+  int   t() const {return ft;}
   unsigned int padId() const {return fpadId;}
   unsigned int electronicChId() const {return felectronicChId;}  //added by X.Zhang, Oct. 06, 2009 
   const McIdCollection& mcId() const {return fmcId;}
+  //*** next four functions added by x. zhang on 08.10.2009 ****//
+  unsigned int  sourceId() const { return fsourceId; }
+  unsigned int     adcId() const { return fadcId; }
+  unsigned int    chipId() const { return fchipId; }
+  unsigned int channelId() const { return fchannelId; }
+
+  // Modifiers -----------------------
   //*** next four functions added by x. zhang on 08.10.2009 ****//
   void setAmp(unsigned int Amp) { famp = Amp; }
   void setSample(unsigned int s) { ft = s; }
   void setPadId(unsigned int pi) { fpadId = pi; }
   void setElectronicChId(unsigned int eci) { felectronicChId = eci; }
-
-  // Modifiers -----------------------
-
+  void setSourceId(unsigned int sId) { fsourceId = sId; }
+  void setADCId(unsigned int aId) { fadcId = aId; }
+  void setChipId(unsigned int cId) { fchipId = cId; }
+  void setChannelId(unsigned int chId) { fchannelId = chId; }
 
   // Operations ----------------------
+  void reset();
 
 private:
 
@@ -71,7 +80,11 @@ private:
   int famp;
   int ft;
   unsigned int fpadId;
-  unsigned int felectronicChId;                // added by X. Zhang, Oct. 06, 2009 
+  unsigned int felectronicChId; // added by X. Zhang, Oct. 06, 2009 
+  unsigned int fsourceId;
+  unsigned int fadcId;
+  unsigned int fchipId;
+  unsigned int fchannelId;       // added by X. Zhang, Oct. 29, 2009               
 
   McIdCollection fmcId;
   // Private Methods -----------------
@@ -85,7 +98,12 @@ public:
 
 //--------------------------------------------------------------
 // $Log: PndTpcSample.hh,v $
+// Revision 1.8 2009/11/02 15:41 X.Zhang
+//   add operator, reset().
 //
+// Revision 1.7 2009/10/29 09.24 X.Zhang
+//   add the sourceId, adcId, chipId, and channelId data \
+//   and corresponding functions.
 // Revision 1.6 2009/10/08 20:51 x.zhang
 // add four set member functions
 //
