@@ -5,14 +5,14 @@
 #include <string>
 using std::string;
 
-#include "String.h"
+#include "PndString.h"
 
 using std::cerr;
 using std::cout;
 using std::endl;
 using std::fstream;
 using std::ifstream;
-using namespace panda::String;
+using namespace panda::PndString;
 
 void failed(int i, const string& stmp) {
   cerr << "Failed at " << i << " : " ;
