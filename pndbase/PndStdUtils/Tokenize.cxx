@@ -21,19 +21,19 @@
 
 #include <string>
 
-panda::String::Tokenize::Tokenize(const std::string& str) 
+panda::PndString::Tokenize::Tokenize(const std::string& str) 
   : _nextPos(0)
   , _strPtr(new std::string(str))
 {
 }
 
-panda::String::Tokenize::~Tokenize() 
+panda::PndString::Tokenize::~Tokenize() 
 {
   delete _strPtr;
 }
 
 std::string 
-panda::String::Tokenize::getStr(const std::string& token) {
+panda::PndString::Tokenize::getStr(const std::string& token) {
   int wordBeg, wordEnd;
   std::string result("\0");
   wordBeg = _strPtr->find_first_not_of(token, _nextPos);
