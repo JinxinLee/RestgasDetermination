@@ -55,7 +55,7 @@ proxydict/IfdTestClasses.cxx
 #proxydict/IfdTypeKey.cxx
 proxydict/IfdTypeKeyIFace.cxx
 gblenv/AbsEnv.cxx
-PndStdUtils/String.cxx
+PndStdUtils/PndString.cxx
 PndStdUtils/Tokenize.cxx
 AssocTools/AstSTLNameMap.cxx
 AssocTools/AstTestTools.cxx
