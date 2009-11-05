@@ -26,7 +26,7 @@
 #include <iostream>
 
 #include "PndStdDeleteObject.h"
-#include "String.h"
+#include "PndString.h"
 
 #include "AstTestTools.h"
 using std::endl;
@@ -52,11 +52,11 @@ bool simpleClassLessThan(const SimpleClass &sc1, const SimpleClass &sc2) {
 // Hashing function for RW string pointers
 
 unsigned stringHashFunction(std::string * const &hashThis) {
-   return panda::String::rwHash(*hashThis);
+   return panda::PndString::rwHash(*hashThis);
 }
 
 unsigned strValHashFunction(const std::string& hashThis) {
-   return panda::String::rwHash(hashThis);
+   return panda::PndString::rwHash(hashThis);
 }
 
 
