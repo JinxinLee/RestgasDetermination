@@ -18,15 +18,15 @@
 //
 //------------------------------------------------------------------------
 
-#ifndef PANDA_STRING_HH
-#define PANDA_STRING_HH
+#ifndef PANDA_PNDSTRING_HH
+#define PANDA_PNDSTRING_HH
 
 #include <algorithm>
 #include <string>
 #include <cctype>
 
 namespace panda {
-  namespace String {
+  namespace PndString {
     
     // transformations from lower toupper case or vice-versa
     

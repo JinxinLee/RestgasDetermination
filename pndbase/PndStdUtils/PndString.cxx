@@ -18,14 +18,14 @@
 // Bertram Kopf (RUB) migrated to PandaRoot
 //------------------------------------------------------------------------
 
-#include "String.h"
+#include "PndString.h"
 
 #include <string>
 #include <iostream>
 #include <strings.h>
 
 int 
-panda::String::compare_nocase(const std::string& s, const std::string& s2) {
+panda::PndString::compare_nocase(const std::string& s, const std::string& s2) {
   std::string::const_iterator p = s.begin();
   std::string::const_iterator p2 = s2.begin();
 
@@ -39,7 +39,7 @@ panda::String::compare_nocase(const std::string& s, const std::string& s2) {
 }
 
 int 
-panda::String::find_nocase(const std::string& s, const std::string& s2) {
+panda::PndString::find_nocase(const std::string& s, const std::string& s2) {
   std::string str1 = s;
   transformToUpper(str1);
   std::string str2 = s2;
@@ -48,26 +48,26 @@ panda::String::find_nocase(const std::string& s, const std::string& s2) {
 }
 
     int 
-    panda::String::compare_nocase(const std::string& s, const char* s2) {
+    panda::PndString::compare_nocase(const std::string& s, const char* s2) {
       return strcasecmp(s.c_str(), s2);
     }
 
 std::string 
-panda::String::toLower(const std::string& str) {
+panda::PndString::toLower(const std::string& str) {
   std::string result(str);
   transformToLower(result);
   return result;
 }
 
 std::string 
-panda::String::toUpper(const std::string& str) {
+panda::PndString::toUpper(const std::string& str) {
   std::string result(str);
   transformToUpper(result);
   return result;
 }
 
 unsigned int
-panda::String::rwHash(const std::string& str){
+panda::PndString::rwHash(const std::string& str){
   const char* data = str.c_str();
   int length = str.size(), total=0;
   for ( int i=0; i<length; i++ ) total += data[i];
