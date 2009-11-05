@@ -7,6 +7,8 @@ ${ROOT_INCLUDE_DIR}
 ${CMAKE_SOURCE_DIR}/geobase 
 ${CMAKE_SOURCE_DIR}/parbase 
 ${CMAKE_SOURCE_DIR}/base 
+${CMAKE_SOURCE_DIR}/pndbase/proxydict
+${CMAKE_SOURCE_DIR}/pndbase/gblenv
 ${CMAKE_SOURCE_DIR}/field 
 ${CMAKE_SOURCE_DIR}/pnddata 
 ${CMAKE_SOURCE_DIR}/emc/EmcData
@@ -47,8 +49,10 @@ EmcDigi/PndEmcHitProducer.cxx
 EmcDigi/PndEmcApdHitProducer.cxx
 EmcDigi/PndEmcCRRCPulseshape.cxx 
 EmcDigi/PndEmcCR2RCPulseshape.cxx 
-EmcDigi/PndEmcHitsToWaveform.cxx 
-EmcDigi/PndEmcWaveformToDigi.cxx 
+EmcDigi/PndEmcHitsToWaveform.cxx
+EmcDigi/PndEmcHitsToTmpWaveform.cxx 
+EmcDigi/PndEmcWaveformToDigi.cxx
+EmcDigi/PndEmcTmpWaveformToDigi.cxx 
 EmcDigi/PndEmcDigiPar.cxx 
 EmcDigi/PndEmcMakeDigi.cxx
 EmcMC/PndGeoEmc.cxx 
@@ -69,6 +73,7 @@ EmcReco/PndEmcMakeBump.cxx
 EmcReco/PndEmc2DLocMaxFinder.cxx
 EmcReco/PndEmcExpClusterSplitter.cxx
 EmcReco/PndEmcMakeRecoHit.cxx
+#basetasks/PndGlobalEvtTask.cxx
 PndEmcContFact.cxx 
 )
 
