@@ -1,6 +1,6 @@
 #include "AstTestTools.h"
 #include "AstSTLMapIndex.h"
-#include "String.h"
+#include "PndString.h"
 
 #include <string>
 #include <vector>
@@ -29,7 +29,7 @@ std::string *nextString(0);
 
   cout << "RW Ptr constructor" << endl;
 
-  AstSTLMapIndex<std::string> rwPtrMap(dummyList2, &panda::String::rwHash);
+  AstSTLMapIndex<std::string> rwPtrMap(dummyList2, &panda::PndString::rwHash);
   int kk;
   for (kk=0;kk<dummyList2.size();kk++){
     nextString = dummyList2[kk];

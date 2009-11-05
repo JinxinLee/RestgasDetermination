@@ -4,7 +4,7 @@
 #include <string>
 #include <map>
 #include "CollectionUtils.h"
-#include "String.h"
+#include "PndString.h"
 
 #include <iostream>
 using std::endl;
@@ -15,7 +15,7 @@ void AstSTLTwoWayMatchTest(){
   {
     // scope of "don't delete" object
     AstSTLTwoWayMatch<std::string, std::string, std::string> *theTwoWayMatch = 
-      new AstSTLTwoWayMatch<std::string, std::string, std::string>(&panda::String::rwHash, &panda::String::rwHash, false);
+      new AstSTLTwoWayMatch<std::string, std::string, std::string>(&panda::PndString::rwHash, &panda::PndString::rwHash, false);
 
     std::string *babar = new std::string("BaBar");
     std::string *isan  = new std::string("is an");
@@ -128,7 +128,7 @@ void AstSTLTwoWayMatchTest(){
   { 
     // scope of "do  delete" object
     AstSTLTwoWayMatch<std::string, std::string, std::string> *theTwoWayMatch = 
-      new AstSTLTwoWayMatch<std::string, std::string, std::string>(&panda::String::rwHash, &panda::String::rwHash, false);
+      new AstSTLTwoWayMatch<std::string, std::string, std::string>(&panda::PndString::rwHash, &panda::PndString::rwHash, false);
 
     std::string *babar = new std::string("BaBar");
     std::string *isan  = new std::string("is an");

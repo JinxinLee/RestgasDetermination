@@ -1,6 +1,6 @@
 #include "AstTestTools.h"
 #include "AstUniqMap2.h"
-#include "String.h"
+#include "PndString.h"
 
 #include <string>
 #include <iostream>
@@ -16,7 +16,7 @@ void AstUniqMap2Test(){
   std::string *aWord4 = new std::string("Raintown");
   
   
-  AstUniqMap2<std::string, std::string> aUniqMap(&panda::String::rwHash, &panda::String::rwHash);
+  AstUniqMap2<std::string, std::string> aUniqMap(&panda::PndString::rwHash, &panda::PndString::rwHash);
   
   aUniqMap.append(aWord, aWord2);
   aUniqMap.append(aWord3, aWord4);

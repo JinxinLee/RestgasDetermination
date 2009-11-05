@@ -3,7 +3,7 @@
 //#include "ErrLogger/ErrLog.hh"
 
 #include <string>
-#include "String.h"
+#include "PndString.h"
 
 #include <iostream>
 using std::endl;
@@ -17,7 +17,7 @@ void AstNamedMapVectorTest(){
   std::string *aWord3 = new std::string("Decon Blue");
   std::string *aWord4 = new std::string("Raintown");
 
-  AstNamedMapVector<std::string, std::string> anNM("MyMap", &panda::String::rwHash, &panda::String::rwHash);
+  AstNamedMapVector<std::string, std::string> anNM("MyMap", &panda::PndString::rwHash, &panda::PndString::rwHash);
   
   anNM.append(aWord, aWord2);
   anNM.append(aWord3, aWord4);
