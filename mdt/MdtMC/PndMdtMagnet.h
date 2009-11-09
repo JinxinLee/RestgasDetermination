@@ -1,6 +1,5 @@
-
 #ifndef PndMdtMagnet_H
-    #define PndMdtMagnet_H 1
+#define PndMdtMagnet_H 1
 #endif
 
 //all units in mm
@@ -10,8 +9,8 @@
 #define PndMdtMagnet_Th2 30
 
 //MdtMagnet Barrel octagon slice = 13 layers
-#define PndMdtMagnet_Barrel_Length 3675
-#define PndMdtMagnet_Barrel_Displacement 637.5
+#define PndMdtMagnet_Barrel_Length 3920 // 3675
+#define PndMdtMagnet_Barrel_Displacement 460 //637.5
 //center positions
 #define PndMdtMagnet_L100 1520
 #define PndMdtMagnet_L101 1595
@@ -37,7 +36,7 @@
 #define PndMdtMagnet_L204 2875
 
 //MdtMagnet Barrel half hole
-#define PndMdtMagnet_H01_Length 600
+#define PndMdtMagnet_H01_Length 500
 
 //MdtMagnet Endcap half holes (vertical,horizontal)
 #define PndMdtMagnet_H02_V 230
@@ -50,3 +49,10 @@
 #define PndMdtMagnet_H05_H 502
 #define PndMdtMagnet_H06_V 258
 #define PndMdtMagnet_H06_H 516
+
+// New Stefano
+#define PndMdtMagnet_H_U_X 500
+#define PndMdtMagnet_H_U_Z 600
+#define PndMdtMagnet_H_U_R 175
+#define PndMdtMagnet_H_D_R1 175
+#define PndMdtMagnet_H_D_R2 500

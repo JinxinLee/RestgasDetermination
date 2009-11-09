@@ -20,6 +20,8 @@
 #include "FairRuntimeDb.h"
 #include "FairRun.h"
 #include "FairModule.h"
+#include "PndDetectorList.h"
+#include "PndStack.h"
 
 #include "PndMdt.h"
 
@@ -141,8 +143,15 @@ void PndMdt::ConstructGeometry()
 {
     if(version=="torino" || version=="Torino") ConstructGeometryTo();
     else if(version=="dubna" || version=="Dubna") ConstructGeometryDu();
-    else {cout<<"Error in PndMdt::ConstructGeometry: Specify the version and run again!"<<endl; exit(0);};
-    
+    else 
+      {
+	cout<<"Error in PndMdt::ConstructGeometry: Specify the version and run again!"<<endl; 
+	exit(0);
+      };
+   
+    if(mdtMagnet) PndMdtMagnet();
+    if(mdtMFI) PndMdtMFIron();
+   
     return;
 }
 // ----------------------------------------------------------------------------
@@ -171,25 +180,61 @@ void PndMdt::BeginEvent()
 // -----   Public method ProcessHits  --------------------------------------
 Bool_t PndMdt::ProcessHits(FairVolume* vol) 
 {
-    Bool_t ph = kFALSE;
-    if(version=="torino" || version=="Torino") ph = ProcessHitsTo(vol);
-    else if(version=="dubna" || version=="Dubna") ph = ProcessHitsDu(vol);
-    else 
-      {
-        cout<<"Error in PndMdt::ConstructGeometry: Specify the version and run again!"<<endl; exit(0);
-      };
+  TString name = vol->GetName();
+  
+  if (gMC->IsTrackEntering() || gMC->IsNewTrack() )
+    {
+      fPos_In.SetXYZM(0.,0.,0.,0.);
+      fMom_In.SetXYZM(0.,0.,0.,0.);
+      gMC->TrackPosition(fPos_In);
+      gMC->TrackMomentum(fMom_In);
+      fTrkIn = gMC->GetStack()->GetCurrentTrackNumber();
+    }; // end entering
+  
+  fELoss = fELoss + gMC->Edep(); 
+  
+  if (gMC->IsTrackExiting() || gMC->IsTrackStop() || gMC->IsTrackDisappeared() )
+    {
+      Int_t TrNo=gMC->GetStack()->GetCurrentTrackNumber();
+      Int_t pdg= gMC->TrackPid();
+      if ( TrNo == fTrkIn )
+	{
+	  TLorentzVector lPos, lMom;
+	  Int_t iMod;
+	  Int_t iOct;
+	  Int_t iLayer;
+	  Int_t iBox;
+	  Int_t iWire;
+	  sscanf(name,"MDT%is%il%ib%iw%i", &iMod, &iOct, &iLayer, &iBox, &iWire);
+	      
+	  Int_t detectorId = iWire + 10*iBox + 1000*iLayer + 100000*iOct + 1000000*iMod; 
+	  gMC->TrackPosition(lPos); // cm
+	  gMC->TrackMomentum(lMom); // GeV
+	  TClonesArray& clref = *fMdtCollection;
+	  Int_t size = fMdtCollection->GetEntriesFast();
+	  PndMdtPoint *P= new(clref[size]) PndMdtPoint (TrNo,detectorId, lPos.Vect(), lMom.Vect(), gMC->TrackTime(),
+							gMC->TrackLength(), fELoss, gMC->GetStack()->GetCurrentParentTrackNumber(),pdg,
+							fPos_In.Vect(), fMom_In.Vect());
+	  /**if you add a point then tell the stack! here*/
+	  PndStack* stack = (PndStack*) gMC->GetStack();
+	  stack->AddPoint(kMDT);
+	};
+      
+      ResetParameters();
+    };
   
   ResetParameters();
-  
-  return ph;
-  
+  return kTRUE;
 }
 
 // -------------------------------------------------------------------------
 Bool_t PndMdt::CheckIfSensitive(std::string name)
 {
-  // Only for Dubna design
-  if(version=="dubna" || version=="Dubna") return CheckIfSensitiveDu(name);
+  if (name.find("MDT") != std::string::npos)
+    {
+      return kTRUE;
+    }
+  
   return kFALSE;
 }
 

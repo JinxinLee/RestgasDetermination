@@ -40,10 +40,7 @@ public:
 
 /** Accessors **/
     inline Int_t GetPosIndex()            const { return fPosIndex;              };
-    inline Int_t GetLayerID()             const { return fDetectorID<200 ? (fDetectorID - fDetectorID%8)/8 : fDetectorID<300 ? (fDetectorID-200 - (fDetectorID-200)%8)/8 : (fDetectorID-300 - (fDetectorID-300)%8)/8; };
-
-    inline Int_t GetModule()              const { return fDetectorID<200 ? 1 : fDetectorID<300 ? 2 : 3; };
-
+   
     TClonesArray* GetCollection(Int_t iColl) const ;
     
 /** Modifiers **/
@@ -79,14 +76,10 @@ private:
     void PndMdtMFIron(); //!
     void ConstructGeometryTo(); //!
     void ConstructGeometryDu(); //!
-    Bool_t CheckIfSensitiveDu(std::string name);
-    Bool_t ProcessHitsTo(FairVolume* vol); //!
-    Bool_t ProcessHitsDu(FairVolume* vol); //!
-
+      
 // hit
     TClonesArray* fMdtCollection; //!
     Int_t fPosIndex;      
-    Int_t fDetectorID;              
     Float_t fELoss; 
     TLorentzVector fPos;  
     TLorentzVector fMom;  

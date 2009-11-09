@@ -146,7 +146,8 @@ void PndMdt::PndMdtMuonFilter()
 	    sprintf(buffer,"mftgcs%i",(8*i)+j);
 	    sprintf(longbuffer,"mftrd:mftgt-mfhbox%i:mftgr%i",i+2,j);
 	    TGeoCompositeShape* mftgcs = new TGeoCompositeShape(buffer,longbuffer);
-	    sprintf(buffer,"muon%i",300+8*i+j);
+	    //sprintf(buffer,"muon%i",300+8*i+j);
+	    sprintf(buffer,"MDT%is%il%ib%iw%i", 3, j, i, 0, 0);
 	    TGeoVolume* volume = new TGeoVolume(buffer,mftgcs,gGeoManager->GetMedium("MDTMixture"));
 	    AddSensitiveVolume(volume);
 	    volume->SetLineColor(1);

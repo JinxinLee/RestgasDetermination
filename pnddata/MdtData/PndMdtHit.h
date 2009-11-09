@@ -25,26 +25,16 @@ class PndMdtHit : public FairHit {
   void Clear();
 
   /** Accessors **/
-  inline Int_t GetLayerID()             const { return fDetectorID<200 ? (fDetectorID - fDetectorID%8)/8 : 
-						       fDetectorID<300 ? (fDetectorID-200 - (fDetectorID-200)%8)/8 : 
-						       (fDetectorID-300 - (fDetectorID-300)%8)/8; };
-  inline Int_t GetModule()              const { return fDetectorID<200 ? 1 : fDetectorID<300 ? 2 : 3; };
-  inline Int_t GetSector(); 
+  Short_t GetModule()      const { return (fDetectorID/1000000);};
+  Short_t GetSector()      const { return ((fDetectorID/100000)%10);};
+  Short_t GetLayerID()     const { return ((fDetectorID/1000)%100);};
+  Short_t GetBox()         const { return ((fDetectorID/10)%100);};
+  Short_t GetWire()        const { return (fDetectorID%10);};
 
  private:
   
   ClassDef(PndMdtHit,1);
 };
 
-inline Int_t PndMdtHit::GetSector()
-{
-  if (GetModule()==2) return -1;
-  
-  TVector3 pos(0.,0.,0.);
-  Position(pos);
-  Int_t sec = int((pos.Phi()*TMath::RadToDeg()+180+22.5)/45);
-  if (sec==8) sec = 0;
-  
-  return sec;
-}
+
 #endif

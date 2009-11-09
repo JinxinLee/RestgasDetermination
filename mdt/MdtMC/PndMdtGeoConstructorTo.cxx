@@ -154,7 +154,8 @@ void PndMdt::ConstructGeometryTo()
 		k=j+2;
 		mx0 = my*TMath::Cos(((Double_t)k)*TMath::ACos(-1.0)/4.0);
 		my0 = my*TMath::Sin(((Double_t)k)*TMath::ACos(-1.0)/4.0);
-		sprintf(buffer,"muon%i",8*i+j);
+		//sprintf(buffer,"muon%i",8*i+j);	
+		sprintf(buffer,"MDT%is%il%ib%iw%i", 1, j, i, 0, 0);
 		TGeoVolume* volume = new TGeoVolume(buffer,tgcs,gGeoManager->GetMedium("MDTMixture"));
 		AddSensitiveVolume(volume);
 		volume->SetLineColor(1);
@@ -208,7 +209,8 @@ void PndMdt::ConstructGeometryTo()
 		else k=j;
 		mx0 = my*TMath::Cos(((Double_t)k)*TMath::ACos(-1.0)/4.0);
 		my0 = my*TMath::Sin(((Double_t)k)*TMath::ACos(-1.0)/4.0);
-		sprintf(buffer,"muon%i",8*i+j);
+		//sprintf(buffer,"muon%i",8*i+j);	
+		sprintf(buffer,"MDT%is%il%ib%iw%i", 1, j, i, 0, 0);
 		TGeoVolume* volume = new TGeoVolume(buffer,box,gGeoManager->GetMedium("MDTMixture"));
 		AddSensitiveVolume(volume);
 		volume->SetLineColor(1);
@@ -345,7 +347,8 @@ void PndMdt::ConstructGeometryTo()
 	    if(i==0) sprintf(longbuffer,"trd1:tgt1-hbox%i:tgr%i",i+2,j);
 	    else sprintf(longbuffer,"trd2:tgt2-hbox%i:tgr%i",i+2,j);
 	    TGeoCompositeShape* tgcs = new TGeoCompositeShape(buffer,longbuffer);
-	    sprintf(buffer,"muon%i",200+8*i+j);
+	    //sprintf(buffer,"muon%i",200+8*i+j);	
+	    sprintf(buffer,"MDT%is%il%ib%iw%i", 2, j, i, 0, 0);
 	    TGeoVolume* volume = new TGeoVolume(buffer,tgcs,gGeoManager->GetMedium("MDTMixture"));
 	    AddSensitiveVolume(volume);
 	    volume->SetLineColor(1);
@@ -395,68 +398,11 @@ void PndMdt::ConstructGeometryTo()
     mdt->AddNode(mdtEndcap,1);
 
     vcave->AddNode(mdt,1);
-
-    if(mdtMagnet) PndMdtMagnet();
+    
     if(mdtMF) PndMdtMuonFilter();
-    if(mdtMFI) PndMdtMFIron();
     
     return;
 }
 // ----------------------------------------------------------------------------
-
-
-// -----   Private method ProcessHitsTo  -----------------------------------
-Bool_t PndMdt::ProcessHitsTo(FairVolume* vol) 
-{
-  TString name = vol->GetName();
-  if (!(name.BeginsWith("muon")))
-    {
-      cout << "Error <PndMdt::ProcessHits> : " << name << " not MDT volume" << endl;
-      return kFALSE;
-    }
-  
-  if (gMC->IsTrackEntering() || gMC->IsNewTrack() )
-    {
-      fPos_In.SetXYZM(0.,0.,0.,0.);
-      fMom_In.SetXYZM(0.,0.,0.,0.);
-      gMC->TrackPosition(fPos_In);
-      gMC->TrackMomentum(fMom_In);
-      fTrkIn = gMC->GetStack()->GetCurrentTrackNumber();
-    } // end entering
- 
-  fELoss = fELoss + gMC->Edep(); 
-  if (gMC->IsTrackExiting() || gMC->IsTrackStop() || gMC->IsTrackDisappeared() )
-    {
-      if (fELoss>0.)
-	{
-	  Int_t TrNo=gMC->GetStack()->GetCurrentTrackNumber();
-	  Int_t pdg= gMC->TrackPid();
-	  if ( TrNo == fTrkIn )
-	    {
-	      TLorentzVector lPos, lMom;
-	      int ilayer;
-	      int iplate;
-	      sscanf(name,"muon%i",&iplate);
-	      ilayer = iplate;
-	      gMC->TrackPosition(lPos); // cm
-	      gMC->TrackMomentum(lMom); // GeV
-	      TClonesArray& clref = *fMdtCollection;
-	      Int_t size = fMdtCollection->GetEntriesFast();
-	      PndMdtPoint *P= new(clref[size]) PndMdtPoint (TrNo,ilayer, lPos.Vect(), lMom.Vect(), gMC->TrackTime(),
-							    gMC->TrackLength(), fELoss, gMC->GetStack()->GetCurrentParentTrackNumber(),pdg,
-							    fPos_In.Vect(), fMom_In.Vect());
-	      /**if you add a point then tell the stack! here*/
-	      PndStack* stack = (PndStack*) gMC->GetStack();
-	      stack->AddPoint(kMDT);
-	    }
-	  else cout << "******************* MDT ERROR **************************************" << endl;
-	}
-      ResetParameters();
-    }
-  
-  return kTRUE;
-}
-// ----------------------------------------------------------------------------
-
 
 ClassImp(PndMdt)
