@@ -189,8 +189,8 @@ void PndLheKalmanTask::Exec(Option_t* opt)
     {
       if (fVerbose>1) std::cout<<"starting track"<<itr<<std::endl;
       PndTrack *lheTrack = (PndTrack*)fTrackArray->At(itr);
-      Double_t  fCharge= lheTrack->GetParamFirst().GetQ();
-      Int_t PDGCode= -13*(Int_t)TMath::Sign(1.,fCharge);
+      Int_t  fCharge= lheTrack->GetParamFirst().GetQ();
+      Int_t PDGCode= -13*fCharge;
       
       TVector3 StartPos(lheTrack->GetParamFirst().GetX(),lheTrack->GetParamFirst().GetY(),lheTrack->GetParamFirst().GetZ()); 
       TVector3 StartMom(lheTrack->GetParamFirst().GetPx(),lheTrack->GetParamFirst().GetPy(),lheTrack->GetParamFirst().GetPz());
