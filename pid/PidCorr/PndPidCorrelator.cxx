@@ -372,6 +372,8 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
       pidCand->SetEmcRawEnergy(bump->energy());
       pidCand->SetEmcCalEnergy(bump->GetEnergyCorrected());
       pidCand->SetEmcIndex(i);
+      pidCand->SetEmcModule(((PndEmcDigi*)bump->Maxima())->GetModule());
+      pidCand->SetEmcNumberOfCrystals(bump->NumberOfDigis());
 
       std::vector<Int_t> mclist = clu->GetMcList();
       if (mclist.size()>0)
@@ -641,7 +643,7 @@ void PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCand
   Float_t trackTheta = helix->GetMomentum().Theta()*TMath::RadToDeg();
   PndEmcCluster *emcHit = NULL;
   Int_t emcEntries = fEmcCluster->GetEntriesFast();
-  Int_t emcIndex = -1, emcModuleCorr = -1;
+  Int_t emcIndex = -1, emcModuleCorr = -1, emcNCrystals = -1;
   Float_t emcEloss = 0., emcElossCorr = 0., emcGLength = -1000;
   Float_t emcQuality = 1000000;
 
@@ -682,7 +684,8 @@ void PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCand
 	  emcQuality = dist;
 	  emcEloss = emcHit->energy();
 	  emcElossCorr = emcHit->GetEnergyCorrected();
-	  emcModuleCorr == emcModule;
+	  emcModuleCorr = emcModule;
+	  emcNCrystals = emcHit->NumberOfDigis();
 	}
 
       if (fDebugMode)
@@ -702,6 +705,7 @@ void PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCand
       pidCand->SetEmcCalEnergy(emcElossCorr);
       pidCand->SetEmcIndex(emcIndex);
       pidCand->SetEmcModule(emcModuleCorr);
+      pidCand->SetEmcNumberOfCrystals(emcNCrystals);
     }
 }
 
