@@ -5,7 +5,7 @@
 #include "TLorentzVector.h"
 #include "TMath.h"
 #include "TFile.h"
-#include "TTree.h"
+#include "TSystem.h"
 #include "TParticle.h"
 #include "TGeoMaterial.h"
 #include "TGeoMedium.h"
@@ -41,6 +41,10 @@ PndMdt::PndMdt()
     fTrkIn = -1;
     ResetParameters();
     SetVerbosity(kFALSE);
+    fBarrel = "";
+    fEndcap = "";
+    fMuonFilter = "";
+    fForward = "";
 }
 // -------------------------------------------------------------------------
 
@@ -52,7 +56,11 @@ PndMdt::PndMdt(const char* name, Bool_t active) : FairDetector(name,active)
     fPosIndex   = 0;
     fTrkIn = -1;
     ResetParameters();
-    SetVerbosity(kFALSE);
+    SetVerbosity(kFALSE); 
+    fBarrel = "";
+    fEndcap = "";
+    fMuonFilter = "";
+    fForward = "";
 }
 // -------------------------------------------------------------------------
 
@@ -141,18 +149,88 @@ void PndMdt::SetMdtVersion(TString location)
 // -----   Public method ConstructGeometry   ----------------------------------
 void PndMdt::ConstructGeometry() 
 {
-    if(version=="torino" || version=="Torino") ConstructGeometryTo();
-    else if(version=="dubna" || version=="Dubna") ConstructGeometryDu();
-    else 
-      {
-	cout<<"Error in PndMdt::ConstructGeometry: Specify the version and run again!"<<endl; 
-	exit(0);
-      };
-   
-    if(mdtMagnet) PndMdtMagnet();
-    if(mdtMFI) PndMdtMFIron();
-   
-    return;
+  TString sysFile = gSystem->Getenv("VMCWORKDIR");
+  TGeoVolume* mdt = new TGeoVolumeAssembly("Mdt");
+  TGeoVolume *Cave = gGeoManager->GetTopVolume(); 
+  if (fBarrel!="")
+    {
+      if (fBarrel=="torino" || fBarrel =="Torino")
+	{
+	  ConstructGeometryTo();
+	}
+      else if (fBarrel.EndsWith(".root"))
+	{
+	  TFile *f = new TFile(sysFile+"/geometry/"+fBarrel);
+	  TGeoVolume* topvolB = (TGeoVolume*)f->Get("MdtBarrel");
+	  mdt->AddNode(topvolB,0);
+	}
+      else
+	{
+	  std::cout<< "PndMdt::ConstructGeometry : No good MDT Barrel definition " <<std::endl;
+	  exit(0);
+	}
+    }
+  
+  if (fEndcap!="")
+    {
+      if (fEndcap.EndsWith(".root"))
+	{
+	  TFile *f = new TFile(sysFile+"/geometry/"+fEndcap);
+	  TGeoVolume* topvolEC = (TGeoVolume*)f->Get("MdtEndcap");
+	  mdt->AddNode(topvolEC,0);
+	}
+      else if (fBarrel!="torino" && fBarrel !="Torino")
+	{
+	  std::cout<< "PndMdt::ConstructGeometry : No good MDT Endcap definition " <<std::endl;
+	  exit(0);
+	}
+    }
+  
+  if (fMuonFilter!="")
+    {
+      if (fMuonFilter=="torino" || fMuonFilter=="Torino")
+	{
+	  PndMdtMuonFilter();
+	}
+      else if (fMuonFilter.EndsWith(".root"))
+	{
+	  TFile *f = new TFile(sysFile+"/geometry/"+fMuonFilter);
+	  TGeoVolume* topvolMF = (TGeoVolume*)f->Get("MdtMuonFilter");
+	  mdt->AddNode(topvolMF,0);
+	}
+      else 
+	{
+	  std::cout<< "PndMdt::ConstructGeometry : No good MDT Muon Filter definition " <<std::endl;
+	  exit(0);
+	}
+    }
+
+  if (fForward!="")
+    {
+      if (fForward=="torino" || fForward =="Torino")
+	{
+	  std::cout<< "PndMdt::ConstructGeometry : No Torino design for Forward MDT" <<std::endl;
+	  exit(0); 
+	}
+      else if (fForward.EndsWith(".root"))
+	{
+	  TFile *f = new TFile(sysFile+"/geometry/"+fForward);
+	  TGeoVolume* topvolF = (TGeoVolume*)f->Get("MdtForward");
+	  mdt->AddNode(topvolF,0);
+	}
+      else
+	{
+	  std::cout<< "PndMdt::ConstructGeometry : No good MDT Forward definition " <<std::endl;
+	  exit(0);
+	}
+    }
+  
+  Cave->AddNode(mdt,0);
+  
+  if(mdtMagnet) PndMdtMagnet();
+  if(mdtMFI) PndMdtMFIron();
+  
+  return;
 }
 // ----------------------------------------------------------------------------
 

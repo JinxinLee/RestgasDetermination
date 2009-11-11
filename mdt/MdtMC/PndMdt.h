@@ -26,9 +26,12 @@ public:
     
     void SetMdtVersion(TString);
     inline void SetMdtMagnet(bool opt=false) { mdtMagnet = opt; return; };
-    inline void SetMdtMF(bool opt=false) { mdtMF = opt; return; };
     inline void SetMdtMFIron(bool opt=false) { mdtMFI = opt; return; };
 
+    void SetBarrel(TString name)     { fBarrel = name; };
+    void SetEndcap(TString name)     { fEndcap = name; };
+    void SetMuonFilter(TString name) { fMuonFilter = name; };
+    void SetForward(TString name)    { fForward = name; };
 // hit
     inline void Register() { FairRootManager::Instance()->Register("MdtPoint","Mdt",fMdtCollection,kTRUE); };
     
@@ -89,9 +92,12 @@ private:
     PndGeoMdtPar* par;   //! 
     TString ffn;
     bool mdtMagnet; //!
-    bool mdtMF; //!
     bool mdtMFI; //!
 
+    TString fBarrel;
+    TString fEndcap;
+    TString fMuonFilter;
+    TString fForward;
 };
 
 #endif /* !PNDMDT_H */
