@@ -17,7 +17,7 @@
 class PndMvdChargeWeightedPixelMapping : public PndMvdPixelBackMapping
 {
 	public :
-			PndMvdChargeWeightedPixelMapping(std::vector<PndMvdDigiPixel> pixelArray, std::vector<Double_t> params, TString geoFile):PndMvdPixelBackMapping(pixelArray, params, geoFile){};
+			PndMvdChargeWeightedPixelMapping(std::vector<PndMvdDigiPixel> pixelArray, std::vector<Double_t> params):PndMvdPixelBackMapping(pixelArray, params){};
 			PndMvdHit GetCluster(); ///< Main function of class to calculate the PndMvdHit out of the given PndMvdDigis
 	private :
 			TGeoHMatrix GetTransformation(std::string detName);

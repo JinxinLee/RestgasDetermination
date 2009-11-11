@@ -28,7 +28,8 @@ PndMvdGeoHandling::PndMvdGeoHandling()
 {
 	if (gGeoManager) {
 		fGeoMan = gGeoManager;
-	}else if (gROOT->FindObjectAny("FAIRGeom") == 0){
+	} else //if (gROOT->FindObjectAny("FAIRGeom") == 0)
+  {
 		std::cout << " -E- PndMvdGeoHandling: No Geometry existing!" << std::endl;
 		return;
 	}
@@ -36,17 +37,17 @@ PndMvdGeoHandling::PndMvdGeoHandling()
   fVerbose = 0;
 }
 
-PndMvdGeoHandling::PndMvdGeoHandling(TString fileName)
-{
-	if (gGeoManager) {
-		fGeoMan = gGeoManager;
-	}else if (gROOT->FindObjectAny("FAIRGeom") == 0){
-		   fGeoMan = new TGeoManager("geoMan","geoMan");
-  		 fGeoMan->Import(fileName.Data());
-	}
-//	fGeoMan = gGeoManager;
-  fVerbose = 0;
-}
+//PndMvdGeoHandling::PndMvdGeoHandling(TString fileName)
+//{
+//	if (gGeoManager) {
+//		fGeoMan = gGeoManager;
+//	}else if (gROOT->FindObjectAny("FAIRGeom") == 0){
+//		   fGeoMan = new TGeoManager("geoMan","geoMan");
+//  		 fGeoMan->Import(fileName.Data());
+//	}
+////	fGeoMan = gGeoManager;
+//  fVerbose = 0;
+//}
 
 TString PndMvdGeoHandling::GetCurrentID()
 {

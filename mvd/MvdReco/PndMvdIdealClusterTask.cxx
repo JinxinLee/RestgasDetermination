@@ -171,7 +171,7 @@ void PndMvdIdealClusterTask::Exec(Option_t* opt)
 	std::vector<PndMvdDigiPixel> clusterArray;
 	for (Int_t j=0;j < clusters[i].size();j++)
 		clusterArray.push_back(DigiPixelArray[clusters[i][j]]);
-	PndMvdChargeWeightedPixelMapping mapping(clusterArray, mappingPar, fGeoFile);
+	PndMvdChargeWeightedPixelMapping mapping(clusterArray, mappingPar);
 	mapping.SetVerbose(fVerbose);
 	PndMvdHit myCluster = mapping.GetCluster();
 	std::cout << "ClusterData: " << std::endl;

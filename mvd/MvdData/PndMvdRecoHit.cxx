@@ -80,9 +80,9 @@ PndMvdRecoHit::PndMvdRecoHit(PndMvdHit* hit)
 
   TString id =  hit->GetDetName();
 
-  FairRootManager* ioman = FairRootManager::Instance();
-  TString fGeoFile = ioman->GetInFile()->GetName();
-  fGeoH = new PndMvdGeoHandling(fGeoFile.Data());
+//  FairRootManager* ioman = FairRootManager::Instance();
+//  TString fGeoFile = ioman->GetInFile()->GetName();
+  fGeoH = new PndMvdGeoHandling(gGeoManager);
   TString path = fGeoH->GetPath(id);
 //  std::cout<<"Detector path: "<<path.Data()<<std::endl;
   TVector3 oo, uu, vv;

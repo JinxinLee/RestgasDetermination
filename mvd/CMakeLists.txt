@@ -114,6 +114,7 @@ MvdReco/PndMvdSimplePixelClusterFinder.cxx
 MvdReco/PndMvdIdealPixelClusterFinder.cxx
 MvdReco/PndMvdPixelClusterTask.cxx
 MvdReco/PndMvdIdealClusterTask.cxx
+MvdReco/PndMvdPixelBackMapping.cxx
 MvdReco/PndMvdChargeWeightedPixelMapping.cxx
 MvdReco/PndMvdStripClusterBuilder.cxx
 MvdReco/PndMvdSimpleStripClusterFinder.cxx

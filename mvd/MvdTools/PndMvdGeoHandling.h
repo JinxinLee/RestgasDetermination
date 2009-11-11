@@ -30,14 +30,13 @@
 class PndMvdGeoHandling{
 public:
     PndMvdGeoHandling();
-
-    PndMvdGeoHandling(TString fileName);
-
+    //PndMvdGeoHandling(TString fileName);
     PndMvdGeoHandling(TGeoManager* aGeoMan)
-  {if (aGeoMan == 0) std::cout << "-E- PndMvdGeoHandling: Not a valid GeoManager" << std::endl;
-   fGeoMan = aGeoMan;};
+    { if (aGeoMan == 0) std::cout << "-E- PndMvdGeoHandling: Not a valid GeoManager" << std::endl;
+      fGeoMan = aGeoMan;};
 
     ~PndMvdGeoHandling(){};
+  
   TString GetCurrentID(); ///< returns the ID of the current node
   TString GetID(TString path); ///< for a given TGeoManager-path the ID is returned
   TString GetPath(TString id); ///< for a given ID the path is returned
@@ -74,7 +73,7 @@ private:
   Int_t fLevel;
   bool fFullPath;
   Int_t fVerbose;
-  ClassDef(PndMvdGeoHandling,3);
+  ClassDef(PndMvdGeoHandling,3); 
 };
 
 #endif

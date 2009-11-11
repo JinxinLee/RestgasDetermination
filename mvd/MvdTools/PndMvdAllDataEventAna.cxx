@@ -20,7 +20,7 @@ PndMvdAllDataEventAna::PndMvdAllDataEventAna(TString fileName):PndMvdEventAna(fi
   SetCanvasColumns(6);
 
 
-  fGeoH = new PndMvdGeoHandling(fileName);
+  fGeoH = new PndMvdGeoHandling();
 
   fRecoVolume = gGeoManager->MakeSphere("RecoHit",gGeoManager->GetMedium("vacuum"),0,0.1);
   fRecoVolume->SetLineColor(kRed);

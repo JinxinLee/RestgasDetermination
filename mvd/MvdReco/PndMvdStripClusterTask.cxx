@@ -130,8 +130,9 @@ InitStatus PndMvdStripClusterTask::Init()
 
   // geo name handling
   // This requires a connection to a simulation file!
-  if (fGeoFile=="") fGeoFile = ioman->GetInFile()->GetName();
-  fGeoH = new PndMvdGeoHandling(fGeoFile.Data());
+  //if (fGeoFile=="") fGeoFile = ioman->GetInFile()->GetName();
+  //fGeoH = new PndMvdGeoHandling(fGeoFile.Data());
+  fGeoH = new PndMvdGeoHandling(gGeoManager);
 
 //   else *infile = new TFile(fGeoFile);
 //   TGeoManager *geoMan = (TGeoManager*) infile->Get("FAIRGeom");

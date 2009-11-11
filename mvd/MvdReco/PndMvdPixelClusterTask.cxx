@@ -171,7 +171,7 @@ void PndMvdPixelClusterTask::Exec(Option_t* opt)
       clusterArray.push_back(DigiPixelArray[clusters[i][j]]);
     }
     // mapping
-    PndMvdChargeWeightedPixelMapping mapping(clusterArray, mappingPar, fGeoFile);
+    PndMvdChargeWeightedPixelMapping mapping(clusterArray, mappingPar);
     mapping.SetVerbose(fVerbose);
     PndMvdHit myHit = mapping.GetCluster();
     myHit.SetClusterIndex(i);
