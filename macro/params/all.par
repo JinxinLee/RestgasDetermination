@@ -123,7 +123,7 @@ SampleRate:Double_t 80e6
 Use_shaped_noise:Int_t 1
 Use_photon_statistic:Int_t 1
 EnergyDigiThreshold:Double_t 3.0e-3
-MapperVersion:Int_t 2
+MapperVersion:Int_t 6
 UseDigiEffectiveSmearing:Int_t 0
 SigmaEa:Double_t 1.86
 SigmaEb:Double_t 0.65

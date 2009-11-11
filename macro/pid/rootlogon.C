@@ -8,6 +8,8 @@ rootlogon()
   	gSystem->Load("libGeoBase");
 	gSystem->Load("libParBase");
 	gSystem->Load("libBase");
+	gSystem->Load("libPndBase");
+	gSystem->Load("libGlobalTasks");
         gSystem->Load("libTrkBase");
 	gSystem->Load("libPndData");
 	gSystem->Load("libField");
@@ -17,12 +19,12 @@ rootlogon()
 	gSystem->Load("libEmc"); 
         gSystem->Load("libgenfit");
 	gSystem->Load("libtrackrep");
+	gSystem->Load("libgenfitAdapters");
         gSystem->Load("libriemann");
         gSystem->Load("libtpc"); 
         gSystem->Load("libtpcreco");
         gSystem->Load("libStt");
         gSystem->Load("libSttReco");
-        gSystem->Load("librecotasks");
         gSystem->Load("libMvd");
         gSystem->Load("libMvdReco");
         gSystem->Load("libMvdTrk");
@@ -39,4 +41,6 @@ rootlogon()
         gSystem->Load("libRho");
 	gSystem->Load("libTMVA.so");
         gSystem->Load("libPid");
+        gSystem->Load("libAnalysisTools");
+        gSystem->Load("librecotasks");
 }
