@@ -27,14 +27,14 @@ void sim_muo_dub(Int_t nEvents=10, Int_t pid=13, Float_t p1=1.0, Float_t p2=-1){
   FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave); 
-
-  //FairModule *Magnet= new PndMagnet("MAGNET");
-  //Magnet->SetGeometryFileName("FullSolenoid_V842.root");
-  //fRun->AddModule(Magnet);
+/*
+  FairModule *Magnet= new PndMagnet("MAGNET");
+  Magnet->SetGeometryFileName("FullSolenoid_V842.root");
+  fRun->AddModule(Magnet);
  
   //FairModule *Pipe= new PndPipe("PIPE");
   //fRun->AddModule(Pipe);
-
+ 
   FairDetector *Tpc = new PndTpcDetector("TPC", kTRUE);
   Tpc->SetGeometryFileName("tpc.geo");
   fRun->AddModule(Tpc);
@@ -50,19 +50,20 @@ void sim_muo_dub(Int_t nEvents=10, Int_t pid=13, Float_t p1=1.0, Float_t p2=-1){
   FairDetector *Tof = new PndTof("TOF",kTRUE);
   Tof->SetGeometryFileName("tofbarrel.geo");
   fRun->AddModule(Tof);
- 
+ */
   PndMdt *Muo = new PndMdt("MDT",kTRUE);
-  Muo->SetMdtVersion("dubna");
-  //Muo->SetMdtMagnet(kTRUE);
-  Muo->SetGeometryFileName("muon_dubna.root");
-  //Muo->SetMdtMF(kTRUE);
-  //Muo->SetMdtMFIron(kTRUE);
+  Muo->SetBarrel("muon_TS_barrel_v3_noGeo.root");
+  Muo->SetEndcap("muon_TS_endcap_noGeo.root");
+  Muo->SetForward("muon_dubna_forward.root");
+  Muo->SetMdtMagnet(kTRUE);
+  //Muo->SetMuonFilter("torino");
+  Muo->SetMdtMFIron(kTRUE);
   fRun->AddModule(Muo);
- 
+ /*
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
   Drc->SetRunCherenkov(kFALSE); // for fast sim Cherenkov -> kFALSE
   fRun->AddModule(Drc); 
-  
+  */
   //FairDetector *Dch = new PndDchDetector("DCH", kTRUE);
   //Dch->SetGeometryFileName("dch.root"); 
   //fRun->AddModule(Dch);

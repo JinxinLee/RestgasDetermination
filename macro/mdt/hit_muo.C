@@ -4,10 +4,10 @@
   Int_t iVerbose = 0;
 
   // Input file (MC events)
-  TString inFile = "points_combi.root";
+  TString inFile = "test.root";
 
   // Parameter file
-  TString parFile = "testparams.root";
+  TString parFile = "params.root";
 
   // Output file
   TString outFile = "tracks_combi.root";
@@ -16,26 +16,8 @@
   Int_t nEvents = 0;
  
   // ----  Load libraries   -------------------------------------------------
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-  basiclibs();
-  gSystem->Load("libGeoBase");
-  gSystem->Load("libParBase");
-  gSystem->Load("libBase");
-  gSystem->Load("libPndData");
-  gSystem->Load("libField");
-  gSystem->Load("libPassive");
-  gSystem->Load("libGen");  
-  gSystem->Load("libEmc"); 
-  gSystem->Load("libTof"); 
-  gSystem->Load("libgenfit");
-  gSystem->Load("libtpc"); 
-  gSystem->Load("libtpcreco");
-  gSystem->Load("libtrackrep");
-  gSystem->Load("librecotasks");
-  gSystem->Load("libMvd");
-  gSystem->Load("libMvdReco");
-  gSystem->Load("libMdt");
-  gSystem->Load("libLHETrack");
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  rootlogon();
   // ------------------------------------------------------------------------
 
   // ---  Now choose concrete engines for the different tasks   -------------
@@ -69,7 +51,7 @@
   rtdb->setSecondInput(parIo1);
   fRun->LoadGeometry();
   // ------------------------------------------------------------------------
-
+/*
   // -----   TPC digi producers   ---------------------------------
   PndTpcClusterizerTask* tpcClusterizer = new PndTpcClusterizerTask();
   //tpcClusterizer->SetPersistence();
@@ -151,7 +133,7 @@
   //PndMvdIdealTrackingTask* mvdmctrk = new PndMvdIdealTrackingTask();
   //mvdmctrk->SetVerbose(iVerbose);
   //fRun->AddTask(mvdmctrk);
-/*
+
   // -----   EMC hit producers   ---------------------------------
   PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
   fRun->AddTask(emcHitProd); // hit production 
@@ -175,23 +157,23 @@
 
   PndEmcMakeRecoHit* emcMakeRecoHit= new PndEmcMakeRecoHit();
   fRun->AddTask(emcMakeRecoHit);
-*/
+
   // -----   TOF hit producers   ---------------------------------
 
   PndTofHitProducerIdeal* tofhit = new PndTofHitProducerIdeal();
   tofhit->SetVerbose(iVerbose);
   fRun->AddTask(tofhit);
- 
+*/ 
   // -----   MDT hit producers   ---------------------------------
   PndMdtHitProducerIdeal* mdtHitProd = new PndMdtHitProducerIdeal();
   mdtHitProd->SetPositionSmearing(0.2); // position smearing [cm]
   fRun->AddTask(mdtHitProd);
  
-  PndMdtTrkProducerIdeal* mdtTrkProd = new PndMdtTrkProducerIdeal();
+  PndMdtTrkProducer* mdtTrkProd = new PndMdtTrkProducer();
   fRun->AddTask(mdtTrkProd);
 
   // -----   LHETRACK  ---------------------------------
-
+/*
   PndTpcLheHitsMaker* trackMS = new PndTpcLheHitsMaker("Tracking routine");
   trackMS->SetTpcMode(2);  // 0 OFF, 1 TpcPoint, 2 TpcCluster // TpcPoint smearing [cm], if negative no smearing
   trackMS->SetMvdMode(2);  // 0 OFF, 1 MVDPoint, 2 MVDHit     // MVDPoint smearing [cm], if negative no smearing
@@ -206,7 +188,7 @@
   PndLhePidMaker* pidMaker    = new PndLhePidMaker("pid");
   //pidMaker->SetDebugMode(kTRUE);
   fRun->AddTask(pidMaker);
-
+*/
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
   fRun->Run(0, nEvents);

@@ -29,7 +29,8 @@ void sim_muo(Int_t nEvents=10, Int_t pid=13, Float_t p1=1.0, Float_t p2=-1){
   fRun->AddModule(Cave); 
   
   FairModule *Magnet= new PndMagnet("MAGNET");
-  Magnet->SetGeometryFileName("PandaSolenoidV833.root");
+  //Magnet->SetGeometryFileName("FullSolenoid_V842.root");
+  Magnet->SetGeometryFileName("FullSuperconductingSolenoid_v831.root");
   //fRun->AddModule(Magnet);
 
   FairModule *Dipole= new PndMagnet("MAGNET");
@@ -56,11 +57,16 @@ void sim_muo(Int_t nEvents=10, Int_t pid=13, Float_t p1=1.0, Float_t p2=-1){
   fRun->AddModule(Tof);
  
   PndMdt *Muo = new PndMdt("MDT",kTRUE);
-  Muo->SetMdtVersion("torino");
+  Muo->SetBarrel("torino");
+  Muo->SetEndcap("torino");
+  Muo->SetMuonFilter("torino");
   Muo->SetMdtMagnet(kTRUE);
-  Muo->SetMdtMF(kTRUE);
   Muo->SetMdtMFIron(kTRUE);
   fRun->AddModule(Muo);
+
+  FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
+  Gem->SetGeometryFileName("gem_3Stations.root");
+  fRun->AddModule(Gem);
  
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
   Drc->SetRunCherenkov(kFALSE); // for fast sim Cherenkov -> kFALSE
