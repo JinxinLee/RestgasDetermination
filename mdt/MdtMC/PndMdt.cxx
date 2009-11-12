@@ -136,22 +136,13 @@ void PndMdt::SetParFile(TString filename)
 }
 // -------------------------------------------------------------------------
 
-
-// -----   Public method SetMdtVersion   -----------------------------------
-void PndMdt::SetMdtVersion(TString location)
-{
-    version = location;
-    cout<<endl<<endl<<"MDT version used: "<<location<<endl<<endl;
-
-    return;
-}
-
 // -----   Public method ConstructGeometry   ----------------------------------
 void PndMdt::ConstructGeometry() 
 {
   TString sysFile = gSystem->Getenv("VMCWORKDIR");
   TGeoVolume* mdt = new TGeoVolumeAssembly("Mdt");
   TGeoVolume *Cave = gGeoManager->GetTopVolume(); 
+ 
   if (fBarrel!="")
     {
       if (fBarrel=="torino" || fBarrel =="Torino")
@@ -160,9 +151,8 @@ void PndMdt::ConstructGeometry()
 	}
       else if (fBarrel.EndsWith(".root"))
 	{
-	  TFile *f = new TFile(sysFile+"/geometry/"+fBarrel);
-	  TGeoVolume* topvolB = (TGeoVolume*)f->Get("MdtBarrel");
-	  mdt->AddNode(topvolB,0);
+	  SetGeometryFileName(fBarrel);
+	  ConstructRootGeometry();
 	}
       else
 	{
@@ -170,14 +160,13 @@ void PndMdt::ConstructGeometry()
 	  exit(0);
 	}
     }
-  
+ 
   if (fEndcap!="")
     {
       if (fEndcap.EndsWith(".root"))
 	{
-	  TFile *f = new TFile(sysFile+"/geometry/"+fEndcap);
-	  TGeoVolume* topvolEC = (TGeoVolume*)f->Get("MdtEndcap");
-	  mdt->AddNode(topvolEC,0);
+	  SetGeometryFileName(fEndcap);
+	  ConstructRootGeometry();
 	}
       else if (fBarrel!="torino" && fBarrel !="Torino")
 	{
@@ -185,7 +174,7 @@ void PndMdt::ConstructGeometry()
 	  exit(0);
 	}
     }
-  
+ 
   if (fMuonFilter!="")
     {
       if (fMuonFilter=="torino" || fMuonFilter=="Torino")
@@ -194,9 +183,8 @@ void PndMdt::ConstructGeometry()
 	}
       else if (fMuonFilter.EndsWith(".root"))
 	{
-	  TFile *f = new TFile(sysFile+"/geometry/"+fMuonFilter);
-	  TGeoVolume* topvolMF = (TGeoVolume*)f->Get("MdtMuonFilter");
-	  mdt->AddNode(topvolMF,0);
+	  SetGeometryFileName(fMuonFilter);
+	  ConstructRootGeometry();
 	}
       else 
 	{
@@ -214,9 +202,8 @@ void PndMdt::ConstructGeometry()
 	}
       else if (fForward.EndsWith(".root"))
 	{
-	  TFile *f = new TFile(sysFile+"/geometry/"+fForward);
-	  TGeoVolume* topvolF = (TGeoVolume*)f->Get("MdtForward");
-	  mdt->AddNode(topvolF,0);
+	  SetGeometryFileName(fForward);
+	  ConstructRootGeometry();
 	}
       else
 	{
@@ -225,11 +212,9 @@ void PndMdt::ConstructGeometry()
 	}
     }
   
-  Cave->AddNode(mdt,0);
-  
   if(mdtMagnet) PndMdtMagnet();
   if(mdtMFI) PndMdtMFIron();
-  
+ 
   return;
 }
 // ----------------------------------------------------------------------------
@@ -259,7 +244,7 @@ void PndMdt::BeginEvent()
 Bool_t PndMdt::ProcessHits(FairVolume* vol) 
 {
   TString name = vol->GetName();
-  
+ 
   if (gMC->IsTrackEntering() || gMC->IsNewTrack() )
     {
       fPos_In.SetXYZM(0.,0.,0.,0.);

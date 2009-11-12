@@ -24,7 +24,6 @@ public:
     PndMdt(const char* name, Bool_t active);
     ~PndMdt();
     
-    void SetMdtVersion(TString);
     inline void SetMdtMagnet(bool opt=false) { mdtMagnet = opt; return; };
     inline void SetMdtMFIron(bool opt=false) { mdtMFI = opt; return; };
 
@@ -73,7 +72,6 @@ private:
 
     Bool_t CheckIfSensitive(std::string name);
 
-    TString version;
     void PndMdtMagnet(); //!
     void PndMdtMuonFilter(); //!
     void PndMdtMFIron(); //!

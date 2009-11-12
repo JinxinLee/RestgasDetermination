@@ -30,7 +30,6 @@ link_directories( ${LINK_DIRECTORIES})
 set(MDT_SRCS
 MdtMC/PndGeoMdtPar.cxx
 MdtMC/PndMdt.cxx
-MdtMC/PndMdtGeoConstructorDu.cxx
 MdtMC/PndMdtMagnet.cxx
 MdtMC/PndMdtMuonFilter.cxx
 MdtMC/PndMdtMFIron.cxx
