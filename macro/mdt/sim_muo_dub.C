@@ -54,7 +54,7 @@ void sim_muo_dub(Int_t nEvents=10, Int_t pid=13, Float_t p1=1.0, Float_t p2=-1){
   PndMdt *Muo = new PndMdt("MDT",kTRUE);
   Muo->SetBarrel("muon_TS_barrel_v3_noGeo.root");
   Muo->SetEndcap("muon_TS_endcap_noGeo.root");
-  Muo->SetForward("muon_dubna_forward.root");
+  Muo->SetForward("muon_Forward_noGeo.root");
   Muo->SetMdtMagnet(kTRUE);
   //Muo->SetMuonFilter("torino");
   Muo->SetMdtMFIron(kTRUE);
