@@ -140,8 +140,6 @@ void PndMdt::SetParFile(TString filename)
 void PndMdt::ConstructGeometry() 
 {
   TString sysFile = gSystem->Getenv("VMCWORKDIR");
-  TGeoVolume* mdt = new TGeoVolumeAssembly("Mdt");
-  TGeoVolume *Cave = gGeoManager->GetTopVolume(); 
  
   if (fBarrel!="")
     {
