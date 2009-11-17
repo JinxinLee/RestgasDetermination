@@ -54,10 +54,15 @@
   Tof->SetGeometryFileName("tofbarrel.geo");
   fRun->AddModule(Tof);
  
-  //PndMdt *Muo = new PndMdt("MDT",kTRUE);
-  //Muo->SetMdtVersion("torino");
-  //Muo->SetGeometryFileName("muopars.root");
-  //fRun->AddModule(Muo);
+  
+  FairDetector *Muo = new PndMdt("MDT",kTRUE);
+  Muo->SetBarrel("torino");
+  Muo->SetEndcap("torino");
+  Muo->SetMuonFilter("torino");
+  Muo->SetMdtMagnet(kTRUE);
+  Muo->SetMdtMFIron(kTRUE);
+  fRun->AddModule(Muo);
+ 
  
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
   Drc->SetRunCherenkov(kFALSE); // for fast sim Cherenkov -> kFALSE

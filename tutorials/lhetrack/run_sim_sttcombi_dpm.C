@@ -56,7 +56,11 @@ void run_sim_sttcombi_dpm(Int_t nEvents=100, Float_t pbarP=4.0){
   fRun->AddModule(Tof);
  
   FairDetector *Muo = new PndMdt("MDT",kTRUE);
-  Muo->SetGeometryFileName("muopars.root");
+  Muo->SetBarrel("torino");
+  Muo->SetEndcap("torino");
+  Muo->SetMuonFilter("torino");
+  Muo->SetMdtMagnet(kTRUE);
+  Muo->SetMdtMFIron(kTRUE);
   fRun->AddModule(Muo);
  
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);

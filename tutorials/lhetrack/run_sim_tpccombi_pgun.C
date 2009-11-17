@@ -56,10 +56,13 @@ void run_sim_tpccombi_pgun(Int_t nEvents=10, Int_t pid=13, Float_t p1=1.0, Float
   fRun->AddModule(Tof);
  
   PndMdt *Muo = new PndMdt("MDT",kTRUE);
-  Muo->SetMdtVersion("torino");
-  Muo->SetGeometryFileName("muopars.root");
+  Muo->SetBarrel("torino");
+  Muo->SetEndcap("torino");
+  Muo->SetMuonFilter("torino");
+  Muo->SetMdtMagnet(kTRUE);
+  Muo->SetMdtMFIron(kTRUE);
   fRun->AddModule(Muo);
- 
+  
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
   Drc->SetRunCherenkov(kFALSE); // for fast sim Cherenkov -> kFALSE
   fRun->AddModule(Drc); 
