@@ -11,6 +11,7 @@ class PndEmcDigiPar : public FairParGenericSet
 		Double_t GetEnergyHitThreshold() {return fEnergyHitThreshold;};
 		Double_t GetDetectedPhotonsPerMeV() {return fDetectedPhotonsPerMeV;};
 		Double_t GetEnergyRange() {return fEnergyRange;};
+		Double_t GetEnergyRangeBW() {return fEnergyRangeBW;};
 		Double_t GetExcessNoiseFactor() {return fExcessNoiseFactor;};
 		Double_t GetFirstSamplePhase() {return fFirstSamplePhase;};
 		Double_t GetShaping_diff_time() {return fShaping_diff_time;};
@@ -43,6 +44,7 @@ class PndEmcDigiPar : public FairParGenericSet
 		Double_t fEnergyHitThreshold;
 		Double_t fDetectedPhotonsPerMeV;
 		Double_t fEnergyRange;
+		Double_t fEnergyRangeBW;
 		Double_t fExcessNoiseFactor;
 		Double_t fFirstSamplePhase;
 		Double_t fShaping_diff_time;

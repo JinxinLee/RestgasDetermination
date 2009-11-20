@@ -89,6 +89,7 @@ InitStatus PndEmcHitsToWaveform::Init()
 	fNBits=fDigiPar->GetNBits();
 	fDetectedPhotonsPerMeV=fDigiPar->GetDetectedPhotonsPerMeV();
 	fEnergyRange=fDigiPar->GetEnergyRange(); //GeV
+	fEnergyRangeBW=fDigiPar->GetEnergyRangeBW(); //GeV	
 	fExcessNoiseFactor=fDigiPar->GetExcessNoiseFactor();
 	fFirstSamplePhase=fDigiPar->GetFirstSamplePhase();
 	fNumber_of_samples_in_waveform=fDigiPar->GetNumber_of_samples_in_waveform();
@@ -104,6 +105,7 @@ InitStatus PndEmcHitsToWaveform::Init()
 	cout<<"nBits "<<fNBits<<endl;
 	cout<<"detectedPhotonsPerMeV "<<fDetectedPhotonsPerMeV<<endl;
 	cout<<"energyRange "<<fEnergyRange<<endl;
+	cout<<"energyRangeBW "<<fEnergyRangeBW<<endl;	
 	cout<<"excessNoiseFactor "<<fExcessNoiseFactor<<endl;
 	cout<<"firstSamplePhase "<<fFirstSamplePhase<<endl;
 	cout<<"number_of_samples_in_waveform "<<fNumber_of_samples_in_waveform<<endl;
@@ -127,6 +129,7 @@ InitStatus PndEmcHitsToWaveform::Init()
 	fGevPeakAnalogue = tmpwaveform->get_scale();
 	
 	fOneBitResolution=fEnergyRange/((double) (1<<fNBits))*fGevPeakAnalogue;
+	fOneBitResolutionBW=fEnergyRangeBW/((double) (1<<fNBits))*fGevPeakAnalogue;
 	
 	fFirstADCBinTime=fFirstSamplePhase/fSampleRate;
 	
@@ -196,11 +199,23 @@ void PndEmcHitsToWaveform::Exec(Option_t* opt)
 	
 	for (Int_t iWf=0; iWf<nWf; iWf++) {
 		theWaveform = (PndEmcWaveform*) fWaveformArray->At(iWf);
+		Int_t detId = theWaveform->GetDetectorId();
+		Int_t module = detId / 100000000;
 		if (fUse_shaped_noise==0)
 		{
-			theWaveform->add_elec_noise_and_digitise(fIncoherent_elec_noise_width_GeV*fGevPeakAnalogue,fOneBitResolution);
+			if(module == 4){
+				theWaveform->add_elec_noise_and_digitise(fIncoherent_elec_noise_width_GeV*fGevPeakAnalogue,fOneBitResolutionBW);
+			}
+			else{
+				theWaveform->add_elec_noise_and_digitise(fIncoherent_elec_noise_width_GeV*fGevPeakAnalogue,fOneBitResolution);
+			}
 		} else {
-			theWaveform->add_shaped_elec_noise_and_digitise(fIncoherent_elec_noise_width_GeV*fGevPeakAnalogue,fOneBitResolution);
+			if(module == 4){
+				theWaveform->add_shaped_elec_noise_and_digitise(fIncoherent_elec_noise_width_GeV*fGevPeakAnalogue,fOneBitResolutionBW);
+			}
+			else{
+				theWaveform->add_shaped_elec_noise_and_digitise(fIncoherent_elec_noise_width_GeV*fGevPeakAnalogue,fOneBitResolution);
+			}
 		}
 	}
 

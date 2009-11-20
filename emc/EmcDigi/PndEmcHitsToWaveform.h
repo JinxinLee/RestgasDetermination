@@ -66,10 +66,12 @@ private:
   TClonesArray* fWaveformArray;  
 
 	Double_t fOneBitResolution;
+	Double_t fOneBitResolutionBW;
 
 	Int_t fNBits;
 	Double_t fDetectedPhotonsPerMeV;
 	Double_t fEnergyRange; //GeV
+	Double_t fEnergyRangeBW; //GeV
 	Double_t fExcessNoiseFactor;
 	Double_t fFirstSamplePhase;
 	Int_t fNumber_of_samples_in_waveform;

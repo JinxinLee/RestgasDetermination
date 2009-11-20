@@ -24,6 +24,7 @@ void PndEmcDigiPar::putParams(FairParamList* list)
 	list->add("EnergyHitThreshold",fEnergyHitThreshold);
 	list->add("DetectedPhotonsPerMeV",fDetectedPhotonsPerMeV);
 	list->add("EnergyRange",fEnergyRange);
+	list->add("EnergyRangeBW",fEnergyRangeBW);	
 	list->add("ExcessNoiseFactor",fExcessNoiseFactor);
 	list->add("FirstSamplePhase",fFirstSamplePhase);
 	list->add("Shaping_diff_time",fShaping_diff_time);
@@ -48,6 +49,7 @@ Bool_t PndEmcDigiPar::getParams(FairParamList* list)
 	if (!list->fill("EnergyHitThreshold",&fEnergyHitThreshold)) return kFALSE;
 	if (!list->fill("DetectedPhotonsPerMeV",&fDetectedPhotonsPerMeV)) return kFALSE;
 	if (!list->fill("EnergyRange",&fEnergyRange)) return kFALSE;
+	if (!list->fill("EnergyRangeBW",&fEnergyRangeBW)) return kFALSE;	
 	if (!list->fill("ExcessNoiseFactor",&fExcessNoiseFactor)) return kFALSE;
 	if (!list->fill("FirstSamplePhase",&fFirstSamplePhase)) return kFALSE;
 	if (!list->fill("Shaping_diff_time",&fShaping_diff_time)) return kFALSE;
