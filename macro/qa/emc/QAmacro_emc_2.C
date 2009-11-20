@@ -78,11 +78,12 @@
   PndEmcMakeCluster* emcMakeCluster= new PndEmcMakeCluster(iVerbose);
   fRun->AddTask(emcMakeCluster);
 
-  PndEmcHdrFiller* emcHdrFiller = new PndEmcHdrFiller();
-  fRun->AddTask(emcHdrFiller); // ECM header
 
   PndEmcMakeBump* emcMakeBump= new PndEmcMakeBump();
   fRun->AddTask(emcMakeBump);
+
+  PndEmcHdrFiller* emcHdrFiller = new PndEmcHdrFiller();
+  fRun->AddTask(emcHdrFiller); // ECM header
 
   PndEmcMakeRecoHit* emcMakeRecoHit= new PndEmcMakeRecoHit();
   fRun->AddTask(emcMakeRecoHit);

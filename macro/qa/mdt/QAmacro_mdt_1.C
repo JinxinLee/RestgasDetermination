@@ -41,11 +41,14 @@ void QAmacro_mdt_1()
   FairModule *Magnet= new PndMagnet("MAGNET");
   Magnet->SetGeometryFileName("FullSolenoid.root");
   fRun->AddModule(Magnet);
-
-  PndMdt *Mdt = new PndMdt("MDT",kTRUE);
-  Mdt->SetGeometryFileName("muopars.root");
-  Mdt->SetMdtVersion("torino");
-  fRun->AddModule(Mdt);
+  
+  PndMdt *Muo = new PndMdt("MDT",kTRUE);
+  Muo->SetBarrel("torino");
+  Muo->SetEndcap("torino");
+  Muo->SetMuonFilter("torino");
+  Muo->SetMdtMagnet(kTRUE);
+  Muo->SetMdtMFIron(kTRUE);
+  fRun->AddModule(Muo);
   
   // Create and Set Event Generator
   //-------------------------------

@@ -48,7 +48,7 @@ void run_sim_tpccombi_pgun(Int_t nEvents=100, Int_t pid=13, Float_t p1=1.0, Floa
   fRun->AddModule(Mvd);
   
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
-  Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root");
+  Emc->SetGeometryFileNameTriple("emc_module125.dat","emc_module3new.root","emc_module4_StraightGeo24.4.root"); 
   fRun->AddModule(Emc);   
   
   FairDetector *Tof = new PndTof("TOF",kTRUE);
@@ -56,8 +56,11 @@ void run_sim_tpccombi_pgun(Int_t nEvents=100, Int_t pid=13, Float_t p1=1.0, Floa
   fRun->AddModule(Tof);
  
   PndMdt *Muo = new PndMdt("MDT",kTRUE);
-  Muo->SetGeometryFileName("muopars.root");
-  Muo->SetMdtVersion("torino");
+  Muo->SetBarrel("torino");
+  Muo->SetEndcap("torino");
+  Muo->SetMuonFilter("torino");
+  Muo->SetMdtMagnet(kTRUE);
+  Muo->SetMdtMFIron(kTRUE);
   fRun->AddModule(Muo);
  
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);

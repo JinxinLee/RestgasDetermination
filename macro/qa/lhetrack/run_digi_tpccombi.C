@@ -51,7 +51,7 @@
         
   rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parIo1);
-  fRun->LoadGeometry();
+ // fRun->LoadGeometry();
   // ------------------------------------------------------------------------
 
   // -----   TPC digi producers   ---------------------------------
@@ -117,11 +117,14 @@
   PndEmcMakeCluster* emcMakeCluster= new PndEmcMakeCluster(iVerbose);
   fRun->AddTask(emcMakeCluster);
 
+  PndEmcHdrFiller* emcHdrFiller = new PndEmcHdrFiller();
+  fRun->AddTask(emcHdrFiller); // ECM header
+
+
   PndEmcMakeBump* emcMakeBump= new PndEmcMakeBump();
   fRun->AddTask(emcMakeBump);
 
-  PndEmcHdrFiller* emcHdrFiller = new PndEmcHdrFiller();
-  fRun->AddTask(emcHdrFiller); // ECM header
+  
   
   // -----   TOF hit producers   ---------------------------------
 

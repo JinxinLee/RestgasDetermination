@@ -56,9 +56,13 @@
   fRun->AddModule(Drc); 
 
   PndMdt *Muo = new PndMdt("MDT",kTRUE);
-  Muo->SetGeometryFileName("muopars.root");
-  Muo->SetMdtVersion("torino");
+  Muo->SetBarrel("torino");
+  Muo->SetEndcap("torino");
+  Muo->SetMuonFilter("torino");
+  Muo->SetMdtMagnet(kTRUE);
+  Muo->SetMdtMFIron(kTRUE);
   fRun->AddModule(Muo);
+  
 
   FairDetector *Dch = new PndDchDetector("DCH", kTRUE);
   Dch->SetGeometryFileName("dch.root"); 
