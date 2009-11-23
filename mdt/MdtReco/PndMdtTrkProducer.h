@@ -53,8 +53,9 @@ class PndMdtTrkProducer : public FairTask
  
   map<Int_t, vector<Int_t> >mapMdtBarrel;
   map<Int_t, vector<Int_t> >mapMdtEndcap;
-
-  Float_t mdtLayerPos[2][12];
+  map<Int_t, vector<Int_t> >mapMdtForward;
+  
+  Float_t mdtLayerPos[3][20];
   
   ClassDef(PndMdtTrkProducer,1);
 
