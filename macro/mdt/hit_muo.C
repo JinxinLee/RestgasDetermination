@@ -166,7 +166,7 @@
 */ 
   // -----   MDT hit producers   ---------------------------------
   PndMdtHitProducerIdeal* mdtHitProd = new PndMdtHitProducerIdeal();
-  mdtHitProd->SetPositionSmearing(0.2); // position smearing [cm]
+  mdtHitProd->SetPositionSmearing(0.3); // position smearing [cm]
   fRun->AddTask(mdtHitProd);
  
   PndMdtTrkProducer* mdtTrkProd = new PndMdtTrkProducer();
