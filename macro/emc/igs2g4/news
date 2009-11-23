@@ -1,0 +1,10 @@
+This is the file were we will keep the news 
+for any further release. See each version 
+for the specific version information.
+
+Model:
+V00.00.00
+    -> no news
+V00.00.01
+    -> rotation bugs fixed
+    -> src/convertor.cc: more easily readable

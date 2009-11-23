@@ -1,0 +1,22 @@
+This is the file were we will keep the log book 
+for any further release. See each version 
+for the specific version information.
+
+Model:
+V00.00.00
+    -> creation of the files:
+	-> src/executioner.cc: main source for the executable
+	-> src/reading.cc include/reading.hh src/data_igs.cc include/data_igs.hh: 
+	    reading part of the IGES data
+	-> src/converting.cc include/converting.hh src/data_g4.cc include/data_g4.hh:
+	    converting part from IGES data into G4 data
+	-> src/writing.cc include/writing.hh: writing the G4 data for G4Trap class
+	-> src/manager.cc include/manager.hh: project manager
+	-> src/math.cc include/math.hh: general classes
+	-> data/module1.igs: data file
+V00.00.01
+    -> creation of the files: --
+    -> modification of the files:
+	-> src/converting.cc include/converting.hh: 
+	    -> made more modular
+	    -> rotation bugs fixed

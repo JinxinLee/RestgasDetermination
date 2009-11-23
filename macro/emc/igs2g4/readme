@@ -1,0 +1,29 @@
+
+To install the program, go through the following steps:
+------------------------------------------------------
+
+1. cd igs2g4-00.00.01
+2. ./configure --prefix=<path toward igs2g4-00.00.01> --exec-prefix=<path toward igs2g4-00.00.01>
+3. make
+4. make install
+
+
+To run the program, go through the following steps:
+------------------
+
+1. cd igs2g4-00.00.01
+2. ./bin/igs2g4
+
+
+Remark: Add suffix .exe to the program name if you use cygwin.
+------
+
+
+Please, see also:
+-> AUTHORS for the list of authors
+-> COPYING for distribution license
+-> ChangeLog for the log book of changes
+-> INSTALL for further installation instructions
+-> NEWS for what's new in this version
+-> THANKS to show appreciation to the authors
+Thanks and enjoy the program!

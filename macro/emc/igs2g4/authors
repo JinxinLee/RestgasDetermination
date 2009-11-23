@@ -1,0 +1,31 @@
+Authors of the PACKAGE
+
+The following contributors warranted legal paper exchange
+with [Free Software Foundation | George-Catalin Serbanut].
+Also see files ChangeLog and THANKS
+
+George-Catalin Serbanut:
+    -> entire files:
+	-> src/executioner.cc: main source for the executable
+	-> src/reading.cc include/reading.hh src/data_igs.cc include/data_igs.hh: 
+	    reading part of the IGES data
+	-> src/converting.cc include/converting.hh src/data_g4.cc include/data_g4.hh:
+	    converting part from IGES data into G4 data
+	-> src/writing.cc include/writing.hh: writing the G4 data for G4Trap class
+	-> src/manager.cc include/manager.hh: project manager
+	-> src/math.cc include/math.hh: general classes
+	-> data/module1.igs: data file
+    -> modifications:
+	-> src/converting.cc include/converting.hh: rotation function
+    
+Philippe Rosier:
+    -> entire file:
+	-> IGES file: module1.igs
+
+Martin J. Kotulla:
+    -> modifications:
+	-> insertion of atan2
+	-> vector algebra
+
+Thomas Zerguerras:
+    -> data cross-check
