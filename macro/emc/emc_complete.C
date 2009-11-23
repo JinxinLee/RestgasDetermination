@@ -46,11 +46,10 @@ emc_complete(Int_t nEvents = 10, Float_t mom = 1.){
   FairModule *Pipe= new PndPipe("PIPE");
   Pipe->SetGeometryFileName("pipe.geo");
   fRun->AddModule(Pipe);
-	
-  //FairDetector *Emc = new PndEmc("EMC",kTRUE);
+
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
-  //Emc->SetGeometryFileName("emc_module12345.dat"); // if you want to use old geometry for FwEndCap
-  Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root"); // if you want to use new geometry for FwEndCap
+  //new BwEndCap + FwEndCap
+  Emc->SetGeometryFileNameTriple("emc_module125.dat","emc_module3new.root","emc_module4_StraightGeo24.4.root"); //MapperVersion: 6
   Emc->SetStorageOfData(kFALSE);
   fRun->AddModule(Emc);
 	
