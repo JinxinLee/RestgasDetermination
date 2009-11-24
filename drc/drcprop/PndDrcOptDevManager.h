@@ -157,6 +157,7 @@ class PndDrcOptDevManager
   \param nu2 Largest wavelength.
   \param refl_limit Maximum number of reflections.
 
+  \param particleIDnumber Number of photon
   \return Flag if internal photon list has entries.
   */
   bool Cerenkov(const XYZPoint&  pos,
@@ -191,7 +192,7 @@ class PndDrcOptDevManager
   \param nu1 Smallest wavelength.
   \param nu2 Largest wavelength.
   \param refl_limit Maximum number of reflections.
-
+  \param particleIDnumber Number of photon
   \return Flag if internal photon list has entries.
   */
   bool Cerenkov(const string&   vol_name,

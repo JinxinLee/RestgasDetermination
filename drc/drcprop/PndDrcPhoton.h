@@ -22,10 +22,9 @@ using std::list;
 
 #include "TRandom3.h"
 
-//! A namespace for encapsulation.
 namespace Drc
 {
-  /*! \enum PndDrc::PhotonFate
+  /*! \enum PndDrc::kPhotonFate
     An enum holding the fate of a photon. */
   enum kPhotonFate
     {
@@ -103,7 +102,7 @@ class PndDrcPhoton
   int ParticleIDnumber() const {return fParticleIDnumber;};
 
   /*! \brief Set associated particle ID number
-    \param pos Particle ID number.
+    \param particleIDnumber Particle ID number.
   */
   void SetParticleIDnumber(int particleIDnumber) {fParticleIDnumber=particleIDnumber;};
 
@@ -148,7 +147,7 @@ class PndDrcPhoton
   list<double>& PositionXlist(){return fPositionXlist;};
 
   /*! \brief Add position X in list
-    \param posXlist Position.
+    \param posX Position.
   */
   void SetPositionXlist(double posX){fPositionXlist.push_back(posX);};
 
@@ -158,7 +157,7 @@ class PndDrcPhoton
   list<double>& PositionYlist(){return fPositionYlist;};
 
   /*! \brief Add position Y in list
-    \param posYlist Position.
+    \param posY Position.
   */
   void SetPositionYlist(double posY){fPositionYlist.push_back(posY);};
 
@@ -168,7 +167,7 @@ class PndDrcPhoton
   list<double>& PositionZlist(){return fPositionZlist;};
 
   /*! \brief Add position Z in list
-    \param posZlist Position.
+    \param posZ Position.
   */
   void SetPositionZlist(double posZ){fPositionZlist.push_back(posZ);};
 
@@ -237,15 +236,21 @@ class PndDrcPhoton
   /*! \brief Handles refraction and reflection of photon.
   After this routine, the photons direction, position and fate is set.
   \param normal The normal vector of the surface of the volume the photon is in.
-  \param n_inside The refractive index of the current medium
-  \param ex_inside The extinction coefficient of the current medium
-  \param n_outside The refractive index of or the next volume or the vacuum outside.
-  \param ex_outside The extinction coefficient of or the next volume or the vacuum outside.
-  \param fresnel Fresnel reflection.
-  \param diffuse Diffused reflection probability.
+  \param n_in The refractive index of the current medium
+  \param ex_in The extinction coefficient of the current medium
+  \param n_out The refractive index of or the next volume or the vacuum outside.
+  \param ex_out The extinction coefficient of or the next volume or the vacuum outside.
+  \param fresnelFlag Fresnel reflection.
+  \param diffuseProb Diffused reflection probability.
   \return True if refraction occured, false if reflection occured.
   */
-  bool Refract(XYZVector normal, double n_in, double ex_in, double n_out=1.0, double ex_out=0.0, bool fresnelFlag=true, double diffuseProb = 0);
+  bool Refract(XYZVector normal, 
+	       double n_in, 
+	       double ex_in, 
+	       double n_out=1.0, 
+	       double ex_out=0.0, 
+	       bool fresnelFlag=true, 
+	       double diffuseProb = 0);
 
   /*! \brief Reflect the photon
     \param normal The normal vector of the surface.
@@ -314,31 +319,30 @@ class PndDrcPhoton
 
   /*! \brief Fresnel reflection
     \param normal The normal vector of the surface.
-    \param n_inside The refractive index of the current medium
-    \param ex_inside The extinction coefficient of the current medium
-    \param n_outside The refractive index of or the next volume or the vacuum outside.
-    \param ex_outside The extinction coefficient of or the next volume or the vacuum outside.
-    \sa Fresnel()
+    \param n_in The refractive index of the current medium
+    \param ex_in The extinction coefficient of the current medium
+    \param n_out The refractive index of or the next volume or the vacuum outside.
+    \param ex_out The extinction coefficient of or the next volume or the vacuum outside.
   */
   bool Fresnel(XYZVector normal, double n_in, double ex_in, double n_out=1.0, double ex_out=0.0);
+
   /*! \brief Reflect diffusely the photon
     \param normal The normal vector of the surface.
-    \sa Diffuse()
   */
   void Diffuse(const XYZVector& normal);
 
   /*! \brief Set Cherenkov angle
-  \param theta Cherenkov angle.
+  \param thetac Cherenkov angle.
   */
   void SetThetaC(double thetac){fThetaC=thetac;};
 
   /*! \brief Set Cherenkov (polar) angle
-  \param phi Cherenkov (polar) angle.
+  \param phic Cherenkov (polar) angle.
   */
   void SetPhiC(double phic){fPhiC=phic;};
 
   /*! \brief Set normalized origin direction (at photon production)
-    \param dir Origin direction.
+    \param org Origin direction.
    */
   void SetOriginDirection(const XYZVector& org) {fOriginDirection=org.Unit();};
 
