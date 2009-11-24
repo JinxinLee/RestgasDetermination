@@ -275,21 +275,6 @@ class PndDrcPhoton
   */
   void Reflect(const XYZVector& normal);
 
-  /*! \brief Reflect diffusely the photon
-    \param normal The normal vector of the surface.
-    \sa Diffuse()
-  */
-  void Diffuse(const XYZVector& normal);
-
-  /*! \brief Fresnel reflection
-    \param normal The normal vector of the surface.
-    \param n_inside The refractive index of the current medium
-    \param ex_inside The extinction coefficient of the current medium
-    \param n_outside The refractive index of or the next volume or the vacuum outside.
-    \param ex_outside The extinction coefficient of or the next volume or the vacuum outside.
-    \sa Fresnel()
-  */
-  bool Fresnel(XYZVector normal, double n_in, double ex_in, double n_out=1.0, double ex_out=0.0);
 
 
   /*! \brief Write photon coordinates to stream in root syntax.
@@ -339,11 +324,28 @@ class PndDrcPhoton
   double           fTime;                          //!< Time of flight.
   int              fReflectionLimit;               //!< Reflection limit.
   bool             fPrintFlag;                     //!< Print flag, by default true
+  TRandom3         fRan;                           //!< Random generator.
 
 
   /*! \brief Copy function for assigment and copy operator.
     \param ph The photon
   */
   void Copy(const PndDrcPhoton& ph);
+
+  /*! \brief Fresnel reflection
+    \param normal The normal vector of the surface.
+    \param n_inside The refractive index of the current medium
+    \param ex_inside The extinction coefficient of the current medium
+    \param n_outside The refractive index of or the next volume or the vacuum outside.
+    \param ex_outside The extinction coefficient of or the next volume or the vacuum outside.
+    \sa Fresnel()
+  */
+  bool Fresnel(XYZVector normal, double n_in, double ex_in, double n_out=1.0, double ex_out=0.0);
+  /*! \brief Reflect diffusely the photon
+    \param normal The normal vector of the surface.
+    \sa Diffuse()
+  */
+  void Diffuse(const XYZVector& normal);
+
 };
 #endif

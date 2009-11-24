@@ -26,7 +26,7 @@ using namespace TMath;
 #include "TRandom.h"
 
 
-static TRandom grandi; // not a fine solution ?
+//static TRandom grandi; // not a fine solution ?
 
 
 //----------------------------------------------------------------------
@@ -71,6 +71,8 @@ void PndDrcPhoton::Copy(const PndDrcPhoton& ph)
   fDev              = ph.fDev;
   fReflectionLimit  = ph.fReflectionLimit;
   fPrintFlag        = ph.fPrintFlag;
+  fRan              = ph.fRan;
+  
 }
 //----------------------------------------------------------------------
 PndDrcPhoton::PndDrcPhoton(const PndDrcPhoton& ph)
@@ -154,7 +156,7 @@ bool PndDrcPhoton::Refract(XYZVector normal, double n1, double ex1, double n2, d
 
   if( reflect ) // reflect photon
   {
-    double random = grandi.Uniform(0.0,1.0);
+    double random = fRan.Uniform(0.0,1.0);
 
     refract_flag = false;
 
@@ -250,8 +252,8 @@ void PndDrcPhoton::Diffuse(const XYZVector& normal)
     double angle = ACos( normal1.Dot(zUnit) / ( Sqrt(normal1.Mag2()) * Sqrt(zUnit.Mag2()) ) );
     XYZVector rotAxis = zUnit.Cross(normal1).Unit(); // usually Unit() is not necessary
 
-    double costheta = grandi.Uniform(0.0,1.0);
-    double phi = grandi.Uniform(0.0,2*Pi());
+    double costheta = fRan.Uniform(0.0,1.0);
+    double phi = fRan.Uniform(0.0,2*Pi());
 
     XYZVector newf( Cos(phi) * Sqrt(1 - costheta*costheta), Sin(phi) * Sqrt(1 - costheta*costheta), costheta);
 //     newf *= Sqrt(fDirection.Mag2());
@@ -313,7 +315,7 @@ bool PndDrcPhoton::Fresnel(XYZVector normal, double n1, double ex1, double n2, d
   double refl_p = TMath::Power( TComplex::Abs( fresnel_p ), 2 );
 
 
-  double random = grandi.Uniform(0.0,1.0);
+  double random = fRan.Uniform(0.0,1.0);
 //     cout << "random: " << random << endl;
   double reflProb = refl_s * random + refl_p * (1-random);
 
@@ -336,7 +338,7 @@ bool PndDrcPhoton::Fresnel(XYZVector normal, double n1, double ex1, double n2, d
 //     random = random/32767;
 
 
-  random = grandi.Uniform(0.0,1.0);
+  random = fRan.Uniform(0.0,1.0);
 
 //     cout << "refl. probability: " << reflProb << "  random: " << random << "  inci: " << (inci/TMath::Pi()*180) //<< endl;
 //             << "  refr: " << refr << "  refl_s: " << refl_s << "  refl_p: " << refl_p << endl;
