@@ -25,6 +25,7 @@
 #include "TVector3.h"
 #include "TRotation.h"				
 #include "TGeoMatrix.h"		
+#include "TMath.h"
 		
 //#include <vector>
 #include <iostream>
@@ -39,32 +40,43 @@ using namespace std;
 
 PndEmcXtal::PndEmcXtal(const PndEmcTwoCoordIndex *id, const TGeoTrap &trap, const TVector3 &pos, const TGeoRotation &rot):
        fTCIIndex(id),
-       fTrap(trap)
+       fTrap(trap),
+       fRotation(rot),
+       fCentre(pos)
 {
 	// calculate length of the crystal
 	fLength=trap.GetDz()*2;
-	// Obtain unitary vector in the direction of crystal in calorimeter
-	Double_t unit[3]={0,0,1};
-	Double_t unit_rotated[3];
-	// rotate unitary vector
-	rot.LocalToMaster(unit,unit_rotated);
-	TVector3 unit_vector(unit_rotated[0],unit_rotated[1],unit_rotated[2]);
-	fCentre = pos;
-	//  case of backward endcup is considered separetly
-	Int_t crystal_id = id->Index();
-	
-	// TODO I suppose that module should be obtained in the way independent on crystal numbering scheme, but it's not clear how at the moment
-	Int_t module = crystal_id/100000000;
-	
-	if (module==4){
-		fFrontCentre = pos+0.5*fLength*unit_vector;
-		fNormalToFrontFace = -1.*unit_vector;
-	} else {
-		fFrontCentre = pos-0.5*fLength*unit_vector;
-		fNormalToFrontFace = unit_vector;
-	}
-	
-	
+
+    // Obtain vector to trapezoid front face center.
+
+    Double_t tx = TMath::Tan(trap.GetTheta() * TMath::DegToRad())
+        * TMath::Cos(trap.GetPhi() * TMath::DegToRad());
+    Double_t ty = TMath::Tan(trap.GetTheta() * TMath::DegToRad())
+        * TMath::Sin(trap.GetPhi() * TMath::DegToRad());
+    
+    Double_t axis[3] = { trap.GetDz() * tx, trap.GetDz() * ty, trap.GetDz() };
+    Double_t axis_rotated[3]; rot.LocalToMaster(axis, axis_rotated);
+    TVector3 axis_vector(axis_rotated);
+
+    // Obtain unitary vector normal to trapezoid front face.
+
+    Double_t normal[3] = { 0.0, 0.0, 1.0 };
+    Double_t normal_rotated[3]; rot.LocalToMaster(normal, normal_rotated);
+    TVector3 normal_vector(normal_rotated);
+
+	if (pos.Dot(axis_vector) < 0.0) {
+        //cout << "Crystal orientation in module " << id->Index() / 100000000
+        //    << " +dz" << endl;
+
+        fFrontCentre = pos + axis_vector;
+		fNormalToFrontFace = -1.0 * normal_vector;
+    } else {
+        //cout << "Crystal orientation in module " << id->Index() / 100000000
+        //    << " -dz" << endl;
+
+        fFrontCentre = pos - axis_vector;
+		fNormalToFrontFace = +1.0 * normal_vector;
+    }
 }
 
 //--------------
@@ -123,6 +135,18 @@ const TVector3&
 PndEmcXtal::normalToFrontFace() const
 {
   return fNormalToFrontFace;
+}
+
+const TGeoTrap&
+PndEmcXtal::geometry() const
+{
+  return fTrap;
+}
+
+const TGeoRotation&
+PndEmcXtal::rotation() const
+{
+  return fRotation;
 }
 
 double

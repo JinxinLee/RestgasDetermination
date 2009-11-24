@@ -24,11 +24,8 @@
 //#include <vector>
 #include "TVector3.h"
 #include "TGeoArb8.h"
+#include "TGeoMatrix.h"
 
-class TVector3;
-class TGeoTrap;
-class TGeoRotation;
-class TRotation;
 class PndEmcTwoCoordIndex;
 
 
@@ -55,6 +52,8 @@ public:
   const TVector3& centre() const;
   const TVector3& frontCentre() const;
   const TVector3& normalToFrontFace() const ;
+  const TGeoTrap& geometry() const;
+  const TGeoRotation& rotation() const;
 
   double npAngle() const;
 
@@ -63,6 +62,7 @@ private:
   const PndEmcTwoCoordIndex* fTCIIndex;//!
   double fLength; // length of the crystal 
   const TGeoTrap fTrap;
+  const TGeoRotation fRotation;
   TVector3 fCentre;
   TVector3 fFrontCentre;
   TVector3 fNormalToFrontFace;

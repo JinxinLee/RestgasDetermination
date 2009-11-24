@@ -125,26 +125,70 @@ PndEmcStructure::PndEmcStructure(TGeoManager *geoMan)
 		geoRot.SetMatrix(crystal_matrix->GetRotationMatrix());
 		
 		PndEmcXtal *xtal;
-		if (module==5) {
-			TGeoBBox *box = (TGeoBBox *) node->GetVolume()->GetShape();
-			
-			TGeoTrap crystal_shape(box->GetDZ(), 0, 0,
-			box->GetDY(), box->GetDX(), box->GetDX(), 0,
-			box->GetDY(), box->GetDX(), box->GetDX(), 0);
 
-			xtal=new PndEmcXtal(tci,crystal_shape,pos,geoRot);
-		}
-		else{
+        // Check the geometry type and convert to TGeoTrap.
+
+        TString shapeType = node->GetVolume()->GetShape()->ClassName();
+        if (shapeType == "TGeoTrap") {
+            TGeoTrap *trap = dynamic_cast<TGeoTrap *>(
+                node->GetVolume()->GetShape());
+            
+            xtal = new PndEmcXtal(tci, *trap, pos, geoRot);
+        } else if (shapeType == "TGeoArb8") {
+            TGeoArb8 *arb8 = dynamic_cast<TGeoArb8 *>(
+                node->GetVolume()->GetShape());
+
+            // Approximate the shape with a TGeoTrap.
+
+            Double_t *verts = arb8->GetVertices();
+            
+            Double_t dz = arb8->GetDz();
+            Double_t tx = (verts[4*2+0] + verts[5*2+0] + verts[6*2+0] + verts[7*2+0] - verts[0*2+0] - verts[1*2+0] - verts[2*2+0] - verts[3*2+0]) / (2 * 4 * dz);
+            Double_t ty = (verts[4*2+1] + verts[5*2+1] + verts[6*2+1] + verts[7*2+1] - verts[0*2+1] - verts[1*2+1] - verts[2*2+1] - verts[3*2+1]) / (2 * 4 * dz);
+            
+            Double_t thetac = TMath::ATan(TMath::Sqrt(tx*tx + ty*ty)) * TMath::RadToDeg();
+            Double_t phic = TMath::ATan2(ty, tx) * TMath::RadToDeg();
+            
+            Double_t h1 = (verts[1*2+1] + verts[2*2+1] - verts[0*2+1] - verts[3*2+1])/(2*2);
+            Double_t bl1 = (verts[3*2+0] - verts[0*2+0]) / 2;
+            Double_t tl1 = (verts[2*2+0] - verts[1*2+0]) / 2;
+            Double_t alpha1 = TMath::ATan((verts[1*2+0]+verts[2*2+0]-verts[0*2+0]-verts[3*2+0])/(2*2*h1)) * TMath::RadToDeg();
+            
+            Double_t h2 = (verts[5*2+1] + verts[6*2+1] - verts[4*2+1] - verts[7*2+1])/(2*2);
+            Double_t bl2 = (verts[7*2+0] - verts[4*2+0]) / 2;
+            Double_t tl2 = (verts[6*2+0] - verts[5*2+0]) / 2;
+            Double_t alpha2 = TMath::ATan((verts[5*2+0]+verts[6*2+0]-verts[4*2+0]-verts[7*2+0])/(2*2*h2)) * TMath::RadToDeg();
+            
+            TGeoTrap crystal_shape(dz, thetac, phic,
+                h1, bl1, tl1, alpha1,
+                h2, bl2, tl2, alpha2);
+            
+            // Check the conversion.
+            //Double_t *verts2 = crystal_shape.GetVertices();
+            //for (size_t i = 0; i < 8; ++i) {
+            //    if (TMath::Abs(verts[i*2+0] - verts2[i*2+0]) > 1e-8
+            //        || TMath::Abs(verts[i*2+1] - verts2[i*2+1]) > 1e-8) {
+            //        cout << "TGeoArb8 conversion bad in module " << module << "  " << "   x " << verts[i*2+0] << "->" << verts2[i*2+0] << "     y "  << verts[i*2+1] << "->" << verts2[i*2+1] << endl;
+            //    }
+            //}
+            
+            xtal = new PndEmcXtal(tci, crystal_shape, pos, geoRot);
+        } else if (shapeType == "TGeoBBox") {
+            TGeoBBox const *box = dynamic_cast<TGeoBBox const*>(
+                node->GetVolume()->GetShape());
 			
-			TGeoTrap *trap1 = (TGeoTrap*) node->GetVolume()->GetShape();
-			
-			TGeoTrap crystal_shape(trap1->GetDz(), trap1->GetTheta(), trap1->GetPhi(),
-			trap1->GetH1(), trap1->GetBl1(), trap1->GetTl1(), trap1->GetAlpha1(),
-			trap1->GetH2(), trap1->GetBl2(), trap1->GetTl2(), trap1->GetAlpha2());
-			xtal=new PndEmcXtal(tci,crystal_shape,pos,geoRot);
-		}
-		
-		fTciXtalMap[tci]=xtal;
+            // Convert to TGeoTrap.
+            TGeoTrap crystal_shape(box->GetDZ(), 0, 0,
+                box->GetDY(), box->GetDX(), box->GetDX(), 0,
+                box->GetDY(), box->GetDX(), box->GetDX(), 0);
+            
+            xtal = new PndEmcXtal(tci,crystal_shape,pos,geoRot);
+        } else {
+            cout << "Unknown geometry type " << shapeType << endl;
+            abort();
+        }
+
+        fTciXtalMap[tci]=xtal;
    }
 }
 
