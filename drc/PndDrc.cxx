@@ -340,12 +340,12 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
 		fTime  = gMC->TrackTime() * 1.0e09;
 		fLength = gMC->TrackLength();
 		//Int_t  copyNo = vol->getCopyNo();
-		Int_t s, b; //side and bar
+		Int_t s, b, sd; //side and bar and side design
 		TString path = gMC->CurrentVolPath();     
 		if (fVerboseLevel >0) cout<< "Volume: " << gMC->CurrentVolPath() << endl;
 		//  cout << path << endl;    
-		sscanf(path, "/cave_1/DrcBase_1/DrcSide_%d/DrcBox_1/DrcBarContainer_%d/DrcBar_1", &s, &b);
-		fNBar = s*10 +b;
+		sscanf(path, "/cave_1/DrcBase_1/DrcSide%d_%d/DrcBox_1/DrcBarContainer_%d/DrcBar_1", &sd, &s, &b);
+		fNBar = sd*1000 + s*10 +b;
 		gMC->TrackMomentum(fMom); // GeV/c
 		//    Double_t r = 49.7;
 		//     Double_t phi = acos(fPos.X()/r);
@@ -556,7 +556,7 @@ void PndDrc::ConstructGeometry()
   cout<<" DIRC min. radius = "<<radius-hthick<<endl;
   cout<<" DIRC max. radius = "<<rad_out+2*hthick<<endl;
   TGeoBBox* logicSide = new TGeoBBox("logicSide", lside/2, hthick, bbox_hlen);
-  TGeoVolume *side = new TGeoVolume("DrcSide",logicSide, gGeoManager->GetMedium("DIRCairNoSens"));
+  TGeoVolume *side = new TGeoVolume("DrcSide0",logicSide, gGeoManager->GetMedium("DIRCairNoSens"));
   // 2 special sides where slabs will be missing:
   TGeoBBox* logicSide1 = new TGeoBBox("logicSide1", lside/2, hthick, bbox_hlen);
   TGeoVolume *side1 = new TGeoVolume("DrcSide1",logicSide1, gGeoManager->GetMedium("DIRCairNoSens"));

@@ -141,29 +141,15 @@ void PndDrcHitProducerIdeal::Exec(Option_t* option)
 
     if (pt->GetThetaC() != -1. && beta > 1/1.47){  
     fDetectorID = pt->GetNBar();
-  
-    // calculate the center of the bars from teh detectorID
-    Int_t s = ((fDetectorID % 1000 - fDetectorID % 10)/10)-1;
-    Int_t b =  (fDetectorID % 10)-1;
-
-    Double_t rad = TMath::Pi()/180.;
-    Double_t lside = 18.7286709135483108; //side length (cm) 
-    Double_t r = 48.85;
-    Double_t phis = (s*22.5+270 )*rad; // 22.5 degrees are 360/16
-    Double_t Xs =  r*cos(phis);
-    Double_t Ys = r*sin(phis);
-    Double_t thts = phis- TMath::Pi()/2;
-    Double_t Xb =  (5*lside/12 - (lside/6)*(b))*cos(thts);
-    Double_t Yb =  (5*lside/12 - (lside/6)*(b))*sin(thts);
-   
-    Double_t fXHit = Xs+Xb;
-    Double_t fYHit = -(Ys+Yb);
-    Double_t fZHit = 0.;
- 
-    //  cout << "hit phi: "<< acos(fXHit/r) << endl;
+     
+    Char_t buffer[255];
+    sprintf(buffer, "/cave_1/DrcBase_1/DrcSide%d_%d/DrcBox_1/DrcBarContainer_%d/DrcBar_1", pt->GetDSide(), pt->GetSide(), pt->GetBox());
+    gGeoManager->cd();
+    Double_t local[3] = {0., 0., 0.};
+    Double_t master[3];
+    gGeoManager->LocalToMaster(local, master);
+    fPosHit.SetXYZ(master[0], master[1], master[2]);
     
-    fPosHit.SetXYZ(fXHit,fYHit,fZHit);
-
     Double_t fDPosXHit = 0.5; //mm
     Double_t fDPosYHit = 0.5;
     Double_t fDPosZHit = 0.;
