@@ -43,6 +43,9 @@ class PndDrcBarPoint : public FairMCPoint
   Double_t GetAngIn()      const { return fAngIn; };
   Double_t GetThetaC()     const { return fThetaC; };
   Int_t    GetNBar()       const { return fNBar;};
+  Int_t    GetDSide()      const { return (fNBar/1000);};
+  Int_t    GetSide()       const { return ((fNBar%1000)/10);};
+  Int_t    GetBox()        const { return (fNBar%10);};
   Double_t GetMass()       const { return fMass;};
 
 
