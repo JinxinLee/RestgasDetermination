@@ -5,7 +5,8 @@ ${ROOT_INCLUDE_DIR}
 ${GEANT3_INCLUDE_DIR}
 ${CMAKE_SOURCE_DIR}/geobase 
 ${CMAKE_SOURCE_DIR}/parbase 
-${CMAKE_SOURCE_DIR}/base 
+${CMAKE_SOURCE_DIR}/base
+${CMAKE_SOURCE_DIR}/pndbase/PndStdUtils 
 ${CMAKE_SOURCE_DIR}/field 
 ${CMAKE_SOURCE_DIR}/trackbase 
 ${CMAKE_SOURCE_DIR}/passive

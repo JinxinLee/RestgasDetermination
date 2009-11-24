@@ -7,6 +7,7 @@
 #include "PndTofHit.h"
 #include "PndEmcBump.h"
 #include "PndEmcDigi.h"
+#include "PndEmcDataTypes.h"
 #include "PndEmcStructure.h"
 #include "PndEmcXtal.h"
 #include "PndMvdHit.h"
@@ -541,7 +542,8 @@ void PndLhePidMaker::GetEmcInfo(PndLhePidTrack* track) {
 	      vertex.SetXYZ(-10000, -10000, -10000);
 	    }
 
-	  std::map<PndEmcTwoCoordIndex*, PndEmcXtal*> tciXtalMap=PndEmcStructure::Instance()->GetTciXtalMap();
+	  //std::map<PndEmcTwoCoordIndex*, PndEmcXtal*> tciXtalMap=PndEmcStructure::Instance()->GetTciXtalMap();
+          PndEmcTciXtalMap tciXtalMap=PndEmcStructure::Instance()->GetTciXtalMap();
 	  PndEmcDigi *lDigi= (PndEmcDigi*)emcHit->Maxima();
 	  PndEmcXtal* xtal = tciXtalMap[lDigi->GetTCI()];
 	  emcPos = xtal->frontCentre();
