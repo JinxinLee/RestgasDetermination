@@ -198,10 +198,6 @@ class PndDrcPhoton
    */
   XYZVector OriginDirection() const {return fOriginDirection;};
 
-  /*! \brief Set normalized origin direction (at photon production)
-    \param dir Origin direction.
-   */
-  void SetOriginDirection(const XYZVector& org) {fOriginDirection=org.Unit();};
 
 
   /*! \brief Cherenkov angle
@@ -209,31 +205,17 @@ class PndDrcPhoton
   */
   double ThetaC() const {return fThetaC;};
 
-  /*! \brief Set Cherenkov angle
-  \param theta Cherenkov angle.
-  */
-  void SetThetaC(double thetac){fThetaC=thetac;};
 
   /*! \brief Cherenkov (polar) angle
   \return Cherenkov (polar) angle
   */
   double PhiC() const {return fPhiC;};
 
-  /*! \brief Set Cherenkov (polar) angle
-  \param phi Cherenkov (polar) angle.
-  */
-  void SetPhiC(double phic){fPhiC=phic;};
-
 
   /*! \brief Wavelength
     \return Wavelength in nm.
   */
   double Wavelength() const {return fLambda;};
-
- /*! \brief Set wavelength
-  \param lambda Wavelength in nm.
-  */
-  void SetWavelength(double lambda){fLambda=lambda;};
 
 
   /*! \brief Device where photon is
@@ -250,10 +232,6 @@ class PndDrcPhoton
     \return Time of flight in [ns].
   */
   double Time() const {return fTime;};
- /*! \brief Set time of photon
-  \param tim The time.
-  */
-  void SetTime(double tim){fTime=tim;};
 
 
   /*! \brief Handles refraction and reflection of photon.
@@ -303,6 +281,8 @@ class PndDrcPhoton
   */
   void SetPrintFlag(bool flg){fPrintFlag=flg;};
 
+  friend class PndDrcOptDevManager;
+  
 
  private:
   int              fParticleIDnumber;              //!< Associated particle
@@ -346,6 +326,33 @@ class PndDrcPhoton
     \sa Diffuse()
   */
   void Diffuse(const XYZVector& normal);
+
+  /*! \brief Set Cherenkov angle
+  \param theta Cherenkov angle.
+  */
+  void SetThetaC(double thetac){fThetaC=thetac;};
+
+  /*! \brief Set Cherenkov (polar) angle
+  \param phi Cherenkov (polar) angle.
+  */
+  void SetPhiC(double phic){fPhiC=phic;};
+
+  /*! \brief Set normalized origin direction (at photon production)
+    \param dir Origin direction.
+   */
+  void SetOriginDirection(const XYZVector& org) {fOriginDirection=org.Unit();};
+
+ /*! \brief Set wavelength
+  \param lambda Wavelength in nm.
+  */
+  void SetWavelength(double lambda){fLambda=lambda;};
+
+ /*! \brief Set time of photon
+  \param tim The time.
+  */
+  void SetTime(double tim){fTime=tim;};
+
+
 
 };
 #endif

@@ -4,6 +4,7 @@
 //
 // created 2007
 //-----------------------------------------------------
+#include "PndDrcOptDevManager.h"
 #include "PndDrcPhoton.h"
 
 #include "PndDrcOptMatAbs.h"
