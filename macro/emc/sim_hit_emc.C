@@ -73,8 +73,11 @@
   fRun->AddModule(Tof);
 
   PndMdt *Muo = new PndMdt("MDT",kTRUE);
-  Muo->SetMdtVersion("torino");
-  Muo->SetGeometryFileName("muopars.root");
+  Muo->SetBarrel("torino");
+  Muo->SetEndcap("torino");
+  Muo->SetMuonFilter("torino");
+  Muo->SetMdtMagnet(kTRUE);
+  Muo->SetMdtMFIron(kTRUE);
   fRun->AddModule(Muo);
 
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
@@ -121,12 +124,7 @@
 	
   fRun->SetField(fField);
   
-  /**
-     Add Hit producer task to the simulation 
-  */
-  PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
-  fRun->AddTask(emcHitProd);
-	
+  	
   /**Set the digitization parameters */
   
   TString emcDigiFile = gSystem->Getenv("VMCWORKDIR");
@@ -143,6 +141,15 @@
   FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   output->open("simparams.root");
   rtdb->setOutput(output);
+  
+  
+  
+  /**
+     Add Hit producer task to the simulation 
+  */
+  PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
+  fRun->AddTask(emcHitProd);
+  
   
   /**Initialize the session*/
   fRun->Init();

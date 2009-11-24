@@ -46,14 +46,19 @@
 	emcDigiFile += "/macro/params/";
 	emcDigiFile += digiFile;
 
+        TString parFile = "simparams.root"; 
+
 	FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
 	FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
 	parIo1->open(emcDigiFile.Data(),"in");
+        FairParRootFileIo* parInput1 = new FairParRootFileIo();
+        parInput1->open(parFile.Data());
+	
+	
 	rtdb->setFirstInput(parIo1);
+        rtdb->setSecondInput(parInput1);
   
-	// ----------------------------------------------------
-	fRun->LoadGeometry();
-   // ----------------------------------------------------
+  // ----------------------------------------------------
   
 	PndEmcHitsToWaveform* emcHitsToWaveform= new PndEmcHitsToWaveform();
 	PndEmcWaveformToDigi* emcWaveformToDigi=new PndEmcWaveformToDigi();

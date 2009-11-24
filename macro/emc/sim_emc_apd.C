@@ -14,7 +14,7 @@
   FairRunSim *fRun = new FairRunSim();
 
   // Set the number of events
-  Int_t nEvents = 1000; 
+  Int_t nEvents = 10; 
 
   // set the MC version used
   // ------------------------
@@ -62,8 +62,11 @@
   fRun->AddModule(Tof);
 
   PndMdt *Muo = new PndMdt("MDT",kTRUE);
-  Muo->SetMdtVersion("torino");
-  Muo->SetGeometryFileName("muopars.root");
+  Muo->SetBarrel("torino");
+  Muo->SetEndcap("torino");
+  Muo->SetMuonFilter("torino");
+  Muo->SetMdtMagnet(kTRUE);
+  Muo->SetMdtMFIron(kTRUE);
   fRun->AddModule(Muo);
 
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);

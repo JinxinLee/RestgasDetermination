@@ -13,8 +13,8 @@
 	Int_t nEvents = 0;  // if 0 all the vents will be processed
 	
 	// Parameter file
-	TString parFile = "simparams.root"; // at the moment you do not need it
-  
+	TString parFile = "simparams.root"; // The geometry is here! (M. Al-Turany)
+	
 	// Digitisation file (ascii)
 	TString digiFile = "emc.par";
   
@@ -54,11 +54,6 @@
 	rtdb->setSecondInput(parIo1);
     // ----------------------------------------------------------
   
-	fRun->LoadGeometry();
-  // ------------------------------------------------------------------------
-
-
-
 
   // -----   EMC hit producers   ---------------------------------
   // The file name should be the same of the geometry file which was used for the simulation
