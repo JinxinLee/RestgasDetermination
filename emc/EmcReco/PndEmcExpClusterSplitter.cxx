@@ -47,6 +47,7 @@
 #include "PndEmcDigi.h"
 #include "PndEmcSharedDigi.h"
 #include "PndEmcXtal.h"
+#include "PndEmcDataTypes.h"
 using std::endl;
 
 //----------------
@@ -89,7 +90,7 @@ PndEmcExpClusterSplitter::PndEmcExpClusterSplitter(PndEmcExpClusterSplitterData 
 
 PndEmcExpClusterSplitter::~PndEmcExpClusterSplitter(){}
 
-void PndEmcExpClusterSplitter::splitCluster(const std::set<PndEmcTwoCoordIndex*> &theMaximaDigis, 
+void PndEmcExpClusterSplitter::splitCluster(const PndEmcCoordIndexSet &theMaximaDigis, 
 					    const PndEmcCluster * const theCluster, Int_t clusterIndex,
 					    std::vector<PndEmcBump*> &theBumpList) const
 {
@@ -114,7 +115,7 @@ void PndEmcExpClusterSplitter::splitCluster(const std::set<PndEmcTwoCoordIndex*>
     // in this case, we clearly have a cluster, but no bumps to speak of.  
     // Make 1 bump with weights all equal to 1
     
-    EmcDigiPtrDict::const_iterator theDigiIterator;//=theCluster->MemberDigiMap()->begin();
+    PndEmcDigiPtrDict::const_iterator theDigiIterator;//=theCluster->MemberDigiMap()->begin();
     
     PndEmcBump* theNewBump = new PndEmcBump(); 
     theNewBump->MadeFrom(clusterIndex);
@@ -137,7 +138,7 @@ void PndEmcExpClusterSplitter::splitCluster(const std::set<PndEmcTwoCoordIndex*>
     std::map<PndEmcTwoCoordIndex*, PndEmcBump*> theIndexedBumps;
     std::map<PndEmcTwoCoordIndex*, TVector3*> theAllDigiPoints;
     
-    EmcDigiPtrDict *theDigiDict = (EmcDigiPtrDict *)(theCluster->MemberDigiMap());
+    PndEmcDigiPtrDict *theDigiDict = (PndEmcDigiPtrDict *)(theCluster->MemberDigiMap());
     
     double totalEnergy=0;
     
@@ -157,7 +158,7 @@ void PndEmcExpClusterSplitter::splitCluster(const std::set<PndEmcTwoCoordIndex*>
       //++theMaximaDigisIterator;
     }
 
-    EmcDigiPtrDict::iterator theAllDigisIterator;// = (*theDigiDict).begin();
+    PndEmcDigiPtrDict::iterator theAllDigisIterator;// = (*theDigiDict).begin();
     
     // This loop works out the location of all the digis in the
     // cluster int numberOfDigis = theDigiDict->size();
@@ -200,8 +201,8 @@ void PndEmcExpClusterSplitter::splitCluster(const std::set<PndEmcTwoCoordIndex*>
       std::map<PndEmcTwoCoordIndex*, PndEmcBump*>::iterator theBumpKiller = theIndexedBumps.begin();
       while(theBumpKiller != theIndexedBumps.end()){
 	PndEmcBump *lambToSlaughter = theBumpKiller->second;
-	EmcDigiPtrDict *digiList =  (EmcDigiPtrDict *)(lambToSlaughter->MemberDigiMap());
-	EmcDigiPtrDict::iterator digiKiller = (*digiList).begin();
+	PndEmcDigiPtrDict *digiList =  (PndEmcDigiPtrDict *)(lambToSlaughter->MemberDigiMap());
+	PndEmcDigiPtrDict::iterator digiKiller = (*digiList).begin();
 	while (digiKiller != (*digiList).end()) {
 	  delete digiKiller->second;
 	  ++digiKiller;

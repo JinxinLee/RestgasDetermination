@@ -13,15 +13,14 @@
 #define PNDEMCCLUSTERLINEARPOS_H
 
 #include "TObject.h"
-#include <map>
-//#include <vector>
+#include "PndEmcDataTypes.h"
+
 		
 class TVector3;
 class PndEmcCluster;
 class PndEmcTwoCoordIndex;
 class PndEmcDigi;
 
-typedef std::map<PndEmcTwoCoordIndex*, PndEmcDigi*> PndEmcDigiPtrDict;
 
 class PndEmcClusterLinearPos
 {

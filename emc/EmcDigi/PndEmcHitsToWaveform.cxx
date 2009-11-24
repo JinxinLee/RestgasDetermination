@@ -23,6 +23,7 @@
 #include "PndEmcMapper.h"
 #include "PndEmcStructure.h"
 #include "PndEmcDigiPar.h"		
+#include "PndEmcDataTypes.h"
 
 #include "FairRootManager.h"
 #include "FairRunAna.h"
@@ -176,8 +177,8 @@ void PndEmcHitsToWaveform::Exec(Option_t* opt)
 	for (Int_t iWf=0; iWf<nWf; iWf++) {
 		theWaveform = (PndEmcWaveform*) fWaveformArray->At(iWf);
 		PndEmcTwoCoordIndex* theIndex=theWaveform->GetTCI();
-		PndEmcNeighbourStore theNeighbourStore=theIndex->GetNeighbours();
-		PndEmcNeighbourStore::iterator theNeighbourIterator;
+		PndEmcCoordIndexSet theNeighbourStore=theIndex->GetNeighbours();
+		PndEmcCoordIndexSet::iterator theNeighbourIterator;
 		PndEmcTwoCoordIndex *theNeighbourIndex;
 		for (theNeighbourIterator = theNeighbourStore.begin(); theNeighbourIterator != theNeighbourStore.end(); ++theNeighbourIterator )  {
 			theNeighbourIndex = (PndEmcTwoCoordIndex*)(*theNeighbourIterator); 

@@ -20,7 +20,6 @@
 //======================================================================
 
 #include "PndEmcTwoCoordIndex.h"
-#include "PndEmcNeighbourStore.h"
 #include <iostream>
 #include "math.h"
 
@@ -53,10 +52,19 @@ PndEmcTwoCoordIndex::~PndEmcTwoCoordIndex()
 }
 
 //-------------
+// Operators --
+//-------------
+bool
+PndEmcTwoCoordIndex::operator<( const PndEmcTwoCoordIndex& compare ) const
+{
+  bool answer = (fIndex < compare.fIndex);
+  return answer;
+}
+
+//-------------
 // Methods   --
 //-------------
-
-const PndEmcNeighbourStore
+const PndEmcCoordIndexSet
 PndEmcTwoCoordIndex::GetNeighbours() const
 {
    return fNeighbours;

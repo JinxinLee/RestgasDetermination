@@ -54,7 +54,7 @@ PndEmcClusterLinearPos::linearWhere( const PndEmcCluster *aClus )
 	
 	PndEmcDigiPtrDict::iterator lDigiIter = (*lDigis).begin();
 	
-	std::map<PndEmcTwoCoordIndex*, PndEmcXtal*> const &tciXtalMap=PndEmcStructure::Instance()->GetTciXtalMap();
+	PndEmcTciXtalMap const &tciXtalMap=PndEmcStructure::Instance()->GetTciXtalMap();
 	
 	while(lDigiIter != (*lDigis).end())
 	{

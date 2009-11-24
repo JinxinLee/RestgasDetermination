@@ -511,7 +511,8 @@ PndEmcStructure::locateIndex( double theta, double phi ) const
 	PndEmcTwoCoordIndex *tci;
 	double diff=1000;
 	     
-	std::map <PndEmcTwoCoordIndex*, PndEmcXtal*>::const_iterator iter=fTciXtalMap.begin();
+// 	std::map <PndEmcTwoCoordIndex*, PndEmcXtal*>::const_iterator iter=fTciXtalMap.begin();
+        PndEmcTciXtalMap::const_iterator iter=fTciXtalMap.begin();
 	while(iter!=(fTciXtalMap).end())
 	{
 		TVector3 vec2= ((*iter).second)->frontCentre();
@@ -541,7 +542,8 @@ void PndEmcStructure::Print(string filename, Int_t option) const
 		TVector3 centre, front_centre;
 		double theta_c, theta_f, phi_c, phi_f;
 		double dTheta, dPhi;
-		std::map <PndEmcTwoCoordIndex*, PndEmcXtal*>::const_iterator iter=fTciXtalMap.begin();
+// 		std::map <PndEmcTwoCoordIndex*, PndEmcXtal*>::const_iterator iter=fTciXtalMap.begin();
+		PndEmcTciXtalMap::const_iterator iter=fTciXtalMap.begin();
 		PndEmcTwoCoordIndex *tci;
 		while(iter!=(fTciXtalMap).end())
 		{
@@ -565,7 +567,8 @@ void PndEmcStructure::Print(string filename, Int_t option) const
 		TVector3 front_centre;
 		TVector3 centre;
 		double x, y, z;
-		std::map <PndEmcTwoCoordIndex*, PndEmcXtal*>::const_iterator iter=fTciXtalMap.begin();
+// 		std::map <PndEmcTwoCoordIndex*, PndEmcXtal*>::const_iterator iter=fTciXtalMap.begin();
+		PndEmcTciXtalMap::const_iterator iter=fTciXtalMap.begin();
 		PndEmcTwoCoordIndex *tci;
 		while(iter!=(fTciXtalMap).end())
 		{

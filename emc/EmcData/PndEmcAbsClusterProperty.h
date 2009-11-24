@@ -20,13 +20,12 @@
 #define PNDEMCABSCLUSTERPROPERTY_H
 
 #include "TObject.h"
-#include <map>
+#include "PndEmcDataTypes.h"
 
 class PndEmcCluster;
 class PndEmcDigi;
 class PndEmcTwoCoordIndex;
 
-typedef std::map<PndEmcTwoCoordIndex*, PndEmcDigi*> PndEmcDigiPtrDict;
 //		---------------------
 // 		-- Class Interface --
 //		---------------------
@@ -57,7 +56,7 @@ private:
 
   // Data members
   const PndEmcCluster& fMyCluster;
-  const PndEmcDigiPtrDict& fMembers;
+  const PndEmcDigiPtrDict& fMembers; 
 
 
 };

@@ -32,7 +32,7 @@
 #include "stdlib.h"
 //#include <vector>
 #include "TObject.h"
-#include "PndEmcNeighbourStore.h"
+#include "PndEmcDataTypes.h"
 
 using std::cout;
 using std::endl;
@@ -54,8 +54,10 @@ public:
 	// Operators
 	bool operator==( const PndEmcTwoCoordIndex& c ) const { return fIndex==c.fIndex; }
 	bool operator!=( const PndEmcTwoCoordIndex& c ) const { return fIndex!=c.fIndex; }
+
+	bool operator<( const PndEmcTwoCoordIndex& ) const;
   
-	virtual const PndEmcNeighbourStore GetNeighbours() const;
+	virtual const PndEmcCoordIndexSet GetNeighbours() const;
 	 
 	long XCoord() const      {return fCoords[0];}
 	long YCoord() const      {return fCoords[1];}
@@ -70,7 +72,7 @@ public:
 protected:
 	long fCoords[2];
 	long fIndex;
-	PndEmcNeighbourStore fNeighbours; 
+	PndEmcCoordIndexSet fNeighbours; 
 
 private:
       

@@ -18,6 +18,7 @@
 
 #include "PndEmcClusterDistances.h"
 #include "PndEmcStructure.h"
+#include "PndEmcDataTypes.h"
 #include "PndEmcTwoCoordIndex.h"
 #include "PndEmcCluster.h"
 #include "PndEmcDigi.h"
@@ -42,8 +43,7 @@ PndEmcAbsClusterProperty( toUse )
 
 	assert(theTCI != 0);  
   
-	std::map<PndEmcTwoCoordIndex*, PndEmcXtal*> const &tciXtalMap=PndEmcStructure::Instance()->GetTciXtalMap();
-
+	PndEmcTciXtalMap const &tciXtalMap=PndEmcStructure::Instance()->GetTciXtalMap();
 	fTheGeom = tciXtalMap.find(theTCI)->second;
   
 	fTheNormalToFrontFace = new TVector3(fTheGeom->normalToFrontFace());
@@ -86,8 +86,7 @@ PndEmcClusterDistances::RadialDistance(const PndEmcDigi * const theDigi)const {
 	TVector3 digiWhere(theDigi->where());
 	TVector3 vecDigiWhere(digiWhere.x(), digiWhere.y(), digiWhere.z());
 
-	std::map<PndEmcTwoCoordIndex*, PndEmcXtal*> const &tciXtalMap=PndEmcStructure::Instance()->GetTciXtalMap();
-
+	PndEmcTciXtalMap const &tciXtalMap=PndEmcStructure::Instance()->GetTciXtalMap();
 	PndEmcXtal *theXtalGeom = tciXtalMap.find(theDigi->GetTCI())->second;
 
   

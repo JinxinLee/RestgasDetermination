@@ -25,8 +25,6 @@
 
 #include "FairTask.h"
 
-#include <set>
-		
 class TClonesArray;
 class TObjectArray;
 class PndEmcDigiPar;
@@ -43,7 +41,6 @@ class PndEmcExpClusterSplitter;
 class PndEmcMakeBump  : public FairTask
 {
 	
-	typedef std::set<PndEmcTwoCoordIndex*> EmcCoordIndexSet;
 	
 public:
 

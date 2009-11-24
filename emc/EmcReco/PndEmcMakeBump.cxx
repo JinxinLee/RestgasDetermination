@@ -29,6 +29,8 @@
 //-------------------------------
 
 #include "PndEmcStructure.h"
+#include "PndEmcDataTypes.h"
+
 #include "PndEmcMapper.h"
 #include "PndEmcDigiPar.h"
 #include "PndEmcRecoPar.h"
@@ -51,8 +53,6 @@
 // C++ Headers --
 //---------------
 #include <iostream>
-//#include <set>
-//#include <vector>
 
 //OpenMP header file
 #ifdef _OPENMP
@@ -153,7 +153,7 @@ void PndEmcMakeBump::Exec(Option_t* opt)
 	   <<fEventCounter<<" **************"<<endl;
   
   int nClusters = fClusterArray->GetEntriesFast();
-  std::set<PndEmcTwoCoordIndex*> tmp_CoordSet_set;
+  PndEmcCoordIndexSet tmp_CoordSet_set;
 #ifdef _OPENMP
   //std::cout << "With OpenMP" << std::endl;
   //omp_set_num_threads(1);
@@ -178,7 +178,7 @@ void PndEmcMakeBump::Exec(Option_t* opt)
     std::vector<PndEmcBump*> theBumps;
 
     theLocalMaxFinder->findMaxima(theCluster, tmp_CoordSet_set);
-    EmcCoordIndexSet emcMaxDigis(tmp_CoordSet_set);
+    PndEmcCoordIndexSet emcMaxDigis(tmp_CoordSet_set);
 
     theClusterSplitter->splitCluster(emcMaxDigis, theCluster, iCluster, theBumps);
     

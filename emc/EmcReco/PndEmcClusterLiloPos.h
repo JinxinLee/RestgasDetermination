@@ -26,7 +26,7 @@
 #define PNDEMCCLUSTERLILOPOS_H
 
 #include "TObject.h"
-#include <map>
+#include "PndEmcDataTypes.h"
 #include <vector>
 		
 class TVector3;
@@ -34,7 +34,6 @@ class PndEmcCluster;
 class PndEmcTwoCoordIndex;
 class PndEmcDigi;
 
-typedef std::map<PndEmcTwoCoordIndex*, PndEmcDigi*> PndEmcDigiPtrDict;
 
 struct PndEmcClusterLiloPosData
 {

@@ -90,18 +90,18 @@ PndEmc2DLocMaxFinder::~PndEmc2DLocMaxFinder()
 // Methods   --
 //-------------
 void PndEmc2DLocMaxFinder::findMaxima( const PndEmcCluster * const theCluster, 
-				       std::set<PndEmcTwoCoordIndex*>& res) const
+				       PndEmcCoordIndexSet& res) const
 {
   // We own the EmcLocMaxInfo objects.  Delete from last time.
   //Clean-up res, We need an empty set to store the results.
   res.clear();
 
-  EmcDigiPtrDict *theClustersDigis = (EmcDigiPtrDict *)theCluster->MemberDigiMap();
+  PndEmcDigiPtrDict *theClustersDigis = (PndEmcDigiPtrDict *)theCluster->MemberDigiMap();
   
-  EmcDigiPtrDict::iterator theDigiIterator = (*theClustersDigis).begin(); 
+  PndEmcDigiPtrDict::iterator theDigiIterator = (*theClustersDigis).begin(); 
   
-  EmcCoordIndexSet allTheNeighbours;
-  EmcCoordIndexSet theNewNeighbours;
+  PndEmcCoordIndexSet allTheNeighbours;
+  PndEmcCoordIndexSet theNewNeighbours;
   
   if (theClustersDigis->size()==1){
     while( theDigiIterator != (*theClustersDigis).end() ){
@@ -123,7 +123,7 @@ void PndEmc2DLocMaxFinder::findMaxima( const PndEmcCluster * const theCluster,
       theNewNeighbours.insert(theTCI);
       
       getNeighbourDigis(allTheNeighbours, theNewNeighbours, 
-			fTheNeighbourLevel,(const EmcDigiPtrDict * const) theClustersDigis);
+			fTheNeighbourLevel,(const PndEmcDigiPtrDict * const) theClustersDigis);
 
       if (isALocalMax(theDigiIterator->second, theCluster, allTheNeighbours)){
 	res.insert(theTCI);
@@ -134,7 +134,7 @@ void PndEmc2DLocMaxFinder::findMaxima( const PndEmcCluster * const theCluster,
 }
 
 bool PndEmc2DLocMaxFinder::isALocalMax( const PndEmcDigi *const theDigi, const PndEmcCluster * const theCluster, 
-					const EmcCoordIndexSet &amongstTheseNeighbours ) const
+					const PndEmcCoordIndexSet &amongstTheseNeighbours ) const
 {
   // Loop over all our neighbours and check to see if the one in hand is a local max
   
@@ -147,15 +147,15 @@ bool PndEmc2DLocMaxFinder::isALocalMax( const PndEmcDigi *const theDigi, const P
     result=false;
   }
   else {
-    EmcCoordIndexSet::const_iterator theNeighbourIterator = amongstTheseNeighbours.begin();
+    PndEmcCoordIndexSet::const_iterator theNeighbourIterator = amongstTheseNeighbours.begin();
     
-    const EmcDigiPtrDict *theClustersDigis = theCluster->MemberDigiMap();
+    const PndEmcDigiPtrDict *theClustersDigis = theCluster->MemberDigiMap();
     
     Double_t numberOFneighbours(0.0);
     Double_t neighbourMaxE(0.0);
     
     while( (theNeighbourIterator !=  amongstTheseNeighbours.end()) && result ){
-      EmcDigiPtrDict::const_iterator position = theClustersDigis->find(*theNeighbourIterator);
+      PndEmcDigiPtrDict::const_iterator position = theClustersDigis->find(*theNeighbourIterator);
       if (position != theClustersDigis->end()) {
 	PndEmcDigi *digi = position->second;
 	double digiE(digi->GetEnergy());
@@ -195,19 +195,19 @@ bool PndEmc2DLocMaxFinder::isALocalMax( const PndEmcDigi *const theDigi, const P
 // 		-- Private Function Member Definitions --
 //		-----------------------------------------
 
-void PndEmc2DLocMaxFinder::getNeighbourDigis( EmcCoordIndexSet &allDigiNeighbours, 
-					      EmcCoordIndexSet &currentDigiNeighbours, 
+void PndEmc2DLocMaxFinder::getNeighbourDigis( PndEmcCoordIndexSet &allDigiNeighbours, 
+					      PndEmcCoordIndexSet &currentDigiNeighbours, 
 					      int neighbourLevel,
-					      const EmcDigiPtrDict * const theClusterDigis ) const
+					      const PndEmcDigiPtrDict * const theClusterDigis ) const
 {
-  EmcCoordIndexSet currentDigisCopy(currentDigiNeighbours);
+  PndEmcCoordIndexSet currentDigisCopy(currentDigiNeighbours);
   currentDigiNeighbours.clear();
-  EmcCoordIndexSet::iterator theCurrentDigiIterator = currentDigisCopy.begin();
-  EmcCoordIndexSet theNextDigiNeighbours;
+  PndEmcCoordIndexSet::iterator theCurrentDigiIterator = currentDigisCopy.begin();
+  PndEmcCoordIndexSet theNextDigiNeighbours;
   
   while ( theCurrentDigiIterator != currentDigisCopy.end() ) {
     PndEmcTwoCoordIndex *theCurrentTCI = *theCurrentDigiIterator;
-    EmcDigiPtrDict::const_iterator theDigiIterator = (*theClusterDigis).begin(); 
+    PndEmcDigiPtrDict::const_iterator theDigiIterator = (*theClusterDigis).begin(); 
     while( theDigiIterator != (*theClusterDigis).end() ) {
       PndEmcTwoCoordIndex *theTCI = theDigiIterator->first;
       //std::cout<<"theTCI->itsIndex() = "<<theTCI->itsIndex()<<std::endl;

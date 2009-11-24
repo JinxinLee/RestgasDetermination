@@ -90,6 +90,17 @@ PndEmcXtal::operator==( const PndEmcXtal& compare ) const
   return answer;
 }
 
+bool
+PndEmcXtal::operator<( const PndEmcXtal& compare ) const
+{
+  bool answer = false;
+
+  if ( *fTCIIndex < *compare.fTCIIndex ) answer=true;
+  else if ( *fTCIIndex == *compare.fTCIIndex && fLength < compare.fLength) answer=true;
+
+  return answer;
+}
+
 const PndEmcTwoCoordIndex*
 PndEmcXtal::myIndex() const
 {

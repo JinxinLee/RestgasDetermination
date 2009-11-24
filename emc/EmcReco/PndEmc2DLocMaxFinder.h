@@ -26,10 +26,9 @@
 #ifndef PNDEMC2DLOCALMAXFINDER_H
 #define PNDEMC2DLOCALMAXFINDER_H
 
-#include <set>
-#include <map>
 		
 #include "TObject.h"
+#include "PndEmcDataTypes.h"
 
 class PndEmcDigi;
 class PndEmcCluster;
@@ -48,8 +47,6 @@ struct PndEmc2DLocMaxFinderData
 
 class PndEmc2DLocMaxFinder{
   
-  typedef std::set<PndEmcTwoCoordIndex*> EmcCoordIndexSet;
-  typedef std::map<PndEmcTwoCoordIndex*, PndEmcDigi*> EmcDigiPtrDict;
   
  public:
   
@@ -67,7 +64,7 @@ class PndEmc2DLocMaxFinder{
   
   // Methods 
   void findMaxima( const PndEmcCluster * const theCluster, 
-		   std::set<PndEmcTwoCoordIndex*>& res) const;
+		   PndEmcCoordIndexSet& res) const;
   
   // Modifiers
   
@@ -75,7 +72,7 @@ class PndEmc2DLocMaxFinder{
   
   // Helper functions
   virtual bool isALocalMax( const PndEmcDigi *const, const PndEmcCluster * const, 
-			    const EmcCoordIndexSet &amongstTheseNeighbours ) const;
+			    const PndEmcCoordIndexSet &amongstTheseNeighbours ) const;
   
   // Test to see whether the given Digi is a local maxima, within the set of
   // crystals given in "amongstTheseNeighbours".  Note that this set need
@@ -85,8 +82,8 @@ class PndEmc2DLocMaxFinder{
   // Copy Constructor
   PndEmc2DLocMaxFinder( const PndEmc2DLocMaxFinder& other);
   // Methods
-  void getNeighbourDigis( EmcCoordIndexSet &, EmcCoordIndexSet &, int,
-			  const EmcDigiPtrDict* const) const;
+  void getNeighbourDigis( PndEmcCoordIndexSet &, PndEmcCoordIndexSet &, int,
+			  const PndEmcDigiPtrDict* const) const;
   
   PndEmcRecoPar*    fRecoPar;      /** Reconstruction parameter container **/
   

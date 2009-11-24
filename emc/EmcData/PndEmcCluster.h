@@ -18,9 +18,9 @@
 #define PNDEMCCLUSTER_H
 
 #include "TObject.h"
+#include "PndEmcDataTypes.h"
 #include "PndEmcClusterLiloPos.h"
 #include "TMatrixD.h"
-#include <map>
 #include <vector>
 		
 class PndEmcClusterLiloPos;
@@ -33,7 +33,6 @@ class PndEmcDigi;
 class PndEmcTwoCoordIndex;
 class TVector3;
 
-typedef std::map<PndEmcTwoCoordIndex*, PndEmcDigi*> PndEmcDigiPtrDict;
 
 class PndEmcCluster : public TObject
 {

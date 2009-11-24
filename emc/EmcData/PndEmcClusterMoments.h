@@ -28,7 +28,6 @@ class TVector3;
 class PndEmcTwoCoordIndex;
 class PndEmcDigi;
 
-typedef std::map<PndEmcTwoCoordIndex*, PndEmcDigi*> PndEmcDigiPtrDict;
 
 class PndEmcClusterMoments: public PndEmcAbsClusterProperty
 {

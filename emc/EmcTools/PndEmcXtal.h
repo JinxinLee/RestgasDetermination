@@ -49,7 +49,7 @@ public:
 
   // Operators
   virtual bool operator==( const PndEmcXtal& compare ) const;
-
+  virtual bool operator<( const PndEmcXtal & compare) const;
   // Accessors (const)
   const PndEmcTwoCoordIndex* myIndex() const;
   const TVector3& centre() const;

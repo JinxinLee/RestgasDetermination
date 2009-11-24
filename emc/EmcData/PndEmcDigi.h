@@ -48,7 +48,7 @@ class PndEmcDigi : public TObject
 
 	virtual bool operator==(const PndEmcDigi & otherDigi) const;
 	virtual bool operator!=(const PndEmcDigi & otherDigi) const;
-
+        virtual bool operator<( const PndEmcDigi & otherDigi) const;
 	/** Output to screen **/
 	virtual void Print(const Option_t* opt ="") const;
 

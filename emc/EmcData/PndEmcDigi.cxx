@@ -25,6 +25,7 @@
 #include "PndEmcMapper.h"
 #include "PndEmcStructure.h"
 #include "PndEmcXtal.h"
+#include "PndEmcDataTypes.h"
 #include <iostream>
 
 #include "TClass.h"
@@ -52,7 +53,7 @@ PndEmcDigi::PndEmcDigi(Int_t trackid, Int_t id, Float_t energy, Float_t time, In
 	fThetaInd=fTCI->XCoord();
 	fPhiInd=fTCI->YCoord();
 
-	std::map<PndEmcTwoCoordIndex*, PndEmcXtal*> const &tciXtalMap=PndEmcStructure::Instance()->GetTciXtalMap();
+	PndEmcTciXtalMap const &tciXtalMap=PndEmcStructure::Instance()->GetTciXtalMap();
 	PndEmcXtal* xtal = tciXtalMap.find(fTCI)->second;
 	fWhere = algPointer()(xtal);
 	fTheta = fWhere.Theta();
@@ -75,7 +76,7 @@ PndEmcDigi::PndEmcDigi( const PndEmcDigi& other )
 	fThetaInd=fTCI->XCoord();
 	fPhiInd=fTCI->YCoord();
 
-	std::map<PndEmcTwoCoordIndex*, PndEmcXtal*> const &tciXtalMap=PndEmcStructure::Instance()->GetTciXtalMap();
+	PndEmcTciXtalMap const &tciXtalMap=PndEmcStructure::Instance()->GetTciXtalMap();
 	PndEmcXtal* xtal = tciXtalMap.find(fTCI)->second;
 	fWhere = algPointer()(xtal);
 	fTheta = fWhere.Theta();
@@ -95,7 +96,7 @@ void PndEmcDigi::SetDetectorId(Int_t id)
 	fThetaInd=fTCI->XCoord();
 	fPhiInd=fTCI->YCoord();
 
-	std::map<PndEmcTwoCoordIndex*, PndEmcXtal*> const &tciXtalMap=PndEmcStructure::Instance()->GetTciXtalMap();
+	PndEmcTciXtalMap const &tciXtalMap=PndEmcStructure::Instance()->GetTciXtalMap();
 	PndEmcXtal* xtal = tciXtalMap.find(fTCI)->second;
 	fWhere = algPointer()(xtal);
 	fTheta = fWhere.Theta();
@@ -263,12 +264,27 @@ bool PndEmcDigi::operator!=(const PndEmcDigi& otherDigi) const
   return ! ( *this == otherDigi );
 }
 
+bool PndEmcDigi::operator<( const PndEmcDigi & otherDigi) const
+{
+  if (fEnergy < otherDigi.fEnergy) 
+    return true;
+  else if (fEnergy == otherDigi.fEnergy && fTheta< otherDigi.fTheta)
+    return true;
+  else if (fEnergy == otherDigi.fEnergy && fTheta == otherDigi.fTheta && fPhi < otherDigi.fPhi)
+    return true;
+
+  return false;
+}
+
+
+
 // -----   Public method Print   -----------------------------------
 void PndEmcDigi::Print(const Option_t* opt) const {
   cout << "EMC digi: cellid=" << GetDetectorId() << ", Energy=" << fEnergy;
   if (fTrackId>0) cout << ", TrackID= " << fTrackId;
 //  cout << ", x=" << GetX() << ", y=" << GetY() << endl << flush; 
 }
+
 
 PndEmcSharedDigi*
 PndEmcDigi::dynamic_cast_PndEmcSharedDigi()

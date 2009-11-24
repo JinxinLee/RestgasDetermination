@@ -29,10 +29,10 @@
 // C++ Headers --
 //---------------
 #include <vector>
-#include <set>
 #include <map>
 
 #include "TObject.h"
+#include "PndEmcDataTypes.h"
 
 struct PndEmcExpClusterSplitterData
 {
@@ -58,7 +58,6 @@ class PndEmcTwoCoordIndex;
 //		---------------------
 
 class PndEmcExpClusterSplitter{
-  typedef std::map<PndEmcTwoCoordIndex*, PndEmcDigi*> EmcDigiPtrDict;
   
  public:
   
@@ -69,7 +68,7 @@ class PndEmcExpClusterSplitter{
   
   // Methods
   
-  virtual void splitCluster(const std::set<PndEmcTwoCoordIndex*> &, 
+  virtual void splitCluster(const PndEmcCoordIndexSet &, 
 			    const PndEmcCluster* const, Int_t clusterIndex, 
 			    std::vector<PndEmcBump*>& theBumpList) const;
   
