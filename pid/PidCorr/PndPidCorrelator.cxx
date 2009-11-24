@@ -817,14 +817,13 @@ void PndPidCorrelator::GetDrcInfo(FairTrackParH* helix, PndPidCandidate* pidCand
       if (fGeanePro) // Overwrites vertex if Geane is used
 	{
 	  FairGeanePro *fProDrc = new FairGeanePro();
-	  fProDrc->SetPoint(drcPos);
-	  fProDrc->PropagateToPCA(1, 1);
-          vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
+	  fProDrc->PropagateToVolume("DrcBase",0,1);
+	  vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
 	  FairTrackParH *fRes= new FairTrackParH();
 	  Bool_t rc =  fProDrc->Propagate(helix, fRes, -13*pidCand->GetCharge()); 	
 	  if (rc)
 	    {
-	      vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
+	      vertex.SetXYZ(fRes->GetX(), fRes->GetY(), 0.);
 	      drcGLength = fProDrc->GetLengthAtPCA();
 	    }
 	  else
