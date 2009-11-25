@@ -245,8 +245,10 @@ void create3StationsGem()
        << "TrackFinderOnHits_ParTheta3: Double_t  0.284289" << endl
        << "TrackFinderOnHits_ParRadPhi0:Double_t  0.9837086" << endl
        << "TrackFinderOnHits_ParRadPhi2:Double_t -0.000182412" << endl
-       << "TrackFinderOnHits_ParMat0:   Double_t -2.31333e-6 ,   0.00067035,    0.10173" << endl
-       << "TrackFinderOnHits_ParMat1:   Double_t -7.46844e-10,   -6.6696e-7,    0.000736672" << endl
+       << "TrackFinderOnHits_ParMat0:   Double_t \\" << endl
+       << "                                      -2.31333e-6,    0.00067035,    0.10173" << endl
+       << "TrackFinderOnHits_ParMat1:   Double_t \\" << endl
+       << "                                      -7.46844e-10,   -6.6696e-7,    0.000736672" << endl
        << "##########################################################################################" << flush;
 
   top->AddNode(SubunitVol,0,new TGeoCombiTrans());
