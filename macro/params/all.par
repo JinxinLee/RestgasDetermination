@@ -112,6 +112,7 @@ EnergyHitThreshold:Double_t 0.000001
 NBits:Int_t 14
 DetectedPhotonsPerMeV:Double_t 150
 EnergyRange:Double_t 15
+EnergyRangeBW:Double_t 3
 ExcessNoiseFactor:Double_t 1.38
 FirstSamplePhase:Double_t 0
 Number_of_samples_in_waveform:Int_t 64
@@ -219,5 +220,5 @@ Emc12Cut:Float_t 10.
 MdtRadius:Float_t 155.
 MdtCut:Float_t 200.
 DrcRadius:Float_t 49.
-DrcCut:Float_t 20.
+DrcCut:Float_t 0.001
 #################################################################

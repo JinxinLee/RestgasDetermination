@@ -12,5 +12,5 @@ Emc12Cut:Float_t 10.
 MdtRadius:Float_t 155.
 MdtCut:Float_t 200.
 DrcRadius:Float_t 49.
-DrcCut:Float_t 20.
+DrcCut:Float_t 0.001
 #################################################################
