@@ -1,26 +1,24 @@
 // Macro created 20/09/2006 by S.Spataro
 // It creates a geant simulation file for emc
-{
+sim_emc(Int_t nEvents = 10, Float_t mom = 1.){
   TStopwatch timer;
   timer.Start();
   gDebug=0;
   // Load basic libraries
   // If it does not work,  please check the path of the libs and put it by hands
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
   rootlogon();
-  basiclibs();
-
+  
+  TString digiFile = "emc.par";
+  TString parFile = "simparams.root";
+  
   FairRunSim *fRun = new FairRunSim();
-
-  // Set the number of events
-  Int_t nEvents = 10;
 
   // set the MC version used
   // ------------------------
 
-  //fRun->SetName("TGeant3");
-  fRun->SetName("TGeant4");
+  fRun->SetName("TGeant3");
+  //fRun->SetName("TGeant4");
 
   fRun->SetOutputFile("sim_emc.root");
 
@@ -36,14 +34,14 @@
 
   FairModule *Magnet= new PndMagnet("MAGNET");
   Magnet->SetGeometryFileName("FullSolenoid.root");
-  fRun->AddModule(Magnet);
+  //fRun->AddModule(Magnet);
 
   FairModule *Dipole= new PndMagnet("MAGNET");
   Dipole->SetGeometryFileName("dipole.geo");
   fRun->AddModule(Dipole);
 
   FairModule *Pipe= new PndPipe("PIPE");
-  fRun->AddModule(Pipe);
+  //fRun->AddModule(Pipe);
 
   FairDetector *Stt= new PndStt("STT", kTRUE);
   Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
@@ -56,6 +54,7 @@
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
   //new BwEndCap + FwEndCap
   Emc->SetGeometryFileNameTriple("emc_module125.dat","emc_module3new.root","emc_module4_StraightGeo24.4.root"); //MapperVersion: 6
+  Emc->SetStorageOfData(kFALSE);
   fRun->AddModule(Emc);
 
   FairDetector *Tof = new PndTof("TOF",kTRUE);
@@ -106,14 +105,17 @@
   FairBoxGenerator* boxGen = new FairBoxGenerator(22, 1); // 13 = muon; 1 = multipl. // 211 = pi+
   // first number: PDG particle code: 2nd number: particle multiplicity per event
 
-  boxGen->SetPRange(1.,1.); // GeV/c
+  boxGen->SetPRange(mom,mom); // GeV/c
   // boxGen->SetPtRange(1.,1.); // GeV/c
   boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
   boxGen->SetThetaRange(0., 180.); // Polar angle in lab system range [degree]
   boxGen->SetXYZ(0., 0., 0.); // vertex coordinates [mm]
   primGen->AddGenerator(boxGen);  
 
-  //fRun->SetStoreTraj(kTRUE); // to store particle trajectories 
+  //fRun->SetStoreTraj(kTRUE); // to store particle trajectories  
+
+  // Create and Set Magnetic Field
+  //-------------------------------
   fRun->SetBeamMom(15);
   PndMultiField *fField= new PndMultiField();
 
@@ -135,20 +137,34 @@
 
   fRun->SetField(fField);
 
-  fRun->Init();
-
-  // Fill the Parameter containers for this run
-  //-------------------------------------------
-  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
+  // EMC Hit producer
+  //-------------------------------
+  PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
+  fRun->AddTask(emcHitProd);
+  
+  // Set the parameters
+  //-------------------------------
+  TString emcDigiFile = gSystem->Getenv("VMCWORKDIR");
+  emcDigiFile += "/macro/params/";
+  emcDigiFile += digiFile;
+ 
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
+  parIo1->open(emcDigiFile.Data(),"in");
+  rtdb->setFirstInput(parIo1);        
   Bool_t kParameterMerged=kTRUE;
-
+	
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
+  output->open(parFile);
+  rtdb->setOutput(output);
+  
+  /**Initialize the session*/
+  fRun->Init();
+  
   PndMultiFieldPar* Par = (PndMultiFieldPar*) rtdb->getContainer("PndMultiFieldPar");
   if (fField) {  Par->SetParameters(fField); }
   Par->setInputVersion(fRun->GetRunId(),1);
   Par->setChanged();
-
-  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
-  output->open("simparams.root");
 
   rtdb->setOutput(output);
   rtdb->saveOutput();

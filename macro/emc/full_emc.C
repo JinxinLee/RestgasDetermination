@@ -24,10 +24,8 @@
 	// If the macro gives error messages in loading libraries, please check the path of the libs and put it by hands
 	
 	gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
-	gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
 	rootlogon();
-	basiclibs();
-
+	
 	// -----   Timer   --------------------------------------------------------
 	TStopwatch timer;
 	timer.Start();
@@ -54,17 +52,9 @@
 	rtdb->setSecondInput(parIo1);
     // ----------------------------------------------------------
   
-	fRun->LoadGeometry();
-  // ------------------------------------------------------------------------
-
-
   // -----   EMC hit producers   ---------------------------------
   // The file name should be the same of the geometry file which was used for the simulation
-
-  PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
-  fRun->AddTask(emcHitProd); // hit production 
-  
-  PndEmcMakeDigi* emcMakeDigi=new PndEmcMakeDigi();
+  //  PndEmcMakeDigi* emcMakeDigi=new PndEmcMakeDigi();
   //  fRun->AddTask(emcMakeDigi); // fast digitization
 
   PndEmcHitsToWaveform* emcHitsToWaveform= new PndEmcHitsToWaveform(iVerbose);
@@ -80,9 +70,6 @@
 
   PndEmcMakeBump* emcMakeBump= new PndEmcMakeBump();
   fRun->AddTask(emcMakeBump);
-
-  PndEmcMakeRecoHit* emcMakeRecoHit= new PndEmcMakeRecoHit();
-  fRun->AddTask(emcMakeRecoHit);
 
   // -----   Intialise and run   --------------------------------------------
   cout << "fRun->Init()" << endl;
