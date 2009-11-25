@@ -23,19 +23,20 @@ OBJECTS = $(patsubst ../%.cxx,../%.o,$(wildcard ../*.cxx))
 
 #debugger ddd: compile everything with CFLAGS option -g instead of -O2
 CFLAGS = -O2 -DNDEBUG -Wall
+#CFLAGS = -g -DNDEBUG -Wall
 
 
 
 all:			test_simple_bar test_simple_bar2 test_disk test_sheet test_cylinder \
 			test_focus test_focus2 test_absorption test_test test_titti \
 			test_top test_air_lens test_hook test_barrel1 test_barrel1a test_barrel2  \
-			test_lens beamtest0809_sim beamtest0909_sim mppc
+			test_barrel3 test_lens beamtest0809_sim beamtest0909_sim mppc
 
 
 test_simple_bar:	$(OBJECTS) test_simple_bar.o
 			g++ -o test_simple_bar test_simple_bar.o $(OBJECTS) $(LDLIBS)
 
-test_simple_bar.o:	test_simple_bar.cc
+test_simple_bar.o:	test_simple_bar.cc 
 			g++ $(CFLAGS) $(INCLFLAGS) -o test_simple_bar.o \
 			-c test_simple_bar.cc
 
@@ -147,6 +148,13 @@ test_barrel2:		$(OBJECTS) test_barrel2.o
 test_barrel2.o:		test_barrel2.cc
 			g++ $(CFLAGS) $(INCLFLAGS) -o test_barrel2.o \
 			-c test_barrel2.cc
+
+test_barrel3:		$(OBJECTS) test_barrel3.o
+			g++ -o test_barrel3 test_barrel3.o $(OBJECTS) $(LDLIBS)
+
+test_barrel3.o:		test_barrel3.cc
+			g++ $(CFLAGS) $(INCLFLAGS) -o test_barrel3.o \
+			-c test_barrel3.cc
 
 
 test_lens:		$(OBJECTS) test_lens.o

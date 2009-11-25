@@ -178,7 +178,19 @@ class PndDrcSurfAbs
   */
   PndDrcOptReflAbs& Reflectivity() { return *fReflectivity; };
 
+  /*! \brief Enable Fresnel reflections at surface 
+    
+  \param flag The flag.
+  */
+  void SetFresnel(bool flag=true){fFresnel=flag;}
+  
 
+  /*! \brief Fresnel reflections at surface 
+    
+  \return Flag if Fresnel reflections are enabled.
+  */
+  bool Fresnel(){return fFresnel;}
+  
 
   /*! \brief Normal vector
 
@@ -268,7 +280,7 @@ class PndDrcSurfAbs
   PndDrcOptReflAbs*    fReflectivity;       //!< Pointer to reflectivity. 
   bool                 fPixel;              //!< Flag if surface measures photon
   bool                 fInternal;           //!< Flag for internal surfaces.
-  
+  bool                 fFresnel;            //!< Flag for Fresnel reflections. 
 
 
  private:

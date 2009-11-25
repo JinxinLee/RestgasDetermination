@@ -62,6 +62,7 @@ PndDrcSurfAbs::PndDrcSurfAbs()
   fCopyNumber     = 0;
   fPixel          = false;
   fInternal       = false;
+  fFresnel        = true;
 }
 //----------------------------------------------------------------------
 PndDrcSurfAbs::~PndDrcSurfAbs()
@@ -85,7 +86,7 @@ void PndDrcSurfAbs::Copy(const PndDrcSurfAbs& s)
   if (s.fReflectivity) fReflectivity = s.fReflectivity->Clone(); 
   fPixel       = s.fPixel;
   fInternal    = s.fInternal;
-  
+  fFresnel     = s.fFresnel;
 }
 //----------------------------------------------------------------------
 PndDrcSurfAbs::PndDrcSurfAbs(const PndDrcSurfAbs& s)

@@ -211,6 +211,11 @@ class PndDrcPhoton
   double PhiC() const {return fPhiC;};
 
 
+ /*! \brief Set wavelength
+  \param lambda Wavelength in nm.
+  */
+  void SetWavelength(double lambda){fLambda=lambda;};
+
   /*! \brief Wavelength
     \return Wavelength in nm.
   */
@@ -346,10 +351,6 @@ class PndDrcPhoton
    */
   void SetOriginDirection(const XYZVector& org) {fOriginDirection=org.Unit();};
 
- /*! \brief Set wavelength
-  \param lambda Wavelength in nm.
-  */
-  void SetWavelength(double lambda){fLambda=lambda;};
 
  /*! \brief Set time of photon
   \param tim The time.

@@ -109,12 +109,17 @@ void PndDrcPhoton::SetPosition(const XYZPoint& pos)
   fPosition    = pos;
 };
 //----------------------------------------------------------------------
-bool PndDrcPhoton::Refract(XYZVector normal, double n1, double ex1, double n2, double ex2, bool fresnelFlag, double diffuseProb)
+bool PndDrcPhoton::Refract(XYZVector normal, double n1, double ex1, 
+double n2, double ex2, bool fresnelFlag, double diffuseProb)
 {
 
-//   cout << "VOLCHECK2: " << n1 << " " << ex1 << " " << n2 << " " << ex2 << "  flag: " << fresnelFlag << " " << "diffuseProb: " << diffuseProb << endl;
-//     fVerbosity =4;
-//     cout << "******************** REFRACT ******************" << endl;
+  //   cout << "VOLCHECK2: " << n1 << " " << ex1 << " " 
+  // << n2 << " " << ex2 << "  flag: " << fresnelFlag << " " 
+  // << "diffuseProb: " << diffuseProb << endl;
+  //     fVerbosity =4;
+  //     cout << "******************** REFRACT ******************" << endl;
+
+
   static const double kEps = 1.0e-9;
 
   bool refract_flag;
@@ -182,7 +187,8 @@ bool PndDrcPhoton::Refract(XYZVector normal, double n1, double ex1, double n2, d
     alpha2 = refr.Re();
 
     if( alpha2 != alpha2 ) // NaN check
-      cout << "PndDrcPhoton::Refract :  alpha2 = " << alpha2 << "   Is fDirection (here: dir1) really an unit vector?" << endl;
+      cout << "PndDrcPhoton::Refract :  alpha2 = " << alpha2 
+	   << "   Is fDirection (here: dir1) really an unit vector?" << endl;
 
 
     XYZVector rhelp = norm.Cross(dir1);

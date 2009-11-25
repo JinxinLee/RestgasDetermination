@@ -286,7 +286,9 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
         }
         if (refl == Drc::ReflRefracted)
         {
-          bool refr = ph.Refract(norm, OptMaterial().RefIndex(ph.Wavelength()),OptMaterial().Extinction(ph.Wavelength()) );
+          bool refr = ph.Refract(norm, 
+				 OptMaterial().RefIndex(ph.Wavelength()),
+				 OptMaterial().Extinction(ph.Wavelength()) );
           if (refr)
           {
             ph.SetFate(Drc::kPhotLost); // Photon refracted in nirvana.
@@ -300,7 +302,9 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 	      // Step 3a ----------- Refraction (no reflectivity defined, no couplings)
         if (Verbosity()>=4) cout<<"     PndDrcOptVol::reflectivity1b clause"<<endl;
 
-        bool refr = ph.Refract(norm,OptMaterial().RefIndex(ph.Wavelength()), OptMaterial().Extinction(ph.Wavelength()) );
+        bool refr = ph.Refract(norm,
+			       OptMaterial().RefIndex(ph.Wavelength()), 
+			       OptMaterial().Extinction(ph.Wavelength()) );
 
 //         if( surf_closest->Name() == "box_side2" || surf_closest->Name() == "box_side3" || surf_closest->Name() == "box_side4"
 //             || surf_closest->Name() == "box_side6")
