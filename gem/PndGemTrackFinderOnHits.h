@@ -85,6 +85,21 @@ class PndGemTrackFinderOnHits : public PndGemTrackFinder
   **/
   Int_t fPrimary;
   
+  // Parameters, taken from the digiPar file
+  Double_t fParThetaA;
+  Double_t fParThetaB;
+  
+  Double_t fParTheta0;
+  Double_t fParTheta1;
+  Double_t fParTheta2;
+  Double_t fParTheta3;
+  
+  Double_t fParRadPhi0;
+  Double_t fParRadPhi2;
+  
+  Double_t fParMat0[3];
+  Double_t fParMat1[3];
+
   /** Event counter **/
   Int_t fNofEvents;  // event counter
 

@@ -46,17 +46,53 @@ PndGemDigiPar::~PndGemDigiPar(void) {
 void PndGemDigiPar::putParams(FairParamList* list)
 {
   if(!list) return;
-
   list->add("parameters", fGemParameters);
+  
+  list->add("TrackFinderOnHits_ParThetaA",fTrackFinderOnHits_ParThetaA);
+  list->add("TrackFinderOnHits_ParThetaB",fTrackFinderOnHits_ParThetaB);
+  
+  list->add("TrackFinderOnHits_ParTheta0",fTrackFinderOnHits_ParTheta0);
+  list->add("TrackFinderOnHits_ParTheta1",fTrackFinderOnHits_ParTheta1);
+  list->add("TrackFinderOnHits_ParTheta2",fTrackFinderOnHits_ParTheta2);
+  list->add("TrackFinderOnHits_ParTheta3",fTrackFinderOnHits_ParTheta3);
+  
+  list->add("TrackFinderOnHits_ParRadPhi0",fTrackFinderOnHits_ParRadPhi0);
+  list->add("TrackFinderOnHits_ParRadPhi2",fTrackFinderOnHits_ParRadPhi2);
+  
+  list->add("TrackFinderOnHits_ParMat0",fTrackFinderOnHits_ParMat0);
+  list->add("TrackFinderOnHits_ParMat1",fTrackFinderOnHits_ParMat1);
+  
 }
 
 Bool_t PndGemDigiPar::getParams(FairParamList* list)
 {
-  if (!list) return kFALSE;
-  if (!list->fill("parameters",&fGemParameters)) return kFALSE;
+  if (!list) {std::cout<<"list not found"<<std::endl; return kFALSE;}
+  if(!list->fill("parameters",&fGemParameters)) 
+    {std::cout<<"par: fGemParameters not found"<<std::endl; return kFALSE;}
+    if(!list->fill("TrackFinderOnHits_ParThetaA",&fTrackFinderOnHits_ParThetaA))
+    {std::cout<<"par: fTrackFinderOnHits_ParThetaA not found"<<std::endl; return kFALSE;}
+  if(!list->fill("TrackFinderOnHits_ParThetaB",&fTrackFinderOnHits_ParThetaB))
+    {std::cout<<"par: fTrackFinderOnHits_ParThetaB not found"<<std::endl; return kFALSE;}
   
-  //   if (!list->fill("sensName",&sensName)) return kFALSE;
-  //   if (!list->fill("feName",&feName)) return kFALSE;
+  if(!list->fill("TrackFinderOnHits_ParTheta0",&fTrackFinderOnHits_ParTheta0))
+    {std::cout<<"par: fTrackFinderOnHits_ParTheta0 not found"<<std::endl; return kFALSE;}
+  if(!list->fill("TrackFinderOnHits_ParTheta1",&fTrackFinderOnHits_ParTheta1))
+    {std::cout<<"par: fTrackFinderOnHits_ParTheta1 not found"<<std::endl; return kFALSE;}
+  if(!list->fill("TrackFinderOnHits_ParTheta2",&fTrackFinderOnHits_ParTheta2))
+    {std::cout<<"par: fTrackFinderOnHits_ParTheta2 not found"<<std::endl; return kFALSE;}
+  if(!list->fill("TrackFinderOnHits_ParTheta3",&fTrackFinderOnHits_ParTheta3))
+    {std::cout<<"par: fTrackFinderOnHits_ParTheta3 not found"<<std::endl; return kFALSE;}
+  
+  if(!list->fill("TrackFinderOnHits_ParRadPhi0",&fTrackFinderOnHits_ParRadPhi0))
+    {std::cout<<"par: fTrackFinderOnHits_ParRadPhi0 not found"<<std::endl; return kFALSE;}
+  if(!list->fill("TrackFinderOnHits_ParRadPhi2",&fTrackFinderOnHits_ParRadPhi2))
+    {std::cout<<"par: fTrackFinderOnHits_ParRadPhi2 not found"<<std::endl; return kFALSE;}
+  
+  if(!list->fill("TrackFinderOnHits_ParMat0",&fTrackFinderOnHits_ParMat0))
+    {std::cout<<"par: fTrackFinderOnHits_ParMat0 not found"<<std::endl; return kFALSE;}
+  if(!list->fill("TrackFinderOnHits_ParMat1",&fTrackFinderOnHits_ParMat1))
+  {std::cout<<"par: fTrackFinderOnHits_ParMat1 not found"<<std::endl; return kFALSE;}
+  
   CreateStations();
 
   return kTRUE;

@@ -52,6 +52,20 @@ class PndGemDigiPar : public FairParGenericSet
     Int_t GetDetectorIdByName(TString sensorName);
     PndGemSensor* GetSensorByName    (TString sensorName);
     
+    Double_t GetTrackFinderOnHits_ParThetaA() { return fTrackFinderOnHits_ParThetaA; }
+    Double_t GetTrackFinderOnHits_ParThetaB() { return fTrackFinderOnHits_ParThetaB; }
+
+    Double_t GetTrackFinderOnHits_ParTheta0() { return fTrackFinderOnHits_ParTheta0; }
+    Double_t GetTrackFinderOnHits_ParTheta1() { return fTrackFinderOnHits_ParTheta1; }
+    Double_t GetTrackFinderOnHits_ParTheta2() { return fTrackFinderOnHits_ParTheta2; }
+    Double_t GetTrackFinderOnHits_ParTheta3() { return fTrackFinderOnHits_ParTheta3; }
+
+    Double_t GetTrackFinderOnHits_ParRadPhi0() { return fTrackFinderOnHits_ParRadPhi0; }
+    Double_t GetTrackFinderOnHits_ParRadPhi2() { return fTrackFinderOnHits_ParRadPhi2; }
+
+    Double_t GetTrackFinderOnHits_ParMat0(Int_t in) { return fTrackFinderOnHits_ParMat0[in]; }
+    Double_t GetTrackFinderOnHits_ParMat1(Int_t in) { return fTrackFinderOnHits_ParMat1[in]; }
+
   private:
     void CreateStations();
 
@@ -60,7 +74,21 @@ class PndGemDigiPar : public FairParGenericSet
     TObjArray* fStations;       /** Array of FairStsStation **/
     Int_t fNSensors;            /** Total number of sensors **/
     Int_t fNChannels;           /** Total number of channels **/
-    
+     
+    Double_t fTrackFinderOnHits_ParThetaA;
+    Double_t fTrackFinderOnHits_ParThetaB;
+
+    Double_t fTrackFinderOnHits_ParTheta0;
+    Double_t fTrackFinderOnHits_ParTheta1;
+    Double_t fTrackFinderOnHits_ParTheta2;
+    Double_t fTrackFinderOnHits_ParTheta3;
+
+    Double_t fTrackFinderOnHits_ParRadPhi0;
+    Double_t fTrackFinderOnHits_ParRadPhi2;
+
+    TArrayD fTrackFinderOnHits_ParMat0;
+    TArrayD fTrackFinderOnHits_ParMat1;
+
     std::map<Int_t,   PndGemStation*> fStationMap; //! Map from number to station
     std::map<TString, Int_t>          fDetIdByName;
     std::map<TString, PndGemSensor*>  fSensorByName;

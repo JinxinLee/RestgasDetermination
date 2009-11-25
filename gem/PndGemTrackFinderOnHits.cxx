@@ -92,6 +92,21 @@ void PndGemTrackFinderOnHits::Init() {
   // Get GEM digitisation parameter container
   fDigiPar = (PndGemDigiPar*)(rtdb->getContainer("PndGemDetectors"));
   cout << "THERE ARE " << fDigiPar->GetNStations() << " GEM STATIONS" << endl;
+  
+  fParThetaA = fDigiPar->GetTrackFinderOnHits_ParThetaA();
+  fParThetaB = fDigiPar->GetTrackFinderOnHits_ParThetaB();
+  
+  fParTheta0 = fDigiPar->GetTrackFinderOnHits_ParTheta0();
+  fParTheta1 = fDigiPar->GetTrackFinderOnHits_ParTheta1();
+  fParTheta2 = fDigiPar->GetTrackFinderOnHits_ParTheta2();
+  fParTheta3 = fDigiPar->GetTrackFinderOnHits_ParTheta3();
+  
+  fParRadPhi0 = fDigiPar->GetTrackFinderOnHits_ParRadPhi0();
+  fParRadPhi2 = fDigiPar->GetTrackFinderOnHits_ParRadPhi2();
+  for ( Int_t in = 0 ; in < 3 ; in++ ) {
+    fParMat0[in] = fDigiPar->GetTrackFinderOnHits_ParMat0(in);
+    fParMat1[in] = fDigiPar->GetTrackFinderOnHits_ParMat1(in);
+  }
 
   std::cout << "-I- "<< GetName() <<": Intialization successfull" << std::endl;
 }
@@ -652,18 +667,14 @@ Int_t PndGemTrackFinderOnHits::FindTrackSegments(TClonesArray* hitArray, Int_t s
   Double_t zStation1 = stat1->GetZ();
   Double_t zStation2 = stat2->GetZ();
   
-  Double_t parThetaA =  59.4/zStation1;
-  Double_t parThetaB = -0.02;
-  Double_t parRadPhi = 1./(0.96*0.96);
-  Double_t parRadStat2 = zStation2/zStation1; //120./90.;
-  Double_t parStat1_2Dist = zStation1/(zStation2-zStation1); //90./(120.-90.);
-  Double_t parMat0[3] = {-2.3134e-6,0.000670378,0.101726};
-  Double_t parMat1[3] = {-7.46296e-10,-6.67167e-7,0.000736697};
-  Double_t stD3 = zStation2*zStation2*zStation2-zStation1*zStation1*zStation1;
-  Double_t stD2 = zStation2*zStation2-zStation1*zStation1;
-  Double_t stD1 = zStation2-zStation1;
-  Double_t par0_mom = parMat0[0]*stD3+parMat0[1]*stD2+parMat0[2]*stD1;
-  Double_t par1_mom = parMat1[0]*stD3+parMat1[1]*stD2+parMat1[2]*stD1;
+  Double_t zDistRatio = zStation2/zStation1;
+  Double_t zDiffRatio = zStation1/(zStation2-zStation1);
+  Double_t zCuDiff = zStation2*zStation2*zStation2-zStation1*zStation1*zStation1;
+  Double_t zSqDiff = zStation2*zStation2-zStation1*zStation1;
+  Double_t zDiff   = zStation2-zStation1;
+
+  Double_t par0_mom = fParMat0[0]*zCuDiff+fParMat0[1]*zSqDiff+fParMat0[2]*zDiff;
+  Double_t par1_mom = fParMat1[0]*zCuDiff+fParMat1[1]*zSqDiff+fParMat1[2]*zDiff;
 
   Int_t nGemHits = hitArray->GetEntriesFast();
   
@@ -683,7 +694,8 @@ Int_t PndGemTrackFinderOnHits::FindTrackSegments(TClonesArray* hitArray, Int_t s
     Double_t pangle = TMath::ACos(gemHit->GetX()/radius);
     if ( gemHit->GetY() < 0 )
       pangle = 2.*TMath::Pi() - pangle;
-    Double_t theta = parThetaA * radius + parThetaB;
+    //Double_t theta = TMath::RadToDeg()*TMath::ATan(radius/zStation1);
+     Double_t theta = fParThetaA * radius / zStation1 + fParThetaB;
     if ( fVerbose > 3 || printInfo )
       cout << "     -> with theta of " << theta << " (radius = " << radius << " and phi angle = " << pangle*TMath::RadToDeg() << ")" << endl;
     for(Int_t iHit2 = 0; iHit2 < nGemHits; iHit2++){
@@ -705,11 +717,14 @@ Int_t PndGemTrackFinderOnHits::FindTrackSegments(TClonesArray* hitArray, Int_t s
       if ( fVerbose > 3 || printInfo )
 	cout << "       (radius = " << radius2 << " and phi angle = " << pangle2*TMath::RadToDeg() << ")" << endl;
       
-      Double_t expectedRad = TMath::Sqrt((1-(pangle-pangle2)*(pangle-pangle2)*parRadPhi)*parRadStat2*parRadStat2*radius*radius);
+      Double_t expectedRad2  = (fParRadPhi0 + fParRadPhi2*TMath::RadToDeg()*TMath::RadToDeg()*(pangle-pangle2)*(pangle-pangle2))*radius*zDistRatio;
+      Double_t expRadUncert = 0.05*radius*zDistRatio;
 
       if ( fVerbose > 3 || printInfo )
-	cout << " -> while expected radius was " << expectedRad << endl;
-      if ( TMath::Abs(expectedRad-radius2) > 2. ) continue;
+	cout << " -> while expected radius was " << expectedRad2 << endl;
+
+      if ( radius2>expectedRad2+expRadUncert || radius2<expectedRad2-expRadUncert ) continue;
+
       if ( fVerbose > 4 || printInfo )
 	cout << "STRONG CORRELATION FOR THIS HIT!!!" << endl;
       // calculate phi and momentum basing on the pangle-pangle2;
@@ -717,11 +732,13 @@ Int_t PndGemTrackFinderOnHits::FindTrackSegments(TClonesArray* hitArray, Int_t s
       if ( pangle == pangle2 ) trackMomentum = 666.;
       if ( fVerbose > 3 || printInfo )
 	cout << "calculated track momentum is " << trackMomentum << endl;
-      Double_t trackPhiAngle = pangle+(pangle-pangle2)*parStat1_2Dist; 
+      Double_t trackPhiAngle = pangle+(pangle-pangle2)*zDiffRatio; 
       if ( trackPhiAngle < 0. ) trackPhiAngle += TMath::Pi()*2.;
       if ( trackPhiAngle > TMath::Pi()*2. ) trackPhiAngle -= TMath::Pi()*2.;
       if ( fVerbose > 3 || printInfo )
 	cout << "calculated phi is " << trackPhiAngle*TMath::RadToDeg() << endl;
+
+      theta = ( fParTheta0 + 1. / ( TMath::Abs(trackMomentum) + fParTheta1 * zStation1 + fParTheta2 ) ) / zStation1 * radius + fParTheta3;
 
       TrackSegment tempTS;
       tempTS.stationIndex[0] = stat1Id;
