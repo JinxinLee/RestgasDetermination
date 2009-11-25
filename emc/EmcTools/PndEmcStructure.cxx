@@ -173,7 +173,7 @@ PndEmcStructure::PndEmcStructure(TGeoManager *geoMan)
             //}
             
             xtal = new PndEmcXtal(tci, crystal_shape, pos, geoRot);
-        } else if (shapeType == "TGeoBBox") {
+        } else if (shapeType == "TGeoBBox" || shapeType == "TGeoScaledShape") {
             TGeoBBox const *box = dynamic_cast<TGeoBBox const*>(
                 node->GetVolume()->GetShape());
 			
@@ -184,7 +184,7 @@ PndEmcStructure::PndEmcStructure(TGeoManager *geoMan)
             
             xtal = new PndEmcXtal(tci,crystal_shape,pos,geoRot);
         } else {
-            cout << "Unknown geometry type " << shapeType << endl;
+            cout << "Unknown geometry type " << shapeType << " in module " << module << endl;
             abort();
         }
 
