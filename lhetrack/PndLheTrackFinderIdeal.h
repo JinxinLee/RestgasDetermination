@@ -15,6 +15,7 @@
 #include "TObjArray.h"
 #include "TArrayI.h"
 #include "TBenchmark.h"
+#include "TDatabasePDG.h"
 #include "Riostream.h"
 
 #include "FairTask.h"
@@ -28,7 +29,8 @@ protected:
 
   PndLhePoint  *fVertex;       // pointer to the vertex
 
-  TClonesArray  *fCMHits;       // Array of hits transformed with conformal mapping
+  TClonesArray  *fCMHits;       // Array of hits transformed with conformal mapping 
+  TClonesArray  *fMCTrackArray; // Array of PndMCTrack
   TObjArray     *fCMTracks;     // Array of tracks
 
   TClonesArray  *fLheHits;         // Array of event's hits
@@ -40,6 +42,7 @@ protected:
   Bool_t fCMPersistence;        // Persistence of PndCMPoint
   TBenchmark   *fBench;         // benchmark object (just for run-time measurements)
   Float_t    mTime;          // total time consumption
+  TDatabasePDG *pdg;            // Particle DB
   
   PndLheCandidate* AddTrack(PndLheCandidate* track);
   

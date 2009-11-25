@@ -1,6 +1,7 @@
 #include "PndLheTrackFinderIdeal.h"
 
 #include "PndDetectorList.h"
+#include "PndMCTrack.h"
 #include "PndLheCMPoint.h"
 #include "PndLheHit.h"
 
@@ -14,6 +15,7 @@
 
 #include "TObjectTable.h"
 #include "TClonesArray.h"
+#include "TParticlePDG.h"
 
 ClassImp(PndLheTrackFinderIdeal)
 
@@ -76,6 +78,14 @@ InitStatus PndLheTrackFinderIdeal::Init() {
   
   fLheHits  = (TClonesArray *)fManager->GetObject("LheHit");
   
+  // Get MV array
+  fMCTrackArray = (TClonesArray*)fManager->GetObject("MCTrack");
+  if ( ! fMCTrackArray ) {
+    cout << "-W-  PndLheTrackFinderIdeal::Init: "
+	 << "No MCTrack array! Needed for MC Truth" << endl;
+    return kERROR;
+  }
+
   Register();
 
   // create TObjArrays
@@ -83,6 +93,7 @@ InitStatus PndLheTrackFinderIdeal::Init() {
 
   fVertex = new PndLhePoint(0.0, 0.0, 0.0);
   
+  pdg = new TDatabasePDG();
   return kSUCCESS;
 }
 
@@ -132,7 +143,10 @@ void PndLheTrackFinderIdeal::Exec(Option_t * option) {
     
     cand->SetTpcHits(tpcHits);
     cand->SetMvdHits(mvdHits); 
-    cand->SetGemHits(gemHits); 
+    cand->SetGemHits(gemHits);
+    PndMCTrack *mc = (PndMCTrack*)fMCTrackArray->At(trackID);
+    Int_t charge = (Int_t)TMath::Sign(1.0, ((TParticlePDG*)pdg->GetParticle(mc->GetPdgCode()))->Charge());
+    cand->SetCharge(charge);
     candlist[trackID] = cand;
   }
   
