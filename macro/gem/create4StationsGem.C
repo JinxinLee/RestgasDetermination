@@ -216,7 +216,8 @@ void create4StationsGem()
 	     << setw(9) << kSensorStripAngle[sensorNumber][0] << ",  "
 	     << setw(9) << kSensorStripAngle[sensorNumber][1] << ",  "
 	     << setw(9) << kSensorStripPitch[sensorNumber][0] << ",  "
-	     << setw(9) << kSensorStripPitch[sensorNumber][1] << ((istat==kNofDisks-1&&sensorNumber==1)?" ":",") << " \\" << endl;
+	     << setw(9) << kSensorStripPitch[sensorNumber][1] << ((istat==kNofDisks-1&&sensorNumber==1)?"":", \\") 
+	     << endl;
 	sensorNumber++;
       }
 
@@ -237,7 +238,20 @@ void create4StationsGem()
     }
     SubunitVol->AddNode(DiskVol[istat],0,DiskCombi[istat]);
   }
-  
+  pout << "TrackFinderOnHits_ParThetaA: Double_t 59.4" << endl
+       << "TrackFinderOnHits_ParThetaB: Double_t -0.02" << endl
+       << "TrackFinderOnHits_ParTheta0: Double_t 56.1372" << endl
+       << "TrackFinderOnHits_ParTheta1: Double_t -0.000564362" << endl
+       << "TrackFinderOnHits_ParTheta2: Double_t -0.181828" << endl
+       << "TrackFinderOnHits_ParTheta3: Double_t  0.284289" << endl
+       << "TrackFinderOnHits_ParRadPhi0:Double_t  0.9837086" << endl
+       << "TrackFinderOnHits_ParRadPhi2:Double_t -0.000182412" << endl
+       << "TrackFinderOnHits_ParMat0:   Double_t \\" << endl
+       << "                                      -2.31333e-6,    0.00067035,    0.10173" << endl
+       << "TrackFinderOnHits_ParMat1:   Double_t \\" << endl
+       << "                                      -7.46844e-10,   -6.6696e-7,    0.000736672" << endl
+       << "##########################################################################################" << flush;
+
   top->AddNode(SubunitVol,0,new TGeoCombiTrans());
   
   gGeoMan->CloseGeometry();
