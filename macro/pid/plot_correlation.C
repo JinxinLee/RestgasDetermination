@@ -58,7 +58,7 @@
   mdtq->GetXaxis()->SetTitle("MDT Quality [cm^{2}]");
   mdtq->SetLineWidth(2);
   c1.cd(12);
-  drcCorr->Draw("chi2>>drcq(100,-1,50)","","");
+  drcCorr->Draw("chi2>>drcq(100,0,0.01)","","");
   drcq->GetXaxis()->SetTitle("DIRC Quality [°^{2}]");
   drcq->SetLineWidth(2);
  

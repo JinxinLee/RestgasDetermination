@@ -51,7 +51,6 @@
         
   rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parIo1);
- // fRun->LoadGeometry();
   // ------------------------------------------------------------------------
 
   // -----   TPC digi producers   ---------------------------------
@@ -103,8 +102,8 @@
   fRun->AddTask(mvdClusterizer);
  
   // -----   EMC hit producers   ---------------------------------
-  PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
-  fRun->AddTask(emcHitProd); // hit production 
+  //PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
+  //fRun->AddTask(emcHitProd); // hit production 
 
   //PndEmcMakeDigi* emcMakeDigi=new PndEmcMakeDigi();
   //fRun->AddTask(emcMakeDigi); // fast digitization
@@ -124,7 +123,6 @@
   fRun->AddTask(emcHdrFiller); // ECM header
   
   // -----   TOF hit producers   ---------------------------------
-
   PndTofHitProducerIdeal* tofhit = new PndTofHitProducerIdeal();
   tofhit->SetVerbose(iVerbose);
   fRun->AddTask(tofhit);
@@ -142,6 +140,7 @@
   drchit->SetVerbose(iVerbose);
   fRun->AddTask(drchit);
   
+  // -----   GEM hit producers   ---------------------------------
   Int_t verboseLevel = 0;
   PndGemDigitize* gemDigitize = new PndGemDigitize("GEM Digitizer", verboseLevel);
   fRun->AddTask(gemDigitize);
