@@ -4,16 +4,19 @@
 #include "PndTrack.h"
 #include "PndTrackID.h"
 
+#include "PndTofPoint.h"
 #include "PndTofHit.h"
 #include "PndEmcBump.h"
 #include "PndEmcDigi.h"
 #include "PndEmcStructure.h"
 #include "PndEmcXtal.h"
 #include "PndMvdHit.h"
-#include "PndMdtTrk.h"
 #include "PndSttHit.h"
 #include "PndSttHelixHit.h"
+#include "PndMdtPoint.h"
 #include "PndMdtHit.h"
+#include "PndMdtTrk.h"
+#include "PndDrcBarPoint.h"
 #include "PndDrcHit.h"
 #include "FairTrackParH.h"
 #include "FairMCApplication.h"
@@ -56,6 +59,7 @@ PndPidCorrelator::PndPidCorrelator() {
   fDrcMode = 0;
   fVerbose = kFALSE;
   fSimulation = kFALSE;
+  fIdeal = kFALSE;
   tofCorr = 0;
   emcCorr = 0; 
   drcCorr = 0;
@@ -83,6 +87,7 @@ PndPidCorrelator::PndPidCorrelator(const char *name, const char *title)
   fDrcMode = 0;
   fVerbose = kFALSE;
   fSimulation = kFALSE;
+  fIdeal = kFALSE;
   tofCorr = 0;
   emcCorr = 0;
   drcCorr = 0;
@@ -194,6 +199,19 @@ InitStatus PndPidCorrelator::Init() {
     }
   else fEmcMode = 3;
   
+  // *** DRC ***
+  fDrcHit = (TClonesArray*) fManager->GetObject("DrcHit");
+  if ( ! fDrcHit ) 
+    {
+      cout << "-W- PndPidCorrelator::Init: No DrcHit array!" << endl;
+      fDrcMode = 0;
+    }
+  else  
+    {
+      cout << "-I- PndPidCorrelator::Init: Using DrcHit" << endl;
+      fDrcMode = 2;
+    }
+  
   // *** MDT ***
   fMdtHit = (TClonesArray*) fManager->GetObject("MdtHit");
   if ( ! fMdtHit ) 
@@ -216,20 +234,42 @@ InitStatus PndPidCorrelator::Init() {
       cout << "-I- PndPidCorrelator::Init: Using MdtTrk" << endl;
       fMdtMode = 3;
     }
-
-  // *** DRC ***
-  fDrcHit = (TClonesArray*) fManager->GetObject("DrcHit");
-  if ( ! fDrcHit ) 
+  
+  if (fIdeal)
     {
-      cout << "-W- PndPidCorrelator::Init: No DrcHit array!" << endl;
-      fDrcMode = 0;
+      cout << "-I- PndPidCorrelator::Init: Using MonteCarlo correlation" << endl;
+      fTofPoint = (TClonesArray*) fManager->GetObject("TofPoint");
+      if ( ! fTofPoint ) 
+	{
+	  cout << "-W- PndPidCorrelator::Init: No TofPoint array!" << endl;
+	  fTofMode = 0;
+	}
+      else  
+	{
+	  cout << "-I- PndPidCorrelator::Init: Using TofPoint" << endl;
+	}
+      fDrcPoint = (TClonesArray*) fManager->GetObject("DrcBarPoint");
+      if ( ! fDrcPoint ) 
+	{
+	  cout << "-W- PndPidCorrelator::Init: No DrcBarPoint array!" << endl;
+	  fDrcMode = 0;
+	}
+      else  
+	{
+	  cout << "-I- PndPidCorrelator::Init: Using DrcPoint" << endl;
+	}
+      fMdtPoint = (TClonesArray*) fManager->GetObject("MdtPoint");
+      if ( ! fMdtPoint ) 
+	{
+	  cout << "-W- PndPidCorrelator::Init: No MdtPoint array!" << endl;
+	  fMdtMode = 0;
+	}
+      else  
+	{
+	  cout << "-I- PndPidCorrelator::Init: Using MdtPoint" << endl;
+	}
     }
-  else  
-    {
-      cout << "-I- PndPidCorrelator::Init: Using DrcHit" << endl;
-      fDrcMode = 2;
-    }
-
+  
   Register();
    
   fCorrPar->printParams();
@@ -571,11 +611,13 @@ void PndPidCorrelator::GetSttInfo(PndTrack* track, PndPidCandidate* pidCand) {
 //_________________________________________________________________
 void PndPidCorrelator::GetTofInfo(FairTrackParH* helix, PndPidCandidate* pidCand) {
 
-  if ((helix->GetMomentum().Theta()*TMath::RadToDeg())<20.) return; 
-  if ((helix->GetMomentum().Theta()*TMath::RadToDeg())>150.) return;
-  
+  if (!fIdeal)
+    {
+      if ((helix->GetMomentum().Theta()*TMath::RadToDeg())<20.) return; 
+      if ((helix->GetMomentum().Theta()*TMath::RadToDeg())>150.) return;
+    }
   //---
-  PndTofHit *tofHit = NULL;
+  PndTofHit *tofHit = NULL; 
   Int_t tofEntries = fTofHit->GetEntriesFast();
   Int_t tofIndex = -1;
   Float_t tofTof = 0., tofLength = -1000, tofGLength = -1000;
@@ -588,6 +630,7 @@ void PndPidCorrelator::GetTofInfo(FairTrackParH* helix, PndPidCandidate* pidCand
   for (Int_t tt = 0; tt<tofEntries; tt++)
     {
       tofHit = (PndTofHit*)fTofHit->At(tt);
+      if ( fIdeal && ( ((PndTofPoint*)fTofPoint->At(tofHit->GetRefIndex()))->GetTrackID() !=pidCand->GetMcIndex()) ) continue;
       tofHit->Position(tofPos);
   
       if (fGeanePro) // Overwrites vertex if Geane is used
@@ -627,7 +670,7 @@ void PndPidCorrelator::GetTofInfo(FairTrackParH* helix, PndPidCandidate* pidCand
 	}
     }
   
-  if (tofQuality<fCorrPar->GetTofCut())
+  if ( (tofQuality<fCorrPar->GetTofCut()) || (fIdeal && tofIndex!=-1) )
     {
       pidCand->SetTofQuality(tofQuality);
       pidCand->SetTofStopTime(tofTof);
@@ -654,6 +697,14 @@ void PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCand
   for (Int_t ee = 0; ee<emcEntries; ee++)
     {
       emcHit = (PndEmcCluster*)fEmcCluster->At(ee);
+      
+      if ( fIdeal )
+	{
+	  std::vector<Int_t> mclist = emcHit->GetMcList();
+	  if (mclist.size()==0) continue;
+	  if (mclist[0]!=pidCand->GetMcIndex()) continue;
+	}
+      
       //if (emcHit->energy() < fCorrPar->GetEmc12Thr()) continue;
       Int_t emcModule = ((PndEmcDigi*)emcHit->Maxima())->GetModule();
       if (emcModule>4) continue;
@@ -697,7 +748,7 @@ void PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCand
 	  emcCorr->Fill(ntuple);
 	}
     }
-  if (emcQuality < fCorrPar->GetEmc12Cut())
+  if ( (emcQuality < fCorrPar->GetEmc12Cut()) || ( fIdeal && emcIndex!=-1) )
     {
       fClusterList[emcIndex] = kTRUE;
       pidCand->SetEmcQuality(emcQuality);
@@ -735,6 +786,7 @@ void PndPidCorrelator::GetMdtInfo(FairTrackParH* helix, PndPidCandidate* pidCand
   for (Int_t mm = 0; mm<mdtEntries; mm++)
     {
       mdtHit = (PndMdtHit*)fMdtHit->At(mm);
+      if ( fIdeal && ( ((PndMdtPoint*)fMdtPoint->At(mdtHit->GetRefIndex()))->GetTrackID() !=pidCand->GetMcIndex()) ) continue;
       if (mdtHit->GetLayerID()!=0) continue;
       if (mdtHit->GetModule()>2) continue;
       mdtHit->Position(mdtPos);
@@ -786,7 +838,7 @@ void PndPidCorrelator::GetMdtInfo(FairTrackParH* helix, PndPidCandidate* pidCand
 	}
     }
   
-  if (mdtQuality<fCorrPar->GetMdtCut())
+  if ((mdtQuality<fCorrPar->GetMdtCut()) || ( fIdeal && mdtIndex!=-1))
     {
       pidCand->SetMuoIndex(mdtIndex);
       pidCand->SetMuoQuality(mdtQuality);
@@ -811,7 +863,8 @@ void PndPidCorrelator::GetDrcInfo(FairTrackParH* helix, PndPidCandidate* pidCand
   TVector3 momentum(0., 0., 0.);
   for (Int_t dd = 0; dd<drcEntries; dd++)
     {
-      drcHit = (PndDrcHit*)fDrcHit->At(dd);
+      drcHit = (PndDrcHit*)fDrcHit->At(dd); 
+      if ( fIdeal && ( ((PndDrcBarPoint*)fDrcPoint->At(drcHit->GetRefIndex()))->GetTrackID() !=pidCand->GetMcIndex()) ) continue;
       drcHit->Position(drcPos);
       
       if (fGeanePro) // Overwrites vertex if Geane is used
@@ -852,7 +905,7 @@ void PndPidCorrelator::GetDrcInfo(FairTrackParH* helix, PndPidCandidate* pidCand
 	}
     }
   
-  if (drcQuality<fCorrPar->GetDrcCut())
+  if ((drcQuality<fCorrPar->GetDrcCut()) || (fIdeal && drcIndex!=-1))
     {
       pidCand->SetDrcQuality(drcQuality);
       pidCand->SetDrcThetaC(drcThetaC);

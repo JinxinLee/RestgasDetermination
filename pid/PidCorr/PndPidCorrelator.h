@@ -41,11 +41,14 @@ protected:
    
   TClonesArray* fMvdHitsStrip;      //! PndMvdHit TCA for strip
   TClonesArray* fMvdHitsPixel;      //! PndMvdHit TCA for pixel
-  TClonesArray* fTofHit;            //! PndTofHit TCA
+  TClonesArray* fTofHit;            //! PndTofHit TCA 
+  TClonesArray* fTofPoint;          //! PndTofPoint TCA
   TClonesArray* fEmcCluster;        //! PndEmcCluster TCA 
   TClonesArray* fEmcBump;           //! PndEmcBump TCA
+  TClonesArray* fMdtPoint;          //! PndMdtPoint TCA 
   TClonesArray* fMdtHit;            //! PndMdtHit TCA 
   TClonesArray* fMdtTrk;            //! PndMdtTrk TCA
+  TClonesArray* fDrcPoint;          //! PndDrcBarPoint TCA
   TClonesArray* fDrcHit;            //! PndDrcHit TCA
   TClonesArray* fSttHit;            //! PndSttHit/PndSttHelixHit TCA
  
@@ -69,7 +72,8 @@ protected:
   Bool_t fVerbose;                  // Switch ON/OFF debug messages 
   Bool_t fSimulation;               // Switch simulation diagnostic
   Bool_t fGeanePro;                 // Use GEANE propagation
- 
+  Bool_t fIdeal;                    // Ideal Correlation
+
   PndMvdGeoHandling* geoH;           // Object to retrieve MVD geometry
   
   TFile *r;                          // File for debug ntuples
@@ -118,6 +122,7 @@ public:
   void SetInputIDBranch(TString branch)   { fTrackIDBranch = branch; };	
   void SetVerbose(Bool_t verb)            { fVerbose = verb  ;};
   void SetSimulation(Bool_t sim)          { fSimulation = sim; };
+  void SetIdeal(Bool_t id)                { fIdeal = id; };
   void SetGeanePro(Bool_t gea = kTRUE)    { fGeanePro = gea; };
 	
   /** Get parameter containers **/
