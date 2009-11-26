@@ -20,6 +20,7 @@
 #include "TClonesArray.h"
 #include "TGeoManager.h"
 #include "TGeoVolume.h"
+#include "TGeoBBox.h"
 #include "TGeoMatrix.h"
 #include <iostream>
 
@@ -94,6 +95,12 @@ void PndMdtTrkProducer::SetParContainers() {
 
 //______________________________________________________
 void PndMdtTrkProducer::SetGeometry() {
+  // Resetting geoemtry parameters
+  for (Int_t mm=0; mm<3; mm++)
+    for (Int_t ll=0; ll<20;ll++)
+      mdtLayerPos[mm][ll] = -1;
+  mdtModule1MaxZ = -1;
+  
   Short_t version = 0;
   Text_t buffer[50]; 
   Text_t lbuffer[255];
@@ -110,15 +117,15 @@ void PndMdtTrkProducer::SetGeometry() {
       for (Int_t ll=0; ll<15; ll++)
 	{ 
 	  mdtLayerPos[0][ll] = -1;
-	  Int_t sec = 0;
-	  sprintf(buffer,"MDT%is%il%ib%iw%i", 1, sec, ll, 0, 0);
+	  Int_t sec = 0, box = 0;
+	  sprintf(buffer,"MDT%is%il%ib%iw%i", 1, sec, ll, box, 0);
 	  TGeoVolume *v = gGeoManager->FindVolumeFast(buffer);
 	  if (v)
 	    {
 	      if (version==1)
 		{
 		  sec = 0;
-		  sprintf(buffer,"MDT%is%il%ib%iw%i", 1, sec, ll, 0, 0);
+		  sprintf(buffer,"MDT%is%il%ib%iw%i", 1, sec, ll, box, 0);
 		  if (ll<10)
 		    sprintf(lbuffer,"cave_1/Mdt_1/MdtBarrel_1/MdtBarrelLayer0%i_1/%s_%i",ll,buffer,8*ll);
 		  else
@@ -126,12 +133,12 @@ void PndMdtTrkProducer::SetGeometry() {
 		}
 	      if (version==2)
 		{ 
-		  sec = 2;
-		  sprintf(buffer,"MDT%is%il%ib%iw%i", 1, sec, ll, 0, 0);
+		  sec = 2; box = 6;
+		  sprintf(buffer,"MDT%is%il%ib%iw%i", 1, sec, ll, box, 0);
 		  if (ll<10)		 
-		    sprintf(lbuffer,"cave_1/MdtBarrel_0/MdtBarrelOct%i_%i/MdtBarrelOct%iLayer0%i_0/BP1%i%i00_0/BA1%i%i00_0/%s_0",sec,sec,sec,ll,sec,ll,sec,ll,buffer);
+		    sprintf(lbuffer,"cave_1/MdtBarrel_0/MdtBarrelOct%i_%i/MdtBarrelOct%iLayer0%i_0/BP1%i%i%i0_%i/BA1%i%i%i0_%i/%s_0",sec,sec,sec,ll,sec,ll,box,box,sec,ll,box,box,buffer);
 		  else
-		    sprintf(lbuffer,"cave_1/MdtBarrel_0/MdtBarrelOct%i_%i/MdtBarrelOct%iLayer%i_0/BP1%i%i00_0/BA1%i%i00_0/%s_0",sec,sec,sec,ll,sec,ll,sec,ll,buffer);
+		    sprintf(lbuffer,"cave_1/MdtBarrel_0/MdtBarrelOct%i_%i/MdtBarrelOct%iLayer%i_0/BP1%i%i%i0_%i/BA1%i%i%i0_%i/%s_0",sec,sec,sec,ll,sec,ll,box,box,sec,ll,box,box,buffer);
 		}
 	      
 	      gGeoManager->cd(lbuffer);
@@ -139,7 +146,16 @@ void PndMdtTrkProducer::SetGeometry() {
 	      Double_t master[3];
 	      gGeoManager->LocalToMaster(local, master);
 	      mdtLayerPos[0][ll] = master[1];
-	      if (fVerbose>1) cout <<  buffer << "\t" << mdtLayerPos[0][ll] << "\t" << master[0] << "\t" << master[1] << "\t" << master[2] << endl;
+	      // Finding the maximum point of Z
+	      if (ll==0)
+		{
+		  const Double_t *origin = ((TGeoBBox*)gGeoManager->GetCurrentVolume()->GetShape())->GetOrigin();
+		  if (fVerbose>1) cout <<  buffer << "\t" << mdtLayerPos[0][ll] << "\t" << master[0] << "\t" << master[1] << "\t" << master[2] << endl;
+		  if (version==1) local[1] = ((TGeoBBox*)gGeoManager->GetCurrentVolume()->GetShape())->GetDY()+origin[1];
+		  if (version==2) local[2] = ((TGeoBBox*)gGeoManager->GetCurrentVolume()->GetShape())->GetDZ()+origin[2];
+		  gGeoManager->LocalToMaster(local, master);
+		  mdtModule1MaxZ = master[2];
+		}
 	    } // end of recognized volume
 	} // end of layer loop
     } // end of barrel
@@ -225,7 +241,7 @@ void PndMdtTrkProducer::SetGeometry() {
 		sprintf(lbuffer,"cave_1/Forward_0/MdtForwardLayer0%i_0/BP40%i00_%i/BA40%i00_0/%s_0",ll,ll,ll,ll,buffer);
 	      else
 		sprintf(lbuffer,"cave_1/Forward_0/MdtForwardLayer%i_0/BP40%i00_%i/BA40%i00_0/%s_0",ll,ll,ll,ll,buffer);
-		
+	      
 	    }
 	  
 	  gGeoManager->cd(lbuffer);
@@ -247,7 +263,7 @@ void PndMdtTrkProducer::Exec(Option_t* opt)
   fTrkArray->Clear();
   
   if (!MdtMapping()) return; // exit if the event contains no Mdt hits
-  cout << mapMdtBarrel.size() << "\t" << mapMdtEndcap.size() << "\t" << mapMdtForward.size() << endl;
+ 
   if (mapMdtBarrel.size()>0)
     {
       vector<Int_t>vecMdt0 = mapMdtBarrel[0];
@@ -294,12 +310,53 @@ void PndMdtTrkProducer::Exec(Option_t* opt)
 		  layerCount++;
 		  oldPos = corrPos; // reset position for next mdt layer
 		}
-	      
 	    } // end of layer loop
+
+	  // Loop over Endcap for hybrid tracklets
+	  if (mapMdtEndcap.size()>0)
+	    {
+	      map<Int_t, vector<Int_t> >::const_iterator layer2_iter;
+	      for (layer2_iter=mapMdtEndcap.begin();layer2_iter!=mapMdtEndcap.end();++layer2_iter) // layer loop
+		{
+		  if (((*layer2_iter).first)==0) continue; // skip first layer
+		  
+		  vector<Int_t>vecMdt = (*layer2_iter).second;
+		  Float_t corrDist = -1;
+		  Int_t corrId = -1;
+		  TVector3 corrPos(0., 0., 0.);
+		  for (Int_t hit_iter = 0; hit_iter < vecMdt.size(); ++hit_iter)
+		    {
+		      PndMdtHit* mdtHit  = (PndMdtHit*) fHitArray->At(vecMdt[hit_iter]);
+		      mdtHit->Position(newPos);
+		      Float_t hitDist = (oldPos-newPos).Mag2();
+		      if ( (corrDist<0.) || (corrDist > hitDist) ) // find closes hit
+			{
+			  corrDist = hitDist;
+			  corrId = vecMdt[hit_iter];
+			  corrPos = newPos;
+			}
+		    }
+		  
+		  if ( (corrDist>0.) && 
+		       ( 
+			( (((*layer2_iter).first)==1) && ((TMath::Sqrt(corrDist)/(mdtLayerPos[1][(*layer2_iter).first] - mdtModule1MaxZ) ) < 2.5)) ||
+			( (((*layer2_iter).first)>1)  && ((TMath::Sqrt(corrDist)/(mdtLayerPos[1][(*layer2_iter).first] - mdtLayerPos[1][(*layer2_iter).first-1])) < 2.5)) 
+			)
+		       ) // if there in one correlated hit closer than 2.5 layer distance
+		    { 
+		      mdtTrk->SetModule(-1);
+		      mdtTrk->SetHitNumber(layerCount, corrId);
+		      mdtTrk->SetHitDist(layerCount, corrDist);
+		      mdtTrk->SetHitMult(layerCount, mdtTrk->GetHitMult(layerCount)+1);
+		      layerCount++;
+		      oldPos = corrPos; // reset position for next mdt layer
+		    }
+		} // end of layer loop
+	    }
 	  
-	    mdtTrk->SetLayerCount(layerCount);
-            AddTrk(mdtTrk); // storing the PndMdtTrk object  
-	    } // end of layer0 loop
+	  mdtTrk->SetLayerCount(layerCount);
+	  AddTrk(mdtTrk); // storing the PndMdtTrk object  
+	} // end of layer0 loop
     }
   
   if (mapMdtEndcap.size()>0)
