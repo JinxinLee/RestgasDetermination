@@ -27,7 +27,6 @@
   fRun->AddModule(Cave);
 
   FairModule *Pipe= new PndPipe("PIPE");
-  Pipe->SetGeometryFileName("pipebeamtarget.geo");
   fRun->AddModule(Pipe);
 
   FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
@@ -95,13 +94,13 @@
   rtdb->saveOutput();
   rtdb->print();
 
-    timer.Stop();
-    Double_t rtime = timer.RealTime();
+  timer.Stop();
+  Double_t rtime = timer.RealTime();
 	Double_t ctime = timer.CpuTime();
 	printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
 
-	cout << " Test passed" << endl;
-    cout << " All ok " << endl;
+	cout << " Sim passed" << endl;
+  cout << " All ok " << endl;
 
   exit(0);
 }
