@@ -151,6 +151,17 @@ class PndDrcOptDev
   */
   void SetPrintColor(int col);
 
+  /*! \brief Enable Fresnel reflections at all surfaces
+
+  Surfaces which are added later are not affected by this command.
+    
+  \param flag The flag.
+  \sa PndDrcOptDevSys::SetFresnel()
+  \sa PndDrcSurfAbs::SetFresnel()
+  */
+  void SetFresnel(bool flag);
+  
+
  protected: 
   int               fCopyNumber;                  //!<  Copy number for "copies".
   string            fName;                        //!<   Name of volume.   

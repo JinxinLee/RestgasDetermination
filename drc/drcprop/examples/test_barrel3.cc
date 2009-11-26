@@ -136,12 +136,12 @@ int main(int argc, char *argv[])
 
   double thick_air1    =   0.0;
 
-  double radius_lens2b  =  55.638;//+31.3;//atof(argv[2]);//-188;
+  double radius_lens2b  =  56.638;//55.638;//+31.3;//atof(argv[2]);//-188;
   double radius_lens2a  = -30.836;//-30.94;//atof(argv[2]);//-188;
-  double thick_lens2   = 12.1;
+  double thick_lens2   = 11.6;//12.1
 
 
-  double thick_air2 = 5; 
+  double thick_air2 = 7; 
   
 
   XYZPoint q0(-34/2,-17.5/2,0);
@@ -281,7 +281,8 @@ int main(int argc, char *argv[])
   
 
 
-
+  opt_system.SetFresnel(true); // sets all surfaces
+  
 
   // The manager must be created as pointer. It is created as singleton, that is only 
   // one manager can exist per application.
@@ -310,7 +311,7 @@ int main(int argc, char *argv[])
   geo<<"    view->SetRange(-500,-500,-900,500,500,100);"<<endl;
   geo<<"    Int_t i;"<<endl;
   geo<<"    view->SetView(90,90,90,i);"<<endl;
-  for (int i=0; i<16;i++) // 7 or 16
+  for (int i=0; i<15;i++) // 7 or 16
     geo<<"    view->Zoom();"<<endl;
   
   // the following command sets a flag within the manager and all photons from
@@ -339,7 +340,7 @@ int main(int argc, char *argv[])
       // straight lines.
       TRandom ran;
       //for (double angle=20; angle<=20; angle+=5)
-      for (double angle=5; angle<=40.5; angle+=5)
+      for (double angle=5; angle<=50.5; angle+=5)
 	{
 	  double slab_width = q2.X()*1.9;
 	  double slab_height =q2.Y()*1.9;

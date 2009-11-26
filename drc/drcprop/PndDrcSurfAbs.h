@@ -181,6 +181,8 @@ class PndDrcSurfAbs
   /*! \brief Enable Fresnel reflections at surface 
     
   \param flag The flag.
+  \sa PndDrcOptDevSys::SetFresnel()
+  \sa PndDrcOptDev::SetFresnel()
   */
   void SetFresnel(bool flag=true){fFresnel=flag;}
   

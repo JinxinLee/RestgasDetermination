@@ -252,9 +252,9 @@ class PndDrcPhoton
   bool Refract(XYZVector normal, 
 	       double n_in, 
 	       double ex_in, 
+	       bool fresnelFlag=true, 
 	       double n_out=1.0, 
 	       double ex_out=0.0, 
-	       bool fresnelFlag=true, 
 	       double diffuseProb = 0);
 
   /*! \brief Reflect the photon

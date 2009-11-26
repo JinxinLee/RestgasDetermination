@@ -109,8 +109,11 @@ void PndDrcPhoton::SetPosition(const XYZPoint& pos)
   fPosition    = pos;
 };
 //----------------------------------------------------------------------
-bool PndDrcPhoton::Refract(XYZVector normal, double n1, double ex1, 
-double n2, double ex2, bool fresnelFlag, double diffuseProb)
+bool PndDrcPhoton::Refract(XYZVector normal, 
+			   double n1, double ex1,
+			   bool fresnelFlag,
+			   double n2, double ex2, 
+			   double diffuseProb)
 {
 
   //   cout << "VOLCHECK2: " << n1 << " " << ex1 << " " 

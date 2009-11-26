@@ -193,3 +193,16 @@ void PndDrcOptDev::SetPrintColor(int col)
     }
 
 }
+//----------------------------------------------------------------------
+void PndDrcOptDev::SetFresnel(bool flag)
+{
+  list<PndDrcSurfAbs*>::const_iterator kSurf;
+	    
+  for (kSurf=fListSurf.begin(); 
+       kSurf != fListSurf.end(); 
+       ++kSurf)
+    {
+      (*kSurf)->SetFresnel(flag);
+    }
+
+}

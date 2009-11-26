@@ -551,6 +551,16 @@ void PndDrcOptDevSys::SetPrintColor(int col)
    }
 }
 //----------------------------------------------------------------------
+void PndDrcOptDevSys::SetFresnel(bool flag)
+{
+  list<PndDrcOptDev*>::const_iterator kDev;
+
+  for(kDev=fListDev.begin(); kDev != fListDev.end(); ++kDev) 
+    {
+      (*kDev)->SetFresnel(flag);
+   }
+}
+//----------------------------------------------------------------------
 void PndDrcOptDevSys::AddTransform(const Transform3D& trans)
 {
 

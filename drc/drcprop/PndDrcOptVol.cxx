@@ -261,39 +261,40 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
         refl = surf_closest->Reflectivity().Reflectivity(ph,norm);
 
         if (refl == Drc::ReflAbsorbed)
-        {
-//           if( surf_closest->Name() == "lens_side1" || surf_closest->Name() == "lens_side2" || surf_closest->Name() == "lens_side3"
-//               || surf_closest->Name() == "lens_side4" )
-//           if( surf_closest->Name() == "lens_sphere")
-//           {
-//             cout << "ja" << endl;
-//             bool blub = ph.Refract(norm, OptMaterial().RefIndex(ph.Wavelength()),OptMaterial().Extinction(ph.Wavelength()),1,0,true,0,true);
-//           }
-
-          if (Verbosity()>=4)
-            cout<<"     PndDrcOptVol::propagate: mirror absorbed"<<endl;
-          ph.SetFate(Drc::kPhotAbsorbed);
-          return;
-        }
+	  {
+	    //           if( surf_closest->Name() == "lens_side1" || surf_closest->Name() == "lens_side2" || surf_closest->Name() == "lens_side3"
+	    //               || surf_closest->Name() == "lens_side4" )
+	    //           if( surf_closest->Name() == "lens_sphere")
+	    //           {
+	    //             cout << "ja" << endl;
+	    //             bool blub = ph.Refract(norm, OptMaterial().RefIndex(ph.Wavelength()),OptMaterial().Extinction(ph.Wavelength()),1,0,true,0,true);
+	    //           }
+	    
+	    if (Verbosity()>=4)
+	      cout<<"     PndDrcOptVol::propagate: mirror absorbed"<<endl;
+	    ph.SetFate(Drc::kPhotAbsorbed);
+	    return;
+	  }
         if (refl == Drc::ReflTransmitted)
-        {
-		  // do nothing
-        }
+	  {
+	    // do nothing
+	  }
         if (refl == Drc::ReflReflected)
-        {
-          ph.Reflect(norm);
-          continue; // while loop
-        }
+	  {
+	    ph.Reflect(norm);
+	    continue; // while loop
+	  }
         if (refl == Drc::ReflRefracted)
-        {
-          bool refr = ph.Refract(norm, 
-				 OptMaterial().RefIndex(ph.Wavelength()),
-				 OptMaterial().Extinction(ph.Wavelength()) );
-          if (refr)
-          {
-            ph.SetFate(Drc::kPhotLost); // Photon refracted in nirvana.
-            if (Verbosity()>=4) cout<<"     Photon lost"<<endl;
-            break; // while loop
+	  {
+	    bool refr = ph.Refract(norm, 
+				   OptMaterial().RefIndex(ph.Wavelength()),
+				   OptMaterial().Extinction(ph.Wavelength()),
+				   surf_closest->Fresnel());
+	    if (refr)
+	      {
+		ph.SetFate(Drc::kPhotLost); // Photon refracted in nirvana.
+		if (Verbosity()>=4) cout<<"     Photon lost"<<endl;
+		break; // while loop
           }
         }
       }
@@ -304,7 +305,8 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 
         bool refr = ph.Refract(norm,
 			       OptMaterial().RefIndex(ph.Wavelength()), 
-			       OptMaterial().Extinction(ph.Wavelength()) );
+			       OptMaterial().Extinction(ph.Wavelength()),
+			       surf_closest->Fresnel());
 
 //         if( surf_closest->Name() == "box_side2" || surf_closest->Name() == "box_side3" || surf_closest->Name() == "box_side4"
 //             || surf_closest->Name() == "box_side6")
@@ -428,7 +430,10 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
               double ex2 = opt_mat->Extinction(ph.Wavelength());
 //               cout << "VOLCHECK: " << n1 << " " << ex1 << " " << n2 << " " << ex2 << endl;
 
-              bool iref = ph.Refract(surf_closest->Normal(ph.Position()), n1, ex1, n2, ex2 );
+              bool iref = ph.Refract(surf_closest->Normal(ph.Position()), 
+				     n1, ex1, 
+				     surf_closest->Fresnel(),
+				     n2, ex2);
 
 //               if( surf_closest->Name() == "slab_side1" && !iref )
 //                 cout << "wrong" << endl;

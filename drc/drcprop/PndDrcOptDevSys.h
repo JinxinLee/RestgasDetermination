@@ -218,6 +218,19 @@ class PndDrcOptDevSys
   */
   void SetPrintColor(int col);
 
+  /*! \brief Enable Fresnel reflections at all surfaces
+
+  Surfaces which are added later are not affected by this command.
+    
+  \param flag The flag.
+  \sa PndDrcOptDev::SetFresnel()
+  \sa PndDrcSurfAbs::SetFresnel()
+
+  */
+  void SetFresnel(bool flag);
+  
+
+
   /*! \brief Add transformation
 
   The tranform from the root framework is a rotation followed by a shift 
