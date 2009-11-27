@@ -42,6 +42,9 @@ class PndSttHitProducerRealFull : public FairTask
 
   void FoldZPosWithResolution(Double_t &zpos, Double_t &zposError, TVector3 localInPos, TVector3 localOutPos);
 
+  /** set persistence flag **/
+  void SetPersistence(Bool_t persistence) { fPersistence = persistence; }
+
  private: 
 
   /** Input array of PndSttPoints **/
@@ -52,10 +55,13 @@ class PndSttHitProducerRealFull : public FairTask
 
   TObjArray *fVolumeArray;
 
-   /** Output array of PndSttHitInfo **/
+  /** Output array of PndSttHitInfo **/
   TClonesArray* fHitInfoArray;
 
-  ClassDef(PndSttHitProducerRealFull,1);
+  /** object persistence **/
+  Bool_t  fPersistence; //!
+
+ ClassDef(PndSttHitProducerRealFull,1);
 
 };
 

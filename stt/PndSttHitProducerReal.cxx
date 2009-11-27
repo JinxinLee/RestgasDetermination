@@ -29,7 +29,9 @@ using std::endl;
 
 // -----   Default constructor   -------------------------------------------
 PndSttHitProducerReal::PndSttHitProducerReal() :
-  FairTask("Ideal STT Hit Producer") { }
+  FairTask("Ideal STT Hit Producer") {  
+  fPersistence = kTRUE;
+}
 // -------------------------------------------------------------------------
 
 
@@ -61,11 +63,11 @@ InitStatus PndSttHitProducerReal::Init() {
 
   // Create and register output array
   fHitArray = new TClonesArray("PndSttHit");
-  ioman->Register("STTHit","STT",fHitArray,kTRUE);
+  ioman->Register("STTHit","STT",fHitArray, fPersistence);
   
  // Create and register output array
   fHitInfoArray = new TClonesArray("PndSttHitInfo");
-  ioman->Register("STTHitInfo", "STT", fHitInfoArray, kTRUE);
+  ioman->Register("STTHitInfo", "STT", fHitInfoArray, fPersistence);
 
   // Geometry loading
 //  TFile *tstfile=ioman->GetInFile();

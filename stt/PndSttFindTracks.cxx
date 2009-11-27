@@ -28,6 +28,7 @@ PndSttFindTracks::PndSttFindTracks()
   fNofTracks   = 0;
   fVerbose     = 1;
   fCollectionsComplete = kFALSE;
+  fPersistence = kTRUE;
 }
 // -------------------------------------------------------------------------
 
@@ -43,6 +44,7 @@ PndSttFindTracks::PndSttFindTracks(PndSttTrackFinder* finder,
   fNofTracks   = 0;
   fVerbose     = verbose;
   fCollectionsComplete = kFALSE;
+  fPersistence = kTRUE;
 }
 // -------------------------------------------------------------------------
 
@@ -59,6 +61,7 @@ PndSttFindTracks::PndSttFindTracks(const char* name, const char* title,
   fNofTracks   = 0;
   fVerbose     = verbose;
   fCollectionsComplete = kFALSE;
+  fPersistence = kTRUE;
 }
 // -------------------------------------------------------------------------
 
@@ -96,7 +99,7 @@ InitStatus PndSttFindTracks::Init()
 
   // Create and register SttTrack array
   fTrackArray = new TClonesArray("PndSttTrack",100);
-  ioman->Register("STTTrack", "STT", fTrackArray, kTRUE);
+  ioman->Register("STTTrack", "STT", fTrackArray, fPersistence);
   
   // Set verbosity of track finder
   fFinder->SetVerbose(fVerbose);

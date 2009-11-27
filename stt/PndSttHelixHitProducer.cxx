@@ -34,7 +34,9 @@ using namespace std;
 
 // -----   Default constructor   -------------------------------------------
 PndSttHelixHitProducer::PndSttHelixHitProducer() :
-  FairTask("STT HELIX Hit Producer") { }
+  FairTask("STT HELIX Hit Producer") { 
+  fPersistence = kTRUE;
+}
 // -------------------------------------------------------------------------
 
 
@@ -94,7 +96,7 @@ InitStatus PndSttHelixHitProducer::Init() {
 
   // Create and register output array
   fHelixHitArray = new TClonesArray("PndSttHelixHit");
-  ioman->Register("SttHelixHit","STT",fHelixHitArray,kTRUE);
+  ioman->Register("SttHelixHit","STT",fHelixHitArray, fPersistence);
     
 
 

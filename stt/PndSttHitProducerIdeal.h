@@ -44,6 +44,7 @@ class PndSttHitProducerIdeal : public FairTask
   /** Virtual method Exec **/
   virtual void Exec(Option_t* opt);
 
+  void SetPersistence(Bool_t persistence) { fPersistence = persistence; }
 
  private:
   /** Private method GetClostestApproachToWire;
@@ -71,6 +72,9 @@ class PndSttHitProducerIdeal : public FairTask
   
   /** Output array of PndSttHitInfo **/
   TClonesArray* fHitInfoArray;
+
+  /** object persistence **/
+  Bool_t  fPersistence; //!
 
   ClassDef(PndSttHitProducerIdeal,1);
 

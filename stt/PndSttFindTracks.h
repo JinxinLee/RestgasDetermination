@@ -79,6 +79,9 @@ class PndSttFindTracks : public FairTask
   /** Add an hit collection to perform trackfinding on */
   void AddHitCollectionName(char *hitCollectionName, char *pointCollectionName);
 
+  /** set persistence flag **/
+  void SetPersistence(Bool_t persistence) { fPersistence = persistence; }
+
 
  private:
   void AddAllCollections(); 
@@ -94,6 +97,10 @@ class PndSttFindTracks : public FairTask
   std::vector<std::string> fPointCollectionNames;
 
   Bool_t fCollectionsComplete;
+
+  /** object persistence **/
+  Bool_t  fPersistence; //!
+
 
   ClassDef(PndSttFindTracks,1);
 };

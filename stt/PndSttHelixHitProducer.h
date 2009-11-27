@@ -33,6 +33,9 @@ class PndSttHelixHitProducer : public FairTask
 
   void WriteHistograms();
 
+  /** set persistence flag **/
+  void SetPersistence(Bool_t persistence) { fPersistence = persistence; }
+
  private: 
 
   /** Input array of CbmSttPoints **/
@@ -50,6 +53,8 @@ class PndSttHelixHitProducer : public FairTask
   TH1F *hxs, *hys, *hzs;
   TH2F *hzresvsslope;
 
+  /** object persistence **/
+  Bool_t  fPersistence; //!
 
   ClassDef(PndSttHelixHitProducer,1);
 

@@ -70,6 +70,9 @@ class PndSttMatchTracks : public FairTask
   PndSttHit* GetHitFromCollections(Int_t hitCounter);
   FairMCPoint* GetPointFromCollections(Int_t hitCounter);
 
+  /** set persistence flag **/
+  void SetPersistence(Bool_t persistence) { fPersistence = persistence; }
+
  private:
   void AddAllCollections(); 
   void AddHitCollection(char const *collectionName, char const *pointCollectionName);
@@ -89,6 +92,9 @@ class PndSttMatchTracks : public FairTask
   std::vector<std::string> fPointCollectionNames;
   TList fHitCollectionList;
   TList fPointCollectionList;
+ 
+  /** object persistence **/
+  Bool_t  fPersistence; //!
 
   ClassDef(PndSttMatchTracks,1);
 };

@@ -24,6 +24,7 @@ PndSttMatchTracks::PndSttMatchTracks()
   fMatches    = NULL;
   fVerbose    = 1;
   fCollectionsComplete = kFALSE;
+  fPersistence = kTRUE;
 }
 // -------------------------------------------------------------------------
 
@@ -36,6 +37,7 @@ PndSttMatchTracks::PndSttMatchTracks(Int_t verbose)
   fMatches    = NULL;
   fVerbose    = verbose;
   fCollectionsComplete = kFALSE;
+  fPersistence = kTRUE;
 }
 // -------------------------------------------------------------------------
 
@@ -49,6 +51,7 @@ PndSttMatchTracks::PndSttMatchTracks(const char* name, const char* title,
   fMatches    = NULL;
   fVerbose    = verbose;
   fCollectionsComplete = kFALSE;
+  fPersistence = kTRUE;
 }
 // -------------------------------------------------------------------------
 
@@ -85,7 +88,7 @@ InitStatus PndSttMatchTracks::Init() {
 
   // Create and register SttTrackMatch array
   fMatches = new TClonesArray("PndSttTrackMatch",100);
-  ioman->Register("STTTrackMatch", "STT", fMatches, kTRUE);
+  ioman->Register("STTTrackMatch", "STT", fMatches, fPersistence);
 
   return kSUCCESS;
 

@@ -48,6 +48,9 @@ class PndSttHitProducerRealFast : public FairTask
   void SetParContainers();
 
 
+  /** set persistence flag **/
+  void SetPersistence(Bool_t persistence) { fPersistence = persistence; }
+
   private: 
 
   /** Input array of PndSttPoints **/
@@ -58,13 +61,16 @@ class PndSttHitProducerRealFast : public FairTask
 
   TObjArray *fVolumeArray;
 
-   /** Output array of PndSttHitInfo **/
+  /** Output array of PndSttHitInfo **/
   TClonesArray* fHitInfoArray;
   Int_t fevtn;
 
-PndGeoSttPar*  fSttParameters;
- 
-  ClassDef(PndSttHitProducerRealFast,1);
+  PndGeoSttPar*  fSttParameters;
+  
+  /** object persistence **/
+  Bool_t  fPersistence; //!
+
+ ClassDef(PndSttHitProducerRealFast,1);
 
 };
 
