@@ -55,7 +55,7 @@ void runsim(Int_t nEvents=1000, Float_t pT=1.0)
   fRun->AddModule(Cave);
 
   FairDetector *Stt= new PndStt("STT", kTRUE);
-  Stt->SetGeometryFileName("straws_skewed_blocks_35cm_pipe.geo");
+  Stt->SetGeometryFileName("straws_skewed_blocks_pipe_120cm.geo");
   fRun->AddModule(Stt);
 
   // Create and Set Event Generator
@@ -85,7 +85,8 @@ void runsim(Int_t nEvents=1000, Float_t pT=1.0)
   output->open("testparams.root");
   rtdb->setOutput(output);
 
-  PndConstPar* fieldPar = (PndConstPar*) rtdb->getContainer("PndConstPar");
+  // PndConstPar* fieldPar = (PndConstPar*) rtdb->getContainer("PndConstPar");
+  PndMultiFieldPar* fieldPar = (PndMultiFieldPar*) rtdb->getContainer("PndMultiFieldPar");
   if ( fField ) {  fieldPar->SetParameters(fField); }
   fieldPar->setInputVersion(fRun->GetRunId(),1);
   fieldPar->setChanged(kTRUE);
