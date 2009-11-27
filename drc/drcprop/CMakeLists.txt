@@ -27,6 +27,8 @@ PndDrcOptDevSys.cxx
 PndDrcOptMatAbs.cxx  
 PndDrcOptMatLithotecQ0.cxx 
 PndDrcOptMatNLAK33A.cxx 
+PndDrcOptMatBK7.cxx 
+PndDrcOptMatMarcol7.cxx 
 PndDrcOptMatLLF1.cxx 
 PndDrcOptMatLiF.cxx 
 PndDrcOptMatVacuum.cxx 

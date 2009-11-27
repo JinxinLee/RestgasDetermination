@@ -306,6 +306,7 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
         bool refr = ph.Refract(norm,
 			       OptMaterial().RefIndex(ph.Wavelength()), 
 			       OptMaterial().Extinction(ph.Wavelength()),
+
 			       surf_closest->Fresnel());
 
 //         if( surf_closest->Name() == "box_side2" || surf_closest->Name() == "box_side3" || surf_closest->Name() == "box_side4"

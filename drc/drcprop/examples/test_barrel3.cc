@@ -62,6 +62,7 @@ using ROOT::Math::Rotation3D;
 #include "PndDrcOptReflNone.h"
 #include "PndDrcOptMatLithotecQ0.h"
 #include "PndDrcOptMatNLAK33A.h"
+#include "PndDrcOptMatMarcol7.h"
 #include "PndDrcOptMatLLF1.h"
 #include "PndDrcOptMatVacuum.h"
 #include "PndDrcOptDevSys.h"
@@ -136,7 +137,7 @@ int main(int argc, char *argv[])
 
   double thick_air1    =   0.0;
 
-  double radius_lens2b  =  56.638;//55.638;//+31.3;//atof(argv[2]);//-188;
+  double radius_lens2b  =  55.638;//55.638;//+31.3;//atof(argv[2]);//-188;
   double radius_lens2a  = -30.836;//-30.94;//atof(argv[2]);//-188;
   double thick_lens2   = 11.6;//12.1
 
@@ -255,7 +256,7 @@ int main(int argc, char *argv[])
 
 
   PndDrcOptBrik box(dist_plane,dist_plane,dist_plane/2);
-  box.SetOptMaterial(PndDrcOptMatLithotecQ0());
+  box.SetOptMaterial(PndDrcOptMatMarcol7());
   box.SetName("box");
   box.Surface("side1")->SetPixel();
   box.Surface("side1")->SetReflectivity(PndDrcOptReflNone());
