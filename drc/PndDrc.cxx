@@ -166,7 +166,7 @@ void PndDrc::Initialize() {
       TString shapeName = node->getShapePointer()->GetName();
       TString name_clone = "none";
 
-      cout<<" node,name "<<inode<<" "<<name.Data()<<endl;//###
+      std::cout<<" node,name "<<inode<<" "<<name.Data()<<std::endl;//###
 
       if (shapeName.CompareTo("BOX"))
 	{//if box
@@ -291,7 +291,7 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
   if (fVerboseLevel >0)
     {
       //if (! nam.BeginsWith("DrcBar")) 
-	cout << "PndDrc::ProcessHits " << nam << endl;
+//	cout << "PndDrc::ProcessHits " << nam << endl;
     }
   
    //Register points in the barrel (PndDrcBarPoints)
@@ -305,15 +305,15 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
   if (fPdgCode == 50000050){
     if (fRunCherenkov==kFALSE ) {
       gMC->StopTrack();
-      if (fVerboseLevel >0) cout<< "Photon killed" << endl;
+//      if (fVerboseLevel >0) cout<< "Photon killed" << endl;
     }
     if (gMC->IsTrackExiting()==1){
       if (fPos.Z() > -fSlabEnd ){
         if (nam.BeginsWith("DrcBar") ) {
            gMC->StopTrack();
-           if (fVerboseLevel >0) cout<< "Photon killed" << " at z= "<<fPos.Z()<<endl;
+//           if (fVerboseLevel >0) cout<< "Photon killed" << " at z= "<<fPos.Z()<<endl;
         }
-     }
+     }	
    }
    if (gMC->IsTrackEntering()==1){
       if (nam.BeginsWith("DrcPd")){
@@ -321,6 +321,7 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
         fTrackID = gMC->GetStack()->GetCurrentTrackNumber(); //track ID     
         gMC->TrackPosition(fPos);
         gMC->TrackMomentum(fMom); // GeV/c
+        fTime=gMC->TrackTime()*1.0e09; // ns
         AddHit(fTrackID,
 	     fCopyNo,
 	     TVector3(fPos.X(),   fPos.Y(),   fPos.Z()),
@@ -339,13 +340,24 @@ Bool_t PndDrc::ProcessHits(FairVolume* vol) {
 		fTrackID = gMC->GetStack()->GetCurrentTrackNumber();
 		fTime  = gMC->TrackTime() * 1.0e09;
 		fLength = gMC->TrackLength();
-		//Int_t  copyNo = vol->getCopyNo();
-		Int_t s, b, sd; //side and bar and side design
+//		Int_t  copyNo = vol->getCopyNo();
+		Int_t s=0, b=0, s1=0, b1=0, s2=0, b2 =0; //side and bar
+		fNBar=0;
 		TString path = gMC->CurrentVolPath();     
 		if (fVerboseLevel >0) cout<< "Volume: " << gMC->CurrentVolPath() << endl;
-		//  cout << path << endl;    
-		sscanf(path, "/cave_1/DrcBase_1/DrcSide%d_%d/DrcBox_1/DrcBarContainer_%d/DrcBar_1", &sd, &s, &b);
-		fNBar = sd*1000 + s*10 +b;
+		sscanf(path, "/cave_1/DrcBase_1/DrcSide_%d/DrcBox_1/DrcBarContainer_%d/DrcBar_1", &s, &b);
+		sscanf(path, "/cave_1/DrcBase_1/DrcSide1_%d/DrcBox1_1/DrcBarContainer_%d/DrcBar_1", &s1, &b1);
+		sscanf(path, "/cave_1/DrcBase_1/DrcSide2_%d/DrcBox2_1/DrcBarContainer_%d/DrcBar_1", &s2, &b2);
+//		cout<<"side no.= "<<s<<" bar no.="<<b<<endl;
+//		cout<<"side no.= "<<s1<<" bar no.="<<b1<<endl;
+//		cout<<"side no.= "<<s2<<" bar no.="<<b2<<endl;
+		if(s != 0 && s<17){
+		   fNBar = s*10 +b;}
+                 else if( s1 !=0 && s1<17){
+		   fNBar = s1*10 +b1;}
+		 else if(s2 !=0 && s2<17){
+		   fNBar = s2*10 +b2;}
+//		 cout<<"fNBar= "<<fNBar<<endl;  
 		gMC->TrackMomentum(fMom); // GeV/c
 		//    Double_t r = 49.7;
 		//     Double_t phi = acos(fPos.X()/r);
@@ -556,7 +568,7 @@ void PndDrc::ConstructGeometry()
   cout<<" DIRC min. radius = "<<radius-hthick<<endl;
   cout<<" DIRC max. radius = "<<rad_out+2*hthick<<endl;
   TGeoBBox* logicSide = new TGeoBBox("logicSide", lside/2, hthick, bbox_hlen);
-  TGeoVolume *side = new TGeoVolume("DrcSide0",logicSide, gGeoManager->GetMedium("DIRCairNoSens"));
+  TGeoVolume *side = new TGeoVolume("DrcSide",logicSide, gGeoManager->GetMedium("DIRCairNoSens"));
   // 2 special sides where slabs will be missing:
   TGeoBBox* logicSide1 = new TGeoBBox("logicSide1", lside/2, hthick, bbox_hlen);
   TGeoVolume *side1 = new TGeoVolume("DrcSide1",logicSide1, gGeoManager->GetMedium("DIRCairNoSens"));
@@ -758,7 +770,7 @@ void PndDrc::ConstructGeometry()
   barContainer->AddNode(lens2, 1,new TGeoCombiTrans(0., 0., -(bbox_hlen-eps)+r2 + 0.2 , new TGeoRotation (0)));
   
 
-  //gGeoManager->CloseGeometry();
+ // gGeoManager->CloseGeometry();
 
 }
 
