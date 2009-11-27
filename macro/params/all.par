@@ -205,8 +205,20 @@ parameters:Double_t \
                         2,  1,     0.0000,     0.0000,   150.6207,     0.0000,     5.0038,    66.0000,     0.0050,    60.0000,   -60.0000,     0.0300,     0.0300, \
                     3,   180.0000,  0.0, 2, \
                         1,  1,     0.0000,     0.0000,   179.3803,     0.0000,     5.0006,    90.0000,     0.0050,     0.0000,    90.0000,     0.0200,     0.0200, \
-                        2,  1,     0.0000,     0.0000,   180.6207,     0.0000,     5.0038,    90.0000,     0.0050,    60.0000,   -60.0000,     0.0300,     0.0300  \
-#################################################################
+                        2,  1,     0.0000,     0.0000,   180.6207,     0.0000,     5.0038,    90.0000,     0.0050,    60.0000,   -60.0000,     0.0300,     0.0300
+TrackFinderOnHits_ParThetaA: Double_t 59.4
+TrackFinderOnHits_ParThetaB: Double_t -0.02
+TrackFinderOnHits_ParTheta0: Double_t 56.1372
+TrackFinderOnHits_ParTheta1: Double_t -0.000564362
+TrackFinderOnHits_ParTheta2: Double_t -0.181828
+TrackFinderOnHits_ParTheta3: Double_t  0.284289
+TrackFinderOnHits_ParRadPhi0:Double_t  0.9837086
+TrackFinderOnHits_ParRadPhi2:Double_t -0.000182412
+TrackFinderOnHits_ParMat0:   Double_t \
+                                      -2.31333e-6,    0.00067035,    0.10173
+TrackFinderOnHits_ParMat1:   Double_t \
+                                      -7.46844e-10,   -6.6696e-7,    0.000736672
+###########################################################################################################################################################
 # Correlation Parameter for PID 
 # Format:
 # parameter_name:parameter_type(i-integer, d-double) parameter_value
