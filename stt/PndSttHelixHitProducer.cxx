@@ -36,9 +36,16 @@ using namespace std;
 PndSttHelixHitProducer::PndSttHelixHitProducer() :
   FairTask("STT HELIX Hit Producer") { 
   fPersistence = kTRUE;
+  fVerbose = 1;
 }
 // -------------------------------------------------------------------------
 
+PndSttHelixHitProducer::PndSttHelixHitProducer(Int_t verbose) :
+  FairTask("STT HELIX Hit Producer") { 
+  fPersistence = kTRUE;
+  fVerbose = verbose;
+}
+// -------------------------------------------------------------------------
 
 
 // -----   Destructor   ----------------------------------------------------
@@ -347,7 +354,7 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
 	      }
 	    }
 	    else {
-	      cout << "-E- intersection point not found" << endl;
+	      if(fVerbose == 2) cout << "-E- intersection point not found" << endl;
 	      continue;
 	    }
 	
@@ -397,7 +404,7 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
 		y2=a*x2+b;
 	      }
 	      else {
-		cout << "NO WAY2" << endl;
+		if(fVerbose == 2) cout << "NO WAY2" << endl;
 		continue;
 	      }	
 	    }
@@ -506,10 +513,11 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
     }
     
     // GFTrack summary
-    cout << "-I- PndSttHelixHitProducer: " << j << " track " << hitcounter << " SttHits, "
- 	 << hotcounter << " HelixHits created." << endl;
-    cout << "----------------------------------------" << endl;
-    
+    if(fVerbose == 2) {
+      cout << "-I- PndSttHelixHitProducer: " << j << " track " << hitcounter << " SttHits, "
+	   << hotcounter << " HelixHits created." << endl;
+      cout << "----------------------------------------" << endl;
+    }
   }
 
 

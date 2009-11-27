@@ -230,10 +230,10 @@ Int_t PndSttTrackFinderIdeal::DoFind(TClonesArray* trackArray)
 
       new((*trackArray)[nTracks]) PndSttTrack();
       
-      if (fVerbose) cout << "-I- PndSttTrackFinderIdeal: STTTrack " 
-			 << nTracks << " created from MCTrack " 
-			 << iMCTrack << " (" << pMCtr->GetNPoints(kSTT) 
-			 << " STTPoints)" << endl;
+      if (fVerbose >= 2) cout << "-I- PndSttTrackFinderIdeal: STTTrack " 
+			      << nTracks << " created from MCTrack " 
+			      << iMCTrack << " (" << pMCtr->GetNPoints(kSTT) 
+			      << " STTPoints)" << endl;
       
       correlationMap[nTracks] = iMCTrack;
       trackMap[iMCTrack] = nTracks++;
@@ -253,7 +253,7 @@ Int_t PndSttTrackFinderIdeal::DoFind(TClonesArray* trackArray)
 
       if (pMhit->GetIsochrone() == 0.)
       {
-	  cout << "mvd hit: " << pMhit->GetX() << "  " << pMhit->GetY() << "   " << pMhit->GetZ() << endl;
+	  if (fVerbose == 3) cout << "take the center: " << pMhit->GetX() << "  " << pMhit->GetY() << "   " << pMhit->GetZ() << endl;
       }
 
       ptIndex = pMhit->GetRefIndex();
@@ -397,7 +397,7 @@ Int_t PndSttTrackFinderIdeal::DoFind(TClonesArray* trackArray)
       delete finderCanvas;
     }
 
-  if (fVerbose) 
+  if (fVerbose == 3) 
   {
       cout << endl;
       cout << "-------------------------------------------------------" 
@@ -419,8 +419,8 @@ Int_t PndSttTrackFinderIdeal::DoFind(TClonesArray* trackArray)
       cout << "-------------------------------------------------------" 
 	   << endl;
   }
-  else cout << "-I- PndSttTrackFinderIdeal: all " << nMCTracks 
-	    << ", acc. " << nMCacc << ", rec. " << nTracks << endl; 
+  else if(fVerbose)  cout << "-I- PndSttTrackFinderIdeal: all " << nMCTracks 
+			  << ", acc. " << nMCacc << ", rec. " << nTracks << endl; 
   
   return nTracks;
 }

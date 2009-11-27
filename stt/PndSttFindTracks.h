@@ -101,6 +101,7 @@ class PndSttFindTracks : public FairTask
   /** object persistence **/
   Bool_t  fPersistence; //!
 
+  Int_t fEventCounter; //!
 
   ClassDef(PndSttFindTracks,1);
 };

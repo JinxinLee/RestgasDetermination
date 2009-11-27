@@ -243,7 +243,7 @@ void PndSttMatchTracks::Exec(Option_t* opt)
   if ( nHitSum) 
       qTrue  = Double_t(nTrueSum)  / Double_t(nHitSum) * 100.;
 
-  if (fVerbose) 
+  if (fVerbose == 3) 
   {
       Double_t 
 	  qWrong = 0.,
@@ -271,8 +271,8 @@ void PndSttMatchTracks::Exec(Option_t* opt)
     cout << "--------------------------------------------------------" 
 	 << endl;
   }
-  else cout << "-I- PndSttMatchTracks: rec. " << nTracks << ", quota "
-	    << qTrue << " % " << endl;
+  else  if (fVerbose) cout << "-I- PndSttMatchTracks: rec. " << nTracks << ", quota "
+			   << qTrue << " % " << endl;
 
 }
 // -------------------------------------------------------------------------

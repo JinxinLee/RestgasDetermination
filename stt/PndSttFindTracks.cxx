@@ -81,6 +81,8 @@ PndSttFindTracks::~PndSttFindTracks()
 // -----   Public method Init (abstract in base class)  --------------------
 InitStatus PndSttFindTracks::Init() 
 {
+  fEventCounter = 0;
+
   // Check for GFTrack finder
   if (! fFinder) {
     cout << "-E- PndSttFindTracks::Init: No track finder selected!" << endl;
@@ -171,16 +173,19 @@ void PndSttFindTracks::AddAllCollections()
 // -----   Public method Exec   --------------------------------------------
 void PndSttFindTracks::Exec(Option_t* opt) 
 {
-    AddAllCollections();
-    
-    fTrackArray->Clear();
-    
-    fNofTracks = fFinder->DoFind(fTrackArray);
-    
-    for (Int_t iTrack=0; iTrack < fTrackArray->GetEntriesFast(); iTrack++) 
+  if(fVerbose) cout << "********** PndSttFindTracks::Exec() for event # **********" << fEventCounter << endl;
+  fEventCounter++;
+  
+  AddAllCollections();
+  
+  fTrackArray->Clear();
+  
+  fNofTracks = fFinder->DoFind(fTrackArray);
+  
+  for (Int_t iTrack=0; iTrack < fTrackArray->GetEntriesFast(); iTrack++) 
     {
-	PndSttTrack* track = (PndSttTrack*) fTrackArray->At(iTrack);
-	track->SortHits();
+      PndSttTrack* track = (PndSttTrack*) fTrackArray->At(iTrack);
+      track->SortHits();
     }
 }
 // -------------------------------------------------------------------------

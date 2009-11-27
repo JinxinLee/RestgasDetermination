@@ -52,6 +52,7 @@ TArrayD marray(200);
 PndSttHelixTrackFitter::PndSttHelixTrackFitter()
 {
   fEventCounter = 0;
+  fVerbose = 1;
 }
 
 PndSttHelixTrackFitter::PndSttHelixTrackFitter(Int_t verbose)
@@ -120,7 +121,7 @@ void PndSttHelixTrackFitter::Init()
 
 Int_t PndSttHelixTrackFitter::DoFit(PndSttTrack* pTrack, Int_t pidHypo)
 {
-
+  // cout << "track fitting event # " << fEventCounter << endl;
   fEventCounter++;
  
   if(!pTrack) return 0;
@@ -150,7 +151,7 @@ Int_t PndSttHelixTrackFitter::DoFit(PndSttTrack* pTrack, Int_t pidHypo)
   fit = XYFit(pTrack, 1);
   
   if(fit == 0 || pTrack->GetParamLast()->GetTx() == 0 || !(pTrack->GetParamLast()->GetTx()) || pTrack->GetParamLast()->GetTx() > 3000) {
-    cout << "-E- pre prefit FAILED " << fit << " " << pTrack->GetParamLast()->GetTx() << endl;
+    if(fVerbose == 2) cout << "-E- pre prefit FAILED " << fit << " " << pTrack->GetParamLast()->GetTx() << endl;
     pTrack->GetParamLast()->SetTx(-999);
     return 0;
   }
@@ -162,7 +163,7 @@ Int_t PndSttHelixTrackFitter::DoFit(PndSttTrack* pTrack, Int_t pidHypo)
   // if the fit fails
   if(fit == 0 || pTrack->GetParamLast()->GetTx() == 0 || !(pTrack->GetParamLast()->GetTx()) || pTrack->GetParamLast()->GetTx() > 3000) {
     pTrack->GetParamLast()->SetTx(-999); 
-    cout << "-E- prefit FAILED" << endl;
+    if(fVerbose == 2) cout << "-E- prefit FAILED" << endl;
     return 0;
   }
   else {
@@ -190,16 +191,17 @@ Int_t PndSttHelixTrackFitter::DoFit(PndSttTrack* pTrack, Int_t pidHypo)
 	  pTrack->SetFlag(3); // z fit done 
 	} 
       }
-      else cout << "-E- zfinder FAILED" << endl;
+      else if(fVerbose == 2) cout << "-E- zfinder FAILED" << endl;
     }
   }
   
-  cout << "param last x: "  << pTrack->GetParamLast()->GetX() << endl;
-  cout << "param last y: "  << pTrack->GetParamLast()->GetY() << endl;
-  cout << "param last tx: " << pTrack->GetParamLast()->GetTx() << endl;
-  cout << "param last ty: " << pTrack->GetParamLast()->GetTy() << endl;
-  cout << "param last qp: " << pTrack->GetParamLast()->GetQp() << endl;
-
+  if(fVerbose == 2) {
+    cout << "param last x: "  << pTrack->GetParamLast()->GetX() << endl;
+    cout << "param last y: "  << pTrack->GetParamLast()->GetY() << endl;
+    cout << "param last tx: " << pTrack->GetParamLast()->GetTx() << endl;
+    cout << "param last ty: " << pTrack->GetParamLast()->GetTy() << endl;
+    cout << "param last qp: " << pTrack->GetParamLast()->GetQp() << endl;
+  }
   
 
   if(rootoutput) {
@@ -230,10 +232,10 @@ Int_t PndSttHelixTrackFitter::XYFit(PndSttTrack* pTrack, Int_t pidHypo) {
   Bool_t first = kFALSE;
   if(hitcounter == 0) return 0;
   if(hitcounter < 5) {         // hitcounter > 50  
-    cout << "Bad No of hits in STT " << hitcounter << endl;
+    if(fVerbose == 2) cout << "Bad No of hits in STT " << hitcounter << endl;
     return 0;
   }
-  cout << "FIT xy ********************" << endl;
+  if(fVerbose == 2) cout << "FIT xy ********************" << endl;
  
   // traslation and rotation -----------
   // traslation near the first point
@@ -241,7 +243,7 @@ Int_t PndSttHelixTrackFitter::XYFit(PndSttTrack* pTrack, Int_t pidHypo) {
   Double_t trasl[2];
   // rotation
   Double_t alpha;
-  cout << "hitcounter: " << hitcounter << endl;
+  if(fVerbose == 2) cout << "hitcounter: " << hitcounter << endl;
   for(Int_t k = 0; k <hitcounter; k++) {
     Int_t iHit = pTrack->GetHitIndex(k);
     PndSttHit *currenthit = (PndSttHit*) fHitArray->At(iHit);
@@ -445,7 +447,7 @@ Int_t PndSttHelixTrackFitter::XYFit(PndSttTrack* pTrack, Int_t pidHypo) {
   }
   else {
     return 0;
-    cout << "DET 0" << endl;
+    if(fVerbose == 2) cout << "DET 0" << endl;
   }
   
   TMatrixD column(3,1);
@@ -461,11 +463,12 @@ Int_t PndSttHelixTrackFitter::XYFit(PndSttTrack* pTrack, Int_t pidHypo) {
   b = column2[1][0];
   c = column2[2][0];
   
-  std::cout << "1) parabolic parameters:\n";
-  std::cout << "a = " << column2[0][0] <<  "\n";
-  std::cout << "b = " << column2[1][0] <<  "\n";
-  std::cout << "c = " << column2[2][0] <<  "\n";
-  
+  if(fVerbose == 2) {
+    std::cout << "1) parabolic parameters:\n";
+    std::cout << "a = " << column2[0][0] <<  "\n";
+    std::cout << "b = " << column2[1][0] <<  "\n";
+    std::cout << "c = " << column2[2][0] <<  "\n";
+  }
   if(fabs(a)<0.000001) return 0;
 
   Double_t chi2;
@@ -475,7 +478,7 @@ Int_t PndSttHelixTrackFitter::XYFit(PndSttTrack* pTrack, Int_t pidHypo) {
     chi2 = chi2 + pow(((varray.At(i) -  (a + b*uarray.At(i) + c*uarray.At(i)*uarray.At(i))) /sqrt(sigv2array.At(i))),2) ;
   }
 
-  cout << "digicounter: " << digicounter << endl;
+  if(fVerbose == 2) cout << "digicounter: " << digicounter << endl;
 
   //------------------ with right errors
   Su = 0.;
@@ -528,7 +531,7 @@ Int_t PndSttHelixTrackFitter::XYFit(PndSttTrack* pTrack, Int_t pidHypo) {
   }
   else {
     return 0;
-    cout << "DET 0" << endl;
+  if(fVerbose == 2) cout << "DET 0" << endl;
   }
 
   TMatrixD columnb(3,1);
@@ -787,7 +790,7 @@ Bool_t PndSttHelixTrackFitter::ZFinder(PndSttTrack* pTrack, Int_t pidHypo) {
   // the z finding procedure uses the hough transform to find the line
   // in the plane z - track length on which the correct points lie.
 
-  cout << "ZFINDER" << endl;
+  if(fVerbose == 2) cout << "ZFINDER" << endl;
 
   if(!pTrack) return 0;
 
@@ -799,7 +802,7 @@ Bool_t PndSttHelixTrackFitter::ZFinder(PndSttTrack* pTrack, Int_t pidHypo) {
   //     return 0;
   //   }
   if(hitcounter < 5)  {
-    cout << "less than 5 hits" << endl;
+    if(fVerbose == 2) cout << "less than 5 hits" << endl;
     return 0;
   }
   
@@ -953,7 +956,7 @@ Bool_t PndSttHelixTrackFitter::ZFinder(PndSttTrack* pTrack, Int_t pidHypo) {
 	  }
 	}
 	else {
-	  cout << "-E- intersection point not found" << endl;
+	   if(fVerbose == 2) cout << "-E- intersection point not found" << endl;
 	  continue;
 	}
 	
@@ -1027,7 +1030,7 @@ Bool_t PndSttHelixTrackFitter::ZFinder(PndSttTrack* pTrack, Int_t pidHypo) {
 	    y2=a*x2+b;
 	  }
 	  else {
-	    cout << "NO WAY2" << endl;
+	     if(fVerbose == 2) cout << "NO WAY2" << endl;
 	    continue;
 	  }	
 	}
@@ -1261,7 +1264,7 @@ Bool_t PndSttHelixTrackFitter::ZFinder(PndSttTrack* pTrack, Int_t pidHypo) {
 // ----- Zfit  ----------------------------------------
 Int_t PndSttHelixTrackFitter::ZFit(PndSttTrack* pTrack, Int_t pidHypo) {
 
-  cout << "ZFIT" << endl;
+   if(fVerbose == 2) cout << "ZFIT" << endl;
 
   if(!pTrack) return 0;
   
@@ -1511,7 +1514,7 @@ Int_t PndSttHelixTrackFitter::SetUpFitVector(PndSttTrack* pTrack, TMatrixT<Doubl
 
 Int_t PndSttHelixTrackFitter::MinuitFit(PndSttTrack* pTrack, Int_t pidHypo)
 {    
-  cout << "MINUIT FIT " << pTrack->GetNofHits() << endl;
+   if(fVerbose == 2) cout << "MINUIT FIT " << pTrack->GetNofHits() << endl;
  
   fEventCounter++;
   Double_t hitcounter = pTrack->GetNofHits();
@@ -1522,12 +1525,17 @@ Int_t PndSttHelixTrackFitter::MinuitFit(PndSttTrack* pTrack, Int_t pidHypo)
   
   
   TMinuit minimizer(3);
-  
-  cout << "*******MINUIT********" << endl;
-  cout << "D   SEED: " << pTrack->GetParamLast()->GetX()  << endl;
-  cout << "PHI SEED: " << pTrack->GetParamLast()->GetY()  << endl;
-  cout << "R   SEED: " << pTrack->GetParamLast()->GetTx() << endl;
-  cout << "********************" << endl;
+
+  // set to quiet
+  if(fVerbose < 2) minimizer.SetPrintLevel(-1);
+
+  if(fVerbose == 2) {
+    cout << "*******MINUIT********" << endl;
+    cout << "D   SEED: " << pTrack->GetParamLast()->GetX()  << endl;
+    cout << "PHI SEED: " << pTrack->GetParamLast()->GetY()  << endl;
+    cout << "R   SEED: " << pTrack->GetParamLast()->GetTx() << endl;
+    cout << "********************" << endl;
+  }
 
   // set the object to be fitted:
   // TMatrixT<Double_t> [x][y][r][err_r]
@@ -1541,7 +1549,7 @@ Int_t PndSttHelixTrackFitter::MinuitFit(PndSttTrack* pTrack, Int_t pidHypo)
   minimizer.DefineParameter(0, "xc", xcstart, 0.1, -3000., 3000.); // ???
   minimizer.DefineParameter(1, "yc", ycstart, 0.1, -3000., 3000.); // ??? LIMITS ???
   minimizer.DefineParameter(2, "r", rstart, 0.1, 0., 3000.);   // ???
-  cout << "xcstart: " << xcstart << " ycxtart: " << ycstart << " rstart: " << rstart << endl;
+   if(fVerbose == 2) cout << "xcstart: " << xcstart << " ycxtart: " << ycstart << " rstart: " << rstart << endl;
   minimizer.SetObjectFit(&fitvect);
  
   minimizer.SetPrintLevel(-1); 
@@ -1558,10 +1566,12 @@ Int_t PndSttHelixTrackFitter::MinuitFit(PndSttTrack* pTrack, Int_t pidHypo)
   
   //  minimizer.Eval(3, NULL, chisquare, resultsRadial, 0); // ???
   
-  cout << "xc: " << resultsRadial[0] << endl; 
-  cout << "yc: " << resultsRadial[1] << endl; 
-  cout << "R:  " << resultsRadial[2] << endl;
-  
+  if(fVerbose == 2) {
+    cout << "xc: " << resultsRadial[0] << endl; 
+    cout << "yc: " << resultsRadial[1] << endl; 
+    cout << "R:  " << resultsRadial[2] << endl;
+  }
+
   Double_t phi = TMath::ATan2(resultsRadial[1], resultsRadial[0]); // CHECK
   Double_t d;
   d = ((resultsRadial[0] + resultsRadial[1]) - resultsRadial[2] *(TMath::Cos(phi) + TMath::Sin(phi)))/(TMath::Cos(phi) + TMath::Sin(phi)); // CHECK
@@ -1712,7 +1722,7 @@ void PndSttHelixTrackFitter::OrderHitsByR(map<Double_t, Int_t> &hitMap)
     PndSttHit
       *pMhit = NULL;
   
-    cout << "n of hits: " << fTrack->GetNofHits() << endl;
+     if(fVerbose == 2) cout << "n of hits: " << fTrack->GetNofHits() << endl;
   
     for (Int_t i = 0; i < fTrack->GetNofHits(); i++)
       {
@@ -1903,7 +1913,7 @@ TVector3 *PndSttHelixTrackFitter::MomentumAtPoint(PndSttTrack *pTrack, TVector3 
       px = -px;
       py = -py;
     }
-  else if(pTrack->GetParamLast()->GetQp() == 0) cout << "NO CHARGE" << endl;
+  else if(pTrack->GetParamLast()->GetQp() == 0 &&  fVerbose == 2) cout << "NO CHARGE" << endl;
   
   // longitudinal momentum ..................................
   Double_t pl = 0.;

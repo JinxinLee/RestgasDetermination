@@ -19,6 +19,8 @@ class PndSttHelixHitProducer : public FairTask
   /** Default constructor **/  
   PndSttHelixHitProducer();
 
+  PndSttHelixHitProducer(Int_t verbose);
+
 
   /** Destructor **/
   ~PndSttHelixHitProducer();
