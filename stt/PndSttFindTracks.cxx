@@ -173,7 +173,7 @@ void PndSttFindTracks::AddAllCollections()
 // -----   Public method Exec   --------------------------------------------
 void PndSttFindTracks::Exec(Option_t* opt) 
 {
-  if(fVerbose) cout << "********** PndSttFindTracks::Exec() for event # **********" << fEventCounter << endl;
+  if(fVerbose) cout << "******* event # " << fEventCounter << "*******" << endl;
   fEventCounter++;
   
   AddAllCollections();
