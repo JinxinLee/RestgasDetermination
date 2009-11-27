@@ -3,7 +3,7 @@
   //          Adjust this part according to your requirements
   
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
-  Int_t iVerbose = 0;
+  Int_t iVerbose = 1;
   
   // Input file (MC events)
   TString inFile = "testrun.root";
@@ -51,7 +51,7 @@
   fRun->AddTask(sttTrackMatcher);  
 
   // trackfitting ....
-  PndSttTrackFitter* sttTrackFitter = new PndSttHelixTrackFitter(0);
+  PndSttTrackFitter* sttTrackFitter = new PndSttHelixTrackFitter(iVerbose);
   PndSttFitTracks* sttFitTracks = new PndSttFitTracks("STT Track Fitter", "FairTask", sttTrackFitter); 
   sttFitTracks->AddHitCollectionName("STTHit");
   fRun->AddTask(sttFitTracks);
