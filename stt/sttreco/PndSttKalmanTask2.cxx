@@ -78,6 +78,9 @@ PndSttKalmanTask2::Init()
     }
     ++iter;
   }//end loops over hit types
+
+
+  GFException::quiet(true);
   
  return kSUCCESS;
 }
@@ -86,9 +89,15 @@ PndSttKalmanTask2::Init()
 void
 PndSttKalmanTask2::Exec(Option_t* opt)
 {
-  //   std::cout << "Event # " << counterevt << std::endl;
+  //  std::cout << "Event # " << counterevt << std::endl;
   counterevt++;
   //   std::cout<<"PndSttKalmanTask2::Exec"<<  std::endl;
+
+  //  fTrackArray->Delete();  // CHECK!! this must not be commented, but 
+  //                          // prevents the histo/variable filling... 
+  //                          // let' s keep it this way for while and 
+  //                          // we will check what happens
+  
   if(fTrackArray)
     {
 
@@ -100,16 +109,11 @@ PndSttKalmanTask2::Exec(Option_t* opt)
 	trk->addHitVector(_theRecoHitFactory->createMany(trk->getCand()));
 	std::cout<<trk->getNumHits()<<" hits in track " <<itr<<std::endl;
 	GFKalman k;
-        k.setLazy(1);
+	//        k.setLazy(1);
 	k.setNumIterations(1);
 	k.processTrack(trk);
       }
     }
-  //  fTrackArray->Delete();  // CHECK!! this must not be commented, but 
-  //                          // prevents the histo/variable filling... 
-  //                          // let' s keep it this way for while and 
-  //                          // we will check what happens
-
   return;
 }
 
