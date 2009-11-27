@@ -40,13 +40,15 @@ public:
   /** Accessors **/
   virtual Double_t GetThetaC()  {return fThetaC;}
   virtual Double_t GetErrThetaC()  {return fErrThetaC;}
+  virtual Int_t GetRefIndex()  {return fRefIndex;}
 
   TVector3 GetPosition()	  const { return TVector3(fX, fY, fZ);	  }
   
  protected:
   
-  //  TVector3 fPos, fDPos;
+//  TVector3 fmom;
   Double_t fThetaC, fErrThetaC;
+  Int_t fRefIndex;
   
   ClassDef(PndDrcHit,1)
 };
