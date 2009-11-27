@@ -45,9 +45,14 @@ private:
   TClonesArray* fSttHitArray;
   TClonesArray* fSttHelixHitArray;
   FairGeanePro *fPro;
+  /** object persistence **/
+  Bool_t fPersistence;
   // Private Methods -----------------
 
 public:
+
+  void SetPersistence(Bool_t persistence) { fPersistence = persistence; }
+
   ClassDef(PndSttPatternRecoTask2,1)
 
 };

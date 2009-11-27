@@ -30,7 +30,7 @@ using std::string;
 // -----   Default constructor   -------------------------------------------
 PndSttPatternRecoTask2::PndSttPatternRecoTask2() : FairTask("STT Pattern Reco Task") 
 {
-  
+   fPersistence = kTRUE;  
 }
 // -------------------------------------------------------------------------
 
@@ -93,7 +93,7 @@ InitStatus PndSttPatternRecoTask2::Init()
   
   // Create and register GFTrack array
   fTrackArray = new TClonesArray("GFTrack",100);
-  ioman->Register("Track", "GenFit", fTrackArray, kTRUE);
+  ioman->Register("Track", "GenFit", fTrackArray, fPersistence);
   
   fPro = new FairGeanePro();
   return kSUCCESS;
