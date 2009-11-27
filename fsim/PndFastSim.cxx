@@ -26,6 +26,7 @@
 #include "RhoBase/TRho.h"
 #include "PndMicroCandidate.h"
 #include "PidData/PndPidCandidate.h"
+#include "PidData/PndPidProbability.h"
 #include "PndEventInfo.h"
 #include "RhoBase/TCandList.h"
 #include "RhoTools/TEventShape.h"
@@ -78,9 +79,13 @@ PndFastSim::~PndFastSim() {
   //if (fChargedCandidates) {fChargedCandidates->Delete(); delete fChargedCandidates;}
   //if (fNeutralCandidates) {fNeutralCandidates->Delete(); delete fNeutralCandidates;}
   if (fMcCandidates) {fMcCandidates->Delete(); delete fMcCandidates;}
-  if (fMicroCandidates) {fMicroCandidates->Delete(); delete fMicroCandidates;}
+  //if (fMicroCandidates) {fMicroCandidates->Delete(); delete fMicroCandidates;}
   if (fPidChargedCand) {fPidChargedCand->Delete(); delete fPidChargedCand;}
   if (fPidNeutralCand) {fPidNeutralCand->Delete(); delete fPidNeutralCand;}
+  
+  if (fPidChargedProb) {fPidChargedProb->Delete(); delete fPidChargedProb;}    
+  if (fPidNeutralProb) {fPidNeutralProb->Delete(); delete fPidNeutralProb;}    
+  
   if (fEventInfo) {fEventInfo->Delete(); delete fEventInfo;}
 
   if (fDetFac) delete fDetFac;
@@ -113,6 +118,12 @@ void PndFastSim::Register() {
 
   fPidNeutralCand = new TClonesArray("PndPidCandidate");
   FairRootManager::Instance()->Register("PidNeutralCand","FastSim", fPidNeutralCand, kTRUE);
+
+  fPidChargedProb = new TClonesArray("PndPidProbability");
+  FairRootManager::Instance()->Register("PidChargedProbability","FastSim", fPidChargedProb, kTRUE);
+
+  fPidNeutralProb = new TClonesArray("PndPidProbability");
+  FairRootManager::Instance()->Register("PidNeutralProbability","FastSim", fPidNeutralProb, kTRUE);
 
 
   fEventInfo = new TClonesArray("PndEventInfo");
@@ -338,12 +349,19 @@ void PndFastSim::Exec(Option_t* opt)
   if (fMcCandidates->GetEntriesFast() != 0)  fMcCandidates->Clear("C");
   if (fPidChargedCand->GetEntriesFast() != 0)  fPidChargedCand->Clear("C");
   if (fPidNeutralCand->GetEntriesFast() != 0)  fPidNeutralCand->Clear("C");
+  if (fPidChargedProb->GetEntriesFast() != 0)  fPidChargedProb->Clear("C");
+  if (fPidNeutralProb->GetEntriesFast() != 0)  fPidNeutralProb->Clear("C");
   //if (fMicroCandidates->GetEntriesFast() != 0) fMicroCandidates->Clear("C");
   if (fEventInfo->GetEntriesFast() != 0) fEventInfo->Clear("C");
 
-  TClonesArray &mctracks = *fMcCandidates;
-  TClonesArray &chrgCandidates= *fPidChargedCand;
-  TClonesArray &neutCandidates= *fPidNeutralCand;
+  TClonesArray &mctracks       = *fMcCandidates;
+  
+  TClonesArray &chrgCandidates = *fPidChargedCand;  // Charged Candidates
+  TClonesArray &neutCandidates = *fPidNeutralCand;  // Neutral Candidates
+  
+  TClonesArray &chrgProbs      = *fPidChargedProb;  // PID for charged Cands
+  TClonesArray &neutProbs      = *fPidNeutralProb;  // PID for neutral Cands
+  
   //TClonesArray &microCandidates = *fMicroCandidates;
   TClonesArray &evtInfo         = *fEventInfo;
 
@@ -451,11 +469,18 @@ void PndFastSim::Exec(Option_t* opt)
       
 	  
 	  PndPidCandidate *pidCand;
+	  PndPidProbability *pidProb;
 	  
 	  if (fabs(ft->charge())>1e-6)
+	  {
 		pidCand = new (chrgCandidates[chcandsize]) PndPidCandidate((Int_t)ft->charge(),pos,miclv);
+		pidProb = new (chrgProbs[chcandsize]) PndPidProbability(); 
+      }
 	  else
+	  {
 		pidCand = new (neutCandidates[neucandsize]) PndPidCandidate((Int_t)ft->charge(),pos,miclv);
+		pidProb = new (neutProbs[neucandsize]) PndPidProbability(); 
+	  }
 	  
 	  pidCand->SetMcIndex(iPoint);
       pidCand->SetMvdDEDX( ft->detResponse()->MvddEdx() );
@@ -476,11 +501,19 @@ void PndFastSim::Exec(Option_t* opt)
       pidCand->SetRichThetaCErr( ft->detResponse()->RichThtcErr() );
       pidCand->SetRichNumberOfPhotons(0);
       
+      pidProb->SetElectronPidProb(ft->detResponse()->LHElectron());
+      pidProb->SetMuonPidProb(ft->detResponse()->LHMuon());
+      pidProb->SetPionPidProb(ft->detResponse()->LHPion());
+      pidProb->SetKaonPidProb(ft->detResponse()->LHKaon());
+      pidProb->SetProtonPidProb(ft->detResponse()->LHProton());
+      
+      /*
       pidCand->SetElectronPidLH(ft->detResponse()->LHElectron());
       pidCand->SetMuonPidLH(ft->detResponse()->LHMuon());
       pidCand->SetPionPidLH(ft->detResponse()->LHPion());
       pidCand->SetKaonPidLH(ft->detResponse()->LHKaon());
       pidCand->SetProtonPidLH(ft->detResponse()->LHProton());
+	  */
 	  
       if (fPropagate && fabs(ft->charge())>1e-6) {
          pidCand->SetCov7( ft->Cov7() );
@@ -715,9 +748,9 @@ PndFastSim::cutAndSmear(PndFsmTrack *t, PndFsmResponse *r)
     for (char p=0;p<5;p++)
       t->GetHelixParams()[p] += err[p] * gaus[p];
     // write scaled cov matrix
-    for (char r=0;r<5;r++)
+    for (char ir=0;ir<5;ir++)
     for (char c=0;c<5;c++) 
-      t->GetHelixCov()(r,c) = fRho(r,c)*fabs(err[r]*err[c])*(fUseCovMatrix||r==c);
+      t->GetHelixCov()(ir,c) = fRho(ir,c)*fabs(err[ir]*err[c])*(fUseCovMatrix||ir==c);
     t->Propagate( fToStartVtx ? t->startVtx() : TVector3(0,0,0), fTolerance);
     // uncharged particles remain uncorrelated
   } else {

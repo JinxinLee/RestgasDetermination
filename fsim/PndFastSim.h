@@ -83,6 +83,8 @@ class PndFastSim : public FairTask
   TClonesArray* fPidChargedCand;
   TClonesArray* fPidNeutralCand; 
   TClonesArray* fMicroCandidates;
+  TClonesArray* fPidChargedProb;    //! PndPidProbability TCA for charged particles
+  TClonesArray* fPidNeutralProb;    //! PndPidProbability TCA for neutral particles
   
   //output array EventInfo
   TClonesArray* fEventInfo;
