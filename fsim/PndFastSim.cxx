@@ -605,7 +605,7 @@ void PndFastSim::Exec(Option_t* opt)
         for (int i=0;i<numSP;i++)
         {
           TLorentzVector lv=ft->p4();
-          TVector3 pos(0,0,0);
+          TVector3 fPos(0,0,0);
           
           double mom   = fspo[type][0]->GetRandom();
           double dphi  = fspo[type][1]->GetRandom();
@@ -618,19 +618,19 @@ void PndFastSim::Exec(Option_t* opt)
           
           /*
           PndMicroCandidate *micro=new (microCandidates[microCandidates.GetEntriesFast()])
-              PndMicroCandidate(0,pos,lv);
+              PndMicroCandidate(0,fPos,lv);
           micro->SetMcIndex(-1);
           */
           
           
-		  PndPidCandidate *pidCand=new (neutCandidates[neutCandidates.GetEntriesFast()]) PndPidCandidate(0,pos,lv);
-		  pidCand->SetMcIndex(-1);
+		  PndPidCandidate *pidcand=new (neutCandidates[neutCandidates.GetEntriesFast()]) PndPidCandidate(0,fPos,lv);
+		  pidcand->SetMcIndex(-1);
 		  
-          TCandidate tcand(lv,0.0);
-          tcand.SetMcIdx(-1);
-          tcand.SetType(22);
+          TCandidate tCand(lv,0.0);
+          tCand.SetMcIdx(-1);
+          tCand.SetType(22);
           
-          l.Add(tcand);
+          l.Add(tCand);
           
           //tcand=new (pndCandidates[pndCandidates.GetEntriesFast()]) TCandidate(lv,0.0);
           //tcand->SetMcIdx(-1);
