@@ -1,39 +1,38 @@
 {
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
-  Int_t iVerbose = 1;
+  Int_t iVerbose = 0;
   // Input file (MC events)
-  TString MCFile = "Mvd_Test.root";
+  TString MCFile = "Mvd_TestNewVersion.root";
   // Parameter file
-  TString parFile = "MvdParams.root";
+  TString parFile = "MvdParamsNewVersion.root";
   // Parameter output file
-  // TString parOutFile = "MvdParams.root";
+  TString parOutFile = "MvdParamsNewVersion.root";
   // Number of events to process
-  Int_t nEvents = 2;
+  Int_t nEvents = 100;
   // ----  Load libraries   -------------------------------------------------
-  gROOT->Macro("Libs.C");
-  gSystem->Load("libGeane");
+  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+  //gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+
+
+  gSystem->Load("libriemann");
+
   // ------------------------------------------------------------------------
   // Output file
     PndMvdFileNameCreator creator(MCFile.Data());
     TString DigiFile = creator.GetDigiFileName(false).c_str();
     TString RecoFile = creator.GetRecoFileName(false).c_str();
-    TString TrackFile  = creator.GetTrackFindingFileName(false).c_str();
-    TString outFile = creator.GetKalmanFileName(false).c_str();
+    TString outFile  = creator.GetTrackFindingFileName(false).c_str();
     
     std::cout << "DigiFile: " << DigiFile.Data()<< std::endl;
     std::cout << "RecoFile: " << RecoFile.Data()<< std::endl;
-    std::cout << "TrackFinderFile: " << TrackFile.Data()<< std::endl;
-    std::cout << "KalmanFile: " << outFile.Data() << std::endl;
+    std::cout << "TrackFinderFile: " << outFile.Data()<< std::endl;
+
   // ---  Now choose concrete engines for the different tasks   -------------
   // ------------------------------------------------------------------------
-
-
   // In general, the following parts need not be touched
   // ========================================================================
-
-
-
 
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
@@ -44,10 +43,9 @@
 
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
-  fRun->SetInputFile(MCFile);
+  fRun->SetInputFile(RecoFile);
 //   fRun->AddFriend(DigiFile);
-  fRun->AddFriend(RecoFile);
-  fRun->AddFriend(TrackFile);
+//  fRun->AddFriend(RecoFile);
   
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
@@ -56,15 +54,16 @@
 
   // -----  Parameter database   --------------------------------------------
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
-//  FairParRootFileIo* parInput1 = new FairParRootFileIo();
-  FairParAsciiFileIo* parInput1 = new FairParAsciiFileIo();
-  parInput1->open(parFile.Data(),"in");
+
+  FairParRootFileIo* parInput1 = new FairParRootFileIo(kTRUE);
+  parInput1->open(parFile.Data(),"UPDATE");
+//   FairParAsciiFileIo* parInput1 = new FairParAsciiFileIo();
+//   parInput1->open(parFile.Data(),"in");
+
   rtdb->setFirstInput(parInput1);
-  /*Bool_t kParameterMerged=kTRUE;
-  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
-  output->open(parOutFile);
-  rtdb->setOutput(output);
-*/  fRun->LoadGeometry();
+  Bool_t kParameterMerged=kTRUE;
+//  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
+//  output->open(parOutFile.Data(),"RECREATE");
   // ------------------------------------------------------------------------
 
 
@@ -75,13 +74,14 @@
   
   // -----    MVD hit producer   --------------------------------------------
  
-  PndMvdKalmanTask* mvdKalman = new PndMvdKalmanTask();
-  mvdKalman->SetVerbose(iVerbose);
-  fRun->AddTask(mvdKalman);
+  PndMvdRiemannTrackFinderTask* mvdTrackFinder = new PndMvdRiemannTrackFinderTask();
+  mvdTrackFinder->SetVerbose(iVerbose);
+  mvdTrackFinder->SetMaxDist(0.05);
+  fRun->AddTask(mvdTrackFinder);
 
-//  FairParRootFileIo* output=new FairParRootFileIo(kTRUE);
-//  output->open(parOutFile.Data());
-//  rtdb->setOutput(output);
+// FairParRootFileIo* output=new FairParRootFileIo(kTRUE);
+// output->open(parOutFile.Data());
+ rtdb->setOutput(parInput1);
  rtdb->print();
   // =====                 End of HitProducers                           =====
   // =========================================================================
@@ -91,13 +91,11 @@
   fRun->Init();
 
   fRun->Run(0,nEvents);
+ // fRun->Run(96,97);
   // ------------------------------------------------------------------------
-  mvdKalman->WriteHistograms("MvdKalmanHistos.root");
 
-  TFile histos("MvdKalmanHistos.root","READ");
-
-//  rtdb->saveOutput();
-  rtdb->print();
+ rtdb->saveOutput();
+ rtdb->print();
   // -----   Finish   -------------------------------------------------------
   timer.Stop();
   Double_t rtime = timer.RealTime();

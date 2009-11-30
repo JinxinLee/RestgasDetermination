@@ -1,78 +1,79 @@
 {
-  // ========================================================================
+// Macro to test PndMvdIdealTask: run runMvdSim.C before running 
+// this. PndMvdIdealTask writes likelihoods to PndMvdPidCand. 
+// This macro has been tested with rev 2503 so far.
+
+  //  ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
-  Int_t iVerbose = 3;
-  Int_t nEvents = 100;
-  // ----  Load libraries   -------------------------------------------------
+  Int_t iVerbose = 1;
+
+  // Input file (MC events)
+  TString inFile = "Mvd_Test.root";
+  // Parameter file
+  TString parFile = "MvdParams.root";
+  // Output file
+  TString outFile = "MvdPidIdeal.root";
+  // Number of events to process
+  Int_t nEvents = 10000;
+
+  // -----  Load libraries   ------------------------------------------------
+  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 
-  gSystem->Load("libGeane");
+
+  // ---  Now choose concrete engines for the different tasks   -------------
   // ------------------------------------------------------------------------
-  // Output file
-    TString parFile = "MvdFwdParams.root";
-    PndMvdFileNameCreator namecreator("MvdFwd.root");
-    std::string MCFile = namecreator.GetSimFileName();
-    std::string RecoFile = namecreator.GetRecoFileName();
-    std::string TrackFile  = namecreator.GetTrackFindingFileName();
-    std::string outFile = namecreator.GetKalmanFileName();
-    
-    std::cout << "DigiFile: " << DigiFile<< std::endl;
-    std::cout << "RecoFile: " << RecoFile<< std::endl;
-    std::cout << "TrackFinderFile: " << TrackFile<< std::endl;
-    std::cout << "KalmanFile: " << outFile << std::endl;
+
+
+  // In general, the following parts need not be touched
+  // ========================================================================
+
+
+
 
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
   timer.Start();
   // ------------------------------------------------------------------------
 
+
+
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
-  fRun->SetInputFile(MCFile.c_str());
-  fRun->AddFriend(RecoFile.c_str());
-  fRun->AddFriend(TrackFile.c_str());
-  
+  fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
 
-  // THIS IS STRONGLY NEEDED
-  FairGeane *Geane = new FairGeane(MCFile.Data());
-  Geane->SetField(fRun->GetField());
 
 
   // -----  Parameter database   --------------------------------------------
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo();
-  parInput1->open(parFile.Data(),"in");
+  parInput1->open(parFile.Data());
   rtdb->setFirstInput(parInput1);
   fRun->LoadGeometry();
   // ------------------------------------------------------------------------
 
 
-  PndLheKalmanTask* lheKalman = new PndLheKalmanTask();
-  lheKalman->SetVerbose(iVerbose);
-  //lheKalman->SetGeane(kTRUE);
-  lheKalman->SetSmooth(kTRUE);
-  lheKalman->SetNumIterations(3);
-  fRun->AddTask(lheKalman);
 
-
- rtdb->print();
+  // =========================================================================
+  // ======                       Hit Producers                         ======
+  // =========================================================================
+  
+  // -----    MVD hit producer   --------------------------------------------
+  PndMvdPidIdealTask* mvdpid = new PndMvdPidIdealTask("advanced");
+  fRun->AddTask(mvdpid);
+ 
   // =====                 End of HitProducers                           =====
   // =========================================================================
-     PndMvdGeoPar* geoPar  = (PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar")); 
-  
+     
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
-
-  fRun->Run(0,nEvents);
+  fRun->Run(0,nEvents-1);
   // ------------------------------------------------------------------------
-//   mvdKalman->WriteHistograms("MvdKalmanHistos.root");
 
-  TFile histos("MvdKalmanHistos.root","READ");
 
-//  rtdb->saveOutput();
-  rtdb->print();
+
   // -----   Finish   -------------------------------------------------------
   timer.Stop();
   Double_t rtime = timer.RealTime();

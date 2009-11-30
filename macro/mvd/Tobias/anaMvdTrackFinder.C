@@ -11,7 +11,9 @@
   // Number of events to process
   Int_t nEvents = 10;
   // ----  Load libraries   -------------------------------------------------
-  gROOT->Macro("Libs.C");
+  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+
   gSystem->Load("libriemann");
   // ------------------------------------------------------------------------
   // Output file

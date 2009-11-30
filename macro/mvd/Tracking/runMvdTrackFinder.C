@@ -1,19 +1,17 @@
 {
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
-  Int_t iVerbose = 0;
-
+  Int_t iVerbose = 3;
   // Input file (MC events)
   TString MCFile = "Mvd_TestNewVersion.root";
   // Parameter file
-  TString parFile = "MvdParamsNewVersion.root";
+  TString parFile = "MvdParams.root";
   // Parameter output file
-  TString parOutFile = "MvdParamsNewVersion.root";
+  TString parOutFile = "MvdParams.root";
   // Number of events to process
-  Int_t startEvent = 0;
-  Int_t stopEvent = 99;
+  Int_t nEvents = 10;
   // ----  Load libraries   -------------------------------------------------
-//   gROOT->Macro("Libs.C");
+  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 
   // ------------------------------------------------------------------------
@@ -21,22 +19,16 @@
     PndMvdFileNameCreator creator(MCFile.Data());
     TString DigiFile = creator.GetDigiFileName(false).c_str();
     TString RecoFile = creator.GetRecoFileName(false).c_str();
-    TString RiemannFile = creator.GetTrackFindingFileName(false).c_str();
-    TString outFile = "Dummy.root";
-    
-    std::cout << "MCFile  : " << MCFile.Data()<< std::endl;
+  //  TString outFile  = creator.GetTrackFindingFileName(false).c_str();
+    TString outFile = "Mvd_TestNewVersion_IdealTrackF.root";
     std::cout << "DigiFile: " << DigiFile.Data()<< std::endl;
     std::cout << "RecoFile: " << RecoFile.Data()<< std::endl;
-    std::cout << "RiemannFile: " << RiemannFile.Data() << std::endl;
+    std::cout << "TrackFinderFile: " << outFile.Data()<< std::endl;
+
   // ---  Now choose concrete engines for the different tasks   -------------
   // ------------------------------------------------------------------------
-
-
   // In general, the following parts need not be touched
   // ========================================================================
-
-
-
 
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
@@ -47,11 +39,9 @@
 
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
-
   fRun->SetInputFile(MCFile);
   fRun->AddFriend(DigiFile);
   fRun->AddFriend(RecoFile);
-  fRun->AddFriend(RiemannFile);
   
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
@@ -60,19 +50,15 @@
 
   // -----  Parameter database   --------------------------------------------
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
-
-  FairParRootFileIo* parInput1 = new FairParRootFileIo(kTRUE);
-  parInput1->open(parFile.Data(),"UPDATE");
-//   FairParAsciiFileIo* parInput1 = new FairParAsciiFileIo();
-//   parInput1->open(parFile.Data(),"in");
-
+  FairParRootFileIo* parInput1 = new FairParRootFileIo();
+//  FairParAsciiFileIo* parInput1 = new FairParAsciiFileIo();
+  parInput1->open(parFile.Data(),"in");
   rtdb->setFirstInput(parInput1);
-  Bool_t kParameterMerged=kTRUE;
-//  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
-//  output->open(parOutFile.Data(),"RECREATE");
-
-//  fRun->LoadGeometry();
-
+  /*Bool_t kParameterMerged=kTRUE;
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
+  output->open(parOutFile);
+  rtdb->setOutput(output);
+*/  fRun->LoadGeometry();
   // ------------------------------------------------------------------------
 
 
@@ -82,50 +68,27 @@
   // =========================================================================
   
   // -----    MVD hit producer   --------------------------------------------
-
  
-  PndMvdEventAnaTask* eventAna = new PndMvdEventAnaTask();
-  eventAna->SetVerbose(iVerbose);
-  fRun->AddTask(eventAna);
+  PndMvdIdealTrackFinderTask* mvdTrackFinder = new PndMvdIdealTrackFinderTask();
+  mvdTrackFinder->SetVerbose(iVerbose);
+  fRun->AddTask(mvdTrackFinder);
 
-  rtdb->setOutput(parInput1);
-  rtdb->print();
+ FairParRootFileIo* output=new FairParRootFileIo(kTRUE);
+ output->open(parOutFile.Data());
+ rtdb->setOutput(output);
+ rtdb->print();
   // =====                 End of HitProducers                           =====
   // =========================================================================
-//   PndMvdGeoPar* geoPar  = (PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar")); 
+     PndMvdGeoPar* geoPar  = (PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar")); 
   
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
 
-  fRun->Run(startEvent,stopEvent);
-  
-  TCanvas* c1 = new TCanvas();
-  c1->Divide(3,2);
-  c1->cd(1);
-  eventAna->DrawPointRes();
-  eventAna->DrawPointResS("same");
-  eventAna->DrawPointResD("same");
-  eventAna->DrawPointResM("same");
-  c1->cd(2);
-  eventAna->DrawEnergyRes();
-  c1->cd(3);
-  eventAna->DrawDigisPerCluster();
-  c1->cd(1);
-  eventAna->DrawPointResStrip("same");
-  c1->cd(2);
-  eventAna->DrawEnergyResStrip("same");
-  c1->cd(3);
-  eventAna->DrawDigisPerClusterStrip("same");
-  c1->cd(4);
-  eventAna->DrawPtRes();
-  c1->cd(5);
-  eventAna->DrawPRes();
-  c1->cd(6);
-  eventAna->DrawRiemannRes();
-  
+  fRun->Run(0,nEvents);
   // ------------------------------------------------------------------------
 
-// rtdb->saveOutput();
+ rtdb->saveOutput();
+ rtdb->print();
   // -----   Finish   -------------------------------------------------------
   timer.Stop();
   Double_t rtime = timer.RealTime();

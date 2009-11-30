@@ -8,9 +8,8 @@
 
   Int_t nEvents  = 100;
 
-//   gROOT->Macro("Libs.C");
+//   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-
   // Input file (MC events)
   //TString inFile = "Mvd_DPMfixed_4GeV_10000.root"; //"MvdG4_DPM405_Mag_5000.root";
   //TString inFile = "data/mvdparams.root";

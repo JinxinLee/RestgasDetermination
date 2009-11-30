@@ -2,7 +2,9 @@
 
 eventDisplayMvdTpc()
 {
-//  gROOT->Macro("Libs.C");
+//  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+
 
 	  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 /*  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");

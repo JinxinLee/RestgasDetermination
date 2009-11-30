@@ -1,7 +1,20 @@
 Directory contents:
 -----
 ./
-  Hopefully usable "official" macros 
+  Hopefully usable default macros in this sequence:
+  root -q runMvdSim.C
+  root -q runMvdDigi.C
+  root -q runMvdReco.C 
+  
+  Some check/analysis:
+  EventListing.C
+  DisplayGeometry.C
+  
+  Useful styling finctions, take a look.
+  Tools.C
+  
+  Useful linkings for analysis macros
+  Helper.C
 -----
 ./Test
   testing macros
@@ -9,10 +22,3 @@ Directory contents:
 ./Ralf
   testing macros from ralfk
 ----------------------------
-
-
-Kalman testing (24.01.08)
-runMvdSim.C               (and anaMvdSim.C)
-runMvdIdealClustering.C   (and anaMvdIdealReco.C)
-runMvdIdealTracking.C
-runMvdKalman.C

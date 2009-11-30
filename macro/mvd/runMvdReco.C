@@ -1,43 +1,28 @@
+// Macro to reconstruct the MVD data in pandaroot
+// Updated 30.11.2009
+// Ralf Kliemt
 {
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0;
-  // Input file (MC events)
   TString MCFile = "Mvd_Test.root";
-  // Parameter file
-  TString parFile = "MvdParams.root";
-  // Parameter output file
-  // TString parOutFile = "MvdParams.root";
-  // Number of events to process
+  TString parFile = "Mvd_Params.root";
   Int_t nEvents = 10;
   // ----  Load libraries   -------------------------------------------------
-//   gROOT->Macro("Libs.C");
-  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-  // ------------------------------------------------------------------------
+  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");  // ------------------------------------------------------------------------
   // Output file
-    PndMvdFileNameCreator creator(MCFile.Data());
-    TString DigiFile = creator.GetDigiFileName(false).c_str();
-    TString outFile = creator.GetRecoFileName(false).c_str();
-    
-    std::cout << "MCFile  : " << MCFile.Data()<< std::endl;
-    std::cout << "DigiFile: " << DigiFile.Data()<< std::endl;
-    std::cout << "RecoFile: " << outFile.Data()<< std::endl;
-  // ---  Now choose concrete engines for the different tasks   -------------
-  // ------------------------------------------------------------------------
-
-
-  // In general, the following parts need not be touched
-  // ========================================================================
-
-
-
-
+  PndMvdFileNameCreator creator(MCFile.Data());
+  TString DigiFile = creator.GetDigiFileName(false).c_str();
+  TString outFile = creator.GetRecoFileName(false).c_str();
+  
+  std::cout << "MCFile  : " << MCFile.Data()<< std::endl;
+  std::cout << "DigiFile: " << DigiFile.Data()<< std::endl;
+  std::cout << "RecoFile: " << outFile.Data()<< std::endl;
+  
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
   timer.Start();
   // ------------------------------------------------------------------------
-
-
 
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
@@ -52,37 +37,23 @@
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo(kTRUE);
   parInput1->open(parFile.Data(),"UPDATE");
-//   FairParAsciiFileIo* parInput1 = new FairParAsciiFileIo();
-//   parInput1->open(parFile.Data(),"in");
   rtdb->setFirstInput(parInput1);
-  /*Bool_t kParameterMerged=kTRUE;
-  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
-  output->open(parOutFile);
-  rtdb->setOutput(output);
-*/  
-// fRun->LoadGeometry();
-  // ------------------------------------------------------------------------
 
-
-
-  // =========================================================================
-  // ======                       Hit Producers                         ======
-  // =========================================================================
-  
-  // -----    MVD hit producer   --------------------------------------------
- 
-  Double_t chargecut = 1.e5;
-  PndMvdStripClusterTask* mvdmccls = new PndMvdStripClusterTask(chargecut,creator.GetSimFileName(true));
+  // -----    Default MVD hit producer   --------------------------------------------
+  Double_t chargecut = 5000., pixelrad=1.8; // one day this will move to the parameter db.
+  PndMvdClusterTask* mvdmccls = new PndMvdClusterTask(pixelrad,chargecut,MCFile);
   mvdmccls->SetVerbose(iVerbose);
   fRun->AddTask(mvdmccls);
+  
+  // -----    OR separate tasks   ---------------------------------------------------
+  //Double_t chargecut = 1.e5;
+  //PndMvdStripClusterTask* mvdmccls = new PndMvdStripClusterTask(chargecut,creator.GetSimFileName(true));
+  //mvdmccls->SetVerbose(iVerbose);
+  //fRun->AddTask(mvdmccls);
+  //PndMvdPixelClusterTask* mvdClusterizer = new PndMvdPixelClusterTask(1.8,76,84, creator.GetSimFileName(true));//, slx, sly, sthreshold, snoise);
+  //mvdClusterizer->SetVerbose(iVerbose);
+  //fRun->AddTask(mvdClusterizer);
 
-  PndMvdPixelClusterTask* mvdClusterizer = new PndMvdPixelClusterTask(1.8,76,84, creator.GetSimFileName(true));//, slx, sly, sthreshold, snoise);
-  mvdClusterizer->SetVerbose(iVerbose);
-  fRun->AddTask(mvdClusterizer);
-
-//   FairParRootFileIo* output=new FairParRootFileIo(kTRUE);
-//   output->open(parOutFile.Data());
-//   rtdb->setOutput(output);
   rtdb->setOutput(parInput1);
   rtdb->print();
   // =====                 End of HitProducers                           =====

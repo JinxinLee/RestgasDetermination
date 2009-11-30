@@ -13,9 +13,8 @@
   Int_t startEvent = 0;
   Int_t stopEvent = 300;
   // ----  Load libraries   -------------------------------------------------
-//   gROOT->Macro("Libs.C");
+//   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-
   // ------------------------------------------------------------------------
   // Output file
     PndMvdFileNameCreator creator(MCFile.Data());

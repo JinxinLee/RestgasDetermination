@@ -1,27 +1,26 @@
 void EventListing()
 { 
-	gROOT->Macro("Libs.C");
+  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 	gSystem->Load("libriemann.C");
 	
-	TString MCFile = "Mvd_TestNewVersion.root";
+	TString MCFile = "Mvd_Test.root";
 	TH1D* h1 = new TH1D("h1","PixError",100,-0.01,0.01);
 	
 	PndMvdFileNameCreator creator(MCFile.Data());
 	TString DigiFile = creator.GetDigiFileName(false).c_str();
 	TString RecoFile = creator.GetRecoFileName(false).c_str();
-	TString TrackFFile = creator.GetTrackFindingFileName(false).c_str();
+	//TString TrackFFile = creator.GetTrackFindingFileName(false).c_str();
 
-	
 	TFile* fMC = new TFile(MCFile.Data());
 	TFile* fDigi = new TFile(DigiFile.Data());
 	TFile* fReco = new TFile(RecoFile.Data());
-	TFile* fTrack = new TFile(TrackFFile.Data());
+	//TFile* fTrack = new TFile(TrackFFile.Data());
 	
 	TTree* t = (TTree*)(fMC->Get("cbmsim"));
 
 	t->AddFriend("cbmsim", fDigi);
 	t->AddFriend("cbmsim", fReco);
-	t->AddFriend("cbmsim", fTrack);
+	//t->AddFriend("cbmsim", fTrack);
 	
 	t->StartViewer();
 	
@@ -32,10 +31,8 @@ void EventListing()
 	TClonesArray* StripReco = new TClonesArray("PndMvdHit");
 	TClonesArray* PixCluster = new TClonesArray("PndMvdCluster");
 	TClonesArray* StripCluster = new TClonesArray("PndMvdCluster");
-	TClonesArray* TrackCand = new TClonesArray("TrackCand");
-	
-	std::vector<PndMvdDigiPixel*> pixDigis;
-	
+	//TClonesArray* TrackCand = new TClonesArray("TrackCand");
+		
 	t->SetBranchAddress("MVDPoint", &MCHits);
 	t->SetBranchAddress("MVDPixelDigis", &PixDigis);
 	t->SetBranchAddress("MVDStripDigis", &StripDigis);

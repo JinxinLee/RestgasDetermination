@@ -6,7 +6,9 @@
 // This macro has been tested with rev 2503 so far.
 
   // -----  Load libraries   ------------------------------------------------
-  gROOT->Macro("Libs.C");
+  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
   timer.Start();

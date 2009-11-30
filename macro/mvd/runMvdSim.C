@@ -1,5 +1,6 @@
-// Macro for running Cbm  with Geant3  or Geant4 (M. Al-Turany , D. Bertini)
-// Modified 22/06/2005 D.Bertini
+// Macro to simulate the MVD in pandaroot
+// Updated 30.11.2009
+// Ralf Kliemt
 {
   TStopwatch timer;
   timer.Start();
@@ -9,14 +10,10 @@
 
   //FileNames
   TString simOutput="Mvd_Test.root";
-
-//  TString simOutput="Mvd_DPMfixed_4GeV_10000.root";
-  TString parOutput="MvdParams.root";
+  TString parOutput="Mvd_Params.root";
 
   // Load basic libraries
-//   gROOT->Macro("Libs.C");
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-
   FairRunSim *fRun = new FairRunSim();
 
   // set the MC version used
@@ -43,34 +40,19 @@
   fRun->AddModule(Magnet);
 
   FairModule *Pipe= new PndPipe("PIPE");
-  Pipe->SetGeometryFileName("pipebeamtarget.geo");
   fRun->AddModule(Pipe);
 
   FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
-  Mvd->SetGeometryFileName("MVD_v1.0_woPassiveTraps.root");
-//   Mvd->SetGeometryFileName("MVD14.root");
+  Mvd->SetGeometryFileName("MVD_v1.0_woPassiveTraps.root"); // only sensors, update follows
+  //  Mvd->SetGeometryFileName("MVD14.root"); // old geometry
   Mvd->SetVerboseLevel(verboseLevel);
   fRun->AddModule(Mvd);
-
-//  FairDetector *Stt= new CbmStt("STT", kTRUE);
-//  Stt->SetGeometryFileName("straws_axial.geo");
-//  fRun->AddModule(Stt);
-
-//  FairDetector *Emc = new CbmEmc("EMC",kTRUE);
-//  Emc->SetGeometryFileName("emc_module12345.dat");
-//  fRun->AddModule(Emc);
-
-//  FairDetector *Drc = new CbmDrc("DIRC", kTRUE);
-//  Drc->SetGeometryFileName("dirc.geo");
-//  fRun->AddModule(Drc);
-
 
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
- // Particle Generator (pdgid,mult, px,py,pz, vx,vy,vz)
-
-     // single pions for testing
+  // Particle Generator (pdgid,mult, px,py,pz, vx,vy,vz)
+  // single pions for testing
 //      FairParticleGenerator* partGenX   = new FairParticleGenerator(211,1, 1.,0.,0., 0.,0.,0.);
 //      FairParticleGenerator* partGenY   = new FairParticleGenerator(211,1, 0.,1.,0., 0.,0.,0.);
 //      FairParticleGenerator* partGenZ   = new FairParticleGenerator(211,1, 0.,0.1,1., 0.,0.,0.);
@@ -110,27 +92,34 @@
   // --------------------
   // 1- Reading the new field map in the old format
 
-   PndMultiField *fField= new PndMultiField();
-
-   PndTransMap *map= new PndTransMap("TransMap", "R");
-   PndDipoleMap *map1= new PndDipoleMap("DipoleMap", "R");
-   PndSolenoidMap *map2= new PndSolenoidMap("SolenoidMap", "R");
-   fField->AddField(map);
-   fField->AddField(map1);
-   fField->AddField(map2);
-
-   fRun->SetField(fField);
-
-   //fRun->SetStoreTraj(kTRUE); // toggle this for use with EVE
-   fRun->SetStoreTraj(kFALSE);
-
+	fRun->SetBeamMom(15);
+	PndMultiField *fField= new PndMultiField();
+  
+	PndTransMap *map_t= new PndTransMap("TransMap", "R");
+	PndDipoleMap *map_d1= new PndDipoleMap("DipoleMap1", "R");
+	PndDipoleMap *map_d2= new PndDipoleMap("DipoleMap2", "R");
+	PndSolenoidMap *map_s1= new PndSolenoidMap("SolenoidMap1", "R");
+	PndSolenoidMap *map_s2= new PndSolenoidMap("SolenoidMap2", "R");
+	PndSolenoidMap *map_s3= new PndSolenoidMap("SolenoidMap3", "R");
+	PndSolenoidMap *map_s4= new PndSolenoidMap("SolenoidMap4", "R");
+	
+	fField->AddField(map_t);
+	fField->AddField(map_d1);
+	fField->AddField(map_d2);
+	fField->AddField(map_s1);
+	fField->AddField(map_s2);
+	fField->AddField(map_s3);
+	fField->AddField(map_s4);
+  
+	fRun->SetField(fField);
+  
+  
+  fRun->SetStoreTraj(kTRUE); // toggle this for use with EVE
+  fRun->SetRadLenRegister(kFALSE); // toggle for material budget study
 
    fRun->Init();
 
- // -Trajectories Visualization (TGeoManager Only )
- // -----------------------------------------------
-
- // Set cuts for storing the trajectpries
+// Set cuts for storing the trajectpries
 //   FairTrajFilter* trajFilter = FairTrajFilter::Instance();
 //     trajFilter->SetStepSizeCut(0.01); // 1 cm
 //     trajFilter->SetVertexCut(-200., -200., -200, 200., 200., 200.);

@@ -7,9 +7,8 @@
   Int_t iVerbose = 0;
   Int_t nStart = 400;
   Int_t nEvents  = 1000;
-//   gROOT->Macro("Libs.C");
+//   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-
   // Input file (MC events)
   //TString inFile = "Mvd_DPMfixed_4GeV_10000.root"; //"MvdG4_DPM405_Mag_5000.root";
   //TString inFile = "data/mvdparams.root";

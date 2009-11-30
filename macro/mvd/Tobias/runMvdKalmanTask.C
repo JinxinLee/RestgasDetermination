@@ -13,7 +13,9 @@
   // ----  Load libraries   -------------------------------------------------
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 
-  //gROOT->Macro("Libs.C");
+  //gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+
   //gSystem->Load("libGeane");
   // ------------------------------------------------------------------------
   // Output file

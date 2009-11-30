@@ -1,7 +1,7 @@
 {
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
-  Int_t iVerbose = 1;
+  Int_t iVerbose = 0;
 
   // Input file (MC events)
 //  TString MCFile = "Mvd_TestNewVersion.root";
@@ -12,25 +12,19 @@
   // Number of events to process
   Int_t nEvents = 100;
   // ----  Load libraries   -------------------------------------------------
- //  gROOT->Macro("Libs.C");
+//   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-  gSystem->Load("libriemann");
-
   // ------------------------------------------------------------------------
 
-  TString inFile="$SIMPATH/pandaroot/macro/data/MvdTpc_D+D-_2Disks/digiMVD/recoMVD/riemannMVD/Combined.riemann.root";
-  TString jobname="combinedMVDTPC";
+  TString inFile="$SIMPATH/pandaroot/macro/data/MvdTpc_D+D-_2Disks/digiMVD/Combined.raw.root";
+  TString jobname="recoMVD";
 
   TString mcFile="$SIMPATH/pandaroot/macro/data/MvdTpc_D+D-_2Disks/Combined.mc.root";
-  TString recoMVDFile = "$SIMPATH/pandaroot/macro/data/MvdTpc_D+D-_2Disks/digiMVD/recoMVD/Combined.reco.root";
-  TString recoTPCFile = "$SIMPATH/pandaroot/macro/data/MvdTpc_D+D-_2Disks/digiTPC/recoTPC/Combined.reco.root";
-    
   
   TString SIMPATH = gSystem->Getenv("SIMPATH");
   
   inFile.ReplaceAll("$SIMPATH",SIMPATH);
-  recoMVDFile.ReplaceAll("$SIMPATH",SIMPATH);
-  recoTPCFile.ReplaceAll("$SIMPATH",SIMPATH);
+  mcFile.ReplaceAll("$SIMPATH",SIMPATH);
 
   TString inDir=inFile(0,inFile.Last('/')+1);
   // make new subdir
@@ -45,12 +39,12 @@
   
   TString outFile = inFile; 
   outFile.ReplaceAll(inDir,jobDir);
-  outFile.ReplaceAll(".riemann.root",".combined.root");
+  outFile.ReplaceAll(".raw.root",".reco.root");
 
   TString paramIn = inFile;
-  paramIn.ReplaceAll(".riemann.root",".param.root");
+  paramIn.ReplaceAll(".raw.root",".param.root");
   TString paramOut = outFile;
-  paramOut.ReplaceAll(".combined.root",".param.root");
+  paramOut.ReplaceAll(".reco.root",".param.root");
 
 /*
   TString mcDir = inDir;
@@ -63,8 +57,7 @@
   
   std::cout<<"Input: "<<inFile<<std::endl;
   std::cout<<"Output: "<<outFile<<std::endl;
-  std::cout<<"RecoMVDFile: "<<recoMVDFile<<std::endl;
-  std::cout<<"RecoTPCFile: "<<recoTPCFile<<std::endl;
+  std::cout<<"MCFile: "<<mcFile<<std::endl;
   std::cout<<"ParamIn: "<<paramIn<<std::endl;
   std::cout<<"ParamOut: "<<paramOut<<std::endl;
 
@@ -89,8 +82,7 @@
   FairRunAna *fRun= new FairRunAna();
 
   fRun->SetInputFile(inFile);
-  fRun->AddFriend(recoMVDFile);
-  fRun->AddFriend(recoTPCFile);
+  fRun->AddFriend(mcFile);
   
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
@@ -121,17 +113,17 @@
   // -----    MVD hit producer   --------------------------------------------
 
  
-  double MaxDist = 1;
-  double MaxSZ = 1;
-  double MaxSZChi2 = 1;
-  
-  PndMvdTpcRiemannCorrelatorTask* mvdtpccorr = new PndMvdTpcRiemannCorrelatorTask();
-  mvdtpccorr->SetMaxDist(MaxDist);
-  mvdtpccorr->SetMaxSZ(MaxSZ);
-  mvdtpccorr->SetMaxSZChi2(MaxSZChi2);
-  mvdtpccorr->SetVerbose(iVerbose);
-  fRun->AddTask(mvdtpccorr);
-  
+  Double_t chargecut = 1.e5;
+  PndMvdStripClusterTask* mvdmccls = new PndMvdStripClusterTask(chargecut, mcFile.Data());
+
+  mvdmccls->SetVerbose(iVerbose);
+  fRun->AddTask(mvdmccls);
+
+  PndMvdPixelClusterTask* mvdClusterizer = new PndMvdPixelClusterTask(1.8,100,100, mcFile.Data());//, slx, sly, sthreshold, snoise);
+
+  mvdClusterizer->SetVerbose(iVerbose);
+  fRun->AddTask(mvdClusterizer);
+
    FairParRootFileIo* output=new FairParRootFileIo(kTRUE);
    output->open(paramOut.Data());
    rtdb->setOutput(output);
@@ -146,14 +138,7 @@
 
   fRun->Run(0,nEvents);
   // ------------------------------------------------------------------------
-  //TCanvas* myCan1 = new TCanvas();
-  //mvdtpccorr->DrawDistHistos(myCan1, 0);
-  
-  //TCanvas* myCan2 = new TCanvas();
-  //mvdtpccorr->DrawSZHistos(myCan2, 0);
-  
- // TCanvas* myCan3 = new TCanvas();
- // mvdtpccorr->DrawSZChi2Histos(myCan3, 0);
+
 // rtdb->saveOutput();
   // -----   Finish   -------------------------------------------------------
   timer.Stop();

@@ -14,9 +14,8 @@
   TString parOutput="MvdParams.root";
 
   // Load basic libraries
-//   gROOT->Macro("Libs.C");
+//   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-
   FairRunSim *fRun = new FairRunSim();
 
   // set the MC version used

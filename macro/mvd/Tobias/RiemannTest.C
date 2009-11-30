@@ -6,7 +6,9 @@
 	TStopwatch timer;
 	timer.Start();
 
-  gROOT->Macro("Libs.C");
+  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+
   gSystem->Load("libriemann");
   
   double r = -2;

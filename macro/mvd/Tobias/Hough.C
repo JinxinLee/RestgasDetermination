@@ -1,6 +1,6 @@
 void Hough(int i)
 { 
-	gROOT->Macro("Libs.C");
+gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 	gSystem->Load("libriemann.C");
 	
 	TString MCFile = "Mvd_Test.root";
