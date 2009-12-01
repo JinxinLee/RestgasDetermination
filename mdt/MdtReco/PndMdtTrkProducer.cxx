@@ -42,7 +42,6 @@ PndMdtTrkProducer::~PndMdtTrkProducer() { }
 
 // -----   Public method Init   --------------------------------------------
 InitStatus PndMdtTrkProducer::Init() {
-  
   cout << "-I- PndMdtTrkProducer::Init: "
        << "INITIALIZATION *********************" << endl;
   
@@ -146,16 +145,19 @@ void PndMdtTrkProducer::SetGeometry() {
 	      Double_t master[3];
 	      gGeoManager->LocalToMaster(local, master);
 	      mdtLayerPos[0][ll] = master[1];
+
 	      // Finding the maximum point of Z
 	      if (ll==0)
 		{
 		  const Double_t *origin = ((TGeoBBox*)gGeoManager->GetCurrentVolume()->GetShape())->GetOrigin();
-		  if (fVerbose>1) cout <<  buffer << "\t" << mdtLayerPos[0][ll] << "\t" << master[0] << "\t" << master[1] << "\t" << master[2] << endl;
 		  if (version==1) local[1] = ((TGeoBBox*)gGeoManager->GetCurrentVolume()->GetShape())->GetDY()+origin[1];
 		  if (version==2) local[2] = ((TGeoBBox*)gGeoManager->GetCurrentVolume()->GetShape())->GetDZ()+origin[2];
 		  gGeoManager->LocalToMaster(local, master);
 		  mdtModule1MaxZ = master[2];
+                  if (fVerbose>1) cout << "mdtModule1MaxZ = " << mdtModule1MaxZ << ";" << endl;
 		}
+
+              if (fVerbose>1) cout <<  "mdtLayerPos[0][" << ll << "] = " << mdtLayerPos[0][ll] << ";" << endl;
 	    } // end of recognized volume
 	} // end of layer loop
     } // end of barrel
@@ -185,7 +187,7 @@ void PndMdtTrkProducer::SetGeometry() {
 	  Double_t master[3];
 	  gGeoManager->LocalToMaster(local, master);
 	  mdtLayerPos[1][ll] = master[2];
-	  if (fVerbose>1) cout <<  buffer << "\t" << mdtLayerPos[1][ll] << "\t" << master[0] << "\t" << master[1] << "\t" << master[2] << endl;
+          if (fVerbose>1) cout <<  "mdtLayerPos[1][" << ll << "] = " << mdtLayerPos[1][ll] << ";" << endl;
 	  ec_laymax++;
 	} // end of recognized volume
     } // end of layer loop
@@ -215,7 +217,7 @@ void PndMdtTrkProducer::SetGeometry() {
 	  Double_t master[3];
 	  gGeoManager->LocalToMaster(local, master);
 	  mdtLayerPos[1][ll+ec_laymax] = master[2];
-	  if (fVerbose>1) cout <<  buffer << "\t" << mdtLayerPos[1][ll+ec_laymax] << "\t" << master[0] << "\t" << master[1] << "\t" << master[2] << endl;
+	  if (fVerbose>1) cout <<  "mdtLayerPos[1][" << ll+ec_laymax << "] = " << mdtLayerPos[1][ll+ec_laymax] << ";" << endl;
 	} // end of recognized volume
     } // end of layer loop
 
@@ -249,7 +251,7 @@ void PndMdtTrkProducer::SetGeometry() {
 	  Double_t master[3];
 	  gGeoManager->LocalToMaster(local, master);
 	  mdtLayerPos[2][ll] = master[2];
-	  if (fVerbose>1) cout <<  buffer << "\t" << mdtLayerPos[2][ll] << "\t" << master[0] << "\t" << master[1] << "\t" << master[2] << endl;
+          if (fVerbose>1) cout <<  "mdtLayerPos[2][" << ll << "] = " << mdtLayerPos[2][ll] << ";" << endl;
 	} // end of recognized volume
     } // end of layer loop
   
@@ -261,7 +263,6 @@ void PndMdtTrkProducer::Exec(Option_t* opt)
 {
   // Reset output array
   fTrkArray->Clear();
-  
   if (!MdtMapping()) return; // exit if the event contains no Mdt hits
  
   if (mapMdtBarrel.size()>0)
@@ -272,23 +273,30 @@ void PndMdtTrkProducer::Exec(Option_t* opt)
       
       for (Int_t iMap = 0; iMap < vecMdt0.size(); iMap++) // loop over hits in layer0
 	{
-	  Int_t layerCount = 1;
+	  Int_t layerCount = 1, maxLayer = 0;
+	  Float_t layerDist = 0.;
 	  PndMdtTrk *mdtTrk = new PndMdtTrk();
-	  mdtTrk->SetHitNumber(0, vecMdt0[iMap]);
+	  mdtTrk->SetHitIndex(0, vecMdt0[iMap]);
 	  mdtTrk->SetModule(1);
 	  
 	  PndMdtHit* mdtHit0  = (PndMdtHit*) fHitArray->At(vecMdt0[iMap]);
 	  mdtHit0->Position(oldPos);
+	  mdtTrk->SetHitIndex(0, vecMdt0[iMap]);
+	  mdtTrk->SetHitDist(0, 0); 
+	  mdtTrk->SetLayerDist(0, 0);
+	  mdtTrk->SetHitMult(0, 1);
 	  
 	  map<Int_t, vector<Int_t> >::const_iterator layer_iter;
 	  for (layer_iter=mapMdtBarrel.begin();layer_iter!=mapMdtBarrel.end();++layer_iter) // layer loop
 	    {
 	      if (((*layer_iter).first)==0) continue; // skip first layer
-	      
+	      if (((*layer_iter).first-maxLayer) > 1) break;
+	      layerDist = mdtLayerPos[0][(*layer_iter).first] - mdtLayerPos[0][maxLayer];
 	      vector<Int_t>vecMdt = (*layer_iter).second;
 	      Float_t corrDist = -1;
 	      Int_t corrId = -1;
-	      TVector3 corrPos(0., 0., 0.);
+	      TVector3 corrPos(0., 0., 0.); 
+	      Int_t layerMult = 0;
 	      for (Int_t hit_iter = 0; hit_iter < vecMdt.size(); ++hit_iter)
 		{
 		  PndMdtHit* mdtHit  = (PndMdtHit*) fHitArray->At(vecMdt[hit_iter]);
@@ -299,14 +307,17 @@ void PndMdtTrkProducer::Exec(Option_t* opt)
 		      corrDist = hitDist;
 		      corrId = vecMdt[hit_iter];
 		      corrPos = newPos;
-		    }
+		    } 
+		  if ( (hitDist>0.) && ((TMath::Sqrt(hitDist)/layerDist) < 2.5) ) layerMult++;
 		}
 	      
-	      if ( (corrDist>0.) && ((TMath::Sqrt(corrDist)/(mdtLayerPos[mdtTrk->GetModule()-1][(*layer_iter).first] - mdtLayerPos[mdtTrk->GetModule()-1][(*layer_iter).first-1])) < 2.5) ) // if there in one correlated hit closer than 2.5 layer distance
+	      if ( (corrDist>0.) && ((TMath::Sqrt(corrDist)/layerDist) < 2.5) ) // if there in one correlated hit closer than 2.5 layer distance
 		{
-		  mdtTrk->SetHitNumber((*layer_iter).first, corrId);
-		  mdtTrk->SetHitDist((*layer_iter).first, corrDist);
-		  mdtTrk->SetHitMult((*layer_iter).first, mdtTrk->GetHitMult((*layer_iter).first)+1);
+		  mdtTrk->SetHitIndex(layerCount, corrId);
+		  mdtTrk->SetHitDist(layerCount, corrDist); 
+		  mdtTrk->SetLayerDist(layerCount, layerDist);
+		  mdtTrk->SetHitMult(layerCount, layerMult);
+		  maxLayer = (*layer_iter).first;
 		  layerCount++;
 		  oldPos = corrPos; // reset position for next mdt layer
 		}
@@ -319,11 +330,20 @@ void PndMdtTrkProducer::Exec(Option_t* opt)
 	      for (layer2_iter=mapMdtEndcap.begin();layer2_iter!=mapMdtEndcap.end();++layer2_iter) // layer loop
 		{
 		  if (((*layer2_iter).first)==0) continue; // skip first layer
-		  
+		  if (((*layer2_iter).first)==1)
+		    {
+		      layerDist = mdtLayerPos[1][(*layer2_iter).first] - mdtModule1MaxZ; 
+		    }
+		  else
+		    {
+		      if (((*layer2_iter).first-maxLayer) > 1) break;
+		      layerDist = mdtLayerPos[1][(*layer2_iter).first] - mdtLayerPos[1][maxLayer];
+		    }
 		  vector<Int_t>vecMdt = (*layer2_iter).second;
 		  Float_t corrDist = -1;
 		  Int_t corrId = -1;
 		  TVector3 corrPos(0., 0., 0.);
+		  Int_t layerMult = 0;
 		  for (Int_t hit_iter = 0; hit_iter < vecMdt.size(); ++hit_iter)
 		    {
 		      PndMdtHit* mdtHit  = (PndMdtHit*) fHitArray->At(vecMdt[hit_iter]);
@@ -334,26 +354,25 @@ void PndMdtTrkProducer::Exec(Option_t* opt)
 			  corrDist = hitDist;
 			  corrId = vecMdt[hit_iter];
 			  corrPos = newPos;
-			}
+			} 
+		      if ( (hitDist>0.) && ((TMath::Sqrt(hitDist)/layerDist) < 2.5)) layerMult++;
 		    }
 		  
-		  if ( (corrDist>0.) && 
-		       ( 
-			( (((*layer2_iter).first)==1) && ((TMath::Sqrt(corrDist)/(mdtLayerPos[1][(*layer2_iter).first] - mdtModule1MaxZ) ) < 2.5)) ||
-			( (((*layer2_iter).first)>1)  && ((TMath::Sqrt(corrDist)/(mdtLayerPos[1][(*layer2_iter).first] - mdtLayerPos[1][(*layer2_iter).first-1])) < 2.5)) 
-			)
-		       ) // if there in one correlated hit closer than 2.5 layer distance
+		  if ( (corrDist>0.) && ((TMath::Sqrt(corrDist)/layerDist) < 2.5)) // if there in one correlated hit closer than 2.5 layer distance
 		    { 
 		      mdtTrk->SetModule(-1);
-		      mdtTrk->SetHitNumber(layerCount, corrId);
+		      mdtTrk->SetHitIndex(layerCount, corrId);
 		      mdtTrk->SetHitDist(layerCount, corrDist);
-		      mdtTrk->SetHitMult(layerCount, mdtTrk->GetHitMult(layerCount)+1);
+		      mdtTrk->SetLayerDist(layerCount, layerDist);
+		      mdtTrk->SetHitMult(layerCount, layerMult);
 		      layerCount++;
+		      maxLayer = (*layer2_iter).first;
 		      oldPos = corrPos; // reset position for next mdt layer
 		    }
 		} // end of layer loop
 	    }
 	  
+	  mdtTrk->SetMaxLayer(maxLayer);
 	  mdtTrk->SetLayerCount(layerCount);
 	  AddTrk(mdtTrk); // storing the PndMdtTrk object  
 	} // end of layer0 loop
@@ -367,23 +386,29 @@ void PndMdtTrkProducer::Exec(Option_t* opt)
       
       for (Int_t iMap = 0; iMap < vecMdt0.size(); iMap++) // loop over hits in layer0
 	{
-	  Int_t layerCount = 1;
+	  Int_t layerCount = 1, maxLayer = 0;
+	  Float_t layerDist = 0;
 	  PndMdtTrk *mdtTrk = new PndMdtTrk();
-	  mdtTrk->SetHitNumber(0, vecMdt0[iMap]);
+	  mdtTrk->SetHitIndex(0, vecMdt0[iMap]);
 	  mdtTrk->SetModule(2);
 	  
 	  PndMdtHit* mdtHit0  = (PndMdtHit*) fHitArray->At(vecMdt0[iMap]);
 	  mdtHit0->Position(oldPos);
-	  
+	  mdtTrk->SetHitIndex(0, vecMdt0[iMap]);
+	  mdtTrk->SetHitDist(0, 0); 
+	  mdtTrk->SetLayerDist(0, 0);
+	  mdtTrk->SetHitMult(0, 1);
 	  map<Int_t, vector<Int_t> >::const_iterator layer_iter;
 	  for (layer_iter=mapMdtEndcap.begin();layer_iter!=mapMdtEndcap.end();++layer_iter) // layer loop
 	    {
-	      if (((*layer_iter).first)==0) continue; // skip first layer
-	      
+	      if (((*layer_iter).first)==0) continue; // skip first layer 
+	      if (((*layer_iter).first-maxLayer) > 1) break;
+	      layerDist = mdtLayerPos[1][(*layer_iter).first] - mdtLayerPos[1][maxLayer];
 	      vector<Int_t>vecMdt = (*layer_iter).second;
 	      Float_t corrDist = -1;
 	      Int_t corrId = -1;
 	      TVector3 corrPos(0., 0., 0.);
+	      Int_t layerMult = 0;
 	      for (Int_t hit_iter = 0; hit_iter < vecMdt.size(); ++hit_iter)
 		{
 		  PndMdtHit* mdtHit  = (PndMdtHit*) fHitArray->At(vecMdt[hit_iter]);
@@ -395,19 +420,23 @@ void PndMdtTrkProducer::Exec(Option_t* opt)
 		      corrId = vecMdt[hit_iter];
 		      corrPos = newPos;
 		    }
+		  if ( (hitDist>0.) && ((TMath::Sqrt(hitDist)/layerDist) < 2.5) ) layerMult++;
 		}
 	      
-	        if ( (corrDist>0.) && ((TMath::Sqrt(corrDist)/(mdtLayerPos[mdtTrk->GetModule()-1][(*layer_iter).first] - mdtLayerPos[mdtTrk->GetModule()-1][(*layer_iter).first-1])) < 2.5) ) // if there in one correlated hit closer than 2.5 later distance
+	      if ( (corrDist>0.) && ((TMath::Sqrt(corrDist)/layerDist) < 2.5) ) // if there in one correlated hit closer than 2.5 later distance
 		{
-		  mdtTrk->SetHitNumber((*layer_iter).first, corrId);
-		  mdtTrk->SetHitDist((*layer_iter).first, corrDist);
-		  mdtTrk->SetHitMult((*layer_iter).first, mdtTrk->GetHitMult((*layer_iter).first)+1);
+		  mdtTrk->SetHitIndex(layerCount, corrId);
+		  mdtTrk->SetHitDist(layerCount, corrDist);
+		  mdtTrk->SetLayerDist(layerCount, layerDist);
+		  mdtTrk->SetHitMult(layerCount, layerMult);
 		  layerCount++;
+		  maxLayer = (*layer_iter).first;
 		  oldPos = corrPos; // reset position for next mdt layer
 		}
 	      
 	    } // end of layer loop
 	    
+	  mdtTrk->SetMaxLayer(maxLayer);
 	  mdtTrk->SetLayerCount(layerCount);
 	  AddTrk(mdtTrk); // storing the PndMdtTrk object  
 	} // end of layer0 loop
@@ -421,23 +450,29 @@ void PndMdtTrkProducer::Exec(Option_t* opt)
       
       for (Int_t iMap = 0; iMap < vecMdt0.size(); iMap++) // loop over hits in layer0
 	{
-	  Int_t layerCount = 1;
+	  Int_t layerCount = 1, maxLayer = 0;
+	  Float_t layerDist = 0;
 	  PndMdtTrk *mdtTrk = new PndMdtTrk();
-	  mdtTrk->SetHitNumber(0, vecMdt0[iMap]);
+	  mdtTrk->SetHitIndex(0, vecMdt0[iMap]);
 	  mdtTrk->SetModule(4);
 	  
 	  PndMdtHit* mdtHit0  = (PndMdtHit*) fHitArray->At(vecMdt0[iMap]);
 	  mdtHit0->Position(oldPos);
-	  
+	  mdtTrk->SetHitIndex(0, vecMdt0[iMap]);
+	  mdtTrk->SetHitDist(0, 0); 
+	  mdtTrk->SetLayerDist(0, 0);
+	  mdtTrk->SetHitMult(0, 1);
 	  map<Int_t, vector<Int_t> >::const_iterator layer_iter;
 	  for (layer_iter=mapMdtForward.begin();layer_iter!=mapMdtForward.end();++layer_iter) // layer loop
 	    {
 	      if (((*layer_iter).first)==0) continue; // skip first layer
-	      
+	      if (((*layer_iter).first-maxLayer) > 1) break;
+	      layerDist = mdtLayerPos[2][(*layer_iter).first] - mdtLayerPos[2][maxLayer];
 	      vector<Int_t>vecMdt = (*layer_iter).second;
 	      Float_t corrDist = -1;
 	      Int_t corrId = -1;
 	      TVector3 corrPos(0., 0., 0.);
+	      Int_t layerMult = 0;
 	      for (Int_t hit_iter = 0; hit_iter < vecMdt.size(); ++hit_iter)
 		{
 		  PndMdtHit* mdtHit  = (PndMdtHit*) fHitArray->At(vecMdt[hit_iter]);
@@ -448,21 +483,26 @@ void PndMdtTrkProducer::Exec(Option_t* opt)
 		      corrDist = hitDist;
 		      corrId = vecMdt[hit_iter];
 		      corrPos = newPos;
-		    }
+		    } 
+		  if ( (hitDist>0.) && ((TMath::Sqrt(hitDist)/layerDist) < 2.5) ) layerMult++;
 		}
 	      
-	        if ( (corrDist>0.) && ((TMath::Sqrt(corrDist)/(mdtLayerPos[mdtTrk->GetModule()-1][(*layer_iter).first] - mdtLayerPos[mdtTrk->GetModule()-1][(*layer_iter).first-1])) < 2.5) ) // if there in one correlated hit closer than 2.5 later distance
-		{
-		  mdtTrk->SetHitNumber((*layer_iter).first, corrId);
-		  mdtTrk->SetHitDist((*layer_iter).first, corrDist);
-		  mdtTrk->SetHitMult((*layer_iter).first, mdtTrk->GetHitMult((*layer_iter).first)+1);
+	      if ( (corrDist>0.) && ((TMath::Sqrt(corrDist)/layerDist) < 2.5) ) // if there in one correlated hit closer than 2.5 later distance
+		{ 
+		  
+		  mdtTrk->SetHitIndex(layerCount, corrId);
+		  mdtTrk->SetHitDist(layerCount, corrDist);
+		  mdtTrk->SetLayerDist(layerCount, layerDist);
+		  mdtTrk->SetHitMult(layerCount, layerMult);
 		  layerCount++;
+		  maxLayer = (*layer_iter).first;
 		  oldPos = corrPos; // reset position for next mdt layer
 		}
 	      
 	    } // end of layer loop
-	    
-	  mdtTrk->SetLayerCount(layerCount);
+	  
+	  mdtTrk->SetMaxLayer(maxLayer);
+	  mdtTrk->SetLayerCount(layerCount); 
 	  AddTrk(mdtTrk); // storing the PndMdtTrk object  
 	} // end of layer0 loop
     } // end of Forward block  
@@ -480,7 +520,7 @@ Bool_t PndMdtTrkProducer::MdtMapping()
     {  
       mdtHit  = (PndMdtHit*) fHitArray->At(iHit);
       Int_t mdtModule = -1, mdtLayer = -1;
-
+    
       switch (mdtHit->GetModule())
 	{
 	case 1:

@@ -30,24 +30,28 @@ class PndMdtTrk : public TObject {
   void GetHitList(Int_t *hit)            { for (Int_t ii=0; ii<15; ii++) hit[ii] = fHitList[ii]; };
   void GetHitMult(Int_t *hit)            { for (Int_t ii=0; ii<15; ii++) hit[ii] = fHitMult[ii]; };
   void GetHitDist(Float_t *hit)          { for (Int_t ii=0; ii<15; ii++) hit[ii] = fHitDist[ii]; };
-  Int_t   GetHitNumber(Int_t lay)  const { return fHitList[lay]; };
+  Int_t   GetHitIndex(Int_t lay)   const { return fHitList[lay]; };
   Int_t   GetHitMult  (Int_t lay)  const { return fHitMult[lay]; };
   Float_t GetHitDist (Int_t lay)   const { return fHitDist[lay]; };
+  Float_t GetLayerDist (Int_t lay) const { return fLayDist[lay]; };
   Int_t GetHitCount()              const { return fHitCount; }; 
   Int_t GetLayerCount()            const { return fLayerCount; };
+  Int_t GetMaxLayer()              const { return fMaxLayer; };
   Int_t GetHitBit()                const { return fHitBit; }; 
   Int_t GetHitBit(Int_t lay)       const { return (fHitBit & (1 << lay)); };
   Int_t GetModule()                const { return fModule;}; 
   Float_t GetChi2()                const { return fChi2;};
  
   /** Modifiers **/
-  void SetHitNumber(Int_t lay, Int_t trackId); 
+  void SetHitIndex (Int_t lay, Int_t trackId); 
   void SetHitMult  (Int_t lay, Int_t mult);
   void SetHitDist  (Int_t lay, Float_t dist);
+  void SetLayerDist(Int_t lay, Float_t dist);
   void SetBit      (Int_t lay)    { fHitBit = fHitBit | (1 << lay); };
 
   void SetHitCount(Int_t hit)     { fHitCount = hit; }; 
   void SetLayerCount(Int_t lay)   { fLayerCount = lay; };
+  void SetMaxLayer(Int_t lay)   { fMaxLayer = lay; };
   void SetHitBit  (Int_t bit)     { fHitBit = bit;   };
   void SetModule  (Int_t mod)     { fModule = mod;   };
   void SetChi2    (Float_t chi2)  { fChi2 = chi2;   };
@@ -58,8 +62,10 @@ class PndMdtTrk : public TObject {
   Int_t fHitList[15];      // List of indexes of MdtHit
   Int_t fHitMult[15];      // Number of MdtHits inside the correlation
   Float_t fHitDist[15];    // Distance of the closest point to the previous layer hit
+  Float_t fLayDist[15];    // Distance of the actual layer from the previous one
   Int_t fHitCount;         // Number of hits inside correlation
   Int_t fLayerCount;       // Number of fired layers
+  Int_t fMaxLayer;         // Lat layer fired
   Int_t fHitBit;           // Layer Bit
   Int_t fModule;           // Module number of the first hit
   Float_t fChi2;           // global chi2 of the MDT correlation
@@ -67,11 +73,11 @@ class PndMdtTrk : public TObject {
   ClassDef(PndMdtTrk,1);
 };
 
-inline void PndMdtTrk::SetHitNumber(Int_t lay, Int_t trackId)  
+inline void PndMdtTrk::SetHitIndex(Int_t lay, Int_t trackId)  
 { 
   if (lay>15) 
     {
-      cout << " -E- PndMdtTrk::SetHitNumber: Layer > 15 !!!!!" << endl;
+      cout << " -E- PndMdtTrk::SetHitIndex: Layer > 15 !!!!!" << endl;
     }
   else
     {
@@ -101,6 +107,18 @@ inline void PndMdtTrk::SetHitDist(Int_t lay, Float_t dist)
   else
     {
       fHitDist[lay] = dist;
+    }
+}
+
+inline void PndMdtTrk::SetLayerDist(Int_t lay, Float_t dist)  
+{ 
+  if (lay>15) 
+    {
+      cout << " -E- PndMdtTrk::SetLayerDist: Layer > 15 !!!!!" << endl;
+    }
+  else
+    {
+      fLayDist[lay] = dist;
     }
 }
 

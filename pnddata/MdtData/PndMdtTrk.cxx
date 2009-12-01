@@ -18,9 +18,11 @@ void PndMdtTrk::Clear()
     { fHitList[ii]  = -1;
       fHitMult[ii]  =  0;
       fHitDist[ii] = -1.;
+      fLayDist[ii] = 0.;
     }
   fHitCount = 0;
   fLayerCount = 0;
+  fMaxLayer = 0;
   fHitBit = 0;
   fModule = 0;
   fChi2 = -1;

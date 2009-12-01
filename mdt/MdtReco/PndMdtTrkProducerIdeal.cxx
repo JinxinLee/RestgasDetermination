@@ -123,7 +123,7 @@ void PndMdtTrkProducerIdeal::Exec(Option_t* opt) {
       mdtPoint = (PndMdtPoint*)fPointArray->At(mdtHit->GetRefIndex());
       if (mdtPoint->GetTrackID()!= iMc) continue;
       
-      mdtTrk->SetHitNumber(mdtHit->GetLayerID(), iHit);
+      mdtTrk->SetHitIndex(mdtHit->GetLayerID(), iHit);
       if (mdtTrk->GetModule()==0)
 	{
 	  mdtTrk->SetModule(mdtHit->GetModule());
