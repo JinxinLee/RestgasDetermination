@@ -40,6 +40,7 @@ void simfast_dpm_cmp(double mom, int mode=0,int nevts=100,TString outfile="")
 
   FairRunSim *fRun = new FairRunSim();
   fRun->SetOutputFile(outfile.Data());
+  fRun->SetName("TGeant3");
 
   // Create and Set Event Generator
   //-------------------------------

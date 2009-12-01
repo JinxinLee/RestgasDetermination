@@ -21,6 +21,7 @@ void simfast(TString infile="dsdsj20k.evt",int soff=0,int nevts=0,TString outfil
 
   FairRunSim *fRun = new FairRunSim();
   fRun->SetOutputFile(outfile.Data());
+  fRun->SetName("TGeant3");
 
   // Create and Set Event Generator
   //-------------------------------
