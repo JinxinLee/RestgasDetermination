@@ -6,7 +6,7 @@
          rootlogon();
          basiclibs();
 	
-	TFile* f = new TFile("full_emc.root"); //file you want to analyse
+	TFile* f = new TFile("cluster_emc.root"); //file you want to analyse
 	TTree *t=(TTree *) f->Get("cbmsim") ;
 	TClonesArray* cluster_array=new TClonesArray("PndEmcCluster");
 	t->SetBranchAddress("EmcCluster",&cluster_array);
