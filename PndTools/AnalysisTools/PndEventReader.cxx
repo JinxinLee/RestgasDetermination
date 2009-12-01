@@ -103,8 +103,10 @@ void PndEventReader::Init()
   fOwnChain->SetBranchAddress("PidNeutralProbability",&fNeutralProbability);
   
   fOwnChain->SetBranchAddress("PndMcTracks",&fMcCands);
+  
+  fMicroCands=0;
 
-	fOwnChain->SetBranchAddress("PndMicroCandidates",&fMicroCands);
+	//fOwnChain->SetBranchAddress("PndMicroCandidates",&fMicroCands);
 //	fOwnChain->SetBranchAddress("PndEventSummary",&fCurrentEventInfo);
 	fOwnChain->SetBranchAddress("PndEventSummary",&fEventInfo);
 	
