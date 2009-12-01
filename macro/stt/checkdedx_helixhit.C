@@ -141,18 +141,18 @@
 
   c1->cd(1);
   hdedxvsp_e->SetMarkerColor(2); // red = electron
-  hdedxvsp_e->Draw("SAME");
+  hdedxvsp_e->Draw();
   c1->cd(2);
   hdedxvsp_k->SetMarkerColor(3); // green = kaon
-  hdedxvsp_k->Draw("SAME");
+  hdedxvsp_k->Draw();
   c1->cd(3);
   hdedxvsp_pi->SetMarkerColor(4); // blue = pion
   hdedxvsp_mu->SetMarkerColor(7); // light blue = muon
-  hdedxvsp_pi->Draw("SAME");
+  hdedxvsp_pi->Draw();
   hdedxvsp_mu->Draw("SAME");
   c1->cd(4);
   hdedxvsp_p->SetMarkerColor(5); // yellow = proton
-  hdedxvsp_p->Draw("SAME");
+  hdedxvsp_p->Draw();
 
   c2->cd();
   hdedxvsp_reco->Draw();
