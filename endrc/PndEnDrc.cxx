@@ -143,7 +143,7 @@ void PndEnDrc::ConstructGeometry()
 
     if (GetGeometryFileName().EndsWith(".dat")) {
       std::cout<< "                                               " <<std::endl;
-      std::cout<< " ====== EMC::  ConstructASCIIGeometry() ====== " <<std::endl;
+      std::cout<< " ====== EnDrc::  ConstructASCIIGeometry() ====== " <<std::endl;
       std::cout<< " ============================================= " <<std::endl;
        // Read in geometry file
       geoFace->addGeoModule(dskGeo);
@@ -156,7 +156,7 @@ void PndEnDrc::ConstructGeometry()
 
     } else if(GetGeometryFileName().EndsWith(".root")) {
       std::cout<< "                                              " <<std::endl;
-      std::cout<< " ====== EMC::  ConstructROOTGeometry() ====== " <<std::endl;
+      std::cout<< " ====== EnDrc::  ConstructROOTGeometry() ====== " <<std::endl;
       std::cout<< " ============================================ " <<std::endl;
       ConstructRootGeometry();
     }
@@ -186,10 +186,10 @@ void PndEnDrc::ConstructRootGeometry() {
   TGeoHMatrix *global = gGeoManager->GetHMatrix();             
   gGeoManager->GetListOfMatrices()->Remove(global); //Remove the Identity matrix 
   TGeoTranslation* pos=static_cast<TGeoTranslation*>(f->Get("EnDrcPos"));
-  pos->Print();
+  //pos->Print();
   pos->SetDefaultName();
   Cave->AddNode(EnDrc,1,pos);
-  cout<<"PndEnDrc::ConstructRootGeometry() "<<Cave->GetNodes()->Last()->GetName()<<endl;
+//  cout<<"PndEnDrc::ConstructRootGeometry() "<<Cave->GetNodes()->Last()->GetName()<<endl;
   ExpandNode(static_cast<TGeoNode*>(Cave->GetNodes()->Last()));
 
   // f->Close();
@@ -263,10 +263,10 @@ void PndEnDrc::ExpandNode(TGeoNode *N0){
   FairGeoInterface *geoFace = geoLoad->getGeoInterface();
   FairGeoMedia *Media =  geoFace->getMedia();
   FairGeoBuilder *geobuild=geoLoad->getGeoBuilder();
-  cout<<"PndEnDrc::ExpandNode "<<N0->GetName()<<" placement "<<N0->GetMatrix()->GetName()<<endl;
+  //cout<<"PndEnDrc::ExpandNode "<<N0->GetName()<<" placement "<<N0->GetMatrix()->GetName()<<endl;
   TGeoMatrix *Matrix =N0->GetMatrix();
   Matrix->SetDefaultName();
-  cout<<Matrix->GetName()<<endl;
+ // cout<<Matrix->GetName()<<endl;
   if(gGeoManager->GetListOfMatrices()->FindObject(Matrix))gGeoManager->GetListOfMatrices()->Remove(Matrix);
   TGeoVolume *v1=N0->GetVolume();
   //v1->RegisterYourself();
@@ -287,14 +287,14 @@ void PndEnDrc::ExpandNode(TGeoNode *N0){
     TGeoMaterial*mat1=v->GetMaterial(); 
     TGeoMaterial *newMat = gGeoManager->GetMaterial(mat1->GetName());
     if( newMat==0){
-      std::cout<< "Material " << mat1->GetName() << " is not defined " << std::endl;
+     // std::cout<< "Material " << mat1->GetName() << " is not defined " << std::endl;
       FairGeoMedium *CbmMedium=Media->getMedium(mat1->GetName());
       if (!CbmMedium) {
 	std::cout << "Material is not defined in ASCII file nor in Root file" << std::endl;
 	CbmMedium=new FairGeoMedium(mat1->GetName());
 	Media->addMedium(CbmMedium);
       }
-      std::cout << "Create Medium " << mat1->GetName() << std::endl;
+//      std::cout << "Create Medium " << mat1->GetName() << std::endl;
       Int_t nmed=geobuild->createMedium(CbmMedium);
       v->SetMedium(gGeoManager->GetMedium(nmed));
       gGeoManager->SetAllIndex();
@@ -310,15 +310,15 @@ void PndEnDrc::ExpandNode(TGeoNode *N0){
     v->RegisterYourself();
   }
   if (TString(v->GetName()).Contains("lg")){
-    // if (fVerboseLevel>2){
+     if (fVerboseLevel>2){
       std::cout << "Sensitive Volume : " << v->GetName() << " id "  << std::endl;
-      // }
+       }
     AddSensitiveVolume(v);
   }
   if (TString(v->GetName()).Contains("disc")){
-    // if (fVerboseLevel>2){
+     if (fVerboseLevel>2){
       std::cout << "Sensitive Volume : " << v->GetName() << " id "  << std::endl;
-      // }
+       }
     AddSensitiveVolume(v);
   }
   if (TString(v->GetName()).Contains("lg"))v->SetLineColor(2);
@@ -433,7 +433,7 @@ Bool_t PndEnDrc::ProcessTrueHits(FairVolume *vol)
   
   for(Int_t i=0;i<size;i++)
     if(static_cast<PndEnDrcPoint*>(points[i])->GetTrackID()==fTrackID)return kFALSE;
-  cout<<"Process True hits "<<fTrackID<< " "<<fPdgCode<<endl;
+  //cout<<"Process True hits "<<fTrackID<< " "<<fPdgCode<<endl;
   new(points[size]) PndEnDrcPoint(fTrackID, fDetID, fPdgCode, fPos, fMom, fTof, fLength, fELoss,0.,0.,0.);
   return kTRUE;
 }

@@ -1,7 +1,7 @@
 // Macro for running Panda simulation  with Geant3  or Geant4 (M. Al-Turany , D. Bertini)
 // This macro is supposed to run the full simulation of the panda detector.
 
-run_sim(Int_t nEvents = 10)
+run_sim(Int_t nEvents = 10, Float_t mom = 1.)
 {
   //-----User Settings:-----------------------------------------------
   TString  SimEngine      ="TGeant3"; 
@@ -10,7 +10,7 @@ run_sim(Int_t nEvents = 10)
   Double_t BeamMomentum   =15.0;
   TString  MediaFile      ="media_pnd.geo";
   gDebug                  = 0;
-  
+  TString digiFile        = "emc.par"; //The emc run the hit producer directly 
   
   //------------------------------------------------------------------
 
@@ -20,7 +20,6 @@ run_sim(Int_t nEvents = 10)
   // Load basic libraries---------------------------------------------
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
- 
   
   // Create the Simulation run manager--------------------------------
   FairRunSim *fRun = new FairRunSim();
@@ -55,7 +54,8 @@ run_sim(Int_t nEvents = 10)
   fRun->AddModule(Mvd);
  //-------------------------  EMC       -----------------
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
-  Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root"); // if you want to use new geometry for FwEndCap
+  Emc->SetGeometryFileNameTriple("emc_module125.dat","emc_module3new.root","emc_module4_StraightGeo24.4.root"); //MapperVersion: 6
+  Emc->SetStorageOfData(kFALSE);
   fRun->AddModule(Emc);
  //-------------------------  TOF       -----------------  
   FairDetector *Tof = new PndTof("TOF",kTRUE);
@@ -78,6 +78,21 @@ run_sim(Int_t nEvents = 10)
   FairDetector *Dch = new PndDchDetector("DCH", kTRUE);
   Dch->SetGeometryFileName("dch.root"); 
   fRun->AddModule(Dch);
+ 
+   //-------------------------  GEM      -----------------
+ // FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
+ // Gem->SetGeometryFileName("gem.root");
+ // fRun->AddModule(Gem);
+ 
+ 
+ //  FairDetector* EnDrc = new PndEnDrc("EDRC", kTRUE);
+ // EnDrc->SetGeometryFileName("endrc.root");
+ // fRun->AddModule(EnDrc);
+
+
+ // PndDsk* Dsk = new PndDsk("DSK", kTRUE);
+ // Dsk->SetGeometryFileName("dsk.geo");
+ // fRun->AddModule(Dsk);
 
 
 
@@ -87,9 +102,8 @@ run_sim(Int_t nEvents = 10)
   fRun->SetGenerator(primGen);
 
   // Box Generator
-  FairBoxGenerator* boxGen = new FairBoxGenerator(13, 10); // 13 = muon; 1 = multipl.
-  //  boxGen->SetPRange(1.,1.1); // GeV/c
-  boxGen->SetPtRange(1.,1.); // GeV/c
+  FairBoxGenerator* boxGen = new FairBoxGenerator(22, 5); // 13 = muon; 1 = multipl.
+  boxGen->SetPtRange(mom,mom); // GeV/c
   boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
   boxGen->SetThetaRange(0., 90.); // Polar angle in lab system range [degree]
   boxGen->SetXYZ(0., 0., 0.); // mm o cm ??
@@ -98,6 +112,23 @@ run_sim(Int_t nEvents = 10)
  //---------------------Create and Set the Field(s)---------- 
   PndMultiField *fField= new PndMultiField("FULL");
   fRun->SetField(fField);
+
+ // EMC Hit producer
+  //-------------------------------
+  PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
+  fRun->AddTask(emcHitProd);
+  
+  // Set the parameters 
+  //-------------------------------
+  TString emcDigiFile = gSystem->Getenv("VMCWORKDIR");
+  emcDigiFile += "/macro/params/";
+  emcDigiFile += digiFile;
+ 
+ 
+  //-------Set the arameter output --------------------
+  FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
+  parIo1->open(emcDigiFile.Data(),"in");
+  rtdb->setFirstInput(parIo1);        
 
  //---------------------Set Parameter output      ---------- 
   Bool_t kParameterMerged=kTRUE;
@@ -109,10 +140,9 @@ run_sim(Int_t nEvents = 10)
   fRun->Init();
  //-------------------------  Run the Simulation  -----------------   
   fRun->Run(nEvents);
-
  //-------------------------  Save the parameters ----------------- 
   rtdb->saveOutput();
-      
+ //------------------------Print some info and exit----------------     
   timer.Stop();
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();

@@ -45,10 +45,6 @@ void reco_complete()
         
   rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parIo1);
-  // ----------------------------------------------------------
-  
-  fRun->LoadGeometry();
-  // ------------------------------------------------------------------------
   
 
   // -----   EMC hit producers   ---------------------------------

@@ -12,10 +12,6 @@ void digi_complete()
   // Input file (MC events)
   TString inFile = "sim_complete.root";
   
-  
-	// Number of events to process
-  Int_t nEvents = 0;  // if 0 all the vents will be processed
-  
   // Parameter file
   TString parFile = "simparams.root"; // at the moment you do not need it
   
@@ -27,7 +23,6 @@ void digi_complete()
   
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
-    // ------------------------------------------------------------------------
   
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
@@ -48,19 +43,11 @@ void digi_complete()
         
   rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parIo1);
-  // ----------------------------------------------------------
-  
-  fRun->LoadGeometry();
-  // ------------------------------------------------------------------------
   
 
   // -----   EMC hit producers   ---------------------------------
   // The file name should be the same of the geometry file which was used for the simulation
   
-
-  PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
-  emcHitProd->SetStorageOfData(kFALSE);
-  fRun->AddTask(emcHitProd); // hit production   
   PndEmcHitsToWaveform* emcHitsToWaveform= new PndEmcHitsToWaveform(iVerbose);
   emcHitsToWaveform->SetStorageOfData(kFALSE);
   PndEmcWaveformToDigi* emcWaveformToDigi=new PndEmcWaveformToDigi(iVerbose);
@@ -75,14 +62,10 @@ void digi_complete()
   PndDchCylinderHitProducer* cylHitProducer= new PndDchCylinderHitProducer();
   fRun->AddTask(cylHitProducer);
  
-  PndMvdStripHitProducer* mvdStripProd = new PndMvdStripHitProducer();
-  fRun->AddTask(mvdStripProd);
-  PndMvdHybridHitProducer* mvdPixProd = new PndMvdHybridHitProducer();
-  fRun->AddTask(mvdPixProd);
-  PndMvdNoiseProducer* mvdNoiseMaker = new PndMvdNoiseProducer();
-  fRun->AddTask(mvdNoiseMaker);
+  PndMvdDigiTask* mvddigi = new PndMvdDigiTask();
+  mvddigi->SetVerbose(iVerbose);
+  fRun->AddTask(mvddigi);
   
-
   PndTofHitProducerIdeal* tofhit = new PndTofHitProducerIdeal();
   tofhit->SetVerbose(iVerbose);
   fRun->AddTask(tofhit);
@@ -92,13 +75,10 @@ void digi_complete()
   fRun->AddTask(mdtHitProd);
 
   // -----   Intialise and run   --------------------------------------------
-  cout << "fRun->Init()" << endl;
   fRun->Init();
 
   timer.Start();
-  fRun->Run(0,nEvents);
-  // ------------------------------------------------------------------------
-
+  fRun->Run();
 
   // -----   Finish   -------------------------------------------------------
   timer.Stop();
