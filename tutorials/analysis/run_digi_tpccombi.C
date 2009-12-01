@@ -1,21 +1,23 @@
-void run_digi_tpccombi(  Int_t nEvents = 10){
+{
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0;
 
   // Input file (MC events)
-  TString inFile = "data/points_tpccombi.root";
+  TString inFile = "points_tpccombi.root";
 
   // Parameter file
-  TString parFile = "data/params_tpccombi.root";
+  TString parFile = "params_tpccombi.root";
 
   // Output file
-  TString outFile = "data/digi_tpccombi.root";
+  TString outFile = "digi_tpccombi.root";
 
-
+  // Number of events to process
+  Int_t nEvents = 0;
+ 
   // ----  Load libraries   -------------------------------------------------
-  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-  gSystem->Load("libGem");
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  rootlogon();
   TString sysFile = gSystem->Getenv("VMCWORKDIR");
   // ------------------------------------------------------------------------
 
@@ -34,7 +36,7 @@ void run_digi_tpccombi(  Int_t nEvents = 10){
   FairRunAna *fRun= new FairRunAna();
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
-
+  
   // ------------------------------------------------------------------------
 
   // -----  Parameter database   --------------------------------------------
@@ -43,56 +45,65 @@ void run_digi_tpccombi(  Int_t nEvents = 10){
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open(parFile.Data());
-
+	
   FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
   parIo1->open(allDigiFile.Data(),"in");
-
+        
   rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parIo1);
-  fRun->LoadGeometry();
   // ------------------------------------------------------------------------
 
-  // -------- MVD digtizer & clusterfinder ----------
-  PndMvdDigiTask* mvddigi = new PndMvdDigiTask();
-  mvddigi->SetVerbose(iVerbose);
-  fRun->AddTask(mvddigi);
-
-  Double_t chargecut = 5000., pixelrad=1.8;
-  PndMvdClusterTask* mvdmccls = new PndMvdClusterTask(pixelrad,chargecut,inFile);
-  mvdmccls->SetVerbose(iVerbose);
-  fRun->AddTask(mvdmccls);
-	
-  
   // -----   TPC digi producers   ---------------------------------
   PndTpcClusterizerTask* tpcClusterizer = new PndTpcClusterizerTask();
   //tpcClusterizer->SetPersistence();
   fRun->AddTask(tpcClusterizer);
-  
+ 
   PndTpcDriftTask* tpcDrifter = new PndTpcDriftTask();
   // tpcDrifter->SetPersistence();
   tpcDrifter->SetDistort(false);
   fRun->AddTask(tpcDrifter);
-  
+
   PndTpcGemTask* tpcGem = new PndTpcGemTask();
   //tpcGem->SetPersistence();
   fRun->AddTask(tpcGem);
-  
+
   PndTpcPadResponseTask* tpcPadResponse = new PndTpcPadResponseTask();
   tpcPadResponse->SetPersistence();
   fRun->AddTask(tpcPadResponse);
-  
+
   PndTpcElectronicsTask* tpcElec = new PndTpcElectronicsTask();
   tpcElec->SetPersistence();
   fRun->AddTask(tpcElec);
-  
+
   PndTpcClusterFinderTask* tpcCF = new PndTpcClusterFinderTask();
   tpcCF->SetPersistence();
   tpcCF->timeslice(20); // = 4 sample times = 100ns @ 40MHz
   fRun->AddTask(tpcCF);
-  	
+
+  // -----   MDV digi producers   --------------------------------- 
+  PndMvdStripHitProducer* mvdHitProd = new PndMvdStripHitProducer();
+  mvdHitProd->SetVerbose(iVerbose);
+  fRun->AddTask(mvdHitProd);
+
+  PndMvdHybridHitProducer* mvdPixProd = new PndMvdHybridHitProducer();
+  mvdPixProd->SetVerbose(iVerbose);
+  fRun->AddTask(mvdPixProd);
+ 
+  // CLUST
+  // Cluster finding for strip detectors
+  Double_t chargecut = 5000.;
+  PndMvdStripClusterTask* mvdmccls = new PndMvdStripClusterTask(chargecut, inFile);
+  mvdmccls->SetVerbose(iVerbose);
+  fRun->AddTask(mvdmccls);
+  
+  // Cluster finder for pixel detectors
+  PndMvdPixelClusterTask* mvdClusterizer = new PndMvdPixelClusterTask(1.8, inFile);
+  mvdClusterizer->SetVerbose(iVerbose);
+  fRun->AddTask(mvdClusterizer);
+ 
   // -----   EMC hit producers   ---------------------------------
-  PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
-  fRun->AddTask(emcHitProd); // hit production
+  //PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
+  //fRun->AddTask(emcHitProd); // hit production 
 
   //PndEmcMakeDigi* emcMakeDigi=new PndEmcMakeDigi();
   //fRun->AddTask(emcMakeDigi); // fast digitization
@@ -111,32 +122,31 @@ void run_digi_tpccombi(  Int_t nEvents = 10){
   PndEmcHdrFiller* emcHdrFiller = new PndEmcHdrFiller();
   fRun->AddTask(emcHdrFiller); // ECM header
   
-  // -----   GEM hit producers   ---------------------------------
-  PndGemDigitize* gemDigitize = new PndGemDigitize("GEM Digitizer", iVerbose);
-  fRun->AddTask(gemDigitize);
-  
-  PndGemFindHits* gemFindHits = new PndGemFindHits("GEM Hit Finder", iVerbose);
-  fRun->AddTask(gemFindHits);
-  
-
   // -----   TOF hit producers   ---------------------------------
-//
-//  PndTofHitProducerIdeal* tofhit = new PndTofHitProducerIdeal();
-//  tofhit->SetVerbose(iVerbose);
-//  fRun->AddTask(tofhit);
-
+  PndTofHitProducerIdeal* tofhit = new PndTofHitProducerIdeal();
+  tofhit->SetVerbose(iVerbose);
+  fRun->AddTask(tofhit);
+ 
   // -----   MDT hit producers   ---------------------------------
   PndMdtHitProducerIdeal* mdtHitProd = new PndMdtHitProducerIdeal();
-  mdtHitProd->SetPositionSmearing(0.2); // position smearing [cm]
+  mdtHitProd->SetPositionSmearing(.3); // position smearing [cm]
   fRun->AddTask(mdtHitProd);
-
-  PndMdtTrkProducerIdeal* mdtTrkProd = new PndMdtTrkProducerIdeal();
+  
+  PndMdtTrkProducer* mdtTrkProd = new PndMdtTrkProducer();
   fRun->AddTask(mdtTrkProd);
 
-//  // -----   DRC hit producers   ---------------------------------
-//  PndDrcHitProducerIdeal* drchit = new PndDrcHitProducerIdeal();
-//  drchit->SetVerbose(iVerbose);
-//  fRun->AddTask(drchit);
+  // -----   DRC hit producers   ---------------------------------
+  PndDrcHitProducerIdeal* drchit = new PndDrcHitProducerIdeal();
+  drchit->SetVerbose(iVerbose);
+  fRun->AddTask(drchit);
+  
+  // -----   GEM hit producers   ---------------------------------
+  Int_t verboseLevel = 0;
+  PndGemDigitize* gemDigitize = new PndGemDigitize("GEM Digitizer", verboseLevel);
+  fRun->AddTask(gemDigitize);
+
+  PndGemFindHits* gemFindHits = new PndGemFindHits("GEM Hit Finder", verboseLevel);
+  fRun->AddTask(gemFindHits);
 
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();

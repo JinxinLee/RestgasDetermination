@@ -50,7 +50,7 @@ void ana_psi2s_fit(TString fname, int nevts)
     //
 	while (evr.GetEvent() && ++i<nevts)
 	{
-		//if (!(i%100)) 
+		if (!(i%100)) 
 		cout <<"evt "<<i<<endl;
 		
 		//cout<<"e mass:" <<TRho::Instance()->GetPDG()->GetParticle(11)->Mass()<<endl;

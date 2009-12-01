@@ -1,22 +1,21 @@
-void run_reco_sttcombi(  Int_t nEvents = 10){
+{
   // ========================================================================
   // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
   Int_t iVerbose = 0;
-
-  // Input file
-  TString inDigiFile = "data/digi_sttcombi.root";
-  TString inSimFile = "data/points_sttcombi.root";
-
-  // Parameter file
-  TString parFile = "data/params_sttcombi.root";
-
-  // Output file
-  TString outFile = "data/reco_sttcombi.root";
-
+  Int_t nEvents = 0;
   // ----  Load libraries   -------------------------------------------------
-  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  rootlogon();
   TString sysFile = gSystem->Getenv("VMCWORKDIR");
   // ------------------------------------------------------------------------
+  // Output file
+  TString parFile = "params_tpccombi.root";
+  TString inSimuFile = "points_tpccombi.root";
+  TString inDigiFile = "digi_tpccombi.root";
+  TString inRecoFile = "reco_tpccombi.root";
+
+  TString outFile = "pid_tpccombi.root";
+   
   // In general, the following parts need not be touched
   // ========================================================================
 
@@ -24,20 +23,17 @@ void run_reco_sttcombi(  Int_t nEvents = 10){
   TStopwatch timer;
   timer.Start();
   // ------------------------------------------------------------------------
-
-  // -----   Digitization run   -------------------------------------------
+  
+  // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
-	fRun->SetInputFile(inSimFile);
-	fRun->AddFriend(inDigiFile);
-//	fRun->SetInputFile(inDigiFile);
-//	fRun->AddFriend(inSimFile);
-  fRun->SetOutputFile(outFile);
-  FairGeane *Geane = new FairGeane(inSimFile.Data());
-  PndEmcMapper::Instance(2,inSimFile);
-  // ------------------------------------------------------------------------
-
+  fRun->SetInputFile(inSimuFile);
+  fRun->AddFriend(inDigiFile);
+  fRun->AddFriend(inRecoFile);
+  fRun->SetOutputFile(outFile.Data());
+  FairGeane *Geane = new FairGeane();
+  fRun->AddTask(Geane);
   // -----  Parameter database   --------------------------------------------
-   TString allDigiFile = sysFile+"/macro/params/all.par";
+  TString allDigiFile = sysFile+"/macro/params/all.par";
 
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo();
@@ -48,36 +44,27 @@ void run_reco_sttcombi(  Int_t nEvents = 10){
 
   rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parIo1);
-  fRun->LoadGeometry();
   // ------------------------------------------------------------------------
-  // -----   LHETRACK  ---------------------------------
-
-  PndLheHitsMaker* trackMS = new PndLheHitsMaker("Tracking routine");
-  trackMS->SetVerbose( Bool_t(iVerbose>0) );
-  trackMS->SetTpcMode(0);
-  trackMS->SetSttMode(3);  // 0 OFF, 1 SttPoint, 2 SttHit, (3) SttHelixHit // SttPoint smearing [cm], if negative no smearing
-  trackMS->SetMvdMode(2);  // 0 OFF, 1 MVDPoint, 2 MVDHit     // MVDPoint smearing [cm], if negative no smearing
-  trackMS->SetGemMode(2);  // 0 OFF, 1 GEMPoint, 2 GEMHit     // GEMPoint smearing [cm], if negative no smearing 
-  fRun->AddTask(trackMS);
-
-  PndLheTrackFinder* trackFinder    = new PndLheTrackFinder();
-  fRun->AddTask(trackFinder);
-
-  PndLheTrackFitter* trackFitter    = new PndLheTrackFitter("fitting");
-  fRun->AddTask(trackFitter);
-
-  // -----   Initialise and run   --------------------------------------------
+  
+  PndPidCorrelator* corr = new PndPidCorrelator();
+  //corr->SetVerbose();
+  corr->SetInputBranch("LheGenTrack");
+  corr->SetInputIDBranch("LheTrackID");
+  corr->SetDebugMode(kTRUE);
+  fRun->AddTask(corr);
+  
+  // the associator (creates PidChargedProbaility and PidNeutralProbability TCAs)
+  
+  PndPidIdealAssociatorTask *pidass= new PndPidIdealAssociatorTask();
+  fRun->AddTask(pidass);
+  
+  // -----   Intialise and run   --------------------------------------------
   fRun->Init();
-  Geane->SetField(fRun->GetField());
-  fRun->Run(0, nEvents);
-
-  rtdb->saveOutput();
-  rtdb->print();
-
+  PndEmcMapper *emcMap = PndEmcMapper::Instance(6);
+  fRun->Run(0,nEvents);
   // ------------------------------------------------------------------------
-
+  rtdb->print();
   // -----   Finish   -------------------------------------------------------
-
   timer.Stop();
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
