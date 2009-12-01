@@ -770,7 +770,7 @@ void PndPidCorrelator::GetMdtInfo(FairTrackParH* helix, PndPidCandidate* pidCand
       for (Int_t tt = 0; tt<fMdtTrk->GetEntriesFast(); tt++)
 	{
 	  PndMdtTrk *mdtTrk = (PndMdtTrk*)fMdtTrk->At(tt);
-	  mapMdtTrk[mdtTrk->GetHitNumber(0)] = tt;
+	  mapMdtTrk[mdtTrk->GetHitIndex(0)] = tt;
 	}
     }
   PndMdtHit *mdtHit = NULL;
