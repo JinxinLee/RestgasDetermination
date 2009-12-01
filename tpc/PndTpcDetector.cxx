@@ -25,6 +25,7 @@
 
 // Collaborating Class Headers --------
 #include "TClonesArray.h"
+#include "TGeoManager.h"
 #include "FairRootManager.h"
 #include "PndTpcPoint.h"
 #include "TVirtualMC.h"
@@ -82,6 +83,55 @@ void PndTpcDetector::Register() {
    this collection will not be written to the file, it will exist only during the simulation. */
  
    FairRootManager::Instance()->Register("PndTpcPoint", "PndTpc", fPndTpcPointCollection, kTRUE);
+}
+
+
+//overwrite virtual method of FairDetector
+void PndTpcDetector::SetSpecialPhysicsCuts(){
+  FairRun* fRun = FairRun::Instance();
+  
+  //check for GEANT3, else abort
+  if (strcmp(fRun->GetName(),"TGeant3") == 0) {
+
+    //get material ID for customs settings
+    int matIdVMC = gGeoManager->GetMedium("TPCmixture")->GetId();
+    
+    std::cout<<"***** Setting special physics cuts in PndTpcDetector::"
+	     <<"SetSpecialPhysicsCuts() ******"<<std::endl;
+   
+    double cut_el = 1.0E-3;   // (GeV)
+    double tofmax = 1.E10;    // (s)
+    
+    // Set new properties, physics cuts etc. for the TPCmixture
+    
+    gMC->Gstpar(matIdVMC,"PAIR",1); /** pair production*/
+    gMC->Gstpar(matIdVMC,"COMP",1); /**Compton scattering*/
+    gMC->Gstpar(matIdVMC,"PHOT",1); /** photo electric effect */
+    gMC->Gstpar(matIdVMC,"PFIS",0); /**photofission*/
+    gMC->Gstpar(matIdVMC,"DRAY",1); /**delta-ray*/
+    gMC->Gstpar(matIdVMC,"ANNI",1); /**annihilation*/
+    gMC->Gstpar(matIdVMC,"BREM",1); /**bremsstrahlung*/
+    gMC->Gstpar(matIdVMC,"HADR",1); /**hadronic process*/
+    gMC->Gstpar(matIdVMC,"MUNU",1); /**muon nuclear interaction*/
+    gMC->Gstpar(matIdVMC,"DCAY",1); /**decay*/
+    gMC->Gstpar(matIdVMC,"LOSS",5); /**energy loss*/
+    gMC->Gstpar(matIdVMC,"MULS",1); /**multiple scattering*/
+    gMC->Gstpar(matIdVMC,"STRA",0); 
+    gMC->Gstpar(matIdVMC,"RAYL",1);
+    
+    gMC->Gstpar(matIdVMC,"CUTGAM",cut_el); /** gammas (GeV)*/
+    gMC->Gstpar(matIdVMC,"CUTELE",cut_el); /** electrons (GeV)*/
+    gMC->Gstpar(matIdVMC,"CUTNEU",cut_el); /** neutral hadrons (GeV)*/
+    gMC->Gstpar(matIdVMC,"CUTHAD",cut_el); /** charged hadrons (GeV)*/
+    gMC->Gstpar(matIdVMC,"CUTMUO",cut_el); /** muons (GeV)*/
+    gMC->Gstpar(matIdVMC,"BCUTE",cut_el);  /** electron bremsstrahlung (GeV)*/
+    gMC->Gstpar(matIdVMC,"BCUTM",cut_el);  /** muon and hadron bremsstrahlung(GeV)*/ 
+    gMC->Gstpar(matIdVMC,"DCUTE",cut_el);  /** delta-rays by electrons (GeV)*/
+    gMC->Gstpar(matIdVMC,"DCUTM",cut_el);  /** delta-rays by muons (GeV)*/
+    gMC->Gstpar(matIdVMC,"PPCUTM",cut_el); /** direct pair production by muons (GeV)*/
+      
+    gMC->SetMaxNStep(1E6);
+  }
 }
 
 Bool_t 
@@ -218,7 +268,8 @@ Float_t PndTpcDetector::AliTPCv3_InitDetector()
 	FairGeoMedium *TPCmixture  = Media->getMedium("TPCmixture");
 	Int_t mediumId=TPCmixture->getMediumIndex();
 	std::cout << "mediumId: " << mediumId << std::endl;
-	gMC->Gstpar(mediumId,"LOSS",5);	//5 -> new geant3 option for ALICE TPC see gphys/gfluct.F
+	gMC->Gstpar(mediumId,"LOSS",5);	//5 -> new geant3 option for
+					//ALICE TPC see gphys/gfluct.F
 }
 
 TClonesArray* PndTpcDetector::GetCollection(Int_t iColl) const {
@@ -252,7 +303,8 @@ void PndTpcDetector::Reset() {
 
 void 
 PndTpcDetector::ConstructGeometry() {
-  /** If you are using the standard ASCII input for the geometry just copy this and use it for your detector, otherwise you can
+  /** If you are using the standard ASCII input for the geometry just
+      copy this and use it for your detector, otherwise you can
       
   implement here you own way of constructing the geometry. */
   

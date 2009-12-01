@@ -85,7 +85,11 @@ public:
   
   /**      has to be called after each event 
 	   to reset the containers        */
-  virtual void   Reset();
+  virtual void Reset();
+
+  /**      replaces G3 initialisation via g3Config.C */
+  virtual void SetSpecialPhysicsCuts();
+
   
   /**      Create the detector geometry        */
   void ConstructGeometry();

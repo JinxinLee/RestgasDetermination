@@ -14,17 +14,15 @@
 
   //SET NUMBER OF EVENTS
   // ------------------------------------------------------------------------
-  Int_t nEvents=1000;
+  Int_t nEvents=0;
 
 
   TString basedir = gSystem->Getenv("VMCWORKDIR");
   
   // Set INPUT DIRECTORY (MC files) and JOBNAME
   // ------------------------------------------------------------------------
-  TString inDir="";
+  TString inDir="Test";
   TString jobname="Test";
-
-
 
   inDir=(basedir+"/")+inDir;
   TString inFile=(inDir+"/")+jobname;
@@ -105,7 +103,9 @@
     // -----    Digi Sequence  --------------------------------------------
   PndTpcClusterizerTask* tpcClusterizer = new PndTpcClusterizerTask();
   tpcClusterizer->SetPersistence();
-  tpcClusterizer->SetMereChargeConversion();  //ONLY USE THIS WHEN USING ALICE SETTINGS WITH GEANT3
+  //ONLY USE THIS WHEN USING ALICE SETTINGS WITH GEANT3
+  tpcClusterizer->SetMereChargeConversion();  
+  
   fRun->AddTask(tpcClusterizer);
   
   /**   use Alice Style MC    
@@ -124,8 +124,7 @@
  
   PndTpcDriftTask* tpcDrifter = new PndTpcDriftTask();
   tpcDrifter->SetPersistence();
-  tpcDrifter->SetDistort(true);
-  tpcDrifter->SetDeviationFile("tpc/DevMap_Efield_march09_official_B_Maps.dat");
+  tpcDrifter->SetDistort(false);
   tpcDrifter->SetQAPlotCol(qa);
   fRun->AddTask(tpcDrifter);
 
@@ -137,7 +136,6 @@
   tpcPadResponse->SetPersistence();
   //tpcPadResponse->SetQAPlotCol(qa);
   fRun->AddTask(tpcPadResponse);
-
 
   //PndTpcEvtMixTask* evtmixer = new PndTpcEvtMixTask();
   //  evtmixer->SetBkgFileName("bkg2.raw.root");

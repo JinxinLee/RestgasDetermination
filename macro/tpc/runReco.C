@@ -15,17 +15,13 @@
   //Set JOBNAME and JOBDIR
   // -------------------------------------------------------------------
 
-  TString jobdir = "";
+  TString jobdir = "Test";
   TString jobname="Test";
-
  
   TString digiDir=(basedir+"/")+jobdir;
- 
- 
   TString inFile=(digiDir+"/")+jobname;
   inFile+=".raw.root";
-
-
+  
   TString mcFile=inFile;
   mcFile.ReplaceAll("raw","mc");
 
@@ -39,7 +35,6 @@
   //     <<". Aborting."<<std::endl;
   //  return;
   // }
-
 
   TString outFile = inFile; 
   //outFile.ReplaceAll(inDir,jobDir);
@@ -65,17 +60,6 @@
   std::cout<<"MCFile: "<<mcFile<<std::endl;
   std::cout<<"ParamIn: "<<paramIn<<std::endl;
   std::cout<<"ParamOut: "<<paramOut<<std::endl;
-
-  //return;
-  
-  
-  // ---  Now choose concrete engines for the different tasks   -------------
-  // ------------------------------------------------------------------------
-
-
-  // In general, the following parts need not be touched
-  // ========================================================================
-
 
 
 
@@ -125,19 +109,18 @@
   tpcCF->SetMode(1); // individual timeslice
   tpcCF->SetPersistence();
   tpcCF->timeslice(20); // = 4 sample times = 100ns @ 40MHz
-//tpcCF->SetTrivialClustering();
+  //tpcCF->SetTrivialClustering();
   fRun->AddTask(tpcCF);
 
-//  PndTpcRiemannMCTask* tpcRMC = new PndTpcRiemannMCTask();
-//  tpcRMC->SetBkgFileName("../data/DPM/test1.mc.root");
-// fRun->AddTask(tpcRMC);
+  //PndTpcRiemannMCTask* tpcRMC = new PndTpcRiemannMCTask();
+  //tpcRMC->SetBkgFileName("../data/DPM/test1.mc.root");
+  //fRun->AddTask(tpcRMC);
 
-  PndTpcLaserCorrectionTask* laser = new PndTpcLaserCorrectionTask();
-  TString laserfile=basedir+"tpc/laser.new.reco.root";
-  laser->SetLaserRecoFile(laserfile);
-  laser->SetPersistence(true);
-  fRun->AddTask(laser);
-
+  //PndTpcLaserCorrectionTask* laser = new PndTpcLaserCorrectionTask();
+  //TString laserfile=basedir+"tpc/laser.new.reco.root";
+  //laser->SetLaserRecoFile(laserfile);
+  //laser->SetPersistence(true);
+  //fRun->AddTask(laser);
   
   PndTpcIdealTrackingTask* tpcIPR = new PndTpcIdealTrackingTask();
   tpcIPR->useGeane(true);
@@ -173,9 +156,7 @@
   //fitstat->SetPdgSelection(321);
   //fitstat->DoResiduals();
   fRun->AddTask(fitstat);
-
   
-
   // PndTpcTrackVisTask* trkVis = new PndTpcTrackVisTask();
   // trkVis->SetTrackBranchName("TrackPreFit");
   //trkVis->drawFits(true);
@@ -186,34 +167,30 @@
   //lambdaSel->SetPersistence();
   // fRun->AddTask(lambdaSel);
   
-  V0Selector* V0Sel = new V0Selector();
-  V0Sel->SetTrackBranchName("TrackPreFit");
+  //V0Selector* V0Sel = new V0Selector();
+  //V0Sel->SetTrackBranchName("TrackPreFit");
   //V0Sel->SetPositivePartMass(0.938272);
   //V0Sel->SetNegativePartMass(0.13957);
   //V0Sel->SetPositivePartMass(511.E-6);
   //V0Sel->SetNegativePartMass(511.E-6);
 
-  V0Sel->SetPersistence();
+  //V0Sel->SetPersistence();
   //  fRun->AddTask(V0Sel);
   
-  V0Selector* V0Sel2 = new V0Selector();
-  V0Sel2->SetTrackBranchName("TrackPreFit");
+  //V0Selector* V0Sel2 = new V0Selector();
+  //V0Sel2->SetTrackBranchName("TrackPreFit");
   //V0Sel2->SetV0BranchName("Lambda");
   //V0Sel->SetPositivePartMass(0.938272);
   //V0Sel->SetNegativePartMass(0.13957);
   //V0Sel2->SetPositivePartMass(0.13957);
   //V0Sel2->SetNegativePartMass(0.13957);
   
-  V0Sel2->SetPersistence();
+  //V0Sel2->SetPersistence();
   //fRun->AddTask(V0Sel2);
 
-
-
-  LambdaStatTask* lambdaStat = new LambdaStatTask();
-  lambdaStat->SetPersistence();
+  //LambdaStatTask* lambdaStat = new LambdaStatTask();
+  //lambdaStat->SetPersistence();
   //fRun->AddTask(lambdaStat);
-
-
 
 
   // -----   Intialise and run   --------------------------------------------

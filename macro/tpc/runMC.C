@@ -1,10 +1,8 @@
 {
   TStopwatch timer;
   timer.Start();
-  gDebug=0;
-  // Load basic libraries
-  //gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-  //basiclibs();
+  
+  // Load basic libraries in rootlogon
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
   
@@ -14,8 +12,6 @@
   // --------------------------------------------------
   TString GEANT = "TGeant3";
   
-
-
   fRun->SetName(GEANT);
   // Choose the Geant Navigation System
   // fRun->SetGeoModel("G3Native");
@@ -27,12 +23,11 @@
   //Set JOBNAME + JOBDIR (will not be created!)
   // --------------------------------------------------
   TString jobname="Test";
-  TString jobdir="";
+  TString jobdir="Test";
   
 
-
   TString basejobdir=gSystem->Getenv("VMCWORKDIR");
-  jobdir=(basejobdir+"/")+jobdir;
+  jobdir=(basejobdir+"/")+jobdir+"/";
   std::cout<<jobdir<<std::endl;
 
 
@@ -44,27 +39,26 @@
   TString outfile=base+".mc.root";
   TString dbfile=base+".param.root";
 
-  fRun->SetOutputFile(outfile);
+  std::cout<<outfile;
 
+  fRun->SetOutputFile(outfile);
 
 
   //SET USER CONFIG AND CUTS:
   //REQUIRES CUSTOM g3Config.C and SetCuts.C present in JOBDIR
   //COMMENT OUT IF YOU WANT TO USE THE STANDARD FILES FROM gconfig/
   // --------------------------------------------------------
-  fRun->SetUserCuts(copy+"SetCuts.C");
-  if(GEANT=="TGeant3")
-    fRun->SetUserConfig(copy+"g3Config.C");
-  if(GEANT=="TGeant4")
-    fRun->SetUserConfig(copy+"g4Config.C");  
+  //fRun->SetUserCuts(copy+"SetCuts.C");
+  //if(GEANT=="TGeant3")
+  //  fRun->SetUserConfig(copy+"g3Config.C");
+  //if(GEANT=="TGeant4")
+  //  fRun->SetUserConfig(copy+"g4Config.C");  
   
 
   // Set Material file Name
   //-----------------------
   fRun->SetMaterials("media_pnd.geo");
   
-
-
   // Create and add detectors
   //-------------------------
   FairModule *Cave= new PndCave("CAVE");
@@ -82,18 +76,17 @@
   PndTpcDetector *PndTpc = new PndTpcDetector("TPC", kTRUE);
   PndTpc->SetGeometryFileName("tpc.geo");
   //ALICE Style MC (only for G3): =========================
-  if(GEANT=="TGeant3")
+  if(GEANT=="TGeant3") 
     PndTpc->SetAliMC();
   // ======================================================
   fRun->AddModule(PndTpc);
-  
 
+  
   //OTHER SUBDETECTORS; Uncomment if you want to use
 
   //FairDetector *Sts= new CbmTst("TST", kTRUE);
   //Sts->SetGeometryFileName("tst_mvd.geo");
   //fRun->AddModule(Sts);
-
 
   //FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
   //Mvd->SetGeometryFileName("MVD14.root");
@@ -138,8 +131,10 @@
   // Box Generator
   
   //pdgs 211=pion 13=muon 11=electron, ...
-  FairBoxGenerator* boxGen = new FairBoxGenerator(211, 1); //(PDG ID, MULTIPLICITY)
-  boxGen->SetPRange(0.5,1.5); // GeV/c 
+  //(PDG ID, MULTIPLICITY)
+  FairBoxGenerator* boxGen = new FairBoxGenerator(211, 1); 
+  
+  boxGen->SetPRange(0.5,0.5); // GeV/c 
   boxGen->SetPhiRange(0, 360); // Azimuth angle range [degree]
   boxGen->SetThetaRange(30, 140); // Polar angle in lab system range [degree]
   boxGen->SetXYZ(0., 0., 0.); // mm o cm ??
@@ -154,8 +149,9 @@
   //primGen->AddGenerator(dpmGen);  
    
   
-  //FairEvtGenGenerator* evtGen = new FairEvtGenGenerator("../data/evtgen.y4260.jpsipipi.vvpipi.dat");
-  //primGen->AddGenerator(evtGen);  
+  //FairEvtGenGenerator* evtGen = new
+  //FairEvtGenGenerator("../data/evtgen.y4260.jpsipipi.vvpipi.dat");
+  //primGen->AddGenerator(evtGen);
   
   
   // Field Map Definition
@@ -166,14 +162,14 @@
   // Constant Field
   PndConstField *fMagField=new PndConstField();
   fMagField->SetField(0, 0 ,20. ); // values are in kG
-  // MinX=-75, MinY=-40,MinZ=-12 ,MaxX=75, MaxY=40 ,MaxZ=124 );  // values are in cm
+  // MinX=-75, MinY=-40,MinZ=-12 ,MaxX=75, MaxY=40 ,MaxZ=124 ); //
+  // values are in cm
   fMagField->SetFieldRegion(-50, 50,-50, 50, -2000, 2000);
-  
-    
+      
   fRun->SetField(fMagField);
    
-  //fRun->SetStoreTraj(kTRUE);
-  fRun->SetStoreTraj(kFALSE);
+  fRun->SetStoreTraj(kTRUE);
+  //fRun->SetStoreTraj(kFALSE);
   
   std::cout<<"Starting INIT"<<std::endl;
   fRun->Init();
@@ -182,8 +178,7 @@
   
   // -Trajectories Visualization (TGeoManager Only )
   // -----------------------------------------------
-  
-  
+    
   // Set cuts for storing the trajectpries
   //   FairTrajFilter* trajFilter = FairTrajFilter::Instance();
   //   trajFilter->SetStepSizeCut(0.01); // 1 cm
@@ -214,10 +209,7 @@
   // Transport nEvents
   // -----------------
 
-  
   fRun->Run(nEvents);
-
-
 
   timer.Stop();
   Double_t rtime = timer.RealTime();
