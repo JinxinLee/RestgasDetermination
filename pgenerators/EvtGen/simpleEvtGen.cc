@@ -111,7 +111,7 @@ int main(int argc, char* argv[]){
   for(i=0;i<number;i++){
     // Set up the parent particle
 
-    EvtVector4R pInit(E,  0.0001, -0.0000,  P);
+    EvtVector4R pInit(E,  0.0000, -0.0000,  P);
     parent=EvtParticleFactory::particleFactory(PART,pInit);
     parent->setDiagonalSpinDensity();  
 
