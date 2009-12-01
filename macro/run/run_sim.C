@@ -62,7 +62,7 @@ run_sim(Int_t nEvents = 10)
   Tof->SetGeometryFileName("tofbarrel.geo");
   fRun->AddModule(Tof);
  //-------------------------  DRC       -----------------
-  PndDrc *Drc = new PndDrc("DIRC", kFALSE);
+  PndDrc *Drc = new PndDrc("DIRC", kTRUE);
   Drc->SetGeometryFileName("dirc.geo"); 
   Drc->SetRunCherenkov(kFALSE);
   fRun->AddModule(Drc); 

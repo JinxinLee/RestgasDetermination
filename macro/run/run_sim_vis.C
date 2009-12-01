@@ -64,8 +64,9 @@ run_sim_vis(Int_t nEvents = 10)
   Tof->SetGeometryFileName("tofbarrel.geo");
   fRun->AddModule(Tof);
  //-------------------------  DRC       -----------------
-  FairDetector *Drc = new PndDrc("DIRC", kTRUE);
+  PndDrc *Drc = new PndDrc("DIRC", kTRUE);
   Drc->SetGeometryFileName("dirc.geo"); 
+  Drc->SetRunCherenkov(kFALSE);
   fRun->AddModule(Drc); 
   //-------------------------  MDT       -----------------
   PndMdt *Muo = new PndMdt("MDT",kTRUE);
