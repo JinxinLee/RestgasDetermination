@@ -60,9 +60,17 @@
 	fRun->LoadGeometry();
    // ----------------------------------------------------
 
-	PndEmcMakeCluster* emcMakeCluster= new PndEmcMakeCluster(iVerbose);
+   
+
+        PndEmcMakeCluster* emcMakeCluster= new PndEmcMakeCluster(iVerbose);
 	fRun->AddTask(emcMakeCluster);
-	
+    
+        PndEmcHdrFiller* emcHdrFiller = new PndEmcHdrFiller();
+        fRun->AddTask(emcHdrFiller); // ECM header
+
+        PndEmcMakeBump* emcMakeBump= new PndEmcMakeBump();
+        fRun->AddTask(emcMakeBump);
+
 
   // -----   Intialise and run   -----------------------
   fRun->Init();
