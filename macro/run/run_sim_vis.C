@@ -1,141 +1,123 @@
-// Macro for running Panda simulation with Geant3 and vis. info (M. Al-Turany)
+// Macro for running Panda simulation  with Geant3  or Geant4 (M. Al-Turany , D. Bertini)
+// This macro is supposed to run the full simulation of the panda detector. and to save some visualization 
+// points to display track in the eventdisplay
 
+run_sim_vis(Int_t nEvents = 10)
 {
+  //-----User Settings:-----------------------------------------------
+  TString  SimEngine      ="TGeant3"; 
+  TString  OutputFile     ="sim_complete.root";
+  TString  ParOutputfile  ="simparams.root";
+  Double_t BeamMomentum   =15.0;
+  TString  MediaFile      ="media_pnd.geo";
+  gDebug                  = 0;
+  
+  
+  //------------------------------------------------------------------
+
+
   TStopwatch timer;
   timer.Start();
-  gDebug=0;
-  // Load basic libraries
+ 
+  // Load basic libraries---------------------------------------------
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
-
+ 
+  
+  // Create the Simulation run manager--------------------------------
   FairRunSim *fRun = new FairRunSim();
-  
-  // set the MC version used
-  // ------------------------
-  fRun->SetName("TGeant3");
-  // Choose the Geant Navigation System
-  // fRun->SetGeoModel("G3Native");
-  fRun->SetOutputFile("sim_with_vis.root");
+  fRun->SetName(SimEngine.Data() );
+  fRun->SetOutputFile(OutputFile.Data());
+  fRun->SetBeamMom(BeamMomentum);
+  fRun->SetMaterials(MediaFile.Data());
+  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
 
-  // Set Material file Name
-  //-----------------------
+   // Create and add detectors
 
-  fRun->SetMaterials("media_pnd.geo");
-  
-  // Create and add detectors
-  //-------------------------
+ //-------------------------  CAVE      -----------------
 
- FairModule *Cave= new PndCave("CAVE");
+  FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave); 
-  /*
-  FairModule *Magnet= new PndMagnet("MAGNET");
+  //-------------------------  Magnet   ----------------- 
+/* FairModule *Magnet= new PndMagnet("MAGNET");
   Magnet->SetGeometryFileName("FullSolenoid.root");
   fRun->AddModule(Magnet);
-
+*/
   FairModule *Dipole= new PndMagnet("MAGNET");
   Dipole->SetGeometryFileName("dipole.geo");
   fRun->AddModule(Dipole);
-
-
+ //-------------------------  STT       -----------------
   FairDetector *Stt= new PndStt("STT", kTRUE);
   Stt->SetGeometryFileName("straws_skewed_blocks.geo");
   fRun->AddModule(Stt);
-
+ //-------------------------  MVD       -----------------
   FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
   Mvd->SetGeometryFileName("MVD_v1.0_woPassiveTraps.root");
   fRun->AddModule(Mvd);
-  
+ //-------------------------  EMC       -----------------
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
   Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root"); // if you want to use new geometry for FwEndCap
   fRun->AddModule(Emc);
-  */
+ //-------------------------  TOF       -----------------  
   FairDetector *Tof = new PndTof("TOF",kTRUE);
   Tof->SetGeometryFileName("tofbarrel.geo");
   fRun->AddModule(Tof);
-/*
+ //-------------------------  DRC       -----------------
   FairDetector *Drc = new PndDrc("DIRC", kTRUE);
   Drc->SetGeometryFileName("dirc.geo"); 
   fRun->AddModule(Drc); 
-
+  //-------------------------  MDT       -----------------
   PndMdt *Muo = new PndMdt("MDT",kTRUE);
-  Muo->SetGeometryFileName("muopars.root");
-  Muo->SetMdtVersion("torino");
+  Muo->SetBarrel("torino");
+  Muo->SetEndcap("torino");
+  Muo->SetMuonFilter("torino");
+  Muo->SetMdtMagnet(kTRUE);
+  Muo->SetMdtMFIron(kTRUE);
   fRun->AddModule(Muo);
-*/
- /* FairDetector *Dch = new PndDchDetector("DCH", kTRUE);
+   //-------------------------  DCH       -----------------
+  FairDetector *Dch = new PndDchDetector("DCH", kTRUE);
   Dch->SetGeometryFileName("dch.root"); 
   fRun->AddModule(Dch);
-*/
 
-    // Create and Set Event Generator
-    //-------------------------------
 
+
+  // Create and Set Event Generator
+  //-------------------------------
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
-  // Urqmd  Generator
-  // FairUrqmdGenerator* urqmdGen = new FairUrqmdGenerator("../../input/00-03fm.100ev.f14");
-  // primGen->AddGenerator(urqmdGen);
-
-  // Particle Generator
-  //FairParticleGenerator* partGen = new FairParticleGenerator(13, 1, 0.5, 0., 0.);
-  //primGen->AddGenerator(partGen);
-
-/*  // Box Generator
-  FairBoxGenerator* boxGen = new FairBoxGenerator(13, 200); // 13 = muon; 1 = multipl.
+  // Box Generator
+  FairBoxGenerator* boxGen = new FairBoxGenerator(13, 10); // 13 = muon; 1 = multipl.
   //  boxGen->SetPRange(1.,1.1); // GeV/c
   boxGen->SetPtRange(1.,1.); // GeV/c
   boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
   boxGen->SetThetaRange(0., 90.); // Polar angle in lab system range [degree]
   boxGen->SetXYZ(0., 0., 0.); // mm o cm ??
   primGen->AddGenerator(boxGen);
- */
-  // proton 2212 pi+ 211 pi- -211 
-  Double_t randx, randy;
-  for (Int_t n =0; n<5; n++){
-	randx= gRandom->Gaus(0,1);
-	randy= gRandom->Gaus(0,1);
-	FairParticleGenerator* partGen = new FairParticleGenerator(2212, 1, 0.3*randx, 0.3*randy, 1.0);
-  	primGen->AddGenerator(partGen);
-  }
 
- 
-  // Ion Generator
-  //FairIonGenerator *fIongen= new FairIonGenerator(79, 197,79,1, 0.,0., 25, 0.,0.,-1.);
-  //  primGen->AddGenerator(fIongen);
 
+ //---------------------Create and Set the Field(s)---------- 
+  PndMultiField *fField= new PndMultiField("FULL");
+  fRun->SetField(fField);
+
+
+ //---------------------Set Parameter output      ---------- 
+  Bool_t kParameterMerged=kTRUE;
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
+  output->open(ParOutputfile.Data());
+  rtdb->setOutput(output);
   
-  // 
-   fRun->SetStoreTraj(kTRUE);
-   fRun->SetBeamMom(15);
-   PndMultiField *fField= new PndMultiField();
+ //-------------------------- switch on the vis manager-----------//
 
-   PndTransMap *map_t= new PndTransMap("TransMap", "R");
-   PndDipoleMap *map_d1= new PndDipoleMap("DipoleMap1", "R");
-   PndDipoleMap *map_d2= new PndDipoleMap("DipoleMap2", "R");
-   PndSolenoidMap *map_s1= new PndSolenoidMap("SolenoidMap1", "R");
-   PndSolenoidMap *map_s2= new PndSolenoidMap("SolenoidMap2", "R");
-   PndSolenoidMap *map_s3= new PndSolenoidMap("SolenoidMap3", "R");
-   PndSolenoidMap *map_s4= new PndSolenoidMap("SolenoidMap4", "R");
+ fRun->SetStoreTraj(kTRUE);
 
-   fField->AddField(map_t);
-   fField->AddField(map_d1);
-   fField->AddField(map_d2);
-   fField->AddField(map_s1);
-   fField->AddField(map_s2);
-   fField->AddField(map_s3);
-   fField->AddField(map_s4);
-
-
-   fRun->SetField(fField);
-  
-
-
+ //-------------------------  Initialize the RUN  -----------------  
   fRun->Init();
-
- // -Trajectories Visualization
- // ----------------------------
+   
+  
+ //----------------- Set some cuts for the visualization-----------
+ 
      FairTrajFilter* trajFilter = FairTrajFilter::Instance();
  // Set cuts for storing the trajectpries
      trajFilter->SetStepSizeCut(0.04); // 1 cm
@@ -145,40 +127,23 @@
      trajFilter->SetStorePrimaries(kTRUE);
      trajFilter->SetStoreSecondaries(kTRUE);
 
-// 
-//   // Fill the Parameter containers for this run
-//   //-------------------------------------------
-//      
-   FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
-   Bool_t kParameterMerged=kTRUE;
-   FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
-   output->open("params_with_vis.root");
-   rtdb->setOutput(output);
-   
-       
-    PndMultiFieldPar* Par = (PndMultiFieldPar*) rtdb->getContainer("PndMultiFieldPar");
-    if (fField) {  Par->SetParameters(fField); }
-    Par->setInputVersion(fRun->GetRunId(),1);
-    Par->setChanged();
-
-    
-    rtdb->saveOutput();
-    rtdb->print();
-  // Transport nEvents
-  // -----------------1
+ //-------------------------  Run the Simulation  -----------------   
+  fRun->Run(nEvents);
   
-    Int_t nEvents = 10;
-    fRun->Run(nEvents);
-     
+//-------------------------  Save the parameters ----------------- 
+  rtdb->saveOutput();
+  
+      
   timer.Stop();
-
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
    
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
+  delete fRun;
   exit(0);
 
 }  
   
+

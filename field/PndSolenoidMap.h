@@ -47,7 +47,7 @@ public:
   /** Destructor **/
   virtual ~PndSolenoidMap();
 
-
+  void FillParContainer();
  
   /** Determine whether a point is inside the field map
    ** @param x,y,z              Point coordinates (global) [cm]

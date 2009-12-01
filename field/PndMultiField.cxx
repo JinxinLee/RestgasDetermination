@@ -15,7 +15,12 @@
 #include "TObjArray.h"
 #include "PndMapPar.h"
 #include "PndMultiFieldPar.h"
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
 
+#include "PndSolenoidMap.h"
+#include "PndTransMap.h"
+#include "PndDipoleMap.h"
 
 using namespace std;
 
@@ -26,6 +31,62 @@ PndMultiField::PndMultiField() {
     fNoOfMaps=0;
     fType = 5;
 }
+
+
+// -------------   Default constructor  ----------------------------------
+PndMultiField::PndMultiField(TString Map) {
+	
+    fMaps= new TObjArray(10);
+    fNoOfMaps=0;
+    fType = 5;
+	
+	Map.ToUpper();
+	
+	if (Map=="FULL") {
+		
+	    PndTransMap *map_t= new PndTransMap("TransMap", "R");
+		PndDipoleMap *map_d1= new PndDipoleMap("DipoleMap1", "R");
+		PndDipoleMap *map_d2= new PndDipoleMap("DipoleMap2", "R");
+		PndSolenoidMap *map_s1= new PndSolenoidMap("SolenoidMap1", "R");
+		PndSolenoidMap *map_s2= new PndSolenoidMap("SolenoidMap2", "R");
+		PndSolenoidMap *map_s3= new PndSolenoidMap("SolenoidMap3", "R");
+		PndSolenoidMap *map_s4= new PndSolenoidMap("SolenoidMap4", "R");
+		
+		AddField(map_t);
+		AddField(map_d1);
+		AddField(map_d2);
+		AddField(map_s1);
+		AddField(map_s2);
+		AddField(map_s3);
+		AddField(map_s4);
+	
+	}else if (Map="DIPOLE") {
+		PndDipoleMap *map_d1= new PndDipoleMap("DipoleMap1", "R");
+		PndDipoleMap *map_d2= new PndDipoleMap("DipoleMap2", "R");
+		
+		AddField(map_d1);
+		AddField(map_d2);
+		
+	}else if (Map=="SOLENOID") {
+		
+		PndSolenoidMap *map_s1= new PndSolenoidMap("SolenoidMap1", "R");
+		PndSolenoidMap *map_s2= new PndSolenoidMap("SolenoidMap2", "R");
+		PndSolenoidMap *map_s3= new PndSolenoidMap("SolenoidMap3", "R");
+		PndSolenoidMap *map_s4= new PndSolenoidMap("SolenoidMap4", "R");
+		
+		AddField(map_s1);
+		AddField(map_s2);
+		AddField(map_s3);
+		AddField(map_s4);
+	}
+
+	
+
+}
+
+
+
+
 // ------------------------------------------------------------------------
 
 // ------------   Constructor from PndFieldPar   --------------------------
@@ -35,27 +96,13 @@ PndMultiField::PndMultiField(PndMultiFieldPar* fieldPar) {
    fNoOfMaps=0;
    TObjArray *fArray= fieldPar->GetParArray();
    if(fArray->IsEmpty()) fType=-1;
-//    TIterator *Iter=fArray->MakeIterator();
-//    Iter->Reset();
-//    PndMapPar *fpar = NULL;
-//    Int_t Type=-1;
-//    while( (fpar = (PndMapPar*)Iter->Next() ) ) {
-//       Type=fpar->GetType();
-//       if(Type==0){
-//   	 cout << "Const field" << endl;
-//       }
-//       if(Type==2){
-//   	 cout << "field 2" << endl;
-//       }
-//       if(Type==3){
-//   	 cout << "field 3" << endl;
-//       }
-//       if(Type==4){
-//   	 cout << "field 4" << endl;
-//       }
-//    }
 
 }
+
+
+
+
+
 
 // ------------   Destructor   --------------------------------------------
 PndMultiField::~PndMultiField() {
@@ -91,10 +138,32 @@ void PndMultiField::Init() {
 
 // ---------   Screen output   --------------------------------------------
 void PndMultiField::Print() {  
- for (Int_t n=0; n<=fNoOfMaps; n++){
-      FairField *fieldMap = dynamic_cast<FairField *>(fMaps->At(n));
-      if(fieldMap) fieldMap->Print();
-  }
+	for (Int_t n=0; n<=fNoOfMaps; n++){
+		FairField *fieldMap = dynamic_cast<FairField *>(fMaps->At(n));
+		if(fieldMap) fieldMap->Print();
+	}
+}
+
+
+
+
+
+// ---------   Screen output   --------------------------------------------
+void PndMultiField::FillParContainer() {  
+// for (Int_t n=0; n<=fNoOfMaps; n++){
+//      FairField *fieldMap = dynamic_cast<FairField *>(fMaps->At(n));
+//      if(fieldMap) fieldMap->FillParContainer();
+//  }
+  FairRun *fRun=FairRun::Instance();	
+  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
+  Bool_t kParameterMerged=kTRUE;
+  PndMultiFieldPar* Par = (PndMultiFieldPar*) rtdb->getContainer("PndMultiFieldPar");
+  Par->SetParameters(this);
+  Par->setInputVersion(fRun->GetRunId(),1);
+  Par->setChanged();
+	
+	
+	
 }
 
 // -------------------------------------------------------------------------
@@ -111,13 +180,7 @@ void PndMultiField::GetFieldValue(const Double_t point[3], Double_t* bField)
       }
    }
   if(fField){
-   /* bField[0] = fField->GetBx(point[0], point[1], point[2]);
-    bField[1] = fField->GetBy(point[0], point[1], point[2]);
-    bField[2] = fField->GetBz(point[0], point[1], point[2]);
-  */
-  fField->GetBxyz(point, bField);
-
-   //cout <<"PndMultiField::GetFieldValue" << bField[0] <<" " << bField[1]<< " " << bField[2] << endl;
+    fField->GetBxyz(point, bField);
   }else{
     bField[0] = 0;
     bField[1] = 0;

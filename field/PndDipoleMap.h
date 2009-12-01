@@ -65,6 +65,9 @@ public:
   Int_t GetRegionNo(){return fRegionNo;}
 
   void GetBxyz(const Double_t point[3], Double_t* bField);
+
+  void FillParContainer();	
+	
 	
  protected:
 

@@ -100,7 +100,7 @@ void PndTransMap::GetBxyz(const Double_t point[3], Double_t* bField)
 
   if ( IsInside(x, y, z, ix, iy, iz, dx, dy, dz) ){
         // Get Bx field values at grid cell corners
-        fHa[0][0][0] = fBx->At(ix    *fNy*fNz + iy    *fNz + iz);
+	fHa[0][0][0] = fBx->At(ix    *fNy*fNz + iy    *fNz + iz);
 	fHa[1][0][0] = fBx->At((ix+1)*fNy*fNz + iy    *fNz + iz);
 	fHa[0][1][0] = fBx->At(ix    *fNy*fNz + (iy+1)*fNz + iz);
 	fHa[1][1][0] = fBx->At((ix+1)*fNy*fNz + (iy+1)*fNz + iz);
@@ -190,6 +190,12 @@ Bool_t PndTransMap::IsInside(Double_t x, Double_t y, Double_t z,
 
 }
 // ------------------------------------------------------------------------
+void PndTransMap::FillParContainer()
+{
+	TString MapName=GetName();
+	cout << "PndTransMap::FillParContainer() " << endl;
+	
+}
 
 
 

@@ -174,7 +174,10 @@ Bool_t PndSolenoidMap::IsInside(Double_t x, Double_t y, Double_t z,
 
 }
 // ------------------------------------------------------------------------
-
-
-
+void PndSolenoidMap::FillParContainer()
+{
+	TString MapName=GetName();
+	cout << "PndSolenoidMap::FillParContainer() " << endl;
+	
+}
 ClassImp(PndSolenoidMap)

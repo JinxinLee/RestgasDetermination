@@ -207,6 +207,12 @@ Bool_t PndDipoleMap::IsInside(Double_t x, Double_t y, Double_t z,
 
 }
 // ------------------------------------------------------------------------
+void PndDipoleMap::FillParContainer()
+{
+	TString MapName=GetName();
+	cout << "PndDipoleMap::FillParContainer() " << endl;
+	
+}
 
 
 

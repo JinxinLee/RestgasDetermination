@@ -45,6 +45,10 @@ class PndConstField : public FairField
   virtual ~PndConstField();
 
 
+  void FillParContainer();		
+	
+	
+	
   /** Set the field region
    ** @param xMin,xMax   x region of field (global coordinates)
    ** @param yMin,yMax   y region of field (global coordinates)

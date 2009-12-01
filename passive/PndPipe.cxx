@@ -32,7 +32,7 @@ PndPipe::PndPipe(const char * name, const char * title)
 void PndPipe::ConstructGeometry(){
   
   FairRun *fRun = FairRun::Instance();
-  FairRuntimeDb *rtdb= FairRun::Instance()->GetRuntimeDb();
+  FairRuntimeDb *rtdb= fRun->GetRuntimeDb();
   PndGeoPassivePar* par=(PndGeoPassivePar*)(rtdb->getContainer("PndGeoPassivePar"));
   
   FairGeoLoader *loader=FairGeoLoader::Instance();

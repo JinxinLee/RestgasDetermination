@@ -27,6 +27,9 @@ public:
   /** Default constructor **/
   PndMultiField();
 
+	PndMultiField(TString Map);	
+	
+	
   /** Constructor from PndFieldPar **/
   PndMultiField(PndMultiFieldPar* fieldPar);
 
@@ -39,16 +42,11 @@ public:
   /**Adding a field to the collection*/
 
   void AddField(FairField *field);
+ 
   TObjArray *GetFieldList(){return fMaps; }
 
-  /** Get the field components at a certain point 
-   ** @param x,y,z     Point coordinates (global) [cm]
-   ** @value Bx,By,Bz  Field components [kG]
-   **/
-/*  virtual Double_t GetBx(Double_t x, Double_t y, Double_t z);
-  virtual Double_t GetBy(Double_t x, Double_t y, Double_t z);
-  virtual Double_t GetBz(Double_t x, Double_t y, Double_t z);
-*/
+	
+  void FillParContainer();
   /** Screen output **/
   virtual void Print();
   ClassDef(PndMultiField,1) 

@@ -65,7 +65,7 @@
      TH1F *Bz=new TH1F("Bz(z)","Bz(z)",fnz,fZmin1,fZmax3);
      TH1F *Btotal=new TH1F("B(z)","B(z)",fnz,fZmin1,fZmax3);
 
-     for (Int_t iz=0; iz<=fnz1; iz++) 
+     for (Int_t iz=0; iz<fnz1; iz++) 
      {
 	  z = fZmin1 + Double_t(iz) * fdz1;
 	      po[0]=x; po[1]=y; po[2]=z;

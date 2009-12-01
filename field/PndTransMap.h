@@ -61,7 +61,10 @@ public:
 
   void GetBxyz(const Double_t point[3], Double_t* bField);
 	
- protected:
+	
+  void FillParContainer();		
+ 
+protected:
 
   // Hemispheres of a point (for temporary use)
   Double_t fHemiX, fHemiY;   //!

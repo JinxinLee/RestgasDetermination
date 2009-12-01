@@ -2,7 +2,14 @@
 
 eventDisplay()
 {
-   // Load basic libraries
+    //-----User Settings:-----------------------------------------------
+  TString  SimEngine      ="TGeant3"; 
+  TString  InputFile     ="sim_complete.root";
+  TString  ParFile       ="simparams.root";
+  //------------------------------------------------------------------
+
+
+// Load basic libraries
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
   gSystem->Load("libEve");
@@ -11,25 +18,17 @@ eventDisplay()
                                      
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
-  //fRun->SetInputFile("points.x3872.jpsipipi.phsp.root");
- // fRun->SetInputFile("../qa/lhetrack/points_tpccombi.root");
-   fRun->SetInputFile("sim_with_vis.root");
-//  fRun->SetInputFile("../drc/testrun1.root");
- // fRun->SetInputFile("../dsk/sim_dsk.g4native.root");
+  fRun->SetInputFile(InputFile.Data());
   fRun->SetOutputFile("tst.root");
- // fRun->LoadGeometry();
 
-  
-  
-  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo();
-//  parInput1->open("../drc/testparams.root");
-  parInput1->open("params_with_vis.root");
-       
+  parInput1->open(ParFile.Data());
   rtdb->setFirstInput(parInput1);
- 
-
   FairEventManager *fMan= new FairEventManager();
+ 
+ 
+ //----------------------Traks and points -------------------------------------
   FairMCTracks *Track =  new FairMCTracks ("Monte-Carlo Tracks");
   FairMCPointDraw *MvdPoints =   new FairMCPointDraw ("MVDPoint",kBlue,  kFullSquare);
   FairMCPointDraw *EMCPoints =   new FairMCPointDraw ("EmcPoint",kOrange,  kFullSquare);
@@ -43,7 +42,6 @@ eventDisplay()
 
                                                                
   fMan->AddTask(Track);
-  
   fMan->AddTask(MvdPoints);
   fMan->AddTask(EMCPoints);   
   fMan->AddTask(TofPoint);   
@@ -54,8 +52,7 @@ eventDisplay()
   fMan->AddTask( PndTpcPoint);
  // fMan->AddTask( PndSTTPoint);
 
-    
-  fMan->Init();                     
-  
+   
+   fMan->Init();                     
 
 }
