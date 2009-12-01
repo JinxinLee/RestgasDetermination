@@ -20,6 +20,7 @@ class TClonesArray;
 class PndDrcPDPoint;
 class PndDrcBarPoint;
 class FairVolume; 
+class PndGeoDrc;
 
 class PndDrc : public FairDetector 
 {
