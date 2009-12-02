@@ -6,25 +6,11 @@
   gDebug=0;
   // Load basic libraries
   // If it does not work,  please check the path of the libs and put it by hands
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-  basiclibs();
 
-  // Load this example libraries
-  gSystem->Load("libGeoBase");
-  gSystem->Load("libParBase");
-  gSystem->Load("libBase");
-  gSystem->Load("libPndData");
-  gSystem->Load("libField");
-  gSystem->Load("libPassive"); // add other detector's lib if you need them
-  gSystem->Load("libgenfit");
-  gSystem->Load("libTof");
-  gSystem->Load("libtpc");
-  gSystem->Load("libHyp");
-  //gSystem->Load("libHypGe");
-  //gSystem->Load("libGen");
-  gSystem->Load("libDpmEvtGen");
-  gSystem->Load("libPGen");
-  //gSystem->Load("libPGen");
+  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+  // gSystem->Load("librazhyp");
+  //      gSystem->Load("libHyp");
+  //   gSystem->Load("libTof");
   FairRunSim *fRun = new FairRunSim();
   
   
@@ -49,7 +35,7 @@
   //-------------------------
 
   FairModule *Cave= new PndCave("CAVE");
-  Cave->SetGeometryFileName("cave.geo");
+  Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave); 
   /*
    FairModule *Magnet= new CbmMagnet("MAGNET");
@@ -58,9 +44,10 @@
   */
   
   FairDetector *Tof = new PndTof("TOF",kTRUE);
-  Tof->SetGeometryFileName("tofbarrel.geo");  //Tof->SetGeometryFileName("tofSciF.geo"); 
+  //Tof->SetGeometryFileName("tofSciF4.geo");//
+  //Tof->SetGeometryFileName("tofSciF.geo"); 
+  Tof->SetGeometryFileName("tofbarrel.geo");  
   fRun->AddModule(Tof);
- // 
   
   /*FairDetector *Tpc = new PndTpcDetector("TPC", kTRUE);
   Tpc->SetGeometryFileName("tpc.geo");
@@ -69,13 +56,13 @@
   */
 
 
- /* FairDetector *Hyp = new PndHyp("HYP",kTRUE);
-  Hyp->SetGeometryFileName("HypST_new.geo"); 
-  fRun->AddModule(Hyp);
-*/
+  //  FairDetector *Hyp = new PndHyp("HYP",kTRUE);
+  //   Hyp->SetGeometryFileName("HypST_assexy3C.geo"); 
+  //   fRun->AddModule(Hyp);
   
-//   tpc->SetGeometryFileName("tpc.geo"); 
-//   fRun->AddModule(tpc);
+  
+  //   tpc->SetGeometryFileName("tpc.geo"); 
+  //   fRun->AddModule(tpc);
    
   // Create and Set Event Generator
   //-------------------------------
@@ -106,36 +93,25 @@
       primGen->SetTarget(-76.,0.);
       primGen->AddGenerator(AsciiGen);
       */
-    Double_t randx, randy;
-    /* for (Int_t n =0; n<1; n++)
-       {
-       randx= gRandom->Gaus(0,1);
-       randy= gRandom->Gaus(0,1);
-       FairParticleGenerator* partGen = new FairParticleGenerator(-321, 1, 0.2*randx, 0.4*randy,0.5,0,0,-76);
-       primGen->AddGenerator(partGen);
-       }*/
-    
-    
-   
-    
-      /*PndMultiField *fField= new PndMultiField();
-       PndTransMap *map= new PndTransMap("TransMap", "R");
-       PndDipoleMap *map1= new PndDipoleMap("DipoleMap", "R");
-       PndSolenoidMap *map2= new PndSolenoidMap("SolenoidMap", "R");
-       fField->AddField(map);
-       fField->AddField(map1);
-       fField->AddField(map2);
-       fRun->SetField(fField);*/
-      
-       PndConstField *fMagField=new PndConstField();
-       fMagField->SetField(0, 0 ,20. ); // values are in kG
-       // MinX=-75, MinY=-40,MinZ=-12 ,MaxX=75, MaxY=40 ,MaxZ=124 );  // values are in cm
-       fMagField->SetFieldRegion(-50, 50,-50, 50, -200, 200);
-       fRun->SetField(fMagField);
 
-       fRun->SetStoreTraj(kTRUE); // to store particle trajectories 
+      PndMultiField *fField= new PndMultiField();
+      PndTransMap *map= new PndTransMap("TransMap", "R");
+      PndDipoleMap *map1= new PndDipoleMap("DipoleMap", "R");
+      PndSolenoidMap *map2= new PndSolenoidMap("SolenoidMap", "R");
+      fField->AddField(map);
+      fField->AddField(map1);
+      fField->AddField(map2);
+      fRun->SetField(fField);
+      
+      //  PndConstField *fMagField=new PndConstField();
+      //        fMagField->SetField(0, 0 ,20. ); // values are in kG
+      //        // MinX=-75, MinY=-40,MinZ=-12 ,MaxX=75, MaxY=40 ,MaxZ=124 );  // values are in cm
+      //        fMagField->SetFieldRegion(-50, 50,-50, 50, -200, 200);
+      //        fRun->SetField(fMagField);
+
+    fRun->SetStoreTraj(kTRUE); // to store particle trajectories 
     
-       /*FairTrajFilter* trajFilter = FairTrajFilter::Instance();
+    /*FairTrajFilter* trajFilter = FairTrajFilter::Instance();
 	 trajFilter->SetStepSizeCut(0.001); // 1 cm
 	 //  trajFilter->SetVertexCut(-2000., -2000., 4., 2000., 2000., 100.);
 	 // trajFilter->SetMomentumCutP(10e-3); // p_lab > 10 MeV
@@ -150,6 +126,12 @@
   //-------------------------------------------
   
   FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
+  
+  PndMultiFieldPar* fieldPar = (PndMultiFieldPar*) rtdb->getContainer("PndMultiFieldPar");
+  if ( fField ) { fieldPar->SetParameters(fField); }
+  fieldPar->setInputVersion(fRun->GetRunId(),1);
+  fieldPar->setChanged();
+
   Bool_t kParameterMerged=kTRUE;
   FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   output->open("simparams.root");
@@ -161,7 +143,7 @@
   // -----------------
    
   // Set the number of events
-  Int_t nEvents = 100; 
+  Int_t nEvents = 10; 
   fRun->Run(nEvents);
   
   timer.Stop();
@@ -169,6 +151,7 @@
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
-  
+  delete fRun;
+  exit(0);
 }  
   

@@ -6,7 +6,7 @@
 
   // Input file (MC events)
   //TString inFile = "sim_tof.root";
-  TString inFile = "testmierda2.root";//sim_tof_allBg.root";
+  TString inFile = "testmomo.root";//sim_tof_allBg.root";
 
   // Number of events to process
   Int_t nEvents = 0;
@@ -21,30 +21,15 @@
   
   
   // ----  Load libraries   -------------------------------------------------
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-  basiclibs();
-  gSystem->Load("libGeoBase");
-  gSystem->Load("libParBase");
-  gSystem->Load("libBase");
-  gSystem->Load("libPndData");
-  gSystem->Load("libField");
-  //gSystem->Load("libGen");
- gSystem->Load("libDpmEvtGen");
-  gSystem->Load("libPGen");
-  gSystem->Load("libPassive");
-  gSystem->Load("libTof");
- gSystem->Load("libtpc");
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  rootlogon();
+  
+  // gSystem->Load("libHypGe");
+  //   gSystem->Load("librazhyp");
+  //   gSystem->Load("libHyp");
+  //   gSystem->Load("libTof");
+ 
   // ------------------------------------------------------------------------
-
-
-  // ---  Now choose concrete engines for the different tasks   -------------
-  // ------------------------------------------------------------------------
-
-
-  // In general, the following parts need not be touched
-  // ========================================================================
-
-
 
 
   // -----   Timer   --------------------------------------------------------
@@ -66,13 +51,10 @@
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo();
   parInput1->open(parFile.Data());
-  //FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
-  //TString stsDigiFile = gSystem->Getenv("VMCWORKDIR");
-  //stsDigiFile += "/parameters/sts/sts_digi_new_standard.par";
-  //parInput2->open(stsDigiFile.Data(),"in");
+  
   rtdb->setFirstInput(parInput1);
-  //rtdb->setSecondInput(parInput2);
-  fRun->LoadGeometry();
+  
+  //fRun->LoadGeometry();
   // ------------------------------------------------------------------------
 
 
@@ -81,7 +63,7 @@
   // ======                       Hit Producers                         ======
   // =========================================================================
   
-  // -----    MVD hit producer   --------------------------------------------
+  // -----    TOF hit producer   --------------------------------------------
  
   PndTofHitProducerIdeal* tofhit = new PndTofHitProducerIdeal();
   tofhit->SetVerbose(iVerbose);
