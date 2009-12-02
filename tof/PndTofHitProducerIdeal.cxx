@@ -1,6 +1,5 @@
 // -------------------------------------------------------------------------
-// -----                CbmStsHitProducerIdeal source file             -----
-// -----                  Created 10/01/06  by V. Friese               -----
+// -----                PndTofHitProducerIdeal source file             -----
 // -------------------------------------------------------------------------
 
 #include <cmath>
@@ -136,7 +135,7 @@ void PndTofHitProducerIdeal::Exec(Option_t* opt)
   for (Int_t iPoint = 0; iPoint < nPoints; iPoint++) 
     {
       point = (PndTofPoint*) fPointArray->At(iPoint);
-	std::cout << " Ideal Hit Producer -Point-: " << point << std::endl;
+//	std::cout << " Ideal Hit Producer -Point-: " << point << std::endl;
       if ( ! point) 
 	continue;
 

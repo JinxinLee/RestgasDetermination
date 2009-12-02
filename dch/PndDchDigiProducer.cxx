@@ -42,7 +42,7 @@ PndDchDigiProducer::~PndDchDigiProducer() {
 // Public method Init
 InitStatus PndDchDigiProducer::Init() {
 
-  cout << "PndDchDigiProducer::Init()... " << endl;
+ // cout << "PndDchDigiProducer::Init()... " << endl;
 
   // Get RootManager
   FairRootManager* ioman = FairRootManager::Instance();
@@ -61,7 +61,7 @@ InitStatus PndDchDigiProducer::Init() {
 
 //  fDrifter    = PndDchDrifter::Instance("d2t_rtdb.dat",1.);
   fDrifter    = PndDchDrifter::Instance(fDriftFile.Data(),1.);
-  cout<<fDrifter<<endl;
+ // cout<<fDrifter<<endl;
 
 
   // Get input array

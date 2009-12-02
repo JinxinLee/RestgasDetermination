@@ -1,6 +1,5 @@
 // -------------------------------------------------------------------------
-// -----                CbmStsHitProducerIdeal source file             -----
-// -----                  Created 10/01/06  by V. Friese               -----
+// -----                PndSttHitProducerIdeal source file             -----
 // -------------------------------------------------------------------------
 
 #include "PndSttHitProducerIdeal.h"

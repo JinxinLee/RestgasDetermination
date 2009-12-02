@@ -138,10 +138,10 @@ Int_t PndDchStructure::InitDetectorIDList() {
     size++;
   }
 
-  std::cout<<"Content of DchIDList:"<<std::endl;
-  for(Int_t i=0; i<fDetectorIdList->GetSize(); i++)
-    std::cout<<i<<"\t"<< fDetectorIdList->At(i)<<std::endl;
-  std::cout<<std::endl;
+  //std::cout<<"Content of DchIDList:"<<std::endl;
+  //for(Int_t i=0; i<fDetectorIdList->GetSize(); i++)
+  //  std::cout<<i<<"\t"<< fDetectorIdList->At(i)<<std::endl;
+  //std::cout<<std::endl;
   
   return fDetectorIdList->GetSize();
 }

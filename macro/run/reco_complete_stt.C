@@ -97,6 +97,24 @@ void reco_complete_stt()
   fRun->AddTask(mvdmccls);
 
 
+	
+  //------ GEM Realistic Track finder --------------------
+  //Create and add finder task
+  PndGemFindTracks* gemFinderTask = new  
+  PndGemFindTracks("PndGemFindTracks");
+  gemFinderTask->SetUseHitOrDigi("hit"); // hit = (default), digi
+  fRun->AddTask(gemFinderTask);
+	
+  PndGemTrackFinderOnHits* gemTrackFinder = new   PndGemTrackFinderOnHits();
+  gemTrackFinder->SetVerbose(0);  // verbosity level
+  gemTrackFinder->SetPrimary(0);  // 1 = Only primary tracks are  processed, 0 = all (default)
+  gemFinderTask->UseFinder(gemTrackFinder);
+	
+  PndGemTrackFinderQA* gemTrackFinderQA = new PndGemTrackFinderQA();
+  gemTrackFinderQA->SetVerbose(0);
+  fRun->AddTask(gemTrackFinderQA);
+	
+	
   // -----   Intialise and run   --------------------------------------------
   cout << "fRun->Init()" << endl;
   fRun->Init();

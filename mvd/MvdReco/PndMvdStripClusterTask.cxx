@@ -1,6 +1,5 @@
 // -------------------------------------------------------------------------
 // -----                PndMvdStripClusterTask source file             -----
-// -----                  Created 10/01/06  by V. Friese               -----
 // -------------------------------------------------------------------------
 
 #include <cmath>
@@ -78,7 +77,7 @@ void PndMvdStripClusterTask::SetParContainers()
 
   FairRun* ana = FairRun::Instance();
   FairRuntimeDb* rtdb=ana->GetRuntimeDb();
-  fGeoPar = (PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar"));
+ // fGeoPar = (PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar"));
   fDigiParRect = (PndMvdStripDigiPar*)(rtdb->getContainer("MVDStripDigiParRect"));
   fDigiParTrap = (PndMvdStripDigiPar*)(rtdb->getContainer("MVDStripDigiParTrap"));
 }

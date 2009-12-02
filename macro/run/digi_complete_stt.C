@@ -74,6 +74,13 @@ void digi_complete_stt()
   mdtHitProd->SetPositionSmearing(0.2); // position smearing [cm]
   fRun->AddTask(mdtHitProd);
 
+  PndGemDigitize* gemDigitize = new PndGemDigitize("GEM Digitizer", iVerbose);
+  fRun->AddTask(gemDigitize);
+	
+  PndGemFindHits* gemFindHits = new PndGemFindHits("GEM Hit Finder",  iVerbose);
+  fRun->AddTask(gemFindHits);
+
+	
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
 

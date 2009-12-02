@@ -14,9 +14,14 @@ enum DetectorId {
     
 /** Unique identifier for all Panda Point and Hit types **/
 
-enum fDetectorType {  
-   kUnknown,kTpcPoint,kTpcCluster,kMVDPoint,kMVDHitsStrip,kMVDHitsPixel,kEmcCluster,kEmcBump,kSttPoint,kSttHit,kSttHelixHit,kGemPoint,kGemHit};
-
+enum fDetectorType{  
+   kUnknown, kMCTrack,
+   kTpcPoint, kTpcCluster,
+   kMVDPoint, kMVDDigiStrip, kMVDDigiPixel, kMVDClusterPixel, kMVDClusterStrip, kMVDHitsStrip, kMVDHitsPixel,
+   kEmcCluster, kEmcBump,
+   kSttPoint, kSttHit, kSttHelixHit,
+   kGemPoint, kGemHit,
+   kTrackCand, kTrack};
 
 enum SensorSide { kTOP, kBOTTOM };
 

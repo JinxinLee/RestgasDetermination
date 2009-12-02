@@ -31,28 +31,30 @@ eventDisplay()
  //----------------------Traks and points -------------------------------------
   FairMCTracks *Track =  new FairMCTracks ("Monte-Carlo Tracks");
   FairMCPointDraw *MvdPoints =   new FairMCPointDraw ("MVDPoint",kBlue,  kFullSquare);
-  FairMCPointDraw *EMCPoints =   new FairMCPointDraw ("EmcPoint",kOrange,  kFullSquare);
+  FairMCPointDraw *EMCPoints =   new FairMCPointDraw ("EmcHit",kOrange,  kFullSquare);
   FairMCPointDraw *TofPoint =    new FairMCPointDraw ("TofPoint",kYellow,  kFullSquare);
   FairMCPointDraw *TofSciFPoint= new FairMCPointDraw ("TofSciFPoint",kTeal, kFullSquare);
-  FairMCPointDraw *MuoPoint =    new FairMCPointDraw ("MuoPoint",kAzure, kFullSquare);
+  FairMCPointDraw *MdtPoint =    new FairMCPointDraw ("MdtPoint",kAzure, kFullSquare);
   FairMCPointDraw *PndDrcPoint = new FairMCPointDraw ("PndDrcPoint",kViolet, kFullSquare);
   FairMCPointDraw *PndDchPoint = new FairMCPointDraw ("PndDchPoint",kPink, kFullSquare);
   FairMCPointDraw *PndTpcPoint = new FairMCPointDraw ("PndTpcPoint",kCyan,  kFullSquare);
- // FairMCPointDraw *PndSTTPoint = new FairMCPointDraw ("STTPoint",kMagenta, kFullSquare);
-
-                                                               
+  FairMCPointDraw *PndSTTPoint = new FairMCPointDraw ("STTPoint",kMagenta, kFullSquare);
+  FairMCPointDraw *PndGEMPoint = new FairMCPointDraw ("GEMPoint",kRed, kFullSquare);
+  FairMCPointDraw *PndDskPoint = new FairMCPointDraw ("DskCerenkov",kGreen, kFullSquare);
+                                                            
   fMan->AddTask(Track);
   fMan->AddTask(MvdPoints);
   fMan->AddTask(EMCPoints);   
   fMan->AddTask(TofPoint);   
   fMan->AddTask( TofSciFPoint);
-  fMan->AddTask( MuoPoint);
+  fMan->AddTask( MdtPoint);
   fMan->AddTask( PndDrcPoint);
   fMan->AddTask( PndDchPoint);
   fMan->AddTask( PndTpcPoint);
- // fMan->AddTask( PndSTTPoint);
-
-   
-   fMan->Init();                     
+  fMan->AddTask( PndSTTPoint);
+  fMan->AddTask( PndGEMPoint)
+  fMan->AddTask( PndDskPoint)
+  
+  fMan->Init();                     
 
 }

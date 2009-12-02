@@ -1,6 +1,5 @@
 // -------------------------------------------------------------------------
-// -----                CbmStsHitProducerIdeal source file             -----
-// -----                  Created 10/01/06  by V. Friese               -----
+// -----               PndMvdHitProducerIdeal source file             -----
 // -------------------------------------------------------------------------
 
 
@@ -97,7 +96,7 @@ void PndMvdHitProducerIdeal::Exec(Option_t* opt)
   for (Int_t iPoint = 0; iPoint < nPoints; iPoint++)
     {
       point = (PndMvdMCPoint*) fPointArray->At(iPoint);
-	std::cout << " Ideal Hit Producer -Point-: " << point << std::endl;
+//	std::cout << " Ideal Hit Producer -Point-: " << point << std::endl;
       if ( ! point)
 	continue;
 
@@ -114,15 +113,15 @@ void PndMvdHitProducerIdeal::Exec(Option_t* opt)
 
       // Create new hit
       new ((*fHitArray)[iPoint]) PndMvdHit(detID, point->GetDetName(), position, dpos, -1, point->GetEnergyLoss(),1, iPoint);
-	std::cout << "Hit created for module: " << point->GetDetName() << std::endl;
+//	std::cout << "Hit created for module: " << point->GetDetName() << std::endl;
 
 
 
     }   // Loop over MCPoints
 
   // Event summary
-  std::cout << "-I- PndMvdHitProducerIdeal: " << nPoints << " PndMvdMCPoints, "
-       << nPoints << " Hits created." << std::endl;
+//  std::cout << "-I- PndMvdHitProducerIdeal: " << nPoints << " PndMvdMCPoints, "
+ //      << nPoints << " Hits created." << std::endl;
 
 }
 // -------------------------------------------------------------------------

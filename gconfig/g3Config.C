@@ -35,7 +35,7 @@ void Config()
     geant3->SetABAN(0);         //Restore 3.16 behaviour for abandoned tracks
     geant3->SetOPTI(2);         //Select optimisation level for GEANT geometry searches (0,1,2)
     geant3->SetERAN(5.e-7);
-    geant3->SetCKOV(1);     // cerenkov photons 
+    geant3->SetCKOV(0);     // cerenkov photons 
   // set common stuff 
 }
 
