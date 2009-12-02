@@ -1,4 +1,4 @@
-void digi_complete()
+void digi_complete_stt()
 {
   // Macro created 20/09/2006 by S.Spataro
   // It loads a simulation file and digitize hits for EMC
