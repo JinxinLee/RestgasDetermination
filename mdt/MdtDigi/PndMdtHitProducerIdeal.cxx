@@ -98,6 +98,7 @@ void PndMdtHitProducerIdeal::Exec(Option_t* opt) {
   
   for (Int_t iPoint=0; iPoint<nPoints; iPoint++) {
     point  = (PndMdtPoint*) fPointArray->At(iPoint);
+    if (point->GetEnergyLoss()==0) continue;
     //if ( (point->GetModule()==1) && (TMath::Odd(point->GetDetectorID())) ) continue;
     point->Position(pos);
     if (fPosResolution>0.)
