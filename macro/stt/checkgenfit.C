@@ -7,10 +7,10 @@
   
   TFile filekalman("testgenfit.root");
   TTree *treekal = (TTree*) filekalman.Get("cbmsim");
-  TClonesArray *kal = new TClonesArray("Track");
+  TClonesArray *kal = new TClonesArray("GFTrack");
   treekal->SetBranchAddress("Track",&kal);
  
-  Track *trk;
+  GFTrack *trk;
   TCanvas *TestGenfit = new TCanvas("TestGenfit", "STT genfit momentum distribution", 0, 0, 600, 600);
   TH1F *h = new TH1F("h","GENFIT",100,0.5,1.5);
 
@@ -20,7 +20,7 @@
    
     for(int trki = 0; trki < kal->GetEntries(); trki++)
       {
-	trk = (Track*) kal->At(trki);
+	trk = (GFTrack*) kal->At(trki);
 	// trk->getCardinalRep().Print();
 
 	if(trk->getTrackRep(0)->getStatusFlag()==0) {
