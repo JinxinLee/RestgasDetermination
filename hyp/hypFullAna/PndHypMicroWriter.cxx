@@ -37,10 +37,10 @@ modified by A. Sanchez for hyp purpose
 #include <iostream>
 
 #include "RhoBase/TCandidate.h"
-#include "RhoBase/PndMicroCandidate.h"
+#include "PndMicroCandidate.h"
 #include "RhoTools/TEventShape.h"
 #include "RhoBase/TCandList.h"
-#include "RhoBase/PndEventInfo.h"
+#include "PndEventInfo.h"
 #include "RhoBase/TFactory.h"
 #include "RhoBase/TRho.h"
 
@@ -94,11 +94,11 @@ InitStatus PndHypMicroWriter::Init()
     return kFATAL;
   }
   // Get input array
-  fTrArray = (TClonesArray*) ioman->GetObject("GFTrack");
+  fTrArray = (TClonesArray*) ioman->GetObject("Track");
   if ( ! fTrArray) {
     cout << "-W- PndHypMicroWriter::Init: "
 	 << "No TpcTrack array!" << endl;
-    fTrArray=new TClonesArray("Track");
+    fTrArray=new TClonesArray("GFTrack");
     fStoreCharged=false;
     //return kERROR;
   }
@@ -206,7 +206,7 @@ void PndHypMicroWriter::Exec(Option_t* opt)
   int nPrimary=0;
   
  
-  Track *tr1;
+  GFTrack *tr1;
  
   
   // *************************
@@ -223,7 +223,7 @@ void PndHypMicroWriter::Exec(Option_t* opt)
     
     // Get the Tpc Track information
     
-    tr1 = (Track *)fTrArray->At(i);  
+    tr1 = (GFTrack *)fTrArray->At(i);  
   
      // check that track has been fitted
     if(tr1->getCardinalRep()->getStatusFlag()!=0){
@@ -317,27 +317,30 @@ void PndHypMicroWriter::Exec(Option_t* opt)
 
     
     //rep=tr1->getTrackRep(0)->clone();
- 
-     tr1->getCand().getHit(0,detId,hitId);
-     PndHypHit* hit = (PndHypHit*) fHitArray->At(hitId);
-   
-   
-    //std::cout<<" hit "<<hit->GetX()<<std::endl;
+    unsigned int hid;
+    hid=-1;
+    
+     tr1->getCand().getHit(0,detId,hid);
+     //std::cout<<" entries "<<fHitArray->GetEntriesFast()<<" hid "<<hid<<std::endl;;
+     PndHypHit* hit = (PndHypHit*) fHitArray->At(hid);
+     if(hit==0)continue;
+     
+     //std::cout<<" hit "<<hit->GetX()<<std::endl;
     TVector3 init= hit->GetPosition();
     
-    DetPlane pinit(init,TVector3(1,0,0),TVector3(0,1,0));
+    GFDetPlane pinit(init,TVector3(1,0,0),TVector3(0,1,0));
    
     //myrep->extrapolate(pinit);
     // myrep->setReferencePlane(pinit);
    
     TVector3 pos(0,0,-76.5);
-    DetPlane pfin(pos,TVector3(1,0,0),TVector3(0,1,0));
+    GFDetPlane pfin(pos,TVector3(1,0,0),TVector3(0,1,0));
 
     TVector3 dist,fin;
     
      TMatrixT<double> state(5,1);
      TMatrixT<double> cov(5,5);
-     DetPlane p;
+     GFDetPlane p;
      dist=myrep->getPos(pfin) ;
      micro->SetPosition(dist);
 

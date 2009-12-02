@@ -38,10 +38,10 @@ modified by A. Sanchez for hyp purpose
 #include <iostream>
 
 #include "RhoBase/TCandidate.h"
-#include "RhoBase/PndMicroCandidate.h"
+#include "PndMicroCandidate.h"
 #include "RhoTools/TEventShape.h"
 #include "RhoBase/TCandList.h"
-#include "RhoBase/PndEventInfo.h"
+#include "PndEventInfo.h"
 #include "RhoBase/TFactory.h"
 #include "RhoBase/TRho.h"
 
@@ -95,11 +95,11 @@ InitStatus PndHypMicroIdealWriter::Init()
     return kFATAL;
   }
   // Get input array
-  fTrArray = (TClonesArray*) ioman->GetObject("GFTrack");
+  fTrArray = (TClonesArray*) ioman->GetObject("Track");
   if ( ! fTrArray) {
     cout << "-W- PndHypMicroIdealWriter::Init: "
 	 << "No TpcTrack array!" << endl;
-    fTrArray=new TClonesArray("GFTrack");
+    fTrArray=new TClonesArray("Track");
     fStoreCharged=false;
     //return kERROR;
   }
@@ -207,7 +207,7 @@ void PndHypMicroIdealWriter::Exec(Option_t* opt)
   int nPrimary=0;
   
  
-  Track *tr1;
+  GFTrack *tr1;
  
   
   // *************************
@@ -224,7 +224,7 @@ void PndHypMicroIdealWriter::Exec(Option_t* opt)
     
     // Get the Tpc Track information
     
-    tr1 = (Track *)fTrArray->At(i);  
+    tr1 = (GFTrack *)fTrArray->At(i);  
   
      // check that track has been fitted
     if(tr1->getCardinalRep()->getStatusFlag()!=0){
@@ -335,13 +335,13 @@ void PndHypMicroIdealWriter::Exec(Option_t* opt)
     // myrep->setReferencePlane(pinit);
    
     TVector3 pos(0,0,-76.5);
-    DetPlane pfin(pos,TVector3(1,0,0),TVector3(0,1,0));
+    GFDetPlane pfin(pos,TVector3(1,0,0),TVector3(0,1,0));
 
     TVector3 dist,fin;
     
      TMatrixT<double> state(5,1);
      TMatrixT<double> cov(5,5);
-     DetPlane p;
+     GFDetPlane p;
      dist=myrep->getPos(pfin) ;
      micro->SetPosition(dist);
 
