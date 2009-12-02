@@ -54,6 +54,7 @@ PndGemPrepareKalmanTracks.cxx
 PndGemRecoHit.cxx
 PndGemKalmanTask.cxx
 PndGemIdealPatternRecoTask.cxx
+PndGemMagneticFieldVsTrackParameters.cxx
 )
 if(RULE_CHECKER_FOUND)
   CHECK_RULES("${GEM_SRCS}" "${INCLUDE_DIRECTORIES}" GEM_RULES)

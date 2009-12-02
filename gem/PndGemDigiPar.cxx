@@ -100,6 +100,7 @@ Bool_t PndGemDigiPar::getParams(FairParamList* list)
 
 void PndGemDigiPar::CreateStations()
 {
+  if ( GetNStations() > 0 ) return;
   Int_t arrayIndex = 0;
 
   Int_t   stationNr   = 0;

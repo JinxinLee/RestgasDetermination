@@ -33,5 +33,7 @@
 
 #pragma link C++ class PndGemIdealPatternRecoTask+;
 
+#pragma link C++ class PndGemMagneticFieldVsTrackParameters+;
+
 #endif
 
