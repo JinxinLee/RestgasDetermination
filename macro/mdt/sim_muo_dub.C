@@ -27,8 +27,8 @@ void sim_muo_dub(Int_t nEvents=10, Int_t pid=13, Float_t p1=1.0, Float_t p2=-1){
   FairModule *Cave= new PndCave("CAVE");
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave); 
-/*
-  FairModule *Magnet= new PndMagnet("MAGNET");
+
+  /*FairModule *Magnet= new PndMagnet("MAGNET");
   Magnet->SetGeometryFileName("FullSolenoid_V842.root");
   fRun->AddModule(Magnet);
  
@@ -56,8 +56,7 @@ void sim_muo_dub(Int_t nEvents=10, Int_t pid=13, Float_t p1=1.0, Float_t p2=-1){
   Muo->SetEndcap("muon_TS_endcap_noGeo.root");
   Muo->SetForward("muon_Forward_noGeo.root");
   Muo->SetMdtMagnet(kTRUE);
-  //Muo->SetMuonFilter("torino");
-  Muo->SetMdtMFIron(kTRUE);
+  Muo->SetMuonFilter("muon_MuonFilter_noGeo.root");
   fRun->AddModule(Muo);
  /*
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
