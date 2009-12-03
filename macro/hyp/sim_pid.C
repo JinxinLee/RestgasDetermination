@@ -216,11 +216,11 @@
   // fieldPar->setInputVersion(fRun->GetRunId(),1);
   // fieldPar->setChanged();
 
-  PndConstPar* fieldPar = (PndConstPar*) rtdb->getContainer("PndConstPar");
+ /* PndConstPar* fieldPar = (PndConstPar*) rtdb->getContainer("PndConstPar");
   if ( fMagField ) { fieldPar->SetParameters(fMagField); }
   fieldPar->setInputVersion(fRun->GetRunId(),1);
   fieldPar->setChanged();
-  
+  */
   Bool_t kParameterMerged=kTRUE;
   FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   //output->open("simparams.root");

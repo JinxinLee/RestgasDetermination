@@ -48,7 +48,7 @@ void PndFieldCreator::SetParm()
 {
  
 //  cout << "PndFieldCreator::SetParm()" <<endl;
-  FairRunAna *Run = FairRunAna::Instance();
+  FairRun *Run = FairRun::Instance();
   FairRuntimeDb *RunDB = Run->GetRuntimeDb();
   
   FairBaseParSet* par=(FairBaseParSet*)(RunDB->getContainer("FairBaseParSet"));
@@ -59,7 +59,7 @@ void PndFieldCreator::SetParm()
 	  obj=contList->FindObject("PndMultiFieldPar");
   } 
 
-// cout << "PndFieldCreator::SetParm() " << obj  <<endl;
+  cout << "PndFieldCreator::SetParm() " << obj  <<endl;
 
   	
   if (obj) {
@@ -86,9 +86,10 @@ FairField* PndFieldCreator::createFairField()
 	PndMultiField *MField=0;
 	Int_t Type=-1;
     Bool_t multi=kFALSE;
-	MField = new PndMultiField(fMPar);
-	Type= fMPar->GetType();
-	
+	if (fMPar) {
+	   MField = new PndMultiField(fMPar);
+	   Type= fMPar->GetType();
+	}
 	if (Type==-1) {delete MField; MField=0;}
 	
 	if(MField) {

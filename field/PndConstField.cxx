@@ -3,12 +3,18 @@
 // -----                Created 30/01/07  by M. Al/Turany              -----
 // -------------------------------------------------------------------------
 
+#include "PndConstField.h"
+#include "PndConstPar.h"
+
+
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
+
+
 
 #include <iomanip>
 #include <iostream>
 
-#include "PndConstField.h"
-#include "PndConstPar.h"
 
 using namespace std;
 
@@ -172,11 +178,18 @@ void PndConstField::Print() {
   cout << "======================================================" << endl;
 }
 // -------------------------------------------------------------------------
-
+// ---------   Fill the parameters   --------------------------------------------
 void PndConstField::FillParContainer()
 {
 	TString MapName=GetName();
-	cout << "PndConstField::FillParContainer() " << endl;
+//	cout << "PndConstField::FillParContainer() " << endl;
+	FairRun *fRun=FairRun::Instance();	
+	FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
+	Bool_t kParameterMerged=kTRUE;
+	PndConstPar* Par = (PndConstPar*) rtdb->getContainer("PndConstPar");
+	Par->SetParameters(this);
+	Par->setInputVersion(fRun->GetRunId(),1);
+	Par->setChanged();
 	
 }
 

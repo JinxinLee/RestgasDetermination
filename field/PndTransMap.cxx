@@ -1,10 +1,24 @@
+// -------------------------------------------------------------------------
+// -----                      PndTransMap source file                -----
+// -----                 Created 29/01/07  by M. Al/Turany             -----
+// -------------------------------------------------------------------------
 
-#include <iostream>
-#include "TArrayF.h"
-#include "stdlib.h"
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
+
+
+
 #include "PndTransMap.h"
 #include "PndTransPar.h"
 #include "FairRunSim.h"
+#include "TArrayF.h"
+
+
+#include <iostream>
+#include "stdlib.h"
+
+
+
 using namespace std;
 // -------------   Default constructor  ----------------------------------
 PndTransMap::PndTransMap() 
@@ -193,9 +207,17 @@ Bool_t PndTransMap::IsInside(Double_t x, Double_t y, Double_t z,
 void PndTransMap::FillParContainer()
 {
 	TString MapName=GetName();
-	cout << "PndTransMap::FillParContainer() " << endl;
+	//	cout << "PndConstField::FillParContainer() " << endl;
+	FairRun *fRun=FairRun::Instance();	
+	FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
+	Bool_t kParameterMerged=kTRUE;
+	PndTransPar* Par = (PndTransPar*) rtdb->getContainer("PndTransPar");
+	Par->SetParameters(this);
+	Par->setInputVersion(fRun->GetRunId(),1);
+	Par->setChanged();
 	
 }
+
 
 
 
