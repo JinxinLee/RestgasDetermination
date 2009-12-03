@@ -46,9 +46,9 @@
 // ------------------------------------------------------------------------
   // ----- Prepare GEANE --------------------------------------------
   // this will load Geant3 and execute setup macros to initialize geometry:
-  FairGeane *Geane = new FairGeane(inFile);
-
-  /*
+  //FairGeane *Geane = new FairGeane(inFile);
+  FairGeane *Geane = new FairGeane();
+  fRun->AddTask(Geane);
   
   // -----  Parameter database   --------------------------------------------
   
@@ -57,9 +57,9 @@
   parInput1->open(parFile.Data());
   
   Bool_t kParameterMerged=kTRUE;
-  rtdb->setFirstInput(parInput1);*/
+  rtdb->setFirstInput(parInput1);
 
-   fRun->LoadGeometry();
+  //fRun->LoadGeometry();
   // ------------------------------------------------------------------------
 
    //Geane->SetField(fRun->GetField());
@@ -73,14 +73,14 @@
    //DemoPR->AddHitBranch(2,"PndTpcPoint");
    //  DemoPR->AddHitBranch(3,"MVDPoint");
    DemoPR->SetPersistence();
-   //DemoPR->UseGeane();
+   DemoPR->UseGeane();
    fRun->AddTask(DemoPR);
 
    PndHypDKalmanTask* DemoKalman = new PndHypDKalmanTask();
    DemoKalman->AddHitBranch(2,"HypHit");
    //DemoKalman->AddHitBranch(2,"PndTpcPoint");
    //  DemoKalman->AddHitBranch(3,"MVDPoint");
-   DemoKalman->SetPersistence();
+   //DemoKalman->SetPersistence();
    
    fRun->AddTask(DemoKalman);
 
@@ -94,7 +94,7 @@
   
   fRun->Run(0,nEvents);
   
-  
+  DemoKalman->WriteHistograms(outFile.Data());
      
   // -----   Finish   -------------------------------------------------------
   timer.Stop();

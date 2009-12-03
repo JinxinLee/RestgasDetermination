@@ -52,7 +52,7 @@
   Bool_t kParameterMerged=kTRUE;
   rtdb->setFirstInput(parInput1);
 
-   fRun->LoadGeometry();
+  //fRun->LoadGeometry();
   // ------------------------------------------------------------------------
 
 
@@ -89,6 +89,7 @@
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
   cout << endl;
   // ------------------------------------------------------------------------
-
+delete fRun;
+  exit(0);
 
 }

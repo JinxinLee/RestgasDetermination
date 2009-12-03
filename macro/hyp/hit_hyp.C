@@ -52,7 +52,7 @@
   Bool_t kParameterMerged=kTRUE;
   rtdb->setFirstInput(parInput1);
 
-   fRun->LoadGeometry();
+  //fRun->LoadGeometry();
   // ------------------------------------------------------------------------
 
 
