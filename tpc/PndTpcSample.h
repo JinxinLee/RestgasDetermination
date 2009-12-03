@@ -39,8 +39,7 @@ public:
 	    const McIdCollection& mcid); 
   PndTpcSample(const int T,                       
             const int Amp,
-            const unsigned int PadID,
-            const unsigned int ElectronicChId);// added by X.Zhang, Oct. 06, 2009
+            const unsigned int PadID);
   ~PndTpcSample();
 
   // Operators
@@ -52,7 +51,6 @@ public:
   int amp() const {return famp;}
   int   t() const {return ft;}
   unsigned int padId() const {return fpadId;}
-  unsigned int electronicChId() const {return felectronicChId;}  //added by X.Zhang, Oct. 06, 2009 
   const McIdCollection& mcId() const {return fmcId;}
   //*** next four functions added by x. zhang on 08.10.2009 ****//
   unsigned int  sourceId() const { return fsourceId; }
@@ -65,7 +63,6 @@ public:
   void setAmp(unsigned int Amp) { famp = Amp; }
   void setSample(unsigned int s) { ft = s; }
   void setPadId(unsigned int pi) { fpadId = pi; }
-  void setElectronicChId(unsigned int eci) { felectronicChId = eci; }
   void setSourceId(unsigned int sId) { fsourceId = sId; }
   void setADCId(unsigned int aId) { fadcId = aId; }
   void setChipId(unsigned int cId) { fchipId = cId; }
@@ -80,7 +77,6 @@ private:
   int famp;
   int ft;
   unsigned int fpadId;
-  unsigned int felectronicChId; // added by X. Zhang, Oct. 06, 2009 
   unsigned int fsourceId;
   unsigned int fadcId;
   unsigned int fchipId;
@@ -98,6 +94,9 @@ public:
 
 //--------------------------------------------------------------
 // $Log: PndTpcSample.hh,v $
+// Revision 1.9 2009/12/03 12:12 x.zhang
+//   delete the electronic Id
+//
 // Revision 1.8 2009/11/02 15:41 X.Zhang
 //   add operator, reset().
 //

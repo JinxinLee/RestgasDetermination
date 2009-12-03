@@ -31,21 +31,20 @@ ClassImp(PndTpcSample)
 
 
 PndTpcSample::PndTpcSample()
-: famp(0),ft(0),fpadId(0),felectronicChId(-1)
+: famp(0),ft(0),fpadId(0)
 {;}
 
 PndTpcSample::PndTpcSample( const int T, 
 		      const int Amp, 
 		      const unsigned int PadID,
 		      const McIdCollection& mcid)
-  : famp(Amp),ft(T),fpadId(PadID),fmcId(mcid),felectronicChId(-1)
+  : famp(Amp),ft(T),fpadId(PadID),fmcId(mcid)
 {;}
 
 PndTpcSample::PndTpcSample( const int T,
                       const int Amp,
-                      const unsigned int PadID,
-                      const unsigned int ElectronicChId)
-  : famp(Amp),ft(T),fpadId(PadID),felectronicChId(ElectronicChId) 
+                      const unsigned int PadID)
+  : famp(Amp),ft(T),fpadId(PadID) 
 {;}
 
 PndTpcSample::~PndTpcSample()
@@ -55,8 +54,7 @@ PndTpcSample::~PndTpcSample()
 
 bool 
 operator== (const PndTpcSample& lhs, const PndTpcSample& rhs){
-  return lhs.ft==rhs.ft && lhs.famp==rhs.famp && lhs.fpadId==rhs.fpadId
-    && lhs.felectronicChId==rhs.felectronicChId;
+  return lhs.ft==rhs.ft && lhs.famp==rhs.famp && lhs.fpadId==rhs.fpadId;
 }
 
 bool 
@@ -72,8 +70,7 @@ std::ostream& operator<< (std::ostream& s, const PndTpcSample& me){
     << "   channelId     ="<<me.fchannelId<<"\n"
     << "   chipId        ="<<me.fchipId<<"\n"
     << "   adcId         ="<<me.fadcId<<"\n"
-    << "   sourceId      ="<<me.fsourceId<<"\n"
-    << "   ElectronicChId="<<me.felectronicChId<<"\n";
+    << "   sourceId      ="<<me.fsourceId<<"\n";
   return s;
 }
 
