@@ -53,7 +53,7 @@ sim_complete_stt(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom 
   fRun->AddModule(Dipole);
  //-------------------------  STT       -----------------
   FairDetector *Stt= new PndStt("STT", kTRUE);
-  Stt->SetGeometryFileName("straws_skewed_blocks.geo");
+  Stt->SetGeometryFileName("straws_skewed_blocks_pipe_120cm.geo");
   fRun->AddModule(Stt);
  //-------------------------  MVD       -----------------
   FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
