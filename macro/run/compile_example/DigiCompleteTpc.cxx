@@ -161,5 +161,4 @@ void DigiCompleteTpc(TString const &inFile, TString const &parFile,
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
   cout << endl;
   // ------------------------------------------------------------------------
- 
 }

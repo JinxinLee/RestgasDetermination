@@ -186,5 +186,4 @@ void SimCompleteTpc(Int_t nEvents, TString const &simEngine, Double_t momentum,
   cout << " All ok " << endl;
   
   delete fRun;
-  exit(0);
 }
