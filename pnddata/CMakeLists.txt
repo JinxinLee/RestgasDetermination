@@ -72,11 +72,13 @@ MvdData/PndMvdHitInfo.cxx
 MvdData/PndMvdMCPoint.cxx
 MvdData/PndMvdPidCand.cxx
 MvdData/PndMvdRadDamHit.cxx
+MvdData/PndMCList.cxx
 
 TrackData/PndTrackCandHit.cxx
 TrackData/PndTrackCand.cxx
 TrackData/PndTrack.cxx
 TrackData/PndTrackID.cxx
+TrackData/PndVertex.cxx
 )
 
 if(RULE_CHECKER_FOUND)
