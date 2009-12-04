@@ -158,7 +158,7 @@ LIBS         += -lEG -lGenVector -lGeom -lGeomPainter -lMinuit \
 		-lTreePlayer -lVMC -lXMLIO
 
 # Add PandaROOT libraries (not every lib is actually needed).
-LIBS         += -L$(PANDADIR)/buildPanda/lib -lDsk -lGpid -lTof -lRpc \
+LIBS         += -L$(FAIRLIBDIR) -lDsk -lGpid -lTof -lRpc \
 		-lrecotasks -lPGen -lMva -lMdt -lLumi -lHyp -lDrc -lDrcProp \
 		-lDpmEvtGen -lDch -lcharmtask -lAnalysisTools -lLheTrack \
 		-lGem -lSttReco -lStt -lfsim -lPid -lMvdTrk -lMvdReco -lMvd \
