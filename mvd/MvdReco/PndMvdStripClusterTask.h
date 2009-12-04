@@ -1,6 +1,5 @@
 // -------------------------------------------------------------------------
 // -----                 PndMvdStripClusterTask header file             -----
-// -----                  Created 10/01/06  by V. Friese               -----
 // -------------------------------------------------------------------------
 
 
@@ -9,7 +8,7 @@
 #define PNDMVDSTRIPCLUSTERTASK_H
 
 #include "FairTask.h"
-#include "PndMvdGeoPar.h"
+//#include "PndMvdGeoPar.h"
 #include "PndMvdStripDigiPar.h"
 #include "PndMvdHit.h"
 #include "PndMvdMCPoint.h"
@@ -96,7 +95,7 @@ class PndMvdStripClusterTask : public FairTask
     Int_t fClusterMod;					/// selected clusterfinder 1...simple 0...default
 
     PndMvdGeoHandling* fGeoH;      //! Geometry name handling
-    PndMvdGeoPar* fGeoPar;
+  //  PndMvdGeoPar* fGeoPar;
     PndMvdChargeWeightingAlgorithms* fChargeAlgos;
     PndMvdStripClusterBuilder* fClusterfinder;
 //     TH1F* fHChgDiff;

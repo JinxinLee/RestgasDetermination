@@ -19,7 +19,7 @@
 #define PNDMVDPIXELCLUSTERTASK_H 
 
 #include "FairTask.h"
-#include "PndMvdGeoPar.h"
+//#include "PndMvdGeoPar.h"
 #include "PndMvdHit.h"
 #include "PndMvdMCPoint.h"
 #include "PndMvdPixel.h"

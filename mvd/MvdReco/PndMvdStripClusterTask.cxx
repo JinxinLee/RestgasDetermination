@@ -16,7 +16,7 @@
 #include "FairGeoVector.h"
 
 #include "PndStringVector.h"
-#include "PndMvdGeoPar.h"
+//#include "PndMvdGeoPar.h"
 #include "PndMvdStripDigiPar.h"
 #include "PndMvdStripClusterTask.h"
 #include "PndMvdMCPoint.h"

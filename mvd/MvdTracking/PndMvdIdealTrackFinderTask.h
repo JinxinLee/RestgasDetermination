@@ -11,7 +11,7 @@
 
 #include "FairTask.h"
 #include "PndMCTrack.h"
-#include "PndMvdGeoPar.h"
+//#include "PndMvdGeoPar.h"
 #include "PndMvdHit.h"
 #include "PndMvdMCPoint.h"
 #include "PndMvdPixel.h"

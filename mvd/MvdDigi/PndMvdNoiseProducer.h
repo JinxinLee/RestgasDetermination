@@ -20,7 +20,7 @@
 #include <vector>
 
 #include "TRandom.h"
-#include "PndMvdGeoPar.h"
+//#include "PndMvdGeoPar.h"
 #include "PndMvdGeoHandling.h"
 #include "PndMvdStripDigiPar.h"
 #include "PndMvdPixelDigiPar.h"
@@ -68,7 +68,7 @@ class PndMvdNoiseProducer : public FairTask
   PndMvdStripDigiPar* fDigiParTrap;
   PndMvdPixelDigiPar* fDigiParPix;
 
-  PndMvdGeoPar* fGeoPar;
+//  PndMvdGeoPar* fGeoPar;
 
   PndMvdGeoHandling* fGeoH;      //! Geometry name handling
 

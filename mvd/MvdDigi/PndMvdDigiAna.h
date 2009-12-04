@@ -2,7 +2,7 @@
 #define PNDMVDDIGIANA_H
 
 #include "FairTask.h"
-#include "PndMvdGeoPar.h"
+//#include "PndMvdGeoPar.h"
 #include "PndMvdHit.h"
 #include "PndMvdMCPoint.h"
 #include "PndMvdPixel.h"
@@ -58,7 +58,7 @@ class PndMvdDigiAna : public FairTask
   TH3F* fPixelPos;
   TH3F* fStripPos;
 
-  PndMvdGeoPar* fGeoPar;
+ // PndMvdGeoPar* fGeoPar;
   PndMvdPixelDigiPar* fDigiPar;
   
   void Register();

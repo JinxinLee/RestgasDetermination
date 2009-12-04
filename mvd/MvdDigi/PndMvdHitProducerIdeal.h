@@ -19,7 +19,7 @@
 #define PNDMVDHITPRODUCERIDEAL_H 
 
 #include "FairTask.h"
-#include "PndMvdGeoPar.h"
+//#include "PndMvdGeoPar.h"
 
 #include "TVector3.h"
 #include "TRandom.h"
@@ -56,7 +56,7 @@ class PndMvdHitProducerIdeal : public FairTask
   /** Output array of PndMvdHits **/
   TClonesArray* fHitArray;  
   
-  PndMvdGeoPar* fGeoPar;
+  //PndMvdGeoPar* fGeoPar;
   
   void Register();
   
