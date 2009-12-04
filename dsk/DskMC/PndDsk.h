@@ -132,7 +132,7 @@ class PndDsk : public FairDetector
 
   /** Modifiers **/
   void SetDebugLevel(Int_t debugLevel) { fDebugLevel = debugLevel; }
-    //void SetDetectors(Int_t detectorTypes, Int_t detectorsPerArray, Bool_t usingMirrors);
+    //void SetDetectors(Int_t detectorTypes, Int_t detectorsPerArray, Bool_t usingMirrors);  // not implemented
   void SetPDE(Double_t pde) { fPDE = pde; }
   void SetStoreCerenkovs(Bool_t storeCerenkovs) { fStoreCerenkovs = storeCerenkovs; }
   void SetStoreParticles(Bool_t storeParticles) { fStoreParticles = storeParticles; }
