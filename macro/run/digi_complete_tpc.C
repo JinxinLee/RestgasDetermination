@@ -54,8 +54,8 @@ void digi_complete_tpc()
   fRun->AddTask(emcHitsToWaveform);  // full digitization
   fRun->AddTask(emcWaveformToDigi);  // full digitization
 
-  PndSttHitProducerRealFast* sttHitProducer = new PndSttHitProducerRealFast();
-  fRun->AddTask(sttHitProducer);
+//  PndSttHitProducerRealFast* sttHitProducer = new PndSttHitProducerRealFast();
+//  fRun->AddTask(sttHitProducer);
 
   PndDchDigiProducer* digiProducer= new PndDchDigiProducer();
   fRun->AddTask(digiProducer);
