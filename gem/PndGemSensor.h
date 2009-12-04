@@ -123,7 +123,7 @@ class PndGemSensor : public TNamed
    *@param y     y coordinate of point (global c.s.)
    *@value  kTRUE if the point is inside the sensor, else kFALSE
    **/
-  Bool_t ActivateChannels(Int_t ipt, Double_t x, Double_t y);
+  //Bool_t ActivateChannels(Int_t ipt, Double_t x, Double_t y);  // not implemented
 
 
   /** Calculates the coordinates of the intersections of front strip i
@@ -134,15 +134,14 @@ class PndGemSensor : public TNamed
    *@param yCross    Vector of y coordinates of crossings [cm]
    *@value           Number of intersections
    **/
-  Int_t Intersect(Int_t iFStrip, Int_t iBStrip,
-		  std::vector<Double_t>& xCross, std::vector<Double_t>& yCross);
+  //Int_t Intersect(Int_t iFStrip, Int_t iBStrip, std::vector<Double_t>& xCross, std::vector<Double_t>& yCross);  // not implemented
 
   Int_t Intersect(Int_t iFStrip, Int_t iBStrip, Double_t& xCross, Double_t& yCross, Double_t& zCross);
 
   Int_t Intersect(Int_t iFStrip, Int_t iBStrip, Double_t& xCross, Double_t& yCross, Double_t& zCross,
 		  Double_t& dr, Double_t& dp);
 
-  Int_t IntersectClusters(Double_t fChan, Double_t bChan, Double_t& xCross, Double_t& yCross, Double_t& zCross);
+  //Int_t IntersectClusters(Double_t fChan, Double_t bChan, Double_t& xCross, Double_t& yCross, Double_t& zCross);  // not implemented
 
   /** The index of the MCPoint that has caused a combination of
    ** front and back strip to be fired. Returns -1 for combinations
@@ -151,7 +150,7 @@ class PndGemSensor : public TNamed
    *@param iBStrip   Back strip number
    *@value Index of MCPoint
    **/
-  Int_t PointIndex(Int_t iFStrip, Int_t IBStrip);
+  //Int_t PointIndex(Int_t iFStrip, Int_t IBStrip);  // not implemented
 
 
   /** Clear the maps of fired strips **/
