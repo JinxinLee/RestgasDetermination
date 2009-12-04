@@ -5,6 +5,9 @@
 * TODO: add reference plot support
 */
 
+#ifndef QAPLOTCOLLECTION_H
+#define QAPLOTCOLLECTION_H
+
 #include "TNamed.h"
 #include "TString.h"
 
@@ -41,3 +44,5 @@ private:
 	
 	ClassDef(QAPlotCollection,1)
 };
+
+#endif
