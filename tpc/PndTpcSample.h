@@ -50,7 +50,7 @@ public:
   // Accessors -----------------------
   int amp() const {return famp;}
   int   t() const {return ft;}
-  unsigned int padId() const {return fpadId;}
+  int padId() const {return fpadId;}
   const McIdCollection& mcId() const {return fmcId;}
   //*** next four functions added by x. zhang on 08.10.2009 ****//
   unsigned int  sourceId() const { return fsourceId; }
@@ -62,7 +62,7 @@ public:
   //*** next four functions added by x. zhang on 08.10.2009 ****//
   void setAmp(unsigned int Amp) { famp = Amp; }
   void setSample(unsigned int s) { ft = s; }
-  void setPadId(unsigned int pi) { fpadId = pi; }
+  void setPadId(int pi) { fpadId = pi; }
   void setSourceId(unsigned int sId) { fsourceId = sId; }
   void setADCId(unsigned int aId) { fadcId = aId; }
   void setChipId(unsigned int cId) { fchipId = cId; }
@@ -76,7 +76,7 @@ private:
   // Private Data Members ------------
   int famp;
   int ft;
-  unsigned int fpadId;
+  int fpadId;
   unsigned int fsourceId;
   unsigned int fadcId;
   unsigned int fchipId;
