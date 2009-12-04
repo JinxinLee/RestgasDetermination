@@ -78,7 +78,7 @@ TrackData/PndTrackCandHit.cxx
 TrackData/PndTrackCand.cxx
 TrackData/PndTrack.cxx
 TrackData/PndTrackID.cxx
-TrackData/PndVertex.cxx
+#TrackData/PndVertex.cxx
 )
 
 if(RULE_CHECKER_FOUND)
