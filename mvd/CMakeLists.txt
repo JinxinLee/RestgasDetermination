@@ -59,7 +59,7 @@ MvdDigi/PndMvdDigiTask.cxx
 MvdDigi/PndMvdNoiseProducer.cxx
 
 MvdMC/PndMvdDetector.cxx
-#MvdMC/PndMvdGeo.cxx
+MvdMC/PndMvdGeo.cxx
 MvdMC/PndMvdGeoPar.cxx
 #MvdMC/PndMvdMaterialDet.cxx
 
