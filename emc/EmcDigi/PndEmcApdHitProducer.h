@@ -39,11 +39,11 @@ class PndEmcApdHitProducer : public FairTask
 	/** Virtual method Exec **/
 	virtual void Exec(Option_t* opt);
 
-   PndEmcApdHit* AddHit(Int_t trackID, Int_t detID, Float_t energy, Float_t time); 
+    //PndEmcApdHit* AddHit(Int_t trackID, Int_t detID, Float_t energy, Float_t time);  // not implemented
    
    PndEmcApdHit* AddHit(Int_t trackID, Int_t detID, Float_t energy, Float_t time, Int_t npoint, Int_t pointIndex[10]);
 
-   PndEmcApdHit* AddHit(Int_t trackID, Int_t detID, Float_t energy, Float_t time,std::vector<PndEmcApdPoint*> pointList);
+    //PndEmcApdHit* AddHit(Int_t trackID, Int_t detID, Float_t energy, Float_t time,std::vector<PndEmcApdPoint*> pointList);  // not implemented
   //void CreateStructure();
   
 

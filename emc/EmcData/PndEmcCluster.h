@@ -74,10 +74,10 @@ public:
 	
 	// Theta centroid of cluster in index units
 	Double_t thetaIndex() const;
-	Int_t    thetaIndexInt() const;
+	//Int_t    thetaIndexInt() const;  // not implemented
 	// Phi   centroid of cluster in index units 
 	Double_t phiIndex() const;
-	Int_t    phiIndexInt() const;
+	//Int_t    phiIndexInt() const;  // not implemented
 	
 	// Direction to ctr clus
 	TVector3 position() const;

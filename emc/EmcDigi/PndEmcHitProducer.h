@@ -45,7 +45,7 @@ class PndEmcHitProducer : public FairTask
 
    PndEmcHit* AddHit(Int_t trackID, Int_t detID, Float_t energy, Float_t time,std::vector <Int_t> &mctruth);
 
-   PndEmcHit* AddHit(Int_t trackID, Int_t detID, Float_t energy, Float_t time,std::vector<PndEmcPoint*> pointList);
+    //PndEmcHit* AddHit(Int_t trackID, Int_t detID, Float_t energy, Float_t time,std::vector<PndEmcPoint*> pointList);  // not implemented
   //void CreateStructure();
   
    void SetStorageOfData(Bool_t val); // Method to specify whether hits are stored or not.

@@ -85,7 +85,7 @@ public:
 	std::vector<double> GetSignal() const { return fSignal ;};
 	double get_scale() const;
 	double getNormalisation() const;
-	int    getWaveformLength() const;
+    //int    getWaveformLength() const;  // not implemented
 	
 	Int_t GetHitIndex() {return fHitIndex;}
   
