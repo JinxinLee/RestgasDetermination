@@ -182,7 +182,7 @@ inline void PndMvdDetector::ResetParameters() {
   fMomOut.SetXYZM(0.0, 0.0, 0.0, 0.0);
   fTime = fLength = fELoss = 0;
   fPosIndex = 0;
-};
+}
 
 
 #endif

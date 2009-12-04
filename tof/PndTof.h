@@ -184,7 +184,7 @@ inline void PndTof::ResetParameters() {
  
   fTime = fLength = fELoss = 0;
 
-};
+} // EAD_EDIT
 
 
 
