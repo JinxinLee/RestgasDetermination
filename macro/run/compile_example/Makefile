@@ -13,9 +13,13 @@ SIMCOMPLETETPC := SimCompleteTpc$(ExeSuf)
 SIMCOMPLETETPCO := SimCompleteTpc.$(ObjSuf) SimCompleteTpcDict.$(ObjSuf)
 SIMCOMPLETETPCSO := libSimCompleteTpc.$(DllSuf)
 
-all:            $(SIMCOMPLETETPC)
+DIGICOMPLETETPC := DigiCompleteTpc$(ExeSuf)
+DIGICOMPLETETPCO := DigiCompleteTpc.$(ObjSuf) DigiCompleteTpcDict.$(ObjSuf)
+DIGICOMPLETETPCSO := libDigiCompleteTpc.$(DllSuf)
 
-lib:            $(SIMCOMPLETETPCSO)
+all:            $(SIMCOMPLETETPC) $(DIGICOMPLETETPC)
+
+lib:            $(SIMCOMPLETETPCSO) $(DIGICOMPLETETPCSO)
 
 clean:
 		@rm -f *.$(ObjSuf) *Dict.h *Dict.cxx *.dep
@@ -28,7 +32,17 @@ $(SIMCOMPLETETPC): SimCompleteTpcMain.$(ObjSuf) $(SIMCOMPLETETPCO)
 		@$(LD) $(LDFLAGS) $^ $(LIBS) $(OutPutOpt)$@
 		@echo "$@ done"
 
+$(DIGICOMPLETETPC): DigiCompleteTpcMain.$(ObjSuf) $(DIGICOMPLETETPCO)
+		@echo "Linking $@..."
+		@$(LD) $(LDFLAGS) $^ $(LIBS) $(OutPutOpt)$@
+		@echo "$@ done"
+
 $(SIMCOMPLETETPCSO): $(SIMCOMPLETETPCO)
+		@echo "Linking $@..."
+		@$(LD) $(SOFLAGS) $(LDFLAGS) $^ $(OutPutOpt) $@ $(LIBS)
+		@echo "$@ done"
+
+$(DIGICOMPLETETPCSO): $(DIGICOMPLETETPCO)
 		@echo "Linking $@..."
 		@$(LD) $(SOFLAGS) $(LDFLAGS) $^ $(OutPutOpt) $@ $(LIBS)
 		@echo "$@ done"
@@ -36,6 +50,10 @@ $(SIMCOMPLETETPCSO): $(SIMCOMPLETETPCO)
 #------------------------------------------------------------------------------
 
 SimCompleteTpcDict.$(SrcSuf): SimCompleteTpc.h SimCompleteTpcLinkDef.h
+	@echo "Generating dictionary $@..."
+	@rootcint -f $@ -c $(INCLUDE) $^
+
+DigiCompleteTpcDict.$(SrcSuf): DigiCompleteTpc.h DigiCompleteTpcLinkDef.h
 	@echo "Generating dictionary $@..."
 	@rootcint -f $@ -c $(INCLUDE) $^
 
