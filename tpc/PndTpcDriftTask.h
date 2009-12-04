@@ -23,6 +23,8 @@
 #include "TH1.h"
 #include "TH2.h"
 
+#include "QAPlotCollection.h"
+
 // Collaborating Class Headers -------
 
 
@@ -31,7 +33,7 @@ class TClonesArray;
 class PndTpcGas;
 class PndTpcDevmapCyl;
 class PndTpcDigiPar;
-class QAPlotCollection;
+//class QAPlotCollection;
 
 class PndTpcDriftTask : public FairTask {
 public:
