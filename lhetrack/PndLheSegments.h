@@ -53,15 +53,15 @@ public:
 
   Int_t  GetNumPhiSegments() { return fNumPhiSegment; }  // returns # of phi
   Int_t  GetNumThetaSegments()  { return fNumThetaSegment; }  // returns # of theta
-  Int_t  GetRadiusSegm(const PndLheCMPoint *hit);  // returns # of station
-  Int_t  GetRadiusSegm(Int_t segm);        //  number of station segment
+  //Int_t  GetRadiusSegm(const PndLheCMPoint *hit);  // returns # of station  not implemented
+  //Int_t  GetRadiusSegm(Int_t segm);        //  number of station segment  not implemented
   Int_t  GetThetaSegm(const PndLheCMPoint *hit);    // returns # of theta
   Int_t  GetThetaSegm(Int_t segm);           //  number of theta segment
   Int_t  GetThetaSegm(Double_t s);           //  number of theta segment
   Int_t  GetPhiSegm(const PndLheCMPoint *hit);    // returns # of phi
   Int_t  GetPhiSegm(Int_t segm);          //  number of phi
   Int_t  GetPhiSegm(Double_t al);          //  number of phi segment
-  Int_t  GetStation(Int_t segm);          // returns the station
+  //Int_t  GetStation(Int_t segm);          // returns the station  not implemented
 
   Double_t  GetTheta(Int_t segm);    // returns theta of a given theta segment
   Double_t  GetPhi(Int_t segm);      // returns phi of a given phi segment

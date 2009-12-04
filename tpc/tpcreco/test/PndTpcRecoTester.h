@@ -47,7 +47,7 @@ public:
   void testRotated();
   void testStdDis(double* pars=NULL);
   void testRiemannMap();
-  void testRiemannTrack();
+  //void testRiemannTrack();  // not implemented
   void testRiemannFinder(unsigned int ntrk=1);
   void testRiemannFit(unsigned int ntrk=100, double r=100);
   void testRiemannSZFit(double sigma);

@@ -49,7 +49,7 @@ class PndSttPoint : public FairMCPoint
   Double_t GetPXtot()  const { return fpxtot; }
   Double_t GetPYtot()  const { return fpytot; }
   Double_t GetPZtot()  const { return fpztot; }
-  void SetMomentumtot(TVector3 momtot);
+  //void SetMomentumtot(TVector3 momtot);  // not implemented
   //////
 
   /** Accessors **/

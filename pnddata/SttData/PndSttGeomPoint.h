@@ -54,7 +54,7 @@ class PndSttGeomPoint : public TObject
     Double_t DistanceTo(PndSttGeomPoint myPoint) const;
     //    Double_t DistanceTo(PndSttGeomLine myLine) const;
 
-    void Transform();
+    //void Transform();  // not implemented
     void Draw(Double_t size = 0.5, Int_t color = 1) const;
 
     void operator=(PndSttGeomPoint const &other);

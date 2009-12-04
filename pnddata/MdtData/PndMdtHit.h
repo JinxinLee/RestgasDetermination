@@ -22,7 +22,7 @@ class PndMdtHit : public FairHit {
   /** Public method Clear
    ** Resets the flag to -1
    **/
-  void Clear();
+  //void Clear();  // not implemented
 
   /** Accessors **/
   Short_t GetModule()      const { return (fDetectorID/1000000);};

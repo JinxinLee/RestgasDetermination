@@ -35,7 +35,7 @@ public:
   Int_t   GetCorrTrackID(Int_t i=0) const { return fCorrTrackIds[i]; }
   Int_t   GetMultTrackID(Int_t i=0) const { return fMultTrackIds[i]; }
   
-  void Sort();
+  //void Sort();  // not implemented
 
   // Modifiers -----------------------
   void   SetTrackID(Int_t id)             { fTrackID = id; }

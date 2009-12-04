@@ -88,7 +88,7 @@ class PndVtxFitterParticle : public TObject
 
 
   //operator
-  PndVtxFitterParticle & operator = (const PndVtxFitterParticle &);
+  //PndVtxFitterParticle & operator = (const PndVtxFitterParticle &);  // not implemented
 
 private:
   //before fit

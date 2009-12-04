@@ -54,7 +54,7 @@ virtual void SetParContainers();
 // Modifiers -------------------------------------------------------------
 
 
-void setOpeningAngle(double);            //Opening angle of the thought cone
+//void setOpeningAngle(double);            //Opening angle of the thought cone
                                          //that contains the track 
 	                                       //(not yet implemented)
 

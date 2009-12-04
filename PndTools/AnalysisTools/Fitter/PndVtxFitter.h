@@ -104,10 +104,10 @@ private:
 
 
  public:
-  void         SetBeamProfile(const TMatrixDSym&);
-  void         SetVertexProfile(const TMatrixDSym&); // = beamProfile
+  //void         SetBeamProfile(const TMatrixDSym&);  // not implemented
+  //void         SetVertexProfile(const TMatrixDSym&); // = beamProfile  // not implemented
   TMatrixDSym  GetBeamProfile() const;
-  TMatrixDSym  GetVertexProfile()const;
+  //TMatrixDSym  GetVertexProfile()const;  // not implemented
 
   Double_t      fErrVtxPro[6];
   Double_t      fErrBeamPro[6];

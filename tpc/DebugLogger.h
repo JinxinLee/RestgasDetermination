@@ -53,7 +53,7 @@ public:
   void addRule(abslogrule* rule);
   void addRule(std::string file, std::string function, unsigned int output);
   unsigned int addOutput(std::ostream&);
-  unsigned int addOutFile(std::string filename);
+  //unsigned int addOutFile(std::string filename);  // not implemented
   void setLevel(unsigned int l);
   void Histo(std::string name, double value, 
 	     double x0=0, double x1=10, int bins=100);

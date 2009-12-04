@@ -27,7 +27,7 @@ public:
     /** Virtual method Exec **/
     virtual void Exec(Option_t* opt);
     
-    void PrintResult();
+    // void PrintResult();  // not implemented
     void SetVerbose(Int_t verbose){ fVerbose = verbose;};
     //void FinishTask(){std::cout << "Draw Canvas and Histo!" << std::endl; TCanvas c1; histo->DrawClone();};
       

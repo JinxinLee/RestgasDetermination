@@ -23,7 +23,7 @@ public:
     /** Virtual method Exec **/
     virtual void Exec(Option_t* opt);
     virtual void FinishEvent();
-    void PrintResult();
+    //void PrintResult();  // not implemented
     void SetVerbose(Int_t verbose){ fVerbose = verbose;};
     void SetMaxDist(Double_t dist){ fMaxDist = dist;};
 

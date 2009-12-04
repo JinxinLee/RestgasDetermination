@@ -102,7 +102,7 @@ public:
   void SetTrack(PndLheHit *hit);
   void CheckTracks();
   void PrintTracks(Int_t n);
-  void GetStripPoints();
+  //void GetStripPoints();  // not implemented
   
   Float_t GetTpcResolution()                       { return   fTpcResolution;}; 
   Float_t GetMvdResolution()                       { return   fMvdResolution;};

@@ -118,7 +118,7 @@ class PndSttSingleStraw : public TNamed {
                                         // return number of primary electrons
   Int_t StrawTime();                    // output time of the straw (ns) & 
                                         // PulseTime[Int_t] in ns
-  Int_t StrawTot();                     // Time over threshold time of the straw (ns)  
+  //Int_t StrawTot();                     // Time over threshold time of the straw (ns)  not implemented
 
   Double_t TimnsToDiscm(Double_t time); // from time (ns) to  radius in cm
                                         

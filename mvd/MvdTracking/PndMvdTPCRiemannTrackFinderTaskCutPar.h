@@ -34,7 +34,7 @@ public:
 
 	void CalcCuts();
 
-    void PrintResult();
+    //void PrintResult();  // not implemented
     void SetVerbose(Int_t verbose){ fVerbose = verbose;};
 
 private:

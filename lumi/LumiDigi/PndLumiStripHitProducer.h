@@ -43,7 +43,7 @@ public:
 
 	virtual void Exec(Option_t* opt);
 
-	void Print() const;
+	//void Print() const;  // not implemented
 
 private:
 	/** Pointer to input array of PndLumiPoints */

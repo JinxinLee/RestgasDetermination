@@ -25,7 +25,7 @@ public:
     virtual void Exec(Option_t* opt);
     virtual void FinishEvent();
 
-    void PrintResult();
+    //void PrintResult();  // not implemented
     void SetVerbose(Int_t verbose){ fVerbose = verbose;};
     void SetVertexCut(double cut){ fVertexCut =cut;};
 	TH1F* delta;

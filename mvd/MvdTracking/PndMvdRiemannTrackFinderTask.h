@@ -29,7 +29,7 @@ public:
 	void SetCutDistH(TH2F* hist)    {fCutDistH=hist;}
 	void SetCutChi2H(TH2F* hist)    {fCutChi2H=hist;}
 
-    void PrintResult();
+    //void PrintResult();  // not implemented
     void SetVerbose(Int_t verbose){ fVerbose = verbose;};
     void SetGeoH(PndMvdGeoHandling geoH){ fGeoH=geoH;};
 

@@ -77,7 +77,7 @@ class PndHypCalcStrip
 	void SetAnchor(TVector2 edge) {fAnchor = edge;}
 
 	//Int_t GetSize() const {return fsize;}
-	std::ostream& operator<<(std::ostream& out);
+	//std::ostream& operator<<(std::ostream& out);  // not implemented
 	
 	void print() const;
 

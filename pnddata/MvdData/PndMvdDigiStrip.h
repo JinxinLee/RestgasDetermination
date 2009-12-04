@@ -29,8 +29,8 @@ class PndMvdDigiStrip : public PndMvdDigi
     PndMvdDigiStrip();
 
 	PndMvdDigiStrip(Int_t index, Int_t detID, TString detName, Int_t fe, Int_t chan, Int_t timestamp, Double_t charge);
-    PndMvdDigiStrip(Int_t index, Int_t detID, TString detName, Int_t fe,
-		    Int_t chan, Double_t charge);
+    //PndMvdDigiStrip(Int_t index, Int_t detID, TString detName, Int_t fe,
+	//	    Int_t chan, Double_t charge);  // not implemented
     
     PndMvdDigiStrip(Int_t index, Int_t detID, TString detName, Int_t fe,
                     Int_t chan, Double_t charge, Int_t timestamp);

@@ -36,7 +36,7 @@ public:
 	void SetTPCCutDistH(TH2F* hist)    {fTPCCutDistH=hist;}
 	void SetTPCCutChi2H(TH2F* hist)    {fTPCCutChi2H=hist;}
 
-    void PrintResult();
+    //void PrintResult();  // not implemented
     void SetVerbose(Int_t verbose){ fVerbose = verbose;};
     void SetGeoH(PndMvdGeoHandling geoH){ fGeoH=geoH;};
 

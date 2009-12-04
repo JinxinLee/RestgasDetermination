@@ -29,7 +29,7 @@ public:
     /** Virtual method Exec **/
     virtual void Exec(Option_t* opt);
     
-    void PrintResult();
+    //void PrintResult();  // not implemented
     void SetVerbose(Int_t verbose){ fVerbose = verbose;};
     
     void DrawDistHistos(TCanvas* can, int event);

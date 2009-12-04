@@ -126,6 +126,12 @@ Double_t PndLheTrackCuts::GetDelX(Int_t pl) {
 }
 
 //________________________________________________________________
+Double_t PndLheTrackCuts::GetDelY(Int_t pl) {
+  //---
+  return fTrackCuts[pl].fDelY;
+}
+
+//________________________________________________________________
 void PndLheTrackCuts::Circle3pnts(Double_t x[],Double_t y[], Double_t r[]) {
   // calc center and R of circle from 3 points
   

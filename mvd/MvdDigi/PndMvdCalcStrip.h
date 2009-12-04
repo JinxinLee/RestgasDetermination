@@ -103,7 +103,7 @@ public :
     const TVector2 GetStripDirection() const {return fStripDir;}
 
     void SetVerboseLevel(Int_t level){ fVerboseLevel = level;}
-    std::ostream& operator<<(std::ostream& out);
+    //std::ostream& operator<<(std::ostream& out);  // not implemented
 
 
     void Print() const;

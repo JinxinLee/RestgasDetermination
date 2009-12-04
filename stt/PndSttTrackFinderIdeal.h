@@ -39,7 +39,7 @@ class PndSttTrackFinderIdeal : public PndSttTrackFinder
 			     Double_t *circleRadii, Double_t *circleCentersX, 
 			     Double_t *circleCentersY) const;
     
-    void ZoomTrack(Double_t &dSeed, Double_t &phiSeed, Double_t &rSeed, PndSttTrack *track);
+    //void ZoomTrack(Double_t &dSeed, Double_t &phiSeed, Double_t &rSeed, PndSttTrack *track);  // not implemented
     void GetTrack(Double_t &dSeed, Double_t &phiSeed, Double_t &rSeed, Int_t mcTrackNo);
   
   /** Default constructor **/

@@ -29,7 +29,7 @@ public:
 	void SetMinPointDist(double val){fMinPointDist = val;}
 	void SetMaxDist(double val)		{fMaxDist = val;}
 
-    void PrintResult();
+    //void PrintResult();  // not implemented
     void SetVerbose(Int_t verbose){ fVerbose = verbose;};
 
     TH2F* eff0H;

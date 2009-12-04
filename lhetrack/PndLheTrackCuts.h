@@ -78,8 +78,8 @@ public:
   Bool_t VerifyTrack(PndLheCMCandidate *track, PndLheCMPoint *hit, Bool_t back);
 
   //  void PredictAngles(PndLheCMCandidate *tr, Bool_t bw);
-  Double_t TrackHitAlpha(PndLheCMCandidate *t1, PndLheCMPoint *hit, Bool_t bw);
-  Double_t TrackHitCircleDist(PndLheCMCandidate *t, PndLheCMPoint *h, Bool_t b);
+  //Double_t TrackHitAlpha(PndLheCMCandidate *t1, PndLheCMPoint *hit, Bool_t bw);  // not implemented
+  //Double_t TrackHitCircleDist(PndLheCMCandidate *t, PndLheCMPoint *h, Bool_t b);  // not implemented
 
 
   void Circle3pnts(Double_t x[],Double_t y[], Double_t r[]);
