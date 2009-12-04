@@ -56,7 +56,7 @@ public:
 	void SetParContainers();
 
 	/** Initialize **/
-	void Initialize();
+	//void Initialize();  // EAD_EDIT
 
 	PndDchDigiInf* GetDchInf() const {
 		return fInf;
