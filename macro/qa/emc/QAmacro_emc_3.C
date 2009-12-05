@@ -17,7 +17,7 @@
 
 	TFile* fsim = new TFile("sim_emc.root"); //file you want to analyse
 	TTree *tsim=(TTree *) fsim->Get("cbmsim") ;
-	PndEmcMapper *emcMap=PndEmcMapper::Instance(2);
+	PndEmcMapper *emcMap=PndEmcMapper::Instance(6);
 
 	TClonesArray* mctrack_array=new TClonesArray("PndMCTrack");
 	tsim->SetBranchAddress("MCTrack",&mctrack_array);
@@ -74,6 +74,8 @@
 		// Loop over clusters
 		// If we have 1 initial particle and several cluster
 		// we can separate cluster from the first interaction by maximum energy
+
+		max_energy=0;
 		
 		for (Int_t i=0; i<cluster_array->GetEntriesFast(); i++)
 		{
@@ -88,19 +90,19 @@
 			}
 						
 		}
-		max_energy=0;
-		
-		//cluster_theta-
-		theta_diff=(cluster_theta-theta)*180./TMath::Pi();
-		h1->Fill(theta_diff);
-		h2theta->Fill(theta*TMath::RadToDeg(),theta_diff);
-		//cluster_phi-
-		phi_diff=(cluster_phi-phi)*180./TMath::Pi();
-		h2->Fill(phi_diff);
-		h2phi->Fill(phi*TMath::RadToDeg(),phi_diff);
-		
+		if (max_energy>0.6)
+		{
+		    //cluster_theta-
+		    theta_diff=(cluster_theta-theta)*180./TMath::Pi();
+		    h1->Fill(theta_diff);
+		    h2theta->Fill(theta*TMath::RadToDeg(),theta_diff);
+		    //cluster_phi-
+		    phi_diff=(cluster_phi-phi)*180./TMath::Pi();
+		    h2->Fill(phi_diff);
+		    h2phi->Fill(phi*TMath::RadToDeg(),phi_diff);
+		}   
 	}
-
+	
 Bool_t fTest=kTRUE;
 
 Double_t thetaCheckMean=h1->GetMean();
