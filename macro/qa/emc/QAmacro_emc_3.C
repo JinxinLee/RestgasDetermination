@@ -99,7 +99,7 @@
 		    //cluster_phi-
 		    phi_diff=(cluster_phi-phi)*180./TMath::Pi();
 		    h2->Fill(phi_diff);
-		    h2phi->Fill(phi*TMath::RadToDeg(),phi_diff);
+		    h2phi->Fill(theta*TMath::RadToDeg(),phi_diff);
 		}   
 	}
 	
