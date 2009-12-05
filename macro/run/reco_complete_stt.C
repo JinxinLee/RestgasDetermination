@@ -135,5 +135,7 @@ void reco_complete_stt()
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
   cout << endl;
   // ------------------------------------------------------------------------
-  
+  cout << " Test passed" << endl;
+  cout << " All ok " << endl;
+  exit(0);
 }
