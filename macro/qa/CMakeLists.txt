@@ -1,4 +1,4 @@
-add_subdirectory(sim)
+#add_subdirectory(sim)
 add_subdirectory(dch)
 add_subdirectory(mdt)
 add_subdirectory(emc)
