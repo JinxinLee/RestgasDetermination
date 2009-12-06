@@ -157,6 +157,6 @@ if (fTest){
     cout << " Test Failed" << endl;
     cout << " Not Ok " << endl;         
 }
-//exit(0); 
+exit(0); 
 }
 
