@@ -117,7 +117,7 @@ PndEmcDigi::depthPosition( const PndEmcXtal* xtal )
 	//cout << "depth" << endl;
 	
 	TVector3 pos = xtal->frontCentre();
-	TVector3 norm=xtal->normalToFrontFace();
+	TVector3 norm = xtal->axisVector();
 	norm*=fPositionDepth;
 	pos += norm;
 	

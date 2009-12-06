@@ -52,6 +52,7 @@ public:
   const TVector3& centre() const;
   const TVector3& frontCentre() const;
   const TVector3& normalToFrontFace() const ;
+  const TVector3& axisVector() const;
   const TGeoTrap& geometry() const;
   const TGeoRotation& rotation() const;
 
@@ -66,6 +67,7 @@ private:
   TVector3 fCentre;
   TVector3 fFrontCentre;
   TVector3 fNormalToFrontFace;
+  TVector3 fAxis;
 
   ClassDef(PndEmcXtal,1)
 };

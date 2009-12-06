@@ -70,12 +70,14 @@ PndEmcXtal::PndEmcXtal(const PndEmcTwoCoordIndex *id, const TGeoTrap &trap, cons
 
         fFrontCentre = pos + axis_vector;
 		fNormalToFrontFace = -1.0 * normal_vector;
+        fAxis = -1.0 * axis_vector.Unit();
     } else {
         //cout << "Crystal orientation in module " << id->Index() / 100000000
         //    << " -dz" << endl;
 
         fFrontCentre = pos - axis_vector;
 		fNormalToFrontFace = +1.0 * normal_vector;
+        fAxis = +1.0 * axis_vector.Unit();
     }
 }
 
@@ -135,6 +137,12 @@ const TVector3&
 PndEmcXtal::normalToFrontFace() const
 {
   return fNormalToFrontFace;
+}
+
+const TVector3&
+PndEmcXtal::axisVector() const
+{
+  return fAxis;
 }
 
 const TGeoTrap&
