@@ -123,7 +123,7 @@ else
 Double_t phiCheckMean=h2->GetMean();
 Double_t phiCheckRMS=h2->GetRMS();
 
-if (TMath::Abs(phiCheckMean)<0.1 && phiCheckRMS<1.0 && phiCheckRMS>0.4)
+if (TMath::Abs(phiCheckMean)<0.1 && phiCheckRMS<1.0 && phiCheckRMS>0.2)
 {
     cout<<"\n Phi Diff - ACCEPTABLE "<<endl;
 }
@@ -157,6 +157,6 @@ if (fTest){
     cout << " Test Failed" << endl;
     cout << " Not Ok " << endl;         
 }
-exit(0); 
+//exit(0); 
 }
 
