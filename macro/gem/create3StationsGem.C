@@ -6,9 +6,12 @@ void create3StationsGem()
   //-----------------------------
   const Int_t     kNofDisks = 3;
 
-  const Double_t  kDiskInnerRadius[kNofDisks]    = {  5.0,   5.0,   5.0};
-  const Double_t  kDiskOuterRadius[kNofDisks]    = { 42.0,  66.0,  90.0};
-  const Double_t  kDiskZPosition  [kNofDisks]    = { 120.0, 150.0, 180.0};
+//   const Double_t  kDiskInnerRadius[kNofDisks]    = {   5.0,   5.0,   5.0};
+//   const Double_t  kDiskOuterRadius[kNofDisks]    = {  42.0,  66.0,  90.0};
+//   const Double_t  kDiskZPosition  [kNofDisks]    = { 120.0, 150.0, 180.0};
+  const Double_t  kDiskInnerRadius[kNofDisks]    = {  2.5,  2.5,  2.5};
+  const Double_t  kDiskOuterRadius[kNofDisks]    = { 45.0, 56.0, 74.0};
+  const Double_t  kDiskZPosition  [kNofDisks]    = {117.0,153.0,189.0};
 
   const Double_t kHalfStationThickness = 3.00;
 
@@ -243,8 +246,8 @@ void create3StationsGem()
        << "TrackFinderOnHits_ParTheta1: Double_t -0.000564362" << endl
        << "TrackFinderOnHits_ParTheta2: Double_t -0.181828" << endl
        << "TrackFinderOnHits_ParTheta3: Double_t  0.284289" << endl
-       << "TrackFinderOnHits_ParRadPhi0:Double_t  0.9837086" << endl
-       << "TrackFinderOnHits_ParRadPhi2:Double_t -0.000182412" << endl
+       << "TrackFinderOnHits_ParRadPhi0:Double_t  0.9944432" << endl
+       << "TrackFinderOnHits_ParRadPhi2:Double_t -0.000590706" << endl
        << "TrackFinderOnHits_ParMat0:   Double_t \\" << endl
        << "                                      -2.31333e-6,    0.00067035,    0.10173" << endl
        << "TrackFinderOnHits_ParMat1:   Double_t \\" << endl
