@@ -51,13 +51,14 @@
 
 
 PndTpcDetector::PndTpcDetector(const char * Name, Bool_t Active)
-  : FairDetector(Name, Active),fAliMC(kFALSE), fDeltaAttach(kFALSE)
+  : FairDetector(Name, Active),fAliMC(kFALSE), fDeltaAttach(kFALSE), 
+    fCut_el(1.0E-3), fCut_had(1.0E-3)  //standard values 1MeV
 {
   fPndTpcPointCollection= new TClonesArray("PndTpcPoint");
 }
 
 PndTpcDetector::PndTpcDetector()
-{
+{ 
   fPndTpcPointCollection= new TClonesArray("PndTpcPoint");
 }
 
@@ -96,10 +97,10 @@ void PndTpcDetector::SetSpecialPhysicsCuts(){
     //get material ID for customs settings
     int matIdVMC = gGeoManager->GetMedium("TPCmixture")->GetId();
     
-    std::cout<<"***** Setting special physics cuts in PndTpcDetector::"
-	     <<"SetSpecialPhysicsCuts() ******"<<std::endl;
+    
    
-    double cut_el = 1.0E-3;   // (GeV)
+    //double cut_el = 1.0E-5;   // (GeV)
+    //double cut_had = 1.0E-3;  // (GeV)
     double tofmax = 1.E10;    // (s)
     
     // Set new properties, physics cuts etc. for the TPCmixture
@@ -114,23 +115,34 @@ void PndTpcDetector::SetSpecialPhysicsCuts(){
     gMC->Gstpar(matIdVMC,"HADR",1); /**hadronic process*/
     gMC->Gstpar(matIdVMC,"MUNU",1); /**muon nuclear interaction*/
     gMC->Gstpar(matIdVMC,"DCAY",1); /**decay*/
-    gMC->Gstpar(matIdVMC,"LOSS",5); /**energy loss*/
+    gMC->Gstpar(matIdVMC,"LOSS",1); /**energy loss*/
     gMC->Gstpar(matIdVMC,"MULS",1); /**multiple scattering*/
     gMC->Gstpar(matIdVMC,"STRA",0); 
     gMC->Gstpar(matIdVMC,"RAYL",1);
     
-    gMC->Gstpar(matIdVMC,"CUTGAM",cut_el); /** gammas (GeV)*/
-    gMC->Gstpar(matIdVMC,"CUTELE",cut_el); /** electrons (GeV)*/
-    gMC->Gstpar(matIdVMC,"CUTNEU",cut_el); /** neutral hadrons (GeV)*/
-    gMC->Gstpar(matIdVMC,"CUTHAD",cut_el); /** charged hadrons (GeV)*/
-    gMC->Gstpar(matIdVMC,"CUTMUO",cut_el); /** muons (GeV)*/
-    gMC->Gstpar(matIdVMC,"BCUTE",cut_el);  /** electron bremsstrahlung (GeV)*/
-    gMC->Gstpar(matIdVMC,"BCUTM",cut_el);  /** muon and hadron bremsstrahlung(GeV)*/ 
-    gMC->Gstpar(matIdVMC,"DCUTE",cut_el);  /** delta-rays by electrons (GeV)*/
-    gMC->Gstpar(matIdVMC,"DCUTM",cut_el);  /** delta-rays by muons (GeV)*/
-    gMC->Gstpar(matIdVMC,"PPCUTM",cut_el); /** direct pair production by muons (GeV)*/
+    gMC->Gstpar(matIdVMC,"CUTGAM",fCut_el); /** gammas (GeV)*/
+    gMC->Gstpar(matIdVMC,"CUTELE",fCut_el); /** electrons (GeV)*/
+    gMC->Gstpar(matIdVMC,"CUTNEU",fCut_had); /** neutral hadrons (GeV)*/
+    gMC->Gstpar(matIdVMC,"CUTHAD",fCut_had); /** charged hadrons (GeV)*/
+    gMC->Gstpar(matIdVMC,"CUTMUO",fCut_el); /** muons (GeV)*/
+    gMC->Gstpar(matIdVMC,"BCUTE",fCut_el);  /** electron bremsstrahlung (GeV)*/
+    gMC->Gstpar(matIdVMC,"BCUTM",fCut_el);  /** muon and hadron bremsstrahlung(GeV)*/ 
+    gMC->Gstpar(matIdVMC,"DCUTE",fCut_el);  /** delta-rays by electrons (GeV)*/
+    gMC->Gstpar(matIdVMC,"DCUTM",fCut_el);  /** delta-rays by muons (GeV)*/
+    gMC->Gstpar(matIdVMC,"PPCUTM",fCut_el); /** direct pair production by muons (GeV)*/
       
     gMC->SetMaxNStep(1E6);
+    
+    std::cout<<"\n************************************************************\n"
+	     <<"PndTpcDetector::SetSpecialPhysicsCuts():\n"
+	     <<"   using special physics cuts ...\n";
+    if(fAliMC) {
+      std::cout<<"   using LOSS=5 for ALICE MC model\n";
+      gMC->Gstpar(matIdVMC,"LOSS",5); /**energy loss*/
+    }
+    std::cout<<"************************************************************"
+	     <<std::endl;
+
   }
 }
 
@@ -139,7 +151,7 @@ PndTpcDetector::ProcessHits( FairVolume *v)
 {
   Double_t q= gMC->TrackCharge();
   if(q==0) {
-    //std::cout<<"\nPndTpcDetector::ProcessHits: EXIT q==0"<<std::endl;
+    std::cout<<"\nPndTpcDetector::ProcessHits: EXIT q==0"<<std::endl;
     return kTRUE;
   }
   // create Hit for every MC step where energy is deposited
@@ -147,7 +159,6 @@ PndTpcDetector::ProcessHits( FairVolume *v)
   if(eLoss<=0) {
     //std::cout<<"\nPndTpcDetector::ProcessHits: EXIT eLoss<=0"<<std::endl;
     return kTRUE;	
-    // if you want to have no energy loss but still have hits 
   }
   Double_t time   = gMC->TrackTime() * 1.0e09;
   Double_t length = gMC->TrackStep();
@@ -190,7 +201,8 @@ PndTpcDetector::ProcessHits( FairVolume *v)
   }
     
   //gotta love TClonesArray syntax!
-  PndTpcPoint* p=AddHit(trackID, volumeID, pos.Vect(), mom.Vect(), time, length, eLoss);
+  PndTpcPoint* p=AddHit(trackID, volumeID, pos.Vect(), mom.Vect(), 
+			time, length, eLoss);
   
   return kTRUE;
 }
@@ -256,21 +268,23 @@ void PndTpcDetector::AliTPCv3_SetStepToNextCollision()
   return ((Float_t)((p2-aa-bb)*p1/aa));
 }
 
-Float_t PndTpcDetector::AliTPCv3_InitDetector()
-{
-	//
-	// Initialises the TPC after that it has been built
-	//
-	FairGeoLoader*geoLoad = FairGeoLoader::Instance();
-	FairGeoInterface *geoFace = geoLoad->getGeoInterface();
-	FairGeoMedia *Media =  geoFace->getMedia();
+
+//IS NEVER CALLED 
+// Float_t PndTpcDetector::AliTPCv3_InitDetector()
+// {
+// 	//
+// 	// Initialises the TPC after that it has been built
+// 	//
+// 	FairGeoLoader*geoLoad = FairGeoLoader::Instance();
+// 	FairGeoInterface *geoFace = geoLoad->getGeoInterface();
+// 	FairGeoMedia *Media =  geoFace->getMedia();
 	
-	FairGeoMedium *TPCmixture  = Media->getMedium("TPCmixture");
-	Int_t mediumId=TPCmixture->getMediumIndex();
-	std::cout << "mediumId: " << mediumId << std::endl;
-	gMC->Gstpar(mediumId,"LOSS",5);	//5 -> new geant3 option for
-					//ALICE TPC see gphys/gfluct.F
-}
+// 	FairGeoMedium *TPCmixture  = Media->getMedium("TPCmixture");
+// 	Int_t mediumId=TPCmixture->getMediumIndex();
+// 	std::cout << "mediumId: " << mediumId << std::endl;
+// 	gMC->Gstpar(mediumId,"LOSS",5);	//5 -> new geant3 option for
+// 					//ALICE TPC see gphys/gfluct.F
+//}
 
 TClonesArray* PndTpcDetector::GetCollection(Int_t iColl) const {
   if (iColl == 0) return fPndTpcPointCollection;
@@ -347,10 +361,9 @@ PndTpcDetector::ConstructGeometry() {
   par->setInputVersion(fRun->GetRunId(),1);
 
   ProcessNodes ( volList );
- // AliTPCv3_InitDetector(); crashes
+  //if(fAliMC)
+  // AliTPCv3_InitDetector(); 
 }
-
-
 
 
 

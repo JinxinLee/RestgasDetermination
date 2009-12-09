@@ -90,6 +90,9 @@ public:
   /**      replaces G3 initialisation via g3Config.C */
   virtual void SetSpecialPhysicsCuts();
 
+  /**      set important cuts for SpecialPhysicsCuts() */
+  void SetCuts(double cut_el, double cut_had) {fCut_el=cut_el; fCut_had=cut_had;}
+
   
   /**      Create the detector geometry        */
   void ConstructGeometry();
@@ -115,7 +118,7 @@ public:
 
   // f_________________________________________________________________________________
   // found at http://www-aix.gsi.de/~miranov/AliRoot/roothtml/TPC/src/AliTPCv3.cxx.html
-  Float_t AliTPCv3_InitDetector();
+  //Float_t AliTPCv3_InitDetector();
   Float_t AliTPCv3_BetheBloch(Float_t bg);
   void AliTPCv3_SetStepToNextCollision();
   
@@ -125,6 +128,7 @@ private:
   TClonesArray  *fPndTpcPointCollection;
   bool fAliMC; //use Alice Monte Carlo, ELOSS=5 has to be set!
   bool fDeltaAttach; //assign delta MC points to the mother track
+  double fCut_el, fCut_had;
   // Private Methods -----------------
   
 public:
