@@ -25,7 +25,7 @@ public:
     virtual void FinishEvent();
     //void PrintResult();  // not implemented
     void SetVerbose(Int_t verbose){ fVerbose = verbose;};
-    void SetMaxDist(Double_t dist){ fMaxDist = dist;};
+    void SetMaxDist(Double_t mdist){ fMaxDist = mdist;};
 
 
 	void SetCutRadiusH(TH2F* hist)    {fCutRadiusH=hist;}
