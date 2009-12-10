@@ -590,7 +590,7 @@ void PndEmc::SetGeometryVersion(const Int_t GeoNumber) {
     break;
 
   case 12:
-    SetGeometryFileName("emc_module4_StraightGeo24.4_Al.root");
+    SetGeometryFileName("emc_module4_StraightGeo24.4_Al2.root");
     break;
 
   case 13:
@@ -680,7 +680,7 @@ void PndEmc::ConstructGeometry() {
       std::cout<< " ====== EMC::  ConstructROOTGeometry() m3 === " <<std::endl;
       std::cout<< " ============================================ " <<std::endl;
       ConstructRootGeometry();
-    } else if(fileName.EndsWith("4_FwEndCapGeo.root") || fileName.EndsWith("4_StraightGeo26.root") || fgeoName.EndsWith("4_StraightGeo26_Al.root") || fileName.EndsWith("4_StraightGeo24.4.root") || fgeoName.EndsWith("4_StraightGeo24.4_Al.root")) {
+    } else if(fileName.EndsWith("4_FwEndCapGeo.root") || fileName.EndsWith("4_StraightGeo26.root") || fgeoName.EndsWith("4_StraightGeo26_Al.root") || fileName.EndsWith("4_StraightGeo24.4.root") || fileName.EndsWith("4_StraightGeo24.4_Al2.root")) {
       std::cout<< "                                              " <<std::endl;
       std::cout<< " ====== EMC::  ConstructROOTGeometry() m4 === " <<std::endl;
       std::cout<< " ============================================ " <<std::endl;
@@ -703,7 +703,7 @@ void PndEmc::ConstructGeometry() {
       std::cout<< " ============================================= " <<std::endl;
       ConstructRootGeometry();
     }
-    if(fgeoName3.EndsWith("4_FwEndCapGeo.root") || fgeoName3.EndsWith("4_StraightGeo26.root") || fgeoName3.EndsWith("4_StraightGeo26_Al.root") || fgeoName3.EndsWith("4_StraightGeo24.4.root") || fgeoName.EndsWith("4_StraightGeo24.4_Al.root")) {
+    if(fgeoName3.EndsWith("4_FwEndCapGeo.root") || fgeoName3.EndsWith("4_StraightGeo26.root") || fgeoName3.EndsWith("4_StraightGeo26_Al.root") || fgeoName3.EndsWith("4_StraightGeo24.4.root") || fgeoName3.EndsWith("4_StraightGeo24.4_Al2.root")) {
       std::cout<< "                                               " <<std::endl;
       std::cout<< " ====== EMC::  ConstructRootGeometry() m4a === " <<std::endl;
       std::cout<< " ============================================= " <<std::endl;
