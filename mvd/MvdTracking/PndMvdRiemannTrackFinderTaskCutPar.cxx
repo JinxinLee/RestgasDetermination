@@ -24,8 +24,7 @@
 #include "PndDetectorList.h"
 
 
-PndMvdRiemannTrackFinderTaskCutPar::PndMvdRiemannTrackFinderTaskCutPar() : FairTask("MVD Riemann Track Finder Cuts"),
-	fMaxDist(0.1), fMinPointDist(0.5), fMaxSZChi2(1)
+PndMvdRiemannTrackFinderTaskCutPar::PndMvdRiemannTrackFinderTaskCutPar() : FairTask("MVD Riemann Track Finder Cuts")
 {
 	fHitBranch = "MVDHitsPixel";
 	fHitBranch2 = "MVDHitsStrip";
@@ -226,7 +225,7 @@ void  PndMvdRiemannTrackFinderTaskCutPar::CalcParHists()
 }
 bool PndMvdRiemannTrackFinderTaskCutPar::CheckTooCloseHits(PndRiemannHit hit1,PndRiemannHit hit2)
 {
-  int count=0;
+ // int count=0;
   TVector3 delta;
   delta=hit1.x()-hit2.x();
 	if (delta.Mag()<fMinPointDist){

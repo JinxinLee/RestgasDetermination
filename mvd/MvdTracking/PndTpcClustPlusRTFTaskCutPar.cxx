@@ -33,8 +33,7 @@
 #include "PndDetectorList.h"
 
 
-PndTpcClustPlusRTFTaskCutPar::PndTpcClustPlusRTFTaskCutPar() : FairTask("MVD-TPC Riemann Track Finder"),
-	fMaxDist(0.1), fMinPointDist(0.5), fMaxSZChi2(1)
+PndTpcClustPlusRTFTaskCutPar::PndTpcClustPlusRTFTaskCutPar() : FairTask("MVD-TPC Riemann Track Finder")
 {
 	fHitBranch = "MVDHitsPixel";
 	fHitBranch2 = "MVDHitsStrip";
@@ -313,7 +312,7 @@ void  PndTpcClustPlusRTFTaskCutPar::CalcParHists()
 }
 bool PndTpcClustPlusRTFTaskCutPar::CheckTooCloseHits(PndRiemannHit hit1,PndRiemannHit hit2)
 {
-  int count=0;
+  //int count=0;
   TVector3 delta;
   delta=hit1.x()-hit2.x();
 	if (delta.Mag()<fMinPointDist){

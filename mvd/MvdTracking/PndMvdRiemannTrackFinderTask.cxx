@@ -18,8 +18,7 @@
 #include "PndMvdRiemannTrackFinder.h"
 
 
-PndMvdRiemannTrackFinderTask::PndMvdRiemannTrackFinderTask() : FairTask("MVD Riemann Track Finder"),
-	fMaxDist(0.1), fMinPointDist(0.5), fMaxSZChi2(1)
+PndMvdRiemannTrackFinderTask::PndMvdRiemannTrackFinderTask() : FairTask("MVD Riemann Track Finder")
 {
 	fHitBranch = "MVDHitsPixel";
 	fHitBranch2 = "MVDHitsStrip";

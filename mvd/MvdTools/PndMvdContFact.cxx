@@ -14,6 +14,8 @@ using namespace std;
 #include "PndMvdStripDigiPar.h"
 #include "FairParRootFileIo.h"
 #include "FairParAsciiFileIo.h"
+#include "TList.h"
+#include "TObjString.h"
 #include <iostream>
 #include <iomanip>
 
@@ -25,30 +27,43 @@ PndMvdContFact::PndMvdContFact() {
   // Constructor (called when the library is loaded)
   fName="PndMvdContFact";
   fTitle="Factory for parameter containers in libPndMvd";
+  fDigiParNames = new TList();
   setAllContainers();
   FairRuntimeDb::instance()->addContFactory(this);
 }
+PndMvdContFact::~PndMvdContFact()
+{
+  if(0!=fDigiParNames) 
+  {
+    fDigiParNames->Delete(); 
+    delete fDigiParNames;
+  }
+}
+
 
 void PndMvdContFact::setAllContainers() {
   /** Creates the Container objects with all accepted contexts and adds them to
    *  the list of containers for the MVD library.*/
-
-    FairContainer* p= new FairContainer("PndMvdGeoPar","PndMvd Geometry Parameters","TestDefaultContext");
-    p->addContext("TestNonDefaultContext");
-    containers->Add(p);
-
-    FairContainer* p2 = new FairContainer("MVDPixelDigiPar", "PndMvd Pixel Digitization Parameters", "TestDefaultContext");
-    p2->addContext("TestNonDefaultContext");
-    containers->Add(p2);
-    
-    FairContainer* p3 = new FairContainer("MVDStripDigiParRect", "PndMvd Strip Digitization Parameters (rectangular sensors)", "TestDefaultContext");
-    p3->addContext("TestNonDefaultContext");
-    containers->Add(p3);
-
-    FairContainer* p4 = new FairContainer("MVDStripDigiParTrap", "PndMvd Strip Digitization Parameters (trapezoid sensors)", "TestDefaultContext");
-    p4->addContext("TestNonDefaultContext");
-    containers->Add(p4);
-    
+  FairContainer* p= new FairContainer("PndMvdGeoPar","PndMvd Geometry Parameters","TestDefaultContext");
+  p->addContext("TestNonDefaultContext");
+  fDigiParNames->Add(new TObjString(p->GetName()));
+  containers->Add(p);
+  
+  FairContainer* p2 = new FairContainer("MVDPixelDigiPar", "PndMvd Pixel Digitization Parameters", "TestDefaultContext");
+  p2->addContext("TestNonDefaultContext");
+  fDigiParNames->Add(new TObjString(p2->GetName()));
+  containers->Add(p2);
+  
+  FairContainer* p3 = new FairContainer("MVDStripDigiParRect", "PndMvd Strip Digitization Parameters (rectangular sensors)", "TestDefaultContext");
+  p3->addContext("TestNonDefaultContext");
+  fDigiParNames->Add(new TObjString(p3->GetName()));
+  containers->Add(p3);
+  
+  FairContainer* p4 = new FairContainer("MVDStripDigiParTrap", "PndMvd Strip Digitization Parameters (trapezoid sensors)", "TestDefaultContext");
+  p4->addContext("TestNonDefaultContext");
+  fDigiParNames->Add(new TObjString(p4->GetName()));
+  containers->Add(p4);
+  
 }
 
 FairParSet* PndMvdContFact::createContainer(FairContainer* c) {

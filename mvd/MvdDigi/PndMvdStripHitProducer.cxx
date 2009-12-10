@@ -1,112 +1,106 @@
 // -------------------------------------------------------------------------
 // -----                PndMvdStripHitProducer source file             -----
+// -----                Ralf Kliemt                                    -----
 // -------------------------------------------------------------------------
 
-
+//This Class
+#include "PndMvdStripHitProducer.h"
+//MVD
+#include "PndMvdCalcStrip.h"
+#include "PndMvdDigiStrip.h"
+#include "PndMvdMCPoint.h"
+#include "PndMvdContFact.h"
+//PANDA
+#include "PndStringVector.h"
+#include "PndDetectorList.h"
+//FAIR
+#include "FairRootManager.h"
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
+#include "FairContFact.h"
+#include "FairGeoNode.h"
+#include "FairGeoVector.h"
+//ROOT
 #include "TClonesArray.h"
 #include "TArrayD.h"
 #include "TVector2.h"
+#include "TString.h"
+#include "TObjString.h"
 #include "TGeoManager.h"
-
-#include "FairRootManager.h"
-#include "PndMvdStripHitProducer.h"
-#include "PndMvdMCPoint.h"
-#include "FairRun.h"
-#include "FairRuntimeDb.h"
-#include "FairGeoNode.h"
-#include "FairRuntimeDb.h"
-#include "FairGeoNode.h"
-#include "FairGeoVector.h"
-#include "PndStringVector.h"
-#include "PndMvdCalcStrip.h"
-#include "PndMvdDigiStrip.h"
-#include "PndDetectorList.h"
+#include "TList.h"
 
 // -----   Default constructor   -------------------------------------------
 PndMvdStripHitProducer::PndMvdStripHitProducer() :
   FairTask("MVD Strip Digi Producer(PndMvdStripHitProducer)")
 {
   fBranchName   = "MVDPoint";
-//  stripHits = 0;
-
-/*  fTopPitch = 0.;
-  fBotPitch = 0.;
-  fOrient = 0.;
-  fSkew = 0.;
-  fTopAnchor = TVector2(0,0);
-  fBotAnchor = TVector2(0,0);
-  fNrTopFE = 0;
-  fNrBotFE = 0;
-  fNrFECh = 0;
-  fThreshold = 0.;
-  fNoise = 0.;*/
   fOverrideParams = false;
-//  fHitArray  = new TClonesArray("PndMvdHit");
-//	fStripArray	= new TClonesArray("PndMvdStripHit");
+  fDigiParameterList = new TList();
 }
 // -------------------------------------------------------------------------
 
-PndMvdStripHitProducer::PndMvdStripHitProducer(Double_t topPitch, Double_t botPitch,
-                                         Double_t ori, Double_t skew,
-                                         TVector2 topAnchor, TVector2 botAnchor,
-                                         Int_t nrTopFE, Int_t nrBotFE, Int_t nrFECh,
-                                         Double_t threshold, Double_t noise,
-                                         TString sensorType, TString feType) :
-  FairTask("MVD Strip Digi Producer")
-{
-  // This constructor is probably not needed anymore, since the parameters are
-  // read in via an ascii file.
-  std::cout <<" -W- Obsolete constructor for PndMvdStripHitProducer called."
-            <<"Mvd strip sensors in barrel and disk are set to the SAME."<< std::endl;
-
-  fBranchName   = "MVDPoint";
-  fOverrideParams = true;
-  SetParamSet(topPitch,botPitch,ori,skew,topAnchor,botAnchor,nrTopFE,nrBotFE,
-              nrFECh,threshold,noise,"Rect",feType);
-  SetParamSet(topPitch,botPitch,ori,skew,topAnchor,botAnchor,nrTopFE,nrBotFE,
-              nrFECh,threshold,noise,"Trap",feType);
-  std::cout << "MVD Strip Digi Producer initiated" << std::endl;
-}
-
-void PndMvdStripHitProducer::SetParamSet(Double_t topPitch, Double_t botPitch,
-                                         Double_t ori, Double_t skew,
-                                         TVector2 topAnchor, TVector2 botAnchor,
-                                         Int_t nrTopFE, Int_t nrBotFE, Int_t nrFECh,
-                                         Double_t threshold, Double_t noise,
-                                         TString sensorType, TString feType)
-{
-  FairRun* ana = FairRun::Instance();
- // FairRootManager* ioman = FairRootManager::Instance();
-  if ( 0==fDigiParRect || 0==fDigiParTrap ) SetParContainers();
-  if (fOverrideParams){
-    if (sensorType.Contains("Rect")) fCurrentDigiPar = fDigiParRect;
-    else if (sensorType.Contains("Trap")) fCurrentDigiPar = fDigiParTrap;
-    fCurrentDigiPar->SetTopPitch(topPitch);
-    fCurrentDigiPar->SetBotPitch(botPitch);
-    fCurrentDigiPar->SetSkew(skew);
-    fCurrentDigiPar->SetOrient(ori);
-    fCurrentDigiPar->SetTopAnchor(topAnchor);
-    fCurrentDigiPar->SetBotAnchor(botAnchor);
-    fCurrentDigiPar->SetNrFECh(nrFECh);
-    fCurrentDigiPar->SetNrTopFE(nrTopFE);
-    fCurrentDigiPar->SetNrBotFE(nrBotFE);
-    fCurrentDigiPar->SetThreshold(threshold);
-    fCurrentDigiPar->SetNoise(noise);
-    fCurrentDigiPar->SetSensType(sensorType);
-    fCurrentDigiPar->SetFeType(feType);
-    fCurrentDigiPar->setChanged();
-    fCurrentDigiPar->setInputVersion(ana->GetRunId(),1);
-  }
-
-
-}
-// -------------------------------------------------------------------------
+//PndMvdStripHitProducer::PndMvdStripHitProducer(Double_t topPitch, Double_t botPitch,
+//                                         Double_t ori, Double_t skew,
+//                                         TVector2 topAnchor, TVector2 botAnchor,
+//                                         Int_t nrTopFE, Int_t nrBotFE, Int_t nrFECh,
+//                                         Double_t threshold, Double_t noise,
+//                                         TString sensorType, TString feType) :
+//  FairTask("MVD Strip Digi Producer")
+//{
+//  // This constructor is not needed anymore, since the parameters are
+//  // read in via an ascii file!
+//  fDigiParameterList = new TList();
+//  Warning("PndMvdStripHitProducer::PndMvdStripHitProducer()",
+//          "Obsolete constructor for PndMvdStripHitProducer called. \nMvd strip sensors in barrel and disk are set to the SAME type.");
+//
+//  fBranchName   = "MVDPoint";
+//  fOverrideParams = true;
+//  SetParamSet(topPitch,botPitch,ori,skew,topAnchor,botAnchor,nrTopFE,nrBotFE,
+//              nrFECh,threshold,noise,"Rect",feType);
+//  SetParamSet(topPitch,botPitch,ori,skew,topAnchor,botAnchor,nrTopFE,nrBotFE,
+//              nrFECh,threshold,noise,"Trap",feType);
+//  std::cout << "MVD Strip Digi Producer initiated" << std::endl;
+//  
+//}
+//
+//void PndMvdStripHitProducer::SetParamSet(Double_t topPitch, Double_t botPitch,
+//                                         Double_t ori, Double_t skew,
+//                                         TVector2 topAnchor, TVector2 botAnchor,
+//                                         Int_t nrTopFE, Int_t nrBotFE, Int_t nrFECh,
+//                                         Double_t threshold, Double_t noise,
+//                                         TString sensorType, TString feType)
+//{
+//  if ( 0==fDigiParRect || 0==fDigiParTrap ) SetParContainers();
+//  if (fOverrideParams){
+//    if (sensorType.Contains("Rect")) fCurrentDigiPar = fDigiParRect;
+//    else if (sensorType.Contains("Trap")) fCurrentDigiPar = fDigiParTrap;
+//    fCurrentDigiPar->SetTopPitch(topPitch);
+//    fCurrentDigiPar->SetBotPitch(botPitch);
+//    fCurrentDigiPar->SetSkew(skew);
+//    fCurrentDigiPar->SetOrient(ori);
+//    fCurrentDigiPar->SetTopAnchor(topAnchor);
+//    fCurrentDigiPar->SetBotAnchor(botAnchor);
+//    fCurrentDigiPar->SetNrFECh(nrFECh);
+//    fCurrentDigiPar->SetNrTopFE(nrTopFE);
+//    fCurrentDigiPar->SetNrBotFE(nrBotFE);
+//    fCurrentDigiPar->SetThreshold(threshold);
+//    fCurrentDigiPar->SetNoise(noise);
+//    fCurrentDigiPar->SetSensType(sensorType);
+//    fCurrentDigiPar->SetFeType(feType);
+//    fCurrentDigiPar->setChanged();
+//    fCurrentDigiPar->setInputVersion(FairRun::Instance()->GetRunId(),1);
+//  }
+//
+//
+//}
+//// -------------------------------------------------------------------------
 
 
 // -----   Destructor   ----------------------------------------------------
 PndMvdStripHitProducer::~PndMvdStripHitProducer()
 {
-  delete fGeoH;
+  if (0!=fGeoH) delete fGeoH;
+  if (0!=fDigiParameterList) delete fDigiParameterList;
 }
 // -------------------------------------------------------------------------
 
@@ -114,19 +108,59 @@ PndMvdStripHitProducer::~PndMvdStripHitProducer()
 void PndMvdStripHitProducer::SetParContainers()
 {
   // called from the FairRun::Init()
-  // Get Base Container
+  // Caution: The Parameter Set is not filled from the DB IO, yet. 
+  // This will be done just before this Tasks Init() is called.
+  
   FairRun* ana = FairRun::Instance();
   FairRuntimeDb* rtdb=ana->GetRuntimeDb();
-  fDigiParRect = (PndMvdStripDigiPar*)(rtdb->getContainer("MVDStripDigiParRect"));
-  fDigiParTrap = (PndMvdStripDigiPar*)(rtdb->getContainer("MVDStripDigiParTrap"));
+  PndMvdContFact* themvdcontfact = (PndMvdContFact*)rtdb->getContFactory("PndMvdContFact");
+  TList* theContNames = themvdcontfact->GetDigiParNames();
+  Info("SetParContainers()","The container names list contains %i entries",theContNames->GetEntries());
+  TIter cfIter(theContNames);
+  while (TObjString* contname = (TObjString*)cfIter()) {
+    TString parsetname = contname->String();
+    Info("SetParContainers()",parsetname.Data());
+    if(parsetname.BeginsWith("MVDStripDigiPar")){
+      PndMvdStripDigiPar* digipar = (PndMvdStripDigiPar*)(rtdb->getContainer(parsetname.Data()));
+      digipar->Print();
+      fDigiParameterList->Add(digipar);
+    }
+  }
+  
+//  fDigiParRect = (PndMvdStripDigiPar*)(rtdb->getContainer("MVDStripDigiParRect"));
+//  fDigiParTrap = (PndMvdStripDigiPar*)(rtdb->getContainer("MVDStripDigiParTrap"));
 }
 
 InitStatus PndMvdStripHitProducer::ReInit()
 {
   SetParContainers();
+  SetCalculators();
   return kSUCCESS;
 }
 
+void PndMvdStripHitProducer::SetCalculators()
+{
+  // After the first start if the Init() tis can be set properly.
+  
+  TIter params(fDigiParameterList);
+  while(PndMvdStripDigiPar* digipar=(PndMvdStripDigiPar*)params()){
+    if(0==digipar) {
+      Error("SetCalculators()","A Digi Parameter Set does not exist properly.");
+      continue;
+    }
+    const char* senstype = digipar->GetSensType();
+    if(fVerbose>1){
+      Info("SetCalculators()","Create a Parameter Set for %s sensors",senstype);
+      std::cout<<senstype<<"#"<<std::endl;
+    }
+    if(fVerbose>0)digipar->Print();
+    fStripCalcTop[senstype]=new PndMvdCalcStrip(digipar,kTOP);
+    fStripCalcTop[senstype]->SetVerboseLevel(fVerbose);
+    fStripCalcBot[senstype]=new PndMvdCalcStrip(digipar,kBOTTOM);
+    fStripCalcBot[senstype]->SetVerboseLevel(fVerbose);
+  }
+    
+}
 
 // -----   Public method Init   --------------------------------------------
 InitStatus PndMvdStripHitProducer::Init()
@@ -164,31 +198,24 @@ InitStatus PndMvdStripHitProducer::Init()
   // Create and register parameter array
 //  fStripArray = new TClonesArray("PndMvdDigiPar");
 //  ioman->Register("MVDDigiParam", "MVD", fDigiParRect, kTRUE);
+  
+  SetCalculators();
 
   std::cout << "-I- PndMvdStripHitProducer: Initialisation successfull" << std::endl;
 
 
-  if (!fDigiParRect){
-     std::cout<<"-E- PndMvdStripHitProducer: DigiPar Rect Container does not exist!"<<std::endl;
-     return kERROR;
-  }
-  if (!fDigiParTrap){
-     std::cout<<"-E- PndMvdStripHitProducer: DigiPar Trap Container does not exist!"<<std::endl;
-     return kERROR;
-  }
+//  if (!fDigiParRect){
+//     std::cout<<"-E- PndMvdStripHitProducer: DigiPar Rect Container does not exist!"<<std::endl;
+//     return kERROR;
+//  }
+//  if (!fDigiParTrap){
+//     std::cout<<"-E- PndMvdStripHitProducer: DigiPar Trap Container does not exist!"<<std::endl;
+//     return kERROR;
+//  }
 
 
-  if(fVerbose>0) fDigiParRect->Print();
-  if(fVerbose>0) fDigiParTrap->Print();
-
-  fStripCalcTopRect = new PndMvdCalcStrip(fDigiParRect, kTOP);
-  fStripCalcBotRect = new PndMvdCalcStrip(fDigiParRect, kBOTTOM);
-  fStripCalcTopTrap = new PndMvdCalcStrip(fDigiParTrap, kTOP);
-  fStripCalcBotTrap = new PndMvdCalcStrip(fDigiParTrap, kBOTTOM);
-  fStripCalcTopRect->SetVerboseLevel(fVerbose);
-  fStripCalcBotRect->SetVerboseLevel(fVerbose);
-  fStripCalcTopTrap->SetVerboseLevel(fVerbose);
-  fStripCalcBotTrap->SetVerboseLevel(fVerbose);
+//  if(fVerbose>0) fDigiParRect->Print();
+//  if(fVerbose>0) fDigiParTrap->Print();
 
   return kSUCCESS;
 }
@@ -220,7 +247,11 @@ void PndMvdStripHitProducer::Exec(Option_t* opt)
   for (Int_t iPoint = 0; iPoint < nPoints; iPoint++)
   {
       point = (PndMvdMCPoint*) fPointArray->At(iPoint);
-      if( kFALSE == SelectSensorParams(point->GetDetName()) ) continue;
+      if( kFALSE == SelectSensorParams(point->GetDetName()) )
+      {
+        if(fVerbose>0) Error("Exec()","No valid sensor parameters selected, skipping this point.");
+        continue;
+      }
 
       if (fVerbose > 2){
         std::cout<<"***** Strip Digi for "<<fCurrentDigiPar->GetSensType()<<" ******"<<std::endl;
@@ -410,25 +441,27 @@ void PndMvdStripHitProducer::AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, T
 
 Bool_t PndMvdStripHitProducer::SelectSensorParams(TString detname)
 {
-      /// TODO change this to a switch on DetID==2 ?
   TString detpath = fGeoH->GetPath(detname);
   if( !(detpath.Contains("Strip")) )
     return kFALSE;
 
-  if(detpath.Contains(fDigiParRect->GetSensType()))  {
-    fCurrentStripCalcTop = fStripCalcTopRect;
-    fCurrentStripCalcBot = fStripCalcBotRect;
-    fCurrentDigiPar = fDigiParRect;
-  }else if(detpath.Contains(fDigiParTrap->GetSensType()))  {
-    fCurrentStripCalcTop = fStripCalcTopTrap;
-    fCurrentStripCalcBot = fStripCalcBotTrap;
-    fCurrentDigiPar = fDigiParTrap;
-  }else{
-    if (fVerbose > 1) std::cout<<"detector name does not contain 'Rect' or 'Trap'"<<std::endl;
-    if (fVerbose > 2) std::cout<<" DetName : "<<detpath<<std::endl;
-    return kFALSE;
+  TIter parsetiter(fDigiParameterList);
+  while ( PndMvdStripDigiPar* digipar = (PndMvdStripDigiPar*)parsetiter() ) 
+  {
+    const char* sensortype = digipar->GetSensType();
+    if(detpath.Contains(sensortype))  {
+      
+      // TODO: create a list of Calculators OR make calculator switch parameters on the fly
+      fCurrentStripCalcTop = fStripCalcTop[sensortype];
+      fCurrentStripCalcBot = fStripCalcBot[sensortype];
+      fCurrentDigiPar = digipar;
+      return kTRUE;
+    }
   }
-  return kTRUE;
+  // no suiting object found
+  if (fVerbose > 1) std::cout<<"detector name does not contain a valid parameter name."<<std::endl;
+  if (fVerbose > 2) std::cout<<" DetName : "<<detpath<<std::endl;
+  return kFALSE;
 }
 
 // -------------------------------------------------------------------------

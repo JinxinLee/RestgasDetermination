@@ -1,5 +1,5 @@
 #ifndef PNDMVDSTRIPHITPRODUCER_H
-#define PNDMVDSTRIPHITPRODUCER_H
+#define PNDMVDSTRIPHITPRODUCER_H 1
 
 #include "FairTask.h"
 #include "PndMvdStripDigiPar.h"
@@ -18,6 +18,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 class TClonesArray;
 
@@ -87,13 +88,13 @@ class PndMvdStripHitProducer : public FairTask
    * @param threshold charge threshold (electrons)
    * @param noise equiv. noise charge (electrons)
    */
-  PndMvdStripHitProducer(Double_t topPitch, Double_t botPitch,
-                      Double_t ori, Double_t skew,
-                      TVector2 topAnchor, TVector2 botAnchor,
-                      Int_t nrTopFE, Int_t nrBotFE, Int_t nrFECh,
-                      Double_t threshold, Double_t noise,
-                      TString sensorType="Rect", TString feType="APV25");
-
+//  PndMvdStripHitProducer(Double_t topPitch, Double_t botPitch,
+//                      Double_t ori, Double_t skew,
+//                      TVector2 topAnchor, TVector2 botAnchor,
+//                      Int_t nrTopFE, Int_t nrBotFE, Int_t nrFECh,
+//                      Double_t threshold, Double_t noise,
+//                      TString sensorType="Rect", TString feType="APV25");
+//
   /** Destructor **/
   virtual ~PndMvdStripHitProducer();
 
@@ -108,12 +109,12 @@ class PndMvdStripHitProducer : public FairTask
 
   void AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, TString detname, Int_t fe, Int_t chan, Double_t charge);
 
-  void SetParamSet(Double_t topPitch, Double_t botPitch,
-                      Double_t ori, Double_t skew,
-                      TVector2 topAnchor, TVector2 botAnchor,
-                      Int_t nrTopFE, Int_t nrBotFE, Int_t nrFECh,
-                      Double_t threshold, Double_t noise,
-                      TString sensorType, TString feType);
+//  void SetParamSet(Double_t topPitch, Double_t botPitch,
+//                      Double_t ori, Double_t skew,
+//                      TVector2 topAnchor, TVector2 botAnchor,
+//                      Int_t nrTopFE, Int_t nrBotFE, Int_t nrFECh,
+//                      Double_t threshold, Double_t noise,
+//                      TString sensorType, TString feType);
   /** Accessor functions **/
 //   Double_t GetTopPitch()  const {return fTopPitch;}
 //   Double_t GetBotPitch()  const {return fBotPitch;}
@@ -130,7 +131,8 @@ class PndMvdStripHitProducer : public FairTask
 
 
  private:
-
+  void SetCalculators();
+  
   TString fBranchName;
 
   /** Input array of PndMvdMCPoints **/
@@ -143,15 +145,12 @@ class PndMvdStripHitProducer : public FairTask
 //  TClonesArray* fFeStripArray;
 
   //! Digitization Parameters
-  PndMvdStripDigiPar* fDigiParRect;
-  PndMvdStripDigiPar* fDigiParTrap;
+  TList* fDigiParameterList;
   PndMvdStripDigiPar* fCurrentDigiPar;
 
   //! Calculator objects
-  PndMvdCalcStrip* fStripCalcTopRect;
-  PndMvdCalcStrip* fStripCalcBotRect;
-  PndMvdCalcStrip* fStripCalcTopTrap;
-  PndMvdCalcStrip* fStripCalcBotTrap;
+  std::map<const char*,PndMvdCalcStrip*> fStripCalcTop;
+  std::map<const char*,PndMvdCalcStrip*> fStripCalcBot;
   PndMvdCalcStrip* fCurrentStripCalcTop;
   PndMvdCalcStrip* fCurrentStripCalcBot;
 

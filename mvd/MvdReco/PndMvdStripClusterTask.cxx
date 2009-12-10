@@ -14,6 +14,7 @@
 #include "FairRuntimeDb.h"
 #include "FairGeoNode.h"
 #include "FairGeoVector.h"
+#include "FairContFact.h"
 
 #include "PndStringVector.h"
 //#include "PndMvdGeoPar.h"
@@ -25,6 +26,7 @@
 // #include "PndMvdStripCluster.h"
 #include "PndMvdCluster.h"
 #include "PndMvdGeoHandling.h"
+#include "PndMvdContFact.h"
 
 #include "PndMvdSimpleStripClusterFinder.h"
 #include "PndMvdStripClusterFinder.h"
@@ -45,6 +47,7 @@ PndMvdStripClusterTask::PndMvdStripClusterTask(Int_t ClusterMod, Int_t RadChanne
   if(fClusterMod>1 || fClusterMod<0) fClusterMod=0;
   fRadChannel=RadChannel;
   fRadTime=RadTime;
+  fDigiParameterList = new TList();
 }
 
 // -------------------------------------------------------------------------
@@ -60,12 +63,14 @@ PndMvdStripClusterTask::PndMvdStripClusterTask(Double_t chargecut, TString geofi
   if(fClusterMod>1 || fClusterMod<0) fClusterMod=0;
   fRadChannel=RadChannel;
   fRadTime=RadTime;
+  fDigiParameterList = new TList();
 }
 
 // -----   Destructor   ----------------------------------------------------
 PndMvdStripClusterTask::~PndMvdStripClusterTask()
 {
   if(0!=fGeoH)  delete fGeoH;
+  if(0!=fDigiParameterList) delete fDigiParameterList;
   if(0!=fChargeAlgos) delete fChargeAlgos;
 }
 // -------------------------------------------------------------------------
@@ -73,29 +78,60 @@ PndMvdStripClusterTask::~PndMvdStripClusterTask()
 // -----   Initialization  of Parameter Containers -------------------------
 void PndMvdStripClusterTask::SetParContainers()
 {
-  // Get Base Container
-
+  // called from the FairRun::Init()
+  // Caution: The Parameter Set is not filled from the DB IO, yet. 
+  // This will be done just before this Tasks Init() is called.
+  
   FairRun* ana = FairRun::Instance();
   FairRuntimeDb* rtdb=ana->GetRuntimeDb();
- // fGeoPar = (PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar"));
-  fDigiParRect = (PndMvdStripDigiPar*)(rtdb->getContainer("MVDStripDigiParRect"));
-  fDigiParTrap = (PndMvdStripDigiPar*)(rtdb->getContainer("MVDStripDigiParTrap"));
+  PndMvdContFact* themvdcontfact = (PndMvdContFact*)rtdb->getContFactory("PndMvdContFact");
+  TList* theContNames = themvdcontfact->GetDigiParNames();
+  Info("SetParContainers()","The container names list contains %i entries",theContNames->GetEntries());
+  TIter cfIter(theContNames);
+  while (TObjString* contname = (TObjString*)cfIter()) {
+    TString parsetname = contname->String();
+    Info("SetParContainers()",parsetname.Data());
+    if(parsetname.BeginsWith("MVDStripDigiPar")){
+      PndMvdStripDigiPar* digipar = (PndMvdStripDigiPar*)(rtdb->getContainer(parsetname.Data()));
+      digipar->Print();
+      fDigiParameterList->Add(digipar);
+    }
+  }
 }
 
 InitStatus PndMvdStripClusterTask::ReInit()
 {
-
-  InitStatus stat=kERROR;
+  SetParContainers();
+  SetCalculators();
+  InitStatus stat=kSUCCESS;
   return stat;
-
-  /*
-  FairRun* ana = FairRun::Instance();
-  FairRuntimeDb* rtdb=ana->GetRuntimeDb();
-  fGeoPar=(PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar"));
-
-  return kSUCCESS;
-  */
+  
 }
+
+void PndMvdStripClusterTask::SetCalculators()
+{
+  // After the first start if the Init() tis can be set properly.
+  
+  TIter params(fDigiParameterList);
+  while(PndMvdStripDigiPar* digipar=(PndMvdStripDigiPar*)params()){
+    if(0==digipar) {
+      Error("SetCalculators()","A Digi Parameter Set does not exist properly.");
+      continue;
+    }
+    const char* senstype = digipar->GetSensType();
+    if(fVerbose>1){
+      Info("SetCalculators()","Create a Parameter Set for %s sensors",senstype);
+      std::cout<<senstype<<"#"<<std::endl;
+    }
+    if(fVerbose>0)digipar->Print();
+    fStripCalcTop[senstype]=new PndMvdCalcStrip(digipar,kTOP);
+    fStripCalcTop[senstype]->SetVerboseLevel(fVerbose);
+    fStripCalcBot[senstype]=new PndMvdCalcStrip(digipar,kBOTTOM);
+    fStripCalcBot[senstype]->SetVerboseLevel(fVerbose);
+  }
+  
+}
+
 
 // -----   Public method Init   --------------------------------------------
 InitStatus PndMvdStripClusterTask::Init()
@@ -137,27 +173,9 @@ InitStatus PndMvdStripClusterTask::Init()
 //   TGeoManager *geoMan = (TGeoManager*) infile->Get("FAIRGeom");
 //   std::cout << "-I- geoMan in StripClusterTask is  = "<<geoMan << std::endl;
 //   fGeoH = new PndMvdGeoHandling(geoMan);
-SetParContainers();
-  if ( ! fDigiParTrap )
-  {
-      std::cout << "-W- PndMvdStripClusterTask::Init: "
-     << "No fDigiParTrap!" << std::endl;
-      return kERROR;
-  }
-  if ( ! fDigiParRect )
-  {
-      std::cout << "-W- PndMvdStripClusterTask::Init: "
-     << "No fDigiParRect!" << std::endl;
-      return kERROR;
-  }
-  fStripCalcTopRect = new PndMvdCalcStrip(fDigiParRect, kTOP);
-  fStripCalcBotRect = new PndMvdCalcStrip(fDigiParRect, kBOTTOM);
-  fStripCalcTopTrap = new PndMvdCalcStrip(fDigiParTrap, kTOP);
-  fStripCalcBotTrap = new PndMvdCalcStrip(fDigiParTrap, kBOTTOM);
-  fStripCalcTopRect->SetVerboseLevel(fVerbose);
-  fStripCalcBotRect->SetVerboseLevel(fVerbose);
-  fStripCalcTopTrap->SetVerboseLevel(fVerbose);
-  fStripCalcBotTrap->SetVerboseLevel(fVerbose);
+
+  //SetParContainers(); //it's called earlier from the Run!
+  SetCalculators();
 
   fChargeAlgos = new PndMvdChargeWeightingAlgorithms(fDigiArray);
 
@@ -197,9 +215,9 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
   { // sort digis by sensor name and stripnumber
     myDigi = (PndMvdDigiStrip*)(fDigiArray->At(iPoint));
     detName = myDigi->GetDetName().Data();
-    SelectSensorParams(detName);
+    if (kFALSE==SelectSensorParams(detName)) continue; // Invalid parameters, skip here.
     //we use the top side as "first" side
-    fStripCalcTop->CalcFeChToStrip(myDigi->GetFE(), myDigi->GetChannel(), strip, side);
+    fCurrentStripCalcTop->CalcFeChToStrip(myDigi->GetFE(), myDigi->GetChannel(), strip, side);
     fClusterfinder->AddDigi(detName.Data(),side,myDigi->GetTimestamp(),strip,iPoint);
   }
 
@@ -277,7 +295,7 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
     PndMvdDigiStrip* atopDigi = ((PndMvdDigiStrip*)fDigiArray->At(oneclustertop[0]));
     TString detnametop = atopDigi->GetDetName();
 
-    SelectSensorParams(detnametop);
+    if (kFALSE==SelectSensorParams(detName)) continue; // Invalid parameters, skip here.
     detID = atopDigi->GetDetID();
 
     CalcMeanCharge(oneclustertop,meantopstrip,meantoperr,topcharge);
@@ -296,7 +314,7 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
           }
         }
       }
-      fStripCalcTop->CalcStripPointOnLine(meantopstrip, meantopPoint);
+      fCurrentStripCalcTop->CalcStripPointOnLine(meantopstrip, meantopPoint);
       // loop on bottom side
       for (std::vector< Int_t>::iterator itBot = botclusters.begin();
             itBot!=botclusters.end(); ++itBot)
@@ -327,7 +345,7 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
           if(fabs(botcharge-topcharge)<fChargeCut)
           {// look if the charges are not too differently
             mycharge = (botcharge + topcharge) / 2.;
-            fStripCalcBot->CalcStripPointOnLine(meanbotstrip, meanbotPoint);
+            fCurrentStripCalcBot->CalcStripPointOnLine(meanbotstrip, meanbotPoint);
             if(mcindex < 0) {//look for the first digi from a MC point
               for(Int_t mcI = 0; mcI<abotDigi->GetNIndices();mcI++){ 
                 if (abotDigi->GetIndex(mcI) > -1) {
@@ -386,29 +404,30 @@ TVector2 PndMvdStripClusterTask::CalcLineCross(
   return result;
 }
 
-void PndMvdStripClusterTask::SelectSensorParams(TString detname)
+Bool_t PndMvdStripClusterTask::SelectSensorParams(TString detname)
 {
-  TString path = fGeoH->GetPath(detname.Data());
-  if (path.Contains("Rect"))
+  TString detpath = fGeoH->GetPath(detname);
+  if( !(detpath.Contains("Strip")) )
+    return kFALSE;
+  
+  TIter parsetiter(fDigiParameterList);
+  while ( PndMvdStripDigiPar* digipar = (PndMvdStripDigiPar*)parsetiter() ) 
   {
-    fStripCalcTop = fStripCalcTopRect;
-    fStripCalcBot = fStripCalcBotRect;
-    fCurrentDigiPar = fDigiParRect;
+    const char* sensortype = digipar->GetSensType();
+    if(detpath.Contains(sensortype))  {
+      
+      // TODO: create a list of Calculators OR make calculator switch parameters on the fly
+      fCurrentStripCalcTop = fStripCalcTop[sensortype];
+      fCurrentStripCalcBot = fStripCalcBot[sensortype];
+      fCurrentDigiPar = digipar;
+      fChargeAlgos->SetCalcStrip(fCurrentStripCalcTop);
+      return kTRUE;
+    }
   }
-  else if (path.Contains("Trap"))
-  {
-    fStripCalcTop = fStripCalcTopTrap;
-    fStripCalcBot = fStripCalcBotTrap;
-    fCurrentDigiPar = fDigiParTrap;
-  }
-  else
-  {
-    std::cout<<"-E- PndMvdStripClusterTask::SelectSensorParams on\n"
-                <<"\t"<<path.Data()<<std::endl;
-  }
-  fChargeAlgos->SetCalcStrip(fStripCalcTop);
-//   fChargeCut = fCurrentDigiPar->GetThreshold(); ??
-//   fChargeCut = factor * fCurrentDigiPar->GetNoise(); ?? TODO
+  // no suiting object found
+  if (fVerbose > 1) std::cout<<"detector name does not contain a valid parameter name."<<std::endl;
+  if (fVerbose > 2) std::cout<<" DetName : "<<detpath<<std::endl;
+  return kFALSE;
 }
 
 void PndMvdStripClusterTask::Finish()
@@ -428,7 +447,7 @@ void PndMvdStripClusterTask::CalcMeanCharge(std::vector<Int_t> &onecluster, Doub
 		        itDigi != onecluster.end(); ++itDigi)
 		  { // calculate the mean charge and stripnumber
 		    PndMvdDigiStrip* myDigi = (PndMvdDigiStrip*)fDigiArray->At(*itDigi);
-		    fStripCalcTop->CalcFeChToStrip(myDigi->GetFE(), myDigi->GetChannel(), strip, side);
+		    fCurrentStripCalcTop->CalcFeChToStrip(myDigi->GetFE(), myDigi->GetChannel(), strip, side);
 		    charge += myDigi->GetCharge();
 		    meanstrip += myDigi->GetCharge() * strip;
 		    meanerr += myDigi->GetCharge()*myDigi->GetCharge(); 
@@ -465,7 +484,7 @@ Bool_t PndMvdStripClusterTask::Backmap( TVector2 meantopPoint, Double_t meantope
   Double_t errZ = 2.*fGeoH->GetSensorDimensionsId(detname).Z()/TMath::Sqrt(12.0);
 
   TVector2 onsensorPoint = 
-    CalcLineCross(meantopPoint, fStripCalcTop->GetStripDirection(), meanbotPoint, fStripCalcBot->GetStripDirection() );
+    CalcLineCross(meantopPoint, fCurrentStripCalcTop->GetStripDirection(), meanbotPoint, fCurrentStripCalcBot->GetStripDirection() );
   // here we assume the sensor system to be in the _Middle_ of the volume
   localpos.SetXYZ( onsensorPoint.X(), onsensorPoint.Y(), 0.);
 

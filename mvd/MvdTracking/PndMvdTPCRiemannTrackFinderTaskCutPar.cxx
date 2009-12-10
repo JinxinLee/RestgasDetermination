@@ -32,8 +32,7 @@
 #include "PndDetectorList.h"
 
 
-PndMvdTPCRiemannTrackFinderTaskCutPar::PndMvdTPCRiemannTrackFinderTaskCutPar() : FairTask("MVD-TPC Riemann Track Finder"),
-	fMaxDist(0.1), fMinPointDist(0.5), fMaxSZChi2(1)
+PndMvdTPCRiemannTrackFinderTaskCutPar::PndMvdTPCRiemannTrackFinderTaskCutPar() : FairTask("MVD-TPC Riemann Track Finder")
 {
 	fHitBranch = "MVDHitsPixel";
 	fHitBranch2 = "MVDHitsStrip";
@@ -234,7 +233,7 @@ void  PndMvdTPCRiemannTrackFinderTaskCutPar::CalcParHists()
 			  }
 			  if(NumOfPlane>-1){
 					if(((PndRiemannTrack*)fRiemannTracks->At(NumOfPlane))->r()>0 && (((PndTrackCand*)fTrackCandArray->At(NumOfPlane))->GetNHits()<=fNCut)){
-					  unsigned int detId,hitId;
+					  //unsigned int detId,hitId;
 					  PndMCTrack* myTrack= (PndMCTrack*)fMCTrackArray->At(Cand.getMcTrackId());
 					  double Pt=myTrack->GetPt();
 					  double Theta=(myTrack->GetMomentum().Theta())*180/TMath::Pi();
@@ -253,7 +252,7 @@ void  PndMvdTPCRiemannTrackFinderTaskCutPar::CalcParHists()
 }
 bool PndMvdTPCRiemannTrackFinderTaskCutPar::CheckTooCloseHits(PndRiemannHit hit1,PndRiemannHit hit2)
 {
-  int count=0;
+  //int count=0;
   TVector3 delta;
   delta=hit1.x()-hit2.x();
 	if (delta.Mag()<fMinPointDist){

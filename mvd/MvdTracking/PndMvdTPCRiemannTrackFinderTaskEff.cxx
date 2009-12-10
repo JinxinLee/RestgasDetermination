@@ -33,8 +33,7 @@
 #include "PndRiemannHit.h"
 #include "PndRiemannTrack.h"
 
-PndMvdTPCRiemannTrackFinderTaskEff::PndMvdTPCRiemannTrackFinderTaskEff() : FairTask("MVD Riemann Track Finder"),
-	fMaxDist(1), fMinPointDist(1), fMaxSZChi2(1)
+PndMvdTPCRiemannTrackFinderTaskEff::PndMvdTPCRiemannTrackFinderTaskEff() : FairTask("MVD Riemann Track Finder")
 {
 	fHitBranch = "MVDHitsPixel";
 	fHitBranch2 = "MVDHitsStrip";
@@ -175,8 +174,8 @@ void PndMvdTPCRiemannTrackFinderTaskEff::Exec(Option_t* opt)
 		  PndMCTrack* myTrack = (PndMCTrack*)fMCTracksArray->At(i);
 		  if ((myTrack->GetMotherID()==-1)){
 			 TVector3 Pvec=myTrack->GetMomentum();
-			 double Theta=180.0*Pvec.Theta()/TMath::Pi();
-			 double P=Pvec.Mag();
+			 //double Theta=180.0*Pvec.Theta()/TMath::Pi();
+			 //double P=Pvec.Mag();
 //		  eff0H->Fill(P,Theta);
 		  count++;
 		  }

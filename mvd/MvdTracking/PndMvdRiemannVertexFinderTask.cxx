@@ -216,14 +216,14 @@ void PndMvdRiemannVertexFinderTask::FindVertex(std::vector<int> CheckedCand ,std
 								  if (((myTrack1->GetPdgCode()==myTrack2->GetPdgCode())  or ((myTrack1->GetPdgCode()*myTrack2->GetPdgCode()<0) && (fabs(myTrack1->GetPdgCode())!=fabs(myTrack2->GetPdgCode()))))){///for D+D-
 								  delta->Fill((myTrack1->GetStartVertex()-p1).Mag());
 								  delta->Fill((myTrack1->GetStartVertex()-p2).Mag());
-								  pair <int,int> Pair(c1,c2);
-								  TrueMCCand.push_back(Pair);
+								  pair <int,int> Pair2(c1,c2);
+								  TrueMCCand.push_back(Pair2);
 								  }
 								  else{
 								  wrongV->Fill((myTrack1->GetStartVertex()-p1).Mag());
 								  wrongV->Fill((myTrack1->GetStartVertex()-p2).Mag());
-								  pair <int,int> Pair(c1,c2);
-								  FalseMCCand.push_back(Pair);
+								  pair <int,int> Pair3(c1,c2);
+								  FalseMCCand.push_back(Pair3);
 								  }
 
 							  }

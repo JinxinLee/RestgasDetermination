@@ -95,6 +95,12 @@ class PndMvdDetector : public FairDetector
    **/
   virtual void Print() const;
 
+  /** Virtual Method SetSpecialPhysicsCuts
+   **
+   ** replaces some Geant initialisation via g3Config.C and so on
+   **/
+  virtual void SetSpecialPhysicsCuts();
+  
 
   /** Virtual method Reset
    **

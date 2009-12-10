@@ -58,9 +58,9 @@ class PndMvdStripClusterTask : public FairTask
 
 
   private:
-
+    void SetCalculators();
     TVector2 CalcLineCross(TVector2 point1, TVector2 dir1, TVector2 point2, TVector2 dir2) const;
-    void SelectSensorParams(TString detname);
+    Bool_t SelectSensorParams(TString detname);
     void CalcMeanCharge(std::vector<Int_t> &onecluster, Double_t &meanstrip, Double_t &meanerr, Double_t &charge);
     Bool_t Backmap( TVector2 meantopPoint, Double_t toperr , TVector2 meanbotPoint, Double_t boterr,
     	         	TVector3 &hitpos, TVector3 &hiterr, TString &detname);
@@ -81,16 +81,25 @@ class PndMvdStripClusterTask : public FairTask
 	Int_t fRadChannel;
 	Int_t fRadTime;
 
-    PndMvdStripDigiPar* fDigiParRect;     //! Digitization Parameters (Barrel)
-    PndMvdStripDigiPar* fDigiParTrap;     //! Digitization Parameters (Disks)
-    PndMvdStripDigiPar* fCurrentDigiPar;  //! Digitization Parameters
-    //! Calculator objects
-    PndMvdCalcStrip* fStripCalcTopRect;
-    PndMvdCalcStrip* fStripCalcBotRect;
-    PndMvdCalcStrip* fStripCalcTopTrap;
-    PndMvdCalcStrip* fStripCalcBotTrap;
-    PndMvdCalcStrip* fStripCalcTop;
-    PndMvdCalcStrip* fStripCalcBot;
+  //! Digitization Parameters
+  TList* fDigiParameterList;
+  PndMvdStripDigiPar* fCurrentDigiPar;
+  
+  //! Calculator objects
+  std::map<const char*,PndMvdCalcStrip*> fStripCalcTop;
+  std::map<const char*,PndMvdCalcStrip*> fStripCalcBot;
+  PndMvdCalcStrip* fCurrentStripCalcTop;
+  PndMvdCalcStrip* fCurrentStripCalcBot;
+//  PndMvdStripDigiPar* fDigiParRect;     //! Digitization Parameters (Barrel)
+//    PndMvdStripDigiPar* fDigiParTrap;     //! Digitization Parameters (Disks)
+//    PndMvdStripDigiPar* fCurrentDigiPar;  //! Digitization Parameters
+//    //! Calculator objects
+//    PndMvdCalcStrip* fStripCalcTopRect;
+//    PndMvdCalcStrip* fStripCalcBotRect;
+//    PndMvdCalcStrip* fStripCalcTopTrap;
+//    PndMvdCalcStrip* fStripCalcBotTrap;
+//    PndMvdCalcStrip* fStripCalcTop;
+//    PndMvdCalcStrip* fStripCalcBot;
 
     Int_t fClusterMod;					/// selected clusterfinder 1...simple 0...default
 
