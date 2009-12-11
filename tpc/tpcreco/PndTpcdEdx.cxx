@@ -24,7 +24,7 @@ double PndTpcdEdx::simpleMean(){
 double PndTpcdEdx::truncMean(double trash){
   int N = _data.size();
 
-  std::cout<<"N="<<N<<std::endl;
+  //std::cout<<"N="<<N<<std::endl;
   
   sort(_data.begin(),_data.end(),dedxSort);
 
@@ -40,7 +40,7 @@ double PndTpcdEdx::truncMean(double trash){
 	  ++NinSum;
 	}
   }
-  std::cout << "NinSum " << NinSum  << std::endl;
+  //std::cout << "NinSum " << NinSum  << std::endl;
   if(NinSum>0)return sum/NinSum;
   return -1.;
 }
