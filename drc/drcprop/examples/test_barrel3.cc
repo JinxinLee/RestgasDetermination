@@ -103,47 +103,82 @@ void cross(PndDrcPhoton ph1, PndDrcPhoton ph2, double& x, double& y, double& z)
   
 }
 
-
-
-
-
-
-
-
 int main(int argc, char *argv[]) 
 {
   const double pi=3.1415926535;
 
   //int iopt = 0;// only geometry
-  
-  int iopt = 1;// straight lines
-  //int iopt = 2;// ???
+  //int iopt = 1;// straight lines
+  int iopt = 2;// C-cone
   //int iopt = 3;// ???
    
+  int lens_opt = 1;  // two thin lenses no air gap
+  //int lens_opt = 2; // two lenses, no airgap, 2nd is thick
+  //int lens_opt = 3; // two lenses, with airgap
 
  
+  bool l_fresnel = true;
+  
 
   double dist_plane=300;  
 
   double conical = 0;  
-  // good values with 70mm FL: 19.8 / 22
 
-  double thick_air0   = 0.0;
+  double thick_air0;
+  double radius_lens1;
+  double thick_lens1;
+  double thick_air1;
+  double radius_lens2b;
+  double radius_lens2a;
+  double thick_lens2;
+  double thick_air2; 
+  bool   l_air_gap;
+  
+  
+  if (lens_opt==1)
+    {
+      l_air_gap     = false;
+      thick_air0    = 0.0;
+      radius_lens1  = 30.836;
+      thick_lens1   =   5;
+      thick_air1    =   0.0;
+      radius_lens2b =  55.638;
+      radius_lens2a = -30.836;
+      thick_lens2   = 11.6; 
+      thick_air2    = 7; 
+    }
+  else if (lens_opt==2)
+    {
+      l_air_gap     = false;
+      thick_air0    = 0.0;
+      radius_lens1  = 49.525;
+      thick_lens1   =   5;
+      thick_air1    =   0.0;
+      radius_lens2b =  75.0;
+      radius_lens2a = -49.525;
+      thick_lens2   = 18; 
+      thick_air2    = 7; 
+    }
+  else if (lens_opt==3)
+    {
+      l_air_gap     = true;
+      thick_air0    = 0.0;
+      radius_lens1  = 152.9;
+      thick_lens1   =   5;
+      thick_air1    =   2;
+      radius_lens2b =   31;
+      radius_lens2a =  -31;
+      thick_lens2   =    5; 
+      thick_air2    =    8; 
+    }
+  else
+    {
+      exit(EXIT_FAILURE);
+    }
+  
   
 
 
-  double radius_lens1  = 30.836;//152.9;//atof(argv[1]);//120;
-  double thick_lens1   =   5;
-
-  double thick_air1    =   0.0;
-
-  double radius_lens2b  =  55.638;//55.638;//+31.3;//atof(argv[2]);//-188;
-  double radius_lens2a  = -30.836;//-30.94;//atof(argv[2]);//-188;
-  double thick_lens2   = 11.6;//12.1
-
-
-  double thick_air2 = 7; 
-  
 
   XYZPoint q0(-34/2,-17.5/2,0);
   XYZPoint q1(+34/2,-17.5/2,0);
@@ -160,23 +195,23 @@ int main(int argc, char *argv[])
   opt_system.AddDevice(bar);
 
   //PndDrcOptLens air0(q2.X(),q2.Y(),thick_air0/2,-radius_lens1,9999,
-  //		  conical,conical);
-  //air0.SetName("air0");
-  //air0.AddTransform(Transform3D(XYZVector(0,0,-400
-  //				  -thick_air0/2)));
-  //air0.SetOptMaterial(PndDrcOptMatVacuum());
-  //air0.Surface("side21")->SetReflectivity(PndDrcOptReflNone());
-  //air0.Surface("side26")->SetReflectivity(PndDrcOptReflNone());
-  //air0.Surface("side31")->SetReflectivity(PndDrcOptReflNone());
-  //air0.Surface("side36")->SetReflectivity(PndDrcOptReflNone());
-  //air0.Surface("side41")->SetReflectivity(PndDrcOptReflNone());
-  //air0.Surface("side46")->SetReflectivity(PndDrcOptReflNone());
-  //air0.Surface("side51")->SetReflectivity(PndDrcOptReflNone());
-  //air0.Surface("side56")->SetReflectivity(PndDrcOptReflNone());
-  //air0.SetPrintColor(2);
-  //opt_system.AddDevice(air0);
-  //opt_system.CoupleDevice("bar","air0","side1","side6");
-
+  //	  conical,conical);
+  //  air0.SetName("air0");
+  //  air0.AddTransform(Transform3D(XYZVector(0,0,-400
+  //				      -thick_air0/2)));
+  //  air0.SetOptMaterial(PndDrcOptMatVacuum());
+  //  air0.Surface("side21")->SetReflectivity(PndDrcOptReflNone());
+  //  air0.Surface("side26")->SetReflectivity(PndDrcOptReflNone());
+  //  air0.Surface("side31")->SetReflectivity(PndDrcOptReflNone());
+  //  air0.Surface("side36")->SetReflectivity(PndDrcOptReflNone());
+  //  air0.Surface("side41")->SetReflectivity(PndDrcOptReflNone());
+  //  air0.Surface("side46")->SetReflectivity(PndDrcOptReflNone());
+  //  air0.Surface("side51")->SetReflectivity(PndDrcOptReflNone());
+  //  air0.Surface("side56")->SetReflectivity(PndDrcOptReflNone());
+  //  air0.SetPrintColor(2);
+  //  opt_system.AddDevice(air0);
+  //  opt_system.CoupleDevice("bar","air0","side1","side6");
+  
 
   PndDrcOptLens lens1(q2.X(),q2.Y(),thick_lens1/2,radius_lens1,9999,
 			  conical,conical);
@@ -198,21 +233,24 @@ int main(int argc, char *argv[])
   opt_system.AddDevice(lens1);
   //opt_system.CoupleDevice("air0","lens1","side1","side6");
   opt_system.CoupleDevice("bar","lens1","side1","side6");
-
-  //PndDrcOptLens air1(q2.X(),q2.Y(),
-  //	     thick_air1/2,-radius_lens2a,-radius_lens1,
-  //		 conical,conical);
-  //air1.SetName("air1");
-  //air1.AddTransform(Transform3D(XYZVector(0,0,
-  //				  -400
-  //				  -thick_air0
-  //				  -thick_lens1
-  //				  -thick_air1/2)));
-  //air1.SetOptMaterial(PndDrcOptMatVacuum());
-  //air1.SetPrintColor(4);
-  //opt_system.AddDevice(air1);
-  //opt_system.CoupleDevice("lens1","air1","side1","side6");
-
+  
+  PndDrcOptLens air1(q2.X(),q2.Y(),
+  	     thick_air1/2,-radius_lens2a,-radius_lens1,
+  		 conical,conical);
+  if (l_air_gap)
+    {
+      air1.SetName("air1");
+      air1.AddTransform(Transform3D(XYZVector(0,0,
+					      -400
+					      -thick_air0
+					      -thick_lens1
+					      -thick_air1/2)));
+      air1.SetOptMaterial(PndDrcOptMatVacuum());
+      air1.SetPrintColor(4);
+      opt_system.AddDevice(air1);
+      opt_system.CoupleDevice("lens1","air1","side1","side6");
+    }
+  
   
   PndDrcOptLens lens2(q2.X(),q2.Y(),
 			     thick_lens2/2,radius_lens2b,radius_lens2a,
@@ -235,7 +273,15 @@ int main(int argc, char *argv[])
   lens2.SetOptMaterial(PndDrcOptMatNLAK33A());
   lens2.SetPrintColor(3);
   opt_system.AddDevice(lens2);
-  opt_system.CoupleDevice("lens1","lens2","side1","side6");
+  if (l_air_gap)
+    {
+      opt_system.CoupleDevice("air1","lens2","side1","side6");
+    }
+  else
+    {
+      opt_system.CoupleDevice("lens1","lens2","side1","side6");
+    }
+  
 
 
   PndDrcOptLens air2(q2.X(),q2.Y(),
@@ -282,7 +328,7 @@ int main(int argc, char *argv[])
   
 
 
-  opt_system.SetFresnel(true); // sets all surfaces
+  opt_system.SetFresnel(l_fresnel); // sets all surfaces
   
 
   // The manager must be created as pointer. It is created as singleton, that is only 
@@ -322,13 +368,6 @@ int main(int argc, char *argv[])
   // 
   if (iopt==0) manager->Print(geo);
 
-  // create a list of photons in bar
-
-  //XYZPoint  pos(0,-10,0);
-  //XYZVector dir(0,1,-1); 
-  //double   beta = 0.99;
-  //bool photons_exist = manager->cerenkov(pos,dir,beta,2000,1e16,400,600,50); // generate photons
-  //if (photons_exist) manager->propagate();              // propagate photons
 
   PndDrcPhoton ph;
   ph.SetReflectionLimit(200);
@@ -387,29 +426,10 @@ int main(int argc, char *argv[])
   
   else if (iopt==2)
     {
-      
-  
-  
-      ph.SetReflectionLimit(200);
-      for (double angle=0; angle<40.5; angle+=1)
-	{
-	  for (int i=0; i<2; i++)
-	    {
-	      ph.SetDirection(XYZVector(sin(pi/180*angle),0,-cos(pi/180*angle)));
-	      if (i==0) ph.SetPosition(XYZPoint((q0.X()+q1.X())/2-2,0,-399.9));
-	      if (i==1) ph.SetPosition(XYZPoint((q0.X()+q1.X())/2+2,0,-399.9));
-	      ph.SetWavelength(630);
-	      list_photon.push_back(ph);
-	    }
-	  for (int i=0; i<2; i++)
-	    {
-	      ph.SetDirection(XYZVector(-sin(pi/180*angle),0,-cos(pi/180*angle)));
-	      if (i==0) ph.SetPosition(XYZPoint((q0.X()+q1.X())/2-2,0,-399.9));
-	      if (i==1) ph.SetPosition(XYZPoint((q0.X()+q1.X())/2+2,0,-399.9));
-	      ph.SetWavelength(630);
-	      list_photon.push_back(ph);
-	    }
-	}
+      XYZPoint  pos(0,-18,200);
+      XYZVector dir(0,sin(50*pi/180.),cos(50*pi/180.)); 
+      double   beta = 0.99;
+      manager->Cerenkov(pos,dir,beta,50000,1e16,300,600,50); // generate photons
     }
   else if (iopt==3)
     {
@@ -453,8 +473,11 @@ int main(int argc, char *argv[])
   
 
 
-  cout<<" list size = "<<list_photon.size()<<endl;
-  manager->SetPhotonList(list_photon,"bar","optsys");
+  if (iopt!=2) 
+    {
+      cout<<" list size = "<<list_photon.size()<<endl;
+      manager->SetPhotonList(list_photon,"bar","optsys");
+    }
   manager->Propagate();  
   
 
@@ -472,11 +495,15 @@ int main(int argc, char *argv[])
   scr.open(sfile.c_str(),std::ios::out);
   scr<<"{"<<endl;
   scr<<"    TCanvas *c1 = new TCanvas(\"c1\"); "<<endl;
-  scr<<"    TH1F *hgr = new TH1F(\"hgr\",\"test_barrel1\",500,-500,500);"<<endl;
+  scr<<"    TH1F *hgr = new TH1F(\"hgr\",\"test_barrel3 ";
+  if (lens_opt == 1) scr<<" lopt=1 \"";
+  if (lens_opt == 2) scr<<" lopt=2 \"";
+  if (lens_opt == 3) scr<<" lopt=3 \"";
+  scr<<",500,-300,300);"<<endl;
   scr<<"    hgr->SetStats(0);"<<endl;
   scr<<"    hgr->SetMarkerStyle(20);"<<endl;
-  scr<<"    hgr->SetMinimum(-500);"<<endl;
-  scr<<"    hgr->SetMaximum(500);"<<endl;
+  scr<<"    hgr->SetMinimum(-300);"<<endl;
+  scr<<"    hgr->SetMaximum(300);"<<endl;
   scr<<"    hgr->Draw(\"POL\");"<<endl;
 
 
