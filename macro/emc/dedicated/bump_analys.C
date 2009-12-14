@@ -4,28 +4,23 @@
 	
 	Double_t threshold=0.02;
   
-	gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-	basiclibs();
-	gSystem->Load("libGeoBase");
-	gSystem->Load("libParBase");
-	gSystem->Load("libBase");
-	gSystem->Load("libPndData");
-	gSystem->Load("libField");
-	gSystem->Load("libGen");
-	gSystem->Load("libPassive");
-	// add the detector libraries you need
-	gSystem->Load("libEmc");	 
-	gSystem->Load("libGeom.so");
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
+  rootlogon();
+  basiclibs();
 	
-	TFile* f = new TFile("bump_emc_pi0.root"); //file you want to analyse
+	TFile* f = new TFile("cluster_emc.root"); //file you want to analyse
 	TTree *t=(TTree *) f->Get("cbmsim") ;
 	TClonesArray* bump_array=new TClonesArray("PndEmcBump");
 	t->SetBranchAddress("EmcBump",&bump_array);
 	
-	TFile* fsim = new TFile("sim_emc_pi0.root"); //file you want to analyse
+	TFile* fsim = new TFile("sim_emc.root"); //file you want to analyse
 	TTree *tsim=(TTree *) fsim->Get("cbmsim") ;
 	TClonesArray* mctrack_array=new TClonesArray("PndMCTrack");
 	tsim->SetBranchAddress("MCTrack",&mctrack_array);
+	
+	TFile* fpar = new TFile("simparams.root"); 
+	fpar->Get("FairBaseParSet");
 	
 	PndEmcMapper *emcMap=PndEmcMapper::Instance(2);
 
