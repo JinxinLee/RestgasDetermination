@@ -71,6 +71,7 @@ InitStatus PndEmcMakeDigi::Init()
 
 	ioman->Register("EmcDigi","Emc",fDigiArray,fStoreDigis);
 	
+	fEmcDigiPositionDepth=fRecoPar->GetEmcDigiPositionDepth();
 	if (!fDigiPosMethod.compare("surface"))
 	{
 		PndEmcDigi::selectDigiPositionMethod( PndEmcDigi::surface, 1., 0. );
@@ -93,7 +94,6 @@ InitStatus PndEmcMakeDigi::Init()
 	fSigmaEb=fDigiPar->GetSigmaEb();
 	
 	fThreshold=fDigiPar->GetEnergyDigiThreshold();
-	fEmcDigiPositionDepth=fRecoPar->GetEmcDigiPositionDepth();
 	fMapVersion=fDigiPar->GetMapperVersion();  
 	PndEmcMapper::Instance(fMapVersion);
 	PndEmcStructure::Instance();
