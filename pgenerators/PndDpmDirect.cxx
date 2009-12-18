@@ -35,9 +35,10 @@ extern "C" {
 
 }
 
-extern "C" int init1_(float* Plab, double* seed, float* Elastic, float* tetmin);//install DPM 
+extern "C" int init1_(float* Plab, double* seed, float* Elastic );//install DPM 
 extern "C" int dpm_gen__(float* Generator, double* seed ); //to generate events
 
+TF1 	 * fDensityFunction;
 
 // -----   Default constructor   ------------------------------------------
 PndDpmDirect::PndDpmDirect() {
@@ -46,7 +47,7 @@ PndDpmDirect::PndDpmDirect() {
 // ------------------------------------------------------------------------
 
 // -----   Standard constructor   -----------------------------------------
-PndDpmDirect::PndDpmDirect(Double_t Mom, Int_t Mode,  Float_t tetmin) {
+PndDpmDirect::PndDpmDirect(Double_t Mom, Int_t Mode) {
    fMom=Mom;
    fMode=Mode;
 
@@ -54,13 +55,38 @@ PndDpmDirect::PndDpmDirect(Double_t Mom, Int_t Mode,  Float_t tetmin) {
    int a = iSeed/100000;   
    fSeed=iSeed - a*100000 + a/100000.;
 
+   fGasmode = 0;
+   fRsigma = 0.;
+
    cout << "<I> PndDpmDirect initialization" << endl;
    cout << "<I> Momentum = " << fMom << endl;
    cout << "<I> Seed     = " << fSeed << endl;
    cout << "<I> Mode     = " << fMode << endl;
-   if (fMode!=0 && tetmin == 0. )  cout << "--W-- Mode with Elastc interactions but Theta Min. is not set" << endl; 
-  
-   init1_(&fMom,&fSeed,&fMode, &tetmin);     // init the DPM generator  
+
+   init1_(&fMom,&fSeed,&fMode);     // init the DPM generator  
+}
+// ------------------------------------------------------------------------
+
+// -----   Gas mode constructor   -----------------------------------------
+PndDpmDirect::PndDpmDirect(Double_t Mom, Int_t Mode, Double_t Rsigma, TF1* DensityFunction) {
+   fMom=Mom;
+   fMode=Mode;
+
+   Long_t iSeed = gRandom->GetSeed();
+   int a = iSeed/100000;   
+   fSeed=iSeed - a*100000 + a/100000.;
+
+   fGasmode = 1;
+   fRsigma = Rsigma;
+   fDensityFunction = DensityFunction;
+
+   cout << "<I> PndDpmDirect initialization" << endl;
+   cout << "<I> Momentum = " << fMom << endl;
+   cout << "<I> Seed     = " << fSeed << endl;
+   cout << "<I> Mode     = " << fMode << endl;
+   cout << "<I> Gasmode  = " << fGasmode << endl;
+
+   init1_(&fMom,&fSeed,&fMode);     // init the DPM generator     
 }
 // ------------------------------------------------------------------------
 
@@ -74,6 +100,7 @@ PndDpmDirect::~PndDpmDirect() {
 Bool_t PndDpmDirect::ReadEvent(FairPrimaryGenerator* primGen) {
 
   int  npart, i;	
+	Double_t fX, fY, fZ, radius;
   double Px[1000],Py[1000],Pz[1000],E[1000],Pm[1000],Wh[1000];
   int Id[1000];
   
@@ -82,22 +109,41 @@ Bool_t PndDpmDirect::ReadEvent(FairPrimaryGenerator* primGen) {
   Double_t weight = 1.0;
   Int_t activeCnt=0;
 
-  dpm_gen__(&Generator, &fSeed);
-  // Loop over all produced particles 
+  // run generator
+	dpm_gen__(&Generator, &fSeed);
+  
+	// Loop over all produced particles 
    npart = lujets_.n;
       
    for (i= 0; i< npart; ++i) {        
 
-    Id[i]=lujets_.k[i+1000];
-     Px[i]=lujets_.p[i];
-     Py[i]=lujets_.p[i+1000];
-     Pz[i]=lujets_.p[i+2000];
-     Pm[i]=lujets_.p[i+4000];
-     E[i]=lujets_.p[i+3000];
-     Wh[i]=1.0;
+		Id[i]=lujets_.k[i+1000];
+		Px[i]=lujets_.p[i];
+    Py[i]=lujets_.p[i+1000];
+    Pz[i]=lujets_.p[i+2000];
+    Pm[i]=lujets_.p[i+4000];
+    E[i]=lujets_.p[i+3000];
+    Wh[i]=1.0;
 
-  
-     primGen->AddTrack(Id[i], Px[i], Py[i], Pz[i], 0, 0, 0);
+    /* Check if fGasmode is set */
+    fX = 0.;
+    fY = 0.;
+    fZ = 0.;
+		if (fGasmode == 1) {
+     
+     	// define position of track start
+     	// Random 2D point in a circle of radius r (simple beamprofile)     	
+     	radius = gRandom->Gaus(0,fRsigma);
+			gRandom->Circle(fX, fY, radius);
+        
+			// calculate fZ according to some (probability) density function of the gas
+    	fZ=fDensityFunction->GetRandom();
+		     	
+    }
+		
+		// add track
+		printf("- I -: new particle at: %f, %f, %f ...\n", fX, fY, fZ);
+		primGen->AddTrack(Id[i], Px[i], Py[i], Pz[i], fX, fY, fZ);
 
    }
 

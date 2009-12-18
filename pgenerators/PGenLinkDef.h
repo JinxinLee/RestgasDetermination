@@ -4,6 +4,7 @@
 #pragma link off all classes;
 #pragma link off all functions;
 
+#pragma link C++ class  PndRestGas+;
 #pragma link C++ class  PndDpmGenerator+;
 #pragma link C++ class  PndDpmDirect+;
 #pragma link C++ class  PndBoxGenerator+;

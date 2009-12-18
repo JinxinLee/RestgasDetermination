@@ -20,6 +20,7 @@ ${ROOT_LIBRARY_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 set(PGEN_SRCS
+PndRestGas.cxx
 PndDpmGenerator.cxx
 PndDpmDirect.cxx
 PndBoxGenerator.cxx

@@ -1,0 +1,137 @@
+Vienna, December 2009
+paul.buehler@oeaw.ac.at
+
+Due to evaporation of the target material, outgasing of the beam tubes, and
+limited pumping speed the beam tube in the vicinity of the target is not empty.
+The remaining gas, which mainly consist of Hydrogen and Nitrogen, has an
+integrated density (along the z-axis) of a few percent of the target density. It
+therefore behaves like a secondary target. Its density profile is peaked
+approximately at the nominal target position but is spread over several meters.
+
+This package includes a new class PndRestGas and modifications to the event
+generators (evntgen, dpm, urqmd) which allow to simulate the distribution of the
+main vertex according to the rest gas distribution in the beam tube. ASCII files
+with computed density distributions for Hydrogen and Nitrogen are provided.
+
+
+. Files affected by these modifications:
+
+  pgenerators/CMakeLists.txt
+  pgenerators/PGenLinkDef.h
+  pgenerators/PndDpmDirect.cxx
+  pgenerators/PndDpmDirect.h
+  pgenerators/PndUrqmdSmmGenerator.cxx
+  pgenerators/PndUrqmdSmmGenerator.h
+  generators/FairEvtGenGenerator.cxx
+  generators/FairEvtGenGenerator.h
+
+. New files
+
+  pgenerators/PndRestGas.cxx
+  pgenerators/PndRestGas.h
+  input/H_densityprofile.txt
+  input/N_densityprofile.txt
+
+
+. New class PndRestGas:
+
+  - reads data from a two-column ASCII file
+  - provides a rest gas density profile function
+
+
+. Modifications:
+
+  - pgenerators/PndDpmDirect
+ 
+    - new constructor with (Mom,Mode,Rsigma,DensityFunction)
+		- main vertices are distributed in x/y-plane with a gaussian profile with
+			sigma=Rsigma and along the z-axis according to the rest gas density
+			profile function DensityFunction
+	  - TF1* DensityFunction can be obtained with help of the PndRestGas class
+	 
+	  example:
+	
+	  // get gas density function
+		char s1[80] = gSystem->Getenv("VMCWORKDIR");
+	  char s2[80] = "/input/H_densityprofile.txt";
+		PndRestGas *DD = new PndRestGas(strcat(s1,s2));
+	  TF1* DDFun = DD->GetDDFun();
+	
+    // define event generator
+		PndDpmDirect *dpmGen=new PndDpmDirect(p,mode,0.1,DDFun);
+    primGen->AddGenerator(dpmGen);
+		
+
+
+  - pgenerators/PndUrqmdSmmGenerator
+		
+    - new constructor with const (fileName,Rsigma,DensityFunction)
+		- main vertices are distributed in x/y-plane with a gaussian profile with
+			sigma=Rsigma and along the z-axis according to the rest gas density
+			profile function DensityFunction
+	  - TF1* DensityFunction can be obtained with help of the PndRestGas class
+	 
+	  example:
+	
+	  // get gas density function
+	  char s1[80] = gSystem->Getenv("VMCWORKDIR");
+	  char s2[80] = "/input/H_densityprofile.txt";
+		PndRestGas *DD = new PndRestGas(strcat(s1,s2));
+	  TF1* DDFun = DD->GetDDFun();
+	
+    // define event generator
+    PndUrqmdSmmGenerator* urqmdGen = new PndUrqmdSmmGenerator(urqmdFile.Data(),0.1,DDFun);
+    primGen->AddGenerator(urqmdGen);
+		
+
+
+  - generators/FairEvtGenGenerator
+		
+    - new constructor with const (fileName,Rsigma,DensityFunction)
+		- main vertices are distributed in x/y-plane with a gaussian profile with
+			sigma=Rsigma and along the z-axis according to the rest gas density
+			profile function DensityFunction
+	  - TF1* DensityFunction can be obtained with help of the PndRestGas class
+	 
+	  example:
+	
+	  // get gas density function
+	  char s1[80] = gSystem->Getenv("VMCWORKDIR");
+	  char s2[80] = "/input/H_densityprofile.txt";
+		PndRestGas *DD = new PndRestGas(strcat(s1,s2));
+	  TF1* DDFun = DD->GetDDFun();
+	
+    // define event generator
+    FairEvtGenGenerator* evtGen = new FairEvtGenGenerator("output.evt",0.1,DDFun);
+    primGen->AddGenerator(evtGen);
+		
+
+
+. new input files
+  
+	- input/*_densityprofile.txt
+
+    - Two column ASCII file (zval / density)
+		- zval is distance from nominal target position along z-axis in units of mm
+			(<0: upstream, >0: downstream)
+	  - densities are given in units of ??
+
+
+. modifications are contained in tar-file
+tar -cvf PndRestGas_091217.tar \
+README \
+-C $VMCWORKDIR \
+pgenerators/CMakeLists.txt \
+pgenerators/PGenLinkDef.h \
+pgenerators/PndRestGas.cxx \
+pgenerators/PndRestGas.h \
+pgenerators/PndDpmDirect.cxx \
+pgenerators/PndDpmDirect.h \
+pgenerators/PndUrqmdSmmGenerator.cxx \
+pgenerators/PndUrqmdSmmGenerator.h \
+generators/FairEvtGenGenerator.cxx \
+generators/FairEvtGenGenerator.h \
+input/H_densityprofile.txt \
+input/N_densityprofile.txt
+gzip -v PndRestGas_091217.tar
+

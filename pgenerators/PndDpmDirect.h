@@ -15,6 +15,7 @@
 #define PND_DPMDIRECT_H
 
 #include "FairGenerator.h"
+#include "TF1.h"
 
 class TVirtualMCStack;
 class FairPrimaryGenerator;
@@ -36,7 +37,8 @@ class PndDpmDirect : public FairGenerator
    *  @param Mode = 1. - Elastic and inelastic interactions
    *  @param Mode = 2. - Only elastic scattering, no inelastic one
    **/
-  PndDpmDirect(Double_t Mom, Int_t Mode, Float_t tetmin=0.0);
+  PndDpmDirect(Double_t Mom, Int_t Mode);
+  PndDpmDirect(Double_t Mom, Int_t Mode, Double_t Rsigma, TF1 * DensityFunction);
 
   /** Destructor **/
   virtual ~PndDpmDirect();
@@ -59,7 +61,10 @@ class PndDpmDirect : public FairGenerator
   */
   float  fMode;    
   double fSeed;
-  
+  int    fGasmode;
+	double fRsigma;
+  TF1*   fDensityFunction;
+	
   ClassDef(PndDpmDirect,1);
 
 };
