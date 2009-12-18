@@ -90,8 +90,9 @@ InitStatus PndEmcMakeDigi::Init()
 	
 	// The following parameters define if energy of hit will be copied to digi or it will be smeared
 	fUseDigiEffectiveSmearing=fDigiPar->GetUseDigiEffectiveSmearing();
-	fSigmaEa=fDigiPar->GetSigmaEa();
-	fSigmaEb=fDigiPar->GetSigmaEb();
+	fExcessNoiseFactor=fDigiPar->GetExcessNoiseFactor();
+	fIncoherent_elec_noise_width_GeV=fDigiPar->GetIncoherent_elec_noise_width_GeV(); //GeV
+	fDetectedPhotonsPerMeV=fDigiPar->GetDetectedPhotonsPerMeV();
 	
 	fThreshold=fDigiPar->GetEnergyDigiThreshold();
 	fMapVersion=fDigiPar->GetMapperVersion();  
@@ -128,9 +129,11 @@ void PndEmcMakeDigi::Exec(Option_t* opt)
 			Int_t trackId=theHit->GetRefIndex();
 			Double_t time=theHit->GetTime();
 			
-			// Smear hit energy as sigma/E=a/sqrt(E)+b
+			// Smear hit energy as sigma/E=sqrt((a/sqrt(E))^2+(E_noise/E)^2)
+			// i.e stochastic and noise term of energy resolution are taken into account
 			if (fUseDigiEffectiveSmearing){
-				Double_t sigma_E=0.01*(fSigmaEa/sqrt(energy)+fSigmaEb); // 0.01 is conversion from percents
+				Double_t a=sqrt(fExcessNoiseFactor/(fDetectedPhotonsPerMeV*1e3)); // 1e3 is conversion from MeV to GeV
+				Double_t sigma_E=sqrt(pow(a/sqrt(energy),2)+pow(fIncoherent_elec_noise_width_GeV/energy,2));
 				energy= gRandom->Gaus(energy,sigma_E*energy);
 			}
 			

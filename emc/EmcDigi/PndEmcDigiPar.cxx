@@ -39,8 +39,6 @@ void PndEmcDigiPar::putParams(FairParamList* list)
 	list->add("Use_shaped_noise",fUse_shaped_noise);
 	list->add("Use_photon_statistic",fUse_photon_statistic);
 	list->add("UseDigiEffectiveSmearing",fUseDigiEffectiveSmearing);
-	list->add("SigmaEa",fSigmaEa);
-	list->add("SigmaEb",fSigmaEb);
 }
 
 Bool_t PndEmcDigiPar::getParams(FairParamList* list)
@@ -64,8 +62,6 @@ Bool_t PndEmcDigiPar::getParams(FairParamList* list)
 	if (!list->fill("Use_shaped_noise",&fUse_shaped_noise)) return kFALSE;
 	if (!list->fill("Use_photon_statistic",&fUse_photon_statistic)) return kFALSE;
 	if (!list->fill("UseDigiEffectiveSmearing",&fUseDigiEffectiveSmearing)) return kFALSE;
-	if (!list->fill("SigmaEa",&fSigmaEa)) return kFALSE;
-	if (!list->fill("SigmaEb",&fSigmaEb)) return kFALSE;
 	
 	return kTRUE;
 }

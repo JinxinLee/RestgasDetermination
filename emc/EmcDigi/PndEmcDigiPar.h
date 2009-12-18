@@ -20,8 +20,6 @@ class PndEmcDigiPar : public FairParGenericSet
 		Double_t GetIncoherent_elec_noise_width_GeV() {return fIncoherent_elec_noise_width_GeV;};
 		Double_t GetSampleRate() {return fSampleRate;};
 		Double_t GetEnergyDigiThreshold() {return fEnergyDigiThreshold;};
-		Double_t GetSigmaEa() {return fSigmaEa;};
-		Double_t GetSigmaEb() {return fSigmaEb;};
 		Int_t GetNBits() {return fNBits;};
 		Int_t GetNumber_of_samples_in_waveform() {return fNumber_of_samples_in_waveform;};
 		Int_t GetMapperVersion() {return fMapperVersion;};
@@ -53,8 +51,6 @@ class PndEmcDigiPar : public FairParGenericSet
 		Double_t fIncoherent_elec_noise_width_GeV;
 		Double_t fSampleRate;
 		Double_t fEnergyDigiThreshold;
-		Double_t fSigmaEa;
-		Double_t fSigmaEb;
 		Int_t fNBits;
 		Int_t fNumber_of_samples_in_waveform;
 		Int_t fMapperVersion;

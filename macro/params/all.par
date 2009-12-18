@@ -105,7 +105,7 @@ Rate:Double_t 2e-2
 # EnergyHitThreshold - energy threshold used in PndEmcHitProducer.cxx, with following full digitization should be 0.
 # EnergyDigiThreshold - treshold for EmcDigi energy in PndEmcWaveformToDigi.cxx
 # EmcClusterPosMethod: lilo, linear
-# UseDigiEffectiveSmearing: 0 - energy of hit is copied to digi, 1 - smear energy as sigma/E= a/sqrt(E) + b
+# UseDigiEffectiveSmearing: 0 - energy of hit is copied to digi, 1 - smear energy as sigma/E= sqrt((a/sqrt(E))^2 + (E_noise/E)^2), where a=sqrt(F/N_p.e.)
 #################################################################
 [PndEmcDigiPar]
 EnergyHitThreshold:Double_t 0.000001
@@ -126,8 +126,6 @@ Use_photon_statistic:Int_t 1
 EnergyDigiThreshold:Double_t 3.0e-3
 MapperVersion:Int_t 6
 UseDigiEffectiveSmearing:Int_t 0
-SigmaEa:Double_t 1.86
-SigmaEb:Double_t 0.65
 #################################################################
 # Reconstruction parameter for EMC
 # PndEmcRecoPar

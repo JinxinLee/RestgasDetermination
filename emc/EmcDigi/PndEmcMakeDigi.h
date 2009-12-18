@@ -65,8 +65,9 @@ private:
 	Double_t fEmcDigiPositionDepth;
 	
 	Int_t fUseDigiEffectiveSmearing;
-	Double_t fSigmaEa;
-	Double_t fSigmaEb;
+	Double_t fExcessNoiseFactor;
+	Double_t fIncoherent_elec_noise_width_GeV; //GeV
+	Double_t fDetectedPhotonsPerMeV;
 	
 	Int_t fMapVersion;
 
