@@ -56,7 +56,15 @@ SET(SIMPATH $ENV{SIMPATH})
 # REQUIRED means that cmake will stop if this packages are not found
 # For example the framework can run without GEANT4, but ROOT is
 # mandatory
+
+SET(ROOT_MIN_VERSION "5.24/00")
+
 find_package(ROOT REQUIRED)
+
+IF(ROOT_INSTALLED_VERSION_TOO_OLD)
+  MESSAGE( FATAL_ERROR "Invalid ROOT version \"${ROOTERSION}\", at least version  \"5.24/00\" is required, or external packages jul09")
+ENDIF (ROOT_INSTALLED_VERSION_TOO_OLD)
+
 find_package(PLUTO REQUIRED)
 find_package(GENERATORS REQUIRED)
 find_package(GEANT3 REQUIRED)
@@ -65,6 +73,8 @@ find_package(GEANT4VMC)
 find_package(CLHEP)
 
 find_package(RuleChecker)
+
+
 
 # Set the library version in the main CMakeLists.txt
 SET(FAIRROOT_MAJOR_VERSION 0)
