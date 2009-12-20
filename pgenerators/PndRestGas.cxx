@@ -3,6 +3,7 @@
 // -----                                                               -----
 // -------------------------------------------------------------------------
 
+#include <stdlib.h>
 #include "PndRestGas.h"
 
 using namespace std;
