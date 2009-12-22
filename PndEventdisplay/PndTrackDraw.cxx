@@ -14,6 +14,7 @@
 #include "FairEventManager.h"
 #include "PndTrack.h"
 #include "TLorentzVector.h"
+#include "TParticle.h"
 #include <string>
 #include <sstream>
 using std::cout;
