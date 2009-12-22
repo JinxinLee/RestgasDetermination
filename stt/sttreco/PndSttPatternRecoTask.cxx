@@ -178,7 +178,7 @@ void PndSttPatternRecoTask:: Exec(Option_t* opt)
       TMatrixT<double> status = trk->getTrackRep(0)->getState();
 
       GFTrackCand *cand = new GFTrackCand();
-
+      cand->setMcTrackId(match->GetMCTrackID());
       for(int iPoint = 0; iPoint < track->GetNofHits(); iPoint++)
  	{
 
