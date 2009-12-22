@@ -37,7 +37,11 @@ class PndMvdPixel
 		  std::string GetDetName() const {return fDetName;};
 		  Int_t GetFE() const {return fFe;};
 		  std::vector<int> GetMCIndex(){return fMCIndex;};
-		  int GetFirstMCIndex(){return fMCIndex[0];};
+		  int GetFirstMCIndex(){
+			if (fMCIndex.size() > 0)
+			  return fMCIndex[0];
+			return -2;
+		  };
 		  
 		  void AddCharge(Double_t charge){fCharge+= charge;};
 		  void AddMCIndex(int i){fMCIndex.push_back(i);};

@@ -21,6 +21,7 @@
 #include "TVector3.h"
 #include "FairMCPoint.h"
 #include "TString.h"
+#include "PndDetectorList.h"
 
 #include <stdio.h>
 #include <iostream>
@@ -96,6 +97,11 @@ class PndMvdMCPoint : public FairMCPoint
   void SetPositionOut(TVector3 pos);
   void SetMomentumOut(TVector3 mom);
   void SetDetName(TString name) {fDetName = name;};
+  virtual void SetTrackID(Int_t id){
+	  SetLink(kMCTrack, id);
+	  FairMCPoint::SetTrackID(id);
+  };
+
 
 
   /** Output to screen **/

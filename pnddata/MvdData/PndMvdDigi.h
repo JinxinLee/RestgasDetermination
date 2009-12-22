@@ -16,11 +16,14 @@
 
 #include "TObject.h"
 #include "TString.h"
+#include "FairMultiLinkedData.h"
 #include <iostream>
 #include <vector>
 
+#include "PndDetectorList.h"
 
-class PndMvdDigi : public TObject
+
+class PndMvdDigi : public FairMultiLinkedData
 {
     friend std::ostream& operator<< (std::ostream& out, PndMvdDigi& digi){
         out << "PndMvd Digi in: " << digi.GetDetName() << " FE: "
@@ -35,6 +38,7 @@ class PndMvdDigi : public TObject
       }
 
 	public : PndMvdDigi();
+		 PndMvdDigi(std::vector<Int_t> index, Int_t detID, TString detName, Int_t fe, Double_t charge);
 		 PndMvdDigi(Int_t index, Int_t detID, TString detName, Int_t fe, Double_t charge);
 		/**<constructor
 		* \param index position of PndMvdMCPoint in TClonesArray
@@ -54,7 +58,11 @@ class PndMvdDigi : public TObject
 		int GetNIndices() {return fIndex.size();}
 		Int_t GetIndex(int i = 0) const{ return fIndex[i];}
 		Int_t GetNIndices() const { return fIndex.size();}
-		void AddIndex(int index){fIndex.push_back(index);}
+		void AddIndex(int index){fIndex.push_back(index); AddLink(kMVDPoint, index);}
+		void AddIndex(std::vector<Int_t> index){
+			fIndex = index;
+			SetLinks(kMVDPoint, index);
+		}
 		void AddCharge(double charge){fCharge += charge;}
 
 		virtual void Print() {

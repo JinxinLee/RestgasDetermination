@@ -37,7 +37,7 @@ class PndMvdDigiPixel : public PndMvdDigi
       }
 
 	public : PndMvdDigiPixel();
-		 PndMvdDigiPixel(Int_t index, Int_t detID, TString detName, Int_t fe, Int_t col, Int_t row, Double_t charge);
+		 PndMvdDigiPixel(std::vector<Int_t> index, Int_t detID, TString detName, Int_t fe, Int_t col, Int_t row, Double_t charge);
 
 
 		~PndMvdDigiPixel(){};
@@ -52,7 +52,7 @@ class PndMvdDigiPixel : public PndMvdDigi
 	private :
 		Int_t fCol, fRow;
 
-	ClassDef(PndMvdDigiPixel,6);
+	ClassDef(PndMvdDigiPixel,7);
 };
 
 #endif

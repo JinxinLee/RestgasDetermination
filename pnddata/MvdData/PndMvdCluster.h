@@ -1,10 +1,13 @@
 #ifndef PNDMVDCLUSTER_H
 #define PNDMVDCLUSTER_H
 
+#include "FairMultiLinkedData.h"
+#include "PndDetectorList.h" // contains SensorSide enumeration
+
 #include "TObject.h"
 #include <vector>
 #include <iostream>
-#include "PndDetectorList.h" // contains SensorSide enumeration
+
 
 
 //! PndMvdCluster.h
@@ -14,7 +17,7 @@
 //! This class holds the information which Digi belongs to the actual cluster.
 //! The information is stored in a vector<Int_t> which contains the
 //! position of the digi in the TClonesArray where it is stored.
-class PndMvdCluster : public TObject
+class PndMvdCluster : public FairMultiLinkedData
 {
 
 friend std::ostream& operator<< (std::ostream& out, PndMvdCluster& cl){
@@ -28,27 +31,24 @@ friend std::ostream& operator<< (std::ostream& out, PndMvdCluster& cl){
     }
 
 public :
-    PndMvdCluster():fSide(kTOP){};
+    PndMvdCluster(){};
     ~PndMvdCluster(){};
     PndMvdCluster(std::vector<Int_t> list);
 
-    void SetClusterList(std::vector<Int_t> list) {fClusterList = list;}
+    virtual void SetClusterList(std::vector<Int_t> list) = 0;
     std::vector<Int_t> GetClusterList() const {return fClusterList;}
     Int_t GetClusterSize() const {return fClusterList.size();}
     Int_t GetDigiIndex(Int_t i) const {return fClusterList[i];}
 
-    SensorSide GetSensorSide() const {return fSide;}
-    void SetSensorSide(SensorSide s) {fSide = s;}
     bool DigiBelongsToCluster(Int_t digiIndex);
 
-    void Print();
+    virtual void Print();
 
-private :
+protected :
     std::vector<Int_t> fClusterList;
-    SensorSide fSide;
 
 
-ClassDef(PndMvdCluster,1);
+ClassDef(PndMvdCluster,2);
 
 };
 

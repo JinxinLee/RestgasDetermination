@@ -8,10 +8,10 @@
 
 
 // -----   Default constructor   -------------------------------------------
-PndMvdMCPoint::PndMvdMCPoint() : FairMCPoint() {
-  fXfOut = fYfOut = fZfOut = 0;
-  fPxfOut      = fPyfOut       = fPzfOut       = 0.;
-}
+PndMvdMCPoint::PndMvdMCPoint() : FairMCPoint(),
+	fXfOut(0.) fYfOut(0.), fZfOut(0.),
+	fPxfOut(0.), fPyfOut(0.), fPzfOut(0)
+{}
 // -------------------------------------------------------------------------
 
 
@@ -32,6 +32,7 @@ PndMvdMCPoint::PndMvdMCPoint(Int_t trackID, Int_t detID, TString detName,
   fPzfOut = momOut.Pz();
 
   fDetName = detName;
+  SetLink(kMCTrack, trackID);
 }
 // -------------------------------------------------------------------------
 

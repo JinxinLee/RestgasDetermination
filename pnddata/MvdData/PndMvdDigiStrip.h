@@ -28,12 +28,10 @@ class PndMvdDigiStrip : public PndMvdDigi
   public :
     PndMvdDigiStrip();
 
-	PndMvdDigiStrip(Int_t index, Int_t detID, TString detName, Int_t fe, Int_t chan, Int_t timestamp, Double_t charge);
-    //PndMvdDigiStrip(Int_t index, Int_t detID, TString detName, Int_t fe,
-	//	    Int_t chan, Double_t charge);  // not implemented
-    
-    PndMvdDigiStrip(Int_t index, Int_t detID, TString detName, Int_t fe,
-                    Int_t chan, Double_t charge, Int_t timestamp);
+
+    PndMvdDigiStrip(std::vector<Int_t> index, Int_t detID, TString detName, Int_t fe, Int_t chan, Double_t charge, Int_t timestamp = -1);
+
+    PndMvdDigiStrip(Int_t index, Int_t detID, TString detName, Int_t fe, Int_t chan, Double_t charge, Int_t timestamp = -1);
     ~PndMvdDigiStrip(){};
     
     friend std::ostream& operator<< (std::ostream& out, PndMvdDigiStrip& digi){
@@ -86,7 +84,7 @@ class PndMvdDigiStrip : public PndMvdDigi
 //    Double_t fCharge;   /// Charge of Hit
 //    Int_t fMCID;   /// MC Track index
 
-    ClassDef(PndMvdDigiStrip,3);
+    ClassDef(PndMvdDigiStrip,4);
 };
 
 #endif
