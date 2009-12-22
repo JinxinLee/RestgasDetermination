@@ -64,6 +64,8 @@ HypData/PndHypPidCand.cxx
 HypData/PndHypPoint.cxx
 
 MvdData/PndMvdCluster.cxx
+MvdData/PndMvdClusterPixel.cxx
+MvdData/PndMvdClusterStrip.cxx
 MvdData/PndMvdDigi.cxx
 MvdData/PndMvdDigiPixel.cxx
 MvdData/PndMvdDigiStrip.cxx

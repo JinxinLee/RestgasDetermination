@@ -21,7 +21,7 @@
 #include <string>
 
 #include "PndMvdDigiStrip.h"
-#include "PndMvdCluster.h"
+#include "PndMvdClusterStrip.h"
 #include "PndMvdStripClusterBuilder.h"
 // #include "PndMvdStripCluster.h"
 
@@ -57,7 +57,7 @@ class PndMvdStripClusterFinder : public PndMvdStripClusterBuilder
 	calculate clusters in the two dimensional way
 	@return vector of clusters
 	*/
-	std::vector< PndMvdCluster > SearchClusters();
+	std::vector< PndMvdClusterStrip > SearchClusters();
 
 private:
 

@@ -73,7 +73,7 @@ class PndMvdHit : public FairHit
   void SetDetName(TString name)  { fDetName   = name;}
   void SetCharge(Double_t charge){ fCharge    = charge;}
   void SetNDigiHits(Int_t pixel) { fNDigiHits = pixel;}
-  void SetClusterIndex(Int_t datasource, Int_t id) { SetLink(datasource, id); fClusterIndex = id;}
+  void SetClusterIndex(Int_t datasource, Int_t id) { fClusterIndex = id;} // SetLink(datasource, id);
   void SetBotIndex(Int_t id)     { fBotIndex  = id;}
   
   TString 	GetDetName()      const { return fDetName;}

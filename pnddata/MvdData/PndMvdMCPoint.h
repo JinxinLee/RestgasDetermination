@@ -98,7 +98,7 @@ class PndMvdMCPoint : public FairMCPoint
   void SetMomentumOut(TVector3 mom);
   void SetDetName(TString name) {fDetName = name;};
   virtual void SetTrackID(Int_t id){
-	  SetLink(kMCTrack, id);
+	  //SetLink(kMCTrack, id);
 	  FairMCPoint::SetTrackID(id);
   };
 

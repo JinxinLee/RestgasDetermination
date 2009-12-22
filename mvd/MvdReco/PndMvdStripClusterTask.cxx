@@ -24,7 +24,7 @@
 #include "PndMvdCalcStrip.h"
 #include "PndMvdDigiStrip.h"
 // #include "PndMvdStripCluster.h"
-#include "PndMvdCluster.h"
+#include "PndMvdClusterStrip.h"
 #include "PndMvdGeoHandling.h"
 #include "PndMvdContFact.h"
 
@@ -160,7 +160,7 @@ InitStatus PndMvdStripClusterTask::Init()
   fHitArray = new TClonesArray("PndMvdHit");
   ioman->Register("MVDHitsStrip", "MVD", fHitArray, kTRUE);
 
-  fClusterArray = new TClonesArray("PndMvdCluster");
+  fClusterArray = new TClonesArray("PndMvdClusterStrip");
   ioman->Register("MVDStripClusterCand","MVD",fClusterArray,kTRUE);
 
   // geo name handling
@@ -221,7 +221,7 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
     fClusterfinder->AddDigi(detName.Data(),side,myDigi->GetTimestamp(),strip,iPoint);
   }
 
-  std::vector< PndMvdCluster > clusters;
+  std::vector< PndMvdClusterStrip > clusters;
   std::vector< Int_t > topclusters;// contains index to fClusterArray
   std::vector< Int_t > botclusters;// contains index to fClusterArray
   std::vector< Int_t > oneclustertop;
@@ -251,11 +251,11 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
     } else std::cout<<"All Digis assigned to clusters"<<std::endl;
   }
   // Fill the ClonesArray for output TODO: do this better, don't copy objects around
-  for(std::vector< PndMvdCluster >::iterator clit= clusters.begin();
+  for(std::vector< PndMvdClusterStrip >::iterator clit= clusters.begin();
         clit!=clusters.end(); ++clit)
   {
     clindex = fClusterArray->GetEntriesFast();
-    new((*fClusterArray)[clindex]) PndMvdCluster(*clit);
+    new((*fClusterArray)[clindex]) PndMvdClusterStrip(*clit);
   }
 
   //printout for checking
@@ -286,8 +286,9 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
     // -----  merge top/bot clusters to hits  -----
     // loop on clusters from the top side
   mcindex = -1;
+  int clusterIndex = 0;
   for (std::vector< Int_t>::iterator itTop = topclusters.begin();
-          itTop!=topclusters.end(); ++itTop)
+          itTop!=topclusters.end(); ++itTop, ++clusterIndex)
   {
     Double_t topcharge = 0., meantopstrip=0.,meantoperr=0. ;
     oneclustertop = (clusters[*itTop]).GetClusterList();
@@ -362,6 +363,8 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
             new((*fHitArray)[i]) PndMvdHit(detID,detnametop.Data(),hitPos,hitErr,
                 *itTop,mycharge,oneclusterbot.size()+oneclustertop.size(),mcindex);
             ((PndMvdHit*)((*fHitArray)[i]))->SetBotIndex(*itBot);
+            ((PndMvdHit*)((*fHitArray)[i]))->SetLink(kMVDClusterStrip, clusterIndex);
+
           } else
             if (fVerbose > 2) std::cout<<"Strip charge contents too differently"<<std::endl;
         }

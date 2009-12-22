@@ -11,9 +11,11 @@
 #include "TObject.h"
 #include "PndTrackCand.h"
 #include "FairTrackParP.h"
+#include "PndDetectorList.h"
+#include "FairSingleLinkedData.h"
 
 
-class PndTrack : public TObject{
+class PndTrack : public FairSingleLinkedData{
 public:
 	PndTrack();
 	PndTrack(const FairTrackParP& first, const FairTrackParP& last, const PndTrackCand& cand,
@@ -31,7 +33,7 @@ public:
 	void SetFlag(Int_t i)            { fFlag=i; }
 	void SetChi2(Double_t d)         { fChi2=d; }
 	void SetNDF(Int_t i)             { fNDF=i; }
-        void SetRefIndex(Int_t i)        { fRefIndex=i; }
+        void SetRefIndex(Int_t i)        { fRefIndex=i; SetLink(kTrackCand, i); }
   PndTrackCand GetTrackCand()      { return fTrackCand; }
   PndTrackCand* GetTrackCandPtr()  { return &fTrackCand; }
 	FairTrackParP GetParamFirst() { return fTrackParamFirst; }

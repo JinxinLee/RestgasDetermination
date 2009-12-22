@@ -20,7 +20,7 @@
 #include <string>
 
 #include "PndMvdDigiStrip.h"
-#include "PndMvdCluster.h"
+#include "PndMvdClusterStrip.h"
 #include "PndMvdStripClusterBuilder.h"
 // #include "PndMvdStripCluster.h"
 
@@ -30,7 +30,7 @@ class PndMvdSimpleStripClusterFinder : public PndMvdStripClusterBuilder {
   PndMvdSimpleStripClusterFinder(Int_t rad);
   ~PndMvdSimpleStripClusterFinder();
 
-  std::vector< PndMvdCluster > SearchClusters();
+  std::vector< PndMvdClusterStrip > SearchClusters();
   void SetSearchRadius(Int_t rad=0) {fRadius=rad;};
 
 private:

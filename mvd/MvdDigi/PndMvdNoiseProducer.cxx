@@ -303,7 +303,9 @@ void PndMvdNoiseProducer::AddDigiStrip(Int_t &noisies, Int_t iPoint, TString det
   }
   if(found == kFALSE){
 	  //TODO: get a reasonable timestamp fake for the noise
-    new ((*fDigiStripArray)[iStrip]) PndMvdDigiStrip(iPoint,detID,detname,fe,chan,0,charge) ;
+	 std::vector<Int_t> indices;
+	 indices.push_back(iPoint);
+    new ((*fDigiStripArray)[iStrip]) PndMvdDigiStrip(indices,detID,detname,fe,chan,0,charge) ;
     noisies++;
     if(fVerbose>2) std::cout
       << " -I- PndMvdNoiseProducer: Added StripTrap Digi at: FE=" << fe
@@ -333,7 +335,9 @@ void PndMvdNoiseProducer::AddDigiPixel(Int_t &noisies, Int_t iPoint, TString det
 	}
   }
   if(found == kFALSE){
-    new ((*fDigiPixelArray)[iPix]) PndMvdDigiPixel(iPoint,detID,detname,fe,col,row,charge) ;
+	  std::vector<Int_t> indices;
+	  indices.push_back(iPoint);
+    new ((*fDigiPixelArray)[iPix]) PndMvdDigiPixel(indices,detID,detname,fe,col,row,charge) ;
     noisies++;
     if(fVerbose>2) std::cout
       << " -I- PndMvdNoiseProducer: Added Pixel Digi at: FE=" << fe

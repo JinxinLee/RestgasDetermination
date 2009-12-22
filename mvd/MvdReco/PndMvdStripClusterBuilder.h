@@ -20,7 +20,7 @@
 #include <string>
 
 #include "PndMvdDigiStrip.h"
-#include "PndMvdCluster.h"
+#include "PndMvdClusterStrip.h"
 // #include "PndMvdStripCluster.h"
 
 typedef std::map<Int_t,Int_t> Indexpair;
@@ -36,12 +36,12 @@ class PndMvdStripClusterBuilder {
 
   void AddDigi(std::string detname, SensorSide side, Int_t timestamp, Int_t strip, Int_t iPoint);
 
-  virtual std::vector< PndMvdCluster > SearchClusters() = 0;
+  virtual std::vector< PndMvdClusterStrip > SearchClusters() = 0;
 
-  std::vector< PndMvdCluster >  GetClusters() const {return fClusters;}
-  PndMvdCluster GetCluster(Int_t i);
-  PndMvdCluster GetTopCluster(Int_t i);
-  PndMvdCluster GetBotCluster(Int_t i);
+  std::vector< PndMvdClusterStrip >  GetClusters() const {return fClusters;}
+  PndMvdClusterStrip GetCluster(Int_t i);
+  PndMvdClusterStrip GetTopCluster(Int_t i);
+  PndMvdClusterStrip GetBotCluster(Int_t i);
   std::vector< Int_t > GetTopClusterIDs() const {return fTopclusters;}
   std::vector< Int_t > GetBotClusterIDs() const {return fBotclusters;}
   std::vector< Int_t > GetLeftDigiIDs() const {return fLeftDigis;}
@@ -53,7 +53,7 @@ protected:
   std::vector< Int_t > fTopclusters;// contains index to fClusterArray
   std::vector< Int_t > fBotclusters;// contains index to fClusterArray
   std::vector< Int_t > fLeftDigis;  // contains index to the not assigned digis
-  std::vector< PndMvdCluster > fClusters;
+  std::vector< PndMvdClusterStrip > fClusters;
 
 private:
 ClassDef(PndMvdStripClusterBuilder,1);

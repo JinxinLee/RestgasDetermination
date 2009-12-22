@@ -41,7 +41,7 @@ void PndMvdStripClusterBuilder::AddDigi(std::string detName, SensorSide side, In
     fSortedDigis[detName][side][timestamp][strip] = iPoint;
 }
 
-PndMvdCluster PndMvdStripClusterBuilder::GetCluster(Int_t i)
+PndMvdClusterStrip PndMvdStripClusterBuilder::GetCluster(Int_t i)
 {
   if(0<=i && fClusters.size() < i)
     return fClusters[i];
@@ -50,7 +50,7 @@ PndMvdCluster PndMvdStripClusterBuilder::GetCluster(Int_t i)
     //return; // ??? what to do?
   }
 }
-PndMvdCluster PndMvdStripClusterBuilder::GetTopCluster(Int_t i)
+PndMvdClusterStrip PndMvdStripClusterBuilder::GetTopCluster(Int_t i)
 {
   if(0<=i && fTopclusters.size() < i)
   return fClusters[ (fTopclusters[i]) ];
@@ -59,7 +59,7 @@ PndMvdCluster PndMvdStripClusterBuilder::GetTopCluster(Int_t i)
     //return; // ??? what to do?
   }
 }
-PndMvdCluster PndMvdStripClusterBuilder::GetBotCluster(Int_t i)
+PndMvdClusterStrip PndMvdStripClusterBuilder::GetBotCluster(Int_t i)
 {
   if(0<=i && fBotclusters.size() < i)
     return fClusters[ (fBotclusters[i]) ];
@@ -82,7 +82,7 @@ void PndMvdStripClusterBuilder::AddCluster(const std::vector< Int_t >& onecluste
     fTopclusters.push_back(clindex);
 //     std::cout<<"Adding Cluster number "<<clindex<<" to the top list."<<std::endl;
   }
-  PndMvdCluster cl(onecluster);
+  PndMvdClusterStrip cl(onecluster);
   cl.SetSensorSide(side);
   fClusters.push_back(cl);
 }

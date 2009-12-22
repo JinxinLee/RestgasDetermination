@@ -20,7 +20,7 @@ public:
 
 	void SetClusterList(std::vector<Int_t> list){
 		fClusterList = list;
-		SetLinks(kMVDDigiStrip, list);
+		//SetLinks(kMVDDigiStrip, list);
 	}
 
 	SensorSide GetSensorSide() const {return fSide;}

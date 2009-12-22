@@ -243,7 +243,7 @@ void PndMvdHybridHitProducer::Exec(Option_t* opt)
     if (fPixelList[iPix].GetCharge()<=fthreshold) continue;
 	  if (fVerbose > 1)  std::cout << fPixelList[iPix] << std::endl;
 	    new ((*fPixelArray)[iFePixel++])
-	          PndMvdDigiPixel( fPixelList[iPix].GetFirstMCIndex(), kMVDHitsPixel, fPixelList[iPix].GetDetName() ,fPixelList[iPix].GetFE(),
+	          PndMvdDigiPixel( fPixelList[iPix].GetMCIndex(), kMVDHitsPixel, fPixelList[iPix].GetDetName() ,fPixelList[iPix].GetFE(),
 	                       fPixelList[iPix].GetCol(), fPixelList[iPix].GetRow(),
 	                       fPixelList[iPix].GetCharge());
 //	    new ((*fPixelArray)[iFePixel++])

@@ -4,7 +4,7 @@
 #include "PndMvdHit.h"
 #include "TString.h"
 
-PndMvdRiemannTrackFinder::PndMvdRiemannTrackFinder():PndRiemannTrackFinder(),fZClosePar(0.1)
+PndMvdRiemannTrackFinder::PndMvdRiemannTrackFinder():PndRiemannTrackFinder(),fZClosePar(0.1), fGeoH(gGeoManager)
 {
 	if (fUseZeroPos)
 		fLayers[0].push_back(0);
@@ -146,6 +146,7 @@ void PndMvdRiemannTrackFinder::FindTracks()
 						  << " dip: " << actTrack.dip() << "+/-" << actTrack.dDip()
 						  << " orig: " << myOrig[0] << "+/-" << actTrack.dX()
 						  << " " << myOrig[1] << "+/-" << actTrack.dY() << std::endl;
+				actTrack.getPforHit(0, 2);
 			}
 		}
 	}

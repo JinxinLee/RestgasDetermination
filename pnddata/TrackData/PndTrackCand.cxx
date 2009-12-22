@@ -10,7 +10,7 @@
 //      Software developed for the PANDA Detector at FAIR.
 //
 // Author List:
-//      Tobias Stockmanns (IKP - Jülich) during the Panda Meeting 03/09
+//      Tobias Stockmanns (IKP - Juelich) during the Panda Meeting 03/09
 //
 //
 //-----------------------------------------------------------
@@ -34,6 +34,9 @@ PndTrackCand::AddHit(UInt_t detId, UInt_t hitId, Double_t rho)
 {
 	fHitId.push_back(PndTrackCandHit(detId, hitId, rho));
 	sorted = false;
+	Int_t det = detId;
+	Int_t hit = hitId;
+	AddLink(det, hit);
 }
 
 
@@ -56,6 +59,10 @@ void PndTrackCand::DeleteHit(UInt_t detId, UInt_t hitId)
 {
 	int ind = HitInTrack(detId, hitId);
 	fHitId.erase(fHitId.begin()+ind);
+
+	Int_t det = detId;
+	Int_t hit = hitId;
+	DeleteLink(det, hit);
 }
 
 void PndTrackCand::Sort()

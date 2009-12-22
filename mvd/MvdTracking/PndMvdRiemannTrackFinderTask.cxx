@@ -97,7 +97,7 @@ void PndMvdRiemannTrackFinderTask::Exec(Option_t* opt)
   trackFinder.SetMaxSZDist(fMaxSZDist);
   trackFinder.SetVerbose(fVerbose);
   trackFinder.SetMinNumberOfHits(4);
-  trackFinder.SetGeoH(fGeoH);
+  //trackFinder.SetGeoH(fGeoH);
 
   trackFinder.SetCutDistH(fCutDistH);
   trackFinder.SetCutChi2H(fCutChi2H);

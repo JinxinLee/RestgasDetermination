@@ -15,6 +15,7 @@ ${CMAKE_SOURCE_DIR}/pnddata/MvdData
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
 ${CMAKE_SOURCE_DIR}/passive
 ${CMAKE_SOURCE_DIR}/PndTools/riemannfit
+${CMAKE_SOURCE_DIR}/PndMCMatch
 ${CMAKE_SOURCE_DIR}/mvd/MvdMC
 ${CMAKE_SOURCE_DIR}/mvd/MvdData
 ${CMAKE_SOURCE_DIR}/mvd/MvdDigi

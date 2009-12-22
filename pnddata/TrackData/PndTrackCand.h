@@ -19,6 +19,9 @@
 #define PNDTRACKCAND_HH
 
 // Root Class Headers ----------------
+#include "PndTrackCandHit.h"
+#include "FairMultiLinkedData.h"
+
 #include "TObject.h"
 #include "TVector3.h"
 
@@ -26,11 +29,11 @@
 #include <vector>
 #include <map>
 
-#include"PndTrackCandHit.h"
+
 
 typedef std::multimap<Double_t, std::pair<Int_t, Int_t> >::const_iterator mapIter;
 
-class PndTrackCand : public TObject {
+class PndTrackCand : public FairMultiLinkedData {
 public:
 
   // Constructors/Destructors ---------

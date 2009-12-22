@@ -21,8 +21,10 @@
 #include "PndMvdCalcFePixel.h"
 #include "PndMvdDigiPixel.h"
 // #include "PndMvdPixelCluster.h"
-#include "PndMvdCluster.h"
+#include "PndMvdClusterPixel.h"
 #include "PndMvdGeoHandling.h"
+
+#include "PndMCList.h"
 
 #include "PndMvdSimplePixelClusterFinder.h"
 #include "PndMvdChargeWeightedPixelMapping.h"
@@ -106,8 +108,8 @@ InitStatus PndMvdPixelClusterTask::Init()
   fHitArray = new TClonesArray("PndMvdHit");
   ioman->Register("MVDHitsPixel", "MVD", fHitArray, kTRUE);
 
-  fClusterArray = new TClonesArray("PndMvdCluster");
-  ioman->Register("MVDClusterCand","MVD",fClusterArray,kTRUE);
+  fClusterArray = new TClonesArray("PndMvdClusterPixel");
+  ioman->Register("MVDPixelClusterCand","MVD",fClusterArray,kTRUE);
 
   fParams.push_back(fDigiPar->GetFECols());
   fParams.push_back(fDigiPar->GetFERows());
@@ -149,7 +151,7 @@ void PndMvdPixelClusterTask::Exec(Option_t* opt)
   // store the list
   for (Int_t i = 0; i < clusters.size(); i++)
   {
-    new((*fClusterArray)[i]) PndMvdCluster(clusters[i]);
+    new((*fClusterArray)[i]) PndMvdClusterPixel(clusters[i]);
   }
 
   std::vector<Double_t> mappingPar;
@@ -173,7 +175,7 @@ void PndMvdPixelClusterTask::Exec(Option_t* opt)
     PndMvdChargeWeightedPixelMapping mapping(clusterArray, mappingPar);
     mapping.SetVerbose(fVerbose);
     PndMvdHit myHit = mapping.GetCluster();
-    myHit.SetClusterIndex(i);
+    myHit.SetClusterIndex(kMVDClusterPixel, i);
     if(fVerbose>1){
       std::cout << " -I-  PndMvdPixelClusterTask::Exec(): Calculated Hit: " << std::endl;
       myHit.Print();

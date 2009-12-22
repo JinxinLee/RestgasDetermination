@@ -346,7 +346,9 @@ void PndMvdStripHitProducer::AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, T
 	}
   }
   if(found == kFALSE){//TODO: Simulate a timestamp
-    new ((*fStripArray)[iStrip]) PndMvdDigiStrip(iPoint,detID,detname,fe,chan,0,charge) ;
+	  std::vector<Int_t>indices;
+	  indices.push_back(iPoint);
+    new ((*fStripArray)[iStrip]) PndMvdDigiStrip(indices,detID,detname,fe,chan,charge, 0) ;
     iStrip++;
   }
 }

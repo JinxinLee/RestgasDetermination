@@ -51,6 +51,8 @@
 
 #pragma link C++ class  PndMvdApvHit+;
 #pragma link C++ class  PndMvdCluster+;
+#pragma link C++ class  PndMvdClusterPixel+;
+#pragma link C++ class  PndMvdClusterStrip+;
 #pragma link C++ class  PndMvdDigi+;
 #pragma link C++ class  PndMvdDigiPixel+;
 #pragma link C++ class  PndMvdDigiStrip+;

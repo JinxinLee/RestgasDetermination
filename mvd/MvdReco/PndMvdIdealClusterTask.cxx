@@ -22,7 +22,7 @@
 #include "PndMvdCalcFePixel.h"
 #include "PndMvdDigiPixel.h"
 // #include "PndMvdPixelCluster.h"
-#include "PndMvdCluster.h"
+#include "PndMvdClusterPixel.h"
 
 #include "PndMvdSimplePixelClusterFinder.h"
 #include "PndMvdChargeWeightedPixelMapping.h"
@@ -121,8 +121,8 @@ InitStatus PndMvdIdealClusterTask::Init()
   fHitArray = new TClonesArray("PndMvdHit");
   ioman->Register("PndMvdIdealClusterHit", "MVD", fHitArray, kTRUE);
 
-  fClusterArray = new TClonesArray("PndMvdCluster");
-  ioman->Register("PndMvdCluster","MVD",fClusterArray,kTRUE);
+  fClusterArray = new TClonesArray("PndMvdClusterPixel");
+  ioman->Register("PndMvdClusterPixel","MVD",fClusterArray,kTRUE);
 
   std::cout << "-I- PndMvdIdealClusterTask: Initialisation successfull" << std::endl;
   return kSUCCESS;
@@ -157,7 +157,7 @@ void PndMvdIdealClusterTask::Exec(Option_t* opt)
   std::cout << clusters.size() << std::endl;
   for (Int_t i = 0; i < clusters.size(); i++)
   {
-	new((*fClusterArray)[i]) PndMvdCluster(clusters[i]);
+	new((*fClusterArray)[i]) PndMvdClusterPixel(clusters[i]);
   }
 
   std::vector<Double_t> mappingPar;

@@ -29,7 +29,7 @@ PndMvdStripClusterFinder::~PndMvdStripClusterFinder()
 }
 
 
-std::vector< PndMvdCluster >  PndMvdStripClusterFinder::SearchClusters()
+std::vector< PndMvdClusterStrip >  PndMvdStripClusterFinder::SearchClusters()
 {
   ///  -----  search for clusters  -----
   ///  Take neighbouring fired strips.
