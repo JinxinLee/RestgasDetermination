@@ -33,7 +33,7 @@
 
 typedef std::multimap<Double_t, std::pair<Int_t, Int_t> >::const_iterator mapIter;
 
-class PndTrackCand : public FairMultiLinkedData {
+class PndTrackCand : public TObject { // public FairMultiLinkedData {
 public:
 
   // Constructors/Destructors ---------
