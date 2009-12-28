@@ -16,14 +16,13 @@
 
 #include "TObject.h"
 #include "TString.h"
-#include "FairMultiLinkedData.h"
 #include <iostream>
 #include <vector>
 
 #include "PndDetectorList.h"
 
 
-class PndMvdDigi : public FairMultiLinkedData
+class PndMvdDigi : public TObject
 {
     friend std::ostream& operator<< (std::ostream& out, PndMvdDigi& digi){
         out << "PndMvd Digi in: " << digi.GetDetName() << " FE: "
