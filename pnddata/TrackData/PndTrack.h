@@ -11,7 +11,7 @@
 #include "TObject.h"
 #include "PndTrackCand.h"
 #include "FairTrackParP.h"
-#include "PndDetectorList.h"
+//#include "PndDetectorList.h"
 //#include "FairSingleLinkedData.h"
 
 

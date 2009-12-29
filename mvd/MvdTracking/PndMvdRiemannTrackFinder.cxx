@@ -146,7 +146,7 @@ void PndMvdRiemannTrackFinder::FindTracks()
 						  << " dip: " << actTrack.dip() << "+/-" << actTrack.dDip()
 						  << " orig: " << myOrig[0] << "+/-" << actTrack.dX()
 						  << " " << myOrig[1] << "+/-" << actTrack.dY() << std::endl;
-				actTrack.getPforHit(0, 2);
+			//	actTrack.getPforHit(0, 2);
 			}
 		}
 	}

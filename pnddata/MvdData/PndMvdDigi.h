@@ -57,7 +57,10 @@ class PndMvdDigi : public TObject
 		int GetNIndices() {return fIndex.size();}
 		Int_t GetIndex(int i = 0) const{ return fIndex[i];}
 		Int_t GetNIndices() const { return fIndex.size();}
-		void AddIndex(int index){fIndex.push_back(index); AddLink(kMVDPoint, index);}
+		void AddIndex(int index){
+		             fIndex.push_back(index); 
+		          //  AddLink(kMVDPoint, index);
+			    }
 		void AddIndex(std::vector<Int_t> index){
 			fIndex = index;
 			//SetLinks(kMVDPoint, index);

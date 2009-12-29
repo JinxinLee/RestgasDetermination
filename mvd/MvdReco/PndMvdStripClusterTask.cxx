@@ -363,7 +363,7 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
             new((*fHitArray)[i]) PndMvdHit(detID,detnametop.Data(),hitPos,hitErr,
                 *itTop,mycharge,oneclusterbot.size()+oneclustertop.size(),mcindex);
             ((PndMvdHit*)((*fHitArray)[i]))->SetBotIndex(*itBot);
-            ((PndMvdHit*)((*fHitArray)[i]))->SetLink(kMVDClusterStrip, clusterIndex);
+            //((PndMvdHit*)((*fHitArray)[i]))->SetLink(kMVDClusterStrip, clusterIndex);
 
           } else
             if (fVerbose > 2) std::cout<<"Strip charge contents too differently"<<std::endl;
