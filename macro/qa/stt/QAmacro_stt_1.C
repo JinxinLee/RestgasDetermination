@@ -6,8 +6,6 @@
 {
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-  basiclibs();
 
   Bool_t fTest=kFALSE;
 
@@ -91,7 +89,7 @@
   rtdb->saveOutput();
   rtdb->print();
 
-  Int_t nEvents = 100;
+  Int_t nEvents = 50;
   fRun->Run(nEvents);
 
   fTest = kTRUE;
@@ -103,7 +101,7 @@
     cout << " Test Failed" << endl;
     cout << " Not Ok " << endl;         
   }
-
+  delete fRun;
   exit(0); 
 }  
   
