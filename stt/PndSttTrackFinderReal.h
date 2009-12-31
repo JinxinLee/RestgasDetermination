@@ -3,66 +3,30 @@
 
 #include "PndSttTrackFinder.h"
 #include "PndMCTrack.h"
-// #include "CbmMCGFTrack.h"
+#include "PndSttTrack.h"
 
 #include "TList.h"
 #include "TClonesArray.h"
+#include "TH1.h"
+//-------------------------------
+
+#include "FairGeanePro.h"
+#include "GFDetPlane.h"
+#include "GFAbsTrackRep.h"
+#include "GeaneTrackRep.h"
+#include "GFTrack.h"
+#include "GFTrackCand.h"
+#include "GFRecoHitFactory.h"
+#include "PndSttRecoHit.h"
 
 
-#include "TGeoTorus.h"
+//   #include "TGeoTorus.h"
 
 class PndSttTrack;
 class PndSttHit;
 class FairMCPoint;
 //class CbmMCPoint;
 //class TClonesArray;
-
-const Int_t nmaxHits = 200,
-            nmaxinclinationversors=100,
-            nmaxAmbiguities = 10,
-            nmaxAssociatedHits = 200,
-            nAdmittedRadia = 3,
-            nbinCX=100,
-            nbinCY = 100,
-            nbinZ = 100,
-            nbinR = 100,
-            nbinD = 250,
-            nbinFi= 250,
-            nbinKAPPA = 200,
-            nbinFI0 = 200,
-            MAXSTTINFO=100000,
-            minParallelAssociatedHits = 5,
-            minSkewAssociatedHits=5,
-            MINIMUMCOUNTSDFiR = 18,
-            MINIMUMCOUNTSKAPPAFI0 = 5,
-            MAXElementsOverThresholdinHough = 500;
-
-
-
-const Double_t PI = 3.141592654;
-const Double_t   StrawRadius = 0.5,
-                 StrawDriftError = 0.03,
-                 RMINIMUM= 100.,
-                 CXmin=-150.,  CXmax=150.,
-                 CYmin=-300.,  CYmax=300.,
-                 Rmin=RMINIMUM,      Rmax=700.,
-                 Dmin=-21.,    Dmax=21.,
-                 Fimin=0.,     Fimax=2.*PI,
-                 FI0min = 0., FI0max = 2.*PI,
-                 KAPPAmin =-2.,  KAPPAmax = 2.,
-                 Zmin = -75.,   Zmax = 75.,
-               DELTA_R=5.,
-               DELTA_Fi=0.3,
-               DELTA_D=2.,
-               DELTA_KAPPA=0.03,
-               DELTA_FI0= 0.3,
-               stepD=(Dmax-Dmin)/nbinD,
-               stepFi=(Fimax-Fimin)/nbinFi,
-               stepR=(Rmax-Rmin)/nbinR,
-               stepKAPPA=(KAPPAmax-KAPPAmin)/nbinKAPPA,
-               stepFI0=(FI0max-FI0min)/nbinFI0,
-               stepfineKAPPA=2.*DELTA_KAPPA/nbinKAPPA,
-               stepfineFI0=2.*DELTA_FI0/nbinFI0;
 
 
 struct CalculatedCircles {
@@ -71,6 +35,7 @@ struct CalculatedCircles {
                  Double_t CY[8];
                  Double_t R[8];
                } ;
+
 
 struct CalculatedHelix {
                  Int_t Nhelix[3];
@@ -81,6 +46,8 @@ struct CalculatedHelix {
                  Double_t FI0[3][16];
                } ;
 
+#define            nmaxAmbiguities  10
+#define            nmaxAssociatedHits  200
 struct AssociatedHitsToHelix {
                  Int_t NAssociatedHits;
                  Int_t NAssociatedParallelHits;
@@ -119,27 +86,314 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
   void WriteHistograms();
 
-  /** GFTrack finding algorithm **/
+  /** Track finding algorithm **/
   virtual Int_t DoFind(TClonesArray* mHitArray);
   
-  virtual void AddHitCollection(TClonesArray* mHitArray, TClonesArray* mPointArray) {fHitCollectionList.Add(mHitArray); fPointCollectionList.Add(mPointArray);}
+  virtual void AddHitCollection(TClonesArray* mHitArray, TClonesArray* mPointArray)
+             {fHitCollectionList.Add(mHitArray); fPointCollectionList.Add(mPointArray);};
   
 
  private:
 
+
+
+
+
+
+
+      static const UShort_t
+            nmaxHits = 800,
+            MAXMCTRACKS=50,
+            MAXTRACKSPEREVENT=50,
+            nmaxinclinationversors=20,
+//            nmaxAmbiguities = 10,
+//            nmaxAssociatedHits = 200,
+            nAdmittedRadia = 3,
+            nbinCX=100,
+            nbinCY = 100,
+            nbinZ = 100,
+            nbinR = 100,
+            nbinD = 250,
+            nbinFi= 250,
+            nbinKAPPA = 200,
+            nbinFI0 = 200,
+            MAXSTTINFO=200000,
+            MINIMUMSKEWHITSPERTRACK=3,
+            MINIMUMCOUNTSDFiR = 18,
+            MINIMUMCOUNTSKAPPAFI0 = 5,
+            MAXElementsOverThresholdinHough = 500,
+            nRdivConformal =10,
+            NHITSINFIT=15,
+            DELTAnR = 2;   //  defines the range of nR in PndSttTrkAssociatedParallelHitsToHelixBis
+
+    static const  Double_t PI = 3.141592654,
+                 RMINIMUM= 20.,
+                 Rmin=20.,  // this must be the same as RMINIMUM
+                 Rmax=700.,
+                 StrawRadius = 0.5,
+                 StrawDriftError = 0.02,
+                 CXmin=-150.,  CXmax=150.,
+                 CYmin=-300.,  CYmax=300.,
+                 Dmin=-21.,    Dmax=21.,
+                 KAPPAmin =-2.,  KAPPAmax = 2.,
+                 Zmin = -75.,   Zmax = 75.,
+                 RStrawDetectorMin = 16., // minimum radius of the Stt detector in  cm
+                 RStrawDetectorMax = 45., // maximum radius of the Stt detector in  cm
+               DELTA_R=5.,
+               DELTA_Fi=0.3,
+               DELTA_D=2.,
+               DELTA_KAPPA=0.03,
+               DELTA_FI0= 0.3,
+               BFIELD=2.,  // in Tesla
+               CVEL = 2.99792;  //  velocity of light
+
+
+//               nFidivConformal = (UShort_t) (    PI*RStrawDetectorMax /StrawRadius   );
+       static const UShort_t  nFidivConformal = (UShort_t) (3.141592654 * 45./0.5)  ;
+
+       Double_t Fimin,     Fimax,
+                 FI0min, FI0max,
+               stepD,
+               stepFi,
+               stepR,
+               stepKAPPA,
+               stepFI0,
+               stepfineKAPPA,
+               stepfineFI0,
+               RminStrawSkewArea , // delimitation of the skew area
+               RmaxStrawSkewArea;
+
+
+
+
+      int IVOLTE, ntimes, INTERO, ITRACCIA;
+//  Double_t SEMILENGTH_STRAIGHT = 75.;
+      static const bool  iplotta = true , ianalizza = true ;
+      static const int istampa = 1;
+      TH1F * hx;
+      FILE * HANDLE ;
+    Double_t veritaMC[nmaxHits][3];
+    UShort_t  FromHitToMCTrack[nmaxHits],
+              FromMCTrackToHit[MAXMCTRACKS][nmaxHits],
+              nHitsInMCTrack[MAXMCTRACKS],
+              FromSkewHitToMCTrack[nmaxHits],
+              FromMCTrackToSkewHit[MAXMCTRACKS][nmaxHits],
+              nSkewHitsInMCTrack[MAXMCTRACKS];
+
+
+
+
+
+
+
+
+
+
+
+
+  UShort_t nRdivConformalEffective,
+           MINIMUMHITSPERTRACK,
+           MINIMUMOUTERHITSPERTRACK,
+           NSkewhits,
+           infoparal[nmaxHits],
+           infoskew[nmaxHits];
+
+
+  Double_t radiaConf[nRdivConformal];
+
+
+
+    UShort_t nMCTracks;
+
+    Double_t SEMILENGTH_STRAIGHT,
+             ZCENTER_STRAIGHT,
+             CxMC[MAXMCTRACKS],
+             CyMC[MAXMCTRACKS],
+             R_MC[MAXMCTRACKS],
+             MCtruthTrkInfo[14][MAXMCTRACKS];
+
+  TClonesArray* fMCTrackArray;
   /** Verbosity level **/
   Int_t fVerbose;
+
+
+
+
 
   TList fHitCollectionList;
   TList fPointCollectionList;
 
   PndSttHit* GetHitFromCollections(Int_t hitCounter);
   FairMCPoint* GetPointFromCollections(Int_t hitCounter);
+  FairGeanePro * fPro;
+  TClonesArray* fSttHitArray;
+  GFRecoHitFactory* _theRecoHitFactory;
 
-// added by Gianluigi from 22-9-2008 on ---------------------------------------
+  void PndSttTrkFinderPartial(Int_t NN,Double_t info[][6],Int_t nincl,Int_t Minclinations[],
+                        Double_t inclinationversors[][3],
+                        Int_t Ninclinate,
+                        TClonesArray * trackArray
+                              );
 
-  void PndSttTrkFinderPartial(Int_t NN,Double_t information[][6],Int_t nincl,Int_t mincl[],
-                        Double_t inclinationversors[][3]);
+
+  void PndSttFromXYtoConformal(Double_t trajectory_vertex[3],
+                        Double_t info[][6],
+                        Int_t Nparal,
+                        Double_t infoparalConformal[][5],
+                        Int_t * status
+                        );
+
+
+  void PndSttFromXYtoConformal2(Double_t trajectory_vertex[3],
+                                UShort_t nHitsinTrack ,
+                                UShort_t iExclude ,
+                                UShort_t *ListHits,
+                                Double_t info[][6],
+                                Double_t auxinfoparalConformal[][5],
+                                Int_t * status
+                                );
+
+
+  void PndSttBoxConformalFilling(
+                                 Double_t infoparalConformal[][5],Int_t Nparal,
+                                 UShort_t nBoxConformal[nRdivConformal][nFidivConformal],
+                                 UShort_t HitsinBoxConformal[nRdivConformal][nFidivConformal][nmaxHits],
+                                 UShort_t  RConformalIndex[nmaxHits],
+                                 UShort_t  FiConformalIndex[nmaxHits]);
+
+
+
+
+
+  void PndSttTrackFinderReal::PndStt_Merge_Sort(UShort_t n_ele, Double_t *array, UShort_t *ind);
+
+  void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *ind_left, UShort_t nr,
+                                         Double_t *right, UShort_t *ind_right,  Double_t *result, UShort_t *ind);
+
+
+
+  Short_t PndSttTrackFinderReal::PndSttFindTrackPatterninBoxConformal(
+                                                  UShort_t NRCELLDISTANCE,
+                                                  UShort_t NFiCELLDISTANCE,
+                                                  UShort_t Nparal,
+                                                  UShort_t ihit,
+                                                  Double_t info[][6],
+                                                  bool Exclusion_List[nmaxHits],
+                                                  UShort_t RConformalIndex[nmaxHits],
+                                                  UShort_t FiConformalIndex[nmaxHits],
+                                                  UShort_t nBoxConformal[nRdivConformal][nFidivConformal],
+                                                  UShort_t HitsinBoxConformal[nRdivConformal][nFidivConformal][nmaxHits],
+                                                  UShort_t  *ListHitsinTrack
+                                               );
+
+
+  Short_t PndSttTrackFinderReal::PndSttFindTrackPatterninBoxConformalSpecial(
+                                                  UShort_t NRCELLDISTANCE,
+                                                  UShort_t NFiCELLDISTANCE,                                                  
+                                                  UShort_t Nparal,
+                                                  UShort_t NparallelToSearch,
+                                                  UShort_t iSeed,
+                                                  UShort_t *ListHitsinTrackinWhichToSearch,
+                                                  Double_t info[][6],
+                                                  bool ExclusionList[nmaxHits],
+                                                  UShort_t RConformalIndex[nmaxHits],
+                                                  UShort_t FiConformalIndex[nmaxHits],
+                                                  UShort_t nBoxConformal[nRdivConformal][nFidivConformal],
+                                                  UShort_t HitsinBoxConformal[nRdivConformal][nFidivConformal][nmaxHits],
+                                                  UShort_t  *OutputListHitsinTrack
+                                               );
+
+
+  Short_t PndSttTrackFinderReal::PndSttFindTrackStrictCollection(
+                                                  UShort_t NFiCELLDISTANCE,                                                  
+                                                  UShort_t iSeed,   //  seed track (parallel notation) as fa as the Fi angle is concerned
+                                                  UShort_t NParallelToSearch,    //  n. of hits to search in ListHitsinTrackinWhichToSearch
+                                                  UShort_t *ListHitsinTrackinWhichToSearch,
+                                                  bool ExclusionList[nmaxHits],
+                                                  UShort_t FiConformalIndex[nmaxHits],
+                                                  UShort_t  *OutputListHitsinTrack
+                                                                      );
+
+
+
+  Short_t PndSttTrackFinderReal::PndSttFitHelixCylinder( UShort_t nHitsinTrack,
+//                                UShort_t iExclude ,
+                          Double_t auxinfoparalConformal[][5],
+                          UShort_t  nTracksFoundSoFar,
+                          Double_t rotationangle,
+                          Double_t *trajectory_vertex,
+                          UShort_t NMAX,
+                          Double_t *m,
+                          Double_t *q,
+                          Double_t * ALFA,
+                          Double_t * BETA,
+                          Double_t * GAMMA,
+                          bool *TypeConf
+                          );
+
+
+
+  Short_t PndSttTrackFinderReal::PndSttFitHelixCylinder2( UShort_t nHitsinTrack,
+                          Double_t auxinfoparalConformal[][5],
+                          UShort_t  nTracksFoundSoFar,
+                          Double_t rotationangle,
+                          Double_t *trajectory_vertex,
+                          UShort_t NMAX,
+                          Double_t * ALFA,
+                          Double_t * BETA,
+                          Double_t * GAMMA,
+                          bool *TypeConf
+                          );
+
+  Short_t PndSttTrackFinderReal::PndSttFitSZspace(
+                          UShort_t nHitsinTrack,
+                          Double_t *S,
+                          Double_t *Z,
+                          Double_t *DriftRadius,
+                          UShort_t  nParallelTrack,
+                          Double_t rotationangle,
+                          UShort_t NMAX,
+                          Double_t *m,
+                          Double_t *q
+                          );
+
+  UShort_t PndSttTrackFinderReal::PndSttTrkAssociatedParallelHitsToHelixBis(
+                   Double_t m,
+                   Double_t q,
+                   Short_t Status,
+                   UShort_t nHitsinTrack,
+                   UShort_t *ListHitsinTrack,
+                   Int_t NhitsParallel,
+                   Double_t infoparalConformal[][5],
+                   UShort_t *RConformalIndex,
+                   UShort_t *FiConformalIndex,
+                   UShort_t nBoxConformal[nRdivConformal][nFidivConformal],
+                   UShort_t HitsinBoxConformal[nRdivConformal][nFidivConformal][nmaxHits],
+                   UShort_t *auxListHitsinTrack
+                                                     );
+
+
+  UShort_t PndSttTrackFinderReal::PndSttTrkAssociatedParallelHitsToHelixTris(
+                   Double_t m,
+                   Double_t q,
+                   Short_t Status,
+                   UShort_t nHitsinTrack,
+                   UShort_t *ListHitsinTrack,
+                   Int_t NhitsParallel,
+                   Double_t infoparalConformal[][5],
+                   UShort_t *RConformalIndex,
+                   UShort_t *FiConformalIndex,
+                   UShort_t nBoxConformal[nRdivConformal][nFidivConformal],
+                   UShort_t HitsinBoxConformal[nRdivConformal][nFidivConformal][nmaxHits],
+                   UShort_t *auxListHitsinTrack
+                                                     );
+
+
+ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal( Double_t  distance,
+                                                         Double_t  DriftConfR,
+                                                         Double_t  StrawConfR
+                                                      );
+
 
   CalculatedCircles PndSttTrkFindCircles(Double_t,Double_t,Double_t,Double_t,Double_t,Double_t,Double_t,Double_t,Double_t);
 
@@ -160,30 +414,16 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
   AssociatedHitsToHelix PndSttTrkAssociatedHitsToHelix(
                    Double_t KAPPA,Double_t FI0,Double_t D,Double_t Fi,Double_t R,
-                   Int_t Nhits, Double_t info[][6], Int_t Nincl, Int_t Mincl[], Double_t inclination[][3],
+                   Int_t Nhits, Double_t info[][6], Int_t Nincl, Int_t Minclinations[], Double_t inclination[][3],
                    Int_t imaxima, Int_t nMaxima 
                                                      );
 
   Int_t PndSttTrkAssociatedParallelHitsToHelix(
                    Double_t D,Double_t Fi,Double_t R,
-                   Int_t Nhits, Double_t info[][6], Int_t Nincl, Int_t Mincl[], Double_t inclination[][3]
+                   Int_t Nhits, Double_t info[][6], Int_t Nincl, Int_t Minclinations[], Double_t inclination[][3]
                                                      );
 
 
-  void plottamentiParalleleGenerali(   Int_t Nremaining, Float_t * RemainingR, Float_t * RemainingD,
-                      Float_t * RemainingFi, Float_t * RemainingCX, Float_t * RemainingCY
-                          ) ;
-
-  void plottamentiParalleleconMassimo( char * tipo,  Int_t nMaxima,  Int_t Nremaining, Float_t * RemainingR, Float_t * RemainingD,
-                      Float_t * RemainingFi, Float_t * RemainingCX, Float_t * RemainingCY,
-                      Double_t Rup, Double_t Rlow, Double_t Dup, Double_t Dlow, Double_t Fiup, Double_t Filow
-                                    ) ;
-
-  void plottamentiSkewconMassimo(   Int_t nMaxima, Int_t jmaxima,
-                      Int_t Nremaining2, Float_t * RemainingKAPPA, Float_t *RemainingFI0,
-                      Double_t KAPPAlow, Double_t KAPPAup, Double_t FI0low, Double_t FI0up,
-                      AssociatedHitsToHelix  ResultAssociatedHits,
-                      Double_t HoughR, Double_t HoughD, Double_t HoughFi) ;
 
   void findmaximaDFiR( UShort_t BoxDFiR[nbinD][nbinFi][nbinR], Int_t MINIMUMCOUNTS,
                     Int_t * NumberofMaximaDFiR, Int_t  MaximaIndexesDFiR[][3], Int_t * STATUS);
@@ -208,21 +448,67 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                 );
 
 
-  void WriteMacroParallelAssociatedHits(
-                   Double_t D,Double_t Fi,Double_t R,
-                   Int_t Nhits, Double_t info[][6], Int_t Nincl, Int_t Mincl[], Double_t inclination[][3],
-                   Int_t imaxima
+
+  UShort_t PndSttTrackFinderReal::AssociateSkewHitsToXYTrack(
+                   Double_t Ox,
+                   Double_t Oy,
+                   Double_t R,
+                   Double_t info[][6],
+                   Double_t inclination[][3],
+                   UShort_t SkewList[nmaxHits][2], // output,  list of selected skew hits (in skew numbering)
+                   Double_t *S,       //  output,  S coordinate of selected Skew hit
+                   Double_t *Z,       //  output,  Z coordinate of selected Skew hit
+                   Double_t *ZDrift,   //  output,  drift distance IN Z DIRECTION only, of selected Skew hit
+                   Double_t *ZRadiusafterTilt   //  output,  Radius taking into account the tilt, IN Z DIRECTION only, of selected Skew hit
                                                      );
 
-  void WriteMacroParallelHitsGeneral(
-                   Int_t Nhits, Double_t info[][6], Int_t Nincl, Int_t Mincl[], Double_t inclination[][3]
+  UShort_t PndSttTrackFinderReal::AssociateBetterAfterFitSkewHitsToXYTrack(
+                   UShort_t TemporarynSkewHitsinTrack,
+                   UShort_t SkewList[nmaxHits][2], // input,  list of selected skew hits (in skew numbering)
+                   Double_t *S,       //  input,  S coordinate of selected Skew hit
+                   Double_t *Z,       //  input,  Z coordinate of selected Skew hit
+                   Double_t *ZDrift,   //  input,  drift distance IN Z DIRECTION only, of selected Skew hit
+                   Double_t *ZRadiusafterTilt,   //  input,  Radius taking into account the tilt, IN Z DIRECTION only, of selected Skew hit
+                   Double_t KAPPA,    // input, KAPPA result of fit
+                   Double_t FI0,    // input, FI0 result of fit
+                   UShort_t *ListSkewHitsinTrack,
+                   Int_t  STATUS   // output
                                                      );
 
-  void WriteMacroSkewAssociatedHits(
-                   Double_t KAPPA,Double_t FI0,Double_t D,Double_t Fi,Double_t R,
-                   Int_t Nhits, Double_t info[][6], Int_t Nincl, Int_t Mincl[], Double_t inclination[][3],
-                   Int_t imaxima, Int_t nMaxima 
-                                                     );
+
+  void   PndSttTrackFinderReal::PndSttFitwithKalman(
+                                                     Double_t Ox,
+                                                     Double_t Oy,
+                                                     Double_t Pxini,
+                                                     Double_t Pyini,
+                                                     Double_t Pzini,
+                                                     Double_t Ptras,
+                                                     Double_t info[][6],
+                                                     UShort_t nParallelHits,
+                                                     UShort_t *ListParallelHits,
+                                                     UShort_t nSkewHits,
+                                                     UShort_t *ListSkewHits,
+                                                     Double_t *S,
+                                                     UShort_t *infoparal,
+                                                     UShort_t *infoskew
+                                                   );
+
+
+      void   PndSttTrackFinderReal::PndSttOrdering(
+                                                     Double_t oX,
+                                                     Double_t oY,
+                                                     Double_t info[][6],
+                                                     UShort_t nParallelHits,
+                                                     UShort_t *ListParallelHits,
+                                                     UShort_t nSkewHits,
+                                                     UShort_t *ListSkewHits,
+                                                     Double_t *S,
+                                                     UShort_t *Infoparal,
+                                                     UShort_t *Infoskew,
+                                                     UShort_t *nTotal,
+                                                     UShort_t *BigList,
+                                                     Short_t  * Charge
+                                                       );
 
 
 //----------------------------------------------
