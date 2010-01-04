@@ -59,7 +59,6 @@ bool compareNodes (Hough5DNode* n1, Hough5DNode* n2) {
 }
 
 
-
 int main(int argc, char** argv) {
 
   extern char *optarg;
@@ -72,17 +71,17 @@ int main(int argc, char** argv) {
   float SCALE =0.95f;
 
   uint cutoffDec = 7;
-  uint cutoffLevel = 11;
+  uint cutoffLevel = 14;
   
 
-  int minCL = 5;
+  int minCL = 10;  //minimal size of track candidate acceptable
   
   int dynLevel = 5;
   bool tracking = false;
 
  
-  float m_Max = 1.f;
-  float m_Min = -1.f;
+  float m_Max = 2.f;
+  float m_Min = -2.f;
   float t_Max = 5.f;
   float t_Min = -5.f;
   float phi_Min = 0.f;
@@ -128,7 +127,7 @@ int main(int argc, char** argv) {
     case 'c':
       cutoffDec = atoi(optarg);
       break;
-    case 'L':
+    case 'L':                           //not working properly
       cutoffLevel = atoi(optarg);
       break;
     default :
@@ -154,26 +153,22 @@ int main(int argc, char** argv) {
 
   //READ data and CREATE histograms and data containers -----------------
 
-
-
-  unsigned int EVENT=6;
-  
-
+  unsigned int EVENT=2;
   
   TString dir = "../../DATA/";
   
-  TString project = "Test10";  //with event 6!
-  //TString project = "Test20";  //with event 7!
-
+  TString project = "Test5";  //with event 2!
+ 
   //TString project = "EvtMixExample";
   
-
   project=dir+project;
   //TString mc_filename = project+".mc.root";
   TString reco_filename = project+".reco.root";
-  
+
+  std::cout<<"Opening input file..."<<std::endl;
 
     
+  //TFile* mc_file =  new TFile(mc_filename);
   TFile* reco_file =  new TFile(reco_filename);
   
   if(reco_file->IsZombie()) {
@@ -182,14 +177,19 @@ int main(int argc, char** argv) {
     return 0;
   }
     
+  //TTree* mc_tree = (TTree*)mc_file->Get("cbmsim");
+  //std::cout<<"got MC tree ..."<<std::endl;
   TTree* reco_tree = (TTree*)reco_file->Get("cbmsim");
+  std::cout<<"got Reco tree ..."<<std::endl;
   
-      
   TClonesArray* _clusters = new TClonesArray("PndTpcCluster");
   reco_tree->SetBranchAddress("PndTpcCluster", &_clusters);
+  std::cout<<"getting event "<<EVENT<<" ..."<<std::endl;
+  
   reco_tree->GetEntry(EVENT);
- 
-    
+  
+  std::cout<<"Getting size ofr PndTpcCluster array ..."<<std::endl;
+  
   int size = _clusters->GetEntriesFast();
   if(size<10) {
     std::cerr<<"Not enough clusters in data ("<<size<<")!"<<std::endl;
@@ -212,7 +212,6 @@ int main(int argc, char** argv) {
     riemannListRZ.push_back(TVector3(pos.Perp(), 0., pos.Z()));
   } 
 
-
     
   TStopwatch timer;
   timer.Start();
@@ -223,20 +222,19 @@ int main(int argc, char** argv) {
 
 
   //instantiate interface object:
-
   fastHoughGPU_IFC* IFC = new fastHoughGPU_IFC(40, 10000000);
   int nClusters = riemannListRZ.size();
-
+  
   
   char* root_hitlist = (char*) malloc(nClusters/sizeof(char) + 1);
   
   //size of one node-hitlist in units of char
   int chunk = nClusters/(sizeof(char)*8) + 1;
-
+  
   //initialize virgin hitlist to 1-bits only
   memset(root_hitlist,0xFF,chunk);
-
-    
+  
+  
   //set up the IFC
   IFC->setKernelPars(THREADS);
   IFC->initClusters(clusterList);
@@ -272,17 +270,9 @@ int main(int argc, char** argv) {
   
   free(root_hitlist);
     
-  // made it through root, begin oct-tree search ------------------------
-  
+  // made it through root, begin tree search ------------------------
    
-  
   std::vector<Hough5DNode*>* last_nodes = new std::vector<Hough5DNode*>();
-
-
-  // float thresh_min=35;
-//   float thresh_step = (THRESHOLD-thresh_min)/TREE_DEPTH;
-//   std::cout<<"thresh_step: "<<thresh_step<<std::endl;
-  
   
   char* new_hitlist;
   char* old_hitlist = (char*) malloc(nClusters/sizeof(char) + 1);
@@ -318,18 +308,17 @@ int main(int argc, char** argv) {
     int counter=0;
     //create new nodes
     for(int n=0; n<nodelist->size(); ++n) {
-     //  for(int c=0; c<nClusters; c++)
-//  	std::cout<<getBit(old_hitlist+chunk*n, c);
-//       std::cout<<"\n"<<votes[n]<<"\n"<<std::endl;
-      Hough5DNode* the_node=(*nodelist)[n];
+      //  for(int c=0; c<nClusters; c++)
+      //  	std::cout<<getBit(old_hitlist+chunk*n, c);
+      //       std::cout<<"\n"<<votes[n]<<"\n"<<std::endl;
+      Hough5DNode* the_node=nodelist->at(n);
       float* sons = the_node->getSonArray();
       if(l<dynLevel) {
 	if(votes[n]>=THRESHOLD) {
-	  
 	  the_node->setVotes(votes[n]);
+	  
 	  //copy this nodes' hitlist to the new one
 	  //son hitlist duplication happens in the IFC
-	  
 	  memcpy(new_hitlist+chunk*counter, 
 		 old_hitlist+n*chunk, chunk);
 	  for(int s=0; s<32; s++) {
@@ -343,6 +332,7 @@ int main(int argc, char** argv) {
 	  (*nodelist)[n] = NULL;
 	}
       }
+      
       //dynamic thresholding based on last generation's vote
       else {
 	if(votes[n] >= ((*last_nodes)[(int)n/32])->getVote()*SCALE) {
@@ -359,8 +349,6 @@ int main(int argc, char** argv) {
 	  (*nodelist)[n] = NULL;
 	}
       }
-      //not necessary?
-      free(sons);
     }
    
 
@@ -384,7 +372,8 @@ int main(int argc, char** argv) {
     
     std::cout<<"Added "<<last_nodes->size()<<" last_nodes"
 	     <<"     (count="<<count<<")"<<std::endl;
-    nodelist->clear();
+    nodelist->clear(); //calls the nodes' destructor
+    delete nodelist;
     nodelist=new_nodes;    
 	
     
@@ -419,8 +408,7 @@ int main(int argc, char** argv) {
     (nodelist->at(x))->setVotes(votes[x]);
   }
 
- 
-  
+   
 
   // --------------------- END FHT ------------------------------------------------
 
@@ -440,7 +428,6 @@ int main(int argc, char** argv) {
   bwStyle->SetCanvasColor(0);
   bwStyle->SetStatColor(0);
 
-  
   
   // set the paper & margin sizes
   bwStyle->SetPaperSize(20,26);
@@ -496,8 +483,6 @@ int main(int argc, char** argv) {
   gROOT->ForceStyle();
 
   
-
-
   // PLOT RZ Hough Histogram --------------------------------------------
   
   TH2D* houghRZ = new TH2D("vfg", "RZ hough space", 
@@ -507,8 +492,6 @@ int main(int argc, char** argv) {
   houghRZ->GetYaxis()->SetTitleOffset(0.8);
   
   
-
-
   double tBinWidth = (t_Max - t_Min)/500;
   
   for(unsigned int rp=0; rp<riemannListRZ.size(); ++rp) {
@@ -670,10 +653,7 @@ int main(int argc, char** argv) {
 	assert(c==(*nodelist)[n]->getVote());
       }
     
-    
-    
-    
-    
+      
     //extract tracks until solutions have less clusters than minCL
     while(cont) {
       
@@ -708,15 +688,13 @@ int main(int argc, char** argv) {
 	    (*nodelist)[n]->removeHit(p);
       }
       
-      solutions.push_back(sol);
-      
+      solutions.push_back(sol);     
       
     }
     
     TCanvas* blub = new TCanvas();
     //blub->Divide(3,2);
         
-    
     for(int i=0; i<solutions.size(); i++) {
       std::string tr = "track_";
       std::stringstream ss;
@@ -724,6 +702,7 @@ int main(int argc, char** argv) {
       tr.append(ss.str());
       hists.push_back(new TH2D(tr.c_str(), "", 
 			       100,-42,42,100,-42,42));
+      
       //fill hist with positions;
       for(int p=0; p<(solutions[i])->size(); p++) {
       TVector3 pos = (solutions[i])->at(p)->pos();

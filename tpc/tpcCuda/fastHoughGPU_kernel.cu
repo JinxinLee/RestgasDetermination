@@ -23,10 +23,9 @@
 //#include <cstdlib>
 
 //global Hough parameter space
+//TODO: rename
 __device__ __constant__ float globalMins_d[5];
 __device__ __constant__ float globalMaxs_d[5];
-
-
 
 
 __device__ int compare (const void * a, const void * b) {
@@ -248,7 +247,6 @@ __global__ void testIntersect2(int nNodes, int level, int nClusters,
        
      for(int n=0; n<nClusters; ++n) {
        
-
        
        if(level>1)  {
 	 //always identical for the 32 sons of one mother!
@@ -340,6 +338,8 @@ __global__ void cleanUpVotes(int nNodes, uint* votes) {
 
 
 //kill the weaker fraction (<cutoff*32) of each mothers' sons
+//this has to be combined with some kind of 2D/3D pattern detection for bulks of
+//nodes
 
 __global__ void cutoffKernel(float cutoff, int nodes, uint* votes) {
 
@@ -360,9 +360,11 @@ __global__ void cutoffKernel(float cutoff, int nodes, uint* votes) {
   //simple bubblesort on the shared array
   if(tID%32==0) {
 
+    //not working, don't know why
     //qsort(temp, 32, sizeof(uint), compare);
 
     //best sorting algorithm of all times.
+    //__shared__ helps, but need to implement something fancier
     for(int l=0; l<32; l++) 
       for(int k=l+1; k<32; k++) 
 	if(warpVotes[l]>warpVotes[k]) {

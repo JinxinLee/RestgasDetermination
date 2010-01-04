@@ -9,6 +9,8 @@
 #pragma link C++ class McIdCollection+;
 #pragma link C++ class PndTpcDigi+;
 #pragma link C++ class PndTpcCluster+;
+//#pragma link C++ class GeaneTrackRep+;
+
 
 
 #endif

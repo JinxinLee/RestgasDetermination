@@ -19,8 +19,8 @@
 #include <sstream>
 
 
-void houghCPU(bool fillSparseHist=true, 
-	      std::string filename = "outputNEW.root") {
+void houghCPU(bool fillSparseHist=false, 
+	      std::string filename = "plots.root") {
 
 
 
@@ -34,11 +34,11 @@ void houghCPU(bool fillSparseHist=true,
   bool CUT_CHAMBER=true;   //only collect hits with x>0;
   double CUT_DIST=1;      //cut on c
   
-  unsigned int EVENT=6;
+  unsigned int EVENT=2;
   double RIEMANNSCALING=40;
 
   TString dir = "../../DATA/";
-  TString project = "Test10";
+  TString project = "Test5";
 
   project=dir+project;
   TString mc_filename = project+".mc.root";
@@ -78,8 +78,8 @@ void houghCPU(bool fillSparseHist=true,
   //unsigned int BIN_t = 100;
   //unsigned int BIN_c = 40;
 
-  double m_Max = 1.;
-  double m_Min = -1.;
+  double m_Max = 5.;
+  double m_Min = -5.;
   double t_Max = 5.;
   double t_Min = -5.;
   double phi_Min = 0;

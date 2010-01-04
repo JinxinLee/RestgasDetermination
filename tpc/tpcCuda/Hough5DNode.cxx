@@ -127,7 +127,8 @@ float*
 Hough5DNode::getSonArray() {
     
   _sons = (float*) malloc(32*5*sizeof(float));
-
+  _sonsAllocd=true;
+  
   int count=0;
   
   for(int x=-1; x<2; x+=2)
