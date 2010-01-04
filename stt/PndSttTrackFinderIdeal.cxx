@@ -1,11 +1,13 @@
 
 #include "PndSttTrackFinderIdeal.h"
 #include "PndSttHit.h"
-#include "PndSttTrack.h"
+#include "PndSttTrack.h" // CHECK canc
 #include "PndSttHoughDefines.h"
 #include "FairMCPoint.h"
 #include "FairRootManager.h"
 #include "PndDetectorList.h"
+#include "PndTrackCand.h" // CHECK add
+
 
 // ROOT includes
 #include "TClonesArray.h"
@@ -82,10 +84,11 @@ void PndSttTrackFinderIdeal::Init()
     }
 }
 // -------------------------------------------------------------------------
-
-
+// CHECK keep with the implementation of (trkarray, trkcandarray) down here!
+Int_t PndSttTrackFinderIdeal::DoFind(TClonesArray* trackArray) {}
+// CHECK temporary
 // -----   Public method DoFind   ------------------------------------------
-Int_t PndSttTrackFinderIdeal::DoFind(TClonesArray* trackArray) 
+Int_t PndSttTrackFinderIdeal::DoFind(TClonesArray* trackArray, TClonesArray* trackCandArray) 
 {
   // Check pointers
   if ( !fMCTrackArray ) 
@@ -140,7 +143,8 @@ Int_t PndSttTrackFinderIdeal::DoFind(TClonesArray* trackArray)
   PndSttHit*       pMhit = NULL;
   FairMCPoint*      pMCpt = NULL;
   PndMCTrack*      pMCtr = NULL;
-  PndSttTrack*     pTrck = NULL;
+  PndSttTrack*     pTrck = NULL; // CHECK canc
+  PndTrackCand* pTrckCand = NULL; // CHECK add
 
   // Number of STT hits
   Int_t 
@@ -229,7 +233,8 @@ Int_t PndSttTrackFinderIdeal::DoFind(TClonesArray* trackArray)
 
       nMCacc++;
 
-      new((*trackArray)[nTracks]) PndSttTrack();
+      new((*trackArray)[nTracks]) PndSttTrack(); // CHECK canc
+      new((*trackCandArray)[nTracks]) PndTrackCand(); // CHECK add
       
       if (fVerbose >= 2) cout << "-I- PndSttTrackFinderIdeal: STTTrack " 
 			      << nTracks << " created from MCTrack " 
@@ -238,6 +243,10 @@ Int_t PndSttTrackFinderIdeal::DoFind(TClonesArray* trackArray)
       
       correlationMap[nTracks] = iMCTrack;
       trackMap[iMCTrack] = nTracks++;
+
+      pTrckCand = (PndTrackCand*) trackCandArray->At(correlationMap[nTracks]);  // CHECK add
+      pTrckCand->setMcTrackId(-1);
+
   }
   
   nAssignedHits = 0;
@@ -286,9 +295,12 @@ Int_t PndSttTrackFinderIdeal::DoFind(TClonesArray* trackArray)
 	  continue;
       
       trackIndex = trackMap[mcTrackIndex];
-      pTrck = (PndSttTrack*) trackArray->At(trackIndex);
+      pTrck = (PndSttTrack*) trackArray->At(trackIndex); // CHECK canc
+      pTrckCand = (PndTrackCand*) trackCandArray->At(correlationMap[nTracks]);  // CHECK add
+
       
-      if ( ! pTrck ) 
+      if ( ! pTrck ) // CHECK canc
+	//      if ( ! pTrckCand ) // CHECK add
       {
 	  cout << "-E- PndSttTrackFinderIdeal::DoFind: "
 	       << "No SttTrack pointer. " << iHit << " " << ptIndex 
@@ -297,7 +309,9 @@ Int_t PndSttTrackFinderIdeal::DoFind(TClonesArray* trackArray)
 	  continue;
       }
       
-// ---------------------------------------------------------------------      
+      // ---------------------------------------------------------------------      
+      
+      // CHECK canc: the pTrck parts have to be deleted
       TVector3 MCmom;
       pMCpt->Momentum(MCmom);
       if(MCmom.Mag() < 0.3) {
@@ -306,11 +320,16 @@ Int_t PndSttTrackFinderIdeal::DoFind(TClonesArray* trackArray)
 	// 	cout << "LOW MOMENTUM --> AddHit by HitID " << endl;
 	if(nAssignedHits>25) continue;
 	pTrck->AddHitByHitID(iHit, pMhit);
+	// CHECK: test iHit and how to organize sorting (here...)
+	pTrckCand->AddHit(pMhit->GetDetectorID(), iHit, 0.0); // CHECK add
 	nAssignedHits++;
       }
       else {
 	// 	cout << "HIGH MOMENTUM --> AddHit by R " << endl;
 	pTrck->AddHit(iHit, pMhit);
+	// CHECK: test iHit and how to organize sorting (... and here)
+	pTrckCand->AddHit(pMhit->GetDetectorID(), iHit, 0.0); // CHECK add
+
       }
 // ---------------------------------------------------------------------  
 
@@ -338,16 +357,22 @@ Int_t PndSttTrackFinderIdeal::DoFind(TClonesArray* trackArray)
   for (Int_t trackTeller = 0; trackTeller < nTracks; trackTeller++)
   {
       // loop over 
-      pTrck = (PndSttTrack*) trackArray->At(trackTeller);
+    pTrck = (PndSttTrack*) trackArray->At(trackTeller); // CHECK canc
+    pTrckCand = (PndTrackCand*) trackCandArray->At(trackTeller); // CHECK add
 
-      if (pTrck != NULL)
-      {
+
+      if (pTrck != NULL) // CHECK canc
+	//	if ( pTrckCand != NULL) //  CHECK add
+	{
 	  Double_t
 	      dSeed,
 	      rSeed,
-	      phiSeed;
+              phiSeed,
+	      zSeed,
+	      tanLamSeed;
 	  
-	  GetTrack(dSeed, phiSeed, rSeed, correlationMap[trackTeller]);
+	  GetTrack(dSeed, phiSeed, rSeed, correlationMap[trackTeller]); // CHECK canc
+	  GetTrack(dSeed, phiSeed, rSeed, zSeed, tanLamSeed, correlationMap[trackTeller]); // CHECK add
 
 	  Double_t
 	      xSeed = (dSeed + rSeed) * cos(phiSeed),
@@ -376,12 +401,71 @@ Int_t PndSttTrackFinderIdeal::DoFind(TClonesArray* trackArray)
 	      myArc.DrawArc(xSeed, ySeed, rSeed);
 	  }
 
+	  // CHECK canc... 
 	  pTrck->GetParamLast()->SetX(dSeed);                
 	  pTrck->GetParamLast()->SetY(phiSeed);
 	  pTrck->GetParamLast()->SetZ(0.);                
 	  pTrck->GetParamLast()->SetTx(rSeed);
 	  pTrck->GetParamLast()->SetTy(0.);                
 	  pTrck->GetParamLast()->SetQp(0.);
+
+	  // CHECK add ----------------------------------
+	  // check: seeds directly from MC
+	  Double_t vxSeed = dSeed * TMath::Cos(phiSeed);
+	  Double_t vySeed = dSeed * TMath::Sin(phiSeed);
+	  Double_t vzSeed = zSeed;
+	  TVector3 posSeed(vxSeed, vySeed, vzSeed); // starting point
+	  
+	  PndMCTrack
+	    *mcTrack2 = (PndMCTrack*) fMCTrackArray->At(correlationMap[trackTeller]);
+	  
+	  double chargeSeed = -1;  // CHECK fix charge from MC!
+	  TVector3 dirSeed(mcTrack2->GetMomentum().X(),
+			   mcTrack2->GetMomentum().Y(),
+			   mcTrack2->GetMomentum().Z()); // momentum direction in starting point
+
+	  Double_t qop = chargeSeed/dirSeed.Mag(); // q over p 
+	  dirSeed.SetMag(1.);
+
+	  pTrckCand->setTrackSeed(posSeed, dirSeed, qop);
+
+	  // CHECK to be deleted: tests!
+	  // position: MY posSeed, PREV dSeed
+	  if(1==0) { // to pilot the print outs
+	    if(fabs(dSeed - posSeed.Mag()) > 1e-3) {
+	      cout << "pos" << endl;
+	      cout << dSeed << " " << posSeed.Mag() << endl;
+	      posSeed.Print() ;
+	    }
+	    
+	    // direction: MY dirSeed, PREV perp to radius <-> (0, 0, 0)
+	    TVector3 dtest(-TMath::Sin(phiSeed) * 0.006 * rSeed, TMath::Cos(phiSeed) * 0.006 * rSeed, mcTrack2->GetMomentum().Z());
+	    dtest.SetMag(1.);
+	    if(fabs(fabs(dtest.X()) - fabs(dirSeed.X())) > 1e-3) {
+	      cout << "dir x " << endl;
+	      dirSeed.Print();
+	      dtest.Print();
+	    }
+	    
+	    if(fabs(fabs(dtest.Y()) - fabs(dirSeed.Y())) > 1e-3) {
+	      cout << "dir y " << endl;
+	      dirSeed.Print();
+	    dtest.Print();
+	    }
+	    
+	    if(fabs(fabs(dtest.Z()) - fabs(dirSeed.Z())) > 1e-3) {
+	      cout << "dir z " << endl;
+	      dirSeed.Print();
+	      dtest.Print();
+	    }
+
+	    if(fabs(qop - (chargeSeed/((0.006 * rSeed) * (0.006 * rSeed) + mcTrack2->GetMomentum().Z() * mcTrack2->GetMomentum().Z()))) > 1e-3)
+	      cout << "qop " << qop << " " << (chargeSeed/((0.006 * rSeed) * (0.006 * rSeed) + mcTrack2->GetMomentum().Z() * mcTrack2->GetMomentum().Z())) << " " << fabs(qop - (chargeSeed/((0.006 * rSeed) * (0.006 * rSeed) + mcTrack2->GetMomentum().Z() * mcTrack2->GetMomentum().Z()))) << endl;
+	   
+	  }
+	  // --------------------------- end CHECK add
+
+
       }
   }
   
@@ -616,6 +700,7 @@ void PndSttTrackFinderIdeal::GetTrackletCircular(Double_t firstX, Double_t first
 //     }
 // }
 
+// CHECK canc
 void PndSttTrackFinderIdeal::GetTrack(Double_t &dSeed, Double_t &phiSeed, 
 				      Double_t &rSeed, Int_t mcTrackNo)
 {
@@ -664,6 +749,66 @@ void PndSttTrackFinderIdeal::GetTrack(Double_t &dSeed, Double_t &phiSeed,
 	else
 	    phiSeed += dPi;
     }
+}
+
+// CHECK add
+void PndSttTrackFinderIdeal::GetTrack(Double_t &dSeed, Double_t &phiSeed, Double_t &rSeed, 
+				      Double_t &zSeed, Double_t &tanLamSeed, Int_t mcTrackNo)
+{
+    PndMCTrack
+	*mcTrack = (PndMCTrack*) fMCTrackArray->At(mcTrackNo);
+
+    // TODO: read field from container
+    rSeed = sqrt(mcTrack->GetMomentum().X() * mcTrack->GetMomentum().X() + 
+		 mcTrack->GetMomentum().Y() * mcTrack->GetMomentum().Y()) / 0.006;
+
+    Double_t
+	phiStart = atan(mcTrack->GetMomentum().Y() / mcTrack->GetMomentum().X()),
+	xStart = mcTrack->GetStartVertex().X(),
+	yStart = mcTrack->GetStartVertex().Y();
+
+    if (mcTrack->GetMomentum().X() < 0.)
+    {
+	if (mcTrack->GetMomentum().Y() < 0.)
+	    phiStart -= dPi;
+	else
+	    phiStart += dPi;
+    }
+
+    Double_t
+      sign = 1.;
+
+    if (TDatabasePDG::Instance()->GetParticle(mcTrack->GetPdgCode()) != NULL)
+      {
+	if (TDatabasePDG::Instance()->GetParticle(mcTrack->GetPdgCode())->Charge() < 0.)
+	  {
+	    sign = -1.;
+	  }
+      }
+   
+    Double_t
+	xCircleCenter = xStart + sign * (rSeed * sin(phiStart)),
+	yCircleCenter = yStart - sign * (rSeed * cos(phiStart));
+ 
+    dSeed = sqrt(xCircleCenter * xCircleCenter + yCircleCenter * yCircleCenter) - rSeed;
+    phiSeed = atan(yCircleCenter / xCircleCenter);
+
+
+    if (xCircleCenter < 0.)
+    {
+	if (yCircleCenter < 0.)
+	    phiSeed -= dPi;
+	else
+	    phiSeed += dPi;
+    }
+
+    // z - tan(lam)
+    tanLamSeed = mcTrack->GetMomentum().Z() / sqrt(mcTrack->GetMomentum().X() * mcTrack->GetMomentum().X() + 
+						   mcTrack->GetMomentum().Y() * mcTrack->GetMomentum().Y());
+    
+    zSeed = mcTrack->GetStartVertex().Z();
+      
+
 }
 
 // -------------------------------------------------------------------------

@@ -89,6 +89,7 @@ class PndSttFindTracks : public FairTask
 
   PndSttTrackFinder* fFinder;    // Pointer to GFTrackFinder concrete class
   TClonesArray* fTrackArray;     // Output array of PndSttTracks 
+  TClonesArray* fTrackCandArray; // Output array of PndTrackCand
 
   Int_t fNofTracks;              // Number of tracks created
   Int_t fVerbose;                // Verbosity level

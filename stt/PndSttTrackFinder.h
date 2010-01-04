@@ -45,7 +45,8 @@ class PndSttTrackFinder : public TObject
    ** pointers to which are given as arguments
    *@value Number of tracks created
    **/
-  virtual Int_t DoFind(TClonesArray* trackArray) = 0;
+  virtual Int_t DoFind(TClonesArray* trackArray) = 0; // CHECK keep
+  virtual Int_t DoFind(TClonesArray* trackArray, TClonesArray* trackCandArray) = 0; // CHECK temporary
   
   /** Virtual method Finish. If needed, to be implemented in the concrete
    ** class. Executed at the end of the run.
