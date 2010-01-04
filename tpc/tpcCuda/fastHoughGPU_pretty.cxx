@@ -188,7 +188,7 @@ int main(int argc, char** argv) {
   
   reco_tree->GetEntry(EVENT);
   
-  std::cout<<"Getting size ofr PndTpcCluster array ..."<<std::endl;
+  std::cout<<"Getting size of PndTpcCluster array ..."<<std::endl;
   
   int size = _clusters->GetEntriesFast();
   if(size<10) {
