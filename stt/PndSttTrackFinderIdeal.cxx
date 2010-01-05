@@ -296,7 +296,7 @@ Int_t PndSttTrackFinderIdeal::DoFind(TClonesArray* trackArray, TClonesArray* tra
       
       trackIndex = trackMap[mcTrackIndex];
       pTrck = (PndSttTrack*) trackArray->At(trackIndex); // CHECK canc
-      pTrckCand = (PndTrackCand*) trackCandArray->At(correlationMap[nTracks]);  // CHECK add
+      pTrckCand = (PndTrackCand*) trackCandArray->At(trackIndex);  // CHECK add
 
       
       if ( ! pTrck ) // CHECK canc
