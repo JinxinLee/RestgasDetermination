@@ -2,7 +2,7 @@
   // ========================================================================
   //          Adjust this part according to your requirements
   
-  // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug)
+  // Verbosity level (0=quiet, 1=event level, 2=track level, 3=debug, 4=visualization on)
   Int_t iVerbose = 1;
   
   // Input file (MC events)
