@@ -314,6 +314,12 @@ Int_t PndSttTrackFinderIdeal::DoFind(TClonesArray* trackArray, TClonesArray* tra
       // CHECK canc: the pTrck parts have to be deleted
       TVector3 MCmom;
       pMCpt->Momentum(MCmom);
+
+      Double_t wireRad = sqrt(pMhit->GetX() *
+			    pMhit->GetX() + 
+			    pMhit->GetY() *
+			    pMhit->GetY());
+
       if(MCmom.Mag() < 0.3) {
 	// for low momentum particles, hits added to pTrck by R could not be 
 	// in the correct order due to spiralizing tracks 
@@ -321,14 +327,14 @@ Int_t PndSttTrackFinderIdeal::DoFind(TClonesArray* trackArray, TClonesArray* tra
 	if(nAssignedHits>25) continue;
 	pTrck->AddHitByHitID(iHit, pMhit);
 	// CHECK: test iHit and how to organize sorting (here...)
-	pTrckCand->AddHit(pMhit->GetDetectorID(), iHit, 0.0); // CHECK add
+	pTrckCand->AddHit(pMhit->GetDetectorID(), iHit, wireRad); // CHECK add
 	nAssignedHits++;
       }
       else {
 	// 	cout << "HIGH MOMENTUM --> AddHit by R " << endl;
 	pTrck->AddHit(iHit, pMhit);
 	// CHECK: test iHit and how to organize sorting (... and here)
-	pTrckCand->AddHit(pMhit->GetDetectorID(), iHit, 0.0); // CHECK add
+	pTrckCand->AddHit(pMhit->GetDetectorID(), iHit, wireRad); // CHECK add
 
       }
 // ---------------------------------------------------------------------  

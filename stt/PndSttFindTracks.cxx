@@ -6,6 +6,7 @@
 
 #include "PndSttTrack.h"
 #include "PndSttTrackFinder.h"
+#include "PndTrackCand.h"
 
 #include "FairHit.h"
 #include "FairRootManager.h"
@@ -192,10 +193,18 @@ void PndSttFindTracks::Exec(Option_t* opt)
   fNofTracks = fFinder->DoFind(fTrackArray); // CHECK keep
   fNofTracks = fFinder->DoFind(fTrackArray, fTrackCandArray); // CHECK temporary
   
+  // CHECK canc
   for (Int_t iTrack=0; iTrack < fTrackArray->GetEntriesFast(); iTrack++) 
     {
       PndSttTrack* track = (PndSttTrack*) fTrackArray->At(iTrack);
       track->SortHits();
+    }
+    
+  // CHECK add
+  for (Int_t iTrack=0; iTrack < fTrackCandArray->GetEntriesFast(); iTrack++) 
+    { 
+      PndTrackCand* trackCand = (PndTrackCand*) fTrackCandArray->At(iTrack);
+      trackCand->Sort();
     }
 }
 // -------------------------------------------------------------------------
