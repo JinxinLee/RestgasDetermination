@@ -58,7 +58,7 @@ PndSttHelixTrackFitter::PndSttHelixTrackFitter()
 PndSttHelixTrackFitter::PndSttHelixTrackFitter(Int_t verbose)
 {
   fVerbose = verbose;
-  if (verbose < 3)
+  if (verbose < 4)
     rootoutput = kFALSE;
   else
     rootoutput = kTRUE;

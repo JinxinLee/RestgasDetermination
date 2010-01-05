@@ -45,7 +45,7 @@ PndSttTrackFinderIdeal::PndSttTrackFinderIdeal(Int_t verbose)
   fMCTrackArray = NULL;
   fVerbose      = verbose;
 
-  if (verbose > 2) rootoutput = kTRUE;
+  if (verbose >= 4) rootoutput = kTRUE;
   else rootoutput = kFALSE; // stt1
 
 }
