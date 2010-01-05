@@ -43,8 +43,24 @@ void PndSttTrack::AddHit(Int_t hitID, PndSttHit* mHit)
 	wireY = mHit->GetY(),
 	wireZ = mHit->GetZ();
 
-//    fHitMap[wireZ] = hitID;
-    fHitMap[wireX * wireX + wireY * wireY] = hitID;
+    Double_t Radius = wireX * wireX + wireY * wireY;
+    
+
+    // test when two hits are at the same radius ----
+    map<Double_t, Int_t>::iterator 
+      it;
+    
+    for (it = fHitMap.begin(); it != fHitMap.end(); it++) 
+      {
+	if(Radius == it->first){
+	  Radius += 1e-5;
+	  break;}
+      }
+    // ----------------------------------------------
+
+    //    fHitMap[wireZ] = hitID;
+    fHitMap[Radius] = hitID;
+
 }
 // -------------------------------------------------------------------------
 
