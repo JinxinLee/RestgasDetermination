@@ -38,14 +38,9 @@ __device__ bool getBit(char* c, int n) {
   return (bool) temp;
 }
 
-/*
-__device__ void clearBit(char* c, int n) {
-  c[n>>3] = c[n>>3] & ~(1 << (n & 7)) ;
-  }*/
-
 
 //only clear bit if ok=0
-//doe NOT clear bit if ok=255
+//do NOT clear bit if ok=255
 __device__ void clearBit(char* c, int n, uint ok) {
   c[n>>3] = c[n>>3] & ~((1 << (n & 7)) & (~ok));
   }
@@ -306,7 +301,8 @@ __global__ void testIntersect2(int nNodes, int level, int nClusters,
        control3 = (uint) sign;
        control4 = (uint) (sign-8);
 
-       bool ok = (bool)(__umul24(__umul24(control1,control2),__umul24(control3,control4)));
+       
+       bool ok = (bool)(control1*control2*control3*control4);
        
        //if-free version, benefit is minimal
        atomicAdd(votes+tID, (uint)(ok));
@@ -324,8 +320,6 @@ __global__ void testIntersect2(int nNodes, int level, int nClusters,
 
 
 
-
-
 __global__ void cleanUpVotes(int nNodes, uint* votes) {
 
   int tID = blockIdx.x * blockDim.x + threadIdx.x;
@@ -335,6 +329,46 @@ __global__ void cleanUpVotes(int nNodes, uint* votes) {
 }
 
 
+
+/* Checks which nodes qualify for reproduction for the next generation.
+   Nodes are checked against a static threshold statThr if it is set to nonzero,
+   otherwise dynamic thresholding with respect to dynThr*motherVotes is applied   
+   Overwrites votes-array
+*/
+__global__ void selectionKernel(int nNodes, uint* votes, 
+				int statThr, float dynThr)  {  
+
+  int tID = blockIdx.x * blockDim.x + threadIdx.x;
+  
+  /* Looping over the votes array in global memory in each thread is bad.
+     To determine the proper position to write in the sons array, shared memory 
+     should be used: limited to 16KB! Splitting of the votes array is 
+     required.    
+  */
+  
+  if(tID<nNodes){
+    
+    if(statThr) {
+      
+    }
+    
+    else {
+   
+    }
+    
+  }
+  
+}
+
+
+__global__ void reproductionKernel(int nNodes, uint* votes, 
+				   int statThr, float dynThr) {  
+
+  /* for each mother-node that qualified for reproduction one warp takes care of 
+     creating the new nodes. A redesign of the node data arrays into ONE array
+     is desirable.
+  */
+}
 
 
 //kill the weaker fraction (<cutoff*32) of each mothers' sons
@@ -388,10 +422,6 @@ __global__ void cutoffKernel(float cutoff, int nodes, uint* votes) {
   votes[tID]*=signbit(diff);  //1 for negative, 0 for positive
 
 }
-
-
-  
-
 
 
 

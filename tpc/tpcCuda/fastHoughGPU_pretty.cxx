@@ -224,7 +224,7 @@ int main(int argc, char** argv) {
   //instantiate interface object:
   fastHoughGPU_IFC* IFC = new fastHoughGPU_IFC(40, 10000000);
   int nClusters = riemannListRZ.size();
-  
+          
   
   char* root_hitlist = (char*) malloc(nClusters/sizeof(char) + 1);
   
@@ -392,7 +392,7 @@ int main(int argc, char** argv) {
     count=0;
         
     for(int k=0; k<nodelist->size(); ++k) {
-      if(l<5)  {
+      if(l<dynLevel)  {
 	if(votes[k] >= THRESHOLD)
 	  count++; }
       else
