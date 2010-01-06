@@ -244,8 +244,7 @@ Int_t PndSttTrackFinderIdeal::DoFind(TClonesArray* trackArray, TClonesArray* tra
       correlationMap[nTracks] = iMCTrack;
       trackMap[iMCTrack] = nTracks++;
 
-      pTrckCand = (PndTrackCand*) trackCandArray->At(correlationMap[nTracks]);  // CHECK add
-      pTrckCand->setMcTrackId(-1);
+     
 
   }
   
@@ -370,6 +369,8 @@ Int_t PndSttTrackFinderIdeal::DoFind(TClonesArray* trackArray, TClonesArray* tra
       if (pTrck != NULL) // CHECK canc
 	//	if ( pTrckCand != NULL) //  CHECK add
 	{
+	  //  pTrckCand->setMcTrackId(correlationMap[trackTeller]); // CHECK add decide whether it has to stay here or in TrackMatch
+   
 	  Double_t
 	      dSeed,
 	      rSeed,
