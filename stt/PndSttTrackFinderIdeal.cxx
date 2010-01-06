@@ -327,7 +327,7 @@ Int_t PndSttTrackFinderIdeal::DoFind(TClonesArray* trackArray, TClonesArray* tra
 	if(nAssignedHits>25) continue;
 	pTrck->AddHitByHitID(iHit, pMhit);
 	// CHECK: test iHit and how to organize sorting (here...)
-	pTrckCand->AddHit(pMhit->GetDetectorID(), iHit, wireRad); // CHECK add
+	pTrckCand->AddHit(pMhit->GetDetectorID(), iHit, iHit); // CHECK add
 	nAssignedHits++;
       }
       else {
