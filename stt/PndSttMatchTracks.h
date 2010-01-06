@@ -77,8 +77,9 @@ class PndSttMatchTracks : public FairTask
   void AddAllCollections(); 
   void AddHitCollection(char const *collectionName, char const *pointCollectionName);
 
-  TClonesArray* fTracks;       // Array of PndSttTracks
-  TClonesArray* fMatches;      // Array of PndSttTrackMatch
+  TClonesArray* fTracks;       // Array of PndSttTracks CHECK canc
+  TClonesArray* fTrackCandidates;       // Array of PndTrackCand CHECK add
+  TClonesArray* fMatches;      // Array of PndSttTrackMatch CHECK canc
 
   /** Map from MCTrackID to number of common hits **/
   std::map<Int_t, Int_t> fMatchMap;

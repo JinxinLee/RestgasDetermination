@@ -13,6 +13,9 @@
 #include "PndSttHit.h"
 #include "PndSttTrack.h"
 #include "PndSttTrackMatch.h"
+#include "PndTrackCand.h"
+
+#include "TMath.h"
 #include <vector>
 using namespace std;
 
@@ -78,13 +81,13 @@ InitStatus PndSttMatchTracks::Init() {
     return kFATAL;
   }
 
-  // Get SttTrack Array
-  fTracks = (TClonesArray*) ioman->GetObject("STTTrack");
-  if ( ! fTracks ) {
-    cout << "-E- PndSttMatchTracks::Init: No SttTrack array!" << endl;
+  // Get TrackCand Array CHECK add
+  fTrackCandidates = (TClonesArray*) ioman->GetObject("STTTrackCand");
+  if ( ! fTrackCandidates ) {
+    cout << "-E- PndSttMatchTracks::Init: No STTTrackCand array!" << endl;
     return kERROR;
   }
-
+  
   // Create and register SttTrackMatch array
   fMatches = new TClonesArray("PndSttTrackMatch",100);
   ioman->Register("STTTrackMatch", "STT", fMatches, fPersistence);
@@ -117,7 +120,7 @@ void PndSttMatchTracks::Exec(Option_t* opt)
   fMatches->Delete();
 
   // Create some pointers and variables
-  PndSttTrack*      track = NULL;
+  PndTrackCand*     trackCand = NULL; // CHECK add
   PndSttHit*        mHit  = NULL;
   FairMCPoint*       point = NULL;
 
@@ -136,21 +139,24 @@ void PndSttMatchTracks::Exec(Option_t* opt)
   Int_t nFakeSum    = 0;
   Int_t nMCTrackSum = 0;
 
-   // Loop over SttTracks
-  Int_t nTracks = fTracks->GetEntriesFast();
+   
+  // Loop over TracksCand CHECK add
+  Int_t nTracks = fTrackCandidates->GetEntriesFast();
+
 
   for (Int_t iTrack=0; iTrack<nTracks; iTrack++) 
     {
-      track = (PndSttTrack*) fTracks->At(iTrack);
-      if ( ! track) 
+      trackCand = (PndTrackCand*) fTrackCandidates->At(iTrack); // CHECK add
+ 
+      if ( ! trackCand)  // CHECK add
 	{
-	  cout << "-W- PndSttMatchTracks::Exec: Empty SttTrack at " 
+	  cout << "-W- PndSttMatchTracks::Exec: Empty STTTrackCand at "
 	       << iTrack << endl;
 	  continue;
 	}
+ 
+      nHits = trackCand->GetNHits(); // CHECK add
       
-      nHits = track->GetNofHits();
-
       nAll = nTrue = nWrong = nFake = nMCTracks = 0;
 
       fMatchMap.clear();
@@ -160,8 +166,13 @@ void PndSttMatchTracks::Exec(Option_t* opt)
       // Loop over Hits of track
       for (Int_t iMHit=0; iMHit<nHits; iMHit++) 
 	{
-	    // alter here
-	  mHit = GetHitFromCollections(track->GetHitIndex(iMHit));
+
+	  PndTrackCandHit candhit = trackCand->GetSortedHit(iMHit);
+
+	  // alter here
+	  mHit = GetHitFromCollections(candhit.GetHitId()); // CHECK add
+
+ 	
 
 	  if ( ! mHit ) 
 	    {
@@ -169,6 +180,7 @@ void PndSttMatchTracks::Exec(Option_t* opt)
 		   << "No Hit " << iMHit << " for track " << iTrack << endl;
 	      continue;
 	    }
+
 
 	  iPoint = mHit->GetRefIndex();
 	  
@@ -179,7 +191,8 @@ void PndSttMatchTracks::Exec(Option_t* opt)
 	    }
 	  
 	  // alter here
-	  point = GetPointFromCollections(track->GetHitIndex(iMHit));
+	  point = GetPointFromCollections(candhit.GetHitId()); // CHECK add
+	  
 	  
 	  if ( ! point ) 
 	    {
@@ -192,7 +205,7 @@ void PndSttMatchTracks::Exec(Option_t* opt)
 	  iMCTrack = point->GetTrackID();
 	  
 	  if ( fVerbose > 2 ) cout << "Track " << iTrack << ", hit "
-				   << track->GetHitIndex(iMHit) 
+				   << candhit.GetHitId() // CHECK add
 				   << ", STTPoint " << iPoint << ", MCTrack "
 				   << iMCTrack << endl;
 	  fMatchMap[iMCTrack]++;
@@ -223,9 +236,11 @@ void PndSttMatchTracks::Exec(Option_t* opt)
 			   << nFake << ", #MCTracks " << nMCTracks << endl;
       
       // Create SttTrackMatch
-      new ((*fMatches)[iTrack]) PndSttTrackMatch(iMCTrack, nTrue, 
+      new ((*fMatches)[iTrack]) PndSttTrackMatch(iMCTrack, nTrue,  // CHECK canc
 						 nWrong, nFake, 
 						 nMCTracks);
+
+      trackCand->setMcTrackId(iMCTrack); // CHECK if this has to stay here or in TrackFinderIdeal
       
       // Some statistics
       nHitSum     += nHits;
@@ -234,7 +249,7 @@ void PndSttMatchTracks::Exec(Option_t* opt)
       nFakeSum    += nFake;
       nMCTrackSum += nMCTracks;
 
-    } // GFTrack loop
+    } // Track loop
 
   // Event statistics
 
@@ -260,7 +275,7 @@ void PndSttMatchTracks::Exec(Option_t* opt)
     cout << endl;
     cout << "-------------------------------------------------------" 
 	 << endl;
-    cout << "-I-              STT GFTrack Matching                 -I-"
+    cout << "-I-              STT Track Matching                 -I-"
 	 << endl;
     cout << "Reconstructed STTTracks : " << nTracks << endl;;
     cout << "True  hit assignments   : " << qTrue  << " %" << endl;
