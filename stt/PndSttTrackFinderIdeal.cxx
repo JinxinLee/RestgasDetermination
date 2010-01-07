@@ -426,7 +426,11 @@ Int_t PndSttTrackFinderIdeal::DoFind(TClonesArray* trackArray, TClonesArray* tra
 	  PndMCTrack
 	    *mcTrack2 = (PndMCTrack*) fMCTrackArray->At(correlationMap[trackTeller]);
 	  
-	  double chargeSeed = -1;  // CHECK fix charge from MC!
+	  Int_t pdg = mcTrack2->GetPdgCode();
+	  TDatabasePDG *fdbPDG = TDatabasePDG::Instance();
+	  TParticlePDG *fParticle = fdbPDG->GetParticle(pdg);
+	  Double_t  chargeSeed = fParticle->Charge()/3.;
+
 	  TVector3 dirSeed(mcTrack2->GetMomentum().X(),
 			   mcTrack2->GetMomentum().Y(),
 			   mcTrack2->GetMomentum().Z()); // momentum direction in starting point
