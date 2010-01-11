@@ -20,6 +20,7 @@
 #include "FairTrackParam.h"
 
 class PndSttTrack;
+class PndTrackCand;
 class TClonesArray;
 
 class PndSttTrackFitter : public TObject
@@ -49,7 +50,7 @@ class PndSttTrackFitter : public TObject
    *@param pTrack      Pointer to PndSttTrack
    *@param pidHypo     PID hypothesis for the fit. Default is pion.
    **/
-  virtual Int_t DoFit(PndSttTrack* pTrack, Int_t pidHypo = 211) = 0;
+  virtual Int_t DoFit(PndTrackCand *pTrackCand, PndSttTrack* pTrack, Int_t pidHypo = 211) = 0;
 
 
   /** Abstract method Extrapolate. Gives track parameters at a given r

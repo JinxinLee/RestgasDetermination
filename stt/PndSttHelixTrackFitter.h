@@ -11,7 +11,7 @@
 #define PNDSTTHELIXTRACKFITTER 1
 
 #include "PndSttTrack.h"
-//#include "PndSttHit.h"
+//#include "PndTrackCand.h"
 //#include "PndSttPoint.h"
 //#include "FairTrackParam.h"
 #include "PndSttTrackFitter.h"
@@ -36,18 +36,22 @@ class PndSttHelixTrackFitter : public PndSttTrackFitter
  private:
     Int_t fEventCounter;
 
-  PndSttTrack* fTrack;
-  PndSttTrack currentTrack;
+    PndSttTrack* fTrack;
+    PndTrackCand* fTrackCand;
+    PndSttTrack currentTrack;
+    
+    TClonesArray* fHitArray;
+    TClonesArray* fPointArray;
+    TObjArray *ZPointsArray;
+    TCanvas *eventCanvas;
+    TCanvas *eventCanvas2;
+    TH2F *h1;
+    TH2F *h2;
+    Bool_t rootoutput;
+    Int_t fVerbose;
 
-  TClonesArray* fHitArray;
-  TClonesArray* fPointArray;
-  TObjArray *ZPointsArray;
-  TCanvas *eventCanvas;
-  TCanvas *eventCanvas2;
-  TH2F *h1;
-  TH2F *h2;
-  Bool_t rootoutput;
- Int_t fVerbose;
+    // track parameters
+    Double_t fRad, fDist, fPhi, fTanL, fZ0, fH;
 
  
  public:
@@ -58,32 +62,38 @@ class PndSttHelixTrackFitter : public PndSttTrackFitter
 
   // xy plane ----------------------
   // intersection finder 
-  Bool_t IntersectionFinder(PndSttTrack *pTrack, FairTrackParam *par);  
+  Bool_t IntersectionFinder(PndTrackCand *pTrackCand);  
   // fit
-  Int_t XYFit(PndSttTrack* pTrack, Int_t pidHypo);
-  Int_t MinuitFit(PndSttTrack* pTrack, Int_t pidHypo);
-  Int_t SetUpFitVector(PndSttTrack* pTrack, TMatrixT<Double32_t> &fitvect);
+  Int_t XYFit(PndTrackCand* pTrackCand, Int_t pidHypo);
+  Int_t MinuitFit(PndTrackCand* pTrackCand, Int_t pidHypo);
+  Int_t SetUpFitVector(PndTrackCand* pTrackCand, TMatrixT<Double32_t> &fitvect);
 
   // z track length plane ----------
   // zfinder
-  Bool_t ZFinder(PndSttTrack* pTrack, Int_t pidHypo); 
+  Bool_t ZFinder(PndTrackCand* pTrackCand, Int_t pidHypo); 
 
   // hough
   void Hough(TVector3* choice, Double_t Phi0, Double_t x0, Double_t y0, Double_t R);
   TVector3 GetHoughResponse();
   // zfit
-  Int_t ZFit(PndSttTrack* pTrack, Int_t pidHypo);
+  Int_t ZFit(PndTrackCand* pTrackCand, Int_t pidHypo);
   
-  Int_t DoFit(PndSttTrack* pTrack, Int_t pidHypo = 211);
+  Int_t DoFit(PndTrackCand* pTrackCand, PndSttTrack* pTrack, Int_t pidHypo = 211);
 
   // track length calculation
   Double_t CalculateScosl(Double_t h, Double_t d0,  Double_t phi0, Double_t R, Double_t x, Double_t y);
   // find the tri-momentum in the PCA to a point
-  // TVector3* MomentumAtPoint(PndSttTrack *pTrack, TVector2 *point);
-  TVector3* MomentumAtPoint(PndSttTrack *pTrack, TVector3 *point);
+  // TVector3* MomentumAtPoint(PndTrackCand *pTrackCand, TVector2 *point);
+  TVector3* MomentumAtPoint(TVector3 *point);
   // find the PCA to a point
-  //  TVector2* PCAToPoint(PndSttTrack *pTrack, TVector2 *point);
+  //  TVector2* PCAToPoint(PndTrackCand *pTrackCand, TVector2 *point);
+  TVector3* PCAToPoint(TVector3 *point);
+
+  // CHECK temporary to be deleted
   TVector3* PCAToPoint(PndSttTrack *pTrack, TVector3 *point);
+  TVector3* MomentumAtPoint(PndSttTrack *pTrack, TVector3 *point);
+
+
 
   // charge reconstruction from xy fit
   Int_t GetCharge(Double_t dCenter, Double_t phiCenter, Double_t radius);
@@ -98,11 +108,16 @@ class PndSttHelixTrackFitter : public PndSttTrackFitter
   virtual void Extrapolate( PndSttTrack* track, Double_t r, 
 			    FairTrackParam *param );
 
+  // all: kTRUE = also z param; kFALSE = only xy param
+  void SetParameters(PndSttTrack* pTrack, Bool_t all);
+
   // marray reset
   void ResetMArray();
  
   PndSttTrack* GetTrack() const { return fTrack; };
+  PndTrackCand* GetTrackCand() const { return fTrackCand; };
   TClonesArray* GetHitArray() const { return fHitArray; };
+
   Double_t refAngle;
   ClassDef(PndSttHelixTrackFitter,1);
 };

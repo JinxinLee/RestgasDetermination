@@ -73,11 +73,20 @@ InitStatus PndSttFitTracks::Init()
       return kFATAL;
     }
 
-  // Get SttTrack array
+  // Get SttTrack array CHECK canc
   fTrackArray  = (TClonesArray*) ioman->GetObject("STTTrack"); //=>SG
   if ( ! fTrackArray) 
     {
       cout << "-E- PndSttFitTracks::Init: No SttTrack array!"
+	   << endl;
+      return kERROR;
+    }
+
+  // Get SttTrack array CHECK add
+  fTrackCandArray  = (TClonesArray*) ioman->GetObject("STTTrackCand"); //=>SG
+  if ( ! fTrackCandArray) 
+    {
+      cout << "-E- PndSttFitTracks::Init: No SttTrackCand array!"
 	   << endl;
       return kERROR;
     }
@@ -103,8 +112,12 @@ void PndSttFitTracks::Exec(Option_t* opt)
 
   for (Int_t iTrack=0; iTrack<nTracks; iTrack++) 
     {
-      PndSttTrack* pTrack = (PndSttTrack*)fTrackArray->At(iTrack);
-      fFitter->DoFit(pTrack);
+     	PndTrackCand* pTrackCand = (PndTrackCand*) fTrackCandArray->At(iTrack); // CHECK add
+	if(!pTrackCand) continue; // CHECK add
+		
+	PndSttTrack* pTrack = (PndSttTrack*)fTrackArray->At(iTrack);
+ 	fFitter->DoFit(pTrackCand, pTrack);
+
     }
 }
 // -------------------------------------------------------------------------

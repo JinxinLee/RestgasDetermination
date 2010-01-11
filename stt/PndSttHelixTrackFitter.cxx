@@ -8,6 +8,9 @@
 #include "PndSttHit.h"
 #include "PndSttPoint.h"
 
+#include "PndTrackCandHit.h"
+#include "PndTrackCand.h"
+
 #include "FairRootManager.h"
 #include "FairTask.h"
 
@@ -119,13 +122,22 @@ void PndSttHelixTrackFitter::Init()
 
 
 
-Int_t PndSttHelixTrackFitter::DoFit(PndSttTrack* pTrack, Int_t pidHypo)
+Int_t PndSttHelixTrackFitter::DoFit(PndTrackCand* pTrackCand, PndSttTrack* pTrack, Int_t pidHypo)
 {
   // cout << "track fitting event # " << fEventCounter << endl;
   fEventCounter++;
  
-  if(!pTrack) return 0;
-  fTrack = pTrack;
+  // initialize parameters CHECK to be changed correctly
+  fRad  = pTrack->GetParamLast()->GetTx();
+  fDist = pTrack->GetParamLast()->GetX();
+  fPhi  = pTrack->GetParamLast()->GetY();
+  fTanL = pTrack->GetParamLast()->GetTy();
+  fZ0   = pTrack->GetParamLast()->GetZ();
+  fH    = pTrack->GetParamLast()->GetQp();
+
+  if(!pTrackCand) return 0;
+  fTrack = pTrack; // CHECK canc
+  fTrackCand = pTrackCand; // CHECK canc
   
   if(rootoutput) {
     char goOnChar;
@@ -148,45 +160,50 @@ Int_t PndSttHelixTrackFitter::DoFit(PndSttTrack* pTrack, Int_t pidHypo)
   
   Int_t fit = 0;
  
-  fit = XYFit(pTrack, 1);
+  fit = XYFit(pTrackCand, 1);
   
-  if(fit == 0 || pTrack->GetParamLast()->GetTx() == 0 || !(pTrack->GetParamLast()->GetTx()) || pTrack->GetParamLast()->GetTx() > 3000) {
-    if(fVerbose == 2) cout << "-E- pre prefit FAILED " << fit << " " << pTrack->GetParamLast()->GetTx() << endl;
-    pTrack->GetParamLast()->SetTx(-999);
+  if(fit == 0 || fRad == 0 || !(fRad) || fRad > 3000) {
+    if(fVerbose == 2) cout << "-E- pre prefit FAILED " << fit << " " << fRad << endl;
+    fRad = -999;
+    SetParameters(pTrack, kFALSE);
     return 0;
   }
   
   // cout << "prefit-------------------------------" << endl;
   fit = 0;
-  fit = MinuitFit(pTrack, 1);
+  fit = MinuitFit(pTrackCand, 1);
  
   // if the fit fails
-  if(fit == 0 || pTrack->GetParamLast()->GetTx() == 0 || !(pTrack->GetParamLast()->GetTx()) || pTrack->GetParamLast()->GetTx() > 3000) {
-    pTrack->GetParamLast()->SetTx(-999); 
+  if(fit == 0 || fRad == 0 || !(fRad) || fRad > 3000) {
+    fRad = -999; 
     if(fVerbose == 2) cout << "-E- prefit FAILED" << endl;
+    SetParameters(pTrack, kFALSE);
     return 0;
   }
   else {
     pTrack->SetFlag(1); // prefit done 
-    Bool_t Rint = IntersectionFinder(pTrack, pTrack->GetParamLast());
+    Bool_t Rint = IntersectionFinder(pTrackCand);
     //    cout << "refit" << endl;                                       
     // if refit is OK
     if(Rint == kTRUE) {
-      fit = XYFit(pTrack, 2);  
-      Rint = IntersectionFinder(pTrack, pTrack->GetParamLast());
-      if(Rint == kTRUE)  fit = MinuitFit(pTrack, 2);  
-      Rint = IntersectionFinder(pTrack, pTrack->GetParamLast());
-      if(Rint == kTRUE)  fit = MinuitFit(pTrack, 2);  
+      fit = XYFit(pTrackCand, 2);  
+      Rint = IntersectionFinder(pTrackCand);
+      if(Rint == kTRUE)  fit = MinuitFit(pTrackCand, 2);  
+      Rint = IntersectionFinder(pTrackCand);
+      if(Rint == kTRUE)  fit = MinuitFit(pTrackCand, 2);  
 
     }
-    else return 0;
-    if(fit == 1 && pTrack->GetParamLast()->GetTx()>0&& pTrack->GetParamLast()->GetTx() < 3000) { 
+    else {
+      SetParameters(pTrack, kFALSE);
+      return 0;
+    }
+    if(fit == 1 && fRad>0&& fRad < 3000) { 
      
       pTrack->SetFlag(2); // refit done 
-      Bool_t zint = ZFinder(pTrack, 1); 
+      Bool_t zint = ZFinder(pTrackCand, 1); 
 
       if(zint == kTRUE) {
-	Int_t zfit = ZFit(pTrack, 1);
+	Int_t zfit = ZFit(pTrackCand, 1);
 	if(zfit == 1) {
 	  pTrack->SetFlag(3); // z fit done 
 	} 
@@ -196,13 +213,14 @@ Int_t PndSttHelixTrackFitter::DoFit(PndSttTrack* pTrack, Int_t pidHypo)
   }
   
   if(fVerbose == 2) {
-    cout << "param last x: "  << pTrack->GetParamLast()->GetX() << endl;
-    cout << "param last y: "  << pTrack->GetParamLast()->GetY() << endl;
-    cout << "param last tx: " << pTrack->GetParamLast()->GetTx() << endl;
-    cout << "param last ty: " << pTrack->GetParamLast()->GetTy() << endl;
-    cout << "param last qp: " << pTrack->GetParamLast()->GetQp() << endl;
+    cout << "param last x: "  << fDist << endl;
+    cout << "param last y: "  << fPhi << endl;
+    cout << "param last tx: " << fRad << endl;
+    cout << "param last ty: " << fTanL << endl;
+    cout << "param last qp: " << fH << endl;
   }
-  
+
+  SetParameters(pTrack, kTRUE);
 
   if(rootoutput) {
     eventCanvas->Update();
@@ -223,12 +241,26 @@ Int_t PndSttHelixTrackFitter::DoFit(PndSttTrack* pTrack, Int_t pidHypo)
   return 0;
 }
 
-// XYFit was Fit4b
-Int_t PndSttHelixTrackFitter::XYFit(PndSttTrack* pTrack, Int_t pidHypo) {
- 
-  if(!pTrack) return 0;
+void PndSttHelixTrackFitter::SetParameters(PndSttTrack *pTrack, Bool_t all) {
+  // CHECK what we have to do with this ....
+  pTrack->GetParamLast()->SetTx(fRad);
+  pTrack->GetParamLast()->SetX(fDist);
+  pTrack->GetParamLast()->SetY(fPhi);
+  if(all == kTRUE) {
+    pTrack->GetParamLast()->SetTy(fTanL);
+    pTrack->GetParamLast()->SetZ(fZ0);
+  }
+  pTrack->GetParamLast()->SetQp(fH);
+  // ..............
+}
 
-  Int_t hitcounter = pTrack->GetNofHits();
+
+// XYFit was Fit4b
+Int_t PndSttHelixTrackFitter::XYFit(PndTrackCand* pTrackCand, Int_t pidHypo) {
+ 
+  if(!pTrackCand) return 0;
+
+  Int_t hitcounter = pTrackCand->GetNHits();
   Bool_t first = kFALSE;
   if(hitcounter == 0) return 0;
   if(hitcounter < 5) {         // hitcounter > 50  
@@ -245,7 +277,9 @@ Int_t PndSttHelixTrackFitter::XYFit(PndSttTrack* pTrack, Int_t pidHypo) {
   Double_t alpha;
   if(fVerbose == 2) cout << "hitcounter: " << hitcounter << endl;
   for(Int_t k = 0; k <hitcounter; k++) {
-    Int_t iHit = pTrack->GetHitIndex(k);
+
+    PndTrackCandHit candhit = pTrackCand->GetSortedHit(k);
+    Int_t iHit = candhit.GetHitId();
     PndSttHit *currenthit = (PndSttHit*) fHitArray->At(iHit);
     if(!currenthit) continue;
 
@@ -302,7 +336,8 @@ Int_t PndSttHelixTrackFitter::XYFit(PndSttTrack* pTrack, Int_t pidHypo) {
   }
   for(Int_t i=0; i < hitcounter; i++){
    
-    Int_t iHit = pTrack->GetHitIndex(i);
+    PndTrackCandHit candhit = pTrackCand->GetSortedHit(i);
+    Int_t iHit = candhit.GetHitId();
     PndSttHit *currenthit = (PndSttHit*) fHitArray->At(iHit);
     if(!currenthit) continue;
     if(currenthit->GetXint() == -999 || currenthit->GetYint() == -999) continue;
@@ -627,22 +662,22 @@ Int_t PndSttHelixTrackFitter::XYFit(PndSttTrack* pTrack, Int_t pidHypo) {
   Double_t d;
   d = ((xc + yc) - R*(TMath::Cos(phi) + TMath::Sin(phi)))/(TMath::Cos(phi) + TMath::Sin(phi)); 
   
-  pTrack->GetParamLast()->SetX(d);                
-  pTrack->GetParamLast()->SetY(phi);
+  fDist = d;                
+  fPhi = phi;
   //    Double_t newZ = -999.; // CHECK da cambiare
-  //    pTrack->GetParamLast()->SetZ(newZ);                
-  pTrack->GetParamLast()->SetTx(R);
+  //    fZ0 = newZ;     
+  fRad = R;
   //    Double_t newTheta = -999.; // CHECK da cambiare
-  //    pTrack->GetParamLast()->SetTy(newTheta);                
+  //    fTanL = newTheta;
   h = -GetCharge(d, phi, R);
-  pTrack->GetParamLast()->SetQp(-h); 
+  fH = -h; 
 
   //   cout << "FIT: " << xc << " " << yc << endl;
   //   cout << "RAGGIO: " << R << endl;
 
   if(rootoutput) {
     eventCanvas->cd();
-    TArc *fitarc = new TArc(((pTrack->GetParamLast()->GetX() + pTrack->GetParamLast()->GetTx()) * cos(pTrack->GetParamLast()->GetY())), ((pTrack->GetParamLast()->GetX() + pTrack->GetParamLast()->GetTx()) * sin(pTrack->GetParamLast()->GetY())), pTrack->GetParamLast()->GetTx());
+    TArc *fitarc = new TArc(((fDist + fRad) * cos(fPhi)), ((fDist + fRad) * sin(fPhi)), fRad);
     if(pidHypo == 2)  fitarc->SetLineColor(2);
     fitarc->Draw("SAME");
     eventCanvas->Update();
@@ -653,16 +688,16 @@ Int_t PndSttHelixTrackFitter::XYFit(PndSttTrack* pTrack, Int_t pidHypo) {
 
 
 // -------------- IntersectionFinder  --------------------------------------
-Bool_t PndSttHelixTrackFitter::IntersectionFinder(PndSttTrack *pTrack, FairTrackParam *par)
+Bool_t PndSttHelixTrackFitter::IntersectionFinder(PndTrackCand *pTrackCand)
 {
 
   ResetMArray();
 
   // calculation of the curvature from the helix prefit
-  if(pTrack->GetParamLast()->GetTx() == 0) return kFALSE;
+  if(fRad == 0) return kFALSE;
 
   // vec = (xc, yc)
-  TVector2 vec((pTrack->GetParamLast()->GetX() + pTrack->GetParamLast()->GetTx()) * cos(pTrack->GetParamLast()->GetY()), (pTrack->GetParamLast()->GetX() + pTrack->GetParamLast()->GetTx()) * sin(pTrack->GetParamLast()->GetY()));
+  TVector2 vec((fDist + fRad) * cos(fPhi), (fDist + fRad) * sin(fPhi));
 
   //==========
   // POINT ----------------------------------------------------
@@ -672,10 +707,12 @@ Bool_t PndSttHelixTrackFitter::IntersectionFinder(PndSttTrack *pTrack, FairTrack
 
   Int_t counter = 0;
   // loop over input points
-  Int_t hitcounter = pTrack->GetNofHits();
+  Int_t hitcounter = pTrackCand->GetNHits();
   for(Int_t k = 0; k < hitcounter; k++){
     // get hit
-    Int_t iHit = pTrack->GetHitIndex(k);
+    PndTrackCandHit candhit = pTrackCand->GetSortedHit(k);
+    Int_t iHit = candhit.GetHitId();
+   
     PndSttHit *pMhit = (PndSttHit*) fHitArray->At(iHit);
     if (!pMhit ) continue;
 
@@ -732,10 +769,10 @@ Bool_t PndSttHelixTrackFitter::IntersectionFinder(PndSttTrack *pTrack, FairTrack
     
     // 2.c intersection between line and circle
     // +
-    Double_t xb1 = (-(m*(q - vec.Y()) - vec.X()) + sqrt((m*(q - vec.Y()) - vec.X())*(m*(q - vec.Y()) - vec.X()) - (m*m + 1)*((q - vec.Y())*(q - vec.Y()) + vec.X()*vec.X() - (pTrack->GetParamLast()->GetTx()) *(pTrack->GetParamLast()->GetTx()) ))) / (m*m + 1);
+    Double_t xb1 = (-(m*(q - vec.Y()) - vec.X()) + sqrt((m*(q - vec.Y()) - vec.X())*(m*(q - vec.Y()) - vec.X()) - (m*m + 1)*((q - vec.Y())*(q - vec.Y()) + vec.X()*vec.X() - (fRad) *(fRad) ))) / (m*m + 1);
     Double_t yb1 = m*xb1 + q;
     // -
-    Double_t xb2 = (-(m*(q - vec.Y()) - vec.X()) - sqrt((m*(q - vec.Y()) - vec.X())*(m*(q - vec.Y()) - vec.X()) - (m*m + 1)*((q - vec.Y())*(q - vec.Y()) + vec.X()*vec.X() - (pTrack->GetParamLast()->GetTx()) *(pTrack->GetParamLast()->GetTx())))) / (m*m + 1);
+    Double_t xb2 = (-(m*(q - vec.Y()) - vec.X()) - sqrt((m*(q - vec.Y()) - vec.X())*(m*(q - vec.Y()) - vec.X()) - (m*m + 1)*((q - vec.Y())*(q - vec.Y()) + vec.X()*vec.X() - (fRad) *(fRad)))) / (m*m + 1);
     Double_t yb2 = m*xb2 + q;
     
     // calculation of the distance between [xb, yb] and [xp, yp]
@@ -786,15 +823,15 @@ Bool_t PndSttHelixTrackFitter::IntersectionFinder(PndSttTrack *pTrack, FairTrack
 
 // ZFinder was ZFinderbb3
 // -------- ZFinder --------------------------------------------
-Bool_t PndSttHelixTrackFitter::ZFinder(PndSttTrack* pTrack, Int_t pidHypo) {
+Bool_t PndSttHelixTrackFitter::ZFinder(PndTrackCand* pTrackCand, Int_t pidHypo) {
   // the z finding procedure uses the hough transform to find the line
   // in the plane z - track length on which the correct points lie.
 
   if(fVerbose == 2) cout << "ZFINDER" << endl;
 
-  if(!pTrack) return 0;
+  if(!pTrackCand) return 0;
 
-  Int_t hitcounter = pTrack->GetNofHits();
+  Int_t hitcounter = pTrackCand->GetNHits();
  
   // cut on number of hits
   //   if(hitcounter > 50) {
@@ -826,18 +863,19 @@ Bool_t PndSttHelixTrackFitter::ZFinder(PndSttTrack* pTrack, Int_t pidHypo) {
   TVector3 *tofit, *tofit2;
  
   // centre of curvature
-  Double_t x_0 = (pTrack->GetParamLast()->GetX() + pTrack->GetParamLast()->GetTx()) * cos(pTrack->GetParamLast()->GetY());
-  Double_t y_0 = (pTrack->GetParamLast()->GetX() + pTrack->GetParamLast()->GetTx()) * sin(pTrack->GetParamLast()->GetY());
+  Double_t x_0 = (fDist + fRad) * cos(fPhi);
+  Double_t y_0 = (fDist + fRad) * sin(fPhi);
 
   // radius of curvature
-  Double_t R = pTrack->GetParamLast()->GetTx();
+  Double_t R = fRad;
   Int_t wireOk = 0;
   Bool_t first = kTRUE;
 
   for (Int_t i = 0; i < hitcounter; i++) {
    
     // get index of hit
-    Int_t iHit = pTrack->GetHitIndex(i);
+      PndTrackCandHit candhit = pTrackCand->GetSortedHit(i);
+    Int_t iHit = candhit.GetHitId();
    
     // get hit
     PndSttHit *pMhit = (PndSttHit*) fHitArray->At(iHit);
@@ -914,8 +952,8 @@ Bool_t PndSttHelixTrackFitter::ZFinder(PndSttTrack* pTrack, Int_t pidHypo) {
     Double_t y2 = -9999.;
 
     // from xy plane fit
-    Double_t phi0 = pTrack->GetParamLast()->GetY();
-    Double_t d0 = pTrack->GetParamLast()->GetX();
+    Double_t phi0 = fPhi;
+    Double_t d0 = fDist;
     Double_t x0 = d0*TMath::Cos(phi0);
     Double_t y0 = d0*TMath::Sin(phi0);
     // in xy plane: angle of the PCA to the origin
@@ -1146,7 +1184,7 @@ Bool_t PndSttHelixTrackFitter::ZFinder(PndSttTrack* pTrack, Int_t pidHypo) {
     line->Draw("SAME");
   }
   
-  pTrack->GetParamFirst()->SetX(outz.Z());
+  //  pTrack->GetParamFirst()->SetX(outz.Z()); // CHECK what is this?!!!!!
   
   // if votes < 6 consider the fit failed CHECK
   //  if(outz.Z() < 6) return kFALSE;
@@ -1164,7 +1202,8 @@ Bool_t PndSttHelixTrackFitter::ZFinder(PndSttTrack* pTrack, Int_t pidHypo) {
   Int_t okcounter = 0;
   for(Int_t i = 0; i < (2*hitcounter); i+=2) {
     // get index of hit
-    Int_t iHit = pTrack->GetHitIndex(counter);
+    PndTrackCandHit candhit = pTrackCand->GetSortedHit(counter);
+    Int_t iHit = candhit.GetHitId();
     counter++;
     
     // get hit
@@ -1185,7 +1224,7 @@ Bool_t PndSttHelixTrackFitter::ZFinder(PndSttTrack* pTrack, Int_t pidHypo) {
     TVector3 *vi = (TVector3*) ZPointsArray->At(okcounter);
     
     if(vi == NULL) continue;
-    Double_t scos = CalculateScosl(h, pTrack->GetParamLast()->GetX(), pTrack->GetParamLast()->GetY(), R, vi->X(), vi->Y());
+    Double_t scos = CalculateScosl(h, fDist, fPhi, R, vi->X(), vi->Y());
        
     if(rootoutput) {
       eventCanvas2->cd();
@@ -1209,7 +1248,7 @@ Bool_t PndSttHelixTrackFitter::ZFinder(PndSttTrack* pTrack, Int_t pidHypo) {
     // SECOND CHOICE ...................
     vi = (TVector3*) ZPointsArray->At(okcounter+1); 
     if(vi == NULL) continue;
-    scos = CalculateScosl(h, pTrack->GetParamLast()->GetX(), pTrack->GetParamLast()->GetY(), R, vi->X(), vi->Y());
+    scos = CalculateScosl(h, fDist, fPhi, R, vi->X(), vi->Y());
 
     Double_t distsecond = pow(((vi->Z() - (outz.Y() + outz.X() * scos))/sigz), 2);
     
@@ -1262,13 +1301,13 @@ Bool_t PndSttHelixTrackFitter::ZFinder(PndSttTrack* pTrack, Int_t pidHypo) {
 
 // ZFit was Zfitbb2
 // ----- Zfit  ----------------------------------------
-Int_t PndSttHelixTrackFitter::ZFit(PndSttTrack* pTrack, Int_t pidHypo) {
+Int_t PndSttHelixTrackFitter::ZFit(PndTrackCand* pTrackCand, Int_t pidHypo) {
 
    if(fVerbose == 2) cout << "ZFIT" << endl;
 
-  if(!pTrack) return 0;
+  if(!pTrackCand) return 0;
   
-  Int_t hitcounter = pTrack->GetNofHits();
+  Int_t hitcounter = pTrackCand->GetNHits();
  
   // cut on number of hits
   //   if(hitcounter > 50) return 0;
@@ -1280,7 +1319,7 @@ Int_t PndSttHelixTrackFitter::ZFit(PndSttTrack* pTrack, Int_t pidHypo) {
   
   // SCOSL ======
   // get 1st hit
-  PndSttHit *fMhit = (PndSttHit*) fHitArray->At(pTrack->GetHitIndex(0));
+  PndSttHit *fMhit = (PndSttHit*) fHitArray->At(pTrackCand->GetSortedHit(0).GetHitId());
 
   Double_t Sxx, Sx, Sz, Sxz, S1z;
   Double_t Detz = 0.;
@@ -1294,18 +1333,19 @@ Int_t PndSttHelixTrackFitter::ZFit(PndSttTrack* pTrack, Int_t pidHypo) {
   S1z = 0.;
   
   // centre of curvature
-  Double_t x_0 = (pTrack->GetParamLast()->GetX() + pTrack->GetParamLast()->GetTx()) * cos(pTrack->GetParamLast()->GetY());
-  Double_t y_0 = (pTrack->GetParamLast()->GetX() + pTrack->GetParamLast()->GetTx()) * sin(pTrack->GetParamLast()->GetY());
+  Double_t x_0 = (fDist + fRad) * cos(fPhi);
+  Double_t y_0 = (fDist + fRad) * sin(fPhi);
   // radius of curvature
-  Double_t R  = pTrack->GetParamLast()->GetTx();
+  Double_t R  = fRad;
   Int_t counter = 0;
   Int_t wireOk = 0;
   Bool_t first = kTRUE;
   for (Int_t i = 0; i < hitcounter; i++) {
    
     // get index of hit
-    Int_t iHit = pTrack->GetHitIndex(i);
-
+    PndTrackCandHit candhit = fTrackCand->GetSortedHit(i);
+    Int_t iHit = candhit.GetHitId();
+   
     // get hit
     PndSttHit *pMhit = (PndSttHit*) fHitArray->At(iHit);
     if ( ! pMhit ) continue;
@@ -1328,7 +1368,7 @@ Int_t PndSttHelixTrackFitter::ZFit(PndSttTrack* pTrack, Int_t pidHypo) {
     // if the found z is > 75 cm or < -75 cm continue: this has to be fixed
     if(pMhit->GetZint() < (pMhit->GetZ() - pMhit->GetTubeHalfLength()) || pMhit->GetZint() > (pMhit->GetZ() + pMhit->GetTubeHalfLength())) continue; // CHECK 
 
-    Double_t scos = CalculateScosl(h, pTrack->GetParamLast()->GetX(),  pTrack->GetParamLast()->GetY(), R, pMhit->GetXint(), pMhit->GetYint());
+    Double_t scos = CalculateScosl(h, fDist,  fPhi, R, pMhit->GetXint(), pMhit->GetYint());
     
     Sx = Sx + (scos /(sigz * sigz));
     Sz = Sz + (vi->Z()/(sigz * sigz));
@@ -1351,8 +1391,8 @@ Int_t PndSttHelixTrackFitter::ZFit(PndSttTrack* pTrack, Int_t pidHypo) {
   TVector2 outz(fitm, fitp);
 
   // fill in parameters
-  pTrack->GetParamLast()->SetTy(fitm); // tan(lambda)
-  pTrack->GetParamLast()->SetZ(fitp);  // z0
+  fTanL = fitm; // tan(lambda)
+  fZ0 = fitp;  // z0
 
   if(rootoutput) {
     eventCanvas2->cd();
@@ -1482,16 +1522,18 @@ void PndSttHelixTrackFitter::ResetMArray() {
 }
 
 
-Int_t PndSttHelixTrackFitter::SetUpFitVector(PndSttTrack* pTrack, TMatrixT<Double_t> &fitvect)
+Int_t PndSttHelixTrackFitter::SetUpFitVector(PndTrackCand* pTrackCand, TMatrixT<Double_t> &fitvect)
 {
-  int nhits = pTrack->GetNofHits();
+  int nhits = pTrackCand->GetNHits();
   fitvect.ResizeTo(nhits, 4); // x y r errr
 
   PndSttHit *currenthit = NULL;
   int counter = 0;
   for(int i = 0; i < nhits; i++)
     {
-      Int_t iHit = pTrack->GetHitIndex(i);
+      PndTrackCandHit candhit = fTrackCand->GetSortedHit(i);
+      Int_t iHit = candhit.GetHitId();
+   
       currenthit = (PndSttHit*) fHitArray->At(iHit);
       if(!currenthit) continue;
       
@@ -1512,16 +1554,16 @@ Int_t PndSttHelixTrackFitter::SetUpFitVector(PndSttTrack* pTrack, TMatrixT<Doubl
   return counter;
 }
 
-Int_t PndSttHelixTrackFitter::MinuitFit(PndSttTrack* pTrack, Int_t pidHypo)
+Int_t PndSttHelixTrackFitter::MinuitFit(PndTrackCand* pTrackCand, Int_t pidHypo)
 {    
-   if(fVerbose == 2) cout << "MINUIT FIT " << pTrack->GetNofHits() << endl;
+   if(fVerbose == 2) cout << "MINUIT FIT " << pTrackCand->GetNHits() << endl;
  
   fEventCounter++;
-  Double_t hitcounter = pTrack->GetNofHits();
+  Double_t hitcounter = pTrackCand->GetNHits();
      
-  Double_t rstart = pTrack->GetParamLast()->GetTx();
-  Double_t xcstart = (pTrack->GetParamLast()->GetX() + pTrack->GetParamLast()->GetTx()) * cos(pTrack->GetParamLast()->GetY());
-  Double_t ycstart = (pTrack->GetParamLast()->GetX() + pTrack->GetParamLast()->GetTx()) * sin(pTrack->GetParamLast()->GetY());
+  Double_t rstart = fRad;
+  Double_t xcstart = (fDist + fRad) * cos(fPhi);
+  Double_t ycstart = (fDist + fRad) * sin(fPhi);
   
   
   TMinuit minimizer(3);
@@ -1531,16 +1573,16 @@ Int_t PndSttHelixTrackFitter::MinuitFit(PndSttTrack* pTrack, Int_t pidHypo)
 
   if(fVerbose == 2) {
     cout << "*******MINUIT********" << endl;
-    cout << "D   SEED: " << pTrack->GetParamLast()->GetX()  << endl;
-    cout << "PHI SEED: " << pTrack->GetParamLast()->GetY()  << endl;
-    cout << "R   SEED: " << pTrack->GetParamLast()->GetTx() << endl;
+    cout << "D   SEED: " << fDist  << endl;
+    cout << "PHI SEED: " << fPhi  << endl;
+    cout << "R   SEED: " << fRad << endl;
     cout << "********************" << endl;
   }
 
   // set the object to be fitted:
   // TMatrixT<Double_t> [x][y][r][err_r]
   TMatrixT<Double_t> fitvect;
-  int nfithits = SetUpFitVector(pTrack, fitvect);
+  int nfithits = SetUpFitVector(pTrackCand, fitvect);
 
   if(pidHypo == 1) minimizer.SetFCN(fcnHelix);
   else  minimizer.SetFCN(fcnHelix2);
@@ -1576,19 +1618,19 @@ Int_t PndSttHelixTrackFitter::MinuitFit(PndSttTrack* pTrack, Int_t pidHypo)
   Double_t d;
   d = ((resultsRadial[0] + resultsRadial[1]) - resultsRadial[2] *(TMath::Cos(phi) + TMath::Sin(phi)))/(TMath::Cos(phi) + TMath::Sin(phi)); // CHECK
   
-  pTrack->SetChi2Rad(chisquare);
-  pTrack->SetNDF(fTrack->GetNofHits());
-  pTrack->GetParamLast()->SetX(d);                
-  pTrack->GetParamLast()->SetY(phi);
-  //   pTrack->GetParamLast()->SetZ(z0);                
-  pTrack->GetParamLast()->SetTx(resultsRadial[2]);
-  //   pTrack->GetParamLast()->SetTy(alpha);                
+//   pTrack->SetChi2Rad(chisquare);          // CHECK how to handle this
+//   pTrack->SetNDF(fTrackCand->GetNHits()); // CHECK how to handle this
+  fDist = d;
+  fPhi = phi;
+  //   fZ0 = z0;                
+  fRad = resultsRadial[2];
+  //  fTanL = alpha;                
   h = -GetCharge(d, phi, resultsRadial[2]);
-  pTrack->GetParamLast()->SetQp(-h); 
+fH = -h; 
 
   if(rootoutput) {
     eventCanvas->cd();
-    TArc *fitarc = new TArc(((pTrack->GetParamLast()->GetX() + pTrack->GetParamLast()->GetTx()) * cos(pTrack->GetParamLast()->GetY())), ((pTrack->GetParamLast()->GetX() + pTrack->GetParamLast()->GetTx()) * sin(pTrack->GetParamLast()->GetY())), pTrack->GetParamLast()->GetTx());
+    TArc *fitarc = new TArc(((fDist + fRad) * cos(fPhi)), ((fDist + fRad) * sin(fPhi)), fRad);
     fitarc->SetLineColor(3);
     fitarc->Draw("SAME");
     eventCanvas->Update();
@@ -1722,14 +1764,14 @@ void PndSttHelixTrackFitter::OrderHitsByR(map<Double_t, Int_t> &hitMap)
     PndSttHit
       *pMhit = NULL;
   
-     if(fVerbose == 2) cout << "n of hits: " << fTrack->GetNofHits() << endl;
+     if(fVerbose == 2) cout << "n of hits: " << fTrackCand->GetNHits() << endl;
   
-    for (Int_t i = 0; i < fTrack->GetNofHits(); i++)
+    for (Int_t i = 0; i < fTrackCand->GetNHits(); i++)
       {
 	// get index of hit
-	Int_t
-	  iHit = fTrack->GetHitIndex(i);
-	
+	PndTrackCandHit candhit = fTrackCand->GetSortedHit(i);
+	Int_t iHit = candhit.GetHitId();
+   	
 	// get hit
 	pMhit = GetHitFromCollections(iHit);
 	if ( ! pMhit ) 
@@ -1845,12 +1887,20 @@ Int_t PndSttHelixTrackFitter::GetCharge(Double_t dCenter, Double_t phiCenter, Do
     return charge;
 }
 
-TVector3 *PndSttHelixTrackFitter::PCAToPoint(PndSttTrack *pTrack, TVector3 *point){
+TVector3 *PndSttHelixTrackFitter::PCAToPoint(TVector3 *point){
 
-  // transverse  
-  Double_t R = pTrack->GetParamLast()->GetTx();
-  Double_t xc = (pTrack->GetParamLast()->GetX() + pTrack->GetParamLast()->GetTx()) * TMath::Cos(pTrack->GetParamLast()->GetY());
-  Double_t yc = (pTrack->GetParamLast()->GetX() + pTrack->GetParamLast()->GetTx()) * TMath::Sin(pTrack->GetParamLast()->GetY());
+  // CHECK these HAVE to be initialized, check how
+//   fRad  = pTrack->GetParamLast()->GetTx();
+//   fDist = pTrack->GetParamLast()->GetX();
+//   fPhi  = pTrack->GetParamLast()->GetY();
+//   fTanL = pTrack->GetParamLast()->GetTy();
+//   fZ0   = pTrack->GetParamLast()->GetZ();
+//   fH    = pTrack->GetParamLast()->GetQp();
+
+ // transverse  
+  Double_t R = fRad;
+  Double_t xc = (fDist + fRad) * TMath::Cos(fPhi);
+  Double_t yc = (fDist + fRad) * TMath::Sin(fPhi);
  
   // transverse -> circle
   // 1. find the line joining the point and the centre
@@ -1873,30 +1923,38 @@ TVector3 *PndSttHelixTrackFitter::PCAToPoint(PndSttTrack *pTrack, TVector3 *poin
   else clsontrk = new TVector3(x2, y2, 0.);
 
   // longitudinal: find the z correspondent to the PCA in x, y (CHECK not in 3D!!!)
-  Int_t hh = -(Int_t) pTrack->GetParamLast()->GetQp(); // CHECK it should be q/p and not only q
-  Double_t d0 = pTrack->GetParamLast()->GetX();
-  Double_t phi0 = pTrack->GetParamLast()->GetY();
-  Double_t Rad =  pTrack->GetParamLast()->GetTx();
+  Int_t hh = -(Int_t) fH; // CHECK it should be q/p and not only q
+  Double_t d0 = fDist;
+  Double_t phi0 = fPhi;
+  Double_t Rad =  fRad;
   Double_t clstrkln = CalculateScosl(hh, d0, phi0, Rad, clsontrk->X(), clsontrk->Y());
-  Double_t z0 = pTrack->GetParamLast()->GetZ();
-  Double_t zslope = pTrack->GetParamLast()->GetTy();
+  Double_t z0 = fZ0;
+  Double_t zslope = fTanL;
   Double_t z = z0 + zslope * clstrkln;
   clsontrk->SetZ(z);
 
   return clsontrk;
 }
 
-TVector3 *PndSttHelixTrackFitter::MomentumAtPoint(PndSttTrack *pTrack, TVector3 *point){
+TVector3 *PndSttHelixTrackFitter::MomentumAtPoint(TVector3 *point){
   
+ // CHECK these HAVE to be initialized, check how
+  //fRad  = pTrack->GetParamLast()->GetTx();
+  // fDist = pTrack->GetParamLast()->GetX();
+  //   fPhi  = pTrack->GetParamLast()->GetY();
+  //   fTanL = pTrack->GetParamLast()->GetTy();
+//   fZ0   = pTrack->GetParamLast()->GetZ();
+//   fH    = pTrack->GetParamLast()->GetQp();
+
   // transverse momentum ..................................
   Double_t pt = 0., px = 0., py = 0.;
   
   // TVector2 *clsontrk = PCAToPoint(pTrack, point);
   
   // tangent in point of closest approach on track
-  Double_t R = pTrack->GetParamLast()->GetTx();
-  Double_t xc = (pTrack->GetParamLast()->GetX() + pTrack->GetParamLast()->GetTx()) * TMath::Cos(pTrack->GetParamLast()->GetY());
-  Double_t yc = (pTrack->GetParamLast()->GetX() + pTrack->GetParamLast()->GetTx()) * TMath::Sin(pTrack->GetParamLast()->GetY());
+  Double_t R = fRad;
+  Double_t xc = (fDist + fRad) * TMath::Cos(fPhi);
+  Double_t yc = (fDist + fRad) * TMath::Sin(fPhi);
   Double_t m = (yc - point->Y()) / (xc - point->X());
   Double_t mt = -1./m;
   Double_t alpha = TMath::ATan(mt);
@@ -1908,22 +1966,119 @@ TVector3 *PndSttHelixTrackFitter::MomentumAtPoint(PndSttTrack *pTrack, TVector3 
   
   // negative NO if point higher than center
   // positive NO if point lower than center
-  if((pTrack->GetParamLast()->GetQp() < 0 &&  (yc - point->Y()) < 0) || (pTrack->GetParamLast()->GetQp() > 0 &&  (yc - point->Y()) > 0))
+  if((fH < 0 &&  (yc - point->Y()) < 0) || (fH > 0 &&  (yc - point->Y()) > 0))
     {
       px = -px;
       py = -py;
     }
-  else if(pTrack->GetParamLast()->GetQp() == 0 &&  fVerbose == 2) cout << "NO CHARGE" << endl;
+  else if(fH == 0 &&  fVerbose == 2) cout << "NO CHARGE" << endl;
   
   // longitudinal momentum ..................................
   Double_t pl = 0.;
   
-  Double_t tanl = pTrack->GetParamLast()->GetTy();
+  Double_t tanl = fTanL;
   pl = pt * tanl;
   
   TVector3 *ptotcl = new TVector3(px, py, pl);
  
   return ptotcl;
 }
+
+// CHECK temporary this function has to be deleted
+TVector3 *PndSttHelixTrackFitter::PCAToPoint(PndSttTrack *pTrack, TVector3 *point){
+
+  fRad  = pTrack->GetParamLast()->GetTx();
+  fDist = pTrack->GetParamLast()->GetX();
+  fPhi  = pTrack->GetParamLast()->GetY();
+  fTanL = pTrack->GetParamLast()->GetTy();
+  fZ0   = pTrack->GetParamLast()->GetZ();
+  fH    = pTrack->GetParamLast()->GetQp();
+
+  // transverse  
+  Double_t R = fRad;
+  Double_t xc = (fDist + fRad) * TMath::Cos(fPhi);
+  Double_t yc = (fDist + fRad) * TMath::Sin(fPhi);
+ 
+  // transverse -> circle
+  // 1. find the line joining the point and the centre
+  Double_t m = (yc - point->Y()) / (xc - point->X());
+  Double_t q = yc - m * xc;
+
+  // 2. find the point on track closest to point
+  // +
+  Double_t x1 = (-(m*(q - yc) - xc) + sqrt((m*(q - yc) - xc)*(m*(q - yc) - xc) - (m*m + 1)*((q - yc)*(q - yc) + xc*xc - R*R))) / (m*m + 1);
+  Double_t y1 = m*x1 + q;
+  // - 
+  Double_t x2 = (-(m*(q - yc) - xc) - sqrt((m*(q - yc) - xc)*(m*(q - yc) - xc) - (m*m + 1)*((q - yc)*(q - yc) + xc*xc - R*R))) / (m*m + 1);
+  Double_t y2 = m*x2 + q;
+  
+  Double_t dist1 = sqrt((point->Y() - y1)*(point->Y() - y1) + (point->X() - x1)*(point->X() - x1));
+  Double_t dist2 = sqrt((point->Y() - y2)*(point->Y() - y2) + (point->X() - x2)*(point->X() - x2));
+ 
+  TVector3 *clsontrk; // close on track
+  if(dist1 < dist2) clsontrk = new TVector3(x1, y1, 0.);
+  else clsontrk = new TVector3(x2, y2, 0.);
+
+  // longitudinal: find the z correspondent to the PCA in x, y (CHECK not in 3D!!!)
+  Int_t hh = -(Int_t) fH; // CHECK it should be q/p and not only q
+  Double_t d0 = fDist;
+  Double_t phi0 = fPhi;
+  Double_t Rad =  fRad;
+  Double_t clstrkln = CalculateScosl(hh, d0, phi0, Rad, clsontrk->X(), clsontrk->Y());
+  Double_t z0 = fZ0;
+  Double_t zslope = fTanL;
+  Double_t z = z0 + zslope * clstrkln;
+  clsontrk->SetZ(z);
+
+  return clsontrk;
+}// CHECK temporary this function has to be deleted
+TVector3 *PndSttHelixTrackFitter::MomentumAtPoint(PndSttTrack *pTrack, TVector3 *point){
+  
+  fRad  = pTrack->GetParamLast()->GetTx();
+  fDist = pTrack->GetParamLast()->GetX();
+  fPhi  = pTrack->GetParamLast()->GetY();
+  fTanL = pTrack->GetParamLast()->GetTy();
+  fZ0   = pTrack->GetParamLast()->GetZ();
+  fH    = pTrack->GetParamLast()->GetQp();
+
+  // transverse momentum ..................................
+  Double_t pt = 0., px = 0., py = 0.;
+  
+  // TVector2 *clsontrk = PCAToPoint(pTrack, point);
+  
+  // tangent in point of closest approach on track
+  Double_t R = fRad;
+  Double_t xc = (fDist + fRad) * TMath::Cos(fPhi);
+  Double_t yc = (fDist + fRad) * TMath::Sin(fPhi);
+  Double_t m = (yc - point->Y()) / (xc - point->X());
+  Double_t mt = -1./m;
+  Double_t alpha = TMath::ATan(mt);
+  
+  pt = 0.006 * R;
+  px = pt * TMath::Cos(alpha);
+  py = pt * TMath::Sin(alpha);
+  
+  
+  // negative NO if point higher than center
+  // positive NO if point lower than center
+  if((fH < 0 &&  (yc - point->Y()) < 0) || (fH > 0 &&  (yc - point->Y()) > 0))
+    {
+      px = -px;
+      py = -py;
+    }
+  else if(fH == 0 &&  fVerbose == 2) cout << "NO CHARGE" << endl;
+  
+  // longitudinal momentum ..................................
+  Double_t pl = 0.;
+  
+  Double_t tanl = fTanL;
+  pl = pt * tanl;
+  
+  TVector3 *ptotcl = new TVector3(px, py, pl);
+ 
+  return ptotcl;
+}
+
+
 
 ClassImp(PndSttTrackFitter)
