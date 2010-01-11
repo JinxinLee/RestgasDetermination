@@ -58,7 +58,7 @@ class PndEmcDigiPar : public FairParGenericSet
 		Int_t fUse_photon_statistic;
 		Int_t fUseDigiEffectiveSmearing;
 
-	ClassDef(PndEmcDigiPar,3);
+		ClassDef(PndEmcDigiPar,4);
 };
 
 #endif
