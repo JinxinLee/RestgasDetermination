@@ -128,8 +128,16 @@ Int_t PndSttHelixTrackFitter::DoFit(PndTrackCand* pTrackCand, PndSttTrack* pTrac
   fEventCounter++;
  
   // initialize parameters CHECK to be changed correctly
-  fRad  = 0.;  fDist = 0.;  fPhi  = 0.;
-  fTanL = 0.;  fZ0   = 0.;  fH    = 0.;
+  fRad  = pTrack->GetParamLast()->GetTx(); 
+  fDist = pTrack->GetParamLast()->GetX(); 
+  fPhi  = pTrack->GetParamLast()->GetY(); 
+  fTanL = pTrack->GetParamLast()->GetTy(); 
+  fZ0   = pTrack->GetParamLast()->GetZ(); 
+  fH    = pTrack->GetParamLast()->GetQp(); 
+
+  // CHECK Initialization: if we put to 0 then fDist and fPhi are wrong
+  // fRad  = 0.;  fDist = 0.;  fPhi  = 0.;
+  //  fTanL = 0.;  fZ0   = 0.;  fH    = 0.;
 
   if(!pTrackCand) return 0;
   fTrack = pTrack; // CHECK canc
