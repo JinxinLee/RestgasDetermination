@@ -9,17 +9,15 @@
 
   Bool_t fTest=kFALSE;
 
- FairRunSim *fRun = new FairRunSim();
+  FairRunSim *fRun = new FairRunSim();
   
   // set the MC version used
   // ------------------------
 
   fRun->SetName("TGeant3");
-  // Choose the Geant Navigation System
-  // fRun->SetGeoModel("G3Native");
   
   fRun->SetOutputFile("testrun.root");
-
+ 
   // -----   Magnetic field   -------------------------------------------
   // Constant Field
   PndConstField *fMagField = new PndConstField();
@@ -69,9 +67,7 @@
   // boxGenMuP->SetXYZ(0., 0.37, 0.); 
   primGen->AddGenerator(boxGenMuP);
  
-   //  fRun->SetStoreTraj(kTRUE);
   
-  fRun->Init();
 
   // Fill the Parameter containers for this run
   //-------------------------------------------
@@ -81,26 +77,27 @@
   FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
   output->open("testparams.root");
   rtdb->setOutput(output);
+ 
 
-  PndConstPar* fieldPar = (PndConstPar*) rtdb->getContainer("PndConstPar");
-  if ( fMagField ) {  fieldPar->SetParameters(fMagField); }
-  fieldPar->setInputVersion(fRun->GetRunId(),1);
-  fieldPar->setChanged(kTRUE);
-  rtdb->saveOutput();
-  rtdb->print();
 
+  fRun->Init();
+  
+ 
   Int_t nEvents = 50;
   fRun->Run(nEvents);
 
+  rtdb->saveOutput();
+  
   fTest = kTRUE;
 
   if (fTest){
-    cout << " Test passed" << endl;
-    cout << " All ok " << endl;  
+    cout << " Test Passed" << endl;
+    cout << " All Ok " << endl;  
   }else{
     cout << " Test Failed" << endl;
     cout << " Not Ok " << endl;         
   }
+  
   delete fRun;
   exit(0); 
 }  

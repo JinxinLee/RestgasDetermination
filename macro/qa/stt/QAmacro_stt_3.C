@@ -2,8 +2,6 @@
 {
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-  basiclibs();
 
   Bool_t fTest = kTRUE;
   Int_t kindOftest[17];
@@ -210,8 +208,8 @@
 
  
   if (fTest == kTRUE){
-    cout << " Test passed" << endl;
-    cout << " All ok " << endl;  
+    cout << " Test Passed" << endl;
+    cout << " All Ok " << endl;  
   }else{
     cout << " Test Failed" << endl;
     cout << " Not Ok " << endl;         

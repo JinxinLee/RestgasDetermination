@@ -4,9 +4,7 @@
 {
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-  basiclibs();
-
+ 
   Bool_t fTest=kFALSE;
 
   // ------------------------------------------------------------------------
@@ -29,7 +27,6 @@
   FairRunAna *fRun = new FairRunAna();
   fRun->SetInputFile(inFile);
   fRun->SetOutputFile(outFile);
-  fRun->LoadGeometry();
   // ------------------------------------------------------------------------
  
   // ----- Prepare GEANE --------------------------------------------
@@ -77,14 +74,14 @@
 
   // -----   Initialize and run   --------------------------------------------
   fRun->Init();
-  fRun->Run(0, nEvents);
+  fRun->Run();
   // ------------------------------------------------------------------------
 
   fTest = kTRUE;
 
   if (fTest){
-    cout << " Test passed" << endl;
-    cout << " All ok " << endl;  
+    cout << " Test Passed" << endl;
+    cout << " All Ok " << endl;  
   }else{
     cout << " Test Failed" << endl;
     cout << " Not Ok " << endl;         
