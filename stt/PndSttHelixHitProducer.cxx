@@ -15,6 +15,8 @@
 #include "PndSttHelixTrackFitter.h"
 #include "PndSttHelixHit.h"
 #include "TGeoManager.h"
+#include "PndTrackCand.h"
+#include "PndTrackCandHit.h"
 // #include "TGeoVolume.h"
 // #include "TGeoNode.h"
 // #include "TGeoMatrix.h"
@@ -84,6 +86,15 @@ InitStatus PndSttHelixHitProducer::Init() {
 	   << endl;
       return kERROR;
     }
+
+ // Get SttTrackCand array
+  fTrackCandArray  = (TClonesArray*) ioman->GetObject("STTTrackCand"); 
+  if ( ! fTrackCandArray) 
+    {
+      cout << "-E- CbmSttFitTracks::Init: No SttTrack Cand  array!"
+	   << endl;
+      return kERROR;
+    }
 	
   // Get input array
   fPointArray = (TClonesArray*) ioman->GetObject("STTPoint");
@@ -126,6 +137,7 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
 
   // Declare some variables
   PndSttTrack* pTrack  = NULL;
+  PndTrackCand* pTrackCand  = NULL;
 
   if ( ! fTrackArray ) Fatal("Exec", "No GFTrackArray");
  
@@ -136,29 +148,33 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
   for (Int_t j = 0; j < nTracks; j++) {
     pTrack = (PndSttTrack *) fTrackArray->At(j);
     if(!pTrack) continue;
+    Int_t trackCandID = pTrack->GetTrackCandIndex();
+    pTrackCand = (PndTrackCand *) fTrackCandArray->At(trackCandID);
+    if(!pTrackCand) continue;
 
     //    if(pTrack->GetFlag() < 3) continue; // only prefit-fit-zfit CHECK
     // --------------------------- THE TRACK ----------------------------
     // xy
-    Int_t hh = -(Int_t) pTrack->GetParamLast()->GetQp(); // CHECK it should be q/p and not only q
-    Double_t d0 = pTrack->GetParamLast()->GetX();
-    Double_t phi0 = pTrack->GetParamLast()->GetY();
-    Double_t Rad =  pTrack->GetParamLast()->GetTx();
+    Int_t hh = -(Int_t) pTrack->GetCharge(); // CHECK it should be q/p and not only q
+    Double_t d0 = pTrack->GetDist();
+    Double_t phi0 = pTrack->GetPhi();
+    Double_t Rad =  pTrack->GetRad();
     // z    
-    Double_t z0 = pTrack->GetParamLast()->GetZ();
-    Double_t zslope = pTrack->GetParamLast()->GetTy();
+    Double_t z0 = pTrack->GetZ();
+    Double_t zslope = pTrack->GetTanL();
     // center of curvature of helix
     TVector2 vec((d0+Rad)*cos(phi0), (d0+Rad)*sin(phi0));
     // -------------------------------------------------------------------
 
-    Int_t hitcounter = pTrack->GetNofHits();
+    Int_t hitcounter = pTrackCand->GetNHits();
     Int_t hotcounter = 0;
     TVector2 point; // point
     Double_t radius = 0;
 
     PndSttHelixHit *helixhit = NULL;
     for (Int_t k = 0; k < hitcounter; k++) {
-      Int_t iHit = pTrack->GetHitIndex(k);
+      PndTrackCandHit candhit = pTrackCand->GetSortedHit(k);
+      Int_t iHit = candhit.GetHitId();
       PndSttHit *currenthit = (PndSttHit*) fHitArray->At(iHit);
       Int_t refindex = currenthit->GetRefIndex(); 
       // get point
@@ -230,10 +246,10 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
       
 	  // 2.c intersection between line and circle
 	  // +
-	  Double_t xb1 = (-(m*(q - vec.Y()) - vec.X()) + sqrt(fabs((m*(q - vec.Y()) - vec.X())*(m*(q - vec.Y()) - vec.X()) - (m*m + 1)*((q - vec.Y())*(q - vec.Y()) + vec.X()*vec.X() - (pTrack->GetParamLast()->GetTx()) *(pTrack->GetParamLast()->GetTx()))))) / (m*m + 1);
+	  Double_t xb1 = (-(m*(q - vec.Y()) - vec.X()) + sqrt(fabs((m*(q - vec.Y()) - vec.X())*(m*(q - vec.Y()) - vec.X()) - (m*m + 1)*((q - vec.Y())*(q - vec.Y()) + vec.X()*vec.X() - (pTrack->GetRad()) *(pTrack->GetRad()))))) / (m*m + 1);
 	  Double_t yb1 = m*xb1 + q;
 	  // -
-	  Double_t xb2 = (-(m*(q - vec.Y()) - vec.X()) - sqrt(fabs((m*(q - vec.Y()) - vec.X())*(m*(q - vec.Y()) - vec.X()) - (m*m + 1)*((q - vec.Y())*(q - vec.Y()) + vec.X()*vec.X() - (pTrack->GetParamLast()->GetTx()) *(pTrack->GetParamLast()->GetTx()))))) / (m*m + 1);
+	  Double_t xb2 = (-(m*(q - vec.Y()) - vec.X()) - sqrt(fabs((m*(q - vec.Y()) - vec.X())*(m*(q - vec.Y()) - vec.X()) - (m*m + 1)*((q - vec.Y())*(q - vec.Y()) + vec.X()*vec.X() - (pTrack->GetRad()) *(pTrack->GetRad()))))) / (m*m + 1);
 	  Double_t yb2 = m*xb2 + q;
       
 	  // calculation of the distance between [xb, yb] and [xp, yp]

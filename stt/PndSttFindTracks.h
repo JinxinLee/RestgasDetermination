@@ -9,7 +9,7 @@
  **
  ** Task class for track finding in the STT. 
  ** Input: TClonesArray of PndSttHit 
- ** Output: TClonesArray of PndSttTrack
+ ** Output: TClonesArray of PndTrackCand
  **
  ** Uses as track finding algorithm classes derived from PndSttTrackFinder.
  **/
@@ -88,7 +88,6 @@ class PndSttFindTracks : public FairTask
   void AddHitCollection(char const *collectionName, char const *pointCollectionName);
 
   PndSttTrackFinder* fFinder;    // Pointer to GFTrackFinder concrete class
-  TClonesArray* fTrackArray;     // Output array of PndSttTracks 
   TClonesArray* fTrackCandArray; // Output array of PndTrackCand
 
   Int_t fNofTracks;              // Number of tracks created

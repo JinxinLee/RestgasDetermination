@@ -4,7 +4,6 @@
 
 #include "PndSttFindTracks.h"
 
-#include "PndSttTrack.h"
 #include "PndSttTrackFinder.h"
 #include "PndTrackCand.h"
 
@@ -24,7 +23,6 @@ PndSttFindTracks::PndSttFindTracks()
   : FairTask("STT Find Tracks") 
 {
   fFinder      = NULL;
-  fTrackArray  = NULL; // CHECK canc
   fTrackCandArray  = NULL; // CHECK add
   fNofTracks   = 0;
   fVerbose     = 1;
@@ -41,7 +39,6 @@ PndSttFindTracks::PndSttFindTracks(PndSttTrackFinder* finder,
   : FairTask("STT Find Tracks") 
 {
   fFinder      = finder;
-  fTrackArray  = NULL;  // CHECK canc
   fTrackCandArray  = NULL; // CHECK add
   fNofTracks   = 0;
   fVerbose     = verbose;
@@ -59,7 +56,6 @@ PndSttFindTracks::PndSttFindTracks(const char* name, const char* title,
   : FairTask(name) 
 {
   fFinder      = finder;
-  fTrackArray  = NULL; // CHECK canc
   fTrackCandArray  = NULL; // CHECK add
   fNofTracks   = 0;
   fVerbose     = verbose;
@@ -73,7 +69,6 @@ PndSttFindTracks::PndSttFindTracks(const char* name, const char* title,
 // -----   Destructor   ----------------------------------------------------
 PndSttFindTracks::~PndSttFindTracks() 
 {
-  fTrackArray->Delete(); // CHECK canc
   fTrackCandArray->Delete(); // CHECK add
   fHitCollectionNames.clear();  
   fPointCollectionNames.clear();
@@ -103,10 +98,6 @@ InitStatus PndSttFindTracks::Init()
       return kFATAL;
   }
 
-  // Create and register SttTrack array
-  fTrackArray = new TClonesArray("PndSttTrack",100); // CHECK canc
-  ioman->Register("STTTrack", "STT", fTrackArray, fPersistence); // CHECK canc
-  
   fTrackCandArray = new TClonesArray("PndTrackCand",100); // CHECK add
   ioman->Register("STTTrackCand", "STT", fTrackCandArray, fPersistence); // CHECK add
   
@@ -181,25 +172,18 @@ void PndSttFindTracks::AddAllCollections()
 // -----   Public method Exec   --------------------------------------------
 void PndSttFindTracks::Exec(Option_t* opt) 
 {
+  // CHECK !!! IMPORTANT: event 0 (the first) 
+
   if(fVerbose) cout << "******* event # " << fEventCounter << "*******" << endl;
   fEventCounter++;
   
   AddAllCollections();
   
-  fTrackArray->Clear(); // CHECK canc
   fTrackCandArray->Clear(); // CHECK add
 
   
-  fNofTracks = fFinder->DoFind(fTrackArray); // CHECK keep
-  fNofTracks = fFinder->DoFind(fTrackArray, fTrackCandArray); // CHECK temporary
+  fNofTracks = fFinder->DoFind(fTrackCandArray); // CHECK keep
   
-  // CHECK canc
-  for (Int_t iTrack=0; iTrack < fTrackArray->GetEntriesFast(); iTrack++) 
-    {
-      PndSttTrack* track = (PndSttTrack*) fTrackArray->At(iTrack);
-      track->SortHits();
-    }
-    
   // CHECK add
   for (Int_t iTrack=0; iTrack < fTrackCandArray->GetEntriesFast(); iTrack++) 
     { 

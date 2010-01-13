@@ -40,12 +40,14 @@ class PndSttHelixHitProducer : public FairTask
 
  private: 
 
-  /** Input array of CbmSttPoints **/
+  /** Input array of PndSttPoints **/
   TClonesArray* fPointArray;
-  /** Input array of CbmSttHits **/
+  /** Input array of PndSttHits **/
   TClonesArray* fHitArray;
-  /** Input array of CbmSttTracks **/
+  /** Input array of PndSttTracks **/
   TClonesArray* fTrackArray;
+ /** Input array of PndTracksCand **/
+  TClonesArray* fTrackCandArray;
 
   /** Output array of PndSttHelixHits **/
   TClonesArray* fHelixHitArray;  

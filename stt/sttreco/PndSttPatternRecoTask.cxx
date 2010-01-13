@@ -1,6 +1,8 @@
 #include "PndSttPatternRecoTask.h"
 #include "PndSttTrackMatch.h"
 #include "PndSttTrack.h"
+#include "PndTrackCand.h"
+#include "PndTrackCandHit.h"
 #include "GFTrack.h"
 #include "GFTrackCand.h"
 #include "FairRootManager.h"
@@ -99,7 +101,8 @@ void PndSttPatternRecoTask:: Exec(Option_t* opt)
   PndMCTrack*       mctrack = NULL; 
   PndSttTrack*      track = NULL;
   PndSttTrackMatch* match = NULL;
-  
+  PndTrackCand* trackCand  = NULL;
+
   Int_t nTracks = fSttTrackArray->GetEntriesFast();
   Int_t nMatch = fMatchArray->GetEntriesFast();
    
@@ -111,7 +114,8 @@ void PndSttPatternRecoTask:: Exec(Option_t* opt)
       mctrack = (PndMCTrack*) fMCTrackArray->At(iTrack);
       track = (PndSttTrack*) fSttTrackArray->At(iTrack);
       match = (PndSttTrackMatch*) fMatchArray->At(iTrack);
- 
+      trackCand = (PndTrackCand *) fTrackCandArray->At(track->GetTrackCandIndex());
+
       if (!mctrack) 
 	{
 	  cout << "-W- SttPRTask::Exec: Empty PndMCTrack at " << iTrack << endl;
@@ -124,6 +128,12 @@ void PndSttPatternRecoTask:: Exec(Option_t* opt)
 	  continue;
 	}
 
+      if(!trackCand) 
+	{
+	  cout << "-W- SttPRTask::Exec: Empty PndTrackCand at " << track->GetTrackCandIndex() << endl;
+	  continue;
+	}
+      
       if(!match)
 	{
 	  cout << "-W- SttPRTask::Exec: Empty PndSttTrackMatch at " << iTrack << endl;
@@ -179,11 +189,11 @@ void PndSttPatternRecoTask:: Exec(Option_t* opt)
 
       GFTrackCand *cand = new GFTrackCand();
       cand->setMcTrackId(match->GetMCTrackID());
-      for(int iPoint = 0; iPoint < track->GetNofHits(); iPoint++)
+      for(int iPoint = 0; iPoint < trackCand->GetNHits(); iPoint++)
  	{
-
-	  Int_t iHit = track->GetHitIndex(iPoint);
- 	  PndSttHit *currenthit = (PndSttHit*) fSttHitArray->At(iHit);
+	  PndTrackCandHit candhit = trackCand->GetSortedHit(iPoint);
+	  Int_t iHit = candhit.GetHitId();
+     	  PndSttHit *currenthit = (PndSttHit*) fSttHitArray->At(iHit);
 	  if(!currenthit) continue;
 	  if(currenthit->GetDetectorID() != 3) continue;  // to be well defined CHECK!!
 	  

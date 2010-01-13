@@ -127,18 +127,10 @@ Int_t PndSttHelixTrackFitter::DoFit(PndTrackCand* pTrackCand, PndSttTrack* pTrac
   // cout << "track fitting event # " << fEventCounter << endl;
   fEventCounter++;
  
-  // initialize parameters CHECK to be changed correctly
-  fRad  = pTrack->GetParamLast()->GetTx(); 
-  fDist = pTrack->GetParamLast()->GetX(); 
-  fPhi  = pTrack->GetParamLast()->GetY(); 
-  fTanL = pTrack->GetParamLast()->GetTy(); 
-  fZ0   = pTrack->GetParamLast()->GetZ(); 
-  fH    = pTrack->GetParamLast()->GetQp(); 
-
-  // CHECK Initialization: if we put to 0 then fDist and fPhi are wrong
-  // fRad  = 0.;  fDist = 0.;  fPhi  = 0.;
-  //  fTanL = 0.;  fZ0   = 0.;  fH    = 0.;
-
+  // initialize parameters 
+  fRad  = 0.;  fDist = 0.;  fPhi  = 0.;
+  fTanL = 0.;  fZ0   = 0.;  fH    = 0.;
+ 
   if(!pTrackCand) return 0;
   fTrack = pTrack; // CHECK canc
   fTrackCand = pTrackCand; // CHECK canc
@@ -247,14 +239,14 @@ Int_t PndSttHelixTrackFitter::DoFit(PndTrackCand* pTrackCand, PndSttTrack* pTrac
 
 void PndSttHelixTrackFitter::SetParameters(PndSttTrack *pTrack, Bool_t all) {
   // CHECK what we have to do with this ....
-  pTrack->GetParamLast()->SetTx(fRad);
-  pTrack->GetParamLast()->SetX(fDist);
-  pTrack->GetParamLast()->SetY(fPhi);
+  pTrack->SetRad(fRad);
+  pTrack->SetDist(fDist);
+  pTrack->SetPhi(fPhi);
   if(all == kTRUE) {
-    pTrack->GetParamLast()->SetTy(fTanL);
-    pTrack->GetParamLast()->SetZ(fZ0);
+    pTrack->SetTanL(fTanL);
+    pTrack->SetZ(fZ0);
   }
-  pTrack->GetParamLast()->SetQp(fH);
+  pTrack->SetCharge(fH);
   // ..............
 }
 
@@ -1991,12 +1983,12 @@ TVector3 *PndSttHelixTrackFitter::MomentumAtPoint(TVector3 *point){
 // CHECK temporary this function has to be deleted
 TVector3 *PndSttHelixTrackFitter::PCAToPoint(PndSttTrack *pTrack, TVector3 *point){
 
-  fRad  = pTrack->GetParamLast()->GetTx();
-  fDist = pTrack->GetParamLast()->GetX();
-  fPhi  = pTrack->GetParamLast()->GetY();
-  fTanL = pTrack->GetParamLast()->GetTy();
-  fZ0   = pTrack->GetParamLast()->GetZ();
-  fH    = pTrack->GetParamLast()->GetQp();
+  fRad  = pTrack->GetRad();
+  fDist = pTrack->GetDist();
+  fPhi  = pTrack->GetPhi();
+  fTanL = pTrack->GetTanL();
+  fZ0   = pTrack->GetZ();
+  fH    = pTrack->GetCharge();
 
   // transverse  
   Double_t R = fRad;
@@ -2038,12 +2030,12 @@ TVector3 *PndSttHelixTrackFitter::PCAToPoint(PndSttTrack *pTrack, TVector3 *poin
 }// CHECK temporary this function has to be deleted
 TVector3 *PndSttHelixTrackFitter::MomentumAtPoint(PndSttTrack *pTrack, TVector3 *point){
   
-  fRad  = pTrack->GetParamLast()->GetTx();
-  fDist = pTrack->GetParamLast()->GetX();
-  fPhi  = pTrack->GetParamLast()->GetY();
-  fTanL = pTrack->GetParamLast()->GetTy();
-  fZ0   = pTrack->GetParamLast()->GetZ();
-  fH    = pTrack->GetParamLast()->GetQp();
+  fRad  = pTrack->GetRad();
+  fDist = pTrack->GetDist();
+  fPhi  = pTrack->GetPhi();
+  fTanL = pTrack->GetTanL();
+  fZ0   = pTrack->GetZ();
+  fH    = pTrack->GetCharge();
 
   // transverse momentum ..................................
   Double_t pt = 0., px = 0., py = 0.;

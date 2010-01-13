@@ -39,6 +39,7 @@ private:
   // Private Data Members ------------
  
   TClonesArray* fTrackArray;
+  TClonesArray* fTrackCandArray;
   TClonesArray* fMCTrackArray;
   TClonesArray* fMatchArray;
   TClonesArray* fSttTrackArray;

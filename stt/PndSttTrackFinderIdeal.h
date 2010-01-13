@@ -23,7 +23,6 @@
 #include "TList.h"
 #include "TClonesArray.h"
 
-class PndSttTrack; // CHECK canc
 class PndTrackCand; // CHECK add
 class PndSttHit;
 class FairMCPoint;
@@ -41,7 +40,6 @@ class PndSttTrackFinderIdeal : public PndSttTrackFinder
 			     Double_t *circleCentersY) const;
     
     //void ZoomTrack(Double_t &dSeed, Double_t &phiSeed, Double_t &rSeed, PndSttTrack *track);  // not implemented
-    void GetTrack(Double_t &dSeed, Double_t &phiSeed, Double_t &rSeed, Int_t mcTrackNo); // CHECK canc
     void GetTrack(Double_t &dSeed, Double_t &phiSeed, Double_t &rSeed, Double_t &zSeed, Double_t &tanLamSeed, Int_t mcTrackNo); // CHECK add;
   
   /** Default constructor **/
@@ -70,8 +68,7 @@ class PndSttTrackFinderIdeal : public PndSttTrackFinder
    **
    *@value Number of tracks created
    **/
-  virtual Int_t DoFind(TClonesArray* mHitArray); // CHECK keep
-  virtual Int_t DoFind(TClonesArray* mHitArray, TClonesArray* trackCandArray); // CHECK temporary
+  virtual Int_t DoFind(TClonesArray* trackCandArray); // CHECK keep
 
  virtual void AddHitCollection(TClonesArray* mHitArray, TClonesArray* mPointArray) {fHitCollectionList.Add(mHitArray); fPointCollectionList.Add(mPointArray);}
  void plotAllStraws();

@@ -21,7 +21,6 @@ using std::string;
 PndSttFitTracks::PndSttFitTracks() 
 {
   fFitter        = NULL;
-  fTrackArray    = NULL;
   fNofTracks     = 0;
 }
 // -------------------------------------------------------------------------
@@ -35,7 +34,6 @@ PndSttFitTracks::PndSttFitTracks(const char* name,
   : FairTask(name) 
 {
   fFitter        = fitter;
-  fTrackArray    = NULL;
   fNofTracks     = 0;
   fCollectionsComplete = kFALSE;
 }
@@ -73,15 +71,6 @@ InitStatus PndSttFitTracks::Init()
       return kFATAL;
     }
 
-  // Get SttTrack array CHECK canc
-  fTrackArray  = (TClonesArray*) ioman->GetObject("STTTrack"); //=>SG
-  if ( ! fTrackArray) 
-    {
-      cout << "-E- PndSttFitTracks::Init: No SttTrack array!"
-	   << endl;
-      return kERROR;
-    }
-
   // Get SttTrack array CHECK add
   fTrackCandArray  = (TClonesArray*) ioman->GetObject("STTTrackCand"); //=>SG
   if ( ! fTrackCandArray) 
@@ -91,6 +80,10 @@ InitStatus PndSttFitTracks::Init()
       return kERROR;
     }
 
+  // Create and register SttTrack array
+  fTrackArray = new TClonesArray("PndSttTrack",100); // CHECK add
+  ioman->Register("STTTrack", "STT", fTrackArray, kTRUE); // fPersistence); // CHECK
+    
   // Call the Init method of the track fitter
   fFitter->Init();
   
@@ -105,18 +98,22 @@ void PndSttFitTracks::Exec(Option_t* opt)
 {
     AddAllCollections();
 
-  if ( !fTrackArray ) 
+  if ( !fTrackCandArray ) 
     return; // =>SG
-  
-  Int_t nTracks = fTrackArray->GetEntriesFast();
+  fTrackArray->Clear(); // CHECK add
+
+  Int_t nTracks = fTrackCandArray->GetEntriesFast();
 
   for (Int_t iTrack=0; iTrack<nTracks; iTrack++) 
     {
      	PndTrackCand* pTrackCand = (PndTrackCand*) fTrackCandArray->At(iTrack); // CHECK add
 	if(!pTrackCand) continue; // CHECK add
-		
-	PndSttTrack* pTrack = (PndSttTrack*)fTrackArray->At(iTrack);
- 	fFitter->DoFit(pTrackCand, pTrack);
+
+	Int_t size = fTrackArray->GetEntriesFast(); //  CHECK add
+	new((*fTrackArray)[size]) PndSttTrack(); // CHECK add
+ 	PndSttTrack* pTrack = (PndSttTrack*) fTrackArray->At(size); // CHECK add
+	pTrack->SetTrackCandIndex(iTrack);
+  	fFitter->DoFit(pTrackCand, pTrack);
 
     }
 }
