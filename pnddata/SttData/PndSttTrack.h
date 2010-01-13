@@ -61,11 +61,10 @@ class PndSttTrack : public TObject
   
   Int_t GetCharge()    {return fH; };
 
-  /** momentum CHECK implement them **/
-  // Momentum, but where??
-  Double_t GetPtran();
-  Double_t GetPlong();
-  Double_t GetPtot();
+  // Momentum, but where?? // CHECK
+  /*   Double_t GetMomentum(); */
+  /*   Double_t GetPlong(); */
+  /*   Double_t GetPtot(); */
  
   /** Modifiers  **/
   void SetTrackCandIndex(Int_t trackCandID){ fTrackCandIndex = trackCandID;  };
