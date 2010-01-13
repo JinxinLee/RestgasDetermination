@@ -69,14 +69,14 @@
       if(!MCtrack) continue;
       Int_t PDGcode = MCtrack->GetPdgCode();
 
-      Double_t d0 = stttrack->GetParamLast()->GetX();
-      Double_t phi0 = stttrack->GetParamLast()->GetY();
-      Double_t R = stttrack->GetParamLast()->GetTx();
-      Double_t z0 = stttrack->GetParamLast()->GetZ();
-      Double_t tanl = stttrack->GetParamLast()->GetTy();
-      Double_t h = -(Int_t) stttrack->GetParamLast()->GetQp(); 
+      Double_t d0  = stttrack->GetDist();
+      Double_t phi0 = stttrack->GetPhi();
+      Double_t R = stttrack->GetRad();
+      Double_t z0 = stttrack->GetZ();
+      Double_t tanl = stttrack->GetTanL();
+      Double_t h = -(Int_t) stttrack->GetCharge();
       Double_t ptran = 0.003 * 2 * R;
-
+      
       Double_t plong = ptran * tanl;
       Double_t ptot = sqrt(plong*plong + ptran*ptran);
 

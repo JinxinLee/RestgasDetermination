@@ -33,7 +33,7 @@
   TH2F *hxy = new TH2F("hxy","hxy",100,-42,42, 100,-42,42);
   TH2F *hyz = new TH2F("hyz","hyz",100,0,50, 100,-40,110);
    
-  int evt = 999;
+  int evt = 0;
  
   treepnt->GetEntry(evt);
   treedigi->GetEntry(evt);
@@ -56,12 +56,12 @@
     PndSttTrack *stttrack = (PndSttTrack*) track->At(k);
     if(!stttrack) continue;
 
-    Double_t d0 = stttrack->GetParamLast()->GetX();
-    Double_t phi0 = stttrack->GetParamLast()->GetY();
-    Double_t R = stttrack->GetParamLast()->GetTx();
-    Double_t z0 = stttrack->GetParamLast()->GetZ();
-    Double_t tanl = stttrack->GetParamLast()->GetTy();
-    Double_t h = -(Int_t) stttrack->GetParamLast()->GetQp(); 
+    Double_t d0  = stttrack->GetDist();
+    Double_t phi0 = stttrack->GetPhi();
+    Double_t R = stttrack->GetRad();
+    Double_t z0 = stttrack->GetZ();
+    Double_t tanl = stttrack->GetTanL();
+    Double_t h = -(Int_t) stttrack->GetCharge(); 
     Double_t ptran = 0.003 * 2 * R;
 
     Double_t plong = ptran * tanl;
