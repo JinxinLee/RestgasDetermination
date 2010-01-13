@@ -21,6 +21,7 @@
 #include "TObject.h"
 #include "FairTrackParam.h"
 #include "TClonesArray.h"
+
 class PndSttHit;
 
 class PndSttTrack : public TObject
@@ -34,96 +35,90 @@ class PndSttTrack : public TObject
   /** Destructor **/
   virtual ~PndSttTrack();
 
-
-  /** Public methods AddHit
-   ** Adds the hit index to the index array
-   **/
-  void AddHit(Int_t hitID, PndSttHit* mHit);
-  // TO BE USED ONLY FOR IDEAL TRACK FINDER
-  void AddHitByHitID(Int_t hitID, PndSttHit* mHit);
-
   /** Public method Print
    ** Output to screen 
    **/
   void Print();
 
+  /** Native Hits attached via PndTrackCand**/
+  Int_t GetTrackCandIndex() {return fTrackCandIndex; }
 
-  /** Public method SortHits
-   ** Sorts the hits in each array in downstream direction
-   ** and writes the hit indizes into the member TArrayI
-   **/
-  void SortHits();
-
-
-  /** Accessors  **/
-  Int_t GetNofHits()                  const { return fHits.GetSize(); };
+  /** Reconstructed "Helix" Hits **/
   Int_t GetNofHelixHits()             const { return fHelixHits.GetSize(); };
-  Int_t GetNHits()                    const;
-  Int_t GetHitIndex(Int_t iHit)       const { return fHits.At(iHit); };
   Int_t GetHelixHitIndex(Int_t iHit)  const { return fHelixHits.At(iHit); };
   Int_t GetPidHypo()                  const { return fPidHypo; };
   Int_t GetFlag()                     const { return fFlag; };
   Double_t GetChi2Long()              const { return fChi2Long; };
   Double_t GetChi2Rad()               const { return fChi2Rad; };
   Int_t GetNDF()                      const { return fNDF; };
+  
+  /** parameters of the helix: d0, phi0, Rad, tanlambda, z0 **/
+  Double_t GetDist() {return fDist; };
+  Double_t GetPhi()  {return fPhi; };
+  Double_t GetRad()  {return fRad; };
+  Double_t GetTanL() {return fTanL; };
+  Double_t GetZ()    {return fZ; };
+  
+  Int_t GetCharge()    {return fH; };
 
-  // stt1
-  //  TClonesArray * GetHOT() const {return fHotArray;}
-
-  FairTrackParam* GetParamFirst() { return &fParamFirst; }; 
-  FairTrackParam* GetParamLast()  { return &fParamLast ; }; 
-  Bool_t AlreadyHasHit(Int_t iHit);
+  /** momentum CHECK implement them **/
+  // Momentum, but where??
+  Double_t GetPtran();
+  Double_t GetPlong();
+  Double_t GetPtot();
  
   /** Modifiers  **/
+  void SetTrackCandIndex(Int_t trackCandID){ fTrackCandIndex = trackCandID;  };
   void SetPidHypo(Int_t pid)                { fPidHypo    = pid;  };
-  void SetParamFirst(FairTrackParam& par)    { fParamFirst = par;  };
-  void SetParamLast(FairTrackParam& par)     { fParamLast  = par;  };
+  void SetParameters(Double_t d, Double_t phi, Double_t r, Double_t tanl, Double_t z) {
+    fDist = d;
+    fPhi = phi;
+    fRad = r;
+    fTanL = tanl;
+    fZ = z; };
+
+  void SetDist(Double_t dist) {fDist = dist;}
+  void SetPhi(Double_t phi)   {fPhi = phi;}
+  void SetRad(Double_t r)     {fRad = r;}
+  void SetTanL(Double_t tanl) {fTanL = tanl;}
+  void SetZ(Double_t z)       {fZ = z;}
+  void SetCharge(Int_t charge) {fH = charge;}
+
+
   void SetFlag(Int_t flag)                  { fFlag       = flag; };
   void SetChi2Long(Double_t chi2)           { fChi2Long   = chi2; };
   void SetChi2Rad(Double_t chi2)            { fChi2Rad    = chi2; };
   void SetNDF(Int_t ndf)                    { fNDF        = ndf;  };
-  // stt1
-  //  void SetHOT(TClonesArray *hotarray) {fHotArray = hotarray;}
+
   void AddHelixHit(Int_t size, Int_t index, Int_t helixhitindex);
 
  private:
-  Double_t fRefAngle;
-
-  /** Arrays containg the indices of the hits attached to the track **/
-  TArrayI fHits;
-
   /** Arrays containg the indices of the helixhits attached to the track **/
   TArrayI fHelixHits;
 
   /** PID hypothesis used by the track fitter **/
-  Int_t fPidHypo;
+  Int_t fPidHypo;    //! // CHECK not for now, maybe in future if needed
 
-  /** Track parameters at first and last fitted hit **/
-  FairTrackParam fParamFirst;
-  FairTrackParam fParamLast;
+  /** Track parameters of the helix **/
+  Double_t fDist, fPhi, fRad, fTanL, fZ;
+  Int_t fH;
 
   /** Quality flag **/
   Int_t fFlag;
 
   /** RMS deviation of hit coordinates to track **/
-  Double_t fChi2Long;
-  Int_t fNDF;
-  Double_t fChi2Rad;
+  Double_t fChi2Long; //! // CHECK not for now, maybe in future if needed
+  Int_t fNDF;         //! // CHECK not for now, maybe in future if needed
+  Double_t fChi2Rad;  //! // CHECK not for now, maybe in future if needed
+    
+  /** track cand **/
+  Int_t fTrackCandIndex;
 
-  /** Maps from hit z position to hit index. STL map is used because it
-   ** is automatically sorted. Temporary only; not for storgage.
-   ** The Hit index arrys will be filled by the method SortHits.
-   **/
-  std::map<Double_t, Int_t> fHitMap;            //!
-      
+
   ClassDef(PndSttTrack,1);
 };
 
 
-inline Int_t PndSttTrack::GetNHits() const 
-{
-  return GetNofHits(); 
-}
 
 
 
