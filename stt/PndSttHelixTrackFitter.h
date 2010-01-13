@@ -51,7 +51,8 @@ class PndSttHelixTrackFitter : public PndSttTrackFitter
     Int_t fVerbose;
 
     // track parameters
-    Double_t fRad, fDist, fPhi, fTanL, fZ0, fH;
+    Double_t fRad, fDist, fPhi, fTanL, fZ0;
+    Int_t fH;
 
  
  public:

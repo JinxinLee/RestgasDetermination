@@ -129,7 +129,7 @@ Int_t PndSttHelixTrackFitter::DoFit(PndTrackCand* pTrackCand, PndSttTrack* pTrac
  
   // initialize parameters 
   fRad  = 0.;  fDist = 0.;  fPhi  = 0.;
-  fTanL = 0.;  fZ0   = 0.;  fH    = 0.;
+  fTanL = 0.;  fZ0   = 0.;  fH    = 0;
  
   if(!pTrackCand) return 0;
   fTrack = pTrack; // CHECK canc
