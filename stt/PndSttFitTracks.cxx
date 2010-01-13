@@ -81,7 +81,7 @@ InitStatus PndSttFitTracks::Init()
     }
 
   // Create and register SttTrack array
-  fTrackArray = new TClonesArray("PndSttTrack",100); // CHECK add
+  fTrackArray = new TClonesArray("PndSttTrack",100); 
   ioman->Register("STTTrack", "STT", fTrackArray, kTRUE); // fPersistence); // CHECK
     
   // Call the Init method of the track fitter
@@ -100,18 +100,18 @@ void PndSttFitTracks::Exec(Option_t* opt)
 
   if ( !fTrackCandArray ) 
     return; // =>SG
-  fTrackArray->Clear(); // CHECK add
+  fTrackArray->Clear();
 
   Int_t nTracks = fTrackCandArray->GetEntriesFast();
 
   for (Int_t iTrack=0; iTrack<nTracks; iTrack++) 
     {
-     	PndTrackCand* pTrackCand = (PndTrackCand*) fTrackCandArray->At(iTrack); // CHECK add
-	if(!pTrackCand) continue; // CHECK add
+     	PndTrackCand* pTrackCand = (PndTrackCand*) fTrackCandArray->At(iTrack);
+	if(!pTrackCand) continue; 
 
-	Int_t size = fTrackArray->GetEntriesFast(); //  CHECK add
-	new((*fTrackArray)[size]) PndSttTrack(); // CHECK add
- 	PndSttTrack* pTrack = (PndSttTrack*) fTrackArray->At(size); // CHECK add
+	Int_t size = fTrackArray->GetEntriesFast(); 
+	new((*fTrackArray)[size]) PndSttTrack(); 
+ 	PndSttTrack* pTrack = (PndSttTrack*) fTrackArray->At(size); 
 	pTrack->SetTrackCandIndex(iTrack);
   	fFitter->DoFit(pTrackCand, pTrack);
 

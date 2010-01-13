@@ -133,7 +133,7 @@ Int_t PndSttHelixTrackFitter::DoFit(PndTrackCand* pTrackCand, PndSttTrack* pTrac
  
   if(!pTrackCand) return 0;
   fTrack = pTrack; // CHECK canc
-  fTrackCand = pTrackCand; // CHECK canc
+  fTrackCand = pTrackCand; 
   
   if(rootoutput) {
     char goOnChar;
@@ -1919,7 +1919,7 @@ TVector3 *PndSttHelixTrackFitter::PCAToPoint(TVector3 *point){
   else clsontrk = new TVector3(x2, y2, 0.);
 
   // longitudinal: find the z correspondent to the PCA in x, y (CHECK not in 3D!!!)
-  Int_t hh = -(Int_t) fH; // CHECK it should be q/p and not only q
+  Int_t hh = -(Int_t) fH; 
   Double_t d0 = fDist;
   Double_t phi0 = fPhi;
   Double_t Rad =  fRad;
@@ -2016,7 +2016,7 @@ TVector3 *PndSttHelixTrackFitter::PCAToPoint(PndSttTrack *pTrack, TVector3 *poin
   else clsontrk = new TVector3(x2, y2, 0.);
 
   // longitudinal: find the z correspondent to the PCA in x, y (CHECK not in 3D!!!)
-  Int_t hh = -(Int_t) fH; // CHECK it should be q/p and not only q
+  Int_t hh = -(Int_t) fH; 
   Double_t d0 = fDist;
   Double_t phi0 = fPhi;
   Double_t Rad =  fRad;

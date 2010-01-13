@@ -21,7 +21,6 @@ using namespace std;
 // -----   Default constructor   -------------------------------------------
 PndSttMatchTracks::PndSttMatchTracks() 
   : FairTask("STT track match") {
-  fTracks     = NULL;
   fMatches    = NULL;
   fVerbose    = 1;
   fCollectionsComplete = kFALSE;
@@ -34,7 +33,6 @@ PndSttMatchTracks::PndSttMatchTracks()
 // -----   Constructor with verbosity level   ------------------------------
 PndSttMatchTracks::PndSttMatchTracks(Int_t verbose) 
   : FairTask("STT track match") {
-  fTracks     = NULL;
   fMatches    = NULL;
   fVerbose    = verbose;
   fCollectionsComplete = kFALSE;
@@ -48,7 +46,6 @@ PndSttMatchTracks::PndSttMatchTracks(Int_t verbose)
 PndSttMatchTracks::PndSttMatchTracks(const char* name, const char* title,
 				     Int_t verbose) 
   : FairTask(name) {
-  fTracks     = NULL;
   fMatches    = NULL;
   fVerbose    = verbose;
   fCollectionsComplete = kFALSE;
@@ -80,7 +77,7 @@ InitStatus PndSttMatchTracks::Init() {
     return kFATAL;
   }
 
-  // Get TrackCand Array CHECK add
+  // Get TrackCand Array 
   fTrackCandidates = (TClonesArray*) ioman->GetObject("STTTrackCand");
   if ( ! fTrackCandidates ) {
     cout << "-E- PndSttMatchTracks::Init: No STTTrackCand array!" << endl;
@@ -119,7 +116,7 @@ void PndSttMatchTracks::Exec(Option_t* opt)
   fMatches->Delete();
 
   // Create some pointers and variables
-  PndTrackCand*     trackCand = NULL; // CHECK add
+  PndTrackCand*     trackCand = NULL; 
   PndSttHit*        mHit  = NULL;
   FairMCPoint*       point = NULL;
 
@@ -139,22 +136,22 @@ void PndSttMatchTracks::Exec(Option_t* opt)
   Int_t nMCTrackSum = 0;
 
    
-  // Loop over TracksCand CHECK add
+  // Loop over TracksCand 
   Int_t nTracks = fTrackCandidates->GetEntriesFast();
 
 
   for (Int_t iTrack=0; iTrack<nTracks; iTrack++) 
     {
-      trackCand = (PndTrackCand*) fTrackCandidates->At(iTrack); // CHECK add
+      trackCand = (PndTrackCand*) fTrackCandidates->At(iTrack); 
  
-      if ( ! trackCand)  // CHECK add
+      if ( ! trackCand)  
 	{
 	  cout << "-W- PndSttMatchTracks::Exec: Empty STTTrackCand at "
 	       << iTrack << endl;
 	  continue;
 	}
  
-      nHits = trackCand->GetNHits(); // CHECK add
+      nHits = trackCand->GetNHits(); 
       
       nAll = nTrue = nWrong = nFake = nMCTracks = 0;
 
@@ -169,7 +166,7 @@ void PndSttMatchTracks::Exec(Option_t* opt)
 	  PndTrackCandHit candhit = trackCand->GetSortedHit(iMHit);
 
 	  // alter here
-	  mHit = GetHitFromCollections(candhit.GetHitId()); // CHECK add
+	  mHit = GetHitFromCollections(candhit.GetHitId()); 
 
  	
 
@@ -190,7 +187,7 @@ void PndSttMatchTracks::Exec(Option_t* opt)
 	    }
 	  
 	  // alter here
-	  point = GetPointFromCollections(candhit.GetHitId()); // CHECK add
+	  point = GetPointFromCollections(candhit.GetHitId()); 
 	  
 	  
 	  if ( ! point ) 
@@ -204,7 +201,7 @@ void PndSttMatchTracks::Exec(Option_t* opt)
 	  iMCTrack = point->GetTrackID();
 	  
 	  if ( fVerbose > 2 ) cout << "Track " << iTrack << ", hit "
-				   << candhit.GetHitId() // CHECK add
+				   << candhit.GetHitId() 
 				   << ", STTPoint " << iPoint << ", MCTrack "
 				   << iMCTrack << endl;
 	  fMatchMap[iMCTrack]++;
@@ -235,7 +232,7 @@ void PndSttMatchTracks::Exec(Option_t* opt)
 			   << nFake << ", #MCTracks " << nMCTracks << endl;
       
       // Create SttTrackMatch
-      new ((*fMatches)[iTrack]) PndSttTrackMatch(iMCTrack, nTrue,  // CHECK canc
+      new ((*fMatches)[iTrack]) PndSttTrackMatch(iMCTrack, nTrue, 
 						 nWrong, nFake, 
 						 nMCTracks);
 

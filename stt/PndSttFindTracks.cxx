@@ -23,7 +23,7 @@ PndSttFindTracks::PndSttFindTracks()
   : FairTask("STT Find Tracks") 
 {
   fFinder      = NULL;
-  fTrackCandArray  = NULL; // CHECK add
+  fTrackCandArray  = NULL; 
   fNofTracks   = 0;
   fVerbose     = 1;
   fCollectionsComplete = kFALSE;
@@ -39,7 +39,7 @@ PndSttFindTracks::PndSttFindTracks(PndSttTrackFinder* finder,
   : FairTask("STT Find Tracks") 
 {
   fFinder      = finder;
-  fTrackCandArray  = NULL; // CHECK add
+  fTrackCandArray  = NULL; 
   fNofTracks   = 0;
   fVerbose     = verbose;
   fCollectionsComplete = kFALSE;
@@ -56,7 +56,7 @@ PndSttFindTracks::PndSttFindTracks(const char* name, const char* title,
   : FairTask(name) 
 {
   fFinder      = finder;
-  fTrackCandArray  = NULL; // CHECK add
+  fTrackCandArray  = NULL; 
   fNofTracks   = 0;
   fVerbose     = verbose;
   fCollectionsComplete = kFALSE;
@@ -69,7 +69,7 @@ PndSttFindTracks::PndSttFindTracks(const char* name, const char* title,
 // -----   Destructor   ----------------------------------------------------
 PndSttFindTracks::~PndSttFindTracks() 
 {
-  fTrackCandArray->Delete(); // CHECK add
+  fTrackCandArray->Delete(); 
   fHitCollectionNames.clear();  
   fPointCollectionNames.clear();
 }
@@ -98,8 +98,8 @@ InitStatus PndSttFindTracks::Init()
       return kFATAL;
   }
 
-  fTrackCandArray = new TClonesArray("PndTrackCand",100); // CHECK add
-  ioman->Register("STTTrackCand", "STT", fTrackCandArray, fPersistence); // CHECK add
+  fTrackCandArray = new TClonesArray("PndTrackCand",100); 
+  ioman->Register("STTTrackCand", "STT", fTrackCandArray, fPersistence); 
   
 
   // Set verbosity of track finder
@@ -179,12 +179,12 @@ void PndSttFindTracks::Exec(Option_t* opt)
   
   AddAllCollections();
   
-  fTrackCandArray->Clear(); // CHECK add
+  fTrackCandArray->Clear(); 
 
   
-  fNofTracks = fFinder->DoFind(fTrackCandArray); // CHECK keep
+  fNofTracks = fFinder->DoFind(fTrackCandArray); 
   
-  // CHECK add
+  
   for (Int_t iTrack=0; iTrack < fTrackCandArray->GetEntriesFast(); iTrack++) 
     { 
       PndTrackCand* trackCand = (PndTrackCand*) fTrackCandArray->At(iTrack);

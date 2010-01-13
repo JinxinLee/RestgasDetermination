@@ -5,7 +5,7 @@
 #include "FairMCPoint.h"
 #include "FairRootManager.h"
 #include "PndDetectorList.h"
-#include "PndTrackCand.h" // CHECK add
+#include "PndTrackCand.h" 
 
 
 // ROOT includes
@@ -139,7 +139,7 @@ Int_t PndSttTrackFinderIdeal::DoFind( TClonesArray* trackCandArray)
   PndSttHit*       pMhit = NULL;
   FairMCPoint*      pMCpt = NULL;
   PndMCTrack*      pMCtr = NULL;
-  PndTrackCand* pTrckCand = NULL; // CHECK add
+  PndTrackCand* pTrckCand = NULL; 
 
   // Number of STT hits
   Int_t 
@@ -226,7 +226,7 @@ Int_t PndSttTrackFinderIdeal::DoFind( TClonesArray* trackCandArray)
 	continue;
       nMCacc++;
 
-      new((*trackCandArray)[nTracks]) PndTrackCand(); // CHECK add
+      new((*trackCandArray)[nTracks]) PndTrackCand(); 
 
       if (fVerbose >= 2) cout << "-I- PndSttTrackFinderIdeal: STTTrack " 
 			      << nTracks << " created from MCTrack " 
@@ -286,10 +286,10 @@ Int_t PndSttTrackFinderIdeal::DoFind( TClonesArray* trackCandArray)
 	  continue;
       
       trackIndex = trackMap[mcTrackIndex];
-      pTrckCand = (PndTrackCand*) trackCandArray->At(trackIndex);  // CHECK add
+      pTrckCand = (PndTrackCand*) trackCandArray->At(trackIndex);  
 
       
-      if ( ! pTrckCand ) // CHECK add
+      if ( ! pTrckCand ) 
       {
 	  cout << "-E- PndSttTrackFinderIdeal::DoFind: "
 	       << "No SttTrack pointer. " << iHit << " " << ptIndex 
@@ -315,13 +315,13 @@ Int_t PndSttTrackFinderIdeal::DoFind( TClonesArray* trackCandArray)
 	// 	cout << "LOW MOMENTUM --> AddHit by HitID " << endl;
 	if(nAssignedHits>25) continue;
 	// CHECK: test iHit and how to organize sorting (here...)
-	pTrckCand->AddHit(pMhit->GetDetectorID(), iHit, iHit); // CHECK add
+	pTrckCand->AddHit(pMhit->GetDetectorID(), iHit, iHit); 
 	nAssignedHits++;
       }
       else {
 	// 	cout << "HIGH MOMENTUM --> AddHit by R " << endl;
 	// CHECK: test iHit and how to organize sorting (... and here)
-	pTrckCand->AddHit(pMhit->GetDetectorID(), iHit, wireRad); // CHECK add
+	pTrckCand->AddHit(pMhit->GetDetectorID(), iHit, wireRad); 
 
       }
 // ---------------------------------------------------------------------  
@@ -350,11 +350,11 @@ Int_t PndSttTrackFinderIdeal::DoFind( TClonesArray* trackCandArray)
   for (Int_t trackTeller = 0; trackTeller < nTracks; trackTeller++)
   {
     // loop over 
-    pTrckCand = (PndTrackCand*) trackCandArray->At(trackTeller); // CHECK add
+    pTrckCand = (PndTrackCand*) trackCandArray->At(trackTeller); 
 
-    if ( pTrckCand != NULL) //  CHECK add
+    if ( pTrckCand != NULL) 
 	{
-	  //  pTrckCand->setMcTrackId(correlationMap[trackTeller]); // CHECK add decide whether it has to stay here or in TrackMatch
+	  //  pTrckCand->setMcTrackId(correlationMap[trackTeller]); // CHECK  decide whether it has to stay here or in TrackMatch
    
 	  Double_t
 	      dSeed,
@@ -363,7 +363,7 @@ Int_t PndSttTrackFinderIdeal::DoFind( TClonesArray* trackCandArray)
 	      zSeed,
 	      tanLamSeed;
 	  
-	  GetTrack(dSeed, phiSeed, rSeed, zSeed, tanLamSeed, correlationMap[trackTeller]); // CHECK add
+	  GetTrack(dSeed, phiSeed, rSeed, zSeed, tanLamSeed, correlationMap[trackTeller]); 
 
 	  Double_t
 	      xSeed = (dSeed + rSeed) * cos(phiSeed),
@@ -393,7 +393,7 @@ Int_t PndSttTrackFinderIdeal::DoFind( TClonesArray* trackCandArray)
 	  }
 
 
-	  // CHECK add ----------------------------------
+	  //  ----------------------------------
 	  // check: seeds directly from MC
 	  Double_t vxSeed = dSeed * TMath::Cos(phiSeed);
 	  Double_t vySeed = dSeed * TMath::Sin(phiSeed);
@@ -451,7 +451,6 @@ Int_t PndSttTrackFinderIdeal::DoFind( TClonesArray* trackCandArray)
 	      cout << "qop " << qop << " " << (chargeSeed/((0.006 * rSeed) * (0.006 * rSeed) + mcTrack2->GetMomentum().Z() * mcTrack2->GetMomentum().Z())) << " " << fabs(qop - (chargeSeed/((0.006 * rSeed) * (0.006 * rSeed) + mcTrack2->GetMomentum().Z() * mcTrack2->GetMomentum().Z()))) << endl;
 	   
 	  }
-	  // --------------------------- end CHECK add
 
 
       }
@@ -690,7 +689,7 @@ void PndSttTrackFinderIdeal::GetTrackletCircular(Double_t firstX, Double_t first
 
 
 
-// CHECK add
+
 void PndSttTrackFinderIdeal::GetTrack(Double_t &dSeed, Double_t &phiSeed, Double_t &rSeed, 
 				      Double_t &zSeed, Double_t &tanLamSeed, Int_t mcTrackNo)
 {

@@ -155,7 +155,7 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
     //    if(pTrack->GetFlag() < 3) continue; // only prefit-fit-zfit CHECK
     // --------------------------- THE TRACK ----------------------------
     // xy
-    Int_t hh = -(Int_t) pTrack->GetCharge(); // CHECK it should be q/p and not only q
+    Int_t hh = -(Int_t) pTrack->GetCharge();
     Double_t d0 = pTrack->GetDist();
     Double_t phi0 = pTrack->GetPhi();
     Double_t Rad =  pTrack->GetRad();
