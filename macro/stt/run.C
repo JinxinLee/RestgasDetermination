@@ -87,10 +87,6 @@
   output->open("testparams.root");
   rtdb->setOutput(output);
 
-  PndConstPar* fieldPar = (PndConstPar*) rtdb->getContainer("PndConstPar");
-  if ( fMagField ) {  fieldPar->SetParameters(fMagField); }
-  fieldPar->setInputVersion(fRun->GetRunId(),1);
-  fieldPar->setChanged(kTRUE);
   rtdb->saveOutput();
   rtdb->print();
 

@@ -77,7 +77,6 @@
   fRun->Init();
 
   rtdb->print();
-  Geane->SetField(fRun->GetField());
 
   fRun->Run(0,nEvents);
   
