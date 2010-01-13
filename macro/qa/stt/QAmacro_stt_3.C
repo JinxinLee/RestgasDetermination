@@ -38,7 +38,7 @@
   // Kalman Track 
   TClonesArray *kalmanarray = new TClonesArray("GFTrack");
   treereco->SetBranchAddress("Track",&kalmanarray);
-
+  
   // histograms
   TH1F *hisochrone = new TH1F("hisochrone","Simulated drift radius", 100, 0., 0.6);
   TH1F *hptot_mum = new TH1F("hptot_mum","Total momentum for #mu^{-}", 100, 0.5, 1.5);
@@ -71,12 +71,12 @@
       PndSttTrackMatch *sttmatch = (PndSttTrackMatch*) trackmatcharray->At(k);
       if(!sttmatch) continue; 
 
-      Double_t d0   = stttrack->GetParamLast()->GetX();
-      Double_t phi0 = stttrack->GetParamLast()->GetY();
-      Double_t R    = stttrack->GetParamLast()->GetTx();
-      Double_t z0   = stttrack->GetParamLast()->GetZ();
-      Double_t tanl = stttrack->GetParamLast()->GetTy();
-      Double_t h    = -(Int_t) stttrack->GetParamLast()->GetQp(); 
+      Double_t d0   = stttrack->GetDist();
+      Double_t phi0 = stttrack->GetPhi();
+      Double_t R    = stttrack->GetRad();
+      Double_t z0   = stttrack->GetZ();
+      Double_t tanl = stttrack->GetTanL();
+      Double_t h    = -(Int_t) stttrack->GetCharge();
       Double_t ptran = 0.003 * 2 * R;
       Double_t plong = ptran * tanl;
       Double_t ptot = sqrt(plong*plong + ptran*ptran);
@@ -96,29 +96,24 @@
     // =================== KALMAN ====================
     // tracks loop
     for (Int_t j = 0; j < kalmanarray->GetEntriesFast(); j++) {
-    
+      
       GFTrack *kaltrack = (GFTrack*) kalmanarray->At(j);
       if(!kaltrack) continue;
-
+	
       ptot = kaltrack->getMom().Mag();
-      
+	
       // mu - or mu + ?
       MCTrackID = ((GFTrackCand*) kaltrack->getCand())->getMcTrackId();
       if(MCTrackID == -1) continue;
-     
+	
       PndMCTrack *mctrack = (PndMCTrack*) mctrackarray->At(MCTrackID);
       if(!mctrack) continue;
-     
+	
       if(mctrack->GetPdgCode() == 13)       hptot_mum_kal->Fill(ptot);
       else if(mctrack->GetPdgCode() == -13) hptot_mup_kal->Fill(ptot);
       //    else nomutracks++; 
- 
-
- 
+     
     }
-
-
- 
   }
 
   // negative muon ...............................................
@@ -141,7 +136,7 @@
 
   // efficiency integral under the peak/generated tracks in [78% - 5%, 78% + 5%]
   hptot_mum->GetXaxis()->SetRangeUser(0.9, 1.1);
-    if((hptot_mum->Integral() / 300.) < (0.78 - 0.5) || (hptot_mum->Integral() / 300.) > (0.78 + 0.5)) { fTest = kFALSE; kindOftest[4] = 1;}
+  if((hptot_mum->Integral() / 300.) < (0.78 - 0.5) || (hptot_mum->Integral() / 300.) > (0.78 + 0.5)) { fTest = kFALSE; kindOftest[4] = 1;}
 
 
   // KALMAN
@@ -149,22 +144,21 @@
   fgaus->GetParameters(gauspar);
   mean  = gauspar[1];
   sigma = gauspar[2];
-
+      
   // mean in [1 GeV/c - 3 sigma, 1 GeV/c + 3 sigma]
   if(mean < (mean - 3 * sigma) || mean > (mean + 3 * sigma)) { fTest = kFALSE; kindOftest[5] = 1; }
-
+      
   // resolution sigma/p in [2.3%  - 0.5%, 2.3% + 0.5%]
   if((sigma/mean) < (0.023 - 0.005) || (sigma/mean) > (0.023 + 0.005)) { fTest = kFALSE; kindOftest[6] = 1; }
-
+      
   // efficiency integral in 0.5, 1.5 / generated tracks in [83% - 5%, 83% + 5%] 
   if((hptot_mum_kal->Integral() / 300.) < (0.83 - 0.5) || (hptot_mum_kal->Integral() / 300.) > (0.83 + 0.5)) { fTest = kFALSE; kindOftest[7] = 1; }
-
+      
   // efficiency integral under the peak/generated tracks in [81% - 5%, 81% + 5%]
   hptot_mum_kal->GetXaxis()->SetRangeUser(0.9, 1.1);
-    if((hptot_mum_kal->Integral() / 300.) < (0.81 - 0.5) || (hptot_mum_kal->Integral() / 300.) > (0.81 + 0.5)) { fTest = kFALSE; kindOftest[8] = 1; }
-
-
-
+  if((hptot_mum_kal->Integral() / 300.) < (0.81 - 0.5) || (hptot_mum_kal->Integral() / 300.) > (0.81 + 0.5)) { fTest = kFALSE; kindOftest[8] = 1; }
+      
+    
   // positive muon ...............................................
   // HELIX
   hptot_mup.Fit("fgaus","R0QN");
@@ -183,10 +177,11 @@
 
   // efficiency integral under the peak/generated tracks in [78% - 5%, 78% + 5%]
   hptot_mup->GetXaxis()->SetRangeUser(0.9, 1.1);
-    if((hptot_mup->Integral() / 300.) < (0.78 - 0.5) || (hptot_mup->Integral() / 300.) > (0.78 + 0.5)) { fTest = kFALSE; kindOftest[12] = 1; }
+  if((hptot_mup->Integral() / 300.) < (0.78 - 0.5) || (hptot_mup->Integral() / 300.) > (0.78 + 0.5)) { fTest = kFALSE; kindOftest[12] = 1; }
+
 
   // KALMAN
- hptot_mup_kal.Fit("fgaus","R0QN");
+  hptot_mup_kal.Fit("fgaus","R0QN");
   fgaus->GetParameters(gauspar);
   mean  = gauspar[1];
   sigma = gauspar[2];
@@ -203,7 +198,7 @@
   // efficiency integral under the peak/generated tracks in [80% - 5%, 80% + 5%]
   hptot_mup_kal->GetXaxis()->SetRangeUser(0.9, 1.1);
   if((hptot_mup_kal->Integral() / 300.) < (0.80 - 0.5) || (hptot_mup_kal->Integral() / 300.) > (0.80 + 0.5)) { fTest = kFALSE; kindOftest[16] = 1; }
-
+   
 
 
  
