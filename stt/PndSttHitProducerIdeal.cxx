@@ -106,7 +106,7 @@ void PndSttHitProducerIdeal::Exec(Option_t* opt)
 
   Int_t 
     detID = 0,       // Detector ID
-    trackID = 0;     // GFTrack index
+    trackID = 0;     // Track index
 
   TVector3 
     pos, dpos;       // Position and error vectors

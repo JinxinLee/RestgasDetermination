@@ -53,7 +53,7 @@ PndSttFitTracks::~PndSttFitTracks()
 // -----   Public method Init (abstract in base class)  --------------------
 InitStatus PndSttFitTracks::Init() 
 {
-  // Check for GFTrack fitter
+  // Check for Track fitter
   if (! fFitter) 
     {
       cout << "-E- PndSttFitTracks: No track fitter selected!" << endl;

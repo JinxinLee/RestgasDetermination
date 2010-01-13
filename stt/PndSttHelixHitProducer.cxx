@@ -139,7 +139,7 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
   PndSttTrack* pTrack  = NULL;
   PndTrackCand* pTrackCand  = NULL;
 
-  if ( ! fTrackArray ) Fatal("Exec", "No GFTrackArray");
+  if ( ! fTrackArray ) Fatal("Exec", "No fTrackArray");
  
    
   // Loop over tracks
@@ -528,7 +528,7 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
       hotcounter++;
     }
     
-    // GFTrack summary
+    // Track summary
     if(fVerbose == 2) {
       cout << "-I- PndSttHelixHitProducer: " << j << " track " << hitcounter << " SttHits, "
 	   << hotcounter << " HelixHits created." << endl;

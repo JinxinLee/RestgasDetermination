@@ -58,7 +58,7 @@ class PndSttTrackFinderIdeal : public PndSttTrackFinder
   virtual void Init();
 
 
-  /** GFTrack finding algorithm
+  /** Track finding algorithm
    ** This just reads MC truth (MCTracks and MCPoints), creates
    ** one StsTrack for each MCTrack and attaches the hits according
    ** to the MCTrack of the corresponding MCPoint
