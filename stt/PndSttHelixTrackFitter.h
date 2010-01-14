@@ -50,11 +50,6 @@ class PndSttHelixTrackFitter : public PndSttTrackFitter
     Bool_t rootoutput;
     Int_t fVerbose;
 
-    // track parameters
-    Double_t fRad, fDist, fPhi, fTanL, fZ0;
-    Int_t fH;
-
- 
  public:
  PndSttHelixTrackFitter();
   PndSttHelixTrackFitter(Int_t verbose);
@@ -80,21 +75,6 @@ class PndSttHelixTrackFitter : public PndSttTrackFitter
   Int_t ZFit(PndTrackCand* pTrackCand, Int_t pidHypo);
   
   Int_t DoFit(PndTrackCand* pTrackCand, PndSttTrack* pTrack, Int_t pidHypo = 211);
-
-  // track length calculation
-  Double_t CalculateScosl(Double_t h, Double_t d0,  Double_t phi0, Double_t R, Double_t x, Double_t y);
-  // find the tri-momentum in the PCA to a point
-  // TVector3* MomentumAtPoint(PndTrackCand *pTrackCand, TVector2 *point);
-  TVector3* MomentumAtPoint(TVector3 *point);
-  // find the PCA to a point
-  //  TVector2* PCAToPoint(PndTrackCand *pTrackCand, TVector2 *point);
-  TVector3* PCAToPoint(TVector3 *point);
-
-  // CHECK temporary to be deleted
-  TVector3* PCAToPoint(PndSttTrack *pTrack, TVector3 *point);
-  TVector3* MomentumAtPoint(PndSttTrack *pTrack, TVector3 *point);
-
-
 
   // charge reconstruction from xy fit
   Int_t GetCharge(Double_t dCenter, Double_t phiCenter, Double_t radius);

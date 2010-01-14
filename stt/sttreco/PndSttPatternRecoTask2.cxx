@@ -8,7 +8,6 @@
 #include "FairRootManager.h"
 #include "TClonesArray.h"
 #include <iostream>
-#include "PndSttHelixTrackFitter.h"
 #include "LSLTrackRep.h"
 #include "GeaneTrackRep.h"
 #include "TDatabasePDG.h"
@@ -141,11 +140,10 @@ void PndSttPatternRecoTask2:: Exec(Option_t* opt)
       
       if(track->GetFlag() < 3) continue;
 
-      PndSttHelixTrackFitter *fFitter;
       TVector3 *vertex = new TVector3(0.,0.,0.);            // CHECK 
-      TVector3 *recovtx = fFitter->PCAToPoint(track, vertex);
+      TVector3 *recovtx = track->PCAToPoint(vertex);
       TVector3 *momeatvtx;
-      momeatvtx = fFitter->MomentumAtPoint(track, recovtx);
+      momeatvtx = track->MomentumAtPoint(recovtx);
 
       // STARTING VERTEX ERRORS
       TVector3 StartPos    = *recovtx;

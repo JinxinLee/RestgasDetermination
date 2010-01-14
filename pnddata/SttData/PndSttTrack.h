@@ -66,6 +66,13 @@ class PndSttTrack : public TObject
   /*   Double_t GetPlong(); */
   /*   Double_t GetPtot(); */
  
+  // track length calculation
+  Double_t CalculateScosl(Double_t x, Double_t y);
+  // find the tri-momentum in the PCA to a point
+  TVector3* MomentumAtPoint(TVector3 *point);
+  // find the PCA to a point
+  TVector3* PCAToPoint(TVector3 *point);
+
   /** Modifiers  **/
   void SetTrackCandIndex(Int_t trackCandID){ fTrackCandIndex = trackCandID;  };
   void SetPidHypo(Int_t pid)                { fPidHypo    = pid;  };

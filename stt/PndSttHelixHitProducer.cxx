@@ -12,7 +12,6 @@
 #include "PndSttHit.h"
 #include "PndSttTrack.h"
 #include "PndSttPoint.h"
-#include "PndSttHelixTrackFitter.h"
 #include "PndSttHelixHit.h"
 #include "TGeoManager.h"
 #include "PndTrackCand.h"
@@ -277,8 +276,7 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
 
 	  //=====================
 	  // z plane / non skewed tubes -------------------------------------------------
-	  PndSttHelixTrackFitter fitter;
-	  Double_t scosl = fitter.CalculateScosl(hh, d0, phi0, Rad, helixhit->GetX(), helixhit->GetY());
+	  Double_t scosl = pTrack->CalculateScosl(helixhit->GetX(), helixhit->GetY());
 	  Double_t zcoord = z0 + zslope * scosl;
 	  helixhit->SetZ(zcoord);
 
@@ -463,8 +461,7 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
 
 	    // I have 2 choices, I prefer the nearest to the line CHECK (DEVE ESSERE MESSO TUTTO A POSTO L' ASSOCIAZIONE DELLA Z!)
 	    // calculate scosl 
-	    PndSttHelixTrackFitter fitter;
-	    Double_t scosl_ = fitter.CalculateScosl(hh, d0, phi0, Rad, x_, y_);
+	    Double_t scosl_ = pTrack->CalculateScosl(x_, y_);
 	    Double_t zcoord_ = z0 + zslope * scosl_;
 	    TVector3 *tofit3 = new TVector3(x_, y_, zcoord_);
 
@@ -482,8 +479,7 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
 	
 	//=====================
 	// z plane / non skewed tubes -------------------------------------------------
-	PndSttHelixTrackFitter fitter;
-	Double_t scosl = fitter.CalculateScosl(hh, d0, phi0, Rad, helixhit->GetX(), helixhit->GetY());
+	Double_t scosl = pTrack->CalculateScosl(helixhit->GetX(), helixhit->GetY());
 	Double_t zcoord = z0 + zslope * scosl;
 	//	helixhit->SetZ(zcoord);
 
