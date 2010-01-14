@@ -82,8 +82,7 @@
       // track
       Double_t x1 = d0 * cos(phi0);
       Double_t y1 = d0 * sin(phi0);
-      PndSttHelixTrackFitter fitter;
-      Double_t scoslT = fitter.CalculateScosl(h, d0, phi0, R, x1, y1);
+      Double_t scoslT = stttrack->CalculateScosl(x1, y1);
      
       TLine* line = new TLine(scoslT, scoslT*tanl+ z0, 50, 50*tanl + z0);
       line->SetLineColor(k+1);
@@ -135,17 +134,17 @@
       
 
      
-      Double_t scoslMC = fitter.CalculateScosl(h, d0, phi0, R, mcpoint->GetXtot(), mcpoint->GetYtot());
+      Double_t scoslMC = stttrack->CalculateScosl(mcpoint->GetXtot(), mcpoint->GetYtot());
       TMarker *mrkpnt = new TMarker(scoslMC, mcpoint->GetZtot(), 2);
       mrkpnt->SetMarkerColor(4);
       mrkpnt->Draw("SAME");
 
-      Double_t scoslH  = fitter.CalculateScosl(h, d0, phi0, R, hit->GetX(), hit->GetY());
+      Double_t scoslH  = stttrack->CalculateScosl(hit->GetX(), hit->GetY());
       TMarker *mrkdigi = new TMarker(scoslH, hit->GetZ(), 6);
       mrkdigi->SetMarkerColor(3);
       //  mrkdigi->Draw("SAME");
 
-      Double_t scoslHH = fitter.CalculateScosl(h, d0, phi0, R, helixhit->GetX(), helixhit->GetY());
+      Double_t scoslHH = stttrack->CalculateScosl(helixhit->GetX(), helixhit->GetY());
       TMarker *mrkhh = new TMarker(scoslHH, helixhit->GetZ(),  5);
       mrkhh->SetMarkerColor(2);
       mrkhh->Draw("SAME");
