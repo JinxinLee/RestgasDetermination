@@ -230,7 +230,7 @@ Int_t PndSttHelixTrackFitter::DoFit(PndTrackCand* pTrackCand, PndSttTrack* pTrac
 }
 
 // XYFit was Fit4b
-Int_t PndSttHelixTrackFitter::XYFit(PndTrackCand* pTrackCand, Int_t pidHypo) {
+Int_t PndSttHelixTrackFitter::XYFit(PndTrackCand* pTrackCand, Int_t whatToFit) {
  
   if(!pTrackCand) return 0;
 
@@ -323,7 +323,7 @@ Int_t PndSttHelixTrackFitter::XYFit(PndTrackCand* pTrackCand, Int_t pidHypo) {
     if(wiredirection != TVector3(0.,0.,1.)) continue;
     
 
-    if(pidHypo == 2) {
+    if(whatToFit == 2) {
       Double_t resx = iPoint->GetXtot() - currenthit->GetXint();
       Double_t resy = iPoint->GetYtot() - currenthit->GetYint();
       Double_t resdist = TMath::Sqrt((iPoint->GetYtot() - currenthit->GetYint())*(iPoint->GetYtot() - currenthit->GetYint()) + (iPoint->GetXtot() - currenthit->GetXint())*(iPoint->GetXtot() - currenthit->GetXint()));
@@ -331,9 +331,9 @@ Int_t PndSttHelixTrackFitter::XYFit(PndTrackCand* pTrackCand, Int_t pidHypo) {
     }
  
     if(rootoutput) { 
-      //     if(pidHypo == 2) {
+      //     if(whatToFit == 2) {
       eventCanvas->cd(); 
-      if(pidHypo == 1) {
+      if(whatToFit == 1) {
 	// draw MC hits
 	TMarker *cir0 = new TMarker(iPoint->GetXtot(), iPoint->GetYtot(), 6);
 	cir0->SetMarkerStyle(6);
@@ -343,9 +343,9 @@ Int_t PndSttHelixTrackFitter::XYFit(PndTrackCand* pTrackCand, Int_t pidHypo) {
       }
       TMarker *cir1 = new TMarker(currenthit->GetXint(), currenthit->GetYint(), 6);
       cir1->SetMarkerColor(2);
-      if(pidHypo == 2) cir1->Draw("SAME");
+      if(whatToFit == 2) cir1->Draw("SAME");
       TMarker *cir2 = new TMarker(currenthit->GetX(), currenthit->GetY(), 6);
-      if(pidHypo == 1) cir2->Draw("SAME");
+      if(whatToFit == 1) cir2->Draw("SAME");
       //     }
     }
  
@@ -367,7 +367,7 @@ Int_t PndSttHelixTrackFitter::XYFit(PndTrackCand* pTrackCand, Int_t pidHypo) {
       eventCanvas->cd();
       TMarker *pt = new TMarker(xrot, yrot, 6);
       pt->SetMarkerColor(3);
-      //  if(pidHypo == 2) 
+      //  if(whatToFit == 2) 
       // pt->Draw("SAME");
     }
 
@@ -376,16 +376,16 @@ Int_t PndSttHelixTrackFitter::XYFit(PndTrackCand* pTrackCand, Int_t pidHypo) {
     u = xtrasl / (xtrasl*xtrasl + ytrasl*ytrasl);
     v = ytrasl / (xtrasl*xtrasl + ytrasl*ytrasl);
 
-    if(rootoutput){// && pidHypo == 2) { 
+    if(rootoutput){// && whatToFit == 2) { 
       eventCanvas3->cd();
       TMarker *uv = new TMarker(u, v, 6);
       uv->SetMarkerColor(3);
-      if(pidHypo == 2) uv->Draw("SAME");
+      if(whatToFit == 2) uv->Draw("SAME");
       eventCanvas3->Update();
       eventCanvas3->Modified();
     }
 
-    if(pidHypo == 1) {
+    if(whatToFit == 1) {
       if(currenthit->GetIsochrone() == 0) sigr = sqrt(2.)/sqrt(12.);
       else sigr = sqrt(2.) * currenthit->GetIsochrone()/sqrt(12.);
       sigx = sigr;
@@ -568,7 +568,7 @@ Int_t PndSttHelixTrackFitter::XYFit(PndTrackCand* pTrackCand, Int_t pidHypo) {
     chi2 = chi2 + pow(((varray.At(i) - (a + b*uarray.At(i) + c*uarray.At(i)*uarray.At(i)))/sqrt(sigE2array.At(i))), 2);
   }
   
-  if(rootoutput){// && pidHypo == 2) { 
+  if(rootoutput){// && whatToFit == 2) { 
     eventCanvas3->cd();
     Double_t uu[100];
     Double_t vv[100];
@@ -577,7 +577,7 @@ Int_t PndSttHelixTrackFitter::XYFit(PndTrackCand* pTrackCand, Int_t pidHypo) {
       vv[p] = a + b*uu[p] + c*uu[p]*uu[p];
     }
     TPolyLine *uvline = new TPolyLine(100, uu, vv);
-    if(pidHypo == 2) uvline->Draw("SAME");
+    if(whatToFit == 2) uvline->Draw("SAME");
     eventCanvas3->Update();
     eventCanvas3->Modified();
   }
@@ -652,7 +652,7 @@ Int_t PndSttHelixTrackFitter::XYFit(PndTrackCand* pTrackCand, Int_t pidHypo) {
   if(rootoutput) {
     eventCanvas->cd();
     TArc *fitarc = new TArc(((fTrack->GetDist() + fTrack->GetRad()) * cos(fTrack->GetPhi())), ((fTrack->GetDist() + fTrack->GetRad()) * sin(fTrack->GetPhi())), fTrack->GetRad());
-    if(pidHypo == 2)  fitarc->SetLineColor(2);
+    if(whatToFit == 2)  fitarc->SetLineColor(2);
     fitarc->Draw("SAME");
     eventCanvas->Update();
     eventCanvas->Modified();
@@ -797,7 +797,7 @@ Bool_t PndSttHelixTrackFitter::IntersectionFinder(PndTrackCand *pTrackCand)
 
 // ZFinder was ZFinderbb3
 // -------- ZFinder --------------------------------------------
-Bool_t PndSttHelixTrackFitter::ZFinder(PndTrackCand* pTrackCand, Int_t pidHypo) {
+Bool_t PndSttHelixTrackFitter::ZFinder(PndTrackCand* pTrackCand, Int_t whatToFit) {
   // the z finding procedure uses the hough transform to find the line
   // in the plane z - track length on which the correct points lie.
 
@@ -1275,7 +1275,7 @@ Bool_t PndSttHelixTrackFitter::ZFinder(PndTrackCand* pTrackCand, Int_t pidHypo) 
 
 // ZFit was Zfitbb2
 // ----- Zfit  ----------------------------------------
-Int_t PndSttHelixTrackFitter::ZFit(PndTrackCand* pTrackCand, Int_t pidHypo) {
+Int_t PndSttHelixTrackFitter::ZFit(PndTrackCand* pTrackCand, Int_t whatToFit) {
 
    if(fVerbose == 2) cout << "ZFIT" << endl;
 
@@ -1528,7 +1528,7 @@ Int_t PndSttHelixTrackFitter::SetUpFitVector(PndTrackCand* pTrackCand, TMatrixT<
   return counter;
 }
 
-Int_t PndSttHelixTrackFitter::MinuitFit(PndTrackCand* pTrackCand, Int_t pidHypo)
+Int_t PndSttHelixTrackFitter::MinuitFit(PndTrackCand* pTrackCand, Int_t whatToFit)
 {    
    if(fVerbose == 2) cout << "MINUIT FIT " << pTrackCand->GetNHits() << endl;
  
@@ -1558,7 +1558,7 @@ Int_t PndSttHelixTrackFitter::MinuitFit(PndTrackCand* pTrackCand, Int_t pidHypo)
   TMatrixT<Double_t> fitvect;
   int nfithits = SetUpFitVector(pTrackCand, fitvect);
 
-  if(pidHypo == 1) minimizer.SetFCN(fcnHelix);
+  if(whatToFit == 1) minimizer.SetFCN(fcnHelix);
   else  minimizer.SetFCN(fcnHelix2);
   //  minimizer.SetErrorDef(1);  // ???
   

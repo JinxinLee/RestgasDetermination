@@ -60,19 +60,19 @@ class PndSttHelixTrackFitter : public PndSttTrackFitter
   // intersection finder 
   Bool_t IntersectionFinder(PndTrackCand *pTrackCand);  
   // fit
-  Int_t XYFit(PndTrackCand* pTrackCand, Int_t pidHypo);
-  Int_t MinuitFit(PndTrackCand* pTrackCand, Int_t pidHypo);
+  Int_t XYFit(PndTrackCand* pTrackCand, Int_t whatToFit);
+  Int_t MinuitFit(PndTrackCand* pTrackCand, Int_t whatToFit);
   Int_t SetUpFitVector(PndTrackCand* pTrackCand, TMatrixT<Double32_t> &fitvect);
 
   // z track length plane ----------
   // zfinder
-  Bool_t ZFinder(PndTrackCand* pTrackCand, Int_t pidHypo); 
+  Bool_t ZFinder(PndTrackCand* pTrackCand, Int_t whatToFit); 
 
   // hough
   void Hough(TVector3* choice, Double_t Phi0, Double_t x0, Double_t y0, Double_t R);
   TVector3 GetHoughResponse();
   // zfit
-  Int_t ZFit(PndTrackCand* pTrackCand, Int_t pidHypo);
+  Int_t ZFit(PndTrackCand* pTrackCand, Int_t whatToFit);
   
   Int_t DoFit(PndTrackCand* pTrackCand, PndSttTrack* pTrack, Int_t pidHypo = 211);
 

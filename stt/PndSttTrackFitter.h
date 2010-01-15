@@ -47,7 +47,8 @@ class PndSttTrackFitter : public TObject
    ** Task: Make a fit to the hits attached to the track by the track
    ** finder. Fill the track parameter member variables.
    **
-   *@param pTrack      Pointer to PndSttTrack
+   *@param pTrackCand  Pointer to PndTrackCand (input)
+   *@param pTrack      Pointer to PndSttTrack  (output)
    *@param pidHypo     PID hypothesis for the fit. Default is pion.
    **/
   virtual Int_t DoFit(PndTrackCand *pTrackCand, PndSttTrack* pTrack, Int_t pidHypo = 211) = 0;
