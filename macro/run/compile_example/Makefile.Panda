@@ -154,7 +154,7 @@ INCLUDE       = -I$(PANDADIR)/base \
 
 # Add extra ROOT libraries needed for PandaRoot.
 LIBS         += -lEG -lGenVector -lGeom -lGeomPainter -lMinuit \
-		-lMLP -lRIO -lRootAuth -lSQL -lTMVA -lGX11 -lGui -lGX11TTF \
+		-lMLP -lRIO -lRootAuth -lTMVA -lGX11 -lGui -lGX11TTF \
 		-lTreePlayer -lVMC -lXMLIO
 
 # Add PandaROOT libraries (not every lib is actually needed).
