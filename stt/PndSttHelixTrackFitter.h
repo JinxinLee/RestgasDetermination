@@ -90,7 +90,7 @@ class PndSttHelixTrackFitter : public PndSttTrackFitter
 			    FairTrackParam *param );
 
   // all: kTRUE = also z param; kFALSE = only xy param
-  void SetParameters(PndSttTrack* pTrack, Bool_t all);
+  // void SetParameters(PndSttTrack* pTrack, Bool_t all); /* commented out by JGM, 16/01/2010 */
 
   // marray reset
   void ResetMArray();
