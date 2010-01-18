@@ -10,7 +10,6 @@
 
 #pragma link C++ class PndLumiPoint+;
 #pragma link C++ class PndLumiHit+;
-//#pragma link C++ class PndLumiHitProducer+;
 
 #pragma link C++ class PndLumiTransposition+;
 #pragma link C++ class PndLumiStrip+;
@@ -29,8 +28,8 @@
 
 #pragma link C++ class PndLumiTrackFinder+;
 #pragma link C++ class PndLumiTrack+;
-#pragma link C++ class PndDmlLinFitTask+;
-#pragma link C++ class PndLinTrack+;
+//#pragma link C++ class PndDmlLinFitTask+;
+//#pragma link C++ class PndLinTrack+;
 
 #endif
 

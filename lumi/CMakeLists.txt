@@ -15,15 +15,8 @@ ${CMAKE_SOURCE_DIR}/lumi/LumiMC
 ${CMAKE_SOURCE_DIR}/lumi/LumiData
 ${CMAKE_SOURCE_DIR}/lumi/LumiTools
 ${CMAKE_SOURCE_DIR}/lumi/LumiDigi
-#${CMAKE_SOURCE_DIR}/lumi/LumiReco
-#${CMAKE_SOURCE_DIR}/lumi/LumiTracking
-
-#${CMAKE_SOURCE_DIR}/lumi/old_22_09/LumiMC
-#${CMAKE_SOURCE_DIR}/lumi/old_22_09/LumiData
-#${CMAKE_SOURCE_DIR}/lumi/old_22_09/LumiTools
-#${CMAKE_SOURCE_DIR}/lumi/old_22_09/LumiDigi
-#${CMAKE_SOURCE_DIR}/lumi/old_22_09/LumiReco
-
+${CMAKE_SOURCE_DIR}/lumi/LumiReco
+${CMAKE_SOURCE_DIR}/lumi/LumiTracking
 ${CMAKE_SOURCE_DIR}/trackrep
 ${CMAKE_SOURCE_DIR}/trackbase
 ${CMAKE_SOURCE_DIR}/geane
@@ -58,8 +51,8 @@ LumiReco/PndLumiClusterTask.cxx
 LumiReco/PndLumiCluster.cxx
 LumiTracking/PndLumiTrackFinder.cxx
 LumiTracking/PndLumiTrack.cxx
-LumiTracking/PndDmlLinFitTask.cxx
-LumiTracking/PndLinTrack.cxx
+#LumiTracking/PndDmlLinFitTask.cxx
+#LumiTracking/PndLinTrack.cxx
 
 )
 
