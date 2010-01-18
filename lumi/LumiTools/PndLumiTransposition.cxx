@@ -12,7 +12,7 @@ PndLumiTransposition::PndLumiTransposition(Int_t verbose)
 
 void PndLumiTransposition::GetLocalHitPoints(PndLumiPoint* myPoint, FairGeoVector& myHitIn, FairGeoVector& myHitOut)
 {
-	if (fVerbose > 3){
+	if (fVerbose > 6){
 		cout << "GetLocalHitPoints for Detector: " << myPoint->GetDetName().Data() << endl;
 	}
 	TGeoHMatrix trans = GetTransformation(myPoint->GetDetName().Data());
@@ -30,7 +30,7 @@ void PndLumiTransposition::GetLocalHitPoints(PndLumiPoint* myPoint, FairGeoVecto
 	posOut[1] = myPoint->GetExitPoint().Y();
 	posOut[2] = myPoint->GetExitPoint().Z();
 
-	if (fVerbose > 5){
+	if (fVerbose > 6){
 		for (Int_t i = 0; i < 3; i++){
 			cout << "posIn "<< i << ": " << posIn[i] << endl;
 		}
@@ -51,7 +51,7 @@ void PndLumiTransposition::GetLocalHitPoints(PndLumiPoint* myPoint, FairGeoVecto
 	posOutLocal[0] += offset.x();
 	posOutLocal[1] += offset.y();
 	posOutLocal[2] += offset.z();
-    if (fVerbose > 5) {
+    if (fVerbose > 6) {
        for (Int_t i = 0; i < 3; i++){
          cout << "posInLocal "<< i << ": " << posInLocal[i] << endl;
        }
@@ -64,23 +64,23 @@ void PndLumiTransposition::GetLocalHitPoints(PndLumiPoint* myPoint, FairGeoVecto
 
 TGeoHMatrix PndLumiTransposition::GetTransformation(std::string detName)
 {
-  gGeoManager->cd(detName.c_str());
-  TGeoHMatrix* transMat = gGeoManager->GetCurrentMatrix();
-  if (fVerbose > 3)
-	  transMat->Print("");
-  return *transMat;
+	gGeoManager->cd(detName.c_str());
+	TGeoHMatrix* transMat = gGeoManager->GetCurrentMatrix();
+	if (fVerbose > 5)
+		transMat->Print("");
+	return *transMat;
 }
 
 
 TVector3 PndLumiTransposition::GetSensorDimensions(std::string detName)
 {
-  gGeoManager->cd(detName.c_str());
-  TGeoVolume* actVolume = gGeoManager->GetCurrentVolume();
-  TGeoBBox* actBox = (TGeoBBox*)(actVolume->GetShape());
-  TVector3 result;
-  result.SetX(actBox->GetDX());
-  result.SetY(actBox->GetDY());
-  result.SetZ(actBox->GetDZ());
+	gGeoManager->cd(detName.c_str());
+	TGeoVolume* actVolume = gGeoManager->GetCurrentVolume();
+	TGeoBBox* actBox = (TGeoBBox*)(actVolume->GetShape());
+	TVector3 result;
+	result.SetX(actBox->GetDX());
+	result.SetY(actBox->GetDY());
+	result.SetZ(actBox->GetDZ());
 
   return result;
 }

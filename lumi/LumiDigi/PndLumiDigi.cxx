@@ -3,42 +3,36 @@
 PndLumiDigi::PndLumiDigi()
 : FairHit()
 {
+
 }
 
-PndLumiDigi::PndLumiDigi(Int_t detID, TVector3 pos, TVector3 dpos,
-		Int_t index, Int_t nrPlan, Int_t nrSensor, Int_t multi, PndLumiStrip strip,
-		Double_t dQ_r, Double_t dQ_l, Double_t inStripId, Double_t outStripId,
-		Int_t stripright,	Double_t eLoss, TString detname)
+PndLumiDigi::PndLumiDigi (Int_t detID, TVector3 pos, TVector3 dpos,
+		Int_t index, PndLumiStrip strip, TString detname,
+		SensorSide side, Int_t multi, Bool_t IsActive)
 : FairHit(detID, pos, dpos, index)
 {
-	fPlanID = nrPlan;
-	fSensorID = nrSensor;
-	fPosition = pos;
-	fMultiplicity = multi;
 	fStrip = strip;
-	fIndex = index;
-	fdQ_r = dQ_r;
-	fdQ_l = dQ_l;
-	fEntryStripId = inStripId;
-	fExitStripId = outStripId;
-	fRightId = stripright;
-	fEnergyLoss = eLoss;
 	fDetName = detname;
+	fSide = side;
+	fMulti = multi;
+	fIsActive = IsActive;
 }
+
 
 PndLumiDigi::~PndLumiDigi()
 {
 }
+
+
 void PndLumiDigi::Print(const Option_t* opt) const
 {
-    std::cout << " ******* LUMI DIGITIZATION **************************************************************** " << std::endl
-    <<" * Detector hit	: "<<fDetName<<std::endl
-	      << " * Plan ID	: " << fPlanID << std::endl
-	      << " * Sensor ID	: " << fSensorID << std::endl
-	      << " * Multiplicity	: " << fMultiplicity << std::endl
-	      << " * Entry Position	: (" << fPosition.X() << ", " << fPosition.Y() << ", " << fPosition.Z() << ") [cm]" << std::endl
-	      << " * Strip Involved	: " << fStrip << std::endl
-	      << " ***************************************************************************************** "<< std::endl;
+    cout<<" * Detector hit	: "<< fDetName <<endl;
+    if(fIsActive){
+    	cout<<" * Note : ( Side : "<<fSide << "| Active ) "<<endl;
+    	cout  << " * Strip Involved	: " << fStrip << endl;
+    }else
+    	cout<<" * Note : ( Side : "<<fSide << "| Passive ) "<<endl;
+
 
 }
 

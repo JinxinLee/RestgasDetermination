@@ -1,52 +1,50 @@
 #include "PndLumiDigiProducer.h"
+#include "TGeoManager.h"
+#include "TH1I.h"
 
 PndLumiDigiProducer::PndLumiDigiProducer()
-: FairTask("Lumi Digi Producer")
+: FairTask("Lumi Digitization Process")
 {
-	fVerboseLevel = 0 ;
-	fZ0 = 0. ;
-	fPitch = 0. ;
-	fOrient_front = 0. ;
-	fOrient_back = 0.;
-	fSensorWidth = 0. ;
-	fSensorLength = 0. ;
-	fRadialDistance = 0. ;
-	fDistancePlan = 0. ;
-	fThreshold = 0. ;
-	fNoise = 0. ;
-	fSide = 0.;
-	fSigma = -1.;
 
 }
 
-PndLumiDigiProducer:: PndLumiDigiProducer(Double_t Z0, Double_t pitch, Double_t of,
-		Double_t ob,Double_t width, Double_t length, Double_t r, Double_t d,
-		Double_t threshold,	Double_t noise, Double_t side, Double_t sigma, Int_t verbose)
-: FairTask("Lumi Digi Producer")
+
+PndLumiDigiProducer::PndLumiDigiProducer(Int_t verbose)
+: FairTask("Lumi Digitization Process")
 {
-	fVerboseLevel = verbose ;
-	fZ0 = Z0 ;
-	fPitch = pitch ;
-	fOrient_front =  of;
-	fOrient_back =  ob;
-	fSensorWidth =  width;
-	fSensorLength =  length;
-	fRadialDistance =  r;
-	fDistancePlan =  d;
-	fThreshold =  threshold;
-	fNoise =  noise;
-	fSide = side;
-	fSigma = sigma;
+	fVerbose = verbose;
 }
+
 
 PndLumiDigiProducer::~PndLumiDigiProducer()
 {
+	delete fGeoH;
 }
+
+
+void PndLumiDigiProducer::SetParContainers()
+{
+	FairRun* ana = FairRun::Instance();
+	FairRuntimeDb* rtdb = ana->GetRuntimeDb();
+	fDigiPar = (PndLumiDigiPara*)(rtdb->getContainer("LumiStripDigiPara"));
+}
+
+
+InitStatus PndLumiDigiProducer::ReInit()
+{
+   SetParContainers();
+   return kSUCCESS;
+}
+
 
 InitStatus PndLumiDigiProducer::Init()
 {
     // Get RootManager
+	FairRun* ana = FairRun::Instance();
     FairRootManager* ioman = FairRootManager::Instance();
+
+    fGeoH = new PndLumiTransposition(fVerbose);
+
     if ( ! ioman ){
     	cout << "-E- PndLumiDigiProducer::Init: "
     	<< "RootManager not instantiated!" << endl;
@@ -54,27 +52,36 @@ InitStatus PndLumiDigiProducer::Init()
     }
 
     // Get input array
-    fLumiPointCollection = (TClonesArray*) ioman->GetObject("LumiPoint");
-    if (!fLumiPointCollection){
+    fLumiPoint = (TClonesArray*) ioman->GetObject("LumiPoint");
+    if (!fLumiPoint){
     	cout << "-W- PndLumiDigiProducer::Init: "
     	<< "No LumiPoint collection!" << endl;
     	return kERROR;
     }
 
     // Create and register output array
-    fLumiDigiCollection = new TClonesArray("PndLumiDigi");
-    ioman->Register("LumiDigi", "Lumi", fLumiDigiCollection, kTRUE);
+    fLumiDigi = new TClonesArray("PndLumiDigi");
+    ioman->Register("LumiDigi", "Lumi", fLumiDigi, kTRUE);
+
+    if(! fDigiPar){
+    	std::cout<<"-E- PndLumiDigiProducer::DigiPar Container doesn't exist!"<<std::endl;
+    	return kERROR;
+    }
+
+    fDigiPar->Print();
+
+    std::cout<<"PndLumiDigiProducer initialized successfully!"<<std::endl;
 
     return kSUCCESS;
 }
 
+
 void PndLumiDigiProducer::Exec(Option_t* opt)
 {
     // Reset output array
-    if (!fLumiDigiCollection)
+    if (!fLumiDigi)
     	Fatal("Exec", "No Digi collection");
-
-    fLumiDigiCollection->Clear();
+    fLumiDigi->Clear();
 
     // Declare some variables
     PndLumiPoint *point = NULL;
@@ -84,242 +91,115 @@ void PndLumiDigiProducer::Exec(Option_t* opt)
     	trackID = 0;     // Track index
 
     TVector3
-		entryPos, pos, dpos;       // Position and error vectors
+		entry, exit,  pos, dpos;       // Position and error vectors
 
-    TVector3
-    	LocEntryPos;
-
-    Double_t nrStrips;
+    Double_t time;
 
     Int_t iDigi=0 ;
-    Int_t digisize, clustsize;
-    Double_t xin, yin, zin;
-    Double_t xout, yout, zout;
-    Double_t inStripId, outStripId, StripId;
-    Int_t planId, sensorId;
 
-    std::vector<PndLumiStrip> strip; //collect strip hit
-    std::vector<PndLumiStrip> digi;  //collect digi strip
+    std::vector<PndLumiStrip> digifront, digiback;  //collect digi strip
 
-    std::map<Int_t, PndLumiStrip> clust; //put digi array in order
-    std::map<Int_t, Double_t> IdEnergy; //need for defining right and left
-    std::map <Int_t , Double_t>::iterator it;
-	std::vector<Int_t> Id;
-	Double_t eLoss;						//energy deposited
+    Double_t eLoss;						//energy deposited
 
     std::vector<PndLumiStrip>::iterator strip_iterator;
 
-    Double_t zero;
+    std::vector<Int_t> sensorID;
+    std::vector<Int_t> multiback;
 
-    Double_t dir;
 
     // Loop over LumiPoints
-    Int_t nPoints = fLumiPointCollection->GetEntriesFast();
+    Int_t nPoints = fLumiPoint->GetEntriesFast();
 
     for (Int_t iPoint = 0; iPoint < nPoints; iPoint++) {
-    	point = (PndLumiPoint*) fLumiPointCollection->At(iPoint);
 
-    	Id.clear();
-
-    	if (!point)
-    		continue;
+    	point = (PndLumiPoint*) fLumiPoint->At(iPoint);
 
     	detID = point->GetDetectorID();
     	trackID = point->GetTrackID();
-    	eLoss = (point->GetEnergyLoss()) * 1E9;//GeV
+    	eLoss = (point->GetEnergyLoss()) * 1E9;//eV
+    	time = point->GetTime();
 
-		// Determine hit position
-		TVector3
-			entryPos = point->GetEntryPoint(),
-			exitPos = point->GetExitPoint();
+    	// Determine hit position
+    	entry = point->GetEntryPoint();
+    	exit = point->GetExitPoint();
 
-		std::string detname = point->GetDetName().Data();
-
-		cout << endl;
-		//cout << "Detector Hit : "<< detname << endl;
-
-		FairGeoVector posInL, posOutL;
-		FairGeoVector loc;
-		TVector3 strip_orient;
-
-		PndLumiTransposition trans(fVerboseLevel);
-		trans.GetLocalHitPoints(point, posInL, posOutL);
-
-		LocEntryPos.SetXYZ(posInL.getX(),posInL.getX(),posInL.getZ());
-
-		planId = static_cast<int>((entryPos.Z()-fZ0)/fDistancePlan);
-
-		if (entryPos.Y() > fRadialDistance)  sensorId = 0;
-		if (entryPos.X() > fRadialDistance)  sensorId = 1;
-		if (entryPos.Y() < -fRadialDistance) sensorId = 2;
-		if (entryPos.X() < -fRadialDistance) sensorId = 3;
-
-		TVector2 stripzeroId;
-
-		if (fSide > 0){
-			// Process Digitization at the Front Side
-			dir = fOrient_front;
-			strip_orient = trans.LocalToStripOrientation(fOrient_front, posInL);
-			stripzeroId.Set(fSensorWidth, 0.0);
-
-		}
-
-		if (fSide < 0){
-			//Process Digitization at the Back Side
-			dir = fOrient_back;
-			strip_orient = trans.LocalToStripOrientation(fOrient_back, posOutL);
-			stripzeroId.Set(0.0, 0.0);
-
-		}
-
-		PndLumiCalcStripDigi StripDigi(fPitch, dir, fSensorWidth, fSensorLength,
-						fThreshold, fNoise, fSigma, stripzeroId);
-		digi = StripDigi.GetStripsDigi(posInL, posOutL, eLoss);
-
-		if (fSide > 0){
-			nrStrips = StripDigi.CalcStripFromHit(0.0, fSensorLength);
-		}
-		if (fSide < 0){
-			nrStrips = StripDigi.CalcStripFromHit(fSensorWidth, fSensorLength);
-		}
-		//---------Define Cluster : Order strip by strip ID-----------
-
-		clust = GetClusters(digi);
-
-		clustsize = clust.size();
-
-		Double_t Q_r = 0.;
-		Double_t Q_l = 0.;
-		Int_t rId;
-		Int_t lId;
-
-		if (clustsize!=0){
-			IdEnergy =  GetLeftAndRight(clust);
-
-			for ( it = IdEnergy.begin(); it != IdEnergy.end(); it++){
-				Id.push_back((*it).first);
-			}
-			Int_t min = *min_element(Id.begin(),Id.end());
-			Int_t max = *max_element(Id.begin(),Id.end());
-
-			rId = IdEnergy.find(max)->first;
-			lId = IdEnergy.find(min)->first;
-			Q_r = IdEnergy.find(max)->second;
-			Q_l = IdEnergy.find(min)->second;
-		}
+    	pos=0.5*(entry+exit);
+    	dpos.SetXYZ(0.0,0.0,0.0);
 
 
-		for (strip_iterator = digi.begin(); strip_iterator != digi.end(); ++strip_iterator){
-			new ((*fLumiDigiCollection)[iDigi]) PndLumiDigi( detID, LocEntryPos, dpos,
-					nPoints, planId,  sensorId,  clustsize, *strip_iterator, Q_r, Q_l, inStripId,
-					outStripId,	rId,  eLoss, detname );
-			iDigi++;
-		}
-    }  // Loop over MCPoints
+    	TString detname = point->GetDetName();
+
+    	FairGeoVector posInL, posOutL;
+
+    	fGeoH->GetLocalHitPoints(point, posInL, posOutL);
+
+    	PndLumiCalcStripDigi StripDigiFront(fDigiPar,kTOP);
+    	PndLumiCalcStripDigi StripDigiBack(fDigiPar,kBOTTOM);
+
+    	digifront = StripDigiFront.GetStripsDigi(posInL, posOutL, eLoss);
+
+    	digiback = StripDigiBack.GetStripsDigi(posOutL, posInL, eLoss);
+
+    	if (digifront.size()!=0){
+    		for (strip_iterator = digifront.begin(); strip_iterator != digifront.end(); ++strip_iterator){
+    			new ((*fLumiDigi)[iDigi]) PndLumiDigi( detID, pos, dpos, iPoint,*strip_iterator, detname,
+    					kTOP,digifront.size(), IsActive(detname, kTOP));
+    			iDigi++;
+    		}
+    	}
+    	if (digiback.size()!=0){
+    		for (strip_iterator = digiback.begin(); strip_iterator != digiback.end(); ++strip_iterator){
+    			new ((*fLumiDigi)[iDigi]) PndLumiDigi( detID, pos, dpos, iPoint,*strip_iterator, detname,
+    					kBOTTOM,digiback.size(), IsActive(detname, kBOTTOM));
+    			iDigi++;
+    		}
+    	}
+
+    }
     Print();
+
 }
 
-std::map<Int_t,PndLumiStrip> PndLumiDigiProducer::GetClusters(std::vector<PndLumiStrip> strip)
+Bool_t PndLumiDigiProducer::IsActive(TString detname, SensorSide side)
 {
-	std::map<Int_t,PndLumiStrip> clust;
-	std::map<Int_t,PndLumiStrip>::iterator it;
-	clust.clear();
+	string DetName = detname.Data();
+	string usc = "_";
+	Int_t m = DetName.find_last_of(usc);
+	string sensorID = DetName.erase(0,m+1);
+	Int_t i = atoi(sensorID.c_str());
 
-	for (Int_t j = 0; j < strip.size(); j++){
-		clust[strip[j].GetIndex()] = strip[j];
+	TString sensor = fDigiPar->GetSensType();
+
+	TString bothside = "2"; //two sides are active
+	TString topside = "0";  //only front side is active
+	TString botside = "1";  //only back side is active
+
+	if(sensor[i-1]==bothside){
+		if (side==kTOP) return kTRUE;
+		if (side==kBOTTOM) return kTRUE;
 	}
-	return clust;
+	if(sensor[i-1]==topside){
+		if (side==kTOP) return kTRUE;
+		if (side==kBOTTOM) return kFALSE;
+	}
+	if(sensor[i-1]==botside){
+		if (side==kTOP) return kFALSE;
+		if (side==kBOTTOM) return kTRUE;
+	}
 
 }
 
-//Identification of the left and the right strip in a cluster
-//return to a map with size two
-std::map<Int_t,Double_t> PndLumiDigiProducer::
-GetLeftAndRight(std::map<Int_t,PndLumiStrip> clust)
-{
-	std::map<Int_t,Double_t> IdEnergy;
-	std::map<Int_t,Double_t>::iterator it;
-	std::map<Int_t,PndLumiStrip>::iterator its;
-	IdEnergy.clear();
-
-	std::vector<Int_t> Index;
-	Int_t Id[2];
-	Double_t Energy[2];
-
-	for (its = clust.begin(); its!= clust.end(); its++){
-		Index.push_back((*its).first);
-	}
-	Int_t min = *min_element(Index.begin(),Index.end());
-	Int_t max = *max_element(Index.begin(),Index.end());
-
-	Int_t Id_emax =  min;
-	for (Int_t id = min ; id < max; id++){
-		if ((clust.find(Id_emax)->second).GetCharge() <=(clust.find(id)->second).GetCharge()){
-			Id_emax = id ;
-		}
-	}
-	if (clust.size() == 1){
-		Energy[0]= (clust.find(min)->second).GetCharge();
-		Id[0] = min;
-		Energy[1]= 0.0;
-		Id[1] = -1;
-
-	} else{
-		if (clust.size() == 2){
-			Energy[0]=(clust.find(min)->second).GetCharge();
-			Id[0] = min;
-			Energy[1]=(clust.find(max)->second).GetCharge();
-			Id[1]= max;
-		}
-		if (clust.size() == 3){
-			double q_l;
-			double q_r;
-			if ((clust.find(Id_emax-1)->second).GetCharge() <
-					(clust.find(Id_emax+1)->second).GetCharge()){
-				Id[1] = Id_emax +1;
-				Id[0] = Id_emax;
-				for (int i = min; i <= (clust.find(Id_emax)->second).GetIndex(); i++){
-					q_l = (clust.find(i)->second).GetCharge();
-					Energy[0] += q_l;
-				}
-				for (int i =(clust.find(Id_emax + 1)->second).GetIndex(); i <= max ; i++){
-					q_r = (clust.find(i)->second).GetCharge();
-					Energy[1] += q_r;
-				}
-			}
-			if ((clust.find(Id_emax-1)->second).GetCharge() >
-			(clust.find(Id_emax+1)->second).GetCharge()){
-				Id[1] = Id_emax;
-				Id[0] = Id_emax - 1;
-				for (int i = min; i <= (clust.find(Id_emax-1)->second).GetIndex(); i++){
-					q_l = (clust.find(i)->second).GetCharge();
-					Energy[0] += q_l;
-				}
-				for (int i =(clust.find(Id_emax)->second).GetIndex(); i <= max ; i++){
-					q_r = (clust.find(i)->second).GetCharge();
-					Energy[1] += q_r;
-				}
-			}
-
-		}
-	}
-	for (Int_t j = 0; j < 2; j++){
-		IdEnergy[Id[j]] = Energy[j];
-	}
-	//for ( it=IdEnergy.begin() ; it !=IdEnergy.end(); it++ )
-			//cout << "!!!! : "<< (*it).first << " , " << (*it).second << endl;
-	return IdEnergy;
-}
 
 void PndLumiDigiProducer::Print() const
 {
-	Int_t nPoints = fLumiPointCollection->GetEntriesFast();
-	Int_t nStrips = fLumiDigiCollection->GetEntriesFast();
-    cout << "-I- PndLumiDigiProducer: " << nPoints << " MCPoints - "
-    << nStrips << " digi registered in this event." << endl;
-    if (fVerboseLevel > 1){
-    	for (Int_t i=0; i < nStrips; i++){
-	    (*fLumiDigiCollection)[i]->Print();
+	Int_t nPoints = fLumiPoint->GetEntriesFast();
+	Int_t nDigis = fLumiDigi->GetEntriesFast();
+
+	cout << "-I- PndLumiDigiProducer: " << nPoints << " MCPoints - "<< nDigis << " Digis registered for this event." << endl;
+
+    if (fVerbose > 1){
+    	for (Int_t i=0; i < nDigis; i++){
+	    (*fLumiDigi)[i]->Print();
     	}
     }
 }

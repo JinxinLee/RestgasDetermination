@@ -1,38 +1,44 @@
 #include "PndLumiCalcStripDigi.h"
-//TRandom3 *fRNG = new TRandom3();
+
+TRandom3 *fRND = new TRandom3();
+
 PndLumiCalcStripDigi::PndLumiCalcStripDigi()
 {
 	 fPitch = 0.0;
 	 fOrient = 0.0;
-	 fWidth = 0.0;
-	 fLength = 0.0;
 	 fThreshold = 0.0;
 	 fNoise = 0.;
 	 fSigma = -1.;
 	 fStripZeroId = TVector2 (0.0, 0.0);
 }
 
-PndLumiCalcStripDigi::PndLumiCalcStripDigi(Double_t pitch, Double_t orient,
-		Double_t width, Double_t length, Double_t threshold, Double_t noise,
-		Double_t sigma,TVector2 stripzeroId)
+
+PndLumiCalcStripDigi::PndLumiCalcStripDigi(const PndLumiDigiPara *digipar, SensorSide side)
 {
-	fPitch = pitch;
-	fOrient = orient;
-	fWidth = width;
-	fLength = length;
-	fThreshold = threshold;
-	fNoise = noise;
-	fSigma = sigma;
-	fStripZeroId = stripzeroId;
+	if(side == kTOP){
+		fOrient = digipar->GetFrontOrient();
+		fStripZeroId= digipar->GetFrontAnchor();
+
+	}else if(side == kBOTTOM){
+		fOrient = digipar->GetBackOrient();
+		fStripZeroId= digipar->GetBackAnchor();
+	}
+
+	fPitch = digipar->GetPitch();
+	fThreshold = digipar->GetThreshold();
+	fNoise = digipar->GetNoise();
+	fSigma = digipar->GetGausSigma();
 }
+
 
 PndLumiCalcStripDigi::~PndLumiCalcStripDigi()
 {
 
 }
 
-std::vector<PndLumiStrip> PndLumiCalcStripDigi::GetStrips(FairGeoVector in, FairGeoVector out,
-		Double_t eLoss)
+
+std::vector<PndLumiStrip> PndLumiCalcStripDigi::GetStrips(FairGeoVector in,
+		FairGeoVector out, Double_t eLoss)
 {
 	// Get the 2d-Projection of trajectory
     TVector2 in_2d  (in.getX(),in.getY());
@@ -77,7 +83,7 @@ std::vector<PndLumiStrip> PndLumiCalcStripDigi::GetStrips(FairGeoVector in, Fair
 
     	// info @ the first strip
     	d = TMath::Abs(inStripId-outStripId);
-    	
+
     	if (dir>0.){
         	dp = ((nuIn + 1) - inStripId) / d;
         	dQ = Q * dp;
@@ -98,7 +104,7 @@ std::vector<PndLumiStrip> PndLumiCalcStripDigi::GetStrips(FairGeoVector in, Fair
             inStripId = inStripId;
         }
     	d = TMath::Abs(Int_t(inStripId)-outStripId);
-    	
+
 	// info @ the last strip
         if (dir<0.){
         	dp = (( nuOut + 1) - outStripId) / d;
@@ -119,10 +125,10 @@ std::vector<PndLumiStrip> PndLumiCalcStripDigi::GetStrips(FairGeoVector in, Fair
             path -= (dp * path);
             outStripId = outStripId;
         }
-        
+
         // Distribute the charge among the Int_termediate strips
         d = TMath::Abs(Int_t(inStripId)-Int_t(outStripId));
-        
+
         if (d != 0){
         	dp = 1./d ;
         	dQ = Q * dp;
@@ -326,7 +332,7 @@ std::vector<PndLumiStrip> PndLumiCalcStripDigi::GetStripsDigi(FairGeoVector in,
 
 		} else{
 
-			// Charge distribution at the HEAD (lowest stripID) of the track
+			// Charge distribution at the HEAD (lowest stripID hit by the track)
 			Int_t i = 0;
 			while(AboveThreshold(dQ_head)){
 				charge_1 = ChargeDiffusion(((i-1)*fPitch),Y_head, path, 1., Q);
@@ -354,7 +360,7 @@ std::vector<PndLumiStrip> PndLumiCalcStripDigi::GetStripsDigi(FairGeoVector in,
 			}
 			strips.insert(strips.begin(),str_head.begin(), str_head.begin()+str_head.size());
 
-			// Charge distribution at the TAIL (highest stripID) of the track
+			// Charge distribution at the TAIL (highest stripID hit the track)
 			Int_t j = 1;
 			while(AboveThreshold(dQ_tail)){
 				id = id_tail + j;
@@ -403,7 +409,7 @@ Double_t PndLumiCalcStripDigi::ChargeDiffusion(Double_t x, Double_t y,
 {
 	Int_t N = 300;
 	Double_t DQ = 0.;
-	Double_t ds = path/N;
+	Double_t ds = path/N; // Divide the full path into a small segments
 	Double_t dQ = eLoss/N;
 	Double_t phi; //part of gauss area from -infinity to x
 
@@ -443,6 +449,7 @@ Double_t PndLumiCalcStripDigi::CalcStripFromHit(Double_t x, Double_t y)
 
 }
 
+
 bool PndLumiCalcStripDigi::AboveThreshold(Double_t Q)
 {
 	if (Q >= fThreshold){
@@ -452,4 +459,12 @@ bool PndLumiCalcStripDigi::AboveThreshold(Double_t Q)
 	}
 }
 
+
+void PndLumiCalcStripDigi::Print() const
+{
+    std::cout<<"-I- PndLumiCalcStripDigi Info :"<<std::endl;
+    std::cout<<"     pitch                  = "<<fPitch<<" um"<<std::endl;
+    std::cout<<"     orientation angle      = "<<fOrient/TMath::Pi()*180.<<" deg"<<std::endl;
+
+}
 ClassImp(PndLumiCalcStripDigi)

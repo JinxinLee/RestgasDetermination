@@ -15,7 +15,15 @@ ${CMAKE_SOURCE_DIR}/lumi/LumiMC
 ${CMAKE_SOURCE_DIR}/lumi/LumiData
 ${CMAKE_SOURCE_DIR}/lumi/LumiTools
 ${CMAKE_SOURCE_DIR}/lumi/LumiDigi
-${CMAKE_SOURCE_DIR}/lumi/LumiReco
+#${CMAKE_SOURCE_DIR}/lumi/LumiReco
+#${CMAKE_SOURCE_DIR}/lumi/LumiTracking
+
+#${CMAKE_SOURCE_DIR}/lumi/old_22_09/LumiMC
+#${CMAKE_SOURCE_DIR}/lumi/old_22_09/LumiData
+#${CMAKE_SOURCE_DIR}/lumi/old_22_09/LumiTools
+#${CMAKE_SOURCE_DIR}/lumi/old_22_09/LumiDigi
+#${CMAKE_SOURCE_DIR}/lumi/old_22_09/LumiReco
+
 ${CMAKE_SOURCE_DIR}/trackrep
 ${CMAKE_SOURCE_DIR}/trackbase
 ${CMAKE_SOURCE_DIR}/geane
@@ -36,19 +44,23 @@ LumiMC/PndLumiGeo.cxx
 LumiMC/PndLumiGeoPar.cxx
 LumiData/PndLumiPoint.cxx
 LumiData/PndLumiHit.cxx
-LumiData/PndLumiHitProducer.cxx  
 LumiTools/PndLumiStrip.cxx
 LumiTools/PndLumiTransposition.cxx
-LumiDigi/PndLumiCalcStrip.cxx
+LumiTools/PndLumiContFact.cxx
 LumiDigi/PndLumiCalcStripDigi.cxx
-LumiDigi/PndLumiStripHit.cxx
-LumiDigi/PndLumiStripHitProducer.cxx
+LumiDigi/PndLumiDigiPara.cxx
 LumiDigi/PndLumiDigi.cxx
 LumiDigi/PndLumiDigiProducer.cxx
+LumiReco/PndLumiSimpleStripClusterFinder.cxx
+LumiReco/PndLumiStripClusterFinder.cxx
+LumiReco/PndLumiStripClusterBuilder.cxx
+LumiReco/PndLumiClusterTask.cxx
 LumiReco/PndLumiCluster.cxx
-LumiReco/PndLumiClusterBuilder.cxx
-LumiReco/PndLumiRecoHit.cxx
-LumiReco/PndLumiRecoTask.cxx
+LumiTracking/PndLumiTrackFinder.cxx
+LumiTracking/PndLumiTrack.cxx
+LumiTracking/PndDmlLinFitTask.cxx
+LumiTracking/PndLinTrack.cxx
+
 )
 
 # fill list of header files from list of source files

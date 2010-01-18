@@ -1,67 +1,55 @@
-/*
- * PndLumiCluster.h
- *
- *  Created on: Nov 18, 2008
- *      Author: tsito
- */
-
-#ifndef PNDLUMICLUSTER_H_
-#define PNDLUMICLUSTER_H_
-
-#include "TGeoBBox.h"
-#include "TGeoManager.h"
-#include "TGeoMatrix.h"
+#ifndef PNDLUMICLUSTER_H
+#define PNDLUMICLUSTER_H
 
 #include "TObject.h"
-#include "TVector3.h"
-#include "TString.h"
-
-#include "PndLumiPoint.h"
-#include "PndLumiStrip.h"
-#include "PndLumiTransposition.h"
-
-#include <map>
-#include <string>
+#include <vector>
 #include <iostream>
-#include <cmath>
+#include "PndDetectorList.h" // contains SensorSide enumeration
 
-using std::cout;
-using std::endl;
 
-class PndLumiCluster: public TObject
+//! PndLumiCluster.h
+//! @author T.Stockmanns <t.stockmanns@fz-juelich.de>
+//!
+//! \brief Class to store the Digis which belong to one cluster
+//! This class holds the information which Digi belongs to the actual cluster.
+//! The information is stored in a vector<Int_t> which contains the
+//! position of the digi in the TClonesArray where it is stored.
+class PndLumiCluster : public TObject
 {
-public:
-	PndLumiCluster();
-	PndLumiCluster(TString detname, TVector3 mcpos, Double_t ClusterPositionFront,
-			Double_t ClusterPositionBack,TGeoHMatrix trans,	TVector3 sensdim,
-			Double_t pitch, Double_t orient_front, Double_t orient_back);
 
-	virtual ~PndLumiCluster();
+friend std::ostream& operator<< (std::ostream& out, PndLumiCluster& cl){
+      std::vector<Int_t> list = cl.GetClusterList();
+      out << "Hits in Cluster:" << std::endl;
+      for (Int_t i = 0; i<list.size();i++)
+        out << list[i] << std::endl;
+      out << std::endl;
 
-	//Accessory methods
-	TString GetDetName() const {return fDetName;}
-	Double_t GetClusterPositionFront() const {return fPosFront;}
-	Double_t GetClusterPositionBack() const {return fPosBack;}
-	TVector3 GetMCPosition() const {return fMCPosition;}
-	TGeoHMatrix GetTransformationMatrix() const {return fTransMatrix;}
-	TVector3 GetSensorDimension() const {return fSensorDim;}
-	Double_t GetStripOrientFront() const {return fOrient_front;}
-	Double_t GetStripOrientBack() const {return fOrient_back;}
-	//Int_t GetHitNumber() const {return fNHits;}
-	//Double_t GetStripZeroId();
+      return out;
+    }
 
-private:
-	TString fDetName;
-	TVector3 fMCPosition;
-	TGeoHMatrix fTransMatrix;
-	TVector3 fSensorDim;
-	Double_t fPitch, fOrient_front, fOrient_back;
-	Double_t fPosFront, fPosBack;
+public :
+    PndLumiCluster():fSide(kTOP){};
+    ~PndLumiCluster(){};
+    PndLumiCluster(std::vector<Int_t> list);
+
+    void SetClusterList(std::vector<Int_t> list) {fClusterList = list;}
+    std::vector<Int_t> GetClusterList() const {return fClusterList;}
+    Int_t GetClusterSize() const {return fClusterList.size();}
+    Int_t GetDigiIndex(Int_t i) const {return fClusterList[i];}
+
+    SensorSide GetSensorSide() const {return fSide;}
+    void SetSensorSide(SensorSide s) {fSide = s;}
+    bool DigiBelongsToCluster(Int_t digiIndex);
+
+    void Print();
+
+private :
+    std::vector<Int_t> fClusterList;
+    SensorSide fSide;
 
 
-
-	ClassDef(PndLumiCluster,1);
+ClassDef(PndLumiCluster,1);
 
 };
 
-#endif /* PNDLUMICLUSTER_H_ */
+#endif

@@ -4,10 +4,6 @@
  *  Created on: Feb 21, 2009
  *      Author: tsito
  */
-
-//*-- AUTHOR : Denis Bertini
-//*-- Created : 21/06/2005
-
 using namespace std;
 #include "PndLumiGeoPar.h"
 #include "FairParamList.h"

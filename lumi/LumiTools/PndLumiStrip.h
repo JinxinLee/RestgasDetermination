@@ -28,7 +28,7 @@ public :
 
 	friend std::ostream& operator<< (std::ostream& out, const PndLumiStrip& strip)
 	{
-		out <<"	  ( STRIP Nr. , PATH , CHARGE ) : ( " << strip.GetIndex() << " , ";
+		out <<"( STRIP Nr. , PATH , CHARGE ) : ( " << strip.GetIndex() << " , ";
 		out << strip.GetPath() <<" , "<< strip.GetCharge() <<" ) ";
 		return out;
 	}

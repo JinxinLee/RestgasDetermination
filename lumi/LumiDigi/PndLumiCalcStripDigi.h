@@ -1,38 +1,36 @@
-//**********************************************************
-//
-// This returns to vectors PndLumiStrip (stripID ,
-// path inside , charge collected).
-//
-// First, the Landau deposited charge is shared among
-// all the strips fired according to the path that they
-// contain respectively.
-//
-// Then, Gaussian smearing (sigma = noise) is added for
-// the amount of charge collected at each strip fired.
-// 
-// Finally, the effective charge at every point of the path
-// along the full path is smeared by a Gaus with 8 micro width
-//
-//*********************************************************
+/*
+ * PndLumiCalcStripDigi.h
+ *
+ *    Author: tsito
+ *
+ *  This computes all the strips fired by the track and collects them to a vector <PndLumiStrip>
+ *
+ */
 
 #ifndef PNDLUMICALCSTRIPDIGI_H_
 #define PNDLUMICALCSTRIPDIGI_H_
 
 
 #include "PndLumiStrip.h"
+#include "PndLumiDigiPara.h"
 
 #include "FairGeoVector.h"
-#include "PndLumiCalcStrip.h"
+#include "PndDetectorList.h"
+
+#include "TObject.h"
 #include "TMath.h"
-#include <cmath>
 #include <TRandom3.h>
 #include "TVector2.h"
+
+#include <cmath>
 #include <map>
+
 using std::cout;
 using std::endl;
 
 extern TRandom3* fRND;
-//TRandom3 *fRND = new TRandom3();
+//TRandom3 *fRNG = new TRandom3();
+
 class PndLumiCalcStripDigi
 {
 public:
@@ -40,12 +38,14 @@ public:
 	/** Default constructor */
 	PndLumiCalcStripDigi();
 
+
 	/** Constructor */
-	PndLumiCalcStripDigi(Double_t pitch, Double_t orient,
-			Double_t width, Double_t length, Double_t threshold,
-			Double_t noise, Double_t sigma,TVector2 Zero);
+	PndLumiCalcStripDigi(const PndLumiDigiPara *digipar, SensorSide side=kTOP);
+
+
 	/** Destructor */
 	~PndLumiCalcStripDigi();
+
 
 	/** Collect Strips Fired by MCTrack and Share Charge Among These Strips
 	 * 	According To The Fraction of Path Inside Them Respectively
@@ -53,11 +53,13 @@ public:
 	std::vector<PndLumiStrip> GetStrips(FairGeoVector in,
 			FairGeoVector out, Double_t eLoss);
 
-	/** Apply a Gaussian Smearing To The Charge Collected 
+
+	/** Apply a Gaussian Smearing To The Charge Collected
 	 *  and Collect Them
 	 */
 	std::vector<PndLumiStrip> GetStripsDigi(FairGeoVector in,
 			FairGeoVector out, Double_t eLoss);
+
 
 	/** Compute StripID from a Hit : This corresponds to the y-position
 	 * of the hit in the strip orientation coordinate system
@@ -65,30 +67,35 @@ public:
 	Double_t CalcStripFromHit(Double_t x, Double_t y);
 
 
+	void Print() const;
+
 private:
+
 	/** Variables declarations */
 	Double_t fPitch;       // pitch of the strip
-	Double_t fOrient;      // angle orientation of the strips with respect of the global coord syst
-	Double_t fWidth;       // width of the rectangular sensor
-	Double_t fLength;      // length of the rectangular sensor
+	Double_t fOrient;      // angle which defines the orientation of the strips in one defined side
 	Double_t fThreshold;   // threshold
 	Double_t fNoise;	   // noise
 	Double_t fSigma;	   // width of the Gaussian distribution applied on the charge
-	TVector2 fStripZeroId; // position of the strip with ID = 0
-	//TRandom3 *fRNG; // random number generator (needed for the Gaus smearing of the charge with the noise)
+	TVector2 fStripZeroId; // position of the strip with ID = 0 in the sensor plane
+	//TRandom3 *fRNG;
 
 	bool AboveThreshold(Double_t charge);
+
 
 	/** Add Noise According a Random Gaussian Generator Number
 	 *  to the Charge at each Strip
 	 */
 	Double_t AddNoise(Double_t charge);
 
-	/** Gaussian Smearing Method for Landau Charge at every
+
+	/** e-h diffusion : Gaussian Smearing Method for Landau Charge at every
 	 *  Point along the Path inside each Strip
 	 */
 	Double_t ChargeDiffusion(Double_t x, Double_t y,
 			Double_t path, Double_t dir, Double_t eLoss );
+
+
 
 	ClassDef(PndLumiCalcStripDigi,1);
 

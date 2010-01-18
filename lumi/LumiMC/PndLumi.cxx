@@ -6,7 +6,7 @@ using std::endl;
 PndLumi::PndLumi()
     : FairDetector()
 {
-    fLumiPointCollection = new TClonesArray("PndLumiPoint");
+    fLumiPoint = new TClonesArray("PndLumiPoint");
     fVerboseLevel = 1;
 
     ResetParameters();
@@ -15,15 +15,15 @@ PndLumi::PndLumi()
 PndLumi::PndLumi(const char* name, Bool_t active, Int_t verbose)
     : FairDetector(name, active)
 {
-    fLumiPointCollection = new TClonesArray("PndLumiPoint");
+    fLumiPoint = new TClonesArray("PndLumiPoint");
     fVerboseLevel = verbose;
 }
 
 PndLumi::~PndLumi()
 {
-    if (fLumiPointCollection){
-    	fLumiPointCollection->Delete();
-    	delete fLumiPointCollection;
+    if (fLumiPoint){
+    	fLumiPoint->Delete();
+    	delete fLumiPoint;
     }
 }
 
@@ -34,16 +34,10 @@ Bool_t PndLumi::ProcessHits(FairVolume* vol)
 	TParticle* particle =  gMC->GetStack()->GetCurrentTrack();
 	Int_t PDGCode = particle->GetPdgCode();
 
-	if (PDGCode == -2212){
-		//cout << " Particle MCId which hit the sensor : " << PDGCode <<endl;
-    	if (gMC->IsTrackEntering()){
-
-    		PndStack* stack = (PndStack*) gMC->GetStack();
-    		stack->AddPoint(kLUMI);
-
+	if (PDGCode < 1000000000){
+		if (gMC->IsTrackEntering()){
     		// Set parameters at entrance of volume. Reset ELoss.
     		fEnergyLoss  = 0.;
-    		fTime   = gMC->TrackTime() * 1.0e09;
     		fLength = gMC->TrackLength();
     		gMC->TrackPosition(fPosIn);
     		gMC->TrackMomentum(fMomIn);
@@ -53,12 +47,12 @@ Bool_t PndLumi::ProcessHits(FairVolume* vol)
     	// Sum energy loss for all steps in the active volume
     	fEnergyLoss += gMC->Edep();
 
-    	if (gMC->IsTrackExiting() ||
+    	if (gMC->IsTrackExiting()||
     			gMC->IsTrackDisappeared() ||
-    			gMC->IsTrackStop()){
+    			gMC->IsTrackStop())	{
 
     		// Create PndLumiPoint at exit of active volume
-
+    		fTime   = gMC->TrackTime() * 1.0e09;
     		fTrackID  = gMC->GetStack()->GetCurrentTrackNumber();
     		fVolumeID = vol->getMCid();
     		gMC->TrackPosition(fPosOut);
@@ -91,33 +85,33 @@ void PndLumi::EndOfEvent()
 
 void PndLumi::Register()
 {
-    FairRootManager::Instance()->Register("LumiPoint", "PndLumi", fLumiPointCollection, kTRUE);
+    FairRootManager::Instance()->Register("LumiPoint", "PndLumi", fLumiPoint, kTRUE);
 }
 
 TClonesArray* PndLumi::GetCollection(Int_t iColl) const
 {
     if (iColl == 0)
-    	return fLumiPointCollection;
+    	return fLumiPoint;
     else
     	return NULL;
 }
 
 void PndLumi::Print() const
 {
-    Int_t nPoints = fLumiPointCollection->GetEntriesFast();
+    Int_t nPoints = fLumiPoint->GetEntriesFast();
 
     cout << "-I- PndLumi: " << nPoints << " points registered in this event."  << endl <<endl;
 
     if (fVerboseLevel > 1){
     	for (Int_t i = 0; i < nPoints; i++)	{
-    		(*fLumiPointCollection)[i]->Print();
+    		(*fLumiPoint)[i]->Print();
     	}
     }
 }
 
 void PndLumi::Reset()
 {
-    fLumiPointCollection->Clear();
+    fLumiPoint->Clear();
     ResetParameters();
 }
 
@@ -148,7 +142,7 @@ PndLumiPoint* PndLumi:: AddPoint(Int_t trackID, Int_t detID,
 		Double_t length, Double_t eLoss) const
 {
     // Get a reference to the hit collection
-    TClonesArray &points = *fLumiPointCollection;
+    TClonesArray &points = *fLumiPoint;
 
     // get the number of hits already present
     Int_t size = points.GetEntriesFast();
@@ -161,7 +155,7 @@ PndLumiPoint* PndLumi:: AddPoint(Int_t trackID, Int_t detID,
 void PndLumi::ResetParameters()
 {
     fTrackID = fVolumeID = 0;
-    fTime = fLength = fEnergyLoss = 0;
+    fTime = fLength = fEnergyLoss = 0.;
 
     fPosIn.SetXYZT(0., 0., 0., 0.);
     fPosOut.SetXYZT(0., 0., 0., 0.);

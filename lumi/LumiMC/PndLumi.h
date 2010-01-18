@@ -80,7 +80,9 @@ class PndLumi : public FairDetector
     Double32_t     fLength;           // length
     Double32_t     fEnergyLoss;       // energy loss
     TString        fDetName;          // det name
-    TClonesArray*  fLumiPointCollection;  // Pointer to hit collection
+
+    //Array for the Output
+    TClonesArray*  fLumiPoint;  // Pointer to hit collection
 
     /** Adds a FairTrdPoint to the HitCollection */
     PndLumiPoint* AddPoint(Int_t trackID, Int_t detID, TString detname,

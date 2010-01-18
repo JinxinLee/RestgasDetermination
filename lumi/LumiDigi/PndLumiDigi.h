@@ -1,7 +1,18 @@
+/*
+ * PndLumiDigi.h
+ *
+ *    Author: tsito
+ *
+ */
+
+
 #ifndef PNDLUMIDIGI_H_
 #define PNDLUMIDIGI_H_
 
+#include "PndDetectorList.h"
+
 #include "PndLumiStrip.h"
+
 #include <cmath>
 #include "TMath.h"
 #include "TVector3.h"
@@ -14,51 +25,38 @@ class PndLumiDigi : public FairHit
 {
 public:
 
+	/** Default constructor*/
 	PndLumiDigi();
 
-	PndLumiDigi(Int_t detID, TVector3 pos, TVector3 dpos, Int_t index,
-			Int_t nrPlan, Int_t nrSensor, Int_t multi, PndLumiStrip strip,
-			Double_t dQ_r, Double_t dQ_l, Double_t inStripId, Double_t outStripId,
-			Int_t stripright,	Double_t eLoss, TString detname);
 
+	/** Constructor */
+	PndLumiDigi(Int_t detID, TVector3 pos, TVector3 dpos, Int_t index,
+			PndLumiStrip strip, TString detname, SensorSide side, Int_t m, Bool_t isactive);
+
+	/** Destructor */
 	virtual ~PndLumiDigi();
 
-	//Methods
-	Int_t GetMultiplicity() const {return fMultiplicity;}
-	Int_t GetSensorID() const {return fSensorID;}
-	Int_t GetPlanID() const {return fPlanID;}
+	/** Accessing variables methods apart from ones inherited from FairHit*/
 	PndLumiStrip GetStrip() const {return fStrip;}
-
-	Double_t GetChargeRatioRight() const {return fdQ_r;}
-	Double_t GetChargeRatioLeft() const {return fdQ_l;}
-	TVector3 GetPosition() const {return fPosition;}
-	Double_t GetEntryStripId() const {return fEntryStripId;}
-	Double_t GetExitStripId() const {return fExitStripId;}
-	Int_t GetRightID() const {return fRightId;}
-	Double_t GetEnergyLoss()  const {return fEnergyLoss;}
 	TString GetDetName() const {return fDetName;}
+	SensorSide GetSide() const {return fSide;}
+	Int_t GetMulti() const {return fMulti;}
+
+	Bool_t IsActive() const{return fIsActive;}
 
 	void Print(const Option_t* opt) const;
 
 private:
 
-	Int_t fPlanID, fSensorID ,
-	fMultiplicity, fIndex, fRightId;
+	TString fDetName;		// name of the sensor hit
+	SensorSide fSide;  		// side hit
+	PndLumiStrip fStrip;	// Info of the strips fired
+	Int_t fMulti;
 
-	Double_t fdQ_r, fdQ_l, fEnergyLoss;
-	Double_t fEntryStripId,fExitStripId;
-
-	TVector3 fPosition;
-
-	PndLumiStrip fStrip;
-
-	std::vector<PndLumiStrip> fVStrip;
-
-	TString fDetName;
+	Bool_t fIsActive;
 
 	ClassDef(PndLumiDigi,1);
 };
-
 #endif /*PNDLUMIDIGI_H_*/
 
 
