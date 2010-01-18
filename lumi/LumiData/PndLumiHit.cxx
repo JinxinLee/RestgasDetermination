@@ -1,36 +1,43 @@
 #include "PndLumiHit.h"
-using std::cout;
-using std::endl;
 
 PndLumiHit::PndLumiHit()
-    : FairHit()
 {
-    fWasLost = false;
-    fELoss = 0.;
 }
 
-PndLumiHit::PndLumiHit(Int_t detID, TVector3& pos, TVector3& dpos,
-		Int_t index, Double_t eloss, Int_t wasLost)
-  : FairHit(detID, pos, dpos, index)
-{
-    fWasLost = wasLost;
-    fELoss = eloss;
+PndLumiHit::PndLumiHit(Int_t detID, TString detName, TVector3& pos, TVector3& dpos,
+		     Int_t clindex, Double_t charge, Int_t NDigiHits, Int_t mcindex, Bool_t isdoubleside)
+  : FairHit(detID, pos, dpos, mcindex) {
+  fDetName = detName;
+  fCharge  = charge;
+  fNDigiHits = NDigiHits;
+  fClusterIndex = clindex;
+  fBotIndex = -1;
+  fIsDoubleSided = isdoubleside;
+
 }
 
+PndLumiHit::PndLumiHit(Int_t detID, TString detName, Double_t &slope, Double_t &slopeErr,
+		Double_t& intercept, Double_t &intErr,Int_t clindex, Double_t charge, Int_t NDigiHits,
+		Int_t mcindex, Bool_t isdoubleside)
+//: FairHit(detID, TVectorpos, dpos, mcindex) {
+{
+	fDetName = detName;
+	fSlope = slope;
+	fIntercept = intercept;
+	fCharge  = charge;
+	fNDigiHits = NDigiHits;
+	fClusterIndex = clindex;
+	fBotIndex = -1;
+	fIsDoubleSided = isdoubleside;
+}
 
 PndLumiHit::~PndLumiHit()
 {
+
 }
 
 void PndLumiHit::Print(const Option_t* opt) const
 {
-    std::cout << "PndLumiHit: " << std::endl
-	      << " Detector unique identifier        : " << fDetectorID << std::endl
-	      << " Position of hit                   : (" << fX << ", " << fY << ", " << fZ << ") [cm]" << std::endl
-	      << " Errors of position                : (" << fDx << ", " << fDy << ", " << fDz << ") [cm]" << std::endl
-	      << " Energy Loss                       : " << fELoss << endl
-	      << " Index of FairMCPoint for this hit : " << fRefIndex << std::endl
-	      << " Hit lost due to inefficency       : " << fWasLost << std::endl;
+  std::cout << *this;
 }
-
-ClassImp(PndLumiHit)
+ClassImp(PndLumiHit);
