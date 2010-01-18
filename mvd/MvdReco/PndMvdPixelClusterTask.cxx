@@ -40,18 +40,6 @@ PndMvdPixelClusterTask::PndMvdPixelClusterTask() :
 }
 // -------------------------------------------------------------------------
 
-PndMvdPixelClusterTask::PndMvdPixelClusterTask(Double_t radius, TString geoFile) :
-  FairTask("MVD Pixel Clustertization Task")
-{
-  fBranchName   = "MVDPixelDigis";
-//  fDigiArray  = new TClonesArray("PndMvdDigiPixel");
-//  fClusterArray  = new TClonesArray("PndMvdClusterPixel");
-  fRadius = radius;
-  fParams.push_back(radius);
-  fGeoFile = geoFile;
-}
-// -------------------------------------------------------------------------
-
 // -----   Destructor   ----------------------------------------------------
 PndMvdPixelClusterTask::~PndMvdPixelClusterTask()
 {
@@ -76,8 +64,6 @@ InitStatus PndMvdPixelClusterTask::ReInit()
   /*
   FairRun* ana = FairRun::Instance();
   FairRuntimeDb* rtdb=ana->GetRuntimeDb();
-  fGeoPar=(PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar"));
-
   return kSUCCESS;
   */
 }
@@ -110,7 +96,8 @@ InitStatus PndMvdPixelClusterTask::Init()
 
   fClusterArray = new TClonesArray("PndMvdClusterPixel");
   ioman->Register("MVDPixelClusterCand","MVD",fClusterArray,kTRUE);
-
+  
+  fParams.push_back(fDigiPar->GetClustRadius());
   fParams.push_back(fDigiPar->GetFECols());
   fParams.push_back(fDigiPar->GetFERows());
 

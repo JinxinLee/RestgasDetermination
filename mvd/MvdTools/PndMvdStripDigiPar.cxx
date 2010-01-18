@@ -27,7 +27,11 @@ void PndMvdStripDigiPar::putParams(FairParamList* list)
   list->add("charge_noise", fNoise);
   list->add("sens_Type", fSensType); //("sens_Type", fSensType, 's', 1)
   list->add("fe_Type", fFeType); //("fe_Type", fFeType, 's', 1)
-//   TObjString* sens = new TObjString( fSensType.Data() );
+  list->add("cluster_mod", fClusterMod);
+  list->add("cluster_radchan", fRadChannel);
+  list->add("cluster_radtime", fRadTime);
+  list->add("cluster_corrchargecut", fChargeCut);
+  //   TObjString* sens = new TObjString( fSensType.Data() );
 //   list->addObject("sens_Type", sens);
 //   TObjString* fe = new TObjString( fFeType.Data() );
 //   list->addObject("fe_Type", fe);
@@ -59,6 +63,10 @@ Bool_t PndMvdStripDigiPar::getParams(FairParamList* list)
   Text_t feName[80];
   if (!list->fill("fe_Type",feName,80)) return kFALSE;
   fFeType = feName;
+  if (!list->fill("cluster_mod", &fClusterMod)) return kFALSE;
+  if (!list->fill("cluster_radchan", &fRadChannel)) return kFALSE;
+  if (!list->fill("cluster_radtime", &fRadTime)) return kFALSE;
+  if (!list->fill("cluster_corrchargecut", &fChargeCut)) return kFALSE;
   return kTRUE;
 }
 
@@ -66,18 +74,23 @@ ClassImp(PndMvdStripDigiPar);
 
 void PndMvdStripDigiPar::Print()
 {
-    std::cout<<"MVD Digitization Parameters:"<<std::endl;
-    std::cout<<"   Top Pitch    = "<<fTopPitch<<std::endl;
-    std::cout<<"   Bottom Pitch = "<<fBotPitch<<std::endl;
-    std::cout<<"   Strip Angle (Top) = "<<fOrient<<"rad = "<<fOrient/TMath::Pi()*180.<<" deg"<<std::endl;
-    std::cout<<"   Skew Angle (Top->Bottom) = "<<fSkew<<"rad = "<<fSkew/TMath::Pi()*180.<<" deg"<<std::endl;
-    std::cout<<"   Top Anchor   = ("<<fTopAnchor.X()<<","<<fTopAnchor.Y()<<")"<<std::endl;
-    std::cout<<"   Bottom Anchor= ("<<fBotAnchor.X()<<","<<fBotAnchor.Y()<<")"<<std::endl;
-    std::cout<<"   FE Channels  = "<<fFeChannels<<std::endl;
-    std::cout<<"   Nr of Frontends (Top Side)   = "<<fTopNrFE<<std::endl;
-    std::cout<<"   Nr of Frontends (Bottom Side)= "<<fBotNrFE<<std::endl;
-    std::cout<<"   Charge Threshold (e-)        = "<<fThreshold<<std::endl;
-    std::cout<<"   Noise (ENC+Dispersion) (e-)  = "<<fNoise<<std::endl;
-    std::cout<<"   Sensor type name is          = "<<fSensType.Data()<<std::endl;
-    std::cout<<"   Frontend type name is        = "<<fFeType.Data()<<std::endl;
+  std::cout<<"MVD Digitization Parameters:"<<std::endl;
+  std::cout<<"   Top Pitch    = "<<fTopPitch<<std::endl;
+  std::cout<<"   Bottom Pitch = "<<fBotPitch<<std::endl;
+  std::cout<<"   Strip Angle (Top) = "<<fOrient<<"rad = "<<fOrient/TMath::Pi()*180.<<" deg"<<std::endl;
+  std::cout<<"   Skew Angle (Top->Bottom) = "<<fSkew<<"rad = "<<fSkew/TMath::Pi()*180.<<" deg"<<std::endl;
+  std::cout<<"   Top Anchor   = ("<<fTopAnchor.X()<<","<<fTopAnchor.Y()<<")"<<std::endl;
+  std::cout<<"   Bottom Anchor= ("<<fBotAnchor.X()<<","<<fBotAnchor.Y()<<")"<<std::endl;
+  std::cout<<"   FE Channels  = "<<fFeChannels<<std::endl;
+  std::cout<<"   Nr of Frontends (Top Side)   = "<<fTopNrFE<<std::endl;
+  std::cout<<"   Nr of Frontends (Bottom Side)= "<<fBotNrFE<<std::endl;
+  std::cout<<"   Charge Threshold (e-)        = "<<fThreshold<<std::endl;
+  std::cout<<"   Noise (ENC+Dispersion) (e-)  = "<<fNoise<<std::endl;
+  std::cout<<"   Sensor type name is          = "<<fSensType.Data()<<std::endl;
+  std::cout<<"   Frontend type name is        = "<<fFeType.Data()<<std::endl;
+  std::cout<<"   Clusterfinder Mode                    = "<<fClusterMod<<std::endl;
+  std::cout<<"   Clusterfinder Search Radius: Channels = "<<fRadChannel<<std::endl;
+  std::cout<<"   Clusterfinder Search Radius: Time     = "<<fRadTime<<std::endl;
+  std::cout<<"   Top/Bottom Charge correlation cut     = "<<fChargeCut<<std::endl;
+  return;
 }

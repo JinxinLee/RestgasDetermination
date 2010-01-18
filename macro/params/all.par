@@ -25,6 +25,10 @@ charge_threshold:Double_t 5000
 charge_noise:Double_t 1000
 sens_Type:Text_t Rect
 fe_Type:Text_t APV25
+cluster_mod:Int_t 0
+cluster_radchan:Int_t 2
+cluster_radtime:Int_t 0
+cluster_corrchargecut:Int_t 5000
 #################################################################
 # Digitization parameters for TRAPEZOID Mvd strip sensors
 #################################################################
@@ -45,6 +49,10 @@ charge_threshold:Double_t 5000
 charge_noise:Double_t 1000
 sens_Type:Text_t Trap
 fe_Type:Text_t APV25
+cluster_mod:Int_t 0
+cluster_radchan:Int_t 2
+cluster_radtime:Int_t 0
+cluster_corrchargecut:Int_t 5000
 #################################################################
 # Digitization Parameters for MVD Pixel
 #################################################################
@@ -55,7 +63,9 @@ dimY:Double_t 0.01
 threshold:Double_t 1100
 noise:Double_t 200
 FECols:Int_t 104
-FERows:Int_t 104#################################################################
+FERows:Int_t 104
+ClustRad:Double_t 1.8
+#################################################################
 # Digitisation and reconstruction parameters for TPC
 # Format:
 # parameter_name:parameter_type(i-integer, d-double) parameter_value
@@ -195,23 +205,23 @@ DrcCut:Float_t 20.
 #################################################################
 [PndGemDetectors]
 parameters:Double_t \
-                    1,   120.0000,  0.0, 2, \
-                        1,  1,     0.0000,     0.0000,   119.3803,     0.0000,     5.0006,    42.0000,     0.0050,     0.0000,    90.0000,     0.0200,     0.0200, \
-                        2,  1,     0.0000,     0.0000,   120.6207,     0.0000,     5.0038,    42.0000,     0.0050,    60.0000,   -60.0000,     0.0300,     0.0300, \
-                    2,   150.0000,  0.0, 2, \
-                        1,  1,     0.0000,     0.0000,   149.3803,     0.0000,     5.0006,    66.0000,     0.0050,     0.0000,    90.0000,     0.0200,     0.0200, \
-                        2,  1,     0.0000,     0.0000,   150.6207,     0.0000,     5.0038,    66.0000,     0.0050,    60.0000,   -60.0000,     0.0300,     0.0300, \
-                    3,   180.0000,  0.0, 2, \
-                        1,  1,     0.0000,     0.0000,   179.3803,     0.0000,     5.0006,    90.0000,     0.0050,     0.0000,    90.0000,     0.0200,     0.0200, \
-                        2,  1,     0.0000,     0.0000,   180.6207,     0.0000,     5.0038,    90.0000,     0.0050,    60.0000,   -60.0000,     0.0300,     0.0300
+                    1,   117.0000,  0.0, 2, \
+                        1,  1,     0.0000,     0.0000,   116.3803,     0.0000,     2.5019,    45.0000,     0.0050,     0.0000,    90.0000,     0.0200,     0.0200, \
+                        2,  1,     0.0000,     0.0000,   117.6207,     0.0000,     2.5019,    45.0000,     0.0050,    60.0000,   -60.0000,     0.0300,     0.0300, \
+                    2,   153.0000,  0.0, 2, \
+                        1,  1,     0.0000,     0.0000,   152.3803,     0.0000,     2.5019,    56.0000,     0.0050,     0.0000,    90.0000,     0.0200,     0.0200, \
+                        2,  1,     0.0000,     0.0000,   153.6207,     0.0000,     2.5019,    56.0000,     0.0050,    60.0000,   -60.0000,     0.0300,     0.0300, \
+                    3,   189.0000,  0.0, 2, \
+                        1,  1,     0.0000,     0.0000,   188.3803,     0.0000,     2.5019,    74.0000,     0.0050,     0.0000,    90.0000,     0.0200,     0.0200, \
+                        2,  1,     0.0000,     0.0000,   189.6207,     0.0000,     2.5019,    74.0000,     0.0050,    60.0000,   -60.0000,     0.0300,     0.0300
 TrackFinderOnHits_ParThetaA: Double_t 59.4
 TrackFinderOnHits_ParThetaB: Double_t -0.02
 TrackFinderOnHits_ParTheta0: Double_t 56.1372
 TrackFinderOnHits_ParTheta1: Double_t -0.000564362
 TrackFinderOnHits_ParTheta2: Double_t -0.181828
 TrackFinderOnHits_ParTheta3: Double_t  0.284289
-TrackFinderOnHits_ParRadPhi0:Double_t  0.9837086
-TrackFinderOnHits_ParRadPhi2:Double_t -0.000182412
+TrackFinderOnHits_ParRadPhi0:Double_t  0.9944432
+TrackFinderOnHits_ParRadPhi2:Double_t -0.000590706
 TrackFinderOnHits_ParMat0:   Double_t \
                                       -2.31333e-6,    0.00067035,    0.10173
 TrackFinderOnHits_ParMat1:   Double_t \

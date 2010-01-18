@@ -13,7 +13,7 @@ class PndMvdClusterTask : public FairTask
     /** Default constructor **/
 //     PndMvdClusterTask();
 
-    PndMvdClusterTask(Double_t pixelRadius=1.8, Int_t stripChargecut=5000 , TString geoFile="");
+    PndMvdClusterTask();
 
     /** Destructor **/
     virtual ~PndMvdClusterTask();
@@ -30,7 +30,7 @@ class PndMvdClusterTask : public FairTask
 
  private:
 
-  ClassDef(PndMvdClusterTask,1);
+  ClassDef(PndMvdClusterTask,2);
 
 };
 

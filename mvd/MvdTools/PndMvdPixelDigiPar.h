@@ -29,7 +29,7 @@ class PndMvdPixelDigiPar : public FairParGenericSet
     Double_t GetNoise()     const {return fNoise;}
     Int_t GetFECols() const {return fFeCols;}
     Int_t GetFERows() const {return fFeRows;}
-
+    Double_t GetClustRadius() const {return fRadius;}
 
     void SetXPitch(Double_t x)  {fDimX = x;}
     void SetYPitch(Double_t x)  {fDimY = x;}
@@ -37,6 +37,7 @@ class PndMvdPixelDigiPar : public FairParGenericSet
     void SetNoise(Double_t x)     {fNoise = x;}
     void SetFECols(Int_t x){fFeCols = x;}
     void SetFERows(Int_t x){fFeRows = x;}
+    void SetClustRadius(Double_t x){fRadius=x;}
 
 
   private:
@@ -45,6 +46,7 @@ class PndMvdPixelDigiPar : public FairParGenericSet
     Double_t fDimY;
     Int_t fFeCols;
     Int_t fFeRows;
+    Double_t fRadius;
 
 
     Double_t fThreshold; // Discriminator fThreshold
@@ -53,7 +55,7 @@ class PndMvdPixelDigiPar : public FairParGenericSet
 //     Text_t   fFeName;    // Frontend name
 
 
-  ClassDef(PndMvdPixelDigiPar,2);
+  ClassDef(PndMvdPixelDigiPar,3);
 };
 
 #endif /*!MVDSTRIPDIGIPAR_H*/

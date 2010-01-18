@@ -114,12 +114,12 @@
 
  
   Double_t chargecut = 1.e5;
-  PndMvdStripClusterTask* mvdmccls = new PndMvdStripClusterTask(chargecut, mcFile.Data());
+  PndMvdStripClusterTask* mvdmccls = new PndMvdStripClusterTask();
 
   mvdmccls->SetVerbose(iVerbose);
   fRun->AddTask(mvdmccls);
 
-  PndMvdPixelClusterTask* mvdClusterizer = new PndMvdPixelClusterTask(1.8,100,100, mcFile.Data());//, slx, sly, sthreshold, snoise);
+  PndMvdPixelClusterTask* mvdClusterizer = new PndMvdPixelClusterTask();
 
   mvdClusterizer->SetVerbose(iVerbose);
   fRun->AddTask(mvdClusterizer);

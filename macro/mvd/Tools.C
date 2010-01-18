@@ -1,7 +1,34 @@
 // This is a collection of useful tool functions for root macros
 // mostly it is to make it more eye-candy and easier to work
-// Thanks go to Thomas Goepfert & Markus Warsinsky from IKTP Dresden who
-// put some of these on our wiki
+// R. Kliemt, 2008
+// Thanks go to Thomas Goepfert & Markus Warsinsky from IKTP Dresden for BetterStatBox & BuildLegend_THStack
+// Found set_nicer_2d_plot_style on the web
+// Content:
+//   DrawText(posX,posY,text,size,color)
+//     R. Kliemt, 2008
+//     Drawing some TLatex text in a root canvas, overlaying the content
+//   DrawNice2DHisto(TH2*,opt="",range)
+//     R. Kliemt, 2008
+//     Set manually the maximum range & better labeling
+//   set_nicer_2d_plot_style()
+//     From the web somewhere
+//     setting a smoother rainbow color profile to gStyle
+//   BetterStatBox(TPad*)
+//     Thanks go to Thomas Goepfert & Markus Warsinsky from IKTP Dresden
+//     Disentangle & colorize statboxes from different histograms in one plot
+//     1) Draw histograms with "sames" option, 2) call Updade() the canvas
+//     3) use TPad* p=(TPad*)gPad; BetterStatBox(p);
+//   TLegend* BuildLegend_THStack(THStack*,x1,y1,x2,y2 )
+//     Thanks go to Thomas Goepfert & Markus Warsinsky from IKTP Dresden
+//     Making a legend for staccked histograms. It still has to be drawn.
+//   LoadPandaStyle()
+//     Sets the formerly official Panda styling to histograms, fonts etc. 
+//     Note that this is a modified version to remove clipping bugs and to set
+//     the nicer rainbow plots.
+//   TH1D TransformHisto(TH2*,min,max)
+//     T.Stockmanns, 2009
+//     transforming from a 2D plot in a 1D plot, using the root sorting of the bins
+
 
 #include <TLatex.h>
 #include <TColor.h>
@@ -15,13 +42,14 @@
 #include <TROOT.h>
 
 
+
 void DrawText(Double_t posX = 0., Double_t posY = 0., const char* text = "",
                      Double_t size=0.08, Int_t col=1
 //                      Int_t align=0, Double_t angle=0.,
 //                      Int_t font, Bool_t bNDC=kTRUE
                      )
 {
-  // Drawing some text
+  // Drawing some TLatex text in a root canvas, overlaying the content
 
   TLatex* pText=new TLatex(posX,posY,text);
   pText->SetNDC(kTRUE);
@@ -90,17 +118,17 @@ void BetterStatBox( TPad* pad ){
   }
 }
 
-// TLegend* BuildLegend_THStack( THStack* stack, float x1, float y1, float x2, float y2 ){
-//
-//   TLegend* legend = new TLegend(x1,y1,x2,y2);
-//   TList*   list = stack->GetHists();
-//   TIter    next( list );
-//   TH1*     hist;
-//
-//   while ( hist = (TH1*)next() ) legend->AddEntry(hist,"","F");
-//
-//   return legend;
-// }
+ TLegend* BuildLegend_THStack( THStack* stack, float x1, float y1, float x2, float y2 ){
+
+   TLegend* legend = new TLegend(x1,y1,x2,y2);
+   TList*   list = stack->GetHists();
+   TIter    next( list );
+   TH1*     hist;
+
+   while ( hist = (TH1*)next() ) legend->AddEntry(hist,"","F");
+
+   return legend;
+ }
 
 void LoadPandaStyle(void)
 {
@@ -118,6 +146,7 @@ void LoadPandaStyle(void)
 //
 // Author List:
 //      Sergey Ganzhur                Original Author
+//      Ralf Kliemt (2008)            Small adjustments for PandaRoot use
 //
 // Copyright Information:
 //     Copyright (C) 2001-2002        Ruhr Universitaet Bochum
@@ -137,7 +166,6 @@ void LoadPandaStyle(void)
 
   // Ralf Kliemt:
   // Ok I changed a bit for myself here
-
 
   TStyle *pandaStyle= new TStyle("PANDA","PANDA approved plots style");
 
@@ -202,15 +230,14 @@ void LoadPandaStyle(void)
 
 
 
-/*
- * TransformHisto.C
- *
- *  Created on: Feb 25, 2009
- *      Author: stockman
- */
 
 TH1D TransformHisto(TH2* h2, double min, double max)
 {
+  /*
+   *  Created on: Feb 25, 2009
+   *      Author: stockman
+   */
+
 	TH1D result("h1","h1", 1000, min, max);
 	int nbins = h2->GetNbinsX() * h2->GetNbinsY();
 	for (int i = 0; i < nbins; i++){

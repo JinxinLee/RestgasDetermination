@@ -17,6 +17,7 @@ void PndMvdPixelDigiPar::putParams(FairParamList* list)
   list->add("noise", fNoise);
   list->add("FECols", fFeCols);
   list->add("FERows", fFeRows);
+  list->add("ClustRad",fRadius);
 //   list->add("sensName", sensName);
 //   list->add("feName", feName);
 }
@@ -31,7 +32,7 @@ Bool_t PndMvdPixelDigiPar::getParams(FairParamList* list)
   if (!list->fill("noise",&fNoise)) return kFALSE;
   if (!list->fill("FECols",&fFeCols)) return kFALSE;
   if (!list->fill("FERows",&fFeRows)) return kFALSE;
-
+  if (!list->fill("ClustRad",&fRadius)) return kFALSE;
 //   if (!list->fill("sensName",&sensName)) return kFALSE;
 //   if (!list->fill("feName",&feName)) return kFALSE;
   return kTRUE;

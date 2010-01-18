@@ -75,7 +75,6 @@ void PndMvdIdealClusterTask::SetParContainers()
 /*
   FairRun* ana = FairRun::Instance();
   FairRuntimeDb* rtdb=ana->GetRuntimeDb();
-  fGeoPar = (PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar"));
 */
 }
 
@@ -88,8 +87,6 @@ InitStatus PndMvdIdealClusterTask::ReInit()
   /*
   FairRun* ana = FairRun::Instance();
   FairRuntimeDb* rtdb=ana->GetRuntimeDb();
-  fGeoPar=(PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar"));
-
   return kSUCCESS;
   */
 }

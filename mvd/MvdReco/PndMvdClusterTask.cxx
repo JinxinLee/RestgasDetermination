@@ -16,14 +16,11 @@
 // }
 // -------------------------------------------------------------------------
 
-PndMvdClusterTask::PndMvdClusterTask(Double_t pixelRadius, Int_t stripChargecut, TString geoFile) :
-  FairTask("MVD Clustertization Task")
+PndMvdClusterTask::PndMvdClusterTask() :
+FairTask("MVD Clustertization Task")
 {
-	Int_t meanalgo=0; //0: built-in CoG, 1: algo class, CoG
-	Int_t clustermod=0; //0: simple, 1:"normal"
-  this->Add(new PndMvdPixelClusterTask(pixelRadius,geoFile));
-  this->Add(new PndMvdStripClusterTask(stripChargecut,geoFile,meanalgo,clustermod));
-
+  this->Add(new PndMvdPixelClusterTask());
+  this->Add(new PndMvdStripClusterTask());
   TList* thistasks = this->GetListOfTasks();
   for(Int_t i=0;i<thistasks->GetEntries();i++)
   {

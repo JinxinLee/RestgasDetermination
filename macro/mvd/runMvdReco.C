@@ -41,16 +41,16 @@
 
   // -----    Default MVD hit producer   --------------------------------------------
   Double_t chargecut = 5000., pixelrad=1.8; // one day this will move to the parameter db.
-  PndMvdClusterTask* mvdmccls = new PndMvdClusterTask(pixelrad,chargecut,MCFile);
+  PndMvdClusterTask* mvdmccls = new PndMvdClusterTask();
   mvdmccls->SetVerbose(iVerbose);
   fRun->AddTask(mvdmccls);
   
   // -----    OR separate tasks   ---------------------------------------------------
   //Double_t chargecut = 1.e5;
-  //PndMvdStripClusterTask* mvdmccls = new PndMvdStripClusterTask(chargecut,creator.GetSimFileName(true));
+  //PndMvdStripClusterTask* mvdmccls = new PndMvdStripClusterTask();
   //mvdmccls->SetVerbose(iVerbose);
   //fRun->AddTask(mvdmccls);
-  //PndMvdPixelClusterTask* mvdClusterizer = new PndMvdPixelClusterTask(1.8,76,84, creator.GetSimFileName(true));//, slx, sly, sthreshold, snoise);
+  //PndMvdPixelClusterTask* mvdClusterizer = new PndMvdPixelClusterTask();
   //mvdClusterizer->SetVerbose(iVerbose);
   //fRun->AddTask(mvdClusterizer);
 

@@ -38,7 +38,11 @@ class PndMvdStripDigiPar : public FairParGenericSet
   Double_t GetNoise()           const {return fNoise;}
   const char*  GetSensType()    const {return fSensType.Data();}
   const char*  GetFeType()      const {return fFeType.Data();}
-
+  Int_t GetClusterMod()         const {return fClusterMod;}
+  Int_t GetRadChannel()         const {return fRadChannel;}
+  Int_t GetRadTime()            const {return fRadTime;}
+  Double_t GetChargeCut()       const {return fChargeCut;}
+  
   void SetTopPitch(Double_t x)  {fTopPitch = x;}
   void SetBotPitch(Double_t x)  {fBotPitch = x;}
   void SetOrient(Double_t x)    {fOrient = x;}
@@ -52,7 +56,11 @@ class PndMvdStripDigiPar : public FairParGenericSet
   void SetNoise(Double_t x)     {fNoise = x;}
   void SetSensType(TString x)   {fSensType = x;}
   void SetFeType(TString x)     {fFeType = x;}
-
+  void SetClusterMod(Int_t  x)  {fClusterMod = x;}
+  void SetRadChnnel(Int_t x)    {fRadChannel = x;}
+  void SetRadTime(Int_t x)      {fRadTime = x;}
+  void SetChargeCut(Double_t x) {fChargeCut = x;}
+  
   private:
     // Strip Parameters
     Double_t fTopPitch;     // Strip pitch on top wafer side
@@ -68,8 +76,11 @@ class PndMvdStripDigiPar : public FairParGenericSet
     Double_t fNoise;        // Complete noise including threshold dispersion
     TString  fSensType;     // Sensor type name (rect, trap...)
     TString  fFeType;       // Frontend type name (APV25, CBM-XYTER, ...)
-
-	ClassDef(PndMvdStripDigiPar,2);
+    Int_t fClusterMod;      // Clusterfinder mode: 1,2,3,4,5
+    Int_t fRadChannel;      // Clusterfinder channel search radius
+    Int_t fRadTime;         // Clusterfinder timing search radius
+    Double_t fChargeCut;    // Cluster charge corralation for double sided sensors
+	ClassDef(PndMvdStripDigiPar,3);
 };
 
 #endif /* !PNDMVDSTRIPDIGIPAR_H*/

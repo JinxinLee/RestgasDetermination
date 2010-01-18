@@ -4,11 +4,11 @@
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
 
   // Load this libraries
-  gSystem->Load("libGeoBase");
-  gSystem->Load("libParBase");
-  gSystem->Load("libBase");
-  gSystem->Load("libPndData");
-  gSystem->Load("libPassive");
+//  gSystem->Load("libGeoBase");
+//  gSystem->Load("libParBase");
+//  gSystem->Load("libBase");
+//  gSystem->Load("libPndData");
+//  gSystem->Load("libPassive");
 
   TString outfile= "teststation.root";
 //  TFile* fi = new TFile(outfile,"RECREATE");

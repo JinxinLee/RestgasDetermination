@@ -71,11 +71,11 @@
   // -----    MVD hit producer   --------------------------------------------
 
   Double_t chargecut = 1.e5;
-  PndMvdStripClusterTask* mvdmccls = new PndMvdStripClusterTask(chargecut,creator.GetSimFileName(true));
+  PndMvdStripClusterTask* mvdmccls = new PndMvdStripClusterTask();
   mvdmccls->SetVerbose(iVerbose);
   fRun->AddTask(mvdmccls);
 
-  PndMvdPixelClusterTask* mvdClusterizer = new PndMvdPixelClusterTask(1.8, creator.GetSimFileName(true));//, slx, sly, sthreshold, snoise);
+  PndMvdPixelClusterTask* mvdClusterizer = new PndMvdPixelClusterTask();
    mvdClusterizer->SetVerbose(iVerbose);
    fRun->AddTask(mvdClusterizer);
 

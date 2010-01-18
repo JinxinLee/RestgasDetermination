@@ -93,12 +93,12 @@
   // CLUST
   // Cluster finding for strip detectors
   Double_t chargecut = 5000.;
-  PndMvdStripClusterTask* mvdmccls = new PndMvdStripClusterTask(chargecut, inFile);
+  PndMvdStripClusterTask* mvdmccls = new PndMvdStripClusterTask();
   mvdmccls->SetVerbose(iVerbose);
   fRun->AddTask(mvdmccls);
   
   // Cluster finder for pixel detectors
-  PndMvdPixelClusterTask* mvdClusterizer = new PndMvdPixelClusterTask(1.8, inFile);
+  PndMvdPixelClusterTask* mvdClusterizer = new PndMvdPixelClusterTask();
   mvdClusterizer->SetVerbose(iVerbose);
   fRun->AddTask(mvdClusterizer);
  

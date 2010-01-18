@@ -36,11 +36,8 @@ class PndMvdStripClusterTask : public FairTask
  public:
 
     /** Default constructor **/
+  	PndMvdStripClusterTask();
 
-
-	PndMvdStripClusterTask(Int_t ClusterMod=0, Int_t RadChannel=2, Int_t RadTime=0);
-
-	PndMvdStripClusterTask(Double_t chargecut, TString geofile, Int_t meanalgo=0, Int_t clustermod=0, Int_t RadChannel=2, Int_t RadTime=0);
 
     /** Destructor **/
     virtual ~PndMvdStripClusterTask();
@@ -72,14 +69,10 @@ class PndMvdStripClusterTask : public FairTask
     void Reset();
     void ProduceHits();
 
-    Double_t fRadius;
     Int_t fFEcolumns;
     Int_t fFErows;
-    TString fGeoFile;
     Double_t fChargeCut;
     Int_t fMeanAlgo;
-	Int_t fRadChannel;
-	Int_t fRadTime;
 
   //! Digitization Parameters
   TList* fDigiParameterList;
@@ -90,29 +83,18 @@ class PndMvdStripClusterTask : public FairTask
   std::map<const char*,PndMvdCalcStrip*> fStripCalcBot;
   PndMvdCalcStrip* fCurrentStripCalcTop;
   PndMvdCalcStrip* fCurrentStripCalcBot;
-//  PndMvdStripDigiPar* fDigiParRect;     //! Digitization Parameters (Barrel)
-//    PndMvdStripDigiPar* fDigiParTrap;     //! Digitization Parameters (Disks)
-//    PndMvdStripDigiPar* fCurrentDigiPar;  //! Digitization Parameters
-//    //! Calculator objects
-//    PndMvdCalcStrip* fStripCalcTopRect;
-//    PndMvdCalcStrip* fStripCalcBotRect;
-//    PndMvdCalcStrip* fStripCalcTopTrap;
-//    PndMvdCalcStrip* fStripCalcBotTrap;
-//    PndMvdCalcStrip* fStripCalcTop;
-//    PndMvdCalcStrip* fStripCalcBot;
-
-    Int_t fClusterMod;					/// selected clusterfinder 1...simple 0...default
 
     PndMvdGeoHandling* fGeoH;      //! Geometry name handling
-  //  PndMvdGeoPar* fGeoPar;
     PndMvdChargeWeightingAlgorithms* fChargeAlgos;
-    PndMvdStripClusterBuilder* fClusterfinder;
+    PndMvdStripClusterBuilder* fCurrentClusterfinder;
+    std::map<const char*,PndMvdStripClusterBuilder*> fClusterFinderList;
+
 //     TH1F* fHChgDiff;
 //     TH1F* fHChgMC;
 //     TH1F* fHChgFake;
 //     TH1F* fHChgGhost;
 
-  ClassDef(PndMvdStripClusterTask,1);
+  ClassDef(PndMvdStripClusterTask,2);
 
 };
 

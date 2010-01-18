@@ -122,7 +122,6 @@ void PndMvdNoiseProducer::SetParContainers()
   // Get Base Container
   FairRun* ana = FairRun::Instance();
   FairRuntimeDb* rtdb=ana->GetRuntimeDb();
- // fGeoPar = (PndMvdGeoPar*)(rtdb->getContainer("PndMvdGeoPar"));
   fDigiParRect = (PndMvdStripDigiPar*)(rtdb->getContainer("MVDStripDigiParRect"));
   fDigiParTrap = (PndMvdStripDigiPar*)(rtdb->getContainer("MVDStripDigiParTrap"));
   fDigiParPix  = (PndMvdPixelDigiPar*)(rtdb->getContainer("MVDPixelDigiPar"));

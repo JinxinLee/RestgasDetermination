@@ -35,7 +35,7 @@
   fRun->AddTask(ApvTask);
 //----- Set Cluster
 
- //  PndMvdStripClusterTask* mvdClusterizer = new PndMvdStripClusterTask(1.e8, GeoFileName.c_str(),0,0,2,0);
+ //  PndMvdStripClusterTask* mvdClusterizer = new PndMvdStripClusterTask();
  //  fRun->AddTask(mvdClusterizer);
 
   fRun->LoadGeometry();

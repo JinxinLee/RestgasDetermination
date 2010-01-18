@@ -10,15 +10,32 @@ Directory contents:
   EventListing.C
   DisplayGeometry.C
   
-  Useful styling finctions, take a look.
+  Useful styling functions, take a look. (Explanations in the file)
   Tools.C
   
   Useful linkings for analysis macros
+  make a library with "root -q Helper.C+", load inside macros with gSystem->Load("Helper_C.so")
   Helper.C
 -----
-./Test
-  testing macros
+./Lars
+  simulations for Dresden Test Station
+  -----
+./Pid
+  Mvd dE/dX study macros
+-----
+./RadDam
+  some radiation damage & rate study macros
 -----
 ./Ralf
-  testing macros from ralfk
+  testing macros from R.Kliemt
+-----
+./Test
+  old testing macros
+-----
+./Tobias
+  testing macros from T.Stockmanns
+  -----
+./Tracking
+  old tracking test macros
+
 ----------------------------

@@ -17,7 +17,6 @@
 #include "FairContFact.h"
 
 #include "PndStringVector.h"
-//#include "PndMvdGeoPar.h"
 #include "PndMvdStripDigiPar.h"
 #include "PndMvdStripClusterTask.h"
 #include "PndMvdMCPoint.h"
@@ -38,33 +37,15 @@
 
 // -----   Default constructor   -------------------------------------------
 
-PndMvdStripClusterTask::PndMvdStripClusterTask(Int_t ClusterMod, Int_t RadChannel, Int_t RadTime) :
+PndMvdStripClusterTask::PndMvdStripClusterTask() :
   FairTask("MVD Strip Clustertisation Task")
 {
   fChargeCut = 1.e8; // this ist really large and shall have no effect
-  fGeoFile = "";
-  fClusterMod=ClusterMod;
-  if(fClusterMod>1 || fClusterMod<0) fClusterMod=0;
-  fRadChannel=RadChannel;
-  fRadTime=RadTime;
   fDigiParameterList = new TList();
 }
 
 // -------------------------------------------------------------------------
 
-
-PndMvdStripClusterTask::PndMvdStripClusterTask(Double_t chargecut, TString geofile, Int_t meanalgo, Int_t clustermod, Int_t RadChannel, Int_t RadTime) :
-  FairTask("MVD Strip Clustertisation Task")
-{
-  fChargeCut = chargecut;
-  fGeoFile = geofile;
-  fMeanAlgo=meanalgo;
-  fClusterMod=clustermod;
-  if(fClusterMod>1 || fClusterMod<0) fClusterMod=0;
-  fRadChannel=RadChannel;
-  fRadTime=RadTime;
-  fDigiParameterList = new TList();
-}
 
 // -----   Destructor   ----------------------------------------------------
 PndMvdStripClusterTask::~PndMvdStripClusterTask()
@@ -110,7 +91,7 @@ InitStatus PndMvdStripClusterTask::ReInit()
 
 void PndMvdStripClusterTask::SetCalculators()
 {
-  // After the first start if the Init() tis can be set properly.
+  // called at the enf of Init()
   
   TIter params(fDigiParameterList);
   while(PndMvdStripDigiPar* digipar=(PndMvdStripDigiPar*)params()){
@@ -128,6 +109,15 @@ void PndMvdStripClusterTask::SetCalculators()
     fStripCalcTop[senstype]->SetVerboseLevel(fVerbose);
     fStripCalcBot[senstype]=new PndMvdCalcStrip(digipar,kBOTTOM);
     fStripCalcBot[senstype]->SetVerboseLevel(fVerbose);
+    Int_t ClusterMod = digipar->GetClusterMod();
+    Int_t RadChannel = digipar->GetRadChannel();
+    Int_t RadTime    = digipar->GetRadTime();
+    if(0==ClusterMod) {
+      fClusterFinderList[senstype] = new PndMvdSimpleStripClusterFinder( RadChannel ); //search radius in channel no.
+    } else if(1==ClusterMod) {
+      fClusterFinderList[senstype] = new PndMvdStripClusterFinder(RadChannel, RadTime);
+    }
+
   }
   
 }
@@ -164,17 +154,8 @@ InitStatus PndMvdStripClusterTask::Init()
   ioman->Register("MVDStripClusterCand","MVD",fClusterArray,kTRUE);
 
   // geo name handling
-  // This requires a connection to a simulation file!
-  //if (fGeoFile=="") fGeoFile = ioman->GetInFile()->GetName();
-  //fGeoH = new PndMvdGeoHandling(fGeoFile.Data());
   fGeoH = new PndMvdGeoHandling(gGeoManager);
 
-//   else *infile = new TFile(fGeoFile);
-//   TGeoManager *geoMan = (TGeoManager*) infile->Get("FAIRGeom");
-//   std::cout << "-I- geoMan in StripClusterTask is  = "<<geoMan << std::endl;
-//   fGeoH = new PndMvdGeoHandling(geoMan);
-
-  //SetParContainers(); //it's called earlier from the Run!
   SetCalculators();
 
   fChargeAlgos = new PndMvdChargeWeightingAlgorithms(fDigiArray);
@@ -208,8 +189,6 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
  // PndMvdCluster* myCandBot=0;
 
   // load the Clusterfinder
-  if(0==fClusterMod) { fClusterfinder = new PndMvdSimpleStripClusterFinder( fRadChannel ); //search radius in channel no.
-  }else if(1==fClusterMod) {fClusterfinder = new PndMvdStripClusterFinder(fRadChannel, fRadTime);}
   // Sort Digi indice into the clusterfinder
   for (Int_t iPoint = 0; iPoint < fDigiArray->GetEntriesFast(); iPoint++)
   { // sort digis by sensor name and stripnumber
@@ -218,7 +197,7 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
     if (kFALSE==SelectSensorParams(detName)) continue; // Invalid parameters, skip here.
     //we use the top side as "first" side
     fCurrentStripCalcTop->CalcFeChToStrip(myDigi->GetFE(), myDigi->GetChannel(), strip, side);
-    fClusterfinder->AddDigi(detName.Data(),side,myDigi->GetTimestamp(),strip,iPoint);
+    fCurrentClusterfinder->AddDigi(detName.Data(),side,myDigi->GetTimestamp(),strip,iPoint);
   }
 
   std::vector< PndMvdClusterStrip > clusters;
@@ -234,12 +213,12 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
 
 
   // -------   SEARCH  ------
-  clusters = fClusterfinder->SearchClusters();
+  clusters = fCurrentClusterfinder->SearchClusters();
   // fetch ids in 'clusters' to the top and bot side
-  topclusters = fClusterfinder->GetTopClusterIDs();
-  botclusters = fClusterfinder->GetBotClusterIDs();
+  topclusters = fCurrentClusterfinder->GetTopClusterIDs();
+  botclusters = fCurrentClusterfinder->GetBotClusterIDs();
   if(fVerbose > 2) {
-    leftDigis = fClusterfinder->GetLeftDigiIDs();
+    leftDigis = fCurrentClusterfinder->GetLeftDigiIDs();
     if (0<leftDigis.size()){
       std::cout << "There are "<<leftDigis.size()<<" Digis not assigned to"
                 << " clusters:\n";
@@ -363,8 +342,6 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
             new((*fHitArray)[i]) PndMvdHit(detID,detnametop.Data(),hitPos,hitErr,
                 *itTop,mycharge,oneclusterbot.size()+oneclustertop.size(),mcindex);
             ((PndMvdHit*)((*fHitArray)[i]))->SetBotIndex(*itBot);
-            //((PndMvdHit*)((*fHitArray)[i]))->SetLink(kMVDClusterStrip, clusterIndex);
-
           } else
             if (fVerbose > 2) std::cout<<"Strip charge contents too differently"<<std::endl;
         }
@@ -377,7 +354,7 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
             << " Mvd Clusters and " << fHitArray->GetEntriesFast()<<" Hits calculated."
             << " out of " <<fDigiArray->GetEntriesFast()<< " Digis"<< std::endl;
 
-  if(0!=fClusterfinder) delete fClusterfinder;
+  if(0!=fCurrentClusterfinder) delete fCurrentClusterfinder;
   return;
 }
 
@@ -424,6 +401,8 @@ Bool_t PndMvdStripClusterTask::SelectSensorParams(TString detname)
       fCurrentStripCalcBot = fStripCalcBot[sensortype];
       fCurrentDigiPar = digipar;
       fChargeAlgos->SetCalcStrip(fCurrentStripCalcTop);
+      fCurrentClusterfinder = fClusterFinderList[sensortype];
+      fChargeCut = digipar->GetChargeCut();
       return kTRUE;
     }
   }

@@ -13,7 +13,6 @@
 #include "PndStringVector.h"
 #include <vector>
 #include <string>
-#include "PndStringVector.h"
 #include "TROOT.h"
 #include "TGeoVolume.h"
 #include "TGeoShape.h"

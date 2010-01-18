@@ -42,13 +42,13 @@
 
   // Cluster finding for strip detectors
   Double_t chargecut = 5000.;
-  PndMvdStripClusterTask* mvdmccls = new PndMvdStripClusterTask(chargecut,simFile.c_str());
+  PndMvdStripClusterTask* mvdmccls = new PndMvdStripClusterTask();
   mvdmccls->SetVerbose(iVerbose);
   fRun->AddTask(mvdmccls);
 
   // Cluster finder for pixel detectors (radius, geofile)
   PndMvdPixelClusterTask* mvdClusterizer = new
-    PndMvdPixelClusterTask(1.8,namecreator.GetSimFileName(true));
+    PndMvdPixelClusterTask();
   mvdClusterizer->SetVerbose(iVerbose);
   fRun->AddTask(mvdClusterizer);
 

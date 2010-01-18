@@ -13,7 +13,7 @@ void DisplayGeometry(TString fileName="Mvd_Params.root")
   TEveManager::Create();
   TGeoNode *N=  gGeoManager->GetTopNode();
   TEveGeoTopNode *TNod=new  TEveGeoTopNode(gGeoManager, N);
-  TNod->SetVisLevel(10);
+  TNod->SetVisLevel(10); // mandatory to see the Mvd
   gEve->AddGlobalElement(TNod);
   gEve->FullRedraw3D(kTRUE);
 

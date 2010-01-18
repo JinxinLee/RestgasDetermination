@@ -46,8 +46,6 @@ class PndMvdPixelClusterTask : public FairTask
     /** Default constructor **/  
     PndMvdPixelClusterTask();
   
-    PndMvdPixelClusterTask(Double_t radius, TString geoFile = "");
-
     /** Destructor **/
     virtual ~PndMvdPixelClusterTask();
 
@@ -78,9 +76,6 @@ class PndMvdPixelClusterTask : public FairTask
   void Register();
   void Reset();  
   void ProduceHits();
-
-  Double_t fRadius;
-  TString fGeoFile;
 	
   std::vector<Double_t> fParams;
   
@@ -89,7 +84,7 @@ class PndMvdPixelClusterTask : public FairTask
 //   PndMvdHit CalcGlobalPoint(std::vector<PndMvdPixel> pixels);
 //   TVector3 GetSensorDimensions(std::string detName);  
 
-  ClassDef(PndMvdPixelClusterTask,1);
+  ClassDef(PndMvdPixelClusterTask,2);
 
 };
 
