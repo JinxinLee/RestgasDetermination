@@ -22,7 +22,7 @@ PndMvdHit::PndMvdHit() {
 // -----   Standard constructor   ------------------------------------------
 PndMvdHit::PndMvdHit(Int_t detID, TString detName, TVector3& pos, TVector3& dpos,
 		     Int_t clindex, Double_t charge, Int_t NDigiHits, Int_t mcindex)
-  : FairHit(detID, pos, dpos, clindex) {
+  : FairHit(detID, pos, dpos, mcindex) {
   fDetName = detName;
   fCharge  = charge;
   fNDigiHits = NDigiHits;
