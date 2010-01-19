@@ -37,6 +37,7 @@ InitStatus PndTrackCandDraw::Init()
    fStripPointList = (TClonesArray *)fManager->GetObject("MVDHitsStrip");
    fTpcClusterList = (TClonesArray *)fManager->GetObject("PndTpcCluster");
    fSttHelixList   = (TClonesArray *)fManager->GetObject("SttHelixHit");
+   fGemHitList		= (TClonesArray* )fManager->GetObject("GEMHit");
    if (fTpcClusterList == 0)
      fTpcClusterList = (TClonesArray*)fManager->GetObject("PndTpcClusterMerged");
    if(fPixPointList==0){
@@ -55,12 +56,16 @@ InitStatus PndTrackCandDraw::Init()
       cout << "PndTrackCandDraw::Init()  branch SttHelixList Not found! Task will be deactivated "<< endl;
       //SetActive(kFALSE);
    }
-
+   if(fGemHitList==0){
+         cout << "PndTrackCandDraw::Init()  branch GemHitList Not found! Task will be deactivated "<< endl;
+         //SetActive(kFALSE);
+      }
    if(fVerbose>2){
      cout<<  "PndTrackCandDraw::Init() get pix points list" <<  fPixPointList<< endl;
      cout<<  "PndTrackCandDraw::Init() get strip points list" <<  fStripPointList<< endl;
      cout<<  "PndTrackCandDraw::Init() get tpc cluster list" << fTpcClusterList<<endl;
      cout<<  "PndTrackCandDraw::Init() get stt helix list" << fSttHelixList<<endl;
+     cout<<  "PndTrackCandDraw::Init() get gem hit list" << fGemHitList<<endl;
 
    }
    fq=0;
@@ -125,7 +130,7 @@ TVector3 PndTrackCandDraw::GetVector(Int_t detId, Int_t hitId)
 {
 	FairHit * p;
 
-	if (detId == kMVDHitsStrip || detId == kMVDHitsPixel || detId == kSttHelixHit)
+	if (detId == kMVDHitsStrip || detId == kMVDHitsPixel || detId == kSttHelixHit || detId == kGemHit)
 	{
 		if (detId == kMVDHitsPixel)
 		{
@@ -138,6 +143,10 @@ TVector3 PndTrackCandDraw::GetVector(Int_t detId, Int_t hitId)
 		else if (detId == kSttHelixHit){
 			p = (FairHit *) fSttHelixList->At(hitId);
 		}
+		else if (detId == kGemHit){
+			p = (FairHit *) fGemHitList->At(hitId);
+		}
+
 		return (TVector3(p->GetX(), p->GetY(), p->GetZ()));
 	}
 	else if (detId == kTpcCluster){

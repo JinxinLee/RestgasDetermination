@@ -52,6 +52,7 @@ protected:
   TClonesArray *fTrackCandList; //!
   TClonesArray *fTpcClusterList; //!
   TClonesArray *fSttHelixList; //!
+  TClonesArray *fGemHitList; //!
 
   ClassDef(PndTrackCandDraw,1);
 
