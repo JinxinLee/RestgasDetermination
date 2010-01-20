@@ -1,3 +1,5 @@
+#include <math.h>
+
 #include "PndLumiTrackFinder.h"
 #include "TGraphErrors.h"
 #include "TH1F.h"
