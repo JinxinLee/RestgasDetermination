@@ -131,7 +131,7 @@ void PndTpcDetector::SetSpecialPhysicsCuts(){
     gMC->Gstpar(matIdVMC,"DCUTM",fCut_el);  /** delta-rays by muons (GeV)*/
     gMC->Gstpar(matIdVMC,"PPCUTM",fCut_el); /** direct pair production by muons (GeV)*/
       
-    gMC->SetMaxNStep(1E6);
+    gMC->SetMaxNStep((int)1E6);
     
     std::cout<<"\n************************************************************\n"
 	     <<"PndTpcDetector::SetSpecialPhysicsCuts():\n"
@@ -151,7 +151,7 @@ PndTpcDetector::ProcessHits( FairVolume *v)
 {
   Double_t q= gMC->TrackCharge();
   if(q==0) {
-    std::cout<<"\nPndTpcDetector::ProcessHits: EXIT q==0"<<std::endl;
+    //std::cout<<"\nPndTpcDetector::ProcessHits: EXIT q==0"<<std::endl;
     return kTRUE;
   }
   // create Hit for every MC step where energy is deposited

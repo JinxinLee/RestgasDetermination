@@ -30,7 +30,7 @@ double PndTpcdEdx::truncMean(double trash){
 
   double cut=trash;  //throw away this percentage of entries (high tail)
 
-  int intCut=cut*N;
+  int intCut=(int)(cut*N);
 
   double sum=0.;
   int NinSum=0;
