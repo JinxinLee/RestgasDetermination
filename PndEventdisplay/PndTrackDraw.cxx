@@ -21,7 +21,7 @@ using std::cout;
 using std::endl;
 
 // -----   Default constructor   -------------------------------------------
-PndTrackDraw::PndTrackDraw()
+PndTrackDraw::PndTrackDraw():fListOfTracks(0)
 {
 	   fPro = new FairGeanePro();
 
@@ -33,7 +33,7 @@ PndTrackDraw::PndTrackDraw()
 // -----   Standard constructor   ------------------------------------------
 PndTrackDraw::PndTrackDraw(const char* name, Int_t iVerbose)
   : FairTask(name, iVerbose),
-    fEveTrList( new TObjArray(16))
+    fEveTrList( new TObjArray(16)), fListOfTracks(0)
 {
 	  fPro = new FairGeanePro();
 	  fPndTrackList = 0;
@@ -66,7 +66,7 @@ InitStatus PndTrackDraw::Init()
 
 		fTrackCandDraw->Init();
    }
-	if (IsActive())
+   if (IsActive())
 		return kSUCCESS;
 	else
 		return kERROR;
@@ -87,6 +87,10 @@ void PndTrackDraw::Exec(Option_t* option)
 
     TEveBoxSet* myBoxSet = fTrackCandDraw->CreateBoxSet();
 
+    //fListOfTracks->DestroyElements();
+    fListOfTracks = new TEveElementList("PndTracks","List of PndTracks");
+    gEve->AddElement(fListOfTracks,fEventManager);
+
     for (Int_t i=0; i<fPndTrackList->GetEntriesFast(); i++)	{
 		if(fVerbose>2) cout << "PndTrackDraw::Exec "<< i << endl;
         tr=(PndTrack *)fPndTrackList->At(i);
@@ -95,24 +99,34 @@ void PndTrackDraw::Exec(Option_t* option)
         FairTrackParP parLast = tr->GetParamLast();
         PndTrackCand trackCand = tr->GetTrackCand();
 
+        if (fVerbose> 1){
+        	cout << "PndTrack " << i << ":" << std::endl;
+        	tr->Print();
+        }
+
         fTrackCandDraw->AddBoxesPndTrackCand(myBoxSet,&trackCand, i);
 
 		TVector3 posFirst = parFirst.GetPosition();
 		TVector3 momFirst = parFirst.GetMomentum() * 10;
 		//TVector3 resFirst = posFirst + momFirst;
+		TString groupName("Track_");
+		groupName += i;
+		TEveElementList* arrowList = new TEveElementList(groupName.Data(), "PndMCTrack");
+
 
 		TEveArrow* myArrowFirst = new TEveArrow(momFirst.X(), momFirst.Y(), momFirst.Z(),
 												posFirst.X(), posFirst.Y(), posFirst.Z());
 		myArrowFirst->SetMainColor(kRed);
 		myArrowFirst->SetTubeR(0.01);
 		fArrows.push_back(myArrowFirst);
-		gEve->AddElement(myArrowFirst, fEventManager);
-
+		//gEve->AddElement(myArrowFirst, fEventManager);
+		arrowList->AddElement(myArrowFirst);
 
         std::cout << "ParamFirst: " << posFirst.X() << " " << posFirst.Y() << " " << posFirst.Z() << std::endl;
         std::cout << "ParamFirst Momentum: " << momFirst.X() << " " << momFirst.Y() << " " << momFirst.Z() << std::endl;
+        std::cout << "Charge: " << parFirst.GetQ() << std::endl;
 
-        PropagateTrack(parFirst, pidHypo, kRed);
+        PropagateTrack(parFirst, pidHypo, kRed, arrowList);
 
 		TVector3 posLast = parLast.GetPosition();
 		TVector3 momLast = parLast.GetMomentum() * 10;
@@ -123,13 +137,15 @@ void PndTrackDraw::Exec(Option_t* option)
 	    myArrowLast->SetMainColor(kBlue);
         myArrowLast->SetTubeR(0.01);
         fArrows.push_back(myArrowLast);
-        gEve->AddElement(myArrowLast, fEventManager);
+        //gEve->AddElement(myArrowLast, fEventManager);
+        arrowList->AddElement(myArrowLast);
 
         std::cout << "ParamLast: " << posLast.X() << " " << posLast.Y() << " " << posLast.Z() << std::endl;
         std::cout << "ParamLast Momentum: " << momLast.X() << " " << momLast.Y() << " " << momLast.Z() << std::endl;
+        std::cout << "Charge: " << parLast.GetQ() << std::endl;
 
-
-        PropagateTrack(parLast, pidHypo, kBlue);
+        PropagateTrack(parLast, pidHypo, kBlue, arrowList);
+        fListOfTracks->AddElement(arrowList);
 
     }
     gEve->AddElement(myBoxSet, fEventManager);
@@ -144,7 +160,7 @@ void PndTrackDraw::Exec(Option_t* option)
  }
 }
 
-void PndTrackDraw::PropagateTrack(FairTrackParP& trackPar, Int_t pidHypo, Int_t color)
+void PndTrackDraw::PropagateTrack(FairTrackParP& trackPar, Int_t pidHypo, Int_t color, TEveElement* group)
 {
 	TVector3 posTrack = trackPar.GetPosition();
 	TVector3 momTrack = trackPar.GetMomentum();
@@ -178,14 +194,6 @@ void PndTrackDraw::PropagateTrack(FairTrackParP& trackPar, Int_t pidHypo, Int_t 
 
 	TParticle *P = new TParticle(pidHypo, 0, -1, -1, -1, -1, TLorentzVector(
 			momStart, 10), TLorentzVector(posStart, 0));
-	//PEnergy=P->Energy();
-	//MinEnergyLimit=TMath::Min(PEnergy,MinEnergyLimit) ;
-	//MaxEnergyLimit=TMath::Max(PEnergy,MaxEnergyLimit) ;
-	//if(fVerbose>2)cout << "MinEnergyLimit " << MinEnergyLimit << " MaxEnergyLimit " << MaxEnergyLimit << endl;
-	//if (fEventManager->IsPriOnly() && P->GetMother(0)>-1) continue;
-	//if (fEventManager->GetCurrentPDG() != 0 && fEventManager->GetCurrentPDG()!= pidHypo) continue;
-	// if(fVerbose>2)cout << "PEnergy " << PEnergy << " Min "  << fEventManager->GetMinEnergy() << " Max " << fEventManager->GetMaxEnergy() <<endl;
-	//if( (PEnergy<fEventManager->GetMinEnergy()) || (PEnergy >fEventManager->GetMaxEnergy())) continue;
 
 	fTrList = GetTrGroup(pidHypo);
 	TEveTrack *track = new TEveTrack(P, pidHypo, fTrPr);
@@ -230,7 +238,10 @@ void PndTrackDraw::PropagateTrack(FairTrackParP& trackPar, Int_t pidHypo, Int_t 
 		if (fVerbose > 3)
 			cout << "Path marker added " << path << endl;
 	}
-	fTrList->AddElement(track);
+	if (group != 0)
+		group->AddElement(track);
+	else
+		fTrList->AddElement(track);
 	if (fVerbose > 3)
 		cout << "track added " << track->GetName() << endl;
 }
@@ -263,6 +274,10 @@ void PndTrackDraw::Reset()
 	   gEve->RemoveElement(fArrows[j], fEventManager);
 	   //delete(fArrows[j]);
    }
+   if (fListOfTracks != 0){
+	   gEve->RemoveElement(fListOfTracks, fEventManager);
+	   //delete(fListOfTracks);
+   }
    fArrows.clear();
 }
 
@@ -285,7 +300,7 @@ TEveTrackList *PndTrackDraw::GetTrGroup(Int_t pid)
     fTrList= new  TEveTrackList(pidString.c_str(),fTrPr );
     fTrList->SetMainColor(fEventManager->Color(pid));
     fEveTrList->Add(fTrList);
-    gEve->AddElement( fTrList ,fEventManager );
+   // gEve->AddElement( fTrList ,fEventManager );
     fTrList->SetRnrLine(kTRUE);
   }                          
   return fTrList;

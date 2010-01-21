@@ -16,6 +16,7 @@
 
 #include "FairTask.h"
 #include "TEveTrackPropagator.h"
+#include "TEveElement.h"
 
 #include "TEveArrow.h"
 #include "TString.h"
@@ -60,7 +61,7 @@ class PndTrackDraw : public FairTask {
 
 protected:
 
-  void PropagateTrack(FairTrackParP& trackPar, Int_t pidHypo, Int_t color = -1);
+  void PropagateTrack(FairTrackParP& trackPar, Int_t pidHypo, Int_t color = -1, TEveElement* group = 0);
   TClonesArray  *fPndTrackList;  //!
   TEveTrackPropagator *fTrPr; 
   FairEventManager * fEventManager; //!
@@ -72,6 +73,8 @@ protected:
  // FairRootManager* fManager;
   PndTrackCandDraw* fTrackCandDraw;
   std::vector<TEveArrow*> fArrows;
+
+  TEveElementList* fListOfTracks;
     
    Double_t MinEnergyLimit;
    Double_t MaxEnergyLimit;
