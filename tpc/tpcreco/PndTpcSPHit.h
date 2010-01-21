@@ -26,6 +26,8 @@
 // Collaborating Class Headers -------
 #include <ostream> // remove if you do not need streaming op
 
+#include"TRandom3.h"
+
 // Collaborating Class Declarations --
 class FairMCPoint;
 class PndTpcCluster;
@@ -41,7 +43,8 @@ public:
   PndTpcSPHit(double x, double y, double z,
 	      double sigx, double sigy, double sigz);
   PndTpcSPHit(const TVector3& pos,
-	      const TVector3& sig);
+	      const TVector3& sig,
+	      bool smear=false);
   PndTpcSPHit(FairMCPoint* point);
   PndTpcSPHit(PndTpcCluster* cluster);
 
@@ -62,7 +65,7 @@ private:
   static const int NparHitRep = 3;
   double _amp;
   PndTpcCluster* _cluster;
-
+  static TRandom3 rand;
   // Private Methods -----------------
 
 public:

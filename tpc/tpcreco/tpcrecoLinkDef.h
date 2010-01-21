@@ -26,6 +26,8 @@
 #pragma link C++ class PndTpcSPHit++;
 #pragma link C++ class PndTpcdEdxTask++;
 #pragma link C++ class PndTpcdEdx++;
+#pragma link C++ class PndTpcGenfitTestTask++;
+#pragma link C++ class PndTpcTestPlanarHit++;
 
 #endif
 

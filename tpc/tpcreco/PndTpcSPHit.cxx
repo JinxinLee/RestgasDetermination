@@ -34,6 +34,7 @@
 
 ClassImp(PndTpcSPHit)
 
+TRandom3 PndTpcSPHit::rand(0);
 
 PndTpcSPHit::~PndTpcSPHit()
 {}
@@ -56,12 +57,20 @@ PndTpcSPHit::PndTpcSPHit(double x, double y, double z,
 }
 
 PndTpcSPHit::PndTpcSPHit(const TVector3& pos,
-			 const TVector3& sig)
+			 const TVector3& sig,
+			 bool smear)
   : SpacepointRecoHit(NparHitRep), _amp(0.), _cluster(NULL)
 {
-  fHitCoord[0][0] = pos.X();
-  fHitCoord[1][0] = pos.Y();
-  fHitCoord[2][0] = pos.Z();
+  if(!smear){
+    fHitCoord[0][0] = pos.X();
+    fHitCoord[1][0] = pos.Y();
+    fHitCoord[2][0] = pos.Z();
+  }
+  else{
+    fHitCoord[0][0] = rand.Gaus(pos.X(),sig.X());
+    fHitCoord[1][0] = rand.Gaus(pos.Y(),sig.Y());
+    fHitCoord[2][0] = rand.Gaus(pos.Z(),sig.Z());
+  }
   fHitCov[0][0] = sig.X()*sig.X();
   fHitCov[1][1] = sig.Y()*sig.Y();
   fHitCov[2][2] = sig.Z()*sig.Z();

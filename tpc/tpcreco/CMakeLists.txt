@@ -66,6 +66,8 @@ PndTpcSPHit.cxx
 MatrixChi2.cxx
 PndTpcdEdxTask.cxx
 PndTpcdEdx.cxx
+PndTpcGenfitTestTask.cxx
+PndTpcTestPlanarHit.cxx
 )
 
 if(RULE_CHECKER_FOUND)
