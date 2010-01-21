@@ -122,7 +122,6 @@ void PndMvdStripHitProducer::SetParContainers()
     Info("SetParContainers()",parsetname.Data());
     if(parsetname.BeginsWith("MVDStripDigiPar")){
       PndMvdStripDigiPar* digipar = (PndMvdStripDigiPar*)(rtdb->getContainer(parsetname.Data()));
-      digipar->Print();
       fDigiParameterList->Add(digipar);
     }
   }
@@ -201,8 +200,13 @@ InitStatus PndMvdStripHitProducer::Init()
   
   SetCalculators();
 
-  std::cout << "-I- PndMvdStripHitProducer: Initialisation successfull" << std::endl;
-
+  std::cout << "-I- PndMvdStripHitProducer: Initialisation successfull with these parameters:" << std::endl;
+  TIter params(fDigiParameterList);
+  while(PndMvdStripDigiPar* digipar=(PndMvdStripDigiPar*)params()){
+    if(0!=digipar) {
+      digipar->Print();
+    }
+  }
 
 //  if (!fDigiParRect){
 //     std::cout<<"-E- PndMvdStripHitProducer: DigiPar Rect Container does not exist!"<<std::endl;

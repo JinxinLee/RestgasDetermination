@@ -74,7 +74,6 @@ void PndMvdStripClusterTask::SetParContainers()
     Info("SetParContainers()",parsetname.Data());
     if(parsetname.BeginsWith("MVDStripDigiPar")){
       PndMvdStripDigiPar* digipar = (PndMvdStripDigiPar*)(rtdb->getContainer(parsetname.Data()));
-      digipar->Print();
       fDigiParameterList->Add(digipar);
     }
   }
@@ -160,7 +159,14 @@ InitStatus PndMvdStripClusterTask::Init()
 
   fChargeAlgos = new PndMvdChargeWeightingAlgorithms(fDigiArray);
 
-  std::cout << "-I- PndMvdStripClusterTask: Initialisation successfull" << std::endl;
+  std::cout << "-I- PndMvdStripClusterTask: Initialisation successfull with these parameters:" << std::endl;
+  TIter params(fDigiParameterList);
+  while(PndMvdStripDigiPar* digipar=(PndMvdStripDigiPar*)params()){
+    if(0!=digipar) {
+      digipar->Print();
+    }
+  }
+
   return kSUCCESS;
 }
 // -------------------------------------------------------------------------

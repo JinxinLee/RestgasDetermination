@@ -43,10 +43,11 @@ ClassImp(PndMvdPixelDigiPar);
 void PndMvdPixelDigiPar::Print()
 {
     std::cout<<"MVD Pixel Digitization Parameters:"<<std::endl;
-    std::cout<<"   fDimX (um)   = "<<fDimX<<std::endl;
-    std::cout<<"   fDimY (um)   = "<<fDimY<<std::endl;
-    std::cout<<"   Charge Threshold (e-)        = "<<fThreshold<<std::endl;
-    std::cout<<"   Noise (ENC+Dispersion) (e-)  = "<<fNoise<<std::endl;
-    std::cout<<"   Columns on FE                = "<<fFeCols<<std::endl;
-    std::cout<<"   Rows on FE                   = "<<fFeRows<<std::endl;
+    std::cout<<"   fDimX (um)                       = "<<fDimX<<std::endl;
+    std::cout<<"   fDimY (um)                       = "<<fDimY<<std::endl;
+    std::cout<<"   Charge Threshold (e-)            = "<<fThreshold<<std::endl;
+    std::cout<<"   Noise (ENC+Dispersion) (e-)      = "<<fNoise<<std::endl;
+    std::cout<<"   Columns on FE                    = "<<fFeCols<<std::endl;
+    std::cout<<"   Rows on FE                       = "<<fFeRows<<std::endl;
+    std::cout<<"   Cluster search radius (channels) = "<<fRadius<<std::endl;
 }
