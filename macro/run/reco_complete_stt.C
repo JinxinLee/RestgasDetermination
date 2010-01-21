@@ -92,8 +92,8 @@ void reco_complete_stt()
   matchTask->SetUseHitOrDigi("chit");
   fRun->AddTask(matchTask);
 
-  Double_t chargecut = 5000., pixelrad=1.8;
-  PndMvdClusterTask* mvdmccls = new PndMvdClusterTask(pixelrad,chargecut,"sim_complete.root");
+  //----- Mvd Hit Reco -----
+  PndMvdClusterTask* mvdmccls = new PndMvdClusterTask();
   fRun->AddTask(mvdmccls);
 
 
