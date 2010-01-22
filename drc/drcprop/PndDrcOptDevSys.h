@@ -3,7 +3,7 @@
 
   Optical devices can be combined (coupled) to a system. This system, 
   then can be also multiplicated by the copy constructor. A copy number
-  helps to distingish between all generated systems. Since on can add one 
+  helps to distingish between all generated systems. Since one can add a 
   system to another and also combine the surfaces of two different systems, which 
   were added to s system, one should make sure, that every single system gets a 
   different copy number when the names are the same.
@@ -90,6 +90,10 @@ class PndDrcOptDevSys
 
 
   /*! \brief Set the name and copy number of the volume.
+
+  If there are already added device systems with different names, those names will not be changed.
+  
+
     \param name1 The name.
     \param icopy The copy number.
   */
@@ -180,25 +184,29 @@ class PndDrcOptDevSys
 
   /*! \brief Couple two devices such that photons can propagate from
     one to the other.
+
+    This routine couples devices which are from the same optical device system.
+    For coupling of devices from different systems use \sa CoupleDeviceSystems.
+
+    \param sys1       The optical system for dev1 to couple.
+    \param sys2       The optical system for dev2 to couple.
     \param dev1       The first  optical device to couple.
     \param dev2       The second optical device to couple.
     \param surf1      The surface of dev1 to couple. 
     \param surf2      The surface of dev2 to couple.
-    \param sys1       The optical system for dev1 to couple.
-    \param sys2       The optical system for dev2 to couple.
+    \param sys_copy1  The copy number of the device system #1 to couple. 
+    \param sys_copy2  The copy number of the device system #2 to couple. 
     \param dev_copy1  The copy number of the dev1 to couple. 
     \param dev_copy2  The copy number of the dev2 to couple. 
     \param surf_copy1 The copy number of the surf1 to couple. 
     \param surf_copy2 The copy number of the surf2 to couple. 
-    \param sys_copy1  The copy number of the device system #1 to couple. 
-    \param sys_copy2  The copy number of the device system #2 to couple. 
   */
-  void CoupleDevice1(string dev1,         string dev2,
-		     string surf1,        string surf2,
-		     string sys1="none",  string sys2="none",
-		     int    dev_copy1=0,  int    dev_copy2=0,
-		     int    surf_copy1=0, int    surf_copy2=0,
-		     int    sys_copy1=0,  int    sys_copy2=0);
+  void CoupleDeviceSystem(string sys1,         string sys2,
+			  string dev1,         string dev2,
+			  string surf1,        string surf2,
+			  int    sys_copy1 = 0, int    sys_copy2 = 0,
+			  int    dev_copy1 = 0, int    dev_copy2 = 0,
+			  int    surf_copy1= 0, int    surf_copy2= 0);
 
   /*! \brief Write volume coordinates to stream in root syntax.
     \param stream The stream.

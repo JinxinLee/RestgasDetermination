@@ -147,12 +147,13 @@ void PndDrcOptDevSys::Copy(const PndDrcOptDevSys& d)
 	++kSys_ori1_copy,
 	++kSys_ori2_copy) 
     {
-      CoupleDevice1((*kDev1),(*kDev2),
-		    (*kSurf1),(*kSurf2),
-		    (*kSys_ori1),(*kSys_ori2),
-		    (*kDev1_copy),(*kDev2_copy),
-		    (*kSurf1_copy),(*kSurf2_copy),
-		    (*kSys_ori1_copy),(*kSys_ori2_copy));
+      CoupleDeviceSystem(
+			 (*kSys_ori1),     (*kSys_ori2),
+			 (*kDev1),         (*kDev2),
+			 (*kSurf1),        (*kSurf2),
+			 (*kSys_ori1_copy),(*kSys_ori2_copy),
+			 (*kDev1_copy),    (*kDev2_copy),
+			 (*kSurf1_copy),   (*kSurf2_copy));
     }
   
 
@@ -343,12 +344,13 @@ void PndDrcOptDevSys::AddDeviceSystem(const PndDrcOptDevSys& sys)
 	++kSys_ori1_copy,
 	++kSys_ori2_copy) 
     {
-      CoupleDevice1((*kDev1),(*kDev2),
-		    (*kSurf1),(*kSurf2),
-		    (*kSys_ori1),(*kSys_ori2),
-		    (*kDev1_copy),(*kDev2_copy),
-		    (*kSurf1_copy),(*kSurf2_copy),
-		    (*kSys_ori1_copy),(*kSys_ori2_copy));
+      CoupleDeviceSystem(
+			 (*kSys_ori1),     (*kSys_ori2),
+			 (*kDev1),         (*kDev2),
+			 (*kSurf1),        (*kSurf2),
+			 (*kSys_ori1_copy),(*kSys_ori2_copy),
+			 (*kDev1_copy),    (*kDev2_copy),
+			 (*kSurf1_copy),   (*kSurf2_copy));
     }
   
 
@@ -418,16 +420,21 @@ void PndDrcOptDevSys::CoupleDevice(string dev1,       string dev2,
 				int    dev_copy1,  int    dev_copy2,
 				int    surf_copy1, int    surf_copy2)
 {
-  CoupleDevice1(dev1,dev2,surf1,surf2,Name(),Name(),dev_copy1,dev_copy2,surf_copy1,surf_copy2,0,0);
+  CoupleDeviceSystem(Name(),      Name(),
+		     dev1,        dev2,
+		     surf1,       surf2,
+		     CopyNumber(),CopyNumber(),
+		     dev_copy1,   dev_copy2,
+		     surf_copy1,  surf_copy2);
 }
 
 //----------------------------------------------------------------------
-void PndDrcOptDevSys::CoupleDevice1(string dev1,       string dev2,
-				 string surf1,      string surf2,
-				 string sys1,       string sys2,
-				 int    dev_copy1,  int    dev_copy2,
-				 int    surf_copy1, int    surf_copy2,
-				 int    sys_copy1,  int    sys_copy2)
+void PndDrcOptDevSys::CoupleDeviceSystem(string sys1,       string sys2,
+					 string dev1,       string dev2,
+					 string surf1,      string surf2,
+					 int    sys_copy1,  int    sys_copy2,
+					 int    dev_copy1,  int    dev_copy2,
+					 int    surf_copy1, int    surf_copy2)
 {
   list<PndDrcOptDev*>::const_iterator kDev;
   list<string>::const_iterator        kSys_ori;
@@ -441,6 +448,10 @@ void PndDrcOptDevSys::CoupleDevice1(string dev1,       string dev2,
 
 
 
+  if (fVerbosity>=5) cout<<"--- PndDrcOptDevSys::coupleDevice1 search devices: "<<endl;
+  
+
+
   for(kDev=fListDev.begin(),
 	kSys_ori=fListSysOri.begin(),
 	kSys_ori_copy=fListSysOriCopy.begin(); 
@@ -450,26 +461,33 @@ void PndDrcOptDevSys::CoupleDevice1(string dev1,       string dev2,
 	++kSys_ori_copy) 
     {
 
-      //cout<<" PndDrcOptDevSys::coupleDevice1: check "<<endl;
-      //cout<<" dev1 "<<(*kDev)->name()<<" "<<(*kDev)->copyNumber()<<" to "<<dev1<<" "<<dev_copy1<<endl;
-      //cout<<" sys1 "<<(*kSys_ori)<<" "<<(*kSys_ori_copy)<<" to "<<sys1<<" "<<sys_copy1<<endl;
+      if (fVerbosity>=5)
+	{
+	  cout<<" PndDrcOptDevSys::coupleDevice1: find device "<<endl;
+	  cout<<" dev1/copy "<<(*kDev)->Name()<<" "<<(*kDev)->CopyNumber()<<" to "<<dev1<<" "<<dev_copy1<<endl;
+	  cout<<" sys1/copy "<<(*kSys_ori)<<" "<<(*kSys_ori_copy)<<" to "<<sys1<<" "<<sys_copy1<<endl;
+	  cout<<" dev2/copy "<<(*kDev)->Name()<<" "<<(*kDev)->CopyNumber()<<" to "<<dev2<<" "<<dev_copy2<<endl;
+	  cout<<" sys2/copy "<<(*kSys_ori)<<" "<<(*kSys_ori_copy)<<" to "<<sys2<<" "<<sys_copy2<<endl;
+	}
       
+
       if ((*kDev)->Name() == dev1 && (*kDev)->CopyNumber() == dev_copy1 &&
 	  (*kSys_ori) == sys1 && (*kSys_ori_copy) == sys_copy1) 
 	{
 	  d1=(*kDev);
+	  if (fVerbosity>=5) cout<<" found device 1"<<endl;
+	  
 	}
-      
-      //cout<<" PndDrcOptDevSys::coupleDevice1: check "<<endl;
-      //cout<<" dev2 "<<(*kDev)->name()<<" "<<(*kDev)->copyNumber()<<" to "<<dev2<<" "<<dev_copy2<<endl;
-      //cout<<" sys2 "<<(*kSys_ori)<<" "<<(*kSys_ori_copy)<<" to "<<sys2<<" "<<sys_copy2<<endl;
-
       if ((*kDev)->Name() == dev2 && (*kDev)->CopyNumber() == dev_copy2 &&
 	  (*kSys_ori) == sys2 && (*kSys_ori_copy) == sys_copy2) 
 	{
 	  d2=(*kDev);
+	  if (fVerbosity>=5) cout<<" found device 2"<<endl;
 	}
     }
+
+  if (fVerbosity>=5) cout<<"--- PndDrcOptDevSys::coupleDevice1 end search devices: "<<endl;
+  
 
   //cout<<" pointers = "<<(long int)(d1)<<" "<<(long int)(d2)<<endl;
 
@@ -478,14 +496,37 @@ void PndDrcOptDevSys::CoupleDevice1(string dev1,       string dev2,
       list<PndDrcSurfAbs*>::const_iterator kSurf;
       for(kSurf=d1->SurfaceList().begin(); kSurf != d1->SurfaceList().end(); ++kSurf) 
 	{	  
-	  //cout<<" test s1="<<(*kSurf)->name()<<endl;
+	  if (fVerbosity>=5)
+	    {
+	      cout<<" PndDrcOptDevSys::coupleDevice1: find surface "<<endl;
+	      cout<<" surf1/copy="<<(*kSurf)->Name()<<" "<<(*kSurf)->CopyNumber()<<" to "
+		  <<surf1<<" "<<surf_copy1<<endl;
+	    }
 	  
-	  if ((*kSurf)->Name()== surf1 && (*kSurf)->CopyNumber() == surf_copy1) s1=(*kSurf); 
+	  
+	  if ((*kSurf)->Name()== surf1 && (*kSurf)->CopyNumber() == surf_copy1) 
+	    {
+	      s1=(*kSurf);
+	      if (fVerbosity>=5) cout<<" found surface 1"<<endl;
+	    }
+	  
 	}
       for(kSurf=d2->SurfaceList().begin(); kSurf != d2->SurfaceList().end(); ++kSurf) 
 	{
-	  //cout<<" test s2="<<(*kSurf)->name()<<endl;
-	  if ((*kSurf)->Name()== surf2 && (*kSurf)->CopyNumber() == surf_copy2) s2=(*kSurf); 
+	  if (fVerbosity>=5)
+	    {
+	      cout<<" PndDrcOptDevSys::coupleDevice1: find surface "<<endl;
+	      cout<<" surf2/copy="<<(*kSurf)->Name()<<" "<<(*kSurf)->CopyNumber()<<" to "
+		  <<surf2<<" "<<surf_copy2<<endl;
+	    }
+
+
+
+	  if ((*kSurf)->Name()== surf2 && (*kSurf)->CopyNumber() == surf_copy2)
+	    {
+	      s2=(*kSurf); 
+	      if (fVerbosity>=5) cout<<" found surface 2"<<endl;
+	    }
 	}
       if (s1 && s2)
 	{

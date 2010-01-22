@@ -30,7 +30,7 @@ CFLAGS = -O2 -DNDEBUG -Wall
 all:			test_simple_bar test_simple_bar2 test_disk test_sheet test_cylinder \
 			test_focus test_focus2 test_absorption test_test test_titti \
 			test_top test_air_lens test_hook test_barrel1 test_barrel1a test_barrel2  \
-			test_barrel3 test_lens beamtest0809_sim beamtest0909_sim mppc
+			test_barrel3 test_lens beamtest0809_sim beamtest0909_sim mppc test_system
 
 
 test_simple_bar:	$(OBJECTS) test_simple_bar.o
@@ -99,6 +99,13 @@ test_test:		$(OBJECTS) test_test.o
 test_test.o:		test_test.cc
 			g++ $(CFLAGS) $(INCLFLAGS) -o test_test.o \
 			-c test_test.cc
+
+test_system:		$(OBJECTS) test_system.o
+			g++ -o test_system test_system.o $(OBJECTS) $(LDLIBS)
+
+test_system.o:		test_system.cc
+			g++ $(CFLAGS) $(INCLFLAGS) -o test_system.o \
+			-c test_system.cc
 
 test_titti:		$(OBJECTS) test_titti.o
 			g++ -o test_titti test_titti.o $(OBJECTS) $(LDLIBS)

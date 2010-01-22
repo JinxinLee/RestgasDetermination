@@ -111,12 +111,14 @@ void PndDrcOptDev::SetCopyNumber(int i)
 {
   fCopyNumber = i;
 
-  list<PndDrcSurfAbs*>::const_iterator kSurf;
 
-  for(kSurf=fListSurf.begin(); kSurf != fListSurf.end(); ++kSurf) 
-    {
-      (*kSurf)->SetCopyNumber(i);
-   }
+  // found following lines to be wron implementing the system couplings... 22.1.2010CS
+  //list<PndDrcSurfAbs*>::const_iterator kSurf;
+
+  //for(kSurf=fListSurf.begin(); kSurf != fListSurf.end(); ++kSurf) 
+  //{
+  //  (*kSurf)->SetCopyNumber(i);
+  //}
 
 
 }

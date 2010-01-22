@@ -1,0 +1,21 @@
+Example files:
+
+test_absorption.cc    check absorption routine in a bar and more directly
+test_air_lens.cc
+test_barrel1a.cc
+test_barrel1.cc
+test_barrel2.cc
+test_barrel3.cc
+test_cylinder.cc
+test_disk.cc
+test_focus2.cc
+test_focus.cc
+test_hook.cc
+test_lens.cc
+test_sheet.cc
+test_simple_bar2.cc
+test_simple_bar.cc
+test_system.cc		adding of several systems to one optical system.
+test_test.cc
+test_titti.cc
+test_top.cc

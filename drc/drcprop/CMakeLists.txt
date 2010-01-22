@@ -21,6 +21,7 @@ ${ROOT_LIBRARY_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 set(DRCPROP_SRCS
+PndDrcOptBurle.cxx
 PndDrcOptDev.cxx 
 PndDrcOptDevManager.cxx 
 PndDrcOptDevSys.cxx 
