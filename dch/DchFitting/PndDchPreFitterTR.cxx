@@ -248,18 +248,26 @@ void PndDchPreFitterTR::Exec(Option_t* opt) {
     Int_t chargeSign = GetChargeSign();
 
     const TMatrixFSym* covMatrix = new TMatrixFSym(15);
-    FairTrackParam parset(startPosition.X(),startPosition.Y(),startPosition.Z(),
-			 startMomentum.X()/ startMomentum.Z(),
-			 startMomentum.Y()/ startMomentum.Z(),
-			 chargeSign/ startMomentum.Mag(),
-			 *covMatrix);
+
+    if (startMomentum.Mag()) /* JGM, January 2010 */
+      {
+	FairTrackParam parset(startPosition.X(),startPosition.Y(),startPosition.Z(),
+			      startMomentum.X()/ startMomentum.Z(),
+			      startMomentum.Y()/ startMomentum.Z(),
+			      chargeSign/ startMomentum.Mag(),
+			      *covMatrix);
 //     FairTrackParam parset;
 //     startMomentum.Print();
 //     parset.SetPosition(startPosition);
 //     parset.SetTx(startMomentum.X()/ startMomentum.Z());
 //     parset.SetTy(startMomentum.Y()/ startMomentum.Z());
 //     parset.SetQp(chargeSign/ startMomentum.Mag());
-    track->SetParamFirst(parset);
+	track->SetParamFirst(parset);
+      }
+    else
+      {
+	std::cout << "-W- The magnitude of the start momentum is zero!!!" << std::endl;
+      }
   } //end of loop over tracks
 
   cout<<"&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"<<endl;
