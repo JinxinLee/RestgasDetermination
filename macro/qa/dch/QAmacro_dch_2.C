@@ -86,7 +86,7 @@
   // this will load Geant3 and execute setup macros to initialize geometry:
   
   
-  Geane->SetField(fRun->GetField());
+  //Geane->SetField(fRun->GetField()); /* Obsolete, JGM, January 2010 */
   fRun->Run(0,nEvents);
 
   Double_t nofTracks = 3.*100.;
