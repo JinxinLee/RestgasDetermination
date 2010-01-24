@@ -27,6 +27,9 @@ DskData/PndDskCerenkov.cxx
 DskData/PndDskParticle.cxx
 DskData/PndDskTrackPoint.cxx
 
+DrpcData/PndDrpcPoint.cxx
+DrpcData/PndDrpcPointLite.cxx
+
 DrcData/PndDrcPDPoint.cxx 
 DrcData/PndDrcBarPoint.cxx
 DrcData/PndDrcHit.cxx

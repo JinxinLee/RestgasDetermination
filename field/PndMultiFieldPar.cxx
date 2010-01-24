@@ -68,14 +68,14 @@ void PndMultiFieldPar:: SetParameters(FairField* field)
       } 
       if(Type==2){
          PndSolenoidMap *fs= (PndSolenoidMap *)fField;
-	 if (PndSolenoidMap::fNumberOfRegions==1){	 	 	 	 
+	     if (PndSolenoidMap::fNumberOfRegions==1){	 	 	 	 
             PndSolenoidPar* cs = (PndSolenoidPar*) rtdb->getContainer("PndSolenoidPar");
             cs->SetParameters(fs);
 	        cs->setInputVersion(fRun->GetRunId(),1);
             fParArray->AddLast(cs);
-	 }else{
+	     }else{
             TString contN1="PndSolenoid";
-	    TString contN3="Par";
+	        TString contN3="Par";
             char NO[1];
             sprintf(NO,"%d",fs->GetRegionNo());
             TString contN2=contN1+NO;
@@ -85,10 +85,10 @@ void PndMultiFieldPar:: SetParameters(FairField* field)
             cs->SetParameters(fs);
 	        cs->setInputVersion(fRun->GetRunId(),1);
             fParArray->AddLast(cs); 
+	    }
 	 }
-      }
-      if(Type==3){
-	 PndDipoleMap *fd= (PndDipoleMap *)fField;
+	 if(Type==3){
+	    PndDipoleMap *fd= (PndDipoleMap *)fField;
         if (PndDipoleMap::fNumberOfRegions==1){
             PndDipolePar* cs = (PndDipolePar*) rtdb->getContainer("PndDipolePar");
             cs->SetParameters(fd);
@@ -107,12 +107,12 @@ void PndMultiFieldPar:: SetParameters(FairField* field)
             fParArray->AddLast(cs);
          }
       }
-      if(Type==4){
-	  PndTransMap *ft= (PndTransMap *)fField;
-      PndTransPar* ct = (PndTransPar*) rtdb->getContainer("PndTransPar");
-      ct->SetParameters(ft);
-	  ct->setInputVersion(fRun->GetRunId(),1);
-	  fParArray->AddLast(ct);
+	  if(Type==4){
+		 PndTransMap *ft= (PndTransMap *)fField;
+         PndTransPar* ct = (PndTransPar*) rtdb->getContainer("PndTransPar");
+         ct->SetParameters(ft);
+	     ct->setInputVersion(fRun->GetRunId(),1);
+	     fParArray->AddLast(ct);
       }
    }
    delete  Iter;
