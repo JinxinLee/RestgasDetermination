@@ -4,6 +4,7 @@
 //
 // created 2007
 //-----------------------------------------------------
+#include "PndDrcEffiAbs.h"
 #include "PndDrcSurfCyl.h"
 
 #include "PndDrcPhoton.h"
@@ -199,7 +200,19 @@ bool PndDrcSurfCyl::SurfaceHit(PndDrcPhoton& ph,
 		{
 			pos_new = a + mu*u;
 			path_length = mu;
-			if (fPixel) ph.SetFate(Drc::kPhotMeasured);
+	  if (fEffiCathode
+	      ->EffiFlag(ph.Wavelength(),
+			 ph.Direction().Dot(Normal(pos_new))))
+	    { 
+	      ph.SetFate(Drc::kPhotMeasured);
+	      if (fPixelCorr) ph.SetPosition(fPixelPoint);
+	    }
+	  else
+	    { 
+	      ph.SetFate(Drc::kPhotAbsorbed);
+	    }
+
+			//if (fPixel) ph.SetFate(Drc::kPhotMeasured);
 			return true;
 		}
 
@@ -305,5 +318,6 @@ void PndDrcSurfCyl::AddTransform(const Transform3D& trans)
 
 	fP1 = trans * fP1;
 	fP2 = trans * fP2;
+	fPixelPoint = trans*fPixelPoint;
 
 }

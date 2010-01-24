@@ -1,4 +1,5 @@
-/*! 
+/*!  \class PndDrcSurfAbs
+
   \brief Class for surface representation. 
 
 
@@ -9,6 +10,10 @@
   \sa SetInternal() to prevent the coupling to a mother volume surface, when the device 
   containing this surface is embedded as daughter into the mother device. This refers in 
   particular to mirrors and pad planes.
+
+  A surface can be a pixel. Then, a photon which hits the surfaces gets the state 
+  kPhotMeasured. If a flag is set the photon position coordinate gets changed to a 
+  certain value (Typically the pixel COG). \sa SetPixel()
  
 */
 
@@ -36,6 +41,7 @@ class PndDrcOptDev;
 class PndDrcOptReflAbs;
 class PndDrcPhoton;
 //class Transform3D;
+class PndDrcEffiAbs;
 
 class PndDrcSurfAbs
 {
@@ -166,12 +172,43 @@ class PndDrcSurfAbs
   void ClearReflectivity();
 
 
+  /*! \brief Cathode efficiency.
+    \return Pointer to efficiency.
+  */
+  virtual PndDrcEffiAbs* Effi() const;
+
   /*! \brief Set the PhotoFate to PhotMeasured 
 
+
   after successfully running the surfaceHit function.
-  \param flag The flag.
+  This depends on the cathode efficiency
+  \param flag     The flag.
+  \param pos_corr The flag if photon position is corrected when measured.
+  \param pos      The position the photon is assigned to. 
+  \param effi     The pointer to the cathode efficiency.
   */
-  void SetPixel(bool flag=true){fPixel=flag;};
+  void SetPixel(bool           flag=true, 
+		bool           pos_corr=false,
+		XYZPoint       pos=XYZPoint(0,0,0),
+		PndDrcEffiAbs* effi=0);
+
+  /* \brief Pixel state of surface
+
+  \return true if surface is measuring photons (is a pixel).
+  */
+  const bool Pixel(){return fPixel;};
+
+  /* \brief Photon coordinate correction when pixel is hit
+
+  \return true if surface has a assigned pixel coordinate when photon is measured.
+  */
+  const bool PixelCorr(){return fPixelCorr;};
+
+  /* \brief Photon position coordinate when pixel is hit
+
+  \return Point
+  */
+  const XYZPoint PixelPoint(){return fPixelPoint;};
 
   /*! Reflectivity
     \return Reflectivity.
@@ -283,6 +320,10 @@ class PndDrcSurfAbs
   bool                 fPixel;              //!< Flag if surface measures photon
   bool                 fInternal;           //!< Flag for internal surfaces.
   bool                 fFresnel;            //!< Flag for Fresnel reflections. 
+  PndDrcEffiAbs*       fEffiCathode;        //!< Pointer to cathode efficiency.         
+  XYZPoint             fPixelPoint;         //!< Coord. of pixel assigned to meas. photon.
+  bool                 fPixelCorr;          //!< Flag if meas.photon position is corrected.
+
 
 
  private:

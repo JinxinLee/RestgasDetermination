@@ -34,7 +34,8 @@ class PndDrcOptVol : public PndDrcOptDev
   */
   PndDrcOptVol& operator=(const PndDrcOptVol& d);
 
-  /*! \brief Position correction for measured photons.
+  // has moved into the surfaces->surfaceHit
+  /* \brief Position correction for measured photons.
 
   This function is for detectors derived from this class. Eg. In a multipixel
   detector the photon position will be corrected to be the middle of the pixel. 
@@ -43,7 +44,7 @@ class PndDrcOptVol : public PndDrcOptDev
 
   \param ph The photon to be corrected.
   */ 
-  void PositionCorrection(PndDrcPhoton& ph);
+  //void PositionCorrection(PndDrcPhoton& ph);
   
 
 

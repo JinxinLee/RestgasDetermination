@@ -21,6 +21,9 @@ ${ROOT_LIBRARY_DIR}
 link_directories( ${LINK_DIRECTORIES})
 
 set(DRCPROP_SRCS
+PndDrcEffiAbs.cxx
+PndDrcEffiPerfect.cxx
+PndDrcEffiBialkali.cxx
 PndDrcOptBurle.cxx
 PndDrcOptDev.cxx 
 PndDrcOptDevManager.cxx 

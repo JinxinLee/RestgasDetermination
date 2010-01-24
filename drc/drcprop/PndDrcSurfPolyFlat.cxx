@@ -4,6 +4,7 @@
 //
 // created 2007
 //-----------------------------------------------------
+#include "PndDrcEffiAbs.h"
 #include "PndDrcSurfPolyFlat.h"
 
 #include "PndDrcPhoton.h"
@@ -210,26 +211,26 @@ bool PndDrcSurfPolyFlat::SurfaceHit(PndDrcPhoton& ph,
                                     XYZPoint&        pos_new,
                                     double&          path_length) const
 {
-	if (Verbosity()>=4)
-	{
-		cout<<"      PndDrcSurfPolyFlat::surfaceHit: name="<<Name()<<endl;
-	}
+  if (Verbosity()>=4)
+    {
+      cout<<"      PndDrcSurfPolyFlat::surfaceHit: name="<<Name()<<endl;
+    }
 
-	static const double kEps = 1.0e-9;
+  static const double kEps = 1.0e-9;
 
-	unsigned int isize = fP.size();
-
-
-	if (isize < 3)
-	{
-		cerr<<" *** PndDrcSurfPolyFlat::surfaceHit: surface has only "<<fP.size()
-			<<" points. Aborting. Name="<<Name()<<endl;
-		exit(EXIT_FAILURE);
-	}
+  unsigned int isize = fP.size();
 
 
-	XYZPoint  point = ph.Position();
-	XYZVector dir   = ph.Direction().Unit();
+  if (isize < 3)
+    {
+      cerr<<" *** PndDrcSurfPolyFlat::surfaceHit: surface has only "<<fP.size()
+	  <<" points. Aborting. Name="<<Name()<<endl;
+      exit(EXIT_FAILURE);
+    }
+
+
+  XYZPoint  point = ph.Position();
+  XYZVector dir   = ph.Direction().Unit();
 
   // calculate hits with area
   // (point+lambda*dir - fP[0]) * fNormal = 0
@@ -240,46 +241,56 @@ bool PndDrcSurfPolyFlat::SurfaceHit(PndDrcPhoton& ph,
   //
   // dir*fNormal > 0 , see condition above
 
-	double h = dir.Dot(fNormal);
-	if (h==0)
-	{
-		if (Verbosity()>=4) cout<<"      PndDrcSurfPolyFlat::surfaceHit: dir perp norm\n";
-		return false;
-	}
-	double   lambda = (fP[0]-point).Dot(fNormal) / dir.Dot(fNormal);
-	pos_new = point + lambda*dir;
+  double h = dir.Dot(fNormal);
+  if (h==0)
+    {
+      if (Verbosity()>=4) cout<<"      PndDrcSurfPolyFlat::surfaceHit: dir perp norm\n";
+      return false;
+    }
+  double   lambda = (fP[0]-point).Dot(fNormal) / dir.Dot(fNormal);
+  pos_new = point + lambda*dir;
 
-	if (Verbosity()>=4)
-	{
-		cout<<"      PndDrcSurfPolyFlat::surfaceHit:"<<endl;
-		for (unsigned int i=0; i<isize; i++) cout<<"         fP["<<i<<"] = "<<fP[i]<<endl;
-		cout<<"         point = "<<ph.Position()<<endl;
-		cout<<"         dir   = "<<ph.Direction()<<endl;
-		cout<<"         normal="<<fNormal<<endl;
-		cout<<"         (p0-p).norm = "<<(fP[0]-point).Dot(fNormal)<<endl;
-		cout<<"         dir.norm    = "<<dir.Dot(fNormal)<<endl;
-		cout<<"         lambda="<<lambda<<endl;
-		cout<<"         pos_new="<<pos_new<<endl;
-	}
-	if (lambda<-kEps) // flying in wrong direction.
-	{
-		if (Verbosity()>=4) cout<<"      PndDrcSurfPolyFlat::surfaceHit: wrong dir "
-			<<" lambda par ="<<lambda<<endl;
-		return false;
-	}
+  if (Verbosity()>=4)
+    {
+      cout<<"      PndDrcSurfPolyFlat::surfaceHit:"<<endl;
+      for (unsigned int i=0; i<isize; i++) cout<<"         fP["<<i<<"] = "<<fP[i]<<endl;
+      cout<<"         point = "<<ph.Position()<<endl;
+      cout<<"         dir   = "<<ph.Direction()<<endl;
+      cout<<"         normal="<<fNormal<<endl;
+      cout<<"         (p0-p).norm = "<<(fP[0]-point).Dot(fNormal)<<endl;
+      cout<<"         dir.norm    = "<<dir.Dot(fNormal)<<endl;
+      cout<<"         lambda="<<lambda<<endl;
+      cout<<"         pos_new="<<pos_new<<endl;
+    }
+  if (lambda<-kEps) // flying in wrong direction.
+    {
+      if (Verbosity()>=4) cout<<"      PndDrcSurfPolyFlat::surfaceHit: wrong dir "
+			      <<" lambda par ="<<lambda<<endl;
+      return false;
+    }
 
-	path_length = fabs(lambda);
-
-	if (WithinSurface(pos_new))
-	{
-		if (fPixel)
-		{
-			ph.SetFate(Drc::kPhotMeasured);
-		}
-		return true;
+  path_length = fabs(lambda);
+	
+  if (WithinSurface(pos_new))
+    {
+      if (fPixel)
+	{ 
+	  if (fEffiCathode
+	      ->EffiFlag(ph.Wavelength(),
+			 ph.Direction().Dot(Normal(pos_new))))
+	    { 
+	      ph.SetFate(Drc::kPhotMeasured);
+	      if (fPixelCorr) ph.SetPosition(fPixelPoint);
+	    }
+	  else
+	    { 
+	      ph.SetFate(Drc::kPhotAbsorbed);
+	    }
 	}
-
-	return false;
+      return true;
+    }
+	
+  return false;
 }
 //----------------------------------------------------------------------
 bool PndDrcSurfPolyFlat::WithinSurface(XYZPoint& point) const
@@ -300,31 +311,31 @@ bool PndDrcSurfPolyFlat::WithinSurface(XYZPoint& point) const
   // if the line ab intersects the borders an equal number the point is inside
   // for odd numbers it is outside.
 
-	unsigned int isize = fP.size();
+  unsigned int isize = fP.size();
 
   // find a point outside.
-	vector<XYZVector> diff(isize);
+  vector<XYZVector> diff(isize);
 
-	diff[isize-1] = (fP[0] - fP[isize-1]);
+  diff[isize-1] = (fP[0] - fP[isize-1]);
 
 
-	XYZPoint p_out(diff[isize-1]);
-	for (unsigned int i=0; i<isize-1; i++)
-	{
-		diff[i] = fP[i+1] - fP[i];
-		if (diff[i].Dot(diff[isize-1])<0) diff[i] *= -1;
-		p_out += diff[i];
-	}
-	p_out += XYZVector(fP[0]); // = p0 + differences
+  XYZPoint p_out(diff[isize-1]);
+  for (unsigned int i=0; i<isize-1; i++)
+    {
+      diff[i] = fP[i+1] - fP[i];
+      if (diff[i].Dot(diff[isize-1])<0) diff[i] *= -1;
+      p_out += diff[i];
+    }
+  p_out += XYZVector(fP[0]); // = p0 + differences
 
   //cout<<" p_out="<<p_out.X()<<" "<<p_out.Y()<<" "<<p_out.Z()<<endl;//###
 
   // determine number of intersections.
-	int intersections = 0;
-	if (LineCross(p_out,point,fP[isize-1],fP[0])) intersections++;
+  int intersections = 0;
+  if (LineCross(p_out,point,fP[isize-1],fP[0])) intersections++;
   //cout<<" 1st "<<intersections<<endl;
-	for (unsigned int i=0; i<isize-1; i++)
-	{
+  for (unsigned int i=0; i<isize-1; i++)
+    {
 		if (LineCross(p_out,point,fP[i],fP[i+1])) intersections++;
       /*
 	     cout<<" nst "<<i<<" "<<intersections<<" "
@@ -409,14 +420,14 @@ void PndDrcSurfPolyFlat::Print() const
 //----------------------------------------------------------------------
 void PndDrcSurfPolyFlat::AddTransform(const Transform3D& trans)
 {
-	if (Verbosity()>=3) cout<<"    PndDrcSurfPolyFlat::addTransform() name="<<fName<<endl;
+  if (Verbosity()>=3) cout<<"    PndDrcSurfPolyFlat::addTransform() name="<<fName<<endl;
   //fTrans    *= trans;
   //fTransInv  = fTrans.Inverse();
-
-	for (unsigned int i=0; i<fP.size(); i++)
-	{
-		fP[i] = trans*fP[i];
-	}
-	fNormal = trans * fNormal;
-
+  
+  for (unsigned int i=0; i<fP.size(); i++)
+    {
+      fP[i] = trans*fP[i];
+    }
+  fNormal = trans * fNormal;
+  fPixelPoint = trans*fPixelPoint;
 }

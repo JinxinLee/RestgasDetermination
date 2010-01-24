@@ -56,6 +56,7 @@ using ROOT::Math::RotationZ;
 #include "Math/Rotation3D.h"
 using ROOT::Math::Rotation3D;
 
+#include "PndDrcEffiPerfect.h"
 #include "PndDrcPhoton.h"
 #include "PndDrcSurfPolyFlat.h"
 #include "PndDrcOptReflSilver.h"
@@ -73,7 +74,7 @@ int main(int argc, char *argv[])
 
 
 
-  /*  ***        STILL WORKING ON IT, this is like a test bench.
+  /*  
 
     Combine several optical systems to one system
 
@@ -86,7 +87,7 @@ int main(int argc, char *argv[])
   bar.SetOptMaterial(PndDrcOptMatLithotecQ0());
   bar.SetName("bar");
 
-  bar.Surface("side6")->SetReflectivity(PndDrcOptReflSilver());
+  bar.Surface("side6")->SetReflectivity(PndDrcOptReflPerfect()); //**********
   //bar.Surface("side1")->SetPixel();
 
 
@@ -107,13 +108,10 @@ int main(int argc, char *argv[])
 
   PndDrcOptDevSys opt_sys_bar;
   opt_sys_bar.AddDevice(bar); // box side6 is to couple to the bars
-  
 
   PndDrcOptDevSys opt_system;
   opt_system.AddDeviceSystem(opt_sys_box);
   
-
-  //opt_system.SetVerbosity(5);
   
   for (int ibar=0; ibar<90; ibar++)
     {
@@ -129,6 +127,8 @@ int main(int argc, char *argv[])
   int icnt1=0;
   
   
+  PndDrcEffiPerfect effi;
+
   for (int ix=0; ix<16; ix++)
     {
       for (int iy=0; iy<16; iy++)
@@ -136,41 +136,29 @@ int main(int argc, char *argv[])
 	  //int ix=0,iy=0;
 	  
 	  PndDrcOptBurle burle;
-	  burle.AddTransform(Transform3D(XYZVector(-600+wp/2 + ix*(wp+ws),-600+wp/2 + iy*(wp+ws),-1400)));
+	  burle.SetEffi(effi);  // default is bialkali
+	  //burle.SetPosCorr(false); // default is turned on.
+	  burle.AddTransform(
+			     Transform3D(XYZVector(-600+wp/2 + ix*(wp+ws),
+						   -600+wp/2 + iy*(wp+ws),-1400)));
 	  burle.SetNameCopyNumber("burle",icnt1);
 	  opt_system.AddDeviceSystem(burle);
 	  //opt_system.Print();
-	  opt_system.CoupleDeviceSystem("burle","sysbox","housing","box","front","side1",icnt1);
+	  opt_system.CoupleDeviceSystem("burle","sysbox","housing","box",
+					"front","side1",icnt1);
 	  icnt1++;
 	  
 	}
     }
   
-  
-
-
-
+ 
 
   //opt_system.Print();
   
-
-
-
-  //for (int i=0; i<90; i++)
-  //{     
-  //  bar.AddTransform(Transform3D(RotationZ(pi/180.0*4)));
-  //  bar.SetCopyNumber(i);
-  //  opt_system.AddDevice(bar);
-  //  cout<<" *** added bar "<<i<<endl;
-  //  opt_system.CoupleDevice("bar","box","side1","side6",i,0);
-  //  }
-  
-
-
-
   // The manager must be created as pointer. It is created as singleton, that is only 
   // one manager can exist per application.
   PndDrcOptDevManager* manager = new PndDrcOptDevManager();
+  //manager->SetVerbosity(5);
   manager->AddDeviceSystem(opt_system);
 
   fstream geo;
@@ -194,7 +182,7 @@ int main(int argc, char *argv[])
   // .x Geo.C 
   // .x Screen.C
   // 
-  manager->Print(geo);
+  //manager->Print(geo);
   //
   // the intention is to play around with routines.
 
@@ -204,8 +192,8 @@ int main(int argc, char *argv[])
 
   XYZPoint  pos(0,-10,0);
   XYZVector dir(0,1,1); 
-  double   beta = 0.69;
-  bool photons_exist = manager->Cerenkov(pos,dir,beta); // generate photons
+  double   beta = 0.85;
+  bool photons_exist = manager->Cerenkov(pos,dir,beta); // gen.photons
   if (photons_exist) manager->Propagate();              // propagate photons
   list<PndDrcPhoton> list_photon = manager->PhotonList();  // get list
   
@@ -214,6 +202,29 @@ int main(int argc, char *argv[])
   geo.close();
 
   // analyse list
+  fstream scr;
+  scr.open("Screen.C",std::ios::out);
+  scr << "{" << endl;
+  scr << "gStyle->SetCanvasColor(0);"       << endl;      
+  scr << "gStyle->SetCanvasBorderMode(0);"  << endl;      
+  scr << "gStyle->SetFrameBorderMode(0);"   << endl;       
+  scr << "gStyle->SetTitleFillColor(0);"    << endl;        
+  scr << "gStyle->SetTitleFontSize(0.05);"  << endl;
+  scr << "TCanvas *c1 = new TCanvas( \"c1\", \"\" ,200, 10, 700, 500 );" << endl;
+  TString str_beta;
+  str_beta+=beta;
+  str_beta.Remove(TString::kLeading,' ');
+  scr << "TString title;"<<endl;
+  scr << "title=\"spatial position [mm] (beta=" << str_beta << ")\";"<< endl;
+  scr << "    TH1F *hgr = new TH1F(\"hgr1\",title,600,-600,600);"<<endl;
+  scr << "hgr->SetStats( 0 );" << endl;  
+  scr << "    hgr->SetMarkerStyle(7);"<<endl;
+  scr << "    hgr->SetMarkerSize(0.5);"<<endl;
+  scr<<"    hgr->SetMinimum(-600);"<<endl;
+  scr<<"    hgr->SetMaximum(+600);"<<endl;
+  scr << "    hgr->Draw(\"POL\");"<<endl;
+  int spectrum[100] = {100*0};
+  int absorpt1[30] = {30*0};
   int icnt_measured = 0;
   int icnt_flying   = 0;
   int icnt_lost     = 0;
@@ -223,15 +234,52 @@ int main(int argc, char *argv[])
     {
       if      ((*iph).Fate()==Drc::kPhotMeasured) icnt_measured++;
       else if ((*iph).Fate()==Drc::kPhotFlying)   icnt_flying++; // should never happen.
-      else if ((*iph).Fate()==Drc::kPhotAbsorbed) icnt_absorbed++;
+      else if ((*iph).Fate()==Drc::kPhotAbsorbed) 
+	{
+	  icnt_absorbed++;
+	  XYZPoint pos = (*iph).Position();
+	  double z     = pos.Z();
+	  absorpt1[(int)((z+1500)/100+0.5)]++; // -150cm ... 150cm steps of 10 cm
+	}
       else                                       icnt_lost++;
-    }
 
+      if ((*iph).Fate()==Drc::kPhotMeasured)
+	{
+	  XYZPoint pos = (*iph).Position();
+	  double x     = pos.X();
+	  double y     = pos.Y();
+
+	  scr<<"    TMarker* t = new TMarker("<<x<<","<<y<<",20);"<<endl;
+	  scr<<"    t->SetMarkerStyle(7);"<<endl;
+	  scr<<"    t->SetMarkerColor("<<(*iph).ColorNumber((*iph).Wavelength())<<");"<<endl;
+	  scr<<"    t->SetMarkerSize(0.7);"<<endl;
+	  scr<<"    t->Draw();"<<endl; 
+
+	  spectrum[(int)(((*iph).Wavelength()/10)+0.5)]++;
+	}
+    }
+  scr<<"}"<<endl;
+  scr.close();
+ 
   int icnt = icnt_measured+icnt_flying+icnt_lost+icnt_absorbed;
   cout<<" generated photons: "<<icnt<<endl;
   cout<<" measured  photons: "<<icnt_measured<<endl;
   cout<<" absorbed  photons: "<<icnt_absorbed<<endl;
   cout<<" lost      photons: "<<icnt_lost<<endl;
+
+  cout<<" measured photon wavelength:"<<endl;
+  for (int i=20; i<40; i++)
+    {
+      cout<<i*10<<"\t\t"<<spectrum[i]<<"      "<<(i+20)*10<<"\t\t"<<spectrum[i+20]<<endl;
+    } 
+
+  cout<<" absorption z [cm]:"<<endl;
+
+  for (int i=0; i<30; i++)
+    {
+      cout<<i*10-150<<"\t\t"<<absorpt1[i]<<endl;
+    } 
+
 
   delete manager;
 

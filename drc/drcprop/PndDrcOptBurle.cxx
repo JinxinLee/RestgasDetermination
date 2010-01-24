@@ -11,6 +11,7 @@
 #include "TRotation.h"
 #include "TFile.h"
 #include "TH1F.h"
+
 #include "Math/Vector3D.h"
 using ROOT::Math::XYZVector;
 
@@ -39,6 +40,8 @@ using ROOT::Math::Rotation3D;
 #include "PndDrcSurfAbs.h"
 #include "PndDrcOptMatAbs.h"
 #include "PndDrcOptMatLithotecQ0.h"
+
+#include "PndDrcEffiBialkali.h"
 
 //#include "PndDrcOptDev.h"
 //#include "PndDrcOptVol.h"
@@ -79,6 +82,8 @@ PndDrcOptBurle::PndDrcOptBurle()
   // add 64 pixels over 50x50 mm2
   double pw = 6.0;            // width mm
   double ps = (50.0-8*6.0)/7; // spacing
+
+  PndDrcEffiAbs* effi = new PndDrcEffiBialkali();
   
   for (int ix=0; ix<8; ix++)
     {
@@ -101,24 +106,64 @@ PndDrcOptBurle::PndDrcOptBurle()
 	  pixel.AddPoint(p3);
 	  pixel.AddPoint(p4);
 	  
-	  pixel.SetPixel();
+	  XYZPoint sum(p1);
+	  sum += XYZVector(p2);
+	  sum += XYZVector(p3);
+	  sum += XYZVector(p4);
+
+	  pixel.SetPixel(true,true,sum/4,effi);
 	  pixel.SetPrintColor(2);
+	  pixel.SetInternal();
 	  box.AddSurface(pixel);
 	  
 	  
 	}    
     }
-  
-
-
-  
-  
+ 
   box.AddTransform(Transform3D(XYZVector(0,0,-half_ext_z))); // bar + 1/2 box
 
-  AddDevice(box);
-  
+  AddDevice(box); 
 
+}
+//-------------------------------------------------------------------------------
+void PndDrcOptBurle::SetEffi(PndDrcEffiAbs& effi)
+{
+  // Loop over all devices and their surfaces and change their efficiency.
 
+  list<PndDrcOptDev*>::const_iterator kDev;
+  for(kDev=fListDev.begin(); kDev != fListDev.end(); kDev++)
+    {
+      list<PndDrcSurfAbs*> list_surf = (*kDev)->SurfaceList();
 
-  
+      list<PndDrcSurfAbs*>::const_iterator kSurf;
+      for(kSurf=list_surf.begin(); kSurf != list_surf.end(); ++kSurf) 
+	{
+	  if ((*kSurf)->Pixel())
+	    {
+	      (*kSurf)->SetPixel(true,true,(*kSurf)->PixelPoint(),&effi);
+	    }
+	}
+    }
+}
+//-------------------------------------------------------------------------------
+void PndDrcOptBurle::SetPosCorr(bool pos_corr)
+{
+  // Loop over all devices and their surfaces and change their efficiency.
+
+  list<PndDrcOptDev*>::const_iterator kDev;
+  for(kDev=fListDev.begin(); kDev != fListDev.end(); kDev++)
+    {
+      list<PndDrcSurfAbs*> list_surf = (*kDev)->SurfaceList();
+
+      list<PndDrcSurfAbs*>::const_iterator kSurf;
+      for(kSurf=list_surf.begin(); kSurf != list_surf.end(); ++kSurf) 
+	{
+	  if ((*kSurf)->Pixel())
+	    {
+	      PndDrcEffiAbs* dummy = (*kSurf)->Effi();
+	      XYZPoint point = (*kSurf)->PixelPoint();
+	      (*kSurf)->SetPixel(true,pos_corr,point,dummy);
+	    }
+	}
+    }
 }

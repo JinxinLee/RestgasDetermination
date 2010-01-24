@@ -4,12 +4,12 @@
 // 
 // created 2007
 //-----------------------------------------------------
+#include "PndDrcEffiPerfect.h"
 #include "PndDrcSurfAbs.h"
 
-//#include "PndDrcPhoton.h"
 #include "PndDrcOptReflAbs.h"
-//#include "PndDrcOptMatAbs.h"
 #include "PndDrcOptDev.h"
+
 //
 //#include "TObject.h"
 //#include "TVector3.h"
@@ -63,6 +63,9 @@ PndDrcSurfAbs::PndDrcSurfAbs()
   fPixel          = false;
   fInternal       = false;
   fFresnel        = true;
+  fEffiCathode    = new PndDrcEffiPerfect();
+  fPixelPoint     = XYZPoint(0,0,0);
+  fPixelCorr      = false;
 }
 //----------------------------------------------------------------------
 PndDrcSurfAbs::~PndDrcSurfAbs()
@@ -87,6 +90,10 @@ void PndDrcSurfAbs::Copy(const PndDrcSurfAbs& s)
   fPixel       = s.fPixel;
   fInternal    = s.fInternal;
   fFresnel     = s.fFresnel;
+
+  if (s.Effi()) fEffiCathode = (s.Effi())->Clone();
+  fPixelPoint  = s.fPixelPoint;
+  fPixelCorr   = s.fPixelCorr;
 }
 //----------------------------------------------------------------------
 PndDrcSurfAbs::PndDrcSurfAbs(const PndDrcSurfAbs& s)
@@ -137,4 +144,28 @@ void PndDrcSurfAbs::ClearReflectivity()
     cout<<"    PndDrcSurfAbs::clearReflectivity() name="<<fName<<endl;
   if (fReflectivity) delete fReflectivity;              
   fReflectivity = 0;    
+}
+//----------------------------------------------------------------------
+void PndDrcSurfAbs::SetPixel(bool           flag, 
+			     bool           pos_corr,
+			     XYZPoint       pos,
+			     PndDrcEffiAbs* effi)
+{
+  fPixel      = flag;
+  fPixelCorr  = pos_corr;
+  fPixelPoint = pos;
+  if (effi)
+  {
+    delete fEffiCathode;
+    fEffiCathode = effi->Clone();
+  }
+}
+//----------------------------------------------------------------------
+PndDrcEffiAbs* PndDrcSurfAbs::Effi() const
+{
+  //static PndDrcEffiAbs* dummy = 0;
+  //  //cerr<<" *** PndDrcOptDev::optMaterial: This function must be overloaded when\n";
+  //cerr<<"                             using pixels with efficiency. Abort.\n";
+  //exit(EXIT_FAILURE);
+  return fEffiCathode;
 }

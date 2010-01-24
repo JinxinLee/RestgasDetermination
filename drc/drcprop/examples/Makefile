@@ -22,8 +22,8 @@ OBJECTS = $(patsubst ../%.cxx,../%.o,$(wildcard ../*.cxx))
 
 
 #debugger ddd: compile everything with CFLAGS option -g instead of -O2
-CFLAGS = -O2 -DNDEBUG -Wall
-#CFLAGS = -g -DNDEBUG -Wall
+#CFLAGS = -O2 -DNDEBUG -Wall
+CFLAGS = -g -DNDEBUG -Wall
 
 
 
@@ -220,7 +220,7 @@ mppc.o:			mppc.cc
 .PHONY :        	clean
 
 clean :
-			rm -f $(OBJECTS) *.o ../*.d.*
+			rm -f $(OBJECTS) *.o ../*.d.* ../*.o
 
 #print: 			$(SOURCES)
 #			echo $(CFLAGS)

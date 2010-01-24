@@ -4,6 +4,7 @@
 //
 // created 2007
 //-----------------------------------------------------
+#include "PndDrcEffiAbs.h"
 #include "PndDrcSurfQuadFlatDiff.h"
 
 #include "PndDrcPhoton.h"
@@ -224,7 +225,19 @@ bool PndDrcSurfQuadFlatDiff::SurfaceHit(PndDrcPhoton& ph,
 	{
 		if (hit_aux_surf)
 		{
-			if (fPixel) ph.SetFate(Drc::kPhotMeasured);
+	  if (fEffiCathode
+	      ->EffiFlag(ph.Wavelength(),
+			 ph.Direction().Dot(Normal(pos_new))))
+	    { 
+	      ph.SetFate(Drc::kPhotMeasured);
+	      if (fPixelCorr) ph.SetPosition(fPixelPoint);
+	    }
+	  else
+	    { 
+	      ph.SetFate(Drc::kPhotAbsorbed);
+	    }
+
+		  //if (fPixel) ph.SetFate(Drc::kPhotMeasured);
 
 			if (Verbosity()>=4) cout<<"      PndDrcSurfQuadFlatDiff::surfaceHit:"
 				<<" within rectangular partial surface, hit. "
@@ -347,7 +360,19 @@ bool PndDrcSurfQuadFlatDiff::SurfaceHit(PndDrcPhoton& ph,
   // in/exclusion logic
 	if (hit_aux_surf)
 	{
-		if (fPixel) ph.SetFate(Drc::kPhotMeasured); // don' know why this is only implemented for the flat-flat case
+	  if (fEffiCathode
+	      ->EffiFlag(ph.Wavelength(),
+			 ph.Direction().Dot(Normal(pos_new))))
+	    { 
+	      ph.SetFate(Drc::kPhotMeasured);
+	      if (fPixelCorr) ph.SetPosition(fPixelPoint);
+	    }
+	  else
+	    { 
+	      ph.SetFate(Drc::kPhotAbsorbed);
+	    }
+
+	  //if (fPixel) ph.SetFate(Drc::kPhotMeasured); // don' know why this is only implemented for the flat-flat case
 
       // exclude photons from concave parts
 		if ( !(fS1->IsFlat()) && in_between1) return false;
@@ -420,20 +445,21 @@ void PndDrcSurfQuadFlatDiff::Print() const
 //----------------------------------------------------------------------
 void PndDrcSurfQuadFlatDiff::AddTransform(const Transform3D& trans)
 {
-	if (!fS1 || !fS2)
-	{
-		cerr<<" PndDrcSurfQuadFlatDiff::shift: surface undefined"<<endl;
-		exit(EXIT_FAILURE);
-	}
-
-	if (Verbosity()>=3) cout<<" PndDrcSurfQuadFlatDiff::addTransform() name="<<fName<<endl;
-
-	fNormal = trans * fNormal;
-	fS1p1   = trans * fS1p1;
-	fS1p2   = trans * fS1p2;
-	fS2p1   = trans * fS2p1;
-	fS2p2   = trans * fS2p2;
-	fS1->AddTransform(trans);
-	fS2->AddTransform(trans);
-	fSurfAux.AddTransform(trans);
+  if (!fS1 || !fS2)
+    {
+      cerr<<" PndDrcSurfQuadFlatDiff::shift: surface undefined"<<endl;
+      exit(EXIT_FAILURE);
+    }
+  
+  if (Verbosity()>=3) cout<<" PndDrcSurfQuadFlatDiff::addTransform() name="<<fName<<endl;
+  
+  fNormal = trans * fNormal;
+  fS1p1   = trans * fS1p1;
+  fS1p2   = trans * fS1p2;
+  fS2p1   = trans * fS2p1;
+  fS2p2   = trans * fS2p2;
+  fS1->AddTransform(trans);
+  fS2->AddTransform(trans);
+  fSurfAux.AddTransform(trans);
+  fPixelPoint = trans*fPixelPoint;
 }

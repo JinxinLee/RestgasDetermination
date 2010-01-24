@@ -133,9 +133,6 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 
     if (ph.Reflections() > ph.ReflectionLimit())
     {
-//       cout<<" PndDrcOptVol::propagate: killed (absorbed) photon after "
-//           <<ph.Reflections()
-//           <<" reflections"<<endl;
       ph.SetFate(Drc::kPhotAbsorbed);
       break; // leave while loop
     }
@@ -262,16 +259,9 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 
         if (refl == Drc::ReflAbsorbed)
 	  {
-	    //           if( surf_closest->Name() == "lens_side1" || surf_closest->Name() == "lens_side2" || surf_closest->Name() == "lens_side3"
-	    //               || surf_closest->Name() == "lens_side4" )
-	    //           if( surf_closest->Name() == "lens_sphere")
-	    //           {
-	    //             cout << "ja" << endl;
-	    //             bool blub = ph.Refract(norm, OptMaterial().RefIndex(ph.Wavelength()),OptMaterial().Extinction(ph.Wavelength()),1,0,true,0,true);
-	    //           }
 	    
 	    if (Verbosity()>=4)
-	      cout<<"     PndDrcOptVol::propagate: mirror absorbed"<<endl;
+	      cout<<"     PndDrcOptVol::propagate: absorbed"<<endl;
 	    ph.SetFate(Drc::kPhotAbsorbed);
 	    return;
 	  }
@@ -471,13 +461,13 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
   // if the photon got from a surface hit the attribute Drc::kPhotMeasured
   // it should pass this location.
 
-
-  if (ph.Fate() == Drc::kPhotMeasured)
-    PositionCorrection(ph);
+  // has moved into the surfaces->surfaceHit
+  //  if (ph.Fate() == Drc::kPhotMeasured)
+  //PositionCorrection(ph);
 }
 //----------------------------------------------------------------------
-void PndDrcOptVol::PositionCorrection(PndDrcPhoton& ph)
-{
+//void PndDrcOptVol::PositionCorrection(PndDrcPhoton& ph)
+//{
   // do nothing
   // might be implemented in detectors derived from this class.
-}
+//}

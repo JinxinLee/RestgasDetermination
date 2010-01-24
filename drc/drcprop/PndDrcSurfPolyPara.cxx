@@ -4,6 +4,7 @@
 //
 // created 2007
 //-----------------------------------------------------
+#include "PndDrcEffiAbs.h"
 #include "PndDrcSurfPolyPara.h"
 
 #include "PndDrcPhoton.h"
@@ -202,7 +203,19 @@ bool PndDrcSurfPolyPara::SurfaceHit(PndDrcPhoton& ph,
 				pos_new = pos + lambda*dir;
 				path_length = lambda;
 				pos_new = fTrans * pos_new;
-				if (fPixel) ph.SetFate(Drc::kPhotMeasured);
+	  if (fEffiCathode
+	      ->EffiFlag(ph.Wavelength(),
+			 ph.Direction().Dot(Normal(pos_new))))
+	    { 
+	      ph.SetFate(Drc::kPhotMeasured);
+	      if (fPixelCorr) ph.SetPosition(fPixelPoint);
+	    }
+	  else
+	    { 
+	      ph.SetFate(Drc::kPhotAbsorbed);
+	    }
+
+				//if (fPixel) ph.SetFate(Drc::kPhotMeasured);
 				return true;
 			}
 			else if (hit1)
@@ -210,7 +223,19 @@ bool PndDrcSurfPolyPara::SurfaceHit(PndDrcPhoton& ph,
 				pos_new = pos + lambda1*dir;
 				path_length = lambda1;
 				pos_new = fTrans * pos_new;
-				if (fPixel) ph.SetFate(Drc::kPhotMeasured);
+	  if (fEffiCathode
+	      ->EffiFlag(ph.Wavelength(),
+			 ph.Direction().Dot(Normal(pos_new))))
+	    { 
+	      ph.SetFate(Drc::kPhotMeasured);
+	      if (fPixelCorr) ph.SetPosition(fPixelPoint);
+	    }
+	  else
+	    { 
+	      ph.SetFate(Drc::kPhotAbsorbed);
+	    }
+
+				//if (fPixel) ph.SetFate(Drc::kPhotMeasured);
 				return true;
 			}
 			else if (hit2)
@@ -218,7 +243,19 @@ bool PndDrcSurfPolyPara::SurfaceHit(PndDrcPhoton& ph,
 				pos_new = pos + lambda2*dir;
 				path_length = lambda2;
 				pos_new = fTrans * pos_new;
-				if (fPixel) ph.SetFate(Drc::kPhotMeasured);
+	  if (fEffiCathode
+	      ->EffiFlag(ph.Wavelength(),
+			 ph.Direction().Dot(Normal(pos_new))))
+	    { 
+	      ph.SetFate(Drc::kPhotMeasured);
+	      if (fPixelCorr) ph.SetPosition(fPixelPoint);
+	    }
+	  else
+	    { 
+	      ph.SetFate(Drc::kPhotAbsorbed);
+	    }
+
+				//if (fPixel) ph.SetFate(Drc::kPhotMeasured);
 				return true;
 			}
 			else
@@ -251,7 +288,19 @@ bool PndDrcSurfPolyPara::SurfaceHit(PndDrcPhoton& ph,
 	if (WithinSurface(pos_check))
 	{
 		pos_new = fTrans * pos_new;
-		if (fPixel) ph.SetFate(Drc::kPhotMeasured);
+	  if (fEffiCathode
+	      ->EffiFlag(ph.Wavelength(),
+			 ph.Direction().Dot(Normal(pos_new))))
+	    { 
+	      ph.SetFate(Drc::kPhotMeasured);
+	      if (fPixelCorr) ph.SetPosition(fPixelPoint);
+	    }
+	  else
+	    { 
+	      ph.SetFate(Drc::kPhotAbsorbed);
+	    }
+
+		//if (fPixel) ph.SetFate(Drc::kPhotMeasured);
 		return true;
 	}
 	return false;
@@ -286,9 +335,11 @@ bool PndDrcSurfPolyPara::Check1() const
 //----------------------------------------------------------------------
 void PndDrcSurfPolyPara::AddTransform(const Transform3D& trans)
 {
-	if (Verbosity()>=3) cout<<"    PndDrcSurfPolyPara::addTransform() name="<<fName<<endl;
-	fTrans    = trans * fTrans;
-	fTransInv  = fTrans.Inverse();
+  if (Verbosity()>=3) cout<<"    PndDrcSurfPolyPara::addTransform() name="<<fName<<endl;
+  fTrans    = trans * fTrans;
+  fTransInv  = fTrans.Inverse();
+  fPixelPoint = trans*fPixelPoint;
+
 }
 //----------------------------------------------------------------------
 XYZPoint PndDrcSurfPolyPara::LimitingPoint(unsigned int i)

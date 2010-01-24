@@ -4,6 +4,7 @@
 //
 // created 2007
 //-----------------------------------------------------
+#include "PndDrcEffiAbs.h"
 #include "PndDrcSurfPolyAsphere.h"
 
 #include "PndDrcPhoton.h"
@@ -291,7 +292,19 @@ bool PndDrcSurfPolyAsphere::SurfaceHit(PndDrcPhoton& ph,
 						return false; // wrong lambda
 					}
 					pos_new = fTrans*pos_new;
-					if (fPixel) ph.SetFate(Drc::kPhotMeasured);
+	  if (fEffiCathode
+	      ->EffiFlag(ph.Wavelength(),
+			 ph.Direction().Dot(Normal(pos_new))))
+	    { 
+	      ph.SetFate(Drc::kPhotMeasured);
+	      if (fPixelCorr) ph.SetPosition(fPixelPoint);
+	    }
+	  else
+	    { 
+	      ph.SetFate(Drc::kPhotAbsorbed);
+	    }
+
+					//if (fPixel) ph.SetFate(Drc::kPhotMeasured);
 					if (fVerbosity>=4)
 						cout<<" PndDrcSurfPolyAsphere::surfaceHit hit lambda="
 						<<lambda<<endl;
@@ -349,7 +362,19 @@ bool PndDrcSurfPolyAsphere::SurfaceHit(PndDrcPhoton& ph,
 						}
 						path_length = lambda;
 						pos_new = fTrans*pos_new;
-						if (fPixel) ph.SetFate(Drc::kPhotMeasured);
+	  if (fEffiCathode
+	      ->EffiFlag(ph.Wavelength(),
+			 ph.Direction().Dot(Normal(pos_new))))
+	    { 
+	      ph.SetFate(Drc::kPhotMeasured);
+	      if (fPixelCorr) ph.SetPosition(fPixelPoint);
+	    }
+	  else
+	    { 
+	      ph.SetFate(Drc::kPhotAbsorbed);
+	    }
+
+						//if (fPixel) ph.SetFate(Drc::kPhotMeasured);
 						if (fVerbosity>=4)
 						{
 							cout<<" PndDrcSurfPolyAsphere::surfaceHit lambda_1,2="
@@ -371,7 +396,19 @@ bool PndDrcSurfPolyAsphere::SurfaceHit(PndDrcPhoton& ph,
 						}
 						path_length = lambda1;
 						pos_new = fTrans*pos_new;
-						if (fPixel) ph.SetFate(Drc::kPhotMeasured);
+	  if (fEffiCathode
+	      ->EffiFlag(ph.Wavelength(),
+			 ph.Direction().Dot(Normal(pos_new))))
+	    { 
+	      ph.SetFate(Drc::kPhotMeasured);
+	      if (fPixelCorr) ph.SetPosition(fPixelPoint);
+	    }
+	  else
+	    { 
+	      ph.SetFate(Drc::kPhotAbsorbed);
+	    }
+
+						//if (fPixel) ph.SetFate(Drc::kPhotMeasured);
 						if (fVerbosity>=4)
 							cout<<" PndDrcSurfPolyAsphere::surfaceHit hit1 lambda_1="
 							<<lambda1<<endl;
@@ -389,7 +426,19 @@ bool PndDrcSurfPolyAsphere::SurfaceHit(PndDrcPhoton& ph,
 						}
 						path_length = lambda2;
 						pos_new=fTrans*pos_new;
-						if (fPixel) ph.SetFate(Drc::kPhotMeasured);
+	  if (fEffiCathode
+	      ->EffiFlag(ph.Wavelength(),
+			 ph.Direction().Dot(Normal(pos_new))))
+	    { 
+	      ph.SetFate(Drc::kPhotMeasured);
+	      if (fPixelCorr) ph.SetPosition(fPixelPoint);
+	    }
+	  else
+	    { 
+	      ph.SetFate(Drc::kPhotAbsorbed);
+	    }
+
+						//if (fPixel) ph.SetFate(Drc::kPhotMeasured);
 						if (fVerbosity>=4)
 							cout<<" PndDrcSurfPolyAsphere::surfaceHit hit2 lambda_1="
 							<<lambda2<<endl;
@@ -481,7 +530,19 @@ bool PndDrcSurfPolyAsphere::SurfaceHit(PndDrcPhoton& ph,
 				}
 				path_length = lambda;
 				pos_new = fTrans*pos_new;
-				if (fPixel) ph.SetFate(Drc::kPhotMeasured);
+	  if (fEffiCathode
+	      ->EffiFlag(ph.Wavelength(),
+			 ph.Direction().Dot(Normal(pos_new))))
+	    { 
+	      ph.SetFate(Drc::kPhotMeasured);
+	      if (fPixelCorr) ph.SetPosition(fPixelPoint);
+	    }
+	  else
+	    { 
+	      ph.SetFate(Drc::kPhotAbsorbed);
+	    }
+
+				//if (fPixel) ph.SetFate(Drc::kPhotMeasured);
 				if (fVerbosity>=4) cout<<" PndDrcSurfPolyAsphere::surfaceHit lambda_1,2="
 					<<lambda1<<" "<<lambda2<<endl;
 				return true;
@@ -498,7 +559,19 @@ bool PndDrcSurfPolyAsphere::SurfaceHit(PndDrcPhoton& ph,
 				}
 				path_length = lambda1;
 				pos_new = fTrans*pos_new;
-				if (fPixel) ph.SetFate(Drc::kPhotMeasured);
+	  if (fEffiCathode
+	      ->EffiFlag(ph.Wavelength(),
+			 ph.Direction().Dot(Normal(pos_new))))
+	    { 
+	      ph.SetFate(Drc::kPhotMeasured);
+	      if (fPixelCorr) ph.SetPosition(fPixelPoint);
+	    }
+	  else
+	    { 
+	      ph.SetFate(Drc::kPhotAbsorbed);
+	    }
+
+				//if (fPixel) ph.SetFate(Drc::kPhotMeasured);
 				if (fVerbosity>=4) cout<<" PndDrcSurfPolyAsphere::surfaceHit lambda_1,2="
 					<<lambda1<<" "<<lambda2<<endl;
 				return true;
@@ -515,7 +588,19 @@ bool PndDrcSurfPolyAsphere::SurfaceHit(PndDrcPhoton& ph,
 				}
 				path_length = lambda2;
 				pos_new = fTrans*pos_new;
-				if (fPixel) ph.SetFate(Drc::kPhotMeasured);
+	  if (fEffiCathode
+	      ->EffiFlag(ph.Wavelength(),
+			 ph.Direction().Dot(Normal(pos_new))))
+	    { 
+	      ph.SetFate(Drc::kPhotMeasured);
+	      if (fPixelCorr) ph.SetPosition(fPixelPoint);
+	    }
+	  else
+	    { 
+	      ph.SetFate(Drc::kPhotAbsorbed);
+	    }
+
+				//if (fPixel) ph.SetFate(Drc::kPhotMeasured);
 				if (fVerbosity>=4) cout<<" PndDrcSurfPolyAsphere::surfaceHit lambda_1,2="
 					<<lambda1<<" "<<lambda2<<endl;
 				return true;
@@ -575,7 +660,19 @@ bool PndDrcSurfPolyAsphere::SurfaceHit(PndDrcPhoton& ph,
 	if (WithinSurface(pos_check))
 	{
 		pos_new = fTrans*pos_new;
-		if (fPixel) ph.SetFate(Drc::kPhotMeasured);
+	  if (fEffiCathode
+	      ->EffiFlag(ph.Wavelength(),
+			 ph.Direction().Dot(Normal(pos_new))))
+	    { 
+	      ph.SetFate(Drc::kPhotMeasured);
+	      if (fPixelCorr) ph.SetPosition(fPixelPoint);
+	    }
+	  else
+	    { 
+	      ph.SetFate(Drc::kPhotAbsorbed);
+	    }
+
+		//if (fPixel) ph.SetFate(Drc::kPhotMeasured);
 		if (fVerbosity>=4) cout<<" PndDrcSurfPolyAsphere::surfaceHit: lambda -> hit"
 			<<endl;
 		return true;
@@ -748,7 +845,8 @@ bool PndDrcSurfPolyAsphere::OnSurface(const XYZPoint& p) const
 //----------------------------------------------------------------------
 void PndDrcSurfPolyAsphere::AddTransform(const Transform3D& trans)
 {
-	if (Verbosity()>=3) cout<<"    PndDrcSurfCyl::addTransform() name="<<fName<<endl;
-	fTrans    = trans * fTrans;
-	fTransInv = fTrans.Inverse();
+  if (Verbosity()>=3) cout<<"    PndDrcSurfCyl::addTransform() name="<<fName<<endl;
+  fTrans    = trans * fTrans;
+  fTransInv = fTrans.Inverse();
+  fPixelPoint = trans*fPixelPoint;
 }

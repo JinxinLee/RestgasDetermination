@@ -22,12 +22,12 @@ class PndDrcOptMatMarcol7 : public PndDrcOptMatAbs
   PndDrcOptMatMarcol7();
 
   /*! Copy constructor.
-    \param Object to copy.
+    \param mat Object to copy.
   */
   PndDrcOptMatMarcol7(const PndDrcOptMatMarcol7& mat);
 
   /*! Assignment operator.
-    \param Object to assign.
+    \param mat Object to assign.
   */
   PndDrcOptMatMarcol7& operator=(const PndDrcOptMatMarcol7& mat);
 
