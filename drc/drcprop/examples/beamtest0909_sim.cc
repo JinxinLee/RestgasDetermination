@@ -53,6 +53,12 @@ using ROOT::Math::Transform3D;
 #include "Math/Vector3D.h"
 using ROOT::Math::XYZVector;
 using ROOT::Math::Polar3DVector;
+#include "Math/RotationX.h"
+using ROOT::Math::RotationX;
+#include "Math/RotationY.h"
+using ROOT::Math::RotationY;
+#include "Math/RotationZ.h"
+using ROOT::Math::RotationZ;
 
 
 //========
@@ -113,15 +119,15 @@ int main(int argc, char *argv[])
 
 
 	// sub options
-	bool opt_mirror               = false; // mirror at slab face
-	bool opt_fishtankBlack_bottom = true; // absorbed fishtank side
+	bool opt_mirror               = false;	// mirror at slab face
+	bool opt_fishtankBlack_bottom = true; 	// absorbed fishtank side
 	bool opt_fishtankBlack_sides  = false;
 	bool opt_fishtankBlack_top    = true;
-	bool opt_Cherenkov_onlyInBar  = false;  // Cherenkov photons are only generated in bar (slab)
-	bool opt_alongBar             = false; // particles hits the bar at slab face (front end)
-	bool opt_woLens               = false; // w/o lens
-	bool opt_photonPosList        = false; // write out photon position list ; true takes much longer
-// 	bool opt_debug	              = false; // stdout > log file
+	bool opt_Cherenkov_onlyInBar  = false;	// Cherenkov photons are only generated in bar (slab)
+	bool opt_alongBar             = false;	// particles hits the bar at slab face (front end)
+	bool opt_woLens               = false;	// w/o lens
+	bool opt_photonPosList        = true;	// write out photon position list ; true takes much longer
+// 	bool opt_debug	              = false;	// stdout > log file
 // 	bool opt_noFresnel_slab       = false;
 // 	bool opt_noFresnel_lens       = false;
 // 	bool opt_noFresnel_airBox     = false;
@@ -190,17 +196,23 @@ int main(int argc, char *argv[])
 	double slab_height = 35; // default: 35 mm
 	double slab_length = 800; // default: 800 mm
 
+	double slab_phi = 0; // default: 0 degree
+
 	double lens_radius    = 77.52; // f = R/(n-1) ; BK7 Newport f = 150 mm at 589 nm => R = 77.52 mm
 	double lens_thickness = 7.5; // measured lens thickness: 7.5 mm ; old: 5 mm
+	double lens_diameter  = 40; // actually: 50.8 mm but then lens_thickness of 7.5 mm is too small
 
-	double airgap = 10; // default: 10 mm ; distance between slab and fishtank ; 0 means no air box
+	double airgap = 13; // default: 10 mm ; distance between slab and fishtank ; 0 means no air box
 
 	double fishtank_width  = 300; // default: 300 mm ; old: 400 mm
 	double fishtank_height = 200; // default: 200 mm ; old: 400 mm
 	double fishtank_length = 200; // default: 200 mm ; old: 220 mm
 
 	double fishtank_width_offset = 0; // default: 0 mm ; != 0 means bar is not centered
-	double fishtank_height_offset = 50; // default: 0 mm
+	double fishtank_height_offset = 0; // default: 0 mm
+
+	double fishtank_theta = 20; // default: 0
+	double fishtank_phi = 20; // default: 0
 
 
 	// particle properties
@@ -211,14 +223,14 @@ int main(int argc, char *argv[])
 	const double mass_mu = 0.1057; // muon mass
 
 	double mass = mass_p; // default: proton mass
-	double kinE = 2.3; // default: 2.3 GeV kinetic energy
+	double kinE = 2.0; // default: 2.3 GeV kinetic energy
 	double beta = Sqrt( 1 - Power( mass / (kinE + mass), 2 ) ); // E = T + E0 = gamma * E0
 
 	double radius = 20; // default: 20 mm 1-sigma beam spot radius (gaus smeared)
 	double limit = 20; // default: 50 mm beam spot radius limit
 
-	int particle_number = 300; // default: 300
-	int photon_number = 100; // default: 100 per particle; 0 means realistic number of Cherenkov photons
+	int particle_number = 1; // default: 300
+	int photon_number = 20; // default: 100 per particle; 0 means realistic number of Cherenkov photons
 
 	double lambda_min = 300; // default: 300 nm ; lowest Cherenkov wavelength
 	double lambda_max = 700; // default: 700 nm ; highest Cherenkov wavelength
@@ -410,11 +422,13 @@ int main(int argc, char *argv[])
 	cout << "  slab width:  " << slab_width << endl;
 	cout << "  slab heigth: " << slab_height << endl;
 	cout << "  slab length: " << slab_length << endl;
+	cout << "  slab phi: " << slab_phi << " deg" << endl;
 
 	if( !opt_woLens )
 	{
 		cout << "  lens radius:    " << lens_radius << endl;
 		cout << "  lens thickness: " << lens_thickness << endl;
+		cout << "  lens diameter:  " << lens_diameter << endl;
 	}
 
 	if( lens_thickness > airgap && !opt_woLens )
@@ -431,6 +445,9 @@ int main(int argc, char *argv[])
 
 	cout << "  fishtank width offset : " << fishtank_width_offset << endl;
 	cout << "  fishtank height offset: " << fishtank_height_offset << endl;
+
+	cout << "  fishtank theta:  " << fishtank_theta << endl;
+	cout << "  fishtank phi:  " << fishtank_phi << endl;
 
 
 	if( opt_beamtest )
@@ -684,12 +701,15 @@ int main(int argc, char *argv[])
 	infoTree->Branch( "slab_width"            , &slab_width            , "slab_width/D");
 	infoTree->Branch( "slab_height"           , &slab_height           , "slab_height/D");
 	infoTree->Branch( "slab_length"           , &slab_length           , "slab_length/D");
+	infoTree->Branch( "slab_phi"              , &slab_phi              , "slab_phi/D");
 	infoTree->Branch( "airgap"                , &airgap                , "airgap/D");
 	infoTree->Branch( "fishtank_width"        , &fishtank_width        , "fishtank_width/D");
 	infoTree->Branch( "fishtank_height"       , &fishtank_height       , "fishtank_height/D");
 	infoTree->Branch( "fishtank_length"       , &fishtank_length       , "fishtank_length/D");
 	infoTree->Branch( "fishtank_width_offset" , &fishtank_width_offset , "fishtank_width_offset/D");
 	infoTree->Branch( "fishtank_height_offset", &fishtank_height_offset, "fishtank_height_offset/D");
+	infoTree->Branch( "fishtank_theta"        , &fishtank_theta        , "fishtank_theta/D");
+	infoTree->Branch( "fishtank_phi"          , &fishtank_phi          , "fishtank_phi/D");
 	infoTree->Branch( "photon_number"         , &photon_number         , "photon_number/I");
 	infoTree->Branch( "lambda_min"            , &lambda_min            , "lambda_min/I");
 	infoTree->Branch( "lambda_max"            , &lambda_max            , "lambda_max/I");
@@ -992,6 +1012,9 @@ int main(int argc, char *argv[])
 	slab.SetOptMaterial( (*mat_slab) );
 	slab.SetName("slab");
 
+	Transform3D rot_slab = Transform3D( RotationZ(slab_phi*degree) );
+	slab.AddTransform(rot_slab);
+
 
 
 // lens
@@ -1000,17 +1023,17 @@ int main(int argc, char *argv[])
 // 	double conical_const = 0.5; //parabola
 
 
-	XYZPoint q0(-slab_width/2, +slab_height/2, 0);
-	XYZPoint q1(-slab_width/2, -slab_height/2, 0);
-	XYZPoint q2(+slab_width/2, -slab_height/2, 0);
-	XYZPoint q3(+slab_width/2, +slab_height/2, 0);
+	XYZPoint l0(-lens_diameter/2, +lens_diameter/2, 0);
+	XYZPoint l1(-lens_diameter/2, -lens_diameter/2, 0);
+	XYZPoint l2(+lens_diameter/2, -lens_diameter/2, 0);
+	XYZPoint l3(+lens_diameter/2, +lens_diameter/2, 0);
 
 
 	PndDrcSurfPolyAsphere lens_sphere;
-	lens_sphere.AddPoint(q0);
-	lens_sphere.AddPoint(q1);
-	lens_sphere.AddPoint(q2);
-	lens_sphere.AddPoint(q3);
+	lens_sphere.AddPoint(l0);
+	lens_sphere.AddPoint(l1);
+	lens_sphere.AddPoint(l2);
+	lens_sphere.AddPoint(l3);
 	lens_sphere.SetRadius(lens_radius);
 	lens_sphere.SetPrintColor(2);
 	lens_sphere.SetConicalConstant(conical_const);
@@ -1026,7 +1049,7 @@ int main(int argc, char *argv[])
 	if( lensMinThickness > lens_thickness && !opt_woLens)
 	{
 		cout << "*** lens thickness have to be greater than: " << lensMinThickness
-				<< " (currently " << lens_thickness << " mm)" << endl;
+			<< " (currently " << lens_thickness << " mm)" << endl;
 		abort();
 	}
 
@@ -1038,10 +1061,10 @@ int main(int argc, char *argv[])
 // 	cout << lens_sphere.LimitingPoint(3) << endl << endl;
 
 
-	q0 += XYZVector(0, 0, -lens_thickness);
-	q1 += XYZVector(0, 0, -lens_thickness);
-	q2 += XYZVector(0, 0, -lens_thickness);
-	q3 += XYZVector(0, 0, -lens_thickness);
+	XYZPoint q0 = l0 + XYZVector(0, 0, -lens_thickness);
+	XYZPoint q1 = l1 + XYZVector(0, 0, -lens_thickness);
+	XYZPoint q2 = l2 + XYZVector(0, 0, -lens_thickness);
+	XYZPoint q3 = l3 + XYZVector(0, 0, -lens_thickness);
 
 
 	PndDrcSurfPolyFlat lens_base;
@@ -1109,7 +1132,7 @@ int main(int argc, char *argv[])
 	lens.SetName("lens");
 
 	double lens_shift = lens_thickness;
-	lens.AddTransform(Transform3D(XYZVector(0,0,lens_shift))); // |(  =>  (|
+	lens.AddTransform( Transform3D( XYZVector(0,0,lens_shift) ) ); // |(  =>  (|
 
 
 
@@ -1129,6 +1152,15 @@ int main(int argc, char *argv[])
 	//      |  /        |  /
 	//      | /         | /
 	//      b3----------b2
+	//
+	//
+	// fishtank theta:
+	//	positive angle: rotation axis b3-b4
+	//	negative angle: rotation axis b1-b2
+	//
+	// fishtank phi:
+	//	positive angle: rotation axis b2-b3
+	//	negative angle: rotation axis b4-b1
 
 
 	double fishtank_posZ = fishtank_length + airgap; // default: 210 mm
@@ -1216,14 +1248,98 @@ int main(int argc, char *argv[])
 	fishtank.SetName("fishtank");
 
 
+	Transform3D rotTheta_fishtank = Transform3D( RotationY(fishtank_theta*degree) );
+
+	if( fishtank_theta >= 0)
+	{
+		Transform3D transToRotAxis_fishtank = Transform3D( XYZVector(-b3.X(),0,-b3.Z()) );
+		Transform3D transBack_fishtank = Transform3D( XYZVector(b3.X(),0,b3.Z()) );
+
+		fishtank.AddTransform( transToRotAxis_fishtank );
+		fishtank.AddTransform( rotTheta_fishtank );
+		fishtank.AddTransform( transBack_fishtank );
+
+		b1 = transToRotAxis_fishtank*b1;
+		b1 = rotTheta_fishtank*b1;
+		b1 = transBack_fishtank*b1;
+
+		b2 = transToRotAxis_fishtank*b2;
+		b2 = rotTheta_fishtank*b2;
+		b2 = transBack_fishtank*b2;
+	}
+	else
+	{
+		Transform3D transToRotAxis_fishtank = Transform3D( XYZVector(-b1.X(),0,-b1.Z()) );
+		Transform3D transBack_fishtank = Transform3D( XYZVector(b1.X(),0,b1.Z()) );
+
+		fishtank.AddTransform( transToRotAxis_fishtank );
+		fishtank.AddTransform( rotTheta_fishtank );
+		fishtank.AddTransform( transBack_fishtank );
+
+		b3 = transToRotAxis_fishtank*b3;
+		b3 = rotTheta_fishtank*b3;
+		b3 = transBack_fishtank*b3;
+
+		b4 = transToRotAxis_fishtank*b4;
+		b4 = rotTheta_fishtank*b4;
+		b4 = transBack_fishtank*b4;
+	}
+
+
+	Transform3D rotPhi_fishtank = Transform3D( RotationX(fishtank_phi*degree) );
+
+	if( fishtank_phi >= 0)
+	{
+		Transform3D transToRotAxis_fishtank = Transform3D( XYZVector(0,-b3.Y(),-b3.Z()) );
+		Transform3D transBack_fishtank = Transform3D( XYZVector(0,b3.Y(),b3.Z()) );
+
+		fishtank.AddTransform( transToRotAxis_fishtank );
+		fishtank.AddTransform( rotPhi_fishtank );
+		fishtank.AddTransform( transBack_fishtank );
+
+		b1 = transToRotAxis_fishtank*b1;
+		b1 = rotPhi_fishtank*b1;
+		b1 = transBack_fishtank*b1;
+
+		b4 = transToRotAxis_fishtank*b4;
+		b4 = rotPhi_fishtank*b4;
+		b4 = transBack_fishtank*b4;
+
+		b2 = transToRotAxis_fishtank*b2;
+		b2 = rotPhi_fishtank*b2;
+		b2 = transBack_fishtank*b2;
+	}
+	else
+	{
+		Transform3D transToRotAxis_fishtank = Transform3D( XYZVector(0,-b1.Y(),-b1.Z()) );
+		Transform3D transBack_fishtank = Transform3D( XYZVector(0,b1.Y(),b1.Z()) );
+
+		fishtank.AddTransform( transToRotAxis_fishtank );
+		fishtank.AddTransform( rotPhi_fishtank );
+		fishtank.AddTransform( transBack_fishtank );
+
+		b2 = transToRotAxis_fishtank*b2;
+		b2 = rotPhi_fishtank*b2;
+		b2 = transBack_fishtank*b2;
+
+		b3 = transToRotAxis_fishtank*b3;
+		b3 = rotPhi_fishtank*b3;
+		b3 = transBack_fishtank*b3;
+
+		b4 = transToRotAxis_fishtank*b4;
+		b4 = rotPhi_fishtank*b4;
+		b4 = transBack_fishtank*b4;
+	}
+
+
 
 // air box
 //==============================================================================
 
-	//               a8----------a5
+	//               b4----------b1
 	//              /|          /|
 	//             / |         / |
-	//            /  a7-------/--a6
+	//            /  b3-------/--b2
 	//           /  /        /  /
 	//          /  /        /  /
 	//         /  /        /  /
@@ -1239,10 +1355,6 @@ int main(int argc, char *argv[])
 	XYZPoint a3(+fishtank_width/2 + fishtank_width_offset, -fishtank_height/2 + fishtank_height_offset, 0);
 	XYZPoint a4(+fishtank_width/2 + fishtank_width_offset, +fishtank_height/2 + fishtank_height_offset, 0);
 
-	XYZPoint a5(-fishtank_width/2 + fishtank_width_offset, +fishtank_height/2 + fishtank_height_offset, airgap);
-	XYZPoint a6(-fishtank_width/2 + fishtank_width_offset, -fishtank_height/2 + fishtank_height_offset, airgap);
-	XYZPoint a7(+fishtank_width/2 + fishtank_width_offset, -fishtank_height/2 + fishtank_height_offset, airgap);
-	XYZPoint a8(+fishtank_width/2 + fishtank_width_offset, +fishtank_height/2 + fishtank_height_offset, airgap);
 
 	PndDrcSurfPolyFlat airBox_face;
 	airBox_face.AddPoint(a1);
@@ -1254,34 +1366,34 @@ int main(int argc, char *argv[])
 	PndDrcSurfPolyFlat airBox_bottom;
 	airBox_bottom.AddPoint(a2);
 	airBox_bottom.AddPoint(a3);
-	airBox_bottom.AddPoint(a7);
-	airBox_bottom.AddPoint(a6);
+	airBox_bottom.AddPoint(b3);
+	airBox_bottom.AddPoint(b2);
 	airBox_bottom.SetName("airBox_bottom");
 
 	PndDrcSurfPolyFlat airBox_left;
 	airBox_left.AddPoint(a3);
 	airBox_left.AddPoint(a4);
-	airBox_left.AddPoint(a8);
-	airBox_left.AddPoint(a7);
+	airBox_left.AddPoint(b4);
+	airBox_left.AddPoint(b3);
 	airBox_left.SetName("airBox_left");
 
 	PndDrcSurfPolyFlat airBox_top;
 	airBox_top.AddPoint(a1);
 	airBox_top.AddPoint(a4);
-	airBox_top.AddPoint(a8);
-	airBox_top.AddPoint(a5);
+	airBox_top.AddPoint(b4);
+	airBox_top.AddPoint(b1);
 	airBox_top.SetName("airBox_top");
 
 	PndDrcSurfPolyFlat airBox_exit;
-	airBox_exit.AddPoint(a5);
-	airBox_exit.AddPoint(a6);
-	airBox_exit.AddPoint(a7);
-	airBox_exit.AddPoint(a8);
+	airBox_exit.AddPoint(b1);
+	airBox_exit.AddPoint(b2);
+	airBox_exit.AddPoint(b3);
+	airBox_exit.AddPoint(b4);
 	airBox_exit.SetName("airBox_exit");
 
 	PndDrcSurfPolyFlat airBox_right;
-	airBox_right.AddPoint(a5);
-	airBox_right.AddPoint(a6);
+	airBox_right.AddPoint(b1);
+	airBox_right.AddPoint(b2);
 	airBox_right.AddPoint(a2);
 	airBox_right.AddPoint(a1);
 	airBox_right.SetName("airBox_right");
@@ -1309,29 +1421,29 @@ int main(int argc, char *argv[])
 // air box with hole for air lens
 //==============================================================================
 
-	//              a8----------a5
+	//              b4----------b1
 	//             /|          / |
 	//            / |         /  |
 	//           /  |        /   |
 	//          /   |       /    |
 	//         /    |      /     |
-	//        /     a7----/------a6
+	//        /     b3----/------b2
 	//       /     /     /       /
 	//      a4--h4--h1--a1      /
 	//      |   |   |   |      /
 	//      |   |   |   |     /
-	//      |---s8--s5--|    /
+	//      |---l3--l0--|    /
 	//      |   | H |   |   /       H: lens-hole
-	//      |---s7--s6--|  /
+	//      |---l2--l1--|  /
 	//      |   |   |   | /
 	//      |   |   |   |/
 	//      a3--h3--h2--a2
 
 
-	XYZPoint h1(-slab_width/2, +fishtank_height/2, 0);
-	XYZPoint h2(-slab_width/2, -fishtank_height/2, 0);
-	XYZPoint h3(+slab_width/2, -fishtank_height/2, 0);
-	XYZPoint h4(+slab_width/2, +fishtank_height/2, 0);
+	XYZPoint h1(-lens_diameter/2, +fishtank_height/2, 0);
+	XYZPoint h2(-lens_diameter/2, -fishtank_height/2, 0);
+	XYZPoint h3(+lens_diameter/2, -fishtank_height/2, 0);
+	XYZPoint h4(+lens_diameter/2, +fishtank_height/2, 0);
 
 
 	PndDrcSurfPolyFlat airLens_faceLeft;
@@ -1351,17 +1463,17 @@ int main(int argc, char *argv[])
 	airLens_faceRight.SetName("airLens_faceRight");
 
 	PndDrcSurfPolyFlat airLens_faceBottom;
-	airLens_faceBottom.AddPoint(s6);
+	airLens_faceBottom.AddPoint(l1);
 	airLens_faceBottom.AddPoint(h2);
 	airLens_faceBottom.AddPoint(h3);
-	airLens_faceBottom.AddPoint(s7);
+	airLens_faceBottom.AddPoint(l2);
 	airLens_faceBottom.SetReflectivity(refl_none);
 	airLens_faceBottom.SetName("airLens_faceBottom");
 
 	PndDrcSurfPolyFlat airLens_faceTop;
 	airLens_faceTop.AddPoint(h1);
-	airLens_faceTop.AddPoint(s5);
-	airLens_faceTop.AddPoint(s8);
+	airLens_faceTop.AddPoint(l0);
+	airLens_faceTop.AddPoint(l3);
 	airLens_faceTop.AddPoint(h4);
 	airLens_faceTop.SetReflectivity(refl_none);
 	airLens_faceTop.SetName("airLens_faceTop");
@@ -1372,6 +1484,7 @@ int main(int argc, char *argv[])
 	lens_right.AddTransform( Transform3D(XYZVector(0, 0, lens_shift)) );
 	lens_bottom.AddTransform( Transform3D(XYZVector(0, 0, lens_shift)) );
 	lens_top.AddTransform( Transform3D(XYZVector(0, 0, lens_shift)) );
+
 
 	PndDrcSurfPolyAsphere  airLens_lens_sphere 	= lens_sphere;
 	PndDrcSurfQuadFlatDiff airLens_lens_left 	= lens_left;
@@ -1389,40 +1502,40 @@ int main(int argc, char *argv[])
 	PndDrcSurfPolyFlat airLens_left;
 	airLens_left.AddPoint(a3);
 	airLens_left.AddPoint(a4);
-	airLens_left.AddPoint(a8);
-	airLens_left.AddPoint(a7);
+	airLens_left.AddPoint(b4);
+	airLens_left.AddPoint(b3);
 	airLens_left.SetReflectivity(refl_none);
 	airLens_left.SetName("airLens_left");
 
 	PndDrcSurfPolyFlat airLens_right;
 	airLens_right.AddPoint(a2);
 	airLens_right.AddPoint(a1);
-	airLens_right.AddPoint(a5);
-	airLens_right.AddPoint(a6);
+	airLens_right.AddPoint(b1);
+	airLens_right.AddPoint(b2);
 	airLens_right.SetReflectivity(refl_none);
 	airLens_right.SetName("airLens_right");
 
 	PndDrcSurfPolyFlat airLens_bottom;
 	airLens_bottom.AddPoint(a2);
 	airLens_bottom.AddPoint(a3);
-	airLens_bottom.AddPoint(a7);
-	airLens_bottom.AddPoint(a6);
+	airLens_bottom.AddPoint(b3);
+	airLens_bottom.AddPoint(b2);
 	airLens_bottom.SetReflectivity(refl_none);
 	airLens_bottom.SetName("airLens_bottom");
 
 	PndDrcSurfPolyFlat airLens_top;
 	airLens_top.AddPoint(a1);
 	airLens_top.AddPoint(a4);
-	airLens_top.AddPoint(a8);
-	airLens_top.AddPoint(a5);
+	airLens_top.AddPoint(b4);
+	airLens_top.AddPoint(b1);
 	airLens_top.SetReflectivity(refl_none);
 	airLens_top.SetName("airLens_top");
 
 	PndDrcSurfPolyFlat airLens_exit;
-	airLens_exit.AddPoint(a5);
-	airLens_exit.AddPoint(a6);
-	airLens_exit.AddPoint(a7);
-	airLens_exit.AddPoint(a8);
+	airLens_exit.AddPoint(b1);
+	airLens_exit.AddPoint(b2);
+	airLens_exit.AddPoint(b3);
+	airLens_exit.AddPoint(b4);
 	airLens_exit.SetName("airLens_exit");
 
 
