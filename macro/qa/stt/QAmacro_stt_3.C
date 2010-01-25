@@ -58,7 +58,10 @@
       if(!hit) continue;
       hisochrone->Fill(hit->GetIsochrone());
       // if the reconstructed radius is > 0.5 (0.506 because of binning) -> kFALSE
-      if(hisochrone->GetBinCenter(hisochrone->FindLastBinAbove(0)) > 0.506) { fTest = kFALSE; kindOftest[1] = 1; }
+      if(hisochrone->GetBinCenter(hisochrone->FindLastBinAbove(0)) > 0.506) { 
+	fTest = kFALSE;	kindOftest[0] = 1;
+	cout << "TEST 0: hisocrone " << hisochrone->GetBinCenter(hisochrone->FindLastBinAbove(0)) << " (limit = 0.506)" << endl;
+      }
     }
 
 
@@ -126,17 +129,30 @@
   Double_t sigma = gauspar[2];
 
   // mean in [1 GeV/c - 3 sigma, 1 GeV/c + 3 sigma]
-  if(mean < (mean - 3 * sigma) || mean > (mean + 3 * sigma)) { fTest = kFALSE; kindOftest[1] = 1; }
+  if(mean < (mean - 3 * sigma) || mean > (mean + 3 * sigma)) { 
+    fTest = kFALSE; kindOftest[1] = 1; 
+    cout << "TEST 1: helix mu- mean " << mean << " (limits [" << (mean - 3 * sigma) << ", " << (mean + 3 * sigma) << "])" << endl;
+  }
 
   // resolution sigma/p in [3.%  - 0.5%, 3.% + 0.5%]
-  if((sigma/mean) < (0.03 - 0.005) || (sigma/mean) > (0.03 + 0.005)) { fTest = kFALSE; kindOftest[2] = 1; }
+  if((sigma/mean) < (0.03 - 0.005) || (sigma/mean) > (0.03 + 0.005)) { 
+    fTest = kFALSE; kindOftest[2] = 1;
+    cout << "TEST 2: helix mu- resolution " << sigma/mean << " (limits [" << (0.03 - 0.005) << ", " <<  (0.03 + 0.005) << "])" << endl;
+  }
 
   // efficiency integral in 0.5, 1.5 / generated tracks in [83% - 5%, 83% + 5%] 
-  if((hptot_mum->Integral() / 300.) < (0.83 - 0.5) || (hptot_mum->Integral() / 300.) > (0.83 + 0.5)) { fTest = kFALSE; kindOftest[3] = 1; }
+  if((hptot_mum->Integral() / 300.) < (0.83 - 0.5) || (hptot_mum->Integral() / 300.) > (0.83 + 0.5)) {
+    fTest = kFALSE; kindOftest[3] = 1; 
+    cout << "TEST 3: helix mu- efficiency " << (hptot_mum->Integral() / 300.) << " (limits [" << (0.83 - 0.5) << ", " << (0.83 + 0.5) << "])" << endl;
+
+}
 
   // efficiency integral under the peak/generated tracks in [78% - 5%, 78% + 5%]
   hptot_mum->GetXaxis()->SetRangeUser(0.9, 1.1);
-  if((hptot_mum->Integral() / 300.) < (0.78 - 0.5) || (hptot_mum->Integral() / 300.) > (0.78 + 0.5)) { fTest = kFALSE; kindOftest[4] = 1;}
+  if((hptot_mum->Integral() / 300.) < (0.78 - 0.5) || (hptot_mum->Integral() / 300.) > (0.78 + 0.5)) { 
+    fTest = kFALSE; kindOftest[4] = 1;
+    cout << "TEST 4: helix mu- peak efficiency " << (hptot_mum->Integral() / 300.) << " (limits [" << (0.78 - 0.5) << ", " << (0.78 + 0.5) << "])" << endl;
+}
 
 
   // KALMAN
@@ -146,17 +162,29 @@
   sigma = gauspar[2];
       
   // mean in [1 GeV/c - 3 sigma, 1 GeV/c + 3 sigma]
-  if(mean < (mean - 3 * sigma) || mean > (mean + 3 * sigma)) { fTest = kFALSE; kindOftest[5] = 1; }
+  if(mean < (mean - 3 * sigma) || mean > (mean + 3 * sigma)) { 
+    fTest = kFALSE; kindOftest[5] = 1;
+    cout << "TEST 5: genfit mu- mean " << mean << " (limits [" << (mean - 3 * sigma) << ", " << (mean + 3 * sigma) << "])" << endl;
+  }
       
   // resolution sigma/p in [2.3%  - 0.5%, 2.3% + 0.5%]
-  if((sigma/mean) < (0.023 - 0.005) || (sigma/mean) > (0.023 + 0.005)) { fTest = kFALSE; kindOftest[6] = 1; }
+  if((sigma/mean) < (0.023 - 0.005) || (sigma/mean) > (0.023 + 0.005)) { 
+    fTest = kFALSE; kindOftest[6] = 1;  
+    cout << "TEST 6: genfit mu- resolution " << sigma/mean << " (limits [" << (0.023 - 0.005) << ", " <<  (0.023 + 0.005) << "])" << endl;
+ }
       
   // efficiency integral in 0.5, 1.5 / generated tracks in [83% - 5%, 83% + 5%] 
-  if((hptot_mum_kal->Integral() / 300.) < (0.83 - 0.5) || (hptot_mum_kal->Integral() / 300.) > (0.83 + 0.5)) { fTest = kFALSE; kindOftest[7] = 1; }
+  if((hptot_mum_kal->Integral() / 300.) < (0.83 - 0.5) || (hptot_mum_kal->Integral() / 300.) > (0.83 + 0.5)) { 
+    fTest = kFALSE; kindOftest[7] = 1;  
+    cout << "TEST 7: genfit mu- efficiency " << (hptot_mum_kal->Integral() / 300.) << " (limits [" << (0.83 - 0.5) << ", " << (0.83 + 0.5) << "])" << endl;
+  }
       
   // efficiency integral under the peak/generated tracks in [81% - 5%, 81% + 5%]
   hptot_mum_kal->GetXaxis()->SetRangeUser(0.9, 1.1);
-  if((hptot_mum_kal->Integral() / 300.) < (0.81 - 0.5) || (hptot_mum_kal->Integral() / 300.) > (0.81 + 0.5)) { fTest = kFALSE; kindOftest[8] = 1; }
+  if((hptot_mum_kal->Integral() / 300.) < (0.81 - 0.5) || (hptot_mum_kal->Integral() / 300.) > (0.81 + 0.5)) {
+    fTest = kFALSE; kindOftest[8] = 1;  
+    cout << "TEST 8: genfit mu- peak efficiency " << (hptot_mum_kal->Integral() / 300.) << " (limits [" << (0.81 - 0.5) << ", " << (0.81 + 0.5) << "])" << endl;
+  }
       
     
   // positive muon ...............................................
@@ -167,17 +195,27 @@
   sigma = gauspar[2];
   
   // mean in [1 GeV/c - 3 sigma, 1 GeV/c + 3 sigma]
-  if(mean < (mean - 3 * sigma) || mean > (mean + 3 * sigma)) { fTest = kFALSE; kindOftest[9] = 1; }
+  if(mean < (mean - 3 * sigma) || mean > (mean + 3 * sigma)) { 
+    fTest = kFALSE; kindOftest[9] = 1; 
+    cout << "TEST 9: helix mu+ mean " << mean << " (limits [" << (mean - 3 * sigma) << ", " << (mean + 3 * sigma) << "])" << endl;
+  }
 
   // resolution sigma/p in [2.8%  - 0.5%, 2.8% + 0.5%]
-  if((sigma/mean) < (0.028 - 0.005) || (sigma/mean) > (0.028 + 0.005)) { fTest = kFALSE; kindOftest[10] = 1; }
+  if((sigma/mean) < (0.028 - 0.005) || (sigma/mean) > (0.028 + 0.005)) { fTest = kFALSE; kindOftest[10] = 1;  
+    cout << "TEST 10: helix mu+ resolution " << sigma/mean << " (limits [" << (0.028 - 0.005) << ", " << (0.028 + 0.005) << "])" << endl;
+  }
 
   // efficiency integral in 0.5, 1.5 / generated tracks in [83% - 5%, 83% + 5%] 
-  if((hptot_mup->Integral() / 300.) < (0.83 - 0.5) || (hptot_mup->Integral() / 300.) > (0.83 + 0.5)) { fTest = kFALSE; kindOftest[11] = 1; }
+  if((hptot_mup->Integral() / 300.) < (0.83 - 0.5) || (hptot_mup->Integral() / 300.) > (0.83 + 0.5)) { 
+    fTest = kFALSE; kindOftest[11] = 1; 
+    cout << "TEST 11: helix mu+ efficiency " << (hptot_mup->Integral() / 300.) << " (limits [" << (0.83 - 0.5) << ", " << (0.83 + 0.5) << "])" << endl;
+  }
 
   // efficiency integral under the peak/generated tracks in [78% - 5%, 78% + 5%]
   hptot_mup->GetXaxis()->SetRangeUser(0.9, 1.1);
-  if((hptot_mup->Integral() / 300.) < (0.78 - 0.5) || (hptot_mup->Integral() / 300.) > (0.78 + 0.5)) { fTest = kFALSE; kindOftest[12] = 1; }
+  if((hptot_mup->Integral() / 300.) < (0.78 - 0.5) || (hptot_mup->Integral() / 300.) > (0.78 + 0.5)) { fTest = kFALSE; kindOftest[12] = 1;   
+    cout << "TEST 12: helix mu+ peak efficiency " << (hptot_mup->Integral() / 300.) << " (limits [" << (0.78 - 0.5) << ", " << (0.78 + 0.5) << "])" << endl;
+  }
 
 
   // KALMAN
@@ -187,20 +225,29 @@
   sigma = gauspar[2];
   
   // mean in [1 GeV/c - 3 sigma, 1 GeV/c + 3 sigma]
-  if(mean < (mean - 3 * sigma) || mean > (mean + 3 * sigma)) { fTest = kFALSE; kindOftest[13] = 1; }
-
+  if(mean < (mean - 3 * sigma) || mean > (mean + 3 * sigma)) { 
+    fTest = kFALSE; kindOftest[13] = 1;
+    cout << "TEST 13: genfit mu+ mean " << mean << " (limits [" << (mean - 3 * sigma) << ", " << (mean + 3 * sigma) << "])" << endl;
+  }
+  
   // resolution sigma/p in [2.3%  - 0.5%, 2.3% + 0.5%]
-  if((sigma/mean) < (0.023 - 0.005) || (sigma/mean) > (0.023 + 0.005)) { fTest = kFALSE; kindOftest[14] = 1; }
-
+  if((sigma/mean) < (0.023 - 0.005) || (sigma/mean) > (0.023 + 0.005)) { 
+    fTest = kFALSE; kindOftest[14] = 1;
+    cout << "TEST 14: genfit mu+ resolution " << sigma/mean << " (limits [" << (0.023 - 0.005) << ", " <<  (0.023 + 0.005) << "])" << endl;}
+  
   // efficiency integral in 0.5, 1.5 / generated tracks in [85% - 5%, 85% + 5%] 
-  if((hptot_mup_kal->Integral() / 300.) < (0.85 - 0.5) || (hptot_mup_kal->Integral() / 300.) > (0.85 + 0.5)) { fTest = kFALSE; kindOftest[15] = 1; }
+  if((hptot_mup_kal->Integral() / 300.) < (0.85 - 0.5) || (hptot_mup_kal->Integral() / 300.) > (0.85 + 0.5)) { 
+    fTest = kFALSE; kindOftest[15] = 1; 
+    cout << "TEST 15: genfit mu+ efficiency " << (hptot_mup_kal->Integral() / 300.) << " (limits [" << (0.85 - 0.5) << ", " << (0.85 + 0.5) << "])" << endl;
+  }
 
   // efficiency integral under the peak/generated tracks in [80% - 5%, 80% + 5%]
   hptot_mup_kal->GetXaxis()->SetRangeUser(0.9, 1.1);
-  if((hptot_mup_kal->Integral() / 300.) < (0.80 - 0.5) || (hptot_mup_kal->Integral() / 300.) > (0.80 + 0.5)) { fTest = kFALSE; kindOftest[16] = 1; }
+  if((hptot_mup_kal->Integral() / 300.) < (0.80 - 0.5) || (hptot_mup_kal->Integral() / 300.) > (0.80 + 0.5)) { 
+    fTest = kFALSE; kindOftest[16] = 1;  
+    cout << "TEST 16: genfit mu+ peak efficiency " << (hptot_mup_kal->Integral() / 300.) << " (limits [" << (0.80 - 0.5) << ", " << (0.80 + 0.5) << "])" << endl;
+  }
    
-
-
  
   if (fTest == kTRUE){
     cout << " Test Passed" << endl;
