@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
 	  //int ix=0,iy=0;
 	  
 	  PndDrcOptBurle burle;
-	  burle.SetEffi(effi);  // default is bialkali
+	  //burle.SetEffi(effi);  // default is bialkali
 	  //burle.SetPosCorr(false); // default is turned on.
 	  burle.AddTransform(
 			     Transform3D(XYZVector(-600+wp/2 + ix*(wp+ws),

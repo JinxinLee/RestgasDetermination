@@ -154,11 +154,11 @@ void PndDrcSurfAbs::SetPixel(bool           flag,
   fPixel      = flag;
   fPixelCorr  = pos_corr;
   fPixelPoint = pos;
-  if (effi)
-  {
-    delete fEffiCathode;
-    fEffiCathode = effi->Clone();
-  }
+  if (effi && (effi != fEffiCathode) ) // 2nd clause happens when you call SetPixel with
+    {                                  // effi from Effi()                  
+      delete fEffiCathode;
+      fEffiCathode = effi->Clone();
+    }
 }
 //----------------------------------------------------------------------
 PndDrcEffiAbs* PndDrcSurfAbs::Effi() const
