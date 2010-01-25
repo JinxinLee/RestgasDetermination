@@ -182,7 +182,7 @@ int main(int argc, char *argv[])
   // .x Geo.C 
   // .x Screen.C
   // 
-  //manager->Print(geo);
+  manager->Print(geo);
   //
   // the intention is to play around with routines.
 
