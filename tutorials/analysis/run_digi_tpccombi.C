@@ -81,6 +81,10 @@
   fRun->AddTask(tpcCF);
 
   // -----   MDV digi producers   --------------------------------- 
+  PndMvdDigiTask* mvddigi = new PndMvdDigiTask();
+  mvddigi->SetVerbose(iVerbose);
+  fRun->AddTask(mvddigi);
+  /*
   PndMvdStripHitProducer* mvdHitProd = new PndMvdStripHitProducer();
   mvdHitProd->SetVerbose(iVerbose);
   fRun->AddTask(mvdHitProd);
@@ -88,6 +92,7 @@
   PndMvdHybridHitProducer* mvdPixProd = new PndMvdHybridHitProducer();
   mvdPixProd->SetVerbose(iVerbose);
   fRun->AddTask(mvdPixProd);
+ 
  
   // CLUST
   // Cluster finding for strip detectors
@@ -100,6 +105,7 @@
   PndMvdPixelClusterTask* mvdClusterizer = new PndMvdPixelClusterTask(1.8, inFile);
   mvdClusterizer->SetVerbose(iVerbose);
   fRun->AddTask(mvdClusterizer);
+ */
  
   // -----   EMC hit producers   ---------------------------------
   //PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
