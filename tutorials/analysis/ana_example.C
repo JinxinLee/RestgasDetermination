@@ -1,9 +1,11 @@
-void ana_example(TString fname="data/tcands.root",int nevts=0)
+void ana_example(TString fname="pid_tpccombi.root",int nevts=0)
 {
   	TStopwatch timer;
   	timer.Start();
 	
 	gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+	
+    TCanvas *c1=new TCanvas("c1","c1",600,600);
 	
 	// the PndEventReader takes care about file/event handling
 	PndEventReader evr(fname);
@@ -29,7 +31,7 @@ void ana_example(TString fname="data/tcands.root",int nevts=0)
 	}
 	
 	// ... and plot it
-	TCanvas *c1=new TCanvas("c1","c1",500,500);
+	
 	c1->cd(); mom->Draw();
 	
 	// now take the time...
