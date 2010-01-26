@@ -240,89 +240,86 @@ void PndMvdStripHitProducer::Exec(Option_t* opt)
 //     Int_t trackID = 0;     // Track index
 
   // Loop over PndMvdMCPoints
-  Int_t
-    nPoints = fPointArray->GetEntriesFast();
+  Int_t nPoints = fPointArray->GetEntriesFast();
   if (fVerbose > 0){
     std::cout<<" Nr of Points: "<<nPoints<<std::endl;
   }
 
   Int_t iStrip = 0;
+  Bool_t selected = kFALSE;
 
   for (Int_t iPoint = 0; iPoint < nPoints; iPoint++)
   {
-      point = (PndMvdMCPoint*) fPointArray->At(iPoint);
-      if( kFALSE == SelectSensorParams(point->GetDetName()) )
+    point = (PndMvdMCPoint*) fPointArray->At(iPoint);
+    selected = SelectSensorParams(point->GetDetName()) ;
+    if( !selected ) { continue; }
+    
+    if (fVerbose > 2){
+      std::cout<<"***** Strip Digi for "<<fCurrentDigiPar->GetSensType()<<" ******"<<std::endl;
+      std::cout<<" DetName : "<<fGeoH->GetPath(point->GetDetName())<<std::endl;
+    }
+    if ( ! point){
+      std::cout<< "No Point!" << std::endl;
+      continue;
+    }
+    if (fVerbose > 2){
+      std::cout << "****Global Point: " << std::endl;
+      point->Print("");
+    }
+    
+    // transform to local sensor system... (mc point has the ID not the path to the volume)
+    TVector3 posInL = fGeoH->MasterToLocalId(point->GetPosition(),point->GetDetName());
+    TVector3 posOutL = fGeoH->MasterToLocalId(point->GetPositionOut(),point->GetDetName());
+    
+    if (fVerbose > 2){
+      posInL.Print();posOutL.Print();
+      std::cout << "Energy: " << point->GetEnergyLoss() << std::endl;
+    }
+    //      detID   = point->GetDetectorID();
+    
+    // Top Side
+    if (fVerbose > 2) std::cout  << "Top Side: " << std::endl;
+    // Calculate a cluster of Strips fired
+    std::vector<PndMvdStrip> topStrips =
+    fCurrentStripCalcTop->GetStrips(posInL.X(),  posInL.Y(),  posInL.Z(),
+                                    posOutL.X(), posOutL.Y(), posOutL.Z(),
+                                    point->GetEnergyLoss());
+    
+    if (topStrips.size() != 0)
+    {
+      if (fVerbose > 1) std::cout  << "SensorStrips: " << std::endl;
+      for(std::vector<PndMvdStrip>::const_iterator kit=topStrips.begin();
+          kit!= topStrips.end(); ++kit)
       {
-        if(fVerbose>0) Error("Exec()","No valid sensor parameters selected, skipping this point.");
-        continue;
-      }
-
-      if (fVerbose > 2){
-        std::cout<<"***** Strip Digi for "<<fCurrentDigiPar->GetSensType()<<" ******"<<std::endl;
-        std::cout<<" DetName : "<<fGeoH->GetPath(point->GetDetName())<<std::endl;
-      }
-      if ( ! point){
-        std::cout<< "No Point!" << std::endl;
-         continue;
-      }
-      if (fVerbose > 2){
-        std::cout << "****Global Point: " << std::endl;
-        point->Print("");
-      }
-
-      // transform to local sensor system... (mc point has the ID not the path to the volume)
-      TVector3 posInL = fGeoH->MasterToLocalId(point->GetPosition(),point->GetDetName());
-      TVector3 posOutL = fGeoH->MasterToLocalId(point->GetPositionOut(),point->GetDetName());
-
-      if (fVerbose > 2){
-        posInL.Print();posOutL.Print();
-        std::cout << "Energy: " << point->GetEnergyLoss() << std::endl;
-      }
-//      detID   = point->GetDetectorID();
-
-      // Top Side
-      if (fVerbose > 2) std::cout  << "Top Side: " << std::endl;
-      // Calculate a cluster of Strips fired
-      std::vector<PndMvdStrip> topStrips =
-        fCurrentStripCalcTop->GetStrips(posInL.X(),  posInL.Y(),  posInL.Z(),
-                                        posOutL.X(), posOutL.Y(), posOutL.Z(),
-                                        point->GetEnergyLoss());
-
-      if (topStrips.size() != 0)
-      {
-        if (fVerbose > 1) std::cout  << "SensorStrips: " << std::endl;
-        for(std::vector<PndMvdStrip>::const_iterator kit=topStrips.begin();
-            kit!= topStrips.end(); ++kit)
-        {
-            AddDigi(iStrip,iPoint,kMVDHitsStrip,point->GetDetName(),
+        AddDigi(iStrip,iPoint,kMVDHitsStrip,point->GetDetName(),
             		fCurrentStripCalcTop->CalcFEfromStrip(kit->GetIndex()),
             		fCurrentStripCalcTop->CalcChannelfromStrip(kit->GetIndex()),kit->GetCharge());
-            if (fVerbose > 1) std::cout << *kit << std::endl;
-        }
-      }else if(fVerbose>2) std::cout<<"Top side empty"<<std::endl;
-
-      // Bottom Side
-      if (fVerbose > 2) std::cout  << "Bottom Side: " << std::endl;
-      std::vector<PndMvdStrip> botStrips =
-        fCurrentStripCalcBot->GetStrips(posInL.X(),  posInL.Y(),  posInL.Z(),
-                                        posOutL.X(), posOutL.Y(), posOutL.Z(),
-                                        point->GetEnergyLoss());
-      if (botStrips.size() != 0)
+        if (fVerbose > 1) std::cout << *kit << std::endl;
+      }
+    }else if(fVerbose>2) std::cout<<"Top side empty"<<std::endl;
+    
+    // Bottom Side
+    if (fVerbose > 2) std::cout  << "Bottom Side: " << std::endl;
+    std::vector<PndMvdStrip> botStrips =
+    fCurrentStripCalcBot->GetStrips(posInL.X(),  posInL.Y(),  posInL.Z(),
+                                    posOutL.X(), posOutL.Y(), posOutL.Z(),
+                                    point->GetEnergyLoss());
+    if (botStrips.size() != 0)
+    {
+      if (fVerbose > 2) std::cout  << " SensorStrips: " << std::endl;
+      for(std::vector<PndMvdStrip>::const_iterator kit=botStrips.begin();
+          kit!= botStrips.end();
+          ++kit)
       {
-        if (fVerbose > 2) std::cout  << " SensorStrips: " << std::endl;
-        for(std::vector<PndMvdStrip>::const_iterator kit=botStrips.begin();
-            kit!= botStrips.end();
-            ++kit)
-        {
-            AddDigi(iStrip,iPoint,kMVDHitsStrip,point->GetDetName(),
-                    fCurrentStripCalcBot->CalcFEfromStrip(kit->GetIndex()) + fCurrentDigiPar->GetNrTopFE(),
-                    fCurrentStripCalcBot->CalcChannelfromStrip(kit->GetIndex()),kit->GetCharge());
-            if (fVerbose > 2) std::cout << *kit << std::endl;
-        }
-      } else if(fVerbose>2) std::cout<<"Bottom side empty"<<std::endl;
-
+        AddDigi(iStrip,iPoint,kMVDHitsStrip,point->GetDetName(),
+                fCurrentStripCalcBot->CalcFEfromStrip(kit->GetIndex()) + fCurrentDigiPar->GetNrTopFE(),
+                fCurrentStripCalcBot->CalcChannelfromStrip(kit->GetIndex()),kit->GetCharge());
+        if (fVerbose > 2) std::cout << *kit << std::endl;
+      }
+    } else if(fVerbose>2) std::cout<<"Bottom side empty"<<std::endl;
+    
   } // Loop over MCPoints
-
+  
   // Event summary
   if(fVerbose > 1) std::cout << "-I- PndMvdStripHitProducer: " << nPoints << " PndMvdMCPoints, "
        << iStrip << " Digis created."<< std::endl;
@@ -447,17 +444,21 @@ void PndMvdStripHitProducer::AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, T
 
 Bool_t PndMvdStripHitProducer::SelectSensorParams(TString detname)
 {
+  fCurrentDigiPar = NULL;
+  fCurrentStripCalcTop = NULL;
+  fCurrentStripCalcBot = NULL;
+
   TString detpath = fGeoH->GetPath(detname);
   if( !(detpath.Contains("Strip")) )
+  { // filter from pixel points
     return kFALSE;
+  }
 
   TIter parsetiter(fDigiParameterList);
   while ( PndMvdStripDigiPar* digipar = (PndMvdStripDigiPar*)parsetiter() ) 
   {
     const char* sensortype = digipar->GetSensType();
     if(detpath.Contains(sensortype))  {
-      
-      // TODO: create a list of Calculators OR make calculator switch parameters on the fly
       fCurrentStripCalcTop = fStripCalcTop[sensortype];
       fCurrentStripCalcBot = fStripCalcBot[sensortype];
       fCurrentDigiPar = digipar;
@@ -465,8 +466,11 @@ Bool_t PndMvdStripHitProducer::SelectSensorParams(TString detname)
     }
   }
   // no suiting object found
-  if (fVerbose > 1) std::cout<<"detector name does not contain a valid parameter name."<<std::endl;
-  if (fVerbose > 2) std::cout<<" DetName : "<<detpath<<std::endl;
+  //if (fVerbose > 1) 
+  if(fVerbose>1) Info("SelectSensorParams()","No valid sensor parameters selected, skipping this point.");
+  std::cout<<"detector name does not contain a valid parameter name."<<std::endl;
+  //if (fVerbose > 2)
+  std::cout<<" DetName : "<<detpath<<std::endl;
   return kFALSE;
 }
 

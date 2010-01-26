@@ -97,9 +97,6 @@
   PndMultiField *fField= new PndMultiField("FULL");
   fRun->SetField(fField);
   
-	fRun->SetField(fField);
-  
-  
   fRun->SetStoreTraj(kTRUE); // toggle this for use with EVE
   fRun->SetRadLenRegister(kFALSE); // toggle for material budget study
 

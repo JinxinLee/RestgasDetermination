@@ -25,7 +25,7 @@
   // -----   Get Data from framework   --------------------------------------
   // load first the file with the GeoManager
   TString picture = recoFile;
-  picture.ReplaceAll(".root",".ps");
+  picture.ReplaceAll(".root",".png");
 
   TFile* f = new TFile(inFile.Data()); // the sim file you want to analyse
   TTree* t=(TTree*)f->Get("cbmsim");
@@ -40,11 +40,11 @@
   TClonesArray* digiStrip_array=new TClonesArray("PndMvdDigiStrip");
   t->SetBranchAddress("MVDStripDigis",&digiStrip_array);//Branch names
 
-  TClonesArray* strclust_array=new TClonesArray("PndMvdCluster");
+  TClonesArray* strclust_array=new TClonesArray("PndMvdClusterStrip");
   t->SetBranchAddress("MVDStripClusterCand",&strclust_array);//Branch names
 
-  TClonesArray* pixclust_array=new TClonesArray("PndMvdCluster");
-  t->SetBranchAddress("MVDClusterCand",&pixclust_array);//Branch names
+  TClonesArray* pixclust_array=new TClonesArray("PndMvdClusterPixel");
+  t->SetBranchAddress("MVDPixelClusterCand",&pixclust_array);//Branch names
 
   TClonesArray* strhit_array=new TClonesArray("PndMvdHit");
   t->SetBranchAddress("MVDHitsStrip",&strhit_array);//Branch names
@@ -84,6 +84,7 @@
   TString detname;
   Double_t difftheta, diffphi;
 
+  cout<<" -I- Start Loop"<<endl;
   for (Int_t j=0; j<nEvents && j<t->GetEntriesFast(); j++)
   {
     t->GetEntry(j);

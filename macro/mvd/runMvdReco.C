@@ -9,7 +9,8 @@
   TString parFile = "Mvd_Params.root";
   Int_t nEvents = 10;
   // ----  Load libraries   -------------------------------------------------
-  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");  // ------------------------------------------------------------------------
+  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");  
+  // ------------------------------------------------------------------------
   // Output file
   PndMvdFileNameCreator creator(MCFile.Data());
   TString DigiFile = creator.GetDigiFileName(false).c_str();
@@ -26,8 +27,8 @@
 
   // -----   Reconstruction run   -------------------------------------------
   FairRunAna *fRun= new FairRunAna();
-  fRun->SetInputFile(DigiFile);
-  fRun->AddFriend(MCFile);
+  fRun->SetInputFile(MCFile);
+  fRun->AddFriend(DigiFile);
   fRun->SetOutputFile(outFile);
   // ------------------------------------------------------------------------
 
@@ -40,7 +41,7 @@
   rtdb->setFirstInput(parInput1);
 
   // -----    Default MVD hit producer   --------------------------------------------
-  Double_t chargecut = 5000., pixelrad=1.8; // one day this will move to the parameter db.
+
   PndMvdClusterTask* mvdmccls = new PndMvdClusterTask();
   mvdmccls->SetVerbose(iVerbose);
   fRun->AddTask(mvdmccls);

@@ -2,7 +2,7 @@
 	  cout << "QA module for the MVD Digitization and Hit Reconstruction." << endl;
   TStopwatch timer;
   timer.Start();
-  Int_t iVerbose = 1;
+  Int_t iVerbose = 0;
 
   TString inFile = "mvdqasim.root";
   TString parFile = "mvdqapar.root";
@@ -20,16 +20,16 @@
   TString allDigiFile = sysFile+"/macro/params/all.par";
 
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  FairParRootFileIo* parInput1 = new FairParRootFileIo();
-  parInput1->open(parFile.Data());
+  FairParRootFileIo* parInput1 = new FairParRootFileIo(kTRUE);
+  parInput1->open(parFile.Data(),"UPDATE");
 
   FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
   parIo1->open(allDigiFile.Data(),"in");
 
   rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parIo1);
-  fRun->LoadGeometry();
-
+  rtdb->setOutput(parInput1);
+  
   PndMvdDigiTask* mvddigi = new PndMvdDigiTask();
   mvddigi->SetVerbose(iVerbose);
   fRun->AddTask(mvddigi);

@@ -184,6 +184,7 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
   fClusterArray->Delete();
   if ( ! fHitArray ) Fatal("Exec", "No HitArray");
   fHitArray->Delete();
+  ResetClusterFinders();
 
    // a std::map is a SORTED container, it is sorted by the identifier
   TString detName;
@@ -362,7 +363,10 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
   fCurrentClusterfinder->ClearDigis();
   return;
 }
+// -------------------------------------------------------------------------
 
+
+// -------------------------------------------------------------------------
 TVector2 PndMvdStripClusterTask::CalcLineCross(
               TVector2 point1, TVector2 dir1,
               TVector2 point2, TVector2 dir2) const
@@ -388,7 +392,9 @@ TVector2 PndMvdStripClusterTask::CalcLineCross(
   TVector2 result(x,y);
   return result;
 }
+// -------------------------------------------------------------------------
 
+// -------------------------------------------------------------------------
 Bool_t PndMvdStripClusterTask::SelectSensorParams(TString detname)
 {
   TString detpath = fGeoH->GetPath(detname);
@@ -416,12 +422,27 @@ Bool_t PndMvdStripClusterTask::SelectSensorParams(TString detname)
   if (fVerbose > 2) std::cout<<" DetName : "<<detpath<<std::endl;
   return kFALSE;
 }
+// -------------------------------------------------------------------------
 
+// -------------------------------------------------------------------------
+void PndMvdStripClusterTask::ResetClusterFinders()
+{
+  //recursively clean the digis in the clusterfinder objects each event
+  for(std::map<const char*,PndMvdStripClusterBuilder*>::iterator CFiter = fClusterFinderList.begin();
+      CFiter != fClusterFinderList.end(); CFiter++)
+  {
+    (CFiter->second)->ClearDigis();
+  }
+}
+// -------------------------------------------------------------------------
+
+// -------------------------------------------------------------------------
 void PndMvdStripClusterTask::Finish()
 {
 }
+// -------------------------------------------------------------------------
 
-
+// -------------------------------------------------------------------------
 void PndMvdStripClusterTask::CalcMeanCharge(std::vector<Int_t> &onecluster, Double_t &meanstrip, Double_t &meanerr, Double_t &charge)
 {
 
@@ -453,13 +474,12 @@ void PndMvdStripClusterTask::CalcMeanCharge(std::vector<Int_t> &onecluster, Doub
 	//	fChargeAlgos->center_of_gravity(onecluster);
 	//}
 
-
-
-
 }
+// -------------------------------------------------------------------------
 
 
 
+// -------------------------------------------------------------------------
 Bool_t PndMvdStripClusterTask::Backmap( TVector2 meantopPoint, Double_t meantoperr, TVector2 meanbotPoint, Double_t meanboterr,
 		TVector3 &hitPos, TVector3 &hitErr, TString &detname)
 {
@@ -496,6 +516,7 @@ Bool_t PndMvdStripClusterTask::Backmap( TVector2 meantopPoint, Double_t meantope
 
   return kTRUE;
 }
+// -------------------------------------------------------------------------
 
 
 ClassImp(PndMvdStripClusterTask);

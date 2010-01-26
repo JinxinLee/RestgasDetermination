@@ -38,7 +38,7 @@ void PndMvdStripClusterBuilder::Reinit()
 
 void PndMvdStripClusterBuilder::AddDigi(std::string detName, SensorSide side, Int_t timestamp, Int_t strip, Int_t iPoint)
 {
-    fSortedDigis[detName][side][timestamp][strip] = iPoint;
+  fSortedDigis[detName][side][timestamp][strip] = iPoint;
 }
 
 PndMvdClusterStrip PndMvdStripClusterBuilder::GetCluster(Int_t i)

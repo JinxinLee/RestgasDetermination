@@ -12,7 +12,7 @@
 #include "PndMvdStripDigiPar.h"
 #include "PndMvdHit.h"
 #include "PndMvdMCPoint.h"
-#include "PndMvdPixel.h"
+//#include "PndMvdPixel.h"
 // #include "PndMvdCluster.h"
 #include "FairGeoVector.h"
 #include "FairGeoTransform.h"
@@ -21,6 +21,7 @@
 #include "TGeoMatrix.h"
 #include "TGeoBBox.h"
 #include "TH2F.h"
+#include "PndDetectorList.h"
 #include "PndMvdHybridHitProducer.h"
 #include "PndMvdStripHitProducer.h"
 #include "PndMvdStripClusterBuilder.h"
@@ -68,6 +69,7 @@ class PndMvdStripClusterTask : public FairTask
     void Register();
     void Reset();
     void ProduceHits();
+    void ResetClusterFinders();
 
     Int_t fFEcolumns;
     Int_t fFErows;
