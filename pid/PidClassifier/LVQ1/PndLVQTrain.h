@@ -13,6 +13,7 @@
 //Local includes
 #include "PndMvaTrainer.h"
 
+//! Interface definition for LVQ trainers.
 class PndLVQTrain: public PndMvaTrainer
 {
  public:
@@ -66,9 +67,10 @@ class PndLVQTrain: public PndMvaTrainer
   {m_numProto = numProto; };
   
  private:
-
+  //! Evaluate the classifier, train and test error.
   void EvalClassifierError(unsigned int stp);
-
+  
+  // To avoid mistakes, :).
   PndLVQTrain(const PndLVQTrain& other);
   PndLVQTrain& operator=(const PndLVQTrain& other);
 

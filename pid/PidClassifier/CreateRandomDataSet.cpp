@@ -1,6 +1,7 @@
 /* *****************************************
  * Creates sample datafiles. The variables *
- * can have any distribution.              *
+ * can have any distribution. It is just   *
+ * for algorithm testing.                  *
  * Author: M.Babai.                        *
  * E-Mail: M.Babai@rug.nl                  *
  * License:                                *

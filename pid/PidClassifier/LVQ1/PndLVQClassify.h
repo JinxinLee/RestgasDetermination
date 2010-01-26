@@ -18,6 +18,7 @@
 // Local includes
 #include "PndGpidClassifier.h"
 
+//! Interface definition of the LVQ classifier.
 class PndLVQClassify: public PndGpidClassifier
 {
  public:
@@ -43,7 +44,11 @@ class PndLVQClassify: public PndGpidClassifier
    */
   void GetMvaValues(std::vector<float> eventData, 
 		    std::map<std::string, float>& result);
-
+  /**
+   * Given a feature vector describing the pattern. Classifies the pattern.
+   *@param EvtData Input vector describing the pattern.
+   *@return The name of the class to which the current pattern is assigned.
+   */
   const std::string& Classify(std::vector<float> EvtData)const;
 
  private:

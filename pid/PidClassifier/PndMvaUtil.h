@@ -1,5 +1,5 @@
 /* ********************************************
- * MVA Utility functions and data definitions *
+ * MVA Utility functions and data definitions.*
  * Author: M.Babai@rug.nl                     *
  * LICENSE:                                   *
  * Version: 0.1 beta1.                        *
@@ -16,17 +16,24 @@
 #include <cmath>
 #include <cassert>
 
-// ========================================================================
+// =========================================================
+//! Structure to hold the per step error values.
 struct StepError
 {
   //! Constructor
    StepError():m_step(0), m_trErr(0.0),m_tsErr(0.0){};
+  /**
+   *@param step Currents step.
+   *@param trErr Current training error.
+   *@param tsErr Current test error.
+   */
    StepError(unsigned int step, float trErr, float tsErr)
    : m_step(step), m_trErr(trErr),m_tsErr(tsErr){};
   
   //! Destructor
   ~StepError(){};
 
+  //! Copy!
   StepError(const StepError& ot)
   {
     m_step  = ot.m_step;
@@ -34,6 +41,7 @@ struct StepError
     m_tsErr = ot.m_tsErr;
   };
 
+  //! Assignment.
   StepError& operator=(const StepError& ot)
   {
     StepError* locTmp = new StepError();
@@ -85,6 +93,13 @@ PndMvaDistObj(const int id, const float dist, const std::string& cls)
   float m_dist;/**< Distance to the current example. */
   std::string m_cls;/**< Class name of the prototype. */
 };
+
+//! Less than, comparison funtion.
+inline  bool CompLess(const PndMvaDistObj* a, const PndMvaDistObj* b)
+{
+  return ( (*a).m_dist < (*b).m_dist );
+}
+
 // ========================================================================
 
 /**
@@ -97,15 +112,10 @@ inline const T& minFunct ( const T& a, const T& b )
   return (a < b) ? a : b;
 }
 
+//! Less than, comparison funtion.
 template<typename T>
 inline bool compareL(const T* a, const T* b)
 { return ( (*a) < (*b) );}
-
-
-inline  bool CompLess(const PndMvaDistObj* a, const PndMvaDistObj* b)
-{
-  return ( (*a).m_dist < (*b).m_dist );
-}
 
 /**
  * Computes the Euclidean distance between two given vectors of

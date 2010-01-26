@@ -31,17 +31,23 @@ class PndMvaTrainer
 {
  public:
   /**
-   * FIXME DOC
+   * Constructor.
+   *@param InPut, The input filename.
+   *@param ClassNames Names of available classes.
+   *@param VarNames Names of available variables.
+   * Note that all of the members of these lists are selected 
+   * and used during the training runs.
    */
   PndMvaTrainer(const std::string& InPut,
 		const std::vector<std::string>& ClassNames, 
 		const std::vector<std::string>& VarNames,
 		bool trim = true);
-  /**
-   * FIXME DOC
-   */
+
+  //! Destructor
   virtual ~PndMvaTrainer();
-  
+
+  //! Derived classes need to implement this methode.
+  //! Minimum requirment.  
   virtual void Train() = 0;
 
   /**
@@ -51,18 +57,27 @@ class PndMvaTrainer
    */
   void splitTetsSet(int percent = 10);
   
-
+  //! Select input data normalization scheme.
   void NormalizeData(NormType t = NONE){ 
     m_normType = t;
     m_dataSets.NormalizeDataSet(t);
+
     /// DEBUG
     // m_dataSets.WriteDataSet("InputVarNormalized.root");
     ///DEBUG
   }
-
+  
+  /**
+   * Setter to set the weightfile name.
+   *@param outFile Output filename.
+   */
   void SetOutPutFile(const std::string& outFile)
   {m_outFile = outFile;}
 
+  /**
+   * Writes the train and test errors evaluations to a given file.
+   *@param FileName Output file name.
+   */
   void WriteErroVect(const std::string FileName);
 
  protected:
@@ -71,9 +86,15 @@ class PndMvaTrainer
    */
   void WriteToWeightFile(const std::vector< std::pair<std::string, 
 			 std::vector<float>*> >& weights);
-
+  /**
+   * Writes generated TMVA Foams to file.
+   *@param foams The list of the foams to be stored.
+   * Note that the implementation of TMVA foams here is in early
+   * experimental stage.
+   */
   void WriteToWeightFile(const std::vector<TMVA::PDEFoam*>& foams);
   
+  //! Classifier error evaluation
   virtual void EvalClassifierError(){};
   
   //! Indices of the test set.
@@ -82,10 +103,11 @@ class PndMvaTrainer
   //! Data set. Holds event values
   PndMvaDataSet m_dataSets;
   
+  //! Container to keep per step error values.
   std::vector <StepError> m_StepErro;
-  
+  //! Output filename.
   std::string m_outFile;
-  
+  //! Selected normalization scheme.
   NormType m_normType;
   
   //! Random seed

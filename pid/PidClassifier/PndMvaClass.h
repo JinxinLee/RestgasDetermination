@@ -25,6 +25,10 @@ struct PndMvaClass
   size_t EndIdx;     /**< End index of events of this class. */
 };
 
+/**
+ * Constructor implementation.
+ *@Param name Class name.
+*/
 inline PndMvaClass::PndMvaClass(const std::string& name)
 :
     Name(name),

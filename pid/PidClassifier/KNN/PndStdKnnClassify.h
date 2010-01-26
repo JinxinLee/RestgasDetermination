@@ -45,7 +45,11 @@ class PndStdKnnClassify : public PndGpidClassifier
    */
   void GetMvaValues(std::vector<float> eventData,
 		    std::map<std::string,float>& result);
-
+  /**
+   * Given a feature vector describing the pattern. Classifies the pattern.
+   *@param EvtData Input vector describing the pattern.
+   *@return The name of the class to which the current pattern is assigned.
+   */
   const std::string& Classify(std::vector<float> EvtData)const;
 
   /**
@@ -60,7 +64,8 @@ class PndStdKnnClassify : public PndGpidClassifier
 
   //! Number of Neighbours.
   unsigned int m_Knn;
-
+  
+  //! Container to hold the distances to current pattern.
   std::vector<PndMvaDistObj> m_distances;
 };
 #endif //End of PndStdKnnClassify definitions.

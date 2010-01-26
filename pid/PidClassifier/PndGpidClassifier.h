@@ -26,6 +26,9 @@
 
 // PANDA And ROOT includes
 
+/**
+ * Main interface definition.
+*/
 class PndGpidClassifier
 {
  public:
