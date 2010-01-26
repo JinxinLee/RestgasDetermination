@@ -78,10 +78,12 @@ std::vector<PndTrackCandHit> PndTrackCand::GetSortedHits()
 	return fHitId;
 }
 
-bool operator== (const PndTrackCand& lhs, const PndTrackCand& rhs){
-	if(lhs == rhs)
-		return true;
-	return false;
+bool PndTrackCand::operator== (const PndTrackCand& rhs){
+  if(rhs.fHitId.size()!=fHitId.size()) return false;
+  for(unsigned int i=0;i<fHitId.size();++i){
+    if(fHitId.at(i) != rhs.fHitId.at(i) ) return false;
+  }
+  return true;
 }
 
 

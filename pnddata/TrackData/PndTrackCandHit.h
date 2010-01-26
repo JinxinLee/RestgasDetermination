@@ -29,14 +29,14 @@ class PndTrackCandHit : public TObject{
 public:
  PndTrackCandHit():fHitId(-1), fDetId(-1), fRho(0){}
  PndTrackCandHit(Int_t detId, Int_t hitId, Double_t rho):fDetId(detId), fHitId(hitId), fRho(rho){}
-  friend bool operator< (const PndTrackCandHit& lhs, const PndTrackCandHit& rhs)
-  {return lhs.GetRho()<rhs.GetRho();};
-  bool operator== (const PndTrackCandHit& hit){
-    if (GetHitId() == hit.GetHitId() && GetDetId() == hit.GetDetId())
-      return true;
-    return false;
+  bool operator< (const PndTrackCandHit& rhs) const
+  {return fRho<rhs.fRho;};
+  bool operator== (const PndTrackCandHit& hit) const {
+    return (fHitId == hit.fHitId && fDetId == hit.fDetId);
   }
-
+  bool operator!= (const PndTrackCandHit& hit) const {
+    return (fHitId != hit.fHitId || fDetId != hit.fDetId);
+  }
   Int_t GetHitId()const {return fHitId;}
   Int_t GetDetId()const {return fDetId;}
   Double_t GetRho()const {return fRho;}

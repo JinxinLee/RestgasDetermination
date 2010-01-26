@@ -41,7 +41,7 @@ public:
   ~PndTrackCand();
 
   // operators
-  friend bool operator== (const PndTrackCand& lhs, const PndTrackCand& rhs);
+  bool operator== (const PndTrackCand& rhs);
 
   // Accessors -----------------------
   PndTrackCandHit GetSortedHit(UInt_t i){
