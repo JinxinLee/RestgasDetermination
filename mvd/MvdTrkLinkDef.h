@@ -9,7 +9,7 @@
 
 //data
 #pragma link C++ class PndMvdRecoHit+;
-#pragma link C++ class PndMvdPidCand+;
+// #pragma link C++ class PndMvdPidCand+;
 
 //pid
 #pragma link C++ class PndMvdPidIdealTask+;

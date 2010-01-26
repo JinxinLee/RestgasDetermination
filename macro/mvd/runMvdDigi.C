@@ -12,7 +12,7 @@
   TString inFile = "Mvd_Test.root";
   TString parFile = "Mvd_Params.root";
   TString digiparFile = gSystem->Getenv("VMCWORKDIR");
-  digiparFile += "/macro/params/mvd.digi.par";
+  digiparFile += "/macro/params/all.par";
 
   // Output file
   PndMvdFileNameCreator creator(inFile.Data());

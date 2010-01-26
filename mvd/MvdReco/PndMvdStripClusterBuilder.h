@@ -25,7 +25,8 @@
 
 typedef std::map<Int_t,Int_t> Indexpair;
 typedef std::map<Int_t,Indexpair> Indextriple;
-typedef std::map<std::string,std::map<SensorSide,Indextriple> > Fullmap;
+typedef std::map<SensorSide,Indextriple> SidedTriple;
+typedef std::map<std::string,SidedTriple > Fullmap;
 
 class PndMvdStripClusterBuilder {
  public:
@@ -35,7 +36,7 @@ class PndMvdStripClusterBuilder {
   void Reinit();
 
   void AddDigi(std::string detname, SensorSide side, Int_t timestamp, Int_t strip, Int_t iPoint);
-
+  void ClearDigis() {fSortedDigis.clear();}
   virtual std::vector< PndMvdClusterStrip > SearchClusters() = 0;
 
   std::vector< PndMvdClusterStrip >  GetClusters() const {return fClusters;}
@@ -56,7 +57,7 @@ protected:
   std::vector< PndMvdClusterStrip > fClusters;
 
 private:
-ClassDef(PndMvdStripClusterBuilder,1);
+ClassDef(PndMvdStripClusterBuilder,2);
 };
 
 

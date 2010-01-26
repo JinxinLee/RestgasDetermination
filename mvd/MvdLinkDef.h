@@ -8,12 +8,12 @@
 
 
 //data
-#pragma link C++ class PndMvdMCPoint+;
-#pragma link C++ class PndMvdDigi+;
-#pragma link C++ class PndMvdDigiPixel+;
-#pragma link C++ class PndMvdPixel+;
-#pragma link C++ class PndMvdStrip+;
-#pragma link C++ class PndMvdApvHit+;
+// #pragma link C++ class PndMvdMCPoint+;
+// #pragma link C++ class PndMvdDigi+;
+// #pragma link C++ class PndMvdDigiPixel+;
+// #pragma link C++ class PndMvdPixel+;
+// #pragma link C++ class PndMvdStrip+;
+// #pragma link C++ class PndMvdApvHit+;
 
 //mc
 #pragma link C++ class PndMvdGeo+;

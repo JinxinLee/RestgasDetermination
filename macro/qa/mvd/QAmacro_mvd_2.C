@@ -34,7 +34,6 @@
   mvddigi->SetVerbose(iVerbose);
   fRun->AddTask(mvddigi);
 
-  Double_t chargecut = 5000., pixelrad=1.8;
   PndMvdClusterTask* mvdmccls = new PndMvdClusterTask();
   mvdmccls->SetVerbose(iVerbose);
   fRun->AddTask(mvdmccls);

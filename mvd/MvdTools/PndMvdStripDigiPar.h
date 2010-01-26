@@ -67,20 +67,21 @@ class PndMvdStripDigiPar : public FairParGenericSet
     Double_t fBotPitch;     // Strip pitch on bottom wafer side
     Double_t fOrient;       // orientation angle of top strips
     Double_t fSkew;         // skew angle of bottom strips wrt top strips
+    Double_t fThreshold;    // Discriminator threshold
+    Double_t fNoise;        // Complete noise including threshold dispersion
+    Double_t fChargeCut;    // Cluster charge corralation for double sided sensors
     TVector2 fTopAnchor;    // Anchor point of top strip#0
     TVector2 fBotAnchor;    // Anchor point of bottom strip#0
     Int_t    fFeChannels;   // Number of Channels per FE
     Int_t    fTopNrFE;      // Number of FE attached to top wafer side
     Int_t    fBotNrFE;      // Number of FE attached to bottom wafer side
-    Double_t fThreshold;    // Discriminator threshold
-    Double_t fNoise;        // Complete noise including threshold dispersion
+    Int_t    fClusterMod;   // Clusterfinder mode: 1,2,3,4,5
+    Int_t    fRadChannel;   // Clusterfinder channel search radius
+    Int_t    fRadTime;      // Clusterfinder timing search radius
     TString  fSensType;     // Sensor type name (rect, trap...)
     TString  fFeType;       // Frontend type name (APV25, CBM-XYTER, ...)
-    Int_t fClusterMod;      // Clusterfinder mode: 1,2,3,4,5
-    Int_t fRadChannel;      // Clusterfinder channel search radius
-    Int_t fRadTime;         // Clusterfinder timing search radius
-    Double_t fChargeCut;    // Cluster charge corralation for double sided sensors
-	ClassDef(PndMvdStripDigiPar,3);
+
+  ClassDef(PndMvdStripDigiPar,3);
 };
 
 #endif /* !PNDMVDSTRIPDIGIPAR_H*/

@@ -102,8 +102,8 @@ void PndMvdStripClusterTask::SetCalculators()
     if(fVerbose>1){
       Info("SetCalculators()","Create a Parameter Set for %s sensors",senstype);
       std::cout<<senstype<<"#"<<std::endl;
+      digipar->Print();
     }
-    if(fVerbose>0)digipar->Print();
     fStripCalcTop[senstype]=new PndMvdCalcStrip(digipar,kTOP);
     fStripCalcTop[senstype]->SetVerboseLevel(fVerbose);
     fStripCalcBot[senstype]=new PndMvdCalcStrip(digipar,kBOTTOM);
@@ -359,8 +359,7 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
   std::cout << "-I- PndMvdStripClusterTask: " << fClusterArray->GetEntriesFast()
             << " Mvd Clusters and " << fHitArray->GetEntriesFast()<<" Hits calculated."
             << " out of " <<fDigiArray->GetEntriesFast()<< " Digis"<< std::endl;
-
-  if(0!=fCurrentClusterfinder) delete fCurrentClusterfinder;
+  fCurrentClusterfinder->ClearDigis();
   return;
 }
 

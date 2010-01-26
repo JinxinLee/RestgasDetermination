@@ -42,15 +42,13 @@ class PndMvdPixelDigiPar : public FairParGenericSet
 
   private:
     // Pixel Parameters
-    Double_t fDimX;
-    Double_t fDimY;
-    Int_t fFeCols;
-    Int_t fFeRows;
-    Double_t fRadius;
-
-
-    Double_t fThreshold; // Discriminator fThreshold
-    Double_t fNoise;     // Complete fNoise including fThreshold dispersion
+    Int_t fFeCols;  // Colums read per Frontend 
+    Int_t fFeRows;  // Rows read per Frontend
+    Double_t fDimX; // Pixel cell size X
+    Double_t fDimY; // Pixel cell size Y
+    Double_t fRadius;  // Clusterfinder search radius (channel numbers)
+    Double_t fThreshold; // Discriminator Threshold (electrons)
+    Double_t fNoise;     // Gaussian electronics noise including threshold dispersion (electrons)
 //     Text_t   fSensName;  // Sensor name
 //     Text_t   fFeName;    // Frontend name
 
