@@ -10,6 +10,7 @@ ${CMAKE_SOURCE_DIR}/geobase
 ${CMAKE_SOURCE_DIR}/parbase 
 ${CMAKE_SOURCE_DIR}/base 
 ${CMAKE_SOURCE_DIR}/pnddata
+${CMAKE_SOURCE_DIR}/pnddata/TrackData
 ${CMAKE_SOURCE_DIR}/field 
 ${CMAKE_SOURCE_DIR}/passive
 ${CMAKE_SOURCE_DIR}/genfit
@@ -50,6 +51,7 @@ PndTpcRiemannHTCorrelator.cxx
 PndTpcClustershapeCorrelator.cxx
 PndTpcRiemannTrackingTask.cxx
 PndTpcIdealTrackingTask.cxx
+PndTpcIdealTrackingTask2.cxx
 PndTpcRiemannMCTask.cxx
 PndTpcRiemannMCResidual.cxx
 ##############################
@@ -80,7 +82,6 @@ CHANGE_FILE_EXTENSION(*.cxx *.h TPCRECO_HEADERS "${TPCRECO_SRCS}")
 
 set(TPCRECO_LINKDEF  tpcrecoLinkDef.h)
 set(TPCRECO_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/tpcrecoDict.cxx) 
-
 ROOT_GENERATE_DICTIONARY("${TPCRECO_HEADERS}" "${TPCRECO_LINKDEF}" "${TPCRECO_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
 
 SET(TPCRECO_SRCS ${TPCRECO_SRCS} ${TPCRECO_DICTIONARY})

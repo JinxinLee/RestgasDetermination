@@ -5,6 +5,7 @@
 #include<algorithm>
 
 bool dedxSort(PAIR p1,PAIR p2){
+  //TODO: improve!
   if(fabs(p1.second)<1.E-10) return false;
   if(fabs(p2.second)<1.E-10) return true;
   return p1.first/p1.second < p2.first/p2.second;
