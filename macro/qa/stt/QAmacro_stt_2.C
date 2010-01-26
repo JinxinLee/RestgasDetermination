@@ -2,6 +2,9 @@
 // #include "/home/lavezzi/test_dev/original/trunk3/pnddata/PndDetectorList.h"
 // void QAmacro_stt_2(){
 {
+  TStopwatch timer;
+  timer.Start();
+
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
  
@@ -86,7 +89,10 @@
     cout << " Test Failed" << endl;
     cout << " Not Ok " << endl;         
   }
-
+ timer.Stop();
+  Double_t rtime = timer.RealTime();
+  Double_t ctime = timer.CpuTime();
+  printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
   exit(0); 
 }  
   

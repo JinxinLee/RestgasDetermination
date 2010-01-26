@@ -4,6 +4,9 @@
 // phi   in [0°, 360°]
 
 {
+  TStopwatch timer;
+  timer.Start();
+
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
 
@@ -83,7 +86,7 @@
   fRun->Init();
   
  
-  Int_t nEvents = 50;
+  Int_t nEvents = 100;
   fRun->Run(nEvents);
 
   rtdb->saveOutput();
@@ -99,6 +102,11 @@
   }
   
   delete fRun;
+
+  timer.Stop();
+  Double_t rtime = timer.RealTime();
+  Double_t ctime = timer.CpuTime();
+  printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
   exit(0); 
 }  
   
