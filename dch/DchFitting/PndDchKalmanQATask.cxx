@@ -15,16 +15,14 @@
 #include "GFRecoHitFactory.h"
 #include "GFKalman.h"
 #include "GFException.h"
-#include "PndDchTrackMatch.h"
-#include "PndDchPoint.h"
+#include "PndTrackCand.h"
 
 // ROOT Headers -----------------------
 #include "TClonesArray.h"
 #include "TH1D.h"
-#include "TH1F.h"
 #include "TH2D.h"
 #include "TFile.h"
-//#include "TGeoGFTrack.h"
+//#include "TGeoTrack.h"
 #include "TGeoManager.h"
 #include "TCanvas.h"
 #include "TMath.h"
@@ -48,18 +46,11 @@ PndDchKalmanQATask::PndDchKalmanQATask()
   fThetaH = NULL;
   fPhiH = NULL;
   fCanvas = NULL;
-  fHrp = NULL;
-  fHrpx = NULL;
-  fHrpy = NULL;
-  fHrpz = NULL;
-  fHrtv = NULL;
-  fHrtw = NULL;
 }
 
 
 PndDchKalmanQATask::~PndDchKalmanQATask() {
   
-  std::cout<<"Ever come here? PndDchKalmanQATask::~PndDchKalmanQATask"<<std::endl;
   WriteHistograms();
 
   if(fhP!=NULL)    delete fhP;
@@ -70,18 +61,9 @@ PndDchKalmanQATask::~PndDchKalmanQATask() {
   if(0!=fThetaH)   delete fThetaH;
   if(0!=fPhiH)     delete fPhiH;
   if(0!=fCanvas)   delete fCanvas;
-
-  if(0!=fHrp)  delete   fHrp;
-  if(0!=fHrpx) delete  fHrpx;
-  if(0!=fHrpy) delete fHrpy;
-  if(0!=fHrpz) delete fHrpz;
-  if(0!=fHrtv) delete fHrtv;
-  if(0!=fHrtw) delete fHrtw;
 }
 
 InitStatus PndDchKalmanQATask::Init(){
-  if(fVerbose>0)
-    std::cout<<" I am entering PndDchKalmanQATask::Init()..."<<std::cout;
   //Get ROOT Manager
   FairRootManager* ioman= FairRootManager::Instance();
   if(ioman==0){
@@ -97,34 +79,27 @@ InitStatus PndDchKalmanQATask::Init(){
 
   fMCTrackArray=(TClonesArray*) ioman->GetObject("MCTrack");
   if(fMCTrackArray==0) {
-    Error("PndDchKalmanTask2::Init","MCTrack array not found!");
+    Error("PndDchKalmanQATask::Init","MCTrack array not found!");
     return kERROR;
   }
   
   fPointArray=(TClonesArray*) ioman->GetObject("PndDchPoint");
   if(fPointArray==0) {
-    Error("PndDchKalmanTask2::Init","PndDchPoint array not found!");
+    Error("PndDchKalmanQATask::Init","PndDchPoint array not found!");
     return kERROR;
   }
   
-  fDchTrackMatchArray = (TClonesArray*) ioman->GetObject("PndDchTrackMatch"); 
-  if(fDchTrackMatchArray==0){
-    Error("PndDchPrepareKalmanTracks2::Init","PndDchTrackMatch array not found!");
+  fDchTrackArray = (TClonesArray*) ioman->GetObject("DCHTrackCand");
+  if(fDchTrackArray==0){
+    Error("PndDchKalmaQATask::Init","PndDchTrack array not found!");
     return kERROR;
   }
    
   // // setup histograms
-  fhP    = new TH1D("pullP","(p_{Rec}-p_{MC})/p_{MC}",180,-0.05,0.05);
-  fhPx   = new TH1D("pullPx","(p_{x,Rec}-p_{x,MC})/p_{MC}",50,-0.05,0.08);
-  fhPy   = new TH1D("pullPy","(p_{y,Rec}-p_{y,MC})/p_{MC}",50,-0.05,0.08);
-  fhPz   = new TH1D("pullPz","(p_{z,Rec}-p_{z,MC})/p_{MC}",180,-0.05,0.05);
-  Double_t range = 0.3;
-  fHrpx = new TH1F("hrpx", "px: mc - reco", 50,-1.,1.);
-  fHrpy = new TH1F("hrpy", "py: mc - reco", 50,-1.,1.);
-  fHrpz = new TH1F("hrpz", "pz: mc - reco", 50,-1.,1.);
-  fHrp  = new TH1F("hrp", "p: mc - reco", 500,-range, range);
-  fHrtv = new TH1F("hrtv", "tv: mc - reco", 500,-0.1,0.1);
-  fHrtw = new TH1F("hrtw", "tw: mc - reco", 500,-0.1,0.1);
+  fhP    = new TH1D("pullP","(p_{Rec}-p_{MC})/p_{MC}",50,-0.05,0.05);
+  fhPx   = new TH1D("pullPx","(p_{x,Rec}-p_{x,MC})/p_{x,MC}",50,-2.9,2.9);
+  fhPy   = new TH1D("pullPy","(p_{y,Rec}-p_{y,MC})/p_{y,MC}",50,-2.9,2.9);
+  fhPz   = new TH1D("pullPz","(p_{z,Rec}-p_{z,MC})/p_{z,MC}",50,-2.9,2.9);
   fhP->SetFillColor(9);
   fhPx->SetFillColor(9);
   fhPy->SetFillColor(9);
@@ -132,9 +107,9 @@ InitStatus PndDchKalmanQATask::Init(){
   fhChi2 = new TH1D("chi2","chi2",500,0,1000);
   fhChi2->SetFillColor(2);
   fThetaH =new TH2D("theta","#theta_{rec}-#theta_{MC} vs #theta_{MC}",
-		    24,3,5,60,-3.,3.);
+		    24,0,8,60,-3.,3.);
   fPhiH   =new TH2D("phi",  "#phi_{rec}-#phi_{MC} vs #phi_{MC}",
-		    45,-180,180,100,-30,30);
+		    45,-180,180,100,-20,20);
   return kSUCCESS;
 }
 
@@ -150,16 +125,16 @@ void PndDchKalmanQATask::Exec(Option_t* opt) {
       TVector3 mom0;
       GFAbsTrackRep* rep = 0;
       rep = trk->getCardinalRep()->clone();
+      std::cout<<" Particle charge = "<<rep->getCharge()<<std::endl;
       GeaneTrackRep* grep = 0;
       if(fApproach==0){
 	// approach zero - working when only dipole field on
 	// all three components of momentum then reconstructed properly
-	// though biased by energy loss between target and 1st plane
 	mom0 = trk->getMom();
       }
       else if(fApproach==1){
-	// approach one - extrapolating to the plane containing
-	// the target (and perp. to the beam pipe)
+	// approach one - failing, since for ca. 50% of all events
+	// one of the momentum components has a mismatch in sign
 	GFDetPlane pl(TVector3(0,0,0),TVector3(1,0,0),TVector3(0,1,0));
 	grep=dynamic_cast<GeaneTrackRep*>(rep);
 	grep->setPropDir(-1);
@@ -167,24 +142,18 @@ void PndDchKalmanQATask::Exec(Option_t* opt) {
       }
       else if(fApproach==2){
 	continue;
- 	//approach two - extrapolation to the point of closest approach
-	//from the target
-//  	TMatrixT<double> statePred(5,1);
-//  	TMatrixT<double> covPred(5,5);
-//  	GFDetPlane planePred;
-//  	grep=dynamic_cast<GeaneTrackRep*>(rep);
-//  	grep->setPropDir(-1);
-	
-// 	TVector3 poca,pocaOnWire,dirInPoca;
-//  	grep->extrapolateToLine( TVector3(0,-50,0), TVector3(0,50,0) poca,dirInPoca,pocaOnWire);
-// 	planePred.setO(TVector3(0,0,0));
-// 	planePred.setNormal(dirInPoca);
-// 	grep->extrapolate(planePred,statePred,covPred);
-//  	grep->setState(statePred);
-//  	grep->setCov(covPred);
-//  	grep->setReferencePlane(planePred);
-// 	grep->setPropDir(1);
-//  	mom0=grep->getMom(planePred);
+ 	//approach two
+ 	/*TMatrixT<double> statePred(5,1);
+ 	TMatrixT<double> covPred(5,5);
+ 	GFDetPlane planePred;
+ 	grep=dynamic_cast<GeaneTrackRep*>(rep);
+ 	grep->setPropDir(-1);
+ 	grep->extrapolateToPoca( TVector3(0,0,0), statePred, covPred, planePred );
+ 	grep->setState(statePred);
+ 	grep->setCov(covPred);
+ 	grep->setReferencePlane(planePred);
+	grep->setPropDir(1);
+ 	mom0=grep->getMom(planePred);*/
       }
       else{
 	continue;
@@ -192,85 +161,53 @@ void PndDchKalmanQATask::Exec(Option_t* opt) {
       if(fSignPatch)
 	if(mom0.Z()<0)
 	  mom0 = -mom0;
-      if(fVerbose>0){
-	std::cout<<"mom0 reconstructed = "<<std::endl;
-	mom0.Print();
-      }
+      std::cout<<"mom0 reconstructed = "<<std::endl;
+      mom0.Print();
       
-      Int_t mcTrid = -1;
-      Int_t id = 0;
-      while(id<fDchTrackMatchArray->GetEntriesFast()){
-	PndDchTrackMatch* dchtrmatch = (PndDchTrackMatch*) fDchTrackMatchArray->At(id);
-	if(dchtrmatch->GetRecTrackID()==itr){
-	  mcTrid = dchtrmatch->GetMCTrackID();
-	  break;
-	}
-	id++;
-      }
+      // ---------------------------------------
+      // THIS PART OF CODE MAY CAUSE PROBLEMS...
+      // USED TO BE:
+      //      Int_t mcTrid = -1;
+      //      Int_t id = 0;
+      //      while(id<fDchTrackMatchArray->GetEntriesFast()){
+      //	PndDchTrackMatch* dchtrmatch = (PndDchTrackMatch*) fDchTrackMatchArray->At(id);
+      //	if(dchtrmatch->GetRecTrackID()==itr){
+      //	  mcTrid = dchtrmatch->GetMCTrackID();
+      //	  break;
+      //	}
+      //	id++;
+      //      }
+      // ---------------------------------------
+      // CHANGING TO:
+      PndTrackCand* dchTrack = (PndTrackCand*)fDchTrackArray->At(itr);
+      Int_t mcTrid = dchTrack->getMcTrackId();
+      // ---------------------------------------
       if(mcTrid<0){
 	if(fVerbose>0) std::cout<<"No MCTrack to compare the reco-track with!\n";
-	return;
-      }
-
-      TVector3 mcmom;
-      if(fApproach==0){
-	for(Int_t ipt=0; ipt<fPointArray->GetEntries(); ipt++){
-	  PndDchPoint* point = (PndDchPoint*)fPointArray->At(ipt);
-	  if(point->GetTrackID() != mcTrid)
-	    continue;
-	  else {
-	    point->Momentum(mcmom);
-	    break;
-	  }
-	}
-      }
-      else if(fApproach==1){
-	PndMCTrack* mc=(PndMCTrack*)fMCTrackArray->At(mcTrid);
-	if(mc==0){
-	  Error("PndDchPrepareKalmanTracks::Exec","MCTrack Id=0 not found!");
-	  continue;
-	}
-	mcmom = mc->GetMomentum();
+	continue;
       }
       
-      if(fVerbose>0){
-	std::cout<<"mcmom: "<<std::endl;
-	mcmom.Print();
+      PndMCTrack* mc=(PndMCTrack*)fMCTrackArray->At(mcTrid);
+      if(mc==0){
+	Error("PndDchPrepareKalmanTracks::Exec","MCTrack Id=0 not found!");
+	continue;
       }
-      if(0!=mcmom.Mag()){
+      TVector3 mcmom = mc->GetMomentum();
+      std::cout<<"mcmom: "<<std::endl;
+      mcmom.Print();
+      if(0!=mcmom.Mag())
 	if(fhP) fhP->Fill((mom0.Mag()-mcmom.Mag())/mcmom.Mag());
-	//if(0!=mcmom.X())
-	if(fhPx) fhPx->Fill((mom0.X()-mcmom.X())/mcmom.Mag());
-	//if(0!=mcmom.Y())
-	if(fhPy) fhPy->Fill((mom0.Y()-mcmom.Y())/mcmom.Mag());
-	//if(0!=mcmom.Z())
-	if(fhPz) fhPz->Fill((mom0.Z()-mcmom.Z())/mcmom.Mag());
-      }
+      if(0!=mcmom.X())
+	if(fhPx) fhPx->Fill((mom0.X()-mcmom.X())/mcmom.X());
+      if(0!=mcmom.Y())
+	if(fhPy) fhPy->Fill((mom0.Y()-mcmom.Y())/mcmom.Y());
+      if(0!=mcmom.Z())
+	if(fhPz) fhPz->Fill((mom0.Z()-mcmom.Z())/mcmom.Z());
       if(fhChi2) fhChi2->Fill(trk->getChiSqu());
       if(fThetaH) fThetaH->Fill(mcmom.Theta()*TMath::RadToDeg(),
 				(-mcmom.Theta()+mom0.Theta())*TMath::RadToDeg());
       if(fPhiH) fPhiH->Fill(mcmom.Phi()*TMath::RadToDeg(),
 			    (-mcmom.Phi()+mom0.Phi())*TMath::RadToDeg());
-
-      //filling residuals
-
-    Double_t mc_tv = (mcmom.X()/mcmom.Z());
-    Double_t mc_tw = (mcmom.Y()/mcmom.Z());
-    Double_t reco_tv = (mom0.X()/mom0.Z());
-    Double_t reco_tw = (mom0.Y()/mom0.Z());
-    fHrp->Fill((mcmom.Mag() - mom0.Mag()));
-    fHrpx->Fill(mcmom.X()  - mom0.X());
-    fHrpy->Fill(mcmom.Y()  - mom0.Y());
-    fHrpz->Fill(mcmom.Z()  - mom0.Z()); 
-    fHrtv->Fill((mc_tv - reco_tv));
-    fHrtw->Fill((mc_tw - reco_tw));
-
-
-
-
-
-
-
       if(0!=rep) delete rep;
     }
     delete trk;
@@ -280,7 +217,6 @@ void PndDchKalmanQATask::Exec(Option_t* opt) {
   
 
 Bool_t  PndDchKalmanQATask::WriteHistograms(){
-  std::cout<<"  PndDchKalmanQATask::WriteHistograms() "<<std::endl;
   TFile* file = FairRootManager::Instance()->GetOutFile();
   file->cd();
   file->mkdir("DchKalmanQA");
@@ -294,15 +230,6 @@ Bool_t  PndDchKalmanQATask::WriteHistograms(){
   if(0!=fThetaH) fThetaH->Write();
   if(0!=fPhiH) fPhiH->Write();
   if(0!=fCanvas)  fCanvas->Write();
-
-  if(0!=fHrp)  fHrp->Write();  
-  if(0!=fHrpx)  fHrpx->Write();
-  if(0!=fHrpy)  fHrpy->Write();
-  if(0!=fHrpz)  fHrpz->Write();
-  if(0!=fHrtv)  fHrtv->Write();
-  if(0!=fHrtw)  fHrtw->Write();
-
-
   return kTRUE;
 }
 

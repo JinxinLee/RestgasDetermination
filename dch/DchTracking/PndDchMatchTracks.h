@@ -5,12 +5,11 @@
 /** \class PndDchMatchTracks
  *  \author A.Bubak <arkadiusz.bubak@gmail.com>
  *  \date 15/03/08
- *  \brief Task class for matching a reconstructed PndDchTrack with a simulated one
+ *  \brief Task class for matching a reconstructed PndTrackCand with a simulated one
  * 
- *  Task class for matching a reconstructed PndDchTrack with a simulated
+ *  Task class for matching a reconstructed PndTrackCand with a simulated
  *  PndMCTrack. The matching criterion is a maximal number of common
- *  hits/digis/chits//points. The task fills the data class PndDchTrackMatch for
- *  each PndDchTrack.
+ *  hits/digis/chits//points. The task fills the fMcTrackId member of PndTrackCand
  **/
 
 #ifndef PNDDCHMATCHTRACKS_H
@@ -77,13 +76,12 @@ public:
 		
 private:
 
-	TClonesArray* fTracks;       ///< Array of PndDchTracks
+	TClonesArray* fTracks;       ///< Array of PndTracksCand
 	TClonesArray* fPoints;       ///< Array of FairMCPoints
 	TClonesArray* fHits;         ///< Array of PndDchHits
 	TClonesArray* fCylinderHits; ///< Array of PndDchCylinderHits
 	TClonesArray* fDigis;		 ///< Array of PndDchDigis
 	TClonesArray* fHorDs;		 ///< Array of PndDchHits/PndDchDigis/PndDchCylinderHits
-	TClonesArray* fMatches;      ///< Array of PndDchTrackMatch
 
 	/** Map from MCTrackID to number of common hits **/
 	std::map<Int_t, Int_t> fMatchMap;

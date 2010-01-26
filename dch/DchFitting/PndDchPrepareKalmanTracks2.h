@@ -70,8 +70,7 @@ private:
 
   TClonesArray* fTrackArray;          ///< output array of genfit Tracks
   TClonesArray* fDchPointArray;       ///< input array of PndDchPoints (needed for initialization of parameters)
-  TClonesArray* fDchTrackArray;       ///< input array of PndDchTracks to be processed by this task
-  TClonesArray* fDchTrackMatchArray;  ///<input array of PndDchTrackMatches (needed for initialization) 
+  TClonesArray* fDchTrackArray;       ///< input array of PndTrackCands to be processed by this task
   TClonesArray* fMcArray;             ///<input array of MCTracks (needed for initialization) 
   TClonesArray* fCHitArray;           ///<input array of PndDchCylinderHits
 

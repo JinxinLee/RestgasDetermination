@@ -101,7 +101,7 @@ class PndDchPreFitter : public FairTask {
   TString fOutFile;///< name of file to save histograms
  
   TClonesArray* fHitArray;     ///< Output array of PndDchHits	
-  TClonesArray* fTrackArray;   ///< Output array of PndDchTracks
+  TClonesArray* fTrackArray;   ///< Output array of PndTrackCands
   
   
   PndDchStructure *fStructure; ///< pointer to geo structure of dch setup  

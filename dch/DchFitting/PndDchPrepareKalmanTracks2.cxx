@@ -17,8 +17,8 @@
 #include "FairTrackParP.h"
 #include "PndDchPrepareKalmanTracks2.h"
 #include "PndDchPoint.h"
-#include "PndDchTrack.h"
-#include "PndDchTrackMatch.h"
+#include "PndTrackCand.h"
+#include "PndTrackCandHit.h"
 #include "PndDchCylinderHit.h"
 
 // ROOT Class Headers --------
@@ -31,7 +31,7 @@
 
 
 PndDchPrepareKalmanTracks2::PndDchPrepareKalmanTracks2()
-  : FairTask("Translation of PndDchTracks to Tracks"), fPersistence(kFALSE), fUseGeane(kFALSE), fUseMC(kFALSE), fPDG(11), fMinNuOfHits(30)
+  : FairTask("Translation of PndTrackCand to GFTracks"), fPersistence(kFALSE), fUseGeane(kFALSE), fUseMC(kFALSE), fPDG(11), fMinNuOfHits(30)
 {
 }
 
@@ -87,22 +87,16 @@ PndDchPrepareKalmanTracks2::Init()
       Error("PndDchPrepareKalmanTracks2::Init","dchpoint-array not found!");
       return kERROR;
     } 
-    // open input array of PndDchTrackMatches
-    fDchTrackMatchArray = (TClonesArray*) ioman->GetObject("PndDchTrackMatch"); 
-    if(fDchTrackMatchArray==0){
-      Error("PndDchPrepareKalmanTracks2::Init","PndDchTrackMatch array not found!");
-      return kERROR;
-    }
   }
 
   // open input array of PndDchTracks
-  fDchTrackArray = (TClonesArray*) ioman->GetObject("PndDchTrack"); 
+  fDchTrackArray = (TClonesArray*) ioman->GetObject("DCHTrackCand"); 
   if(fDchTrackArray==0){
-    Error("PndDchPrepareKalmanTracks2::Init","PndDchTrack array not found!");
+    Error("PndDchPrepareKalmanTracks2::Init","PndTrackCand array not found!");
     return kERROR;
   }
   // create and register output array
-  fTrackArray = new TClonesArray("GFTrack"); 
+  fTrackArray = new TClonesArray("Track"); 
   ioman->Register("FSTracks","GenFit",fTrackArray,fPersistence);
   
   // GeanePro will get Geometry and BField from the Run
@@ -128,50 +122,43 @@ PndDchPrepareKalmanTracks2::Exec(Option_t* opt)
   for (Int_t id=0; id<nuOfTracks; id++){
     if(fVerbose>0)
       std::cout<<"PndDchPrepareKalmanTracks2::Exec(): Processing track id= "<<id<<std::endl;
-    PndDchTrack* dchtrack = (PndDchTrack*) fDchTrackArray->At(id);
-    Int_t nuOfChits = dchtrack->GetNofDchCylinderHits();
+    PndTrackCand* dchtrack = (PndTrackCand*) fDchTrackArray->At(id);
+    Int_t nuOfChits = dchtrack->GetNHits();
     if(fVerbose>0)
       std::cout<<"PndDchPrepareKalmanTracks2::Exec(): I found here "<<nuOfChits<<" cyl hits \n";
     
     GFTrackCand* cand = new GFTrackCand();
     for(Int_t nuhit=0; nuhit<nuOfChits; nuhit++){
-      Int_t globalCHitNu = dchtrack->GetDchCylinderHitIndex(nuhit);
+      PndTrackCandHit candHit = dchtrack->GetSortedHit(nuhit);
+      Int_t globalCHitNu = candHit.GetHitId();
       cand->addHit(1,globalCHitNu);
     }
-    if(cand->getNHits()<fMinNuOfHits)
+    if(cand->getNHits()<10)
       continue;
     
     Int_t pdg;
     Double_t q;
     TVector3 pos, mom;
-    
+  
     if(fUseMC){ 
-      Int_t mcTrID = -1;
-      Int_t idx = 0;
-      while(idx<fDchTrackMatchArray->GetEntries()){
-	PndDchTrackMatch* dchtrmatch = (PndDchTrackMatch*) fDchTrackMatchArray->At(idx);
-	if(dchtrmatch->GetRecTrackID()==id){
-	  mcTrID = dchtrmatch->GetMCTrackID();
-	  break;
-	}
-	idx++;
-      }
-      if(mcTrID<0){
+      Int_t mcTrId = dchtrack->getMcTrackId();
+      if(mcTrId<0){
 	Error("PndDchPrepareKalmanTracks2::Exec","Matching MCTrack for DchTrack Id=&i not found!",id);
 	continue;
       }
-      PndMCTrack* mc=(PndMCTrack*)fMcArray->At(mcTrID);
+      PndMCTrack* mc=(PndMCTrack*)fMcArray->At(mcTrId);
       if(mc==0){
-	Error("PndDchPrepareKalmanTracks2::Exec","MCTrack Id=&i not found!",mcTrID);
+	Error("PndDchPrepareKalmanTracks::Exec","MCTrack Id=&i not found!",mcTrId);
 	continue;
       }
-      mc->Print(mcTrID);
+      
+      mc->Print(mcTrId);
       pdg  = mc->GetPdgCode();
       q = TDatabasePDG::Instance()->GetParticle(pdg)->Charge()/3.;
       Int_t pointidx = 0;
       while(pointidx<fDchPointArray->GetEntries()){
 	PndDchPoint* pnt=(PndDchPoint*)fDchPointArray->At(pointidx);
-	if(pnt->GetTrackID()==mcTrID){
+	if(pnt->GetTrackID()==mcTrId){
 	  pnt->Position(pos);
 	  pnt->Momentum(mom);
 	  break;
@@ -180,10 +167,10 @@ PndDchPrepareKalmanTracks2::Exec(Option_t* opt)
       }
     }
     else{ // dch track has been initialised by prefitter
-      FairTrackParam* param = dchtrack->GetParamFirst();
-      param->Position(pos);
-      param->Momentum(mom);
-      q = (param->GetQp()==0) ? 0 : param->GetQp()/TMath::Abs(param->GetQp());
+      pos = dchtrack->getPosSeed();
+      mom = dchtrack->getDirSeed();
+      mom *= TMath::Abs(dchtrack->getQoverPseed());
+      q = (dchtrack->getQoverPseed()==0) ? 0 : dchtrack->getQoverPseed()/TMath::Abs(dchtrack->getQoverPseed());
       pdg = fPDG;
     }
     
@@ -196,17 +183,10 @@ PndDchPrepareKalmanTracks2::Exec(Option_t* opt)
     }
     Double_t startPosAccuracy = 0.5;
     TVector3 poserr(startPosAccuracy,startPosAccuracy,3.*startPosAccuracy);
-    pos.SetXYZ(gRandom->Gaus(pos.X(), poserr.X()),
-	       gRandom->Gaus(pos.Y(), poserr.Y()),
-	       gRandom->Gaus(pos.Z(), poserr.Z()));
-    
-    TVector3 startMomAccuracy(0.05,0.05,0.05);
+    TVector3 startMomAccuracy(0.1,0.1,0.1);
     TVector3 momerr(mom.X()*startMomAccuracy.X(),
 		    mom.Y()*startMomAccuracy.Y(),
 		    mom.Z()*startMomAccuracy.Z());    
-    mom.SetXYZ(gRandom->Gaus(mom.X(), momerr.X()),
-	       gRandom->Gaus(mom.Y(), momerr.Y()),
-	       gRandom->Gaus(mom.Z(), momerr.Z()));
     TVector3 u(1.,0.,0.);
     TVector3 v(0.,1.,0.);
     

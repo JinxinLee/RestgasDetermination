@@ -89,222 +89,246 @@ void PndDchTrackFinderIdealDigi::Init() {
 
 // -----   Public method DoFind   ------------------------------------------
 Int_t PndDchTrackFinderIdealDigi::DoFind(TClonesArray* digiArray,
-		TClonesArray* trackArray) {
-
-	// Count events
-	fNofEvents++;
-	cout << endl << endl<< endl << endl;
-	cout << "=======================================================" << endl;
-	cout << "-I-        Event No: " <<  fNofEvents << endl;
-	cout << "=======================================================" << endl;
-			
-	
-	cout <<"-I- "<< GetName() <<"::DoFind "<< endl;
-	cout << "-------------------------------------------------------" << endl;
-	cout << "     ### Start DoFind" << endl;
-	cout << "-------------------------------------------------------" << endl;
-
-	// Check pointers
-	if( !fMCTrackArray ) {
-		cout << "-E- "<< GetName() <<"::DoFind: "
-		<< "MCTrack array missing! " << endl;
-		return -1;
-	}
-
-	if( !fMCPointArray ) {
-		cout << "-E- "<< GetName() <<"::DoFind: "
-		<< "MCPoint array missing! " << endl;
-		return -1;
-	}
-
-	if( !digiArray ) {
-		cout << "-E- "<< GetName() <<"::DoFind: "
-		<< "Digi arrays missing! "<< endl;
-		return -1;
-	}
-
-	// Initialise control counters
-	Int_t nNoMCTrack   = 0;
-	Int_t nNoTrack     = 0;
-	Int_t nNoDchPoint  = 0;
-	Int_t nNoDchDigi   = 0;
-	Int_t nDchDigis6CH = 0;
-
-	// Create pointers to DchDigi and DchPoint
-	PndDchDigi*  dchDigi  = NULL;
-	FairMCPoint*  mcPoint  = NULL;
-	PndMCTrack*  mcTrack  = NULL;
-	PndDchTrack* dchTrack = NULL;
-
-	// Declare variables outside the loop
-	Int_t ptIndex = 0;       // MC point index
-	Int_t mcTrackIndex = 0;  // MC track index
-	Int_t trackIndex = 0;    // Dch track index
-	
-
-	// Create STL map from MCTrack index to number of digis
-	std::map<Int_t, Int_t> digiMap;
-	std::map<Int_t, Int_t>::iterator itDigiMap;
-
-	// Size of fMCTrackArray
-	cout <<"# MC Tracks: "<< fMCTrackArray->GetEntriesFast() << endl;
-	// Size of fMCTrackArray
-	cout <<"# MC Points: "<< fMCPointArray->GetEntriesFast() << endl;
-
-	// Number of Dch digis
-	Int_t nDchDigis = digiArray->GetEntriesFast();
-	if(fVerbose > 2) cout <<"# DchDigis: "<< nDchDigis << endl;
-
-	for(Int_t iDigi = 0; iDigi < nDchDigis; iDigi++){
-		// Get the pointer to Dch 
-		dchDigi = (PndDchDigi*) digiArray->At(iDigi);
-		if(dchDigi->GetChamber() > 2) {
-			if(NULL == dchDigi ) continue;
-			nDchDigis6CH++;
-			
-			// Get point index
-			ptIndex = dchDigi->GetRefIndex();
-
-			// Get pointer to MC point
-			mcPoint = (FairMCPoint*) fMCPointArray->At(ptIndex);
-			if(NULL == mcPoint) continue;
-
-			// Get MC track index
-			mcTrackIndex = mcPoint->GetTrackID();
-
-			// Increment the number of digis
-			digiMap[mcTrackIndex] += 1;
-		}
-	}
-
-
-	// Create STL map from MCTrack index to DchTrack index
-	map<Int_t, Int_t> trackMap;
-
-	// Loop over reconstructable MCTracks and create corresponding DchTrack
-	Int_t nMCacc = 0;  // Accepted MC tracks
-	Int_t nTracks = 0; // Reconstructable MC tracks
-	Int_t nMCTracks = fMCTrackArray->GetEntriesFast();
-
-	if(fVerbose > 2) {
-		cout <<"# of MC Tracks (nMCTracks): " << nMCTracks << endl;
-	}
-
-	for(Int_t iMCTrack = 0; iMCTrack < nMCTracks; iMCTrack++) {
-		mcTrack = (PndMCTrack*) fMCTrackArray->At(iMCTrack);
-		if( !mcTrack ) continue;
-
-
-		// Either Primary or All MC tracks are considered
-		if(fPrimary) {
-			if(mcTrack->GetMotherID() != -1 && fabs((mcTrack->GetStartVertex()).Z())>1.) continue;
-
-			if(fVerbose > 2) {
-				cout <<"MC track #: "<< iMCTrack
-				<< "\t MotherID: "<< mcTrack->GetMotherID()
-				<< "\t StartVertex Z: "<< mcTrack->GetStartVertex().Z() << endl;
-			}
-		}
-		//----------------------------------------------------
-		nMCacc++;
-
-		if(fVerbose > 2) {
-			cout << iMCTrack << ": #DchPoints in MCTrack: "<< mcTrack->GetNPoints(kDCH) << endl;
-		}
-
-		new((*trackArray)[nTracks]) PndDchTrack();
-
-		dchTrack = (PndDchTrack*) trackArray->At(nTracks);
-		TLorentzVector tlVec = mcTrack->Get4Momentum();
+					 TClonesArray* trackArray) {
+  
+  // Count events
+  fNofEvents++;
+  if ( fVerbose ) {
+    cout << endl << endl<< endl << endl;
+    cout << "=======================================================" << endl;
+    cout << "-I-        Event No: " <<  fNofEvents << endl;
+    cout << "=======================================================" << endl;
+    
+    
+    cout <<"-I- "<< GetName() <<"::DoFind "<< endl;
+    cout << "-------------------------------------------------------" << endl;
+    cout << "     ### Start DoFind" << endl;
+    cout << "-------------------------------------------------------" << endl;
+  }
+  
+  // Check pointers
+  if( !fMCTrackArray ) {
+    cout << "-E- "<< GetName() <<"::DoFind: "
+	 << "MCTrack array missing! " << endl;
+    return -1;
+  }
+  
+  if( !fMCPointArray ) {
+    cout << "-E- "<< GetName() <<"::DoFind: "
+	 << "MCPoint array missing! " << endl;
+    return -1;
+  }
+  
+  if( !digiArray ) {
+    cout << "-E- "<< GetName() <<"::DoFind: "
+	 << "Digi arrays missing! "<< endl;
+    return -1;
+  }
+  
+  // Initialise control counters
+  Int_t nNoMCTrack   = 0;
+  Int_t nNoTrack     = 0;
+  Int_t nNoDchPoint  = 0;
+  Int_t nNoDchDigi   = 0;
+  Int_t nDchDigis6CH = 0;
+  
+  // Create pointers to DchDigi and DchPoint
+  PndDchDigi*   dchDigi  = NULL;
+  FairMCPoint*  mcPoint  = NULL;
+  PndMCTrack*   mcTrack  = NULL;
+  PndTrackCand* dchTrack = NULL;
+  
+  // Declare variables outside the loop
+  Int_t ptIndex = 0;       // MC point index
+  Int_t mcTrackIndex = 0;  // MC track index
+  Int_t trackIndex = 0;    // Dch track index
+  
+  
+  // Create STL map from MCTrack index to number of digis
+  std::map<Int_t, Int_t> digiMap;
+  std::map<Int_t, Int_t>::iterator itDigiMap;
+  
+  // Size of fMCTrackArray
+  if ( fVerbose ) cout <<"# MC Tracks: "<< fMCTrackArray->GetEntriesFast() << endl;
+  // Size of fMCTrackArray
+  if ( fVerbose ) cout <<"# MC Points: "<< fMCPointArray->GetEntriesFast() << endl;
+  
+  // Number of Dch digis
+  Int_t nDchDigis = digiArray->GetEntriesFast();
+  if(fVerbose > 2) cout <<"# DchDigis: "<< nDchDigis << endl;
+  
+  for(Int_t iDigi = 0; iDigi < nDchDigis; iDigi++){
+    // Get the pointer to Dch 
+    dchDigi = (PndDchDigi*) digiArray->At(iDigi);
+    if(dchDigi->GetChamber() > 2) {
+      if(NULL == dchDigi ) continue;
+      nDchDigis6CH++;
+      
+      // Get point index
+      ptIndex = dchDigi->GetRefIndex();
+      
+      // Get pointer to MC point
+      mcPoint = (FairMCPoint*) fMCPointArray->At(ptIndex);
+      if(NULL == mcPoint) continue;
+      
+      // Get MC track index
+      mcTrackIndex = mcPoint->GetTrackID();
+      
+      // Increment the number of digis
+      digiMap[mcTrackIndex] += 1;
+    }
+  }
+  
+  
+  // Create STL map from MCTrack index to DchTrack index
+  map<Int_t, Int_t> trackMap;
+  
+  // Loop over reconstructable MCTracks and create corresponding DchTrack
+  Int_t nMCacc = 0;  // Accepted MC tracks
+  Int_t nTracks = 0; // Reconstructable MC tracks
+  Int_t nMCTracks = fMCTrackArray->GetEntriesFast();
+  
+  if(fVerbose > 2) {
+    cout <<"# of MC Tracks (nMCTracks): " << nMCTracks << endl;
+  }
+  
+  for(Int_t iMCTrack = 0; iMCTrack < nMCTracks; iMCTrack++) {
+    mcTrack = (PndMCTrack*) fMCTrackArray->At(iMCTrack);
+    if( !mcTrack ) continue;
+    
+    
+    // Either Primary or All MC tracks are considered
+    if(fPrimary) {
+      if(mcTrack->GetMotherID() != -1 && fabs((mcTrack->GetStartVertex()).Z())>1.) continue;
+      
+      if(fVerbose > 2) {
+	cout <<"MC track #: "<< iMCTrack
+	     << "\t MotherID: "<< mcTrack->GetMotherID()
+	     << "\t StartVertex Z: "<< mcTrack->GetStartVertex().Z() << endl;
+      }
+    }
+    //----------------------------------------------------
+    // trivial check for number of DCH hits
+    if ( !digiMap[iMCTrack] ) continue;
+    //----------------------------------------------------
+    nMCacc++;
+    
+    if(fVerbose > 2) {
+      cout << iMCTrack << ": #DchPoints in MCTrack: "<< mcTrack->GetNPoints(kDCH) << endl;
+    }
+    
+    new((*trackArray)[nTracks]) PndTrackCand();
+    
+    dchTrack = (PndTrackCand*) trackArray->At(nTracks);
+    /*		TLorentzVector tlVec = mcTrack->Get4Momentum();
 		Double_t mom = tlVec.Mag();
 		if(mom != 0) {
-			dchTrack->GetParamLast()->SetQp(1./mom);
+		dchTrack->GetParamLast()->SetQp(1./mom);
 		} else {
-			dchTrack->GetParamLast()->SetQp(0);
-		}
-		trackMap[iMCTrack] = nTracks;
+		dchTrack->GetParamLast()->SetQp(0);
+		}*/
+    
+    dchTrack->setMcTrackId(iMCTrack);
+    
+    trackMap[iMCTrack] = nTracks;
+    
+    nTracks++;
+  }
+  
+  // Loop over digis. Get corresponding MCPoint and MCTrack index
+  for(Int_t iDigi = 0; iDigi < nDchDigis; iDigi++) {
+    dchDigi = (PndDchDigi*) digiArray->At(iDigi);
+    if( !dchDigi ) {
+      nNoDchDigi++;
+      continue;
+    }
+    
+    ptIndex = dchDigi->GetRefIndex();
+    
+    if(ptIndex < 0) continue;           // fake or background digi
+    mcPoint = (FairMCPoint*) fMCPointArray->At(ptIndex);
+    
+    if( !mcPoint ) {
+      nNoDchPoint++;
+      continue;
+    }
+    
+    mcTrackIndex = mcPoint->GetTrackID();
+    
+    if(mcTrackIndex < 0 || mcTrackIndex > nMCTracks) {
+      cout << "-E- "<< GetName() <<"::DoFind: "
+	   << "MCTrack index out of range. " << mcTrackIndex << " "
+	   << nMCTracks << endl;
+      nNoMCTrack++;
+      continue;
+    }
+    
+    if(trackMap.find(mcTrackIndex) == trackMap.end()) continue;
+    trackIndex = trackMap[mcTrackIndex];
+ 
+    dchTrack = (PndTrackCand*) trackArray->At(trackIndex);
+    
+    if( !dchTrack ) {
+      cout << "-E- "<< GetName() <<"::DoFind: "
+	   << "No DchTrack pointer. " << iDigi << " " << ptIndex
+	   << " " << mcTrackIndex << " " << trackIndex << endl;
+      nNoTrack++;
+      continue;
+    }
+    
+    if(dchDigi->GetChamber() > 2) {// Only Dch chamber in forward spectrometer
+      dchTrack->AddHit(kDCH,iDigi,mcPoint->GetLength());
+    }
+    
+    if(fVerbose > 3) {
+      cout << "DCH digi " << iDigi << " from DCH point "
+	   << ptIndex << " (" << mcTrackIndex << ") "
+	   << "added to DCH track " << trackIndex << endl;
+    }
+  }
+  
+  // Sorting hits
+  for(Int_t iTrack = 0; iTrack < nTracks; iTrack++) {
+    dchTrack = (PndTrackCand*) trackArray->At(iTrack);
+    dchTrack->Sort();
+    
+    PndTrackCandHit tch = dchTrack->GetSortedHit(0);
 
-		nTracks++;
-	}
-	
-	// Loop over digis. Get corresponding MCPoint and MCTrack index
-	for(Int_t iDigi = 0; iDigi < nDchDigis; iDigi++) {
-		dchDigi = (PndDchDigi*) digiArray->At(iDigi);
-		if( !dchDigi ) {
-			nNoDchDigi++;
-			continue;
-		}
+    dchDigi = (PndDchDigi*) digiArray->At(tch.GetHitId());
+    ptIndex = dchDigi->GetRefIndex();
 
-		ptIndex = dchDigi->GetRefIndex();
+    TVector3 pos;
+    TVector3 mom;
+    
+    mcPoint = (FairMCPoint*) fMCPointArray->At(ptIndex);
 
-		if(ptIndex < 0) continue;           // fake or background digi
-		mcPoint = (FairMCPoint*) fMCPointArray->At(ptIndex);
+    mcPoint->Position(pos);
+    mcPoint->Momentum(mom);
 
-		if( !mcPoint ) {
-			nNoDchPoint++;
-			continue;
-		}
+    dchTrack->setTrackSeed(pos,mom.Unit(),1./mom.Mag());
+  }
+  
+  if(fVerbose) {
+    cout << endl;
+    cout << "-------------------------------------------------------" << endl;
+    cout << "-I-    "<< GetName() <<": Event summary    -I-" << endl;
+    cout << "-------------------------------------------------------" << endl;
+    cout << "Total Dch digis: " << nDchDigis <<"   In 6CH: "<< nDchDigis6CH << endl;
+    cout << "MC tracks total: " << nMCTracks << ", accepted: "
+	 << nMCacc << ", reconstructable: " << nTracks << endl;
+    if(nNoDchDigi)  cout << "DchDigis not found  : " << nNoDchDigi  << endl;
+    if(nNoDchPoint) cout << "DchPoints not found : " << nNoDchPoint << endl;
+    if(nNoMCTrack)  cout << "MCTracks not found  : " << nNoMCTrack  << endl;
+    if(nNoTrack)    cout << "DchTracks not found : " << nNoTrack    << endl;
+    cout << "------------------------------------------------------" << endl;
+    cout << endl;
+  } else {
+//     cout << "All: "        << nMCTracks
+// 	 << ", Accepted: "      << nMCacc
+// 	 << ", Reconstructed: " << nTracks << endl;
+  }
 
-		mcTrackIndex = mcPoint->GetTrackID();
-
-		if(mcTrackIndex < 0 || mcTrackIndex > nMCTracks) {
-			cout << "-E- "<< GetName() <<"::DoFind: "
-			<< "MCTrack index out of range. " << mcTrackIndex << " "
-			<< nMCTracks << endl;
-			nNoMCTrack++;
-			continue;
-		}
-
-		if(trackMap.find(mcTrackIndex) == trackMap.end()) continue;
-		trackIndex = trackMap[mcTrackIndex];
-		dchTrack = (PndDchTrack*) trackArray->At(trackIndex);
-
-		if( !dchTrack ) {
-			cout << "-E- "<< GetName() <<"::DoFind: "
-			<< "No DchTrack pointer. " << iDigi << " " << ptIndex
-			<< " " << mcTrackIndex << " " << trackIndex << endl;
-			nNoTrack++;
-			continue;
-		}
-
-		if(dchDigi->GetChamber() > 2) {// Only Dch chamber in forward spectrometer
-			dchTrack->AddDigi(dchDigi, iDigi);
-		}
-
-		if(fVerbose > 3) {
-			cout << "DCH digi " << iDigi << " from DCH point "
-			<< ptIndex << " (" << mcTrackIndex << ") "
-			<< "added to DCH track " << trackIndex << endl;
-		}
-	}
-
-	// Sorting digis
-	for(Int_t iTrack = 0; iTrack < nTracks; iTrack++) {
-		dchTrack = (PndDchTrack*) trackArray->At(iTrack);
-		dchTrack->SortDigis();
-	}
-	
-	if(fVerbose) {
-		cout << endl;
-		cout << "-------------------------------------------------------" << endl;
-		cout << "-I-    "<< GetName() <<": Event summary    -I-" << endl;
-		cout << "-------------------------------------------------------" << endl;
-		cout << "Total Dch digis: " << nDchDigis <<"   In 6CH: "<< nDchDigis6CH << endl;
-		cout << "MC tracks total: " << nMCTracks << ", accepted: "
-		<< nMCacc << ", reconstructable: " << nTracks << endl;
-		if(nNoDchDigi)  cout << "DchDigis not found  : " << nNoDchDigi  << endl;
-		if(nNoDchPoint) cout << "DchPoints not found : " << nNoDchPoint << endl;
-		if(nNoMCTrack)  cout << "MCTracks not found  : " << nNoMCTrack  << endl;
-		if(nNoTrack)    cout << "DchTracks not found : " << nNoTrack    << endl;
-		cout << "------------------------------------------------------" << endl;
-		cout << endl;
-	} else {
-		cout << "All: "        << nMCTracks
-		<< ", Accepted: "      << nMCacc
-		<< ", Reconstructed: " << nTracks << endl;
-	}
-
-	return nTracks;
+  return nTracks;
 }
 
 

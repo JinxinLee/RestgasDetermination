@@ -133,7 +133,7 @@ Int_t PndDchDigiProducer::AddDigis(PndDchPoint* point, Int_t refIndex) {
 	    fhDriftTime[chamber]->Fill(driftTime);
 	    size++;
 	  } else {
-	    cout<< "caution: wrong drift time"<<endl;
+	    //	    cout<< "caution: wrong drift time"<<endl;
 	  }
 	}
 	return nAdded;

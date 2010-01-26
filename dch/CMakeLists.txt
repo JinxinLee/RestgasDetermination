@@ -61,16 +61,14 @@ DchFitting/PndDchPrepareKalmanTracks2.cxx
 DchFitting/PndDchKalmanTask2.cxx
 DchFitting/PndDchKalmanQATask.cxx
 #DchFitting/PullTask.cxx
-DchTracking/PndDchTrack.cxx
 DchTracking/PndDchTrackFinder.cxx
 DchTracking/PndDchTrackFinderIdeal.cxx
 DchTracking/PndDchTrackFinderIdealDigi.cxx
 DchTracking/PndDchTrackFinderIdealCylHit.cxx
 DchTracking/PndDchFindTracks.cxx
-DchTracking/PndDchTrackMatch.cxx
 DchTracking/PndDchMatchTracks.cxx
 DchTracking/PndDchFindTracksQa.cxx
-DchTracking/PndDchConvertTrackCandTask.cxx
+#DchTracking/PndDchConvertTrackCandTask.cxx
 #DchFitting/PndDchTest.cxx
 #DchTracking/PndDchChamber.cxx
 #DchTracking/PndDchChamberTracklet.cxx

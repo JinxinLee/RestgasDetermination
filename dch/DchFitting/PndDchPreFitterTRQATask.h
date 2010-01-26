@@ -53,7 +53,6 @@ private:
 
   TClonesArray* fTrackArray;        ///< pointer to array of Track objects
   TClonesArray* fMCTrackArray;      ///< pointer to array of MCTracks
-  TClonesArray* fDchTrackMatchArray;///< pointer to array of DchTrackMatches
   
   TH1D* fhP;             ///< momentum pull histogram;
   TH1D* fhPx;             ///< x-momentum pull distribution;

@@ -22,7 +22,8 @@
 #include "PndDchPreFitter.h"
 #include "PndDchHit.h"
 #include "PndDchPoint.h"
-#include "PndDchTrack.h"
+#include "PndTrackCand.h"
+#include "PndTrackCandHit.h"
 #include "PndDchStructure.h"
 #include "PndDchMapper.h"
 
@@ -106,8 +107,8 @@ InitStatus PndDchPreFitter::Init() {
   ioman->Register("PndDchHot","Dch",fHitArray,kTRUE);
 
   // Create and register output array of tracks
-  fTrackArray = new TClonesArray("PndDchTrack");
-  ioman->Register("PndDchTrack","Dch",fTrackArray,kTRUE);
+  fTrackArray = new TClonesArray("PndTrackCand");
+  ioman->Register("DCHTrackCand", "Dch TrackCandidates", fTrackArray, kTRUE);
 
 
   //output file for histos  

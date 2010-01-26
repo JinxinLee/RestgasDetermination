@@ -2,6 +2,9 @@
 // -----          PndDchPrepareKalmanTracks source file                -----
 // -----            Created 15.05.2008  by A. Wronska                  -----
 // -----        based on the recotasks/demo code  by S.Neubert         -----
+// -----        Comment by Radoslaw Karabowicz:                        -----
+// -----        The class needs PndMCTrack information                 -----
+// -----            to initialize tracks. Have to remove the class.    -----
 // -------------------------------------------------------------------------
 
 // Panda Headers ----------------------
@@ -17,8 +20,8 @@
 #include "FairTrackParP.h"
 #include "PndDchPrepareKalmanTracks.h"
 #include "PndDchPoint.h"
-#include "PndDchTrack.h"
-#include "PndDchTrackMatch.h"
+#include "PndTrackCand.h"
+#include "PndTrackCandHit.h"
 #include "PndDchCylinderHit.h"
 
 // C/C++ Headers ----------------------
@@ -31,7 +34,7 @@
 
 
 PndDchPrepareKalmanTracks::PndDchPrepareKalmanTracks()
-  : FairTask("Translation of PndDchTracks to Tracks"), fPersistence(kFALSE), fUseGeane(kFALSE)
+  : FairTask("Translation of PndTrackCand to GFTracks"), fPersistence(kFALSE), fUseGeane(kFALSE)
 {
 }
 
@@ -81,23 +84,14 @@ PndDchPrepareKalmanTracks::Init()
     Error("PndDchPrepareKalmanTracks::Init","dchpoint-array not found!");
     return kERROR;
   } 
-  // open input array of PndDchTracks
-  fDchTrackArray = (TClonesArray*) ioman->GetObject("PndDchTrack"); 
+  // open input array of PndTrackCands
+  fDchTrackArray = (TClonesArray*) ioman->GetObject("DCHTrackCand"); 
   if(fDchTrackArray==0){
-    Error("PndDchPrepareKalmanTracks::Init","PndDchTrack array not found!");
+    Error("PndDchPrepareKalmanTracks::Init","DCHTrackCand array not found!");
     return kERROR;
   }
   std::cout<<"DchTrack array found "<< fDchTrackArray<<std::endl;
 
-  // open input array of PndDchTrackMatches
-  fDchTrackMatchArray = (TClonesArray*) ioman->GetObject("PndDchTrackMatch"); 
-  if(fDchTrackMatchArray==0){
-    Error("PndDchPrepareKalmanTracks::Init","PndDchTrackMatch array not found!");
-    return kERROR;
-  }
-  std::cout<<"DchTrackMatch array found "<< fDchTrackMatchArray<<std::endl;
- 
- 
   // create and register output array
   fTrackArray = new TClonesArray("GFTrack"); 
   ioman->Register("Track","GenFit",fTrackArray,fPersistence);
@@ -127,10 +121,8 @@ PndDchPrepareKalmanTracks::Exec(Option_t* opt)
    Int_t nuOfTracks = fDchTrackArray->GetEntriesFast();
 
    for (Int_t id=0; id<nuOfTracks; id++){
-     PndDchTrackMatch* dchtrmatch = (PndDchTrackMatch*) fDchTrackMatchArray->At(id);
-     Int_t tridx = dchtrmatch->GetRecTrackID();
-     PndDchTrack* dchtrack = (PndDchTrack*) fDchTrackArray->At(tridx);
-     Int_t nuOfChits = dchtrack->GetNofDchCylinderHits();
+     PndTrackCand* dchtrack = (PndTrackCand*) fDchTrackArray->At(id);
+     Int_t nuOfChits = dchtrack->GetNHits();
      std::cout<<"PndDchPrepareKalmanTracks::Exec(): I found here "<<nuOfChits<<" cyl hits \n";
 
      if(candmap[id]==NULL){ 
@@ -139,7 +131,8 @@ PndDchPrepareKalmanTracks::Exec(Option_t* opt)
 	 "this track ID was used already!"<<std::endl;
      }
      for(Int_t nuhit=0; nuhit<nuOfChits; nuhit++){
-       Int_t globalCHitNu = dchtrack->GetDchCylinderHitIndex(nuhit);
+       PndTrackCandHit candHit = track->GetSortedHit(nuhit);
+       Int_t globalCHitNu = candHit.GetHitId();
        candmap[id]->addHit(1,globalCHitNu);
      }
    }
@@ -159,8 +152,8 @@ PndDchPrepareKalmanTracks::Exec(Option_t* opt)
      
      // Get MCTrack
 
-     PndDchTrackMatch* dchTrackMatch = (PndDchTrackMatch*) fDchTrackMatchArray->At(candIter->first);
-     Int_t mcTrId = dchTrackMatch->GetMCTrackID();
+     PndTrackCand* dchTrack = (PndTrackCand*) fDchTrackArray->At(candIter->first);
+     Int_t mcTrId = dchTrack->getMcTrackId();
      PndMCTrack* mc=(PndMCTrack*)fMcArray->At(mcTrId);
      if(mc==0){
        Error("PndDchPrepareKalmanTracks::Exec","MCTrack Id=&i not found!",mcTrId);

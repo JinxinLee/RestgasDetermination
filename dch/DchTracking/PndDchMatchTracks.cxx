@@ -4,11 +4,11 @@
 
 // Pnd includes
 #include "PndDchMatchTracks.h"
-#include "PndDchTrackMatch.h"
 #include "PndDchHit.h"
 #include "PndDchCylinderHit.h"
 #include "PndDchDigi.h"
-#include "PndDchTrack.h"
+#include "PndTrackCand.h"
+#include "PndTrackCandHit.h"
 
 // Root includes
 #include "FairMCPoint.h"
@@ -32,7 +32,6 @@ PndDchMatchTracks::PndDchMatchTracks()
 	fCylinderHits = NULL;
 	fDigis        = NULL;
 	fHorDs        = NULL;
-	fMatches      = NULL;
 	fVerbose = 1;
 	fUseHitOrDigi = "hit";
 }
@@ -49,7 +48,6 @@ PndDchMatchTracks::PndDchMatchTracks(Int_t verbose)
 	fCylinderHits = NULL;
 	fDigis        = NULL;
 	fHorDs        = NULL;
-	fMatches      = NULL;
 	fVerbose = verbose;
 	fUseHitOrDigi = "hit";
 }
@@ -66,7 +64,6 @@ PndDchMatchTracks::PndDchMatchTracks(const char* name, const char* title,
 	fHits    = NULL;
 	fDigis   = NULL;
 	fHorDs   = NULL;
-	fMatches = NULL;
 	fVerbose = verbose;
 	fUseHitOrDigi = hitOrDigi;
 }
@@ -129,10 +126,10 @@ InitStatus PndDchMatchTracks::Init() {
 		}
 	}  
 	
-	// Get PndDchTrack Array
-	fTracks = (TClonesArray*) ioman->GetObject("PndDchTrack");
+	// Get PndTrackCand Array
+	fTracks = (TClonesArray*) ioman->GetObject("DCHTrackCand");
 	if( !fTracks ) {
-		cout << "-E- "<< GetName() <<"::Init: No PndDchTrack array!" << endl;
+		cout << "-E- "<< GetName() <<"::Init: No DCHTrackCand array!" << endl;
 		return kERROR;
 	}
 
@@ -143,10 +140,6 @@ InitStatus PndDchMatchTracks::Init() {
 		return kERROR;
 	}
 
-	// Create and register DchTrackMatch array
-	fMatches = new TClonesArray("PndDchTrackMatch",100);
-	ioman->Register("PndDchTrackMatch", "Dch", fMatches, kTRUE);
-
 	return kSUCCESS;
 }
 // -------------------------------------------------------------------------
@@ -156,190 +149,180 @@ InitStatus PndDchMatchTracks::Init() {
 // -----   Public method Exec   --------------------------------------------
 void PndDchMatchTracks::Exec(Option_t* opt) {
 
-	cout << "-------------------------------------------------------" << endl;
-	cout << "-I-      "<< GetName() <<"::Exec                      -I-" << endl;
-	cout << "-------------------------------------------------------" << endl;
-
-	// Clear output array
-	fMatches->Clear();
-
-	// Create some pointers and variables
-	PndDchTrack*       track  = NULL;
-	PndDchHit*         hit    = NULL;
-	PndDchCylinderHit* cylHit = NULL;
-	PndDchDigi*        digi   = NULL;
-	FairMCPoint*        point  = NULL;
-	Int_t nHits       = 0;
-	Int_t nDigis      = 0;
-	Int_t nHorDs      = 0;
-	Int_t nMCTracks   = 0;
-	Int_t iPoint      = 0;
-	Int_t iMCTrack    = 0;
-	Int_t nAll        = 0;
-	Int_t nTrue       = 0;
-	Int_t nWrong      = 0;
-	Int_t nFake       = 0;
-	Int_t nHorDSum    = 0;
-	Int_t nTrueSum    = 0;
-	Int_t nWrongSum   = 0;
-	Int_t nFakeSum    = 0;
-	Int_t nMCTrackSum = 0;
-	map<Int_t, Int_t>::iterator it;
-
-	// Loop over DchTracks
-	Int_t nTracks = fTracks->GetEntriesFast();
+  cout << "-------------------------------------------------------" << endl;
+  cout << "-I-      "<< GetName() <<"::Exec                      -I-" << endl;
+  cout << "-------------------------------------------------------" << endl;
+  
+  // Create some pointers and variables
+  PndTrackCand*      track  = NULL;
+  PndDchHit*         hit    = NULL;
+  PndDchCylinderHit* cylHit = NULL;
+  PndDchDigi*        digi   = NULL;
+  FairMCPoint*       point  = NULL;
+  Int_t nHits       = 0;
+  Int_t nDigis      = 0;
+  Int_t nHorDs      = 0;
+  Int_t nMCTracks   = 0;
+  Int_t iPoint      = 0;
+  Int_t iMCTrack    = 0;
+  Int_t nAll        = 0;
+  Int_t nTrue       = 0;
+  Int_t nWrong      = 0;
+  Int_t nFake       = 0;
+  Int_t nHorDSum    = 0;
+  Int_t nTrueSum    = 0;
+  Int_t nWrongSum   = 0;
+  Int_t nFakeSum    = 0;
+  Int_t nMCTrackSum = 0;
+  map<Int_t, Int_t>::iterator it;
+  
+  // Loop over PndTrackCands
+  Int_t nTracks = fTracks->GetEntriesFast();
 	
-	if(fVerbose > 1) {
-		cout <<"# of Tracks: "<< nTracks << endl
-		<<"----------------------------"<< endl;
-	}
-
+  if(fVerbose > 1) {
+    cout <<"# of Tracks: "<< nTracks << endl
+	 <<"----------------------------"<< endl;
+  }
+  
+  
+  for(Int_t iTrack = 0; iTrack < nTracks; iTrack++) { //loop over PndTrackCand
+    track = (PndTrackCand*) fTracks->At(iTrack);
+    if ( !track ) {
+      cout << "-W- "<< GetName() <<"::Exec: Empty DchTrackCand at " 
+	   << iTrack << endl;
+      continue;
+    }
+    
+    nHorDs = track->GetNHits();
+    
+    //cout <<"***************"<<  nHorDs<< endl;
+    
+    nAll = nTrue = nWrong = nFake = nMCTracks = 0;
+    
+    iPoint = -1;
+    // Loop over DchHorDs of track
+    for(Int_t iHorD = 0; iHorD < nHorDs; iHorD++) {
+      PndTrackCandHit trkHit = track->GetSortedHit(iHorD);
+      if("hit" == fUseHitOrDigi) {
+	hit = (PndDchHit*) fHorDs->At(trkHit.GetHitId());
 	
-	for(Int_t iTrack = 0; iTrack < nTracks; iTrack++) { //loop over PndDchTrack
-		track = (PndDchTrack*) fTracks->At(iTrack);
-		if ( !track ) {
-			cout << "-W- "<< GetName() <<"::Exec: Empty DchTrack at " 
-			<< iTrack << endl;
-			continue;
-		}
-		
-		if("hit"  == fUseHitOrDigi) nHorDs = track->GetNofDchHits();
-		if("digi" == fUseHitOrDigi) nHorDs = track->GetNofDchDigis();
-		if("chit" == fUseHitOrDigi) nHorDs = track->GetNofDchCylinderHits();
-
-		//cout <<"***************"<<  nHorDs<< endl;
-		
-		nAll = nTrue = nWrong = nFake = nMCTracks = 0;
-		fMatchMap.clear();
-
-		iPoint = -1;
-		// Loop over DchHorDs of track
-		for(Int_t iHorD = 0; iHorD < nHorDs; iHorD++) {
-			if("hit" == fUseHitOrDigi) {
-				hit = (PndDchHit*) fHorDs->At(track->GetDchHitIndex(iHorD));
-
-				if( !hit ) {
-					cout << "-E- "<< GetName() <<"::Exec: "
-					<< "No DchHit " << iHorD << " for track " << iTrack << endl;
-					continue;
-				}
-				iPoint = hit->GetRefIndex();
-			}
-			if("digi" == fUseHitOrDigi) {
-				digi = (PndDchDigi*) fHorDs->At(track->GetDchDigiIndex(iHorD));
-
-				if( !digi ) {
-					cout << "-E- "<< GetName() <<"::Exec: "
-					<< "No Dchdigi " << iHorD << " for track " << iTrack << endl;
-					continue;
-				}
-				iPoint = digi->GetRefIndex();
-			}
-			if("chit" == fUseHitOrDigi) {
-				cylHit = (PndDchCylinderHit*) fHorDs->At(track->GetDchCylinderHitIndex(iHorD));
-
-				if( !cylHit ) {
-					cout << "-E- "<< GetName() <<"::Exec: "
-					<< "No DchCylHit " << iHorD << " for track " << iTrack << endl;
-					continue;
-				}
-				PndDchDigi *digi = (PndDchDigi*) fDigis->At(cylHit->GetDigiIndex());
-				iPoint = digi->GetRefIndex();
-			}
-			
-			if(iPoint < 0) { //Fake or background hit
-				nFake++;
-				continue;
-			}
-
-			point = (FairMCPoint*) fPoints->At(iPoint);
-			if( !point ) {
-				cout << "-E- "<< GetName() <<"::Exec: "
-				<< "Empty MCPoint " << iPoint << " from DchHorD " << iHorD
-				<< " (track " << iTrack << ")" << endl;
-				continue;
-			}
-
-			iMCTrack = point->GetTrackID();
-			if(fVerbose > 2) {
-				cout <<"NoTrack: "<< iTrack <<" HorD: ";
-				if("hit"  == fUseHitOrDigi) cout << track->GetDchHitIndex(iHorD); 
-				if("digi" == fUseHitOrDigi) cout << track->GetDchDigiIndex(iHorD); 
-				if("chit" == fUseHitOrDigi) cout << track->GetDchCylinderHitIndex(iHorD); 
-				cout <<" ------- DchPoint: "<< iPoint <<" MCTrack: "<< iMCTrack << endl;
-			}
-			fMatchMap[iMCTrack]++;
-		}
-
-		// Search for best matching MCTrack
-		iMCTrack = -1;
-		for(it = fMatchMap.begin(); it != fMatchMap.end(); it++) {
-			if (fVerbose > 2) cout << it->second << " common points with MCtrack " << it->first << endl;
-			nMCTracks++;
-			nAll += it->second;
-			if(it->second > nTrue) {
-				iMCTrack = it->first;
-				nTrue    = it->second;	
-			}
-		}
-
-		nWrong = nAll - nTrue;
-
-		if(fVerbose > 1) {
-			cout <<"DchTrack no:"<< iTrack
-			<<", #HorDs: " << nHorDs
-			<<", MCTrack: "<< iMCTrack
-			<<", true: "   << nTrue
-			<<", wrong: "  << nWrong
-			<<", fake: "   << nFake
-			<<", #MCTracks: "<< nMCTracks << endl;
-		}
-
-		// Create DchTrackMatch
-		new ((*fMatches)[iTrack]) PndDchTrackMatch(iMCTrack, iTrack,  nTrue, 
-				nWrong, nFake, 
-				nMCTracks);
-
-		// Some statistics
-		nHorDSum    += nHorDs;
-		nTrueSum    += nTrue;
-		nWrongSum   += nWrong;
-		nFakeSum    += nFake;
-		nMCTrackSum += nMCTracks;
-
-	} // Track loop
-
-	// Event statistics
-	Double_t qTrue = 0.;
-	if(nHorDSum){
-		qTrue  = Double_t(nTrueSum)  / Double_t(nHorDSum) * 100.;
-		if(fVerbose) {
-			Double_t qWrong = Double_t(nWrongSum) / Double_t(nHorDSum) * 100.;
-			Double_t qFake  = Double_t(nFakeSum)  / Double_t(nHorDSum) * 100.;
-			Double_t qMC    = Double_t(nMCTrackSum) / Double_t(nTracks);
-
-			cout << endl;
-			cout << "-------------------------------------------------------" << endl;
-			cout << "-I-      "<< GetName() <<": Dch track matching       -I-" << endl;
-			cout << "-------------------------------------------------------" << endl;
-			cout << "Reconstructed DchTracks : " << nTracks << endl;;
-			cout << "True  hord assignments  : " << qTrue  << " %" << endl;
-			cout << "Wrong hord assignments  : " << qWrong << " %" << endl;
-			cout << "Fake  hord assignments  : " << qFake  << " %" << endl;
-			cout << "MCTracks per DchTrack   : " << qMC << endl;
-			cout << "--------------------------------------------------------" 
-			<< endl;
-		}else {
-			cout << "Reconstructed: "     << nTracks
-			<< ", True hit assignments: " << qTrue << " %" << endl;
-		}	
-	}else {
-		cout	 << endl;
-		cout << "-------------------------------------------------------" << endl;
-		cout << "-I-      "<< GetName() <<": Dch track matching       -I-" << endl;
-		cout << "-------------------------------------------------------" << endl;
-		cout <<"### Empty Track. No hits/digis inside"<< endl;
+	if( !hit ) {
+	  cout << "-E- "<< GetName() <<"::Exec: "
+	       << "No DchHit " << iHorD << " for track " << iTrack << endl;
+	  continue;
 	}
+	iPoint = hit->GetRefIndex();
+      }
+      if("digi" == fUseHitOrDigi) {
+	digi = (PndDchDigi*) fHorDs->At(trkHit.GetHitId());
+	
+	if( !digi ) {
+	  cout << "-E- "<< GetName() <<"::Exec: "
+	       << "No Dchdigi " << iHorD << " for track " << iTrack << endl;
+	  continue;
+	}
+	iPoint = digi->GetRefIndex();
+      }
+      if("chit" == fUseHitOrDigi) {
+	cylHit = (PndDchCylinderHit*) fHorDs->At(trkHit.GetHitId());
+	
+	if( !cylHit ) {
+	  cout << "-E- "<< GetName() <<"::Exec: "
+	       << "No DchCylHit " << iHorD << " for track " << iTrack << endl;
+	  continue;
+	}
+	digi = (PndDchDigi*) fDigis->At(cylHit->GetDigiIndex());
+	iPoint = digi->GetRefIndex();
+      }
+      
+      if(iPoint < 0) { //Fake or background hit
+	nFake++;
+	continue;
+      }
+      
+      point = (FairMCPoint*) fPoints->At(iPoint);
+      if( !point ) {
+	cout << "-E- "<< GetName() <<"::Exec: "
+	     << "Empty MCPoint " << iPoint << " from DchHorD " << iHorD
+	     << " (track " << iTrack << ")" << endl;
+	continue;
+      }
+      
+      iMCTrack = point->GetTrackID();
+      if(fVerbose > 2) {
+	cout <<"NoTrack: "<< iTrack <<" HorD: ";
+	cout << track->GetNHits();
+	cout <<" ------- DchPoint: "<< iPoint <<" MCTrack: "<< iMCTrack << endl;
+      }
+      fMatchMap[iMCTrack]++;
+    }
+    
+    // Search for best matching MCTrack
+    iMCTrack = -1;
+    for(it = fMatchMap.begin(); it != fMatchMap.end(); it++) {
+      if (fVerbose > 2) cout << it->second << " common points with MCtrack " << it->first << endl;
+      nMCTracks++;
+      nAll += it->second;
+      if(it->second > nTrue) {
+	iMCTrack = it->first;
+	nTrue    = it->second;	
+      }
+    }
+    
+    nWrong = nAll - nTrue;
+    
+    if(fVerbose > 1) {
+      cout <<"DchTrack no:"<< iTrack
+	   <<", #HorDs: " << nHorDs
+	   <<", MCTrack: "<< iMCTrack
+	   <<", true: "   << nTrue
+	   <<", wrong: "  << nWrong
+	   <<", fake: "   << nFake
+	   <<", #MCTracks: "<< nMCTracks << endl;
+    }
+    
+    track->setMcTrackId(iMCTrack); 
+    
+    // Some statistics
+    nHorDSum    += nHorDs;
+    nTrueSum    += nTrue;
+    nWrongSum   += nWrong;
+    nFakeSum    += nFake;
+    nMCTrackSum += nMCTracks;
+    
+  } // Track loop
+  
+  // Event statistics
+  Double_t qTrue = 0.;
+  if(nHorDSum){
+    qTrue  = Double_t(nTrueSum)  / Double_t(nHorDSum) * 100.;
+    if(fVerbose) {
+      Double_t qWrong = Double_t(nWrongSum) / Double_t(nHorDSum) * 100.;
+      Double_t qFake  = Double_t(nFakeSum)  / Double_t(nHorDSum) * 100.;
+      Double_t qMC    = Double_t(nMCTrackSum) / Double_t(nTracks);
+      
+      cout << endl;
+      cout << "-------------------------------------------------------" << endl;
+      cout << "-I-      "<< GetName() <<": Dch track matching       -I-" << endl;
+      cout << "-------------------------------------------------------" << endl;
+      cout << "Reconstructed DchTracks : " << nTracks << endl;;
+      cout << "True  hord assignments  : " << qTrue  << " %" << endl;
+      cout << "Wrong hord assignments  : " << qWrong << " %" << endl;
+      cout << "Fake  hord assignments  : " << qFake  << " %" << endl;
+      cout << "MCTracks per DchTrack   : " << qMC << endl;
+      cout << "--------------------------------------------------------" 
+	   << endl;
+    }else {
+      cout << "Reconstructed: "     << nTracks
+	   << ", True hit assignments: " << qTrue << " %" << endl;
+    }	
+  }else {
+    cout	 << endl;
+    cout << "-------------------------------------------------------" << endl;
+    cout << "-I-      "<< GetName() <<": Dch track matching       -I-" << endl;
+    cout << "-------------------------------------------------------" << endl;
+    cout <<"### Empty Track. No hits/digis inside"<< endl;
+  }
 }
 // -------------------------------------------------------------------------
 

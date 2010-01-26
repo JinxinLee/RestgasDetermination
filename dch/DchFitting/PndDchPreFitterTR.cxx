@@ -27,8 +27,8 @@
 #include "PndDchHit.h"
 #include "PndDchPoint.h"
 #include "PndDchCylinderHit.h"
-#include "PndDchTrack.h"
-#include "PndDchTrackMatch.h"
+#include "PndTrackCand.h"
+#include "PndTrackCandHit.h"
 #include "PndDchStructure.h"
 #include "PndDchMapper.h"
 
@@ -99,22 +99,14 @@ InitStatus PndDchPreFitterTR::Init() {
     return kERROR;
   }
 
-  // open input array of PndDchTrackMatches
-  fDchTrackMatchArray = (TClonesArray*) ioman->GetObject("PndDchTrackMatch"); 
-  if(fDchTrackMatchArray==0){
-    Error("PndDchPrepareKalmanTracks2::Init","PndDchTrackMatch array not found!");
-    return kERROR;
-  }
-  std::cout<<"DchTrackMatch array found "<< fDchTrackMatchArray<<std::endl;
- 
   
   fDetIdList =  fStructure->GetDetectorIDList();
   fDetIdListSize = fDetIdList->GetSize();
 
   // Get input track array
-  fTrackArray = (TClonesArray*) ioman->GetObject("PndDchTrack");
+  fTrackArray = (TClonesArray*) ioman->GetObject("DCHTrackCand");
   if ( !fTrackArray ) {
-    cout << "-W- PndDchPreFitterTR::Init(): No PndDchTrack array!"
+    cout << "-W- PndDchPreFitterTR::Init(): No DCHTrackCand array!"
          << endl;
     return kERROR;
   }
@@ -164,9 +156,9 @@ void PndDchPreFitterTR::Exec(Option_t* opt) {
   Int_t nBeforeXZ,nInXZ,nAfterXZ,nYZ;
   
   Int_t nTracks = fTrackArray->GetEntries();
-  PndDchTrack* track = 0;
+  PndTrackCand* track = 0;
   for(Int_t iTrack = 0; iTrack < nTracks; iTrack++) {
-    track = (PndDchTrack*) fTrackArray->At(iTrack);
+    track = (PndTrackCand*) fTrackArray->At(iTrack);
 
     fInHitsBeforeXZ->Delete();
     fInHitsAfterXZ->Delete();
@@ -177,7 +169,7 @@ void PndDchPreFitterTR::Exec(Option_t* opt) {
     std::map<Int_t, TVector3> mapa;
     mapa = GetHitPointsInChambers(track);
     
-    map<Int_t,TVector3>::iterator iter; 
+    std::map<Int_t,TVector3>::iterator iter; 
     if(fVerbose>0){
       cout<<"Cross Points in Chambers"<<endl;
       for( iter = mapa.begin(); iter != mapa.end(); ++iter ) {
@@ -241,33 +233,28 @@ void PndDchPreFitterTR::Exec(Option_t* opt) {
       continue;
     }
     Bool_t isMomentum =  GetMomentum(startMomentum);
-    Int_t idx = track->GetDchCylinderHitIndex(0);
+
+
+    PndTrackCandHit candHit = track->GetSortedHit(0);
+    Int_t idx = candHit.GetHitId();
     PndDchCylinderHit* chit = (PndDchCylinderHit*)fInHitArray->At(idx);
     GetInHitAtZ(chit->GetWireZcoordGlobal(),startPosition);
     
     Int_t chargeSign = GetChargeSign();
 
     const TMatrixFSym* covMatrix = new TMatrixFSym(15);
+    FairTrackParam parset(startPosition.X(),startPosition.Y(),startPosition.Z(),
+			 startMomentum.X()/ startMomentum.Z(),
+			 startMomentum.Y()/ startMomentum.Z(),
+			 chargeSign/ startMomentum.Mag(),
+			 *covMatrix);
 
-    if (startMomentum.Mag()) /* JGM, January 2010 */
-      {
-	FairTrackParam parset(startPosition.X(),startPosition.Y(),startPosition.Z(),
-			      startMomentum.X()/ startMomentum.Z(),
-			      startMomentum.Y()/ startMomentum.Z(),
-			      chargeSign/ startMomentum.Mag(),
-			      *covMatrix);
-//     FairTrackParam parset;
-//     startMomentum.Print();
-//     parset.SetPosition(startPosition);
-//     parset.SetTx(startMomentum.X()/ startMomentum.Z());
-//     parset.SetTy(startMomentum.Y()/ startMomentum.Z());
-//     parset.SetQp(chargeSign/ startMomentum.Mag());
-	track->SetParamFirst(parset);
-      }
-    else
-      {
-	std::cout << "-W- The magnitude of the start momentum is zero!!!" << std::endl;
-      }
+//    track->SetParamFirst(parset);
+    track->setTrackSeed(startPosition,
+			TVector3(startMomentum.X()/ startMomentum.Z(),
+				 startMomentum.Y()/ startMomentum.Z(),
+				 1.),
+			chargeSign/startMomentum.Mag());
   } //end of loop over tracks
 
   cout<<"&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"<<endl;
@@ -457,42 +444,44 @@ Bool_t PndDchPreFitterTR::GetCrossPoint(PndDchCylinderHit *chit1, PndDchCylinder
 
 }
 
-std::map<Int_t , TVector3> PndDchPreFitterTR::GetHitPointsInChambers(PndDchTrack* tr) {
-  Int_t nHits = tr->GetNofDchCylinderHits();
- 
+std::map<Int_t , TVector3> PndDchPreFitterTR::GetHitPointsInChambers(PndTrackCand* tr) {
+  Int_t nHits = tr->GetNHits();
+  
   std::map<Int_t , TVector3> chamberHitMap; // contains map chamberNo<->average of hit wires
   std::map<Int_t , Int_t> chamberCountsMap; // contains map chamber No<->number of hits 
-    map<Int_t,TVector3>::iterator iter; 
-    map<Int_t,Int_t>::iterator iterCounts; 
-    Int_t ch1, ch2;
+  std::map<Int_t,TVector3>::iterator iter; 
+  std::map<Int_t,Int_t>::iterator iterCounts; 
+  Int_t ch1, ch2;
+  
+  for(Int_t i = 0; i<nHits; i++){
+    PndTrackCandHit candHit1 = tr->GetSortedHit(i);
+    Int_t idx1 = candHit1.GetHitId();
+    PndDchCylinderHit* chit1 = (PndDchCylinderHit*)fInHitArray->At(idx1);
+    ch1 = fStructure->InWhichChamber(chit1->GetWireZcoordGlobal());
     
-    for(Int_t i = 0; i<nHits; i++){
-      Int_t idx1 = tr->GetDchCylinderHitIndex(i);
-      PndDchCylinderHit* chit1 = (PndDchCylinderHit*)fInHitArray->At(idx1);
-      ch1 = fStructure->InWhichChamber(chit1->GetWireZcoordGlobal());
-    
-     for(Int_t j = i; j<nHits; j++){
-       Int_t idx2 = tr->GetDchCylinderHitIndex(j);
-       PndDchCylinderHit* chit2 = (PndDchCylinderHit*)fInHitArray->At(idx2);
-       ch2 = fStructure->InWhichChamber(chit2->GetWireZcoordGlobal());
-
-       if(ch1 != ch2)
-	 continue;
-	 
-       TVector2 wi1, wi2, point;
-       if (GetCrossPoint(chit1,chit2,point)) {
-	 TVector3 point3d(point.X(), point.Y(), 
-			  (chit1->GetWireZcoordGlobal()+chit2->GetWireZcoordGlobal())/2.);
-	 iter = chamberHitMap.find(ch1);
-	 if( iter == chamberHitMap.end() ) {
-	   chamberHitMap[ch1] = point3d; 
-	 } else {
-	   point3d = point3d + iter->second;
-	   chamberHitMap[ch1] = point3d; 
-	 }
-	 ++chamberCountsMap[ch1];
-       }
-     }
+    for(Int_t j = i; j<nHits; j++){
+      PndTrackCandHit candHit2 = tr->GetSortedHit(j);
+      Int_t idx2 = candHit2.GetHitId();
+      PndDchCylinderHit* chit2 = (PndDchCylinderHit*)fInHitArray->At(idx2);
+      ch2 = fStructure->InWhichChamber(chit2->GetWireZcoordGlobal());
+      
+      if(ch1 != ch2)
+	continue;
+      
+      TVector2 wi1, wi2, point;
+      if (GetCrossPoint(chit1,chit2,point)) {
+	TVector3 point3d(point.X(), point.Y(), 
+			 (chit1->GetWireZcoordGlobal()+chit2->GetWireZcoordGlobal())/2.);
+	iter = chamberHitMap.find(ch1);
+	if( iter == chamberHitMap.end() ) {
+	  chamberHitMap[ch1] = point3d; 
+	} else {
+	  point3d = point3d + iter->second;
+	  chamberHitMap[ch1] = point3d; 
+	}
+	++chamberCountsMap[ch1];
+      }
+    }
   }
   for( iter = chamberHitMap.begin(); iter != chamberHitMap.end(); ++iter ) {
     iterCounts = chamberCountsMap.find(iter->first);

@@ -17,9 +17,12 @@
 // ROOT includes
 #include "TClonesArray.h"
 
+#include <iomanip>
+
 // c++ includes
 using std::cout;
 using std::endl;
+using std::setw;
 
 // c++ declaration
 class iostream;
@@ -29,7 +32,7 @@ class FairBaseParSet;
 class PndDchHit;
 class PndDchCylinderHit;
 class PndDchDigi;
-class PndDchTrack;
+class PndTrackCand;
 
 // -----   Default constructor   -------------------------------------------
 PndDchFindTracks::PndDchFindTracks() {
@@ -40,6 +43,11 @@ PndDchFindTracks::PndDchFindTracks() {
 	fTrackArray          = NULL;
 	fNofTracks           = 0;
 	fUseHitOrDigi        = "hit";
+
+  fTTime      = 0.;
+  fTNofTracks = 0;
+  fTNofEvents = 0;
+
 }
 // -------------------------------------------------------------------------
 
@@ -56,6 +64,10 @@ PndDchFindTracks::PndDchFindTracks(const char* name,
 	fTrackArray          = NULL;
 	fNofTracks           = 0;
 	fUseHitOrDigi        = "hit";
+
+  fTTime      = 0.;
+  fTNofTracks = 0;
+  fTNofEvents = 0;
 }
 // -------------------------------------------------------------------------
 
@@ -123,8 +135,8 @@ InitStatus PndDchFindTracks::Init() {
 	}
 
 	// Create and register DchTrack array
-	fTrackArray = new TClonesArray("PndDchTrack",100);
-	ioman->Register("PndDchTrack", "Dch", fTrackArray, kTRUE);
+	fTrackArray = new TClonesArray("PndTrackCand",100);
+	ioman->Register("DCHTrackCand", "Dch TrackCandidates", fTrackArray, kTRUE);
 
 	// Call the Init method of the track finder
 	fFinder->Init();
@@ -148,12 +160,21 @@ void PndDchFindTracks::SetParContainers() {
 
 // -----   Public method Exec   --------------------------------------------
 void PndDchFindTracks::Exec(Option_t* opt) {
-	fTrackArray->Delete();
 	//cout <<"PndDchFindTracks::Exec  fDchHitArray # "<< fDchHitArray->GetEntriesFast()  << endl;
 	//cout <<"PndDchFindTracks::Exec  fMCTrackArray # "<< fMCTrackArray->GetEntriesFast()  << endl;
 
-	fNofTracks = fFinder->DoFind(fDchHitOrDigiArray, fTrackArray);
-
+  
+  fTimer.Start();
+  
+  fTrackArray->Delete();
+  
+  fNofTracks = fFinder->DoFind(fDchHitOrDigiArray, fTrackArray);
+  
+  fTimer.Stop();
+  fTTime      += fTimer.RealTime();
+  fTNofTracks += fNofTracks;
+  fTNofEvents += 1;
+  
 
 	//for (Int_t iTrack=0; iTrack<fTrackArray->GetEntriesFast(); iTrack++) {
 		//PndDchTrack* track = (PndDchTrack*) fTrackArray->At(iTrack);
@@ -167,6 +188,14 @@ void PndDchFindTracks::Exec(Option_t* opt) {
 // -----   Public method Finish   ------------------------------------------
 void PndDchFindTracks::Finish() {
 	fTrackArray->Clear();
+
+  cout << "-------------------- " << fName.Data() << " : Summary ---------------------" << endl;
+  cout << " Events:        " << setw(10) << fTNofEvents << endl;
+  cout << " Tracks:     " << setw(10) << fTNofTracks << "    ( " << (Double_t)fTNofTracks/((Double_t)fTNofEvents) << " per event )" << endl;
+  cout << " Time:       " << setw(10) << fTTime      << "    ( " << fTTime/((Double_t)fTNofEvents) << " per event )" << endl;
+  cout << "                           ( " << fTTime/((Double_t)fTNofTracks) << " per track )" << endl;
+  cout << "---------------------------------------------------------------------" << endl; 
+
 }
 // -------------------------------------------------------------------------
 

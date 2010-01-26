@@ -28,8 +28,8 @@ class PndDchStructure;
 class TArrayI;
 class PndDchPoint;
 class PndDchCylinderHit;
-class PndDchTrack;
-
+class PndTrackCand;
+class PndTrackCandHit;
 
 class PndDchPreFitterTR : public FairTask {
   
@@ -80,7 +80,7 @@ class PndDchPreFitterTR : public FairTask {
   Int_t GetChargeSign();
 
   /** Private method GetHitPointInChamber(TClonesArray* chitArray) **/    
-  std::map<Int_t , TVector3> GetHitPointsInChambers(PndDchTrack* tr);
+  std::map<Int_t , TVector3> GetHitPointsInChambers(PndTrackCand* tr);
 
   TClonesArray* fPointArray; ///< Input array of PndDchPoints
   TClonesArray* fInHitArray; ///< Input array of PndDchInHits
@@ -104,7 +104,7 @@ class PndDchPreFitterTR : public FairTask {
   TVector2 fTrackAfterXZ;   ///< parametrised track projection in XZ-plane after the dipole  
   TVector3 fTrackInXZ;	    ///< parametrised track projection in XZ-plane in the dipole     
 
-  TClonesArray* fTrackArray; ///< Output array of PndDchTracks; 
+  TClonesArray* fTrackArray; ///< Output array of PndTracksCand; 
 
   PndDchStructure *fStructure; ///< pointer to geo structure of dch setup  
   TArrayI* fDetIdList;	       ///< pointer to dch detector ID list	   

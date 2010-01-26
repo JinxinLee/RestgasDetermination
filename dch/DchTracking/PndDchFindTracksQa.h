@@ -85,8 +85,10 @@ private:
 
 	/** Pointers to data arrays **/
 	TClonesArray* fMCTracks;        ///<pointer to MCtrack array
-	TClonesArray* fTracks;          ///<pointer to PndDchTrack
-	TClonesArray* fMatches;         ///<pointer to DchTrackMatch
+	TClonesArray* fPoints;       ///< Array of FairMCPoints
+	TClonesArray* fTracks;          ///<pointer to PndTrackCand
+	TClonesArray* fDigis;		 ///< Array of PndDchDigis
+	TClonesArray* fHorDs;		 ///< Array of PndDchHits/PndDchDigis/PndDchCylinderHits
 
 	/** Task parameters **/
 	Double_t fQuota;  //!< True/all hits for track to be considered reconstructed

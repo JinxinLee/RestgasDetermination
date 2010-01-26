@@ -24,7 +24,6 @@
 #pragma link C++ class  PndDchCylinderHitProducer+;
 #pragma link C++ class  PndDchHit+;
 #pragma link C++ class  PndDchCylinderHit+;
-#pragma link C++ class  PndDchTrack+;
 #pragma link C++ class  PndDchTrackFinder+;
 #pragma link C++ class  PndDchTrackFinderIdeal+;
 #pragma link C++ class  PndDchTrackFinderIdealDigi+;
@@ -34,15 +33,13 @@
 #pragma link C++ class  PndDchPreFitterTRQATask+;
 #pragma link C++ class  PndDchRecoHit+;
 #pragma link C++ class  PndDchRecoHit2+;
-#pragma link C++ class  PndDchTrackMatch+;
 #pragma link C++ class  PndDchMatchTracks+;
 //#pragma link C++ class  PndDchPrepareKalmanTracks+;
 #pragma link C++ class  PndDchPrepareKalmanTracks2+;
-//#pragma link C++ class  PndDchKalmanTask+;
+			//#pragma link C++ class  PndDchKalmanTask+;
 #pragma link C++ class  PndDchKalmanTask2+;
 #pragma link C++ class  PndDchKalmanQATask+;
 #pragma link C++ class  PndDchFindTracksQa++;
-#pragma link C++ class  PndDchConvertTrackCandTask++;
 //#pragma link C++ class  PullTask++;
 //#pragma link C++ class  PndDchTest++;
 //#pragma link C++ class  PndDchChamberTracklet+;

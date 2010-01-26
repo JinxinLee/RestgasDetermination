@@ -69,9 +69,9 @@ private:
   TString fTrackBranchName;         ///< name of a track array to be processed (fitted), default="Track"
   TClonesArray* fTrackArray;        ///< pointer to array of Track objects
   TClonesArray* fMCTrackArray;      ///< pointer to array of MCTracks
-  TClonesArray* fPointArray;      ///< pointer to array of PndDchPoints
-  TClonesArray* fDchTrackMatchArray;///< pointer to array of DchTrackMatches
-  
+  TClonesArray* fPointArray;        ///< pointer to array of MC points
+  TClonesArray* fDchTrackArray;     ///< pointer to array of DchTrackMatches 
+ 
   Bool_t fPersistence;   ///< persistence flag
     
     TH1D* fhP;             ///< momentum pull distribution;

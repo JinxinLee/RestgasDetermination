@@ -23,7 +23,8 @@
 #include "PndMCTrack.h"
 
 #include "PndDchHit.h"
-#include "PndDchTrack.h"
+#include "PndTrackCand.h"
+#include "PndTrackCandHit.h"
 #include "PndDchStructure.h"
 #include "PndDchTrackFinder.h"
 
@@ -62,9 +63,6 @@ class PndDchTrackFinderIdeal : public PndDchTrackFinder
 
   /** fDchStructure **/
   PndDchStructure *fDchStructure;
-
-  /** Track candidate **/
-  PndDchTrack *fDchTrack; 
 
   /** Verbosity level.
    ** 0 - quit

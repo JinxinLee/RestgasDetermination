@@ -8,8 +8,8 @@
 #include "FairRootManager.h"
 #include "PndMCTrack.h"
 #include "GFException.h"
-#include "PndDchTrackMatch.h"
-#include "PndDchTrack.h"
+#include "PndTrackCand.h"
+#include "PndTrackCandHit.h"
 
 // ROOT Headers -----------------------
 #include "TClonesArray.h"
@@ -60,21 +60,15 @@ InitStatus PndDchPreFitterTRQATask::Init(){
       return kERROR;
     }
   
-  fTrackArray=(TClonesArray*) ioman->GetObject("PndDchTrack");
+  fTrackArray=(TClonesArray*) ioman->GetObject("DCHTrackCand");
   if(fTrackArray==0) {
-    Error("PndDchPreFitterTRQATask::Init","PndDchTrack not found!");
+    Error("PndDchPreFitterTRQATask::Init","DCHTrackCand not found!");
     return kERROR;
   }
 
   fMCTrackArray=(TClonesArray*) ioman->GetObject("MCTrack");
   if(fMCTrackArray==0) {
     Error("PndDchPreFitterTRTask2::Init","MCTrack array not found!");
-    return kERROR;
-  }
-  
-  fDchTrackMatchArray = (TClonesArray*) ioman->GetObject("PndDchTrackMatch"); 
-  if(fDchTrackMatchArray==0){
-    Error("PndDchPrepareKalmanTracks2::Init","PndDchTrackMatch array not found!");
     return kERROR;
   }
   
@@ -104,23 +98,14 @@ void PndDchPreFitterTRQATask::Exec(Option_t* opt) {
   Int_t ntracks=fTrackArray->GetEntries();
   
   for(Int_t itr=0;itr<ntracks;++itr){
-    PndDchTrack* trk=new PndDchTrack(*(PndDchTrack*) fTrackArray->At(itr));
+    PndTrackCand* trk= (PndTrackCand*)fTrackArray->At(itr);
     if(trk!=0){
-      TVector3 mom0;
-      trk->GetParamFirst()->Momentum(mom0);
+      TVector3 mom0 = trk->getDirSeed();
+      mom0 *= TMath::Abs(trk->getQoverPseed());
       
-      Int_t mcTrid = -1;
-      Int_t id = 0;
-      while(id<fDchTrackMatchArray->GetEntriesFast()){
-	PndDchTrackMatch* dchtrmatch = (PndDchTrackMatch*) fDchTrackMatchArray->At(id);
-	if(dchtrmatch->GetRecTrackID()==itr){
-	  mcTrid = dchtrmatch->GetMCTrackID();
-	  break;
-	}
-	id++;
-      }
+      Int_t mcTrid = trk->getMcTrackId();
       if(mcTrid<0){
-	if(fVerbose>0) std::cout<<"No MCTrack to compare the PndDchTrack with!\n";
+	if(fVerbose>0) std::cout<<"No MCTrack to compare the PndTrackCand with!\n";
 	return;
       }
       
@@ -144,11 +129,10 @@ void PndDchPreFitterTRQATask::Exec(Option_t* opt) {
       if(fPhiH) fPhiH->Fill(mcmom.Phi()*TMath::RadToDeg(),
 			    (-mcmom.Phi()+mom0.Phi())*TMath::RadToDeg());
     }
-    delete trk;
   }
   return;
 }
-  
+
 Bool_t  PndDchPreFitterTRQATask::WriteHistograms(){
   TFile* file = FairRootManager::Instance()->GetOutFile();
   file->cd();

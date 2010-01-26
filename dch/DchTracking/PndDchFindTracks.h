@@ -14,7 +14,7 @@
  *	 Input:  TClonesArray of PndDchHit or
  *	 Input:  TClonesArray of PndCylinderHit
  *	 Input:  TClonesArray of PndDchDigi
- *	 \return TClonesArray of PndDchTrack
+ *	 \return TClonesArray of PndTrackCand
  **/
 
 #ifndef PNDDCHFINDTRACKS_H
@@ -22,6 +22,8 @@
 
 
 #include "FairTask.h"
+
+#include "TStopwatch.h"
 
 class PndDchTrackFinder;
 class TClonesArray;
@@ -85,10 +87,14 @@ class PndDchFindTracks : public FairTask
   TClonesArray* fDchCylinderHitArray;   ///< Input array of Dch cylinder hits
   TClonesArray* fDchDigiArray;          ///< Input array of Dch digis
   TClonesArray* fDchHitOrDigiArray;     //
-  TClonesArray* fTrackArray;     	    ///< Output array of PndDchTracks 
+  TClonesArray* fTrackArray;     	    ///< Output array of PndTrackCand
   Int_t fNofTracks;              	    ///< Number of created tracks
   TString fUseHitOrDigi;                ///< Choose use hits or digis, default: hits
   
+  TStopwatch fTimer;
+  Int_t fTNofEvents;
+  Int_t fTNofTracks;
+  Double_t fTTime;
 
   ClassDef(PndDchFindTracks,1);
 
