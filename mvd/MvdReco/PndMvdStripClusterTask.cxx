@@ -197,6 +197,7 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
 
   // load the Clusterfinder
   // Sort Digi indice into the clusterfinder
+  if (fDigiArray->GetEntriesFast() == 0) return;
   for (Int_t iPoint = 0; iPoint < fDigiArray->GetEntriesFast(); iPoint++)
   { // sort digis by sensor name and stripnumber
     myDigi = (PndMvdDigiStrip*)(fDigiArray->At(iPoint));
