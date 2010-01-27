@@ -104,8 +104,8 @@ int main(int argc, char *argv[])
 //==============================================================================
 
 	// main options
-	bool opt_beamtest     = true;  // beamtest simulation 2009
-	bool opt_photonCannon = false; // photon cannon at bar end
+	bool opt_beamtest     = false;  // beamtest simulation 2009
+	bool opt_photonCannon = true; // photon cannon at bar end
 	bool opt_singlePhoton = false; // single photon for debugging
 
 	cout << "simulation options:" << endl;
@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
 	bool opt_fishtankBlack_top    = true;
 	bool opt_Cherenkov_onlyInBar  = false;	// Cherenkov photons are only generated in bar (slab)
 	bool opt_alongBar             = false;	// particles hits the bar at slab face (front end)
-	bool opt_woLens               = false;	// w/o lens
+	bool opt_woLens               = true;	// w/o lens
 	bool opt_photonPosList        = true;	// write out photon position list ; true takes much longer
 // 	bool opt_debug	              = false;	// stdout > log file
 // 	bool opt_noFresnel_slab       = false;
@@ -157,8 +157,8 @@ int main(int argc, char *argv[])
 
 	if( check_opt > 1 || check_opt == 0 )
 	{
-		cout << "*** ERROR: Select only one simulation option !" << endl;
-		cout << "available simulation options:" << endl;
+		cout << "*** ERROR: Select only one main simulation option !" << endl;
+		cout << "available main simulation options:" << endl;
 		cout << "  beamtest" << endl;
 		cout << "  photon cannon" << endl;
 		cout << "  own photons" << endl;
@@ -196,13 +196,13 @@ int main(int argc, char *argv[])
 	double slab_height = 35; // default: 35 mm
 	double slab_length = 800; // default: 800 mm
 
-	double slab_phi = 0; // default: 0 degree
+	double slab_phi = 0; // default: 0 degree (have to be verified yet: interaction with other parameters)
 
 	double lens_radius    = 77.52; // f = R/(n-1) ; BK7 Newport f = 150 mm at 589 nm => R = 77.52 mm
 	double lens_thickness = 7.5; // measured lens thickness: 7.5 mm ; old: 5 mm
 	double lens_diameter  = 40; // actually: 50.8 mm but then lens_thickness of 7.5 mm is too small
 
-	double airgap = 13; // default: 10 mm ; distance between slab and fishtank ; 0 means no air box
+	double airgap = 0; // default: 10 mm ; distance between slab and fishtank ; 0 means no air box
 
 	double fishtank_width  = 300; // default: 300 mm ; old: 400 mm
 	double fishtank_height = 200; // default: 200 mm ; old: 400 mm
@@ -211,8 +211,8 @@ int main(int argc, char *argv[])
 	double fishtank_width_offset = 0; // default: 0 mm ; != 0 means bar is not centered
 	double fishtank_height_offset = 0; // default: 0 mm
 
-	double fishtank_theta = 20; // default: 0
-	double fishtank_phi = 20; // default: 0
+	double fishtank_theta = 0; // default: 0
+	double fishtank_phi = 0; // default: 0
 
 
 	// particle properties
@@ -230,7 +230,7 @@ int main(int argc, char *argv[])
 	double limit = 20; // default: 50 mm beam spot radius limit
 
 	int particle_number = 1; // default: 300
-	int photon_number = 20; // default: 100 per particle; 0 means realistic number of Cherenkov photons
+	int photon_number = 10; // default: 100 per particle; 0 means realistic number of Cherenkov photons
 
 	double lambda_min = 300; // default: 300 nm ; lowest Cherenkov wavelength
 	double lambda_max = 700; // default: 700 nm ; highest Cherenkov wavelength
@@ -247,8 +247,8 @@ int main(int argc, char *argv[])
 
 	// photon cannon
 	int shoots = photon_number; // default: photon_number
-	double gridXstep = 0; // default: 0 mm ; grid constant in X ; 0 means cannon is in the center
-	double gridYstep = 0; // default: 0 mm
+	double gridXstep = slab_width/4; // default: 0 mm ; grid constant in X ; 0 means cannon is always in the center
+	double gridYstep = slab_height/4; // default: 0 mm
 
 
 
@@ -711,8 +711,8 @@ int main(int argc, char *argv[])
 	infoTree->Branch( "fishtank_theta"        , &fishtank_theta        , "fishtank_theta/D");
 	infoTree->Branch( "fishtank_phi"          , &fishtank_phi          , "fishtank_phi/D");
 	infoTree->Branch( "photon_number"         , &photon_number         , "photon_number/I");
-	infoTree->Branch( "lambda_min"            , &lambda_min            , "lambda_min/I");
-	infoTree->Branch( "lambda_max"            , &lambda_max            , "lambda_max/I");
+	infoTree->Branch( "lambda_min"            , &lambda_min            , "lambda_min/D");
+	infoTree->Branch( "lambda_max"            , &lambda_max            , "lambda_max/D");
 	infoTree->Branch( "refl_limit"            , &refl_limit            , "refl_limit/I");
 	if( !opt_photonCannon )
 	{
@@ -1286,12 +1286,26 @@ int main(int argc, char *argv[])
 	}
 
 
+
+// fishtank rotation
+//==============================================================================
 	Transform3D rotPhi_fishtank = Transform3D( RotationX(fishtank_phi*degree) );
 
 	if( fishtank_phi >= 0)
 	{
-		Transform3D transToRotAxis_fishtank = Transform3D( XYZVector(0,-b3.Y(),-b3.Z()) );
-		Transform3D transBack_fishtank = Transform3D( XYZVector(0,b3.Y(),b3.Z()) );
+		Transform3D transToRotAxis_fishtank;
+		Transform3D transBack_fishtank;
+
+		if( fishtank_theta >= 0 )
+		{
+			transToRotAxis_fishtank = Transform3D( XYZVector(0,-b3.Y(),-b3.Z()) );
+			transBack_fishtank = Transform3D( XYZVector(0,b3.Y(),b3.Z()) );
+		}
+		else
+		{
+			transToRotAxis_fishtank = Transform3D( XYZVector(0,-b2.Y(),-b2.Z()) );
+			transBack_fishtank = Transform3D( XYZVector(0,b2.Y(),b2.Z()) );
+		}
 
 		fishtank.AddTransform( transToRotAxis_fishtank );
 		fishtank.AddTransform( rotPhi_fishtank );
@@ -1305,14 +1319,34 @@ int main(int argc, char *argv[])
 		b4 = rotPhi_fishtank*b4;
 		b4 = transBack_fishtank*b4;
 
-		b2 = transToRotAxis_fishtank*b2;
-		b2 = rotPhi_fishtank*b2;
-		b2 = transBack_fishtank*b2;
+		if( fishtank_theta >= 0 )
+		{
+			b2 = transToRotAxis_fishtank*b2;
+			b2 = rotPhi_fishtank*b2;
+			b2 = transBack_fishtank*b2;
+		}
+		else
+		{
+			b3 = transToRotAxis_fishtank*b3;
+			b3 = rotPhi_fishtank*b3;
+			b3 = transBack_fishtank*b3;
+		}
 	}
 	else
 	{
-		Transform3D transToRotAxis_fishtank = Transform3D( XYZVector(0,-b1.Y(),-b1.Z()) );
-		Transform3D transBack_fishtank = Transform3D( XYZVector(0,b1.Y(),b1.Z()) );
+		Transform3D transToRotAxis_fishtank;
+		Transform3D transBack_fishtank;
+
+		if( fishtank_theta >= 0 )
+		{
+			transToRotAxis_fishtank = Transform3D( XYZVector(0,-b4.Y(),-b4.Z()) );
+			transBack_fishtank = Transform3D( XYZVector(0,b4.Y(),b4.Z()) );
+		}
+		else
+		{
+			transToRotAxis_fishtank = Transform3D( XYZVector(0,-b1.Y(),-b1.Z()) );
+			transBack_fishtank = Transform3D( XYZVector(0,b1.Y(),b1.Z()) );
+		}
 
 		fishtank.AddTransform( transToRotAxis_fishtank );
 		fishtank.AddTransform( rotPhi_fishtank );
@@ -1326,9 +1360,19 @@ int main(int argc, char *argv[])
 		b3 = rotPhi_fishtank*b3;
 		b3 = transBack_fishtank*b3;
 
-		b4 = transToRotAxis_fishtank*b4;
-		b4 = rotPhi_fishtank*b4;
-		b4 = transBack_fishtank*b4;
+
+		if( fishtank_theta >= 0 )
+		{
+			b1 = transToRotAxis_fishtank*b1;
+			b1 = rotPhi_fishtank*b1;
+			b1 = transBack_fishtank*b1;
+		}
+		else
+		{
+			b4 = transToRotAxis_fishtank*b4;
+			b4 = rotPhi_fishtank*b4;
+			b4 = transBack_fishtank*b4;
+		}
 	}
 
 
@@ -1761,7 +1805,7 @@ int main(int argc, char *argv[])
 	{
 		PndDrcPhoton ph;
 
-		if( refl_limit > 5 )
+		if( refl_limit > 5 ) // magic number ?
 			ph.SetReflectionLimit(5);
 		else
 			ph.SetReflectionLimit(refl_limit);
@@ -1769,10 +1813,22 @@ int main(int argc, char *argv[])
 // 		TF1 *f1 = new TF1("f1","1/x",300,700);
 		TRandom3 rand;
 
-		for( double gridX = -slab_width; gridX <= slab_width; gridX += gridXstep)
+		for( double gridX = -slab_width/2; gridX < slab_width/2; gridX += gridXstep)
 		{
-			for( double gridY = -slab_height; gridY <= slab_height; gridY += gridYstep)
+			if( gridXstep == 0 )
+				gridX = 0;
+
+			if( gridX == -slab_width/2 )
+				continue;
+
+			for( double gridY = -slab_height/2; gridY < slab_height/2; gridY += gridYstep)
 			{
+				if( gridYstep == 0 )
+					gridY = 0;
+
+				if( gridY == -slab_height/2 )
+					continue;
+
 				for( int i=0; i<photon_number; i++)
 				{
 // 					double lambda = f1->GetRandom(); // seems to be wrong ; check it later
@@ -1784,25 +1840,21 @@ int main(int argc, char *argv[])
 					double costheta = rand.Uniform(0.0, 1.0);
 					double phi = rand.Uniform(0.0, 2*pi);
 
-					Polar3DVector photDir(1, ACos(costheta), phi);
+					Polar3DVector photDir(1, ACos(costheta), phi); // r, theta, phi
 					photDir = photDir.Unit();
 					XYZVector photDirXYZ( photDir.X(), photDir.Y(), photDir.Z() );
 
-					if( gridXstep == 0 || gridYstep == 0 )
-						ph.SetPosition( XYZPoint(0, 0, -1)); // z = -1 to be sure in the bar
-					else
-						ph.SetPosition( XYZPoint(gridX, gridY, -1));
-
+					ph.SetPosition( XYZPoint(gridX, gridY, -0.01)); // z = -0.01 to be sure that photon is in bar
 					ph.SetDirection(photDirXYZ);
 					ph.SetWavelength(lambda);
 					list_photon.push_back(ph);
 				}
 
-				if( gridXstep == 0 || gridYstep == 0 )
+				if( gridYstep == 0 )
 					break;
 			}
 
-			if( gridXstep == 0 || gridYstep == 0 )
+			if( gridXstep == 0 )
 				break;
 		}
 
@@ -1813,6 +1865,7 @@ int main(int argc, char *argv[])
 
 // propagation & setup plot
 //==============================================================================
+	canvas->Clear(); // needed if no beamspot-plot was written
 	fstream geo;
 	geo.open("geo.tmp",std::ios::out);
 	manager->Print(geo); //draw setup also in canvas
