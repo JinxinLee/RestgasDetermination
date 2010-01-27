@@ -133,7 +133,6 @@ Int_t PndSttTrackFinderIdeal::DoFind( TClonesArray* trackCandArray)
   Int_t nNoTrack      = 0;
   Int_t nNoSttPoint   = 0;
   Int_t nNoSttHit     = 0;
-  Int_t nAssignedHits = 0;
 
   // Create pointers to hit and SttPoint
   PndSttHit*       pMhit = NULL;
@@ -240,8 +239,6 @@ Int_t PndSttTrackFinderIdeal::DoFind( TClonesArray* trackCandArray)
 
   }
   
-  nAssignedHits = 0;
-
   // Loop over hits. Get corresponding MCPoint and MCTrack index
   for (Int_t iHit = 0; iHit < nHits; iHit++) 
   {
@@ -313,10 +310,9 @@ Int_t PndSttTrackFinderIdeal::DoFind( TClonesArray* trackCandArray)
 	// for low momentum particles, hits added to pTrck by R could not be 
 	// in the correct order due to spiralizing tracks 
 	// 	cout << "LOW MOMENTUM --> AddHit by HitID " << endl;
-	if(nAssignedHits>25) continue;
+	if(pTrckCand->GetNHits() > 25) continue;
 	// CHECK: test iHit and how to organize sorting (here...)
 	pTrckCand->AddHit(pMhit->GetDetectorID(), iHit, iHit); 
-	nAssignedHits++;
       }
       else {
 	// 	cout << "HIGH MOMENTUM --> AddHit by R " << endl;
