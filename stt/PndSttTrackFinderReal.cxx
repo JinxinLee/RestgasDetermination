@@ -9,6 +9,7 @@
 
 #include "PndSttHit.h"
 #include "PndSttPoint.h"
+// #include "PndSttTrack.h"
 #include  <cmath>
 #include "FairMCPoint.h"
 #include "FairRootManager.h"
@@ -91,6 +92,8 @@ void PndSttTrackFinderReal::Init()
    Double_t    r1, r2, A , rConfMin, rConfMax,
               tempRadiaConf[nRdivConformal];
 
+
+
    IVOLTE=0; ntimes = 0;
 
 
@@ -128,6 +131,7 @@ void PndSttTrackFinderReal::Init()
 
 
 
+  hx = new TH1F("hx", "Associated Z", 400, -200., 200.);
 
   if (!ioman) 
     {
@@ -137,6 +141,8 @@ void PndSttTrackFinderReal::Init()
     }
  
 //   calculate the boundaries of the Box in Conformal Space, see Gianluigi logbook on pag. 210-211
+
+cout<<"from Init :  nFidivConformal = "<<nFidivConformal<<endl;
 
     radiaConf[0] = 1./RStrawDetectorMax; 
     r1 = RStrawDetectorMin;
@@ -153,6 +159,12 @@ void PndSttTrackFinderReal::Init()
     }
 
 
+/*
+  for(i = 1; i< nRdivConformal ; i++){
+      cout<<"from Init :  temporary CONFORMAL radius n. "<<i<<"  "<< tempRadiaConf[i]<<endl;
+        r1=r2;
+      }
+*/
 
 
 
@@ -161,11 +173,45 @@ void PndSttTrackFinderReal::Init()
 
 //  now take into account the zone of the skew straws, which is 'empty' as far as the parallel straws is concerned
 
+//      for(i = 1; i< nRdivConformal && tempRadiaConf[i] < rConfMin ; i++){
       for(i = 1; i< nRdivConformal  ; i++){
 
         radiaConf[i] = tempRadiaConf[i];
       }
       nRdivConformalEffective = nRdivConformal;
+
+/*
+      if( i == nRdivConformal ) {
+       nRdivConformalEffective = nRdivConformal;
+       goto fine ;
+      }
+
+      radiaConf[i] = tempRadiaConf[i];
+
+      if( i == nRdivConformal-1 ){
+          nRdivConformalEffective = nRdivConformal;
+          goto fine ;
+      }
+
+      for(j=i+1; j< nRdivConformal && tempRadiaConf[j] < rConfMax ; j++){
+      }
+      radiaConf[i+1] = tempRadiaConf[j];
+      nRdivConformalEffective = i+1;
+      if( i+1 == nRdivConformal-1 ) {
+       nRdivConformalEffective = nRdivConformal;
+       goto fine ;
+      }
+
+      for( k= j+1; k<nRdivConformal; k++){
+       nRdivConformalEffective ++;
+       radiaConf[nRdivConformalEffective] = tempRadiaConf[k];
+      }
+      nRdivConformalEffective ++;
+
+fine: ;
+
+*/
+//--------------------
 
 
 
@@ -181,8 +227,11 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackArray)
              OLDinfoparal[nmaxHits];
     UShort_t istep,inclination_type;
 
-    Double_t aaa, ddd, delta, deltabis, deltaZ, mindis, distanza, X, Y, Z, ap1, ap2, ap3, cross1, cross2, cross3,
-             info[nmaxHits][6],
+    Double_t aaa, ddd, delta, deltabis, deltaZ, mindis, distanza, fi_hit,
+             X, Y, Z, ap1, ap2, ap3, cross1, cross2, cross3,
+             lowlimit[MAXMCTRACKS],
+             uplimit[MAXMCTRACKS],
+             info[nmaxHits][7],
              WDX, WDY, WDZ,
              auxRvalues[nmaxHits],
              inclinationversors[nmaxinclinationversors][3];
@@ -191,6 +240,10 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackArray)
     Int_t Ninclinations = 1, Ninclinate;
     Int_t Minclinations[nmaxinclinationversors];
 
+//------------------------------------ modifiche Gianluigi, 9-7-08
+     IVOLTE++;
+
+//------------------------------------ fine modifiche Gianluigi, 9-7-08
 
 
   // Check pointers
@@ -215,7 +268,6 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackArray)
       return -1;
     }
 
-
    PndMCTrack*      pMCtr = NULL;
    nMCTracks = fMCTrackArray->GetEntriesFast(); // num. tracce/evento
 
@@ -225,6 +277,7 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackArray)
         <<",  skipping this event\n";
     return  -10;
   }
+
 
    for (Int_t iMCTrack = 0; iMCTrack < nMCTracks; iMCTrack++) 
    { 
@@ -258,6 +311,12 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackArray)
          Fi = atan2(Cy, Cx);       // MC truth Fi angle of circle of Helix trajectory
          if(Fi<0.)  Fi += 2.*PI;
          D = sqrt( Cx*Cx+Cy*Cy) - R;
+/*
+Double_t  gomma = Cx*Cx+Cy*Cy -R*R;
+cout<<"verita MC,  traccia n. "<<iMCTrack<<", Ox, Oy,  Cx, Cy, D ,  R  ,  gamma = "<<Ox<<",  "<<Oy<<",  "<<
+    Cx<<",  "<<Cy<<",  "<<D<<",  "<<R<<",  "<<gomma<<endl;
+*/
+
 
 
 
@@ -282,7 +341,13 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackArray)
          MCtruthTrkInfo[9][iMCTrack] = Cx;     //   Cx of Helix of track projected in XY plane
          MCtruthTrkInfo[10][iMCTrack] = Cy;    //   Cy of Helix of track projected in XY plane
          MCtruthTrkInfo[11][iMCTrack] = icode ;    //   PDG code of track
-         MCtruthTrkInfo[12][iMCTrack] = 0.001*BFIELD*CVEL/MCtruthTrkInfo[5][iMCTrack] ;    //   KAPPA of Helix of track in cm*-1
+
+         TDatabasePDG *fdbPDG= TDatabasePDG::Instance();
+         TParticlePDG *fParticle= fdbPDG->GetParticle(icode);
+         MCtruthTrkInfo[14][iMCTrack] = fParticle->Charge()/3. ;    //   charge of track
+
+         MCtruthTrkInfo[12][iMCTrack] = -MCtruthTrkInfo[14][iMCTrack]*0.001*BFIELD*CVEL/
+                                         fabs(MCtruthTrkInfo[5][iMCTrack]) ;    //   KAPPA of Helix of track in cm*-1
         double tempoang = atan2(-MCtruthTrkInfo[10][iMCTrack]+MCtruthTrkInfo[1][iMCTrack],
                                  -MCtruthTrkInfo[9][iMCTrack]+MCtruthTrkInfo[0][iMCTrack]);
         if(tempoang<0.) tempoang+= 2.*PI;
@@ -290,12 +355,17 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackArray)
          nHitsInMCTrack[iMCTrack]  = 0;
          nSkewHitsInMCTrack[iMCTrack]  = 0;
 
-   }
 
 
 
 
-  IVOLTE++;
+
+   }   //  end of   for (Int_t iMCTrack = 0; iMCTrack < nMCTracks; iMCTrack++) 
+
+
+
+
+
 
     
   // Initialise control counters
@@ -306,6 +376,7 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackArray)
   // Create pointers to hit and SttPoint
   PndSttHit*       pMhit = NULL;
   FairMCPoint*      pMCpt = NULL;
+//   PndSttTrack*     pTrck[MAXTRACKSPEREVENT] ; // this is for the hits found by pattern recognition
 
   // Number of STT hits
   Int_t nHits = 0;
@@ -316,7 +387,7 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackArray)
   }
 
   if(nHits > nmaxHits ) {
-    cout<<"From DoFind  : nHits = "<<nHits<<"  larger that nmaxHits = "<<nmaxHits
+    cout<<"Gianluigi from DoFind  : nHits = "<<nHits<<"  larger that nmaxHits = "<<nmaxHits
         <<",  skipping this event\n";
     return  -10;
   }
@@ -338,6 +409,7 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackArray)
     Ninclinate=0;
 
 
+  if (istampa >= 1 ) cout<<"Gianluigi : da PndSttTrackFinderReal::DoFind : nHits="<<nHits<<endl;
 
   //   generated momenta and starting position of each track
 
@@ -381,11 +453,14 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackArray)
 
 
       // stampe di controllo
+
+
       info[iHit][0]= pMhit->GetX();
       info[iHit][1]= pMhit->GetY();
       info[iHit][2]= pMhit->GetZ();
       info[iHit][3]= dradius;
       info[iHit][4]=pMhit->GetTubeHalfLength();
+      info[iHit][6]=pMCpt->GetTrackID();
 
       if( fabs( WDX )< 0.00001 && fabs( WDY )< 0.00001 ){
           info[iHit][5]= 1.;
@@ -428,32 +503,12 @@ jumpout: ;
       veritaMC[iHit][1]= ((PndSttPoint*)pMCpt)->GetYtot();
       veritaMC[iHit][2]= ((PndSttPoint*)pMCpt)->GetZtot();
 
-
-
-// association of this hit (in this part only if it is a 'parallel hit')to the MC track
+      FromHitToMCTrack[iHit] = (UShort_t) info[iHit][6];
 
     if(info[iHit][5]==1. ){
-       deltabis = 9999999999.;
-       FromHitToMCTrack[iHit] = 888888888;   //  just some large unrealistic number
-       for( Int_t iMCTrack = 0; iMCTrack < nMCTracks; iMCTrack++){
 
-         delta = fabs( sqrt(R_MC[iMCTrack]*R_MC[iMCTrack]+info[iHit][3]*info[iHit][3]-StrawRadius*StrawRadius )+
-                info[iHit][3] - sqrt(  (info[iHit][0]-CxMC[iMCTrack])*(info[iHit][0]-CxMC[iMCTrack]) +
-                     (info[iHit][1]-CyMC[iMCTrack])*(info[iHit][1]-CyMC[iMCTrack])   )     );
-
-         if( delta < deltabis &&  delta < 4.*StrawRadius) {
-            FromHitToMCTrack[iHit] =  iMCTrack;
-            deltabis = delta;
-         }
-       }
-
-
-     if(FromHitToMCTrack[iHit]<  MAXMCTRACKS){
-      FromMCTrackToHit[ FromHitToMCTrack[iHit] ][ nHitsInMCTrack[ FromHitToMCTrack[iHit] ]] = iHit;
+      FromMCTrackToHit[ FromHitToMCTrack[iHit] ][ nHitsInMCTrack[ FromHitToMCTrack[iHit] ] ] = iHit;
       nHitsInMCTrack[  FromHitToMCTrack[iHit]  ]++ ;
-     }
-
-//----------------------------------------------------------------
 
    }    // end of if(info[iHit][5]==1. )
 
@@ -466,37 +521,11 @@ jumpout: ;
   for (Int_t iHit = 0; iHit < nHits; iHit++) 
     {
        if(info[iHit][5]==1. )  continue;
-       FromSkewHitToMCTrack[iHit] = 888888888;   //  just some large unrealistic number
-       inclination_type = (UShort_t) info[iHit][5] -1;
-       deltaZ = 2.*info[iHit][4]*inclinationversors[inclination_type][2]/2000.;
-       for (Int_t iMCTrack = 0; iMCTrack < nMCTracks; iMCTrack++) 
-       {
-          // now the stepping
-          for(istep=0, mindis=99999999999.; istep<2000; istep++){
-            Z = istep*deltaZ + info[iHit][2] - info[iHit][4]*inclinationversors[inclination_type][2];
-            X = MCtruthTrkInfo[9][iMCTrack] + MCtruthTrkInfo[8][iMCTrack]*cos( MCtruthTrkInfo[13][iMCTrack]+ MCtruthTrkInfo[12][iMCTrack]*Z);
-            Y = MCtruthTrkInfo[10][iMCTrack] + MCtruthTrkInfo[8][iMCTrack]*sin( MCtruthTrkInfo[13][iMCTrack]+ MCtruthTrkInfo[12][iMCTrack]*Z);
 
-            ap1 = info[iHit][0]-X;
-            ap2 = info[iHit][1]-Y;
-            ap3 = info[iHit][2]-Z;
+            FromMCTrackToSkewHit[ FromHitToMCTrack[iHit] ][ nSkewHitsInMCTrack[ FromHitToMCTrack[iHit] ] ] = iHit;
+            nSkewHitsInMCTrack[  FromHitToMCTrack[iHit]  ]++ ;
 
-            cross1 = ap2*inclinationversors[inclination_type][2]-ap3*inclinationversors[inclination_type][1];
-            cross2 = ap3*inclinationversors[inclination_type][0]-ap1*inclinationversors[inclination_type][2];
-            cross3 = ap1*inclinationversors[inclination_type][1]-ap2*inclinationversors[inclination_type][0];
-
-
-            distanza = sqrt( cross1*cross1+cross2*cross2+cross3*cross3) ;
-            if(distanza<mindis)  mindis = distanza;
-          }   //  end of for(istep=0; istep<100; istep++)
-          if(mindis<3.*StrawRadius) {
-            FromSkewHitToMCTrack[iHit] =  iMCTrack;
-            FromMCTrackToSkewHit[ iMCTrack ][ nSkewHitsInMCTrack[ iMCTrack ] ] = iHit;
-            nSkewHitsInMCTrack[  iMCTrack  ]++ ;
-          }
-       }   //  end of for (Int_t iMCTrack = 0; iMCTrack < nMCTracks; iMCTrack++)
-
-    }   //   end  of  for (Int_t iHit = 0;
+  }   //   end  of  for (Int_t iHit = 0;
 
 //-------------------   fine associazione degli hits non paralleli
 
@@ -538,16 +567,22 @@ jumpout: ;
 
 
 
+
+
    if( nHits >0 &&  Minclinations[0] > 2 ) {
+//     if(ianalizza ) {
          PndSttTrkFinderPartial(nHits,info,Ninclinations,Minclinations,inclinationversors,
                                              Ninclinate,
               trackArray   //   this is the output, ie the TClonesArray *   od  PndSttTrack
                           //    classes containing the info for a found track, one class per each track
                                              );
+//     }
 
    };
 
 
+  // la parte seguente andra' messa a posto per 
+  // dare in output la traccia PndSttTrack
   Int_t nTracks = 1;
   return nTracks;
 }
@@ -615,19 +650,8 @@ FairMCPoint* PndSttTrackFinderReal::GetPointFromCollections(Int_t hitCounter)
 
 //-------------------------------------------------------------------------------------------------------------------
 
-void PndSttTrackFinderReal::WriteHistograms(){
-
-};
-
-
-
-
-
-
-//-------------------------------------------------------------------------------------------------------------------
-
 void PndSttTrackFinderReal::PndSttTrkFinderPartial(
-                                 Int_t Nhits, Double_t info[][6],
+                                 Int_t Nhits, Double_t info[][7],
                                  Int_t Nincl,Int_t Minclinations[],Double_t inclination[][3],
                                  Int_t Ninclinate,
                                  TClonesArray * trackArray   //  this is the TClonesArray *   of PndSttTrack classes in output
@@ -644,6 +668,7 @@ void PndSttTrackFinderReal::PndSttTrkFinderPartial(
            imc,jexp,mchit,exphit,
            nTracksFoundSoFar,
            NN,
+           NNN,
            Nouter,
            Naux,
            Nbaux,
@@ -652,8 +677,6 @@ void PndSttTrackFinderReal::PndSttTrkFinderPartial(
            SeedParallelNumber,
            OLDnHitsinTrack,
            TemporarynSkewHitsinTrack,
-           nParspuri,
-           nSkewspuri,
            BigList[nmaxHits],
            TemporarySkewList[nmaxHits][2],
            nHitsinTrack[MAXTRACKSPEREVENT],
@@ -666,26 +689,28 @@ void PndSttTrackFinderReal::PndSttTrkFinderPartial(
            OutputListHitsinTrack[nmaxHits],
            OutputList2HitsinTrack[nmaxHits],
            ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
-           nParalMax[MAXMCTRACKS],
+           nMCParalAlone[MAXMCTRACKS],
+           nMCSkewAlone[MAXMCTRACKS],
+           MCParalAloneList[MAXMCTRACKS][nmaxHits],
+           MCSkewAloneList[MAXMCTRACKS][nmaxHits],
            nParalCommon[MAXTRACKSPEREVENT],
-           TempParalCommonList[MAXMCTRACKS][nmaxHits],
            ParalCommonList[MAXMCTRACKS][nmaxHits],
-           nSkewMax[MAXMCTRACKS],
+           nSpuriParinTrack[MAXTRACKSPEREVENT],
+           ParSpuriList[MAXTRACKSPEREVENT][nmaxHits],
            nSkewCommon[MAXTRACKSPEREVENT],
-           TempSkewCommonList[MAXMCTRACKS][nmaxHits],
            SkewCommonList[MAXMCTRACKS][nmaxHits],
-           daMCTrackaParTrackFound[MAXMCTRACKS],
-           daMCTrackaSkewTrackFound[MAXMCTRACKS],
+           nSpuriSkewinTrack[MAXTRACKSPEREVENT],
+           SkewSpuriList[MAXTRACKSPEREVENT][nmaxHits],
            RConformalIndex[nmaxHits],  //  given a Hit number it gives its radial box number
            FiConformalIndex[nmaxHits],  //  given a Hit number it gives its azimuthal box number
            nBoxConformal[nRdivConformal][nFidivConformal],  //  first index -> radial divisions, 2nd index -> azimuthal divisions; n. of
                                                             //  hits falling in this cell
            HitsinBoxConformal[nRdivConformal][nFidivConformal][nmaxHits];  //  first index -> radial divisions, 2nd index -> azimuthal divisions;
                                                 //  list of hit numbers of those falling in this cell
-   Short_t Charge,
+   Short_t Charge[MAXTRACKSPEREVENT],
            Status[MAXTRACKSPEREVENT],
-           daParTrackFoundaTrackMC[MAXTRACKSPEREVENT],
-           daSkewTrackFoundaTrackMC[MAXTRACKSPEREVENT];
+           daTrackFoundaTrackMC[MAXTRACKSPEREVENT],
+           daMCTrackaTrackFound[MAXMCTRACKS];
 
    Int_t status;
 
@@ -713,6 +738,12 @@ void PndSttTrackFinderReal::PndSttTrkFinderPartial(
               gamma;
 
    Double_t    D,Fi, rotationangle, rotationsin, rotationcos,ptotal,
+               Fi_low_limit[MAXTRACKSPEREVENT],
+               Fi_up_limit[MAXTRACKSPEREVENT],
+               Fi_initial_helix_referenceframe[MAXTRACKSPEREVENT],
+               Fi_final_helix_referenceframe[MAXTRACKSPEREVENT],
+               Fi_allowedforskew_low[MAXTRACKSPEREVENT],
+               Fi_allowedforskew_up[MAXTRACKSPEREVENT],
                m[MAXTRACKSPEREVENT],
                q[MAXTRACKSPEREVENT],
                ALFA[MAXTRACKSPEREVENT],
@@ -728,6 +759,8 @@ void PndSttTrackFinderReal::PndSttTrkFinderPartial(
                auxinfoparalConformal[nmaxHits][5],
                S[nmaxHits],
                Z[nmaxHits],
+               temporeS[nmaxHits],
+               temporeZ[nmaxHits],
                ZDrift[nmaxHits],
                ZErrorafterTilt[nmaxHits];
 
@@ -755,9 +788,15 @@ void PndSttTrackFinderReal::PndSttTrkFinderPartial(
 
 
 
+
       for(i=0; i< Minclinations[0]; i++){
          ExclusionList[   infoparal[i]   ]= true ;
 
+/*
+         if(info[infoparal[ i ]][0]* info[infoparal[ i ]][0]+
+            info[infoparal[ i ]][1]* info[infoparal[ i ]][1]
+            < RmaxStrawSkewArea*RmaxStrawSkewArea  )   ExclusionList[   infoparal[i]   ]= false ;
+*/
 
       }
 
@@ -807,6 +846,7 @@ void PndSttTrackFinderReal::PndSttTrkFinderPartial(
       }
 
 
+
 //-----------------------
 
 //   find among the ListHitsinTrack  if there are at least a minimum # of hits belonging to the outer part
@@ -819,13 +859,12 @@ void PndSttTrackFinderReal::PndSttTrkFinderPartial(
          Nouter++;
       }
 
+
      if( Nouter >= MINIMUMOUTERHITSPERTRACK) {
 
       for(i=0; i< Nouter;i++){
           ListHitsinTrackinWhichToSearch[i]=ListHitsinTrack[nTracksFoundSoFar][i];
       }
-
-
 
 
 
@@ -859,6 +898,7 @@ void PndSttTrackFinderReal::PndSttTrkFinderPartial(
          }
 
 
+
          Nbaux =  PndSttFindTrackStrictCollection(
                            1,    // NFiCELLDISTANCE
                            SeedParallelNumber,   //  seed hit
@@ -883,6 +923,10 @@ void PndSttTrackFinderReal::PndSttTrkFinderPartial(
      }    // end of if( Nouter >= MINIMUMOUTERHITSPERTRACK)
 
 
+
+
+
+//---------------------------
 
 
 
@@ -911,7 +955,6 @@ void PndSttTrackFinderReal::PndSttTrkFinderPartial(
 
       trajectory_vertex[0]=  0.;
       trajectory_vertex[1]=  0.;
-
 
 
 
@@ -957,6 +1000,9 @@ void PndSttTrackFinderReal::PndSttTrkFinderPartial(
       if( R[nTracksFoundSoFar] < 0. )   continue;
       R[nTracksFoundSoFar]= sqrt( R[nTracksFoundSoFar] );
 
+//---------------------------
+
+
 
 
 //---------------------  better association of the hits in the track candidate
@@ -964,7 +1010,7 @@ void PndSttTrackFinderReal::PndSttTrkFinderPartial(
   ITRACCIA = nTracksFoundSoFar;
 
 
-
+/*
   NN =  PndSttTrkAssociatedParallelHitsToHelixTris(
                    m[nTracksFoundSoFar],
                    q[nTracksFoundSoFar],
@@ -979,6 +1025,43 @@ void PndSttTrackFinderReal::PndSttTrkFinderPartial(
                    HitsinBoxConformal,
                    auxListHitsinTrack              //  this is the output
                                                      );
+*/
+
+/*
+  NN =  PndSttTrkAssociatedParallelHitsToHelix(
+                   Ox[nTracksFoundSoFar],
+                   Oy[nTracksFoundSoFar],
+                   R[nTracksFoundSoFar],
+                   Minclinations[0],
+                   info,
+                   auxListHitsinTrack              //  this is the output
+                                                     );
+
+*/
+
+  NN =  PndSttTrkAssociatedParallelHitsToHelixQuater(
+                   m[nTracksFoundSoFar],
+                   q[nTracksFoundSoFar],
+                   Status[nTracksFoundSoFar],
+                   nHitsinTrack[nTracksFoundSoFar],
+                   &ListHitsinTrack[nTracksFoundSoFar][0],
+                   Minclinations[0],
+                   Ox[nTracksFoundSoFar],
+                   Oy[nTracksFoundSoFar],
+                   R[nTracksFoundSoFar],
+                   info,
+                   infoparalConformal,
+                   RConformalIndex,
+                   FiConformalIndex,
+                   nBoxConformal,
+                   HitsinBoxConformal,
+                   auxListHitsinTrack              //  this is the output
+                                                     );
+
+
+
+
+
 
 
 
@@ -989,19 +1072,13 @@ void PndSttTrackFinderReal::PndSttTrkFinderPartial(
    for(i=0; i<nHitsinTrack[nTracksFoundSoFar];i++){
      ListHitsinTrack[nTracksFoundSoFar][i]=auxListHitsinTrack[i];
    }
+//----------------------------------------------
 
 
 
 
 
-//  this trasformation is valid even if the equation is a straight line from the fit
 
-      Ox[nTracksFoundSoFar]= -0.5*ALFA[nTracksFoundSoFar];
-      Oy[nTracksFoundSoFar]= -0.5*BETA[nTracksFoundSoFar];
-      R[nTracksFoundSoFar]= Ox[nTracksFoundSoFar]*Ox[nTracksFoundSoFar]+Oy[nTracksFoundSoFar]*Oy[nTracksFoundSoFar]-
-                            GAMMA[nTracksFoundSoFar];
-      if( R[nTracksFoundSoFar] < 0. )   continue;
-      R[nTracksFoundSoFar]= sqrt( R[nTracksFoundSoFar] );
 
 
 
@@ -1014,16 +1091,83 @@ void PndSttTrackFinderReal::PndSttTrkFinderPartial(
 
 
 
-
-
-
-
-
-
-
    nTracksFoundSoFar++;
 
   }      // end  of   for(iParHit=0; iParHit<Minclinations[0] + 1 -  MINIMUMHITSPERTRACK; iParHit++)
+
+
+
+
+
+
+//    ordering the parallel hits; determining the charge of this track;  finding the initial (at vertex 0,0)
+//    and final FI of the track in the Helix reference frame.
+
+  for(i=0; i<nTracksFoundSoFar;i++){
+
+       PndSttOrderingParallel(
+                             Ox[i],
+                             Oy[i],
+                             info,
+                             nHitsinTrack[i],
+                             &ListHitsinTrack[i][0],
+                             infoparal,
+                             &Charge[i],
+                             &Fi_initial_helix_referenceframe[i],
+                             &Fi_final_helix_referenceframe[i]
+                       );
+
+//    end of ordering the parallel  hits; determining the charge of this track
+
+
+//   finding the FI angular range (in the laboratory frame) spanned by this parallel track
+
+       PndSttFindingParallelTrackAngularRange(
+                             Ox[i],
+                             Oy[i],
+                             R[i],
+                             Charge[i],
+                             &Fi_low_limit[i],
+                             &Fi_up_limit[i]
+
+                                             );
+
+//   finding the FI angular range (in the Helix of the trajectory frame) allowed for the skew hits
+
+
+
+/*
+       PndSttFindingAllowedAngularRangeforSkew(
+                             Ox[i],
+                             Oy[i],
+                             R[i],
+                             Charge[i],
+                             &Fi_allowedforskew_low[i],
+                             &Fi_allowedforskew_up[i]
+                                             );
+*/
+
+
+
+
+   }    //  end of  for(i=0; i<nTracksFoundSoFar;i++)
+
+
+
+
+
+
+
+
+//--------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
 
 
 
@@ -1037,19 +1181,26 @@ void PndSttTrackFinderReal::PndSttTrkFinderPartial(
 //-----  finding the skew hits intersecting this XY trajectory circle
 
 
+
   TemporarynSkewHitsinTrack = AssociateSkewHitsToXYTrack(
                    Ox[i],   //  input : X of center of XY plane circle
                    Oy[i],   //  input : Y of center of XY plane circle
                    R[i],   //  input : Radius of XY plane circle
                    info,
                    inclination,
+                   Fi_low_limit[i],
+                   Fi_up_limit[i],
+                   Fi_allowedforskew_low[i],
+                   Fi_allowedforskew_up[i],
+                   Charge[i],
+                   Fi_initial_helix_referenceframe[i],
+                   Fi_final_helix_referenceframe[i],
                    TemporarySkewList, // output,  list of selected skew hits (in skew numbering)
                    S,       //  output,  S coordinate of selected Skew hit
                    Z,       //  output,  Z coordinate of selected Skew hit
                    ZDrift,   //  output,  drift distance IN Z DIRECTION only, of selected Skew hit
                    ZErrorafterTilt   //  output,  Radius taking into account the tilt, IN Z DIRECTION only, of selected Skew hit
                                                      );
-
     nSkewHitsinTrack[i]=TemporarynSkewHitsinTrack;
   if( TemporarynSkewHitsinTrack ==0) {
     continue;
@@ -1058,7 +1209,7 @@ void PndSttTrackFinderReal::PndSttTrkFinderPartial(
 
 
 
-//
+/*
       Status[i] = PndSttFitSZspace( 
                 TemporarynSkewHitsinTrack,
                 S,
@@ -1071,24 +1222,74 @@ void PndSttTrackFinderReal::PndSttTrkFinderPartial(
                 &FI0[i]
                       );
 
+*/
+
+
+      Status[i] = PndSttFitSZspacebis( 
+                TemporarynSkewHitsinTrack,
+                S,
+                Z,
+                ZDrift,
+                i,   //   index of the track in XY plane
+                Fi_initial_helix_referenceframe[i],
+                NHITSINFIT,
+                &KAPPA[i]
+                      );
+
+
+
       if(Status[i] < 0  ) {
         continue;
       }
 
+      FI0[i]=Fi_initial_helix_referenceframe[i];
 
 
 
 
-    for(j=0;j<TemporarynSkewHitsinTrack;j++){
-       ListSkewHitsinTrack[i][j]=TemporarySkewList[j][0];
-    }
+
+//-----  finding a better association  the skew hits intersecting this XY trajectory circle
+
+
+
+
+  NNN=AssociateBetterAfterFitSkewHitsToXYTrack(
+                   TemporarynSkewHitsinTrack,
+                   TemporarySkewList, // input,  list of selected skew hits (in skew numbering)
+                   S,       //  input,  S coordinate of selected Skew hit
+                   Z,       //  input,  Z coordinate of selected Skew hit
+                   ZDrift,   //  input,  drift distance IN Z DIRECTION only, of selected Skew hit
+                   ZErrorafterTilt,   //  input,  Radius taking into account the tilt, IN Z DIRECTION only, of selected Skew hit
+                   KAPPA[i],    // input, KAPPA result of fit
+                   FI0[i],    // input, FI0 result of fit,
+                   tempore,  //  output, associated skew hits
+                   temporeS,  //  output, associated skew hit  S
+                   temporeZ,  //  output, associated skew hits Z
+                   &STATUS   // output
+                                                     );
+
+
+
+
+
+ if( STATUS >=0 ){
+       nSkewHitsinTrack[i] = NNN;
+       for(j=0;j<nSkewHitsinTrack[i];j++){ ListSkewHitsinTrack[i][j]=tempore[j]; }
+
+       //    try a refit to see if parameters KAPPA and FI0 improve
+
+
+ }   else {
     nSkewHitsinTrack[i]=TemporarynSkewHitsinTrack;
+    for(j=0;j<TemporarynSkewHitsinTrack;j++){ ListSkewHitsinTrack[i][j]=TemporarySkewList[j][0];}
+
+}    //  end of     if( STATUS >=0 )
 
 
 
 
-//  }    //   end of   for(i=0; i<nTracksFoundSoFar;i++)
 
+//     -------------------------------------------------------------
 
 
 
@@ -1097,11 +1298,6 @@ void PndSttTrackFinderReal::PndSttTrkFinderPartial(
                                     Oy[i]*Oy[i]) -R[i];
     HoughFi = atan2(Oy[i],Ox[i]);
     if(HoughFi<0.)  HoughFi += 2.*PI;
-
-
-
-
-
 
 
 
@@ -1121,8 +1317,9 @@ void PndSttTrackFinderReal::PndSttTrkFinderPartial(
                              infoskew,
                              &nTotalHits,
                              BigList,
-                             &Charge
+                             &Charge[i]
                        );
+
 
 
 //----      start the better track parameter determination and spurious (mainly skew) hits rejection with a Kalman fit.
@@ -1133,6 +1330,25 @@ void PndSttTrackFinderReal::PndSttTrkFinderPartial(
        Double_t Pxini = Ptras*Oy[i]/dista;
        Double_t Pyini = -Ptras*Ox[i]/dista;
 
+/*
+       PndSttFitwithKalman(
+                             Ox[i],
+                             Oy[i],
+                             Pxini,
+                             Pyini,
+                             Pzini,
+                             Ptras,
+                             info,
+                             nHitsinTrack[i],
+                             &ListHitsinTrack[i][0],
+                             nSkewHitsinTrack[i],
+                             &ListSkewHitsinTrack[i][0],
+                             S,
+                             infoparal,
+                             infoskew
+                          );
+
+*/
 
 
 //----      end of the better track parameter determination and spurious (mainly skew) hits rejection with a Kalman fit.
@@ -1157,14 +1373,31 @@ void PndSttTrackFinderReal::PndSttTrkFinderPartial(
 
          ptotal = sqrt(Pxini*Pxini+Pyini*Pyini+Pzini*Pzini);
          if( fabs(ptotal)  > 1.e-10){
-             pt->GetParamLast()->SetQp(Charge/ptotal);
+             pt->GetParamLast()->SetQp(Charge[i]/ptotal);
          } else {
-             pt->GetParamLast()->SetQp(Charge/1.e-10);
+             pt->GetParamLast()->SetQp(Charge[i]/1.e-10);
          }
-
 */
 
+
+
+
+
+
    }   //  end of     for(i=0; i<nTracksFoundSoFar;i++)
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1194,6 +1427,7 @@ CalculatedCircles PndSttTrackFinderReal::PndSttTrkFindCircles(Double_t x1,Double
   Double_t R[8],CX[8],CY[8];
   CalculatedCircles Ris ;
 
+//cout<<"---------------------------------- inizio printout da find_circles \n";
 
 
 /*
@@ -1215,6 +1449,13 @@ CalculatedCircles PndSttTrackFinderReal::PndSttTrkFindCircles(Double_t x1,Double
   bp=2.*(y1-y3);
   dp= x1*x1+y1*y1-r1*r1-x3*x3-y3*y3+r3*r3;
 
+/*
+cout<<"printout iniziale :\nx1="<<x1<<";\nx2="<<x2<<";\nx3="<<x3<<";\ny1="<<y1<<";\ny2="<<y2<<";\ny3="
+       <<y3<<";\nr1="<<r1<<";\nr2="<<r2<<";\nr3="<<r3<<endl;
+cout<<" a= "<<a<<";  b="<<b<<";  d="<<d<<endl;
+cout<<" ap= "<<ap<<";  bp="<<bp<<";  dp="<<dp<<endl;
+cout<<"fine printout iniziale\n";
+*/
 
   Double_t aaa= a*bp-b*ap;
 //cout<<"aaa  : "<<aaa<<endl;
@@ -1391,13 +1632,424 @@ CalculatedCircles PndSttTrackFinderReal::PndSttTrkFindCircles(Double_t x1,Double
 //----------------------------------------------------   end of function  PndSttTrackFinderReal::PndSttTrkFindCircles
 
 
+//----------------------------------------------------   begin function  PndSttTrackFinderReal::PndSttTrkFindHelix
+
+ CalculatedHelix PndSttTrackFinderReal::PndSttTrkFindHelix(
+      Double_t Ox, Double_t Oy, Double_t R,
+      Double_t Zcenter1,Double_t Zcenter2,Double_t Zcenter3,
+      Double_t semilengthStraight1, Double_t semilengthStraight2, Double_t semilengthStraight3,
+      Double_t C0x1, Double_t C0y1, Double_t C0z1, Double_t semilengthSkew1,
+      Double_t r1, Double_t vx1, Double_t vy1, Double_t vz1,
+      Double_t C0x2, Double_t C0y2, Double_t C0z2, Double_t semilengthSkew2,
+      Double_t r2, Double_t vx2, Double_t vy2, Double_t vz2,
+      Int_t *STATUS
+                                                         )
+{
+
+
+//-------------------------------------------
+
+
+
+/*
+ INPUTS :
+
+  Ox, Oy        = abscissa and ordinate of the center of the circular trajectory of
+                  the particle;
+  R             = radius of such trajectory;
+  C0x, C0y, Coz = x, y, z coordinates of a point belonging to the axis of the
+                  skewed straw;
+  r  = radius of equidrift of such skewed straw;
+  vx, vy, vz    =  versor of the direction along which the skewed straw lies.
+
+
+ OUTPUTS :
+
+  P1x, P1y, P1z  =  x, y, z coordinates of the point intersection between the
+                    particle trajectory circle and the equidrift cylinder of
+                    the skewed straw calculated as a function of theta (first
+                    solution);
+  P2x, P2y, P2z  =  x, y, z coordinates of the point intersection between the
+                    particle trajectory circle and the equidrift cylinder of
+                    the skewed straw calculated as a function of theta (second
+                    solution);
+
+*/
+
+  Int_t  Nsolutions, NTOTAL,  Msol, i, j, i1, i2, k1, k2,  enne, jtemp, nfile;
+
+  Double_t aaa, bbb, ccc, ddd, eee, fff,
+           bp, cp, bs, cs,
+           q1, q2pos, q2neg,
+           Rx, Ry, SkewInclWithRespectToS, Aellipsis1, Bellipsis1, Aellipsis2, Bellipsis2, LL,
+           alpha, beta, gamma, delta, epsilon,DELTA, A, B, C, D, cosalfa1, cosalfa2,
+           alpha1, beta1, gamma1,
+           x0, y0, fi1, fi2,
+           SSS1, SSS2,
+           xmin,xmax,ymin,ymax,
+           x1,x2,y1,y2,
+           POINTS1[6],POINTS2[6],distance1[2], distance2[2],
+           M[4], Temp[4], Tiltdirection1[2], Tiltdirection2[2] ;
+
+//  const Double_t PI = 3.141592654;
+
+  bool BAD1[2], BAD2[2] ;
+
+  char nome[100];
+
+  CalculatedHelix  Result;
+
+//--------------------------
+
+
+
+//       cout<<"Entra in PndSttTrkFindHelix.........\n";
+
+
+
+ ntimes++;
+
+
+ aaa = sqrt(vx1*vx1+vy1*vy1+vz1*vz1);
+ vx1 /= aaa;
+ vy1 /= aaa;
+ vz1 /= aaa;
+ aaa = sqrt(vx2*vx2+vy2*vy2+vz2*vz2);
+ vx2 /= aaa;
+ vy2 /= aaa;
+ vz2 /= aaa;
+
+
+ NTOTAL=0;
+ Result.Nhelix[0] = Result.Nhelix[1] = Result.Nhelix[2] = 0;
+
+//  calculation of the intersection points between skew straw axis and trajectory cylinder ----------------------------
+
+ calculateintersections(Ox,Oy,R,C0x1,C0y1,C0z1,r1,vx1,vy1,vz1, STATUS,POINTS1);
+
+ if(*STATUS < 0 ) { return Result;}
+
+ for( i=0; i<2; i++){
+  j=3*i;
+  distance1[i] = sqrt(
+                  (POINTS1[j]-C0x1)*(POINTS1[j]-C0x1) + 
+                  (POINTS1[1+j]-C0y1)*(POINTS1[1+j]-C0y1) + 
+                  (POINTS1[2+j]-C0z1)*(POINTS1[2+j]-C0z1) 
+                 );
+  if( distance1[i] >= semilengthSkew1 ){
+     BAD1[i] = true ;
+  } else {
+     BAD1[i]= false ;
+  }
+ }
+
+//----------------
+
+  if ( BAD1[0]  && BAD1[1] ) {
+    *STATUS = -4;
+    return Result;
+  }
+
+//----------------
+
+ calculateintersections(Ox,Oy,R,C0x2,C0y2,C0z2,r2,vx2,vy2,vz2, STATUS,POINTS2);
+ if(*STATUS < 0 ) { return Result;}
+
+//-------------------------
+ for( i=0; i<2; i++){
+  j=3*i;
+  distance2[i] = sqrt(
+                  (POINTS2[j]-C0x2)*(POINTS2[j]-C0x2) +
+                  (POINTS2[1+j]-C0y2)*(POINTS2[1+j]-C0y2) + 
+                  (POINTS2[2+j]-C0z2)*(POINTS2[2+j]-C0z2) 
+                 );
+
+  if( distance2[i] >= semilengthSkew2 ){
+     BAD2[i] = true ;
+  } else {
+     BAD2[i]= false ;
+  }
+ }
+//-------------------------
+
+  if ( BAD2[0] && BAD2[1] ) {
+    *STATUS = -5;
+    return Result;
+  }
+
+//---------------------------------------------------------------------------------------------------------------------
+
+
+for(k1=0; k1<2;k1++){
+//              if( BAD1[k1] )  { cout<<"per k1 = "<<k1<<"  la intersezione e' BAD\n";}
+ if( BAD1[k1] )  continue;
+ i1 = 3*k1;
+
+//  calculation of the approximate axis length of the ellipses projection of the skew straw on the plane tangent to the trajectory cylinder.
+//  first skew straw
+
+ Rx = POINTS1[i1]-Ox ;   //  x component Radial vector of cylinder of trajectory
+ Ry = POINTS1[1+i1]-Oy ;   //  y direction Radial vector of cylinder of trajectory
+
+ aaa = sqrt(Rx*Rx+Ry*Ry);
+ SkewInclWithRespectToS = (-Ry*vx1 + Rx*vy1)/aaa ;
+  SkewInclWithRespectToS /= R;
+ bbb = sqrt( SkewInclWithRespectToS*SkewInclWithRespectToS + vz1*vz1);
+//  the tilt direction of this ellipse is (1,0)  when major axis along Z direction
+ if( bbb > 1.e-10){
+   Tiltdirection1[0] = vz1/bbb;
+   Tiltdirection1[1] = SkewInclWithRespectToS/bbb;
+ } else {
+   Tiltdirection1[0] = 1.;
+   Tiltdirection1[1] = 0.;
+ }
+
+ LL = fabs(vx1*Rx + vy1*Ry);
+ if( LL < 1.e-10) continue;
+ Aellipsis1 = r1*aaa/LL;
+
+ if(istampa >= 3){
+   cout<<"Lunghezza asse maggiore ellisse1 = "<<Aellipsis1<<";  raggio drift1 = "<<r1<<";  Tdirz = "<<Tiltdirection1[0]
+       <<";  TdirFI = "<<Tiltdirection1[1]<<endl;
+   cout<<"cos angolo con la normale = "<<LL/aaa<<endl;
+ }
+
+// checks that the projected ellipsis doesn't go out the boundaries of both the skew straw and the trajectory cylinder
+// under the safe assumption that the ellipse has the major axis in Z direction.
+
+ if(
+    Aellipsis1 > semilengthStraight1-fabs(POINTS1[i1+2]-Zcenter1)   ||
+    Aellipsis1 > semilengthStraight2-fabs(POINTS1[i1+2]-Zcenter2)   ||
+    Aellipsis1 > semilengthStraight3-fabs(POINTS1[i1+2]-Zcenter3)   ||
+    distance1[k1] + Aellipsis1 > semilengthSkew1        //  the ellipsis goes out of the boundaries of the skew straw
+   )  continue;
+
+
+
+
+  fi1 = atan2(POINTS1[i1+1]-Oy, POINTS1[i1]-Ox) ;  // atan2 returns radians in (-pi and +pi]
+  if( fi1 < 0.) fi1 += 2.*PI;
+
+
+ for(k2=0; k2<2;k2++){
+  if(  BAD2[k2] )  continue;
+
+  i2 = 3*k2;
+
+//  calculation of the approximate axis length of the ellipses projection of the skew straw on the plane tangent to the trajectory cylinder.
+//  first skew straw
+
+  Rx = POINTS2[i2]-Ox ;   //  x direction along R of cylinder of trajectory
+  Ry = POINTS2[1+i2]-Oy ;   //  y direction along R of cylinder of trajectory
+
+  aaa = sqrt(Rx*Rx+Ry*Ry);
+  SkewInclWithRespectToS = (-Ry*vx2 + Rx*vy2)/aaa ;
+  SkewInclWithRespectToS /= R;
+  bbb = sqrt( SkewInclWithRespectToS*SkewInclWithRespectToS + vz2*vz2);
+//  the tilt direction of this ellipse is (1,0)  when major axis along Z direction
+ if( bbb > 1.e-10){
+   Tiltdirection2[0] = vz2/bbb;
+   Tiltdirection2[1] = SkewInclWithRespectToS/bbb;
+ } else {
+   Tiltdirection2[0] = 1.;
+   Tiltdirection2[1] = 0.;
+ }
+ LL = fabs(vx2*Rx + vy2*Ry);
+ if(LL < 1.e-10) continue;
+ Aellipsis2 = r2*aaa/LL;
+// Bellipsis2 = r2;
+
+// checks that the projected ellipsis doesn't go out the boundaries of both the skew straw and the trajectory cylinder
+
+  if(
+    Aellipsis2 > semilengthStraight1-fabs(POINTS2[i2+2]-Zcenter1)   ||  // the ellipsis goes out of the boundaries of the straight straws
+    Aellipsis2 > semilengthStraight2-fabs(POINTS2[i2+2]-Zcenter2)   ||
+    Aellipsis2 > semilengthStraight3-fabs(POINTS2[i2+2]-Zcenter3)   ||
+    distance2[k2] + Aellipsis2 > semilengthSkew2        //  the ellipsis goes out of the boundaries of the skew straw
+    )  continue;
+
+
+//    end of boundaries checks, now find KAPPA and FI0
+
+
+
+
+
+     fi2 = atan2(POINTS2[i2+1]-Oy, POINTS2[i2]-Ox) ;  // atan2 returns radians in (-pi and +pi]
+     if ( fi2 < 0.)  fi2 += 2.*PI;
+
+
+
+
+
+//   translation with the new variables ( those of the lateral surface of the trajectory cylinder and with the first ellipsis
+//   positioned at 0,0
+
+
+  for ( enne = -1; enne<2; enne++) {    //  enne  is the order of the solution
+
+
+//   translation with the new variables ( those of the lateral surface of the trajectory cylinder and with the first ellipsis
+//   positioned at 0,0
+
+
+
+     Result.Nhelix[enne+1] = 4;
+
+  for(i=0; i<2; i++){
+   for(j=0; j<2; j++){
+
+     x1 =  POINTS1[i1+2] + (1 - 2*j)*Aellipsis1*Tiltdirection1[0];
+     y1 = fi1 + (1 - 2*j)*Aellipsis1*Tiltdirection1[1] ;
+     x2 =  POINTS2[i2+2] + (1 - 2*i)*Aellipsis2*Tiltdirection2[0];
+     y2 = fi2 + (1 - 2*i)*Aellipsis2*Tiltdirection2[1] + enne * 2. * PI  ;
+
+
+
+
+     Nsolutions = j + 2*i;
+
+     if ( x2-x1 != 0.){
+       Result.KAPPA[enne+1][Nsolutions] =  (y2-y1) / (x2-x1) ;
+       Result.FI0[enne+1][Nsolutions] = -Result.KAPPA[enne+1][Nsolutions] * x1 + y1;
+     } else {
+       Result.KAPPA[enne+1][Nsolutions] = 1.e14;
+       Result.FI0[enne+1][Nsolutions] = x1;
+     }
+
+    }
+   }      //  end of   for(i=0; i<2; i++)
 
 
 
 
 
 
-//----------------------------------------------------   begin of function  PndSttTrackFinderReal::calculateintersections
+
+// --------------------- inizio stampe diagnostiche e macros diagnostiche
+
+
+
+// --------------------------------------------------------------------   stampa delle macro di controllo
+if(iplotta){
+
+  Bellipsis1 = r1/R;
+  Bellipsis2 = r2/R;
+
+  SSS1=atan2(POINTS1[i1+1]-Oy,POINTS1[i1]-Ox);
+  if( SSS1<0.) SSS1 +=2.*PI;
+  SSS2=atan2(POINTS2[i2+1]-Oy,POINTS2[i2]-Ox);
+  if( SSS2<0.) SSS2 +=2.*PI;
+  SSS2 += 2.*PI*enne;
+
+for(i=0,nfile=0; i<4; i++){
+ if(ntimes < 3){
+  nfile++;
+
+  aaa = fabs(POINTS1[i1+2]-POINTS2[i2+2])*0.05;
+  bbb = fabs(SSS1-SSS2)*0.05;
+
+  if(POINTS1[i1+2]-Aellipsis1<POINTS2[i2+2]-Aellipsis2){xmin=POINTS1[i1+2]-Aellipsis1-aaa;} else
+{xmin=POINTS2[i2+2]-Aellipsis2-aaa;}
+  if(POINTS1[i1+2]+Aellipsis1>POINTS2[i2+2]+Aellipsis2){xmax=POINTS1[i1+2]+Aellipsis1+aaa;} else
+{xmax=POINTS2[i2+2]+Aellipsis2+aaa;}
+
+  if( SSS1-Bellipsis1 < SSS2-Bellipsis2){ ymin = SSS1-Bellipsis1-bbb; } else { ymin = SSS2-Bellipsis2-bbb; }
+  if( SSS1+Bellipsis1 > SSS2+Bellipsis2){ ymax = SSS1+Bellipsis1+bbb; } else { ymax = SSS2+Bellipsis2+bbb;}
+
+  if( enne < 0) {
+   sprintf(nome,"macro1_combination%d_ennemeno%d_kuno%d_kdue%dn%d.C",ntimes,-enne,k1,k2,nfile);
+  } else {
+   sprintf(nome,"macro1_combination%d_enne%d_kuno%d_kdue%dn%d.C",ntimes,enne,k1,k2,nfile);
+  }
+  FILE * MACRO = fopen(nome,"w");
+  if( enne < 0) {
+    fprintf(MACRO,"void macro1_combination%d_ennemeno%d_kuno%d_kdue%dn%d()\n{\n",ntimes,-enne,k1,k2,nfile);
+  } else {
+    fprintf(MACRO,"void macro1_combination%d_enne%d_kuno%d_kdue%dn%d()\n{\n",ntimes,enne,k1,k2,nfile);
+  }
+
+  Double_t rotation1 = 180.*atan2(Tiltdirection1[1],Tiltdirection1[0])/PI;
+  Double_t rotation2 = 180.*atan2(Tiltdirection2[1],Tiltdirection2[0])/PI;
+  fprintf(MACRO,"TCanvas* my= new TCanvas();\nmy->Range(%f,%f,%f,%f);\n",xmin,ymin,xmax,ymax);
+  fprintf(MACRO,"TEllipse* E1 = new TEllipse(%f,%f,%f,%f,0.,360.,%f);\n",POINTS1[i1+2],SSS1,Aellipsis1,Bellipsis1,rotation1);
+  fprintf(MACRO,"TEllipse * E2 = new TEllipse(%f,%f,%f,%f,0.,360.,%f);\n",POINTS2[i2+2],SSS2,Aellipsis2,Bellipsis2,rotation2);
+  fprintf(MACRO,"TLine* L = new TLine(%f,%f,%f,%f);\n",
+        xmin,
+        Result.KAPPA[enne+1][i]*xmin+Result.FI0[enne+1][i],
+        xmax,
+        Result.KAPPA[enne+1][i]*xmax+Result.FI0[enne+1][i]
+         );
+  fprintf(MACRO,"TGaxis *Assey = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n",xmin+(xmax-xmin)*0.1,
+                           ymin+(ymax-ymin)*0.1,xmin+(xmax-xmin)*0.1,ymax-(ymax-ymin)*0.1,
+                          ymin+(ymax-ymin)*0.1,ymax-(ymax-ymin)*0.1);
+  fprintf(MACRO,"Assey->Draw();\n");
+  fprintf(MACRO,"TGaxis *Assex = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n",xmin+(xmax-xmin)*0.1,
+                           ymin+(ymax-ymin)*0.1,xmax-(xmax-xmin)*0.1,ymin+(ymax-ymin)*0.1,
+                          xmin+(xmax-xmin)*0.1,xmax-(xmax-xmin)*0.1);
+  fprintf(MACRO,"Assex->Draw();\n");
+  if( ymin<2.*PI && ymax > 2.*PI) {
+    fprintf(MACRO,"TLine* TWOPI = new TLine(%f,%f,%f,%f);\nTWOPI->SetLineColor(2);\nTWOPI->Draw();\n",
+                 xmin,2.*PI,xmax,2.*PI);
+  }
+  if( ymin<0. && ymax > 0.) {
+    fprintf(MACRO,"TLine* BASE = new TLine(%f,%f,%f,%f);\nBASE->SetLineColor(2);\nBASE->Draw();\n",
+                 xmin,0.,xmax,0.);
+  }
+  if( ymin<-2.*PI && ymax > -2.*PI) {
+    fprintf(MACRO,"TLine* NEG = new TLine(%f,%f,%f,%f);\nNEG->SetLineColor(2);\nNEG->Draw();\n",
+                 xmin,-2.*PI,xmax,-2.*PI);
+  }
+  fprintf(MACRO,"TLine* Teorica = new TLine(%f,%f,%f,%f);\n",
+        xmin,
+        xmin/R + 3.*PI/2.,
+        xmax,
+        xmax/R + 3.*PI/2.
+         );
+  fprintf(MACRO,"Teorica->SetLineColor(4);\n");
+  fprintf(MACRO,"E1->Draw();\nE2->Draw();\nL->Draw();\nTeorica->Draw();\n}\n");
+  fclose(MACRO);
+ }  //    end of   if(ntimes < 3)
+
+}   //    end   of   for(i=0; i<jtemp; i++)
+
+// -----------------------------------------------------------------  fine  stampa delle macro di controllo
+
+     }   //  end if(iplotta)
+// --------------------- fine stampe diagnostiche e macros diagnostiche
+
+
+
+
+   }  //   end  for(enne=0; enne<2; enne++)
+
+  }   // end  for(k2=0;
+ }   // end  for(k1=0;
+
+  NTOTAL=4;
+ *STATUS = NTOTAL;
+ 
+//----------------------------------------------------------------------------------------------------------------------
+
+/*
+cout<<"ultima stampa, N totale soluzioni = "<<NTOTAL<<"; N a 0 giri = "<<
+     Result.Nhelix[1]<<"; N a 1 giro "<<Result.Nhelix[2]<<"; N ad un giro sotto "<<Result.Nhelix[0]<<endl;
+
+cout<<"Esce da PndSttTrkFindHelix.........\n";
+*/
+
+
+
+ return Result;
+
+}
+//--------------------------------  end of function         PndSttTrackFinderReal::PndSttTrkFindHelix
+
+
+
+
+
+
 
  void PndSttTrackFinderReal::calculateintersections(Double_t Ox,Double_t Oy,Double_t R,Double_t C0x,Double_t C0y,
                    Double_t C0z,Double_t r,Double_t vx,Double_t vy,Double_t vz,
@@ -1492,6 +2144,718 @@ CalculatedCircles PndSttTrackFinderReal::PndSttTrkFindCircles(Double_t x1,Double
 
 
 
+//----------begin of function PndSttTrackFinderReal::PndSttTrkAssociatedHitsToHelix
+
+  AssociatedHitsToHelix PndSttTrackFinderReal::PndSttTrkAssociatedHitsToHelix(
+                   Double_t KAPPA,Double_t FI0,Double_t D,Double_t Fi,Double_t R,
+                   Int_t Nhits, Double_t info[][7], Int_t Nincl, Int_t Minclinations[], Double_t inclination[][3],
+                   Int_t imaxima, Int_t nMaxima
+                                                     )
+{
+
+    Int_t i, j, i1, ii, index, Kincl, nlow, nup, STATUS;
+
+    Double_t xmin , xmax, ymin, ymax, Ox, Oy,
+           dx, dy, diff, d1, d2,
+           delta, deltax, deltay, deltaz, deltaS,
+           factor,
+           zmin, zmax, Smin, Smax, S1, S2,
+           z1, z2, y1, y2,
+           vx1, vy1, vz1, C0x1, C0y1, C0z1,
+           aaa, bbb, ccc, angle, minor, major,
+           distance, Rx, Ry, LL,
+           Aellipsis1, Bellipsis1,fi1,
+           fmin, fmax, offset, step,
+           SkewInclWithRespectToS, zpos, zpos1, zpos2,
+           Tiltdirection1[2],
+           zl[200],zu[200],
+           POINTS1[6];
+
+    AssociatedHitsToHelix ResultAssociatedHits;
+
+
+
+
+    Ox = (D+R)*cos(Fi);
+    Oy = (D+R)*sin(Fi);
+
+
+
+
+
+
+
+
+
+//  association of hits, ambiguities, errors.
+
+       ResultAssociatedHits.NAssociatedHits=0;
+       ResultAssociatedHits.NAssociatedParallelHits=0;
+       ResultAssociatedHits.NAssociatedSkewHits=0;
+
+//if(IVOLTE== 16) {   cout<<"evento 16, from PndSttTrkAssociatedHitsToHelix, Nhits "<<Nhits<<endl; }
+
+       for( i=0; i< Nhits; i++) {
+
+          if( ResultAssociatedHits.NAssociatedHits == nmaxAssociatedHits )  break;
+          Kincl = (int) info[i][5] - 1;
+
+// --------------------    association of the hits from parallel straws
+         if( info[i][5] == 1. ) {     // parallel straws
+
+          dx = -Ox+info[i][0];
+          dy = -Oy+info[i][1];
+          distance = sqrt(dx*dx+dy*dy);
+          if( distance < 1.e-10)  continue;
+          angle = atan2(dy,dx);
+
+          if ( fabs(R - distance ) > nAdmittedRadia*StrawRadius )  continue;
+          if(distance > R )  distance *= -1.;
+             if( KAPPA == 0.) {
+                ResultAssociatedHits.AssociatedHitsCoordinates[0][0][ResultAssociatedHits.NAssociatedHits]= info[i][0]+info[i][3]*dx/distance;  //  X of the hit
+                ResultAssociatedHits.AssociatedHitsCoordinates[1][0][ResultAssociatedHits.NAssociatedHits]= info[i][1]+info[i][3]*dy/distance;  //  Y of the hit
+                ResultAssociatedHits.AssociatedHitsCoordinates[2][0][ResultAssociatedHits.NAssociatedHits] = -1.e20;
+                ResultAssociatedHits.mAmbiguities[ResultAssociatedHits.NAssociatedHits]=1;
+                ResultAssociatedHits.AssociatedWireDirection[0][ResultAssociatedHits.NAssociatedHits]=inclination[Kincl][0];
+                ResultAssociatedHits.AssociatedWireDirection[1][ResultAssociatedHits.NAssociatedHits]=inclination[Kincl][1];
+                ResultAssociatedHits.AssociatedWireDirection[2][ResultAssociatedHits.NAssociatedHits]=inclination[Kincl][2];
+                ResultAssociatedHits.AssociatedWireCenter[0][ResultAssociatedHits.NAssociatedHits]=info[i][0];
+                ResultAssociatedHits.AssociatedWireCenter[1][ResultAssociatedHits.NAssociatedHits]=info[i][1];
+                ResultAssociatedHits.AssociatedWireCenter[2][ResultAssociatedHits.NAssociatedHits]=info[i][2];
+                ResultAssociatedHits.AssociatedWireDriftRadius[ResultAssociatedHits.NAssociatedHits]=info[i][3];
+                ResultAssociatedHits.Hitnumber[ResultAssociatedHits.NAssociatedHits]=i;  // temporaneo!
+                ResultAssociatedHits.NAssociatedHits++;
+                ResultAssociatedHits.NAssociatedParallelHits++;
+                continue;
+             } else  {
+                diff = FI0-angle;
+                major = 0.5*(KAPPA*(info[i][2]+info[i][4])+diff)/PI ;
+                minor = 0.5*(KAPPA*(info[i][2]-info[i][4])+diff)/PI ;
+                if ( major < minor) {
+                 aaa=minor;
+                 minor=major;
+                 major=aaa;
+                }
+                minor <= 0. ?  nlow = (int) minor    : nlow = ( (int) minor) + 1;
+                major <  0. ?  nup = ((int) major)-1 : nup  = (int) major;
+
+                if( nlow> nup)  continue;
+                if( nup-nlow+1 > nmaxAmbiguities )  continue;
+
+                step = fabs(2.*PI/KAPPA) ;
+                aaa = -diff/KAPPA ;
+                bbb = info[i][0]+info[i][3]*dx/distance;  //  X of the hit
+                ccc = info[i][1]+info[i][3]*dy/distance;  //  Y of the hit
+
+                for(ii=nlow; ii<=nup; ii++){
+                  ResultAssociatedHits.AssociatedHitsCoordinates[0][ii-nlow][ResultAssociatedHits.NAssociatedHits]= bbb;  //  X of the hit
+                  ResultAssociatedHits.AssociatedHitsCoordinates[1][ii-nlow][ResultAssociatedHits.NAssociatedHits]= ccc ;  //  Y of the hit
+                  ResultAssociatedHits.AssociatedHitsCoordinates[2][ii-nlow][ResultAssociatedHits.NAssociatedHits] = aaa + ii*step;   //  Z of the hit
+                }
+                ResultAssociatedHits.mAmbiguities[ResultAssociatedHits.NAssociatedHits] = nup - nlow + 1;
+                ResultAssociatedHits.AssociatedWireDirection[0][ResultAssociatedHits.NAssociatedHits]=inclination[Kincl][0];
+                ResultAssociatedHits.AssociatedWireDirection[1][ResultAssociatedHits.NAssociatedHits]=inclination[Kincl][1];
+                ResultAssociatedHits.AssociatedWireDirection[2][ResultAssociatedHits.NAssociatedHits]=inclination[Kincl][2];
+                ResultAssociatedHits.AssociatedWireCenter[0][ResultAssociatedHits.NAssociatedHits]=info[i][0];
+                ResultAssociatedHits.AssociatedWireCenter[1][ResultAssociatedHits.NAssociatedHits]=info[i][1];
+                ResultAssociatedHits.AssociatedWireCenter[2][ResultAssociatedHits.NAssociatedHits]=info[i][2];
+                ResultAssociatedHits.AssociatedWireDriftRadius[ResultAssociatedHits.NAssociatedHits]=info[i][3];
+
+                ResultAssociatedHits.Hitnumber[ResultAssociatedHits.NAssociatedHits]=i;  // temporaneo!
+                ResultAssociatedHits.NAssociatedHits++;
+                ResultAssociatedHits.NAssociatedParallelHits++;
+             }  //  end  if( KAPPA == 0.)
+
+
+            }  else {
+
+//------------------------------ starts here association of skew straw hits
+
+       //  calculation of the intersection points between skew straw axis and trajectory cylinder
+
+
+            aaa = sqrt(inclination[Kincl][0]*inclination[Kincl][0]+inclination[Kincl][1]*inclination[Kincl][1]+
+                  inclination[Kincl][2]*inclination[Kincl][2]);
+            vx1 = inclination[Kincl][0]/aaa;
+            vy1 = inclination[Kincl][1]/aaa;
+            vz1 = inclination[Kincl][2]/aaa;
+            C0x1 = info[i][0];
+            C0y1 = info[i][1];
+            C0z1 = info[i][2];
+
+            calculateintersections(Ox,Oy,R,C0x1,C0y1,C0z1,info[i][3],
+                              vx1,vy1,vz1,
+                              &STATUS,POINTS1);
+
+            if(STATUS < 0 ) continue ;
+
+
+            for( ii=0; ii<2; ii++){
+              j=3*ii;
+              distance = sqrt(
+                  (POINTS1[j]-C0x1)*(POINTS1[j]-C0x1) + 
+                  (POINTS1[1+j]-C0y1)*(POINTS1[1+j]-C0y1) + 
+                  (POINTS1[2+j]-C0z1)*(POINTS1[2+j]-C0z1) 
+                            );
+              if( distance >= info[i][4] ) continue;
+
+
+              Rx = POINTS1[j]-Ox ;   //  x component Radial vector of cylinder of trajectory
+              Ry = POINTS1[1+j]-Oy ;   //  y direction Radial vector of cylinder of trajectory
+
+
+
+
+              aaa = sqrt(Rx*Rx+Ry*Ry);
+              SkewInclWithRespectToS = (-Ry*vx1 + Rx*vy1)/aaa ;
+              SkewInclWithRespectToS /= R;
+              bbb = sqrt( SkewInclWithRespectToS*SkewInclWithRespectToS + vz1*vz1);
+        //  the tilt direction of this ellipse is (1,0)  when major axis along Z direction
+              if( bbb > 1.e-10){
+                 Tiltdirection1[0] = vz1/bbb;
+                 Tiltdirection1[1] = SkewInclWithRespectToS/bbb;
+              } else {
+                 Tiltdirection1[0] = 1.;
+                 Tiltdirection1[1] = 0.;
+              }
+              LL = fabs(vx1*Rx + vy1*Ry);
+              if( LL < 1.e-10) continue;
+              Aellipsis1 = info[i][3]*aaa/LL;
+              Bellipsis1 = info[i][3]/R;
+
+
+// checks that the projected ellipsis doesn't go out the boundaries of both the skew straw and the trajectory cylinder
+
+             if(
+                fabs(POINTS1[j+2]-ZCENTER_STRAIGHT) > SEMILENGTH_STRAIGHT- Aellipsis1 ||
+                distance + bbb > info[i][4]        //  the ellipsis goes out of the boundaries of the skew straw
+               )  continue;
+//--------------------------
+
+             fi1 = atan2(POINTS1[j+1]-Oy, POINTS1[j]-Ox) ;  // atan2 returns radians in (-pi and +pi]
+             if( fi1 < 0.) fi1 += 2.*PI;
+
+
+//   now calculate the distance (along the Z direction) from the edge of the ellipsis and the predicted Helix
+//   trajectory
+             if(fabs(KAPPA) > 1.e-10) {
+                z1 = POINTS1[j+2] + Aellipsis1*Tiltdirection1[0];
+                y1 = fi1 + Aellipsis1*Tiltdirection1[1] ;
+                zpos1 = (y1 - FI0)/KAPPA;
+                d1 = fabs(zpos1 - z1);
+                z2 = POINTS1[j+2] - Aellipsis1*Tiltdirection1[0];
+                y2 = fi1 - Aellipsis1*Tiltdirection1[1]   ;
+                zpos2 = (y2 - FI0)/KAPPA;
+                d2 = fabs(zpos2 - z2);
+                if ( d2>d1 ) {
+                    distance = d1;
+                    if( distance < nAdmittedRadia * Aellipsis1 ) {
+                      ResultAssociatedHits.AssociatedHitsCoordinates[0][0][ResultAssociatedHits.NAssociatedHits]= R*cos(y1) + Ox;  //  X of the hit
+                      ResultAssociatedHits.AssociatedHitsCoordinates[1][0][ResultAssociatedHits.NAssociatedHits]= R*sin(y1) + Oy;  //  Y of the hit
+                      ResultAssociatedHits.AssociatedHitsCoordinates[2][0][ResultAssociatedHits.NAssociatedHits] = z1;
+                      ResultAssociatedHits.mAmbiguities[ResultAssociatedHits.NAssociatedHits]=1;
+                      ResultAssociatedHits.AssociatedWireDirection[0][ResultAssociatedHits.NAssociatedHits]=inclination[Kincl][0];
+                      ResultAssociatedHits.AssociatedWireDirection[1][ResultAssociatedHits.NAssociatedHits]=inclination[Kincl][1];
+                      ResultAssociatedHits.AssociatedWireDirection[2][ResultAssociatedHits.NAssociatedHits]=inclination[Kincl][2];
+                      ResultAssociatedHits.AssociatedWireCenter[0][ResultAssociatedHits.NAssociatedHits]=info[i][0];
+                      ResultAssociatedHits.AssociatedWireCenter[1][ResultAssociatedHits.NAssociatedHits]=info[i][1];
+                      ResultAssociatedHits.AssociatedWireCenter[2][ResultAssociatedHits.NAssociatedHits]=info[i][2];
+                      ResultAssociatedHits.AssociatedWireDriftRadius[ResultAssociatedHits.NAssociatedHits]=info[i][3];
+                      ResultAssociatedHits.Hitnumber[ResultAssociatedHits.NAssociatedHits]=-i;  // temporaneo!
+                      ResultAssociatedHits.NAssociatedHits++;
+                      ResultAssociatedHits.NAssociatedSkewHits++;
+                    }
+
+                } else {
+                    distance = d2 ;
+                    if( distance < nAdmittedRadia * Aellipsis1 ) {
+                      ResultAssociatedHits.AssociatedHitsCoordinates[0][0][ResultAssociatedHits.NAssociatedHits]= R*cos(y2) + Ox;  //  X of the hit
+                      ResultAssociatedHits.AssociatedHitsCoordinates[1][0][ResultAssociatedHits.NAssociatedHits]= R*sin(y2) + Oy;  //  Y of the hit
+                      ResultAssociatedHits.AssociatedHitsCoordinates[2][0][ResultAssociatedHits.NAssociatedHits] = z2;
+                      ResultAssociatedHits.mAmbiguities[ResultAssociatedHits.NAssociatedHits]=1;
+                      ResultAssociatedHits.AssociatedWireDirection[0][ResultAssociatedHits.NAssociatedHits]=inclination[Kincl][0];
+                      ResultAssociatedHits.AssociatedWireDirection[1][ResultAssociatedHits.NAssociatedHits]=inclination[Kincl][1];
+                      ResultAssociatedHits.AssociatedWireDirection[2][ResultAssociatedHits.NAssociatedHits]=inclination[Kincl][2];
+                      ResultAssociatedHits.AssociatedWireCenter[0][ResultAssociatedHits.NAssociatedHits]=info[i][0];
+                      ResultAssociatedHits.AssociatedWireCenter[1][ResultAssociatedHits.NAssociatedHits]=info[i][1];
+                      ResultAssociatedHits.AssociatedWireCenter[2][ResultAssociatedHits.NAssociatedHits]=info[i][2];
+                      ResultAssociatedHits.AssociatedWireDriftRadius[ResultAssociatedHits.NAssociatedHits]=info[i][3];
+                      ResultAssociatedHits.Hitnumber[ResultAssociatedHits.NAssociatedHits]=-i;  // temporaneo!
+                      ResultAssociatedHits.NAssociatedHits++;
+                      ResultAssociatedHits.NAssociatedSkewHits++;
+                    }
+                }
+
+if(istampa>= 3) {
+  double dista;
+  dista = distance;
+  if(z1<z2){   if( zpos1 > z1 && zpos2 > z1  && zpos1 < z2 && zpos2 < z2 ) dista = -distance; }else{ 
+            if( zpos1 > z2 && zpos2 > z2  && zpos1 < z1 && zpos2 < z1 ) dista = -distance;} ;
+  cout<<"distanza minima (con segno) trovata skew-Helix = "<<dista<<endl;
+}
+
+              }  else  {    //  case when fabs(KAPPA) < 1.e-10
+
+//  pick up the hits whose ellipse is close to the staight line at constant FI0
+                z1 = POINTS1[j+2] + Aellipsis1*Tiltdirection1[0];
+                y1 = fi1 + Aellipsis1*Tiltdirection1[1] ;
+                d1 = fabs(y1 - FI0);
+                z2 = POINTS1[j+2] - Aellipsis1*Tiltdirection1[0];
+                y2 = fi1 - Aellipsis1*Tiltdirection1[1]   ;
+                d1 = fabs(y2 - FI0);
+                if(d1<nAdmittedRadia *Bellipsis1 || d1<nAdmittedRadia *Bellipsis1) {
+                 if( d1 < d2 ){
+                    y1 > FI0 ? factor = -1. : factor = 1.;
+                    ResultAssociatedHits.AssociatedHitsCoordinates[0][0][ResultAssociatedHits.NAssociatedHits]=
+                            R*cos(y1+factor*Bellipsis1) + Ox;  //  X of the hit
+                    ResultAssociatedHits.AssociatedHitsCoordinates[1][0][ResultAssociatedHits.NAssociatedHits]=
+                            R*sin(y1+factor*Bellipsis1) + Oy;  //  Y of the hit
+                  }  else {
+                    y2 > FI0 ? factor = -1. : factor = 1.;
+                    ResultAssociatedHits.AssociatedHitsCoordinates[0][0][ResultAssociatedHits.NAssociatedHits]=
+                            R*cos(y2+factor*Bellipsis1) + Ox;  //  X of the hit
+                    ResultAssociatedHits.AssociatedHitsCoordinates[1][0][ResultAssociatedHits.NAssociatedHits]=
+                            R*sin(y2+factor*Bellipsis1) + Oy;  //  Y of the hit
+                  }
+                   
+                  ResultAssociatedHits.AssociatedHitsCoordinates[2][0][ResultAssociatedHits.NAssociatedHits] = (z1+z2)/2.;
+                  ResultAssociatedHits.mAmbiguities[ResultAssociatedHits.NAssociatedHits]=1;
+                  ResultAssociatedHits.AssociatedWireDirection[0][ResultAssociatedHits.NAssociatedHits]=inclination[Kincl][0];
+                  ResultAssociatedHits.AssociatedWireDirection[1][ResultAssociatedHits.NAssociatedHits]=inclination[Kincl][1];
+                  ResultAssociatedHits.AssociatedWireDirection[2][ResultAssociatedHits.NAssociatedHits]=inclination[Kincl][2];
+                  ResultAssociatedHits.AssociatedWireCenter[0][ResultAssociatedHits.NAssociatedHits]=info[i][0];
+                  ResultAssociatedHits.AssociatedWireCenter[1][ResultAssociatedHits.NAssociatedHits]=info[i][1];
+                  ResultAssociatedHits.AssociatedWireCenter[2][ResultAssociatedHits.NAssociatedHits]=info[i][2];
+                  ResultAssociatedHits.AssociatedWireDriftRadius[ResultAssociatedHits.NAssociatedHits]=info[i][3];
+                  ResultAssociatedHits.Hitnumber[ResultAssociatedHits.NAssociatedHits]=-i;  // temporaneo!
+                  ResultAssociatedHits.NAssociatedHits++;
+                  ResultAssociatedHits.NAssociatedSkewHits++;
+                }
+
+              }   //   end of  if(fabs(KAPPA) > 1.e-10)
+
+             }    //  end of    for( ii=0; ii<2; ii++)
+
+
+
+            }    //  end of   if( info[i][5] == 1 )  else
+
+
+       }    //   end of   for( i=1; i< Nhits; i++)
+
+
+
+
+
+    return ResultAssociatedHits;
+
+}
+
+
+//----------end of function PndSttTrackFinderReal::PndSttTrkAssociatedHitsToHelix
+
+
+
+
+
+
+
+
+//----------begin function PndSttTrackFinderReal::PndSttTrkAssociatedParallelHitsToHelix
+
+  UShort_t PndSttTrackFinderReal::PndSttTrkAssociatedParallelHitsToHelix(
+                   Double_t Ox,
+                   Double_t Oy,
+                   Double_t R,
+                   Int_t Nhits,
+                   Double_t info[][7],
+                   UShort_t *auxListHitsinTrack              //  this is the output
+                                                     )
+{
+
+    Int_t i;
+    UShort_t Nassociatedhits;
+
+    Double_t dx, dy,distance;
+
+
+//    Ox = (D+R)*cos(Fi);
+//    Oy = (D+R)*sin(Fi);
+
+
+
+//  association of hits in the XY plane
+
+       Nassociatedhits=0;
+
+       for( i=0; i< Nhits; i++) {
+
+
+//          Kincl = (int) info[i][5] - 1;
+
+// --------------------    association of the hits from parallel straws
+//         if( info[i][5] == 1. ) {     // parallel straws
+
+          dx = -Ox+info[ infoparal[i] ][0];
+          dy = -Oy+info[ infoparal[i] ][1];
+          distance = sqrt(dx*dx+dy*dy);
+//cout<<"nuov, R "<<R<<",  distance  "<<distance<<endl;
+//          if( distance < 1.e-10)  continue;
+//          angle = atan2(dy,dx);
+
+          if ( fabs(R - distance ) > 2.*StrawRadius )  continue;
+          auxListHitsinTrack[Nassociatedhits]=i;
+          Nassociatedhits++;
+
+//         }    //  end of   if( info[i][5] == 1 )  else
+
+
+       }    //   end of   for( i=1; i< Nhits; i++)
+
+
+
+
+
+
+    return Nassociatedhits;
+
+}
+
+
+//----------end of function PndSttTrackFinderReal::PndSttTrkAssociatedParallelHitsToHelix
+
+
+
+
+
+//----------start of function PndSttTrackFinderReal::plottamentiParalleleGenerali
+
+ void  PndSttTrackFinderReal::plottamentiParalleleGenerali(
+                      Int_t Nremaining, Float_t * RemainingR, Float_t * RemainingD,
+                      Float_t * RemainingFi, Float_t * RemainingCX, Float_t * RemainingCY,
+                      bool *Goodflag  
+                       )
+{
+
+
+   int itemp, i, j, ii, jj;
+
+   Double_t  D, Fi;
+
+   char nome[100],titolo[100];
+
+
+
+   sprintf(nome,"HoughGeneralPlotsEvent%d.root",IVOLTE);
+   TFile  hfile(nome,"RECREATE", "STT pattern recognition");
+
+//----------
+       sprintf(titolo,"Cxofcircle");
+       TH1F hCX(titolo,titolo,nbinCX,CXmin,CXmax);
+//----------
+       sprintf(titolo,"Cyofcircle");
+       TH1F hCY(titolo,titolo,nbinCY,CYmin,CYmax);
+//-----
+       sprintf(titolo,"Radiusofcircle");
+       TH1F hR(titolo,titolo,nbinR,Rmin,Rmax);
+//-----
+       sprintf(titolo,"CxabscissavsCy");
+       TH2F hCX_CY(titolo,titolo,nbinCX,CXmin,CXmax,nbinCY,CYmin,CYmax);
+//-----
+       sprintf(titolo,"CxabscissavsRadius");
+       TH2F hCX_R(titolo,titolo,nbinCX,CXmin,CXmax,nbinR,Rmin,Rmax);
+//-----
+       sprintf(titolo,"CyabscissavsRadius");
+       TH2F hCY_R(titolo,titolo,nbinCY,CYmin,CYmax,nbinR,Rmin,Rmax);
+//-----
+       sprintf(titolo,"CxabscissavsCyordinatevsRadius");
+       TH3F hCX_CY_R(titolo,titolo,nbinCX,CXmin,CXmax,nbinCY,CYmin,CYmax,nbinR,Rmin,Rmax);
+//-----
+       sprintf(titolo,"Distanceofclosestapproachofcircle");
+       TH1F hD(titolo,titolo,nbinD,Dmin,Dmax);
+//----------
+       sprintf(titolo,"Firadofcircle");
+       TH1F hFi(titolo,titolo,nbinFi,Fimin,Fimax);
+//-----
+       sprintf(titolo,"DabscissavsFi");
+       TH2F hD_Fi(titolo,titolo,nbinD,Dmin,Dmax,nbinFi,Fimin,Fimax);
+//-----
+       sprintf(titolo,"DabscissavsRadius");
+       TH2F hD_R(titolo,titolo,nbinD,Dmin,Dmax,nbinR,Rmin,Rmax);
+//-----
+       sprintf(titolo,"FiabscissavsRadius");
+       TH2F hFi_R(titolo,titolo,nbinFi,Fimin,Fimax,nbinR,Rmin,Rmax);
+//-----
+       sprintf(titolo,"DabscissavsFiordinatevsRadius");
+       TH3F hD_Fi_R(titolo,titolo,nbinD,Dmin,Dmax,nbinFi,Fimin,Fimax,nbinR,Rmin,Rmax);
+//-----
+
+//---------------------------------------------------
+//   gli stessi plots ma per le soluzioni che sono le piu' vicine alla verita' MC
+//----------
+       sprintf(titolo,"Cxofcircle_truth");
+       TH1F hCXverita(titolo,titolo,nbinCX,CXmin,CXmax);
+//----------
+       sprintf(titolo,"Cyofcircle_truth");
+       TH1F hCYverita(titolo,titolo,nbinCY,CYmin,CYmax);
+//-----
+       sprintf(titolo,"Radiusofcircle_truth");
+       TH1F hRverita(titolo,titolo,nbinR,Rmin,Rmax);
+//-----
+       sprintf(titolo,"CxabscissavsCy_truth");
+       TH2F hCX_CYverita(titolo,titolo,nbinCX,CXmin,CXmax,nbinCY,CYmin,CYmax);
+//-----
+       sprintf(titolo,"CxabscissavsRadius_truth");
+       TH2F hCX_Rverita(titolo,titolo,nbinCX,CXmin,CXmax,nbinR,Rmin,Rmax);
+//-----
+       sprintf(titolo,"CyabscissavsRadius_truth");
+       TH2F hCY_Rverita(titolo,titolo,nbinCY,CYmin,CYmax,nbinR,Rmin,Rmax);
+//-----
+       sprintf(titolo,"CxabscissavsCyordinatevsRadius_truth");
+       TH3F hCX_CY_Rverita(titolo,titolo,nbinCX,CXmin,CXmax,nbinCY,CYmin,CYmax,nbinR,Rmin,Rmax);
+//-----
+       sprintf(titolo,"Distanceofclosestapproachofcircle_truth");
+       TH1F hDverita(titolo,titolo,nbinD,Dmin,Dmax);
+//----------
+       sprintf(titolo,"Firadofcircle_truth");
+       TH1F hFiverita(titolo,titolo,nbinFi,Fimin,Fimax);
+//-----
+       sprintf(titolo,"DabscissavsFi_truth");
+       TH2F hD_Fiverita(titolo,titolo,nbinD,Dmin,Dmax,nbinFi,Fimin,Fimax);
+//-----
+       sprintf(titolo,"DabscissavsRadius_truth");
+       TH2F hD_Rverita(titolo,titolo,nbinD,Dmin,Dmax,nbinR,Rmin,Rmax);
+//-----
+       sprintf(titolo,"FiabscissavsRadius_truth");
+       TH2F hFi_Rverita(titolo,titolo,nbinFi,Fimin,Fimax,nbinR,Rmin,Rmax);
+//-----
+       sprintf(titolo,"DabscissavsFiordinatevsRadius_truth");
+       TH3F hD_Fi_Rverita(titolo,titolo,nbinD,Dmin,Dmax,nbinFi,Fimin,Fimax,nbinR,Rmin,Rmax);
+//-----
+
+//---------------------------------------------------
+//   gli stessi plots ma per le soluzioni che NON sono le piu' vicine alla verita' MC
+//----------
+       sprintf(titolo,"Cxofcircle_nontruth");
+       TH1F hCXnonverita(titolo,titolo,nbinCX,CXmin,CXmax);
+//----------
+       sprintf(titolo,"Cyofcircle_nontruth");
+       TH1F hCYnonverita(titolo,titolo,nbinCY,CYmin,CYmax);
+//-----
+       sprintf(titolo,"Radiusofcircle_nontruth");
+       TH1F hRnonverita(titolo,titolo,nbinR,Rmin,Rmax);
+//-----
+       sprintf(titolo,"CxabscissavsCy_nontruth");
+       TH2F hCX_CYnonverita(titolo,titolo,nbinCX,CXmin,CXmax,nbinCY,CYmin,CYmax);
+//-----
+       sprintf(titolo,"CxabscissavsRadius_nontruth");
+       TH2F hCX_Rnonverita(titolo,titolo,nbinCX,CXmin,CXmax,nbinR,Rmin,Rmax);
+//-----
+       sprintf(titolo,"CyabscissavsRadius_nontruth");
+       TH2F hCY_Rnonverita(titolo,titolo,nbinCY,CYmin,CYmax,nbinR,Rmin,Rmax);
+//-----
+       sprintf(titolo,"CxabscissavsCyordinatevsRadius_nontruth");
+       TH3F hCX_CY_Rnonverita(titolo,titolo,nbinCX,CXmin,CXmax,nbinCY,CYmin,CYmax,nbinR,Rmin,Rmax);
+//-----
+       sprintf(titolo,"Distanceofclosestapproachofcircle_nontruth");
+       TH1F hDnonverita(titolo,titolo,nbinD,Dmin,Dmax);
+//----------
+       sprintf(titolo,"Firadofcircle_nontruth");
+       TH1F hFinonverita(titolo,titolo,nbinFi,Fimin,Fimax);
+//-----
+       sprintf(titolo,"DabscissavsFi_nontruth");
+       TH2F hD_Finonverita(titolo,titolo,nbinD,Dmin,Dmax,nbinFi,Fimin,Fimax);
+//-----
+       sprintf(titolo,"DabscissavsRadius_nontruth");
+       TH2F hD_Rnonverita(titolo,titolo,nbinD,Dmin,Dmax,nbinR,Rmin,Rmax);
+//-----
+       sprintf(titolo,"FiabscissavsRadius_nontruth");
+       TH2F hFi_Rnonverita(titolo,titolo,nbinFi,Fimin,Fimax,nbinR,Rmin,Rmax);
+//-----
+       sprintf(titolo,"DabscissavsFiordinatevsRadius_nontruth");
+       TH3F hD_Fi_Rnonverita(titolo,titolo,nbinD,Dmin,Dmax,nbinFi,Fimin,Fimax,nbinR,Rmin,Rmax);
+//-----
+
+//---------------------------------------------------
+
+
+
+
+
+  for(itemp = 0; itemp<Nremaining; itemp++){
+
+       D = RemainingD[itemp];
+       Fi = RemainingFi[itemp];
+
+
+       hCX.Fill(RemainingCX[itemp]);
+       hCY.Fill(RemainingCY[itemp]);
+       hR.Fill(RemainingR[itemp]);
+       hCX_CY.Fill(RemainingCX[itemp],RemainingCY[itemp]);
+       hCX_R.Fill(RemainingCX[itemp],RemainingR[itemp]);
+       hCY_R.Fill(RemainingCY[itemp],RemainingR[itemp]);
+       hCX_CY_R.Fill(RemainingCX[itemp],RemainingCY[itemp],RemainingR[itemp]);
+
+       hD.Fill(D);
+       hFi.Fill(Fi);
+       hD_Fi.Fill(D,Fi);
+       hD_R.Fill(D,RemainingR[itemp]);
+       hFi_R.Fill(Fi,RemainingR[itemp]);
+       hD_Fi_R.Fill(D,Fi,RemainingR[itemp]);
+
+
+
+        
+
+     if (Goodflag[itemp]) {
+
+       hCXverita.Fill(RemainingCX[itemp]);
+       hCYverita.Fill(RemainingCY[itemp]);
+       hRverita.Fill(RemainingR[itemp]);
+       hCX_CYverita.Fill(RemainingCX[itemp],RemainingCY[itemp]);
+       hCX_Rverita.Fill(RemainingCX[itemp],RemainingR[itemp]);
+       hCY_Rverita.Fill(RemainingCY[itemp],RemainingR[itemp]);
+       hCX_CY_Rverita.Fill(RemainingCX[itemp],RemainingCY[itemp],RemainingR[itemp]);
+
+       hDverita.Fill(D);
+       hFiverita.Fill(Fi);
+       hD_Fiverita.Fill(D,Fi);
+       hD_Rverita.Fill(D,RemainingR[itemp]);
+       hFi_Rverita.Fill(Fi,RemainingR[itemp]);
+       hD_Fi_Rverita.Fill(D,Fi,RemainingR[itemp]);
+
+     }   else {
+
+       hCXnonverita.Fill(RemainingCX[itemp]);
+       hCYnonverita.Fill(RemainingCY[itemp]);
+       hRnonverita.Fill(RemainingR[itemp]);
+       hCX_CYnonverita.Fill(RemainingCX[itemp],RemainingCY[itemp]);
+       hCX_Rnonverita.Fill(RemainingCX[itemp],RemainingR[itemp]);
+       hCY_Rnonverita.Fill(RemainingCY[itemp],RemainingR[itemp]);
+       hCX_CY_Rnonverita.Fill(RemainingCX[itemp],RemainingCY[itemp],RemainingR[itemp]);
+
+       hDnonverita.Fill(D);
+       hFinonverita.Fill(Fi);
+       hD_Finonverita.Fill(D,Fi);
+       hD_Rnonverita.Fill(D,RemainingR[itemp]);
+       hFi_Rnonverita.Fill(Fi,RemainingR[itemp]);
+       hD_Fi_Rnonverita.Fill(D,Fi,RemainingR[itemp]);
+
+     }
+
+
+
+
+
+   }  //  end of    for(Int_t itemp = 0; itemp<Nremaining; itemp++)
+
+
+
+
+
+   hfile.Write(nome);
+   hfile.Close();
+
+ }
+
+//----------end of function PndSttTrackFinderReal::plottamentiParalleleGenerali
+
+
+//----------start of function PndSttTrackFinderReal::plottamentiParalleleconMassimo
+
+ void  PndSttTrackFinderReal::plottamentiParalleleconMassimo(
+                       char * tipo,
+                      Int_t nMaxima,
+                      Int_t Nremaining, Float_t * RemainingR, Float_t * RemainingD,
+                      Float_t * RemainingFi, Float_t * RemainingCX, Float_t * RemainingCY,  
+                Double_t Rup, Double_t Rlow, Double_t Dup, Double_t Dlow, Double_t Fiup, Double_t Filow
+                                                            )
+ {
+
+
+   int itemp, i, j, ii, jj;
+
+   Double_t  D, Fi;
+
+   char nome[100],titolo[100];
+
+
+
+   sprintf(nome,"HoughParallele%sMaximumN%devent%d.root",tipo,nMaxima,IVOLTE);
+   TFile  hfile(nome,"RECREATE", "STT pattern recognition");
+
+
+//----------
+       sprintf(titolo,"CxofcircleSelected");
+       TH1F hCXsel(titolo,titolo,nbinCX,CXmin,CXmax);
+//-----
+       sprintf(titolo,"CyofcircleSelected");
+       TH1F hCYsel(titolo,titolo,nbinCY,CYmin,CYmax);
+//-----
+       sprintf(titolo,"RadiusofcircleSelected");
+       TH1F hRsel(titolo,titolo,nbinR,Rlow,Rup);
+//-----
+       sprintf(titolo,"CxabscissavsCyordinatevsRadiusSelected");
+       TH3F hCX_CY_Rsel(titolo,titolo,nbinCX,CXmin,CXmax,nbinCY,CYmin,CYmax,nbinR,Rlow,Rup);
+//----------
+       sprintf(titolo,"DistanceofclosestapproachofcircleSelected");
+       TH1F hDsel(titolo,titolo,nbinD,Dlow,Dup);
+//-----
+       sprintf(titolo,"FiradofcircleSselected");
+       TH1F hFisel(titolo,titolo,nbinFi,Filow,Fiup);
+//-----
+       sprintf(titolo,"DabscissavsFiSelected");
+       TH2F hD_Fisel(titolo,titolo,nbinD,Dlow,Dup,nbinFi,Filow,Fiup);
+//-----
+       sprintf(titolo,"DabscissavsRadiusSelected");
+       TH2F hD_Rsel(titolo,titolo,nbinD,Dlow,Dup,nbinR,Rlow,Rup);
+//-----
+       sprintf(titolo,"FiabscissavsRadiusSelected");
+       TH2F hFi_Rsel(titolo,titolo,nbinFi,Filow,Fiup,nbinR,Rlow,Rup);
+//-----
+       sprintf(titolo,"DabscissavsFiordinatevsRadiusSelected");
+       TH3F hD_Fi_Rsel(titolo,titolo,nbinD,Dlow,Dup,nbinFi,Filow,Fiup,nbinR,Rlow,Rup);
+
+
+
+
+  for(itemp = 0; itemp<Nremaining; itemp++){
+
+       D = RemainingD[itemp];
+       Fi = RemainingFi[itemp];
+
+
+      if( RemainingR[itemp]>Rlow && RemainingR[itemp]<Rup
+                             &&
+          RemainingD[itemp]>Dlow && RemainingD[itemp]<Dup
+                             &&
+          RemainingFi[itemp]>Filow && RemainingFi[itemp]<Fiup
+        )  {
+           hRsel.Fill(RemainingR[itemp]);
+           hFisel.Fill(Fi);
+           hDsel.Fill(D);
+           hCXsel.Fill(RemainingCX[itemp]);
+           hCYsel.Fill(RemainingCY[itemp]);
+           hD_Fisel.Fill(D,Fi);
+           hD_Rsel.Fill(D,RemainingR[itemp]);
+           hFi_Rsel.Fill(Fi,RemainingR[itemp]);
+           hD_Fi_Rsel.Fill(D,Fi,RemainingR[itemp]);
+           hCX_CY_Rsel.Fill(RemainingCX[itemp],RemainingCY[itemp],RemainingR[itemp]);
+      }
+
+   }  //  end of    for(Int_t itemp = 0; itemp<Nremaining; itemp++)
+
+
+
+
+
+
+   hfile.Write(nome);
+   hfile.Close();
+
+ }
+
+//----------end of function PndSttTrackFinderReal::plottamentiParalleleconMassimo
 
 
 
@@ -1502,10 +2866,507 @@ CalculatedCircles PndSttTrackFinderReal::PndSttTrkFindCircles(Double_t x1,Double
 
 
 
+//----------start of function PndSttTrackFinderReal::plottamentiSkewconMassimo
+
+ void  PndSttTrackFinderReal::plottamentiSkewconMassimo(
+                      Int_t nMaxima, Int_t jmaxima,
+                      Int_t Nremaining2, Float_t * RemainingKAPPA, Float_t *RemainingFI0,
+                      Double_t KAPPAlow, Double_t KAPPAup, Double_t FI0low, Double_t FI0up,
+                      AssociatedHitsToHelix  ResultAssociatedHits,
+                      Double_t HoughR, Double_t HoughD, Double_t HoughFi) {
+
+
+   int itemp, i, j, ii, jj;
+
+   Double_t  D, Fi;
+
+   char nome[100],titolo[100];
 
 
 
 
+
+   sprintf(nome,"HoughMaximumPMaxN%dSMaxN%devent%d.root",nMaxima,jmaxima,IVOLTE);
+   TFile  hfile(nome,"RECREATE", "STT pattern recognition");
+
+
+
+//----------
+       sprintf(titolo,"KAPPAofHelix");
+       TH1F hKAPPA(titolo,titolo,nbinKAPPA,KAPPAmin,KAPPAmax);
+//----------
+       sprintf(titolo,"KAPPAofHelixSelected");
+       TH1F hKAPPAsel(titolo,titolo,nbinKAPPA,KAPPAlow,KAPPAup);
+//----------
+       sprintf(titolo,"FI0radofHelix");
+       TH1F hFI0(titolo,titolo,nbinFI0,FI0min,FI0max);
+//----------
+       sprintf(titolo,"FI0radofHelixSelected");
+       TH1F hFI0sel(titolo,titolo,nbinFI0,FI0low,FI0up);
+//----------
+       sprintf(titolo,"hits parallel straws : Xfound - Xtrue");
+       TH1F hXdiffparallel(titolo,titolo,1000,-5.,5.);
+//----------
+       sprintf(titolo,"hits parallel straws : Yfound - Ytrue");
+       TH1F hYdiffparallel(titolo,titolo,1000,-5.,5.);
+//----------
+       sprintf(titolo,"hits parallel straws : Zfound - Ztrue");
+       TH1F hZdiffparallel(titolo,titolo,1000,-5.,5.);
+//----------
+       sprintf(titolo,"hits skew straws : Xfound - Xtrue");
+       TH1F hXdiffskew(titolo,titolo,1000,-5.,5.);
+//----------
+       sprintf(titolo,"hits skew straws : Yfound - Ytrue");
+       TH1F hYdiffskew(titolo,titolo,1000,-5.,5.);
+//----------
+       sprintf(titolo,"hits skew straws : Zfound - Ztrue");
+       TH1F hZdiffskew(titolo,titolo,1000,-5.,5.);
+
+
+
+//-------------
+      sprintf(titolo,"FI0abscissavsKAPPA");
+       TH2F hFI0_KAPPA(titolo,titolo,nbinFI0,FI0min,FI0max,nbinKAPPA,KAPPAmin,KAPPAmax);
+//-------------
+      sprintf(titolo,"FI0abscissavsKAPPASelected");
+       TH2F hFI0_KAPPAsel(titolo,titolo,nbinFI0,FI0low,FI0up,nbinKAPPA,KAPPAlow,KAPPAup);
+//-----
+      sprintf(titolo,"FI0abscissavsRadius");
+       TH2F hFI0_R(titolo,titolo,nbinFI0,FI0min,FI0max,nbinR,Rmin,Rmax);
+//-----
+      sprintf(titolo,"FI0abscissavsCX");
+       TH2F hFI0_CX(titolo,titolo,nbinFI0,FI0min,FI0max,nbinCX,CXmin,CXmax);
+//-----
+      sprintf(titolo,"FI0abscissavsCY");
+       TH2F hFI0_CY(titolo,titolo,nbinFI0,FI0min,FI0max,nbinCY,CYmin,CYmax);
+//-----
+      sprintf(titolo,"KAPPAHelixabscissavsRadius");
+       TH2F hKAPPA_R(titolo,titolo,nbinKAPPA,KAPPAmin,KAPPAmax,nbinR,Rmin,Rmax);
+//-----
+      sprintf(titolo,"KAPPAHelixabscissavsCX");
+       TH2F hKAPPA_CX(titolo,titolo,nbinKAPPA,KAPPAmin,KAPPAmax,nbinCX,CXmin,CXmax);
+//-----
+      sprintf(titolo,"KAPPAHelixabscissavsCY");
+       TH2F hKAPPA_CY(titolo,titolo,nbinKAPPA,KAPPAmin,KAPPAmax,nbinCY,CYmin,CYmax);
+//-----
+
+
+ for(ii=0; ii<Nremaining2; ii++){
+
+
+   hKAPPA.Fill(RemainingKAPPA[ii]);
+   hFI0.Fill(RemainingFI0[ii]);
+   hFI0_KAPPA.Fill(RemainingFI0[ii],RemainingKAPPA[ii]);
+   hFI0_R.Fill(RemainingFI0[ii],HoughR);
+   hFI0_CX.Fill(RemainingFI0[ii],(HoughR-HoughD)*cos(HoughFi));
+   hFI0_CY.Fill(RemainingFI0[ii],(HoughR-HoughD)*sin(HoughFi));
+   hKAPPA_R.Fill(RemainingKAPPA[ii],HoughR);
+   hKAPPA_CX.Fill(RemainingKAPPA[ii],(HoughR-HoughD)*cos(HoughFi));
+   hKAPPA_CY.Fill(RemainingKAPPA[ii],(HoughR-HoughD)*sin(HoughFi));
+
+      if( RemainingKAPPA[ii]>KAPPAlow && RemainingKAPPA[ii]<KAPPAup
+                             &&
+          RemainingFI0[ii]>FI0low && RemainingFI0[ii]<FI0up
+        )  {
+           hKAPPAsel.Fill(RemainingKAPPA[ii]);
+           hFI0sel.Fill(RemainingFI0[ii]);
+           hFI0_KAPPAsel.Fill(RemainingFI0[ii],RemainingKAPPA[ii]);
+      }
+ }
+
+
+
+
+
+    for (i=0; i< ResultAssociatedHits.NAssociatedHits ; i++){
+       for(j=0; j< ResultAssociatedHits.mAmbiguities[i] ; j++){
+
+
+         if( ResultAssociatedHits.Hitnumber[i] >= 0){
+           hXdiffparallel.Fill(ResultAssociatedHits.AssociatedHitsCoordinates[0][j][i]-veritaMC[ResultAssociatedHits.Hitnumber[i]][0]);
+           hYdiffparallel.Fill(ResultAssociatedHits.AssociatedHitsCoordinates[1][j][i]-veritaMC[ResultAssociatedHits.Hitnumber[i]][1]);
+           hZdiffparallel.Fill(ResultAssociatedHits.AssociatedHitsCoordinates[2][j][i]-veritaMC[ResultAssociatedHits.Hitnumber[i]][2]);
+         } else {
+           hXdiffskew.Fill(ResultAssociatedHits.AssociatedHitsCoordinates[0][j][i]-veritaMC[-ResultAssociatedHits.Hitnumber[i]][0]);
+           hYdiffskew.Fill(ResultAssociatedHits.AssociatedHitsCoordinates[1][j][i]-veritaMC[-ResultAssociatedHits.Hitnumber[i]][1]);
+           hZdiffskew.Fill(ResultAssociatedHits.AssociatedHitsCoordinates[2][j][i]-veritaMC[-ResultAssociatedHits.Hitnumber[i]][2]);
+         }
+
+       }
+    }
+
+
+
+
+
+   hfile.Write(nome);
+   hfile.Close();
+
+ }
+
+//----------end of function PndSttTrackFinderReal::plottamentiSkewconMassimo
+
+
+
+  void PndSttTrackFinderReal::findmaximaDFiR( UShort_t BoxDFiR[nbinD][nbinFi][nbinR],
+                                    Int_t MINIMUMCOUNTS,
+                                    Int_t * NumberofMaximaDFiR, Int_t  MaximaIndexesDFiR[][3],
+                                    Int_t * STATUS)
+{
+
+
+     Int_t      i, j, iD, iFi, iR, icount,
+                ntotClusters,
+                NinCluster,
+                nClusterElementsFound,
+                nRemai,
+                nRemainingElements,
+                max,
+                nElementsinCluster[MAXElementsOverThresholdinHough];
+
+     UShort_t   found[MAXElementsOverThresholdinHough][MAXElementsOverThresholdinHough][3],
+                auxDFiRIndex[MAXElementsOverThresholdinHough][3],
+                Remai[MAXElementsOverThresholdinHough][3],
+                RemainingElements[MAXElementsOverThresholdinHough][3],
+                Cluster[MAXElementsOverThresholdinHough][3],
+                ClusterElementsFound[MAXElementsOverThresholdinHough][3];
+
+   if(istampa >= 3) {
+cout<<"da   findmaximaDFiR  :   MINIMUMCOUNTS = "<<MINIMUMCOUNTS<<",nbinD = "<<nbinD <<
+     ",  nbinFi = "<<nbinFi <<", nbinR = "<<nbinR
+    <<endl;
+    }
+     icount=0;
+     for(iD=0; iD<nbinD; iD++){
+      for(iFi=0; iFi<nbinFi; iFi++){
+       for(iR=0; iR<nbinR; iR++){
+         if(
+              BoxDFiR[iD][iFi][iR] > MINIMUMCOUNTS
+           ) {
+             auxDFiRIndex[icount][0]=iD;
+             auxDFiRIndex[icount][1]=iFi;
+             auxDFiRIndex[icount][2]=iR;
+             icount++;
+             if(icount == MAXElementsOverThresholdinHough){
+                *STATUS=-1;
+cout<<"Temporary printout from findmaximaDFiR  : too many cells (>= "<<MAXElementsOverThresholdinHough<<")  above MINIMUMCOUNTS (= "<<
+     MINIMUMCOUNTS<<")"<<endl;
+                return ;
+             }
+         }
+
+       }
+      }
+     }
+
+
+
+     if(istampa>=2) {
+       cout<<"da findmaximaDFiR : numero di celle superiori al MINIMUM CUT = "<<icount<<" e loro elenco :"<<endl;
+       for(i = 0; i<icount;i++){
+          cout<<"da findmaximaDFiR : iD = "<<auxDFiRIndex[i][0]<<";  iFi = "<<auxDFiRIndex[i][1]<<"; iR = "<<auxDFiRIndex[i][2]<<
+                ";  contenuto = "<<BoxDFiR[auxDFiRIndex[i][0]][auxDFiRIndex[i][1]][auxDFiRIndex[i][2]]<<
+        "  e corispondenti a D = "<<auxDFiRIndex[i][0]*stepD+Dmin<<", Fi = "<<auxDFiRIndex[i][1]*stepFi+Fimin
+         << ", R = "<< auxDFiRIndex[i][2]*stepR+Rmin<<endl;
+       }
+     }
+
+
+
+    if ( icount == 0) {
+       * NumberofMaximaDFiR = 0;
+       *STATUS=1;
+       return;
+    } else if (icount == 1 ) {
+       ntotClusters=1;
+       nElementsinCluster[0]=1;
+       for(i=0; i<3; i++){
+         MaximaIndexesDFiR[0][i] =auxDFiRIndex[0][i];
+       }
+       * NumberofMaximaDFiR = 1;
+       *STATUS=1;
+       return;
+    }
+
+//   case with more that 1 elements over threshold ---------------------------------------------------------------
+
+
+    ntotClusters=0;
+
+    for(i=0; i<3; i++){
+       Cluster[0][i] = auxDFiRIndex[0][i];
+    }
+
+
+    for(i=1; i<icount; i++){
+     for(j=0; j<3; j++){
+       Remai[i-1][j] = auxDFiRIndex[i][j];
+     }
+    }
+    nRemai = icount-1;
+    NinCluster=1;
+
+    while(1){
+      i=0;
+      while(i<NinCluster && nRemai >0) {
+        clustering3(
+           (UShort_t *) (&Cluster[i][0]),  //   inputs to function clustering3
+           nRemai, Remai,               //   inputs to function clustering3
+           nClusterElementsFound, ClusterElementsFound,  //   ouputs from function clustering3
+           nRemainingElements, RemainingElements       //   ouputs from function clustering3
+                   );
+        for(j=0; j<nClusterElementsFound; j++){
+           Cluster[NinCluster+j][0] = ClusterElementsFound[j][0];
+           Cluster[NinCluster+j][1] = ClusterElementsFound[j][1];
+           Cluster[NinCluster+j][2] = ClusterElementsFound[j][2];
+        }
+        NinCluster += nClusterElementsFound;
+        nRemai=nRemainingElements;
+        for(j=0; j<nRemainingElements; j++){
+           Remai[j][0] = RemainingElements[j][0];
+           Remai[j][1] = RemainingElements[j][1];
+           Remai[j][2] = RemainingElements[j][2];
+        }
+        i++;
+      }   //  end of  while(i<NinCluster && nRemai >0)
+
+      nElementsinCluster[ntotClusters]= NinCluster;
+      for( j=0; j<NinCluster; j++) {
+       for(i=0; i<3; i++){
+          found[ntotClusters][j][i] = Cluster[j][i];
+       }
+      }
+      ntotClusters ++;
+
+      if(nRemai>1){
+        NinCluster=1;
+        for(i=0; i<3; i++){
+          Cluster[0][i] = Remai[0][i];
+        }
+
+        nRemai--;
+        for(j=0;j<nRemai;j++){
+          for(i=0; i<3; i++){
+            Remai[j][i]=Remai[j+1][i];
+          }
+        }
+
+
+      } else if (nRemai==1) {
+        nElementsinCluster[ntotClusters]= 1;
+        for(i=0; i<3; i++){
+            found[ntotClusters][0][i] = Remai[0][i];
+        }
+        ntotClusters ++;
+        break;
+      } else {  // this is the case when nRemai == 0
+        break;
+      }  //  endo of  if(nRemai>1)
+
+    }   //   end   of   while(1)
+
+
+
+//  now find the indeces for the maxima
+
+    *NumberofMaximaDFiR = ntotClusters;
+
+
+    for(i=0; i<ntotClusters; i++){
+       for(j=0, max=-1;j<nElementsinCluster[i];j++){
+          if(max < BoxDFiR[found[i][j][0]][found[i][j][1]][found[i][j][2]]) {
+            max=BoxDFiR[found[i][j][0]][found[i][j][1]][found[i][j][2]];
+            MaximaIndexesDFiR[i][0]=found[i][j][0];
+            MaximaIndexesDFiR[i][1]=found[i][j][1];
+            MaximaIndexesDFiR[i][2]=found[i][j][2];
+          }
+       }
+    }
+
+
+    *STATUS=1;
+
+}
+
+
+//----------end of function PndSttTrackFinderReal::findmaximaDFiR
+
+
+
+  void PndSttTrackFinderReal::findmaximaKFI0(
+                    UShort_t BoxKFI0[nbinKAPPA][nbinFI0],
+                    Int_t MINIMUMCOUNTS,
+                    Int_t *NumberofMaximaKFI0,
+                    Int_t  MaximaIndexesKFI0[][2],
+                    Int_t * STATUS)
+{
+
+
+     Int_t      i, j, iK, iFI0, icount,
+                ntotClusters,
+                NinCluster,
+                nClusterElementsFound,
+                nRemai,
+                nRemainingElements,
+                max,
+                nElementsinCluster[MAXElementsOverThresholdinHough];
+
+     UShort_t   found[MAXElementsOverThresholdinHough][MAXElementsOverThresholdinHough][2],
+                auxKFI0Index[MAXElementsOverThresholdinHough][2],
+                Remai[MAXElementsOverThresholdinHough][2],
+                RemainingElements[MAXElementsOverThresholdinHough][2],
+                Cluster[MAXElementsOverThresholdinHough][2],
+                ClusterElementsFound[MAXElementsOverThresholdinHough][2];
+
+
+     icount=0;
+     for(iK=0; iK<nbinKAPPA; iK++){
+      for(iFI0=0; iFI0<nbinFI0; iFI0++){
+// cout<<"MINIMUMCOUNTS = "<<MINIMUMCOUNTS<<";  Box = "<<BoxKFI0[iK][iFI0]<< endl;
+         if(
+              BoxKFI0[iK][iFI0] > MINIMUMCOUNTS
+           ) {
+             auxKFI0Index[icount][0]=iK;
+             auxKFI0Index[icount][1]=iFI0;
+             icount++;
+             if(icount == MAXElementsOverThresholdinHough){
+                *STATUS=-1;
+                return ;
+             }
+         }
+
+      }
+     }
+
+
+
+     if(istampa>=2) {
+       cout<<"da findmaximaKFI0 : numero di celle maggiori del MINIMUMCUT = "<<icount<<" e loro elenco :"<<endl;
+       for(i = 0; i<icount;i++){
+          cout<<"da findmaximaKFI0 : iK = "<<auxKFI0Index[i][0]<<";  iFI0 = "<<auxKFI0Index[i][1]<<
+                ";  contenuto = "<<BoxKFI0[auxKFI0Index[i][0]][auxKFI0Index[i][1]]<<endl;
+       }
+     }
+
+
+
+
+    if ( icount == 0) {
+       *NumberofMaximaKFI0 = 0;
+       *STATUS=1;
+       return;
+    } else if (icount == 1 ) {
+       ntotClusters=1;
+       nElementsinCluster[0]=1;
+       for(i=0; i<2; i++){
+         MaximaIndexesKFI0[0][i] =auxKFI0Index[0][i];
+       }
+       *STATUS=1;
+       return;
+    }
+
+//   case with more that 1 elements over threshold ---------------------------------------------------------------
+
+
+    ntotClusters=0;
+
+    for(i=0; i<2; i++){
+       Cluster[0][i] = auxKFI0Index[0][i];
+    }
+
+
+    for(i=1; i<icount; i++){
+     for(j=0; j<2; j++){
+       Remai[i-1][j] = auxKFI0Index[i][j];
+     }
+    }
+    nRemai = icount-1;
+    NinCluster=1;
+
+    while(1){
+      i=0;
+      while(i<NinCluster && nRemai >0) {
+        clustering2(
+           (UShort_t *) (&Cluster[i][0]),  //   inputs to function clustering2
+           nRemai, Remai,               //   inputs to function clustering2
+           nClusterElementsFound, ClusterElementsFound,  //   ouputs from function clustering2
+           nRemainingElements, RemainingElements       //   ouputs from function clustering2
+                   );
+        for(j=0; j<nClusterElementsFound; j++){
+           Cluster[NinCluster+j][0] = ClusterElementsFound[j][0];
+           Cluster[NinCluster+j][1] = ClusterElementsFound[j][1];
+        }
+        NinCluster += nClusterElementsFound;
+        nRemai=nRemainingElements;
+        for(j=0; j<nRemainingElements; j++){
+           Remai[j][0] = RemainingElements[j][0];
+           Remai[j][1] = RemainingElements[j][1];
+        }
+        i++;
+      }   //  end of  while(i<NinCluster && nRemai >0)
+
+      nElementsinCluster[ntotClusters]= NinCluster;
+      for( j=0; j<NinCluster; j++) {
+       for(i=0; i<2; i++){
+          found[ntotClusters][j][i] = Cluster[j][i];
+       }
+      }
+      ntotClusters ++;
+
+      if(nRemai>1){
+        NinCluster=1;
+        for(i=0; i<2; i++){
+          Cluster[0][i] = Remai[0][i];
+        }
+
+        nRemai--;
+        for(j=0;j<nRemai;j++){
+          for(i=0; i<2; i++){
+            Remai[j][i]=Remai[j+1][i];
+          }
+        }
+
+
+      } else if (nRemai==1) {
+        nElementsinCluster[ntotClusters]= 1;
+        for(i=0; i<2; i++){
+            found[ntotClusters][0][i] = Remai[0][i];
+        }
+        ntotClusters ++;
+        break;
+      } else {  // this is the case when nRemai == 0
+        break;
+      }  //  endo of  if(nRemai>1)
+
+    }   //   end   of   while(1)
+
+
+
+//  now find the indeces for the maxima
+
+if( istampa >= 2) cout<<"da findmaximaKFI0, ntotClusters = "<<ntotClusters<<endl;
+    *NumberofMaximaKFI0 = ntotClusters;
+
+
+    for(i=0; i<ntotClusters; i++){
+
+if( istampa >= 2) cout<<"da findmaximaKFI0, cluster n. "<<i<<" formato da "<<nElementsinCluster[i]<<"  elementi\n";
+       for(j=0, max=-1;j<nElementsinCluster[i];j++){
+          if(max < BoxKFI0[found[i][j][0]][found[i][j][1]]) {
+            max=BoxKFI0[found[i][j][0]][found[i][j][1]];
+            MaximaIndexesKFI0[i][0]=found[i][j][0];
+            MaximaIndexesKFI0[i][1]=found[i][j][1];
+          }
+       }
+    }
+
+
+    *STATUS=1;
+
+}
+
+
+//----------end of function PndSttTrackFinderReal::findmaximaKFI0
 
 
 
@@ -1525,6 +3386,1821 @@ CalculatedCircles PndSttTrackFinderReal::PndSttTrkFindCircles(Double_t x1,Double
 
 //----------end of function PndSttTrackFinderReal::iscontiguous
 
+void PndSttTrackFinderReal::clustering2(
+          UShort_t vec1[2],                                       // input
+          int nListElements, UShort_t List[][2],                 // input
+          int & nClusterElementsFound, UShort_t ClusterElementsFound[][2],  // output
+          int & nRemainingElements, UShort_t  RemainingElements[][2]     // output
+                )
+{
+   int i;
+   UShort_t  vec2[2];
+
+   nClusterElementsFound=0;
+   nRemainingElements=0;
+   for(i=0; i<nListElements; i++){
+      vec2[0]=List[i][0];
+      vec2[1]=List[i][1];
+      if( iscontiguous(2, vec1, vec2) ){
+         ClusterElementsFound[nClusterElementsFound][0] = vec2[0];
+         ClusterElementsFound[nClusterElementsFound][1] = vec2[1];
+         nClusterElementsFound++;
+      } else {
+         RemainingElements[nRemainingElements][0] = vec2[0];
+         RemainingElements[nRemainingElements][1] = vec2[1];
+         nRemainingElements++;
+      }
+   }
+
+    return;
+}
+
+
+
+//----------end of function PndSttTrackFinderReal::clustering2
+
+void PndSttTrackFinderReal::clustering3 (
+          UShort_t vec1[3],                                       // input
+          int nListElements, UShort_t List[][3],                 // input
+          int & nClusterElementsFound, UShort_t ClusterElementsFound[][3],  // output
+          int & nRemainingElements, UShort_t  RemainingElements[][3]     // output
+                )
+{
+   int i;
+   UShort_t  vec2[3];
+
+   nClusterElementsFound=0;
+   nRemainingElements=0;
+   for(i=0; i<nListElements; i++){
+      vec2[0]=List[i][0];
+      vec2[1]=List[i][1];
+      vec2[2]=List[i][2];
+      if( iscontiguous(3, vec1, vec2) ){
+         ClusterElementsFound[nClusterElementsFound][0] = vec2[0];
+         ClusterElementsFound[nClusterElementsFound][1] = vec2[1];
+         ClusterElementsFound[nClusterElementsFound][2] = vec2[2];
+         nClusterElementsFound++;
+      } else {
+         RemainingElements[nRemainingElements][0] = vec2[0];
+         RemainingElements[nRemainingElements][1] = vec2[1];
+         RemainingElements[nRemainingElements][2] = vec2[2];
+         nRemainingElements++;
+      }
+   }
+
+    return;
+}
+
+
+
+//----------end of function PndSttTrackFinderReal::clustering3
+
+
+
+void PndSttTrackFinderReal::WriteHistograms(){
+
+//     TFile* file = FairRootManager::Instance()->GetOutFile();
+          TFile* file = FairRootManager::Instance()->GetOutFile();
+ 	  file->cd();
+ 	  file->mkdir("PndSttTrackFinderReal");
+ 	  file->cd("PndSttTrackFinderReal");
+
+          hx->Write();
+ 	  delete hx;
+
+}
+
+//----------end of function PndSttTrackFinderReal::WriteHistograms
+
+
+
+
+//----------start of function PndSttTrackFinderReal::WriteMacroParallelHitsGeneral
+
+  void PndSttTrackFinderReal::WriteMacroParallelHitsGeneral(
+                   Int_t Nhits, Double_t info[][7], Int_t Nincl, Int_t Minclinations[], Double_t inclination[][3],
+                   UShort_t nTracksFoundSoFar,
+                   bool *TypeConf,
+                   Double_t *ALFA, Double_t *BETA, Double_t *GAMMA
+                                                     )
+{
+
+    Int_t i, j, i1, ii, index, Kincl, nlow, nup, STATUS;
+
+    Double_t xmin , xmax, ymin, ymax, xl, xu, yl, yu,
+           Ox[nmaxHits], Oy[nmaxHits], Radius[nmaxHits], gamma,
+           dx, dy, diff, d1, d2,
+           delta, deltax, deltay, deltaz, deltaS,
+           factor,ff,
+           zmin, zmax, Smin, Smax, S1, S2,
+           z1, z2, y1, y2,x1,x2,
+           vx1, vy1, vz1, C0x1, C0y1, C0z1,
+           aaa, bbb, ccc, rrr, angle, minor, major,
+           distance, Rx, Ry, LL,
+           Aellipsis1, Bellipsis1,fi1,
+           fmin, fmax, offset, step,
+           SkewInclWithRespectToS, zpos, zpos1, zpos2,
+           Tiltdirection1[2],
+           zl[200],zu[200],
+           POINTS1[6];
+
+      char nome[50], nome2[50];
+
+
+
+
+
+//---------- parallel straws Macro now
+      sprintf(nome,"MacroGeneralParallelHitsEvent%d", IVOLTE);
+      sprintf(nome2,"%s.C",nome);
+      FILE * MACRO = fopen(nome2,"w");
+      fprintf(MACRO,"void %s()\n{\n",nome);
+      xmin=1.e20;
+      xmax=-1.e20;
+      ymin=1.e20;
+      ymax=-1.e20;
+       for( i=0; i< Nhits; i++) {
+         if( info[i][5] == 1 ) {     // parallel straws
+            if (info[i][0]-info[i][3] < xmin)   xmin = info[i][0]-info[i][3];
+            if (info[i][0]+info[i][3] > xmax)   xmax = info[i][0]+info[i][3];
+            if (info[i][1]-info[i][3] < ymin)   ymin = info[i][1]-info[i][3];
+            if (info[i][1]+info[i][3] > ymax)   ymax = info[i][1]+info[i][3];
+          }
+       }
+
+       if( xmin > 0. ) xmin = 0.;
+       if( xmax < 0.)  xmax = 0.;
+       if( ymin > 0. ) ymin = 0.;
+       if( ymax < 0.)  ymax = 0.;
+
+       deltax = xmax-xmin;
+       deltay = ymax - ymin;
+
+       if( deltax > deltay) {
+         ymin -=  0.5*(deltax-deltay);
+         ymax = ymin+ deltax;
+         delta = deltax;
+       }  else  {
+         xmin -=  0.5*(deltay-deltax);
+         xmax = xmin+ deltay;
+         delta= deltay;
+       }
+
+       xmax = xmax + delta*0.05;
+       xmin = xmin - delta*0.05;
+
+       ymax = ymax + delta*0.05;
+       ymin = ymin - delta*0.05;
+
+
+       fprintf(MACRO,"TCanvas* my= new TCanvas();\nmy->Range(%f,%f,%f,%f);\n",xmin,ymin,xmax,ymax);
+
+
+       fprintf(MACRO,"TGaxis *Assex = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n",xmin,0.,xmax,0.,xmin,xmax);
+       fprintf(MACRO,"Assex->Draw();\n");
+       fprintf(MACRO,"TGaxis *Assey = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n", 0.,ymin,0.,ymax,ymin,ymax);
+       fprintf(MACRO,"Assey->Draw();\n");
+
+
+       for( i=0; i< Nhits; i++) {
+         if( info[i][5] == 1 ) {     // parallel straws
+            fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetFillStyle(0);\nE%d->Draw();\n",
+                     i,info[i][0],info[i][1],info[i][3],info[i][3],i,i);
+          }
+       }
+
+
+
+
+//-------------------------------   plotting all the tracks found
+
+    for(i=0; i<nTracksFoundSoFar; i++){
+
+     if( TypeConf[i] ){
+       aaa = -0.5*ALFA[i];
+       bbb = -0.5*BETA[i];
+//  Questa riga perche' so che la crf passa per origine
+       rrr = sqrt( aaa*aaa+bbb*bbb);
+//       rrr = sqrt( aaa*aaa+bbb*bbb-GAMMA[i]);
+          fprintf(MACRO,
+"TEllipse* ris%d=new TEllipse(%f,%f,%f,%f,0.,360.);\nris%d->SetFillStyle(0);\nris%d->SetLineColor(2);\nris%d->Draw();\n",
+                     i,aaa,bbb,rrr,rrr,i,i,i);
+
+     } else {
+       if(fabs(BETA[i]) < 1.e-10){
+//         fprintf(MACRO,"TLine* ris%d = new TLine(%f,%f,%f,%f);\n",i,- GAMMA[i]/ALFA[i],ymin,- GAMMA[i]/ALFA[i],ymax);
+         fprintf(MACRO,"TLine* ris%d = new TLine(%f,%f,%f,%f);\n",i,0.,ymin,0.,ymax);
+         fprintf(MACRO,"ris%d->SetLineColor(2);\n",i);
+         fprintf(MACRO,"ris%d->Draw();\n",i);
+       } else {
+ //        yl = -xmin*ALFA[i]/BETA[i] - GAMMA[i]/BETA[i];
+//         yu = -xmax*ALFA[i]/BETA[i] - GAMMA[i]/BETA[i];
+         yl = -xmin*ALFA[i]/BETA[i];
+         yu = -xmax*ALFA[i]/BETA[i];
+         fprintf(MACRO,"TLine* ris%d = new TLine(%f,%f,%f,%f);\n",i,xmin,yl,xmax,yu);
+         fprintf(MACRO,"ris%d->SetLineColor(2);\n",i);
+         fprintf(MACRO,"ris%d->Draw();\n",i);
+       }
+     }
+
+
+
+
+if(istampa>= 2) {
+  cout<<"stampa da WriteMacroParallelHitsGeneral , for trackfoundsofar n. "<<i<<",  typconf "<<
+   TypeConf[i]<<",  nel normale piano XY;  alfa "<<ALFA[i]<<",  beta "<<BETA[i]<<", gamma "<<GAMMA[i]
+       <<"  a cui corrisponde  Cx = "<<-0.5*ALFA[i]<<",  Cy = "<<-0.5*BETA[i]<<" ed  R = "
+//       << sqrt( aaa*aaa+bbb*bbb-GAMMA[i]) <<endl;
+       << sqrt( aaa*aaa+bbb*bbb) <<endl;
+}
+
+
+
+
+    }
+
+// -----------
+
+
+
+
+
+
+
+
+
+      fprintf(MACRO,"}\n");
+      fclose(MACRO);
+       
+//------------------------------------------------------------------------------------------------------------
+
+
+//---------- parallel straws Macro now con anche le tracce MC
+
+      sprintf(nome,"MacroGeneralParallelHitswithMCEvent%d", IVOLTE);
+      sprintf(nome2,"%s.C",nome);
+      MACRO = fopen(nome2,"w");
+      fprintf(MACRO,"void %s()\n{\n",nome);
+      xmin=1.e20;
+      xmax=-1.e20;
+      ymin=1.e20;
+      ymax=-1.e20;
+       for( i=0; i< Nhits; i++) {
+         if( info[i][5] == 1 ) {     // parallel straws
+            if (info[i][0]-info[i][3] < xmin)   xmin = info[i][0]-info[i][3];
+            if (info[i][0]+info[i][3] > xmax)   xmax = info[i][0]+info[i][3];
+            if (info[i][1]-info[i][3] < ymin)   ymin = info[i][1]-info[i][3];
+            if (info[i][1]+info[i][3] > ymax)   ymax = info[i][1]+info[i][3];
+          }
+       }
+
+       if( xmin > 0. ) xmin = 0.;
+       if( xmax < 0.)  xmax = 0.;
+       if( ymin > 0. ) ymin = 0.;
+       if( ymax < 0.)  ymax = 0.;
+
+       deltax = xmax-xmin;
+       deltay = ymax - ymin;
+
+       if( deltax > deltay) {
+         ymin -=  0.5*(deltax-deltay);
+         ymax = ymin+ deltax;
+         delta = deltax;
+       }  else  {
+         xmin -=  0.5*(deltay-deltax);
+         xmax = xmin+ deltay;
+         delta= deltay;
+       }
+
+       xmax = xmax + delta*0.05;
+       xmin = xmin - delta*0.05;
+
+       ymax = ymax + delta*0.05;
+       ymin = ymin - delta*0.05;
+
+
+       fprintf(MACRO,"TCanvas* my= new TCanvas();\nmy->Range(%f,%f,%f,%f);\n",xmin,ymin,xmax,ymax);
+
+
+       fprintf(MACRO,"TGaxis *Assex = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n",xmin,0.,xmax,0.,xmin,xmax);
+       fprintf(MACRO,"Assex->Draw();\n");
+       fprintf(MACRO,"TGaxis *Assey = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n", 0.,ymin,0.,ymax,ymin,ymax);
+       fprintf(MACRO,"Assey->Draw();\n");
+
+
+       for( i=0; i< Nhits; i++) {
+         if( info[i][5] == 1 ) {     // parallel straws
+            fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetFillStyle(0);\nE%d->Draw();\n",
+                     i,info[i][0],info[i][1],info[i][3],info[i][3],i,i);
+          }
+       }
+
+
+
+       for( i=0; i< nMCTracks ; i++) {
+            fprintf(MACRO,"TEllipse* MC%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nMC%d->SetFillStyle(0);\nMC%d->SetLineColor(3);\nMC%d->Draw();\n",
+                     i,CxMC[i],CyMC[i],R_MC[i],R_MC[i],i,i,i);
+// cout<<" info MC buone : MCtrack n. "<<i<<",  Cx, Cy, R  "<<CxMC[i]<<",  "<<CyMC[i]<<",  "<<R_MC[i]<<endl;
+       }
+
+
+//-------------------------------   plotting all the tracks found
+
+    for(i=0; i<nTracksFoundSoFar; i++){
+
+     if( TypeConf[i] ){
+       aaa = -0.5*ALFA[i];
+       bbb = -0.5*BETA[i];
+       rrr = sqrt( aaa*aaa+bbb*bbb-GAMMA[i]);
+       fprintf(MACRO,"TEllipse* ris%d=new TEllipse(%f,%f,%f,%f,0.,360.);\nris%d->SetFillStyle(0);\nris%d->SetLineColor(2);\nris%d->Draw();\n",
+                     i,aaa,bbb,rrr,rrr,i,i,i);
+     } else {
+       if(fabs(BETA[i]) < 1.e-10){
+         fprintf(MACRO,"TLine* ris%d = new TLine(%f,%f,%f,%f);\n",i,- GAMMA[i]/ALFA[i],ymin,- GAMMA[i]/ALFA[i],ymax);
+         fprintf(MACRO,"ris%d->SetLineColor(2);\n",i);
+         fprintf(MACRO,"ris%d->Draw();\n",i);
+       } else {
+         yl = -xmin*ALFA[i]/BETA[i] - GAMMA[i]/BETA[i];
+         yu = -xmax*ALFA[i]/BETA[i] - GAMMA[i]/BETA[i];
+         fprintf(MACRO,"TLine* ris%d = new TLine(%f,%f,%f,%f);\n",i,xmin,yl,xmax,yu);
+         fprintf(MACRO,"ris%d->SetLineColor(2);\n",i);
+         fprintf(MACRO,"ris%d->Draw();\n",i);
+       }
+     }
+
+
+    }
+
+// -----------
+
+      fprintf(MACRO,"}\n");
+      fclose(MACRO);
+       
+//------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+//   ora riplotto tutto nello spazio conforme usando la trasformazione u= x/(x**2+y**2) e   v = y/(x**2+y**2)
+//
+//   aggiungo anche la grigliatura dello spazio conforme usata per la box del pattern recognition
+
+      sprintf(nome,"MacroGeneralParallelHitsConformeEvent%d", IVOLTE);
+      sprintf(nome2,"%s.C",nome);
+      MACRO = fopen(nome2,"w");
+      fprintf(MACRO,"void %s()\n{\n",nome);
+      xmin=1.e20;
+      xmax=-1.e20;
+      ymin=1.e20;
+      ymax=-1.e20;
+       for( i=0; i< Nhits; i++) {
+         if( info[i][5] == 1 ) {     // parallel straws
+//   centro sfera in sistema conforme
+            gamma = info[i][0]*info[i][0] + info[i][1]*info[i][1] - info[i][3]*info[i][3];
+            Ox[i] = info[i][0] / gamma;
+            Oy[i] = info[i][1] / gamma;
+            Radius[i] = info[i][3]/gamma;
+            if (Ox[i]-Radius[i] < xmin)   xmin = Ox[i]-Radius[i];
+            if (Ox[i]+Radius[i] > xmax)   xmax = Ox[i]+Radius[i];
+            if (Oy[i]-Radius[i] < ymin)   ymin = Oy[i]-Radius[i];
+            if (Oy[i]+Radius[i] > ymax)   ymax = Oy[i]+Radius[i];
+          }
+       }
+
+       if( xmin > 0. ) xmin = 0.;
+       if( xmax < 0.)  xmax = 0.;
+       if( ymin > 0. ) ymin = 0.;
+       if( ymax < 0.)  ymax = 0.;
+
+       deltax = xmax-xmin;
+       deltay = ymax - ymin;
+
+       if( deltax > deltay) {
+         ymin -=  0.5*(deltax-deltay);
+         ymax = ymin+ deltax;
+         delta = deltax;
+       }  else  {
+         xmin -=  0.5*(deltay-deltax);
+         xmax = xmin+ deltay;
+         delta= deltay;
+       }
+
+       xmax = xmax + delta*0.05;
+       xmin = xmin - delta*0.05;
+
+       ymax = ymax + delta*0.05;
+       ymin = ymin - delta*0.05;
+
+
+       fprintf(MACRO,"TCanvas* my= new TCanvas();\nmy->Range(%f,%f,%f,%f);\n",xmin,ymin,xmax,ymax);
+
+// ora la grigliatura  con i cerchi
+
+       fprintf(MACRO,"TEllipse* Griglia%d = new TEllipse(0.,0.,%f,%f,0.,360.);\nGriglia%d->SetLineColor(4);\nGriglia%d->Draw();\n",
+                     nRdivConformalEffective,1./RStrawDetectorMin,1./RStrawDetectorMin,nRdivConformalEffective,nRdivConformalEffective);
+
+       for( i=nRdivConformalEffective-1; i>=0 ; i--) {
+            fprintf(MACRO,"TEllipse* Griglia%d = new TEllipse(0.,0.,%f,%f,0.,360.);\nGriglia%d->SetLineColor(4);\nGriglia%d->Draw();\n",
+                     i,radiaConf[i],radiaConf[i],i,i);
+       }
+//---------------------
+// ora la grigliatura  con i segmenti
+
+       for(i=0;  i<nFidivConformal; i++) {
+            ff = i*2.*PI/nFidivConformal;
+            x1=cos(ff)/RStrawDetectorMax;
+            y1=sin(ff)/RStrawDetectorMax;
+            x2=cos(ff)/RStrawDetectorMin;
+            y2=sin(ff)/RStrawDetectorMin;
+            fprintf(MACRO,"TLine* Seg%d = new TLine(%f,%f,%f,%f);\nSeg%d->SetLineColor(4);\nSeg%d->Draw();\n",
+                     i,x1,y1,x2,y2,i,i);
+       }
+//---------------------
+
+       fprintf(MACRO,"TGaxis *Assex = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n",xmin,0.,xmax,0.,xmin,xmax);
+       fprintf(MACRO,"Assex->Draw();\n");
+       fprintf(MACRO,"TGaxis *Assey = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n", 0.,ymin,0.,ymax,ymin,ymax);
+       fprintf(MACRO,"Assey->Draw();\n");
+
+
+       for( i=0; i< Nhits; i++) {
+         if( info[i][5] == 1 ) {     // parallel straws
+            fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetFillStyle(0);\nE%d->Draw();\n",
+                     i,Ox[i],Oy[i],Radius[i],Radius[i],i,i);
+          }
+       }
+
+
+
+
+//------------------   plotting all the tracks found
+
+    for(i=0; i<nTracksFoundSoFar; i++){
+
+
+// cout<<" da writeparallelhitsgeneral, traccia found n. "<<i<<", typeconf "<<TypeConf[i]
+//  <<",  alfa "<<ALFA[i]<<",  beta  "<<BETA[i]<<",  gamma "<<GAMMA[i]<<endl;
+
+//  assumo che tutte le traiettorie siano rette nello spazio conforme, perche' le tracce vengono dal vertice primario
+
+     if( TypeConf[i] ){
+
+//      if( fabs(GAMMA[i]) > 1.e-10) {
+//       aaa = -0.5*ALFA[i]/GAMMA[i];
+//       bbb = -0.5*BETA[i]/GAMMA[i];
+//       rrr = sqrt( 0.25*ALFA[i]*ALFA[i]+0.25*BETA[i]*BETA[i]-GAMMA[i])/fabs(GAMMA[i]);
+//       if( fabs(rrr/GAMMA[i]) < 30.) {
+//         fprintf(MACRO,"TEllipse* ris%d=new TEllipse(%f,%f,%f,%f,0.,360.);\nris%d->SetFillStyle(0);\nris%d->SetLineColor(2);\nris%d->Draw();\n",
+//                     i,aaa,bbb,rrr,rrr,i,i,i);
+//       }  else {
+//          yl = -xmin*ALFA[i]/BETA[i] - 1./BETA[i];
+//          yu = -xmax*ALFA[i]/BETA[i] - 1./BETA[i];
+//          fprintf(MACRO,"TLine* ris%d = new TLine(%f,%f,%f,%f);\n",i,xmin,yl,xmax,yu);
+//          fprintf(MACRO,"ris%d->SetLineColor(2);\n",i);
+//          fprintf(MACRO,"ris%d->Draw();\n",i);
+//       }
+//      }  else {
+
+        if(fabs(BETA[i]) < 1.e-10){
+         if(fabs(ALFA[i])<1.e-10) {
+          continue;
+         } else {
+          fprintf(MACRO,"TLine* ris%d = new TLine(%f,%f,%f,%f);\n",i,-1./ALFA[i],ymin,- 1./ALFA[i],ymax);
+          fprintf(MACRO,"ris%d->SetLineColor(2);\n",i);
+          fprintf(MACRO,"ris%d->Draw();\n",i);
+         }
+        } else {
+          yl = -xmin*ALFA[i]/BETA[i] - 1./BETA[i];
+          yu = -xmax*ALFA[i]/BETA[i] - 1./BETA[i];
+          fprintf(MACRO,"TLine* ris%d = new TLine(%f,%f,%f,%f);\n",i,xmin,yl,xmax,yu);
+          fprintf(MACRO,"ris%d->SetLineColor(2);\n",i);
+          fprintf(MACRO,"ris%d->Draw();\n",i);
+        }
+
+//      }
+
+     } else {   // in this case TypConf = 0 -->  straight line in XY
+
+
+      if( fabs(GAMMA[i]) > 1.e-10) {
+       aaa = -0.5*ALFA[i]/GAMMA[i];
+       bbb = -0.5*BETA[i]/GAMMA[i];
+       rrr = sqrt( aaa*aaa+bbb*bbb);
+       fprintf(MACRO,"TEllipse* ris%d=new TEllipse(%f,%f,%f,%f,0.,360.);\nris%d->SetFillStyle(0);\nris%d->SetLineColor(2);\nris%d->Draw();\n",
+                     i,aaa,bbb,rrr,rrr,i,i,i);
+      }  else {
+         if(fabs(BETA[i])>1.e-10) {
+          yl = -xmin*ALFA[i]/BETA[i] ;
+          yu = -xmax*ALFA[i]/BETA[i] ;
+          fprintf(MACRO,"TLine* ris%d = new TLine(%f,%f,%f,%f);\n",i,xmin,yl,xmax,yu);
+          fprintf(MACRO,"ris%d->SetLineColor(2);\n",i);
+          fprintf(MACRO,"ris%d->Draw();\n",i);
+         } else {
+          fprintf(MACRO,"TLine* ris%d = new TLine(%f,%f,%f,%f);\n",i,0.,ymin,0.,ymax);
+          fprintf(MACRO,"ris%d->SetLineColor(2);\n",i);
+          fprintf(MACRO,"ris%d->Draw();\n",i);
+         }
+      }
+
+     }
+    }
+
+// ------------------------------
+
+     fprintf(MACRO,"}\n");
+     fclose(MACRO);
+       
+
+
+
+
+
+
+
+    return ;
+
+}
+
+
+//----------end of function PndSttTrackFinderReal::WriteMacroParallelHitsGeneral
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//----------start of function PndSttTrackFinderReal::WriteMacroParallelHitsGeneralConformalwithMC
+
+  void PndSttTrackFinderReal::WriteMacroParallelHitsGeneralConformalwithMC(
+                   Int_t Nhits, Double_t info[][7], Int_t Nincl, Int_t Minclinations[], Double_t inclination[][3],
+                   UShort_t nTracksFoundSoFar,
+                   bool *TypeConf,
+                   Double_t *ALFA, Double_t *BETA, Double_t *GAMMA
+                                                     )
+{
+
+    Int_t i, j, i1, ii, index, Kincl, nlow, nup, STATUS;
+
+    Double_t xmin , xmax, ymin, ymax, xl, xu, yl, yu, rrr,
+           Ox[nmaxHits], Oy[nmaxHits], Radius[nmaxHits], gamma,
+           dx, dy, diff, d1, d2,
+           delta, deltax, deltay, deltaz, deltaS,
+           factor,ff,
+           zmin, zmax, Smin, Smax, S1, S2,
+           z1, z2, y1, y2,x1,x2,
+           vx1, vy1, vz1, C0x1, C0y1, C0z1,
+           aaa, bbb, ccc, angle, minor, major,
+           distance, Rx, Ry, LL,
+           Aellipsis1, Bellipsis1,fi1,
+           fmin, fmax, offset, step,
+           SkewInclWithRespectToS, zpos, zpos1, zpos2,
+           zl[200],zu[200];
+
+
+
+
+
+
+//---------- parallel straws Macro now
+      char nome[50], nome2[50];
+      FILE * MACRO;
+
+       
+//   ora riplotto tutto nello spazio conforme usando la trasformazione u= x/(x**2+y**2) e   v = y/(x**2+y**2)
+//
+//   aggiungo anche la grigliatura dello spazio conforme usata per la box del pattern recognition
+
+      sprintf(nome,"MacroGeneralParallelHitsConformewithMCEvent%d", IVOLTE);
+      sprintf(nome2,"%s.C",nome);
+      MACRO = fopen(nome2,"w");
+      fprintf(MACRO,"void %s()\n{\n",nome);
+      xmin=1.e20;
+      xmax=-1.e20;
+      ymin=1.e20;
+      ymax=-1.e20;
+       for( i=0; i< Nhits; i++) {
+         if( info[i][5] == 1 ) {     // parallel straws
+//   centro sfera in sistema conforme
+            gamma = info[i][0]*info[i][0] + info[i][1]*info[i][1] - info[i][3]*info[i][3];
+            Ox[i] = info[i][0] / gamma;
+            Oy[i] = info[i][1] / gamma;
+            Radius[i] = info[i][3]/gamma;
+            if (Ox[i]-Radius[i] < xmin)   xmin = Ox[i]-Radius[i];
+            if (Ox[i]+Radius[i] > xmax)   xmax = Ox[i]+Radius[i];
+            if (Oy[i]-Radius[i] < ymin)   ymin = Oy[i]-Radius[i];
+            if (Oy[i]+Radius[i] > ymax)   ymax = Oy[i]+Radius[i];
+          }
+       }
+
+       if( xmin > 0. ) xmin = 0.;
+       if( xmax < 0.)  xmax = 0.;
+       if( ymin > 0. ) ymin = 0.;
+       if( ymax < 0.)  ymax = 0.;
+
+       deltax = xmax-xmin;
+       deltay = ymax - ymin;
+
+       if( deltax > deltay) {
+         ymin -=  0.5*(deltax-deltay);
+         ymax = ymin+ deltax;
+         delta = deltax;
+       }  else  {
+         xmin -=  0.5*(deltay-deltax);
+         xmax = xmin+ deltay;
+         delta= deltay;
+       }
+
+       xmax = xmax + delta*0.05;
+       xmin = xmin - delta*0.05;
+
+       ymax = ymax + delta*0.05;
+       ymin = ymin - delta*0.05;
+
+
+       fprintf(MACRO,"TCanvas* my= new TCanvas();\nmy->Range(%f,%f,%f,%f);\n",xmin,ymin,xmax,ymax);
+
+// ora la grigliatura  con i cerchi
+
+       fprintf(MACRO,"TEllipse* Griglia%d = new TEllipse(0.,0.,%f,%f,0.,360.);\nGriglia%d->SetLineColor(4);\nGriglia%d->Draw();\n",
+                     nRdivConformalEffective,1./RStrawDetectorMin,1./RStrawDetectorMin,nRdivConformalEffective,nRdivConformalEffective);
+
+       for( i=nRdivConformalEffective-1; i>=0 ; i--) {
+            fprintf(MACRO,"TEllipse* Griglia%d = new TEllipse(0.,0.,%f,%f,0.,360.);\nGriglia%d->SetLineColor(4);\nGriglia%d->Draw();\n",
+                     i,radiaConf[i],radiaConf[i],i,i);
+       }
+//---------------------
+// ora la grigliatura  con i segmenti
+
+       for(i=0;  i<nFidivConformal; i++) {
+            ff = i*2.*PI/nFidivConformal;
+            x1=cos(ff)/RStrawDetectorMax;
+            y1=sin(ff)/RStrawDetectorMax;
+            x2=cos(ff)/RStrawDetectorMin;
+            y2=sin(ff)/RStrawDetectorMin;
+            fprintf(MACRO,"TLine* Seg%d = new TLine(%f,%f,%f,%f);\nSeg%d->SetLineColor(4);\nSeg%d->Draw();\n",
+                     i,x1,y1,x2,y2,i,i);
+       }
+//---------------------
+
+       fprintf(MACRO,"TGaxis *Assex = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n",xmin,0.,xmax,0.,xmin,xmax);
+       fprintf(MACRO,"Assex->Draw();\n");
+       fprintf(MACRO,"TGaxis *Assey = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n", 0.,ymin,0.,ymax,ymin,ymax);
+       fprintf(MACRO,"Assey->Draw();\n");
+
+
+       for( i=0; i< Nhits; i++) {
+         if( info[i][5] == 1 ) {     // parallel straws
+            fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetLineWidth(2);\nE%d->SetFillStyle(0);\nE%d->Draw();\n",
+                     i,Ox[i],Oy[i],Radius[i],Radius[i],i,i,i);
+          }
+       }
+
+
+
+
+//------------------   plotting all the tracks found
+
+    for(i=0; i<nTracksFoundSoFar; i++){
+
+     if( TypeConf[i] ){
+
+      if( fabs(GAMMA[i]) > 1.e-10) {
+       aaa = -0.5*ALFA[i]/GAMMA[i];
+       bbb = -0.5*BETA[i]/GAMMA[i];
+       rrr = sqrt( aaa*aaa+bbb*bbb-1./GAMMA[i]);
+       if( fabs(rrr/GAMMA[i]) < 30.) {
+           fprintf(MACRO,
+"TEllipse* ris%d=new TEllipse(%f,%f,%f,%f,0.,360.);\nris%d->SetFillStyle(0);\nris%d->SetLineColor(2);\nris%d->Draw();\n",
+                     i,aaa,bbb,rrr,rrr,i,i,i);
+       }  else{
+
+
+          yl = -xmin*ALFA[i]/BETA[i] - 1./BETA[i];
+          yu = -xmax*ALFA[i]/BETA[i] - 1./BETA[i];
+          fprintf(MACRO,"TLine* ris%d = new TLine(%f,%f,%f,%f);\n",i,xmin,yl,xmax,yu);
+          fprintf(MACRO,"ris%d->SetLineColor(2);\n",i);
+          fprintf(MACRO,"ris%d->Draw();\n",i);
+
+
+
+       }
+      }  else {
+
+        if(fabs(BETA[i]) < 1.e-10){
+         if(fabs(ALFA[i])<1.e-10) {
+          continue;
+         } else {
+          fprintf(MACRO,"TLine* ris%d = new TLine(%f,%f,%f,%f);\n",i,-1./ALFA[i],ymin,- 1./ALFA[i],ymax);
+          fprintf(MACRO,"ris%d->SetLineColor(2);\n",i);
+          fprintf(MACRO,"ris%d->Draw();\n",i);
+         }
+        } else {
+          yl = -xmin*ALFA[i]/BETA[i] - 1./BETA[i];
+          yu = -xmax*ALFA[i]/BETA[i] - 1./BETA[i];
+          fprintf(MACRO,"TLine* ris%d = new TLine(%f,%f,%f,%f);\n",i,xmin,yl,xmax,yu);
+          fprintf(MACRO,"ris%d->SetLineColor(2);\n",i);
+          fprintf(MACRO,"ris%d->Draw();\n",i);
+        }
+
+      }
+
+     } else {   // in this case TypConf = 0 -->  straight line in XY
+
+
+      if( fabs(GAMMA[i]) > 1.e-10) {
+       aaa = -0.5*ALFA[i]/GAMMA[i];
+       bbb = -0.5*BETA[i]/GAMMA[i];
+       rrr = sqrt( aaa*aaa+bbb*bbb);
+       fprintf(MACRO,"TEllipse* ris%d=new TEllipse(%f,%f,%f,%f,0.,360.);\nris%d->SetFillStyle(0);\nris%d->SetLineColor(2);\nris%d->Draw();\n",
+                     i,aaa,bbb,rrr,rrr,i,i,i);
+      }  else {
+         if(fabs(BETA[i])>1.e-10) {
+          yl = -xmin*ALFA[i]/BETA[i] ;
+          yu = -xmax*ALFA[i]/BETA[i] ;
+          fprintf(MACRO,"TLine* ris%d = new TLine(%f,%f,%f,%f);\n",i,xmin,yl,xmax,yu);
+          fprintf(MACRO,"ris%d->SetLineColor(2);\n",i);
+          fprintf(MACRO,"ris%d->Draw();\n",i);
+         } else {
+          fprintf(MACRO,"TLine* ris%d = new TLine(%f,%f,%f,%f);\n",i,0.,ymin,0.,ymax);
+          fprintf(MACRO,"ris%d->SetLineColor(2);\n",i);
+          fprintf(MACRO,"ris%d->Draw();\n",i);
+         }
+      }
+
+     }
+    }
+
+// ------------------------------
+
+//   plotting all the tracks MC generated
+
+
+    for(i=0; i<nMCTracks; i++){
+//cout<<"super2, info MC DOVREBBERO essere buone : MCtrack n. "<<i<<",  Cx, Cy, R  "<<CxMC[i]<<",  "<<CyMC[i]<<",  "<<R_MC[i]<<endl;
+
+    gamma = -R_MC[i]*R_MC[i] + (CxMC[i]*CxMC[i]+CyMC[i]*CyMC[i]);
+
+
+
+//Double_t DDD = sqrt(CxMC[i]*CxMC[i]+CyMC[i]*CyMC[i])-R_MC[i];
+//cout<<"  D = "<<DDD<<endl;
+//cout<<"  gamma  "<<gamma<<"   ed il suo R/|gamma| "<<fabs(R_MC[i]/gamma)<<endl;
+
+    if(fabs(gamma)< 0.001) {
+
+//     if( R_MC[i] < RStrawDetectorMin)  continue;
+     if(CyMC[i] != 0.) {
+       yl = xmin*(-CxMC[i]/CyMC[i]) + 0.5/CyMC[i];
+       yu = xmax*(-CxMC[i]/CyMC[i]) + 0.5/CyMC[i];
+       xl = xmin;
+       xu = xmax;
+     } else {
+       yl = ymin;
+       yu = ymax;
+       xu=xl = 0.5/CxMC[i];
+     }
+       fprintf(MACRO,"TLine* MCris%d = new TLine(%f,%f,%f,%f);\n",i,xl,yl,xu,yu);
+       fprintf(MACRO,"MCris%d->SetLineStyle(2);\n",i);
+       fprintf(MACRO,"MCris%d->SetLineColor(3);\n",i);
+       fprintf(MACRO,"MCris%d->SetLineWidth(1);\n",i);
+       fprintf(MACRO,"MCris%d->Draw();\n",i);
+
+    }  else {
+
+       if(fabs(R_MC[i]/gamma) > 1.) {
+         if(fabs(CyMC[i])>0.001 ) {
+           yl = -xmin*CxMC[i]/CyMC[i]+0.5/CyMC[i];
+           yu = -xmax*CxMC[i]/CyMC[i]+0.5/CyMC[i];
+           fprintf(MACRO,"TLine* MCline%d = new TLine(%f,%f,%f,%f);\n",i,xmin,yl,xmax,yu);
+           fprintf(MACRO,"MCline%d->SetLineColor(3);\n",i);
+           fprintf(MACRO,"MCline%d->Draw();\n",i);
+         } else {
+           fprintf(MACRO,"TLine* MCline%d = new TLine(%f,%f,%f,%f);\n",i,2.*CxMC[i],ymin,2.*CxMC[i],ymax);
+           fprintf(MACRO,"MCline%d->SetLineColor(2);\n",i);
+           fprintf(MACRO,"MCline%d->Draw();\n",i);
+         }
+        }  else {
+           fprintf(MACRO, "TEllipse* MCcerchio%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nMCcerchio%d->SetLineColor(3);\n",
+                     i,CxMC[i]/gamma,CyMC[i]/gamma,R_MC[i]/fabs(gamma),R_MC[i]/fabs(gamma),i);
+
+           fprintf(MACRO,"MCcerchio%d->SetFillStyle(0);\nMCcerchio%d->SetLineStyle(2);\nMCcerchio%d->SetLineWidth(1);\nMCcerchio%d->Draw();\n",
+                     i,i,i,i);
+        }
+    }
+
+
+   }
+
+
+
+     fprintf(MACRO,"}\n");
+     fclose(MACRO);
+       
+
+
+
+
+
+
+
+    return ;
+
+}
+
+
+//----------end of function PndSttTrackFinderReal::WriteMacroParallelHitsGeneralConformalwithMC
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//----------start of function PndSttTrackFinderReal::WriteMacroParallelHitsGeneralConformalwithMCspecial
+
+  void PndSttTrackFinderReal::WriteMacroParallelHitsConformalwithMCspecial(
+                   Int_t Nhits,
+//                   UShort_t iExclude,
+                   Double_t auxinfoparalConformal[][5],
+                   UShort_t nTracksFoundSoFar,
+                   Double_t * ALFA, 
+                   Double_t * BETA, 
+                   Double_t * GAMMA, 
+                   Short_t Status, Double_t *trajectory_vertex
+                                                     )
+{
+
+    Int_t i, j, i1, ii, index, Kincl, nlow, nup, STATUS;
+
+    Double_t xmin , xmax, ymin, ymax, xl, xu, yl, yu, rrr, cx, cy,
+           Ox[nmaxHits], Oy[nmaxHits], Radius[nmaxHits], alfa, beta, gamma,
+           dx, dy, diff, d1, d2,
+           delta, deltax, deltay, deltaz, deltaS,
+           factor,ff,
+           zmin, zmax, Smin, Smax, S1, S2,
+           z1, z2, y1, y2,x1,x2,
+           vx1, vy1, vz1, C0x1, C0y1, C0z1,
+           aaa, bbb, ccc, angle, minor, major,
+           distance, Rx, Ry, LL,
+           Aellipsis1, Bellipsis1,fi1,
+           fmin, fmax, offset, step,
+           SkewInclWithRespectToS, zpos, zpos1, zpos2,
+           zl[200],zu[200];
+
+
+
+
+
+
+//---------- parallel straws Macro now
+      char nome[50], nome2[50];
+      FILE * MACRO;
+
+       
+//   ora riplotto tutto nello spazio conforme usando la trasformazione u= x/(x**2+y**2) e   v = y/(x**2+y**2)
+//
+
+      sprintf(nome,"MacroParallelHitsConformewithMCspecialEvent%dTrack%d", IVOLTE,nTracksFoundSoFar);
+      sprintf(nome2,"%s.C",nome);
+      MACRO = fopen(nome2,"w");
+      fprintf(MACRO,"void %s()\n{\n",nome);
+      xmin=1.e20;
+      xmax=-1.e20;
+      ymin=1.e20;
+      ymax=-1.e20;
+       for( i=0; i< Nhits; i++) {
+//             if( i== iExclude)  continue;
+//   centro sfera in sistema conforme
+            Ox[i] = auxinfoparalConformal[i][0] ;
+            Oy[i] = auxinfoparalConformal[i][1] ;
+            Radius[i] = auxinfoparalConformal[i][2];
+            if (Ox[i]-Radius[i] < xmin)   xmin = Ox[i]-Radius[i];
+            if (Ox[i]+Radius[i] > xmax)   xmax = Ox[i]+Radius[i];
+            if (Oy[i]-Radius[i] < ymin)   ymin = Oy[i]-Radius[i];
+            if (Oy[i]+Radius[i] > ymax)   ymax = Oy[i]+Radius[i];
+       }
+
+       if( xmin > 0. ) xmin = 0.;
+       if( xmax < 0.)  xmax = 0.;
+       if( ymin > 0. ) ymin = 0.;
+       if( ymax < 0.)  ymax = 0.;
+
+       deltax = xmax-xmin;
+       deltay = ymax - ymin;
+
+       if( deltax > deltay) {
+         ymin -=  0.5*(deltax-deltay);
+         ymax = ymin+ deltax;
+         delta = deltax;
+       }  else  {
+         xmin -=  0.5*(deltay-deltax);
+         xmax = xmin+ deltay;
+         delta= deltay;
+       }
+
+       xmax = xmax + delta*0.05;
+       xmin = xmin - delta*0.05;
+
+       ymax = ymax + delta*0.05;
+       ymin = ymin - delta*0.05;
+
+
+       fprintf(MACRO,"TCanvas* my= new TCanvas();\nmy->Range(%f,%f,%f,%f);\n",xmin,ymin,xmax,ymax);
+
+
+       fprintf(MACRO,"TGaxis *Assex = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n",xmin,0.,xmax,0.,xmin,xmax);
+       fprintf(MACRO,"Assex->Draw();\n");
+       fprintf(MACRO,"TGaxis *Assey = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n", 0.,ymin,0.,ymax,ymin,ymax);
+       fprintf(MACRO,"Assey->Draw();\n");
+
+
+       for( i=0; i< Nhits; i++) {
+//         if( i== iExclude)  continue;
+            fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetLineWidth(2);\nE%d->SetFillStyle(0);\nE%d->Draw();\n",
+                     i,Ox[i],Oy[i],Radius[i],Radius[i],i,i,i);
+       }
+
+
+
+
+//------------------   plotting the track found
+
+     i = nTracksFoundSoFar;
+     if( Status != 99){
+
+          rrr = sqrt( 0.25*ALFA[nTracksFoundSoFar]*ALFA[nTracksFoundSoFar] + 0.25*BETA[nTracksFoundSoFar]*BETA[nTracksFoundSoFar]
+                    -GAMMA[nTracksFoundSoFar]);
+          alfa = ALFA[nTracksFoundSoFar]+2.*trajectory_vertex[0];
+          beta = BETA[nTracksFoundSoFar]+2.*trajectory_vertex[1];
+          cx = -0.5*alfa;
+          cy = -0.5*beta;
+          gamma = cx*cx+cy*cy-rrr*rrr;
+
+       if(fabs(gamma) > 1.e-8){
+          fprintf(MACRO, "TEllipse* FoundTrack%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nFoundTrack%d->SetLineColor(2);\n",
+                     i,cx/gamma,cy/gamma,rrr/fabs(gamma),rrr/fabs(gamma),i);
+          fprintf(MACRO,"FoundTrack%d->SetFillStyle(0);\nFoundTrack%d->SetLineStyle(2);\nFoundTrack%d->SetLineWidth(1);\nFoundTrack%d->Draw();\n",
+                     i,i,i,i);
+       } else {
+          if( fabs(beta) > 1.e-8){
+            yl = -xmin*alfa/beta-1./beta ;
+            yu = -xmax*alfa/beta-1./beta  ;
+            fprintf(MACRO,"TLine* FoundTrack%d = new TLine(%f,%f,%f,%f);\n",i,xmin,yl,xmax,yu);
+            fprintf(MACRO,"FoundTrack%d->SetLineColor(2);\n",i);
+            fprintf(MACRO,"FoundTrack%d->Draw();\n",i);
+          } else {
+            fprintf(MACRO,"TLine* FoundTrack%d = new TLine(%f,%f,%f,%f);\n",i,-1./alfa,ymin,-1./alfa,ymax);
+            fprintf(MACRO,"FoundTrack%d->SetLineColor(2);\n",i);
+            fprintf(MACRO,"FoundTrack%d->Draw();\n",i);
+          }
+       }
+
+
+     } else {
+
+          alfa = ALFA[nTracksFoundSoFar];
+          beta = BETA[nTracksFoundSoFar];
+          gamma = GAMMA[nTracksFoundSoFar]+ALFA[nTracksFoundSoFar]*trajectory_vertex[0]+BETA[nTracksFoundSoFar]*trajectory_vertex[1];
+
+          if( fabs(beta) > 1.e-8){
+            yl = -xmin*alfa/beta-1./beta ;
+            yu = -xmax*alfa/beta-1./beta  ;
+            fprintf(MACRO,"TLine* FoundTrack%d = new TLine(%f,%f,%f,%f);\n",i,xmin,yl,xmax,yu);
+            fprintf(MACRO,"FoundTrack%d->SetLineColor(2);\n",i);
+            fprintf(MACRO,"FoundTrack%d->Draw();\n",i);
+          } else {
+            fprintf(MACRO,"TLine* FoundTrack%d = new TLine(%f,%f,%f,%f);\n",i,-1./alfa,ymin,-1./alfa,ymax);
+            fprintf(MACRO,"FoundTrack%d->SetLineColor(2);\n",i);
+            fprintf(MACRO,"FoundTrack%d->Draw();\n",i);
+          }
+
+
+     }
+
+
+
+// ------------------------------
+
+//   plotting all the tracks MC generated
+
+//cout<<" TRASLAZIONE IN "<<trajectory_vertex[0]<<",  "<<trajectory_vertex[1]<<endl;
+
+    for(i=0; i<nMCTracks; i++){
+// cout<<"PRIMA; traccia MC n. "<<i<<"  che ha cx, cy, r = "<<CxMC[i]<<",  "<<CyMC[i]<<",  "<<R_MC[i]<<endl;
+     cx = CxMC[i] - trajectory_vertex[0];
+     cy = CyMC[i] - trajectory_vertex[1];
+     gamma = -R_MC[i]*R_MC[i] + (cx*cx+cy*cy);
+
+//cout<<" DOPO; traccia MC n. "<<i<<"  che ha cx, cy, gamma = "<<cx<<",  "<<cy<<",  "<<gamma<<endl;
+
+
+
+    if(fabs(gamma)< 0.001) {
+
+     if(cy != 0.) {
+       yl = xmin*(-cx/cy) + 0.5/cy;
+       yu = xmax*(-cx/cy) + 0.5/cy;
+       xl = xmin;
+       xu = xmax;
+     } else{
+       yl = ymin;
+       yu = ymax;
+       xu=xl = 0.5/cx;
+     }
+       fprintf(MACRO,"TLine* MCris%d = new TLine(%f,%f,%f,%f);\n",i,xl,yl,xu,yu);
+       fprintf(MACRO,"MCris%d->SetLineStyle(2);\n",i);
+       fprintf(MACRO,"MCris%d->SetLineColor(3);\n",i);
+       fprintf(MACRO,"MCris%d->SetLineWidth(1);\n",i);
+       fprintf(MACRO,"MCris%d->Draw();\n",i);
+
+    }  else {
+
+
+       if(fabs(R_MC[i]/gamma) > 1.) {
+         if(fabs(CyMC[i])>0.001 ) {
+           yl = -xmin*CxMC[i]/CyMC[i]+0.5/CyMC[i];
+           yu = -xmax*CxMC[i]/CyMC[i]+0.5/CyMC[i];
+           fprintf(MACRO,"TLine* MCline%d = new TLine(%f,%f,%f,%f);\n",i,xmin,yl,xmax,yu);
+           fprintf(MACRO,"MCline%d->SetLineColor(3);\n",i);
+           fprintf(MACRO,"MCline%d->Draw();\n",i);
+         } else {
+           fprintf(MACRO,"TLine* MCline%d = new TLine(%f,%f,%f,%f);\n",i,2.*CxMC[i],ymin,2.*CxMC[i],ymax);
+           fprintf(MACRO,"MCline%d->SetLineColor(2);\n",i);
+           fprintf(MACRO,"MCline%d->Draw();\n",i);
+         }
+        }  else {
+
+
+
+           fprintf(MACRO,
+     "TEllipse* MCcerchio%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nMCcerchio%d->SetLineColor(3);\n",
+                     i,cx/gamma,cy/gamma,R_MC[i]/fabs(gamma),R_MC[i]/fabs(gamma),i);
+           fprintf(MACRO,
+ "MCcerchio%d->SetFillStyle(0);\nMCcerchio%d->SetLineStyle(2);\nMCcerchio%d->SetLineWidth(1);\nMCcerchio%d->Draw();\n",
+                     i,i,i,i);
+
+       }
+
+
+    }
+
+
+   }
+
+
+
+     fprintf(MACRO,"}\n");
+     fclose(MACRO);
+       
+
+
+
+
+
+
+
+    return ;
+
+}
+
+
+//----------end of function PndSttTrackFinderReal::WriteMacroParallelHitsGeneralConformalwithMCspecial
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//----------start of function PndSttTrackFinderReal::WriteMacroParallelAssociatedHits
+
+  void PndSttTrackFinderReal::WriteMacroParallelAssociatedHits(
+                   Double_t Ox,Double_t Oy,Double_t R,
+                   UShort_t Nhits,
+		   UShort_t ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
+//		   UShort_t infoparal[nmaxHits],
+                   Double_t info[][7], Int_t Nincl, Int_t Minclinations[],
+		   Double_t inclination[][3],
+                   UShort_t imaxima
+                                                     )
+{
+
+    Int_t i, j, i1, ii, index, Kincl, nlow, nup, STATUS;
+
+    Double_t xmin , xmax, ymin, ymax,
+           dx, dy, diff, d1, d2,
+           delta, deltax, deltay, deltaz, deltaS,
+           factor,
+           zmin, zmax, Smin, Smax, S1, S2,
+           z1, z2, y1, y2,
+           vx1, vy1, vz1, C0x1, C0y1, C0z1,
+           aaa, bbb, ccc, angle, minor, major,
+           distance, Rx, Ry, LL,
+           Aellipsis1, Bellipsis1,fi1,
+           fmin, fmax, offset, step,
+           SkewInclWithRespectToS, zpos, zpos1, zpos2,
+           Tiltdirection1[2],
+           zl[200],zu[200],
+           POINTS1[6];
+
+
+
+
+
+//    Ox = (D+R)*cos(Fi);
+//    Oy = (D+R)*sin(Fi);
+
+//cout<<"da MacroTrackparalleletc. Ox, Oy "<<Ox<<",  "<<Oy<<endl;
+
+
+//---------- parallel straws Macro now
+      char nome[50], nome2[50];
+      sprintf(nome,"MacroTrackN%dParallelHitsEvent%d",imaxima, IVOLTE);
+      sprintf(nome2,"%s.C",nome);
+      FILE * MACRO = fopen(nome2,"w");
+      fprintf(MACRO,"void %s()\n{\n",nome);
+      xmin=1.e20;
+      xmax=-1.e20;
+      ymin=1.e20;
+      ymax=-1.e20;
+       for( ii=1; ii< Nhits; ii++) {
+            i = infoparal[  ListHitsinTrack[imaxima][ii]  ] ;
+            if (info[i][0]-info[i][3] < xmin)   xmin = info[i][0]-info[i][3];
+            if (info[i][0]+info[i][3] > xmax)   xmax = info[i][0]+info[i][3];
+            if (info[i][1]-info[i][3] < ymin)   ymin = info[i][1]-info[i][3];
+            if (info[i][1]+info[i][3] > ymax)   ymax = info[i][1]+info[i][3];
+       }
+
+       if( xmin > 0. ) xmin = 0.;
+       if( xmax < 0.)  xmax = 0.;
+       if( ymin > 0. ) ymin = 0.;
+       if( ymax < 0.)  ymax = 0.;
+
+       deltax = xmax-xmin;
+       deltay = ymax - ymin;
+
+       if( deltax > deltay) {
+         ymin -=  0.5*(deltax-deltay);
+         ymax = ymin+ deltax;
+         delta = deltax;
+       }  else  {
+         xmin -=  0.5*(deltay-deltax);
+         xmax = xmin+ deltay;
+         delta= deltay;
+       }
+
+       xmax = xmax + delta*0.05;
+       xmin = xmin - delta*0.05;
+
+       ymax = ymax + delta*0.05;
+       ymin = ymin - delta*0.05;
+
+
+       fprintf(MACRO,"TCanvas* my= new TCanvas();\nmy->Range(%f,%f,%f,%f);\n",xmin,ymin,xmax,ymax);
+
+       fprintf(MACRO,"TEllipse* TC = new TEllipse(%f,%f,%f,%f,0.,360.);\n",Ox,Oy,R,R);
+       fprintf(MACRO,"TC->SetLineColor(2);\nTC->SetFillStyle(0);\nTC->Draw();\n");
+
+       fprintf(MACRO,"TGaxis *Assex = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n",xmin,0.,xmax,0.,xmin,xmax);
+       fprintf(MACRO,"Assex->Draw();\n");
+       fprintf(MACRO,"TGaxis *Assey = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n", 0.,ymin,0.,ymax,ymin,ymax);
+       fprintf(MACRO,"Assey->Draw();\n");
+
+
+       for( ii=0; ii< Nhits; ii++) {
+            i = infoparal[  ListHitsinTrack[imaxima][ii]  ] ;
+            fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetFillStyle(0);\nE%d->Draw();\n",
+                     i,info[i][0],info[i][1],info[i][3],info[i][3],i,i);
+       }
+
+      fprintf(MACRO,"}\n");
+      fclose(MACRO);
+       
+
+    return ;
+
+}
+
+
+//----------end of function PndSttTrackFinderReal::WriteMacroParallelAssociatedHits
+
+
+
+//----------start of function PndSttTrackFinderReal::WriteMacroSkewAssociatedHits
+
+
+  void PndSttTrackFinderReal::WriteMacroSkewAssociatedHits(
+                   Double_t KAPPA,
+                   Double_t FI0,
+                   Double_t D,
+                   Double_t Fi,
+                   Double_t R,
+                   Double_t info[][7],
+                   Int_t Nincl,
+                   Int_t Minclinations[],
+                   Double_t inclination[][3],
+                   Int_t imaxima, Int_t nMaxima, 
+                   UShort_t nSkewHitsinTrack,
+                   UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
+                   UShort_t nSkewCommon,
+                   UShort_t SkewCommonList[MAXTRACKSPEREVENT][nmaxHits]
+
+                                                     )
+
+
+ {
+
+
+    Int_t i, j, i1, ii, iii, index, Kincl, nlow, nup, STATUS, imc, Nmin, Nmax;
+
+    Double_t xmin , xmax, ymin, ymax, Ox, Oy,
+           dx, dy, diff, d1, d2,
+           delta, deltax, deltay, deltaz, deltaS,
+           factor,
+           zmin, zmax, Smin, Smax, S1, S2,
+           z1, z2, y1, y2,
+           vx1, vy1, vz1, C0x1, C0y1, C0z1,
+           aaa, bbb, ccc, angle, minor, major,
+           distance, Rx, Ry, LL,
+           Aellipsis1, Bellipsis1,fi1,
+           fmin, fmax, offset, step,
+           SkewInclWithRespectToS, zpos, zpos1, zpos2,
+           Tiltdirection1[2],
+           zl[200],zu[200],
+           POINTS1[6];
+
+
+
+
+
+//-------------------  skew straws hits Macro now
+
+      char  nome2[50],nome[50];
+      FILE *MACRO;
+      sprintf(nome,  "MacroParTrack%dSkewTrack%dSkewHitsEvent%d",imaxima,nMaxima, IVOLTE);
+      sprintf(nome2,  "%s.C",nome);
+      MACRO = fopen(nome2,"w");
+      fprintf(MACRO,"void %s()\n{\n",nome);
+
+//KAPPA = 1./166.67 ;  FI0 = 1.5*PI;
+
+      Smin=zmin = 1.e10;
+      Smax=zmax = -zmin;
+      index=0;
+
+       for( iii=0; iii< nSkewHitsinTrack; iii++) {
+         i = infoskew[ ListSkewHitsinTrack[imaxima][iii] ];
+
+         Kincl = (int) info[i][5] - 1;
+
+
+         aaa = sqrt(inclination[Kincl][0]*inclination[Kincl][0]+inclination[Kincl][1]*inclination[Kincl][1]+
+                  inclination[Kincl][2]*inclination[Kincl][2]);
+         vx1 = inclination[Kincl][0]/aaa;
+         vy1 = inclination[Kincl][1]/aaa;
+         vz1 = inclination[Kincl][2]/aaa;
+         C0x1 = info[i][0];
+         C0y1 = info[i][1];
+         C0z1 = info[i][2];
+         Ox = (R+D)*cos(Fi);
+         Oy = (R+D)*sin(Fi);
+
+       calculateintersections(Ox,Oy,R,C0x1,C0y1,C0z1,info[i][3],
+                              vx1,vy1,vz1,
+                              &STATUS,POINTS1);
+
+       if(STATUS < 0 ) continue ;
+
+
+
+       for( ii=0; ii<2; ii++){
+        j=3*ii;
+        distance = sqrt(
+                  (POINTS1[j]-C0x1)*(POINTS1[j]-C0x1) + 
+                  (POINTS1[1+j]-C0y1)*(POINTS1[1+j]-C0y1) + 
+                  (POINTS1[2+j]-C0z1)*(POINTS1[2+j]-C0z1) 
+                            );
+        if( distance >= info[i][4] ) continue;
+
+
+        Rx = POINTS1[j]-Ox ;   //  x component Radial vector of cylinder of trajectory
+        Ry = POINTS1[1+j]-Oy ;   //  y direction Radial vector of cylinder of trajectory
+
+        aaa = sqrt(Rx*Rx+Ry*Ry);
+        SkewInclWithRespectToS = (-Ry*vx1 + Rx*vy1)/aaa ;
+        SkewInclWithRespectToS /= R;
+        bbb = sqrt( SkewInclWithRespectToS*SkewInclWithRespectToS + vz1*vz1);
+        //  the tilt direction of this ellipse is (1,0)  when major axis along Z direction
+        if( bbb > 1.e-10){
+           Tiltdirection1[0] = vz1/bbb;
+           Tiltdirection1[1] = SkewInclWithRespectToS/bbb;
+        } else {
+           Tiltdirection1[0] = 1.;
+           Tiltdirection1[1] = 0.;
+        }
+
+        LL = fabs(vx1*Rx + vy1*Ry);
+        if( LL < 1.e-10) continue;
+        Aellipsis1 = info[i][3]*aaa/LL;
+
+        Bellipsis1 = info[i][3]/R;
+
+
+
+// checks that the projected ellipsis doesn't go out the boundaries of both the skew straw and the trajectory cylinder
+
+/*
+        if(
+          fabs(POINTS1[j+2]-ZCENTER_STRAIGHT) > SEMILENGTH_STRAIGHT- Aellipsis1 ||
+          distance + bbb > info[i][4]        //  the ellipsis goes out of the boundaries of the skew straw
+          ) {
+cout<<"the ellipsis goes out of the boundaries of the skew straw, hit n. "<<i<<endl
+     <<"dis. from center "<<distance+bbb<<",  length of the straw "<<info[i][4]<<endl;
+           continue;
+          }
+*/
+//--------------------------
+
+
+        fi1 = atan2(POINTS1[j+1]-Oy, POINTS1[j]-Ox) ;  // atan2 returns radians in (-pi and +pi]
+        if( fi1 < 0.) fi1 += 2.*PI;
+
+        if( zmin > POINTS1[j+2] - Aellipsis1 ) zmin = POINTS1[j+2] - Aellipsis1;
+        if( zmax < POINTS1[j+2] + Aellipsis1 ) zmax = POINTS1[j+2] + Aellipsis1;
+
+        if( Smin > fi1 - Bellipsis1 ) Smin = fi1 - Bellipsis1;
+        if( Smax < fi1 + Bellipsis1 ) Smax = fi1 + Bellipsis1;
+
+
+        Double_t rotation1 = 180.*atan2(Tiltdirection1[1],Tiltdirection1[0])/PI;
+        fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.,%f);\nE%d->SetFillStyle(0);\n",
+                     index,POINTS1[j+2],fi1,Aellipsis1,Bellipsis1,rotation1,index);
+
+
+
+
+
+// ------ se lo hit e' spurio marcalo in rosso
+        for( i1=0; i1<nSkewCommon; i1++){
+          if ( SkewCommonList[   imaxima   ][i1] == i ){
+
+                goto fuori ;
+          }
+
+        }
+        fprintf(MACRO,"E%d->SetLineColor(2);\n",index);
+fuori: ;
+
+
+
+
+
+
+        index++;
+
+   }    //  end of    for( ii=0; ii<2; ii++)
+
+  }   //   end of  for( i=1; i< Nhits; i++)
+
+
+  if(index==0) goto nohits ;
+  if( zmax < zmin ) goto nohits ;
+  if( Smax < Smin ) goto nohits;
+  aaa = Smax-Smin;
+  Smin -= aaa*1.;
+  Smax += aaa*1.;
+
+  aaa = zmax-zmin;
+  zmin -= aaa*0.05;
+  zmax += aaa*0.05;
+
+  if(Smax > 2.*PI) Smax = 2.*PI;
+  if( Smin < 0.) Smin = 0.;
+
+//  Smin=0.;
+//  Smax=2.*PI;
+
+
+  fprintf(MACRO,"TCanvas* my= new TCanvas();\nmy->Range(%f,%f,%f,%f);\n",zmin,Smin,zmax,Smax);
+  for( ii=0; ii< index; ii++) {
+       fprintf(MACRO,"E%d->Draw();\n",ii);
+  }
+
+   deltaz = zmax-zmin;
+   deltaS = Smax-Smin;
+   fprintf(MACRO,"TGaxis *Assex = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n",
+        zmin+0.05*deltaz,Smin+0.05*deltaS,zmax-0.05*deltaz,Smin+0.05*deltaS,zmin+0.05*deltaz,zmax-0.05*deltaz);
+   fprintf(MACRO,"Assex->Draw();\n");
+   fprintf(MACRO,"TGaxis *Assey = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n",
+        zmin+0.05*deltaz,Smin+0.05*deltaS,zmin+0.05*deltaz,Smax-0.05*deltaS,Smin+0.05*deltaS,Smax-0.05*deltaS);
+   fprintf(MACRO,"Assey->Draw();\n");
+
+
+
+
+// --------------------------------
+
+//  plot della traccia trovata dal finder
+
+  if ( KAPPA >= 0.) {
+     fmin = KAPPA*zmin + FI0;
+     fmax = KAPPA*zmax + FI0;
+  }  else {
+     fmax = KAPPA*zmin + FI0;
+     fmin = KAPPA*zmax + FI0;
+  }
+  if( fmax>=0.) {
+    Nmax = (int) (0.5*fmax/ PI);
+  }  else  {
+    Nmax = ( (int) (0.5*fmax/ PI) ) -1;
+  }
+  if( fmin>=0.) {
+    Nmin = (int) (0.5*fmin/ PI);
+  } else {
+    Nmin = ((int) (0.5*fmin/ PI) )-1;
+  }
+  for(i=Nmin; i<= Nmax;i++){
+   offset = 2.*PI*i;
+   z1 = (i*2.*PI-FI0)/KAPPA;
+   z2 = ((i+1)*2.*PI-FI0)/KAPPA;
+   fprintf(MACRO,"TLine* FOUND%d = new TLine(%f,%f,%f,%f);\nFOUND%d->SetLineColor(2);\nFOUND%d->Draw();\n",
+                 i-Nmin,z1,0.,z2, 2.*PI,i-Nmin,i-Nmin);
+
+  }   //  end of  for(i=Nmin; i<= Nmax;++)
+
+
+
+nohits: ;
+
+      fprintf(MACRO,"}\n");
+      fclose(MACRO);
+
+
+
+}
+
+
+
+
+
+
+
+
+
+//----------end of function PndSttTrackFinderReal::WriteMacroSkewAssociatedHits
+
+
+
+
+
+
+
+//----------start of function PndSttTrackFinderReal::WriteMacroSkewAssociatedHitswithMC
+
+
+
+
+  void PndSttTrackFinderReal::WriteMacroSkewAssociatedHitswithMC(
+                   Double_t KAPPA,
+                   Double_t FI0,
+                   Double_t D,
+                   Double_t Fi,
+                   Double_t R,
+                   Double_t info[][7],
+                   Int_t Nincl,
+                   Int_t Minclinations[],
+                   Double_t inclination[][3],
+                   Int_t imaxima, Int_t nMaxima, 
+                   UShort_t nSkewHitsinTrack,
+                   UShort_t ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
+                   UShort_t nSkewCommon,
+                   UShort_t SkewCommonList[MAXTRACKSPEREVENT][nmaxHits],
+                   UShort_t daTrackFoundaTrackMC,
+                   UShort_t nMCSkewAlone,
+                   UShort_t MCSkewAloneList[MAXMCTRACKS][nmaxHits]
+                                                     )
+ {
+
+
+
+    Int_t i, j, i1, ii, iii, index, Kincl, nlow, nup, STATUS, imc, Nmin, Nmax;
+
+    Double_t xmin , xmax, ymin, ymax, Ox, Oy,
+           dx, dy, diff, d1, d2,
+           delta, deltax, deltay, deltaz, deltaS,
+           factor,
+           zmin, zmax, Smin, Smax, S1, S2,
+           z1, z2, y1, y2,
+           vx1, vy1, vz1, C0x1, C0y1, C0z1,
+           aaa, bbb, ccc, angle, minor, major,
+           distance, Rx, Ry, LL,
+           Aellipsis1, Bellipsis1,fi1,
+           fmin, fmax, offset, step,
+           SkewInclWithRespectToS, zpos, zpos1, zpos2,
+           Tiltdirection1[2],
+           zl[200],zu[200],
+           POINTS1[6];
+
+
+
+
+
+//-------------------  skew straws hits Macro now
+
+      char  nome2[50],nome[50];
+      FILE *MACRO;
+      sprintf(nome,  "MacroParTrack%dSkewTrack%dSkewHitswithMCEvent%d",imaxima,nMaxima, IVOLTE);
+      sprintf(nome2,  "%s.C",nome);
+      MACRO = fopen(nome2,"w");
+      fprintf(MACRO,"void %s()\n{\n",nome);
+
+//KAPPA = 1./166.67 ;  FI0 = 1.5*PI;
+
+      Smin=zmin = 1.e10;
+      Smax=zmax = -zmin;
+      index=0;
+
+       for( iii=0; iii< nSkewHitsinTrack; iii++) {
+         i = infoskew[ ListSkewHitsinTrack[imaxima][iii] ];
+
+         Kincl = (int) info[i][5] - 1;
+
+
+         aaa = sqrt(inclination[Kincl][0]*inclination[Kincl][0]+inclination[Kincl][1]*inclination[Kincl][1]+
+                  inclination[Kincl][2]*inclination[Kincl][2]);
+         vx1 = inclination[Kincl][0]/aaa;
+         vy1 = inclination[Kincl][1]/aaa;
+         vz1 = inclination[Kincl][2]/aaa;
+         C0x1 = info[i][0];
+         C0y1 = info[i][1];
+         C0z1 = info[i][2];
+         Ox = (R+D)*cos(Fi);
+         Oy = (R+D)*sin(Fi);
+
+       calculateintersections(Ox,Oy,R,C0x1,C0y1,C0z1,info[i][3],
+                              vx1,vy1,vz1,
+                              &STATUS,POINTS1);
+
+       if(STATUS < 0 ) continue ;
+
+
+
+       for( ii=0; ii<2; ii++){
+        j=3*ii;
+        distance = sqrt(
+                  (POINTS1[j]-C0x1)*(POINTS1[j]-C0x1) + 
+                  (POINTS1[1+j]-C0y1)*(POINTS1[1+j]-C0y1) + 
+                  (POINTS1[2+j]-C0z1)*(POINTS1[2+j]-C0z1) 
+                            );
+        if( distance >= info[i][4] ) continue;
+
+
+        Rx = POINTS1[j]-Ox ;   //  x component Radial vector of cylinder of trajectory
+        Ry = POINTS1[1+j]-Oy ;   //  y direction Radial vector of cylinder of trajectory
+
+        aaa = sqrt(Rx*Rx+Ry*Ry);
+        SkewInclWithRespectToS = (-Ry*vx1 + Rx*vy1)/aaa ;
+        SkewInclWithRespectToS /= R;
+        bbb = sqrt( SkewInclWithRespectToS*SkewInclWithRespectToS + vz1*vz1);
+        //  the tilt direction of this ellipse is (1,0)  when major axis along Z direction
+        if( bbb > 1.e-10){
+           Tiltdirection1[0] = vz1/bbb;
+           Tiltdirection1[1] = SkewInclWithRespectToS/bbb;
+        } else {
+           Tiltdirection1[0] = 1.;
+           Tiltdirection1[1] = 0.;
+        }
+
+        LL = fabs(vx1*Rx + vy1*Ry);
+        if( LL < 1.e-10) continue;
+        Aellipsis1 = info[i][3]*aaa/LL;
+
+        Bellipsis1 = info[i][3]/R;
+
+
+
+// checks that the projected ellipsis doesn't go out the boundaries of both the skew straw and the trajectory cylinder
+
+/*
+        if(
+          fabs(POINTS1[j+2]-ZCENTER_STRAIGHT) > SEMILENGTH_STRAIGHT- Aellipsis1 ||
+          distance + bbb > info[i][4]        //  the ellipsis goes out of the boundaries of the skew straw
+          ) {
+cout<<"the ellipsis goes out of the boundaries of the skew straw, hit n. "<<i<<endl
+     <<"dis. from center "<<distance+bbb<<",  length of the straw "<<info[i][4]<<endl;
+           continue;
+          }
+*/
+//--------------------------
+
+
+        fi1 = atan2(POINTS1[j+1]-Oy, POINTS1[j]-Ox) ;  // atan2 returns radians in (-pi and +pi]
+        if( fi1 < 0.) fi1 += 2.*PI;
+
+        if( zmin > POINTS1[j+2] - Aellipsis1 ) zmin = POINTS1[j+2] - Aellipsis1;
+        if( zmax < POINTS1[j+2] + Aellipsis1 ) zmax = POINTS1[j+2] + Aellipsis1;
+
+        if( Smin > fi1 - Bellipsis1 ) Smin = fi1 - Bellipsis1;
+        if( Smax < fi1 + Bellipsis1 ) Smax = fi1 + Bellipsis1;
+
+
+        Double_t rotation1 = 180.*atan2(Tiltdirection1[1],Tiltdirection1[0])/PI;
+        fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.,%f);\nE%d->SetFillStyle(0);\n",
+                     index,POINTS1[j+2],fi1,Aellipsis1,Bellipsis1,rotation1,index);
+
+
+
+
+
+// ------ se lo hit e' spurio marcalo in rosso
+        for( i1=0; i1<nSkewCommon; i1++){
+          if ( SkewCommonList[   imaxima   ][i1] == i ){
+
+                goto fuori ;
+          }
+
+        }
+        fprintf(MACRO,"E%d->SetLineColor(2);\n",index);
+fuori: ;
+
+
+
+
+
+
+        index++;
+
+   }    //  end of    for( ii=0; ii<2; ii++)
+
+  }   //   end of  for( i=1; i< Nhits; i++)
+
+
+  if(index==0) goto nohits ;
+  if( zmax < zmin ) goto nohits ;
+  if( Smax < Smin ) goto nohits;
+  aaa = Smax-Smin;
+  Smin -= aaa*1.;
+  Smax += aaa*1.;
+
+  aaa = zmax-zmin;
+  zmin -= aaa*0.05;
+  zmax += aaa*0.05;
+
+  if(Smax > 2.*PI) Smax = 2.*PI;
+  if( Smin < 0.) Smin = 0.;
+
+//  Smin=0.;
+//  Smax=2.*PI;
+
+
+  fprintf(MACRO,"TCanvas* my= new TCanvas();\nmy->Range(%f,%f,%f,%f);\n",zmin,Smin,zmax,Smax);
+  for( ii=0; ii< index; ii++) {
+       fprintf(MACRO,"E%d->Draw();\n",ii);
+  }
+
+   deltaz = zmax-zmin;
+   deltaS = Smax-Smin;
+   fprintf(MACRO,"TGaxis *Assex = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n",
+        zmin+0.05*deltaz,Smin+0.05*deltaS,zmax-0.05*deltaz,Smin+0.05*deltaS,zmin+0.05*deltaz,zmax-0.05*deltaz);
+   fprintf(MACRO,"Assex->Draw();\n");
+   fprintf(MACRO,"TGaxis *Assey = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n",
+        zmin+0.05*deltaz,Smin+0.05*deltaS,zmin+0.05*deltaz,Smax-0.05*deltaS,Smin+0.05*deltaS,Smax-0.05*deltaS);
+   fprintf(MACRO,"Assey->Draw();\n");
+
+
+
+
+// --------------------------------
+
+//  plot della traccia trovata dal finder
+
+  if ( KAPPA >= 0.) {
+     fmin = KAPPA*zmin + FI0;
+     fmax = KAPPA*zmax + FI0;
+  }  else {
+     fmax = KAPPA*zmin + FI0;
+     fmin = KAPPA*zmax + FI0;
+  }
+  if( fmax>=0.) {
+    Nmax = (int) (0.5*fmax/ PI);
+  }  else  {
+    Nmax = ( (int) (0.5*fmax/ PI) ) -1;
+  }
+  if( fmin>=0.) {
+    Nmin = (int) (0.5*fmin/ PI);
+  } else {
+    Nmin = ((int) (0.5*fmin/ PI) )-1;
+  }
+  for(i=Nmin; i<= Nmax;i++){
+   offset = 2.*PI*i;
+   z1 = (i*2.*PI-FI0)/KAPPA;
+   z2 = ((i+1)*2.*PI-FI0)/KAPPA;
+   fprintf(MACRO,"TLine* FOUND%d = new TLine(%f,%f,%f,%f);\nFOUND%d->SetLineColor(2);\nFOUND%d->Draw();\n",
+                 i-Nmin,z1,0.,z2, 2.*PI,i-Nmin,i-Nmin);
+
+  }   //  end of  for(i=Nmin; i<= Nmax;++)
+
+
+//---------------------------------------------  qui ci aggiungo le traccie MC
+
+
+// for(imc=0; imc<nMCTracks ; imc++){
+//            if(imc !=    daTrackFoundaTrackMC[ imaxima ]) continue;
+     imc=    daTrackFoundaTrackMC ;
+     KAPPA=MCtruthTrkInfo[12][imc];
+     FI0 = MCtruthTrkInfo[13][imc];
+  if ( KAPPA >= 0.) {
+     fmin = KAPPA*zmin + FI0;
+     fmax = KAPPA*zmax + FI0;
+  }  else {
+     fmax = KAPPA*zmin + FI0;
+     fmin = KAPPA*zmax + FI0;
+  }
+  if( fmax>=0.) {
+    Nmax = (int) (0.5*fmax/ PI);
+  }  else  {
+    Nmax = ( (int) (0.5*fmax/ PI) ) -1;
+  }
+  if( fmin>=0.) {
+    Nmin = (int) (0.5*fmin/ PI);
+  } else {
+    Nmin = ((int) (0.5*fmin/ PI) )-1;
+  }
+
+  for(i=Nmin; i<= Nmax;i++){
+   offset = 2.*PI*i;
+   z1 = (i*2.*PI-FI0)/KAPPA;
+   z2 = ((i+1)*2.*PI-FI0)/KAPPA;
+   fprintf(MACRO,"TLine* MC%d_%d = new TLine(%f,%f,%f,%f);\nMC%d_%d->SetLineColor(3);\nMC%d_%d->Draw();\n",
+                 imc,i-Nmin,z1,0.,z2, 2.*PI,imc,i-Nmin,imc,i-Nmin);
+
+  }   //  end of  for(i=Nmin; i<= Nmax;++)
+
+
+//       }  // end of for(imc=0; imc<nMCTracks ; imc++)
+
+
+
+
+
+
+
+
+
+nohits: ;
+
+      fprintf(MACRO,"}\n");
+      fclose(MACRO);
+
+
+
+
+
+ }
+
+
+//----------end of function PndSttTrackFinderReal::WriteMacroSkewAssociatedHitswithMC
 
 
 
@@ -1532,7 +5208,7 @@ CalculatedCircles PndSttTrackFinderReal::PndSttTrkFindCircles(Double_t x1,Double
 //----------begin of function PndSttTrackFinderReal::PndSttfromXYtoConformal
 
  void PndSttTrackFinderReal::PndSttFromXYtoConformal(Double_t trajectory_vertex[3],
-                            Double_t info[][6],
+                            Double_t info[][7],
                             Int_t Nparal,Double_t infoparalConformal[][5],
                             Int_t *status )
 {
@@ -1575,6 +5251,55 @@ CalculatedCircles PndSttTrackFinderReal::PndSttTrkFindCircles(Double_t x1,Double
 
 
 
+
+
+//----------start function PndSttTrackFinderReal::PndSttfromXYtoConformal2
+
+ void PndSttTrackFinderReal::PndSttFromXYtoConformal2(
+                                Double_t trajectory_vertex[3],
+                                UShort_t nHitsinTrack ,
+                                UShort_t iExclude ,
+                                UShort_t *ListHits,
+                                Double_t info[][7],
+                                Double_t auxinfoparalConformal[][5],
+                                Int_t * status
+                                                     )
+{
+
+
+//   do the transformation in the conformal space :  u= x/(x**2+y**2), v= y/(x**2+y**2) for each hit from parallel
+//   straws;  also the equidrift radius changes.
+
+//
+
+    Double_t gamma, x, y, r;
+
+    for(int i=0; i<nHitsinTrack; i++){
+            if( i == iExclude) continue;
+            x = info[  infoparal[ListHits[i]]  ][0]-trajectory_vertex[0];
+            y = info[  infoparal[ListHits[i]]  ][1]-trajectory_vertex[1];
+            r = info[  infoparal[ListHits[i]]  ][3];
+            gamma = x*x + y*y - r*r;
+            if(fabs( gamma ) < 1.e-10) {
+              *status = -1;
+              continue;
+            }
+            auxinfoparalConformal[i][0] = x / gamma;
+            auxinfoparalConformal[i][1] = y / gamma;
+            auxinfoparalConformal[i][2] = r/fabs(gamma);
+            auxinfoparalConformal[i][3] = infoparal[ListHits[i]] ;      //  n. of the Hit (in the original order)
+            auxinfoparalConformal[i][4] = StrawRadius/fabs(gamma);
+
+
+    }
+
+
+
+   *status=0;
+   return;
+}
+
+//----------end of function PndSttTrackFinderReal::PndSttfromXYtoConformal2
 
 
 
@@ -1757,7 +5482,7 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
                                                   UShort_t NFiCELLDISTANCE,
                                                   UShort_t Nparal,
                                                   UShort_t ihit,
-                                                  Double_t info[][6],
+                                                  Double_t info[][7],
                                                   bool ExclusionList[nmaxHits],
                                                   UShort_t RConformalIndex[nmaxHits],
                                                   UShort_t FiConformalIndex[nmaxHits],
@@ -1842,6 +5567,7 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
                                       &&
               TemporaryExclusionList[   infoparal[  HitsinBoxConformal[iR][iFi][j]  ]   ]) {
             ListHitsinTrack[nHitsinTrack]=HitsinBoxConformal[iR][iFi][j] ;   //  hit number in the PARALLEL straws scheme
+//if(IVOLTE==4)   cout<<"nFi cell di hit accettato "<<iFi<<endl;
 
             nHitsinTrack++;
             TemporaryExclusionList[ infoparal[  HitsinBoxConformal[iR][iFi][j]  ]  ]= false;
@@ -1859,6 +5585,22 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
 
 
 //   ordering the hits by INCREASING CONFORMAL RADIUS (decreasing space radius)
+/*
+    for (j = 0; j< nHitsinTrack; j++){
+      auxIndex[j]=ListHitsinTrack[j];
+      auxRvalues[j]=
+                    info[ infoparal[ ListHitsinTrack[j] ]  ][0]*
+                    info[ infoparal[ ListHitsinTrack[j] ]  ][0]+
+                    info[ infoparal[ ListHitsinTrack[j] ]  ][1]*
+                    info[ infoparal[ ListHitsinTrack[j] ]  ][1];
+    }
+
+
+    PndStt_Merge_Sort( nHitsinTrack, auxRvalues, auxIndex);
+    for (j = 0; j< nHitsinTrack; j++){
+      ListHitsinTrack[nHitsinTrack-1-j]=auxIndex[j];
+    }
+*/
 
 
 
@@ -1880,7 +5622,7 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
                                                   UShort_t NparallelToSearch,
                                                   UShort_t iSeed,
                                                   UShort_t *ListHitsinTrackinWhichToSearch,
-                                                  Double_t info[][6],
+                                                  Double_t info[][7],
                                                   bool ExclusionList[nmaxHits],
                                                   UShort_t RConformalIndex[nmaxHits],
                                                   UShort_t FiConformalIndex[nmaxHits],
@@ -1953,6 +5695,7 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
       nRmax = nRcell + NRCELLDISTANCE;
     }
 
+//cout <<"    di conseguenza ora nRmin e  nRmax sono : "<<nRmin<<",  "<<nRmax<<endl;
 
     for( iR= nRmin ; iR<= nRmax ; iR++){
       for( iFi2 = nFicell - NFiCELLDISTANCE ; iFi2<= nFicell + NFiCELLDISTANCE ; iFi2++){
@@ -2022,11 +5765,18 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
      Double_t auxRvalues[nmaxHits];
 
 
+if(istampa>=2) {
+     cout<<"Da strictcollection, n. elementi delle search list "<<NParallelToSearch<<endl;
+     for(i=0; i<NParallelToSearch; i++){
+        cout<<"Da strictcollection,  hit n. (parallel notaion ) "<<ListHitsinTrackinWhichToSearch[i]<<endl;
+     }
+}
 
 
 //   iSeed        is the hit number in the PARALLEL number scheme
 
      iFiseed = FiConformalIndex[ infoparal[  iSeed ] ];
+if(istampa>=2)cout<<"Da strictcollection, iFiseed "<<iFiseed<<endl;
 
      nHitsinTrack=0;
      for(i=0; i<NParallelToSearch; i++){
@@ -2065,6 +5815,12 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
      }   //  end of        for(i=0; i<NparallelToSearch; i++)
 
 
+if(istampa>=2) {
+     cout<<"Da strictcollection, n. elementi aggiunti "<<nHitsinTrack<<endl;
+     for(i=0; i<nHitsinTrack; i++){
+       cout<<"Da strictcollection,  hit n. (parallel notaion ) "<<OutputListHitsinTrack[i]<<endl;
+     }
+}
 
     return nHitsinTrack;
 
@@ -2113,6 +5869,7 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
       int  NRowsInWhichStructVarArePresent[NStructVar];
       char *StructVarName[NStructVar];
       char auxStructVarName[NStructVar][20];
+//      char *AuxNameRowsInWhichStructVarArePresent[NStructVar][NStructRows];
       char *NameRowsInWhichStructVarArePresent[NStructVar*NStructRows];
       char aux[NStructVar*NStructRows][20];
 //      double Coefficients[NStructVar][NStructRows];
@@ -2169,25 +5926,40 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
 
       Double_t cose = cos(rotationangle), sine = sin(rotationangle);
       for(i=0;i<nHitsinTrack; i++){
+//       if( i== iExclude)  continue;
        Ox[i] = auxinfoparalConformal[ i ][0] *cose +
                auxinfoparalConformal[ i ][1]*sine;
        Oy[i] = -auxinfoparalConformal[ i ][0] *sine +
                auxinfoparalConformal[ i ][1]*cose;
 
+//cout<<"dal fitter, hit in lista sequenziale, n. "<<i<<",  Ox , Oy ruotati "<<Ox[i]<<",  "<<Oy[i]<<"  drift radius  "
+//     <<auxinfoparalConformal[ i ][2]<<"   and  straw radisu  "<<auxinfoparalConformal[ i ][4]<<endl;
 
 
 
+//  now traslate toward positive V values to obtain always positive q values
+//       offsety = 10./RStrawDetectorMin;
+//       Oy[i] += offsety;
 
 
 
+//         Delta[i] = auxinfoparalConformal[ i ][4];
          Delta[i] = 3.*auxinfoparalConformal[ i ][2];
 
       }
 
-//      sprintf(nome,"GeneralParallelHitsConformeTraccia%dEvent%d.mcs",(nTracksFoundSoFar), IVOLTE);
-//      MACRO = fopen(nome,"w");
+      sprintf(nome,"GeneralParallelHitsConformeTraccia%dEvent%d.mcs",(nTracksFoundSoFar), IVOLTE);
+      MACRO = fopen(nome,"w");
+      fprintf(MACRO,"NAME    FIT\n");
 //-----------------  write the ROWS  section
 
+      fprintf(MACRO,"ROWS\n");
+      fprintf(MACRO," N OBJECT\n");
+      for(i=0, ii=0 ; i< NpointsInFit ; i++) {
+       ii++;
+           fprintf(MACRO," L Ap%d\n L Bp%d\n L Cp%d\n L Dp%d\n",i,i,i,i);
+           fprintf(MACRO," L Am%d\n L Bm%d\n L Cm%d\n L Dm%d\n G LAMBDA%d\n",i,i,i,i,i);
+      }
 
 //--------
       nameRows[0]="OBJECT";
@@ -2215,10 +5987,13 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
 
 //-----------------  write the COLUMNS  section
 
+      fprintf(MACRO,"COLUMNS\n");
 
 //  Column variable  m1
       for(i=0, ii=0 ; i< NpointsInFit ; i++) {
        ii++;
+          fprintf(MACRO,"  m1 Ap%d  %g  Am%d  %g\n  m1 Bp%d  %g   Bm%d  %g\n",
+                                  i,Ox[i],i,Ox[i],i,-Ox[i],i,-Ox[i]);
         Coefficients[i*4]=    Ox[i];
         Coefficients[i*4+1]=  Ox[i];
         Coefficients[i*4+2]= -Ox[i];
@@ -2227,6 +6002,8 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
 
 //  Column variable  m2
       for(i=0; i< NpointsInFit ; i++) {
+          fprintf(MACRO,"  m2 Ap%d  %g  Am%d  %g\n  m2 Bp%d  %g   Bm%d  %g\n",
+                                  i,-Ox[i],i,-Ox[i],i,Ox[i],i,Ox[i]);
         Coefficients[NStructRows+i*4]=   -Ox[i];
         Coefficients[NStructRows+i*4+1]= -Ox[i];
         Coefficients[NStructRows+i*4+2]= Ox[i];
@@ -2236,6 +6013,9 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
 
 //  Column variable  q1
       for(i=0 ; i< NpointsInFit ; i++) {
+//       if( i== iExclude)  continue;
+          fprintf(MACRO,"  q1 Ap%d   1.  Am%d   1.\n  q1 Bp%d  -1.  Bm%d  -1.\n",
+                                  i,i,i,i);
         Coefficients[2*NStructRows+i*4]=    1.;
         Coefficients[2*NStructRows+i*4+1]=  1.;
         Coefficients[2*NStructRows+i*4+2]= -1.;
@@ -2244,6 +6024,9 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
 
 //  Column variable  q2
       for(i=0 ; i< NpointsInFit ; i++) {
+//       if( i== iExclude)  continue;
+          fprintf(MACRO,"  q2 Ap%d   -1.  Am%d   -1.\n  q2 Bp%d   1.   Bm%d   1.\n",
+                                  i,i,i,i);
         Coefficients[3*NStructRows+i*4]=   -1.;
         Coefficients[3*NStructRows+i*4+1]= -1.;
         Coefficients[3*NStructRows+i*4+2]=  1.;
@@ -2252,6 +6035,8 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
 
 //  Column variable  lambdap(i)
       for(i=0 ; i< NpointsInFit ; i++) {
+          fprintf(MACRO,"  lamp%d  Ap%d  %g  Bp%d  %g\n  lamp%d  Cp%d  %g  Dp%d   %g\n  lamp%d  LAMBDA%d  1.\n",
+                                                i,i,-M,i,-M, i , i,-M, i, M, i,i);
         Coefficients[(4+i)*NStructRows+0]= -M;
         Coefficients[(4+i)*NStructRows+1]= -M;
         Coefficients[(4+i)*NStructRows+2]= -M;
@@ -2260,6 +6045,8 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
       }
 //  Column variable  lambdam(i)
       for(i=0 ; i< NpointsInFit ; i++) {
+          fprintf(MACRO,"  lamm%d  Am%d  %g  Bm%d  %g\n  lamm%d  Cm%d  %g  Dm%d %g\n  lamm%d  LAMBDA%d  1.\n",
+                                                i,i,-M,i,-M, i,i , -M, i, M, i,i);
         Coefficients[(4+i+NpointsInFit)*NStructRows+0]= -M;
         Coefficients[(4+i+NpointsInFit)*NStructRows+1]= -M;
         Coefficients[(4+i+NpointsInFit)*NStructRows+2]= -M;
@@ -2269,6 +6056,8 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
 //  Column variable  sigmap(i)
       for(i=0; i< NpointsInFit ; i++) {
 
+          fprintf(MACRO,"  sigmap%d  OBJECT  %g  Ap%d  -1.\n  sigmap%d  Bp%d    -1. Cp%d  1.\n  sigmap%d  Dp%d -1.\n",
+                                                i,1./Delta[i],i,i,i,i,i,i);
         Coefficients[(4+i+2*NpointsInFit)*NStructRows+0]=  1./Delta[i];
         Coefficients[(4+i+2*NpointsInFit)*NStructRows+1]= -1.;
         Coefficients[(4+i+2*NpointsInFit)*NStructRows+2]= -1.;
@@ -2277,6 +6066,8 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
       }
 //  Column variable  sigmam(i)
       for(i=0 ; i< NpointsInFit ; i++) {
+          fprintf(MACRO,"  sigmam%d  OBJECT %g  Am%d  -1.\n  sigmam%d  Bm%d   -1. Cm%d   1.\n  sigmam%d  Dm%d  -1.\n",
+                                                i,1./Delta[i],i,i,i,i,i,i);
         Coefficients[(4+i+3*NpointsInFit)*NStructRows+0]=  1./Delta[i];
         Coefficients[(4+i+3*NpointsInFit)*NStructRows+1]= -1.;
         Coefficients[(4+i+3*NpointsInFit)*NStructRows+2]= -1.;
@@ -2285,6 +6076,12 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
       }
 
 //  Column variable  DUMMY
+      for(i=0, ii=0 ; i< NpointsInFit ; i++) {
+        fprintf(MACRO,"  DUMMY     Ap%d  1.      Am%d       1.\n  DUMMY   Bp%d   1.    Bm%d   1.\n  DUMMY    Cp%d   1.   Cm%d   1\n",
+                                                i,i,i,i,i,i);
+        fprintf(MACRO,"  DUMMY     Dp%d  1.      Dm%d       1.\n",
+                                                i,i);
+      }
       for(i=0 ; i< NStructRows ; i++) {
         Coefficients[(4+4*NpointsInFit)*NStructRows+i]= 1.;
       }
@@ -2414,13 +6211,23 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
 
 //-----------------  write the RHS  section
 
+      fprintf(MACRO,"RHS\n");
       for(i=0 ; i< NpointsInFit ; i++) {
+          fprintf(MACRO,"  BOUND  Ap%d  %g  Bp%d  %g\n  BOUND  Cp%d  %g  Dp%d  %g\n",
+              i, Oy[i]+auxinfoparalConformal[ i ][2]+2.*M,i,
+                -Oy[i]-auxinfoparalConformal[ i ][2]+2.*M,i,
+                 Delta[i]+2.*M,i,M-Delta[i]+2.*M);
           ValueB[i*9]  =  Oy[i]+auxinfoparalConformal[ i ][2]+2.*M;
           ValueB[i*9+1]= -Oy[i]-auxinfoparalConformal[ i ][2]+2.*M;
           ValueB[i*9+2]= Delta[i]+2.*M;
           ValueB[i*9+3]= M-Delta[i]+2.*M;
 
 
+          fprintf(MACRO,"  BOUND  Am%d  %g  Bm%d  %g\n  BOUND  Cm%d  %g  Dm%d %g\n",
+              i, Oy[i]-auxinfoparalConformal[ i ][2]+2.*M,i,
+                -Oy[i]+auxinfoparalConformal[ i ][2]+2.*M,i,
+                 Delta[i]+2.*M,i,M-Delta[i]+2.*M);
+          fprintf(MACRO,"  BOUND  LAMBDA%d   1.\n",i);
           ValueB[i*9+4]=  Oy[i]-auxinfoparalConformal[ i ][2]+2.*M;
           ValueB[i*9+5]= -Oy[i]+auxinfoparalConformal[ i ][2]+2.*M;
           ValueB[i*9+6]= Delta[i]+2.*M;
@@ -2433,7 +6240,10 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
 
 //-----------------  write the RANGES  section
 
+      fprintf(MACRO,"RANGES\n");
       for(i=0 ; i< NpointsInFit ; i++) {
+          fprintf(MACRO,"  RANGE  LAMBDA%d  1.\n",i);
+//---
         ValueRanges[i]=1.;
         sprintf(&auxNameRanges[i][0],"LAMBDA%d",i);
         NameRanges[i]=&auxNameRanges[i][0];
@@ -2441,8 +6251,11 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
 
 //-----------------  write the BOUNDS  section
 
+      fprintf(MACRO,"BOUNDS\n");
+//      fprintf(MACRO," FR  Bounds  m\n FR  Bounds  q\n");
 
       for(i=0 ; i< NpointsInFit ; i++) {
+          fprintf(MACRO," BV  Bounds  lamp%d\n",  i);
           TypeofBound[i]="BV";
           sprintf(&auxBoundStructVarName[i][0],"lamp%d",i);
           BoundStructVarName[i]=&auxBoundStructVarName[i][0];
@@ -2450,19 +6263,67 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
       }
 
       for(i=0 ; i< NpointsInFit ; i++) {
+          fprintf(MACRO," BV  Bounds  lamm%d\n", i);
           TypeofBound[i+NpointsInFit]="BV";
           sprintf(&auxBoundStructVarName[i+NpointsInFit][0],"lamm%d",i);
           BoundStructVarName[i+NpointsInFit]=&auxBoundStructVarName[i+NpointsInFit][0];
-          BoundValue[i+NpointsInFit]=0.;
+          BoundValue[i]=0.;
       }
 
+          fprintf(MACRO," FX  Bounds  DUMMY  %g\n",2.*M);
           TypeofBound[2*NpointsInFit]="FX";
           BoundStructVarName[2*NpointsInFit]="DUMMY";
           BoundValue[2*NpointsInFit]=2.;
 //-----
 
-//      fclose(MACRO);
+      fprintf(MACRO,"ENDATA\n");
+      fclose(MACRO);
 
+//-----------------------  funzioni chiamate direttamente
+/*
+
+cout<<"passingthrough here\n";
+
+cout<<"n.  punti nel fit "<<NpointsInFit<<endl;
+
+
+cout<<"nRows "<<nRows<<endl;
+for(int ic =0;ic<nRows; ic++){
+   cout<<"n.  Row  "<<ic<<", nameRows "<<nameRows[ic]<<",  typeRows "<<typeRows[ic]<<endl;
+}
+
+
+cout<<"NstructRows, NStructVar "<<NStructRows<<", "<<NStructVar<<endl;
+for(int ic =0;ic<NStructVar; ic++){
+   cout<<"NRowsInWhichStructVarArePresent  "<<NRowsInWhichStructVarArePresent[ic]<<", nome var. strut. n."<<ic<<"  = "
+     <<StructVarName[ic]<<endl;
+
+  for(int jc=0; jc<NRowsInWhichStructVarArePresent[ic];jc++){
+   cout<<"n. "<<jc<<"  NameRowsInWhichStructVarArePresent  "<<NameRowsInWhichStructVarArePresent[ic*NStructRows+jc]<<endl;
+  }
+}
+
+
+cout<<"n Coefficient "<<NStructVar*NStructRows<<endl;
+for(int ic =0;ic<NStructVar*NStructRows; ic++){
+   cout<<"n. "<<ic<<",  Coefficient   "<<Coefficients[ic]<<endl;
+}
+cout<<"n valuesB "<<NpointsInFit*9<<endl;
+for(int ic =0;ic<NpointsInFit*9; ic++){
+   cout<<"n. "<<ic<<",  valuesB   "<<ValueB[ic]<<endl;
+}
+cout<<"n ranges "<<nRanges<<endl;
+for(int ic =0;ic<nRanges; ic++){
+   cout<<"n. "<<ic<<",  RANGES   "<<ValueRanges[ic]<<endl;
+}
+cout<<"n Bounds "<<nBounds<<endl;
+for(int ic =0;ic<nBounds; ic++){
+   cout<<"n. "<<ic<<",  Bounds   "<<BoundValue[ic]<<endl;
+   cout<<"n. "<<ic<<",  Bound Type   "<<TypeofBound[ic]<<endl;
+   cout<<"n. "<<ic<<",  Bound Name   "<<BoundStructVarName[ic]<<endl;
+}
+
+*/
 
 
       int status= glp_main(
@@ -2477,12 +6338,57 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
        );
 
 
+/*
+printf("from main, final printout con routines chiamate direttamente -------------------------------\n");
+printf("      number of structural variables %d\n",NStructVar);
+int ica;
+for(ica=0;ica<NStructVar;ica++){
+    printf("name of structural variable %s and its final value %g\n",
+           StructVarName[ica], final_values[ica]);
+}
+printf("from main, end of final printout  con routines chiamate direttamente -------------------------------\n");
+
+
+cout<<"passingthrough here  2\n";
+
+*/
+//-----------------------  fine funzioni chiamate direttamente
 
 
 
 
+   if(istampa>=2){
+     sprintf(stringa,
+              "/home/boca/panda/glpk/glpk-4.39/examples/glpsol --min -o soluztrack%dEvent%dstep%d    GeneralParallelHitsConformeTraccia%dEvent%d.mcs",
+                                nTracksFoundSoFar,IVOLTE,INTERO,nTracksFoundSoFar,IVOLTE);
+   }  else {
+     sprintf(stringa,
+              "/home/boca/panda/glpk/glpk-4.39/examples/glpsol --min -o soluztrack%dEvent%dstep%d    GeneralParallelHitsConformeTraccia%dEvent%d.mcs >& /dev/null",
+                                nTracksFoundSoFar, IVOLTE,INTERO,nTracksFoundSoFar,IVOLTE,INTERO);
+   }
+     system(stringa);
+//     sprintf(stringa2,"grep -e ' m1  '   -e  ' q1  ' -e ' q2   ' -e ' A1 ' -e ' A2 ' soluztrack%dEvent%dstep%d |  awk '{print $3}' > temp",
+//                             (nTracksFoundSoFar),IVOLTE,INTERO);
+//     sprintf(stringa2,"grep -e ' m1  '   -e  ' q1  ' -e ' q2   '  soluztrack%dEvent%dstep%d |  awk '{print $3}' > temp",
+//                             nTracksFoundSoFar,IVOLTE,INTERO);
+     sprintf(stringa2,"grep -e ' m1  '  -e ' m2  '  -e  ' q1  ' -e ' q2   '  soluztrack%dEvent%dstep%d |  awk '{print $3}' > temp",
+                             nTracksFoundSoFar,IVOLTE,INTERO);
+//     sprintf(stringa2,"grep -e ' m1  '   -e  ' q1  '   soluztrack%dEvent%dstep%d |  awk '{print $3}' > temp",
+//                             nTracksFoundSoFar,IVOLTE,INTERO);
+     system(stringa2);
 
 
+     FILE * RESULT = fopen("temp","r");
+//     fscanf(RESULT,"%f",&A1_result);
+//     fscanf(RESULT,"%f",&A2_result);
+     fscanf(RESULT,"%f",&m1_result);
+     fscanf(RESULT,"%f",&m2_result);
+     fscanf(RESULT,"%f",&q1_result);
+     fscanf(RESULT,"%f",&q2_result);
+     fclose(RESULT);
+//     system ("rm -f temp");
+//     system ("rm -f soluz*    ");
+//     system("rm -f GeneralParallelHitsConformeTraccia*");
 
 
      m1_result = final_values[0];
@@ -2490,6 +6396,20 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
      q1_result = final_values[2];
      q2_result = final_values[3];
 
+/*
+     q_result = q1_result - q2_result;
+     m_result = m1_result ;
+     A = A1_result - A2_result;
+     if( fabs( cose -sine*m_result) > 1.e-12) { 
+       *emme = ( m_result*cose  + sine ) / (cose -sine*m_result);
+       *qu = q_result/(cose -sine*m_result);
+       Status=1;
+     } else {
+       *emme = m_result*cose  + sine ;
+       *qu = q_result;
+       Status=99;
+     }
+*/
 
 
 
@@ -2497,7 +6417,17 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
 
 
      *qu = q1_result - q2_result;
+//     *qu = q1_result;
+//     *emme = m1_result ;
      *emme = m1_result-m2_result ;
+//if(istampa)   cout<<"Stampa dal fitter, prima della correzione displacement   *qu, *emme  "<<*qu<<",  "<<*emme<<endl;
+//  cancel the effect of the last Y displacement
+//     *qu -= offsety;
+if(istampa>=2) {
+
+  cout<<"Stampa dal fitter, risultato :   qu, emme non ri-ruotati  "<<*qu<<",  "<<*emme<<endl<<
+        "                                 qu, emme  ri-ruotati  "<<*qu/(cose-*emme*sine)<<",  "<<(*emme*cose+sine)/(cose-*emme*sine)<<endl;
+}
 
     GAMMA[nTracksFoundSoFar] = 0.;
     if( fabs( *qu ) > 1.e-10) {    //  trajectory is a circle in XY space
@@ -2538,6 +6468,13 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
 
 
 
+
+
+
+
+
+
+
 //--------   end of taking into account the traslation that was performed and undoing that
 
 
@@ -2568,6 +6505,813 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
 
 
 //----------end of function PndSttTrackFinderReal::PndSttFitHelixCylinder
+
+
+
+
+
+
+
+
+
+//----------begin of function PndSttTrackFinderReal::PndSttFitHelixCylinder2
+
+      Short_t PndSttTrackFinderReal::PndSttFitHelixCylinder2( UShort_t nHitsinTrack,
+//                                                     UShort_t iExclude,
+                                                     Double_t auxinfoparalConformal[][5],
+                                                     UShort_t  nTracksFoundSoFar,
+                                                     Double_t rotationangle,
+                                                     Double_t * trajectory_vertex,
+                                                     UShort_t NMAX,
+                                                     Double_t *ALFA,
+                                                     Double_t *BETA,
+                                                     Double_t *GAMMA,
+                                                     bool *TypeConf
+                                                            )
+{
+
+     Double_t M = 1.,
+              emme, m_result,
+              qu, q_result,
+              A,
+              alfetta,
+              angle,
+              offsety,
+              aux,
+              Delta[nmaxHits],
+              Ox[nmaxHits],
+              Oy[nmaxHits];
+
+     UShort_t  i, ii;
+     Short_t Status;
+
+     char nome[100], stringa[100], stringa2[100];
+
+     FILE * MACRO ;
+
+     float m1_result,m2_result, q1_result,q2_result, A1_result, A2_result;
+
+// --
+
+     if( nHitsinTrack < MINIMUMHITSPERTRACK) {
+        return -1;
+     }
+
+//  use the trick of increasing the rotation angle by 10 degrees in order to obtain always a positive m
+      rotationangle -= PI/18.;
+
+      Double_t cose = cos(rotationangle), sine = sin(rotationangle);
+      for(i=0;i<nHitsinTrack; i++){
+//       if( i== iExclude)  continue;
+       Ox[i] = auxinfoparalConformal[ i ][0] *cose +
+               auxinfoparalConformal[ i ][1]*sine;
+       Oy[i] = -auxinfoparalConformal[ i ][0] *sine +
+               auxinfoparalConformal[ i ][1]*cose;
+
+//cout<<"dal fitter, hit in lista sequenziale, n. "<<i<<",  Ox , Oy ruotati "<<Ox[i]<<",  "<<Oy[i]<<"  drift radius  "
+//     <<auxinfoparalConformal[ i ][2]<<"   and  straw radisu  "<<auxinfoparalConformal[ i ][4]<<endl;
+
+
+
+//  now traslate toward positive V values to obtain always positive q values
+//       offsety = 10./RStrawDetectorMin;
+//       Oy[i] += offsety;
+
+
+
+//         Delta[i] = auxinfoparalConformal[ i ][4];
+         aux = 5.*(auxinfoparalConformal[ i ][4]/StrawRadius)*0.03;
+         Delta[i] = 5.*auxinfoparalConformal[ i ][2];
+         if( aux> Delta[i])  Delta[i] =aux;
+
+      }
+
+      sprintf(nome,"GeneralParallelHitsConformeTraccia%dEvent%d.mcs",(nTracksFoundSoFar), IVOLTE);
+      MACRO = fopen(nome,"w");
+      fprintf(MACRO,"NAME    FIT\n");
+//-----------------  write the ROWS  section
+
+      fprintf(MACRO,"ROWS\n");
+      fprintf(MACRO," N OBJECT\n");
+      for(i=0, ii=0 ; i< nHitsinTrack && ii<NMAX ; i++) {
+//       if( i== iExclude)  continue;
+       ii++;
+           fprintf(MACRO," L Ap%d\n L Bp%d\n L Cp%d\n L Dp%d\n",i,i,i,i);
+           fprintf(MACRO," L Am%d\n L Bm%d\n L Cm%d\n L Dm%d\n E LAMBDA%d\n",i,i,i,i,i);
+      }
+
+//-----------------  write the COLUMNS  section
+
+      fprintf(MACRO,"COLUMNS\n");
+
+
+
+
+
+
+//  Column variable  A1
+//      for(i=0, ii=0 ; i< nHitsinTrack && ii<NMAX ; i++) {
+//       if( i== iExclude)  continue;
+//       ii++;
+//          fprintf(MACRO,"  A1 Ap%d  %g  Am%d  %g\n  A1 Bp%d  %g   Bm%d  %g\n",
+//                                  i,Ox[i]*Ox[i],i,Ox[i]*Ox[i],i,-Ox[i]*Ox[i],i,-Ox[i]*Ox[i]);
+//      }
+//  Column variable  A2
+//      for(i=0, ii=0 ; i< nHitsinTrack && ii<NMAX ; i++) {
+//       if( i== iExclude)  continue;
+//       ii++;
+//          fprintf(MACRO,"  A2 Ap%d  %g  Am%d  %g\n  A2 Bp%d  %g   Bm%d  %g\n",
+//                                  i,-Ox[i]*Ox[i],i,-Ox[i]*Ox[i],i,Ox[i]*Ox[i],i,Ox[i]*Ox[i]);
+//      }
+
+
+
+
+
+
+
+
+
+
+
+//  Column variable  m1
+      for(i=0, ii=0 ; i< nHitsinTrack && ii<NMAX ; i++) {
+//       if( i== iExclude)  continue;
+       ii++;
+          fprintf(MACRO,"  m1 Ap%d  %g  Am%d  %g\n  m1 Bp%d  %g   Bm%d  %g\n",
+                                  i,Ox[i],i,Ox[i],i,-Ox[i],i,-Ox[i]);
+      }
+
+//  Column variable  m2
+//      for(i=0; i< nHitsinTrack && i<NMAX ; i++) {
+//          fprintf(MACRO,"  m2 Ap%d  %g  Am%d  %g\n  m2 Bp%d  %g   Bm%d  %g\n",
+//                                  i,-Ox[i],i,-Ox[i],i,Ox[i],i,Ox[i]);
+//      }
+
+//  Column variable  q1
+      for(i=0, ii=0 ; i< nHitsinTrack && ii<NMAX ; i++) {
+//       if( i== iExclude)  continue;
+       ii++;
+          fprintf(MACRO,"  q1 Ap%d   1.  Am%d   1.\n  q1 Bp%d  -1.  Bm%d  -1.\n",
+                                  i,i,i,i);
+      }
+
+//  Column variable  q2
+      for(i=0, ii=0 ; i< nHitsinTrack && ii<NMAX ; i++) {
+//       if( i== iExclude)  continue;
+       ii++;
+          fprintf(MACRO,"  q2 Ap%d   -1.  Am%d   -1.\n  q2 Bp%d   1.   Bm%d   1.\n",
+                                  i,i,i,i);
+      }
+
+//  Column variable  lambdap(i)
+      for(i=0, ii=0 ; i< nHitsinTrack && ii<NMAX ; i++) {
+//       if( i== iExclude)  continue;
+       ii++;
+          fprintf(MACRO,"  lamp%d  Ap%d  %g  Bp%d  %g\n  lamp%d  Cp%d  %g  Dp%d   %g\n  lamp%d  LAMBDA%d  1.\n",
+                                                i,i,-M,i,-M, i , i,-M, i, M, i,i);
+      }
+//  Column variable  lambdam(i)
+      for(i=0, ii=0 ; i< nHitsinTrack && ii<NMAX ; i++) {
+//       if( i== iExclude)  continue;
+       ii++;
+          fprintf(MACRO,"  lamm%d  Am%d  %g  Bm%d  %g\n  lamm%d  Cm%d  %g  Dm%d %g\n  lamm%d  LAMBDA%d  1.\n",
+                                                i,i,-M,i,-M, i,i , -M, i, M, i,i);
+      }
+//  Column variable  sigmap(i)
+      for(i=0, ii=0 ; i< nHitsinTrack && ii<NMAX ; i++) {
+//       if( i== iExclude)  continue;
+       ii++;
+
+          fprintf(MACRO,"  sigmap%d  OBJECT  %g  Ap%d  -1.\n  sigmap%d  Bp%d    -1. Cp%d  1.\n  sigmap%d  Dp%d -1.\n",
+                                                i,1./Delta[i],i,i,i,i,i,i);
+      }
+//  Column variable  sigmam(i)
+      for(i=0, ii=0 ; i< nHitsinTrack && ii<NMAX ; i++) {
+//       if( i== iExclude)  continue;
+       ii++;
+          fprintf(MACRO,"  sigmam%d  OBJECT %g  Am%d  -1.\n  sigmam%d  Bm%d   -1. Cm%d   1.\n  sigmam%d  Dm%d  -1.\n",
+                                                i,1./Delta[i],i,i,i,i,i,i);
+      }
+
+//  Column variable  DUMMY
+      for(i=0, ii=0 ; i< nHitsinTrack && ii<NMAX ; i++) {
+//       if( i== iExclude)  continue;
+       ii++;
+        fprintf(MACRO,"  DUMMY     Ap%d  1.      Am%d       1.\n  DUMMY   Bp%d   1.    Bm%d   1.\n  DUMMY    Cp%d   1.   Cm%d   1\n",
+                                                i,i,i,i,i,i);
+        fprintf(MACRO,"  DUMMY     Dp%d  1.      Dm%d       1.\n",
+                                                i,i);
+      }
+//-----------------  write the RHS  section
+
+      fprintf(MACRO,"RHS\n");
+      for(i=0, ii=0 ; i< nHitsinTrack && ii<NMAX ; i++) {
+//       if( i== iExclude)  continue;
+       ii++;
+          fprintf(MACRO,"  BOUND  Ap%d  %g  Bp%d  %g\n  BOUND  Cp%d  %g  Dp%d  %g\n",
+              i, Oy[i]+auxinfoparalConformal[ i ][2]+2.*M,i,
+                -Oy[i]-auxinfoparalConformal[ i ][2]+2.*M,i,
+                 Delta[i]+2.*M,i,M-Delta[i]+2.*M);
+
+          fprintf(MACRO,"  BOUND  Am%d  %g  Bm%d  %g\n  BOUND  Cm%d  %g  Dm%d %g\n",
+              i, Oy[i]-auxinfoparalConformal[ i ][2]+2.*M,i,
+                -Oy[i]+auxinfoparalConformal[ i ][2]+2.*M,i,
+                 Delta[i]+2.*M,i,M-Delta[i]+2.*M);
+          fprintf(MACRO,"  BOUND  LAMBDA%d   1.\n",i);
+      }
+
+
+//-----------------  write the RANGES  section
+
+/*
+      fprintf(MACRO,"RANGES\n");
+      for(i=0, ii=0 ; i< nHitsinTrack && ii<NMAX ; i++) {
+//       if( i== iExclude)  continue;
+       ii++;
+          fprintf(MACRO,"  RANGE  LAMBDA%d  1.\n",i);
+      }
+*/
+
+//-----------------  write the BOUNDS  section
+
+      fprintf(MACRO,"BOUNDS\n");
+//      fprintf(MACRO," FR  Bounds  m\n FR  Bounds  q\n");
+
+      for(i=0, ii=0 ; i< nHitsinTrack && ii<NMAX ; i++) {
+//       if( i== iExclude)  continue;
+       ii++;
+          fprintf(MACRO," BV  Bounds  lamp%d\n",  i);
+      }
+
+      for(i=0, ii=0 ; i< nHitsinTrack && ii<NMAX ; i++) {
+//       if( i== iExclude)  continue;
+       ii++;
+          fprintf(MACRO," BV  Bounds  lamm%d\n", i);
+      }
+
+          fprintf(MACRO," FX  Bounds  DUMMY  %g\n",2.*M);
+
+//-----
+
+      fprintf(MACRO,"ENDATA\n");
+      fclose(MACRO);
+
+
+   if(istampa>=2){
+     sprintf(stringa,
+              "/home/boca/panda/glpk/glpk-4.39/examples/glpsol --min -o soluztrack%dEvent%dstep%d    GeneralParallelHitsConformeTraccia%dEvent%d.mcs",
+                                nTracksFoundSoFar,IVOLTE,INTERO,nTracksFoundSoFar,IVOLTE);
+   }  else {
+     sprintf(stringa,
+              "/home/boca/panda/glpk/glpk-4.39/examples/glpsol --min -o soluztrack%dEvent%dstep%d    GeneralParallelHitsConformeTraccia%dEvent%d.mcs >& /dev/null",
+                                nTracksFoundSoFar, IVOLTE,INTERO,nTracksFoundSoFar,IVOLTE,INTERO);
+   }
+     system(stringa);
+//     sprintf(stringa2,"grep -e ' m1  '   -e  ' q1  ' -e ' q2   ' -e ' A1 ' -e ' A2 ' soluztrack%dEvent%dstep%d |  awk '{print $3}' > temp",
+//                             (nTracksFoundSoFar),IVOLTE,INTERO);
+     sprintf(stringa2,"grep -e ' m1  '   -e  ' q1  ' -e ' q2   '  soluztrack%dEvent%dstep%d |  awk '{print $3}' > temp",
+                             nTracksFoundSoFar,IVOLTE,INTERO);
+//     sprintf(stringa2,"grep -e ' m1  '   -e  ' q1  '   soluztrack%dEvent%dstep%d |  awk '{print $3}' > temp",
+//                             nTracksFoundSoFar,IVOLTE,INTERO);
+     system(stringa2);
+
+
+     FILE * RESULT = fopen("temp","r");
+//     fscanf(RESULT,"%f",&A1_result);
+//     fscanf(RESULT,"%f",&A2_result);
+     fscanf(RESULT,"%f",&m1_result);
+//     fscanf(RESULT,"%f",&m2_result);
+     fscanf(RESULT,"%f",&q1_result);
+     fscanf(RESULT,"%f",&q2_result);
+     fclose(RESULT);
+//     system ("rm -f temp");
+//     system ("rm -f soluz*    ");
+//     system("rm -f GeneralParallelHitsConformeTraccia*");
+
+
+
+
+/*
+     q_result = q1_result - q2_result;
+     m_result = m1_result ;
+     A = A1_result - A2_result;
+     if( fabs( cose -sine*m_result) > 1.e-12) { 
+       emme = ( m_result*cose  + sine ) / (cose -sine*m_result);
+       qu = q_result/(cose -sine*m_result);
+       Status=1;
+     } else {
+       emme = m_result*cose  + sine ;
+       qu = q_result;
+       Status=99;
+     }
+*/
+
+
+
+//------------------------  transformation of the result in terms of ALFA, BETA, GAMMA
+
+
+     qu = q1_result - q2_result;
+//     qu = q1_result;
+     emme = m1_result ;
+//if(istampa)   cout<<"Stampa dal fitter, prima della correzione displacement   qu, emme  "<<qu<<",  "<<emme<<endl;
+//  cancel the effect of the last Y displacement
+//     qu -= offsety;
+if(istampa>=2) {
+
+  cout<<"Stampa dal fitter, risultato :   qu, emme non ri-ruotati  "<<qu<<",  "<<emme<<endl<<
+        "                                 qu, emme  ri-ruotati  "<<qu/(cose-emme*sine)<<",  "<<(emme*cose+sine)/(cose-emme*sine)<<endl;
+}
+
+    GAMMA[nTracksFoundSoFar] = 0.;
+    if( fabs( qu ) > 1.e-10) {    //  trajectory is a circle in XY space
+     ALFA[nTracksFoundSoFar] = emme/qu;
+     BETA[nTracksFoundSoFar] = -1./qu;
+     TypeConf[nTracksFoundSoFar]=true;
+//  now take into account the rotation and correct; the only affected quantities are ALFA and BETA
+      alfetta = ALFA[nTracksFoundSoFar];
+      ALFA[nTracksFoundSoFar] = ALFA[nTracksFoundSoFar]*cose - BETA[nTracksFoundSoFar]*sine;
+      BETA[nTracksFoundSoFar] = alfetta*sine + BETA[nTracksFoundSoFar]*cose;
+    }  else if(fabs(emme)> 1.e-10)  {    //  trajectory is a straight line in XY space of equatio y= m*x
+       //  the rotation first
+       angle = atan(emme) + rotationangle;
+       if( fabs(cos(angle)) > 1.e-10 ) {
+         ALFA[nTracksFoundSoFar] = 999999.;
+         BETA[nTracksFoundSoFar] = -ALFA[nTracksFoundSoFar]/tan(angle);
+
+       } else {  //  in this case the equation is y = 0.
+         ALFA[nTracksFoundSoFar] = 999999.;
+         BETA[nTracksFoundSoFar] = 0.;
+         TypeConf[nTracksFoundSoFar]=false;
+       }
+    }  else {   //  in this case also the equation in XY plane is  y = 0.
+         ALFA[nTracksFoundSoFar] = 999999.;
+         BETA[nTracksFoundSoFar] = 0.;
+         TypeConf[nTracksFoundSoFar]=false;
+    }
+
+
+// now take into account the displacement and correct
+      GAMMA[nTracksFoundSoFar] += (trajectory_vertex[0]*trajectory_vertex[0]+ trajectory_vertex[1]*trajectory_vertex[1]
+                                  -ALFA[nTracksFoundSoFar]*trajectory_vertex[0]-BETA[nTracksFoundSoFar]*trajectory_vertex[1]);
+      ALFA[nTracksFoundSoFar] -=  2.*trajectory_vertex[0];
+      BETA[nTracksFoundSoFar] -=  2.*trajectory_vertex[1];
+
+
+//------------------------ end of transformation of the result in terms of ALFA, BETA, GAMMA
+
+
+
+
+
+
+
+
+
+
+// taking into account the traslation that was performed and undoing that
+/*
+      if( Status == 99) {      // in this case in the conformal space equation is m*X + q  = 0
+         GAMMA[nTracksFoundSoFar] = trajectory_vertex[0]*trajectory_vertex[0]+trajectory_vertex[1]*trajectory_vertex[1]
+                 -trajectory_vertex[0]*emme/qu;
+           TypeConf[nTracksFoundSoFar]=true;
+           ALFA[nTracksFoundSoFar]=  emme/qu - 2.*trajectory_vertex[0] ;
+           BETA[nTracksFoundSoFar]= - 2.*trajectory_vertex[1];
+
+      }  else if ( fabs(qu) > 1.e-10 ) {
+         GAMMA[nTracksFoundSoFar]= trajectory_vertex[0]*trajectory_vertex[0]+trajectory_vertex[1]*trajectory_vertex[1]
+                 -trajectory_vertex[0]*emme/qu + trajectory_vertex[1]/qu;
+           TypeConf[nTracksFoundSoFar]=true;
+           ALFA[nTracksFoundSoFar]= ( emme/qu - 2.*trajectory_vertex[0] );
+           BETA[nTracksFoundSoFar]= (-1./qu - 2.*trajectory_vertex[1]);
+
+      } else {     //   this is the case when q=0
+         GAMMA[nTracksFoundSoFar] = -trajectory_vertex[0]*emme + trajectory_vertex[1];
+           TypeConf[nTracksFoundSoFar]=false;
+           ALFA[nTracksFoundSoFar]= emme;
+           BETA[nTracksFoundSoFar]= -1.;
+           GAMMA[nTracksFoundSoFar]= 0.;
+
+      }
+
+*/
+//--------   end of taking into account the traslation that was performed and undoing that
+
+
+
+
+
+
+
+      return 1;
+
+}
+
+
+
+
+//----------end of function PndSttTrackFinderReal::PndSttFitHelixCylinder2
+
+
+
+
+
+
+
+//----------begin of function PndSttTrackFinderReal::PndSttTrkAssociatedParallelHitsToHelixBis
+  UShort_t PndSttTrackFinderReal::PndSttTrkAssociatedParallelHitsToHelixBis(
+                   Double_t m,
+                   Double_t q,
+                   Short_t Status,
+                   UShort_t nHitsinTrack,
+                   UShort_t *ListHitsinTrack,
+                   Int_t NhitsParallel,
+                   Double_t infoparalConformal[][5],
+                   UShort_t *RConformalIndex,
+                   UShort_t *FiConformalIndex,
+                   UShort_t nBoxConformal[nRdivConformal][nFidivConformal],
+                   UShort_t HitsinBoxConformal[nRdivConformal][nFidivConformal][nmaxHits],
+                   UShort_t *auxListHitsinTrack
+                                                     )
+{
+  bool passamin,passamax;
+
+  Short_t i, i2, j, k, l,  l2, l3, itemp,
+          FFimin,FFimax,
+          iFi0;
+  UShort_t Nextra=8,
+           nFi,
+           Fi,
+           nR,
+           nAssociatedHits;
+  Double_t maxFi,
+           minFi,
+           dist,
+           xx,
+           yy,
+           aaa,
+           angle,
+           r;
+
+  nAssociatedHits=0;
+
+//   find the range in Fi spanned  by the candidate track
+
+  FFimin = 10000;
+  FFimax = 0;
+  for(j=0; j<nHitsinTrack; j++){
+    i = (UShort_t)  infoparalConformal[ ListHitsinTrack[j] ][3];
+  }
+    if( FiConformalIndex[i] <  FFimin ) FFimin = FiConformalIndex[i];
+    if( FiConformalIndex[i] >  FFimax ) FFimax = FiConformalIndex[i];
+
+if(istampa>=2) {
+  cout<<"  evento n. "<<IVOLTE<<", Fimin prima  prima = "<<FFimin<<",  Fimax prima "<<FFimax<<endl;
+}
+
+  if( FFimax > 3.*nFidivConformal/4. && FFimin < nFidivConformal/4.) {
+     FFimin = 10000;
+     FFimax =  0;
+     for(j=0; j<nHitsinTrack; j++){
+       i = (UShort_t)  infoparalConformal[ ListHitsinTrack[j] ][3];
+       Fi = FiConformalIndex[i];
+       if( Fi < nFidivConformal/4. ) Fi = FiConformalIndex[i]+nFidivConformal;
+       if( Fi <  FFimin ) FFimin = Fi;
+       if( Fi >  FFimax ) FFimax = Fi;
+     }
+  }
+
+if(istampa>=2) {
+  cout<<"  evento n. "<<IVOLTE<<", Fimin prima = "<<FFimin<<",  Fimax prima "<<FFimax<<endl;
+}
+
+//  finding the boundaries in the Conformal plane. The basic assumption is that the range
+// in Fi is much less that 180 degrees.
+  
+  FFimin -= (Short_t) nFidivConformal/Nextra;
+  FFimax +=  (Short_t) nFidivConformal/Nextra;
+  if( FFimax - FFimin > nFidivConformal/2 ) {
+    cout<<"something fishy is going on in PndSttTrkAssociatedParallelHitsToHelixBis!"
+      <<"Range in Fi (rad) is  "<<(FFimax - FFimin)*2.*PI/nFidivConformal<<endl;
+    return 0;
+  }
+
+if(istampa>=2) {
+  cout<<"  evento n. "<<IVOLTE<<", Fimin dopo = "<<FFimin<<",  Fimax dopo "<<FFimax<<endl;
+}
+
+
+
+//   use the equation of a line in polar coordinates
+ 
+  if( Status ==99) {   //  case in which   0 = x + q
+
+
+
+
+    if(fabs(q) > 1.e-10 ) {
+      passamax=false;
+      passamin=false;
+      for(itemp=FFimin; itemp<=FFimax;itemp++){
+        i=itemp;
+        if( i< 0 ) {
+          i += nFidivConformal;
+        } else if (i>=nFidivConformal){
+          i -=  nFidivConformal*( i/nFidivConformal );
+//         i -= nFidivConformal;
+        }
+        angle = (i+0.5)*2.*PI/nFidivConformal;
+        aaa = cos(angle);
+        if( fabs(cos(angle)) <1.e-10)  continue;
+        r = -q/aaa;
+        if(r< radiaConf[0] || r>= 1./RStrawDetectorMin)  continue;
+        for(j=nRdivConformalEffective-1; j>=0;j--){
+          if( r>= radiaConf[j] ){
+           nR = j;
+           break;
+          }
+        }
+
+
+        for(l=-DELTAnR; l<DELTAnR+1;l++){
+          l2 = nR+l;
+          if(  l2<0 || l2 >= nRdivConformalEffective )  continue;
+              for( k=0;k<nBoxConformal[l2][i];k++){
+                xx=infoparalConformal[  HitsinBoxConformal[l2][i][k]  ][0];
+                dist = fabs( xx +q );
+                if(  PndSttAcceptHitsConformal(  dist,
+                                                 infoparalConformal[  HitsinBoxConformal[l2][i][k]  ][2],
+                                                 infoparalConformal[  HitsinBoxConformal[l2][i][k]  ][4]
+                                                      ) )  {
+                    auxListHitsinTrack[nAssociatedHits]= HitsinBoxConformal[l2][i][k];
+                    nAssociatedHits++; 
+                }
+              }
+        }   //   end of for(l=0; l<3;l++)
+
+        // ------- special cases
+           if((nR == nRdivConformalEffective-1 && passamin && ! passamax) ||  (nR==0 && passamax && !passamin)  ) {   //  do the last two Fi columns
+            if(nR == nRdivConformalEffective-1)  passamax=true;
+            if(nR == 0)   passamin=true;
+
+            for(l2=1;l2<3;l2++){
+             i2 = i+l2;
+             if(i2>=nFidivConformal) i2 -=  nFidivConformal;
+            for(l=-2; l<3;l++){
+             l3 = nR+l;
+             if(  l3<0 || l3 >= nRdivConformalEffective )  continue;
+              for( k=0;k<nBoxConformal[l3][i2];k++){
+                xx=infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][0];
+                dist = fabs( xx +q );
+//                if(dist < 3.*infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][2]){
+                if(  PndSttAcceptHitsConformal(  dist,
+                                                 infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][2],
+                                                 infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][4]
+                                                      ) )  {
+                    auxListHitsinTrack[nAssociatedHits]= HitsinBoxConformal[l3][i2][k];
+                    nAssociatedHits++; 
+                }
+              }
+            }   //   end of for(l=-2; l<3;l++)
+            }   //   end of for(l2=0;l2<2;l2++)
+            return  nAssociatedHits;
+           } else if ((nR == nRdivConformalEffective-1 && ! passamin && !passamax) || (nR==0 && !passamax && !passamin)){
+             if(nR == nRdivConformalEffective-1)  passamax=true;
+             if(nR == 0)   passamin=true;
+
+            for(l2=1;l2<3;l2++){
+             i2 = i-l2;
+             if(i2<nFidivConformal) i2 += nFidivConformal;
+            for(l=-2; l<3;l++){
+             l3 = nR+l;
+             if(  l3<0 || l3 >= nRdivConformalEffective )  continue;
+              for( k=0;k<nBoxConformal[l3][i2];k++){
+                xx=infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][0];
+                dist = fabs( xx +q );
+//                if(dist < 3.*infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][2]){
+                if(  PndSttAcceptHitsConformal(  dist,
+                                                 infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][2],
+                                                 infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][4]
+                                                      ) )  {
+                    auxListHitsinTrack[nAssociatedHits]= HitsinBoxConformal[l3][i2][k];
+                    nAssociatedHits++; 
+                }
+              }
+            }   //   end of for(l=-2; l<3;l++)
+            }   //   end of for(l2=0;l2<2;l2++)
+           }    //   end of if((nR == nRdivConformalEffective-1 && passamin) ||  (nR==0 && passamax)  )
+
+
+
+      }   //  end of     for(itemp=FFimin; itemp<=FFimax;itemp++)
+
+
+    } else {  //  q=0 --> x=0
+
+
+
+      if( FFimax > nRdivConformal/4 && FFimin < nRdivConformal/4 ) {
+        iFi0 =  (Short_t)  (nRdivConformal/4 );
+      } else if ( FFimax > 3*nRdivConformal/4 && FFimin < 3*nRdivConformal/4 ){
+        iFi0 =  (Short_t)  (3*nRdivConformal/4 );
+      }  else {
+                cout <<"From PndSttTrackFinderReal::PndSttTrkAssociatedParallelHitsToHelixBis  :"
+                      <<"  inconsistency, 0 associated hits to this track candidate\n";
+        return 0;
+     }
+
+      for(itemp=iFi0-5; itemp<=iFi0+5;itemp++){
+        i=itemp;
+        if( i< 0 ) {
+          i += nFidivConformal;
+        } else if (i>=nFidivConformal){
+          i -=  nFidivConformal*( i/nFidivConformal );
+//         i -= nFidivConformal;
+        }
+        for(l=0; l<nRdivConformalEffective;l++){
+              for( k=0;k<nBoxConformal[l][i];k++){
+                xx=infoparalConformal[  HitsinBoxConformal[l][i][k]  ][0];
+                dist = fabs( xx  );
+
+                if(  PndSttAcceptHitsConformal(  dist,
+                                                 infoparalConformal[  HitsinBoxConformal[l][i][k]  ][2],
+                                                 infoparalConformal[  HitsinBoxConformal[l][i][k]  ][4]
+                                                      ) )  {
+                    auxListHitsinTrack[nAssociatedHits]= HitsinBoxConformal[l][i][k];
+                    nAssociatedHits++;
+                }
+              }  //  end of for( k=0;k<nBoxConformal[l][i];k++)
+        }  //  end of for(l=0; l<nRdivConformalEffective;l++)
+      }   //  end of for(itemp=iFi0-5; itemp<=iFi0+5;itemp++)
+
+
+
+
+      }    //   end  of if(fabs(q) > 1.e-10 )
+
+
+  }  else if( fabs(q)> 1.e-10) {   //   second part of    if( Status ==99),  in this case y = m*x +q
+
+        passamax=false;
+        passamin=false;
+        for(itemp=FFimin; itemp<=FFimax;itemp++){
+         i=itemp;
+
+         if( i< 0 ) {
+          i += nFidivConformal;
+         } else if (i>=nFidivConformal){
+          i -=  nFidivConformal*( i/nFidivConformal );
+         }
+         angle = (i+0.5)*2.*PI/nFidivConformal;
+         aaa = sin(angle) - m*cos(angle);
+         if( fabs(aaa) < 1.e-10) continue;
+         r = q/aaa;
+         if(r< radiaConf[0] || r>= 1./RStrawDetectorMin)  continue;
+         for(j=nRdivConformalEffective-1; j>=0;j--){
+          if( r>= radiaConf[j] ){
+           nR = j;
+           break;
+          }
+        }
+
+
+        for(l=-2; l<3;l++){
+          l2 = nR+l;
+          if(  l2<0 || l2 >= nRdivConformalEffective )  continue;
+              for( k=0;k<nBoxConformal[l2][i];k++){
+                xx=infoparalConformal[  HitsinBoxConformal[l2][i][k]  ][0];
+                yy=infoparalConformal[  HitsinBoxConformal[l2][i][k]  ][1];
+                dist = fabs( -yy+ m*xx +q )/sqrt(m*m+1.);
+
+/*
+if( IVOLTE==2 && ITRACCIA ==8) cout<<"Prima di associazione, hits n. (num. parallela)  : "<<HitsinBoxConformal[l2][i][k]<<
+     ",  numerazione originale  "<<infoparalConformal[  HitsinBoxConformal[l2][i][k]  ][3]<<
+     ",  iR  "<<   RConformalIndex[(int)  infoparalConformal[  HitsinBoxConformal[l2][i][k]  ][3] ]<<
+     ",  iFi  "<<   FiConformalIndex[(int)  infoparalConformal[  HitsinBoxConformal[l2][i][k]  ][3] ]<<
+endl;
+*/
+
+
+                if(  PndSttAcceptHitsConformal(  dist,
+                                                 infoparalConformal[  HitsinBoxConformal[l2][i][k]  ][2],
+                                                 infoparalConformal[  HitsinBoxConformal[l2][i][k]  ][4]
+                                                      ) )  {
+                    auxListHitsinTrack[nAssociatedHits]= HitsinBoxConformal[l2][i][k];
+                    nAssociatedHits++; 
+//if( IVOLTE==2 && ITRACCIA ==8) cout<<"                      hits n. (num. parallela)  : "<<HitsinBoxConformal[l2][i][k]<<"   associato"<<endl;
+                }
+              }
+        }   //   end of for(l=0; l<3;l++)
+
+
+        // ------- special cases
+           if((nR == nRdivConformalEffective-1 && passamin & !passamax) ||  (nR==0 && passamax && !passamin)  ) {   //  do the last two Fi columns
+            if(nR == nRdivConformalEffective-1)  passamax=true;
+            if(nR == 0)   passamin=true;
+
+            for(l2=1;l2<3;l2++){
+             i2 = i+l2;
+             if(i2>=nFidivConformal) i2 -=  nFidivConformal;
+            for(l=-2; l<3;l++){
+             l3 = nR+l;
+             if(  l3<0 || l3 >= nRdivConformalEffective )  continue;
+              for( k=0;k<nBoxConformal[l3][i2];k++){
+                xx=infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][0];
+                yy=infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][1];
+                dist = fabs( -yy + m*xx +q )/sqrt(m*m+1.);
+//                if(dist < 3.*infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][2]){
+                if(  PndSttAcceptHitsConformal(  dist,
+                                                 infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][2],
+                                                 infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][4]
+                                                      ) )  {
+                    auxListHitsinTrack[nAssociatedHits]= HitsinBoxConformal[l3][i2][k];
+                    nAssociatedHits++; 
+                }
+              }
+            }   //   end of for(l=-2; l<3;l++)
+            }   //   end of for(l2=0;l2<2;l2++)
+            return nAssociatedHits;
+           } else if ((nR == nRdivConformalEffective-1 && ! passamin && !passamax) || (nR==0 && !passamax && !passamin)){
+            if(nR == nRdivConformalEffective-1)  passamax=true;
+            if(nR == 0)   passamin=true;
+            for(l2=1;l2<3;l2++){
+             i2 = i-l2;
+             if(i2<0) i2 += nFidivConformal;
+
+            for(l=-2; l<3;l++){
+             l3 = nR+l;
+             if(  l3<0 || l3 >= nRdivConformalEffective )  continue;
+              for( k=0;k<nBoxConformal[l3][i2];k++){
+                xx=infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][0];
+                yy=infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][1];
+                dist = fabs( -yy+m*xx +q )/sqrt(m*m+1.);
+//                if(dist < 3.*infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][2]){
+                if(  PndSttAcceptHitsConformal(  dist,
+                                                 infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][2],
+                                                 infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][4]
+                                                      ) )  {
+                    auxListHitsinTrack[nAssociatedHits]= HitsinBoxConformal[l3][i2][k];
+                    nAssociatedHits++; 
+                }
+              }
+            }   //   end of for(l=-2; l<3;l++)
+            }   //   end of for(l2=0;l2<2;l2++)
+           }    //   end of if((nR == nRdivConformalEffective-1 && passamin) ||  (nR==0 && passamax)  )
+
+
+
+
+        }  // end of       for(itemp=FFimin; itemp<=FFimax;itemp++)
+
+
+
+  } else {  //  case in which    y= m*x ,  m can be zero    ,  third part of if( Status ==99)
+
+      iFi0 =  (Short_t)  (atan(m)*nRdivConformal/(2.*PI) );
+      for(itemp=iFi0-5; itemp<=iFi0+5;itemp++){
+         i=itemp;
+         if( i< 0 ) {
+          i += nFidivConformal;
+         } else if (i>=nFidivConformal){
+          i -=  nFidivConformal*( i/nFidivConformal );
+//          i -= nFidivConformal;
+         }
+        for(l=0; l<nRdivConformalEffective;l++){
+              for( k=0;k<nBoxConformal[l][i];k++){
+                xx=infoparalConformal[  HitsinBoxConformal[l][i][k]  ][0];
+                yy=infoparalConformal[  HitsinBoxConformal[l][i][k]  ][1];
+                dist = fabs( m*xx-yy  )/sqrt( m*m+1.);
+//                if(dist < 3.*infoparalConformal[  HitsinBoxConformal[l][i][k]  ][2]){
+                if(  PndSttAcceptHitsConformal(  dist,
+                                                 infoparalConformal[  HitsinBoxConformal[l][i][k]  ][2],
+                                                 infoparalConformal[  HitsinBoxConformal[l][i][k]  ][4]
+                                                      ) )  {
+                    auxListHitsinTrack[nAssociatedHits]= HitsinBoxConformal[l][i][k];
+                    nAssociatedHits++;
+                }
+              }  //  end of for( k=0;k<nBoxConformal[l][i];k++)
+        }
+      }   //  end of for(itemp=FFimin; itemp<=FFimax;itemp++)
+
+
+
+
+
+  }   //   end of if ( Status ==99)
+
+
+
+
+
+
+ return nAssociatedHits;
+
+}
+
+
+
+//----------end of function PndSttTrackFinderReal::PndSttTrkAssociatedParallelHitsToHelixBis
 
 
 
@@ -2648,6 +7392,9 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
     if( FiConformalIndex[i] <  FFimin ) FFimin = FiConformalIndex[i];
     if( FiConformalIndex[i] >  FFimax ) FFimax = FiConformalIndex[i];
 
+if(istampa>=2) {
+  cout<<"  evento n. "<<IVOLTE<<", Fimin prima  prima = "<<FFimin<<",  Fimax prima "<<FFimax<<endl;
+}
 
   if( FFimax > 3.*nFidivConformal/4. && FFimin < nFidivConformal/4.) {
      FFimin = 10000;
@@ -2661,6 +7408,9 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
      }
   }
 
+if(istampa>=2) {
+  cout<<"  evento n. "<<IVOLTE<<", Fimin prima = "<<FFimin<<",  Fimax prima "<<FFimax<<endl;
+}
 
 //  finding the boundaries in the Conformal plane. The basic assumption is that the range
 // in Fi is much less that 180 degrees.
@@ -2668,11 +7418,14 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
   FFimin -= (Short_t) nFidivConformal/Nextra;
   FFimax +=  (Short_t) nFidivConformal/Nextra;
   if( FFimax - FFimin > nFidivConformal/2 ) {
-    cout<<"something fishy is going on in PndSttTrkAssociatedParallelHitsToHelixTris!"
+    cout<<"something fishy is going on in PndSttTrkAssociatedParallelHitsToHelixBis!"
       <<"Range in Fi (rad) is  "<<(FFimax - FFimin)*2.*PI/nFidivConformal<<endl;
     return 0;
   }
 
+if(istampa>=2) {
+  cout<<"  evento n. "<<IVOLTE<<", Fimin dopo = "<<FFimin<<",  Fimax dopo "<<FFimax<<endl;
+}
 
 
 
@@ -2692,6 +7445,7 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
           i += nFidivConformal;
         } else if (i>=nFidivConformal){
           i -=  nFidivConformal*( i/nFidivConformal );
+//         i -= nFidivConformal;
         }
         angle = (i+0.5)*2.*PI/nFidivConformal;
         aaa = cos(angle);
@@ -2736,6 +7490,7 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
               for( k=0;k<nBoxConformal[l3][i2];k++){
                 xx=infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][0];
                 dist = fabs( xx +q );
+//                if(dist < 3.*infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][2]){
                 if(  PndSttAcceptHitsConformal(  dist,
                                                  infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][2],
                                                  infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][4]
@@ -2760,6 +7515,7 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
               for( k=0;k<nBoxConformal[l3][i2];k++){
                 xx=infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][0];
                 dist = fabs( xx +q );
+//                if(dist < 3.*infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][2]){
                 if(  PndSttAcceptHitsConformal(  dist,
                                                  infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][2],
                                                  infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][4]
@@ -2786,7 +7542,7 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
       } else if ( FFimax > 3*nRdivConformal/4 && Fimin < 3*nRdivConformal/4 ){
         iFi0 =  (Short_t)  (3*nRdivConformal/4 );
       }  else {
-                cout <<"From PndSttTrackFinderReal::PndSttTrkAssociatedParallelHitsToHelixTris  :"
+                cout <<"From PndSttTrackFinderReal::PndSttTrkAssociatedParallelHitsToHelixBis  :"
                       <<"  inconsistency, 0 associated hits to this track candidate\n";
         return 0;
      }
@@ -2797,6 +7553,7 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
           i += nFidivConformal;
         } else if (i>=nFidivConformal){
           i -=  nFidivConformal*( i/nFidivConformal );
+//         i -= nFidivConformal;
         }
         for(l=0; l<nRdivConformalEffective;l++){
               for( k=0;k<nBoxConformal[l][i];k++){
@@ -2827,6 +7584,7 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
         if(Fi0<0.)  { Fi0 += PI; if (Fi0 <0. ) Fi0 =0.; };
 
         ddd= fabs(q)/sqrt(1.+m*m);
+// cout<<"  Fi0 "<<Fi0<<",  ddd  "<<ddd<<endl;
 
         for(itemp=FFimin; itemp<=FFimax;itemp++){
          i=itemp;
@@ -2851,6 +7609,7 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
                  erre2 = 99999999999.;
               }
 
+// cout<<"  iFi = "<<i<<",  fi1 "<<fi1<<",  fi2 "<<fi2<<", erre1 "<<erre1<<",  erre2  "<<erre2<<endl;
 
 
 
@@ -2878,7 +7637,8 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
                 ) {
                    continue;
              }
-
+// cout<<"accettato !   iFi = "<<i<<", iR  "<<j<<",fi1 "<<fi1<<",  fi2 "<<fi2<<", erre1 "<<erre1<<",  erre2  "<<erre2<<endl;
+ 
               for(l=itemp-2; l<=itemp+2; l++){
                 if( l< 0 ) {
                   l2 = l+nFidivConformal;
@@ -2899,16 +7659,19 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
                 }
 
                 for(k=kstart;k<kend;k++){
+// cout<<"  iR = "<<k<<", iFi  "<<l2<<endl;
 
                  for( l3=0;l3<nBoxConformal[k][l2];l3++){
                    if( ! Unselected[HitsinBoxConformal[k][l2][l3] ] )  continue;
                    xx=infoparalConformal[  HitsinBoxConformal[k][l2][l3]  ][0];
                    yy=infoparalConformal[  HitsinBoxConformal[k][l2][l3]  ][1];
                    dist = fabs( -yy+ m*xx +q )/sqrt(m*m+1.);
+// cout<<"  buona div???\n";
                    if(  PndSttAcceptHitsConformal(  dist,
                                                  infoparalConformal[  HitsinBoxConformal[k][l2][l3]  ][2],
                                                  infoparalConformal[  HitsinBoxConformal[k][l2][l3]  ][4]
                                                       ) )  {
+//cout<<"  yes ,  buona div !!!!!\n";
 
                     auxListHitsinTrack[nAssociatedHits]= HitsinBoxConformal[k][l2][l3];
                     Unselected[HitsinBoxConformal[k][l2][l3]]= false;
@@ -2944,6 +7707,7 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
                 xx=infoparalConformal[  HitsinBoxConformal[l][i][k]  ][0];
                 yy=infoparalConformal[  HitsinBoxConformal[l][i][k]  ][1];
                 dist = fabs( m*xx-yy  )/sqrt( m*m+1.);
+//                if(dist < 3.*infoparalConformal[  HitsinBoxConformal[l][i][k]  ][2]){
                 if(  PndSttAcceptHitsConformal(  dist,
                                                  infoparalConformal[  HitsinBoxConformal[l][i][k]  ][2],
                                                  infoparalConformal[  HitsinBoxConformal[l][i][k]  ][4]
@@ -2980,6 +7744,488 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
 
 
 
+
+
+//----------begin of function PndSttTrackFinderReal::PndSttTrkAssociatedParallelHitsToHelixQuater
+  UShort_t PndSttTrackFinderReal::PndSttTrkAssociatedParallelHitsToHelixQuater(
+                   Double_t m,
+                   Double_t q,
+                   Short_t Status,
+                   UShort_t nHitsinTrack,
+                   UShort_t *ListHitsinTrack,
+                   Int_t NhitsParallel,
+                   Double_t Ox,
+                   Double_t Oy,
+                   Double_t R,
+                   Double_t info[][7],
+                   Double_t infoparalConformal[][5],
+                   UShort_t *RConformalIndex,
+                   UShort_t *FiConformalIndex,
+                   UShort_t nBoxConformal[nRdivConformal][nFidivConformal],
+                   UShort_t HitsinBoxConformal[nRdivConformal][nFidivConformal][nmaxHits],
+                   UShort_t *auxListHitsinTrack
+                                                     )
+{
+  bool passamin,passamax,
+       Unselected[nmaxHits];
+
+  Short_t i, i2, j, k, l,  l2, l3, itemp, kstart, kend,
+          iFi0;
+  UShort_t Nextra=8,
+           nFi,
+           Fi,
+           FFimin, FFimax,
+           nR,
+           nAssociatedHits,
+           nHit_original;
+  Double_t maxFi,
+           minFi,
+           dist,
+           xx,
+           yy,
+           aaa,
+           angle,
+           r,
+           erre1,
+           erre2,
+           Rin,
+           Rout,
+           Fi0,
+           ddd,
+           fi1,
+           fi2,
+           dx,
+           dy,
+           distance,
+           NTIMES=1.5;   //   number of Straw radia allowed in asociation
+
+  nAssociatedHits=0;
+  for(i=0; i<NhitsParallel;i++){
+   Unselected[i]= true;
+  }
+
+//   find the range in Fi spanned  by the candidate track
+
+  FFimin = 10000;
+  FFimax = 0;
+  for(j=0; j<nHitsinTrack; j++){
+    i = (UShort_t)  infoparalConformal[ ListHitsinTrack[j] ][3];
+  }
+    if( FiConformalIndex[i] <  FFimin ) FFimin = FiConformalIndex[i];
+    if( FiConformalIndex[i] >  FFimax ) FFimax = FiConformalIndex[i];
+
+if(istampa>=2) {
+  cout<<"  evento n. "<<IVOLTE<<", Fimin prima  prima = "<<FFimin<<",  Fimax prima "<<FFimax<<endl;
+}
+
+  if( FFimax > 3.*nFidivConformal/4. && FFimin < nFidivConformal/4.) {
+     FFimin = 10000;
+     FFimax =  0;
+     for(j=0; j<nHitsinTrack; j++){
+       i = (UShort_t)  infoparalConformal[ ListHitsinTrack[j] ][3];
+       Fi = FiConformalIndex[i];
+       if( Fi < nFidivConformal/4. ) Fi = FiConformalIndex[i]+nFidivConformal;
+       if( Fi <  FFimin ) FFimin = Fi;
+       if( Fi >  FFimax ) FFimax = Fi;
+     }
+  }
+
+if(istampa>=2) {
+  cout<<"  evento n. "<<IVOLTE<<", Fimin prima = "<<FFimin<<",  Fimax prima "<<FFimax<<endl;
+}
+
+//  finding the boundaries in the Conformal plane. The basic assumption is that the range
+// in Fi is much less that 180 degrees.
+  
+  FFimin -= (Short_t) nFidivConformal/Nextra;
+  FFimax +=  (Short_t) nFidivConformal/Nextra;
+  if( FFimax - FFimin > nFidivConformal/2 ) {
+    cout<<"something fishy is going on in PndSttTrkAssociatedParallelHitsToHelixBis!"
+      <<"Range in Fi (rad) is  "<<(FFimax - FFimin)*2.*PI/nFidivConformal<<endl;
+    return 0;
+  }
+
+if(istampa>=2) {
+  cout<<"  evento n. "<<IVOLTE<<", Fimin dopo = "<<FFimin<<",  Fimax dopo "<<FFimax<<endl;
+}
+
+
+
+//   use the equation of a line in polar coordinates
+ 
+  if( Status ==99) {   //  case in which   0 = x + q
+
+
+
+
+    if(fabs(q) > 1.e-10 ) {
+      passamax=false;
+      passamin=false;
+      for(itemp=FFimin; itemp<=FFimax;itemp++){
+        i=itemp;
+        if( i< 0 ) {
+          i += nFidivConformal;
+        } else if (i>=nFidivConformal){
+          i -=  nFidivConformal*( i/nFidivConformal );
+//         i -= nFidivConformal;
+        }
+        angle = (i+0.5)*2.*PI/nFidivConformal;
+        aaa = cos(angle);
+        if( fabs(cos(angle)) <1.e-10)  continue;
+        r = -q/aaa;
+        if(r< radiaConf[0] || r>= 1./RStrawDetectorMin)  continue;
+        for(j=nRdivConformalEffective-1; j>=0;j--){
+          if( r>= radiaConf[j] ){
+           nR = j;
+           break;
+          }
+        }
+
+
+        for(l=-DELTAnR; l<DELTAnR+1;l++){
+          l2 = nR+l;
+          if(  l2<0 || l2 >= nRdivConformalEffective )  continue;
+              for( k=0;k<nBoxConformal[l2][i];k++){
+                nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[l2][i][k]  ][3];
+// check if the hit position is near the circle of the Helix found by the fit
+                dx = -Ox+info[ nHit_original ][0];
+                dy = -Oy+info[ nHit_original ][1];
+                distance = sqrt(dx*dx+dy*dy);
+//cout<<"nuov, R "<<R<<",  distance  "<<distance<<endl;
+                if ( fabs(R - distance ) > NTIMES*StrawRadius )  continue;
+
+//-------------------
+                xx=infoparalConformal[  HitsinBoxConformal[l2][i][k]  ][0];
+                dist = fabs( xx +q );
+                if(  PndSttAcceptHitsConformal(  dist,
+                                                 infoparalConformal[  HitsinBoxConformal[l2][i][k]  ][2],
+                                                 infoparalConformal[  HitsinBoxConformal[l2][i][k]  ][4]
+                                                      ) )  {
+                    auxListHitsinTrack[nAssociatedHits]= HitsinBoxConformal[l2][i][k];
+                    nAssociatedHits++; 
+                }
+              }
+        }   //   end of for(l=0; l<3;l++)
+
+        // ------- special cases
+           if((nR == nRdivConformalEffective-1 && passamin && ! passamax) ||  (nR==0 && passamax && !passamin)  ) {   //  do the last two Fi columns
+            if(nR == nRdivConformalEffective-1)  passamax=true;
+            if(nR == 0)   passamin=true;
+
+            for(l2=1;l2<3;l2++){
+             i2 = i+l2;
+             if(i2>=nFidivConformal) i2 -=  nFidivConformal;
+            for(l=-2; l<3;l++){
+             l3 = nR+l;
+             if(  l3<0 || l3 >= nRdivConformalEffective )  continue;
+              for( k=0;k<nBoxConformal[l3][i2];k++){
+                nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][3];
+// check if the hit position is near the circle of the Helix found by the fit
+                dx = -Ox+info[ nHit_original ][0];
+                dy = -Oy+info[ nHit_original ][1];
+                distance = sqrt(dx*dx+dy*dy);
+                if ( fabs(R - distance ) > NTIMES*StrawRadius )  continue;
+
+//-------------------
+                xx=infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][0];
+                dist = fabs( xx +q );
+//                if(dist < 3.*infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][2]){
+                if(  PndSttAcceptHitsConformal(  dist,
+                                                 infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][2],
+                                                 infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][4]
+                                                      ) )  {
+                    auxListHitsinTrack[nAssociatedHits]= HitsinBoxConformal[l3][i2][k];
+                    nAssociatedHits++; 
+                }
+              }
+            }   //   end of for(l=-2; l<3;l++)
+            }   //   end of for(l2=0;l2<2;l2++)
+            return  nAssociatedHits;
+           } else if ((nR == nRdivConformalEffective-1 && ! passamin && !passamax) || (nR==0 && !passamax && !passamin)){
+             if(nR == nRdivConformalEffective-1)  passamax=true;
+             if(nR == 0)   passamin=true;
+
+            for(l2=1;l2<3;l2++){
+             i2 = i-l2;
+             if(i2<nFidivConformal) i2 += nFidivConformal;
+            for(l=-2; l<3;l++){
+             l3 = nR+l;
+             if(  l3<0 || l3 >= nRdivConformalEffective )  continue;
+              for( k=0;k<nBoxConformal[l3][i2];k++){
+                nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][3];
+// check if the hit position is near the circle of the Helix found by the fit
+                dx = -Ox+info[ nHit_original ][0];
+                dy = -Oy+info[ nHit_original ][1];
+                distance = sqrt(dx*dx+dy*dy);
+                if ( fabs(R - distance ) > NTIMES*StrawRadius )  continue;
+
+//-------------------
+                xx=infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][0];
+                dist = fabs( xx +q );
+//                if(dist < 3.*infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][2]){
+                if(  PndSttAcceptHitsConformal(  dist,
+                                                 infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][2],
+                                                 infoparalConformal[  HitsinBoxConformal[l3][i2][k]  ][4]
+                                                      ) )  {
+                    auxListHitsinTrack[nAssociatedHits]= HitsinBoxConformal[l3][i2][k];
+                    nAssociatedHits++; 
+                }
+              }
+            }   //   end of for(l=-2; l<3;l++)
+            }   //   end of for(l2=0;l2<2;l2++)
+           }    //   end of if((nR == nRdivConformalEffective-1 && passamin) ||  (nR==0 && passamax)  )
+
+
+
+      }   //  end of     for(itemp=Fimin; itemp<=FFimax;itemp++)
+
+
+    } else {  //  q=0 --> x=0
+
+
+
+      if( FFimax > nRdivConformal/4 && Fimin < nRdivConformal/4 ) {
+        iFi0 =  (Short_t)  (nRdivConformal/4 );
+      } else if ( FFimax > 3*nRdivConformal/4 && Fimin < 3*nRdivConformal/4 ){
+        iFi0 =  (Short_t)  (3*nRdivConformal/4 );
+      }  else {
+                cout <<"From PndSttTrackFinderReal::PndSttTrkAssociatedParallelHitsToHelixBis  :"
+                      <<"  inconsistency, 0 associated hits to this track candidate\n";
+        return 0;
+     }
+
+      for(itemp=iFi0-5; itemp<=iFi0+5;itemp++){
+        i=itemp;
+        if( i< 0 ) {
+          i += nFidivConformal;
+        } else if (i>=nFidivConformal){
+          i -=  nFidivConformal*( i/nFidivConformal );
+//         i -= nFidivConformal;
+        }
+        for(l=0; l<nRdivConformalEffective;l++){
+              for( k=0;k<nBoxConformal[l][i];k++){
+                nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[l][i][k]  ][3];
+// check if the hit position is near the circle of the Helix found by the fit
+                dx = -Ox+info[ nHit_original ][0];
+                dy = -Oy+info[ nHit_original ][1];
+                distance = sqrt(dx*dx+dy*dy);
+                if ( fabs(R - distance ) >NTIMES*StrawRadius )  continue;
+
+//-------------------
+                xx=infoparalConformal[  HitsinBoxConformal[l][i][k]  ][0];
+                dist = fabs( xx  );
+
+                if(  PndSttAcceptHitsConformal(  dist,
+                                                 infoparalConformal[  HitsinBoxConformal[l][i][k]  ][2],
+                                                 infoparalConformal[  HitsinBoxConformal[l][i][k]  ][4]
+                                                      ) )  {
+                    auxListHitsinTrack[nAssociatedHits]= HitsinBoxConformal[l][i][k];
+                    nAssociatedHits++;
+                }
+              }  //  end of for( k=0;k<nBoxConformal[l][i];k++)
+        }  //  end of for(l=0; l<nRdivConformalEffective;l++)
+      }   //  end of for(itemp=iFi0-5; itemp<=iFi0+5;itemp++)
+
+
+
+
+      }    //   end  of if(fabs(q) > 1.e-10 )
+
+
+  }  else if( fabs(q)> 1.e-10) {   //   second part of    if( Status ==99),  in this case y = m*x +q
+
+
+        Fi0 = atan2(q, -m*q);
+        if(Fi0<0.)  { Fi0 += PI; if (Fi0 <0. ) Fi0 =0.; };
+
+        ddd= fabs(q)/sqrt(1.+m*m);
+// cout<<"  Fi0 "<<Fi0<<",  ddd  "<<ddd<<endl;
+
+        for(itemp=FFimin; itemp<=FFimax;itemp++){
+         i=itemp;
+         if( i< 0 ) {
+            i += nFidivConformal;
+           } else if (i>=nFidivConformal){
+            i -=  nFidivConformal*( i/nFidivConformal );
+           }
+
+
+              fi1 = i*2.*(PI/nFidivConformal);
+              if( fabs(sin(fi1)-m*cos(fi1))>1.e-10) {
+                 erre1 = q/(sin(fi1)-m*cos(fi1));
+              }  else {
+                 erre1 = 99999999999.;
+              }
+
+              fi2 = (i+1)*2.*(PI/nFidivConformal);
+              if( fabs(sin(fi2)-m*cos(fi2))>1.e-10) {
+                 erre2 = q/(sin(fi2)-m*cos(fi2));
+              }  else {
+                 erre2 = 99999999999.;
+              }
+
+// cout<<"  iFi = "<<i<<",  fi1 "<<fi1<<",  fi2 "<<fi2<<", erre1 "<<erre1<<",  erre2  "<<erre2<<endl;
+
+
+
+
+         for(j=0; j<nRdivConformal; j++){
+              Rin = radiaConf[j];
+              if(j!=nRdivConformal-1) {
+                 Rout =  radiaConf[j+1];
+              }  else {
+                 Rout = 1./RStrawDetectorMin;
+              }
+
+//  note that the following algorithm works also for negative erre1  and   erre2
+
+
+              if(erre1<-1.e-10 ){
+                if(erre2< 0. || erre2 > Rout ){
+                     continue;
+                } 
+              } else if(fabs(erre1) < 1.e-10){
+                if( Fi0 > fi2 || Fi0 < fi1)  continue;
+              } else if ( erre1<Rin) {
+                if( erre2< Rin )  continue;
+              }   else if (erre1> Rout  &&  erre2 > Rout && !( fi1<=Fi0 && Fi0<=fi2 && ddd<=Rout )
+                ) {
+                   continue;
+             }
+// cout<<"accettato !   iFi = "<<i<<", iR  "<<j<<",fi1 "<<fi1<<",  fi2 "<<fi2<<", erre1 "<<erre1<<",  erre2  "<<erre2<<endl;
+ 
+              for(l=itemp-2; l<=itemp+2; l++){
+                if( l< 0 ) {
+                  l2 = l+nFidivConformal;
+                } else if (l>=nFidivConformal){
+                  l2 = l- nFidivConformal*( i/nFidivConformal );
+               } else {
+                 l2 = l;
+               }
+                if( j-1<0) { 
+                  kstart=0;
+                }  else {
+                  kstart = j-1;
+                }
+                if ( j+1 >=  nRdivConformal ) {
+                  kend = nRdivConformal;
+                } else {
+                  kend = j+2;
+                }
+
+                for(k=kstart;k<kend;k++){
+// cout<<"  iR = "<<k<<", iFi  "<<l2<<endl;
+
+                 for( l3=0;l3<nBoxConformal[k][l2];l3++){
+                   if( ! Unselected[HitsinBoxConformal[k][l2][l3] ] )  continue;
+                   nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[k][l2][l3]  ][3];
+// check if the hit position is near the circle of the Helix found by the fit
+                   dx = -Ox+info[ nHit_original ][0];
+                   dy = -Oy+info[ nHit_original ][1];
+                   distance = sqrt(dx*dx+dy*dy);
+                   if ( fabs(R - distance ) > NTIMES*StrawRadius )  continue;
+
+//-------------------
+                   xx=infoparalConformal[  HitsinBoxConformal[k][l2][l3]  ][0];
+                   yy=infoparalConformal[  HitsinBoxConformal[k][l2][l3]  ][1];
+                   dist = fabs( -yy+ m*xx +q )/sqrt(m*m+1.);
+// cout<<"  buona div???\n";
+                   if(  PndSttAcceptHitsConformal(  dist,
+                                                 infoparalConformal[  HitsinBoxConformal[k][l2][l3]  ][2],
+                                                 infoparalConformal[  HitsinBoxConformal[k][l2][l3]  ][4]
+                                                      ) )  {
+//cout<<"  yes ,  buona div !!!!!\n";
+
+                    auxListHitsinTrack[nAssociatedHits]= HitsinBoxConformal[k][l2][l3];
+                    Unselected[HitsinBoxConformal[k][l2][l3]]= false;
+                    nAssociatedHits++;
+                   }
+
+                 }   //   end of  for( l3=0;l3<nBoxConformal[k][l2];l3++)
+
+                }   //   end of  for(k=j-1;k<j+2;k++)
+              }     //   end of  for(l=itemp-1; l<itemp+2; l++)
+
+
+         }   //  end of for(j=0; j<nRdivConformal; j++)
+        }   //   end of    for(itemp=FFimin; itemp<=FFimax;itemp++)
+
+
+
+
+
+  } else {  //  case in which    y= m*x ,  m can be zero    ,  third part of if( Status ==99)
+
+      iFi0 =  (Short_t)  (atan(m)*nRdivConformal/(2.*PI) );
+      for(itemp=iFi0-5; itemp<=iFi0+5;itemp++){
+         i=itemp;
+         if( i< 0 ) {
+          i += nFidivConformal;
+         } else if (i>=nFidivConformal){
+          i -=  nFidivConformal*( i/nFidivConformal );
+//          i -= nFidivConformal;
+         }
+        for(l=0; l<nRdivConformalEffective;l++){
+              for( k=0;k<nBoxConformal[l][i];k++){
+                nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[l][i][k]  ][3];
+// check if the hit position is near the circle of the Helix found by the fit
+                dx = -Ox+info[ nHit_original ][0];
+                dy = -Oy+info[ nHit_original ][1];
+                distance = sqrt(dx*dx+dy*dy);
+                if ( fabs(R - distance ) > NTIMES*StrawRadius )  continue;
+
+//-------------------
+                xx=infoparalConformal[  HitsinBoxConformal[l][i][k]  ][0];
+                yy=infoparalConformal[  HitsinBoxConformal[l][i][k]  ][1];
+                dist = fabs( m*xx-yy  )/sqrt( m*m+1.);
+//                if(dist < 3.*infoparalConformal[  HitsinBoxConformal[l][i][k]  ][2]){
+                if(  PndSttAcceptHitsConformal(  dist,
+                                                 infoparalConformal[  HitsinBoxConformal[l][i][k]  ][2],
+                                                 infoparalConformal[  HitsinBoxConformal[l][i][k]  ][4]
+                                                      ) )  {
+                    auxListHitsinTrack[nAssociatedHits]= HitsinBoxConformal[l][i][k];
+                    nAssociatedHits++;
+                }
+              }  //  end of for( k=0;k<nBoxConformal[l][i];k++)
+        }
+      }   //  end of for(itemp=FFimin; itemp<=FFimax;itemp++)
+
+
+
+
+
+  }   //   end of if ( Status ==99)
+
+
+
+
+
+
+ return nAssociatedHits;
+
+}
+
+
+
+//----------end of function PndSttTrackFinderReal::PndSttTrkAssociatedParallelHitsToHelixQuater
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //----------begin of function PndSttTrackFinderReal::PndSttAcceptHitsConformal
 
 bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
@@ -3005,14 +8251,40 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //----------begin of function PndSttTrackFinderReal::AssociateSkewHitsToXYTrack
 
   UShort_t PndSttTrackFinderReal::AssociateSkewHitsToXYTrack(
                    Double_t Ox,
                    Double_t Oy,
                    Double_t R,
-                   Double_t info[][6],
+                   Double_t info[][7],
                    Double_t inclination[][3],
+                   Double_t Fi_low_limit,
+                   Double_t Fi_up_limit,
+                   Double_t Fi_allowedforskew_low,
+                   Double_t Fi_allowedforskew_up,
+                   Short_t  Charge,
+                   Double_t Fi_initial_helix_referenceframe,
+                   Double_t Fi_final_helix_referenceframe,
                    UShort_t SkewList[nmaxHits][2], // output,  list of selected skew hits (in skew numbering)
                    Double_t *S,       //  output,  S coordinate of selected Skew hit
                    Double_t *Z,       //  output,  Z coordinate of selected Skew hit
@@ -3042,8 +8314,13 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
            POINTS1[6];
 
 
+//   calculate the Fi range allowed to the skew hits, with Fi calculated in the TRACK CYLINDER REFERENCE FRAME.
 
 
+
+
+//      Smin=zmin = 1.e10;
+//      Smax=zmax = -zmin;
       NAssociated=0;
 
        for( iii=0; iii< NSkewhits; iii++) {
@@ -3103,16 +8380,83 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
         Bellipsis1 = info[i][3]/R;
 
 
+// checks that the projected ellipsis doesn't go out the boundaries of both the skew straw and the trajectory cylinder
 
+//        if(
+//             fabs(POINTS1[j+2]-info[i][2]) > SEMILENGTH_STRAIGHT- Aellipsis1 ||
+//             distance + bbb > info[i][4]        //  the ellipsis goes out of the boundaries of the skew straw
+//          ) {
+// if( istampa)  cout<<"the ellipsis goes out of the boundaries of the skew straw, hit n. "<<i<<endl
+//     <<"dis. from center "<<distance+bbb<<",  length of the straw "<<info[i][4]<<endl;
+//           continue;
+//          }
+//--------------------------
 
 
         S[NAssociated] = atan2(POINTS1[j+1]-Oy, POINTS1[j]-Ox) ;  // atan2 returns radians in (-pi and +pi]
         if( S[NAssociated] < 0.) S[NAssociated] += 2.*PI;
+
+//  check if the S of this intersection is compatible with information coming from the parallel fit of this track
+        Double_t Sprime = atan2(POINTS1[j+1], POINTS1[j]) ;
+        if( Sprime < 0.) Sprime += 2.*PI;
+        if(  Sprime < Fi_low_limit) {
+           if(  Sprime+2.*PI > Fi_up_limit)  continue;
+        }  else {
+           if(  Sprime > Fi_up_limit)  continue;
+        }
+
+
+
+
+
+//  second check, to see if this hits are in the allowed Fi range in the Helix reference frame
+/*
+        if ( S[NAssociated] <  Fi_allowedforskew_low) {
+              if (S[NAssociated] + 2.*PI >  Fi_allowedforskew_up)  continue;
+        } else {
+              if (S[NAssociated] >  Fi_allowedforskew_up)  continue;
+        }
+*/
+
+//---------------------------   end check
+
+
         Z[NAssociated] = POINTS1[j+2];
         ZDrift[NAssociated] = Aellipsis1*Tiltdirection1[0];
         ZErrorafterTilt[NAssociated] = StrawDriftError*aaa*Tiltdirection1[0]/LL;
         SkewList[NAssociated][0] = iii;  // n. skew hit in skew hit numbering
         SkewList[NAssociated][1] = ii;  //  solution 0 or solution 1 were accepted
+
+
+// check if this skew hit doesn't "push out"  the most external parallel hit
+// (see Gianluigi's logbook on page 251)
+
+        Double_t Zh1 = Z[NAssociated] - ZDrift[NAssociated];
+        Double_t Zh2 = Z[NAssociated] + ZDrift[NAssociated];
+        Double_t Sh1 = S[NAssociated] - Aellipsis1*Tiltdirection1[1];
+        Double_t Sh2 = S[NAssociated] + Aellipsis1*Tiltdirection1[1];
+        Double_t Zlast1 = (Fi_final_helix_referenceframe-Fi_initial_helix_referenceframe)*Zh1
+                                  /(Sh1-Fi_initial_helix_referenceframe);
+        Double_t Zlast2 = (Fi_final_helix_referenceframe-Fi_initial_helix_referenceframe)*Zh2
+                                  /(Sh2-Fi_initial_helix_referenceframe);
+
+
+if( istampa>=2){
+     cout<<"   Zlast1 "<<Zlast1<<",  Zlast2 "<<Zlast2<<endl;
+     cout<<"   centro straight straws "<<ZCENTER_STRAIGHT<<", lunghezza straight "<<SEMILENGTH_STRAIGHT
+<<",  fabs(Zlast1 - ZCENTER_STRAIGHT) "<< fabs(Zlast1 - ZCENTER_STRAIGHT)<<",    fabs(Zlast2 - ZCENTER_STRAIGHT) "
+ << fabs(Zlast2 - ZCENTER_STRAIGHT)    <<endl;
+}
+
+
+
+        if( fabs(Zlast1 - ZCENTER_STRAIGHT) > SEMILENGTH_STRAIGHT
+                                  &&
+            fabs(Zlast2 - ZCENTER_STRAIGHT) > SEMILENGTH_STRAIGHT
+           )   continue;
+// cout<<" ... e passadiqui\n";
+
+
         NAssociated++;
 
    }    //  end of    for( ii=0; ii<2; ii++)
@@ -3139,6 +8483,111 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 
 
 
+//----------begin of function PndSttTrackFinderReal::AssociateBetterAfterFitSkewHitsToXYTrack
+
+  UShort_t PndSttTrackFinderReal::AssociateBetterAfterFitSkewHitsToXYTrack(
+                   UShort_t TemporarynSkewHitsinTrack,  //  input
+                   UShort_t SkewList[nmaxHits][2], // input,  list of selected skew hits (in skew numbering)
+                   Double_t *S,       //  input,  S coordinate of selected Skew hit
+                   Double_t *Z,       //  input,  Z coordinate of selected Skew hit
+                   Double_t *ZDrift,  //  input,  drift distance IN Z DIRECTION only, of selected Skew hit
+                   Double_t *ZErrorafterTilt,   //  input,  Radius taking into account the tilt, IN Z DIRECTION only, of selected Skew hit
+                   Double_t KAPPA,    // input, KAPPA result of fit
+                   Double_t FI0,    // input, FI0 result of fit
+                   UShort_t *tempore,  //  output result, associated skew hits
+                   Double_t *temporeS,  //  output, associated skew hit  S
+                   Double_t *temporeZ,  //  output, associated skew hits Z
+                   Int_t  *STATUS   // output
+                                                     )
+ {
+
+
+
+    UShort_t NAssociated;
+    Short_t  sign;
+    Int_t i, j, i1, ii, iii,  Kincl, nlow, nup;
+
+    Double_t bbb,
+             tempZ[2],
+             zmin, zmax, deltaz, zdist;
+
+    Double_t allowed_distance = 4.*StrawRadius/sin(3.*PI/180.);
+
+
+    if(fabs(KAPPA)<1.e-10) {
+      *STATUS=-1;
+      return 0;
+    }
+
+
+    NAssociated=0;
+
+    if(KAPPA>0) {
+     zmin = -FI0/KAPPA;
+     zmax = (2.*PI-FI0)/KAPPA;
+    }  else {
+     zmax = -FI0/KAPPA;
+     zmin = (2.*PI-FI0)/KAPPA;
+    }
+    deltaz = zmax-zmin;
+
+if(istampa==2) cout<<"  Zmax "<<zmax<<", Zmin  "<<zmin<<endl;
+
+
+
+     for(i=0; i<TemporarynSkewHitsinTrack; i++){
+       bbb=(S[i]-FI0)/KAPPA;
+if(istampa>=2) cout<<"From AssociateBetterAfterFitSkewHitsToXYTrack ,  hit skew n. "<<SkewList[i][0]
+                               <<", Zhit  "<<Z[i]<<",  S hit  "<<S[i]<<endl;
+      for(sign=0;sign<=1; sign ++){
+if(istampa>=2) cout<<"From AssociateBetterAfterFitSkewHitsToXYTrack :  segno "<<-1+sign*2<<endl;
+       tempZ[sign]=Z[i]+(2*sign-1)*ZDrift[i];
+       if( tempZ[sign] > zmax ){
+         tempZ[sign]=fmod( tempZ[sign]-zmax, deltaz) - deltaz;
+       } else if (tempZ[sign]<zmin){
+         tempZ[sign]=fmod( tempZ[sign]-zmin, deltaz) + deltaz;
+       }
+
+       zdist = fabs( bbb - tempZ[sign]);
+if(istampa>=2) cout<<"From AssociateBetterAfterFitSkewHitsToXYTrack ,  hit skew n. "<<SkewList[i][0]<<",  tempZ "<<tempZ[sign]
+                           <<",   zdist  "<<zdist<<",  ZDrift[i] "<<ZDrift[i]
+                             <<", ZErrorafterTilt  "<<ZErrorafterTilt[i]<<endl;
+         if(  zdist < allowed_distance ){
+//       if(  zdist < 4.*ZErrorafterTilt[i] ){
+if(istampa>=2) cout<<"From AssociateBetterAfterFitSkewHitsToXYTrack ,  hit skew n. "<< SkewList[i][0]
+      <<",  tempZ "<<tempZ[sign]<<",   zdist  "<<zdist<<",  preso!!"<<endl;
+         tempore[NAssociated]=SkewList[ i ][0];
+         temporeS[NAssociated]=S[i];
+         temporeZ[NAssociated]=Z[i];
+         NAssociated++;
+         goto labella ;
+       }
+      }  //  end of for(sign=0;sign<=1; sign++)
+      if( tempZ[0]< bbb && tempZ[1] > bbb ) {
+         tempore[NAssociated]=SkewList[i][0];
+         temporeS[NAssociated]=S[i];
+         temporeZ[NAssociated]=Z[i];
+         NAssociated++;
+if(istampa==2) cout<<"From AssociateBetterAfterFitSkewHitsToXYTrack ,  hit skew n. "<<SkewList[i][0]
+             <<",  tempZ[0] "<<tempZ[0]<<",  tempZ[1]  "
+<<tempZ[1]<<", fit prediction (Z) "<<bbb<<",  preso alla terza volta!!"<<endl;
+      }
+      labella:  ;
+     }   //  end of for(i=0; i<TemporarynSkewHitsinTrack; i++)
+
+
+     *STATUS=0;
+
+     return NAssociated;
+
+
+
+ }
+
+//----------end of function PndSttTrackFinderReal::AssociateBetterAfterFitSkewHitsToXYTrack
+
+
+
 
 
 
@@ -3148,6 +8597,7 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 
 
 //----------begin of function PndSttTrackFinderReal::PndSttFitSZspace
+
 
      Short_t PndSttTrackFinderReal::PndSttFitSZspace(
                                                      UShort_t nHitsinTrack,
@@ -3613,7 +9063,529 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 
 
 
+
+
+
+
+
+
+
+
+
 //----------end of function PndSttTrackFinderReal::PndSttFitSZspace
+
+
+
+
+
+
+
+
+
+
+
+
+//----------begin of function PndSttTrackFinderReal::PndSttFitSZspacebis
+
+
+     Short_t PndSttTrackFinderReal::PndSttFitSZspacebis(
+                                                     UShort_t nHitsinTrack,
+                                                     Double_t *S,
+                                                     Double_t *Z,
+                                                     Double_t *DriftRadius,
+                                                     UShort_t  nParallelTrack,
+                                                     Double_t FInot,
+                                                     UShort_t NMAX,
+                                                     Double_t *emme
+                                                            )
+{
+
+
+
+
+
+
+
+    //   definition of variables for the glpsol  solver
+   //    ROWS (for read_rows  function)
+   //
+   UShort_t  NpointsInFit = nHitsinTrack-NMAX <0 ?  nHitsinTrack :  NMAX;
+   int    nRows= NpointsInFit*9 +1;
+   int typeRows[nRows];
+   char * nameRows[nRows];
+   char  auxnameRows[nRows][20];
+//-------  end ROWS information
+//--------begin COLUMNS information
+      int  NStructVar=5+NpointsInFit*4;  //  number of  structural variables
+      int  NStructRows = 8*NpointsInFit ;  //  maximum number of ROWS in which a structural variable can be found
+      double final_values[NStructVar];
+      int  NRowsInWhichStructVarArePresent[NStructVar];
+      char *StructVarName[NStructVar];
+      char auxStructVarName[NStructVar][20];
+      char *NameRowsInWhichStructVarArePresent[NStructVar*NStructRows];
+      char aux[NStructVar*NStructRows][20];
+//      double Coefficients[NStructVar][NStructRows];
+      double Coefficients[NStructVar*NStructRows];
+//--------end COLUMNS information
+//--------begin RHS information
+      double ValueB[9*NpointsInFit];
+//--------end RHS information
+//--------begin RANGES information
+      int nRanges = NpointsInFit;
+      double ValueRanges[nRanges];
+      char *NameRanges[nRanges];
+      char auxNameRanges[nRanges][20];
+//--------end RANGES information
+//--------start BOUNDS information
+      int nBounds=2*NpointsInFit+3;
+//      int nBounds=2*NpointsInFit+1;
+      double BoundValue[nBounds];
+      char *BoundStructVarName[nBounds];
+      char auxBoundStructVarName[nBounds][20];
+      char *TypeofBound[nBounds];
+//--------end BOUNDS information
+
+
+//----------------------------------------------------
+
+
+
+
+
+
+
+     Double_t M = 50.,
+              m_result,
+              q_result,
+              A,
+              alfetta,
+              angle,
+              offsety,
+              Ox[nmaxHits],
+              Oy[nmaxHits],
+              Delta[nmaxHits];
+
+     UShort_t  i, ii;
+     Short_t Status;
+
+     char nome[100], stringa[100], stringa2[100];
+
+//     FILE * MACRO ;
+
+     float m1_result,m2_result, q1_result,q2_result, A1_result, A2_result;
+
+// --
+
+     if( nHitsinTrack < MINIMUMHITSPERTRACK) {
+        return -1;
+     }
+
+
+//  use the trick of increasing the rotation angle by 10 degrees in order to obtain always a positive m
+//      rotationangle -= PI/18.;
+
+      for(i=0;i<nHitsinTrack; i++){
+
+
+       Ox[i] = S[ i ] - FInot;
+       Oy[i] = -Z[ i ];
+
+
+
+
+
+
+         Delta[i] = 3.*StrawRadius;   //  StrawRadius now is 0.5 cm
+
+      }
+
+//-----------------  write the ROWS  section
+
+
+
+//--------
+      nameRows[0]="OBJECT";
+      typeRows[0]=GLP_FR;
+      for(i=0 ; i< NpointsInFit ; i++) {
+       ii=9*i;
+       typeRows[1+ii]=GLP_UP;typeRows[2+ii]=GLP_UP;typeRows[3+ii]=GLP_UP;typeRows[4+ii]=GLP_UP;
+       typeRows[5+ii]=GLP_UP;typeRows[6+ii]=GLP_UP;typeRows[7+ii]=GLP_UP;typeRows[8+ii]=GLP_UP;
+       typeRows[9+ii]=GLP_LO;
+
+       sprintf(&(auxnameRows[1+ii][0]),"Ap%d",i);  nameRows[1+ii]=&auxnameRows[1+ii][0];
+       sprintf(&(auxnameRows[2+ii][0]),"Bp%d",i);  nameRows[2+ii]=&auxnameRows[2+ii][0];
+       sprintf(&(auxnameRows[3+ii][0]),"Cp%d",i);  nameRows[3+ii]=&auxnameRows[3+ii][0];
+       sprintf(&(auxnameRows[4+ii][0]),"Dp%d",i);  nameRows[4+ii]=&auxnameRows[4+ii][0];
+       sprintf(&(auxnameRows[5+ii][0]),"Am%d",i);  nameRows[5+ii]=&auxnameRows[5+ii][0];
+       sprintf(&(auxnameRows[6+ii][0]),"Bm%d",i);  nameRows[6+ii]=&auxnameRows[6+ii][0];
+       sprintf(&(auxnameRows[7+ii][0]),"Cm%d",i);  nameRows[7+ii]=&auxnameRows[7+ii][0];
+       sprintf(&(auxnameRows[8+ii][0]),"Dm%d",i);  nameRows[8+ii]=&auxnameRows[8+ii][0];
+       sprintf(&(auxnameRows[9+ii][0]),"LAMBDA%d",i);  nameRows[9+ii]=&auxnameRows[9+ii][0];
+      }
+
+
+
+
+
+//-----------------  write the COLUMNS  section
+
+
+//  Column variable  m1
+      for(i=0, ii=0 ; i< NpointsInFit ; i++) {
+       ii++;
+        Coefficients[i*4]=    Ox[i];
+        Coefficients[i*4+1]=  Ox[i];
+        Coefficients[i*4+2]= -Ox[i];
+        Coefficients[i*4+3]= -Ox[i];
+      }
+
+//  Column variable  m2
+      for(i=0; i< NpointsInFit ; i++) {
+        Coefficients[NStructRows+i*4]=   -Ox[i];
+        Coefficients[NStructRows+i*4+1]= -Ox[i];
+        Coefficients[NStructRows+i*4+2]= Ox[i];
+        Coefficients[NStructRows+i*4+3]= Ox[i];
+
+      }
+
+//  Column variable  q1
+      for(i=0 ; i< NpointsInFit ; i++) {
+        Coefficients[2*NStructRows+i*4]=    1.;
+        Coefficients[2*NStructRows+i*4+1]=  1.;
+        Coefficients[2*NStructRows+i*4+2]= -1.;
+        Coefficients[2*NStructRows+i*4+3]= -1.;
+      }
+
+//  Column variable  q2
+      for(i=0 ; i< NpointsInFit ; i++) {
+        Coefficients[3*NStructRows+i*4]=   -1.;
+        Coefficients[3*NStructRows+i*4+1]= -1.;
+        Coefficients[3*NStructRows+i*4+2]=  1.;
+        Coefficients[3*NStructRows+i*4+3]=  1.;
+      }
+
+//  Column variable  lambdap(i)
+      for(i=0 ; i< NpointsInFit ; i++) {
+        Coefficients[(4+i)*NStructRows+0]= -M;
+        Coefficients[(4+i)*NStructRows+1]= -M;
+        Coefficients[(4+i)*NStructRows+2]= -M;
+        Coefficients[(4+i)*NStructRows+3]=  M;
+        Coefficients[(4+i)*NStructRows+4]=  1.;
+      }
+//  Column variable  lambdam(i)
+      for(i=0 ; i< NpointsInFit ; i++) {
+        Coefficients[(4+i+NpointsInFit)*NStructRows+0]= -M;
+        Coefficients[(4+i+NpointsInFit)*NStructRows+1]= -M;
+        Coefficients[(4+i+NpointsInFit)*NStructRows+2]= -M;
+        Coefficients[(4+i+NpointsInFit)*NStructRows+3]=  M;
+        Coefficients[(4+i+NpointsInFit)*NStructRows+4]=  1.;
+      }
+//  Column variable  sigmap(i)
+      for(i=0; i< NpointsInFit ; i++) {
+
+        Coefficients[(4+i+2*NpointsInFit)*NStructRows+0]=  1./Delta[i];
+        Coefficients[(4+i+2*NpointsInFit)*NStructRows+1]= -1.;
+        Coefficients[(4+i+2*NpointsInFit)*NStructRows+2]= -1.;
+        Coefficients[(4+i+2*NpointsInFit)*NStructRows+3]=  1.;
+        Coefficients[(4+i+2*NpointsInFit)*NStructRows+4]= -1.;
+      }
+//  Column variable  sigmam(i)
+      for(i=0 ; i< NpointsInFit ; i++) {
+        Coefficients[(4+i+3*NpointsInFit)*NStructRows+0]=  1./Delta[i];
+        Coefficients[(4+i+3*NpointsInFit)*NStructRows+1]= -1.;
+        Coefficients[(4+i+3*NpointsInFit)*NStructRows+2]= -1.;
+        Coefficients[(4+i+3*NpointsInFit)*NStructRows+3]=  1.;
+        Coefficients[(4+i+3*NpointsInFit)*NStructRows+4]= -1.;
+      }
+
+//  Column variable  DUMMY
+      for(i=0 ; i< NStructRows ; i++) {
+        Coefficients[(4+4*NpointsInFit)*NStructRows+i]= 1.;
+      }
+//--------------------
+      StructVarName[0]="m1";
+      NRowsInWhichStructVarArePresent[0]= 4*NpointsInFit;
+      StructVarName[1]="m2";
+      NRowsInWhichStructVarArePresent[1]= 4*NpointsInFit;
+      StructVarName[2]="q1";
+      NRowsInWhichStructVarArePresent[2]= 4*NpointsInFit;
+      StructVarName[3]="q2";
+      NRowsInWhichStructVarArePresent[3]= 4*NpointsInFit;
+      for(i=0; i< NpointsInFit ; i++) {
+          sprintf(&auxStructVarName[3+i+1][0],"lamp%d",i);
+          StructVarName[4+i] = &auxStructVarName[4+i][0];
+          NRowsInWhichStructVarArePresent[4+i]= 5;
+
+          sprintf(&auxStructVarName[4+NpointsInFit+i][0],"lamm%d",i);
+          StructVarName[4+NpointsInFit+i] = &auxStructVarName[4+NpointsInFit+i][0];
+          NRowsInWhichStructVarArePresent[4+NpointsInFit+i]= 5;
+
+          sprintf(&auxStructVarName[4+2*NpointsInFit+i][0],"sigmap%d",i);
+          StructVarName[4+2*NpointsInFit+i] = &auxStructVarName[4+2*NpointsInFit+i][0];
+          NRowsInWhichStructVarArePresent[4+2*NpointsInFit+i]= 5;
+
+          sprintf(&auxStructVarName[4+3*NpointsInFit+i][0],"sigmam%d",i);
+          StructVarName[4+3*NpointsInFit+i] = &auxStructVarName[4+3*NpointsInFit+i][0];
+          NRowsInWhichStructVarArePresent[4+3*NpointsInFit+i]= 5;
+
+      }
+      StructVarName[4+4*NpointsInFit]="DUMMY";
+      NRowsInWhichStructVarArePresent[4+4*NpointsInFit]= NStructRows;
+
+
+//  for m1, m2, q1, q2
+      for(i=0; i< 4; i++){
+        for(ii=0; ii< NpointsInFit;ii++){
+         sprintf(&aux[i*NStructRows+ii*4][0],"Ap%d",ii);
+         NameRowsInWhichStructVarArePresent[i*NStructRows+ii*4]=&aux[i*NStructRows+ii*4][0];
+         sprintf(&aux[i*NStructRows+ii*4+1][0],"Am%d",ii);
+         NameRowsInWhichStructVarArePresent[i*NStructRows+ii*4+1]=&aux[i*NStructRows+ii*4+1][0];
+         sprintf(&aux[i*NStructRows+ii*4+2][0],"Bp%d",ii);
+         NameRowsInWhichStructVarArePresent[i*NStructRows+ii*4+2]=&aux[i*NStructRows+ii*4+2][0];
+         sprintf(&aux[i*NStructRows+ii*4+3][0],"Bm%d",ii);
+         NameRowsInWhichStructVarArePresent[i*NStructRows+ii*4+3]=&aux[i*NStructRows+ii*4+3][0];
+        }
+      }
+
+//  now for the    lamp*   variables
+      for(i=0; i< NpointsInFit;i++){
+         sprintf(&aux[(i+4)*NStructRows+0][0],"Ap%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4)*NStructRows+0]= &aux[(i+4)*NStructRows+0][0];
+         sprintf(&aux[(i+4)*NStructRows+1][0],"Bp%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4)*NStructRows+1]= &aux[(i+4)*NStructRows+1][0];
+         sprintf(&aux[(i+4)*NStructRows+2][0],"Cp%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4)*NStructRows+2]= &aux[(i+4)*NStructRows+2][0];
+         sprintf(&aux[(i+4)*NStructRows+3][0],"Dp%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4)*NStructRows+3]= &aux[(i+4)*NStructRows+3][0];
+         sprintf(&aux[(i+4)*NStructRows+4][0],"LAMBDA%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4)*NStructRows+4]= &aux[(i+4)*NStructRows+4][0];
+      }
+
+//  now for the    lamm*   variables
+      for(i=0; i< NpointsInFit;i++){
+         sprintf(&aux[(i+4+NpointsInFit)*NStructRows+0][0],"Am%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit)*NStructRows+0]= &aux[(i+4+NpointsInFit)*NStructRows+0][0];
+         sprintf(&aux[(i+4+NpointsInFit)*NStructRows+1][0],"Bm%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit)*NStructRows+1]= &aux[(i+4+NpointsInFit)*NStructRows+1][0];
+         sprintf(&aux[(i+4+NpointsInFit)*NStructRows+2][0],"Cm%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit)*NStructRows+2]= &aux[(i+4+NpointsInFit)*NStructRows+2][0];
+         sprintf(&aux[(i+4+NpointsInFit)*NStructRows+3][0],"Dm%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit)*NStructRows+3]= &aux[(i+4+NpointsInFit)*NStructRows+3][0];
+         sprintf(&aux[(i+4+NpointsInFit)*NStructRows+4][0],"LAMBDA%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4+NpointsInFit)*NStructRows+4]= &aux[(i+4+NpointsInFit)*NStructRows+4][0];
+      }
+
+//  now for the    sigmap*   variables
+      for(i=0; i< NpointsInFit;i++){
+         sprintf(&aux[(i+4+2*NpointsInFit)*NStructRows+0][0],"OBJECT",i);
+         NameRowsInWhichStructVarArePresent[(i+4+2*NpointsInFit)*NStructRows+0]= &aux[(i+4+2*NpointsInFit)*NStructRows+0][0];
+         sprintf(&aux[(i+4+2*NpointsInFit)*NStructRows+1][0],"Ap%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4+2*NpointsInFit)*NStructRows+1]= &aux[(i+4+2*NpointsInFit)*NStructRows+1][0];
+         sprintf(&aux[(i+4+2*NpointsInFit)*NStructRows+2][0],"Bp%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4+2*NpointsInFit)*NStructRows+2]= &aux[(i+4+2*NpointsInFit)*NStructRows+2][0];
+         sprintf(&aux[(i+4+2*NpointsInFit)*NStructRows+3][0],"Cp%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4+2*NpointsInFit)*NStructRows+3]= &aux[(i+4+2*NpointsInFit)*NStructRows+3][0];
+         sprintf(&aux[(i+4+2*NpointsInFit)*NStructRows+4][0],"Dp%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4+2*NpointsInFit)*NStructRows+4]= &aux[(i+4+2*NpointsInFit)*NStructRows+4][0];
+      }
+
+//  now for the    sigmam*   variables
+      for(i=0; i< NpointsInFit;i++){
+         sprintf(&aux[(i+4+3*NpointsInFit)*NStructRows+0][0],"OBJECT",i);
+         NameRowsInWhichStructVarArePresent[(i+4+3*NpointsInFit)*NStructRows+0]= &aux[(i+4+3*NpointsInFit)*NStructRows+0][0];
+         sprintf(&aux[(i+4+3*NpointsInFit)*NStructRows+1][0],"Am%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4+3*NpointsInFit)*NStructRows+1]= &aux[(i+4+3*NpointsInFit)*NStructRows+1][0];
+         sprintf(&aux[(i+4+3*NpointsInFit)*NStructRows+2][0],"Bm%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4+3*NpointsInFit)*NStructRows+2]= &aux[(i+4+3*NpointsInFit)*NStructRows+2][0];
+         sprintf(&aux[(i+4+3*NpointsInFit)*NStructRows+3][0],"Cm%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4+3*NpointsInFit)*NStructRows+3]= &aux[(i+4+3*NpointsInFit)*NStructRows+3][0];
+         sprintf(&aux[(i+4+3*NpointsInFit)*NStructRows+4][0],"Dm%d",i);
+         NameRowsInWhichStructVarArePresent[(i+4+3*NpointsInFit)*NStructRows+4]= &aux[(i+4+3*NpointsInFit)*NStructRows+4][0];
+      }
+
+//  now for the    DUMMY   variable
+      for(i=0; i< NpointsInFit;i++){
+         sprintf(&aux[(4+4*NpointsInFit)*NStructRows  +8*i][0],"Ap%d",i);
+         NameRowsInWhichStructVarArePresent[(4+4*NpointsInFit)*NStructRows+i*8  ]= &aux[(4+4*NpointsInFit)*NStructRows  +8*i][0];
+
+         sprintf(&aux[(4+4*NpointsInFit)*NStructRows+1+8*i][0],"Am%d",i);
+         NameRowsInWhichStructVarArePresent[(4+4*NpointsInFit)*NStructRows+1+8*i]= &aux[(4+4*NpointsInFit)*NStructRows+1+8*i][0];
+         sprintf(&aux[(4+4*NpointsInFit)*NStructRows+2+8*i][0],"Bp%d",i);
+         NameRowsInWhichStructVarArePresent[(4+4*NpointsInFit)*NStructRows+2+8*i]= &aux[(4+4*NpointsInFit)*NStructRows+2+8*i][0];
+         sprintf(&aux[(4+4*NpointsInFit)*NStructRows+3+8*i][0],"Bm%d",i);
+         NameRowsInWhichStructVarArePresent[(4+4*NpointsInFit)*NStructRows+3+8*i]= &aux[(4+4*NpointsInFit)*NStructRows+3+8*i][0];
+         sprintf(&aux[(4+4*NpointsInFit)*NStructRows+4+8*i][0],"Cp%d",i);
+         NameRowsInWhichStructVarArePresent[(4+4*NpointsInFit)*NStructRows+4+8*i]= &aux[(4+4*NpointsInFit)*NStructRows+4+8*i][0];
+         sprintf(&aux[(4+4*NpointsInFit)*NStructRows+5+8*i][0],"Cm%d",i);
+         NameRowsInWhichStructVarArePresent[(4+4*NpointsInFit)*NStructRows+5+8*i]= &aux[(4+4*NpointsInFit)*NStructRows+5+8*i][0];
+         sprintf(&aux[(4+4*NpointsInFit)*NStructRows+6+8*i][0],"Dp%d",i);
+         NameRowsInWhichStructVarArePresent[(4+4*NpointsInFit)*NStructRows+6+8*i]= &aux[(4+4*NpointsInFit)*NStructRows+6+8*i][0];
+         sprintf(&aux[(4+4*NpointsInFit)*NStructRows+7+8*i][0],"Dm%d",i);
+         NameRowsInWhichStructVarArePresent[(4+4*NpointsInFit)*NStructRows+7+8*i]= &aux[(4+4*NpointsInFit)*NStructRows+7+8*i][0];
+      }
+
+
+
+
+//-----------------  write the RHS  section
+
+
+      for(i=0 ; i< NpointsInFit ; i++) {
+          ValueB[i*9]  =  Oy[i]+DriftRadius[ i ]+2.*M;
+          ValueB[i*9+1]= -Oy[i]-DriftRadius[ i ]+2.*M;
+          ValueB[i*9+2]= Delta[i]+2.*M;
+          ValueB[i*9+3]= M-Delta[i]+2.*M;
+          ValueB[i*9+4]=  Oy[i]-DriftRadius[ i ]+2.*M;
+          ValueB[i*9+5]= -Oy[i]+DriftRadius[ i ]+2.*M;
+          ValueB[i*9+6]= Delta[i]+2.*M;
+          ValueB[i*9+7]= M-Delta[i]+2.*M;
+          ValueB[i*9+8]= 1.;
+
+
+      }
+
+
+
+
+//-----------------  write the RANGES  section
+
+      for(i=0 ; i< NpointsInFit ; i++) {
+        ValueRanges[i]=1.;
+        sprintf(&auxNameRanges[i][0],"LAMBDA%d",i);
+        NameRanges[i]=&auxNameRanges[i][0];
+      }
+
+
+//-----------------  write the BOUNDS  section
+
+
+      for(i=0 ; i< NpointsInFit ; i++) {
+          TypeofBound[i]="BV";
+          sprintf(&auxBoundStructVarName[i][0],"lamp%d",i);
+          BoundStructVarName[i]=&auxBoundStructVarName[i][0];
+          BoundValue[i]=0.;
+      }
+
+      for(i=0 ; i< NpointsInFit ; i++) {
+          TypeofBound[i+NpointsInFit]="BV";
+          sprintf(&auxBoundStructVarName[i+NpointsInFit][0],"lamm%d",i);
+          BoundStructVarName[i+NpointsInFit]=&auxBoundStructVarName[i+NpointsInFit][0];
+          BoundValue[i+NpointsInFit]=0.;
+      }
+
+          TypeofBound[2*NpointsInFit]="FX";
+          BoundStructVarName[2*NpointsInFit]="DUMMY";
+          BoundValue[2*NpointsInFit]=2.*M;
+
+
+
+//   fixing q1
+          TypeofBound[2*NpointsInFit+1]="FX";
+          BoundStructVarName[2*NpointsInFit+1]="q1";
+          BoundValue[2*NpointsInFit+1]= 0.;
+//   fixing q2
+          TypeofBound[2*NpointsInFit+2]="FX";
+          BoundStructVarName[2*NpointsInFit+2]="q2";
+          BoundValue[2*NpointsInFit+2]= 0.;
+
+//-----
+
+
+
+
+
+
+//----------------------  calling the minimizer
+
+
+      int status= glp_main(
+            nRows,nameRows,typeRows, //  ROWS info
+            NStructVar, NStructRows, NRowsInWhichStructVarArePresent,  //  COLUMNS info
+      StructVarName, NameRowsInWhichStructVarArePresent,  //  COLUMNS info
+      Coefficients,  //  COLUMNS info
+      ValueB,  // RHS  info
+      nRanges, ValueRanges, NameRanges, //  RANGES  info
+      nBounds, BoundValue, BoundStructVarName, TypeofBound //  BOUNDS info
+      ,final_values
+       );
+
+
+
+//------------------------------------------
+
+     m1_result=final_values[0];
+     m2_result=final_values[1];
+//     q1_result=final_values[2];
+//     q2_result=final_values[3];
+
+//------------------------  transformation of the result in terms of ALFA, BETA, GAMMA
+
+
+
+
+
+// taking into account the rotation + traslation that was performed and calculate emme and qu
+
+     *emme = m1_result-m2_result ;
+//     *qu = FInot;
+
+      if(fabs( (*emme)  )> 1.e-10) {
+        *emme=-1./(*emme);
+        return 1;
+      } else {    //  in this case the equation is   0 = x+*qu .
+
+        return -99;    //  in this case the equation is   x = 0 and so this is a useless track.
+      }
+
+
+
+
+
+}
+
+
+
+//----------end of function PndSttTrackFinderReal::PndSttFitSZspacebis
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3627,7 +9599,7 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
                                                      Double_t Pyini,
                                                      Double_t Pzini,
                                                      Double_t Ptras,
-                                                     Double_t info[][6],
+                                                     Double_t info[][7],
                                                      UShort_t nParallelHits,
                                                      UShort_t *ListParallelHits,
                                                      UShort_t nSkewHits,
@@ -3638,6 +9610,7 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
                                                        )
 {
 
+cout<<"cavolo, px = "<<Pxini<<", py = "<<Pyini<<", pz = "<<Pzini<<endl;
 
       UShort_t i,j,flag,
                nTotal = nParallelHits+nSkewHits,
@@ -3789,14 +9762,17 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 
        trk->setCandidate(*cand); // here the candidate is copied! 
 
+cout<<"qui\n";
 //----  now the Kalman
 	trk->addHitVector(_theRecoHitFactory->createMany(trk->getCand()));
+cout<<"qua\n";
 	GFKalman k;
         k.setLazy(1);
 	k.setNumIterations(1);
 	k.processTrack(trk);
 //------ estrazione delle info dal Kalman secondo Lia
     TVector3 dum = trk->getCardinalRep()->getMom();
+    cout<<"infos, momento sul primo piano : "<<dum.X()<<endl;
 //------------
  
     delete grep;
@@ -3815,12 +9791,104 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 
 
 
+//----------begin of function PndSttTrackFinderReal::PndSttOrderingParallel
+
+      void   PndSttTrackFinderReal::PndSttOrderingParallel(
+                                                     Double_t oX,
+                                                     Double_t oY,
+                                                     Double_t info[][7],
+                                                     UShort_t nParallelHits,
+                                                     UShort_t *ListParallelHits,
+                                                     UShort_t *Infoparal,
+                                                     Short_t  * Charge,
+                                                     Double_t *Fi_initial_helix_referenceframe,
+                                                     Double_t *Fi_final_helix_referenceframe
+                                                       )
+{
+
+
+      UShort_t i,j,flag;
+      Double_t old,
+               auxFivalues[nmaxHits],
+               auxRvalues[nmaxHits];
+
+
+
+//  here there is the ordering of the hits
+
+//   ordering of the parallel hits
+
+    for (j = 0; j< nParallelHits; j++){
+      auxRvalues[j]=
+                    info[ infoparal[ ListParallelHits[j] ]  ][0]*
+                    info[ infoparal[ ListParallelHits[j] ]  ][0]+
+                    info[ infoparal[ ListParallelHits[j] ]  ][1]*
+                    info[ infoparal[ ListParallelHits[j] ]  ][1];
+    }
+
+    PndStt_Merge_Sort( nParallelHits, auxRvalues, ListParallelHits);
+
+    for (j = 0; j< nParallelHits; j++){              
+      auxFivalues[j] = atan2( info[ infoparal[ ListParallelHits[j] ]  ][1]-oY,
+                              info[ infoparal[ ListParallelHits[j] ]  ][0]-oX);
+      if( auxFivalues[j] < 0. ) auxFivalues[j] += 2.*PI;
+    }
+
+//  fixing possible discontinuity between fi<2*PI and fi>0.
+   for (old=auxFivalues[0],flag=0, j = 1; j< nParallelHits; j++){
+      if( fabs(old - auxFivalues[j]) > PI ) {
+        flag=1;
+        break;
+      } else {
+        old=auxFivalues[j];
+      }
+   }
+   if( flag==1) {
+      for (j = 0; j< nParallelHits; j++){
+        if( auxFivalues[j] < PI) auxFivalues[j] += 2.*PI;
+      }
+   }
+
+//   finding the charge of the track
+
+    if( auxFivalues[0] > auxFivalues[nParallelHits-1]) {
+      *Charge =  1;
+    }  else {
+     *Charge =  -1;
+    }
+
+
+
+//  FI initial value (at 0,0  vertex) in the Helix reference frame
+
+      *Fi_initial_helix_referenceframe = atan2(-oY,-oX);
+      if ( *Fi_initial_helix_referenceframe <0.) *Fi_initial_helix_referenceframe += 2.*PI;
+
+//  FI of the last parallel hit in the Helix reference frame
+
+      *Fi_final_helix_referenceframe = auxFivalues[nParallelHits-1];
+
+ return; 
+
+}
+//----------end of function PndSttTrackFinderReal::PndSttOrderingParallel
+
+
+
+
+
+
+
+
+
+
+
 //----------begin of function PndSttTrackFinderReal::PndSttOrdering
 
       void   PndSttTrackFinderReal::PndSttOrdering(
                                                      Double_t oX,
                                                      Double_t oY,
-                                                     Double_t info[][6],
+                                                     Double_t info[][7],
                                                      UShort_t nParallelHits,
                                                      UShort_t *ListParallelHits,
                                                      UShort_t nSkewHits,
@@ -3966,6 +10034,855 @@ cout<<"    j= "<<j<<", n. Hit in original numbering = "<<BigList[j]<<" e suo FI 
 
 }
 //----------end of function PndSttTrackFinderReal::PndSttOrdering
+
+
+
+
+
+
+
+//----------start  function PndSttTrackFinderReal::PndSttFindingParallelTrackAngularRange
+
+      void   PndSttTrackFinderReal::PndSttFindingParallelTrackAngularRange(
+                                                     Double_t oX,
+                                                     Double_t oY,
+                                                     Double_t R,
+                                                     Short_t  Charge,
+                                                     Double_t *Fi_low_limit,
+                                                     Double_t *Fi_up_limit                                                      )
+{
+// -------------- calculate the maximum fi and minimum fi spanned by this track, vedere logbook pag.243.
+
+//  working in the hypothesis that the starting point of the track is near (0,0) so that
+//  R_vertex < RStrawDetectorMin
+
+
+         Double_t  teta1, teta2, tetavertex, tmp1;
+
+
+         tmp1 = sqrt(oX*oX+oY*oY);
+
+         if(R + tmp1 - RStrawDetectorMax >= 0. ){     //     this is the most common case
+
+            if( Charge < 0.){
+               teta1=asin(0.5*RStrawDetectorMin/R);
+               teta2=asin(0.5*RStrawDetectorMax/R);
+               tetavertex=atan2( -oX, oY);
+               teta1 +=tetavertex;
+               teta2 +=tetavertex;
+            } else {
+               teta2=asin(0.5*RStrawDetectorMin/R);
+               teta1=asin(0.5*RStrawDetectorMax/R);
+               tetavertex=atan2( oX, -oY);
+               teta1 = tetavertex - teta1;
+               teta2 = tetavertex - teta2;
+            }
+
+
+
+
+         } else if ( R + tmp1 > RStrawDetectorMin  ){
+
+
+            if( Charge < 0.){
+               teta1=asin(0.5*RStrawDetectorMin/R);
+               teta2= PI - teta1;
+               tetavertex=atan2( -oX, oY);
+               teta1 +=tetavertex;
+               teta2 +=tetavertex;
+            } else {
+               teta2=asin(0.5*RStrawDetectorMin/R);
+               teta1= PI - teta2;
+               tetavertex=atan2( oX, -oY);
+               teta1 = tetavertex - teta1;
+               teta2 = tetavertex - teta2;
+            }
+
+
+         } else {            //  case when the trajectory is too small
+               teta1=-99999.;
+            
+         }   //  end of          if(R + tmp1 - RStrawDetectorMax >= 0. )
+
+
+
+         if(teta1>-99998) {
+
+//  add safety margin
+           teta1 -= 2.*StrawRadius/RStrawDetectorMin;
+           teta2 += 2.*StrawRadius/RStrawDetectorMin;
+           if(teta1<0.) {
+             teta1 += 2.*PI;
+             teta2 += 2.*PI;
+           }
+//-------
+
+           if(teta1 > 2.*PI) {
+             teta1=fmod(teta1,2.*PI);
+             teta2=fmod(teta2,2.*PI);
+           }
+           *Fi_low_limit=teta1;
+           *Fi_up_limit=teta2;
+
+         }  //  end of  if(teta1>-99998)
+
+
+//------------  end calculation the maximum fi and minimum fi spanned by this track
+
+
+
+      return;
+}
+
+
+//---------- end of  function PndSttTrackFinderReal::PndSttFindingParallelTrackAngularRange
+
+
+
+
+//----------start  function PndSttTrackFinderReal::PndSttFindingAllowedAngularRangeforSkew
+
+      void   PndSttTrackFinderReal::PndSttFindingAllowedAngularRangeforSkew(
+                                                     Double_t oX,
+                                                     Double_t oY,
+                                                     Double_t R,
+                                                     Short_t  Charge,
+                                                     Double_t *Fi_allowedforskew_low,
+                                                     Double_t *Fi_allowedforskew_up
+                                                       )
+{
+
+      UShort_t i,
+               index,
+               is;
+      Double_t 
+               alpha,
+               beta,
+               delta,
+               fi_vertex,
+               c1,
+               c2,
+               maximum,
+               maximum2,
+               minimum,
+               minimum2,
+               x1,
+               x2,
+               y,
+               fi[12],
+               a[] = { 0., -sqrt(3.), sqrt(3.) , 0. , -sqrt(3.), sqrt(3.) } ,
+               b[] = { 1.,       2. ,      -2.,  -1.,   -2. ,    2.  },
+               Erre[] = {RminStrawSkewArea, RmaxStrawSkewArea },  //  this is the distance from (0,0) of the side delimiting the Skew area
+               exhagon_side_xlow[6][2] ,
+               exhagon_side_xup[6][2]
+                 ;
+
+
+// cout<<"    Rmin = "<<RminStrawSkewArea<<", Rmx "<<RmaxStrawSkewArea<<endl;
+// cout<<"    oX = "<<oX<<", oY "<<oY<<endl;
+
+
+     alpha = -2.*oX ,  beta = -2.*oY;
+
+     index=0;
+
+
+//  do the assign in the dumb way in the hope of saving cpu cycles
+     exhagon_side_xlow[0][0] = -Erre[0]/sqrt(3.);
+     exhagon_side_xlow[1][0] =  Erre[0]/sqrt(3.);
+     exhagon_side_xlow[2][0] =  Erre[0]/sqrt(3.);
+     exhagon_side_xlow[3][0] =  -Erre[0]/sqrt(3.);
+     exhagon_side_xlow[4][0] =  -2.*Erre[0]/sqrt(3.);
+     exhagon_side_xlow[5][0] =  -2.*Erre[0]/sqrt(3.);
+     exhagon_side_xup[0][0] = Erre[0]/sqrt(3.);
+     exhagon_side_xup[1][0] = 2.*Erre[0]/sqrt(3.);
+     exhagon_side_xup[2][0] = 2.*Erre[0]/sqrt(3.);
+     exhagon_side_xup[3][0] = Erre[0]/sqrt(3.);
+     exhagon_side_xup[4][0] = -Erre[0]/sqrt(3.);
+     exhagon_side_xup[5][0] = -Erre[0]/sqrt(3.);
+
+
+     exhagon_side_xlow[0][1] = -Erre[1]/sqrt(3.);
+     exhagon_side_xlow[1][1] =  Erre[1]/sqrt(3.);
+     exhagon_side_xlow[2][1] =  Erre[1]/sqrt(3.);
+     exhagon_side_xlow[3][1] =  -Erre[1]/sqrt(3.);
+     exhagon_side_xlow[4][1] =  -2.*Erre[1]/sqrt(3.);
+     exhagon_side_xlow[5][1] =  -2.*Erre[1]/sqrt(3.);
+     exhagon_side_xup[0][1] = Erre[1]/sqrt(3.);
+     exhagon_side_xup[1][1] = 2.*Erre[1]/sqrt(3.);
+     exhagon_side_xup[2][1] = 2.*Erre[1]/sqrt(3.);
+     exhagon_side_xup[3][1] = Erre[1]/sqrt(3.);
+     exhagon_side_xup[4][1] = -Erre[1]/sqrt(3.);
+     exhagon_side_xup[5][1] = -Erre[1]/sqrt(3.);
+
+//-----------------------
+
+//   find intersection with the 6 sides of the smalle exhagon delimiting the skew straws zone
+//   see on page 249-250 of Gianluigi's logbook.
+
+     for(is=0; is<6; is++){
+         c2 = 1.+a[is]*a[is];
+         if( fabs(a[is]*oX-oY+ b[is]*Erre[0])/sqrt(c2) >= R) continue;   // skew hits not possible.
+       for(i=0;i<2;i++){
+         c1 = alpha+ 2.*a[is]*b[is]*Erre[i]+ a[is]*beta;
+         delta = c1*c1 - 4.*c2*b[is]*Erre[i]*(b[is]*Erre[i]+beta);
+         if(delta<0.) delta=0.;    //  delta<0 could never happen in principle, only caused by rounding
+         x1 = 0.5*(-c1 - sqrt(delta))/c2;
+         x2 = 0.5*(-c1 + sqrt(delta))/c2;
+// cout<<"     is = "<<is<<", i= "<<i<<",  x1 "<<x1<<", x2 "<<x2<<",  RminStrawSkewArea "<<RminStrawSkewArea<<endl;
+// cout<<"         low lim. = "<< exhagon_side_xlow[is][i] <<", up lim.= "<<exhagon_side_xup[is][i]<<endl;
+         if( x1 >= exhagon_side_xlow[is][i] && x1 <= exhagon_side_xup[is][i] ) {
+             y = a[is]*x1 + b[is]*Erre[i];
+// cout<<"              x= "<<x1<<",      y = "<<y<<endl;
+             fi[index]=atan2(y-oY,x1-oX);
+             if( fi[index] <0. ) fi[index]+= 2.*PI ;
+             index++;
+         }
+         if( x2 >= exhagon_side_xlow[is][i] && x2 <= exhagon_side_xup[is][i] ) {
+             y = a[is]*x2 + b[is]*Erre[i];
+// cout<<"             x= "<<x2<<",       y = "<<y<<endl;
+             fi[index]=atan2(y-oY,x2-oX);
+             if( fi[index] <0. ) fi[index]+= 2.*PI ;
+             index++;
+         }
+
+      }  //  end of for(i=0;i<2;i++)
+
+
+     }  //  end of for(is=0;i<6;is++)
+
+
+// cout<<" RmaxStrawSkewArea= "<<RmaxStrawSkewArea<<", i outer/inner = "<<i<<", intersezioni compatibili sono "<<index<<" :"<<endl;
+// for(int ica=0;ica<index;ica++){  cout<<"       fi (gradi) = "<<fi[ica]*180/PI<<endl; }
+
+
+//  choose the low and upper limits taking into account the charge of this track
+
+     if(index == 0) {
+        cout<<
+"from PndSttTrackFinderReal::PndSttFindingParallelTrackAngularRangeforSkew    :  radius of trajectory too small, no intersections\n";
+        *Fi_allowedforskew_low= -9999;
+        return;
+     }
+//  at this poin the intersection MUST be at least 2
+
+     if(index == 1) {
+        cout<<"from PndSttTrackFinderReal::PndSttFindingParallelTrackAngularRangeforSkew    this situation is mathematically impossible !\n";
+        *Fi_allowedforskew_low= -9999;
+        return;
+     }
+
+     fi_vertex = atan2(-oY, -oX);
+     if(fi_vertex<0.) fi_vertex += 2.*PI; 
+     if(fi_vertex<0.) fi_vertex += 0.;    //   this is a protection from possible rounding errors
+// cout<<" fi_vertex(gradi) = "<<fi_vertex*180/PI<<endl;
+
+     if(Charge < 0 ) {
+       for(i=0, minimum=100000.;i<index;i++){
+          if( fi[i] < fi_vertex ) fi[i] += 2.*PI;
+          if( fi[i] < minimum ) minimum= fi[i] ;
+       }
+       for(i=0, minimum2=100000.;i<index;i++){
+          if( fi[i] < minimum2 && fi[i]> minimum) minimum2 = fi[i] ;
+       }
+       *Fi_allowedforskew_low = minimum;
+       *Fi_allowedforskew_up = minimum2;
+
+     } else {
+
+       for(i=0, maximum=-100000.;i<index;i++){
+          if( fi[i] > fi_vertex ) fi[i] -= 2.*PI;
+          if( fi[i] > maximum ) maximum= fi[i] ;
+       }
+       for(i=0, maximum2=-100000.;i<index;i++){
+          if( fi[i] > maximum2 && fi[i] < maximum) maximum2 = fi[i] ;
+       }
+       *Fi_allowedforskew_low = maximum2;
+       *Fi_allowedforskew_up = maximum;
+
+     }   //   end of if(Charge < 0 )
+
+
+// cout<<"Stampa di controllo Fimin(gradi) = "<<(*Fi_allowedforskew_low)*180./PI<<", Fmax = "<<(*Fi_allowedforskew_up)*180./PI<<endl;
+
+      if( *Fi_allowedforskew_low > 2.*PI ) {
+        *Fi_allowedforskew_low = fmod( (*Fi_allowedforskew_low),2.*PI);
+        *Fi_allowedforskew_up = fmod( (*Fi_allowedforskew_up),2.*PI);
+      }
+
+
+
+      return;
+}
+
+//---------- end of  function PndSttTrackFinderReal::PndSttFindingAllowedAngularRangeforSkew
+
+
+
+
+
+
+
+
+
+
+//----------start of function PndSttTrackFinderReal::WriteMacroParallelHitswithRfromMC
+
+  void PndSttTrackFinderReal::WriteMacroParallelHitswithRfromMC(
+                   Int_t Nhits, Double_t info[][7],
+                   UShort_t nTracksFoundSoFar,
+                   bool *TypeConf,
+                   Double_t *Ox,
+                   Double_t *Oy,
+                   Short_t * daTrackFoundaTrackMC
+                                                     )
+{
+
+    Int_t i, j, i1, ii, index, Kincl, nlow, nup, STATUS;
+
+    Double_t xmin , xmax, ymin, ymax, xl, xu, yl, yu,
+            gamma,
+           dx, dy, diff, d1, d2,
+           delta, deltax, deltay, deltaz, deltaS,
+           factor,ff,
+           zmin, zmax, Smin, Smax, S1, S2,
+           z1, z2, y1, y2,x1,x2,
+           vx1, vy1, vz1, C0x1, C0y1, C0z1,
+           aaa, bbb, ccc, rrr, angle, minor, major,
+           distance, Rx, Ry, LL,
+           Aellipsis1, Bellipsis1,fi1,
+           fmin, fmax, offset, step,
+           SkewInclWithRespectToS, zpos, zpos1, zpos2,
+           Tiltdirection1[2],
+           zl[200],zu[200],
+           POINTS1[6];
+
+      char nome[50], nome2[50];
+
+
+
+
+
+
+
+//---------- parallel straws Macro now con anche le tracce MC
+
+      sprintf(nome,"MacrowithRfromMCParallelHitswithMCEvent%d", IVOLTE);
+      sprintf(nome2,"%s.C",nome);
+      FILE * MACRO = fopen(nome2,"w");
+//      MACRO = fopen(nome2,"w");
+      fprintf(MACRO,"void %s()\n{\n",nome);
+      xmin=1.e20;
+      xmax=-1.e20;
+      ymin=1.e20;
+      ymax=-1.e20;
+       for( i=0; i< Nhits; i++) {
+         if( info[i][5] == 1 ) {     // parallel straws
+            if (info[i][0]-info[i][3] < xmin)   xmin = info[i][0]-info[i][3];
+            if (info[i][0]+info[i][3] > xmax)   xmax = info[i][0]+info[i][3];
+            if (info[i][1]-info[i][3] < ymin)   ymin = info[i][1]-info[i][3];
+            if (info[i][1]+info[i][3] > ymax)   ymax = info[i][1]+info[i][3];
+          }
+       }
+
+       if( xmin > 0. ) xmin = 0.;
+       if( xmax < 0.)  xmax = 0.;
+       if( ymin > 0. ) ymin = 0.;
+       if( ymax < 0.)  ymax = 0.;
+
+       deltax = xmax-xmin;
+       deltay = ymax - ymin;
+
+       if( deltax > deltay) {
+         ymin -=  0.5*(deltax-deltay);
+         ymax = ymin+ deltax;
+         delta = deltax;
+       }  else  {
+         xmin -=  0.5*(deltay-deltax);
+         xmax = xmin+ deltay;
+         delta= deltay;
+       }
+
+       xmax = xmax + delta*0.05;
+       xmin = xmin - delta*0.05;
+
+       ymax = ymax + delta*0.05;
+       ymin = ymin - delta*0.05;
+
+
+       fprintf(MACRO,"TCanvas* my= new TCanvas();\nmy->Range(%f,%f,%f,%f);\n",xmin,ymin,xmax,ymax);
+
+
+       fprintf(MACRO,"TGaxis *Assex = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n",xmin,0.,xmax,0.,xmin,xmax);
+       fprintf(MACRO,"Assex->Draw();\n");
+       fprintf(MACRO,"TGaxis *Assey = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n", 0.,ymin,0.,ymax,ymin,ymax);
+       fprintf(MACRO,"Assey->Draw();\n");
+
+
+       for( i=0; i< Nhits; i++) {
+         if( info[i][5] == 1 ) {     // parallel straws
+            fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nE%d->SetFillStyle(0);\nE%d->Draw();\n",
+                     i,info[i][0],info[i][1],info[i][3],info[i][3],i,i);
+          }
+       }
+
+
+
+       for( i=0; i< nMCTracks ; i++) {
+            fprintf(MACRO,"TEllipse* MC%d = new TEllipse(%f,%f,%f,%f,0.,360.);\nMC%d->SetFillStyle(0);\nMC%d->SetLineColor(3);\nMC%d->Draw();\n",
+                     i,CxMC[i],CyMC[i],R_MC[i],R_MC[i],i,i,i);
+// cout<<" info MC buone : MCtrack n. "<<i<<",  Cx, Cy, R  "<<CxMC[i]<<",  "<<CyMC[i]<<",  "<<R_MC[i]<<endl;
+       }
+
+
+//-------------------------------   plotting all the tracks found, with R from corresponding MC track
+
+    for(i=0; i<nTracksFoundSoFar; i++){
+
+       if( daTrackFoundaTrackMC[i] == -1 )  continue;
+       rrr = R_MC[  daTrackFoundaTrackMC[i]  ];
+       double angolo = atan2(Oy[i],Ox[i]); 
+       aaa = rrr*cos(angolo);
+       bbb = rrr*sin(angolo);
+       fprintf(MACRO,"TEllipse* ris%d=new TEllipse(%f,%f,%f,%f,0.,360.);\nris%d->SetFillStyle(0);\nris%d->SetLineColor(2);\nris%d->Draw();\n",
+                     i,aaa,bbb,rrr,rrr,i,i,i);
+
+
+    }
+
+// -----------
+
+      fprintf(MACRO,"}\n");
+      fclose(MACRO);
+       
+//------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+    return ;
+
+}
+
+
+//----------end of function PndSttTrackFinderReal::WriteMacroParallelHitswithRfromMC
+
+
+
+
+
+
+
+
+//----------start of function PndSttTrackFinderReal::WriteMacroSkewAssociatedHitswithRfromMC
+
+  void PndSttTrackFinderReal::WriteMacroSkewAssociatedHitswithRfromMC(
+                   Double_t KAPPA,Double_t FI0,Double_t D,Double_t Fi,Double_t R,
+                   Int_t Nhits, Double_t info[][7],  Int_t Nincl, Int_t Minclinations[], Double_t inclination[][3],
+                   Int_t imaxima, Int_t nMaxima 
+                                                     )
+ {
+
+
+
+    Int_t i, j, i1, ii, index, Kincl, nlow, nup, STATUS, imc, Nmin, Nmax;
+
+    Double_t xmin , xmax, ymin, ymax, Ox, Oy,
+           dx, dy, diff, d1, d2,
+           delta, deltax, deltay, deltaz, deltaS,
+           factor,
+           zmin, zmax, Smin, Smax, S1, S2,
+           z1, z2, y1, y2,
+           vx1, vy1, vz1, C0x1, C0y1, C0z1,
+           aaa, bbb, ccc, angle, minor, major,
+           distance, Rx, Ry, LL,
+           Aellipsis1, Bellipsis1,fi1,
+           fmin, fmax, offset, step,
+           SkewInclWithRespectToS, zpos, zpos1, zpos2,
+           Tiltdirection1[2],
+           zl[200],zu[200],
+           POINTS1[6];
+
+
+
+
+//-------------------  skew straws hits Macro now
+
+      char  nome2[50],nome[50];
+      FILE *MACRO;
+      sprintf(nome,  "MacroParTrack%dSkewTrack%dSkewHitswithRfromMCEvent%d",imaxima,nMaxima, IVOLTE);
+      sprintf(nome2,  "%s.C",nome);
+      MACRO = fopen(nome2,"w");
+      fprintf(MACRO,"void %s()\n{\n",nome);
+
+//KAPPA = 1./166.67 ;  FI0 = 1.5*PI;
+
+      Smin=zmin = 1.e10;
+      Smax=zmax = -zmin;
+      index=0;
+
+       for( i=0; i< Nhits; i++) {
+         if( info[i][5] == 1. )   continue;     // exclude parallel straws
+
+         Kincl = (int) info[i][5] - 1;
+
+
+         aaa = sqrt(inclination[Kincl][0]*inclination[Kincl][0]+inclination[Kincl][1]*inclination[Kincl][1]+
+                  inclination[Kincl][2]*inclination[Kincl][2]);
+         vx1 = inclination[Kincl][0]/aaa;
+         vy1 = inclination[Kincl][1]/aaa;
+         vz1 = inclination[Kincl][2]/aaa;
+         C0x1 = info[i][0];
+         C0y1 = info[i][1];
+         C0z1 = info[i][2];
+         Ox = (R+D)*cos(Fi);
+         Oy = (R+D)*sin(Fi);
+
+       calculateintersections(Ox,Oy,R,C0x1,C0y1,C0z1,info[i][3],
+                              vx1,vy1,vz1,
+                              &STATUS,POINTS1);
+
+       if(STATUS < 0 ) continue ;
+
+
+
+       for( ii=0; ii<2; ii++){
+        j=3*ii;
+        distance = sqrt(
+                  (POINTS1[j]-C0x1)*(POINTS1[j]-C0x1) + 
+                  (POINTS1[1+j]-C0y1)*(POINTS1[1+j]-C0y1) + 
+                  (POINTS1[2+j]-C0z1)*(POINTS1[2+j]-C0z1) 
+                            );
+        if( distance >= info[i][4] ) continue;
+
+
+        Rx = POINTS1[j]-Ox ;   //  x component Radial vector of cylinder of trajectory
+        Ry = POINTS1[1+j]-Oy ;   //  y direction Radial vector of cylinder of trajectory
+
+        aaa = sqrt(Rx*Rx+Ry*Ry);
+        SkewInclWithRespectToS = (-Ry*vx1 + Rx*vy1)/aaa ;
+        SkewInclWithRespectToS /= R;
+        bbb = sqrt( SkewInclWithRespectToS*SkewInclWithRespectToS + vz1*vz1);
+        //  the tilt direction of this ellipse is (1,0)  when major axis along Z direction
+        if( bbb > 1.e-10){
+           Tiltdirection1[0] = vz1/bbb;
+           Tiltdirection1[1] = SkewInclWithRespectToS/bbb;
+        } else {
+           Tiltdirection1[0] = 1.;
+           Tiltdirection1[1] = 0.;
+        }
+
+        LL = fabs(vx1*Rx + vy1*Ry);
+        if( LL < 1.e-10) continue;
+        Aellipsis1 = info[i][3]*aaa/LL;
+
+        Bellipsis1 = info[i][3]/R;
+
+
+
+// checks that the projected ellipsis doesn't go out the boundaries of both the skew straw and the trajectory cylinder
+
+        if(
+          fabs(POINTS1[j+2]-ZCENTER_STRAIGHT) > SEMILENGTH_STRAIGHT- Aellipsis1 ||
+          distance + bbb > info[i][4]        //  the ellipsis goes out of the boundaries of the skew straw
+          ) {
+cout<<"the ellipsis goes out of the boundaries of the skew straw, hit n. "<<i<<endl
+     <<"dis. from center "<<distance+bbb<<",  length of the straw "<<info[i][4]<<endl;
+           continue;
+          }
+//--------------------------
+
+
+        fi1 = atan2(POINTS1[j+1]-Oy, POINTS1[j]-Ox) ;  // atan2 returns radians in (-pi and +pi]
+        if( fi1 < 0.) fi1 += 2.*PI;
+
+        if( zmin > POINTS1[j+2] - Aellipsis1 ) zmin = POINTS1[j+2] - Aellipsis1;
+        if( zmax < POINTS1[j+2] + Aellipsis1 ) zmax = POINTS1[j+2] + Aellipsis1;
+
+        if( Smin > fi1 - Bellipsis1 ) Smin = fi1 - Bellipsis1;
+        if( Smax < fi1 + Bellipsis1 ) Smax = fi1 + Bellipsis1;
+
+
+        Double_t rotation1 = 180.*atan2(Tiltdirection1[1],Tiltdirection1[0])/PI;
+        fprintf(MACRO,"TEllipse* E%d = new TEllipse(%f,%f,%f,%f,0.,360.,%f);\nE%d->SetFillStyle(0);\n",
+                     index,POINTS1[j+2],fi1,Aellipsis1,Bellipsis1,rotation1,index);
+
+        index++;
+
+   }    //  end of    for( ii=0; ii<2; ii++)
+
+  }   //   end of  for( i=1; i< Nhits; i++)
+
+
+  if(index==0) goto nohits ;
+  if( zmax < zmin ) goto nohits ;
+  if( Smax < Smin ) goto nohits;
+  aaa = Smax-Smin;
+  Smin -= aaa*1.;
+  Smax += aaa*1.;
+
+  aaa = zmax-zmin;
+  zmin -= aaa*0.05;
+  zmax += aaa*0.05;
+
+  if(Smax > 2.*PI) Smax = 2.*PI;
+  if( Smin < 0.) Smin = 0.;
+
+//  Smin=0.;
+//  Smax=2.*PI;
+
+
+  fprintf(MACRO,"TCanvas* my= new TCanvas();\nmy->Range(%f,%f,%f,%f);\n",zmin,Smin,zmax,Smax);
+  for( ii=0; ii< index; ii++) {
+       fprintf(MACRO,"E%d->Draw();\n",ii);
+  }
+
+   deltaz = zmax-zmin;
+   deltaS = Smax-Smin;
+   fprintf(MACRO,"TGaxis *Assex = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n",
+        zmin+0.05*deltaz,Smin+0.05*deltaS,zmax-0.05*deltaz,Smin+0.05*deltaS,zmin+0.05*deltaz,zmax-0.05*deltaz);
+   fprintf(MACRO,"Assex->Draw();\n");
+   fprintf(MACRO,"TGaxis *Assey = new  TGaxis(%f,%f,%f,%f,%f,%f,510);\n",
+        zmin+0.05*deltaz,Smin+0.05*deltaS,zmin+0.05*deltaz,Smax-0.05*deltaS,Smin+0.05*deltaS,Smax-0.05*deltaS);
+   fprintf(MACRO,"Assey->Draw();\n");
+
+
+
+
+// --------------------------------
+
+//  plot della traccia trovata dal finder
+
+
+  if ( KAPPA >= 0.) {
+     fmin = KAPPA*zmin + FI0;
+     fmax = KAPPA*zmax + FI0;
+  }  else {
+     fmax = KAPPA*zmin + FI0;
+     fmin = KAPPA*zmax + FI0;
+  }
+  if( fmax>=0.) {
+    Nmax = (int) (0.5*fmax/ PI);
+  }  else  {
+    Nmax = ( (int) (0.5*fmax/ PI) ) -1;
+  }
+  if( fmin>=0.) {
+    Nmin = (int) (0.5*fmin/ PI);
+  } else {
+    Nmin = ((int) (0.5*fmin/ PI) )-1;
+  }
+  for(i=Nmin; i<= Nmax;i++){
+   offset = 2.*PI*i;
+   z1 = (i*2.*PI-FI0)/KAPPA;
+   z2 = ((i+1)*2.*PI-FI0)/KAPPA;
+   fprintf(MACRO,"TLine* FOUND%d = new TLine(%f,%f,%f,%f);\nFOUND%d->SetLineColor(2);\nFOUND%d->Draw();\n",
+                 i-Nmin,z1,0.,z2, 2.*PI,i-Nmin,i-Nmin);
+
+  }   //  end of  for(i=Nmin; i<= Nmax;++)
+
+
+//---------------------------------------------  qui ci aggiungo le traccie MC
+
+
+ for(imc=0; imc<nMCTracks ; imc++){
+
+     KAPPA=MCtruthTrkInfo[12][imc];
+     FI0 = MCtruthTrkInfo[13][imc];
+  if ( KAPPA >= 0.) {
+     fmin = KAPPA*zmin + FI0;
+     fmax = KAPPA*zmax + FI0;
+  }  else {
+     fmax = KAPPA*zmin + FI0;
+     fmin = KAPPA*zmax + FI0;
+  }
+  if( fmax>=0.) {
+    Nmax = (int) (0.5*fmax/ PI);
+  }  else  {
+    Nmax = ( (int) (0.5*fmax/ PI) ) -1;
+  }
+  if( fmin>=0.) {
+    Nmin = (int) (0.5*fmin/ PI);
+  } else {
+    Nmin = ((int) (0.5*fmin/ PI) )-1;
+  }
+  for(i=Nmin; i<= Nmax;i++){
+   offset = 2.*PI*i;
+   z1 = (i*2.*PI-FI0)/KAPPA;
+   z2 = ((i+1)*2.*PI-FI0)/KAPPA;
+   fprintf(MACRO,"TLine* MC%d_%d = new TLine(%f,%f,%f,%f);\nMC%d_%d->SetLineColor(3);\nMC%d_%d->Draw();\n",
+                 imc,i-Nmin,z1,0.,z2, 2.*PI,imc,i-Nmin,imc,i-Nmin);
+
+  }   //  end of  for(i=Nmin; i<= Nmax;++)
+
+
+   }  // end of for(imc=0; imc<nMCTracks ; imc++)
+
+
+
+
+
+
+
+
+
+nohits: ;
+
+      fprintf(MACRO,"}\n");
+      fclose(MACRO);
+
+
+
+
+
+ }
+
+//----------end of function PndSttTrackFinderReal::WriteMacroSkewAssociatedHitswithRfromMC
+
+
+//----------begin of function PndSttTrackFinderReal::AssociateFoundTrackstoMC
+
+    void PndSttTrackFinderReal::AssociateFoundTrackstoMC(
+                  UShort_t nTracksFoundSoFar,
+                  UShort_t *nHitsinTrack,
+                  UShort_t  ListHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
+                  UShort_t *nSkewHitsinTrack,
+                  UShort_t  ListSkewHitsinTrack[MAXTRACKSPEREVENT][nmaxHits],
+                  Short_t *daTrackFoundaTrackMC,
+                  Short_t *daMCTrackaTrackFound 
+                                                        )
+{
+
+   UShort_t  exphit,
+             i,
+             imc,
+             jexp,
+             mchit,
+             BoxMC_Found[nMCTracks][nTracksFoundSoFar];
+   bool inclusionMC[nMCTracks],
+        inclusionExp[nTracksFoundSoFar];
+
+
+
+
+   for(i=0; i<nTracksFoundSoFar;i++){
+     daTrackFoundaTrackMC[i]=-1;
+     inclusionExp[i]=true;
+   }
+
+
+   for(i=0; i<nMCTracks;i++){
+     daMCTrackaTrackFound[i]=-1;
+     inclusionMC[i]=true;
+   }
+
+
+
+   for(imc=0; imc<nMCTracks;imc++){
+     for(jexp=0; jexp< nTracksFoundSoFar ;jexp++){
+       BoxMC_Found[imc][jexp]=0;
+
+
+// prima  gli hits paralleli ---------------------
+        for(mchit=0; mchit<nHitsInMCTrack[imc]; mchit++){
+           for(exphit=0; exphit<nHitsinTrack[jexp]; exphit++){
+               if(infoparal[   ListHitsinTrack[jexp][exphit]  ] == FromMCTrackToHit[imc][mchit] ){
+                  BoxMC_Found[imc][jexp]++;
+                  goto  gotta ;
+               }   //  end of   if(infoparal[ListHitsinTrack[jexp][exphit]] == FromMCTrackToHit[imc][mchit])
+           }  //  end of  for(exphit=0; exphit<nHitsinTrack[jexp]; exphit++)
+      gotta:   ;
+        }   //  end of  for(mchit=0; mchit<nHitsInMCTrack[imc]; mchit++)
+
+
+// poi  gli hits skew ---------------------
+
+        for(mchit=0; mchit<nSkewHitsInMCTrack[imc]; mchit++){
+           for(exphit=0; exphit<nSkewHitsinTrack[jexp]; exphit++){
+               if(infoskew[   ListSkewHitsinTrack[jexp][exphit]  ] == FromMCTrackToSkewHit[imc][mchit] ){
+                  BoxMC_Found[imc][jexp]++;
+                  goto  gotta2 ;
+               }   //  end of   if(infoskew[ListSkewHitsinTrack[jexp][exphit]] == FromMCTrackToSkewHit[imc][mchit])
+           }  //  end of  for(exphit=0; exphit<nSkewHitsinTrack[jexp]; exphit++)
+      gotta2:   ;
+        }   //  end of  for(mchit=0; mchit<nSkewHitsInMCTrack[imc]; mchit++)
+
+
+
+if( istampa>= 2) cout<<"  evento n. "<<IVOLTE<<", imc = "<<imc<<", jexp = "<<jexp<<", BoxMC_Found[imc][jexp] = "<<
+    BoxMC_Found[imc][jexp]<<endl;
+
+     } //  end of   for(jexp=0; jexp< nTracksFoundSoFar ;jexp++)
+  }    //  end of     for(imc=0; imc<nMCTracks;imc++){
+
+
+
+//   scelta degli accoppiamenti delle tracce MC con quelle trovate dal pattern recognition
+
+
+    int Imc, Jexp, massimo;
+
+    if( nMCTracks >= nTracksFoundSoFar){
+
+      for( jexp=0; jexp< nTracksFoundSoFar ;jexp++){
+          massimo=-1;
+          for (imc=0; imc<nMCTracks;imc++){
+             if( ! inclusionMC[imc] ) continue;
+             if( BoxMC_Found[imc][jexp] > massimo ) {
+               massimo = BoxMC_Found[imc][jexp];
+               Imc = imc;
+             }
+          }    //  end for (imc=0; imc<nMCTracks;imc++)
+
+if(IVOLTE==2 ) {  cout<<" jexp "<<jexp<<", Imc "<<Imc<<", massimo "<<massimo<<endl;}
+          if( massimo >0) {
+            daTrackFoundaTrackMC[jexp]=Imc;
+            daMCTrackaTrackFound[Imc]=jexp;
+            inclusionMC[Imc]=false;
+          }
+
+      }    //end for( jexp=0; jexp< nTracksFoundSoFar ;jexp++)
+
+
+    }  else {
+      
+
+      for( imc=0; imc<nMCTracks;imc++){
+          massimo=-1;
+          for (jexp=0; jexp< nTracksFoundSoFar ;jexp++){
+             if( ! inclusionExp[jexp] ) continue;
+             if( BoxMC_Found[imc][jexp] > massimo ) {
+               massimo = BoxMC_Found[imc][jexp];
+               Jexp = jexp;
+             }
+          }    //  end for (jexp=0; jexp< nTracksFoundSoFar ;jexp++)
+          if( massimo >0) {
+            daTrackFoundaTrackMC[Jexp]=imc;
+            daMCTrackaTrackFound[imc]=Jexp;
+            inclusionExp[Jexp]=false;
+          }
+
+      }    //end for( jexp=0; jexp< nTracksFoundSoFar ;jexp++)
+
+
+    }  // end if( nMCTracks >= nTracksFoundSoFar)
+
+    return;
+}
+
+
+
+
+//----------end of function PndSttTrackFinderReal::AssociateFoundTrackstoMC
+
+
+
+
+
+
+
+
 
 
 

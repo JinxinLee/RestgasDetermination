@@ -65,7 +65,8 @@ PndSttRecoHit::PndSttRecoHit(PndSttHit *currenthit) : WirepointRecoHit(NparHitRe
   // errors on drift radius and z (by hand)
   for(int i = 0; i < NparHitRep; i++) for(int j = 0; j < NparHitRep; j++) fHitCov[i][j] = 0.;
   fHitCov[6][6] = 0.0100 * 0.0100; // currenthit->GetIsochroneError(); CHECK
-  fHitCov[7][7] = 1. * 1.;
+//  fHitCov[7][7] = 1. * 1.;
+  fHitCov[7][7] = 1. * 1000.;   // just a big number ; this is sigma_z
 
   // cut on distance
   fPolicy.setMaxDistance(0.5);
