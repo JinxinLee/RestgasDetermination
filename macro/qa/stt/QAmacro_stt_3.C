@@ -55,30 +55,30 @@
   // mu - HELIX
   double mum_hel_res          = 0.03;
   double mum_hel_res_tol      = 0.005;
-  double mum_hel_eff          = 0.83;
+  double mum_hel_eff          = 0.87;
   double mum_hel_eff_tol      = 0.05;
-  double mum_hel_peak_eff     = 0.78;
+  double mum_hel_peak_eff     = 0.8;
   double mum_hel_peak_eff_tol = 0.05;
   // mu - GENFIT
   double mum_gen_res          = 0.023;
   double mum_gen_res_tol      = 0.005;
-  double mum_gen_eff          = 0.83;
+  double mum_gen_eff          = 0.87;
   double mum_gen_eff_tol      = 0.05;
-  double mum_gen_peak_eff     = 0.81;
+  double mum_gen_peak_eff     = 0.83;
   double mum_gen_peak_eff_tol = 0.05;
   // mu + HELIX
-  double mup_hel_res          = 0.028;
+  double mup_hel_res          = 0.03;
   double mup_hel_res_tol      = 0.005;
-  double mup_hel_eff          = 0.83;
+  double mup_hel_eff          = 0.86;
   double mup_hel_eff_tol      = 0.05;
-  double mup_hel_peak_eff     = 0.78;
+  double mup_hel_peak_eff     = 0.8;
   double mup_hel_peak_eff_tol = 0.05;
   // mu + GENFIT
   double mup_gen_res          = 0.023;
   double mup_gen_res_tol      = 0.005;
-  double mup_gen_eff          = 0.85;
+  double mup_gen_eff          = 0.86;
   double mup_gen_eff_tol      = 0.05;
-  double mup_gen_peak_eff     = 0.80;
+  double mup_gen_peak_eff     = 0.81;
   double mup_gen_peak_eff_tol = 0.05;
  
   //  cout << "nevents " <<  nevents << endl;
