@@ -236,8 +236,6 @@ void PndSttMatchTracks::Exec(Option_t* opt)
 						 nWrong, nFake, 
 						 nMCTracks);
 
-      trackCand->setMcTrackId(iMCTrack); // CHECK if this has to stay here or in TrackFinderIdeal
-      
       // Some statistics
       nHitSum     += nHits;
       nTrueSum    += nTrue;

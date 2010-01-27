@@ -350,7 +350,7 @@ Int_t PndSttTrackFinderIdeal::DoFind( TClonesArray* trackCandArray)
 
     if ( pTrckCand != NULL) 
 	{
-	  //  pTrckCand->setMcTrackId(correlationMap[trackTeller]); // CHECK  decide whether it has to stay here or in TrackMatch
+	  pTrckCand->setMcTrackId(correlationMap[trackTeller]);
    
 	  Double_t
 	      dSeed,
