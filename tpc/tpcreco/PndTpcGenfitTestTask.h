@@ -72,6 +72,7 @@ private:
   TMatrixT<double> *stREC;
   TMatrixT<double> *covREC;
   double chi2;
+  int ndf;
   int nfail;
   
   FairGeanePro* _geanePro;

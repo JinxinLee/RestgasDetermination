@@ -1,4 +1,5 @@
 {
+  gRandom->SetSeed(1);
   // ----  Load libraries   -------------------------------------------------
   //gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
   //basiclibs();
@@ -21,7 +22,7 @@
   
   // Set INPUT DIRECTORY (MC files) and JOBNAME
   // ------------------------------------------------------------------------
-  TString inDir="TestDir";
+  TString inDir="genfitTest";
   TString jobname="Test";
 
   inDir=(basedir+"/")+inDir;
@@ -104,7 +105,7 @@
   fRun->Run(0,nEvents); // process all events from input file
   // ------------------------------------------------------------------------
 
-  gftest->WriteTree();
+  //  gftest->WriteTree();
 
   // -----   Finish   -------------------------------------------------------
 

@@ -106,6 +106,7 @@ PndTpcGenfitTestTask::Init()
   outtree->Branch("stREC","TMatrixT<double>",&stREC);
   outtree->Branch("covREC","TMatrixT<double>",&covREC);
   outtree->Branch("chi2",&chi2,"chi2/D");
+  outtree->Branch("ndf",&ndf,"ndf/I");
   outtree->Branch("nfail",&nfail,"nfail/I");
  
 
@@ -167,6 +168,7 @@ PndTpcGenfitTestTask::Exec(Option_t* opt)
     if(dist>minDist){
       before=vecList.at(i);
       vecList2.push_back(vecList.at(i));
+      //vecList.at(i).Print();
     }
   }
 
@@ -222,7 +224,8 @@ PndTpcGenfitTestTask::Exec(Option_t* opt)
   *covREC = rep->getCov();
 
 
-  chi2 = rep->getRedChiSqu();
+  chi2 = rep->getChiSqu();
+  ndf = rep->getNDF();
   nfail = trk.getFailedHits();
 
   static int fillCounter(0);
