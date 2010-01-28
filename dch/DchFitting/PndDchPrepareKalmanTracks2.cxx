@@ -59,7 +59,6 @@ PndDchPrepareKalmanTracks2::Init()
     }
  
   AddHitBranch(1,"PndDchCylinderHit");
-
   // open hit arrays
   std::map<unsigned int,TString>::iterator iter=fHitBranchNameMap.begin();
   while(iter!=fHitBranchNameMap.end()){
@@ -73,7 +72,7 @@ PndDchPrepareKalmanTracks2::Init()
   ++iter;
   }//end loops over hit types
   fCHitArray = fHitBranchMap[1];
-  
+
   if(fUseMC){
     // open MCTruth array
     fMcArray=(TClonesArray*) ioman->GetObject("MCTrack");
@@ -95,13 +94,16 @@ PndDchPrepareKalmanTracks2::Init()
     Error("PndDchPrepareKalmanTracks2::Init","PndTrackCand array not found!");
     return kERROR;
   }
+
   // create and register output array
-  fTrackArray = new TClonesArray("Track"); 
+  fTrackArray = new TClonesArray("GFTrack"); 
   ioman->Register("FSTracks","GenFit",fTrackArray,fPersistence);
   
   // GeanePro will get Geometry and BField from the Run
   fGeanePro=new FairGeanePro();
   
+  std::cout << "-I- " << GetName() << ": Intialization successfull" << std::endl;
+
   return kSUCCESS;
 }
 

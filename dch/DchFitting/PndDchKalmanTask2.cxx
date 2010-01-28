@@ -68,6 +68,9 @@ InitStatus PndDchKalmanTask2::Init()
     fTheRecoHitFactory->addProducer(1,new GFRecoHitProducer<PndDchCylinderHit,PndDchRecoHit2>(ar));
   } // "1" stands here for kind of detector
   
+  std::cout << "-I- " << GetName() << ": Intialization successfull" << std::endl;
+
+  return kSUCCESS;
 }
 
 

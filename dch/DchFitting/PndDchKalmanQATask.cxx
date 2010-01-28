@@ -110,6 +110,9 @@ InitStatus PndDchKalmanQATask::Init(){
 		    24,0,8,60,-3.,3.);
   fPhiH   =new TH2D("phi",  "#phi_{rec}-#phi_{MC} vs #phi_{MC}",
 		    45,-180,180,100,-20,20);
+
+  std::cout << "-I- " << GetName() << ": Intialization successfull" << std::endl;
+
   return kSUCCESS;
 }
 

@@ -88,6 +88,8 @@ InitStatus PndDchPreFitterTRQATask::Init(){
   fPhiH   =new TH2D("phi",  "#phi_{rec}-#phi_{MC} vs #phi_{MC}",45,-180,180,100,-10,10);
   fPhiH->SetFillColor(9);
   
+  std::cout << "-I- " << GetName() << ": Intialization successfull" << std::endl;
+
   return kSUCCESS;
 }
 
