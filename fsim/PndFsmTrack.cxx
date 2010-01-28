@@ -314,11 +314,12 @@ void PndFsmTrack::print(ostream &o)
   o<<"  Vtx1 : < "<< _startVtx.X()<<" / "         <<_startVtx.Y()<<" / "           <<_startVtx.Z()  <<" > " << endl;
   o<<"  Vtx2 : < "<< _stopVtx.X() <<" / "         <<_stopVtx.Y() <<" / "           <<_stopVtx.Z(   )<<" > "  << endl;
   o<<"  charge = "<< _charge      <<" / lundId = "<<_pdt         <<" / gTrackId = "<<_gTrackId      <<endl;
-  o<<"  D0: "<<GetHelixD0()
-   <<"  Phi0: "<<GetHelixPhi0()*180/3.1416<<"deg"
-   <<"  1/Omega: "<<1/GetHelixOmega()
-   <<"  Z0: "<<GetHelixZ0()
-   <<"  TanDip: "<<GetHelixTanDip()<<endl;
+  o<<"  D0: "<<GetHelixD0();
+  o<<"  Phi0: "<<GetHelixPhi0()*180/3.1416<<"deg";
+  if (GetHelixOmega()) o <<"  1/Omega: "<<1/GetHelixOmega();
+  else o <<"  1/Omega: " << "inf";
+  o<<"  Z0: "<<GetHelixZ0();
+  o<<"  TanDip: "<<GetHelixTanDip()<<endl;
     //  if (_detResponse) _detResponse->print(o);
 }
 
