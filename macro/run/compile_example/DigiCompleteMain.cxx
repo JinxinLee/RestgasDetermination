@@ -1,10 +1,10 @@
 // Example of a compiled program to perform a full simulation run: a compiled
-// version of the reco_complete_tpc.C macro.
+// version of the digi_complete_tpc.C macro.
 //
 // Elwin Dijck, December 2009
+// JGM, January 2010
 
-
-#include "RecoCompleteTpc.h"
+#include "DigiComplete.h"
 
 #include <TRint.h>
 #include <TROOT.h>
@@ -24,27 +24,25 @@ int main(int argc, char *argv[])
 {
     // Start application.
     gROOT->SetBatch();
-    TApplication app("RecoCompleteTpc", &argc, argv, 0, -1);
+    TApplication app("DigiComplete", &argc, argv, 0, -1);
 
     // Read the command line options or provide default values.
     
-    TString mcFile   = argc > 1 ? argv[1] : "sim_complete.root";
-    TString dgFile   = argc > 2 ? argv[2] : "digi_complete.root";
-    TString parFile  = argc > 3 ? argv[3] : "simparams.root";
-    TString digiFile = argc > 4 ? argv[4] : "all.par";
-    TString outFile  = argc > 5 ? argv[5] : "reco_complete.root";
+    TString inFile   = argc > 1 ? argv[1] : "sim_complete.root";
+    TString parFile  = argc > 2 ? argv[2] : "simparams.root";
+    TString digiFile = argc > 3 ? argv[3] : "all.par";
+    TString outFile  = argc > 4 ? argv[4] : "digi_complete.root";
     
     cout << boolalpha;
 
-    cout << endl << "Starting reco simulation with TPC:" << endl
-        << "    input MC file          : " << mcFile << endl
-	<< "    input DIG file         : " << dgFile << endl
+    cout << endl << "Starting digi simulation with TPC:" << endl
+        << "    input file             : " << inFile << endl
         << "    output file            : " << outFile << endl
         << "    params file            : " << parFile << endl
         << "    input digi params file : " << digiFile << endl << endl;
 
     // Start the simulation.
-    RecoCompleteTpc(mcFile, dgFile, parFile, digiFile, outFile);
+    DigiComplete(inFile, parFile, digiFile, outFile);
     
     return 0;
 }

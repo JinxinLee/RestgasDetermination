@@ -2,9 +2,9 @@
 // version of the sim_complete_tpc.C macro.
 //
 // Elwin Dijck, December 2009
+// JGM, January 2010
 
-
-#include "SimCompleteTpc.h"
+#include "SimComplete.h"
 
 #include <TRint.h>
 #include <TROOT.h>
@@ -24,24 +24,26 @@ int main(int argc, char *argv[])
 {
     // Start application.
     gROOT->SetBatch();
-    TApplication app("SimCompleteTpc", &argc, argv, 0, -1);
+    TApplication app("SimComplete", &argc, argv, 0, -1);
 
     // Read the command line options or provide default values.
     Int_t nEvents = argc > 1 ? StrTo<Int_t>(argv[1]) : 10;
-    TString const &simEngine = argc > 2 ? argv[2] : "TGeant3";
-    Double_t momentum = argc > 3 ? StrTo<Double_t>(argv[3]) : 7.24;
-    Bool_t useEvtGen = argc > 4 ? StrTo<Bool_t>(argv[4]) : kTRUE;
-    Bool_t useDpm = argc > 5 ? StrTo<Bool_t>(argv[5]) : kFALSE;
-    Bool_t useBoxGenerator = argc > 6 ? StrTo<Bool_t>(argv[6]) : kFALSE;
-    Double_t beamMomentum = argc > 7 ? StrTo<Double_t>(argv[7]) : 15.0;
-    TString outFile= argc > 8 ? argv[8] : "sim_complete.root";
-    TString outParamsFile= argc > 9 ? argv[9] : "simparams.root";
-    TString inDigiParamsFile = argc > 10 ? argv[10] : "emc.par";
+    TString trackDetector = argc > 2 ? argv[2] : "stt";
+    TString const &simEngine = argc > 3 ? argv[3] : "TGeant3";
+    Double_t momentum = argc > 4 ? StrTo<Double_t>(argv[4]) : 7.24;
+    Bool_t useEvtGen = argc > 5 ? StrTo<Bool_t>(argv[5]) : kTRUE;
+    Bool_t useDpm = argc > 6 ? StrTo<Bool_t>(argv[6]) : kFALSE;
+    Bool_t useBoxGenerator = argc > 7 ? StrTo<Bool_t>(argv[7]) : kFALSE;
+    Double_t beamMomentum = argc > 8 ? StrTo<Double_t>(argv[8]) : 15.0;
+    TString outFile= argc > 9 ? argv[9] : "sim_complete.root";
+    TString outParamsFile= argc > 10 ? argv[10] : "simparams.root";
+    TString inDigiParamsFile = argc > 11 ? argv[11] : "all.par";
 
     cout << boolalpha;
 
-    cout << endl << "Starting full simulation with TPC:" << endl
+    cout << endl << "Starting full simulation with:" << endl
         << "    # events               : " << nEvents << endl
+        << "    tracking detector      : " << trackDetector << endl
         << "    sim engine             : " << simEngine << endl
         << "    momentum               : " << momentum << "GeV/c" << endl
         << "    using EvtGen           : " << useEvtGen << endl
@@ -53,10 +55,11 @@ int main(int argc, char *argv[])
         << "    input digi params file : " << inDigiParamsFile << endl << endl;
 
     // Start the simulation.
-    SimCompleteTpc(nEvents, simEngine, momentum, useEvtGen, useDpm,
-        useBoxGenerator, beamMomentum, outFile, outParamsFile,
-        inDigiParamsFile);
-    
+
+    SimComplete(nEvents, simEngine, momentum, useEvtGen, useDpm,
+		useBoxGenerator, beamMomentum, outFile, outParamsFile,
+		inDigiParamsFile,trackDetector);
+      
     return 0;
 }
 
