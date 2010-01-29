@@ -131,7 +131,7 @@ void PndSttTrackFinderReal::Init()
 
 
 
-  hx = new TH1F("hx", "Associated Z", 400, -200., 200.);
+//  hx = new TH1F("hx", "Associated Z", 400, -200., 200.);
 
   if (!ioman) 
     {
@@ -3469,8 +3469,8 @@ void PndSttTrackFinderReal::WriteHistograms(){
  	  file->mkdir("PndSttTrackFinderReal");
  	  file->cd("PndSttTrackFinderReal");
 
-          hx->Write();
- 	  delete hx;
+//          hx->Write();
+// 	  delete hx;
 
 }
 
