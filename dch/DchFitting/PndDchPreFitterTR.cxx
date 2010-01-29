@@ -234,12 +234,21 @@ void PndDchPreFitterTR::Exec(Option_t* opt) {
     }
     Bool_t isMomentum =  GetMomentum(startMomentum);
 
+//
+// JGM, 29/01/2010, check to avoid division by zero
+//
+
+    if (0==startMomentum.Z() || 0==startMomentum.Mag())
+    {
+	std::cout << "-W- Start momentum is zero? " << std::endl;
+	continue;
+    }
 
     PndTrackCandHit candHit = track->GetSortedHit(0);
     Int_t idx = candHit.GetHitId();
     PndDchCylinderHit* chit = (PndDchCylinderHit*)fInHitArray->At(idx);
     GetInHitAtZ(chit->GetWireZcoordGlobal(),startPosition);
-    
+
     Int_t chargeSign = GetChargeSign();
 
     const TMatrixFSym* covMatrix = new TMatrixFSym(15);
