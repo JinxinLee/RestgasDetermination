@@ -8,15 +8,13 @@ ${CLHEP_INCLUDE_DIR}
 ${CMAKE_SOURCE_DIR}/base
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
-${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep2
-${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/RKtrackRep
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/LSLtrackRep
 ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/trackbase
-
 ${CMAKE_SOURCE_DIR}/pnddata/MdtData
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
 ${CMAKE_SOURCE_DIR}/geane
+${CMAKE_SOURCE_DIR}/GenfitTools/recohits
 ${GEANT3_INCLUDE_DIR}
 )
 
@@ -36,6 +34,26 @@ PndMdtRecoHit.cxx
 if(RULE_CHECKER_FOUND)
   CHECK_RULES("${RECOHITS_SRCS}" "${INCLUDE_DIRECTORIES}" RECOHITS_RULES)
 endif(RULE_CHECKER_FOUND)
+
+set(RECOHITS_HEADERS
+PndMdtRecoHit.h 
+)
+
+# fill list of header files from list of source files
+# by exchanging the file extension
+#CHANGE_FILE_EXTENSION(*.cxx *.h RECOHITS_HEADERS "${RECOHITS_SRCS}")
+
+
+set(RECOHITS_LINKDEF  RecoHitsLinkDef.h)
+set(RECOHITS_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/RecoHitsDict.cxx)
+
+
+ROOT_GENERATE_DICTIONARY("${RECOHITS_HEADERS}" "${RECOHITS_LINKDEF}" "${RECOHITS_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
+
+SET(RECOHITS_SRCS ${RECOHITS_SRCS} ${RECOHITS_DICTIONARY})
+
+#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DOLDVMC")
+
 
 add_library(RecoHits SHARED ${RECOHITS_SRCS})
 target_link_libraries(RecoHits ${ROOT_LIBRARIES})
