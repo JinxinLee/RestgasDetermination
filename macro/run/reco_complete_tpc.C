@@ -65,27 +65,6 @@ void reco_complete_tpc()
   fRun->AddTask(emcHdrFiller); // ECM header
   PndEmcMakeBump* emcMakeBump= new PndEmcMakeBump();
   fRun->AddTask(emcMakeBump);
-  PndEmcMakeRecoHit* emcMakeRecoHit= new PndEmcMakeRecoHit();
-  fRun->AddTask(emcMakeRecoHit);
-
-  // trackfinding ....
-  PndSttTrackFinderIdeal* sttTrackFinder = new PndSttTrackFinderIdeal(iVerbose);
-  PndSttFindTracks* sttFindTracks = new PndSttFindTracks("Track Finder", "FairTask", sttTrackFinder, iVerbose);
-  sttFindTracks->AddHitCollectionName("STTHit", "STTPoint");
-  fRun->AddTask(sttFindTracks);
-  // trackmatching ....
-  PndSttMatchTracks* sttTrackMatcher = new PndSttMatchTracks("Match tracks", "STT", iVerbose);
-  sttTrackMatcher->AddHitCollectionName("STTHit", "STTPoint");
-  fRun->AddTask(sttTrackMatcher);  
-  // trackfitting ....
-  PndSttTrackFitter* sttTrackFitter = new PndSttHelixTrackFitter(0);
-  PndSttFitTracks* sttFitTracks = new PndSttFitTracks("STT Track Fitter", "FairTask", sttTrackFitter); 
-  sttFitTracks->AddHitCollectionName("STTHit");
-  fRun->AddTask(sttFitTracks);
-  // helix hit production ....
-  PndSttHelixHitProducer* sttHHProducer = new PndSttHelixHitProducer();
-  fRun->AddTask(sttHHProducer);
-
 
   //------ Ideal DCH track finder --------------------
   PndDchFindTracks* finderTask = new PndDchFindTracks("dchFindTracks");
@@ -195,5 +174,5 @@ void reco_complete_tpc()
   cout << " Test passed" << endl;
   cout << " All ok " << endl;
 
-  exit(0);  
+//  exit(0);  
 }
