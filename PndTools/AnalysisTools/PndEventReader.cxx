@@ -88,6 +88,13 @@ PndEventReader::PndEventReader(const char* fname, const char* treename) :
 
 PndEventReader::~PndEventReader()
 {
+	delete fChargedCands;
+	delete fNeutralCands;
+	delete fChargedProbability;
+	delete fNeutralProbability;
+	delete fMcCands;
+	delete fEventInfo;
+	
 	delete fPidListMaker;
 	if (fOwnTree) delete fOwnChain;
 }
@@ -97,22 +104,30 @@ void PndEventReader::Init()
 	Reset();
 	if (0==fOwnChain) fOwnChain=new TChain(fTreeName.c_str());
 	
-  fOwnChain->SetBranchAddress("PidChargedCand",&fChargedCands);
-  fOwnChain->SetBranchAddress("PidNeutralCand",&fNeutralCands);
-  fOwnChain->SetBranchAddress("PidChargedProbability",&fChargedProbability);
-  fOwnChain->SetBranchAddress("PidNeutralProbability",&fNeutralProbability);
+	fChargedCands = new TClonesArray("PndPidCandidate");
+	fNeutralCands = new TClonesArray("PndPidCandidate");
+	fChargedProbability = new TClonesArray("PndPidProbability");
+	fNeutralProbability = new TClonesArray("PndPidProbability");
+	fMcCands = new TClonesArray("TCandidate");
+	fEventInfo = new TClonesArray("PndEventInfo");
+	
+	
+    fOwnChain->SetBranchAddress("PidChargedCand",&fChargedCands);
+    fOwnChain->SetBranchAddress("PidNeutralCand",&fNeutralCands);
+    fOwnChain->SetBranchAddress("PidChargedProbability",&fChargedProbability);
+    fOwnChain->SetBranchAddress("PidNeutralProbability",&fNeutralProbability);
   
-  fOwnChain->SetBranchAddress("PndMcTracks",&fMcCands);
-  
-  fMicroCands=0;
+    fOwnChain->SetBranchAddress("PndMcTracks",&fMcCands);
+    fMicroCands=0;
 
 	//fOwnChain->SetBranchAddress("PndMicroCandidates",&fMicroCands);
 //	fOwnChain->SetBranchAddress("PndEventSummary",&fCurrentEventInfo);
+	
 	fOwnChain->SetBranchAddress("PndEventSummary",&fEventInfo);
 	
 	fPidListMaker=new PndPidListMaker();
 	
-	SetupBranchNames();
+	//SetupBranchNames();
 }
 
 void PndEventReader::SetupBranchNames()
@@ -123,7 +138,7 @@ Int_t PndEventReader::Add(const char* fname)
 {
 	Int_t result=fOwnChain->Add(fname);
 	fChainEntries=fOwnChain->GetEntries();
-	
+		
 	return result;
 }
 
@@ -165,12 +180,11 @@ bool PndEventReader::FillList(TCandList &l, std::string listkey)
 {
 	l.Cleanup();
 	
-	
 	// when the first list is requested read in the event
 	//if (fOwnChain->GetReadEntry()!=fEvtCount-1) fOwnChain->GetEntry(fEvtCount-1,1);
 	if (!fEventRead) 
 	{
-		fOwnChain->SetBranchStatus("*",1);
+	    fOwnChain->SetBranchStatus("*",1);
 		fOwnChain->GetEntry(fEvtCount-1);
 		fEventRead=true;
 	}
