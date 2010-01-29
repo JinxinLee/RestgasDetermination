@@ -91,9 +91,6 @@ void RecoCompleteTpc(TString const &mcFile, TString const &dgFile,
   PndEmcMakeBump* emcMakeBump= new PndEmcMakeBump();
   fRun->AddTask(emcMakeBump);
 
-  PndEmcMakeRecoHit* emcMakeRecoHit= new PndEmcMakeRecoHit();
-  fRun->AddTask(emcMakeRecoHit);
-
   //------ Ideal DCH track finder --------------------
   PndDchFindTracks* finderTask = new PndDchFindTracks("dchFindTracks");
   finderTask->SetUseHitOrDigi("chit");
@@ -106,11 +103,10 @@ void RecoCompleteTpc(TString const &mcFile, TString const &dgFile,
   PndDchMatchTracks *matchTask = new PndDchMatchTracks();//match PndDchTracks and MCTracks
   matchTask->SetUseHitOrDigi("chit");
   fRun->AddTask(matchTask);
-  Double_t chargecut = 5000., pixelrad=1.8;
-  PndMvdClusterTask* mvdmccls = new PndMvdClusterTask(pixelrad,chargecut,"sim_complete.root");
+
+  //----- MVD Hit Reco -----
+  PndMvdClusterTask* mvdmccls = new PndMvdClusterTask();
   fRun->AddTask(mvdmccls);
-
-
         
   //------ GEM Realistic Track finder --------------------
   //Create and add finder task
