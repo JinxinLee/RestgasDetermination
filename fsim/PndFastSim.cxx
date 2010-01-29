@@ -758,7 +758,7 @@ PndFastSim::cutAndSmear(PndFsmTrack *t, PndFsmResponse *r)
     if (dp != 0.0)     smearMomentum(t,dp);
     if (dtheta != 0.0) smearTheta(t,dtheta);
     if (dphi != 0.0)   smearPhi(t,dphi);
-    if (dV.X() != 0.0 || dV.Y() != 0.0 || dV.Z() != 0.0) smearVertex(t,dV);
+    if ( fabs(charge)>1e-6 && (dV.X() != 0.0 || dV.Y() != 0.0 || dV.Z() != 0.0)) smearVertex(t,dV);
   }
   if (dm != 0.0)     smearM(t,dm);
   if( m2!=0.0)       smearM2(t,m2);           // mass^2 of track after tof
