@@ -9,11 +9,11 @@
 
 #include "PndSttHit.h"
 #include "PndSttPoint.h"
-// #include "PndSttTrack.h"
+#include "PndTrackCand.h"
 #include  <cmath>
 #include "FairMCPoint.h"
 #include "FairRootManager.h"
-#include "GFKalman.h"
+//#include "GFKalman.h"
 
 // ROOT includes
 #include "TClonesArray.h"
@@ -142,7 +142,6 @@ void PndSttTrackFinderReal::Init()
  
 //   calculate the boundaries of the Box in Conformal Space, see Gianluigi logbook on pag. 210-211
 
-cout<<"from Init :  nFidivConformal = "<<nFidivConformal<<endl;
 
     radiaConf[0] = 1./RStrawDetectorMax; 
     r1 = RStrawDetectorMin;
@@ -272,9 +271,6 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackArray)
    nMCTracks = fMCTrackArray->GetEntriesFast(); // num. tracce/evento
 
    if(nMCTracks>MAXMCTRACKS){
-    cout<<"from DoFind  : nMCTracks = "<<nMCTracks<<"  larger that MAXMCTRACKS = "
-       <<MAXMCTRACKS
-        <<",  skipping this event\n";
     return  -10;
   }
 
@@ -387,8 +383,6 @@ cout<<"verita MC,  traccia n. "<<iMCTrack<<", Ox, Oy,  Cx, Cy, D ,  R  ,  gamma 
   }
 
   if(nHits > nmaxHits ) {
-    cout<<"Gianluigi from DoFind  : nHits = "<<nHits<<"  larger that nmaxHits = "<<nmaxHits
-        <<",  skipping this event\n";
     return  -10;
   }
 
@@ -409,7 +403,7 @@ cout<<"verita MC,  traccia n. "<<iMCTrack<<", Ox, Oy,  Cx, Cy, D ,  R  ,  gamma 
     Ninclinate=0;
 
 
-  if (istampa >= 1 ) cout<<"Gianluigi : da PndSttTrackFinderReal::DoFind : nHits="<<nHits<<endl;
+//  if (istampa >= 1 ) cout<<"Gianluigi : da PndSttTrackFinderReal::DoFind : nHits="<<nHits<<endl;
 
   //   generated momenta and starting position of each track
 
@@ -570,13 +564,13 @@ jumpout: ;
 
 
    if( nHits >0 &&  Minclinations[0] > 2 ) {
-//     if(ianalizza ) {
+     if(ianalizza ) {
          PndSttTrkFinderPartial(nHits,info,Ninclinations,Minclinations,inclinationversors,
                                              Ninclinate,
               trackArray   //   this is the output, ie the TClonesArray *   od  PndSttTrack
                           //    classes containing the info for a found track, one class per each track
                                              );
-//     }
+     }
 
    };
 
@@ -839,9 +833,9 @@ void PndSttTrackFinderReal::PndSttTrkFinderPartial(
                                                     );
 
       if( nHitsinTrack[nTracksFoundSoFar] < MINIMUMHITSPERTRACK) {
-        cout<<"      nHitsinTrack = "<<nHitsinTrack[nTracksFoundSoFar]<<
-  "  is < the MINIMUMHIITSPERTRACK ("<< MINIMUMHITSPERTRACK<<
-  ");  skip this candidate track\n";
+//        cout<<"      nHitsinTrack = "<<nHitsinTrack[nTracksFoundSoFar]<<
+//  "  is < the MINIMUMHIITSPERTRACK ("<< MINIMUMHITSPERTRACK<<
+//  ");  skip this candidate track\n";
         continue;
       }
 
@@ -1209,20 +1203,6 @@ void PndSttTrackFinderReal::PndSttTrkFinderPartial(
 
 
 
-/*
-      Status[i] = PndSttFitSZspace( 
-                TemporarynSkewHitsinTrack,
-                S,
-                Z,
-                ZDrift,
-                i,   //   index of the track in XY plane
-                1.571,   //  rotationangle always 90 degrees
-                NHITSINFIT,
-                &KAPPA[i],
-                &FI0[i]
-                      );
-
-*/
 
 
       Status[i] = PndSttFitSZspacebis( 
@@ -1357,27 +1337,51 @@ void PndSttTrackFinderReal::PndSttTrkFinderPartial(
 
 
 
+//----------------------  temporarily  matching with MC tracks here --------------------------------
+
+//    associate the tracks found with Pattern Recognition to the MC tracks
+
+  AssociateFoundTrackstoMC(
+                  nTracksFoundSoFar,
+                  nHitsinTrack,
+                  ListHitsinTrack,
+                  nSkewHitsinTrack,
+                  ListSkewHitsinTrack,
+                  daTrackFoundaTrackMC,
+                  daMCTrackaTrackFound 
+                                   );
+
+
+
+//-------------------------------------
+
+
+
+
 //   loading the hits found and associates to a track in a  PndSttTrack  class; a class per each track
 
-/*
-         new((*trackArray)[ipinco])  PndSttTrack;
-         PndSttTrack *pt = (PndSttTrack*) (*trackArray)[ipinco];
-         ipinco++;
-         pt->GetParamLast()->SetTx(R[i]);
-         Double_t inv=R[i]*KAPPA[i];
-         if(fabs(inv) > 1.e-10){
-            pt->GetParamLast()->SetTy(1./inv);
-         }else{
-            pt->GetParamLast()->SetTy(1.e10);
-         }
 
-         ptotal = sqrt(Pxini*Pxini+Pyini*Pyini+Pzini*Pzini);
-         if( fabs(ptotal)  > 1.e-10){
-             pt->GetParamLast()->SetQp(Charge[i]/ptotal);
-         } else {
-             pt->GetParamLast()->SetQp(Charge[i]/1.e-10);
-         }
-*/
+         UShort_t SttDetID=3;
+
+         new((*trackArray)[ipinco])  PndTrackCand;
+         PndTrackCand *pTrckCand = (PndTrackCand*) (*trackArray)[ipinco];
+         ipinco++;
+         Double_t inv=R[i]*KAPPA[i];
+	  TVector3 dirSeed(Pxini,
+			   Pyini,
+			   Pzini); // momentum direction in starting point
+          Double_t qop = Charge[i]/dirSeed.Mag();
+          dirSeed.SetMag(1.);
+	  TVector3 posSeed(0.,
+			   0.,
+			   0.);  //  direction in starting point
+          pTrckCand->setTrackSeed(posSeed, dirSeed, qop);
+          pTrckCand->setMcTrackId(  daTrackFoundaTrackMC[i]   );
+
+          for(j=0; j< nTotalHits; j++){
+              pTrckCand->AddHit(SttDetID, (Int_t) BigList[j] , j); 
+          }
+
 
 
 
@@ -9584,14 +9588,9 @@ if(istampa==2) cout<<"From AssociateBetterAfterFitSkewHitsToXYTrack ,  hit skew 
 
 
 
-
-
-
-
-
-
 //----------begin of function PndSttTrackFinderReal::PndSttFitwithKalman
 
+/*
       void   PndSttTrackFinderReal::PndSttFitwithKalman(
                                                      Double_t oX,
                                                      Double_t oY,
@@ -9610,7 +9609,6 @@ if(istampa==2) cout<<"From AssociateBetterAfterFitSkewHitsToXYTrack ,  hit skew 
                                                        )
 {
 
-cout<<"cavolo, px = "<<Pxini<<", py = "<<Pyini<<", pz = "<<Pzini<<endl;
 
       UShort_t i,j,flag,
                nTotal = nParallelHits+nSkewHits,
@@ -9762,17 +9760,14 @@ cout<<"cavolo, px = "<<Pxini<<", py = "<<Pyini<<", pz = "<<Pzini<<endl;
 
        trk->setCandidate(*cand); // here the candidate is copied! 
 
-cout<<"qui\n";
 //----  now the Kalman
 	trk->addHitVector(_theRecoHitFactory->createMany(trk->getCand()));
-cout<<"qua\n";
 	GFKalman k;
         k.setLazy(1);
 	k.setNumIterations(1);
 	k.processTrack(trk);
 //------ estrazione delle info dal Kalman secondo Lia
     TVector3 dum = trk->getCardinalRep()->getMom();
-    cout<<"infos, momento sul primo piano : "<<dum.X()<<endl;
 //------------
  
     delete grep;
@@ -9782,6 +9777,11 @@ cout<<"qua\n";
  return; 
 
 }
+
+
+*/
+
+
 //----------end of function PndSttTrackFinderReal::PndSttFitwithKalman
 
 
@@ -10835,7 +10835,6 @@ if( istampa>= 2) cout<<"  evento n. "<<IVOLTE<<", imc = "<<imc<<", jexp = "<<jex
              }
           }    //  end for (imc=0; imc<nMCTracks;imc++)
 
-if(IVOLTE==2 ) {  cout<<" jexp "<<jexp<<", Imc "<<Imc<<", massimo "<<massimo<<endl;}
           if( massimo >0) {
             daTrackFoundaTrackMC[jexp]=Imc;
             daMCTrackaTrackFound[Imc]=jexp;

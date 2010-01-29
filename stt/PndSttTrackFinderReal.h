@@ -10,14 +10,6 @@
 #include "TH1.h"
 //-------------------------------
 
-#include "FairGeanePro.h"
-#include "GFDetPlane.h"
-#include "GFAbsTrackRep.h"
-#include "GeaneTrackRep.h"
-#include "GFTrack.h"
-#include "GFTrackCand.h"
-#include "GFRecoHitFactory.h"
-#include "PndSttRecoHit.h"
 
 
 //   #include "TGeoTorus.h"
@@ -169,7 +161,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
           N_INTENDED;
 //  Double_t SEMILENGTH_STRAIGHT = 75.;
       static const bool  iplotta = true , ianalizza = true ;
-      static const int istampa = 1;
+      static const int istampa = 0;
       TH1F * hx;
       FILE * HANDLE ;
     Double_t veritaMC[nmaxHits][3];
@@ -214,9 +206,9 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
   PndSttHit* GetHitFromCollections(Int_t hitCounter);
   FairMCPoint* GetPointFromCollections(Int_t hitCounter);
-  FairGeanePro * fPro;
+//  FairGeanePro * fPro;
   TClonesArray* fSttHitArray;
-  GFRecoHitFactory* _theRecoHitFactory;
+//  GFRecoHitFactory* _theRecoHitFactory;
 
   void PndSttTrkFinderPartial(Int_t NN,Double_t info[][7],Int_t nincl,Int_t Minclinations[],
                         Double_t inclinationversors[][3],
