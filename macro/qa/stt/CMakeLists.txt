@@ -12,3 +12,8 @@ GENERATE_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/qa/stt/QAmacro_stt_3.C)
 add_test(qa_stt_macro3 ${PANDAROOT_BINARY_DIR}/macro/qa/stt/QAmacro_stt_3.sh)
 SET_TESTS_PROPERTIES(qa_stt_macro3 PROPERTIES TIMEOUT "100")
 SET_TESTS_PROPERTIES(qa_stt_macro3 PROPERTIES PASS_REGULAR_EXPRESSION "TestPassed; All Ok")
+
+GENERATE_ROOT_TEST_SCRIPT(${PANDAROOT_SOURCE_DIR}/macro/qa/stt/QAmacro_stt_4.C)
+add_test(qa_stt_macro4 ${PANDAROOT_BINARY_DIR}/macro/qa/stt/QAmacro_stt_4.sh)
+SET_TESTS_PROPERTIES(qa_stt_macro4 PROPERTIES TIMEOUT "300")
+SET_TESTS_PROPERTIES(qa_stt_macro4 PROPERTIES PASS_REGULAR_EXPRESSION "TestPassed; All Ok")
