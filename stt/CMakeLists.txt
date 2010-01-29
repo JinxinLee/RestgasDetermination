@@ -2,8 +2,11 @@
 # the array .
 # The extension is already found.  Any number of sources could be listed here.
 
+set(GLPK_INCLUDE_DIR "/home/boca/panda/pandaroot_installazione27gen10/fairsoft/basics/glpk/include")
+
 set(INCLUDE_DIRECTORIES
 ${ROOT_INCLUDE_DIR} 
+${GLPK_INCLUDE_DIR}
 ${CMAKE_SOURCE_DIR}/geobase 
 ${CMAKE_SOURCE_DIR}/parbase 
 ${CMAKE_SOURCE_DIR}/base 
@@ -17,8 +20,11 @@ ${CMAKE_SOURCE_DIR}/stt
 
 include_directories( ${INCLUDE_DIRECTORIES})
 
+set(GLPK_LIB_DIR "/home/boca/panda/pandaroot_installazione27gen10/fairsoft/basics/glpk/src/.libs")
+
 set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}
+${GLPK_LIB_DIR}
 )
  
 link_directories( ${LINK_DIRECTORIES})
@@ -45,7 +51,7 @@ PndSttHelixTrackFitter.cxx
 PndSttHitProducerRealFast.cxx
 PndSttHitProducerRealFull.cxx            
 PndSttHelixHitProducer.cxx
-#PndSttTrackFinderReal.cxx
+PndSttTrackFinderReal.cxx
 )
 
 if(RULE_CHECKER_FOUND)
@@ -64,7 +70,7 @@ ROOT_GENERATE_DICTIONARY("${STT_HEADERS}" "${STT_LINKDEF}" "${STT_DICTIONARY}" "
 SET(STT_SRCS ${STT_SRCS} ${STT_DICTIONARY})
 
 add_library(Stt SHARED ${STT_SRCS})
-target_link_libraries(Stt ${ROOT_LIBRARIES})
+target_link_libraries(Stt ${ROOT_LIBRARIES} libglpk.so )
 set_target_properties(Stt PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 ################ install ###################
 install(TARGETS Stt DESTINATION ${CMAKE_BINARY_DIR}/lib)
