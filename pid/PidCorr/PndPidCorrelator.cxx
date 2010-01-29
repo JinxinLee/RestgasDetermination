@@ -511,7 +511,7 @@ void PndPidCorrelator::GetMvdInfo(PndTrack* track, PndPidCandidate* pidCand)
     {
       PndMvdHit *mvdHit = NULL;
       PndTrackCandHit candHit = trackCand.GetSortedHit(ii);
-      if ( (candHit.GetDetId()!=kMVDHitsPixel) || (candHit.GetDetId()!=kMVDHitsStrip) ) continue;
+      if ( (candHit.GetDetId()!=kMVDHitsPixel) && (candHit.GetDetId()!=kMVDHitsStrip) ) continue;
       
       if (candHit.GetDetId()==kMVDHitsPixel) mvdHit = (PndMvdHit*)fMvdHitsPixel->At(candHit.GetHitId());
       if (candHit.GetDetId()==kMVDHitsStrip) mvdHit = (PndMvdHit*)fMvdHitsStrip->At(candHit.GetHitId());
@@ -524,19 +524,17 @@ void PndPidCorrelator::GetMvdInfo(PndTrack* track, PndPidCandidate* pidCand)
       TGeoMatrix* mvdGeoRot = (TGeoMatrix*)mvdNode->GetMatrix();
       const Double_t *rotM = mvdGeoRot->GetRotationMatrix();
       TVector3 zaxis(rotM[2], rotM[5], rotM[8]); // Z axis in the detector frame
-      TVector3 vertex(0., 0., 0.);
       TVector3 momentum(0., 0., 0.);
       FairTrackParP par = track->GetParamLast();
       Int_t ierr = 0;
       FairTrackParH *helix = new FairTrackParH(&par, ierr);
       Double_t cos = 0.;
-      if (fGeanePro) // Overwrites vertex if Geane is used
+      if (fGeanePro) 
     	{
 	  FairGeanePro *fProMvd = new FairGeanePro();
 	  fProMvd->SetPoint(mvdPos);
-	  fProMvd->PropagateToPCA(1, 1);
-          vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
-          FairTrackParH *fRes= new FairTrackParH();
+	  fProMvd->PropagateToPCA(1, -1);
+	  FairTrackParH *fRes= new FairTrackParH();
           Bool_t rc =  fProMvd->Propagate(helix, fRes, -13*pidCand->GetCharge()); // First propagation at module
           if (rc)
 	    {
@@ -564,7 +562,7 @@ void PndPidCorrelator::GetMvdInfo(PndTrack* track, PndPidCandidate* pidCand)
     }
   
   if (mvdPath>0.) pidCand->SetMvdDEDX(mvdELoss/mvdPath);
-  //pidCand->SetMvdHits(mvdCounts);
+  pidCand->SetMvdHits(mvdCounts);
 }
 
 //_________________________________________________________________
