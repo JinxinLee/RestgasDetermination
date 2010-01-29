@@ -5915,7 +5915,7 @@ if(istampa>=2) {
 
      char nome[100], stringa[100], stringa2[100];
 
-     FILE * MACRO ;
+//     FILE * MACRO ;
 
      float m1_result,m2_result, q1_result,q2_result, A1_result, A2_result;
 
@@ -5952,11 +5952,12 @@ if(istampa>=2) {
 
       }
 
-      sprintf(nome,"GeneralParallelHitsConformeTraccia%dEvent%d.mcs",(nTracksFoundSoFar), IVOLTE);
-      MACRO = fopen(nome,"w");
-      fprintf(MACRO,"NAME    FIT\n");
+//      sprintf(nome,"GeneralParallelHitsConformeTraccia%dEvent%d.mcs",(nTracksFoundSoFar), IVOLTE);
+//      MACRO = fopen(nome,"w");
+//      fprintf(MACRO,"NAME    FIT\n");
 //-----------------  write the ROWS  section
 
+/*
       fprintf(MACRO,"ROWS\n");
       fprintf(MACRO," N OBJECT\n");
       for(i=0, ii=0 ; i< NpointsInFit ; i++) {
@@ -5964,6 +5965,8 @@ if(istampa>=2) {
            fprintf(MACRO," L Ap%d\n L Bp%d\n L Cp%d\n L Dp%d\n",i,i,i,i);
            fprintf(MACRO," L Am%d\n L Bm%d\n L Cm%d\n L Dm%d\n G LAMBDA%d\n",i,i,i,i,i);
       }
+
+*/
 
 //--------
       nameRows[0]="OBJECT";
@@ -5991,23 +5994,27 @@ if(istampa>=2) {
 
 //-----------------  write the COLUMNS  section
 
-      fprintf(MACRO,"COLUMNS\n");
+//      fprintf(MACRO,"COLUMNS\n");
 
 //  Column variable  m1
+
+
       for(i=0, ii=0 ; i< NpointsInFit ; i++) {
        ii++;
-          fprintf(MACRO,"  m1 Ap%d  %g  Am%d  %g\n  m1 Bp%d  %g   Bm%d  %g\n",
-                                  i,Ox[i],i,Ox[i],i,-Ox[i],i,-Ox[i]);
+//          fprintf(MACRO,"  m1 Ap%d  %g  Am%d  %g\n  m1 Bp%d  %g   Bm%d  %g\n",
+//                                  i,Ox[i],i,Ox[i],i,-Ox[i],i,-Ox[i]);
         Coefficients[i*4]=    Ox[i];
         Coefficients[i*4+1]=  Ox[i];
         Coefficients[i*4+2]= -Ox[i];
         Coefficients[i*4+3]= -Ox[i];
       }
 
+
+
 //  Column variable  m2
       for(i=0; i< NpointsInFit ; i++) {
-          fprintf(MACRO,"  m2 Ap%d  %g  Am%d  %g\n  m2 Bp%d  %g   Bm%d  %g\n",
-                                  i,-Ox[i],i,-Ox[i],i,Ox[i],i,Ox[i]);
+//          fprintf(MACRO,"  m2 Ap%d  %g  Am%d  %g\n  m2 Bp%d  %g   Bm%d  %g\n",
+//                                  i,-Ox[i],i,-Ox[i],i,Ox[i],i,Ox[i]);
         Coefficients[NStructRows+i*4]=   -Ox[i];
         Coefficients[NStructRows+i*4+1]= -Ox[i];
         Coefficients[NStructRows+i*4+2]= Ox[i];
@@ -6017,9 +6024,8 @@ if(istampa>=2) {
 
 //  Column variable  q1
       for(i=0 ; i< NpointsInFit ; i++) {
-//       if( i== iExclude)  continue;
-          fprintf(MACRO,"  q1 Ap%d   1.  Am%d   1.\n  q1 Bp%d  -1.  Bm%d  -1.\n",
-                                  i,i,i,i);
+//          fprintf(MACRO,"  q1 Ap%d   1.  Am%d   1.\n  q1 Bp%d  -1.  Bm%d  -1.\n",
+//                                  i,i,i,i);
         Coefficients[2*NStructRows+i*4]=    1.;
         Coefficients[2*NStructRows+i*4+1]=  1.;
         Coefficients[2*NStructRows+i*4+2]= -1.;
@@ -6028,9 +6034,8 @@ if(istampa>=2) {
 
 //  Column variable  q2
       for(i=0 ; i< NpointsInFit ; i++) {
-//       if( i== iExclude)  continue;
-          fprintf(MACRO,"  q2 Ap%d   -1.  Am%d   -1.\n  q2 Bp%d   1.   Bm%d   1.\n",
-                                  i,i,i,i);
+//          fprintf(MACRO,"  q2 Ap%d   -1.  Am%d   -1.\n  q2 Bp%d   1.   Bm%d   1.\n",
+//                                  i,i,i,i);
         Coefficients[3*NStructRows+i*4]=   -1.;
         Coefficients[3*NStructRows+i*4+1]= -1.;
         Coefficients[3*NStructRows+i*4+2]=  1.;
@@ -6039,8 +6044,8 @@ if(istampa>=2) {
 
 //  Column variable  lambdap(i)
       for(i=0 ; i< NpointsInFit ; i++) {
-          fprintf(MACRO,"  lamp%d  Ap%d  %g  Bp%d  %g\n  lamp%d  Cp%d  %g  Dp%d   %g\n  lamp%d  LAMBDA%d  1.\n",
-                                                i,i,-M,i,-M, i , i,-M, i, M, i,i);
+//          fprintf(MACRO,"  lamp%d  Ap%d  %g  Bp%d  %g\n  lamp%d  Cp%d  %g  Dp%d   %g\n  lamp%d  LAMBDA%d  1.\n",
+//                                                i,i,-M,i,-M, i , i,-M, i, M, i,i);
         Coefficients[(4+i)*NStructRows+0]= -M;
         Coefficients[(4+i)*NStructRows+1]= -M;
         Coefficients[(4+i)*NStructRows+2]= -M;
@@ -6049,8 +6054,8 @@ if(istampa>=2) {
       }
 //  Column variable  lambdam(i)
       for(i=0 ; i< NpointsInFit ; i++) {
-          fprintf(MACRO,"  lamm%d  Am%d  %g  Bm%d  %g\n  lamm%d  Cm%d  %g  Dm%d %g\n  lamm%d  LAMBDA%d  1.\n",
-                                                i,i,-M,i,-M, i,i , -M, i, M, i,i);
+//          fprintf(MACRO,"  lamm%d  Am%d  %g  Bm%d  %g\n  lamm%d  Cm%d  %g  Dm%d %g\n  lamm%d  LAMBDA%d  1.\n",
+//                                                i,i,-M,i,-M, i,i , -M, i, M, i,i);
         Coefficients[(4+i+NpointsInFit)*NStructRows+0]= -M;
         Coefficients[(4+i+NpointsInFit)*NStructRows+1]= -M;
         Coefficients[(4+i+NpointsInFit)*NStructRows+2]= -M;
@@ -6060,8 +6065,8 @@ if(istampa>=2) {
 //  Column variable  sigmap(i)
       for(i=0; i< NpointsInFit ; i++) {
 
-          fprintf(MACRO,"  sigmap%d  OBJECT  %g  Ap%d  -1.\n  sigmap%d  Bp%d    -1. Cp%d  1.\n  sigmap%d  Dp%d -1.\n",
-                                                i,1./Delta[i],i,i,i,i,i,i);
+//          fprintf(MACRO,"  sigmap%d  OBJECT  %g  Ap%d  -1.\n  sigmap%d  Bp%d    -1. Cp%d  1.\n  sigmap%d  Dp%d -1.\n",
+//                                                i,1./Delta[i],i,i,i,i,i,i);
         Coefficients[(4+i+2*NpointsInFit)*NStructRows+0]=  1./Delta[i];
         Coefficients[(4+i+2*NpointsInFit)*NStructRows+1]= -1.;
         Coefficients[(4+i+2*NpointsInFit)*NStructRows+2]= -1.;
@@ -6070,8 +6075,8 @@ if(istampa>=2) {
       }
 //  Column variable  sigmam(i)
       for(i=0 ; i< NpointsInFit ; i++) {
-          fprintf(MACRO,"  sigmam%d  OBJECT %g  Am%d  -1.\n  sigmam%d  Bm%d   -1. Cm%d   1.\n  sigmam%d  Dm%d  -1.\n",
-                                                i,1./Delta[i],i,i,i,i,i,i);
+//          fprintf(MACRO,"  sigmam%d  OBJECT %g  Am%d  -1.\n  sigmam%d  Bm%d   -1. Cm%d   1.\n  sigmam%d  Dm%d  -1.\n",
+//                                                i,1./Delta[i],i,i,i,i,i,i);
         Coefficients[(4+i+3*NpointsInFit)*NStructRows+0]=  1./Delta[i];
         Coefficients[(4+i+3*NpointsInFit)*NStructRows+1]= -1.;
         Coefficients[(4+i+3*NpointsInFit)*NStructRows+2]= -1.;
@@ -6080,12 +6085,15 @@ if(istampa>=2) {
       }
 
 //  Column variable  DUMMY
+/*
       for(i=0, ii=0 ; i< NpointsInFit ; i++) {
         fprintf(MACRO,"  DUMMY     Ap%d  1.      Am%d       1.\n  DUMMY   Bp%d   1.    Bm%d   1.\n  DUMMY    Cp%d   1.   Cm%d   1\n",
                                                 i,i,i,i,i,i);
         fprintf(MACRO,"  DUMMY     Dp%d  1.      Dm%d       1.\n",
                                                 i,i);
       }
+*/
+
       for(i=0 ; i< NStructRows ; i++) {
         Coefficients[(4+4*NpointsInFit)*NStructRows+i]= 1.;
       }
@@ -6215,23 +6223,26 @@ if(istampa>=2) {
 
 //-----------------  write the RHS  section
 
-      fprintf(MACRO,"RHS\n");
+//      fprintf(MACRO,"RHS\n");
       for(i=0 ; i< NpointsInFit ; i++) {
-          fprintf(MACRO,"  BOUND  Ap%d  %g  Bp%d  %g\n  BOUND  Cp%d  %g  Dp%d  %g\n",
-              i, Oy[i]+auxinfoparalConformal[ i ][2]+2.*M,i,
-                -Oy[i]-auxinfoparalConformal[ i ][2]+2.*M,i,
-                 Delta[i]+2.*M,i,M-Delta[i]+2.*M);
+//          fprintf(MACRO,"  BOUND  Ap%d  %g  Bp%d  %g\n  BOUND  Cp%d  %g  Dp%d  %g\n",
+//              i, Oy[i]+auxinfoparalConformal[ i ][2]+2.*M,i,
+//                -Oy[i]-auxinfoparalConformal[ i ][2]+2.*M,i,
+//                 Delta[i]+2.*M,i,M-Delta[i]+2.*M);
           ValueB[i*9]  =  Oy[i]+auxinfoparalConformal[ i ][2]+2.*M;
           ValueB[i*9+1]= -Oy[i]-auxinfoparalConformal[ i ][2]+2.*M;
           ValueB[i*9+2]= Delta[i]+2.*M;
           ValueB[i*9+3]= M-Delta[i]+2.*M;
 
 
+/*
           fprintf(MACRO,"  BOUND  Am%d  %g  Bm%d  %g\n  BOUND  Cm%d  %g  Dm%d %g\n",
               i, Oy[i]-auxinfoparalConformal[ i ][2]+2.*M,i,
                 -Oy[i]+auxinfoparalConformal[ i ][2]+2.*M,i,
                  Delta[i]+2.*M,i,M-Delta[i]+2.*M);
           fprintf(MACRO,"  BOUND  LAMBDA%d   1.\n",i);
+*/
+
           ValueB[i*9+4]=  Oy[i]-auxinfoparalConformal[ i ][2]+2.*M;
           ValueB[i*9+5]= -Oy[i]+auxinfoparalConformal[ i ][2]+2.*M;
           ValueB[i*9+6]= Delta[i]+2.*M;
@@ -6244,9 +6255,9 @@ if(istampa>=2) {
 
 //-----------------  write the RANGES  section
 
-      fprintf(MACRO,"RANGES\n");
+//      fprintf(MACRO,"RANGES\n");
       for(i=0 ; i< NpointsInFit ; i++) {
-          fprintf(MACRO,"  RANGE  LAMBDA%d  1.\n",i);
+//          fprintf(MACRO,"  RANGE  LAMBDA%d  1.\n",i);
 //---
         ValueRanges[i]=1.;
         sprintf(&auxNameRanges[i][0],"LAMBDA%d",i);
@@ -6255,11 +6266,10 @@ if(istampa>=2) {
 
 //-----------------  write the BOUNDS  section
 
-      fprintf(MACRO,"BOUNDS\n");
-//      fprintf(MACRO," FR  Bounds  m\n FR  Bounds  q\n");
+//      fprintf(MACRO,"BOUNDS\n");
 
       for(i=0 ; i< NpointsInFit ; i++) {
-          fprintf(MACRO," BV  Bounds  lamp%d\n",  i);
+//          fprintf(MACRO," BV  Bounds  lamp%d\n",  i);
           TypeofBound[i]="BV";
           sprintf(&auxBoundStructVarName[i][0],"lamp%d",i);
           BoundStructVarName[i]=&auxBoundStructVarName[i][0];
@@ -6267,26 +6277,25 @@ if(istampa>=2) {
       }
 
       for(i=0 ; i< NpointsInFit ; i++) {
-          fprintf(MACRO," BV  Bounds  lamm%d\n", i);
+//          fprintf(MACRO," BV  Bounds  lamm%d\n", i);
           TypeofBound[i+NpointsInFit]="BV";
           sprintf(&auxBoundStructVarName[i+NpointsInFit][0],"lamm%d",i);
           BoundStructVarName[i+NpointsInFit]=&auxBoundStructVarName[i+NpointsInFit][0];
           BoundValue[i]=0.;
       }
 
-          fprintf(MACRO," FX  Bounds  DUMMY  %g\n",2.*M);
+//          fprintf(MACRO," FX  Bounds  DUMMY  %g\n",2.*M);
           TypeofBound[2*NpointsInFit]="FX";
           BoundStructVarName[2*NpointsInFit]="DUMMY";
           BoundValue[2*NpointsInFit]=2.;
 //-----
 
-      fprintf(MACRO,"ENDATA\n");
-      fclose(MACRO);
+//      fprintf(MACRO,"ENDATA\n");
+//      fclose(MACRO);
 
 //-----------------------  funzioni chiamate direttamente
 /*
 
-cout<<"passingthrough here\n";
 
 cout<<"n.  punti nel fit "<<NpointsInFit<<endl;
 
@@ -6353,7 +6362,6 @@ for(ica=0;ica<NStructVar;ica++){
 printf("from main, end of final printout  con routines chiamate direttamente -------------------------------\n");
 
 
-cout<<"passingthrough here  2\n";
 
 */
 //-----------------------  fine funzioni chiamate direttamente
@@ -6370,30 +6378,21 @@ cout<<"passingthrough here  2\n";
               "/home/boca/panda/glpk/glpk-4.39/examples/glpsol --min -o soluztrack%dEvent%dstep%d    GeneralParallelHitsConformeTraccia%dEvent%d.mcs >& /dev/null",
                                 nTracksFoundSoFar, IVOLTE,INTERO,nTracksFoundSoFar,IVOLTE,INTERO);
    }
+
+/*
      system(stringa);
-//     sprintf(stringa2,"grep -e ' m1  '   -e  ' q1  ' -e ' q2   ' -e ' A1 ' -e ' A2 ' soluztrack%dEvent%dstep%d |  awk '{print $3}' > temp",
-//                             (nTracksFoundSoFar),IVOLTE,INTERO);
-//     sprintf(stringa2,"grep -e ' m1  '   -e  ' q1  ' -e ' q2   '  soluztrack%dEvent%dstep%d |  awk '{print $3}' > temp",
-//                             nTracksFoundSoFar,IVOLTE,INTERO);
      sprintf(stringa2,"grep -e ' m1  '  -e ' m2  '  -e  ' q1  ' -e ' q2   '  soluztrack%dEvent%dstep%d |  awk '{print $3}' > temp",
                              nTracksFoundSoFar,IVOLTE,INTERO);
-//     sprintf(stringa2,"grep -e ' m1  '   -e  ' q1  '   soluztrack%dEvent%dstep%d |  awk '{print $3}' > temp",
-//                             nTracksFoundSoFar,IVOLTE,INTERO);
      system(stringa2);
 
 
      FILE * RESULT = fopen("temp","r");
-//     fscanf(RESULT,"%f",&A1_result);
-//     fscanf(RESULT,"%f",&A2_result);
      fscanf(RESULT,"%f",&m1_result);
      fscanf(RESULT,"%f",&m2_result);
      fscanf(RESULT,"%f",&q1_result);
      fscanf(RESULT,"%f",&q2_result);
      fclose(RESULT);
-//     system ("rm -f temp");
-//     system ("rm -f soluz*    ");
-//     system("rm -f GeneralParallelHitsConformeTraccia*");
-
+*/
 
      m1_result = final_values[0];
      m2_result = final_values[1];
