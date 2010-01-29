@@ -2,4 +2,4 @@
 #pragma link off all classes;
 #pragma link off all functions;
 
-#pragma link C++ function DigiCompleteTpc(TString, TString, TString, TString);
+#pragma link C++ function DigiComplete(TString, TString, TString, TString);

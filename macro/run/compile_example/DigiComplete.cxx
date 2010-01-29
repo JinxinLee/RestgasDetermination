@@ -1,4 +1,4 @@
-#include "DigiCompleteTpc.h"
+#include "DigiComplete.h"
 
 #include <PndEmcHitsToWaveform.h>
 #include <PndEmcWaveformToDigi.h>
@@ -9,6 +9,7 @@
 #include <PndMdtHitProducerIdeal.h>
 #include <PndGemDigitize.h>
 #include <PndGemFindHits.h>
+#include <PndSttHitProducerRealFast.h>
 #include <PndTpcClusterizerTask.h>
 #include <PndTpcDriftTask.h>
 #include <PndTpcGemTask.h>
@@ -35,8 +36,8 @@
 using namespace std;
 
 
-void DigiCompleteTpc(TString const &inFile, TString const &parFile,
-		     TString const &digiFile, TString const &outFile)
+void DigiComplete(TString const &inFile, TString const &parFile,
+		  TString const &digiFile, TString const &outFile)
 {
   gDebug = 0;
 
@@ -78,6 +79,47 @@ void DigiCompleteTpc(TString const &inFile, TString const &parFile,
   fRun->AddTask(emcHitsToWaveform);  // full digitization
   fRun->AddTask(emcWaveformToDigi);  // full digitization
 
+  PndSttHitProducerRealFast* sttHitProducer = new PndSttHitProducerRealFast();
+  fRun->AddTask(sttHitProducer);
+
+  QAPlotCollection* qa=new QAPlotCollection("TpcDigiQAPlots");
+
+  PndTpcClusterizerTask* tpcClusterizer = new PndTpcClusterizerTask();
+  tpcClusterizer->SetPersistence();
+
+  //ONLY USE THIS WHEN USING ALICE SETTINGS WITH GEANT3
+  tpcClusterizer->SetMereChargeConversion();  
+  
+  fRun->AddTask(tpcClusterizer);
+
+  /**   use Alice Style MC    
+                                make one hit per collision with atom
+                                use other straggling
+                WARNING:        
+            1. geant3 has to be used!
+            2. LOSS = 5 has to be set!
+            3. DCUTE und DCUTM should be set to 10 keV. 
+            4. For Digitaization: PndTpcClusterizerTask
+                        tpcClusterizer->SetMereChargeConversion() has to be set!
+            5. if you do not use this option make sure 2., 4. are not set!
+                :-(     
+            6. SetMaxNStep should be set to a high value
+  */ 
+
+  PndTpcDriftTask* tpcDrifter = new PndTpcDriftTask();
+  tpcDrifter->SetPersistence();
+  tpcDrifter->SetDistort(false);
+  tpcDrifter->SetQAPlotCol(qa);
+  fRun->AddTask(tpcDrifter);
+
+  PndTpcPadResponseTask* tpcPadResponse = new PndTpcPadResponseTask();
+  tpcPadResponse->SetPersistence();
+  fRun->AddTask(tpcPadResponse);
+
+  PndTpcElectronicsTask* tpcElec = new PndTpcElectronicsTask();
+  tpcElec->SetPersistence();
+  fRun->AddTask(tpcElec);
+
   PndDchDigiProducer* digiProducer= new PndDchDigiProducer();
   fRun->AddTask(digiProducer);
 
@@ -102,48 +144,6 @@ void DigiCompleteTpc(TString const &inFile, TString const &parFile,
   PndGemFindHits* gemFindHits = new PndGemFindHits("GEM Hit Finder",  iVerbose);
   fRun->AddTask(gemFindHits);
   
-  QAPlotCollection* qa=new QAPlotCollection("TpcDigiQAPlots");
-
-  PndTpcClusterizerTask* tpcClusterizer = new PndTpcClusterizerTask();
-  tpcClusterizer->SetPersistence();
-
-  //ONLY USE THIS WHEN USING ALICE SETTINGS WITH GEANT3
-  tpcClusterizer->SetMereChargeConversion();  
-  
-  fRun->AddTask(tpcClusterizer);
-  
-  /**   use Alice Style MC    
-                                make one hit per collision with atom
-                                use other straggling
-                WARNING:        
-            1. geant3 has to be used!
-            2. LOSS = 5 has to be set!
-            3. DCUTE und DCUTM should be set to 10 keV. 
-            4. For Digitaization: PndTpcClusterizerTask
-                        tpcClusterizer->SetMereChargeConversion() has to be set!
-            5. if you do not use this option make sure 2., 4. are not set!
-                :-(     
-            6. SetMaxNStep should be set to a high value
-  */ 
-
-  PndTpcDriftTask* tpcDrifter = new PndTpcDriftTask();
-  tpcDrifter->SetPersistence();
-  tpcDrifter->SetDistort(false);
-  tpcDrifter->SetQAPlotCol(qa);
-  fRun->AddTask(tpcDrifter);
-
-  PndTpcGemTask* tpcGem = new PndTpcGemTask();
-  //tpcGem->SetPersistence();
-  fRun->AddTask(tpcGem);
-
-  PndTpcPadResponseTask* tpcPadResponse = new PndTpcPadResponseTask();
-  tpcPadResponse->SetPersistence();
-  fRun->AddTask(tpcPadResponse);
-
-  PndTpcElectronicsTask* tpcElec = new PndTpcElectronicsTask();
-  tpcElec->SetPersistence();
-  fRun->AddTask(tpcElec);
-
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
 

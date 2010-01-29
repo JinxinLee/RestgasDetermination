@@ -1,4 +1,4 @@
-# Makefile for the SimCompleteTpc program, example of a macro compiled with g++.
+# Makefile for the SimComplete program, example of a macro compiled with g++.
 # Elwin Dijck, December 2009
 
 # Based on the ROOT Makefile by Fons Rademakers.
@@ -9,69 +9,69 @@ include Makefile.Panda
 
 #------------------------------------------------------------------------------
 
-SIMCOMPLETETPC := SimCompleteTpc$(ExeSuf)
-SIMCOMPLETETPCO := SimCompleteTpc.$(ObjSuf) SimCompleteTpcDict.$(ObjSuf)
-SIMCOMPLETETPCSO := libSimCompleteTpc.$(DllSuf)
+SIMCOMPLETE := SimComplete$(ExeSuf)
+SIMCOMPLETEO := SimComplete.$(ObjSuf) SimCompleteDict.$(ObjSuf)
+SIMCOMPLETESO := libSimComplete.$(DllSuf)
 
-DIGICOMPLETETPC := DigiCompleteTpc$(ExeSuf)
-DIGICOMPLETETPCO := DigiCompleteTpc.$(ObjSuf) DigiCompleteTpcDict.$(ObjSuf)
-DIGICOMPLETETPCSO := libDigiCompleteTpc.$(DllSuf)
+DIGICOMPLETE := DigiComplete$(ExeSuf)
+DIGICOMPLETEO := DigiComplete.$(ObjSuf) DigiCompleteDict.$(ObjSuf)
+DIGICOMPLETESO := libDigiComplete.$(DllSuf)
 
-RECOCOMPLETETPC := RecoCompleteTpc$(ExeSuf)
-RECOCOMPLETETPCO := RecoCompleteTpc.$(ObjSuf) RecoCompleteTpcDict.$(ObjSuf)
-RECOCOMPLETETPCSO := libRecoCompleteTpc.$(DllSuf)
+RECOCOMPLETE := RecoComplete$(ExeSuf)
+RECOCOMPLETEO := RecoComplete.$(ObjSuf) RecoCompleteDict.$(ObjSuf)
+RECOCOMPLETESO := libRecoComplete.$(DllSuf)
 
-all:            $(SIMCOMPLETETPC) $(DIGICOMPLETETPC) $(RECOCOMPLETETPC)
+all:            $(SIMCOMPLETE) $(DIGICOMPLETE) $(RECOCOMPLETE)
 
-lib:            $(SIMCOMPLETETPCSO) $(DIGICOMPLETETPCSO) $(RECOCOMPLETETPCSO)
+lib:            $(SIMCOMPLETESO) $(DIGICOMPLETESO) $(RECOCOMPLETESO)
 
 clean:
 		@rm -f *.$(ObjSuf) *Dict.h *Dict.cxx *.dep
 
 distclean:      clean
-		@rm -f $(SIMCOMPLETETPC) $(DIGICOMPLETETPC) $(RECOCOMPLETETPC) *.$(DllSuf)
+		@rm -f $(SIMCOMPLETE) $(DIGICOMPLETE) $(RECOCOMPLETE) *.$(DllSuf)
 
-$(SIMCOMPLETETPC): SimCompleteTpcMain.$(ObjSuf) $(SIMCOMPLETETPCO)
+$(SIMCOMPLETE): SimCompleteMain.$(ObjSuf) $(SIMCOMPLETEO)
 		@echo "Linking $@..."
 		@$(LD) $(LDFLAGS) $^ $(LIBS) $(OutPutOpt)$@
 		@echo "$@ done"
 
-$(DIGICOMPLETETPC): DigiCompleteTpcMain.$(ObjSuf) $(DIGICOMPLETETPCO)
+$(DIGICOMPLETE): DigiCompleteMain.$(ObjSuf) $(DIGICOMPLETEO)
 		@echo "Linking $@..."
 		@$(LD) $(LDFLAGS) $^ $(LIBS) $(OutPutOpt)$@
 		@echo "$@ done"
 
-$(RECOCOMPLETETPC): RecoCompleteTpcMain.$(ObjSuf) $(RECOCOMPLETETPCO)
+$(RECOCOMPLETE): RecoCompleteMain.$(ObjSuf) $(RECOCOMPLETEO)
 		@echo "Linking $@..."
 		@$(LD) $(LDFLAGS) $^ $(LIBS) $(OutPutOpt)$@
 		@echo "$@ done"
 
-$(SIMCOMPLETETPCSO): $(SIMCOMPLETETPCO)
+$(SIMCOMPLETESO): $(SIMCOMPLETEO)
 		@echo "Linking $@..."
 		@$(LD) $(SOFLAGS) $(LDFLAGS) $^ $(OutPutOpt) $@ $(LIBS)
 		@echo "$@ done"
 
-$(DIGICOMPLETETPCSO): $(DIGICOMPLETETPCO)
+$(DIGICOMPLETESO): $(DIGICOMPLETEO)
 		@echo "Linking $@..."
 		@$(LD) $(SOFLAGS) $(LDFLAGS) $^ $(OutPutOpt) $@ $(LIBS)
 		@echo "$@ done"
 
-$(RECOCOMPLETETPCSO): $(RECOCOMPLETETPCO)
+$(RECOCOMPLETESO): $(RECOCOMPLETEO)
 		@echo "Linking $@..."
 		@$(LD) $(SOFLAGS) $(LDFLAGS) $^ $(OutPutOpt) $@ $(LIBS)
 		@echo "$@ done"
 
 #------------------------------------------------------------------------------
 
-SimCompleteTpcDict.$(SrcSuf): SimCompleteTpc.h SimCompleteTpcLinkDef.h
+SimCompleteDict.$(SrcSuf): SimComplete.h SimCompleteLinkDef.h
 	@echo "Generating dictionary $@..."
 	@rootcint -f $@ -c $(INCLUDE) $^
 
-DigiCompleteTpcDict.$(SrcSuf): DigiCompleteTpc.h DigiCompleteTpcLinkDef.h
+DigiCompleteDict.$(SrcSuf): DigiComplete.h DigiCompleteLinkDef.h
 	@echo "Generating dictionary $@..."
 	@rootcint -f $@ -c $(INCLUDE) $^
 
-RecoCompleteTpcDict.$(SrcSuf): RecoCompleteTpc.h RecoCompleteTpcLinkDef.h
+RecoCompleteDict.$(SrcSuf): RecoComplete.h RecoCompleteLinkDef.h
 	@echo "Generating dictionary $@..."
 	@rootcint -f $@ -c $(INCLUDE) $^
 

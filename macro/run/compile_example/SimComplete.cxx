@@ -1,4 +1,4 @@
-#include "SimCompleteTpc.h"
+#include "SimComplete.h"
 
 #include <PndCave.h>
 #include <PndDchDetector.h>
@@ -14,6 +14,7 @@
 #include <PndMvdDetector.h>
 #include <PndPipe.h>
 #include <PndTof.h>
+#include <PndStt.h>
 #include <PndTpcDetector.h>
 
 #include <FairBoxGenerator.h>
@@ -36,10 +37,10 @@
 using namespace std;
 
 
-void SimCompleteTpc(Int_t nEvents, TString const &simEngine, Double_t momentum,
-    Bool_t useEvtGen, Bool_t useDpm, Bool_t useBoxGenerator,
-    Double_t beamMomentum, TString const &outFile, TString const &outParamsFile,
-    TString const &inDigiParamsFile)
+void SimComplete(Int_t nEvents, TString const &simEngine, Double_t momentum,
+		 Bool_t useEvtGen, Bool_t useDpm, Bool_t useBoxGenerator,
+		 Double_t beamMomentum, TString const &outFile, TString const &outParamsFile,
+		 TString const &inDigiParamsFile, TString const &trackDetector)
 {
   gDebug = 0;
 
@@ -71,12 +72,23 @@ void SimCompleteTpc(Int_t nEvents, TString const &simEngine, Double_t momentum,
   FairModule *Dipole= new PndMagnet("MAGNET");
   Dipole->SetGeometryFileName("dipole.geo");
   fRun->AddModule(Dipole);
- //-------------------------  TPC       -----------------
-  PndTpcDetector *PndTpc = new PndTpcDetector("TPC", kTRUE);
-  PndTpc->SetGeometryFileName("tpc.geo");
-  if(simEngine=="TGeant3")  PndTpc->SetAliMC();
-  fRun->AddModule(PndTpc);
-	//-------------------------  MVD       -----------------
+
+  if (0==trackDetector.CompareTo("stt"))
+  {
+      //-------------------------  STT       -----------------
+      FairDetector *Stt= new PndStt("STT", kTRUE);
+      Stt->SetGeometryFileName("straws_skewed_blocks_pipe_120cm.geo");
+      fRun->AddModule(Stt);
+  }
+  else if (0==trackDetector.CompareTo("tpc"))
+  {
+      //-------------------------  TPC       -----------------
+      PndTpcDetector *PndTpc = new PndTpcDetector("TPC", kTRUE);
+      PndTpc->SetGeometryFileName("tpc.geo");
+      if(simEngine=="TGeant3")  PndTpc->SetAliMC();
+      fRun->AddModule(PndTpc);
+  }
+  //-------------------------  MVD       -----------------
   FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
   Mvd->SetGeometryFileName("MVD_v1.0_woPassiveTraps.root");
   fRun->AddModule(Mvd);

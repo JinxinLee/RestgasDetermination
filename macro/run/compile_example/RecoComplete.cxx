@@ -1,4 +1,4 @@
-#include "RecoCompleteTpc.h"
+#include "RecoComplete.h"
 
 #include <PndEmcMakeCluster.h>
 #include <PndEmcHdrFiller.h>
@@ -11,6 +11,13 @@
 #include <PndGemFindTracks.h>
 #include <PndGemTrackFinderOnHits.h>
 #include <PndGemTrackFinderQA.h>
+#include <PndSttTrackFinderIdeal.h>
+#include <PndSttFindTracks.h>
+#include <PndSttMatchTracks.h>
+#include <PndSttTrackFitter.h>
+#include <PndSttHelixTrackFitter.h>
+#include <PndSttFitTracks.h>
+#include <PndSttHelixHitProducer.h>
 #include <PndTpcClusterFinderTask.h>
 #include <PndTpcIdealTrackingTask.h>
 
@@ -38,9 +45,9 @@
 using namespace std;
 
 
-void RecoCompleteTpc(TString const &mcFile, TString const &dgFile,
-		     TString const &parFile, TString const &digiFile,
-		     TString const &outFile)
+void RecoComplete(TString const &mcFile, TString const &dgFile,
+		  TString const &parFile, TString const &digiFile,
+		  TString const &outFile)
 {
   gDebug = 0;
 
@@ -90,6 +97,41 @@ void RecoCompleteTpc(TString const &mcFile, TString const &dgFile,
   fRun->AddTask(emcHdrFiller); // ECM header
   PndEmcMakeBump* emcMakeBump= new PndEmcMakeBump();
   fRun->AddTask(emcMakeBump);
+  PndEmcMakeRecoHit* emcMakeRecoHit= new PndEmcMakeRecoHit();
+  fRun->AddTask(emcMakeRecoHit);
+
+  // trackfinding ....
+  PndSttTrackFinderIdeal* sttTrackFinder = new PndSttTrackFinderIdeal(iVerbose);
+  PndSttFindTracks* sttFindTracks = new PndSttFindTracks("Track Finder", "FairTask", sttTrackFinder, iVerbose);
+  sttFindTracks->AddHitCollectionName("STTHit", "STTPoint");
+  fRun->AddTask(sttFindTracks);
+  // trackmatching ....
+  PndSttMatchTracks* sttTrackMatcher = new PndSttMatchTracks("Match tracks", "STT", iVerbose);
+  sttTrackMatcher->AddHitCollectionName("STTHit", "STTPoint");
+  fRun->AddTask(sttTrackMatcher);  
+  // trackfitting ....
+  PndSttHelixTrackFitter* sttTrackFitter = new PndSttHelixTrackFitter(0);
+  PndSttFitTracks* sttFitTracks = new PndSttFitTracks("STT Track Fitter", "FairTask", sttTrackFitter); 
+  sttFitTracks->AddHitCollectionName("STTHit");
+  fRun->AddTask(sttFitTracks);
+  // helix hit production ....
+  PndSttHelixHitProducer* sttHHProducer = new PndSttHelixHitProducer();
+  fRun->AddTask(sttHHProducer);
+
+  // -----   TPC Reco Sequence  --------------------------------------------
+  PndTpcClusterFinderTask* tpcCF = new PndTpcClusterFinderTask();
+  tpcCF->SetMode(1); // individual timeslice
+  tpcCF->SetPersistence();
+  tpcCF->timeslice(20); // = 4 sample times = 100ns @ 40MHz
+  //tpcCF->SetTrivialClustering();
+  fRun->AddTask(tpcCF);
+
+  
+  PndTpcIdealTrackingTask* tpcIPR = new PndTpcIdealTrackingTask();
+  tpcIPR->useGeane(true);
+  tpcIPR->useDistSorting(true);
+  fRun->AddTask(tpcIPR);
+  tpcIPR->SetPersistence();
 
   //------ Ideal DCH track finder --------------------
   PndDchFindTracks* finderTask = new PndDchFindTracks("dchFindTracks");
@@ -123,36 +165,11 @@ void RecoCompleteTpc(TString const &mcFile, TString const &dgFile,
   PndGemTrackFinderQA* gemTrackFinderQA = new PndGemTrackFinderQA();
   gemTrackFinderQA->SetVerbose(0);
   fRun->AddTask(gemTrackFinderQA);
-  // -----   TPC Reco Sequence  --------------------------------------------
-  PndTpcClusterFinderTask* tpcCF = new PndTpcClusterFinderTask();
-  tpcCF->SetMode(1); // individual timeslice
-  tpcCF->SetPersistence();
-  tpcCF->timeslice(20); // = 4 sample times = 100ns @ 40MHz
-  //tpcCF->SetTrivialClustering();
-  fRun->AddTask(tpcCF);
 
-  
-  PndTpcIdealTrackingTask* tpcIPR = new PndTpcIdealTrackingTask();
-  tpcIPR->useGeane(true);
-  tpcIPR->useDistSorting(true);
-  fRun->AddTask(tpcIPR);
-  tpcIPR->SetPersistence();
-
-//   PndTpcRiemannTrackingTask* tpcSPR = new PndTpcRiemannTrackingTask();
-//   tpcSPR->SetTrkFinderParameters(2.,// proxcut
-//                               0.02, // proxcut on rieman sphere
-//                               2.E-3, // planecut
-//                               4.0, // szcut
-//                               4); // minnumhits for fit
-//   tpcSPR->SetPersistence();
-//   tpcSPR->useGeane();
-//   fRun->AddTask(tpcSPR);
-  
   KalmanTask* kalman =new KalmanTask();
   kalman->SetPersistence();
   kalman->SetNumIterations(3); // number of fitting iterations (back and forth)
   fRun->AddTask(kalman);
-
 
   TrackFitStatTask* fitstat=new TrackFitStatTask();
   fitstat->SetPersistence();
@@ -165,11 +182,7 @@ void RecoCompleteTpc(TString const &mcFile, TString const &dgFile,
   //fitstat->SetPdgSelection(321);
   //fitstat->DoResiduals();
   fRun->AddTask(fitstat);
-  
-
-
-
-        
+          
   // -----   Intialise and run   --------------------------------------------
   cout << "fRun->Init()" << endl;
   fRun->Init();
