@@ -188,7 +188,7 @@ inline void PndStt::ResetParameters() {
   fPosOut.SetXYZM(0.0, 0.0, 0.0, 0.0);
   fMass = 0;
   fHalfLength = 0.;
-};
+}
 
 
 #endif
