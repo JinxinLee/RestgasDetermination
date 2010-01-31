@@ -277,6 +277,9 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackArray)
 
    for (Int_t iMCTrack = 0; iMCTrack < nMCTracks; iMCTrack++) 
    { 
+         nHitsInMCTrack[iMCTrack]  = 0;          //   initialization
+         nSkewHitsInMCTrack[iMCTrack]  = 0;      //   initialization
+
        pMCtr = (PndMCTrack*) fMCTrackArray->At(iMCTrack);
        if ( ! pMCtr ) continue;
 
@@ -348,12 +351,6 @@ cout<<"verita MC,  traccia n. "<<iMCTrack<<", Ox, Oy,  Cx, Cy, D ,  R  ,  gamma 
                                  -MCtruthTrkInfo[9][iMCTrack]+MCtruthTrkInfo[0][iMCTrack]);
         if(tempoang<0.) tempoang+= 2.*PI;
          MCtruthTrkInfo[13][iMCTrack] = tempoang ;    //   FI0 of Helix of track
-         nHitsInMCTrack[iMCTrack]  = 0;
-         nSkewHitsInMCTrack[iMCTrack]  = 0;
-
-
-
-
 
 
    }   //  end of   for (Int_t iMCTrack = 0; iMCTrack < nMCTracks; iMCTrack++) 
@@ -442,10 +439,6 @@ cout<<"verita MC,  traccia n. "<<iMCTrack<<", Ox, Oy,  Cx, Cy, D ,  R  ,  gamma 
       }
 
 
-
-
-
-
       // stampe di controllo
 
 
@@ -497,33 +490,26 @@ jumpout: ;
       veritaMC[iHit][1]= ((PndSttPoint*)pMCpt)->GetYtot();
       veritaMC[iHit][2]= ((PndSttPoint*)pMCpt)->GetZtot();
 
-      FromHitToMCTrack[iHit] = (UShort_t) info[iHit][6];
+      FromHitToMCTrack[iHit] = (UShort_t) ( info[iHit][6] + 0.001 );
 
     if(info[iHit][5]==1. ){
-
+      //  associazione hits paralleli
       FromMCTrackToHit[ FromHitToMCTrack[iHit] ][ nHitsInMCTrack[ FromHitToMCTrack[iHit] ] ] = iHit;
       nHitsInMCTrack[  FromHitToMCTrack[iHit]  ]++ ;
 
-   }    // end of if(info[iHit][5]==1. )
+   } else {
+      //  associazione hits skew
+      FromMCTrackToSkewHit[ FromHitToMCTrack[iHit] ][ nSkewHitsInMCTrack[ FromHitToMCTrack[iHit] ] ] = iHit;
+      nSkewHitsInMCTrack[  FromHitToMCTrack[iHit]  ]++ ;
+
+   }
+
+
+
+
+   // end of if(info[iHit][5]==1. )
 
     }   //   end  of  for (Int_t iHit = 0;
-
-
-//------------------------------------------------------------------------------------------
-//   associazione degli hits non paralleli
-  // Loop over hits
-  for (Int_t iHit = 0; iHit < nHits; iHit++) 
-    {
-       if(info[iHit][5]==1. )  continue;
-
-            FromMCTrackToSkewHit[ FromHitToMCTrack[iHit] ][ nSkewHitsInMCTrack[ FromHitToMCTrack[iHit] ] ] = iHit;
-            nSkewHitsInMCTrack[  FromHitToMCTrack[iHit]  ]++ ;
-
-  }   //   end  of  for (Int_t iHit = 0;
-
-//-------------------   fine associazione degli hits non paralleli
-
-
 
 
 
