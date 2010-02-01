@@ -1290,12 +1290,6 @@ void PndSttTrackFinderReal::PndSttTrkFinderPartial(
 
 //----      start the better track parameter determination and spurious (mainly skew) hits rejection with a Kalman fit.
 
-       Double_t dista=sqrt( Ox[i]*Ox[i]+Oy[i]*Oy[i] );
-       Double_t Ptras = R[i]*0.003*BFIELD;
-       Double_t Pzini = 0.003*BFIELD/KAPPA[i];
-       Double_t Pxini = Ptras*Oy[i]/dista;
-       Double_t Pyini = -Ptras*Ox[i]/dista;
-
 /*
        PndSttFitwithKalman(
                              Ox[i],
@@ -1319,15 +1313,21 @@ void PndSttTrackFinderReal::PndSttTrkFinderPartial(
 
 //----      end of the better track parameter determination and spurious (mainly skew) hits rejection with a Kalman fit.
 
+   }   //  end of     for(i=0; i<nTracksFoundSoFar;i++)
 
 
 
 
 //----------------------  temporarily  matching with MC tracks here --------------------------------
 
+
+
+
 //    associate the tracks found with Pattern Recognition to the MC tracks
 
-  AssociateFoundTrackstoMC(
+   if( nMCTracks >0 && nTracksFoundSoFar > 0 ){
+
+         AssociateFoundTrackstoMC(
                   nTracksFoundSoFar,
                   nHitsinTrack,
                   ListHitsinTrack,
@@ -1336,16 +1336,29 @@ void PndSttTrackFinderReal::PndSttTrkFinderPartial(
                   daTrackFoundaTrackMC,
                   daMCTrackaTrackFound 
                                    );
-
-
+   }
 
 //-------------------------------------
 
-
-
+/*
+for(int ica=0; ica<nTracksFoundSoFar;ica++){
+  cout<<"exp track n. "<<ica<<", traccia MC associata "<<daTrackFoundaTrackMC[ica]<<endl;
+}
+for(int jca=0; jca<nMCTracks;jca++){
+  cout<<"MC track n. "<<jca<<", traccia exp. associata "<<daMCTrackaTrackFound[jca]<<endl;
+ }
+*/
 
 //   loading the hits found and associates to a track in a  PndSttTrack  class; a class per each track
 
+  if( nMCTracks >0 ) {
+    for(i=0; i<nTracksFoundSoFar;i++){
+
+       Double_t dista=sqrt( Ox[i]*Ox[i]+Oy[i]*Oy[i] );
+       Double_t Ptras = R[i]*0.003*BFIELD;
+       Double_t Pzini = 0.003*BFIELD/KAPPA[i];
+       Double_t Pxini = Ptras*Oy[i]/dista;
+       Double_t Pyini = -Ptras*Ox[i]/dista;
 
          UShort_t SttDetID=3;
 
@@ -1368,30 +1381,8 @@ void PndSttTrackFinderReal::PndSttTrkFinderPartial(
               pTrckCand->AddHit(SttDetID, (Int_t) BigList[j] , j); 
           }
 
-
-
-
-
-
-
-   }   //  end of     for(i=0; i<nTracksFoundSoFar;i++)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    }   //  end of     for(i=0; i<nTracksFoundSoFar;i++)
+  }  //  end of  if( nMCTracks >0 )
 
 
 
@@ -10765,7 +10756,9 @@ nohits: ;
 
 
    for(imc=0; imc<nMCTracks;imc++){
+
      for(jexp=0; jexp< nTracksFoundSoFar ;jexp++){
+
        BoxMC_Found[imc][jexp]=0;
 
 
