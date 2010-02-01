@@ -29,8 +29,15 @@ using std::string;
 PndSttPatternRecoTask::PndSttPatternRecoTask() : FairTask("STT Pattern Reco Task") 
 {
   fPersistence = kTRUE;  
+  fVerbose = 0;
 }
 // -------------------------------------------------------------------------
+
+PndSttPatternRecoTask::PndSttPatternRecoTask(Int_t verbose) : FairTask("STT Pattern Reco Task") 
+{
+  fPersistence = kTRUE;  
+  fVerbose = verbose;
+}
 
 // -----   Destructor   ----------------------------------------------------
 PndSttPatternRecoTask::~PndSttPatternRecoTask() 
@@ -85,6 +92,8 @@ InitStatus PndSttPatternRecoTask::Init()
   // Create and register GFTrack array
   fTrackArray = new TClonesArray("GFTrack",100);
   ioman->Register("Track", "GenFit", fTrackArray, fPersistence);
+
+  fEventCounter = 0;
   
   fPro = new FairGeanePro();
   return kSUCCESS;
@@ -94,7 +103,9 @@ InitStatus PndSttPatternRecoTask::Init()
 
 void PndSttPatternRecoTask:: Exec(Option_t* opt) 
 { 
-  //   cout << "SttPRTask::Exec()" << endl;
+  if(fVerbose) cout << "Event number: " << fEventCounter << endl;
+  fEventCounter++;
+
   fTrackArray->Delete();
 
   PndMCTrack*       mctrack = NULL; 

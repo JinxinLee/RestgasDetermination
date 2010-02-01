@@ -34,6 +34,12 @@ PndSttPatternRecoTask2::PndSttPatternRecoTask2() : FairTask("STT Pattern Reco Ta
 }
 // -------------------------------------------------------------------------
 
+PndSttPatternRecoTask2::PndSttPatternRecoTask2(Int_t verbose) : FairTask("STT Pattern Reco Task") 
+{
+  fPersistence = kTRUE;  
+  fVerbose = verbose;
+}
+
 // -----   Destructor   ----------------------------------------------------
 PndSttPatternRecoTask2::~PndSttPatternRecoTask2() 
 {
@@ -96,6 +102,8 @@ InitStatus PndSttPatternRecoTask2::Init()
   ioman->Register("Track", "GenFit", fTrackArray, fPersistence);
   
   fPro = new FairGeanePro();
+
+  fEventCounter = 0;
   return kSUCCESS;
 }
 
@@ -103,7 +111,9 @@ InitStatus PndSttPatternRecoTask2::Init()
 
 void PndSttPatternRecoTask2:: Exec(Option_t* opt) 
 { 
-  //   cout << "SttPRTask::Exec()" << endl;
+  if(fVerbose) cout << "Event number: " << fEventCounter << endl;
+  fEventCounter++;
+
   fTrackArray->Delete();
 
   PndMCTrack*       mctrack = NULL; 
@@ -209,7 +219,7 @@ void PndSttPatternRecoTask2:: Exec(Option_t* opt)
 	
       trk->setCandidate(*cand); // here the candidate is copied! 
       
-      if(fVerbose >= 1) {
+      if(fVerbose >= 2) {
 	cout <<"end of track " << iTrack << " " << cand->getNHits() << " " << trk->getNumHits() << endl;
 	cout << fTrackArray->GetEntriesFast()<<" tracks created"<< endl;
       }

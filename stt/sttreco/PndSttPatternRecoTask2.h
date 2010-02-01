@@ -17,6 +17,7 @@ public:
 
   // Constructors/Destructors ---------
   PndSttPatternRecoTask2();
+  PndSttPatternRecoTask2(Int_t verbose);
   ~PndSttPatternRecoTask2();
 
   // Operators
@@ -47,6 +48,8 @@ private:
   FairGeanePro *fPro;
   /** object persistence **/
   Bool_t fPersistence;
+
+  Int_t fEventCounter;
   // Private Methods -----------------
 
 public:

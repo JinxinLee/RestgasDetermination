@@ -17,6 +17,7 @@ public:
 
   // Constructors/Destructors ---------
   PndSttPatternRecoTask();
+  PndSttPatternRecoTask(Int_t verbose);
   ~PndSttPatternRecoTask();
 
   // Operators
@@ -48,6 +49,7 @@ private:
   /** object persistence **/
   Bool_t fPersistence;
 
+  Int_t fEventCounter;
   // Private Methods -----------------
 
 public:
