@@ -51,11 +51,11 @@
 
   if(whichhit == 1){
     // use hit
-    PndSttPatternRecoTask* STTPR = new PndSttPatternRecoTask();
+    PndSttPatternRecoTask* STTPR = new PndSttPatternRecoTask(iVerbose);
   }
   else if(whichhit == 2){
     // use helixhit
-    PndSttPatternRecoTask2* STTPR = new PndSttPatternRecoTask2();
+    PndSttPatternRecoTask2* STTPR = new PndSttPatternRecoTask2(iVerbose);
   }
 
   fRun->AddTask(STTPR);
