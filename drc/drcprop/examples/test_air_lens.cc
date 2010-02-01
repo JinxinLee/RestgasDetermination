@@ -374,7 +374,7 @@ int main(int argc, char *argv[])
     geo.open("Geo.C",std::ios::out);
     geo<<"{"<<endl;
     geo<<"    TCanvas *c1 = new TCanvas(\"c1\"); "<<endl;
-    cout<<" root version: "<< int((TROOT*)gROOT -> GetVersionInt())<<endl;
+    cout<<" root version: "<< (long int)((TROOT*)gROOT -> GetVersionInt())<<endl;
     if ( ((TROOT*)gROOT)->GetVersionInt() < 51600)
     {
         geo<<"    TView *view = new TView(1);"<<endl;
