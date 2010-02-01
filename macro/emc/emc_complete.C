@@ -24,8 +24,8 @@ emc_complete(Int_t nEvents = 10, Float_t mom = 1.){
   // set the MC version used
   // ------------------------
 	
-  //fRun->SetName("TGeant3");
-  fRun->SetName("TGeant4");
+  fRun->SetName("TGeant3");
+  //fRun->SetName("TGeant4");
 	
   fRun->SetOutputFile("emc_complete.root");
 	
