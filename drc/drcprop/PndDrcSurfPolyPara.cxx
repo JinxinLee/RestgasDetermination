@@ -203,6 +203,7 @@ bool PndDrcSurfPolyPara::SurfaceHit(PndDrcPhoton& ph,
 				pos_new = pos + lambda*dir;
 				path_length = lambda;
 				pos_new = fTrans * pos_new;
+          if (fPixel){
 	  if (fEffiCathode
 	      ->EffiFlag(ph.Wavelength(),
 			 ph.Direction().Dot(Normal(pos_new))))
@@ -214,7 +215,8 @@ bool PndDrcSurfPolyPara::SurfaceHit(PndDrcPhoton& ph,
 	    { 
 	      ph.SetFate(Drc::kPhotAbsorbed);
 	    }
-
+	  }
+	  
 				//if (fPixel) ph.SetFate(Drc::kPhotMeasured);
 				return true;
 			}
@@ -223,6 +225,7 @@ bool PndDrcSurfPolyPara::SurfaceHit(PndDrcPhoton& ph,
 				pos_new = pos + lambda1*dir;
 				path_length = lambda1;
 				pos_new = fTrans * pos_new;
+          if (fPixel){
 	  if (fEffiCathode
 	      ->EffiFlag(ph.Wavelength(),
 			 ph.Direction().Dot(Normal(pos_new))))
@@ -234,7 +237,8 @@ bool PndDrcSurfPolyPara::SurfaceHit(PndDrcPhoton& ph,
 	    { 
 	      ph.SetFate(Drc::kPhotAbsorbed);
 	    }
-
+	  }
+	  
 				//if (fPixel) ph.SetFate(Drc::kPhotMeasured);
 				return true;
 			}
@@ -243,6 +247,7 @@ bool PndDrcSurfPolyPara::SurfaceHit(PndDrcPhoton& ph,
 				pos_new = pos + lambda2*dir;
 				path_length = lambda2;
 				pos_new = fTrans * pos_new;
+          if (fPixel){
 	  if (fEffiCathode
 	      ->EffiFlag(ph.Wavelength(),
 			 ph.Direction().Dot(Normal(pos_new))))
@@ -254,7 +259,8 @@ bool PndDrcSurfPolyPara::SurfaceHit(PndDrcPhoton& ph,
 	    { 
 	      ph.SetFate(Drc::kPhotAbsorbed);
 	    }
-
+	  }
+	  
 				//if (fPixel) ph.SetFate(Drc::kPhotMeasured);
 				return true;
 			}
@@ -288,6 +294,7 @@ bool PndDrcSurfPolyPara::SurfaceHit(PndDrcPhoton& ph,
 	if (WithinSurface(pos_check))
 	{
 		pos_new = fTrans * pos_new;
+          if (fPixel){
 	  if (fEffiCathode
 	      ->EffiFlag(ph.Wavelength(),
 			 ph.Direction().Dot(Normal(pos_new))))
@@ -299,7 +306,8 @@ bool PndDrcSurfPolyPara::SurfaceHit(PndDrcPhoton& ph,
 	    { 
 	      ph.SetFate(Drc::kPhotAbsorbed);
 	    }
-
+	  }
+	  
 		//if (fPixel) ph.SetFate(Drc::kPhotMeasured);
 		return true;
 	}

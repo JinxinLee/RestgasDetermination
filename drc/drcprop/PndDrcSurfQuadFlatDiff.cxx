@@ -225,6 +225,7 @@ bool PndDrcSurfQuadFlatDiff::SurfaceHit(PndDrcPhoton& ph,
 	{
 		if (hit_aux_surf)
 		{
+          if (fPixel){
 	  if (fEffiCathode
 	      ->EffiFlag(ph.Wavelength(),
 			 ph.Direction().Dot(Normal(pos_new))))
@@ -236,7 +237,8 @@ bool PndDrcSurfQuadFlatDiff::SurfaceHit(PndDrcPhoton& ph,
 	    { 
 	      ph.SetFate(Drc::kPhotAbsorbed);
 	    }
-
+	  }
+	  
 		  //if (fPixel) ph.SetFate(Drc::kPhotMeasured);
 
 			if (Verbosity()>=4) cout<<"      PndDrcSurfQuadFlatDiff::surfaceHit:"
@@ -360,6 +362,7 @@ bool PndDrcSurfQuadFlatDiff::SurfaceHit(PndDrcPhoton& ph,
   // in/exclusion logic
 	if (hit_aux_surf)
 	{
+          if (fPixel){
 	  if (fEffiCathode
 	      ->EffiFlag(ph.Wavelength(),
 			 ph.Direction().Dot(Normal(pos_new))))
@@ -371,7 +374,8 @@ bool PndDrcSurfQuadFlatDiff::SurfaceHit(PndDrcPhoton& ph,
 	    { 
 	      ph.SetFate(Drc::kPhotAbsorbed);
 	    }
-
+	  }
+	  
 	  //if (fPixel) ph.SetFate(Drc::kPhotMeasured); // don' know why this is only implemented for the flat-flat case
 
       // exclude photons from concave parts

@@ -200,6 +200,7 @@ bool PndDrcSurfCyl::SurfaceHit(PndDrcPhoton& ph,
 		{
 			pos_new = a + mu*u;
 			path_length = mu;
+          if (fPixel){
 	  if (fEffiCathode
 	      ->EffiFlag(ph.Wavelength(),
 			 ph.Direction().Dot(Normal(pos_new))))
@@ -211,7 +212,8 @@ bool PndDrcSurfCyl::SurfaceHit(PndDrcPhoton& ph,
 	    { 
 	      ph.SetFate(Drc::kPhotAbsorbed);
 	    }
-
+	  }
+	  
 			//if (fPixel) ph.SetFate(Drc::kPhotMeasured);
 			return true;
 		}

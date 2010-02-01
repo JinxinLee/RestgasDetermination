@@ -206,7 +206,7 @@ int main(int argc, char *argv[])
       geo<<"    view->SetRange(-900,-900,-900,900,900,900);"<<endl;
       geo<<"    Int_t i;"<<endl;
       geo<<"    view->SetView(0,90,90,i);"<<endl;
-      manager->Print(geo);
+      //manager->Print(geo);
     }
   
   // create a list of photons in bar
@@ -222,7 +222,7 @@ int main(int argc, char *argv[])
   
   bool l_dispersion=true;
 
-  int nph = 100000;
+  int nph = 1000  ;
 
   
   // pions: 
