@@ -45,6 +45,7 @@
   // -----   STT analysis tasks   --------------------------------------------
   // digitize ....
   PndSttHitProducerRealFast* sttHitProducer = new PndSttHitProducerRealFast();
+  // sttHitProducer->SetVerbose(3); // debug = print each evt num
   fRun->AddTask(sttHitProducer);
 
   // trackfinding ....
