@@ -30,6 +30,7 @@ using std::string;
 PndSttPatternRecoTask2::PndSttPatternRecoTask2() : FairTask("STT Pattern Reco Task") 
 {
    fPersistence = kTRUE;  
+   fVerbose = 0;
 }
 // -------------------------------------------------------------------------
 
@@ -208,8 +209,10 @@ void PndSttPatternRecoTask2:: Exec(Option_t* opt)
 	
       trk->setCandidate(*cand); // here the candidate is copied! 
       
-      cout <<"end of track " << iTrack << " " << cand->getNHits() << " " << trk->getNumHits() << endl;
-      cout << fTrackArray->GetEntriesFast()<<" tracks created"<< endl;
+      if(fVerbose >= 1) {
+	cout <<"end of track " << iTrack << " " << cand->getNHits() << " " << trk->getNumHits() << endl;
+	cout << fTrackArray->GetEntriesFast()<<" tracks created"<< endl;
+      }
       delete recovtx;
       delete momeatvtx; 
     }

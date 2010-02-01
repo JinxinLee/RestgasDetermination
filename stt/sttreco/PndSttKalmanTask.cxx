@@ -27,7 +27,8 @@ using namespace std;
 // Class Member definitions -----------
 
 
-PndSttKalmanTask::PndSttKalmanTask(){}
+PndSttKalmanTask::PndSttKalmanTask(){
+  fVerbose = 0;}
 
 PndSttKalmanTask::~PndSttKalmanTask(){}
 
@@ -85,7 +86,7 @@ PndSttKalmanTask::Exec(Option_t* opt)
       for(Int_t itr=0;itr<ntracks;++itr){
 	GFTrack* trk = (GFTrack*) fTrackArray->At(itr);
 	trk->addHitVector(_theRecoHitFactory->createMany(trk->getCand()));
-	std::cout<<trk->getNumHits()<<" hits in track " <<itr<<std::endl;
+	if(fVerbose >= 2) std::cout<<trk->getNumHits()<<" hits in track " <<itr<<std::endl;
 	GFKalman k;
         k.setLazy(1);
 	k.setNumIterations(1);
