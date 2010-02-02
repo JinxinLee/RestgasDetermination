@@ -594,11 +594,13 @@ bool PndDrcOptDevManager::Cerenkov(const string& vol_name, const string& sys_nam
 
 
   PndDrcOptDev* dev=Device(vol_name,sys_name,vol_copy,sys_copy);
-
+  if( dev->Radiator() )
+  {
 
   // get number of photons to sample
   double ref_index = dev->OptMaterial().RefIndex(nu_mean);
   double costh = 1.0/(ref_index*beta);
+  if (fVerbosity>=3) cout << " costh= " << costh << endl;
   if (costh>1) return 0; // particle too slow
 
 
@@ -651,19 +653,19 @@ bool PndDrcOptDevManager::Cerenkov(const string& vol_name, const string& sys_nam
 
       beta_ph   = angle_tra(beta_ph,dtheta,dphi);
 
-
       PndDrcPhoton ph;
+
       ph.SetPosition(r);
-      ph.SetDirection(beta_ph);
+	  ph.SetPositionXlist( r.X() );
+	  ph.SetPositionYlist( r.Y() );
+	  ph.SetPositionZlist( r.Z() );
+	  ph.SetDirection(beta_ph);
 
       double x = beta_ph.Dot(dev->DirectionX());
       double y = beta_ph.Dot(dev->DirectionY());
       double z = beta_ph.Dot(dev->DirectionZ());
-      
+
       ph.SetOriginDirection(XYZVector(x,y,z));
-
-
-
       ph.SetThetaC(dtheta);
       ph.SetPhiC(dphi);
       ph.SetParticleIDnumber(particleIDnumber);
@@ -671,7 +673,7 @@ bool PndDrcOptDevManager::Cerenkov(const string& vol_name, const string& sys_nam
       ph.SetDevice(dev);
       ph.SetReflectionLimit(refl_limit);
       fListPhoton.push_back(ph);
-
+	}
     }
 
   return true;
@@ -684,13 +686,35 @@ void PndDrcOptDevManager::SetPhotonList(list<PndDrcPhoton>& photon_list,
 {
   fListPhoton = photon_list;
 
+  PndDrcOptDev* dev=0;
+
+  if( vol_name == "@@@")
+  {
+      list<PndDrcPhoton>::iterator iph;
+      for (iph = fListPhoton.begin(); iph != fListPhoton.end(); ++iph)
+      {
+          if( (*iph).Device() == 0 )
+              cerr << "*** PndDrcOptDevManager::SetPhotonList: Photon device is not set" << endl;
+      }
+  }
   // find the internal device pointer
-  PndDrcOptDev* dev=Device(vol_name,sys_name,ivol_copy,isys_copy);
+  else
+  {
+        dev = Device(vol_name,sys_name,ivol_copy,isys_copy);
+  }
 
   list<PndDrcPhoton>::iterator iph;
   for (iph = fListPhoton.begin(); iph != fListPhoton.end(); ++iph)
   {
-    (*iph).SetDevice(dev);
+      if (dev != 0  )
+          (*iph).SetDevice(dev);
+      else
+          dev = (*iph).Device();
+
+	double x = (*iph).Direction().Dot(dev->DirectionX());
+	double y = (*iph).Direction().Dot(dev->DirectionY());
+	double z = (*iph).Direction().Dot(dev->DirectionZ());
+	(*iph).SetOriginDirection(XYZVector(x,y,z));
   }
 }
 //----------------------------------------------------------------------

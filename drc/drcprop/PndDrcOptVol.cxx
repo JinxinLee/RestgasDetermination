@@ -64,6 +64,7 @@ using std::numeric_limits;
 PndDrcOptVol::PndDrcOptVol()
 {
   fOptMat      = 0;
+  fRadiator = true;
 }
 //----------------------------------------------------------------------
 PndDrcOptVol::~PndDrcOptVol()
@@ -86,6 +87,8 @@ void PndDrcOptVol::Copy(const PndDrcOptVol& d)
   }
 
   if (&(d.OptMaterial())) fOptMat = (d.OptMaterial()).Clone();
+
+  fRadiator = d.fRadiator;
 }
 //----------------------------------------------------------------------
 PndDrcOptVol::PndDrcOptVol(const PndDrcOptVol& d) : PndDrcOptDev(d)
@@ -134,6 +137,7 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
     if (ph.Reflections() > ph.ReflectionLimit())
     {
       ph.SetFate(Drc::kPhotAbsorbed);
+	  if (Verbosity()>=4) cout<<"     reflection limit was reached (absorbed)" << endl;
       break; // leave while loop
     }
 
@@ -217,21 +221,14 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 	      //ph.setPosition(ph.position()+path_length*ph.direction());
         if (fPhotonTrace) ph.Print(*fPhotonTraceStream);
         ph.SetFate(Drc::kPhotAbsorbed);
-//         //
-//         TString waveString;
-//         waveString += ph.Wavelength();
-//         waveString.Remove( TString::kLeading , ' ' );
-//
-//         TString shellString = "echo " + waveString + " >> waveabsorb.tmp";
-//         system( shellString );
-//         //
+		if (Verbosity()>=4) cout<<"     absorption by material" << endl;
         break; // leave while loop
       }
       else
       {
         ph.SetPosition(pos_new);
 
-		if( ph.PositionListFlag() )
+		if( ph.PrintFlag() )
 		{
 		  ph.SetPositionXlist( pos_new.X() );
 		  ph.SetPositionYlist( pos_new.Y() );
@@ -259,7 +256,7 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 
         if (refl == Drc::ReflAbsorbed)
 	  {
-	    
+
 	    if (Verbosity()>=4)
 	      cout<<"     PndDrcOptVol::propagate: absorbed"<<endl;
 	    ph.SetFate(Drc::kPhotAbsorbed);
@@ -276,7 +273,7 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 	  }
         if (refl == Drc::ReflRefracted)
 	  {
-	    bool refr = ph.Refract(norm, 
+	    bool refr = ph.Refract(norm,
 				   OptMaterial().RefIndex(ph.Wavelength()),
 				   OptMaterial().Extinction(ph.Wavelength()),
 				   surf_closest->Fresnel());
@@ -294,9 +291,8 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
         if (Verbosity()>=4) cout<<"     PndDrcOptVol::reflectivity1b clause"<<endl;
 
         bool refr = ph.Refract(norm,
-			       OptMaterial().RefIndex(ph.Wavelength()), 
+			       OptMaterial().RefIndex(ph.Wavelength()),
 			       OptMaterial().Extinction(ph.Wavelength()),
-
 			       surf_closest->Fresnel());
 
 //         if( surf_closest->Name() == "box_side2" || surf_closest->Name() == "box_side3" || surf_closest->Name() == "box_side4"
@@ -421,8 +417,8 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
               double ex2 = opt_mat->Extinction(ph.Wavelength());
 //               cout << "VOLCHECK: " << n1 << " " << ex1 << " " << n2 << " " << ex2 << endl;
 
-              bool iref = ph.Refract(surf_closest->Normal(ph.Position()), 
-				     n1, ex1, 
+              bool iref = ph.Refract(surf_closest->Normal(ph.Position()),
+				     n1, ex1,
 				     surf_closest->Fresnel(),
 				     n2, ex2);
 

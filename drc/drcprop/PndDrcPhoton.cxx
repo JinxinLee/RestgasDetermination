@@ -48,7 +48,6 @@ PndDrcPhoton::PndDrcPhoton()
   fDev              = 0;
   fReflectionLimit  = 1000;
   fPrintFlag        = true;
-  fPositionListFlag = false;
 }
 //----------------------------------------------------------------------
 void PndDrcPhoton::Copy(const PndDrcPhoton& ph)
@@ -60,7 +59,6 @@ void PndDrcPhoton::Copy(const PndDrcPhoton& ph)
   fPositionXlist    = ph.fPositionXlist;
   fPositionYlist    = ph.fPositionYlist;
   fPositionZlist    = ph.fPositionZlist;
-  fPositionListFlag = ph.fPositionListFlag;
   fDirection        = ph.fDirection;
   fOriginDirection  = ph.fOriginDirection;
   fFate             = ph.fFate;
@@ -73,7 +71,7 @@ void PndDrcPhoton::Copy(const PndDrcPhoton& ph)
   fReflectionLimit  = ph.fReflectionLimit;
   fPrintFlag        = ph.fPrintFlag;
   fRan              = ph.fRan;
-  
+
 }
 //----------------------------------------------------------------------
 PndDrcPhoton::PndDrcPhoton(const PndDrcPhoton& ph)
@@ -94,7 +92,7 @@ PndDrcPhoton& PndDrcPhoton::operator=(const PndDrcPhoton& ph)
 //----------------------------------------------------------------------
 void PndDrcPhoton::SetPosition(const XYZPoint& pos)
 {
-  if (fDev && fDev->Radiator()) // no flat device
+	if (fDev && fDev->Radiator()) // no flat device
   {
     double n = (fDev->OptMaterial()).RefIndex(fLambda);
     double dndl = (fDev->OptMaterial()).RefIndexDeriv(fLambda);
@@ -109,15 +107,15 @@ void PndDrcPhoton::SetPosition(const XYZPoint& pos)
   fPosition    = pos;
 };
 //----------------------------------------------------------------------
-bool PndDrcPhoton::Refract(XYZVector normal, 
+bool PndDrcPhoton::Refract(XYZVector normal,
 			   double n1, double ex1,
 			   bool fresnelFlag,
-			   double n2, double ex2, 
+			   double n2, double ex2,
 			   double diffuseProb)
 {
 
-  //   cout << "VOLCHECK2: " << n1 << " " << ex1 << " " 
-  // << n2 << " " << ex2 << "  flag: " << fresnelFlag << " " 
+  //   cout << "VOLCHECK2: " << n1 << " " << ex1 << " "
+  // << n2 << " " << ex2 << "  flag: " << fresnelFlag << " "
   // << "diffuseProb: " << diffuseProb << endl;
   //     fVerbosity =4;
   //     cout << "******************** REFRACT ******************" << endl;
@@ -190,7 +188,7 @@ bool PndDrcPhoton::Refract(XYZVector normal,
     alpha2 = refr.Re();
 
     if( alpha2 != alpha2 ) // NaN check
-      cout << "PndDrcPhoton::Refract :  alpha2 = " << alpha2 
+      cout << "PndDrcPhoton::Refract :  alpha2 = " << alpha2
 	   << "   Is fDirection (here: dir1) really an unit vector?" << endl;
 
 
@@ -302,6 +300,7 @@ bool PndDrcPhoton::Fresnel(XYZVector normal, double n1, double ex1, double n2, d
 
   if (Verbosity()>=4)
   {
+    cout<<"PndDrcPhoton::Fresnel" <<endl;
     cout<<"     norm="<<norm.X()<<" "<<norm.Y()<<" "<<norm.Z()<<endl;
     cout<<"     dir1="<<dir1.X()<<" "<<dir1.Y()<<" "<<dir1.Z()<<endl;
     cout<<"     norm*dir="<<norm.Dot(dir1)<<endl;

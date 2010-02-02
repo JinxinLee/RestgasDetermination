@@ -228,14 +228,14 @@ class PndDrcOptDevManager
   This is mainly for debugging. You have to set at least the position and the
   direction of the photon.
   \param photon_list List of photons.
-  \param vol_name The name of the volume where the photon is.
+  \param vol_name The name of the volume where the photon is. If not set, the old volume name is taken. If no old volume exists, then error.
   \param sys_name The name of the \ref originating "originating" system.
   \param vol_copy Copy number of the volume where the photon is.
   \param sys_copy Copy number of the \ref originating "originating" system where the photon is.
   */
   //void setPhotonList(list<PndDrcPhoton>& list, string vol_name, int copy=0);
   void SetPhotonList(list<PndDrcPhoton>& photon_list,
-		     string vol_name,   string sys_name="unnamed",
+		     string vol_name="@@@", string sys_name="unnamed",
 		     int    vol_copy=0, int sys_copy=0);
 
   void Propagate(); //!< Propagate the internal photon list.
@@ -253,6 +253,7 @@ class PndDrcOptDevManager
   //! Print out boxes, surfaces and their pointers.
   void Print();
 
+
  private:
   static PndDrcOptDevManager* fgInstance;         //!< The instance.
   int                         fVerbosity;         //!< Verbosity from 0 to 5.
@@ -260,6 +261,7 @@ class PndDrcOptDevManager
   map<string,PndDrcOptDev*>   fMapDev;            //!< Map of device pointers.
   list<PndDrcOptDevSys*>      fListDevSys;        //!< List of optical devices.
   list<PndDrcPhoton>          fListPhoton;        //!< List of photons.
+
 
   /*! \brief Copy function fir assignment operator and copy constructor.
     \param m The manager to copy.

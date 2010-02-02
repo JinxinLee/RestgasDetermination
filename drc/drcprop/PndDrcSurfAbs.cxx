@@ -1,7 +1,7 @@
 // ----------------------------------------------------
 // This file belongs to the ray tracing framework
 // for the use with Cherenkov detectors
-// 
+//
 // created 2007
 //-----------------------------------------------------
 #include "PndDrcEffiPerfect.h"
@@ -57,7 +57,7 @@ PndDrcSurfAbs::PndDrcSurfAbs()
   fName           = "unnamed PndDrcSurfAbs";
   fVerbosity      = 0;
   fCoupledFlag    = false;
-  fPrintColor     = 1;//black
+  fPrintColor     = 42;//light brown
   fReflectivity   = 0;
   fCopyNumber     = 0;
   fPixel          = false;
@@ -75,10 +75,10 @@ PndDrcSurfAbs::~PndDrcSurfAbs()
 //----------------------------------------------------------------------
 void PndDrcSurfAbs::Copy(const PndDrcSurfAbs& s)
 {
-  fCopyNumber  = s.fCopyNumber;              
+  fCopyNumber  = s.fCopyNumber;
   fCoupledFlag = false;                // no coupled lists
 
-  if (s.fVerbosity>=5) cout<<"  PndDrcSurfAbs:copy: clear couplings."<<endl;  
+  if (s.fVerbosity>=5) cout<<"  PndDrcSurfAbs:copy: clear couplings."<<endl;
   fCoupledSurfaceList.clear();         // since context changes
   fCoupledDeviceList.clear();
 
@@ -86,7 +86,7 @@ void PndDrcSurfAbs::Copy(const PndDrcSurfAbs& s)
   fVerbosity   = s.fVerbosity;
   fPrintColor  = s.fPrintColor;
   fReflectivity= 0;
-  if (s.fReflectivity) fReflectivity = s.fReflectivity->Clone(); 
+  if (s.fReflectivity) fReflectivity = s.fReflectivity->Clone();
   fPixel       = s.fPixel;
   fInternal    = s.fInternal;
   fFresnel     = s.fFresnel;
@@ -134,19 +134,19 @@ void PndDrcSurfAbs::SetReflectivity(const PndDrcOptReflAbs& refl)
 {
   if (Verbosity()>=3) cout<<"    PndDrcSurfAbs::setReflectivity() name="<<fName<<endl;
   if (&refl==0) return;
-  delete fReflectivity;              
-  fReflectivity = refl.Clone();    
+  delete fReflectivity;
+  fReflectivity = refl.Clone();
 }
 //----------------------------------------------------------------------
 void PndDrcSurfAbs::ClearReflectivity()
 {
-  if (Verbosity()>=3) 
+  if (Verbosity()>=3)
     cout<<"    PndDrcSurfAbs::clearReflectivity() name="<<fName<<endl;
-  if (fReflectivity) delete fReflectivity;              
-  fReflectivity = 0;    
+  if (fReflectivity) delete fReflectivity;
+  fReflectivity = 0;
 }
 //----------------------------------------------------------------------
-void PndDrcSurfAbs::SetPixel(bool           flag, 
+void PndDrcSurfAbs::SetPixel(bool           flag,
 			     bool           pos_corr,
 			     XYZPoint       pos,
 			     PndDrcEffiAbs* effi)
@@ -155,7 +155,7 @@ void PndDrcSurfAbs::SetPixel(bool           flag,
   fPixelCorr  = pos_corr;
   fPixelPoint = pos;
   if (effi && (effi != fEffiCathode) ) // 2nd clause happens when you call SetPixel with
-    {                                  // effi from Effi()                  
+    {                                  // effi from Effi()
       delete fEffiCathode;
       fEffiCathode = effi->Clone();
     }

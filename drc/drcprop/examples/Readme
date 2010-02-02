@@ -15,7 +15,13 @@ test_lens.cc
 test_sheet.cc
 test_simple_bar2.cc
 test_simple_bar.cc
-test_system.cc		adding of several systems to one optical system.
+test_system.cc		  adding of several systems to one optical system.
 test_test.cc
 test_titti.cc
 test_top.cc
+beamtest0809_sim.cc   beamtest simulation (first attempt for beamtest 09/2008)
+mppc.cc               Light catcher for a MPPC
+beamtest0909_sim.cc   improved beamtest simulation (for beamtest 09/2009) includes also a photon canon
+photTrajectory.cc     debug tool for beamtest0909_sim.cc (visualization of the photon trajectory)
+parTrajectory.cc      debug tool for beamtest0909_sim.cc (visualization of the particle trajectory)
+

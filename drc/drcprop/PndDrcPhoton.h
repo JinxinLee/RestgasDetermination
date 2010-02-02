@@ -171,16 +171,6 @@ class PndDrcPhoton
   */
   void SetPositionZlist(double posZ){fPositionZlist.push_back(posZ);};
 
-  /*! \brief Position list flag to write it out
-    \return position list flag.
-  */
-  bool PositionListFlag() const {return fPositionListFlag;};
-
-  /*! \brief Set position list flag to write it out
-    \param flg position list flag.
-  */
-  void SetPositionListFlag(bool flg){fPositionListFlag=flg;};
-
 
   /*! \brief Direction
     \return Normalized direction.
@@ -194,7 +184,7 @@ class PndDrcPhoton
 
   /*! \brief Origin direction
 
-  A device gets a directional coordinate system a creation.   The three directional vectors are 
+  A device gets a directional coordinate system a creation.   The three directional vectors are
   (1,0,0) (0,1,0) (0,0,1). These directions change with each device transformation. The generated photons
   contain the original direction, a vector containing three direction cosines from the scalar product of
   the photons direction with the three direction vectors of the volume.
@@ -205,7 +195,6 @@ class PndDrcPhoton
     \return Normalized origin direction.
    */
   XYZVector OriginDirection() const {return fOriginDirection;};
-
 
 
   /*! \brief Cherenkov angle
@@ -258,12 +247,12 @@ class PndDrcPhoton
   \param diffuseProb Diffused reflection probability.
   \return True if refraction occured, false if reflection occured.
   */
-  bool Refract(XYZVector normal, 
-	       double n_in, 
-	       double ex_in, 
-	       bool fresnelFlag=true, 
-	       double n_out=1.0, 
-	       double ex_out=0.0, 
+  bool Refract(XYZVector normal,
+	       double n_in,
+	       double ex_in,
+	       bool fresnelFlag=true,
+	       double n_out=1.0,
+	       double ex_out=0.0,
 	       double diffuseProb = 0);
 
   /*! \brief Reflect the photon
@@ -294,14 +283,16 @@ class PndDrcPhoton
     \return print flag.
   */
   bool PrintFlag() const {return fPrintFlag;};
- /*! \brief Set print flag of photon to write its way to the data stream
+
+  /*! \brief Set print flag of photon to write its way to the data stream
     \sa  Print(fstream& stream)
-  \param flg Print flag.
+    \param flg Print flag.
   */
   void SetPrintFlag(bool flg){fPrintFlag=flg;};
 
+
   friend class PndDrcOptDevManager;
-  
+
 
  private:
   int              fParticleIDnumber;              //!< Associated particle
@@ -356,8 +347,8 @@ class PndDrcPhoton
   void SetPhiC(double phic){fPhiC=phic;};
 
   /*! \brief Set normalized origin direction (at photon production)
-    \param org Origin direction.
-   */
+  \param org Origin direction.
+  */
   void SetOriginDirection(const XYZVector& org) {fOriginDirection=org.Unit();};
 
 
