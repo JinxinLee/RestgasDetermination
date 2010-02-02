@@ -25,7 +25,7 @@ PndMvdIdealTrackFinderTask::PndMvdIdealTrackFinderTask() :
    fHitBranchStrip = "MVDHitsStrip";
    fHitBranchPixel = "MVDHitsPixel";
    fClusterBranchStrip = "MVDStripClusterCand";
-   fClusterBranchPixel = "MVDClusterCand";
+   fClusterBranchPixel = "MVDPixelClusterCand";
    fDigiBranchStrip = "MVDStripDigis";
    fDigiBranchPixel = "MVDPixelDigis";
    fMcBranch = "MVDPoint";
