@@ -1,0 +1,65 @@
+// -------------------------------------------------------------------------
+// -----             PndSdsStripClusterBuilder header file             -----
+// -----          Converted 27.11.2007 from R.Jaekel by R.Kliemt       -----
+// -------------------------------------------------------------------------
+
+
+/** PndSdsStripClusterBuilder.h
+ *@author R.Kliemt <r.kliemt@physik.tu-dresden.de>
+ **
+ ** Calculator class to find clusters in one channel dimension
+ ** for the MVD strip sensors
+ **/
+
+#ifndef PNDSDSSTRIPCLUSTERBUILDER_H
+#define PNDSDSSTRIPCLUSTERBUILDER_H
+
+
+#include <vector>
+#include <map>
+#include <string>
+
+#include "PndSdsDigiStrip.h"
+#include "PndSdsClusterStrip.h"
+// #include "PndSdsStripCluster.h"
+
+typedef std::map<Int_t,Int_t> Indexpair;
+typedef std::map<Int_t,Indexpair> Indextriple;
+typedef std::map<SensorSide,Indextriple> SidedTriple; 
+typedef std::map<std::string,SidedTriple > Fullmap; 
+
+class PndSdsStripClusterBuilder {
+ public:
+  PndSdsStripClusterBuilder();
+  ~PndSdsStripClusterBuilder();
+
+  void Reinit();
+
+  void AddDigi(std::string detname, SensorSide side, Int_t timestamp, Int_t strip, Int_t iPoint);
+  void ClearDigis() {fSortedDigis.clear();} 
+  virtual std::vector< PndSdsClusterStrip > SearchClusters() = 0; 
+
+  std::vector< PndSdsCluster >  GetClusters() const {return fClusters;}
+  PndSdsClusterStrip GetCluster(Int_t i);
+  PndSdsClusterStrip GetTopCluster(Int_t i);
+  PndSdsClusterStrip GetBotCluster(Int_t i);
+  std::vector< Int_t > GetTopClusterIDs() const {return fTopclusters;}
+  std::vector< Int_t > GetBotClusterIDs() const {return fBotclusters;}
+  std::vector< Int_t > GetLeftDigiIDs() const {return fLeftDigis;}
+
+protected:
+
+  void AddCluster(const std::vector< Int_t >& onecluster,SensorSide side);
+  Fullmap fSortedDigis;
+  std::vector< Int_t > fTopclusters;// contains index to fClusterArray
+  std::vector< Int_t > fBotclusters;// contains index to fClusterArray
+  std::vector< Int_t > fLeftDigis;  // contains index to the not assigned digis
+  std::vector< PndSdsClusterStrip > fClusters;
+
+private:
+ClassDef(PndSdsStripClusterBuilder,2);
+};
+
+
+
+#endif // PndSdsStripClusterBuilder

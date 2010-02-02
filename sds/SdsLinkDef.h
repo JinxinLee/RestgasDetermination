@@ -1,0 +1,68 @@
+// $Id: SdsLinkDef.h,v 1.0 Ralf Kliemt 08.Jan.2007 $
+
+#ifdef __CINT__
+
+#pragma link off all globals;
+#pragma link off all classes;
+#pragma link off all functions;
+
+
+//data
+//#pragma link C++ class PndSdsDigi+;
+//#pragma link C++ class PndSdsDigiPixel+;
+//#pragma link C++ class PndSdsPixel+;
+//#pragma link C++ class PndSdsStrip+;
+//#pragma link C++ class PndSdsMCPoint+;
+//#pragma link C++ class PndMvdApvHit+;
+
+//mc
+#pragma link C++ class PndSdsGeo+;
+#pragma link C++ class PndSdsGeoPar+;
+#pragma link C++ class PndSdsContFact+;
+#pragma link C++ class PndSdsDetector+;
+//#pragma link C++ class PndMvdMaterialDet+;
+
+//digi
+#pragma link C++ class PndSdsHybridHitProducer+;
+#pragma link C++ class PndSdsStripHitProducer+;
+#pragma link C++ class PndSdsStripHitProducerDif+;
+#pragma link C++ class PndSdsCalcPixel;
+#pragma link C++ class PndSdsCalcFePixel;
+#pragma link C++ class PndSdsCalcStrip;
+#pragma link C++ class PndSdsCalcStripDif;
+//#pragma link C++ class PndSdsDigiTask+;
+#pragma link C++ class PndSdsPixelDigiPar+;
+#pragma link C++ class PndSdsStripDigiPar+;
+//#pragma link C++ class PndMvdDigiAna+;
+#pragma link C++ class PndSdsHitProducerIdeal+;
+#pragma link C++ class PndSdsNoiseProducer+;
+
+#pragma link C++ class PndSdsGeoHandling+;
+//#pragma link C++ class PndMvdCalcFePixel+;
+
+/*#pragma link C++ class PndMvdMCEventAna+;
+#pragma link C++ class PndMvdEventAna+;
+#pragma link C++ class PndMvdDigiEventAna+;
+#pragma link C++ class PndMvdEventAna+;
+#pragma link C++ class PndMvdMCEventAna+;
+#pragma link C++ class PndMvdDigiEventAna+;
+#pragma link C++ class PndMvdAllDataEventAna+;
+#pragma link C++ class PndMvdFileNameCreator+;
+#pragma link C++ class PndMvdAccessRTDBTask+;
+
+
+#pragma link C++ class PndGeoHitList+;
+#pragma link C++ class PndEventDisplay+;
+#pragma link C++ class PndMvdEventAnaTask+;
+#pragma link C++ class PndMvdEventMerger+;
+#pragma link C++ class PndMvdEventMergerTask+;
+#pragma link C++ class PndMvdMSAnaTask+;*/
+
+#pragma link C++ class PndStringVector+;
+
+//#pragma link C++ class PndMvdConvertApv+;
+//#pragma link C++ class PndMvdConvertApvTask+;
+
+
+#endif
+

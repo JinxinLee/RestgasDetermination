@@ -1,0 +1,134 @@
+#ifndef PNDSDSSTRIPHITPRODUCER_H
+#define PNDSDSSTRIPHITPRODUCER_H
+
+#include "FairTask.h"
+#include "PndSdsStripDigiPar.h"
+#include "PndSdsMCPoint.h"
+#include "PndSdsStrip.h"
+#include "PndSdsDigiPixel.h"
+#include "FairGeoVector.h"
+#include "FairGeoTransform.h"
+#include "TVector3.h"
+#include "TRandom.h"
+#include "TGeoMatrix.h"
+#include "TGeoBBox.h"
+
+#include "PndSdsGeoHandling.h"
+#include "PndSdsCalcStrip.h"
+
+#include <string>
+#include <vector>
+#include <map>
+
+class TClonesArray;
+
+//! Hit Producer Task for strip detectors
+/**
+ * The choice of the parameters used for Digitization depends on the invocation of the
+ * different constructors of this task. Instantiating by the default constructor forces
+ * the digitisation parameters initialized from the DigiPar-Database. On the other hand these
+ * parameters may be overridden by invoking the constructor:
+ * @code PndSdsStripHitProducer(Double_t, Double_t, Double_t, Double_t, TVector2, TVector2,
+ * Int_t, Int_t, Int_t, Double_t, Double_t) @endcode \n
+ * Basically, the sensors are thought to be rectangular (even if they are not).
+ * Knowing the origin of the wafer, the strips can be described by an angle (orientation),
+ * their separation with respect to each other (pitch) and one point that is known to be part of the first strip (anchor point).\n
+ * The numbering scheme is as follows (assuming 128 channels per FE): \n
+ *
+   <table>
+   <TR> <TD> strip index </TD> <TD>frontend #</TD> <TD> side </TD> </TR>
+   <TR> <TD>     0       </TD> <TD>    0     </TD> <TD>  top </TD> </TR> <TD><- Top Anchor</TD>
+   <TR> <TD>     1       </TD> <TD>    0     </TD> <TD>  top </TD> </TR>
+   <TR> <TD>    ...      </TD> <TD>    0     </TD> <TD>  top </TD> </TR>
+   <TR> <TD>    127      </TD> <TD>    0     </TD> <TD>  top </TD> </TR>
+   <TR> <TD>    128      </TD> <TD>    1     </TD> <TD>  top </TD> </TR>
+   <TR> <TD>    ...      </TD> <TD>    1     </TD> <TD>  top </TD> </TR>
+   <TR> <TD>    255      </TD> <TD>    1     </TD> <TD>  top </TD> </TR>
+   <TR> <TD>    256      </TD> <TD>    2     </TD> <TD>  top </TD> </TR>
+   <TR> <TD>    ...      </TD> <TD>   ...    </TD> <TD>  top </TD> </TR>
+   <TR> <TD> topNrFE*128-1 </TD> <TD> topNrFE-1  </TD> <TD>  top </TD> </TR>
+   <TR> <TD> topNrFE*128 </TD> <TD> topNrFE  </TD> <TD>  bottom </TD> </TR> <TD><- Bottom Anchor</TD>
+   <TR> <TD>    ...      </TD> <TD> topNrFE  </TD> <TD>  bottom </TD> </TR>
+   <TR> <TD> topNrFE*128+127 </TD> <TD> topNrFE  </TD> <TD>  bottom </TD> </TR>
+   <TR> <TD> topNrFE*128+128 </TD> <TD> topNrFE+1  </TD> <TD>  bottom </TD> </TR>
+   <TR> <TD>    ...      </TD> <TD>   ...    </TD> <TD>  bottom </TD> </TR>
+   <TR> <TD> (topNrFE+botNrFE)*128-1 </TD> <TD> topNrFE+botNrFE-1  </TD> <TD>  bottom </TD> </TR>
+
+   </table>
+ * \n
+ * The numbering starts from the strip containing the anchor point following the direction
+ * orthogonal to the strips in mathematically positive sense (along x-axis in positive direction,
+ * if the strip orientation equals 90 degrees).
+ * \n
+ * @author HG Zaunick <hg.zaunick@physik.tu-dresden.de>
+ *
+ **/
+class PndSdsStripHitProducer : public FairTask
+{
+ public:
+
+  /** Default constructor \n
+   * creates object with parameters taken implicitly from DigiPar-File
+   **/
+  PndSdsStripHitProducer();
+
+ 
+  /** Destructor **/
+  virtual ~PndSdsStripHitProducer();
+
+
+  virtual void SetParContainers();
+  /** Virtual method Init **/
+  virtual InitStatus Init();
+  virtual InitStatus ReInit();
+  
+  /** pure virtual method SetBranchNames
+   **
+   ** called by Init()
+   ** function to set individual branch names
+   **/
+  virtual void SetBranchNames()=0;
+
+  /** Virtual method Exec **/
+  virtual void Exec(Option_t* opt);
+
+  void AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, TString detname, Int_t fe, Int_t chan, Double_t charge);
+
+ protected:
+
+  TString fBranchName;
+  TString fOutBranchName;
+  TString fFolderName;
+
+  /** Input array of PndSdsMCPoints **/
+  TClonesArray* fPointArray;
+
+  //! Output array of PndSdsHits
+  TClonesArray* fStripArray;
+
+  //! Digitization Parameters
+  PndSdsStripDigiPar* fDigiParRect;
+  PndSdsStripDigiPar* fDigiParTrap;
+  PndSdsStripDigiPar* fCurrentDigiPar;
+
+  //! Calculator objects
+  std::map<const char*,PndMvdCalcStrip*> fStripCalcTop;
+  std::map<const char*,PndMvdCalcStrip*> fStripCalcBot;
+  PndMvdCalcStrip* fCurrentStripCalcTop;
+  PndMvdCalcStrip* fCurrentStripCalcBot;
+
+  void Register();
+  void Reset();
+  void ProduceHits();
+  void SetCalculators(); 
+  Bool_t SelectSensorParams(TString detname);
+
+  PndSdsGeoHandling* fGeoH; // converter for detector names
+  Bool_t fOverrideParams;   // internal Flag that controls use of Parameter Invocations
+
+
+  ClassDef(PndSdsStripHitProducer,5);
+
+};
+
+#endif

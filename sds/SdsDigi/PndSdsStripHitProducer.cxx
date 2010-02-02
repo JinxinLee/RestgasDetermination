@@ -1,0 +1,299 @@
+// -------------------------------------------------------------------------
+// -----                PndSdsStripHitProducer source file             -----
+// -------------------------------------------------------------------------
+
+
+// This Class
+#include "PndSdsStripHitProducer.h"
+// SDS
+#include "PndSdsMCPoint.h"
+#include "PndSdsCalcStrip.h"
+#include "PndSdsDigiStrip.h"
+//PANDA
+#include "PndStringVector.h"
+#include "PndDetectorList.h"
+//FAIR
+#include "FairRootManager.h"
+#include "FairRun.h"
+#include "FairRuntimeDb.h"
+#include "FairContFact.h"
+#include "FairGeoNode.h"
+#include "FairGeoVector.h"
+//ROOT
+#include "TClonesArray.h"
+#include "TArrayD.h"
+#include "TVector2.h"
+#include "TString.h"
+#include "TObjString.h"
+#include "TGeoManager.h"
+#include "TList.h"
+
+// -----   Default constructor   -------------------------------------------
+PndSdsStripHitProducer::PndSdsStripHitProducer() :
+  FairTask("SDS Strip Digi Producer(PndSdsStripHitProducer)")
+{
+ 
+  fOverrideParams = false;
+  fDigiParameterList = new TList();
+}
+// -------------------------------------------------------------------------
+
+
+// -----   Destructor   ----------------------------------------------------
+PndSdsStripHitProducer::~PndSdsStripHitProducer()
+{
+  if (0!=fGeoH) delete fGeoH;
+  if (0!=fDigiParameterList) delete fDigiParameterList;
+}
+// -------------------------------------------------------------------------
+
+
+// -------------------------------------------------------------------------
+InitStatus PndSdsStripHitProducer::ReInit()
+{
+   SetParContainers();
+   SetCalculators();
+   return kSUCCESS;
+}
+// -------------------------------------------------------------------------
+
+// -------------------------------------------------------------------------
+void PndSdsStripHitProducer::SetCalculators()
+{
+  // After the first start if the Init() tis can be set properly.
+  
+  TIter params(fDigiParameterList);
+  while(PndMvdStripDigiPar* digipar=(PndMvdStripDigiPar*)params()){
+    if(0==digipar) {
+      Error("SetCalculators()","A Digi Parameter Set does not exist properly.");
+      continue;
+    }
+    const char* senstype = digipar->GetSensType();
+    if(fVerbose>1){
+      Info("SetCalculators()","Create a Parameter Set for %s sensors",senstype);
+      std::cout<<senstype<<"#"<<std::endl;
+    }
+    if(fVerbose>0)digipar->Print();
+    fStripCalcTop[senstype]=new PndMvdCalcStrip(digipar,kTOP);
+    fStripCalcTop[senstype]->SetVerboseLevel(fVerbose);
+    fStripCalcBot[senstype]=new PndMvdCalcStrip(digipar,kBOTTOM);
+    fStripCalcBot[senstype]->SetVerboseLevel(fVerbose);
+  }
+    
+}
+
+// -------------------------------------------------------------------------
+
+
+// -----   Public method Init   --------------------------------------------
+InitStatus PndSdsStripHitProducer::Init()
+{
+  FairRootManager* ioman = FairRootManager::Instance();
+
+  SetBranchNames();
+  
+  fGeoH = new PndSdsGeoHandling(gGeoManager);
+
+  if ( ! ioman )
+    {
+      std::cout << "-E- PndSdsStripHitProducer::Init: "
+     << "RootManager not instantiated!" << std::endl;
+      return kFATAL;
+    }
+
+  fPointArray = (TClonesArray*) ioman->GetObject(fBranchName);
+  if ( ! fPointArray )
+    {
+      std::cout << "-W- PndSdsStripHitProducer::Init: "
+     << "No "<<fBranchName<<" array!" << std::endl;
+      return kERROR;
+  }
+
+  // Create and register output array
+  fStripArray = new TClonesArray("PndSdsDigiStrip");
+  ioman->Register(fOutBranchName, fFolderName, fStripArray, kTRUE);
+  
+  SetCalculators();
+
+  if(fVerbose>0){
+    std::cout << "-I- PndSdsStripHitProducer: Initialisation successfull with these parameters:" << std::endl;
+    TIter params(fDigiParameterList);
+    while(PndSdsStripDigiPar* digipar=(PndSdsStripDigiPar*)params()){
+      if(0!=digipar) {
+        digipar->Print();
+      }
+    }
+  }
+
+  return kSUCCESS;
+}
+// -------------------------------------------------------------------------
+
+
+
+// -----   Public method Exec   --------------------------------------------
+void PndSdsStripHitProducer::Exec(Option_t* opt)
+{
+  // Reset output array
+  fStripArray->Delete();
+
+  // Declare some variables
+  PndSdsMCPoint *point = NULL;
+
+//  Int_t detID = 0;       // Detector ID
+//     Int_t trackID = 0;     // Track index
+
+  // Loop over PndSdsMCPoints
+  Int_t nPoints = fPointArray->GetEntriesFast();
+  if (fVerbose > 0){
+    std::cout<<" Nr of Points: "<<nPoints<<std::endl;
+  }
+
+  Int_t iStrip = 0;
+  Bool_t selected = kFALSE;
+
+  for (Int_t iPoint = 0; iPoint < nPoints; iPoint++)
+  {
+      point = (PndSdsMCPoint*) fPointArray->At(iPoint);
+      selected = SelectSensorParams(point->GetDetName()) ;
+      if( !selected ) { continue; }
+
+      if (fVerbose > 2){
+        std::cout<<"***** Strip Digi for "<<fCurrentDigiPar->GetSensType()<<" ******"<<std::endl;
+        std::cout<<" DetName : "<<fGeoH->GetPath(point->GetDetName())<<std::endl;
+      }
+      if ( ! point){
+        std::cout<< "No Point!" << std::endl;
+         continue;
+      }
+      if (fVerbose > 2){
+        std::cout << "****Global Point: " << std::endl;
+        point->Print("");
+      }
+
+      // transform to local sensor system... (mc point has the ID not the path to the volume)
+      TVector3 posInL = fGeoH->MasterToLocalId(point->GetPosition(),point->GetDetName());
+      TVector3 posOutL = fGeoH->MasterToLocalId(point->GetPositionOut(),point->GetDetName());
+
+      if (fVerbose > 2){
+        posInL.Print();posOutL.Print();
+        std::cout << "Energy: " << point->GetEnergyLoss() << std::endl;
+      }
+//      detID   = point->GetDetectorID();
+
+      // Top Side
+      if (fVerbose > 2) std::cout  << "Top Side: " << std::endl;
+      // Calculate a cluster of Strips fired
+      std::vector<PndSdsStrip> topStrips =
+        fCurrentStripCalcTop->GetStrips(posInL.X(),  posInL.Y(),  posInL.Z(),
+                                        posOutL.X(), posOutL.Y(), posOutL.Z(),
+                                        point->GetEnergyLoss());
+
+     if (topStrips.size() != 0)
+      {
+        if (fVerbose > 1) std::cout  << "SensorStrips: " << std::endl;
+        for(std::vector<PndSdsStrip>::const_iterator kit=topStrips.begin();
+            kit!= topStrips.end(); ++kit)
+        {   //TODO: What to do with the kMVD* enmums in sds?
+            AddDigi(iStrip,iPoint,kMVDHitsStrip,point->GetDetName(),
+            		fCurrentStripCalcTop->CalcFEfromStrip(kit->GetIndex()),
+            		fCurrentStripCalcTop->CalcChannelfromStrip(kit->GetIndex()),kit->GetCharge());
+            if (fVerbose > 1) std::cout << *kit << std::endl;
+        }
+      }else if(fVerbose>2) std::cout<<"Top side empty"<<std::endl;
+
+      // Bottom Side
+      if (fVerbose > 2) std::cout  << "Bottom Side: " << std::endl;
+      std::vector<PndSdsStrip> botStrips =
+        fCurrentStripCalcBot->GetStrips(posInL.X(),  posInL.Y(),  posInL.Z(),
+                                        posOutL.X(), posOutL.Y(), posOutL.Z(),
+                                        point->GetEnergyLoss());
+      if (botStrips.size() != 0)
+      {
+        if (fVerbose > 2) std::cout  << " SensorStrips: " << std::endl;
+        for(std::vector<PndSdsStrip>::const_iterator kit=botStrips.begin();
+            kit!= botStrips.end();
+            ++kit)
+        {
+            AddDigi(iStrip,iPoint,kMVDHitsStrip,point->GetDetName(),
+                    fCurrentStripCalcBot->CalcFEfromStrip(kit->GetIndex()) + fCurrentDigiPar->GetNrTopFE(),
+                    fCurrentStripCalcBot->CalcChannelfromStrip(kit->GetIndex()),kit->GetCharge());
+            if (fVerbose > 2) std::cout << *kit << std::endl;
+        }
+      } else if(fVerbose>2) std::cout<<"Bottom side empty"<<std::endl;
+
+  } // Loop over MCPoints
+
+  // Event summary
+  if(fVerbose > 1) std::cout << "-I- PndSdsStripHitProducer: " << nPoints << " PndSdsMCPoints, "
+       << iStrip << " Digis created."<< std::endl;
+}
+// -------------------------------------------------------------------------
+
+void PndSdsStripHitProducer::AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, TString detname, Int_t fe, Int_t chan, Double_t charge)
+{
+  Bool_t found = kFALSE;
+  PndSdsDigiStrip* aDigi = 0;
+  for(Int_t kstr = 0; kstr < iStrip && found==kFALSE ; kstr++)
+  {
+	aDigi = (PndSdsDigiStrip*)fStripArray->At(kstr);
+	if ( aDigi->GetDetID() == detID &&
+		 aDigi->GetDetName() == detname &&
+		 aDigi->GetFE() == fe &&
+		 aDigi->GetChannel() == chan )
+	{
+		aDigi->AddCharge(charge);
+		aDigi->AddIndex(iPoint);
+		found = kTRUE;
+//		((PndSdsDigiStrip*)(*fStripArray)[kstr])->AddCarge(charge);
+//		((PndSdsDigiStrip*)(*fStripArray)[kstr])->AddIndex(iPoint);
+//		return;
+	}
+  }
+  if(found == kFALSE){//TODO: Simulate a timestamp
+	  std::vector<Int_t>indices;
+	  indices.push_back(iPoint);
+    new ((*fStripArray)[iStrip]) PndMvdDigiStrip(indices,detID,detname,fe,chan,charge, 0) ;
+    iStrip++;
+  }
+
+// -------------------------------------------------------------------------
+
+
+Bool_t PndSdsStripHitProducer::SelectSensorParams(TString detname)
+{
+  fCurrentDigiPar = NULL;
+  fCurrentStripCalcTop = NULL;
+  fCurrentStripCalcBot = NULL;
+
+  TString detpath = fGeoH->GetPath(detname);
+  if( !(detpath.Contains("Strip")) )
+  { // filter from pixel points
+    return kFALSE;
+  }
+
+  TIter parsetiter(fDigiParameterList);
+  while ( PndSdsStripDigiPar* digipar = (PndSdsStripDigiPar*)parsetiter() ) 
+  {
+    const char* sensortype = digipar->GetSensType();
+    if(detpath.Contains(sensortype))  {
+      fCurrentStripCalcTop = fStripCalcTop[sensortype];
+      fCurrentStripCalcBot = fStripCalcBot[sensortype];
+      fCurrentDigiPar = digipar;
+      return kTRUE;
+    }
+  }
+  // no suiting object found
+  //if (fVerbose > 1) 
+  if(fVerbose>1) Info("SelectSensorParams()","No valid sensor parameters selected, skipping this point.");
+  std::cout<<"detector name does not contain a valid parameter name."<<std::endl;
+  //if (fVerbose > 2)
+  std::cout<<" DetName : "<<detpath<<std::endl;
+  return kFALSE;
+}
+
+// -------------------------------------------------------------------------
+
+
+ClassImp(PndSdsStripHitProducer);
+
