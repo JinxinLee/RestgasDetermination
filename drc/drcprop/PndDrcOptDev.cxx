@@ -59,6 +59,10 @@ PndDrcOptDev::PndDrcOptDev()
   fName        = "unnamed PndDrcOptDev";
   fPhotonTrace = false;
   fVerbosity   = 0;
+  fKx          = XYZVector(1,0,0);
+  fKy          = XYZVector(0,1,0);
+  fKz          = XYZVector(0,0,1);
+  
 }
 //----------------------------------------------------------------------
 void PndDrcOptDev::Copy(const PndDrcOptDev& d)
@@ -68,6 +72,7 @@ void PndDrcOptDev::Copy(const PndDrcOptDev& d)
   fVerbosity         = d.fVerbosity;
   fPhotonTrace       = d.fPhotonTrace;
   fPhotonTraceStream = d.fPhotonTraceStream;
+  
 
   fListSurf.clear();
   list<PndDrcSurfAbs*>::const_iterator kSurf;
@@ -77,6 +82,12 @@ void PndDrcOptDev::Copy(const PndDrcOptDev& d)
       PndDrcSurfAbs* tmp1 = tmp->Clone();
       fListSurf.push_back(tmp1);
     }
+
+  fKx                = d.fKx;
+  fKy                = d.fKy;
+  fKz                = d.fKz;
+  
+
 }
 //----------------------------------------------------------------------
 PndDrcOptDev::PndDrcOptDev(const PndDrcOptDev& d)
@@ -167,6 +178,12 @@ void PndDrcOptDev::AddTransform(const Transform3D& trans)
     {
       const_cast<PndDrcSurfAbs*>(*kSurf)->AddTransform(trans);
     }
+
+
+  fKx = trans * fKx;
+  fKy = trans * fKy;
+  fKz = trans * fKz;
+  
 
 }
 

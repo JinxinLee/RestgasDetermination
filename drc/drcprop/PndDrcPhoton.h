@@ -193,6 +193,15 @@ class PndDrcPhoton
   void SetDirection(const XYZVector& dir) {fDirection=dir.Unit();};
 
   /*! \brief Origin direction
+
+  A device gets a directional coordinate system a creation.   The three directional vectors are 
+  (1,0,0) (0,1,0) (0,0,1). These directions change with each device transformation. The generated photons
+  contain the original direction, a vector containing three direction cosines from the scalar product of
+  the photons direction with the three direction vectors of the volume.
+
+  \image html origin_direction.png
+
+
     \return Normalized origin direction.
    */
   XYZVector OriginDirection() const {return fOriginDirection;};

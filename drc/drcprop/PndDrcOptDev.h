@@ -20,6 +20,11 @@ using std::string;
 #include "Math/Transform3D.h"
 using ROOT::Math::Transform3D;
  
+//#include "Math/Vector3D.h"
+//using ROOT::Math::XYZVector;
+//#include "Math/Point3D.h"
+//using ROOT::Math::XYZPoint;
+
 class PndDrcSurfAbs;
 class PndDrcOptMatAbs;
 
@@ -160,21 +165,49 @@ class PndDrcOptDev
   \sa PndDrcSurfAbs::SetFresnel()
   */
   void SetFresnel(bool flag);
-  
 
- protected: 
+  friend class PndDrcOptDevManager;
+
+  protected: 
   int               fCopyNumber;                  //!<  Copy number for "copies".
   string            fName;                        //!<   Name of volume.   
   int               fVerbosity;                   //!<    Verbosity from 0 to 5.
   mutable bool      fPhotonTrace;                 //!<    Flag for photon tracing.
   mutable fstream*  fPhotonTraceStream;           //!< Stream for photon tracing.
   list<PndDrcSurfAbs*> fListSurf;                 //!<  List of surface pointers.  
+  XYZVector         fKx;                          //!<  Direction vector of volumina.
+  XYZVector         fKy;                          //!<  Direction vector of volumina.
+  XYZVector         fKz;                          //!<  Direction vector of volumina.
+  
+
 
  private:
   /*! \brief Auxiliary function for assignment operator and copy constructor..
     \param d The object to copy.
   */
   void Copy(const PndDrcOptDev& d);
+
+
+  /*! \brief X-direction vector of volume.
+ 
+  \return The vector.
+  */
+  const XYZVector DirectionX(){return fKx;};
+  /*! \brief Y-direction vector of volume.
+ 
+  \return The vector.
+  */
+  const XYZVector DirectionY(){return fKy;};
+  /*! \brief Z-direction vector of volume.
+ 
+  \return The vector.
+  */
+  const XYZVector DirectionZ(){return fKz;};
+  
+  
+    
+
+
 
 };
 #endif

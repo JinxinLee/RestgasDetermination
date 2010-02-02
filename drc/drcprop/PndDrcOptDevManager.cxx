@@ -655,10 +655,18 @@ bool PndDrcOptDevManager::Cerenkov(const string& vol_name, const string& sys_nam
       PndDrcPhoton ph;
       ph.SetPosition(r);
       ph.SetDirection(beta_ph);
-      ph.SetOriginDirection(beta_ph);
-	  ph.SetThetaC(dtheta);
-	  ph.SetPhiC(dphi);
-	  ph.SetParticleIDnumber(particleIDnumber);
+
+      double x = beta_ph.Dot(dev->DirectionX());
+      double y = beta_ph.Dot(dev->DirectionY());
+      double z = beta_ph.Dot(dev->DirectionZ());
+      
+      ph.SetOriginDirection(XYZVector(x,y,z));
+
+
+
+      ph.SetThetaC(dtheta);
+      ph.SetPhiC(dphi);
+      ph.SetParticleIDnumber(particleIDnumber);
       ph.SetWavelength(lambda);
       ph.SetDevice(dev);
       ph.SetReflectionLimit(refl_limit);
