@@ -102,6 +102,7 @@ class PndGemTrackFinderOnHits : public PndGemTrackFinder
 
   /** Event counter **/
   Int_t fNofEvents;  // event counter
+  Int_t fMCAvailable;
 
   Int_t fNofExpectedTrackSegments;
   Int_t fNofFoundTrackSegments;
@@ -113,6 +114,8 @@ class PndGemTrackFinderOnHits : public PndGemTrackFinder
 
   void PrintTrackSegments(TClonesArray* hitArray);
   void PrintTracks(TClonesArray* hitArray, Int_t nofRecoTracks);
+  void PrintMCTrackSegments(TClonesArray* hitArray);
+  void PrintMCTracks(TClonesArray* hitArray, Int_t nofRecoTracks);
 
   /** Get parameter containers **/
   virtual void SetParContainers();

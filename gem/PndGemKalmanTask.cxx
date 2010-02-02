@@ -47,6 +47,7 @@
 #include "TGeoTrack.h"
 #include "TGeoManager.h"
 #include "TLorentzVector.h"
+#include "TVector3.h"
 #include "GFDetPlane.h"
 #include "FairTrackParH.h"
 
@@ -104,9 +105,6 @@ PndGemKalmanTask::Init()
     fTheRecoHitFactory->addProducer
       (kGEM,new GFRecoHitProducer<PndGemHit,PndGemRecoHit>(hitar));
   }
-
-  fPro = new FairGeanePro();
-
 
   // setup histograms
   fPH=new TH1D("pH","p",100,0.4,0.6);
@@ -172,12 +170,6 @@ PndGemKalmanTask::Exec(Option_t* opt)
     }
   }
 
-  // Cut too busy events TODO
-  if(ntracks>20){
-    std::cout<<"ntracks="<<ntracks<<" Evil Event! skipping"<<std::endl;
-    return;
-  }
-
   // Fitting ---------------- can go to another task!
   GFKalman fitter;
   fitter.setNumIterations(fNumIt);
@@ -187,7 +179,7 @@ PndGemKalmanTask::Exec(Option_t* opt)
   std::vector<Int_t> signs;
 
   for(Int_t itr=0;itr<ntracks;++itr){
-    std::cout<<"starting track"<<itr<<std::endl;
+    //    std::cout<<"========== TRACK " << itr << " =====================================" << std::endl;
     //     GFAbsTrackRep* rep = new LSLTrackRep();
     
     GFTrack* trac = (GFTrack*)fTrackArray->At(itr);
@@ -201,8 +193,8 @@ PndGemKalmanTask::Exec(Option_t* opt)
     // Load RecoHits
     try {
       trac->addHitVector(fTheRecoHitFactory->createMany(trcnd));
-      std::cout<<trac->getNumHits()<<" hits in track "
-	       <<itr<<std::endl;
+//       std::cout<<trac->getNumHits()<<" hits in track "
+// 	       <<itr<<std::endl;
     }
     catch(GFException& e) {
       std::cout << e.what() << std::endl;
@@ -218,13 +210,26 @@ PndGemKalmanTask::Exec(Option_t* opt)
     catch (GFException e){
       std::cout<<e.what()<<std::endl;
     }
-    std::cout << "and after the try catch with flag set to " << trac->getTrackRep(0)->getStatusFlag() << std::endl;
+    //    std::cout << "and after the try catch with flag set to " << trac->getTrackRep(0)->getStatusFlag() << std::endl;
 
     // Print Track Parameters after fit
     if(trac->getTrackRep(0)->getStatusFlag()==0){
-      //trk->getTrackRep(0)->Print();
+      //      std::cout << "========GEANE PRINT========================================" << std::endl;
+//      trac->getTrackRep(0)->Print();
+      //      std::cout << "========SWITCH DIR ========================================" << std::endl;
+      trac->getTrackRep(0)->switchDirection();
+      //      std::cout << "========GEANE PRINT========================================" << std::endl;
+      //      trac->getTrackRep(0)->Print();
+      //      std::cout << "===========================================================" << std::endl;
       GFDetPlane plane(TVector3(0,0,0.1),TVector3(1,0,0),TVector3(0,1,0));
-      TVector3 p3=trac->getTrackRep(0)->getMom(plane);
+      TVector3 p3;
+      try {
+	p3=trac->getTrackRep(0)->getMom(plane);
+      }
+      catch (GFException e) {
+	std::cout <<  "-W- Couldn't extrapolate to vertex plane with \"" << e.what() << "\"" << std::endl;
+	continue;
+      }
       Double_t p=trac->getMom().Mag();
       fPH->Fill(p);
       
@@ -234,11 +239,11 @@ PndGemKalmanTask::Exec(Option_t* opt)
       signs.push_back((Int_t)trac->getTrackRep(0)->getCharge());
       
       Double_t chi2=trac->getChiSqu();
-      std::cout<<"ChiSq="<<chi2<<std::endl;
+      //      std::cout<<"ChiSq="<<chi2<<std::endl;
       fChi2H->Fill(chi2);
 
       //      GFDetPlane plane(TVector3(0,0,0.1),TVector3(1,0,0),TVector3(0,1,0));
-      TVector3 resultMom=trac->getTrackRep(0)->getMom(plane);
+      TVector3 resultMom=p3;//trac->getTrackRep(0)->getMom(plane);
       
       TVector3 resultPos = trac->getPos();
       //TVector3 resultMom = trac->getMom();
@@ -302,7 +307,7 @@ PndGemKalmanTask::Exec(Option_t* opt)
 
 void
 PndGemKalmanTask::WriteHistograms(){
-  std::cout<<"  PndDchKalmanQATask::WriteHistograms() "<<std::endl;
+  std::cout<<"  PndGemKalmanQATask::WriteHistograms() "<<std::endl;
   TFile* file = FairRootManager::Instance()->GetOutFile();
   file->cd();
   file->mkdir("GemKalmanQA");

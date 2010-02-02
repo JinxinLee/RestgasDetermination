@@ -107,8 +107,6 @@ private:
   Int_t fTrackcount;
 
   Int_t fEvent;
-  TGeant3 *gMC3;
-  FairGeanePro *fPro;
 
   // Private Methods -----------------
 

@@ -157,7 +157,7 @@ PndGemPrepareKalmanTracks::Exec(Option_t* opt)
     pos = gemTrackCand->getPosSeed();
     mom = (TMath::Abs(1./gemTrackCand->getQoverPseed()))*gemTrackCand->getDirSeed();
 
-    if ( gemTrackCand->getQoverPseed() ) {
+    if ( gemTrackCand->getQoverPseed() > 0 ) {
       pdg *= -1;
       q   *= -1;
     }
