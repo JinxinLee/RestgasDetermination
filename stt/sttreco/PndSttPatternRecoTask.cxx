@@ -19,7 +19,7 @@
 #include "FairGeanePro.h"
 #include "FairTrackParP.h"
 #include "PndMCTrack.h"
-
+#include "PndDetectorList.h"
 
 using std::cout;
 using std::endl;
@@ -204,7 +204,7 @@ void PndSttPatternRecoTask:: Exec(Option_t* opt)
 	  Int_t iHit = candhit.GetHitId();
      	  PndSttHit *currenthit = (PndSttHit*) fSttHitArray->At(iHit);
 	  if(!currenthit) continue;
-	  if(currenthit->GetDetectorID() != 3) continue;  // to be well defined CHECK!!
+	  if(currenthit->GetDetectorID() != kSTT) continue;  // to be well defined CHECK!!
 	  
 	  double sigx, sigy, sigz, sigradius;
        	  sigx = 0.0150;
