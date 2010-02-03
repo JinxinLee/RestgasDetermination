@@ -1355,6 +1355,7 @@ for(int jca=0; jca<nMCTracks;jca++){
     for(i=0; i<nTracksFoundSoFar;i++){
 
        Double_t dista=sqrt( Ox[i]*Ox[i]+Oy[i]*Oy[i] );
+       if(fabs(KAPPA[i])<1.e-20  ||  dista < 1.e-20) continue;
        Double_t Ptras = R[i]*0.003*BFIELD;
        Double_t Pzini = 0.003*BFIELD/KAPPA[i];
        Double_t Pxini = Ptras*Oy[i]/dista;
