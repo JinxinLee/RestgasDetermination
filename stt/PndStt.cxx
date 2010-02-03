@@ -189,7 +189,7 @@ Bool_t  PndStt::ProcessHits(FairVolume* vol)
       if (gMC->IsTrackExiting())
 	{
 	  fTrackID  = gMC->GetStack()->GetCurrentTrackNumber();
-	  fVolumeID = 3;//vol->getMCid();
+	  fVolumeID = kSTT;//vol->getMCid();
 	  fMass = gMC->TrackMass();   // mass (GeV)
 	  gMC->TrackPosition(fPosOut);
 	  gMC->TrackMomentum(fMomOut);
