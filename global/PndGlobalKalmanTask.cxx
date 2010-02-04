@@ -118,7 +118,7 @@ PndGlobalKalmanTask::Init()
       (kSttHit,new GFRecoHitProducer<PndSttHit,PndSttRecoHit>(sttHitArray));
   }
   std::cout << "-I- (" << kSttHit << ")...DONE! " << std::endl;
-  // ----  GEM reco hit factory  ---------------------------------------------------
+  // ----  TPC reco hit factory  ---------------------------------------------------
   std::cout << "-I-     creating TPC factory... " << std::flush;
   TClonesArray* tpcHitArray=(TClonesArray*) ioman->GetObject("PndTpcCluster");
   if(tpcHitArray==0){ //TODO Convention on detector number needed
