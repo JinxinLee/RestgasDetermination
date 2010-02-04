@@ -24,6 +24,7 @@ ${CMAKE_SOURCE_DIR}/lmd
 ${CMAKE_SOURCE_DIR}/lmd/LmdMC
 ${CMAKE_SOURCE_DIR}/lmd/LmdDigi
 ${CMAKE_SOURCE_DIR}/lmd/LmdReco
+${CMAKE_SOURCE_DIR}/lmd/LmdTrack
 ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/recotasks
 ${CMAKE_SOURCE_DIR}/trackbase
@@ -143,57 +144,36 @@ add_library(LmdReco SHARED ${LMDRECO_SRCS})
 target_link_libraries(LmdReco ${ROOT_LIBRARIES})
 set_target_properties(LmdReco PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 
-########################### create libMvdTrk ##################################
-#set(MVDTRK_SRCS
-#MvdData/PndMvdRecoHit.cxx
+########################### create libLmdTrk ##################################
+set(LMDTRK_SRCS
 
-#MvdPid/PndMvdPidIdealTask.cxx
-#MvdPid/PndMvdIdealPidAlgo.cxx
-#MvdPid/PndMvdSimplePidAlgo.cxx
-#MvdPid/PndMvdAdvancedPidAlgo.cxx
+LmdTrack/PndLmdTrackFinderTask.cxx
+LmdTrack/PndLmdLinFitTask.cxx
+LmdTrack/PndLinTrack.cxx
 
-#MvdTracking/PndMvdIdealTrackFinderTask.cxx
-#MvdTracking/PndMvdKalmanTask.cxx
-#MvdTracking/PndMvdTrackFinderAnaTask.cxx
+)
+set (LMD_RULECHECKER_SRCS ${LMD_RULECHECKER_SRCS} ${LMDTRK_SRCS})
 
-#MvdTracking/PndMvdRiemannTrackFinderTask.cxx
-#MvdTracking/PndMvdRiemannTrackFinder.cxx
-#MvdTracking/PndMvdRiemannVertexFinderTask.cxx
-
-#MvdTracking/PndMvdTpcRiemannCorrelatorTask.cxx
-#MvdTracking/PndMvdTPCRiemannTrackFinderTask.cxx
-#MvdTracking/PndMvdTPCRiemannTrackFinderTaskCutPar.cxx
-#MvdTracking/PndMvdTPCRiemannTrackFinderTaskEff.cxx
-
-#MvdTracking/PndTpcClustPlusRTFTask.cxx
-#MvdTracking/PndTpcClustPlusRTFTaskCutPar.cxx
-
-#MvdTracking/PndMvdRiemannTrackFinderTaskCutPar.cxx
-#MvdTracking/PndMvdRiemannTrackFinderTaskEff.cxx
-
-#)
-#set (MVD_RULECHECKER_SRCS ${MVD_RULECHECKER_SRCS} ${MVDTRK_SRCS})
-
-#if(RULE_CHECKER_FOUND)
-#  CHECK_RULES("${MVD_RULECHECKER_SRCS}" "${INCLUDE_DIRECTORIES}" MVD_RULES)
-#endif(RULE_CHECKER_FOUND)
+if(RULE_CHECKER_FOUND)
+  CHECK_RULES("${LMD_RULECHECKER_SRCS}" "${INCLUDE_DIRECTORIES}" LMD_RULES)
+endif(RULE_CHECKER_FOUND)
 
 
-## fill list of header files from list of source files
-## by exchanging the file extension
-#CHANGE_FILE_EXTENSION(*.cxx *.h MVDTRK_HEADERS "${MVDTRK_SRCS}")
-#set(MVDTRK_LINKDEF  MvdTrkLinkDef.h)
-#set(MVDTRK_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/MvdTrkDict.cxx)
+# fill list of header files from list of source files
+# by exchanging the file extension
+CHANGE_FILE_EXTENSION(*.cxx *.h LMDTRK_HEADERS "${LMDTRK_SRCS}")
+set(LMDTRK_LINKDEF  LmdTrkLinkDef.h)
+set(LMDTRK_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/LmdTrkDict.cxx)
 
-#ROOT_GENERATE_DICTIONARY("${MVDTRK_HEADERS}" "${MVDTRK_LINKDEF}" "${MVDTRK_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-#SET(MVDTRK_SRCS ${MVDTRK_SRCS} ${MVDTRK_DICTIONARY})
+ROOT_GENERATE_DICTIONARY("${LMDTRK_HEADERS}" "${LMDTRK_LINKDEF}" "${LMDTRK_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
+SET(LMDTRK_SRCS ${LMDTRK_SRCS} ${LMDTRK_DICTIONARY})
 
-#add_library(MvdTrk SHARED ${MVDTRK_SRCS})
-#target_link_libraries(MvdTrk ${ROOT_LIBRARIES})
-#set_target_properties(MvdTrk PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
+add_library(LmdTrk SHARED ${LMDTRK_SRCS})
+target_link_libraries(LmdTrk ${ROOT_LIBRARIES})
+set_target_properties(LmdTrk PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 
 ################################## install #####################################
 install(TARGETS Lmd DESTINATION ${CMAKE_BINARY_DIR}/lib)
 install(TARGETS LmdReco DESTINATION ${CMAKE_BINARY_DIR}/lib)
-#install(TARGETS MvdTrk DESTINATION ${CMAKE_BINARY_DIR}/lib)
+install(TARGETS LmdTrk DESTINATION ${CMAKE_BINARY_DIR}/lib)
 
