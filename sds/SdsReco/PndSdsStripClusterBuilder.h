@@ -39,7 +39,7 @@ class PndSdsStripClusterBuilder {
   void ClearDigis() {fSortedDigis.clear();} 
   virtual std::vector< PndSdsClusterStrip > SearchClusters() = 0; 
 
-  std::vector< PndSdsCluster >  GetClusters() const {return fClusters;}
+  std::vector< PndSdsClusterStrip >  GetClusters() const {return fClusters;}
   PndSdsClusterStrip GetCluster(Int_t i);
   PndSdsClusterStrip GetTopCluster(Int_t i);
   PndSdsClusterStrip GetBotCluster(Int_t i);

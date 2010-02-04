@@ -63,7 +63,7 @@ void PndSdsStripHitProducer::SetCalculators()
   // After the first start if the Init() tis can be set properly.
   
   TIter params(fDigiParameterList);
-  while(PndMvdStripDigiPar* digipar=(PndMvdStripDigiPar*)params()){
+  while(PndSdsStripDigiPar* digipar=(PndSdsStripDigiPar*)params()){
     if(0==digipar) {
       Error("SetCalculators()","A Digi Parameter Set does not exist properly.");
       continue;
@@ -74,9 +74,9 @@ void PndSdsStripHitProducer::SetCalculators()
       std::cout<<senstype<<"#"<<std::endl;
     }
     if(fVerbose>0)digipar->Print();
-    fStripCalcTop[senstype]=new PndMvdCalcStrip(digipar,kTOP);
+    fStripCalcTop[senstype]=new PndSdsCalcStrip(digipar,kTOP);
     fStripCalcTop[senstype]->SetVerboseLevel(fVerbose);
-    fStripCalcBot[senstype]=new PndMvdCalcStrip(digipar,kBOTTOM);
+    fStripCalcBot[senstype]=new PndSdsCalcStrip(digipar,kBOTTOM);
     fStripCalcBot[senstype]->SetVerboseLevel(fVerbose);
   }
     
@@ -253,10 +253,10 @@ void PndSdsStripHitProducer::AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, T
   if(found == kFALSE){//TODO: Simulate a timestamp
 	  std::vector<Int_t>indices;
 	  indices.push_back(iPoint);
-    new ((*fStripArray)[iStrip]) PndMvdDigiStrip(indices,detID,detname,fe,chan,charge, 0) ;
+    new ((*fStripArray)[iStrip]) PndSdsDigiStrip(indices,detID,detname,fe,chan,charge, 0) ;
     iStrip++;
   }
-
+}
 // -------------------------------------------------------------------------
 
 

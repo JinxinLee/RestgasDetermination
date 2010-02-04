@@ -107,15 +107,14 @@ class PndSdsStripHitProducer : public FairTask
   TClonesArray* fStripArray;
 
   //! Digitization Parameters
-  PndSdsStripDigiPar* fDigiParRect;
-  PndSdsStripDigiPar* fDigiParTrap;
+  TList* fDigiParameterList;
   PndSdsStripDigiPar* fCurrentDigiPar;
 
   //! Calculator objects
-  std::map<const char*,PndMvdCalcStrip*> fStripCalcTop;
-  std::map<const char*,PndMvdCalcStrip*> fStripCalcBot;
-  PndMvdCalcStrip* fCurrentStripCalcTop;
-  PndMvdCalcStrip* fCurrentStripCalcBot;
+  std::map<const char*,PndSdsCalcStrip*> fStripCalcTop;
+  std::map<const char*,PndSdsCalcStrip*> fStripCalcBot;
+  PndSdsCalcStrip* fCurrentStripCalcTop;
+  PndSdsCalcStrip* fCurrentStripCalcBot;
 
   void Register();
   void Reset();

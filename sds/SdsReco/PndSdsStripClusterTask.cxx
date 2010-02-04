@@ -139,9 +139,9 @@ InitStatus PndSdsStripClusterTask::Init()
 
   fChargeAlgos = new PndSdsChargeWeightingAlgorithms(fDigiArray);
 
-  std::cout << "-I- PnsSdsStripClusterTask: Initialisation successfull with these parameters:" << std::endl; 
+  std::cout << "-I- PndSdsStripClusterTask: Initialisation successfull with these parameters:" << std::endl; 
   TIter params(fDigiParameterList); 
-  while(PnsSdsStripDigiPar* digipar=(PnsSdsStripDigiPar*)params()){ 
+  while(PndSdsStripDigiPar* digipar=(PndSdsStripDigiPar*)params()){ 
     if(0!=digipar) { 
       digipar->Print(); 
     } 
@@ -346,14 +346,14 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
 }
 
 // ------------------------------------------------------------------------- 
-Bool_t PnsSdsStripClusterTask::SelectSensorParams(TString detname) 
+Bool_t PndSdsStripClusterTask::SelectSensorParams(TString detname) 
 { 
   TString detpath = fGeoH->GetPath(detname); 
   if( !(detpath.Contains("Strip")) ) 
     return kFALSE; 
    
   TIter parsetiter(fDigiParameterList); 
-  while ( PnsSdsStripDigiPar* digipar = (PnsSdsStripDigiPar*)parsetiter() )  
+  while ( PndSdsStripDigiPar* digipar = (PndSdsStripDigiPar*)parsetiter() )  
   { 
     const char* sensortype = digipar->GetSensType(); 
     if(detpath.Contains(sensortype))  { 
@@ -376,10 +376,10 @@ Bool_t PnsSdsStripClusterTask::SelectSensorParams(TString detname)
 // ------------------------------------------------------------------------- 
  
 // ------------------------------------------------------------------------- 
-void PnsSdsStripClusterTask::ResetClusterFinders() 
+void PndSdsStripClusterTask::ResetClusterFinders() 
 { 
   //recursively clean the digis in the clusterfinder objects each event 
-  for(std::map<const char*,PnsSdsStripClusterBuilder*>::iterator CFiter = fClusterFinderList.begin(); 
+  for(std::map<const char*,PndSdsStripClusterBuilder*>::iterator CFiter = fClusterFinderList.begin(); 
       CFiter != fClusterFinderList.end(); CFiter++) 
   { 
     (CFiter->second)->ClearDigis(); 

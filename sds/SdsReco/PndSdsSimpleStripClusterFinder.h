@@ -30,7 +30,7 @@ class PndSdsSimpleStripClusterFinder : public PndSdsStripClusterBuilder {
   PndSdsSimpleStripClusterFinder(Int_t rad);
   ~PndSdsSimpleStripClusterFinder();
 
-  std::vector< PndSdsCluster > SearchClusters();
+  std::vector< PndSdsClusterStrip > SearchClusters();
   void SetSearchRadius(Int_t rad=0) {fRadius=rad;};
 
 private:

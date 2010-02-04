@@ -78,7 +78,7 @@ void PndSdsDetector::Initialize()
 
 
 //overwrite virtual method of FairDetector
-void PndMvdDetector::SetSpecialPhysicsCuts()
+void PndSdsDetector::SetSpecialPhysicsCuts()
 {
   // Switched off. 
   return;
