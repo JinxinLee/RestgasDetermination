@@ -1,0 +1,65 @@
+#include "PndDetectorList.h"
+#include "PndPidCorrelator.h"
+#include "PndPidCandidate.h"
+#include "PndTrack.h"
+#include "PndTrackID.h"
+#include "PndSttHelixHit.h"
+
+#include "FairTrackParH.h"
+#include "FairMCApplication.h"
+#include "FairRunAna.h"
+#include "FairRootManager.h"
+#include "FairRuntimeDb.h"
+
+#include "TObjArray.h"
+#include "TVector3.h"
+#include "TGeoMatrix.h"
+#include "TGeoBBox.h"
+#include "TGeoManager.h"
+
+#include <cmath>
+
+#include "PndPidCorrelator.h"
+
+//_________________________________________________________________
+void PndPidCorrelator::GetSttInfo(PndTrack* track, PndPidCandidate* pidCand) {
+ 
+  std::vector<Double_t> dedxvec;
+  dedxvec.clear();
+  
+  Int_t sttCounts = 0;
+  PndTrackCand trackCand = track->GetTrackCand();
+  for (Int_t ii=0; ii<trackCand.GetNHits(); ii++)
+    {
+      PndSttHelixHit *sttHit = NULL;
+      PndTrackCandHit candHit = trackCand.GetSortedHit(ii);
+      if (candHit.GetDetId()!=kSttHelixHit) continue;
+      sttHit = (PndSttHelixHit*)fSttHit->At(candHit.GetHitId());
+      if (sttHit->GetdEdx() != 0.) 
+	{
+	  dedxvec.push_back(sttHit->GetdEdx());
+	  sttCounts++;
+	}
+    }
+  
+  if( sttCounts > 0) {
+    // truncated mean
+    Double_t perc = 0.60;
+    // sort
+    std::sort(dedxvec.begin(), dedxvec.end());
+    
+    //truncated mean
+    Double_t sum = 0;
+    Int_t endnum = int(floor(sttCounts * perc));
+    
+    for(Int_t m = 0; m < endnum; m++) sum += dedxvec[m];
+    
+    if(endnum > 0) {
+      pidCand->SetSttMeanDEDX(sum/(Double_t) endnum);
+      
+    }
+  }
+  pidCand->SetSttHits(sttCounts);
+}
+
+ClassImp(PndPidCorrelator)

@@ -92,7 +92,8 @@ protected:
  
   void GetTrackInfo(PndTrack* track, PndPidCandidate* pid); 
   void GetMvdInfo  (PndTrack* track, PndPidCandidate* pid); 
-  void GetSttInfo  (PndTrack* track, PndPidCandidate* pid); 
+  void GetSttInfo  (PndTrack* track, PndPidCandidate* pid);  
+  void GetTpcInfo  (PndTrack* track, PndPidCandidate* pid); 
   void GetTofInfo  (FairTrackParH* helix, PndPidCandidate* pid); 
   void GetEmcInfo  (FairTrackParH* helix, PndPidCandidate* pid); 
   void GetMdtInfo  (FairTrackParH* helix, PndPidCandidate* pid);   

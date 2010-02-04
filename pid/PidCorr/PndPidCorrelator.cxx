@@ -10,9 +10,6 @@
 #include "PndEmcDigi.h"
 #include "PndEmcStructure.h"
 #include "PndEmcXtal.h"
-#include "PndMvdHit.h"
-#include "PndSttHit.h"
-#include "PndSttHelixHit.h"
 #include "PndMdtPoint.h"
 #include "PndMdtHit.h"
 #include "PndMdtTrk.h"
@@ -27,7 +24,6 @@
 #include "TObjArray.h"
 #include "TVector3.h"
 #include "TGeoMatrix.h"
-#include "TGeoBBox.h"
 #include "TGeoManager.h"
 
 #include <cmath>
@@ -357,6 +353,7 @@ void PndPidCorrelator::ConstructChargedCandidate() {
     pidCand->SetTrackIndex(i);
     GetTrackInfo(track, pidCand);
     GetMvdInfo(track, pidCand); 
+    //GetTpcInfo(track, pidCand); 
     if ( (fSttMode==3) && (fSttHit    ->GetEntriesFast()>0) ) GetSttInfo(track, pidCand);
     if ( (fTofMode==2) && (fTofHit    ->GetEntriesFast()>0) ) GetTofInfo(helix, pidCand);
     if ( (fEmcMode>0)  && (fEmcCluster->GetEntriesFast()>0) ) GetEmcInfo(helix, pidCand);
@@ -422,188 +419,6 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
 	}
       AddNeutralCandidate(pidCand);
     }
-}
-//_________________________________________________________________
-void PndPidCorrelator::GetTrackInfo(PndTrack* track, PndPidCandidate* pidCand) 
-{
-  Int_t charge =   TMath::Sign(1, track->GetParamFirst().GetQ());
-  pidCand->SetCharge(charge);
-     
-  TVector3 first(track->GetParamFirst().GetX(),
-		 track->GetParamFirst().GetY(),
-		 track->GetParamFirst().GetZ());
-  TVector3 last(track->GetParamLast().GetX(),
-		track->GetParamLast().GetY(),
-		track->GetParamLast().GetZ());
-  FairTrackParP par = track->GetParamFirst();
-  Int_t ierr = 0;
-  FairTrackParH *helix = new FairTrackParH(&par, ierr);
-  TVector3 momentum, vertex;
-  Float_t energy = TMath::Sqrt(momentum.Mag2()+0.13957*0.13957); // Pion hypothesis
-  
-  if (fGeanePro) // Overwrites vertex if Geane is used
-    {
-      FairGeanePro *fPro0 = new FairGeanePro();
-      FairTrackParH *fRes= new FairTrackParH();
-      fPro0->SetPoint(TVector3(0,0,0));
-      fPro0->PropagateToPCA(1, -1);
-      Bool_t rc =  fPro0->Propagate(helix, fRes, -13*charge);	
-      if (rc)
-	{
-	  vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
-	  momentum = fRes->GetMomentum();
-          FairTrackParP *fParab = new FairTrackParP(fRes, TVector3(1.,0.,0.), TVector3(0.,1.,0.), ierr);
-          Double_t globalCov[6][6];
-	  fParab->GetMARSCov(globalCov);
-	  TMatrixD mat(7,7);
-	  Int_t ii,jj;
-	  for (ii=0;ii<6;ii++) for(jj=0;jj<6;jj++) mat[ii][jj]=globalCov[ii][jj];
-
-          energy = TMath::Sqrt(fParab->GetMomentum().Mag2()+0.13957*0.13957);
-          //Extend matrix for energy (with default pion hypothesis) -> Klaus Goetzen
-          Double_t invE = 1./(energy);
-          mat[0+3][3+3] = mat[3+3][0+3] =
-(fRes->GetX()*mat[0+3][0+3]+fRes->GetY()*mat[0+3][1+3]+fRes->GetZ()*mat[0+3][2+3])*invE;
-          mat[1+3][3+3] = mat[3+3][1+3] =
-(fRes->GetX()*mat[0+3][1+3]+fRes->GetY()*mat[1+3][1+3]+fRes->GetZ()*mat[1+3][2+3])*invE;
-          mat[2+3][3+3] = mat[3+3][2+3] =
-(fRes->GetX()*mat[0+3][2+3]+fRes->GetY()*mat[1+3][2+3]+fRes->GetZ()*mat[2+3][2+3])*invE;
-          mat[3+3][3+3] =
-(fRes->GetX()*fRes->GetX()*mat[0+3][0+3]+fRes->GetY()*fRes->GetY()*mat[1+3][1+3]+fRes->GetZ()*fRes->GetZ()*mat[2+3][2+3]
-		  	+2.0*fRes->GetX()*fRes->GetY()*mat[0+3][1+3]
-	  		+2.0*fRes->GetX()*fRes->GetZ()*mat[0+3][2+3]
-  			+2.0*fRes->GetY()*fRes->GetZ()*mat[1+3][2+3])*invE*invE;
-			
-          mat[3+3][4-4] = mat[4-4][3+3] =
-(fRes->GetX()*mat[0+3][4-4]+fRes->GetY()*mat[1+3][4-4]+fRes->GetZ()*mat[2+3][4-4])*invE;
-          mat[3+3][5-4] = mat[5-4][3+3] =
-(fRes->GetX()*mat[0+3][5-4]+fRes->GetY()*mat[1+3][5-4]+fRes->GetZ()*mat[2+3][5-4])*invE;
-          mat[3+3][6-4] = mat[6-4][3+3] =
-(fRes->GetX()*mat[0+3][6-4]+fRes->GetY()*mat[1+3][6-4]+fRes->GetZ()*mat[2+3][6-4])*invE;
-
-          pidCand->SetCov7(mat);
-	}
-      else
-	{
-	  vertex.SetXYZ(-10000., -10000., -10000.);
-	}
-    }
-  pidCand->SetPosition(vertex);
-  pidCand->SetMomentum(momentum);
-  pidCand->SetEnergy(energy);
-  pidCand->SetFirstHit(first);
-  pidCand->SetLastHit(last);
-  //pidCand->SetMcIndex(); // ??? dummy, for the moment
-  
-  pidCand->SetDegreesOfFreedom(track->GetNDF());
-  pidCand->SetFitStatus(track->GetFlag());
-  pidCand->SetChiSquared(track->GetChi2());
-}
-
-//_________________________________________________________________
-void PndPidCorrelator::GetMvdInfo(PndTrack* track, PndPidCandidate* pidCand) 
-{
-  Float_t mvdELoss = 0.; // total energy lost in MVD;
-  Float_t mvdPath = 0.;  // total thickness crossed in MVD
-  Int_t mvdCounts = 0;
-  PndTrackCand trackCand = track->GetTrackCand();
-  for (Int_t ii=0; ii<trackCand.GetNHits(); ii++)
-    {
-      PndMvdHit *mvdHit = NULL;
-      PndTrackCandHit candHit = trackCand.GetSortedHit(ii);
-      if ( (candHit.GetDetId()!=kMVDHitsPixel) && (candHit.GetDetId()!=kMVDHitsStrip) ) continue;
-      
-      if (candHit.GetDetId()==kMVDHitsPixel) mvdHit = (PndMvdHit*)fMvdHitsPixel->At(candHit.GetHitId());
-      if (candHit.GetDetId()==kMVDHitsStrip) mvdHit = (PndMvdHit*)fMvdHitsStrip->At(candHit.GetHitId());
-      TVector3 mvdPos;
-      mvdHit->Position(mvdPos);
-      mvdCounts++;
-      TGeoNode *mvdNode = (TGeoNode*)gGeoManager->FindNode(mvdHit->GetX(), mvdHit->GetY(), mvdHit->GetZ());
-      TGeoVolume *mvdVol = (TGeoVolume*)mvdNode->GetVolume();
-      TGeoBBox* actBox = (TGeoBBox*)(mvdVol->GetShape()); // volume of the MVD strip/pixel
-      TGeoMatrix* mvdGeoRot = (TGeoMatrix*)mvdNode->GetMatrix();
-      const Double_t *rotM = mvdGeoRot->GetRotationMatrix();
-      TVector3 zaxis(rotM[2], rotM[5], rotM[8]); // Z axis in the detector frame
-      TVector3 momentum(0., 0., 0.);
-      FairTrackParP par = track->GetParamLast();
-      Int_t ierr = 0;
-      FairTrackParH *helix = new FairTrackParH(&par, ierr);
-      Double_t cos = 0.;
-      if (fGeanePro) 
-    	{
-	  FairGeanePro *fProMvd = new FairGeanePro();
-	  fProMvd->SetPoint(mvdPos);
-	  fProMvd->PropagateToPCA(1, -1);
-	  FairTrackParH *fRes= new FairTrackParH();
-          Bool_t rc =  fProMvd->Propagate(helix, fRes, -13*pidCand->GetCharge()); // First propagation at module
-          if (rc)
-	    {
-	      cos = TMath::Cos(fRes->GetMomentum().Angle(zaxis)); 
-	    }
-	  else
-	    {
-	      cos = 0.;
-	    }
-	}
-      Float_t thickness = 0.;
-      
-      if (fabs(cos)<0.000001)
-	{
-	  cout << "-W- PndPidCorrelator::GetMvdInfo: Track perpendicular to MVD strip/pixel! Not added to MVD eloss" << endl;     
-	}
-      else
-	{
-	  thickness = actBox->GetDZ()*2./fabs(cos);
-	  mvdELoss += mvdHit->GetEloss();
-	  mvdPath += thickness;
-	  fMvdHitCount++;
-	}
-      if (fVerbose) cout << mvdHit->GetDetName() << "\t" << mvdHit->GetEloss() << "\t" << thickness << endl;
-    }
-  
-  if (mvdPath>0.) pidCand->SetMvdDEDX(mvdELoss/mvdPath);
-  pidCand->SetMvdHits(mvdCounts);
-}
-
-//_________________________________________________________________
-void PndPidCorrelator::GetSttInfo(PndTrack* track, PndPidCandidate* pidCand) {
- 
-  std::vector<Double_t> dedxvec;
-  dedxvec.clear();
-  
-  Int_t sttCounts = 0;
-  PndTrackCand trackCand = track->GetTrackCand();
-  for (Int_t ii=0; ii<trackCand.GetNHits(); ii++)
-    {
-      PndSttHelixHit *sttHit = NULL;
-      PndTrackCandHit candHit = trackCand.GetSortedHit(ii);
-      if (candHit.GetDetId()!=kSttHelixHit) continue;
-      sttHit = (PndSttHelixHit*)fSttHit->At(candHit.GetHitId());
-      if (sttHit->GetdEdx() != 0.) 
-	{
-	  dedxvec.push_back(sttHit->GetdEdx());
-	  sttCounts++;
-	}
-    }
-  
-  if( sttCounts > 0) {
-    // truncated mean
-    Double_t perc = 0.60;
-    // sort
-    std::sort(dedxvec.begin(), dedxvec.end());
-    
-    //truncated mean
-    Double_t sum = 0;
-    Int_t endnum = int(floor(sttCounts * perc));
-    
-    for(Int_t m = 0; m < endnum; m++) sum += dedxvec[m];
-    
-    if(endnum > 0) {
-      pidCand->SetSttMeanDEDX(sum/(Double_t) endnum);
-      
-    }
-  }
-  //pidCand->SetSttHits(sttCounts);
 }
 
 //_________________________________________________________________

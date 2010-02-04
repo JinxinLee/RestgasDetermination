@@ -56,6 +56,10 @@ PidData/PndPidCandidate.cxx
 PidData/PndPidProbability.cxx
 PidCorr/PndPidCorrPar.cxx
 PidCorr/PndPidCorrelator.cxx
+PidCorr/PndPidTrackInfo.cxx
+PidCorr/PndPidMvdInfo.cxx
+PidCorr/PndPidSttInfo.cxx
+PidCorr/PndPidTpcInfo.cxx
 PndPidContFact.cxx
 
 # ######### Classifiers sources
