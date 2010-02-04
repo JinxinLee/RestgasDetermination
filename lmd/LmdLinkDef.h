@@ -26,18 +26,18 @@
 
 //digi
 //#pragma link C++ class PndLmdHybridHitProducer+;
-//#pragma link C++ class PndLmdStripHitProducer+;
+#pragma link C++ class PndLmdStripHitProducer+;
 //#pragma link C++ class PndLmdCalcPixel;
 //#pragma link C++ class PndLmdCalcFePixel;
 //#pragma link C++ class PndLmdCalcStrip;
-/*#pragma link C++ class PndLmdDigiTask+;
-#pragma link C++ class PndLmdPixelDigiPar+;
+#pragma link C++ class PndLmdDigiTask+;
+/*#pragma link C++ class PndLmdPixelDigiPar+;
 #pragma link C++ class PndLmdStripDigiPar+;
-#pragma link C++ class PndLmdDigiAna+;
+#pragma link C++ class PndLmdDigiAna+;*/
 #pragma link C++ class PndLmdHitProducerIdeal+;
 #pragma link C++ class PndLmdNoiseProducer+;
 
-#pragma link C++ class PndLmdGeoHandling+;*/
+//#pragma link C++ class PndLmdGeoHandling+;
 //#pragma link C++ class PndMvdCalcFePixel+;
 
 /*#pragma link C++ class PndMvdMCEventAna+;

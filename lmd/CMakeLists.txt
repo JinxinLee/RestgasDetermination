@@ -20,8 +20,9 @@ ${CMAKE_SOURCE_DIR}/sds/SdsMC
 ${CMAKE_SOURCE_DIR}/sds/SdsDigi
 ${CMAKE_SOURCE_DIR}/sds/SdsReco
 ${CMAKE_SOURCE_DIR}/sds/SdsTools
-${CMAKE_SOURCE_DIR}/lmd/LmdMC
 ${CMAKE_SOURCE_DIR}/lmd
+${CMAKE_SOURCE_DIR}/lmd/LmdMC
+${CMAKE_SOURCE_DIR}/lmd/LmdDigi
 ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/recotasks
 ${CMAKE_SOURCE_DIR}/trackbase
@@ -49,10 +50,10 @@ set(LMD_SRCS
 #MvdDigi/PndMvdCalcStrip.cxx
 #MvdDigi/PndMvdDigiAna.cxx
 #MvdDigi/PndMvdHybridHitProducer.cxx
-#MvdDigi/PndMvdStripHitProducer.cxx
-#MvdDigi/PndMvdHitProducerIdeal.cxx
-#MvdDigi/PndMvdDigiTask.cxx
-#MvdDigi/PndMvdNoiseProducer.cxx
+LmdDigi/PndLmdStripHitProducer.cxx
+LmdDigi/PndLmdHitProducerIdeal.cxx
+LmdDigi/PndLmdDigiTask.cxx
+LmdDigi/PndLmdNoiseProducer.cxx
 
 LmdMC/PndLmdDetector.cxx
 

@@ -58,7 +58,7 @@ void PndLmdDetector::SetBranchNames(TString outBranchname, TString folderName)
 void PndLmdDetector::SetBranchNames()
 {
   fOutBranchName = "LMDPoint";
-  fFolderName = "LMD";
+  fFolderName = "PndLmd";
 }
 
 // -----   Destructor   ----------------------------------------------------
