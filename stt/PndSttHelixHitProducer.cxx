@@ -175,9 +175,16 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
       PndTrackCandHit candhit = pTrackCand->GetSortedHit(k);
       Int_t iHit = candhit.GetHitId();
       PndSttHit *currenthit = (PndSttHit*) fHitArray->At(iHit);
+      if(!currenthit) { cout << "PndSttHelixHitProducer::Exec: no hit at " << iHit << endl;  continue; }
+
       Int_t refindex = currenthit->GetRefIndex(); 
       // get point
       PndSttPoint *iPoint = (PndSttPoint*) fPointArray->At(refindex);
+      if(!iPoint)  {
+	if(!iPoint) { cout << "PndSttHelixHitProducer::Exec: no point at " << refindex << " associated to hit " << iHit << endl;  continue; }
+
+	continue; 
+      }
 
       TClonesArray& clref = *fHelixHitArray;
       Int_t size = clref.GetEntriesFast();

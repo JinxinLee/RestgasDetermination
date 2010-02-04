@@ -255,12 +255,13 @@ Int_t PndSttHelixTrackFitter::XYFit(PndTrackCand* pTrackCand, Int_t whatToFit) {
     PndTrackCandHit candhit = pTrackCand->GetSortedHit(k);
     Int_t iHit = candhit.GetHitId();
     PndSttHit *currenthit = (PndSttHit*) fHitArray->At(iHit);
-    if(!currenthit) continue;
+    if(!currenthit) { cout << "PndSttHelixTrackFitter::XYFit: no hit at " << iHit << endl;  continue; }
 
     if(currenthit->GetXint() == -999 || currenthit->GetYint() == -999) continue;
     Int_t refindex = currenthit->GetRefIndex(); 
     // get point
     PndSttPoint *iPoint = (PndSttPoint*) fPointArray->At(refindex);
+    if(!iPoint) { cout << "PndSttHelixTrackFitter::XYFit: no point at " << refindex << " associated to hit " << iHit << endl;  continue; }
     PndSttHit *hitfirst, *hitlast;
 
     TVector3 wiredirection(iPoint->GetXWireDirection(), iPoint->GetYWireDirection(), iPoint->GetZWireDirection());
@@ -313,12 +314,12 @@ Int_t PndSttHelixTrackFitter::XYFit(PndTrackCand* pTrackCand, Int_t whatToFit) {
     PndTrackCandHit candhit = pTrackCand->GetSortedHit(i);
     Int_t iHit = candhit.GetHitId();
     PndSttHit *currenthit = (PndSttHit*) fHitArray->At(iHit);
-    if(!currenthit) continue;
+    if(!currenthit) { cout << "PndSttHelixTrackFitter::XYFit: no hit at " << iHit << endl;  continue; }
     if(currenthit->GetXint() == -999 || currenthit->GetYint() == -999) continue;
     Int_t refindex = currenthit->GetRefIndex(); 
     // get point
     PndSttPoint *iPoint = (PndSttPoint*) fPointArray->At(refindex);
-    
+    if(!iPoint) { cout << "PndSttHelixTrackFitter::XYFit: no point at " << refindex << " associated to hit " << iHit << endl;  continue; }
     TVector3 wiredirection(iPoint->GetXWireDirection(), iPoint->GetYWireDirection(), iPoint->GetZWireDirection());
     if(wiredirection != TVector3(0.,0.,1.)) continue;
     
@@ -688,11 +689,14 @@ Bool_t PndSttHelixTrackFitter::IntersectionFinder(PndTrackCand *pTrackCand)
     Int_t iHit = candhit.GetHitId();
    
     PndSttHit *pMhit = (PndSttHit*) fHitArray->At(iHit);
-    if (!pMhit ) continue;
+    if (!pMhit ) { cout << "PndSttHelixTrackFitter::IntersectionFinder: no hit at " << iHit << endl;  continue; }
 
     Int_t refindex = pMhit->GetRefIndex(); 
     // get point
     PndSttPoint *iPoint = (PndSttPoint*) fPointArray->At(refindex);
+    if (!iPoint ) { cout << "PndSttHelixTrackFitter::IntersectionFinder: no point at " << refindex << " associated  to hit " << iHit << endl;  continue; }
+
+
     TVector3 wiredirection(iPoint->GetXWireDirection(), iPoint->GetYWireDirection(), iPoint->GetZWireDirection());
     
     if(wiredirection != TVector3(0.,0.,1.)) continue;
@@ -853,13 +857,13 @@ Bool_t PndSttHelixTrackFitter::ZFinder(PndTrackCand* pTrackCand, Int_t whatToFit
    
     // get hit
     PndSttHit *pMhit = (PndSttHit*) fHitArray->At(iHit);
-   
-  if(pMhit == NULL) continue;
- 
+    if (!pMhit ) { cout << "PndSttHelixTrackFitter::ZFinder: no hit at " << iHit << endl;  continue; }
 
     Int_t refindex = pMhit->GetRefIndex(); 
     // get point
     PndSttPoint *iPoint = (PndSttPoint*) fPointArray->At(refindex);
+    if (!iPoint ) { cout << "PndSttHelixTrackFitter::ZFinder: no point at " << refindex << " associated  to hit " << iHit << endl;  continue; }
+
     TVector3 wiredirection(iPoint->GetXWireDirection(), iPoint->GetYWireDirection(), iPoint->GetZWireDirection());
     TVector3 wiredirection2;
 
@@ -1182,10 +1186,14 @@ Bool_t PndSttHelixTrackFitter::ZFinder(PndTrackCand* pTrackCand, Int_t whatToFit
     
     // get hit
     PndSttHit *pMhit = (PndSttHit*) fHitArray->At(iHit);
-     
+    if (!pMhit ) { cout << "PndSttHelixTrackFitter::ZFinder: no hit at " << iHit << endl;  continue; }
+
     Int_t refindex = pMhit->GetRefIndex(); 
     // get point
     PndSttPoint *iPoint = (PndSttPoint*) fPointArray->At(refindex);
+    if (!iPoint ) { cout << "PndSttHelixTrackFitter::ZFinder: no point at " << refindex << " associated to hit " << iHit << endl;  continue; }
+
+
     TVector3 wiredirection(iPoint->GetXWireDirection(), iPoint->GetYWireDirection(), iPoint->GetZWireDirection());
 
   
@@ -1294,6 +1302,7 @@ Int_t PndSttHelixTrackFitter::ZFit(PndTrackCand* pTrackCand, Int_t whatToFit) {
   // SCOSL ======
   // get 1st hit
   PndSttHit *fMhit = (PndSttHit*) fHitArray->At(pTrackCand->GetSortedHit(0).GetHitId());
+ 
 
   Double_t Sxx, Sx, Sz, Sxz, S1z;
   Double_t Detz = 0.;
@@ -1322,14 +1331,16 @@ Int_t PndSttHelixTrackFitter::ZFit(PndTrackCand* pTrackCand, Int_t whatToFit) {
    
     // get hit
     PndSttHit *pMhit = (PndSttHit*) fHitArray->At(iHit);
-    if ( ! pMhit ) continue;
+    if (!pMhit ) { cout << "PndSttHelixTrackFitter::ZFit: no hit at " << iHit << endl;  continue; }
 
     if(pMhit->GetXint() == -999 || pMhit->GetYint() == -999 || pMhit->GetZint() == -999) continue; // CHECK
 
     Int_t refindex = pMhit->GetRefIndex(); 
     // get point
     PndSttPoint *iPoint = (PndSttPoint*) fPointArray->At(refindex);
-    TVector3 wiredirection(iPoint->GetXWireDirection(), iPoint->GetYWireDirection(), iPoint->GetZWireDirection());
+    if (!iPoint ) { cout << "PndSttHelixTrackFitter::ZFit: no point at " << refindex << " associated to hit " << iHit << endl;  continue; }
+
+  TVector3 wiredirection(iPoint->GetXWireDirection(), iPoint->GetYWireDirection(), iPoint->GetZWireDirection());
     
     if(wiredirection == TVector3(0.,0.,1.)) continue;
     //    if(pMhit->GetZ() != 35) continue; // for the moment I throw away short tubes 
@@ -1509,7 +1520,7 @@ Int_t PndSttHelixTrackFitter::SetUpFitVector(PndTrackCand* pTrackCand, TMatrixT<
       Int_t iHit = candhit.GetHitId();
    
       currenthit = (PndSttHit*) fHitArray->At(iHit);
-      if(!currenthit) continue;
+      if(!currenthit) { cout << "PndSttHelixTrackFitter::SetUpFitVector: no hit at " << iHit << endl;  continue; }
       
       if(currenthit->GetWireDirection() != TVector3(0.,0.,1.)) continue;
       if(currenthit->GetXint() == -999 || currenthit->GetYint() == -999)  continue;

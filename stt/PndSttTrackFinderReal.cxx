@@ -10,6 +10,7 @@
 #include "PndSttHit.h"
 #include "PndSttPoint.h"
 #include "PndTrackCand.h"
+#include "PndDetectorList.h"
 #include  <cmath>
 #include "FairMCPoint.h"
 #include "FairRootManager.h"
@@ -1361,7 +1362,7 @@ for(int jca=0; jca<nMCTracks;jca++){
        Double_t Pxini = Ptras*Oy[i]/dista;
        Double_t Pyini = -Ptras*Ox[i]/dista;
 
-         UShort_t SttDetID=3;
+         UShort_t SttDetID=kSTT;
 
          new((*trackArray)[ipinco])  PndTrackCand;
          PndTrackCand *pTrckCand = (PndTrackCand*) (*trackArray)[ipinco];
