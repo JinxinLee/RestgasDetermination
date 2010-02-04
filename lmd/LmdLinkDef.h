@@ -8,12 +8,9 @@
 
 
 //data
-/*#pragma link C++ class PndSdsMCPoint+;
+#pragma link C++ class PndSdsMCPoint+;
 #pragma link C++ class PndSdsDigi+;
-#pragma link C++ class PndSdsDigiPixel+;
-#pragma link C++ class PndSdsPixel+;
 #pragma link C++ class PndSdsStrip+;
-#pragma link C++ class PndSdsApvHit+;*/
 
 //SDS
 #pragma link C++ class PndSdsDetector+;

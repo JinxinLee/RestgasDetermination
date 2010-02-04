@@ -83,7 +83,7 @@ InitStatus PndLmdLinFitTask::Init()
     }
 
   fTrackArray = new TClonesArray("PndLinTrack");
-  ioman->Register("DMLTrack", "DML", fTrackArray, kTRUE);
+  ioman->Register("LMDTrack", "PndLmd", fTrackArray, kTRUE);
 
   std::cout << "-I- PndLmdLinFitTask: Initialisation successfull" << std::endl;
 

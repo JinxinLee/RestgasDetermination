@@ -23,6 +23,7 @@ class PndLmdStripClusterTask : public PndSdsStripClusterTask
 
   virtual void SetBranchNames(TString inBranchname, TString outHitBranchname, TString outClustBranchname, TString folderName);
   virtual void SetBranchNames();
+  virtual void SetParContainers();
 
   ClassDef(PndLmdStripClusterTask,2);
 

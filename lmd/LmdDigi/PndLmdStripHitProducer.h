@@ -18,6 +18,8 @@ class PndLmdStripHitProducer : public PndSdsStripHitProducer
   virtual void SetBranchNames(TString inBranchname, TString outBranchname, TString folderName);
   virtual void SetBranchNames();
 
+  virtual void SetParContainers();
+
   ClassDef(PndLmdStripHitProducer,65);
 
 };
