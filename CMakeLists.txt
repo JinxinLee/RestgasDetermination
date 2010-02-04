@@ -142,6 +142,7 @@ add_subdirectory(lumi)
 add_subdirectory (pid)
 add_subdirectory (endrc)
 #add_subdirectory (PndMCMatch)
+add_subdirectory (global)
 
 if(RULE_CHECKER_FOUND)
 
