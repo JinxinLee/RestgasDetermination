@@ -23,6 +23,7 @@ ${CMAKE_SOURCE_DIR}/sds/SdsTools
 ${CMAKE_SOURCE_DIR}/lmd
 ${CMAKE_SOURCE_DIR}/lmd/LmdMC
 ${CMAKE_SOURCE_DIR}/lmd/LmdDigi
+${CMAKE_SOURCE_DIR}/lmd/LmdReco
 ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/recotasks
 ${CMAKE_SOURCE_DIR}/trackbase
@@ -97,8 +98,8 @@ add_library(Lmd SHARED ${LMD_SRCS})
 target_link_libraries(Lmd ${ROOT_LIBRARIES})
 set_target_properties(Lmd PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 
-########################### create libMvdReco ##################################
-#set(MVDRECO_SRCS
+########################### create libLmdReco ##################################
+set(LMDRECO_SRCS
 
 
 ##MvdReco/PndMvdRecoTask.cxx
@@ -107,40 +108,40 @@ set_target_properties(Lmd PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 ##MvdReco/PndMvdSimplePixelClusterFinder.cxx
 ##MvdReco/PndMvdIdealPixelClusterFinder.cxx
 #MvdReco/PndMvdPixelClusterTask.cxx
-#MvdReco/PndMvdIdealClusterTask.cxx
+LmdReco/PndLmdIdealClusterTask.cxx
 ##MvdReco/PndMvdPixelBackMapping.cxx
 ##MvdReco/PndMvdChargeWeightedPixelMapping.cxx
 ##MvdReco/PndMvdStripClusterBuilder.cxx
 ##MvdReco/PndMvdSimpleStripClusterFinder.cxx
 ##MvdReco/PndMvdStripClusterFinder.cxx
-#MvdReco/PndMvdStripClusterTask.cxx
-#MvdReco/PndMvdIdealRecoTask.cxx
+LmdReco/PndLmdStripClusterTask.cxx
+LmdReco/PndLmdIdealRecoTask.cxx
 ##MvdReco/PndMvdChargeWeightingAlgorithms.cxx
 
 #MvdTools/PndMvdRadDamList.cxx
 #MvdTools/PndMvdRadDamTask.cxx
 #MvdTools/PndMvdAnaRadDam.cxx
 
-#)
-#set (MVD_RULECHECKER_SRCS ${MVD_RULECHECKER_SRCS} ${MVDRECO_SRCS})
+)
+set (LMD_RULECHECKER_SRCS ${LMD_RULECHECKER_SRCS} ${LMDRECO_SRCS})
 
-##if(RULE_CHECKER_FOUND)
-##  CHECK_RULES("${MVD_RULECHECKER_SRCS}" "${INCLUDE_DIRECTORIES}" MVD_RULES)
-##endif(RULE_CHECKER_FOUND)
+#if(RULE_CHECKER_FOUND)
+#  CHECK_RULES("${MVD_RULECHECKER_SRCS}" "${INCLUDE_DIRECTORIES}" MVD_RULES)
+#endif(RULE_CHECKER_FOUND)
 
 
-## fill list of header files from list of source files
-## by exchanging the file extension
-#CHANGE_FILE_EXTENSION(*.cxx *.h MVDRECO_HEADERS "${MVDRECO_SRCS}")
-#set(MVDRECO_LINKDEF  MvdRecoLinkDef.h)
-#set(MVDRECO_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/MvdRecoDict.cxx)
+# fill list of header files from list of source files
+# by exchanging the file extension
+CHANGE_FILE_EXTENSION(*.cxx *.h LMDRECO_HEADERS "${LMDRECO_SRCS}")
+set(LMDRECO_LINKDEF  LmdRecoLinkDef.h)
+set(LMDRECO_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/LmdRecoDict.cxx)
 
-#ROOT_GENERATE_DICTIONARY("${MVDRECO_HEADERS}" "${MVDRECO_LINKDEF}" "${MVDRECO_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
-#SET(MVDRECO_SRCS ${MVDRECO_SRCS} ${MVDRECO_DICTIONARY})
+ROOT_GENERATE_DICTIONARY("${LMDRECO_HEADERS}" "${LMDRECO_LINKDEF}" "${LMDRECO_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
+SET(LMDRECO_SRCS ${LMDRECO_SRCS} ${LMDRECO_DICTIONARY})
 
-#add_library(MvdReco SHARED ${MVDRECO_SRCS})
-#target_link_libraries(MvdReco ${ROOT_LIBRARIES})
-#set_target_properties(MvdReco PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
+add_library(LmdReco SHARED ${LMDRECO_SRCS})
+target_link_libraries(LmdReco ${ROOT_LIBRARIES})
+set_target_properties(LmdReco PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 
 ########################### create libMvdTrk ##################################
 #set(MVDTRK_SRCS
@@ -193,6 +194,6 @@ set_target_properties(Lmd PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 
 ################################## install #####################################
 install(TARGETS Lmd DESTINATION ${CMAKE_BINARY_DIR}/lib)
-#install(TARGETS MvdReco DESTINATION ${CMAKE_BINARY_DIR}/lib)
+install(TARGETS LmdReco DESTINATION ${CMAKE_BINARY_DIR}/lib)
 #install(TARGETS MvdTrk DESTINATION ${CMAKE_BINARY_DIR}/lib)
 
