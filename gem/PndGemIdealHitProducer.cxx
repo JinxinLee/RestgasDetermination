@@ -27,6 +27,7 @@
 #include "TGeoManager.h"
 #include "TGeoNode.h"
 
+#include "PndDetectorList.h"
 #include "PndGemIdealHitProducer.h"
 
 #include "PndGemMCPoint.h"
@@ -187,7 +188,7 @@ void PndGemIdealHitProducer::Exec(Option_t* opt) {
     if ( dr > sigma ) sigma = dr;
     TVector3 dpos(sigma, sigma, sensor->GetD());
 
-    new ((*fHitArray)[nofHits++]) PndGemHit(1,//sensor->GetDetectorId(),
+    new ((*fHitArray)[nofHits++]) PndGemHit(kGemHit,
 					    (currentPndGemMCPoint->GetDetName()).Data(), 
 					    pos, dpos,  
 					    -1, -1, dr, dp, iPoint);

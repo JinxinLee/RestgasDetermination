@@ -103,7 +103,7 @@ PndGemKalmanTask::Init()
     Error("PndGemKalmanTask::Init","GEMHit array not found");
   } else {
     fTheRecoHitFactory->addProducer
-      (kGEM,new GFRecoHitProducer<PndGemHit,PndGemRecoHit>(hitar));
+      (kGemHit,new GFRecoHitProducer<PndGemHit,PndGemRecoHit>(hitar));
   }
 
   // setup histograms

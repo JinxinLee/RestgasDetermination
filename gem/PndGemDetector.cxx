@@ -130,7 +130,7 @@ Bool_t  PndGemDetector::ProcessHits(FairVolume* vol)
       }*/
       if (fVerboseLevel > 1){
         std::cout << "*******  Info from gMC *************" << std::endl;
-        std::cout << "Hit in " << gMC->CurrentVolPath() << " with MCiD: " << vol->getMCid() << " PixelDetectorID: " << fVolumeID << std::endl;
+        std::cout << "Hit in " << gMC->CurrentVolPath() << " with MCiD: " << vol->getMCid() << " PixelDetectorID: " << kGEM << std::endl;
 //         std::cout<<"VolumeID: "<<fGeoH->GetID(gMC->CurrentVolPath())<<std::endl;
         std::cout << "PosIn: " << fPosIn.X() << " " << fPosIn.Y() << " " << fPosIn.Z() << " " << fELoss << std::endl;
       }
@@ -143,8 +143,7 @@ Bool_t  PndGemDetector::ProcessHits(FairVolume* vol)
       }
 
      TString detPath = gMC->CurrentVolPath();
-     fVolumeID = 11; //Gem TODO imlement from a global enum here sth. like kGem
-     AddHit(fTrackID, fVolumeID, detPath,//fGeoH->GetID(detPath),
+     AddHit(fTrackID, kGEM, detPath,//fGeoH->GetID(detPath),
 	    TVector3(fPosIn.X(),   fPosIn.Y(),   fPosIn.Z()),
 	    TVector3(fPosOut.X(),  fPosOut.Y(),  fPosOut.Z()),
 	    TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),

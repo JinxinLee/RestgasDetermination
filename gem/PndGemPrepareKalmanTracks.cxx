@@ -139,7 +139,7 @@ PndGemPrepareKalmanTracks::Exec(Option_t* opt)
     GFTrackCand* cand = new GFTrackCand();
     for(Int_t ihit=0; ihit<nofHits; ihit++){
       PndTrackCandHit tch = gemTrackCand->GetSortedHit(ihit);
-      cand->addHit(kGEM,tch.GetHitId());
+      cand->addHit(kGemHit,tch.GetHitId());
     }
     for(Int_t ihit=0; ihit<nofHits; ihit++){
       unsigned int temp2= 1234, temp3=1234;
