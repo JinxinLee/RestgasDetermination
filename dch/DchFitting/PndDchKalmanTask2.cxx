@@ -8,6 +8,7 @@
 #include "FairRootManager.h"
 #include "PndDchKalmanTask2.h"
 #include "GFTrack.h"
+#include "PndDetectorList.h"
 #include "PndDchRecoHit2.h"
 #include "PndDchCylinderHit.h"
 #include "LSLTrackRep.h"
@@ -65,8 +66,8 @@ InitStatus PndDchKalmanTask2::Init()
     Error("PndDchKalmanTask2::Init","PndDchCylinderHit array not found!");
   }
   else{ 
-    fTheRecoHitFactory->addProducer(1,new GFRecoHitProducer<PndDchCylinderHit,PndDchRecoHit2>(ar));
-  } // "1" stands here for kind of detector
+    fTheRecoHitFactory->addProducer(kDchHit,new GFRecoHitProducer<PndDchCylinderHit,PndDchRecoHit2>(ar));
+  } 
   
   std::cout << "-I- " << GetName() << ": Intialization successfull" << std::endl;
 

@@ -274,7 +274,7 @@ Int_t PndDchTrackFinderIdeal::DoFind(TClonesArray* hitArray,
     }
     
     if(dchHit->GetDetectorID() > relDetID) {// Only Dch chamber in forward spectrometer
-      dchTrack->AddHit(kDCH,iHit,dchHit->GetPosition().Mag());
+      dchTrack->AddHit(kDchHit,iHit,dchHit->GetPosition().Mag());
     }
     
     if(fVerbose > 3) {

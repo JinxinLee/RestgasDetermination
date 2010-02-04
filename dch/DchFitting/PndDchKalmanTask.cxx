@@ -83,8 +83,8 @@ InitStatus PndDchKalmanTask::Init()
     Error("PndDchKalmanTask::Init","PndDchCylinderHit array not found!");
   }
   else{ 
-    fTheRecoHitFactory->addProducer(1,new RecoHitProducer<PndDchCylinderHit,PndDchRecoHit>(ar));
-  } // "1" stands here for kind of detector
+    fTheRecoHitFactory->addProducer(kDchHit,new RecoHitProducer<PndDchCylinderHit,PndDchRecoHit>(ar));
+  } 
   
   fCanvas = new TCanvas("Results of Kalman","Results of Kalman",1000,700);
   // setup histograms

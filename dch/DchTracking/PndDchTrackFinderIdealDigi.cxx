@@ -275,9 +275,12 @@ Int_t PndDchTrackFinderIdealDigi::DoFind(TClonesArray* digiArray,
       nNoTrack++;
       continue;
     }
+
+    TVector3 pos;
+    mcPoint->Position(pos);
     
     if(dchDigi->GetChamber() > 2) {// Only Dch chamber in forward spectrometer
-      dchTrack->AddHit(kDCH,iDigi,mcPoint->GetLength());
+      dchTrack->AddHit(kDchDigi,iDigi,pos.Mag());
     }
     
     if(fVerbose > 3) {

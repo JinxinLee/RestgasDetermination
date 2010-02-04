@@ -302,7 +302,10 @@ Int_t PndDchTrackFinderIdealCylHit::DoFind(TClonesArray* cylHitArray,
       continue;
     }
     
-    dchTrack->AddHit(kDCH,iCylHit,mcPoint->GetLength());
+    TVector3 pos;
+    mcPoint->Position(pos);
+
+    dchTrack->AddHit(kDchHit,iCylHit,pos.Mag());
     
     if(fVerbose > 3) {
       cout << "DCH cylHit " << iCylHit << " from DCH point "

@@ -15,6 +15,7 @@
 #include "GFException.h"
 #include "FairGeanePro.h"
 #include "FairTrackParP.h"
+#include "PndDetectorList.h"
 #include "PndDchPrepareKalmanTracks2.h"
 #include "PndDchPoint.h"
 #include "PndTrackCand.h"
@@ -133,7 +134,7 @@ PndDchPrepareKalmanTracks2::Exec(Option_t* opt)
     for(Int_t nuhit=0; nuhit<nuOfChits; nuhit++){
       PndTrackCandHit candHit = dchtrack->GetSortedHit(nuhit);
       Int_t globalCHitNu = candHit.GetHitId();
-      cand->addHit(1,globalCHitNu);
+      cand->addHit(kDchHit,globalCHitNu);
     }
     if(cand->getNHits()<10)
       continue;
