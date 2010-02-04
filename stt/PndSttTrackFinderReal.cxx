@@ -214,6 +214,9 @@ fine: ;
 //--------------------
 
 
+//  ---- open filehandle per statistica sugli hits etc.
+   HANDLE = fopen("statistiche.txt","w");
+
 
 
 }
@@ -241,7 +244,11 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackArray)
     Int_t Minclinations[nmaxinclinationversors];
 
 //------------------------------------ modifiche Gianluigi, 9-7-08
+
+
      IVOLTE++;
+
+     if(istampa>=2)     cout<<"Gianluigi : evento n. "<<IVOLTE<<endl;
 
 //------------------------------------ fine modifiche Gianluigi, 9-7-08
 
@@ -398,7 +405,7 @@ cout<<"verita MC,  traccia n. "<<iMCTrack<<", Ox, Oy,  Cx, Cy, D ,  R  ,  gamma 
      Minclinations[j]=0;
     }
 
-    Ninclinate=0;
+    NSkewhits=Ninclinate=0;
 
 
 //  if (istampa >= 1 ) cout<<"Gianluigi : da PndSttTrackFinderReal::DoFind : nHits="<<nHits<<endl;
@@ -510,8 +517,35 @@ jumpout: ;
 
    // end of if(info[iHit][5]==1. )
 
+
+
+
+//--------------- inizio stampaggi,  stampe di controllo
+  if (istampa >= 2 ) {
+      cout <<"iHit "<< iHit << endl;
+      cout <<"             hit "   << pMhit->GetX() << " " << pMhit->GetY() << " " << pMhit->GetZ() 
+           << "; R = "<<sqrt(pMhit->GetX()*pMhit->GetX()+pMhit->GetY()*pMhit->GetY())<< endl;
+      cout <<"             wire direction, X, Y, Z (Z direction set always positive)"<< WDX<<"  "<<WDY<<"  "<<WDZ <<endl
+           <<"             this hit belongs to MC track n. "<<pMCpt->GetTrackID()<<endl;
+  }  //  end of   if(istampa >= 1)
+
+//--------  fine stampaggi
+
+
+
+
+
     }   //   end  of  for (Int_t iHit = 0;
 
+
+
+
+//--------------- inizio stampaggi
+  if (istampa >= 2 ) {
+      cout<<"Gianluigi : da PndSttTrackFinderReal::DoFind : nHits totali ="<<nHits<<",  n Hits ||  = "<<Minclinations[0]<<
+          ",  n Hits  skew = "<<NSkewhits<<endl;
+  }  //  end of   if(istampa >= 1)
+//--------  fine stampaggi
 
 
 
@@ -539,10 +573,6 @@ jumpout: ;
     }
 
 //----------------------------
-
-
-
-
 
 
 
@@ -642,7 +672,8 @@ void PndSttTrackFinderReal::PndSttTrkFinderPartial(
   bool    ExclusionList[nmaxHits],
           TypeConf[MAXTRACKSPEREVENT],   //  if TypeConf[]=false --> the track is a line in the Conformal space,
                                          //   if TypeConf[]=true it is a crf;
-          TypeConfSkew[MAXTRACKSPEREVENT];
+          TypeConfSkew[MAXTRACKSPEREVENT],
+          GoodTrack[MAXTRACKSPEREVENT];    //  yes = track found passes minimal requirements
 
 
   UShort_t iExclude,
@@ -753,7 +784,7 @@ void PndSttTrackFinderReal::PndSttTrkFinderPartial(
             RemainingCY[MAXSTTINFO],
             RemainingKAPPA[MAXSTTINFO],
             RemainingFI0[MAXSTTINFO];
-    bool    Goodflag[MAXSTTINFO],
+    bool    GoodSkewFit[MAXSTTINFO],
             temporflag[8],
             IFLAG;
 
@@ -991,34 +1022,7 @@ void PndSttTrackFinderReal::PndSttTrkFinderPartial(
   ITRACCIA = nTracksFoundSoFar;
 
 
-/*
-  NN =  PndSttTrkAssociatedParallelHitsToHelixTris(
-                   m[nTracksFoundSoFar],
-                   q[nTracksFoundSoFar],
-                   Status[nTracksFoundSoFar],
-                   nHitsinTrack[nTracksFoundSoFar],
-                   &ListHitsinTrack[nTracksFoundSoFar][0],
-                   Minclinations[0],
-                   infoparalConformal,
-                   RConformalIndex,
-                   FiConformalIndex,
-                   nBoxConformal,
-                   HitsinBoxConformal,
-                   auxListHitsinTrack              //  this is the output
-                                                     );
-*/
 
-/*
-  NN =  PndSttTrkAssociatedParallelHitsToHelix(
-                   Ox[nTracksFoundSoFar],
-                   Oy[nTracksFoundSoFar],
-                   R[nTracksFoundSoFar],
-                   Minclinations[0],
-                   info,
-                   auxListHitsinTrack              //  this is the output
-                                                     );
-
-*/
 
   NN =  PndSttTrkAssociatedParallelHitsToHelixQuater(
                    m[nTracksFoundSoFar],
@@ -1071,7 +1075,6 @@ void PndSttTrackFinderReal::PndSttTrkFinderPartial(
 
 
 
-
    nTracksFoundSoFar++;
 
   }      // end  of   for(iParHit=0; iParHit<Minclinations[0] + 1 -  MINIMUMHITSPERTRACK; iParHit++)
@@ -1114,9 +1117,6 @@ void PndSttTrackFinderReal::PndSttTrkFinderPartial(
                                              );
 
 //   finding the FI angular range (in the Helix of the trajectory frame) allowed for the skew hits
-
-
-
 /*
        PndSttFindingAllowedAngularRangeforSkew(
                              Ox[i],
@@ -1141,15 +1141,6 @@ void PndSttTrackFinderReal::PndSttTrkFinderPartial(
 
 
 //--------------------------------------------------------------------------------
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1183,7 +1174,7 @@ void PndSttTrackFinderReal::PndSttTrkFinderPartial(
                    ZErrorafterTilt   //  output,  Radius taking into account the tilt, IN Z DIRECTION only, of selected Skew hit
                                                      );
     nSkewHitsinTrack[i]=TemporarynSkewHitsinTrack;
-  if( TemporarynSkewHitsinTrack ==0) {
+  if( TemporarynSkewHitsinTrack == 0) {
     continue;
   }
 
@@ -1198,7 +1189,7 @@ void PndSttTrackFinderReal::PndSttTrkFinderPartial(
                 Z,
                 ZDrift,
                 i,   //   index of the track in XY plane
-                Fi_initial_helix_referenceframe[i],
+                Fi_initial_helix_referenceframe[i],   //   this is an input data
                 NHITSINFIT,
                 &KAPPA[i]
                       );
@@ -1206,7 +1197,10 @@ void PndSttTrackFinderReal::PndSttTrkFinderPartial(
 
 
       if(Status[i] < 0  ) {
+        GoodSkewFit[i]=false;
         continue;
+      } else{
+        GoodSkewFit[i]=true;
       }
 
       FI0[i]=Fi_initial_helix_referenceframe[i];
@@ -1240,13 +1234,12 @@ void PndSttTrackFinderReal::PndSttTrkFinderPartial(
 
 
  if( STATUS >=0 ){
+
        nSkewHitsinTrack[i] = NNN;
        for(j=0;j<nSkewHitsinTrack[i];j++){ ListSkewHitsinTrack[i][j]=tempore[j]; }
 
-       //    try a refit to see if parameters KAPPA and FI0 improve
-
-
  }   else {
+
     nSkewHitsinTrack[i]=TemporarynSkewHitsinTrack;
     for(j=0;j<TemporarynSkewHitsinTrack;j++){ ListSkewHitsinTrack[i][j]=TemporarySkewList[j][0];}
 
@@ -1354,7 +1347,7 @@ for(int jca=0; jca<nMCTracks;jca++){
 
   if( nMCTracks >0 ) {
     for(i=0; i<nTracksFoundSoFar;i++){
-
+     if( ! (nSkewHitsinTrack[i] > 0 && GoodSkewFit[i])  )  continue;
        Double_t dista=sqrt( Ox[i]*Ox[i]+Oy[i]*Oy[i] );
        if(fabs(KAPPA[i])<1.e-20  ||  dista < 1.e-20) continue;
        Double_t Ptras = R[i]*0.003*BFIELD;
@@ -1362,7 +1355,7 @@ for(int jca=0; jca<nMCTracks;jca++){
        Double_t Pxini = Ptras*Oy[i]/dista;
        Double_t Pyini = -Ptras*Ox[i]/dista;
 
-         UShort_t SttDetID=kSTT;
+
 
          new((*trackArray)[ipinco])  PndTrackCand;
          PndTrackCand *pTrckCand = (PndTrackCand*) (*trackArray)[ipinco];
@@ -1380,11 +1373,24 @@ for(int jca=0; jca<nMCTracks;jca++){
           pTrckCand->setMcTrackId(  daTrackFoundaTrackMC[i]   );
 
           for(j=0; j< nTotalHits; j++){
-              pTrckCand->AddHit(SttDetID, (Int_t) BigList[j] , j); 
+              pTrckCand->AddHit(kSTT, (Int_t) BigList[j] , j); 
           }
 
     }   //  end of     for(i=0; i<nTracksFoundSoFar;i++)
   }  //  end of  if( nMCTracks >0 )
+
+//------------------------------------------  stampaggi
+if(istampa>=2) {
+cout<<"Gianluigi, evento n. "<<IVOLTE<<",  fine del PRR.  nMCTracks = "<<  nMCTracks<<", nTracksFoundSoFar= "<<
+     nTracksFoundSoFar<<",  nHits  totali in evento = "<<Nhits<<endl;
+  for(i=0; i<nTracksFoundSoFar;i++){
+   cout<<"         n. || hits  in track found = "<<nHitsinTrack[i]<<",  n. skew hits in track = "<<
+        nSkewHitsinTrack[i]<<endl;
+  }
+}
+//------------------------------------------  fine stampaggi
+
+
 
 
 
