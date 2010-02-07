@@ -7,11 +7,11 @@
 # LINUX_FLAVOUR should be set to the distribution you are using
 # eg Debian, SuSe etc.
 # For example
-#export SIMPATH=/misc/cbmsoft/Etch64/mar08/fairsoft
+#export SIMPATH=/misc/cbmsoft/Etch64/jan10/fairsoft
 #export BUILDDIR=/misc/uhlig/SVN//dev/build_test
 #export SOURCEDIR=/misc/uhlig/SVN/dev/cbmroot
 #export LINUX_FLAVOUR=Etch64
-#export FAIRSOFT_VERSION=mar08
+#export FAIRSOFT_VERSION=jan10
 ##################################################################
 
 if test  "x$SIMPATH" = "x" ; then
