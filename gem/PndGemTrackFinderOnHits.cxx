@@ -73,7 +73,7 @@ void PndGemTrackFinderOnHits::Init() {
   if( !fMCTrackArray ) {
     cout << "-E- "<< GetName() <<"::Init: No MCTrack array!"
 	 << endl;
-    return;
+    //    return;
   }
   
   // Get PndGemPoint (MCPoint) array
@@ -81,13 +81,8 @@ void PndGemTrackFinderOnHits::Init() {
   if( !fMCPointArray ) {
     cout << "-E- "<< GetName() <<"::Init: No MCPoint array!"
 	 << endl;
-    return;
+    //    return;
   }
-  
-  // Geometry loading
-  //TFile *infile = ioman->GetInFile();
-  //TGeoManager *geoMan = (TGeoManager*) infile->Get("FAIRGeom");
-  //fGemStructure = PndGemStructure::Instance(geoMan);
   
   // Get GEM digitisation parameter container
   fDigiPar = (PndGemDigiPar*)(rtdb->getContainer("PndGemDetectors"));
@@ -149,16 +144,9 @@ Int_t PndGemTrackFinderOnHits::DoFind(TClonesArray* hitArray,
   }
 
   // Check pointers
-  if( !fMCTrackArray ) {
-    cout << "-E- PndGemTrackFinderOnHits::DoFind: "
-	 << "MCTrack array missing! " << endl;
-    return -1;
-  }
-  
-  if( !fMCPointArray ) {
-    cout << "-E- "<< GetName() <<"::DoFind: "
-	 << "MCPoint array missing! " << endl;
-    return -1;
+  fMCAvailable = kTRUE;
+  if( !fMCTrackArray || !fMCPointArray ) {
+    fMCAvailable = kFALSE;
   }
   
   if( !hitArray ) {
@@ -168,7 +156,6 @@ Int_t PndGemTrackFinderOnHits::DoFind(TClonesArray* hitArray,
   }
   
   // Initialise control counters
-  Int_t nNoMCTrack   = 0;
   Int_t nNoTrack     = 0;
   Int_t nNoGemPoint  = 0;
   Int_t nNoGemHit    = 0;
@@ -176,22 +163,16 @@ Int_t PndGemTrackFinderOnHits::DoFind(TClonesArray* hitArray,
   // Create pointers to GemHit and GemPoint
   PndGemHit*   gemHit   = NULL;
   PndGemHit*   gemHit2   = NULL;
-  FairMCPoint*  mcPoint  = NULL;
-  PndMCTrack*  mcTrack  = NULL;
   PndTrackCand* gemTrackCand = NULL;
 
   // Declare variables outside the loop
-  Int_t ptIndex = 0;       // MC point index
-  Int_t mcTrackIndex = 0;  // MC track index
   Int_t trackIndex = 0;    // Gem track index
   Int_t relDetID = -1;//3000;   // 
 
-  // Size of fMCTrackArray
-  if ( fVerbose )
+  if ( fMCAvailable & fVerbose ) {
     cout <<"# MC Tracks: "<< fMCTrackArray->GetEntriesFast() << endl;
-  // Size of fMCTrackArray
-  if ( fVerbose )
     cout <<"# MC Points: "<< fMCPointArray->GetEntriesFast() << endl;
+  }
   
   // Number of Gem hits
   Int_t nGemHits = hitArray->GetEntriesFast();
@@ -279,26 +260,32 @@ Int_t PndGemTrackFinderOnHits::DoFind(TClonesArray* hitArray,
   }
 
   if ( fVerbose ) {
-    cout << "event " << fNofEvents << " >>> " << fTrackSegments.size() << " track segments. " << endl;
-    PrintTrackSegments(hitArray);
+    cout << "event " << fNofEvents << " >>> " << fTrackSegments.size() << " track segments. " << endl; 
+    if ( fMCAvailable )
+      PrintMCTrackSegments(hitArray);
+    else
+      PrintTrackSegments(hitArray);
   }
 
   Int_t nr =    MatchTrackSegments();
   
   RemoveCloneTracks(nr);
 
-
   if ( fVerbose ) {  
     cout << "************************************************" << endl;
-    PrintTracks(hitArray,nr);
+    if ( fMCAvailable )
+      PrintMCTracks(hitArray,nr);
+    else
+      PrintTracks(hitArray,nr);
     cout << "************************************************" << endl;
+    cout << "finished printing tracks" << endl;
   }
 
   nr = CreateTracks(hitArray, trackArray,nr);
 
   if ( fVerbose ) {
     cout << "------------------------------------------------" << endl;
-    cout << "!!!!!!!!!!!!!!!!!! " << nr << " track have been found" << endl;
+    cout << "!!!!!!!!!!!!!!!!!! " << nr << " tracks have been found" << endl;
     cout << "------------------------------------------------" << endl;
   }
 
@@ -306,7 +293,7 @@ Int_t PndGemTrackFinderOnHits::DoFind(TClonesArray* hitArray,
 }
 // ------------------------------------------------------------
 
-// --- Private method to print track candidates ---------------
+// --- Private method to create tracks ------------------------
 Int_t PndGemTrackFinderOnHits::CreateTracks(TClonesArray* hitArray, TClonesArray* trackArray, Int_t nofRecoTracks) {
   Int_t nofCreatedTracks = 0;
 
@@ -361,7 +348,7 @@ Int_t PndGemTrackFinderOnHits::CreateTracks(TClonesArray* hitArray, TClonesArray
     for ( Int_t ih = 0 ; ih < kNofStatDbl ; ih++ ) {
       if ( hitIndices[itr][ih] == -1 ) continue;
       gemHit = (PndGemHit*)hitArray->At(hitIndices[itr][ih]);
-      gemTrackCand->AddHit(kGEM,hitIndices[itr][ih],gemHit->GetZ());
+      gemTrackCand->AddHit(kGemHit,hitIndices[itr][ih],gemHit->GetZ());
     }
     
     gemTrackCand->Sort();
@@ -379,7 +366,7 @@ Int_t PndGemTrackFinderOnHits::CreateTracks(TClonesArray* hitArray, TClonesArray
 }
 // ------------------------------------------------------------
 
-// --- Private method to print track candidates ---------------
+// --- Private method to remove clone track -------------------
 void PndGemTrackFinderOnHits::RemoveCloneTracks(Int_t nofRecoTracks) {
   Bool_t printInfo = kFALSE;//TRUE;
 
@@ -430,8 +417,8 @@ void PndGemTrackFinderOnHits::RemoveCloneTracks(Int_t nofRecoTracks) {
 	hitIndices[itr][2*iterTS.stationIndex[istat]+1] = iterTS.hitIndex[2*istat+1];
 	nofHits[itr] += 2;
       }
-      if ( meanPhi[itr]/nofTS[itr] < 5. && iterTS.trackPhi > 355. ) { iterTS.trackPhi -= 360.; }
-      if ( meanPhi[itr]/nofTS[itr] > 355. && iterTS.trackPhi < 5. ) { iterTS.trackPhi += 360.; }
+      if ( meanPhi[itr]/(nofTS[itr]+1) < 5. && iterTS.trackPhi > 355. ) { iterTS.trackPhi -= 360.; }
+      if ( meanPhi[itr]/(nofTS[itr]+1) > 355. && iterTS.trackPhi < 5. ) { iterTS.trackPhi += 360.; }
 
       valMom[itr][nofTS[itr]] = iterTS.trackMom;
       valPhi[itr][nofTS[itr]] = iterTS.trackPhi;
@@ -498,7 +485,7 @@ void PndGemTrackFinderOnHits::RemoveCloneTracks(Int_t nofRecoTracks) {
 }
 // ------------------------------------------------------------
 
-// --- Private method to print track candidates ---------------
+// --- Private method to match track segments -----------------
 Int_t PndGemTrackFinderOnHits::MatchTrackSegments() {
   //  const Int_t kMaxNofSegments = fDigiPar->GetNStations()-1;
 
@@ -652,7 +639,7 @@ Int_t PndGemTrackFinderOnHits::MatchTrackSegments() {
   }
 
   if ( fVerbose || printInfo ) 
-    cout << "********* " << nofRecoTracks << " track candidates has been found" << endl;
+    cout << "********* " << nofRecoTracks << " track candidates have been found" << endl;
 
   return nofRecoTracks;
 }
@@ -764,15 +751,37 @@ Int_t PndGemTrackFinderOnHits::FindTrackSegments(TClonesArray* hitArray, Int_t s
     }
   }
   
-  //if ( nofTrackCand != 1 ) cout << "SOMETHING WRONG, " << nofTrackCand << " track candidates" << endl;
   if ( fVerbose > 2 || printInfo )
-    cout << "===>>> " << fTrackSegments.size() << " track candidates" << endl;
+    cout << "===>>> " << fTrackSegments.size() << " track segments" << endl;
   return fTrackSegments.size();
 }
 // ------------------------------------------------------------
 
-// --- Private method to print track candidates ---------------
+// --- Private method to print track segments -----------------
 void PndGemTrackFinderOnHits::PrintTrackSegments(TClonesArray* hitArray) {
+  PndGemHit* gemHit;
+
+  const Int_t kNofGemStations = fDigiPar->GetNStations();
+
+  for ( Int_t itrc = 0 ; itrc < fTrackSegments.size() ; itrc++ ) {
+    TrackSegment tempTS = fTrackSegments[itrc];
+    cout << tempTS.stationIndex[0] << " " << tempTS.stationIndex[1] << " >> segment " << itrc << ": " << flush;
+    for ( Int_t ihit = 0 ; ihit < 4 ; ihit++ ) {
+      if ( tempTS.hitIndex[ihit] == -1 ) continue;
+      gemHit = (PndGemHit*) hitArray->At(tempTS.hitIndex[ihit]);
+      cout << " <" << gemHit->GetX() << "/" << gemHit->GetY() << "> " << flush;
+      cout << setw(3) << tempTS.hitIndex[ihit] << "(" << flush;
+      if ( gemHit->GetRefIndex() == -1 ) { cout << "--/-) " << flush; continue;}
+      cout << setw(2) << gemHit->GetRefIndex() << ") " << flush;
+
+    }
+    cout << setw(11) << tempTS.trackMom << " " << setw(11) << tempTS.trackPhi << " " << setw(11) << tempTS.trackTheta << endl;
+  }
+}
+// ------------------------------------------------------------
+
+// --- Private method to print track segments -----------------
+void PndGemTrackFinderOnHits::PrintMCTrackSegments(TClonesArray* hitArray) {
   PndGemHit* gemHit;
   PndGemMCPoint* mcPoint;
 
@@ -880,8 +889,58 @@ void PndGemTrackFinderOnHits::PrintTrackSegments(TClonesArray* hitArray) {
 
 // --- Private method to print track candidates ---------------
 void PndGemTrackFinderOnHits::PrintTracks(TClonesArray* hitArray, Int_t nofRecoTracks) {
+  
+  PndGemHit* gemHit;
 
-  Int_t nofTrMCId[100];
+  const Int_t kNofStatDbl = 2*fDigiPar->GetNStations();
+
+  for ( Int_t itr = 0 ; itr < nofRecoTracks ; itr++ ) {
+    Double_t meanMom = 0.;
+    Double_t meanPhi = 0.;
+    Double_t meanThe = 0.;
+//      meanMom = 0.;
+//      meanPhi = 0.;
+//      meanThe = 0.;
+
+    vector<Int_t> hitIndices(kNofStatDbl,-1);
+    cout << "===================== TRACK " << itr << " ======================" << endl;
+    Int_t nofTS = 0;
+    for ( Int_t its = 0 ; its < fTrackSegments.size() ; its++ ) {	
+      TrackSegment iterTS = fTrackSegments[its];
+      if ( iterTS.recoTrackIndex != itr ) continue;
+      //      for ( Int_t ih = 0 ; ih < 4 ; ih++ ) cout << its << " > " << ih << " > " <<  iterTS.hitIndex[ih] << endl;
+      for ( Int_t istat = 0 ; istat < 2 ; istat++ ) {
+	hitIndices[2*iterTS.stationIndex[istat]  ] = iterTS.hitIndex[2*istat  ];
+	hitIndices[2*iterTS.stationIndex[istat]+1] = iterTS.hitIndex[2*istat+1];
+      }
+      cout << "segm " << its << " " << iterTS.trackMom << " " << iterTS.trackPhi << " " << iterTS.trackTheta << " " 
+	   << iterTS.stationIndex[0] << ": " << iterTS.hitIndex[0] << " " << iterTS.hitIndex[1] << " / " 
+	   << iterTS.stationIndex[1] << ": " << iterTS.hitIndex[2] << " " << iterTS.hitIndex[3] << endl;
+      meanMom += iterTS.trackMom;
+      meanPhi += iterTS.trackPhi;
+      meanThe += iterTS.trackTheta;
+      nofTS++;
+    }
+    meanMom = meanMom/nofTS;
+    meanPhi = meanPhi/nofTS;
+    meanThe = meanThe/nofTS;
+    
+    if ( nofTS == 0 ) { cout << "THIS TRACK WAS REMOVED " << endl; continue; }
+
+    for ( Int_t ihit = 0 ; ihit < kNofStatDbl ; ihit++ ) { 
+      cout << ihit << "/" << hitIndices[ihit] << "/" << flush;
+      if ( hitIndices[ihit] == -1 ) { cout << "- - " << flush; continue; }
+      gemHit = (PndGemHit*) hitArray->At(hitIndices[ihit]);
+      if ( gemHit->GetRefIndex() == -1 ) { cout << "- " << flush; continue;}
+      cout << setw(2) << gemHit->GetRefIndex() << "_ " << flush;
+    }
+    cout << endl;
+  }
+}
+// ------------------------------------------------------------
+
+// --- Private method to print track candidates ---------------
+void PndGemTrackFinderOnHits::PrintMCTracks(TClonesArray* hitArray, Int_t nofRecoTracks) {
 
   PndGemHit* gemHit;
   FairMCPoint* mcPoint;
@@ -889,7 +948,7 @@ void PndGemTrackFinderOnHits::PrintTracks(TClonesArray* hitArray, Int_t nofRecoT
   const Int_t kNofStatDbl = 2*fDigiPar->GetNStations();
 
   for ( Int_t itr = 0 ; itr < nofRecoTracks ; itr++ ) {
-    for ( Int_t itm = 0 ; itm < 100 ; itm++ ) nofTrMCId[itm] = 0;
+    vector<Int_t> nofTrMCId(500,0);
  
     Double_t meanMom = 0.;
     Double_t meanPhi = 0.;
@@ -935,7 +994,7 @@ void PndGemTrackFinderOnHits::PrintTracks(TClonesArray* hitArray, Int_t nofRecoT
     cout << endl;
     Int_t bestMCId = -1;
     Int_t largestNofTracks = 0;
-    for ( Int_t itm = 0 ; itm < 100 ; itm++ ) {
+    for ( Int_t itm = 0 ; itm < 500 ; itm++ ) {
       if ( nofTrMCId[itm] == largestNofTracks ) { bestMCId = -1; }
       if ( nofTrMCId[itm]  > largestNofTracks ) { bestMCId = itm; largestNofTracks = nofTrMCId[itm]; }
     }
@@ -954,7 +1013,6 @@ void PndGemTrackFinderOnHits::PrintTracks(TClonesArray* hitArray, Int_t nofRecoT
   }
 }
 // ------------------------------------------------------------
-
 
 
 ClassImp(PndGemTrackFinderOnHits)
