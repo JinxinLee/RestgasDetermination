@@ -8,7 +8,6 @@ ${CLHEP_INCLUDE_DIR}
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep2
-${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/RKtrackRep
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/LSLtrackRep
 ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/trackbase
@@ -32,9 +31,6 @@ GeaneTrackRep2/GeaneMCApplication.cxx
 LSLtrackRep/LSLTrackRep.cxx
 LSLtrackRep/LSLEQM.cxx
 LSLtrackRep/Nystrom.cxx
-RKtrackRep/RKtrackRep.cxx
-RKtrackRep/MeanExcEnergy.cxx
-RKtrackRep/energyLoss.cxx
 )
 
 if(RULE_CHECKER_FOUND)
