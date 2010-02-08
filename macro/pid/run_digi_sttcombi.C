@@ -4,13 +4,13 @@
   Int_t iVerbose = 0;
 
   // Input file (MC events)
-  TString inFile = "points_tpccombi.root";
+  TString inFile = "points_sttcombi.root";
 
   // Parameter file
-  TString parFile = "params_tpccombi.root";
+  TString parFile = "params_sttcombi.root";
 
   // Output file
-  TString outFile = "digi_tpccombi.root";
+  TString outFile = "digi_sttcombi.root";
 
   // Number of events to process
   Int_t nEvents = 0;
@@ -53,32 +53,27 @@
   rtdb->setSecondInput(parIo1);
   // ------------------------------------------------------------------------
 
-  // -----   TPC digi producers   ---------------------------------
-  PndTpcClusterizerTask* tpcClusterizer = new PndTpcClusterizerTask();
-  //tpcClusterizer->SetPersistence();
-  fRun->AddTask(tpcClusterizer);
+   // -----   STT digi producers   --------------------------------- 
+  PndSttHitProducerRealFast* sttHitProducer = new PndSttHitProducerRealFast();
+  fRun->AddTask(sttHitProducer);
  
-  PndTpcDriftTask* tpcDrifter = new PndTpcDriftTask();
-  // tpcDrifter->SetPersistence();
-  tpcDrifter->SetDistort(false);
-  fRun->AddTask(tpcDrifter);
-
-  PndTpcGemTask* tpcGem = new PndTpcGemTask();
-  //tpcGem->SetPersistence();
-  fRun->AddTask(tpcGem);
-
-  PndTpcPadResponseTask* tpcPadResponse = new PndTpcPadResponseTask();
-  tpcPadResponse->SetPersistence();
-  fRun->AddTask(tpcPadResponse);
-
-  PndTpcElectronicsTask* tpcElec = new PndTpcElectronicsTask();
-  tpcElec->SetPersistence();
-  fRun->AddTask(tpcElec);
-
-  PndTpcClusterFinderTask* tpcCF = new PndTpcClusterFinderTask();
-  tpcCF->SetPersistence();
-  tpcCF->timeslice(20); // = 4 sample times = 100ns @ 40MHz
-  fRun->AddTask(tpcCF);
+  // trackfinding ....
+  PndSttTrackFinderIdeal* sttTrackFinder = new PndSttTrackFinderIdeal(iVerbose);
+  PndSttFindTracks* sttFindTracks = new PndSttFindTracks("Track Finder", "FairTask", sttTrackFinder, iVerbose);
+  sttFindTracks->AddHitCollectionName("STTHit", "STTPoint");
+  fRun->AddTask(sttFindTracks);
+  // trackmatching ....
+  PndSttMatchTracks* sttTrackMatcher = new PndSttMatchTracks("Match tracks", "STT", iVerbose);
+  sttTrackMatcher->AddHitCollectionName("STTHit", "STTPoint");
+  fRun->AddTask(sttTrackMatcher);
+  // trackfitting ....
+  PndSttTrackFitter* sttTrackFitter = new PndSttHelixTrackFitter(0);
+  PndSttFitTracks* sttFitTracks = new PndSttFitTracks("STT Track Fitter", "FairTask", sttTrackFitter);
+  sttFitTracks->AddHitCollectionName("STTHit");
+  fRun->AddTask(sttFitTracks);
+  // helix hit production ....
+  PndSttHelixHitProducer* sttHHProducer = new PndSttHelixHitProducer();
+  fRun->AddTask(sttHHProducer);
 
   // -----   MDV digi producers   --------------------------------- 
   PndMvdDigiTask* mvddigi = new PndMvdDigiTask();
