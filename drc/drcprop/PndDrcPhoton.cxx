@@ -85,7 +85,7 @@ PndDrcPhoton& PndDrcPhoton::operator=(const PndDrcPhoton& ph)
 //----------------------------------------------------------------------
 void PndDrcPhoton::SetPosition(const XYZPoint& pos)
 {
-	if (fDev && fDev->Radiator()) // no flat device
+	if (fDev)
   {
     double n = (fDev->OptMaterial()).RefIndex(fLambda);
     double dndl = (fDev->OptMaterial()).RefIndexDeriv(fLambda);
