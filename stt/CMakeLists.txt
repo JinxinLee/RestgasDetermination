@@ -20,7 +20,7 @@ ${CMAKE_SOURCE_DIR}/stt
 
 include_directories( ${INCLUDE_DIRECTORIES})
 
-set(GLPK_LIB_DIR ${SIMPATH}/basics/glpk/src/.libs)
+set(GLPK_LIB_DIR ${SIMPATH}/basics/glpk/lib/)
 
 set(LINK_DIRECTORIES
 ${ROOT_LIBRARY_DIR}
