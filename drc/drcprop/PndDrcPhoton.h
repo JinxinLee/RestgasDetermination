@@ -146,31 +146,15 @@ class PndDrcPhoton
   */
   list<double>& PositionXlist(){return fPositionXlist;};
 
-  /*! \brief Add position X in list
-    \param posX Position.
-  */
-  void SetPositionXlist(double posX){fPositionXlist.push_back(posX);};
-
   /*! \brief Position Y list
     \return Position Y list.
   */
   list<double>& PositionYlist(){return fPositionYlist;};
 
-  /*! \brief Add position Y in list
-    \param posY Position.
-  */
-  void SetPositionYlist(double posY){fPositionYlist.push_back(posY);};
-
   /*! \brief Position Z list
     \return Position Z list.
   */
   list<double>& PositionZlist(){return fPositionZlist;};
-
-  /*! \brief Add position Z in list
-    \param posZ Position.
-  */
-  void SetPositionZlist(double posZ){fPositionZlist.push_back(posZ);};
-
 
   /*! \brief Direction
     \return Normalized direction.
@@ -304,7 +288,6 @@ class PndDrcPhoton
   list<double>     fPositionXlist;                 //!< List of position X
   list<double>     fPositionYlist;                 //!< List of position Y
   list<double>     fPositionZlist;                 //!< List of position Z
-  bool             fPositionListFlag;              //!< Position list flag, by default false
   XYZVector        fDirection;                     //!< Normalized direction of photon.
   XYZVector        fOriginDirection;               //!< Normalized origin direction of photon.
   Drc::kPhotonFate fFate;                          //!< The fate of the photon.

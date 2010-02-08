@@ -656,9 +656,6 @@ bool PndDrcOptDevManager::Cerenkov(const string& vol_name, const string& sys_nam
       PndDrcPhoton ph;
 
       ph.SetPosition(r);
-	  ph.SetPositionXlist( r.X() );
-	  ph.SetPositionYlist( r.Y() );
-	  ph.SetPositionZlist( r.Z() );
 	  ph.SetDirection(beta_ph);
 
       double x = beta_ph.Dot(dev->DirectionX());
@@ -722,18 +719,9 @@ void PndDrcOptDevManager::Propagate()
 {
   list<PndDrcPhoton>::iterator iph;
   int photonTotal = fListPhoton.size();
-  int counter_phot = 0;
-  int counter_step = 0;
 
   for (iph = fListPhoton.begin(); iph != fListPhoton.end(); ++iph)
     {
-      counter_phot++;
-      if( counter_phot == 1000 * counter_step + 1 ) // normally use factor 1000
-      {
-          counter_step++;
-          cout << "photon #" << counter_phot << " of " << photonTotal << endl;
-      }
-
       PndDrcOptDev* dev = (*iph).Device();
       dev->Propagate((*iph));
     }

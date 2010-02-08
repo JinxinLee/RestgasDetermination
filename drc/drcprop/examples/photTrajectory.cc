@@ -19,7 +19,7 @@ using namespace std;
 
 
 
-void photTrajectory( TString inFilename = "", Double_t photonID = 1  ) // ID 0 means all
+void photTrajectory( TString inFilename = "", Double_t photonID = 1 ) // ID 0 means all
 {
 
 	if( inFilename == "" )
@@ -34,18 +34,32 @@ void photTrajectory( TString inFilename = "", Double_t photonID = 1  ) // ID 0 m
 //==============================================================================
 	TFile *inFile   = new TFile( inFilename );
 	TCanvas *setup = (TCanvas*) inFile->Get("Setup");
+    TTree *infoTree   = (TTree*) inFile->Get("info");
 	TTree *photonTree = (TTree*) inFile->Get("photon");
 
 
-	Double_t posX[1001];
-	Double_t posY[1001];
-	Double_t posZ[1001];
+    Int_t refl_limit;
+    infoTree->SetBranchAddress( "refl_limit", &refl_limit );
+    infoTree->GetEntry( 0 );
+
+
+    int add_pos = 1 + 3*2 + 1; // 1 start + 3 volume transition (+ tiny shifts) + detector
+    const int pos_size = refl_limit + 1 + add_pos; // reflection limit + 1 exceed + additional positions
+    Double_t posX[ pos_size ], posY[ pos_size ], posZ[ pos_size ];
+
+    TString pos_size_str;
+    pos_size_str += pos_size;
+    pos_size_str.Remove( TString::kLeading, ' ' );
+    TString posX_str = "posX[" + pos_size_str + "]";
+    TString posY_str = "posY[" + pos_size_str + "]";
+    TString posZ_str = "posZ[" + pos_size_str + "]";
+
 	Int_t index_pos, nRefl;
 	Bool_t measured, absorbed, lost;
 
-	photonTree->SetBranchAddress( "posX[1001]", posX );
-	photonTree->SetBranchAddress( "posY[1001]", posY );
-	photonTree->SetBranchAddress( "posZ[1001]", posZ );
+    photonTree->SetBranchAddress( posX_str   , posX );
+    photonTree->SetBranchAddress( posY_str   , posY );
+    photonTree->SetBranchAddress( posZ_str   , posZ );
 	photonTree->SetBranchAddress( "index_pos" , &index_pos );
 	photonTree->SetBranchAddress( "nRefl"     , &nRefl );
 	photonTree->SetBranchAddress( "measured"  , &measured );
@@ -67,19 +81,18 @@ void photTrajectory( TString inFilename = "", Double_t photonID = 1  ) // ID 0 m
 	for( int i = 0; i < nEntries; i++ )
 	{
 		photonTree->GetEntry( i );
-
 		n_ph++;
 
 		if( n_ph == photonID || photonID == 0 )
 		{
-// 			cout << "Reflections: " << nRefl << endl;
-// 			cout << "Fate       : ";
-// 			if( measured == true )
-// 				cout << "measured" << endl;
-// 			if( absorbed == true )
-// 				cout << "absorbed" << endl;
-// 			if( lost == true )
-// 				cout << "lost" << endl;
+			cout << "Reflections: " << nRefl << endl;
+			cout << "Fate       : ";
+			if( measured == true )
+				cout << "measured" << endl;
+			if( absorbed == true )
+				cout << "absorbed" << endl;
+			if( lost == true )
+				cout << "lost" << endl;
 
 			for( int j = 0; j < index_pos; j++ )
 			{

@@ -215,6 +215,7 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
 	  //if (ph.fate()!=PndDrc::kPhotFlying) return;
 
 	  // Step 1   ------------ Absorption -----------
+      ph.SetPosition(pos_new);
 
       if (OptMaterial().AbsorptionFlag(ph.Wavelength(),path_length))
       {
@@ -226,15 +227,6 @@ void PndDrcOptVol::Propagate(PndDrcPhoton& ph)
       }
       else
       {
-        ph.SetPosition(pos_new);
-
-		if( ph.PrintFlag() )
-		{
-		  ph.SetPositionXlist( pos_new.X() );
-		  ph.SetPositionYlist( pos_new.Y() );
-		  ph.SetPositionZlist( pos_new.Z() );
-		}
-
         if (Verbosity()>=4) cout<<"     new position set."<<endl;
         if (fPhotonTrace) ph.Print(*fPhotonTraceStream);
         if (ph.Fate()!=Drc::kPhotFlying) break;//###1 // measured photons

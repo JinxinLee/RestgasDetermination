@@ -20,14 +20,7 @@ using std::endl;
 #include <TMath.h>
 using namespace TMath;
 #include <TComplex.h>
-// #include <cstdlib>
 
-#include <stdlib.h> // system
-#include <TString.h>
-#include "TRandom.h"
-
-
-//static TRandom grandi; // not a fine solution ?
 
 
 //----------------------------------------------------------------------
@@ -101,6 +94,13 @@ void PndDrcPhoton::SetPosition(const XYZPoint& pos)
     double v_group =  v_phase * ( 1.0 - fLambda/n*dndl);
     double time = len/v_group;
     fTime += time;          // pos in mm time in ns
+  }
+
+  if( fPrintFlag )
+  {
+    fPositionXlist.push_back(pos.X());
+    fPositionYlist.push_back(pos.Y());
+    fPositionZlist.push_back(pos.Z());
   }
 
   fPositionOld = fPosition;
@@ -325,27 +325,7 @@ bool PndDrcPhoton::Fresnel(XYZVector normal, double n1, double ex1, double n2, d
 
 
   double random = fRan.Uniform(0.0,1.0);
-//     cout << "random: " << random << endl;
   double reflProb = refl_s * random + refl_p * (1-random);
-
-
-//     system("echo $RANDOM > random.dat");
-//     ifstream in;
-//     in.open( "random.dat" );
-//     double random;
-//     if( !in )
-//     {
-//         cout << "Error opening input stream" << endl;
-//         return;
-//     }
-//     while ( true )
-//     {
-//         in >> random;
-//         if( !in.good() )
-//             break;
-//     }
-//     random = random/32767;
-
 
   random = fRan.Uniform(0.0,1.0);
 
@@ -354,8 +334,11 @@ bool PndDrcPhoton::Fresnel(XYZVector normal, double n1, double ex1, double n2, d
 
   if (random <= reflProb )
   {
-//         cout << "fresnel reflected:  " //<< endl;
-//         << "refl. probability: " << reflProb << "  random: " << random << "  inci: " << (inci/TMath::Pi()*180) << endl;
+      if (Verbosity()>=4)
+      {
+          cout << "     Fresnel reflected:  "
+                  << "refl. probability: " << reflProb << "  random: " << random << "  inci: " << (inci/TMath::Pi()*180) << endl;
+      }
     return true;
   }
   else

@@ -110,19 +110,25 @@ int main(int argc, char *argv[])
 
 
 	// sub options
-    bool opt_mirror               = false; // mirror at slab front end
-    bool opt_fishtankBlack_bottom = true; // absorbed fishtank side
-    bool opt_fishtankBlack_sides  = false;
-    bool opt_fishtankBlack_top    = true;
+    bool opt_mirror               = false; // default: false ; mirror at slab front end
+    bool opt_fishtankBlack_bottom = true; // default: true ; absorbed fishtank side
+    bool opt_fishtankBlack_sides  = false; // default: false
+    bool opt_fishtankBlack_top    = true; // default: true
     bool opt_Cherenkov_onlyInBar  = false; // Cherenkov photons are only generated in bar (slab)
     bool opt_alongBar             = false; // particles hits the bar at slab front end
-    bool opt_woLens               = false; // without lens
+    bool opt_woLens               = false; // default: false ; without lens
     bool opt_photonPosList        = true; // write out photon position list ; true takes much longer
     bool opt_noFresnel_slab       = false; // disable Fresnel reflections
-    bool opt_noFresnel_lens       = false;
-    bool opt_noFresnel_airBox     = false;
-    bool opt_noFresnel_fishtank   = false;
+    bool opt_noFresnel_lens       = false; //
+    bool opt_noFresnel_airBox     = false; //
+    bool opt_noFresnel_fishtank   = false; //
     bool opt_debug	              = false; // debug information ; please pipe stdout > log file
+
+    if( opt_photonCannon && !opt_photonPosList )
+    {
+        opt_photonPosList = true;
+        cout << "*** WARN: \"Photon position list\" is now enable because \"photon cannon\" needs it" << endl;
+    }
 
     cout << "  sub:  ";
     if( opt_mirror )
@@ -237,7 +243,7 @@ int main(int argc, char *argv[])
     double spot_radius = 20; // default: 20 mm 1-sigma beam spot radius (gaus smeared)
     double spot_limit = 50; // default: 50 mm beam spot radius limit
 
-    int particle_number = 1; // default: 300
+    int particle_number = 300; // default: 300
 
     double inci_theta = 57; // default: 57 degree
     double inci_phi   = 0; // default: 0 degree
@@ -257,9 +263,24 @@ int main(int argc, char *argv[])
 
 
 	// photon cannon
-    int shoots = photon_number; // default: photon_number
+    int shoots = 100000; // default: 100000
+
     double gridXstep = 0; // default: 0 mm ; grid constant in X ; 0 means cannon is always in the center
     double gridYstep = 0; // default: 0 mm
+
+    int refl_limit_2 = 5; // default: 5 ; low limit increases speed
+
+
+    // single photon
+    double singlePosX = 0;
+    double singlePosY = 0;
+    double singlePosZ = -10;
+
+    double singleDirX = 1;
+    double singleDirY = 1;
+    double singleDirZ = 1;
+
+    double single_lambda = 500;
 
 
 	// output filename (w/o file extension)
@@ -278,8 +299,7 @@ int main(int argc, char *argv[])
         if( i == 1)
             outFilename = argv[1];
         if( i == 2)
-            inci_theta = atof( argv[2]);
-// 			fishtank_thetaX = atof( argv[2]);
+            fishtank_thetaX = atof( argv[2]);
         if( i == 3 )
             fishtank_thetaY = atof( argv[3]);
         if( i == 4 )
@@ -491,15 +511,15 @@ int main(int argc, char *argv[])
         cout << "particle properties:" << endl;
 
         if( mass == mass_p)
-            cout << "  sort:     proton" << endl;
+            cout << "  sort:    proton" << endl;
         else if( mass == mass_K )
-            cout << "  sort:     kaon" << endl;
+            cout << "  sort:    kaon" << endl;
         else if( mass == mass_pi )
-            cout << "  sort:     pion" << endl;
+            cout << "  sort:    pion" << endl;
         else if( mass == mass_e )
-            cout << "  sort:     electron" << endl;
+            cout << "  sort:    electron" << endl;
         else if( mass == mass_mu )
-            cout << "  sort:     muon" << endl;
+            cout << "  sort:    muon" << endl;
         else
             cout << "*** WARN: undefined particle sort" << endl;
 
@@ -508,8 +528,8 @@ int main(int argc, char *argv[])
 
         cout <<     "  incidence angle (theta): " << inci_theta << " deg" << endl;
         cout <<     "  incidence angle (phi):   " << inci_phi << " deg" << endl;
-        cout <<     "  flight direction:         (" << parDirX << ", " << parDirY << ", " << parDirZ << ")" << endl;
-        cout <<     "  hit pos:                  (" << hitBarX << ", " << hitBarY << ", " << hitBarZ << ")" << endl;
+        cout <<     "  flight direction:        (" << parDirX << ", " << parDirY << ", " << parDirZ << ")" << endl;
+        cout <<     "  centered hit pos on bar: (" << hitBarX << ", " << hitBarY << ", " << hitBarZ << ")" << endl;
 
         cout <<     "  beam spot radius: " << spot_radius << " mm" << endl;
         cout <<     "  radius limit:     " << spot_limit << " mm" << endl;
@@ -532,13 +552,22 @@ int main(int argc, char *argv[])
     {
         cout << "photon cannon:" << endl;
         if( gridXstep == 0 || gridYstep == 0 )
-            cout << "  photon number: " << shoots << endl;
+            cout << "  photon number:    " << shoots << endl;
         else
         {
-            cout << "  photon number: " << shoots << " per mesh" << endl;
-            cout << "  grid const. X: " << gridXstep << " mm" << endl;
-            cout << "  grid const. Y: " << gridYstep << " mm" << endl;
+            cout << "  photon number:    " << shoots << " per mesh" << endl;
+            cout << "  grid const. X:    " << gridXstep << " mm" << endl;
+            cout << "  grid const. Y:    " << gridYstep << " mm" << endl;
         }
+        cout <<     "  reflection limit: " << refl_limit << endl;
+    }
+
+    if( opt_singlePhoton )
+    {
+        cout << "single photon:" << endl;
+        cout << "  creation pos.: (" << singlePosX << ", " << singlePosY << ", " << singlePosZ << ")" << endl;
+        cout << "  creation dir.: (" << singleDirX << ", " << singleDirY << ", " << singleDirZ << ")" << endl;
+        cout << "  lambda:        " << single_lambda << " nm" << endl;
     }
 
 
@@ -622,95 +651,7 @@ int main(int argc, char *argv[])
     TTree *infoTree  	= new TTree( "info", outFilename );
 
 
-	// photonTree
-    double wavelength = -666;
-    int color = -666;
-    double kBarX = -666;
-    double kBarY = -666;
-    double kBarZ = -666;
-    double hitPosX = -666;
-    double hitPosY = -666;
-    double hitPosZ = -666;
-    double hitDirX = -666;
-    double hitDirY = -666;
-    double hitDirZ = -666;
-// 	vector<double> posX; // needed ROOT >= 5.2
-    double posX[1001]; // start position + 1000 reflections (limit)
-    double posY[1001];
-    double posZ[1001];
-    for( int i=0; i < 1001; i++)
-    {
-        posX[i] = -666;
-        posY[i] = -666;
-        posZ[i] = -666;
-    }
-    int index_pos = -666;
-    int particleID = -666;
-    double thetaC = -666;
-    double phiC = -666;
-    double time = -666;
-    int nRefl = -666;
-    bool measured = false;
-    bool absorbed = false;
-    bool lost = false;
-
-    photonTree->Branch( "wavelength", &wavelength, "wavelength/D" ); // D: Double_t
-    photonTree->Branch( "color"     , &color     , "color/I" ); // I: Int_t ;  definition: see PndDrcPhoton.cxx::ColorNumber
-    photonTree->Branch( "kBarX"     , &kBarX     , "kBarX/D" );
-    photonTree->Branch( "kBarY"     , &kBarY     , "kBarY/D" );
-    photonTree->Branch( "kBarZ"     , &kBarZ     , "kBarZ/D" );
-    photonTree->Branch( "hitPosX"   , &hitPosX   , "hitPosX/D" );
-    photonTree->Branch( "hitPosY"   , &hitPosY   , "hitPosY/D" );
-    photonTree->Branch( "hitPosZ"   , &hitPosZ   , "hitPosZ/D" );
-    photonTree->Branch( "hitDirX"   , &hitDirX   , "hitDirX/D" );
-    photonTree->Branch( "hitDirY"   , &hitDirY   , "hitDirY/D" );
-    photonTree->Branch( "hitDirZ"   , &hitDirZ   , "hitDirY/D" );
-    if( opt_photonPosList )
-    {
-        photonTree->Branch( "posX[1001]", posX       , "posX[1001]/D" );
-        photonTree->Branch( "posY[1001]", posY       , "posY[1001]/D" );
-        photonTree->Branch( "posZ[1001]", posZ       , "posZ[1001]/D" );
-        photonTree->Branch( "index_pos" , &index_pos , "index_pos/I" );
-    }
-    if( !opt_photonCannon )
-        photonTree->Branch( "particleID", &particleID,"particleID/I" );
-    photonTree->Branch( "thetaC"    , &thetaC    , "thetaC/D" );
-    photonTree->Branch( "phiC"      , &phiC      , "phiC/D" );
-    photonTree->Branch( "time"      , &time      , "time/D" );
-    photonTree->Branch( "nRefl"     , &nRefl     , "nRefl/I" );
-    photonTree->Branch( "measured"  , &measured  , "measured/O" ); // O: Bool_t
-    photonTree->Branch( "absorbed"  , &absorbed  , "absorbed/O" );
-    photonTree->Branch( "lost"      , &lost      , "lost/O" );
-
-
-	// particleTree
-    double spotX = -666;
-    double spotY = -666;
-    double spotZ = -666;
-    double hitOnBarX = -666;
-    double hitOnBarY = -666;
-    double hitOnBarZ = -666;
-    double spotEndX = -666;
-    double spotEndY = -666;
-    double spotEndZ = -666;
-    double range = -666;
-
-    if( !opt_photonCannon)
-    {
-        particleTree->Branch( "spotX"     , &spotX    , "spotX/D" );
-        particleTree->Branch( "spotY"     , &spotY    , "spotY/D" );
-        particleTree->Branch( "spotZ"     , &spotZ    , "spotZ/D" );
-        particleTree->Branch( "hitOnBarX" , &hitOnBarX, "hitOnBarX/D" );
-        particleTree->Branch( "hitOnBarY" , &hitOnBarY, "hitOnBarY/D" );
-        particleTree->Branch( "hitOnBarZ" , &hitOnBarZ, "hitOnBarZ/D" );
-        particleTree->Branch( "spotEndX"  , &spotEndX , "spotEndX/D" );
-        particleTree->Branch( "spotEndY"  , &spotEndY , "spotEndY/D" );
-        particleTree->Branch( "spotEndZ"  , &spotEndZ , "spotEndZ/D" );
-        particleTree->Branch( "pathlength", &range    , "pathlength/D" );
-    }
-
-
-	// infoTree (parameter list)
+    // infoTree (parameter list)
 
 //******************************************************************************
 // Note:
@@ -770,6 +711,8 @@ int main(int argc, char *argv[])
         spot_radius     = -666;
         spot_limit      = -666;
         particle_number = -666;
+
+        refl_limit = refl_limit_2;
     }
     else
     {
@@ -826,6 +769,109 @@ int main(int argc, char *argv[])
     infoTree->Fill();
 
 
+	// photonTree
+    double wavelength = -666;
+    int color = -666;
+    double kBarX = -666;
+    double kBarY = -666;
+    double kBarZ = -666;
+    double hitPosX = -666;
+    double hitPosY = -666;
+    double hitPosZ = -666;
+    double hitDirX = -666;
+    double hitDirY = -666;
+    double hitDirZ = -666;
+    int index_pos = -666;
+    int particleID = -666;
+    double thetaC = -666;
+    double phiC = -666;
+    double time = -666;
+    int nRefl = -666;
+    bool measured = false;
+    bool absorbed = false;
+    bool lost = false;
+
+    //  vector<double> posX; // needed ROOT >= 5.2
+    int add_pos = 1 + 3*2 + 1; // 1 start + 3 volume transition (+ tiny shifts) + detector
+    const int pos_size = refl_limit + 1 + add_pos; // reflection limit + 1 exceed + additional positions
+    double posX[ pos_size ];
+    double posY[ pos_size ];
+    double posZ[ pos_size ];
+    for( int i=0; i < pos_size; i++)
+    {
+        posX[i] = -666;
+        posY[i] = -666;
+        posZ[i] = -666;
+    }
+
+    TString pos_size_str;
+    pos_size_str += pos_size;
+    pos_size_str.Remove( TString::kLeading, ' ' );
+    TString posX_str = "posX[" + pos_size_str + "]";
+    TString posY_str = "posY[" + pos_size_str + "]";
+    TString posZ_str = "posZ[" + pos_size_str + "]";
+    TString posX_str_2 = posX_str + "/D";
+    TString posY_str_2 = posY_str + "/D";
+    TString posZ_str_2 = posZ_str + "/D";
+
+    photonTree->Branch( "wavelength", &wavelength, "wavelength/D" ); // D: Double_t
+    photonTree->Branch( "color"     , &color     , "color/I" ); // I: Int_t ;  definition: see PndDrcPhoton.cxx::ColorNumber
+    photonTree->Branch( "kBarX"     , &kBarX     , "kBarX/D" );
+    photonTree->Branch( "kBarY"     , &kBarY     , "kBarY/D" );
+    photonTree->Branch( "kBarZ"     , &kBarZ     , "kBarZ/D" );
+    photonTree->Branch( "hitPosX"   , &hitPosX   , "hitPosX/D" );
+    photonTree->Branch( "hitPosY"   , &hitPosY   , "hitPosY/D" );
+    photonTree->Branch( "hitPosZ"   , &hitPosZ   , "hitPosZ/D" );
+    photonTree->Branch( "hitDirX"   , &hitDirX   , "hitDirX/D" );
+    photonTree->Branch( "hitDirY"   , &hitDirY   , "hitDirY/D" );
+    photonTree->Branch( "hitDirZ"   , &hitDirZ   , "hitDirY/D" );
+    if( opt_photonPosList )
+    {
+        photonTree->Branch( posX_str    , posX       , posX_str_2 );
+        photonTree->Branch( posY_str    , posY       , posY_str_2 );
+        photonTree->Branch( posZ_str    , posZ       , posZ_str_2 );
+        photonTree->Branch( "index_pos" , &index_pos , "index_pos/I" );
+    }
+    if( !opt_photonCannon )
+    {
+        photonTree->Branch( "particleID", &particleID,"particleID/I" );
+        photonTree->Branch( "thetaC"    , &thetaC    , "thetaC/D" );
+        photonTree->Branch( "phiC"      , &phiC      , "phiC/D" );
+    }
+    photonTree->Branch( "measured"  , &measured  , "measured/O" ); // O: Bool_t
+    photonTree->Branch( "absorbed"  , &absorbed  , "absorbed/O" );
+    photonTree->Branch( "lost"      , &lost      , "lost/O" );
+    photonTree->Branch( "time"      , &time      , "time/D" );
+    photonTree->Branch( "nRefl"     , &nRefl     , "nRefl/I" );
+
+
+	// particleTree
+    double spotX = -666;
+    double spotY = -666;
+    double spotZ = -666;
+    double hitOnBarX = -666;
+    double hitOnBarY = -666;
+    double hitOnBarZ = -666;
+    double spotEndX = -666;
+    double spotEndY = -666;
+    double spotEndZ = -666;
+    double range = -666;
+
+    if( !opt_photonCannon)
+    {
+        particleTree->Branch( "spotX"     , &spotX    , "spotX/D" );
+        particleTree->Branch( "spotY"     , &spotY    , "spotY/D" );
+        particleTree->Branch( "spotZ"     , &spotZ    , "spotZ/D" );
+        particleTree->Branch( "hitOnBarX" , &hitOnBarX, "hitOnBarX/D" );
+        particleTree->Branch( "hitOnBarY" , &hitOnBarY, "hitOnBarY/D" );
+        particleTree->Branch( "hitOnBarZ" , &hitOnBarZ, "hitOnBarZ/D" );
+        particleTree->Branch( "spotEndX"  , &spotEndX , "spotEndX/D" );
+        particleTree->Branch( "spotEndY"  , &spotEndY , "spotEndY/D" );
+        particleTree->Branch( "spotEndZ"  , &spotEndZ , "spotEndZ/D" );
+        particleTree->Branch( "pathlength", &range    , "pathlength/D" );
+    }
+
+
 // plot declarations
 //==============================================================================
 
@@ -841,8 +887,14 @@ int main(int argc, char *argv[])
     gStyle->SetPalette( 1 );            // better color palette
     gStyle->SetStatColor( 0 );          // stat. box color
 
-    TCanvas *canvas = new TCanvas( "c1", "" ,200, 10, 700, 510 );
-    canvas->Draw();
+    TCanvas *canvas_beamspot = new TCanvas( "canvas_beamspot", "" ,200, 10, 700, 510 );
+    canvas_beamspot->Draw();
+
+    TCanvas *canvas_screen   = new TCanvas( "canvas_screen"  , "" ,200, 10, 700, 510 );
+    canvas_screen->Draw();
+
+    TCanvas *canvas_setup    = new TCanvas( "canvas_setip"   , "" ,200, 10, 700, 510 );
+    canvas_setup->Draw();
 
 
 	// beampsot plot
@@ -955,6 +1007,7 @@ int main(int argc, char *argv[])
         bottom->SetY2(-slab_height/2);
     }
 
+    canvas_beamspot->cd();
     left  ->Draw( "same" );
     right ->Draw( "same" );
     top   ->Draw( "same" );
@@ -975,6 +1028,9 @@ int main(int argc, char *argv[])
     screen->GetXaxis()->CenterTitle();
     screen->GetYaxis()->SetTitle( screen_titleY );
     screen->GetYaxis()->CenterTitle();
+
+    canvas_screen->cd();
+    screen->Draw("POL");
 
 
 
@@ -1567,10 +1623,10 @@ int main(int argc, char *argv[])
     airBox_right.SetName("airBox_right");
 
 
-    airBox_left.SetReflectivity(refl_none);
-    airBox_right.SetReflectivity(refl_none);
-    airBox_bottom.SetReflectivity(refl_none);
-    airBox_top.SetReflectivity(refl_none);
+//     airBox_left.SetReflectivity(refl_none);
+//     airBox_right.SetReflectivity(refl_none);
+//     airBox_bottom.SetReflectivity(refl_none);
+//     airBox_top.SetReflectivity(refl_none);
 
 
     PndDrcOptVol airBox;
@@ -1639,7 +1695,7 @@ int main(int argc, char *argv[])
     airLens_frontLeft.AddPoint(h3);
     airLens_frontLeft.AddPoint(a3);
     airLens_frontLeft.AddPoint(a4);
-    airLens_frontLeft.SetReflectivity(refl_none);
+//     airLens_frontLeft.SetReflectivity(refl_none);
     airLens_frontLeft.SetName("airLens_frontLeft");
 
     PndDrcSurfPolyFlat airLens_frontRight;
@@ -1647,7 +1703,7 @@ int main(int argc, char *argv[])
     airLens_frontRight.AddPoint(a2);
     airLens_frontRight.AddPoint(h2);
     airLens_frontRight.AddPoint(h1);
-    airLens_frontRight.SetReflectivity(refl_none);
+//     airLens_frontRight.SetReflectivity(refl_none);
     airLens_frontRight.SetName("airLens_frontRight");
 
     PndDrcSurfPolyFlat airLens_frontBottom;
@@ -1655,7 +1711,7 @@ int main(int argc, char *argv[])
     airLens_frontBottom.AddPoint(h2);
     airLens_frontBottom.AddPoint(h3);
     airLens_frontBottom.AddPoint(l2);
-    airLens_frontBottom.SetReflectivity(refl_none);
+//     airLens_frontBottom.SetReflectivity(refl_none);
     airLens_frontBottom.SetName("airLens_frontBottom");
 
     PndDrcSurfPolyFlat airLens_frontTop;
@@ -1663,7 +1719,7 @@ int main(int argc, char *argv[])
     airLens_frontTop.AddPoint(l0);
     airLens_frontTop.AddPoint(l3);
     airLens_frontTop.AddPoint(h4);
-    airLens_frontTop.SetReflectivity(refl_none);
+//     airLens_frontTop.SetReflectivity(refl_none);
     airLens_frontTop.SetName("airLens_frontTop");
 
 
@@ -1692,7 +1748,7 @@ int main(int argc, char *argv[])
     airLens_left.AddPoint(a4);
     airLens_left.AddPoint(b4);
     airLens_left.AddPoint(b3);
-    airLens_left.SetReflectivity(refl_none);
+//     airLens_left.SetReflectivity(refl_none);
     airLens_left.SetName("airLens_left");
 
     PndDrcSurfPolyFlat airLens_right;
@@ -1700,7 +1756,7 @@ int main(int argc, char *argv[])
     airLens_right.AddPoint(a1);
     airLens_right.AddPoint(b1);
     airLens_right.AddPoint(b2);
-    airLens_right.SetReflectivity(refl_none);
+//     airLens_right.SetReflectivity(refl_none);
     airLens_right.SetName("airLens_right");
 
     PndDrcSurfPolyFlat airLens_bottom;
@@ -1708,7 +1764,7 @@ int main(int argc, char *argv[])
     airLens_bottom.AddPoint(a3);
     airLens_bottom.AddPoint(b3);
     airLens_bottom.AddPoint(b2);
-    airLens_bottom.SetReflectivity(refl_none);
+//     airLens_bottom.SetReflectivity(refl_none);
     airLens_bottom.SetName("airLens_bottom");
 
     PndDrcSurfPolyFlat airLens_top;
@@ -1716,7 +1772,7 @@ int main(int argc, char *argv[])
     airLens_top.AddPoint(a4);
     airLens_top.AddPoint(b4);
     airLens_top.AddPoint(b1);
-    airLens_top.SetReflectivity(refl_none);
+//     airLens_top.SetReflectivity(refl_none);
     airLens_top.SetName("airLens_top");
 
     PndDrcSurfPolyFlat airLens_exit;
@@ -1820,16 +1876,38 @@ int main(int argc, char *argv[])
     PndDrcOptDevManager* manager = new PndDrcOptDevManager();
     manager->AddDeviceSystem(opt_system);
 
+    if( opt_debug )
+    {
+        cout << "+++++ DEBUG INFO: PndDrcManager" << endl;
+        manager->SetVerbosity(4);
+    }
+
+
+// setup plot
+//==============================================================================
+    canvas_setup->cd();
+    fstream geo;
+    geo.open("geo.tmp",std::ios::out);
+    manager->Print(geo); //draw setup also in canvas
+    geo.close();
+    canvas_setup->Write("Setup");
+    canvas_setup->Clear();
+
 
 //==============================================================================
 // Photon propagation
 //==============================================================================
 
-	// 1. simulation for beamtest_2009 with or w/o lens and beamtest_2008
-	// 2. photon cannon
-	// 3. single photon for debugging
+    // 1. simulation for beamtest_2009 with or w/o lens and beamtest_2008
+    // 2. photon cannon
+    // 3. single photon for debugging
 
-    list<PndDrcPhoton> list_photon;
+    int icnt_measured = 0;
+    int icnt_flying   = 0;
+    int icnt_lost     = 0;
+    int icnt_absorbed = 0;
+
+    int n_iph = 0; // for debugging
 
 
 // beamtest simulation
@@ -1853,9 +1931,15 @@ int main(int argc, char *argv[])
         XYZPoint spotPos;
 
 
+        if( opt_debug )
+            cout << "+++++ DEBUG INFO: photon check" << endl;
+
+
         for(int i=0; i < particle_number; i++)
         {
             int particleNumber = i+1;
+            cout << "particle #" << particleNumber << " of " << particle_number << "  with " << photon_number << " per particle" << endl;
+
 
             helper=ortho; // (-1,0,0) is the orthogonal of (0,0,1)
             helper.RotateZ(rand.Rndm()*2*pi);
@@ -1942,22 +2026,140 @@ int main(int argc, char *argv[])
 
             t->SetMarkerStyle(20);
             t->SetMarkerSize(1);
-            t->Draw();
 
+            canvas_beamspot->cd();
+            t->Draw();
 
             particleTree->Fill();
 
-            if( opt_debug )
-            {
-                cout << "+++++ DEBUG INFO: PndDrcManager" << endl;
-                manager->SetVerbosity(4);
-            }
 
             manager->Cerenkov(spotPos, parDir, beta, photon_number, range, lambda_min, lambda_max, refl_limit, particleNumber);
+
+            list<PndDrcPhoton> list_photon;
+            list<PndDrcPhoton>::iterator iph;
+            list_photon = manager->PhotonList(); // get list
+
+            for( iph = list_photon.begin(); iph != list_photon.end(); ++iph)
+            {
+                if( opt_photonPosList )
+                    (*iph).SetPrintFlag(true); // write out photon position
+                else
+                    (*iph).SetPrintFlag(false);
+
+                if( opt_debug )
+                    (*iph).SetVerbosity(4);
+            }
+
+            manager->SetPhotonList(list_photon);
+            manager->Propagate(); // propagate photons
+
+
+            list_photon = manager->PhotonList(); // get list
+
+            for( iph = list_photon.begin(); iph != list_photon.end(); ++iph )
+            {
+                n_iph++;
+
+                wavelength  = (*iph).Wavelength();
+                color       = (*iph).ColorNumber(wavelength);
+                time        = (*iph).Time();
+                nRefl       = (*iph).Reflections();
+                particleID  = (*iph).ParticleIDnumber();
+
+                XYZVector kBar = (*iph).OriginDirection();
+                kBarX = kBar.X();
+                kBarY = kBar.Y();
+                kBarZ = kBar.Z();
+
+                XYZVector hitDir = (*iph).Direction();
+                hitDirX = hitDir.X();
+                hitDirY = hitDir.Y();
+                hitDirZ = hitDir.Z();
+
+                XYZPoint hitPos = (*iph).Position();
+                hitPosX = hitPos.X();
+                hitPosY = hitPos.Y();
+                hitPosZ = hitPos.Z();
+
+
+                int n_posX = 0;
+                int n_posY = 0;
+                int n_posZ = 0;
+                list<double>::iterator ipos;
+
+                list<double> list_positionX = (*iph).PositionXlist();
+                for( ipos = list_positionX.begin(); ipos != list_positionX.end(); ++ipos )
+                {
+                    posX[n_posX] = (*ipos);
+                    n_posX++;
+                }
+
+                list<double> list_positionY = (*iph).PositionYlist();
+                for( ipos = list_positionY.begin(); ipos != list_positionY.end(); ++ipos )
+                {
+                    posY[n_posY] = (*ipos);
+                    n_posY++;
+                }
+
+                list<double> list_positionZ = (*iph).PositionZlist();
+                for( ipos = list_positionZ.begin(); ipos != list_positionZ.end(); ++ipos )
+                {
+                    posZ[n_posZ] = (*ipos);
+                    n_posZ++;
+                }
+
+                if( n_posX != n_posY || n_posY != n_posZ )
+                {
+                    cout << "*** ERROR: photon position list for X,Y and Z has not the same length" << endl;
+                    abort();
+                }
+                else
+                    index_pos = n_posX;
+
+
+                thetaC = (*iph).ThetaC();
+                phiC = (*iph).PhiC();
+
+                measured = false;
+                absorbed = false;
+                lost     = false;
+
+                if ((*iph).Fate()==Drc::kPhotMeasured)
+                {
+                    icnt_measured++;
+                    measured = true;
+
+                    TMarker* t = new TMarker( hitPosX, hitPosY, 7);
+                    t->SetMarkerColor( (*iph).ColorNumber((*iph).Wavelength()) );
+                    t->SetMarkerSize(0.7);
+
+                    canvas_screen->cd();
+                    t->Draw();
+                }
+                else if( (*iph).Fate()==Drc::kPhotFlying )
+                {
+                    icnt_flying++; // should never happen.
+                    cout << "*** WARN: photon fate is still \"flying\" (should never happen)" << endl;
+                }
+                else if( (*iph).Fate()==Drc::kPhotAbsorbed )
+                {
+                    icnt_absorbed++;
+                    absorbed = true;
+                }
+                else
+                {
+                    icnt_lost++;
+                    lost = true;
+                }
+
+                photonTree->Fill();
+            }
+
+            manager->ClearPhotonList();
         }
 
-        canvas->Write("Beamspot");
-        canvas->Clear();
+        canvas_beamspot->Write("Beamspot");
+        canvas_beamspot->Clear();
     }
 
 
@@ -1966,15 +2168,13 @@ int main(int argc, char *argv[])
 //==============================================================================
     if( opt_photonCannon )
     {
-        PndDrcPhoton ph;
-
-        if( refl_limit > 5 ) // magic number ?
-            ph.SetReflectionLimit(5);
-        else
-            ph.SetReflectionLimit(refl_limit);
-
 // 		TF1 *f1 = new TF1("f1","1/x",300,700);
         TRandom3 rand;
+
+
+        if( opt_debug )
+            cout << "+++++ DEBUG INFO: photon check" << endl;
+
 
         for( double gridX = -slab_width/2; gridX < slab_width/2; gridX += gridXstep)
         {
@@ -1992,13 +2192,25 @@ int main(int argc, char *argv[])
                 if( gridY == -slab_height/2 )
                     continue;
 
-                for( int i=0; i<photon_number; i++)
+
+                int counter_step = 0;
+                int stepFactor = 10000;
+
+                for( int i=0; i<shoots; i++)
                 {
+                    if( i == stepFactor * counter_step )
+                    {
+                        counter_step++;
+                        cout << "gridX: " << gridX << " gridY: " << gridY << "  photon #" << i+1 << " of " << shoots << " per mesh" << endl;
+                    }
+
+
 // 					double lambda = f1->GetRandom(); // seems to be wrong ; check it later
                     double x1     = 1.0 / lambda_max;
                     double x2     = 1.0 / lambda_min;
                     double x      = rand.Uniform(x1,x2);
                     double lambda = 1.0/x;
+
 
                     double costheta = rand.Uniform(0.0, 1.0);
                     double phi = rand.Uniform(0.0, 2*pi);
@@ -2007,10 +2219,120 @@ int main(int argc, char *argv[])
                     photDir = photDir.Unit();
                     XYZVector photDirXYZ( photDir.X(), photDir.Y(), photDir.Z() );
 
-                    ph.SetPosition( XYZPoint(gridX, gridY, -0.01)); // z = -0.01 to be sure that photon is in bar
+                    double z_offset = -0.01; // to be sure that photon is in bar
+
+                    PndDrcPhoton ph;
+                    ph.SetPrintFlag(true);
+
+                    if( opt_debug )
+                        ph.SetVerbosity(4);
+
+                    ph.SetReflectionLimit(refl_limit);
+                    ph.SetPosition( XYZPoint(gridX, gridY, z_offset));
                     ph.SetDirection(photDirXYZ);
                     ph.SetWavelength(lambda);
+
+
+                    list<PndDrcPhoton> list_photon;
+                    list<PndDrcPhoton>::iterator iph;
                     list_photon.push_back(ph);
+
+                    manager->SetPhotonList(list_photon,"slab","opt_system",0,0);
+                    manager->Propagate(); // propagate photons
+
+
+                    list_photon = manager->PhotonList(); // get list
+
+                    for( iph = list_photon.begin(); iph != list_photon.end(); ++iph )
+                    {
+                        n_iph++;
+
+                        measured = false;
+
+                        if ((*iph).Fate()==Drc::kPhotMeasured)
+                        {
+                            icnt_measured++;
+                            measured = true;
+
+
+                            wavelength  = (*iph).Wavelength();
+                            color       = (*iph).ColorNumber(wavelength);
+                            time        = (*iph).Time();
+                            nRefl       = (*iph).Reflections();
+
+                            XYZVector kBar = (*iph).OriginDirection();
+                            kBarX = kBar.X();
+                            kBarY = kBar.Y();
+                            kBarZ = kBar.Z();
+
+                            XYZVector hitDir = (*iph).Direction();
+                            hitDirX = hitDir.X();
+                            hitDirY = hitDir.Y();
+                            hitDirZ = hitDir.Z();
+
+                            XYZPoint hitPos = (*iph).Position();
+                            hitPosX = hitPos.X();
+                            hitPosY = hitPos.Y();
+                            hitPosZ = hitPos.Z();
+
+
+                            int n_posX = 0;
+                            int n_posY = 0;
+                            int n_posZ = 0;
+                            list<double>::iterator ipos;
+
+                            list<double> list_positionX = (*iph).PositionXlist();
+                            for( ipos = list_positionX.begin(); ipos != list_positionX.end(); ++ipos )
+                            {
+                                posX[n_posX] = (*ipos);
+                                n_posX++;
+                            }
+
+                            list<double> list_positionY = (*iph).PositionYlist();
+                            for( ipos = list_positionY.begin(); ipos != list_positionY.end(); ++ipos )
+                            {
+                                posY[n_posY] = (*ipos);
+                                n_posY++;
+                            }
+
+                            list<double> list_positionZ = (*iph).PositionZlist();
+                            for( ipos = list_positionZ.begin(); ipos != list_positionZ.end(); ++ipos )
+                            {
+                                posZ[n_posZ] = (*ipos);
+                                n_posZ++;
+                            }
+
+                            if( n_posX != n_posY || n_posY != n_posZ )
+                            {
+                                cout << "*** ERROR: photon position list for X,Y and Z has not the same length" << endl;
+                                abort();
+                            }
+                            else
+                                index_pos = n_posX;
+
+
+                            TMarker* t = new TMarker( hitPosX, hitPosY, 7);
+                            t->SetMarkerColor( (*iph).ColorNumber((*iph).Wavelength()) );
+                            t->SetMarkerSize(0.7);
+
+                            canvas_screen->cd();
+                            t->Draw();
+
+
+                            photonTree->Fill();
+                        }
+                        else if( (*iph).Fate()==Drc::kPhotFlying )
+                        {
+                            icnt_flying++; // should never happen.
+                            cout << "*** WARN: photon fate is still \"flying\" (should never happen)" << endl;
+                        }
+                        else if( (*iph).Fate()==Drc::kPhotAbsorbed )
+                            icnt_absorbed++;
+                        else
+                            icnt_lost++;
+                    }
+
+                    manager->ClearPhotonList();
                 }
 
                 if( gridYstep == 0 )
@@ -2020,159 +2342,81 @@ int main(int argc, char *argv[])
             if( gridXstep == 0 )
                 break;
         }
-
-        manager->SetPhotonList(list_photon,"slab","opt_system",0,0);
     }
 
 
-
-// propagation & setup plot
+// single photon
 //==============================================================================
-    canvas->Clear(); // needed if no beamspot-plot was written
-    fstream geo;
-    geo.open("geo.tmp",std::ios::out);
-    manager->Print(geo); //draw setup also in canvas
-    geo.close();
-    canvas->Write("Setup");
-    canvas->Clear();
-
-    if( opt_debug )
-        cout << "+++++ DEBUG INFO: photon check" << endl;
-
-    list<PndDrcPhoton>::iterator iph;
-    list_photon = manager->PhotonList(); // get list
-
-    for( iph = list_photon.begin(); iph != list_photon.end(); ++iph)
+    if( opt_singlePhoton )
     {
-        if( opt_photonPosList )
-            (*iph).SetPrintFlag(true); // write out photon position
-        else
-            (*iph).SetPrintFlag(false);
+        geo.open("geo.tmp",std::ios::out);
+        geo << "{" << endl;
+        manager->Print(geo);
+
+        PndDrcPhoton ph;
+        ph.SetPrintFlag(true);
 
         if( opt_debug )
-            (*iph).SetVerbosity(4);
-    }
+            ph.SetVerbosity(4);
 
-    manager->SetPhotonList(list_photon);
-    manager->Propagate(); // propagate photons
+        ph.SetReflectionLimit(refl_limit);
+        ph.SetPosition( XYZPoint(singlePosX, singlePosY, singlePosZ));
+        ph.SetDirection( XYZVector(singleDirX, singleDirY, singleDirZ));
+        ph.SetWavelength(single_lambda);
 
+        list<PndDrcPhoton> list_photon;
+        list<PndDrcPhoton>::iterator iph;
+        list_photon.push_back(ph);
 
-
-//==============================================================================
-// Photon list
-//==============================================================================
-    screen->Draw("POL");
-
-    list_photon = manager->PhotonList();
-    PndDrcPhoton ph_old;
-
-    int icnt_measured = 0;
-    int icnt_flying   = 0;
-    int icnt_lost     = 0;
-    int icnt_absorbed = 0;
-
-    int n_iph = 0;
-
-    for( iph = list_photon.begin(); iph != list_photon.end(); ++iph )
-    {
-        n_iph++;
-
-        wavelength  = (*iph).Wavelength();
-        color       = (*iph).ColorNumber(wavelength);
-        time        = (*iph).Time();
-        nRefl       = (*iph).Reflections();
-        particleID  = (*iph).ParticleIDnumber();
-
-        XYZVector kBar = (*iph).OriginDirection();
-        kBarX = kBar.X();
-        kBarY = kBar.Y();
-        kBarZ = kBar.Z();
-
-        XYZVector hitDir = (*iph).Direction();
-        hitDirX = hitDir.X();
-        hitDirY = hitDir.Y();
-        hitDirZ = hitDir.Z();
-
-        XYZPoint hitPos = (*iph).Position();
-        hitPosX = hitPos.X();
-        hitPosY = hitPos.Y();
-        hitPosZ = hitPos.Z();
+        manager->SetPhotonList(list_photon,"slab","opt_system",0,0);
+        manager->Propagate(); // propagate photons
 
 
-        int n_posX = 0;
-        int n_posY = 0;
-        int n_posZ = 0;
-        list<double>::iterator ipos;
+        list_photon.clear();
+        list_photon = manager->PhotonList(); // get list
 
-        list<double> list_positionX = (*iph).PositionXlist();
-        for( ipos = list_positionX.begin(); ipos != list_positionX.end(); ++ipos )
+        for( iph = list_photon.begin(); iph != list_photon.end(); ++iph )
         {
-            posX[n_posX] = (*ipos);
-            n_posX++;
+            measured = false;
+            absorbed = false;
+            lost     = false;
+
+            if ((*iph).Fate()==Drc::kPhotMeasured)
+            {
+                icnt_measured++;
+                measured = true;
+
+                TMarker* t = new TMarker( hitPosX, hitPosY, 7);
+                t->SetMarkerColor( (*iph).ColorNumber((*iph).Wavelength()) );
+                t->SetMarkerSize(0.7);
+
+                canvas_screen->cd();
+                t->Draw();
+            }
+            else if( (*iph).Fate()==Drc::kPhotFlying )
+            {
+                icnt_flying++; // should never happen.
+                cout << "*** WARN: photon fate is still \"flying\" (should never happen)" << endl;
+            }
+            else if( (*iph).Fate()==Drc::kPhotAbsorbed )
+            {
+                icnt_absorbed++;
+                absorbed = true;
+            }
+            else
+            {
+                icnt_lost++;
+                lost = true;
+            }
         }
 
-        list<double> list_positionY = (*iph).PositionYlist();
-        for( ipos = list_positionY.begin(); ipos != list_positionY.end(); ++ipos )
-        {
-            posY[n_posY] = (*ipos);
-            n_posY++;
-        }
-
-        list<double> list_positionZ = (*iph).PositionZlist();
-        for( ipos = list_positionZ.begin(); ipos != list_positionZ.end(); ++ipos )
-        {
-            posZ[n_posZ] = (*ipos);
-            n_posZ++;
-        }
-
-        if( n_posX != n_posY || n_posY != n_posZ )
-        {
-            cout << "*** ERROR: photon position list for X,Y and Z has not the same length" << endl;
-            abort();
-        }
-        else
-            index_pos = n_posX;
-
-
-        thetaC = (*iph).ThetaC();
-        phiC = (*iph).PhiC();
-
-        measured = false;
-        absorbed = false;
-        lost     = false;
-
-        if ((*iph).Fate()==Drc::kPhotMeasured)
-        {
-            icnt_measured++;
-            measured = true;
-
-            TMarker* t = new TMarker( hitPosX, hitPosY, 7);
-            t->SetMarkerColor( (*iph).ColorNumber((*iph).Wavelength()) );
-            t->SetMarkerSize(0.7);
-            t->Draw();
-
-            ph_old = (*iph);
-        }
-        else if( (*iph).Fate()==Drc::kPhotFlying )
-        {
-            icnt_flying++; // should never happen.
-            cout << "*** WARN: photon fate is still \"flying\" (should never happen)" << endl;
-        }
-        else if( (*iph).Fate()==Drc::kPhotAbsorbed )
-        {
-            icnt_absorbed++;
-            absorbed = true;
-        }
-        else
-        {
-            icnt_lost++;
-            lost = true;
-        }
-
-        photonTree->Fill();
+        geo << "}" << endl;
+        geo.close();
     }
 
 
+// Photon summary
+//==============================================================================
     int icnt = icnt_measured + icnt_flying + icnt_lost + icnt_absorbed;
 
     cout << endl << endl;
@@ -2196,11 +2440,13 @@ int main(int argc, char *argv[])
     stat->SetFillColor(0);
     stat->AddText( "gen.: " + str_icnt    );
     stat->AddText( "det.: " + str_icnt_det);
+
+    canvas_screen->cd();
     stat->Draw();
 
-    canvas->Write("Screen");
-    canvas->Clear();
-    canvas->Close();
+    canvas_screen->Write("Screen");
+    canvas_screen->Clear();
+    canvas_screen->Close();
 
 
     outFile->Write();

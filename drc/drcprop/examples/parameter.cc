@@ -149,7 +149,7 @@ void parameter( TString inFilename = ""  )
         cout << "    lens radius:         " << lens_radius << endl;
         cout << "    lens thickness:      " << lens_thickness << endl;
         cout << "    lens diameter:       " << lens_diameter << endl;
-        cout << "    lens conical const.: " << lens_conical << endl;
+        cout << "    lens conical const.: " << lens_conical << " [dim-less]" << endl;
     }
 
     cout << "    air gap: " << airgap << endl;
@@ -161,21 +161,21 @@ void parameter( TString inFilename = ""  )
     cout << "    fishtank width offset : " << fishtank_width_offset << endl;
     cout << "    fishtank height offset: " << fishtank_height_offset << endl;
 
-    cout << "    fishtank thetaX: " << fishtank_thetaX << endl;
-    cout << "    fishtank thetaY: " << fishtank_thetaY << endl;
-    cout << "    fishtank phi:    " << fishtank_phi << endl;
+    cout << "    fishtank thetaX: " << fishtank_thetaX << " deg" << endl;
+    cout << "    fishtank thetaY: " << fishtank_thetaY << " deg" << endl;
+    cout << "    fishtank phi:    " << fishtank_phi << " deg" << endl;
 
 
     if( !opt_photonCannon )
     {
         cout << "  particle properties:" << endl;
-        cout << "    particle mass: " << particle_mass << endl;
-        cout << "    T [GeV]:       " << particle_kinE << endl;
-        cout << "    beta:          " << particle_beta << endl;
+        cout << "    particle mass [GeV]: " << particle_mass << endl;
+        cout << "    T [GeV]:             " << particle_kinE << endl;
+        cout << "    beta:                " << particle_beta << endl;
 
         cout << "    incidence angle (theta): " << incidence_theta << " deg" << endl;
         cout << "    incidence angle (phi):   " << incidence_phi << " deg" << endl;
-        cout << "    centered hit pos on Bar:  (" << hitBarX << ", " << hitBarY << ", " << hitBarZ << ")" << endl;
+        cout << "    centered hit pos on bar: (" << hitBarX << ", " << hitBarY << ", " << hitBarZ << ")" << endl;
 
         cout << "    beam spot radius: " << spot_radius << " mm" << endl;
         cout << "    radius limit:     " << spot_limit << " mm" << endl;
@@ -187,21 +187,22 @@ void parameter( TString inFilename = ""  )
         if( photon_number == 0 )
             cout << "    photon number:      realistic" << endl;
         else
-            cout << "    photon number:     " << photon_number << endl;
+            cout << "    photon number:      " << photon_number << endl;
 
         cout <<     "    Cherenkov spectrum: [" << lambda_min <<", " << lambda_max << "] nm" << endl;
-        cout <<     "    reflection limit:  " << refl_limit << endl;
+        cout <<     "    reflection limit:   " << refl_limit << endl;
     }
     else
     {
         cout << "  photon properties:" << endl;
         if( gridXstep == 0 || gridYstep == 0 )
-            cout << "    photon number: " << shoots << endl;
+            cout << "    photon number:    " << shoots << endl;
         else
         {
-            cout << "    photon number: " << shoots << " per mesh" << endl;
-            cout << "    grid const. X: " << gridXstep << " mm" << endl;
-            cout << "    grid const. Y: " << gridYstep << " mm" << endl;
+            cout << "    photon number:    " << shoots << " per mesh" << endl;
+            cout << "    grid const. X:    " << gridXstep << " mm" << endl;
+            cout << "    grid const. Y:    " << gridYstep << " mm" << endl;
         }
+        cout <<     "    reflection limit: " << refl_limit << endl;
     }
 }
