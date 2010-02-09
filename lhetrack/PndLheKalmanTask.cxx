@@ -137,6 +137,16 @@ PndLheKalmanTask::Init()
       fTheRecoHitFactory->addProducer(kSttHelixHit,new GFRecoHitProducer<PndSttHelixHit,PndSttRecoHit>(sttr));
     }
   
+  TClonesArray* sthit=(TClonesArray*) ioman->GetObject("SttHit");
+  if(sthit==0)
+    {
+      Error("PndLheKalmanTask::Init","SttHit array not found");
+    }
+  else
+    {
+      fTheRecoHitFactory->addProducer(kSttHit,new GFRecoHitProducer<PndSttHit,PndSttRecoHit>(sthit));
+    }
+
   TClonesArray* gemar=(TClonesArray*) ioman->GetObject("GEMHit");
   if(gemar==0)
     {
@@ -189,6 +199,7 @@ void PndLheKalmanTask::Exec(Option_t* opt)
     {
       if (fVerbose>1) std::cout<<"starting track"<<itr<<std::endl;
       PndTrack *lheTrack = (PndTrack*)fTrackArray->At(itr);
+      if (lheTrack->GetParamFirst().GetPz()<1e-12) continue; // Skip pz==0
       Int_t  fCharge= lheTrack->GetParamFirst().GetQ();
       Int_t PDGCode= -13*fCharge;
       
