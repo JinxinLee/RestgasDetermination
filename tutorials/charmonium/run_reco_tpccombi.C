@@ -70,10 +70,10 @@
   lheKalman->SetVerbose(0);
   //lheKalman->SetNumIterations(3);
   fRun->AddTask(lheKalman);
-
+ 
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
-  PndEmcMapper *emcMap = PndEmcMapper::Instance(2);
+  PndEmcMapper *emcMap = PndEmcMapper::Instance(6);
   fRun->Run(0, nEvents);
 
   rtdb->saveOutput();
