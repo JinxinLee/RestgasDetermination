@@ -32,6 +32,7 @@ ${CMAKE_SOURCE_DIR}/geane
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/LSLtrackRep
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
 ${CMAKE_SOURCE_DIR}/GenfitTools/adapters
+${CMAKE_SOURCE_DIR}/GenfitTools/recohits
 ${CMAKE_SOURCE_DIR}/lhetrack
 
 
