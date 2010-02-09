@@ -43,8 +43,10 @@ rootlogon()
         if(isLibrary("libPid"))gSystem->Load("libPid");
         if(isLibrary("libAnalysisTools"))gSystem->Load("libAnalysisTools");
         if(isLibrary("librecotasks"))gSystem->Load("librecotasks");
+	if(isLibrary("libRecoHits"))gSystem->Load("libRecoHits");
         if(isLibrary("libEnDrc"))gSystem->Load("libEnDrc");
 	if(isLibrary("libDsk"))gSystem->Load("libDsk");
+	if(isLibrary("libGlobal"))gSystem->Load("libGlobal");
 	
 }
 

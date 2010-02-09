@@ -31,8 +31,8 @@
 #pragma link C++ class  PndDchFindTracks+;
 #pragma link C++ class  PndDchPreFitterTR+;
 #pragma link C++ class  PndDchPreFitterTRQATask+;
-#pragma link C++ class  PndDchRecoHit+;
-#pragma link C++ class  PndDchRecoHit2+;
+/* #pragma link C++ class  PndDchRecoHit+; */
+/* #pragma link C++ class  PndDchRecoHit2+; */
 #pragma link C++ class  PndDchMatchTracks+;
 //#pragma link C++ class  PndDchPrepareKalmanTracks+;
 #pragma link C++ class  PndDchPrepareKalmanTracks2+;

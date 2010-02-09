@@ -5,6 +5,9 @@
 #pragma link off all classes;
 #pragma link off all functions;
 
+#pragma link C++ class PndDchRecoHit+;
+#pragma link C++ class PndDchRecoHit2+;
+#pragma link C++ class PndGemRecoHit+;
 #pragma link C++ class PndMdtRecoHit+;
 
 #endif

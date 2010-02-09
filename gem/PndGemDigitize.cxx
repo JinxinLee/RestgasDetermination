@@ -49,6 +49,7 @@ PndGemDigitize::PndGemDigitize() : FairTask("GEM Digitizer", 1) {
   fPoints      = NULL;
   fDigis       = NULL;
   fDigiMatches = NULL;
+  fSaveOutsideHits = kFALSE;
   Reset();
 }
 // -------------------------------------------------------------------------
@@ -62,6 +63,7 @@ PndGemDigitize::PndGemDigitize(Int_t iVerbose)
   fPoints      = NULL;
   fDigis       = NULL;
   fDigiMatches = NULL;
+  fSaveOutsideHits = kFALSE;
   Reset();
 }
 // -------------------------------------------------------------------------
@@ -75,6 +77,7 @@ PndGemDigitize::PndGemDigitize(const char* name, Int_t iVerbose)
   fPoints      = NULL;
   fDigis       = NULL;
   fDigiMatches = NULL;
+  fSaveOutsideHits = kFALSE;
   Reset();
 }
 // -------------------------------------------------------------------------
@@ -99,8 +102,11 @@ PndGemDigitize::~PndGemDigitize() {
 // -----   Public method Exec   --------------------------------------------
 void PndGemDigitize::Exec(Option_t* opt) {
 
-  if ( ! fHitOutputArray ) Fatal("Exec", "No fHitOutputArray");
-  fHitOutputArray->Clear();
+  if ( fSaveOutsideHits ) {
+    if ( ! fHitOutsideArray ) Fatal("Exec", "No fHitOutsideArray");
+    fHitOutsideArray->Clear();
+  }
+
   Reset();
 
   PndGemSensor* sensor;
@@ -138,13 +144,16 @@ void PndGemDigitize::Exec(Option_t* opt) {
 
     Int_t channelNumber = sensor->GetChannel(locPosIn[0],locPosIn[1],0);
     if ( channelNumber == -1 ) {
-      TVector3 pos;
-      currentPndGemMCPoint->Position(pos);
-      TVector3 dposLocal(0.,0.,0.);
+      if ( fSaveOutsideHits ) {
+	TVector3 pos;
+	currentPndGemMCPoint->Position(pos);
+	TVector3 dposLocal(0.,0.,0.);
       
-      new ((*fHitOutputArray)[nofHitsOutside++]) PndGemHit(sensorDetId,
- 							   (currentPndGemMCPoint->GetDetName()).Data(),
- 							   pos,dposLocal,iPoint,currentPndGemMCPoint->GetEnergyLoss(),1);
+	new ((*fHitOutsideArray)[nofHitsOutside]) PndGemHit(sensorDetId,
+							    (currentPndGemMCPoint->GetDetName()).Data(),
+							    pos,dposLocal,iPoint,currentPndGemMCPoint->GetEnergyLoss(),1);
+      }
+      nofHitsOutside++;
     }
     else {
       pair<Int_t, Int_t> a (sensorDetId, channelNumber);
@@ -212,10 +221,12 @@ InitStatus PndGemDigitize::Init() {
   if ( ! ioman ) Fatal("Init", "No FairRootManager");
   fPoints = (TClonesArray*) ioman->GetObject("GEMPoint");
 
-  fHitOutputArray = new TClonesArray("PndGemHit");
-  ioman->Register("GEMOutsideHit", "PndGem Hits in inactive region",
-		  fHitOutputArray, kTRUE);
-  
+  if ( fSaveOutsideHits ) {
+    fHitOutsideArray = new TClonesArray("PndGemHit");
+    ioman->Register("GEMOutsideHit", "PndGem Hits in inactive region",
+		    fHitOutsideArray, kTRUE);
+  }
+
   // Register output array StsDigi
   fDigis = new TClonesArray("PndGemDigi",1000);
   ioman->Register("GEMDigi", "Digital response in GEM", fDigis, kTRUE);

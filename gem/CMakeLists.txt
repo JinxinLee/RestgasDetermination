@@ -18,6 +18,7 @@ ${CMAKE_SOURCE_DIR}/gem
 ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/recotasks
 ${CMAKE_SOURCE_DIR}/trackbase
+${CMAKE_SOURCE_DIR}/GenfitTools/recohits
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/LSLtrackRep
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
 ${CMAKE_SOURCE_DIR}/geane
@@ -51,7 +52,7 @@ PndGemTrackFinderOnHits.cxx
 PndGemFindTracks.cxx
 PndGemTrackFinderQA.cxx
 PndGemPrepareKalmanTracks.cxx
-PndGemRecoHit.cxx
+#PndGemRecoHit.cxx
 PndGemKalmanTask.cxx
 PndGemIdealPatternRecoTask.cxx
 PndGemMagneticFieldVsTrackParameters.cxx

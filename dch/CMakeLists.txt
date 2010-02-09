@@ -51,8 +51,8 @@ DchData/PndDchHit.cxx
 DchData/PndDchCylinderHit.cxx
 DchFitting/PndDchPreFitterTR.cxx
 DchFitting/PndDchPreFitterTRQATask.cxx
-DchFitting/PndDchRecoHit.cxx
-DchFitting/PndDchRecoHit2.cxx
+#DchFitting/PndDchRecoHit.cxx
+#DchFitting/PndDchRecoHit2.cxx
 DchFitting/PndDchSimpleFitter.cxx
 DchFitting/PndDchPreFitter.cxx
 #DchFitting/PndDchPrepareKalmanTracks.cxx
@@ -68,7 +68,6 @@ DchTracking/PndDchTrackFinderIdealCylHit.cxx
 DchTracking/PndDchFindTracks.cxx
 DchTracking/PndDchMatchTracks.cxx
 DchTracking/PndDchFindTracksQa.cxx
-#DchTracking/PndDchConvertTrackCandTask.cxx
 #DchFitting/PndDchTest.cxx
 #DchTracking/PndDchChamber.cxx
 #DchTracking/PndDchChamberTracklet.cxx

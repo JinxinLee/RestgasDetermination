@@ -420,8 +420,6 @@ void PndGemTrackFinderQA::MatchRecoTracks() {
   fRecoTrackMCMatch.clear();
   fRecoTrackMCMatch.resize(nofRecoTracks,-1);
 
-  Int_t nofTrMCId[100];
-
   PndGemHit* gemHit;
   FairMCPoint* mcPoint;
   PndTrackCand* gemTrackCand;
@@ -430,7 +428,7 @@ void PndGemTrackFinderQA::MatchRecoTracks() {
 
   for ( Int_t irtr = 0 ; irtr < nofRecoTracks ; irtr++ ) {
     gemTrackCand = (PndTrackCand*) fGemTrackArray->At(irtr);
-    for ( Int_t itm = 0 ; itm < 100 ; itm++ ) nofTrMCId[itm] = 0;
+    vector<Int_t> nofTrMCId(500,0);
  
     for ( Int_t ihit = 0 ; ihit < gemTrackCand->GetNHits() ; ihit++ ) { 
       PndTrackCandHit tch = gemTrackCand->GetSortedHit(ihit);
@@ -441,7 +439,7 @@ void PndGemTrackFinderQA::MatchRecoTracks() {
     }
     Int_t bestMCId = -1;
     Int_t largestNofMCId = 0;
-    for ( Int_t itm = 0 ; itm < 100 ; itm++ ) {
+    for ( Int_t itm = 0 ; itm < 500 ; itm++ ) {
       if ( nofTrMCId[itm] == largestNofMCId ) { bestMCId = -1; }
       if ( nofTrMCId[itm]  > largestNofMCId ) { bestMCId = itm; largestNofMCId = nofTrMCId[itm]; }
     }

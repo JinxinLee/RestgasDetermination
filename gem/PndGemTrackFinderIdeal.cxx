@@ -79,7 +79,8 @@ void PndGemTrackFinderIdeal::Init() {
 	 << endl;
     return;
   }
-  cout <<"fMCPointArray #: "<< fMCPointArray->GetEntriesFast() << endl;
+  if ( fVerbose )
+    cout <<"fMCPointArray #: "<< fMCPointArray->GetEntriesFast() << endl;
   
   // Geometry loading
   //TFile *infile = ioman->GetInFile();
@@ -95,17 +96,19 @@ Int_t PndGemTrackFinderIdeal::DoFind(TClonesArray* hitArray,
   
   // Count events
   fNofEvents++;
-  cout << endl << endl<< endl << endl;
-  cout << "=======================================================" << endl;
-  cout << "-I-        Event No: " <<  fNofEvents << endl;
-  cout << "=======================================================" << endl;
-  
-  
-  cout <<"-I- "<< GetName() <<"::DoFind "<< endl;
-  cout << "-------------------------------------------------------" << endl;
-  cout << "     ### Start DoFind" << endl;
-  cout << "-------------------------------------------------------" << endl;
-  
+  if ( fVerbose ) {
+    cout << endl << endl<< endl << endl;
+    cout << "=======================================================" << endl;
+    cout << "-I-        Event No: " <<  fNofEvents << endl;
+    cout << "=======================================================" << endl;
+    
+    
+    cout <<"-I- "<< GetName() <<"::DoFind "<< endl;
+    cout << "-------------------------------------------------------" << endl;
+    cout << "     ### Start DoFind" << endl;
+    cout << "-------------------------------------------------------" << endl;
+  }
+
   // Check pointers
   if( !fMCTrackArray ) {
     cout << "-E- PndGemTrackFinderIdeal::DoFind: "
@@ -130,7 +133,6 @@ Int_t PndGemTrackFinderIdeal::DoFind(TClonesArray* hitArray,
   Int_t nNoTrack     = 0;
   Int_t nNoGemPoint  = 0;
   Int_t nNoGemHit    = 0;
-  Int_t nGemHits6CH  = 0;
   
   // Create pointers to GemHit and GemPoint
   PndGemHit*   gemHit   = NULL;
@@ -149,11 +151,13 @@ Int_t PndGemTrackFinderIdeal::DoFind(TClonesArray* hitArray,
   std::map<Int_t, Double_t> trackPMap;
   std::map<Int_t, Int_t>::iterator itHitMap;
   
-  // Size of fMCTrackArray
-  cout <<"# MC Tracks: "<< fMCTrackArray->GetEntriesFast() << endl;
-  // Size of fMCTrackArray
-  cout <<"# MC Points: "<< fMCPointArray->GetEntriesFast() << endl;
-  
+  if ( fVerbose ) {
+    // Size of fMCTrackArray
+    cout <<"# MC Tracks: "<< fMCTrackArray->GetEntriesFast() << endl;
+    // Size of fMCTrackArray
+    cout <<"# MC Points: "<< fMCPointArray->GetEntriesFast() << endl;
+  }
+
   // Number of Gem hits
   Int_t nGemHits = hitArray->GetEntriesFast();
   if(fVerbose > 2) cout <<"# GemHits: "<< nGemHits << endl;
@@ -163,10 +167,11 @@ Int_t PndGemTrackFinderIdeal::DoFind(TClonesArray* hitArray,
     gemHit = (PndGemHit*) hitArray->At(iHit);
     if(gemHit->GetDetectorID() > relDetID) {
       if(NULL == gemHit ) continue;
-      nGemHits6CH++;
       
       // Get point index
       ptIndex = gemHit->GetRefIndex();
+
+      if ( ptIndex == -1 ) continue;
 
       // Get pointer to MC point
       mcPoint = (FairMCPoint*) fMCPointArray->At(ptIndex);
@@ -226,11 +231,13 @@ Int_t PndGemTrackFinderIdeal::DoFind(TClonesArray* hitArray,
     TLorentzVector tlVec = mcTrack->Get4Momentum();
     //    Double_t mom = tlVec.Mag();
     Double_t mom = trackPMap[iMCTrack];
-    cout << "momentum is " << mom << " (" 
- 	 << tlVec.X() << " , " 
- 	 << tlVec.Y() << " , " 
- 	 << tlVec.Z() << " , " 
- 	 << tlVec.T() << ") " << endl;
+    if ( fVerbose > 2 ) {
+      cout << "momentum is " << mom << " (" 
+	   << tlVec.X() << " , " 
+	   << tlVec.Y() << " , " 
+	   << tlVec.Z() << " , " 
+	   << tlVec.T() << ") " << endl;
+    }
 
 //     if(mom != 0) {
 //       gemTrack->GetParamLast()->SetQp(1./mom);
@@ -285,7 +292,7 @@ Int_t PndGemTrackFinderIdeal::DoFind(TClonesArray* hitArray,
       continue;
     }
     
-    gemTrackCand->AddHit(kGEM,iHit,gemHit->GetZ());
+    gemTrackCand->AddHit(kGemHit,iHit,gemHit->GetZ());
     //    cout << "gemTrack " << trackIndex << " has " << gemTrack->GetNofGemHits() << endl;
     
     if(fVerbose > 3) {
@@ -321,7 +328,7 @@ Int_t PndGemTrackFinderIdeal::DoFind(TClonesArray* hitArray,
     cout << "-------------------------------------------------------" << endl;
     cout << "-I-      "<< GetName() <<": Event summary      -I-" << endl;
     cout << "-------------------------------------------------------" << endl;
-    cout << "Total Gem hits:  " << nGemHits <<"   In 6CH: "<< nGemHits6CH << endl;
+    cout << "Total Gem hits:  " << nGemHits << endl;
     cout << "MC tracks total: " << nMCTracks << ", accepted: "
 	 << nMCacc << ", reconstructable: " << nTracks << endl;
     if(nNoGemHit)   cout << "GemHits not found   : " << nNoGemHit   << endl;
@@ -331,9 +338,9 @@ Int_t PndGemTrackFinderIdeal::DoFind(TClonesArray* hitArray,
     cout << "------------------------------------------------------" << endl;
     cout << endl;
   } else {
-    cout << "All: "        << nMCTracks
-	 << ", Accepted: "      << nMCacc
-	 << ", Reconstructed: " << nTracks << endl;
+//     cout << "All: "        << nMCTracks
+// 	 << ", Accepted: "      << nMCacc
+// 	 << ", Reconstructed: " << nTracks << endl;
   }
   
   return nTracks;

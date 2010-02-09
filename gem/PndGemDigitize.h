@@ -57,6 +57,9 @@ class PndGemDigitize : public FairTask
   virtual void Exec(Option_t* opt);
 
 
+  /** Switch saving outside hits **/
+  void SaveOutsideHits(Bool_t bt=kTRUE) {fSaveOutsideHits = bt;}
+
 
  private:
 
@@ -78,7 +81,9 @@ class PndGemDigitize : public FairTask
    ** to index of PndGemDigi **/
   std::map<std::pair<Int_t, Int_t>, Int_t> fChannelMap; //!
  
-  TClonesArray* fHitOutputArray;
+  TClonesArray* fHitOutsideArray;
+
+  Bool_t fSaveOutsideHits; /** whether to save the hits **/
 
   /** Get parameter containers **/
   virtual void SetParContainers();

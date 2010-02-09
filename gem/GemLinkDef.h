@@ -28,7 +28,7 @@
 #pragma link C++ class PndGemTrackFinderQA+;
 
 #pragma link C++ class PndGemPrepareKalmanTracks+;
-#pragma link C++ class PndGemRecoHit+;
+//#pragma link C++ class PndGemRecoHit+;
 #pragma link C++ class PndGemKalmanTask+;
 
 #pragma link C++ class PndGemIdealPatternRecoTask+;

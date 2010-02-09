@@ -40,6 +40,11 @@ PndGemFindTracks::PndGemFindTracks() {
   fTrackArray          = NULL;
   fNofTracks           = 0;
   fUseHitOrDigi        = "hit";
+
+  fTTime      = 0.;
+  fTNofTracks = 0;
+  fTNofEvents = 0;
+
 }
 // -------------------------------------------------------------------------
 
@@ -163,7 +168,7 @@ void PndGemFindTracks::Exec(Option_t* opt) {
 void PndGemFindTracks::Finish() {
   fTrackArray->Clear();
 
-  cout << "-------------------- " << fName.Data() << " : Summary ------------------" << endl;
+  cout << "-------------------- " << fName.Data() << " : Summary ---------------------" << endl;
   cout << " Events:        " << setw(10) << fTNofEvents << endl;
   cout << " Tracks:     " << setw(10) << fTNofTracks << "    ( " << (Double_t)fTNofTracks/((Double_t)fTNofEvents) << " per event )" << endl;
   cout << " Time:       " << setw(10) << fTTime      << "    ( " << fTTime/((Double_t)fTNofEvents) << " per event )" << endl;

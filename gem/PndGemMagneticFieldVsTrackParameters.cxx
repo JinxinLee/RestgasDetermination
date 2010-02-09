@@ -233,6 +233,7 @@ Int_t PndGemMagneticFieldVsTrackParameters::Fill2StationsHistograms() {
     mcTrack = (PndMCTrack*)fMCTrackArray->At(mcTrackId);
     TVector3 mcMomVec = mcTrack->GetMomentum();
     Double_t tMom    = mcMomVec.Mag();
+    Double_t pMom    = TMath::RadToDeg()*mcMomVec.Phi() + (mcMomVec.Phi()>=0?0.:360.);
 
     for ( Int_t imcp2 = imcp1+1 ; imcp2 < nofGemPoints ; imcp2++ ) {
       mcPoint2 = (PndGemMCPoint*)fMCPointArray->At(imcp2);
@@ -252,12 +253,17 @@ Int_t PndGemMagneticFieldVsTrackParameters::Fill2StationsHistograms() {
       fhRadiusVsAngle->Fill((p2PhiAng-p1PhiAng)*p1Z/p2Z,p2Radius*p1Z/(p1Radius*p2Z));
 
       Int_t histNo = -1;
-      if ( TMath::Abs(p1Z- 90.) < 2. && TMath::Abs(p2Z-120.) < 2. ) histNo = 0;      
-      if ( TMath::Abs(p1Z- 90.) < 2. && TMath::Abs(p2Z-150.) < 2. ) histNo = 1;      
-      if ( TMath::Abs(p1Z- 90.) < 2. && TMath::Abs(p2Z-180.) < 2. ) histNo = 2;      
-      if ( TMath::Abs(p1Z-120.) < 2. && TMath::Abs(p2Z-150.) < 2. ) histNo = 3;      
-      if ( TMath::Abs(p1Z-120.) < 2. && TMath::Abs(p2Z-180.) < 2. ) histNo = 4;      
-      if ( TMath::Abs(p1Z-150.) < 2. && TMath::Abs(p2Z-180.) < 2. ) histNo = 5;
+      Int_t ihist  =  0;
+      for ( Int_t istat1 = 0 ; istat1 < fDigiPar->GetNStations() ; istat1++ ) {
+	PndGemStation* stat1 = (PndGemStation*)fDigiPar->GetStation(istat1);
+	Double_t zStation1 = stat1->GetZ();
+	for ( Int_t istat2 = istat1+1 ; istat2 < fDigiPar->GetNStations() ; istat2++ ) {
+	  PndGemStation* stat2 = (PndGemStation*)fDigiPar->GetStation(istat2);
+	  Double_t zStation2 = stat2->GetZ();
+	  if ( TMath::Abs(p1Z-zStation1) < 2. && TMath::Abs(p2Z-zStation2) < 2. ) histNo = ihist;      
+	  ihist++;
+	}
+      }
       if ( histNo == -1 ) continue;
       fhRadiusVsAnglePair[histNo]->Fill((p2PhiAng-p1PhiAng)*p1Z/p2Z,p2Radius*p1Z/(p1Radius*p2Z));
 
@@ -268,6 +274,9 @@ Int_t PndGemMagneticFieldVsTrackParameters::Fill2StationsHistograms() {
 
       fhMomentumVsPhiDiffAll[histNo]                    ->Fill(TMath::Abs(p2PhiAng-p1PhiAng),tMom);
       fhMomentumVsPhiDiff   [histNo][Int_t(p1Radius/5.)]->Fill(TMath::Abs(p2PhiAng-p1PhiAng),tMom);
+
+      fhTrackPhiVsHitPhis   [histNo]                    ->Fill(p1PhiAng,(p1PhiAng-p2PhiAng)*p1Z/(p2Z-p1Z),pMom);
+      fhTrackPhiVsCalcPhi   [histNo]                    ->Fill(p1PhiAng+(p1PhiAng-p2PhiAng)*p1Z/(p2Z-p1Z),pMom);
 
     }
   }
@@ -307,6 +316,14 @@ void PndGemMagneticFieldVsTrackParameters::CreateHistos() {
   const Int_t nofDetMomBins = 100;
   Double_t minMom =  0.;
   Double_t maxMom = 10.;
+  const Int_t nofPhi1Bins = 360;
+  Double_t phi1Bins[nofPhi1Bins+1];
+  for ( Int_t itemp = 0 ; itemp < nofPhi1Bins+1 ; itemp++ ) phi1Bins[itemp] = itemp;
+  const Int_t nofPhi2Bins = 120;
+  Double_t minPhi2 = -60.;
+  Double_t maxPhi2 =  60.;
+  Double_t phi2Bins[nofPhi2Bins+1];
+  for ( Int_t itemp = 0 ; itemp < nofPhi2Bins+1 ; itemp++ ) phi2Bins[itemp] = minPhi2 + (Double_t)itemp*(maxPhi2-minPhi2)/(Double_t(nofPhi2Bins));
 
   fhThetaVsRadiusVsMomentumAll = new TH3F("fhThetaVsRadiusVsMomentumAll",
 					  "Track Theta vs Point Radius/Z vs Track Momentum, all;p [GeV/c];r [cm];#theta [#circ]",
@@ -372,6 +389,18 @@ void PndGemMagneticFieldVsTrackParameters::CreateHistos() {
 	fHistoList->Add(ffMomentumVsPhiDiff[crHist][irad]);
       }
       
+      fhTrackPhiVsHitPhis   [crHist] = new TH3F(Form("fhTrackPhiVsHitPhis_s%d_s%d",istat1+1,istat2+1),
+						Form("Track phi vs hit1 phi vs phi difference/z ratio, stat%d vs stat%d;#phi_{1} [#circ];(#phi_{2} - #phi_{1})*z__{2}/z_{1} [#circ];#phi_{T} [#circ]",istat1+1,istat2+1),
+						nofPhi1Bins,phi1Bins,
+						nofPhi2Bins,phi2Bins,
+						nofPhi1Bins,phi1Bins);
+      fhTrackPhiVsCalcPhi   [crHist] = new TH2F(Form("fhTrackPhiVsCalcPhi_s%d_s%d",istat1+1,istat2+1),
+						Form("Track MC phi vs track calculated phi;#phi_{calc} [#circ];#phi_{MC} [#circ]",istat1+1,istat2+1),
+						nofPhi1Bins,phi1Bins,
+						nofPhi1Bins,phi1Bins);
+      fHistoList->Add(fhTrackPhiVsHitPhis[crHist]);
+      fHistoList->Add(fhTrackPhiVsCalcPhi[crHist]);
+
       crHist++;
     }
   }

@@ -11,6 +11,8 @@ ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/LSLtrackRep
 ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/trackbase
+${CMAKE_SOURCE_DIR}/dch/DchData
+${CMAKE_SOURCE_DIR}/pnddata/GemData
 ${CMAKE_SOURCE_DIR}/pnddata/MdtData
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
 ${CMAKE_SOURCE_DIR}/geane
@@ -28,6 +30,9 @@ link_directories( ${LINK_DIRECTORIES})
 
 
 set(RECOHITS_SRCS 
+PndDchRecoHit.cxx
+PndDchRecoHit2.cxx
+PndGemRecoHit.cxx
 PndMdtRecoHit.cxx
 )
 
@@ -36,6 +41,9 @@ if(RULE_CHECKER_FOUND)
 endif(RULE_CHECKER_FOUND)
 
 set(RECOHITS_HEADERS
+PndDchRecoHit.h
+PndDchRecoHit2.h
+PndGemRecoHit.h
 PndMdtRecoHit.h 
 )
 

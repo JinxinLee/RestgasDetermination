@@ -110,7 +110,9 @@ class PndGemMagneticFieldVsTrackParameters : public FairTask
   TF2*  ffMomentumVsPhiDiffVsRadius[10];
   TF1*  ffMomentumVsPhiDiffAll[10];
   TF1*  ffMomentumVsPhiDiff   [10][20];
-
+  // track phi versus hits phis
+  TH3F* fhTrackPhiVsHitPhis   [10];
+  TH2F* fhTrackPhiVsCalcPhi   [10];
 
   Int_t Fill1StationHistograms();
   Int_t Fill2StationsHistograms();
