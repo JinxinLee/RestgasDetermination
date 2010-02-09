@@ -90,14 +90,14 @@ protected:
   PndPidCandidate* AddChargedCandidate(PndPidCandidate* cand); 
   PndPidCandidate* AddNeutralCandidate(PndPidCandidate* cand);
  
-  void GetTrackInfo(PndTrack* track, PndPidCandidate* pid); 
-  void GetMvdInfo  (PndTrack* track, PndPidCandidate* pid); 
-  void GetSttInfo  (PndTrack* track, PndPidCandidate* pid);  
-  void GetTpcInfo  (PndTrack* track, PndPidCandidate* pid); 
-  void GetTofInfo  (FairTrackParH* helix, PndPidCandidate* pid); 
-  void GetEmcInfo  (FairTrackParH* helix, PndPidCandidate* pid); 
-  void GetMdtInfo  (FairTrackParH* helix, PndPidCandidate* pid);   
-  void GetDrcInfo  (FairTrackParH* helix, PndPidCandidate* pid); 
+  Bool_t GetTrackInfo(PndTrack* track, PndPidCandidate* pid); 
+  Bool_t GetMvdInfo  (PndTrack* track, PndPidCandidate* pid); 
+  Bool_t GetSttInfo  (PndTrack* track, PndPidCandidate* pid);  
+  Bool_t GetTpcInfo  (PndTrack* track, PndPidCandidate* pid); 
+  Bool_t GetTofInfo  (FairTrackParH* helix, PndPidCandidate* pid); 
+  Bool_t GetEmcInfo  (FairTrackParH* helix, PndPidCandidate* pid); 
+  Bool_t GetMdtInfo  (FairTrackParH* helix, PndPidCandidate* pid);   
+  Bool_t GetDrcInfo  (FairTrackParH* helix, PndPidCandidate* pid); 
   
 public:
 

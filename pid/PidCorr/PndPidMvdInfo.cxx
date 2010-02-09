@@ -21,7 +21,7 @@
 
 #include "PndPidCorrelator.h"
 //_________________________________________________________________
-void PndPidCorrelator::GetMvdInfo(PndTrack* track, PndPidCandidate* pidCand) 
+Bool_t PndPidCorrelator::GetMvdInfo(PndTrack* track, PndPidCandidate* pidCand) 
 {
   Float_t mvdELoss = 0.; // total energy lost in MVD;
   Float_t mvdPath = 0.;  // total thickness crossed in MVD
@@ -78,11 +78,12 @@ void PndPidCorrelator::GetMvdInfo(PndTrack* track, PndPidCandidate* pidCand)
 	  mvdPath += thickness;
 	  fMvdHitCount++;
 	}
-      if (fVerbose) std::cout << mvdHit->GetDetName() << "\t" << mvdHit->GetEloss() << "\t" << thickness << std::endl;
+      if (fVerbose>1) std::cout << mvdHit->GetDetName() << "\t" << mvdHit->GetEloss() << "\t" << thickness << std::endl;
     }
   
   if (mvdPath>0.) pidCand->SetMvdDEDX(mvdELoss/mvdPath);
   pidCand->SetMvdHits(mvdCounts);
+  return kTRUE;
 }
 
 ClassImp(PndPidCorrelator)

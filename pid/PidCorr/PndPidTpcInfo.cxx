@@ -20,7 +20,7 @@
 #include "PndPidCorrelator.h"
 
 //_________________________________________________________________
-void PndPidCorrelator::GetTpcInfo(PndTrack* track, PndPidCandidate* pidCand) {
+Bool_t PndPidCorrelator::GetTpcInfo(PndTrack* track, PndPidCandidate* pidCand) {
   // TO BE IMPLEMENTED 
 }
 

@@ -88,7 +88,8 @@ class PndPidCandidate : public VAbsMicroCandidate  //TObject
   Float_t		GetTofTrackLength() const { return fTofTrackLength; }
   Float_t		GetTofQuality()     const { return fTofQuality; }
   Int_t                 GetTofIndex()       const { return fTofIndex; }
-  
+  Float_t               GetTofBeta()        const { return (fTofStopTime>0.&&fTofTrackLength>0.) ? fTofTrackLength/(30. * fTofStopTime) : -1.; } 
+
   // Barrel DIRC
   Float_t		GetDrcThetaC()          const { return fDrcThetaC;}
   Float_t		GetDrcThetaCErr()       const { return fDrcThetaCErr;}

@@ -22,7 +22,7 @@
 #include "PndPidCorrelator.h"
 
 //_________________________________________________________________
-void PndPidCorrelator::GetSttInfo(PndTrack* track, PndPidCandidate* pidCand) {
+Bool_t PndPidCorrelator::GetSttInfo(PndTrack* track, PndPidCandidate* pidCand) {
  
   std::vector<Double_t> dedxvec;
   dedxvec.clear();

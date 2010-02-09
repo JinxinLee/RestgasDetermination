@@ -313,19 +313,13 @@ void PndPidCorrelator::SetParContainers() {
 //______________________________________________________
 void PndPidCorrelator::Exec(Option_t * option) {
   //-
-  cout << " =====   PndPidCorrelator: ";
+  cout << " =====   PndPidCorrelator: Number of tracks for pid " << fTrack->GetEntriesFast();
+  cout << " - Number of EMC Cluster for pid " << fEmcCluster->GetEntriesFast() << endl;;
   Reset();
   
-  if (fTrack) {
-    cout << " Number of tracks for pid " << fTrack->GetEntriesFast();
-    ConstructChargedCandidate();
-  }
+  if (fTrack)     ConstructChargedCandidate();
+  if (fEmcMode>0) ConstructNeutralCandidate();
   
-  if (fEmcMode>0) {
-    cout << " - Number of EMC Cluster for pid " << fEmcCluster->GetEntriesFast();
-    ConstructNeutralCandidate();
-  }
-  cout << endl;
 }
 
 //______________________________________________________
@@ -351,7 +345,7 @@ void PndPidCorrelator::ConstructChargedCandidate() {
 	  }
       }
     pidCand->SetTrackIndex(i);
-    GetTrackInfo(track, pidCand);
+    if (!GetTrackInfo(track, pidCand)) continue;
     GetMvdInfo(track, pidCand); 
     //GetTpcInfo(track, pidCand); 
     if ( (fSttMode==3) && (fSttHit    ->GetEntriesFast()>0) ) GetSttInfo(track, pidCand);
@@ -397,7 +391,6 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
 	  
 	}
 
-      
       TVector3 vtx(0,0,0);
       TVector3 v1=bump->where();
       TVector3 p3;
@@ -422,12 +415,12 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
 }
 
 //_________________________________________________________________
-void PndPidCorrelator::GetTofInfo(FairTrackParH* helix, PndPidCandidate* pidCand) {
+Bool_t PndPidCorrelator::GetTofInfo(FairTrackParH* helix, PndPidCandidate* pidCand) {
 
   if (!fIdeal)
     {
-      if ((helix->GetMomentum().Theta()*TMath::RadToDeg())<20.) return; 
-      if ((helix->GetMomentum().Theta()*TMath::RadToDeg())>150.) return;
+      if ((helix->GetMomentum().Theta()*TMath::RadToDeg())<20.) return kFALSE; 
+      if ((helix->GetMomentum().Theta()*TMath::RadToDeg())>150.) return kFALSE;
     }
   //---
   PndTofHit *tofHit = NULL; 
@@ -453,15 +446,15 @@ void PndPidCorrelator::GetTofInfo(FairTrackParH* helix, PndPidCandidate* pidCand
 	  fProTof->PropagateToPCA(1, 1);
 	  FairTrackParH *fRes= new FairTrackParH();
 	  Bool_t rc =  fProTof->Propagate(helix, fRes, -13*pidCand->GetCharge());	
-	  if (rc)
-	    {
-	      vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
-	      tofGLength = fProTof->GetLengthAtPCA();
-	    }
-	  else
-	    {
-	      vertex.SetXYZ(-10000., -10000., -10000.);
-	    }
+	  if (!rc) continue;
+	  
+	  vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
+	  FairGeanePro *fProVertex = new FairGeanePro();
+	  fProVertex->SetPoint(TVector3(0,0,0));
+	  fProVertex->PropagateToPCA(1, -1);
+	  FairTrackParH *fRes2= new FairTrackParH();
+	  Bool_t rc2 =  fProVertex->Propagate(fRes, fRes2, -13*pidCand->GetCharge());
+	  if (rc2) tofLength = fProVertex->GetLengthAtPCA();
 	}
       
       Float_t dist = (tofPos-vertex).Mag2();
@@ -490,11 +483,12 @@ void PndPidCorrelator::GetTofInfo(FairTrackParH* helix, PndPidCandidate* pidCand
       pidCand->SetTofTrackLength(tofLength);
       pidCand->SetTofIndex(tofIndex);
     }
-  
+
+  return kTRUE;
 }
 
 //_________________________________________________________________
-void PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCand) { 
+Bool_t PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCand) { 
   //---
   Float_t trackTheta = helix->GetMomentum().Theta()*TMath::RadToDeg();
   PndEmcCluster *emcHit = NULL;
@@ -531,12 +525,11 @@ void PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCand
           vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
           FairTrackParH *fRes= new FairTrackParH();
           Bool_t rc =  fProEmc->Propagate(helix, fRes, -13*pidCand->GetCharge()); // First propagation at module
-          if (rc)
-	    {
-	      emcGLength = fProEmc->GetLengthAtPCA();
-	      vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
-	    }
-          //std::map<PndEmcTwoCoordIndex*, PndEmcXtal*> tciXtalMap=PndEmcStructure::Instance()->GetTciXtalMap();
+	  if (!rc) continue;
+	   
+	  emcGLength = fProEmc->GetLengthAtPCA();
+	  vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
+	  //std::map<PndEmcTwoCoordIndex*, PndEmcXtal*> tciXtalMap=PndEmcStructure::Instance()->GetTciXtalMap();
           //PndEmcDigi *lDigi= (PndEmcDigi*)emcHit->Maxima();
           //PndEmcXtal* xtal = tciXtalMap[lDigi->GetTCI()];
           //emcPos = xtal->frontCentre();
@@ -571,10 +564,12 @@ void PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCand
       pidCand->SetEmcModule(emcModuleCorr);
       pidCand->SetEmcNumberOfCrystals(emcNCrystals);
     }
+
+  return kTRUE;
 }
 
 //_________________________________________________________________
-void PndPidCorrelator::GetMdtInfo(FairTrackParH* helix, PndPidCandidate* pidCand) {
+Bool_t PndPidCorrelator::GetMdtInfo(FairTrackParH* helix, PndPidCandidate* pidCand) {
   //---
   map<Int_t, Int_t>mapMdtTrk;
   
@@ -611,11 +606,10 @@ void PndPidCorrelator::GetMdtInfo(FairTrackParH* helix, PndPidCandidate* pidCand
           vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
 	  FairTrackParH *fRes= new FairTrackParH();
 	  Bool_t rc =  fProMdt->Propagate(helix, fRes, -13*pidCand->GetCharge()); 
-	  if (rc)
-	    {
-	      vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
-	      mdtGLength = fProMdt->GetLengthAtPCA();
-	    }
+	  if (!rc) continue;
+	    
+	  vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
+	  mdtGLength = fProMdt->GetLengthAtPCA();
 	}
       
       Float_t dist;
@@ -658,11 +652,12 @@ void PndPidCorrelator::GetMdtInfo(FairTrackParH* helix, PndPidCandidate* pidCand
       pidCand->SetMuoModule(mdtMod);
       pidCand->SetMuoNumberOfLayers(mdtLayer);
     }
+  return kTRUE;
 }
 
 //_________________________________________________________________
-void PndPidCorrelator::GetDrcInfo(FairTrackParH* helix, PndPidCandidate* pidCand) {
-  if ((helix->GetMomentum().Theta()*TMath::RadToDeg())<20.) return;
+Bool_t PndPidCorrelator::GetDrcInfo(FairTrackParH* helix, PndPidCandidate* pidCand) {
+  if ((helix->GetMomentum().Theta()*TMath::RadToDeg())<20.) return kFALSE;
  
   //---
   PndDrcHit *drcHit = NULL;
@@ -687,15 +682,9 @@ void PndPidCorrelator::GetDrcInfo(FairTrackParH* helix, PndPidCandidate* pidCand
 	  vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
 	  FairTrackParH *fRes= new FairTrackParH();
 	  Bool_t rc =  fProDrc->Propagate(helix, fRes, -13*pidCand->GetCharge()); 	
-	  if (rc)
-	    {
-	      vertex.SetXYZ(fRes->GetX(), fRes->GetY(), 0.);
-	      drcGLength = fProDrc->GetLengthAtPCA();
-	    }
-	  else
-	    {
-	      vertex.SetXYZ(-10000., -10000., -10000.);
-	    }
+	  if (!rc) continue;
+	  vertex.SetXYZ(fRes->GetX(), fRes->GetY(), 0.);
+	  drcGLength = fProDrc->GetLengthAtPCA();
 	}
       
       Float_t dphi = vertex.DeltaPhi(drcPos);
@@ -726,7 +715,7 @@ void PndPidCorrelator::GetDrcInfo(FairTrackParH* helix, PndPidCandidate* pidCand
       pidCand->SetDrcNumberOfPhotons(drcPhot);
       pidCand->SetDrcIndex(drcIndex);
     }
-  
+  return kTRUE;
 }
 
 //_________________________________________________________________
