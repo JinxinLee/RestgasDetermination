@@ -63,6 +63,16 @@ void PndMvdContFact::setAllContainers() {
   p4->addContext("TestNonDefaultContext");
   fDigiParNames->Add(new TObjString(p4->GetName()));
   containers->Add(p4);
+
+  FairContainer* p5 = new FairContainer("MVDStripDigiParTD", "PndMvd Strip Digitization Parameters (rectangular double sided test sensors)", "TestDefaultContext");
+  p5->addContext("TestNonDefaultContext");
+  fDigiParNames->Add(new TObjString(p5->GetName()));
+  containers->Add(p5);
+  
+  FairContainer* p6 = new FairContainer("MVDStripDigiParTS", "PndMvd Strip Digitization Parameters (rectangular single sided test sensors)", "TestDefaultContext");
+  p6->addContext("TestNonDefaultContext");
+  fDigiParNames->Add(new TObjString(p6->GetName()));
+  containers->Add(p6);
   
 }
 
@@ -85,7 +95,15 @@ FairParSet* PndMvdContFact::createContainer(FairContainer* c) {
   }
   
   if (strcmp(name,"MVDStripDigiParTrap")==0) {
-  p=new PndMvdStripDigiPar(c->getConcatName().Data(),c->GetTitle(),c->getContext());
+    p=new PndMvdStripDigiPar(c->getConcatName().Data(),c->GetTitle(),c->getContext());
+  }
+  
+  if (strcmp(name,"MVDStripDigiParTD")==0) {
+    p=new PndMvdStripDigiPar(c->getConcatName().Data(),c->GetTitle(),c->getContext());
+  }
+  
+  if (strcmp(name,"MVDStripDigiParTS")==0) {
+    p=new PndMvdStripDigiPar(c->getConcatName().Data(),c->GetTitle(),c->getContext());
   }
   
   return p;

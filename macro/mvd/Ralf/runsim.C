@@ -132,16 +132,8 @@
 
  // Field Map Definition
  // --------------------
-   PndMultiField *fField= new PndMultiField();
-
-   PndTransMap *map= new PndTransMap("TransMap", "R");
-   PndDipoleMap *map1= new PndDipoleMap("DipoleMap", "R");
-   PndSolenoidMap *map2= new PndSolenoidMap("SolenoidMap", "R");
-   fField->AddField(map);
-   fField->AddField(map1);
-   fField->AddField(map2);
-
-   fRun->SetField(fField);
+  PndMultiField *fField= new PndMultiField("FULL");
+  fRun->SetField(fField);
 
    //fRun->SetStoreTraj(kTRUE);
    fRun->SetStoreTraj(kFALSE);

@@ -454,6 +454,8 @@ Bool_t PndMvdStripHitProducer::SelectSensorParams(TString detname)
     return kFALSE;
   }
 
+Info("SelectSensorParams()","called for %s",detpath.Data());
+  
   TIter parsetiter(fDigiParameterList);
   while ( PndMvdStripDigiPar* digipar = (PndMvdStripDigiPar*)parsetiter() ) 
   {

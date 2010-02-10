@@ -42,10 +42,10 @@ void anaclust()
   TClonesArray* digiStrip_array=new TClonesArray("PndMvdDigiStrip");
   t->SetBranchAddress("MVDStripDigis",&digiStrip_array);//Branch names
 
-  TClonesArray* stripClust_array=new TClonesArray("PndMvdCluster");
+  TClonesArray* stripClust_array=new TClonesArray("PndMvdClusterStrip");
   t->SetBranchAddress("MVDStripClusterCand",&stripClust_array);//Branch names
 
-  TClonesArray* pixelClust_array=new TClonesArray("PndMvdCluster");
+  TClonesArray* pixelClust_array=new TClonesArray("PndMvdClusterPixel");
   t->SetBranchAddress("MVDPixelClusterCand",&pixelClust_array);//Branch names
 
   TClonesArray* stripHit_array=new TClonesArray("PndMvdHit");
@@ -152,7 +152,7 @@ void anaclust()
 //     std::map<int,std::vector<int> > digirec;
 //     for (int k=0;k<stripClust_array->GetEntriesFast();k++)
 //     {
-//       PndMvdCluster* aclust = (PndMvdCluster*)stripClust_array->At(k);
+//       PndMvdClusterStrip* aclust = (PndMvdClusterStrip*)stripClust_array->At(k);
 //       for(int m=0;m<aclust->GetClusterSize();m++)
 //       {
 //         digirec[aclust->GetDigiIndex(m)].push_back(k);
@@ -189,7 +189,7 @@ void anaclust()
       int botclustid = hit->GetBotIndex();
       if(verbose) cout<<"top/bot cluster index "<< topclustid<<"/"<<botclustid<<" ";
       if(verbose) cout<< "  |  ";
-      PndMvdCluster *clust = (PndMvdCluster*)stripClust_array->At(topclustid);
+      PndMvdClusterStrip *clust = (PndMvdClusterStrip*)stripClust_array->At(topclustid);
       if(verbose) cout<< topclustid<<"  "<<clust<<"  ";
       Int_t clsize = clust->GetClusterSize();
       if(verbose) cout<<clsize <<" ";
@@ -198,7 +198,7 @@ void anaclust()
       int bclsize =-1;
       if(botclustid>=0){
         if(verbose) cout<< " | "<<botclustid <<"   ";
-        PndMvdCluster *botcl = (PndMvdCluster*)stripClust_array->At(botclustid);
+        PndMvdClusterStrip *botcl = (PndMvdClusterStrip*)stripClust_array->At(botclustid);
         bclsize = botcl->GetClusterSize();
         if(verbose) cout<< botcl <<"  "<<bclsize<<"  |  ";
       }

@@ -150,50 +150,8 @@ primGen->AddGenerator(&pndFlatGen);
   // 
   fRun->SetStoreTraj(kFALSE);
   
-  PndMultiField *fField= new PndMultiField();
-
-  PndTransMap *map= new PndTransMap("TransMap", "R");
-  PndDipoleMap *map1= new PndDipoleMap("DipoleMap", "R");
-  PndSolenoidMap *map2= new PndSolenoidMap("SolenoidMap", "R");
-  fField->AddField(map);
-  fField->AddField(map1);
-  fField->AddField(map2);
-  
-/**
- // New field oct.2008
-  PndTransMap  *tmap= new PndTransMap("Trans1", "R");
-  PndDipoleMap *dmap1= new PndDipoleMap("Dipole1", "R");
-  PndDipoleMap *dmap2= new PndDipoleMap("Dipole2", "R");
-    
-  PndSolenoidMap *smap1= new PndSolenoidMap("Solenoid1", "R");
-  PndSolenoidMap *smap2= new PndSolenoidMap("Solenoid2", "R");
-  PndSolenoidMap *smap3= new PndSolenoidMap("Solenoid3", "R");
-  PndSolenoidMap *smap4= new PndSolenoidMap("Solenoid4", "R");
-        
-  fField->AddField(tmap);
-  fField->AddField(dmap1);
-  fField->AddField(dmap2);
-
-  fField->AddField(smap1);
-  fField->AddField(smap2);
-  fField->AddField(smap3);
-  fField->AddField(smap4);
-*/
-
-
-
-
-
-
-  //magnetic field
-  /*  PndConstField *fMagField=new PndConstField();
-      fMagField->SetField(0.,0.,20.); // values are in kG
-      fMagField->SetFieldRegion(-50, 50,-50, 50, -100, 100);// values are in cm (xmin,xmax,ymin,ymax,zmin,zmax)
-      fField->AddField(fMagField);
-  */
+  PndMultiField *fField= new PndMultiField("FULL");
   fRun->SetField(fField);
-  
-
 
   fRun->Init();
 /*
@@ -215,32 +173,6 @@ primGen->AddGenerator(&pndFlatGen);
   CbmRuntimeDb *rtdb=fRun->GetRuntimeDb();
   Bool_t kParameterMerged=kTRUE;
   
-   
-   
-     
-  //if a field is used save the parameters in the RTDB
-  /*    
-	PndSolenoidPar* Par1 = (PndSolenoidPar*) rtdb->getContainer("PndSolenoidPar");
-	if ( map2 ) {  Par1->SetParameters(map2); }
-	Par1->setChanged();
-	Par1->setInputVersion(fRun->GetRunId(),1);
- 
-	PndDipolePar* Par2 = (PndDipolePar*) rtdb->getContainer("PndDipolePar");
-	if (map1 ) {  Par2->SetParameters(map1); }
-	Par2->setInputVersion(fRun->GetRunId(),1);
-	Par2->setChanged();
-  
-	PndTransPar* Par3 = (PndTransPar*) rtdb->getContainer("PndTransPar");
-	if (map ) {  Par3->SetParameters(map); }
-	Par3->setInputVersion(fRun->GetRunId(),1);
-	Par3->setChanged();
-  */
-
-  PndMultiFieldPar* Par = (PndMultiFieldPar*) rtdb->getContainer("PndMultiFieldPar");
-  if (fField) {  Par->SetParameters(fField); }
-  Par->setInputVersion(fRun->GetRunId(),1);
-  Par->setChanged();
-
   CbmParRootFileIo* output=new CbmParRootFileIo(kParameterMerged);
   output->open("testparams.root");
   rtdb->setOutput(output);

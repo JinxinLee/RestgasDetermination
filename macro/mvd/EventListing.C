@@ -29,8 +29,8 @@ void EventListing()
 	TClonesArray* StripDigis = new TClonesArray("PndMvdDigiStrip");
 	TClonesArray* PixReco = new TClonesArray("PndMvdHit");
 	TClonesArray* StripReco = new TClonesArray("PndMvdHit");
-	TClonesArray* PixCluster = new TClonesArray("PndMvdCluster");
-	TClonesArray* StripCluster = new TClonesArray("PndMvdCluster");
+	TClonesArray* PixCluster = new TClonesArray("PndMvdClusterPixel");
+	TClonesArray* StripCluster = new TClonesArray("PndMvdClusterStrip");
 	//TClonesArray* TrackCand = new TClonesArray("TrackCand");
 		
 	t->SetBranchAddress("MVDPoint", &MCHits);
@@ -38,7 +38,7 @@ void EventListing()
 	t->SetBranchAddress("MVDStripDigis", &StripDigis);
 	t->SetBranchAddress("MVDHitsPixel", &PixReco);
 	t->SetBranchAddress("MVDHitsStrip", &StripReco);
-	t->SetBranchAddress("MVDClusterCand", &PixCluster);
+	t->SetBranchAddress("MVDPixelClusterCand", &PixCluster);
 	t->SetBranchAddress("MVDStripClusterCand", &StripCluster);
 	
 	t->GetEntry(0);
@@ -57,7 +57,7 @@ void EventListing()
 				std::cout << "PixDigi: ";														//write out DigiInfo
 				myPixDigi->Print();
 				for (int k = 0; k < PixCluster->GetEntriesFast(); k++){							//get all clusters
-					PndMvdCluster* myPixCluster = (PndMvdCluster*)PixCluster->At(k);
+					PndMvdClusterPixel* myPixCluster = (PndMvdClusterPixel*)PixCluster->At(k);
 					if (myPixCluster->DigiBelongsToCluster(j)){									//test if digi belongs to cluster
 						std::cout << "Digi " << j << " belongs to cluster: " << k << std::endl; //write out cluster info
 						for (int l = 0; l < PixReco->GetEntriesFast(); l++){					//get all RecoHits
@@ -81,7 +81,7 @@ void EventListing()
 				std::cout << "StripDigi: "; // << myStripDigi;
 				myStripDigi->Print();
 				for (int k = 0; k < StripCluster->GetEntriesFast(); k++){
-					PndMvdCluster* myStripCluster = (PndMvdCluster*)StripCluster->At(k);
+					PndMvdClusterStrip* myStripCluster = (PndMvdClusterStrip*)StripCluster->At(k);
 					if (myStripCluster->DigiBelongsToCluster(j)){
 						std::cout << "Digi " << j << " belongs to cluster: " << k << std::endl;
 						for (int l = 0; l < StripReco->GetEntriesFast(); l++){

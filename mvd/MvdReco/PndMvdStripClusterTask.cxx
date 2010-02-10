@@ -198,14 +198,16 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
   // load the Clusterfinder
   // Sort Digi indice into the clusterfinder
   if (fDigiArray->GetEntriesFast() == 0) return;
-  for (Int_t iPoint = 0; iPoint < fDigiArray->GetEntriesFast(); iPoint++)
+  if(fVerbose>2) Info("Exec","adding these digis to the finders:");
+  for (Int_t iDigi= 0; iDigi < fDigiArray->GetEntriesFast(); iDigi++)
   { // sort digis by sensor name and stripnumber
-    myDigi = (PndMvdDigiStrip*)(fDigiArray->At(iPoint));
+    myDigi = (PndMvdDigiStrip*)(fDigiArray->At(iDigi));
+    if(fVerbose>2) {std::cout<<"Digi "<<iDigi<<" "; myDigi->Print();}
     detName = myDigi->GetDetName().Data();
     if (kFALSE==SelectSensorParams(detName)) continue; // Invalid parameters, skip here.
     //we use the top side as "first" side
     fCurrentStripCalcTop->CalcFeChToStrip(myDigi->GetFE(), myDigi->GetChannel(), strip, side);
-    fCurrentClusterfinder->AddDigi(detName.Data(),side,myDigi->GetTimestamp(),strip,iPoint);
+    fCurrentClusterfinder->AddDigi(detName.Data(),side,myDigi->GetTimestamp(),strip,iDigi);
   }
 
   std::vector< PndMvdClusterStrip > clusters;
@@ -221,143 +223,150 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
 
 
   // -------   SEARCH  ------
-  clusters = fCurrentClusterfinder->SearchClusters();
-  // fetch ids in 'clusters' to the top and bot side
-  topclusters = fCurrentClusterfinder->GetTopClusterIDs();
-  botclusters = fCurrentClusterfinder->GetBotClusterIDs();
-  if(fVerbose > 2) {
-    leftDigis = fCurrentClusterfinder->GetLeftDigiIDs();
-    if (0<leftDigis.size()){
-      std::cout << "There are "<<leftDigis.size()<<" Digis not assigned to"
-                << " clusters:\n";
-      for(unsigned int s=0;s<leftDigis.size();s++)
-      {
-        std::cout<<leftDigis[s]<<"|";
-      }
-      std::cout<<std::endl;
-    } else std::cout<<"All Digis assigned to clusters"<<std::endl;
-  }
-  // Fill the ClonesArray for output TODO: do this better, don't copy objects around
-  for(std::vector< PndMvdClusterStrip >::iterator clit= clusters.begin();
+  TIter parsetiter(fDigiParameterList);
+  while ( PndMvdStripDigiPar* digipar = (PndMvdStripDigiPar*)parsetiter() ) 
+  { // loop over all parameter sets and their filled finders (representing sensor types)
+    SetCurrentCalculators(digipar);
+    
+    clusters = fCurrentClusterfinder->SearchClusters();
+    // fetch ids in 'clusters' to the top and bot side
+    topclusters = fCurrentClusterfinder->GetTopClusterIDs();
+    botclusters = fCurrentClusterfinder->GetBotClusterIDs();
+    if(fVerbose > 2) {
+      leftDigis = fCurrentClusterfinder->GetLeftDigiIDs();
+      if (0<leftDigis.size()){
+        std::cout << "There are "<<leftDigis.size()<<" Digis not assigned to"
+        << " clusters:\n";
+        for(unsigned int s=0;s<leftDigis.size();s++)
+        {
+          std::cout<<leftDigis[s]<<"|";
+        }
+        std::cout<<std::endl;
+      } else std::cout<<"All Digis assigned to clusters for sensortype "<<digipar->GetSensType()<<std::endl;
+    }
+    // Fill the ClonesArray for output TODO: do this better, don't copy objects around
+    for(std::vector< PndMvdClusterStrip >::iterator clit= clusters.begin();
         clit!=clusters.end(); ++clit)
-  {
-    clindex = fClusterArray->GetEntriesFast();
-    new((*fClusterArray)[clindex]) PndMvdClusterStrip(*clit);
-  }
-
-  //printout for checking
-  if(fVerbose > 2) {
-    std::cout<<"Top Clusters: ";
-    for (std::vector< Int_t>::iterator itTop = topclusters.begin();
-      itTop!=topclusters.end(); ++itTop) {
-        std::cout<<*itTop<<" | ";}
-    std::cout<<std::endl;
-    std::cout<<"Bot Clusters: ";
-    for (std::vector< Int_t>::iterator itBot = botclusters.begin();
-      itBot!=botclusters.end(); ++itBot) {
+    {
+      clindex = fClusterArray->GetEntriesFast();
+      new((*fClusterArray)[clindex]) PndMvdClusterStrip(*clit);
+    }
+    
+    //printout for checking
+    if(fVerbose > 2) {
+      std::cout<<"Top Clusters: ";
+      for (std::vector< Int_t>::iterator itTop = topclusters.begin();
+           itTop!=topclusters.end(); ++itTop) {
+      std::cout<<*itTop<<" | ";}
+      std::cout<<std::endl;
+      std::cout<<"Bot Clusters: ";
+      for (std::vector< Int_t>::iterator itBot = botclusters.begin();
+           itBot!=botclusters.end(); ++itBot) {
       std::cout<<*itBot<<" | ";  }
-    std::cout<<std::endl;
-  }
-
-
-  // begin the hit reconstruction
-  // loop structure:
-  //
-  //top clusters
-  // |-calculate chargeweighted mean
-  // |-bot clusters
-  // |-|-calc chargew. mean
-  // |-|-calc the crossing strip points
-  // |-|-fill hit array
-
+      std::cout<<std::endl;
+    }
+    
+    // begin the hit reconstruction
+    // loop structure:
+    //
+    //top clusters
+    // |-calculate chargeweighted mean
+    // |-bot clusters
+    // |-|-calc chargew. mean
+    // |-|-calc the crossing strip points
+    // |-|-fill hit array
+    
     // -----  merge top/bot clusters to hits  -----
     // loop on clusters from the top side
-  mcindex = -1;
-  int clusterIndex = 0;
-  for (std::vector< Int_t>::iterator itTop = topclusters.begin();
-          itTop!=topclusters.end(); ++itTop, ++clusterIndex)
-  {
-    Double_t topcharge = 0., meantopstrip=0.,meantoperr=0. ;
-    oneclustertop = (clusters[*itTop]).GetClusterList();
-    if(oneclustertop.size()<1) continue;
-    PndMvdDigiStrip* atopDigi = ((PndMvdDigiStrip*)fDigiArray->At(oneclustertop[0]));
-    TString detnametop = atopDigi->GetDetName();
-
-    if (kFALSE==SelectSensorParams(detName)) continue; // Invalid parameters, skip here.
-    detID = atopDigi->GetDetID();
-
-    CalcMeanCharge(oneclustertop,meantopstrip,meantoperr,topcharge);
-
-    if(oneclustertop.size()==1 && topcharge < 5200) { 
-		std::cout<<"-W- PndMvdClusterTask::Exec: Single strip top charge bigger than 5200 e- : skiping. "<<endl; 
-	    continue; 
-	  }
-    if(topcharge>0)
+    mcindex = -1;
+    int clusterIndex = 0;
+    for (std::vector< Int_t>::iterator itTop = topclusters.begin();
+         itTop!=topclusters.end(); ++itTop, ++clusterIndex)
     {
-      if(mcindex < 0) {//look for the first digi from a MC point
-        for(Int_t mcI = 0; mcI<atopDigi->GetNIndices();mcI++){ 
-          if (atopDigi->GetIndex(mcI) > -1) {
-            mcindex = atopDigi->GetIndex(mcI);
-            break;
+      Double_t topcharge = 0., meantopstrip=0.,meantoperr=0. ;
+      oneclustertop = (clusters[*itTop]).GetClusterList();
+      if(oneclustertop.size()<1) continue;
+      PndMvdDigiStrip* atopDigi = ((PndMvdDigiStrip*)fDigiArray->At(oneclustertop[0]));
+      TString detnametop = atopDigi->GetDetName();
+      
+      //if (kFALSE==SelectSensorParams(detName)) continue; // Invalid parameters, skip here.
+      detID = atopDigi->GetDetID();
+      
+      CalcMeanCharge(oneclustertop,meantopstrip,meantoperr,topcharge);
+      
+      if(oneclustertop.size()==1 && topcharge < 5200) { 
+        //TODO: Remove hardcoding!
+        std::cout<<"-W- PndMvdClusterTask::Exec: Single strip top charge bigger than 5200 e- : skiping. "<<endl; 
+        continue; 
+      }
+      if(topcharge>0)
+      {
+        if(mcindex < 0) {//look for the first digi from a MC point
+          for(Int_t mcI = 0; mcI<atopDigi->GetNIndices();mcI++){ 
+            if (atopDigi->GetIndex(mcI) > -1) {
+              mcindex = atopDigi->GetIndex(mcI);
+              break;
+            }
           }
         }
-      }
-      fCurrentStripCalcTop->CalcStripPointOnLine(meantopstrip, meantopPoint);
-      // loop on bottom side
-      for (std::vector< Int_t>::iterator itBot = botclusters.begin();
-            itBot!=botclusters.end(); ++itBot)
-      {
-        botIndex = *itBot;
-        Double_t botcharge = 0., meanbotstrip=0., meanboterr=0.;
-        oneclusterbot = (clusters[*itBot]).GetClusterList();
-        if(oneclusterbot.size()<1)continue;
-        PndMvdDigiStrip* abotDigi = ((PndMvdDigiStrip*)fDigiArray->At(oneclusterbot[0]));
-        TString detnamebot = abotDigi->GetDetName();
-
-        //go to the next cluster if we didn't hit the same sensor
-        if(detnamebot != detnametop) continue;
-
-        CalcMeanCharge(oneclusterbot,meanbotstrip,meanboterr,botcharge);
-
-        if(oneclusterbot.size() == 1 && botcharge < 5200) { 
-          std::cout<<"-W- PndMvdClusterTask::Exec: Single strip bot charge bigger than 5200 e- : skiping. "<<endl;
-		      continue; 
-		    }
-        if(botcharge>0)
+        fCurrentStripCalcTop->CalcStripPointOnLine(meantopstrip, meantopPoint);
+        // loop on bottom side
+        for (std::vector< Int_t>::iterator itBot = botclusters.begin();
+             itBot!=botclusters.end(); ++itBot)
         {
-          if(fVerbose > 2)  {
-            std::cout<<"Charges: Ctop = "<<topcharge<<" | Cbot = "<<botcharge
-                  <<" | difference bot-top = "<<botcharge-topcharge<<std::endl;
+          botIndex = *itBot;
+          Double_t botcharge = 0., meanbotstrip=0., meanboterr=0.;
+          oneclusterbot = (clusters[*itBot]).GetClusterList();
+          if(oneclusterbot.size()<1)continue;
+          PndMvdDigiStrip* abotDigi = ((PndMvdDigiStrip*)fDigiArray->At(oneclusterbot[0]));
+          TString detnamebot = abotDigi->GetDetName();
+          
+          //go to the next cluster if we didn't hit the same sensor
+          if(detnamebot != detnametop) continue;
+          
+          CalcMeanCharge(oneclusterbot,meanbotstrip,meanboterr,botcharge);
+          
+          if(oneclusterbot.size() == 1 && botcharge < 5200) { 
+            //TODO: Remove hardcoding!
+            std::cout<<"-W- PndMvdClusterTask::Exec: Single strip bot charge bigger than 5200 e- : skiping. "<<endl;
+            continue; 
           }
-
-          if(fabs(botcharge-topcharge)<fChargeCut)
-          {// look if the charges are not too differently
-            mycharge = (botcharge + topcharge) / 2.;
-            fCurrentStripCalcBot->CalcStripPointOnLine(meanbotstrip, meanbotPoint);
-            if(mcindex < 0) {//look for the first digi from a MC point
-              for(Int_t mcI = 0; mcI<abotDigi->GetNIndices();mcI++){ 
-                if (abotDigi->GetIndex(mcI) > -1) {
-                  mcindex = abotDigi->GetIndex(mcI);
-                  break;
+          if(botcharge>0)
+          {
+            if(fVerbose > 2)  {
+              std::cout<<"Charges: Ctop = "<<topcharge<<" | Cbot = "<<botcharge
+              <<" | difference bot-top = "<<botcharge-topcharge
+              <<" | Cut at "<<fChargeCut<<std::endl;
+            }
+            
+            if(fChargeCut>0 && fabs(botcharge-topcharge)<fChargeCut)
+            {// look if the charges are not too differently
+              mycharge = (botcharge + topcharge) / 2.;
+              fCurrentStripCalcBot->CalcStripPointOnLine(meanbotstrip, meanbotPoint);
+              if(mcindex < 0) {//look for the first digi from a MC point
+                for(Int_t mcI = 0; mcI<abotDigi->GetNIndices();mcI++){ 
+                  if (abotDigi->GetIndex(mcI) > -1) {
+                    mcindex = abotDigi->GetIndex(mcI);
+                    break;
+                  }
                 }
               }
-            }
-            Bool_t test = Backmap(meantopPoint, meantoperr, meanbotPoint, meanboterr, hitPos, hitErr,detnametop);
-            if (kFALSE==test) continue;
-
-            // --- add hit to list ---
-            Int_t i = fHitArray->GetEntriesFast();
-            new((*fHitArray)[i]) PndMvdHit(detID,detnametop.Data(),hitPos,hitErr,
-                *itTop,mycharge,oneclusterbot.size()+oneclustertop.size(),mcindex);
-            ((PndMvdHit*)((*fHitArray)[i]))->SetBotIndex(*itBot);
-            //((PndMvdHit*)((*fHitArray)[i]))->SetLink(FairLink(kMVDClusterStrip, clusterIndex));
-          } else
-            if (fVerbose > 2) std::cout<<"Strip charge contents too differently"<<std::endl;
-        }
-      }// loop bot clusters
-    }
-  }// loop top clusters
-
+              Bool_t test = Backmap(meantopPoint, meantoperr, meanbotPoint, meanboterr, hitPos, hitErr,detnametop);
+              if (kFALSE==test) continue;
+              
+              // --- add hit to list ---
+              Int_t i = fHitArray->GetEntriesFast();
+              new((*fHitArray)[i]) PndMvdHit(detID,detnametop.Data(),hitPos,hitErr,
+                                             *itTop,mycharge,oneclusterbot.size()+oneclustertop.size(),mcindex);
+              ((PndMvdHit*)((*fHitArray)[i]))->SetBotIndex(*itBot);
+              //((PndMvdHit*)((*fHitArray)[i]))->SetLink(FairLink(kMVDClusterStrip, clusterIndex));
+            } else
+              if (fVerbose > 2) std::cout<<"Strip charge contents too differently"<<std::endl;
+          }
+        }// loop bot clusters
+      }
+    }// loop top clusters
+  }//loop finders
   if (fVerbose > 1)
   std::cout << "-I- PndMvdStripClusterTask: " << fClusterArray->GetEntriesFast()
             << " Mvd Clusters and " << fHitArray->GetEntriesFast()<<" Hits calculated."
@@ -408,14 +417,7 @@ Bool_t PndMvdStripClusterTask::SelectSensorParams(TString detname)
   {
     const char* sensortype = digipar->GetSensType();
     if(detpath.Contains(sensortype))  {
-      
-      // TODO: create a list of Calculators OR make calculator switch parameters on the fly
-      fCurrentStripCalcTop = fStripCalcTop[sensortype];
-      fCurrentStripCalcBot = fStripCalcBot[sensortype];
-      fCurrentDigiPar = digipar;
-      fChargeAlgos->SetCalcStrip(fCurrentStripCalcTop);
-      fCurrentClusterfinder = fClusterFinderList[sensortype];
-      fChargeCut = digipar->GetChargeCut();
+      SetCurrentCalculators(digipar);
       return kTRUE;
     }
   }
@@ -425,6 +427,19 @@ Bool_t PndMvdStripClusterTask::SelectSensorParams(TString detname)
   return kFALSE;
 }
 // -------------------------------------------------------------------------
+void PndMvdStripClusterTask::SetCurrentCalculators(PndMvdStripDigiPar* digipar)
+{
+  const char* sensortype = digipar->GetSensType();
+  fCurrentStripCalcTop = fStripCalcTop[sensortype];
+  fCurrentStripCalcBot = fStripCalcBot[sensortype];
+  fCurrentDigiPar = digipar;
+  fChargeAlgos->SetCalcStrip(fCurrentStripCalcTop);
+  fCurrentClusterfinder = fClusterFinderList[sensortype];
+  fChargeCut = digipar->GetChargeCut();
+  return;
+}
+
+
 
 // -------------------------------------------------------------------------
 void PndMvdStripClusterTask::ResetClusterFinders()
@@ -498,9 +513,17 @@ Bool_t PndMvdStripClusterTask::Backmap( TVector2 meantopPoint, Double_t meantope
   localpos.SetXYZ( onsensorPoint.X(), onsensorPoint.Y(), 0.);
 
   // let's see if we're still on the sensor (cut combinations with noise off)
-  if(fabs(localpos.X()) > fabs(fCurrentDigiPar->GetTopAnchor().X())) return kFALSE;
-  if(fabs(localpos.Y()) > fabs(fCurrentDigiPar->GetTopAnchor().Y())) return kFALSE;
-
+  if(fabs(localpos.X()) > fabs(fCurrentDigiPar->GetTopAnchor().X())) 
+  { 
+    if(fVerbose>1) Warning("Backmap","Calculated hit out of sensor bounds: lpos_x=%d, anchor_x=%d",fabs(localpos.X()),fabs(fCurrentDigiPar->GetTopAnchor().X()));
+    return kFALSE;
+  }
+  if(fabs(localpos.Y()) > fabs(fCurrentDigiPar->GetTopAnchor().Y()))
+  { 
+    if(fVerbose>1) Warning("Backmap","Calculated hit out of sensor bounds: lpos_y=%d, anchor_y=%d",fabs(localpos.X()),fabs(fCurrentDigiPar->GetTopAnchor().X()));
+    return kFALSE;
+  }
+  
   //do the transformation from sensor to lab frame
   hitPos = fGeoH->LocalToMasterId(localpos,detname.Data());
 
