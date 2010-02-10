@@ -35,7 +35,14 @@ export ctest_model=$1
 
 # extract information about the system and the machine and set
 # environment variables used by ctest
-SYSTEM=$(uname -o)-$(uname -m)
+
+export WHATSYSTEM=$(uname -s)
+if [ $WHATSYSTEM = "Darwin" ]; then
+  SYSTEM=$(uname -s)-$(uname -m)
+else
+  SYSTEM=$(uname -o)-$(uname -m)
+fi
+
 if test -z $CXX ; then
   COMPILER=gcc;
   GCC_VERSION=$(gcc -dumpversion)
@@ -49,7 +56,12 @@ export LABEL=$(echo $LABEL1 | sed -e 's#/#_#g')
 export SITE=$(hostname -f)
 
 # get the number of processors
-export number_of_processors=$(cat /proc/cpuinfo | grep processor | wc -l)
+
+if [ $WHATSYSTEM = "Darwin" ]; then
+  export number_of_processors=$(sysctl -n hw.ncpu)
+else
+  export number_of_processors=$(cat /proc/cpuinfo | grep processor | wc -l)
+fi
 
 echo "************************"
 date
