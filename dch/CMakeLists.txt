@@ -12,6 +12,7 @@ ${CMAKE_SOURCE_DIR}/parbase
 ${CMAKE_SOURCE_DIR}/field
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/LSLtrackRep
+${CMAKE_SOURCE_DIR}/GenfitTools/recohits
 ${CMAKE_SOURCE_DIR}/trackbase
 ${CMAKE_SOURCE_DIR}/geane
 ${CMAKE_SOURCE_DIR}/genfit
