@@ -31,7 +31,8 @@ protected:
   Int_t     fNofEvents;
 
   TClonesArray  *fTpcInput;             //! pointers to TPC TCA
-  TClonesArray  *fSttInput;             //! pointers to STT TCA
+  TClonesArray  *fSttHelixInput;        //! pointers to STT Helix TCA 
+  TClonesArray  *fSttHitInput;          //! pointers to STT Hit TCA
   TClonesArray  *fSttMCArray;           //! pointers to SttPoint TCA
   TClonesArray  *fEmcInput;             //! pointers to EMC TCA
   TClonesArray  *fMvdStripHitArray;     //!
@@ -56,7 +57,7 @@ protected:
   Short_t fMvdMode;            // MVD Mode: 0 no MVD, (1) MvdPoint, 2 MvdHit
   Short_t fMvdSimMode;         // MVD Simulation Mode (ideal tracking)
   Short_t fTpcMode;            // TPC Mode: 0 no TPC, (1) TpcPoint, 2 TpcCluster
-  Short_t fSttMode;            // STT Mode: (0) no STT, 1  SttPoint,  2 SttHit, 3 SttHelixHit 
+  Short_t fSttMode;            // STT Mode: (0) no STT, 1  SttPoint,  2 SttHit, 3 SttHelixHit, 4 SttHelixHit with MC position
   Short_t fSttSimMode;         // STT Simulation Mode (ideal tracking)
   Short_t fEmcMode;            // EMC Mode: (0) no EMC, 2 EmcCluster, 3 EmcBumps
   Short_t fGemMode;            // GEM Mode: (0) no GEM, 1 GemPoint, 2 GemHit
@@ -94,6 +95,7 @@ public:
   void GetSttPoints();
   void GetSttHit();
   void GetSttHelixHit();
+  void GetSttHelixHitMC();
   void GetEmcClusters();
   void GetEmcBumps();
   void GetGemPoints();
