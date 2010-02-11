@@ -17,7 +17,6 @@ ${CMAKE_SOURCE_DIR}/passive
 ${CMAKE_SOURCE_DIR}/PndTools/riemannfit
 ${CMAKE_SOURCE_DIR}/PndMCMatch
 ${CMAKE_SOURCE_DIR}/mvd/MvdMC
-${CMAKE_SOURCE_DIR}/mvd/MvdData
 ${CMAKE_SOURCE_DIR}/mvd/MvdDigi
 ${CMAKE_SOURCE_DIR}/mvd/MvdReco
 ${CMAKE_SOURCE_DIR}/mvd/MvdTools
@@ -31,6 +30,7 @@ ${CMAKE_SOURCE_DIR}/recotasks
 ${CMAKE_SOURCE_DIR}/trackbase
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/LSLtrackRep
+${CMAKE_SOURCE_DIR}/GenfitTools/recohits
 ${CMAKE_SOURCE_DIR}/geane
 ${CMAKE_SOURCE_DIR}/tpc
 ${CMAKE_SOURCE_DIR}/PndTools/riemannfit
@@ -154,7 +154,6 @@ set_target_properties(MvdReco PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 
 ########################### create libMvdTrk ##################################
 set(MVDTRK_SRCS
-MvdData/PndMvdRecoHit.cxx
 
 MvdPid/PndMvdPidIdealTask.cxx
 MvdPid/PndMvdIdealPidAlgo.cxx

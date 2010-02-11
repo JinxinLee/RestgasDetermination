@@ -21,7 +21,7 @@
 #include "TVector3.h"
 #include "FairMCPoint.h"
 #include "TString.h"
-#include "PndDetectorList.h"
+//#include "PndDetectorList.h"
 
 #include <stdio.h>
 #include <iostream>

@@ -9,5 +9,6 @@
 #pragma link C++ class PndDchRecoHit2+;
 #pragma link C++ class PndGemRecoHit+;
 #pragma link C++ class PndMdtRecoHit+;
+#pragma link C++ class PndMvdRecoHit+;
 
 #endif

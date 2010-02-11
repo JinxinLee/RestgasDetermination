@@ -15,6 +15,8 @@ ${CMAKE_SOURCE_DIR}/dch/DchData
 ${CMAKE_SOURCE_DIR}/pnddata/GemData
 ${CMAKE_SOURCE_DIR}/pnddata/MdtData
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
+${CMAKE_SOURCE_DIR}/pnddata/MvdData
+${CMAKE_SOURCE_DIR}/mvd/MvdTools
 ${CMAKE_SOURCE_DIR}/geane
 ${CMAKE_SOURCE_DIR}/GenfitTools/recohits
 ${GEANT3_INCLUDE_DIR}
@@ -34,18 +36,14 @@ PndDchRecoHit.cxx
 PndDchRecoHit2.cxx
 PndGemRecoHit.cxx
 PndMdtRecoHit.cxx
+PndMvdRecoHit.cxx
 )
 
 if(RULE_CHECKER_FOUND)
   CHECK_RULES("${RECOHITS_SRCS}" "${INCLUDE_DIRECTORIES}" RECOHITS_RULES)
 endif(RULE_CHECKER_FOUND)
 
-set(RECOHITS_HEADERS
-PndDchRecoHit.h
-PndDchRecoHit2.h
-PndGemRecoHit.h
-PndMdtRecoHit.h 
-)
+CHANGE_FILE_EXTENSION(*.cxx *.h RECOHITS_HEADERS "${RECOHITS_SRCS}")
 
 # fill list of header files from list of source files
 # by exchanging the file extension
