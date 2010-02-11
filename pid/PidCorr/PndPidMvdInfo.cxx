@@ -26,6 +26,8 @@ Bool_t PndPidCorrelator::GetMvdInfo(PndTrack* track, PndPidCandidate* pidCand)
   Float_t mvdELoss = 0.; // total energy lost in MVD;
   Float_t mvdPath = 0.;  // total thickness crossed in MVD
   Int_t mvdCounts = 0;
+  Float_t SensorThickness=0;
+  
   PndTrackCand trackCand = track->GetTrackCand();
   for (Int_t ii=0; ii<trackCand.GetNHits(); ii++)
     {
@@ -38,11 +40,13 @@ Bool_t PndPidCorrelator::GetMvdInfo(PndTrack* track, PndPidCandidate* pidCand)
       TVector3 mvdPos;
       mvdHit->Position(mvdPos);
       mvdCounts++;
-      TGeoNode *mvdNode = (TGeoNode*)gGeoManager->FindNode(mvdHit->GetX(), mvdHit->GetY(), mvdHit->GetZ());
-      TGeoVolume *mvdVol = (TGeoVolume*)mvdNode->GetVolume();
-      TGeoBBox* actBox = (TGeoBBox*)(mvdVol->GetShape()); // volume of the MVD strip/pixel
-      TGeoMatrix* mvdGeoRot = (TGeoMatrix*)mvdNode->GetMatrix();
-      const Double_t *rotM = mvdGeoRot->GetRotationMatrix();
+
+      PndMvdGeoHandling *geo = new PndMvdGeoHandling();
+      TVector3 SensorDim=geo->GetSensorDimensionsPath(geo->GetPath(mvdHit->GetDetName()));//sensor dimension
+      SensorThickness = SensorDim.Z();
+
+      TGeoHMatrix *matrix = geo->GetMatrixPath(geo->GetPath(mvdHit->GetDetName()));
+      const Double_t *rotM = matrix->GetRotationMatrix();
       TVector3 zaxis(rotM[2], rotM[5], rotM[8]); // Z axis in the detector frame
       TVector3 momentum(0., 0., 0.);
       FairTrackParP par = track->GetParamLast();
@@ -65,7 +69,7 @@ Bool_t PndPidCorrelator::GetMvdInfo(PndTrack* track, PndPidCandidate* pidCand)
 	      cos = 0.;
 	    }
 	}
-      Float_t thickness = 0.;
+      Float_t thickness = 0.; //projection of the momentum on the zaxis of the detector frame
       
       if (fabs(cos)<0.000001)
 	{
@@ -73,7 +77,7 @@ Bool_t PndPidCorrelator::GetMvdInfo(PndTrack* track, PndPidCandidate* pidCand)
 	}
       else
 	{
-	  thickness = actBox->GetDZ()*2./fabs(cos);
+	  thickness = SensorThickness*2./fabs(cos);
 	  mvdELoss += mvdHit->GetEloss();
 	  mvdPath += thickness;
 	  fMvdHitCount++;
