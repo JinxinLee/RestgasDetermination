@@ -32,8 +32,9 @@ void photTrajectory( TString inFilename = "", Double_t photonID = 1 ) // ID 0 me
 //==============================================================================
 // Access to the input ROOT-file & canvas settings
 //==============================================================================
-	TFile *inFile   = new TFile( inFilename );
+	TFile *inFile = new TFile( inFilename );
 	TCanvas *setup = (TCanvas*) inFile->Get("Setup");
+
     TTree *infoTree   = (TTree*) inFile->Get("info");
 	TTree *photonTree = (TTree*) inFile->Get("photon");
 
@@ -100,17 +101,13 @@ void photTrajectory( TString inFilename = "", Double_t photonID = 1 ) // ID 0 me
 				{
 					TPolyLine3D *l = new TPolyLine3D(2);
 
-					l->SetPoint(0, posStartX, posStartY, posStartZ);
+					l->SetPoint(0, posX[j-1], posY[j-1], posZ[j-1]);
 					l->SetPoint(1, posX[j], posY[j], posZ[j]);
 					l->SetLineColor(3);
 					l->Draw();
 				}
 
-				double posStartX = posX[j];
-				double posStartY = posY[j];
-				double posStartZ = posZ[j];
-
-// 				cout << "pos.: (" << posStartX << "," << posStartY << "," << posStartZ << ")" << endl;
+// 				cout << "pos.: (" << posX[j]<< "," << posY[j] << "," << posZ[j] << ")" << endl;
 			}
 		}
 	}

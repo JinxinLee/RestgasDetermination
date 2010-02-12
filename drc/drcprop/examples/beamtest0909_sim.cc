@@ -95,8 +95,8 @@ int main(int argc, char *argv[])
 //==============================================================================
 
 	// main options
-    bool opt_beamtest     = true; // beamtest simulation 2009
-    bool opt_photonCannon = false; // photon cannon at bar end
+    bool opt_beamtest     = false; // beamtest simulation 2009
+    bool opt_photonCannon = true; // photon cannon at bar end
     bool opt_singlePhoton = false; // single photon for debugging
 
     cout << "simulation options:" << endl;
@@ -263,7 +263,7 @@ int main(int argc, char *argv[])
 
 
 	// photon cannon
-    int shoots = 100000; // default: 100000
+    int shoots = 10000; // default: 100000
 
     double gridXstep = 0; // default: 0 mm ; grid constant in X ; 0 means cannon is always in the center
     double gridYstep = 0; // default: 0 mm
@@ -559,7 +559,7 @@ int main(int argc, char *argv[])
             cout << "  grid const. X:    " << gridXstep << " mm" << endl;
             cout << "  grid const. Y:    " << gridYstep << " mm" << endl;
         }
-        cout <<     "  reflection limit: " << refl_limit << endl;
+        cout <<     "  reflection limit: " << refl_limit_2 << endl;
     }
 
     if( opt_singlePhoton )

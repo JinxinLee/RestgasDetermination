@@ -21,7 +21,7 @@ test_titti.cc
 test_top.cc
 beamtest0809_sim.cc   beamtest simulation (first attempt for beamtest 09/2008)
 mppc.cc               Light catcher for a MPPC
-beamtest0909_sim.cc   improved beamtest simulation (for beamtest 09/2009) includes also a photon canon
+beamtest0909_sim.cc   improved beamtest simulation (for beamtest 09/2009) includes also a photon cannon
 photTrajectory.cc     debug tool for beamtest0909_sim.cc (visualization of the photon trajectory)
 parTrajectory.cc      debug tool for beamtest0909_sim.cc (visualization of the particle trajectory)
-
+kBar_analysis.cc      analysis tool for the photon cannon (kBar vectors)
