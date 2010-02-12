@@ -51,78 +51,49 @@
         
   rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parIo1);
-  fRun->LoadGeometry();
   // ------------------------------------------------------------------------
 
-  // -----   STT analysis tasks   --------------------------------------------
-  // digitize ....
-
-  //PndSttHitProducerIdeal* sttHitProducer = new PndSttHitProducerIdeal();
+   // -----   STT digi producers   --------------------------------- 
   PndSttHitProducerRealFast* sttHitProducer = new PndSttHitProducerRealFast();
   fRun->AddTask(sttHitProducer);
-
+ 
   // trackfinding ....
   PndSttTrackFinderIdeal* sttTrackFinder = new PndSttTrackFinderIdeal(iVerbose);
   PndSttFindTracks* sttFindTracks = new PndSttFindTracks("Track Finder", "FairTask", sttTrackFinder, iVerbose);
   sttFindTracks->AddHitCollectionName("STTHit", "STTPoint");
   fRun->AddTask(sttFindTracks);
-
   // trackmatching ....
   PndSttMatchTracks* sttTrackMatcher = new PndSttMatchTracks("Match tracks", "STT", iVerbose);
   sttTrackMatcher->AddHitCollectionName("STTHit", "STTPoint");
   fRun->AddTask(sttTrackMatcher);
-
   // trackfitting ....
   PndSttTrackFitter* sttTrackFitter = new PndSttHelixTrackFitter(0);
   PndSttFitTracks* sttFitTracks = new PndSttFitTracks("STT Track Fitter", "FairTask", sttTrackFitter);
   sttFitTracks->AddHitCollectionName("STTHit");
   fRun->AddTask(sttFitTracks);
-
   // helix hit production ....
   PndSttHelixHitProducer* sttHHProducer = new PndSttHelixHitProducer();
   fRun->AddTask(sttHHProducer);
 
   // -----   MDV digi producers   --------------------------------- 
-  PndMvdStripHitProducer* mvdHitProd = new PndMvdStripHitProducer();
-  mvdHitProd->SetVerbose(iVerbose);
-  fRun->AddTask(mvdHitProd);
+  PndMvdDigiTask* mvddigi = new PndMvdDigiTask();
+  mvddigi->SetVerbose(iVerbose);
+  fRun->AddTask(mvddigi);
 
-  PndMvdHybridHitProducer* mvdPixProd = new PndMvdHybridHitProducer();
-  mvdPixProd->SetVerbose(iVerbose);
-  fRun->AddTask(mvdPixProd);
-
-
-/* 
-  // CLUST
-  // Cluster finding for strip detectors
-  Double_t chargecut = 5000.;
-  PndMvdStripClusterTask* mvdmccls = new PndMvdStripClusterTask(chargecut, inFile);
-  mvdmccls->SetVerbose(iVerbose);
-  fRun->AddTask(mvdmccls);
-  
-  // Cluster finder for pixel detectors
-  PndMvdPixelClusterTask* mvdClusterizer = new PndMvdPixelClusterTask(1.8, inFile);
-  mvdClusterizer->SetVerbose(iVerbose);
-  fRun->AddTask(mvdClusterizer);
-*/
-
-
-  //----- Mvd Hit Reco -----                                                                                  
   PndMvdClusterTask* mvdmccls = new PndMvdClusterTask();
-  fRun->AddTask(mvdmccls);
-
-
-
- 
+  mvdmccls->SetVerbose(iVerbose);
+  fRun->AddTask(mvdmccls); 
   // -----   EMC hit producers   ---------------------------------
-  PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
-  fRun->AddTask(emcHitProd); // hit production 
+  //PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
+  //fRun->AddTask(emcHitProd); // hit production 
 
   //PndEmcMakeDigi* emcMakeDigi=new PndEmcMakeDigi();
   //fRun->AddTask(emcMakeDigi); // fast digitization
 
   PndEmcHitsToWaveform* emcHitsToWaveform= new PndEmcHitsToWaveform(iVerbose);
   PndEmcWaveformToDigi* emcWaveformToDigi=new PndEmcWaveformToDigi(iVerbose);
+  emcHitsToWaveform->SetStorageOfData(kFALSE);
+  emcWaveformToDigi->SetStorageOfData(kFALSE);
   fRun->AddTask(emcHitsToWaveform);  // full digitization
   fRun->AddTask(emcWaveformToDigi);  // full digitization
 
@@ -136,23 +107,30 @@
   fRun->AddTask(emcHdrFiller); // ECM header
   
   // -----   TOF hit producers   ---------------------------------
-
   PndTofHitProducerIdeal* tofhit = new PndTofHitProducerIdeal();
   tofhit->SetVerbose(iVerbose);
   fRun->AddTask(tofhit);
  
   // -----   MDT hit producers   ---------------------------------
   PndMdtHitProducerIdeal* mdtHitProd = new PndMdtHitProducerIdeal();
-  mdtHitProd->SetPositionSmearing(0.2); // position smearing [cm]
+  mdtHitProd->SetPositionSmearing(.3); // position smearing [cm]
   fRun->AddTask(mdtHitProd);
   
-   PndMdtTrkProducerIdeal* mdtTrkProd = new PndMdtTrkProducerIdeal();
+  PndMdtTrkProducer* mdtTrkProd = new PndMdtTrkProducer();
   fRun->AddTask(mdtTrkProd);
 
   // -----   DRC hit producers   ---------------------------------
   PndDrcHitProducerIdeal* drchit = new PndDrcHitProducerIdeal();
   drchit->SetVerbose(iVerbose);
   fRun->AddTask(drchit);
+  
+  // -----   GEM hit producers   ---------------------------------
+  Int_t verboseLevel = 0;
+  PndGemDigitize* gemDigitize = new PndGemDigitize("GEM Digitizer", verboseLevel);
+  fRun->AddTask(gemDigitize);
+
+  PndGemFindHits* gemFindHits = new PndGemFindHits("GEM Hit Finder", verboseLevel);
+  fRun->AddTask(gemFindHits);
 
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();

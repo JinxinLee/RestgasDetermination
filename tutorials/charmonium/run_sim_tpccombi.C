@@ -1,6 +1,6 @@
 // Macro created 20/09/2006 by S.Spataro
 // It creates a geant simulation file for emc
-run_sim_tpccombi(Int_t nEvents=10, Int_t pid=13, Float_t p1=1.0, Float_t p2=-1){
+run_sim_tpccombi(Int_t nEvents=1000, Int_t pid=13, Float_t p1=1.0, Float_t p2=-1){
   TStopwatch timer;
   timer.Start();
   gDebug=0;
