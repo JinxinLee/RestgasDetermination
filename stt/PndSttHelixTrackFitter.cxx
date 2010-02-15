@@ -1708,8 +1708,15 @@ Double_t PndSttHelixTrackFitter::GetHitAngle(Int_t hitNo, Double_t dCenter,
       deltaX = pMhit->GetX() - xCenter,
       deltaY = pMhit->GetY() - yCenter;
     
-    Double_t
-      angle = atan(deltaY / deltaX);
+    // CHECK: the old way is method 1, but I thinkl method 2 is better. Check what
+    // kind of angle exactly is used and choose one of the two methods (anyway, up to now 
+    // both works, so it is not urgent).
+
+    // method 1
+    Double_t angle = 0;
+    if(deltaX != 0) angle = atan(deltaY / deltaX);
+    else angle = TMath::Pi()/2.;
+    if(deltaY < 0.) angle += dPi;
     
     // bring angle into the usual frame of reference
     if (deltaX < 0.)
@@ -1719,7 +1726,12 @@ Double_t PndSttHelixTrackFitter::GetHitAngle(Int_t hitNo, Double_t dCenter,
 	else
 	  angle += dPi;
       }
-    
+
+    // method 2
+    //    Double_t 
+    //      angle = TMath::ATan2(deltaY , deltaX); // CHECK
+    //    if (deltaY < 0.) angle += (2 * dPi); // CHECK
+ 
     return angle;
 }
 
