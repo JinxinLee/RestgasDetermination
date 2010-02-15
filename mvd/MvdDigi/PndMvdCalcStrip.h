@@ -135,6 +135,7 @@ private :
      * @return Smeared Charge
      */
     Double_t SmearCharge(Double_t charge);
+    // 3.6 eV/Electron in Silicon
     const Double_t ChargeFromEloss(Double_t eloss) const {return eloss/(3.61e-9);}
 };
 

@@ -60,7 +60,7 @@
 
 #pragma link C++ class PndMvdConvertApv+;
 #pragma link C++ class PndMvdConvertApvTask+;
-
+#pragma link C++ class PndMvdMapApv;
 
 #endif
 

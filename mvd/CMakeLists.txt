@@ -82,12 +82,9 @@ MvdDigi/PndMvdHitProducerIdeal.cxx
 MvdDigi/PndMvdDigiTask.cxx
 MvdDigi/PndMvdNoiseProducer.cxx
 
-
-
-
 MvdDAQ/PndMvdConvertApv.cxx
 MvdDAQ/PndMvdConvertApvTask.cxx
-
+MvdDAQ/PndMvdMapApv.cxx
 )
 set (MVD_RULECHECKER_SRCS ${MVD_SRCS})
 

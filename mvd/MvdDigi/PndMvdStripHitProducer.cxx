@@ -332,19 +332,19 @@ void PndMvdStripHitProducer::AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, T
   PndMvdDigiStrip* aDigi = 0;
   for(Int_t kstr = 0; kstr < iStrip && found==kFALSE ; kstr++)
   {
-	aDigi = (PndMvdDigiStrip*)fStripArray->At(kstr);
-	if ( aDigi->GetDetID() == detID &&
-		 aDigi->GetDetName() == detname &&
-		 aDigi->GetFE() == fe &&
-		 aDigi->GetChannel() == chan )
-	{
-		aDigi->AddCharge(charge);
-		aDigi->AddIndex(iPoint);
-		found = kTRUE;
-//		((PndMvdDigiStrip*)(*fStripArray)[kstr])->AddCarge(charge);
-//		((PndMvdDigiStrip*)(*fStripArray)[kstr])->AddIndex(iPoint);
-//		return;
-	}
+    aDigi = (PndMvdDigiStrip*)fStripArray->At(kstr);
+    if ( aDigi->GetDetID() == detID &&
+        aDigi->GetDetName() == detname &&
+        aDigi->GetFE() == fe &&
+        aDigi->GetChannel() == chan )
+    {
+      aDigi->AddCharge(charge);
+      aDigi->AddIndex(iPoint);
+      found = kTRUE;
+      //		((PndMvdDigiStrip*)(*fStripArray)[kstr])->AddCarge(charge);
+      //		((PndMvdDigiStrip*)(*fStripArray)[kstr])->AddIndex(iPoint);
+      //		return;
+    }
   }
   if(found == kFALSE){//TODO: Simulate a timestamp
 	  std::vector<Int_t>indices;
