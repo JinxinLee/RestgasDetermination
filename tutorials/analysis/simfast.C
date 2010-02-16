@@ -14,7 +14,7 @@ void simfast(TString infile="dsdsj20k.evt",int soff=0,int nevts=0,TString outfil
   rootlogon();
 
   // Load this libraries
-  gSystem->Load("libRho");
+  //gSystem->Load("libRho");
   gSystem->Load("libfsim");
  
   if (outfile=="") outfile=infile+".fast.root";
