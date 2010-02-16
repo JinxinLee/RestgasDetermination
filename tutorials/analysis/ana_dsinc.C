@@ -7,8 +7,7 @@ void ana_dsinc(TString fname,int nevts=0)
   	TStopwatch timer;
   	timer.Start();
   
-	gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");basiclibs();
-	gSystem->Load("libRho");
+	gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");rootlogon();
 	
 	TCanvas *c1=new TCanvas("c1","c1",600,600);
 	c1->Divide(2,2);
