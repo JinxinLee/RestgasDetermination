@@ -179,6 +179,7 @@ int PndEventReader::GetEvent(int n)
 bool PndEventReader::FillList(TCandList &l, std::string listkey)
 {
 	l.Cleanup();
+	UInt_t uid=1;
 	
 	// when the first list is requested read in the event
 	//if (fOwnChain->GetReadEntry()!=fEvtCount-1) fOwnChain->GetEntry(fEvtCount-1,1);
@@ -205,7 +206,7 @@ bool PndEventReader::FillList(TCandList &l, std::string listkey)
 		for (int i1=0; i1<fMicroCands->GetEntriesFast(); i1++)
 		{
 			VAbsMicroCandidate *mic = (VAbsMicroCandidate *)fMicroCands->At(i1);
-			TCandidate tc(*mic,i1+1);
+			TCandidate tc(*mic,uid++);
 			
 			allCands.Add(tc);
 			
@@ -221,18 +222,19 @@ bool PndEventReader::FillList(TCandList &l, std::string listkey)
 		for (int i1=0; i1<fNeutralCands->GetEntriesFast(); i1++)
 		{
 			VAbsMicroCandidate *mic = (VAbsMicroCandidate *)fNeutralCands->At(i1);		
-			TCandidate tc(*mic,i1+1);
-      // TODO: Do we want to set something here? It is neutrals anyway.
-      if(i1<fNeutralProbability->GetEntriesFast())
-      {
-        PndPidProbability *neuProb = (PndPidProbability*)fNeutralProbability->At(i1);
-        // numbering see PndPidListMaker
-        tc.SetPidInfo(0,neuProb->GetElectronPidProb());
-        tc.SetPidInfo(1,neuProb->GetMuonPidProb());
-        tc.SetPidInfo(2,neuProb->GetPionPidProb());
-        tc.SetPidInfo(3,neuProb->GetKaonPidProb());
-        tc.SetPidInfo(4,neuProb->GetProtonPidProb());
-      }        
+			TCandidate tc(*mic,uid++);
+			
+			// TODO: Do we want to set something here? It is neutrals anyway.
+			if(i1<fNeutralProbability->GetEntriesFast())
+			{
+				PndPidProbability *neuProb = (PndPidProbability*)fNeutralProbability->At(i1);
+				// numbering see PndPidListMaker
+				tc.SetPidInfo(0,neuProb->GetElectronPidProb());
+				tc.SetPidInfo(1,neuProb->GetMuonPidProb());
+				tc.SetPidInfo(2,neuProb->GetPionPidProb());
+				tc.SetPidInfo(3,neuProb->GetKaonPidProb());
+				tc.SetPidInfo(4,neuProb->GetProtonPidProb());
+			}        
 			neutralCands.Add(tc);
 			allCands.Add(tc);
 		}
@@ -240,7 +242,7 @@ bool PndEventReader::FillList(TCandList &l, std::string listkey)
 		for (int i1=0; i1<fChargedCands->GetEntriesFast(); i1++)
 		{
 			VAbsMicroCandidate *mic = (VAbsMicroCandidate *)fChargedCands->At(i1);
-			TCandidate tc(*mic,i1+1);
+			TCandidate tc(*mic,uid++);
       if(i1<fChargedProbability->GetEntriesFast())
       {
         PndPidProbability *chProb = (PndPidProbability*)fChargedProbability->At(i1);
