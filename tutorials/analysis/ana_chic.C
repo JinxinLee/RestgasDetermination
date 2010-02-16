@@ -3,15 +3,16 @@ void ana_chic(TString fsig,int nevts=0)
   	TStopwatch timer;
   	timer.Start();
   
-    gSystem->Load("libEGPythia6");  // needed for TDatabasePDG
-	gSystem->Load("libRho");
+	gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");rootlogon();
+    //gSystem->Load("libEGPythia6");  // needed for TDatabasePDG
+	//gSystem->Load("libRho");
 	
 	TCanvas *c1=new TCanvas("c1","c1",600,600);
 	c1->Divide(2,2);
 	
-	TH1F *m1=new TH1F("m1","m1",100,0.547-0.3,0.547+0.3);
-	TH1F *m2=new TH1F("m2","m2",100,3.096-0.35,3.096+0.35);
-	TH1F *m3=new TH1F("m3","m3",100,3.415-0.35,3.415+0.35);
+	TH1F *m1=new TH1F("m1","#eta: m(#gamma #gamma)",100,0.547-0.15,0.547+0.15);
+	TH1F *m2=new TH1F("m2","J/#psi: m(e^{+} e^{-})",100,3.096-0.35,3.096+0.35);
+	TH1F *m3=new TH1F("m3","#chi_{c0}: m(J/#psi #gamma)",100,3.415-0.35,3.415+0.35);
 	
 	TH1F *nn=new TH1F("nn","n neutrals",20,0,20);
 	TH1F *nc=new TH1F("nc","n charged",20,0,20);
@@ -39,11 +40,7 @@ void ana_chic(TString fsig,int nevts=0)
 		
 		nn->Fill(nneut);
 		nc->Fill(nchrg);
-		
-		//continue;
-			
-		//if (nneut<4 || nneut>12 || nchrg<2 || nchrg>3) continue;
-		
+				
 		evr.FillList(gam,"Neutral");
 		evr.FillList(pip,"PionVeryLoosePlus");
 		evr.FillList(pim,"PionVeryLooseMinus");
