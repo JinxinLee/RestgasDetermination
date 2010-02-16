@@ -15,7 +15,7 @@ void printCand(TLorentzVector l, TVector3 p)
 }
 
 
-void ana_psi2s_fit(TString fname, int nevts)
+void ana_psi2s_fit(TString fname, int nevts=0)
 {
     TStopwatch timer;
     timer.Start();
@@ -23,17 +23,18 @@ void ana_psi2s_fit(TString fname, int nevts)
 	gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");rootlogon();
     
     TCanvas *c1=new TCanvas("c1","c1",600,600);
-    c1->Divide(2,2);
-
+	
 	PndEventReader evr(fname);
+	
+	if (nevts==0) nevts=evr.GetEntries();
 	    
     // **** create and setup some histos for QA plots
     //
     TH1F *jpsimass = new TH1F("jpsimass","J/psi cands",100,3.1-0.3,3.1+0.3);
     TH1F *jpsi2mass = new TH1F("jpsi2mass","J/psi cands 4C fit",100,3.1-0.3,3.1+0.3);
     
-    TH1F *ppmass = new TH1F("ppmass","pbarp cands",100,3.68598-0.3,3.68598+0.3);
-    TH1F *pp2mass = new TH1F("pp2mass","pbarp fitted",100,3.68598-0.02,3.68598+0.02);
+    TH1F *ppmass = new TH1F("ppmass","pbarp cands",100,3.68598-0.5,3.68598+0.5);
+    TH1F *pp2mass = new TH1F("pp2mass","pbarp fitted",100,3.68598-0.5,3.68598+0.5);
     
    // **** create all the particle lists we'll need for rebuilding the decay tree
     //
@@ -53,25 +54,16 @@ void ana_psi2s_fit(TString fname, int nevts)
 		if (!(i%100)) 
 		cout <<"evt "<<i<<endl;
 		
-		//cout<<"e mass:" <<TRho::Instance()->GetPDG()->GetParticle(11)->Mass()<<endl;
+		evr.FillList(pip,"PionLoosePlus");
+		evr.FillList(pim,"PionLooseMinus");
+		evr.FillList(ep, "ElectronLoosePlus");
+		evr.FillList(em, "ElectronLooseMinus");
 		
-		evr.FillList(pip,"PionVeryLoosePlus");
-		evr.FillList(pim,"PionVeryLooseMinus");
-		evr.FillList(ep, "ElectronVeryLoosePlus");
-		evr.FillList(em, "ElectronVeryLooseMinus");
-		
-/*		for (j=0;j<ep.GetLength();++j) 
-		{
-			ep[j].SetMass(TRho::Instance()->GetPDG()->GetParticle(11)->Mass());
-			cout <<"e: "<<ep[j].Uid()<<" ";
-			
-		}
-		cout <<endl;
-		for (j=0;j<em.GetLength();++j) cout <<"e-:"<<em[j].Uid()<<" ";
-		cout <<endl;*/
-		
+		if (pip.GetLength()>0) cout <<pip[0].Mass()<<endl;
+		if (ep.GetLength()>0) cout <<ep[0].Mass()<<endl;
+				
 		jpsi.Combine(ep,em);
-		//jpsi.Select(jpsiMSel);
+		
 		for (j=0;j<jpsi.GetLength();++j) 
 		{
 		   jpsimass->Fill(jpsi[j].M());
@@ -105,6 +97,8 @@ void ana_psi2s_fit(TString fname, int nevts)
     // **** plot all that stuff
     //
     
+    c1->Divide(2,2);
+
     c1->cd(1); jpsimass->Draw();
     c1->cd(2); jpsi2mass->Draw();
 	c1->cd(3); ppmass->Draw();

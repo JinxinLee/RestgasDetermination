@@ -1,14 +1,20 @@
 // Macro created 20/09/2006 by S.Spataro
 // It creates a geant simulation file for emc
-run_sim_tpccombi_evtgen(double mom=15.0, TString fname="output.evt", Int_t nEvents=10){
+run_sim_tpccombi_evtgen(TString fname="output.evt", Int_t nEvents=10){
   TStopwatch timer;
   timer.Start();
   gDebug=0;
   // Load basic libraries
   // If it does not work,  please check the path of the libs and put it by hands
+  TString s=gSystem->GetFromPipe("head "+fname+" -n10 |awk '/^  0/ {p=$10} END {print p}'");
+  
+  double mom = s.Atof();
+  
+  cout <<fname<<" uses beam momentum of "<<mom<<endl;
+  
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
-    
+  
   TString digiFile = "all.par";
   TString parFile = "params_tpccombi.root";
   
@@ -84,42 +90,24 @@ run_sim_tpccombi_evtgen(double mom=15.0, TString fname="output.evt", Int_t nEven
   fRun->SetGenerator(primGen);
 
   // EvtGen Generator
-  FairEvtGenGenerator* evtGen = new FairEvtGenGenerator("output.evt");
+  FairEvtGenGenerator* evtGen = new FairEvtGenGenerator(fname.Data());
   primGen->AddGenerator(evtGen);
    
    // Box Generator
-  /*
-  FairBoxGenerator* boxGen = new FairBoxGenerator(pid, 1); // 13 = muon; 1 = multipl.
-  if (p2<0.) p2 = p1;
-  boxGen->SetPRange(p1,p2); // GeV/c
-  boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
-  boxGen->SetThetaRange(5., 140.); // Polar angle in lab system range [degree]
-  boxGen->SetXYZ(0., 0., 0.); // mm o cm ??
-  primGen->AddGenerator(boxGen); 
-*/
+//   FairBoxGenerator* boxGen = new FairBoxGenerator(pid, 1); // 13 = muon; 1 = multipl.
+//   if (p2<0.) p2 = p1;
+//   boxGen->SetPRange(p1,p2); // GeV/c
+//   boxGen->SetPhiRange(0., 360.); // Azimuth angle range [degree]
+//   boxGen->SetThetaRange(5., 140.); // Polar angle in lab system range [degree]
+//   boxGen->SetXYZ(0., 0., 0.); // mm o cm ??
+//   primGen->AddGenerator(boxGen); 
+
   //fRun->SetStoreTraj(kTRUE); // to store particle trajectories  
 
   // Create and Set Magnetic Field
   //-------------------------------
-  fRun->SetBeamMom(mom);
-  PndMultiField *fField= new PndMultiField();
-
-  PndTransMap *map_t= new PndTransMap("TransMap", "R");
-  PndDipoleMap *map_d1= new PndDipoleMap("DipoleMap1", "R");
-  PndDipoleMap *map_d2= new PndDipoleMap("DipoleMap2", "R");
-  PndSolenoidMap *map_s1= new PndSolenoidMap("SolenoidMap1", "R");
-  PndSolenoidMap *map_s2= new PndSolenoidMap("SolenoidMap2", "R");
-  PndSolenoidMap *map_s3= new PndSolenoidMap("SolenoidMap3", "R");
-  PndSolenoidMap *map_s4= new PndSolenoidMap("SolenoidMap4", "R");
-
-  fField->AddField(map_t);
-  fField->AddField(map_d1);
-  fField->AddField(map_d2);
-  fField->AddField(map_s1);
-  fField->AddField(map_s2);
-  fField->AddField(map_s3);
-  fField->AddField(map_s4);
-
+  fRun->SetBeamMom(15);
+  PndMultiField *fField= new PndMultiField("FULL");
   fRun->SetField(fField);
 
   // EMC Hit producer
@@ -146,11 +134,6 @@ run_sim_tpccombi_evtgen(double mom=15.0, TString fname="output.evt", Int_t nEven
   /**Initialize the session*/
   fRun->Init();
   
-  PndMultiFieldPar* Par = (PndMultiFieldPar*) rtdb->getContainer("PndMultiFieldPar");
-  if (fField) {  Par->SetParameters(fField); }
-  Par->setInputVersion(fRun->GetRunId(),1);
-  Par->setChanged();
-
   rtdb->setOutput(output);
   rtdb->saveOutput();
   rtdb->print();

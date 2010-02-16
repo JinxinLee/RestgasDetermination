@@ -84,29 +84,10 @@
   PndMvdDigiTask* mvddigi = new PndMvdDigiTask();
   mvddigi->SetVerbose(iVerbose);
   fRun->AddTask(mvddigi);
-  /*
-  PndMvdStripHitProducer* mvdHitProd = new PndMvdStripHitProducer();
-  mvdHitProd->SetVerbose(iVerbose);
-  fRun->AddTask(mvdHitProd);
 
-  PndMvdHybridHitProducer* mvdPixProd = new PndMvdHybridHitProducer();
-  mvdPixProd->SetVerbose(iVerbose);
-  fRun->AddTask(mvdPixProd);
- 
- 
-  // CLUST
-  // Cluster finding for strip detectors
-  Double_t chargecut = 5000.;
-  PndMvdStripClusterTask* mvdmccls = new PndMvdStripClusterTask(chargecut, inFile);
+  PndMvdClusterTask* mvdmccls = new PndMvdClusterTask();
   mvdmccls->SetVerbose(iVerbose);
-  fRun->AddTask(mvdmccls);
-  
-  // Cluster finder for pixel detectors
-  PndMvdPixelClusterTask* mvdClusterizer = new PndMvdPixelClusterTask(1.8, inFile);
-  mvdClusterizer->SetVerbose(iVerbose);
-  fRun->AddTask(mvdClusterizer);
- */
- 
+  fRun->AddTask(mvdmccls); 
   // -----   EMC hit producers   ---------------------------------
   //PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
   //fRun->AddTask(emcHitProd); // hit production 

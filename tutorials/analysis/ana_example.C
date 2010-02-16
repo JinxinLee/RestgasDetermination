@@ -26,8 +26,11 @@ void ana_example(TString fname="pid_tpccombi.root",int nevts=0)
 	// ****************
 	while (evr.GetEvent() && i++<nevts)
 	{
-		evr.FillList(all,"All");
-		for (j=0;j<all.GetLength();++j) mom->Fill(all[j].P()); 		
+		evr.FillList(all,"Charged");
+		for (j=0;j<all.GetLength();++j)
+		{
+			mom->Fill(all[j].P());
+		} 		
 	}
 	
 	// ... and plot it
