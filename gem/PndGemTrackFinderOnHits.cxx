@@ -71,7 +71,7 @@ void PndGemTrackFinderOnHits::Init() {
   // Get MCTrack array
   fMCTrackArray  = (TClonesArray*) ioman->ActivateBranch("MCTrack");
   if( !fMCTrackArray ) {
-    cout << "-E- "<< GetName() <<"::Init: No MCTrack array!"
+    cout << "-I- "<< GetName() <<"::Init: No MCTrack array!"
 	 << endl;
     //    return;
   }
@@ -79,7 +79,7 @@ void PndGemTrackFinderOnHits::Init() {
   // Get PndGemPoint (MCPoint) array
   fMCPointArray  = (TClonesArray*) ioman->GetObject("GEMPoint");
   if( !fMCPointArray ) {
-    cout << "-E- "<< GetName() <<"::Init: No MCPoint array!"
+    cout << "-I- "<< GetName() <<"::Init: No MCPoint array!"
 	 << endl;
     //    return;
   }
@@ -327,8 +327,8 @@ Int_t PndGemTrackFinderOnHits::CreateTracks(TClonesArray* hitArray, TClonesArray
 	hitIndices[itr][2*iterTS.stationIndex[istat]+1] = iterTS.hitIndex[2*istat+1];
 	nofHits[itr] += 2;
       }
-      if ( meanPhi[itr]/nofTS[itr] < 5. && iterTS.trackPhi > 355. ) { iterTS.trackPhi -= 360.; }
-      if ( meanPhi[itr]/nofTS[itr] > 355. && iterTS.trackPhi < 5. ) { iterTS.trackPhi += 360.; }
+      if ( meanPhi[itr]/(nofTS[itr]+1) < 5. && iterTS.trackPhi > 355. ) { iterTS.trackPhi -= 360.; }
+      if ( meanPhi[itr]/(nofTS[itr]+1) > 355. && iterTS.trackPhi < 5. ) { iterTS.trackPhi += 360.; }
       meanMom[itr] += iterTS.trackMom;
       meanPhi[itr] += iterTS.trackPhi;
       meanThe[itr] += iterTS.trackTheta;
@@ -348,7 +348,7 @@ Int_t PndGemTrackFinderOnHits::CreateTracks(TClonesArray* hitArray, TClonesArray
     for ( Int_t ih = 0 ; ih < kNofStatDbl ; ih++ ) {
       if ( hitIndices[itr][ih] == -1 ) continue;
       gemHit = (PndGemHit*)hitArray->At(hitIndices[itr][ih]);
-      gemTrackCand->AddHit(kGemHit,hitIndices[itr][ih],gemHit->GetZ());
+      gemTrackCand->AddHit(kGemHit,hitIndices[itr][ih],gemHit->GetPosition().Mag());
     }
     
     gemTrackCand->Sort();

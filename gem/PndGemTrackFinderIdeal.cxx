@@ -292,7 +292,7 @@ Int_t PndGemTrackFinderIdeal::DoFind(TClonesArray* hitArray,
       continue;
     }
     
-    gemTrackCand->AddHit(kGemHit,iHit,gemHit->GetZ());
+    gemTrackCand->AddHit(kGemHit,iHit,gemHit->GetPosition().Mag());
     //    cout << "gemTrack " << trackIndex << " has " << gemTrack->GetNofGemHits() << endl;
     
     if(fVerbose > 3) {
