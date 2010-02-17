@@ -2068,7 +2068,7 @@ int main()
       writename(innerCylinder, 1, 1);
       writemother(sttassembly, 1, 1);
       writemedium(AlBe);
-      writehalftube((innerDiam / 2.), (innerDiam / 2.) + innerCoverThickness, tubeLength / 2.);
+      writehalftube((innerDiam / 2.), (innerDiam / 2.) + innerCoverThickness, (tubeLength + 0.4) / 2.);
       writetrans(0., 0., 0.);
       writerot(0., 1., 0., -1., 0., 0., 0., 0., 1.);
       //      writerot(1., 0., 0., 0., 1., 0., 0., 0., 1.);
@@ -2077,7 +2077,7 @@ int main()
       writename(outerCylinder, 1, 1);
       writemother(sttassembly, 1, 1);
       writemedium(AlBe);
-      writehalftube((outerDiam / 2.) - outerCoverThickness, (outerDiam / 2.), tubeLength / 2.);
+      writehalftube((outerDiam / 2.) - outerCoverThickness, (outerDiam / 2.), (tubeLength + 0.4) / 2.);
       writetrans(0., 0., 0.);
       writerot(0., 1., 0., -1., 0., 0., 0., 0., 1.);
       //      writerot(1., 0., 0., 0., 1., 0., 0., 0., 1.);
@@ -2086,7 +2086,7 @@ int main()
       writename(innerCylinder, 1, 0);
       writemother(sttassembly, 1, 1);
       writemedium(AlBe);
-      writehalftube((innerDiam / 2.), (innerDiam / 2.) + innerCoverThickness, tubeLength / 2.);
+      writehalftube((innerDiam / 2.), (innerDiam / 2.) + innerCoverThickness, (tubeLength + 0.4) / 2.);
       writetrans(0., 0., 0.);
       writerot(0., -1., 0., 1., 0., 0., 0., 0., 1.);
       //      writerot(1., 0., 0., 0., -1., 0., 0., 0., 1.);
@@ -2095,26 +2095,26 @@ int main()
       writename(outerCylinder, 1, 0);
       writemother(sttassembly, 1, 1);
       writemedium(AlBe);
-      writehalftube((outerDiam / 2.) - outerCoverThickness, (outerDiam / 2.), tubeLength / 2.);
+      writehalftube((outerDiam / 2.) - outerCoverThickness, (outerDiam / 2.), (tubeLength + 0.4) / 2.);
       writetrans(0., 0., 0.);
       writerot(0., -1., 0., 1., 0., 0., 0., 0., 1.);
       //      writerot(1., 0., 0., 0., -1., 0., 0., 0., 1.);
 
       // around the pipe CHECK why (pipeDiam/2.) "-" panelthickness/2?? -----------------
       // panel up x > 0
-      writepanel(panel1, true, panelthickness, (outerDiam/2. - innerDiam/2.),  tubeLength, 1);
+      writepanel(panel1, true, panelthickness, (outerDiam/2. - innerDiam/2.),  (tubeLength + 0.4), 1);
       writetrans((pipeDiam/2.) + panelthickness/2.,  (outerDiam/2. + innerDiam/2.)/2., 0.);
       writerot(1., 0., 0., 0., 1., 0., 0., 0., 1.);
       // panel up x < 0
-      writepanel(panel2,  false, panelthickness, (outerDiam/2. - innerDiam/2.),  tubeLength, 2);
+      writepanel(panel2,  false, panelthickness, (outerDiam/2. - innerDiam/2.),  (tubeLength + 0.4), 2);
       writetrans(-((pipeDiam/2.) + panelthickness/2.), (outerDiam/2. + innerDiam/2.)/2., 0.);
       writerot(1., 0., 0., 0., 1., 0., 0., 0., 1.);
       // panel down x > 0
-      writepanel(panel3, false, panelthickness, (outerDiam/2. - innerDiam/2.),  tubeLength, 1); 
+      writepanel(panel3, false, panelthickness, (outerDiam/2. - innerDiam/2.),  (tubeLength + 0.4), 1); 
       writetrans((pipeDiam/2.) + panelthickness/2., -(outerDiam/2. + innerDiam/2.)/2., 0.);
       writerot(1., 0., 0., 0., 1., 0., 0., 0., 1.);
       // panel down x < 0
-      writepanel(panel4, false, panelthickness, (outerDiam/2. - innerDiam/2.),  tubeLength, 2); 
+      writepanel(panel4, false, panelthickness, (outerDiam/2. - innerDiam/2.),  (tubeLength + 0.4), 2); 
       writetrans(-((pipeDiam/2.) + panelthickness/2.), -(outerDiam/2. + innerDiam/2.)/2., 0.);
       writerot(1., 0., 0., 0., 1., 0., 0., 0., 1.);
 
