@@ -47,7 +47,8 @@ using std::floor;
 
 
 PndTpcClusterizerTask::PndTpcClusterizerTask()
-  : FairTask("TPC Clusterizer"), fpersistence(kFALSE),fmereChargeConversion(kFALSE)
+  : FairTask("TPC Clusterizer"), fpersistence(kFALSE),
+    fmereChargeConversion(kFALSE), fPoti(20.77e-9)
 {
   fpointBranchName = "PndTpcPoint";
 }
@@ -190,22 +191,34 @@ PndTpcClusterizerTask::Exec(Option_t* opt)
 
 void PndTpcClusterizerTask::ChargeConversion()
 {
-  const Float_t poti = 20.77e-9; // first ionization potential for Ne/CO2
-  const Float_t w_ion = 35.97e-9; // energy for the ion-electron pair creation 
+  //hardcoded value from ALICE paper:
+  //const Float_t w_ion = 35.97e-9; //mean energy for pair creation 
+ 
+  Float_t w_ion = fgas->W()*1.e-9;
+  
   Int_t np=fpointArray->GetEntriesFast();	
   for(int ip=1;ip<np;++ip)
   {
   	PndTpcPoint* point=(PndTpcPoint*) fpointArray->At(ip);
 	//Do no clustering just convert energy deposition to ionisation
-  	Int_t nel = (Int_t)(((point->GetEnergyLoss())-poti)/w_ion) + 1;	//imported from ALICE
-  	//nel=TMath::Min(nel,300); // 300 electrons corresponds to 10 keV
+	
+	if(point->GetEnergyLoss() < fPoti)
+	  continue;
+       
+	int nel = floor(((point->GetEnergyLoss())-fPoti)/w_ion) + 1;
+	  
+	//nel=TMath::Min(nel,300); // 300 electrons corresponds to 10 keV
+
 	Int_t size = fprimArray->GetEntriesFast();
-	new((*fprimArray)[size]) PndTpcPrimaryCluster(point->GetTime(),
-						   nel,
-						   TVector3(point->GetX(),point->GetY(),point->GetZ()),
-						   point->GetTrackID(),
-						   ip);
+	new((*fprimArray)[size])PndTpcPrimaryCluster(point->GetTime(),
+						     nel,
+						     TVector3(point->GetX(),
+							      point->GetY(),
+							      point->GetZ()),
+						     point->GetTrackID(),
+						     ip);
   }
 }
+
 
 ClassImp(PndTpcClusterizerTask)

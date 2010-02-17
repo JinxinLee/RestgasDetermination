@@ -51,8 +51,8 @@ public:
 	This has to be set
 	if the ALICE Monte Carlo is activeated in PndTpcDetector
   */
-  void SetMereChargeConversion(Bool_t opt=kTRUE)	{fmereChargeConversion=opt;}
-
+  void SetMereChargeConversion(Bool_t opt=kTRUE) {fmereChargeConversion=opt;}
+  void SetFirstPoti(Float_t pot) {fPoti=pot*1.e-9;} // (eV) e.g. for TestChamber
 
   // Operations ----------------------
   
@@ -75,7 +75,9 @@ private:
   TClonesArray* fprimArray;
   
   const PndTpcGas* fgas;
+  Float_t fPoti; //first ionization potential, used in ALCIE charge conv.
   PndTpcDigiPar* fpar;
+  
 
   Bool_t fpersistence;
   Bool_t fmereChargeConversion;
