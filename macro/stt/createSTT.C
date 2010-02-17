@@ -11,6 +11,8 @@
 // writeout function
 // names of volumes
 // *******************************************************************************
+// to reproduce the file sstraws_skewed_blocks_pipe_120cm.geo use rev 7746 
+// *******************************************************************************
 
 #include <iostream>
 #include <iomanip>
