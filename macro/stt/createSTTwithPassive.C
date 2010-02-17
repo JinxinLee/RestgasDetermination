@@ -199,7 +199,7 @@ bool putStraw(double posX, double posY, double posZ)
 {
 
   // CHECK PIPE
-  if(posX > -(pipeDiam/2. + panelthickness) && posX < (pipeDiam/2. + panelthickness)) return false;
+  if(posX > -(pipeDiam/2. + panelthickness + tubeOuterDiam/2.) && posX < (pipeDiam/2. + panelthickness  + tubeOuterDiam/2.)) return false; 
 
   // check if the straws fit wihin the inner and outer diameter specified
   if (
