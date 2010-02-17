@@ -722,7 +722,7 @@ void placeSingleLayerSkewedRight(double ringposition)
       lengthsShortPipe.push_back(lengthShort);
       tmpypos2Pipe -= 2 * newradius;
     } 
-  extraStraws = extracounter; // update the number
+  extraStrawsPipe = extracounter; // update the number
 
   // =================================================
 
@@ -1133,7 +1133,7 @@ void placeSingleLayerSkewedLeft(double ringposition)
 	
       tmpypos2Pipe -= 2 * newradius;
     }
-  extraStraws = extracounter; // update the number
+  extraStrawsPipe = extracounter; // update the number
   // =================================================
   // plane 1
   // place full straws:
