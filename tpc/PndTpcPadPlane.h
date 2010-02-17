@@ -27,7 +27,7 @@
 #include <vector>
 #include <map>
 #include "math.h"
-
+#include <stdio.h>
 
 // Collaborating Class Declarations --
 class PndTpcPadShapePool;
