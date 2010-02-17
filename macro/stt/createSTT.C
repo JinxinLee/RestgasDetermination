@@ -49,7 +49,7 @@ static int counter6;
 #define outerCoverThickness 1.2000 // 1.200 // 0.1000 cm
 
 #define panelthickness 0.1000 
-#define pipeDiam       4.0000
+#define pipeDiam       4.2000
 #define noSupport 0
 
 #define skewangle 3.
@@ -169,7 +169,7 @@ bool putStraw(double posX, double posY, double posZ)
 {
 
   // CHECK PIPE
-  if(posX > -(pipeDiam/2. + panelthickness) && posX < (pipeDiam/2. + panelthickness)) return false;
+  if(posX > -(pipeDiam/2. + panelthickness + tubeOuterDiam/2.) && posX < (pipeDiam/2. + panelthickness  + tubeOuterDiam/2.)) return false;
 
   // check if the straws fit wihin the inner and outer diameter specified
   if (
@@ -1522,19 +1522,19 @@ int main()
       // around the pipe CHECK why (pipeDiam/2.) "-" panelthickness/2?? -----------------
       // panel up x > 0
       writepanel(panel1, true, panelthickness, (outerDiam/2. - innerDiam/2.),  tubeLength, 1);
-      writetrans((pipeDiam/2.) - panelthickness/2.,  (outerDiam/2. + innerDiam/2.)/2., 0.);
+      writetrans((pipeDiam/2.) + panelthickness/2.,  (outerDiam/2. + innerDiam/2.)/2., 0.);
       writerot(1., 0., 0., 0., 1., 0., 0., 0., 1.);
       // panel up x < 0
       writepanel(panel2,  false, panelthickness, (outerDiam/2. - innerDiam/2.),  tubeLength, 2);
-      writetrans(-((pipeDiam/2.) - panelthickness), (outerDiam/2. + innerDiam/2.)/2., 0.);
+      writetrans(-((pipeDiam/2.) + panelthickness/2.), (outerDiam/2. + innerDiam/2.)/2., 0.);
       writerot(1., 0., 0., 0., 1., 0., 0., 0., 1.);
       // panel down x > 0
       writepanel(panel3, false, panelthickness, (outerDiam/2. - innerDiam/2.),  tubeLength, 1); 
-      writetrans((pipeDiam/2.) - panelthickness, -(outerDiam/2. + innerDiam/2.)/2., 0.);
+      writetrans((pipeDiam/2.) + panelthickness/2., -(outerDiam/2. + innerDiam/2.)/2., 0.);
       writerot(1., 0., 0., 0., 1., 0., 0., 0., 1.);
       // panel down x < 0
       writepanel(panel4, false, panelthickness, (outerDiam/2. - innerDiam/2.),  tubeLength, 2); 
-      writetrans(-((pipeDiam/2.) - panelthickness), -(outerDiam/2. + innerDiam/2.)/2., 0.);
+      writetrans(-((pipeDiam/2.) + panelthickness/2.), -(outerDiam/2. + innerDiam/2.)/2., 0.);
       writerot(1., 0., 0., 0., 1., 0., 0., 0., 1.);
 
     }
