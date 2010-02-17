@@ -34,7 +34,8 @@ static int counter6;
 #define innerDiam     30.0000 // 32.0000
 #define tubeInnerDiam  1.0000
 #define tubeOuterDiam  1.0060
-#define tubeSeperation 1.0100
+// #define tubeSeperation 1.0100 // <<=== this HAS to be the tubeOuterDiam!! CHECK
+double tubeSeperation = tubeOuterDiam;
 #define wireDiam       0.0020
 #define tubeLength   120.0000 // 150.0000
 
@@ -645,7 +646,7 @@ void placeSingleLayerSkewedRight(double ringposition)
   for (int i = 0; i < extraStraws; i++)
     {
       double
-	lengthShort = (tmpypos2 - limit) / sin(newskewangle * (pi / 180.));
+	lengthShort = fabs((tmpypos2 - newradius - limit) / sin(newskewangle * (pi / 180.)));
 
       if (lengthShort > tubeLength)
 	lengthShort = tubeLength;
@@ -708,7 +709,7 @@ void placeSingleLayerSkewedRight(double ringposition)
   for (int i = 0; i < extraStrawsPipe; i++)
     {
       double
-	lengthShort = (tmpypos2Pipe - limitPipe) / sin(skewangle * (pi / 180.));
+	lengthShort = fabs((tmpypos2Pipe - newradius - limitPipe) / sin(skewangle * (pi / 180.)));
 	
       if (lengthShort > tubeLength)
 	lengthShort = tubeLength;
@@ -1050,7 +1051,7 @@ void placeSingleLayerSkewedLeft(double ringposition)
   for (int i = 0; i < extraStraws; i++)
     {
       double
-	lengthShort = (tmpypos2 - limit) / sin(skewangle * (pi / 180.));
+	lengthShort = fabs((tmpypos2 - newradius - limit) / sin(skewangle * (pi / 180.)));
 	
       if (lengthShort > tubeLength)
 	lengthShort = tubeLength;
@@ -1108,7 +1109,7 @@ void placeSingleLayerSkewedLeft(double ringposition)
   for (int i = 0; i < extraStrawsPipe; i++)
     {
       double
-	lengthShort = (tmpypos2Pipe - limitPipe) / sin(skewangle * (pi / 180.));
+	lengthShort = fabs((tmpypos2Pipe - newradius - limitPipe) / sin(skewangle * (pi / 180.)));
 	
       if (lengthShort > tubeLength)
 	lengthShort = tubeLength;
