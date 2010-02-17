@@ -49,7 +49,7 @@ PndTpcClusterFinderTask::PndTpcClusterFinderTask()
 {
   fdigiBranchName = "PndTpcDigi";
 }
-
+ 
 
 PndTpcClusterFinderTask::~PndTpcClusterFinderTask()
 {}
@@ -109,12 +109,14 @@ PndTpcClusterFinderTask::Init()
   double sf= fpar->getFrontend()->samplingFrequency();
   double t0= fpar->getFrontend()->t0();
 
+  std::cout << "T0 " << t0 << "sF " << sf << std::endl;
+
   PndTpcDigiMapper::getInstance(false)->init(fpadplane,fgem,fgas,fzGem,t0,sf);
  
   fcluster_buffer=new std::vector<PndTpcCluster*>;
   ffinder=new PndTpcClusterFinder(PndTpcDigiMapper::getInstance()->getPadPlane(),
-			       fcluster_buffer,
-			       ftimeslice, fmode);
+				  fcluster_buffer,
+				  ftimeslice, fmode);
   
   ffinder->checkConsistency();
   ffinder->setTrivialClustering(ftrivial);
@@ -134,17 +136,25 @@ PndTpcClusterFinderTask::Exec(Option_t* opt)
    ffinder->reset();
 
    //for sorting
-   std::vector<PndTpcDigi*>digis;
+   std::vector<PndTpcDigi*> digis;
    
 
   // For now: trivial clustering;
-   Int_t ndigis=fdigiArray->GetEntriesFast();
+   Int_t ndigis=fdigiArray->GetEntries();
+   //   std::cout << "FINDER"<< ndigis << std::endl;
    for(Int_t i=0;i<ndigis;++i){
      PndTpcDigi* digi=(PndTpcDigi*)fdigiArray->At(i);
+     //     digi->Print();
      digis.push_back(digi);
    }
 
-   ffinder->process(digis);
+   try{
+     ffinder->process(digis);
+   } catch (std::exception& e) {
+     std::cout << e.what() << std::endl;
+   } catch (...) {
+     std::cout << "unknown exception..." << std::endl;
+   }
    //sort(digis.begin(),digis.end(),PndTpcDigiAge());
 
    /*for(Int_t i=0;i<ndigis;++i){
@@ -164,8 +174,7 @@ PndTpcClusterFinderTask::Exec(Option_t* opt)
      ndig+=(*fcluster_buffer)[icl]->size();
      delete (*fcluster_buffer)[icl];
    }
-
-
+   
    std::cout<<fclusterArray->GetEntriesFast()<<" cluster created "
 	    <<" containing "<<ndig<<" digis"
 	    <<" from "<<ndigis<<std::endl;

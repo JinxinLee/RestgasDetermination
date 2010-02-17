@@ -50,14 +50,13 @@ using std::sqrt;
 
 PndTpcDriftTask::PndTpcDriftTask()
   : FairTask("TPC Drift"), fpersistence(kFALSE), 
-    fattach(kTRUE), fdiffuseL(kTRUE), fdiffuseT(kTRUE), fdistort(kFALSE), fphicut(kFALSE), finitialized(kFALSE),
+    fattach(kTRUE), fdiffuseL(kTRUE), fdiffuseT(kTRUE), fdistort(kFALSE), 
+    fphicut(kFALSE), finitialized(kFALSE),
     fqa(NULL), fshortTpc(kFALSE)
 {
   fprimBranchName = "PndTpcPrimaryCluster";
   //TODO: parameter management!!!!
   fdevFile = "DevMap_29-06-07_E_and_B_new_fieldclass.dat"; //default
-  //fgas= new PndTpcGas("NEON-90_CO2-10_B2_PRES1013.asc",400);
-  //std::cout<<*fgas<<std::endl;
 }
 
 

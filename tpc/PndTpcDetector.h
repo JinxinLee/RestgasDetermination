@@ -53,8 +53,13 @@ public:
 	   5. if you do not use this option make sure 2., 4. are not set!
 	      :-(	
 	   6. SetMaxNStep should be set to a high value
-  */ 
+  */
+
+  
   void SetAliMC(Bool_t opt=kTRUE) {fAliMC=opt;}
+  
+  //set the name of the gas mixture to use from the geo definitions
+  void SetMixture(std::string mix) {fMixture=mix;}
   
 
   //NOT YET READY
@@ -129,6 +134,7 @@ private:
   bool fAliMC; //use Alice Monte Carlo, ELOSS=5 has to be set!
   bool fDeltaAttach; //assign delta MC points to the mother track
   double fCut_el, fCut_had;
+  std::string fMixture;  //which gas mixture to use from the geometry definitions
   // Private Methods -----------------
   
 public:

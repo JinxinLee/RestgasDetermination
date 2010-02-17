@@ -160,9 +160,9 @@ PndTpcPadResponseTask::Exec(Option_t* opt)
     for(int iHit=0; iHit<nHits; ++iHit){
       PndTpcPad* pad=hitPads[iHit];
       if(fselected){
-		// find sectorid
-		std::map<unsigned int,bool>::iterator it=fsecids.find(pad->sectorId());
-		if(it==fsecids.end())continue;
+	// find sectorid
+	std::map<unsigned int,bool>::iterator it=fsecids.find(pad->sectorId());
+	if(it==fsecids.end())continue;
       }
       double Amp=Aval->amp()*pad->GetValue(xAv,yAv);
       if(fpar->getGaussianNoise()){

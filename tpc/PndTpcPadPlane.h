@@ -161,6 +161,16 @@ struct unknown_padID : std::exception{
     return "Unkown Pad ID";
   }
 };
+struct superior_unknown_padId : std::exception{
+  superior_unknown_padId(const int padId) : fPadId(padId) {};
+  virtual const char* what() const throw() {
+    char* bla = new char[50];
+    sprintf(bla, "Unknown Pad ID %d", fPadId);
+    return bla;
+  }
+  private:
+  int fPadId;
+};
 struct used_padID : std::exception{
   virtual const char* what() const throw() {
     return "The Pad ID is already assigned.";

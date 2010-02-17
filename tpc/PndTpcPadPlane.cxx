@@ -150,9 +150,9 @@ PndTpcPadPlane::GetPadXY(const unsigned int PadID,
 PndTpcPad*
 PndTpcPadPlane::GetPad(const unsigned int PadID) const
 {
-  if (PadID >= PadReferences.size()) throw unknown_padID();
+  if (PadID >= PadReferences.size()) throw superior_unknown_padId(PadID);
   PndTpcPad* pad=PadReferences[PadID];
-  if(pad==0)throw unknown_padID();
+  if(pad==0) throw superior_unknown_padId(PadID);
   return(pad);
 }
 
@@ -180,7 +180,7 @@ PndTpcPadPlane::AddPad(PndTpcPad* pad)
     fSectors[pad->sectorId()].maxy=std::max(fSectors[pad->sectorId()].maxy,pad->y());
     // this assumes continually nummbered sectors:
     if(pad->sectorId()>=fnSectors)fnSectors=pad->sectorId()+1;
-  }
+  } 
   catch (std::exception& e) {
     std::cerr<<"Index="<<i<<std::endl;
     std::cerr<<e.what()<<std::endl;
@@ -192,6 +192,14 @@ PndTpcPadPlane::AddPad(PndTpcPad* pad)
     GetPad(ID);
   }
   catch (unknown_padID& e)//the desired case
+  {
+    if(PadReferences.size()<=ID)PadReferences.resize(ID+1,0);
+    PadReferences[ID]=pad;
+    if(fSectorLists[pad->sectorId()]==0)fSectorLists[pad->sectorId()]=new std::map<unsigned int, PndTpcPad*>;
+    (*fSectorLists[pad->sectorId()])[pad->padId()]=pad;
+    return;
+  }
+  catch (superior_unknown_padId& e)//the desired case
   {
     if(PadReferences.size()<=ID)PadReferences.resize(ID+1,0);
     PadReferences[ID]=pad;
@@ -219,8 +227,8 @@ PndTpcPadPlane::ReadFromFile(const char* const filename,
     infile.getline(line, 256);
     noproblem = ReadLine(line, pspool);
   }
-  if (!infile.eof())
-    Fatal("PndTpcPadPlane::ReadFromFile","The file %s can not be read.",filename);
+  // if (!infile.eof())
+  // Fatal("PndTpcPadPlane::ReadFromFile","The file %s can not be read.",filename);
   infile.close();
   if (noproblem == false)
     Fatal("PndTpcPadPlane::ReadFromFile","The file %s does not correspond to the required format.",filename);
@@ -257,7 +265,7 @@ PndTpcPadPlane::ReadLine(char* const line,
     return(true);
   if (rest == end)//It was impossible to read angle
   {  
-    Warning("PndTpcPadPlane::ReadLine","In line: %i \n Too less arguments.",line);
+    Warning("PndTpcPadPlane::ReadLine","In line: %s \n Too less arguments.",line);
     return(false);
   }
 
@@ -266,7 +274,7 @@ PndTpcPadPlane::ReadLine(char* const line,
     shape=pspool->GetPadShape(shapeID);
     if (shape == 0)//shapeId does not exist
       {
-	Warning("PndTpcPadPlane::ReadLine","In line: %i \n There is no PndTpcPadShape with ID= %i",line,shapeID);
+	Warning("PndTpcPadPlane::ReadLine","In line: %s \n There is no PndTpcPadShape with ID= %i",line,shapeID);
 	return(false);
       }
   }
@@ -287,13 +295,13 @@ PndTpcPadPlane::ReadLine(char* const line,
   }
   catch (std::exception& e)
   {
-    Warning("PndTpcPadPlane::ReadLine","The pad from line: %i \ncould not be added.Reason: \n %s",line,e.what());
+    Warning("PndTpcPadPlane::ReadLine","The pad from line: %s \ncould not be added.Reason: \n %s",line,e.what());
     return(false);
   }
   return(true);
 }
 
-
+ 
 
 std::vector<unsigned int> 
 PndTpcPadPlane::GetSectorIds()const {

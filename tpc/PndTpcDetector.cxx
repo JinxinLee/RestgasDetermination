@@ -21,7 +21,7 @@
 #include "PndTpcDetector.h"
 
 // C/C++ Headers ----------------------
-
+#include <string>
 
 // Collaborating Class Headers --------
 #include "TClonesArray.h"
@@ -55,6 +55,7 @@ PndTpcDetector::PndTpcDetector(const char * Name, Bool_t Active)
     fCut_el(1.0E-3), fCut_had(1.0E-3)  //standard values 1MeV
 {
   fPndTpcPointCollection= new TClonesArray("PndTpcPoint");
+  fMixture="TPCmixture"; //default to PANDA TPC mixture
 }
 
 PndTpcDetector::PndTpcDetector()
@@ -95,8 +96,9 @@ void PndTpcDetector::SetSpecialPhysicsCuts(){
   if (strcmp(fRun->GetName(),"TGeant3") == 0) {
 
     //get material ID for customs settings
-    int matIdVMC = gGeoManager->GetMedium("TPCmixture")->GetId();
     
+    int matIdVMC = gGeoManager->GetMedium(fMixture.c_str())->GetId();
+  
     
    
     //double cut_el = 1.0E-5;   // (GeV)

@@ -43,6 +43,9 @@
 #include "McIdCollection.h"
 #include "TVector3.h"
 #include "PndMCTrack.h"
+#include "FairRunAna.h"
+#include "FairField.h"
+#include "PndConstField.h"
 
 //#include "AbsBFieldIfc.h"
 //#include "FairFieldAdaptor.h"
@@ -102,7 +105,7 @@ PndTpcIdealTrackingTask::Init()
   // create and register output array
   _trackArray = new TClonesArray("GFTrack");
   ioman->Register("TrackPreFit","GenFit",_trackArray,_persistence);
- // GeanePro will get Geometry and BField from the Run
+  // GeanePro will get Geometry and BField from the Run
   if(_useGeane)_geanePro=new FairGeanePro();
   
   // init histos
@@ -110,13 +113,30 @@ PndTpcIdealTrackingTask::Init()
   _trackSizeH=new TH1I("trksize","# hits in track",100,0,100);
   _trackPurityH=new TH1D("trkpurity","trackPurity",25,0,1.01);
   _trackMcIdsH=new TH1D("trkmcids","# mcids in track",25,0,25);
-
+  
   return kSUCCESS;
 }
 
 void
 PndTpcIdealTrackingTask::Exec(Option_t* opt)
 {
+
+   double Bz; //magnetic field along the drift axis
+
+   //get the magnetic field for curvature seeding
+   FairField* field=FairRunAna::Instance()->GetField();
+   bool CField = dynamic_cast<PndConstField*>(field);
+   if(!CField) {
+     std::cerr<<"PndTpcIdealTrackingTask: "
+	      <<"No const field! Curvature seeding not valid..."
+	      <<std::endl;
+     Bz=0.;
+   }
+   //this is crap, but better than hardcoding for the moment ...
+   else
+     Bz=field->GetBz(0.,0.,0.);      
+   
+    
   std::cout<<"PndTpcIdealTrackingTask::Exec"<<std::endl;
   // Reset output Arrays
   if(_trackArray==0) Fatal("PndTpcIdealTracking::Exec)","No TrackArray");
@@ -162,13 +182,13 @@ PndTpcIdealTrackingTask::Exec(Option_t* opt)
       
       PndMCTrack* trk=(PndMCTrack*)_mcTrackArray->At(trackid);
       TVector3 mom=trk->GetMomentum();
-      double curv=0.3*2.0/mom.Perp(); // 1/R=0.3*B/pt   pt in GeV, B in Tesla
+      double curv=0.3*Bz/mom.Perp(); // 1/R=0.3*B/pt   pt in GeV, B in Tesla
       cand->setCurv(curv);
       cand->setDip(mom.Theta());
     }
     cand->addHit(2,cl->index());
   }// end loop over clusters
-
+  std::cout<<std::endl;
   std::cout<<"PndTpcIdealTrackingTask::Exec:: "
 	   <<candlist.size()<<" track candidates found."<<std::endl;
   _multiplicityHisto->Fill(candlist.size());
@@ -207,14 +227,15 @@ PndTpcIdealTrackingTask::Exec(Option_t* opt)
 					       myrandom.Uniform(-0.1,0.1));
     if(pos.Mag()<1.E-3) pos.SetMag(1.E-3);
     TVector3 mom=mc->GetMomentum();
+    /*
     mom.SetMag(mom.Mag()*myrandom.Uniform(0.9,1.1));
     mom.SetTheta(mom.Theta() + myrandom.Uniform(-2./180.*TMath::Pi(),
 						2./180.*TMath::Pi()));
-    mom.SetPhi(mom.Phi() + myrandom.Uniform(-2./180.*TMath::Pi(),
-					    2./180.*TMath::Pi()));
-    
+    mom.SetPhi(mom.Phi()); + myrandom.Uniform(-2./180.*TMath::Pi(),
+					      2./180.*TMath::Pi()));
+    */
     TVector3 poserr(1.,1.,1.);
-    TVector3 momerr=0.3*mom; //  10% error
+    TVector3 momerr=0.1*mom; //  10% error
     momerr+=TVector3(0.1,0.1,0.1);
   
     //TVector3 u(1.,0.,0.);
@@ -227,6 +248,7 @@ PndTpcIdealTrackingTask::Exec(Option_t* opt)
     // create track-representation object and initialize with start values
     GFAbsTrackRep* rep=0;
     if(_useGeane){
+      
       GFDetPlane pl(pos,u,v);
       
       GeaneTrackRep* grep=new GeaneTrackRep(_geanePro,pl,mom,poserr,momerr,q,pdg);

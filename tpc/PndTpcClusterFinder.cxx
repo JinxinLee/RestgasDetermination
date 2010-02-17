@@ -196,8 +196,8 @@ PndTpcClusterFinder::putDigi(PndTpcDigi* digi)
 {
   PndTpcPad* pad=fpadplane->GetPad(digi->padId());
   if(pad==NULL){
-    std::cout<<"Unkown pad ID. Throwing."<<std::endl;
-    throw unknown_padID();
+    std::cerr<<"Unkown pad ID " << digi->padId() << ". Throwing."<<std::endl;
+    throw superior_unknown_padId(digi->padId());
   }
   unsigned int sectorId=pad->sectorId();
   //std::cout<<"putting digi("<<digi->padId()<<") in sector "<<sectorId<<std::endl;
