@@ -636,15 +636,18 @@ void placeSingleLayerSkewedRight(double ringposition)
     ypos2 = ypos - availableSpace * cos((60. / 180.) * pi),
     tmpxpos2 = xpos2,
     tmpypos2 = ypos2  - extraspace - newradius,
-    limit = ypos2 - availableSpace + newradius + safety;
+    limit = ypos2 - availableSpace + newradius + safety + extraspace;
 
   for(int i = 0; i < possibleStraws; i++) 
     {
       tmpypos2 -= 2 * newradius;
     }
     
+  int extracounter = 0; // how many short tubes can be really placed
   for (int i = 0; i < extraStraws; i++)
     {
+      if((tmpypos2 - limit) < 0) break;
+      extracounter++;
       double
 	lengthShort = fabs((tmpypos2 - newradius - limit) / sin(newskewangle * (pi / 180.)));
 
@@ -656,7 +659,7 @@ void placeSingleLayerSkewedRight(double ringposition)
 
       tmpypos2 -= 2 * newradius;
     }
-  
+   extraStraws = extracounter; // update the number
 
   double
     additionalShift = fabs(tubeLength * sin((newskewangle / 180.) * pi));
@@ -696,7 +699,7 @@ void placeSingleLayerSkewedRight(double ringposition)
     tmpxpos2Pipe = xpos2Pipe,
     tmpypos2Pipe = ypos2Pipe - extraspacePipe - newradius,
     // the limit on the left side of the plane beyond which no center of the short straws may be
-    limitPipe = ypos2Pipe - availableSpacePipe + newradius + safety;
+    limitPipe = ypos2Pipe - availableSpacePipe + newradius + safety + extraspacePipe;
 
 
   // shift to the center of of the leftmost full-length straw 
@@ -706,8 +709,11 @@ void placeSingleLayerSkewedRight(double ringposition)
     }
   
   // calculate the maximum allowable length for this short straw and shift to the next 
+  extracounter = 0; // how many short tubes can be really placed
   for (int i = 0; i < extraStrawsPipe; i++)
     {
+      if((tmpypos2Pipe - limitPipe) < 0) break;
+      extracounter++;
       double
 	lengthShort = fabs((tmpypos2Pipe - newradius - limitPipe) / sin(skewangle * (pi / 180.)));
 	
@@ -715,7 +721,9 @@ void placeSingleLayerSkewedRight(double ringposition)
 	lengthShort = tubeLength;
       lengthsShortPipe.push_back(lengthShort);
       tmpypos2Pipe -= 2 * newradius;
-    }
+    } 
+  extraStraws = extracounter; // update the number
+
   // =================================================
 
   // plane 1
@@ -1035,7 +1043,7 @@ void placeSingleLayerSkewedLeft(double ringposition)
     tmpxpos2 = xpos2,
     tmpypos2 = ypos2  - extraspace - newradius,
     // the limit on the left side of the plane beyond which no center of the short straws may be
-    limit = ypos2 - availableSpace + newradius + safety;
+    limit = ypos2 - availableSpace + newradius + safety + extraspace;
 
   //   cerr << "xpos2/ypos2 " << xpos2 << " " << ypos2 << endl;
   //   cerr << "tmpxpos2/tmpypos2 " << tmpxpos2 << " " << tmpypos2 << endl;
@@ -1048,8 +1056,11 @@ void placeSingleLayerSkewedLeft(double ringposition)
     }
   
   // calculate the maximum allowable length for this short straw and shift to the next 
+  int extracounter = 0; // how many short tubes can be really placed
   for (int i = 0; i < extraStraws; i++)
     {
+     if((tmpypos2 - limit) < 0) break;
+      extracounter++;
       double
 	lengthShort = fabs((tmpypos2 - newradius - limit) / sin(skewangle * (pi / 180.)));
 	
@@ -1061,6 +1072,7 @@ void placeSingleLayerSkewedLeft(double ringposition)
 	
       tmpypos2 -= 2 * newradius;
     }
+  extraStraws = extracounter; // update the number
   // =================================================    
   // planes intersecting pipe ========================
   // pipe
@@ -1097,7 +1109,7 @@ void placeSingleLayerSkewedLeft(double ringposition)
     tmpxpos2Pipe = xpos2Pipe, 
     tmpypos2Pipe = ypos2Pipe - extraspacePipe - newradius,
     // the limit on the left side of the plane beyond which no center of the short straws may be
-    limitPipe = ypos2Pipe - availableSpacePipe + newradius + safety;
+    limitPipe = ypos2Pipe - availableSpacePipe + newradius + safety + extraspacePipe;
 
   // shift to the center of of the leftmost full-length straw 
   for(int i = 0; i < possibleStrawsPipe; i++) 
@@ -1106,8 +1118,11 @@ void placeSingleLayerSkewedLeft(double ringposition)
     }
   
   // calculate the maximum allowable length for this short straw and shift to the next 
+  extracounter = 0; // how many short tubes can be really placed
   for (int i = 0; i < extraStrawsPipe; i++)
     {
+      if((tmpypos2Pipe - limitPipe) < 0) break;
+      extracounter++;
       double
 	lengthShort = fabs((tmpypos2Pipe - newradius - limitPipe) / sin(skewangle * (pi / 180.)));
 	
@@ -1118,6 +1133,7 @@ void placeSingleLayerSkewedLeft(double ringposition)
 	
       tmpypos2Pipe -= 2 * newradius;
     }
+  extraStraws = extracounter; // update the number
   // =================================================
   // plane 1
   // place full straws:
