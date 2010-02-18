@@ -52,7 +52,7 @@ double tubeSeperation = tubeOuterDiam;
 #define outerCoverThickness 1.2000 // 1.200 // 0.1000 cm
 
 #define panelthickness 0.1000 
-#define pipeDiam       4.2000
+#define pipeDiam       4.0800
 #define noSupport 0
 
 #define skewangle 3.
