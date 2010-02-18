@@ -79,7 +79,8 @@ void PndPDEFoamTrain::Train()
       {
 	std::vector<float>* evtVect = EvtData[k].second;
 	const TMVA::Event* ev = new TMVA::Event(*evtVect, cls, 1.0, 1.0);
-	m_foams[cls]->FillBinarySearchTree(ev, TMVA::kSeparate, true);
+	//m_foams[cls]->FillBinarySearchTree(ev, TMVA::kSeparate, true);
+	m_foams[cls]->FillBinarySearchTree(ev, true);
       }
     }
     // build foam
@@ -100,7 +101,8 @@ void PndPDEFoamTrain::Train()
       {
 	std::vector<float>* evtVect = EvtData[k].second;
 	const TMVA::Event* ev = new TMVA::Event(*evtVect, cls, 1.0, 1.0);
-	m_foams[cls]->FillFoamCells(ev, TMVA::kSeparate, false);
+	//m_foams[cls]->FillFoamCells(ev, TMVA::kSeparate, false);
+	m_foams[cls]->FillFoamCells(ev, false);
       }
     }
     
@@ -148,7 +150,7 @@ void PndPDEFoamTrain::InitFoam(TMVA::PDEFoam *pdefoam, TMVA::EFoamType ft)
   // pdefoam->SetRMSmin(m_RMSmin);
   
   // SetPseRan
-  pdefoam->SetPseRan(PseRan);
+  //pdefoam->SetPseRan(PseRan);
 
   // Init PDEFoam
   pdefoam->Init();
@@ -280,7 +282,8 @@ void PndPDEFoamTrain::TrainPar()
       {
 	std::vector<float>* evtVect = EvtData[k].second;
 	const TMVA::Event* ev = new TMVA::Event(*evtVect, cls, 1.0, 1.0);
-	m_foams[cls]->FillBinarySearchTree(ev, TMVA::kSeparate, true);
+	//m_foams[cls]->FillBinarySearchTree(ev, TMVA::kSeparate, true);
+	m_foams[cls]->FillBinarySearchTree(ev, true);
       }
     }// end insert binary tree
 
@@ -302,7 +305,8 @@ void PndPDEFoamTrain::TrainPar()
       {
 	std::vector<float>* evtVect = EvtData[k].second;
 	const TMVA::Event* ev = new TMVA::Event(*evtVect, cls, 1.0, 1.0);
-	m_foams[cls]->FillFoamCells(ev, TMVA::kSeparate, false);
+	//m_foams[cls]->FillFoamCells(ev, TMVA::kSeparate, false);
+	m_foams[cls]->FillFoamCells(ev, false);
       }
     }// end event loop
     

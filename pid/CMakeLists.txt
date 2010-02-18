@@ -40,7 +40,7 @@ ${CMAKE_SOURCE_DIR}/pid/PidClassifier
 ${CMAKE_SOURCE_DIR}/pid/PidClassifier/KNN
 ${CMAKE_SOURCE_DIR}/pid/PidClassifier/LVQ1
 ${CMAKE_SOURCE_DIR}/pid/PidClassifier/TMVAkd_KNN
-#${CMAKE_SOURCE_DIR}/pid/PidClassifier/TMVA_PDE_FOAM
+${CMAKE_SOURCE_DIR}/pid/PidClassifier/TMVA_PDE_FOAM
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -74,7 +74,7 @@ PidClassifier/TMVA_PDE_FOAM/PndPDEFoamClassify.cpp
 ###### Trainers.
 PidClassifier/PndMvaTrainer.cpp
 PidClassifier/LVQ1/PndLVQTrain.cpp
-#PidClassifier/TMVA_PDE_FOAM/PndPDEFoamTrain.cpp
+PidClassifier/TMVA_PDE_FOAM/PndPDEFoamTrain.cpp
 ###### Dummy
 PidClassifier/PndPidIdealAssociatorTask.cxx
 )
