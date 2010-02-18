@@ -54,7 +54,7 @@
   // -----   LHETRACK  ---------------------------------
   
   PndLheHitsMaker* trackMS = new PndLheHitsMaker("Tracking routine");
-  trackMS->SetSttMode(3);  // 0 OFF, 1 SttPoint, 2 SttHit, (3) SttHelixHit // SttPoint smearing [cm], if negative no smearing
+  trackMS->SetSttMode(4);  // 0 OFF, 1 SttPoint, 2 SttHit, (3) SttHelixHit, 4 SttHelixHit MC  // SttPoint smearing [cm], if negative no smearing
   trackMS->SetMvdMode(2);  // 0 OFF, 1 MVDPoint, 2 MVDHit     // MVDPoint smearing [cm], if negative no smearing
   trackMS->SetGemMode(2);  // 0 OFF, 1 GEMPoint, 2 GEMHit     // GEMPoint smearing [cm], if negative no smearing
   fRun->AddTask(trackMS);
@@ -66,10 +66,11 @@
   PndLheTrackFitter* trackFitter    = new PndLheTrackFitter("fitting");
   fRun->AddTask(trackFitter);
   
-  PndLheKalmanTask* lheKalman = new PndLheKalmanTask();
-  lheKalman->SetVerbose(0);
-  //lheKalman->SetNumIterations(3);
-  fRun->AddTask(lheKalman);
+  PndRecoKalmanTask* recoKalman = new PndRecoKalmanTask();
+  recoKalman->SetTrackInBranchName("LheTrack");
+  recoKalman->SetTrackOutBranchName("LheGenTrack");
+  //recoKalman->SetNumIterations(3);
+  fRun->AddTask(recoKalman);
  
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();

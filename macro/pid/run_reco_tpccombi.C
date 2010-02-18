@@ -66,10 +66,11 @@
   PndLheTrackFitter* trackFitter    = new PndLheTrackFitter("fitting");
   fRun->AddTask(trackFitter);
   
-  PndLheKalmanTask* lheKalman = new PndLheKalmanTask();
-  lheKalman->SetVerbose(0);
-  //lheKalman->SetNumIterations(3);
-  fRun->AddTask(lheKalman);
+  PndRecoKalmanTask* recoKalman = new PndRecoKalmanTask();
+  recoKalman->SetTrackInBranchName("LheTrack");
+  recoKalman->SetTrackOutBranchName("LheGenTrack");
+  //recoKalman->SetNumIterations(3);
+  fRun->AddTask(recoKalman);
  
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
