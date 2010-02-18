@@ -22,6 +22,7 @@ enum fDetectorType {
    kSttPoint, kSttHit, kSttHelixHit,
    kGemPoint, kGemDigi, kGemHit,
    kDchPoint, kDchDigi, kDchHit,
+   kMdtPoint, kMdtHit,
    kTrackCand, kTrack};
 
 
