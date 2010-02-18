@@ -570,17 +570,17 @@ Int_t PndLheTrackFitter::DeepFit(PndLheCandidate *track) {
     wxy += fZWeight * rho * hit->GetZ();
   } 
   
-  Double_t det = wsum * wxx - wx * wx;
-  if (det==0)
+  Double_t det = wxx/wsum - wx * wx / wsum / wsum;
+  if (det<=0)
     {
-      cout << "-W-  PndLheTrackFitter ::DeepFit: det==0 -> skipped track" << endl;
+      cout << "-W-  PndLheTrackFitter ::DeepFit: det<=0 -> skipped track" << endl;
       track->SetGood(kFALSE);
       return 0;
     }
   else 
     {
-      mm = (wxy * wsum - wy * wx) / det;
-      qq = (wy * wxx - wxy * wx) / det;
+      mm = (wxy / wsum - wy * wx / wsum / wsum) / det;
+      qq = (wy * wxx /wsum / wsum - wxy * wx / wsum / wsum) / det;
     }
   
   track->SetTanDipAngle(-mm);
@@ -612,9 +612,8 @@ Int_t PndLheTrackFitter::DeepFit(PndLheCandidate *track) {
   
   Double_t varsq = sqrt(chi2/((Double_t)nHits-2.));
   
-  
-  Double_t dtanl = varsq * sqrt( wsum / det );
-  Double_t dz0   = varsq * sqrt( wxx / det );
+  Double_t dtanl = sqrt( wsum / det );
+  Double_t dz0   = sqrt( wxx  / det );
 
   track->SetTanDipAngleErr(dtanl);
   track->SetZ0Err(dz0);
