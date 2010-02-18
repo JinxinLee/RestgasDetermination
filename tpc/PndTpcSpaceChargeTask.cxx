@@ -149,6 +149,11 @@ PndTpcSpaceChargeTask::Exec(Option_t* opt)
   {
     currentPoint = (PndTpcPoint*) fpointArray->At(n);
     int qPoint=0;
+
+    int trackID = currentPoint->GetTrackID();
+    //ONLY COUNT PRIMARY TRACKS!
+    //if(trackID!=0)
+    // continue;
     
     //misleading - has nothing to do with G3 "ALICE", just different method
     //TODO: make sure the DETECTOR class works right
