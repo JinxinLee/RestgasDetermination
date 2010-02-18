@@ -38,6 +38,8 @@
 #include "PndGemRecoHit.h"
 #include "PndTpcSPHit.h"
 #include "PndSttRecoHit.h"
+#include "PndDchRecoHit.h"
+#include "PndMdtRecoHit.h"
 #include "PndGenfitAdapters.h"
 #include "PndTrack.h"
 #include "PndTrackCand.h"
@@ -113,6 +115,18 @@ Bool_t PndRecoKalmanFit::Init()
   {
     fTheRecoHitFactory->addProducer(kGemHit,new GFRecoHitProducer<PndGemHit,PndGemRecoHit>(gemar)); 
     std::cout << "*** PndRecoKalmanFit::Init" << "\t" << "GEMHit array  found" << std::endl;
+  }
+
+  TClonesArray* dchar=(TClonesArray*) ioman->GetObject("PndDchCylinderHit");
+  {
+    fTheRecoHitFactory->addProducer(kDchHit,new GFRecoHitProducer<PndDchCylinderHit,PndDchRecoHit>(dchar));
+    std::cout << "*** PndRecoKalmanFit::Init" << "\t" << "PndDchCylinderHit array  found" << std::endl;
+  }
+  
+  TClonesArray* mdtar=(TClonesArray*) ioman->GetObject("MdtHit");
+  {
+    fTheRecoHitFactory->addProducer(kMdtHit,new GFRecoHitProducer<PndMdtHit,PndMdtRecoHit>(mdtar));
+    std::cout << "*** PndRecoKalmanFit::Init" << "\t" << "MdtHit array  found" << std::endl;
   }
   
   if (fUseGeane)
