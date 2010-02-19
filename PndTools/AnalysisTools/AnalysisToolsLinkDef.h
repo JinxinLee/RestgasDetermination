@@ -23,6 +23,7 @@
 #pragma link C++ class PndAnalysisTask+;
 #pragma link C++ class PndListDefiner+;
 #pragma link C++ class PndListProvider+;
+#pragma link C++ class PndMcListConverter+;
 
 #pragma link C++ class  CStrTok+;
 

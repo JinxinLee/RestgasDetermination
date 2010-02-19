@@ -51,6 +51,7 @@ PndSimpleAnalysis.cxx
 PndAnalysisTask.cxx
 PndListDefiner.cxx
 PndListProvider.cxx
+PndMcListConverter.cxx
 Fitter/PndVtxFitterParticle.cxx
 Fitter/PndVtxFitter_Init.cxx
 Fitter/PndVtxFitterError.cxx
