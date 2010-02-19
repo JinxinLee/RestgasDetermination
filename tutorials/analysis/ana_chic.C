@@ -35,8 +35,13 @@ void ana_chic(TString fsig,int nevts=0)
 		
 		evtinfo=evr.GetEventInfo();
 		
-		int nneut=evtinfo->GetNeutrals();
-		int nchrg=evtinfo->GetCharged();
+		int nneut=0,nchrg=0;
+		
+		if (evtinfo)
+		{
+			nneut=evtinfo->GetNeutrals();
+			nchrg=evtinfo->GetCharged();
+		}
 		
 		nn->Fill(nneut);
 		nc->Fill(nchrg);
