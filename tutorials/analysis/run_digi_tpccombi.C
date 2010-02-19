@@ -68,11 +68,11 @@
   fRun->AddTask(tpcGem);
 
   PndTpcPadResponseTask* tpcPadResponse = new PndTpcPadResponseTask();
-  tpcPadResponse->SetPersistence();
+  //tpcPadResponse->SetPersistence();
   fRun->AddTask(tpcPadResponse);
 
   PndTpcElectronicsTask* tpcElec = new PndTpcElectronicsTask();
-  tpcElec->SetPersistence();
+  //tpcElec->SetPersistence();
   fRun->AddTask(tpcElec);
 
   PndTpcClusterFinderTask* tpcCF = new PndTpcClusterFinderTask();

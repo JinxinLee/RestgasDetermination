@@ -59,9 +59,6 @@ void ana_psi2s_fit(TString fname, int nevts=0)
 		evr.FillList(ep, "ElectronLoosePlus");
 		evr.FillList(em, "ElectronLooseMinus");
 		
-		if (pip.GetLength()>0) cout <<pip[0].Mass()<<endl;
-		if (ep.GetLength()>0) cout <<ep[0].Mass()<<endl;
-				
 		jpsi.Combine(ep,em);
 		
 		for (j=0;j<jpsi.GetLength();++j) 
