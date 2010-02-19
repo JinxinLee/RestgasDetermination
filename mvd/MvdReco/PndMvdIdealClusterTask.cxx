@@ -116,10 +116,10 @@ InitStatus PndMvdIdealClusterTask::Init()
 
 
   fHitArray = new TClonesArray("PndMvdHit");
-  ioman->Register("PndMvdIdealClusterHit", "MVD", fHitArray, kTRUE);
+  ioman->Register("PndMvdIdealClusterHit", "MVD", fHitArray, fPersistance);
 
   fClusterArray = new TClonesArray("PndMvdClusterPixel");
-  ioman->Register("PndMvdClusterPixel","MVD",fClusterArray,kTRUE);
+  ioman->Register("PndMvdClusterPixel","MVD",fClusterArray,fPersistance);
 
   std::cout << "-I- PndMvdIdealClusterTask: Initialisation successfull" << std::endl;
   return kSUCCESS;

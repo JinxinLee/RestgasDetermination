@@ -85,6 +85,7 @@ MvdDigi/PndMvdNoiseProducer.cxx
 MvdDAQ/PndMvdConvertApv.cxx
 MvdDAQ/PndMvdConvertApvTask.cxx
 MvdDAQ/PndMvdMapApv.cxx
+MvdDAQ/PndMvdCreateDefaultApvMap.cxx
 )
 set (MVD_RULECHECKER_SRCS ${MVD_SRCS})
 

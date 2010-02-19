@@ -54,10 +54,13 @@ class PndMvdNoiseProducer : public FairTask
   void AddDigiStrip(Int_t &iStrip, Int_t iPoint, TString detname, Int_t fe, Int_t chan, Double_t charge);
   void AddDigiPixel(Int_t &noisies, Int_t iPoint, TString detname, Int_t fe, Int_t col, Int_t row, Double_t charge);
 
+  void SetPersistance(Bool_t p = kTRUE) {fPersistance=p;};
+  Bool_t GetPersistance() {return fPersistance;};
+
   void DiveDownNode(TGeoNode *fN);
 //   void Finish();
  private:
-
+  Bool_t fPersistance;
   TString fBranchName;
   /** In-Output array of PndMvdDigis **/
   TClonesArray* fDigiStripArray;

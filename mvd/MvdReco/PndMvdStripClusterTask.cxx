@@ -147,10 +147,10 @@ InitStatus PndMvdStripClusterTask::Init()
 
   // set output arrays
   fHitArray = new TClonesArray("PndMvdHit");
-  ioman->Register("MVDHitsStrip", "MVD", fHitArray, kTRUE);
+  ioman->Register("MVDHitsStrip", "MVD", fHitArray, fPersistance);
 
   fClusterArray = new TClonesArray("PndMvdClusterStrip");
-  ioman->Register("MVDStripClusterCand","MVD",fClusterArray,kTRUE);
+  ioman->Register("MVDStripClusterCand","MVD",fClusterArray,fPersistance);
 
   // geo name handling
   fGeoH = new PndMvdGeoHandling(gGeoManager);

@@ -82,7 +82,7 @@ InitStatus PndMvdIdealRecoTask::Init()
   // Create and register output array
   fHitOutputArray = new TClonesArray("PndMvdHit");
   ioman->Register("MVDHit", "PndMvd ideal Hits",
-									fHitOutputArray, kTRUE);
+									fHitOutputArray, fPersistance);
 
   std::cout << "-I- gGeoManager = "<<gGeoManager << std::endl;
   fGeoH = new PndMvdGeoHandling(gGeoManager);

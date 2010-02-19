@@ -46,6 +46,19 @@ InitStatus PndMvdClusterTask::ReInit()
   return kERROR;
 }
 
+// -------------------------------------------------------------------------
+
+void PndMvdClusterTask::SetPersistance(Bool_t pers)
+{
+  //TODO: This is not recursive 
+  fPersistance = pers;
+  TList* thistasks = this->GetListOfTasks();
+  ((PndMvdPixelClusterTask*)thistasks->At(0))->SetPersistance(fPersistance);
+  ((PndMvdStripClusterTask*)thistasks->At(1))->SetPersistance(fPersistance);
+  return;
+}
+
+
 // -----   Public method Init   --------------------------------------------
 InitStatus PndMvdClusterTask::Init()
 {

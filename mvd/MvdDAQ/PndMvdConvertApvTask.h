@@ -5,7 +5,8 @@
 
 
 /** PndMvdConvertApvTask.h
- *@author L.Ackermann <lars.ackermann@physik.tu-dresden.de>
+ *@author L.Ackermann <lars.ackermann@physik.tu-dresden.de>, 
+ *        R.Kliemt <ralf.kliemt@hiskp.uni-bonn.de>
  **
  ** Converting Task from ascci hit file to clones array of PndMvdDigiStrip
  **/
@@ -18,7 +19,8 @@
 // framework includes
 #include "FairTask.h"
 #include "PndMvdConvertApv.h"
-// #include "PndMvdGeoHandling.h"
+#include "PndMvdMapApv.h"
+#include "PndMvdGeoHandling.h"
 
 #include <vector>
 #include <map>
@@ -39,7 +41,7 @@ class PndMvdConvertApvTask : public FairTask
  public:
 
 	/** Default constructor **/  
-	PndMvdConvertApvTask(PndMvdConvertApv* Apvconvert);
+	PndMvdConvertApvTask(PndMvdConvertApv* Apvconvert, PndMvdMapApv* Apvmapper);
 
 	/** Destructor **/
 	~PndMvdConvertApvTask();
@@ -49,14 +51,12 @@ class PndMvdConvertApvTask : public FairTask
 
 	/**
 	@fn virtual InitStatus Init()
-
 	init task
 	*/
 	virtual InitStatus Init();
 
 	/**
 	@fn virtual void Finish()
-
 	finish task
 	@return void
 	*/
@@ -65,25 +65,22 @@ class PndMvdConvertApvTask : public FairTask
  private:
 	/// class which convert the read in and hold the streams
 	PndMvdConvertApv* fApvConvert;
-
+  PndMvdMapApv* fApvMapper;
 	/// array of results
 	TClonesArray* fStripArray;
-
+  ///Geohandler for name string compression
+  PndMvdGeoHandling* fGeoH;
 	/// number of strips in this event
 	Int_t iStrip;
 
 	/**
 	@fn void Register()
-
-	
 	@return void
 	*/
 	void Register();
 
 	/**
 	@fn void Reset()
-
-	
 	@return void
 	*/
 	void Reset();

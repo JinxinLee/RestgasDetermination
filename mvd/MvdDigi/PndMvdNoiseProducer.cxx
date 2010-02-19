@@ -26,6 +26,7 @@ PndMvdNoiseProducer::PndMvdNoiseProducer() :
   FairTask("Charge Noise Producer")
 {
 	fBranchName 	= "MVDStripDigis";
+  fPersistance = kTRUE;
 }
 // -------------------------------------------------------------------------
 
@@ -54,6 +55,7 @@ InitStatus PndMvdNoiseProducer::Init()
       std::cout << "-W- PndMvdNoiseProducer::Init: No MVDStripDigis array!" << std::endl;
       std::cout << "    Create a new one." << std::endl;
       fDigiStripArray = new TClonesArray("PndMvdDigiStrip");
+      ioman->Register("MVDStripDigis","MVD",fDigiStripArray,fPersistance);
   }
 
   fDigiPixelArray = (TClonesArray*) ioman->GetObject("MVDPixelDigis");
@@ -61,6 +63,7 @@ InitStatus PndMvdNoiseProducer::Init()
       std::cout << "-W- PndMvdNoiseProducer::Init: No MVDPixelDigis array!" << std::endl;
       std::cout << "    Create a new one." << std::endl;
       fDigiPixelArray = new TClonesArray("PndMvdDigiPixel");
+      ioman->Register("MVDPixelDigis","MVD",fDigiPixelArray,fPersistance);
   }
 
   fGeoH = new PndMvdGeoHandling(gGeoManager);

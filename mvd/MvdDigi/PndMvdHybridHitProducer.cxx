@@ -31,6 +31,7 @@ PndMvdHybridHitProducer::PndMvdHybridHitProducer() :
   fPixelHits = 0;
   fEventNr = 0;
   fOverwriteParams = kFALSE;
+  fPersistance = kTRUE;
  // fGeoH = new PndMvdGeoHandling(gGeoManager);
 //  fHitArray  = new TClonesArray("PndMvdHit");
 //	fPixelArray	= new TClonesArray("PndMvdPixelHit");
@@ -54,6 +55,7 @@ PndMvdHybridHitProducer::PndMvdHybridHitProducer(Double_t lx, Double_t ly, Doubl
   fcols = 104;
   frows = 104;
   fOverwriteParams = kTRUE;
+  fPersistance = kTRUE;
   if(fVerbose>0) std::cout << "MVD Hybrid Digi Producer created, Parameters will be overwritten in RTDB" << std::endl;
 }
 // -------------------------------------------------------------------------
@@ -109,7 +111,7 @@ InitStatus PndMvdHybridHitProducer::Init()
 
   // Create and register output array
   fPixelArray = new TClonesArray("PndMvdDigiPixel");
-  ioman->Register("MVDPixelDigis", "MVD", fPixelArray, kTRUE);
+  ioman->Register("MVDPixelDigis", "MVD", fPixelArray, fPersistance);
 
 
 

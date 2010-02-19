@@ -36,6 +36,7 @@ PndMvdStripHitProducer::PndMvdStripHitProducer() :
   fBranchName   = "MVDPoint";
   fOverrideParams = false;
   fDigiParameterList = new TList();
+  fPersistance = kTRUE;
 }
 // -------------------------------------------------------------------------
 
@@ -192,7 +193,7 @@ InitStatus PndMvdStripHitProducer::Init()
 
   // Create and register output array
   fStripArray = new TClonesArray("PndMvdDigiStrip");
-  ioman->Register("MVDStripDigis", "MVD", fStripArray, kTRUE);
+  ioman->Register("MVDStripDigis", "MVD", fStripArray, fPersistance);
 
   // Create and register parameter array
 //  fStripArray = new TClonesArray("PndMvdDigiPar");

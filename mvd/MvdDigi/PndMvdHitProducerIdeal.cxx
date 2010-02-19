@@ -19,6 +19,7 @@ PndMvdHitProducerIdeal::PndMvdHitProducerIdeal() :
   FairTask("Ideal MVD Hit Producer")
 {
 	fBranchName 	= "MVDPoint";
+  fPersistance = kTRUE;
 }
 // -------------------------------------------------------------------------
 
@@ -54,7 +55,7 @@ InitStatus PndMvdHitProducerIdeal::Init()
 
   // Create and register output array
   fHitArray = new TClonesArray("PndMvdHit");
-  ioman->Register("MVDHit", "MVD", fHitArray, kTRUE);
+  ioman->Register("MVDHit", "MVD", fHitArray, fPersistance);
 
   std::cout << "-I- PndMvdHitProducerIdeal: Intialisation successfull" << std::endl;
   return kSUCCESS;

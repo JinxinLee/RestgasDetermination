@@ -59,9 +59,12 @@ class PndMvdPixelClusterTask : public FairTask
     virtual void Exec(Option_t* opt);
 
 
- private:
+  void SetPersistance(Bool_t p = kTRUE){fPersistance=p;};
+  Bool_t GetPersistance() {return fPersistance;};
   
-    
+private:
+  Bool_t fPersistance; // switch to turn on/off storing the arrays to a file
+  
     TString fBranchName;
     /** Input array of PndMvdDigis **/
      TClonesArray* fDigiArray;

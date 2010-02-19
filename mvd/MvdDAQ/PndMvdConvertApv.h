@@ -152,7 +152,7 @@ class PndMvdConvertApv
 
   PndMvdGeoHandling* fGeoH;	     //! Gives Access to the Path info of a hit
 
-
+private:
 	ClassDef(PndMvdConvertApv,1);
 };
 

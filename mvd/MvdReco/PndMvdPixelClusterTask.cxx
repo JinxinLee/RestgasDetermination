@@ -92,10 +92,10 @@ InitStatus PndMvdPixelClusterTask::Init()
   }
 
   fHitArray = new TClonesArray("PndMvdHit");
-  ioman->Register("MVDHitsPixel", "MVD", fHitArray, kTRUE);
+  ioman->Register("MVDHitsPixel", "MVD", fHitArray, fPersistance);
 
   fClusterArray = new TClonesArray("PndMvdClusterPixel");
-  ioman->Register("MVDPixelClusterCand","MVD",fClusterArray,kTRUE);
+  ioman->Register("MVDPixelClusterCand","MVD",fClusterArray,fPersistance);
   
   fParams.push_back(fDigiPar->GetClustRadius());
   fParams.push_back(fDigiPar->GetFECols());

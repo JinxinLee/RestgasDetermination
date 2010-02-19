@@ -23,8 +23,20 @@ PndMvdDigiTask::PndMvdDigiTask() :
   {
     ((FairTask*)thistasks->At(i))->SetVerbose(fVerbose);
   }
+  SetPersistance(kTRUE);
 }
 // -------------------------------------------------------------------------
+
+void PndMvdDigiTask::SetPersistance(Bool_t pers)
+{
+  //TODO: This is not recursive 
+  fPersistance = pers;
+  TList* thistasks = this->GetListOfTasks();
+  ((PndMvdHybridHitProducer*)thistasks->At(0))->SetPersistance(fPersistance);
+  ((PndMvdStripHitProducer*)thistasks->At(1))->SetPersistance(fPersistance);
+  ((PndMvdNoiseProducer*)thistasks->At(2))->SetPersistance(fPersistance);
+  return;
+}
 
 // -----   Destructor   ----------------------------------------------------
 PndMvdDigiTask::~PndMvdDigiTask()

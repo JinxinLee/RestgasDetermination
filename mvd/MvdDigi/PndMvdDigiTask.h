@@ -30,10 +30,12 @@ class PndMvdDigiTask : public FairTask
 
     /** Virtual method Exec **/
     virtual void Exec(Option_t* opt);
-
+    
+  void SetPersistance(Bool_t p = kTRUE);
+  Bool_t GetPersistance() {return fPersistance;};
 
  private:
-
+  Bool_t fPersistance; // switch to turn on/off storing the arrays to a file
   void Register();
   void Reset();
   void ProduceHits();

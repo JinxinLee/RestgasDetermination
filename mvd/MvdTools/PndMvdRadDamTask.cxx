@@ -68,7 +68,7 @@ InitStatus PndMvdRadDamTask::Init()
 
 	// Create and register output array
 	fRadDamHits = new TClonesArray("PndMvdRadDamHit");
-	ioman->Register("MVDRadDamHit", "MVD", fRadDamHits, kTRUE);
+	ioman->Register("MVDRadDamHit", "MVD", fRadDamHits, fPersistance);
 
 	InitWeightLists();
 	fGeoH = new PndMvdGeoHandling(gGeoManager);

@@ -54,8 +54,11 @@ class PndMvdStripClusterTask : public FairTask
     /** Virtual method Finish **/
     virtual void Finish();
 
+  void SetPersistance(Bool_t p = kTRUE) {fPersistance=p;};
+  Bool_t GetPersistance() {return fPersistance;};
 
   private:
+    Bool_t fPersistance;
     void SetCalculators();
     TVector2 CalcLineCross(TVector2 point1, TVector2 dir1, TVector2 point2, TVector2 dir2) const;
     Bool_t SelectSensorParams(TString detname);
