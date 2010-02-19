@@ -1,3 +1,4 @@
+//void run_ana_tpccombi(TString fname="output.evt.fast.root",int nevts=0)
 void run_ana_tpccombi(TString fname="pid_tpccombi.root",int nevts=0)
 {
   	TStopwatch timer;
@@ -35,6 +36,11 @@ void run_ana_tpccombi(TString fname="pid_tpccombi.root",int nevts=0)
 
 	    cout << p1.GetLength() << " e+ candidates found" << "\n";
 	    cout << p2.GetLength() << " e- candidates found" << "\n";
+
+	    for (j=0;j<p1.GetLength();++j) { 
+		cout << "E/p for PID " << p1[j].GetMicroCandidate().GetEmcRawEnergy()/
+		    p1[j].GetMicroCandidate().GetMomentum().Mag() << "\n";
+	    }
 
 	    for (j=0;j<p1.GetLength();++j) { 
 		p1[j].SetMass(TRho::Instance()->GetPDG()->GetParticle(11)->Mass());
