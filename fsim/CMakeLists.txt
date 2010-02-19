@@ -32,7 +32,7 @@ PndFastSim.cxx
 PndFsmTrack.cxx
 PndFsmResponse.cxx
 PndFsmAbsDet.cxx
-StrTok.cxx
+#StrTok.cxx
 PndFsmDetFactory.cxx
 PndFsmEmcBarrel.cxx
 PndFsmEmcBwCap.cxx
@@ -54,19 +54,19 @@ PndFsmCmpDet.cxx
 PndFsmRandom.cxx
 #PndSimpleAnalysis.cxx
 #PndAnalysis.cxx
-PndListProvider.cxx
-PndListDefiner.cxx
+#PndListProvider.cxx
+#PndListDefiner.cxx
 #PndEventLoop.cxx
 )
 
 set(fsim_HEADERS
-ArgList.h
+#ArgList.h
 FsmDetTypes.h
 PndFastSim.h
 PndFsmTrack.h
 PndFsmResponse.h
 PndFsmAbsDet.h
-StrTok.h
+#StrTok.h
 PndFsmDetFactory.h
 PndFsmEmcBarrel.h
 PndFsmEmcBwCap.h
@@ -88,8 +88,8 @@ PndFsmCmpDet.h
 PndFsmRandom.h
 #PndSimpleAnalysis.h
 #PndAnalysis.h
-PndListProvider.h
-PndListDefiner.h
+#PndListProvider.h
+#PndListDefiner.h
 #PndEventLoop.h
 )
 

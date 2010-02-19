@@ -7,8 +7,8 @@
 #pragma link C++ class  PndFastSim+;
 //#pragma link C++ class  PndSimpleAnalysis+;
 //#pragma link C++ class  PndAnalysis+;
-#pragma link C++ class  PndListProvider+;
-#pragma link C++ class  PndListDefiner+;
+//#pragma link C++ class  PndListProvider+;
+//#pragma link C++ class  PndListDefiner+;
 //#pragma link C++ class  PndEventLoop+;
 
 #pragma link C++ class  PndFsmTrack+;
@@ -35,7 +35,7 @@
 #pragma link C++ class  PndFsmRandom+;
 
 
-#pragma link C++ class  CStrTok+;
+//#pragma link C++ class  CStrTok+;
 
 //#pragma link C++ class  vector<double>;
 
