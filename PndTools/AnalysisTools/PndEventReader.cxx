@@ -243,16 +243,16 @@ bool PndEventReader::FillList(TCandList &l, std::string listkey)
 		{
 			VAbsMicroCandidate *mic = (VAbsMicroCandidate *)fChargedCands->At(i1);
 			TCandidate tc(*mic,uid++);
-      if(i1<fChargedProbability->GetEntriesFast())
-      {
-        PndPidProbability *chProb = (PndPidProbability*)fChargedProbability->At(i1);
-        // numbering see PndPidListMaker
-        tc.SetPidInfo(0,chProb->GetElectronPidProb());
-        tc.SetPidInfo(1,chProb->GetMuonPidProb());
-        tc.SetPidInfo(2,chProb->GetPionPidProb());
-        tc.SetPidInfo(3,chProb->GetKaonPidProb());
-        tc.SetPidInfo(4,chProb->GetProtonPidProb());
-      }        
+			if(i1<fChargedProbability->GetEntriesFast())
+			{
+				PndPidProbability *chProb = (PndPidProbability*)fChargedProbability->At(i1);
+				// numbering see PndPidListMaker
+				tc.SetPidInfo(0,chProb->GetElectronPidProb());
+				tc.SetPidInfo(1,chProb->GetMuonPidProb());
+				tc.SetPidInfo(2,chProb->GetPionPidProb());
+				tc.SetPidInfo(3,chProb->GetKaonPidProb());
+				tc.SetPidInfo(4,chProb->GetProtonPidProb());
+			}        
 			chargedCands.Add(tc);
 			allCands.Add(tc);
 		}

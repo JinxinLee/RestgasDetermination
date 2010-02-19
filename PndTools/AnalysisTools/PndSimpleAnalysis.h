@@ -111,6 +111,9 @@ class PndSimpleAnalysis : public FairTask
   /** Input array  **/
   TClonesArray* fChargedArray;
   TClonesArray* fNeutralArray;
+  TClonesArray* fChargedProbability;
+  TClonesArray* fNeutralProbability;
+  
   TClonesArray* fMcArray;
   
   TClonesArray* fMicroArray;

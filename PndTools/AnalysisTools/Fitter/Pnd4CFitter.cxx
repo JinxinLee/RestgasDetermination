@@ -168,7 +168,7 @@ void Pnd4CFitter::Do4CFit()
     al[k*4+2][0]=p1.Z(); 
     al[k*4+3][0]=p1.T(); 
     
-    TMatrixD p1Cov=fDaughters[k].Cov7();
+    TMatrixD p1Cov=fDaughters[k].Cov7();  
     for(i=0;i<4;i++)
     {
       for (j=0;j<4;j++)

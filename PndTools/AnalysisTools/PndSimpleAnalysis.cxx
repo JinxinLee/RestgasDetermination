@@ -44,7 +44,8 @@ Author: K.Goetzen, GSI, 06/2008
 #include "RhoSelector/TPidSelector.h"
 #include "RhoBase/TFactory.h"
 #include "RhoBase/TRho.h"
-#include "PndMicroCandidate.h"
+#include "RhoBase/VAbsMicroCandidate.h"
+#include "PndPidProbability.h"
 		
 		
 using std::cout;
@@ -108,14 +109,18 @@ InitStatus PndSimpleAnalysis::Init() {
   fpInit.SetXYZT(0.,0.,0.,0.);
   
  // Get input array
-  fChargedArray = 0;//(TClonesArray*) ioman->GetObject("PndChargedCandidates");
-  fNeutralArray = 0;//(TClonesArray*) ioman->GetObject("PndNeutralCandidates");
+  fChargedArray = (TClonesArray*) ioman->GetObject("PidChargedCand");
+  fNeutralArray = (TClonesArray*) ioman->GetObject("PidNeutralCand");
+  
+  fChargedProbability = (TClonesArray*) ioman->GetObject("PidChargedProbability");
+  fNeutralProbability = (TClonesArray*) ioman->GetObject("PidNeutralProbability");
+  
   fMcArray     = (TClonesArray*) ioman->GetObject("PndMcTracks");
-  fMicroArray     = (TClonesArray*) ioman->GetObject("PndMicroCandidates");
+  fMicroArray     = 0;//(TClonesArray*) ioman->GetObject("PndMicroCandidates");
   
   if ( !fChargedArray && !fNeutralArray && !fMcArray && !fMicroArray) {
     cout << "-W- PndSimpleAnalysis::Init: "
-	 << "None of PndChargedCandidates, PndNeutralCandidates, PndMcTracks, PndMicroCandidates available!" << endl;
+	 << "None of PidChargedCand, PndNeutralCand, PidMcTracks, PndMicroCandidates available!" << endl;
     return kERROR;
   }
 
@@ -782,11 +787,9 @@ bool PndSimpleAnalysis::IsGenericListName(std::string n)
 
 void PndSimpleAnalysis::FillGenericLists()
 {
-  TCandidate *tc;
-  
   TFactory::Instance()->Reset();
   
-  int i,j;
+  int i,j, uid=1;
   
   // **** loop over all Candidates and add them to the list allCands
   //    
@@ -795,6 +798,8 @@ void PndSimpleAnalysis::FillGenericLists()
   mcCands.Cleanup();
   
   // when we have a PndMicroCandidates Array, take that one
+  // ********** DEPRECATED ***************
+  /*
   if (fMicroArray)
   {
 		for (i=0; i<fMicroArray->GetEntriesFast(); i++)
@@ -810,64 +815,92 @@ void PndSimpleAnalysis::FillGenericLists()
  	
   }
   else  //otherwise look for the older TCandidate arrays
-  {
+  */
+	// read the charged candidates
 	if (fChargedArray)
 	for (i=0; i<fChargedArray->GetEntriesFast(); i++){
-		tc = (TCandidate *)fChargedArray->At(i);
-		chargedCands.Add(*tc);
+		VAbsMicroCandidate *mic = (VAbsMicroCandidate *)fChargedArray->At(i);
+		TCandidate tcc(*mic,uid++);
+		
+		// are pid data available?
+		if (i<fChargedProbability->GetEntriesFast())
+		{
+			PndPidProbability *chProb = (PndPidProbability*)fChargedProbability->At(i);
+			// numbering see PndPidListMaker
+			tcc.SetPidInfo(0,chProb->GetElectronPidProb());
+			tcc.SetPidInfo(1,chProb->GetMuonPidProb());
+			tcc.SetPidInfo(2,chProb->GetPionPidProb());
+			tcc.SetPidInfo(3,chProb->GetKaonPidProb());
+			tcc.SetPidInfo(4,chProb->GetProtonPidProb());
+		}
+		chargedCands.Add(tcc);
 	}
 	
+	// read the neutral candidates
 	if (fNeutralArray)
 	for (i=0; i<fNeutralArray->GetEntriesFast(); i++){
-		tc = (TCandidate *)fNeutralArray->At(i);
-		neutralCands.Add(*tc);
+		VAbsMicroCandidate *mic = (VAbsMicroCandidate *)fNeutralArray->At(i);
+		TCandidate tcn(*mic,uid++);
+		
+		// are pid data available?
+		if (i<fNeutralProbability->GetEntriesFast())
+		{
+			PndPidProbability *neuProb = (PndPidProbability*)fNeutralProbability->At(i);
+			// numbering see PndPidListMaker
+			tcn.SetPidInfo(0,neuProb->GetElectronPidProb());
+			tcn.SetPidInfo(1,neuProb->GetMuonPidProb());
+			tcn.SetPidInfo(2,neuProb->GetPionPidProb());
+			tcn.SetPidInfo(3,neuProb->GetKaonPidProb());
+			tcn.SetPidInfo(4,neuProb->GetProtonPidProb());
+		}
+		neutralCands.Add(tcn);
 	}
-  }
-  
-  if (fMcArray)
-  for (i=0; i<fMcArray->GetEntriesFast(); i++){
-    tc = (TCandidate *)fMcArray->At(i);
-    mcCands.Add(*tc);
-  }
-  
-  for (i=0;i<40;i++)
-  {
-    if (!fListDefiners[i]->fIsUsed) continue;
-    int crithint=i/10;
-    int pidhint=(i%10)/2;
-    VAbsPidSelector *chSel;
-    VAbsPidSelector *pidSel;
-        
-    if (i%2) 
-      fListDefiners[i]->fList.Select(chargedCands,minusSel);
-    else 
-      fListDefiners[i]->fList.Select(chargedCands,plusSel);
-   
-    switch (pidhint) 
-    {
-      case 0 : pidSel = eSel; break;
-      case 1 : pidSel = muSel; break;
-      case 2 : pidSel = piSel; break;
-      case 3 : pidSel = kSel; break;
-      case 4 : pidSel = pSel; break;
-    }
-       
-    switch (crithint) 
-    {
-      case 0 : pidSel->SetCriterion(veryLoose);break;
-      case 1 : pidSel->SetCriterion(loose);break;
-      case 2 : pidSel->SetCriterion(tight);break;
-      case 3 : pidSel->SetCriterion(veryTight);break;
-    }
-    
-    fListDefiners[i]->fList.Select(pidSel);
-  }
-  
-  fListDefiners[40]->fList=neutralCands; 
-  fListDefiners[41]->fList=mcCands;
-  
-  
-  return; 
+
+	// read the mc truth list
+	if (fMcArray)
+	for (i=0; i<fMcArray->GetEntriesFast(); i++){
+		TCandidate *tc = (TCandidate *)fMcArray->At(i);
+		mcCands.Add(*tc);
+	}
+	
+	for (i=0;i<40;i++)
+	{
+		if (!fListDefiners[i]->fIsUsed) continue;
+		int crithint=i/10;
+		int pidhint=(i%10)/2;
+		VAbsPidSelector *chSel;
+		VAbsPidSelector *pidSel;
+			
+		if (i%2) 
+		fListDefiners[i]->fList.Select(chargedCands,minusSel);
+		else 
+		fListDefiners[i]->fList.Select(chargedCands,plusSel);
+	
+		switch (pidhint) 
+		{
+		case 0 : pidSel = eSel; break;
+		case 1 : pidSel = muSel; break;
+		case 2 : pidSel = piSel; break;
+		case 3 : pidSel = kSel; break;
+		case 4 : pidSel = pSel; break;
+		}
+		
+		switch (crithint) 
+		{
+		case 0 : pidSel->SetCriterion(veryLoose);break;
+		case 1 : pidSel->SetCriterion(loose);break;
+		case 2 : pidSel->SetCriterion(tight);break;
+		case 3 : pidSel->SetCriterion(veryTight);break;
+		}
+		
+		fListDefiners[i]->fList.Select(pidSel);
+	}
+	
+	fListDefiners[40]->fList=neutralCands; 
+	fListDefiners[41]->fList=mcCands;
+	
+	
+	return; 
 }
 
 // -------------------------------------------------------------------------
@@ -962,7 +995,7 @@ bool PndSimpleAnalysis::SetupAnalysis()
 			
 			currentList->fPdgCode=GetPdgCode(tokenVec[1]);
 				
-			for (int i=3;i<tokenVec.size();i++)
+			for (i=3;i<tokenVec.size();i++)
 				daupdgs.push_back(GetPdgCode(tokenVec[i]));
 			
 			daucnt=daupdgs.size();
@@ -1115,7 +1148,7 @@ bool PndSimpleAnalysis::SetupAnalysis()
 				currentList->fAntiIdx=fListMap[aName];
 				currentAntiList->fAntiIdx=fListMap[currentList->fName];
 			
-				float charge=0.;
+				charge=0.;
 				// set the daughterlist idx
 				for (i=0;i<ccstate.size();i++)
 				{
@@ -1367,7 +1400,7 @@ bool PndSimpleAnalysis::SetupAnalysis()
 	
    	for (j=0;j<fListDefiners.size();j++) 
 	{
-		PndListDefiner *currentList=fListDefiners[j];
+		currentList=fListDefiners[j];
 		
 		if (!currentList->fIsAntiList && currentList->fDumpList)
 		{
@@ -1409,7 +1442,7 @@ bool PndSimpleAnalysis::SetupAnalysis()
 			//create the branches holding the values (float)
 			for (i=0;i<currentList->fNtpFNames.size();i++)
 			{				
-				std::string brname=pre+currentList->fNtpFNames[i];
+				brname=pre+currentList->fNtpFNames[i];
 				cout <<brname<<" ";
 				if (colMap.find(brname)!=colMap.end()) return ErrorMessage(504,0,brname);
 				colMap[brname]=1; 
@@ -1423,7 +1456,7 @@ bool PndSimpleAnalysis::SetupAnalysis()
 			//create the branches holding the values (int, at the moment only the daughter indices)
 			for (i=0;i<currentList->fNtpINames.size();i++)
 			{
-				std::string brname=pre+currentList->fNtpINames[i];
+				brname=pre+currentList->fNtpINames[i];
 				cout <<brname<<" ";
 				if (colMap.find(brname)!=colMap.end()) return ErrorMessage(504,0,brname);
 				colMap[brname]=1; 

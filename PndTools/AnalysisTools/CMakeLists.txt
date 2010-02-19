@@ -49,16 +49,19 @@ PndPidListMaker.cxx
 PndAnalysis.cxx
 PndSimpleAnalysis.cxx
 PndAnalysisTask.cxx
+PndListDefiner.cxx
+PndListProvider.cxx
 Fitter/PndVtxFitterParticle.cxx
 Fitter/PndVtxFitter_Init.cxx
 Fitter/PndVtxFitterError.cxx
 Fitter/PndVtxFitter.cxx
 Fitter/PndMassFitter.cxx
 Fitter/Pnd4CFitter.cxx
+StrTok.cxx
 )
 
 CHANGE_FILE_EXTENSION(*.cxx *.h AnalysisTools_HEADERS "${AnalysisTools_SRCS}")
-
+set(AnalysisTools_HEADERS ${AnalysisTools_HEADERS} ArgList.h)
 
 set(AnalysisTools_LINKDEF AnalysisToolsLinkDef.h)
 set(AnalysisTools_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/AnalysisToolsDict.cxx) 
