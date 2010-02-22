@@ -160,10 +160,17 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
       int IVOLTE, ntimes, INTERO, ITRACCIA,
           N_INTENDED;
 //  Double_t SEMILENGTH_STRAIGHT = 75.;
-      static const bool  iplotta = true , ianalizza = true ;
-      static const int istampa = 0;
+      static const bool  iplotta = false , ianalizza = true ;
+      static const int istampa = 1;
       TH1F * hx;
       FILE * HANDLE ;
+      FILE * HANDLE2 ;
+      FILE * PHANDLEX ;
+      FILE * PHANDLEY ;
+      FILE * PHANDLEZ ;
+      FILE * SHANDLEX ;
+      FILE * SHANDLEY ;
+      FILE * SHANDLEZ ;
     Double_t veritaMC[nmaxHits][3];
     UShort_t  FromHitToMCTrack[nmaxHits],
               FromMCTrackToHit[MAXMCTRACKS][nmaxHits],
@@ -331,7 +338,6 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                           Double_t *S,
                           Double_t *Z,
                           Double_t *DriftRadius,
-                          UShort_t  nParallelTrack,
                           Double_t rotationangle,
                           UShort_t NMAX,
                           Double_t *m,
@@ -339,11 +345,10 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                           );
 
   Short_t PndSttFitSZspacebis(
-                          UShort_t nHitsinTrack,
+                          UShort_t nSkewHitsinTrack,
                           Double_t *S,
                           Double_t *Z,
                           Double_t *DriftRadius,
-                          UShort_t  nParallelTrack,
                           Double_t FInot,
                           UShort_t NMAX,
                           Double_t *m
@@ -587,6 +592,8 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
                    UShort_t *tempore,
                    Double_t *temporeS,  //  output, associated skew hit  S
                    Double_t *temporeZ,  //  output, associated skew hits Z
+                   Double_t *temporeZDrift,  //  output, associated skew hit Z drift
+                   Double_t *temporeZErrorafterTilt,  //  output, associated skew hits Z error after tilt
                    Int_t  *STATUS   // output
                                                      );
 
@@ -690,9 +697,40 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
 
 
+    void PndSttInfoXYZParal (
+                             Double_t info[][7],
+                             UShort_t infopar,
+                             Double_t Ox,
+                             Double_t Oy,
+                             Double_t R,
+                             Double_t KAPPA,
+                             Double_t FI0,
+                             Short_t Charge,
+                             Double_t *Posiz      //  output
+                            );
 
 
+    void PndSttInfoXYZSkew (
+//                             Double_t info[][7],
+//                             UShort_t infosk,
+                             Double_t Z,       //  Z coordinate of selected Skew hit
+                             Double_t ZDrift,   // drift distance IN Z DIRECTION only, of Skew hit
+                             Double_t S,
+                             Double_t Ox,
+                             Double_t Oy,
+                             Double_t R,
+                             Double_t KAPPA,
+                             Double_t FI0,
+                             Short_t Charge,
+                             Double_t *Posiz      //  output
+                            );
 
+  void FixDiscontinuitiesFiangleinSZplane(
+                          UShort_t TemporarynSkewHitsinTrack,
+                          Double_t *S,
+                          Double_t *Fi_initial_helix_referenceframe,
+                          Short_t Charge
+                          );
 
 
 //----------------------------------------------
