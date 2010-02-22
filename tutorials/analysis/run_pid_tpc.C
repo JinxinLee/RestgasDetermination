@@ -58,6 +58,9 @@
   PndPidIdealAssociatorTask *pidass= new PndPidIdealAssociatorTask();
   fRun->AddTask(pidass);
   
+  PndMcListConverter *mcc=new PndMcListConverter();
+  fRun->AddTask(mcc);
+  
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
   PndEmcMapper *emcMap = PndEmcMapper::Instance(6);
