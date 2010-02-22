@@ -52,6 +52,7 @@ public:
   void useGeane(Bool_t opt=kTRUE){_useGeane=opt;}
   void useDistSorting(Bool_t opt=kTRUE) {_useDistSorting=opt;}
   void SetSecondarySuppression(Bool_t opt=kTRUE) {_secondarySuppression=opt;}
+  void SetMinHits(int min) {fMin = min;}
  
   // Operations ----------------------
   virtual InitStatus Init();
@@ -72,6 +73,8 @@ private:
   Bool_t _useGeane;
   Bool_t _useDistSorting;
   Bool_t _secondarySuppression;  //ignore secondaries
+
+  int fMin;  //minimum number of hits required for a track candidate
 
   TH1I* _multiplicityHisto;
   TH1I* _trackSizeH;

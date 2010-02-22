@@ -46,7 +46,9 @@
 #include "FairRunAna.h"
 #include "FairField.h"
 #include "PndConstField.h"
-
+#include"RKTrackRep.h"
+#include"PndFieldAdaptor.h"
+#include"GFFieldManager.h"
 //#include "AbsBFieldIfc.h"
 //#include "FairFieldAdaptor.h"
 
@@ -61,7 +63,8 @@ ClassImp(PndTpcIdealTrackingTask)
 PndTpcIdealTrackingTask::PndTpcIdealTrackingTask()
   : FairTask("PndTpc Ideal Pattern Reco"),
     _persistence(kFALSE),_useGeane(kFALSE),_geanePro(NULL), 
-  _useDistSorting(kFALSE), _secondarySuppression(kFALSE)
+    _useDistSorting(kFALSE), _secondarySuppression(kFALSE),
+    fMin(5)
 {
   myrandom.SetSeed(1);
   _clusterBranchName = "PndTpcCluster";
@@ -126,6 +129,7 @@ PndTpcIdealTrackingTask::Exec(Option_t* opt)
    //get the magnetic field for curvature seeding
    FairField* field=FairRunAna::Instance()->GetField();
    bool CField = dynamic_cast<PndConstField*>(field);
+   GFFieldManager::getInstance()->init(new PndFieldAdaptor(field));
    if(!CField) {
      std::cerr<<"PndTpcIdealTrackingTask: "
 	      <<"No const field! Curvature seeding not valid..."
@@ -200,7 +204,7 @@ PndTpcIdealTrackingTask::Exec(Option_t* opt)
     count++;
     std::cout<<count<<std::endl;
     GFTrackCand* cand=candit->second;
-    if(cand->getNHits()<10){
+    if(cand->getNHits()<fMin){
       ++candit;
       continue;
     }
@@ -251,9 +255,10 @@ PndTpcIdealTrackingTask::Exec(Option_t* opt)
       
       GFDetPlane pl(pos,u,v);
       
-      GeaneTrackRep* grep=new GeaneTrackRep(_geanePro,pl,mom,poserr,momerr,q,pdg);
-      grep->setPropDir(1); // propagate in flight direction!
-      rep=grep;
+      //GeaneTrackRep* grep=new GeaneTrackRep(_geanePro,pl,mom,poserr,momerr,q,pdg);
+      rep = new RKTrackRep(pos,mom,poserr,momerr,pdg);
+      //grep->setPropDir(1); // propagate in flight direction!
+      //rep=grep;
       
     }
     else { // use LSLTrackRep
