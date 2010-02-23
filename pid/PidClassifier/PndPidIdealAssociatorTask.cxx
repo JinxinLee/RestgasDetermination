@@ -115,27 +115,27 @@ void PndPidIdealAssociatorTask::DoPidMatch(PndPidCandidate* pidcand, PndPidProba
   switch(mcpdg) {
     case -11: //positron
     case 11: //electron
-      prob->SetElectronPidProb(1.);
+      prob->SetElectronPdf(1.);
       break;
       
     case -13: //muon+
     case 13: //muon-
-      prob->SetMuonPidProb(1.);
+      prob->SetMuonPdf(1.);
       break;
       
     case 211: //pion+
     case -211: //pion-
-      prob->SetPionPidProb(1.);
+      prob->SetPionPdf(1.);
       break;
       
     case -321: //Kaon+
     case 321: //Kaon-
-      prob->SetKaonPidProb(1.);
+      prob->SetKaonPdf(1.);
       break;
       
     case -2212: //antiproton
     case 2212: //proton
-      prob->SetProtonPidProb(1.);
+      prob->SetProtonPdf(1.);
       break;
       
     default:

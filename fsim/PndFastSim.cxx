@@ -501,11 +501,11 @@ void PndFastSim::Exec(Option_t* opt)
       pidCand->SetRichThetaCErr( ft->detResponse()->RichThtcErr() );
       pidCand->SetRichNumberOfPhotons(0);
       
-      pidProb->SetElectronPidProb(ft->detResponse()->LHElectron());
-      pidProb->SetMuonPidProb(ft->detResponse()->LHMuon());
-      pidProb->SetPionPidProb(ft->detResponse()->LHPion());
-      pidProb->SetKaonPidProb(ft->detResponse()->LHKaon());
-      pidProb->SetProtonPidProb(ft->detResponse()->LHProton());
+      pidProb->SetElectronPdf(ft->detResponse()->LHElectron());
+      pidProb->SetMuonPdf(ft->detResponse()->LHMuon());
+      pidProb->SetPionPdf(ft->detResponse()->LHPion());
+      pidProb->SetKaonPdf(ft->detResponse()->LHKaon());
+      pidProb->SetProtonPdf(ft->detResponse()->LHProton());
       
       /*
       pidCand->SetElectronPidLH(ft->detResponse()->LHElectron());

@@ -11,7 +11,6 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
-//#include <assert.h>
 #include "TObject.h"
 
 class PndPidProbability : public TObject 
@@ -23,31 +22,52 @@ class PndPidProbability : public TObject
   PndPidProbability(Float_t e, Float_t mu, Float_t pi, Float_t k, Float_t p);
   ~PndPidProbability();
 
-	Float_t		GetElectronPidProb() const { return fElectronPidProb; }
-	Float_t		GetMuonPidProb()     const { return fMuonPidProb; }
-	Float_t		GetPionPidProb()     const { return fPionPidProb; } 
-	Float_t		GetKaonPidProb()     const { return fKaonPidProb; }
-	Float_t		GetProtonPidProb()   const { return fProtonPidProb; }
+  Float_t		GetElectronPdf() const { return fElectronPdf; }
+  Float_t		GetMuonPdf()     const { return fMuonPdf; }
+  Float_t		GetPionPdf()     const { return fPionPdf; } 
+  Float_t		GetKaonPdf()     const { return fKaonPdf; }
+  Float_t		GetProtonPdf()   const { return fProtonPdf; }
+
+
+  Float_t   GetElectronPidProb(PndPidProbability* flux = new PndPidProbability(1,1,1,1,1)) const { return fElectronPdf * flux->GetElectronPdf() / GetSumProb(); }
+  Float_t   GetMuonPidProb    (PndPidProbability* flux = new PndPidProbability(1,1,1,1,1)) const { return fMuonPdf     * flux->GetMuonPdf() / GetSumProb(); }
+  Float_t   GetPionPidProb    (PndPidProbability* flux = new PndPidProbability(1,1,1,1,1)) const { return fPionPdf     * flux->GetPionPdf() / GetSumProb(); } 
+  Float_t   GetKaonPidProb    (PndPidProbability* flux = new PndPidProbability(1,1,1,1,1)) const { return fKaonPdf     * flux->GetKaonPdf() / GetSumProb(); }
+  Float_t   GetProtonPidProb  (PndPidProbability* flux = new PndPidProbability(1,1,1,1,1)) const { return fProtonPdf   * flux->GetProtonPdf() / GetSumProb(); }
+
+  Float_t   GetSumProb        (PndPidProbability* flux = new PndPidProbability(1,1,1,1,1)) const 
+  { 
+    return 
+      fElectronPdf * flux->GetElectronPdf() + 
+      fMuonPdf     * flux->GetMuonPdf()     +
+      fPionPdf     * flux->GetPionPdf()     +
+      fKaonPdf     * flux->GetKaonPdf()     +
+      fProtonPdf   * flux->GetProtonPdf(); 
+  }
   
-	void	SetElectronPidProb(Double_t val) { fElectronPidProb= (Float_t) val; }
-	void	SetMuonPidProb(Double_t val)     { fMuonPidProb=     (Float_t) val; }
-	void	SetPionPidProb(Double_t val)     { fPionPidProb=     (Float_t) val; } 
-	void	SetKaonPidProb(Double_t val)     { fKaonPidProb=     (Float_t) val; }
-	void	SetProtonPidProb(Double_t val)   { fProtonPidProb=   (Float_t) val; }
+  void	SetElectronPdf(Double_t val) { fElectronPdf= (Float_t) val; }
+  void	SetMuonPdf(Double_t val)     { fMuonPdf=     (Float_t) val; }
+  void	SetPionPdf(Double_t val)     { fPionPdf=     (Float_t) val; } 
+  void	SetKaonPdf(Double_t val)     { fKaonPdf=     (Float_t) val; }
+  void	SetProtonPdf(Double_t val)   { fProtonPdf=   (Float_t) val; }
+  
+  PndPidProbability* operator*(const PndPidProbability& a);
   
   void Print();
   
-protected:
-
-	Float_t		fElectronPidProb;
-	Float_t		fMuonPidProb;
-	Float_t		fPionPidProb;
-	Float_t		fKaonPidProb;
-	Float_t		fProtonPidProb;
+ protected:
+  
+  Float_t		fElectronPdf; // e  Probability density function
+  Float_t		fMuonPdf;     // mu Probability density function
+  Float_t		fPionPdf;     // pi Probability density function
+  Float_t		fKaonPdf;     // k  Probability density function
+  Float_t		fProtonPdf;   // p  Probability density function
   
   ClassDef(PndPidProbability,1) // Abstract base class for MicroDST candidates
+    
+    };
 
-};
+
 
 #endif                                           
 

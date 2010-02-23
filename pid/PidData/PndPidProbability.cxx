@@ -13,34 +13,46 @@
 
 PndPidProbability::PndPidProbability()		
 {
-  fElectronPidProb = 0.;
-	fMuonPidProb = 0.;
-	fPionPidProb = 0.;
-	fKaonPidProb = 0.;
-	fProtonPidProb = 0.;  
+  fElectronPdf = 0.;
+	fMuonPdf = 0.;
+	fPionPdf = 0.;
+	fKaonPdf = 0.;
+	fProtonPdf = 0.;  
 }
 
 PndPidProbability::PndPidProbability(Float_t e, Float_t mu, Float_t pi, Float_t k, Float_t p)
 {
-  fElectronPidProb = e;
-	fMuonPidProb = mu;
-	fPionPidProb = pi;
-	fKaonPidProb = k;
-	fProtonPidProb = p;  
+  fElectronPdf = e;
+	fMuonPdf = mu;
+	fPionPdf = pi;
+	fKaonPdf = k;
+	fProtonPdf = p;  
 }
 	
 PndPidProbability::~PndPidProbability()
 {
 }
 
+PndPidProbability* PndPidProbability::operator*(const PndPidProbability& a)
+{ 
+  PndPidProbability *result = new PndPidProbability(
+						    a.GetElectronPdf() * this->GetElectronPdf(), 
+						    a.GetMuonPdf()     * this->GetMuonPdf(),
+						    a.GetPionPdf()     * this->GetPionPdf(),
+						    a.GetKaonPdf()     * this->GetKaonPdf(),
+						    a.GetProtonPdf()   * this->GetProtonPdf()
+						    );
+  return result;
+}
+
 void PndPidProbability::Print()
 {
   std::cout <<"PndPidProbability:   "
-  <<"p(e)="<<fElectronPidProb<<"  "
-  <<"p(mu)="<<fMuonPidProb<<"  "
-  <<"p(pi)="<<fPionPidProb<<"  "
-  <<"p(K)="<<fKaonPidProb<<"  "
-  <<"p(P)="<<fProtonPidProb
+  <<"p(e)="<<fElectronPdf<<"  "
+  <<"p(mu)="<<fMuonPdf<<"  "
+  <<"p(pi)="<<fPionPdf<<"  "
+  <<"p(K)="<<fKaonPdf<<"  "
+  <<"p(P)="<<fProtonPdf
   <<std::endl;
 }
 
