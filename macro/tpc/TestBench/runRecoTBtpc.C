@@ -22,7 +22,7 @@ gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   // -------------------------------------------------------------------
 
   TString jobdir = "TBtest";
-  TString jobname="TBtest4"; 
+  TString jobname="TBtest5"; 
 
   TString digiDir=(basedir+"/")+jobdir;
   TString inFile=(digiDir+"/")+jobname;
@@ -114,6 +114,7 @@ QAPlotCollection* qa=new QAPlotCollection("TpcDigiQAPlots");
   tpcIPR->useGeane(true);
   tpcIPR->useDistSorting(true);
   tpcIPR->SetPersistence();
+  tpcIPR->SetMinHits(5);
   fRun->AddTask(tpcIPR);
 
 //PndTpcHoughRecoTask* tpcH = new PndTpcHoughRecoTask();

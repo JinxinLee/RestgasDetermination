@@ -21,11 +21,11 @@
 
   // SET NUMBER OF EVENTS
   // --------------------------------------------------
-  Int_t nEvents = 100;
+  Int_t nEvents = 1000;
 
   //Set JOBNAME + JOBDIR (will not be created!)
   // --------------------------------------------------
-  TString jobname="TBtest4";
+  TString jobname="TBtest5";
   TString jobdir="TBtest";
   
 
@@ -133,7 +133,7 @@
   
   boxGen->SetPRange(0.5,0.5); // GeV/c 
   boxGen->SetPhiRange(0, 360); // Azimuth angle range [degree]
-  boxGen->SetThetaRange(1, 3); // Polar angle in lab system range [degree]
+  boxGen->SetThetaRange(1, 2.3); // Polar angle in lab system range [degree]
   boxGen->SetXYZ(0., 0., -100.); // cm 
   primGen->AddGenerator(boxGen);
 
