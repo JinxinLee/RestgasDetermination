@@ -109,8 +109,6 @@ PndGemRecoHit::PndGemRecoHit(PndGemHit* hit)
    std::cout<<" -I- PndGemRecoHit::PndGemRecoHit(PndGemHit*) called."<<std::endl;
    //  std::cout<<*hit<<std::endl;
 
-   TString id =  hit->GetDetName();
-
    FairRootManager* ioman = FairRootManager::Instance();
    TString fGeoFile = ioman->GetInFile()->GetName();
    //  PndGemGeoHandling* fGeoH = new PndGemGeoHandling(fGeoFile.Data());

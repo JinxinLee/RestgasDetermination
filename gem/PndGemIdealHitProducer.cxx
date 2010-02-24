@@ -189,7 +189,6 @@ void PndGemIdealHitProducer::Exec(Option_t* opt) {
     TVector3 dpos(sigma, sigma, sensor->GetD());
 
     new ((*fHitArray)[nofHits++]) PndGemHit(kGemHit,
-					    (currentPndGemMCPoint->GetDetName()).Data(), 
 					    pos, dpos,  
 					    -1, -1, dr, dp, iPoint);
   }  // end of loop over Points

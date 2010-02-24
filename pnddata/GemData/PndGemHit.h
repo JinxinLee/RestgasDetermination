@@ -27,7 +27,7 @@
 class PndGemHit : public FairHit
 {
   friend std::ostream& operator<< (std::ostream& out, const PndGemHit& hit){
-    out << "Gem hit in detector " << hit.GetDetName() << " at ("
+    out << "Gem hit" /*in detector " << hit.GetDetName()*/ << " at ("
             << hit.GetX() << ", " << hit.GetY() << ", " << hit.GetZ() << ") cm "
       << " with " << hit.GetCharge() << " e" << ", Cluster No. " << hit.GetRefIndex() << std::endl;
 
@@ -49,10 +49,8 @@ class PndGemHit : public FairHit
    *@param charge  Charge measured in hit
    *@param NDigiHits Number of pixels fired for this event
    **/
-  PndGemHit(Int_t detID, TString detName,
-  	    TVector3& pos, TVector3& dpos, Int_t index, Double_t charge, Int_t NDigiHits);
-  PndGemHit(Int_t detID, TString detName,
-  	    TVector3& pos, TVector3& dpos, Int_t digi1, Int_t digi2, Double_t dr, Double_t dp, Int_t index);
+  PndGemHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t index, Double_t charge, Int_t NDigiHits);
+  PndGemHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t digi1, Int_t digi2, Double_t dr, Double_t dp, Int_t index);
 
   //PndGemHit(PndGemHit& c);
   /** Destructor **/
@@ -61,14 +59,12 @@ class PndGemHit : public FairHit
 
   /** Accessors **/
 
-  void SetDetName(TString name)  { fDetName   = name;}
   void SetCharge(Double_t charge){ fCharge    = charge;}
   void SetNDigiHits(Int_t pixel) { fNDigiHits = pixel;}
   void SetBotIndex(Int_t id)       { fBotIndex  = id;}
   void SetErrors(Double_t dr, Double_t dp) { fDr = dr; fDp = dp; };
   void SetDigiNr(Int_t digi1, Int_t digi2) { fDigiNr[0] = digi1; fDigiNr[1] = digi2; };
 
-  TString 	GetDetName()   const { return fDetName;}
   Double_t 	GetCharge()    const { return fCharge;}
   Int_t 	  GetNDigiHits() const { return fNDigiHits;}
   TVector3  GetPosition()	 const { return TVector3(fX,fY,fZ);}
@@ -96,9 +92,6 @@ class PndGemHit : public FairHit
   virtual void Print(const Option_t* opt = 0) const;
 
  private:
-//   Double_t GetD(Int_t i);
-
-  TString fDetName;  // Detector name
 
   Int_t    fDigiNr[2];
   Double_t fDr;  // error in radius calculation

@@ -150,7 +150,6 @@ void PndGemDigitize::Exec(Option_t* opt) {
 	TVector3 dposLocal(0.,0.,0.);
       
 	new ((*fHitOutsideArray)[nofHitsOutside]) PndGemHit(sensorDetId,
-							    (currentPndGemMCPoint->GetDetName()).Data(),
 							    pos,dposLocal,iPoint,currentPndGemMCPoint->GetEnergyLoss(),1);
       }
       nofHitsOutside++;

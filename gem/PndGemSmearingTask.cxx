@@ -137,8 +137,7 @@ void PndGemSmearingTask::Exec(Option_t* opt)
 
     // Now the 3D Info is smared inside the FairHit part of PndGemHit
     new ((*fHitOutputArray)[size]) PndGemHit(fCurrentPndGemMCPoint->GetDetectorID(),
-					   (fCurrentPndGemMCPoint->GetDetName()).Data(),
-      					   pos,dposLocal,iMvdPoint,fCurrentPndGemMCPoint->GetEnergyLoss(),1);
+					     pos,dposLocal,iMvdPoint,fCurrentPndGemMCPoint->GetEnergyLoss(),1);
 
   }//end for PndMvdiMvdPoint
 
