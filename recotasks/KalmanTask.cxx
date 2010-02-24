@@ -231,30 +231,33 @@ KalmanTask::Exec(Option_t* opt)
 	std::cout<<std::endl;
     }
     */	
+
+    Int_t size = _trackOutArray->GetEntriesFast();
+    GFTrack* trkCopy = new((*_trackOutArray)[size]) GFTrack(*trk);
+
+    
     // Start Fitter
     try{
       std::cout<<"starting fit"<<std::endl;
       std::cerr << "Calling processTrack" << std::endl;
-      fitter.processTrack(trk);
+      fitter.processTrack(trkCopy);
     }
     catch (GFException e){
       std::cout<<e.what()<<std::endl;
     }
 
-    Int_t size = _trackOutArray->GetEntriesFast();
-    GFTrack* trkCopy = new((*_trackOutArray)[size]) GFTrack(*trk);
-
+    
 
     // Print Track Parameters after fit
-    if(trk->getTrackRep(0)->getStatusFlag()==0){
-      trk->getTrackRep(0)->Print();
+    if(trkCopy->getTrackRep(0)->getStatusFlag()==0){
+      trkCopy->getTrackRep(0)->Print();
       //GFDetPlane plane(TVector3(0,0,0.1),TVector3(1,0,0),TVector3(0,1,0));
       //TVector3 p3=trk->getTrackRep(0)->getMom(plane);
-      double p=trk->getMom().Mag();
+      double p=trkCopy->getMom().Mag();
       _pH->Fill(p);
       
       
-      double chi2=trk->getChiSqu();
+      double chi2=trkCopy->getChiSqu();
       _chi2H->Fill(chi2);
 
     }
