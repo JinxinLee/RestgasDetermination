@@ -50,7 +50,7 @@ ClassImp(PndRiemannTrack);
 
 PndRiemannTrack::PndRiemannTrack() :
 	fn(3),fav(3), fc(0), fcovPlane(4,4), fjacRXY(3,4), fcovRXY(3,3),
-	fVerbose(0), fFitDone(false), fSZFitDone(false), fweight(0),ftrefit(false),fVertexCut(0.5)
+	fVerbose(1), fFitDone(false), fSZFitDone(false), fweight(0),ftrefit(false),fVertexCut(0.5)
 {}
 
 PndRiemannTrack::~PndRiemannTrack()
@@ -155,7 +155,7 @@ PndRiemannTrack::refit()
   my_av[1][0]=fav[1];// *fweight;
   my_av[2][0]=fav[2];// *fweight;
 
-  if (fVerbose > 0) std::cout << "fav: " << fav[0] << " " << fav[1] << " " << fav[2] << std::endl;
+  if (fVerbose > 1) std::cout << "fav: " << fav[0] << " " << fav[1] << " " << fav[2] << std::endl;
 
   TMatrixD sampleCov(3,3);
 
@@ -360,14 +360,14 @@ PndRiemannTrack::szFit(){
 	if (fFitDone == false)
 		refit();
   unsigned int n=getNumHits();
-  if (fVerbose > 0) std::cout << "szFit() for " << n << " Points!" << std::endl;
+  if (fVerbose > 1) std::cout << "szFit() for " << n << " Points!" << std::endl;
 
   TGraph g(n);
   // get s'es and zs
   for(unsigned int i=0;i<n;++i){
-	if (fVerbose > 0) std::cout << "Point: " << i << ": ";
+	if (fVerbose > 1) std::cout << "Point: " << i << ": ";
     fHits[i].calcPosOnTrk(this);
-    if (fVerbose > 0) std::cout << fHits[i].s() << " " << fHits[i].z() << std::endl;
+    if (fVerbose > 1) std::cout << fHits[i].s() << " " << fHits[i].z() << std::endl;
     g.SetPoint(i,fHits[i].s(),fHits[i].z());
   }
 
@@ -381,7 +381,7 @@ PndRiemannTrack::szFit(){
   fChi2   = f->GetChisquare();
   fSZFitDone = true;
 
-  if (fVerbose > 0) std::cout << "t, m: " << ft << " +/- " << ftError << " / " << fm << " +/- " << fmError << " Chi2: " << fChi2 << std::endl;
+  if (fVerbose > 1) std::cout << "t, m: " << ft << " +/- " << ftError << " / " << fm << " +/- " << fmError << " Chi2: " << fChi2 << std::endl;
 
   return;
 }
@@ -390,23 +390,23 @@ double
 PndRiemannTrack::calcSZChi2(PndRiemannHit* hit){
   // get s'es and zs
   unsigned int n=getNumHits();
-  if (fVerbose > 0) std::cout << "szFit(hit) for " << n+1 << " Points!" << std::endl;
+  if (fVerbose > 1) std::cout << "szFit(hit) for " << n+1 << " Points!" << std::endl;
   TGraph g(n+1);
   for(unsigned int i=0;i<n;++i){
-	if (fVerbose > 0) std::cout << "Point: " << i<< ": ";
+	if (fVerbose > 1) std::cout << "Point: " << i<< ": ";
     fHits[i].calcPosOnTrk(this);
-    if (fVerbose > 0) std::cout << fHits[i].s() << " " << fHits[i].z() << std::endl;
+    if (fVerbose > 1) std::cout << fHits[i].s() << " " << fHits[i].z() << std::endl;
     g.SetPoint(i,fHits[i].s(),fHits[i].z());
   }
-  if (fVerbose > 0) std::cout << "Additional hit: ";
+  if (fVerbose > 1) std::cout << "Additional hit: ";
   hit->calcPosOnTrk(this);
-  if (fVerbose > 0) std::cout << hit->s() << " " << hit->z() << std::endl;
+  if (fVerbose > 1) std::cout << hit->s() << " " << hit->z() << std::endl;
   g.SetPoint(n, hit->s(), hit->z());
   g.Fit("pol1","Q0");
   TF1* f = g.GetFunction("pol1");
 
 //  fChi2 = chis;
-  if (fVerbose > 0) std::cout << "t, m: " << f->GetParameter(0) << " +/- " << f->GetParError(0)
+  if (fVerbose > 1) std::cout << "t, m: " << f->GetParameter(0) << " +/- " << f->GetParError(0)
   							  << " / "    << f->GetParameter(1) << " +/- " << f->GetParError(1)
   							  << "Chi2: " << f->GetChisquare()  << std::endl;
 //  delete(f);
@@ -433,7 +433,7 @@ int PndRiemannTrack::calcIntersection(PndRiemannTrack& track, TVector3& p1, TVec
 	const double SMALL = 1E-12;
 	const double VERTEX_CUT = fVertexCut;
 	if (track.getNumHits() < 3){
-		if (fVerbose > 0) std::cout << "-I- PndRiemannTrack::clacIntersection: less than 3 hits in track!" << std::cout;
+		if (fVerbose > 1) std::cout << "-I- PndRiemannTrack::clacIntersection: less than 3 hits in track!" << std::endl;
 		return 0;
 	}
 
@@ -443,8 +443,8 @@ int PndRiemannTrack::calcIntersection(PndRiemannTrack& track, TVector3& p1, TVec
 	Double_t c1 = c();							//offset of THIS plane
 	Double_t c2 = track.c();					//offset of track plane
 
-	if(fVerbose > 0) std::cout << "n1: " << n1.X() << " " << n1.Y() << " " << n1.Z() << " c1: " << c1 << std::endl;
-	if(fVerbose > 0) std::cout << "n2: " << n2.X() << " " << n2.Y() << " " << n2.Z() << " c2: " << c2 << std::endl;
+	if(fVerbose > 1) std::cout << "n1: " << n1.X() << " " << n1.Y() << " " << n1.Z() << " c1: " << c1 << std::endl;
+	if(fVerbose > 1) std::cout << "n2: " << n2.X() << " " << n2.Y() << " " << n2.Z() << " c2: " << c2 << std::endl;
 
 	TVector3 lineNorm = n1.Cross(n2);
 
@@ -453,7 +453,7 @@ int PndRiemannTrack::calcIntersection(PndRiemannTrack& track, TVector3& p1, TVec
 	if (lineNorm.Mag() < SMALL)
 		return 0;
 	//lineNorm.SetMag(1.);				//normalized normal vector of intersection line between the two planes
-	if(fVerbose > 0) std::cout << "n1 x n2: " << lineNorm.X() << "+/-" << dLineNorm.X() << " "
+	if(fVerbose > 1) std::cout << "n1 x n2: " << lineNorm.X() << "+/-" << dLineNorm.X() << " "
 											  << lineNorm.Y() << "+/-" << dLineNorm.Y() << " "
 											  << lineNorm.Z() << "+/-" << dLineNorm.Z() << std::endl;
 
@@ -462,7 +462,7 @@ int PndRiemannTrack::calcIntersection(PndRiemannTrack& track, TVector3& p1, TVec
 	double y0 = (c1*n2[0] - n1[0]*c2)/denom;
 	TVector3 lineOffset(x0, y0, 0);				//point on the intersection line
 	TVector3 dLineOffset = calcErrorLineOffset(track);
-	if(fVerbose > 0) std::cout << "lineOffset: " << lineOffset.X() << "+/-" << dLineOffset.X() << " "
+	if(fVerbose > 1) std::cout << "lineOffset: " << lineOffset.X() << "+/-" << dLineOffset.X() << " "
 												 << lineOffset.Y() << "+/-" << dLineOffset.Y() << std::endl;
 
 	//---------- Calculation of intersection of line with parabola ------------
@@ -472,7 +472,7 @@ int PndRiemannTrack::calcIntersection(PndRiemannTrack& track, TVector3& p1, TVec
 
 	double rad = (p/2)*(p/2) - q;
 	if (rad < 0){
-		if (fVerbose > 0)
+		if (fVerbose > 1)
 			std::cout << "PndRiemannTrack::calcIntersection: No match with parabola" << std::endl;
 		return 0;
 	}
@@ -481,12 +481,12 @@ int PndRiemannTrack::calcIntersection(PndRiemannTrack& track, TVector3& p1, TVec
 
 	TVectorD dXY12 = calcErrorXY1XY2(lineNorm, dLineNorm, lineOffset, dLineOffset);
 
-	if (fVerbose > 0)
+	if (fVerbose > 1)
 		std::cout << "l1: " << l1 << "+/-" << dXY12[4] << " l2: " << l2 << "+/-" << dXY12[5] << std::endl;
 
 	TVector3 inter1 = lineNorm * l1 + lineOffset;								//intersection point1 of line with parabola
 	TVector3 inter2 = lineNorm * l2 + lineOffset;								//intersection point2 of line with parabola
-	if (fVerbose > 0){
+	if (fVerbose > 1){
 			std::cout << "intersection parabola 1: " << inter1.X() << "+/-" << dXY12[0] << " " << inter1.Y()  << "+/-" << dXY12[1] << " " << inter1.Z()<< std::endl;
 			std::cout << "intersection parabola  2: " << inter2.X()  << "+/-" << dXY12[2] << " " << inter2.Y()  << "+/-" << dXY12[3] << " " << inter2.Z()<< std::endl;
 	}
@@ -499,12 +499,12 @@ int PndRiemannTrack::calcIntersection(PndRiemannTrack& track, TVector3& p1, TVec
 	TVector2 dummy1(inter1.X(), inter2.Y());
 	TVector2 dummy2(dXY12[0], dXY12[1]);
 	double dS1 = calcErrorS(dummy1, dummy2, this);
-	if (fVerbose > 0) std::cout << "S1 for track1: " << s1 << "+/-" << dS1 << std::endl;
+	if (fVerbose > 1) std::cout << "S1 for track1: " << s1 << "+/-" << dS1 << std::endl;
 
 	hit1.calcPosOnTrk(&track);
 	double s2 = hit1.s();		//arc length of hit1 for track
 	double dS2 = calcErrorS(dummy1, dummy2, &track);
-	if (fVerbose > 0) std::cout << "S1 for track2: " << s2 << "+/-" << dS2 << std::endl;
+	if (fVerbose > 1) std::cout << "S1 for track2: " << s2 << "+/-" << dS2 << std::endl;
 
 
 	TVector3 vertex1;// = calcPosByS(s1);			//backcalculated vertex position from s1 with z-Value
@@ -532,12 +532,12 @@ int PndRiemannTrack::calcIntersection(PndRiemannTrack& track, TVector3& p1, TVec
 	dummy1.Set(inter2.X(),inter2.Y());
 	dummy2.Set(dXY12[2],dXY12[3]);
 	double dS1b = calcErrorS(dummy1, dummy2, this);
-	if (fVerbose > 0) std::cout << "S1b for track1: " << s1b << "+/-" << dS1b << std::endl;
+	if (fVerbose > 1) std::cout << "S1b for track1: " << s1b << "+/-" << dS1b << std::endl;
 
 	hit2.calcPosOnTrk(&track);
 	double s2b = hit2.s();
 	double dS2b = calcErrorS(dummy1, dummy2, &track);
-	if (fVerbose > 0) std::cout << "S1b for track2: " << s2b << "+/-" << dS2b << std::endl;
+	if (fVerbose > 1) std::cout << "S1b for track2: " << s2b << "+/-" << dS2b << std::endl;
 
 //	vertex1 = calcPosByS(s1b);
 //	vertex2 = track.calcPosByS(s2b);
@@ -746,6 +746,14 @@ PndRiemannTrack::dip() {
 	return cos(atan(fm));
 }
 
+// only after szFit!
+double
+PndRiemannTrack::dipangle() {
+	if (fSZFitDone == false)
+		szFit();
+	return (atan(fm));
+}
+
 double PndRiemannTrack::dDip()
 {
 	if (fSZFitDone == false)
@@ -755,6 +763,31 @@ double PndRiemannTrack::dDip()
       return (fabs(sin(atan(fm))/(1+fm*fm)) * fmError);
 }
 
+double PndRiemannTrack::Pt(double B)
+{
+	double result = 0.3 * B * r() * 0.01;
+	if (fVerbose > 0) std::cout << "Pt: " << result << std::endl;
+
+	return result;
+}
+
+double PndRiemannTrack::P(double B)
+{
+	double result = Pt(B)/sin(dipangle());
+	if (fVerbose > 0) std::cout << "fm: " << fm <<  " dipanlge: " << dipangle() << " Pt: " << Pt(B)  << " P: " << result << std::endl;
+	return result;
+}
+
+TVector3 PndRiemannTrack::getPforHit(int i, double B)
+{
+	PndRiemannHit xVecRiemann (r(), .0, .0, .0, .0, .0);
+	xVecRiemann.calcPosOnTrk(this);
+	double alpha = xVecRiemann.alpha();
+	if (fVerbose > 0) std::cout << "Angle to first point: " << alpha << std::endl;
+	TVector3 result(Pt(B)*cos(alpha), Pt(B)*sin(alpha), dip()*P(B));
+	if (fVerbose > 0) std::cout << "P-Vector for first point: " << result.X() << " " << result.Y() << " " << result.Z() << std::endl;
+	return result;
+}
 
 // Todo: check for backward going tracks!!!
 double

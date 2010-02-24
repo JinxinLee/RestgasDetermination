@@ -54,7 +54,10 @@ public:
   double r() const;
   double dR();
   double dip();
+  double dipangle();	//< dipangle theta
   double dDip();
+  double Pt(double B); //< transvers momentum Pt calculated by the magnetic field B [tesla]
+  double P(double B);
   double sign() const;
   double getSZm() const {return fm;}
   double getSZt() const {return ft;}
@@ -62,6 +65,7 @@ public:
   PndRiemannHit* getHit(unsigned int i) {PndRiemannHit* myHit = &(fHits[i]); return myHit;}
   PndRiemannHit* getLastHit() {return getHit(getNumHits()-1);}
   std::vector<PndRiemannHit> getHits(){return fHits;};
+  TVector3 getPforHit(int i, double B);
 
   double calcZPosByS(double s);
   int calcIntersection(PndRiemannTrack& track, TVector3& p1, TVector3& p2);
