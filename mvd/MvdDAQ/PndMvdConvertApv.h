@@ -129,6 +129,9 @@ class PndMvdConvertApv
 	/// stored current eventID
 	long int fEvent;
 
+	/// last eventID
+	long int fLastEvent;
+
 	/// true if calib was succesfull loaded
 	bool fNoCalib;
 
@@ -152,8 +155,9 @@ class PndMvdConvertApv
 
   PndMvdGeoHandling* fGeoH;	     //! Gives Access to the Path info of a hit
 
-private:
+
 	ClassDef(PndMvdConvertApv,1);
 };
 
 #endif
+

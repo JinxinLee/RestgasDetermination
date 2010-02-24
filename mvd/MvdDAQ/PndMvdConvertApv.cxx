@@ -16,7 +16,8 @@ PndMvdConvertApv::PndMvdConvertApv(const TString& CalibFileName, const TString& 
   fFake=false;
   cout<<"Scan HitFile..."<<endl;
   std::ifstream hitfile(HitFileName);
-  std::vector<Int_t> modules;						// module detec
+  std::vector<Int_t> modules;						// module detecor
+  std::vector<Int_t> nEvents;
   if(!hitfile)
   {
     cout<<"Hitfile not found!"<<endl;
@@ -41,23 +42,28 @@ PndMvdConvertApv::PndMvdConvertApv(const TString& CalibFileName, const TString& 
     long int ev;
     double q;
         
-    hitfile >> ev >> moduleID >> triggID >> frame >> fe >> ts >> ch >> q >> l;
-
+    moduleID=0;
+    hitfile >> ev >> fe >> ch >> q >> l;
+    //cout<<"event "<<ev<<" fe:"<<fe<<" channel:"<<ch<<" adc:"<<q<<endl;
     if (ev!=old_event)
     {
-      n=ev;								// count event
-      ModulChecker(moduleID, modules);					// check module and may mind
+      n++;								// count event
+      ModulChecker(moduleID, modules);
+      nEvents.push_back(n);					// check module and may mind
       old_event=ev;
     }
   }
   hitfile.close();
-  cout<<n<<" events in File"<<endl;
+  cout<<nEvents.size()<<" events in File"<<endl;
+  cout<<" counted "<<n<<" events"<<endl;
   cout<<modules.size()<<" modules found   Read Calibration..."<<endl;
   LoadCalibration(CalibFileName, modules);
   fNofEvents=n;
   fHitFileName=HitFileName;
   fDataFile.open(HitFileName);
-  fEvent=1;
+  fLastEvent=0;
+  fEvent=-1;
+  cout<<"** end of PndMvdConvertApv::PndMvdConvertApv(const TString& , const TString&) **"<<endl;
 }
 
 Bool_t PndMvdConvertApv::Init()
@@ -107,6 +113,7 @@ void PndMvdConvertApv::LoadCalibration(TString CalibFileName, std::vector<Int_t>
     double value;
 
     calibfile >> moduleID >> feID >> channel >> value;
+
     for(int vec=0;vec<modules.size();vec++)
     {
       if(moduleID==modules[vec])
@@ -117,7 +124,7 @@ void PndMvdConvertApv::LoadCalibration(TString CalibFileName, std::vector<Int_t>
   }
   calibfile.close();
   fNoCalib=false;
-  cout<<"Calibration succesfull readed"<<endl;
+  cout<<"Calibration succesfully read"<<endl;
   return;
 }
 
@@ -126,7 +133,6 @@ void PndMvdConvertApv::LoadCalibration(TString CalibFileName, std::vector<Int_t>
 std::vector<PndMvdDigiStrip> PndMvdConvertApv::Calc(std::vector<PndMvdApvHit> hitlist)
 {
   std::vector<PndMvdDigiStrip> result;
-  TString detPath="";
   for(Int_t hitnumber=0;hitnumber<hitlist.size();hitnumber++)
   {
      Double_t q=0.;
@@ -147,7 +153,7 @@ std::vector<PndMvdDigiStrip> PndMvdConvertApv::Calc(std::vector<PndMvdApvHit> hi
 //TODO: Detektornamen mit Geometrie sinnvoll verheiraten. 
 // 	string detPath="SiliconTestStation_1/DummysensorAss_0/";
 //     detPath+="Module";
-    detPath="Module";
+    TString detPath="Module";
     Int_t modId=-1;
     if(fFake)
     {
@@ -160,8 +166,9 @@ std::vector<PndMvdDigiStrip> PndMvdConvertApv::Calc(std::vector<PndMvdApvHit> hi
     detPath+=modId;
     detPath+="Rect";
 //     std::cout<<detPath.Data()<<"   |    "<<modId<<std::endl;
-	TGeoVolume* Vol=gGeoManager->FindVolumeFast(detPath);
-    if(0!=Vol) {
+	//TGeoVolume* Vol=gGeoManager->FindVolumeFast(detPath);
+    TGeoVolume* Vol=0;
+    if(Vol!=0) {
 // 		std::cout<<Vol->GetName()<<std::endl;
 // 		Vol->GetNode(-1)->cd();
         detPath="/SiliconTestStation_1/DummysensorAss_0/";
@@ -185,7 +192,7 @@ std::vector<PndMvdDigiStrip> PndMvdConvertApv::Calc(std::vector<PndMvdApvHit> hi
     {
     PndMvdDigiStrip DigiHit(hitlist[hitnumber].GetEventID(), 
 							 1,
-                             fGeoH->GetID(detPath), 
+                             /*fGeoH->GetID(detPath)*/"", 
                              hitlist[hitnumber].GetFeID(),
                              hitlist[hitnumber].GetChannel(), 
 							 hitlist[hitnumber].GetTimestamp(),
@@ -194,7 +201,7 @@ std::vector<PndMvdDigiStrip> PndMvdConvertApv::Calc(std::vector<PndMvdApvHit> hi
     }else{
      PndMvdDigiStrip DigiHit(hitlist[hitnumber].GetEventID(), 
 							 hitlist[hitnumber].GetModuleID(),
-                             fGeoH->GetID(detPath), 
+                             /*fGeoH->GetID(detPath)*/"", 
                              hitlist[hitnumber].GetFeID(),
                              hitlist[hitnumber].GetChannel(), 
                              hitlist[hitnumber].GetTimestamp(), 
@@ -216,6 +223,7 @@ long int PndMvdConvertApv::GetNofEvents()
 
 std::vector<PndMvdDigiStrip> PndMvdConvertApv::ReadNext()
 {
+//  cout<<"** PndMvdConvertApv::ReadNext() **"<<endl;
   std::vector<PndMvdDigiStrip> digiList;
   bool work=true;
   while (!fDataFile.eof() && work)  					// read data
@@ -231,18 +239,28 @@ std::vector<PndMvdDigiStrip> PndMvdConvertApv::ReadNext()
     }
     fDataFile.putback(c);
 
-    int triggID,fe,ts,frame,ch,l,moduleID;
-	double q;
-    long int ev;
+    int triggID=0;
+    int fe=0;
+    int ts=0;
+    int frame=0;
+    int ch=0;
+    int l=0;
+    int moduleID=0;
+    double q=0.;
+    long int ev=0;
 
-    fDataFile >> ev >> moduleID >> fe >> triggID >> ts >> frame >> ch >> q >> l;
+    fDataFile >> ev >> fe >>  ch >> q >> l;
+    //cout<<"event "<<fEvent<<" event id:"<<ev<<" last event id:"<<fLastEvent<<" fe:"<<fe<<" channel:"<<ch<<" adc:"<<q<<endl;
 
-    if ((ev-1)==fEvent)
+
+    if (fEvent==-1) { fLastEvent=ev; fEvent=0; }
+    if (ev!=fLastEvent)
     {
       if(fhitlist.size()>20) fhitlist.clear();
       digiList = Calc(fhitlist);
       fhitlist.clear();
-      fEvent=ev;
+      fLastEvent=ev;
+      fEvent++;
       work=false;
     }
     PndMvdApvHit Hit(ev, moduleID, fe, triggID, ts, frame, ch, q, l);
@@ -277,3 +295,4 @@ void PndMvdConvertApv::SetFakePair(Int_t TopModuleID, Int_t BottomModuleID)
 // PndMvdDigiStrip PndMvdConvertApv::DigiHit(hitlist [])
 // {
 // }
+

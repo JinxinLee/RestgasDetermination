@@ -67,6 +67,10 @@ public:
   Bool_t cd(TString id); ///< as the cd command of TGeoManager just with the ID
   void FillLevelNames(); ///< fills vector<TString> fLevelNames with the names (or the paths) of the volumes down to the level given by fLevel
 
+  TString FindNodePath(TGeoNode* node);
+  void DiveDownToNode(TGeoNode* node);
+  void cd(TGeoNode* node); ///<as cd command with the a node, not performant
+
 private:
   TGeoManager* fGeoMan;
   std::vector<TString> fLevelNames;

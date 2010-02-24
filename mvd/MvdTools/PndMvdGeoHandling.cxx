@@ -322,5 +322,39 @@ TVector3 PndMvdGeoHandling::LocalToMasterErrorsPath(const TVector3& local, const
 
 }
 
+TString PndMvdGeoHandling::FindNodePath(TGeoNode* node)
+{
+  // Find a nodes full path by going there in the gGeoManager
+  // With many volumes this becomes surely slow.
+  const char* oldpath = fGeoMan->GetPath();
+  fGeoMan->CdTop(); // dive down from top node
+  DiveDownToNode(node);
+  TString pathname = fGeoMan->GetPath();
+  fGeoMan->cd(oldpath);
+  return pathname;
+}
+
+void PndMvdGeoHandling::DiveDownToNode(TGeoNode* node)
+{
+  // cd gGeoManager from the current node to a given node
+  TGeoNode *currentNode = fGeoMan->GetCurrentNode();
+  if (currentNode == node) return;
+  for (Int_t iNod=0; iNod<currentNode->GetNdaughters();iNod++)
+  {
+    fGeoMan->CdDown(iNod);
+    DiveDownToNode(node);
+    if (fGeoMan->GetCurrentNode() == node) return;
+    fGeoMan->CdUp();
+  }
+}
+
+void PndMvdGeoHandling::cd(TGeoNode* node)
+{
+  // go to a node in the gGeoManager without knowing the full path
+  // With many volumes this becomes surely slow.
+  fGeoMan->CdTop(); // dive down from top node
+  DiveDownToNode(node);
+  return;
+}
 
 

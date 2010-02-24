@@ -15,9 +15,11 @@
 #include "TList.h"
 #include "TGeoManager.h"
 #include "TString.h"
+#include "FairTask.h"
 #include "PndMvdStripDigiPar.h"
+#include "PndMvdGeoHandling.h"
 
-class PndMvdCreateDefaultApvMap : public TObject {
+class PndMvdCreateDefaultApvMap : public FairTask {
   
 public:
   
@@ -25,23 +27,31 @@ public:
   
   ~PndMvdCreateDefaultApvMap();
   
-  // setup
-  Bool_t Init();
+  // setup  
+  virtual void SetParContainers();
+  virtual InitStatus Init();
+  virtual InitStatus ReInit(){return kSUCCESS;};
   
-  // main function
+  /** Virtual method Exec **/
+  virtual void Exec(Option_t* opt){return;};
+  
+  /** Our main function here **/
   Bool_t CreateFile(TString outFile);
   
 private:
 
   // helper
   Bool_t SelectSensorParams(TString detname);
-
-  // helper members
-  PndMvdStripDigiPar* fCurrentDigiPar;
-  TGeoManager* fGeoMan; //!
-  TList* fDigiParameterList; //!
+  void WriteExpandNode(std::ofstream& outfile);
+  //TString FindNodePath(TGeoNode* node);
+  //void DiveDownToNode(TGeoNode* node);
   
-  ClassDef(PndMvdCreateDefaultApvMap,0);
+  // helper members
+  PndMvdStripDigiPar* fCurrentDigiPar; //!
+  PndMvdGeoHandling* fGeoH; //!
+  TList* fDigiParameterList; //!
+  Int_t fFeCount;
+  ClassDef(PndMvdCreateDefaultApvMap,1);
   
 };
 
