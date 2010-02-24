@@ -32,7 +32,6 @@ PndMvdCreateDefaultApvMap::PndMvdCreateDefaultApvMap()
 PndMvdCreateDefaultApvMap::~PndMvdCreateDefaultApvMap()
 {
   if(fDigiParameterList) delete fDigiParameterList;
-  if(fGeoH) delete fGeoH;
 }
 
 
@@ -61,13 +60,7 @@ InitStatus PndMvdCreateDefaultApvMap::Init()
   if(!gGeoManager) {
     Error("Init","Cannot find a valid GeoManager");
     return kERROR;
-  }
-  fGeoH = new PndMvdGeoHandling(gGeoManager);
-  if(!fGeoH) {
-    Error("Init","Cannot find a valid MvdGeoHandling");
-    return kERROR;
-  }
-  
+  }  
   return kSUCCESS; 
 }
 
@@ -103,10 +96,9 @@ void PndMvdCreateDefaultApvMap::WriteExpandNode(std::ofstream& outfile)
     if(!detpath.Contains("Strip")) return;
     if(!SelectSensorParams(detpath)) return;
     Int_t feSens = fCurrentDigiPar->GetNrTopFE() + fCurrentDigiPar->GetNrBotFE();
-    TString pathid = fGeoH->GetID(detpath);
     for(Int_t fe =0;fe<feSens;fe++)
     { // write to file
-      outfile << fFeCount <<" " << fe <<" " << pathid.Data() << std::endl;
+      outfile << fFeCount <<" " << fe <<" " << detpath.Data() << std::endl;
       fFeCount++;
     }
   }

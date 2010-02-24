@@ -48,7 +48,6 @@ private:
   
   // helper members
   PndMvdStripDigiPar* fCurrentDigiPar; //!
-  PndMvdGeoHandling* fGeoH; //!
   TList* fDigiParameterList; //!
   Int_t fFeCount;
   ClassDef(PndMvdCreateDefaultApvMap,1);

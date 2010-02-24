@@ -22,7 +22,7 @@ class PndMvdMapApv : public TObject {
 public:
   // Constructor/destructor
   PndMvdMapApv() {};
-  PndMvdMapApv(TString name) {SetMappingFile(name); Init();};
+  PndMvdMapApv(TString name) {SetMappingFile(name);};
   ~PndMvdMapApv() {};
   
   // Printing
