@@ -243,9 +243,9 @@ int main(int argc, char *argv[])
     double spot_radius = 20; // default: 20 mm 1-sigma beam spot radius (gaus smeared)
     double spot_limit = 50; // default: 50 mm beam spot radius limit
 
-    int particle_number = 300; // default: 300
+    int particle_number = 500; // default: 300
 
-    double inci_theta = 57; // default: 57 degree
+    double inci_theta = 30; // default: 30 degree ; old: 57 degree
     double inci_phi   = 0; // default: 0 degree
 
     double hitBarX = slab_width/2; // default: slab_width/2
@@ -254,7 +254,7 @@ int main(int argc, char *argv[])
 
 
 	// photon properties
-    int photon_number = 10; // default: 100 (per particle); 0 means realistic number of Cherenkov photons
+    int photon_number = 200; // default: 100 (per particle); 0 means realistic number of Cherenkov photons
 
     double lambda_min = 300; // default: 300 nm ; lowest Cherenkov wavelength
     double lambda_max = 700; // default: 700 nm ; highest Cherenkov wavelength
@@ -263,12 +263,14 @@ int main(int argc, char *argv[])
 
 
 	// photon cannon
-    int shoots = 10000; // default: 100000
+    int shoots = 2000000; // default: 100000
 
     double gridXstep = 0; // default: 0 mm ; grid constant in X ; 0 means cannon is always in the center
     double gridYstep = 0; // default: 0 mm
 
     int refl_limit_2 = 5; // default: 5 ; low limit increases speed
+
+    int seed = 4357; // default TRandom3 value
 
 
     // single photon
@@ -296,14 +298,20 @@ int main(int argc, char *argv[])
 	// command line arguments (set variable parameter to avoid permanent compiling)
     for( int i = 1; i < argc; i++)
     {
-        if( i == 1)
+        if( i == 1 )
             outFilename = argv[1];
-        if( i == 2)
-            fishtank_thetaX = atof( argv[2]);
-        if( i == 3 )
-            fishtank_thetaY = atof( argv[3]);
-        if( i == 4 )
-            fishtank_phi = atof( argv[4]);
+        if( i == 2 )
+            lambda_min = atof( argv[2]);
+        if( i == 2 )
+            lambda_max = atof( argv[2]);
+        if( i == 2 )
+            seed = atoi( argv[2]);
+//         if( i == 2)
+//             fishtank_thetaX = atof( argv[2]);
+//         if( i == 3 )
+//             fishtank_thetaY = atof( argv[3]);
+//         if( i == 4 )
+//             fishtank_phi = atof( argv[4]);
     }
 
 
@@ -361,6 +369,11 @@ int main(int argc, char *argv[])
         Transform3D rot_phi = Transform3D( RotationX(inci_phi*degree) );
         parDir = rot_phi*parDir;
     }
+
+    parDir = parDir.Unit();
+    parDirX = parDir.X();
+    parDirY = parDir.Y();
+    parDirZ = parDir.Z();
 
 
 	// hit position on bar (is independent of the incidence angle)
@@ -577,14 +590,20 @@ int main(int argc, char *argv[])
 //==============================================================================
 
 // ROOT file content:
-// 	photonList (TTree)
-// 	particleList (TTree)
-// 	info (TTree) for global parameter like e.g. lens thickness
-// 	default plots: Screen, beamspot, Setup geometry
-
-// to analyze this root-file there are two macros:
-//	1. mcpPos.cc for fast plotting the effect of different MCP positions
-//	2. analyze.cc create a further root-file with a lot of plots (canvases)
+//  photon (TTree)
+//  particle (TTree)
+//  info (TTree) for global parameter like e.g. lens thickness
+//  default plots: Screen, beamspot, Setup geometry
+//
+// debug tools
+    // 1. paramater.cc to check the used paramters for a certain ROOT-file
+    // 2. parTrajectory.cc to visualize the particle trajectories
+    // 3. photTrajectory.cc to visualize the photon trajectories
+//
+// to analyze this root-file there:
+    // 1. kBarAnalysis.cc produces a lot of histograms to study the kBar-vectors
+    // 2. mcpPos.cc for fast plotting the effect of different MCP positions
+    // 3. mcp4Pos.cc to create a further root-file for Cherenkov angle reconstruction
 
 
 
@@ -703,6 +722,9 @@ int main(int argc, char *argv[])
         mass            = -666;
         kinE            = -666;
         beta            = -666;
+        parDirX         = -666;
+        parDirY         = -666;
+        parDirZ         = -666;
         inci_theta      = -666;
         inci_phi        = -666;
         hitBarX         = -666;
@@ -754,6 +776,9 @@ int main(int argc, char *argv[])
     infoTree->Branch( "particle_mass"         , &mass                  , "particle_mass/D" );
     infoTree->Branch( "particle_kinE"         , &kinE                  , "particle_kinE/D" );
     infoTree->Branch( "particle_beta"         , &beta                  , "particle_beta/D" );
+    infoTree->Branch( "particle_dirX"         , &parDirX               , "particle_dirX/D" );
+    infoTree->Branch( "particle_dirY"         , &parDirY               , "particle_dirY/D" );
+    infoTree->Branch( "particle_dirZ"         , &parDirZ               , "particle_dirZ/D" );
     infoTree->Branch( "incidence_theta"       , &inci_theta            , "incidence_theta/D" );
     infoTree->Branch( "incidence_phi"         , &inci_phi              , "incidence_phi/D" );
     infoTree->Branch( "hitBarX"               , &hitBarX               , "hitBarX/D" );
@@ -1914,9 +1939,9 @@ int main(int argc, char *argv[])
 //==============================================================================
     if( opt_beamtest )
     {
-        double parOriginX = hitBarX - parDirX * spot_limit; // move exterior beam spot particle in bar to bar border
-        double parOriginY = hitBarY - parDirY * spot_limit;
-        double parOriginZ = hitBarZ - parDirZ * spot_limit;
+        double parOriginX = hitBarX - parDirX/Abs(parDirX) * spot_limit; // move exterior beam spot particle in bar to bar border
+        double parOriginY = hitBarY - parDirY/Abs(parDirX) * spot_limit;
+        double parOriginZ = hitBarZ - parDirZ/Abs(parDirX) * spot_limit;
 
         TVector3 z = TVector3(0,0,1);
         TVector3 ortho;
@@ -1937,7 +1962,8 @@ int main(int argc, char *argv[])
 
         for(int i=0; i < particle_number; i++)
         {
-            int particleNumber = i+1;
+          int particleNumber = i+1;
+          if( i%10 == 0 )
             cout << "particle #" << particleNumber << " of " << particle_number << "  with " << photon_number << " per particle" << endl;
 
 
@@ -2171,6 +2197,14 @@ int main(int argc, char *argv[])
 // 		TF1 *f1 = new TF1("f1","1/x",300,700);
         TRandom3 rand;
 
+        if( seed == 0 )
+        {
+            seed = 4357;
+            cout << "Don't use seed=0 because it's slow. Seed is now 4357." << endl;
+        }
+
+        rand.SetSeed( seed );
+
 
         if( opt_debug )
             cout << "+++++ DEBUG INFO: photon check" << endl;
@@ -2181,7 +2215,7 @@ int main(int argc, char *argv[])
             if( gridXstep == 0 )
                 gridX = 0;
 
-            if( gridX == -slab_width/2 )
+            if( gridX == -slab_width/2 || slab_width/2 < gridX + 0.001 ) // no photon production at the bar edges
                 continue;
 
             for( double gridY = -slab_height/2; gridY < slab_height/2; gridY += gridYstep)
@@ -2189,20 +2223,13 @@ int main(int argc, char *argv[])
                 if( gridYstep == 0 )
                     gridY = 0;
 
-                if( gridY == -slab_height/2 )
+                if( gridY == -slab_height/2 || slab_height/2 < gridY + 0.001 )
                     continue;
-
-
-                int counter_step = 0;
-                int stepFactor = 10000;
 
                 for( int i=0; i<shoots; i++)
                 {
-                    if( i == stepFactor * counter_step )
-                    {
-                        counter_step++;
+                    if( i%10000 == 0 )
                         cout << "gridX: " << gridX << " gridY: " << gridY << "  photon #" << i+1 << " of " << shoots << " per mesh" << endl;
-                    }
 
 
 // 					double lambda = f1->GetRandom(); // seems to be wrong ; check it later

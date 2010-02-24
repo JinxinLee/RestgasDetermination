@@ -30,7 +30,7 @@ CFLAGS = -O2 -DNDEBUG -Wall
 all:			test_simple_bar test_simple_bar2 test_disk test_sheet test_cylinder \
 			test_focus test_focus2 test_absorption test_test test_titti \
 			test_top test_air_lens test_hook test_barrel1 test_barrel1a test_barrel2  \
-			test_barrel3 test_lens beamtest0809_sim beamtest0909_sim mppc test_system
+			test_barrel3 test_lens beamtest0809_sim beamtest0909_sim mppc test_system 
 
 
 test_simple_bar:	$(OBJECTS) test_simple_bar.o

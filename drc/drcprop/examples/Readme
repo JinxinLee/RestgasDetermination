@@ -1,6 +1,6 @@
 Example files:
 
-test_absorption.cc    check absorption routine in a bar and more directly
+test_absorption.cc      check absorption routine in a bar and more directly
 test_air_lens.cc
 test_barrel1a.cc
 test_barrel1.cc
@@ -15,13 +15,20 @@ test_lens.cc
 test_sheet.cc
 test_simple_bar2.cc
 test_simple_bar.cc
-test_system.cc		  adding of several systems to one optical system.
+test_system.cc		    adding of several systems to one optical system.
 test_test.cc
 test_titti.cc
 test_top.cc
-beamtest0809_sim.cc   beamtest simulation (first attempt for beamtest 09/2008)
-mppc.cc               Light catcher for a MPPC
-beamtest0909_sim.cc   improved beamtest simulation (for beamtest 09/2009) includes also a photon cannon
-photTrajectory.cc     debug tool for beamtest0909_sim.cc (visualization of the photon trajectory)
-parTrajectory.cc      debug tool for beamtest0909_sim.cc (visualization of the particle trajectory)
-kBar_analysis.cc      analysis tool for the photon cannon (kBar vectors)
+
+beamtest0809_sim.cc     beamtest simulation (first attempt for beamtest 09/2008)
+mppc.cc                 Light catcher for a MPPC
+
+beamtest0909_sim.cc     improved beamtest simulation (for beamtest 09/2009) includes also a photon cannon
+photTrajectory.cc       debug tool for beamtest0909_sim.cc (visualization of the photon trajectory)
+parTrajectory.cc        debug tool for beamtest0909_sim.cc (visualization of the particle trajectory)
+parameter.cc            debug tool for beamtest0909_sim.cc (show all used parameters in a ROOT-file)
+KBarAnalysis.cc/hh      analysis tool for beamtest0909_sim.cc (kBar vectors)
+run_KBarAnalysis.cc     macro to start the kBar analysis
+mcpPos.cc               display a single MCP on screen (adjustable) and show the hit pixels
+mcp4Pos.cc              advanced mcpPos.cc
+#recoCherenkovAngle.cc   reconstruct the Cherenkov angle from the beamtest0909 simulation (needed mcp4Pos.cc & KBarAnalysis.cc)

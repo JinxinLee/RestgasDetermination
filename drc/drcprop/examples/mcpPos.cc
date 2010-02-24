@@ -2,14 +2,14 @@
 //======
 // ROOT
 //======
-#include <TCanvas.h>
-#include <TFile.h>
-#include <TH2.h>
-#include <TLine.h>
-#include <TPad.h>
 #include <TString.h>
-#include <TStyle.h>
+#include <TFile.h>
 #include <TTree.h>
+#include <TCanvas.h>
+#include <TStyle.h>
+#include <TPad.h>
+#include <TLine.h>
+#include <TH2.h>
 
 
 //=========
@@ -36,7 +36,7 @@ void mcpPos( TString inFilename = "", Double_t minX_dim = 0, Double_t minY_dim =
 // Access to the input ROOT-file & canvas settings
 //==============================================================================
 	TFile *inFile   = new TFile( inFilename );
-	TTree *inTree   = (TTree*) inFile->Get("photonList");
+	TTree *inTree   = (TTree*) inFile->Get("photon");
 	TCanvas *screen = (TCanvas*) inFile->Get("Screen");
 
 
@@ -62,12 +62,14 @@ void mcpPos( TString inFilename = "", Double_t minX_dim = 0, Double_t minY_dim =
 	gStyle->SetPalette( 1 );            // better color palette
 	gStyle->SetStatColor( 0 );          // stat. box color
 
-	TCanvas *canvas = new TCanvas( "canvas", "" ,200, 10, 1200, 500 );
+	TCanvas *canvas = new TCanvas( "canvas", "" ,200, 10, 1250, 500 );
 	canvas->Draw();
 	canvas->cd();
 
-	TPad *pad1 = new TPad( "p1", "", 0, 0, 0.58, 1 );
-	TPad *pad2 = new TPad( "p2", "", 0.6, 0, 1, 1 );
+	TPad *pad1 = new TPad( "p1", "", 0, 0, 0.56, 1 );
+	TPad *pad2 = new TPad( "p2", "", 0.56, 0, 1, 1 );
+    pad2->SetLeftMargin( 0.14 );
+    pad2->SetRightMargin( 0.18 );
 	pad1->Draw();
 	pad2->Draw();
 
@@ -116,7 +118,7 @@ void mcpPos( TString inFilename = "", Double_t minX_dim = 0, Double_t minY_dim =
 	mcp->GetXaxis()->CenterTitle();
 	mcp->GetYaxis()->SetTitle( "y [mm]" );
 	mcp->GetYaxis()->CenterTitle();
-	mcp->GetYaxis()->SetTitleOffset( 1.2 );
+	mcp->GetYaxis()->SetTitleOffset( 1.5 );
 
 
 //==============================================================================
