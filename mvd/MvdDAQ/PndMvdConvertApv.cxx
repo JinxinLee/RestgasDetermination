@@ -16,7 +16,7 @@ PndMvdConvertApv::PndMvdConvertApv(const TString& CalibFileName, const TString& 
   fFake=false;
   cout<<"Scan HitFile..."<<endl;
   std::ifstream hitfile(HitFileName);
-  std::vector<Int_t> modules;						// module detecor
+  std::vector<Int_t> fes;						// module detecor
   std::vector<Int_t> nEvents;
   if(!hitfile)
   {
@@ -42,13 +42,27 @@ PndMvdConvertApv::PndMvdConvertApv(const TString& CalibFileName, const TString& 
     long int ev;
     double q;
         
-    moduleID=0;
+    //    moduleID=0;
     hitfile >> ev >> fe >> ch >> q >> l;
     //cout<<"event "<<ev<<" fe:"<<fe<<" channel:"<<ch<<" adc:"<<q<<endl;
+
+    Int_t found = 0;
+
+    for(Int_t i=0;i<fes.size();++i)
+      {
+	if(fe==fes[i])found=1;
+			 
+      }
+
+
+    if (!found){
+      cout << "Found frontend ID:" << fe << endl;
+        fes.push_back(fe);
+    }
+
     if (ev!=old_event)
     {
       n++;								// count event
-      ModulChecker(moduleID, modules);
       nEvents.push_back(n);					// check module and may mind
       old_event=ev;
     }
@@ -56,8 +70,8 @@ PndMvdConvertApv::PndMvdConvertApv(const TString& CalibFileName, const TString& 
   hitfile.close();
   cout<<nEvents.size()<<" events in File"<<endl;
   cout<<" counted "<<n<<" events"<<endl;
-  cout<<modules.size()<<" modules found   Read Calibration..."<<endl;
-  LoadCalibration(CalibFileName, modules);
+  cout<<fes.size()<<" modules found   Read Calibration..."<<endl;
+  LoadCalibration(CalibFileName, fes);
   fNofEvents=n;
   fHitFileName=HitFileName;
   fDataFile.open(HitFileName);
@@ -73,21 +87,9 @@ Bool_t PndMvdConvertApv::Init()
 }
 
 
-// -----   count new modules   --------------------------------------------
-
-void PndMvdConvertApv::ModulChecker(Int_t moduleID, std::vector<Int_t>& modules)
-{
-  for(Int_t i=0;i<modules.size();++i)
-  {
-    if(moduleID==modules[i]) return;					// already known module
-  }
-  modules.push_back(moduleID);
-  return;
-}
-
 // -----   Load calibration for the Modules   --------------------------------------------
 
-void PndMvdConvertApv::LoadCalibration(TString CalibFileName, std::vector<Int_t> modules)
+void PndMvdConvertApv::LoadCalibration(TString CalibFileName, std::vector<Int_t> fes)
 {
   std::ifstream calibfile(CalibFileName);
   if(!calibfile)
@@ -109,16 +111,16 @@ void PndMvdConvertApv::LoadCalibration(TString CalibFileName, std::vector<Int_t>
     }
     calibfile.putback(c);
 
-    int moduleID, feID, channel;
+    int feID, channel;
     double value;
 
-    calibfile >> moduleID >> feID >> channel >> value;
+    calibfile >> feID >> feID >> channel >> value;
 
-    for(int vec=0;vec<modules.size();vec++)
+    for(int vec=0;vec<fes.size();vec++)
     {
-      if(moduleID==modules[vec])
+      if(feID==fes[vec])
       {
-        fCalibPars[moduleID][feID][channel]=value;
+        fCalibPars[feID][channel]=value;
       }
     }
   }
@@ -140,11 +142,11 @@ std::vector<PndMvdDigiStrip> PndMvdConvertApv::Calc(std::vector<PndMvdApvHit> hi
      {
        q=1.*hitlist[hitnumber].GetADC();					// no calib adc -> e !!!
      }else{
-       if (fCalibPars[hitlist[hitnumber].GetModuleID()][hitlist[hitnumber].GetFeID()].size())
+       if (fCalibPars[hitlist[hitnumber].GetFeID()].size())
        {
-         if (fCalibPars[hitlist[hitnumber].GetModuleID()][hitlist[hitnumber].GetFeID()][hitlist[hitnumber].GetChannel()])
+         if (fCalibPars[hitlist[hitnumber].GetFeID()][hitlist[hitnumber].GetChannel()])
          {
-           q=fCalibPars[hitlist[hitnumber].GetModuleID()][hitlist[hitnumber].GetFeID()][hitlist[hitnumber].GetChannel()]*(hitlist[hitnumber].GetADC())*1000.; // in electrons
+           q=fCalibPars[hitlist[hitnumber].GetFeID()][hitlist[hitnumber].GetChannel()]*(hitlist[hitnumber].GetADC())*1000.; // in electrons
          }
        }
      }

@@ -97,7 +97,6 @@ class PndMvdConvertApv
 	@param modules vector of moduleIDs of modules in the hitfile
 	@return void
 	*/
-	void ModulChecker(Int_t moduleID, std::vector<Int_t>& modules);
 
 	/**
 	@fn void LoadCalibration(TString CalibFileName, std::vector<Int_t> modules)
@@ -121,7 +120,7 @@ class PndMvdConvertApv
 
 	/// Calib Parameters: <moduleID<FE<channel> > >
 // 	std::vector<std::map<Int_t, std::vector<double> > > fCalibPars;
-	std::map<Int_t, std::map<Int_t, std::map<Int_t, double> > > fCalibPars;
+	 std::map<Int_t, std::map<Int_t, double> >  fCalibPars;
 
 	/// stored last eventID of the hitfile
 	long int fNofEvents;
