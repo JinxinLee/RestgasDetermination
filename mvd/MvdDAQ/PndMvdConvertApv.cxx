@@ -194,18 +194,19 @@ std::vector<PndMvdDigiStrip> PndMvdConvertApv::Calc(std::vector<PndMvdApvHit> hi
 							 1,
                              /*fGeoH->GetID(detPath)*/"", 
                              hitlist[hitnumber].GetFeID(),
-                             hitlist[hitnumber].GetChannel(), 
-							 hitlist[hitnumber].GetTimestamp(),
-						     q/*/1000/1000*/);
+			    hitlist[hitnumber].GetChannel(), q/*/1000/1000*/,
+							 hitlist[hitnumber].GetTimestamp()
+						     );
      result.push_back(DigiHit);
     }else{
      PndMvdDigiStrip DigiHit(hitlist[hitnumber].GetEventID(), 
 							 hitlist[hitnumber].GetModuleID(),
                              /*fGeoH->GetID(detPath)*/"", 
                              hitlist[hitnumber].GetFeID(),
-                             hitlist[hitnumber].GetChannel(), 
-                             hitlist[hitnumber].GetTimestamp(), 
-                             q/*/1000/1000*/);
+                             hitlist[hitnumber].GetChannel(),
+			     q/*/1000/1000*/,
+                             hitlist[hitnumber].GetTimestamp() 
+                             );
      result.push_back(DigiHit);
     }
   }
