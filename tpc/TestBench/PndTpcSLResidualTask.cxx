@@ -143,6 +143,7 @@ PndTpcSLResidualTask::Exec(Option_t* opt) {
       std::vector<double> resY;
       std::vector<double> amps;
       std::vector<unsigned int> clSize;
+      std::vector<unsigned int> cl2DSize;
       
       
       //Loop over clusters
@@ -163,12 +164,14 @@ PndTpcSLResidualTask::Exec(Option_t* opt) {
 	resY.push_back(res.Y());
 	amps.push_back(cl->amp());
 	clSize.push_back(cl->size());	
+	cl2DSize.push_back(cl->get2DSize());
 	
       }//End loop over clusters
 
       fitstat->fillPndTpcResX(resX);
       fitstat->fillPndTpcResY(resY);
       fitstat->fillPndTpcClusterSize(clSize);
+      fitstat->fillPndTpc2DClusterSize(cl2DSize);
       fitstat->fillPndTpcClusterAmp(amps);
       
       
