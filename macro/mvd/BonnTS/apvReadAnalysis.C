@@ -15,23 +15,48 @@
   TString CalibFileName = HitFileName + ".calib";
   TString MapFileName = HitFileName + ".mapping";
 
-  TString outFile = "test.root";
-  FairRunAna *fRun= new FairRunAna();
-  //fRun->SetInputFile(inFile);
-  fRun->SetOutputFile(outFile);
-
-  PndMvdConvertApv* ApvConverter= new PndMvdConvertApv(CalibFileName, HitFileName);
-  long int  nEvents = ApvConverter->GetNofEvents();
+  TString directory = gSystem->Getenv("VMCWORKDIR");
+  TString geomFile = directory + "/geometry/TrackingStation.root";
+  TString digiparFile = directory + "/macro/params/all.par";
+  TString parFile = "par.root";
   
+  TString outFile = "test.root";
+
+  FairRunAna *fRun= new FairRunAna();
+  //fRun->SetInputFile("mapout.root");
+  fRun->SetOutputFile(outFile);
+  
+  // -----  Parameter database   --------------------------------------------
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+
+  FairParAsciiFileIo* parInput = new FairParAsciiFileIo();
+  parInput->open(digiparFile.Data(),"in");
+  rtdb->setFirstInput(parInput);
+  
+  FairParRootFileIo* output=new FairParRootFileIo(kTRUE);
+  output->open(parFile.Data());
+  rtdb->setOutput(output);
+  
+  fRun->SetGeomFile(geomFile); // set filname
+  fRun->LoadGeometry(); // set the flag
+  
+  // -----  Converter  -----------------------------------------------------
+  PndMvdConvertApv* ApvConverter= new PndMvdConvertApv(CalibFileName, HitFileName);  
   PndMvdMapApv* ApvMapper = new PndMvdMapApv(MapFileName);
   
   PndMvdConvertApvTask* convertTask = new PndMvdConvertApvTask(ApvConverter,ApvMapper);
   convertTask->SetVerbose(3);
-  
   fRun->AddTask(convertTask);
   
   fRun->Init();
+  
+  long int  nEvents = ApvConverter->GetNofEvents();
+
+  cout<<" ---- Start RUN ----"<<endl;
   fRun->Run(0,nEvents);
+  
+  rtdb->Print();
+  rtdb->saveOutput();
 
   // -----   Finish   -------------------------------------------------------
   timer.Stop();

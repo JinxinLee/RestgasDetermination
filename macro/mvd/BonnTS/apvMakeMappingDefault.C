@@ -19,7 +19,7 @@
   TString parFile = "par.root";
   FairRunAna *fRun= new FairRunAna();
   //fRun->SetInputFile(inFile);
-  fRun->SetOutputFile("out.root");
+  fRun->SetOutputFile("mapout.root");
 
     
   // -----  Parameter database   --------------------------------------------

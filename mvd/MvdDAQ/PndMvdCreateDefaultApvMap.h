@@ -18,6 +18,12 @@
 #include "FairTask.h"
 #include "PndMvdStripDigiPar.h"
 #include "PndMvdGeoHandling.h"
+#include <utility>
+#include <string>
+#include <vector>
+#include <map>
+
+typedef std::pair<TString,std::pair<Int_t,Int_t> > Map_Entry;
 
 class PndMvdCreateDefaultApvMap : public FairTask {
   
@@ -42,14 +48,16 @@ private:
 
   // helper
   Bool_t SelectSensorParams(TString detname);
-  void WriteExpandNode(std::ofstream& outfile);
+  void WriteExpandNode();
+  std::map<Double_t, std::vector<Map_Entry> > fSortedMapping;
   //TString FindNodePath(TGeoNode* node);
   //void DiveDownToNode(TGeoNode* node);
   
   // helper members
   PndMvdStripDigiPar* fCurrentDigiPar; //!
   TList* fDigiParameterList; //!
-  Int_t fFeCount;
+  Int_t fFeCount; // Running number of rw frontends
+  Int_t fFakeCount; // Running number of fake frontends
   ClassDef(PndMvdCreateDefaultApvMap,1);
   
 };

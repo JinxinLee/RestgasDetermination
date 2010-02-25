@@ -21,10 +21,9 @@ void PndMvdMapApv::Print()
 // ----------------------------------------------------------
 Bool_t PndMvdMapApv::Init()
 {
-  Info("Init","Begin. ------------------");
   ifstream mapfile(fFileName.Data(),ifstream::in);
   Int_t rw=-1, sw=-1;
-  char* detname="";
+  TString detname;
   if (!mapfile.is_open()){
     // abort on wrong file
     Error("Init","Could not open file %s",fFileName.Data());
@@ -33,11 +32,12 @@ Bool_t PndMvdMapApv::Init()
   while(mapfile.good())
   {
     mapfile >> rw >> sw >> detname;
-    std::pair<Int_t,const char*> apair(sw,detname);
+    if(mapfile.eof()) break;
+    Info("Init","Read line: %i %i %s",rw,sw,detname.Data());
+    std::pair<Int_t,const char*> apair(sw,detname.Data());
     fApvNumberMap[rw] = apair;
   }
   mapfile.close();
-  Info("Init","Finished. ---------------");
   return kTRUE;
 }
 

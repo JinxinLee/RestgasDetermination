@@ -18,6 +18,7 @@
 #include "PndMvdContFact.h"
 #include "TObjString.h"
 #include "TObjArray.h"
+#include "TGeoMatrix.h"
 
 ClassImp(PndMvdCreateDefaultApvMap);
 
@@ -26,6 +27,7 @@ PndMvdCreateDefaultApvMap::PndMvdCreateDefaultApvMap()
 {
   fDigiParameterList = new TList();
   fFeCount = 0;
+  fFakeCount = 0;
 }
 
 // Destructor
@@ -72,14 +74,32 @@ Bool_t PndMvdCreateDefaultApvMap::CreateFile(TString outFileName)
   
   const char* oldpath = gGeoManager->GetPath();
   gGeoManager->CdTop();
-  WriteExpandNode(outfile);
+  WriteExpandNode();
   gGeoManager->cd(oldpath);
-  
+
+  // loop over sorted mapping and write to file
+  for(std::map<Double_t, std::vector<Map_Entry> >::iterator 
+      iter=fSortedMapping.begin(); iter!=fSortedMapping.end();iter++)
+  {
+    std::vector<Map_Entry> entryset = iter->second;
+    for(std::vector<Map_Entry>::iterator 
+        iter2=entryset.begin(); iter2!=entryset.end();iter2++)
+    {
+      Map_Entry anEntry = *iter2;
+      TString detpath = anEntry.first;
+      std::pair<Int_t,Int_t> aPair = anEntry.second;
+      Int_t feSoft = aPair.first;
+      Int_t feHard = aPair.second;
+      outfile << feHard << " " << feSoft << " " << detpath << std::endl;
+      std::cout << feHard << " " << feSoft << " " << detpath << std::endl;      
+    }
+  }
+
   outfile.close();
   return kTRUE;
 }
 
-void PndMvdCreateDefaultApvMap::WriteExpandNode(std::ofstream& outfile)
+void PndMvdCreateDefaultApvMap::WriteExpandNode()
 {
   // this volume should be an assambly
   TGeoNode* node = gGeoManager->GetCurrentNode();
@@ -88,18 +108,33 @@ void PndMvdCreateDefaultApvMap::WriteExpandNode(std::ofstream& outfile)
   { // iterate to daughters
     for (Int_t Nod=0; Nod<node->GetNdaughters();Nod++) {
       gGeoManager->CdDown(Nod);
-      WriteExpandNode(outfile);
+      WriteExpandNode();
       gGeoManager->CdUp();
     }
   } else { // no daughter nodes
     TString detpath=gGeoManager->GetPath();
+    // some checks
     if(!detpath.Contains("Strip")) return;
     if(!SelectSensorParams(detpath)) return;
+    // Chosen sorting parameter: z Position of the node.
+    // TODO: Is it done correctly like this?
+    TGeoTranslation* tran = (TGeoTranslation*)node->GetMatrix();
+    Double_t sortparam = (tran->GetTranslation())[2];
     Int_t feSens = fCurrentDigiPar->GetNrTopFE() + fCurrentDigiPar->GetNrBotFE();
     for(Int_t fe =0;fe<feSens;fe++)
-    { // write to file
-      outfile << fFeCount <<" " << fe <<" " << detpath.Data() << std::endl;
-      fFeCount++;
+    { // write to mapping
+      Int_t feNr;
+      // count only real-world existing frontends, others are -1
+      if(fCurrentDigiPar->GetNrBotFE() == 1 && fe >= fCurrentDigiPar->GetNrTopFE()){
+        fFakeCount--; // decrease first, starting at -1!
+        feNr = fFakeCount; // handle the single sided sensors with a fake bittom side
+      }else{ 
+        feNr=fFeCount;
+        fFeCount++; // increase later, starting at 0
+      }
+      std::pair<Int_t,Int_t> apair(fe,feNr);
+      Map_Entry anEntry(detpath,apair);
+      (fSortedMapping[sortparam]).push_back(anEntry);
     }
   }
   return;
