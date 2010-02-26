@@ -11,9 +11,9 @@
   TStopwatch timer;
   timer.Start();
   // ------------------------------------------------------------------------
-  TString HitFileName = "strahl_gneu7.hit.5";
-  TString CalibFileName = HitFileName + ".calib";
-  TString MapFileName = HitFileName + ".mapping";
+  TString HitFileName = "strahl_gneu5.dat.0";
+  TString CalibFileName = "beamtestJuelichFeb02.calib";
+  TString MapFileName = "beamtestJuelichFeb02_setup1.mapping";
 
   TString directory = gSystem->Getenv("VMCWORKDIR");
   TString geomFile = directory + "/geometry/TrackingStation.root";
