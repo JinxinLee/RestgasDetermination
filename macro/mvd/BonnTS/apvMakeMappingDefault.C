@@ -12,8 +12,7 @@
   timer.Start();
   // ------------------------------------------------------------------------
   TString directory = gSystem->Getenv("VMCWORKDIR");
-  TString HitFileName="strahl_gneu7.hit.5";  
-  TString outFile = HitFileName + ".mapping";
+  TString outFile = "daq.mapping";
   TString geomFile = directory + "/geometry/TrackingStation.root";
   TString digiparFile = directory + "/macro/params/all.par";
   TString parFile = "par.root";
