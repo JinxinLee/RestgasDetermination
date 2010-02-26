@@ -258,7 +258,7 @@ Bool_t PndMdt::ProcessHits(FairVolume* vol)
     {
       Int_t TrNo=gMC->GetStack()->GetCurrentTrackNumber();
       Int_t pdg= gMC->TrackPid();
-      if ( TrNo == fTrkIn )
+      if ( (TrNo == fTrkIn) && (fELoss >0.) )
 	{
 	  TLorentzVector lPos, lMom;
 	  Int_t iMod;
