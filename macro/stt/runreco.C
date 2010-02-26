@@ -59,15 +59,18 @@
   // helix hit production ....
   PndSttHelixHitProducer* sttHHProducer = new PndSttHelixHitProducer();
   fRun->AddTask(sttHHProducer);
-
-
+ 
+  // QA plots if you want them
+  //  PndSttTrackFitterQATask* qaFit = new PndSttTrackFitterQATask();
+  //  fRun->AddTask(qaFit);
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
   fRun->Run(0, nEvents);
   // fRun->Run(15, 20);
   // ------------------------------------------------------------------------
 
-  //  sttHHProducer->WriteHistograms();
+  // sttHHProducer->WriteHistograms();
+  // qaFit->WriteHistograms();
 
   // -----   Finish   -------------------------------------------------------
   timer.Stop();
