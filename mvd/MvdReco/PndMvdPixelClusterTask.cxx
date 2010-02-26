@@ -34,6 +34,7 @@ PndMvdPixelClusterTask::PndMvdPixelClusterTask() :
   FairTask("MVD Clustertisation Task")
 {
   fBranchName   = "MVDPixelDigis";
+  fPersistance = kTRUE;
 
 //  fDigiArray  = new TClonesArray("PndMvdDigiPixel");
 //  fClusterArray  = new TClonesArray("PndMvdClusterPixel");

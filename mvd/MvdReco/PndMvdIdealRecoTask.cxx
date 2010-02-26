@@ -34,6 +34,7 @@ PndMvdIdealRecoTask::PndMvdIdealRecoTask() :
   fSigmaY=0.;
   fSigmaZ=0.;
 	fBranchName 	= "MVDPoint";
+  fPersistance = kTRUE;
 }
 // -------------------------------------------------------------------------
 

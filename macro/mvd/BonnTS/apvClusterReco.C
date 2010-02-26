@@ -1,27 +1,30 @@
 // root macro to analyze the clusterization output
 {
-  bool verbose = true;
-  
+  int iVerbose = 3;
+  long int  nEvents = 10;
+
   // -----  Load libraries   ------------------------------------------------
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-//  gROOT->LoadMacro("$VMCWORKDIR/macro/mvd/Tools.C");
-//  LoadPandaStyle();
-//  gROOT->LoadMacro("$VMCWORKDIR/macro/mvd/Helper.C");
+  gROOT->LoadMacro("$VMCWORKDIR/macro/mvd/Tools.C");
+  LoadPandaStyle();
+  gROOT->LoadMacro("$VMCWORKDIR/macro/mvd/Helper.C");
   // -----   Timer   --------------------------------------------------------
   TStopwatch timer;
   timer.Start();
   // ------------------------------------------------------------------------
+  TString HitFileName = "strahl_gneu7.hit.5";
+  TString inFile = HitFileName + ".digis.root";
+  TString outFile = HitFileName + ".hits.root";
+
   TString directory = gSystem->Getenv("VMCWORKDIR");
-  TString HitFileName="strahl_gneu7.hit.5";  
-  TString outFile = HitFileName + ".mapping";
   TString geomFile = directory + "/geometry/TrackingStation.root";
   TString digiparFile = directory + "/macro/params/all.par";
   TString parFile = "par.root";
-  FairRunAna *fRun= new FairRunAna();
-  //fRun->SetInputFile(inFile);
-  fRun->SetOutputFile("mapout.root");
 
-    
+  FairRunAna *fRun= new FairRunAna();
+  fRun->SetInputFile(inFile);
+  fRun->SetOutputFile(outFile);
+  
   // -----  Parameter database   --------------------------------------------
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
 
@@ -31,25 +34,26 @@
   
   FairParRootFileIo* output=new FairParRootFileIo(kTRUE);
   output->open(parFile.Data());
+  rtdb->setSecondInput(output);
   rtdb->setOutput(output);
-    
+  
   fRun->SetGeomFile(geomFile); // set filname
   fRun->LoadGeometry(); // set the flag
-
-  PndMvdCreateDefaultApvMap* creator = new PndMvdCreateDefaultApvMap();
-  fRun->AddTask(creator);
-
+  
+  // -----  Converter  -----------------------------------------------------
+  
+  PndMvdStripClusterTask* recotask = new PndMvdStripClusterTask();
+  recotask->SetVerbose(iVerbose);
+  fRun->AddTask(recotask);
+  
   fRun->Init();
-
-
-  // now we have a complete run object
-  if(! creator->CreateFile(outFile) ) return;
-
-  //fRun->Run(0,nEvents);
+  
+  cout<<" ---- Start RUN ----"<<endl;
+  fRun->Run(0,nEvents);
   
   rtdb->print();
   rtdb->saveOutput();
-  
+
   // -----   Finish   -------------------------------------------------------
   timer.Stop();
   Double_t rtime = timer.RealTime();
@@ -59,6 +63,6 @@
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
   cout << endl;
   // ------------------------------------------------------------------------
-  
+
 }
-  
+

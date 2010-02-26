@@ -1,5 +1,6 @@
 void createFCalib()
 {
+  cout<<"Create a fake calibration for BonnTS data"<<endl;
 
   Int_t nFee = 24;
 

@@ -62,7 +62,12 @@ class PndMvdConvertApvTask : public FairTask
 	*/
 	virtual void Finish();
   
- private:
+  void SetPersistance(Bool_t p = kTRUE) {fPersistance=p;};
+  Bool_t GetPersistance() {return fPersistance;};
+  
+private:
+  Bool_t fPersistance; // switch to turn on/off storing the arrays to a file
+  
 	/// class which convert the read in and hold the streams
 	PndMvdConvertApv* fApvConvert;
   PndMvdMapApv* fApvMapper;

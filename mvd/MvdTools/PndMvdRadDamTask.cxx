@@ -18,6 +18,7 @@
 
 PndMvdRadDamTask::PndMvdRadDamTask()
 {
+  fPersistance = kTRUE;
 }
 
 PndMvdRadDamTask::~PndMvdRadDamTask()

@@ -23,7 +23,8 @@ PndMvdDigiTask::PndMvdDigiTask() :
   {
     ((FairTask*)thistasks->At(i))->SetVerbose(fVerbose);
   }
-  SetPersistance(kTRUE);
+  fPersistance = kTRUE;
+  SetPersistance(fPersistance);
 }
 // -------------------------------------------------------------------------
 

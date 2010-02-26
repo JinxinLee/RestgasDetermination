@@ -51,11 +51,11 @@
   fRun->Init();
   
   long int  nEvents = ApvConverter->GetNofEvents();
-
+  if(nEvents>10) nEvents=10;
   cout<<" ---- Start RUN ----"<<endl;
   fRun->Run(0,nEvents);
   
-  rtdb->Print();
+  rtdb->print();
   rtdb->saveOutput();
 
   // -----   Finish   -------------------------------------------------------

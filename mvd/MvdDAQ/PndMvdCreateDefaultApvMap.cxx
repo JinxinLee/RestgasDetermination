@@ -72,10 +72,11 @@ Bool_t PndMvdCreateDefaultApvMap::CreateFile(TString outFileName)
   Info("CreateFile","Output file name is %s",outFileName.Data());
   std::ofstream outfile(outFileName.Data(),ofstream::out);
   
-  const char* oldpath = gGeoManager->GetPath();
+  TString oldpath = gGeoManager->GetPath();
   gGeoManager->CdTop();
+  if( ! oldpath.BeginsWith(gGeoManager->GetPath()) ) oldpath = gGeoManager->GetPath();
   WriteExpandNode();
-  gGeoManager->cd(oldpath);
+  gGeoManager->cd(oldpath.Data());
 
   // loop over sorted mapping and write to file
   for(std::map<Double_t, std::vector<Map_Entry> >::iterator 

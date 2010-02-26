@@ -32,6 +32,7 @@ PndMvdIdealClusterTask::PndMvdIdealClusterTask() :
   FairTask("MVD Clustertisation Task")
 {
   fBranchName   = "MVDPixelDigis";
+  fPersistance = kTRUE;
 
   TGeoManager* geoMan;// = new TGeoManager("geoMan","geoMan");
   //geoMan->Import("PndMvdG4_DPM15fE+i_10000.root","FAIRGeom");

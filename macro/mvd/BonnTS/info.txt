@@ -1,5 +1,7 @@
 root createALT.C
 cp TrackingStation.root ../../../geometry/
+root createFCalib.C  (fake calibration)
+cp file.calib [datasetname].calib
 root apvMakeMappingDefault.C
 root apvReadAnalysis.C
 

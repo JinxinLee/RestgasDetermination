@@ -26,6 +26,7 @@ PndMvdConvertApvTask::PndMvdConvertApvTask(PndMvdConvertApv* Apvconvert,PndMvdMa
 {
   fApvConvert=Apvconvert;
   fApvMapper=Apvmapper;
+  fPersistance = kTRUE;
 }
 // -----   Destructor   ----------------------------------------------------
 PndMvdConvertApvTask::~PndMvdConvertApvTask()
@@ -49,7 +50,7 @@ InitStatus PndMvdConvertApvTask::Init()
 
   // Create and register output array
   fStripArray = new TClonesArray("PndMvdDigiStrip");
-  ioman->Register("MVDStripDigis", "MVD", fStripArray, kTRUE);
+  ioman->Register("MVDStripDigis", "MVD", fStripArray, fPersistance);
   fApvConvert->Init();
   fApvMapper->Init();
   cout<<"Init of Task"<<endl;
@@ -62,14 +63,15 @@ void PndMvdConvertApvTask::Exec(Option_t* opt)
     // Reset output array
 	fStripArray->Delete();
   Int_t rw=-1, sw=-1;
-  const char* detpath=""; 
+  TString detpath=""; 
   TString detnameid;
 	std::vector<PndMvdDigiStrip> strips = fApvConvert->ReadNext();
 	for (std::vector<PndMvdDigiStrip>::iterator strip=strips.begin(); strip!=strips.end(); ++strip)
 	{
     rw=strip->GetFE();
     fApvMapper->DoMapping(rw,sw,detpath);
-    detnameid=fGeoH->GetID((TString)detpath);
+    detnameid=fGeoH->GetID(detpath);
+    if(fVerbose>1) Info("Exec","Write a Digi from detector %s %s",detpath.Data(),detnameid.Data());
 		Int_t stripnum = fStripArray->GetEntriesFast();
 		new ((*fStripArray)[stripnum]) PndMvdDigiStrip(strip->GetIndices(), strip->GetDetID(),
                               detnameid, sw, strip->GetChannel(), strip->GetCharge(), strip->GetTimestamp());

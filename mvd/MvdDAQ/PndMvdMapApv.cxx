@@ -23,7 +23,7 @@ Bool_t PndMvdMapApv::Init()
 {
   ifstream mapfile(fFileName.Data(),ifstream::in);
   Int_t rw=-1, sw=-1;
-  TString detname;
+  TString detPathName;
   if (!mapfile.is_open()){
     // abort on wrong file
     Error("Init","Could not open file %s",fFileName.Data());
@@ -31,10 +31,10 @@ Bool_t PndMvdMapApv::Init()
   }
   while(mapfile.good())
   {
-    mapfile >> rw >> sw >> detname;
+    mapfile >> rw >> sw >> detPathName;
     if(mapfile.eof()) break;
-    Info("Init","Read line: %i %i %s",rw,sw,detname.Data());
-    std::pair<Int_t,const char*> apair(sw,detname.Data());
+    Info("Init","Read line: %i %i %s",rw,sw,detPathName.Data());
+    std::pair<Int_t,TString> apair(sw,detPathName);
     fApvNumberMap[rw] = apair;
   }
   mapfile.close();
@@ -42,11 +42,12 @@ Bool_t PndMvdMapApv::Init()
 }
 
 // ----------------------------------------------------------
-void PndMvdMapApv::DoMapping(Int_t realWorldId, Int_t &onSensorId, const char* detname)
+void PndMvdMapApv::DoMapping(Int_t realWorldId, Int_t &onSensorId, TString &detpath)
 {
-  std::pair<Int_t,const char*> apair = fApvNumberMap[realWorldId];
+  std::pair<Int_t,TString> apair = fApvNumberMap[realWorldId];
   onSensorId = apair.first;
-  detname = apair.second;
+  detpath = apair.second;
+  //std::cout << detpath.Data() << std::endl;
   return;
 }
 

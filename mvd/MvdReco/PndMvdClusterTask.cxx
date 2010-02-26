@@ -19,6 +19,7 @@
 PndMvdClusterTask::PndMvdClusterTask() :
 FairTask("MVD Clustertization Task")
 {
+  fPersistance = kTRUE;
   this->Add(new PndMvdPixelClusterTask());
   this->Add(new PndMvdStripClusterTask());
   TList* thistasks = this->GetListOfTasks();
@@ -26,6 +27,7 @@ FairTask("MVD Clustertization Task")
   {
     ((FairTask*)thistasks->At(i))->SetVerbose(fVerbose);
   }
+  SetPersistance(fPersistance);
 }
 // -------------------------------------------------------------------------
 

@@ -42,6 +42,7 @@ PndMvdStripClusterTask::PndMvdStripClusterTask() :
 {
   fChargeCut = 1.e8; // this ist really large and shall have no effect
   fDigiParameterList = new TList();
+  fPersistance = kTRUE;
 }
 
 // -------------------------------------------------------------------------

@@ -33,12 +33,12 @@ public:
   Bool_t Init();
   
   // Retrieveing information
-  void DoMapping(Int_t realWorldId, Int_t &onSensorId, const char* detname);
+  void DoMapping(Int_t realWorldId, Int_t &onSensorId, TString &detpath);
   
   // Members
 private:
   // the lookup table: ( RW Id | SW Id | Detname )
-  std::map< Int_t , std::pair<Int_t,const char*> > fApvNumberMap; // Maps the Apv Numbers
+  std::map< Int_t , std::pair<Int_t,TString> > fApvNumberMap; // Maps the Apv Numbers
   TString fFileName; // file containing the association table
 
   ClassDef(PndMvdMapApv,1);
