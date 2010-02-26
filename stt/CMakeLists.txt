@@ -48,6 +48,7 @@ PndSttHitProducerIdeal.cxx
 PndSttSingleStraw.cxx				
 PndSttHitProducerReal.cxx 		
 PndSttHelixTrackFitter.cxx 		
+PndSttTrackFitterQATask.cxx 	
 PndSttHitProducerRealFast.cxx
 PndSttHitProducerRealFull.cxx            
 PndSttHelixHitProducer.cxx
