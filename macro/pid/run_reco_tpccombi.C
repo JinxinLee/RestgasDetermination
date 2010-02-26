@@ -73,8 +73,8 @@
   fRun->AddTask(recoKalman);
  
   // -----   Intialise and run   --------------------------------------------
+  PndEmcMapper::Init(6);
   fRun->Init();
-  PndEmcMapper *emcMap = PndEmcMapper::Instance(6);
   fRun->Run(0, nEvents);
 
   rtdb->saveOutput();

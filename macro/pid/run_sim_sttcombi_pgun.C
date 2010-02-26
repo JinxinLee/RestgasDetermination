@@ -22,6 +22,22 @@ run_sim_sttcombi_pgun(Int_t nEvents=10, Int_t pid=13, Float_t p1=1.0, Float_t p2
 
   fRun->SetOutputFile("points_sttcombi.root");
 
+  // Set the parameters
+  //-------------------------------
+  TString allDigiFile = gSystem->Getenv("VMCWORKDIR");
+  allDigiFile += "/macro/params/";
+  allDigiFile += digiFile;
+ 
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
+  parIo1->open(allDigiFile.Data(),"in");
+  rtdb->setFirstInput(parIo1);        
+  Bool_t kParameterMerged=kTRUE;
+	
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
+  output->open(parFile);
+  rtdb->setOutput(output);
+  
   // Set Material file Name
   //-----------------------
   fRun->SetMaterials("media_pnd.geo");
@@ -32,9 +48,10 @@ run_sim_sttcombi_pgun(Int_t nEvents=10, Int_t pid=13, Float_t p1=1.0, Float_t p2
   Cave->SetGeometryFileName("pndcave.geo");
   fRun->AddModule(Cave); 
 
-  //FairModule *Magnet= new PndMagnet("MAGNET");
-  //Magnet->SetGeometryFileName("FullSolenoid.root");
-  //fRun->AddModule(Magnet);
+  FairModule *Magnet= new PndMagnet("MAGNET");
+  //Magnet->SetGeometryFileName("FullSolenoid_V842.root");
+  Magnet->SetGeometryFileName("FullSuperconductingSolenoid_v831.root");
+  fRun->AddModule(Magnet);
 
   FairModule *Dipole= new PndMagnet("MAGNET");
   Dipole->SetGeometryFileName("dipole.geo");
@@ -52,8 +69,7 @@ run_sim_sttcombi_pgun(Int_t nEvents=10, Int_t pid=13, Float_t p1=1.0, Float_t p2
   fRun->AddModule(Mvd);
 
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
-  //new BwEndCap + FwEndCap
-  Emc->SetGeometryFileNameTriple("emc_module125.dat","emc_module3new.root","emc_module4_StraightGeo24.4.root"); //MapperVersion: 6
+  Emc->SetGeometryVersion(15); 
   Emc->SetStorageOfData(kFALSE);
   fRun->AddModule(Emc);
 
@@ -92,8 +108,6 @@ run_sim_sttcombi_pgun(Int_t nEvents=10, Int_t pid=13, Float_t p1=1.0, Float_t p2
   boxGen->SetXYZ(0., 0., 0.); // mm o cm ??
   primGen->AddGenerator(boxGen); 
 
-  //fRun->SetStoreTraj(kTRUE); // to store particle trajectories  
-
   // Create and Set Magnetic Field
   //-------------------------------
   fRun->SetBeamMom(15);
@@ -104,22 +118,6 @@ run_sim_sttcombi_pgun(Int_t nEvents=10, Int_t pid=13, Float_t p1=1.0, Float_t p2
   //-------------------------------
   PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
   fRun->AddTask(emcHitProd);
-  
-  // Set the parameters
-  //-------------------------------
-  TString allDigiFile = gSystem->Getenv("VMCWORKDIR");
-  allDigiFile += "/macro/params/";
-  allDigiFile += digiFile;
- 
-  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
-  parIo1->open(allDigiFile.Data(),"in");
-  rtdb->setFirstInput(parIo1);        
-  Bool_t kParameterMerged=kTRUE;
-	
-  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
-  output->open(parFile);
-  rtdb->setOutput(output);
   
   /**Initialize the session*/
   fRun->Init();
