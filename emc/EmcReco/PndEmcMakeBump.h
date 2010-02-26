@@ -27,6 +27,7 @@
 
 class TClonesArray;
 class TObjectArray;
+class PndEmcGeoPar;
 class PndEmcDigiPar;
 class PndEmcRecoPar;
 
@@ -74,6 +75,7 @@ private:
 	PndEmcExpClusterSplitter *theClusterSplitter;
 	
 	Int_t fMapVersion;
+	PndEmcGeoPar*     fGeoPar;       /** Geometry parameter container **/
 	PndEmcDigiPar*    fDigiPar;      /** Digitisation parameter container **/
 	PndEmcRecoPar*    fRecoPar;      /** Reconstruction parameter container **/
 	/** Get parameter containers **/

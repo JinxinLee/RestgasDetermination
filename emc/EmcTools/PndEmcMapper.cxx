@@ -1,13 +1,7 @@
 /////////////////////////////////////////////////////////////
-//
-//-----------------------------------------------------------------------
-// File and Version Information:
-// 	$Id:$
-//
 // Description:
 //	EMC Mapper class. Map crystal index (fDetectorId) to two coordinate index.
 //
-// This class uses the singleton pattern design				
 // Author List:
 // Dima Melnychuk
 // 27/04/2007 Stefano Spataro (encoding for the Fwd Endcup)
@@ -28,20 +22,26 @@
 using namespace std;
 
 PndEmcMapper* PndEmcMapper::_instance = 0;
+Int_t PndEmcMapper::fMapVersion = 0;
     
-PndEmcMapper* PndEmcMapper::Instance (Int_t MapVersion, TString geoFile)
+void PndEmcMapper::Init(Int_t mapVersion)
 {
-//  TFile *geoF;
-//  if (geoFile!="") geoF = TFile::Open(geoFile,"READ");	
-//  if (!gGeoManager) {
- //   geoF->Get("FairBaseParSet"); 
- // }
+	if (mapVersion==0)
+	{
+		cout<<"Emc mapper version 0 does not exist"<<endl;
+	}
+	else if (mapVersion!=fMapVersion)
+	{	
+		fMapVersion=mapVersion;
+		_instance = new PndEmcMapper(mapVersion);
+	}
+}
+
+PndEmcMapper* PndEmcMapper::Instance ()
+{
   if (_instance == 0) {
-		if (MapVersion==0){
-			cout<<"Map version 0 does not exist"<<endl;
-			return 0;
-		}
-		_instance = new PndEmcMapper(MapVersion);
+		cout<<"Emc mapper should be initialised first with PndEmcMapper::Init()"<<endl;
+		return 0;
 	}
 	return _instance;
 }
@@ -58,7 +58,7 @@ PndEmcMapper::~PndEmcMapper()
 }
 // --------------------------------------------------------
   
-PndEmcMapper::PndEmcMapper(Int_t MapVersion):fMapVersion(MapVersion)
+PndEmcMapper::PndEmcMapper(Int_t MapVersion)
 {
 	PndEmcTwoCoordIndex *_tci;
 	Int_t iTheta, iPhi, detId, detId_tmp, iX, iY;
@@ -545,232 +545,9 @@ PndEmcMapper::PndEmcMapper(Int_t MapVersion):fMapVersion(MapVersion)
 				  _tci=new PndEmcTwoCoordIndex(iX+550,iY+550,detId);
 				  fIntTwoCoordMap[detId]=_tci;
 				}	
-			  }
+			}
 		}
-     }
- 
-
-
-   //fill neigbour list
-    if ((fMapVersion ==1) || (fMapVersion ==3))
-     {
-	std::map <int,PndEmcTwoCoordIndex* >::const_iterator tciIter; 
-	for(tciIter=fIntTwoCoordMap.begin();tciIter!=fIntTwoCoordMap.end();++tciIter)
-	{
-		_tci=tciIter->second;
-		detId=tciIter->first;
-		iTheta=_tci->XCoord();
-		iPhi=_tci->YCoord();
-		
-		for (Int_t i=iTheta-1;i<=iTheta+1;i++)
-		  for (Int_t j=iPhi-1;j<=iPhi+1;j++)
-		    {
-		      if ((i!=  0)&&(i!= 73)&&(j!=  0)&&(j!=161)&& // Boundaries of module 1&2
-			  (i!=210)&&(i!=291)&&(j!=210)&&(j!=291)&& // Boundaries of module 3
-			  //(i!=214)&&(i!=287)&&(j!=214)&&(j!=287)&& // Boundaries of NEW module 3
-			  (i!=332)&&(i!=369)&&(j!=332)&&(j!=369)&& // Boundaries of module 4
-			  (i!=465)&&(i!=436)&&(j!=458)&&(j!=443)&& // Boundaries of module 5
-			  (i!=556)&&(i!=545)&&(j!=556)&&(j!=545)&& // Boundaries of module 6
-			  ((i!=iTheta)||(j!=iPhi)))
-			{
-			  detId_tmp=PndEmcMapper::GetDetId(i,j);
-			  if (!IsValidIndex(detId_tmp)) continue;
-			  PndEmcTwoCoordIndex* tci_tmp=fIntTwoCoordMap[detId_tmp];
-			  _tci->AddToNeighbourList(tci_tmp);
-			  fIntTwoCoordMap[detId]=_tci;
-			}
-		      else if ((i!=0)&&(i!=73)&&(j==0))
-			{
-			  detId_tmp=PndEmcMapper::GetDetId(i,160);
-			  if (!IsValidIndex(detId_tmp)) continue;
-			  PndEmcTwoCoordIndex* tci_tmp=fIntTwoCoordMap[detId_tmp];
-			  _tci->AddToNeighbourList(tci_tmp);
-			  fIntTwoCoordMap[detId]=_tci;
-			}
-		      else if ((i!=0)&&(i!=73)&&(j==161))
-			{
-			  detId_tmp=PndEmcMapper::GetDetId(i,1);
-			  if (!IsValidIndex(detId_tmp)) continue;
-			  PndEmcTwoCoordIndex* tci_tmp=fIntTwoCoordMap[detId_tmp];
-			  _tci->AddToNeighbourList(tci_tmp);
-			  fIntTwoCoordMap[detId]=_tci;
-			}
-		    }
-	}
-	
-     }
-    if (fMapVersion ==2 || fMapVersion ==4)
-     {
-	std::map <int,PndEmcTwoCoordIndex* >::const_iterator tciIter; 
-	for(tciIter=fIntTwoCoordMap.begin();tciIter!=fIntTwoCoordMap.end();++tciIter)
-	{
-		_tci=tciIter->second;
-		detId=tciIter->first;
-		iTheta=_tci->XCoord();
-		iPhi=_tci->YCoord();
-		
-		for (Int_t i=iTheta-1;i<=iTheta+1;i++)
-		  for (Int_t j=iPhi-1;j<=iPhi+1;j++)
-		    {
-		      if ((i!=  0)&&(i!= 73)&&(j!=  0)&&(j!=161)&& // Boundaries of module 1&2
-			  //(i!=210)&&(i!=291)&&(j!=210)&&(j!=291)&& // Boundaries of module 3
-			  (i!=214)&&(i!=287)&&(j!=214)&&(j!=287)&& // Boundaries of NEW module 3
-			  (i!=332)&&(i!=369)&&(j!=332)&&(j!=369)&& // Boundaries of module 4
-			  (i!=465)&&(i!=436)&&(j!=458)&&(j!=443)&& // Boundaries of module 5
-			  (i!=556)&&(i!=545)&&(j!=556)&&(j!=545)&& // Boundaries of module 6
-			  ((i!=iTheta)||(j!=iPhi)))
-			{
-			  detId_tmp=PndEmcMapper::GetDetId(i,j);
-			  if (!IsValidIndex(detId_tmp)) continue;
-			  PndEmcTwoCoordIndex* tci_tmp=fIntTwoCoordMap[detId_tmp];
-			  _tci->AddToNeighbourList(tci_tmp);
-			  fIntTwoCoordMap[detId]=_tci;
-			}
-		      else if ((i!=0)&&(i!=73)&&(j==0))
-			{
-			  detId_tmp=PndEmcMapper::GetDetId(i,160);
-			  if (!IsValidIndex(detId_tmp)) continue;
-			  PndEmcTwoCoordIndex* tci_tmp=fIntTwoCoordMap[detId_tmp];
-			  _tci->AddToNeighbourList(tci_tmp);
-			  fIntTwoCoordMap[detId]=_tci;
-			}
-		      else if ((i!=0)&&(i!=73)&&(j==161))
-			{
-			  detId_tmp=PndEmcMapper::GetDetId(i,1);
-			  if (!IsValidIndex(detId_tmp)) continue;
-			  PndEmcTwoCoordIndex* tci_tmp=fIntTwoCoordMap[detId_tmp];
-			  _tci->AddToNeighbourList(tci_tmp);
-			  fIntTwoCoordMap[detId]=_tci;
-			}
-		    }
-	}
-	
-     }
-     else if (fMapVersion ==4)
-     {
-	std::map <int,PndEmcTwoCoordIndex* >::const_iterator tciIter; 
-	for(tciIter=fIntTwoCoordMap.begin();tciIter!=fIntTwoCoordMap.end();++tciIter)
-	  {
-	     _tci=tciIter->second;
-	     detId=tciIter->first;
-	     iTheta=_tci->XCoord();
-	     iPhi=_tci->YCoord();
-	     
-	     for (Int_t i=iTheta-1;i<=iTheta+1;i++)
-	       for (Int_t j=iPhi-1;j<=iPhi+1;j++)
-		 {
-		    if ((i!=214)&&(i!=287)&&(j!=214)&&(j!=287)&& // Boundaries of the NEW module 3
-			((i!=iTheta)||(j!=iPhi)))
-		      {
-			 detId_tmp=PndEmcMapper::GetDetId(i,j);
-			 if (!IsValidIndex(detId_tmp)) continue;
-			 PndEmcTwoCoordIndex* tci_tmp=fIntTwoCoordMap[detId_tmp];
-			 _tci->AddToNeighbourList(tci_tmp);
-			 fIntTwoCoordMap[detId]=_tci;	
-			// cout << "detId_tmp in Mapper - version 4: " << detId_tmp<< "\t" << detId<<endl; // ok
-		      }
-		    
-		 }
-	  }
-     }
-
-    if (fMapVersion ==5 || fMapVersion ==6)  // NEW FwEndCap + NEW BwEndCap
-     {
-	std::map <int,PndEmcTwoCoordIndex* >::const_iterator tciIter; 
-	for(tciIter=fIntTwoCoordMap.begin();tciIter!=fIntTwoCoordMap.end();++tciIter)
-	{
-		_tci=tciIter->second;
-		detId=tciIter->first;
-		iTheta=_tci->XCoord();
-		iPhi=_tci->YCoord();
-		
-		for (Int_t i=iTheta-1;i<=iTheta+1;i++)
-		  for (Int_t j=iPhi-1;j<=iPhi+1;j++)
-		    {
-		      if ((i!=  0)&&(i!= 73)&&(j!=  0)&&(j!=161)&& // Boundaries of module 1&2
-			  //(i!=210)&&(i!=291)&&(j!=210)&&(j!=291)&& // Boundaries of module 3
-			  (i!=214)&&(i!=287)&&(j!=214)&&(j!=287)&& // Boundaries of NEW module 3
-			  //(i!=332)&&(i!=369)&&(j!=332)&&(j!=369)&& // Boundaries of module 4
-			  (i!=335)&&(i!=366)&&(j!=335)&&(j!=366)&& // Boundaries of NEW module 4
-			  (i!=465)&&(i!=436)&&(j!=458)&&(j!=443)&& // Boundaries of module 5
-			  (i!=556)&&(i!=545)&&(j!=556)&&(j!=545)&& // Boundaries of module 6
-			  ((i!=iTheta)||(j!=iPhi)))
-			{
-			  detId_tmp=PndEmcMapper::GetDetId(i,j);
-			  if (!IsValidIndex(detId_tmp)) continue;
-			  PndEmcTwoCoordIndex* tci_tmp=fIntTwoCoordMap[detId_tmp];
-			  _tci->AddToNeighbourList(tci_tmp);
-			  fIntTwoCoordMap[detId]=_tci;
-			}
-		      else if ((i!=0)&&(i!=73)&&(j==0))
-			{
-			  detId_tmp=PndEmcMapper::GetDetId(i,160);
-			  if (!IsValidIndex(detId_tmp)) continue;
-			  PndEmcTwoCoordIndex* tci_tmp=fIntTwoCoordMap[detId_tmp];
-			  _tci->AddToNeighbourList(tci_tmp);
-			  fIntTwoCoordMap[detId]=_tci;
-			}
-		      else if ((i!=0)&&(i!=73)&&(j==161))
-			{
-			  detId_tmp=PndEmcMapper::GetDetId(i,1);
-			  if (!IsValidIndex(detId_tmp)) continue;
-			  PndEmcTwoCoordIndex* tci_tmp=fIntTwoCoordMap[detId_tmp];
-			  _tci->AddToNeighbourList(tci_tmp);
-			  fIntTwoCoordMap[detId]=_tci;
-			}
-		    }
-	}
-	
-     }
-
-   if (fMapVersion ==7)  // OLD FwEndCap + NEW BwEndCap
-     {
-	std::map <int,PndEmcTwoCoordIndex* >::const_iterator tciIter; 
-	for(tciIter=fIntTwoCoordMap.begin();tciIter!=fIntTwoCoordMap.end();++tciIter)
-	{
-		_tci=tciIter->second;
-		detId=tciIter->first;
-		iTheta=_tci->XCoord();
-		iPhi=_tci->YCoord();
-		
-		for (Int_t i=iTheta-1;i<=iTheta+1;i++)
-		  for (Int_t j=iPhi-1;j<=iPhi+1;j++)
-		    {
-		      if ((i!=  0)&&(i!= 73)&&(j!=  0)&&(j!=161)&& // Boundaries of module 1&2
-			  (i!=210)&&(i!=291)&&(j!=210)&&(j!=291)&& // Boundaries of OLD module 3
-			  (i!=335)&&(i!=366)&&(j!=335)&&(j!=366)&& // Boundaries of NEW module 4
-			  (i!=465)&&(i!=436)&&(j!=458)&&(j!=443)&& // Boundaries of module 5
-			  (i!=556)&&(i!=545)&&(j!=556)&&(j!=545)&& // Boundaries of module 6
-			  ((i!=iTheta)||(j!=iPhi)))
-			{
-			  detId_tmp=PndEmcMapper::GetDetId(i,j);
-			  if (!IsValidIndex(detId_tmp)) continue;
-			  PndEmcTwoCoordIndex* tci_tmp=fIntTwoCoordMap[detId_tmp];
-			  _tci->AddToNeighbourList(tci_tmp);
-			  fIntTwoCoordMap[detId]=_tci;
-			}
-		      else if ((i!=0)&&(i!=73)&&(j==0))
-			{
-			  detId_tmp=PndEmcMapper::GetDetId(i,160);
-			  if (!IsValidIndex(detId_tmp)) continue;
-			  PndEmcTwoCoordIndex* tci_tmp=fIntTwoCoordMap[detId_tmp];
-			  _tci->AddToNeighbourList(tci_tmp);
-			  fIntTwoCoordMap[detId]=_tci;
-			}
-		      else if ((i!=0)&&(i!=73)&&(j==161))
-			{
-			  detId_tmp=PndEmcMapper::GetDetId(i,1);
-			  if (!IsValidIndex(detId_tmp)) continue;
-			  PndEmcTwoCoordIndex* tci_tmp=fIntTwoCoordMap[detId_tmp];
-			  _tci->AddToNeighbourList(tci_tmp);
-			  fIntTwoCoordMap[detId]=_tci;
-			}
-		    }
-	}
-	
-     }
-
-
+   }
 }
 
 
@@ -783,39 +560,6 @@ PndEmcTwoCoordIndex* PndEmcMapper::GetTCI(Int_t DetectorId)
 };
 
 
-// This function check is the volume with given detectorId is really exist in geometry
-bool PndEmcMapper::IsValidIndex(Int_t detectorId)
-{
-	// Geometry loading
-	TGeoManager *geom;
-	if (gGeoManager) {
-		geom = gGeoManager;
-	}
-	else {
-		geom = (TGeoManager*) gROOT->FindObject("FAIRGeom");
-	}
-	
-	if (geom==0){	
-		std::cout<<"FAIRGeom object is not found"<<std::endl;
-		abort();
-	}
-	
-	Short_t module =detectorId/100000000;
-	Short_t row=(detectorId/1000000)%100;
-	Short_t crystal=detectorId%10000;
-   	//Short_t copy=(detectorId/10000)%100;
-   
-   Text_t volname[30];
-   sprintf(volname,"emc0%dr%dc%d",module, row, crystal);
-   
-   TGeoVolume *vol = geom->FindVolumeFast(volname);
-   if (!vol){
-   //std::cout<<"Volume name "<< volname << "\t" << detectorId<<" is not found "<<std::endl;
-      return false;
-   }  
-   //     }
-   return true;
-};
 
 const std::map<Int_t,PndEmcTwoCoordIndex* >& PndEmcMapper::GetTciMap()
 {

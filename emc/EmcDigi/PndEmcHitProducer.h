@@ -20,6 +20,7 @@ class TClonesArray;
 class TObjectArray;
 
 class PndEmcDigiPar;
+class PndEmcGeoPar;
 
 class PndEmcHitProducer : public FairTask
 {
@@ -72,6 +73,7 @@ class PndEmcHitProducer : public FairTask
 	PndEmcStructure* fEmcStr;
 
 	PndEmcDigiPar*    fDigiPar;      /** Digitisation parameter container **/
+	PndEmcGeoPar*     fGeoPar;       /** Geometry parameter container **/
 
 	/** Get parameter containers **/
 	virtual void SetParContainers();

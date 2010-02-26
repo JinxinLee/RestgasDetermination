@@ -11,6 +11,7 @@
 using namespace std;
 #include "PndEmcContFact.h"
 #include "FairRuntimeDb.h"
+#include "PndEmcGeoPar.h"
 #include "PndEmcDigiPar.h"
 #include "PndEmcRecoPar.h"					
 #include "FairParAsciiFileIo.h"
@@ -43,9 +44,15 @@ void PndEmcContFact::setAllContainers() {
 														"Emc Reconstruction Parameters",
 														"TestDefaultContext");
 	p2->addContext("TestNonDefaultContext");
+	
+	FairContainer* p3= new FairContainer("PndEmcGeoPar",
+														"Emc Geometry Parameters",
+														"TestDefaultContext");
+	p3->addContext("TestNonDefaultContext");
 
 	containers->Add(p1);
 	containers->Add(p2);
+	containers->Add(p3);
 }
 
 FairParSet* PndEmcContFact::createContainer(FairContainer* c) {
@@ -62,6 +69,10 @@ FairParSet* PndEmcContFact::createContainer(FairContainer* c) {
   
   if (strcmp(name,"PndEmcRecoPar")==0) {
     p=new PndEmcRecoPar(c->getConcatName().Data(),c->GetTitle(),c->getContext());
+  }
+  
+  if (strcmp(name,"PndEmcGeoPar")==0) {
+    p=new PndEmcGeoPar(c->getConcatName().Data(),c->GetTitle(),c->getContext());
   }
   
   return p;

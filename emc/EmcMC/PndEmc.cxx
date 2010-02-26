@@ -23,6 +23,7 @@
 #include "FairGeoMedia.h"
 //#include "FairGeoG3Builder.h"
 #include "FairRuntimeDb.h"
+#include "FairParIo.h"
 #include "FairRun.h"
 
 #include "TObjArray.h"
@@ -601,6 +602,11 @@ void PndEmc::SetGeometryVersion(const Int_t GeoNumber) {
     SetGeometryFileName("emc_module4_FwEndCapGeo_Al.root");
     break;
 
+  case 15:
+    SetGeometryFileNameTriple("emc_module125.dat","emc_module3new.root","emc_module4_StraightGeo24.4.root");
+    MapperVersion =6;
+    break;
+
   default:
     SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root");
     MapperVersion =2;
@@ -611,8 +617,6 @@ void PndEmc::SetGeometryVersion(const Int_t GeoNumber) {
   FairRun *fRun = FairRun::Instance();
   FairRuntimeDb *rtdb= fRun->GetRuntimeDb();
   PndEmcGeoPar* par=(PndEmcGeoPar*)(rtdb->getContainer("PndEmcGeoPar"));
-
-  cout <<"MapperVersion == " << MapperVersion<< endl;
 
   par->SetMapperVersion(MapperVersion);
   par->setChanged();

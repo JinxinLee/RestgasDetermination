@@ -22,10 +22,10 @@ class PndEmcDigiPar : public FairParGenericSet
 		Double_t GetEnergyDigiThreshold() {return fEnergyDigiThreshold;};
 		Int_t GetNBits() {return fNBits;};
 		Int_t GetNumber_of_samples_in_waveform() {return fNumber_of_samples_in_waveform;};
-		Int_t GetMapperVersion() {return fMapperVersion;};
 		Int_t GetUse_shaped_noise() {return fUse_shaped_noise;};
 		Int_t GetUse_photon_statistic() {return fUse_photon_statistic;};
 		Int_t GetUseDigiEffectiveSmearing() {return fUseDigiEffectiveSmearing;};
+		Int_t GetNoiseAllChannels() {return fNoiseAllChannels;};
 		
 		PndEmcDigiPar (const char* name="PndEmcDigiPar",
 			    const char* title="Emc digi parameter",
@@ -53,12 +53,12 @@ class PndEmcDigiPar : public FairParGenericSet
 		Double_t fEnergyDigiThreshold;
 		Int_t fNBits;
 		Int_t fNumber_of_samples_in_waveform;
-		Int_t fMapperVersion;
 		Int_t fUse_shaped_noise;
 		Int_t fUse_photon_statistic;
 		Int_t fUseDigiEffectiveSmearing;
+		Int_t fNoiseAllChannels;
 
-		ClassDef(PndEmcDigiPar,4);
+		ClassDef(PndEmcDigiPar,5);
 };
 
 #endif

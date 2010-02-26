@@ -16,6 +16,7 @@
 class TClonesArray;
 class TObjectArray;
 class PndEmcCluster;
+class PndEmcGeoPar;
 class PndEmcDigiPar;
 class PndEmcRecoPar;
 
@@ -66,6 +67,7 @@ private:
 	
 	static Int_t fEventCounter;
 	
+	PndEmcGeoPar*     fGeoPar;       /** Geometry parameter container **/
 	PndEmcDigiPar*    fDigiPar;      /** Digitisation parameter container **/
 	PndEmcRecoPar*    fRecoPar;      /** Reconstruction parameter container **/
 	/** Get parameter containers **/

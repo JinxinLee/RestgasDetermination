@@ -14,6 +14,7 @@
 #include "PndEmcMapper.h"		
 #include "PndEmcHit.h"
 #include "PndEmcPoint.h"
+#include "PndEmcGeoPar.h"
 #include "PndEmcDigiPar.h"		
 #include "PndMCTrack.h"
 
@@ -96,13 +97,7 @@ InitStatus PndEmcHitProducer::Init() {
   
   ioman->Register("EmcHit","Emc",fDigiArray,fStoreHits);
   
-	// Geometry loading
-// 	TFile *infile = ioman->GetInFile();
-// 	TGeoManager *geoMan = (TGeoManager*) infile->Get("FAIRGeom");
-//	TGeoManager *geoMan = (TGeoManager*) gROOT->FindObject("FAIRGeom");
-	
-	fMapVersion=fDigiPar->GetMapperVersion();
-	PndEmcMapper *map=PndEmcMapper::Instance(fMapVersion);
+	fGeoPar->InitEmcMapper();
 	fEmcStr=PndEmcStructure::Instance();
   
 	emcX=fEmcStr->GetEmcX();
@@ -126,6 +121,9 @@ void PndEmcHitProducer::SetParContainers() {
   FairRuntimeDb* db = run->GetRuntimeDb();
   if ( ! db ) Fatal("SetParContainers", "No runtime database");
 
+  // Get Emc geometry parameter container
+  fGeoPar = (PndEmcGeoPar*) db->getContainer("PndEmcGeoPar");
+  
   // Get Emc digitisation parameter container
   fDigiPar = (PndEmcDigiPar*) db->getContainer("PndEmcDigiPar");
  

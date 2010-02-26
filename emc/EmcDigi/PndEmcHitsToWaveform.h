@@ -32,6 +32,7 @@ class PndEmcMapper;
 
 class TClonesArray;
 class PndEmcDigiPar;
+class PndEmcGeoPar;
 
 class PndEmcHitsToWaveform : public FairTask
 {
@@ -82,6 +83,7 @@ private:
 	Double_t fSampleRate;
 	Int_t fUse_shaped_noise;
 	Int_t fUse_photon_statistic;
+	Int_t fNoiseAllChannels;
 	Int_t fMapVersion;
 
 	Double_t fFirstADCBinTime;
@@ -89,17 +91,16 @@ private:
 	Double_t fGevPeakAnalogue;
 
 	PndEmcDigiPar*    fDigiPar;      /** Digitisation parameter container **/
+	PndEmcGeoPar*     fGeoPar;       /** Geometry parameter container **/
 	/** Get parameter containers **/
 	virtual void SetParContainers();
-
-	std::set<Int_t> fWaveformInd;
 	
 	/** Verbosity level **/
 	Int_t fVerbose;
 
 	Bool_t fStoreWaves;
 
-  ClassDef(PndEmcHitsToWaveform,1);
+  ClassDef(PndEmcHitsToWaveform,2);
 };
 
 #endif

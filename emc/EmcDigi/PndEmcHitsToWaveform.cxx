@@ -22,7 +22,8 @@
 #include "PndEmcWaveform.h"
 #include "PndEmcMapper.h"
 #include "PndEmcStructure.h"
-#include "PndEmcDigiPar.h"		
+#include "PndEmcDigiPar.h"
+#include "PndEmcGeoPar.h"		
 #include "PndEmcDataTypes.h"
 
 #include "FairRootManager.h"
@@ -82,11 +83,6 @@ InitStatus PndEmcHitsToWaveform::Init()
 	
 	cout << "-I- PndEmcHitsToWaveform: Intialization successfull" << endl;
 
-	// Geometry loading
-// 	TFile *infile = ioman->GetInFile();
-// 	TGeoManager *geoMan = (TGeoManager*) infile->Get("FAIRGeom");
-//	TGeoManager *geoMan = (TGeoManager*) gROOT->FindObject("FAIRGeom");
-
 	fNBits=fDigiPar->GetNBits();
 	fDetectedPhotonsPerMeV=fDigiPar->GetDetectedPhotonsPerMeV();
 	fEnergyRange=fDigiPar->GetEnergyRange(); //GeV
@@ -101,26 +97,27 @@ InitStatus PndEmcHitsToWaveform::Init()
 	fSampleRate=fDigiPar->GetSampleRate();
 	fUse_shaped_noise=fDigiPar->GetUse_shaped_noise();
 	fUse_photon_statistic=fDigiPar->GetUse_photon_statistic();
+	fNoiseAllChannels=fDigiPar->GetNoiseAllChannels();
 	
 	// Test how parameters were read from DB.
-	cout<<"nBits "<<fNBits<<endl;
-	cout<<"detectedPhotonsPerMeV "<<fDetectedPhotonsPerMeV<<endl;
-	cout<<"energyRange "<<fEnergyRange<<endl;
-	cout<<"energyRangeBW "<<fEnergyRangeBW<<endl;	
-	cout<<"excessNoiseFactor "<<fExcessNoiseFactor<<endl;
-	cout<<"firstSamplePhase "<<fFirstSamplePhase<<endl;
-	cout<<"number_of_samples_in_waveform "<<fNumber_of_samples_in_waveform<<endl;
-	cout<<"Shaping_diff_time "<<fShaping_diff_time<<endl;
-	cout<<"Shaping_int_time "<<fShaping_int_time<<endl;
-	cout<<"crystal_time_constant "<<fCrystal_time_constant<<endl;
-	cout<<"incoherent_elec_noise_width_GeV "<<fIncoherent_elec_noise_width_GeV<<endl;
-	cout<<"sampleRate "<<fSampleRate<<endl;
-	cout<<"use_shaped_noise "<<fUse_shaped_noise<<endl;
-	cout<<"use_photon_statistic "<<fUse_photon_statistic<<endl;
+	cout<<"EMC digitisation parameters "<<endl;
+	cout<<"  nBits "<<fNBits<<endl;
+	cout<<"  detectedPhotonsPerMeV "<<fDetectedPhotonsPerMeV<<endl;
+	cout<<"  energyRange "<<fEnergyRange<<endl;
+	cout<<"  energyRangeBW "<<fEnergyRangeBW<<endl;	
+	cout<<"  excessNoiseFactor "<<fExcessNoiseFactor<<endl;
+	cout<<"  firstSamplePhase "<<fFirstSamplePhase<<endl;
+	cout<<"  number_of_samples_in_waveform "<<fNumber_of_samples_in_waveform<<endl;
+	cout<<"  Shaping_diff_time "<<fShaping_diff_time<<endl;
+	cout<<"  Shaping_int_time "<<fShaping_int_time<<endl;
+	cout<<"  crystal_time_constant "<<fCrystal_time_constant<<endl;
+	cout<<"  incoherent_elec_noise_width_GeV "<<fIncoherent_elec_noise_width_GeV<<endl;
+	cout<<"  sampleRate "<<fSampleRate<<endl;
+	cout<<"  use_shaped_noise "<<fUse_shaped_noise<<endl;
+	cout<<"  use_photon_statistic "<<fUse_photon_statistic<<endl;
+	cout<<"  EMC mapper "<<fGeoPar->GetMapperVersion()<<endl;
 
-	fMapVersion=fDigiPar->GetMapperVersion();
-	cout<<"fMapVersion: "<<fMapVersion<<endl;
-	PndEmcMapper::Instance(fMapVersion);
+	fGeoPar->InitEmcMapper();
 	PndEmcStructure::Instance();
 
 	// Calculate 1 bit resolution (in units of FADC amplitude)
@@ -148,9 +145,11 @@ void PndEmcHitsToWaveform::Exec(Option_t* opt)
 	// Reset output array
 	if ( ! fWaveformArray ) Fatal("Exec", "No Waveform Array");
 	fWaveformArray->Delete();
+		
 	// Variable declaration
 	PndEmcHit* theHit = NULL;
 	PndEmcWaveform* theWaveform = NULL;
+	std::set<Int_t> waveformInd;
 	
 	// Loop over PndEmcHits to add them to correspondent waveforms
 	// <set> fWaveformInd contains indexes of detectors for which Waveforms are created
@@ -159,43 +158,32 @@ void PndEmcHitsToWaveform::Exec(Option_t* opt)
 	for (Int_t iHit=0; iHit<nHits; iHit++) {
 		theHit = (PndEmcHit*) fHitArray->At(iHit);
 		Int_t detId=theHit->GetDetectorID();
-		fWaveformInd.insert(detId);
+		waveformInd.insert(detId);
 		theWaveform = AddWaveform(detId,iHit);
 		theWaveform->update_waveform(theHit);
 	}
 	
-	// The following code finds the neigbouring elements for existing waveforms and if the waveform for this element does not exist it is created.
-	// I.e. the PndEmcHitsToWaveform task produces the waveform not only for the cristals where hit took place but also fo their neighbourhood
-	Int_t nWf = fWaveformArray->GetEntriesFast();
-	
-	if (fVerbose>0){
-		cout << "Initial number of waveforms = "<<nWf<<endl;
-	}
-
-	Int_t i_skipped=0;
-	Int_t detId_tmp;
-	for (Int_t iWf=0; iWf<nWf; iWf++) {
-		theWaveform = (PndEmcWaveform*) fWaveformArray->At(iWf);
-		PndEmcTwoCoordIndex* theIndex=theWaveform->GetTCI();
-		PndEmcCoordIndexSet theNeighbourStore=theIndex->GetNeighbours();
-		PndEmcCoordIndexSet::iterator theNeighbourIterator;
-		PndEmcTwoCoordIndex *theNeighbourIndex;
-		for (theNeighbourIterator = theNeighbourStore.begin(); theNeighbourIterator != theNeighbourStore.end(); ++theNeighbourIterator )  {
-			theNeighbourIndex = (PndEmcTwoCoordIndex*)(*theNeighbourIterator); 
-			detId_tmp =theNeighbourIndex->Index();
-			// check if waveform with such index exists
-			if (fWaveformInd.insert(detId_tmp).second){
+	// Produce waveforms in all the crystals, not only where hits took place 
+	// Since it is time consuming, by default it is off
+	if (fNoiseAllChannels)
+	{
+		Int_t detId_tmp;
+		std::map<Int_t,PndEmcTwoCoordIndex*>  intTwoCoordMap =  PndEmcMapper::Instance()->GetTciMap();
+		for(std::map<Int_t,PndEmcTwoCoordIndex* >::iterator iter = intTwoCoordMap.begin();
+		iter != intTwoCoordMap.end(); ++iter){
+			detId_tmp=(*iter).first;
+			if (waveformInd.insert(detId_tmp).second){
 				AddWaveform(detId_tmp,-1); // -1 correponds to Waveform produced not from EmcHit but from Noise
 			}
 		}
 	}
-	
+
 	// Add electronic noise
 	// There are two options how to add noise (before and after shaping) 
 
-	nWf = fWaveformArray->GetEntriesFast();
+	Int_t nWf = fWaveformArray->GetEntriesFast();
 	if (fVerbose>0){
-		cout << "Number of waveforms after adding neighboring elements= "<<nWf<<endl;
+		cout << "Number of waveforms processed= "<<nWf<<endl;
 	}
 	
 	for (Int_t iWf=0; iWf<nWf; iWf++) {
@@ -238,6 +226,8 @@ void PndEmcHitsToWaveform::SetParContainers() {
   FairRuntimeDb* db = run->GetRuntimeDb();
   if ( ! db ) Fatal("SetParContainers", "No runtime database");
 
+  // Get Emc geometry parameter container
+  fGeoPar = (PndEmcGeoPar*) db->getContainer("PndEmcGeoPar");
   // Get Emc digitisation parameter container
   fDigiPar = (PndEmcDigiPar*) db->getContainer("PndEmcDigiPar");
  

@@ -31,6 +31,7 @@
 class PndEmcMapper;
 
 class TClonesArray;
+class PndEmcGeoPar;
 class PndEmcDigiPar;
 
 class PndEmcHitsToTmpWaveform : public FairTask
@@ -86,6 +87,7 @@ private:
 
 	Double_t fGevPeakAnalogue;
 
+	PndEmcGeoPar*     fGeoPar;       /** Geometry parameter container **/
 	PndEmcDigiPar*    fDigiPar;      /** Digitisation parameter container **/
 	/** Get parameter containers **/
 	virtual void SetParContainers();

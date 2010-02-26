@@ -85,7 +85,7 @@ InitStatus PndEmcApdHitProducer::Init() {
 //	TGeoManager *geoMan = (TGeoManager*) gROOT->FindObject("FAIRGeom");
 	
 	fMapVersion=1;
-	PndEmcMapper *map=PndEmcMapper::Instance(fMapVersion);
+	PndEmcMapper::Init(fMapVersion);
 	fEmcStr=PndEmcStructure::Instance(gGeoManager);
   
 	emcX=fEmcStr->GetEmcX();

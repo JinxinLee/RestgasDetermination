@@ -1,11 +1,6 @@
 //--------------------------------------------------------------------------
-// File and Version Information:
-// 	$Id:$
-//
 // Description:
-//	EMC Mapper.
-// This class uses the singleton pattern design		
-//
+//	EMC Mapper class. Map crystal index (fDetectorId) to two coordinate index.
 // Author List:
 // Dima Melnychuk
 //
@@ -24,7 +19,8 @@ class PndEmcMapper: public TObject
 {
 
 public:
-  static PndEmcMapper* Instance(Int_t MapVersion, TString geoName="");
+	static PndEmcMapper* Instance();
+	static void Init(Int_t MapVersion);
 	const std::map<Int_t,PndEmcTwoCoordIndex* >& GetTciMap();
 
 	/** Destructor **/
@@ -42,9 +38,8 @@ protected:
   
 private:
 	static PndEmcMapper* _instance;
-	bool IsValidIndex(Int_t detectorId);
+	static Int_t fMapVersion;
 	Int_t GetDetId(Int_t iTheta,Int_t iPhi);
-	Int_t fMapVersion;
 	std::map<Int_t,PndEmcTwoCoordIndex* > fIntTwoCoordMap;
         
 	ClassDef(PndEmcMapper,1)

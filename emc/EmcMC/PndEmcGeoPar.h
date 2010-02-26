@@ -8,8 +8,6 @@
 class PndEmcGeoPar : public FairParGenericSet 
 {
 public:
-  TObjArray            *fGeometryVersion;
-
   PndEmcGeoPar(const char* name="PndEmcGeoPar",
 	       const char* title="Emc Geometry Version Flag",
 	       const char* context="TestDefaultContext");
@@ -19,12 +17,12 @@ public:
   void putParams(FairParamList*);
   Bool_t getParams(FairParamList*);
  
-   //TObjArray             *GetGeometryVersion(const Int_t geomVersion){return fGeometryVersion;}
-   //TObjArray         *GetGeometryVersion(){return fGeometryVersion;}
   Int_t  GetMapperVersion(){return fMapperVersion;}
   void   SetMapperVersion(Int_t mapperVersion){    //AB
      fMapperVersion = mapperVersion;
   }
+  
+  void InitEmcMapper();
 
  private:
   Int_t fMapperVersion; 

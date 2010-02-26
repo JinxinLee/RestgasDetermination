@@ -11,6 +11,7 @@
 #include "PndEmcMakeDigi.h"		
 
 #include "PndEmcDigi.h"
+#include "PndEmcGeoPar.h"
 #include "PndEmcDigiPar.h"
 #include "PndEmcRecoPar.h"				
 #include "PndEmcMapper.h"
@@ -95,8 +96,7 @@ InitStatus PndEmcMakeDigi::Init()
 	fDetectedPhotonsPerMeV=fDigiPar->GetDetectedPhotonsPerMeV();
 	
 	fThreshold=fDigiPar->GetEnergyDigiThreshold();
-	fMapVersion=fDigiPar->GetMapperVersion();  
-	PndEmcMapper::Instance(fMapVersion);
+	fGeoPar->InitEmcMapper();  
 	PndEmcStructure::Instance();
 
 	cout << "-I- PndEmcMakeDigi: Intialization successfull" << endl;
@@ -158,6 +158,8 @@ void PndEmcMakeDigi::SetParContainers() {
   FairRuntimeDb* db = run->GetRuntimeDb();
   if ( ! db ) Fatal("SetParContainers", "No runtime database");
 
+  // Get Emc geometry parameter container
+  fGeoPar = (PndEmcGeoPar*) db->getContainer("PndEmcGeoPar");
   // Get Emc digitisation parameter container
   fDigiPar = (PndEmcDigiPar*) db->getContainer("PndEmcDigiPar");
   // Get Emc reconstruction parameter container

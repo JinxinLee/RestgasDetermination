@@ -35,10 +35,10 @@ void PndEmcDigiPar::putParams(FairParamList* list)
 	list->add("EnergyDigiThreshold",fEnergyDigiThreshold);
 	list->add("NBits",fNBits);
 	list->add("Number_of_samples_in_waveform",fNumber_of_samples_in_waveform);
-	list->add("MapperVersion",fMapperVersion);
 	list->add("Use_shaped_noise",fUse_shaped_noise);
 	list->add("Use_photon_statistic",fUse_photon_statistic);
 	list->add("UseDigiEffectiveSmearing",fUseDigiEffectiveSmearing);
+	list->add("NoiseAllChannels",fNoiseAllChannels);
 }
 
 Bool_t PndEmcDigiPar::getParams(FairParamList* list)
@@ -58,10 +58,11 @@ Bool_t PndEmcDigiPar::getParams(FairParamList* list)
 	if (!list->fill("EnergyDigiThreshold",&fEnergyDigiThreshold)) return kFALSE;
 	if (!list->fill("NBits",&fNBits)) return kFALSE;
 	if (!list->fill("Number_of_samples_in_waveform",&fNumber_of_samples_in_waveform)) return kFALSE;
-	if (!list->fill("MapperVersion",&fMapperVersion)) return kFALSE;
 	if (!list->fill("Use_shaped_noise",&fUse_shaped_noise)) return kFALSE;
 	if (!list->fill("Use_photon_statistic",&fUse_photon_statistic)) return kFALSE;
 	if (!list->fill("UseDigiEffectiveSmearing",&fUseDigiEffectiveSmearing)) return kFALSE;
+	if (!list->fill("NoiseAllChannels",&fNoiseAllChannels)) return kFALSE;
 	
 	return kTRUE;
 }
+

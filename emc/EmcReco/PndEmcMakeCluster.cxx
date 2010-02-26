@@ -20,6 +20,7 @@
 
 #include "PndEmcStructure.h"
 #include "PndEmcMapper.h"
+#include "PndEmcGeoPar.h"
 #include "PndEmcDigiPar.h"
 #include "PndEmcRecoPar.h"
 #include "PndEmcCluster.h"
@@ -99,8 +100,7 @@ InitStatus PndEmcMakeCluster::Init() {
 	
 	ioman->Register("EmcCluster","Emc",fClusterArray,fStoreClusters);
 	
-	fMapVersion=fDigiPar->GetMapperVersion();  
-	PndEmcMapper::Instance(fMapVersion);
+	fGeoPar->InitEmcMapper();  
 	PndEmcStructure::Instance();
 
 	fDigiEnergyTresholdBarrel=fRecoPar->GetEnergyThresholdBarrel();
@@ -303,6 +303,9 @@ void PndEmcMakeCluster::SetParContainers() {
   FairRuntimeDb* db = run->GetRuntimeDb();
   if ( ! db ) Fatal("SetParContainers", "No runtime database");
 
+  // Get Emc geometry parameter container
+  fGeoPar = (PndEmcGeoPar*) db->getContainer("PndEmcGeoPar");
+  
   // Get Emc digitisation parameter container
   fDigiPar = (PndEmcDigiPar*) db->getContainer("PndEmcDigiPar");
  

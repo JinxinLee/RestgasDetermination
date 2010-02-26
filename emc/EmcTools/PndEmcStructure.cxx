@@ -74,13 +74,13 @@ PndEmcStructure* PndEmcStructure::Instance ()
   }
   return _instance;
 }
-		
+
 PndEmcStructure::PndEmcStructure(TGeoManager *geoMan)
 {
   
 	// Instantiate mapper to convert from detId to TCI 
-	// PndEmcMapper should be instatiated before first call here with proper input index
-   PndEmcMapper *fEmcMap=PndEmcMapper::Instance(0);
+	// PndEmcMapper should be initiated before
+   PndEmcMapper *fEmcMap=PndEmcMapper::Instance();
   
 	int module,copy,row,crystal;
 	TString node_path;
@@ -107,9 +107,6 @@ PndEmcStructure::PndEmcStructure(TGeoManager *geoMan)
 		if (tci==0)
 		{
 			cout<<"Not found tci for index = "<<detId<<" in PndEmcStructure"<<endl;
-		        cout<<"For: emc_module12345.dat geometry - use MapperVersion 1 in trunk/macro/params/emc.par"<<endl;
-		        cout<<"For: emc_module1245.dat + emc_module3new.root - change MapperVersion to 2 "<<endl;
-		        cout<<"For: emc_module1245.dat + emc_module3new.root + emc_module4_*.root- change MapperVersion to 6 "<<endl;
 		   abort();	
 		}
 		

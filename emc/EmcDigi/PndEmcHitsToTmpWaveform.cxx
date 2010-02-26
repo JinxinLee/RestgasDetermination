@@ -22,6 +22,7 @@
 #include "PndEmcWaveform.h"
 #include "PndEmcMapper.h"
 #include "PndEmcStructure.h"
+#include "PndEmcGeoPar.h"
 #include "PndEmcDigiPar.h"		
 #include "PndEmcDataTypes.h"
 
@@ -110,9 +111,7 @@ InitStatus PndEmcHitsToTmpWaveform::Init()
 	cout<<"use_shaped_noise "<<fUse_shaped_noise<<endl;
 	cout<<"use_photon_statistic "<<fUse_photon_statistic<<endl;
 
-	fMapVersion=fDigiPar->GetMapperVersion();
-	cout<<"fMapVersion: "<<fMapVersion<<endl;
-	PndEmcMapper::Instance(fMapVersion);
+	fGeoPar->InitEmcMapper();
 	PndEmcStructure::Instance();
 
 	// Calculate 1 bit resolution (in units of FADC amplitude)
@@ -233,6 +232,9 @@ void PndEmcHitsToTmpWaveform::SetParContainers() {
   FairRuntimeDb* db = run->GetRuntimeDb();
   if ( ! db ) Fatal("SetParContainers", "No runtime database");
 
+  // Get Emc geometry parameter container
+  fGeoPar = (PndEmcGeoPar*) db->getContainer("PndEmcGeoPar");
+  
   // Get Emc digitisation parameter container
   fDigiPar = (PndEmcDigiPar*) db->getContainer("PndEmcDigiPar");
  

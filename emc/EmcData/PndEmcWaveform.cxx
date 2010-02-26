@@ -65,7 +65,7 @@ PndEmcWaveform::PndEmcWaveform(int trackId, long detId, Double_t tau1, Double_t 
 	fPulseshape(tau1,tau2,tauCrystal),
 	fHitIndex(hitIndex)
 {
-	PndEmcMapper *fEmcMap=PndEmcMapper::Instance(0);
+	PndEmcMapper *fEmcMap=PndEmcMapper::Instance();
 	fTCI=fEmcMap->GetTCI(detId);
 }
 
@@ -316,7 +316,7 @@ void PndEmcWaveform::Streamer(TBuffer &R__b)
 
    if (R__b.IsReading()) {
       PndEmcWaveform::Class()->ReadBuffer(R__b, this);
-		PndEmcMapper *fEmcMap=PndEmcMapper::Instance(0);
+		PndEmcMapper *fEmcMap=PndEmcMapper::Instance();
 		if (fEmcMap!=0) {
 			fTCI=fEmcMap->GetTCI(fDetectorId);
 		} else {

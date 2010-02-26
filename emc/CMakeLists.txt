@@ -61,6 +61,7 @@ EmcMC/PndEmc.cxx
 EmcMC/PndEmcReader.cxx 
 EmcMC/PndGeoEmcApd.cxx 
 EmcMC/PndEmcApd.cxx
+EmcMC/PndEmcGeoPar.cxx
 EmcTools/PndEmcTwoCoordIndex.cxx 
 EmcTools/PndEmcStructure.cxx 
 EmcTools/PndEmcMapper.cxx 

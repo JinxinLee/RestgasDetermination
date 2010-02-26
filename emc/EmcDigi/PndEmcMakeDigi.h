@@ -23,6 +23,7 @@ class PndEmcHit;
 class PndEmcDigi;
 
 class TClonesArray;
+class PndEmcGeoPar;
 class PndEmcDigiPar;
 class PndEmcRecoPar;
 
@@ -71,6 +72,7 @@ private:
 	
 	Int_t fMapVersion;
 
+	PndEmcGeoPar*     fGeoPar;       /** Geometry parameter container **/
 	PndEmcDigiPar*    fDigiPar;      /** Digitisation parameter container **/
 	PndEmcRecoPar*    fRecoPar;      /** Reconstruction parameter container **/
 	/** Get parameter containers **/

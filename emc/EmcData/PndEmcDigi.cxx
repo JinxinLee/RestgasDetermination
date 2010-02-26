@@ -48,7 +48,7 @@ PndEmcDigi::~PndEmcDigi() {}
   
 PndEmcDigi::PndEmcDigi(Int_t trackid, Int_t id, Float_t energy, Float_t time, Int_t hitIndex):fEnergy(energy),fTrackId(trackid),fDetectorId(id),fTime(time),fHitIndex(hitIndex),fWhere(0,0,0)
 {
-	PndEmcMapper *emcMap=PndEmcMapper::Instance(0);
+	PndEmcMapper *emcMap=PndEmcMapper::Instance();
 	fTCI=emcMap->GetTCI(id);
 	fThetaInd=fTCI->XCoord();
 	fPhiInd=fTCI->YCoord();
@@ -71,7 +71,7 @@ PndEmcDigi::PndEmcDigi( const PndEmcDigi& other )
   fDetectorId( other.fDetectorId),
   fHitIndex( other.fHitIndex)
 {
-	PndEmcMapper *emcMap=PndEmcMapper::Instance(0);
+	PndEmcMapper *emcMap=PndEmcMapper::Instance();
 	fTCI=emcMap->GetTCI(fDetectorId);
 	fThetaInd=fTCI->XCoord();
 	fPhiInd=fTCI->YCoord();
@@ -87,7 +87,7 @@ PndEmcDigi::PndEmcDigi( const PndEmcDigi& other )
 void PndEmcDigi::SetDetectorId(Int_t id)
 {
 // PndEmcMapper assumed to instantiate first time with correct parameter before
-	PndEmcMapper *emcMap=PndEmcMapper::Instance(0);
+	PndEmcMapper *emcMap=PndEmcMapper::Instance();
 	fTCI=emcMap->GetTCI(id);
 	fThetaInd=fTCI->XCoord();
 	fPhiInd=fTCI->YCoord();
@@ -185,7 +185,7 @@ PndEmcDigi::isNeighbour( const PndEmcDigi* theDigi ) const
 // When PndEmcDigi is read from root file fTCI is not valid it should be validated later
 void PndEmcDigi::ValidateTCI()
 {
-	PndEmcMapper *emcMap=PndEmcMapper::Instance(0);
+	PndEmcMapper *emcMap=PndEmcMapper::Instance();
 	fTCI=emcMap->GetTCI(fDetectorId);
 
 }
@@ -304,7 +304,7 @@ void PndEmcDigi::Streamer(TBuffer &R__b)
 
    if (R__b.IsReading()) {
       PndEmcDigi::Class()->ReadBuffer(R__b, this);
-		PndEmcMapper *fEmcMap=PndEmcMapper::Instance(0);
+		PndEmcMapper *fEmcMap=PndEmcMapper::Instance();
 		if (fEmcMap!=0) {
 			fTCI=fEmcMap->GetTCI(fDetectorId);
 		} else {

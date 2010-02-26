@@ -32,6 +32,7 @@
 #include "PndEmcDataTypes.h"
 
 #include "PndEmcMapper.h"
+#include "PndEmcGeoPar.h"
 #include "PndEmcDigiPar.h"
 #include "PndEmcRecoPar.h"
 #include "PndEmcBump.h"
@@ -84,6 +85,7 @@ PndEmcMakeBump::~PndEmcMakeBump()
   delete fSharedDigiArray;
   delete theLocalMaxFinder;
   delete theClusterSplitter;
+  delete fGeoPar;
   delete fDigiPar;
   delete fRecoPar;
 }
@@ -100,8 +102,7 @@ InitStatus PndEmcMakeBump::Init() {
   }
 	
   // Geometry loading
-  fMapVersion=fDigiPar->GetMapperVersion();
-  PndEmcMapper::Instance(fMapVersion);
+  fGeoPar->InitEmcMapper();
   PndEmcStructure::Instance();
   
   // Get input array
@@ -240,6 +241,8 @@ void PndEmcMakeBump::SetParContainers() {
 
   FairRuntimeDb* db = run->GetRuntimeDb();
   if ( ! db ) Fatal("SetParContainers", "No runtime database");
+  // Get Emc digitisation parameter container
+  fGeoPar = (PndEmcGeoPar*) db->getContainer("PndEmcGeoPar");
   // Get Emc digitisation parameter container
   fDigiPar = (PndEmcDigiPar*) db->getContainer("PndEmcDigiPar");
   // Get Emc reconstruction parameter container

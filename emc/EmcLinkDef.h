@@ -7,6 +7,7 @@
 #pragma link C++ class  PndEmc+;
 #pragma link C++ class  PndEmcPoint+;
 #pragma link C++ class  PndGeoEmc+;
+#pragma link C++ class  PndEmcGeoPar+;
 #pragma link C++ class  PndEmcApd+;
 #pragma link C++ class  PndEmcApdPoint+;
 #pragma link C++ class  PndGeoEmcApd+;
