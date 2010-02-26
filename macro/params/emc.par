@@ -26,8 +26,8 @@ SampleRate:Double_t 80e6
 Use_shaped_noise:Int_t 1
 Use_photon_statistic:Int_t 1
 EnergyDigiThreshold:Double_t 3.0e-3
-MapperVersion:Int_t 6
 UseDigiEffectiveSmearing:Int_t 0
+NoiseAllChannels:Int_t 0
 #################################################################
 # Reconstruction parameter for EMC
 # PndEmcRecoPar

@@ -5,20 +5,42 @@
         gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
         rootlogon();
         basiclibs();
+	////////////////////////////////////////////////////////////////////////////////
+	// The following part of macro access RunTimeDataBase and initialize PndEmcMapper from it 
+	////////////////////////////////////////////////////////////////////////////////
+	FairRunAna *fRun= new FairRunAna();
+	fRun->SetInputFile("sim_emc.root");
+	fRun->SetOutputFile("dummy_out.root");
+	
+	FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+	FairParRootFileIo* parInput1 = new FairParRootFileIo();
+	parInput1->open("simparams.root");
+	
+  	TString emcAsciiPar = gSystem->Getenv("VMCWORKDIR");
+	emcAsciiPar += "/macro/params/";
+	emcAsciiPar += "emc.par";
+	
+	FairParAsciiFileIo* parInput2 = new FairParAsciiFileIo();
+	parInput2->open(emcAsciiPar.Data(),"in");
+	
+	rtdb->setFirstInput(parInput1);
+	rtdb->setSecondInput(parInput2);
+	
+	PndEmcGeoPar *geoPar = (PndEmcGeoPar*) rtdb->getContainer("PndEmcGeoPar");
+	fRun->Init();
+	
+	geoPar->InitEmcMapper();
+	/////////////////////////////////////////////////////////////////////////////////
 	
 	TFile* f = new TFile("full_emc.root"); //file you want to analyse
 	TTree *t=(TTree *) f->Get("cbmsim") ;
          
-        TFile* fpar = new TFile("simparams.root"); 
-        fpar->Get("FairBaseParSet");
-
 	TClonesArray* cluster_array=new TClonesArray("PndEmcCluster");
 	t->SetBranchAddress("EmcCluster",&cluster_array);
 
 	TFile* fsim = new TFile("sim_emc.root"); //file you want to analyse
 	TTree *tsim=(TTree *) fsim->Get("cbmsim") ;
-	PndEmcMapper *emcMap=PndEmcMapper::Instance(6);
-
+	
 	TClonesArray* mctrack_array=new TClonesArray("PndMCTrack");
 	tsim->SetBranchAddress("MCTrack",&mctrack_array);
 	

@@ -39,6 +39,23 @@ sim_complete_tpc(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom 
   fRun->SetBeamMom(BeamMomentum);
   fRun->SetMaterials(MediaFile.Data());
   FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
+  // Set the parameters 
+  //-------------------------------
+  TString emcDigiFile = gSystem->Getenv("VMCWORKDIR");
+  emcDigiFile += "/macro/params/";
+  emcDigiFile += digiFile;
+ 
+ 
+  //-------Set the parameter output --------------------
+  FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
+  parIo1->open(emcDigiFile.Data(),"in");
+  rtdb->setFirstInput(parIo1);        
+
+ //---------------------Set Parameter output      ---------- 
+  Bool_t kParameterMerged=kTRUE;
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
+  output->open(ParOutputfile.Data());
+  rtdb->setOutput(output);
 
    // Create and add detectors
 
@@ -66,7 +83,8 @@ sim_complete_tpc(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom 
   fRun->AddModule(Mvd);
  //-------------------------  EMC       -----------------
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
-  Emc->SetGeometryFileNameTriple("emc_module125.dat","emc_module3new.root","emc_module4_StraightGeo24.4.root"); //MapperVersion: 6
+  Emc->SetGeometryVersion(15);
+  // See PndEmc::SetGeometryVersion() for available geometries and add there new one if necessary
   Emc->SetStorageOfData(kFALSE);
   fRun->AddModule(Emc);
  //-------------------------  TOF       -----------------  
@@ -136,24 +154,6 @@ sim_complete_tpc(Int_t nEvents = 10, TString  SimEngine ="TGeant3", Float_t mom 
   PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
   fRun->AddTask(emcHitProd);
   
-  // Set the parameters 
-  //-------------------------------
-  TString emcDigiFile = gSystem->Getenv("VMCWORKDIR");
-  emcDigiFile += "/macro/params/";
-  emcDigiFile += digiFile;
- 
- 
-  //-------Set the parameter output --------------------
-  FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
-  parIo1->open(emcDigiFile.Data(),"in");
-  rtdb->setFirstInput(parIo1);        
-
- //---------------------Set Parameter output      ---------- 
-  Bool_t kParameterMerged=kTRUE;
-  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
-  output->open(ParOutputfile.Data());
-  rtdb->setOutput(output);
-
  //-------------------------  Initialize the RUN  -----------------  
   fRun->Init();
  //-------------------------  Run the Simulation  -----------------   

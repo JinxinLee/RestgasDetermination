@@ -24,6 +24,12 @@
   
    fRun->SetOutputFile("sim_emc.root");
 
+   FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
+   Bool_t kParameterMerged=kTRUE;
+ 
+   FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
+   output->open("simparams.root");
+
 
    // Set Material file Name
   //-----------------------
@@ -45,9 +51,8 @@
 
    //FairDetector *Emc = new PndEmc("EMC",kTRUE);
    PndEmc *Emc = new PndEmc("EMC",kTRUE);
-   Emc->SetGeometryFileNameTriple("emc_module125.dat","emc_module3new.root","emc_module4_StraightGeo24.4.root"); 
-   //Emc->SetGeometryFileName("emc_module12345.dat"); // if you want to use old geometry for FwEndCap
-   //Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root"); // if you want to use new geometry for FwEndCap
+   Emc->SetGeometryVersion(15);
+   // See PndEmc::SetGeometryVersion() for available geometries and add there new one if necessary
    fRun->AddModule(Emc);
   
   // Create and Set Event Generator
@@ -96,8 +101,6 @@
   // Fill the Parameter containers for this run
   //-------------------------------------------
   
-   FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
-   Bool_t kParameterMerged=kTRUE;
   
   
     PndMultiFieldPar* Par = (PndMultiFieldPar*) rtdb->getContainer("PndMultiFieldPar");
@@ -105,9 +108,6 @@
     Par->setInputVersion(fRun->GetRunId(),1);
     Par->setChanged();
   
-   FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
-   output->open("simparams.root");
-   
    rtdb->setOutput(output);
    rtdb->saveOutput();
    rtdb->print();

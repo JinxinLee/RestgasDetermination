@@ -22,6 +22,22 @@ sim_emc(Int_t nEvents = 10, Float_t mom = 1.){
   
   fRun->SetOutputFile("sim_emc.root");
 
+  // Set the parameters
+  //-------------------------------
+  TString emcDigiFile = gSystem->Getenv("VMCWORKDIR");
+  emcDigiFile += "/macro/params/";
+  emcDigiFile += digiFile;
+ 
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
+  parIo1->open(emcDigiFile.Data(),"in");
+  rtdb->setFirstInput(parIo1);        
+  Bool_t kParameterMerged=kTRUE;
+	
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
+  output->open(parFile);
+  rtdb->setOutput(output);
+  
   // Set Material file Name
   //-----------------------
   fRun->SetMaterials("media_pnd.geo");
@@ -51,7 +67,8 @@ sim_emc(Int_t nEvents = 10, Float_t mom = 1.){
   fRun->AddModule(Mvd);
 
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
-  Emc->SetGeometryFileNameTriple("emc_module125.dat","emc_module3new.root","emc_module4_StraightGeo24.4.root"); //MapperVersion: 6
+  Emc->SetGeometryVersion(15);
+  // See PndEmc::SetGeometryVersion() for available geometries and add there new one if necessary
   Emc->SetStorageOfData(kFALSE);
   fRun->AddModule(Emc);
 
@@ -70,28 +87,6 @@ sim_emc(Int_t nEvents = 10, Float_t mom = 1.){
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
   Drc->SetRunCherenkov(kFALSE); // for fast sim Cherenkov -> kFALSE
   fRun->AddModule(Drc);
-
-  //Old EMC geometry
-  //FairDetector *Emc = new PndEmc("EMC",kTRUE);
-  //PndEmc *Emc = new PndEmc("EMC",kTRUE);
-  //Emc->SetGeometryFileName("emc_module12345.dat"); // if you want to use old geometry for FwEndCap & BwEndCap
-  //Emc->SetGeometryFileNameDouble("emc_module1245.dat","emc_module3new.root"); //if you want to use new geometry for FwEndCap
-  //Emc->SetGeometryFileNameDouble("emc_module1235.dat","emc_module4_StraightGeo26.root",1); //1 -means: *1235.dat + *.root -> new backward endcap, Mapper==7
-  //
-  // For testing a new version of Backward End-Cap (BwEndCap):
-  // a) with the forward endcap geometry: "emc_module4_FwEndCapGeo.root"
-  // b) with straight crystals 26mm x 26mm x 200mm: "emc_module4_StraightGeo26.root"
-  // you can use SetGeometryFileName() or SetGeometryFileNameDouble() or SetGeometryFileNameTriple(), 
-  // depends on the EMC geometry compination, like below:
-  //
-  // Emc->SetGeometryFileName("emc_module4_StraightGeo26.root");    //only new BwEndCap, MapperVersion: 6
-  // Emc->SetGeometryFileName("emc_module4_StraightGeo26_Al.root"); //only new BwEndCap with dead material in front, MapperVersion: 6
-  // Emc->SetGeometryFileNameDouble("emc_module1235.dat","emc_module4_StraightGeo26.root",1); //*1235.dat + _new_ BwEndCap, MapperVersion: 7
-  // Emc->SetGeometryFileNameTriple("emc_module125.dat","emc_module3new.root","emc_module4_StraightGeo26.root"); //*125.dat + _new_ FwEndCap + _new_ BwEndCap, MapperVersion: 6
-  //
-  // MapperVersion you need to set in the "emc.par" file in ../trunk/macro/params/emc.par
-  //fRun->AddModule(Emc);
-
 
   // Create and Set Event Generator
   //-------------------------------
@@ -122,22 +117,6 @@ sim_emc(Int_t nEvents = 10, Float_t mom = 1.){
   //-------------------------------
   PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
   fRun->AddTask(emcHitProd);
-  
-  // Set the parameters
-  //-------------------------------
-  TString emcDigiFile = gSystem->Getenv("VMCWORKDIR");
-  emcDigiFile += "/macro/params/";
-  emcDigiFile += digiFile;
- 
-  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
-  parIo1->open(emcDigiFile.Data(),"in");
-  rtdb->setFirstInput(parIo1);        
-  Bool_t kParameterMerged=kTRUE;
-	
-  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
-  output->open(parFile);
-  rtdb->setOutput(output);
   
   /**Initialize the session*/
   fRun->Init();

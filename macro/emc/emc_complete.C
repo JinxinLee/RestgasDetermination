@@ -29,6 +29,23 @@ emc_complete(Int_t nEvents = 10, Float_t mom = 1.){
 	
   fRun->SetOutputFile("emc_complete.root");
 	
+  /**Set the digitization parameters */
+	
+  TString emcDigiFile = gSystem->Getenv("VMCWORKDIR");
+  emcDigiFile += "/macro/params/";
+  emcDigiFile += digiFile;
+  /**Get the run time data base for this session and set the needed input*/
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
+  parIo1->open(emcDigiFile.Data(),"in");
+  rtdb->setFirstInput(parIo1);        
+  Bool_t kParameterMerged=kTRUE;
+	
+  /**Parameters created for this simulation goes to the out put*/
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
+  output->open("simparams.root");
+  rtdb->setOutput(output);
+	
   // Set Material file Name
   //-----------------------
   fRun->SetMaterials("media_pnd.geo");
@@ -48,8 +65,9 @@ emc_complete(Int_t nEvents = 10, Float_t mom = 1.){
   fRun->AddModule(Pipe);
 
   PndEmc *Emc = new PndEmc("EMC",kTRUE);
+  Emc->SetGeometryVersion(15);
   //new BwEndCap + FwEndCap
-  Emc->SetGeometryFileNameTriple("emc_module125.dat","emc_module3new.root","emc_module4_StraightGeo24.4.root"); //MapperVersion: 6
+  //Emc->SetGeometryFileNameTriple("emc_module125.dat","emc_module3new.root","emc_module4_StraightGeo24.4.root"); //MapperVersion: 6
   Emc->SetStorageOfData(kFALSE);
   fRun->AddModule(Emc);
 	
@@ -104,26 +122,10 @@ emc_complete(Int_t nEvents = 10, Float_t mom = 1.){
   PndEmcMakeRecoHit* emcMakeRecoHit= new PndEmcMakeRecoHit();
   fRun->AddTask(emcMakeRecoHit);
 	
-  /**Set the digitization parameters */
-	
-  TString emcDigiFile = gSystem->Getenv("VMCWORKDIR");
-  emcDigiFile += "/macro/params/";
-  emcDigiFile += digiFile;
-  /**Get the run time data base for this session and set the needed input*/
-  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
-  FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
-  parIo1->open(emcDigiFile.Data(),"in");
-  rtdb->setFirstInput(parIo1);        
-  Bool_t kParameterMerged=kTRUE;
-	
-  /**Parameters created for this simulation goes to the out put*/
-  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
-  output->open("simparams.root");
-  rtdb->setOutput(output);
 	
   /**Initialize the session*/
   fRun->Init();
-  PndEmcMapper *emcMap = PndEmcMapper::Instance(6);	
+  //PndEmcMapper *emcMap = PndEmcMapper::Instance(6);	
   /**After initialization now we can save the field parameters */
   PndMultiFieldPar* Par = (PndMultiFieldPar*) rtdb->getContainer("PndMultiFieldPar");
   if (fField) {  Par->SetParameters(fField); }
