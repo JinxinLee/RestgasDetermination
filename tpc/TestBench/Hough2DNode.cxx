@@ -26,13 +26,13 @@ Hough2DNode::~Hough2DNode(){
     free(_proj1); 
 }
 
-Hough2DNode::Hough2DNode(float* center, int level, int nHyperplanes) {
+Hough2DNode::Hough2DNode(double* center, int level, int nHyperplanes) {
   _nPlanes = nHyperplanes;
   _hitList = (bool*) malloc(_nPlanes*sizeof(bool));
-  _center = (float*) malloc(2*sizeof(float));
-  _corners = (float*) malloc(8*sizeof(float));
-  _proj0 = (float*) malloc(2*sizeof(float));
-  _proj1 = (float*) malloc(2*sizeof(float));
+  _center = (double*) malloc(2*sizeof(double));
+  _corners = (double*) malloc(8*sizeof(double));
+  _proj0 = (double*) malloc(2*sizeof(double));
+  _proj1 = (double*) malloc(2*sizeof(double));
 
   memset(_hitList, 0x00, _nPlanes);
   
@@ -57,9 +57,9 @@ Hough2DNode::Hough2DNode(float* center, int level, int nHyperplanes) {
   _proj1[1]=_center[1] - 0.5*_length;
 }
 
-float*
+double*
 Hough2DNode::getSonArray() {   //return centers of sons
-  float* arr = (float*) malloc(8*sizeof(float));
+  double* arr = (double*) malloc(8*sizeof(double));
   int count=0;
   for(int x=-1; x<2; x+=2)
     for(int y=-1; y<2; y+=2) {

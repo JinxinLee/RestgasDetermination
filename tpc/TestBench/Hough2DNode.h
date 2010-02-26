@@ -31,20 +31,21 @@ class Hough2DNode {
 public:
   // Constructors/Destructors ---------
   Hough2DNode();
-  Hough2DNode(float* center, int level, int nHyperplanes); 
+  Hough2DNode(double* center, int level, int nHyperplanes); 
 
   ~Hough2DNode();
 
-  float* getCenter() {return _center;}
+
+  double* getCenter() {return _center;}
   int getLevel() {return _level;}
-  float* getSonArray();  //return center positions of sons
-  float* getCorners() { return _corners;}
-  float  getSideLength() {return _length;}
+  double* getSonArray();  //return center positions of sons
+  double* getCorners() { return _corners;}
+  double  getSideLength() {return _length;}
   bool* getHitList() {return _hitList;}
   int getVote() {return _votes;}
 
-  float* getProjection0() {return _proj0;} //return the two coordinates of the 
-  float* getProjection1() {return _proj1;} //corners projected onto one 
+  double* getProjection0() {return _proj0;} //return the two coordinates of the 
+  double* getProjection1() {return _proj1;} //corners projected onto one 
     
   void setHit(int j) {
     if(j<_nPlanes)
@@ -65,12 +66,12 @@ public:
   // Private Data Members ------------
   int _nPlanes;
   bool* _hitList;
-  float _length;
-  float* _center;				
-  float* _corners;
+  double _length;
+  double* _center;				
+  double* _corners;
 
-  float* _proj0;
-  float* _proj1;
+  double* _proj0;
+  double* _proj1;
 
   int _votes;
   int _level;

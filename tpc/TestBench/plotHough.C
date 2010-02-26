@@ -5,6 +5,7 @@
 #include "TTree.h"
 #include "TObjArray.h"
 #include "TPolyMarker.h"
+#include "TPolyLine.h"
 #include "TVector3.h"
 #include "TBox.h"
 
@@ -26,16 +27,17 @@ bool compareNodes (Hough2DNode* n1, Hough2DNode* n2) {
 void plotHough(TString filename, int evLo, int evHi, int DEPTH, int THRESH) {
 
   //param space -----------------------------
-  float theta_min = -3.f;
-  float theta_max = 3.f;
-  float r_min = 0.f;
-  float r_max = 15.f;
+  double theta_min = -3.f;
+  double theta_max = 3.f;
+  double r_min = 0.f;
+  double r_max = 15.f;
   
-  float mins[2] = {theta_min, r_min};
-  float maxs[2] = {theta_max, r_max};
+  double mins[2] = {theta_min, r_min};
+  double maxs[2] = {theta_max, r_max};
     
   // ----------------------------------------
 
+  double x_OFF = 5.f;
   
   TFile* recofile = new TFile(filename);
   if(recofile->IsZombie()) {
@@ -46,7 +48,11 @@ void plotHough(TString filename, int evLo, int evHi, int DEPTH, int THRESH) {
   canv->Divide(3,1);
 
   TH2F* real = new TH2F("bla", "Real Space",100,0,10,100,0,8);
+  real->GetXaxis()->SetTitle("x + 5 (cm)");
+  real->GetYaxis()->SetTitle("z (cm)");  
   TH2F* hough = new TH2F("bldsaa", "Hough Space",100,-3,3,100,0,15);
+  hough->GetXaxis()->SetTitle("Theta (radians)");
+  hough->GetYaxis()->SetTitle("Distance r (cm)");
 
   TTree* recotree = (TTree*)recofile->Get("cbmsim");
   
@@ -78,14 +84,14 @@ void plotHough(TString filename, int evLo, int evHi, int DEPTH, int THRESH) {
       PndTpcCluster* cl = (PndTpcCluster*)clArr->At(c);
       totClusters.push_back(new PndTpcCluster(*cl));
       TVector3 pos = cl->pos();
-      float x = pos.X()+5;
-      float z = pos.Z();
+      double x = pos.X()+x_OFF; //offset to avoid theta-symmetry and numerical problems
+      double z = pos.Z();
       marker->SetPoint(c,x,z); 
             
       //transformed representation
       TVector3* vec = new TVector3(x,z,0);
-      float r = vec->Mag();
-      float theta = vec->Phi();
+      double r = vec->Mag();
+      double theta = vec->Phi();
       
       std::cout<<"theta: "<<theta<<", x: "<<x<<", z:"<<z<<std::endl;
       
@@ -117,7 +123,7 @@ void plotHough(TString filename, int evLo, int evHi, int DEPTH, int THRESH) {
   
     //hough search
  
-  float center[2] = {0.f,0.f};
+  double center[2] = {0.f,0.f};
   Hough2DNode* root = new Hough2DNode(center,0,totCl);
   for(int i=0; i<hitreps.size(); i++)
     (hitreps[i])->testIntersect(root);
@@ -133,7 +139,7 @@ void plotHough(TString filename, int evLo, int evHi, int DEPTH, int THRESH) {
     for(int n=0; n<survivors->size(); n++) { //loop over survivors
       //create sons
       Hough2DNode* the_node = survivors->at(n);
-      float* son_arr = the_node->getSonArray();
+      double* son_arr = the_node->getSonArray();
       for (int s=0; s<4; s++) {
 	sons->push_back(new Hough2DNode(son_arr+2*s,the_node->getLevel()+1,totCl));
       }
@@ -159,12 +165,12 @@ void plotHough(TString filename, int evLo, int evHi, int DEPTH, int THRESH) {
   
   std::vector<TBox*> boxlist;
   for(int l=0; l<survivors->size(); l++) {
-    float* center = (survivors->at(l))->getCenter();
-    float length = (survivors->at(l))->getSideLength();
-    float x1 = (center[0] - 0.5*length +0.5)*(theta_max-theta_min)+theta_min;
-    float x2 = (center[0] + 0.5*length + 0.5)*(theta_max-theta_min)+theta_min;
-    float y1 = (center[1] - 0.5*length + 0.5)*(r_max-r_min)+r_min;
-    float y2 = (center[1] + 0.5*length + 0.5)*(r_max-r_min)+r_min;
+    double* center = (survivors->at(l))->getCenter();
+    double length = (survivors->at(l))->getSideLength();
+    double x1 = (center[0] - 0.5*length + 0.5)*(theta_max-theta_min)+theta_min;
+    double x2 = (center[0] + 0.5*length + 0.5)*(theta_max-theta_min)+theta_min;
+    double y1 = (center[1] - 0.5*length + 0.5)*(r_max-r_min)+r_min;
+    double y2 = (center[1] + 0.5*length + 0.5)*(r_max-r_min)+r_min;
     boxlist.push_back(new TBox(x1,y1,x2,y2));
     boxlist.back()->SetLineColor(kPink+10);
     boxlist.back()->SetFillStyle(0);
@@ -182,7 +188,9 @@ void plotHough(TString filename, int evLo, int evHi, int DEPTH, int THRESH) {
 
   //list of clusters for each found track
   std::vector<std::vector<PndTpcCluster*>*> solutions;
-
+  std::vector<Hough2DNode*> cand_nodes;
+ 
+ 
   bool cont;
   //extract tracks until solutions have less clusters than minCL
   while(cont) {
@@ -209,6 +217,8 @@ void plotHough(TString filename, int evLo, int evHi, int DEPTH, int THRESH) {
       continue;
     }
     
+    cand_nodes.push_back(survivors->front());  //remember cand. nodes
+    
     //remove hits for first node from all others
     for(int p=0; p<totCl; p++) {
       if(!bestHitList[p])
@@ -228,6 +238,8 @@ void plotHough(TString filename, int evLo, int evHi, int DEPTH, int THRESH) {
   canv->cd(3);
   real->Draw();
 
+  TObjArray* lines = new TObjArray();
+
   for(int i=0; i<solutions.size(); i++) {
     TPolyMarker* mark = new TPolyMarker((solutions[i])->size());
     
@@ -242,7 +254,34 @@ void plotHough(TString filename, int evLo, int evHi, int DEPTH, int THRESH) {
     
     clusters->Add(mark);
     mark->Draw("same");
+
+    Hough2DNode* cand = cand_nodes[i];
+    double* center = cand->getCenter();
+    
+    double theta = (center[0] + 0.5f)*(theta_max-theta_min)+theta_min;
+    double r_shift = (center[1] + 0.5f)*(r_max-r_min)+r_min;
+
+    double r = r_shift - x_OFF*cos(theta);
+    
+    double m = -1.f/(tan(theta));
+    double t = r/(sin(theta));
+    
+    double y1 = 0.f;
+    double x1 = (y1-t)/m;
+    
+    double y2 = 8.f;
+    double x2 = (y2-t)/m;
+    
+    TPolyLine* line = new TPolyLine(2);
+    line->SetPoint(0,x1+x_OFF,y1);
+    line->SetPoint(1,x2+x_OFF,y2);
+    
+    lines->Add(line);
+    line->Draw("same");
     
   }
+
+  
+  
   
 }

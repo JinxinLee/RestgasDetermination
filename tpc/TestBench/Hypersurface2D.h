@@ -35,20 +35,20 @@ class Hypersurface2D {
 
   // Constructors/Destructors ---------
   Hypersurface2D();
-  Hypersurface2D(float par1, float par2, const TF1& rep, int ID);
+  Hypersurface2D(double par1, double par2, const TF1& rep, int ID);
   ~Hypersurface2D();
   
   bool testIntersect(Hough2DNode* node);
 
   //set minima and maxima of parameter space
-  void setParamSpace(float* mins, float* maxs);    
+  void setParamSpace(double* mins, double* maxs);    
     
   
   //getters ---------------------------
-  float* getParamMins() {return _mins;}
-  float* getParamMaxs() {return _maxs;}
+  double* getParamMins() {return _mins;}
+  double* getParamMaxs() {return _maxs;}
   
-  float* getPars() {return _pars;} //return coordinates in parameter space
+  double* getPars() {return _pars;} //return coordinates in parameter space
   
   int getID() {return _index;}
   
@@ -57,12 +57,12 @@ class Hypersurface2D {
 private:
 
   // Private Data Members ------------
-  float* _pars;         
+  double* _pars;         
 
   int _index;     //hit ID
 
-  float* _mins;
-  float* _maxs;   //minima and maxima of the 2 parameter dimensions
+  double* _mins;
+  double* _maxs;   //minima and maxima of the 2 parameter dimensions
 
   bool _paramsSet;
 

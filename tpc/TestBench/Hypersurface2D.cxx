@@ -23,13 +23,13 @@
 #include <cstdlib>
 
 
-Hypersurface2D::Hypersurface2D(float par1,float par2, const TF1& rep, int index) {
+Hypersurface2D::Hypersurface2D(double par1,double par2, const TF1& rep, int index) {
 
   _index = index;
   _rep = new TF1(rep);
-  _pars = (float*) malloc(2*sizeof(float));
-  _mins = (float*) malloc(2*sizeof(float));
-  _maxs = (float*) malloc(2*sizeof(float));
+  _pars = (double*) malloc(2*sizeof(double));
+  _mins = (double*) malloc(2*sizeof(double));
+  _maxs = (double*) malloc(2*sizeof(double));
   
   _pars[0] = par1;
   _pars[1] = par2;
@@ -55,8 +55,8 @@ Hypersurface2D::~Hypersurface2D() {
 bool 
 Hypersurface2D::testIntersect(Hough2DNode* node) {
 
-  float* proj1 = node->getProjection0(); 
-  float* proj2 = node->getProjection1();
+  double* proj1 = node->getProjection0(); 
+  double* proj2 = node->getProjection1();
  
   int signs = 0;
   
@@ -68,14 +68,14 @@ Hypersurface2D::testIntersect(Hough2DNode* node) {
   
  
   //inflate to full-scale parameter space
-  float p1_par_max = (_maxs[0]-_mins[0])*(proj1[0]+0.5) + _mins[0];
-  float p1_par_min = (_maxs[0]-_mins[0])*(proj1[1]+0.5) + _mins[0];
-  float p2_par_max = (_maxs[1]-_mins[1])*(proj2[0]+0.5) + _mins[1];
-  float p2_par_min = (_maxs[1]-_mins[1])*(proj2[1]+0.5) + _mins[1];
+  double p1_par_max = (_maxs[0]-_mins[0])*(proj1[0]+0.5) + _mins[0];
+  double p1_par_min = (_maxs[0]-_mins[0])*(proj1[1]+0.5) + _mins[0];
+  double p2_par_max = (_maxs[1]-_mins[1])*(proj2[0]+0.5) + _mins[1];
+  double p2_par_min = (_maxs[1]-_mins[1])*(proj2[1]+0.5) + _mins[1];
   
   //calculate rep value for both projection points
-  float val1 = _rep->Eval(p1_par_min);
-  float val2 = _rep->Eval(p1_par_max);
+  double val1 = _rep->Eval(p1_par_min);
+  double val2 = _rep->Eval(p1_par_max);
   
   signs+=((val1-p2_par_min)>0);
   signs+=((val1-p2_par_max)>0);
@@ -95,7 +95,7 @@ Hypersurface2D::testIntersect(Hough2DNode* node) {
 
 
 void 
-Hypersurface2D::setParamSpace(float* mins, float* maxs) {
+Hypersurface2D::setParamSpace(double* mins, double* maxs) {
   _mins = mins;
   _maxs = maxs;  
   _paramsSet=true;

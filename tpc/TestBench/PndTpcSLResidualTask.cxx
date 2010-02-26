@@ -105,13 +105,13 @@ void
 PndTpcSLResidualTask::Exec(Option_t* opt) {
   
   //clear output
-  if(fFitStatArray==0) Fatal("TrackFitStat::Exec)","No FitStat OutputArray");
+  if(fFitStatArray==0) Fatal("TrackFitStat::Exec()","No FitStat OutputArray");
   fFitStatArray->Delete();
-  if(fResArray==0) Fatal("TrackFitStat::Exec)","No McAnnex OutputArray");
+  if(fResArray==0) Fatal("TrackFitStat::Exec()","No McAnnex OutputArray");
   fResArray->Delete();
 
   //get fit results
-  assert(fTrackArray->GetEntriesFast()<2);
+  //assert(fTrackArray->GetEntriesFast()<2);
   
   unsigned int nTr = fTrackArray->GetEntriesFast();
   
