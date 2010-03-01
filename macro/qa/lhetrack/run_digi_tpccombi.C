@@ -51,7 +51,6 @@
         
   rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parIo1);
- // fRun->LoadGeometry();
   // ------------------------------------------------------------------------
 
   // -----   TPC digi producers   ---------------------------------
@@ -69,11 +68,11 @@
   fRun->AddTask(tpcGem);
 
   PndTpcPadResponseTask* tpcPadResponse = new PndTpcPadResponseTask();
-  tpcPadResponse->SetPersistence();
+  //tpcPadResponse->SetPersistence();
   fRun->AddTask(tpcPadResponse);
 
   PndTpcElectronicsTask* tpcElec = new PndTpcElectronicsTask();
-  tpcElec->SetPersistence();
+  //tpcElec->SetPersistence();
   fRun->AddTask(tpcElec);
 
   PndTpcClusterFinderTask* tpcCF = new PndTpcClusterFinderTask();
@@ -82,68 +81,61 @@
   fRun->AddTask(tpcCF);
 
   // -----   MDV digi producers   --------------------------------- 
-  PndMvdStripHitProducer* mvdHitProd = new PndMvdStripHitProducer();
-  mvdHitProd->SetVerbose(iVerbose);
-  fRun->AddTask(mvdHitProd);
+  PndMvdDigiTask* mvddigi = new PndMvdDigiTask();
+  mvddigi->SetVerbose(iVerbose);
+  fRun->AddTask(mvddigi);
 
-  PndMvdHybridHitProducer* mvdPixProd = new PndMvdHybridHitProducer();
-  mvdPixProd->SetVerbose(iVerbose);
-  fRun->AddTask(mvdPixProd);
- 
-  // CLUST
-  // Cluster finding for strip detectors
-  Double_t chargecut = 5000.;
-  PndMvdStripClusterTask* mvdmccls = new PndMvdStripClusterTask();
+  PndMvdClusterTask* mvdmccls = new PndMvdClusterTask();
   mvdmccls->SetVerbose(iVerbose);
-  fRun->AddTask(mvdmccls);
-  
-  // Cluster finder for pixel detectors
-  PndMvdPixelClusterTask* mvdClusterizer = new PndMvdPixelClusterTask();
-  mvdClusterizer->SetVerbose(iVerbose);
-  fRun->AddTask(mvdClusterizer);
- 
+  fRun->AddTask(mvdmccls); 
   // -----   EMC hit producers   ---------------------------------
-  PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
-  fRun->AddTask(emcHitProd); // hit production 
+  //PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
+  //fRun->AddTask(emcHitProd); // hit production 
 
   //PndEmcMakeDigi* emcMakeDigi=new PndEmcMakeDigi();
   //fRun->AddTask(emcMakeDigi); // fast digitization
 
   PndEmcHitsToWaveform* emcHitsToWaveform= new PndEmcHitsToWaveform(iVerbose);
   PndEmcWaveformToDigi* emcWaveformToDigi=new PndEmcWaveformToDigi(iVerbose);
+  emcHitsToWaveform->SetStorageOfData(kFALSE);
+  emcWaveformToDigi->SetStorageOfData(kFALSE);
   fRun->AddTask(emcHitsToWaveform);  // full digitization
   fRun->AddTask(emcWaveformToDigi);  // full digitization
 
   PndEmcMakeCluster* emcMakeCluster= new PndEmcMakeCluster(iVerbose);
   fRun->AddTask(emcMakeCluster);
 
-  PndEmcHdrFiller* emcHdrFiller = new PndEmcHdrFiller();
-  fRun->AddTask(emcHdrFiller); // ECM header
-
-
   PndEmcMakeBump* emcMakeBump= new PndEmcMakeBump();
   fRun->AddTask(emcMakeBump);
 
-  
+  PndEmcHdrFiller* emcHdrFiller = new PndEmcHdrFiller();
+  fRun->AddTask(emcHdrFiller); // ECM header
   
   // -----   TOF hit producers   ---------------------------------
-
   PndTofHitProducerIdeal* tofhit = new PndTofHitProducerIdeal();
   tofhit->SetVerbose(iVerbose);
   fRun->AddTask(tofhit);
  
   // -----   MDT hit producers   ---------------------------------
   PndMdtHitProducerIdeal* mdtHitProd = new PndMdtHitProducerIdeal();
-  mdtHitProd->SetPositionSmearing(0.2); // position smearing [cm]
+  mdtHitProd->SetPositionSmearing(.3); // position smearing [cm]
   fRun->AddTask(mdtHitProd);
   
-   PndMdtTrkProducerIdeal* mdtTrkProd = new PndMdtTrkProducerIdeal();
+  PndMdtTrkProducer* mdtTrkProd = new PndMdtTrkProducer();
   fRun->AddTask(mdtTrkProd);
 
   // -----   DRC hit producers   ---------------------------------
   PndDrcHitProducerIdeal* drchit = new PndDrcHitProducerIdeal();
   drchit->SetVerbose(iVerbose);
   fRun->AddTask(drchit);
+  
+  // -----   GEM hit producers   ---------------------------------
+  Int_t verboseLevel = 0;
+  PndGemDigitize* gemDigitize = new PndGemDigitize("GEM Digitizer", verboseLevel);
+  fRun->AddTask(gemDigitize);
+
+  PndGemFindHits* gemFindHits = new PndGemFindHits("GEM Hit Finder", verboseLevel);
+  fRun->AddTask(gemFindHits);
 
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
