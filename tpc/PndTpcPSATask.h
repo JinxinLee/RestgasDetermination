@@ -20,7 +20,7 @@
 
 // Base Class Headers ----------------
 #include "FairTask.h"
-
+#include "PndTpcDigiPar.h"
 // Collaborating Class Headers -------
 
 
@@ -28,6 +28,7 @@
 class TClonesArray;
 class PndTpcFrontend;
 class PndTpcAbsPSAStrategy;
+class PndTpcDigiPar;
 
 class PndTpcPSATask : public FairTask {
 public:
@@ -53,6 +54,7 @@ public:
 
   virtual void Exec(Option_t* opt);
 
+  virtual void SetParContainers();
 
 private:
 
@@ -66,7 +68,7 @@ private:
   PndTpcFrontend* ffrontend;
   PndTpcAbsPSAStrategy* fpsa;
 
-  
+  PndTpcDigiPar* fpar;
 
   // Private Methods -----------------
 

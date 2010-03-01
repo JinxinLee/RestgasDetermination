@@ -32,9 +32,29 @@
 #include "PndTpcDigiAge.h"
 #include "PndTpcFrontend.h"
 #include "PndTpcSimplePSAStrategy.h"
-
+#include "PndTpcPSA_TOT1.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
+#include "PndTpcDigiPar.h"
 
 // Class Member definitions -----------
+void
+PndTpcPSATask::SetParContainers() {
+
+  std::cout<<"PndTpcPSATask::SetParContainers"<<std::endl;
+  std::cout.flush();
+
+  // Get run and runtime database
+  FairRun* run = FairRun::Instance();
+  if ( ! run ) Fatal("SetParContainers", "No analysis run");
+
+  FairRuntimeDb* db = run->GetRuntimeDb();
+  if ( ! db ) Fatal("SetParContainers", "No runtime database");
+
+  // Get PndTpc digitisation parameter container
+  fpar= (PndTpcDigiPar*) db->getContainer("PndTpcDigiPar");
+  if (! fpar ) Fatal("SetParContainers", "PndTpcDigiPar not found");
+}
 
 
 PndTpcPSATask::PndTpcPSATask()
@@ -76,17 +96,30 @@ PndTpcPSATask::Init()
   ioman->Register("PndTpcDigi","PndTpc",fdigiArray,fpersistence);
 
   
-  //TODO: Get this from Database!
-  ffrontend= new PndTpcFrontend(100,    // AdcThreshold
-			     100000, // adcmax
-			     10,     // adcbits
-			     40,     // SamplingFreq_Mhz
-			     -60000,      // t0
-			     30,     // timebits
-			     10);     // PSAthreshold
+  //TODO: Get this from Database
+  //  ffrontend= new PndTpcFrontend(10,    // AdcThreshold
+  //		     2048, // adcmax
+  //		     11,     // adcbits
+  //		     20,     // SamplingFreq_Mhz
+  //		     0,      // t0
+  //			     16,     // timebits
+  //		     10);     // PSAthreshold
 
-  fpsa= new PndTpcSimplePSAStrategy(10); // threshold (in adc channels)
+  ffrontend = (PndTpcFrontend*) fpar->getFrontend();
 
+
+   if( fpar->getPSA() == 0)	
+     {
+  	fpsa= new PndTpcSimplePSAStrategy(ffrontend->psaThreshold());
+	std::cout << "Using Simple PSA strategy!" << std::endl;
+     }
+   else 
+     if( fpar->getPSA() == 1)	
+       {
+	 fpsa= new PndTpcPSA_TOT1();
+	 std::cout << "Using PSA_TOT strategy!" << std::endl;
+       }
+     else return kERROR;
   return kSUCCESS;
 }
 
@@ -94,6 +127,8 @@ PndTpcPSATask::Init()
 void
 PndTpcPSATask::Exec(Option_t* opt)
 {
+
+
   std::cout<<"PndTpcPSATask::Exec"<<std::endl;
   // Reset output Array
   if(fdigiArray==0) Fatal("PndTpcPSA::Exec)","No DigiArray");
@@ -103,9 +138,29 @@ PndTpcPSATask::Exec(Option_t* opt)
   
   Int_t ns=fsampleArray->GetEntriesFast();
   if(ns>0){
-    for(Int_t is=0;is<ns;++is){
-      PndTpcDigi* digi=fpsa->ProcessNext((PndTpcSample*)fsampleArray->At(is));
-      if(digi!=0)digis.push_back(digi);
+
+    if ( fpar->getPSA() == 1)
+      {
+	std::vector<PndTpcSample*> vecSa;
+	vecSa.clear();
+	for(Int_t is=0;is<ns;++is)
+	  vecSa.push_back((PndTpcSample*)fsampleArray->At(is));
+	if(vecSa.size()!=0)
+	  {
+	    std::cout << "Processing " << vecSa.size() << " samples with PSA_TOT1";
+	    fpsa->Process(vecSa,digis,ffrontend->psaThreshold());
+	    std::cout << " -- " << digis.size()<< " Digis created."<<std::endl;
+	  }
+      }
+    else {
+      for(Int_t is=0;is<ns;++is){
+	PndTpcDigi* digi=fpsa->ProcessNext((PndTpcSample*)fsampleArray->At(is));
+	if(digi!=0)
+	  {
+	    //	    digi->fct(((PndTpcSample*)fsampleArray->At(is))->ct());
+	    digis.push_back(digi); 
+	  }
+      }
     }
   }
   //sort digis in time;
