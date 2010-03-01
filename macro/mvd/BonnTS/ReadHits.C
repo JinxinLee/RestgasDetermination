@@ -109,6 +109,7 @@ void ReadHits(){
 
 	can2->cd();
 
+	gStyle->SetPalette(1);
 	histOne->Draw("COLZ");
 	histOne->GetXaxis()->SetTitle("x [cm]");
 	histOne->GetYaxis()->SetTitle("y [cm]");
