@@ -62,6 +62,7 @@ public:
   unsigned int nPadX() const {return fnPadX;}
   unsigned int nPadY() const {return fnPadY;}
   unsigned int index() const {return findex;}
+  unsigned int get2DSize();
   const McIdCollection& mcId() const {return fmcid;}
   unsigned int nMcIds() const {return fmcid.nIDs();}
   double maxMcWeight() const {return fmcid.MaxRelWeight();}
@@ -92,6 +93,8 @@ public:
     assert (i<digis.size());
     return digis.at(i);
   }
+  
+  
   
   TVector3 calcAxis() const; // calculate major axis from cluster shape
 

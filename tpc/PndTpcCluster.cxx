@@ -23,6 +23,7 @@
 
 // C/C++ Headers ----------------------
 #include <iostream>
+#include <set>
 using namespace std;
 
 // Collaborating Class Headers --------
@@ -70,7 +71,15 @@ PndTpcCluster::calcAxis() const {
   return Axis;
 }
 
-
+unsigned int 
+PndTpcCluster::get2DSize() { //return the 2-dimensional size of the cluster
+  std::set<unsigned int> ids;
+  for(int k=0; k<digis.size(); k++) {
+    unsigned int id = (digis[k]).padId();
+    ids.insert(id);
+  }
+  return ids.size();
+}
 
 
 PndTpcCluster::~PndTpcCluster(){}
