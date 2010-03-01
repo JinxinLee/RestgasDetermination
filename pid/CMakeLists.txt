@@ -40,7 +40,7 @@ ${CMAKE_SOURCE_DIR}/pid/PidClassifier
 ${CMAKE_SOURCE_DIR}/pid/PidClassifier/KNN
 ${CMAKE_SOURCE_DIR}/pid/PidClassifier/LVQ1
 ${CMAKE_SOURCE_DIR}/pid/PidClassifier/TMVAkd_KNN
-${CMAKE_SOURCE_DIR}/pid/PidClassifier/TMVA_PDE_FOAM
+# ${CMAKE_SOURCE_DIR}/pid/PidClassifier/TMVA_PDE_FOAM
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -70,13 +70,16 @@ PidClassifier/KNN/PndStdKnnClassify.cpp
 PidClassifier/LVQ1/PndLVQClassify.cpp
 PidClassifier/TMVAkd_KNN/PndKnnClassify.cpp
 PidClassifier/TMVAkd_KNN/PndProjectedKNN.cpp
-PidClassifier/TMVA_PDE_FOAM/PndPDEFoamClassify.cpp
+# PidClassifier/TMVA_PDE_FOAM/PndPDEFoamClassify.cpp
+
 ###### Trainers.
 PidClassifier/PndMvaTrainer.cpp
 PidClassifier/LVQ1/PndLVQTrain.cpp
-PidClassifier/TMVA_PDE_FOAM/PndPDEFoamTrain.cpp
-###### Dummy
+# PidClassifier/TMVA_PDE_FOAM/PndPDEFoamTrain.cpp
+
+###### Associator
 PidClassifier/PndPidIdealAssociatorTask.cxx
+PidClassifier/PndPidAssociatorTask.cpp
 )
 
 if(RULE_CHECKER_FOUND)
@@ -97,7 +100,7 @@ PidClassifier/PndMvaVariable.h
 
 ###### Dummy
 PidClassifier/PndPidIdealAssociatorTask.h
-
+PidClassifier/PndPidAssociatorTask.h
 )
 
 
