@@ -34,24 +34,24 @@ void fcnHelix2(Int_t &npar, Double_t *gin, Double_t &f, Double_t *par, Int_t ifl
 class PndSttHelixTrackFitter : public PndSttTrackFitter
 {
  private:
-    Int_t fEventCounter;
+  Int_t fEventCounter;
 
-    PndSttTrack* fTrack;
-    PndTrackCand* fTrackCand;
-    PndSttTrack currentTrack;
+  PndSttTrack* fTrack;
+  PndTrackCand* fTrackCand;
+  PndSttTrack currentTrack;
     
-    TClonesArray* fHitArray;
-    TClonesArray* fPointArray;
-    TObjArray *ZPointsArray;
-    TCanvas *eventCanvas;
-    TCanvas *eventCanvas2;
-    TH2F *h1;
-    TH2F *h2;
-    Bool_t rootoutput;
-    Int_t fVerbose;
+  TClonesArray* fHitArray;
+  TClonesArray* fPointArray;
+  TObjArray *ZPointsArray;
+  TCanvas *eventCanvas;
+  TCanvas *eventCanvas2;
+  TH2F *h1;
+  TH2F *h2;
+  Bool_t rootoutput;
+  Int_t fVerbose;
 
  public:
- PndSttHelixTrackFitter();
+  PndSttHelixTrackFitter();
   PndSttHelixTrackFitter(Int_t verbose);
   ~PndSttHelixTrackFitter();
   void Init();
@@ -61,21 +61,31 @@ class PndSttHelixTrackFitter : public PndSttTrackFitter
   Bool_t IntersectionFinder(PndTrackCand *pTrackCand);  
   // fit
   Int_t XYFit(PndTrackCand* pTrackCand, Int_t whatToFit);
+  Int_t XYFitThroughOrigin(PndTrackCand* pTrackCand, Int_t whatToFit);
   Int_t MinuitFit(PndTrackCand* pTrackCand, Int_t whatToFit);
   Int_t SetUpFitVector(PndTrackCand* pTrackCand, TMatrixT<Double32_t> &fitvect);
 
   // z track length plane ----------
   // zfinder
   Bool_t ZFinder(PndTrackCand* pTrackCand, Int_t whatToFit); 
+  Bool_t ZFinderThroughOrigin(PndTrackCand* pTrackCand, Int_t whatToFit); 
 
   // hough
   void Hough(TVector3* choice, Double_t Phi0, Double_t x0, Double_t y0, Double_t R);
   TVector3 GetHoughResponse();
+  void HoughThroughOrigin(TVector3* choice, Double_t Phi0, Double_t x0, Double_t y0, Double_t R);
+  TVector3 GetHoughResponseThroughOrigin();
+
   // zfit
   Int_t ZFit(PndTrackCand* pTrackCand, Int_t whatToFit);
-  
+  Int_t ZFitThroughOrigin(PndTrackCand* pTrackCand, Int_t whatToFit);
+ 
   Int_t DoFit(PndTrackCand* pTrackCand, PndSttTrack* pTrack, Int_t pidHypo = 211);
-
+  // plain = with no constraint
+  Int_t DoFitPlain(PndTrackCand* pTrackCand, PndSttTrack* pTrack, Int_t pidHypo = 211);
+  // through origin = force the track to pass in 0, 0, 0.
+  Int_t DoFitThroughOrigin(PndTrackCand* pTrackCand, PndSttTrack* pTrack, Int_t pidHypo = 211);
+ 
   // charge reconstruction from xy fit
   Int_t GetCharge(Double_t dCenter, Double_t phiCenter, Double_t radius);
   void OrderHitsByR(std::map <Double_t, Int_t> &hitMap);
@@ -99,7 +109,14 @@ class PndSttHelixTrackFitter : public PndSttTrackFitter
   PndTrackCand* GetTrackCand() const { return fTrackCand; };
   TClonesArray* GetHitArray() const { return fHitArray; };
 
+  void SetConstraint(Int_t con) {fConstraint = con;};
+  Int_t GetConstraint() { return fConstraint; };
+
   Double_t refAngle;
+
+  // 0 = no contraint, 1 = the track passes through (0, 0, 0)
+  Int_t fConstraint;
+
   ClassDef(PndSttHelixTrackFitter,1);
 };
 
