@@ -35,7 +35,7 @@ extern "C" {
 
 }
 
-extern "C" int init1_(float* Plab, double* seed, float* Elastic );//install DPM 
+extern "C" int init1_(float* Plab, double* seed, float* Elastic, float* tetmin );//install DPM 
 extern "C" int dpm_gen__(float* Generator, double* seed ); //to generate events
 
 TF1 	 * fDensityFunction;
@@ -47,46 +47,58 @@ PndDpmDirect::PndDpmDirect() {
 // ------------------------------------------------------------------------
 
 // -----   Standard constructor   -----------------------------------------
-PndDpmDirect::PndDpmDirect(Double_t Mom, Int_t Mode) {
-   fMom=Mom;
-   fMode=Mode;
-
-   Long_t iSeed = gRandom->GetSeed();
-   int a = iSeed/100000;   
-   fSeed=iSeed - a*100000 + a/100000.;
-
+PndDpmDirect::PndDpmDirect(Double_t Mom, Int_t Mode, Long_t Seed, Double_t ThtMin) {
+   fMom    = Mom;
+   fMode   = Mode;
+   fSeed   = Seed;
+   fThtMin = ThtMin;
+      
+   if (fSeed < 0)
+   {
+     Long_t iSeed = gRandom->GetSeed();
+     int a = iSeed/100000;   
+     fSeed=iSeed - a*100000 + a/100000.;
+   }
+   
    fGasmode = 0;
    fRsigma = 0.;
 
    cout << "<I> PndDpmDirect initialization" << endl;
-   cout << "<I> Momentum = " << fMom << endl;
-   cout << "<I> Seed     = " << fSeed << endl;
-   cout << "<I> Mode     = " << fMode << endl;
+   cout << "<I> Momentum  = " << fMom << endl;
+   cout << "<I> Seed      = " << fSeed << endl;
+   cout << "<I> Mode      = " << fMode << endl; 
+   cout << "<I> Theta min = " << fThtMin<<endl;
 
-   init1_(&fMom,&fSeed,&fMode);     // init the DPM generator  
+   init1_(&fMom,&fSeed,&fMode, &fThtMin);     // init the DPM generator  
 }
 // ------------------------------------------------------------------------
 
 // -----   Gas mode constructor   -----------------------------------------
-PndDpmDirect::PndDpmDirect(Double_t Mom, Int_t Mode, Double_t Rsigma, TF1* DensityFunction) {
-   fMom=Mom;
-   fMode=Mode;
-
-   Long_t iSeed = gRandom->GetSeed();
-   int a = iSeed/100000;   
-   fSeed=iSeed - a*100000 + a/100000.;
-
+PndDpmDirect::PndDpmDirect(Double_t Mom, Int_t Mode, Double_t Rsigma, TF1* DensityFunction, Long_t Seed, Double_t ThtMin) {
+   fMom    = Mom;
+   fMode   = Mode;
+   fSeed   = Seed;
+   fThtMin = ThtMin;
+   
+   if (fSeed < 0)
+   {
+   	 Long_t iSeed = gRandom->GetSeed();
+     int a = iSeed/100000;   
+     fSeed=iSeed - a*100000 + a/100000.;
+   }
+   
    fGasmode = 1;
    fRsigma = Rsigma;
    fDensityFunction = DensityFunction;
 
    cout << "<I> PndDpmDirect initialization" << endl;
-   cout << "<I> Momentum = " << fMom << endl;
-   cout << "<I> Seed     = " << fSeed << endl;
-   cout << "<I> Mode     = " << fMode << endl;
-   cout << "<I> Gasmode  = " << fGasmode << endl;
+   cout << "<I> Momentum  = " << fMom << endl;
+   cout << "<I> Seed      = " << fSeed << endl;
+   cout << "<I> Mode      = " << fMode << endl;
+   cout << "<I> Gasmode   = " << fGasmode << endl;
+   cout << "<I> Theta min = " << fThtMin<<endl;
 
-   init1_(&fMom,&fSeed,&fMode);     // init the DPM generator     
+   init1_(&fMom,&fSeed,&fMode, &fThtMin);     // init the DPM generator     
 }
 // ------------------------------------------------------------------------
 

@@ -37,8 +37,8 @@ class PndDpmDirect : public FairGenerator
    *  @param Mode = 1. - Elastic and inelastic interactions
    *  @param Mode = 2. - Only elastic scattering, no inelastic one
    **/
-  PndDpmDirect(Double_t Mom, Int_t Mode);
-  PndDpmDirect(Double_t Mom, Int_t Mode, Double_t Rsigma, TF1 * DensityFunction);
+  PndDpmDirect(Double_t Mom, Int_t Mode, Long_t Seed = -1, Double_t ThtMin=0.001);
+  PndDpmDirect(Double_t Mom, Int_t Mode, Double_t Rsigma, TF1* DensityFunction, Long_t Seed = -1, Double_t ThtMin=0.001);
 
   /** Destructor **/
   virtual ~PndDpmDirect();
@@ -63,6 +63,8 @@ class PndDpmDirect : public FairGenerator
   double fSeed;
   int    fGasmode;
 	double fRsigma;
+  float fThtMin;
+  
   TF1*   fDensityFunction;
 	
   ClassDef(PndDpmDirect,1);
