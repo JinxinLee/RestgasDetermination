@@ -73,7 +73,7 @@ void PndPidIdealAssociatorTask::SetParContainers() {
 }
 //______________________________________________________
 void PndPidIdealAssociatorTask::Exec(Option_t * option) {
-  // CAUTION We use Monte-Calo info here!
+  // CAUTION We use Monte-Carlo info here!
   
   if(fVerbose>1) std::cout << "-I- Start PndPidIdealAssociatorTask. "<<std::endl;
 
@@ -105,11 +105,10 @@ void PndPidIdealAssociatorTask::DoPidMatch(PndPidCandidate* pidcand, PndPidProba
   if( 0==mctrack) return; // better do nothing on a null pointer
   Int_t mcpdg = mctrack->GetPdgCode();
   
-  TLorentzVector lv = pidcand->GetLorentzVector();
-  Double_t mass = TDatabasePDG::Instance()->GetParticle(mcpdg)->Mass();
-  lv.SetXYZM(lv.X(), lv.Y(), lv.Z(), mass);
-
-  pidcand->SetLorentzVector(lv);
+  // TLorentzVector lv = pidcand->GetLorentzVector();
+  // Double_t mass = TDatabasePDG::Instance()->GetParticle(mcpdg)->Mass();
+  // lv.SetXYZM(lv.X(), lv.Y(), lv.Z(), mass);
+  //   pidcand->SetLorentzVector(lv);
   
   // chaet around with the probabilities...
   switch(mcpdg) {
@@ -151,9 +150,9 @@ void PndPidIdealAssociatorTask::DoPidMatch(PndPidCandidate* pidcand, PndPidProba
 void PndPidIdealAssociatorTask::Register() {
   //---
   FairRootManager::Instance()->
-  Register("PidChargedProbability","Pid", fPidChargedProb, kTRUE); 
+  Register("PidAlgoIdealCharged","Pid", fPidChargedProb, kTRUE); 
   FairRootManager::Instance()->
-  Register("PidNeutralProbability","Pid", fPidNeutralProb, kTRUE);
+  Register("PidAlgoIdealNeutral","Pid", fPidNeutralProb, kTRUE);
 }
 
 //_________________________________________________________________
