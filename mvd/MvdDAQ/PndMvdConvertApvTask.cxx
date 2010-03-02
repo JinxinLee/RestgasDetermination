@@ -4,6 +4,7 @@
 // -------------------------------------------------------------------------
 // libc includes
 #include <iostream>
+#include <map>
 
 // Root includes
 #include "TROOT.h"
@@ -62,20 +63,61 @@ void PndMvdConvertApvTask::Exec(Option_t* opt)
 {
     // Reset output array
 	fStripArray->Delete();
+
+	std::map<TString,Double_t> OurMap;
+
   Int_t rw=-1, sw=-1;
   TString detpath=""; 
   TString detnameid;
+  Int_t buffIndex = -1;
+
 	std::vector<PndMvdDigiStrip> strips = fApvConvert->ReadNext();
+	
+	Int_t stripnum;
+
 	for (std::vector<PndMvdDigiStrip>::iterator strip=strips.begin(); strip!=strips.end(); ++strip)
 	{
     rw=strip->GetFE();
     fApvMapper->DoMapping(rw,sw,detpath);
     detnameid=fGeoH->GetID(detpath);
+
+
+     
     if(fVerbose>1) Info("Exec","Write a Digi from detector %s %s",detpath.Data(),detnameid.Data());
-		Int_t stripnum = fStripArray->GetEntriesFast();
+	
+    stripnum = fStripArray->GetEntriesFast();
+    //cout << "stripnum: " << stripnum << endl;
 		new ((*fStripArray)[stripnum]) PndMvdDigiStrip(strip->GetIndices(), strip->GetDetID(),
                               detnameid, sw, strip->GetChannel(), strip->GetCharge(), strip->GetTimestamp());
+	
+
+
+		buffIndex = strip->GetIndex();
+
+		if (detpath.Contains("StripActiveTS"))
+
+		  {
+
+		    //	    cout << "Filling Bottom Side of single sided modules" << endl;
+		    //stripnum = fStripArray->GetEntriesFast();		    
+		    //cout << "stripnum: " << stripnum << endl;
+		    
+		    OurMap[detnameid]+= strip->GetCharge();
+
+		  }
+
+
 	}
+
+	for (std::map<TString,Double_t>::iterator it=OurMap.begin();it!=OurMap.end();++it)
+	  {
+
+	    stripnum = fStripArray->GetEntriesFast();
+	    
+	new ((*fStripArray)[stripnum]) PndMvdDigiStrip(buffIndex, 0,
+				it->first, 3, 0, it->second, 0);
+	  }
+	
 }
 
 void PndMvdConvertApvTask::Finish()
