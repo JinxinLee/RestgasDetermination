@@ -1,4 +1,11 @@
-//#pragma once
+/* ************************************
+ *  Author: M. Babai (M.Babai@rug.nl) *
+ *                                    *
+ *  pid classifier                    *
+ *                                    *
+ * Modified:                          *
+ *                                    *
+ * ************************************/
 #ifndef PndKnnTrain_H
 #define PndKnnTrain_H
 

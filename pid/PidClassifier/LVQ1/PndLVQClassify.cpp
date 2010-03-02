@@ -7,7 +7,6 @@
  * License:                              *
  * ***************************************
  */
-
 #include "PndLVQClassify.h"
 
 using namespace std;

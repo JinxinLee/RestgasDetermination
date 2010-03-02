@@ -8,8 +8,6 @@
  * Based on the straight KNN algorithm
  * Using a linear search data structure.
  */
-
-//#pragma once
 #ifndef PndKnnClassify_H
 #define PndKnnClassify_H
 

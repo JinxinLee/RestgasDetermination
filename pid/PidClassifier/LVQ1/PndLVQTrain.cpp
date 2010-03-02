@@ -5,7 +5,6 @@
  * LICENSE:                              *
  * ***************************************
  */
-
 #define ProgStep  1000
 #define ErrorStep 10
 

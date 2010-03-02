@@ -5,8 +5,6 @@
  * LICENSE:                              *
  * ***************************************
  */
-
-//#pragma once
 #ifndef Pnd_LVQ_Train_H
 #define Pnd_LVQ_Train_H
 

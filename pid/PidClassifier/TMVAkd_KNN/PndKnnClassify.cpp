@@ -1,3 +1,11 @@
+/* ************************************
+ *  Author: M. Babai (M.Babai@rug.nl) *
+ *                                    *
+ *  pid classifier                    *
+ *                                    *
+ * Modified:                          *
+ *                                    *
+ * ************************************/
 #include "PndKnnClassify.h"
 
 using namespace std;
