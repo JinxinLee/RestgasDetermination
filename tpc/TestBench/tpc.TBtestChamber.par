@@ -31,11 +31,11 @@ ADCBits:Int_t 11
 SamplingFreq:Double_t 20
 T0_wallclock:Double_t 0 #-20000
 TimeBits:Int_t 28
-PSAThreshold:Int_t 100
+PSAThreshold:Int_t 10
 Shaper_tDiff:Double_t 50
 Shaper_tInt:Double_t 50
 Shaper_tSig:Double_t 2
-TOTPSA:Int_t 0
+TOTPSA:Int_t 1
 GAUSSIANNOISE:Int_t 0
 GAUSSIANNOISEAMP:Int_t 0
 Rate:Double_t 2e-2

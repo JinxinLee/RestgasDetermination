@@ -26,7 +26,7 @@ Hough2DNode::~Hough2DNode(){
     free(_proj1); 
 }
 
-Hough2DNode::Hough2DNode(double* center, int level, int nHyperplanes) {
+Hough2DNode::Hough2DNode(const double* center, int level, int nHyperplanes) {
   _nPlanes = nHyperplanes;
   _hitList = (bool*) malloc(_nPlanes*sizeof(bool));
   _center = (double*) malloc(2*sizeof(double));
@@ -57,8 +57,8 @@ Hough2DNode::Hough2DNode(double* center, int level, int nHyperplanes) {
   _proj1[1]=_center[1] - 0.5*_length;
 }
 
-double*
-Hough2DNode::getSonArray() {   //return centers of sons
+const double*  
+Hough2DNode::getSonArray() const {   //return centers of sons
   double* arr = (double*) malloc(8*sizeof(double));
   int count=0;
   for(int x=-1; x<2; x+=2)
@@ -71,6 +71,7 @@ Hough2DNode::getSonArray() {   //return centers of sons
   return arr;
 }
 
+/*
 void
 Hough2DNode::print() {
   
@@ -79,7 +80,7 @@ Hough2DNode::print() {
 	   <<_votes<<std::endl; 
 
 }
-
+*/
 
 void Hough2DNode::removeHit(int j) {
   if(j>=_nPlanes){

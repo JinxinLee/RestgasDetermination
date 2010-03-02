@@ -55,8 +55,8 @@ Hypersurface2D::~Hypersurface2D() {
 bool 
 Hypersurface2D::testIntersect(Hough2DNode* node) {
 
-  double* proj1 = node->getProjection0(); 
-  double* proj2 = node->getProjection1();
+  const double* proj1 = node->getProjection0(); 
+  const double* proj2 = node->getProjection1();
  
   int signs = 0;
   
@@ -66,7 +66,6 @@ Hypersurface2D::testIntersect(Hough2DNode* node) {
     return 0;
   }
   
- 
   //inflate to full-scale parameter space
   double p1_par_max = (_maxs[0]-_mins[0])*(proj1[0]+0.5) + _mins[0];
   double p1_par_min = (_maxs[0]-_mins[0])*(proj1[1]+0.5) + _mins[0];

@@ -61,6 +61,9 @@ class PndTpcSLPatternRecoTask : public FairTask {
   void SetDepth(int depth) {fDepth=depth;}
   void SetThresh(int thresh) {fThresh=thresh;}
   void SetMinCandHits(int min) {fMin=min;}
+
+  void SetProjectionXZ() {fXZ=true;fZY=false;} //find lines in X-Z projection 
+  void SetProjectionZY() {fZY=true;fXZ=false;} //find lines in Z-Y projection (cosmics)
   
   
  private:
@@ -68,13 +71,16 @@ class PndTpcSLPatternRecoTask : public FairTask {
   double fMins[2];
   double fMaxs[2];
 
-  int fDepth;    //termination depth of the FHT search
-  int fThresh;   //STATIC threshold of the FTH search 
-  int fMin;      //minimum track candidate size
+  unsigned int fDepth;    //termination depth of the FHT search
+  unsigned int fThresh;   //STATIC threshold of the FTH search 
+  unsigned int fMin;      //minimum track candidate size
   
   Bool_t fPersistence;
   Bool_t fSecondarySupp;
   Bool_t fDistSorting;
+  Bool_t fXZ;
+  Bool_t fZY;
+  
   
   TString fClusterBranchName;
   TString fTrackBranchName;

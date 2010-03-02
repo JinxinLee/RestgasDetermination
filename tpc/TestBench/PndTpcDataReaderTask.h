@@ -29,9 +29,9 @@
 
 // Collaborating Class Headers -------
 #include <ostream>
+#include <vector>
 
 // Collaborating Class Declarations --
-
 
 class TClonesArray;
 class PndTpcPadPlane;
@@ -52,6 +52,7 @@ class PndTpcDataReaderTask : public FairTask {
   void SetPersistence(Bool_t opt=kTRUE) {_persistence=opt;}
   void SetDatafile(const TString& name) {_file=name;}
   void SetCutSmallPad(Bool_t opt=kTRUE) {_smallpad=opt;}
+  void SetMinDigis(unsigned int md) {fMinDigis=md;}
 
  // Operations ----------------------
   virtual InitStatus Init();
@@ -61,14 +62,17 @@ class PndTpcDataReaderTask : public FairTask {
   virtual void SetParContainers();
 
  private:
+  
   TString _digiBranchName;
   TString _file;
-  std::vector<PndTpcSample*>* _di;
+  
+  std::vector<PndTpcSample*>* _di; //!
 
   TChain* fIntree;  //external data input
 
   PndTpcEvent* fEv; 
   
+  unsigned int fMinDigis;
 
   PndTpcPadPlane* fpadplane;
 

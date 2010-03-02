@@ -20,33 +20,36 @@
 #define HOUGH2DNODE_H
 
 
-//includes
-#include <iostream>
-
-
-
 class Hough2DNode {
 
   
 public:
   // Constructors/Destructors ---------
   Hough2DNode();
-  Hough2DNode(double* center, int level, int nHyperplanes); 
+  Hough2DNode(const double* center, int level, int nHyperplanes); 
 
   ~Hough2DNode();
 
 
-  double* getCenter() {return _center;}
-  int getLevel() {return _level;}
-  double* getSonArray();  //return center positions of sons
-  double* getCorners() { return _corners;}
-  double  getSideLength() {return _length;}
-  bool* getHitList() {return _hitList;}
+  const double* getCenter() const {return _center;}
+  int getLevel() const {return _level;}
+  const double* getSonArray() const ;  //return center positions of sons
+  const double* getCorners() const { return _corners;}
+  double  getSideLength() const {return _length;}
+  const bool* getHitList() const {return _hitList;}
   int getVote() {return _votes;}
 
-  double* getProjection0() {return _proj0;} //return the two coordinates of the 
-  double* getProjection1() {return _proj1;} //corners projected onto one 
+  const double* getProjection0() const 
+  {return _proj0;} //return the two coordinates of the 
+  
+  const double* getProjection1() const 
+  {return _proj1;} //corners projected onto one 
     
+  bool checkHit(int j) {return _hitList[j];}
+
+  int getNplanes() {return _nPlanes;}
+  
+  // Modifiers ----------------
   void setHit(int j) {
     if(j<_nPlanes)
       _hitList[j] = true;
@@ -55,10 +58,10 @@ public:
   
   void setVotes(int votes)  {_votes = votes;}
   void vote() {_votes++;}
-  bool checkHit(int j) {return _hitList[j];}
+  
   void removeHit(int j) ;
-  void print();
-  int getNplanes(){return _nPlanes;}
+  //void print(); TODO: redesign (to not depend on <iostream>
+  
   
 
  private:

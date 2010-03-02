@@ -45,7 +45,9 @@ using std::fabs;
 ClassImp(PndTpcDataReaderTask)
 
 
-  PndTpcDataReaderTask::PndTpcDataReaderTask(): _persistence(kFALSE),_smallpad(kFALSE)
+  PndTpcDataReaderTask::PndTpcDataReaderTask()
+: _persistence(kFALSE),_smallpad(kFALSE),
+  fMinDigis(0)
 {
   _digiBranchName = "PndTpcSample";
   _file = "TBtest/run.root";
@@ -53,8 +55,7 @@ ClassImp(PndTpcDataReaderTask)
 }
 
 PndTpcDataReaderTask::~PndTpcDataReaderTask()
-{
-}
+{;}
 
 InitStatus
 PndTpcDataReaderTask::Init()
@@ -101,44 +102,57 @@ void PndTpcDataReaderTask::Exec(Option_t* opt)
 
   fIntree->AddFile(_file.Data());
   // Reset output Arrays
-  if(_sampleOutArray==0) Fatal("PndTpcDataReaderTask::Exec()","No SampleOutArray");
+  if(_sampleOutArray==0) 
+    Fatal("PndTpcDataReaderTask::Exec()","No SampleOutArray");
+  
   _sampleOutArray->Delete();
   
-  
-  _di->clear();
-    
-  //get the PndTpcEvent;    
-  fIntree->GetEvent(loop);//Loop();
-  loop++;
-  
+  std::vector<PndTpcSample> samples;
+
   McIdCollection * mcid = new McIdCollection();
-
   
-  std::vector<PndTpcSample> samples = fEv->getEventVector();
-
-
-  std :: cout << "Copying "<< samples.size()<<" samples." <<std::endl;  
-  for (int i = 0;i<samples.size();i++)
-    if (samples[i].padId()>0)
-      try{
-      if(_smallpad && fpadplane->GetPad(samples[i].padId())->y()>0.6) //cut smallpad
-	{
+  while(true) {
+  
+    //get the PndTpcEvent;    
+    fIntree->GetEvent(loop);//Loop();
+    loop++;
+    samples = fEv->getEventVector();
+  
+    std :: cout << "Copying "<< samples.size()<<" samples." <<std::endl; 
+  
+    
+    for (int i = 0;i<samples.size();i++)
+      if (samples[i].padId()>0)
+	try{
+	  //cut smallpad:
+	  if(_smallpad && fpadplane->GetPad(samples[i].padId())->y()<0.6) 
+	    continue;
 	  PndTpcSample * didi = new PndTpcSample(samples[i]);
 	  _di->push_back(didi);
-	  //      delete didi;
 	}
-      }catch(...){std::cout << "PndTpcDataReaderTask::Exec GetPad exception caught: pad"
-			    <<samples[i].padId()<< " used."<<std::endl;}
+	catch(...){
+	  std::cout << "PndTpcDataReaderTask::Exec GetPad exception caught: pad"
+		    <<samples[i].padId()<< " used."<<std::endl;
+	}
+
+    if(_di->size()>=fMinDigis)
+      break;
+    samples.clear();
+    _di->clear();
+  }
+  
   std :: cout << "Saving "<< _di->size()<<" samples" <<std::endl;  
+  
   for (int i = 0; i < _di->size();i++)
     { 
-      PndTpcSample* dididi=new((*_sampleOutArray)[i]) PndTpcSample(*(*_di)[i]);//saved  
-      delete (*_di)[i];
+      PndTpcSample* dididi=new((*_sampleOutArray)[i]) PndTpcSample(*(_di->at(i)));
+      //saved  
+      delete _di->at(i);
     }
   
+  _di->clear();
   
   delete mcid;
-  
   
   return;
 }

@@ -45,11 +45,12 @@ class Hypersurface2D {
     
   
   //getters ---------------------------
-  double* getParamMins() {return _mins;}
-  double* getParamMaxs() {return _maxs;}
+  const double* getParamMins() const {return _mins;}
+  const double* getParamMaxs() const {return _maxs;}
   
-  double* getPars() {return _pars;} //return coordinates in parameter space
-  
+  //return coordinates in parameter space:
+  const double* getPars() const {return _pars;} 
+    
   int getID() {return _index;}
   
     

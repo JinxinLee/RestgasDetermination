@@ -12,10 +12,13 @@
 #include "PndTpcCluster.h"
 #include "Hypersurface2D.h"
 #include "Hough2DNode.h"
+#include "PndTpcPadPlane.h"
+#include "PndTpcPadShapePool.h"
 
 #include <vector>
 #include <iostream>
 #include <algorithm>
+#include <map>
 
 //helper functor for node sorting
 bool compareNodes (Hough2DNode* n1, Hough2DNode* n2) { 
@@ -24,7 +27,7 @@ bool compareNodes (Hough2DNode* n1, Hough2DNode* n2) {
 
 
 
-void plotHough(TString filename, int evLo, int evHi, int DEPTH, int THRESH) {
+void plotHoughCosmic(TString filename, int evLo, int evHi, int DEPTH, int THRESH) {
 
   //param space -----------------------------
   double theta_min = -3.f;
@@ -37,20 +40,24 @@ void plotHough(TString filename, int evLo, int evHi, int DEPTH, int THRESH) {
     
   // ----------------------------------------
 
-  double x_OFF = 5.f;
-  int MINCANDSIZE = 8;
+  double x_OFF = 0.f;
+  int MINCANDSIZE = 10;
   
   TFile* recofile = new TFile(filename);
   if(recofile->IsZombie()) {
     std::cerr<<"Reco file not existing! Aborting."<<std::endl;
   }
 
+  PndTpcPadShapePool* pool = new PndTpcPadShapePool("tpc/TestBench/TBhexa_pads.dat");
+  PndTpcPadPlane* plane = new PndTpcPadPlane("tpc/TestBench/padplane.dat",
+					     pool);
+
   TCanvas* canv =  new TCanvas();
   canv->Divide(3,1);
 
-  TH2F* real = new TH2F("bla", "Real Space",100,-5,5,100,0,8);
-  real->GetXaxis()->SetTitle("x (cm)");
-  real->GetYaxis()->SetTitle("z (cm)");  
+  TH2F* real = new TH2F("bla", "Real Space",100,0,10,100,-5,5);
+  real->GetXaxis()->SetTitle("z (cm)");
+  real->GetYaxis()->SetTitle("y (cm)");  
   TH2F* hough = new TH2F("bldsaa", "Hough Space",100,-3,3,100,0,15);
   hough->GetXaxis()->SetTitle("Theta (radians)");
   hough->GetYaxis()->SetTitle("Distance r (cm)");
@@ -62,8 +69,12 @@ void plotHough(TString filename, int evLo, int evHi, int DEPTH, int THRESH) {
   
   unsigned int nEv = evHi-evLo;
 
-  TObjArray* clusters = new TObjArray();
+  //TObjArray* clusters = new TObjArray();
+  TObjArray* digis = new TObjArray();
   TObjArray* surfs = new TObjArray();
+
+  std::map<int,TPolyMarker*> clusters;
+  std::map<int,TPolyMarker*> clusters2;
   
   std::vector<Hypersurface2D*> hitreps;
   std::vector<PndTpcCluster*> totClusters;
@@ -71,51 +82,83 @@ void plotHough(TString filename, int evLo, int evHi, int DEPTH, int THRESH) {
   TF1* rep = new TF1("blu","[0]*cos(x)+[1]*sin(x)",-3,3);
 
   int totCl =0;
-  
+    
   for(unsigned int k=0; k<=nEv; k++) {
+    
     recotree->GetEvent(evLo+k);
     
     //loop over clusters
     int nCl = clArr->GetEntriesFast();
     
-    TPolyMarker* marker = new TPolyMarker(nCl);
-    marker->SetMarkerStyle(4);    
-
+    TPolyMarker* digimarker = new TPolyMarker();
+    digimarker->SetMarkerStyle(5);
+    digimarker->SetMarkerSize(1);
+    digis->Add(digimarker);
+    //marker->SetMarkerStyle(4);    
+    
+    TPolyMarker* marker;
+    
     for(int c=0; c<nCl; c++) {
       PndTpcCluster* cl = (PndTpcCluster*)clArr->At(c);
       totClusters.push_back(new PndTpcCluster(*cl));
       TVector3 pos = cl->pos();
       double x = pos.X()+x_OFF; //offset to avoid theta-symmetry and numerical problems
       double z = pos.Z();
-      marker->SetPoint(c,x-x_OFF,z); 
-            
+      double y = pos.Y();
+
+      int size = cl->nDigi();
+      //plot cluster in the right size     
+     
+      if(clusters.count(size)==0) {
+	std::cout<<"creating new marker"<<std::endl;
+	marker = new TPolyMarker(100);
+	marker->SetMarkerStyle(4);
+	marker->SetMarkerSize((double)size/2);
+	clusters[size] = marker;
+      }
+      else
+	marker=clusters[size];
+      
+      marker->SetPoint(c,z-x_OFF,y); 
+      
+      //plot digis
+      //      for(int d=0; d<size; d++) {
+      //	PndTpcDigi* dig = cl->getDigi(d);
+      //      }
+      
       //transformed representation
-      TVector3* vec = new TVector3(x,z,0);
+      TVector3* vec = new TVector3(z,y,0);
       double r = vec->Mag();
       double theta = vec->Phi();
       
-      std::cout<<"theta: "<<theta<<", x: "<<x<<", z:"<<z<<std::endl;
+      std::cout<<"theta: "<<theta<<", z: "<<z<<", y:"<<y<<std::endl;
       
       TF1* surf = new TF1("blu","[0]*cos(x)+[1]*sin(x)",-3,3);
-      surf->SetParameter(0,x);
-      surf->SetParameter(1,z);
+      surf->SetParameter(0,z);
+      surf->SetParameter(1,y);
       surf->SetLineWidth(1);
       surfs->Add(surf);
       
-      hitreps.push_back(new Hypersurface2D(x,z,*surf,c+totCl));
+      hitreps.push_back(new Hypersurface2D(z,y,*surf,c+totCl));
       hitreps.back()->setParamSpace(mins, maxs);
     }
     
     totCl+=nCl;
-    clusters->Add(marker);
+    //clusters->Add(marker);
     
   }
   
   canv->cd(1);
   real->Draw();
-  for(int n=0; n<clusters->GetEntries(); n++)
-    ((TPolyMarker*)clusters->At(n))->Draw("same");
-
+  //  for(int n=0; n<clusters->GetEntries(); n++)
+  //  ((TPolyMarker*)clusters->At(n))->Draw("same");
+  std::map<int,TPolyMarker*>::iterator it;
+  
+  for(it=clusters.begin(); it!=clusters.end(); it++) {
+    it->second->Draw("same");
+  }
+  
+  
   canv->cd(2);
   hough->Draw();
   for(int n=0; n<surfs->GetEntries(); n++)
@@ -128,7 +171,7 @@ void plotHough(TString filename, int evLo, int evHi, int DEPTH, int THRESH) {
   Hough2DNode* root = new Hough2DNode(center,0,totCl);
   for(int i=0; i<hitreps.size(); i++)
     (hitreps[i])->testIntersect(root);
-  
+      
   std::cout<<"Number of votes: "<<root->getVote()<<std::endl;
 
   std::vector<Hough2DNode*>* survivors = new std::vector<Hough2DNode*>();
@@ -240,37 +283,49 @@ void plotHough(TString filename, int evLo, int evHi, int DEPTH, int THRESH) {
   real->Draw();
 
   TObjArray* lines = new TObjArray();
-
+  
+TPolyMarker* mark;
+  
   for(int i=0; i<solutions.size(); i++) {
-    TPolyMarker* mark = new TPolyMarker((solutions[i])->size());
+      
     
     //fill hist with positions;
     for(int p=0; p<(solutions[i])->size(); p++) {
-      TVector3 pos = (solutions[i])->at(p)->pos();
-      mark->SetPoint(p,pos.X(),pos.Z());
-    }
-        
-    mark->SetMarkerColor(colors[i]);
-    mark->SetMarkerStyle(4);
-    
-    clusters->Add(mark);
-    mark->Draw("same");
+      int size = (solutions[i])->at(p)->nDigi();
 
+    //plot cluster in the right size     
+      
+      if(clusters2.count(size)==0) {
+	clusters2[size]=new TPolyMarker();
+	mark = clusters2[size];
+	mark->SetMarkerStyle(4);
+	mark->SetMarkerSize((double)size/2);
+	mark->SetMarkerColor(colors[i]);
+      }
+      else{
+	mark=clusters2[size];
+      }
+      
+      TVector3 pos = (solutions[i])->at(p)->pos();
+      mark->SetPoint(p,pos.Z(),pos.Y());
+    }
+    
+    
     Hough2DNode* cand = cand_nodes[i];
     const double* center = cand->getCenter();
     
     double theta = (center[0] + 0.5f)*(theta_max-theta_min)+theta_min;
     double r_shift = (center[1] + 0.5f)*(r_max-r_min)+r_min;
-
+    
     double r = r_shift - x_OFF*cos(theta);
     
     double m = -1.f/(tan(theta));
     double t = r/(sin(theta));
     
-    double y1 = 0.f;
+    double y1 = -5.f;
     double x1 = (y1-t)/m - x_OFF;
     
-    double y2 = 8.f;
+    double y2 = 5.f;
     double x2 = (y2-t)/m - x_OFF;
     
     TPolyLine* line = new TPolyLine(2);
@@ -279,10 +334,10 @@ void plotHough(TString filename, int evLo, int evHi, int DEPTH, int THRESH) {
     
     lines->Add(line);
     line->Draw("same");
-    
   }
-
   
+  for(it=clusters2.begin(); it!=clusters2.end(); it++)
+    it->second->Draw("same");
   
   
 }

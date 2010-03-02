@@ -51,9 +51,10 @@
 ClassImp(PndTpcSLPatternRecoTask)
 
 PndTpcSLPatternRecoTask::PndTpcSLPatternRecoTask()
- :  FairTask("PndTpc SL Hough Pattern Reco"),
-    fPersistence(kFALSE),fDistSorting(kTRUE),
-  fDepth(6), fThresh(6), fMin(5), counter(0)
+:  FairTask("PndTpc SL Hough Pattern Reco"),
+   fPersistence(kFALSE),fDistSorting(kTRUE),
+   fDepth(6), fThresh(6), fMin(5), counter(0),
+   fXZ(true), fZY(false)
     
 {
   fClusterBranchName = "PndTpcCluster";
@@ -63,7 +64,6 @@ PndTpcSLPatternRecoTask::PndTpcSLPatternRecoTask()
 PndTpcSLPatternRecoTask::~PndTpcSLPatternRecoTask(){
 
 }
-
 
 
 //helper functor for node sorting
@@ -131,8 +131,10 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
   double MAX1 = fMaxs[1];
   
   
+  double x_OFF=0.; //TODO: make member, settable from outside.
   
-  double x_OFF = 5.f; //TODO: read from par
+  if(fXZ)
+    x_OFF = 5.; //offset; TODO: read from par
   
   //get the magnetic field for curvature seeding
   FairField* field=FairRunAna::Instance()->GetField();
@@ -158,11 +160,16 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
     
     //TODO: parameter management and specifiable projection plane
     double x = pos.X()+x_OFF;
+    double y = pos.Y();
     double z = pos.Z();
 
     //std::cout<<"x: "<<x<<"  z: "<<z<<std::endl;
     
-    hitreps.push_back(new Hypersurface2D(x,z,*fRep,i));
+    if(fXZ) 
+      hitreps.push_back(new Hypersurface2D(x+x_OFF,z,*fRep,i));
+    if(fZY)
+      hitreps.push_back(new Hypersurface2D(z+x_OFF,y,*fRep,i));
+    
     hitreps.back()->setParamSpace(fMins, fMaxs);
     
   } //end loop over clusters
@@ -173,18 +180,14 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
   //initialize root node:
   double center[2] = {0.f, 0.f};
   Hough2DNode* root = new Hough2DNode(center,0,totCl);
-  //for(int i=0; i<hitreps.size(); i++)
-  //  (hitreps[i])->testIntersect(root);
+  for(int i=0; i<hitreps.size(); i++)
+    (hitreps[i])->testIntersect(root);
   
   //test if every hit was inside that node
-  //int rootvotes = root->getVote();
-  //if(rootvotes!=totCl) {
-  //  std::cerr<<"Clusters: "<<totCl<<";  Votes: "<<rootvotes
-  //	     <<";  Hitreps: "<<hitreps.size()
-  //     <<";  EVENT: "<<counter<<std::endl;
-    //Fatal("PndTpcSLPatternReco::Exec()",
-    //  "root votes wrong! Parameter space was not properly initialized");
-  //}
+  int rootvotes = root->getVote();
+  std::cerr<<"DEBUG - Clusters: "<<totCl<<";  Votes: "<<rootvotes
+	   <<";  Hitreps: "<<hitreps.size()
+	   <<";  EVENT: "<<counter<<std::endl;
   
   //start actual FHT search
 
@@ -193,14 +196,15 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
   survivors.push_back(root);
 
     
-  for(int t=1; t<fDepth; t++) { //iteration depth
+  for(unsigned int t=1; t<fDepth; t++) { //iteration depth
     
-    for(int n=0; n<survivors.size(); n++) { //loop over survivors
+    for(unsigned int n=0; n<survivors.size(); n++) { //loop over survivors
       //create sons
       Hough2DNode* the_node = survivors[n];
-      double* son_arr = the_node->getSonArray();
+      const double* son_arr = the_node->getSonArray();
       for (int s=0; s<4; s++) {
-	sons.push_back(new Hough2DNode(son_arr+2*s,the_node->getLevel()+1,totCl));
+	sons.push_back(new Hough2DNode(son_arr+2*s,the_node->getLevel()+1,
+				       totCl));
       }
       delete survivors.at(n); //clean up last generation
       
@@ -224,19 +228,26 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
   } //finished tree search
 
 
-//End FHT search; Begin candidate extraction -----------------------------
+  //End FHT search; Begin candidate extraction -----------------------------
 
+  unsigned int surs = survivors.size();
+  //exit: PR failed
+  if(surs==0)
+    return;
   
+  std::cout<<"DEBUG: Begin candidate extraction"<<std::endl;
+    
   std::vector<std::vector<PndTpcCluster*>*> solutions; //track candidates
   std::vector<Hough2DNode*> cand_nodes;
-  
+
+    
   //extract tracks until solutions have less clusters than minCL
   while(true) {
     //sort nodes by final votes
     sort(survivors.begin(), survivors.end(), compareNodes);
     
     //extract clusters from best node
-    bool* bestHitList = survivors.front()->getHitList();
+    const bool* bestHitList = survivors.front()->getHitList();
     
     std::vector<PndTpcCluster*>* sol = new std::vector<PndTpcCluster*>();
     for(int c=0; c<totCl; c++) {
@@ -278,9 +289,6 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
   std::map<unsigned int,GFTrackCand*> candlist;
   for(unsigned int i=0; i<solutions.size(); i++) {
     
-    //HACK: find error on Monday
-    if(i>0)
-      continue;
     GFTrackCand* cand=candlist[i];
     for(unsigned int c=0; c<(solutions[i])->size(); c++) {
       if(cand==NULL){
@@ -296,20 +304,17 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
     if(cand_node==NULL)
       continue;
     
-    double* cent = cand_node->getCenter();
+    const double* cent = cand_node->getCenter();
     std::cout<<"Debug: got cent"<<std::endl;
     //TODO: HOW CAN THERE BE A SEGFAULT??
     if(cent==NULL)
       continue;
     
-    //double theta = (cent[0] + 0.5f)*(fMaxs[0]-fMins[0])+fMins[0];
-    //double r_shift = (cent[1] + 0.5f)*(fMaxs[1]-fMins[1])+fMins[1];
+    double theta = (cent[0] + 0.5f)*(fMaxs[0]-fMins[0])+fMins[0];
+    double r_shift = (cent[1] + 0.5f)*(fMaxs[1]-fMins[1])+fMins[1];
 
-    double theta = (cent[0] + 0.5f)*(MAX0-MIN0)+MIN0;
-    double r_shift = (cent[1] + 0.5f)*(MAX1-MIN1)+MIN1;
-    
     double r = r_shift - x_OFF*cos(theta);
-    
+        
     double m;
     if(tan(theta)>1.e-4)
       m = -1./(tan(theta));
@@ -341,7 +346,7 @@ PndTpcSLPatternRecoTask::Exec(Option_t* opt)
   }
   
     
-  std::cout<<"PdnTpcSLPatternRecoTask::Exec() "
+  std::cout<<"PndTpcSLPatternRecoTask::Exec() "
 	   <<fTrackArray->GetEntriesFast()<<" tracks created"<<std::endl;
   return;
 }
