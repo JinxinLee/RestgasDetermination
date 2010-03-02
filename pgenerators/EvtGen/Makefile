@@ -56,6 +56,9 @@ panda:
 simple:
 	$(EVTCXX) $(EVTLINK) $(EVTLINKOPT) -o simpleEvtGen simpleEvtGen.o -lEvtGen -lEvtGenModels -lEvtGenBase  -lCLHEP -l$(EVTPYLIB) -l$(EVTPDLIB) -lpacklib -lmathlib -l$(EVTPHLIB) -lCore -lCint -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -ldl $(EVTSYSLIB) -lm -lMathCore -lThread
 
+simpleRO:
+	$(EVTCXX) $(EVTLINK) $(EVTLINKOPT) -o simpleEvtGenRO simpleEvtGenRO.o -lEvtGen -lEvtGenModels -lEvtGenBase  -lCLHEP -l$(EVTPYLIB) -l$(EVTPDLIB) -lpacklib -lmathlib -l$(EVTPHLIB) -lCore -lCint -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -ldl $(EVTSYSLIB) -lm -lMathCore -lThread
+
 jgm:
 	$(EVTCXX) $(EVTLINK) $(EVTLINKOPT) -o jgmEvtGen jgmEvtGen.o -lEvtGen -lEvtGenModels -lEvtGenBase  -lCLHEP -l$(EVTPYLIB) -l$(EVTPDLIB) -lpacklib -lmathlib -l$(EVTPHLIB) -lCore -lCint -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -ldl $(EVTSYSLIB) -lm -lMathCore -lThread
 
@@ -65,4 +68,3 @@ irina:
 gg:
 	$(EVTCXX) $(EVTLINK) $(EVTLINKOPT) -o ggEvtGen ggEvtGen.o -lEvtGen -lEvtGenModels -lEvtGenBase  -lCLHEP -l$(EVTPYLIB) -l$(EVTPDLIB) -lpacklib -lmathlib -l$(EVTPHLIB) -lCore -lCint -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -ldl $(EVTSYSLIB) -lm -lMathCore -lThread
 # DO NOT DELETE THIS LINE -- make depend depends on it.
-
