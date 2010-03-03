@@ -12,7 +12,7 @@
 	
 	  const Double_t  kDx  = 0.96;   // in cm!!
 	  const Double_t  kDy  = 0.96;   // in cm!!
-	  const Double_t  kDz  = 0.150;   // in cm!!
+	  const Double_t  kDz  = 0.015;   // in cm!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	
 	  // Positions of the detector
 	
