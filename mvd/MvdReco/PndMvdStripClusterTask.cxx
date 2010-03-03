@@ -532,22 +532,23 @@ Bool_t PndMvdStripClusterTask::Backmap( TVector2 meantopPoint, Double_t meantope
   //do the transformation from sensor to lab frame
   hitPos = fGeoH->LocalToMasterId(localpos,detname.Data());
 
-  cout<<" meantoperr="<<meantoperr<<endl;
+  if (fVerbose>2)  cout<<" meantoperr="<<meantoperr<<endl;
   // calculate the errors corresponding to a skewed system!
   t = meantoperr*cos(fCurrentDigiPar->GetOrient());
   b = meanboterr*cos(fCurrentDigiPar->GetOrient()+fCurrentDigiPar->GetSkew());
-  cout<<" t="<<t<<" b="<<b<<endl;
+  if (fVerbose>2)cout<<" t="<<t<<" b="<<b<<endl;
 
   locDpos.SetX( TMath::Sqrt( t*t + b*b ) );
   t = meantoperr*sin(fCurrentDigiPar->GetOrient());
   b = meanboterr*sin(fCurrentDigiPar->GetOrient()+fCurrentDigiPar->GetSkew());
   locDpos.SetY( TMath::Sqrt( t*t + b*b ) );
   locDpos.SetZ( errZ );
-  cout << " errors:"<<endl;
+  if (fVerbose>2){cout << " errors:"<<endl;
   cout << "  dx = "<<locDpos.X()<<endl;
   cout << "  dy = "<<locDpos.Y()<<endl;
   cout << "  dz = "<<locDpos.Z()<<endl;
-  
+  }
+
   //do the transformation from sensor to lab frame
   hitErr = fGeoH->LocalToMasterErrorsId(locDpos,detname.Data());
 
