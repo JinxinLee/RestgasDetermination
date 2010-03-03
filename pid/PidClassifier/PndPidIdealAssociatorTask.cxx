@@ -100,7 +100,7 @@ void PndPidIdealAssociatorTask::DoPidMatch(PndPidCandidate* pidcand, PndPidProba
   // Cheating for each Pid Candidate.
   
   Int_t mcid = pidcand->GetMcIndex();
-  if(-1==mcid) return; // no specified MC id... do nothing
+  if(mcid<0) return; // no specified MC id... do nothing
   PndMCTrack *mctrack = (PndMCTrack*)fMCTrack->At(mcid);
   if( 0==mctrack) return; // better do nothing on a null pointer
   Int_t mcpdg = mctrack->GetPdgCode();
