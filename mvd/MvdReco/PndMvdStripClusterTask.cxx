@@ -33,12 +33,16 @@
 
 #include <map>
 
+
+//TODO: Remove hardcoding!
+// charge cut for cluster charge which consist only of one strip
+const Double_t SingleStripChargeThreshold = 3000.;
 // enum SensorSide { kTOP, kBOTTOM };
 
 // -----   Default constructor   -------------------------------------------
 
 PndMvdStripClusterTask::PndMvdStripClusterTask() :
-  FairTask("MVD Strip Clustertisation Task")
+  FairTask("MVD Strip Clusterisation Task")
 {
   fChargeCut = 1.e8; // this ist really large and shall have no effect
   fDigiParameterList = new TList();
@@ -178,7 +182,7 @@ InitStatus PndMvdStripClusterTask::Init()
 void PndMvdStripClusterTask::Exec(Option_t* opt)
 {
   if (fVerbose > 2)
-    std::cout<<" **Sarting PndMvdStripClusterTask::Exec()**"<<std::endl;
+    std::cout<<" **Starting PndMvdStripClusterTask::Exec()**"<<std::endl;
   std::vector<PndMvdDigiStrip> digiStripArray;
   // Reset output array
   if ( ! fClusterArray ) Fatal("Exec", "No ClusterArray");
@@ -295,9 +299,9 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
       
       CalcMeanCharge(oneclustertop,meantopstrip,meantoperr,topcharge);
       
-      if(oneclustertop.size()==1 && topcharge < 5200) { 
+      if(oneclustertop.size()==1 && topcharge < SingleStripChargeThreshold) { 
         //TODO: Remove hardcoding!
-        std::cout<<"-W- PndMvdClusterTask::Exec: Single strip top charge bigger than 5200 e- : skiping. "<<endl; 
+        std::cout<<"-W- PndMvdClusterTask::Exec: Single strip charge falls below the threshold of "<<SingleStripChargeThreshold<<"e- : skipping. "<<endl; 
         continue; 
       }
       if(topcharge>0)
@@ -327,9 +331,9 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
           
           CalcMeanCharge(oneclusterbot,meanbotstrip,meanboterr,botcharge);
           
-          if(oneclusterbot.size() == 1 && botcharge < 5200) { 
+          if(oneclusterbot.size() == 1 && botcharge < SingleStripChargeThreshold) { 
             //TODO: Remove hardcoding!
-            std::cout<<"-W- PndMvdClusterTask::Exec: Single strip bot charge bigger than 5200 e- : skiping. "<<endl;
+           std::cout<<"-W- PndMvdClusterTask::Exec: Single strip charge falls below the threshold of "<<SingleStripChargeThreshold<<"e- : skipping. "<<endl; 
             continue; 
           }
           if(botcharge>0)
@@ -362,7 +366,7 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
               ((PndMvdHit*)((*fHitArray)[i]))->SetBotIndex(*itBot);
               //((PndMvdHit*)((*fHitArray)[i]))->SetLink(FairLink(kMVDClusterStrip, clusterIndex));
             } else
-              if (fVerbose > 2) std::cout<<"Strip charge contents too differently"<<std::endl;
+              if (fVerbose > 2) std::cout<<"Cluster charge contents too different"<<std::endl;
           }
         }// loop bot clusters
       }
@@ -506,7 +510,7 @@ Bool_t PndMvdStripClusterTask::Backmap( TVector2 meantopPoint, Double_t meantope
 
   TVector3 localpos, locDpos;
   Double_t t, b;
-  Double_t errZ = 2.*fGeoH->GetSensorDimensionsId(detname).Z()/TMath::Sqrt(12.0);
+  Double_t errZ = fGeoH->GetSensorDimensionsId(detname).Z();
 
   TVector2 onsensorPoint = 
     CalcLineCross(meantopPoint, fCurrentStripCalcTop->GetStripDirection(), meanbotPoint, fCurrentStripCalcBot->GetStripDirection() );
@@ -528,14 +532,21 @@ Bool_t PndMvdStripClusterTask::Backmap( TVector2 meantopPoint, Double_t meantope
   //do the transformation from sensor to lab frame
   hitPos = fGeoH->LocalToMasterId(localpos,detname.Data());
 
+  cout<<" meantoperr="<<meantoperr<<endl;
   // calculate the errors corresponding to a skewed system!
-  t = meantoperr*fCurrentDigiPar->GetTopPitch()*cos(fCurrentDigiPar->GetOrient());
-  b = meanboterr*fCurrentDigiPar->GetBotPitch()*cos(fCurrentDigiPar->GetOrient()+fCurrentDigiPar->GetSkew());
-  locDpos.SetX( sqrt(t*t+b*b) );
-  t = meantoperr*fCurrentDigiPar->GetTopPitch()*sin(fCurrentDigiPar->GetOrient());
-  b = meanboterr*fCurrentDigiPar->GetBotPitch()*sin(fCurrentDigiPar->GetOrient()+fCurrentDigiPar->GetSkew());
-  locDpos.SetY( sqrt(t*t+b*b) );
+  t = meantoperr*cos(fCurrentDigiPar->GetOrient());
+  b = meanboterr*cos(fCurrentDigiPar->GetOrient()+fCurrentDigiPar->GetSkew());
+  cout<<" t="<<t<<" b="<<b<<endl;
+
+  locDpos.SetX( TMath::Sqrt( t*t + b*b ) );
+  t = meantoperr*sin(fCurrentDigiPar->GetOrient());
+  b = meanboterr*sin(fCurrentDigiPar->GetOrient()+fCurrentDigiPar->GetSkew());
+  locDpos.SetY( TMath::Sqrt( t*t + b*b ) );
   locDpos.SetZ( errZ );
+  cout << " errors:"<<endl;
+  cout << "  dx = "<<locDpos.X()<<endl;
+  cout << "  dy = "<<locDpos.Y()<<endl;
+  cout << "  dz = "<<locDpos.Z()<<endl;
   
   //do the transformation from sensor to lab frame
   hitErr = fGeoH->LocalToMasterErrorsId(locDpos,detname.Data());
