@@ -1,3 +1,10 @@
+//Plotting macro for TestBench data. 
+//Needs to be compiled!
+
+//Author: Felix Boehmer
+
+
+
 #include "TCanvas.h"
 #include "TFile.h"
 #include "TH2F.h"
@@ -8,14 +15,23 @@
 #include "TPolyLine.h"
 #include "TVector3.h"
 #include "TBox.h"
+#include "TSystem.h"
+#include "TMath.h"
+
 
 #include "PndTpcCluster.h"
 #include "Hypersurface2D.h"
 #include "Hough2DNode.h"
+#include "PndTpcPadPlane.h"
+#include "PndTpcPadShapePool.h"
 
 #include <vector>
+#include <cmath>
 #include <iostream>
 #include <algorithm>
+#include <map>
+#include <string>
+#include <exception>
 
 //helper functor for node sorting
 bool compareNodes (Hough2DNode* n1, Hough2DNode* n2) { 
@@ -24,7 +40,8 @@ bool compareNodes (Hough2DNode* n1, Hough2DNode* n2) {
 
 
 
-void plotHough(TString filename, int evLo, int evHi, int DEPTH, int THRESH) {
+void plotHough(TString filename, TString type, int evLo, int evHi, 
+	       int DEPTH, int THRESH) {
 
   //param space -----------------------------
   double theta_min = -3.f;
@@ -37,7 +54,18 @@ void plotHough(TString filename, int evLo, int evHi, int DEPTH, int THRESH) {
     
   // ----------------------------------------
 
-  double x_OFF = 5.f;
+  TString cosm = "COSMIC";   //steers the param space
+  TString elsa = "ELSA";
+
+  if(!(type==cosm || type==elsa)) {
+    std::cout<<"Wrong run type specifier! Expected 'ELSA' or 'COSMIC'"<<std::endl;
+    return;
+  }
+  
+  double x_OFF = 0.;
+  if(type==elsa)
+    x_OFF=5.;
+  
   int MINCANDSIZE = 8;
   
   TFile* recofile = new TFile(filename);
@@ -45,12 +73,37 @@ void plotHough(TString filename, int evLo, int evHi, int DEPTH, int THRESH) {
     std::cerr<<"Reco file not existing! Aborting."<<std::endl;
   }
 
-  TCanvas* canv =  new TCanvas();
-  canv->Divide(3,1);
+  std::string vmc = gSystem->Getenv("VMCWORKDIR");
+  vmc.append("/tpc/TestBench/");
+  std::string copy = vmc;
+  
+  PndTpcPadShapePool* pool=new PndTpcPadShapePool(copy.append("TBhexa_pads.dat").c_str());
+  copy=vmc;
+  PndTpcPadPlane* plane = new PndTpcPadPlane(copy.append("newPadTC.dat").c_str(),
+					     pool);
 
-  TH2F* real = new TH2F("bla", "Real Space",100,-5,5,100,0,8);
-  real->GetXaxis()->SetTitle("x (cm)");
-  real->GetYaxis()->SetTitle("z (cm)");  
+  std::cout<<"Plane has "<<plane->GetNPads()<<" pads."<<std::endl;
+
+  TCanvas* canv =  new TCanvas();
+  canv->Divide(4,1);
+
+  TH2F* real;
+  if(type==cosm) {
+    real= new TH2F("bla", "Real Space z-y",100,0,10,100,-5,5);
+    real->GetXaxis()->SetTitle("z (cm)");
+    real->GetYaxis()->SetTitle("y (cm)");  
+  }
+  else {
+    real = new TH2F("bla", "Real Space",100,-5,5,100,0,8);
+    real->GetXaxis()->SetTitle("x (cm)");
+    real->GetYaxis()->SetTitle("z (cm)"); 
+  }
+
+  TH2F* real2;
+  real2 = new TH2F("bla2", "Real Space x-y",100,-5,5,100,-5,5);
+  real2->GetXaxis()->SetTitle("x (cm)");
+  real2->GetYaxis()->SetTitle("y (cm)");  
+  
   TH2F* hough = new TH2F("bldsaa", "Hough Space",100,-3,3,100,0,15);
   hough->GetXaxis()->SetTitle("Theta (radians)");
   hough->GetYaxis()->SetTitle("Distance r (cm)");
@@ -62,8 +115,15 @@ void plotHough(TString filename, int evLo, int evHi, int DEPTH, int THRESH) {
   
   unsigned int nEv = evHi-evLo;
 
-  TObjArray* clusters = new TObjArray();
+  //TObjArray* clusters = new TObjArray();
+  TObjArray* digis = new TObjArray();
   TObjArray* surfs = new TObjArray();
+
+  std::map<int,TPolyMarker*> clusters;
+  std::vector<std::map<int,TPolyMarker*>* > clusters2;
+  std::map<int,TPolyMarker*> clustersXY;
+  
+  std::map<int,TPolyMarker*>::iterator it;
   
   std::vector<Hypersurface2D*> hitreps;
   std::vector<PndTpcCluster*> totClusters;
@@ -71,51 +131,129 @@ void plotHough(TString filename, int evLo, int evHi, int DEPTH, int THRESH) {
   TF1* rep = new TF1("blu","[0]*cos(x)+[1]*sin(x)",-3,3);
 
   int totCl =0;
-  
+
+  TPolyMarker* digimarker = new TPolyMarker(0);
+  digimarker->SetMarkerStyle(5);
+  TPolyMarker* marker=NULL;
+  TPolyMarker* marker2D=NULL;
+    
   for(unsigned int k=0; k<=nEv; k++) {
+    
     recotree->GetEvent(evLo+k);
     
     //loop over clusters
     int nCl = clArr->GetEntriesFast();
     
-    TPolyMarker* marker = new TPolyMarker(nCl);
-    marker->SetMarkerStyle(4);    
-
+        
     for(int c=0; c<nCl; c++) {
       PndTpcCluster* cl = (PndTpcCluster*)clArr->At(c);
       totClusters.push_back(new PndTpcCluster(*cl));
       TVector3 pos = cl->pos();
-      double x = pos.X()+x_OFF; //offset to avoid theta-symmetry and numerical problems
-      double z = pos.Z();
-      marker->SetPoint(c,x-x_OFF,z); 
-            
+      
+      int size = cl->nDigi();
+      int size2d = cl->get2DSize();
+      //plot cluster in the right size     
+
+      if(clusters.count(size)==0) {
+	marker =  new TPolyMarker(0);
+	clusters[size]=marker;
+	marker->SetMarkerStyle(4);
+	marker->SetMarkerSize((double)size/2);
+	if(type==cosm)
+	  marker->SetPoint(0,pos.Z(),pos.Y()); 
+	else
+	  marker->SetPoint(0,pos.X(),pos.Z()); 
+      }
+      else {
+	it = clusters.find(size);
+	marker=it->second;
+	if(type==cosm)
+	  marker->SetPoint(marker->GetLastPoint()+1,pos.Z(),pos.Y()); 
+	else
+	  marker->SetPoint(marker->GetLastPoint()+1,pos.X(),pos.Z()); 
+      }
+      
+      if(clustersXY.count(size2d)==0) {
+	marker2D =  new TPolyMarker(0);
+	clustersXY[size2d] = marker2D;
+	marker2D->SetMarkerStyle(4);
+	marker2D->SetMarkerSize((double)size2d/2);
+	marker2D->SetPoint(0,pos.X(),pos.Y()); 
+      }
+      else {
+      	marker2D=clustersXY[size2d];
+	marker2D->SetPoint(marker2D->GetLastPoint()+1,pos.X(),pos.Y()); 
+      }
+
+      
+      //std::cout<<"Getting digis ... "<<std::endl;
+      //plot digis
+      for(int d=0; d<size; d++) {
+      	PndTpcDigi dig;
+	dig = cl->getDigi(d);
+	unsigned int padID = dig.padId();
+	double x,y;
+	try{
+	  plane->GetPadXY(padID,x,y);
+	}
+	catch(...){
+	  std::cout<<"Unknown padID: "<<padID<<std::endl;
+	  continue;
+	}
+	digimarker->SetPoint(digimarker->GetLastPoint()+1,x,y);
+      }
+      
+      
       //transformed representation
-      TVector3* vec = new TVector3(x,z,0);
+      TVector3* vec;
+      if(type==cosm)
+	vec = new TVector3(pos.Z(),pos.Y(),0);
+      else
+	vec = new TVector3(pos.X()+x_OFF,pos.Z(),0);
+      
       double r = vec->Mag();
       double theta = vec->Phi();
-      
-      std::cout<<"theta: "<<theta<<", x: "<<x<<", z:"<<z<<std::endl;
+
+      std::cout<<"theta: "<<theta<<", x: "<<pos.X() + x_OFF
+      	       <<", z:"<<pos.Z()<<std::endl;
       
       TF1* surf = new TF1("blu","[0]*cos(x)+[1]*sin(x)",-3,3);
-      surf->SetParameter(0,x);
-      surf->SetParameter(1,z);
+      if(type==cosm) {
+	surf->SetParameter(0,pos.Z()+x_OFF);
+	surf->SetParameter(1,pos.Y());
+      }
+      else {
+	surf->SetParameter(0,pos.X()+x_OFF);
+	surf->SetParameter(1,pos.Z());
+      }
       surf->SetLineWidth(1);
       surfs->Add(surf);
-      
-      hitreps.push_back(new Hypersurface2D(x,z,*surf,c+totCl));
+      if(type==cosm) 
+	hitreps.push_back(new Hypersurface2D(pos.Z()+x_OFF,pos.Y(),
+					     *surf,c+totCl));
+      else
+	hitreps.push_back(new Hypersurface2D(pos.X()+x_OFF,pos.Z(),
+					     *surf,c+totCl));
       hitreps.back()->setParamSpace(mins, maxs);
     }
     
     totCl+=nCl;
-    clusters->Add(marker);
     
   }
   
   canv->cd(1);
   real->Draw();
-  for(int n=0; n<clusters->GetEntries(); n++)
-    ((TPolyMarker*)clusters->At(n))->Draw("same");
-
+  for(it=clusters.begin(); it!=clusters.end(); it++) 
+    it->second->Draw("same");
+  
+  canv->cd(4);
+  real2->Draw();
+  digimarker->Draw("same");
+  std::cout<<"XY clusters size: "<<clustersXY.size()<<std::endl;
+  for(it=clustersXY.begin(); it!=clustersXY.end(); it++) 
+    it->second->Draw("same");
+  
+   
   canv->cd(2);
   hough->Draw();
   for(int n=0; n<surfs->GetEntries(); n++)
@@ -128,7 +266,7 @@ void plotHough(TString filename, int evLo, int evHi, int DEPTH, int THRESH) {
   Hough2DNode* root = new Hough2DNode(center,0,totCl);
   for(int i=0; i<hitreps.size(); i++)
     (hitreps[i])->testIntersect(root);
-  
+      
   std::cout<<"Number of votes: "<<root->getVote()<<std::endl;
 
   std::vector<Hough2DNode*>* survivors = new std::vector<Hough2DNode*>();
@@ -240,38 +378,67 @@ void plotHough(TString filename, int evLo, int evHi, int DEPTH, int THRESH) {
   real->Draw();
 
   TObjArray* lines = new TObjArray();
-
+  
+  TPolyMarker* mark=NULL;
+  
   for(int i=0; i<solutions.size(); i++) {
-    TPolyMarker* mark = new TPolyMarker((solutions[i])->size());
-    
+      
+    clusters2.push_back(new std::map<int,TPolyMarker*>());
+    std::map<int,TPolyMarker*>* mmap = clusters2.back();
+
+
     //fill hist with positions;
     for(int p=0; p<(solutions[i])->size(); p++) {
+      int size = (solutions[i])->at(p)->nDigi();
+
+    //plot cluster in the right size     
+      
+      if(mmap->count(size)==0) {
+	mark = new TPolyMarker(0);
+	(*mmap)[size] = mark;
+	mark->SetMarkerStyle(4);
+	mark->SetMarkerSize((double)size/2);
+	mark->SetMarkerColor(colors[i]);
+      }
+      else{
+	mark=(*mmap)[size];
+      }
+      
       TVector3 pos = (solutions[i])->at(p)->pos();
-      mark->SetPoint(p,pos.X(),pos.Z());
+      if(type==cosm)
+	mark->SetPoint(mark->GetLastPoint()+1,pos.Z(),pos.Y());
+      else
+	mark->SetPoint(mark->GetLastPoint()+1,pos.X(),pos.Z());
     }
         
-    mark->SetMarkerColor(colors[i]);
-    mark->SetMarkerStyle(4);
-    
-    clusters->Add(mark);
-    mark->Draw("same");
-
     Hough2DNode* cand = cand_nodes[i];
     const double* center = cand->getCenter();
     
-    double theta = (center[0] + 0.5f)*(theta_max-theta_min)+theta_min;
-    double r_shift = (center[1] + 0.5f)*(r_max-r_min)+r_min;
-
+    double theta = (center[0] + 0.5)*(theta_max-theta_min)+theta_min;
+    double r_shift = (center[1] + 0.5)*(r_max-r_min)+r_min;
+    
     double r = r_shift - x_OFF*cos(theta);
     
-    double m = -1.f/(tan(theta));
+    double m = -1./(tan(theta));
     double t = r/(sin(theta));
-    
-    double y1 = 0.f;
+
+        
+    double y1;
+    if(type==cosm)
+      y1 = -5.;
+    else
+      y1 = 0.;
     double x1 = (y1-t)/m - x_OFF;
     
-    double y2 = 8.f;
+    double y2;
+    if(type==cosm)
+      y2 = 5.;
+    else
+      y2 = 8.;
+    
     double x2 = (y2-t)/m - x_OFF;
+
+    //std::cout<<"x1: "<<x1<<";  x2: "<<x2<<std::endl;
     
     TPolyLine* line = new TPolyLine(2);
     line->SetPoint(0,x1+x_OFF,y1);
@@ -280,9 +447,12 @@ void plotHough(TString filename, int evLo, int evHi, int DEPTH, int THRESH) {
     lines->Add(line);
     line->Draw("same");
     
-  }
+    for(it=mmap->begin(); it!=mmap->end(); it++)
+    it->second->Draw("same");
+ 
 
+  }
   
   
-  
+   
 }
