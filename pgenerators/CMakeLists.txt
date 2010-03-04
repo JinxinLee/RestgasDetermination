@@ -22,6 +22,7 @@ link_directories( ${LINK_DIRECTORIES})
 set(PGEN_SRCS
 PndRestGas.cxx
 PndDpmGenerator.cxx
+PndEvtGenGenerator.cxx
 PndDpmDirect.cxx
 PndBoxGenerator.cxx
 PndUrqmdSmmGenerator.cxx

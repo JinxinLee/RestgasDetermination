@@ -6,6 +6,7 @@
 
 #pragma link C++ class  PndRestGas+;
 #pragma link C++ class  PndDpmGenerator+;
+#pragma link C++ class  PndEvtGenGenerator+;
 #pragma link C++ class  PndDpmDirect+;
 #pragma link C++ class  PndBoxGenerator+;
 #pragma link C++ class  PndUrqmdSmmGenerator+;
