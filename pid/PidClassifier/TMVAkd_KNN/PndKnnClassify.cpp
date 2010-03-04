@@ -82,7 +82,13 @@ void PndKnnClassify::GetMvaValues(vector<float> eventData,
 
   const vector <PndMvaVariable>& vars = m_dataSets.GetVars();
   const vector <PndMvaClass>& classes = m_dataSets.GetClasses();
-  
+
+  // Accept or reject eventData.
+  if(eventData.size() != vars.size()){
+    cerr << "\t<ERROR> Number of elements do not match."
+	 << endl;
+    return;
+  }
   // Initialize results
   result.clear();
   for(size_t cls = 0; cls < classes.size(); cls++)
