@@ -14,19 +14,21 @@
 PndPidProbability::PndPidProbability()		
 {
   fElectronPdf = 0.;
-	fMuonPdf = 0.;
-	fPionPdf = 0.;
-	fKaonPdf = 0.;
-	fProtonPdf = 0.;  
+  fMuonPdf = 0.;
+  fPionPdf = 0.;
+  fKaonPdf = 0.;
+  fProtonPdf = 0.;  
+  fIndex = -1;
 }
 
-PndPidProbability::PndPidProbability(Float_t e, Float_t mu, Float_t pi, Float_t k, Float_t p)
+PndPidProbability::PndPidProbability(Float_t e, Float_t mu, Float_t pi, Float_t k, Float_t p, Int_t idx)
 {
   fElectronPdf = e;
-	fMuonPdf = mu;
-	fPionPdf = pi;
-	fKaonPdf = k;
-	fProtonPdf = p;  
+  fMuonPdf = mu;
+  fPionPdf = pi;
+  fKaonPdf = k;
+  fProtonPdf = p;  
+  fIndex = idx;
 }
 	
 PndPidProbability::~PndPidProbability()
@@ -40,7 +42,8 @@ PndPidProbability* PndPidProbability::operator*(const PndPidProbability& a)
 						    a.GetMuonPdf()     * this->GetMuonPdf(),
 						    a.GetPionPdf()     * this->GetPionPdf(),
 						    a.GetKaonPdf()     * this->GetKaonPdf(),
-						    a.GetProtonPdf()   * this->GetProtonPdf()
+						    a.GetProtonPdf()   * this->GetProtonPdf(),
+						    a.GetIndex()
 						    );
   return result;
 }
@@ -48,12 +51,13 @@ PndPidProbability* PndPidProbability::operator*(const PndPidProbability& a)
 void PndPidProbability::Print()
 {
   std::cout <<"PndPidProbability:   "
-  <<"p(e)="<<fElectronPdf<<"  "
-  <<"p(mu)="<<fMuonPdf<<"  "
-  <<"p(pi)="<<fPionPdf<<"  "
-  <<"p(K)="<<fKaonPdf<<"  "
-  <<"p(P)="<<fProtonPdf
-  <<std::endl;
+	    <<"p(e)="<<fElectronPdf<<"  "
+	    <<"p(mu)="<<fMuonPdf<<"  "
+	    <<"p(pi)="<<fPionPdf<<"  "
+	    <<"p(K)="<<fKaonPdf<<"  "
+	    <<"p(P)="<<fProtonPdf<<"  "
+            <<"index="<<fIndex
+	    <<std::endl;
 }
 
 ClassImp(PndPidProbability)

@@ -97,52 +97,54 @@ Float_t PndPidMvdPar::GetProtonSigma(Float_t momentum)
 //___________________________________________________________
 PndPidMvdPar::~PndPidMvdPar() 
 {
-
 }
+
 void PndPidMvdPar::SetElectronPara()
 {
-  fElecMpvP0=-0.008357;
-  fElecMpvP1=-9.839e-05;
-  fElecMpvP2=0.004032;
-  fElecSigmaP0=-5.0E-05;
-  fElecSigmaP1=0.0005833;
+  fElecMpvP0=-0.003128;
+  fElecMpvP1=-9.103e-011;
+  fElecMpvP2=0.000278;
+  fElecSigmaP0=-6.072E-06;
+  fElecSigmaP1=0.0002131;
 }
 void PndPidMvdPar::SetMuonPara()
 {
-  fMuonMpvP0=-0.002931;
-  fMuonMpvP1=0.01618;
-  fMuonMpvP2=-0.04723;
-  fMuonSigmaP0=-7.439E-06;
-  fMuonSigmaP1=0.0002242;
+  fMuonMpvP0=-0.00293;
+  fMuonMpvP1=0.01559;
+  fMuonMpvP2=-0.04645;
+  fMuonSigmaP0=-7.067E-06;
+  fMuonSigmaP1=0.002236;
+
 }
 void PndPidMvdPar::SetPionPara()
 {
-  fPionMpvP0=-0.002893;
-  fPionMpvP1=0.02134;
-  fPionMpvP2=-0.05176;
-  fPionSigmaP0=-0.000211;
-  fPionSigmaP1=0.007626;
+  fPionMpvP0=-0.002891;
+  fPionMpvP1=0.0212;
+  fPionMpvP2=-0.05162;
+  fPionSigmaP0=-0.0001952;
+  fPionSigmaP1=-0.01729;
   fPionSigmaP2=-0.008938;
 }
 
 void PndPidMvdPar::SetKaonPara()
 {
-  fKaonMpvP0=-0.002699;
-  fKaonMpvP1=0.05342;
-  fKaonMpvP2=0.1067;
-  fKaonSigmaP0=-0.0002203;
-  fKaonSigmaP1=0.005101;
-  fKaonSigmaP2=0.1609;
+  fKaonMpvP0=-0.0027;
+  fKaonMpvP1=0.05456;
+  fKaonMpvP2=0.1057;
+  fKaonSigmaP0=-0.0002245;
+  fKaonSigmaP1=-0.0203;
+  fKaonSigmaP2=0.1286;
+
 }
 
 void PndPidMvdPar::SetProtonPara()
 {
-  fProtonMpvP0=-0.00252;
-  fProtonMpvP1=0.04429;
-  fProtonMpvP2=0.8253;
-  fProtonSigmaP0=-0.0002334;
-  fProtonSigmaP1=0.07461;
-  fProtonSigmaP2=0.3562;
+  fProtonMpvP0=-0.002521;
+  fProtonMpvP1=0.04519;
+  fProtonMpvP2=0.8242;
+  fProtonSigmaP0=-0.0002329;
+  fProtonSigmaP1=0.0673;
+  fProtonSigmaP2=0.3625;
 }
 
 ClassImp(PndPidMvdPar)

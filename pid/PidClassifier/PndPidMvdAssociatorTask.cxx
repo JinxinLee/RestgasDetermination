@@ -42,6 +42,8 @@ InitStatus PndPidMvdAssociatorTask::Init() {
     
   Register();
   
+  mvdPara = new PndPidMvdPar();
+  
   std::cout << "-I- PndPidMvdAssociatorTask::Init: Success!" << std::endl;
   
   return kSUCCESS;
@@ -62,6 +64,7 @@ void PndPidMvdAssociatorTask::Exec(Option_t * option) {
       PndPidCandidate* pidcand = (PndPidCandidate*)fPidChargedCand->At(i);
       TClonesArray& pidRef = *fPidChargedProb;
       PndPidProbability* prob = new(pidRef[i]) PndPidProbability();// initializes with zeros
+      prob->SetIndex(i);
       if (pidcand->GetMvdDEDX()==0) continue;
       DoPidMatch(pidcand,prob);
     }
@@ -70,8 +73,6 @@ void PndPidMvdAssociatorTask::Exec(Option_t * option) {
 
 void PndPidMvdAssociatorTask::DoPidMatch(PndPidCandidate* pidcand, PndPidProbability* prob)
 {
-
-  PndPidMvdPar *mvdPara = new PndPidMvdPar();
   Float_t CanMpv, CanSigma;
 
   //Electron

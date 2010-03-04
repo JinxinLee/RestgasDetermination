@@ -6,7 +6,7 @@
 
 class PndPidCandidate;
 class PndPidProbability;
-
+class PndPidMvdPar;
 class PndPidMvdAssociatorTask : public FairTask {
   
  protected:
@@ -37,7 +37,8 @@ class PndPidMvdAssociatorTask : public FairTask {
   /** Get parameter containers **/
   virtual void SetParContainers();
   virtual void Finish();
-
+  
+  PndPidMvdPar *mvdPara;
   ClassDef(PndPidMvdAssociatorTask,1)   // PndPidMvdTask
   
     };

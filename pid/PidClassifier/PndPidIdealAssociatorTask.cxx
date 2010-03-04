@@ -82,6 +82,7 @@ void PndPidIdealAssociatorTask::Exec(Option_t * option) {
     PndPidCandidate* pidcand = (PndPidCandidate*)fPidChargedCand->At(i);
     TClonesArray& pidRef = *fPidChargedProb;
     PndPidProbability* prob = new(pidRef[i]) PndPidProbability();// initializes with zeros
+    prob->SetIndex(i);
     if(fVerbose>1) std::cout<<"-I- PndPidIdealAssociatorTask Ch BEFORE  "<< pidcand->GetLorentzVector().M()<<std::endl;;
     DoPidMatch(pidcand,prob);
     if(fVerbose>1) std::cout<<"-I- PndPidIdealAssociatorTask Ch AFTER   "<< pidcand->GetLorentzVector().M()<<std::endl;;
@@ -90,6 +91,7 @@ void PndPidIdealAssociatorTask::Exec(Option_t * option) {
     PndPidCandidate* pidcand = (PndPidCandidate*)fPidNeutralCand->At(i);
     TClonesArray& pidRef = *fPidNeutralProb;
     PndPidProbability* prob = new(pidRef[i]) PndPidProbability();// initializes with zeros
+    prob->SetIndex(i);
     DoPidMatch(pidcand,prob);
   }
   
