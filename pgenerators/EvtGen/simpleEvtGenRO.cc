@@ -24,6 +24,8 @@
 #include "TStopwatch.h"
 #include "TRandom3.h"
 
+#define MAX 200
+
 //define class for generating random nubers
 class EvtRootRandomEngine:public EvtRandomEngine{
 public:
@@ -65,7 +67,7 @@ int main(int argc, char* argv[])
   
   EvtStdHep evtstdhep;
   EvtParticle *parent;
-  
+    
 
   if (argc<3) {
     cout << "\nUSAGE: simpleEvtGenRO <particle> <dec-file> <# events> <pbar-mom/cms-energy> <rand seed>\n" << endl;
@@ -143,37 +145,49 @@ int main(int argc, char* argv[])
   
 //  TNtuple ntp("ntp","ntp","ev:N:Id:M1:M2:DF:DL:px:py:pz:E:t:x:y:z");
    
-  Int_t ev=0, nLine = 0, pdgID = 0, nDecay = 0, nM1 = -1, nM2 = -1, nDF = -1, nDL = -1;
-  Double_t fPx = 0., fPy = 0., fPz = 0., fE = 0.;
-  Double_t fVx = 0., fVy = 0., fVz = 0., fT = 0.;
-  Double_t fTht = 0., fM=0., fP=0.;
-  int ntracks;
+  Int_t ev=0;
+  Int_t nLine[MAX], pdgID[MAX], nDau[MAX], nM1[MAX], nM2[MAX], nDF[MAX], nDL[MAX];
+  Double_t fPx[MAX], fPy[MAX], fPz[MAX], fE[MAX];
+  Double_t fVx[MAX], fVy[MAX], fVz[MAX], fT[MAX];
+  Double_t fTht[MAX], fM[MAX], fP[MAX], fPt[MAX];
+  
+  Int_t nTrk=0;
   
   TTree *ntp=new TTree("ntp","ntp");
   
   ntp->Branch("ev",&ev,"ev/I");
-  ntp->Branch("N",&nLine,"N/I");
-  ntp->Branch("Id",&pdgID,"ev/I");
-  ntp->Branch("M1",&nM1,"ev/I");
-  ntp->Branch("M2",&nM2,"ev/I");
-  ntp->Branch("DF",&nDF,"ev/I");
-  ntp->Branch("DL",&nDL,"ev/I");
-  ntp->Branch("px",&fPx,"px/D");
-  ntp->Branch("py",&fPy,"py/D");
-  ntp->Branch("pz",&fPz,"pz/D");
-  ntp->Branch("E",&fE,"E/D");
-  ntp->Branch("t",&fT,"t/D");
-  ntp->Branch("x",&fVx,"x/D");
-  ntp->Branch("y",&fVy,"y/D");
-  ntp->Branch("z",&fVz,"z/D");
-  ntp->Branch("m",&fM,"m/D");
-  ntp->Branch("p",&fP,"p/D");
-  ntp->Branch("tht",&fTht,"tht/D");
+  ntp->Branch("nTrk",&nTrk,"nTrk/I");
+  
+  ntp->Branch("N",nLine,"N[nTrk]/I");
+  ntp->Branch("Id",pdgID,"Id[nTrk]/I");
+  
+  ntp->Branch("M1",nM1,"M1[nTrk]/I");
+  ntp->Branch("M2",nM2,"M2[nTrk]/I");
+  ntp->Branch("DF",nDF,"DF[nTrk]/I");
+  ntp->Branch("DL",nDL,"DL[nTrk]/I");
+  ntp->Branch("nDau",nDau,"nDau[nTrk]/I");
+  
+  ntp->Branch("px",fPx,"px[nTrk]/D");
+  ntp->Branch("py",fPy,"py[nTrk]/D");
+  ntp->Branch("pz",fPz,"pz[nTrk]/D");
+  ntp->Branch("E",fE,"E[nTrk]/D");
+  
+  ntp->Branch("t",fT,"t[nTrk]/D");
+  ntp->Branch("x",fVx,"x[nTrk]/D");
+  ntp->Branch("y",fVy,"y[nTrk]/D");
+  ntp->Branch("z",fVz,"z[nTrk]/D");
+  
+  ntp->Branch("m",fM,"m[nTrk]/D");
+  ntp->Branch("p",fP,"p[nTrk]/D");
+  ntp->Branch("pt",fPt,"pt[nTrk]/D");
+  ntp->Branch("tht",fTht,"tht[nTrk]/D");
   
   // Loop to create nEvents, starting from an Upsilon(4S)
   int i,j;
   for(i=0;i<number;i++){
     // Set up the parent particle
+    
+    ev=i;
 
     EvtVector4R pInit(E,  0.0000, -0.0000,  P);
     parent=EvtParticleFactory::particleFactory(PART,pInit);
@@ -193,34 +207,48 @@ int main(int argc, char* argv[])
     // Write the output file
     //cout << i << "\t" << evtstdhep.getNPart();
     //cout <<evtstdhep<<endl;
-    ntracks=evtstdhep.getNPart();
+    nTrk=evtstdhep.getNPart();
     
-    for (j=0;j<ntracks;j++)
+    if (nTrk>=MAX)
     {
-		ev=i;
-		nLine=j;
-		pdgID=evtstdhep.getStdHepID(j);
-		nDF = evtstdhep.getFirstDaughter(j);
-		nDL = evtstdhep.getLastDaughter(j);      
-		nDecay = nDL>0?(nDL-nDF)+1:1;
-		nM1 = evtstdhep.getFirstMother(j);
-		nM2 = evtstdhep.getLastMother(j);
+      nTrk=MAX;
+      cout <<"-W- Event #"<<i<<": exeeding maximum particle number "<<MAX<<endl;
+    }
+    
+    for (j=0;j<nTrk;j++)
+    {
+		nLine[j]  = j;
+		pdgID[j]  = evtstdhep.getStdHepID(j);       // PDG code
+		nDF[j]    = evtstdhep.getFirstDaughter(j);  // Index first daughter (-1 if stable)
+		nDL[j]    = evtstdhep.getLastDaughter(j);   // Index last daughter (-1 if stable)
+		nDau[j]   = nDL[j]>0?(nDL[j]-nDF[j])+1:0;            // Number of daughters 
+		nM1[j]    = evtstdhep.getFirstMother(j);    // Index of first mother 
+		nM2[j]    = evtstdhep.getLastMother(j);     // Index of second mother
+		
 		EvtVector4R p4=evtstdhep.getP4(j);
 		EvtVector4R x4=evtstdhep.getX4(j);
-		fE =p4.get(0);
-		fPx=p4.get(1);
-		fPy=p4.get(2);
-		fPz=p4.get(3);
-		fT =x4.get(0);
-		fVx=x4.get(1);
-		fVy=x4.get(2);
-		fVz=x4.get(3);
-		fP=sqrt(p4.get(1)*p4.get(1)+p4.get(2)*p4.get(2)+p4.get(3)*p4.get(3));
-		fM=sqrt(p4.get(0)*p4.get(0) - (p4.get(1)*p4.get(1)+p4.get(2)*p4.get(2)+p4.get(3)*p4.get(3)));
-		fTht=atan2(sqrt(p4.get(1)*p4.get(1)+p4.get(2)*p4.get(2)),p4.get(3));
-            
-	 	ntp->Fill();
+		
+		fE[j]     = p4.get(0);						// Energy
+		fPx[j]    = p4.get(1);						// Px component
+		fPy[j]    = p4.get(2);						// Py component
+		fPz[j]    = p4.get(3);						// Pz component
+		
+		fT[j]     = x4.get(0);						// Time
+		fVx[j]    = x4.get(1);						// Vertex x component
+		fVy[j]    = x4.get(2);						// Vertex y component
+		fVz[j]    = x4.get(3);						// Vertex z component
+		
+		double pt2  = p4.get(1)*p4.get(1)+p4.get(2)*p4.get(2);
+		double p2   = pt2 + p4.get(3)*p4.get(3);
+		
+		fPt[j]    = sqrt(pt2);						// Transverse Momentum
+		fP[j]     = sqrt(p2);						// Modulus of Momentum
+		
+		fM[j]     = sqrt(p4.get(0)*p4.get(0) - p2); // Invariant Mass of particle
+		fTht[j]   = atan2(fPt[j],p4.get(3));        // Polar angle
     }
+    
+	ntp->Fill();
     
     parent->deleteTree();  
   }	
