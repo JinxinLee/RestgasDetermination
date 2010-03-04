@@ -61,6 +61,7 @@ void PndPidDrcAssociatorTask::Exec(Option_t * option) {
       PndPidCandidate* pidcand = (PndPidCandidate*)fPidChargedCand->At(i);
       TClonesArray& pidRef = *fPidChargedProb;
       PndPidProbability* prob = new(pidRef[i]) PndPidProbability();// initializes with zeros
+      if (pidcand->GetDrcIndex()==-1) continue;
       DoPidMatch(pidcand,prob);
     }
  

@@ -16,7 +16,7 @@ PndPidMvdPar::PndPidMvdPar()
 Float_t PndPidMvdPar::GetElectronMpv(Float_t momentum)
 {
   Text_t buffer[250];
-  sprintf(buffer,"%f*x*x*(%f*TMath::Log(x*x)-x*x-%f)",GetElectronMpvP0(),GetElectronMpvP1(),GetElectronMpvP2());
+  sprintf(buffer,"%f/x/x*(%f*TMath::Log(x*x)-x*x-%f)",GetElectronMpvP0(),GetElectronMpvP1(),GetElectronMpvP2());
   TF1 *empv= new TF1("empv",buffer);
   return empv->Eval(momentum);
 }
@@ -33,7 +33,7 @@ Float_t PndPidMvdPar::GetElectronSigma(Float_t momentum)
 Float_t PndPidMvdPar::GetMuonMpv(Float_t momentum)
 { 
   Text_t buffer[250];
-  sprintf(buffer,"%f*x*x*(%f*TMath::Log(x*x)-x*x-%f)",GetMuonMpvP0(),GetMuonMpvP1(),GetMuonMpvP2());
+  sprintf(buffer,"%f/x/x*(%f*TMath::Log(x*x)-x*x-%f)",GetMuonMpvP0(),GetMuonMpvP1(),GetMuonMpvP2());
   TF1 *empv= new TF1("empv",buffer);
   return empv->Eval(momentum);
 }
@@ -49,7 +49,7 @@ Float_t PndPidMvdPar::GetMuonSigma(Float_t momentum)
 Float_t PndPidMvdPar::GetKaonMpv(Float_t momentum)
 {
   Text_t buffer[250];
-  sprintf(buffer,"%f*x*x*(%f*TMath::Log(x*x)-x*x-%f)",GetKaonMpvP0(),GetKaonMpvP1(),GetKaonMpvP2());
+  sprintf(buffer,"%f/x/x*(%f*TMath::Log(x*x)-x*x-%f)",GetKaonMpvP0(),GetKaonMpvP1(),GetKaonMpvP2());
   TF1 *empv= new TF1("empv",buffer);
   return empv->Eval(momentum);
 }
@@ -57,7 +57,7 @@ Float_t PndPidMvdPar::GetKaonMpv(Float_t momentum)
 Float_t PndPidMvdPar::GetKaonSigma(Float_t momentum)
 { 
   Text_t buffer[250];
-  sprintf(buffer,"%f*x+%f",GetKaonSigmaP0(), GetKaonSigmaP1());
+  sprintf(buffer,"%f/x/x*(%f*TMath::Log(x*x)-x*x-%f)",GetKaonSigmaP0(),GetKaonSigmaP1(),GetKaonSigmaP2());
   TF1 *esigma= new TF1("esigma",buffer);
   return esigma->Eval(momentum);
 }
@@ -65,7 +65,7 @@ Float_t PndPidMvdPar::GetKaonSigma(Float_t momentum)
 Float_t PndPidMvdPar::GetPionMpv(Float_t momentum)
 { 
   Text_t buffer[250];
-  sprintf(buffer,"%f*x*x*(%f*TMath::Log(x*x)-x*x-%f)",GetPionMpvP0(),GetPionMpvP1(),GetPionMpvP2());
+  sprintf(buffer,"%f/x/x*(%f*TMath::Log(x*x)-x*x-%f)",GetPionMpvP0(),GetPionMpvP1(),GetPionMpvP2());
   TF1 *empv= new TF1("empv",buffer);
   return empv->Eval(momentum);
 }
@@ -73,7 +73,7 @@ Float_t PndPidMvdPar::GetPionMpv(Float_t momentum)
 Float_t PndPidMvdPar::GetPionSigma(Float_t momentum)
 {
   Text_t buffer[250];
-  sprintf(buffer,"%f*x+%f",GetPionSigmaP0(), GetPionSigmaP1());
+  sprintf(buffer,"%f/x/x*(%f*TMath::Log(x*x)-x*x-%f)",GetPionSigmaP0(),GetPionSigmaP1(),GetPionSigmaP2());
   TF1 *esigma= new TF1("esigma",buffer);
   return esigma->Eval(momentum);
 }
@@ -81,7 +81,7 @@ Float_t PndPidMvdPar::GetPionSigma(Float_t momentum)
 Float_t PndPidMvdPar::GetProtonMpv(Float_t momentum)
 {
   Text_t buffer[250];
-  sprintf(buffer,"%f*x*x*(%f*TMath::Log(x*x)-x*x-%f)",GetProtonMpvP0(),GetProtonMpvP1(),GetProtonMpvP2());
+  sprintf(buffer,"%f/x/x*(%f*TMath::Log(x*x)-x*x-%f)",GetProtonMpvP0(),GetProtonMpvP1(),GetProtonMpvP2());
   TF1 *empv= new TF1("empv",buffer);
   return empv->Eval(momentum);
 }
@@ -89,7 +89,7 @@ Float_t PndPidMvdPar::GetProtonMpv(Float_t momentum)
 Float_t PndPidMvdPar::GetProtonSigma(Float_t momentum)
 {
   Text_t buffer[250];
-  sprintf(buffer,"%f*x+%f",GetProtonSigmaP0(), GetProtonSigmaP1());
+  sprintf(buffer,"%f/x/x*(%f*TMath::Log(x*x)-x*x-%f)",GetProtonSigmaP0(),GetProtonSigmaP1(),GetProtonSigmaP2());
   TF1 *esigma= new TF1("esigma",buffer);
   return esigma->Eval(momentum);
 }

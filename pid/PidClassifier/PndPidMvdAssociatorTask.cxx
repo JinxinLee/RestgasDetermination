@@ -62,6 +62,7 @@ void PndPidMvdAssociatorTask::Exec(Option_t * option) {
       PndPidCandidate* pidcand = (PndPidCandidate*)fPidChargedCand->At(i);
       TClonesArray& pidRef = *fPidChargedProb;
       PndPidProbability* prob = new(pidRef[i]) PndPidProbability();// initializes with zeros
+      if (pidcand->GetMvdDEDX()==0) continue;
       DoPidMatch(pidcand,prob);
     }
  
@@ -72,35 +73,42 @@ void PndPidMvdAssociatorTask::DoPidMatch(PndPidCandidate* pidcand, PndPidProbabi
 
   PndPidMvdPar *mvdPara = new PndPidMvdPar();
   Float_t CanMpv, CanSigma;
+
   //Electron
   CanMpv=mvdPara->GetElectronMpv(pidcand->GetMomentum().Mag());
   CanSigma=mvdPara->GetElectronSigma(pidcand->GetMomentum().Mag());
   prob->SetElectronPdf(GetPdf(pidcand->GetMvdDEDX(), CanMpv, CanSigma));
-
+  //cout << "ele:\t" << pidcand->GetMomentum().Mag() << "\t" << pidcand->GetMvdDEDX() << "\t" << CanMpv << "\t" << CanSigma << "\t" << prob->GetElectronPdf() << endl;
+   
   //Proton
   CanMpv=mvdPara->GetProtonMpv(pidcand->GetMomentum().Mag());
   CanSigma=mvdPara->GetProtonSigma(pidcand->GetMomentum().Mag());
   prob->SetProtonPdf(GetPdf(pidcand->GetMvdDEDX(), CanMpv, CanSigma));
+  //cout << "proton:\t" << pidcand->GetMomentum().Mag() << "\t" << pidcand->GetMvdDEDX() << "\t" << CanMpv << "\t" << CanSigma << "\t" << prob->GetProtonPdf() << endl;
 
   //Pion
   CanMpv=mvdPara->GetPionMpv(pidcand->GetMomentum().Mag());
   CanSigma=mvdPara->GetPionSigma(pidcand->GetMomentum().Mag());
   prob->SetPionPdf(GetPdf(pidcand->GetMvdDEDX(), CanMpv, CanSigma));
+  //cout << "pion:\t" << pidcand->GetMomentum().Mag() << "\t" << pidcand->GetMvdDEDX() << "\t" << CanMpv << "\t" << CanSigma << "\t" << prob->GetPionPdf() << endl;
 
   //Muon
   CanMpv=mvdPara->GetMuonMpv(pidcand->GetMomentum().Mag());
   CanSigma=mvdPara->GetMuonSigma(pidcand->GetMomentum().Mag());
   prob->SetMuonPdf(GetPdf(pidcand->GetMvdDEDX(), CanMpv, CanSigma));
+  //cout << "muon:\t" << pidcand->GetMomentum().Mag() << "\t" << pidcand->GetMvdDEDX() << "\t" << CanMpv << "\t" << CanSigma << "\t" << prob->GetMuonPdf() << endl;
 
   //Kaon
   CanMpv=mvdPara->GetKaonMpv(pidcand->GetMomentum().Mag());
   CanSigma=mvdPara->GetKaonSigma(pidcand->GetMomentum().Mag());
+  //cout << GetPdf(pidcand->GetMvdDEDX(), CanMpv, CanSigma) << endl;
   prob->SetKaonPdf(GetPdf(pidcand->GetMvdDEDX(), CanMpv, CanSigma));
-  
+  //cout << "kaon:\t" << pidcand->GetMomentum().Mag() << "\t" << pidcand->GetMvdDEDX() << "\t" << CanMpv << "\t" << CanSigma << "\t" << prob->GetKaonPdf() << endl;
 }  
+
 Float_t PndPidMvdAssociatorTask::GetPdf(Float_t dedx, Float_t Mpv, Float_t Sigma)
 {
-  return TMath::Landau(dedx,Mpv,Sigma,kTRUE);
+  return TMath::Landau(dedx,Mpv,Sigma);
 }
 
 
