@@ -113,7 +113,7 @@ void PndPidMvdPar::SetMuonPara()
   fMuonMpvP1=0.01559;
   fMuonMpvP2=-0.04645;
   fMuonSigmaP0=-7.067E-06;
-  fMuonSigmaP1=0.002236;
+  fMuonSigmaP1=0.0002236;
 
 }
 void PndPidMvdPar::SetPionPara()
