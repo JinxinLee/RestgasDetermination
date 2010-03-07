@@ -44,11 +44,11 @@
 	  const Double_t offs2x = 0.;
 	  const Double_t offs2y = 0.;
 
-	  const Double_t offs3x = -0.172;
-	  const Double_t offs3y = -0.1676;
+	  const Double_t offs3x = -0.1698;
+	  const Double_t offs3y = -0.1658;
 
-	  const Double_t offs4x = -0.034;
-	  const Double_t offs4y = -0.1879;
+	  const Double_t offs4x = -0.0366;
+	  const Double_t offs4y = -0.1855;
 
 	
 	  //##################################################
