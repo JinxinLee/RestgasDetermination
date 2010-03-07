@@ -31,11 +31,25 @@
 	  const Double_t  kPos3    = 80.7; // (cm) Box 2
 	  const Double_t  kPos4    = 139.0; // (cm) Box 3
 	 
-	  // Gap between the two single sides sensors
+	  // Gap between the two single sided sensors
 	
 	  const Double_t  kGap3    = 0.45; // (cm)
 	  const Double_t  kGap4    = 0.45; // (cm)
 	
+	  // positional corrections (displacement) of each sensor
+	  // these values are obtained by the software alignment procedure
+	  const Double_t offs1x = 0.;
+	  const Double_t offs1y = 0.;
+	  
+	  const Double_t offs2x = 0.;
+	  const Double_t offs2y = 0.;
+
+	  const Double_t offs3x = -0.172;
+	  const Double_t offs3y = -0.1676;
+
+	  const Double_t offs4x = -0.034;
+	  const Double_t offs4y = -0.1879;
+
 	
 	  //##################################################
 	
@@ -90,12 +104,12 @@
 	  TGeoVolume* BoxVolSingle4b = new TGeoVolume("StripActiveTS4b",BoxSingle4,gGeoMan->GetMedium("silicon"));
 	
 	
-	  TGeoTranslation* trt1 = new TGeoTranslation(0.,0.,kPos1);
-	  TGeoTranslation* trt2 = new TGeoTranslation(0.,0.,kPos2);
-	  TGeoTranslation* trt3a = new TGeoTranslation(0.,0.,kPos3 - 0.5*kGap3 - kDz/2.);
-	  TGeoTranslation* trt3b = new TGeoTranslation(0.,0.,kPos3 + 0.5*kGap3 + kDz/2.);
-	  TGeoTranslation* trt4a = new TGeoTranslation(0.,0.,kPos4 - 0.5*kGap4 - kDz/2.);
-	  TGeoTranslation* trt4b = new TGeoTranslation(0.,0.,kPos4 + 0.5*kGap4 + kDz/2.);
+	  TGeoTranslation* trt1 = new TGeoTranslation(offs1x,offs1y,kPos1);
+	  TGeoTranslation* trt2 = new TGeoTranslation(offs2x,offs2y,kPos2);
+	  TGeoTranslation* trt3a = new TGeoTranslation(offs3x,offs3y,kPos3 - 0.5*kGap3 - kDz/2.);
+	  TGeoTranslation* trt3b = new TGeoTranslation(offs3x,offs3y,kPos3 + 0.5*kGap3 + kDz/2.);
+	  TGeoTranslation* trt4a = new TGeoTranslation(offs4x,offs4y,kPos4 - 0.5*kGap4 - kDz/2.);
+	  TGeoTranslation* trt4b = new TGeoTranslation(offs4x,offs4y,kPos4 + 0.5*kGap4 + kDz/2.);
 	
 	  TGeoRotation* dummyrot = new TGeoRotation();
 	  TGeoRotation* rot1 = new TGeoRotation("",90.,0.,0.);
