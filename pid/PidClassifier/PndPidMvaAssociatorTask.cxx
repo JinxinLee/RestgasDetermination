@@ -225,6 +225,14 @@ const std::vector<float>& PndPidMvaAssociatorTask::PrepareEvtVect(const PndPidCa
       //vect->push_back( (pidcand.GetEmcCalEnergy())/mom);
       vect->push_back(pidcand.GetEmcCalEnergy());
     }
+    //======== Zernike moments
+    if(fVarNames[i] == "z20"){
+      vect->push_back(pidcand.GetEmcClusterZ20());
+    }
+    if(fVarNames[i] == "z53"){
+      vect->push_back(pidcand.GetEmcClusterZ53());
+    }
+    // ==========================
     if(fVarNames[i] == "stt")
       vect->push_back(pidcand.GetSttMeanDEDX());
 

@@ -119,8 +119,8 @@ class PndPidCandidate : public VAbsMicroCandidate  //TObject
   Int_t                 GetEmcModule()    const { return fEmcModule; }
   Int_t                 GetEmcIndex()     const { return fEmcIndex; }
   
-  Double_t GetEmcClusterZ20() { return fEmcZ20; }
-  Double_t GetEmcClusterZ53() { return fEmcZ53; }
+  Double_t GetEmcClusterZ20() const { return fEmcZ20; }
+  Double_t GetEmcClusterZ53() const { return fEmcZ53; }
 	
   // MUO
   Int_t		GetMuoNumberOfLayers()const {return fMuoNumberOfLayers;}
