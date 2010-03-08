@@ -29,11 +29,11 @@ class PndPidProbability : public TObject
   Float_t		GetProtonPdf()   const { return fProtonPdf; }
   Int_t                 GetIndex()       const { return fIndex;}
 
-  Float_t   GetElectronPidProb(PndPidProbability* flux = new PndPidProbability(1,1,1,1,1)) const { return fElectronPdf * flux->GetElectronPdf() / GetSumProb(); }
-  Float_t   GetMuonPidProb    (PndPidProbability* flux = new PndPidProbability(1,1,1,1,1)) const { return fMuonPdf     * flux->GetMuonPdf() / GetSumProb(); }
-  Float_t   GetPionPidProb    (PndPidProbability* flux = new PndPidProbability(1,1,1,1,1)) const { return fPionPdf     * flux->GetPionPdf() / GetSumProb(); } 
-  Float_t   GetKaonPidProb    (PndPidProbability* flux = new PndPidProbability(1,1,1,1,1)) const { return fKaonPdf     * flux->GetKaonPdf() / GetSumProb(); }
-  Float_t   GetProtonPidProb  (PndPidProbability* flux = new PndPidProbability(1,1,1,1,1)) const { return fProtonPdf   * flux->GetProtonPdf() / GetSumProb(); }
+  Float_t   GetElectronPidProb(PndPidProbability* flux = new PndPidProbability(1,1,1,1,1)) const { return fElectronPdf * flux->GetElectronPdf() / GetSumProb(flux); }
+  Float_t   GetMuonPidProb    (PndPidProbability* flux = new PndPidProbability(1,1,1,1,1)) const { return fMuonPdf     * flux->GetMuonPdf() / GetSumProb(flux); }
+  Float_t   GetPionPidProb    (PndPidProbability* flux = new PndPidProbability(1,1,1,1,1)) const { return fPionPdf     * flux->GetPionPdf() / GetSumProb(flux); } 
+  Float_t   GetKaonPidProb    (PndPidProbability* flux = new PndPidProbability(1,1,1,1,1)) const { return fKaonPdf     * flux->GetKaonPdf() / GetSumProb(flux); }
+  Float_t   GetProtonPidProb  (PndPidProbability* flux = new PndPidProbability(1,1,1,1,1)) const { return fProtonPdf   * flux->GetProtonPdf() / GetSumProb(flux); }
 
   Float_t   GetSumProb        (PndPidProbability* flux = new PndPidProbability(1,1,1,1,1)) const 
   { 
