@@ -191,6 +191,10 @@ void PndPidCandidate::SetDefault()
   fEmcNumberOfBumps = 0;
   fEmcModule = -1; 
   fEmcIndex = -1;
+  
+  fEmcZ20 = 0.00;
+  fEmcZ53 = 0.00;
+  
   fMuoNumberOfLayers = 0;
   fMuoProbability = 0.;
   fMuoQuality = -1.;

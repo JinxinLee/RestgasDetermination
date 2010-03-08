@@ -574,10 +574,10 @@ Bool_t PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
     pidCand->SetEmcIndex(emcIndex);
     pidCand->SetEmcModule(emcModuleCorr);
     pidCand->SetEmcNumberOfCrystals(emcNCrystals);
-    std::cout << "========= Z moments =======" << std::endl;
-    std::cout << "Z20 = " << Z20 << "\t" << "Z53 = " << Z53
-	      << std::endl; 
-    std::cout << "========= Z moments =======" << std::endl;
+    //======= 
+    pidCand->SetEmcClusterZ20(Z20);
+    pidCand->SetEmcClusterZ53(Z53);
+    //=====
   }
   
   return kTRUE;
