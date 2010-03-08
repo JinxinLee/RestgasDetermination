@@ -26,6 +26,8 @@
 #include "PndMvdGeoHandling.h"
 #include "PndPidCorrPar.h"
 #include "PndPidCandidate.h"
+#include "PndEmcXClMoments.h"
+
 
 using std::map;
 

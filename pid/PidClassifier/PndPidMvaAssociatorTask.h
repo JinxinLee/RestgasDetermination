@@ -55,13 +55,23 @@ public:
   /** Set parameter containers **/
   virtual void SetParContainers();
   virtual void Finish();
-  
+
+  /**
+   *@param vNames Input variable names.
+   */
   void SetVarNames(const std::vector<std::string>& vNames)
   {fVarNames = vNames;}
 
+  /**
+   *@param clNames Input class names.
+   */
   void SetClassNames(const std::vector<std::string>& clNames)
   {fClassNames = clNames;}
 
+  /**
+   *@param wFileName Input weight file. If not specified the standard
+   * file from the standard location is loaded.
+   */
   void SetWeightFileName(const std::string& wFileName)
   {fWeightsFileName = wFileName;}
 
@@ -76,9 +86,16 @@ public:
   
   //=============== Private members.
  private:
+  // Copy const.
   PndPidMvaAssociatorTask(const PndPidMvaAssociatorTask& other);
+  // Assignment operator.
   PndPidMvaAssociatorTask& operator=(const PndPidMvaAssociatorTask& other);
-
+  
+  /**
+   * Performs the actual classification.
+   *@param pidcand Current pid candidate to be classified.
+   *@param prob    Output probabilities.
+   */
   void DoPidMatch(PndPidCandidate& pidcand, PndPidProbability& prob);
 
   FairRootManager *fManager;
@@ -87,10 +104,14 @@ public:
   //
   void SetDefaultWeightsPath();
   const std::vector<float>& PrepareEvtVect(const PndPidCandidate& pidcand)const;
-  //
+
+  //! Variable names container.
   std::vector<std::string> fVarNames;
+  //! Class names container.
   std::vector<std::string> fClassNames;
+  //! Path to the file holding weights (proto-types, examples, ...)
   std::string fWeightsFileName;
+  //! MVA classifier object.
   PndKnnClassify* fKnnCls;
 
   ClassDef(PndPidMvaAssociatorTask, 1)

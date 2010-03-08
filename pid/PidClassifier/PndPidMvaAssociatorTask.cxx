@@ -9,6 +9,8 @@
  * ************************************/
 #include "PndPidMvaAssociatorTask.h"
 
+#define DEBUG 1
+
 // Function to use for debugging
 //==========================================================
 void printResult(std::map<std::string,float>& res){
@@ -22,6 +24,9 @@ void printResult(std::map<std::string,float>& res){
 }
 //==========================================================
 
+/**
+ * Default Constructor.
+ */
 PndPidMvaAssociatorTask::PndPidMvaAssociatorTask()
   : FairTask("PndPidAssociatorTaskSTD")
 {
@@ -35,6 +40,9 @@ PndPidMvaAssociatorTask::PndPidMvaAssociatorTask()
 }
 
 //___________________________________________________________
+/**
+ * Constructor.
+ */
 PndPidMvaAssociatorTask::PndPidMvaAssociatorTask(const char *name, const char *title)
   : FairTask(name)
 {
@@ -52,6 +60,9 @@ void PndPidMvaAssociatorTask::SetDefaultWeightsPath()
   fWeightsFileName += std::string("/pid/PidClassifier/PndMVAWeights/");
 }
 //___________________________________________________________
+/**
+ * Destructor.
+ */
 PndPidMvaAssociatorTask::~PndPidMvaAssociatorTask()
 {
   // Clean-up allocated stuff.
@@ -108,7 +119,7 @@ InitStatus PndPidMvaAssociatorTask::Init()
   }
   //Fixme Fixme
   fKnnCls->SetEvtParam(0.8,1.0);
-  fKnnCls->SetKnn(100);
+  fKnnCls->SetKnn(200);
   fKnnCls->InitKNN();
   std::cout << "-I- PndPidAssociatorTask::Init: Success!" << std::endl;
   return kSUCCESS;
@@ -152,6 +163,11 @@ void PndPidMvaAssociatorTask::Exec(Option_t* option)
   }
 }
 
+/**
+ * Performs the actual classification.
+ *@param pidcand Current pid candidate to be classified.
+ *@param prob    Output probabilities.
+ */
 void PndPidMvaAssociatorTask::DoPidMatch(PndPidCandidate& pidcand,
 					 PndPidProbability& prob)
 {
@@ -159,21 +175,22 @@ void PndPidMvaAssociatorTask::DoPidMatch(PndPidCandidate& pidcand,
   std::map<std::string, float> out;
   fKnnCls->GetMvaValues(evtPidData, out);
 
-  if(fVerbose > 2){
-    std::cout << "****************************************************"<< std::endl;
-    std::cout << "Momentum " << (pidcand.GetMomentum()).Mag() << std::endl;
-    std::cout << "GetEnergy " << pidcand.GetEnergy() << std::endl;
-    std::cout << "EMC " << pidcand.GetEmcCalEnergy() << std::endl;
-    std::cout << "EMC/P " 
-	      << (pidcand.GetEmcCalEnergy())/((pidcand.GetMomentum()).Mag()) 
-	      << std::endl;
-    std::cout << "STT " << pidcand.GetSttMeanDEDX() << std::endl;
-    std::cout << "MVD " << pidcand.GetMvdDEDX() << std::endl;
-    std::cout << "DRC_TC " << pidcand.GetDrcThetaC() << std::endl;
-    std::cout << "TPC " << pidcand.GetTpcMeanDEDX() << std::endl;
-    printResult(out);
-    std::cout << "===================================================="<< std::endl;
-  }
+#ifdef DEBUG
+  std::cout << "****************************************************"<< std::endl;
+  std::cout << "Momentum " << (pidcand.GetMomentum()).Mag() << std::endl;
+  std::cout << "GetEnergy " << pidcand.GetEnergy() << std::endl;
+  std::cout << "EMC " << pidcand.GetEmcCalEnergy() << std::endl;
+  std::cout << "EMC/P " 
+	    << (pidcand.GetEmcCalEnergy())/((pidcand.GetMomentum()).Mag()) 
+	    << std::endl;
+  std::cout << "STT " << pidcand.GetSttMeanDEDX() << std::endl;
+  std::cout << "MVD " << pidcand.GetMvdDEDX() << std::endl;
+  std::cout << "DRC_TC " << pidcand.GetDrcThetaC() << std::endl;
+  std::cout << "TPC " << pidcand.GetTpcMeanDEDX() << std::endl;
+  printResult(out);
+  std::cout << "===================================================="<< std::endl;
+#endif
+
   // Set probs.
   for(size_t i = 0; i < fClassNames.size(); i++){
     std::string name = fClassNames[i];
@@ -198,15 +215,16 @@ void PndPidMvaAssociatorTask::DoPidMatch(PndPidCandidate& pidcand,
 const std::vector<float>& PndPidMvaAssociatorTask::PrepareEvtVect(const PndPidCandidate& pidcand)const
 {
   std::vector<float>* vect = new std::vector<float>();
-  float mom = (pidcand.GetMomentum()).Mag();
+  //float mom = (pidcand.GetMomentum()).Mag();
 
   for(size_t i = 0; i < fVarNames.size(); i++){
     if(fVarNames[i] == "p")
       vect->push_back((pidcand.GetMomentum()).Mag());
 
-    if(fVarNames[i] == "emc")
-      vect->push_back( (pidcand.GetEmcCalEnergy())/mom);
-
+    if(fVarNames[i] == "emc"){
+      //vect->push_back( (pidcand.GetEmcCalEnergy())/mom);
+      vect->push_back(pidcand.GetEmcCalEnergy());
+    }
     if(fVarNames[i] == "stt")
       vect->push_back(pidcand.GetSttMeanDEDX());
 

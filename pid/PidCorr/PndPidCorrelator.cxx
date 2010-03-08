@@ -489,82 +489,97 @@ Bool_t PndPidCorrelator::GetTofInfo(FairTrackParH* helix, PndPidCandidate* pidCa
 
 //_________________________________________________________________
 Bool_t PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCand) { 
+  if(! helix){
+    std::cerr << "<Error> PndPidCorrelator EMCINFO: FairTrackParH NULL pointer parameter."
+	      <<std::endl;
+    return kFALSE;
+  }
+  if(! pidCand){
+    std::cerr << "<Error> PndPidCorrelator EMCINFO: pidCand NULL pointer parameter."
+	      <<std::endl;
+    return kFALSE;
+  }
   //---
   Float_t trackTheta = helix->GetMomentum().Theta()*TMath::RadToDeg();
-  PndEmcCluster *emcHit = NULL;
+  // PndEmcCluster *emcHit = NULL;
   Int_t emcEntries = fEmcCluster->GetEntriesFast();
   Int_t emcIndex = -1, emcModuleCorr = -1, emcNCrystals = -1;
   Float_t emcEloss = 0., emcElossCorr = 0., emcGLength = -1000;
   Float_t emcQuality = 1000000;
+   Float_t chi2 = 0;
+  TVector3 vertex(0., 0., 0.); TVector3 emcPos(0., 0., 0.); TVector3 momentum(0., 0., 0.);
 
-  Float_t chi2 = 0;
-  TVector3 vertex(0., 0., 0.);
-  TVector3 emcPos(0., 0., 0.);
-  TVector3 momentum(0., 0., 0.);
-  for (Int_t ee = 0; ee<emcEntries; ee++)
-    {
-      emcHit = (PndEmcCluster*)fEmcCluster->At(ee);
-      
-      if ( fIdeal )
-	{
-	  std::vector<Int_t> mclist = emcHit->GetMcList();
-	  if (mclist.size()==0) continue;
-	  if (mclist[0]!=pidCand->GetMcIndex()) continue;
-	}
-      
-      //if (emcHit->energy() < fCorrPar->GetEmc12Thr()) continue;
-      Int_t emcModule = ((PndEmcDigi*)emcHit->Maxima())->GetModule();
-      if (emcModule>4) continue;
-      
-      emcPos = emcHit->where();
-      if (fGeanePro) // Overwrites vertex if Geane is used
-    	{
-	  FairGeanePro *fProEmc = new FairGeanePro();
-	  fProEmc->SetPoint(emcPos);
-	  fProEmc->PropagateToPCA(1, 1);
-          vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
-          FairTrackParH *fRes= new FairTrackParH();
-          Bool_t rc =  fProEmc->Propagate(helix, fRes, -13*pidCand->GetCharge()); // First propagation at module
-	  if (!rc) continue;
-	   
-	  emcGLength = fProEmc->GetLengthAtPCA();
-	  vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
-	  //std::map<PndEmcTwoCoordIndex*, PndEmcXtal*> tciXtalMap=PndEmcStructure::Instance()->GetTciXtalMap();
-          //PndEmcDigi *lDigi= (PndEmcDigi*)emcHit->Maxima();
-          //PndEmcXtal* xtal = tciXtalMap[lDigi->GetTCI()];
-          //emcPos = xtal->frontCentre();
-        }
-      Float_t dist = (emcPos-vertex).Mag2();
-      if ( emcQuality > dist )
-	{
-	  emcIndex = ee;
-	  emcQuality = dist;
-	  emcEloss = emcHit->energy();
-	  emcElossCorr = emcHit->GetEnergyCorrected();
-	  emcModuleCorr = emcModule;
-	  emcNCrystals = emcHit->NumberOfDigis();
-	}
+  // Cluster zenike moments
+  double Z20 = 0.0; double Z53 = 0.0;
 
-      if (fDebugMode)
-	{
-	  Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(),
-			      helix->GetMomentum().Mag(), helix->GetQ(), helix->GetMomentum().Theta(), helix->GetZ(),
-			      emcPos.X(), emcPos.Y(), emcPos.Z(), emcPos.Phi(),
-			      dist, vertex.DeltaPhi(emcPos), emcHit->energy(), emcGLength, emcModule};
-	  emcCorr->Fill(ntuple);
-	}
+  for (Int_t ee = 0; ee<emcEntries; ee++){
+    //emcHit = (PndEmcCluster*)fEmcCluster->At(ee);
+    PndEmcCluster *emcHit = (PndEmcCluster*)fEmcCluster->At(ee);
+    
+    if ( fIdeal ){
+      std::vector<Int_t> mclist = emcHit->GetMcList();
+      if (mclist.size()==0) continue;
+      if (mclist[0]!=pidCand->GetMcIndex()) continue;
     }
-  if ( (emcQuality < fCorrPar->GetEmc12Cut()) || ( fIdeal && emcIndex!=-1) )
-    {
-      fClusterList[emcIndex] = kTRUE;
-      pidCand->SetEmcQuality(emcQuality);
-      pidCand->SetEmcRawEnergy(emcEloss);
-      pidCand->SetEmcCalEnergy(emcElossCorr);
-      pidCand->SetEmcIndex(emcIndex);
-      pidCand->SetEmcModule(emcModuleCorr);
-      pidCand->SetEmcNumberOfCrystals(emcNCrystals);
+    
+    //if (emcHit->energy() < fCorrPar->GetEmc12Thr()) continue;
+    Int_t emcModule = ((PndEmcDigi*)emcHit->Maxima())->GetModule();
+    if (emcModule>4) continue;
+    
+    emcPos = emcHit->where();
+    if (fGeanePro){ // Overwrites vertex if Geane is used
+      FairGeanePro *fProEmc = new FairGeanePro();
+      fProEmc->SetPoint(emcPos);
+      fProEmc->PropagateToPCA(1, 1);
+      vertex.SetXYZ(-10000, -10000, -10000); // reset vertex
+      FairTrackParH *fRes= new FairTrackParH();
+      Bool_t rc =  fProEmc->Propagate(helix, fRes, -13*pidCand->GetCharge()); // First propagation at module
+      if (!rc) continue;
+      
+      emcGLength = fProEmc->GetLengthAtPCA();
+      vertex.SetXYZ(fRes->GetX(), fRes->GetY(), fRes->GetZ());
+      //std::map<PndEmcTwoCoordIndex*, PndEmcXtal*> tciXtalMap=PndEmcStructure::Instance()->GetTciXtalMap();
+      //PndEmcDigi *lDigi= (PndEmcDigi*)emcHit->Maxima();
+      //PndEmcXtal* xtal = tciXtalMap[lDigi->GetTCI()];
+      //emcPos = xtal->frontCentre();
     }
 
+    Float_t dist = (emcPos-vertex).Mag2();
+    if ( emcQuality > dist ){
+      PndEmcXClMoments clsZmom = emcHit->Xmoments();
+      emcIndex = ee;
+      emcQuality = dist;
+      emcEloss = emcHit->energy();
+      emcElossCorr = emcHit->GetEnergyCorrected();
+      emcModuleCorr = emcModule;
+      emcNCrystals = emcHit->NumberOfDigis();
+      Z20 = clsZmom.AbsZernikeMoment(2, 0, 15);// Z_{n = 2}^{m = 0}
+      Z53 = clsZmom.AbsZernikeMoment(5, 3, 15);// Z_{n = 5}^{m = 3}
+    }
+    
+    if (fDebugMode){
+      Float_t ntuple[] = {vertex.X(), vertex.Y(), vertex.Z(), vertex.Phi(),
+			  helix->GetMomentum().Mag(), helix->GetQ(), helix->GetMomentum().Theta(), helix->GetZ(),
+			  emcPos.X(), emcPos.Y(), emcPos.Z(), emcPos.Phi(),
+			  dist, vertex.DeltaPhi(emcPos), emcHit->energy(), emcGLength, emcModule};
+      emcCorr->Fill(ntuple);
+    }
+  }// End for(ee = 0;)
+
+  if ( (emcQuality < fCorrPar->GetEmc12Cut()) || ( fIdeal && emcIndex!=-1) ){
+    fClusterList[emcIndex] = kTRUE;
+    pidCand->SetEmcQuality(emcQuality);
+    pidCand->SetEmcRawEnergy(emcEloss);
+    pidCand->SetEmcCalEnergy(emcElossCorr);
+    pidCand->SetEmcIndex(emcIndex);
+    pidCand->SetEmcModule(emcModuleCorr);
+    pidCand->SetEmcNumberOfCrystals(emcNCrystals);
+    std::cout << "========= Z moments =======" << std::endl;
+    std::cout << "Z20 = " << Z20 << "\t" << "Z53 = " << Z53
+	      << std::endl; 
+    std::cout << "========= Z moments =======" << std::endl;
+  }
+  
   return kTRUE;
 }
 
