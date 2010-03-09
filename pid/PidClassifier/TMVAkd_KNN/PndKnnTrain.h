@@ -16,7 +16,7 @@ class PndKnnTrain : public PndMvaTrainer
  public:
   /**
    * Constructor.
-   * @param OutPut: File name to hold the weight values.
+   * @param InputFile: Example event input File name.
    * @param ClassNames: Class names for wich the classifier is
    * trained.
    * @param VarNames: Variable names creating the feature vector.

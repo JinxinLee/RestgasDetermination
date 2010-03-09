@@ -1,7 +1,7 @@
 #include "PndKnnTrain.h"
 
 /**
- * @param OutPut: File name to hold the weight values.
+ * @param InputFile: Example event input File name.
  * @param ClassNames: Class Names.
  * @param VarNames: Variable names creating the feature vector.
  */
@@ -25,4 +25,6 @@ PndKnnTrain::~PndKnnTrain()
  * Fill the Signal trees and train the classifier.
  */
 void PndKnnTrain::Train()
-{}
+{
+  WriteDataSetToOutFile();
+}

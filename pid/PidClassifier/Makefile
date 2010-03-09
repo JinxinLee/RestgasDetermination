@@ -17,7 +17,7 @@ FLAGSMACHINE += -m128bit-long-double -mcx16
 
 # CCFLAGS = -O0 -g -pg # if profiling
 CCFLAGS  = -Wall -W -Wredundant-decls -Wshadow -Werror -O3
-CCFLAGS += -ftracer ${FLAGSMACHINE} -fopenmp
+CCFLAGS += -ftracer ${FLAGSMACHINE} # -fopenmp
 CCFLAGS += -funsafe-loop-optimizations -fvariable-expansion-in-unroller
 CCFLAGS += -funroll-loops -fsplit-ivs-in-unroller -fprefetch-loop-arrays
 CCFLAGS += -malign-double  -momit-leaf-frame-pointer -fomit-frame-pointer #-fprofile-use
@@ -67,7 +67,7 @@ Classifiers:
 	$(MAKE) -C KNN;
 	$(MAKE) -C LVQ1;
 	$(MAKE) -C TMVAkd_KNN;
-	$(MAKE) -C TMVA_PDE_FOAM;
+#	$(MAKE) -C TMVA_PDE_FOAM;
 
 examples: PndMvaUtil PndMvaDataSet PndGpidClassifier Classifiers
 	@echo ""
@@ -92,11 +92,11 @@ examples: PndMvaUtil PndMvaDataSet PndGpidClassifier Classifiers
 	$(CXX) $(LIBS) build/KnnTrain.o build/PndMvaTrainer.o build/PndMvaUtil.o build/PndKnnTrain.o \
 	build/PndMvaDataSet.o -o build/KNNTrain
 
-	$(CXX) $(LIBS) build/FoamTrainTest.o build/PndMvaTrainer.o build/PndMvaUtil.o \
-	build/PndPDEFoamTrain.o build/PndMvaDataSet.o -o build/FoamTrainTest
+#	$(CXX) $(LIBS) build/FoamTrainTest.o build/PndMvaTrainer.o build/PndMvaUtil.o \
+#	build/PndPDEFoamTrain.o build/PndMvaDataSet.o -o build/FoamTrainTest
 
-	$(CXX) $(LIBS) build/FoamClassifyTest.o build/PndPDEFoamClassify.o build/PndGpidClassifier.o \
-	build/PndMvaDataSet.o build/PndMvaUtil.o -o build/FoamClassifyTest
+#	$(CXX) $(LIBS) build/FoamClassifyTest.o build/PndPDEFoamClassify.o build/PndGpidClassifier.o \
+#	build/PndMvaDataSet.o build/PndMvaUtil.o -o build/FoamClassifyTest
 
 	$(CXX) $(LIBS) build/CreateRandomDataSet.o -o build/CreateRandomDataSet
 clean:

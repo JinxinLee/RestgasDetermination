@@ -302,3 +302,12 @@ void PndMvaTrainer::WriteToWeightFile(const std::vector<TMVA::PDEFoam*>& foamLis
     <<*(foamList[0]) << std::endl;
   */
 }
+
+void PndMvaTrainer::WriteDataSetToOutFile()
+{
+  if(m_outFile.size() == 0){
+    std::cerr << "<Error> Empty Output File Name." << std::endl;
+    return;
+  }
+  m_dataSets.WriteDataSet(m_outFile);
+}

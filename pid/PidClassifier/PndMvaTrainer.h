@@ -94,6 +94,8 @@ class PndMvaTrainer
    */
   void WriteToWeightFile(const std::vector<TMVA::PDEFoam*>& foams);
   
+  void WriteDataSetToOutFile();
+  
   //! Classifier error evaluation
   virtual void EvalClassifierError(){};
   
