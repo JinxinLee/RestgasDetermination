@@ -228,7 +228,7 @@ void PndMvaDataSet::InitClsCondMeans()
  */
 void PndMvaDataSet::WriteDataSet(const string& outFile)
 {
-  cerr << "<INFO> Writing events input file to "
+  cerr << "<INFO> Writing samples to file: "
        << outFile << endl;
   /* Open out put file and write coordinates of the prototypes */
   TFile out (outFile.c_str(),"RECREATE","DataSetOutput", 9);

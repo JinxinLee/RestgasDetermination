@@ -30,44 +30,33 @@ std::string int2str (int n)
 
 int main(int argc, char** argv)
 {
-  if(argc < 2){
+  if(argc < 3){
     std::cerr << "\t<ERROR> Usage\n"
-	      <<"\t./train <InFile>"
+	      <<"\t./train <InFile> <OutFile>"
 	      << std::endl;
     return 1;
   }
-  /*
-    int totEvtNum = 0;
-    std::string numstr = argv[1];
-    std::istringstream buff(numstr);
-    buff >> totEvtNum;
-  */
-  std::string ot   = argv[1];
+
+  std::string inpt   = argv[1];
+  std::string oupt   = argv[2];
   
   std::vector<std::string> clas;
   std::vector<std::string> nam;
-  
-  // Class names
-  /*
-  clas.push_back("Elect"); clas.push_back("Pion"); 
-  clas.push_back("Kaon"); clas.push_back("Gamma"); 
-  clas.push_back("Muon"); //clas.push_back("Prot");
-  */
-  
+  // Class Names  
   clas.push_back("electron"); clas.push_back("pion"); 
   clas.push_back("kaon"); clas.push_back("muon");
   clas.push_back("proton");
   
-  // Parameter names
+  // Parameter Names
   nam.push_back("emc"); nam.push_back("tof"); nam.push_back("mvd");
   nam.push_back("p");   nam.push_back("stt"); nam.push_back("thetaC");
 
-  const char* file = ot.c_str();
+  const char* file = inpt.c_str();
   
   PndKnnTrain kNNtr (file, clas, nam, true);
-  NormType tt = MINMAX;
+  NormType tt = VARX;
   kNNtr.NormalizeData(tt);
-  kNNtr.SetOutPutFile("NormalizedDataOut.root");
+  kNNtr.SetOutPutFile(oupt);
   kNNtr.Train();
 
   return 0;
