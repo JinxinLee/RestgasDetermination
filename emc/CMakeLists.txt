@@ -17,6 +17,7 @@ ${CMAKE_SOURCE_DIR}/emc/EmcDigi
 ${CMAKE_SOURCE_DIR}/emc/EmcMC
 ${CMAKE_SOURCE_DIR}/emc/EmcReco
 ${CMAKE_SOURCE_DIR}/emc/EmcTools
+${CMAKE_SOURCE_DIR}/emc/EmcCorr
 ${CMAKE_SOURCE_DIR}/emc
 
 )
@@ -75,6 +76,8 @@ EmcReco/PndEmcMakeBump.cxx
 EmcReco/PndEmc2DLocMaxFinder.cxx
 EmcReco/PndEmcExpClusterSplitter.cxx
 EmcReco/PndEmcMakeRecoHit.cxx
+EmcCorr/PndEmcMakeCorr.cxx
+EmcCorr/PndEmcCorrection.cxx
 #basetasks/PndGlobalEvtTask.cxx
 PndEmcContFact.cxx 
 )
