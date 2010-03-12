@@ -68,11 +68,11 @@ class PndSttTrackFinderIdeal : public PndSttTrackFinder
    **
    *@value Number of tracks created
    **/
-  virtual Int_t DoFind(TClonesArray* trackCandArray); 
+  virtual Int_t DoFind(TClonesArray* trackCandArray, TClonesArray* helixHitArray);
 
- virtual void AddHitCollection(TClonesArray* mHitArray, TClonesArray* mPointArray) {fHitCollectionList.Add(mHitArray); fPointCollectionList.Add(mPointArray);}
- void plotAllStraws();
- Bool_t putStraw(Double_t xpos, Double_t ypos, Double_t radius);
+  virtual void AddHitCollection(TClonesArray* mHitArray, TClonesArray* mPointArray) {fHitCollectionList.Add(mHitArray); fPointCollectionList.Add(mPointArray);}
+  void plotAllStraws();
+  Bool_t putStraw(Double_t xpos, Double_t ypos, Double_t radius);
 
 
 

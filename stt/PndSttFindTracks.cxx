@@ -6,7 +6,7 @@
 
 #include "PndSttTrackFinder.h"
 #include "PndTrackCand.h"
-
+#include "PndSttHelixHit.h"
 #include "FairHit.h"
 #include "FairRootManager.h"
 
@@ -24,6 +24,7 @@ PndSttFindTracks::PndSttFindTracks()
 {
   fFinder      = NULL;
   fTrackCandArray  = NULL; 
+  fHelixHitArray  = NULL; 
   fNofTracks   = 0;
   fVerbose     = 1;
   fCollectionsComplete = kFALSE;
@@ -40,6 +41,7 @@ PndSttFindTracks::PndSttFindTracks(PndSttTrackFinder* finder,
 {
   fFinder      = finder;
   fTrackCandArray  = NULL; 
+  fHelixHitArray  = NULL; 
   fNofTracks   = 0;
   fVerbose     = verbose;
   fCollectionsComplete = kFALSE;
@@ -57,6 +59,7 @@ PndSttFindTracks::PndSttFindTracks(const char* name, const char* title,
 {
   fFinder      = finder;
   fTrackCandArray  = NULL; 
+  fHelixHitArray  = NULL; 
   fNofTracks   = 0;
   fVerbose     = verbose;
   fCollectionsComplete = kFALSE;
@@ -70,6 +73,7 @@ PndSttFindTracks::PndSttFindTracks(const char* name, const char* title,
 PndSttFindTracks::~PndSttFindTracks() 
 {
   fTrackCandArray->Delete(); 
+  fHelixHitArray ->Delete();
   fHitCollectionNames.clear();  
   fPointCollectionNames.clear();
 }
@@ -100,6 +104,9 @@ InitStatus PndSttFindTracks::Init()
 
   fTrackCandArray = new TClonesArray("PndTrackCand",100); 
   ioman->Register("STTTrackCand", "STT", fTrackCandArray, fPersistence); 
+  
+  fHelixHitArray = new TClonesArray("PndSttHelixHit",100); 
+  ioman->Register("STTPRHelixHit", "STT", fHelixHitArray, fPersistence); 
   
 
   // Set verbosity of track finder
@@ -180,9 +187,10 @@ void PndSttFindTracks::Exec(Option_t* opt)
   AddAllCollections();
   
   fTrackCandArray->Clear(); 
+  fHelixHitArray->Clear(); 
 
   
-  fNofTracks = fFinder->DoFind(fTrackCandArray); 
+  fNofTracks = fFinder->DoFind(fTrackCandArray, fHelixHitArray); 
   
   
   for (Int_t iTrack=0; iTrack < fTrackCandArray->GetEntriesFast(); iTrack++) 

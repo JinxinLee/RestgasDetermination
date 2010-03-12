@@ -79,7 +79,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
   void WriteHistograms();
 
   /** Track finding algorithm **/
-  virtual Int_t DoFind(TClonesArray* mHitArray);
+  virtual Int_t DoFind(TClonesArray* mHitArray, TClonesArray* mHelixHitArray);
   
   virtual void AddHitCollection(TClonesArray* mHitArray, TClonesArray* mPointArray)
              {fHitCollectionList.Add(mHitArray); fPointCollectionList.Add(mPointArray);};

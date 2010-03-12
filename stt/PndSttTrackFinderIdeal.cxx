@@ -1,6 +1,8 @@
 
 #include "PndSttTrackFinderIdeal.h"
 #include "PndSttHit.h"
+#include "PndSttPoint.h"
+#include "PndSttHelixHit.h"
 #include "PndSttHoughDefines.h"
 #include "FairMCPoint.h"
 #include "FairRootManager.h"
@@ -83,7 +85,7 @@ void PndSttTrackFinderIdeal::Init()
     }
 }
 
-Int_t PndSttTrackFinderIdeal::DoFind( TClonesArray* trackCandArray) 
+Int_t PndSttTrackFinderIdeal::DoFind( TClonesArray* trackCandArray, TClonesArray* helixHitArray) 
 {
   // Check pointers
   if ( !fMCTrackArray ) 
@@ -136,7 +138,7 @@ Int_t PndSttTrackFinderIdeal::DoFind( TClonesArray* trackCandArray)
 
   // Create pointers to hit and SttPoint
   PndSttHit*       pMhit = NULL;
-  FairMCPoint*      pMCpt = NULL;
+  FairMCPoint*     pMCpt = NULL;
   PndMCTrack*      pMCtr = NULL;
   PndTrackCand* pTrckCand = NULL; 
 
@@ -320,8 +322,38 @@ Int_t PndSttTrackFinderIdeal::DoFind( TClonesArray* trackCandArray)
 	pTrckCand->AddHit(pMhit->GetDetectorID(), iHit, wireRad); 
 
       }
-// ---------------------------------------------------------------------  
+      // ---------------------------------------------------------------------  
+      // HelixHit Production after PR
+      TClonesArray& clref = *helixHitArray;
+      Int_t size = clref.GetEntriesFast();
 
+      // CHECK remember to SET the errors on position!!!!!!!
+      PndSttHelixHit *helixhit = new(clref[size]) PndSttHelixHit();
+      helixhit->CopyHitToHelixHit(pMhit, iHit);
+      helixhit->SetX(((PndSttPoint *) pMCpt)->GetXtot());
+      helixhit->SetY(((PndSttPoint *) pMCpt)->GetYtot());
+      helixhit->SetZ(((PndSttPoint *) pMCpt)->GetZtot());
+
+    
+      // dedx
+      if(pMhit->GetdEdx() != -999) helixhit->SetdEdx(pMhit->GetdEdx()); // if ideal DIGI is used
+      else { // calculate it from MC
+	double InOut[6];
+	memset(InOut, 0, sizeof(InOut));
+	InOut[0] = ((PndSttPoint *) pMCpt)->GetXInLocal();
+	InOut[1] = ((PndSttPoint *) pMCpt)->GetYInLocal();
+	InOut[2] = ((PndSttPoint *) pMCpt)->GetZInLocal();
+	InOut[3] = ((PndSttPoint *) pMCpt)->GetXOutLocal();
+	InOut[4] = ((PndSttPoint *) pMCpt)->GetYOutLocal();
+	InOut[5] = ((PndSttPoint *) pMCpt)->GetZOutLocal();  
+	TVector3 diff3(InOut[0] - InOut[3], InOut[1] - InOut[4], InOut[2] - InOut[5]); 
+	double distance = diff3.Mag(); //
+	Double_t dedx = 999;
+	Double_t eloss = ((PndSttPoint *) pMCpt)->GetEnergyLoss();
+	if (distance != 0)  dedx = eloss/(distance);  // in GeV/cm (I guess) CHECK
+	helixhit->SetdEdx(dedx);
+      }
+      // ---------------------------------------------------------------------
 
       if (rootoutput)
       {

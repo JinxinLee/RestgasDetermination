@@ -89,6 +89,7 @@ class PndSttFindTracks : public FairTask
 
   PndSttTrackFinder* fFinder;    // Pointer to TrackFinder concrete class
   TClonesArray* fTrackCandArray; // Output array of PndTrackCand
+  TClonesArray* fHelixHitArray;  // Output array of PndSttHelixHit
 
   Int_t fNofTracks;              // Number of tracks created
   Int_t fVerbose;                // Verbosity level

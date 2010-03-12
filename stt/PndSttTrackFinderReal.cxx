@@ -9,6 +9,7 @@
 
 #include "PndSttHit.h"
 #include "PndSttPoint.h"
+#include "PndSttHelixHit.h"
 #include "PndTrackCand.h"
 #include "PndDetectorList.h"
 #include  <cmath>
@@ -241,7 +242,7 @@ fine: ;
 
 
 // -----   Public method DoFind   ------------------------------------------
-Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackArray) 
+Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackArray, TClonesArray* helixHitArray) 
 {
     UShort_t auxIndex[nmaxHits],
              OLDinfoparal[nmaxHits];
