@@ -17,6 +17,7 @@
 #include "TBox.h"
 #include "TSystem.h"
 #include "TMath.h"
+#include "TStyle.h"
 
 
 #include "PndTpcCluster.h"
@@ -24,6 +25,7 @@
 #include "Hough2DNode.h"
 #include "PndTpcPadPlane.h"
 #include "PndTpcPadShapePool.h"
+#include "PndTpcPad.h"
 
 #include <vector>
 #include <cmath>
@@ -42,6 +44,9 @@ bool compareNodes (Hough2DNode* n1, Hough2DNode* n2) {
 
 void plotHough(TString filename, TString type, int evLo, int evHi, 
 	       int DEPTH, int THRESH) {
+
+
+  gStyle->SetOptStat(0);
 
   //param space -----------------------------
   double theta_min = -3.f;
@@ -66,7 +71,7 @@ void plotHough(TString filename, TString type, int evLo, int evHi,
   if(type==elsa)
     x_OFF=5.;
   
-  int MINCANDSIZE = 8;
+  int MINCANDSIZE = 10;
   
   TFile* recofile = new TFile(filename);
   if(recofile->IsZombie()) {
@@ -84,8 +89,8 @@ void plotHough(TString filename, TString type, int evLo, int evHi,
 
   std::cout<<"Plane has "<<plane->GetNPads()<<" pads."<<std::endl;
 
-  TCanvas* canv =  new TCanvas();
-  canv->Divide(4,1);
+  TCanvas* canv =  new TCanvas("dasd","sadasf",1000,1000);
+  canv->Divide(2,2);
 
   TH2F* real;
   if(type==cosm) {
@@ -136,6 +141,28 @@ void plotHough(TString filename, TString type, int evLo, int evHi,
   digimarker->SetMarkerStyle(5);
   TPolyMarker* marker=NULL;
   TPolyMarker* marker2D=NULL;
+
+  //Draw padplane
+  canv->cd(4);
+  real2->Draw();
+  int npads=plane->GetNPads();
+  
+  for(int i=0;i<npads;++i){
+    PndTpcPad* apad=0;
+    try{
+      apad=plane->GetPad(i);
+    }
+    catch (std::exception &e){
+      cout << e.what() << endl;
+      cout.flush();
+      continue;
+    }
+    apad->Draw(kBlack);
+    
+  }
+  canv->Update();
+
+
     
   for(unsigned int k=0; k<=nEv; k++) {
     
@@ -179,6 +206,7 @@ void plotHough(TString filename, TString type, int evLo, int evHi,
 	marker2D->SetMarkerStyle(4);
 	marker2D->SetMarkerSize((double)size2d/2);
 	marker2D->SetPoint(0,pos.X(),pos.Y()); 
+	marker2D->SetMarkerColor(kOrange+10);
       }
       else {
       	marker2D=clustersXY[size2d];
@@ -193,13 +221,18 @@ void plotHough(TString filename, TString type, int evLo, int evHi,
 	dig = cl->getDigi(d);
 	unsigned int padID = dig.padId();
 	double x,y;
+	
+	PndTpcPad* apad=0;
+	
 	try{
 	  plane->GetPadXY(padID,x,y);
+	  apad=plane->GetPad(padID);
 	}
 	catch(...){
 	  std::cout<<"Unknown padID: "<<padID<<std::endl;
 	  continue;
 	}
+	apad->Draw(kOrange+10);
 	digimarker->SetPoint(digimarker->GetLastPoint()+1,x,y);
       }
       
@@ -247,12 +280,13 @@ void plotHough(TString filename, TString type, int evLo, int evHi,
     it->second->Draw("same");
   
   canv->cd(4);
-  real2->Draw();
-  digimarker->Draw("same");
+    //digimarker->Draw("same");
   std::cout<<"XY clusters size: "<<clustersXY.size()<<std::endl;
   for(it=clustersXY.begin(); it!=clustersXY.end(); it++) 
     it->second->Draw("same");
   
+ 
+
    
   canv->cd(2);
   hough->Draw();
