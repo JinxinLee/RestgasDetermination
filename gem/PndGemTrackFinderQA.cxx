@@ -353,10 +353,14 @@ void PndGemTrackFinderQA::Exec(Option_t* opt) {
   fNofRecoClones += nofRecoClones;
 
   if ( fVerbose ) {
-    Double_t effAcc  = 100.*(Double_t)nofRecoAcc /((Double_t)nofMCAcc);
-    Double_t effPrim = 100.*(Double_t)nofRecoPrim/((Double_t)nofMCPrim);
-    Double_t effSec  = 100.*(Double_t)nofRecoSec /((Double_t)nofMCSec);
-    Double_t effRef  = 100.*(Double_t)nofRecoRef /((Double_t)nofMCRef);
+    Double_t effAcc  = 1.;
+    Double_t effPrim = 1.;
+    Double_t effSec  = 1.;
+    Double_t effRef  = 1.;
+    if ( nofMCAcc  ) effAcc  = 100.*(Double_t)nofRecoAcc /((Double_t)nofMCAcc);
+    if ( nofMCPrim ) effPrim = 100.*(Double_t)nofRecoPrim/((Double_t)nofMCPrim);
+    if ( nofMCSec  ) effSec  = 100.*(Double_t)nofRecoSec /((Double_t)nofMCSec);
+    if ( nofMCRef  ) effRef  = 100.*(Double_t)nofRecoRef /((Double_t)nofMCRef);
     cout << "---- PndGemTrackFinderQA : Event " << fNofEvents << " summary -----" << endl;
     cout << "MC Tracks: " << nofMCTracks << endl;
     cout << " reconstruable: " << nofMCAcc  << " reconstructed " << nofRecoAcc  << " >>>> " << effAcc  << endl;
@@ -604,14 +608,24 @@ void PndGemTrackFinderQA::DivideHistos(TH1* hist1, TH1* hist2, TH1* hist3) {
 
 // -----   Private method Finish   --------------------------------------------
 void PndGemTrackFinderQA::Finish() {
-  Double_t effAcc  = 100.*(Double_t)fNofRecoAcc /((Double_t)fNofMCAcc);
-  Double_t effPrim = 100.*(Double_t)fNofRecoPrim/((Double_t)fNofMCPrim);
-  Double_t effSec  = 100.*(Double_t)fNofRecoSec /((Double_t)fNofMCSec);
-  Double_t effRef  = 100.*(Double_t)fNofRecoRef /((Double_t)fNofMCRef);
-  Double_t ghPerEv = (Double_t)fNofRecoGhosts/((Double_t)fNofEvents);
-  Double_t ghPerTr = (Double_t)fNofRecoGhosts/((Double_t)fNofMCAll);
-  Double_t clPerEv = (Double_t)fNofRecoClones/((Double_t)fNofEvents);
-  Double_t clPerTr = (Double_t)fNofRecoClones/((Double_t)fNofMCAll);
+  Double_t effAcc  = 1.;
+  Double_t effPrim = 1.;
+  Double_t effSec  = 1.;
+  Double_t effRef  = 1.;
+  if ( fNofMCAcc  ) effAcc  = 100.*(Double_t)fNofRecoAcc /((Double_t)fNofMCAcc);
+  if ( fNofMCPrim ) effPrim = 100.*(Double_t)fNofRecoPrim/((Double_t)fNofMCPrim);
+  if ( fNofMCSec  ) effSec  = 100.*(Double_t)fNofRecoSec /((Double_t)fNofMCSec);
+  if ( fNofMCRef  ) effRef  = 100.*(Double_t)fNofRecoRef /((Double_t)fNofMCRef);
+
+  Double_t ghPerEv = 0.;
+  Double_t ghPerTr = 0.;
+  Double_t clPerEv = 0.;
+  Double_t clPerTr = 0.;
+  if ( fNofEvents ) ghPerEv = (Double_t)fNofRecoGhosts/((Double_t)fNofEvents);
+  if ( fNofMCAll  ) ghPerTr = (Double_t)fNofRecoGhosts/((Double_t)fNofMCAll);
+  if ( fNofEvents ) clPerEv = (Double_t)fNofRecoClones/((Double_t)fNofEvents);
+  if ( fNofMCAll  ) clPerTr = (Double_t)fNofRecoClones/((Double_t)fNofMCAll);
+
   cout << "-------------------- PndGemTrackFinderQA : Summary ------------------" << endl;
   cout << " Events:        " << setw(10) << fNofEvents << endl;
   cout << " MC Tracks:     " << setw(10) << fNofMCAll << endl;
