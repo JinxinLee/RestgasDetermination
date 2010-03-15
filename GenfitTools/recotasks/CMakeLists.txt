@@ -39,6 +39,7 @@ link_directories( ${LINK_DIRECTORIES})
 set(RECOTASKS_SRCS 
 PndRecoKalmanFit.cxx
 PndRecoKalmanTask.cxx
+PndRecoMultiKalmanTask.cxx
 )
 
 if(RULE_CHECKER_FOUND)
