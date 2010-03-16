@@ -109,7 +109,6 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
             nbinFi= 250,
             nbinKAPPA = 200,
             nbinFI0 = 200,
-            MAXSTTINFO=200000,
             MINIMUMSKEWHITSPERTRACK=3,
             MINIMUMCOUNTSDFiR = 18,
             MINIMUMCOUNTSKAPPAFI0 = 5,
@@ -161,7 +160,8 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
           N_INTENDED;
 //  Double_t SEMILENGTH_STRAIGHT = 75.;
       static const bool  iplotta = false , ianalizza = true ;
-      static const int istampa = 1;
+      static const int istampa = 1,
+            MAXSTTINFO=200000;
       TH1F * hx;
       FILE * HANDLE ;
       FILE * HANDLE2 ;
