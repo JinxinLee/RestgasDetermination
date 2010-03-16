@@ -266,7 +266,7 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackArray, TClonesArray* heli
 
      IVOLTE++;
 
-     if(istampa>=2)     cout<<"da PndSttTrackFinderReal : evento n. "<<IVOLTE<<endl;
+     if(istampa>=2 && IVOLTE<20)     cout<<"da PndSttTrackFinderReal : evento n. "<<IVOLTE<<endl;
 
 //------------------------------------ fine modifiche Gianluigi, 9-7-08
 
@@ -298,6 +298,8 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackArray, TClonesArray* heli
 
 
    if(istampa>=2 && (nMCTracks  != N_INTENDED)  ){
+    cout<<"Gianluigi : n. MC tracks = "<<nMCTracks<<" and it is different from n. intended tracks (= "<<
+        N_INTENDED<<"),  return!\n";
     return  -20;
   }
 
@@ -545,7 +547,7 @@ jumpout: ;
 
 
 //--------------- inizio stampaggi,  stampe di controllo
-  if (istampa >= 3 ) {
+  if (istampa >= 2  && IVOLTE<20) {
       cout <<"iHit "<< iHit << endl;
       cout <<"             hit X, Y, Z space position "   << veritaMC[iHit][0] << " " <<
                        veritaMC[iHit][1] << " " << veritaMC[iHit][2]<<endl; 
@@ -567,7 +569,7 @@ jumpout: ;
 
 
 //--------------- inizio stampaggi
-  if (istampa >= 2 ) {
+  if (istampa >= 2  && IVOLTE<20) {
       cout<<"Gianluigi : da PndSttTrackFinderReal::DoFind : nHits totali ="<<nHits<<",  n Hits ||  = "<<Minclinations[0]<<
           ",  n Hits  skew = "<<NSkewhits<<endl;
   }  //  end of   if(istampa >=
@@ -1108,7 +1110,7 @@ void PndSttTrackFinderReal::PndSttTrkFinderPartial(
 
 
 //--------------------------------------------------    macro for display
-if(iplotta){
+if(iplotta && IVOLTE < 20){
         WriteMacroParallelHitsConformalwithMCspecial(
                    nHitsinTrack[nTracksFoundSoFar],
                    auxinfoparalConformal,
@@ -1136,7 +1138,7 @@ if(iplotta){
 
 
 //--------------------------------------------------    macro for display
-if(iplotta){
+if(iplotta && IVOLTE < 20){
   for(i=0; i<nTracksFoundSoFar;i++){
            WriteMacroParallelAssociatedHits(
                    Ox[i], Oy[i], R[i],
@@ -1388,7 +1390,7 @@ if(iplotta){
                        );
 
 //----------------------------------------------   some printouts
-if(istampa>=2) {
+if(istampa>=2 && IVOLTE<20) {
    cout<<"      Evento n. "<<IVOLTE<<"; elenco finale hits per traccia n. "<<i<<"  list dei "<<nHitsinTrack[i]
                <<" hit paralleli (original notation) :\n";
    for(int ig=0;ig<nHitsinTrack[i];ig++){
@@ -1531,9 +1533,9 @@ esci2:  ;
 
 
 
-  if(istampa>=2)  fprintf(HANDLE, "\n Evento %d  NTotaleTracceMC %d ------\n",IVOLTE, nMCTracks);
+  if(istampa>=2 )  fprintf(HANDLE, "\n Evento %d  NTotaleTracceMC %d ------\n",IVOLTE, nMCTracks);
 
-for (i=0; i<nMCTracks && istampa>=2;i++){
+for (i=0; i<nMCTracks && istampa>=2 ;i++){
 
 
 
@@ -1785,7 +1787,7 @@ if(istampa>=2){
 
 //------------------------------------- macro di display delle skew
 
-if(iplotta){
+if(iplotta && IVOLTE < 20){
 
 for(i=0; i<nTracksFoundSoFar;i++){
    if( iplotta) {
@@ -2268,7 +2270,7 @@ for(k1=0; k1<2;k1++){
  if( LL < 1.e-10) continue;
  Aellipsis1 = r1*aaa/LL;
 
- if(istampa >= 3){
+ if(istampa >= 3 && IVOLTE<20){
    cout<<"Lunghezza asse maggiore ellisse1 = "<<Aellipsis1<<";  raggio drift1 = "<<r1<<";  Tdirz = "<<Tiltdirection1[0]
        <<";  TdirFI = "<<Tiltdirection1[1]<<endl;
    cout<<"cos angolo con la normale = "<<LL/aaa<<endl;
@@ -2391,7 +2393,7 @@ for(k1=0; k1<2;k1++){
 
 
 // --------------------------------------------------------------------   stampa delle macro di controllo
-if(iplotta){
+if(iplotta && IVOLTE < 20){
 
   Bellipsis1 = r1/R;
   Bellipsis2 = r2/R;
@@ -2846,7 +2848,7 @@ cout<<"Esce da PndSttTrkFindHelix.........\n";
                     }
                 }
 
-if(istampa>= 3) {
+if(istampa>= 3 && IVOLTE<20) {
   double dista;
   dista = distance;
   if(z1<z2){   if( zpos1 > z1 && zpos2 > z1  && zpos1 < z2 && zpos2 < z2 ) dista = -distance; }else{ 
@@ -3491,7 +3493,7 @@ if(istampa>= 3) {
                 Cluster[MAXElementsOverThresholdinHough][3],
                 ClusterElementsFound[MAXElementsOverThresholdinHough][3];
 
-   if(istampa >= 3) {
+   if(istampa >= 3 && IVOLTE<20) {
 cout<<"da   findmaximaDFiR  :   MINIMUMCOUNTS = "<<MINIMUMCOUNTS<<",nbinD = "<<nbinD <<
      ",  nbinFi = "<<nbinFi <<", nbinR = "<<nbinR
     <<endl;
@@ -3521,7 +3523,7 @@ cout<<"Temporary printout from findmaximaDFiR  : too many cells (>= "<<MAXElemen
 
 
 
-     if(istampa>=2) {
+     if(istampa>=3 && IVOLTE<20) {
        cout<<"da findmaximaDFiR : numero di celle superiori al MINIMUM CUT = "<<icount<<" e loro elenco :"<<endl;
        for(i = 0; i<icount;i++){
           cout<<"da findmaximaDFiR : iD = "<<auxDFiRIndex[i][0]<<";  iFi = "<<auxDFiRIndex[i][1]<<"; iR = "<<auxDFiRIndex[i][2]<<
@@ -3700,7 +3702,7 @@ cout<<"Temporary printout from findmaximaDFiR  : too many cells (>= "<<MAXElemen
 
 
 
-     if(istampa>=2) {
+     if(istampa>=3 && IVOLTE<20) {
        cout<<"da findmaximaKFI0 : numero di celle maggiori del MINIMUMCUT = "<<icount<<" e loro elenco :"<<endl;
        for(i = 0; i<icount;i++){
           cout<<"da findmaximaKFI0 : iK = "<<auxKFI0Index[i][0]<<";  iFI0 = "<<auxKFI0Index[i][1]<<
@@ -3804,13 +3806,13 @@ cout<<"Temporary printout from findmaximaDFiR  : too many cells (>= "<<MAXElemen
 
 //  now find the indeces for the maxima
 
-if( istampa >= 2) cout<<"da findmaximaKFI0, ntotClusters = "<<ntotClusters<<endl;
+if( istampa >= 3 && IVOLTE<20) cout<<"da findmaximaKFI0, ntotClusters = "<<ntotClusters<<endl;
     *NumberofMaximaKFI0 = ntotClusters;
 
 
     for(i=0; i<ntotClusters; i++){
 
-if( istampa >= 2) cout<<"da findmaximaKFI0, cluster n. "<<i<<" formato da "<<nElementsinCluster[i]<<"  elementi\n";
+if( istampa >= 3 && IVOLTE<20) cout<<"da findmaximaKFI0, cluster n. "<<i<<" formato da "<<nElementsinCluster[i]<<"  elementi\n";
        for(j=0, max=-1;j<nElementsinCluster[i];j++){
           if(max < BoxKFI0[found[i][j][0]][found[i][j][1]]) {
             max=BoxKFI0[found[i][j][0]][found[i][j][1]];
@@ -4066,7 +4068,7 @@ void PndSttTrackFinderReal::WriteHistograms(){
 
 
 
-if(istampa>= 2) {
+if(istampa>= 3 && IVOLTE<20) {
   cout<<"stampa da WriteMacroParallelHitsGeneral , for trackfoundsofar n. "<<i<<",  typconf "<<
    TypeConf[i]<<",  nel normale piano XY;  alfa "<<ALFA[i]<<",  beta "<<BETA[i]<<", gamma "<<GAMMA[i]
        <<"  a cui corrisponde  Cx = "<<-0.5*ALFA[i]<<",  Cy = "<<-0.5*BETA[i]<<" ed  R = "
@@ -6225,10 +6227,10 @@ void PndSttTrackFinderReal::PndStt_Merge(UShort_t nl, Double_t *left, UShort_t *
      Double_t auxRvalues[nmaxHits];
 
 
-if(istampa>=2) {
+if(istampa>=3 && IVOLTE<20) {
      cout<<"Da strictcollection, n. elementi delle search list "<<NParallelToSearch<<endl;
      for(i=0; i<NParallelToSearch; i++){
-        cout<<"Da strictcollection,  hit n. (parallel notaion ) "<<ListHitsinTrackinWhichToSearch[i]<<endl;
+        cout<<"Da strictcollection,  hit n. (parallel notation ) "<<ListHitsinTrackinWhichToSearch[i]<<endl;
      }
 }
 
@@ -6236,7 +6238,7 @@ if(istampa>=2) {
 //   iSeed        is the hit number in the PARALLEL number scheme
 
      iFiseed = FiConformalIndex[ infoparal[  iSeed ] ];
-if(istampa>=2)cout<<"Da strictcollection, iFiseed "<<iFiseed<<endl;
+if(istampa>=3 && IVOLTE<20)cout<<"Da strictcollection, iFiseed "<<iFiseed<<endl;
 
      nHitsinTrack=0;
      for(i=0; i<NParallelToSearch; i++){
@@ -6275,7 +6277,7 @@ if(istampa>=2)cout<<"Da strictcollection, iFiseed "<<iFiseed<<endl;
      }   //  end of        for(i=0; i<NparallelToSearch; i++)
 
 
-if(istampa>=2) {
+if(istampa>=3 && IVOLTE<20) {
      cout<<"Da strictcollection, n. elementi aggiunti "<<nHitsinTrack<<endl;
      for(i=0; i<nHitsinTrack; i++){
        cout<<"Da strictcollection,  hit n. (parallel notaion ) "<<OutputListHitsinTrack[i]<<endl;
@@ -6825,7 +6827,7 @@ printf("from main, end of final printout  con routines chiamate direttamente ---
 
 
 
-   if(istampa>=2){
+   if(istampa>=3 && IVOLTE<20){
      sprintf(stringa,
               "/home/boca/panda/glpk/glpk-4.39/examples/glpsol --min -o soluztrack%dEvent%dstep%d    GeneralParallelHitsConformeTraccia%dEvent%d.mcs",
                                 nTracksFoundSoFar,IVOLTE,INTERO,nTracksFoundSoFar,IVOLTE);
@@ -6882,7 +6884,7 @@ printf("from main, end of final printout  con routines chiamate direttamente ---
 //if(istampa)   cout<<"Stampa dal fitter, prima della correzione displacement   *qu, *emme  "<<*qu<<",  "<<*emme<<endl;
 //  cancel the effect of the last Y displacement
 //     *qu -= offsety;
-if(istampa>=2) {
+if(istampa>=3 && IVOLTE<20) {
 
   cout<<"Stampa dal fitter, risultato :   qu, emme non ri-ruotati  "<<*qu<<",  "<<*emme<<endl<<
         "                                 qu, emme  ri-ruotati  "<<*qu/(cose-*emme*sine)<<",  "<<(*emme*cose+sine)/(cose-*emme*sine)<<endl;
@@ -7217,7 +7219,7 @@ if(istampa>=2) {
       fclose(MACRO);
 
 
-   if(istampa>=2){
+   if(istampa>=3 && IVOLTE<20){
      sprintf(stringa,
               "/home/boca/panda/glpk/glpk-4.39/examples/glpsol --min -o soluztrack%dEvent%dstep%d    GeneralParallelHitsConformeTraccia%dEvent%d.mcs",
                                 nTracksFoundSoFar,IVOLTE,INTERO,nTracksFoundSoFar,IVOLTE);
@@ -7277,7 +7279,7 @@ if(istampa>=2) {
 //if(istampa)   cout<<"Stampa dal fitter, prima della correzione displacement   qu, emme  "<<qu<<",  "<<emme<<endl;
 //  cancel the effect of the last Y displacement
 //     qu -= offsety;
-if(istampa>=2) {
+if(istampa>=3 && IVOLTE<20) {
 
   cout<<"Stampa dal fitter, risultato :   qu, emme non ri-ruotati  "<<qu<<",  "<<emme<<endl<<
         "                                 qu, emme  ri-ruotati  "<<qu/(cose-emme*sine)<<",  "<<(emme*cose+sine)/(cose-emme*sine)<<endl;
@@ -7425,7 +7427,7 @@ if(istampa>=2) {
     if( FiConformalIndex[i] <  FFimin ) FFimin = FiConformalIndex[i];
     if( FiConformalIndex[i] >  FFimax ) FFimax = FiConformalIndex[i];
 
-if(istampa>=2) {
+if(istampa>=3 && IVOLTE<20) {
   cout<<"  evento n. "<<IVOLTE<<", Fimin prima  prima = "<<FFimin<<",  Fimax prima "<<FFimax<<endl;
 }
 
@@ -7441,7 +7443,7 @@ if(istampa>=2) {
      }
   }
 
-if(istampa>=2) {
+if(istampa>=3 && IVOLTE<20) {
   cout<<"  evento n. "<<IVOLTE<<", Fimin prima = "<<FFimin<<",  Fimax prima "<<FFimax<<endl;
 }
 
@@ -7456,7 +7458,7 @@ if(istampa>=2) {
     return 0;
   }
 
-if(istampa>=2) {
+if(istampa>=3 && IVOLTE<20) {
   cout<<"  evento n. "<<IVOLTE<<", Fimin dopo = "<<FFimin<<",  Fimax dopo "<<FFimax<<endl;
 }
 
@@ -7851,7 +7853,7 @@ endl;
     if( FiConformalIndex[i] <  FFimin ) FFimin = FiConformalIndex[i];
     if( FiConformalIndex[i] >  FFimax ) FFimax = FiConformalIndex[i];
 
-if(istampa>=2) {
+if(istampa>=3 && IVOLTE<20) {
   cout<<"  evento n. "<<IVOLTE<<", Fimin prima  prima = "<<FFimin<<",  Fimax prima "<<FFimax<<endl;
 }
 
@@ -7867,7 +7869,7 @@ if(istampa>=2) {
      }
   }
 
-if(istampa>=2) {
+if(istampa>=3 && IVOLTE<20) {
   cout<<"  evento n. "<<IVOLTE<<", Fimin prima = "<<FFimin<<",  Fimax prima "<<FFimax<<endl;
 }
 
@@ -7882,7 +7884,7 @@ if(istampa>=2) {
     return 0;
   }
 
-if(istampa>=2) {
+if(istampa>=3 && IVOLTE<20) {
   cout<<"  evento n. "<<IVOLTE<<", Fimin dopo = "<<FFimin<<",  Fimax dopo "<<FFimax<<endl;
 }
 
@@ -8273,7 +8275,7 @@ if(istampa>=2) {
     if( FiConformalIndex[i] <  FFimin ) FFimin = FiConformalIndex[i];
     if( FiConformalIndex[i] >  FFimax ) FFimax = FiConformalIndex[i];
 
-if(istampa>=2) {
+if(istampa>=3 && IVOLTE<20) {
   cout<<"  evento n. "<<IVOLTE<<", Fimin prima  prima = "<<FFimin<<",  Fimax prima "<<FFimax<<endl;
 }
 
@@ -8289,7 +8291,7 @@ if(istampa>=2) {
      }
   }
 
-if(istampa>=2) {
+if(istampa>=3 && IVOLTE<20) {
   cout<<"  evento n. "<<IVOLTE<<", Fimin prima = "<<FFimin<<",  Fimax prima "<<FFimax<<endl;
 }
 
@@ -8304,7 +8306,7 @@ if(istampa>=2) {
     return 0;
   }
 
-if(istampa>=2) {
+if(istampa>=3 && IVOLTE<20) {
   cout<<"  evento n. "<<IVOLTE<<", Fimin dopo = "<<FFimin<<",  Fimax dopo "<<FFimax<<endl;
 }
 
@@ -8900,7 +8902,7 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
                                   /(Sh2-Fi_initial_helix_referenceframe);
 
 
-if( istampa>=2){
+if( istampa>=3 && IVOLTE<20){
      cout<<"   Zlast1 "<<Zlast1<<",  Zlast2 "<<Zlast2<<endl;
      cout<<"   centro straight straws "<<ZCENTER_STRAIGHT<<", lunghezza straight "<<SEMILENGTH_STRAIGHT
 <<",  fabs(Zlast1 - ZCENTER_STRAIGHT) "<< fabs(Zlast1 - ZCENTER_STRAIGHT)<<",    fabs(Zlast2 - ZCENTER_STRAIGHT) "
@@ -8991,16 +8993,16 @@ if( istampa>=2){
     }
     deltaz = zmax-zmin;
 
-if(istampa==2) cout<<"  Zmax "<<zmax<<", Zmin  "<<zmin<<endl;
+if(istampa>=3 && IVOLTE<20) cout<<"  Zmax "<<zmax<<", Zmin  "<<zmin<<endl;
 
 
 
      for(i=0; i<TemporarynSkewHitsinTrack; i++){
        bbb=(S[i]-FI0)/KAPPA;
-if(istampa>=2) cout<<"From AssociateBetterAfterFitSkewHitsToXYTrack ,  hit skew n. "<<SkewList[i][0]
+if(istampa>=3 && IVOLTE<20) cout<<"From AssociateBetterAfterFitSkewHitsToXYTrack ,  hit skew n. "<<SkewList[i][0]
                                <<", Zhit  "<<Z[i]<<",  S hit  "<<S[i]<<endl;
       for(sign=0;sign<=1; sign ++){
-if(istampa>=2) cout<<"From AssociateBetterAfterFitSkewHitsToXYTrack :  segno "<<-1+sign*2<<endl;
+if(istampa>=3 && IVOLTE<20) cout<<"From AssociateBetterAfterFitSkewHitsToXYTrack :  segno "<<-1+sign*2<<endl;
        tempZ[sign]=Z[i]+(2*sign-1)*ZDrift[i];
        if( tempZ[sign] > zmax ){
          tempZ[sign]=fmod( tempZ[sign]-zmax, deltaz) - deltaz;
@@ -9009,12 +9011,12 @@ if(istampa>=2) cout<<"From AssociateBetterAfterFitSkewHitsToXYTrack :  segno "<<
        }
 
        zdist = fabs( bbb - tempZ[sign]);
-if(istampa>=2) cout<<"From AssociateBetterAfterFitSkewHitsToXYTrack ,  hit skew n. "<<SkewList[i][0]<<",  tempZ "<<tempZ[sign]
+if(istampa>=3 && IVOLTE<20) cout<<"From AssociateBetterAfterFitSkewHitsToXYTrack ,  hit skew n. "<<SkewList[i][0]<<",  tempZ "<<tempZ[sign]
                            <<",   zdist  "<<zdist<<",  ZDrift[i] "<<ZDrift[i]
                              <<", ZErrorafterTilt  "<<ZErrorafterTilt[i]<<endl;
          if(  zdist < allowed_distance ){
 //       if(  zdist < 4.*ZErrorafterTilt[i] ){
-if(istampa>=2) cout<<"From AssociateBetterAfterFitSkewHitsToXYTrack ,  hit skew n. "<< SkewList[i][0]
+if(istampa>=3 && IVOLTE<20) cout<<"From AssociateBetterAfterFitSkewHitsToXYTrack ,  hit skew n. "<< SkewList[i][0]
       <<",  tempZ "<<tempZ[sign]<<",   zdist  "<<zdist<<",  preso!!"<<endl;
          tempore[NAssociated]=SkewList[ i ][0];
          temporeS[NAssociated]=S[i];
@@ -9032,7 +9034,7 @@ if(istampa>=2) cout<<"From AssociateBetterAfterFitSkewHitsToXYTrack ,  hit skew 
          temporeZDrift[NAssociated]=ZDrift[i];
          temporeZErrorafterTilt[NAssociated]=ZErrorafterTilt[i];
          NAssociated++;
-if(istampa==2) cout<<"From AssociateBetterAfterFitSkewHitsToXYTrack ,  hit skew n. "<<SkewList[i][0]
+if(istampa==2 && IVOLTE<20) cout<<"From AssociateBetterAfterFitSkewHitsToXYTrack ,  hit skew n. "<<SkewList[i][0]
              <<",  tempZ[0] "<<tempZ[0]<<",  tempZ[1]  "
 <<tempZ[1]<<", fit prediction (Z) "<<bbb<<",  preso alla terza volta!!"<<endl;
       }
@@ -11272,7 +11274,7 @@ nohits: ;
 
 
 
-if( istampa>= 2) cout<<"  evento n. "<<IVOLTE<<", imc = "<<imc<<", jexp = "<<jexp<<", BoxMC_Found[imc][jexp] = "<<
+if( istampa>= 3 && IVOLTE<20) cout<<"  evento n. "<<IVOLTE<<", imc = "<<imc<<", jexp = "<<jexp<<", BoxMC_Found[imc][jexp] = "<<
     BoxMC_Found[imc][jexp]<<endl;
 
      } //  end of   for(jexp=0; jexp< nTracksFoundSoFar ;jexp++)
@@ -11422,7 +11424,7 @@ if( istampa>= 2) cout<<"  evento n. "<<IVOLTE<<", imc = "<<imc<<", jexp = "<<jex
                             )
 {
 
-if(istampa >=2){
+if(istampa >=3 && IVOLTE<20){
 cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<<", S = "<<S<<endl;
 }
 
