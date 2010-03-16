@@ -58,11 +58,17 @@ class PndSttTrackFinder : public TObject
    *@param verbose   Verbosity level
    **/
   void SetVerbose(Int_t verbose) { fVerbose = verbose; };
-
+ 
+  /** set the helix hit production flag true or false **/
+  void SetHelixHitProduction(Bool_t hhprod) { fHelixHitProduction = hhprod; };
+ 
 
  private:
 
+ protected:
   Int_t fVerbose;      // Verbosity level
+  /** production to file of helix hit from PR or not **/
+  Bool_t fHelixHitProduction;
 
   ClassDef(PndSttTrackFinder,1);
 };

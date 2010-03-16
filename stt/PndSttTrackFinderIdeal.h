@@ -83,9 +83,6 @@ class PndSttTrackFinderIdeal : public PndSttTrackFinder
 
   Bool_t rootoutput;
 
-  /** Verbosity level **/
-  Int_t fVerbose;
-
   TList fHitCollectionList;
   TList fPointCollectionList;
   PndSttHit* GetHitFromCollections(Int_t hitCounter);

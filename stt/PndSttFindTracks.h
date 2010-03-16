@@ -82,6 +82,9 @@ class PndSttFindTracks : public FairTask
   /** set persistence flag **/
   void SetPersistence(Bool_t persistence) { fPersistence = persistence; }
 
+  /** set the helix hit production flag true or false **/
+  void SetHelixHitProduction(Bool_t hhprod = kTRUE) { fHelixHitProduction = hhprod; }
+   
 
  private:
   void AddAllCollections(); 
@@ -101,6 +104,9 @@ class PndSttFindTracks : public FairTask
 
   /** object persistence **/
   Bool_t  fPersistence; //!
+
+  /** production to file of helix hit from PR or not **/
+  Bool_t fHelixHitProduction; //!
 
   Int_t fEventCounter; //!
 

@@ -46,6 +46,7 @@ PndSttFindTracks::PndSttFindTracks(PndSttTrackFinder* finder,
   fVerbose     = verbose;
   fCollectionsComplete = kFALSE;
   fPersistence = kTRUE;
+  fHelixHitProduction = kFALSE;
 }
 // -------------------------------------------------------------------------
 
@@ -64,6 +65,7 @@ PndSttFindTracks::PndSttFindTracks(const char* name, const char* title,
   fVerbose     = verbose;
   fCollectionsComplete = kFALSE;
   fPersistence = kTRUE;
+  fHelixHitProduction = kFALSE;
 }
 // -------------------------------------------------------------------------
 
@@ -106,12 +108,15 @@ InitStatus PndSttFindTracks::Init()
   ioman->Register("STTTrackCand", "STT", fTrackCandArray, fPersistence); 
   
   fHelixHitArray = new TClonesArray("PndSttHelixHit",100); 
-  ioman->Register("STTPRHelixHit", "STT", fHelixHitArray, fPersistence); 
+  ioman->Register("STTPRHelixHit", "STT", fHelixHitArray, fHelixHitProduction);
   
 
   // Set verbosity of track finder
   fFinder->SetVerbose(fVerbose);
-  
+
+  // helix hits? 
+  fFinder->SetHelixHitProduction(fHelixHitProduction);
+   
   // Call the Init method of the track finder
   fFinder->Init();
 
@@ -188,7 +193,6 @@ void PndSttFindTracks::Exec(Option_t* opt)
   
   fTrackCandArray->Clear(); 
   fHelixHitArray->Clear(); 
-
   
   fNofTracks = fFinder->DoFind(fTrackCandArray, fHelixHitArray); 
   
