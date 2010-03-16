@@ -43,6 +43,7 @@
   PndSttTrackFinderIdeal* sttTrackFinder = new PndSttTrackFinderIdeal(iVerbose);
   PndSttFindTracks* sttFindTracks = new PndSttFindTracks("Track Finder", "FairTask", sttTrackFinder, iVerbose);
   sttFindTracks->AddHitCollectionName("STTHit", "STTPoint");
+  //  sttFindTracks->SetHelixHitProduction(); // if you want helix hit to be produced by PR uncomment this (STTPRHelixHit)
   fRun->AddTask(sttFindTracks);
 
   // trackmatching ....
@@ -56,13 +57,14 @@
   sttFitTracks->AddHitCollectionName("STTHit");
   fRun->AddTask(sttFitTracks);
 
-  // helix hit production ....
+  // helix hit production (this task only works if called after PndSttFitTracks!) ....
   PndSttHelixHitProducer* sttHHProducer = new PndSttHelixHitProducer();
   fRun->AddTask(sttHHProducer);
  
   // QA plots if you want them
   //  PndSttTrackFitterQATask* qaFit = new PndSttTrackFitterQATask();
   //  fRun->AddTask(qaFit);
+
   // -----   Intialise and run   --------------------------------------------
   fRun->Init();
   fRun->Run(0, nEvents);
