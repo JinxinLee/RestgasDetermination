@@ -12,7 +12,6 @@
 
 
 
-//   #include "TGeoTorus.h"
 
 class PndSttTrack;
 class PndSttHit;
@@ -160,7 +159,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
           N_INTENDED;
 //  Double_t SEMILENGTH_STRAIGHT = 75.;
       static const bool  iplotta = false , ianalizza = true ;
-      static const int istampa = 1,
+      static const int istampa = 2,
             MAXSTTINFO=200000;
       TH1F * hx;
       FILE * HANDLE ;
