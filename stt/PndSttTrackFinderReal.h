@@ -159,8 +159,8 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
           N_INTENDED;
 //  Double_t SEMILENGTH_STRAIGHT = 75.;
       static const bool  iplotta = false , ianalizza = true ;
-      static const int istampa = 0;
-      static const UShort_t MAXSTTINFO=20000;
+      static const int istampa = 2;
+//      static const UShort_t MAXSTTINFO=20000;
       TH1F * hx;
       FILE * HANDLE ;
       FILE * HANDLE2 ;
@@ -216,11 +216,18 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
   TClonesArray* fSttHitArray;
 //  GFRecoHitFactory* _theRecoHitFactory;
 
+
+
+
   void PndSttTrkFinderPartial(Int_t NN,Double_t info[][7],Int_t nincl,Int_t Minclinations[],
                         Double_t inclinationversors[][3],
                         Int_t Ninclinate,
                         TClonesArray * trackArray
                               );
+
+
+
+
 
 
   void PndSttFromXYtoConformal(Double_t trajectory_vertex[3],
