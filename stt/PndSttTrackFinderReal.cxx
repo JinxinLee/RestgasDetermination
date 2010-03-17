@@ -6406,8 +6406,12 @@ if(istampa>=3 && IVOLTE<20) {
 
 
 //         Delta[i] = auxinfoparalConformal[ i ][4];
-         Delta[i] = 3.*auxinfoparalConformal[ i ][2];
-
+         
+        if( auxinfoparalConformal[ i ][2] > 1.e-10) {
+          Delta[i] = 3.*auxinfoparalConformal[ i ][2];   //   3 times the Drift Radius
+        } else {
+          Delta[i] = 3.*StrawRadius;
+        }
       }
 
 //      sprintf(nome,"GeneralParallelHitsConformeTraccia%dEvent%d.mcs",(nTracksFoundSoFar), IVOLTE);
