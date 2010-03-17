@@ -234,14 +234,82 @@ if(istampa >=2 ){
 fine: ;
 
 */
-//--------------------
+//--------------------  end of method Init   --------------------------------------------
+
 
 
 }
-// -------------------------------------------------------------------------
+// -------------------- starting PndSttTrackFinderReal::GetHitFromCollections
+
+PndSttHit* PndSttTrackFinderReal::GetHitFromCollections(Int_t hitCounter)
+{
+    PndSttHit
+	*retval = NULL;
+ 
+    Int_t
+	relativeCounter = hitCounter;
+
+    for (Int_t collectionCounter = 0; collectionCounter < fHitCollectionList.GetEntries(); collectionCounter++)
+    {
+	Int_t
+	    size = ((TClonesArray *)fHitCollectionList.At(collectionCounter))->GetEntriesFast();
+
+	if (relativeCounter < size)
+	{
+	    retval = (PndSttHit*) ((TClonesArray *)fHitCollectionList.At(collectionCounter))->At(relativeCounter);
+	    break;
+	}
+	else
+	{
+	    relativeCounter -= size;
+	}
+    }
+    return retval;
+}
+
+// -------------------- end of PndSttTrackFinderReal::GetHitFromCollections
 
 
-// -----   Public method DoFind   ------------------------------------------
+
+// -------------------- starting PndSttTrackFinderReal::GetPointFromCollections
+
+FairMCPoint* PndSttTrackFinderReal::GetPointFromCollections(Int_t hitCounter)
+{
+    FairMCPoint
+	*retval = NULL;
+ 
+    Int_t
+	relativeCounter = hitCounter;
+
+    for (Int_t collectionCounter = 0; collectionCounter < fHitCollectionList.GetEntries(); collectionCounter++)
+    {
+	Int_t
+	    size = ((TClonesArray *)fHitCollectionList.At(collectionCounter))->GetEntriesFast();
+
+	if (relativeCounter < size)
+	{
+	    Int_t
+		tmpHit = ((PndSttHit*) ((TClonesArray *)fHitCollectionList.At(collectionCounter))->At(relativeCounter))->GetRefIndex();
+	    
+	    retval = (FairMCPoint*) ((TClonesArray *)fPointCollectionList.At(collectionCounter))->At(tmpHit);
+	    
+	    break;
+	}
+	else
+	{
+	    relativeCounter -= size;
+	}
+    }
+    return retval;
+}
+
+
+// -------------------- end of PndSttTrackFinderReal::GetPointFromCollections
+
+
+
+
+// -----------------   start of method DoFind
 Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackArray, TClonesArray* helixHitArray) 
 {
     UShort_t auxIndex[nmaxHits],
@@ -628,66 +696,6 @@ jumpout: ;
 
 //-------------------------------------------------------------------------------------------------------------------
 
-PndSttHit* PndSttTrackFinderReal::GetHitFromCollections(Int_t hitCounter)
-{
-    PndSttHit
-	*retval = NULL;
- 
-    Int_t
-	relativeCounter = hitCounter;
-
-    for (Int_t collectionCounter = 0; collectionCounter < fHitCollectionList.GetEntries(); collectionCounter++)
-    {
-	Int_t
-	    size = ((TClonesArray *)fHitCollectionList.At(collectionCounter))->GetEntriesFast();
-
-	if (relativeCounter < size)
-	{
-	    retval = (PndSttHit*) ((TClonesArray *)fHitCollectionList.At(collectionCounter))->At(relativeCounter);
-	    break;
-	}
-	else
-	{
-	    relativeCounter -= size;
-	}
-    }
-    return retval;
-}
-
-//-------------------------------------------------------------------------------------------------------------------
-
-FairMCPoint* PndSttTrackFinderReal::GetPointFromCollections(Int_t hitCounter)
-{
-    FairMCPoint
-	*retval = NULL;
- 
-    Int_t
-	relativeCounter = hitCounter;
-
-    for (Int_t collectionCounter = 0; collectionCounter < fHitCollectionList.GetEntries(); collectionCounter++)
-    {
-	Int_t
-	    size = ((TClonesArray *)fHitCollectionList.At(collectionCounter))->GetEntriesFast();
-
-	if (relativeCounter < size)
-	{
-	    Int_t
-		tmpHit = ((PndSttHit*) ((TClonesArray *)fHitCollectionList.At(collectionCounter))->At(relativeCounter))->GetRefIndex();
-	    
-	    retval = (FairMCPoint*) ((TClonesArray *)fPointCollectionList.At(collectionCounter))->At(tmpHit);
-	    
-	    break;
-	}
-	else
-	{
-	    relativeCounter -= size;
-	}
-    }
-    return retval;
-}
-
-
-//-------------------------------------------------------------------------------------------------------------------
 
 void PndSttTrackFinderReal::PndSttTrkFinderPartial(
                                  Int_t Nhits, Double_t info[][7],
@@ -812,15 +820,18 @@ void PndSttTrackFinderReal::PndSttTrkFinderPartial(
                ZErrorafterTiltfinal[MAXTRACKSPEREVENT][nmaxHits];
 
 
-    Float_t RemainingR[MAXSTTINFO],
-            RemainingFi[MAXSTTINFO],
-            RemainingD[MAXSTTINFO],
-            RemainingCX[MAXSTTINFO],
-            RemainingCY[MAXSTTINFO],
-            RemainingKAPPA[MAXSTTINFO],
-            RemainingFI0[MAXSTTINFO];
-    bool    GoodSkewFit[MAXSTTINFO],
-            temporflag[8],
+
+    Float_t RemainingR[nmaxHits],
+            RemainingFi[nmaxHits],
+            RemainingD[nmaxHits],
+            RemainingCX[nmaxHits],
+            RemainingCY[nmaxHits],
+            RemainingKAPPA[nmaxHits],
+            RemainingFI0[nmaxHits];
+    bool    GoodSkewFit[nmaxHits];
+
+
+    bool            temporflag[8],
             IFLAG;
 
 
@@ -1652,7 +1663,7 @@ if( istampa>=2){
 
 
 //---------------------------------------------------------------------------------------------------------
-//   loading the hits found and associates to a track in a  PndSttTrack  class; a class per each track
+//   loading the hits found and associates to a track in a  PndTrackCand  class; a class per each track
 
   if( nMCTracks >0 ) {
     for(i=0; i<nTracksFoundSoFar;i++){
@@ -1746,8 +1757,6 @@ if(istampa>=2){
     for( j=0; j<nSkewCommon[i]; j++){
 
        PndSttInfoXYZSkew (
-//                             info,
-//                             SkewCommonList[i][j],
                              Zfinal[i][ SkewCommonList[i][j] ],       //  Z coordinate of selected Skew hit
                              ZDriftfinal[i][ SkewCommonList[i][j] ],   // drift distance IN Z DIRECTION only, of Skew hit
                              Sfinal[i][ SkewCommonList[i][j] ],
@@ -1860,6 +1869,11 @@ for(i=0; i<nTracksFoundSoFar;i++){
 }
 
 //------------------------------------- fine macro di display delle skew
+
+
+
+
+
 
 
 
