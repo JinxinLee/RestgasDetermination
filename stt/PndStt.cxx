@@ -251,10 +251,6 @@ Bool_t  PndStt::ProcessHits(FairVolume* vol)
 	  //      cout << gMC->CurrentVolPath() << endl;
 	  // 	    cout << "fullname: " << fullName << endl;
  	  
-	  FairRuntimeDb *rtdb= FairRun::Instance()->GetRuntimeDb();
-	  PndGeoSttPar* par=(PndGeoSttPar*)(rtdb->getContainer("PndGeoSttPar"));
-	  TObjArray *fPassNodes = par->GetGeoPassiveNodes();
-	  
 	  FairGeoNode 
 	    *volnode = dynamic_cast<FairGeoNode*> (fPassNodes->FindObject(fullName.c_str()));
 	    
@@ -448,7 +444,7 @@ void PndStt::ConstructGeometry()
   FairRuntimeDb *rtdb= FairRun::Instance()->GetRuntimeDb();
   PndGeoSttPar* par=(PndGeoSttPar*)(rtdb->getContainer("PndGeoSttPar"));
   TObjArray *fSensNodes = par->GetGeoSensitiveNodes();
-  TObjArray *fPassNodes = par->GetGeoPassiveNodes();
+  fPassNodes = par->GetGeoPassiveNodes();
 
   TListIter iter(volList);
   FairGeoNode* node   = NULL;

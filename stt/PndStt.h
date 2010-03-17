@@ -139,6 +139,7 @@ class PndStt : public FairDetector
   TLorentzVector fpostotin;   // global frame hit position (in)// da cancellare
   TLorentzVector fpostotout;   // global frame hit position (in)// da cancellare
 
+  TObjArray *fPassNodes; //!
 
 
   /** Private method AddHit
