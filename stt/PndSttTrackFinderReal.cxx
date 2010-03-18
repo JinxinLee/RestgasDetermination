@@ -312,6 +312,14 @@ FairMCPoint* PndSttTrackFinderReal::GetPointFromCollections(Int_t hitCounter)
 // -----------------   start of method DoFind
 Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackArray, TClonesArray* helixHitArray) 
 {
+
+
+	TClonesArray& clref = *helixHitArray;
+	Int_t size = clref.GetEntriesFast();
+
+
+
+
     UShort_t auxIndex[nmaxHits],
              OLDinfoparal[nmaxHits];
     UShort_t istep,inclination_type;
@@ -326,7 +334,7 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackArray, TClonesArray* heli
              inclination[nmaxinclinationversors][3];
 
     inclination[0][0]=inclination[0][1]=0.,    inclination[0][2]=1.;
-    Int_t Nincl = 1, Ninclinate;
+    Int_t Nincl = 1, Ninclinate, iHit;
     Int_t Minclinations[nmaxinclinationversors];
 
 //------------------------------------ modifiche Gianluigi, 9-7-08
@@ -510,7 +518,7 @@ cout<<"verita MC,  traccia n. "<<iMCTrack<<", Ox, Oy,  Cx, Cy, D ,  R  ,  gamma 
 
 
   // Loop over hits
-  for (Int_t iHit = 0; iHit < Nhits; iHit++) 
+  for (iHit = 0; iHit < Nhits; iHit++) 
     {
       // hit point
       pMhit = GetHitFromCollections(iHit);   // <== PndSttHit
@@ -684,7 +692,8 @@ jumpout: ;
 
 
 
-  bool    ExclusionList[nmaxHits],
+  bool    ExclusionList[nmaxHits],      //  list of || hits  already assigned to a found track
+                                         //    for the LHeTrack hits production;
           TypeConf[MAXTRACKSPEREVENT],   //  if TypeConf[]=false --> the track is a line in the Conformal space,
                                          //   if TypeConf[]=true it is a crf;
           TypeConfSkew[MAXTRACKSPEREVENT],
@@ -791,6 +800,10 @@ jumpout: ;
                ZErrorafterTilt[nmaxHits],
                temporeZDrift[nmaxHits],
                temporeZErrorafterTilt[nmaxHits],
+               Posiz[3],
+               Xpos_for_LHeTrack[nmaxHits],
+               Ypos_for_LHeTrack[nmaxHits],
+               Zpos_for_LHeTrack[nmaxHits],
                Sfinal[MAXTRACKSPEREVENT][nmaxHits],
                Zfinal[MAXTRACKSPEREVENT][nmaxHits],
                ZDriftfinal[MAXTRACKSPEREVENT][nmaxHits],
@@ -1350,12 +1363,6 @@ if(iplotta && IVOLTE < 20){
 
 
 
-    HoughR = R[i];
-    HoughD   = sqrt(Ox[i]*Ox[i]+
-                                    Oy[i]*Oy[i]) -R[i];
-    HoughFi = atan2(Oy[i],Ox[i]);
-    if(HoughFi<0.)  HoughFi += 2.*PI;
-
 
 
 //    ordering the parallel and skew hits; determining the charge of this track
@@ -1408,6 +1415,13 @@ cout<<"     elenco dei "<<nSkewHitsinTrack[i]<<" hits skew\n";
 
 
    }   //  end of     for(i=0; i<nTracksFoundSoFar;i++)
+
+
+
+
+
+
+
 
 
 
@@ -1524,18 +1538,12 @@ esci2:  ;
   if(istampa>=2 )  fprintf(HANDLE, "\n Evento %d  NTotaleTracceMC %d ------\n",IVOLTE, nMCTracks);
 
 for (i=0; i<nMCTracks && istampa>=2 ;i++){
-
-
-
    fprintf(HANDLE,"----------------------------------------------------------\n");
-
    ii=daMCTrackaTrackFound[i];
-
    if( ii <0  ) {
     fprintf(HANDLE,"       TracciaMC %d has not a corresponding found track in pattern recognition\n",i);
             continue;
          }
-
    if( ! ( nHitsInMCTrack[i]>= MINIMUMHITSPERTRACK && nSkewHitsInMCTrack[i] >= MINIMUMSKEWHITSPERTRACK
                   &&  R_MC[i] > RStrawDetectorMin )
        ) {
@@ -1545,33 +1553,23 @@ for (i=0; i<nMCTracks && istampa>=2 ;i++){
                                  MINIMUMHITSPERTRACK, MINIMUMSKEWHITSPERTRACK,  RStrawDetectorMin );
             continue;
          }
-
-
-
-
    if( ! ( GoodSkewFit[ii] ) ) {
     fprintf(HANDLE,
 "       TracciaMC %d; sua FoundTrack associata (n. %d) NONsoddisfaRequisitiMinimi perche' in Z-S KAPPA e' risultata || asse S\n",i,ii);
             continue;
          }
-
    if(fabs(KAPPA[ii])<1.e-20 ){
     fprintf(HANDLE,
 "       TracciaMC %d; sua FoundTrack associata (n. %d) NONsoddisfaRequisitiMinimi perche' KAPPA troppo piccolo; KAPPA = %g\n",
           i,ii,KAPPA[ii]);
            continue;
    }
-
-
    Double_t dista=sqrt( Ox[ii]*Ox[ii]+Oy[ii]*Oy[ii] );
    if(fabs(dista)<1.e-20 ){
     fprintf(HANDLE,"       TracciaMC %d; sua FoundTrack associata (n. %d) NONsoddisfaRequisitiMinimi perche' centro Helix Cilinder dista solo %g da (0,0)\n",
            i,ii,dista);
            continue;
    }
-
-
-
     fprintf(HANDLE,
 "       TracciaMC %d ParHitsMC %d ParMecc %d ParMeccSpuri %d SkewHitsMC %d  SkewMecc %d SkewMeccSpuri %d\n",
              i,
@@ -1629,7 +1627,7 @@ if( istampa>=2){
     fprintf(HANDLE,"----------------------------------------------------------\n");
 
 
-}
+}  //   end of    if( istampa>=2)
 
 //--------------------  fine della sezione sul confronto tra MC truth e tracce trovate
 
@@ -1677,25 +1675,107 @@ if( istampa>=2){
           }
 
 
-
-
-//-----------------------------------------------------------------------------------
-//  loading the helix hit array so that LHeTrack will be possible after Pattern
-//  Recognition alone
-
-
-
-
-
-
-
-
-
+    }   //  end of     for(i=0; i<nTracksFoundSoFar;i++)
+  }  //  end of  if( nMCTracks >0 )
 
 
 //-----------------------------------------------------------------------------------
 
+//    this is for the hits for LHeTrack later; loading the X, Y, Z position info of the hit
+//    as obtained from the found track parameters.
 
+  for(i=0; i< Nhits; i++){
+    Zpos_for_LHeTrack[i]=0.;       //  this by default excludes this hits from LHeTrack consideration
+  }
+
+
+  for(i=0; i<nTracksFoundSoFar;i++){
+
+//     first the || hits
+    for( j=0; j< nHitsinTrack[i]; j++){
+       PndSttInfoXYZParal (
+                             info,
+                             infoparal[ ListHitsinTrack[i][j] ],
+                             Ox[i],
+                             Oy[i],
+                             R[i],
+                             KAPPA[i],
+                             FI0[i],
+                             Charge[i],
+                             Posiz
+                           );
+       Xpos_for_LHeTrack[  infoparal[ ListHitsinTrack[i][j] ]  ]=Posiz[0];
+       Ypos_for_LHeTrack[  infoparal[ ListHitsinTrack[i][j] ]  ]=Posiz[1];
+       Zpos_for_LHeTrack[  infoparal[ ListHitsinTrack[i][j] ]  ]=Posiz[2];
+if(istampa>=3)  cout<<"DoFind, paralleli, infoparal[ ListHitsinTrack[i][j] ] = "<<
+       infoparal[ ListHitsinTrack[i][j] ]<<
+       ", X = "<<
+       Posiz[0]<<
+       ", Y = "<<
+       Posiz[1]<<
+       ", Z = "<<
+       Posiz[2]<<endl;
+
+    }  //   end  of  for( j=0; j< nHitsinTrack[i]; j++)
+
+//     then the skew hits
+    for( j=0; j< nSkewHitsinTrack[i]; j++){
+       PndSttInfoXYZSkew (
+                             Zfinal[i][ infoskew[ ListSkewHitsinTrack[i][j] ] ],       //  Z coordinate of selected Skew hit
+                             ZDriftfinal[i][ infoskew[ ListSkewHitsinTrack[i][j] ] ],   // drift distance IN Z DIRECTION only, of Skew hit
+                             Sfinal[i][ infoskew[ ListSkewHitsinTrack[i][j] ] ],
+                             Ox[i],
+                             Oy[i],
+                             R[i],
+                             KAPPA[i],
+                             FI0[i],
+                             Charge[i],
+                             Posiz
+                            );
+       Xpos_for_LHeTrack[  infoskew[ ListSkewHitsinTrack[i][j] ]  ]=Posiz[0];
+       Ypos_for_LHeTrack[  infoskew[ ListSkewHitsinTrack[i][j] ]  ]=Posiz[1];
+       Zpos_for_LHeTrack[  infoskew[ ListSkewHitsinTrack[i][j] ]  ]=Posiz[2];
+if(istampa>=3)  cout<<"DoFind, skew, infoskew[ ListSkewHitsinTrack[i][j] ] = "<<
+       infoskew[ ListSkewHitsinTrack[i][j] ]<<
+       ", X = "<<
+       Posiz[0]<<
+       ", Y = "<<
+       Posiz[1]<<
+       ", Z = "<<
+       Posiz[2]<<endl;
+    }    //  end of for( j=0; j< nSkewHitsinTrack[i]; j++)
+
+  }  //   end of for(i=0; i<nTracksFoundSoFar;i++)
+
+
+//   actual loading hits in the class for LHeTrack
+
+  for(iHit=0; iHit<Nhits;iHit++){
+// clref and size defined at the very entrance in this  DoFind
+      PndSttHelixHit *helixhit = new(clref[size]) PndSttHelixHit();
+//      helixhit->CopyHitToHelixHit(pMhit, iHit);
+     if( fabs( Zpos_for_LHeTrack[iHit] ) > 1.e-20 ) {
+      helixhit->SetX( Xpos_for_LHeTrack[iHit] );
+      helixhit->SetY( Ypos_for_LHeTrack[iHit] );
+      helixhit->SetZ( Zpos_for_LHeTrack[iHit] );
+     }
+  }  //   end of for(iHit=0; iHit<Nhits;iHit++)
+
+
+
+//---------------------  end of loading for LHeTrack later.
+
+
+
+
+
+
+
+
+  if( nMCTracks >0 ) {
+    for(i=0; i<nTracksFoundSoFar;i++){
+
+//-----------------------------------------------------------------------------------
     HoughFi = atan2(Oy[i],Ox[i]);
     if(HoughFi<0.)  HoughFi += 2.*PI;
 if(istampa>=2){
@@ -1719,7 +1799,6 @@ if(istampa>=2){
 // ---------------  sezione in cui stampo le info su X, Y, Z degli hits in comune; solo
 //                  per le tracce che passano i criteri di selezione di questo loop
 
-     Double_t Posiz[3];
 
 
 //   fprintf(HANDLEXYZ,
@@ -1738,6 +1817,16 @@ if(istampa>=2){
                              Charge[i],
                              Posiz
                                   );
+
+if(istampa>=3)  cout<<"DoFind, paralleli, n. hits (original notation) = "<<
+       ParalCommonList[i][j] <<
+       ", X = "<<
+       Posiz[0]<<
+       ", Y = "<<
+       Posiz[1]<<
+       ", Z = "<<
+       Posiz[2]<<endl;
+
 
 if(istampa>=2){
        fprintf(PHANDLEX,"%g\n", veritaMC[ ParalCommonList[i][j] ] [0] - Posiz[0]);
@@ -1764,6 +1853,15 @@ if(istampa>=2){
                              Charge[i],
                              Posiz
                             );
+if(istampa>=3)  cout<<"DoFind, skew, n. hits (original notation) = "<<
+       SkewCommonList[i][j] <<
+       ", X = "<<
+       Posiz[0]<<
+       ", Y = "<<
+       Posiz[1]<<
+       ", Z = "<<
+       Posiz[2]<<endl;
+
 
 if(istampa>=2){
        fprintf(SHANDLEX,"%g\n", veritaMC[ SkewCommonList[i][j] ] [0] - Posiz[0]);
