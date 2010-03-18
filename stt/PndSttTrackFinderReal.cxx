@@ -9503,8 +9503,10 @@ if(istampa==2 && IVOLTE<20) cout<<"From AssociateBetterAfterFitSkewHitsToXYTrack
 
           sprintf(&auxTypeofBound[2*NpointsInFit][0],"FX");
           TypeofBound[2*NpointsInFit]=&auxTypeofBound[2*NpointsInFit][0];
-          TypeofBound[2*NpointsInFit]="FX";
-          BoundStructVarName[2*NpointsInFit]="DUMMY";
+
+
+          sprintf(&auxBoundStructVarName[2*NpointsInFit][0],"DUMMY");
+          BoundStructVarName[2*NpointsInFit]=&auxBoundStructVarName[2*NpointsInFit][0];
           BoundValue[2*NpointsInFit]=2.*M;
 
 
