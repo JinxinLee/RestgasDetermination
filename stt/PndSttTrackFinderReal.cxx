@@ -9153,6 +9153,7 @@ if(istampa==2 && IVOLTE<20) cout<<"From AssociateBetterAfterFitSkewHitsToXYTrack
       char *BoundStructVarName[nBounds];
       char auxBoundStructVarName[nBounds][20];
       char *TypeofBound[nBounds];
+      char auxTypeofBound[nBounds][20];
 //--------end BOUNDS information
 
 
@@ -9215,8 +9216,8 @@ if(istampa==2 && IVOLTE<20) cout<<"From AssociateBetterAfterFitSkewHitsToXYTrack
 
 
 //--------
-//      sprintf(nameRows[0],"OBJECT");
-      nameRows[0]="OBJECT";
+      sprintf(&(auxnameRows[0][0]),"OBJECT",i);
+      nameRows[0]=&auxnameRows[0][0];
       typeRows[0]=GLP_FR;
       for(i=0 ; i< NpointsInFit ; i++) {
        ii=9*i;
@@ -9320,20 +9321,23 @@ if(istampa==2 && IVOLTE<20) cout<<"From AssociateBetterAfterFitSkewHitsToXYTrack
         Coefficients[(4+4*NpointsInFit)*NStructRows+i]= 1.;
       }
 //--------------------
-//      sprintf(StructVarName[0],"m1");
-      StructVarName[0]="m1";
+      sprintf(&auxStructVarName[0][0],"m1");
+      StructVarName[0] = &auxStructVarName[0][0];
       NRowsInWhichStructVarArePresent[0]= 4*NpointsInFit;
-//      sprintf(StructVarName[1],"m2");
-      StructVarName[1]="m2";
+
+      sprintf(&auxStructVarName[1][0],"m2");
+      StructVarName[1] = &auxStructVarName[1][0];
       NRowsInWhichStructVarArePresent[1]= 4*NpointsInFit;
-//      sprintf(StructVarName[2],"q1");
-      StructVarName[2]="q1";
+
+      sprintf(&auxStructVarName[2][0],"q1");
+      StructVarName[2] = &auxStructVarName[2][0];
       NRowsInWhichStructVarArePresent[2]= 4*NpointsInFit;
-//      sprintf(StructVarName[3],"q2");
-      StructVarName[3]="q2";
+
+      sprintf(&auxStructVarName[3][0],"q2");
+      StructVarName[3] = &auxStructVarName[3][0];
       NRowsInWhichStructVarArePresent[3]= 4*NpointsInFit;
       for(i=0; i< NpointsInFit ; i++) {
-          sprintf(&auxStructVarName[3+i+1][0],"lamp%d",i);
+          sprintf(&auxStructVarName[4+i][0],"lamp%d",i);
           StructVarName[4+i] = &auxStructVarName[4+i][0];
           NRowsInWhichStructVarArePresent[4+i]= 5;
 
@@ -9350,8 +9354,8 @@ if(istampa==2 && IVOLTE<20) cout<<"From AssociateBetterAfterFitSkewHitsToXYTrack
           NRowsInWhichStructVarArePresent[4+3*NpointsInFit+i]= 5;
 
       }
-//      sprintf(StructVarName[4+4*NpointsInFit],"DUMMY");
-      StructVarName[4+4*NpointsInFit]="DUMMY";
+      sprintf(&auxStructVarName[4+4*NpointsInFit][0],"DUMMY");
+      StructVarName[4+4*NpointsInFit] = &auxStructVarName[4+4*NpointsInFit][0];
       NRowsInWhichStructVarArePresent[4+4*NpointsInFit]= NStructRows;
 
 
@@ -9482,24 +9486,24 @@ if(istampa==2 && IVOLTE<20) cout<<"From AssociateBetterAfterFitSkewHitsToXYTrack
 
 
       for(i=0 ; i< NpointsInFit ; i++) {
-//          sprintf(TypeofBound[i],"BV");
-          TypeofBound[i]="BV";
+          sprintf(&auxTypeofBound[i][0],"BV");
+          TypeofBound[i]=&auxTypeofBound[i][0];
           sprintf(&auxBoundStructVarName[i][0],"lamp%d",i);
           BoundStructVarName[i]=&auxBoundStructVarName[i][0];
           BoundValue[i]=0.;
       }
 
       for(i=0 ; i< NpointsInFit ; i++) {
-//          sprintf(TypeofBound[i+NpointsInFit],"BV");
-          TypeofBound[i+NpointsInFit]="BV";
+          sprintf(&auxTypeofBound[i+NpointsInFit][0],"BV");
+          TypeofBound[i+NpointsInFit]=&auxTypeofBound[i+NpointsInFit][0];
           sprintf(&auxBoundStructVarName[i+NpointsInFit][0],"lamm%d",i);
           BoundStructVarName[i+NpointsInFit]=&auxBoundStructVarName[i+NpointsInFit][0];
           BoundValue[i+NpointsInFit]=0.;
       }
 
-          sprintf(TypeofBound[2*NpointsInFit],"FX");
+          sprintf(&auxTypeofBound[2*NpointsInFit][0],"FX");
+          TypeofBound[2*NpointsInFit]=&auxTypeofBound[2*NpointsInFit][0];
           TypeofBound[2*NpointsInFit]="FX";
-//          sprintf(BoundStructVarName[2*NpointsInFit],"DUMMY");
           BoundStructVarName[2*NpointsInFit]="DUMMY";
           BoundValue[2*NpointsInFit]=2.*M;
 
@@ -9651,6 +9655,7 @@ if(istampa==2 && IVOLTE<20) cout<<"From AssociateBetterAfterFitSkewHitsToXYTrack
       char *BoundStructVarName[nBounds];
       char auxBoundStructVarName[nBounds][20];
       char *TypeofBound[nBounds];
+      char auxTypeofBound[nBounds][20];
 //--------end BOUNDS information
 
 
@@ -9705,8 +9710,8 @@ if(istampa==2 && IVOLTE<20) cout<<"From AssociateBetterAfterFitSkewHitsToXYTrack
 //-----------------  write the ROWS  section
 
 //--------
-//       sprintf(nameRows[0],"OBJECT");
-      nameRows[0]="OBJECT";
+      sprintf(&auxnameRows[0][0],"OBJECT");
+      nameRows[0]=&auxnameRows[0][0];
       typeRows[0]=GLP_FR;
       for(i=0 ; i< NpointsInFit ; i++) {
        ii=9*i;
@@ -9805,17 +9810,20 @@ if(istampa==2 && IVOLTE<20) cout<<"From AssociateBetterAfterFitSkewHitsToXYTrack
         Coefficients[(4+4*NpointsInFit)*NStructRows+i]= 1.;
       }
 //--------------------
-//      sprintf(StructVarName[0],"m1");
-      StructVarName[0]="m1";
+      sprintf(&auxStructVarName[0][0],"m1");
+      StructVarName[0] = &auxStructVarName[0][0];
       NRowsInWhichStructVarArePresent[0]= 4*NpointsInFit;
-//      sprintf(StructVarName[1],"m2");
-      StructVarName[1]="m2";
+
+      sprintf(&auxStructVarName[1][0],"m2");
+      StructVarName[1] = &auxStructVarName[1][0];
       NRowsInWhichStructVarArePresent[1]= 4*NpointsInFit;
-//      sprintf(StructVarName[2],"q1");
-      StructVarName[2]="q1";
+
+      sprintf(&auxStructVarName[2][0],"q1");
+      StructVarName[2] = &auxStructVarName[2][0];
       NRowsInWhichStructVarArePresent[2]= 4*NpointsInFit;
-//      sprintf(StructVarName[3],"q2");
-      StructVarName[3]="q2";
+
+      sprintf(&auxStructVarName[3][0],"q2");
+      StructVarName[3] = &auxStructVarName[3][0];
       NRowsInWhichStructVarArePresent[3]= 4*NpointsInFit;
       for(i=0; i< NpointsInFit ; i++) {
           sprintf(&auxStructVarName[3+i+1][0],"lamp%d",i);
@@ -9835,7 +9843,8 @@ if(istampa==2 && IVOLTE<20) cout<<"From AssociateBetterAfterFitSkewHitsToXYTrack
           NRowsInWhichStructVarArePresent[4+3*NpointsInFit+i]= 5;
 
       }
-      StructVarName[4+4*NpointsInFit]="DUMMY";
+      sprintf(&auxStructVarName[4+4*NpointsInFit][0],"DUMMY");
+      StructVarName[4+4*NpointsInFit] = &auxStructVarName[4+4*NpointsInFit][0];
       NRowsInWhichStructVarArePresent[4+4*NpointsInFit]= NStructRows;
 
 
@@ -9959,40 +9968,40 @@ if(istampa==2 && IVOLTE<20) cout<<"From AssociateBetterAfterFitSkewHitsToXYTrack
 
 
       for(i=0 ; i< NpointsInFit ; i++) {
-//          sprintf(TypeofBound[i],"BV");
-          TypeofBound[i]="BV";
+          sprintf(&auxTypeofBound[i][0],"BV");
+          TypeofBound[i]=&auxTypeofBound[i][0];
           sprintf(&auxBoundStructVarName[i][0],"lamp%d",i);
           BoundStructVarName[i]=&auxBoundStructVarName[i][0];
           BoundValue[i]=0.;
       }
 
       for(i=0 ; i< NpointsInFit ; i++) {
-//          sprintf(TypeofBound[i+NpointsInFit],"BV");
-          TypeofBound[i+NpointsInFit]="BV";
+          sprintf(&auxTypeofBound[i+NpointsInFit][0],"BV");
+          TypeofBound[i+NpointsInFit]=&auxTypeofBound[i+NpointsInFit][0];
           sprintf(&auxBoundStructVarName[i+NpointsInFit][0],"lamm%d",i);
           BoundStructVarName[i+NpointsInFit]=&auxBoundStructVarName[i+NpointsInFit][0];
           BoundValue[i+NpointsInFit]=0.;
       }
 
-//          sprintf(TypeofBound[2*NpointsInFit],"FX");
-          TypeofBound[2*NpointsInFit]="FX";
-//          sprintf(BoundStructVarName[2*NpointsInFit],"DUMMY");
-          BoundStructVarName[2*NpointsInFit]="DUMMY";
+          sprintf(&auxTypeofBound[2*NpointsInFit][0],"FX");
+          TypeofBound[2*NpointsInFit]=&auxTypeofBound[2*NpointsInFit][0];
+          sprintf(&auxBoundStructVarName[2*NpointsInFit][0],"DUMMY");
+          BoundStructVarName[2*NpointsInFit]=&auxBoundStructVarName[2*NpointsInFit][0];
           BoundValue[2*NpointsInFit]=2.*M;
 
 
 
 //   fixing q1
-//          sprintf(TypeofBound[2*NpointsInFit+1],"FX");
-          TypeofBound[2*NpointsInFit+1]="FX";
-//          sprintf(BoundStructVarName[2*NpointsInFit+1],"q1");
-          BoundStructVarName[2*NpointsInFit+1]="q1";
+          sprintf(&auxTypeofBound[2*NpointsInFit+1][0],"FX");
+          TypeofBound[2*NpointsInFit+1]=&auxTypeofBound[2*NpointsInFit+1][0];
+          sprintf(&auxBoundStructVarName[2*NpointsInFit+1][0],"q1");
+          BoundStructVarName[2*NpointsInFit+1]=&auxBoundStructVarName[2*NpointsInFit+1][0];
           BoundValue[2*NpointsInFit+1]= 0.;
 //   fixing q2
-//          sprintf(TypeofBound[2*NpointsInFit+2],"FX");
-          TypeofBound[2*NpointsInFit+2]="FX";
-//          sprintf(BoundStructVarName[2*NpointsInFit+2],"q2");
-          BoundStructVarName[2*NpointsInFit+2]="q2";
+          sprintf(&auxTypeofBound[2*NpointsInFit+2][0],"FX");
+          TypeofBound[2*NpointsInFit+2]=&auxTypeofBound[2*NpointsInFit+2][0];
+          sprintf(&auxBoundStructVarName[2*NpointsInFit+2][0],"q2");
+          BoundStructVarName[2*NpointsInFit+2]=&auxBoundStructVarName[2*NpointsInFit+2][0];
           BoundValue[2*NpointsInFit+2]= 0.;
 
 //-----
