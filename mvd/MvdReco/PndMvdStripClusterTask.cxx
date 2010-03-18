@@ -221,7 +221,7 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
   std::vector< Int_t > oneclustertop;
   std::vector< Int_t > oneclusterbot;
   std::vector< Int_t > leftDigis;
-  Int_t detID, mcindex, clindex, botIndex;
+  Int_t detID, mcindex, clindex, botIndex, topIndex;
   Double_t mycharge;
   TVector2 meantopPoint, meanbotPoint, onsensorPoint;
   TVector3 hitPos,hitErr;
@@ -284,10 +284,10 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
     // -----  merge top/bot clusters to hits  -----
     // loop on clusters from the top side
     mcindex = -1;
-    int clusterIndex = 0;
     for (std::vector< Int_t>::iterator itTop = topclusters.begin();
-         itTop!=topclusters.end(); ++itTop, ++clusterIndex)
+         itTop!=topclusters.end(); ++itTop)
     {
+      topIndex=*itTop;
       Double_t topcharge = 0., meantopstrip=0.,meantoperr=0. ;
       oneclustertop = (clusters[*itTop]).GetClusterList();
       if(oneclustertop.size()<1) continue;
@@ -300,76 +300,86 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
       CalcMeanCharge(oneclustertop,meantopstrip,meantoperr,topcharge);
       
       if(oneclustertop.size()==1 && topcharge < SingleStripChargeThreshold) { 
-        //TODO: Remove hardcoding!
         std::cout<<"-W- PndMvdClusterTask::Exec: Single strip charge falls below the threshold of "<<SingleStripChargeThreshold<<"e- : skipping. "<<endl; 
         continue; 
       }
-      if(topcharge>0)
-      {
-        if(mcindex < 0) {//look for the first digi from a MC point
-          for(Int_t mcI = 0; mcI<atopDigi->GetNIndices();mcI++){ 
-            if (atopDigi->GetIndex(mcI) > -1) {
-              mcindex = atopDigi->GetIndex(mcI);
-              break;
-            }
+      if(topcharge <= 0) { // not a sane charge
+        Error("Exec() - Hit combination","Not a sane charge calculated, skip cluster %i", topIndex);
+        continue;
+      }
+      if(topcharge < 0) { // not a sane strip number
+        Error("Exec() - Hit combination","Not a sane mean calculated, skip cluster %i", topIndex);
+        continue;
+      }
+      if(mcindex < 0) {//look for the first digi from a MC point
+        for(Int_t mcI = 0; mcI<atopDigi->GetNIndices();mcI++){ 
+          if (atopDigi->GetIndex(mcI) > -1) {
+            mcindex = atopDigi->GetIndex(mcI);
+            break;
           }
         }
-        fCurrentStripCalcTop->CalcStripPointOnLine(meantopstrip, meantopPoint);
-        // loop on bottom side
-        for (std::vector< Int_t>::iterator itBot = botclusters.begin();
-             itBot!=botclusters.end(); ++itBot)
-        {
-          botIndex = *itBot;
-          Double_t botcharge = 0., meanbotstrip=0., meanboterr=0.;
-          oneclusterbot = (clusters[*itBot]).GetClusterList();
-          if(oneclusterbot.size()<1)continue;
-          PndMvdDigiStrip* abotDigi = ((PndMvdDigiStrip*)fDigiArray->At(oneclusterbot[0]));
-          TString detnamebot = abotDigi->GetDetName();
-          
-          //go to the next cluster if we didn't hit the same sensor
-          if(detnamebot != detnametop) continue;
-          
-          CalcMeanCharge(oneclusterbot,meanbotstrip,meanboterr,botcharge);
-          
-          if(oneclusterbot.size() == 1 && botcharge < SingleStripChargeThreshold) { 
-            //TODO: Remove hardcoding!
-           std::cout<<"-W- PndMvdClusterTask::Exec: Single strip charge falls below the threshold of "<<SingleStripChargeThreshold<<"e- : skipping. "<<endl; 
-            continue; 
-          }
-          if(botcharge>0)
-          {
-            if(fVerbose > 2)  {
-              std::cout<<"Charges: Ctop = "<<topcharge<<" | Cbot = "<<botcharge
-              <<" | difference bot-top = "<<botcharge-topcharge
-              <<" | Cut at "<<fChargeCut<<std::endl;
-            }
-            
-            if(fChargeCut>0 && fabs(botcharge-topcharge)<fChargeCut)
-            {// look if the charges are not too differently
-              mycharge = (botcharge + topcharge) / 2.;
-              fCurrentStripCalcBot->CalcStripPointOnLine(meanbotstrip, meanbotPoint);
-              if(mcindex < 0) {//look for the first digi from a MC point
-                for(Int_t mcI = 0; mcI<abotDigi->GetNIndices();mcI++){ 
-                  if (abotDigi->GetIndex(mcI) > -1) {
-                    mcindex = abotDigi->GetIndex(mcI);
-                    break;
-                  }
-                }
-              }
-              Bool_t test = Backmap(meantopPoint, meantoperr, meanbotPoint, meanboterr, hitPos, hitErr,detnametop);
-              if (kFALSE==test) continue;
-              
-              // --- add hit to list ---
-              Int_t i = fHitArray->GetEntriesFast();
-              new((*fHitArray)[i]) PndMvdHit(detID,detnametop.Data(),hitPos,hitErr,
-                                             *itTop,mycharge,oneclusterbot.size()+oneclustertop.size(),mcindex);
-              ((PndMvdHit*)((*fHitArray)[i]))->SetBotIndex(*itBot);
-              //((PndMvdHit*)((*fHitArray)[i]))->SetLink(FairLink(kMVDClusterStrip, clusterIndex));
-            } else
-              if (fVerbose > 2) std::cout<<"Cluster charge contents too different"<<std::endl;
-          }
-        }// loop bot clusters
       }
+      fCurrentStripCalcTop->CalcStripPointOnLine(meantopstrip, meantopPoint);
+      // loop on bottom side
+      for (std::vector< Int_t>::iterator itBot = botclusters.begin();
+           itBot!=botclusters.end(); ++itBot)
+      {
+        botIndex = *itBot;
+        Double_t botcharge = 0., meanbotstrip=0., meanboterr=0.;
+        oneclusterbot = (clusters[*itBot]).GetClusterList();
+        if(oneclusterbot.size()<1)continue;
+        PndMvdDigiStrip* abotDigi = ((PndMvdDigiStrip*)fDigiArray->At(oneclusterbot[0]));
+        TString detnamebot = abotDigi->GetDetName();
+        
+        //go to the next cluster if we didn't hit the same sensor
+        if(detnamebot != detnametop) continue;
+        
+        CalcMeanCharge(oneclusterbot,meanbotstrip,meanboterr,botcharge);
+        
+        if(oneclusterbot.size() == 1 && botcharge < SingleStripChargeThreshold) { 
+          std::cout<<"-W- PndMvdClusterTask::Exec: Single strip charge falls below the threshold of "<<SingleStripChargeThreshold<<"e- : skipping. "<<endl; 
+          continue; 
+        }
+        if(botcharge <= 0) { // not a sane charge
+          Error("Exec() - Hit combination","Not a sane charge calculated, skip cluster %i", botIndex);
+          continue;
+        }
+        if(meanbotstrip < 0) { // not a sane strip number
+          Error("Exec() - Hit combination","Not a sane mean calculated, skip cluster %i", botIndex);
+          continue;
+        }
+        
+        if(fVerbose > 2)  {
+          std::cout<<"Charges: Ctop = "<<topcharge<<" | Cbot = "<<botcharge
+          <<" | difference bot-top = "<<botcharge-topcharge
+          <<" | Cut at "<<fChargeCut<<std::endl;
+        }
+        
+        if(fChargeCut>0 && fabs(botcharge-topcharge)<fChargeCut)
+        {// look if the charges are not too differently
+          mycharge = (botcharge + topcharge) / 2.;
+          fCurrentStripCalcBot->CalcStripPointOnLine(meanbotstrip, meanbotPoint);
+          if(mcindex < 0) {//look for the first digi from a MC point
+            for(Int_t mcI = 0; mcI<abotDigi->GetNIndices();mcI++){ 
+              if (abotDigi->GetIndex(mcI) > -1) {
+                mcindex = abotDigi->GetIndex(mcI);
+                break;
+              }
+            }
+          }
+          Bool_t test = Backmap(meantopPoint, meantoperr, meanbotPoint, meanboterr, hitPos, hitErr,detnametop);
+          if (kFALSE==test) continue;
+          
+          // --- add hit to list ---
+          Int_t i = fHitArray->GetEntriesFast();
+          new((*fHitArray)[i]) PndMvdHit(detID,detnametop.Data(),hitPos,hitErr,
+                                         topIndex,mycharge,oneclusterbot.size()+oneclustertop.size(),mcindex);
+          ((PndMvdHit*)((*fHitArray)[i]))->SetBotIndex(botIndex);
+          //((PndMvdHit*)((*fHitArray)[i]))->SetLink(FairLink(kMVDClusterStrip, top/bot Index?));
+        } else {
+          if (fVerbose > 2) std::cout<<"Cluster charge contents too different"<<std::endl;
+        }
+      }// loop bot clusters
     }// loop top clusters
   }//loop finders
   if (fVerbose > 1)
@@ -478,17 +488,26 @@ void PndMvdStripClusterTask::CalcMeanCharge(std::vector<Int_t> &onecluster, Doub
 		  { // calculate the mean charge and stripnumber
 		    PndMvdDigiStrip* myDigi = (PndMvdDigiStrip*)fDigiArray->At(*itDigi);
 		    fCurrentStripCalcTop->CalcFeChToStrip(myDigi->GetFE(), myDigi->GetChannel(), strip, side);
+				if(myDigi->GetCharge()<=0) Warning("CalcMeanCharge","Digi has a non-valid charge: c = %d electrons.",myDigi->GetCharge());
 		    charge += myDigi->GetCharge();
 		    meanstrip += myDigi->GetCharge() * strip;
 		    meanerr += myDigi->GetCharge()*myDigi->GetCharge(); 
 		  }
-		  meanstrip = meanstrip/charge;
-		  // this error treatment is: dx = dpitch * sqrt(weigthsquares)
-  		    meanerr = sqrt(meanerr/(charge*charge));
+			if (charge > 0)
+			{
+		    meanstrip = meanstrip/charge;
+		    // this error treatment is: dx = dpitch * sqrt(weigthsquares)
+		    meanerr = sqrt(meanerr/(charge*charge));
+      } else {
+        Error("CalcMeanCharge","No correct charge collected! C = %d electrons.");
+        meanstrip=-1;
+        meanerr=-1;
+        return;
+      }
 		  if(side==kTOP){
 		    meanerr = meanerr * (fCurrentDigiPar->GetTopPitch()/sqrt(12.));
 		  }else{
-			meanerr = meanerr * (fCurrentDigiPar->GetBotPitch()/sqrt(12.));
+		    meanerr = meanerr * (fCurrentDigiPar->GetBotPitch()/sqrt(12.));
 		  }
 	//} else {
 	//	//TODO: Apply other clusterfinder mean & error algorithms

@@ -31,8 +31,7 @@ PndMvdContFact::PndMvdContFact() {
   setAllContainers();
   FairRuntimeDb::instance()->addContFactory(this);
 }
-PndMvdContFact::~PndMvdContFact()
-{
+PndMvdContFact::~PndMvdContFact(){
   if(0!=fDigiParNames) 
   {
     fDigiParNames->Delete(); 

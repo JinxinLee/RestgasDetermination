@@ -75,6 +75,7 @@ ClassImp(PndMvdStripDigiPar);
 void PndMvdStripDigiPar::Print()
 {
   std::cout<<"MVD Digitization Parameters:"<<std::endl;
+  std::cout<<"   Sensor type name is          = "<<fSensType.Data()<<std::endl;
   std::cout<<"   Top Pitch    = "<<fTopPitch<<std::endl;
   std::cout<<"   Bottom Pitch = "<<fBotPitch<<std::endl;
   std::cout<<"   Strip Angle (Top) = "<<fOrient<<"rad = "<<fOrient/TMath::Pi()*180.<<" deg"<<std::endl;
@@ -86,7 +87,6 @@ void PndMvdStripDigiPar::Print()
   std::cout<<"   Nr of Frontends (Bottom Side)= "<<fBotNrFE<<std::endl;
   std::cout<<"   Charge Threshold (e-)        = "<<fThreshold<<std::endl;
   std::cout<<"   Noise (ENC+Dispersion) (e-)  = "<<fNoise<<std::endl;
-  std::cout<<"   Sensor type name is          = "<<fSensType.Data()<<std::endl;
   std::cout<<"   Frontend type name is        = "<<fFeType.Data()<<std::endl;
   std::cout<<"   Clusterfinder Mode                    = "<<fClusterMod<<std::endl;
   std::cout<<"   Clusterfinder Search Radius: Channels = "<<fRadChannel<<std::endl;

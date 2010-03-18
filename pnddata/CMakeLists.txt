@@ -66,6 +66,19 @@ HypData/PndHypHitInfo.cxx
 HypData/PndHypPidCand.cxx
 HypData/PndHypPoint.cxx
 
+SdsData/PndSdsMCPoint.cxx
+SdsData/PndSdsDigi.cxx
+SdsData/PndSdsDigiPixel.cxx
+SdsData/PndSdsDigiStrip.cxx
+SdsData/PndSdsCluster.cxx
+SdsData/PndSdsClusterPixel.cxx
+SdsData/PndSdsClusterStrip.cxx
+SdsData/PndSdsHit.cxx
+SdsData/PndSdsHitInfo.cxx
+SdsData/PndSdsPidCand.cxx
+SdsData/PndSdsRadDamHit.cxx
+ 
+
 MvdData/PndMvdCluster.cxx
 MvdData/PndMvdClusterPixel.cxx
 MvdData/PndMvdClusterStrip.cxx
