@@ -317,16 +317,16 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackArray, TClonesArray* heli
     UShort_t istep,inclination_type;
 
     Double_t aaa, ddd, delta, deltabis, deltaZ, mindis, distanza, fi_hit,
-             X, Y, Z, ap1, ap2, ap3, cross1, cross2, cross3,
+              ap1, ap2, ap3, cross1, cross2, cross3,
              lowlimit[MAXMCTRACKS],
              uplimit[MAXMCTRACKS],
              info[nmaxHits][7],
              WDX, WDY, WDZ,
              auxRvalues[nmaxHits],
-             inclinationversors[nmaxinclinationversors][3];
+             inclination[nmaxinclinationversors][3];
 
-    inclinationversors[0][0]=inclinationversors[0][1]=0.,    inclinationversors[0][2]=1.;
-    Int_t Ninclinations = 1, Ninclinate;
+    inclination[0][0]=inclination[0][1]=0.,    inclination[0][2]=1.;
+    Int_t Nincl = 1, Ninclinate;
     Int_t Minclinations[nmaxinclinationversors];
 
 //------------------------------------ modifiche Gianluigi, 9-7-08
@@ -474,14 +474,14 @@ cout<<"verita MC,  traccia n. "<<iMCTrack<<", Ox, Oy,  Cx, Cy, D ,  R  ,  gamma 
 //   PndSttTrack*     pTrck[MAXTRACKSPEREVENT] ; // this is for the hits found by pattern recognition
 
   // Number of STT hits
-  Int_t nHits = 0;
+  Int_t Nhits = 0;
   
   for (Int_t hitListCounter = 0; hitListCounter < fHitCollectionList.GetEntries(); hitListCounter++)
   {
-      nHits += ((TClonesArray *)fHitCollectionList.At(hitListCounter))->GetEntriesFast();
+      Nhits += ((TClonesArray *)fHitCollectionList.At(hitListCounter))->GetEntriesFast();
   }
 
-  if(nHits > nmaxHits ) {
+  if(Nhits > nmaxHits ) {
     return  -10;
   }
 
@@ -502,7 +502,7 @@ cout<<"verita MC,  traccia n. "<<iMCTrack<<", Ox, Oy,  Cx, Cy, D ,  R  ,  gamma 
     NSkewhits=Ninclinate=0;
 
 
-//  if (istampa >= 1 ) cout<<"Gianluigi : da PndSttTrackFinderReal::DoFind : nHits="<<nHits<<endl;
+//  if (istampa >= 1 ) cout<<"Gianluigi : da PndSttTrackFinderReal::DoFind : Nhits="<<Nhits<<endl;
 
   //   generated momenta and starting position of each track
 
@@ -510,7 +510,7 @@ cout<<"verita MC,  traccia n. "<<iMCTrack<<", Ox, Oy,  Cx, Cy, D ,  R  ,  gamma 
 
 
   // Loop over hits
-  for (Int_t iHit = 0; iHit < nHits; iHit++) 
+  for (Int_t iHit = 0; iHit < Nhits; iHit++) 
     {
       // hit point
       pMhit = GetHitFromCollections(iHit);   // <== PndSttHit
@@ -558,12 +558,12 @@ cout<<"verita MC,  traccia n. "<<iMCTrack<<", Ox, Oy,  Cx, Cy, D ,  R  ,  gamma 
           ZCENTER_STRAIGHT = info[iHit][2];      //    this works because just few lines below there is the
           SEMILENGTH_STRAIGHT = info[iHit][4];   //    requirement that Minclinations[0] > 2 (= at least 3 parallel straws)
       } else {
-       for (Int_t i=2; i<=Ninclinations;i++) {
-        if (fabs( WDX-inclinationversors[i-1][0] )< 0.00001
+       for (Int_t i=2; i<=Nincl;i++) {
+        if (fabs( WDX-inclination[i-1][0] )< 0.00001
                                 &&
-            fabs( WDY -inclinationversors[i-1][1])< 0.00001
+            fabs( WDY -inclination[i-1][1])< 0.00001
                                 &&
-            fabs( WDZ -inclinationversors[i-1][2])< 0.00001
+            fabs( WDZ -inclination[i-1][2])< 0.00001
                                            ){
           info[iHit][5]= i;
           infoskew[Ninclinate]= iHit;
@@ -572,14 +572,14 @@ cout<<"verita MC,  traccia n. "<<iMCTrack<<", Ox, Oy,  Cx, Cy, D ,  R  ,  gamma 
           goto jumpout;
         }
        }
-       Ninclinations++;
-       inclinationversors[Ninclinations-1][0]=(Double_t) WDX;
-       inclinationversors[Ninclinations-1][1]=(Double_t) WDY;
-       inclinationversors[Ninclinations-1][2]=(Double_t) WDZ;
-       info[iHit][5]= Ninclinations;
+       Nincl++;
+       inclination[Nincl-1][0]=(Double_t) WDX;
+       inclination[Nincl-1][1]=(Double_t) WDY;
+       inclination[Nincl-1][2]=(Double_t) WDZ;
+       info[iHit][5]= Nincl;
           infoskew[Ninclinate]= iHit;
           Ninclinate++;
-       Minclinations[Ninclinations-1]++;
+       Minclinations[Nincl-1]++;
 jumpout: ;
       }        
 
@@ -638,7 +638,7 @@ jumpout: ;
 
 //--------------- inizio stampaggi
   if (istampa >= 2  && IVOLTE<20) {
-      cout<<"Gianluigi : da PndSttTrackFinderReal::DoFind : nHits totali ="<<nHits<<",  n Hits ||  = "<<Minclinations[0]<<
+      cout<<"Gianluigi : da PndSttTrackFinderReal::DoFind : Nhits totali ="<<Nhits<<",  n Hits ||  = "<<Minclinations[0]<<
           ",  n Hits  skew = "<<NSkewhits<<endl;
   }  //  end of   if(istampa >=
 //--------  fine stampaggi
@@ -676,34 +676,13 @@ jumpout: ;
 
 
 
-   if( nHits >0 &&  Minclinations[0] > 2 ) {
-     if(ianalizza ) {
-         PndSttTrkFinderPartial(nHits,info,Ninclinations,Minclinations,inclinationversors,
-                                             Ninclinate,
-              trackArray   //   this is the output, ie the TClonesArray *   of  PndSttTrack
-                          //    classes containing the info for a found track, one class per each track
-                                             );
-     }
-
-   };
+   if( !( Nhits >0 &&  Minclinations[0] > 2 ) ) return 0;
+   if(! ianalizza ) return 0;
 
 
-  // la parte seguente andra' messa a posto per 
-  // dare in output la traccia PndSttTrack
-  Int_t nTracks = 1;
-  return nTracks;
-}
-
-//-------------------------------------------------------------------------------------------------------------------
 
 
-void PndSttTrackFinderReal::PndSttTrkFinderPartial(
-                                 Int_t Nhits, Double_t info[][7],
-                                 Int_t Nincl,Int_t Minclinations[],Double_t inclination[][3],
-                                 Int_t Ninclinate,
-                                 TClonesArray * trackArray   //  this is the TClonesArray *   of PndSttTrack classes in output
-                                                    )
-{
+
 
   bool    ExclusionList[nmaxHits],
           TypeConf[MAXTRACKSPEREVENT],   //  if TypeConf[]=false --> the track is a line in the Conformal space,
@@ -773,8 +752,6 @@ void PndSttTrackFinderReal::PndSttTrkFinderPartial(
           Nremaining, Nremaining2,
           NumberofMaximaDFiR,
           NumberofMaximaKFI0,
-//          MaximaIndexesDFiR[MAXElementsOverThresholdinHough][3],
-//          MaximaIndexesKFI0[MAXElementsOverThresholdinHough][2],
           nAssociatedParallelHits ;
 
    int   iimax,jjmax,  ncount,
@@ -1700,6 +1677,25 @@ if( istampa>=2){
           }
 
 
+
+
+//-----------------------------------------------------------------------------------
+//  loading the helix hit array so that LHeTrack will be possible after Pattern
+//  Recognition alone
+
+
+
+
+
+
+
+
+
+
+
+//-----------------------------------------------------------------------------------
+
+
     HoughFi = atan2(Oy[i],Ox[i]);
     if(HoughFi<0.)  HoughFi += 2.*PI;
 if(istampa>=2){
@@ -1717,7 +1713,7 @@ if(istampa>=2){
      fmod(HoughFi+ PI, 2.*PI)
            );
 
-}   //  end of if (istampa
+}   //  end of if (istampa>=2)
 
 
 // ---------------  sezione in cui stampo le info su X, Y, Z degli hits in comune; solo
@@ -1882,10 +1878,10 @@ for(i=0; i<nTracksFoundSoFar;i++){
 
 
 
-  return;
+  return   nTracksFoundSoFar;
 
 
- }; //----------------------------------------------------   end of function  PndSttTrackFinderReal::PndSttTrkFinderPartial
+ }; //-------------------------------------------------  end of function  PndSttTrackFinderReal::DoFind
 
 
 
@@ -6366,6 +6362,7 @@ if(istampa>=3 && IVOLTE<20) {
       char *BoundStructVarName[nBounds];
       char auxBoundStructVarName[nBounds][20];
       char *TypeofBound[nBounds];
+      char auxTypeofBound[nBounds][20];
 //--------end BOUNDS information
 
 
@@ -6445,8 +6442,8 @@ if(istampa>=3 && IVOLTE<20) {
 */
 
 //--------
-//      sprintf(nameRows[0],"OBJECT");
-      nameRows[0]="OBJECT";
+//      nameRows[0]="OBJECT";
+      sprintf(&(auxnameRows[0][0]),"OBJECT",i);  nameRows[0]=&auxnameRows[0][0];
       typeRows[0]=GLP_FR;
       for(i=0 ; i< NpointsInFit ; i++) {
        ii=9*i;
@@ -6575,17 +6572,24 @@ if(istampa>=3 && IVOLTE<20) {
         Coefficients[(4+4*NpointsInFit)*NStructRows+i]= 1.;
       }
 //--------------------
-//      sprintf(StructVarName[0],"m1");
-      StructVarName[0]="m1";
+      sprintf(&auxStructVarName[0][0],"m1",i);
+      StructVarName[0] = &auxStructVarName[0][0];
+//      StructVarName[0]="m1";
       NRowsInWhichStructVarArePresent[0]= 4*NpointsInFit;
-//      sprintf(StructVarName[1],"m2");
-      StructVarName[1]="m2";
+
+      sprintf(&auxStructVarName[1][0],"m2",i);
+      StructVarName[1] = &auxStructVarName[1][0];
+//      StructVarName[1]="m2";
       NRowsInWhichStructVarArePresent[1]= 4*NpointsInFit;
-//      sprintf(StructVarName[2],"q1");
-      StructVarName[2]="q1";
+
+      sprintf(&auxStructVarName[2][0],"q1",i);
+      StructVarName[2] = &auxStructVarName[2][0];
+//      StructVarName[2]="q1";
       NRowsInWhichStructVarArePresent[2]= 4*NpointsInFit;
-//      sprintf(StructVarName[3],"q2");
-      StructVarName[3]="q2";
+
+      sprintf(&auxStructVarName[3][0],"q2",i);
+      StructVarName[3] = &auxStructVarName[3][0];
+//      StructVarName[3]="q2";
       NRowsInWhichStructVarArePresent[3]= 4*NpointsInFit;
       for(i=0; i< NpointsInFit ; i++) {
           sprintf(&auxStructVarName[3+i+1][0],"lamp%d",i);
@@ -6605,8 +6609,11 @@ if(istampa>=3 && IVOLTE<20) {
           NRowsInWhichStructVarArePresent[4+3*NpointsInFit+i]= 5;
 
       }
-//      sprintf(StructVarName[4+4*NpointsInFit],"DUMMY");
-      StructVarName[4+4*NpointsInFit]="DUMMY";
+
+
+      sprintf(&auxStructVarName[4+4*NpointsInFit][0],"DUMMY",i);
+      StructVarName[4+4*NpointsInFit] = &auxStructVarName[4+4*NpointsInFit][0];
+//      StructVarName[4+4*NpointsInFit]="DUMMY";
       NRowsInWhichStructVarArePresent[4+4*NpointsInFit]= NStructRows;
 
 
@@ -6752,8 +6759,9 @@ if(istampa>=3 && IVOLTE<20) {
 
       for(i=0 ; i< NpointsInFit ; i++) {
 //          fprintf(MACRO," BV  Bounds  lamp%d\n",  i);
-//      sprintf(TypeofBound[i],"BV");
-          TypeofBound[i]="BV";
+
+          sprintf(&auxTypeofBound[i][0],"BV");   TypeofBound[i]= &auxTypeofBound[i][0];
+//          TypeofBound[i]="BV";
           sprintf(&auxBoundStructVarName[i][0],"lamp%d",i);
           BoundStructVarName[i]=&auxBoundStructVarName[i][0];
           BoundValue[i]=0.;
@@ -6761,18 +6769,25 @@ if(istampa>=3 && IVOLTE<20) {
 
       for(i=0 ; i< NpointsInFit ; i++) {
 //          fprintf(MACRO," BV  Bounds  lamm%d\n", i);
-//          sprintf(TypeofBound[i+NpointsInFit],"BV");
-          TypeofBound[i+NpointsInFit]="BV";
+          sprintf(&auxTypeofBound[i+NpointsInFit][0],"BV");
+          TypeofBound[i+NpointsInFit]= &auxTypeofBound[i+NpointsInFit][0];
+//          TypeofBound[i+NpointsInFit]="BV";
           sprintf(&auxBoundStructVarName[i+NpointsInFit][0],"lamm%d",i);
           BoundStructVarName[i+NpointsInFit]=&auxBoundStructVarName[i+NpointsInFit][0];
           BoundValue[i]=0.;
       }
 
 //          fprintf(MACRO," FX  Bounds  DUMMY  %g\n",2.*M);
-//          sprintf(TypeofBound[2*NpointsInFit],"FX");
-          TypeofBound[2*NpointsInFit]="FX";
-//          sprintf(BoundStructVarName[2*NpointsInFit],"DUMMY");
-          BoundStructVarName[2*NpointsInFit]="DUMMY";
+          sprintf(&auxTypeofBound[2*NpointsInFit][0],"FX");
+          TypeofBound[2*NpointsInFit]= &auxTypeofBound[2*NpointsInFit][0];
+//          TypeofBound[2*NpointsInFit]="FX";
+
+          sprintf(&auxTypeofBound[2*NpointsInFit][0],"FX");
+          TypeofBound[2*NpointsInFit]= &auxTypeofBound[2*NpointsInFit][0];
+
+          sprintf(&auxBoundStructVarName[2*NpointsInFit][0],"DUMMY");
+          BoundStructVarName[2*NpointsInFit]=&auxBoundStructVarName[2*NpointsInFit][0];
+//          BoundStructVarName[2*NpointsInFit]="DUMMY";
           BoundValue[2*NpointsInFit]=2.;
 //-----
 
