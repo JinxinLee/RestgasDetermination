@@ -219,13 +219,14 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
 
 
+/*
   void PndSttTrkFinderPartial(Int_t NN,Double_t info[][7],Int_t nincl,Int_t Minclinations[],
                         Double_t inclinationversors[][3],
                         Int_t Ninclinate,
                         TClonesArray * trackArray
                               );
 
-
+*/
 
 
 
