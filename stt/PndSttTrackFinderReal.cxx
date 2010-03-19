@@ -1748,18 +1748,23 @@ if(istampa>=3)  cout<<"DoFind, skew, infoskew[ ListSkewHitsinTrack[i][j] ] = "<<
   }  //   end of for(i=0; i<nTracksFoundSoFar;i++)
 
 
-//   actual loading hits in the class for LHeTrack
-
-  for(iHit=0; iHit<Nhits;iHit++){
-// clref and size defined at the very entrance in this  DoFind
+  // loading helix hits (e.g. for LHeTrack)
+  if(fHelixHitProduction) {
+    
+    for(iHit=0; iHit<Nhits;iHit++){
+      // HelixHit Production after PR
+      TClonesArray& clref = *helixHitArray;
+      Int_t size = clref.GetEntriesFast();
+      
       PndSttHelixHit *helixhit = new(clref[size]) PndSttHelixHit();
-//      helixhit->CopyHitToHelixHit(pMhit, iHit);
-     if( fabs( Zpos_for_LHeTrack[iHit] ) > 1.e-20 ) {
-      helixhit->SetX( Xpos_for_LHeTrack[iHit] );
-      helixhit->SetY( Ypos_for_LHeTrack[iHit] );
-      helixhit->SetZ( Zpos_for_LHeTrack[iHit] );
-     }
-  }  //   end of for(iHit=0; iHit<Nhits;iHit++)
+      //      helixhit->CopyHitToHelixHit(pMhit, iHit);
+      if( fabs( Zpos_for_LHeTrack[iHit] ) > 1.e-20 ) {
+	helixhit->SetX( Xpos_for_LHeTrack[iHit] );
+	helixhit->SetY( Ypos_for_LHeTrack[iHit] );
+	helixhit->SetZ( Zpos_for_LHeTrack[iHit] );
+      }
+    }  //   end of for(iHit=0; iHit<Nhits;iHit++)
+  } // end of if(fHelixHitProduction) 
 
 
 
