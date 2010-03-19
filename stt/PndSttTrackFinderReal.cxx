@@ -314,12 +314,6 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackArray, TClonesArray* heli
 {
 
 
-	TClonesArray& clref = *helixHitArray;
-	Int_t size = clref.GetEntriesFast();
-
-
-
-
     UShort_t auxIndex[nmaxHits],
              OLDinfoparal[nmaxHits];
     UShort_t istep,inclination_type;
