@@ -39,8 +39,12 @@
   parInput1->open(parFile.Data());
   rtdb->setFirstInput(parInput1);
  
+  // TRACK FINDING =============================================================================
+  // OUTPUT: PndTrackCand                    -> STTTrackCand
+  //         PndSttHelixHit (if switched on) -> STTPRHelixHit
   // trackfinding ....
   PndSttTrackFinderIdeal* sttTrackFinder = new PndSttTrackFinderIdeal(iVerbose);
+  //  PndSttTrackFinderReal* sttTrackFinder = new PndSttTrackFinderReal(iVerbose);
   PndSttFindTracks* sttFindTracks = new PndSttFindTracks("Track Finder", "FairTask", sttTrackFinder, iVerbose);
   sttFindTracks->AddHitCollectionName("STTHit", "STTPoint");
   //  sttFindTracks->SetHelixHitProduction(); // if you want helix hit to be produced by PR uncomment this (STTPRHelixHit)
@@ -51,6 +55,9 @@
   sttTrackMatcher->AddHitCollectionName("STTHit", "STTPoint");
   fRun->AddTask(sttTrackMatcher);  
 
+  // TRACK FITTING =============================================================================
+  // OUTPUT: PndSttTrack                    -> STTTrack
+  //         PndSttHelixHit                 -> SttHelixHit
   // trackfitting ....
   PndSttTrackFitter* sttTrackFitter = new PndSttHelixTrackFitter(iVerbose);
   PndSttFitTracks* sttFitTracks = new PndSttFitTracks("STT Track Fitter", "FairTask", sttTrackFitter); 
