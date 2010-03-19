@@ -24,11 +24,14 @@ int filterEvents(int pid)
 
   TFile digiF("digi_sttcombi.root");
   TTree* digiTr = (TTree *) digiF.Get("cbmsim");
-  TClonesArray* clusters = new TClonesArray("PndEmcCluster");  
-  digiTr->SetBranchAddress("EmcCluster",&clusters);
+  TClonesArray* clusters_arr = new TClonesArray("PndEmcCluster");  
+  digiTr->SetBranchAddress("EmcCluster",&clusters_arr);
 
   TFile recoF("reco_sttcombi.root");
   TTree* RecoTr = (TTree *) recoF.Get("cbmsim");
+  
+  TClonesArray* recTrakArr = new TClonesArray("PndTrack");  
+  RecoTr->SetBranchAddress("LheGenTrackPion",&recTrakArr);
 
   PndEmcMapper::Init(6);
   // Loop through the simulation data.
@@ -58,18 +61,30 @@ int filterEvents(int pid)
       std::cout << "No point on the EMC." << std::endl;
     }
   }
+  // Loop through the selected events.
   
   for(size_t i = 0; i < EvtIds.size(); i++){
     int evid = EvtIds[i];
     cout << "EVT ID = " << evid << endl;
     RecoTr->GetEntry(evid);
     digiTr->GetEntry(evid);
-    std::cout << "number of clusters for current evt = "
-	      << clusters->GetEntriesFast() << endl;
-    //Select the right cluster.
+
+    PndTrack* tra = (PndTrack*)recTrakArr->At(0);
+    if(tra){
+      FairTrackParP par = tra->GetParamLast();
+      std::cout << "number of clusters for current evt = "
+		<< clusters_arr->GetEntriesFast()
+		<<" number of tracks = "<< recTrakArr->GetEntriesFast() 
+		<< " with P = "<< par.GetMomentum().Mag() << endl;
+    }
+    else{
+      cout << "empty track" << endl;
+    }
+
+    //Select the right cluster(highest E_dep).
     
   }
-
+  
   std::cout << "<-I-> Total number of events = " << tsim->GetEntriesFast()
             << ": No decay = " << counts
             << ": No decay array size = " << EvtIds.size() << std::endl;
