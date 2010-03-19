@@ -179,7 +179,7 @@ void PndSttHitProducerIdeal::Exec(Option_t* opt)
       pos.SetXYZ(position.X(), position.Y(), position.Z()); // CHECK!
       dpos.SetXYZ(innerStrawDiameter / 2., innerStrawDiameter / 2., GetLongitudinalResolution(position.Z()));
 
-      if(fabs(fd_in-0.5)>0.001) continue;
+      //  if(fabs(fd_in-0.5)>0.001) continue;
       
       PndSttHit *hit = NULL;
     

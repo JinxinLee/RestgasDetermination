@@ -150,14 +150,16 @@ Bool_t  PndStt::ProcessHits(FairVolume* vol)
   if(name.Contains("skew")) skew = kTRUE;
   //new>>>>>>>>>>>>>>>>>>
   
+  TGeoMedium *medium = (TGeoMedium*) vol->getGeoNode()->getRootVolume()->GetMedium();
+  Double_t epsil = medium->GetParam(6);
+
   if (gMC->TrackCharge() != 0.)
     {
       
-      if ( gMC->IsTrackEntering() ) 
+      if ( gMC->IsTrackEntering() &&
+	   fabs(sqrt(GetSquaredDistanceFromWire()) - (innerStrawDiameter / 2.)) < epsil)
 	{
-	  //if (sqrt(GetSquaredDistanceFromWire()) > (innerStrawDiameter / 4.))
-	  
-	  {
+	  fInFlag = kTRUE;
 	    // Set parameters at entrance of volume. Reset ELoss.
 	    fELoss  = 0.;
 	    fTime   = gMC->TrackTime() * 1.0e09;
@@ -178,16 +180,17 @@ Bool_t  PndStt::ProcessHits(FairVolume* vol)
 	    
 	    
 	    
-	  }
 	}
+
       
       // Sum energy loss for all steps in the active volume
       fELoss += gMC->Edep();
       
 	// Create PndSttPoint at exit of active volume -- but not into the wire
-	//if (gMC->IsTrackExiting() && (sqrt(GetSquaredDistanceFromWire()) > (innerStrawDiameter / 4.))) 
-      if (gMC->IsTrackExiting())
+      if (gMC->IsTrackExiting() && fInFlag == kTRUE &&
+	  fabs(sqrt(GetSquaredDistanceFromWire()) - (innerStrawDiameter / 2.)) < epsil)
 	{
+	  fInFlag = kFALSE;
 	  fTrackID  = gMC->GetStack()->GetCurrentTrackNumber();
 	  fVolumeID = kSTT;//vol->getMCid();
 	  fMass = gMC->TrackMass();   // mass (GeV)
