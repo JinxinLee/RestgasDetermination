@@ -327,6 +327,9 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackArray, TClonesArray* heli
              auxRvalues[nmaxHits],
              inclination[nmaxinclinationversors][3];
 
+    PndSttHit*  ListPointer_to_Hit[nmaxHits];
+
+
     inclination[0][0]=inclination[0][1]=0.,    inclination[0][2]=1.;
     Int_t Nincl = 1, Ninclinate, iHit;
     Int_t Minclinations[nmaxinclinationversors];
@@ -516,6 +519,7 @@ cout<<"verita MC,  traccia n. "<<iMCTrack<<", Ox, Oy,  Cx, Cy, D ,  R  ,  gamma 
     {
       // hit point
       pMhit = GetHitFromCollections(iHit);   // <== PndSttHit
+      ListPointer_to_Hit[iHit]=pMhit;
       if (!pMhit) continue;
       
       // MC point
@@ -1749,13 +1753,14 @@ if(istampa>=3)  cout<<"DoFind, skew, infoskew[ ListSkewHitsinTrack[i][j] ] = "<<
       // HelixHit Production after PR
       TClonesArray& clref = *helixHitArray;
       Int_t size = clref.GetEntriesFast();
-      
       PndSttHelixHit *helixhit = new(clref[size]) PndSttHelixHit();
-      //      helixhit->CopyHitToHelixHit(pMhit, iHit);
+      helixhit->CopyHitToHelixHit(ListPointer_to_Hit[iHit], iHit);
       if( fabs( Zpos_for_LHeTrack[iHit] ) > 1.e-20 ) {
 	helixhit->SetX( Xpos_for_LHeTrack[iHit] );
 	helixhit->SetY( Ypos_for_LHeTrack[iHit] );
 	helixhit->SetZ( Zpos_for_LHeTrack[iHit] );
+      }  else {
+	helixhit->SetZ( 0. );
       }
     }  //   end of for(iHit=0; iHit<Nhits;iHit++)
   } // end of if(fHelixHitProduction) 
