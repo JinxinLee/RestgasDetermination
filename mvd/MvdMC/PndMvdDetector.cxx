@@ -46,6 +46,7 @@ PndMvdDetector::PndMvdDetector() : fUseRadDamOption(false) {
   fListOfSensitives.push_back("SensorActiveArea");//MVD14.root
   fListOfSensitives.push_back("StripActive");//MVD_v1.0.root
   fListOfSensitives.push_back("PixelActive");//MVD_v1.0.root
+  fListOfSensitives.push_back("TestHCal");//tracking station
   //if (fVerboseLevel>0) {
     std::cout<<"-I- PndMvdDetector: fListOfSensitives contains:";
     for(Int_t k=0;k<fListOfSensitives.size();k++)
@@ -70,6 +71,7 @@ PndMvdDetector::PndMvdDetector (const char* name, Bool_t active)
   fListOfSensitives.push_back("SensorActiveArea");//MVD14.root
   fListOfSensitives.push_back("StripActive");//MVD_v1.0.root
   fListOfSensitives.push_back("PixelActive");//MVD_v1.0.root
+  fListOfSensitives.push_back("TestHCal");//tracking station
   //if (fVerboseLevel>0) {
     std::cout<<"- I - PndMvdDetector: fListOfSensitives contains:";
     for(Int_t k=0;k<fListOfSensitives.size();k++)
