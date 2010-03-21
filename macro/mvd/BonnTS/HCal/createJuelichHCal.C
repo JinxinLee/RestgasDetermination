@@ -46,7 +46,7 @@
 	  FairGeoMedia *Media =  geoFace->getMedia();
 	  FairGeoBuilder *geobuild=geoLoad->getGeoBuilder();
 	
-	  FairGeoMedium *CbmMediumScint  = Media->getMedium("CsI");
+	  FairGeoMedium *CbmMediumScint  = Media->getMedium("polyvinyltoluene");
 	  FairGeoMedium *CbmMediumIron = Media->getMedium("iron");
 	 
 	  Int_t nmed=geobuild->createMedium(CbmMediumScint);
@@ -72,7 +72,7 @@
 	  name2 = Form("TestHCalAbsorber%d",i+1);
 	  TGeoShape* Box1 = new TGeoBBox(name1.c_str(), dxSci, dySci, dzSci);
 	  TGeoShape* Box2 = new TGeoBBox(name2.c_str(), dxAbs, dyAbs, dzAbs);
-	  TGeoVolume* BoxVolume1 = new TGeoVolume(name1.c_str(),Box1,gGeoMan->GetMedium("CsI"));
+	  TGeoVolume* BoxVolume1 = new TGeoVolume(name1.c_str(),Box1,gGeoMan->GetMedium("polyvinyltoluene"));
 	  TGeoVolume* BoxVolume2 = new TGeoVolume(name2.c_str(),Box2,gGeoMan->GetMedium("iron"));
 	  TGeoTranslation* translation1 = new TGeoTranslation(0.,0.,(double)i * 2. *(dzSci+dzAbs));
 	  TGeoTranslation* translation2 = new TGeoTranslation(0.,0.,(double)i * 2. * (dzSci+dzAbs) + dzSci+dzAbs);
