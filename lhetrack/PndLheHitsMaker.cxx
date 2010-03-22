@@ -218,6 +218,18 @@ InitStatus PndLheHitsMaker::Init() {
       
       break;
       
+    case 5:
+      fSttPRHelixInput   = (TClonesArray *)fManager->GetObject("STTPRHelixHit");
+      if ( ! fSttPRHelixInput ) 
+	{
+	  cout << "-W- PndLheHitsMaker::Init: No STTPRHelixHit array! Switching STT OFF" << endl;
+	  fSttMode = 0;
+	}
+      else
+	{
+	  cout << "-I- PndLheHitsMaker::Init: Using PndSttPRHelixHit" << endl;
+	}
+     
     default:
       cout << "-E- PndLheHitsMaker::Init: Wrong STT mode. Switching STT OFF" << endl;
       fSttMode = 0;
@@ -758,6 +770,54 @@ void PndLheHitsMaker::GetSttHelixHit() {
 } 
 
 //_________________________________________________________________
+void PndLheHitsMaker::GetSttPRHelixHit() {
+   // Taking points from PndSttHelixHit
+
+  for (int j=0; j < fSttPRHelixInput->GetEntriesFast(); j++ ) {
+    PndSttHelixHit* sttHit = (PndSttHelixHit*) fSttPRHelixInput->At(j);
+    if (isnan(sttHit->GetX()))
+      {
+        sttHit->Print();
+        cout << "-W- PndLheHitsMaker::GetSttPRHelixHit: SttHelixHit with NaN - skipped (requires STT bug fix!!)" << endl;
+        continue;
+      }
+      if (sttHit->GetZ()==0)
+      {
+        sttHit->Print();
+        cout << "-W- PndLheHitsMaker::GetSttPRHelixHit: SttHelixHit with GetZ() == 0 - skipped (requires STT bug fix!!)" << endl;
+        continue;
+      }
+
+    PndLheHit* hit = AddHit();
+    hit->SetHitNumber(fNHit++);
+    
+    hit->SetX(sttHit->GetX());  
+    hit->SetY(sttHit->GetY());
+    hit->SetZ(sttHit->GetZ());
+  
+    
+    if (fVerbose) cout << "STT HELIX HIT " 
+		       << hit->GetX() << " " 
+		       << hit->GetY() << " " 
+		       << hit->GetZ() << " RADIUS " 
+		       << sqrt((hit->GetX()*hit->GetX())+(hit->GetY()*hit->GetY())) << "\n";
+    
+    hit->SetDx(.5);  
+    hit->SetDy(.5);
+    hit->SetDz(.5);
+
+    hit->SetDetectorID(kSttHelixHit);
+    hit->SetTrackID(-1);
+    if ( (fSttSimMode) && (sttHit->GetRefIndex()!=-1) )
+      {
+	PndSttPoint* myPoint = (PndSttPoint*)(fSttMCArray->At(sttHit->GetRefIndex()));
+	hit->SetTrackID(myPoint->GetTrackID());
+      }
+    hit->SetRefIndex(j);
+    if (fVerbose)  hit->Print();
+  }  // end of SttHelixHit loop  
+} 
+//_________________________________________________________________
 void PndLheHitsMaker::GetSttHelixHitMC() {
    // Taking points from PndSttHelixHit
 
@@ -977,6 +1037,7 @@ void PndLheHitsMaker::Exec(Option_t * option) {
   if ((fSttMode==3) && (fSttHelixInput->GetEntriesFast()>0)) GetSttHelixHit();
   if ((fSttMode==4) && (fSttHelixInput->GetEntriesFast()>0)&& (fSttHitInput->GetEntriesFast()>0) ) 
     GetSttHelixHitMC();
+  if ((fSttMode==5) && (fSttPRHelixInput->GetEntriesFast()>0)) GetSttPRHelixHit();
   
   if ((fEmcMode==2) && (fEmcInput->GetEntriesFast()>0))  GetEmcClusters();
   if ((fEmcMode==3) && (fEmcInput->GetEntriesFast()>0))  GetEmcBumps();
