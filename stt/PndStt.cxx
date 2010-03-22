@@ -187,9 +187,10 @@ Bool_t  PndStt::ProcessHits(FairVolume* vol)
       // Sum energy loss for all steps in the active volume
       fELoss += gMC->Edep();
       
-	// Create PndSttPoint at exit of active volume -- but not into the wire
-      if (gMC->IsTrackExiting() && fInFlag == kTRUE &&
-	  fabs(sqrt(GetSquaredDistanceFromWire()) - (innerStrawDiameter / 2.)) < epsil)
+      // Create PndSttPoint at exit of active volume -- but not into the wire -- with eloss in the tube (to make it work with TGeant4)
+      if (gMC->IsTrackExiting() && 
+	  fInFlag == kTRUE && fabs(sqrt(GetSquaredDistanceFromWire()) - (innerStrawDiameter / 2.)) < epsil
+	  && fELoss != 0)
 	{
 	  fInFlag = kFALSE;
 	  fTrackID  = gMC->GetStack()->GetCurrentTrackNumber();
