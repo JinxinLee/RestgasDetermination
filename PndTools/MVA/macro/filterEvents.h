@@ -11,15 +11,22 @@
 // Root
 #include "TFile.h"
 #include "TTree.h"
+#include "TNtuple.h"
 #include "TClonesArray.h"
 #include "TStopwatch.h"
+
 // PANDA-root
+#include "PndMCTrack.h"
 #include "PndEmcMapper.h"
 #include "PndEmcPoint.h"
-#include "PndMCTrack.h"
+#include "PndEmcCluster.h"
+#include "PndEmcXClMoments.h"
+#include "PndEmcStructure.h"
+
 #include "PndTrack.h"
 #include "FairTrackParP.h"
+#include "TGeoManager.h"
 
-int filterEvents(int pid  = 211);
+int filterEvents(int pid  = 211, const std::string outFileName="FilterOut.root");
 
 #endif// End of interface definition

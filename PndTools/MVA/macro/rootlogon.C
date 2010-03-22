@@ -14,7 +14,6 @@ rootlogon()
   gSystem->AddIncludePath("-I$VMCWORKDIR/base/");
   gSystem->AddIncludePath("-I$VMCWORKDIR/trackbase/");
 
-
   // Load Panda libraries
   if (isLibrary("libDpmEvtGen"))gSystem->Load("libDpmEvtGen");
   if(isLibrary("libGeoBase"))gSystem->Load("libGeoBase");

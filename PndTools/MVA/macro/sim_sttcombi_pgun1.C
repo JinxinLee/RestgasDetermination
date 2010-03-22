@@ -1,3 +1,5 @@
+//pi+ = 211, pi- = -211, mu+ = -13, mu- = 13, K+ = 321, K- = -321, K0L = 130
+//pi0 = 111, gamma = 22, e- = 11, e+ = -11
 void sim_sttcombi_pgun1(int nEvents = 500, int pid  = 211,// Pi+ 
 		                float p1 = 0.5, float p2 = 0.5)
 {
