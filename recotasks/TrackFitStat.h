@@ -46,12 +46,22 @@ public:
   Double_t GetMCP()		{ return _pmc;	}
   Double_t GetP()       {return _p;}
 
+  const std::vector<double>* GetResX() {return &_PndTpcResX;}
+  const std::vector<double>* GetResY() {return &_PndTpcResY;}
+  const std::vector<unsigned int>* GetClSizes() {return &_PndTpcClusterSize;}
+  const std::vector<unsigned int>* Get2DClSizes() {return &_PndTpc2DClusterSize;}
+  const std::vector<double>* GetAmps() {return &_PndTpcClusterAmp;}
+  const std::vector<TVector3>* GetProjectionPoints() {return &_PndTpcProj;}
+
+
   // Modifiers -----------------------
 
   void fillPndTpcResX(const std::vector<double>& r){_PndTpcResX=r;}
   void fillPndTpcResY(const std::vector<double>& r){_PndTpcResY=r;}
   void fillPndTpcClusterSize(const std::vector<unsigned int>& s){_PndTpcClusterSize=s;}
+  void fillPndTpc2DClusterSize(const std::vector<unsigned int>& s){_PndTpc2DClusterSize=s;}
   void fillPndTpcClusterAmp(const std::vector<double>& s){_PndTpcClusterAmp=s;}
+  void fillPndTpcProjPoints(const std::vector<TVector3>& s){_PndTpcProj=s;}
   void addFailedHits(int NFH) {_failedHits+=NFH;}
 
   // Operations ----------------------
@@ -75,7 +85,9 @@ private:
   std::vector<double> _PndTpcResX;
   std::vector<double> _PndTpcResY;
   std::vector<unsigned int> _PndTpcClusterSize;
+  std::vector<unsigned int> _PndTpc2DClusterSize;
   std::vector<double> _PndTpcClusterAmp;
+  std::vector<TVector3> _PndTpcProj;
 
   double _p;
   double _pmc;
