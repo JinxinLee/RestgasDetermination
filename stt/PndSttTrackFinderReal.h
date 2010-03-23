@@ -567,6 +567,7 @@ class PndSttTrackFinderReal : public PndSttTrackFinder
 
 
   UShort_t AssociateSkewHitsToXYTrack(
+                   bool *ExclusionListSkew,
                    Double_t Ox,
                    Double_t Oy,
                    Double_t R,
