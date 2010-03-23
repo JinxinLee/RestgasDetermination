@@ -1,8 +1,9 @@
 //-----------------------------------------------------------
 //
 // Description:
-//      Representation of a Hyperplane in 5-dimensional
-//      Hough-Space.
+//      Hit-representation  in a 2-dimensional Hough Space.
+//      Performs intersection check with a subvolume thereof.
+//      Interface to TF1 allows customized representation.
 //      
 //      
 //
@@ -16,10 +17,8 @@
 //-----------------------------------------------------------
 
 
-#include <map>
-#include <vector>
-#include "PndTpcCluster.h"
 #include "Hough2DNode.h"
+#include "TF1.h"
 
 #ifndef HYPERPLANE2D_H
 #define HYPERPLANE2D_H
@@ -27,15 +26,18 @@
 
 class Hyperplane2D {
 
+  class PndTpcCluster;
   
-public:
+ public:
 
   // Constructors/Destructors ---------
   Hyperplane2D();
-  Hyperplane2D(float x,float z, int); 
+  Hyperplane2D(PndTpcCluster* cl, int ID); //deprecated, specialized version
+  Hyperplane2D(PndTpcCluster* cl, TF1* rep, int ID);
   
   bool testIntersect(Hough2DNode& node);
- bool testIntersect(Hough2DNode* node);
+  bool testIntersect(Hough2DNode* node);
+
 
   //set minima and maxima of parameter space
   void setParamSpace(float* mins, float* maxs);    
@@ -45,7 +47,7 @@ public:
   float* getParamMins() {return _mins;}
   float* getParamMaxs() {return _maxs;}
   
-  float* getCoords() {return _coords;} //returns (m,t);
+  float* getCoords() {return _coords;} //return coordinates in unit space
   
   int getID() {return _index;}
   
@@ -61,9 +63,8 @@ private:
   float* _mins;
   float* _maxs;  //minima and maxima of the 2 parameter dimensions
 
-  std::vector<std::map<std::vector<float>,bool>*> _hitmap;
-  
-  
+  TF1* _rep; //representation of the hit in the Hough Space
+
   // Private Methods -----------------
   
 

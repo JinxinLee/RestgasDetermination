@@ -1,8 +1,30 @@
-// NOTE: requires NORMALIZED root parameter space with side length 1.
+//-----------------------------------------------------------
+//
+// Description:
+//     Sub-volume of a 2 dimensional UNIT Hough Space
+//     C-like implementation for easy transition to CUDA
+//      
+//      
+//
+// Environment:
+//      Software developed for the PANDA Detector at FAIR.
+//
+// Author List:
+//      Felix Boehmer      TU Munich       (original author)
+//
+//
+//-----------------------------------------------------------
+
 
 #ifndef HOUGH2DNODE_H
 #define HOUGH2DNODE_H
+
+
+//includes
 #include <iostream>
+
+
+
 class Hough2DNode {
 
   
@@ -25,14 +47,11 @@ public:
   float* getProjection1() {return _proj1;} //corners projected onto one 
     
   void setHit(int j) {
-    if(j<_nPlanes){
-    _hitList[j] = true;
-    }else{
-      std::cerr << "trying to set hit on hyperplane " << j << ", _nPlanes is "<<_nPlanes<<" out of range"
-	    << std::endl;
-      throw;
-    }
-  } //hyperplane was a hit
+    if(j<_nPlanes)
+      _hitList[j] = true;
+  }
+  
+  
   void setVotes(int votes)  {_votes = votes;}
   void vote() {_votes++;}
   bool checkHit(int j) {return _hitList[j];}

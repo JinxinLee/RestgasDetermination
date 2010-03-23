@@ -22,7 +22,7 @@
 #ifndef HOUGH5DNODE_H
 #define HOUGH5DNODE_H
 
-
+ 
 typedef unsigned int uint;
 
 class Hough5DNode {

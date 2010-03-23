@@ -1,8 +1,8 @@
 //-----------------------------------------------------------
 //
 // Description:
-//      Representation of a Hyperplane in 5-dimensional
-//      Hough-Space.
+//      Representation of a Hit in 5-dimensional
+//      Hough-Space ("Hypersurface")
 //      
 //      
 //
@@ -32,7 +32,7 @@ public:
 
   // Constructors/Destructors ---------
   Hyperplane5D();
-  Hyperplane5D(PndTpcCluster*, int); 
+  Hyperplane5D(PndTpcCluster*, int); //deprecated, specialized version
   
   bool testIntersect(Hough5DNode& node);
   bool testIntersect(Hough5DNode* node);

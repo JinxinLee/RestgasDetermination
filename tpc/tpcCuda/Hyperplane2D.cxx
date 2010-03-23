@@ -65,14 +65,13 @@ Hyperplane2D::testIntersect(Hough2DNode& node) {
       }
     }
     
-    if(signs2 == 4 || signs2 == 0) {
-      //(*_hitmap)[coords] = false;
+    if(signs2 == 4 || signs2 == 0) 
       return false; 
-    }else {
-      //(*_hitmap)[coords] = true;
-     node.setHit(_index);
-     node.vote();
-     return true;   
+    
+    else {
+      node.setHit(_index);
+      node.vote();
+      return true;   
     }
   }
   
@@ -102,14 +101,13 @@ Hyperplane2D::testIntersect(Hough2DNode* node) {
       }
     }
     
-    if(signs2 == 4 || signs2 == 0) {
-      //(*_hitmap)[coords] = false;
+    if(signs2 == 4 || signs2 == 0) 
       return false; 
-    }else {
-      //(*_hitmap)[coords] = true;
-     node->setHit(_index);
-     node->vote();
-     return true;   
+    
+    else {
+      node->setHit(_index);
+      node->vote();
+      return true;   
     }
   }
   
