@@ -22,7 +22,7 @@ gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   // -------------------------------------------------------------------
 
   TString jobdir = "TBtest";
-  TString jobname="TBtest5"; 
+  TString jobname="TBtest9"; 
 
   TString digiDir=(basedir+"/")+jobdir;
   TString inFile=(digiDir+"/")+jobname;
@@ -91,14 +91,37 @@ QAPlotCollection* qa=new QAPlotCollection("TpcDigiQAPlots");
 
     // -----    Reco Sequence  --------------------------------------------
 
+  PndTpcDataReaderTask* read = new PndTpcDataReaderTask();
+  read->SetPersistence();
+  read->SetDatafile("TBtest/run-1879.root");
+  read->SetClusterBranchName("PndTpcSample");
+  //read->SetCutSmallPad();
+  read->SetMinSamples(1000);
+  fRun->AddTask(read);
+
+  PndTpcTCcrossTalkTask* CT = new PndTpcTCcrossTalkTask();
+  CT->SetPersistence();
+  fRun->AddTask(CT);
+
+  
+  PndTpcPSATask* tpsa = new  PndTpcPSATask();
+  tpsa->SetPersistence();
+  tpsa->SetSampleBranchName("PndTpcSample");
+  fRun->AddTask(tpsa);
+
   PndTpcClusterFinderTask* tpcCF = new PndTpcClusterFinderTask();
   tpcCF->SetMode(1); // individual timeslice
   tpcCF->SetPersistence();
   tpcCF->SetDigiBranchName("PndTpcDigi");
-  tpcCF->timeslice(20); // = 4 sample times = 100ns @ 40MHz
+  tpcCF->timeslice(10); // = 4 sample times = 100ns @ 40MHz
   //tpcCF->SetTrivialClustering();
   fRun->AddTask(tpcCF);
 
+
+  PndTpcCTapplyTask* CTapply = new PndTpcCTapplyTask();
+  CTapply->SetPersistence();
+  fRun->AddTask(CTapply);
+  
     
   //PndTpcIdealTrackingTask* tpcIPR = new PndTpcIdealTrackingTask();
   //tpcIPR->useGeane(true);
@@ -109,10 +132,12 @@ QAPlotCollection* qa=new QAPlotCollection("TpcDigiQAPlots");
   //fRun->AddTask(tpcIPR);
 
   PndTpcSLPatternRecoTask* tpcSLPR = new PndTpcSLPatternRecoTask();
+  tpcSLPR->SetProjectionZY();
   tpcSLPR->SetParameterSpace(-2.,2.,0.,15.);
-  tpcSLPR->SetDepth(8);
-  tpcSLPR->SetThresh(6);
-  tpcSLPR->SetMinCandHits(5);
+  tpcSLPR->SetDepth(7);
+  tpcSLPR->SetThresh(8);
+  tpcSLPR->SetMinCandHits(8);
+  tpcSLPR->SetClusterBranchName("PndTpcCluster_cut");
   fRun->AddTask(tpcSLPR);
 
 
@@ -121,8 +146,10 @@ QAPlotCollection* qa=new QAPlotCollection("TpcDigiQAPlots");
   //tf->SetDraw();
   //fRun->AddTask(tf);
 
+
   KalmanTask* kalman =new KalmanTask();
   kalman->SetPersistence();
+  kalman->SetClusterBranchName("PndTpcCluster_cut");
   kalman->SetNumIterations(3); // number of fitting iterations (back and forth)
   fRun->AddTask(kalman);
 
@@ -141,6 +168,7 @@ QAPlotCollection* qa=new QAPlotCollection("TpcDigiQAPlots");
 
   PndTpcSLResidualTask* SLres = new PndTpcSLResidualTask();
   SLres->SetPersistence();
+  SLres->SetClusterBranchName("PndTpcCluster_cut");
   SLres->SetSecondarySuppression(true);
   fRun->AddTask(SLres);
   

@@ -133,7 +133,7 @@
   
   boxGen->SetPRange(0.5,0.5); // GeV/c 
   boxGen->SetPhiRange(0, 360); // Azimuth angle range [degree]
-  boxGen->SetThetaRange(1, 2.3); // Polar angle in lab system range [degree]
+  boxGen->SetThetaRange(0, 2.3); // Polar angle in lab system range [degree]
   boxGen->SetXYZ(0., 0., -100.); // cm 
   primGen->AddGenerator(boxGen);
 
