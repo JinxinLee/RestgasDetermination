@@ -689,9 +689,8 @@ jumpout: ;
 
 
 
-
-  bool    ExclusionList[nmaxHits],      //  list of || hits  already assigned to a found track
-                                         //    for the LHeTrack hits production;
+  bool    ExclusionList[nmaxHits],      //  list of || hits  already assigned to a found track or with multiple hits
+           ExclusionListSkew[nmaxHits],      //  list of skew hits with multiple hits
           TypeConf[MAXTRACKSPEREVENT],   //  if TypeConf[]=false --> the track is a line in the Conformal space,
                                          //   if TypeConf[]=true it is a crf;
           TypeConfSkew[MAXTRACKSPEREVENT],
@@ -835,16 +834,69 @@ jumpout: ;
 
 
 
-      for(i=0; i< Minclinations[0]; i++){
+       for(i=0; i< Minclinations[0]; i++){
          ExclusionList[   infoparal[i]   ]= true ;
-
-/*
-         if(info[infoparal[ i ]][0]* info[infoparal[ i ]][0]+
-            info[infoparal[ i ]][1]* info[infoparal[ i ]][1]
-            < RmaxStrawSkewArea*RmaxStrawSkewArea  )   ExclusionList[   infoparal[i]   ]= false ;
-*/
-
       }
+      for(i=0; i< NSkewhits; i++){
+         ExclusionListSkew[   infoskew[i]   ]= true ;
+      }
+
+
+
+
+
+
+
+
+//-----------------------------------   exclusion of straws with multiple hits
+
+      //   first the parallel straws
+      for(i=0; i< Minclinations[0]-1; i++){
+       if( ExclusionList[ infoparal[i] ] ){
+         for(j=i+1; j< Minclinations[0]; j++){
+           if(
+             fabs(info[ infoparal[i] ][0] - info[ infoparal[j] ][0])<1.e-20
+                             &&
+             fabs(info[ infoparal[i] ][1] - info[ infoparal[j] ][1])<1.e-20  ) {
+
+               ExclusionList[   infoparal[i]   ]= false ;
+               ExclusionList[   infoparal[j]   ]= false ;
+
+           }
+         } //  end of  for(j=i+1; j< Minclinations[0]; j++)
+       }  //   end of if( ExclusionList[   infoparal[i]   ] )
+      }   //   end of for(i=0; i< Minclinations[0]-1; i++)
+
+
+      //   then the skew straws
+
+
+      for(i=0; i< NSkewhits-1; i++){
+       if( ExclusionList[ infoskew[i] ] ){
+         for(j=i+1; j< NSkewhits; j++){
+           if(
+             fabs(info[ infoskew[i] ][0] - info[ infoskew[j] ][0])<1.e-20
+                             &&
+             fabs(info[ infoskew[i] ][1] - info[ infoskew[j] ][1])<1.e-20  ) {
+
+               ExclusionListSkew[   infoskew[i]   ]= false ;
+               ExclusionListSkew[   infoskew[j]   ]= false ;
+
+           }
+         } //  end of  for(j=1; j< NSkewhits; j++)
+       }  //   end of if( ExclusionList[ infoskew[i] ] )
+      }   //   end of for(i=0; i< Minclinations[0]-1; i++)
+
+
+
+//-----------------------------------  end of exclusion of straws with multiple hits
+
+
+
+
+
+
+
 
       trajectory_vertex[0]=trajectory_vertex[1]=trajectory_vertex[2]=0.;
 
@@ -1233,6 +1285,7 @@ if(iplotta && IVOLTE < 20){
 
 
   TemporarynSkewHitsinTrack = AssociateSkewHitsToXYTrack(
+                   ExclusionListSkew,
                    Ox[i],   //  input : X of center of XY plane circle
                    Oy[i],   //  input : Y of center of XY plane circle
                    R[i],   //  input : Radius of XY plane circle
@@ -8870,6 +8923,7 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 //----------begin of function PndSttTrackFinderReal::AssociateSkewHitsToXYTrack
 
   UShort_t PndSttTrackFinderReal::AssociateSkewHitsToXYTrack(
+                   bool *ExclusionListSkew,
                    Double_t Ox,
                    Double_t Oy,
                    Double_t R,
@@ -8922,6 +8976,7 @@ bool  PndSttTrackFinderReal::PndSttAcceptHitsConformal(  Double_t  distance,
 
        for( iii=0; iii< NSkewhits; iii++) {
          i = infoskew[iii];
+         if( !ExclusionListSkew[i]) continue;
 
 
          Kincl = (int) info[i][5] - 1;
