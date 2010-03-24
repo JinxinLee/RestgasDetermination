@@ -40,6 +40,49 @@ KBarAnalysis::KBarAnalysis(TTree * /*tree*/)
 {
     _notify = false;
     _mcpMode = false;
+    _effiMode = false;
+
+    for (int i=0; i<70; i++) _effi[i]=0;
+
+    // the argument is the wavelenght (nm) divided by 10.
+    _effi[29] = 0.06;
+    _effi[30] = 0.10;
+    _effi[31] = 0.16;
+    _effi[32] = 0.22;
+    _effi[33] = 0.27;
+    _effi[34] = 0.28;
+    _effi[35] = 0.285;
+    _effi[36] = 0.31;
+    _effi[37] = 0.31;
+    _effi[38] = 0.30;
+    _effi[39] = 0.29;
+    _effi[40] = 0.28;
+    _effi[41] = 0.27;
+    _effi[42] = 0.26;
+    _effi[43] = 0.25;
+    _effi[44] = 0.24;
+    _effi[45] = 0.23;
+    _effi[46] = 0.21;
+    _effi[47] = 0.19;
+    _effi[48] = 0.18;
+    _effi[49] = 0.17;
+    _effi[50] = 0.16;
+    _effi[51] = 0.14;
+    _effi[52] = 0.12;
+    _effi[53] = 0.10;
+    _effi[54] = 0.07;
+    _effi[55] = 0.05;
+    _effi[56] = 0.04;
+    _effi[57] = 0.03;
+    _effi[58] = 0.03;
+    _effi[59] = 0.02;
+    _effi[60] = 0.01;
+    _effi[61] = 0.075;
+    _effi[62] = 0.05;
+    _effi[63] = 0.025;
+
+    for (int i=0; i<70; i++) _effi[i]=_effi[i]*3; // to avoid the removing of too much photons
+
 
     _fishtank_width  = -666;
     _fishtank_height = -666;
@@ -92,8 +135,8 @@ void KBarAnalysis::Begin(TTree * /*tree*/)
 
 
     if( ( !_mcpMode && _resolution == -666 )
-          || _fishtank_width == -666 || _fishtank_height == -666 || _airgap == -666
-          || ( _mcpMode && ( _mcp_dim == -666 || _mcp_active == -666 || _minX_dim[0] == -666 ) )
+           || _fishtank_width == -666 || _fishtank_height == -666 || _airgap == -666
+           || ( _mcpMode && ( _mcp_dim == -666 || _mcp_active == -666 || _minX_dim[0] == -666 ) )
       )
     {
         cout << "Class members were not set!" << endl;
@@ -171,6 +214,11 @@ void KBarAnalysis::SlaveBegin(TTree * /*tree*/)
 
         _x_bins = TMath::CeilNint(_fishtank_width / _resolution);
         _y_bins = TMath::CeilNint(_fishtank_height / _resolution);
+
+        if( (Int_t) (_fishtank_width*1000) % (Int_t) (_resolution*1000) !=0)
+            x_dimMax = _x_bins*_resolution - _fishtank_width/2;
+        if( (Int_t) (_fishtank_height*1000) % (Int_t) (_resolution*1000) !=0)
+            y_dimMax = _y_bins*_resolution - _fishtank_height/2;
     }
 
 
@@ -187,7 +235,6 @@ void KBarAnalysis::SlaveBegin(TTree * /*tree*/)
     _kBarZsum.resize(_x_bins);
 
     _freq.resize( _x_bins );
-
 
     for( UInt_t i = 0; i < _kBarXsum.size(); i++ )
     {
@@ -221,6 +268,7 @@ void KBarAnalysis::SlaveBegin(TTree * /*tree*/)
 
             _freq[i][j].resize(size);
         }
+        cout << (i+1)*_kBarXsum[i].size() << " / " << _kBarXsum.size()*_kBarXsum[i].size() << " resize operations" << endl;
     }
 
 
@@ -362,9 +410,9 @@ void KBarAnalysis::SlaveBegin(TTree * /*tree*/)
         }
 
         if( _mcpMode )
-            cout << 145 + (i+1)*18*_y_bins << " initialized histograms" << endl;
+            cout << 145 + (i+1)*18*_y_bins << " / " << _x_bins*_y_bins*size*3+145 << " initialized histograms" << endl;
         else
-            cout << 19 + (i+1)*18*_y_bins << " initialized histograms" << endl;
+            cout << 19 + (i+1)*18*_y_bins << " / " << _x_bins*_y_bins*size*3+19 << " initialized histograms" << endl;
     }
 }
 
@@ -394,35 +442,42 @@ Bool_t KBarAnalysis::Process(Long64_t entry)
 //     if( entry%100000 == 0 )
 //         cout << entry << " / " << fChain->GetTree()->GetEntries() << endl;
 
+//     kBarY = kBarY + 500/kBarZ * 1.47/300; for time difference (here: kBarY = time)
+
     Int_t pxX = -666;
     Int_t pxY = -666;
 
-    if( _mcpMode )
+    if( !_effiMode || ( wavelength < 700 && (_rand.Uniform() < _effi[(int)(wavelength/10+0.5)]) ) )
     {
-        Int_t n_test = 0;
-
-        for( int i = 0; i < _n_mcp; i++)
+        if( _mcpMode )
         {
-            if( hitPosX >= _minX_active[i] && hitPosX < _maxX_active[i] && hitPosY >= _minY_active[i] && hitPosY < _maxY_active[i] )
-            {
-                pxX = TMath::FloorNint( (hitPosX - _minX_active[i])*_y_bins / _mcp_active ) + _y_bins*i;
-                pxY = TMath::FloorNint( (hitPosY - _minY_active[i])*_y_bins / _mcp_active );
+            Int_t n_test = 0;
 
-                n_test++;
+            for( int i = 0; i < _n_mcp; i++)
+            {
+                if( hitPosX >= _minX_active[i] && hitPosX < _maxX_active[i] && hitPosY >= _minY_active[i] && hitPosY < _maxY_active[i] )
+                {
+                    pxX = TMath::FloorNint( (hitPosX - _minX_active[i])*_y_bins / _mcp_active ) + _y_bins*i;
+                    pxY = TMath::FloorNint( (hitPosY - _minY_active[i])*_y_bins / _mcp_active );
+
+                    n_test++;
+                }
+            }
+
+            if( n_test > 1 )
+            {
+                cout << "Something is wrong (hit for different MCPs)." << endl;
+                abort();
             }
         }
-
-        if( n_test > 1 )
+        else
         {
-            cout << "Something is wrong (hit for different MCPs)." << endl;
-            abort();
+            pxX = TMath::FloorNint( (hitPosX + _fishtank_width/2) / _resolution );
+            pxY = TMath::FloorNint( (hitPosY + _fishtank_height/2) / _resolution );
         }
     }
     else
-    {
-        pxX = TMath::FloorNint( (hitPosX + _fishtank_width/2) / _resolution );
-        pxY = TMath::FloorNint( (hitPosY + _fishtank_height/2) / _resolution );
-    }
+        return kTRUE;
 
     if( pxX == -666 )
         return kTRUE;
@@ -579,21 +634,21 @@ void KBarAnalysis::Terminate()
 
 
     TCanvas *canvas = new TCanvas( "canvas", "" ,200, 10, 700, 510 );
-    canvas->SetLeftMargin(0.07);
-    canvas->SetRightMargin(0.12);
+    canvas->SetLeftMargin(0.11);
+    canvas->SetRightMargin(0.11);
     canvas->Draw();
 
     TCanvas *canvasX = new TCanvas( "canvasX", "" ,200, 10, 700, 510 );
     TCanvas *canvasY = new TCanvas( "canvasY", "" ,200, 10, 700, 510 );
     TCanvas *canvasZ = new TCanvas( "canvasZ", "" ,200, 10, 700, 510 );
-    canvasX->SetLeftMargin(0.07);
-    canvasX->SetRightMargin(0.12);
+    canvasX->SetLeftMargin(0.11);
+    canvasX->SetRightMargin(0.11);
     canvasX->Draw();
-    canvasY->SetLeftMargin(0.07);
-    canvasY->SetRightMargin(0.12);
+    canvasY->SetLeftMargin(0.11);
+    canvasY->SetRightMargin(0.11);
     canvasY->Draw();
-    canvasZ->SetLeftMargin(0.07);
-    canvasZ->SetRightMargin(0.12);
+    canvasZ->SetLeftMargin(0.11);
+    canvasZ->SetRightMargin(0.11);
     canvasZ->Draw();
 
     canvas->cd();
@@ -632,6 +687,8 @@ void KBarAnalysis::Terminate()
                     if( _freq[i][j][k] == 0 )
                     {
                         _kBarXsum[i][j][k] = 666;
+                        _kBarYsum[i][j][k] = 666;
+                        _kBarZsum[i][j][k] = 666;
                         _freq[i][j][k] = -1;
                     }
 
@@ -648,6 +705,8 @@ void KBarAnalysis::Terminate()
                     if( _freq[i][j][k] == 0 )
                     {
                         _kBarXsum[i][j][k] = 666;
+                        _kBarYsum[i][j][k] = 666;
+                        _kBarZsum[i][j][k] = 666;
                         _freq[i][j][k] = -1;
                     }
 
@@ -685,6 +744,11 @@ void KBarAnalysis::Terminate()
         canvas->cd();
         _screen->SetTitle( "screen" );
         _screen->SetContour(50);
+        _screen->GetXaxis()->SetTitle( "x [mm]" );
+        _screen->GetXaxis()->CenterTitle();
+        _screen->GetYaxis()->SetTitle( "y [mm]" );
+        _screen->GetYaxis()->CenterTitle();
+        _screen->GetYaxis()->SetTitleOffset( 1.3 );
         _screen->SetStats( false );
         _screen->Draw("colz");
         canvas->Write("screen");
@@ -733,6 +797,11 @@ void KBarAnalysis::Terminate()
 
             _kBarX[i][j].SetTitle( _kBarX_str[i][j] );
             _kBarX[i][j].SetContour(50);
+            _kBarX[i][j].GetXaxis()->SetTitle( "x [mm]" );
+            _kBarX[i][j].GetXaxis()->CenterTitle();
+            _kBarX[i][j].GetYaxis()->SetTitle( "y [mm]" );
+            _kBarX[i][j].GetYaxis()->CenterTitle();
+            _kBarX[i][j].GetYaxis()->SetTitleOffset( 1.3 );
             _kBarX[i][j].SetStats( false );
             _kBarX[i][j].Draw("colz");
             canvas->Write( _kBarX_str[i][j] );
@@ -740,6 +809,11 @@ void KBarAnalysis::Terminate()
 
             _kBarY[i][j].SetTitle( _kBarY_str[i][j] );
             _kBarY[i][j].SetContour(50);
+            _kBarY[i][j].GetXaxis()->SetTitle( "x [mm]" );
+            _kBarY[i][j].GetXaxis()->CenterTitle();
+            _kBarY[i][j].GetYaxis()->SetTitle( "y [mm]" );
+            _kBarY[i][j].GetYaxis()->CenterTitle();
+            _kBarY[i][j].GetYaxis()->SetTitleOffset( 1.3 );
             _kBarY[i][j].SetStats( false );
             _kBarY[i][j].Draw("colz");
             canvas->Write( _kBarY_str[i][j] );
@@ -747,6 +821,11 @@ void KBarAnalysis::Terminate()
 
             _kBarZ[i][j].SetTitle( _kBarZ_str[i][j] );
             _kBarZ[i][j].SetContour(50);
+            _kBarZ[i][j].GetXaxis()->SetTitle( "x [mm]" );
+            _kBarZ[i][j].GetXaxis()->CenterTitle();
+            _kBarZ[i][j].GetYaxis()->SetTitle( "y [mm]" );
+            _kBarZ[i][j].GetYaxis()->CenterTitle();
+            _kBarZ[i][j].GetYaxis()->SetTitleOffset( 1.3 );
             _kBarZ[i][j].SetStats( false );
             _kBarZ[i][j].Draw("colz");
             canvas->Write( _kBarZ_str[i][j] );
@@ -807,15 +886,24 @@ void KBarAnalysis::Terminate()
             }
         }
 
-        canvasX->cd();
-        _screen->SetTitle( kBarX_screenTitle );
-        canvasX->Write( kBarX_screenTitle );
-        canvasY->cd();
-        _screen->SetTitle( kBarY_screenTitle );
-        canvasY->Write( kBarY_screenTitle );
-        canvasZ->cd();
-        _screen->SetTitle( kBarZ_screenTitle );
-        canvasZ->Write( kBarZ_screenTitle );
+        if( _mcpMode )
+        {
+            _screen->GetXaxis()->SetTitle( "x [mm]" );
+            _screen->GetXaxis()->CenterTitle();
+            _screen->GetYaxis()->SetTitle( "y [mm]" );
+            _screen->GetYaxis()->CenterTitle();
+            _screen->GetYaxis()->SetTitleOffset( 1.3 );
+
+            canvasX->cd();
+            _screen->SetTitle( kBarX_screenTitle );
+            canvasX->Write( kBarX_screenTitle );
+            canvasY->cd();
+            _screen->SetTitle( kBarY_screenTitle );
+            canvasY->Write( kBarY_screenTitle );
+            canvasZ->cd();
+            _screen->SetTitle( kBarZ_screenTitle );
+            canvasZ->Write( kBarZ_screenTitle );
+        }
     }
 
 

@@ -21,6 +21,7 @@ using namespace std;
 #include "TH2F.h"
 #include "TLine.h"
 #include "TPaveText.h"
+#include "TRandom3.h"
 
 // const Int_t kMaxPosSize = 14; // 1 start + 3 volume transition (+ tiny shifts) + detector + 1 exceed + 5 reflections (limit)
 
@@ -87,6 +88,11 @@ public :
 
    Bool_t _notify;
    Bool_t _mcpMode;
+   Bool_t _effiMode;
+
+   Double_t _effi[70];
+
+   TRandom3 _rand;
 
    TString _gap_str;
 

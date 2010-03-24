@@ -9,9 +9,19 @@
 #include <TChain.h>
 
 
-void run_KBarAnalysis()
+void run_KBarAnalysis(TString inFileCore = "", TString outFileCore = "", Double_t resolution = 6.375, Double_t gap = 80,
+                      Bool_t mcpMode = false, Bool_t effiMode = false )
 {
-    gSystem->CompileMacro( "KBarAnalysis.cc" );
+    if( inFileCore == "" || outFileCore == "" )
+    {
+        cout << "Usage: run_KBarAnalysis( input-core, output-core, resolution, gap, effiMode, mcpMode )" << endl;
+        return;
+    }
+
+
+//     gSystem->CompileMacro( "KBarAnalysis.cc" );
+    gSystem->Load( "/u/rhohler/src/examples/KBarAnalysis_cc.so" ); // for batch-jobs
+
 
      // set some global options
     gStyle->SetCanvasColor( 0 );        // white
@@ -31,7 +41,7 @@ void run_KBarAnalysis()
 
 
     TString inDirectory = "/d/panda02/rhohler/sim/";
-    TString inFileCore = "kBarList_center_2000000";
+//     TString inFileCore = "kBarList_center_2000000";
     TString inFilename = inDirectory + inFileCore + "_001.root";
     TFile *inFile = new TFile( inFilename );
     TTree *infoTree = (TTree*) inFile->Get("info");
@@ -48,23 +58,23 @@ void run_KBarAnalysis()
     inFile->Close();
 
 
-    kBarAnalysis->_outDirectory    = inDirectory;
-    kBarAnalysis->_outFileCore     = inFileCore;
+    kBarAnalysis->_outDirectory    = "/s/rhohler/sim/"; // inDirectory (d is full)
+//     kBarAnalysis->_outFileCore     = "kBarList_center_2000000_6.375mm"; //inFileCore
+    kBarAnalysis->_outFileCore     = outFileCore;
     kBarAnalysis->_fishtank_width  = fishtank_width;
     kBarAnalysis->_fishtank_height = fishtank_height;
     kBarAnalysis->_airgap          = airgap;
-    kBarAnalysis->_mcpMode         = false;
+    kBarAnalysis->_mcpMode         = mcpMode;
+    kBarAnalysis->_effiMode        = effiMode;
 
     if( kBarAnalysis->_mcpMode )
     {
-        Double_t gap = 80; // // MCP gap (default either 80 or 110mm)
-
         Double_t mcp_dim = 75; // MCP case is 71 mm long and wide + 2mm frame due to the holder
         Double_t mcp_active = 51; // MCP active area is 51 mm long and wide
 
         Double_t minX_dim[4];
         Double_t minY_dim[4];
-        minX_dim[1] = -mcp_dim - gap/2; // gap: 80 => -115; gap: 110 => -130
+        minX_dim[1] = -mcp_dim - gap/2; // MCP gap: 80 => -115; gap: 110 => -130
         minY_dim[1] = -100; // fishtank bottom (-fishtank_height/2)
         minX_dim[2] = minX_dim[1];
         minY_dim[2] = minY_dim[1] + mcp_dim;
@@ -90,7 +100,7 @@ void run_KBarAnalysis()
         }
     }
     else
-        kBarAnalysis->_resolution      = 10;
+        kBarAnalysis->_resolution = resolution; // in mm
 
 
     TChain * chain = new TChain( "photon" );

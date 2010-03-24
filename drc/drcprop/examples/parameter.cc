@@ -47,7 +47,7 @@ void parameter( TString inFilename = ""  )
     Double_t fishtank_width_offset, fishtank_height_offset;
     Double_t fishtank_thetaX, fishtank_thetaY, fishtank_phi;
     Double_t particle_mass, particle_kinE, particle_beta;
-    Double_t particle_dirX, particle_dirY, particle_dirZ;
+    Double_t parDirX, parDirY, parDirZ;
     Double_t incidence_theta, incidence_phi;
     Double_t hitBarX, hitBarY, hitBarZ;
     Double_t spot_radius, spot_limit;
@@ -84,9 +84,9 @@ void parameter( TString inFilename = ""  )
     infoTree->SetBranchAddress( "particle_mass"         , &particle_mass );
     infoTree->SetBranchAddress( "particle_kinE"         , &particle_kinE );
     infoTree->SetBranchAddress( "particle_beta"         , &particle_beta );
-    infoTree->SetBranchAddress( "particle_dirX"         , &particle_dirX );
-    infoTree->SetBranchAddress( "particle_dirY"         , &particle_dirY );
-    infoTree->SetBranchAddress( "particle_dirZ"         , &particle_dirZ );
+    infoTree->SetBranchAddress( "particle_dirX"         , &parDirX );
+    infoTree->SetBranchAddress( "particle_dirY"         , &parDirY );
+    infoTree->SetBranchAddress( "particle_dirZ"         , &parDirZ );
     infoTree->SetBranchAddress( "incidence_theta"       , &incidence_theta );
     infoTree->SetBranchAddress( "incidence_phi"         , &incidence_phi );
     infoTree->SetBranchAddress( "hitBarX"               , &hitBarX );

@@ -23,7 +23,7 @@ using namespace std;
 
 
 
-void mcp4Pos( TString inFilename = "", Double_t gap = 80 ) // MCP gap (default either 80 or 110mm)
+void mcp4Pos( TString inFilename = "", Double_t gap = 80 ) // MCP gap (either 80 or 110mm)
 {
 
     if( inFilename == "" )
@@ -67,11 +67,12 @@ void mcp4Pos( TString inFilename = "", Double_t gap = 80 ) // MCP gap (default e
 
     Double_t hitPosX, hitPosY;
     Bool_t measured;
-    Double_t thetaC;
-    photon->SetBranchAddress( "hitPosX" , &hitPosX );
-    photon->SetBranchAddress( "hitPosY" , &hitPosY );
-    photon->SetBranchAddress( "measured", &measured );
-    photon->SetBranchAddress( "thetaC"  , &thetaC );
+    Double_t thetaC, wavelength;
+    photon->SetBranchAddress( "hitPosX"   , &hitPosX );
+    photon->SetBranchAddress( "hitPosY"   , &hitPosY );
+    photon->SetBranchAddress( "measured"  , &measured );
+    photon->SetBranchAddress( "thetaC"    , &thetaC );
+    photon->SetBranchAddress( "wavelength", &wavelength );
 
     Int_t nEntries = photon->GetEntries();
 
@@ -84,6 +85,54 @@ void mcp4Pos( TString inFilename = "", Double_t gap = 80 ) // MCP gap (default e
     infoTree->Branch( "parDirY", &parDirY, "parDirY/D" );
     infoTree->Branch( "parDirZ", &parDirZ, "parDirZ/D" );
     infoTree->Branch( "thetaC" , &thetaC , "thetaC/D" );
+
+
+//==============================================================================
+// Photon detector efficiency
+//==============================================================================
+    Double_t fEffiArray[70];
+
+    for (int i=0; i<70; i++) fEffiArray[i]=0;
+
+  // the argument is the wavelenght (nm) divided by 10.
+    fEffiArray[29] = 0.06;
+    fEffiArray[30] = 0.10;
+    fEffiArray[31] = 0.16;
+    fEffiArray[32] = 0.22;
+    fEffiArray[33] = 0.27;
+    fEffiArray[34] = 0.28;
+    fEffiArray[35] = 0.285;
+    fEffiArray[36] = 0.31;
+    fEffiArray[37] = 0.31;
+    fEffiArray[38] = 0.30;
+    fEffiArray[39] = 0.29;
+    fEffiArray[40] = 0.28;
+    fEffiArray[41] = 0.27;
+    fEffiArray[42] = 0.26;
+    fEffiArray[43] = 0.25;
+    fEffiArray[44] = 0.24;
+    fEffiArray[45] = 0.23;
+    fEffiArray[46] = 0.21;
+    fEffiArray[47] = 0.19;
+    fEffiArray[48] = 0.18;
+    fEffiArray[49] = 0.17;
+    fEffiArray[50] = 0.16;
+    fEffiArray[51] = 0.14;
+    fEffiArray[52] = 0.12;
+    fEffiArray[53] = 0.10;
+    fEffiArray[54] = 0.07;
+    fEffiArray[55] = 0.05;
+    fEffiArray[56] = 0.04;
+    fEffiArray[57] = 0.03;
+    fEffiArray[58] = 0.03;
+    fEffiArray[59] = 0.02;
+    fEffiArray[60] = 0.01;
+    fEffiArray[61] = 0.075;
+    fEffiArray[62] = 0.05;
+    fEffiArray[63] = 0.025;
+
+
+    TRandom3 rand;
 
 
 //==============================================================================
@@ -162,7 +211,7 @@ void mcp4Pos( TString inFilename = "", Double_t gap = 80 ) // MCP gap (default e
         mcp[i]->GetYaxis()->SetTitle( "y [mm]" );
         mcp[i]->GetYaxis()->CenterTitle();
         mcp[i]->GetYaxis()->SetTitleOffset( 1.2 );
-        mcp[i]->SetMaximum(500);
+        mcp[i]->SetMaximum(400); // 500
 
 
         mcpLabel[i] = new TPaveText( minX_active[i], maxY_active[i], maxX_active[i], maxY_dim[i] );
@@ -278,7 +327,16 @@ void mcp4Pos( TString inFilename = "", Double_t gap = 80 ) // MCP gap (default e
 
 
     TCanvas *canvas = new TCanvas( "canvas", "" ,200, 10, 1050, 810 );
+//     TCanvas *canvas = new TCanvas( "canvas", "" ,200, 10, 625, 500 );//625, 410
     canvas->Draw();
+
+    TCanvas *canvasScreen = new TCanvas( "canvasScreen", "" ,200, 10, 700, 510 );
+    canvasScreen->Draw();
+    TPad *padScreen = new TPad("ps","",0,0,1,1);
+    padScreen->Draw();
+
+    TCanvas *canvas4MCP = new TCanvas( "canvas4MCP", "" ,200, 10, 525, 810 );
+    canvas4MCP->Draw();
 
     TCanvas *canvasMCP = new TCanvas( "canvasMCP", "" ,200, 10, 530, 500 );
     canvasMCP->SetLeftMargin(0.13);
@@ -296,6 +354,13 @@ void mcp4Pos( TString inFilename = "", Double_t gap = 80 ) // MCP gap (default e
     TPad *pad[2] = new TPad( "p3", "", 0.50, 0.02, 0.75, 0.33 );
     TPad *pad[3] = new TPad( "p4", "", 0.50, 0.35, 0.75, 0.66 );
     TPad *pad[4] = new TPad( "p5", "", 0.50, 0.68, 0.75, 0.99 );
+
+    canvas4MCP->cd();
+    TPad *pad4MCP[4];
+    TPad *pad4MCP[0] = new TPad( "pm1", "", 0.50, 0.35, 1.00, 0.66 );
+    TPad *pad4MCP[1] = new TPad( "pm2", "", 0.00, 0.02, 0.50, 0.33 );
+    TPad *pad4MCP[2] = new TPad( "pm3", "", 0.00, 0.35, 0.50, 0.66 );
+    TPad *pad4MCP[3] = new TPad( "pm4", "", 0.00, 0.68, 0.50, 0.99 );
 
     canvasTank->cd();
     TPad *padTank[7];
@@ -321,6 +386,14 @@ void mcp4Pos( TString inFilename = "", Double_t gap = 80 ) // MCP gap (default e
             pad[i]->SetRightMargin(0.20);
             pad[i]->SetTopMargin(0.12);
             pad[i]->SetBottomMargin(0.12);
+
+            pad4MCP[i-1]->SetLeftMargin(0.10);
+            pad4MCP[i-1]->SetRightMargin(0.20);
+            pad4MCP[i-1]->SetTopMargin(0.12);
+            pad4MCP[i-1]->SetBottomMargin(0.12);
+
+            canvas4MCP->cd();
+            pad4MCP[i-1]->Draw();
         }
 
         canvas->cd();
@@ -346,9 +419,23 @@ void mcp4Pos( TString inFilename = "", Double_t gap = 80 ) // MCP gap (default e
     }
 
 
+    TH2F *screen_helper = new TH2F("screen_helper","",100,-fishtank_width/2,fishtank_width/2,100,-fishtank_height/2,fishtank_height/2);
+    screen_helper->SetStats(false);
+    screen_helper->GetXaxis()->SetTitle( "x [mm]" );
+    screen_helper->GetXaxis()->CenterTitle();
+    screen_helper->GetYaxis()->SetTitle( "y [mm]" );
+    screen_helper->GetYaxis()->CenterTitle();
+    screen_helper->GetYaxis()->SetTitleOffset( 1.2 );
+
 //==============================================================================
 // Event loop
 //==============================================================================
+    canvas->cd();
+    pad[0]->cd();
+    pad[0]->SetLeftMargin(0.10);
+    pad[0]->SetRightMargin(0.10);
+    screen_helper->Draw("");
+
     for( int i = 0; i < nEntries; i++ )
     {
         photon->GetEntry( i );
@@ -360,29 +447,38 @@ void mcp4Pos( TString inFilename = "", Double_t gap = 80 ) // MCP gap (default e
             Int_t pxX = -666;
             Int_t pxY = -666;
 
-            for( int j = 0; j < 4; j++)
+            if( wavelength < 700 && (rand.Uniform() < fEffiArray[(int)(wavelength/10+0.5)]) )
             {
-                mcp[j]->Fill( hitPosX, hitPosY );
 
-                if( hitPosX >= minX_active[j] && hitPosX < maxX_active[j] && hitPosY >= minY_active[j] && hitPosY < maxY_active[j] )
+                TMarker* t = new TMarker( hitPosX, hitPosY, 7);
+                t->SetMarkerColor( 12 );
+                t->SetMarkerSize(0.5);
+                t->Draw("same");
+
+                for( int j = 0; j < 4; j++)
                 {
-                    pxX = TMath::FloorNint( (hitPosX - minX_active[j])*8 / mcp_active ) + 8*j;
-                    pxY = TMath::FloorNint( (hitPosY - minY_active[j])*8 / mcp_active );
+                    mcp[j]->Fill( hitPosX, hitPosY );
 
-                    n_test++;
+                    if( hitPosX >= minX_active[j] && hitPosX < maxX_active[j] && hitPosY >= minY_active[j] && hitPosY < maxY_active[j] )
+                    {
+                        pxX = TMath::FloorNint( (hitPosX - minX_active[j])*8 / mcp_active ) + 8*j;
+                        pxY = TMath::FloorNint( (hitPosY - minY_active[j])*8 / mcp_active );
+
+                        n_test++;
+                    }
                 }
-            }
 
-            if( n_test > 1 )
-            {
-                cout << "Something is wrong (hit for different MCPs)." << endl;
-                abort();
-            }
+                if( n_test > 1 )
+                {
+                    cout << "Something is wrong (hit for different MCPs)." << endl;
+                    abort();
+                }
 
-            if( pxX == -666 )
-                continue;
-            else
-                freq[ pxX ][ pxY ]++;
+                if( pxX == -666 )
+                    continue;
+                else
+                    freq[ pxX ][ pxY ]++;
+            }
         }
     }
 
@@ -390,17 +486,33 @@ void mcp4Pos( TString inFilename = "", Double_t gap = 80 ) // MCP gap (default e
 //==============================================================================
 // Plot histograms
 //==============================================================================
-    canvas->cd();
-    pad[0]->cd();
+    canvasScreen->cd();
+    padScreen->cd();
     screen->DrawClonePad();
     screen->Close(); // w/o -> Error in <RootX11ErrorHandler>
 
     for( int i = 0; i < 4; i++ )
     {
+        canvas->cd();
         pad[i+1]->cd();
         mcp[i]->Draw( "colz" );
 
         pad[0]->cd();
+//         mcpLabel[i]->Draw("same");
+
+        for( int j = 0; j < 4; j++ )
+        {
+            line_mcpCase[i][j]->Draw("same");
+            line_mcpArea[i][j]->Draw("same");
+        }
+
+
+        canvas4MCP->cd();
+        pad4MCP[i]->cd();
+        mcp[i]->Draw( "colz" );
+
+        canvasScreen->cd();
+        padScreen->cd();
         mcpLabel[i]->Draw("same");
 
         for( int j = 0; j < 4; j++ )
@@ -412,6 +524,12 @@ void mcp4Pos( TString inFilename = "", Double_t gap = 80 ) // MCP gap (default e
 
     canvas->Write( "screenMCP");
     canvas->Close();
+
+    canvasScreen->Write( "screen");
+    canvasScreen->Close();
+
+    canvas4MCP->Write( "4MCP");
+    canvas4MCP->Close();
 
 
     canvasMCP->cd();
