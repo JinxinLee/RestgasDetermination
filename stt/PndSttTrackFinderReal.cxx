@@ -416,11 +416,13 @@ Int_t PndSttTrackFinderReal::DoFind(TClonesArray* trackArray, TClonesArray* heli
          Fi = atan2(Cy, Cx);       // MC truth Fi angle of circle of Helix trajectory
          if(Fi<0.)  Fi += 2.*PI;
          D = sqrt( Cx*Cx+Cy*Cy) - R;
-/*
+
+if(istampa>=3){
 Double_t  gomma = Cx*Cx+Cy*Cy -R*R;
 cout<<"verita MC,  traccia n. "<<iMCTrack<<", Ox, Oy,  Cx, Cy, D ,  R  ,  gamma = "<<Ox<<",  "<<Oy<<",  "<<
     Cx<<",  "<<Cy<<",  "<<D<<",  "<<R<<",  "<<gomma<<endl;
-*/
+}
+
 
 
 
@@ -532,8 +534,6 @@ cout<<"verita MC,  traccia n. "<<iMCTrack<<", Ox, Oy,  Cx, Cy, D ,  R  ,  gamma 
       // tubeID  CHECK added
       Int_t tubeID = pMhit->GetTubeID();
       PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
-
-
       // real hit center of tube coordinates
       TVector3 center = tube->GetPosition();
 
@@ -625,7 +625,7 @@ jumpout: ;
 
 //--------------- inizio stampaggi,  stampe di controllo
   if (istampa >= 2  && IVOLTE<20) {
-      cout <<"iHit "<< iHit << endl;
+     cout <<"iHit "<< iHit << endl;
       cout <<"             hit X, Y, Z space position "   << veritaMC[iHit][0] << " " <<
                        veritaMC[iHit][1] << " " << veritaMC[iHit][2]<<endl; 
       cout <<"             hit wire pos. in middle "   << tube->GetPosition().X() << " " << tube->GetPosition().Y() << " " << tube->GetPosition().Z() 
@@ -1282,6 +1282,9 @@ if(iplotta && IVOLTE < 20){
 //-----------------------  doing the fit with the skew hits for each XY plane track found
   for(i=0; i<nTracksFoundSoFar;i++){
 
+    GoodSkewFit[i]=false;  //  flag indicating if the skew sector info has completed the parameter info;
+                            //  a priori this is set false.
+
 
 //-----  finding the skew hits intersecting this XY trajectory circle
 
@@ -1308,9 +1311,12 @@ if(iplotta && IVOLTE < 20){
                    ZErrorafterTilt   //  output,  Radius taking into account the tilt, IN Z DIRECTION only, of selected Skew hit
                                                      );
     nSkewHitsinTrack[i]=TemporarynSkewHitsinTrack;
-  if( TemporarynSkewHitsinTrack == 0) {
-    continue;
-  }
+
+
+
+     if( nSkewHitsinTrack[i] < MINIMUMHITSPERTRACK) {
+        continue;
+     }
 
 
 
@@ -1341,14 +1347,11 @@ if(iplotta && IVOLTE < 20){
                 &KAPPA[i]
                       );
 
-
+//    the Status[i] is negative (-99) only when m = 0. as result of the fit in PndSttFitSZspacebis
 
 
       if(Status[i] < 0  ) {
-        GoodSkewFit[i]=false;
         continue;
-      } else{
-        GoodSkewFit[i]=true;
       }
 
       FI0[i]=Fi_initial_helix_referenceframe[i];  //  therefore, FI0[i] has an extra +2*PI or -2*PI added in case of tracks
@@ -1379,13 +1382,17 @@ if(iplotta && IVOLTE < 20){
                    temporeZErrorafterTilt,  //  output, associated skew hits Z error after tilt
                    &STATUS   // output
                                                      );
-
+//    out of this function  STATUS  is zero signals only that KAPPA  is zero.
 
 
 
 
  if( STATUS >=0 ){
 
+      if (NNN < MINIMUMHITSPERTRACK) {
+        continue;
+      }
+       GoodSkewFit[i]= true;
        nSkewHitsinTrack[i] = NNN;
        for(j=0;j<nSkewHitsinTrack[i];j++){
            ListSkewHitsinTrack[i][j]=tempore[j];
@@ -1399,7 +1406,7 @@ if(iplotta && IVOLTE < 20){
 
     nSkewHitsinTrack[i]=TemporarynSkewHitsinTrack;
     for(j=0;j<TemporarynSkewHitsinTrack;j++){ ListSkewHitsinTrack[i][j]=TemporarySkewList[j][0];}
-
+    GoodSkewFit[i]= true;
 }    //  end of     if( STATUS >=0 )
 
 
@@ -1694,11 +1701,10 @@ if( istampa>=2){
 //---------------------------------------------------------------------------------------------------------
 //   loading the hits found and associates to a track in a  PndTrackCand  class; a class per each track
 
-  if( nMCTracks >0 ) {
     for(i=0; i<nTracksFoundSoFar;i++){
      ii=daTrackFoundaTrackMC[i];
      if( daTrackFoundaTrackMC[i] == -1)  continue;
-     if( ! (nSkewHitsinTrack[i] > 0 && GoodSkewFit[i])  )  continue;
+     if( !  GoodSkewFit[i]  )  continue;
        Double_t dista=sqrt( Ox[i]*Ox[i]+Oy[i]*Oy[i] );
        if(fabs(KAPPA[i])<1.e-20  ||  dista < 1.e-20) continue;
        Double_t Ptras = R[i]*0.003*BFIELD;
@@ -1730,7 +1736,9 @@ if( istampa>=2){
 
 
     }   //  end of     for(i=0; i<nTracksFoundSoFar;i++)
-  }  //  end of  if( nMCTracks >0 )
+
+
+
 
 
 //-----------------------------------------------------------------------------------
@@ -1773,6 +1781,9 @@ if(istampa>=3)  cout<<"DoFind, paralleli, infoparal[ ListHitsinTrack[i][j] ] = "
     }  //   end  of  for( j=0; j< nHitsinTrack[i]; j++)
 
 //     then the skew hits
+
+    if (!GoodSkewFit[i]) continue;
+
     for( j=0; j< nSkewHitsinTrack[i]; j++){
        PndSttInfoXYZSkew (
                              Zfinal[i][ infoskew[ ListSkewHitsinTrack[i][j] ] ],       //  Z coordinate of selected Skew hit
@@ -1790,7 +1801,8 @@ if(istampa>=3)  cout<<"DoFind, paralleli, infoparal[ ListHitsinTrack[i][j] ] = "
        Ypos_for_LHeTrack[  infoskew[ ListSkewHitsinTrack[i][j] ]  ]=Posiz[1];
        Zpos_for_LHeTrack[  infoskew[ ListSkewHitsinTrack[i][j] ]  ]=Posiz[2];
 if(istampa>=3)  cout<<"DoFind, skew, infoskew[ ListSkewHitsinTrack[i][j] ] = "<<
-       infoskew[ ListSkewHitsinTrack[i][j] ]<<
+       infoskew[ ListSkewHitsinTrack[i][j] ]<<", ListSkewHitsinTrack[i][j] = "<<
+       ListSkewHitsinTrack[i][j]<<
        ", X = "<<
        Posiz[0]<<
        ", Y = "<<
@@ -1821,7 +1833,8 @@ if(istampa>=3)  cout<<"DoFind, skew, infoskew[ ListSkewHitsinTrack[i][j] ] = "<<
     }  //   end of for(iHit=0; iHit<Nhits;iHit++)
   } // end of if(fHelixHitProduction) 
 
- 
+
+
 //---------------------  end of loading for LHeTrack later.
 
 
@@ -1830,11 +1843,12 @@ if(istampa>=3)  cout<<"DoFind, skew, infoskew[ ListSkewHitsinTrack[i][j] ] = "<<
 
 
 
+//---------------   printouts of comparison with MC for judging algorithm performance
 
   if( nMCTracks >0 ) {
     for(i=0; i<nTracksFoundSoFar;i++){
+       if(!GoodSkewFit[i])   continue;
 
-//-----------------------------------------------------------------------------------
     HoughFi = atan2(Oy[i],Ox[i]);
     if(HoughFi<0.)  HoughFi += 2.*PI;
 if(istampa>=2){
@@ -1855,14 +1869,7 @@ if(istampa>=2){
 }   //  end of if (istampa>=2)
 
 
-// ---------------  sezione in cui stampo le info su X, Y, Z degli hits in comune; solo
-//                  per le tracce che passano i criteri di selezione di questo loop
 
-
-
-//   fprintf(HANDLEXYZ,
-// "evento %d ; la traccia SEQUENZIALE n. %d, corrispondente a traccia trovata n. %d , e' stata caricata nel PndTrackCand.\n"
-//    ,IVOLTE,ipinco-1,i);
     for( j=0; j<nParalCommon[i]; j++){
 
        PndSttInfoXYZParal (
@@ -1931,12 +1938,13 @@ if(istampa>=2){
          }  //   end of for( j=0; j<nSkewCommon[i]; j++)
 
 
-// ---------------  fine della sezione in cui stampo le info su X, Y, Z degli hits in comune.
 
 
 
     }   //  end of     for(i=0; i<nTracksFoundSoFar;i++)
   }  //  end of  if( nMCTracks >0 )
+
+//---------------  end of printouts of comparison with MC for judging algorithm performance
 
 //---------------------------------------------------------------------------------------------------------
 
@@ -9850,9 +9858,6 @@ if(istampa==2 && IVOLTE<20) cout<<"From AssociateBetterAfterFitSkewHitsToXYTrack
 
 // --
 
-     if( nSkewHitsinTrack < MINIMUMHITSPERTRACK) {
-        return -1;
-     }
 
 
 //  use the trick of increasing the rotation angle by 10 degrees in order to obtain always a positive m
@@ -11637,8 +11642,9 @@ if( istampa>= 3 && IVOLTE<20) cout<<"  evento n. "<<IVOLTE<<", imc = "<<imc<<", 
                             )
 {
 
-if(istampa >=3 && IVOLTE<20){
-cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<<", S = "<<S<<endl;
+//if(istampa >=3 && IVOLTE<20){
+if(istampa>=3){
+cout<<"  stampa da PndSttInfoXYZSkew  "<<", Z hit = "<<Z<<", Zdrift = "<<ZDrift<<", S = "<<S<<endl;
 }
 
 
@@ -11655,12 +11661,14 @@ cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<
    if( Charge > 0 ) {
      if( S > FI0 )  {
         cout<<"from PndSttInfoXYZSkew : inconsistency, FI0 is not the maximum for this track "<<endl;
+cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<<", S = "<<S<<",  FI0 = "<<FI0<<endl;
         Posiz[0] = -777777777.;
         return;
       }
    }  else  {
      if( S < FI0 )  {
         cout<<"from PndSttInfoXYZSkew : inconsistency, FI0 is not the minimum for this track "<<endl;
+cout<<"  stampa da PndSttInfoXYZSkew,  "<<", Z hit = "<<Z<<", Zrift = "<<ZDrift<<", S = "<<S<<",  FI0 = "<<FI0<<endl;
         Posiz[0] = -777777777.;
         return;
       }
