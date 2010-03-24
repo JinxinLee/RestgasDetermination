@@ -73,6 +73,8 @@ void PndSttHelixHit::CopyHitToHelixHit(PndSttHit *aHit, Int_t hitindex)
   fIsochroneError = aHit->GetIsochroneError();
   fWireDirection  = aHit->GetWireDirection();
   fHalfLength     = aHit->GetTubeHalfLength();
+
+  fTubeID         = aHit->GetTubeID(); // CHECK added
 }
 
 

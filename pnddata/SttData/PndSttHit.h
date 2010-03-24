@@ -94,6 +94,10 @@ class PndSttHit : public FairHit
   void SetdEdx(Double_t dedx)                 { fdEdx = dedx; }
   void SetTubeHalfLength(Double_t halflength) { fHalfLength = halflength; }
 
+ // tube ID // CHECK added
+  void SetTubeID(Int_t tubeid) { fTubeID = tubeid; }
+  Int_t GetTubeID() { return fTubeID; }
+
  protected:
  
   /** This variable contains the radial distance to the wire **/    
@@ -124,7 +128,7 @@ class PndSttHit : public FairHit
   Double_t fdEdx;       // hit dEdx
   Double_t fHalfLength; // tube half length
   Double_t fELoss;      // hit energy loss 
-
+  Int_t fTubeID; // CHECK added
 
 
  ClassDef(PndSttHit,1);

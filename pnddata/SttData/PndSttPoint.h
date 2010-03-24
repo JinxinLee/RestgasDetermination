@@ -84,6 +84,10 @@ class PndSttPoint : public FairMCPoint
   void SetWireDirection(TVector3 wire);
   void SetTubeHalfLength(Double_t halflength) { fHalfLength = halflength; }
 
+  // tube ID // CHECK added
+  void SetTubeID(Int_t tubeid) { fTubeID = tubeid; }
+  Int_t GetTubeID() { return fTubeID; }
+
   /** Output to screen **/
   virtual void Print(const Option_t* opt) const;
 
@@ -108,6 +112,7 @@ class PndSttPoint : public FairMCPoint
  
   Double_t fHalfLength; // tube half length
 
+  Int_t fTubeID; // CHECK added
 
  //////
 

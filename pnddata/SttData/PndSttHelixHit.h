@@ -91,6 +91,10 @@ class PndSttHelixHit : public FairHit
   void SetTubeHalfLength(Double_t halflength) { fHalfLength = halflength; }
 
   void Print();
+ 
+// tube ID // CHECK added
+  void SetTubeID(Int_t tubeid) { fTubeID = tubeid; }
+  Int_t GetTubeID() { return fTubeID; }
 
  protected:
  
@@ -103,14 +107,20 @@ class PndSttHelixHit : public FairHit
   /** Position of the center **/ 
   Double32_t fXcen, fYcen, fZcen; 
   Double32_t fDxcen, fDycen, fDzcen;
-  /** Wire direction **/
-  TVector3 fWireDirection;
+
   /** isochrone **/
   Double_t fIsochrone, fIsochroneError;
-  /** half length **/
-  Double_t fHalfLength; 
+  /** Wire direction **/
+  TVector3 fWireDirection;
 
-  ClassDef(PndSttHelixHit,1);
+  /** half length **/
+  Double_t fHalfLength;
+
+
+  /** tubeID **/
+  Int_t fTubeID; // CHECK added
+
+  ClassDef(PndSttHelixHit,2);
 };
 
 
