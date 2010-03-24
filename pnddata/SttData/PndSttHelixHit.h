@@ -38,7 +38,7 @@ class PndSttHelixHit : public FairHit
 		 Int_t mcindex, Int_t hitindex, Double_t edep,
 		 TVector3& cpos, TVector3& dcpos, 
 		 Double_t isochrone,
-		 Double_t isochroneError, TVector3 wireDir);
+		 Double_t isochroneError);
 
   void CopyHitToHelixHit(PndSttHit *aHit, Int_t hitindex);
 
@@ -58,7 +58,6 @@ class PndSttHelixHit : public FairHit
   /** Accessors **/
   Double_t GetIsochrone() const { return fIsochrone; }; 
   Double_t GetIsochroneError() const { return fIsochroneError; }; 
-  TVector3 GetWireDirection() const { return fWireDirection; };
   Double_t GetXcen()             const { return fXcen;       };
   Double_t GetYcen()             const { return fYcen;       };
   Double_t GetZcen()             const { return fZcen;       };
@@ -69,13 +68,11 @@ class PndSttHelixHit : public FairHit
   Double_t GetdEdx()             const { return fdEdx;                      };
   Double_t GetDepCharge()        const { return fDepCharge;                 };
   Double_t GetEnergyLoss()       const { return fELoss;                     };
-  Double_t GetTubeHalfLength()   const { return fHalfLength ;               };
 
   /** Modifiers **/
   void SetHitIndex(Int_t hitindex) {fHitIndex = hitindex;} 
   void SetIsochrone(Double_t isochrone) { fIsochrone = isochrone; };
   void SetIsochroneError(Double_t isochroneError) { fIsochroneError = isochroneError; };
-  void SetWireDirection(TVector3 newWire) { fWireDirection = newWire; }
 
   void SetXcen(Double_t x) { fXcen = x; }
   void SetYcen(Double_t y) { fYcen = y; }
@@ -88,8 +85,6 @@ class PndSttHelixHit : public FairHit
   void SetDepCharge(Double_t depcharge)       { fDepCharge = depcharge; }
   void SetEnergyLoss(Double_t eloss)          { fELoss = eloss; }
   void SetdEdx(Double_t dedx)                 { fdEdx = dedx; }
-  void SetTubeHalfLength(Double_t halflength) { fHalfLength = halflength; }
-
   void Print();
  
 // tube ID // CHECK added
@@ -110,12 +105,6 @@ class PndSttHelixHit : public FairHit
 
   /** isochrone **/
   Double_t fIsochrone, fIsochroneError;
-  /** Wire direction **/
-  TVector3 fWireDirection;
-
-  /** half length **/
-  Double_t fHalfLength;
-
 
   /** tubeID **/
   Int_t fTubeID; // CHECK added

@@ -34,7 +34,7 @@ PndSttHelixHit::PndSttHelixHit(Int_t detID,
 			       Int_t mcindex, Int_t hitindex, Double_t edep,
 			       TVector3& cpos, TVector3& dcpos, 
 			       Double_t isochrone,
-			       Double_t isochroneError, TVector3 wireDir)			        
+			       Double_t isochroneError)		        
  : FairHit(detID, pos, dpos, mcindex) 
 {
 
@@ -45,7 +45,6 @@ PndSttHelixHit::PndSttHelixHit(Int_t detID,
   fDxcen = dcpos.X();   fDycen = dcpos.Y();   fDzcen = dcpos.Z(); 
   fIsochrone = isochrone;
   fIsochroneError = isochroneError;
-  fWireDirection = wireDir;
 }
 
 
@@ -71,6 +70,7 @@ void PndSttHelixHit::CopyHitToHelixHit(PndSttHit *aHit, Int_t hitindex)
 
   fIsochrone      = aHit->GetIsochrone();
   fIsochroneError = aHit->GetIsochroneError();
+
   fTubeID         = aHit->GetTubeID(); // CHECK added
 }
 
@@ -89,10 +89,8 @@ void PndSttHelixHit::Clear()
   fDxcen = 0.; 
   fDycen = 0.; 
   fDzcen = 0.;
-  fWireDirection = TVector3(0., 0., 0.);
   fIsochrone = 0.; 
   fIsochroneError = 0.;
-  fHalfLength = 0.; 
  
 }  
 
@@ -114,9 +112,6 @@ void PndSttHelixHit::Print()
   // drift
   cout << "drift radius " << GetIsochrone() << endl;
 
-  // wire
-  cout << "wire dir " << GetWireDirection().X() << " " << GetWireDirection().Y() << " " << GetWireDirection().Z() << endl;
-  cout << "wire half length " << GetTubeHalfLength() << endl;
 }
 
 
