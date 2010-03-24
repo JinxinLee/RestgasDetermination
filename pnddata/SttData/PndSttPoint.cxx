@@ -10,7 +10,6 @@ PndSttPoint::PndSttPoint() : FairMCPoint() {
   fX_in_local  = fY_in_local   = fZ_in_local   = 0.;
   fX_out_local = fY_out_local  = fZ_out_local  = 0.;
   fPx_out      = fPy_out       = fPz_out       = 0.;
-  fX_wire_dir  = fY_wire_dir   = fZ_wire_dir   = 0.;
 }
 // -------------------------------------------------------------------------
 
@@ -19,7 +18,7 @@ PndSttPoint::PndSttPoint() : FairMCPoint() {
 // -----   Standard constructor   ------------------------------------------
 PndSttPoint::PndSttPoint(Int_t trackID, Int_t detID, TVector3 pos, 
 			 TVector3 posInLocal, TVector3 posOutLocal, 
-			 TVector3 momIn, TVector3 momOut, TVector3 wireDir,
+			 TVector3 momIn, TVector3 momOut,
 			 Double_t tof, Double_t length, Double_t eLoss, Double_t mass, TVector3 postot)  // da cancellare postot
   : FairMCPoint(trackID, detID, pos, momIn, tof, length, eLoss) 
 {
@@ -34,10 +33,6 @@ PndSttPoint::PndSttPoint(Int_t trackID, Int_t detID, TVector3 pos,
   fPx_out = momOut.Px();
   fPy_out = momOut.Py();
   fPz_out = momOut.Pz();
-
-  fX_wire_dir = wireDir.X(); 
-  fY_wire_dir = wireDir.Y(); 
-  fZ_wire_dir = wireDir.Z(); 
 
   fMass = mass; // stt1
 

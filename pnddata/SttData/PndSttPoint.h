@@ -30,7 +30,7 @@ class PndSttPoint : public FairMCPoint
    **/
   PndSttPoint(Int_t trackID, Int_t detID, TVector3 pos, 
 	      TVector3 posInLocal, TVector3 posOutLocal, 
-	      TVector3 momIn, TVector3 momOut, TVector3 wireDir,
+	      TVector3 momIn, TVector3 momOut, 
 	      Double_t tof, Double_t length, Double_t eLoss, Double_t mass, TVector3 postot); // da cancellare postot
 
 
@@ -64,25 +64,16 @@ class PndSttPoint : public FairMCPoint
   Double_t GetPyOut() const { return fPy_out; }
   Double_t GetPzOut() const { return fPz_out; }
 
-  Double_t GetXWireDirection() const { return fX_wire_dir; }
-  Double_t GetYWireDirection() const { return fY_wire_dir; }
-  Double_t GetZWireDirection() const { return fZ_wire_dir; }
-
   Double_t GetMass() const {return fMass;}
  
-  Double_t GetTubeHalfLength()   const { return fHalfLength;               };
-
   void PositionOutLocal(TVector3& pos) { pos.SetXYZ(fX_out_local,fY_out_local,fZ_out_local); }
   void PositionInLocal(TVector3& pos)  { pos.SetXYZ(fX_in_local,fY_in_local,fZ_in_local); }
   void MomentumOut(TVector3& mom) { mom.SetXYZ(fPx_out,fPy_out,fPz_out); }
-  void WireDirection(TVector3& wire) { wire.SetXYZ(fX_wire_dir, fY_wire_dir, fZ_wire_dir); }
 
   /** Modifiers **/
   void SetPositionOutLocal(TVector3 pos);
   void SetPositionInLocal(TVector3 pos);
   void SetMomentumOut(TVector3 mom);
-  void SetWireDirection(TVector3 wire);
-  void SetTubeHalfLength(Double_t halflength) { fHalfLength = halflength; }
 
   // tube ID // CHECK added
   void SetTubeID(Int_t tubeid) { fTubeID = tubeid; }
@@ -100,8 +91,6 @@ class PndSttPoint : public FairMCPoint
   Double_t fX_in_local,  fY_in_local,  fZ_in_local;
 
   Double_t fPx_out, fPy_out, fPz_out;
-  // wire direction
-  Double_t fX_wire_dir, fY_wire_dir, fZ_wire_dir;
 
   // stt1 - particle mass
   Double_t fMass;
@@ -110,8 +99,6 @@ class PndSttPoint : public FairMCPoint
   Double_t fxtot, fytot, fztot; 
   Double_t fpxtot, fpytot, fpztot; 
  
-  Double_t fHalfLength; // tube half length
-
   Int_t fTubeID; // CHECK added
 
  //////
@@ -139,12 +126,6 @@ inline void PndSttPoint::SetMomentumOut(TVector3 mom) {
   fPx_out = mom.Px();
   fPy_out = mom.Py();
   fPz_out = mom.Pz();
-}
-
-inline void PndSttPoint::SetWireDirection(TVector3 wire) {
-    fX_wire_dir = wire.Px();
-    fY_wire_dir = wire.Py();
-    fZ_wire_dir = wire.Pz();
 }
 
 // da cancellare

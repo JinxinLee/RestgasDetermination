@@ -272,29 +272,8 @@ Bool_t  PndStt::ProcessHits(FairVolume* vol)
 	      return kFALSE;
 	    }
 	    
-	  //FairGeoRotation  // check if vol is the FairGeoVolume or the FairGeoNode before using this!
-	  //  rotation = vol->getLabTransform()->getRotMatrix();
-	    
-	  //FairGeoVector
-	  // originalVector(0., 0., 1.),
-	  //  rotatedVector = rotation * originalVector;
-
-	  FairGeoVector rotatedVector;
-	    
-	  rotatedVector.setX(M.GetRotationMatrix()[2]);//2
-	  rotatedVector.setY(M.GetRotationMatrix()[5]);//5
-	  rotatedVector.setZ(M.GetRotationMatrix()[8]);
-	    
-	  if(M.GetRotationMatrix()[8]==1) {//unskwed
-	    //if(skew==kFALSE) {
-	    rotatedVector.setX(0.);
-	    rotatedVector.setY(0.);
-	    rotatedVector.setZ(1.);
-	     
-	  }
 
 
-	    
 	  //   cout << "positionc: " << fPos.X() << " " << fPos.Y() << " " << fPos.Z() << endl;	// da cancellare
 	  //    cout << "position: " << fpostot.X() << " " << fpostot.Y() << " " << fpostot.Z() << endl;
 	  
@@ -316,9 +295,6 @@ Bool_t  PndStt::ProcessHits(FairVolume* vol)
 	  // 	    cout << "tot: " << fpostot.X() << " " << fpostot.Y() << " " << fpostot.Z() << endl;
 	  // 	    cout << (fpostotin.X() +  fpostotout.X())/2. << " " << (fpostotin.Y() + fpostotout.Y())/2. << " " << (fpostotin.Z() + fpostotout.Z())/2. << endl;
 
-	TGeoTube *tube = (TGeoTube*) vol->getGeoNode()->getRootVolume()->GetShape();
-        fHalfLength = tube->GetDz();
-
 	// CHECK -----------------------------------------------------------
 	PndSttMapCreator *mapper = new PndSttMapCreator(fGeoType);
 	Int_t tubeID = mapper->GetTubeIDFromPath(gMC->CurrentVolPath());
@@ -328,13 +304,12 @@ Bool_t  PndStt::ProcessHits(FairVolume* vol)
 	// -----------------------------------------------------------------
 
 	AddHit(fTrackID, fVolumeID,
-		 TVector3(fPos.X(),   fPos.Y(),   fPos.Z()),
-		 TVector3(fPosInLocal.X(),   fPosInLocal.Y(),   fPosInLocal.Z()),
-		 TVector3(fPosOutLocal.X(),  fPosOutLocal.Y(),  fPosOutLocal.Z()),
-		 TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),
-		 TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
-		 TVector3(rotatedVector.getX(), rotatedVector.getY(), rotatedVector.getZ()),
-	       fTime, fLength, fELoss, fMass, fHalfLength, TVector3(fpostot.X(), fpostot.Y(), fpostot.Z()), tubeID); // da cancellare fpostot
+	       TVector3(fPos.X(),   fPos.Y(),   fPos.Z()),
+	       TVector3(fPosInLocal.X(),   fPosInLocal.Y(),   fPosInLocal.Z()),
+	       TVector3(fPosOutLocal.X(),  fPosOutLocal.Y(),  fPosOutLocal.Z()),
+	       TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),
+	       TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
+	       fTime, fLength, fELoss, fMass, TVector3(fpostot.X(), fpostot.Y(), fpostot.Z()), tubeID); // da cancellare fpostot
 	    
 	  // Increment number of stt points for TParticle
 	  PndStack* stack = (PndStack*) gMC->GetStack();
@@ -495,8 +470,9 @@ void PndStt::ConstructGeometry()
 // -----   Private method AddHit   -----------------------------------------
 PndSttPoint* PndStt::AddHit(Int_t trackID, Int_t detID, TVector3 pos,
 			    TVector3 posInLocal, TVector3 posOutLocal, 
-			    TVector3 momIn, TVector3 momOut, TVector3 wireDir,
-			    Double_t time, Double_t length, Double_t eLoss,  Double_t mass, Double_t halflength, TVector3 postot, Int_t tubeID)   // da cancellare postot
+			    TVector3 momIn, TVector3 momOut,
+			    Double_t time, Double_t length, Double_t eLoss,  Double_t mass, 
+			    TVector3 postot, Int_t tubeID)   // da cancellare postot
 {
   TClonesArray& 
       clref = *fSttCollection;
@@ -505,13 +481,9 @@ PndSttPoint* PndStt::AddHit(Int_t trackID, Int_t detID, TVector3 pos,
       size = clref.GetEntriesFast();
 
   PndSttPoint *pointnew = new(clref[size]) PndSttPoint(trackID, detID, pos, posInLocal, posOutLocal,
-						       momIn, momOut, wireDir, time, 
+						       momIn, momOut, time, 
 						       length, eLoss, mass, postot);
   pointnew->SetTubeID(tubeID);
-  pointnew->SetTubeHalfLength(halflength);
-  
-  //  return new(clref[size]) PndSttPoint(trackID, detID, pos, posInLocal, posOutLocal,
-  //				      momIn, momOut, wireDir, time, length, eLoss, mass, postot);
 }
 // -------------------------------------------------------------------------
 
