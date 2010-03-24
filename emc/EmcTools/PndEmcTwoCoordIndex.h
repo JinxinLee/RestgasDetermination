@@ -1,7 +1,4 @@
 //======================================================================
-// File and Version Information:
-// 	$Id:$
-//
 // Class PndEmcTwoCoordIndex
 //
 //	 Software developed for the BaBar Detector at the SLAC B-Factory.

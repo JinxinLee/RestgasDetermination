@@ -310,10 +310,10 @@ Bool_t PndEmc::ProcessHits(FairVolume* vol) {
       // ----- NEW Backward EndCap - with the FwEndCap geometry ----
       nMod=4;
       
-      TString namCrys    = gMC->CurrentVolOffName(0); // Crystal name 
-      TString namBox     = gMC->CurrentVolOffName(1); // Box name  
-      TString namSub     = gMC->CurrentVolOffName(2); // Subunit name 
-      TString namQuar    = gMC->CurrentVolOffName(3); // Quarter name 
+      namCrys    = gMC->CurrentVolOffName(0); // Crystal name 
+      namBox     = gMC->CurrentVolOffName(1); // Box name  
+      namSub     = gMC->CurrentVolOffName(2); // Subunit name 
+      namQuar    = gMC->CurrentVolOffName(3); // Quarter name 
        
       // Return the current volume off upward in the geometrical tree
       // ID and copy number

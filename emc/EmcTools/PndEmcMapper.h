@@ -30,19 +30,59 @@ public:
 	Int_t GetMapVersion()  const { return fMapVersion ;};
 	
 	PndEmcTwoCoordIndex* GetTCI(Int_t DetectorId);
-	
-	
-	
 protected:
-	PndEmcMapper(Int_t fMapVersion);
-  
+	std::map<Int_t,PndEmcTwoCoordIndex* > fIntTwoCoordMap;
+	PndEmcMapper(){};  
 private:
+	
 	static PndEmcMapper* _instance;
 	static Int_t fMapVersion;
 	Int_t GetDetId(Int_t iTheta,Int_t iPhi);
-	std::map<Int_t,PndEmcTwoCoordIndex* > fIntTwoCoordMap;
+
         
 	ClassDef(PndEmcMapper,1)
+};
+
+class PndEmcMapperGeoAllDat: public PndEmcMapper
+{
+	public:
+		PndEmcMapperGeoAllDat();
+};
+
+class PndEmcMapperGeo1245Dat3Root: public PndEmcMapper
+{
+	public:
+		PndEmcMapperGeo1245Dat3Root();
+};
+
+class PndEmcMapperGeo3Dat: public PndEmcMapper
+{
+	public:
+		PndEmcMapperGeo3Dat();
+};
+
+class PndEmcMapperGeo3Root: public PndEmcMapper
+{
+	public:
+		PndEmcMapperGeo3Root();
+};
+
+class PndEmcMapperGeo4Root: public PndEmcMapper
+{
+	public:
+		PndEmcMapperGeo4Root();
+};
+
+class PndEmcMapperGeo125Dat34Root: public PndEmcMapper
+{
+	public:
+		PndEmcMapperGeo125Dat34Root();
+};
+
+class PndEmcMapperGeo1235Dat4Root: public PndEmcMapper
+{
+	public:
+		PndEmcMapperGeo1235Dat4Root();
 };
 
 #endif //PndEmcMapper_H

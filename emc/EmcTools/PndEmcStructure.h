@@ -1,7 +1,6 @@
 //======================================================================
-// File and Version Information:
-// 	$Id: $
-//
+// Description:
+//       Class PndEmcStructure
 //------------------------------------------------------------------------
 #pragma once
 #ifndef PNDEMCSTRUCTURE_H
