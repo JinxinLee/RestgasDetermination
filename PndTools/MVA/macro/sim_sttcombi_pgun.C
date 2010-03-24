@@ -1,5 +1,8 @@
-void sim_sttcombi_pgun(int nEvents = 1000, int pid  = 211,// Pi+ 
-	                   float p1 = 0.5, float p2 = 14.0)
+//pi+ = 211, pi- = -211, mu+ = -13, mu- = 13, K+ = 321, K- = -321, K0L = 130
+//pi0 = 111, gamma = 22, e- = 11, e+ = -11, proton = 2212, protonMin = -2212
+
+void sim_sttcombi_pgun(int nEvents = 5, int pid  = -211,// Pi+ 
+		       float p1 = 0.8, float p2 = 0.86)
 {
   TStopwatch timer;
   timer.Start();
@@ -21,7 +24,7 @@ void sim_sttcombi_pgun(int nEvents = 1000, int pid  = 211,// Pi+
   fRun->SetName("TGeant3");
   //fRun->SetName("TGeant4");
   
-  fRun->SetOutputFile("pointsPiPlus_sttcombi.root");
+  fRun->SetOutputFile("points_sttcombi.root");
   
   // Set the parameters
   //-------------------------------

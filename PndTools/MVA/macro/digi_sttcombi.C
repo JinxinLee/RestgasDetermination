@@ -7,7 +7,7 @@
   TString inFile = "points_sttcombi.root";
 
   // Parameter file
-  TString parFile = "params1_sttcombi.root";
+  TString parFile = "params_sttcombi.root";
 
   // Output file
   TString outFile = "digi_sttcombi.root";

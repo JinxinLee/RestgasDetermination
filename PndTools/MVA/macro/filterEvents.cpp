@@ -4,7 +4,7 @@ using namespace std;
 
 std::vector<int> EvtIds;
 
-int filterEvents(int pid, const std::string outFileName)
+void filterEvents(int pid, const std::string outFileName)
 {
   int counts = 0;
   TStopwatch timer;
@@ -30,8 +30,24 @@ int filterEvents(int pid, const std::string outFileName)
 
   TClonesArray* pointList = new TClonesArray("PndEmcPoint");
   tsim->SetBranchAddress("EmcPoint", &pointList);
+  
+  // Maybe it can be done better.
+  ////////////////////////////
+  //TFile pF("params_sttcombi.root");
 
-  TFile pF("params1_sttcombi.root");
+  FairRunAna *fRun= new FairRunAna();
+  fRun->SetInputFile("points_sttcombi.root");
+  fRun->SetOutputFile("dummy_out.root");
+
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairParRootFileIo* parInput1 = new FairParRootFileIo();
+  parInput1->open("params_sttcombi.root");
+  rtdb->setFirstInput(parInput1);
+  PndEmcGeoPar *geoPar = (PndEmcGeoPar*) rtdb->getContainer("PndEmcGeoPar");
+  fRun->Init();
+  geoPar->InitEmcMapper();
+  PndEmcMapper::Init(6);
+  ////////////////////////////
 
   TFile digiF("digi_sttcombi.root");
   TTree* digiTr = (TTree *) digiF.Get("cbmsim");
@@ -42,9 +58,8 @@ int filterEvents(int pid, const std::string outFileName)
   TTree* RecoTr = (TTree *) recoF.Get("cbmsim");
   
   TClonesArray* recTrakArr = new TClonesArray("PndTrack");  
-  RecoTr->SetBranchAddress("LheGenTrackPion", &recTrakArr);
-
-  PndEmcMapper::Init(6);
+  RecoTr->SetBranchAddress("LheTrack", &recTrakArr);
+  //RecoTr->SetBranchAddress("LheGenTrackPion", &recTrakArr);
 
   // Loop through the simulation data.
   for (int j = 0; j < tsim->GetEntriesFast(); j++){
@@ -100,17 +115,20 @@ int filterEvents(int pid, const std::string outFileName)
 	  clIndex = cl;
 	}
       }
+
       // Found the cluster with highest E_dep.
       PndEmcCluster* HE_cluster = (PndEmcCluster*) clusters_arr->At(clIndex);
       PndEmcXClMoments clsZmom = HE_cluster->Xmoments();
+
       numClus = clusters_arr->GetEntriesFast();
       emc = HE_cluster->energy(); 
       emcCorr = HE_cluster->GetEnergyCorrected();  
       numCrys = HE_cluster->NumberOfDigis();
-      //z20 = clsZmom.AbsZernikeMoment(2, 0, 15);// Z_{n = 2}^{m = 0}
-      //z53 = clsZmom.AbsZernikeMoment(5, 3, 15);// Z_{n = 5}^{m = 3}
+      z20 = clsZmom.AbsZernikeMoment(2, 0, 15);// Z_{n = 2}^{m = 0}
+      z53 = clsZmom.AbsZernikeMoment(5, 3, 15);// Z_{n = 5}^{m = 3}
       mom = par.GetMomentum().Mag();
-      //  TNtuple EmcNtp ("pion","pion","p:emc:emcCorr:numClus:numCrys:z20:z53");
+
+      //TNtuple EmcNtp ("pion","pion","p:emc:emcCorr:numClus:numCrys:z20:z53");
       EmcNtp.Fill(mom, (emc/mom), (emcCorr/mom), numClus, numCrys, z20, z53);
     }// End if(tra)
     else{//Neutral or not correctly reconstructed.
@@ -126,17 +144,24 @@ int filterEvents(int pid, const std::string outFileName)
 
   cout << "<INFO> Writing output to: " << outFileName << endl;
 
+  // Write to the output
   TFile out(outFileName.c_str(),"RECREATE");
   EmcNtp.Print();
   EmcNtp.Write();
-  //out.Write();
   out.Close();
-  //=========== Clean-up
-  sF.Close();
-  pF.Close();
-  recoF.Close();
-  EvtIds.clear();
 
+  //=========== Clean-up
+  EvtIds.clear();
+  sF.Close();
+  //pF.Close();
+  digiF.Close();
+  recoF.Close();
+
+  delete clusters_arr;
+  delete trackList;
+  delete pointList;
+  delete recTrakArr;
+  
   timer.Stop();
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
@@ -146,5 +171,5 @@ int filterEvents(int pid, const std::string outFileName)
   cout << endl;
   // ------------------------------------------------------------------------
 
-  return 0;
+  exit(0);
 }

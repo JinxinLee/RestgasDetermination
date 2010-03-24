@@ -8,7 +8,7 @@
   TString inSimFile = "points_sttcombi.root";
 
   // Parameter file
-  TString parFile = "params1_sttcombi.root";
+  TString parFile = "params_sttcombi.root";
 
   // Output file
   TString outFile = "reco_sttcombi.root";
@@ -69,17 +69,19 @@
   fRun->AddTask(trackFitter);
   
   /*
-    PndRecoKalmanTask* recoKalman = new PndRecoKalmanTask();
-    recoKalman->SetTrackInBranchName("LheTrack");
-    recoKalman->SetTrackOutBranchName("LheGenTrack");
-    //recoKalman->SetNumIterations(3);
-    fRun->AddTask(recoKalman);
-  */
-  //////////////////
-  PndRecoMultiKalmanTask* recoKalman = new PndRecoMultiKalmanTask();
+  PndRecoKalmanTask* recoKalman = new PndRecoKalmanTask();
   recoKalman->SetTrackInBranchName("LheTrack");
   recoKalman->SetTrackOutBranchName("LheGenTrack");
+  //recoKalman->SetNumIterations(3);
   fRun->AddTask(recoKalman);
+  */
+  //////////////////
+  /*
+    PndRecoMultiKalmanTask* recoKalman = new PndRecoMultiKalmanTask();
+    recoKalman->SetTrackInBranchName("LheTrack");
+    recoKalman->SetTrackOutBranchName("LheGenTrack");
+    fRun->AddTask(recoKalman);
+  */
   //////////////////// 
   // -----   Intialise and run   --------------------------------------------
   PndEmcMapper::Init(6);

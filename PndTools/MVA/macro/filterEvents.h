@@ -4,6 +4,7 @@
  */
 #ifndef FILTEREVENTS_H
 #define FILTEREVENTS_H
+
 // C++ includes
 #include <iostream>
 #include <vector>
@@ -22,11 +23,13 @@
 #include "PndEmcCluster.h"
 #include "PndEmcXClMoments.h"
 #include "PndEmcStructure.h"
-
 #include "PndTrack.h"
 #include "FairTrackParP.h"
-#include "TGeoManager.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
+#include "FairParRootFileIo.h"
+#include "PndEmcGeoPar.h"
 
-int filterEvents(int pid  = 211, const std::string outFileName="FilterOut.root");
+void filterEvents(int pid  = -211, const std::string outFileName="FilterOut.root");
 
 #endif// End of interface definition
