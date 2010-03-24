@@ -15,7 +15,7 @@
 extern int  dummy_mode;    /* Variable initialized in boss_worker_mpi.c */
 extern int  verbose_mode;  /* Variable initialized in boss_worker_mpi.c */
 
-#if defined(_AIX) || defined(___AIX)	/* AIX >= 3.1 *
+#if defined(_AIX) || defined(___AIX)	/* AIX >= 3.1 */
 /* Under AIX, we directly read the process table from the kernel */
 # ifndef _AIX50
 /* problems with getprocs() under AIX 5L
