@@ -37,7 +37,7 @@ public:
   
 private:
   TClonesArray* fMCTrackArray;
-  PndMvdGeoHandling* fGeoH;
+  PndGeoHandling* fGeoH;
 
    ClassDef(PndMvdMCEventAna,1);
 

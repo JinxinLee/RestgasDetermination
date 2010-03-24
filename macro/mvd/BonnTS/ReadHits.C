@@ -39,7 +39,7 @@ void ReadHits(){
 
 	TGeoManager *myGeo = geo->Get("FAIRGeom");
 
-	fGeoH = new PndMvdGeoHandling(myGeo);
+	fGeoH = new PndGeoHandling(myGeo);
 
 
 	TH1F *test = new TH1F("Det","Det",5,0.5,numSens + 0.5);

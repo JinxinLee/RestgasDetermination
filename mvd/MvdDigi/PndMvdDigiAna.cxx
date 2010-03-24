@@ -8,7 +8,7 @@
 #include "FairRuntimeDb.h"
 #include "FairGeoNode.h"
 #include "FairGeoVector.h"
-#include "PndStringVector.h"
+#include "PndStringSeparator.h"
 #include "FairRootManager.h"
 
 #include "TClonesArray.h"
@@ -127,7 +127,7 @@ void PndMvdDigiAna::Exec(Option_t* opt)
 
 	  std::string det = hit->GetDetName().Data();
 
-	  PndStringVector sAna(det,"/");
+	  PndStringSeparator sAna(det,"/");
 	  std::vector<std::string> sVector = sAna.GetStringVector();
 	  if (sVector[sVector.size()-1].find("Strip") != string::npos){
 	  	fStripPos->Fill(hit->GetChannel(), hit->GetFE(), hit->GetCharge());

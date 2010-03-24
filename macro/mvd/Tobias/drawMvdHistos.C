@@ -16,7 +16,7 @@ void drawMvdHistos(TString fileName, TString selector, Int_t columns = 2, Int_t 
 	TFile f(fileName);
 	TGeoManager* fGeoMan = new TGeoManager("geoMan","geoMan");
 	fGeoMan->Import("Mvd_GridUrqmdSim.root");
-	PndMvdGeoHandling gH(gGeoManager);
+	PndGeoHandling gH(gGeoManager);
 
 	TString id = gH->GetVolumeID(selector);
 

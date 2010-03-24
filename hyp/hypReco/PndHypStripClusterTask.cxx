@@ -15,7 +15,7 @@
 #include "FairGeoNode.h"
 #include "FairGeoVector.h"
 
-#include "PndStringVector.h"
+//#include "PndStringVector.h"
 #include "PndGeoHypPar.h"
 #include "PndHypStripDigiPar.h"
 #include "PndHypStripClusterTask.h"

@@ -10,7 +10,6 @@
 #include "PndMvdEventMergerTask.h"
 #include "FairRun.h"
 #include "FairRuntimeDb.h"
-#include "PndStringVector.h"
 #include "PndTpcCluster.h"
 
 // -----   Default constructor   -------------------------------------------

@@ -1,6 +1,6 @@
 // -----------------------------------------------------------------
 //
-//          TPndStringVector
+//          PndStringSeparator
 //
 //          Version 1.0
 //            by
@@ -19,20 +19,20 @@
 //    fOutput[2] = "Type"
 //    fOutput[3] = "Test"
 //
-#ifndef PNDSTRINGVECTOR_H
-#define PNDSTRINGVECTOR_H
+#ifndef PNDSTRINGSEPARATOR_H
+#define PNDSTRINGSEPARATOR_H
 
 #include <string>
 #include <vector>
 #include "Rtypes.h"
 
 
-class PndStringVector
+class PndStringSeparator
 {
   public :
-       PndStringVector():fFirstDel(false),fLastDel(false){};
-       ~PndStringVector(){};
-       PndStringVector(std::string AInput, std::string ADelimiter = " ");
+       PndStringSeparator():fFirstDel(false),fLastDel(false){};
+       ~PndStringSeparator(){};
+       PndStringSeparator(std::string AInput, std::string ADelimiter = " ");
        void SetInput (std::string AInput)       {fInput = AInput;};
        void SetDelimiter (std::string ADelimiter) {fDelimiter = ADelimiter;};
        void ResetVector(){fStrings.clear();};

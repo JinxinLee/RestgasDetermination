@@ -23,7 +23,7 @@
 #include "FairGeane.h"
 
 #include "PndTrack.h"
-#include "PndMvdGeoHandling.h"
+#include "PndGeoHandling.h"
 #include "PndPidCorrPar.h"
 #include "PndPidCandidate.h"
 #include "PndEmcXClMoments.h"
@@ -76,7 +76,7 @@ protected:
   Bool_t fGeanePro;                 // Use GEANE propagation
   Bool_t fIdeal;                    // Ideal Correlation
 
-  PndMvdGeoHandling* geoH;           // Object to retrieve MVD geometry
+  PndGeoHandling* geoH;           // Object to retrieve MVD geometry
   
   TFile *r;                          // File for debug ntuples
   TNtuple *tofCorr;                  // Debug ntuple for tof correlation

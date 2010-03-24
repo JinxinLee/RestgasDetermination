@@ -16,7 +16,6 @@
 #include "FairGeoVector.h"
 #include "FairContFact.h"
 
-#include "PndStringVector.h"
 #include "PndMvdStripDigiPar.h"
 #include "PndMvdStripClusterTask.h"
 #include "PndMvdMCPoint.h"
@@ -24,7 +23,7 @@
 #include "PndMvdDigiStrip.h"
 // #include "PndMvdStripCluster.h"
 #include "PndMvdClusterStrip.h"
-#include "PndMvdGeoHandling.h"
+#include "PndGeoHandling.h"
 #include "PndMvdContFact.h"
 
 #include "PndMvdSimpleStripClusterFinder.h"
@@ -158,7 +157,7 @@ InitStatus PndMvdStripClusterTask::Init()
   ioman->Register("MVDStripClusterCand","MVD",fClusterArray,fPersistance);
 
   // geo name handling
-  fGeoH = new PndMvdGeoHandling(gGeoManager);
+  fGeoH = new PndGeoHandling(gGeoManager);
 
   SetCalculators();
 

@@ -1,21 +1,21 @@
-/// PndMvdFileNameCreator.h
+/// PndFileNameCreator.h
 /// @author Tobias Stockmanns <t.stockmanns@fz-juelich.de>
 /// @brief A simple class which adds the corresponding file extensions to a given base class
 ///
 
-#ifndef PNDMVDFILENAMECREATOR_H
-#define PNDMVDFILENAMECREATOR_H
+#ifndef PNDFILENAMECREATOR_H
+#define PNDFILENAMECREATOR_H
 
 #include <vector>
 #include <string>
 
 #include "TObject.h"
 
-class PndMvdFileNameCreator : public TObject
+class PndFileNameCreator : public TObject
 {
 	public :
-			PndMvdFileNameCreator();
-			PndMvdFileNameCreator(std::string fileName);
+			PndFileNameCreator();
+			PndFileNameCreator(std::string fileName);
 
 			void SetFileName(std::string fileName){fFileName = fileName;};
       void SetVerbose(Int_t v) {fVerbose = v;};
@@ -59,7 +59,7 @@ class PndMvdFileNameCreator : public TObject
 
 			std::string TruncateFileName(bool cut);
       Int_t fVerbose;
-	ClassDef(PndMvdFileNameCreator, 1);
+	ClassDef(PndFileNameCreator, 1);
 };
 
 #endif

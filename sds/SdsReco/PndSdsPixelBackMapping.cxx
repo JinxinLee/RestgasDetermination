@@ -2,7 +2,7 @@
 
 PndSdsPixelBackMapping::PndSdsPixelBackMapping()
 {
-  fGeoH = new PndSdsGeoHandling(gGeoManager);
+  fGeoH = new PndGeoHandling(gGeoManager);
   fVerbose = 0;
 }
       
@@ -10,7 +10,7 @@ PndSdsPixelBackMapping::PndSdsPixelBackMapping(std::vector<PndSdsDigiPixel> digi
 {
   fDigiArray = digiArray;
   fParams    = params;
-  fGeoH = new PndSdsGeoHandling(gGeoManager);
+  fGeoH = new PndGeoHandling(gGeoManager);
   fVerbose = 0;
 }
 

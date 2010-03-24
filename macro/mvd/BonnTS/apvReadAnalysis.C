@@ -11,7 +11,8 @@
   TStopwatch timer;
   timer.Start();
   // ------------------------------------------------------------------------
-  TString HitFileName = "strahl_gneu5.dat.0";
+  //TString HitFileName = "strahl_gneu5.dat.0";
+  TString HitFileName = "strahl_gneu7.hit.5";
   TString CalibFileName = "beamtestJuelichFeb02.calib";
   TString MapFileName = "beamtestJuelichFeb02_setup1.mapping";
 
@@ -20,7 +21,7 @@
   TString digiparFile = directory + "/macro/params/all.par";
   TString parFile = "par.root";
   
-  TString outFile = "test.root";
+  TString outFile = HitFileName + ".digis.root";
 
   FairRunAna *fRun= new FairRunAna();
   //fRun->SetInputFile("mapout.root");

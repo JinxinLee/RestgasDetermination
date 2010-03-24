@@ -14,6 +14,7 @@ ${CMAKE_SOURCE_DIR}/pnddata
 ${CMAKE_SOURCE_DIR}/pnddata/MvdData
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
 ${CMAKE_SOURCE_DIR}/passive
+${CMAKE_SOURCE_DIR}/PndTools/generalTools
 ${CMAKE_SOURCE_DIR}/PndTools/riemannfit
 ${CMAKE_SOURCE_DIR}/PndMCMatch
 ${CMAKE_SOURCE_DIR}/mvd/MvdMC
@@ -25,6 +26,10 @@ ${CMAKE_SOURCE_DIR}/mvd/MvdPid
 ${CMAKE_SOURCE_DIR}/mvd/MvdTracking
 ${CMAKE_SOURCE_DIR}/mvd/transport
 ${CMAKE_SOURCE_DIR}/mvd
+${CMAKE_SOURCE_DIR}/sds/SdsMC
+${CMAKE_SOURCE_DIR}/sds/SdsTools
+${CMAKE_SOURCE_DIR}/sds/SdsDigi
+${CMAKE_SOURCE_DIR}/sds
 ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/recotasks
 ${CMAKE_SOURCE_DIR}/trackbase
@@ -53,13 +58,10 @@ MvdTools/PndMvdContFact.cxx
 MvdTools/PndMvdPixelDigiPar.cxx
 MvdTools/PndMvdStripDigiPar.cxx
 MvdTools/PndMvdAccessRTDBTask.cxx
-MvdTools/PndStringVector.cxx
-MvdTools/PndMvdGeoHandling.cxx
 MvdTools/PndMvdEventAna.cxx
 MvdTools/PndMvdMCEventAna.cxx
 MvdTools/PndMvdDigiEventAna.cxx
 MvdTools/PndMvdAllDataEventAna.cxx
-MvdTools/PndMvdFileNameCreator.cxx
 MvdTools/PndGeoHitList.cxx
 MvdTools/PndEventDisplay.cxx
 MvdTools/PndMvdEventAnaTask.cxx
@@ -70,7 +72,6 @@ MvdTools/PndMvdMSAnaTask.cxx
 MvdMC/PndMvdDetector.cxx
 MvdMC/PndMvdGeo.cxx
 MvdMC/PndMvdGeoPar.cxx
-#MvdMC/PndMvdMaterialDet.cxx
 
 MvdDigi/PndMvdCalcFePixel.cxx
 MvdDigi/PndMvdCalcPixel.cxx

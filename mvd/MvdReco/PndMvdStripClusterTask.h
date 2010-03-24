@@ -90,7 +90,7 @@ class PndMvdStripClusterTask : public FairTask
   PndMvdCalcStrip* fCurrentStripCalcTop;
   PndMvdCalcStrip* fCurrentStripCalcBot;
 
-    PndMvdGeoHandling* fGeoH;      //! Geometry name handling
+    PndGeoHandling* fGeoH;      //! Geometry name handling
     PndMvdChargeWeightingAlgorithms* fChargeAlgos;
     PndMvdStripClusterBuilder* fCurrentClusterfinder;
     std::map<const char*,PndMvdStripClusterBuilder*> fClusterFinderList;

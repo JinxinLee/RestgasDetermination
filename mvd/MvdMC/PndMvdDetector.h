@@ -22,7 +22,7 @@
 #include "TVector3.h"
 #include "FairDetector.h"
 #include "TString.h"
-#include "PndMvdGeoHandling.h"
+#include "PndGeoHandling.h"
 #include "PndDetectorList.h"
 
 #include <string>
@@ -148,7 +148,7 @@ class PndMvdDetector : public FairDetector
   Double32_t     fLength;            //!  length
   Double32_t     fELoss;             //!  energy loss
 //  std::map<TString, Int_t> fVolumeIDMap;	 //!  map to create a unique Detector ID
-  PndMvdGeoHandling* fGeoH;	     //! Gives Access to the Path info of a hit
+  PndGeoHandling* fGeoH;	     //! Gives Access to the Path info of a hit
   Int_t fPosIndex;                   //!
   TClonesArray* fPndMvdCollection;      //! Hit collection
   bool fUseRadDamOption;			//! enables the detection of neutral particles

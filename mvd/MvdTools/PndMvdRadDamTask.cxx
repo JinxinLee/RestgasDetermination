@@ -11,7 +11,7 @@
 #include "PndMvdMCPoint.h"
 #include "PndMCTrack.h"
 #include "PndMvdRadDamHit.h"
-#include "PndStringVector.h"
+#include "PndStringSeparator.h"
 
 
 #include <iostream>
@@ -72,7 +72,7 @@ InitStatus PndMvdRadDamTask::Init()
 	ioman->Register("MVDRadDamHit", "MVD", fRadDamHits, fPersistance);
 
 	InitWeightLists();
-	fGeoH = new PndMvdGeoHandling(gGeoManager);
+	fGeoH = new PndGeoHandling(gGeoManager);
 	fRadDamHisto = new TH1D("radDamH","Weight Factors", 1000,0,100);
 
 	std::cout << "-I- PndMvdRadDamTask: Initialization successful" << std::endl;
@@ -127,7 +127,7 @@ void PndMvdRadDamTask::Exec(Option_t* opt)
 	  new ((*fRadDamHits)[i]) PndMvdRadDamHit(mcPoint->GetTrackID(), i, mcPoint->GetDetName(), pid, Ekin,
 			  mcPoint->GetPosition(), mom, weight);
 	  if (fMapDetHistos[mcPoint->GetDetName().Data()] == 0){
-		  PndStringVector svec(mcPoint->GetDetName().Data(),"/");
+		  PndStringSeparator svec(mcPoint->GetDetName().Data(),"/");
 		  TVector3 sensDim = fGeoH->GetSensorDimensionsId(mcPoint->GetDetName().Data());
 		  fMapDetHistos[mcPoint->GetDetName().Data()] = new TH2D(svec.Replace("/","o").c_str(),
 																 fGeoH->GetPath(mcPoint->GetDetName()),

@@ -57,12 +57,15 @@ void PndVtxFitter::Fit()
   fDaughters.Cleanup();
   
   TCandidate *tc;
-  int num=0;
+  //int num=0;
+  cout<<"FIT Uid's: "<< theHead.Uid();
   while (tc=iter.Next())
   {
     fDaughters.Add(*tc);
+    cout<<"  next: "<<tc->Uid();
   }
-  
+  cout<<endl;
+
 //    if(GetConstraintOpt() == 0)DoVertexFitWOCorr();
   if(m_beamConstraint == 0)DoVertexFitWOCorr();
    else DoVertexFitBeamConstraint();
@@ -77,7 +80,7 @@ void PndVtxFitter::Fit()
 unsigned PndVtxFitter::DoVertexFitWOCorr()
 {
   m_trackNum = fDaughters.GetLength();
-//   cout<<"PndVtxFitter::DoVertexFitWOCorr: "<<m_trackNum<<" tracks"<<endl;
+   cout<<"PndVtxFitter::DoVertexFitWOCorr: "<<m_trackNum<<" tracks"<<endl;
  
    /** Fit function _fit2() Starts **/
   
@@ -311,7 +314,8 @@ unsigned PndVtxFitter::DoVertexFitBeamConstraint()
 //   Double_t errInverse = 0;
   Double_t* errInverse= 0;
   Double_t tmp_chiSq(KF_INIT_CHI2);
-  TMatrixD     m_al_a(m_trackNum*KF_NUM6,1);
+  // TMatrixD     m_al_a(m_trackNum*KF_NUM6,1);
+  m_al_a.ResizeTo(m_trackNum*KF_NUM6,1);
   m_al_a = m_al_0;
   TMatrixD tmp_al_a(m_al_a);
   
@@ -516,7 +520,7 @@ unsigned PndVtxFitter::SetInputMatrix()
       TMatrixD mat7=tc.Cov7();
      
       
-      TMatrixDSym tmp_ErrCov=it->GetCovMat(mat7);
+      tmp_ErrCov=it->GetCovMat(mat7);
    
       
       tmp_al_0[index*KF_NUM6+0][0] = tc.P4().Px();
@@ -742,7 +746,9 @@ unsigned PndVtxFitter::SetOutputToTCandidate()
 // 	m_V_E.Print();
 	fHeadOfTree->SetPosCov(m_V_E); //Implemented in TFitParams :Dipak
 	fHeadOfTree->PosCov().Print();
-
+  
+  InsertChi2(*fHeadOfTree,m_chisq);
+  
 	return m_errorFlag;
 	
 }

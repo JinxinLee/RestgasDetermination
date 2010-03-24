@@ -54,7 +54,7 @@ class PndMvdMCPoint : public FairMCPoint
   /** Constructor with arguments
    *@param trackID       Index of MCTrack
    *@param detID         Detector ID
-   *@param detName		   Full nameId of the detector, see PndMvdGeoHandling
+   *@param detName		   Full nameId of the detector, see PndGeoHandling
    *@param posIn         Coordinates of ingoing point[cm]
    *@param posOut	 Coordinates of outgoing point[cm]
    *@param momIn         Momentum of track at entrance [GeV]

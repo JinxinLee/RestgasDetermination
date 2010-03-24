@@ -56,7 +56,7 @@ void anaclust()
 
 
   TGeoManager *geoMan = (TGeoManager*) gDirectory->Get("FAIRGeom");
-  PndMvdGeoHandling* fGeoH = new PndMvdGeoHandling(geoMan);
+  PndGeoHandling* fGeoH = new PndGeoHandling(geoMan);
 
   Int_t nbins = 120; //200
   Double_t rim = 22.5;

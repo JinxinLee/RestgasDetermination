@@ -1,5 +1,5 @@
 /**
-* PndMvdGeoHandling.h
+* PndGeoHandling.h
 * @author: t.stockmanns <t.stockmans@fz-juelich.de>
 *
 * @brief Class to access the naming information of the MVD
@@ -16,8 +16,8 @@
 *
 */
 
-#ifndef PNDMVDGEOHANDLING_H
-#define PNDMVDGEOHANDLING_H
+#ifndef PNDGEOHANDLING_H
+#define PNDGEOHANDLING_H
 
 #include "TGeoManager.h"
 #include "TGeoMatrix.h"
@@ -27,15 +27,15 @@
 #include <iostream>
 #include <vector>
 
-class PndMvdGeoHandling{
+class PndGeoHandling{
 public:
-    PndMvdGeoHandling();
-    //PndMvdGeoHandling(TString fileName);
-    PndMvdGeoHandling(TGeoManager* aGeoMan)
-    { if (aGeoMan == 0) std::cout << "-E- PndMvdGeoHandling: Not a valid GeoManager" << std::endl;
+    PndGeoHandling();
+    //PndGeoHandling(TString fileName);
+    PndGeoHandling(TGeoManager* aGeoMan)
+    { if (aGeoMan == 0) std::cout << "-E- PndGeoHandling: Not a valid GeoManager" << std::endl;
       fGeoMan = aGeoMan;};
 
-    ~PndMvdGeoHandling(){};
+    ~PndGeoHandling(){};
   
   TString GetCurrentID(); ///< returns the ID of the current node
   TString GetID(TString path); ///< for a given TGeoManager-path the ID is returned
@@ -77,7 +77,7 @@ private:
   Int_t fLevel;
   bool fFullPath;
   Int_t fVerbose;
-  ClassDef(PndMvdGeoHandling,3); 
+  ClassDef(PndGeoHandling,3); 
 };
 
 #endif

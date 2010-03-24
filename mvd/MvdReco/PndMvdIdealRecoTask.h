@@ -26,7 +26,7 @@
 
 // PndMvd includes
 #include "PndMvdMCPoint.h"
-#include "PndMvdGeoHandling.h"
+#include "PndGeoHandling.h"
 
 class TClonesArray;
 
@@ -60,7 +60,7 @@ private:
   Bool_t fPersistance; // switch to turn on/off storing the arrays to a file
   
   TString fBranchName;
-  PndMvdGeoHandling* fGeoH;
+  PndGeoHandling* fGeoH;
   /** Input array of Points **/
   TClonesArray* fPointArray;
   TClonesArray* fMctruthArray;

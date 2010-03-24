@@ -18,7 +18,7 @@
 #include "FairRuntimeDb.h"
 #include "FairGeoNode.h"
 #include "FairGeoVector.h"
-#include "PndStringVector.h"
+#include "PndStringSeparator.h"
 #include "PndSdsCalcStripDif.h"
 #include "PndSdsDigiStrip.h"
 #include "PndDetectorList.h"
@@ -137,7 +137,7 @@ InitStatus PndSdsStripHitProducerDif::Init()
 
   SetBranchNames();
 
-  fGeoH = new PndSdsGeoHandling(gGeoManager);
+  fGeoH = new PndGeoHandling(gGeoManager);
 
   //std::cout << "-I- PndSdsStripHitProucer::Init() " << fGeoH->GetPath("1_1/212_0/") << std::endl;
 

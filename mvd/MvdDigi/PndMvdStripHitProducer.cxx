@@ -11,7 +11,6 @@
 #include "PndMvdMCPoint.h"
 #include "PndMvdContFact.h"
 //PANDA
-#include "PndStringVector.h"
 #include "PndDetectorList.h"
 //FAIR
 #include "FairRootManager.h"
@@ -168,7 +167,7 @@ InitStatus PndMvdStripHitProducer::Init()
  // FairRun* ana = FairRun::Instance();
   FairRootManager* ioman = FairRootManager::Instance();
 
-  fGeoH = new PndMvdGeoHandling(gGeoManager);
+  fGeoH = new PndGeoHandling(gGeoManager);
 
   //std::cout << "-I- PndMvdStripHitProucer::Init() " << fGeoH->GetPath("1_1/212_0/") << std::endl;
 
@@ -455,7 +454,7 @@ Bool_t PndMvdStripHitProducer::SelectSensorParams(TString detname)
     return kFALSE;
   }
 
-Info("SelectSensorParams()","called for %s",detpath.Data());
+  if(fVerbose>1) Info("SelectSensorParams()","called for %s",detpath.Data());
   
   TIter parsetiter(fDigiParameterList);
   while ( PndMvdStripDigiPar* digipar = (PndMvdStripDigiPar*)parsetiter() ) 

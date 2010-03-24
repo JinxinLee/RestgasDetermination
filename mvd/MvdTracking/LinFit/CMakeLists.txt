@@ -54,8 +54,8 @@ MvdTools/PndMvdContFact.cxx
 MvdTools/PndMvdPixelDigiPar.cxx
 MvdTools/PndMvdStripDigiPar.cxx
 MvdTools/PndMvdAccessRTDBTask.cxx
-MvdTools/PndStringVector.cxx
-MvdTools/PndMvdGeoHandling.cxx
+MvdTools/PndStringSeparator.cxx
+MvdTools/PndGeoHandling.cxx
 MvdTools/PndMvdEventAna.cxx
 MvdTools/PndMvdMCEventAna.cxx
 MvdTools/PndMvdDigiEventAna.cxx

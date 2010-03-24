@@ -5,7 +5,7 @@
 //#include "PndMvdHit.h"
 #include "TH2F.h"
 #include "TVector3.h"
-#include "PndMvdGeoHandling.h"
+#include "PndGeoHandling.h"
 
 #include "TString.h"
 
@@ -38,7 +38,7 @@ public:
 
     //void PrintResult();  // not implemented
     void SetVerbose(Int_t verbose){ fVerbose = verbose;};
-    void SetGeoH(PndMvdGeoHandling geoH){ fGeoH=geoH;};
+    void SetGeoH(PndGeoHandling geoH){ fGeoH=geoH;};
 
 private:
 	TString fHitBranch;
@@ -53,7 +53,7 @@ private:
   double fMinPointDist;
   double fMaxDist;
 
-	PndMvdGeoHandling fGeoH;
+	PndGeoHandling fGeoH;
 
 	TClonesArray* fHitArray;
 	TClonesArray* fHitArray2;

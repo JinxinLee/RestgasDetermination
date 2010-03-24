@@ -1,5 +1,5 @@
 //
-// C++ Implementation: PndMvdGeoHandling
+// C++ Implementation: PndGeoHandling
 //
 // Description:
 //
@@ -9,8 +9,8 @@
 // Copyright: See COPYING file that comes with this distribution
 //
 //
-#include "PndMvdGeoHandling.h"
-#include "PndStringVector.h"
+#include "PndGeoHandling.h"
+#include "PndStringSeparator.h"
 #include <vector>
 #include <string>
 #include "TROOT.h"
@@ -21,22 +21,22 @@
 #include <math.h>
 #include "stdlib.h"
 
- ClassImp(PndMvdGeoHandling);
+ ClassImp(PndGeoHandling);
 
-PndMvdGeoHandling::PndMvdGeoHandling()
+PndGeoHandling::PndGeoHandling()
 {
 	if (gGeoManager) {
 		fGeoMan = gGeoManager;
 	} else //if (gROOT->FindObjectAny("FAIRGeom") == 0)
   {
-		std::cout << " -E- PndMvdGeoHandling: No Geometry existing!" << std::endl;
+		std::cout << " -E- PndGeoHandling: No Geometry existing!" << std::endl;
 		return;
 	}
 //	fGeoMan = gGeoManager;
   fVerbose = 0;
 }
 
-//PndMvdGeoHandling::PndMvdGeoHandling(TString fileName)
+//PndGeoHandling::PndGeoHandling(TString fileName)
 //{
 //	if (gGeoManager) {
 //		fGeoMan = gGeoManager;
@@ -48,7 +48,7 @@ PndMvdGeoHandling::PndMvdGeoHandling()
 //  fVerbose = 0;
 //}
 
-TString PndMvdGeoHandling::GetCurrentID()
+TString PndGeoHandling::GetCurrentID()
 {
  Int_t level;
  Int_t copyNr[100];
@@ -68,7 +68,7 @@ TString PndMvdGeoHandling::GetCurrentID()
  return result;
 }
 
-TString PndMvdGeoHandling::GetID(TString path)
+TString PndGeoHandling::GetID(TString path)
 {
 	TString result;
 	TString currentPath = fGeoMan->GetPath();
@@ -79,36 +79,36 @@ TString PndMvdGeoHandling::GetID(TString path)
 }
 
 
-TString PndMvdGeoHandling::GetPath(TString id)
+TString PndGeoHandling::GetPath(TString id)
 {
 	TString result;
 	SetGeoManager(gGeoManager);
-	//std::cout << "-I- PndMvdGeoHandling::GetPath : " << id.Data() << std::endl;
+	//std::cout << "-I- PndGeoHandling::GetPath : " << id.Data() << std::endl;
 	std::vector<std::string> idVector;
-	PndStringVector pathAna(id.Data(), "/_");
+	PndStringSeparator pathAna(id.Data(), "/_");
 	idVector = pathAna.GetStringVector();
 
 	for(Int_t i = 0; i < idVector.size(); i+=2){
 		result += "/";
 		Int_t VolId = atoi(idVector[i].c_str());
 		Int_t CopyNr = atoi(idVector[i+1].c_str());
-//     if(fVerbose>3) std::cout<<" -I- PndMvdGeoHandling::GetPath: VolId = "<<VolId<<std::endl;
-		//std::cout << "-I- PndMvdGeoHandling::GetPath : " << VolId;
+//     if(fVerbose>3) std::cout<<" -I- PndGeoHandling::GetPath: VolId = "<<VolId<<std::endl;
+		//std::cout << "-I- PndGeoHandling::GetPath : " << VolId;
 		//std::cout << " : " << fGeoMan->GetVolume(VolId)->GetName() << std::endl;
 		result += fGeoMan->GetVolume(VolId)->GetName();
 		result += "_";
 		result += CopyNr;
 	}
-//   if(fVerbose>2) std::cout<<" -I- PndMvdGeoHandling::GetPath: result = "<<result.Data()<<std::endl;
+//   if(fVerbose>2) std::cout<<" -I- PndGeoHandling::GetPath: result = "<<result.Data()<<std::endl;
 	return result;
 }
 
-Bool_t PndMvdGeoHandling::cd(TString id)
+Bool_t PndGeoHandling::cd(TString id)
 {
 	return fGeoMan->cd(GetPath(id).Data());
 }
 
-TString PndMvdGeoHandling::GetVolumeID(TString name)
+TString PndGeoHandling::GetVolumeID(TString name)
 {
 	TString result;
 	TGeoVolume* vol = fGeoMan->FindVolumeFast(name);
@@ -118,7 +118,7 @@ TString PndMvdGeoHandling::GetVolumeID(TString name)
 	return result;
 }
 
-std::vector<TString> PndMvdGeoHandling::GetNamesLevel(Int_t level, TString startPath, bool fullPath)
+std::vector<TString> PndGeoHandling::GetNamesLevel(Int_t level, TString startPath, bool fullPath)
 {
 	TString actPath = fGeoMan->GetPath();
 	fLevelNames.clear();
@@ -138,7 +138,7 @@ std::vector<TString> PndMvdGeoHandling::GetNamesLevel(Int_t level, TString start
 	return fLevelNames;
 }
 
-void PndMvdGeoHandling::FillLevelNames()
+void PndGeoHandling::FillLevelNames()
 {
 	TGeoNode* myNode = fGeoMan->GetCurrentNode();
 	if (fLevel == fGeoMan->GetLevel()){
@@ -157,7 +157,7 @@ void PndMvdGeoHandling::FillLevelNames()
 	}
 }
 
-void PndMvdGeoHandling::GetOUVPath(TString path, TVector3& o, TVector3& u, TVector3& v)
+void PndGeoHandling::GetOUVPath(TString path, TVector3& o, TVector3& u, TVector3& v)
 {
 	Double_t result[3];
 	Double_t* temp;
@@ -183,13 +183,13 @@ void PndMvdGeoHandling::GetOUVPath(TString path, TVector3& o, TVector3& u, TVect
   if(actPath!="" && actPath!=" ") fGeoMan->cd(actPath);
 }
 
-void PndMvdGeoHandling::GetOUVId(TString id, TVector3& o, TVector3& u, TVector3& v)
+void PndGeoHandling::GetOUVId(TString id, TVector3& o, TVector3& u, TVector3& v)
 {
 	GetOUVPath(GetPath(id),o,u,v);
 }
 
 
-TVector3 PndMvdGeoHandling::GetSensorDimensionsPath(TString path)
+TVector3 PndGeoHandling::GetSensorDimensionsPath(TString path)
 {
   TVector3 dim;
   TString actPath = fGeoMan->GetPath();
@@ -205,12 +205,12 @@ TVector3 PndMvdGeoHandling::GetSensorDimensionsPath(TString path)
   return dim;
 }
 
-TVector3 PndMvdGeoHandling::GetSensorDimensionsId(TString id)
+TVector3 PndGeoHandling::GetSensorDimensionsId(TString id)
 {
 return GetSensorDimensionsPath(GetPath(id));
 }
 
-TGeoHMatrix* PndMvdGeoHandling::GetMatrixPath(TString path)
+TGeoHMatrix* PndGeoHandling::GetMatrixPath(TString path)
 {
 	TString actPath = fGeoMan->GetPath();
 	fGeoMan->cd(path);
@@ -222,18 +222,18 @@ TGeoHMatrix* PndMvdGeoHandling::GetMatrixPath(TString path)
 
 }
 
-TGeoHMatrix* PndMvdGeoHandling::GetMatrixId(TString id)
+TGeoHMatrix* PndGeoHandling::GetMatrixId(TString id)
 {
 	return GetMatrixPath(GetPath(id));
 }
 
 //  ----- conversions of POINTS (not vectors) here -----
-TVector3 PndMvdGeoHandling::MasterToLocalId(const TVector3& master, const TString& id)
+TVector3 PndGeoHandling::MasterToLocalId(const TVector3& master, const TString& id)
 { return MasterToLocalPath(master, GetPath(id) ); }
 
-TVector3 PndMvdGeoHandling::MasterToLocalPath(const TVector3& master, const TString& path)
+TVector3 PndGeoHandling::MasterToLocalPath(const TVector3& master, const TString& path)
 {
-//   if(fVerbose>1) std::cout<<" -I- PndMvdGeoHandling::MasterToLocalPath"<<std::endl;
+//   if(fVerbose>1) std::cout<<" -I- PndGeoHandling::MasterToLocalPath"<<std::endl;
   Double_t result[3];
   Double_t temp[3];
 
@@ -250,10 +250,10 @@ TVector3 PndMvdGeoHandling::MasterToLocalPath(const TVector3& master, const TStr
 
 
 
-TVector3 PndMvdGeoHandling::LocalToMasterId(const TVector3& local, const TString& id)
+TVector3 PndGeoHandling::LocalToMasterId(const TVector3& local, const TString& id)
 { return LocalToMasterPath(local, GetPath(id) ); }
 
-TVector3 PndMvdGeoHandling::LocalToMasterPath(const TVector3& local, const TString& path)
+TVector3 PndGeoHandling::LocalToMasterPath(const TVector3& local, const TString& path)
 {
   Double_t result[3];
   Double_t temp[3];
@@ -271,10 +271,10 @@ TVector3 PndMvdGeoHandling::LocalToMasterPath(const TVector3& local, const TStri
 
 
 // ROTATION of error values, CAUTION - these are always psitive defined
-TVector3 PndMvdGeoHandling::MasterToLocalErrorsId(const TVector3& master, const TString& id)
+TVector3 PndGeoHandling::MasterToLocalErrorsId(const TVector3& master, const TString& id)
 { return MasterToLocalErrorsPath(master, GetPath(id) ); }
 
-TVector3 PndMvdGeoHandling::MasterToLocalErrorsPath(const TVector3& master, const TString& path)
+TVector3 PndGeoHandling::MasterToLocalErrorsPath(const TVector3& master, const TString& path)
 {
   Double_t result[3];
   Double_t temp[3];
@@ -298,10 +298,10 @@ TVector3 PndMvdGeoHandling::MasterToLocalErrorsPath(const TVector3& master, cons
 
 
 
-TVector3 PndMvdGeoHandling::LocalToMasterErrorsId(const TVector3& local, const TString& id)
+TVector3 PndGeoHandling::LocalToMasterErrorsId(const TVector3& local, const TString& id)
 { return LocalToMasterErrorsPath(local, GetPath(id) ); }
 
-TVector3 PndMvdGeoHandling::LocalToMasterErrorsPath(const TVector3& local, const TString& path)
+TVector3 PndGeoHandling::LocalToMasterErrorsPath(const TVector3& local, const TString& path)
 {
   Double_t result[3];
   Double_t temp[3];
@@ -322,7 +322,7 @@ TVector3 PndMvdGeoHandling::LocalToMasterErrorsPath(const TVector3& local, const
 
 }
 
-TString PndMvdGeoHandling::FindNodePath(TGeoNode* node)
+TString PndGeoHandling::FindNodePath(TGeoNode* node)
 {
   // Find a nodes full path by going there in the gGeoManager
   // With many volumes this becomes surely slow.
@@ -334,7 +334,7 @@ TString PndMvdGeoHandling::FindNodePath(TGeoNode* node)
   return pathname;
 }
 
-void PndMvdGeoHandling::DiveDownToNode(TGeoNode* node)
+void PndGeoHandling::DiveDownToNode(TGeoNode* node)
 {
   // cd gGeoManager from the current node to a given node
   TGeoNode *currentNode = fGeoMan->GetCurrentNode();
@@ -348,7 +348,7 @@ void PndMvdGeoHandling::DiveDownToNode(TGeoNode* node)
   }
 }
 
-void PndMvdGeoHandling::cd(TGeoNode* node)
+void PndGeoHandling::cd(TGeoNode* node)
 {
   // go to a node in the gGeoManager without knowing the full path
   // With many volumes this becomes surely slow.

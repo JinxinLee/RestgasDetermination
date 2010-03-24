@@ -77,7 +77,7 @@ InitStatus PndMvdMSAnaTask::Init()
 	  ioman->Register("DetName", "Geane", fDetName, kTRUE);
 
 	  fPro = new FairGeanePro();
-	  fGeoH = new PndMvdGeoHandling(gGeoManager);
+	  fGeoH = new PndGeoHandling(gGeoManager);
 
   return kSUCCESS;
 }

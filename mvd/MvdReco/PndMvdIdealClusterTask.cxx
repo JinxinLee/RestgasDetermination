@@ -13,8 +13,6 @@
 #include "FairGeoNode.h"
 #include "FairGeoVector.h"
 
-#include "PndStringVector.h"
-
 #include "PndMvdIdealClusterTask.h"
 #include "PndMvdMCPoint.h"
 // #include "PndMvdHit.h"

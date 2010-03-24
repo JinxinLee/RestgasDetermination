@@ -63,6 +63,7 @@ class PndSdsStripClusterTask : public FairTask
   protected:
     void SetCalculators(); 
     TVector2 CalcLineCross(TVector2 point1, TVector2 dir1, TVector2 point2, TVector2 dir2) const;
+    void SetCurrentCalculators(PndSdsStripDigiPar* digipar); 
     Bool_t SelectSensorParams(TString detname);
     void CalcMeanCharge(std::vector<Int_t> &onecluster, Double_t &meanstrip, Double_t &meanerr, Double_t &charge);
     Bool_t Backmap( TVector2 meantopPoint, Double_t toperr , TVector2 meanbotPoint, Double_t boterr,
@@ -98,7 +99,7 @@ class PndSdsStripClusterTask : public FairTask
     PndSdsCalcStrip* fCurrentStripCalcBot; 
 
 	  
-    PndSdsGeoHandling* fGeoH;      //! Geometry name handling
+    PndGeoHandling* fGeoH;      //! Geometry name handling
     PndSdsChargeWeightingAlgorithms* fChargeAlgos;
     PndSdsStripClusterBuilder* fCurrentClusterfinder;
     std::map<const char*,PndSdsStripClusterBuilder*> fClusterFinderList; 

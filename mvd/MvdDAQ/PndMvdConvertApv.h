@@ -18,7 +18,7 @@
 #include <fstream>
 #include <map>
 #include "PndMvdApvHit.h"
-#include "PndMvdGeoHandling.h"
+#include "PndGeoHandling.h"
 //! Class for digitising strip of Apv-Sensors to digtil hits
 
 // class PndMvdApv;
@@ -152,7 +152,7 @@ class PndMvdConvertApv
 	/// knows if fake is allowed
 	Bool_t fFake;
 
-  PndMvdGeoHandling* fGeoH;	     //! Gives Access to the Path info of a hit
+  PndGeoHandling* fGeoH;	     //! Gives Access to the Path info of a hit
 
 
 	ClassDef(PndMvdConvertApv,1);

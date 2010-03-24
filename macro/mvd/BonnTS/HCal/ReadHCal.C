@@ -52,7 +52,7 @@ void ReadHCal(){
   TCanvas *c1 = new TCanvas();
   TCanvas *c2 = new TCanvas();
 
-  fGeoH = new PndMvdGeoHandling(gGeoManager);
+  fGeoH = new PndGeoHandling(gGeoManager);
 
   TTree *t=(TTree *) f->Get("cbmsim") ;
 	

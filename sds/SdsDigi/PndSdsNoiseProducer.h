@@ -21,7 +21,7 @@
 
 #include "TRandom.h"
 //#include "PndSdsGeoPar.h"
-#include "PndSdsGeoHandling.h"
+#include "PndGeoHandling.h"
 #include "PndSdsStripDigiPar.h"
 #include "PndSdsPixelDigiPar.h"
 #include "TString.h"
@@ -78,7 +78,7 @@ class PndSdsNoiseProducer : public FairTask
 
 //  PndSdsGeoPar* fGeoPar;
 
-  PndSdsGeoHandling* fGeoH;      //! Geometry name handling
+  PndGeoHandling* fGeoH;      //! Geometry name handling
 
   std::vector<TString> fPixelIds4;
   std::vector<TString> fPixelIds6;
@@ -91,6 +91,7 @@ class PndSdsNoiseProducer : public FairTask
   Int_t fNoiseSpread;
   Int_t fThreshold;
 
+  const Double_t fIonizationEnergy; // electrons per GeV (Panda unified units)
 //   void Register();
 
 //   void Reset();

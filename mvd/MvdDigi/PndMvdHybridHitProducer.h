@@ -18,7 +18,7 @@
 #include "TGeoMatrix.h"
 #include "TGeoBBox.h"
 
-#include "PndMvdGeoHandling.h"
+#include "PndGeoHandling.h"
 
 #include <string>
 #include <vector>
@@ -83,7 +83,7 @@ class PndMvdHybridHitProducer : public FairTask
   Int_t    fcols; //pixel columns in one FE
   Int_t    frows; //pixel rows in one FE
   Int_t fPixelHits;
-  PndMvdGeoHandling* fGeoH;
+  PndGeoHandling* fGeoH;
   Int_t fEventNr;
   Bool_t fOverwriteParams;
 

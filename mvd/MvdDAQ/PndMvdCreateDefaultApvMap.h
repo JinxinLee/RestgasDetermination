@@ -17,7 +17,7 @@
 #include "TString.h"
 #include "FairTask.h"
 #include "PndMvdStripDigiPar.h"
-#include "PndMvdGeoHandling.h"
+#include "PndGeoHandling.h"
 #include <utility>
 #include <string>
 #include <vector>

@@ -26,7 +26,7 @@
 
 // PndMvd includes
 #include "PndGemMCPoint.h"
-//#include "PndMvdGeoHandling.h"
+//#include "PndGeoHandling.h"
 
 class TClonesArray;
 
@@ -57,7 +57,7 @@ class PndGemSmearingTask : public FairTask
 
 
   TString fBranchName;
-//  PndMvdGeoHandling* fGeoH;
+//  PndGeoHandling* fGeoH;
   /** Input array of Points **/
   TClonesArray* fPointArray;
   TClonesArray* fMctruthArray;

@@ -31,7 +31,7 @@
 #include "TGeoVoxelFinder.h"
 #include "TGeoMatrix.h"
 
-#include "PndMvdGeoHandling.h"
+#include "PndGeoHandling.h"
 
 #include <iostream>
 #include <string>
@@ -100,7 +100,7 @@ PndMvdMaterialDet::~PndMvdMaterialDet()
 void PndMvdMaterialDet::Initialize()
 {
   FairDetector::Initialize();
-  fGeoH = new PndMvdGeoHandling(gGeoManager);
+  fGeoH = new PndGeoHandling(gGeoManager);
 }
 
 

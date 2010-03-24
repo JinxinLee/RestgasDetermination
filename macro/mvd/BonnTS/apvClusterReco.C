@@ -28,14 +28,15 @@
   // -----  Parameter database   --------------------------------------------
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
 
-  FairParAsciiFileIo* parInput = new FairParAsciiFileIo();
-  parInput->open(digiparFile.Data(),"in");
-  rtdb->setFirstInput(parInput);
-  
   FairParRootFileIo* output=new FairParRootFileIo(kTRUE);
   output->open(parFile.Data());
-  rtdb->setSecondInput(output);
+  rtdb->setFirstInput(output);
   rtdb->setOutput(output);
+
+  FairParAsciiFileIo* parInput = new FairParAsciiFileIo();
+  parInput->open(digiparFile.Data(),"in");
+  rtdb->setSecondInput(parInput);
+  
   
   fRun->SetGeomFile(geomFile); // set filname
   fRun->LoadGeometry(); // set the flag

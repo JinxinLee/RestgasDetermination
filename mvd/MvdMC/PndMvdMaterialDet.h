@@ -22,7 +22,7 @@
 #include "TVector3.h"
 #include "FairDetector.h"
 #include "TString.h"
-#include "PndMvdGeoHandling.h"
+#include "PndGeoHandling.h"
 
 #include <string>
 #include <vector>
@@ -139,7 +139,7 @@ class PndMvdMaterialDet : public FairDetector
   Double32_t     fTotRadl;           //!  total radiation length
 
 //  std::map<TString, Int_t> fDetIDMap;	 //!  map to create a unique Detector ID
-  PndMvdGeoHandling* fGeoH;	     //! Gives Access to the Path info of a hit
+  PndGeoHandling* fGeoH;	     //! Gives Access to the Path info of a hit
   Int_t fPosIndex;                   //!
   TClonesArray* fPndMvdCollection;      //! Hit collection
 

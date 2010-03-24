@@ -13,7 +13,7 @@
 #include "TGeoMatrix.h"
 #include "TGeoBBox.h"
 
-#include "PndSdsGeoHandling.h"
+#include "PndGeoHandling.h"
 #include "PndSdsCalcStripDif.h"
 
 #include <string>
@@ -171,7 +171,7 @@ class PndSdsStripHitProducerDif : public FairTask
 //   TVector3 GetSensorDimensions(std::string detName) const;
   Bool_t SelectSensorParams(TString detname);
 
-  PndSdsGeoHandling* fGeoH; // converter for detector names
+  PndGeoHandling* fGeoH; // converter for detector names
 /*  Double_t fTopPitch;       // strip pitch on top side
   Double_t fBotPitch;       // strip pitch on bottom side
   Double_t fOrient;         // orientation of top strips

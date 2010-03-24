@@ -38,7 +38,8 @@ PndMvdConvertApv::PndMvdConvertApv(const TString& CalibFileName, const TString& 
     }
     hitfile.putback(c);
 
-    int triggID,fe,ts,frame,ch,l, moduleID;
+    //int triggID,ts,frame,moduleID;
+    int fe,ch,l;
     long int ev;
     double q;
         
@@ -82,7 +83,7 @@ PndMvdConvertApv::PndMvdConvertApv(const TString& CalibFileName, const TString& 
 
 Bool_t PndMvdConvertApv::Init()
 {
-  fGeoH = new PndMvdGeoHandling(gGeoManager);
+  fGeoH = new PndGeoHandling(gGeoManager);
   return kTRUE;
 }
 

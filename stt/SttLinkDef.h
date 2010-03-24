@@ -10,7 +10,7 @@
 #pragma link C++ class PndSttParRootFileIo;
 #pragma link C++ class PndSttContFact;
 #pragma link C++ class PndSttHitProducerIdeal+;   
-#pragma link C++ class PndSttTrack+;
+//#pragma link C++ class PndSttTrack+;
 #pragma link C++ class PndStt+;             
 #pragma link C++ class PndSttTrackFinder+;
 #pragma link C++ class PndSttFindTracks+;   
@@ -24,7 +24,7 @@
 #pragma link C++ class PndSttHitProducerRealFast+;
 #pragma link C++ class PndSttHitProducerRealFull+;
 #pragma link C++ class PndSttHelixHitProducer+;
-#pragma link C++ class PndSttTrackFinderReal+;
+//#pragma link C++ class PndSttTrackFinderReal+;
 #pragma link C++ class PndSttTrackFitterQATask+;
 #pragma link C++ class PndSttMapCreator+;
 #pragma link C++ class PndSttTube+;

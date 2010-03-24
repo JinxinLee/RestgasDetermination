@@ -1,5 +1,5 @@
 //
-// C++ Implementation: PndMvdGeoHandling
+// C++ Implementation: PndGeoHandling
 //
 // Description: 
 //

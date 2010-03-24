@@ -3,7 +3,7 @@
 
 #include "PndSdsDigiPixel.h"
 #include "PndSdsHit.h"
-#include "PndSdsGeoHandling.h"
+#include "PndGeoHandling.h"
 #include <vector>
 
 class PndSdsPixelBackMapping
@@ -18,7 +18,7 @@ class PndSdsPixelBackMapping
       
   std::vector<PndSdsDigiPixel> fDigiArray;
   std::vector<Double_t> fParams;
-  PndSdsGeoHandling* fGeoH;
+  PndGeoHandling* fGeoH;
   Int_t fVerbose;
 };
 

@@ -13,7 +13,7 @@
 #define PNDMVDEVENTANA_H
 
 #include "PndMvdMCPoint.h"
-#include "PndMvdGeoHandling.h"
+#include "PndGeoHandling.h"
 #include "TTree.h"
 #include "TCanvas.h"
 #include "TH1.h"
@@ -75,7 +75,7 @@ protected:
 	std::map<TString, TString> fDrawOption;		//stores the drawOption for the Draw command
 	std::vector<TH1*> fHistoVector;
 	Int_t fCancol;
-	PndMvdGeoHandling* fGeoH;
+	PndGeoHandling* fGeoH;
 
    ClassDef(PndMvdEventAna,1);
 

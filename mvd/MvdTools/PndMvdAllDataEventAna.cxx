@@ -7,7 +7,7 @@
 #include "TGeoBBox.h"
 #include "TLegend.h"
 #include "TGeoMatrix.h"
-#include "PndMvdFileNameCreator.h"
+#include "PndFileNameCreator.h"
 
 #include "TGeoTrack.h"
 #include <sstream>
@@ -20,7 +20,7 @@ PndMvdAllDataEventAna::PndMvdAllDataEventAna(TString fileName):PndMvdEventAna(fi
   SetCanvasColumns(6);
 
 
-  fGeoH = new PndMvdGeoHandling();
+  fGeoH = new PndGeoHandling();
 
   fRecoVolume = gGeoManager->MakeSphere("RecoHit",gGeoManager->GetMedium("vacuum"),0,0.1);
   fRecoVolume->SetLineColor(kRed);
@@ -91,7 +91,7 @@ PndMvdAllDataEventAna::PndMvdAllDataEventAna(TString fileName):PndMvdEventAna(fi
 
 void PndMvdAllDataEventAna::Init(TString fileName)
 {
-  PndMvdFileNameCreator nameCreator(fileName.Data());
+  PndFileNameCreator nameCreator(fileName.Data());
   fFile = new TFile(fileName.Data());
   fTree = (TTree*)fFile->Get("cbmsim");
 

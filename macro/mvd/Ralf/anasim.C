@@ -31,7 +31,7 @@ for the conformal mapping stuff
   t->SetBranchAddress("MCTrack",&mc_array);//Branch names
 
   TGeoManager *geoMan = (TGeoManager*) gDirectory->Get("FAIRGeom");
-  PndMvdGeoHandling* fGeoH = new PndMvdGeoHandling(geoMan);
+  PndGeoHandling* fGeoH = new PndGeoHandling(geoMan);
 
   // histos
   TH2D* hisxy = new TH2D("hisxy","MVD MC Points, xy view",200,-15.,15.,200,-15.,15.);

@@ -27,7 +27,7 @@
 #include "PndSdsMCPoint.h"
 #include "PndSdsGeo.h"
 #include "PndSdsGeoPar.h"
-#include "PndSdsGeoHandling.h"
+#include "PndGeoHandling.h"
 
 #include <iostream>
 #include <string>
@@ -72,7 +72,7 @@ void PndSdsDetector::Initialize()
     std::cout<<" -E- No gGeoManager in PndSdsDetector::Initialize()!"<<std::endl;
     abort();
   }
-  fGeoH = new PndSdsGeoHandling(gGeoManager);
+  fGeoH = new PndGeoHandling(gGeoManager);
   SetBranchNames();
 }
 
@@ -158,7 +158,7 @@ Bool_t  PndSdsDetector::ProcessHits(FairVolume* vol)
       fTrackID  = gMC->GetStack()->GetCurrentTrackNumber();
 
       if(0==fGeoH) {
-        std::cout<<" -E- No PndSdsGeoHandling loaded."<<std::endl;
+        std::cout<<" -E- No PndGeoHandling loaded."<<std::endl;
         abort();
       }
       if (fVerboseLevel > 1){

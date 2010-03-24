@@ -84,7 +84,7 @@ InitStatus PndSdsIdealRecoTask::Init()
   ioman->Register(fHitBranchName, fFolderName ,fHitOutputArray, kTRUE);
 
   std::cout << "-I- gGeoManager = "<<gGeoManager << std::endl;
-  fGeoH = new PndSdsGeoHandling(gGeoManager);
+  fGeoH = new PndGeoHandling(gGeoManager);
 
 
   return kSUCCESS;

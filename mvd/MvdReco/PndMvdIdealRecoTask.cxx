@@ -86,7 +86,7 @@ InitStatus PndMvdIdealRecoTask::Init()
 									fHitOutputArray, fPersistance);
 
   std::cout << "-I- gGeoManager = "<<gGeoManager << std::endl;
-  fGeoH = new PndMvdGeoHandling(gGeoManager);
+  fGeoH = new PndGeoHandling(gGeoManager);
 
 
   return kSUCCESS;

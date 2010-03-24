@@ -23,7 +23,7 @@
 // Base Class Headers ----------------
 #include "GFRecoHitIfc.h"
 #include "GFPlanarHitPolicy.h"
-#include "PndMvdGeoHandling.h"
+#include "PndGeoHandling.h"
 
 // Collaborating Class Headers -------
 #include <ostream> // remove if you do not need streaming op
@@ -61,7 +61,7 @@ private:
 
   // Private Data Members ------------
   static const Int_t fNparHitRep = 2;//3;
-  PndMvdGeoHandling* fGeoH;
+  PndGeoHandling* fGeoH;
 
   // Private Methods -----------------
 

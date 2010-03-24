@@ -16,7 +16,7 @@
 #include "FairGeoNode.h"
 #include "FairGeoVector.h"
 
-#include "PndStringVector.h"
+#include "PndStringSeparator.h"
 #include "PndSdsCalcPixel.h"
 #include "PndSdsCalcFePixel.h"
 #include "PndSdsDigiPixel.h"
@@ -31,7 +31,7 @@ PndSdsHybridHitProducer::PndSdsHybridHitProducer() :
   fPixelHits = 0;
   fEventNr = 0;
   fOverwriteParams = kFALSE;
- // fGeoH = new PndSdsGeoHandling(gGeoManager);
+ // fGeoH = new PndGeoHandling(gGeoManager);
 //  fHitArray  = new TClonesArray("PndSdsHit");
 //	fPixelArray	= new TClonesArray("PndSdsPixelHit");
   if(fVerbose>0) std::cout << "MVD Hybrid Digi Producer created, Parameters will be taken from RTDB" << std::endl;
@@ -88,7 +88,7 @@ InitStatus PndSdsHybridHitProducer::Init()
   SetBranchNames();
     FairRun* ana = FairRun::Instance();
   FairRootManager* ioman = FairRootManager::Instance();
-    fGeoH = new PndSdsGeoHandling(gGeoManager);
+    fGeoH = new PndGeoHandling(gGeoManager);
   if ( ! ioman )
     {
       std::cout << "-E- PndSdsHybridHitProducer::Init: "
@@ -326,7 +326,7 @@ void PndSdsHybridHitProducer::GetLocalHitPoints(PndSdsMCPoint* myPoint, FairGeoV
 
 TGeoHMatrix PndSdsHybridHitProducer::GetTransformation(std::string detName)
 {
-  //PndSdsGeoHandling GeoH(gGeoManager);
+  //PndGeoHandling GeoH(gGeoManager);
   gGeoManager->cd(fGeoH->GetPath(detName.c_str()));
   TGeoHMatrix* transMat = gGeoManager->GetCurrentMatrix();
   if (fVerbose > 1)
@@ -336,7 +336,7 @@ TGeoHMatrix PndSdsHybridHitProducer::GetTransformation(std::string detName)
 
 TVector3 PndSdsHybridHitProducer::GetSensorDimensions(std::string detName)
 {
-  //PndSdsGeoHandling GeoH(gGeoManager);
+  //PndGeoHandling GeoH(gGeoManager);
   gGeoManager->cd(fGeoH->GetPath(detName.c_str()));
   TGeoVolume* actVolume = gGeoManager->GetCurrentVolume();
   TGeoBBox* actBox = (TGeoBBox*)(actVolume->GetShape());

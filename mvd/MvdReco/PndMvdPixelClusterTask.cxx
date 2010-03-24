@@ -13,8 +13,6 @@
 #include "FairGeoNode.h"
 #include "FairGeoVector.h"
 
-#include "PndStringVector.h"
-
 #include "PndMvdPixelClusterTask.h"
 #include "PndMvdMCPoint.h"
 #include "PndMvdCalcPixel.h"
@@ -22,7 +20,7 @@
 #include "PndMvdDigiPixel.h"
 // #include "PndMvdPixelCluster.h"
 #include "PndMvdClusterPixel.h"
-#include "PndMvdGeoHandling.h"
+#include "PndGeoHandling.h"
 
 #include "PndMCList.h"
 

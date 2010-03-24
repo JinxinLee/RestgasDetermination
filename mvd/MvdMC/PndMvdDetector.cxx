@@ -27,7 +27,7 @@
 #include "PndMvdMCPoint.h"
 #include "PndMvdGeo.h"
 #include "PndMvdGeoPar.h"
-#include "PndMvdGeoHandling.h"
+#include "PndGeoHandling.h"
 
 #include <iostream>
 #include <string>
@@ -103,7 +103,7 @@ void PndMvdDetector::Initialize()
     std::cout<<" -E- No gGeoManager in PndMvdDetector::Initialize()!"<<std::endl;
     abort();
   }
-  fGeoH = new PndMvdGeoHandling(gGeoManager);
+  fGeoH = new PndGeoHandling(gGeoManager);
 }
 
 //overwrite virtual method of FairDetector
@@ -186,7 +186,7 @@ Bool_t  PndMvdDetector::ProcessHits(FairVolume* vol)
       fTrackID  = gMC->GetStack()->GetCurrentTrackNumber();
 
       if(0==fGeoH) {
-        std::cout<<" -E- No PndMvdGeoHandling loaded."<<std::endl;
+        std::cout<<" -E- No PndGeoHandling loaded."<<std::endl;
         abort();
       }
       if (fVerboseLevel > 1){

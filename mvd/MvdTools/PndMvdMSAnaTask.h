@@ -21,7 +21,7 @@
 #include "GFTrackCand.h"
 #include "FairGeanePro.h"
 
-#include "PndMvdGeoHandling.h"
+#include "PndGeoHandling.h"
 
 #include <vector>
 #include <map>
@@ -60,7 +60,7 @@ class PndMvdMSAnaTask : public FairTask
 		TClonesArray* fDetName;
 		
 		FairGeanePro* fPro;
-		PndMvdGeoHandling* fGeoH;
+		PndGeoHandling* fGeoH;
     int fEventNr;
 		bool fUseMVDPoint;
 		

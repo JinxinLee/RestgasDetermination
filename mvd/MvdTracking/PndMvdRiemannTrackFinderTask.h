@@ -4,7 +4,7 @@
 #include "FairTask.h"
 //#include "PndMvdHit.h"
 #include "TH2F.h"
-#include "PndMvdGeoHandling.h"
+#include "PndGeoHandling.h"
 
 class PndMvdRiemannTrackFinderTask : public FairTask
 {
@@ -31,7 +31,7 @@ public:
 
     //void PrintResult();  // not implemented
     void SetVerbose(Int_t verbose){ fVerbose = verbose;};
-    void SetGeoH(PndMvdGeoHandling geoH){ fGeoH=geoH;};
+    void SetGeoH(PndGeoHandling geoH){ fGeoH=geoH;};
 
 private:
 	TString fHitBranch;
@@ -56,7 +56,7 @@ private:
 	TH2F *fCutDistH;
 	TH2F *fCutChi2H;
 
-	PndMvdGeoHandling fGeoH;
+	PndGeoHandling fGeoH;
 
 
   void Register();

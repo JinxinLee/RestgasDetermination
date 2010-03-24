@@ -21,7 +21,7 @@
 
 #include "TRandom.h"
 //#include "PndMvdGeoPar.h"
-#include "PndMvdGeoHandling.h"
+#include "PndGeoHandling.h"
 #include "PndMvdStripDigiPar.h"
 #include "PndMvdPixelDigiPar.h"
 #include "TString.h"
@@ -73,7 +73,7 @@ class PndMvdNoiseProducer : public FairTask
 
 //  PndMvdGeoPar* fGeoPar;
 
-  PndMvdGeoHandling* fGeoH;      //! Geometry name handling
+  PndGeoHandling* fGeoH;      //! Geometry name handling
 
   std::vector<TString> fPixelIds4;
   std::vector<TString> fPixelIds6;

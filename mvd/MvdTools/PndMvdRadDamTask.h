@@ -10,7 +10,7 @@
 
 #include "FairTask.h"
 #include "PndMvdRadDamList.h"
-#include "PndMvdGeoHandling.h"
+#include "PndGeoHandling.h"
 
 #include "TClonesArray.h"
 #include "TH2.h"
@@ -47,7 +47,7 @@ private:
 	PndMvdRadDamList* fNeutronList;
 	PndMvdRadDamList* fPionList;
 
-	PndMvdGeoHandling* fGeoH;
+	PndGeoHandling* fGeoH;
 
 	std::map<std::string, TH2*> fMapDetHistos;
 	TH1D* fRadDamHisto;

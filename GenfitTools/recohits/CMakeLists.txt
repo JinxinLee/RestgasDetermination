@@ -16,7 +16,7 @@ ${CMAKE_SOURCE_DIR}/pnddata/GemData
 ${CMAKE_SOURCE_DIR}/pnddata/MdtData
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
 ${CMAKE_SOURCE_DIR}/pnddata/MvdData
-${CMAKE_SOURCE_DIR}/mvd/MvdTools
+${CMAKE_SOURCE_DIR}/PndTools/generalTools
 ${CMAKE_SOURCE_DIR}/geane
 ${CMAKE_SOURCE_DIR}/GenfitTools/recohits
 ${GEANT3_INCLUDE_DIR}

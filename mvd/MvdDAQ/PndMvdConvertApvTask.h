@@ -20,7 +20,7 @@
 #include "FairTask.h"
 #include "PndMvdConvertApv.h"
 #include "PndMvdMapApv.h"
-#include "PndMvdGeoHandling.h"
+#include "PndGeoHandling.h"
 
 #include <vector>
 #include <map>
@@ -49,6 +49,7 @@ class PndMvdConvertApvTask : public FairTask
 	/** Virtual method Exec **/
 	virtual void Exec(Option_t* opt);
 
+  virtual void SetParContainers();
 	/**
 	@fn virtual InitStatus Init()
 	init task
@@ -74,9 +75,13 @@ private:
 	/// array of results
 	TClonesArray* fStripArray;
   ///Geohandler for name string compression
-  PndMvdGeoHandling* fGeoH;
+  PndGeoHandling* fGeoH;
 	/// number of strips in this event
 	Int_t iStrip;
+  TList* fDigiParameterList;
+  std::map<TString,Int_t> fBotSides;
+  Bool_t IsSingleSided(TString &detpath);
+  Int_t CalcBotFakeFE(TString detpath);
 
 	/**
 	@fn void Register()

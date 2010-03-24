@@ -60,7 +60,7 @@
     std::cout<<"No GeoManager existant. Abort now!"<<std::endl;
     exit(1);
   }
-  PndMvdGeoHandling* fGeoH = new PndMvdGeoHandling(geoMan);
+  PndGeoHandling* fGeoH = new PndGeoHandling(geoMan);
   if(!fGeoH){
     std::cout<<"No MvdGeoHandling existant. Abort now!"<<std::endl;
     exit(1);

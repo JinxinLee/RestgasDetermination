@@ -16,14 +16,14 @@
 #include "FairGeoVector.h"
 #include "FairContFact.h" 
 
-#include "PndStringVector.h"
+#include "PndStringSeparator.h"
 #include "PndSdsStripDigiPar.h"
 #include "PndSdsStripClusterTask.h"
 #include "PndSdsMCPoint.h"
 #include "PndSdsCalcStrip.h"
 #include "PndSdsDigiStrip.h"
 #include "PndSdsClusterStrip.h"
-#include "PndSdsGeoHandling.h"
+#include "PndGeoHandling.h"
 #include "PndSdsContFact.h" 
 
 #include "PndSdsSimpleStripClusterFinder.h"
@@ -32,6 +32,9 @@
 
 #include <map>
 
+//TODO: Remove hardcoding!
+// charge cut for cluster charge which consist only of one strip
+const Double_t SingleStripChargeThreshold = 3000.;
 // enum SensorSide { kTOP, kBOTTOM };
 
 // -----   Default constructor   -------------------------------------------
@@ -133,7 +136,7 @@ InitStatus PndSdsStripClusterTask::Init()
   ioman->Register(fClustBranchName, fFolderName, fClusterArray, kTRUE);
 
   // geo name handling
-  fGeoH = new PndSdsGeoHandling(gGeoManager);
+  fGeoH = new PndGeoHandling(gGeoManager);
 
   SetCalculators();
 
@@ -177,14 +180,16 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
   // load the Clusterfinder
   // Sort Digi indice into the clusterfinder
   if (fDigiArray->GetEntriesFast() == 0) return;
-  for (Int_t iPoint = 0; iPoint < fDigiArray->GetEntriesFast(); iPoint++)
+  if(fVerbose>2) Info("Exec","adding these digis to the finders:"); 
+  for (Int_t iDigi = 0; iDigi < fDigiArray->GetEntriesFast(); iDigi++)
   { // sort digis by sensor name and stripnumber
-    myDigi = (PndSdsDigiStrip*)(fDigiArray->At(iPoint));
+    myDigi = (PndSdsDigiStrip*)(fDigiArray->At(iDigi));
+    if(fVerbose>2) {std::cout<<"Digi "<<iDigi<<" "; myDigi->Print();} 
     detName = myDigi->GetDetName().Data();
     if (kFALSE==SelectSensorParams(detName)) continue; // Invalid parameters, skip here.
     //we use the top side as "first" side
     fCurrentStripCalcTop->CalcFeChToStrip(myDigi->GetFE(), myDigi->GetChannel(), strip, side); 
-    fCurrentClusterfinder->AddDigi(detName.Data(),side,myDigi->GetTimestamp(),strip,iPoint); 
+    fCurrentClusterfinder->AddDigi(detName.Data(),side,myDigi->GetTimestamp(),strip,iDigi); 
  } 
 
   std::vector< PndSdsClusterStrip > clusters;
@@ -267,8 +272,8 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
 
     CalcMeanCharge(oneclustertop,meantopstrip,meantoperr,topcharge);
 
-    if(oneclustertop.size()==1 && topcharge < 5200) { 
-		std::cout<<"-W- PndSdsClusterTask::Exec: Single strip top charge bigger than 5200 e- : skiping. "<<endl; 
+    if(oneclustertop.size()==1 && topcharge < SingleStripChargeThreshold) { 
+		std::cout<<"-W- PndSdsClusterTask::Exec: Single strip top charge bigger than "<<SingleStripChargeThreshold<<" e- : skiping. "<<endl; 
 	    continue; 
 	  }
     if(topcharge>0)
@@ -298,8 +303,8 @@ void PndSdsStripClusterTask::Exec(Option_t* opt)
 
         CalcMeanCharge(oneclusterbot,meanbotstrip,meanboterr,botcharge);
 
-        if(oneclusterbot.size() == 1 && botcharge < 5200) { 
-          std::cout<<"-W- PndSdsClusterTask::Exec: Single strip bot charge bigger than 5200 e- : skiping. "<<endl;
+        if(oneclusterbot.size() == 1 && botcharge < SingleStripChargeThreshold) { 
+          std::cout<<"-W- PndSdsClusterTask::Exec: Single strip bot charge bigger than "<<SingleStripChargeThreshold<<" e- : skiping. "<<endl;
 		      continue; 
 		    }
         if(botcharge>0)

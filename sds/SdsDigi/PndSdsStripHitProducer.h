@@ -13,7 +13,7 @@
 #include "TGeoMatrix.h"
 #include "TGeoBBox.h"
 
-#include "PndSdsGeoHandling.h"
+#include "PndGeoHandling.h"
 #include "PndSdsCalcStrip.h"
 
 #include <string>
@@ -122,7 +122,7 @@ class PndSdsStripHitProducer : public FairTask
   void SetCalculators(); 
   Bool_t SelectSensorParams(TString detname);
 
-  PndSdsGeoHandling* fGeoH; // converter for detector names
+  PndGeoHandling* fGeoH; // converter for detector names
   Bool_t fOverrideParams;   // internal Flag that controls use of Parameter Invocations
 
 

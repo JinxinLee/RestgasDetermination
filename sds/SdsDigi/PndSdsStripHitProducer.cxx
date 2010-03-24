@@ -10,7 +10,7 @@
 #include "PndSdsCalcStrip.h"
 #include "PndSdsDigiStrip.h"
 //PANDA
-#include "PndStringVector.h"
+#include "PndStringSeparator.h"
 #include "PndDetectorList.h"
 //FAIR
 #include "FairRootManager.h"
@@ -84,6 +84,9 @@ void PndSdsStripHitProducer::SetCalculators()
 
 // -------------------------------------------------------------------------
 
+void PndSdsStripHitProducer::SetParContainers()
+{ return; }
+
 
 // -----   Public method Init   --------------------------------------------
 InitStatus PndSdsStripHitProducer::Init()
@@ -92,7 +95,7 @@ InitStatus PndSdsStripHitProducer::Init()
 
   SetBranchNames();
   
-  fGeoH = new PndSdsGeoHandling(gGeoManager);
+  fGeoH = new PndGeoHandling(gGeoManager);
 
   if ( ! ioman )
     {

@@ -1,4 +1,6 @@
 	// Tracking station for the MVD of PANDA
+        // Setup Nr. 1 used in Beamtime Feb/02 to Feb/06/2010
+        // setup was used at Feb/02 and from Feb/04 until Feb/06
 	
 	// Simone Bianco 15/12/2009
 	
@@ -10,7 +12,7 @@
 	
 	  const Double_t  kDx  = 0.96;   // in cm!!
 	  const Double_t  kDy  = 0.96;   // in cm!!
-	  const Double_t  kDz  = 0.150;   // in cm!!
+	  const Double_t  kDz  = 0.015;   // in cm!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	
 	  // Positions of the detector
 	
@@ -19,24 +21,20 @@
 	
 	  // 2 double sided sensors
 	
-	  const Double_t  kPos1    = -40; // (cm)
-	  //const Double_t  kPos1    = 40; // (cm)
-	  const Double_t  kPos2    = -20; // (cm)
-	  //const Double_t  kPos2    = 20; // (cm)
+	  const Double_t  kPos1    = 11.0; // (cm) Box 1
+	  const Double_t  kPos2    = 183.2; // (cm) Box 4
 	
 	  // single sided sensors
 	  // this is the position of the center of the system
 	  // containing the two single sides detectors
 	
-	  const Double_t  kPos3    = +20; // (cm)
-	  //const Double_t  kPos3    = -20; // (cm)
-	  const Double_t  kPos4    = +40; // (cm)
-	  //const Double_t  kPos4    = -40; // (cm)
+	  const Double_t  kPos3    = 80.7; // (cm) Box 2
+	  const Double_t  kPos4    = 139.0; // (cm) Box 3
 	 
 	  // Gap between the two single sides sensors
 	
-	  const Double_t  kGap3    = 0.3; // (cm)
-	  const Double_t  kGap4    = 0.3; // (cm)
+	  const Double_t  kGap3    = 0.45; // (cm)
+	  const Double_t  kGap4    = 0.45; // (cm)
 	
 	
 	  //##################################################

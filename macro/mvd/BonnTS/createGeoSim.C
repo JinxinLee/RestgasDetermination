@@ -1,157 +1,25 @@
-	// Tracking station for the MVD of PANDA
+// Extracts the TOP volume of a geomanager
+// Ralf Kliemt 05.03.2010
+{
+  TString infile  = "TrackingStation.root";
+  TString outfile = "TrackingStationSim.root";
+  TString topVolumeName = "TS";
+  TString geomanagerName = "FAIRGeom";
+
+  // load libraries  
+  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
+  
+  TFile* fileIn = new TFile(infile,"READ"); 
 	
-	// Simone Bianco 15/12/2009
-	
-	{
-	  // Sizes of the detectors
-	 
-	  // Detectors defined as TGeoBBoxes, so the following kDx,kDy and kDz
-	  // are half of the real sizes of the boxes
-	
-	  const Double_t  kDx  = 0.96;   // in cm!!
-	  const Double_t  kDy  = 0.96;   // in cm!!
-	  const Double_t  kDz  = 0.150;   // in cm!!
-	
-	  // Positions of the detector
-	
-	  // Sensors displaced along z, laying on perpendicular xy plane,
-	  // there centered in (0,0)
-	
-	  // 2 double sided sensors
-	
-	  const Double_t  kPos1    = -40; // (cm)
-	  //const Double_t  kPos1    = 40; // (cm)
-	  const Double_t  kPos2    = -20; // (cm)
-	  //const Double_t  kPos2    = 20; // (cm)
-	
-	  // single sided sensors
-	  // this is the position of the center of the system
-	  // containing the two single sides detectors
-	
-	  const Double_t  kPos3    = +20; // (cm)
-	  //const Double_t  kPos3    = -20; // (cm)
-	  const Double_t  kPos4    = +40; // (cm)
-	  //const Double_t  kPos4    = -40; // (cm)
-	 
-	  // Gap between the two single sides sensors
-	
-	  const Double_t  kGap3    = 0.3; // (cm)
-	  const Double_t  kGap4    = 0.3; // (cm)
-	
-	
-	  //##################################################
-	
-	
-	  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-	 
-	  // Load this libraries
-	  gSystem->Load("libGeoBase");
-	  gSystem->Load("libParBase");
-	  gSystem->Load("libBase");
-	  gSystem->Load("libPndData");
-	  gSystem->Load("libPassive");
-	 
-	  TString outfile= "TrackingStationSim.root";
-	  TFile* fi = new TFile(outfile,"RECREATE"); 
-	 
-	  FairGeoLoader* geoLoad = new FairGeoLoader("TGeo","FairGeoLoader");
-	  FairGeoInterface *geoFace = geoLoad->getGeoInterface();
-	  geoFace->setMediaFile("../../../geometry/media_pnd.geo");
-	  geoFace->readMedia();
-	  geoFace->print();
-	
-	  //##################################################
-	
-	  FairGeoMedia *Media =  geoFace->getMedia();
-	  FairGeoBuilder *geobuild=geoLoad->getGeoBuilder();
-	
-	  FairGeoMedium *CbmMediumAir  = Media->getMedium("air");
-	  FairGeoMedium *CbmMediumSilicon = Media->getMedium("silicon");
-	 
-	  Int_t nmed=geobuild->createMedium(CbmMediumAir);
-	  nmed=geobuild->createMedium(CbmMediumSilicon);
-	
-	  TGeoManager* gGeoMan = (TGeoManager*)gROOT->FindObject("FAIRGeom");
-	
-	  TGeoVolume *top = new TGeoVolumeAssembly("TS");
-	                   
-	  gGeoMan->SetTopVolume(top);
-	 
-	  TGeoShape *BoxDouble1 = new TGeoBBox("StripActiveTD1", kDx, kDy, kDz);
-	  TGeoShape *BoxDouble2 = new TGeoBBox("StripActiveTD2", kDx, kDy, kDz);
-	  TGeoShape *BoxSingle1 = new TGeoBBox("StripActiveTS1", kDx, kDy, kDz);
-	  TGeoShape *BoxSingle2 = new TGeoBBox("StripActiveTS2", kDx, kDy, kDz);
-	  TGeoShape *BoxSingle3 = new TGeoBBox("StripActiveTS3", kDx, kDy, kDz);
-	  TGeoShape *BoxSingle4 = new TGeoBBox("StripActiveTS4", kDx, kDy, kDz);
-	 
-	  TGeoVolume* BoxVolDouble1 = new TGeoVolume("StripActiveTD1",BoxDouble1,gGeoMan->GetMedium("silicon"));
-	  TGeoVolume* BoxVolDouble2 = new TGeoVolume("StripActiveTD2",BoxDouble2,gGeoMan->GetMedium("silicon"));
-	  TGeoVolume* BoxVolSingle3a = new TGeoVolume("StripActiveTS3a",BoxSingle1,gGeoMan->GetMedium("silicon"));
-	  TGeoVolume* BoxVolSingle3b = new TGeoVolume("StripActiveTS3b",BoxSingle2,gGeoMan->GetMedium("silicon"));
-	  TGeoVolume* BoxVolSingle4a = new TGeoVolume("StripActiveTS4a",BoxSingle3,gGeoMan->GetMedium("silicon"));
-	  TGeoVolume* BoxVolSingle4b = new TGeoVolume("StripActiveTS4b",BoxSingle4,gGeoMan->GetMedium("silicon"));
-	
-	
-	  TGeoTranslation* trt1 = new TGeoTranslation(0.,0.,kPos1);
-	  TGeoTranslation* trt2 = new TGeoTranslation(0.,0.,kPos2);
-	  TGeoTranslation* trt3a = new TGeoTranslation(0.,0.,kPos3 - 0.5*kGap3 - kDz/2.);
-	  TGeoTranslation* trt3b = new TGeoTranslation(0.,0.,kPos3 + 0.5*kGap3 + kDz/2.);
-	  TGeoTranslation* trt4a = new TGeoTranslation(0.,0.,kPos4 - 0.5*kGap4 - kDz/2.);
-	  TGeoTranslation* trt4b = new TGeoTranslation(0.,0.,kPos4 + 0.5*kGap4 + kDz/2.);
-	
-	  TGeoRotation* dummyrot = new TGeoRotation();
-	  TGeoRotation* rot1 = new TGeoRotation("",90.,0.,0.);
-	
-	  TGeoCombiTrans* trc1= new TGeoCombiTrans(*trt1,*dummyrot);
-	  trc1->SetName("Sensor1");
-	  trc1->RegisterYourself();
-	 
-	  TGeoCombiTrans* trc2= new TGeoCombiTrans(*trt2,*dummyrot);
-	  trc2->SetName("Sensor2");
-	  trc2->RegisterYourself();
-	
-	  TGeoCombiTrans* trc3a= new TGeoCombiTrans(*trt3a,*dummyrot);
-	  trc3a->SetName("Sensor3a");
-	  trc3a->RegisterYourself();
-	
-	  //  TGeoCombiTrans* trc3b= new TGeoCombiTrans(*trt3b,*dummyrot);
-	  TGeoCombiTrans* trc3b= new TGeoCombiTrans(*trt3b,*rot1);
-	  trc3b->SetName("Sensor3b");
-	  trc3b->RegisterYourself();
-	
-	  TGeoCombiTrans* trc4a= new TGeoCombiTrans(*trt4a,*dummyrot);
-	  trc4a->SetName("Sensor4a");
-	  trc4a->RegisterYourself();
-	
-	  //  TGeoCombiTrans* trc4b= new TGeoCombiTrans(*trt4b,*dummyrot);
-	  TGeoCombiTrans* trc4b= new TGeoCombiTrans(*trt4b,*rot1);
-	  trc4b->SetName("Sensor4b");
-	  trc4b->RegisterYourself();
-	
-	  TGeoVolumeAssembly* SubunitVol = new TGeoVolumeAssembly("TTVol");
-	
-	  TGeoVolumeAssembly* SubunitDouble = new TGeoVolumeAssembly("TTDouble");
-	
-	  SubunitDouble->AddNode(BoxVolDouble1,0,trc1);
-	  SubunitDouble->AddNode(BoxVolDouble2,0,trc2);
-	
-	  TGeoVolumeAssembly* SubunitSingle = new TGeoVolumeAssembly("TTSingle");
-	
-	  SubunitSingle->AddNode(BoxVolSingle3a,0,trc3a);
-	  SubunitSingle->AddNode(BoxVolSingle3b,0,trc3b);
-	  SubunitSingle->AddNode(BoxVolSingle4a,0,trc4a);
-	  SubunitSingle->AddNode(BoxVolSingle4b,0,trc4b);
-	 
-	  SubunitVol->AddNode(SubunitDouble,0,new TGeoCombiTrans());
-	  SubunitVol->AddNode(SubunitSingle,0,new TGeoCombiTrans());
-	
-	  top->AddNode(SubunitVol,0,new TGeoCombiTrans());
-	
-	  gGeoMan->CloseGeometry();
-	  //    gGeoMan->Export(outfile.Data());
-	  top->Write();
-	  fi->Close();
-	  //gGeoManager->Export(outfile);
-	  //top->Draw("ogl");
+  TGeoManager* gGeoMan = (TGeoManager*)gROOT->FindObject(geomanagerName.Data());	
+  TGeoVolume *top = gGeoMan->GetTopVolume();
+  if(topVolumeName!="") top->SetName(topVolumeName);
+
+  TFile* fileOut = new TFile(outfile,"RECREATE");
+  top->Write();
+  fileOut->Close();
+
+  fileIn->Close();
+  //top->Draw("ogl");
 } 
 

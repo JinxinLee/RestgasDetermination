@@ -26,7 +26,7 @@
 
 // PndSds includes
 #include "PndSdsMCPoint.h"
-#include "PndSdsGeoHandling.h"
+#include "PndGeoHandling.h"
 
 class TClonesArray;
 
@@ -64,7 +64,7 @@ class PndSdsIdealRecoTask : public FairTask
 
 
   TString fBranchName;
-  PndSdsGeoHandling* fGeoH;
+  PndGeoHandling* fGeoH;
 
   /** Input array of Points **/
   TClonesArray* fPointArray;

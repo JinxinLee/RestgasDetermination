@@ -229,7 +229,7 @@ InitStatus PndLhePidMaker::Init() {
    
   fCorrPar->printParams();
 
-  geoH = new PndMvdGeoHandling(gGeoManager);
+  geoH = new PndGeoHandling(gGeoManager);
 
   if (fGeanePro)
     {

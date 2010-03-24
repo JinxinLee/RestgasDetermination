@@ -1,16 +1,16 @@
-#include "PndStringVector.h"
+#include "PndStringSeparator.h"
 #include <iostream>
 #include <sstream>
 
 
-PndStringVector::PndStringVector (std::string AInput, std::string ADelimiter)
+PndStringSeparator::PndStringSeparator (std::string AInput, std::string ADelimiter)
 {
   SetInput (AInput);
   SetDelimiter (ADelimiter);
 }
 
 
-std::string PndStringVector::GetString (void)
+std::string PndStringSeparator::GetString (void)
 {
   std::string::size_type pos;
   std::string aString;
@@ -34,7 +34,7 @@ std::string PndStringVector::GetString (void)
 }
 
 
-std::vector<std::string> PndStringVector::GetStringVector(void)
+std::vector<std::string> PndStringSeparator::GetStringVector(void)
 {
   fStartPos = 0;
   std::string value;
@@ -50,7 +50,7 @@ std::vector<std::string> PndStringVector::GetStringVector(void)
   return fStrings;
 }
 
-std::string PndStringVector::Replace(std::string from, std::string to)
+std::string PndStringSeparator::Replace(std::string from, std::string to)
 {
 	std::string olddel = fDelimiter;
 	SetDelimiter(from);
@@ -67,9 +67,9 @@ std::string PndStringVector::Replace(std::string from, std::string to)
 	return result.str();
 }
 
-void PndStringVector::Print()
+void PndStringSeparator::Print()
 {
-  std::cout << "PndStringVector for: " << fInput << std::endl;
+  std::cout << "PndStringSeparator for: " << fInput << std::endl;
   for (Int_t i = 0; i < fStrings.size(); i++)
     std::cout << i << ": " << fStrings[i] << std::endl;
 }

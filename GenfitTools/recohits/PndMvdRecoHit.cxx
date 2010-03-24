@@ -29,7 +29,7 @@
 #include "PndMvdMCPoint.h"
 #include "PndMvdHit.h"
 #include "PndMvdHit.h"
-#include "PndMvdGeoHandling.h"
+#include "PndGeoHandling.h"
 #include "TGeoManager.h"
 #include "FairRootManager.h"
 
@@ -47,7 +47,7 @@ PndMvdRecoHit::~PndMvdRecoHit()
 PndMvdRecoHit::PndMvdRecoHit()
   : GFRecoHitIfc<GFPlanarHitPolicy>(fNparHitRep)
 {
-  fGeoH = new PndMvdGeoHandling(gGeoManager);
+  fGeoH = new PndGeoHandling(gGeoManager);
 }
 
 
@@ -82,7 +82,7 @@ PndMvdRecoHit::PndMvdRecoHit(PndMvdHit* hit)
 
 //  FairRootManager* ioman = FairRootManager::Instance();
 //  TString fGeoFile = ioman->GetInFile()->GetName();
-  fGeoH = new PndMvdGeoHandling(gGeoManager);
+  fGeoH = new PndGeoHandling(gGeoManager);
   TString path = fGeoH->GetPath(id);
 //  std::cout<<"Detector path: "<<path.Data()<<std::endl;
   TVector3 oo, uu, vv;

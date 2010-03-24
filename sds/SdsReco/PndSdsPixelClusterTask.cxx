@@ -13,7 +13,7 @@
 #include "FairGeoNode.h"
 #include "FairGeoVector.h"
 
-#include "PndStringVector.h"
+#include "PndStringSeparator.h"
 
 #include "PndSdsPixelClusterTask.h"
 #include "PndSdsMCPoint.h"
@@ -22,7 +22,7 @@
 #include "PndSdsDigiPixel.h"
 // #include "PndSdsPixelCluster.h"
 #include "PndSdsClusterPixel.h"
-#include "PndSdsGeoHandling.h"
+#include "PndGeoHandling.h"
 
 #include "PndSdsSimplePixelClusterFinder.h"
 #include "PndSdsChargeWeightedPixelMapping.h"

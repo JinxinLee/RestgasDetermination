@@ -1,7 +1,7 @@
 // -------------------------------------------------------------------------
-// -----                         PndSdsDetector header file                    -----
-// -----                  Created 6/04/06  by T. Stockmanns            -----
-// -----                          Based on PndSdsDetector                      -----
+// -----                         PndSdsDetector header file            -----
+// -----                          Based on PndMvdDetector              -----
+// -----                      Created 6/04/06  by T. Stockmanns        -----
 // -------------------------------------------------------------------------
 
 /**  PndSdsDetector.h
@@ -22,7 +22,7 @@
 #include "TVector3.h"
 #include "FairDetector.h"
 #include "TString.h"
-#include "PndSdsGeoHandling.h"
+#include "PndGeoHandling.h"
 #include "PndDetectorList.h"
 
 #include <string>
@@ -155,12 +155,12 @@ class PndSdsDetector : public FairDetector
   Double32_t     fLength;            //!  length
   Double32_t     fELoss;             //!  energy loss
 //  std::map<TString, Int_t> fVolumeIDMap;	 //!  map to create a unique Detector ID
-  PndSdsGeoHandling* fGeoH;	     //! Gives Access to the Path info of a hit
+  PndGeoHandling* fGeoH;	     //! Gives Access to the Path info of a hit
   Int_t fPosIndex;                   //!
   TClonesArray* fPndSdsCollection;      //! Hit collection
   bool fUseRadDamOption;			//! enables the detection of neutral particles
-  TString fOutBranchName;
-  TString fFolderName;
+  TString fOutBranchName;     //! To be set by daughter classes
+  TString fFolderName;        //! To be set by daughter classes
 
   std::vector<std::string> fListOfSensitives;
 

@@ -23,7 +23,7 @@
 
 // -----   Default constructor   -------------------------------------------
 PndSdsNoiseProducer::PndSdsNoiseProducer() :
-  FairTask("Charge Noise Producer")
+  FairTask("Charge Noise Producer"), fIonizationEnergy(1.)
 {
 
 }
@@ -64,7 +64,7 @@ InitStatus PndSdsNoiseProducer::Init()
       fDigiPixelArray = new TClonesArray("PndSdsDigiPixel");
   }
 
-  fGeoH = new PndSdsGeoHandling(gGeoManager);
+  fGeoH = new PndGeoHandling(gGeoManager);
   // Retrieve a map between the active geometry nodes and their interpretation
   TGeoNode* topnode = gGeoManager->GetTopNode();
   for (Int_t n=0; n<topnode->GetNdaughters();n++)

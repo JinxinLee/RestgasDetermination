@@ -16,7 +16,6 @@
 #include "FairGeoNode.h"
 #include "FairGeoVector.h"
 
-#include "PndStringVector.h"
 #include "PndMvdCalcPixel.h"
 #include "PndMvdCalcFePixel.h"
 #include "PndMvdDigiPixel.h"
@@ -32,7 +31,7 @@ PndMvdHybridHitProducer::PndMvdHybridHitProducer() :
   fEventNr = 0;
   fOverwriteParams = kFALSE;
   fPersistance = kTRUE;
- // fGeoH = new PndMvdGeoHandling(gGeoManager);
+ // fGeoH = new PndGeoHandling(gGeoManager);
 //  fHitArray  = new TClonesArray("PndMvdHit");
 //	fPixelArray	= new TClonesArray("PndMvdPixelHit");
   if(fVerbose>0) std::cout << "MVD Hybrid Digi Producer created, Parameters will be taken from RTDB" << std::endl;
@@ -89,7 +88,7 @@ InitStatus PndMvdHybridHitProducer::Init()
 {
     FairRun* ana = FairRun::Instance();
   FairRootManager* ioman = FairRootManager::Instance();
-    fGeoH = new PndMvdGeoHandling(gGeoManager);
+    fGeoH = new PndGeoHandling(gGeoManager);
   if ( ! ioman )
     {
       std::cout << "-E- PndMvdHybridHitProducer::Init: "
@@ -327,7 +326,7 @@ void PndMvdHybridHitProducer::GetLocalHitPoints(PndMvdMCPoint* myPoint, FairGeoV
 
 TGeoHMatrix PndMvdHybridHitProducer::GetTransformation(std::string detName)
 {
-  //PndMvdGeoHandling GeoH(gGeoManager);
+  //PndGeoHandling GeoH(gGeoManager);
   gGeoManager->cd(fGeoH->GetPath(detName.c_str()));
   TGeoHMatrix* transMat = gGeoManager->GetCurrentMatrix();
   if (fVerbose > 1)
@@ -337,7 +336,7 @@ TGeoHMatrix PndMvdHybridHitProducer::GetTransformation(std::string detName)
 
 TVector3 PndMvdHybridHitProducer::GetSensorDimensions(std::string detName)
 {
-  //PndMvdGeoHandling GeoH(gGeoManager);
+  //PndGeoHandling GeoH(gGeoManager);
   gGeoManager->cd(fGeoH->GetPath(detName.c_str()));
   TGeoVolume* actVolume = gGeoManager->GetCurrentVolume();
   TGeoBBox* actBox = (TGeoBBox*)(actVolume->GetShape());

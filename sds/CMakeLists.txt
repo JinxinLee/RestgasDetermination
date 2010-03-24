@@ -15,6 +15,7 @@ ${CMAKE_SOURCE_DIR}/pnddata/MvdData
 ${CMAKE_SOURCE_DIR}/pnddata/SdsData
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
 ${CMAKE_SOURCE_DIR}/passive
+${CMAKE_SOURCE_DIR}/PndTools/generalTools
 ${CMAKE_SOURCE_DIR}/PndTools/riemannfit
 ${CMAKE_SOURCE_DIR}/sds/SdsMC
 ${CMAKE_SOURCE_DIR}/sds/SdsTools
@@ -63,23 +64,8 @@ SdsMC/PndSdsGeoPar.cxx
 SdsTools/PndSdsContFact.cxx
 SdsTools/PndSdsPixelDigiPar.cxx
 SdsTools/PndSdsStripDigiPar.cxx
-#MvdTools/PndMvdAccessRTDBTask.cxx
-SdsTools/PndStringVector.cxx
-SdsTools/PndSdsGeoHandling.cxx
-#MvdTools/PndMvdEventAna.cxx
-#MvdTools/PndMvdMCEventAna.cxx
-#MvdTools/PndMvdDigiEventAna.cxx
-#MvdTools/PndMvdAllDataEventAna.cxx
-#MvdTools/PndMvdFileNameCreator.cxx
-#MvdTools/PndGeoHitList.cxx
-#MvdTools/PndEventDisplay.cxx
-#MvdTools/PndMvdEventAnaTask.cxx
-#MvdTools/PndMvdEventMerger.cxx
-#MvdTools/PndMvdEventMergerTask.cxx
-#MvdTools/PndMvdMSAnaTask.cxx
-
-#MvdDAQ/PndMvdConvertApv.cxx
-#MvdDAQ/PndMvdConvertApvTask.cxx
+#SdsTools/PndStringSeparator.cxx
+#SdsTools/PndGeoHandling.cxx
 
 )
 set (SDS_RULECHECKER_SRCS ${SDS_SRCS})

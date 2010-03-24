@@ -3,7 +3,7 @@
 
 #include "TClonesArray.h"
 #include "PndRiemannTrackFinder.h"
-#include "PndMvdGeoHandling.h"
+#include "PndGeoHandling.h"
 
 #include "TH2F.h"
 
@@ -16,12 +16,12 @@ public:
 	void FindTracks();										///< Main function to start the riemann track finding
 	void AddHits(TClonesArray* hits);
 
-	void SetGeoH(PndMvdGeoHandling geoH){fGeoH=geoH;};
+	void SetGeoH(PndGeoHandling geoH){fGeoH=geoH;};
 	void SetCutDistH(TH2F* hist) {fCutDistH=hist;}
 	void SetCutChi2H(TH2F* hist) {fCutChi2H=hist;}
 
 private:
-	PndMvdGeoHandling fGeoH;
+	PndGeoHandling fGeoH;
 
 	std::vector<std::vector<Int_t> >  GetStartTracks();
 	bool CheckSZ(PndRiemannTrack aTrack);				///< Tests the results of the sz fit

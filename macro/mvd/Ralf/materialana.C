@@ -25,7 +25,7 @@
 //how to do this better?
 #include "$VMCWORKDIR/base/FairRadLenPoint.h"
 #include "$VMCWORKDIR/pnddata/PndMCTrack.h"
-// #include "$VMCWORKDIR/mvd/MvdTools/PndMvdGeoHandling.h"
+// #include "$VMCWORKDIR/mvd/MvdTools/PndGeoHandling.h"
 #include "$VMCWORKDIR/macro/mvd/Tools.C"
 
 void materialana(int nEvents = 10, bool verbose = false)
@@ -58,7 +58,7 @@ void materialana(int nEvents = 10, bool verbose = false)
   t->SetBranchAddress("RadLen",&rad_array);
 
   TGeoManager *geoMan = (TGeoManager*) gDirectory->Get("FAIRGeom");
-//   PndMvdGeoHandling* fGeoH = new PndMvdGeoHandling(geoMan);
+//   PndGeoHandling* fGeoH = new PndGeoHandling(geoMan);
 
   // histos
   int res = 200; int angres = 180;

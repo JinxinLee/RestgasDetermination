@@ -1,5 +1,5 @@
 /**
-* PndMvdGeoHandling.h
+* PndGeoHandling.h
 * @author: t.stockmanns <t.stockmans@fz-juelich.de>
 *
 * @brief Class to access the naming information of the MVD

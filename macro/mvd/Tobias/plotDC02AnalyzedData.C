@@ -30,7 +30,7 @@ void plotDC02AnalyzedData(TString fileName)
 	TFile* f = new TFile(fileName);
 	TGeoManager* fGeoMan = new TGeoManager("geoMan","geoMan");
 	fGeoMan->Import("Mvd_GridUrqmdSim.root");
-	PndMvdGeoHandling gH(gGeoManager);
+	PndGeoHandling gH(gGeoManager);
 
 	TEveManager::Create();
 
