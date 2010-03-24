@@ -36,7 +36,6 @@ class PndSttHelixHit : public FairHit
   PndSttHelixHit(Int_t detID, 
 		 TVector3& pos, TVector3& dpos, 
 		 Int_t mcindex, Int_t hitindex, Double_t edep,
-		 TVector3& cpos, TVector3& dcpos, 
 		 Double_t isochrone,
 		 Double_t isochroneError);
 
@@ -58,12 +57,6 @@ class PndSttHelixHit : public FairHit
   /** Accessors **/
   Double_t GetIsochrone() const { return fIsochrone; }; 
   Double_t GetIsochroneError() const { return fIsochroneError; }; 
-  Double_t GetXcen()             const { return fXcen;       };
-  Double_t GetYcen()             const { return fYcen;       };
-  Double_t GetZcen()             const { return fZcen;       };
-  Double_t GetDXcen()             const { return fDxcen;       };
-  Double_t GetDYcen()             const { return fDycen;       };
-  Double_t GetDZcen()             const { return fDzcen;       };
 
   Double_t GetdEdx()             const { return fdEdx;                      };
   Double_t GetDepCharge()        const { return fDepCharge;                 };
@@ -74,14 +67,6 @@ class PndSttHelixHit : public FairHit
   void SetIsochrone(Double_t isochrone) { fIsochrone = isochrone; };
   void SetIsochroneError(Double_t isochroneError) { fIsochroneError = isochroneError; };
 
-  void SetXcen(Double_t x) { fXcen = x; }
-  void SetYcen(Double_t y) { fYcen = y; }
-  void SetZcen(Double_t z) { fZcen = z; }
- 
-  void SetDXcen(Double_t dx) { fDxcen = dx; }
-  void SetDYcen(Double_t dy) { fDycen = dy; }
-  void SetDZcen(Double_t dz) { fDzcen = dz; }
- 
   void SetDepCharge(Double_t depcharge)       { fDepCharge = depcharge; }
   void SetEnergyLoss(Double_t eloss)          { fELoss = eloss; }
   void SetdEdx(Double_t dedx)                 { fdEdx = dedx; }
@@ -99,9 +84,6 @@ class PndSttHelixHit : public FairHit
   Double_t fDepCharge; 
   Double_t fdEdx;      
   Double_t fELoss;   
-  /** Position of the center **/ 
-  Double32_t fXcen, fYcen, fZcen; 
-  Double32_t fDxcen, fDycen, fDzcen;
 
   /** isochrone **/
   Double_t fIsochrone, fIsochroneError;

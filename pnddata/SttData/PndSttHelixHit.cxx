@@ -32,7 +32,6 @@ PndSttHelixHit::PndSttHelixHit(Int_t detID,
 PndSttHelixHit::PndSttHelixHit(Int_t detID, 
 			       TVector3& pos, TVector3& dpos, 
 			       Int_t mcindex, Int_t hitindex, Double_t edep,
-			       TVector3& cpos, TVector3& dcpos, 
 			       Double_t isochrone,
 			       Double_t isochroneError)		        
  : FairHit(detID, pos, dpos, mcindex) 
@@ -40,9 +39,6 @@ PndSttHelixHit::PndSttHelixHit(Int_t detID,
 
   fHitIndex = hitindex;
   fELoss = edep;
-
-  fXcen = cpos.X();  fYcen = cpos.Y();  fZcen = cpos.Z(); 
-  fDxcen = dcpos.X();   fDycen = dcpos.Y();   fDzcen = dcpos.Z(); 
   fIsochrone = isochrone;
   fIsochroneError = isochroneError;
 }
@@ -61,12 +57,6 @@ void PndSttHelixHit::CopyHitToHelixHit(PndSttHit *aHit, Int_t hitindex)
   fDepCharge = aHit->GetDepCharge();
   //  fdEdx = aHit->GetdEdx();
   
-  TVector3 centerPosition, centerPositionError;
-  aHit->Position(centerPosition);
-  aHit->PositionError(centerPositionError);
-
-  fXcen  = centerPosition.X(); fYcen = centerPosition.Y(); fZcen = centerPosition.Z(); 
-  fDxcen = centerPositionError.X(); fDycen = centerPositionError.Y(); fDzcen = centerPositionError.Z(); 
 
   fIsochrone      = aHit->GetIsochrone();
   fIsochroneError = aHit->GetIsochroneError();
@@ -83,12 +73,7 @@ void PndSttHelixHit::Clear()
   fDepCharge = 0.; 
   fdEdx = 0.;      
   fELoss = 0.;   
-  fXcen = 0.;
-  fYcen = 0.;
-  fZcen = 0.; 
-  fDxcen = 0.; 
-  fDycen = 0.; 
-  fDzcen = 0.;
+
   fIsochrone = 0.; 
   fIsochroneError = 0.;
  
@@ -104,8 +89,7 @@ void PndSttHelixHit::Print()
 {
   // reco & center positions
   cout << "position " << GetX() << " " << GetY() << " " << GetZ() << endl;
-  cout << "center position " << GetXcen()  << " " << GetYcen() << " " << GetZcen() << endl;
-
+ 
   // index
   cout << "mc, hit indexes " << GetRefIndex() << " " << GetHitIndex() << endl;
 
