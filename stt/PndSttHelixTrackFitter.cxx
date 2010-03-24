@@ -763,23 +763,54 @@ Bool_t PndSttHelixTrackFitter::IntersectionFinder(PndTrackCand *pTrackCand)
       pMhit->SetYint(-999);
       continue;  // CHECK 
     }
-    // 2.b
-    // intersection little circle and line --> [x1, y1]
-    // + and - refer to the 2 possible intersections
-    // +
-    Double_t x1 = (-(m*(q - point.Y()) - point.X()) + sqrt((m*(q - point.Y()) - point.X())*(m*(q - point.Y()) - point.X()) - (m*m + 1)*((q - point.Y())*(q - point.Y()) + point.X()*point.X() - radius*radius))) / (m*m + 1);
-    Double_t y1 = m*x1 + q;
-    // - 
-    Double_t x2 = (-(m*(q - point.Y()) - point.X()) - sqrt((m*(q - point.Y()) - point.X())*(m*(q - point.Y()) - point.X()) - (m*m + 1)*((q - point.Y())*(q - point.Y()) + point.X()*point.X() - radius*radius))) / (m*m + 1);
-    Double_t y2 = m*x2 + q;
-    
-    // 2.c intersection between line and circle
-    // +
-    Double_t xb1 = (-(m*(q - vec.Y()) - vec.X()) + sqrt((m*(q - vec.Y()) - vec.X())*(m*(q - vec.Y()) - vec.X()) - (m*m + 1)*((q - vec.Y())*(q - vec.Y()) + vec.X()*vec.X() - (fTrack->GetRad()) *(fTrack->GetRad()) ))) / (m*m + 1);
-    Double_t yb1 = m*xb1 + q;
-    // -
-    Double_t xb2 = (-(m*(q - vec.Y()) - vec.X()) - sqrt((m*(q - vec.Y()) - vec.X())*(m*(q - vec.Y()) - vec.X()) - (m*m + 1)*((q - vec.Y())*(q - vec.Y()) + vec.X()*vec.X() - (fTrack->GetRad()) *(fTrack->GetRad())))) / (m*m + 1);
-    Double_t yb2 = m*xb2 + q;
+
+    Double_t x1 = 0, y1 = 0,
+      x2 = 0, y2 = 0,
+      xb1 = 0, yb1 = 0,
+      xb2 = 0, yb2 = 0;
+
+  // CHECK the vertical track
+    if(fabs(point.X() - vec.X()) < 1e-6) {
+      
+      // 2.b
+      // intersection little circle and line --> [x1, y1]
+      // + and - refer to the 2 possible intersections
+      // +
+       x1 = point.X();
+       y1 = point.Y() + sqrt(radius * radius - (x1 - point.X()) * (x1 - point.X()));
+      // - 
+       x2 = x1;
+       y2 = point.Y() - sqrt(radius * radius - (x2 - point.X()) * (x2 - point.X()));
+      
+      // 2.c intersection between line and circle
+      // +
+       xb1 = vec.X();
+       yb1 = vec.Y() + sqrt(fTrack->GetRad() * fTrack->GetRad() - (xb1 - vec.X()) * (xb1 - vec.X()));
+      // -
+       xb2 = xb1;
+       yb2 = vec.Y() - sqrt(fTrack->GetRad() * fTrack->GetRad() - (xb2 - vec.X()) * (xb2 - vec.X()));
+
+    }    // END CHECK
+    else {
+      
+      // 2.b
+      // intersection little circle and line --> [x1, y1]
+      // + and - refer to the 2 possible intersections
+      // +
+      x1 = (-(m*(q - point.Y()) - point.X()) + sqrt((m*(q - point.Y()) - point.X())*(m*(q - point.Y()) - point.X()) - (m*m + 1)*((q - point.Y())*(q - point.Y()) + point.X()*point.X() - radius*radius))) / (m*m + 1);
+      y1 = m*x1 + q;
+      // - 
+      x2 = (-(m*(q - point.Y()) - point.X()) - sqrt((m*(q - point.Y()) - point.X())*(m*(q - point.Y()) - point.X()) - (m*m + 1)*((q - point.Y())*(q - point.Y()) + point.X()*point.X() - radius*radius))) / (m*m + 1);
+      y2 = m*x2 + q;
+      
+      // 2.c intersection between line and circle
+      // +
+      xb1 = (-(m*(q - vec.Y()) - vec.X()) + sqrt((m*(q - vec.Y()) - vec.X())*(m*(q - vec.Y()) - vec.X()) - (m*m + 1)*((q - vec.Y())*(q - vec.Y()) + vec.X()*vec.X() - (fTrack->GetRad()) *(fTrack->GetRad()) ))) / (m*m + 1);
+      yb1 = m*xb1 + q;
+      // -
+      xb2 = (-(m*(q - vec.Y()) - vec.X()) - sqrt((m*(q - vec.Y()) - vec.X())*(m*(q - vec.Y()) - vec.X()) - (m*m + 1)*((q - vec.Y())*(q - vec.Y()) + vec.X()*vec.X() - (fTrack->GetRad()) *(fTrack->GetRad())))) / (m*m + 1);
+      yb2 = m*xb2 + q;
+    }
     
     // calculation of the distance between [xb, yb] and [xp, yp]
     Double_t distb1 = sqrt((yb1 - point.Y())*(yb1 - point.Y()) + (xb1 - point.X())*(xb1 - point.X()));
