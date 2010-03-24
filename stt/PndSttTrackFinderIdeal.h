@@ -74,6 +74,8 @@ class PndSttTrackFinderIdeal : public PndSttTrackFinder
   void plotAllStraws();
   Bool_t putStraw(Double_t xpos, Double_t ypos, Double_t radius);
 
+  TClonesArray *fTubeArray;
+  void SetTubeArray(TClonesArray *tubeArray) { fTubeArray = tubeArray; };
 
 
  private:

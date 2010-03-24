@@ -20,6 +20,7 @@
 
 
 #include "FairTask.h"
+#include "PndGeoSttPar.h"
 
 #include <string>
 #include <vector>
@@ -77,12 +78,19 @@ class PndSttFitTracks : public FairTask
   void AddAllCollections(); 
   void AddHitCollection(char const *collectionName);
 
+  void SetParContainers();
+
   PndSttTrackFitter* fFitter;    // Pointer to TrackFinder concrete class
   TClonesArray* fTrackCandArray; // Input array of STT track candidates 
   TClonesArray* fTrackArray;     // Output array of STT tracks  
   Int_t fNofTracks;              // Number of tracks successfully fitted
   std::vector<std::string> fHitCollectionNames;
   Bool_t fCollectionsComplete;
+
+  /** from parameters array of PndSttTube **/  //  CHECK added
+  TClonesArray* fTubeArray;
+
+  PndGeoSttPar *fSttParameters;  //  CHECK added
 
   ClassDef(PndSttFitTracks,1);
 

@@ -14,8 +14,12 @@
 #include "PndSttHitInfo.h"
 #include "PndSttPoint.h"
 #include "PndSttSingleStraw.h"
+#include "PndSttMapCreator.h"
+#include "PndSttTube.h"
 
 #include "FairRootManager.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
 
 #include "TGeoManager.h"
 #include "TVector3.h"
@@ -68,14 +72,10 @@ InitStatus PndSttHitProducerRealFull::Init() {
  // Create and register output array
   fHitInfoArray = new TClonesArray("PndSttHitInfo");
   ioman->Register("STTHitInfo", "STT", fHitInfoArray, fPersistence);
-
-  // Geometry loading
- // TFile *tstfile=ioman->GetInFile();
   
-//  TGeoManager *geoMan = (TGeoManager*) tstfile->Get("FAIRGeom");
-//  fVolumeArray = geoMan->GetListOfVolumes();
-
-  fVolumeArray = gGeoManager->GetListOfVolumes();
+  // CHECK added 
+  PndSttMapCreator *mapper = new PndSttMapCreator(fSttParameters);
+  fTubeArray = mapper->FillTubeArray();
   
   cout << "-I- PndSttHitProducerRealFull: Intialization successfull" << endl;
   
@@ -84,7 +84,11 @@ InitStatus PndSttHitProducerRealFull::Init() {
 }
 // -------------------------------------------------------------------------
 
-
+// CHECK added 
+void PndSttHitProducerRealFull::SetParContainers() {
+  FairRuntimeDb* rtdb = FairRunAna::Instance()->GetRuntimeDb();
+  fSttParameters = (PndGeoSttPar*) rtdb->getContainer("PndGeoSttPar");
+}
 
 // -----   Public method Exec   --------------------------------------------
 void PndSttHitProducerRealFull::Exec(Option_t* opt) {
@@ -115,7 +119,11 @@ void PndSttHitProducerRealFull::Exec(Option_t* opt) {
     if (point == NULL) continue;
 
     detID = point->GetDetectorID();
-
+  
+    // tubeID  CHECK added
+    Int_t tubeID = point->GetTubeID();
+    PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
+    
     double InOut[6];
     memset(InOut, 0, sizeof(InOut));
 
@@ -161,7 +169,7 @@ void PndSttHitProducerRealFull::Exec(Option_t* opt) {
     // dE/dx calculation
     double dedx = -999;
     
-    Double_t halflength = point->GetTubeHalfLength(); 
+    Double_t halflength = tube->GetHalfLength(); // CHECK added
 
 
     // stt2: detID, pos, dpos, index come from --------------
@@ -169,7 +177,7 @@ void PndSttHitProducerRealFull::Exec(Option_t* opt) {
     Double_t closestDistanceError = 0.0150; // per adesso (stessa che in Ideal: 
                                             // radialResolution = 0.0150)
 
-    TVector3 position(point->GetX(), point->GetY(), point->GetZ());
+    TVector3 position  = tube->GetPosition(); // CHECK added
 
     // ----------------
     // stt2, ma cancellati in stt1 (controlla: in stt2 la posizione dell' hit non 
@@ -192,12 +200,12 @@ void PndSttHitProducerRealFull::Exec(Option_t* opt) {
     //----- end stt2 ------------------------------------------
 
     // wire direction from stt2 -------------------------------
-    TVector3 wireDirection(point->GetXWireDirection(), point->GetYWireDirection(), point->GetZWireDirection());
+    TVector3 wireDirection = tube->GetWireDirection(); // CHECK added
     // = 0, 0, 1 if only axias tubes
     // --------------------------------------------------------
 
     // create hit
-    AddHit(detID, pos, dpos, iPoint, point->GetTrackID(), pulset, radius, true_rad, closestDistanceError, wireDirection, halflength, depCharge, dedx);
+    AddHit(detID, pos, dpos, iPoint, point->GetTrackID(), pulset, radius, true_rad, closestDistanceError, wireDirection, halflength, depCharge, dedx, tubeID);
 
     AddHitInfo(0, 0, point->GetTrackID(), iPoint, 0, kFALSE);
 
@@ -225,7 +233,7 @@ void PndSttHitProducerRealFull::FoldZPosWithResolution(Double_t &zpos, Double_t 
 
 
 // -----   Private method AddHit   --------------------------------------------
-PndSttHit* PndSttHitProducerRealFull::AddHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t iPoint, Int_t trackID, Double_t p, Double_t rsim, Double_t rtrue, Double_t closestDistanceError, TVector3 wireDirection, Double_t halflength, Double_t depcharge, Double_t dedx){
+PndSttHit* PndSttHitProducerRealFull::AddHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t iPoint, Int_t trackID, Double_t p, Double_t rsim, Double_t rtrue, Double_t closestDistanceError, TVector3 wireDirection, Double_t halflength, Double_t depcharge, Double_t dedx, Int_t tubeID){
   // see PndSttHit for hit description
   TClonesArray& clref = *fHitArray;
   Int_t size = clref.GetEntriesFast();
@@ -237,6 +245,7 @@ PndSttHit* PndSttHitProducerRealFull::AddHit(Int_t detID, TVector3& pos, TVector
   hitnew->SetEnergyLoss(depcharge/1e6);  // eloss in arbitrary units CHECK
   hitnew->SetdEdx(dedx);                 // CHECK
   hitnew->SetTubeHalfLength(halflength); // CHECK
+  hitnew->SetTubeID(tubeID);
   return hitnew;
 
   //return new(clref[size]) PndSttHit(detID, pos, dpos, iPoint, trackID, p, rsim, rtrue, closestDistanceError, wireDirection);

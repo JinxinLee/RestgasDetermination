@@ -12,6 +12,7 @@
 #include "PndSttHelixHit.h"
 #include "PndTrackCand.h"
 #include "PndDetectorList.h"
+#include "PndSttTube.h"
 #include  <cmath>
 #include "FairMCPoint.h"
 #include "FairRootManager.h"
@@ -528,14 +529,19 @@ cout<<"verita MC,  traccia n. "<<iMCTrack<<", Ox, Oy,  Cx, Cy, D ,  R  ,  gamma 
       pMCpt = GetPointFromCollections(iHit); // <== FairMCPoint
       if (!pMCpt) continue;
       
+      // tubeID  CHECK added
+      Int_t tubeID = pMhit->GetTubeID();
+      PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
+
+
       // real hit center of tube coordinates
-      TVector3 center(pMhit->GetX(), pMhit->GetY(), pMhit->GetZ());
+      TVector3 center = tube->GetPosition();
 
       // drift radius
       Double_t dradius = pMhit->GetIsochrone();
 
       // wire direction
-      TVector3 wiredirection = pMhit->GetWireDirection();
+      TVector3 wiredirection = tube->GetWireDirection();
 
       // "real" MC coordinates (in + out)/2.
       TVector3 mcpoint( ((PndSttPoint*)pMCpt)->GetXtot(), ((PndSttPoint*)pMCpt)->GetYtot(), ((PndSttPoint*)pMCpt)->GetZtot());
@@ -550,11 +556,11 @@ cout<<"verita MC,  traccia n. "<<iMCTrack<<", Ox, Oy,  Cx, Cy, D ,  R  ,  gamma 
       // stampe di controllo
 
 
-      info[iHit][0]= pMhit->GetX();
-      info[iHit][1]= pMhit->GetY();
-      info[iHit][2]= pMhit->GetZ();
+      info[iHit][0]= tube->GetPosition().X();
+      info[iHit][1]= tube->GetPosition().Y();
+      info[iHit][2]= tube->GetPosition().Z();
       info[iHit][3]= dradius;
-      info[iHit][4]=pMhit->GetTubeHalfLength();
+      info[iHit][4]= tube->GetHalfLength();
       info[iHit][6]=pMCpt->GetTrackID();
 
       if( fabs( WDX )< 0.00001 && fabs( WDY )< 0.00001 ){
@@ -617,16 +623,13 @@ jumpout: ;
 
    // end of if(info[iHit][5]==1. )
 
-
-
-
 //--------------- inizio stampaggi,  stampe di controllo
   if (istampa >= 2  && IVOLTE<20) {
       cout <<"iHit "<< iHit << endl;
       cout <<"             hit X, Y, Z space position "   << veritaMC[iHit][0] << " " <<
                        veritaMC[iHit][1] << " " << veritaMC[iHit][2]<<endl; 
-      cout <<"             hit wire pos. in middle "   << pMhit->GetX() << " " << pMhit->GetY() << " " << pMhit->GetZ() 
-           << "; R = "<<sqrt(pMhit->GetX()*pMhit->GetX()+pMhit->GetY()*pMhit->GetY())<< endl;
+      cout <<"             hit wire pos. in middle "   << tube->GetPosition().X() << " " << tube->GetPosition().Y() << " " << tube->GetPosition().Z() 
+           << "; R = "<<sqrt(tube->GetPosition().X()*tube->GetPosition().X()+tube->GetPosition().Y()*tube->GetPosition().Y())<< endl;
       cout <<"             wire direction, X, Y, Z (Z direction set always positive)"<< WDX<<"  "<<WDY<<"  "<<WDZ <<endl
            <<"             this hit belongs to MC track n. "<<pMCpt->GetTrackID()<<endl;
   }  //  end of   if(istampa >= 
@@ -1818,8 +1821,7 @@ if(istampa>=3)  cout<<"DoFind, skew, infoskew[ ListSkewHitsinTrack[i][j] ] = "<<
     }  //   end of for(iHit=0; iHit<Nhits;iHit++)
   } // end of if(fHelixHitProduction) 
 
-
-
+ 
 //---------------------  end of loading for LHeTrack later.
 
 

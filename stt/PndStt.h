@@ -144,6 +144,9 @@ class PndStt : public FairDetector
   // flag to tell if a track entered the tube
   Bool_t fInFlag; //!
 
+  // geometry type
+  Int_t fGeoType;
+
   /** Private method AddHit
    **
    ** Adds a CbmTrdPoint to the HitCollection
@@ -152,7 +155,7 @@ class PndStt : public FairDetector
 		      TVector3 posInLocal, TVector3 posOutLocal,
 		      TVector3 momIn, TVector3 momOut, TVector3 wireDir,
 		      Double_t time, Double_t length, Double_t eLoss, 
-		      Double_t mass, Double_t halflength, TVector3 postot); // da cancellare postot
+		      Double_t mass, Double_t halflength, TVector3 postot, Int_t tubeID); // da cancellare postot
 
   std::string GetStringPart(std::string &aSrc, Int_t part, char aDelim);
   bool Split(std::string &aDest, std::string &aSrc, char aDelim);

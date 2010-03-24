@@ -3,7 +3,7 @@
 
 // Base Class Headers ----------------
 #include "FairTask.h"
-
+#include "PndGeoSttPar.h"
 // Collaborating Class Headers -------
 #include <map>
 #include "TString.h"
@@ -36,7 +36,7 @@ public:
   virtual void Exec(Option_t* opt);
   
   void AddHitBranch(unsigned int detId, const TString& m);
-
+ void SetParContainers();
 private:
 
   // Private Data Members ------------
@@ -45,7 +45,7 @@ private:
   TClonesArray* fTrackArray;
   GFRecoHitFactory* _theRecoHitFactory;
   
-
+ PndGeoSttPar *fSttParameters;  //  CHECK added
 
   // Private Methods -----------------
 

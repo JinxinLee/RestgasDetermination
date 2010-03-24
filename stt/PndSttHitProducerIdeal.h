@@ -19,6 +19,7 @@
 #define PNDSTTHITPRODUCERIDEAL_H 
 
 #include "FairTask.h"
+#include "PndGeoSttPar.h"
 
 #include "TVector3.h"
 //#include "TRandom.h"
@@ -64,6 +65,8 @@ class PndSttHitProducerIdeal : public FairTask
   Double_t GetRadialResolution(Double_t radius);
   Double_t GetLongitudinalResolution(Double_t zpos);
 
+  void SetParContainers();
+  
   /** Input array of PndSttPoints **/
   TClonesArray* fPointArray;
 
@@ -73,9 +76,14 @@ class PndSttHitProducerIdeal : public FairTask
   /** Output array of PndSttHitInfo **/
   TClonesArray* fHitInfoArray;
 
+  /** from parameters array of PndSttTube **/  //  CHECK added
+  TClonesArray* fTubeArray;
+  
   /** object persistence **/
   Bool_t  fPersistence; //!
 
+  PndGeoSttPar *fSttParameters;  //  CHECK added
+  
   ClassDef(PndSttHitProducerIdeal,1);
 
 };

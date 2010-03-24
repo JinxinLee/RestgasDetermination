@@ -62,9 +62,11 @@ class PndSttTrackFinder : public TObject
   /** set the helix hit production flag true or false **/
   void SetHelixHitProduction(Bool_t hhprod) { fHelixHitProduction = hhprod; };
  
-
+  /** CHECK added **/
+  virtual void SetTubeArray(TClonesArray *tubeArray) = 0;
+  
  private:
-
+  
  protected:
   Int_t fVerbose;      // Verbosity level
   /** production to file of helix hit from PR or not **/

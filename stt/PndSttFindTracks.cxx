@@ -7,8 +7,13 @@
 #include "PndSttTrackFinder.h"
 #include "PndTrackCand.h"
 #include "PndSttHelixHit.h"
+#include "PndSttTube.h"
+#include "PndSttMapCreator.h"
+
 #include "FairHit.h"
 #include "FairRootManager.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
 
 #include "TClonesArray.h"
 
@@ -117,10 +122,22 @@ InitStatus PndSttFindTracks::Init()
   // helix hits? 
   fFinder->SetHelixHitProduction(fHelixHitProduction);
    
+  // CHECK added 
+  PndSttMapCreator *mapper = new PndSttMapCreator(fSttParameters);
+  fTubeArray = mapper->FillTubeArray();
+  
   // Call the Init method of the track finder
   fFinder->Init();
+  fFinder->SetTubeArray(fTubeArray);
+
 
   return kSUCCESS;
+}
+
+// CHECK added 
+void PndSttFindTracks::SetParContainers() {
+  FairRuntimeDb* rtdb = FairRunAna::Instance()->GetRuntimeDb();
+  fSttParameters = (PndGeoSttPar*) rtdb->getContainer("PndGeoSttPar");
 }
 
 // -------------------------------------------------------------------------

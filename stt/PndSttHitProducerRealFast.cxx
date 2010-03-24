@@ -15,6 +15,8 @@
 #include "PndSttPoint.h"
 #include "PndSttSingleStraw.h"
 #include "PndGeoSttPar.h"
+#include "PndSttTube.h"
+#include "PndSttMapCreator.h"
 
 #include "FairRootManager.h"
 #include "FairRunAna.h"
@@ -78,33 +80,13 @@ InitStatus PndSttHitProducerRealFast::Init() {
   fHitInfoArray = new TClonesArray("PndSttHitInfo");
   ioman->Register("STTHitInfo", "STT", fHitInfoArray, fPersistence);
 
-  // Geometry loading
- // TFile *tstfile=ioman->GetInFile();
-  
-//  TGeoManager *geoMan = (TGeoManager*) tstfile->Get("FAIRGeom");
-//  fVolumeArray = geoMan->GetListOfVolumes();
-
   fVolumeArray = gGeoManager->GetListOfVolumes();
   
   //cout << "-I- PndSttHitProducerRealFast: Intialization successfull" << endl;
 
-  // ===== retrieve the STT parameters ========================  CHECK, this is just a TEST
-  //  for (int i = 0; i < fSttParameters->GetGeoPassiveNodes()->GetEntriesFast(); i++) 
-  //     {
-  //       FairGeoNode *geonode = (FairGeoNode*) fSttParameters->GetGeoPassiveNodes()->At(i);
-  //       cout << geonode->GetName() << endl;
-  //       FairGeoTransform *pos = geonode->getPosition();
-  //       FairGeoTransform *lab = geonode->getLabTransform();
-  //       if(lab) {
-  // 	FairGeoRotation  rot = lab->getRotMatrix();
-  // 	FairGeoVector    tra = lab->getTransVector();
-  // 	//	lab->print();
-  // 	//	rot.print();
-  // 	//	tra.print();
-  //       }
-  //       //      cout << endl;
-  //     }
-  // ==========================================================
+   // CHECK added 
+  PndSttMapCreator *mapper = new PndSttMapCreator(fSttParameters);
+  fTubeArray = mapper->FillTubeArray();
 
   return kSUCCESS;
 
@@ -112,11 +94,8 @@ InitStatus PndSttHitProducerRealFast::Init() {
 // -------------------------------------------------------------------------
 
 void PndSttHitProducerRealFast::SetParContainers() {
-  
   FairRuntimeDb* rtdb = FairRunAna::Instance()->GetRuntimeDb();
   fSttParameters = (PndGeoSttPar*) rtdb->getContainer("PndGeoSttPar");
-  
- 
 }
 
 
@@ -151,6 +130,10 @@ void PndSttHitProducerRealFast::Exec(Option_t* opt) {
     if (point == NULL) continue;
 
     detID = point->GetDetectorID();
+
+    // tubeID  CHECK added
+    Int_t tubeID = point->GetTubeID();
+    PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
 
     double InOut[6];
     memset(InOut, 0, sizeof(InOut));
@@ -209,7 +192,7 @@ void PndSttHitProducerRealFast::Exec(Option_t* opt) {
     // dE/dx calculation postponed
     Double_t dedx = -999;
     
-    Double_t halflength = point->GetTubeHalfLength(); 
+    Double_t halflength = tube->GetHalfLength(); // CHECK added
     
     // stt2: detID, pos, dpos, index come from --------------
     // stt2 (FairHit):
@@ -217,7 +200,7 @@ void PndSttHitProducerRealFast::Exec(Option_t* opt) {
     //cout<<"radius "<<radius<<" error "<<closestDistanceError<<endl;                    
     //closestDistanceError = 0.0150; //150 microns check this point!                             
     //closestDistanceError =TMath::Sqrt(2.)*radius/TMath::Sqrt(12);
-    TVector3 position(point->GetX(), point->GetY(), point->GetZ());
+    TVector3 position = tube->GetPosition(); // CHECK added
 
     // ----------------
     // stt2, ma cancellati in stt1 (controlla: in stt2 la posizione dell' hit non 
@@ -240,13 +223,13 @@ void PndSttHitProducerRealFast::Exec(Option_t* opt) {
     //----- end stt2 ------------------------------------------
 
     // wire direction from stt2 -------------------------------
-    TVector3 wireDirection(point->GetXWireDirection(), point->GetYWireDirection(), point->GetZWireDirection());
+    TVector3 wireDirection = tube->GetWireDirection(); // CHECK added
     // = 0, 0, 1 if only axias tubes
     // --------------------------------------------------------
     //    cout << "r: " << radius << " err: " << closestDistanceError << endl;
     //cout<<" radius "<<radius<<endl;
     // create hit
-    AddHit(detID, pos, dpos, iPoint, point->GetTrackID(), pulset, radius, true_rad, closestDistanceError, wireDirection, halflength, depcharge, dedx);
+    AddHit(detID, pos, dpos, iPoint, point->GetTrackID(), pulset, radius, true_rad, closestDistanceError, wireDirection, halflength, depcharge, dedx, tubeID);
 
     AddHitInfo(0, 0, point->GetTrackID(), iPoint, 0, kFALSE);
 
@@ -275,7 +258,7 @@ void PndSttHitProducerRealFast::FoldZPosWithResolution(Double_t &zpos, Double_t 
 
 
 // -----   Private method AddHit   --------------------------------------------
-PndSttHit* PndSttHitProducerRealFast::AddHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t iPoint, Int_t trackID, Double_t p, Double_t rsim, Double_t rtrue, Double_t closestDistanceError, TVector3 wireDirection, Double_t halflength, Double_t depcharge, Double_t dedx){
+PndSttHit* PndSttHitProducerRealFast::AddHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t iPoint, Int_t trackID, Double_t p, Double_t rsim, Double_t rtrue, Double_t closestDistanceError, TVector3 wireDirection, Double_t halflength, Double_t depcharge, Double_t dedx, Int_t tubeID){
   // see PndSttHit for hit description
   TClonesArray& clref = *fHitArray;
   Int_t size = clref.GetEntriesFast();
@@ -287,6 +270,7 @@ PndSttHit* PndSttHitProducerRealFast::AddHit(Int_t detID, TVector3& pos, TVector
   hitnew->SetEnergyLoss(depcharge/1e6);  // eloss in arbitrary units CHECK
   hitnew->SetdEdx(dedx);                 // CHECK
   hitnew->SetTubeHalfLength(halflength); // CHECK
+  hitnew->SetTubeID(tubeID); // CHECK added
   return hitnew;
 
   // return new(clref[size]) PndSttHit(detID, pos, dpos, iPoint, trackID, p, rsim, rtrue, closestDistanceError, wireDirection);

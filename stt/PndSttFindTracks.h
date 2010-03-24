@@ -19,6 +19,7 @@
 #define PNDSTTFINDTRACKS 1
 
 #include "FairTask.h"
+#include "PndGeoSttPar.h"
 
 #include <string>
 #include <vector>
@@ -67,6 +68,7 @@ class PndSttFindTracks : public FairTask
   /** Finish at the end of each event **/
   virtual void Finish();
 
+  void SetParContainers();
 
   /** Accessors **/
   PndSttTrackFinder* GetFinder() { return fFinder; };
@@ -110,6 +112,11 @@ class PndSttFindTracks : public FairTask
 
   Int_t fEventCounter; //!
 
+  /** from parameters array of PndSttTube **/  //  CHECK added
+  TClonesArray* fTubeArray;
+  
+  PndGeoSttPar *fSttParameters;  //  CHECK added
+  
   ClassDef(PndSttFindTracks,1);
 };
 

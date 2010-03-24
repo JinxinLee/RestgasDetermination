@@ -20,13 +20,14 @@
 #pragma link C++ class PndSttMatchTracks+;      
 #pragma link C++ class PndSttTrackMatch+;
 #pragma link C++ class PndSttSingleStraw+;
-#pragma link C++ class PndSttHitProducerReal+;
 #pragma link C++ class PndSttHelixTrackFitter+;
 #pragma link C++ class PndSttHitProducerRealFast+;
 #pragma link C++ class PndSttHitProducerRealFull+;
 #pragma link C++ class PndSttHelixHitProducer+;
 #pragma link C++ class PndSttTrackFinderReal+;
 #pragma link C++ class PndSttTrackFitterQATask+;
+#pragma link C++ class PndSttMapCreator+;
+#pragma link C++ class PndSttTube+;
 
 
 #endif

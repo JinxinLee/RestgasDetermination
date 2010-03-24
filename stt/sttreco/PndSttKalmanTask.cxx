@@ -22,6 +22,10 @@
 #include "GFException.h"
 #include "GFKalman.h"
 
+#include "FairRootManager.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
+
 using namespace std;
 
 // Class Member definitions -----------
@@ -69,9 +73,15 @@ PndSttKalmanTask::Init()
     ++iter;
   }//end loops over hit types
   
+
  return kSUCCESS;
 }
 
+// CHECK added 
+void PndSttKalmanTask::SetParContainers() {
+  FairRuntimeDb* rtdb = FairRunAna::Instance()->GetRuntimeDb();
+  fSttParameters = (PndGeoSttPar*) rtdb->getContainer("PndGeoSttPar");
+}
 
 void
 PndSttKalmanTask::Exec(Option_t* opt)

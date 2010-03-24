@@ -9,6 +9,7 @@
 #include "PndSttPoint.h"
 #include "PndDetectorList.h"
 #include "PndStack.h"
+#include "PndSttMapCreator.h"
 
 #include "FairRun.h"
 #include "FairGeoInterface.h"
@@ -318,15 +319,22 @@ Bool_t  PndStt::ProcessHits(FairVolume* vol)
 	TGeoTube *tube = (TGeoTube*) vol->getGeoNode()->getRootVolume()->GetShape();
         fHalfLength = tube->GetDz();
 
+	// CHECK -----------------------------------------------------------
+	PndSttMapCreator *mapper = new PndSttMapCreator(fGeoType);
+	Int_t tubeID = mapper->GetTubeIDFromPath(gMC->CurrentVolPath());
+	//	cout << gMC->CurrentVolPath() << endl;
+	//	cout << "tubeID " << tubeID << " " << mapper->GetNameFromTubeID(tubeID) << endl;
+	//	cout << fPos.X() << " " << fPos.Y() << " " << fPos.Z() << endl;
+	// -----------------------------------------------------------------
 
-	  AddHit(fTrackID, fVolumeID,
+	AddHit(fTrackID, fVolumeID,
 		 TVector3(fPos.X(),   fPos.Y(),   fPos.Z()),
 		 TVector3(fPosInLocal.X(),   fPosInLocal.Y(),   fPosInLocal.Z()),
 		 TVector3(fPosOutLocal.X(),  fPosOutLocal.Y(),  fPosOutLocal.Z()),
 		 TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),
 		 TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
 		 TVector3(rotatedVector.getX(), rotatedVector.getY(), rotatedVector.getZ()),
-		 fTime, fLength, fELoss, fMass, fHalfLength, TVector3(fpostot.X(), fpostot.Y(), fpostot.Z())); // da cancellare fpostot
+	       fTime, fLength, fELoss, fMass, fHalfLength, TVector3(fpostot.X(), fpostot.Y(), fpostot.Z()), tubeID); // da cancellare fpostot
 	    
 	  // Increment number of stt points for TParticle
 	  PndStack* stack = (PndStack*) gMC->GetStack();
@@ -464,6 +472,15 @@ void PndStt::ConstructGeometry()
            fPassNodes->AddLast( aVol );
        }
   }
+
+  // CHECK to be changed: put a dependance on which file ------
+  // is used, for the moment let' s keep it this way!
+  fGeoType = 1; // CHECK
+  par->SetGeometryType(fGeoType);
+  par->SetTubeInRad(0.5);    // cm
+  par->SetTubeOutRad(0.001); // cm
+  // ----------------------------------------------------------
+
   par->setChanged();
   par->setInputVersion(fRun->GetRunId(),1);
 
@@ -479,7 +496,7 @@ void PndStt::ConstructGeometry()
 PndSttPoint* PndStt::AddHit(Int_t trackID, Int_t detID, TVector3 pos,
 			    TVector3 posInLocal, TVector3 posOutLocal, 
 			    TVector3 momIn, TVector3 momOut, TVector3 wireDir,
-			    Double_t time, Double_t length, Double_t eLoss,  Double_t mass, Double_t halflength, TVector3 postot)   // da cancellare postot
+			    Double_t time, Double_t length, Double_t eLoss,  Double_t mass, Double_t halflength, TVector3 postot, Int_t tubeID)   // da cancellare postot
 {
   TClonesArray& 
       clref = *fSttCollection;
@@ -490,6 +507,7 @@ PndSttPoint* PndStt::AddHit(Int_t trackID, Int_t detID, TVector3 pos,
   PndSttPoint *pointnew = new(clref[size]) PndSttPoint(trackID, detID, pos, posInLocal, posOutLocal,
 						       momIn, momOut, wireDir, time, 
 						       length, eLoss, mass, postot);
+  pointnew->SetTubeID(tubeID);
   pointnew->SetTubeHalfLength(halflength);
   
   //  return new(clref[size]) PndSttPoint(trackID, detID, pos, posInLocal, posOutLocal,

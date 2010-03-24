@@ -65,6 +65,10 @@ class PndSttTrackFitter : public TObject
 			    FairTrackParam *param ) = 0;
 
 
+  /** CHECK added **/
+  virtual void SetTubeArray(TClonesArray *tubeArray) = 0;
+
+
   ClassDef(PndSttTrackFitter,1);
 
 };

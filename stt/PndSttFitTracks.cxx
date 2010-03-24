@@ -6,8 +6,12 @@
 
 #include "PndSttTrackFitter.h"
 #include "PndSttTrack.h"
+#include "PndSttTube.h"
+#include "PndSttMapCreator.h"
 
 #include "FairRootManager.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
 
 #include "TClonesArray.h"
 
@@ -83,15 +87,24 @@ InitStatus PndSttFitTracks::Init()
   // Create and register SttTrack array
   fTrackArray = new TClonesArray("PndSttTrack",100); 
   ioman->Register("STTTrack", "STT", fTrackArray, kTRUE); // fPersistence); // CHECK
-    
+  
+  // CHECK added 
+  PndSttMapCreator *mapper = new PndSttMapCreator(fSttParameters);
+  fTubeArray = mapper->FillTubeArray();
+  
   // Call the Init method of the track fitter
   fFitter->Init();
+  fFitter->SetTubeArray(fTubeArray);
   
   return kSUCCESS;
 }
 // -------------------------------------------------------------------------
 
-
+// CHECK added 
+void PndSttFitTracks::SetParContainers() {
+  FairRuntimeDb* rtdb = FairRunAna::Instance()->GetRuntimeDb();
+  fSttParameters = (PndGeoSttPar*) rtdb->getContainer("PndGeoSttPar");
+}
 
 // -----   Public method Exec   --------------------------------------------
 void PndSttFitTracks::Exec(Option_t* opt) 

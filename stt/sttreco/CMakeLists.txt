@@ -18,8 +18,8 @@ ${CMAKE_SOURCE_DIR}/trackbase
 ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/LSLtrackRep
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
-${CMAKE_SOURCE_DIR}/stt
-${CMAKE_SOURCE_DIR}/stt/sttreco
+${CMAKE_SOURCE_DIR}/lia/stt
+${CMAKE_SOURCE_DIR}/lia/stt/sttreco
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})

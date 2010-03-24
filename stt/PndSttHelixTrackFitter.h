@@ -117,6 +117,9 @@ class PndSttHelixTrackFitter : public PndSttTrackFitter
   // 0 = no contraint, 1 = the track passes through (0, 0, 0)
   Int_t fConstraint;
 
+  TClonesArray *fTubeArray;
+  void SetTubeArray(TClonesArray *tubeArray) { fTubeArray = tubeArray; };
+
   ClassDef(PndSttHelixTrackFitter,1);
 };
 

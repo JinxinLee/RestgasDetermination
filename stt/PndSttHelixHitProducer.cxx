@@ -5,30 +5,37 @@
 //
 /////////////////////////////////////////////////////////////
 
-#include "TClonesArray.h"
-
-#include "FairRootManager.h"
 #include "PndSttHelixHitProducer.h"
+
 #include "PndSttHit.h"
 #include "PndSttTrack.h"
 #include "PndSttPoint.h"
 #include "PndSttHelixHit.h"
-#include "TGeoManager.h"
+#include "PndSttSingleStraw.h"
+#include "PndSttTube.h"
+#include "PndSttMapCreator.h"
+
 #include "PndTrackCand.h"
 #include "PndTrackCandHit.h"
-// #include "TGeoVolume.h"
+
+#include "FairRootManager.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
+
+#include "TGeoManager.h"
+#include "TClonesArray.h"
+#include "TGeoVolume.h"
 // #include "TGeoNode.h"
 // #include "TGeoMatrix.h"
 #include "TVector3.h"
-#include "PndSttSingleStraw.h"
 #include "TRandom.h"
 #include "TH1F.h"
 #include "TMath.h"
 #include "TCanvas.h"
+#include "TGeoTube.h"
+
 #include <iostream>
 #include <cmath>
-#include "TGeoVolume.h"
-#include "TGeoTube.h"
 
 
 using namespace std;
@@ -115,7 +122,9 @@ InitStatus PndSttHelixHitProducer::Init() {
   fHelixHitArray = new TClonesArray("PndSttHelixHit");
   ioman->Register("SttHelixHit","STT",fHelixHitArray, fPersistence);
     
-
+  // CHECK added 
+  PndSttMapCreator *mapper = new PndSttMapCreator(fSttParameters);
+  fTubeArray = mapper->FillTubeArray();
 
   cout << "-I- PndSttHelixHitProducer: Intialization successfull" << endl;
   
@@ -124,6 +133,11 @@ InitStatus PndSttHelixHitProducer::Init() {
 }
 // -------------------------------------------------------------------------
 
+// CHECK added 
+void PndSttHelixHitProducer::SetParContainers() {
+  FairRuntimeDb* rtdb = FairRunAna::Instance()->GetRuntimeDb();
+  fSttParameters = (PndGeoSttPar*) rtdb->getContainer("PndGeoSttPar");
+}
 
 
 // -----   Public method Exec   --------------------------------------------
@@ -177,6 +191,10 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
       PndSttHit *currenthit = (PndSttHit*) fHitArray->At(iHit);
       if(!currenthit) { cout << "PndSttHelixHitProducer::Exec: no hit at " << iHit << endl;  continue; }
 
+      // tubeID  CHECK added
+      Int_t tubeID = currenthit->GetTubeID();
+      PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
+
       Int_t refindex = currenthit->GetRefIndex(); 
       // get point
       PndSttPoint *iPoint = (PndSttPoint*) fPointArray->At(refindex);
@@ -200,10 +218,10 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
 
       // get point
       // [xp, yp] point = coordinates xy of the centre of the firing tube
-      point.Set(currenthit->GetX(), currenthit->GetY());
+      point.Set(tube->GetPosition().X(), tube->GetPosition().Y());
       radius = currenthit->GetIsochrone();
 
-      TVector3 wiredirection = currenthit->GetWireDirection();
+      TVector3 wiredirection = tube->GetWireDirection();
 
 
       // ================= NON SKEWED =======================
@@ -315,8 +333,8 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
 
 	    TVector3 *tofit, *tofit2;
 		  
-	    wiredirection *= currenthit->GetTubeHalfLength(); 
-	    TVector3 cenposition(currenthit->GetX(), currenthit->GetY(), currenthit->GetZ());  
+	    wiredirection *= tube->GetHalfLength(); 
+	    TVector3 cenposition = tube->GetPosition();
 	
 	    TVector3 min, max;
 	    min = cenposition - wiredirection;
@@ -504,8 +522,8 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
       if(currenthit->GetdEdx() != -999) helixhit->SetdEdx(currenthit->GetdEdx()); // if MC is used
       else {
 	TString tubename; 
-	TGeoVolume *gastube;
-	TObjArray *volumeArray = gGeoManager->GetListOfVolumes();
+	TGeoVolume *gastube; // CHECK we may use tube (fTubeArray) instead of repeating the procedure...
+	TObjArray *volumeArray = gGeoManager->GetListOfVolumes();   
 
 	for(int i = 0; i < volumeArray->GetEntriesFast() ; i++)
 	  {
@@ -516,8 +534,8 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
 		break;
 	      }
 	  }
-	TGeoTube *tube = (TGeoTube*) gastube->GetShape();
-	Double_t tuberadius = tube->GetRmax();
+	TGeoTube *geotube = (TGeoTube*) gastube->GetShape();
+	Double_t tuberadius = geotube->GetRmax();
 	Double_t distance = 2 * sqrt(tuberadius * tuberadius - radius * radius); // cm
 	Double_t coslam = TMath::Cos(TMath::ATan(zslope));
 	distance = distance / coslam;    

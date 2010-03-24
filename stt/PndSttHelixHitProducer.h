@@ -4,6 +4,8 @@
 
 #include "FairTask.h"
 #include "PndSttHelixHit.h"
+#include "PndGeoSttPar.h"
+
 #include "TVector3.h"
 #include "TH1F.h"
 #include "TH2F.h"
@@ -37,6 +39,9 @@ class PndSttHelixHitProducer : public FairTask
 
   /** set persistence flag **/
   void SetPersistence(Bool_t persistence) { fPersistence = persistence; }
+ 
+
+  void SetParContainers();
 
  private: 
 
@@ -52,6 +57,9 @@ class PndSttHelixHitProducer : public FairTask
   /** Output array of PndSttHelixHits **/
   TClonesArray* fHelixHitArray;  
 
+  /** from parameters array of PndSttTube **/  //  CHECK added
+  TClonesArray* fTubeArray;
+
   // histograms
   TH1F *hx, *hy, *hz;
   TH1F *hxs, *hys, *hzs;
@@ -59,6 +67,9 @@ class PndSttHelixHitProducer : public FairTask
 
   /** object persistence **/
   Bool_t  fPersistence; //!
+
+  PndGeoSttPar *fSttParameters;  //  CHECK added
+ 
 
   ClassDef(PndSttHelixHitProducer,1);
 

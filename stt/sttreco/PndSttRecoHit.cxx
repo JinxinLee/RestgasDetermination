@@ -23,6 +23,11 @@
 #include "GeaneTrackRep.h"
 #include "PndSttHit.h"
 #include "PndSttHelixHit.h"
+#include "PndSttTube.h"
+#include "PndSttMapCreator.h"
+#include "PndGeoSttPar.h"
+#include "FairRuntimeDb.h"
+#include "FairRunAna.h"
 
 #include "TMath.h"
 
@@ -37,15 +42,23 @@ PndSttRecoHit::~PndSttRecoHit()
 
 PndSttRecoHit::PndSttRecoHit()
   : WirepointRecoHit(NparHitRep)
-{}
+{
+ 
+}
 
 
 PndSttRecoHit::PndSttRecoHit(PndSttHit *currenthit) : WirepointRecoHit(NparHitRep){
 
+  FairRuntimeDb* rtdb = FairRunAna::Instance()->GetRuntimeDb();
+  PndGeoSttPar *sttParameters = (PndGeoSttPar*) rtdb->getContainer("PndGeoSttPar");
+  Int_t tubeID = currenthit->GetTubeID();
+  PndSttMapCreator *mapper = new PndSttMapCreator(sttParameters);
+  PndSttTube *tube = (PndSttTube*) mapper->GetTubeFromTubeID(tubeID);
+
   // wire1(3), wire2(3), rdrift, zreco
-  TVector3 wiredirection = currenthit->GetWireDirection();
-  TVector3 wiredirection2 = currenthit->GetTubeHalfLength() * wiredirection;                     // CHECK for short tubes
-  TVector3 cenposition(currenthit->GetX(), currenthit->GetY(), currenthit->GetZ());  // CHECK! z = 35
+  TVector3 wiredirection = tube->GetWireDirection();
+  TVector3 wiredirection2 = tube->GetHalfLength() * wiredirection;                     // CHECK for short tubes
+  TVector3 cenposition = tube->GetPosition();  // CHECK! z = 35
   TVector3 wire1, wire2;
   wire1 = cenposition - wiredirection2;
   wire2 = cenposition + wiredirection2;
@@ -73,10 +86,16 @@ PndSttRecoHit::PndSttRecoHit(PndSttHit *currenthit) : WirepointRecoHit(NparHitRe
 
 PndSttRecoHit::PndSttRecoHit(PndSttHelixHit *currenthit) : WirepointRecoHit(NparHitRep){
 
+  FairRuntimeDb* rtdb = FairRunAna::Instance()->GetRuntimeDb();
+  PndGeoSttPar *sttParameters = (PndGeoSttPar*) rtdb->getContainer("PndGeoSttPar");
+  Int_t tubeID = currenthit->GetTubeID();
+  PndSttMapCreator *mapper = new PndSttMapCreator(sttParameters);
+  PndSttTube *tube = (PndSttTube*) mapper->GetTubeFromTubeID(tubeID);
+
   // wire1(3), wire2(3), rdrift, zreco
-  TVector3 wiredirection = currenthit->GetWireDirection();
-  TVector3 wiredirection2 = currenthit->GetTubeHalfLength() * wiredirection;                     // CHECK for short tubes
-  TVector3 cenposition(currenthit->GetXcen(), currenthit->GetYcen(), currenthit->GetZcen());  // CHECK! z = 35
+  TVector3 wiredirection = tube->GetWireDirection();
+  TVector3 wiredirection2 = tube->GetHalfLength() * wiredirection;                     // CHECK for short tubes
+  TVector3 cenposition = tube->GetPosition(); // CHECK! z = 35
   TVector3 wire1, wire2;
   wire1 = cenposition - wiredirection2;
   wire2 = cenposition + wiredirection2;
@@ -92,11 +111,11 @@ PndSttRecoHit::PndSttRecoHit(PndSttHelixHit *currenthit) : WirepointRecoHit(Npar
   fHitCoord[5][0] = wire2.Z();
   fHitCoord[6][0] = currenthit->GetIsochrone();
   if(wiredirection == TVector3(0.,0.,1.)) {
-    fHitCoord[7][0] = currenthit->GetZ() - currenthit->GetZcen(); 
+    fHitCoord[7][0] = currenthit->GetZ() - cenposition.Z(); 
   }
   else  {
     //   cout << "SKEWED " << endl;
-    fHitCoord[7][0] = (currenthit->GetZ() - currenthit->GetZcen())/(TVector3(0.,0.,1.).Dot(wiredirection)/wiredirection.Mag());
+    fHitCoord[7][0] = (currenthit->GetZ() - cenposition.Z())/(TVector3(0.,0.,1.).Dot(wiredirection)/wiredirection.Mag());
   }
 
   // errors on drift radius and z (by hand)
@@ -110,6 +129,8 @@ PndSttRecoHit::PndSttRecoHit(PndSttHelixHit *currenthit) : WirepointRecoHit(Npar
   fPolicy.setMaxDistance(0.5);
 
 }
+
+
 
 TMatrixT<double>
 PndSttRecoHit::getHMatrix(const GFAbsTrackRep* stateVector)

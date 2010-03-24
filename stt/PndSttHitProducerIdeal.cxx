@@ -7,9 +7,13 @@
 #include "PndSttHit.h"
 #include "PndSttHitInfo.h"
 #include "PndSttPoint.h"
+#include "PndSttTube.h"
 #include "PndSttSingleStraw.h"
+#include "PndSttMapCreator.h"
 
 #include "FairRootManager.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
 
 #include "TClonesArray.h"
 #include "TRandom.h"
@@ -83,12 +87,20 @@ InitStatus PndSttHitProducerIdeal::Init()
   fHitInfoArray = new TClonesArray("PndSttHitInfo");
   ioman->Register("STTHitInfo", "STT", fHitInfoArray, fPersistence);
 
+  // CHECK added 
+  PndSttMapCreator *mapper = new PndSttMapCreator(fSttParameters);
+  fTubeArray = mapper->FillTubeArray();
+
   cout << "-I- PndSttHitProducerIdeal: Intialisation successfull" << endl;
   return kSUCCESS;
 }
 // -------------------------------------------------------------------------
 
-
+// CHECK added 
+void PndSttHitProducerIdeal::SetParContainers() {
+  FairRuntimeDb* rtdb = FairRunAna::Instance()->GetRuntimeDb();
+  fSttParameters = (PndGeoSttPar*) rtdb->getContainer("PndGeoSttPar");
+}
 
 // -----   Public method Exec   --------------------------------------------
 void PndSttHitProducerIdeal::Exec(Option_t* opt) 
@@ -128,11 +140,16 @@ void PndSttHitProducerIdeal::Exec(Option_t* opt)
       // MCTrack ID
       trackID = point->GetTrackID();
 
+      // tubeID  CHECK added
+      Int_t tubeID = point->GetTubeID();
+      PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
+
       // Determine hit position and isochrone (x,y of wire, measured z  position)
       TVector3
 	posInLocal(point->GetXInLocal(), point->GetYInLocal(), point->GetZInLocal()),
 	posOutLocal(point->GetXOutLocal(), point->GetYOutLocal(), point->GetZOutLocal()),
-	position(point->GetX(), point->GetY(), point->GetZ());
+	position; 
+      position = tube->GetPosition(); // CHECK added
 
       Double_t
 	closestDistance,
@@ -161,7 +178,7 @@ void PndSttHitProducerIdeal::Exec(Option_t* opt)
       closestDistanceError =0.;
 
       Double_t eloss = point->GetEnergyLoss();
-      Double_t halflength = point->GetTubeHalfLength();
+      Double_t halflength = tube->GetHalfLength(); // CHECK added
       //---------------------
 
       Double_t
@@ -171,8 +188,7 @@ void PndSttHitProducerIdeal::Exec(Option_t* opt)
       FoldZPosWithResolution(zpos, zposError, 
 			     posInLocal, posOutLocal);
  
-      TVector3
-	  wireDirection(point->GetXWireDirection(), point->GetYWireDirection(), point->GetZWireDirection());
+      TVector3	wireDirection = tube->GetWireDirection();  // CHECK added
 
       // Create new hit
       //      pos.SetXYZ(position.X(), position.Y(), zpos);
@@ -195,6 +211,7 @@ void PndSttHitProducerIdeal::Exec(Option_t* opt)
       if (distance != 0)  dedx = eloss/(distance);  // in GeV/cm (I guess) CHECK
       hit->SetdEdx(dedx);                 // CHECK
       hit->SetTubeHalfLength(halflength); // CHECK
+      hit->SetTubeID(tubeID); // CHECK added
 
       new ((*fHitInfoArray)[counter]) PndSttHitInfo(0, 0, trackID, iPoint,
 						   0, kFALSE);

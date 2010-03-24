@@ -15,12 +15,11 @@ ${CMAKE_SOURCE_DIR}/pnddata/SttData
 ${CMAKE_SOURCE_DIR}/trackbase
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
 ${CMAKE_SOURCE_DIR}/field 
-${CMAKE_SOURCE_DIR}/stt
+${CMAKE_SOURCE_DIR}/lia/stt
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
 
-#set(GLPK_LIB_DIR ${SIMPATH}/basics/glpk/lib/)
 set(GLPK_LIB_DIR ${SIMPATH}/basics/glpk/lib)
 
 set(LINK_DIRECTORIES
@@ -46,13 +45,14 @@ PndSttFitTracks.cxx
 PndSttTrackMatch.cxx 		
 PndSttHitProducerIdeal.cxx  		
 PndSttSingleStraw.cxx				
-PndSttHitProducerReal.cxx 		
 PndSttHelixTrackFitter.cxx 		
 PndSttTrackFitterQATask.cxx 	
 PndSttHitProducerRealFast.cxx
 PndSttHitProducerRealFull.cxx            
 PndSttHelixHitProducer.cxx
 PndSttTrackFinderReal.cxx
+PndSttMapCreator.cxx
+PndSttTube.cxx
 )
 
 if(RULE_CHECKER_FOUND)

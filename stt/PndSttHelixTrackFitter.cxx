@@ -7,6 +7,7 @@
 #include "PndSttGeomPoint.h"
 #include "PndSttHit.h"
 #include "PndSttPoint.h"
+#include "PndSttTube.h"
 
 #include "PndTrackCandHit.h"
 #include "PndTrackCand.h"
@@ -276,9 +277,14 @@ Int_t PndSttHelixTrackFitter::XYFit(PndTrackCand* pTrackCand, Int_t whatToFit) {
     // get point
     PndSttPoint *iPoint = (PndSttPoint*) fPointArray->At(refindex);
     if(!iPoint) { cout << "PndSttHelixTrackFitter::XYFit: no point at " << refindex << " associated to hit " << iHit << endl;  continue; }
+
+    // tubeID  CHECK added
+    Int_t tubeID = currenthit->GetTubeID();
+    PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
+
     PndSttHit *hitfirst, *hitlast;
 
-    TVector3 wiredirection(iPoint->GetXWireDirection(), iPoint->GetYWireDirection(), iPoint->GetZWireDirection());
+    TVector3 wiredirection = tube->GetWireDirection();
     if(wiredirection != TVector3(0.,0.,1.)) continue;
     else if(first == kFALSE)
       {
@@ -334,7 +340,12 @@ Int_t PndSttHelixTrackFitter::XYFit(PndTrackCand* pTrackCand, Int_t whatToFit) {
     // get point
     PndSttPoint *iPoint = (PndSttPoint*) fPointArray->At(refindex);
     if(!iPoint) { cout << "PndSttHelixTrackFitter::XYFit: no point at " << refindex << " associated to hit " << iHit << endl;  continue; }
-    TVector3 wiredirection(iPoint->GetXWireDirection(), iPoint->GetYWireDirection(), iPoint->GetZWireDirection());
+
+    // tubeID  CHECK added
+    Int_t tubeID = currenthit->GetTubeID();
+    PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
+
+    TVector3 wiredirection = tube->GetWireDirection();
     if(wiredirection != TVector3(0.,0.,1.)) continue;
     
 
@@ -359,7 +370,7 @@ Int_t PndSttHelixTrackFitter::XYFit(PndTrackCand* pTrackCand, Int_t whatToFit) {
       TMarker *cir1 = new TMarker(currenthit->GetXint(), currenthit->GetYint(), 6);
       cir1->SetMarkerColor(2);
       if(whatToFit == 2) cir1->Draw("SAME");
-      TMarker *cir2 = new TMarker(currenthit->GetX(), currenthit->GetY(), 6);
+      TMarker *cir2 = new TMarker(tube->GetPosition().X(), tube->GetPosition().Y(), 6);
       if(whatToFit == 1) cir2->Draw("SAME");
       //     }
     }
@@ -711,12 +722,15 @@ Bool_t PndSttHelixTrackFitter::IntersectionFinder(PndTrackCand *pTrackCand)
     if (!iPoint ) { cout << "PndSttHelixTrackFitter::IntersectionFinder: no point at " << refindex << " associated  to hit " << iHit << endl;  continue; }
 
 
-    TVector3 wiredirection(iPoint->GetXWireDirection(), iPoint->GetYWireDirection(), iPoint->GetZWireDirection());
+    // tubeID  CHECK added
+    Int_t tubeID = pMhit->GetTubeID();
+    PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
+    TVector3 wiredirection = tube->GetWireDirection();
     
     if(wiredirection != TVector3(0.,0.,1.)) continue;
 
     // [xp, yp] point = coordinates xy of the centre of the firing tube
-    point.Set(pMhit->GetX(), pMhit->GetY());
+    point.Set(tube->GetPosition().X(), tube->GetPosition().Y());
     radius = pMhit->GetIsochrone();
 
     // the coordinates of the point are taken from the intersection
@@ -790,7 +804,7 @@ Bool_t PndSttHelixTrackFitter::IntersectionFinder(PndTrackCand *pTrackCand)
     //      cout << "ATTENZIONE: " << "differenza = " << TMath::Sqrt((xy->X() - point.X())*(xy->X() - point.X()) + (xy->Y() - point.Y())*(xy->Y() - point.Y())) - radius << endl;
     //    }
 
-    //    cout << "x hit prima: " << pMhit->GetX() << " " << pMhit->GetXint() << endl;
+    //    cout << "x hit prima: " << tube->GetPosition().X() << " " << pMhit->GetXint() << endl;
     //    cout << prima: " << pMhit->GetXint() << " " << pMhit->GetYint() << " " << pMhit->GetZint() << endl;
 
     marray.AddAt(m, k);
@@ -878,12 +892,16 @@ Bool_t PndSttHelixTrackFitter::ZFinder(PndTrackCand* pTrackCand, Int_t whatToFit
     PndSttPoint *iPoint = (PndSttPoint*) fPointArray->At(refindex);
     if (!iPoint ) { cout << "PndSttHelixTrackFitter::ZFinder: no point at " << refindex << " associated  to hit " << iHit << endl;  continue; }
 
-    TVector3 wiredirection(iPoint->GetXWireDirection(), iPoint->GetYWireDirection(), iPoint->GetZWireDirection());
+    // tubeID  CHECK added
+    Int_t tubeID = pMhit->GetTubeID();
+    PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
+
+    TVector3 wiredirection = tube->GetWireDirection();
     TVector3 wiredirection2;
 
-    wiredirection2 = pMhit->GetTubeHalfLength() * wiredirection;
-    TVector3 cenposition(pMhit->GetX(), pMhit->GetY(), pMhit->GetZ());  
-    //    if(pMhit->GetZ() != 35) continue; // to throw away short tubes 
+    wiredirection2 = tube->GetHalfLength() * wiredirection;
+    TVector3 cenposition = tube->GetPosition();
+    //    if(tube->GetPosition().Z() != 35) continue; // to throw away short tubes 
 
     TVector3 min, max;
     min = cenposition - wiredirection2;
@@ -1206,10 +1224,11 @@ Bool_t PndSttHelixTrackFitter::ZFinder(PndTrackCand* pTrackCand, Int_t whatToFit
     // get point
     PndSttPoint *iPoint = (PndSttPoint*) fPointArray->At(refindex);
     if (!iPoint ) { cout << "PndSttHelixTrackFitter::ZFinder: no point at " << refindex << " associated to hit " << iHit << endl;  continue; }
-
-
-    TVector3 wiredirection(iPoint->GetXWireDirection(), iPoint->GetYWireDirection(), iPoint->GetZWireDirection());
-
+    
+    // tubeID  CHECK added
+    Int_t tubeID = pMhit->GetTubeID();
+    PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
+    TVector3 wiredirection = tube->GetWireDirection();
   
     if(wiredirection == TVector3(0.,0.,1.)) continue;
     wireOk++;
@@ -1354,10 +1373,14 @@ Int_t PndSttHelixTrackFitter::ZFit(PndTrackCand* pTrackCand, Int_t whatToFit) {
     PndSttPoint *iPoint = (PndSttPoint*) fPointArray->At(refindex);
     if (!iPoint ) { cout << "PndSttHelixTrackFitter::ZFit: no point at " << refindex << " associated to hit " << iHit << endl;  continue; }
 
-  TVector3 wiredirection(iPoint->GetXWireDirection(), iPoint->GetYWireDirection(), iPoint->GetZWireDirection());
+    // tubeID  CHECK added
+    Int_t tubeID = pMhit->GetTubeID();
+    PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
+
+    TVector3 wiredirection = tube->GetWireDirection();
     
     if(wiredirection == TVector3(0.,0.,1.)) continue;
-    //    if(pMhit->GetZ() != 35) continue; // for the moment I throw away short tubes 
+    //    if(tube->GetPosition().Z() != 35) continue; // for the moment I throw away short tubes 
 
     counter++;
     wireOk++;
@@ -1365,7 +1388,7 @@ Int_t PndSttHelixTrackFitter::ZFit(PndTrackCand* pTrackCand, Int_t whatToFit) {
     TVector3 *vi = new TVector3(pMhit->GetXint(), pMhit->GetYint(), pMhit->GetZint());
 
     // if the found z is > 75 cm or < -75 cm continue: this has to be fixed
-    if(pMhit->GetZint() < (pMhit->GetZ() - pMhit->GetTubeHalfLength()) || pMhit->GetZint() > (pMhit->GetZ() + pMhit->GetTubeHalfLength())) continue; // CHECK 
+    if(pMhit->GetZint() < (tube->GetPosition().Z() - tube->GetHalfLength()) || pMhit->GetZint() > (tube->GetPosition().Z() + tube->GetHalfLength())) continue; // CHECK 
 
     Double_t scos = fTrack->CalculateScosl(pMhit->GetXint(), pMhit->GetYint());
     
@@ -1536,7 +1559,12 @@ Int_t PndSttHelixTrackFitter::SetUpFitVector(PndTrackCand* pTrackCand, TMatrixT<
       currenthit = (PndSttHit*) fHitArray->At(iHit);
       if(!currenthit) { cout << "PndSttHelixTrackFitter::SetUpFitVector: no hit at " << iHit << endl;  continue; }
       
-      if(currenthit->GetWireDirection() != TVector3(0.,0.,1.)) continue;
+
+      // tubeID  CHECK added
+      Int_t tubeID = currenthit->GetTubeID();
+      PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
+
+      if(tube->GetWireDirection() != TVector3(0.,0.,1.)) continue;
       if(currenthit->GetXint() == -999 || currenthit->GetYint() == -999)  continue;
 
       fitvect[counter][0] = currenthit->GetXint();
@@ -1713,14 +1741,18 @@ Double_t PndSttHelixTrackFitter::GetHitAngle(Int_t hitNo, Double_t dCenter,
 
     pMhit = GetHitFromCollections(hitNo);
 	
+    // CHECK added
+    Int_t tubeID = pMhit->GetTubeID();
+    PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
+
     Double_t
       xCenter = (dCenter + radius) * cos(phiCenter),
       yCenter = (dCenter + radius) * sin(phiCenter);
     
     // get XY of wire
     Double_t
-      deltaX = pMhit->GetX() - xCenter,
-      deltaY = pMhit->GetY() - yCenter;
+      deltaX = tube->GetPosition().X() - xCenter,
+      deltaY = tube->GetPosition().Y() - yCenter;
     
     // CHECK: the old way is method 1, but I thinkl method 2 is better. Check what
     // kind of angle exactly is used and choose one of the two methods (anyway, up to now 
@@ -1767,8 +1799,13 @@ void PndSttHelixTrackFitter::OrderHitsByR(map<Double_t, Int_t> &hitMap)
 	pMhit = GetHitFromCollections(iHit);
 	if ( ! pMhit ) 
 	  continue;
-	
-	hitMap[sqrt(pMhit->GetX() * pMhit->GetX() + pMhit->GetY() * pMhit->GetY())] = iHit;
+
+	// tubeID  CHECK added
+	Int_t tubeID = pMhit->GetTubeID();
+	PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
+
+	//	hitMap[sqrt(pMhit->GetX() * pMhit->GetX() + pMhit->GetY() * pMhit->GetY())] = iHit;
+	hitMap[tube->GetPosition().Perp()] = iHit;
       }
 }
 
@@ -1789,10 +1826,22 @@ Int_t PndSttHelixTrackFitter::GetCharge(Double_t dCenter, Double_t phiCenter, Do
     *startHit = GetHitFromCollections(hitMapStart->second),
     *endHit = GetHitFromCollections(hitMapEnd->second);
   
+  // tubeID  CHECK added
+  Int_t starttubeID = startHit->GetTubeID();
+  Int_t endtubeID   = endHit->GetTubeID();
+
+  PndSttTube 
+    *startTube = (PndSttTube*) fTubeArray->At(starttubeID),
+    *endTube = (PndSttTube*) fTubeArray->At(endtubeID);
+
   PndSttGeomPoint
     vertex(0., 0., 0.),
-    firstPoint(startHit->GetX(), startHit->GetY(), startHit->GetZ()), 
-    lastPoint(endHit->GetX(), endHit->GetY(), endHit->GetZ());
+    firstPoint(startTube->GetPosition().X(), 
+	       startTube->GetPosition().Y(), 
+	       startTube->GetPosition().Z()), 
+    lastPoint(endTube->GetPosition().X(), 
+	      endTube->GetPosition().Y(), 
+	      endTube->GetPosition().Z());
   
   Bool_t
     retval = kTRUE;
