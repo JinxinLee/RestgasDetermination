@@ -303,13 +303,13 @@ Bool_t  PndStt::ProcessHits(FairVolume* vol)
 	//	cout << fPos.X() << " " << fPos.Y() << " " << fPos.Z() << endl;
 	// -----------------------------------------------------------------
 
-	AddHit(fTrackID, fVolumeID,
-	       TVector3(fPos.X(),   fPos.Y(),   fPos.Z()),
+	AddHit(fTrackID, fVolumeID, tubeID,
+	       TVector3(fpostot.X(), fpostot.Y(), fpostot.Z()),
 	       TVector3(fPosInLocal.X(),   fPosInLocal.Y(),   fPosInLocal.Z()),
 	       TVector3(fPosOutLocal.X(),  fPosOutLocal.Y(),  fPosOutLocal.Z()),
 	       TVector3(fMomIn.Px(),  fMomIn.Py(),  fMomIn.Pz()),
 	       TVector3(fMomOut.Px(), fMomOut.Py(), fMomOut.Pz()),
-	       fTime, fLength, fELoss, fMass, TVector3(fpostot.X(), fpostot.Y(), fpostot.Z()), tubeID); // da cancellare fpostot
+	       fTime, fLength, fELoss, fMass); 
 	    
 	  // Increment number of stt points for TParticle
 	  PndStack* stack = (PndStack*) gMC->GetStack();
@@ -468,11 +468,10 @@ void PndStt::ConstructGeometry()
 
 
 // -----   Private method AddHit   -----------------------------------------
-PndSttPoint* PndStt::AddHit(Int_t trackID, Int_t detID, TVector3 pos,
-			    TVector3 posInLocal, TVector3 posOutLocal, 
+PndSttPoint* PndStt::AddHit(Int_t trackID, Int_t detID, Int_t tubeID,
+			    TVector3 pos, TVector3 posInLocal, TVector3 posOutLocal, 
 			    TVector3 momIn, TVector3 momOut,
-			    Double_t time, Double_t length, Double_t eLoss,  Double_t mass, 
-			    TVector3 postot, Int_t tubeID)   // da cancellare postot
+			    Double_t time, Double_t length, Double_t eLoss,  Double_t mass)
 {
   TClonesArray& 
       clref = *fSttCollection;
@@ -482,7 +481,7 @@ PndSttPoint* PndStt::AddHit(Int_t trackID, Int_t detID, TVector3 pos,
 
   PndSttPoint *pointnew = new(clref[size]) PndSttPoint(trackID, detID, pos, posInLocal, posOutLocal,
 						       momIn, momOut, time, 
-						       length, eLoss, mass, postot);
+						       length, eLoss, mass);
   pointnew->SetTubeID(tubeID);
 }
 // -------------------------------------------------------------------------

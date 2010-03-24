@@ -268,19 +268,19 @@ void PndSttTrackFitterQATask::Exec(Option_t* opt)
       
       PndSttPoint *mcpoint = (PndSttPoint*) fPointArray->At(hit->GetRefIndex());
 
-      hresx->Fill(helixhit->GetX() - mcpoint->GetXtot());
-      hresy->Fill(helixhit->GetY() - mcpoint->GetYtot());
-      hresz->Fill(helixhit->GetZ() - mcpoint->GetZtot());
+      hresx->Fill(helixhit->GetX() - mcpoint->GetX());
+      hresy->Fill(helixhit->GetY() - mcpoint->GetY());
+      hresz->Fill(helixhit->GetZ() - mcpoint->GetZ());
 
       if(tube->GetWireDirection() == TVector3(0, 0, 1)) {
-	hx->Fill(helixhit->GetX() - mcpoint->GetXtot());
-	hy->Fill(helixhit->GetY() - mcpoint->GetYtot());
-	hz->Fill(helixhit->GetZ() - mcpoint->GetZtot());
+	hx->Fill(helixhit->GetX() - mcpoint->GetX());
+	hy->Fill(helixhit->GetY() - mcpoint->GetY());
+	hz->Fill(helixhit->GetZ() - mcpoint->GetZ());
       }
       else {
-	hxs->Fill(helixhit->GetX() - mcpoint->GetXtot());
-	hys->Fill(helixhit->GetY() - mcpoint->GetYtot());
-	hzs->Fill(helixhit->GetZ() - mcpoint->GetZtot());
+	hxs->Fill(helixhit->GetX() - mcpoint->GetX());
+	hys->Fill(helixhit->GetY() - mcpoint->GetY());
+	hzs->Fill(helixhit->GetZ() - mcpoint->GetZ());
       }
       
     }

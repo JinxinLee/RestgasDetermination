@@ -350,9 +350,9 @@ Int_t PndSttHelixTrackFitter::XYFit(PndTrackCand* pTrackCand, Int_t whatToFit) {
     
 
     if(whatToFit == 2) {
-      Double_t resx = iPoint->GetXtot() - currenthit->GetXint();
-      Double_t resy = iPoint->GetYtot() - currenthit->GetYint();
-      Double_t resdist = TMath::Sqrt((iPoint->GetYtot() - currenthit->GetYint())*(iPoint->GetYtot() - currenthit->GetYint()) + (iPoint->GetXtot() - currenthit->GetXint())*(iPoint->GetXtot() - currenthit->GetXint()));
+      Double_t resx = iPoint->GetX() - currenthit->GetXint();
+      Double_t resy = iPoint->GetY() - currenthit->GetYint();
+      Double_t resdist = TMath::Sqrt((iPoint->GetY() - currenthit->GetYint())*(iPoint->GetY() - currenthit->GetYint()) + (iPoint->GetX() - currenthit->GetXint())*(iPoint->GetX() - currenthit->GetXint()));
       
     }
  
@@ -361,11 +361,11 @@ Int_t PndSttHelixTrackFitter::XYFit(PndTrackCand* pTrackCand, Int_t whatToFit) {
       eventCanvas->cd(); 
       if(whatToFit == 1) {
 	// draw MC hits
-	TMarker *cir0 = new TMarker(iPoint->GetXtot(), iPoint->GetYtot(), 6);
+	TMarker *cir0 = new TMarker(iPoint->GetX(), iPoint->GetY(), 6);
 	cir0->SetMarkerStyle(6);
 	cir0->SetMarkerColor(4);
 	//	cir0->Draw("SAME");
-	//	cout << "MC: " << iPoint->GetXtot() << " " << iPoint->GetYtot() << endl;
+	//	cout << "MC: " << iPoint->GetX() << " " << iPoint->GetY() << endl;
       }
       TMarker *cir1 = new TMarker(currenthit->GetXint(), currenthit->GetYint(), 6);
       cir1->SetMarkerColor(2);
@@ -1174,7 +1174,7 @@ Bool_t PndSttHelixTrackFitter::ZFinder(PndTrackCand* pTrackCand, Int_t whatToFit
 	  mrkt2bis->SetMarkerColor(wireOk);
 	  mrkt2bis->Draw("SAME");
 	  // MC point
-	  TMarker *mcmrkt2bis = new TMarker(iPoint->GetXtot(), iPoint->GetZtot(), 6);
+	  TMarker *mcmrkt2bis = new TMarker(iPoint->GetX(), iPoint->GetZ(), 6);
 	  mcmrkt2bis->SetMarkerColor(4);
 	  mcmrkt2bis->Draw("SAME");	 
 
@@ -1189,13 +1189,13 @@ Bool_t PndSttHelixTrackFitter::ZFinder(PndTrackCand* pTrackCand, Int_t whatToFit
 	  mrkt2bbis->SetMarkerColor(wireOk);
 	  mrkt2bbis->Draw("SAME");
 	  // MC point
-	  TMarker *mcmrkt2bbis = new TMarker(iPoint->GetYtot(), iPoint->GetZtot(), 6);
+	  TMarker *mcmrkt2bbis = new TMarker(iPoint->GetY(), iPoint->GetZ(), 6);
 	  mcmrkt2bbis->SetMarkerColor(4);
 	  mcmrkt2bbis->Draw("SAME");
 
 	  eventCanvas2->cd();
 	  // MC point in z - track length plane
-	  TMarker *MCmrk = new TMarker(h* R*TMath::ATan2((iPoint->GetYtot() - y0)*TMath::Cos(Phi0) - (iPoint->GetXtot() - x0)*TMath::Sin(Phi0) , R + (iPoint->GetXtot() - x0) * TMath::Cos(Phi0) + (iPoint->GetYtot()-y0) * TMath::Sin(Phi0)), iPoint->GetZtot(), 6);
+	  TMarker *MCmrk = new TMarker(h* R*TMath::ATan2((iPoint->GetY() - y0)*TMath::Cos(Phi0) - (iPoint->GetX() - x0)*TMath::Sin(Phi0) , R + (iPoint->GetX() - x0) * TMath::Cos(Phi0) + (iPoint->GetY()-y0) * TMath::Sin(Phi0)), iPoint->GetZ(), 6);
 	  MCmrk->SetMarkerColor(4);
 	  MCmrk->Draw("SAME");
 
@@ -2023,9 +2023,9 @@ Int_t PndSttHelixTrackFitter::XYFitThroughOrigin(PndTrackCand* pTrackCand, Int_t
     
 
     if(whatToFit == 2) {
-      Double_t resx = iPoint->GetXtot() - currenthit->GetXint();
-      Double_t resy = iPoint->GetYtot() - currenthit->GetYint();
-      Double_t resdist = TMath::Sqrt((iPoint->GetYtot() - currenthit->GetYint())*(iPoint->GetYtot() - currenthit->GetYint()) + (iPoint->GetXtot() - currenthit->GetXint())*(iPoint->GetXtot() - currenthit->GetXint()));
+      Double_t resx = iPoint->GetX() - currenthit->GetXint();
+      Double_t resy = iPoint->GetY() - currenthit->GetYint();
+      Double_t resdist = TMath::Sqrt((iPoint->GetY() - currenthit->GetYint())*(iPoint->GetY() - currenthit->GetYint()) + (iPoint->GetX() - currenthit->GetXint())*(iPoint->GetX() - currenthit->GetXint()));
       
     }
  
@@ -2034,11 +2034,11 @@ Int_t PndSttHelixTrackFitter::XYFitThroughOrigin(PndTrackCand* pTrackCand, Int_t
       eventCanvas->cd(); 
       if(whatToFit == 1) {
 	// draw MC hits
-	TMarker *cir0 = new TMarker(iPoint->GetXtot(), iPoint->GetYtot(), 6);
+	TMarker *cir0 = new TMarker(iPoint->GetX(), iPoint->GetY(), 6);
 	cir0->SetMarkerStyle(6);
 	cir0->SetMarkerColor(4);
 	//	cir0->Draw("SAME");
-	//	cout << "MC: " << iPoint->GetXtot() << " " << iPoint->GetYtot() << endl;
+	//	cout << "MC: " << iPoint->GetX() << " " << iPoint->GetY() << endl;
       }
       TMarker *cir1 = new TMarker(currenthit->GetXint(), currenthit->GetYint(), 6);
       cir1->SetMarkerColor(2);
@@ -2626,7 +2626,7 @@ Bool_t PndSttHelixTrackFitter::ZFinderThroughOrigin(PndTrackCand* pTrackCand, In
 	  mrkt2bis->SetMarkerColor(wireOk);
 	  mrkt2bis->Draw("SAME");
 	  // MC point
-	  TMarker *mcmrkt2bis = new TMarker(iPoint->GetXtot(), iPoint->GetZtot(), 6);
+	  TMarker *mcmrkt2bis = new TMarker(iPoint->GetX(), iPoint->GetZ(), 6);
 	  mcmrkt2bis->SetMarkerColor(4);
 	  mcmrkt2bis->Draw("SAME");	 
 
@@ -2641,13 +2641,13 @@ Bool_t PndSttHelixTrackFitter::ZFinderThroughOrigin(PndTrackCand* pTrackCand, In
 	  mrkt2bbis->SetMarkerColor(wireOk);
 	  mrkt2bbis->Draw("SAME");
 	  // MC point
-	  TMarker *mcmrkt2bbis = new TMarker(iPoint->GetYtot(), iPoint->GetZtot(), 6);
+	  TMarker *mcmrkt2bbis = new TMarker(iPoint->GetY(), iPoint->GetZ(), 6);
 	  mcmrkt2bbis->SetMarkerColor(4);
 	  mcmrkt2bbis->Draw("SAME");
 
 	  eventCanvas2->cd();
 	  // MC point in z - track length plane
-	  TMarker *MCmrk = new TMarker(h* R*TMath::ATan2((iPoint->GetYtot() - y0)*TMath::Cos(Phi0) - (iPoint->GetXtot() - x0)*TMath::Sin(Phi0) , R + (iPoint->GetXtot() - x0) * TMath::Cos(Phi0) + (iPoint->GetYtot()-y0) * TMath::Sin(Phi0)), iPoint->GetZtot(), 6);
+	  TMarker *MCmrk = new TMarker(h* R*TMath::ATan2((iPoint->GetY() - y0)*TMath::Cos(Phi0) - (iPoint->GetX() - x0)*TMath::Sin(Phi0) , R + (iPoint->GetX() - x0) * TMath::Cos(Phi0) + (iPoint->GetY()-y0) * TMath::Sin(Phi0)), iPoint->GetZ(), 6);
 	  MCmrk->SetMarkerColor(4);
 	  MCmrk->Draw("SAME");
 

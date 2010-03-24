@@ -31,7 +31,7 @@ class PndSttPoint : public FairMCPoint
   PndSttPoint(Int_t trackID, Int_t detID, TVector3 pos, 
 	      TVector3 posInLocal, TVector3 posOutLocal, 
 	      TVector3 momIn, TVector3 momOut, 
-	      Double_t tof, Double_t length, Double_t eLoss, Double_t mass, TVector3 postot); // da cancellare postot
+	      Double_t tof, Double_t length, Double_t eLoss, Double_t mass);
 
 
   /** Copy constructor **/
@@ -41,17 +41,6 @@ class PndSttPoint : public FairMCPoint
   /** Destructor **/
   virtual ~PndSttPoint();
 
-  // da cancellare
-  Double_t GetXtot()  const { return fxtot; }
-  Double_t GetYtot()  const { return fytot; }
-  Double_t GetZtot()  const { return fztot; }
-  void SetPositiontot(TVector3 postot);
-  Double_t GetPXtot()  const { return fpxtot; }
-  Double_t GetPYtot()  const { return fpytot; }
-  Double_t GetPZtot()  const { return fpztot; }
-  //void SetMomentumtot(TVector3 momtot);  // not implemented
-  //////
-
   /** Accessors **/
   Double_t GetXOutLocal()  const { return fX_out_local; }
   Double_t GetYOutLocal()  const { return fY_out_local; }
@@ -60,6 +49,11 @@ class PndSttPoint : public FairMCPoint
   Double_t GetYInLocal()  const { return fY_in_local; }
   Double_t GetZInLocal()  const { return fZ_in_local; }
 
+  // to be deleted  CHECK
+  Double_t GetXtot()  const { return GetX(); }
+  Double_t GetYtot()  const { return GetY(); }
+  Double_t GetZtot()  const { return GetZ(); }
+  
   Double_t GetPxOut() const { return fPx_out; }
   Double_t GetPyOut() const { return fPy_out; }
   Double_t GetPzOut() const { return fPz_out; }
@@ -95,13 +89,7 @@ class PndSttPoint : public FairMCPoint
   // stt1 - particle mass
   Double_t fMass;
 
-  // da cancellare
-  Double_t fxtot, fytot, fztot; 
-  Double_t fpxtot, fpytot, fpztot; 
- 
   Int_t fTubeID; // CHECK added
-
- //////
 
   ClassDef(PndSttPoint,1)
 
@@ -128,11 +116,4 @@ inline void PndSttPoint::SetMomentumOut(TVector3 mom) {
   fPz_out = mom.Pz();
 }
 
-// da cancellare
-inline void PndSttPoint::SetPositiontot(TVector3 postot){
-  fxtot = postot.X();
-  fytot = postot.Y();
-  fztot = postot.Z();
-}
-////////
 #endif

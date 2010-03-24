@@ -150,11 +150,11 @@ class PndStt : public FairDetector
    **
    ** Adds a CbmTrdPoint to the HitCollection
    **/
-  PndSttPoint* AddHit(Int_t trackID, Int_t detID, TVector3 pos,
-		      TVector3 posInLocal, TVector3 posOutLocal,
+  PndSttPoint* AddHit(Int_t trackID, Int_t detID, Int_t tubeID,
+		      TVector3 pos, TVector3 posInLocal, TVector3 posOutLocal,
 		      TVector3 momIn, TVector3 momOut, 
 		      Double_t time, Double_t length, Double_t eLoss, 
-		      Double_t mass, TVector3 postot, Int_t tubeID); // da cancellare postot
+		      Double_t mass);
 
   std::string GetStringPart(std::string &aSrc, Int_t part, char aDelim);
   bool Split(std::string &aDest, std::string &aSrc, char aDelim);

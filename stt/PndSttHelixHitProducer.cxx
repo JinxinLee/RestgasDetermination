@@ -306,13 +306,13 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
 	  helixhit->SetZ(zcoord);
 
 
-	  hx->Fill(iPoint->GetXtot() - helixhit->GetX());
-	  hy->Fill(iPoint->GetYtot() - helixhit->GetY());
-	  hz->Fill(iPoint->GetZtot() - helixhit->GetZ());
+	  hx->Fill(iPoint->GetX() - helixhit->GetX());
+	  hy->Fill(iPoint->GetY() - helixhit->GetY());
+	  hz->Fill(iPoint->GetZ() - helixhit->GetZ());
 
 
 	  // 	  cout << "hit on helix " << helixhit->GetX() << " " << helixhit->GetY() << " " << helixhit->GetZ() << endl;
-	  // 	  cout << "mc point     " << iPoint->GetXtot() << " "<< iPoint->GetYtot() << " " << iPoint->GetZtot() << endl;
+	  // 	  cout << "mc point     " << iPoint->GetX() << " "<< iPoint->GetY() << " " << iPoint->GetZ() << endl;
 	  
 	  //	  helixhit->Print();
 	  
@@ -509,12 +509,12 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
 	//	helixhit->SetZ(zcoord);
 
 	//	cout << "helix hit skewed " << helixhit->GetX() << " " << helixhit->GetY() << " " << helixhit->GetZ() << endl; // CHECK the procedure!!
-	//  	cout << "mc point     " << iPoint->GetXtot() << " "<< iPoint->GetYtot() << " " << iPoint->GetZtot() << endl;
+	//  	cout << "mc point     " << iPoint->GetX() << " "<< iPoint->GetY() << " " << iPoint->GetZ() << endl;
 
-	hxs->Fill(iPoint->GetXtot() - helixhit->GetX());
-	hys->Fill(iPoint->GetYtot() - helixhit->GetY());
-	hzs->Fill(iPoint->GetZtot() - helixhit->GetZ());
-	hzresvsslope->Fill(zslope, (iPoint->GetZtot() - helixhit->GetZ()));
+	hxs->Fill(iPoint->GetX() - helixhit->GetX());
+	hys->Fill(iPoint->GetY() - helixhit->GetY());
+	hzs->Fill(iPoint->GetZ() - helixhit->GetZ());
+	hzresvsslope->Fill(zslope, (iPoint->GetZ() - helixhit->GetZ()));
       }
       
 

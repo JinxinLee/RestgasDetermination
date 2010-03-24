@@ -19,7 +19,7 @@ PndSttPoint::PndSttPoint() : FairMCPoint() {
 PndSttPoint::PndSttPoint(Int_t trackID, Int_t detID, TVector3 pos, 
 			 TVector3 posInLocal, TVector3 posOutLocal, 
 			 TVector3 momIn, TVector3 momOut,
-			 Double_t tof, Double_t length, Double_t eLoss, Double_t mass, TVector3 postot)  // da cancellare postot
+			 Double_t tof, Double_t length, Double_t eLoss, Double_t mass)
   : FairMCPoint(trackID, detID, pos, momIn, tof, length, eLoss) 
 {
   fX_out_local  = posOutLocal.X();
@@ -35,17 +35,6 @@ PndSttPoint::PndSttPoint(Int_t trackID, Int_t detID, TVector3 pos,
   fPz_out = momOut.Pz();
 
   fMass = mass; // stt1
-
-  // da cancellare
-  fxtot = postot.X();
-  fytot = postot.Y();
-  fztot = postot.Z();
-  TVector3 momtot = momIn + momOut;
-  momtot = TVector3(momtot.X()/2.,momtot.Y()/2.,momtot.Z()/2.) ;
-  fpxtot = momtot.X();
-  fpytot = momtot.Y();
-  fpztot = momtot.Z();
-  /////
 
 }
 // -------------------------------------------------------------------------

@@ -334,9 +334,9 @@ Int_t PndSttTrackFinderIdeal::DoFind( TClonesArray* trackCandArray, TClonesArray
 	// CHECK remember to SET the errors on position!!!!!!!
 	PndSttHelixHit *helixhit = new(clref[size]) PndSttHelixHit();
 	helixhit->CopyHitToHelixHit(pMhit, iHit);
-	helixhit->SetX(((PndSttPoint *) pMCpt)->GetXtot());
-	helixhit->SetY(((PndSttPoint *) pMCpt)->GetYtot());
-	helixhit->SetZ(((PndSttPoint *) pMCpt)->GetZtot());
+	helixhit->SetX(((PndSttPoint *) pMCpt)->GetX());
+	helixhit->SetY(((PndSttPoint *) pMCpt)->GetY());
+	helixhit->SetZ(((PndSttPoint *) pMCpt)->GetZ());
 	
 	
 	// dedx
