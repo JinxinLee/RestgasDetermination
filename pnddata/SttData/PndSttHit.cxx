@@ -19,13 +19,12 @@ PndSttHit::PndSttHit()
 /** Standard constructor **/
 PndSttHit::PndSttHit(Int_t detID, TVector3& pos, TVector3& dpos, 
 		     Int_t index, Int_t flag, Double_t isochrone,
-		     Double_t isochroneError, TVector3 wireDir) 
+		     Double_t isochroneError)
   : FairHit(detID, pos, dpos, index) 
 {
   fIsochrone = isochrone;
   fIsochroneError = isochroneError;
   fRadial = TMath::Sqrt(pos.X() * pos.X() + pos.Y() * pos.Y());
-  fWireDirection = wireDir;
   fAssigned = kFALSE;
   // stt1
   fXint = fX;
@@ -40,7 +39,7 @@ PndSttHit::PndSttHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t index)
 }
 
 //PndSttHit::PndSttHit(Int_t trackID,Int_t eventID,Double_t p, Double_t rr, Double_t rt,TString nam,TVector3 center,TVector3 tubemax,TVector3 tubemin) {
-PndSttHit::PndSttHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t index, Int_t trackID, Double_t p, Double_t rr, Double_t rt, Double_t isochroneError, TVector3 wireDir) 
+PndSttHit::PndSttHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t index, Int_t trackID, Double_t p, Double_t rr, Double_t rt, Double_t isochroneError) 
   : FairHit(detID, pos, dpos, index){
   fPulse   = p;
   fRsim    = rr;
@@ -56,7 +55,6 @@ PndSttHit::PndSttHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t index, In
   fIsochrone = rr;  // isochrone = simulated radius <----
   fIsochroneError = isochroneError;
   fRadial = sqrt(pos.X() * pos.X() + pos.Y() * pos.Y());
-  fWireDirection = wireDir;
   fAssigned = kFALSE;
   fXint = fX;
   fYint = fY;
@@ -70,7 +68,6 @@ void PndSttHit::Clear()
   fIsochrone = 0.;
   fIsochroneError = 0.;
   fRadial = 0.;
-  fWireDirection.SetXYZ(0., 0., 0.);
   fAssigned = kFALSE;
   fDepCharge = 0.;
   fELoss = 0.;

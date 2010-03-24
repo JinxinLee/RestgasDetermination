@@ -38,11 +38,11 @@ class PndSttHit : public FairHit
   **/
   PndSttHit(Int_t detID, TVector3& pos, TVector3& dpos,
 	    Int_t index, Int_t flag, Double_t isochrone,
-	    Double_t isoerror, TVector3 wireDir);
+	    Double_t isoerror);
   PndSttHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t index); 
 
   // stt1----
-  PndSttHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t index, Int_t trackID, Double_t p, Double_t rr, Double_t rt, Double_t isochroneError,TVector3 wireDir);
+  PndSttHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t index, Int_t trackID, Double_t p, Double_t rr, Double_t rt, Double_t isochroneError);
   //---------
   
   /** Destructor **/
@@ -63,7 +63,6 @@ class PndSttHit : public FairHit
   Double_t GetIsochrone()        const { return fIsochrone;                 }; 
   Double_t GetIsochroneError()   const { return fIsochroneError;            }; 
   Double_t GetRadial()           const { return fRadial;                    };
-  TVector3 GetWireDirection()    const { return fWireDirection;             };
 
   Double_t GetPulse()            const {return fPulse;                      };
   Double_t GetXint()             const { return fXint;                      };
@@ -72,13 +71,11 @@ class PndSttHit : public FairHit
   Double_t GetdEdx()             const { return fdEdx;                      };
   Double_t GetDepCharge()        const { return fDepCharge;                 };
   Double_t GetEnergyLoss()       const { return fELoss;                     };
-  Double_t GetTubeHalfLength()   const { return fHalfLength ;               };
 
   /** Modifiers **/
   void SetIsochrone(Double_t isochrone)           { fIsochrone = isochrone; };
   void SetIsochroneError(Double_t isochroneError) { fIsochroneError = isochroneError; };
   void SetRadial(Double_t newRadial)              { fRadial = newRadial; };
-  void SetWireDirection(TVector3 newWire)         { fWireDirection = newWire; }
 
   void SetAssigned()  {fAssigned = kTRUE;} 
   Bool_t IsAssigned() const {return fAssigned;}
@@ -92,7 +89,6 @@ class PndSttHit : public FairHit
   void SetDepCharge(Double_t depcharge)       { fDepCharge = depcharge; }
   void SetEnergyLoss(Double_t eloss)          { fELoss = eloss; }
   void SetdEdx(Double_t dedx)                 { fdEdx = dedx; }
-  void SetTubeHalfLength(Double_t halflength) { fHalfLength = halflength; }
 
  // tube ID // CHECK added
   void SetTubeID(Int_t tubeid) { fTubeID = tubeid; }
@@ -106,8 +102,6 @@ class PndSttHit : public FairHit
   Double_t fIsochroneError;
   /** This variable contains the position calculated along the circle in the x-y plane **/
   Double_t fRadial;
-  /** This variables contain the direction of the wire **/
-  TVector3 fWireDirection;
 
   Bool_t fAssigned;
 
@@ -126,7 +120,6 @@ class PndSttHit : public FairHit
 
   Double_t fDepCharge;  // deposit charge (arbitrary units)
   Double_t fdEdx;       // hit dEdx
-  Double_t fHalfLength; // tube half length
   Double_t fELoss;      // hit energy loss 
   Int_t fTubeID; // CHECK added
 

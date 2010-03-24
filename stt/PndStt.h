@@ -131,7 +131,6 @@ class PndStt : public FairDetector
   Double_t     fELoss;             //!  energy loss
   Double_t     fMass;              //!  particle mass
   Bool_t         fIsInitialized;
-  Double_t fHalfLength;            //! tube half length
   
   Int_t fPosIndex;                   //!
   TClonesArray* fSttCollection;      //! Hit collection
@@ -193,7 +192,6 @@ inline void PndStt::ResetParameters() {
   fPosIn.SetXYZM(0.0, 0.0, 0.0, 0.0);
   fPosOut.SetXYZM(0.0, 0.0, 0.0, 0.0);
   fMass = 0;
-  fHalfLength = 0.;
 }
 
 

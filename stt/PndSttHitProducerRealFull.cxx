@@ -199,13 +199,9 @@ void PndSttHitProducerRealFull::Exec(Option_t* opt) {
                                // longitudinalResolution = 3.)
     //----- end stt2 ------------------------------------------
 
-    // wire direction from stt2 -------------------------------
-    TVector3 wireDirection = tube->GetWireDirection(); // CHECK added
-    // = 0, 0, 1 if only axias tubes
-    // --------------------------------------------------------
 
     // create hit
-    AddHit(detID, pos, dpos, iPoint, point->GetTrackID(), pulset, radius, true_rad, closestDistanceError, wireDirection, halflength, depCharge, dedx, tubeID);
+    AddHit(detID, pos, dpos, iPoint, point->GetTrackID(), pulset, radius, true_rad, closestDistanceError, depCharge, dedx, tubeID);
 
     AddHitInfo(0, 0, point->GetTrackID(), iPoint, 0, kFALSE);
 
@@ -233,22 +229,20 @@ void PndSttHitProducerRealFull::FoldZPosWithResolution(Double_t &zpos, Double_t 
 
 
 // -----   Private method AddHit   --------------------------------------------
-PndSttHit* PndSttHitProducerRealFull::AddHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t iPoint, Int_t trackID, Double_t p, Double_t rsim, Double_t rtrue, Double_t closestDistanceError, TVector3 wireDirection, Double_t halflength, Double_t depcharge, Double_t dedx, Int_t tubeID){
+PndSttHit* PndSttHitProducerRealFull::AddHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t iPoint, Int_t trackID, Double_t p, Double_t rsim, Double_t rtrue, Double_t closestDistanceError, Double_t depcharge, Double_t dedx, Int_t tubeID){
   // see PndSttHit for hit description
   TClonesArray& clref = *fHitArray;
   Int_t size = clref.GetEntriesFast();
   //cout << "-I- PndSttHitProducerRealFull: Adding Hit: track"<<trackID<<" event: "<<eventID<<" pulse = " << p << ", rsim = " << rsim 
   //     << ", rtrue = " << rtrue <<" name "<<nam<<"center.X "<<center.X()<< endl;
 
-  PndSttHit *hitnew =  new(clref[size]) PndSttHit(detID, pos, dpos, iPoint, trackID, p, rsim, rtrue, closestDistanceError, wireDirection);
+  PndSttHit *hitnew =  new(clref[size]) PndSttHit(detID, pos, dpos, iPoint, trackID, p, rsim, rtrue, closestDistanceError);
   hitnew->SetDepCharge(depcharge); // CHECK
   hitnew->SetEnergyLoss(depcharge/1e6);  // eloss in arbitrary units CHECK
   hitnew->SetdEdx(dedx);                 // CHECK
-  hitnew->SetTubeHalfLength(halflength); // CHECK
   hitnew->SetTubeID(tubeID);
   return hitnew;
 
-  //return new(clref[size]) PndSttHit(detID, pos, dpos, iPoint, trackID, p, rsim, rtrue, closestDistanceError, wireDirection);
 }
 // ----
 

@@ -7,9 +7,9 @@
 #include "PndSttHit.h"
 #include "PndSttHitInfo.h"
 #include "PndSttPoint.h"
-//#include "PndSttTube.h"
 //#include "PndSttSingleStraw.h"
-//#include "PndSttMapCreator.h"
+#include "PndSttMapCreator.h"
+#include "PndSttTube.h"
 #include "PndSttTrack.h"
 #include "PndTrackCand.h"
 #include "PndTrackCandHit.h"
@@ -137,8 +137,8 @@ InitStatus PndSttTrackFitterQATask::Init()
   }
 
   // CHECK added 
-  //  PndSttMapCreator *mapper = new PndSttMapCreator(fSttParameters);
-  //  fTubeArray = mapper->FillTubeArray();
+  PndSttMapCreator *mapper = new PndSttMapCreator(fSttParameters);
+  fTubeArray = mapper->FillTubeArray();
 
   cout << "-I- PndSttTrackFitterQATask: Intialization successfull" << endl;
   
@@ -261,13 +261,18 @@ void PndSttTrackFitterQATask::Exec(Option_t* opt)
       PndSttHelixHit *helixhit = (PndSttHelixHit*) fHelixHitArray->At(iHHit);
       Int_t hitindex = helixhit->GetHitIndex();
       PndSttHit* hit = (PndSttHit*) fHitArray->At(hitindex);
+     
+      // tubeID  CHECK added
+      Int_t tubeID = hit->GetTubeID();
+      PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
+      
       PndSttPoint *mcpoint = (PndSttPoint*) fPointArray->At(hit->GetRefIndex());
 
       hresx->Fill(helixhit->GetX() - mcpoint->GetXtot());
       hresy->Fill(helixhit->GetY() - mcpoint->GetYtot());
       hresz->Fill(helixhit->GetZ() - mcpoint->GetZtot());
 
-      if(hit->GetWireDirection() == TVector3(0, 0, 1)) {
+      if(tube->GetWireDirection() == TVector3(0, 0, 1)) {
 	hx->Fill(helixhit->GetX() - mcpoint->GetXtot());
 	hy->Fill(helixhit->GetY() - mcpoint->GetYtot());
 	hz->Fill(helixhit->GetZ() - mcpoint->GetZtot());

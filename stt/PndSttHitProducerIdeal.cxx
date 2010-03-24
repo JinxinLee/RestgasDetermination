@@ -178,7 +178,6 @@ void PndSttHitProducerIdeal::Exec(Option_t* opt)
       closestDistanceError =0.;
 
       Double_t eloss = point->GetEnergyLoss();
-      Double_t halflength = tube->GetHalfLength(); // CHECK added
       //---------------------
 
       Double_t
@@ -188,8 +187,6 @@ void PndSttHitProducerIdeal::Exec(Option_t* opt)
       FoldZPosWithResolution(zpos, zposError, 
 			     posInLocal, posOutLocal);
  
-      TVector3	wireDirection = tube->GetWireDirection();  // CHECK added
-
       // Create new hit
       //      pos.SetXYZ(position.X(), position.Y(), zpos);
       pos.SetXYZ(position.X(), position.Y(), position.Z()); // CHECK!
@@ -200,7 +197,7 @@ void PndSttHitProducerIdeal::Exec(Option_t* opt)
       PndSttHit *hit = NULL;
     
       hit = new ((*fHitArray)[counter]) PndSttHit(detID, pos, dpos, iPoint, 0,
-				     closestDistance, closestDistanceError, wireDirection);;
+						  closestDistance, closestDistanceError);
       hit->SetTrackID(trackID);
       hit->SetEnergyLoss(eloss); // CHECK
       hit->SetDepCharge(0.);     // CHECK no charge simulation
@@ -210,7 +207,6 @@ void PndSttHitProducerIdeal::Exec(Option_t* opt)
       Double_t dedx = 999;
       if (distance != 0)  dedx = eloss/(distance);  // in GeV/cm (I guess) CHECK
       hit->SetdEdx(dedx);                 // CHECK
-      hit->SetTubeHalfLength(halflength); // CHECK
       hit->SetTubeID(tubeID); // CHECK added
 
       new ((*fHitInfoArray)[counter]) PndSttHitInfo(0, 0, trackID, iPoint,
