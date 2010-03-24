@@ -6,6 +6,8 @@
  * $Id: pstree.c,v 2.32 2007-10-26 21:39:50+02 fred Exp $               *
  *                                                                      *
  * 29/05/08 - modified by JGM for usage in combi with boss_worker_mpi   *
+ *            purpose: kill processes (incl. daughters) in case of      *
+ *                     time-out                                         *
  * 24/03/10 - only use SIGTERM and SIGKILL signals to terminate         * 
  *                                                                      *
  */
