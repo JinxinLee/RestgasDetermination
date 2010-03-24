@@ -30,6 +30,7 @@
 #include "FairParRootFileIo.h"
 #include "PndEmcGeoPar.h"
 
-void filterEvents(int pid  = -211, const std::string outFileName="FilterOut.root");
+// 11 = e-
+void filterEvents(int pdg  = 11, const std::string outFileName="FilterOut.root");
 
 #endif// End of interface definition

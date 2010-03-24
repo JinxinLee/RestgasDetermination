@@ -2,15 +2,14 @@
 
 using namespace std;
 
-std::vector<int> EvtIds;
-
-void filterEvents(int pid, const std::string outFileName)
+void filterEvents(int pdg, const std::string outFileName)
 {
   int counts = 0;
   TStopwatch timer;
   timer.Start();
-  cout << "Count = " << counts << " pid = " << pid << endl;
+  cout << "Count = " << counts << " pdg = " << pdg << endl;
 
+  std::vector<int> EvtIds;
 
   //EMC cluster energy, num.clusters, numb. crystals
   float emc, emcCorr, mom; 
@@ -20,7 +19,7 @@ void filterEvents(int pid, const std::string outFileName)
   numClus = numCrys = 0;
 
 
-  TNtuple EmcNtp ("pion","pion","p:emc:emcCorr:numClus:numCrys:z20:z53");
+  TNtuple EmcNtp ("pion","pion","id:p:emc:emcCorr:numClus:numCrys:z20:z53");
 
   TFile sF("points_sttcombi.root");
   TTree* tsim = (TTree *) sF.Get("cbmsim");
@@ -72,9 +71,8 @@ void filterEvents(int pid, const std::string outFileName)
     if(pt){
       int trID = pt->GetTrackID();
       PndMCTrack* track = (PndMCTrack*) trackList->At(trID);
-      // Select which event has the correct pdg code. When hitting the
-      // first emc detector.
-      if(track->GetPdgCode() == pid){
+      // Select event with the correct pdg code.
+      if(track->GetPdgCode() == pdg){
         counts++;
 	EvtIds.push_back(j);
       }
@@ -88,7 +86,7 @@ void filterEvents(int pid, const std::string outFileName)
       std::cout << "No point on the EMC." << std::endl;
     }
   }
-
+  
   // Loop through the selected events.  
   for(size_t i = 0; i < EvtIds.size(); i++){
     int evid = EvtIds[i];
@@ -106,7 +104,8 @@ void filterEvents(int pid, const std::string outFileName)
 		<< " with P = "<< par.GetMomentum().Mag() << endl;
       //Select the right cluster(highest E_dep).
       double maxEnergy = -1.0;
-      int clIndex = 0;
+      int clIndex = -1;
+      
       // Loop through the clusters.
       for(int cl = 0; cl < clusters_arr->GetEntriesFast(); cl++){
 	PndEmcCluster* clust = (PndEmcCluster*) clusters_arr->At(cl);
@@ -117,19 +116,21 @@ void filterEvents(int pid, const std::string outFileName)
       }
 
       // Found the cluster with highest E_dep.
-      PndEmcCluster* HE_cluster = (PndEmcCluster*) clusters_arr->At(clIndex);
-      PndEmcXClMoments clsZmom = HE_cluster->Xmoments();
+      if(clIndex >= 0){
+	PndEmcCluster* HE_cluster = (PndEmcCluster*) clusters_arr->At(clIndex);
+	const PndEmcXClMoments& clsZmom = HE_cluster->Xmoments();
 
-      numClus = clusters_arr->GetEntriesFast();
-      emc = HE_cluster->energy(); 
-      emcCorr = HE_cluster->GetEnergyCorrected();  
-      numCrys = HE_cluster->NumberOfDigis();
-      z20 = clsZmom.AbsZernikeMoment(2, 0, 15);// Z_{n = 2}^{m = 0}
-      z53 = clsZmom.AbsZernikeMoment(5, 3, 15);// Z_{n = 5}^{m = 3}
-      mom = par.GetMomentum().Mag();
+	numClus = clusters_arr->GetEntriesFast();
+	numCrys = HE_cluster->NumberOfDigis();
+	mom = par.GetMomentum().Mag();
+	emc = HE_cluster->energy(); 
+	emcCorr = HE_cluster->GetEnergyCorrected();  
+	z20 = clsZmom.AbsZernikeMoment(2, 0, 15);// Z_{n = 2}^{m = 0}
+	z53 = clsZmom.AbsZernikeMoment(5, 3, 15);// Z_{n = 5}^{m = 3}
 
-      //TNtuple EmcNtp ("pion","pion","p:emc:emcCorr:numClus:numCrys:z20:z53");
-      EmcNtp.Fill(mom, (emc/mom), (emcCorr/mom), numClus, numCrys, z20, z53);
+	// Fill tree
+	EmcNtp.Fill(evid, mom, (emc/mom), (emcCorr/mom), numClus, numCrys, z20, z53);
+      }
     }// End if(tra)
     else{//Neutral or not correctly reconstructed.
       cout << "empty track" << endl;
