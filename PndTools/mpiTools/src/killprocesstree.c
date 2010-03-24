@@ -6,6 +6,7 @@
  * $Id: pstree.c,v 2.32 2007-10-26 21:39:50+02 fred Exp $               *
  *                                                                      *
  * 29/05/08 - modified by JGM for usage in combi with boss_worker_mpi   *
+ * 24/03/10 - only use SIGTERM and SIGKILL signals to terminate         * 
  *                                                                      *
  */
 #define MAXLINE 1024
@@ -14,7 +15,7 @@
 extern int  dummy_mode;    /* Variable initialized in boss_worker_mpi.c */
 extern int  verbose_mode;  /* Variable initialized in boss_worker_mpi.c */
 
-#if defined(_AIX) || defined(___AIX)	/* AIX >= 3.1 */
+#if defined(_AIX) || defined(___AIX)	/* AIX >= 3.1 *
 /* Under AIX, we directly read the process table from the kernel */
 # ifndef _AIX50
 /* problems with getprocs() under AIX 5L
@@ -617,7 +618,8 @@ void DropProcs(void) {
 int KillTree(int rank,int idx)
 {
   int child,cnt,retval;
-  int sig[4]={SIGINT,SIGHUP,SIGTERM,SIGKILL};
+//int sig[4]={SIGINT,SIGHUP,SIGTERM,SIGKILL};
+      int sig[2]={SIGTERM,SIGKILL};
 
   if (!(EXIST(idx))) return 0;
 
@@ -628,7 +630,7 @@ int KillTree(int rank,int idx)
     }
 
   cnt=0;
-  while (cnt<4)
+  while (cnt<2)
     {
       retval=kill(P[idx].pid,sig[cnt++]);
       if (retval) break;

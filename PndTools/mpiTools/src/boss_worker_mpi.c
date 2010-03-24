@@ -95,7 +95,7 @@
 
 #define MAX_HOSTNAME_LENGTH 32
 
-extern void KillProcessAndDaughters(int, char *);   // External function implemented in pstree.c
+extern void KillProcessAndDaughters(int, char *);   // External function implemented in killprocesstree.c
 
 //
 // Global variables used by boss/worker 
