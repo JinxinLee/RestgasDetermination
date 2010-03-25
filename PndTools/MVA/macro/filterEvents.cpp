@@ -2,7 +2,13 @@
 
 using namespace std;
 
-void filterEvents(int pdg, const std::string outFileName)
+void filterEvents(int pdg, const std::string& partName,
+		  const std::string& paramFile,
+		  const std::string& simFile,
+		  const std::string& digiFile,
+		  const std::string& recoFile,
+		  const std::string& outFileName
+		  )
 {
   int counts = 0;
   TStopwatch timer;
@@ -18,10 +24,10 @@ void filterEvents(int pdg, const std::string outFileName)
   mom = emc = emcCorr = z20 = z53 = 0.00;
   numClus = numCrys = 0;
 
+  TNtuple EmcNtp (partName.c_str(), partName.c_str(),
+		  "id:p:emc:emcCorr:numClus:numCrys:z20:z53");
 
-  TNtuple EmcNtp ("pion","pion","id:p:emc:emcCorr:numClus:numCrys:z20:z53");
-
-  TFile sF("points_sttcombi.root");
+  TFile sF(simFile.c_str());
   TTree* tsim = (TTree *) sF.Get("cbmsim");
 
   TClonesArray* trackList = new TClonesArray("PndMCTrack");
@@ -30,17 +36,16 @@ void filterEvents(int pdg, const std::string outFileName)
   TClonesArray* pointList = new TClonesArray("PndEmcPoint");
   tsim->SetBranchAddress("EmcPoint", &pointList);
   
-  // Maybe it can be done better.
+  // Maybe it can be done better (Cleaner).
   ////////////////////////////
-  //TFile pF("params_sttcombi.root");
-
   FairRunAna *fRun= new FairRunAna();
-  fRun->SetInputFile("points_sttcombi.root");
+  fRun->SetInputFile(simFile.c_str());
+  // Dummy output, containes nothing
   fRun->SetOutputFile("dummy_out.root");
 
   FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
   FairParRootFileIo* parInput1 = new FairParRootFileIo();
-  parInput1->open("params_sttcombi.root");
+  parInput1->open(paramFile.c_str());
   rtdb->setFirstInput(parInput1);
   PndEmcGeoPar *geoPar = (PndEmcGeoPar*) rtdb->getContainer("PndEmcGeoPar");
   fRun->Init();
@@ -48,12 +53,12 @@ void filterEvents(int pdg, const std::string outFileName)
   PndEmcMapper::Init(6);
   ////////////////////////////
 
-  TFile digiF("digi_sttcombi.root");
+  TFile digiF(digiFile.c_str());
   TTree* digiTr = (TTree *) digiF.Get("cbmsim");
   TClonesArray* clusters_arr = new TClonesArray("PndEmcCluster");  
   digiTr->SetBranchAddress("EmcCluster", &clusters_arr);
 
-  TFile recoF("reco_sttcombi.root");
+  TFile recoF(recoFile.c_str());
   TTree* RecoTr = (TTree *) recoF.Get("cbmsim");
   
   TClonesArray* recTrakArr = new TClonesArray("PndTrack");  
@@ -64,7 +69,7 @@ void filterEvents(int pdg, const std::string outFileName)
   for (int j = 0; j < tsim->GetEntriesFast(); j++){
     tsim->GetEntry(j);
     
-    std::cout << "<INFO> proc eventNum " << j << std::endl;
+    cout << "<Event num>: " << j << endl;
     //Select the first interaction point.
     PndEmcPoint* pt   = (PndEmcPoint*) pointList->At(0);
     
@@ -77,9 +82,10 @@ void filterEvents(int pdg, const std::string outFileName)
 	EvtIds.push_back(j);
       }
       else{//Decay ????
-        std::cout << "Track with wrong pdg. "<<std::endl;
-        std::cout << "Track ID = " << trID << std::endl;
-        std::cout << "Track with pdg = " << track->GetPdgCode() << std::endl;
+        std::cout << "<Wrong pdg> :"
+		  << " Track ID = " << trID 
+		  << " Track with pdg = " << track->GetPdgCode()
+		  << std::endl;
       }
     }
     else{// No emc interaction??
@@ -90,7 +96,7 @@ void filterEvents(int pdg, const std::string outFileName)
   // Loop through the selected events.  
   for(size_t i = 0; i < EvtIds.size(); i++){
     int evid = EvtIds[i];
-    cout << "EVT ID = " << evid << endl;
+    cout << "<Event number> = " << evid << " ";
     RecoTr->GetEntry(evid);
     digiTr->GetEntry(evid);
 
@@ -98,7 +104,7 @@ void filterEvents(int pdg, const std::string outFileName)
     
     if(tra){  // Charged or correct reconstructed.
       FairTrackParP par = tra->GetParamLast();
-      std::cout << "number of clusters for current evt = "
+      std::cout << "number of clusters = "
 		<< clusters_arr->GetEntriesFast()
 		<<" number of tracks = "<< recTrakArr->GetEntriesFast() 
 		<< " with P = "<< par.GetMomentum().Mag() << endl;
@@ -133,9 +139,8 @@ void filterEvents(int pdg, const std::string outFileName)
       }
     }// End if(tra)
     else{//Neutral or not correctly reconstructed.
-      cout << "empty track" << endl;
-      std::cout << "number of clusters for current evt = "
-		<< clusters_arr->GetEntriesFast() << endl;
+      cout << "<Empty track>: number of clusters = "
+	   << clusters_arr->GetEntriesFast() << endl;
     }
   }
   std::cout << "<-I-> Total number of events = " << tsim->GetEntriesFast()
@@ -154,7 +159,6 @@ void filterEvents(int pdg, const std::string outFileName)
   //=========== Clean-up
   EvtIds.clear();
   sF.Close();
-  //pF.Close();
   digiF.Close();
   recoF.Close();
 
@@ -171,6 +175,12 @@ void filterEvents(int pdg, const std::string outFileName)
   cout << "Real time " << rtime << " s, CPU time " << ctime << " s" << endl;
   cout << endl;
   // ------------------------------------------------------------------------
-
   exit(0);
+}
+
+void mergeTreeFiles(const std::string& outFile)
+{
+  std::cout << "<INFO> Merging trees into : "<< outFile 
+	    << std::endl;
+  
 }

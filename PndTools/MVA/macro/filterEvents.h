@@ -31,6 +31,13 @@
 #include "PndEmcGeoPar.h"
 
 // 11 = e-
-void filterEvents(int pdg  = 11, const std::string outFileName="FilterOut.root");
+void filterEvents(int pdg = 11, const std::string& partName = "Particle",
+		  const std::string& paramFile = "params.root",
+		  const std::string& simFile   = "simfile.root",
+		  const std::string& digiFile  = "digifile.root",
+		  const std::string& recoFile  = "recofile.root",
+		  const std::string& outFileName = "FilterOut.root"
+		  );
 
+void mergeTreeFiles(const std::string& outFile = "MergeOutput.root");
 #endif// End of interface definition
