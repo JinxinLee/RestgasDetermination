@@ -54,6 +54,12 @@ PndMultiClassMVA.cxx
 #PndGeaneTrTpcTof.cxx
 #PndGeaneTrTpcIdealTof.cxx
 )
+
+if(RULE_CHECKER_FOUND)
+  CHECK_RULES("${Gpid_SRCS}" "${INCLUDE_DIRECTORIES}" GPID_RULES)
+endif(RULE_CHECKER_FOUND)
+
+
 CHANGE_FILE_EXTENSION(*.cxx *.h Gpid_HEADERS "${Gpid_SRCS}")
 
 set(Gpid_LINKDEF GpidLinkDef.h)

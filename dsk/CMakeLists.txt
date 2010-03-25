@@ -27,6 +27,10 @@ set(DSK_SRCS
 DskMC/PndDsk.cxx
 )
 
+if(RULE_CHECKER_FOUND)
+  CHECK_RULES("${DSK_SRCS}" "${INCLUDE_DIRECTORIES}" DSK_RULES)
+endif(RULE_CHECKER_FOUND)
+
 # fill list of header files from list of source files
 # by exchanging the file extension
 CHANGE_FILE_EXTENSION(*.cxx *.h DSK_HEADERS "${DSK_SRCS}")

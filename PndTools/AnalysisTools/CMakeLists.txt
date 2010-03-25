@@ -61,6 +61,10 @@ Fitter/Pnd4CFitter.cxx
 StrTok.cxx
 )
 
+if(RULE_CHECKER_FOUND)
+  CHECK_RULES("${AnalysisTools_SRCS}" "${INCLUDE_DIRECTORIES}" AnalysisTools_RULES)
+endif(RULE_CHECKER_FOUND)
+
 CHANGE_FILE_EXTENSION(*.cxx *.h AnalysisTools_HEADERS "${AnalysisTools_SRCS}")
 set(AnalysisTools_HEADERS ${AnalysisTools_HEADERS} ArgList.h)
 

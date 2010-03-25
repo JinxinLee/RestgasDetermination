@@ -32,6 +32,10 @@ PndRiemannTrack.cxx
 PndRiemannTrackFinder.cxx
 )
 
+if(RULE_CHECKER_FOUND)
+  CHECK_RULES("${RIEMANN_SRCS}" "${INCLUDE_DIRECTORIES}" RIEMANN_RULES)
+endif(RULE_CHECKER_FOUND)
+
 # fill list of header files from list of source files
 # by exchanging the file extension
 CHANGE_FILE_EXTENSION(*.cxx *.h RIEMANN_HEADERS "${RIEMANN_SRCS}")

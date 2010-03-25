@@ -56,6 +56,10 @@ LumiTracking/PndLumiTrack.cxx
 
 )
 
+if(RULE_CHECKER_FOUND)
+  CHECK_RULES("${LUMI_SRCS}" "${INCLUDE_DIRECTORIES}" LUMI_RULES)
+endif(RULE_CHECKER_FOUND)
+
 # fill list of header files from list of source files
 # by exchanging the file extension
 CHANGE_FILE_EXTENSION(*.cxx *.h LUMI_HEADERS "${LUMI_SRCS}")

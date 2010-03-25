@@ -31,6 +31,10 @@ PndRpcHitProducer.cxx
 PndRpcSimpleReco.cxx
 )
 
+if(RULE_CHECKER_FOUND)
+  CHECK_RULES("${RPC_SRCS}" "${INCLUDE_DIRECTORIES}" RPC_RULES)
+endif(RULE_CHECKER_FOUND)
+
 # fill list of header files from list of source files
 # by exchanging the file extension
 CHANGE_FILE_EXTENSION(*.cxx *.h RPC_HEADERS "${RPC_SRCS}")

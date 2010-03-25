@@ -38,6 +38,9 @@ PndSttKalmanTask.cxx
 PndSttKalmanTask2.cxx
 #WirepointHitPolicy.cxx
 )
+if(RULE_CHECKER_FOUND)
+  CHECK_RULES("${STT_SRCS}" "${INCLUDE_DIRECTORIES}" STTRECO_RULES)
+endif(RULE_CHECKER_FOUND)
 
 # fill list of header files from list of source files
 # by exchanging the file extension

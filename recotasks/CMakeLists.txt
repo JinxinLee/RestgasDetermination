@@ -64,7 +64,7 @@ GlobalTrackMergingTask.cxx
 )
 
 if(RULE_CHECKER_FOUND)
-  CHECK_RULES("${RECOTASKS_SRCS}" "${INCLUDE_DIRECTORIES}" RECOTASKS_RULES)
+  CHECK_RULES("${RECOTASKS_SRCS}" "${INCLUDE_DIRECTORIES}" RECOTASKS1_RULES)
 endif(RULE_CHECKER_FOUND)
 
 # fill list of header files from list of source files
