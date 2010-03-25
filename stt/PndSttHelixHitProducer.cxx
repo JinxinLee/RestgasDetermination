@@ -256,8 +256,8 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
 	  if(radius < 0.1) {
 	    /**
 	       marray.AddAt(-999, k);
-	       pMhit->SetXint(-999);
-	       pMhit->SetYint(-999);
+	       pMhit->SetX(-999);
+	       pMhit->SetY(-999);
 	       continue;  // CHECK throw away the hit
 	    **/
 	  }
@@ -325,12 +325,12 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
 	}
       else { // =========== SKEWED TUBE ==================
 
-	if(currenthit->GetZint() != -999)
+	if(currenthit->GetZ() != -999)
 	  { 
 	    // get the track fit result
-	    helixhit->SetX(currenthit->GetXint());
-	    helixhit->SetY(currenthit->GetYint());
-	    helixhit->SetZ(currenthit->GetZint());
+	    helixhit->SetX(currenthit->GetX());
+	    helixhit->SetY(currenthit->GetY());
+	    helixhit->SetZ(currenthit->GetZ());
 	  }
 	else
 	  {

@@ -22,9 +22,6 @@ PndSttHit::PndSttHit(Int_t detID, Int_t tubeID, Int_t mcindex, TVector3& pos, TV
   fPulse   = p;
   fIsochrone = isochrone;
   fIsochroneError = isochroneError;
-  fXint = fX;
-  fYint = fY;
-  fZint = fZ;
   fDepCharge = chDep;
   
 }
@@ -36,9 +33,6 @@ void PndSttHit::Clear()
   fPulse   = 0;
   fIsochrone = 0.;
   fIsochroneError = 0.;
-  fXint = 0.;
-  fYint = 0.;
-  fZint = 0.;
   fDepCharge = 0.;
 
 }  

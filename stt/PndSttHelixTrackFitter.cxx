@@ -272,7 +272,7 @@ Int_t PndSttHelixTrackFitter::XYFit(PndTrackCand* pTrackCand, Int_t whatToFit) {
     PndSttHit *currenthit = (PndSttHit*) fHitArray->At(iHit);
     if(!currenthit) { cout << "PndSttHelixTrackFitter::XYFit: no hit at " << iHit << endl;  continue; }
 
-    if(currenthit->GetXint() == -999 || currenthit->GetYint() == -999) continue;
+    if(currenthit->GetX() == -999 || currenthit->GetY() == -999) continue;
     Int_t refindex = currenthit->GetRefIndex(); 
     // get point
     PndSttPoint *iPoint = (PndSttPoint*) fPointArray->At(refindex);
@@ -290,12 +290,12 @@ Int_t PndSttHelixTrackFitter::XYFit(PndTrackCand* pTrackCand, Int_t whatToFit) {
       {
 	hitfirst = (PndSttHit*) fHitArray->At(iHit); 
 	first = kTRUE;
-	trasl[0] = hitfirst->GetXint();
-	trasl[1] = hitfirst->GetYint();
+	trasl[0] = hitfirst->GetX();
+	trasl[1] = hitfirst->GetY();
       }
     else{
       hitlast = (PndSttHit*) fHitArray->At(iHit);  
-      alpha = TMath::ATan2(hitlast->GetYint() -  hitfirst->GetYint(), hitlast->GetXint() - hitfirst->GetXint());
+      alpha = TMath::ATan2(hitlast->GetY() -  hitfirst->GetY(), hitlast->GetX() - hitfirst->GetX());
     }
   }  
 
@@ -335,7 +335,7 @@ Int_t PndSttHelixTrackFitter::XYFit(PndTrackCand* pTrackCand, Int_t whatToFit) {
     Int_t iHit = candhit.GetHitId();
     PndSttHit *currenthit = (PndSttHit*) fHitArray->At(iHit);
     if(!currenthit) { cout << "PndSttHelixTrackFitter::XYFit: no hit at " << iHit << endl;  continue; }
-    if(currenthit->GetXint() == -999 || currenthit->GetYint() == -999) continue;
+    if(currenthit->GetX() == -999 || currenthit->GetY() == -999) continue;
     Int_t refindex = currenthit->GetRefIndex(); 
     // get point
     PndSttPoint *iPoint = (PndSttPoint*) fPointArray->At(refindex);
@@ -350,9 +350,9 @@ Int_t PndSttHelixTrackFitter::XYFit(PndTrackCand* pTrackCand, Int_t whatToFit) {
     
 
     if(whatToFit == 2) {
-      Double_t resx = iPoint->GetX() - currenthit->GetXint();
-      Double_t resy = iPoint->GetY() - currenthit->GetYint();
-      Double_t resdist = TMath::Sqrt((iPoint->GetY() - currenthit->GetYint())*(iPoint->GetY() - currenthit->GetYint()) + (iPoint->GetX() - currenthit->GetXint())*(iPoint->GetX() - currenthit->GetXint()));
+      Double_t resx = iPoint->GetX() - currenthit->GetX();
+      Double_t resy = iPoint->GetY() - currenthit->GetY();
+      Double_t resdist = TMath::Sqrt((iPoint->GetY() - currenthit->GetY())*(iPoint->GetY() - currenthit->GetY()) + (iPoint->GetX() - currenthit->GetX())*(iPoint->GetX() - currenthit->GetX()));
       
     }
  
@@ -367,7 +367,7 @@ Int_t PndSttHelixTrackFitter::XYFit(PndTrackCand* pTrackCand, Int_t whatToFit) {
 	//	cir0->Draw("SAME");
 	//	cout << "MC: " << iPoint->GetX() << " " << iPoint->GetY() << endl;
       }
-      TMarker *cir1 = new TMarker(currenthit->GetXint(), currenthit->GetYint(), 6);
+      TMarker *cir1 = new TMarker(currenthit->GetX(), currenthit->GetY(), 6);
       cir1->SetMarkerColor(2);
       if(whatToFit == 2) cir1->Draw("SAME");
       TMarker *cir2 = new TMarker(tube->GetPosition().X(), tube->GetPosition().Y(), 6);
@@ -377,8 +377,8 @@ Int_t PndSttHelixTrackFitter::XYFit(PndTrackCand* pTrackCand, Int_t whatToFit) {
  
     Double_t xtrasl, ytrasl;
     // traslation
-    xtrasl = currenthit->GetXint() - trasl[0];
-    ytrasl = currenthit->GetYint() - trasl[1];
+    xtrasl = currenthit->GetX() - trasl[0];
+    ytrasl = currenthit->GetY() - trasl[1];
 
     Double_t xrot, yrot;
     // rotation 
@@ -759,8 +759,8 @@ Bool_t PndSttHelixTrackFitter::IntersectionFinder(PndTrackCand *pTrackCand)
     // is not used for the fit 
     if(radius < 0.1) {
       marray.AddAt(-999, k);
-      pMhit->SetXint(-999);
-      pMhit->SetYint(-999);
+      pMhit->SetX(-999);
+      pMhit->SetY(-999);
       continue;  // CHECK 
     }
 
@@ -835,16 +835,16 @@ Bool_t PndSttHelixTrackFitter::IntersectionFinder(PndTrackCand *pTrackCand)
     //      cout << "ATTENZIONE: " << "differenza = " << TMath::Sqrt((xy->X() - point.X())*(xy->X() - point.X()) + (xy->Y() - point.Y())*(xy->Y() - point.Y())) - radius << endl;
     //    }
 
-    //    cout << "x hit prima: " << tube->GetPosition().X() << " " << pMhit->GetXint() << endl;
-    //    cout << prima: " << pMhit->GetXint() << " " << pMhit->GetYint() << " " << pMhit->GetZint() << endl;
+    //    cout << "x hit prima: " << tube->GetPosition().X() << " " << pMhit->GetX() << endl;
+    //    cout << prima: " << pMhit->GetX() << " " << pMhit->GetY() << " " << pMhit->GetZ() << endl;
 
     marray.AddAt(m, k);
-    pMhit->SetXint(xy->X());
-    pMhit->SetYint(xy->Y());
+    pMhit->SetX(xy->X());
+    pMhit->SetY(xy->Y());
     
     if(rootoutput) { 
       eventCanvas->cd();
-      TMarker *np = new TMarker(pMhit->GetXint(), pMhit->GetYint(), 6);
+      TMarker *np = new TMarker(pMhit->GetX(), pMhit->GetY(), 6);
       np->SetMarkerColor(4);
       //      np->Draw("SAME");
       eventCanvas->Update();
@@ -1284,9 +1284,9 @@ Bool_t PndSttHelixTrackFitter::ZFinder(PndTrackCand* pTrackCand, Int_t whatToFit
     // distance between the found z and the predicted from the found line one
     Double_t distfirst = pow(((vi->Z() - (outz.Y() + outz.X() * scos))/sigz), 2);
     if(distfirst < 10) {
-      pMhit->SetXint(vi->X());
-      pMhit->SetYint(vi->Y());
-      pMhit->SetZint(vi->Z());
+      pMhit->SetX(vi->X());
+      pMhit->SetY(vi->Y());
+      pMhit->SetZ(vi->Z());
       fitdone = kTRUE;
     }
 
@@ -1307,29 +1307,29 @@ Bool_t PndSttHelixTrackFitter::ZFinder(PndTrackCand* pTrackCand, Int_t whatToFit
     // Xint Yin Zint set
     if(fitdone == kTRUE){
       if(distsecond < 10 && distsecond < distfirst) {
-	pMhit->SetXint(vi->X());
-	pMhit->SetYint(vi->Y());
-	pMhit->SetZint(vi->Z());
+	pMhit->SetX(vi->X());
+	pMhit->SetY(vi->Y());
+	pMhit->SetZ(vi->Z());
       }
     }
     else {
       if (distsecond < 10) {
-	pMhit->SetXint(vi->X());
-	pMhit->SetYint(vi->Y());
-	pMhit->SetZint(vi->Z());
+	pMhit->SetX(vi->X());
+	pMhit->SetY(vi->Y());
+	pMhit->SetZ(vi->Z());
 	fitdone = kTRUE;
       }
       else {
-	pMhit->SetXint(-999);
-	pMhit->SetYint(-999);
-	pMhit->SetZint(-999);
+	pMhit->SetX(-999);
+	pMhit->SetY(-999);
+	pMhit->SetZ(-999);
       }
     }
 
     if(rootoutput) {
-      if(pMhit->GetZint()!= -999) {
+      if(pMhit->GetZ()!= -999) {
 	eventCanvas2->cd();
-	TMarker *mrk3 = new TMarker(scos, pMhit->GetZint(), 6);
+	TMarker *mrk3 = new TMarker(scos, pMhit->GetZ(), 6);
 	mrk3->SetMarkerColor(2);    
 	mrk3->Draw("SAME");
       }
@@ -1397,7 +1397,7 @@ Int_t PndSttHelixTrackFitter::ZFit(PndTrackCand* pTrackCand, Int_t whatToFit) {
     PndSttHit *pMhit = (PndSttHit*) fHitArray->At(iHit);
     if (!pMhit ) { cout << "PndSttHelixTrackFitter::ZFit: no hit at " << iHit << endl;  continue; }
 
-    if(pMhit->GetXint() == -999 || pMhit->GetYint() == -999 || pMhit->GetZint() == -999) continue; // CHECK
+    if(pMhit->GetX() == -999 || pMhit->GetY() == -999 || pMhit->GetZ() == -999) continue; // CHECK
 
     Int_t refindex = pMhit->GetRefIndex(); 
     // get point
@@ -1416,12 +1416,12 @@ Int_t PndSttHelixTrackFitter::ZFit(PndTrackCand* pTrackCand, Int_t whatToFit) {
     counter++;
     wireOk++;
     
-    TVector3 *vi = new TVector3(pMhit->GetXint(), pMhit->GetYint(), pMhit->GetZint());
+    TVector3 *vi = new TVector3(pMhit->GetX(), pMhit->GetY(), pMhit->GetZ());
 
     // if the found z is > 75 cm or < -75 cm continue: this has to be fixed
-    if(pMhit->GetZint() < (tube->GetPosition().Z() - tube->GetHalfLength()) || pMhit->GetZint() > (tube->GetPosition().Z() + tube->GetHalfLength())) continue; // CHECK 
+    if(pMhit->GetZ() < (tube->GetPosition().Z() - tube->GetHalfLength()) || pMhit->GetZ() > (tube->GetPosition().Z() + tube->GetHalfLength())) continue; // CHECK 
 
-    Double_t scos = fTrack->CalculateScosl(pMhit->GetXint(), pMhit->GetYint());
+    Double_t scos = fTrack->CalculateScosl(pMhit->GetX(), pMhit->GetY());
     
     Sx = Sx + (scos /(sigz * sigz));
     Sz = Sz + (vi->Z()/(sigz * sigz));
@@ -1596,10 +1596,10 @@ Int_t PndSttHelixTrackFitter::SetUpFitVector(PndTrackCand* pTrackCand, TMatrixT<
       PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
 
       if(tube->GetWireDirection() != TVector3(0.,0.,1.)) continue;
-      if(currenthit->GetXint() == -999 || currenthit->GetYint() == -999)  continue;
+      if(currenthit->GetX() == -999 || currenthit->GetY() == -999)  continue;
 
-      fitvect[counter][0] = currenthit->GetXint();
-      fitvect[counter][1] = currenthit->GetYint();
+      fitvect[counter][0] = currenthit->GetX();
+      fitvect[counter][1] = currenthit->GetY();
       fitvect[counter][2] = currenthit->GetIsochrone();
       fitvect[counter][3] = currenthit->GetIsochroneError();
 
@@ -2008,7 +2008,7 @@ Int_t PndSttHelixTrackFitter::XYFitThroughOrigin(PndTrackCand* pTrackCand, Int_t
     Int_t iHit = candhit.GetHitId();
     PndSttHit *currenthit = (PndSttHit*) fHitArray->At(iHit);
     if(!currenthit) { cout << "PndSttHelixTrackFitter::XYFit: no hit at " << iHit << endl;  continue; }
-    if(currenthit->GetXint() == -999 || currenthit->GetYint() == -999) continue;
+    if(currenthit->GetX() == -999 || currenthit->GetY() == -999) continue;
   
     // tubeID  CHECK added
     Int_t tubeID = currenthit->GetTubeID();
@@ -2023,9 +2023,9 @@ Int_t PndSttHelixTrackFitter::XYFitThroughOrigin(PndTrackCand* pTrackCand, Int_t
     
 
     if(whatToFit == 2) {
-      Double_t resx = iPoint->GetX() - currenthit->GetXint();
-      Double_t resy = iPoint->GetY() - currenthit->GetYint();
-      Double_t resdist = TMath::Sqrt((iPoint->GetY() - currenthit->GetYint())*(iPoint->GetY() - currenthit->GetYint()) + (iPoint->GetX() - currenthit->GetXint())*(iPoint->GetX() - currenthit->GetXint()));
+      Double_t resx = iPoint->GetX() - currenthit->GetX();
+      Double_t resy = iPoint->GetY() - currenthit->GetY();
+      Double_t resdist = TMath::Sqrt((iPoint->GetY() - currenthit->GetY())*(iPoint->GetY() - currenthit->GetY()) + (iPoint->GetX() - currenthit->GetX())*(iPoint->GetX() - currenthit->GetX()));
       
     }
  
@@ -2040,7 +2040,7 @@ Int_t PndSttHelixTrackFitter::XYFitThroughOrigin(PndTrackCand* pTrackCand, Int_t
 	//	cir0->Draw("SAME");
 	//	cout << "MC: " << iPoint->GetX() << " " << iPoint->GetY() << endl;
       }
-      TMarker *cir1 = new TMarker(currenthit->GetXint(), currenthit->GetYint(), 6);
+      TMarker *cir1 = new TMarker(currenthit->GetX(), currenthit->GetY(), 6);
       cir1->SetMarkerColor(2);
       if(whatToFit == 2) cir1->Draw("SAME");
       TMarker *cir2 = new TMarker(tube->GetPosition().X(), tube->GetPosition().Y(), 6);
@@ -2050,8 +2050,8 @@ Int_t PndSttHelixTrackFitter::XYFitThroughOrigin(PndTrackCand* pTrackCand, Int_t
  
     Double_t xi, yi;
     // traslation
-    xi = currenthit->GetXint();
-    yi = currenthit->GetYint();
+    xi = currenthit->GetX();
+    yi = currenthit->GetY();
 
     if(rootoutput) { 
       eventCanvas->cd();
@@ -2738,9 +2738,9 @@ Bool_t PndSttHelixTrackFitter::ZFinderThroughOrigin(PndTrackCand* pTrackCand, In
     // distance between the found z and the predicted from the found line one
     Double_t distfirst = pow(((vi->Z() - (outz.Y() + outz.X() * scos))/sigz), 2);
     if(distfirst < 10) {
-      pMhit->SetXint(vi->X());
-      pMhit->SetYint(vi->Y());
-      pMhit->SetZint(vi->Z());
+      pMhit->SetX(vi->X());
+      pMhit->SetY(vi->Y());
+      pMhit->SetZ(vi->Z());
       fitdone = kTRUE;
     }
 
@@ -2761,29 +2761,29 @@ Bool_t PndSttHelixTrackFitter::ZFinderThroughOrigin(PndTrackCand* pTrackCand, In
     // Xint Yin Zint set
     if(fitdone == kTRUE){
       if(distsecond < 10 && distsecond < distfirst) {
-	pMhit->SetXint(vi->X());
-	pMhit->SetYint(vi->Y());
-	pMhit->SetZint(vi->Z());
+	pMhit->SetX(vi->X());
+	pMhit->SetY(vi->Y());
+	pMhit->SetZ(vi->Z());
       }
     }
     else {
       if (distsecond < 10) {
-	pMhit->SetXint(vi->X());
-	pMhit->SetYint(vi->Y());
-	pMhit->SetZint(vi->Z());
+	pMhit->SetX(vi->X());
+	pMhit->SetY(vi->Y());
+	pMhit->SetZ(vi->Z());
 	fitdone = kTRUE;
       }
       else {
-	pMhit->SetXint(-999);
-	pMhit->SetYint(-999);
-	pMhit->SetZint(-999);
+	pMhit->SetX(-999);
+	pMhit->SetY(-999);
+	pMhit->SetZ(-999);
       }
     }
 
     if(rootoutput) {
-      if(pMhit->GetZint()!= -999) {
+      if(pMhit->GetZ()!= -999) {
 	eventCanvas2->cd();
-	TMarker *mrk3 = new TMarker(scos, pMhit->GetZint(), 6);
+	TMarker *mrk3 = new TMarker(scos, pMhit->GetZ(), 6);
 	mrk3->SetMarkerColor(2);    
 	mrk3->Draw("SAME");
       }
@@ -2850,7 +2850,7 @@ Int_t PndSttHelixTrackFitter::ZFitThroughOrigin(PndTrackCand* pTrackCand, Int_t 
     Int_t tubeID = pMhit->GetTubeID();
     PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
     
-    if(pMhit->GetXint() == -999 || pMhit->GetYint() == -999 || pMhit->GetZint() == -999) continue; // CHECK
+    if(pMhit->GetX() == -999 || pMhit->GetY() == -999 || pMhit->GetZ() == -999) continue; // CHECK
 
     Int_t refindex = pMhit->GetRefIndex(); 
     // get point
@@ -2865,12 +2865,12 @@ Int_t PndSttHelixTrackFitter::ZFitThroughOrigin(PndTrackCand* pTrackCand, Int_t 
     counter++;
     wireOk++;
     
-    TVector3 *vi = new TVector3(pMhit->GetXint(), pMhit->GetYint(), pMhit->GetZint());
+    TVector3 *vi = new TVector3(pMhit->GetX(), pMhit->GetY(), pMhit->GetZ());
 
     // if the found z is > 75 cm or < -75 cm continue: this has to be fixed
-    if(pMhit->GetZint() < (tube->GetPosition().Z() - tube->GetHalfLength()) || pMhit->GetZint() > (tube->GetPosition().Z()  + tube->GetHalfLength())) continue; // CHECK 
+    if(pMhit->GetZ() < (tube->GetPosition().Z() - tube->GetHalfLength()) || pMhit->GetZ() > (tube->GetPosition().Z()  + tube->GetHalfLength())) continue; // CHECK 
 
-    Double_t scos = fTrack->CalculateScosl(pMhit->GetXint(), pMhit->GetYint());
+    Double_t scos = fTrack->CalculateScosl(pMhit->GetX(), pMhit->GetY());
     
     Sxz = Sxz + ((scos *vi->Z())/(sigz * sigz));
     Sxx = Sxx + ((scos * scos)/(sigz * sigz));

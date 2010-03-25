@@ -61,18 +61,12 @@ class PndSttHit : public FairHit
   Double_t GetIsochrone()        const { return fIsochrone;                 }; 
   Double_t GetIsochroneError()   const { return fIsochroneError;            }; 
   Double_t GetPulse()            const {return fPulse;                      };
-  Double_t GetXint()             const { return fXint;                      };
-  Double_t GetYint()             const { return fYint;                      };
-  Double_t GetZint()             const { return fZint;                      };
   Double_t GetDepCharge()        const { return fDepCharge;                 };
   Double_t GetEnergyLoss()       const { return fDepCharge/1e6;             };
 
   /** Modifiers **/
   void SetIsochrone(Double_t isochrone)           { fIsochrone = isochrone; };
   void SetIsochroneError(Double_t isochroneError) { fIsochroneError = isochroneError; };
-  void SetXint(Double_t x) { fXint = x; }
-  void SetYint(Double_t y) { fYint = y; }
-  void SetZint(Double_t z) { fZint = z; }
   void SetDepCharge(Double_t depcharge)       { fDepCharge = depcharge; }
 
   // tube ID // CHECK added
@@ -86,14 +80,13 @@ class PndSttHit : public FairHit
   /** This variable contains the error on the radial distance to the wire **/    
   Double_t fIsochroneError;
 
-  // stt1
+  /** time pulse **/
   Double_t fPulse; 
-  Double_t fRsim; 
 
-  Double_t fXint, fYint, fZint;      // Position of intersections (will work in reco)
+ /**  deposit charge (arbitrary units) **/
+  Double_t fDepCharge; 
 
-  Double_t fDepCharge;  // deposit charge (arbitrary units)
-
+  /** tube id **/
   Int_t fTubeID; // CHECK added
 
 

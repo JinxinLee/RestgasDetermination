@@ -203,8 +203,8 @@ Int_t PndSttTrackFinderIdeal::DoFind( TClonesArray* trackCandArray, TClonesArray
 	mcTrackIndex = pMCpt->GetTrackID();
 
 	Double_t 
-	  wireX = pMhit->GetX(),
-	  wireY = pMhit->GetY();
+	  wireX = tube->GetPosition().X(),
+	  wireY = tube->GetPosition().Y();
 	(hitMap[mcTrackIndex])[wireX * wireX + wireY * wireY]++;
     }
 
@@ -261,9 +261,13 @@ Int_t PndSttTrackFinderIdeal::DoFind( TClonesArray* trackCandArray, TClonesArray
 	  continue;
       }
 
+      // tubeID  CHECK added
+      Int_t tubeID = pMhit->GetTubeID();
+      PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
+
       if (pMhit->GetIsochrone() == 0.)
       {
-	  if (fVerbose == 3) cout << "take the center: " << pMhit->GetX() << "  " << pMhit->GetY() << "   " << pMhit->GetZ() << endl;
+	  if (fVerbose == 3) cout << "take the center: " << tube->GetPosition().X() << "  " << tube->GetPosition().Y() << "   " << tube->GetPosition().Z() << endl;
       }
 
       ptIndex = pMhit->GetRefIndex();
@@ -311,10 +315,11 @@ Int_t PndSttTrackFinderIdeal::DoFind( TClonesArray* trackCandArray, TClonesArray
       TVector3 MCmom;
       pMCpt->Momentum(MCmom);
 
-      Double_t wireRad = sqrt(pMhit->GetX() *
-			    pMhit->GetX() + 
-			    pMhit->GetY() *
-			    pMhit->GetY());
+      // tubeID  CHECK added
+      tubeID = pMhit->GetTubeID();
+      tube = (PndSttTube*) fTubeArray->At(tubeID);
+
+      Double_t wireRad = tube->GetPosition().Perp();
 
       if(MCmom.Mag() < 0.3) {
 	// for low momentum particles, hits added to pTrck by R could not be 
