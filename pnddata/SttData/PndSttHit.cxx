@@ -16,62 +16,31 @@ PndSttHit::PndSttHit()
 }
 
 
-/** Standard constructor **/
-PndSttHit::PndSttHit(Int_t detID, TVector3& pos, TVector3& dpos, 
-		     Int_t index, Int_t flag, Double_t isochrone,
-		     Double_t isochroneError)
-  : FairHit(detID, pos, dpos, index) 
+PndSttHit::PndSttHit(Int_t detID, Int_t tubeID, Int_t mcindex, TVector3& pos, TVector3& dpos, Double_t p, Double_t isochrone, Double_t isochroneError, Double_t chDep) : FairHit(detID, pos, dpos, mcindex)
 {
+  fTubeID = tubeID;
+  fPulse   = p;
   fIsochrone = isochrone;
   fIsochroneError = isochroneError;
-  fRadial = TMath::Sqrt(pos.X() * pos.X() + pos.Y() * pos.Y());
-  fAssigned = kFALSE;
-  // stt1
   fXint = fX;
   fYint = fY;
   fZint = fZ;
-}
-
-PndSttHit::PndSttHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t index) 
-  : FairHit(detID, pos, dpos, index) 
-{
-    Clear();
-}
-
-//PndSttHit::PndSttHit(Int_t trackID,Int_t eventID,Double_t p, Double_t rr, Double_t rt,TString nam,TVector3 center,TVector3 tubemax,TVector3 tubemin) {
-PndSttHit::PndSttHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t index, Int_t trackID, Double_t p, Double_t rr, Double_t rt, Double_t isochroneError) 
-  : FairHit(detID, pos, dpos, index){
-  fPulse   = p;
-  fRsim    = rr;
-  fRtrue   = rt;
-  //  fFlag    = 1;       // ??
-  //  fnam     = nam;
-  fTrackID = trackID;
-  //  fEventID = eventID; // ??
-  //  tube_c   = center;  // ??
-  //  tube_max = tubemax; // ??
-  //  tube_min = tubemin; // ??
-  // stt2
-  fIsochrone = rr;  // isochrone = simulated radius <----
-  fIsochroneError = isochroneError;
-  fRadial = sqrt(pos.X() * pos.X() + pos.Y() * pos.Y());
-  fAssigned = kFALSE;
-  fXint = fX;
-  fYint = fY;
-  fZint = fZ;
+  fDepCharge = chDep;
   
 }
 
 /** Public method Clear **/
 void PndSttHit::Clear() 
 {
+  fTubeID = 0;
+  fPulse   = 0;
   fIsochrone = 0.;
   fIsochroneError = 0.;
-  fRadial = 0.;
-  fAssigned = kFALSE;
+  fXint = 0.;
+  fYint = 0.;
+  fZint = 0.;
   fDepCharge = 0.;
-  fELoss = 0.;
-  fdEdx = 0.;
+
 }  
 
  

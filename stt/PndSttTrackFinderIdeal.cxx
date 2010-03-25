@@ -347,23 +347,22 @@ Int_t PndSttTrackFinderIdeal::DoFind( TClonesArray* trackCandArray, TClonesArray
 								   pMhit->GetIsochrone(), pMhit->GetIsochroneError(),
 								   0.0);
 	// dedx
-	if(pMhit->GetdEdx() != -999) helixhit->SetdEdx(pMhit->GetdEdx()); // if ideal DIGI is used
-	else { // calculate it from MC
-	  double InOut[6];
-	  memset(InOut, 0, sizeof(InOut));
-	  InOut[0] = ((PndSttPoint *) pMCpt)->GetXInLocal();
-	  InOut[1] = ((PndSttPoint *) pMCpt)->GetYInLocal();
-	  InOut[2] = ((PndSttPoint *) pMCpt)->GetZInLocal();
-	  InOut[3] = ((PndSttPoint *) pMCpt)->GetXOutLocal();
-	  InOut[4] = ((PndSttPoint *) pMCpt)->GetYOutLocal();
-	  InOut[5] = ((PndSttPoint *) pMCpt)->GetZOutLocal();  
-	  TVector3 diff3(InOut[0] - InOut[3], InOut[1] - InOut[4], InOut[2] - InOut[5]); 
-	  double distance = diff3.Mag(); //
-	  Double_t dedx = 999;
-	  Double_t eloss = ((PndSttPoint *) pMCpt)->GetEnergyLoss();
-	  if (distance != 0)  dedx = eloss/(distance);  // in GeV/cm (I guess) CHECK
-	  helixhit->SetdEdx(dedx);
-	}
+	// calculate it from MC
+	double InOut[6];
+	memset(InOut, 0, sizeof(InOut));
+	InOut[0] = ((PndSttPoint *) pMCpt)->GetXInLocal();
+	InOut[1] = ((PndSttPoint *) pMCpt)->GetYInLocal();
+	InOut[2] = ((PndSttPoint *) pMCpt)->GetZInLocal();
+	InOut[3] = ((PndSttPoint *) pMCpt)->GetXOutLocal();
+	InOut[4] = ((PndSttPoint *) pMCpt)->GetYOutLocal();
+	InOut[5] = ((PndSttPoint *) pMCpt)->GetZOutLocal();  
+	TVector3 diff3(InOut[0] - InOut[3], InOut[1] - InOut[4], InOut[2] - InOut[5]); 
+	double distance = diff3.Mag(); //
+	Double_t dedx = 999;
+	Double_t eloss = ((PndSttPoint *) pMCpt)->GetEnergyLoss();
+	if (distance != 0)  dedx = eloss/(distance);  // in GeV/cm (I guess) CHECK
+	helixhit->SetdEdx(dedx);
+	
       }
       // ---------------------------------------------------------------------
       

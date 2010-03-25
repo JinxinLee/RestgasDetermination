@@ -30,21 +30,19 @@ class PndSttHit : public FairHit
 
   /** Standard constructor 
   *@param detID     Detector unique volume ID
-  *@param pos       Position coordinates [cm]
+  *@param tubeID    Unique tube ID
+  *@param mcindex   Index of corresponding MCPoint
+  *@param pos       Position coordinates of the tube [cm]
   *@param dpos      Errors in position coordinates [cm]
-  *@param index     Index of corresponding MCPoint
   *@param isochrone The radial measurement
   *@param isoerror  The erroon on the radial measurement
+  *@param chDep     Deposited charge (arbitrary unit)
   **/
-  PndSttHit(Int_t detID, TVector3& pos, TVector3& dpos,
-	    Int_t index, Int_t flag, Double_t isochrone,
-	    Double_t isoerror);
-  PndSttHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t index); 
 
-  // stt1----
-  PndSttHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t index, Int_t trackID, Double_t p, Double_t rr, Double_t rt, Double_t isochroneError);
-  //---------
-  
+  // THIS ONE!
+  PndSttHit(Int_t detID, Int_t tubeID, Int_t mcindex, TVector3& pos, TVector3& dpos, Double_t p, Double_t isochrone, Double_t isochroneError, Double_t chDep);
+
+
   /** Destructor **/
   virtual ~PndSttHit();    
 
@@ -62,65 +60,40 @@ class PndSttHit : public FairHit
   /** Accessors **/
   Double_t GetIsochrone()        const { return fIsochrone;                 }; 
   Double_t GetIsochroneError()   const { return fIsochroneError;            }; 
-  Double_t GetRadial()           const { return fRadial;                    };
-
   Double_t GetPulse()            const {return fPulse;                      };
   Double_t GetXint()             const { return fXint;                      };
   Double_t GetYint()             const { return fYint;                      };
   Double_t GetZint()             const { return fZint;                      };
-  Double_t GetdEdx()             const { return fdEdx;                      };
   Double_t GetDepCharge()        const { return fDepCharge;                 };
-  Double_t GetEnergyLoss()       const { return fELoss;                     };
+  Double_t GetEnergyLoss()       const { return fDepCharge/1e6;             };
 
   /** Modifiers **/
   void SetIsochrone(Double_t isochrone)           { fIsochrone = isochrone; };
   void SetIsochroneError(Double_t isochroneError) { fIsochroneError = isochroneError; };
-  void SetRadial(Double_t newRadial)              { fRadial = newRadial; };
-
-  void SetAssigned()  {fAssigned = kTRUE;} 
-  Bool_t IsAssigned() const {return fAssigned;}
- 
   void SetXint(Double_t x) { fXint = x; }
   void SetYint(Double_t y) { fYint = y; }
   void SetZint(Double_t z) { fZint = z; }
-
-  void SetTrackID(Int_t trackid)     { fTrackID = trackid;}
-
   void SetDepCharge(Double_t depcharge)       { fDepCharge = depcharge; }
-  void SetEnergyLoss(Double_t eloss)          { fELoss = eloss; }
-  void SetdEdx(Double_t dedx)                 { fdEdx = dedx; }
 
- // tube ID // CHECK added
+  // tube ID // CHECK added
   void SetTubeID(Int_t tubeid) { fTubeID = tubeid; }
   Int_t GetTubeID() { return fTubeID; }
-
+  
  protected:
- 
+  
   /** This variable contains the radial distance to the wire **/    
   Double_t fIsochrone;
   /** This variable contains the error on the radial distance to the wire **/    
   Double_t fIsochroneError;
-  /** This variable contains the position calculated along the circle in the x-y plane **/
-  Double_t fRadial;
-
-  Bool_t fAssigned;
 
   // stt1
   Double_t fPulse; 
   Double_t fRsim; 
-  Double_t fRtrue; 
-  //  fFlag;  
-  //  fnam;   
-  Int_t fTrackID; 
-  //  fEventID; 
-  /*  tube_c;    */
-  /*   tube_max;  */
-  /*   tube_min;  */
+
   Double_t fXint, fYint, fZint;      // Position of intersections (will work in reco)
 
   Double_t fDepCharge;  // deposit charge (arbitrary units)
-  Double_t fdEdx;       // hit dEdx
-  Double_t fELoss;      // hit energy loss 
+
   Int_t fTubeID; // CHECK added
 
 

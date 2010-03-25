@@ -524,8 +524,7 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
       
 
       // dE/dx calculation ================== 
-      if(currenthit->GetdEdx() != -999) helixhit->SetdEdx(currenthit->GetdEdx()); // if MC is used
-      else {
+  
 	TString tubename; 
 	TGeoVolume *gastube; // CHECK we may use tube (fTubeArray) instead of repeating the procedure...
 	TObjArray *volumeArray = gGeoManager->GetListOfVolumes();   
@@ -549,7 +548,7 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
 	if (distance != 0)  dedx = currenthit->GetDepCharge()/(1000000 * distance);  // in arbitrary units
   
 	helixhit->SetdEdx(dedx);
-      }
+
 	  
       hotcounter++;
     }

@@ -196,19 +196,8 @@ void PndSttHitProducerIdeal::Exec(Option_t* opt)
       
       PndSttHit *hit = NULL;
     
-      hit = new ((*fHitArray)[counter]) PndSttHit(detID, pos, dpos, iPoint, 0,
-						  closestDistance, closestDistanceError);
-      hit->SetTrackID(trackID);
-      hit->SetEnergyLoss(eloss); // CHECK
-      hit->SetDepCharge(0.);     // CHECK no charge simulation
-      // dedx
-      TVector3 diff3(InOut[0] - InOut[3], InOut[1] - InOut[4], InOut[2] - InOut[5]); 
-      double distance = diff3.Mag(); //
-      Double_t dedx = 999;
-      if (distance != 0)  dedx = eloss/(distance);  // in GeV/cm (I guess) CHECK
-      hit->SetdEdx(dedx);                 // CHECK
-      hit->SetTubeID(tubeID); // CHECK added
-
+      hit = new ((*fHitArray)[counter]) PndSttHit(detID, tubeID, iPoint, pos, dpos, 0, closestDistance, closestDistanceError, eloss * 1e6);
+     
       new ((*fHitInfoArray)[counter]) PndSttHitInfo(0, 0, trackID, iPoint,
 						   0, kFALSE);
       counter++;

@@ -224,7 +224,7 @@ void PndSttHitProducerRealFast::Exec(Option_t* opt) {
     //    cout << "r: " << radius << " err: " << closestDistanceError << endl;
     //cout<<" radius "<<radius<<endl;
     // create hit
-    AddHit(detID, pos, dpos, iPoint, point->GetTrackID(), pulset, radius, true_rad, closestDistanceError, depcharge, dedx, tubeID);
+    AddHit(detID, tubeID, iPoint, pos, dpos, pulset, radius, closestDistanceError, depcharge);
 
     AddHitInfo(0, 0, point->GetTrackID(), iPoint, 0, kFALSE);
 
@@ -253,18 +253,12 @@ void PndSttHitProducerRealFast::FoldZPosWithResolution(Double_t &zpos, Double_t 
 
 
 // -----   Private method AddHit   --------------------------------------------
-PndSttHit* PndSttHitProducerRealFast::AddHit(Int_t detID, TVector3& pos, TVector3& dpos, Int_t iPoint, Int_t trackID, Double_t p, Double_t rsim, Double_t rtrue, Double_t closestDistanceError, Double_t depcharge, Double_t dedx, Int_t tubeID){
+PndSttHit* PndSttHitProducerRealFast::AddHit(Int_t detID, Int_t tubeID, Int_t iPoint, TVector3& pos, TVector3& dpos, Double_t p, Double_t rsim, Double_t closestDistanceError, Double_t depcharge) {
   // see PndSttHit for hit description
   TClonesArray& clref = *fHitArray;
   Int_t size = clref.GetEntriesFast();
-  //cout << "-I- PndSttHitProducerRealFast: Adding Hit: track"<<trackID<<" event: "<<eventID<<" pulse = " << p << ", rsim = " << rsim 
-  //     << ", rtrue = " << rtrue <<" name "<<nam<<"center.X "<<center.X()<< endl;
  
-  PndSttHit *hitnew = new(clref[size]) PndSttHit(detID, pos, dpos, iPoint, trackID, p, rsim, rtrue, closestDistanceError);
-  hitnew->SetDepCharge(depcharge);       // CHECK
-  hitnew->SetEnergyLoss(depcharge/1e6);  // eloss in arbitrary units CHECK
-  hitnew->SetdEdx(dedx);                 // CHECK
-  hitnew->SetTubeID(tubeID); // CHECK added
+  PndSttHit *hitnew = new(clref[size]) PndSttHit(detID, tubeID, iPoint, pos, dpos, p, rsim, closestDistanceError, depcharge);
   return hitnew;
 
 }
