@@ -544,7 +544,8 @@ cout<<"verita MC,  traccia n. "<<iMCTrack<<", Ox, Oy,  Cx, Cy, D ,  R  ,  gamma 
       TVector3 wiredirection = tube->GetWireDirection();
 
       // "real" MC coordinates (in + out)/2.
-      TVector3 mcpoint( ((PndSttPoint*)pMCpt)->GetXtot(), ((PndSttPoint*)pMCpt)->GetYtot(), ((PndSttPoint*)pMCpt)->GetZtot());
+      TVector3 mcpoint;
+      pMCpt->Position(mcpoint);
 
       if(wiredirection.Z() >=0.) {
        WDX = wiredirection.X();     WDY = wiredirection.Y(); WDZ = wiredirection.Z();
@@ -600,9 +601,9 @@ jumpout: ;
 
 //   calcoli validi solo per il MC   -----------------------------
 
-      veritaMC[iHit][0]= ((PndSttPoint*)pMCpt)->GetXtot();
-      veritaMC[iHit][1]= ((PndSttPoint*)pMCpt)->GetYtot();
-      veritaMC[iHit][2]= ((PndSttPoint*)pMCpt)->GetZtot();
+      veritaMC[iHit][0]= pMCpt->GetX();
+      veritaMC[iHit][1]= pMCpt->GetY();
+      veritaMC[iHit][2]= pMCpt->GetZ();
 
       FromHitToMCTrack[iHit] = (UShort_t) ( info[iHit][6] + 0.001 );
 
