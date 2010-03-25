@@ -21,23 +21,22 @@ class PndSttHelixHit : public FairHit
   PndSttHelixHit();
 
   /** Standard constructor 
-  *@param detID     Detector unique volume ID
-  *@param pos       Position coordinates X Y Z [cm]
-  *@param dpos      Errors in position coordinates [cm]
-  *@param mcindex   Index of corresponding MCPoint
-  *@param hitindex  Index of corresponding FairHit
-  *@param edep      Deposited energy
-
+  *@param detID          Detector unique volume ID
+  *@param tubeID         Unique tube ID
+  *@param hitIndex       Index of corresponding STTHit
+  *@param mcindex        Index of corresponding MCPoint
+  *@param pos            Reco position coordinates X Y Z [cm]
+  *@param dpos           Errors on reco position coordinates [cm]
+  *@param isochrone      Drift radius [cm]
+  *@param isochroneError Error on drift radius [cm]
+  *@param dedx           De/Dx
   **/
   
-  PndSttHelixHit(Int_t detID, TVector3& pos, TVector3& dpos,
-		 Int_t mcindex, Int_t hitindex, Double_t edep);
-
-  PndSttHelixHit(Int_t detID, 
+  PndSttHelixHit(Int_t detID, Int_t tubeID, Int_t hitindex, Int_t mcindex,
 		 TVector3& pos, TVector3& dpos, 
-		 Int_t mcindex, Int_t hitindex, Double_t edep,
-		 Double_t isochrone,
-		 Double_t isochroneError);
+		 Double_t isochrone, Double_t isochroneError,
+		 Double_t dedx);
+  
 
   void CopyHitToHelixHit(PndSttHit *aHit, Int_t hitindex);
 
@@ -55,24 +54,18 @@ class PndSttHelixHit : public FairHit
   Int_t GetHitIndex() {return fHitIndex;}
 
   /** Accessors **/
-  Double_t GetIsochrone() const { return fIsochrone; }; 
+  Double_t GetIsochrone()      const { return fIsochrone; }; 
   Double_t GetIsochroneError() const { return fIsochroneError; }; 
-
-  Double_t GetdEdx()             const { return fdEdx;                      };
-  Double_t GetDepCharge()        const { return fDepCharge;                 };
-  Double_t GetEnergyLoss()       const { return fELoss;                     };
-
+  Double_t GetdEdx()           const { return fdEdx;      };
+  
   /** Modifiers **/
   void SetHitIndex(Int_t hitindex) {fHitIndex = hitindex;} 
   void SetIsochrone(Double_t isochrone) { fIsochrone = isochrone; };
   void SetIsochroneError(Double_t isochroneError) { fIsochroneError = isochroneError; };
-
-  void SetDepCharge(Double_t depcharge)       { fDepCharge = depcharge; }
-  void SetEnergyLoss(Double_t eloss)          { fELoss = eloss; }
   void SetdEdx(Double_t dedx)                 { fdEdx = dedx; }
   void Print();
- 
-// tube ID // CHECK added
+  
+  // tube ID // CHECK added
   void SetTubeID(Int_t tubeid) { fTubeID = tubeid; }
   Int_t GetTubeID() { return fTubeID; }
 
@@ -80,11 +73,10 @@ class PndSttHelixHit : public FairHit
  
   /** This variable contains the hit index **/    
   Int_t fHitIndex;
-  /** This variables contain the charge, dedx, energy **/
-  Double_t fDepCharge; 
+ 
+  /** de/dx **/
   Double_t fdEdx;      
-  Double_t fELoss;   
-
+ 
   /** isochrone **/
   Double_t fIsochrone, fIsochroneError;
 

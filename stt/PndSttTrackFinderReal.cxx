@@ -1822,15 +1822,24 @@ if(istampa>=3)  cout<<"DoFind, skew, infoskew[ ListSkewHitsinTrack[i][j] ] = "<<
       // HelixHit Production after PR
       TClonesArray& clref = *helixHitArray;
       Int_t size = clref.GetEntriesFast();
-      PndSttHelixHit *helixhit = new(clref[size]) PndSttHelixHit();
-      helixhit->CopyHitToHelixHit(ListPointer_to_Hit[iHit], iHit);
+
+      TVector3 pos(0., 0., 0.);
       if( fabs( Zpos_for_LHeTrack[iHit] ) > 1.e-20 ) {
-	helixhit->SetX( Xpos_for_LHeTrack[iHit] );
-	helixhit->SetY( Ypos_for_LHeTrack[iHit] );
-	helixhit->SetZ( Zpos_for_LHeTrack[iHit] );
-      }  else {
-	helixhit->SetZ( 0. );
+	pos.SetXYZ(Xpos_for_LHeTrack[iHit],
+		   Ypos_for_LHeTrack[iHit],
+		   Zpos_for_LHeTrack[iHit]);
       }
+
+      TVector3 posErr(0, 0, 0); // CHECK put the errors
+      PndSttHelixHit *  helixhit = new(clref[size]) PndSttHelixHit(ListPointer_to_Hit[iHit]->GetDetectorID(),  
+								   ListPointer_to_Hit[iHit]->GetTubeID(), 
+								   iHit, ListPointer_to_Hit[iHit]->GetRefIndex(), 
+								   pos, posErr,
+								   ListPointer_to_Hit[iHit]->GetIsochrone(), 
+								   ListPointer_to_Hit[iHit]->GetIsochroneError(),
+								   0.0);
+
+   
     }  //   end of for(iHit=0; iHit<Nhits;iHit++)
   } // end of if(fHelixHitProduction) 
 

@@ -330,6 +330,7 @@ Int_t PndSttTrackFinderIdeal::DoFind( TClonesArray* trackCandArray, TClonesArray
 	pTrckCand->AddHit(pMhit->GetDetectorID(), iHit, wireRad); 
 
       }
+
       // ---------------------------------------------------------------------  
       if(fHelixHitProduction) {
 
@@ -338,13 +339,13 @@ Int_t PndSttTrackFinderIdeal::DoFind( TClonesArray* trackCandArray, TClonesArray
 	Int_t size = clref.GetEntriesFast();
 	
 	// CHECK remember to SET the errors on position!!!!!!!
-	PndSttHelixHit *helixhit = new(clref[size]) PndSttHelixHit();
-	helixhit->CopyHitToHelixHit(pMhit, iHit);
-	helixhit->SetX(((PndSttPoint *) pMCpt)->GetX());
-	helixhit->SetY(((PndSttPoint *) pMCpt)->GetY());
-	helixhit->SetZ(((PndSttPoint *) pMCpt)->GetZ());
-	
-	
+	TVector3 pos;
+	pMCpt->Position(pos);
+	TVector3 posErr(0, 0, 0);
+	PndSttHelixHit *helixhit = new(clref[size]) PndSttHelixHit(pMhit->GetDetectorID(), pMhit->GetTubeID(), iHit, pMhit->GetRefIndex(), 
+								   pos, posErr,
+								   pMhit->GetIsochrone(), pMhit->GetIsochroneError(),
+								   0.0);
 	// dedx
 	if(pMhit->GetdEdx() != -999) helixhit->SetdEdx(pMhit->GetdEdx()); // if ideal DIGI is used
 	else { // calculate it from MC

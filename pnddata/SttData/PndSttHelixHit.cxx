@@ -17,51 +17,21 @@ PndSttHelixHit::PndSttHelixHit()
     Clear();
 }
 
-/** Standard constructor **/
-// DONT USE THIS! delete it!
-PndSttHelixHit::PndSttHelixHit(Int_t detID, 
-			       TVector3& pos, TVector3& dpos,
-			       Int_t mcindex, Int_t hitindex, Double_t edep)
-  : FairHit(detID, pos, dpos, mcindex) 
-{
-  fHitIndex = hitindex;
-  fELoss = edep;
-}
-
-// DONT USE THIS! add halflength to make it OK
-PndSttHelixHit::PndSttHelixHit(Int_t detID, 
-			       TVector3& pos, TVector3& dpos, 
-			       Int_t mcindex, Int_t hitindex, Double_t edep,
-			       Double_t isochrone,
-			       Double_t isochroneError)		        
+PndSttHelixHit::PndSttHelixHit(Int_t detID, Int_t tubeID, Int_t hitindex, Int_t mcindex, TVector3& pos, TVector3& dpos, Double_t isochrone, Double_t isochroneError, Double_t dedx)
  : FairHit(detID, pos, dpos, mcindex) 
 {
-
   fHitIndex = hitindex;
-  fELoss = edep;
+  fdEdx = dedx;      
   fIsochrone = isochrone;
   fIsochroneError = isochroneError;
+  fTubeID = tubeID; // CHECK added
+
 }
 
-
-// this copies the PndSttHit to the PndSttHelixHit
+// DELETE THIS CHECK
 void PndSttHelixHit::CopyHitToHelixHit(PndSttHit *aHit, Int_t hitindex)
 {
-//   FairHit::SetPosition(TVector3(0,0,0));
-//   FairHit::SetPositionError(TVector3(0,0,0));
-  FairHit::SetDetectorID(aHit->GetDetectorID());
-  FairHit::SetRefIndex(aHit->GetRefIndex());
 
-  fHitIndex = hitindex;
-  fELoss = aHit->GetEnergyLoss();
-  fDepCharge = aHit->GetDepCharge();
-  //  fdEdx = aHit->GetdEdx();
-  
-
-  fIsochrone      = aHit->GetIsochrone();
-  fIsochroneError = aHit->GetIsochroneError();
-
-  fTubeID         = aHit->GetTubeID(); // CHECK added
 }
 
 
@@ -70,13 +40,10 @@ void PndSttHelixHit::CopyHitToHelixHit(PndSttHit *aHit, Int_t hitindex)
 void PndSttHelixHit::Clear() 
 {
   fHitIndex = 0;
-  fDepCharge = 0.; 
   fdEdx = 0.;      
-  fELoss = 0.;   
-
+  fTubeID = 0;
   fIsochrone = 0.; 
   fIsochroneError = 0.;
- 
 }  
 
  

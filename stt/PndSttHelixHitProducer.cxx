@@ -209,8 +209,13 @@ void PndSttHelixHitProducer::Exec(Option_t* opt) {
       //  cout << "filling HelixHit" << endl;
 
       // CHECK remember to SET the errors on position!!!!!!!
-      helixhit = new(clref[size]) PndSttHelixHit();
-      helixhit->CopyHitToHelixHit(currenthit, iHit);
+      TVector3 pos = tube->GetPosition();
+      TVector3 posErr(0, 0, 0);
+      helixhit = new(clref[size]) PndSttHelixHit(currenthit->GetDetectorID(),  tubeID, iHit, refindex, 
+						 pos, posErr,
+						 currenthit->GetIsochrone(), currenthit->GetIsochroneError(),
+						 0.0);
+
 
       pTrack->AddHelixHit(hitcounter, k, size);
       
