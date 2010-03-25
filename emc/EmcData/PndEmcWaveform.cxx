@@ -64,16 +64,12 @@ PndEmcWaveform::PndEmcWaveform(int trackId, long detId, Double_t tau1, Double_t 
 	fSignal(waveform_length,0.),
 	fPulseshape(tau1,tau2,tauCrystal),
 	fHitIndex(hitIndex)
-{
-	PndEmcMapper *fEmcMap=PndEmcMapper::Instance();
-	fTCI=fEmcMap->GetTCI(detId);
-}
+{}
 
 PndEmcWaveform::PndEmcWaveform(const PndEmcWaveform& copy)
 {
 		fTrackId=copy.fTrackId;
 		fDetectorId = copy.fDetectorId;
-		fTCI=copy.fTCI;
 		fTau1=copy.fTau1;
 		fTau2=copy.fTau2;
 		fSampleRate=copy.fSampleRate;
@@ -94,7 +90,6 @@ PndEmcWaveform::operator=(const PndEmcWaveform &copy){
   if (this != &copy){
 		fTrackId=copy.fTrackId;
 		fDetectorId = copy.fDetectorId;
-		fTCI=copy.fTCI;
 		fTau1=copy.fTau1;
 		fTau2=copy.fTau2;
 		fSampleRate=copy.fSampleRate;
@@ -310,22 +305,11 @@ PndEmcWaveform::clearAndReset(){
 	fill(fSignal.begin(),fSignal.end(),0);
 }
 
-void PndEmcWaveform::Streamer(TBuffer &R__b)
+PndEmcTwoCoordIndex* PndEmcWaveform::GetTCI() const
 {
-   // Stream an object of class PndEmcWaveform.
-
-   if (R__b.IsReading()) {
-      PndEmcWaveform::Class()->ReadBuffer(R__b, this);
-		PndEmcMapper *fEmcMap=PndEmcMapper::Instance();
-		if (fEmcMap!=0) {
-			fTCI=fEmcMap->GetTCI(fDetectorId);
-		} else {
-			fTCI=0;
-		}
-
-   } else {
-      PndEmcWaveform::Class()->WriteBuffer(R__b, this);
-   }
-}
-
+	PndEmcMapper *emcMap=PndEmcMapper::Instance();
+	PndEmcTwoCoordIndex* tci=emcMap->GetTCI(fDetectorId);
+	return tci;
+};
+	
 ClassImp(PndEmcWaveform)

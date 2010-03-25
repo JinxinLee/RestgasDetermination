@@ -657,7 +657,6 @@ void PndEmcCluster::ValidateDigiMap()
 	vector<PndEmcDigi*>::iterator digi_iter;
 	for (digi_iter=fDigiList.begin();digi_iter!=fDigiList.end();++digi_iter)
 	{
-		(*digi_iter)->ValidateTCI();
 		PndEmcTwoCoordIndex *theTCI = (*digi_iter)->GetTCI();
 		fMemberDigiMap->insert(PndEmcDigiPtrDict::value_type(theTCI, (*digi_iter)));
 	}

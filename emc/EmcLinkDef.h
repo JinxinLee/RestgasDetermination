@@ -20,8 +20,8 @@
 #pragma link C++ class  PndEmcXtal+;
 #pragma link C++ class  PndEmcMapper+;
 #pragma link C++ class  PndEmcStructure+;
-#pragma link C++ class  PndEmcWaveform-;
-#pragma link C++ class  PndEmcDigi-;
+#pragma link C++ class  PndEmcWaveform+;
+#pragma link C++ class  PndEmcDigi+;
 #pragma link C++ class  PndEmcSharedDigi;
 #pragma link C++ class  PndEmcHitsToWaveform+;
 #pragma link C++ class  PndEmcHitsToTmpWaveform+;

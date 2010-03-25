@@ -160,7 +160,6 @@ void PndEmcMakeCluster::Exec(Option_t* opt)
 	for (Int_t iDigi=0; iDigi<nDigis; iDigi++)
 	{
 		PndEmcDigi* theDigi = (PndEmcDigi*) fDigiArray->At(iDigi);
-		theDigi->ValidateTCI(); // TCI in digi is not valide after reading from file
 		
 		Int_t module=theDigi->GetModule();
 		

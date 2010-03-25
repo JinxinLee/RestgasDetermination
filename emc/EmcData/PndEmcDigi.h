@@ -70,7 +70,7 @@ class PndEmcDigi : public TObject
 	Int_t GetTrackId()    const { return fTrackId    ;};
 	Int_t GetHitIndex()    const { return fHitIndex    ;};
 	Int_t GetDetectorId() const { return fDetectorId ;};
-	PndEmcTwoCoordIndex* GetTCI() const { return fTCI ;};
+	PndEmcTwoCoordIndex* GetTCI() const;
 	Int_t GetThetaInt() const {return fThetaInd;};
 	Int_t GetPhiInt() const {return fPhiInd;};
 	Double_t GetTheta() const {return fTheta;};
@@ -82,8 +82,6 @@ class PndEmcDigi : public TObject
 	Short_t GetXPad()        const;
 	Short_t GetYPad()        const;
 	
-	void ValidateTCI();
-
 	Int_t GetHitIndex() {return fHitIndex;}
 	const TVector3 &where() const {return fWhere;};
 	
@@ -106,7 +104,6 @@ class PndEmcDigi : public TObject
 	Double_t fTime;      // digi time
 	TVector3 fWhere;
 
-	PndEmcTwoCoordIndex* fTCI; //! transient data
 	Int_t fHitIndex; //  Index of hit which is converted to digi
   
 private:
@@ -128,7 +125,7 @@ private:
   static double fPositionDepth;
 
   
-  ClassDef(PndEmcDigi,2);
+  ClassDef(PndEmcDigi,3);
 };
 
 #endif //PndEmcDigi_H

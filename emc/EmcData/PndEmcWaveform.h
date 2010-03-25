@@ -81,7 +81,7 @@ public:
 	double GetFirstBinTime() const                  {return fFirstADCBinTime;}
 	double GetPePerMeV() const                      {return fPePerMeV;}
 	double GetExcessNoiseFactor() const             {return fExcessNoiseFactor;}
-	PndEmcTwoCoordIndex* GetTCI() const { return fTCI ;};
+	PndEmcTwoCoordIndex* GetTCI() const;
 	std::vector<double> GetSignal() const { return fSignal ;};
 	double get_scale() const;
 	double getNormalisation() const;
@@ -128,13 +128,12 @@ private:
 	double fExcessNoiseFactor;
 	bool fUsePhotonStatistic;
 	int fWaveformLength;
-	PndEmcTwoCoordIndex* fTCI; //! transient data
 	
 	Int_t fHitIndex;
 
 	std::vector<double>  fSignal; // Signal after FADC
 	PndEmcCRRCPulseshape fPulseshape;
 
-ClassDef(PndEmcWaveform,1)
+ClassDef(PndEmcWaveform,2)
 };
 #endif

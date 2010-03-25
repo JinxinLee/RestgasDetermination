@@ -49,12 +49,12 @@ PndEmcDigi::~PndEmcDigi() {}
 PndEmcDigi::PndEmcDigi(Int_t trackid, Int_t id, Float_t energy, Float_t time, Int_t hitIndex):fEnergy(energy),fTrackId(trackid),fDetectorId(id),fTime(time),fHitIndex(hitIndex),fWhere(0,0,0)
 {
 	PndEmcMapper *emcMap=PndEmcMapper::Instance();
-	fTCI=emcMap->GetTCI(id);
-	fThetaInd=fTCI->XCoord();
-	fPhiInd=fTCI->YCoord();
+	PndEmcTwoCoordIndex* tci=emcMap->GetTCI(id);
+	fThetaInd=tci->XCoord();
+	fPhiInd=tci->YCoord();
 
 	PndEmcTciXtalMap const &tciXtalMap=PndEmcStructure::Instance()->GetTciXtalMap();
-	PndEmcXtal* xtal = tciXtalMap.find(fTCI)->second;
+	PndEmcXtal* xtal = tciXtalMap.find(tci)->second;
 	fWhere = algPointer()(xtal);
 	fTheta = fWhere.Theta();
 	fPhi = fWhere.Phi();
@@ -72,12 +72,12 @@ PndEmcDigi::PndEmcDigi( const PndEmcDigi& other )
   fHitIndex( other.fHitIndex)
 {
 	PndEmcMapper *emcMap=PndEmcMapper::Instance();
-	fTCI=emcMap->GetTCI(fDetectorId);
-	fThetaInd=fTCI->XCoord();
-	fPhiInd=fTCI->YCoord();
+	PndEmcTwoCoordIndex* tci=emcMap->GetTCI(fDetectorId);
+	fThetaInd=tci->XCoord();
+	fPhiInd=tci->YCoord();
 
 	PndEmcTciXtalMap const &tciXtalMap=PndEmcStructure::Instance()->GetTciXtalMap();
-	PndEmcXtal* xtal = tciXtalMap.find(fTCI)->second;
+	PndEmcXtal* xtal = tciXtalMap.find(tci)->second;
 	fWhere = algPointer()(xtal);
 	fTheta = fWhere.Theta();
 	fPhi = fWhere.Phi();
@@ -88,16 +88,16 @@ void PndEmcDigi::SetDetectorId(Int_t id)
 {
 // PndEmcMapper assumed to instantiate first time with correct parameter before
 	PndEmcMapper *emcMap=PndEmcMapper::Instance();
-	fTCI=emcMap->GetTCI(id);
-	fThetaInd=fTCI->XCoord();
-	fPhiInd=fTCI->YCoord();
+	PndEmcTwoCoordIndex* tci=emcMap->GetTCI(id);
+	fThetaInd=tci->XCoord();
+	fPhiInd=tci->YCoord();
 	fDetectorId=id;
 
-	fThetaInd=fTCI->XCoord();
-	fPhiInd=fTCI->YCoord();
+	fThetaInd=tci->XCoord();
+	fPhiInd=tci->YCoord();
 
 	PndEmcTciXtalMap const &tciXtalMap=PndEmcStructure::Instance()->GetTciXtalMap();
-	PndEmcXtal* xtal = tciXtalMap.find(fTCI)->second;
+	PndEmcXtal* xtal = tciXtalMap.find(tci)->second;
 	fWhere = algPointer()(xtal);
 	fTheta = fWhere.Theta();
 	fPhi = fWhere.Phi();
@@ -172,23 +172,25 @@ double PndEmcDigi::fPositionDepth = 6.2;
 const bool 
 PndEmcDigi::isNeighbour( const PndEmcDigi* theDigi ) const
 {
-	if ((theDigi->GetTCI()==0)||(fTCI==0)){
+	PndEmcMapper *emcMap=PndEmcMapper::Instance();
+	PndEmcTwoCoordIndex* tci=this->GetTCI();
+
+	if ((theDigi->GetTCI()==0)||(tci==0)){
 		std::cout<<"TwoCoordIndex of digi is not defined"<<std::endl;
 		abort();
 	}
 	
-	if (fTCI->IsNeighbour(theDigi->GetTCI())) return true;
+	if (tci->IsNeighbour(theDigi->GetTCI())) return true;
 
 	return false;
 }
 
-// When PndEmcDigi is read from root file fTCI is not valid it should be validated later
-void PndEmcDigi::ValidateTCI()
+PndEmcTwoCoordIndex* PndEmcDigi::GetTCI() const
 {
 	PndEmcMapper *emcMap=PndEmcMapper::Instance();
-	fTCI=emcMap->GetTCI(fDetectorId);
-
-}
+	PndEmcTwoCoordIndex* tci=emcMap->GetTCI(fDetectorId);
+	return tci;
+};
 
 Short_t PndEmcDigi::GetXPad() const {
   // Return the X pad value for clusterization
@@ -296,24 +298,6 @@ const PndEmcSharedDigi*
 PndEmcDigi::dynamic_cast_PndEmcSharedDigi() const
 {
   return 0;
-}
-
-void PndEmcDigi::Streamer(TBuffer &R__b)
-{
-   // Stream an object of class PndEmcWaveform.
-
-   if (R__b.IsReading()) {
-      PndEmcDigi::Class()->ReadBuffer(R__b, this);
-		PndEmcMapper *fEmcMap=PndEmcMapper::Instance();
-		if (fEmcMap!=0) {
-			fTCI=fEmcMap->GetTCI(fDetectorId);
-		} else {
-			fTCI=0;
-		}
-
-   } else {
-      PndEmcDigi::Class()->WriteBuffer(R__b, this);
-   }
 }
 
 ClassImp(PndEmcDigi)
