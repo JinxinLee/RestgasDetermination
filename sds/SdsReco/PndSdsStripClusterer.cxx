@@ -1,9 +1,9 @@
 // -------------------------------------------------------------------------
-// -----             PndSdsStripClusterBuilder source file             -----
+// -----             PndSdsStripClusterer source file             -----
 // -----          Converted 27.11.2007 from R.Jaekel by R.Kliemt       -----
 // -------------------------------------------------------------------------
 
-#include "PndSdsStripClusterBuilder.h"
+#include "PndSdsStripClusterer.h"
 
 // includes for sort algorithms
 #include <algorithm>
@@ -14,12 +14,12 @@
 // enum SensorSide { kTOP, kBOTTOM };
 
 
-PndSdsStripClusterBuilder::PndSdsStripClusterBuilder()
+PndSdsStripClusterer::PndSdsStripClusterer()
 {
   // dummy
 }
 
-PndSdsStripClusterBuilder::~PndSdsStripClusterBuilder()
+PndSdsStripClusterer::~PndSdsStripClusterer()
 {
 }
 
@@ -27,7 +27,7 @@ PndSdsStripClusterBuilder::~PndSdsStripClusterBuilder()
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
-void PndSdsStripClusterBuilder::Reinit()
+void PndSdsStripClusterer::Reinit()
 {
   fSortedDigis.clear();
   fClusters.clear();
@@ -36,41 +36,41 @@ void PndSdsStripClusterBuilder::Reinit()
   fLeftDigis.clear();
 }
 
-void PndSdsStripClusterBuilder::AddDigi(std::string detName, SensorSide side, Int_t timestamp, Int_t strip, Int_t iPoint)
+void PndSdsStripClusterer::AddDigi(std::string detName, SensorSide side, Int_t timestamp, Int_t strip, Int_t iPoint)
 {
     fSortedDigis[detName][side][timestamp][strip] = iPoint;
 }
 
-PndSdsClusterStrip PndSdsStripClusterBuilder::GetCluster(Int_t i)
+PndSdsClusterStrip PndSdsStripClusterer::GetCluster(Int_t i)
 {
   if(0<=i && fClusters.size() < i)
     return fClusters[i];
   else{
-    std::cout<<"-E- PndSdsStripClusterBuilder::GetCluster: Out of bounds i="<<i<<" at size="<<fBotclusters.size()<<std::endl;
+    std::cout<<"-E- PndSdsStripClusterer::GetCluster: Out of bounds i="<<i<<" at size="<<fBotclusters.size()<<std::endl;
     //return; // ??? what to do?
   }
 }
-PndSdsClusterStrip PndSdsStripClusterBuilder::GetTopCluster(Int_t i)
+PndSdsClusterStrip PndSdsStripClusterer::GetTopCluster(Int_t i)
 {
   if(0<=i && fTopclusters.size() < i)
   return fClusters[ (fTopclusters[i]) ];
   else{
-    std::cout<<"-E- PndSdsStripClusterBuilder::GetTopCluster: Out of bounds i="<<i<<" at size="<<fBotclusters.size()<<std::endl;
+    std::cout<<"-E- PndSdsStripClusterer::GetTopCluster: Out of bounds i="<<i<<" at size="<<fBotclusters.size()<<std::endl;
     //return; // ??? what to do?
   }
 }
-PndSdsClusterStrip PndSdsStripClusterBuilder::GetBotCluster(Int_t i)
+PndSdsClusterStrip PndSdsStripClusterer::GetBotCluster(Int_t i)
 {
   if(0<=i && fBotclusters.size() < i)
     return fClusters[ (fBotclusters[i]) ];
   else {
-    std::cout<<"-E- PndSdsStripClusterBuilder::GetBotCluster: Out of bounds i="<<i<<" at size="<<fBotclusters.size()<<std::endl;
+    std::cout<<"-E- PndSdsStripClusterer::GetBotCluster: Out of bounds i="<<i<<" at size="<<fBotclusters.size()<<std::endl;
     //return; // ??? what to do?
   }
 }
 
 
-void PndSdsStripClusterBuilder::AddCluster(const std::vector< Int_t >& onecluster,SensorSide side)
+void PndSdsStripClusterer::AddCluster(const std::vector< Int_t >& onecluster,SensorSide side)
 {
   Int_t clindex = fClusters.size();
   if(side == kBOTTOM)
@@ -92,7 +92,7 @@ void PndSdsStripClusterBuilder::AddCluster(const std::vector< Int_t >& onecluste
 
 
 
-ClassImp(PndSdsStripClusterBuilder);
+ClassImp(PndSdsStripClusterer);
 
 
 

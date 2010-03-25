@@ -25,7 +25,7 @@
 PndSdsNoiseProducer::PndSdsNoiseProducer() :
   FairTask("Charge Noise Producer"), fIonizationEnergy(1.)
 {
-
+  fPersistance = kTRUE;
 }
 // -------------------------------------------------------------------------
 
@@ -52,16 +52,18 @@ InitStatus PndSdsNoiseProducer::Init()
   // Get input array
   fDigiStripArray = (TClonesArray*) ioman->GetObject(fBranchNameStrip);
   if ( ! fDigiStripArray )  {
-      std::cout << "-W- PndSdsNoiseProducer::Init: No SDSStripDigis array!" << std::endl;
+      std::cout << "-W- PndSdsNoiseProducer::Init: No "<<fBranchNameStrip<<" array!" << std::endl;
       std::cout << "    Create a new one." << std::endl;
       fDigiStripArray = new TClonesArray("PndSdsDigiStrip");
+      ioman->Register(fBranchNameStrip, fFolderName, fDigiStripArray, fPersistance);
   }
 
   fDigiPixelArray = (TClonesArray*) ioman->GetObject(fBranchNamePixel);
   if ( ! fDigiPixelArray )     {
-      std::cout << "-W- PndSdsNoiseProducer::Init: No SDSPixelDigis array!" << std::endl;
+      std::cout << "-W- PndSdsNoiseProducer::Init: No "<<fBranchNamePixel<<" array!" << std::endl;
       std::cout << "    Create a new one." << std::endl;
       fDigiPixelArray = new TClonesArray("PndSdsDigiPixel");
+      ioman->Register(fBranchNamePixel, fFolderName, fDigiPixelArray, fPersistance);
   }
 
   fGeoH = new PndGeoHandling(gGeoManager);

@@ -35,6 +35,7 @@ PndSdsStripHitProducer::PndSdsStripHitProducer() :
  
   fOverrideParams = false;
   fDigiParameterList = new TList();
+  fPersistance = kTRUE;
 }
 // -------------------------------------------------------------------------
 
@@ -114,7 +115,7 @@ InitStatus PndSdsStripHitProducer::Init()
 
   // Create and register output array
   fStripArray = new TClonesArray("PndSdsDigiStrip");
-  ioman->Register(fOutBranchName, fFolderName, fStripArray, kTRUE);
+  ioman->Register(fOutBranchName, fFolderName, fStripArray, fPersistance);
   
   SetCalculators();
 

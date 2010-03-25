@@ -99,9 +99,9 @@ SdsReco/PndSdsPixelClusterTask.cxx
 SdsReco/PndSdsIdealClusterTask.cxx
 SdsReco/PndSdsPixelBackMapping.cxx
 SdsReco/PndSdsChargeWeightedPixelMapping.cxx
-SdsReco/PndSdsStripClusterBuilder.cxx
+SdsReco/PndSdsStripClusterer.cxx
 SdsReco/PndSdsSimpleStripClusterFinder.cxx
-SdsReco/PndSdsStripClusterFinder.cxx
+SdsReco/PndSdsStripAdvClusterFinder.cxx
 SdsReco/PndSdsStripClusterTask.cxx
 SdsReco/PndSdsIdealRecoTask.cxx
 SdsReco/PndSdsChargeWeightingAlgorithms.cxx

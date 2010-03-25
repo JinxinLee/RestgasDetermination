@@ -27,7 +27,7 @@
 #include "PndSdsContFact.h" 
 
 #include "PndSdsSimpleStripClusterFinder.h"
-#include "PndSdsStripClusterFinder.h"
+#include "PndSdsStripAdvClusterFinder.h"
 #include "PndSdsChargeWeightingAlgorithms.h"
 
 #include <map>
@@ -44,6 +44,7 @@ PndSdsStripClusterTask::PndSdsStripClusterTask() :
 {
   fChargeCut = 1.e8; // this ist really large and shall have no effect
   fDigiParameterList = new TList(); 
+  fPersistance = kTRUE;
 }
 
 // -----   Destructor   ----------------------------------------------------
@@ -95,7 +96,7 @@ void PndSdsStripClusterTask::SetCalculators()
     if(0==ClusterMod) { 
       fClusterFinderList[senstype] = new PndSdsSimpleStripClusterFinder( RadChannel ); //search radius in channel no. 
     } else if(1==ClusterMod) { 
-      fClusterFinderList[senstype] = new PndSdsStripClusterFinder(RadChannel, RadTime); 
+      fClusterFinderList[senstype] = new PndSdsStripAdvClusterFinder(RadChannel, RadTime); 
     } 
  
   } 
@@ -130,10 +131,10 @@ InitStatus PndSdsStripClusterTask::Init()
 
   // set output arrays
   fHitArray = new TClonesArray("PndSdsHit");
-  ioman->Register(fHitBranchName, fFolderName, fHitArray, kTRUE);
+  ioman->Register(fHitBranchName, fFolderName, fHitArray, fPersistance);
 
   fClusterArray = new TClonesArray("PndSdsClusterStrip");
-  ioman->Register(fClustBranchName, fFolderName, fClusterArray, kTRUE);
+  ioman->Register(fClustBranchName, fFolderName, fClusterArray, fPersistance);
 
   // geo name handling
   fGeoH = new PndGeoHandling(gGeoManager);
@@ -384,7 +385,7 @@ Bool_t PndSdsStripClusterTask::SelectSensorParams(TString detname)
 void PndSdsStripClusterTask::ResetClusterFinders() 
 { 
   //recursively clean the digis in the clusterfinder objects each event 
-  for(std::map<const char*,PndSdsStripClusterBuilder*>::iterator CFiter = fClusterFinderList.begin(); 
+  for(std::map<const char*,PndSdsStripClusterer*>::iterator CFiter = fClusterFinderList.begin(); 
       CFiter != fClusterFinderList.end(); CFiter++) 
   { 
     (CFiter->second)->ClearDigis(); 

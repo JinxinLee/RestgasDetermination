@@ -32,7 +32,7 @@
 PndSdsPixelClusterTask::PndSdsPixelClusterTask() :
   FairTask("SDS Clustertisation Task")
 {
-
+  fPersistance = kTRUE;
 }
 // -------------------------------------------------------------------------
 
@@ -85,10 +85,10 @@ InitStatus PndSdsPixelClusterTask::Init()
   }
 
   fHitArray = new TClonesArray("PndSdsHit");
-  ioman->Register(fHitBranchName, fFolderName, fHitArray, kTRUE);
+  ioman->Register(fHitBranchName, fFolderName, fHitArray, fPersistance);
 
   fClusterArray = new TClonesArray("PndSdsClusterPixel");
-  ioman->Register(fClustBranchName, fFolderName, fClusterArray, kTRUE);
+  ioman->Register(fClustBranchName, fFolderName, fClusterArray, fPersistance);
 
   fParams.push_back(fDigiPar->GetFECols());
   fParams.push_back(fDigiPar->GetFERows());

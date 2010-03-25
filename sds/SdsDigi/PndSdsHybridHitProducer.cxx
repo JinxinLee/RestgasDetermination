@@ -35,7 +35,7 @@ PndSdsHybridHitProducer::PndSdsHybridHitProducer() :
 //  fHitArray  = new TClonesArray("PndSdsHit");
 //	fPixelArray	= new TClonesArray("PndSdsPixelHit");
   if(fVerbose>0) std::cout << "MVD Hybrid Digi Producer created, Parameters will be taken from RTDB" << std::endl;
-
+  fPersistance = kTRUE;
 }
 // -------------------------------------------------------------------------
 
@@ -54,6 +54,7 @@ PndSdsHybridHitProducer::PndSdsHybridHitProducer(Double_t lx, Double_t ly, Doubl
   fcols = 104;
   frows = 104;
   fOverwriteParams = kTRUE;
+  fPersistance = kTRUE;
   if(fVerbose>0) std::cout << "MVD Hybrid Digi Producer created, Parameters will be overwritten in RTDB" << std::endl;
 }
 // -------------------------------------------------------------------------
@@ -110,7 +111,7 @@ InitStatus PndSdsHybridHitProducer::Init()
 
   // Create and register output array
   fPixelArray = new TClonesArray("PndSdsDigiPixel");
-  ioman->Register(fOutBranchName, fFolderName, fPixelArray, kTRUE);
+  ioman->Register(fOutBranchName, fFolderName, fPixelArray, fPersistance);
 
 
 

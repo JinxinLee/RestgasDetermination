@@ -19,6 +19,7 @@ PndSdsHitProducerIdeal::PndSdsHitProducerIdeal() :
   FairTask("Ideal SDS Hit Producer")
 {
 	//fBranchName 	= "MVDPoint";
+  fPersistance = kTRUE;
 }
 // -------------------------------------------------------------------------
 
@@ -57,7 +58,7 @@ InitStatus PndSdsHitProducerIdeal::Init()
 
   // Create and register output array
   fHitArray = new TClonesArray("PndSdsHit");
-  ioman->Register(fOutBranchName, fFolderName, fHitArray, kTRUE);
+  ioman->Register(fOutBranchName, fFolderName, fHitArray, fPersistance);
 
   std::cout << "-I- PndSdsHitProducerIdeal: Intialisation successfull" << std::endl;
   return kSUCCESS;

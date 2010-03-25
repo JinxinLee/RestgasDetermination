@@ -1,6 +1,6 @@
 // -------------------------------------------------------------------------
-// -----                CbmStsHitProducerIdeal source file             -----
-// -----                  Created 10/01/06  by V. Friese               -----
+// -----                PndSdsStripHitProducer source file             -----
+// -----                     WITH CHARGE DIFFUSION                     -----
 // -------------------------------------------------------------------------
 
 
@@ -44,6 +44,7 @@ PndSdsStripHitProducerDif::PndSdsStripHitProducerDif() :
   fOverrideParams = false;
 //  fHitArray  = new TClonesArray("PndSdsHit");
 //	fStripArray	= new TClonesArray("PndSdsStripHit");
+  fPersistance = kTRUE;
 }
 // -------------------------------------------------------------------------
 
@@ -162,11 +163,11 @@ InitStatus PndSdsStripHitProducerDif::Init()
 
   // Create and register output array
   fStripArray = new TClonesArray("PndSdsDigiStrip");
-  ioman->Register("SSDStripDigis", "SSD", fStripArray, kTRUE);
+  ioman->Register("SSDStripDigis", "SSD", fStripArray, fPersistance);
 
   // Create and register parameter array
 //  fStripArray = new TClonesArray("PndSdsDigiPar");
-//  ioman->Register("SSDDigiParam", "SSD", fDigiParRect, kTRUE);
+//  ioman->Register("SSDDigiParam", "SSD", fDigiParRect, fPersistance);
 
   std::cout << "-I- PndSdsStripHitProducer: Initialisation successfull" << std::endl;
 

@@ -33,6 +33,7 @@ PndSdsIdealRecoTask::PndSdsIdealRecoTask() :
   fSigmaX=0.;
   fSigmaY=0.;
   fSigmaZ=0.;
+  fPersistance = kTRUE;
 }
 // -------------------------------------------------------------------------
 
@@ -44,6 +45,7 @@ PndSdsIdealRecoTask::PndSdsIdealRecoTask(Double_t sx, Double_t sy, Double_t sz) 
   fSigmaX=sx;
   fSigmaY=sy;
   fSigmaZ=sz;
+  fPersistance = kTRUE;
 }
 // -------------------------------------------------------------------------
 
@@ -81,7 +83,7 @@ InitStatus PndSdsIdealRecoTask::Init()
 
   // Create and register output array
   fHitOutputArray = new TClonesArray("PndSdsHit");
-  ioman->Register(fHitBranchName, fFolderName ,fHitOutputArray, kTRUE);
+  ioman->Register(fHitBranchName, fFolderName ,fHitOutputArray, fPersistance);
 
   std::cout << "-I- gGeoManager = "<<gGeoManager << std::endl;
   fGeoH = new PndGeoHandling(gGeoManager);

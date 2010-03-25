@@ -37,6 +37,7 @@ PndSdsIdealClusterTask::PndSdsIdealClusterTask() :
   geoMan = gGeoManager;
 //  fDigiArray  = new TClonesArray("PndSdsDigiPixel");
 //  fClusterArray  = new TClonesArray("PndSdsIdealClusterPixel");
+  fPersistance = kTRUE;
 }
 
 PndSdsIdealClusterTask::PndSdsIdealClusterTask(Double_t radius, Int_t FEcolumns, Int_t FErows, TString geoFile) :
@@ -55,6 +56,7 @@ PndSdsIdealClusterTask::PndSdsIdealClusterTask(Double_t radius, Int_t FEcolumns,
   fParams.push_back(radius);
   fParams.push_back(FEcolumns);
   fParams.push_back(FErows);
+  fPersistance = kTRUE;
 }
 
 // -------------------------------------------------------------------------
@@ -119,10 +121,10 @@ InitStatus PndSdsIdealClusterTask::Init()
 
 
   fHitArray = new TClonesArray("PndSdsHit");
-  ioman->Register(fHitBranchName , fFolderName, fHitArray, kTRUE);
+  ioman->Register(fHitBranchName , fFolderName, fHitArray, fPersistance);
 
   fClusterArray = new TClonesArray("PndSdsClusterPixel");
-  ioman->Register(fClustBranchName, fFolderName, fClusterArray, kTRUE);
+  ioman->Register(fClustBranchName, fFolderName, fClusterArray, fPersistance);
 
   std::cout << "-I- PndSdsIdealClusterTask: Initialisation successfull" << std::endl;
   return kSUCCESS;

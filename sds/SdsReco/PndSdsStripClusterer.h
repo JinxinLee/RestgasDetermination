@@ -1,10 +1,10 @@
 // -------------------------------------------------------------------------
-// -----             PndSdsStripClusterBuilder header file             -----
+// -----             PndSdsStripClusterer header file             -----
 // -----          Converted 27.11.2007 from R.Jaekel by R.Kliemt       -----
 // -------------------------------------------------------------------------
 
 
-/** PndSdsStripClusterBuilder.h
+/** PndSdsStripClusterer.h
  *@author R.Kliemt <r.kliemt@physik.tu-dresden.de>
  **
  ** Calculator class to find clusters in one channel dimension
@@ -28,10 +28,10 @@ typedef std::map<Int_t,Indexpair> Indextriple;
 typedef std::map<SensorSide,Indextriple> SidedTriple; 
 typedef std::map<std::string,SidedTriple > Fullmap; 
 
-class PndSdsStripClusterBuilder {
+class PndSdsStripClusterer {
  public:
-  PndSdsStripClusterBuilder();
-  ~PndSdsStripClusterBuilder();
+  PndSdsStripClusterer();
+  ~PndSdsStripClusterer();
 
   void Reinit();
 
@@ -57,9 +57,9 @@ protected:
   std::vector< PndSdsClusterStrip > fClusters;
 
 private:
-ClassDef(PndSdsStripClusterBuilder,2);
+ClassDef(PndSdsStripClusterer,2);
 };
 
 
 
-#endif // PndSdsStripClusterBuilder
+#endif // PndSdsStripClusterer

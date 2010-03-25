@@ -1,10 +1,10 @@
 // -------------------------------------------------------------------------
-// -----             PndSdsStripClusterBuilder header file             -----
+// -----             PndSdsStripAdvClusterFinder header file             -----
 // -----          Converted 27.11.2007 from R.Jaekel by R.Kliemt       -----
 // -------------------------------------------------------------------------
 
 
-/** PndSdsStripCluster.h
+/** PndSdsStripAdvClusterFinder.h
  *@author R.Kliemt <r.kliemt@physik.tu-dresden.de>
  *@author L.Ackermann
  **
@@ -22,11 +22,11 @@
 
 #include "PndSdsDigiStrip.h"
 #include "PndSdsClusterStrip.h"
-#include "PndSdsStripClusterBuilder.h"
+#include "PndSdsStripClusterer.h"
 // #include "PndSdsStripCluster.h"
 
 /**   
- @class PndSdsStripClusterFinder : public PndSdsStripClusterBuilder 
+ @class PndSdsStripAdvClusterFinder : public PndSdsStripClusterBuilder 
  @brief Find Clusters on a strip sensor in two dimensions
  
  Search for clusters in channel and trigger timestamp dimension. It is possible to set a whole e.g. defect strip.
@@ -35,21 +35,21 @@
  @author Ralf Kliemt
  @date 11.03.2009
 */
-class PndSdsStripClusterFinder : public PndSdsStripClusterBuilder 
+class PndSdsStripAdvClusterFinder : public PndSdsStripClusterer 
 {
  public:
 	/** default constructor **/
-	PndSdsStripClusterFinder();
+	PndSdsStripAdvClusterFinder();
 
 	/**
 	main constructor Set number of maximum missing channels or time to get the cluster
 	@param NrofmissedChannels maximum of missing channels
 	@param NrofmissedTimestamps maximum of missing time
 	*/
-	PndSdsStripClusterFinder(Int_t NrofmissedChannels, Int_t NrofmissedTimestamps);
+	PndSdsStripAdvClusterFinder(Int_t NrofmissedChannels, Int_t NrofmissedTimestamps);
 
 	/** Destructor **/
-	~PndSdsStripClusterFinder();
+	~PndSdsStripAdvClusterFinder();
 
 	/**
 	@fn std::vector< PndSdsClusterStrip > SearchClusters()
@@ -79,7 +79,7 @@ private:
 	/// maximum of missing time
 	Int_t fNmTS;
 
-ClassDef(PndSdsStripClusterFinder,1);
+ClassDef(PndSdsStripAdvClusterFinder,1);
 };
 
 

@@ -64,10 +64,13 @@ class PndSdsPixelClusterTask : public FairTask
     /** Virtual method Exec **/
     virtual void Exec(Option_t* opt);
 
-
- protected:
+    void SetPersistance(Bool_t p = kTRUE) {fPersistance=p;};
+    Bool_t GetPersistance() {return fPersistance;};
   
-    
+  protected:
+  
+    Bool_t fPersistance; // switch to turn on/off storing the arrays to a file
+  
     TString fBranchName;
     /** Input array of PndSdsDigis **/
      TClonesArray* fDigiArray;

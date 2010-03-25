@@ -94,7 +94,12 @@ class PndSdsStripHitProducer : public FairTask
 
   void AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, TString detname, Int_t fe, Int_t chan, Double_t charge);
 
+  void SetPersistance(Bool_t p = kTRUE) {fPersistance=p;};
+  Bool_t GetPersistance() {return fPersistance;};
+  
  protected:
+
+  Bool_t fPersistance; // switch to turn on/off storing the arrays to a file
 
   TString fBranchName;
   TString fOutBranchName;

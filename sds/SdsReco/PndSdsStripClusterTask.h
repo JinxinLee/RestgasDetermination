@@ -22,7 +22,7 @@
 #include "TH2F.h"
 #include "PndSdsHybridHitProducer.h"
 #include "PndSdsStripHitProducer.h"
-#include "PndSdsStripClusterBuilder.h"
+#include "PndSdsStripClusterer.h"
 #include "PndDetectorList.h" 
 #include <string>
 #include <vector>
@@ -58,9 +58,14 @@ class PndSdsStripClusterTask : public FairTask
     virtual void Exec(Option_t* opt);
     /** Virtual method Finish **/
     virtual void Finish();
-
-
+ 
+    void SetPersistance(Bool_t p = kTRUE) {fPersistance=p;};
+    Bool_t GetPersistance() {return fPersistance;};
+  
   protected:
+  
+    Bool_t fPersistance; // switch to turn on/off storing the arrays to a file
+  
     void SetCalculators(); 
     TVector2 CalcLineCross(TVector2 point1, TVector2 dir1, TVector2 point2, TVector2 dir2) const;
     void SetCurrentCalculators(PndSdsStripDigiPar* digipar); 
@@ -101,8 +106,8 @@ class PndSdsStripClusterTask : public FairTask
 	  
     PndGeoHandling* fGeoH;      //! Geometry name handling
     PndSdsChargeWeightingAlgorithms* fChargeAlgos;
-    PndSdsStripClusterBuilder* fCurrentClusterfinder;
-    std::map<const char*,PndSdsStripClusterBuilder*> fClusterFinderList; 
+    PndSdsStripClusterer* fCurrentClusterfinder;
+    std::map<const char*,PndSdsStripClusterer*> fClusterFinderList; 
 
     ClassDef(PndSdsStripClusterTask,1);
 

@@ -21,7 +21,7 @@
 
 class TClonesArray;
 
-//! Hit Producer Task for strip detectors
+//! Hit Producer Task for strip detectors with electron diffusion
 /**
  * The choice of the parameters used for Digitization depends on the invocation of the
  * different constructors of this task. Instantiating by the default constructor forces
@@ -136,8 +136,14 @@ class PndSdsStripHitProducerDif : public FairTask
 
 
 
- private:
-
+  void SetPersistance(Bool_t p = kTRUE) {fPersistance=p;};
+  Bool_t GetPersistance() {return fPersistance;};
+  
+protected:
+  
+  Bool_t fPersistance; // switch to turn on/off storing the arrays to a file
+  
+  
   TString fBranchName;
 
   /** Input array of PndSdsMCPoints **/

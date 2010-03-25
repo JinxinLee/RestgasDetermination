@@ -62,8 +62,12 @@ class PndSdsNoiseProducer : public FairTask
 
   void DiveDownNode(TGeoNode *fN);
 //   void Finish();
- protected:
+  
+  void SetPersistance(Bool_t p = kTRUE) {fPersistance=p;};
+  Bool_t GetPersistance() {return fPersistance;};
 
+ protected:
+  Bool_t fPersistance;
   TString fBranchNameStrip;
   TString fBranchNamePixel;
   TString fFolderName;

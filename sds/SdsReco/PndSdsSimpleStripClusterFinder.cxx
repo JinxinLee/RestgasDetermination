@@ -15,12 +15,12 @@
 // enum SensorSide { kTOP, kBOTTOM };
 
 
-PndSdsSimpleStripClusterFinder::PndSdsSimpleStripClusterFinder(): PndSdsStripClusterBuilder()
+PndSdsSimpleStripClusterFinder::PndSdsSimpleStripClusterFinder(): PndSdsStripClusterer()
 {
   // dummy
 	fRadius = 1;
 }
-PndSdsSimpleStripClusterFinder::PndSdsSimpleStripClusterFinder(Int_t rad): PndSdsStripClusterBuilder()
+PndSdsSimpleStripClusterFinder::PndSdsSimpleStripClusterFinder(Int_t rad): PndSdsStripClusterer()
 {
 	fRadius = rad;
 }

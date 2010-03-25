@@ -1,10 +1,10 @@
 // -------------------------------------------------------------------------
-// -----             PndSdsStripClusterBuilder header file             -----
+// -----             PndSdsStripClusterer header file             -----
 // -----          Converted 27.11.2007 from R.Jaekel by R.Kliemt       -----
 // -------------------------------------------------------------------------
 
 
-/** PndSdsStripClusterBuilder.h
+/** PndSdsStripClusterer.h
  *@author R.Kliemt <r.kliemt@physik.tu-dresden.de>
  **
  ** Calculator class to find clusters in one channel dimension
@@ -21,10 +21,10 @@
 
 #include "PndSdsDigiStrip.h"
 #include "PndSdsCluster.h"
-#include "PndSdsStripClusterBuilder.h"
+#include "PndSdsStripClusterer.h"
 // #include "PndSdsStripCluster.h"
 
-class PndSdsSimpleStripClusterFinder : public PndSdsStripClusterBuilder {
+class PndSdsSimpleStripClusterFinder : public PndSdsStripClusterer {
  public:
   PndSdsSimpleStripClusterFinder();
   PndSdsSimpleStripClusterFinder(Int_t rad);

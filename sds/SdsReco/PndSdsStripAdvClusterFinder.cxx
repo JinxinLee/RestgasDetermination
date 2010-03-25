@@ -1,9 +1,9 @@
 // -------------------------------------------------------------------------
-// -----             PndSdsSimpleStripClusterFinder source file             -----
+// -----             PndSdsStripAdvClusterFinder source file             -----
 // -----          Converted 27.11.2007 from R.Jaekel by R.Kliemt       -----
 // -------------------------------------------------------------------------
 
-#include "PndSdsStripClusterFinder.h"
+#include "PndSdsStripAdvClusterFinder.h"
 
 // includes for sort algorithms
 #include <algorithm>
@@ -12,24 +12,24 @@
 #include "TMath.h"
 // enum SensorSide { kTOP, kBOTTOM };
 
-PndSdsStripClusterFinder::PndSdsStripClusterFinder()
+PndSdsStripAdvClusterFinder::PndSdsStripAdvClusterFinder()
 {
   fNmCh=2;
   fNmTS=0;
 }
 
-PndSdsStripClusterFinder::PndSdsStripClusterFinder(Int_t NrofmissedChannels, Int_t NrofmissedTimestamp)
+PndSdsStripAdvClusterFinder::PndSdsStripAdvClusterFinder(Int_t NrofmissedChannels, Int_t NrofmissedTimestamp)
 {
   fNmCh=NrofmissedChannels+1;
   fNmTS=NrofmissedTimestamp;
 }
 
-PndSdsStripClusterFinder::~PndSdsStripClusterFinder()
+PndSdsStripAdvClusterFinder::~PndSdsStripAdvClusterFinder()
 {
 }
 
 
-std::vector< PndSdsClusterStrip >  PndSdsStripClusterFinder::SearchClusters()
+std::vector< PndSdsClusterStrip >  PndSdsStripAdvClusterFinder::SearchClusters()
 {
   ///  -----  search for clusters  -----
   ///  Take neighbouring fired strips.
@@ -69,7 +69,7 @@ std::cout<<"beim Cluster"<<std::endl;
 				ClusterIterator(ch->first,ts->first,hitmap,onecluster);		// new Cluster from ch and ts
 				if (onecluster.size()>0)
       			{
-//          			std::cout<<" -W- PndSdsStripClusterFinder::SearchClusters(): cluster hangover? "<<onecluster.size()<<std::endl;
+//          			std::cout<<" -W- PndSdsStripAdvClusterFinder::SearchClusters(): cluster hangover? "<<onecluster.size()<<std::endl;
           			AddCluster(onecluster,itSide->first);
                     onecluster.clear();
 				}
@@ -81,7 +81,7 @@ std::cout<<"beim Cluster"<<std::endl;
 }
 
 
-void PndSdsStripClusterFinder::ClusterIterator(Int_t newCh, Int_t newFrameID, std::map<Int_t,
+void PndSdsStripAdvClusterFinder::ClusterIterator(Int_t newCh, Int_t newFrameID, std::map<Int_t,
 							std::map<Int_t,std::vector<Int_t> > >& hitmap, std::vector< Int_t >& onecluster)
 {
 	if (hitmap.find(newCh) == hitmap.end()) return; 						// end of hitmap reached (channel)
@@ -101,4 +101,4 @@ void PndSdsStripClusterFinder::ClusterIterator(Int_t newCh, Int_t newFrameID, st
 }
 
 
-ClassImp(PndSdsStripClusterFinder);
+ClassImp(PndSdsStripAdvClusterFinder);
