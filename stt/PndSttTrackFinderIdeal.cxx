@@ -1,14 +1,16 @@
 
 #include "PndSttTrackFinderIdeal.h"
+
 #include "PndSttHit.h"
 #include "PndSttPoint.h"
 #include "PndSttHelixHit.h"
 #include "PndSttHoughDefines.h"
-#include "FairMCPoint.h"
-#include "FairRootManager.h"
 #include "PndDetectorList.h"
 #include "PndTrackCand.h" 
+#include "PndSttTube.h"
 
+#include "FairMCPoint.h"
+#include "FairRootManager.h"
 
 // ROOT includes
 #include "TClonesArray.h"
@@ -21,7 +23,7 @@
 // C++ includes
 #include <iostream>
 #include <map>
-#include  <cmath>
+#include <cmath>
 
 using std::cout;
 using std::cin;
@@ -170,6 +172,10 @@ Int_t PndSttTrackFinderIdeal::DoFind( TClonesArray* trackCandArray, TClonesArray
 	if ( ! pMhit ) 
 	    continue;
 
+	// tubeID  CHECK added
+	Int_t tubeID = pMhit->GetTubeID();
+	PndSttTube *tube = (PndSttTube*) fTubeArray->At(tubeID);
+
 	ptIndex = pMhit->GetRefIndex();
 
 	if (rootoutput)
@@ -181,9 +187,9 @@ Int_t PndSttTrackFinderIdeal::DoFind( TClonesArray* trackCandArray, TClonesArray
 	    myArc.SetLineColor(1);
 	    
 	    if (pMhit->GetIsochrone() == 0)
-		myArc.DrawArc(pMhit->GetX(), pMhit->GetY(), 1.0);
+		myArc.DrawArc(tube->GetPosition().X(), tube->GetPosition().Y(), 1.0);
 	    else
-		myArc.DrawArc(pMhit->GetX(), pMhit->GetY(), pMhit->GetIsochrone());
+		myArc.DrawArc(tube->GetPosition().X(), tube->GetPosition().Y(), pMhit->GetIsochrone());
 	}
 
 	if (ptIndex < 0) 
