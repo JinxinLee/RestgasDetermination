@@ -57,7 +57,7 @@ class PndSdsPixelClusterTask : public FairTask
    virtual void SetBranchNames()=0;
 
     /** Virtual method Init **/
-    virtual void SetParContainers();
+    virtual void SetParContainers() = 0;
     virtual InitStatus Init();
     virtual InitStatus ReInit();
 

@@ -50,7 +50,7 @@ class PndSdsStripClusterTask : public FairTask
 
 
     /** Virtual method Init **/
-    virtual void SetParContainers();
+    virtual void SetParContainers()=0;
     virtual InitStatus Init();
     virtual InitStatus ReInit();
 
