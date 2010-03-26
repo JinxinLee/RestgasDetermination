@@ -396,9 +396,10 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
       TVector3 p3;
       TMatrixD covP4=bump->Get4MomentumErrorMatrix();
       p3.SetMagThetaPhi(bump->GetEnergyCorrected(), v1.Theta(), v1.Phi());
-      TLorentzVector lv(p3,0.);
+      TLorentzVector lv(p3,p3.Mag());
       
-      PndPidCandidate* pidCand = new PndPidCandidate(0, vtx, lv); 
+      PndPidCandidate* pidCand = new PndPidCandidate(0, vtx, lv);
+      pidCand->SetP4Cov(covP4);
       pidCand->SetEmcRawEnergy(bump->energy());
       pidCand->SetEmcCalEnergy(bump->GetEnergyCorrected());
       pidCand->SetEmcIndex(i);
