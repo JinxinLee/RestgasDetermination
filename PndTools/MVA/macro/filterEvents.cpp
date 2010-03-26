@@ -18,14 +18,15 @@ void filterEvents(int pdg, const std::string& partName,
   std::vector<int> EvtIds;
 
   //EMC cluster energy, num.clusters, numb. crystals
-  float emc, emcCorr, mom; 
-  float z20, z53;//Selected Zernike moments
+  float emc, emcCorr, mom;
+  //Selected Zernike moments and LATeral energydeposition
+  float z20, z53, latEdep;
   int numClus, numCrys;
   mom = emc = emcCorr = z20 = z53 = 0.00;
   numClus = numCrys = 0;
 
   TNtuple EmcNtp (partName.c_str(), partName.c_str(),
-		  "id:p:emc:emcCorr:numClus:numCrys:z20:z53");
+		  "id:p:emc:emcCorr:numClus:numCrys:lat:z20:z53");
 
   TFile sF(simFile.c_str());
   TTree* tsim = (TTree *) sF.Get("cbmsim");
@@ -133,9 +134,10 @@ void filterEvents(int pdg, const std::string& partName,
 	emcCorr = HE_cluster->GetEnergyCorrected();  
 	z20 = clsZmom.AbsZernikeMoment(2, 0, 15);// Z_{n = 2}^{m = 0}
 	z53 = clsZmom.AbsZernikeMoment(5, 3, 15);// Z_{n = 5}^{m = 3}
-
+	latEdep = clsZmom.Lat();
 	// Fill tree
-	EmcNtp.Fill(evid, mom, (emc/mom), (emcCorr/mom), numClus, numCrys, z20, z53);
+	EmcNtp.Fill(evid, mom, (emc/mom), (emcCorr/mom),
+		    numClus, numCrys, latEdep, z20, z53);
       }
     }// End if(tra)
     else{//Neutral or not correctly reconstructed.
