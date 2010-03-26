@@ -102,12 +102,13 @@ InitStatus PndPidMvaAssociatorTask::Init()
   }
   
   // Get track array.
+  /*
   fMCTrack = (TClonesArray*) fManager->GetObject("MCTrack");
   if ( !fMCTrack){
     std::cout << "-I- PndPidAssociatorTask::Init: No MC Track array there!" << std::endl;
     return kERROR;
   }
-  
+  */
   Register();
   std::cout << "<INFO> Using weight file  " << fWeightsFileName <<std::endl;
   std::cout << "<INFO> Init classifiers."<< std::endl;

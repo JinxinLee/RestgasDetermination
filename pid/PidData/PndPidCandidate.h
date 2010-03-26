@@ -118,10 +118,11 @@ class PndPidCandidate : public VAbsMicroCandidate  //TObject
   Int_t		GetEmcNumberOfBumps() const{return fEmcNumberOfBumps;}
   Int_t                 GetEmcModule()    const { return fEmcModule; }
   Int_t                 GetEmcIndex()     const { return fEmcIndex; }
-  
+  // EMC Cluster properties.
   Double_t GetEmcClusterZ20() const { return fEmcZ20; }
   Double_t GetEmcClusterZ53() const { return fEmcZ53; }
-	
+  Double_t GetClusterLat()    const { return fEmcLat; }
+  
   // MUO
   Int_t		GetMuoNumberOfLayers()const {return fMuoNumberOfLayers;}
   Float_t		GetMuoProbability() const{return fMuoProbability;}
@@ -228,6 +229,7 @@ class PndPidCandidate : public VAbsMicroCandidate  //TObject
 
   void  SetEmcClusterZ20(Double_t val)    { fEmcZ20 = val; }
   void  SetEmcClusterZ53(Double_t val)    { fEmcZ53 = val; }
+  void  SetEmcClusterLat(Double_t val)    { fEmcLat = val; };
 
   // MUO
   void	SetMuoNumberOfLayers(Int_t val) { fMuoNumberOfLayers= val;}
@@ -334,6 +336,7 @@ class PndPidCandidate : public VAbsMicroCandidate  //TObject
   
   Double_t    fEmcZ20;
   Double_t    fEmcZ53;
+  Double_t    fEmcLat;
   
   // MUO
   Int_t		fMuoNumberOfLayers;

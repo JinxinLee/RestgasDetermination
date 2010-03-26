@@ -508,10 +508,10 @@ Bool_t PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
   Float_t emcEloss = 0., emcElossCorr = 0., emcGLength = -1000;
   Float_t emcQuality = 1000000;
    Float_t chi2 = 0;
-  TVector3 vertex(0., 0., 0.); TVector3 emcPos(0., 0., 0.); TVector3 momentum(0., 0., 0.);
+  TVector3 vertex(0., 0., 0.); TVector3 emcPos(0., 0., 0.);// TVector3 momentum(0., 0., 0.);
 
   // Cluster zenike moments
-  double Z20 = 0.0; double Z53 = 0.0;
+  double Z20 = 0.0; double Z53 = 0.0; double secLatM = 0.00;
 
   for (Int_t ee = 0; ee<emcEntries; ee++){
     //emcHit = (PndEmcCluster*)fEmcCluster->At(ee);
@@ -547,7 +547,7 @@ Bool_t PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
 
     Float_t dist = (emcPos-vertex).Mag2();
     if ( emcQuality > dist ){
-      PndEmcXClMoments clsZmom = emcHit->Xmoments();
+      const PndEmcXClMoments& clsZmom = emcHit->Xmoments();
       emcIndex = ee;
       emcQuality = dist;
       emcEloss = emcHit->energy();
@@ -556,6 +556,7 @@ Bool_t PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
       emcNCrystals = emcHit->NumberOfDigis();
       Z20 = clsZmom.AbsZernikeMoment(2, 0, 15);// Z_{n = 2}^{m = 0}
       Z53 = clsZmom.AbsZernikeMoment(5, 3, 15);// Z_{n = 5}^{m = 3}
+      secLatM = clsZmom.Lat();
     }
     
     if (fDebugMode){
@@ -578,6 +579,7 @@ Bool_t PndPidCorrelator::GetEmcInfo(FairTrackParH* helix, PndPidCandidate* pidCa
     //======= 
     pidCand->SetEmcClusterZ20(Z20);
     pidCand->SetEmcClusterZ53(Z53);
+    pidCand->SetEmcClusterLat(secLatM);
     //=====
   }
   
