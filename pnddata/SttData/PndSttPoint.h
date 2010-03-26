@@ -19,7 +19,8 @@ class PndSttPoint : public FairMCPoint
   /** Constructor with arguments
    *@param trackID       Index of MCTrack
    *@param detID         Detector ID
-   *@param pos           Coordinates at wire center of active volume [cm]
+   *@param tubeID        Number of tube
+   *@param pos           Coordinates of MC point [cm]
    *@param posInLocal    Local coordinates at entrance to active volume [cm]
    *@param posOutLocal   Local coordinates at exit of active volume [cm]
    *@param momIn         Momentum of track at entrance [GeV]
@@ -54,20 +55,20 @@ class PndSttPoint : public FairMCPoint
   Double_t GetYtot()  const { return GetY(); }
   Double_t GetZtot()  const { return GetZ(); }
   
-  Double_t GetPxOut() const { return fPx_out; }
-  Double_t GetPyOut() const { return fPy_out; }
-  Double_t GetPzOut() const { return fPz_out; }
+  Double_t GetPxOut() const { return fPx_out; } 
+  Double_t GetPyOut() const { return fPy_out; } 
+  Double_t GetPzOut() const { return fPz_out; } 
 
   Double_t GetMass() const {return fMass;}
  
-  void PositionOutLocal(TVector3& pos) { pos.SetXYZ(fX_out_local,fY_out_local,fZ_out_local); }
+  void PositionOutLocal(TVector3& pos) { pos.SetXYZ(fX_out_local,fY_out_local,fZ_out_local); } 
   void PositionInLocal(TVector3& pos)  { pos.SetXYZ(fX_in_local,fY_in_local,fZ_in_local); }
-  void MomentumOut(TVector3& mom) { mom.SetXYZ(fPx_out,fPy_out,fPz_out); }
+  void MomentumOut(TVector3& mom) { mom.SetXYZ(fPx_out,fPy_out,fPz_out); } 
 
   /** Modifiers **/
   void SetPositionOutLocal(TVector3 pos);
-  void SetPositionInLocal(TVector3 pos);
-  void SetMomentumOut(TVector3 mom);
+  void SetPositionInLocal(TVector3 pos); 
+  void SetMomentumOut(TVector3 mom);     
 
   // tube ID // CHECK added
   void SetTubeID(Int_t tubeid) { fTubeID = tubeid; }
@@ -84,7 +85,12 @@ class PndSttPoint : public FairMCPoint
   // entry coordinates in straw frame
   Double_t fX_in_local,  fY_in_local,  fZ_in_local;
 
-  Double_t fPx_out, fPy_out, fPz_out;
+  Double_t fPx_in; //!
+  Double_t fPy_in; //!
+  Double_t fPz_in; //!
+  Double_t fPx_out;
+  Double_t fPy_out;
+  Double_t fPz_out;
 
   // stt1 - particle mass
   Double_t fMass;

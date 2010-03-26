@@ -9,6 +9,7 @@ using std::endl;
 PndSttPoint::PndSttPoint() : FairMCPoint() {
   fX_in_local  = fY_in_local   = fZ_in_local   = 0.;
   fX_out_local = fY_out_local  = fZ_out_local  = 0.;
+  fPx_in       = fPy_in        = fPz_in        = 0.;
   fPx_out      = fPy_out       = fPz_out       = 0.;
 }
 // -------------------------------------------------------------------------
@@ -30,9 +31,18 @@ PndSttPoint::PndSttPoint(Int_t trackID, Int_t detID, TVector3 pos,
   fY_in_local  = posInLocal.Y();
   fZ_in_local  = posInLocal.Z();
 
+  fPx_in = momIn.Px();
+  fPy_in = momIn.Py();
+  fPz_in = momIn.Pz();
+  
   fPx_out = momOut.Px();
   fPy_out = momOut.Py();
   fPz_out = momOut.Pz();
+  
+  // reset MC monentum
+  fPx = (momIn.Px() + momOut.Px()) / 2.;
+  fPy = (momIn.Py() + momOut.Py()) / 2.;
+  fPz = (momIn.Pz() + momOut.Pz()) / 2.;
 
   fMass = mass; // stt1
 
