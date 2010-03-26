@@ -15,7 +15,7 @@
   digiparFile += "/macro/params/all.par";
 
   // Output file
-  PndMvdFileNameCreator creator(inFile.Data());
+  PndFileNameCreator creator(inFile.Data());
   TString outFile = creator.GetDigiFileName().c_str(); 
   std::cout << "DigiFileName: " << outFile.Data() << std::endl;
 
