@@ -60,7 +60,9 @@ class PndSttPoint : public FairMCPoint
   Double_t GetPzOut() const { return fPz_out; } 
 
   Double_t GetMass() const {return fMass;}
- 
+
+  Double_t GetTrueDistance();
+  
   void PositionOutLocal(TVector3& pos) { pos.SetXYZ(fX_out_local,fY_out_local,fZ_out_local); } 
   void PositionInLocal(TVector3& pos)  { pos.SetXYZ(fX_in_local,fY_in_local,fZ_in_local); }
   void MomentumOut(TVector3& mom) { mom.SetXYZ(fPx_out,fPy_out,fPz_out); } 

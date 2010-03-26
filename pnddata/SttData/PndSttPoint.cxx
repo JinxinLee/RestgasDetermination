@@ -1,6 +1,7 @@
 #include "PndSttPoint.h"
 
 #include <iostream>
+#include "math.h"
 
 using std::cout;
 using std::endl;
@@ -49,14 +50,19 @@ PndSttPoint::PndSttPoint(Int_t trackID, Int_t detID, TVector3 pos,
 }
 // -------------------------------------------------------------------------
 
+Double_t PndSttPoint::GetTrueDistance() {
 
+  TVector3 x1(0., 0., -75.); // CHECK
+  TVector3 x2(0., 0., 75.);  // CHECK
+  TVector3 x3(fX_in_local,  fY_in_local,  fZ_in_local);
+  TVector3 x4(fX_out_local, fY_out_local, fZ_out_local);
+
+  return fabs((x3 - x1).Dot((x2 - x1).Cross(x4 - x3))) / fabs(((x2 - x1).Cross(x4 - x3)).Mag()) ;
+}
 
 // -----   Destructor   ----------------------------------------------------
 PndSttPoint::~PndSttPoint() { }
 // -------------------------------------------------------------------------
-
-
-
 
 // -----   Public method Print   -------------------------------------------
 void PndSttPoint::Print(const Option_t* opt) const {
