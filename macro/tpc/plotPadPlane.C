@@ -3,24 +3,28 @@
 #include "PndTpcPadShapePool.h"
 #include <iostream>
 #include <vector>
+#include <sstream>
+#include "TLatex.h"
 #include "TCanvas.h"
 #include "TVector2.h"
 #include "TArrow.h"
 #include "TWbox.h"
 #include "TPad.h"
+#include "TH2D.h"
+#include "TStyle.h"
 
 
-
-void plotPadPlane(TString padshapes, TString padplane, bool drawlinks=false){
+void plotPadPlane(TString padshapes, TString padplane, bool drawlinks=false,
+		  bool drawPadIDs=false){
 
   PndTpcGem* _gem=new PndTpcGem(5000,           // Gain
                   0.02);          // Spread
   
-  PndTpcPadShapePool* _padShapes = new PndTpcPadShapePool(padshapes,
-				   *_gem,
-				   0.4, // lookup range
-				   0.02, // Lookup Step
-				   0.01); // LookupIntegrationStep
+  PndTpcPadShapePool* _padShapes = new PndTpcPadShapePool(padshapes);
+  //				   *_gem,
+  //				   0.4, // lookup range
+				     //			   0.02, // Lookup Step
+  //				   0.01); // LookupIntegrationStep
   
   
   PndTpcPadPlane* _padPlane= new PndTpcPadPlane(padplane, _padShapes);
@@ -34,10 +38,15 @@ void plotPadPlane(TString padshapes, TString padplane, bool drawlinks=false){
   double x1=x0+_padPlane->GetXBin()*_padPlane->GetNX();
   double y1=y0+_padPlane->GetYBin()*_padPlane->GetNY();
   
-
+  std::cout<<x0<<"  "<<x1<<"  "<<y0<<"  "<<y1<<std::endl;
 
   gPad->Range(x0,y0,x1,y1);
 
+  gStyle->SetOptStat(0);
+  
+  TH2D* hist = new TH2D("gsfdg","",100,x0,x1,100,y0,y1);
+  hist->Draw();
+  
   // plot regions
   int npads=_padPlane->GetNPads();
   std::vector<TVector2> regmin(1000);
@@ -54,6 +63,16 @@ void plotPadPlane(TString padshapes, TString padplane, bool drawlinks=false){
       cout.flush();
       continue;
     }
+    if(drawPadIDs) {
+      stringstream ss;
+      ss<<i;
+      
+      TLatex* tex = new TLatex();
+      tex->SetTextSize(0.007);
+      tex->SetTextAlign(22);
+      tex->DrawLatex(apad->x(), apad->y(), ss.str().c_str());
+    }
+    
     int sectorid=apad->sectorId();
     apad->Draw(sectorid%10+1);
     unsigned int nn=apad->nNeighbours();
