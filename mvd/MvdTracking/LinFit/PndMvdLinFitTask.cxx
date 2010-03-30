@@ -74,13 +74,13 @@ InitStatus PndMvdLinFitTask::Init()
       return kERROR;
     }
 
-  fRecoArray=(TClonesArray*) ioman->GetObject(fRecoBranchName);
+  //  fRecoArray=(TClonesArray*) ioman->GetObject(fRecoBranchName);
 
-  if(fRecoArray==0)
-    {
-      Error("PndMvdLinFitTask::Init","reco-array not found!");
-      return kERROR;
-    }
+  //   if(fRecoArray==0)
+  //     {
+  //       Error("PndMvdLinFitTask::Init","reco-array not found!");
+  //       return kERROR;
+  //     }
 
   fTrackArray = new TClonesArray("PndLinTrack");
   ioman->Register("MVDTrack", "PndMvd", fTrackArray, kTRUE);
@@ -163,7 +163,9 @@ void PndMvdLinFitTask::Exec(Option_t* opt)
 
   Int_t ihit = 0, track = 0;
 
-  if (sizeMap==6)
+  std::cout << "Map size: " << sizeMap << std::endl;
+
+  if (sizeMap>1)
     {
       
       TGraph2DErrors fitme(ntcand); //new graph for fitting
@@ -203,106 +205,167 @@ void PndMvdLinFitTask::Exec(Option_t* opt)
 		fitme.SetPoint(ihit, addPos1.X(), addPos1.Y(), addPos1.Z());
 		fitme.SetPointError(ihit, theHit1->GetDx(), theHit1->GetDy(), theHit1->GetDz());
 	    
-		for (Int_t it3=0; it3<ntcand; it3++) // on third det
+		if (sizeMap==2)
 		  {
-		    ihit = 2;
+		    Double_t parFit[4]; //fit-parameter
+		    Double_t accuracy = line3Dfit(6, &fitme, parFit);
 		    
-		    eloss[2] = 0;
-	    
-		    PndMvdHit *theHit2 = (PndMvdHit*)   fTCandArray->At(it3);
+		    PndLinTrack* trackfit = new PndLinTrack("Mvd", parFit[0], parFit[1], parFit[2], parFit[3], accuracy, eloss[0]+eloss[1], sizeMap, track);
 
-		    if( (theHit2->GetDetName()) != DetNames[2]) continue;
-      
-		    eloss[2] = theHit2->GetEloss();
+		    new((*fTrackArray)[track]) PndLinTrack(*(trackfit)); //save Track
 
-		    TVector3 addPos2 = theHit2->GetPosition();
-      
-		    fitme.SetPoint(ihit, addPos2.X(), addPos2.Y(), addPos2.Z());
-		    fitme.SetPointError(ihit, theHit2->GetDx(), theHit2->GetDy(), theHit2->GetDz());
-		 
-		    for (Int_t it4=0; it4<ntcand; it4++) // on fourth det
+		    track++;
+		  }	
+		
+		else
+		  {
+		    for (Int_t it3=0; it3<ntcand; it3++) // on third det
 		      {
-			
-			ihit = 3;
-	      
-			eloss[3] = 0;
-	    
-			PndMvdHit *theHit3 = (PndMvdHit*)   fTCandArray->At(it4);
-
-			if( (theHit3->GetDetName()) != DetNames[3]) continue;
-
-			eloss[3] = theHit3->GetEloss();
-			    
-			TVector3 addPos3 = theHit3->GetPosition();
-      
-			fitme.SetPoint(ihit, addPos3.X(), addPos3.Y(), addPos3.Z());
-			fitme.SetPointError(ihit, theHit3->GetDx(), theHit3->GetDy(), theHit3->GetDz());
-		 
-			for (Int_t it5=0; it5<ntcand; it5++) // on fifth det
-			  {
-			    
-			    ihit = 4;
-	      
-			    eloss[4] = 0;
-
-			    PndMvdHit *theHit4 = (PndMvdHit*)   fTCandArray->At(it5);
-
-
-			    if( (theHit4->GetDetName()) != DetNames[4]) continue;
-
-			    eloss[4] = theHit4->GetEloss();
-      
-			    TVector3 addPos4 = theHit4->GetPosition();
-      
-			    fitme.SetPoint(ihit, addPos4.X(), addPos4.Y(), addPos4.Z());
-			    fitme.SetPointError(ihit, theHit4->GetDx(), theHit4->GetDy(), theHit4->GetDz());
-			 
-			    for (Int_t it6=0; it6<ntcand; it6++) // on sixth det
-			      {
+			ihit = 2;
+		    
+			eloss[2] = 0;
 		      
-				ihit = 5;
-	      
-				eloss[5] = 0;
+			PndMvdHit *theHit2 = (PndMvdHit*)   fTCandArray->At(it3);
+		      
+			if( (theHit2->GetDetName()) != DetNames[2]) continue;
+		      
+			eloss[2] = theHit2->GetEloss();
 
-				PndMvdHit *theHit5 = (PndMvdHit*)   fTCandArray->At(it6);
-
-				if( (theHit5->GetDetName()) != DetNames[5]) continue;
+			TVector3 addPos2 = theHit2->GetPosition();
       
-				TVector3 addPos5 = theHit5->GetPosition();
-				
-				fitme.SetPoint(ihit, addPos5.X(), addPos5.Y(), addPos5.Z());
-				fitme.SetPointError(ihit, theHit5->GetDx(), theHit5->GetDy(), theHit5->GetDz());
-			       
-				Double_t parFit[4]; //fit-parameter
-				Double_t accuracy = line3Dfit(6, &fitme, parFit);
-
-				eloss[5] = theHit5->GetEloss();      
-
-				PndLinTrack* trackfit = new PndLinTrack("Mvd", parFit[0], parFit[1], parFit[2], parFit[3], accuracy, eloss[0]+eloss[1]+eloss[2]+eloss[3]+eloss[4]+eloss[5], 0);
-      
-
-
-				new((*fTrackArray)[track]) PndLinTrack(*(trackfit)); //save Track
-      
-				track++;
-
-				// Done--------------------------------------------------------------------------------------
-  
-				std::cout<<"Fitting done"<<std::endl;
-
-			      }
-		       
-			  }
-
-		      }
+			fitme.SetPoint(ihit, addPos2.X(), addPos2.Y(), addPos2.Z());
+			fitme.SetPointError(ihit, theHit2->GetDx(), theHit2->GetDy(), theHit2->GetDz());
 		 
+			if (sizeMap==3)
+			  {
+			    Double_t parFit[4]; //fit-parameter
+			    Double_t accuracy = line3Dfit(6, &fitme, parFit);
+		    
+			    PndLinTrack* trackfit = new PndLinTrack("Mvd", parFit[0], parFit[1], parFit[2], parFit[3], accuracy, eloss[0]+eloss[1]+eloss[2], sizeMap, track);
+
+			    new((*fTrackArray)[track]) PndLinTrack(*(trackfit)); //save Track
+
+			    track++;
+			  }	
+		
+			else
+			  {
+
+			    for (Int_t it4=0; it4<ntcand; it4++) // on fourth det
+			      {
+			  
+				ihit = 3;
+			  
+				eloss[3] = 0;
+			  
+				PndMvdHit *theHit3 = (PndMvdHit*)   fTCandArray->At(it4);
+			  
+				if( (theHit3->GetDetName()) != DetNames[3]) continue;
+
+				eloss[3] = theHit3->GetEloss();
+			    
+				TVector3 addPos3 = theHit3->GetPosition();
+      
+				fitme.SetPoint(ihit, addPos3.X(), addPos3.Y(), addPos3.Z());
+				fitme.SetPointError(ihit, theHit3->GetDx(), theHit3->GetDy(), theHit3->GetDz());
+			
+				if (sizeMap==4)
+				  {
+				    Double_t parFit[4]; //fit-parameter
+				    Double_t accuracy = line3Dfit(6, &fitme, parFit);
+		    
+				    PndLinTrack* trackfit = new PndLinTrack("Mvd", parFit[0], parFit[1], parFit[2], parFit[3], accuracy, eloss[0]+eloss[1]+eloss[2]+eloss[3], sizeMap, track);
+				    
+				    new((*fTrackArray)[track]) PndLinTrack(*(trackfit)); //save Track
+				 
+				    track++;
+				  }	
+		
+				else
+				  {
+
+				    for (Int_t it5=0; it5<ntcand; it5++) // on fifth det
+				      {
+			      
+					ihit = 4;
+	      
+					eloss[4] = 0;
+
+					PndMvdHit *theHit4 = (PndMvdHit*)   fTCandArray->At(it5);
+
+			      
+					if( (theHit4->GetDetName()) != DetNames[4]) continue;
+
+					eloss[4] = theHit4->GetEloss();
+      
+					TVector3 addPos4 = theHit4->GetPosition();
+      
+					fitme.SetPoint(ihit, addPos4.X(), addPos4.Y(), addPos4.Z());
+					fitme.SetPointError(ihit, theHit4->GetDx(), theHit4->GetDy(), theHit4->GetDz());
+			 
+					if (sizeMap==5)
+					  {
+					    Double_t parFit[4]; //fit-parameter
+					    Double_t accuracy = line3Dfit(6, &fitme, parFit);
+		    
+					    PndLinTrack* trackfit = new PndLinTrack("Mvd", parFit[0], parFit[1], parFit[2], parFit[3], accuracy, eloss[0]+eloss[1]+eloss[2]+eloss[3]+eloss[5], sizeMap, track);
+
+					    new((*fTrackArray)[track]) PndLinTrack(*(trackfit)); //save Track
+
+					    track++;
+					  }	
+		
+					else
+					  {
+
+					    for (Int_t it6=0; it6<ntcand; it6++) // on sixth det
+					      {
+				
+						ihit = 5;
+				  
+						eloss[5] = 0;
+
+						PndMvdHit *theHit5 = (PndMvdHit*)   fTCandArray->At(it6);
+
+						if( (theHit5->GetDetName()) != DetNames[5]) continue;
+      
+						TVector3 addPos5 = theHit5->GetPosition();
+				  
+						fitme.SetPoint(ihit, addPos5.X(), addPos5.Y(), addPos5.Z());
+						fitme.SetPointError(ihit, theHit5->GetDx(), theHit5->GetDy(), theHit5->GetDz());
+				  
+						Double_t parFit[4]; //fit-parameter
+						Double_t accuracy = line3Dfit(6, &fitme, parFit);
+
+						eloss[5] = theHit5->GetEloss();      
+
+						PndLinTrack* trackfit = new PndLinTrack("Mvd", parFit[0], parFit[1], parFit[2], parFit[3], accuracy, eloss[0]+eloss[1]+eloss[2]+eloss[3]+eloss[4]+eloss[5], sizeMap, track);
+				  
+
+				  
+						new((*fTrackArray)[track]) PndLinTrack(*(trackfit)); //save Track
+      
+						track++;
+				  
+						// Done--------------------------------------------------------------------------------------
+  
+						std::cout<<"Fitting done"<<std::endl;
+					      }
+					  }
+			  
+				      }
+				  }
+			      }		      
+			  }
+		      }
 		  }
-
 	      }
+	    
+	  }
 
-	  }// End of TCand's
+      }// End of TCand's
 
-      }
+    
       
 
       
@@ -314,81 +377,81 @@ void PndMvdLinFitTask::Exec(Option_t* opt)
 
 // define the parameteric line equation 
 void PndMvdLinFitTask::line(double t, double *p, double &x, double &y, double &z) { 
-   // a parameteric line is define from 6 parameters but 4 are independent
-   // x0,y0,z0,z1,y1,z1 which are the coordinates of two points on the line
-   // can choose z0 = 0 if line not parallel to x-y plane and z1 = 1; 
-   x = p[0] + p[1]*t; 
-   y = p[2] + p[3]*t;
-   z = t; 
+  // a parameteric line is define from 6 parameters but 4 are independent
+  // x0,y0,z0,z1,y1,z1 which are the coordinates of two points on the line
+  // can choose z0 = 0 if line not parallel to x-y plane and z1 = 1; 
+  x = p[0] + p[1]*t; 
+  y = p[2] + p[3]*t;
+  z = t; 
 } 
 
 // calculate distance line-point 
 double distance2(double x,double y,double z, double *p) { 
-   // distance line point is D= | (xp-x0) cross  ux | 
-   // where ux is direction of line and x0 is a point in the line (like t = 0) 
-   XYZVector xp(x,y,z); 
-   XYZVector x0(p[0], p[2], 0. ); 
-   XYZVector x1(p[0] + p[1], p[2] + p[3], 1. ); 
-   XYZVector u = (x1-x0).Unit(); 
-   double d2 = ((xp-x0).Cross(u)) .Mag2(); 
-   return d2; 
+  // distance line point is D= | (xp-x0) cross  ux | 
+  // where ux is direction of line and x0 is a point in the line (like t = 0) 
+  XYZVector xp(x,y,z); 
+  XYZVector x0(p[0], p[2], 0. ); 
+  XYZVector x1(p[0] + p[1], p[2] + p[3], 1. ); 
+  XYZVector u = (x1-x0).Unit(); 
+  double d2 = ((xp-x0).Cross(u)) .Mag2(); 
+  return d2; 
 }
 
 // function to be minimized 
 void SumDistance2(int &, double *, double & sum, double * par, int ) { 
-   TGraph2D * gr = dynamic_cast<TGraph2D*>( (TVirtualFitter::GetFitter())->GetObjectFit() );
-   assert(gr != 0);
-   double * x = gr->GetX();
-   double * y = gr->GetY();
-   double * z = gr->GetZ();
-   int npoints = gr->GetN();
-   sum = 0;
-   for (int i  = 0; i < npoints; ++i) { 
-      double d = distance2(x[i],y[i],z[i],par); 
-      sum += d;
-   }
-   //if (firstIt && fVerbose>1) 
-   //   std::cout << "Total sum2 = " << sum << std::endl;
-   //firstIt = false;
+  TGraph2D * gr = dynamic_cast<TGraph2D*>( (TVirtualFitter::GetFitter())->GetObjectFit() );
+  assert(gr != 0);
+  double * x = gr->GetX();
+  double * y = gr->GetY();
+  double * z = gr->GetZ();
+  int npoints = gr->GetN();
+  sum = 0;
+  for (int i  = 0; i < npoints; ++i) { 
+    double d = distance2(x[i],y[i],z[i],par); 
+    sum += d;
+  }
+  //if (firstIt && fVerbose>1) 
+  //   std::cout << "Total sum2 = " << sum << std::endl;
+  //firstIt = false;
 }
 
 double PndMvdLinFitTask::line3Dfit(Int_t nd, TGraph2DErrors* gr, Double_t* fitpar)
 {
-   //gStyle->SetOptStat(0);
-   //gStyle->SetOptFit();
-   //firstIt = true;
+  //gStyle->SetOptStat(0);
+  //gStyle->SetOptFit();
+  //firstIt = true;
    
-   TVirtualFitter *min = TVirtualFitter::Fitter(0,4);
-   min->SetObjectFit(gr);
-   min->SetFCN( *SumDistance2 );
+  TVirtualFitter *min = TVirtualFitter::Fitter(0,4);
+  min->SetObjectFit(gr);
+  min->SetFCN( *SumDistance2 );
   
-   Double_t arglist[10];
-   arglist[0] = 1;
-   min->ExecuteCommand("SET PRINT",arglist,1);
+  Double_t arglist[10];
+  arglist[0] = 1;
+  min->ExecuteCommand("SET PRINT",arglist,1);
   
-   double pStart[4] = {0.001,0.001,0.001,0.001};
-   min->SetParameter(0,"x0",pStart[0],0.00001,0,0);
-   min->SetParameter(1,"Ax",pStart[1],0.00001,0,0);
-   min->SetParameter(2,"y0",pStart[2],0.00001,0,0);
-   min->SetParameter(3,"Ay",pStart[3],0.00001,0,0);
-   min->SetPrecision(1e-8);
+  double pStart[4] = {0.001,0.001,0.001,0.001};
+  min->SetParameter(0,"x0",pStart[0],0.00001,0,0);
+  min->SetParameter(1,"Ax",pStart[1],0.00001,0,0);
+  min->SetParameter(2,"y0",pStart[2],0.00001,0,0);
+  min->SetParameter(3,"Ay",pStart[3],0.00001,0,0);
+  min->SetPrecision(1e-8);
     
-   arglist[0] = 1000; // number of function calls 
-   arglist[1] = 1e-8; // tolerance 
+  arglist[0] = 1000; // number of function calls 
+  arglist[1] = 1e-8; // tolerance 
    
-   min->ExecuteCommand("MIGRAD",arglist,2);
+  min->ExecuteCommand("MIGRAD",arglist,2);
 
   //if (minos) min->ExecuteCommand("MINOS",arglist,0);
-   int nvpar,nparx; 
-   double amin,edm, errdef;
-   min->GetStats(amin,edm,errdef,nvpar,nparx);
-   if(fVerbose>1)
-     min->PrintResults(1,amin);
+  int nvpar,nparx; 
+  double amin,edm, errdef;
+  min->GetStats(amin,edm,errdef,nvpar,nparx);
+  if(fVerbose>1)
+    min->PrintResults(1,amin);
   // gr->Draw("p0");
 
-   // get fit parameters
-   for (int i = 0; i <4; ++i) 
-      fitpar[i] = min->GetParameter(i); 
+  // get fit parameters
+  for (int i = 0; i <4; ++i) 
+    fitpar[i] = min->GetParameter(i); 
 
   return amin; 
 }

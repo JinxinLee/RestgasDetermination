@@ -35,10 +35,11 @@ class PndLinTrack : public TObject
    *@param pX      Parameter of Fit [cm]
    *@param chi     ChiSquare of Fit
    *@param fEloss   Total energy loss along one track
+   *@param fNumSens   number of sensors with at least one hit
    *@param cand    Id of TrackCandidate
    **/
   PndLinTrack(TString detName, Double_t p0, Double_t p1, Double_t p2, Double_t p3,
-  	    Double_t chi, Double_t eloss, Int_t cand);
+  	    Double_t chi, Double_t eloss, Int_t sens, Int_t cand);
 
   /** Destructor **/
   virtual ~PndLinTrack();
@@ -54,6 +55,7 @@ class PndLinTrack : public TObject
   TVector3	GetDirectionVec()	const { return TVector3(fP1,fP3,1.);}
   Double_t 	GetChiSquare()		const { return fChiSq;}
   Double_t      GetEloss()              const { return fEloss;}
+  Int_t		GetNumSens()		const { return fNunSens;}
   Int_t		GetTCandID()		const { return fCandId;}
 
  private:
@@ -62,8 +64,9 @@ class PndLinTrack : public TObject
   //start (P0, P2, 0), direction (P1, P3, 1) straight line
   Double_t fChiSq; // Chi-Square of Fit
   Double_t fEloss;
+  Int_t fNunSens; // number of sensors with at least one hit
   Int_t fCandId; //TrackCand id
-
+  
   ClassDef(PndLinTrack,10);
 
 };
