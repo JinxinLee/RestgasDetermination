@@ -7215,7 +7215,7 @@ if(istampa>=3 && IVOLTE<20) {
      UShort_t  i, ii;
      Short_t Status;
 
-     char nome[100], stringa[100], stringa2[100];
+     char nome[300], stringa[300], stringa2[300];
 
      FILE * MACRO ;
 
@@ -9356,7 +9356,7 @@ if(istampa==2 && IVOLTE<20) cout<<"From AssociateBetterAfterFitSkewHitsToXYTrack
      UShort_t  i, ii;
      Short_t Status;
 
-     char nome[100], stringa[100], stringa2[100];
+     char nome[300], stringa[300], stringa2[300];
 
 //     FILE * MACRO ;
 
@@ -9860,7 +9860,7 @@ if(istampa==2 && IVOLTE<20) cout<<"From AssociateBetterAfterFitSkewHitsToXYTrack
      UShort_t  i, ii;
      Short_t Status;
 
-     char nome[100], stringa[100], stringa2[100];
+     char nome[300], stringa[300], stringa2[300];
 
 //     FILE * MACRO ;
 
