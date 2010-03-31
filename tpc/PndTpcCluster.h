@@ -24,6 +24,7 @@
 // Collaborating Class Headers -------
 #include <ostream> // remove if you do not need streaming op
 #include <vector>
+#include <set>
 #include "TVector3.h"
 #include "McIdCollection.h"
 #include "TMatrixD.h"
@@ -44,9 +45,9 @@ public:
   PndTpcCluster();
   PndTpcCluster(const PndTpcCluster&);
   PndTpcCluster(const TVector3& Pos, double Amp, 
-			 unsigned int Index, unsigned int Size=1);
+		unsigned int Index, unsigned int Size=1, double FCT=0.0);
   PndTpcCluster(const TVector3& Pos, const TVector3& Sig, double Amp, 
-			 unsigned int Index, unsigned int Size=1);
+		unsigned int Index, unsigned int Size=1, double FCT=0.0);
   
   virtual ~PndTpcCluster();
 
@@ -62,10 +63,11 @@ public:
   unsigned int nPadX() const {return fnPadX;}
   unsigned int nPadY() const {return fnPadY;}
   unsigned int index() const {return findex;}
-  unsigned int get2DSize();
   const McIdCollection& mcId() const {return fmcid;}
   unsigned int nMcIds() const {return fmcid.nIDs();}
   double maxMcWeight() const {return fmcid.MaxRelWeight();}
+  unsigned int get2DSize() ;
+  double Fct() const {if (famp) return fct/famp; else return 0;}
 
   // Modifiers -----------------------
   void SetMcId(const McIdCollection& m){fmcid=m;}
@@ -79,20 +81,21 @@ public:
   void nPadX(unsigned int i) {fnPadX=i;}
   void nPadY(unsigned int i) {fnPadY=i;}
 
-
   // Operations ----------------------
  
   
-  unsigned int nDigi() const {
+ unsigned int nDigi() const {
     return digis.size();
   }
   void addDigi(const PndTpcDigi& d){
+    fct+=d.fct()*d.amp();
     digis.push_back(d);
   }
   const PndTpcDigi& getDigi(int i) const{
     assert (i<digis.size());
     return digis.at(i);
   }
+
   
   
   
@@ -107,6 +110,7 @@ private:
   TVector3 faxis; // main axis of the cluster EXPERIMENTAL
   bool fhasaxis;
   double famp;
+  double fct;    //crosstalk info
   unsigned int fsize;
   unsigned int fnPad;
   unsigned int fnPadX;
@@ -125,7 +129,7 @@ private:
   
 
 public:
-  ClassDef(PndTpcCluster,4)
+  ClassDef(PndTpcCluster,5)
 
 };
 
@@ -133,4 +137,5 @@ public:
 
 //--------------------------------------------------------------
 // $Log$
+// Version 5 : include crosstalk info, vandenbm
 //--------------------------------------------------------------
