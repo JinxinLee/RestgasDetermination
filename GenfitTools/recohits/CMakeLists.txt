@@ -6,6 +6,7 @@ set(INCLUDE_DIRECTORIES
 ${ROOT_INCLUDE_DIR} 
 ${CLHEP_INCLUDE_DIR}
 ${CMAKE_SOURCE_DIR}/base
+${CMAKE_SOURCE_DIR}/parbase
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/LSLtrackRep
@@ -16,6 +17,8 @@ ${CMAKE_SOURCE_DIR}/pnddata/GemData
 ${CMAKE_SOURCE_DIR}/pnddata/MdtData
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
 ${CMAKE_SOURCE_DIR}/pnddata/MvdData
+${CMAKE_SOURCE_DIR}/pnddata/SttData
+${CMAKE_SOURCE_DIR}/stt
 ${CMAKE_SOURCE_DIR}/PndTools/generalTools
 ${CMAKE_SOURCE_DIR}/geane
 ${CMAKE_SOURCE_DIR}/GenfitTools/recohits
@@ -37,6 +40,7 @@ PndDchRecoHit2.cxx
 PndGemRecoHit.cxx
 PndMdtRecoHit.cxx
 PndMvdRecoHit.cxx
+PndSttRecoHit.cxx
 )
 
 if(RULE_CHECKER_FOUND)

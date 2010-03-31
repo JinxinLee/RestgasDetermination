@@ -18,6 +18,7 @@ ${CMAKE_SOURCE_DIR}/trackbase
 ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/LSLtrackRep
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
+${CMAKE_SOURCE_DIR}/GenfitTools/recohits
 ${CMAKE_SOURCE_DIR}/stt
 ${CMAKE_SOURCE_DIR}/stt/sttreco
 )
@@ -33,7 +34,6 @@ link_directories( ${LINK_DIRECTORIES})
 set(STT_SRCS
 PndSttPatternRecoTask.cxx
 PndSttPatternRecoTask2.cxx
-PndSttRecoHit.cxx
 PndSttKalmanTask.cxx
 PndSttKalmanTask2.cxx
 #WirepointHitPolicy.cxx

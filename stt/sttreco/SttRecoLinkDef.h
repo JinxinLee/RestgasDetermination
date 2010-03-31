@@ -5,7 +5,6 @@
 #pragma link off all functions;
 #pragma link C++ class PndSttPatternRecoTask+;
 #pragma link C++ class PndSttPatternRecoTask2+;
-#pragma link C++ class PndSttRecoHit+;
 #pragma link C++ class PndSttKalmanTask+; 
 #pragma link C++ class PndSttKalmanTask2+; 
 //#pragma link C++ class GFWirepointHitPolicy+;
