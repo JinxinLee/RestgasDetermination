@@ -23,6 +23,7 @@
 
 // C/C++ Headers ----------------------
 #include <iostream>
+#include <set>
 using namespace std;
 
 // Collaborating Class Headers --------
@@ -33,38 +34,29 @@ using namespace std;
 
 
 PndTpcCluster::PndTpcCluster()
-  : fpos(0,0,0), fsig(0.04,0.04,0.15),fcov(3,3),famp(0), fsize(0), fnPad(0), fnPadX(0), fnPadY(0), findex(0),findexInTrack(-1), fct(0.0)
+  : fpos(0,0,0), fsig(0.1,0.1,0.01),fcov(3,3),famp(0), fsize(0), fnPad(0), fnPadX(0), fnPadY(0), findex(0),findexInTrack(-1)
 {}
 
 PndTpcCluster::PndTpcCluster(const PndTpcCluster& clust) 
   : fpos(clust.fpos), fsig(clust.fsig),fcov(clust.fcov), faxis(clust.faxis),famp(clust.famp),
     fhasaxis(clust.fhasaxis), fnPad(clust.fnPad), fnPadX(clust.fnPadX),fnPadY(clust.fnPadY),
     findex(clust.findex), fsize(clust.fsize),findexInTrack(clust.findexInTrack),
-    fmcid(clust.fmcid), fct(clust.fct)
+    fmcid(clust.fmcid)
 { 
   for(unsigned int i=0; i<(clust.digis).size(); ++i) 
     digis.push_back(PndTpcDigi((clust.digis)[i]));
 }
 
 PndTpcCluster::PndTpcCluster(const TVector3& Pos, double Amp, 
-		       unsigned int Index, unsigned int Size,double FCT)
-  : fpos(Pos), fsig(0.04,0.04,0.15),fcov(3,3), famp(Amp), findex(Index), fsize(Size),findexInTrack(-1),fct(FCT)
+		       unsigned int Index, unsigned int Size)
+  : fpos(Pos), fsig(0.1,0.1,0.01),fcov(3,3), famp(Amp), findex(Index), fsize(Size),findexInTrack(-1)
 {}
 
 PndTpcCluster::PndTpcCluster(const TVector3& Pos, const TVector3& Sig, double Amp, 
-		       unsigned int Index, unsigned int Size,double FCT)
-  : fpos(Pos), fsig(Sig) ,fcov(3,3), famp(Amp), findex(Index), fsize(Size),findexInTrack(-1),fct(FCT)
+		       unsigned int Index, unsigned int Size)
+  : fpos(Pos), fsig(Sig) ,fcov(3,3), famp(Amp), findex(Index), fsize(Size),findexInTrack(-1)
 {}
 
-unsigned int 
-PndTpcCluster::get2DSize() { //return the 2-dimensional size of the cluster
-  std::set<unsigned int> ids;
-  for(int k=0; k<digis.size(); k++) {
-    unsigned int id = (digis[k]).padId();
-    ids.insert(id);
-  }
-  return ids.size();
-}
 
 TVector3
 PndTpcCluster::calcAxis() const {
@@ -79,7 +71,15 @@ PndTpcCluster::calcAxis() const {
   return Axis;
 }
 
-
+unsigned int 
+PndTpcCluster::get2DSize() { //return the 2-dimensional size of the cluster
+  std::set<unsigned int> ids;
+  for(int k=0; k<digis.size(); k++) {
+    unsigned int id = (digis[k]).padId();
+    ids.insert(id);
+  }
+  return ids.size();
+}
 
 
 PndTpcCluster::~PndTpcCluster(){}
