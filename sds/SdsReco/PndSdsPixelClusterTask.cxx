@@ -26,7 +26,6 @@
 
 #include "PndSdsSimplePixelClusterFinder.h"
 #include "PndSdsChargeWeightedPixelMapping.h"
-#include "PndMCList.h" 
 
 // -----   Default constructor   -------------------------------------------
 PndSdsPixelClusterTask::PndSdsPixelClusterTask() :

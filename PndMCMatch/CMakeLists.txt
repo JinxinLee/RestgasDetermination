@@ -40,8 +40,6 @@ PndMCTestMomentumCompare.cxx
 PndMCTestHitCompare.cxx
 PndMCEntry.cxx
 PndMCList.cxx
-#PndMCLink.cxx
-#PndMCList.cxx
 )
 
 # fill list of header files from list of source files
