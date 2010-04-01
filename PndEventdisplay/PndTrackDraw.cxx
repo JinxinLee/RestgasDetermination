@@ -166,10 +166,11 @@ void PndTrackDraw::PropagateTrack(FairTrackParP& trackPar, Int_t pidHypo, Int_t 
 	TVector3 momTrack = trackPar.GetMomentum();
 	Double_t charge = trackPar.GetQ();
 
-	if (pidHypo == 0)
+	if (pidHypo == 0){
 		pidHypo = 211;
-	if (charge < 0)
-		pidHypo *= -1;
+		if (charge < 0)
+			pidHypo *= -1;
+	}
 
 	if (color < 0) color = fEventManager->Color(pidHypo);
 
@@ -201,6 +202,7 @@ void PndTrackDraw::PropagateTrack(FairTrackParP& trackPar, Int_t pidHypo, Int_t 
 
 	fPro->PropagateFromPlane(startU, startV);
 
+
 	Int_t index = 0;
 	for (Int_t n = -Np; n < Np; n++) {
 		if (n == 0)
@@ -227,6 +229,7 @@ void PndTrackDraw::PropagateTrack(FairTrackParP& trackPar, Int_t pidHypo, Int_t 
 			TEveVector mom = TEveVector(parResult.GetPx(), parResult.GetPy(),
 					parResult.GetPz());
 			path->fP = mom;
+			track->SetPoint(index++, posTrack.X(), posTrack.Y(), posTrack.Z());
 		}
 		if (fVerbose > 3)
 			cout << "Path marker added " << path << endl;
