@@ -81,7 +81,6 @@
 #pragma link C++ class  PndMvdPixel+;
 #pragma link C++ class  PndMvdRadDamHit+;
 #pragma link C++ class  PndMvdStrip+;
-#pragma link C++ class  PndMCList+;
 
 
 #pragma link C++ class PndTrackCand+;

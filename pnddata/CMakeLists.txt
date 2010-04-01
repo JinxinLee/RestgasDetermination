@@ -90,7 +90,6 @@ MvdData/PndMvdHitInfo.cxx
 MvdData/PndMvdMCPoint.cxx
 MvdData/PndMvdPidCand.cxx
 MvdData/PndMvdRadDamHit.cxx
-MvdData/PndMCList.cxx
 
 TrackData/PndTrackCandHit.cxx
 TrackData/PndTrackCand.cxx
