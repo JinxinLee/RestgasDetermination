@@ -6,7 +6,9 @@
 
 {
 
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
+  rootlogon();
   basiclibs();
 
   gSystem->Load("libGeoBase");
@@ -15,26 +17,26 @@
   gSystem->Load("libPndData");
   gSystem->Load("libField");
   gSystem->Load("libPassive");
-  gSystem->Load("libDrcProp");
-  gSystem->Load("libDrc");
-
+  //gSystem->Load("libDrcProp");
+  //gSystem->Load("libDrc");
   //gSystem->Load("libMvd");
-
   //gSystem->Load("libEmc");
   gSystem->Load("libGen");
  
  
-  //TFile* file = new TFile("./testrun1.root");
-  TFile* file = new TFile("/d/panda01/carsten/s36.root");
+  TFile* file = new TFile("./testrun1.root");
+  //TFile* file = new TFile("/d/panda01/carsten/s36.root");
   //TFile* file = new TFile("/d/pndint02/carsten/test.root");
   //  TFile* file = new TFile("Pi-100ev0.1_0.5.root");
-  TGeoManager *geoMan = (TGeoManager*) file->Get("FAIRGeom");
 
+  
+  TGeoManager* geoMan = (TGeoManager*) file->Get("FAIRGeom");
+  //TGeoManager* gGeoMan = (TGeoManager*)gROOT->FindObject("FAIRGeom");
   
   TCanvas* c1 = new TCanvas("c1", "", 100, 100, 800, 800);
   c1->SetFillColor(10);
 
-  geoMan->SetVisLevel(6);
+  geoMan->SetVisLevel(10);
   geoMan->GetMasterVolume()->Draw("same");
 
   TObjArray *TrArray=geoMan->GetListOfTracks();

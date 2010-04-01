@@ -1,195 +1,155 @@
-// Macro for running the DRC simulation
-// only the DRC detector is ON
-// output file testrun.root contains the MC hits
-//11/10/2006 Annalisa Cecchi
-
 {
+  
+  
+
+
+
   TStopwatch timer;
   timer.Start();
   gDebug=0;
   // Load basic libraries
-  //gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-  gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
-   basiclibs();
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
+  basiclibs();
+  // If it does not work,  please check the path of the libs and put it by hands
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
+  rootlogon();
 
-  // Load this example libraries
-  gSystem->Load("libGeoBase");
-  gSystem->Load("libParBase");
-  gSystem->Load("libBase");
-  gSystem->Load("libPndData");
-  gSystem->Load("libField");
-  gSystem->Load("libPassive");
-  gSystem->Load("libDrcProp");  
-  gSystem->Load("libDrc");
-  gSystem->Load("libTof");
-  gSystem->Load("libGen");
-
-  FairRunSim *fRun = new FairRunSim();
   
+  TString digiFile = "all.par";
+  TString parFile = "params_testrun1.root";
+  
+  FairRunSim *fRun = new FairRunSim();
+
   // set the MC version used
   // ------------------------
 
   fRun->SetName("TGeant3");
-  // Choose the Geant Navigation System
-  // fRun->SetGeoModel("G3Native");
-  string file_name;
+  //fRun->SetName("TGeant4");
+
+  fRun->SetOutputFile("testrun1.root");
+ 
+  // Set the parameters
+  //-------------------------------
+  TString allDigiFile = gSystem->Getenv("VMCWORKDIR");
+  allDigiFile += "/macro/params/";
+  allDigiFile += digiFile;
+ 
+  FairRuntimeDb* rtdb = fRun->GetRuntimeDb();
+  FairParAsciiFileIo* parIo1 = new FairParAsciiFileIo();
+  parIo1->open(allDigiFile.Data(),"in");
+  rtdb->setFirstInput(parIo1);        
+  Bool_t kParameterMerged=kTRUE;
+	
+  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
+  output->open(parFile);
+  rtdb->setOutput(output);
   
-  //cout<<" file_name="<<endl;
-  //std::cin>>file_name;
-  file_name = "testrun1.root";
-  
-
-  fRun->SetOutputFile(file_name.c_str());
-  //fRun->SetOutputFile("./testrun1.root");
-  //  fRun->SetOutputFile("./Pi-100ev0.1_0.5.root");
-
-
   // Set Material file Name
   //-----------------------
   fRun->SetMaterials("media_pnd.geo");
 
-  
   // Create and add detectors
   //-------------------------
-  
   FairModule *Cave= new PndCave("CAVE");
-  Cave->SetGeometryFileName("cave.geo");
-  fRun->AddModule(Cave);
-      
-  PndDrc *Drc = new PndDrc("DIRC", kTRUE);
-  Drc->SetVerboseLevel(2);
-  
-  Drc->SetRunCherenkov(kTRUE);
-  //Drc->SetRunCherenkov(kFALSE);
-  // Drc->SetGeometryFileName("dirc.geo"); 
-  fRun->AddModule(Drc);
-
-  FairDetector *Tof = new PndTof("TOF", kTRUE);
-  Tof->SetGeometryFileName("tofbarrel.geo"); 
-  // fRun->AddModule(Tof);
-
-//  FairModule *Pipe= new PndPipe("PIPE");
-//  Pipe->SetGeometryFileName("pipe.geo");
-//  fRun->AddModule(Pipe);
+  Cave->SetGeometryFileName("pndcave.geo");
+  fRun->AddModule(Cave); 
 
   //FairModule *Magnet= new PndMagnet("MAGNET");
-  //Magnet->SetGeometryFileName("magnet.geo");
+  ////Magnet->SetGeometryFileName("FullSolenoid_V842.root");
+  //Magnet->SetGeometryFileName("FullSuperconductingSolenoid_v831.root");
   //fRun->AddModule(Magnet);
 
-   // Create and Set Event Generator
+  //FairModule *Dipole= new PndMagnet("MAGNET");
+  //Dipole->SetGeometryFileName("dipole.geo");
+  //fRun->AddModule(Dipole);
+
+  //FairModule *Pipe= new PndPipe("PIPE");
+  //fRun->AddModule(Pipe);
+
+  //FairDetector *Tpc = new PndTpcDetector("TPC", kTRUE);
+  //Tpc->SetGeometryFileName("tpc.geo");
+  //fRun->AddModule(Tpc);
+
+  //FairDetector *Mvd = new PndMvdDetector("MVD", kTRUE);
+  //Mvd->SetGeometryFileName("MVD_v1.0_woPassiveTraps.root");
+  //fRun->AddModule(Mvd);
+
+  //PndEmc *Emc = new PndEmc("EMC",kTRUE);
+  //Emc->SetGeometryVersion(15); 
+  //Emc->SetStorageOfData(kFALSE);
+  //fRun->AddModule(Emc);
+  
+  FairDetector *Tof = new PndTof("TOF",kTRUE);
+  Tof->SetGeometryFileName("tofbarrel.geo");
+  fRun->AddModule(Tof);
+  
+  //PndMdt *Muo = new PndMdt("MDT",kTRUE);
+  //Muo->SetBarrel("torino");
+  //Muo->SetEndcap("torino");
+  //Muo->SetMuonFilter("torino");
+  //Muo->SetMdtMagnet(kTRUE);
+  //Muo->SetMdtMFIron(kTRUE);
+  //fRun->AddModule(Muo);
+
+  //FairDetector *Gem = new PndGemDetector("GEM", kTRUE);
+  //Gem->SetGeometryFileName("gem_3Stations.root");
+  //fRun->AddModule(Gem);
+
+  PndDrc *Drc = new PndDrc("DIRC", kTRUE);
+  Drc->SetRunCherenkov(kTRUE); // for fast sim Cherenkov -> kFALSE
+  //Drc->SetGeometryFileName("dirc.geo"); 
+  fRun->AddModule(Drc);
+  
+  // Create and Set Event Generator
   //-------------------------------
+
   FairPrimaryGenerator* primGen = new FairPrimaryGenerator();
   fRun->SetGenerator(primGen);
 
-  // Urqmd  Generator
-  //  FairUrqmdGenerator* urqmdGen = new FairUrqmdGenerator("../../input/00-03fm.100ev.f14");
-  //  primGen->AddGenerator(urqmdGen);
-
-  // Particle Generator
-  //  FairParticleGenerator* partGen = new FairParticleGenerator(-211, 2, 2., 0., 0.);
-  //  primGen->AddGenerator(partGen);
+   // Box Generator
+  FairBoxGenerator* boxGen = new FairBoxGenerator(321, 1); // 321 = kaon; 1 = multipl.
 
 
-  Double_t pmom;
-  //std::cin>>pmom;
-  pmom = 2.0;
-  
-  Double_t angle,phi;
-  //std::cin>>angle;
-  //std::cin>>phi;
 
-  angle = 35;
-  phi=5;
-  
-  Int_t particle;
-  particle = 321;
-  
-  //std::cin>>particle;
-  
-  // Box Generator
-  FairBoxGenerator* boxGen = new FairBoxGenerator(particle, 1); // 321 K+; 1 = multipl.
-  //FairBoxGenerator* boxGen = new FairBoxGenerator(321, 1); // 321 K+; 1 = multipl.
-  //FairBoxGenerator* boxGen = new FairBoxGenerator(-13, 1); // 13 = muon; 1 = multipl.
-  //  FairBoxGenerator* boxGenMu = new FairBoxGenerator(13, 1);  
-  //boxGen->SetPRange(30,30); // was 30 GeV/c //setPRange vs setPtRange
-  boxGen->SetPRange(pmom,pmom); // was 30 GeV/c //setPRange vs setPtRange
-  boxGen->SetPhiRange(phi, phi); // was 40     Azimuth angle range [degree]
-  boxGen->SetThetaRange(angle,angle); // (22 - 135) Polar angle in lab system range [degree]
-  // boxGen->SetXYZ(0., 0.37, 0.); // mm o cm ??
+  boxGen->SetPRange(3,3); // GeV/c
+  boxGen->SetPhiRange(5., 5.); // Azimuth angle range [degree]
+  boxGen->SetThetaRange(35., 35.); // Polar angle in lab system range [degree]
+  boxGen->SetXYZ(0., 0., 0.); // mm o cm ??
+  primGen->AddGenerator(boxGen); 
 
-  //  boxGenMu->SetPRange(1., 1.5 ); // GeV/c //setPRange vs setPtRange
-  //  boxGenMu->SetPhiRange(0., 360.); // Azimuth angle range [degree]
-  //  boxGenMu->SetThetaRange(22., 140.); // Polar angle in lab system range [degree]
 
-  primGen->AddGenerator(boxGen);
-  //  primGen->AddGenerator(boxGenMu);
 
-  // Ion Generator
-  //FairIonGenerator *fIongen= new FairIonGenerator(79, 197,79,1, 0.,0., 25, 0.,0.,-1.);
-  //  primGen->AddGenerator(fIongen);
 
-   fRun->SetStoreTraj(kTRUE);
+  fRun->SetStoreTraj(kTRUE); // to store particle trajectories  
 
-   fRun->SetBeamMom(15);
-   PndMultiField *fField= new PndMultiField();
+  // Create and Set Magnetic Field
+  //-------------------------------
+  fRun->SetBeamMom(15);
+  //PndMultiField *fField= new PndMultiField("FULL");
+  //fRun->SetField(fField);
 
- //  PndTransMap *map_t= new PndTransMap("TransMap", "R");
- //  PndDipoleMap *map_d1= new PndDipoleMap("DipoleMap1", "R");
- //  PndDipoleMap *map_d2= new PndDipoleMap("DipoleMap2", "R");
-   PndSolenoidMap *map_s1= new PndSolenoidMap("SolenoidMap1", "R");
-   PndSolenoidMap *map_s2= new PndSolenoidMap("SolenoidMap2", "R");
-   PndSolenoidMap *map_s3= new PndSolenoidMap("SolenoidMap3", "R");
-   PndSolenoidMap *map_s4= new PndSolenoidMap("SolenoidMap4", "R");
-
-  // fField->AddField(map_t);
-  // fField->AddField(map_d1);
-  // fField->AddField(map_d2);
-   fField->AddField(map_s1);
-   fField->AddField(map_s2);
-   fField->AddField(map_s3);
-   fField->AddField(map_s4);
-
-  fRun->SetField(fField);
+  // EMC Hit producer
+  //-------------------------------
+  //PndEmcHitProducer* emcHitProd = new PndEmcHitProducer();
+  //fRun->AddTask(emcHitProd);
+   
+  /**Initialize the session*/
   fRun->Init();
-    
-    
-    // -Trajectories Visualization
- // ----------------------------
-     FairTrajFilter* trajFilter = FairTrajFilter::Instance();
- // Set cuts for storing the trajectpries
-     trajFilter->SetStepSizeCut(0.04); // 1 cm
-//     trajFilter->SetVertexCut(-2000., -2000., 4., 2000., 2000., 100.);
-//     trajFilter->SetMomentumCutP(10e-3); // p_lab > 10 MeV
-//     trajFilter->SetEnergyCut(0., 1.02); // 0 < Etot < 1.04 GeV
-     trajFilter->SetStorePrimaries(kTRUE);
-     trajFilter->SetStoreSecondaries(kTRUE);
-
- 
-  // Fill the Parameter containers for this run
-  //-------------------------------------------
   
-  FairRuntimeDb *rtdb=fRun->GetRuntimeDb();
-  Bool_t kParameterMerged=kTRUE;
-  FairParRootFileIo* output=new FairParRootFileIo(kParameterMerged);
-  output->open("./testparams.root");
   rtdb->setOutput(output);
   rtdb->saveOutput();
   rtdb->print();
-     
+
+  Int_t   nEvents=1; 
+
   // Transport nEvents
   // -----------------
-     
-  Int_t nEvents = 10;
-
   fRun->Run(nEvents);
-     
+
   timer.Stop();
 
   Double_t rtime = timer.RealTime();
   Double_t ctime = timer.CpuTime();
   printf("RealTime=%f seconds, CpuTime=%f seconds\n",rtime,ctime);
 
-
-
-}  
-  
+}
