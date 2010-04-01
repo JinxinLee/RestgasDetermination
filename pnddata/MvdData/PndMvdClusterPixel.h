@@ -20,7 +20,7 @@ public:
 
 	void SetClusterList(std::vector<Int_t> list){
 		fClusterList = list;
-		//SetLinks(kMVDDigiPixel, list);
+		SetLinks(FairMultiLinkedData(kMVDDigiPixel, list));
 	}
 
 	ClassDef(PndMvdClusterPixel, 1);

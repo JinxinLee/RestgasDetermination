@@ -4,6 +4,8 @@
 //#include "FairMultiLinkedData.h"
 #include "PndDetectorList.h" // contains SensorSide enumeration
 
+#include "FairMultiLinkedData.h"
+
 #include "TObject.h"
 #include <vector>
 #include <iostream>
@@ -17,7 +19,7 @@
 //! This class holds the information which Digi belongs to the actual cluster.
 //! The information is stored in a vector<Int_t> which contains the
 //! position of the digi in the TClonesArray where it is stored.
-class PndMvdCluster : public TObject //public FairMultiLinkedData
+class PndMvdCluster : public FairMultiLinkedData
 {
 
 friend std::ostream& operator<< (std::ostream& out, PndMvdCluster& cl){

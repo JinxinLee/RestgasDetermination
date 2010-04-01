@@ -19,10 +19,11 @@ enum fDetectorType {
    kTpcPoint, kTpcCluster,
    kMVDPoint, kMVDDigiStrip, kMVDDigiPixel, kMVDClusterPixel, kMVDClusterStrip, kMVDHitsStrip, kMVDHitsPixel,
    kEmcCluster, kEmcBump,
-   kSttPoint, kSttHit, kSttHelixHit,
+   kSttPoint, kSttHit, kSttHelixHit, kSttTrackCand, kSttTrack,
    kGemPoint, kGemDigi, kGemHit,
    kDchPoint, kDchDigi, kDchHit,
    kMdtPoint, kMdtHit,
+   kLheHit, kLheCand, kLheTrack,
    kTrackCand, kTrack};
 
 

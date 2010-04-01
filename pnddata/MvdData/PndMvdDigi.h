@@ -14,6 +14,8 @@
 #ifndef PNDMVDDIGI_H
 #define PNDMVDDIGI_H
 
+#include "FairMultiLinkedData.h"
+
 #include "TObject.h"
 #include "TString.h"
 #include <iostream>
@@ -22,7 +24,7 @@
 #include "PndDetectorList.h"
 
 
-class PndMvdDigi : public TObject
+class PndMvdDigi : public FairMultiLinkedData
 {
     friend std::ostream& operator<< (std::ostream& out, PndMvdDigi& digi){
         out << "PndMvd Digi in: " << digi.GetDetName() << " FE: "
@@ -63,7 +65,7 @@ class PndMvdDigi : public TObject
 			    }
 		void AddIndex(std::vector<Int_t> index){
 			fIndex = index;
-			//SetLinks(kMVDPoint, index);
+			SetLinks(FairMultiLinkedData(kMVDPoint, index));
 		}
 		void AddCharge(double charge){fCharge += charge;}
 

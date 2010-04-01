@@ -38,6 +38,8 @@ PndMCStage.cxx
 PndMCResult.cxx
 PndMCTestMomentumCompare.cxx
 PndMCTestHitCompare.cxx
+PndMCEntry.cxx
+PndMCList.cxx
 #PndMCLink.cxx
 #PndMCList.cxx
 )

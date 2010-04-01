@@ -10,11 +10,12 @@
 #pragma link C++ class PndMCMatchSelectorTask+;
 #pragma link C++ class PndMCTestMomentumCompare+;
 #pragma link C++ class PndMCTestHitCompare+;
+#pragma link C++ class PndMCEntry+;
+#pragma link C++ class PndMCList+;
 #pragma link C++ class PndMCObject+;
 #pragma link C++ class PndMCStage+;
 #pragma link C++ class PndMCResult+;
-//#pragma link C++ class PndMCEntry+;
-//#pragma link C++ class PndMCList+;
+
 
 #endif
 
