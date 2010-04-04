@@ -93,7 +93,7 @@ QAPlotCollection* qa=new QAPlotCollection("TpcDigiQAPlots");
 
   PndTpcDataReaderTask* read = new PndTpcDataReaderTask();
   read->SetPersistence();
-  read->SetDatafile("TBtest/run-1879.root");
+  read->SetDatafile("TBtest/run-1879_b.root");
   read->SetClusterBranchName("PndTpcSample");
   //read->SetCutSmallPad();
   read->SetMinSamples(1000);
@@ -101,7 +101,7 @@ QAPlotCollection* qa=new QAPlotCollection("TpcDigiQAPlots");
 
   PndTpcTCcrossTalkTask* CT = new PndTpcTCcrossTalkTask();
   CT->SetPersistence();
-  fRun->AddTask(CT);
+  //fRun->AddTask(CT);
 
   
   PndTpcPSATask* tpsa = new  PndTpcPSATask();
@@ -120,7 +120,7 @@ QAPlotCollection* qa=new QAPlotCollection("TpcDigiQAPlots");
 
   PndTpcCTapplyTask* CTapply = new PndTpcCTapplyTask();
   CTapply->SetPersistence();
-  fRun->AddTask(CTapply);
+  //fRun->AddTask(CTapply);
   
     
   //PndTpcIdealTrackingTask* tpcIPR = new PndTpcIdealTrackingTask();
@@ -137,7 +137,7 @@ QAPlotCollection* qa=new QAPlotCollection("TpcDigiQAPlots");
   tpcSLPR->SetDepth(7);
   tpcSLPR->SetThresh(8);
   tpcSLPR->SetMinCandHits(8);
-  tpcSLPR->SetClusterBranchName("PndTpcCluster_cut");
+  //  tpcSLPR->SetClusterBranchName("PndTpcCluster_cut");
   fRun->AddTask(tpcSLPR);
 
 
@@ -149,7 +149,7 @@ QAPlotCollection* qa=new QAPlotCollection("TpcDigiQAPlots");
 
   KalmanTask* kalman =new KalmanTask();
   kalman->SetPersistence();
-  kalman->SetClusterBranchName("PndTpcCluster_cut");
+  //kalman->SetClusterBranchName("PndTpcCluster_cut");
   kalman->SetNumIterations(3); // number of fitting iterations (back and forth)
   fRun->AddTask(kalman);
 
@@ -168,7 +168,7 @@ QAPlotCollection* qa=new QAPlotCollection("TpcDigiQAPlots");
 
   PndTpcSLResidualTask* SLres = new PndTpcSLResidualTask();
   SLres->SetPersistence();
-  SLres->SetClusterBranchName("PndTpcCluster_cut");
+  //SLres->SetClusterBranchName("PndTpcCluster_cut");
   SLres->SetSecondarySuppression(true);
   fRun->AddTask(SLres);
   
