@@ -34,9 +34,13 @@ echo "Enter Name of c++ compiler (ie c++,cxx,CC, etc)"
 read compiler
 echo "Will use $compiler for compilation of C++ code"
 
-echo "Enter name of fortran comiler"
+echo "Enter name of fortran compiler"
 read fcompiler
 echo "Will use $fcompiler for compilation of fortran code"
+
+echo "Enter name of linker (for example ${compiler} or ${fcompiler})"
+read linker
+echo "Will use $linker for linking the code to binaries"
 
 echo "The EvtGen package uses photos and pythia from cernlib: Please set CERN_ROOT if not already"
 echo "The EvtGen package uses root for histograming. Please set ROOTSYS if not already"
@@ -125,6 +129,7 @@ pdlibs=`ls $CERN_ROOT/lib/libpdf*.a  | awk '{print $1}' |tr '/' ' ' | awk '{prin
 
 echo "EVTCXX=$compiler" > config.mk
 echo "EVTF77=$fcompiler" >> config.mk
+echo "EVTLNKBIN=$linker" >> config.mk
 echo "EVTCXXFLAGS=$defoptions $inclist" >> config.mk
 echo "EVTDEPINC=$defoptions $inclist $sysinclist">> config.mk
 echo "EVTF77FLAGS=$inclist" >> config.mk
