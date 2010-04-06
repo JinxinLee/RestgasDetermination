@@ -12,6 +12,9 @@
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
+#include "FairLink.h"
+
+#include "PndDetectorList.h"
 
 #include "TClonesArray.h"
 
@@ -126,7 +129,9 @@ void PndSttFitTracks::Exec(Option_t* opt)
 	new((*fTrackArray)[size]) PndSttTrack(); 
  	PndSttTrack* pTrack = (PndSttTrack*) fTrackArray->At(size); 
 	pTrack->SetTrackCandIndex(iTrack);
-  	fFitter->DoFit(pTrackCand, pTrack);
+	pTrack->SetLink(FairLink(kSttTrackCand, iTrack));
+
+	fFitter->DoFit(pTrackCand, pTrack);
 
     }
 }
