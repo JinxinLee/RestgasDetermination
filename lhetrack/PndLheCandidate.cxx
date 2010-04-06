@@ -1,6 +1,6 @@
 #include "PndLheHit.h"
 #include "PndLheCandidate.h"
-#include "GFTrackCand.h"
+#include "PndTrackCand.h"
 #include "TClonesArray.h"
 
 #include "Riostream.h"
@@ -147,29 +147,20 @@ void PndLheCandidate::SortHits()
 }
 
 //______________________________________________________________
-GFTrackCand* PndLheCandidate::GetTrackCand()
+PndTrackCand* PndLheCandidate::GetTrackCand()
 {
-  GFTrackCand *trackCand = new GFTrackCand();
+  PndTrackCand *trackCand = new PndTrackCand();
   TObjArray* lheList = GetRHits();
   
   Int_t detId = 0;
   for (Int_t ii=0; ii< lheList->GetEntriesFast(); ++ii)
     {
-      PndLheHit* lhit = (PndLheHit*)lheList->At(ii);
-      trackCand->addHit(lhit->GetDetectorID(), lhit->GetRefIndex());
-      if (GetRadius()>0.)  
-	{
-	  trackCand->setCurv(1./GetRadius());
-	}
-      else
-	{
-	  return 0;
-	}
-      
-      trackCand->setDip(TMath::ATan(GetTanDipAngle()));
-      trackCand->setInverted(true);
+      PndLheHit* hit = (PndLheHit*)lheList->At(ii);
+      if (NULL==hit) break;
+      trackCand->AddHit(hit->GetDetectorID(), hit->GetRefIndex(), hit->GetX()*hit->GetX()+hit->GetY()*hit->GetY()+hit->GetZ()*hit->GetZ());
     }
-  
+
+  trackCand->Sort();
   return trackCand;
 }
 

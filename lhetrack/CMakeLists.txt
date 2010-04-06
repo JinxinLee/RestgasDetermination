@@ -19,7 +19,6 @@ ${CMAKE_SOURCE_DIR}/emc/EmcData
 ${CMAKE_SOURCE_DIR}/emc/EmcReco
 ${CMAKE_SOURCE_DIR}/emc/EmcTools
 ${CMAKE_SOURCE_DIR}/gem
-${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/pnddata
 ${CMAKE_SOURCE_DIR}/pnddata/SttData
 ${CMAKE_SOURCE_DIR}/pnddata/TofData
@@ -30,10 +29,6 @@ ${CMAKE_SOURCE_DIR}/pnddata/GemData
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
 ${CMAKE_SOURCE_DIR}/stt/sttreco
 ${CMAKE_SOURCE_DIR}/geane
-${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/LSLtrackRep
-${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
-${CMAKE_SOURCE_DIR}/GenfitTools/adapters
-${CMAKE_SOURCE_DIR}/GenfitTools/recohits
 ${CMAKE_SOURCE_DIR}/lhetrack
 
 
@@ -59,9 +54,6 @@ PndLheTrackFitter.cxx
 PndLheHitsMaker.cxx      
 PndLhePoint.cxx
 PndLheHit.cxx
-PndLhePidMaker.cxx
-PndLhePidTrack.cxx
-PndLheKalmanTask.cxx
 PndLheCorrPar.cxx
 PndLheContFact.cxx
 )
@@ -83,9 +75,6 @@ PndLheCMCandidate.h
 PndLheSegments.h 
 PndLhePoint.h 
 PndLheHit.h
-PndLhePidMaker.h
-PndLhePidTrack.h
-PndLheKalmanTask.h
 PndLheCorrPar.h
 PndLheContFact.h
 )

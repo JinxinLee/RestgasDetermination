@@ -20,7 +20,7 @@
 
 #include "Riostream.h"
 
-class GFTrackCand;
+class PndTrackCand;
 
 class PndLheCandidate: public FairMultiLinkedData {
   
@@ -101,7 +101,7 @@ public:
   Int_t      GetTpcHits()           const { return fTpcHits; }
   Int_t      GetGemHits()           const { return fGemHits; }
   
-  GFTrackCand* GetTrackCand();
+  PndTrackCand* GetTrackCand();
   
   PndLhePoint   GetVertex()      const { return fVertex;  }
   PndLhePoint   GetLastHit()     const { return fLastHit; }
