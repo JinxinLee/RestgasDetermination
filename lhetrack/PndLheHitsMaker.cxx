@@ -21,15 +21,8 @@
 #include "PndMCTrack.h"
 #include "FairMCApplication.h"
 #include "FairRootManager.h"
-
-#include "TGeoManager.h"
-#include "TGeoVolume.h"
-#include "FairVolume.h"
 #include "FairTask.h"
-#include "TParticle.h"
 #include "TRandom.h"
-#include "Riostream.h"
-#include "TH1F.h"
 
 #include <iomanip>
 
@@ -229,7 +222,11 @@ InitStatus PndLheHitsMaker::Init() {
 	{
 	  cout << "-I- PndLheHitsMaker::Init: Using PndSttPRHelixHit" << endl;
 	}
-     
+
+      fSttMCArray = (TClonesArray*) fManager->GetObject("STTPoint");
+      if ( ! fSttMCArray )         fSttSimMode = 0;
+      break;
+      
     default:
       cout << "-E- PndLheHitsMaker::Init: Wrong STT mode. Switching STT OFF" << endl;
       fSttMode = 0;
