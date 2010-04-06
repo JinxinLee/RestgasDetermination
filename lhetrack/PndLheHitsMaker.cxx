@@ -452,6 +452,7 @@ void PndLheHitsMaker::GetMvdPoints() {
       hit->SetDetectorID(kMVDPoint);
       hit->SetTrackID(point->GetTrackID());
       hit->SetRefIndex(j);
+      hit->SetLink(FairLink(kMVDPoint, j));
       
       if (fVerbose)  hit->Print();
     } // end of MVDPoint loop  
@@ -494,6 +495,7 @@ void PndLheHitsMaker::GetMvdHits() {
 	  hit->SetTrackID(myPoint->GetTrackID());
 	}
       hit->SetRefIndex(j2);
+      hit->SetLink(FairLink(kMVDHitsPixel, j2));
       if (fVerbose)  hit->Print();
     } // end of MVDHitsPixel loop  
   
@@ -531,6 +533,7 @@ void PndLheHitsMaker::GetMvdHits() {
 	  hit->SetTrackID(myPoint->GetTrackID());
 	}
       hit->SetRefIndex(j);
+      hit->SetLink(FairLink(kMVDHitsStrip, j));
       if (fVerbose)  hit->Print();
     } // end of MVDHitsStrip loop  
 
@@ -588,7 +591,7 @@ void PndLheHitsMaker::GetTpcPoints() {
     hit->SetDetectorID(kTpcPoint);
     hit->SetTrackID(point->GetTrackID());
     hit->SetRefIndex(j);
-    
+    hit->SetLink(FairLink(kTpcPoint, j));
     if (fVerbose)  hit->Print();
   }  // end of TpcPoints loop
   
@@ -622,7 +625,7 @@ void PndLheHitsMaker::GetTpcClusters() {
     hit->SetDetectorID(kTpcCluster);
     hit->SetTrackID(clu->mcId().DominantID().mctrackID());
     hit->SetRefIndex(j);
-    
+    hit->SetLink(FairLink(kTpcCluster, j));
     if (fVerbose)  hit->Print();
     
   }  // end of TpcCluster loop  
@@ -679,7 +682,7 @@ void PndLheHitsMaker::GetSttPoints() {
     hit->SetDetectorID(kSttPoint);
     hit->SetTrackID(point->GetTrackID());
     hit->SetRefIndex(j);
-    
+    hit->SetLink(FairLink(kSttPoint, j));
     if (fVerbose)  hit->Print();
   }  // end of SttPoints loop
   
@@ -714,6 +717,7 @@ void PndLheHitsMaker::GetSttHit() {
     hit->SetDetectorID(kSttHit);
     hit->SetTrackID(hit->GetRefIndex());
     hit->SetRefIndex(j);
+    hit->SetLink(FairLink(kSttHit, j));
     
     if (fVerbose)  hit->Print();
     
@@ -760,11 +764,13 @@ void PndLheHitsMaker::GetSttHelixHit() {
     hit->SetDetectorID(kSttHelixHit);
     hit->SetTrackID(-1);
     if ( (fSttSimMode) && (sttHit->GetRefIndex()!=-1) )
-      {
-	PndSttPoint* myPoint = (PndSttPoint*)(fSttMCArray->At(sttHit->GetRefIndex()));
-	hit->SetTrackID(myPoint->GetTrackID());
-      }
+    {
+		PndSttPoint* myPoint = (PndSttPoint*)(fSttMCArray->At(sttHit->GetRefIndex()));
+		hit->SetTrackID(myPoint->GetTrackID());
+    }
     hit->SetRefIndex(j);
+    hit->SetLink(FairLink(kSttHelixHit, j));
+
     if (fVerbose)  hit->Print();
   }  // end of SttHelixHit loop  
 } 
@@ -809,11 +815,13 @@ void PndLheHitsMaker::GetSttPRHelixHit() {
     hit->SetDetectorID(kSttHelixHit);
     hit->SetTrackID(-1);
     if ( (fSttSimMode) && (sttHit->GetRefIndex()!=-1) )
-      {
-	PndSttPoint* myPoint = (PndSttPoint*)(fSttMCArray->At(sttHit->GetRefIndex()));
-	hit->SetTrackID(myPoint->GetTrackID());
-      }
+    {
+		PndSttPoint* myPoint = (PndSttPoint*)(fSttMCArray->At(sttHit->GetRefIndex()));
+		hit->SetTrackID(myPoint->GetTrackID());
+    }
     hit->SetRefIndex(j);
+    hit->SetLink(FairLink(kSttHelixHit, j));
+
     if (fVerbose)  hit->Print();
   }  // end of SttHelixHit loop  
 } 
@@ -848,6 +856,8 @@ void PndLheHitsMaker::GetSttHelixHitMC() {
     hit->SetTrackID(sttPoint->GetTrackID());
     
     hit->SetRefIndex(j);
+    hit->SetLink(FairLink(kSttHelixHit, j));
+
     if (fVerbose)  hit->Print();
   }  // end of SttHelixHitMC loop  
 } 
@@ -880,7 +890,8 @@ void PndLheHitsMaker::GetEmcClusters() {
     //hit->SetTrackID(point->GetTrackID());
     hit->SetTrackID(-1);
     hit->SetRefIndex(j);
-    
+
+    hit->SetLink(FairLink(kEmcCluster, j));
     if (fVerbose)  hit->Print();
     
   }  // end of EmcCluster loop  
@@ -915,6 +926,8 @@ void PndLheHitsMaker::GetEmcBumps() {
     hit->SetTrackID(-1);
 
     hit->SetRefIndex(j);
+
+    hit->SetLink(FairLink(kEmcBump, j));
     
     if (fVerbose)  hit->Print();
     
@@ -973,6 +986,8 @@ void PndLheHitsMaker::GetGemPoints() {
     hit->SetDetectorID(kGemPoint);
     hit->SetTrackID(point->GetTrackID());
     hit->SetRefIndex(j);
+
+    hit->SetLink(FairLink(kGemPoint, j));
     
     if (fVerbose)  hit->Print();
   }  // end of TpcPoints loop
@@ -1007,11 +1022,12 @@ void PndLheHitsMaker::GetGemHits() {
     hit->SetDetectorID(kGemHit);
     hit->SetTrackID(-1);
     if ( (fGemSimMode) && (point->GetRefIndex()!=-1) )
-      {
-	PndGemMCPoint* myPoint = (PndGemMCPoint*)(fGemMCArray->At(point->GetRefIndex()));
-	hit->SetTrackID(myPoint->GetTrackID());
-      }
+    {
+		PndGemMCPoint* myPoint = (PndGemMCPoint*)(fGemMCArray->At(point->GetRefIndex()));
+		hit->SetTrackID(myPoint->GetTrackID());
+    }
     hit->SetRefIndex(j);
+    hit->SetLink(FairLink(kGemHit, j));
     
     if (fVerbose)  hit->Print();
     

@@ -12,6 +12,7 @@
 #include "TArrayI.h"
 #include "TClonesArray.h"
 #include "TLorentzVector.h"
+#include "FairMultiLinkedData.h"
 
 #include "PndLhePoint.h"
 #include "PndLheHit.h"
@@ -21,7 +22,7 @@
 
 class GFTrackCand;
 
-class PndLheCandidate: public TObject {
+class PndLheCandidate: public FairMultiLinkedData {
   
   //  using namespace std;
 
