@@ -9,10 +9,11 @@
  * ************************************/
 #include "PndPidMvaAssociatorTask.h"
 
-#define DEBUG 1
+//#define DEBUG 0
 
-// Function to use for debugging
 //==========================================================
+#ifdef DEBUG
+// Function to use for debugging
 void printResult(std::map<std::string,float>& res){
   std::cout << "\n\t================================== \n";
   for( std::map<std::string,float>::iterator ii=res.begin(); 
@@ -22,13 +23,15 @@ void printResult(std::map<std::string,float>& res){
   }
   std::cout << "\n\t================================== \n";
 }
+#endif
+
 //==========================================================
 
 /**
  * Default Constructor.
  */
 PndPidMvaAssociatorTask::PndPidMvaAssociatorTask()
-  : FairTask("PndPidAssociatorTaskSTD")
+  : FairTask("PndPidMvaAssociatorTaskSTD")
 {
   std::cout << "<INFO> Call Default task constructor. " 
 	    << "(PndPidAssociatorTask)"<< std::endl;
@@ -36,6 +39,7 @@ PndPidMvaAssociatorTask::PndPidMvaAssociatorTask()
   fPidChargedProb = new TClonesArray("PndPidProbability");
   fPidNeutralProb = new TClonesArray("PndPidProbability");
 
+  fNumNeigh = 200;
   SetDefaultWeightsPath();
 }
 
@@ -51,6 +55,7 @@ PndPidMvaAssociatorTask::PndPidMvaAssociatorTask(const char *name, const char *t
   fPidChargedProb = new TClonesArray("PndPidProbability");
   fPidNeutralProb = new TClonesArray("PndPidProbability");
 
+  fNumNeigh = 200;
   SetDefaultWeightsPath();
 }
 
@@ -59,6 +64,7 @@ void PndPidMvaAssociatorTask::SetDefaultWeightsPath()
   fWeightsFileName  = std::string(getenv("VMCWORKDIR"));
   fWeightsFileName += std::string("/pid/PidClassifier/PndMVAWeights/");
 }
+
 //___________________________________________________________
 /**
  * Destructor.
@@ -88,7 +94,7 @@ InitStatus PndPidMvaAssociatorTask::Init()
   fPidChargedCand = (TClonesArray *)fManager->GetObject("PidChargedCand");
   
   if ( !fPidChargedCand){
-    std::cout << "-I- PndPidAssociatorTask::Init: No PidChargedCand there!" 
+    std::cout << "-I- PndPidMvaAssociatorTask::Init: No PidChargedCand there!" 
 	      << std::endl;
     return kERROR;
   }
@@ -96,39 +102,43 @@ InitStatus PndPidMvaAssociatorTask::Init()
   fPidNeutralCand = (TClonesArray *)fManager->GetObject("PidNeutralCand");
   
   if ( ! fPidNeutralCand){
-    std::cout << "-I- PndPidAssociatorTask::Init: No PidNeutralCand there!"
+    std::cout << "-I- PndPidMvaAssociatorTask::Init: No PidNeutralCand there!"
 	      << std::endl;
     return kERROR;
   }
-  
   // Get track array.
   /*
-  fMCTrack = (TClonesArray*) fManager->GetObject("MCTrack");
-  if ( !fMCTrack){
+    fMCTrack = (TClonesArray*) fManager->GetObject("MCTrack");
+    if (!fMCTrack){
     std::cout << "-I- PndPidAssociatorTask::Init: No MC Track array there!" << std::endl;
     return kERROR;
-  }
+    }
   */
   Register();
   std::cout << "<INFO> Using weight file  " << fWeightsFileName <<std::endl;
   std::cout << "<INFO> Init classifiers."<< std::endl;
 
+  // Init Classifier object
   fKnnCls = new PndKnnClassify(fWeightsFileName, fClassNames, fVarNames);
+  
   if(!fKnnCls){
     std::cerr << "<Error> Failed to initialize classifier." << std::endl;
     return kERROR;
   }
+  
   //Fixme Fixme
   fKnnCls->SetEvtParam(0.8,1.0);
-  fKnnCls->SetKnn(200);
+  fKnnCls->SetKnn(fNumNeigh);
   fKnnCls->InitKNN();
-  std::cout << "-I- PndPidAssociatorTask::Init: Success!" << std::endl;
+  
+  std::cout << "-I- PndPidMvaAssociatorTask::Init: Success!" << std::endl;
   return kSUCCESS;
 }
 
 //______________________________________________________
 void PndPidMvaAssociatorTask::SetParContainers()
 {}
+
 //______________________________________________________
 void PndPidMvaAssociatorTask::Exec(Option_t* option)
 {
@@ -216,35 +226,50 @@ void PndPidMvaAssociatorTask::DoPidMatch(PndPidCandidate& pidcand,
 const std::vector<float>& PndPidMvaAssociatorTask::PrepareEvtVect(const PndPidCandidate& pidcand)const
 {
   std::vector<float>* vect = new std::vector<float>();
-  //float mom = (pidcand.GetMomentum()).Mag();
+  float mom = (pidcand.GetMomentum()).Mag();
 
   for(size_t i = 0; i < fVarNames.size(); i++){
     if(fVarNames[i] == "p")
       vect->push_back((pidcand.GetMomentum()).Mag());
 
+    // This needs to be fixed (exception??)
     if(fVarNames[i] == "emc"){
-      //vect->push_back( (pidcand.GetEmcCalEnergy())/mom);
-      vect->push_back(pidcand.GetEmcCalEnergy());
+      if(mom != 0.0)
+	vect->push_back( (pidcand.GetEmcCalEnergy())/mom);
+      else
+	vect->push_back(pidcand.GetEmcCalEnergy());
     }
-    //======== Zernike moments
+
+    //======== Zernike & moments
     if(fVarNames[i] == "z20"){
       vect->push_back(pidcand.GetEmcClusterZ20());
     }
+
     if(fVarNames[i] == "z53"){
       vect->push_back(pidcand.GetEmcClusterZ53());
     }
+
+    // Cluster Second lat. moment
+    if(fVarNames[i] == "lat"){
+      vect->push_back(pidcand.GetClusterLat());
+    }
+
     // ==========================
-    if(fVarNames[i] == "stt")
+    if(fVarNames[i] == "stt"){
       vect->push_back(pidcand.GetSttMeanDEDX());
+    }
 
-    if(fVarNames[i] == "mvd")
+    if(fVarNames[i] == "mvd"){
       vect->push_back(pidcand.GetMvdDEDX());
+    }
 
-    if(fVarNames[i] == "tpc")
+    if(fVarNames[i] == "tpc"){
       vect->push_back(pidcand.GetTpcMeanDEDX());
+    }
 
-    if(fVarNames[i] == "thetaC")
+    if(fVarNames[i] == "thetaC"){
       vect->push_back(pidcand.GetDrcThetaC());
+    }
   }
   return *vect;
 }

@@ -60,20 +60,23 @@ public:
    *@param vNames Input variable names.
    */
   void SetVarNames(const std::vector<std::string>& vNames)
-  {fVarNames = vNames;}
+  {fVarNames = vNames;};
 
   /**
    *@param clNames Input class names.
    */
   void SetClassNames(const std::vector<std::string>& clNames)
-  {fClassNames = clNames;}
+  {fClassNames = clNames;};
 
   /**
    *@param wFileName Input weight file. If not specified the standard
    * file from the standard location is loaded.
    */
   void SetWeightFileName(const std::string& wFileName)
-  {fWeightsFileName = wFileName;}
+  {fWeightsFileName = wFileName;};
+
+  void SetNumNeigh(int val)
+  {fNumNeigh = val;};
 
   //============== Protected members.
   //(WHY?? protected)
@@ -107,12 +110,18 @@ public:
 
   //! Variable names container.
   std::vector<std::string> fVarNames;
+
   //! Class names container.
   std::vector<std::string> fClassNames;
+  
   //! Path to the file holding weights (proto-types, examples, ...)
   std::string fWeightsFileName;
+  
   //! MVA classifier object.
   PndKnnClassify* fKnnCls;
+  
+  //! Number of neighbors
+  int fNumNeigh;
 
   ClassDef(PndPidMvaAssociatorTask, 1)
 };
