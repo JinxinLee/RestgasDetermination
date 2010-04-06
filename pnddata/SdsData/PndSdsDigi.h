@@ -14,6 +14,8 @@
 #ifndef PNDSDSDIGI_H
 #define PNDSDSDIGI_H
 
+#include "FairMultiLinkedData.h"
+
 #include "TObject.h"
 #include "TString.h"
 #include "PndDetectorList.h" 
@@ -21,7 +23,7 @@
 #include <vector>
 
 
-class PndSdsDigi : public TObject
+class PndSdsDigi : public FairMultiLinkedData
 {
     friend std::ostream& operator<< (std::ostream& out, PndSdsDigi& digi){
         out << "PndSds Digi in: " << digi.GetDetName() << " FE: "
@@ -55,14 +57,14 @@ class PndSdsDigi : public TObject
 		int GetNIndices() {return fIndex.size();}
 		Int_t GetIndex(int i = 0) const{ return fIndex[i];}
 		Int_t GetNIndices() const { return fIndex.size();}
-		void AddIndex(int index){ 
-                             fIndex.push_back(index);  
-                         //  AddLink(kMVDPoint, index); 
-                           } 
-                void AddIndex(std::vector<Int_t> index){ 
-                        fIndex = index; 
-                        //SetLinks(kMVDPoint, index); 
-                } 
+		void AddIndex(int index){ 				//todo: has to be pure virtual to use AddLink
+			fIndex.push_back(index);
+			//AddLink(FairLink(kMVDPoint, index));
+		}
+		void AddIndex(std::vector<Int_t> index){ //todo: has to be pure virtual to use SetLinks
+			fIndex = index;
+			//SetLinks(FairMultiLinkedData(kMVDPoint, index));
+		}
 		void AddCharge(double charge){fCharge += charge;}
 
 		virtual void Print() {

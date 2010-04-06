@@ -33,7 +33,8 @@ PndSdsMCPoint::PndSdsMCPoint(Int_t trackID, Int_t detID, TString detName,
   fPzfOut = momOut.Pz();
 
   fDetName = detName;
-    //SetLink(kMCTrack, trackID); 
+
+  SetLink(FairLink(kMCTrack, trackID));
 }
 // -------------------------------------------------------------------------
 
