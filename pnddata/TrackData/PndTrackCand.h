@@ -20,7 +20,7 @@
 
 // Root Class Headers ----------------
 #include "PndTrackCandHit.h"
-//#include "FairMultiLinkedData.h"
+#include "FairMultiLinkedData.h"
 
 #include "TObject.h"
 #include "TVector3.h"
@@ -33,7 +33,7 @@
 
 typedef std::multimap<Double_t, std::pair<Int_t, Int_t> >::const_iterator mapIter;
 
-class PndTrackCand : public TObject { // public FairMultiLinkedData {
+class PndTrackCand : public FairMultiLinkedData {
 public:
 
   // Constructors/Destructors ---------

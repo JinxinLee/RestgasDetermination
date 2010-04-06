@@ -9,6 +9,8 @@
 #include "TVector3.h"
 #include "PndSttHit.h"
 
+#include "PndDetectorList.h"
+
 using namespace std;
 
 /** Default constructor **/
@@ -25,6 +27,7 @@ PndSttHelixHit::PndSttHelixHit(Int_t detID, Int_t tubeID, Int_t hitindex, Int_t 
   fIsochrone = isochrone;
   fIsochroneError = isochroneError;
   fTubeID = tubeID; // CHECK added
+  SetLink(FairLink(kSttHit, hitindex));
 
 }
 
@@ -44,6 +47,7 @@ void PndSttHelixHit::Clear()
   fTubeID = 0;
   fIsochrone = 0.; 
   fIsochroneError = 0.;
+  Reset();
 }  
 
  

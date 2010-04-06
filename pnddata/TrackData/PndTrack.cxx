@@ -19,10 +19,10 @@ PndTrack::PndTrack()
 }
 
 
-PndTrack::PndTrack(const FairTrackParP& first, const FairTrackParP& last, const PndTrackCand& cand, Int_t flag, Double_t chi2, Int_t ndf, Int_t pid, Int_t id):
+PndTrack::PndTrack(const FairTrackParP& first, const FairTrackParP& last, const PndTrackCand& cand, Int_t flag, Double_t chi2, Int_t ndf, Int_t pid, Int_t id, fDetectorType type):
   fTrackParamFirst(first), fTrackParamLast(last), fTrackCand(cand), fFlag(flag), fChi2(chi2), fNDF(ndf), fPidHypo(pid), fRefIndex(id)
 {
-	//SetLink(kTrackCand, id);
+	SetLink(FairLink(type, id));
 }
 
 

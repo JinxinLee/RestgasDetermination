@@ -11,15 +11,15 @@
 #include "TObject.h"
 #include "PndTrackCand.h"
 #include "FairTrackParP.h"
-//#include "PndDetectorList.h"
-//#include "FairSingleLinkedData.h"
+#include "PndDetectorList.h"
+#include "FairMultiLinkedData.h"
 
 
-class PndTrack : public TObject{// public FairSingleLinkedData{
+class PndTrack : public FairMultiLinkedData{
 public:
 	PndTrack();
 	PndTrack(const FairTrackParP& first, const FairTrackParP& last, const PndTrackCand& cand,
-		 Int_t flag = 0, Double_t chi2 = -1., Int_t ndf = 0, Int_t pid = 0, Int_t id = -1);
+		 Int_t flag = 0, Double_t chi2 = -1., Int_t ndf = 0, Int_t pid = 0, Int_t id = -1, fDetectorType type = kUnknown);
 
 	void Print();
 

@@ -7,6 +7,8 @@
 
 #include "PndSttHit.h"
 
+#include "PndDetectorList.h"
+
 #include <iostream>
 #include "TMath.h"
 /** Default constructor **/
@@ -23,6 +25,8 @@ PndSttHit::PndSttHit(Int_t detID, Int_t tubeID, Int_t mcindex, TVector3& pos, TV
   fIsochrone = isochrone;
   fIsochroneError = isochroneError;
   fDepCharge = chDep;
+
+  SetLink(FairLink(kSttPoint, mcindex));
   
 }
 

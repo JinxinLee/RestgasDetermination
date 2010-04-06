@@ -1,5 +1,7 @@
 #include "PndSttPoint.h"
 
+#include "PndDetectorList.h"
+
 #include <iostream>
 #include "math.h"
 
@@ -46,6 +48,7 @@ PndSttPoint::PndSttPoint(Int_t trackID, Int_t detID, TVector3 pos,
   fPz = (momIn.Pz() + momOut.Pz()) / 2.;
 
   fMass = mass; // stt1
+  SetLink(FairLink(kMCTrack, trackID));
 
 }
 // -------------------------------------------------------------------------

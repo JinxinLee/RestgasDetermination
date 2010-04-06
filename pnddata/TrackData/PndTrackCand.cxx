@@ -34,9 +34,7 @@ PndTrackCand::AddHit(UInt_t detId, UInt_t hitId, Double_t rho)
 {
 	fHitId.push_back(PndTrackCandHit(detId, hitId, rho));
 	sorted = false;
-	//Int_t det = detId;
-	//Int_t hit = hitId;
-	//AddLink(det, hit);
+	AddLink(FairLink(detId, hitId));
 }
 
 
