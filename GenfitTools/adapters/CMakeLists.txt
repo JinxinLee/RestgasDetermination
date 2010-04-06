@@ -10,8 +10,10 @@ ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep2
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/RKtrackRep
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/LSLtrackRep
+${CMAKE_SOURCE_DIR}/base
 ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/trackbase
+${CMAKE_SOURCE_DIR}/pnddata
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
 ${CMAKE_SOURCE_DIR}/geane
 ${GEANT3_INCLUDE_DIR}
