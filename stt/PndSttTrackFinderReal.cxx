@@ -647,7 +647,8 @@ jumpout: ;
 
 
 //--------------- inizio stampaggi
-  if (istampa >= 2  && IVOLTE<20) {
+//  if (istampa >= 2  && IVOLTE<20) {
+  if (istampa >= 2  ) {
       cout<<"Gianluigi : da PndSttTrackFinderReal::DoFind : Nhits totali ="<<Nhits<<",  n Hits ||  = "<<Minclinations[0]<<
           ",  n Hits  skew = "<<NSkewhits<<endl;
   }  //  end of   if(istampa >=
@@ -1110,7 +1111,6 @@ jumpout: ;
 //---------------------  better association of the hits in the track candidate
 
   ITRACCIA = nTracksFoundSoFar;
-
 
 
 
@@ -2342,7 +2342,7 @@ cout<<"fine printout iniziale\n";
 
   bool BAD1[2], BAD2[2] ;
 
-  char nome[100];
+  char nome[300];
 
   CalculatedHelix  Result;
 
@@ -3189,7 +3189,7 @@ if(istampa>= 3 && IVOLTE<20) {
 
    Double_t  D, Fi;
 
-   char nome[100],titolo[100];
+   char nome[300],titolo[300];
 
 
 
@@ -3424,7 +3424,7 @@ if(istampa>= 3 && IVOLTE<20) {
 
    Double_t  D, Fi;
 
-   char nome[100],titolo[100];
+   char nome[300],titolo[300];
 
 
 
@@ -3527,7 +3527,7 @@ if(istampa>= 3 && IVOLTE<20) {
 
    Double_t  D, Fi;
 
-   char nome[100],titolo[100];
+   char nome[300],titolo[300];
 
 
 
@@ -4151,7 +4151,7 @@ void PndSttTrackFinderReal::WriteHistograms(){
            zl[200],zu[200],
            POINTS1[6];
 
-      char nome[50], nome2[50];
+      char nome[300], nome2[300];
 
 
 
@@ -4625,7 +4625,7 @@ if(istampa>= 3 && IVOLTE<20) {
 
 
 //---------- parallel straws Macro now
-      char nome[50], nome2[50];
+      char nome[300], nome2[300];
       FILE * MACRO;
 
        
@@ -4924,7 +4924,7 @@ if(istampa>= 3 && IVOLTE<20) {
 
 
 //---------- parallel straws Macro now
-      char nome[50], nome2[50];
+      char nome[300], nome2[300];
       FILE * MACRO;
 
        
@@ -5202,7 +5202,7 @@ if(istampa>= 3 && IVOLTE<20) {
 
 
 //---------- parallel straws Macro now
-      char nome[50], nome2[50];
+      char nome[300], nome2[300];
       sprintf(nome,"MacroTrackN%dParallelHitsEvent%d",imaxima, IVOLTE);
       sprintf(nome2,"%s.C",nome);
       FILE * MACRO = fopen(nome2,"w");
@@ -5323,7 +5323,7 @@ if(istampa>= 3 && IVOLTE<20) {
 
 //-------------------  skew straws hits Macro now
 
-      char  nome2[50],nome[50];
+      char  nome2[300],nome[300];
       FILE *MACRO;
       sprintf(nome,  "MacroParTrack%dSkewTrack%dSkewHitsEvent%d",imaxima,nMaxima, IVOLTE);
       sprintf(nome2,  "%s.C",nome);
@@ -5595,7 +5595,7 @@ nohits: ;
 
 //-------------------  skew straws hits Macro now
 
-      char  nome2[50],nome[50];
+      char  nome2[300],nome[300];
       FILE *MACRO;
       sprintf(nome,  "MacroParTrack%dSkewTrack%dSkewHitswithMCEvent%d",imaxima,nMaxima, IVOLTE);
       sprintf(nome2,  "%s.C",nome);
@@ -7608,8 +7608,7 @@ if(istampa>=3 && IVOLTE<20) {
   bool passamin,passamax;
 
   Short_t i, i2, j, k, l,  l2, l3, itemp,
-          FFimin,FFimax,
-          iFi0;
+          iFi0,         FFimin,FFimax;
   UShort_t Nextra=8,
            nFi,
            Fi,
@@ -7632,9 +7631,9 @@ if(istampa>=3 && IVOLTE<20) {
   FFimax = 0;
   for(j=0; j<nHitsinTrack; j++){
     i = (UShort_t)  infoparalConformal[ ListHitsinTrack[j] ][3];
-  }
     if( FiConformalIndex[i] <  FFimin ) FFimin = FiConformalIndex[i];
     if( FiConformalIndex[i] >  FFimax ) FFimax = FiConformalIndex[i];
+  }
 
 if(istampa>=3 && IVOLTE<20) {
   cout<<"  evento n. "<<IVOLTE<<", Fimin prima  prima = "<<FFimin<<",  Fimax prima "<<FFimax<<endl;
@@ -8023,11 +8022,10 @@ endl;
        Unselected[nmaxHits];
 
   Short_t i, i2, j, k, l,  l2, l3, itemp, kstart, kend,
-          iFi0;
+          iFi0,FFimin, FFimax;
   UShort_t Nextra=8,
            nFi,
            Fi,
-           FFimin, FFimax,
            nR,
            nAssociatedHits;
   Double_t maxFi,
@@ -8058,9 +8056,9 @@ endl;
   FFimax = 0;
   for(j=0; j<nHitsinTrack; j++){
     i = (UShort_t)  infoparalConformal[ ListHitsinTrack[j] ][3];
-  }
     if( FiConformalIndex[i] <  FFimin ) FFimin = FiConformalIndex[i];
     if( FiConformalIndex[i] >  FFimax ) FFimax = FiConformalIndex[i];
+  }
 
 if(istampa>=3 && IVOLTE<20) {
   cout<<"  evento n. "<<IVOLTE<<", Fimin prima  prima = "<<FFimin<<",  Fimax prima "<<FFimax<<endl;
@@ -8088,7 +8086,7 @@ if(istampa>=3 && IVOLTE<20) {
   FFimin -= (Short_t) nFidivConformal/Nextra;
   FFimax +=  (Short_t) nFidivConformal/Nextra;
   if( FFimax - FFimin > nFidivConformal/2 ) {
-    cout<<"something fishy is going on in PndSttTrkAssociatedParallelHitsToHelixBis!"
+    cout<<"something fishy is going on in PndSttTrkAssociatedParallelHitsToHelixTris!"
       <<"Range in Fi (rad) is  "<<(FFimax - FFimin)*2.*PI/nFidivConformal<<endl;
     return 0;
   }
@@ -8212,7 +8210,7 @@ if(istampa>=3 && IVOLTE<20) {
       } else if ( FFimax > 3*nRdivConformal/4 && Fimin < 3*nRdivConformal/4 ){
         iFi0 =  (Short_t)  (3*nRdivConformal/4 );
       }  else {
-                cout <<"From PndSttTrackFinderReal::PndSttTrkAssociatedParallelHitsToHelixBis  :"
+                cout <<"From PndSttTrackFinderReal::PndSttTrkAssociatedParallelHitsToHelixTris  :"
                       <<"  inconsistency, 0 associated hits to this track candidate\n";
         return 0;
      }
@@ -8313,7 +8311,7 @@ if(istampa>=3 && IVOLTE<20) {
                 if( l< 0 ) {
                   l2 = l+nFidivConformal;
                 } else if (l>=nFidivConformal){
-                  l2 = l- nFidivConformal*( i/nFidivConformal );
+                  l2 = l- nFidivConformal*( l/nFidivConformal );
                } else {
                  l2 = l;
                }
@@ -8440,11 +8438,10 @@ if(istampa>=3 && IVOLTE<20) {
        Unselected[nmaxHits];
 
   Short_t i, i2, j, k, l,  l2, l3, itemp, kstart, kend,
-          iFi0;
+          iFi0,FFimin, FFimax;
   UShort_t Nextra=8,
            nFi,
            Fi,
-           FFimin, FFimax,
            nR,
            nAssociatedHits,
            nHit_original;
@@ -8480,9 +8477,9 @@ if(istampa>=3 && IVOLTE<20) {
   FFimax = 0;
   for(j=0; j<nHitsinTrack; j++){
     i = (UShort_t)  infoparalConformal[ ListHitsinTrack[j] ][3];
-  }
     if( FiConformalIndex[i] <  FFimin ) FFimin = FiConformalIndex[i];
     if( FiConformalIndex[i] >  FFimax ) FFimax = FiConformalIndex[i];
+  }
 
 if(istampa>=3 && IVOLTE<20) {
   cout<<"  evento n. "<<IVOLTE<<", Fimin prima  prima = "<<FFimin<<",  Fimax prima "<<FFimax<<endl;
@@ -8509,22 +8506,20 @@ if(istampa>=3 && IVOLTE<20) {
   
   FFimin -= (Short_t) nFidivConformal/Nextra;
   FFimax +=  (Short_t) nFidivConformal/Nextra;
-  if( FFimax - FFimin > nFidivConformal/2 ) {
-    cout<<"something fishy is going on in PndSttTrkAssociatedParallelHitsToHelixBis!"
+if( FFimax - FFimin > nFidivConformal/2 ) {
+    cout<<"something fishy is going on in PndSttTrkAssociatedParallelHitsToHelixQuater!"
       <<"Range in Fi (rad) is  "<<(FFimax - FFimin)*2.*PI/nFidivConformal<<endl;
     return 0;
-  }
+}
 
 if(istampa>=3 && IVOLTE<20) {
   cout<<"  evento n. "<<IVOLTE<<", Fimin dopo = "<<FFimin<<",  Fimax dopo "<<FFimax<<endl;
 }
 
 
-
 //   use the equation of a line in polar coordinates
  
   if( Status ==99) {   //  case in which   0 = x + q
-
 
 
 
@@ -8659,7 +8654,7 @@ if(istampa>=3 && IVOLTE<20) {
       } else if ( FFimax > 3*nRdivConformal/4 && Fimin < 3*nRdivConformal/4 ){
         iFi0 =  (Short_t)  (3*nRdivConformal/4 );
       }  else {
-                cout <<"From PndSttTrackFinderReal::PndSttTrkAssociatedParallelHitsToHelixBis  :"
+                cout <<"From PndSttTrackFinderReal::PndSttTrkAssociatedParallelHitsToHelixQuater  :"
                       <<"  inconsistency, 0 associated hits to this track candidate\n";
         return 0;
      }
@@ -8709,32 +8704,29 @@ if(istampa>=3 && IVOLTE<20) {
         if(Fi0<0.)  { Fi0 += PI; if (Fi0 <0. ) Fi0 =0.; };
 
         ddd= fabs(q)/sqrt(1.+m*m);
-// cout<<"  Fi0 "<<Fi0<<",  ddd  "<<ddd<<endl;
 
         for(itemp=FFimin; itemp<=FFimax;itemp++){
          i=itemp;
          if( i< 0 ) {
             i += nFidivConformal;
-           } else if (i>=nFidivConformal){
+         } else if (i>=nFidivConformal){
             i -=  nFidivConformal*( i/nFidivConformal );
-           }
+         }
 
 
-              fi1 = i*2.*(PI/nFidivConformal);
-              if( fabs(sin(fi1)-m*cos(fi1))>1.e-10) {
+         fi1 = i*2.*(PI/nFidivConformal);
+         if( fabs(sin(fi1)-m*cos(fi1))>1.e-10) {
                  erre1 = q/(sin(fi1)-m*cos(fi1));
-              }  else {
+         }  else {
                  erre1 = 99999999999.;
-              }
+         }
 
-              fi2 = (i+1)*2.*(PI/nFidivConformal);
-              if( fabs(sin(fi2)-m*cos(fi2))>1.e-10) {
+         fi2 = (i+1)*2.*(PI/nFidivConformal);
+         if( fabs(sin(fi2)-m*cos(fi2))>1.e-10) {
                  erre2 = q/(sin(fi2)-m*cos(fi2));
-              }  else {
+         }  else {
                  erre2 = 99999999999.;
-              }
-
-// cout<<"  iFi = "<<i<<",  fi1 "<<fi1<<",  fi2 "<<fi2<<", erre1 "<<erre1<<",  erre2  "<<erre2<<endl;
+         }
 
 
 
@@ -8762,13 +8754,12 @@ if(istampa>=3 && IVOLTE<20) {
                 ) {
                    continue;
              }
-// cout<<"accettato !   iFi = "<<i<<", iR  "<<j<<",fi1 "<<fi1<<",  fi2 "<<fi2<<", erre1 "<<erre1<<",  erre2  "<<erre2<<endl;
- 
+
               for(l=itemp-2; l<=itemp+2; l++){
                 if( l< 0 ) {
                   l2 = l+nFidivConformal;
                 } else if (l>=nFidivConformal){
-                  l2 = l- nFidivConformal*( i/nFidivConformal );
+                  l2 = l- nFidivConformal*( l/nFidivConformal );
                } else {
                  l2 = l;
                }
@@ -8784,10 +8775,9 @@ if(istampa>=3 && IVOLTE<20) {
                 }
 
                 for(k=kstart;k<kend;k++){
-// cout<<"  iR = "<<k<<", iFi  "<<l2<<endl;
 
                  for( l3=0;l3<nBoxConformal[k][l2];l3++){
-                   if( ! Unselected[HitsinBoxConformal[k][l2][l3] ] )  continue;
+                  if( ! Unselected[HitsinBoxConformal[k][l2][l3] ] )  continue;
                    nHit_original = (UShort_t) infoparalConformal[  HitsinBoxConformal[k][l2][l3]  ][3];
 // check if the hit position is near the circle of the Helix found by the fit
                    dx = -Ox+info[ nHit_original ][0];
@@ -8799,12 +8789,10 @@ if(istampa>=3 && IVOLTE<20) {
                    xx=infoparalConformal[  HitsinBoxConformal[k][l2][l3]  ][0];
                    yy=infoparalConformal[  HitsinBoxConformal[k][l2][l3]  ][1];
                    dist = fabs( -yy+ m*xx +q )/sqrt(m*m+1.);
-// cout<<"  buona div???\n";
                    if(  PndSttAcceptHitsConformal(  dist,
                                                  infoparalConformal[  HitsinBoxConformal[k][l2][l3]  ][2],
                                                  infoparalConformal[  HitsinBoxConformal[k][l2][l3]  ][4]
                                                       ) )  {
-//cout<<"  yes ,  buona div !!!!!\n";
 
                     auxListHitsinTrack[nAssociatedHits]= HitsinBoxConformal[k][l2][l3];
                     Unselected[HitsinBoxConformal[k][l2][l3]]= false;
@@ -8812,12 +8800,11 @@ if(istampa>=3 && IVOLTE<20) {
                    }
 
                  }   //   end of  for( l3=0;l3<nBoxConformal[k][l2];l3++)
-
-                }   //   end of  for(k=j-1;k<j+2;k++)
+                }   //   end of  for(k=kstart;k<kend;k++)
               }     //   end of  for(l=itemp-1; l<itemp+2; l++)
 
-
          }   //  end of for(j=0; j<nRdivConformal; j++)
+
         }   //   end of    for(itemp=FFimin; itemp<=FFimax;itemp++)
 
 
@@ -8867,7 +8854,10 @@ if(istampa>=3 && IVOLTE<20) {
   }   //   end of if ( Status ==99)
 
 
-
+if(istampa>=3) {
+  cout<<"from PndSttTrkAssociatedParallelHitsToHelixQuater, before exiting; nAssociatedHits = "
+   <<nAssociatedHits<<endl;
+}
 
 
 
@@ -11047,7 +11037,7 @@ cout<<"    j= "<<j<<", n. Hit in original numbering = "<<BigList[j]<<" e suo FI 
            zl[200],zu[200],
            POINTS1[6];
 
-      char nome[50], nome2[50];
+      char nome[300], nome2[300];
 
 
 
@@ -11200,7 +11190,7 @@ cout<<"    j= "<<j<<", n. Hit in original numbering = "<<BigList[j]<<" e suo FI 
 
 //-------------------  skew straws hits Macro now
 
-      char  nome2[50],nome[50];
+      char  nome2[300],nome[300];
       FILE *MACRO;
       sprintf(nome,  "MacroParTrack%dSkewTrack%dSkewHitswithRfromMCEvent%d",imaxima,nMaxima, IVOLTE);
       sprintf(nome2,  "%s.C",nome);
