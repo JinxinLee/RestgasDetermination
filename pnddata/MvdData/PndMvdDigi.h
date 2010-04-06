@@ -18,10 +18,9 @@
 
 #include "TObject.h"
 #include "TString.h"
+#include "PndDetectorList.h"
 #include <iostream>
 #include <vector>
-
-#include "PndDetectorList.h"
 
 
 class PndMvdDigi : public FairMultiLinkedData
@@ -55,16 +54,21 @@ class PndMvdDigi : public FairMultiLinkedData
 		TString GetDetName()   const { return fDetName; }
 		Double_t GetCharge()	 const { return fCharge; }
 		Int_t GetDetID() const { return fDetID;}
-		std::vector<Int_t> GetIndices() const { return fIndex;}
-		int GetNIndices() {return fIndex.size();}
-		Int_t GetIndex(int i = 0) const{ return fIndex[i];}
-		Int_t GetNIndices() const { return fIndex.size();}
+		std::vector<Int_t> GetIndices() const {
+			std::vector<Int_t> result;
+			std::vector<FairLink> myLinks = GetLinks();
+			for (int i = 0; i < myLinks.size(); i++){
+				result.push_back(myLinks[i].GetIndex());
+			}
+			return result;
+		}
+		int GetNIndices() {return GetNLinks();}
+		Int_t GetIndex(int i = 0) const{ return GetLink(i).GetIndex();}
+		Int_t GetNIndices() const { return GetNLinks();}
 		void AddIndex(int index){
-		             fIndex.push_back(index); 
-		          //  AddLink(kMVDPoint, index);
-			    }
+			AddLink(FairLink(kMVDPoint, index));
+		}
 		void AddIndex(std::vector<Int_t> index){
-			fIndex = index;
 			SetLinks(FairMultiLinkedData(kMVDPoint, index));
 		}
 		void AddCharge(double charge){fCharge += charge;}
@@ -73,7 +77,6 @@ class PndMvdDigi : public FairMultiLinkedData
 			std::cout << *this;
 		}
 	protected :
-		std::vector<Int_t> fIndex;
 		Int_t fDetID;
 		TString fDetName;
 		Double_t fCharge;
