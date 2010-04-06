@@ -25,7 +25,7 @@ class PndMvdCluster : public FairMultiLinkedData
 friend std::ostream& operator<< (std::ostream& out, PndMvdCluster& cl){
       std::vector<Int_t> list = cl.GetClusterList();
       out << "Hits in Cluster:" << std::endl;
-      for (Int_t i = 0; i<list.size();i++)
+      for (unsigned int i = 0; i<list.size();i++)
         out << list[i] << std::endl;
       out << std::endl;
 

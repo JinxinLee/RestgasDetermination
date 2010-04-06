@@ -28,7 +28,7 @@ class PndMvdDigiPixel : public PndMvdDigi
         << " charge " << digi.GetCharge() << " e"
         << ", from Point(s) ";
         std::vector<Int_t>indices = digi.GetIndices();
-        for (int i = 0; i < indices.size(); i++){
+        for (unsigned int i = 0; i < indices.size(); i++){
         	std::cout << indices[i] << "  ";
         }
       std::cout << std::endl;
