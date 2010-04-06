@@ -11,7 +11,7 @@
 //
 // Author List:
 //      Sebastian Neubert    TUM            (original author)
-//      Stefano Spataro, JLU Gießen         (Copied for LHE use)
+//      Stefano Spataro, JLU Giessen         (Copied for LHE use)
 //
 //-----------------------------------------------------------
 
@@ -290,7 +290,7 @@ void PndLheKalmanTask::Exec(Option_t* opt)
       TClonesArray& trkRef = *fFitTrackArray;
       Int_t size = trkRef.GetEntriesFast();
       PndTrack* pndTrack = new(trkRef[size]) PndTrack(fitTrack->GetParamFirst(), fitTrack->GetParamLast(), fitTrack->GetTrackCand(),
-						      fitTrack->GetFlag(), fitTrack->GetChi2(), fitTrack->GetNDF(), fitTrack->GetPidHypo(), itr);
+						      fitTrack->GetFlag(), fitTrack->GetChi2(), fitTrack->GetNDF(), fitTrack->GetPidHypo(), itr, kLheTrack);
     }
   
   if (fVerbose>0) std::cout<<"Fitting done"<<std::endl;
