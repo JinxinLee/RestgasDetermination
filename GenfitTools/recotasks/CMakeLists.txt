@@ -9,8 +9,10 @@ ${CMAKE_SOURCE_DIR}/base
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep
 ${CMAKE_SOURCE_DIR}/GenfitTools/trackrep/GeaneTrackRep
 ${CMAKE_SOURCE_DIR}/base
+${CMAKE_SOURCE_DIR}/parbase
 ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/trackbase
+${CMAKE_SOURCE_DIR}/stt
 ${CMAKE_SOURCE_DIR}/stt/sttreco
 ${CMAKE_SOURCE_DIR}/tpc/tpcreco
 ${CMAKE_SOURCE_DIR}/dch/DchData

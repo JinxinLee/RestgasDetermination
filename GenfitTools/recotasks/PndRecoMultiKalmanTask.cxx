@@ -29,6 +29,8 @@
 #include "PndTrack.h"
 #include "FairRootManager.h"
 #include "FairGeanePro.h"
+#include "FairRunAna.h"
+#include "FairRuntimeDb.h"
 
 PndRecoMultiKalmanTask::PndRecoMultiKalmanTask(const char* name, Int_t iVerbose)
   : FairTask(name, iVerbose), fPersistence(kFALSE)
@@ -84,6 +86,11 @@ PndRecoMultiKalmanTask::Init()
   return kSUCCESS;
 }
 
+void PndRecoMultiKalmanTask::SetParContainers() 
+{
+  FairRuntimeDb* rtdb = FairRunAna::Instance()->GetRuntimeDb();
+  fSttParameters = (PndGeoSttPar*) rtdb->getContainer("PndGeoSttPar");
+}
 
 void PndRecoMultiKalmanTask::Exec(Option_t* opt)
 {

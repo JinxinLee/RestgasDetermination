@@ -23,6 +23,7 @@
 // Collaborating Class Headers -------
 #include "TString.h"
 #include "PndRecoKalmanFit.h"
+#include "PndGeoSttPar.h"
 
 // Collaborating Class Declarations --
 class TClonesArray;
@@ -49,11 +50,10 @@ public:
   void SetNumIterations(Int_t num)               { fNumIt = num;        }
  
   // Operations ----------------------
-  
   virtual InitStatus Init();
-
   virtual void Exec(Option_t* opt);
   
+  void SetParContainers();
   
 private:
 
@@ -72,9 +72,10 @@ private:
   
   Bool_t fPersistence;
 
-  Bool_t fUseGeane;     //! Flag to use Geane 
-  Bool_t fSmoothing;    //! Flag to set on smoothing
-  Int_t fNumIt;         //! Number of iterations
+  Bool_t fUseGeane;              //! Flag to use Geane 
+  Bool_t fSmoothing;             //! Flag to set on smoothing
+  Int_t fNumIt;                  //! Number of iterations
+  PndGeoSttPar *fSttParameters;  //! STT params
 
   ClassDef(PndRecoMultiKalmanTask,1);
 
