@@ -12,7 +12,7 @@ void PndMvdStripDigiPar::putParams(FairParamList* list)
 {
   if(!list) return;
 
-  lisdt->add("top_pitch", fTopPitch);
+  list->add("top_pitch", fTopPitch);
   list->add("bot_pitch", fBotPitch);
   list->add("orient", fOrient);
   list->add("skew", fSkew);
