@@ -12,7 +12,7 @@ void PndMvdStripDigiPar::putParams(FairParamList* list)
 {
   if(!list) return;
 
-  list->add("top_pitch", fTopPitch);
+  lisdt->add("top_pitch", fTopPitch);
   list->add("bot_pitch", fBotPitch);
   list->add("orient", fOrient);
   list->add("skew", fSkew);
@@ -31,6 +31,10 @@ void PndMvdStripDigiPar::putParams(FairParamList* list)
   list->add("cluster_radchan", fRadChannel);
   list->add("cluster_radtime", fRadTime);
   list->add("cluster_corrchargecut", fChargeCut);
+
+  list->add("raising_time", fraisingtime);
+  list->add("falling_ratio", ffallingratio);
+  list->add("clock_frequency", fclockfrequency);
   //   TObjString* sens = new TObjString( fSensType.Data() );
 //   list->addObject("sens_Type", sens);
 //   TObjString* fe = new TObjString( fFeType.Data() );
@@ -67,6 +71,10 @@ Bool_t PndMvdStripDigiPar::getParams(FairParamList* list)
   if (!list->fill("cluster_radchan", &fRadChannel)) return kFALSE;
   if (!list->fill("cluster_radtime", &fRadTime)) return kFALSE;
   if (!list->fill("cluster_corrchargecut", &fChargeCut)) return kFALSE;
+
+  if (!list->fill("raising_time",&fraisingtime)) return kFALSE;
+  if (!list->fill("falling_ratio",&ffallingratio)) return kFALSE;
+  if (!list->fill("clock_frequency",&fclockfrequency)) return kFALSE;
   return kTRUE;
 }
 
@@ -87,6 +95,9 @@ void PndMvdStripDigiPar::Print()
   std::cout<<"   Nr of Frontends (Bottom Side)= "<<fBotNrFE<<std::endl;
   std::cout<<"   Charge Threshold (e-)        = "<<fThreshold<<std::endl;
   std::cout<<"   Noise (ENC+Dispersion) (e-)  = "<<fNoise<<std::endl;
+  std::cout<<"   raising time (ns)            = "<<fraisingtime<<std::endl;
+  std::cout<<"   falling ratio (e/ns)         = "<<ffallingratio<<std::endl;
+  std::cout<<"   clock frequency (MHz)        = "<<fclockfrequency<<std::endl;
   std::cout<<"   Frontend type name is        = "<<fFeType.Data()<<std::endl;
   std::cout<<"   Clusterfinder Mode                    = "<<fClusterMod<<std::endl;
   std::cout<<"   Clusterfinder Search Radius: Channels = "<<fRadChannel<<std::endl;

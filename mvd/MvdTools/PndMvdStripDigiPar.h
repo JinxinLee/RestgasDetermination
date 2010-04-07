@@ -42,6 +42,10 @@ class PndMvdStripDigiPar : public FairParGenericSet
   Int_t GetRadChannel()         const {return fRadChannel;}
   Int_t GetRadTime()            const {return fRadTime;}
   Double_t GetChargeCut()       const {return fChargeCut;}
+
+  Double_t GetRaisingTime() const {return fraisingtime;}
+  Double_t GetFallingRatio() const {return ffallingratio;}
+  Double_t GetClockFrequency() const {return fclockfrequency;}
   
   void SetTopPitch(Double_t x)  {fTopPitch = x;}
   void SetBotPitch(Double_t x)  {fBotPitch = x;}
@@ -60,6 +64,10 @@ class PndMvdStripDigiPar : public FairParGenericSet
   void SetRadChnnel(Int_t x)    {fRadChannel = x;}
   void SetRadTime(Int_t x)      {fRadTime = x;}
   void SetChargeCut(Double_t x) {fChargeCut = x;}
+
+  void SetRaisingTime(Double_t x){fraisingtime = x;}
+  void SetFallingRatio(Double_t x){ffallingratio = x;}
+  void SetClockFrequency(Double_t x){fclockfrequency = x;}
   
   private:
     // Strip Parameters
@@ -80,6 +88,9 @@ class PndMvdStripDigiPar : public FairParGenericSet
     Int_t    fRadTime;      // Clusterfinder timing search radius
     TString  fSensType;     // Sensor type name (rect, trap...)
     TString  fFeType;       // Frontend type name (APV25, CBM-XYTER, ...)
+    Double_t fraisingtime;	// time until capacitor is loaded [ns]
+    Double_t ffallingratio; // current unloading the capacitor [e/ns]
+    Double_t fclockfrequency;//clockfrequency of the readout chip [MHz]
 
   ClassDef(PndMvdStripDigiPar,3);
 };

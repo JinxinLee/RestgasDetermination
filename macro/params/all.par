@@ -29,6 +29,9 @@ cluster_mod:Int_t 0
 cluster_radchan:Int_t 2
 cluster_radtime:Int_t 0
 cluster_corrchargecut:Double_t 5000.
+raising_time:Double_t 100.
+falling_ratio:Double_t 60.
+clock_frequency:Double_t 50.
 #################################################################
 # Digitization parameters for TRAPEZOID Mvd strip sensors
 #################################################################
@@ -53,6 +56,9 @@ cluster_mod:Int_t 0
 cluster_radchan:Int_t 2
 cluster_radtime:Int_t 0
 cluster_corrchargecut:Double_t 5000.
+raising_time:Double_t 100.
+falling_ratio:Double_t 60.
+clock_frequency:Double_t 50.
 #################################################################
 # Digitization parameters for RECTANGULAR double-sided
 # strip sensors used in the tracking station.
@@ -78,6 +84,9 @@ cluster_mod:Int_t 0
 cluster_radchan:Int_t 2
 cluster_radtime:Int_t 0
 cluster_corrchargecut:Double_t 5000.
+raising_time:Double_t 100.
+falling_ratio:Double_t 60.
+clock_frequency:Double_t 50.
 #################################################################
 # Digitization parameters for RECTANGULAR single-sided
 # strip sensors used in the tracking station.
@@ -103,6 +112,9 @@ cluster_mod:Int_t 0
 cluster_radchan:Int_t 2
 cluster_radtime:Int_t 0
 cluster_corrchargecut:Double_t 5000.
+raising_time:Double_t 100.
+falling_ratio:Double_t 60.
+clock_frequency:Double_t 50.
 #################################################################
 # Digitization Parameters for MVD Pixel
 #################################################################
@@ -115,6 +127,9 @@ noise:Double_t 200
 FECols:Int_t 104
 FERows:Int_t 104
 ClustRad:Double_t 1.8
+raising_time:Double_t 100
+falling_ratio:Double_t 60
+clock_frequency:Double_t 50
 ##################################################################################################################################
 # Digitisation and reconstruction parameters for TPC
 # Format:

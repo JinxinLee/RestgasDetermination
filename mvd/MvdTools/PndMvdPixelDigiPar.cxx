@@ -18,6 +18,10 @@ void PndMvdPixelDigiPar::putParams(FairParamList* list)
   list->add("FECols", fFeCols);
   list->add("FERows", fFeRows);
   list->add("ClustRad",fRadius);
+
+  list->add("raising_time", fraisingtime);
+  list->add("falling_ratio", ffallingratio);
+  list->add("clock_frequency", fclockfrequency);
 //   list->add("sensName", sensName);
 //   list->add("feName", feName);
 }
@@ -33,6 +37,10 @@ Bool_t PndMvdPixelDigiPar::getParams(FairParamList* list)
   if (!list->fill("FECols",&fFeCols)) return kFALSE;
   if (!list->fill("FERows",&fFeRows)) return kFALSE;
   if (!list->fill("ClustRad",&fRadius)) return kFALSE;
+
+  if (!list->fill("raising_time",&fraisingtime)) return kFALSE;
+  if (!list->fill("falling_ratio",&ffallingratio)) return kFALSE;
+  if (!list->fill("clock_frequency",&fclockfrequency)) return kFALSE;
 //   if (!list->fill("sensName",&sensName)) return kFALSE;
 //   if (!list->fill("feName",&feName)) return kFALSE;
   return kTRUE;
@@ -50,4 +58,8 @@ void PndMvdPixelDigiPar::Print()
     std::cout<<"   Columns on FE                    = "<<fFeCols<<std::endl;
     std::cout<<"   Rows on FE                       = "<<fFeRows<<std::endl;
     std::cout<<"   Cluster search radius (channels) = "<<fRadius<<std::endl;
+
+    std::cout<<"   raising time (ns)                = "<<fraisingtime<<std::endl;
+    std::cout<<"   falling ratio (e/ns)             = "<<ffallingratio<<std::endl;
+    std::cout<<"   clock frequency (MHz)            = "<<fclockfrequency<<std::endl;
 }
