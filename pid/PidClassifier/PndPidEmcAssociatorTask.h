@@ -3,7 +3,7 @@
  *                                    *
  *  pid classifier                    *
  *                                    *
- * Created: 23-03-2010                *
+ * Created: 07-04-2010                *
  * Modified:                          *
  *                                    *
  * ************************************/
@@ -30,8 +30,6 @@ class PndPidEmcAssociatorTask: public PndPidMvaAssociatorTask
    */  
   virtual ~PndPidEmcAssociatorTask();
   
-  virtual void SetVarNames(std::vector<std::string> vNames);  
-  
   //=============== Private members.
  private:
   // Copy const.
@@ -39,6 +37,9 @@ class PndPidEmcAssociatorTask: public PndPidMvaAssociatorTask
   // Assignment operator.
   PndPidEmcAssociatorTask& operator=(const PndPidMvaAssociatorTask& other);
   
+  void SetVarNames(const std::vector<std::string>& vNames);
+  const std::vector<std::string>& SetEmcParNames()const;
+
   ClassDef(PndPidEmcAssociatorTask, 1)
 };
 #endif//End of interface definition (PndPidEmcAssociatorTask)

@@ -3,7 +3,7 @@
  *                                    *
  *  pid classifier                    *
  *                                    *
- * Created: 23-03-2010                *
+ * Created: 07-04-2010                *
  * Modified:                          *
  *                                    *
  * ************************************/
@@ -16,8 +16,11 @@
 PndPidEmcAssociatorTask::PndPidEmcAssociatorTask()
   : PndPidMvaAssociatorTask("PndPidMvaAssociatorTaskSTD")
 {
-  std::cout << "<INFO> Call Default task constructor. " 
+  std::cout << "<INFO> Default task constructor. " 
 	    << "(PndPidEmcAssociatorTask)"<< std::endl;
+
+  const std::vector<std::string>& vNames = SetEmcParNames();
+  SetVarNames(vNames);
 }
 
 //___________________________________________________________
@@ -28,17 +31,29 @@ PndPidEmcAssociatorTask::PndPidEmcAssociatorTask(const char *name, const char *t
   : PndPidMvaAssociatorTask(name)
 {
   std::cout << title << std::endl;
+
+  const std::vector<std::string>& vNames = SetEmcParNames();
+  SetVarNames(vNames);
 }
 
+//! Destructor
 PndPidEmcAssociatorTask::~PndPidEmcAssociatorTask()
 {}
 
-void PndPidEmcAssociatorTask::SetVarNames(std::vector<std::string> vNames)
+//! Set Variables to use
+void PndPidEmcAssociatorTask::SetVarNames(const std::vector<std::string>& vNames)
 {
   std::cerr<< "<INFO> Filling EMC related Variable names." << std::endl;
-  vNames.clear();
-  vNames.push_back("p");
-  vNames.push_back("emc");
   PndPidMvaAssociatorTask::SetVarNames(vNames);
+}
+
+//! Set Emc related variable names.
+const std::vector<std::string>& PndPidEmcAssociatorTask::SetEmcParNames() const
+{
+  std::vector<std::string>* VarNames = new std::vector<std::string>();
+  VarNames->push_back("p");
+  VarNames->push_back("emc");
+
+  return (*VarNames);
 }
 ClassImp(PndPidEmcAssociatorTask)

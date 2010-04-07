@@ -24,7 +24,7 @@
 #include "PndPidProbability.h"
 
 #include "PndKnnClassify.h"
-#include "PndLVQClassify.h"
+//#include "PndLVQClassify.h"
 
 class PndPidMvaAssociatorTask: public FairTask
 {
