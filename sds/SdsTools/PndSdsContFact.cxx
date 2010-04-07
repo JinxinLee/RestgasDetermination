@@ -48,17 +48,17 @@ void PndSdsContFact::setAllContainers() {
     fDigiParNames->Add(new TObjString(p->GetName()));
     containers->Add(p);
 
-    FairContainer* p2 = new FairContainer("MVDPixelDigiPar", "PndSds Pixel Digitization Parameters", "TestDefaultContext");
+    FairContainer* p2 = new FairContainer("SDSPixelDigiPar", "PndSds Pixel Digitization Parameters", "TestDefaultContext");
     p2->addContext("TestNonDefaultContext");
     fDigiParNames->Add(new TObjString(p2->GetName()));
     containers->Add(p2);
     
-    FairContainer* p3 = new FairContainer("MVDStripDigiParRect", "PndSds Strip Digitization Parameters (rectangular sensors)", "TestDefaultContext");
+    FairContainer* p3 = new FairContainer("SDSStripDigiParRect", "PndSds Strip Digitization Parameters (rectangular sensors)", "TestDefaultContext");
     p3->addContext("TestNonDefaultContext");
     fDigiParNames->Add(new TObjString(p3->GetName()));
     containers->Add(p3);
 
-    FairContainer* p4 = new FairContainer("MVDStripDigiParTrap", "PndSds Strip Digitization Parameters (trapezoid sensors)", "TestDefaultContext");
+    FairContainer* p4 = new FairContainer("SDSStripDigiParTrap", "PndSds Strip Digitization Parameters (trapezoid sensors)", "TestDefaultContext");
     p4->addContext("TestNonDefaultContext");
     fDigiParNames->Add(new TObjString(p4->GetName()));
     containers->Add(p4);
@@ -75,15 +75,15 @@ FairParSet* PndSdsContFact::createContainer(FairContainer* c) {
     p=new PndSdsGeoPar(c->getConcatName().Data(),c->GetTitle(),c->getContext());
   }
 
-  if (strcmp(name,"MVDPixelDigiPar")==0) {
+  if (strcmp(name,"SDSPixelDigiPar")==0) {
 	p=new PndSdsPixelDigiPar(c->getConcatName().Data(),c->GetTitle(),c->getContext());
   }
 
-  if (strcmp(name,"MVDStripDigiParRect")==0) {
+  if (strcmp(name,"SDSStripDigiParRect")==0) {
   p=new PndSdsStripDigiPar(c->getConcatName().Data(),c->GetTitle(),c->getContext());
   }
   
-  if (strcmp(name,"MVDStripDigiParTrap")==0) {
+  if (strcmp(name,"SDSStripDigiParTrap")==0) {
   p=new PndSdsStripDigiPar(c->getConcatName().Data(),c->GetTitle(),c->getContext());
   }
   
