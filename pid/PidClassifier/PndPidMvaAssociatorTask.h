@@ -7,8 +7,8 @@
  * Modified:                          *
  *                                    *
  * ************************************/
-#ifndef PID_ASSOCIATOR_H
-#define PID_ASSOCIATOR_H
+#ifndef PID_MVA_ASSOCIATOR_H
+#define PID_MVA_ASSOCIATOR_H
 
 //standard C++ includes
 #include <iostream>
@@ -28,7 +28,7 @@
 
 class PndPidMvaAssociatorTask: public FairTask
 {
-public:
+ public:
   /**
    * Default Constructor.
    */
@@ -37,55 +37,49 @@ public:
   /**
    * Constructor.
    */
-  PndPidMvaAssociatorTask(const char *name, const char *title="PndPidAssociatorTask");
+  PndPidMvaAssociatorTask(const char *name, const char *title="PndPidMvaAssociatorTask");
   
   /**
    * Destructor.
    */  
   virtual ~PndPidMvaAssociatorTask();
-
+  
   virtual void Exec(Option_t* option);
+  
   virtual InitStatus Init();
   
   void Register();
+  
   void Reset();
   
   void SetVerbose(Bool_t verb){fVerbose = verb;};
 	
   /** Set parameter containers **/
   virtual void SetParContainers();
+  
   virtual void Finish();
 
   /**
    *@param vNames Input variable names.
    */
-  void SetVarNames(const std::vector<std::string>& vNames)
+  virtual void SetVarNames(const std::vector<std::string>& vNames)
   {fVarNames = vNames;};
-
+  
   /**
    *@param clNames Input class names.
    */
   void SetClassNames(const std::vector<std::string>& clNames)
   {fClassNames = clNames;};
-
+  
   /**
    *@param wFileName Input weight file. If not specified the standard
    * file from the standard location is loaded.
    */
   void SetWeightFileName(const std::string& wFileName)
   {fWeightsFileName = wFileName;};
-
+  
   void SetNumNeigh(int val)
   {fNumNeigh = val;};
-
-  //============== Protected members.
-  //(WHY?? protected)
- protected: 
-  TClonesArray* fPidChargedCand; //! PndPidCandidate TCA for charged particles
-  TClonesArray* fPidNeutralCand; //! PndPidCandidate TCA for neutral particles
-  TClonesArray* fPidChargedProb; //! PndPidProbability TCA for charged particles
-  TClonesArray* fPidNeutralProb; //! PndPidProbability TCA for neutral particles
-  TClonesArray* fMCTrack;        //! Monte-Carlo Truth track TCA
   
   //=============== Private members.
  private:
@@ -100,17 +94,17 @@ public:
    *@param prob    Output probabilities.
    */
   void DoPidMatch(PndPidCandidate& pidcand, PndPidProbability& prob);
-
-  FairRootManager *fManager;
-
-  // Classifiers variables and functions
-  //
-  void SetDefaultWeightsPath();
+  
   const std::vector<float>& PrepareEvtVect(const PndPidCandidate& pidcand)const;
+  
+  FairRootManager *fManager;
+  
+  // Classifiers variables and functions
+  void SetDefaultWeightsPath();
 
   //! Variable names container.
   std::vector<std::string> fVarNames;
-
+  
   //! Class names container.
   std::vector<std::string> fClassNames;
   
@@ -122,7 +116,13 @@ public:
   
   //! Number of neighbors
   int fNumNeigh;
-
+  
+  TClonesArray* fPidChargedCand; //! PndPidCandidate TCA for charged particles
+  TClonesArray* fPidNeutralCand; //! PndPidCandidate TCA for neutral particles
+  TClonesArray* fPidChargedProb; //! PndPidProbability TCA for charged particles
+  TClonesArray* fPidNeutralProb; //! PndPidProbability TCA for neutral particles
+  TClonesArray* fMCTrack;        //! Monte-Carlo Truth track TCA
+  
   ClassDef(PndPidMvaAssociatorTask, 1)
 };
-#endif//End of interface definition (PndPidAssociatorTask)
+#endif//End of interface definition (PndPidMvaAssociatorTask)

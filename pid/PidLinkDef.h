@@ -10,9 +10,11 @@
 #pragma link C++ class  PndPidMvdPar+;
 #pragma link C++ class  PndPidCorrelator+;
 #pragma link C++ class  PndPidIdealAssociatorTask+;
-#pragma link C++ class  PndPidMvaAssociatorTask+;
 #pragma link C++ class  PndPidMvdAssociatorTask+;
 #pragma link C++ class  PndPidDrcAssociatorTask+;
 #pragma link C++ class  PndPidContFact+;
+
+#pragma link C++ class  PndPidMvaAssociatorTask+;
+#pragma link C++ class  PndPidEmcAssociatorTask+;
 #endif
 

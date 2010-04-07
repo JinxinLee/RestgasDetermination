@@ -78,9 +78,10 @@ PidClassifier/LVQ1/PndLVQTrain.cpp
 
 ###### Associator
 PidClassifier/PndPidIdealAssociatorTask.cxx
-PidClassifier/PndPidMvaAssociatorTask.cxx
 PidClassifier/PndPidMvdAssociatorTask.cxx
 PidClassifier/PndPidDrcAssociatorTask.cxx
+PidClassifier/PndPidMvaAssociatorTask.cxx
+PidClassifier/PndPidEmcAssociatorTask.cxx
 
 ###### Parameters
 PidClassifier/PndPidMvdPar.cxx
@@ -104,9 +105,10 @@ PidClassifier/PndMvaVariable.h
 
 ###### Dummy
 PidClassifier/PndPidIdealAssociatorTask.h
-PidClassifier/PndPidMvaAssociatorTask.h
 PidClassifier/PndPidMvdAssociatorTask.h
 PidClassifier/PndPidDrcAssociatorTask.h
+PidClassifier/PndPidMvaAssociatorTask.h
+PidClassifier/PndPidEmcAssociatorTask.h
 
 ###### Parameters
 PidClassifier/PndPidMvdPar.h
