@@ -183,9 +183,10 @@ void PndPidMvaAssociatorTask::Exec(Option_t* option)
 void PndPidMvaAssociatorTask::DoPidMatch(PndPidCandidate& pidcand,
 					 PndPidProbability& prob)
 {
-  std::vector<float> evtPidData = PrepareEvtVect(pidcand);
   std::map<std::string, float> out;
-  fKnnCls->GetMvaValues(evtPidData, out);
+  //std::vector<float> evtPidData = PrepareEvtVect(pidcand);
+  //fKnnCls->GetMvaValues(evtPidData, out);
+  fKnnCls->GetMvaValues(PrepareEvtVect(pidcand), out);
   
 #ifdef DEBUG
   std::cout << "****************************************************"<< std::endl;

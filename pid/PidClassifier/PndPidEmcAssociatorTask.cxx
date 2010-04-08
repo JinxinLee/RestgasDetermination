@@ -53,6 +53,9 @@ const std::vector<std::string>& PndPidEmcAssociatorTask::SetEmcParNames() const
   std::vector<std::string>* VarNames = new std::vector<std::string>();
   VarNames->push_back("p");
   VarNames->push_back("emc");
+  VarNames->push_back("z20");
+  VarNames->push_back("z53");
+  VarNames->push_back("lat");
 
   return (*VarNames);
 }
