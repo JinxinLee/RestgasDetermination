@@ -51,6 +51,7 @@ rootlogon()
   if(isLibrary("libEnDrc"))gSystem->Load("libEnDrc");
 	if(isLibrary("libDsk"))gSystem->Load("libDsk");
 	if(isLibrary("libGlobal"))gSystem->Load("libGlobal");
+	if(isLibrary("libMCMatch"))gSystem->Load("libMCMatch");
 	
 }
 
