@@ -90,11 +90,11 @@ void PndTrackCandDraw::AddBoxesTrackCand(TEveBoxSet* set, TObject* obj, Int_t i)
 
 	      if( 0 == strcmp(obj->ClassName() , "GFTrackCand")) {
 	        tc=(GFTrackCand *)obj;
-	        std::cout<<"fTrackCandList is full of TrackCands"<<std::endl;
+	        std::cout<<"fTrackCandList is full of GFTrackCands"<<std::endl;
 	      } else if ( 0 == strcmp(obj->ClassName() , "PndLhePidTrack") ) {
 	        pidtc=(PndLhePidTrack *)fTrackCandList->At(i);
-	        tc=pidtc->GetTrackCand();
 	        std::cout<<"fTrackCandList is full of PndLhePidTracks"<<std::endl;
+	        AddBoxesPndTrackCand(set,pidtc->GetTrackCand(), i);
 	      } else if ( 0 == strcmp(obj->ClassName(), "PndTpcLheTrack")){
 	    	  std::cout<<"fTrackCandList is full of PndTpcLheTracks"<<std::endl;
 //	    	  lhetc = (PndTpcLheTrack*)obj;
