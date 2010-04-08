@@ -101,6 +101,7 @@ PndMvdStripHitProducer::~PndMvdStripHitProducer()
 {
   if (0!=fGeoH) delete fGeoH;
   if (0!=fDigiParameterList) delete fDigiParameterList;
+  if (0!=TotCalc) delete TotCalc;
 }
 // -------------------------------------------------------------------------
 
@@ -221,6 +222,8 @@ InitStatus PndMvdStripHitProducer::Init()
 //  if(fVerbose>0) fDigiParRect->Print();
 //  if(fVerbose>0) fDigiParTrap->Print();
 
+  TotCalc = new PndMvdCalcTot();
+
   return kSUCCESS;
 }
 // -------------------------------------------------------------------------
@@ -232,6 +235,7 @@ void PndMvdStripHitProducer::Exec(Option_t* opt)
 {
   // Reset output array
   fStripArray->Delete();
+  TotCalc->SetStartOffset(); //leads to a different startoffset for every event
 
   // Declare some variables
   PndMvdMCPoint *point = NULL;
@@ -340,6 +344,7 @@ void PndMvdStripHitProducer::AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, T
     {
       aDigi->AddCharge(charge);
       aDigi->AddIndex(iPoint);
+      aDigi->SetTot(TotCalc->GetTot(aDigi->GetCharge()));
       found = kTRUE;
       //		((PndMvdDigiStrip*)(*fStripArray)[kstr])->AddCarge(charge);
       //		((PndMvdDigiStrip*)(*fStripArray)[kstr])->AddIndex(iPoint);
@@ -349,7 +354,7 @@ void PndMvdStripHitProducer::AddDigi(Int_t &iStrip, Int_t iPoint, Int_t detID, T
   if(found == kFALSE){//TODO: Simulate a timestamp
 	  std::vector<Int_t>indices;
 	  indices.push_back(iPoint);
-    new ((*fStripArray)[iStrip]) PndMvdDigiStrip(indices,detID,detname,fe,chan,charge, 0) ;
+    new ((*fStripArray)[iStrip]) PndMvdDigiStrip(indices,detID,detname,fe,chan,charge, 0, TotCalc->GetTot(charge)) ;
     iStrip++;
   }
 }
@@ -464,6 +469,7 @@ Bool_t PndMvdStripHitProducer::SelectSensorParams(TString detname)
       fCurrentStripCalcTop = fStripCalcTop[sensortype];
       fCurrentStripCalcBot = fStripCalcBot[sensortype];
       fCurrentDigiPar = digipar;
+      TotCalc->SetParameter(fCurrentDigiPar->GetRaisingTime(),fCurrentDigiPar->GetFallingRatio(),fCurrentDigiPar->GetThreshold());
       return kTRUE;
     }
   }

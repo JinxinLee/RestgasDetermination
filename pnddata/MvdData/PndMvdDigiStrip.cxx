@@ -5,16 +5,16 @@ PndMvdDigiStrip::PndMvdDigiStrip(){
 }
 
 PndMvdDigiStrip::PndMvdDigiStrip(std::vector<Int_t> index, Int_t detID,
-  TString detName, Int_t fe, Int_t chan, Double_t charge, Int_t timestamp)
-: PndMvdDigi(index,detID,detName,fe,charge)
+  TString detName, Int_t fe, Int_t chan, Double_t charge, Int_t timestamp, Double_t tot)
+: PndMvdDigi(index,detID,detName,fe,charge,tot)
 {
 	fChannel = chan;
 	fTimestamp = timestamp;
 }
 
 PndMvdDigiStrip::PndMvdDigiStrip(Int_t index, Int_t detID,
-  TString detName, Int_t fe, Int_t chan, Double_t charge, Int_t timestamp)
-: PndMvdDigi(index,detID,detName,fe,charge)
+  TString detName, Int_t fe, Int_t chan, Double_t charge, Int_t timestamp, Double_t tot)
+: PndMvdDigi(index,detID,detName,fe,charge,tot)
 {
 	fChannel = chan;
 	fTimestamp = timestamp;

@@ -73,6 +73,7 @@ MvdMC/PndMvdDetector.cxx
 MvdMC/PndMvdGeo.cxx
 MvdMC/PndMvdGeoPar.cxx
 
+MvdDigi/PndMvdCalcTot.cxx
 MvdDigi/PndMvdCalcFePixel.cxx
 MvdDigi/PndMvdCalcPixel.cxx
 MvdDigi/PndMvdCalcStrip.cxx

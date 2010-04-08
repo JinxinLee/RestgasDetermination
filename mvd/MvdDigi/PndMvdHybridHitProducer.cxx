@@ -39,7 +39,7 @@ PndMvdHybridHitProducer::PndMvdHybridHitProducer() :
 }
 // -------------------------------------------------------------------------
 
-PndMvdHybridHitProducer::PndMvdHybridHitProducer(Double_t lx, Double_t ly, Double_t threshold, Double_t noise) :
+PndMvdHybridHitProducer::PndMvdHybridHitProducer(Double_t lx, Double_t ly, Double_t threshold, Double_t noise, Double_t raisingtime, Double_t fallingratio, Double_t clockfrequency) :
   FairTask("MVD Hybrid Digi Producer (PndMvdHybridHitProducer)")
 {
   fBranchName   = "MVDPoint";
@@ -53,6 +53,9 @@ PndMvdHybridHitProducer::PndMvdHybridHitProducer(Double_t lx, Double_t ly, Doubl
   fEventNr = 0;
   fcols = 104;
   frows = 104;
+  fRaisingTime = raisingtime;
+  fFallingRatio = fallingratio;
+  fClockFrequency = clockfrequency;
   fOverwriteParams = kTRUE;
   fPersistance = kTRUE;
   if(fVerbose>0) std::cout << "MVD Hybrid Digi Producer created, Parameters will be overwritten in RTDB" << std::endl;
@@ -64,6 +67,7 @@ PndMvdHybridHitProducer::PndMvdHybridHitProducer(Double_t lx, Double_t ly, Doubl
 PndMvdHybridHitProducer::~PndMvdHybridHitProducer()
 {
 	delete fGeoH;
+	delete TotCalc;
 }
 // -------------------------------------------------------------------------
 
@@ -123,9 +127,12 @@ InitStatus PndMvdHybridHitProducer::Init()
     fDigiPar->SetFERows(frows);
     fDigiPar->setInputVersion(ana->GetRunId(),1);
     fDigiPar->setChanged();
+    fDigiPar->SetRaisingTime(fRaisingTime);
+    fDigiPar->SetFallingRatio(fFallingRatio);
+    fDigiPar->SetClockFrequency(fClockFrequency);
 	if(fVerbose>0) std::cout << "-I- PndMvdHybridHitProducer: RTDB updated" << std::endl;
-
   }
+
   fDigiPar->Print();
 
     flx = fDigiPar->GetXPitch();
@@ -134,6 +141,11 @@ InitStatus PndMvdHybridHitProducer::Init()
     fnoise = fDigiPar->GetNoise();
     fcols = fDigiPar->GetFECols();
     frows = fDigiPar->GetFERows();
+    fRaisingTime = fDigiPar->GetRaisingTime();
+    fFallingRatio = fDigiPar->GetFallingRatio();
+    fClockFrequency = fDigiPar->GetClockFrequency();
+
+    TotCalc = new PndMvdCalcTot(fRaisingTime, fFallingRatio, fthreshold, fClockFrequency);
 
    if(fVerbose>0) std::cout << "-I- PndMvdHybridHitProducer: Intialisation successfull" << std::endl;
 
@@ -156,7 +168,7 @@ void PndMvdHybridHitProducer::Exec(Option_t* opt)
   PndMvdMCPoint *point = NULL;
 
 //  Int_t detID = 0;      // Detector ID
-
+  TotCalc->SetStartOffset();	//leads to a time offset which is different for every event
 
   // Loop over PndMvdMCPoints
   Int_t
@@ -246,7 +258,7 @@ void PndMvdHybridHitProducer::Exec(Option_t* opt)
 	    new ((*fPixelArray)[iFePixel++])
 	          PndMvdDigiPixel( fPixelList[iPix].GetMCIndex(), kMVDHitsPixel, fPixelList[iPix].GetDetName() ,fPixelList[iPix].GetFE(),
 	                       fPixelList[iPix].GetCol(), fPixelList[iPix].GetRow(),
-	                       fPixelList[iPix].GetCharge());
+	                       fPixelList[iPix].GetCharge(), TotCalc->GetTot( fPixelList[iPix].GetCharge()) );
 //	    new ((*fPixelArray)[iFePixel++])
 //	          PndMvdDigiPixel( fPixelList[iPix].GetFirstMCIndex(), detID, fPixelList[iPix].GetDetName() ,fPixelList[iPix].GetFE(),
 //	                       fPixelList[iPix].GetCol(), fPixelList[iPix].GetRow(),

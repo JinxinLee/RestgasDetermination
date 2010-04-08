@@ -15,6 +15,7 @@
 
 #include "PndGeoHandling.h"
 #include "PndMvdCalcStrip.h"
+#include "PndMvdCalcTot.h"
 
 #include <string>
 #include <vector>
@@ -184,6 +185,7 @@ class PndMvdStripHitProducer : public FairTask
 
 //  Int_t    stripHits;
 
+  PndMvdCalcTot* TotCalc;
 
   ClassDef(PndMvdStripHitProducer,5);
 

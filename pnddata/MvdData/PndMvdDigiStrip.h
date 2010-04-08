@@ -29,9 +29,9 @@ class PndMvdDigiStrip : public PndMvdDigi
     PndMvdDigiStrip();
 
 
-    PndMvdDigiStrip(std::vector<Int_t> index, Int_t detID, TString detName, Int_t fe, Int_t chan, Double_t charge, Int_t timestamp = -1);
+    PndMvdDigiStrip(std::vector<Int_t> index, Int_t detID, TString detName, Int_t fe, Int_t chan, Double_t charge, Int_t timestamp = -1, Double_t tot = -1.);
 
-    PndMvdDigiStrip(Int_t index, Int_t detID, TString detName, Int_t fe, Int_t chan, Double_t charge, Int_t timestamp = -1);
+    PndMvdDigiStrip(Int_t index, Int_t detID, TString detName, Int_t fe, Int_t chan, Double_t charge, Int_t timestamp = -1, Double_t tot = -1.);
     ~PndMvdDigiStrip(){};
     
     friend std::ostream& operator<< (std::ostream& out, PndMvdDigiStrip& digi){

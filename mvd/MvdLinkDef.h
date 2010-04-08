@@ -25,6 +25,7 @@
 //digi
 #pragma link C++ class PndMvdHybridHitProducer+;
 #pragma link C++ class PndMvdStripHitProducer+;
+#pragma link C++ class PndMvdCalcTot;
 #pragma link C++ class PndMvdCalcPixel;
 #pragma link C++ class PndMvdCalcFePixel;
 #pragma link C++ class PndMvdCalcStrip;
@@ -35,6 +36,7 @@
 #pragma link C++ class PndMvdHitProducerIdeal+;
 #pragma link C++ class PndMvdNoiseProducer+;
 #pragma link C++ class PndMvdCalcFePixel+;
+#pragma link C++ class PndMvdCalcTot+;
 
 #pragma link C++ class PndMvdMCEventAna+;
 #pragma link C++ class PndMvdEventAna+;

@@ -38,8 +38,8 @@ class PndMvdDigi : public FairMultiLinkedData
       }
 
 	public : PndMvdDigi();
-		 PndMvdDigi(std::vector<Int_t> index, Int_t detID, TString detName, Int_t fe, Double_t charge);
-		 PndMvdDigi(Int_t index, Int_t detID, TString detName, Int_t fe, Double_t charge);
+		PndMvdDigi(std::vector<Int_t> index, Int_t detID, TString detName, Int_t fe, Double_t charge, Double_t tot = -1);
+		PndMvdDigi(Int_t index, Int_t detID, TString detName, Int_t fe, Double_t charge, Double_t tot = -1);
 		/**<constructor
 		* \param index position of PndMvdMCPoint in TClonesArray
 		* \param detID detector ID (from/for CbmPoint/Hit)
@@ -53,6 +53,7 @@ class PndMvdDigi : public FairMultiLinkedData
 		Int_t GetFE() const { return fFE;}
 		TString GetDetName()   const { return fDetName; }
 		Double_t GetCharge()	 const { return fCharge; }
+		Double_t GetTot()	 const { return fTot; }
 		Int_t GetDetID() const { return fDetID;}
 		std::vector<Int_t> GetIndices() const {
 			std::vector<Int_t> result;
@@ -72,6 +73,7 @@ class PndMvdDigi : public FairMultiLinkedData
 			SetLinks(FairMultiLinkedData(kMVDPoint, index));
 		}
 		void AddCharge(double charge){fCharge += charge;}
+		void SetTot(double tot){fTot = tot;}
 
 		virtual void Print() {
 			std::cout << *this;
@@ -80,6 +82,7 @@ class PndMvdDigi : public FairMultiLinkedData
 		Int_t fDetID;
 		TString fDetName;
 		Double_t fCharge;
+		Double_t fTot;
 		Int_t fFE;
 
 	ClassDef(PndMvdDigi,1);
