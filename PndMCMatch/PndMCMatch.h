@@ -66,8 +66,10 @@ public:
 
 	friend std::ostream& operator<< (std::ostream& out, const PndMCMatch& match){
 		for (int i = 0; i < match.GetNMCStages(); i++){
-			match.GetMCStage(i)->Print(out);
-			out << std::endl;
+			if (match.GetMCStage(i)->GetLoaded() == kTRUE){
+				match.GetMCStage(i)->Print(out);
+				out << std::endl;
+			}
 		}
 		return out;
 	}

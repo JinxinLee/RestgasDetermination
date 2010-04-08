@@ -9,13 +9,13 @@
 
 ClassImp(PndMCStage);
 
-PndMCStage::PndMCStage():fWeight(1.0) {
+PndMCStage::PndMCStage():fWeight(1.0), fLoaded(kFALSE), fFill(kFALSE) {
 }
 
 PndMCStage::~PndMCStage() {
 }
 
 PndMCStage::PndMCStage(fDetectorType id, std::string fileName, std::string branchName, Double_t weight)
-: PndMCObject(id), fFileName(fileName), fBranchName(branchName), fWeight(weight)
+: PndMCObject(id), fFileName(fileName), fBranchName(branchName), fWeight(weight), fLoaded(kFALSE), fFill(kFALSE)
 {}
 

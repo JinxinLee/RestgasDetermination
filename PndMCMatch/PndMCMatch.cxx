@@ -263,6 +263,7 @@ void PndMCMatch::LoadInMCLists(TClonesArray* myLinkArray){
 		if (IsTypeInList((fDetectorType)myLink->GetSource())){
 			//fList[(fDetectorType)myLink->GetSource()]->ClearEntries();
 			fList[(fDetectorType)myLink->GetSource()]->SetEntry(*myLink);
+			fList[(fDetectorType)myLink->GetSource()]->SetLoaded(kTRUE);
 		}
 	}
 }

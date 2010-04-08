@@ -65,7 +65,7 @@ public:
 		return result;
 	}
 
-	void ClearEntries(){fStage.clear();}
+	virtual void ClearEntries(){fStage.clear();}
 
 	virtual void Print(std::ostream& out = std::cout){out << *this;}
 

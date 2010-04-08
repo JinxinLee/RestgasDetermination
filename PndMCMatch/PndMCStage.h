@@ -25,7 +25,9 @@ public:
 		PndMCObject((PndMCObject)mcStage),
 		fBranchName(mcStage.GetBranchName()),
 		fFileName(mcStage.GetFileName()),
-		fWeight(mcStage.GetWeight())
+		fWeight(mcStage.GetWeight()),
+		fLoaded(mcStage.GetLoaded()),
+		fFill(mcStage.GetFill())
 	{}
 
 	virtual ~PndMCStage();
@@ -33,10 +35,14 @@ public:
 	void SetBranchName(std::string branchName)	{ fBranchName = branchName; }
 	void SetFileName(std::string fileName)			{ fFileName = fileName; }
 	void SetWeight(Double_t weight)				{ fWeight = weight; }
+	void SetLoaded(Bool_t loaded)					{ fLoaded = loaded; }
+	void SetFill(Bool_t fill)						{ fFill = fill; }
 
 	std::string	GetBranchName(void) 	const {return fBranchName;}
 	std::string GetFileName(void) 		const {return fFileName;}
 	Double_t 	GetWeight(void) 		const {return fWeight;}
+	Bool_t 		GetLoaded(void)		const {return fLoaded;}
+	Bool_t		GetFill(void)			const {return fFill;}
 
 	void operator=(const PndMCStage& result){
 		PndMCObject::operator=(result);
@@ -44,6 +50,12 @@ public:
 		fFileName = result.GetFileName();
 		fWeight = result.GetWeight();
 		SetStage(result.GetEntryVector());
+	}
+
+	virtual void ClearEntries()
+	{
+		PndMCObject::ClearEntries();
+		fLoaded = kFALSE;
 	}
 
 	virtual void Print(std::ostream& out){out << *this;}
@@ -58,6 +70,8 @@ private:
 	std::string fBranchName;
 	std::string fFileName;
 	Double_t fWeight;
+	Bool_t fLoaded;	///< indicates if this stage was loaded already from a Link file
+	Bool_t fFill; ///< indicates if a corresponding DataFile with FairLinks exists to fill this stage
 
 
 	ClassDef(PndMCStage, 1);
