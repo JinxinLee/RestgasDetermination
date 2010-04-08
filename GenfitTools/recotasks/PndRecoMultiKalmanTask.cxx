@@ -132,7 +132,7 @@ void PndRecoMultiKalmanTask::Exec(Option_t* opt)
 	    TClonesArray& trkRef = *fFitTrackArrayElectron;
 	    Int_t size = trkRef.GetEntriesFast();
 	    PndTrack* pndTrack = new(trkRef[size]) PndTrack(fitTrack->GetParamFirst(), fitTrack->GetParamLast(), fitTrack->GetTrackCand(),
-							    fitTrack->GetFlag(), fitTrack->GetChi2(), fitTrack->GetNDF(), fitTrack->GetPidHypo(), itr);
+							    fitTrack->GetFlag(), fitTrack->GetChi2(), fitTrack->GetNDF(), fitTrack->GetPidHypo(), itr, kLheTrack);
 	  }
       } // end of electron
       
@@ -145,7 +145,7 @@ void PndRecoMultiKalmanTask::Exec(Option_t* opt)
 	    TClonesArray& trkRef = *fFitTrackArrayMuon;
 	    Int_t size = trkRef.GetEntriesFast();
 	    PndTrack* pndTrack = new(trkRef[size]) PndTrack(fitTrack->GetParamFirst(), fitTrack->GetParamLast(), fitTrack->GetTrackCand(),
-							    fitTrack->GetFlag(), fitTrack->GetChi2(), fitTrack->GetNDF(), fitTrack->GetPidHypo(), itr);
+							    fitTrack->GetFlag(), fitTrack->GetChi2(), fitTrack->GetNDF(), fitTrack->GetPidHypo(), itr, kLheTrack);
 	  }
       } // end of Muon
       
@@ -158,7 +158,7 @@ void PndRecoMultiKalmanTask::Exec(Option_t* opt)
 	    TClonesArray& trkRef = *fFitTrackArrayPion;
 	    Int_t size = trkRef.GetEntriesFast();
 	    PndTrack* pndTrack = new(trkRef[size]) PndTrack(fitTrack->GetParamFirst(), fitTrack->GetParamLast(), fitTrack->GetTrackCand(),
-							    fitTrack->GetFlag(), fitTrack->GetChi2(), fitTrack->GetNDF(), fitTrack->GetPidHypo(), itr);
+							    fitTrack->GetFlag(), fitTrack->GetChi2(), fitTrack->GetNDF(), fitTrack->GetPidHypo(), itr, kLheTrack);
 	  }
       } // end of Pion
       
@@ -171,7 +171,7 @@ void PndRecoMultiKalmanTask::Exec(Option_t* opt)
 	    TClonesArray& trkRef = *fFitTrackArrayKaon;
 	    Int_t size = trkRef.GetEntriesFast();
 	    PndTrack* pndTrack = new(trkRef[size]) PndTrack(fitTrack->GetParamFirst(), fitTrack->GetParamLast(), fitTrack->GetTrackCand(),
-							    fitTrack->GetFlag(), fitTrack->GetChi2(), fitTrack->GetNDF(), fitTrack->GetPidHypo(), itr);
+							    fitTrack->GetFlag(), fitTrack->GetChi2(), fitTrack->GetNDF(), fitTrack->GetPidHypo(), itr, kLheTrack);
 	  }
       } // end of Kaon
       
@@ -184,7 +184,7 @@ void PndRecoMultiKalmanTask::Exec(Option_t* opt)
 	    TClonesArray& trkRef = *fFitTrackArrayProton;
 	    Int_t size = trkRef.GetEntriesFast();
 	    PndTrack* pndTrack = new(trkRef[size]) PndTrack(fitTrack->GetParamFirst(), fitTrack->GetParamLast(), fitTrack->GetTrackCand(),
-							    fitTrack->GetFlag(), fitTrack->GetChi2(), fitTrack->GetNDF(), fitTrack->GetPidHypo(), itr);
+							    fitTrack->GetFlag(), fitTrack->GetChi2(), fitTrack->GetNDF(), fitTrack->GetPidHypo(), itr, kLheTrack);
 	  }
       } // end of Proton
       
