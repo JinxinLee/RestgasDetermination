@@ -374,7 +374,9 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
           new((*fHitArray)[i]) PndMvdHit(detID,detnametop.Data(),hitPos,hitErr,
                                          topIndex,mycharge,oneclusterbot.size()+oneclustertop.size(),mcindex);
           ((PndMvdHit*)((*fHitArray)[i]))->SetBotIndex(botIndex);
-          //((PndMvdHit*)((*fHitArray)[i]))->SetLink(FairLink(kMVDClusterStrip, top/bot Index?));
+          ((PndMvdHit*)((*fHitArray)[i]))->SetLink(FairLink(kMVDClusterStrip, topIndex));
+          ((PndMvdHit*)((*fHitArray)[i]))->AddLink(FairLink(kMVDClusterStrip, botIndex));
+
         } else {
           if (fVerbose > 2) std::cout<<"Cluster charge contents too different"<<std::endl;
         }
