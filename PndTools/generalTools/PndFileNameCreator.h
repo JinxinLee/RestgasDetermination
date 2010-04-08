@@ -2,6 +2,13 @@
 /// @author Tobias Stockmanns <t.stockmanns@fz-juelich.de>
 /// @brief A simple class which adds the corresponding file extensions to a given base class
 ///
+/// PndFileNameCreator takes the simulation filename and creates all the other filenames of a simulation chain
+/// by adding an extension to the simulation filename. Example: <SimulationFileName>.root --> <SimulationFileName>_<extension>.root.
+/// The Extension is predefined for the different simulation stages but a custom extension can be given in the method:
+/// GetCustomFileName.
+/// If the cut parameter is set to true an existing extension of the given fileName is replaced by a new extension.
+/// Example: <SimulationFileName>_<OldExtension>.root --> <SimulationFileName>_<NewExtension>.root. An extension is defined
+/// as the last part of a FileName which is separated by a "_" from the rest of the FileName.
 
 #ifndef PNDFILENAMECREATOR_H
 #define PNDFILENAMECREATOR_H
@@ -18,7 +25,7 @@ class PndFileNameCreator : public TObject
 			PndFileNameCreator(std::string fileName);
 
 			void SetFileName(std::string fileName){fFileName = fileName;};
-      void SetVerbose(Int_t v) {fVerbose = v;};
+			void SetVerbose(Int_t v) {fVerbose = v;};
 			std::string GetFileName() const {return fFileName;};
 
 			std::string GetSimFileName(bool cut = false);

@@ -1,24 +1,24 @@
-// -----------------------------------------------------------------
-//
-//          PndStringSeparator
-//
-//          Version 1.0
-//            by
-//          Tobias Stockmanns
-//  Seperates an input string into substrings and stores them in a
-//  string vector. The seperation criteria is a string of characters.
-//  If no delimiters are given the default delimiter " " is used.
-//
-//  Example:
-//    std::vector<std::string> fOutput
-//    TPndStringVector fInput("Column:Row Type: Test ", ": ");
-//    fOutput = fInput.GetStringVector();
-//
-//    fOutput[0] = "Column"
-//    fOutput[1] = "Row"
-//    fOutput[2] = "Type"
-//    fOutput[3] = "Test"
-//
+/// -----------------------------------------------------------------
+///
+///          PndStringSeparator
+///
+///          Version 1.0
+///            by
+///          Tobias Stockmanns
+///  Seperates an input string into substrings and stores them in a
+///  string vector. The seperation criteria is a string of characters.
+///  If no delimiters are given the default delimiter " " is used.
+///
+///  Example:
+///    std::vector<std::string> fOutput
+///    TPndStringVector fInput("Column:Row Type: Test ", ": ");
+///    fOutput = fInput.GetStringVector();
+///
+///    fOutput[0] = "Column"
+///    fOutput[1] = "Row"
+///    fOutput[2] = "Type"
+///    fOutput[3] = "Test"
+///
 #ifndef PNDSTRINGSEPARATOR_H
 #define PNDSTRINGSEPARATOR_H
 
