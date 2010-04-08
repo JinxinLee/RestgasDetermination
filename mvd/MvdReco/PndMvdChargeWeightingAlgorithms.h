@@ -4,6 +4,7 @@
 #include <vector>
 #include "TClonesArray.h"
 #include "PndMvdDigiStrip.h"
+#include "PndMvdRecoCharge.h"
 class PndMvdCluster;
 //class RunInfo;
 class PndMvdCalcStrip;
@@ -23,6 +24,7 @@ class PndMvdChargeWeightingAlgorithms
 
 public:
 	PndMvdChargeWeightingAlgorithms(TClonesArray* arr);
+	PndMvdChargeWeightingAlgorithms(TClonesArray* arr, Double_t tr, Double_t a, Double_t threshold);
 	~PndMvdChargeWeightingAlgorithms();
 
 	   /**
@@ -109,11 +111,12 @@ public:
 
 private:
 
-	Double_t DigiCharge(Int_t digiIndex){return ((PndMvdDigiStrip*)(fDigiArray->At(digiIndex)))->GetCharge(); };
+	Double_t DigiCharge(Int_t digiIndex){return ChargeReco->GetCharge(*((PndMvdDigiStrip*)(fDigiArray->At(digiIndex))));};
 	Int_t DigiStripno(Int_t digiIndex);
 	double _erfmod(double x, double p0, double p1, double p2, double p3);
 	TClonesArray* fDigiArray;
 	PndMvdCalcStrip* fCalcStrip;
+	PndMvdRecoCharge* ChargeReco;
 
 	ClassDef(PndMvdChargeWeightingAlgorithms,0);
 };

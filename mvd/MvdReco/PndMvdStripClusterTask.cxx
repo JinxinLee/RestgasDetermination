@@ -45,6 +45,7 @@ PndMvdStripClusterTask::PndMvdStripClusterTask() :
 {
   fChargeCut = 1.e8; // this ist really large and shall have no effect
   fDigiParameterList = new TList();
+  fDigiParameterList->SetOwner();
   fPersistance = kTRUE;
 }
 
@@ -54,9 +55,33 @@ PndMvdStripClusterTask::PndMvdStripClusterTask() :
 // -----   Destructor   ----------------------------------------------------
 PndMvdStripClusterTask::~PndMvdStripClusterTask()
 {
-  if(0!=fGeoH)  delete fGeoH;
+  if(0!=fGeoH) delete fGeoH;
   if(0!=fDigiParameterList) delete fDigiParameterList;
-  if(0!=fChargeAlgos) delete fChargeAlgos;
+  for(std::map<const char*,PndMvdStripClusterBuilder*>::iterator it = fClusterFinderList.begin();
+        it != fClusterFinderList.end(); it++){
+	  if(0 != it->second) delete it->second;
+	  it->second = 0;
+  }
+  for( std::map<const char*,PndMvdCalcStrip*>::iterator it = fStripCalcTop.begin();
+          it != fStripCalcTop.end(); it++){
+  	  if(0 != it->second) delete it->second;
+  	  it->second = 0;
+  }
+  for( std::map<const char*,PndMvdCalcStrip*>::iterator it = fStripCalcBot.begin();
+           it != fStripCalcBot.end(); it++){
+   	  if(0 != it->second) delete it->second;
+   	  it->second = 0;
+   }
+  for(std::map<const char*,PndMvdRecoCharge*>::iterator it = fChargeCalc.begin();
+          it != fChargeCalc.end(); it++){
+	  if(0 != it->second) delete it->second;
+  	  it->second = 0;
+  }
+  for(std::map<const char*,PndMvdChargeWeightingAlgorithms*>::iterator it = fChargeAlgos.begin();
+          it != fChargeAlgos.end(); it++){
+	  if(0 != it->second) delete it->second;
+  	  it->second = 0;
+  }
 }
 // -------------------------------------------------------------------------
 
@@ -112,6 +137,8 @@ void PndMvdStripClusterTask::SetCalculators()
     fStripCalcTop[senstype]->SetVerboseLevel(fVerbose);
     fStripCalcBot[senstype]=new PndMvdCalcStrip(digipar,kBOTTOM);
     fStripCalcBot[senstype]->SetVerboseLevel(fVerbose);
+    fChargeCalc[senstype]=new PndMvdRecoCharge(digipar->GetRaisingTime(),digipar->GetFallingRatio(),digipar->GetThreshold());
+    fChargeAlgos[senstype] = new PndMvdChargeWeightingAlgorithms(fDigiArray, digipar->GetRaisingTime(),digipar->GetFallingRatio(),digipar->GetThreshold());
     Int_t ClusterMod = digipar->GetClusterMod();
     Int_t RadChannel = digipar->GetRadChannel();
     Int_t RadTime    = digipar->GetRadTime();
@@ -160,8 +187,6 @@ InitStatus PndMvdStripClusterTask::Init()
   fGeoH = new PndGeoHandling(gGeoManager);
 
   SetCalculators();
-
-  fChargeAlgos = new PndMvdChargeWeightingAlgorithms(fDigiArray);
 
   std::cout << "-I- PndMvdStripClusterTask: Initialisation successfull with these parameters:" << std::endl;
   TIter params(fDigiParameterList);
@@ -376,7 +401,7 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
           ((PndMvdHit*)((*fHitArray)[i]))->SetBotIndex(botIndex);
           ((PndMvdHit*)((*fHitArray)[i]))->SetLink(FairLink(kMVDClusterStrip, topIndex));
           ((PndMvdHit*)((*fHitArray)[i]))->AddLink(FairLink(kMVDClusterStrip, botIndex));
-
+          
         } else {
           if (fVerbose > 2) std::cout<<"Cluster charge contents too different"<<std::endl;
         }
@@ -449,8 +474,10 @@ void PndMvdStripClusterTask::SetCurrentCalculators(PndMvdStripDigiPar* digipar)
   fCurrentStripCalcTop = fStripCalcTop[sensortype];
   fCurrentStripCalcBot = fStripCalcBot[sensortype];
   fCurrentDigiPar = digipar;
-  fChargeAlgos->SetCalcStrip(fCurrentStripCalcTop);
+  fCurrentChargeAlgos = fChargeAlgos[sensortype];
+  fCurrentChargeAlgos->SetCalcStrip(fCurrentStripCalcTop);
   fCurrentClusterfinder = fClusterFinderList[sensortype];
+  fCurrentChargeCalc = fChargeCalc[sensortype];
   fChargeCut = digipar->GetChargeCut();
   return;
 }
@@ -489,10 +516,10 @@ void PndMvdStripClusterTask::CalcMeanCharge(std::vector<Int_t> &onecluster, Doub
 		  { // calculate the mean charge and stripnumber
 		    PndMvdDigiStrip* myDigi = (PndMvdDigiStrip*)fDigiArray->At(*itDigi);
 		    fCurrentStripCalcTop->CalcFeChToStrip(myDigi->GetFE(), myDigi->GetChannel(), strip, side);
-				if(myDigi->GetCharge()<=0) Warning("CalcMeanCharge","Digi has a non-valid charge: c = %d electrons.",myDigi->GetCharge());
-		    charge += myDigi->GetCharge();
-		    meanstrip += myDigi->GetCharge() * strip;
-		    meanerr += myDigi->GetCharge()*myDigi->GetCharge(); 
+			if(fCurrentChargeCalc->GetCharge(*myDigi)<=0) Warning("CalcMeanCharge","Digi has a non-valid charge: c = %d electrons.",myDigi->GetCharge());
+			charge += fCurrentChargeCalc->GetCharge(*myDigi);
+			meanstrip += fCurrentChargeCalc->GetCharge(*myDigi) * strip;
+			meanerr += fCurrentChargeCalc->GetCharge(*myDigi)*fCurrentChargeCalc->GetCharge(*myDigi);
 		  }
 			if (charge > 0)
 			{
@@ -513,7 +540,7 @@ void PndMvdStripClusterTask::CalcMeanCharge(std::vector<Int_t> &onecluster, Doub
 	//} else {
 	//	//TODO: Apply other clusterfinder mean & error algorithms
 	//	if(fVerbose>1)std::cout<<"-W- PndMvdStripClusterTask::CalcMeanCharge: Using a preliminary Chargeweighting, please set fMeanAlgo = 0 ."<<std::endl;
-	//	fChargeAlgos->center_of_gravity(onecluster);
+	//	fCurrentChargeAlgos->center_of_gravity(onecluster);
 	//}
 
 }

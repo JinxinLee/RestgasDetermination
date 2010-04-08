@@ -25,6 +25,7 @@
 #include "PndMvdHybridHitProducer.h"
 #include "PndMvdStripHitProducer.h"
 #include "PndMvdStripClusterBuilder.h"
+#include "PndMvdRecoCharge.h"
 
 #include <string>
 #include <vector>
@@ -87,13 +88,17 @@ class PndMvdStripClusterTask : public FairTask
   //! Calculator objects
   std::map<const char*,PndMvdCalcStrip*> fStripCalcTop;
   std::map<const char*,PndMvdCalcStrip*> fStripCalcBot;
+  std::map<const char*,PndMvdRecoCharge*> fChargeCalc;
+  std::map<const char*,PndMvdChargeWeightingAlgorithms*> fChargeAlgos;
+
   PndMvdCalcStrip* fCurrentStripCalcTop;
   PndMvdCalcStrip* fCurrentStripCalcBot;
-
-    PndGeoHandling* fGeoH;      //! Geometry name handling
-    PndMvdChargeWeightingAlgorithms* fChargeAlgos;
-    PndMvdStripClusterBuilder* fCurrentClusterfinder;
-    std::map<const char*,PndMvdStripClusterBuilder*> fClusterFinderList;
+  PndMvdRecoCharge* fCurrentChargeCalc;  //class to calculate the charge from the tot value
+  PndMvdChargeWeightingAlgorithms* fCurrentChargeAlgos;
+  
+  PndGeoHandling* fGeoH;      //! Geometry name handling
+  PndMvdStripClusterBuilder* fCurrentClusterfinder;
+  std::map<const char*,PndMvdStripClusterBuilder*> fClusterFinderList;
 
 //     TH1F* fHChgDiff;
 //     TH1F* fHChgMC;

@@ -99,6 +99,10 @@ InitStatus PndMvdPixelClusterTask::Init()
   fParams.push_back(fDigiPar->GetClustRadius());
   fParams.push_back(fDigiPar->GetFECols());
   fParams.push_back(fDigiPar->GetFERows());
+  
+  fParams.push_back(fDigiPar->GetRaisingTime());
+  fParams.push_back(fDigiPar->GetFallingRatio());
+  fParams.push_back(fDigiPar->GetClockFrequency());
 
   fDigiPar->Print();
 
@@ -143,12 +147,16 @@ void PndMvdPixelClusterTask::Exec(Option_t* opt)
   std::vector<Double_t> mappingPar;
   mappingPar.push_back(fParams[1]);
   mappingPar.push_back(fParams[2]);
-//   mappingPar.push_back(0.01);
-//   mappingPar.push_back(0.01);
+//mappingPar.push_back(0.01);
+//mappingPar.push_back(0.01);
   mappingPar.push_back(fDigiPar->GetXPitch());
   mappingPar.push_back(fDigiPar->GetYPitch());
-
-  // do the backmapping with charge-weight
+//TOT -> charge reconstruction parameter
+  mappingPar.push_back(fDigiPar->GetRaisingTime());
+  mappingPar.push_back(fDigiPar->GetFallingRatio());
+  mappingPar.push_back(fDigiPar->GetThreshold());
+  
+//do the backmapping with charge-weight
   for (Int_t i = 0; i < clusters.size(); i++)
   {
 //    if(fVerbose>2) std::cout << clusters[i].size() << " " << std::endl;

@@ -16,9 +16,18 @@ ClassImp(PndMvdChargeWeightingAlgorithms);
 PndMvdChargeWeightingAlgorithms::PndMvdChargeWeightingAlgorithms(TClonesArray* arr)
 {
 	fDigiArray = arr;
+	ChargeReco = new PndMvdRecoCharge();
 }
+
+PndMvdChargeWeightingAlgorithms::PndMvdChargeWeightingAlgorithms(TClonesArray* arr, Double_t tr, Double_t a, Double_t threshold)
+{
+	fDigiArray = arr;
+	ChargeReco = new PndMvdRecoCharge(tr, a, threshold);
+}
+
 PndMvdChargeWeightingAlgorithms::~PndMvdChargeWeightingAlgorithms()
 {
+	delete(ChargeReco);
 }
 
 /*

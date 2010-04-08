@@ -14,7 +14,7 @@ std::vector< std::vector<Int_t> > PndMvdSimplePixelClusterFinder::GetClusters()
 
 	while (sizeTempHits != 0){
 		std::vector<Int_t> tempInt;
-		if (fHits[posHits[0]].GetCharge() == 0){
+		if (ChargeReco->GetCharge(fHits[posHits[0]]) == 0){
 			MoveHit(&posHits,0);
 		}
 		else {
@@ -24,7 +24,7 @@ std::vector< std::vector<Int_t> > PndMvdSimplePixelClusterFinder::GetClusters()
 			for (Int_t i = 0; i < sizeResultI; i++){
 				sizeTempHits = posHits.size();
 				for (Int_t j = 0; j < sizeTempHits; j++){
-					if (fHits[posHits[j]].GetCharge() == 0){
+					if (ChargeReco->GetCharge(fHits[posHits[j]]) == 0){
 								MoveHit(&posHits,j);
 								if (fVerbose > 1)
 									std::cout << "Charge too low!" << std::endl;

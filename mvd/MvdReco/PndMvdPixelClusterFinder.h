@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "PndMvdDigiPixel.h"
+#include "PndMvdRecoCharge.h"
 
 //! Base class for cluster finding algorithms
 /** @author Tobias Stockmanns <t.stockmanns@fz-juelich.de>
@@ -13,14 +14,17 @@
 class PndMvdPixelClusterFinder
 {
 public :
-  PndMvdPixelClusterFinder(){};
+  PndMvdPixelClusterFinder(){ ChargeReco = new PndMvdRecoCharge(); };
   PndMvdPixelClusterFinder(std::vector<Double_t> params, std::vector<PndMvdDigiPixel> hits)
   {
         fParams = params;
         fHits   = hits;
         fVerbose = 0;
+        if (fParams.size() > 3) ChargeReco = new PndMvdRecoCharge(fParams[3],fParams[4],fParams[5]);
+        else ChargeReco = new PndMvdRecoCharge();
   };
 //  virtual ~PndMvdPixelClusterFinder();
+  virtual ~PndMvdPixelClusterFinder(){delete(ChargeReco);};
   virtual std::vector< std::vector < Int_t > > GetClusters() = 0;
   void Print();
   void Print(std::vector<PndMvdDigiPixel> hits);
@@ -31,6 +35,9 @@ public :
   Int_t fVerbose;
   std::vector<Double_t> fParams;
 
+protected :
+  PndMvdRecoCharge* ChargeReco;
+	
   ClassDef(PndMvdPixelClusterFinder, 2);
 };
 

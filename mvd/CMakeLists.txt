@@ -112,6 +112,7 @@ set(MVDRECO_SRCS
 
 
 #MvdReco/PndMvdRecoTask.cxx
+MvdReco/PndMvdRecoCharge.cxx
 MvdReco/PndMvdClusterTask.cxx
 MvdReco/PndMvdPixelClusterFinder.cxx
 MvdReco/PndMvdSimplePixelClusterFinder.cxx

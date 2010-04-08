@@ -12,6 +12,9 @@
 //! @param [1] = Number of rows in FE
 //! @param [2] = Pixel dimension in x
 //! @param [3] = Pixel dimension in y
+//! @param [4] = threshold
+//! @param [5] = raising time of TOT signal
+//! @param [6] = falling ratio of TOT signal
 //! \sa PndMvdPixelBackMapping.h
 //TODO replace params with parameter database values
 class PndMvdChargeWeightedPixelMapping : public PndMvdPixelBackMapping

@@ -10,6 +10,7 @@
 //data
 
 //reco
+#pragma link C++ class PndMvdRecoCharge+;
 #pragma link C++ class PndMvdIdealRecoTask+;
 //#pragma link C++ class PndMvdRecoTask+;
 #pragma link C++ class PndMvdPixelClusterTask+;

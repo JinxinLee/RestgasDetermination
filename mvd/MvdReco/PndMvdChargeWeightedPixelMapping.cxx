@@ -12,7 +12,7 @@ PndMvdHit PndMvdChargeWeightedPixelMapping::GetCluster()
 	//Double_t local[3], master[3];
 
 	if (fDigiArray.size() == 1){
-		if (fDigiArray[0].GetCharge() > 0){
+		if (ChargeReco->GetCharge(fDigiArray[0]) > 0){
 			col = fDigiArray[0].GetPixelColumn() + ((Int_t)(fDigiArray[0].GetFE()%10)) * fParams[0];
 			if (col < 0){
 				col -= 0.5;
@@ -28,7 +28,7 @@ PndMvdHit PndMvdChargeWeightedPixelMapping::GetCluster()
 			if (fVerbose > 1)
 				std::cout << "GetCluster:col/row " << col << " " << row << std::endl;
 			count = 1;
-			charge = fDigiArray[0].GetCharge();
+			charge = ChargeReco->GetCharge(fDigiArray[0]);
       for(Int_t mcI = 0; mcI<fDigiArray[0].GetNIndices();mcI++){ 
         if (fDigiArray[0].GetIndex(mcI) > -1) {
           mcindex = fDigiArray[0].GetIndex(mcI);
@@ -41,12 +41,12 @@ PndMvdHit PndMvdChargeWeightedPixelMapping::GetCluster()
 		//cout << "Multiple Hits!" << std::endl;
 		for (UInt_t i = 0; i < fDigiArray.size(); i++){
 			//cout << "ActCol / Row" << col << " " << row << " added Col/Row " << fDigiArray[i].GetPixelColumn() << " " << fDigiArray[i].GetPixelRow() << endl;
-			if (fDigiArray[i].GetCharge() > 0){
+			if (ChargeReco->GetCharge(fDigiArray[i]) > 0){
 				tempCol = fDigiArray[i].GetPixelColumn() + (Int_t)(fDigiArray[0].GetFE()%10) * fParams[0];
 				tempRow = fDigiArray[i].GetPixelRow() + fDigiArray[0].GetFE()/10 * fParams[1];
-				col += (tempCol*fDigiArray[i].GetCharge());
-				row += (tempRow*fDigiArray[i].GetCharge());
-				charge += fDigiArray[i].GetCharge();
+				col += (tempCol*ChargeReco->GetCharge(fDigiArray[i]));
+				row += (tempRow*ChargeReco->GetCharge(fDigiArray[i]));
+				charge += ChargeReco->GetCharge(fDigiArray[i]);
 				count++;
         if(mcindex < 0){
           for(Int_t mcI = 0; mcI<fDigiArray[i].GetNIndices();mcI++){ 

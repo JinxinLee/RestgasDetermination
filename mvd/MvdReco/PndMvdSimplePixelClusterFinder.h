@@ -15,6 +15,9 @@
 /// @param param[0] Range as Int_t at which a pixel belongs to a cluster or not
 /// @param param[1] Number of columns in a front-end
 /// @param param[2] Number of rows in a front-end
+/// @param param [3] = threshold
+/// @param param [4] = raising time of TOT signal
+/// @param param [5] = falling ratio of TOT signal
 
 class PndMvdSimplePixelClusterFinder : public PndMvdPixelClusterFinder
 {

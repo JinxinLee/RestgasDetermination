@@ -4,6 +4,7 @@
 #include "PndMvdDigiPixel.h"
 #include "PndMvdHit.h"
 #include "PndGeoHandling.h"
+#include "PndMvdRecoCharge.h"
 #include <vector>
 
 class PndMvdPixelBackMapping
@@ -20,6 +21,9 @@ class PndMvdPixelBackMapping
   std::vector<Double_t> fParams;
   PndGeoHandling* fGeoH;
   Int_t fVerbose;
+  
+  protected :
+  PndMvdRecoCharge* ChargeReco;
 };
 
 #endif
