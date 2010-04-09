@@ -205,7 +205,6 @@ InitStatus PndMvdStripClusterTask::Init()
 // -----   Public method Exec   --------------------------------------------
 void PndMvdStripClusterTask::Exec(Option_t* opt)
 {
-	fVerbose = 3;
   if (fVerbose > 2)
     std::cout<<" **Starting PndMvdStripClusterTask::Exec()**"<<std::endl;
   std::vector<PndMvdDigiStrip> digiStripArray;
@@ -263,18 +262,18 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
     // fetch ids in 'clusters' to the top and bot side
     topclusters = fCurrentClusterfinder->GetTopClusterIDs();
 
-    std::cout << "TopClusters: " << std::endl;
+   /* std::cout << "TopClusters: " << std::endl;
     for(int i = 0; i < topclusters.size(); i++){
     	std::cout << i << ": " << topclusters[i] << " -- " << clusters[topclusters[i]] << std::endl;
     }
-
+*/
     botclusters = fCurrentClusterfinder->GetBotClusterIDs();
 
-    std::cout << "BotClusters: " << std::endl;
+   /* std::cout << "BotClusters: " << std::endl;
     for(int i = 0; i < botclusters.size(); i++){
     	std::cout << i << ": " << botclusters[i] << " -- " << clusters[botclusters[i]] << std::endl;
     }
-
+*/
     if(fVerbose > 2) {
       leftDigis = fCurrentClusterfinder->GetLeftDigiIDs();
       if (0<leftDigis.size()){
@@ -338,7 +337,7 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
       
       CalcMeanCharge(oneclustertop,meantopstrip,meantoperr,topcharge);
       
-      std::cout << "TopCluster " << topIndex << " charge: " << topcharge << std::endl;
+     // std::cout << "TopCluster " << topIndex << " charge: " << topcharge << std::endl;
 
       if(oneclustertop.size()==1 && topcharge < SingleStripChargeThreshold) { 
         std::cout<<"-W- PndMvdClusterTask::Exec: Single strip charge falls below the threshold of "<<SingleStripChargeThreshold<<"e- : skipping. "<<endl; 
@@ -377,7 +376,7 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
         
         CalcMeanCharge(oneclusterbot,meanbotstrip,meanboterr,botcharge);
 
-        std::cout << "BotCluster " << botIndex << " charge: " << botcharge << std::endl;
+        //std::cout << "BotCluster " << botIndex << " charge: " << botcharge << std::endl;
 
         if(oneclusterbot.size() == 1 && botcharge < SingleStripChargeThreshold) { 
           std::cout<<"-W- PndMvdClusterTask::Exec: Single strip charge falls below the threshold of "<<SingleStripChargeThreshold<<"e- : skipping. "<<endl; 
