@@ -49,7 +49,6 @@
         
   rtdb->setFirstInput(parInput1);
   rtdb->setSecondInput(parIo1);
-  fRun->LoadGeometry();
   // ------------------------------------------------------------------------
 /*
   // -----   TPC digi producers   ---------------------------------
