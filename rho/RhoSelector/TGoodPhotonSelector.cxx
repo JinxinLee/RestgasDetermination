@@ -79,30 +79,40 @@ Bool_t TGoodPhotonSelector::Accept(VAbsMicroCandidate& cand)
     
     if (&cand == 0) return kFALSE;
     
-    if (cand.GetCharge() != 0) return kFALSE;
+    if (fabs(cand.GetCharge())>0.001) return kFALSE;
     
     // Check EMC energy deposit    
     Float_t emc  = cand.GetEmcCalEnergy();
-    if (emc <= emcMin) return kFALSE;
+    if (emc <  emcMin) return kFALSE;
     if (emc >  emcMax) return kFALSE;
     
     // Cut on number of crystals    
+    
     Int_t nc = cand.GetEmcNumberOfCrystals();
-    if (nc <= ncMin) return kFALSE;
+    if (nc <  ncMin) return kFALSE;
     if (nc >  ncMax) return kFALSE;
     
+    
     // Check LAT    
+    // ************* at the moment no lateral shape is provided in PandaROOT
+    /* 
     Float_t lat  = cand.GetEmcLateralShape();
     if (lat <= latMin) return kFALSE;
     if (lat >  latMax) return kFALSE;
+    */
+    
     
     // Check angular acceptance
     
     TVector3 p = cand.GetMomentum();
     if (p.Theta() <  thetaMin) return kFALSE;
     if (p.Theta() >  thetaMax) return kFALSE;
-    if (p.Phi()+2.*3.14159265358979323846   <  phiMin)   return kFALSE;
-    if (p.Phi()+2.*3.14159265358979323846   >  phiMax)   return kFALSE;
+    
+    // ************* removed phi cut for the time being
+    // ***** K.G. 25. 3. 2010
+    
+    //if (p.Phi() + 3.14159265358979323846  <  phiMin)   return kFALSE;
+    //if (p.Phi() + 3.14159265358979323846  >  phiMax)   return kFALSE;
 
     return kTRUE;
 }
@@ -112,7 +122,7 @@ void TGoodPhotonSelector::PrintOn(std::ostream& o) const
     o << GetName() << endl;
     if (emcMin > 0)        o << "EMC energy          = " << emcMin << " ... " << emcMax << " GeV" << endl;
     if (ncMin > 0)         o << "Number of Crystals  = " << ncMin << " ... " << ncMax << endl; 
-    if (latMin > 0)        o << "LAT                 = " << latMin << " ... " << latMax << endl;
+    //if (latMin > 0)        o << "LAT                 = " << latMin << " ... " << latMax << endl;
     if (thetaMin > 0)      o << "Theta [Rad]         = " << thetaMin << " ... " << thetaMax << endl; 
     if (phiMin > 0)        o << "Phi   [Rad]         = " << phiMin << " ... " << phiMax << endl; 
     o << endl;    

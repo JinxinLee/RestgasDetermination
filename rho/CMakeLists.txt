@@ -68,6 +68,7 @@ RhoBase/VAbsWriter.cxx
 
 RhoSelector/TPidSelector.cxx
 RhoSelector/TSimpleVertexSelector.cxx
+RhoSelector/TGoodPhotonSelector.cxx
 RhoTools/TAdd4Vertexer.cxx
 RhoTools/TBooster.cxx
 #RhoTools/TBVariables.cxx

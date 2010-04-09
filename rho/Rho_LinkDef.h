@@ -90,6 +90,7 @@
 #pragma link C++ class TPidMassSelector;
 #pragma link C++ class TPidEnergySelector;
 #pragma link C++ class TPidMomentumSelector;
+#pragma link C++ class TGoodPhotonSelector;
 
 #pragma link C++ class TSimpleVertexSelector;
 
