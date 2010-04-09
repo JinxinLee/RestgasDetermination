@@ -105,8 +105,8 @@ void PndMdtTrkProducer::SetGeometry() {
   Text_t lbuffer[255];
   
   // Finding geometry version
-  if (gGeoManager->FindVolumeFast("MdtBarrelLayer00")) version = 1; // Torino
-  if (gGeoManager->FindVolumeFast("MdtBarrelOct0"))    version = 2; // Dubna
+  if (gGeoManager->FindVolumeFast("MdtBarrelLayer00")) version = 1; // fast
+  if (gGeoManager->FindVolumeFast("MdtBarrelOct0"))    version = 2; // full
   if (version==0)
     {
       cout << "PndMdtTrkProducer::SetGeometry : Warning - No MDT Barrel Geometry" << endl;
@@ -163,9 +163,9 @@ void PndMdtTrkProducer::SetGeometry() {
     } // end of barrel
 
   Int_t ec_laymax = 0;
-  version = 1; // standard Torino
+  version = 1; // standard fast
   // Finding geometry version
-  if (gGeoManager->FindVolumeFast("BP20000"))    version = 2; // Dubna
+  if (gGeoManager->FindVolumeFast("BP20000"))    version = 2; // full
   for (Int_t ll=0; ll<10; ll++)
     { 
       mdtLayerPos[1][ll] = -1;
@@ -193,9 +193,9 @@ void PndMdtTrkProducer::SetGeometry() {
     } // end of layer loop
   
   // Muon Filter
-  version = 1; // standard Torino
+  version = 1; // standard fast
   // Finding geometry version
-  //if (gGeoManager->FindVolumeFast("BP20000"))    version = 2; // Dubna
+  if (gGeoManager->FindVolumeFast("MF"))    version = 2; // Dubna
   for (Int_t ll=0; ll<10; ll++)
     { 
       mdtLayerPos[1][ll+ec_laymax] = -1;
@@ -209,7 +209,7 @@ void PndMdtTrkProducer::SetGeometry() {
 	    }
 	  if (version==2)
 	    { 
-	      //sprintf(lbuffer,"cave_1/MdtEndcap_0/MdtEndcapLayer0%i_0/BP20%i00_0/BA20%i00_0/%s_0",ll,ll,ll,buffer);
+	      sprintf(lbuffer,"cave_1/MF_0/MdtMFLayer0%i_0/BP30%i00_0/BA30%i00_0/%s_0",ll,ll,ll,buffer);
 	    }
 	  
 	  gGeoManager->cd(lbuffer);
