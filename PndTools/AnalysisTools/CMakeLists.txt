@@ -49,6 +49,7 @@ PndPidListMaker.cxx
 PndAnalysis.cxx
 PndSimpleAnalysis.cxx
 PndAnalysisTask.cxx
+PndAnaTask.cxx
 PndListDefiner.cxx
 PndListProvider.cxx
 PndMcListConverter.cxx
