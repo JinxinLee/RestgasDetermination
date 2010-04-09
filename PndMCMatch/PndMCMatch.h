@@ -43,6 +43,8 @@ public:
 	PndMCEntry GetEntry(FairLink link);
 
 	PndMCResult GetMCInfo(fDetectorType start, fDetectorType stop);
+	PndMCEntry  GetMCInfoSingle(FairLink aLink, fDetectorType stop);
+
 	int GetNMCStages() const {return fList.size();}
 
 	PndMCStage* GetMCStage(int index) const{
@@ -84,7 +86,10 @@ private:
 
 	PndMCResult GetMCInfoForward(fDetectorType start, fDetectorType stop);
 	PndMCResult GetMCInfoBackward(fDetectorType start, fDetectorType stop);
-	void GetNextStage(PndMCEntry& startEntry, fDetectorType stopStage);
+	PndMCEntry GetMCInfoForwardSingle(FairLink link, fDetectorType stop);
+	PndMCEntry GetMCInfoBackwardSingle(FairLink link, fDetectorType stop, Double_t weight = 1.);
+
+	void GetNextStage(FairMultiLinkedData& startEntry, fDetectorType stopStage);
 	void AddToFinalStage(FairLink link, Float_t mult);
 	void ClearFinalStage();
 	ClassDef(PndMCMatch, 1);

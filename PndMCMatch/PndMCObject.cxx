@@ -19,6 +19,10 @@ PndMCObject::~PndMCObject() {
 
 
 void PndMCObject::SetEntry(PndMCEntry entry){
+	if (entry.GetPos() < 0){
+		std::cout << "-E- PndMCObject::SetEntry(PndMCEntry): pos " << entry.GetPos() << std::endl;
+		return;
+	}
 	AdoptSize(entry.GetPos());
 	fStage[entry.GetPos()] = entry;
 }

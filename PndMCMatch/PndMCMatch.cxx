@@ -74,6 +74,20 @@ PndMCResult PndMCMatch::GetMCInfo(fDetectorType start, fDetectorType stop){
 		return GetMCInfoBackward(start, stop);
 }
 
+PndMCEntry PndMCMatch::GetMCInfoSingle(FairLink aLink, fDetectorType stop)
+{
+	PndMCEntry result;
+	if(!IsTypeInList((fDetectorType)aLink.GetType()))
+		return result;
+	if(!(fList[(fDetectorType)aLink.GetType()]->GetNEntries() > aLink.GetIndex()))
+		return result;
+
+	if (aLink.GetType() < stop)
+		return GetMCInfoForwardSingle(aLink, stop);
+	else
+		return GetMCInfoBackwardSingle(aLink, stop);
+}
+
 PndMCResult PndMCMatch::GetMCInfoForward(fDetectorType start, fDetectorType stop)
 {
 	PndMCResult result(start, stop);
@@ -81,13 +95,33 @@ PndMCResult PndMCMatch::GetMCInfoForward(fDetectorType start, fDetectorType stop
 	for (int i = 0; i < startVec.GetNEntries(); i++){
 		FairLink tempLink(startVec.GetStageId(), i);
 
-		FairMultiLinkedData tempStage;
+/*		FairMultiLinkedData tempStage;
 		tempStage.AddLink(tempLink, true);
 		FindStagesPointingToLinks(tempStage, stop);
 		//FindStagesPointingToLink(tempLink);
 		result.SetEntry(&fFinalStageML, i);
 		fFinalStageML.Reset();
+		*/
+		std::cout << "FairLink: " << tempLink << std::endl;
+		PndMCEntry tempEntry(GetMCInfoForwardSingle(tempLink, stop));
+		tempEntry.SetSource(start);
+		tempEntry.SetPos(i);
+		std::cout << "PndMCEntry: " << tempEntry << std::endl;
+		result.SetEntry(tempEntry);
 	}
+	return result;
+
+}
+
+PndMCEntry PndMCMatch::GetMCInfoForwardSingle(FairLink link, fDetectorType stop)
+{
+	PndMCEntry result;
+	ClearFinalStage();
+
+	FairMultiLinkedData tempStage;
+	tempStage.AddLink(link, true);
+	FindStagesPointingToLinks(tempStage, stop);
+	result.SetLinks(fFinalStageML);
 	return result;
 
 }
@@ -98,13 +132,30 @@ PndMCResult PndMCMatch::GetMCInfoBackward(fDetectorType start, fDetectorType sto
 	PndMCStage startVec = *(fList[start]);
 	for (int i = 0; i < startVec.GetNEntries(); i++){
 //		std::cout << "Stage: " << i << std::endl;
-		ClearFinalStage();
-		PndMCEntry temp = startVec.GetEntry(i);
+/*		ClearFinalStage();
+		FairMultiLinkedData temp = startVec.GetEntry(i);
 		temp.MultiplyAllWeights(startVec.GetWeight());
 		GetNextStage(temp, stop);
 		//if (result.GetNEntries() > 0)
+*/
+		FairLink tempLink(start, i);
+		GetMCInfoBackwardSingle(tempLink, stop, startVec.GetWeight());
 		result.SetEntry(&fFinalStageML, result.GetNEntries());
 	}
+	return result;
+}
+
+PndMCEntry PndMCMatch::GetMCInfoBackwardSingle(FairLink aLink, fDetectorType stop, Double_t weight)
+{
+	PndMCEntry result;
+	FairMultiLinkedData multiLink = fList[(fDetectorType)aLink.GetType()]->GetEntry(aLink.GetIndex());
+
+	ClearFinalStage();
+	multiLink.MultiplyAllWeights(weight);
+	GetNextStage(multiLink, stop);
+	//if (result.GetNEntries() > 0)
+	result.SetLinks(fFinalStageML);
+
 	return result;
 }
 
@@ -171,7 +222,7 @@ void PndMCMatch::CreateArtificialStage(fDetectorType stage, std::string fileName
 
 
 
-void PndMCMatch::GetNextStage(PndMCEntry& startStage, fDetectorType stopStage){
+void PndMCMatch::GetNextStage(FairMultiLinkedData& startStage, fDetectorType stopStage){
 
 	PndMCEntry tempStage;
 
