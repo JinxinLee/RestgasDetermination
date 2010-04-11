@@ -97,6 +97,7 @@ void PndSttTrackFinderReal::Init()
 
 
 //  --------------------------- opening files for special purposes
+/*
 if(istampa >=2 ){
 //---- fetch the n. of tracks MC that were intended to be generated
    HANDLE = fopen("n_intended_tracks.txt","r");
@@ -117,6 +118,9 @@ if(istampa >=2 ){
    SHANDLEZ = fopen("deltaSkewZmio.txt","w");
 
 }  //  end of if(istampa >=2)
+
+*/
+
 // -------------------------
 
 
