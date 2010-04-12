@@ -1736,7 +1736,7 @@ if( istampa>=2){
           pTrckCand->setTrackSeed(posSeed, dirSeed, qop);
           pTrckCand->setMcTrackId(  daTrackFoundaTrackMC[i]   );
           for(j=0; j< nTotalHits[i]; j++){
-              pTrckCand->AddHit(kSTT, (Int_t) BigList[i][j] , j); 
+              pTrckCand->AddHit(kSttHit, (Int_t) BigList[i][j] , j);
           }
 
 
