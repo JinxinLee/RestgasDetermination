@@ -165,6 +165,8 @@ void PndMvdLinFitTask::Exec(Option_t* opt)
 
   std::cout << "Map size: " << sizeMap << std::endl;
 
+
+
   if (sizeMap>1)
     {
       
@@ -177,6 +179,8 @@ void PndMvdLinFitTask::Exec(Option_t* opt)
 	    
 	    eloss[0] = 0;
 
+	    std::vector<TString> sens;	    
+
 	    PndMvdHit *theHit = (PndMvdHit*)   fTCandArray->At(it1);
 
 	    if( (theHit->GetDetName()) != DetNames[0]) continue;
@@ -187,7 +191,9 @@ void PndMvdLinFitTask::Exec(Option_t* opt)
       
 	    fitme.SetPoint(ihit, addPos.X(), addPos.Y(), addPos.Z());
 	    fitme.SetPointError(ihit, theHit->GetDx(), theHit->GetDy(), theHit->GetDz());
-      
+	    
+	    sens.push_back(theHit->GetDetName());
+
 	    for (Int_t it2=0; it2<ntcand; it2++) // on second det
 	      {
 		ihit = 1;
@@ -205,12 +211,14 @@ void PndMvdLinFitTask::Exec(Option_t* opt)
 		fitme.SetPoint(ihit, addPos1.X(), addPos1.Y(), addPos1.Z());
 		fitme.SetPointError(ihit, theHit1->GetDx(), theHit1->GetDy(), theHit1->GetDz());
 	    
+		sens.push_back(theHit1->GetDetName());
+
 		if (sizeMap==2)
 		  {
 		    Double_t parFit[4]; //fit-parameter
 		    Double_t accuracy = line3Dfit(6, &fitme, parFit);
 		    
-		    PndLinTrack* trackfit = new PndLinTrack("Mvd", parFit[0], parFit[1], parFit[2], parFit[3], accuracy, eloss[0]+eloss[1], sizeMap, track);
+		    PndLinTrack* trackfit = new PndLinTrack("Mvd", parFit[0], parFit[1], parFit[2], parFit[3], accuracy, eloss[0]+eloss[1], sizeMap, sens, track);
 
 		    new((*fTrackArray)[track]) PndLinTrack(*(trackfit)); //save Track
 
@@ -236,12 +244,14 @@ void PndMvdLinFitTask::Exec(Option_t* opt)
 			fitme.SetPoint(ihit, addPos2.X(), addPos2.Y(), addPos2.Z());
 			fitme.SetPointError(ihit, theHit2->GetDx(), theHit2->GetDy(), theHit2->GetDz());
 		 
+			sens.push_back(theHit2->GetDetName());
+
 			if (sizeMap==3)
 			  {
 			    Double_t parFit[4]; //fit-parameter
 			    Double_t accuracy = line3Dfit(6, &fitme, parFit);
 		    
-			    PndLinTrack* trackfit = new PndLinTrack("Mvd", parFit[0], parFit[1], parFit[2], parFit[3], accuracy, eloss[0]+eloss[1]+eloss[2], sizeMap, track);
+			    PndLinTrack* trackfit = new PndLinTrack("Mvd", parFit[0], parFit[1], parFit[2], parFit[3], accuracy, eloss[0]+eloss[1]+eloss[2], sizeMap, sens, track);
 
 			    new((*fTrackArray)[track]) PndLinTrack(*(trackfit)); //save Track
 
@@ -269,12 +279,14 @@ void PndMvdLinFitTask::Exec(Option_t* opt)
 				fitme.SetPoint(ihit, addPos3.X(), addPos3.Y(), addPos3.Z());
 				fitme.SetPointError(ihit, theHit3->GetDx(), theHit3->GetDy(), theHit3->GetDz());
 			
+				sens.push_back(theHit3->GetDetName());
+  
 				if (sizeMap==4)
 				  {
 				    Double_t parFit[4]; //fit-parameter
 				    Double_t accuracy = line3Dfit(6, &fitme, parFit);
 		    
-				    PndLinTrack* trackfit = new PndLinTrack("Mvd", parFit[0], parFit[1], parFit[2], parFit[3], accuracy, eloss[0]+eloss[1]+eloss[2]+eloss[3], sizeMap, track);
+				    PndLinTrack* trackfit = new PndLinTrack("Mvd", parFit[0], parFit[1], parFit[2], parFit[3], accuracy, eloss[0]+eloss[1]+eloss[2]+eloss[3], sizeMap, sens, track);
 				    
 				    new((*fTrackArray)[track]) PndLinTrack(*(trackfit)); //save Track
 				 
@@ -303,12 +315,14 @@ void PndMvdLinFitTask::Exec(Option_t* opt)
 					fitme.SetPoint(ihit, addPos4.X(), addPos4.Y(), addPos4.Z());
 					fitme.SetPointError(ihit, theHit4->GetDx(), theHit4->GetDy(), theHit4->GetDz());
 			 
+					sens.push_back(theHit4->GetDetName());
+
 					if (sizeMap==5)
 					  {
 					    Double_t parFit[4]; //fit-parameter
 					    Double_t accuracy = line3Dfit(6, &fitme, parFit);
 		    
-					    PndLinTrack* trackfit = new PndLinTrack("Mvd", parFit[0], parFit[1], parFit[2], parFit[3], accuracy, eloss[0]+eloss[1]+eloss[2]+eloss[3]+eloss[5], sizeMap, track);
+					    PndLinTrack* trackfit = new PndLinTrack("Mvd", parFit[0], parFit[1], parFit[2], parFit[3], accuracy, eloss[0]+eloss[1]+eloss[2]+eloss[3]+eloss[5], sizeMap, sens, track);
 
 					    new((*fTrackArray)[track]) PndLinTrack(*(trackfit)); //save Track
 
@@ -334,12 +348,14 @@ void PndMvdLinFitTask::Exec(Option_t* opt)
 						fitme.SetPoint(ihit, addPos5.X(), addPos5.Y(), addPos5.Z());
 						fitme.SetPointError(ihit, theHit5->GetDx(), theHit5->GetDy(), theHit5->GetDz());
 				  
+						sens.push_back(theHit5->GetDetName());
+
 						Double_t parFit[4]; //fit-parameter
 						Double_t accuracy = line3Dfit(6, &fitme, parFit);
 
 						eloss[5] = theHit5->GetEloss();      
 
-						PndLinTrack* trackfit = new PndLinTrack("Mvd", parFit[0], parFit[1], parFit[2], parFit[3], accuracy, eloss[0]+eloss[1]+eloss[2]+eloss[3]+eloss[4]+eloss[5], sizeMap, track);
+						PndLinTrack* trackfit = new PndLinTrack("Mvd", parFit[0], parFit[1], parFit[2], parFit[3], accuracy, eloss[0]+eloss[1]+eloss[2]+eloss[3]+eloss[4]+eloss[5], sizeMap, sens, track);
 				  
 
 				  
