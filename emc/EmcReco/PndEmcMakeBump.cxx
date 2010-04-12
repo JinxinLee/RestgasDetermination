@@ -55,12 +55,6 @@
 //---------------
 #include <iostream>
 
-//OpenMP header file
-#ifdef _OPENMP
-//#undef _OPENMP
-#include<omp.h>
-#endif
-
 using std::endl;
 using std::cout;
 
@@ -155,21 +149,10 @@ void PndEmcMakeBump::Exec(Option_t* opt)
   
   int nClusters = fClusterArray->GetEntriesFast();
   PndEmcCoordIndexSet tmp_CoordSet_set;
-#ifdef _OPENMP
-  //std::cout << "With OpenMP" << std::endl;
-  //omp_set_num_threads(1);
-  int tid = 0;
-  tid = 1;
-#pragma omp parallel private(tid, tmp_CoordSet_set)
-  {
-    //static schedule(roundrobin)
-#pragma omp for nowait private(tid, tmp_CoordSet_set) schedule(static)
-#endif
+  
   //loop over Clusters
   for (Int_t iCluster = 0; iCluster < nClusters; iCluster++){
-    //tid = omp_get_thread_num();
-    //std::cout << "TID = " << tid << std::endl;
-    
+
     PndEmcCluster* theCluster = (PndEmcCluster*) fClusterArray->At(iCluster);
     // we need it since fMemberDigiMap is transient element
     theCluster->ValidateDigiMap();
@@ -202,16 +185,12 @@ void PndEmcMakeBump::Exec(Option_t* opt)
       }
     }
   }
-#ifdef _OPENMP
-  }
-#endif
+
   // At that moment internal state fEnergy and fWhere of Clusters are
   // not initialized, the following make it possible to see energy and
   // position from output root file
   Int_t nBump = fBumpArray->GetEntriesFast();
-#ifdef _OPENMP
-#pragma omp parallel for //schedule(dynamic)
-#endif
+
   for (Int_t i=0; i<nBump; i++){
     PndEmcBump *tmpbump = (PndEmcBump*) fBumpArray->At(i);
     tmpbump->energy();
