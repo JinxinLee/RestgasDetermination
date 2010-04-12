@@ -37,7 +37,7 @@ public:
 	void SetEntry(FairLinkedData* data, int index);
 	void SetEntry(PndMCEntry link);
 
-	void SetStage(std::vector<PndMCEntry> stage);
+	void SetStage(std::vector<PndMCEntry> stage){fStage = stage;}
 	void SetLink(FairLink link, int index);
 	void AddLink(FairLink link, int index);
 

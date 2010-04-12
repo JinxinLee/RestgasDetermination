@@ -62,6 +62,7 @@ install(TARGETS MCMatch DESTINATION ${CMAKE_BINARY_DIR}/lib)
 set(MCMATCHEXAMPLES_SRCS
 examples/PndMCTestMomentumCompare.cxx
 examples/PndMCTestHitCompare.cxx
+examples/PndMCIdealTrackFinder.cxx
 )
 
 CHANGE_FILE_EXTENSION(*.cxx *.h MCMATCHEXAMPLES_HEADERS "${MCMATCHEXAMPLES_SRCS}")
