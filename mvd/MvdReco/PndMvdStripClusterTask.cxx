@@ -205,6 +205,7 @@ InitStatus PndMvdStripClusterTask::Init()
 // -----   Public method Exec   --------------------------------------------
 void PndMvdStripClusterTask::Exec(Option_t* opt)
 {
+	fVerbose = 3;
   if (fVerbose > 2)
     std::cout<<" **Starting PndMvdStripClusterTask::Exec()**"<<std::endl;
   std::vector<PndMvdDigiStrip> digiStripArray;
@@ -423,9 +424,9 @@ void PndMvdStripClusterTask::Exec(Option_t* opt)
         } else {
           if (fVerbose > 2) std::cout<<"Cluster charge contents too different"<<std::endl;
         }
-        oldClusterOffset = newClusterOffset;
       }// loop bot clusters
     }// loop top clusters
+    oldClusterOffset = newClusterOffset;
   }//loop finders
   if (fVerbose > 1)
   std::cout << "-I- PndMvdStripClusterTask: " << fClusterArray->GetEntriesFast()
