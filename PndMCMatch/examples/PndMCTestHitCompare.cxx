@@ -80,11 +80,12 @@ void PndMCTestHitCompare::Exec(Option_t* opt)
 {
 	//fMCMatch->CreateArtificialStage(kMCTrack, "", "");
 
-	PndMCResult myResult = fMCMatch->GetMCInfo(kMVDHitsStrip, kMVDPoint);
-	std::cout << myResult;
-	for (int i = 0; i < myResult.GetNEntries(); i++){
-		PndMCEntry myLinks = myResult.GetMCLink(i);
+	//PndMCResult myResult = fMCMatch->GetMCInfo(kMVDHitsStrip, kMVDPoint);
+	//std::cout << myResult;
+	for (int i = 0; i < fStripHit->GetEntries(); i++){
+		//PndMCEntry myLinks = myResult.GetMCLink(i);
 		PndMvdHit* myHit = (PndMvdHit*)fStripHit->At(i);
+		PndMCEntry myLinks = fMCMatch->GetMCInfoSingle(FairLink(kMVDHitsStrip, i), kMVDPoint);
 
 		std::cout << *myHit;
 

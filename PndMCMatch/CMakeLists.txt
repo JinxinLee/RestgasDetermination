@@ -36,8 +36,6 @@ PndMCMatchSelectorTask.cxx
 PndMCObject.cxx
 PndMCStage.cxx
 PndMCResult.cxx
-PndMCTestMomentumCompare.cxx
-PndMCTestHitCompare.cxx
 PndMCEntry.cxx
 PndMCList.cxx
 )
@@ -58,3 +56,25 @@ target_link_libraries(MCMatch ${ROOT_LIBRARIES})
 set_target_properties(MCMatch PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
 ################ install ###################
 install(TARGETS MCMatch DESTINATION ${CMAKE_BINARY_DIR}/lib)
+
+########################### create libMCMatchExamples ##################################
+
+set(MCMATCHEXAMPLES_SRCS
+examples/PndMCTestMomentumCompare.cxx
+examples/PndMCTestHitCompare.cxx
+)
+
+CHANGE_FILE_EXTENSION(*.cxx *.h MCMATCHEXAMPLES_HEADERS "${MCMATCHEXAMPLES_SRCS}")
+
+set(MCMATCHEXAMPLES_LINKDEF  PndMCMatchExamplesLinkDef.h)
+set(MCMATCHEXAMPLES_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/PndMCMatchExamplesDict.cxx) 
+
+ROOT_GENERATE_DICTIONARY("${MCMATCHEXAMPLES_HEADERS}" "${MCMATCHEXAMPLES_LINKDEF}" "${MCMATCHEXAMPLES_DICTIONARY}" "${INCLUDE_DIRECTORIES}")
+
+SET(MCMATCHEXAMPLES_SRCS ${MCMATCHEXAMPLES_SRCS} ${MCMATCHEXAMPLES_DICTIONARY})
+
+add_library(MCMatchExamples SHARED ${MCMATCHEXAMPLES_SRCS})
+target_link_libraries(MCMatchExamples ${ROOT_LIBRARIES})
+set_target_properties(MCMatchExamples PROPERTIES ${FAIRROOT_LIBRARY_PROPERTIES})
+################ install ###################
+install(TARGETS MCMatchExamples DESTINATION ${CMAKE_BINARY_DIR}/lib)

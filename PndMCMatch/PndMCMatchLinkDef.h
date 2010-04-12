@@ -8,8 +8,6 @@
 #pragma link C++ class PndMCMatchCreatorTask+;
 #pragma link C++ class PndMCMatchLoaderTask+;
 #pragma link C++ class PndMCMatchSelectorTask+;
-#pragma link C++ class PndMCTestMomentumCompare+;
-#pragma link C++ class PndMCTestHitCompare+;
 #pragma link C++ class PndMCEntry+;
 #pragma link C++ class PndMCList+;
 #pragma link C++ class PndMCObject+;
