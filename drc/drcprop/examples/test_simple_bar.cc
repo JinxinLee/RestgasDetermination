@@ -194,7 +194,7 @@ int main(int argc, char *argv[])
   // .x Geo.C 
   // .x Screen.C
   // 
-  manager->Print(geo);
+  //manager->Print(geo);
   //
   // the intention is to play around with routines.
 
@@ -203,11 +203,15 @@ int main(int argc, char *argv[])
 
   XYZPoint pos(0,-10,0);
   XYZVector dir(0,1,1); 
-  double   beta = 0.69;
+  double   beta = 0.89;
   double range=500;
   
-  //bool photons_exist = manager->cerenkov(pos,dir,beta,30000,range,400,650); // generate photons
-  bool photons_exist = manager->Cerenkov(pos,dir,beta,100,range,400,405); // generate photons
+  bool photons_exist = manager->Cerenkov(pos,dir,beta); // generate photon
+  //bool photons_exist = manager->Cerenkov(pos,dir,beta,100,range,400,650); // generate photons
+  //bool photons_exist = manager->Cerenkov(pos,dir,beta,100,range,400,405); // generate photons
+
+  cout<<" photons exist: "<<photons_exist<<endl;
+  
 
   if (photons_exist)
     {
@@ -261,6 +265,9 @@ int main(int argc, char *argv[])
 	  dir_list.push_back((*iph).Direction());
 	  
 	  icnt_measured++;
+	  double rx     = (*iph).Position().X();
+	  double ry     = (*iph).Position().Y();
+	  double rz     = (*iph).Position().Z();
 	  double x     = (*iph).Direction().X();
 	  double y     = (*iph).Direction().Y();
 	  double z     = (*iph).Direction().Z();
@@ -278,7 +285,16 @@ int main(int argc, char *argv[])
 	      if (lambda<650 && lambda>600) time600[int(time*10)]++;
 	    }
 	  
-	      
+	    double scale = 300.0/z;
+	    double sx = x*scale;
+	    double sy = y*scale;
+	    double sz = z*scale;
+	    rx += sx;
+	    ry += sy;
+	    
+
+	    out1<<rx<<" "<<ry<<endl;
+	    
 	  
 
 	  scr<<"    TMarker* t = new TMarker("<<xx<<","<<yy<<",20);"<<endl;
@@ -296,10 +312,10 @@ int main(int argc, char *argv[])
   scr.close();
 
 
-  for (int i=0; i<200; i++)
-    {
-      out1<<i*0.1<<" "<<time400[i]<<" "<<time600[i]<<endl;
-    }
+  //for (int i=0; i<200; i++)
+  //{
+  //  out1<<i*0.1<<" "<<time400[i]<<" "<<time600[i]<<endl;
+  //}
   
       
     
