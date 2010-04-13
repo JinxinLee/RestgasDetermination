@@ -10,6 +10,7 @@
 #include "FairRootManager.h"
 #include "PndTrackCand.h"
 
+ClassImp(PndMCIdealTrackFinder);
 
 PndMCIdealTrackFinder::PndMCIdealTrackFinder() {
 	// TODO Auto-generated constructor stub

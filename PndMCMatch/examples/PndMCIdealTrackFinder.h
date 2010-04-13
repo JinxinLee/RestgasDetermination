@@ -35,6 +35,8 @@ private:
 	  PndMCMatch* fMCMatch;
 	  TClonesArray* fTrackCand;
 	  TClonesArray* fMCTrack;
+
+	  ClassDef(PndMCIdealTrackFinder,1);
 };
 
 #endif /* PNDMCIDEALTRACKFINDER_H_ */

@@ -84,14 +84,12 @@ void PndMCTestMomentumCompare::Exec(Option_t* opt)
 		PndMCEntry myLinks = myResult.GetMCLink(i);
 		PndTrack* myTrack = (PndTrack*)fTrack->At(i);
 		std::cout << "TrackMatch for Track " << i << std::endl;
-		//myTrack->Print();
 		std::cout << "P: " << myTrack->GetParamFirst().GetSDMomentum().Mag() << std::endl;
 		std::cout << "Belongs to: " << std::endl;
 		for (int j = 0; j < myLinks.GetNLinks(); j++){
 			if (myLinks.GetLink(j).GetType() == kMCTrack){
 				std::cout << "MCTrack " << myLinks.GetLink(j).GetIndex() << std::endl;
 				PndMCTrack* myMCTrack = (PndMCTrack*)fMCTrack->At(myLinks.GetLink(j).GetIndex());
-				//myMCTrack->Print(myLinks.GetFairLink(j).GetIndex());
 				std::cout << "P: " << myMCTrack->GetMomentum().Mag() << " PID: " << myMCTrack->GetPdgCode() << std::endl;
 				std::cout << "--------------------------------" << std::endl;
 			}
