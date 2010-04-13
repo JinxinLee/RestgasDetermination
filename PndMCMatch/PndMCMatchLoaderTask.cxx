@@ -71,6 +71,8 @@ InitStatus PndMCMatchLoaderTask::Init()
   //fMCMatch->InitStage(kTrackCand,"","MVDRiemannTrackCand");
   //fMCMatch->InitStage(kTrack,"","PndTrack");
   fMCMatch->InitStage(kTrack,"","LheGenTrack");
+  fMCMatch->InitStage(kPidChargedCandidate,"","PidChargedCand");
+  fMCMatch->InitStage(kPidNeutralCandidate,"","PidNeutralCand");
 
 
   FairRootManager* ioman = FairRootManager::Instance();

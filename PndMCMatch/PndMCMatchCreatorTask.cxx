@@ -61,6 +61,8 @@ InitStatus PndMCMatchCreatorTask::Init()
   //fMCMatch->InitStage(kTrackCand,"","MVDRiemannTrackCand");
   //fMCMatch->InitStage(kTrack,"","PndTrack");
   fMCMatch->InitStage(kTrack,"","LheGenTrack");
+  fMCMatch->InitStage(kPidChargedCandidate,"","PidChargedCand");
+  fMCMatch->InitStage(kPidNeutralCandidate,"","PidNeutralCand");
 
   InitStatus status = InitBranches();
 
