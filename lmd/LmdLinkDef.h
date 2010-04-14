@@ -14,7 +14,7 @@
 
 //SDS
 #pragma link C++ class PndSdsDetector+;
-#pragma link C++ class PndSdsGeoHandling+;
+//#pragma link C++ class PndSdsGeoHandling+;
 //#pragma link C++ class PndSdsContFact+;
 
 //mc
