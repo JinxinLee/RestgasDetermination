@@ -7,6 +7,7 @@ ${GEANT3_INCLUDE_DIR}
 ${CMAKE_SOURCE_DIR}/geobase 
 ${CMAKE_SOURCE_DIR}/parbase 
 ${CMAKE_SOURCE_DIR}/base 
+${CMAKE_SOURCE_DIR}/PndTools/generalTools 
 ${CMAKE_SOURCE_DIR}/field 
 ${CMAKE_SOURCE_DIR}/trackbase 
 ${CMAKE_SOURCE_DIR}/mcstack
@@ -18,6 +19,8 @@ ${CMAKE_SOURCE_DIR}/eventdisplay
 ${CMAKE_SOURCE_DIR}/pnddata
 ${CMAKE_SOURCE_DIR}/pnddata/SttData
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
+${CMAKE_SOURCE_DIR}/pnddata/MvdData
+${CMAKE_SOURCE_DIR}/mvd/MvdDigi
 ${CMAKE_SOURCE_DIR}/PndEventdisplay
 )
 
@@ -34,6 +37,7 @@ PndTrackCandDraw.cxx
 PndTrackDraw.cxx
 PndTPCRecoPointDraw.cxx
 PndSttMCPointDraw.cxx
+PndMvdDigiPixelDraw.cxx
 )
 
 if(RULE_CHECKER_FOUND)

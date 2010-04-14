@@ -10,7 +10,7 @@
 
 #include "FairBoxSetDraw.h"
 #include "PndMvdDigiPixel.h"
-#include "PndMvdGeoHandling.h"
+#include "PndGeoHandling.h"
 
 #include "TVector3.h"
 
@@ -39,7 +39,7 @@ protected:
 	TEveBoxSet* CreateNewBoxSet(TString& name);
 
 	std::map<TString, TEveBoxSet* > fModules;
-	PndMvdGeoHandling* fGeoH;
+	PndGeoHandling* fGeoH;
 	TClonesArray* fClusterCands;
 	TClonesArray* fRecoHits;
 

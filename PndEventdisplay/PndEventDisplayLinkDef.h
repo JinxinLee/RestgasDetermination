@@ -8,6 +8,8 @@
 #pragma link C++ class  PndTrackDraw;
 #pragma link C++ class  PndTPCRecoPointDraw;
 #pragma link C++ class  PndSttMCPointDraw;
+#pragma link C++ class  PndMvdDigiPixelDraw;
+
 
 #endif
 

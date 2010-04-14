@@ -46,25 +46,26 @@ eventDisplay()
 
   FairMCPointDraw *MvdPoints =   	new FairMCPointDraw ("MVDPoint", kRed, kFullSquare);
   FairMCPointDraw *SttPoints = 		new FairMCPointDraw("STTPoint", kBlue, kFullSquare);
-  //FairMCPointDraw	*EmcPoints =	new FairMCPointDraw ("EMCPoint", kGreen, kFullSquare);
   FairMCPointDraw *GEMPoint = 		new FairMCPointDraw ("GEMPoint", kGreen, kFullSquare);
   FairMCPointDraw *MdtPoint =		new FairMCPointDraw ("MdtPoint", kYellow, kFullSquare);
   FairMCPointDraw *TofPoint =		new FairMCPointDraw ("TofPoint", kBlue, kFullSquare);
+  FairMCPointDraw *TofSciFPoint =		new FairMCPointDraw ("TofSciFPoint", kBlue, kFullSquare);
   FairMCPointDraw *DrcBarPoint =	new FairMCPointDraw ("DrcBarPoint", kBlue, kFullSquare);
   FairHitDraw	  *EmcHit =			new FairHitDraw ("EmcHit");
 
-//  PndMvdDigiPixelDraw* MvdDigis = new PndMvdDigiPixelDraw("MVDPixelDigis");
+  PndMvdDigiPixelDraw* MvdDigis = new PndMvdDigiPixelDraw("MVDPixelDigis");
 
   FairHitDraw	*DrcHit = new FairHitDraw("DrcHit");
   FairHitDraw	*GEMHit = new FairHitDraw("GEMHit");
-  FairHitDraw	*MvdHitsPixel = new FairHitDraw("MvdHitsPixel");
-  FairHitDraw	*MvdHitsStrip = new FairHitDraw("MvdHitsStrip");
+  FairHitDraw	*MvdHitsPixel = new FairHitDraw("MVDHitsPixel");
+  FairHitDraw	*MvdHitsStrip = new FairHitDraw("MVDHitsStrip");
   FairHitDraw	*MdtHit = new FairHitDraw("MdtHit");
-  FairHitDraw	*SttHit = new FairHitDraw("SttHit");
+  FairHitDraw	*SttHit = new FairHitDraw("STTHit");
   FairHitDraw	*SttHelixHit = new FairHitDraw("SttHelixHit");
   FairHitDraw	*TofHit = new FairHitDraw("TofHit");
+  FairHitDraw	*TofSciFHit = new FairHitDraw("TofSciFHit");
 
-  PndTrackDraw *kalmanTrack = new PndTrackDraw("LheGenTrack"); // if PndTrackDraw is chosen it will be very slow
+  PndTrackDraw *kalmanTrack = new PndTrackDraw("LheGenTrack");
 
 
 
@@ -74,9 +75,10 @@ eventDisplay()
   fMan->AddTask(GEMPoint);
   fMan->AddTask(MdtPoint);
   fMan->AddTask(TofPoint);
+  fMan->AddTask(TofSciFPoint);
   fMan->AddTask(DrcBarPoint);
 
- // fMan->AddTask(MvdDigis);
+  fMan->AddTask(MvdDigis);
 
   fMan->AddTask(DrcHit);
   fMan->AddTask(GEMHit);
@@ -86,8 +88,9 @@ eventDisplay()
   fMan->AddTask(SttHit);
   fMan->AddTask(SttHelixHit);
   fMan->AddTask(TofHit);
+  fMan->AddTask(TofSciFHit);
 
-  fMan->AddTask(kalmanTrack);
+//  fMan->AddTask(kalmanTrack);	// if PndTrackDraw is chosen it will be very slow
   //fMan->AddTask(EmcHit);
 
  // fMan->AddTask(MvdRecoPoints);
