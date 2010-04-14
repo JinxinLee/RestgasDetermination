@@ -200,9 +200,8 @@ PndTrack* PndRecoKalmanFit::Fit(PndTrack *tBefore, Int_t PDG)
   catch(GFException& e)
     {
       std::cout << e.what() << std::endl;
-      throw e;
+      //throw e;
     }
-  
   // Start Fitter
   try
     {
