@@ -59,7 +59,8 @@ void PndMCMatch::RemoveStage(fDetectorType type){
 void PndMCMatch::SetCommonWeightStages(Float_t weight)
 {
 	for (int i = 0; i < GetNMCStages(); i++){
-		GetMCStage(i)->SetWeight(weight);
+		if (GetMCStage(i))
+			GetMCStage(i)->SetWeight(weight);
 	}
 }
 
