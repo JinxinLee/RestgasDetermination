@@ -1,6 +1,7 @@
 //
 // Macro that checks the energy stored in hits with the energy sum of points TClonesArray for the EMC.
 // The total energy per event are checked as well as the energy deposited per crystal.
+// Run QAmacro_emc_1.C and QAmacro_emc_2.C prior to this macro.
 //
 // JGM, April 2010
 //
