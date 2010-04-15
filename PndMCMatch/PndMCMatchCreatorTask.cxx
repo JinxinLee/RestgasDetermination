@@ -22,7 +22,7 @@
 
 
 // -----   Default constructor   -------------------------------------------
-PndMCMatchCreatorTask::PndMCMatchCreatorTask() : FairTask("Creates PndMCMatch"), fEventNr(0)
+PndMCMatchCreatorTask::PndMCMatchCreatorTask() : FairTask("Creates PndMCMatch"), fEventNr(0), fPersistance(kTRUE)
 {
 }
 // -------------------------------------------------------------------------
@@ -147,15 +147,17 @@ void PndMCMatchCreatorTask::Exec(Option_t* opt)
 	}
 
 	int i = 0;
-	for (int index = 0; index < fMCMatch->GetNMCStages(); index++){
-		PndMCStage myStage(*(fMCMatch->GetMCStage(index)));
+	if (fPersistance){
+		for (int index = 0; index < fMCMatch->GetNMCStages(); index++){
+			PndMCStage myStage(*(fMCMatch->GetMCStage(index)));
 
-		for (int indStage = 0; indStage < myStage.GetNEntries(); indStage++){
+			for (int indStage = 0; indStage < myStage.GetNEntries(); indStage++){
 
-			PndMCEntry myLink(myStage.GetMCLink(indStage));
-			//std::cout << "myLink: " << myStage.GetMCLink(indStage).GetSource() << "/" << myStage.GetMCLink(indStage).GetPos() << std::endl;
-			new((*fMCLink)[i]) PndMCEntry(myLink.GetLinks(), myLink.GetSource(), myLink.GetPos());
-			i++;
+				PndMCEntry myLink(myStage.GetMCLink(indStage));
+				//std::cout << "myLink: " << myStage.GetMCLink(indStage).GetSource() << "/" << myStage.GetMCLink(indStage).GetPos() << std::endl;
+				new((*fMCLink)[i]) PndMCEntry(myLink.GetLinks(), myLink.GetSource(), myLink.GetPos());
+				i++;
+			}
 		}
 	}
 

@@ -38,6 +38,9 @@ class PndMCMatchCreatorTask : public FairTask
 
   /** Virtual method Init **/
   virtual void SetParContainers();
+  void SetPersistance(Bool_t pers){fPersistance = pers;}
+  Bool_t GetPersistance(){return fPersistance;}
+
   virtual InitStatus Init();
 
 
@@ -51,6 +54,7 @@ class PndMCMatchCreatorTask : public FairTask
  private:
   InitStatus InitBranches();
   std::map<std::string, TClonesArray*> fBranches;
+  Bool_t fPersistance;
 
   TClonesArray* fMCLink;//->
 
