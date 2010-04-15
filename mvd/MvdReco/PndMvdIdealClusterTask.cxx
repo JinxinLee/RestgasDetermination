@@ -171,6 +171,7 @@ void PndMvdIdealClusterTask::Exec(Option_t* opt)
 	PndMvdHit myCluster = mapping.GetCluster();
 	std::cout << "ClusterData: " << std::endl;
 	myCluster.Print();
+	myCluster.SetClusterIndex(kMVDClusterPixel, i);
 	new ((*fHitArray)[i]) PndMvdHit(myCluster);
   }
   std::cout << std::endl;

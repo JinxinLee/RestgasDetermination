@@ -12,6 +12,7 @@
 #include "PndMvdMCPoint.h"
 #include "FairRun.h"
 #include "FairRuntimeDb.h"
+#include "PndDetectorList.h"
 
 
 // -----   Default constructor   -------------------------------------------
@@ -112,7 +113,8 @@ void PndMvdHitProducerIdeal::Exec(Option_t* opt)
 
 
       // Create new hit
-      new ((*fHitArray)[iPoint]) PndMvdHit(detID, point->GetDetName(), position, dpos, -1, point->GetEnergyLoss(),1, iPoint);
+      PndMvdHit* myHit = new ((*fHitArray)[iPoint]) PndMvdHit(detID, point->GetDetName(), position, dpos, -1, point->GetEnergyLoss(),1, iPoint);
+      myHit->SetClusterIndex(kMVDPoint, iPoint);
 //	std::cout << "Hit created for module: " << point->GetDetName() << std::endl;
 
 
