@@ -326,7 +326,7 @@ void PndLVQTrain::InitProtoTypes()
 {
   // Clear protypes list
   cleanProtoList();
-  std::cout << "Initializing " << m_numProto 
+  std::cout << "<INFO> Initializing " << m_numProto 
             <<" LVQ prototypes."<< std::endl;
 
   // Initialize LVQ-prototypes.
@@ -423,7 +423,9 @@ void PndLVQTrain::UpdateProto(const std::vector<float>& EvtData,
     proto[i] = proto[i] + ( ethaT * static_cast<double>(delta) * (EvtData[i] - proto[i]) );
   }
 }
-
+/**
+ * Evaluate the train and test error for the current classifier.
+ */
 void PndLVQTrain::EvalClassifierError(unsigned int stp)
 {
   const std::vector<std::pair<std::string, std::vector<float>*> >& events = m_dataSets.GetData();

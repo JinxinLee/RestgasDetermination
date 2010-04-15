@@ -65,12 +65,12 @@ class PndLVQTrain: public PndMvaTrainer
   {m_numProto = numProto; };
   
  private:
-  //! Evaluate the classifier, train and test error.
-  void EvalClassifierError(unsigned int stp);
-  
   // To avoid mistakes, :).
   PndLVQTrain(const PndLVQTrain& other);
   PndLVQTrain& operator=(const PndLVQTrain& other);
+
+  //! Evaluate the classifier, train and test error.
+  void EvalClassifierError(unsigned int stp);
 
   /**
    *Initialize LVQ prototypes (Code books) using class conditional
@@ -95,7 +95,7 @@ class PndLVQTrain: public PndMvaTrainer
   //! Holds the LVQ proto-types
   std::vector< std::pair<std::string, std::vector<float>*> > m_LVQProtos;
 
-  // Container to store distances.
+  //! Container to store distances.
   std::vector <PndMvaDistObj> m_distances;
   
   /**
