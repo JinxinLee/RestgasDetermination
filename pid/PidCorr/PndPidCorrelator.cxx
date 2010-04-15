@@ -410,7 +410,7 @@ void PndPidCorrelator::ConstructNeutralCandidate() {
       pidCand->SetEmcModule(((PndEmcDigi*)bump->Maxima())->GetModule());
       pidCand->SetEmcNumberOfCrystals(bump->NumberOfDigis());
 
-      pidCand->SetLink(FairLink((fDetectorType)emcType, nBumps));
+      pidCand->SetLink(FairLink((fDetectorType)emcType, i));
 
       std::vector<Int_t> mclist = clu->GetMcList();
       if (mclist.size()>0)
