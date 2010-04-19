@@ -108,18 +108,17 @@ void PndRecoKalmanTask::Exec(Option_t* opt)
   for(Int_t itr=0;itr<ntracks;++itr)
     {
       if (fVerbose>1) std::cout<<"starting track"<<itr<<std::endl;
-      PndTrack *prefitTrack = (PndTrack*)fTrackArray->At(itr);
-      if (fabs(prefitTrack->GetParamFirst().GetPz())<1e-9) continue; // Skip pz==0
-      
-      Int_t  fCharge= prefitTrack->GetParamFirst().GetQ();
-      Int_t PDGCode= -13*fCharge;
 
-      PndTrack *fitTrack = new PndTrack();
-      fitTrack = fFitter->Fit(prefitTrack, PDGCode);
-      if (fitTrack==NULL) continue;
-     
       TClonesArray& trkRef = *fFitTrackArray;
       Int_t size = trkRef.GetEntriesFast();
+      
+      PndTrack *prefitTrack = (PndTrack*)fTrackArray->At(itr);
+      Int_t  fCharge= prefitTrack->GetParamFirst().GetQ();
+      Int_t PDGCode= -13*fCharge;
+      
+      PndTrack *fitTrack = new PndTrack();
+      fitTrack = fFitter->Fit(prefitTrack, PDGCode);
+      
       PndTrack* pndTrack = new(trkRef[size]) PndTrack(fitTrack->GetParamFirst(), fitTrack->GetParamLast(), fitTrack->GetTrackCand(),
 						      fitTrack->GetFlag(), fitTrack->GetChi2(), fitTrack->GetNDF(), fitTrack->GetPidHypo(), itr, kLheTrack);
     }
