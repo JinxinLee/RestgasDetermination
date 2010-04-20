@@ -272,6 +272,7 @@ PndEmcCluster::addCluster(PndEmcCluster* cluster)
 	{
 		addDigi(*digi_iter);
 	}
+	AddLinks(cluster->GetLinks());
 }
 
 void

@@ -54,6 +54,14 @@ InitStatus PndMCMatchCreatorTask::Init()
   fMCMatch->InitStage(kSttHelixHit, "", "SttHelixHit");
   fMCMatch->InitStage(kSttTrack, "", "STTTrack");
   fMCMatch->InitStage(kSttTrackCand, "", "STTTrackCand");
+
+ // fMCMatch->InitStage(kEmcPoint,"","EmcPoint");
+  fMCMatch->InitStage(kEmcHit, "", "EmcHit");
+  fMCMatch->InitStage(kEmcDigi, "", "EmcDigi");
+  fMCMatch->InitStage(kEmcCluster, "", "EmcCluster");
+  fMCMatch->InitStage(kEmcBump, "", "EmcBump");
+  fMCMatch->InitStage(kEmcRecoHit, "", "EmcRecoHit");
+
   fMCMatch->InitStage(kLheHit, "", "LheHit");
   fMCMatch->InitStage(kLheCand, "", "LheCandidate");
   fMCMatch->InitStage(kLheTrack,"", "LheTrack");

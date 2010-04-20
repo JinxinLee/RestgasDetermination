@@ -20,6 +20,7 @@
 #include "PndEmcCRRCPulseshape.h"
 #include "PndEmcCR2RCPulseshape.h"
 #include "PndEmcMapper.h"
+#include "PndDetectorList.h"
 
 #include "TRandom.h"
 #include "TClonesArray.h"
@@ -64,7 +65,9 @@ PndEmcWaveform::PndEmcWaveform(int trackId, long detId, Double_t tau1, Double_t 
 	fSignal(waveform_length,0.),
 	fPulseshape(tau1,tau2,tauCrystal),
 	fHitIndex(hitIndex)
-{}
+{
+	SetLink(FairLink(kEmcHit, hitIndex));
+}
 
 PndEmcWaveform::PndEmcWaveform(const PndEmcWaveform& copy)
 {

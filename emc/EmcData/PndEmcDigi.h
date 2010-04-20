@@ -25,13 +25,14 @@
 #include "TObject.h"
 #include "PndEmcTwoCoordIndex.h"
 #include "PndEmcHit.h"
+#include "FairMultiLinkedData.h"
 #include "TVector3.h"
 
 class TVector3;
 class PndEmcXtal;
 class PndEmcSharedDigi;
 
-class PndEmcDigi : public TObject
+class PndEmcDigi : public FairMultiLinkedData
 {
  public:    
   

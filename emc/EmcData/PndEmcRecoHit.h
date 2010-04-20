@@ -13,10 +13,11 @@
 // Base Class Headers --
 //----------------------
 
+#include "FairMultiLinkedData.h"
 #include "TObject.h"
 #include "TVector3.h"
 
-class PndEmcRecoHit: public TObject
+class PndEmcRecoHit: public FairMultiLinkedData
 {
 
 public:

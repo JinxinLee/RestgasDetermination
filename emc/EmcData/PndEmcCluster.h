@@ -18,6 +18,7 @@
 #define PNDEMCCLUSTER_H
 
 #include "TObject.h"
+#include "FairMultiLinkedData.h"
 #include "PndEmcDataTypes.h"
 #include "PndEmcClusterLiloPos.h"
 #include "TMatrixD.h"
@@ -34,7 +35,7 @@ class PndEmcTwoCoordIndex;
 class TVector3;
 
 
-class PndEmcCluster : public TObject
+class PndEmcCluster : public FairMultiLinkedData
 {
 
 public:

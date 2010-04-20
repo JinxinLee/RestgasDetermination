@@ -26,6 +26,7 @@
 #include "PndEmcStructure.h"
 #include "PndEmcXtal.h"
 #include "PndEmcDataTypes.h"
+#include "PndDetectorList.h"
 #include <iostream>
 
 #include "TClass.h"
@@ -58,6 +59,7 @@ PndEmcDigi::PndEmcDigi(Int_t trackid, Int_t id, Float_t energy, Float_t time, In
 	fWhere = algPointer()(xtal);
 	fTheta = fWhere.Theta();
 	fPhi = fWhere.Phi();
+	SetLink(FairLink(kEmcHit, hitIndex));
 }
 
 //

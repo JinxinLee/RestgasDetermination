@@ -46,10 +46,11 @@
 #include "PndEmcCRRCPulseshape.h"
 #include "PndEmcCR2RCPulseshape.h"
 #include "PndEmcHit.h"
+#include "FairMultiLinkedData.h"
 
 class PndEmcHit;
 
-class PndEmcWaveform: public TObject
+class PndEmcWaveform: public FairMultiLinkedData
 {
 
 public:

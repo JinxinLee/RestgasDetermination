@@ -17,6 +17,7 @@
 #include "PndEmcRecoHit.h"
 #include "PndEmcBump.h"
 #include "PndEmcRecoPar.h"
+#include "PndDetectorList.h"
 
 #include "FairRootManager.h"
 #include "FairRunAna.h"
@@ -93,7 +94,8 @@ void PndEmcMakeRecoHit::Exec(Option_t* opt)
 		PndEmcBump* theBump = (PndEmcBump*) fBumpArray->At(iBump);
 		Double_t energy=theBump->energy();
 		TVector3 position=theBump->position();
-		new((*fRecoHitArray)[iBump]) PndEmcRecoHit(energy,position);
+		PndEmcRecoHit* myHit = new((*fRecoHitArray)[iBump]) PndEmcRecoHit(energy,position);
+		myHit->SetLink(FairLink(kEmcBump, iBump));
 		
 	}
 }

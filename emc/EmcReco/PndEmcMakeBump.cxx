@@ -43,6 +43,8 @@
 #include "PndEmcExpClusterSplitter.h"
 #include "PndEmcTwoCoordIndex.h"
 
+#include "PndDetectorList.h"
+
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
@@ -177,6 +179,7 @@ void PndEmcMakeBump::Exec(Option_t* opt)
     for (unsigned int  i = 0; i < theBumps.size(); i++){
       Int_t size_ba = fBumpArray->GetEntriesFast();
       PndEmcBump* theNextBump = new((*fBumpArray)[size_ba]) PndEmcBump(*(theBumps[i]));
+      theNextBump->SetLink(FairLink(kEmcCluster, iCluster));
       
       if ((fVerbose>=1)&&(theBumps.size()>1)){
 	std::cout<<"bump energy = "<<theBumps[i]->energy()<<endl;
