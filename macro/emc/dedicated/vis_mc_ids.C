@@ -6,13 +6,14 @@ vis_mc_ids()
   gROOT->Macro("$VMCWORKDIR/gconfig/rootlogon.C");
   gROOT->Macro("~/rootlogon.C");
 
-  TTree *sim1, *sim2;
-  TFile *_file0 = TFile::Open("full_emc_test_gamma.root");
-  sim1=cbmsim;
-  sim1->SetName("sim1");
+//  TTree *sim1, *sim2;
+//  TFile *_file0 = TFile::Open("full_emc_test_gamma.root");
+//  sim1=cbmsim;
+//  sim1->SetName("sim1");
   TChain *abc=new TChain("cbmsim");
-  abc->Add("sim_emc_test_gamma.root");
-  abc->AddFriend("sim1");
+  abc->Add("emc_complete.root");
+//  abc->Add("sim_emc_test_gamma.root");
+//  abc->AddFriend("sim1");
 
     TClonesArray* mctrack_array=new TClonesArray("PndMCTrack");
   abc->SetBranchAddress("MCTrack",&mctrack_array);
@@ -45,6 +46,7 @@ vis_mc_ids()
     {
 	    PndEmcHit *hit;
 	    hit=(PndEmcHit*)hit_array->At(i);
+//         cout <<"Hit "<<i<<" energy: "<<hit->GetEnergy()<<endl;
     	Double_t x,y;
     	x=hit->GetX();
     	y=hit->GetY();
@@ -65,7 +67,8 @@ vis_mc_ids()
 			propagate_mclist(id, mctrack_array,x,y);
 			if(j!=0) mctxt+=",";
 			add_mccode(mctxt,((PndMCTrack *)mctrack_array->At(id))->GetPdgCode());
-		}
+//                        cout <<"MCIndex: "<<id<<": "<<((PndMCTrack *)mctrack_array->At(id))->Get4Momentum().E()<<endl;
+ 		}
 
 	    lt->DrawLatex(x*(fak+.8e-3)+.5,y*(fak+.8e-3)+.5,mctxt.Data());
     }
@@ -78,6 +81,7 @@ vis_mc_ids()
     {
     	PndEmcCluster *clu;
     	clu=(PndEmcCluster*)cluster_array->At(i);
+	cout <<"Cluster "<<i<<" energy: "<<clu->energy()<< " , "<< clu->GetEnergyCorrected()<<endl;
     	Double_t x,y;
     	x=clu->x();
     	y=clu->y();
@@ -97,6 +101,7 @@ vis_mc_ids()
 			propagate_mclist(id, mctrack_array,x,y);
 			if(j!=0) mctxt+=",";
 			add_mccode(mctxt,((PndMCTrack *)mctrack_array->At(id))->GetPdgCode());
+			cout <<"MCIndex: "<<id<<": "<<((PndMCTrack *)mctrack_array->At(id))->Get4Momentum().E()<<endl;
 		}
 	    lt->DrawLatex(x*(fak+.8e-3)+.5,y*(fak+.8e-3)+.5,mctxt.Data());
     }
