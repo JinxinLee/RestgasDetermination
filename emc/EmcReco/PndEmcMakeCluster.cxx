@@ -186,6 +186,7 @@ void PndEmcMakeCluster::Exec(Option_t* opt)
 						clustmarker=i;
 						isAdded=true;
 						cluster->addDigi(theDigi);
+						cluster->AddLink(FairLink(kEmcDigi, iDigi));
 					}
 					else
 					{
