@@ -33,7 +33,7 @@ GFTrackCand* PndTrackCand2GenfitTrackCand(PndTrackCand* cand){
   unsigned int nhits = cand->GetNHits();
   for(unsigned int i=0;i<nhits;++i){
     PndTrackCandHit candHit = cand->GetSortedHit(i);
-    retVal->addHit(candHit.GetDetId(),candHit.GetHitId(),candHit.GetRho());
+    retVal->addHit(candHit.GetDetId(),candHit.GetHitId(),0,candHit.GetRho());
   }
   retVal->setMcTrackId(cand->getMcTrackId());
   retVal->setTrackSeed(cand->getPosSeed(),
@@ -83,6 +83,14 @@ PndTrack* GenfitTrack2PndTrack(const GFTrack* tr){
     PndTrack* retVal =  new PndTrack(first,last,*pndCand);
     retVal->SetChi2(tr->getChiSqu());
     retVal->SetNDF(tr->getNDF());
+    if (tr->getNDF()==0)
+      {
+	retVal->SetFlag(-1);
+      }
+    else
+      {
+	retVal->SetFlag(1);
+      }
     delete pndCand;
     return retVal;
   }
