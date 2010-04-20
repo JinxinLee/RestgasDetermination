@@ -120,6 +120,7 @@ PndTpcClusterFinderTask::Init()
   
   ffinder->checkConsistency();
   ffinder->setTrivialClustering(ftrivial);
+  ffinder->saveRaw(fpersistence);
 
   return kSUCCESS;
 }
