@@ -63,8 +63,8 @@
   //Dipole->SetGeometryFileName("dipole.geo");
   //fRun->AddModule(Dipole);
 
-  //FairModule *Pipe= new PndPipe("PIPE");
-  //fRun->AddModule(Pipe);
+  FairModule *Pipe= new PndPipe("PIPE");
+  fRun->AddModule(Pipe);
 
   //FairDetector *Tpc = new PndTpcDetector("TPC", kTRUE);
   //Tpc->SetGeometryFileName("tpc.geo");
@@ -79,9 +79,9 @@
   //Emc->SetStorageOfData(kFALSE);
   //fRun->AddModule(Emc);
   
-  FairDetector *Tof = new PndTof("TOF",kTRUE);
-  Tof->SetGeometryFileName("tofbarrel.geo");
-  fRun->AddModule(Tof);
+  //FairDetector *Tof = new PndTof("TOF",kTRUE);
+  //Tof->SetGeometryFileName("tofbarrel.geo");
+  //fRun->AddModule(Tof);
   
   //PndMdt *Muo = new PndMdt("MDT",kTRUE);
   //Muo->SetBarrel("torino");

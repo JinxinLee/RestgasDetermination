@@ -11,7 +11,7 @@
   Int_t nEvents = 0;
 
   // Parameter file
-  TString parFile = "testparams.root";
+  TString parFile = "params_testrun1.root";
 
   // Output file
   TString outFile = "hit_drc.root";
