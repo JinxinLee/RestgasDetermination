@@ -154,8 +154,8 @@ PndTrack* PndRecoKalmanFit::Fit(PndTrack *tBefore, Int_t PDG)
   if (fabs(tBefore->GetParamFirst().GetPz())<1e-9) 
     {
       tAfter = tBefore;
-      tAfter->SetFlag(-1);
-      return tAfter; // flag -1 : pz==0
+      tAfter->SetFlag(-10);
+      return tAfter; // flag -10 : pz==0
     }
   
   Int_t  fCharge= tBefore->GetParamFirst().GetQ();
@@ -217,12 +217,11 @@ PndTrack* PndRecoKalmanFit::Fit(PndTrack *tBefore, Int_t PDG)
       std::cout<<"*** FITTER EXCEPTION ***"<<std::endl;
       std::cout<<e.what()<<std::endl;
     }
-  if (fVerbose>0) std::cout<<"SUCESSFULL FIT!"<<std::endl;
+  if (fVerbose>0) std::cout<<"SUCCESSFULL FIT!"<<std::endl;
   
   try
     { 
       tAfter = (PndTrack*)GenfitTrack2PndTrack(trk);
-      tAfter->SetFlag(1);
     }
   catch (GFException e)
     {
@@ -232,7 +231,6 @@ PndTrack* PndRecoKalmanFit::Fit(PndTrack *tBefore, Int_t PDG)
       tAfter->SetFlag(-2); // flag -2: conversion failed
     } 
 
-  if (tAfter->GetNDF()==0) tAfter->SetFlag(-3); // flag -3: NDF==0
   if (fVerbose>0) std::cout<<"Fitting done"<<std::endl;
 
   return tAfter;
