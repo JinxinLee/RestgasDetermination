@@ -34,7 +34,10 @@ PndTpcDigi::PndTpcDigi()
 PndTpcDigi::PndTpcDigi(const PndTpcDigi& d)
   : famp(d.famp), ft(d.ft), fpadID(d.fpadID), ftlength(d.ftlength),
     fmcid(d.fmcid)
-{}
+{
+  for(unsigned int i=0; i<(d.samples).size(); ++i) 
+    samples.push_back((d.samples).at(i));
+}
 
 
 
