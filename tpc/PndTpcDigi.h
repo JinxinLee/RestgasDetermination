@@ -13,7 +13,6 @@
 // Author List:
 //      Sebastian Neubert    TUM            (original author)
 //
-//
 //-----------------------------------------------------------
 
 
@@ -27,9 +26,10 @@
 #include <ostream> // remove if you do not need streaming op
 #include "McIdCollection.h"
 #include <iostream>
+#include <assert.h>
 
 // Collaborating Class Declarations --
-
+#include "PndTpcSample.h"
 
 class PndTpcDigi : public TObject {
 public:
@@ -63,6 +63,22 @@ public:
   double maxMcWeight() const {return fmcid.MaxRelWeight();}
   void tlength(double dt){ftlength=dt;}
 
+  //Samples Vector-------------------
+  
+  unsigned int nSample() const {
+    return samples.size();
+  }
+  void addSample(const PndTpcSample& d){
+    samples.push_back(d);
+    
+    
+  }
+  const PndTpcSample& getSample(int i) const{
+    assert (i<samples.size());
+    return samples.at(i);
+  }
+
+
 
   // Operations ----------------------
   void Print() const {
@@ -81,8 +97,12 @@ private:
   McIdCollection fmcid;
   // Private Methods -----------------
 
+  //for optional saving of raw info that went into the cluster
+  std::vector<PndTpcSample> samples;
+
+
 public:
-  ClassDef(PndTpcDigi,2)
+  ClassDef(PndTpcDigi,5)
 
 };
 
@@ -90,9 +110,13 @@ public:
 
 //--------------------------------------------------------------
 // $Log: PndTpcDigi.hh,v $
+// 
+// Revision 1.5  2010/04/20 11:42:32  mvandenb
+// Integration of sample vector
+//
 // Revision 1.4  2006/02/24 14:39:34  sneubert
 // moved McIds to package MciData
-//
+///
 // Revision 1.3  2006/02/24 13:38:00  sneubert
 // Code revision done
 //
