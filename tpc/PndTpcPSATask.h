@@ -29,6 +29,7 @@ class TClonesArray;
 class PndTpcFrontend;
 class PndTpcAbsPSAStrategy;
 class PndTpcDigiPar;
+class PndTpcAbsPulseshape;
 
 class PndTpcPSATask : public FairTask {
 public:
@@ -46,7 +47,8 @@ public:
   // Modifiers -----------------------
   void SetSampleBranchName(const TString& name) {fsampleBranchName=name;}
   void SetPersistence(Bool_t opt=kTRUE) {fpersistence=opt;}
-  
+  void SetPeakingtime(int pik) {fpeak=pik;}
+  void SetTail(bool b){fTail=b;}
 
   // Operations ----------------------
   
@@ -64,11 +66,15 @@ private:
   TClonesArray* fdigiArray;
   
   Bool_t fpersistence;
+  bool fTail;
  
   PndTpcFrontend* ffrontend;
   PndTpcAbsPSAStrategy* fpsa;
-
+  PndTpcAbsPulseshape* fpulseshape;
+  
   PndTpcDigiPar* fpar;
+
+  int fpeak;
 
   // Private Methods -----------------
 

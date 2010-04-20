@@ -20,6 +20,8 @@
 
 // Base Class Headers ----------------
 #include <vector>
+#include <iostream>
+#include "PndTpcAbsPulseshape.h"
 
 // Collaborating Class Headers -------
 
@@ -42,7 +44,12 @@ public:
 					   std::vector<PndTpcDigi*>& digis,
 					   double padThreshold) = 0;
 
+  // TODO kill Maxence:
+  virtual void setPs(PndTpcAbsPulseshape* pulseshape) { std::cerr << "setPs not implemented!" << std::endl; exit(1); };
 
+  virtual void TailCancellation(bool b) { std::cerr << "TailCancellation not implemented!" << std::endl; exit(1); };
+
+  virtual void setFreq(int b) { std::cerr << "Set frequency not implemented!" << std::endl; exit(1); };
 
 protected:
 
