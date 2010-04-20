@@ -33,9 +33,12 @@
 #include "PndTpcFrontend.h"
 #include "PndTpcSimplePSAStrategy.h"
 #include "PndTpcPSA_TOT1.h"
+#include "PndTpcPSA_AD1.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
 #include "PndTpcDigiPar.h"
+#include "PndTpcT2KPulseshape.h"
+
 
 // Class Member definitions -----------
 void
@@ -58,7 +61,7 @@ PndTpcPSATask::SetParContainers() {
 
 
 PndTpcPSATask::PndTpcPSATask()
-  : FairTask("TPC Pulse shape analyser"), fpersistence(kFALSE)
+  : FairTask("TPC Pulse shape analyser"), fpersistence(kFALSE), fpeak(100)
 {
   fsampleBranchName = "PndTpcSample";
 }
@@ -106,7 +109,7 @@ PndTpcPSATask::Init()
   //		     10);     // PSAthreshold
 
   ffrontend = (PndTpcFrontend*) fpar->getFrontend();
-
+  fpulseshape= new PndTpcT2KPulseshape(fpeak);
 
    if( fpar->getPSA() == 0)	
      {
@@ -119,6 +122,15 @@ PndTpcPSATask::Init()
 	 fpsa= new PndTpcPSA_TOT1();
 	 std::cout << "Using PSA_TOT strategy!" << std::endl;
        }
+     else 
+       if( fpar->getPSA() == 2)	
+	 {
+	   fpsa= new PndTpcPSA_AD1();//fpulseshape);
+	   fpsa->setPs(fpulseshape);
+	   fpsa->TailCancellation(fTail);
+	   fpsa->setFreq(ffrontend->samplingFrequency());
+	   std::cout << "Using PSA_AD strategy!" << std::endl;
+	 }  
      else return kERROR;
   return kSUCCESS;
 }
@@ -139,7 +151,7 @@ PndTpcPSATask::Exec(Option_t* opt)
   Int_t ns=fsampleArray->GetEntriesFast();
   if(ns>0){
 
-    if ( fpar->getPSA() == 1)
+    if ( fpar->getPSA() == 1 || fpar->getPSA() == 2 )
       {
 	std::vector<PndTpcSample*> vecSa;
 	vecSa.clear();
@@ -147,9 +159,9 @@ PndTpcPSATask::Exec(Option_t* opt)
 	  vecSa.push_back((PndTpcSample*)fsampleArray->At(is));
 	if(vecSa.size()!=0)
 	  {
-	    std::cout << "Processing " << vecSa.size() << " samples with PSA_TOT1";
+	    std::cout << "Processing " << vecSa.size() << " samples with PSA (th";
 	    fpsa->Process(vecSa,digis,ffrontend->psaThreshold());
-	    std::cout << " -- " << digis.size()<< " Digis created."<<std::endl;
+	    std::cout <<ffrontend->psaThreshold() << ") -- " << digis.size()<< " Digis created."<<std::endl;
 	  }
       }
     else {
