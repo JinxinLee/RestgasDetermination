@@ -61,9 +61,9 @@
 
   clas.push_back("electron");
   clas.push_back("pion");
-  clas.push_back("kaon"); 
-  clas.push_back("proton");
-  clas.push_back("muon");
+  //clas.push_back("kaon"); 
+  //clas.push_back("proton");
+  //clas.push_back("muon");
   
   nam.push_back("p");
   nam.push_back("emc");
