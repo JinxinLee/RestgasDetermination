@@ -21,6 +21,7 @@
 // Base Class Headers ----------------
 #include <vector>
 #include <iostream>
+#include <stdlib.h>
 #include "PndTpcAbsPulseshape.h"
 
 // Collaborating Class Headers -------
