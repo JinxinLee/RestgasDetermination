@@ -11,12 +11,15 @@ ${CMAKE_SOURCE_DIR}/pndbase
 ${CMAKE_SOURCE_DIR}/pnddata
 ${CMAKE_SOURCE_DIR}/pnddata/MvdData
 ${CMAKE_SOURCE_DIR}/pnddata/TrackData
+${CMAKE_SOURCE_DIR}/pndbase/PndStdUtils
 ${CMAKE_SOURCE_DIR}/field 
 ${CMAKE_SOURCE_DIR}/trackrep
 ${CMAKE_SOURCE_DIR}/trackbase
 ${CMAKE_SOURCE_DIR}/geane
 ${CMAKE_SOURCE_DIR}/genfit
 ${CMAKE_SOURCE_DIR}/PndTools/riemannfit
+${CMAKE_SOURCE_DIR}/emc/EmcData
+${CMAKE_SOURCE_DIR}/emc/EmcReco
 ${CMAKE_SOURCE_DIR}/PndMCMatch
 )
 
@@ -63,6 +66,7 @@ set(MCMATCHEXAMPLES_SRCS
 examples/PndMCTestMomentumCompare.cxx
 examples/PndMCTestHitCompare.cxx
 examples/PndMCIdealTrackFinder.cxx
+examples/PndMCTestEmcClusterCompare.cxx
 )
 
 CHANGE_FILE_EXTENSION(*.cxx *.h MCMATCHEXAMPLES_HEADERS "${MCMATCHEXAMPLES_SRCS}")

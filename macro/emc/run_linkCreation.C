@@ -22,6 +22,7 @@
 	  std::cout << "PidFile: " << PidFile.Data() << std::endl;
 
 	  gSystem->Load("libMCMatch");
+	  gSystem->Load("libMCMatchExamples");
 
 
   // -----   Timer   --------------------------------------------------------
@@ -69,6 +70,9 @@
 
   PndMCMatchCreatorTask* mcMatch = new PndMCMatchCreatorTask();
   fRun->AddTask(mcMatch);
+
+  PndMCTestEmcClusterCompare* mcTestEmc = new PndMCTestEmcClusterCompare();
+  fRun->AddTask(mcTestEmc);
 
   fRun->Init();
 

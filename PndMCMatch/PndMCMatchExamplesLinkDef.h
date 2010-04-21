@@ -8,6 +8,8 @@
 #pragma link C++ class PndMCTestHitCompare+;
 #pragma link C++ class PndMCIdealTrackFinder+;
 
+#pragma link C++ class PndMCTestEmcClusterCompare+;
+
 
 #endif
 

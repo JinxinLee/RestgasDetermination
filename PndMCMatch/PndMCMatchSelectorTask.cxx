@@ -78,6 +78,7 @@ void PndMCMatchSelectorTask::Exec(Option_t* opt)
 	std::cout << "Output Selector: " << std::endl;
 	SetWeights();
 	std::cout << fMCMatch->GetMCInfo(fStart, fStop);
+	std::cout << std::endl;
 }
 
 void PndMCMatchSelectorTask::SetWeights()
