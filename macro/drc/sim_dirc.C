@@ -7,12 +7,12 @@
   TStopwatch timer;
   timer.Start();
   gDebug=0;
-  // Load basic libraries
-  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
-  basiclibs();
   // If it does not work,  please check the path of the libs and put it by hands
   gROOT->LoadMacro("$VMCWORKDIR/gconfig/rootlogon.C");
   rootlogon();
+  // Load basic libraries
+  gROOT->LoadMacro("$VMCWORKDIR/gconfig/basiclibs.C");
+  basiclibs();
 
   
   TString digiFile = "all.par";
