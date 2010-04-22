@@ -63,21 +63,6 @@ PidCorr/PndPidSttInfo.cxx
 PidCorr/PndPidTpcInfo.cxx
 PndPidContFact.cxx
 
-# ######### Classifiers sources
-# PidClassifier/PndMvaUtil.cpp
-# PidClassifier/PndMvaDataSet.cpp
-# PidClassifier/PndGpidClassifier.cpp
-# PidClassifier/KNN/PndStdKnnClassify.cpp
-# PidClassifier/LVQ1/PndLVQClassify.cpp
-# PidClassifier/TMVAkd_KNN/PndKnnClassify.cpp
-# PidClassifier/TMVAkd_KNN/PndProjectedKNN.cpp
-# PidClassifier/TMVA_PDE_FOAM/PndPDEFoamClassify.cpp
-
-###### Trainers.
-# PidClassifier/PndMvaTrainer.cpp
-# PidClassifier/LVQ1/PndLVQTrain.cpp
-# PidClassifier/TMVA_PDE_FOAM/PndPDEFoamTrain.cpp
-
 ###### Associator
 PidClassifier/PndPidIdealAssociatorTask.cxx
 PidClassifier/PndPidMvdAssociatorTask.cxx
@@ -93,7 +78,6 @@ if(RULE_CHECKER_FOUND)
   CHECK_RULES("${Pid_SRCS}" "${INCLUDE_DIRECTORIES}" Pid_RULES)
 endif(RULE_CHECKER_FOUND)
 
-
 set(Pid_HEADERS
 PidData/PndPidCandidate.h
 PidData/PndPidProbability.h
@@ -101,11 +85,7 @@ PidCorr/PndPidCorrPar.h
 PidCorr/PndPidCorrelator.h
 PndPidContFact.h
 
-############ Classifier headers
-# PidClassifier/PndMvaClass.h
-# PidClassifier/PndMvaVariable.h
-
-###### Dummy
+###### Associator Headers
 PidClassifier/PndPidIdealAssociatorTask.h
 PidClassifier/PndPidMvdAssociatorTask.h
 PidClassifier/PndPidDrcAssociatorTask.h
@@ -114,10 +94,7 @@ PidClassifier/PndPidEmcAssociatorTask.h
 
 ###### Parameters
 PidClassifier/PndPidMvdPar.h
-
 )
-
-
 
 set(Pid_LINKDEF PidLinkDef.h)
 set(Pid_DICTIONARY ${CMAKE_CURRENT_BINARY_DIR}/PidDict.cxx) 
