@@ -43,6 +43,7 @@ PndGemRecoHit.cxx
 PndMdtRecoHit.cxx
 PndMvdRecoHit.cxx
 PndSttRecoHit.cxx
+PndSttRecoHitProducer.cxx
 )
 
 if(RULE_CHECKER_FOUND)

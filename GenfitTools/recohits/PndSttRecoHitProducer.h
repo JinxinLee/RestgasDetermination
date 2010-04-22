@@ -1,0 +1,58 @@
+#ifndef PNDSTTRECOHITPRODUCER_H
+#define PNDSTTRECOHITPRODUCER_H
+
+#include<vector>
+#include<map>
+#include<assert.h>
+#include<iostream>
+
+#include "TClonesArray.h"
+#include "GFException.h"
+#include "GFRecoHitProducer.h"
+
+class GFAbsRecoHit;
+class TClonesArray;
+
+template <class hit_T,class recoHit_T> 
+class PndSttRecoHitProducer : public GFAbsRecoHitProducer {
+
+ private:
+  TClonesArray* hitArrayTClones;
+  TClonesArray* tubeArrayTClones;
+
+ public:
+
+  PndSttRecoHitProducer(TClonesArray*, TClonesArray*);
+  virtual ~PndSttRecoHitProducer();
+
+  virtual GFAbsRecoHit* produce(int index);	
+};
+
+template <class hit_T,class recoHit_T>
+  PndSttRecoHitProducer<hit_T,recoHit_T>::PndSttRecoHitProducer(TClonesArray* theArr, TClonesArray* theTubeArr) {
+  hitArrayTClones = theArr;
+  tubeArrayTClones = theTubeArr;
+}
+
+template <class hit_T,class recoHit_T>
+  PndSttRecoHitProducer<hit_T,recoHit_T>::~PndSttRecoHitProducer() {
+}
+
+
+template <class hit_T,class recoHit_T>
+  GFAbsRecoHit* PndSttRecoHitProducer<hit_T,recoHit_T>::produce(int index) {
+  assert(hitArrayTClones!=NULL);
+  assert(tubeArrayTClones!=NULL);
+  if(hitArrayTClones->At(index) == 0) {
+    GFException e("In PndSttRecoHitProducer: index for hit in TClonesArray out of bounds",__LINE__,__FILE__);
+    e.setFatal();
+    throw e;
+  }
+
+  return ( new recoHit_T( (hit_T*) hitArrayTClones->At(index), tubeArrayTClones ) );
+}
+
+
+#endif 
+
+
