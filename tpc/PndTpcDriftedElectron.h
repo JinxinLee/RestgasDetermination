@@ -19,7 +19,7 @@
 #define TPCDRIFTEDELECTRON_HH
 
 // Base Class Headers ----------------
-#include "TObject.h"
+#include "FairMultiLinkedData.h"
 
 // Collaborating Class Headers -------
 
@@ -28,7 +28,7 @@
 
 class PndTpcPrimaryCluster;
 
-class PndTpcDriftedElectron : public TObject {
+class PndTpcDriftedElectron : public FairMultiLinkedData {
 public:
 
   // Constructors/Destructors ---------

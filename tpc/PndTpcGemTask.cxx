@@ -34,6 +34,8 @@
 #include "FairRuntimeDb.h"
 #include "PndTpcDigiPar.h"
 
+#include "PndDetectorList.h"
+
 #include <iostream>
 #include <cmath>
 
@@ -154,8 +156,9 @@ PndTpcGemTask::Exec(Option_t* opt)
 	  //TODO: implement full set: exp. distr. for first stage,
 	  //representing rest
 	  
-      new ((*favalancheArray)[na]) PndTpcAvalanche(e->x(), e->y(), e->t(),
+      PndTpcAvalanche* myAvalanche = new ((*favalancheArray)[na]) PndTpcAvalanche(e->x(), e->y(), e->t(),
 						fgain*gainFactor, e);
+      myAvalanche->SetLink(FairLink(kTpcDriftedElectron, id));
     }
   } // end loop over drifted electrons
   std::cout<<" finished."<<std::endl;

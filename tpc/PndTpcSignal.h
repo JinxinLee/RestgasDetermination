@@ -19,7 +19,7 @@
 #define TPCSIGNAL_HH
 
 // Base Class Headers ----------------
-#include "TObject.h"
+#include "FairMultiLinkedData.h"
 
 // Collaborating Class Headers -------
 #include <ostream> // remove if you do not need streaming op
@@ -29,7 +29,7 @@
 class PndTpcAvalanche;
 
 
-class PndTpcSignal : public TObject {
+class PndTpcSignal : public FairMultiLinkedData {
 public:
 
   // Constructors/Destructors ---------

@@ -18,6 +18,7 @@
 
 // This Class' Header ------------------
 #include "PndTpcPrimaryCluster.h"
+#include "PndDetectorList.h"
 
 // C/C++ Headers ----------------------
 
@@ -40,7 +41,9 @@ PndTpcPrimaryCluster::PndTpcPrimaryCluster(const double T,
 				     const unsigned int McTrackId,
 				     const unsigned int McHitId)
   : ft(T), fq(Q), fmcTrackId(McTrackId),fmcHitId(McHitId),fpos(Pos)
-{}
+{
+	SetLink(FairLink(kTpcPoint, McHitId));
+}
 
 
 PndTpcPrimaryCluster::~PndTpcPrimaryCluster()

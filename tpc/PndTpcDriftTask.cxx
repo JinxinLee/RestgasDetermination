@@ -35,6 +35,7 @@
 #include "PndTpcPrimaryCluster.h"
 #include "PndTpcDriftedElectron.h"
 #include "PndTpcDevmapCyl.h"
+#include "PndDetectorList.h"
 #include "TVector3.h"
 #include "QAPlotCollection.h"
 
@@ -203,10 +204,11 @@ PndTpcDriftTask::Exec(Option_t* opt)
 	dt+=value.Z() / fgas->VDrift();      
       }
       Int_t size = fdriftedArray->GetEntriesFast();
-      new((*fdriftedArray)[size]) PndTpcDriftedElectron(pcl->x()+dx,
-						       pcl->y()+dy,
-						       pcl->t()+dt,
-						       pcl);
+      PndTpcDriftedElectron* myElectron = new((*fdriftedArray)[size]) PndTpcDriftedElectron(pcl->x()+dx,
+											   pcl->y()+dy,
+											pcl->t()+dt,
+											pcl);
+      myElectron->SetLink(FairLink(kTpcPrimaryCluster, ic));
       //feeding the tracking Histograms with this electrons' data
       FillHistograms(dx, dy, driftl);
 

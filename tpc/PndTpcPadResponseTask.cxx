@@ -35,6 +35,7 @@
 #include "PndTpcPad.h"
 #include "PndTpcPadPlane.h"
 #include "PndTpcGem.h"
+#include "PndDetectorList.h"
 #include "QAPlotCollection.h"
 
 #include <iostream>
@@ -179,6 +180,7 @@ PndTpcPadResponseTask::Exec(Option_t* opt)
                                      0);
         sig->setmcTrackId(Aval->mcTrackId());
         sig->setmcHitId(Aval->mcHitId());
+        sig->SetLink(FairLink(kTpcAvalanche, ia));
         ++nValidHits;
       }
       else {

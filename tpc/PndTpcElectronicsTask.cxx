@@ -50,6 +50,7 @@
 #include "PndTpcCRRCPulseshape.h"
 #include "PndTpcPSAplot.h"
 #include "PndTpcPSA_TOT1.h"
+#include "PndDetectorList.h"
 #include "McId.h"
 #include "QAPlotCollection.h"
 
@@ -166,12 +167,15 @@ PndTpcElectronicsTask::Exec(Option_t* opt)
   //partition data according to pads
   std::cout<<"Building up padmap ...";
   std::map<unsigned int,std::vector<PndTpcSignal*>* > padmap;
+  std::map<unsigned int, std::vector<int> > sigIdMap;
+
   Int_t ns=fsignalArray->GetEntriesFast();
   for(Int_t is=0;is<ns;++is){
     PndTpcSignal* sig=(PndTpcSignal*)fsignalArray->At(is);
     unsigned int id=sig->padId();
     if(padmap[id]==NULL)padmap[id]=new std::vector<PndTpcSignal*>;
     padmap[id]->push_back(sig);
+    sigIdMap[id].push_back(is);
   }
   std::cout<<"finished. "<<padmap.size()<<" pads hit"<<std::endl;
   int tenpercent=padmap.size()/10;
@@ -261,6 +265,7 @@ PndTpcElectronicsTask::Exec(Option_t* opt)
     int iarray=fdigiArray->GetEntriesFast();
     for(int idigi=0;idigi<ndigi;++idigi) {
       PndTpcDigi* dig=new((*fdigiArray)[iarray+idigi]) PndTpcDigi(*(digis[idigi]));
+      dig->SetLinks(FairMultiLinkedData(kTpcSignal, sigIdMap[padIt->first]));
       delete digis[idigi]; // clean up temporay store
       meandigit=dig->t();
     }

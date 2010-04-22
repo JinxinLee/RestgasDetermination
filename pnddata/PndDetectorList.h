@@ -16,11 +16,11 @@ enum DetectorId {
 
 enum fDetectorType {  
    kUnknown, kMCTrack,
-   kTpcPoint, kTpcCluster,
    kMVDPoint, kMVDDigiStrip, kMVDDigiPixel, kMVDClusterPixel, kMVDClusterStrip, kMVDHitsStrip, kMVDHitsPixel,
-   kEmcPoint, kEmcHit, kEmcDigi, kEmcCluster, kEmcBump, kEmcRecoHit,
    kSttPoint, kSttHit, kSttHelixHit, kSttTrackCand, kSttTrack,
+   kTpcPoint, kTpcPrimaryCluster, kTpcDriftedElectron, kTpcAvalanche, kTpcSignal, kTpcDigi, kTpcCluster,
    kGemPoint, kGemDigi, kGemHit,
+   kEmcPoint, kEmcHit, kEmcDigi, kEmcCluster, kEmcBump, kEmcRecoHit,
    kDchPoint, kDchDigi, kDchHit,
    kMdtPoint, kMdtHit,
    kLheHit, kLheCand, kLheTrack,

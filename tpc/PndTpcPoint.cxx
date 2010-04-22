@@ -19,6 +19,7 @@
 
 // This Class' Header ------------------
 #include "PndTpcPoint.h"
+#include "PndDetectorList.h"
 
 // C/C++ Headers ----------------------
 #include <iostream>
@@ -35,7 +36,9 @@ PndTpcPoint::PndTpcPoint()
 PndTpcPoint::PndTpcPoint(Int_t trackID, Int_t detID, TVector3 pos, TVector3 mom,
              Double_t tof, Double_t length, Double_t eLoss)
   : FairMCPoint(trackID, detID, pos, mom, tof, length, eLoss)
-{}
+{
+	SetLink(FairLink(kMCTrack, trackID));
+}
 
 void 
 PndTpcPoint::Print(const Option_t*) const {

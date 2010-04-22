@@ -26,6 +26,7 @@
 
 // Base Class Headers ----------------
 #include "TObject.h"
+#include "FairMultiLinkedData.h"
 
 // Collaborating Class Headers -------
 #include "TVector3.h"
@@ -33,7 +34,7 @@
 // Collaborating Class Declarations --
 
 
-class PndTpcPrimaryCluster : public TObject {
+class PndTpcPrimaryCluster : public FairMultiLinkedData {
 public:
 
   // Constructors/Destructors ---------

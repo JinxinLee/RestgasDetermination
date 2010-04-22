@@ -59,11 +59,24 @@ InitStatus PndMCMatchLoaderTask::Init()
   fMCMatch->InitStage(kMVDHitsStrip, "", "MVDHitsStrip");
   fMCMatch->InitStage(kMVDClusterPixel, "", "MVDPixelClusterCand");
   fMCMatch->InitStage(kMVDClusterStrip, "", "MVDStripClusterCand");
+
   fMCMatch->InitStage(kSttPoint, "", "STTPoint");
   fMCMatch->InitStage(kSttHit, "", "STTHit");
   fMCMatch->InitStage(kSttHelixHit, "", "SttHelixHit");
   fMCMatch->InitStage(kSttTrack, "", "STTTrack");
   fMCMatch->InitStage(kSttTrackCand, "", "STTTrackCand");
+
+  fMCMatch->InitStage(kTpcPoint, "", "PndTpcPoint");
+  fMCMatch->InitStage(kTpcPrimaryCluster, "", "PndTpcPrimaryCluster");
+  fMCMatch->InitStage(kTpcDriftedElectron, "", "PndTpcDriftedElectron");
+  fMCMatch->InitStage(kTpcAvalanche, "", "PndTpcAvalanche");
+  fMCMatch->InitStage(kTpcSignal, "", "PndTpcSignal");
+  fMCMatch->InitStage(kTpcDigi, "", "PndTpcDigi");
+  fMCMatch->InitStage(kTpcCluster, "", "PndTpcCluster");
+
+  fMCMatch->InitStage(kGemPoint, "", "GEMPoint");
+  fMCMatch->InitStage(kGemDigi, "", "GEMDigi");
+  fMCMatch->InitStage(kGemHit, "", "GEMHit");
 
  // fMCMatch->InitStage(kEmcPoint,"","EmcPoint");
   fMCMatch->InitStage(kEmcHit, "", "EmcHit");

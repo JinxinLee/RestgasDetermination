@@ -20,7 +20,7 @@
 #define TPCDIGI_HH
 
 // Base Class Headers ----------------
-#include "TObject.h"
+#include "FairMultiLinkedData.h"
 
 // Collaborating Class Headers -------
 #include <ostream> // remove if you do not need streaming op
@@ -31,7 +31,8 @@
 // Collaborating Class Declarations --
 #include "PndTpcSample.h"
 
-class PndTpcDigi : public TObject {
+
+class PndTpcDigi : public FairMultiLinkedData {
 public:
 
   // Constructors/Destructors ---------

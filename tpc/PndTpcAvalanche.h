@@ -21,7 +21,7 @@
 #define TPCAVALANCHE_HH
 
 // Base Class Headers ----------------
-#include "TObject.h"
+#include "FairMultiLinkedData.h"
 
 // Collaborating Class Headers -------
 #include <ostream>
@@ -29,7 +29,7 @@
 // Collaborating Class Declarations --
 class PndTpcDriftedElectron;
 
-class PndTpcAvalanche : public TObject {
+class PndTpcAvalanche : public FairMultiLinkedData {
 public:
 
   // Constructors/Destructors ---------
