@@ -6,6 +6,7 @@
 #include "PndGemSensor.h"
 
 #include "TMath.h"
+#include "TRandom.h"
 
 #include <iostream>
 #include <list>
@@ -26,11 +27,6 @@ PndGemSensor::PndGemSensor() {
   fNChannelsFront = fNChannelsBack = 0;
   fSigmaX = fSigmaY = fSigmaXY = 0.;
   cout << "-W- PndGemSensor: Do not use this constructor! " << endl;
-  
-  fGen = new TRandom3();
-  time_t curtime;
-  time(&curtime);
-  fGen->SetSeed(curtime);
 }
 // -------------------------------------------------------------------------
 
@@ -77,11 +73,50 @@ PndGemSensor::PndGemSensor(TString tempName, Int_t detId, Int_t iType,
   cout << tempName.Data() << " has " << fNChannelsFront << " front and " << fNChannelsBack << " back channels" << endl;
 
   fSigmaX = fSigmaY = fSigmaXY = 0.;
+}
+// -------------------------------------------------------------------------
 
-  fGen = new TRandom3();
-  time_t curtime;
-  time(&curtime);
-  fGen->SetSeed(curtime);
+// -----   Enhanced constructor (by z0 and d)  ------------------------------------------
+PndGemSensor::PndGemSensor(TString tempName, Int_t stationNr, Int_t sectorNr, Int_t iType, 
+			   Double_t x0, Double_t y0, Double_t z0,
+			   Double_t rotation, 
+			   Double_t innerRad, Double_t outerRad,
+			   Double_t d, 
+			   Double_t stripAngle0, Double_t stripAngle1,
+			   Double_t pitch0, Double_t pitch1)
+{
+
+  fName = tempName.Data();
+  SetDetectorId(stationNr, sectorNr);
+  fType         = iType;
+  fPosition[0]  = x0;
+  fPosition[1]  = y0;
+  fPosition[2]  = z0;  // z position of the station
+  fRotation     = rotation;
+  fInnerRadius  = innerRad;
+  fOuterRadius  = outerRad;
+  fD            = d;   // thickness of the station
+  fStripAngle[0]= stripAngle0; // strip angle
+  fStripAngle[1]= stripAngle1; // strip angle
+  fPitch[0]     = pitch0; // strip pitch
+  fPitch[1]     = pitch1; // strip pitch
+
+  if ( TMath::Abs(fStripAngle[0]) < 89. ) {
+    fNChannelsFront = (Int_t)(TMath::Ceil(2.*TMath::Pi()*fInnerRadius/fPitch[0]));
+  }
+  else {
+    fNChannelsFront = (Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[0]));
+  }
+  if ( TMath::Abs(fStripAngle[1]) < 89. ) {
+    fNChannelsBack  = (Int_t)(TMath::Ceil(2.*TMath::Pi()*fInnerRadius/fPitch[1]));
+  }
+  else {
+    fNChannelsBack  = (Int_t)(TMath::Ceil((fOuterRadius-fInnerRadius)/fPitch[1]));
+  }
+
+  cout << tempName.Data() << " has " << fNChannelsFront << " front and " << fNChannelsBack << " back channels" << endl;
+
+  fSigmaX = fSigmaY = fSigmaXY = 0.;
 }
 // -------------------------------------------------------------------------
 
@@ -134,6 +169,19 @@ void PndGemSensor::Print() {
   cout.width(6);
   cout << fPitch[1] << ") cm. ";
   cout << endl;
+
+  Int_t tempSId = fDetectorId;
+  Int_t bc = 0;
+  cout << "SENSOR :                                          " << flush;
+  while ( tempSId > 0 ) {
+    bc++;
+    cout << "\b" << tempSId%2 << "\b" << flush;
+    if ( bc == 27 || bc == 21 || bc == 8 || bc == 6 || bc == 5 )
+      cout << "\b|\b" << flush;
+    tempSId = tempSId/2;
+  }
+  cout << endl;
+
 }
 // -------------------------------------------------------------------------
 

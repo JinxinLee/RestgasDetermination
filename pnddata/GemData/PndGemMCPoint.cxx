@@ -7,6 +7,7 @@
 #include <iostream>
 #include "PndGemMCPoint.h"
 
+#include "PndDetectorList.h"
 
 // -----   Default constructor   -------------------------------------------
 PndGemMCPoint::PndGemMCPoint() : FairMCPoint() {
@@ -33,6 +34,7 @@ PndGemMCPoint::PndGemMCPoint(Int_t trackID, Int_t detID, TString detName,
   fPzfOut = momOut.Pz();
 
   fDetName = detName;
+  SetLink(FairLink(kMCTrack, trackID));
 }
 // -------------------------------------------------------------------------
 

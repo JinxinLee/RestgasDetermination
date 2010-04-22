@@ -19,6 +19,7 @@
 #include "TObjArray.h"
 #include "TNamed.h"
 #include "TString.h"
+#include "PndDetectorList.h"
 
 #include <map>
 
@@ -35,11 +36,11 @@ class PndGemStation : public TNamed
 
   /** Standard constructor 
   *@param name      Volume name of station
-  *@param detId     Detector ID 
+  *@param stationNr stationNr 
   *@param z         z position of station centre [cm]
   *@param rotation  Rotation angle in global c.s. [rad]
   **/
-  PndGemStation(const char* name, Int_t detId, Double_t z, 
+  PndGemStation(const char* name, Int_t stationNr, Double_t z, 
 		Double_t rotation);
   
 
@@ -47,11 +48,14 @@ class PndGemStation : public TNamed
   virtual ~PndGemStation();
   
   /** Accessors **/
+      
+  void     SetDetectorId(Int_t stationNr) {
+    fDetectorId = kGEM << 27 | 0 << 21 | stationNr << 8 | 0 << 6; }
   Int_t    GetDetectorId() const { return fDetectorId; }
   Int_t    GetSystemId()   const { 
-    return ( ( fDetectorId & (15<<24) ) >> 24); }
+    return ( ( fDetectorId & (  31<<27) ) >> 27); }
   Int_t    GetStationNr()  const { 
-    return ( ( fDetectorId & (255<<16) ) >> 16 ); }
+    return ( ( fDetectorId & (8191<< 8) ) >>  8 ); }
   Double_t GetZ(Int_t it=0);
   Int_t    GetNSensors()   const { return fSensors->GetEntriesFast(); }
   Int_t    GetNChannels();

@@ -21,7 +21,6 @@
 
 // Root includes
 #include "TStopwatch.h"
-#include "TRandom3.h"
 
 class TClonesArray;
 class PndGemDigiPar;
@@ -54,8 +53,6 @@ class PndGemIdealHitProducer : public FairTask{
 
  private: 
    
-	TRandom3*         fGen;
-
 	PndGemDigiPar* fDigiPar;
 
 	TClonesArray* fPointArray;///< Input array of PndGemMCPoints 

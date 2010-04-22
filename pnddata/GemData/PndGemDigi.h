@@ -30,9 +30,13 @@
 
 #include <vector>
 
+#include "FairMultiLinkedData.h"
+
+#include "PndDetectorList.h"
+
 #include "TObject.h"
 
-class PndGemDigi : public TObject
+class PndGemDigi : public FairMultiLinkedData
 {
 
  public:
@@ -62,23 +66,37 @@ class PndGemDigi : public TObject
   /** Accessors **/
   Int_t GetDetectorId() const { return fDetectorId; }
   Int_t GetChannelNr()  const { return fChannelNr; }
-  Int_t    GetSystemId()   const {  
-    return ( fDetectorId & (15<<24) ) >> 24; }
 
+  Int_t    GetSystemId()   const { 
+    return ( ( fDetectorId & (  31<<27) ) >> 27); }
   Int_t    GetStationNr()  const { 
-    return ( fDetectorId & (255<<16) ) >> 16; }
-  Int_t    GetSensorNr()   const {  // sector number within station
-    return ( fDetectorId & (4095<<4) ) >> 4; }
-  Int_t    GetSide()        const {
-    return ( fDetectorId & (1<<0) ) >> 0; }  // 0=front, 1=back
+    return ( ( fDetectorId & (8191<< 8) ) >>  8 ); }
+  Int_t    GetSensorNr()   const {  // sensor number within station
+    return ( ( fDetectorId & (   3<< 6) ) >>  6 ); }
+  Int_t    GetSide()       const {
+    return ( ( fDetectorId & (   1<< 5) ) >>  5 ); }  // 0=front, 1=back
 
   Double_t GetADC()          const { return fDigiADC; }
   Double_t GetTDC()          const { return fDigiTDC; }
   Double_t GetCor()          const { return fDigiCor; }
-
-  Int_t GetIndex(int i = 0) const{ return fIndex[i];}
-  Int_t GetNIndices() const { return fIndex.size();}
-  void AddIndex(int index){fIndex.push_back(index);}
+  
+  std::vector<Int_t> GetIndices() const { 
+    std::vector<Int_t> result; 
+    std::vector<FairLink> myLinks = GetLinks(); 
+    for (int i = 0; i < myLinks.size(); i++){ 
+      result.push_back(myLinks[i].GetIndex()); 
+    } 
+    return result; 
+  } 
+  Int_t GetNIndices() {return GetNLinks();} 
+  Int_t GetIndex(int i = 0) const{ return GetLink(i).GetIndex();} 
+  
+  void AddIndex(int index){ 
+    AddLink(FairLink(kGemPoint, index)); 
+  } 
+  void AddIndex(std::vector<Int_t> index){ 
+    SetLinks(FairMultiLinkedData(kGemPoint, index)); 
+  } 
 
  private:
 
@@ -88,8 +106,6 @@ class PndGemDigi : public TObject
   Double_t fDigiADC;
   Double_t fDigiTDC;
   Double_t fDigiCor;
-
-  std::vector<Int_t> fIndex;
 
   ClassDef(PndGemDigi,1);
 

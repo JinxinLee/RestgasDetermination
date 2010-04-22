@@ -14,6 +14,7 @@
 
 using std::cout;
 using std::endl;
+using std::flush;
 using std::map;
 
 
@@ -29,10 +30,10 @@ PndGemStation::PndGemStation() {
 
 
 // -----   Standard constructor   ------------------------------------------
-PndGemStation::PndGemStation(const char* name, Int_t iStation, Double_t z, 
+PndGemStation::PndGemStation(const char* name, Int_t stationNr, Double_t z, 
 			     Double_t rotation) 
   : TNamed(name, "GEM station") {
-  fDetectorId = 2 << 24 | iStation << 16;
+  SetDetectorId(stationNr);
   fZ          = z;
   fRotation   = rotation;
   fSensors = new TObjArray(100);
@@ -174,6 +175,19 @@ void PndGemStation::Print(Bool_t kLong) {
   cout << GetNSensors() << ", channels: ";
   cout.width(8);
   cout << GetNChannels() << endl;
+
+  Int_t tempSId = fDetectorId;
+  Int_t bc = 0;
+  cout << "STATION:                                          " << flush;
+  while ( tempSId > 0 ) {
+    bc++;
+    cout << "\b" << tempSId%2 << "\b" << flush;
+    if ( bc == 27 || bc == 21 || bc == 8 || bc == 6 || bc == 5 )
+      cout << "\b|\b" << flush;
+    tempSId = tempSId/2;
+  }
+  cout << endl;
+
   if ( kLong ) 
     for (Int_t iSec=0; iSec<GetNSensors(); iSec++) 
       GetSensor(iSec)->Print();

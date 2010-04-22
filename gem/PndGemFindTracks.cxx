@@ -117,8 +117,8 @@ InitStatus PndGemFindTracks::Init() {
   }
   
   // Create and register GemTrack array
-  fTrackArray = new TClonesArray("PndTrackCand",100);
-  ioman->Register("GEMTrackCand", "Gem Track Candidates", fTrackArray, kTRUE);
+  fTrackArray = new TClonesArray("PndTrack",100);
+  ioman->Register("GEMTrack", "Gem Tracks", fTrackArray, kTRUE);
   
   // Call the Init method of the track finder
   fFinder->Init();

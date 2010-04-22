@@ -10,6 +10,7 @@
 #include "TGeoNode.h"
 #include "TGeoVolume.h"
 #include "TGeoMatrix.h"
+#include "PndDetectorList.h"
 
 
 // -----   Default constructor   -------------------------------------------
@@ -31,6 +32,8 @@ PndGemHit::PndGemHit(Int_t detID, TVector3& pos, TVector3& dpos,
   fDigiNr[1]  = -1;
   fDr = -1;
   fDp = -1;
+
+  AddLink(FairLink(kGemPoint, index)); 
 }
 // -------------------------------------------------------------------------
 
@@ -46,6 +49,9 @@ PndGemHit::PndGemHit(Int_t detID, TVector3& pos, TVector3& dpos,
   fDigiNr[1]  = digi2;
   fDr = dr;
   fDp = dp;
+
+  AddLink(FairLink(kGemDigi, digi1)); 
+  AddLink(FairLink(kGemDigi, digi2)); 
 }
 // -------------------------------------------------------------------------
 

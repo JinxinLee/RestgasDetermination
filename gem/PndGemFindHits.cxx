@@ -388,7 +388,9 @@ Int_t PndGemFindHits::FindHits(PndGemSensor* sensor,
 	  if ( digiF->GetIndex(irf1) == digiB->GetIndex(irf2) )
 	    refIndex = digiF->GetIndex(irf1);
 
-      new ((*fHits)[nHits++]) PndGemHit(kGemHit, pos, dpos,  
+      Int_t hitDetId = sensorDetId | kGemHit << 21;
+
+      new ((*fHits)[nHits++]) PndGemHit(hitDetId, pos, dpos,  
 					iDigiF, iDigiB, dr, dp, refIndex);
     }
   }

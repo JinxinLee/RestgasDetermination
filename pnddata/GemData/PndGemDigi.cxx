@@ -27,11 +27,11 @@ PndGemDigi::PndGemDigi() {
 // -----   Standard constructor   ------------------------------------------
 PndGemDigi::PndGemDigi(Int_t iDetectorId, Int_t iChannel, Int_t index) {
 
+  AddIndex(index);
+
   fDetectorId   = iDetectorId;
   fChannelNr    = iChannel;
   
-  fIndex.push_back(index);
-
   fDigiADC      =  0.;
   fDigiTDC      =  0.;  
   fDigiCor      =  0.5;  

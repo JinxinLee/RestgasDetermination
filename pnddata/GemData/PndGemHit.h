@@ -65,16 +65,23 @@ class PndGemHit : public FairHit
   void SetErrors(Double_t dr, Double_t dp) { fDr = dr; fDp = dp; };
   void SetDigiNr(Int_t digi1, Int_t digi2) { fDigiNr[0] = digi1; fDigiNr[1] = digi2; };
 
-  Double_t 	GetCharge()    const { return fCharge;}
-  Int_t 	  GetNDigiHits() const { return fNDigiHits;}
-  TVector3  GetPosition()	 const { return TVector3(fX,fY,fZ);}
-  Int_t     GetBotIndex()  const { return fBotIndex;}
-  Double_t  GetEloss()     const { return (fCharge * 3.61e-9);}  // 3.6 eV/Electron in Silicon
+  Double_t GetCharge()    const { return fCharge;}
+  Int_t    GetNDigiHits() const { return fNDigiHits;}
+  TVector3 GetPosition()  const { return TVector3(fX,fY,fZ);}
+  Int_t    GetBotIndex()  const { return fBotIndex;}
+  Double_t GetEloss()     const { return (fCharge * 3.61e-9);}  // 3.6 eV/Electron in Silicon
 
-  Double_t GetDr()  const { return fDr;  };
-  Double_t GetDp()  const { return fDp;  };
+  Double_t GetDr()        const { return fDr;  };
+  Double_t GetDp()        const { return fDp;  };
   Int_t    GetDigiNr(Int_t iside) const { if ( iside*(iside-1) == 0 ) return fDigiNr[iside]; return -1;};
   
+  Int_t    GetSystemId()   const { 
+    return ( ( fDetectorID & (  31<<27) ) >> 27); }
+  Int_t    GetStationNr()  const { 
+    return ( ( fDetectorID & (8191<< 8) ) >>  8 ); }
+  Int_t    GetSensorNr()   const {  // sensor number within station
+    return ( ( fDetectorID & (   3<< 6) ) >>  6 ); }
+
   //   // CAUTION The errors in the GemHit are LOCAL, but the coordinates are in the LAB
   //
   //   Double_t GetDxLocal() const { return fDx;};

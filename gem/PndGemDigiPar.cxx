@@ -16,6 +16,7 @@
 
 #include <iostream>
 #include "PndGemDigiPar.h"
+#include "PndDetectorList.h"
 
 using std::cout;
 using std::endl;
@@ -127,10 +128,8 @@ void PndGemDigiPar::CreateStations()
     for ( Int_t isec = 0 ; isec < nofSensors ; isec++ ) {
       sensorNr   = (Int_t)fGemParameters[arrayIndex+0];
       sensorName = Form("Gem_Disk%d_Gem%s_Sensor_kapton",stationNr,(sensorNr==1?"1":"6"));
-      
-      Int_t sensorDetId  = 2 << 24 | stationNr << 16 | sensorNr << 4;
 
-      sensor = new PndGemSensor(sensorName.Data(), sensorDetId, (Int_t)fGemParameters[arrayIndex+1],
+      sensor = new PndGemSensor(sensorName.Data(), stationNr, sensorNr, (Int_t)fGemParameters[arrayIndex+1],
 				fGemParameters[arrayIndex+ 2], fGemParameters[arrayIndex+ 3], fGemParameters[arrayIndex+ 4],
 				-TMath::Pi()*fGemParameters[arrayIndex+ 5]/180.,
 				fGemParameters[arrayIndex+ 6], fGemParameters[arrayIndex+ 7], 
@@ -139,21 +138,6 @@ void PndGemDigiPar::CreateStations()
 				fGemParameters[arrayIndex+11], fGemParameters[arrayIndex+12]);
 
       station->AddSensor(sensor);
-
-      /*      cout << "Adding " << sensorName.Data() << " with id " << sensorDetId 
-	   << " (type " << (Int_t)fGemParameters[arrayIndex+1] << ") position: ("
-	   << fGemParameters[arrayIndex+ 2] << ", " 
-	   << fGemParameters[arrayIndex+ 3] << ", " 
-	   << fGemParameters[arrayIndex+ 4] << "), rotation " 
-	   << fGemParameters[arrayIndex+ 5] << ", radius from "
-	   << fGemParameters[arrayIndex+ 6] << " to " 
-	   << fGemParameters[arrayIndex+ 7] << ", "
-	   << fGemParameters[arrayIndex+ 8] << " thick. " << endl << "     strip angles (" 
-	   << fGemParameters[arrayIndex+ 9] << ", "
-	   << fGemParameters[arrayIndex+10] << "), pitches ("
-	   << fGemParameters[arrayIndex+11] << ", "
-	   << fGemParameters[arrayIndex+12] << endl;
-      */
 
       // put sensor into name/sensor map
       map < TString, PndGemSensor*>::iterator p;
@@ -178,9 +162,7 @@ PndGemStation* PndGemDigiPar::GetStation(Int_t iStation) {
 
 // -------   Public method GetStationById   --------------------------------
 PndGemStation* PndGemDigiPar::GetStationByNr(Int_t stationNr) {
-  //  Int_t index = fStationMap[stationNr];
   PndGemStation* station = (PndGemStation*) fStationMap[stationNr];
-  //    (PndGemStation*) fStations->At(index);
   if ( ! station ) {
     cout << "-W- PndGemDigiPar::GetStationByNr: "
 	 << "No parameters found for station " << stationNr << endl;

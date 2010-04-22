@@ -26,6 +26,7 @@
 #include "TMath.h"
 #include "TGeoManager.h"
 #include "TGeoNode.h"
+#include "TRandom.h"
 
 #include "PndDetectorList.h"
 #include "PndGemIdealHitProducer.h"
@@ -36,9 +37,6 @@
 #include "PndGemDigiPar.h"
 #include "PndGemSensor.h"
 #include "PndGemDigi.h"
-
-#include "TRandom2.h"
-
 
 // -----   Default constructor   -------------------------------------------
 PndGemIdealHitProducer::PndGemIdealHitProducer() :
@@ -84,11 +82,6 @@ InitStatus PndGemIdealHitProducer::Init() {
  
   std::cout << " INITIALIZATION OF Ideal Gem Hit Producer***************" << std::endl;
   
-  fGen = new TRandom3();
-  time_t curtime;
-  time(&curtime);
-  fGen->SetSeed(curtime);
-
   // Get RootManager
   FairRootManager* ioman = FairRootManager::Instance();
   if( !ioman ) {
@@ -173,7 +166,7 @@ void PndGemIdealHitProducer::Exec(Option_t* opt) {
 
     Double_t rSmear, pSmear;
 
-    fGen->Rannor(rSmear,pSmear);
+    gRandom->Rannor(rSmear,pSmear);
     rSmear = radius + rSmear*dr;
     pSmear = 0.     + pSmear*dp;
 

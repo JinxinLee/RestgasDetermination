@@ -23,8 +23,6 @@
 #include "PndMCTrack.h"
 
 #include "PndGemHit.h"
-#include "PndTrackCand.h"
-#include "PndTrackCandHit.h"
 #include "PndGemTrackFinder.h"
 
 class PndGemTrackFinderIdeal : public PndGemTrackFinder

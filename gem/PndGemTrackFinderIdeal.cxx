@@ -6,15 +6,21 @@
 
 #include "PndGemTrackFinderIdeal.h"
 
-// Pnd includes
+// Fair includes
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
 #include "FairBaseParSet.h"
 #include "FairTrackParam.h"
-#include "PndGemMCPoint.h"
 #include "FairRootManager.h"
+
+// Pnd includes
+#include "PndGemMCPoint.h"
 #include "PndDetectorList.h"
+#include "PndTrack.h"
+#include "PndTrackCand.h"
+#include "PndTrackCandHit.h"
+
 // ROOT includes
 #include "TClonesArray.h"
 #include "TGeoManager.h"
@@ -138,6 +144,7 @@ Int_t PndGemTrackFinderIdeal::DoFind(TClonesArray* hitArray,
   PndGemHit*   gemHit   = NULL;
   FairMCPoint*  mcPoint  = NULL;
   PndMCTrack*  mcTrack  = NULL;
+  PndTrack* gemTrack = NULL;
   PndTrackCand* gemTrackCand = NULL;
 
   // Declare variables outside the loop
@@ -225,88 +232,48 @@ Int_t PndGemTrackFinderIdeal::DoFind(TClonesArray* hitArray,
     }
     if ( !hitMap[iMCTrack] ) continue;
 
-    new((*trackArray)[nTracks]) PndTrackCand();
+    gemTrackCand = new PndTrackCand();//(PndTrackCand*) trackArray->At(nofCreatedTracks);
+
+    // Loop over hits. Get corresponding MCPoint and MCTrack index
+    for(Int_t iHit = 0; iHit < nGemHits; iHit++) {
+      gemHit = (PndGemHit*) hitArray->At(iHit);
+      if( !gemHit ) {
+	nNoGemHit++;
+	continue;
+      }
     
-    gemTrackCand = (PndTrackCand*) trackArray->At(nTracks);
-    TLorentzVector tlVec = mcTrack->Get4Momentum();
-    //    Double_t mom = tlVec.Mag();
-    Double_t mom = trackPMap[iMCTrack];
-    if ( fVerbose > 2 ) {
-      cout << "momentum is " << mom << " (" 
-	   << tlVec.X() << " , " 
-	   << tlVec.Y() << " , " 
-	   << tlVec.Z() << " , " 
-	   << tlVec.T() << ") " << endl;
+      ptIndex = gemHit->GetRefIndex();
+      if(ptIndex < 0) continue;           // fake or background hit
+      mcPoint = (FairMCPoint*) fMCPointArray->At(ptIndex);
+    
+      if( !mcPoint ) {
+	nNoGemPoint++;
+	continue;
+      }
+    
+      mcTrackIndex = mcPoint->GetTrackID();
+    
+      if(mcTrackIndex < 0 || mcTrackIndex > nMCTracks) {
+	cout << "-E- "<< GetName() <<"::DoFind: "
+	     << "MCTrack index out of range. " << mcTrackIndex << " "
+	     << nMCTracks << endl;
+	nNoMCTrack++;
+	continue;
+      }
+      if ( mcTrackIndex != iMCTrack ) continue;
+
+      gemTrackCand->AddHit(kGemHit,iHit,gemHit->GetPosition().Mag());
+
+      if(fVerbose > 3) {
+	cout << "GEM hit " << iHit << " from GEM point "
+	     << ptIndex << " (" << mcTrackIndex << ") "
+	     << "added to GEM track " << trackIndex << endl;
+      }
     }
 
-//     if(mom != 0) {
-//       gemTrack->GetParamLast()->SetQp(1./mom);
-//     } else {
-//       gemTrack->GetParamLast()->SetQp(0);
-//     }
-
-//     gemTrackCand->GetParamLast()->SetQp(1e6+mcTrack->GetPdgCode());
-    gemTrackCand->setMcTrackId(iMCTrack);
-
-    trackMap[iMCTrack] = nTracks;
-    
-    nTracks++;
-  }
-  
-  // Loop over hits. Get corresponding MCPoint and MCTrack index
-  for(Int_t iHit = 0; iHit < nGemHits; iHit++) {
-    gemHit = (PndGemHit*) hitArray->At(iHit);
-    if( !gemHit ) {
-      nNoGemHit++;
-      continue;
-    }
-    
-    ptIndex = gemHit->GetRefIndex();
-    if(ptIndex < 0) continue;           // fake or background hit
-    mcPoint = (FairMCPoint*) fMCPointArray->At(ptIndex);
-    
-    if( !mcPoint ) {
-      nNoGemPoint++;
-      continue;
-    }
-    
-    mcTrackIndex = mcPoint->GetTrackID();
-    
-    if(mcTrackIndex < 0 || mcTrackIndex > nMCTracks) {
-      cout << "-E- "<< GetName() <<"::DoFind: "
-	   << "MCTrack index out of range. " << mcTrackIndex << " "
-	   << nMCTracks << endl;
-      nNoMCTrack++;
-      continue;
-    }
-    
-    if(trackMap.find(mcTrackIndex) == trackMap.end()) continue;
-    trackIndex = trackMap[mcTrackIndex];
-    gemTrackCand = (PndTrackCand*) trackArray->At(trackIndex);
-    
-    if( !gemTrackCand ) {
-      cout << "-E- "<< GetName() <<"::DoFind: "
-	   << "No GemTrack pointer. " << iHit << " " << ptIndex
-	   << " " << mcTrackIndex << " " << trackIndex << endl;
-      nNoTrack++;
-      continue;
-    }
-    
-    gemTrackCand->AddHit(kGemHit,iHit,gemHit->GetPosition().Mag());
-    //    cout << "gemTrack " << trackIndex << " has " << gemTrack->GetNofGemHits() << endl;
-    
-    if(fVerbose > 3) {
-      cout << "GEM hit " << iHit << " from GEM point "
-	   << ptIndex << " (" << mcTrackIndex << ") "
-	   << "added to GEM track " << trackIndex << endl;
-    }
-  }
-  
-  // Sorting hits
-  for(Int_t iTrack = 0; iTrack < nTracks; iTrack++) {
-    gemTrackCand = (PndTrackCand*) trackArray->At(iTrack);
     gemTrackCand->Sort();
-    //    cout << "gemTrack " << iTrack << " has " << gemTrack->GetNofGemHits() << endl;
+  
+    //    cout << "gemTrack " << nTracks << " has " << gemTrackCand->GetNHits() << " hits" << endl;
     PndTrackCandHit tch = gemTrackCand->GetSortedHit(0);
 
     gemHit = (PndGemHit*) hitArray->At(tch.GetHitId());
@@ -320,7 +287,39 @@ Int_t PndGemTrackFinderIdeal::DoFind(TClonesArray* hitArray,
     gemHit->Position(pos);
     mcPoint->Momentum(mom);
 
-    gemTrackCand->setTrackSeed(pos,mom.Unit(),1./mom.Mag());
+    mcTrack = (PndMCTrack*) fMCTrackArray->At(mcPoint->GetTrackID());
+
+    int pdg = mcTrack->GetPdgCode();
+    double charge = 0.;
+    if(pdg<100000000) charge = TDatabasePDG::Instance()->GetParticle(pdg)->Charge()/3.;
+
+    gemTrackCand->setTrackSeed(pos,mom.Unit(),charge/mom.Mag());
+    gemTrackCand->setMcTrackId(iMCTrack);
+
+    FairTrackParP*	    firstPar = new FairTrackParP(pos,mom,
+							 TVector3(0.5, 0.5, 0.5),
+							 0.1*mom,
+							 charge,
+							 pos,
+							 TVector3(1.,0.,0.),
+							 TVector3(0.,1.,0.));					 
+    FairTrackParP*	    lastPar = new FairTrackParP(pos,mom,
+							 TVector3(0.5, 0.5, 0.5),
+							 0.1*mom,
+							 charge,
+							 pos,
+							 TVector3(1.,0.,0.),
+							 TVector3(0.,1.,0.));					 
+
+    new((*trackArray)[nTracks]) PndTrack(*firstPar, *lastPar, *gemTrackCand);
+
+    gemTrack = (PndTrack*) trackArray->At(nTracks);
+    
+    gemTrack->SetRefIndex(iMCTrack);
+
+    trackMap[iMCTrack] = nTracks;
+    
+    nTracks++;
   }
   
   if(fVerbose) {

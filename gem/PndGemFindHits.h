@@ -35,7 +35,6 @@ class PndGemSensor;
 class PndGemStation;
 
 
-
 class PndGemFindHits : public FairTask
 {
 

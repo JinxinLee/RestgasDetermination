@@ -11,10 +11,14 @@
 #include "FairRuntimeDb.h"
 #include "FairBaseParSet.h"
 #include "FairTrackParam.h"
+#include "FairTrackParP.h"
 #include "PndGemMCPoint.h"
 #include "PndGemDigiPar.h"
 #include "FairRootManager.h"
 #include "PndDetectorList.h"
+#include "PndTrack.h"
+#include "PndTrackCand.h"
+#include "PndTrackCandHit.h"
 // ROOT includes
 #include "TClonesArray.h"
 #include "TGeoManager.h"
@@ -341,9 +345,9 @@ Int_t PndGemTrackFinderOnHits::CreateTracks(TClonesArray* hitArray, TClonesArray
     meanPhi[itr] = meanPhi[itr]/nofTS[itr];
     meanThe[itr] = meanThe[itr]/nofTS[itr];
 
-    new((*trackArray)[nofCreatedTracks]) PndTrackCand();
+    //    new((*trackArray)[nofCreatedTracks]) PndTrackCand();
     
-    gemTrackCand = (PndTrackCand*) trackArray->At(nofCreatedTracks);
+    gemTrackCand = new PndTrackCand();//(PndTrackCand*) trackArray->At(nofCreatedTracks);
 
     for ( Int_t ih = 0 ; ih < kNofStatDbl ; ih++ ) {
       if ( hitIndices[itr][ih] == -1 ) continue;
@@ -358,6 +362,37 @@ Int_t PndGemTrackFinderOnHits::CreateTracks(TClonesArray* hitArray, TClonesArray
     mom.SetMagThetaPhi(TMath::Abs(meanMom[itr]),meanThe[itr]*TMath::DegToRad(),meanPhi[itr]*TMath::DegToRad());
 
     gemTrackCand->setTrackSeed(pos,mom.Unit(),1./meanMom[itr]);//mom.Mag());
+
+    Int_t charge = -1;
+    if ( mom.Mag() < 0. ) charge = 1;
+
+    FairTrackParP*	    firstPar = new FairTrackParP(pos,mom,
+							 TVector3(0.5, 0.5, 0.5),
+							 0.1*mom,
+							 charge,
+							 pos,
+							 TVector3(1.,0.,0.),
+							 TVector3(0.,1.,0.));					 
+    FairTrackParP*	    lastPar = new FairTrackParP(pos,mom,
+							 TVector3(0.5, 0.5, 0.5),
+							 0.1*mom,
+							 charge,
+							 pos,
+							 TVector3(1.,0.,0.),
+							 TVector3(0.,1.,0.));					 
+    //    cout << "q = " << firstPar->GetQ() << endl;
+//      TClonesArray &pndtracks = *trackArray;
+//      Int_t size = pndtracks.GetEntriesFast();
+//      PndTrack* pndTrack = new(pndtracks[size]) PndTrack(*firstPar, *lastPar, *gemTrackCand);
+    new((*trackArray)[nofCreatedTracks]) PndTrack(*firstPar, *lastPar, *gemTrackCand);
+
+    /*    PndTrack* checkTrack = (PndTrack*) trackArray->At(nofCreatedTracks);
+    for ( Int_t ih = 0 ; ih < kNofStatDbl ; ih++ ) {
+      if ( hitIndices[itr][ih] == -1 ) continue;
+      checkTrack->AddLink(FairLink(kGemHit, hitIndices[itr][ih]));
+      }*/
+
+//     cout << "now q = " << checkTrack->GetParamFirst().GetQ() << endl;
 
     nofCreatedTracks++;
   }

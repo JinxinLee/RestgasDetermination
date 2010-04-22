@@ -31,7 +31,7 @@
 #define PNDGEMSENSOR_H 1
 
 #include "TNamed.h"
-#include "TRandom3.h"
+#include "PndDetectorList.h"
 
 #include <map>
 #include <list>
@@ -69,6 +69,13 @@ class PndGemSensor : public TNamed
 	       Double_t d, 
 	       Double_t stripAngle0, Double_t stripAngle1,
 	       Double_t pitch0, Double_t pitch1);
+  PndGemSensor(TString tempName, Int_t stationNr, Int_t sectorNr, Int_t iType, 
+	       Double_t x0, Double_t y0, Double_t z0,
+	       Double_t rotation, 
+	       Double_t innerRad, Double_t outerRad,
+	       Double_t d, 
+	       Double_t stripAngle0, Double_t stripAngle1,
+	       Double_t pitch0, Double_t pitch1);
 
 
   /** Destructor **/
@@ -76,15 +83,17 @@ class PndGemSensor : public TNamed
 
 
   /** Accessors **/
-  TString GetDetectorName()           const { return fName.Data(); }
+  TString  GetDetectorName()          const { return fName.Data(); }
+  void     SetDetectorId(Int_t stationNr,  Int_t sensorNr) {
+    fDetectorId = kGEM << 27 | 0 << 21 | stationNr << 8 | sensorNr << 6; }
   Int_t    GetDetectorId()            const { 
     return fDetectorId; }
-  Int_t    GetSystemId()              const {  
-    return ( fDetectorId & (15<<24) ) >> 24; }
-  Int_t    GetStationNr()             const { 
-    return ( fDetectorId & (255<<16) ) >> 16; }
-  Int_t    GetSensorNr()              const {  // sensor number within station
-    return ( fDetectorId & (4095<<4) ) >> 4; }
+  Int_t    GetSystemId()   const { 
+    return ( ( fDetectorId & (  31<<27) ) >> 27); }
+  Int_t    GetStationNr()  const { 
+    return ( ( fDetectorId & (8191<< 8) ) >>  8 ); }
+  Int_t    GetSensorNr()   const {  // sensor number within station
+    return ( ( fDetectorId & (   3<< 6) ) >>  6 ); }
   Int_t    GetType()                  const { return fType; }
   Double_t GetX0()                    const { return fPosition[0]; }
   Double_t GetY0()                    const { return fPosition[1]; }
@@ -176,8 +185,6 @@ class PndGemSensor : public TNamed
   Double_t fD;            // thickness of the sensor [cm]
   Double_t fStripAngle[2];     // Strips angle
   Double_t fPitch[2];     // Strip readout pitch or pixel size in x/y
-
-  TRandom3* fGen;
 
   /** Number of channels in front and back plane **/
   Int_t fNChannelsFront;

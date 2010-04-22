@@ -12,6 +12,7 @@
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
+#include "FairLink.h"
 
 // Includes from ROOT
 #include "TClonesArray.h"
@@ -20,6 +21,7 @@
 #include "TGeoManager.h"
 #include "TGeoNode.h"
 
+#include "PndDetectorList.h"
 #include "PndGemHit.h"
 #include "PndGemMCPoint.h"
 #include "PndGemDigiPar.h"
@@ -112,13 +114,10 @@ void PndGemDigitize::Exec(Option_t* opt) {
   PndGemSensor* sensor;
 
   Int_t nofHitsOutside = 0;
-
-  Double_t posCheck[3] = {20.,20.,80.};
-
   Int_t nofPoints = fPoints->GetEntriesFast();
   for ( Int_t iPoint = 0 ; iPoint < nofPoints ; iPoint++ ) {
     PndGemMCPoint* currentPndGemMCPoint = (PndGemMCPoint*)fPoints->At(iPoint);
-    
+
     Double_t posIn[3] = {currentPndGemMCPoint->GetX(),
  			 currentPndGemMCPoint->GetY(),
  			 currentPndGemMCPoint->GetZ()};
@@ -148,6 +147,8 @@ void PndGemDigitize::Exec(Option_t* opt) {
 	TVector3 pos;
 	currentPndGemMCPoint->Position(pos);
 	TVector3 dposLocal(0.,0.,0.);
+
+	Int_t hitDetId = sensorDetId | kGemHit << 21;
       
 	new ((*fHitOutsideArray)[nofHitsOutside]) PndGemHit(sensorDetId,
 							    pos,dposLocal,iPoint,currentPndGemMCPoint->GetEnergyLoss(),1);
@@ -158,7 +159,10 @@ void PndGemDigitize::Exec(Option_t* opt) {
       pair<Int_t, Int_t> a (sensorDetId, channelNumber);
       if ( fChannelMap.find(a) == fChannelMap.end() ) {
 	// Channel not yet active, create new digi
-	new ((*fDigis)[fNDigis]) PndGemDigi(sensorDetId, channelNumber, iPoint);
+
+	Int_t digiDetId = sensorDetId | kGemDigi << 21 | 0 << 5;
+      
+	new ((*fDigis)[fNDigis]) PndGemDigi(digiDetId, channelNumber, iPoint);
 	fChannelMap[a] = fNDigis;
 	fNDigis++;
       }
@@ -170,15 +174,16 @@ void PndGemDigitize::Exec(Option_t* opt) {
       }
     }
 
-    sensorDetId += 1;    
-
     channelNumber = sensor->GetChannel(locPosIn[0],locPosIn[1],1);
     if ( channelNumber == -1 ) continue;
 
     pair<Int_t, Int_t> a (sensorDetId, channelNumber);
     if ( fChannelMap.find(a) == fChannelMap.end() ) {
       // Channel not yet active, create new digi
-      new ((*fDigis)[fNDigis]) PndGemDigi(sensorDetId, channelNumber, iPoint);
+
+      Int_t digiDetId = sensorDetId | kGemDigi << 21 | 1 << 5;
+      
+      new ((*fDigis)[fNDigis]) PndGemDigi(digiDetId, channelNumber, iPoint);
       fChannelMap[a] = fNDigis;
       fNDigis++;
     }
@@ -229,7 +234,7 @@ InitStatus PndGemDigitize::Init() {
   // Register output array StsDigi
   fDigis = new TClonesArray("PndGemDigi",1000);
   ioman->Register("GEMDigi", "Digital response in GEM", fDigis, kTRUE);
-  
+
   return kSUCCESS;
 
 }
