@@ -27,7 +27,8 @@
 
 // Collaborating Class Headers --------
 #include "FairRootManager.h"
-
+#include "FairRuntimeDb.h"
+#include "FairRunAna.h"
 #include "TClonesArray.h"
 
 #include "GFTrack.h"
@@ -40,6 +41,9 @@
 #include "PndSttRecoHit.h"
 #include "PndDchRecoHit.h"
 #include "PndMdtRecoHit.h"
+#include "PndSttRecoHitProducer.h"
+#include "PndGeoSttPar.h"
+#include "PndSttMapCreator.h"
 #include "PndGenfitAdapters.h"
 #include "PndTrack.h"
 #include "PndTrackCand.h"
@@ -71,7 +75,13 @@ Bool_t PndRecoKalmanFit::Init()
       Error("PndRecoKalmanFit::Init","RootManager not instantiated!");
       return kFALSE;
     }
-  
+
+  // STT map loading
+  FairRuntimeDb* rtdb = FairRunAna::Instance()->GetRuntimeDb();
+  PndGeoSttPar *sttParameters = (PndGeoSttPar*) rtdb->getContainer("PndGeoSttPar");
+  PndSttMapCreator *mapper = new PndSttMapCreator(sttParameters);
+  TClonesArray *tubeArray = mapper->FillTubeArray();
+
   // Build hit factory -----------------------------
   fTheRecoHitFactory = new GFRecoHitFactory();
   if (fVerbose<2) GFException::quiet(true);
@@ -100,7 +110,7 @@ Bool_t PndRecoKalmanFit::Init()
   TClonesArray* sttr=(TClonesArray*) ioman->GetObject("SttHelixHit");
   if(sttr!=0)
     {
-      fTheRecoHitFactory->addProducer(kSttHelixHit,new GFRecoHitProducer<PndSttHelixHit,PndSttRecoHit>(sttr));
+      fTheRecoHitFactory->addProducer(kSttHelixHit,new PndSttRecoHitProducer<PndSttHelixHit,PndSttRecoHit>(sttr, tubeArray));
       std::cout << "*** PndRecoKalmanFit::Init" << "\t" << "SttHelixHit array  found" << std::endl;
     }
   

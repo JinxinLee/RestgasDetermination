@@ -53,8 +53,6 @@ public:
   virtual InitStatus Init();
   virtual void Exec(Option_t* opt);
   
-  void SetParContainers(); 
-  
 private:
   
   // Private Data Members ------------
