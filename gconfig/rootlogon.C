@@ -52,6 +52,7 @@ rootlogon()
 	if(isLibrary("libDsk"))gSystem->Load("libDsk");
 	if(isLibrary("libGlobal"))gSystem->Load("libGlobal");
 	if(isLibrary("libMCMatch"))gSystem->Load("libMCMatch");
+	if(isLibrary("libMva"))gSystem->Load("libMva");
 	
 }
 
