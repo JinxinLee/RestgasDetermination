@@ -26,6 +26,10 @@
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
+#include "PndSttTube.h"
+#include "PndSttRecoHitProducer.h"
+#include "PndSttMapCreator.h"
+
 
 using namespace std;
 
@@ -67,7 +71,10 @@ PndSttKalmanTask2::Init()
 //     Error("PndSttKalmanTask2::Init","stt helixhit-array not found!");
 //     return kERROR;
 //   }
-  
+
+  PndSttMapCreator *mapper = new PndSttMapCreator(fSttParameters);
+  TClonesArray *tubeAr = mapper->FillTubeArray();
+
   // Build hit factory -----------------------------
   _theRecoHitFactory = new GFRecoHitFactory();
   
@@ -80,7 +87,7 @@ PndSttKalmanTask2::Init()
     }
     else{ 
       // use helix hit
-      _theRecoHitFactory->addProducer(iter->first,new GFRecoHitProducer<PndSttHelixHit,PndSttRecoHit>(ar));
+      _theRecoHitFactory->addProducer(iter->first,new PndSttRecoHitProducer<PndSttHelixHit,PndSttRecoHit>(ar, tubeAr));
     }
     ++iter;
   }//end loops over hit types
