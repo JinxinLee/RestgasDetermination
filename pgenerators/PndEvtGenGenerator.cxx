@@ -203,35 +203,40 @@ Bool_t PndEvtGenGenerator::ReadRootEvent(FairPrimaryGenerator* primGen)
   fInputTree->GetEntry(iEvent++);
   g->cd();
 
-
-  Double_t fX=0.,fY=0.,fZ=0.;
-/*
-  if (fGasmode == 1) 
-  {
-
-	// Random 2D point in a circle of radius r (simple beamprofile)
-	Double_t radius;
-	radius = gRandom->Gaus(0,fRsigma);
-	gRandom->Circle(fX, fY, radius);
-	fZ=fDensityFunction->GetRandom();
-  }	
-*/
-
   for (Int_t i=0; i<fRNTrk;i++)
-  {
-    //cout << fRPdg[i]<<" "<<fRDF[i]<<" "<<fRDL[i]<<" "<<fRPx[i]<<" "<< fRPy[i] 
-    //<<" "<<fRPz[i] <<" "<<fRVx[i] <<" "<<fRVy[i]<<" "<< fRVz[i]<<endl;
-    
-    // add all final state particles
-    if ( -1==fRDF[i] && -1==fRDL[i] ) 
     {
-      primGen->AddTrack(fRPdg[i],fRPx[i],fRPy[i],fRPz[i],fRVx[i]+fX,fRVy[i]+fY,fRVz[i]+fZ);
-         //cout <<"P = "<<fRPx[i]<<" "<<fRPy[i]<<" "<<fRPz[i]<<endl;
-     } 
-  }
-
+      //cout << fRPdg[i]<<" "<<fRDF[i]<<" "<<fRDL[i]<<" "<<fRPx[i]<<" "<< fRPy[i] 
+      //<<" "<<fRPz[i] <<" "<<fRVx[i] <<" "<<fRVy[i]<<" "<< fRVz[i]<<endl;
+      
+      // add all final state particles
+      if ( -1==fRDF[i] && -1==fRDL[i] ) 
+	{
+	  Double_t fVx = fRVx[i]/10.; // mm -> cm conversion
+	  Double_t fVy = fRVy[i]/10.;
+	  Double_t fVz = fRVz[i]/10.;
+	  /* Check if fGasmode is set */
+	  if (fGasmode == 1) 
+	    {
+	      // Random 2D point in a circle of radius r (simple beamprofile)
+	      Double_t fX, fY, fZ, radius;
+	      radius = gRandom->Gaus(0,fRsigma);
+	      gRandom->Circle(fX, fY, radius);
+	      fVx = fVx + fX;
+	      fVy = fVy + fY;
+	      
+	      // calculate fZ according to some (probability) density function of the
+	      // gas
+	      fZ=fDensityFunction->GetRandom();
+	      fVz = fVz + fZ;
+	    }	
+	  
+	  primGen->AddTrack(fRPdg[i],fRPx[i],fRPy[i],fRPz[i],fVx,fVy,fVz);
+	  //cout <<"P = "<<fRPx[i]<<" "<<fRPy[i]<<" "<<fRPz[i]<<endl;
+	} 
+    }
+  
   return kTRUE;
-
+  
 }
 
 
@@ -272,6 +277,10 @@ Bool_t PndEvtGenGenerator::ReadAsciiEvent(FairPrimaryGenerator* primGen)
 	  max_nr = max(max_nr, nDL);
 	  if ((nDF==-1) && (nDL==-1)) 
       {
+	// Conversion mm -> cm for vertex position
+	fVx = fVx / 10.; 
+	fVy = fVy / 10.;
+ 	fVz = fVz / 10.; 
         /* Check if fGasmode is set */
         if (fGasmode == 1) 
         {
