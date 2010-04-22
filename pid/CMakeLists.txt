@@ -36,10 +36,12 @@ ${CMAKE_SOURCE_DIR}/pid
 ${CMAKE_SOURCE_DIR}/pid/PidData
 ${CMAKE_SOURCE_DIR}/pid/PidCorr
 ${CMAKE_SOURCE_DIR}/pid/PidClassifier
-${CMAKE_SOURCE_DIR}/pid/PidClassifier/KNN
-${CMAKE_SOURCE_DIR}/pid/PidClassifier/LVQ1
-${CMAKE_SOURCE_DIR}/pid/PidClassifier/TMVAkd_KNN
-# ${CMAKE_SOURCE_DIR}/pid/PidClassifier/TMVA_PDE_FOAM
+
+${CMAKE_SOURCE_DIR}/PndTools/MVA
+${CMAKE_SOURCE_DIR}/PndTools/MVA/KNN
+${CMAKE_SOURCE_DIR}/PndTools/MVA/LVQ1
+${CMAKE_SOURCE_DIR}/PndTools/MVA/TMVAkd_KNN
+# ${CMAKE_SOURCE_DIR}/PndTools/MVA/TMVA_PDE_FOAM
 )
 
 include_directories( ${INCLUDE_DIRECTORIES})
@@ -62,18 +64,18 @@ PidCorr/PndPidTpcInfo.cxx
 PndPidContFact.cxx
 
 # ######### Classifiers sources
-PidClassifier/PndMvaUtil.cpp
-PidClassifier/PndMvaDataSet.cpp
-PidClassifier/PndGpidClassifier.cpp
-PidClassifier/KNN/PndStdKnnClassify.cpp
-PidClassifier/LVQ1/PndLVQClassify.cpp
-PidClassifier/TMVAkd_KNN/PndKnnClassify.cpp
-PidClassifier/TMVAkd_KNN/PndProjectedKNN.cpp
+# PidClassifier/PndMvaUtil.cpp
+# PidClassifier/PndMvaDataSet.cpp
+# PidClassifier/PndGpidClassifier.cpp
+# PidClassifier/KNN/PndStdKnnClassify.cpp
+# PidClassifier/LVQ1/PndLVQClassify.cpp
+# PidClassifier/TMVAkd_KNN/PndKnnClassify.cpp
+# PidClassifier/TMVAkd_KNN/PndProjectedKNN.cpp
 # PidClassifier/TMVA_PDE_FOAM/PndPDEFoamClassify.cpp
 
 ###### Trainers.
-PidClassifier/PndMvaTrainer.cpp
-PidClassifier/LVQ1/PndLVQTrain.cpp
+# PidClassifier/PndMvaTrainer.cpp
+# PidClassifier/LVQ1/PndLVQTrain.cpp
 # PidClassifier/TMVA_PDE_FOAM/PndPDEFoamTrain.cpp
 
 ###### Associator
@@ -100,8 +102,8 @@ PidCorr/PndPidCorrelator.h
 PndPidContFact.h
 
 ############ Classifier headers
-PidClassifier/PndMvaClass.h
-PidClassifier/PndMvaVariable.h
+# PidClassifier/PndMvaClass.h
+# PidClassifier/PndMvaVariable.h
 
 ###### Dummy
 PidClassifier/PndPidIdealAssociatorTask.h
