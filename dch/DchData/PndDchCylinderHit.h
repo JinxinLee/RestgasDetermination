@@ -15,12 +15,12 @@
 // Pnd includes
 
 // ROOT includes
-#include "TObject.h"
+#include "FairMultiLinkedData.h"
 #include "TVector2.h"
 
 class PndDchDigi;
 
-class PndDchCylinderHit : public TObject{
+class PndDchCylinderHit : public FairMultiLinkedData{
  public:
   /** Default constructor **/
   PndDchCylinderHit();

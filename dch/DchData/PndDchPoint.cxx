@@ -7,6 +7,7 @@ using std::cout;
 using std::endl;
 
 #include "PndDchPoint.h"
+#include "PndDetectorList.h"
 
 // -----   Default constructor   -------------------------------------------
 PndDchPoint::PndDchPoint() : FairMCPoint() {
@@ -21,6 +22,7 @@ PndDchPoint::PndDchPoint(Int_t trackID,Int_t evtID, Int_t chamber, Int_t plane,
   : FairMCPoint(trackID, 0, pos, mom, tof, length, eLoss) {
   SetDetectorID(chamber,plane);
   fEventID = evtID;
+  SetLink(FairLink(kMCTrack, trackID));
 }
 // -------------------------------------------------------------------------
 

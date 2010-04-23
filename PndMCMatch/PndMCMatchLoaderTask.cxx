@@ -78,6 +78,10 @@ InitStatus PndMCMatchLoaderTask::Init()
   fMCMatch->InitStage(kGemDigi, "", "GEMDigi");
   fMCMatch->InitStage(kGemHit, "", "GEMHit");
 
+  fMCMatch->InitStage(kDchPoint, "", "PndDchPoint");
+  fMCMatch->InitStage(kDchDigi, "", "PndDchDigi");
+  fMCMatch->InitStage(kDchHit, "", "PndDchCylinderHit");
+
  // fMCMatch->InitStage(kEmcPoint,"","EmcPoint");
   fMCMatch->InitStage(kEmcHit, "", "EmcHit");
   fMCMatch->InitStage(kEmcDigi, "", "EmcDigi");

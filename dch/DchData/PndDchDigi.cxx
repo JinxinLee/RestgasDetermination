@@ -6,6 +6,8 @@
 //------------------
 #include "PndDchDigi.h"
 #include "PndDchPoint.h"
+#include "PndDetectorList.h"
+
 
 #include <iostream>
 using std::cout;
@@ -34,6 +36,7 @@ PndDchDigi::PndDchDigi(Double_t timeStamp,
   fWire = wire;
   fDriftTime = driftTime;
   fRefIndex = refIndex;
+  SetLink(FairLink(kDchPoint, refIndex));
 }
 
 void PndDchDigi::Print(const Option_t*) const {

@@ -6,6 +6,7 @@
 // Pnd includes
 #include "PndDchCylinderHit.h"
 #include "PndDchDigi.h"
+#include "PndDetectorList.h"
 
 // ROOT includes
 #include "TMath.h"
@@ -40,6 +41,7 @@ PndDchCylinderHit::PndDchCylinderHit(Int_t digiidx, Double_t xLoc, Double_t zGlo
   fAlpha            = alpha;
   fWireEnd1         = end1;
   fWireEnd2         = end2;
+  SetLink(FairLink(kDchDigi, digiidx));
 }
 // -------------------------------------------------------------------------
 

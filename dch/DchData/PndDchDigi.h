@@ -13,12 +13,12 @@
 #define PNDDCHDIGI_H
 
 // ROOT includes
-#include "TObject.h"
+#include "FairMultiLinkedData.h"
 
 
 class PndDchPoint;
 
-class PndDchDigi : public TObject  {
+class PndDchDigi : public FairMultiLinkedData  {
   
  public:
   
