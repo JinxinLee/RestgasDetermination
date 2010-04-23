@@ -89,6 +89,12 @@ run_sim_sttcombi_evtgen(Int_t nEvents=10){
   Gem->SetGeometryFileName("gem_3Stations.root");
   fRun->AddModule(Gem);
 
+  PndDsk* Dsk = new PndDsk("DSK", kTRUE);
+  Dsk->SetGeometryFileName("dsk.root");
+  Dsk->SetStoreCerenkovs(kFALSE);
+  Dsk->SetStoreTrackPoints(kFALSE);
+  fRun->AddModule(Dsk);
+
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
   Drc->SetRunCherenkov(kFALSE); // for fast sim Cherenkov -> kFALSE
   fRun->AddModule(Drc);

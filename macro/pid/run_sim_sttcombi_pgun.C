@@ -89,6 +89,12 @@ run_sim_sttcombi_pgun(Int_t nEvents=10, Int_t pid=13, Float_t p1=1.0, Float_t p2
   Gem->SetGeometryFileName("gem_3Stations.root");
   fRun->AddModule(Gem);
 
+  PndDsk* Dsk = new PndDsk("DSK", kTRUE);
+  Dsk->SetGeometryFileName("dsk.root");
+  Dsk->SetStoreCerenkovs(kFALSE);
+  Dsk->SetStoreTrackPoints(kFALSE);
+  fRun->AddModule(Dsk);
+
   PndDrc *Drc = new PndDrc("DIRC", kTRUE);
   Drc->SetRunCherenkov(kFALSE); // for fast sim Cherenkov -> kFALSE
   fRun->AddModule(Drc);
