@@ -77,8 +77,10 @@ public:
 	friend std::ostream& operator<< (std::ostream& out, const PndMCObject& obj){
 		std::vector<PndMCEntry> stages = obj.GetEntryVector();
 		for (int i = 0; i < stages.size(); i++){
-			out << i << ": ";
-			stages[i].Print(out);
+			if (stages[i].GetNLinks() > 0){
+				out << i << ": ";
+				stages[i].Print(out);
+			}
 		}
 		return out;
 	}

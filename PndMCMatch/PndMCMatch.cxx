@@ -105,6 +105,9 @@ PndMCResult PndMCMatch::GetMCInfoForward(fDetectorType start, fDetectorType stop
 		*/
 		//std::cout << "FairLink: " << tempLink << std::endl;
 		PndMCEntry tempEntry(GetMCInfoForwardSingle(tempLink, stop));
+		if (tempEntry.GetNLinks() > 0)
+			if (tempEntry.GetLink(0).GetType() == start)
+				tempEntry.DeleteLink(tempEntry.GetLink(0));
 		tempEntry.SetSource(start);
 		tempEntry.SetPos(i);
 		//std::cout << "PndMCEntry: " << tempEntry << std::endl;

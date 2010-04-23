@@ -44,7 +44,7 @@ void PndMCIdealTrackFinder::Exec(Option_t* opt)
 	//fMCMatch->CreateArtificialStage(kMCTrack, "", "");
 
 	fMCMatch->CreateArtificialStage(kMCTrack, "", "PndMCTrack");
-	PndMCResult myResult = fMCMatch->GetMCInfo(kMCTrack, kSttHit);
+	PndMCResult myResult = fMCMatch->GetMCInfo(kMCTrack, kDchHit);
 	std::cout << myResult;
 
 	for (int trackIndex = 0; trackIndex < myResult.GetNEntries(); trackIndex++){
