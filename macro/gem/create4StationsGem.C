@@ -11,7 +11,7 @@ void create4StationsGem()
 //   const Double_t  kDiskZPosition  [kNofDisks]    = { 90.0, 120.0, 150.0, 180.0};
   const Double_t  kDiskInnerRadius[kNofDisks]    = {  2.5,  2.5,  2.5,  2.5};
   const Double_t  kDiskOuterRadius[kNofDisks]    = { 45.0, 45.0, 56.0, 74.0};
-  const Double_t  kDiskZPosition  [kNofDisks]    = { 81.0,117.0,153.0,189.0};
+  const Double_t  kDiskZPosition  [kNofDisks]    = { 84.0,117.0,153.0,189.0};
 
   const Double_t kHalfStationThickness = 3.00;
 
