@@ -12,26 +12,25 @@
 # -s
 MAKEFLAGS  = -wkr --no-print-directory
 
-FLAGSMACHINE = -march=native -mtune=native -mfpmath=sse
-FLAGSMACHINE += -msse3 -m3dnow -m64 -mssse3 -mpc64
-FLAGSMACHINE += -m128bit-long-double -mcx16
+FLAGSMACHINE = -march=native -mtune=native
+# FLAGSMACHINE += -msse3 -m3dnow -m64 -mssse3 -mpc64
+# FLAGSMACHINE += -m128bit-long-double -mcx16 -mfpmath=sse
 
-# -fopenmp -Weffc++
-# CCFLAGS = -O0 -g -pg # if profiling
-
+# CCFLAGS = -O0 -g -pg -fprofile-use # if profiling
 CCFLAGS  = -Wall -W -Wredundant-decls -Wshadow -Wcoverage-mismatch -Werror
-CCFLAGS += -ftracer ${FLAGSMACHINE} -O3
-CCFLAGS += -funroll-loops -funsafe-loop-optimizations -fvariable-expansion-in-unroller
-CCFLAGS += -fsplit-ivs-in-unroller -fprefetch-loop-arrays
-#-fprofile-use
-CCFLAGS += -malign-double  -momit-leaf-frame-pointer -fomit-frame-pointer
-CCFLAGS += -maccumulate-outgoing-args
+# CCFLAGS += -Weffc++
 CCFLAGS += -fdiagnostics-show-option -fdiagnostics-show-location=every-line
+# CCFLAGS += -g  #-fopenmp
+CCFLAGS += -O3 ${FLAGSMACHINE}
+# CCFLAGS += -funroll-loops -funsafe-loop-optimizations -fvariable-expansion-in-unroller
+# CCFLAGS += -fsplit-ivs-in-unroller -fprefetch-loop-arrays
+# CCFLAGS += -malign-double  -momit-leaf-frame-pointer -fomit-frame-pointer
+# CCFLAGS += -maccumulate-outgoing-args -ftracer
 
 INCLUDE = $(shell root-config --cflags) -I./ -I../
 
-LIBS  = $(shell root-config --libs) -lTMVA -lTreePlayer -lMinuit 
-LIBS += -lMLP -lXMLIO -fopenmp # -fprofile-generate
+LIBS  = $(shell root-config --libs) -lTMVA -lTreePlayer -lMinuit
+LIBS += -lMLP -lXMLIO #-fprofile-generate
 
 .EXPORT_ALL_VARIABLES:
 
@@ -105,7 +104,8 @@ examples: PndMvaUtil PndMvaDataSet PndGpidClassifier Classifiers
 
 	$(CXX) $(LIBS) build/CreateRandomDataSet.o -o build/CreateRandomDataSet
 
-	$(CXX) $(LIBS) build/PndMvaCluster.o build/exampleCluster.o -o build/exampleCluster
+	$(CXX) $(LIBS) build/PndMvaCluster.o build/exampleCluster.o build/PndMvaDataSet.o \
+	-o build/exampleCluster
 clean:
 	rm -f *~ *.o *.root build/*
 	cd KNN ; $(MAKE) clean
