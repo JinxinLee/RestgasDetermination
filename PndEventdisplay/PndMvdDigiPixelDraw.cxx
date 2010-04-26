@@ -7,7 +7,7 @@
 
 #include "PndMvdDigiPixelDraw.h"
 
-#include "PndMvdCalcFePixel.h"
+#include "PndSdsCalcFePixel.h"
 #include "PndMvdHit.h"
 #include "PndMvdCluster.h"
 
@@ -42,7 +42,7 @@ InitStatus PndMvdDigiPixelDraw::Init()
 
 void PndMvdDigiPixelDraw::Exec(Option_t* option)
 {
-	PndMvdCalcFePixel calc(104,104,10);
+	PndSdsCalcFePixel calc(104,104,10);
 	Int_t col, row, fe;
 	Reset();
 	if (fUseCluster == kTRUE){
