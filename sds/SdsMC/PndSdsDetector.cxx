@@ -72,7 +72,7 @@ void PndSdsDetector::Initialize()
     std::cout<<" -E- No gGeoManager in PndSdsDetector::Initialize()!"<<std::endl;
     abort();
   }
-  fGeoH = new PndGeoHandling(gGeoManager);
+  fGeoH = new PndGeoHandling();
   SetBranchNames();
 }
 

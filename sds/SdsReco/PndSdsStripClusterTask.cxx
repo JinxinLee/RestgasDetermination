@@ -137,7 +137,7 @@ InitStatus PndSdsStripClusterTask::Init()
   ioman->Register(fClustBranchName, fFolderName, fClusterArray, fPersistance);
 
   // geo name handling
-  fGeoH = new PndGeoHandling(gGeoManager);
+  fGeoH = new PndGeoHandling();
 
   SetCalculators();
 

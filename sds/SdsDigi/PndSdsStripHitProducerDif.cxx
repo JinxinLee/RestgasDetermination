@@ -138,7 +138,7 @@ InitStatus PndSdsStripHitProducerDif::Init()
 
   SetBranchNames();
 
-  fGeoH = new PndGeoHandling(gGeoManager);
+  fGeoH = new PndGeoHandling();
 
   //std::cout << "-I- PndSdsStripHitProucer::Init() " << fGeoH->GetPath("1_1/212_0/") << std::endl;
 

@@ -96,7 +96,7 @@ InitStatus PndSdsStripHitProducer::Init()
 
   SetBranchNames();
   
-  fGeoH = new PndGeoHandling(gGeoManager);
+  fGeoH = new PndGeoHandling();
 
   if ( ! ioman )
     {
