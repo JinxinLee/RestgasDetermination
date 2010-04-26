@@ -117,7 +117,7 @@ Bool_t PndRecoKalmanFit::Init()
   TClonesArray* sthit=(TClonesArray*) ioman->GetObject("SttHit");
   if(sthit!=0)
     {
-      fTheRecoHitFactory->addProducer(kSttHit,new GFRecoHitProducer<PndSttHit,PndSttRecoHit>(sthit)); 
+      fTheRecoHitFactory->addProducer(kSttHit,new PndSttRecoHitProducer<PndSttHit,PndSttRecoHit>(sthit, tubeArray)); 
       std::cout << "*** PndRecoKalmanFit::Init" << "\t" << "SttHit array  found" << std::endl;
     }
   

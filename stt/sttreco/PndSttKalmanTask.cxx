@@ -25,6 +25,10 @@
 #include "FairRootManager.h"
 #include "FairRunAna.h"
 #include "FairRuntimeDb.h"
+#include "PndSttTube.h"
+#include "PndSttRecoHitProducer.h"
+#include "PndSttMapCreator.h"
+
 
 using namespace std;
 
@@ -56,7 +60,10 @@ PndSttKalmanTask::Init()
     Error("PndSttKalmanTask::Init","track-array not found!");
     return kERROR;
   }
-  
+
+  PndSttMapCreator *mapper = new PndSttMapCreator(fSttParameters);
+  TClonesArray *tubeAr = mapper->FillTubeArray();
+
   // Build hit factory -----------------------------
   _theRecoHitFactory = new GFRecoHitFactory();
   
@@ -68,11 +75,12 @@ PndSttKalmanTask::Init()
       Error("PndSttKalmanTask::Init","point-array %s not found!",iter->second.Data());
     }
     else{ 
-      _theRecoHitFactory->addProducer(iter->first,new GFRecoHitProducer<PndSttHit,PndSttRecoHit>(ar));
+      _theRecoHitFactory->addProducer(iter->first,new PndSttRecoHitProducer<PndSttHit,PndSttRecoHit>(ar, tubeAr));
     }
     ++iter;
   }//end loops over hit types
   
+  GFException::quiet(true);
 
  return kSUCCESS;
 }
@@ -98,7 +106,7 @@ PndSttKalmanTask::Exec(Option_t* opt)
 	trk->addHitVector(_theRecoHitFactory->createMany(trk->getCand()));
 	if(fVerbose >= 2) std::cout<<trk->getNumHits()<<" hits in track " <<itr<<std::endl;
 	GFKalman k;
-        k.setLazy(1);
+	//        k.setLazy(1);
 	k.setNumIterations(1);
 	k.processTrack(trk);
       }

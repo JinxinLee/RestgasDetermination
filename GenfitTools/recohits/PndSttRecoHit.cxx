@@ -119,6 +119,38 @@ PndSttRecoHit::PndSttRecoHit(PndSttHelixHit *currenthit) : WireHitRecoHit(NparHi
 
 }
 
+// TO BE CHANGED TO USE TUBE ARRAY
+PndSttRecoHit::PndSttRecoHit(PndSttHit *currenthit, TClonesArray *tubeArray) : WireHitRecoHit(NparHitRep){
+
+  Int_t tubeID = currenthit->GetTubeID();
+  PndSttTube *tube = (PndSttTube *) tubeArray->At(tubeID);
+
+  // wire1(3), wire2(3), rdrift
+  TVector3 wiredirection = tube->GetWireDirection();
+  TVector3 wiredirection2 = tube->GetHalfLength() * wiredirection; 
+  TVector3 cenposition = tube->GetPosition(); 
+  TVector3 wire1, wire2;
+  wire1 = cenposition - wiredirection2;
+  wire2 = cenposition + wiredirection2;
+//   cout << "Wiredirection, wire1, wire2 " << endl;
+//   wiredirection.Print();
+//   wire1.Print();
+//   wire2.Print();
+  fHitCoord[0][0] = wire1.X();
+  fHitCoord[1][0] = wire1.Y();
+  fHitCoord[2][0] = wire1.Z();
+  fHitCoord[3][0] = wire2.X();
+  fHitCoord[4][0] = wire2.Y();
+  fHitCoord[5][0] = wire2.Z();
+  fHitCoord[6][0] = currenthit->GetIsochrone();
+
+  // errors on drift radius 
+  for(int i = 0; i < NparHitRep; i++) for(int j = 0; j < NparHitRep; j++) fHitCov[i][j] = 0.;
+  fHitCov[6][6] = 0.0100 * 0.0100; // currenthit->GetIsochroneError(); CHECK
+
+  // cut on distance
+  fPolicy.setMaxDistance(0.5);
+}
 
 PndSttRecoHit::PndSttRecoHit(PndSttHelixHit *currenthit, TClonesArray *tubeArray) : WireHitRecoHit(NparHitRep){
 

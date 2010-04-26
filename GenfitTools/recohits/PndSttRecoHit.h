@@ -25,6 +25,7 @@ public:
   PndSttRecoHit();
   PndSttRecoHit(PndSttHit *currenthit); 
   PndSttRecoHit(PndSttHelixHit *currenthit); 
+  PndSttRecoHit(PndSttHit *currenthit, TClonesArray *tubeArr); 
   PndSttRecoHit(PndSttHelixHit *currenthit, TClonesArray *tubeArr); 
 
   virtual ~PndSttRecoHit();
