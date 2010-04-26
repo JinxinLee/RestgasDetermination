@@ -114,7 +114,11 @@ Float_t PndPidDrcAssociatorTask::GetPdf(Float_t thetaC, Float_t mom, Float_t mas
   if ( (beta>0.) && ((1./1.47/beta)<1.) )
     {
       Float_t center = 1./1.47/beta;
-      return TMath::Gaus(TMath::Cos(thetaC),center,sigma,kTRUE);
+      TF1 *gausPdf = new TF1("gausPdf","gausn",0,1);
+      gausPdf->SetParameter(0,1);
+      gausPdf->SetParameter(1,center);
+      gausPdf->SetParameter(2,sigma);
+      return gausPdf->Eval(TMath::Cos(thetaC));
     }
   else
     {
