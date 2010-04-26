@@ -100,7 +100,7 @@ PndMvdMaterialDet::~PndMvdMaterialDet()
 void PndMvdMaterialDet::Initialize()
 {
   FairDetector::Initialize();
-  fGeoH = new PndGeoHandling(gGeoManager);
+  fGeoH = new PndGeoHandling();
 }
 
 

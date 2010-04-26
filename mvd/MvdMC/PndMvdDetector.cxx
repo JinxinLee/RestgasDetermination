@@ -103,7 +103,7 @@ void PndMvdDetector::Initialize()
     std::cout<<" -E- No gGeoManager in PndMvdDetector::Initialize()!"<<std::endl;
     abort();
   }
-  fGeoH = new PndGeoHandling(gGeoManager);
+  fGeoH = new PndGeoHandling();
 }
 
 //overwrite virtual method of FairDetector

@@ -66,7 +66,7 @@ InitStatus PndMvdNoiseProducer::Init()
       ioman->Register("MVDPixelDigis","MVD",fDigiPixelArray,fPersistance);
   }
 
-  fGeoH = new PndGeoHandling(gGeoManager);
+  fGeoH = new PndGeoHandling();
   // Retrieve a map between the active geometry nodes and their interpretation
   TGeoNode* topnode = gGeoManager->GetTopNode();
   for (Int_t n=0; n<topnode->GetNdaughters();n++)

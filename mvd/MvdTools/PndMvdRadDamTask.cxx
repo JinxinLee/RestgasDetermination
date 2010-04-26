@@ -72,7 +72,7 @@ InitStatus PndMvdRadDamTask::Init()
 	ioman->Register("MVDRadDamHit", "MVD", fRadDamHits, fPersistance);
 
 	InitWeightLists();
-	fGeoH = new PndGeoHandling(gGeoManager);
+	fGeoH = new PndGeoHandling();
 	fRadDamHisto = new TH1D("radDamH","Weight Factors", 1000,0,100);
 
 	std::cout << "-I- PndMvdRadDamTask: Initialization successful" << std::endl;

@@ -18,7 +18,7 @@ PndMvdDigiEventAna::PndMvdDigiEventAna(TString fileName):PndMvdEventAna(fileName
 	Init(fileName);
 	SetCanvasColumns(6);
 
-	fGeoH = new PndGeoHandling(gGeoManager);
+	fGeoH = new PndGeoHandling();
 }
 
 void PndMvdDigiEventAna::InitBranch()

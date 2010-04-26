@@ -168,7 +168,7 @@ InitStatus PndMvdStripHitProducer::Init()
  // FairRun* ana = FairRun::Instance();
   FairRootManager* ioman = FairRootManager::Instance();
 
-  fGeoH = new PndGeoHandling(gGeoManager);
+  fGeoH = new PndGeoHandling();
 
   //std::cout << "-I- PndMvdStripHitProucer::Init() " << fGeoH->GetPath("1_1/212_0/") << std::endl;
 

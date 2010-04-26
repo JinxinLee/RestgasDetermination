@@ -4,7 +4,7 @@
 #include "PndMvdHit.h"
 #include "TString.h"
 
-PndMvdRiemannTrackFinder::PndMvdRiemannTrackFinder():PndRiemannTrackFinder(),fZClosePar(0.1), fGeoH(gGeoManager)
+PndMvdRiemannTrackFinder::PndMvdRiemannTrackFinder():PndRiemannTrackFinder(),fZClosePar(0.1)
 {
 	if (fUseZeroPos)
 		fLayers[0].push_back(0);

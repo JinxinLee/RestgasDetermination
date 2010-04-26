@@ -83,7 +83,7 @@ PndMvdConvertApv::PndMvdConvertApv(const TString& CalibFileName, const TString& 
 
 Bool_t PndMvdConvertApv::Init()
 {
-  fGeoH = new PndGeoHandling(gGeoManager);
+  fGeoH = new PndGeoHandling();
   return kTRUE;
 }
 

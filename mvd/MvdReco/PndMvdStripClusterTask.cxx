@@ -184,7 +184,7 @@ InitStatus PndMvdStripClusterTask::Init()
   ioman->Register("MVDStripClusterCand","MVD",fClusterArray,fPersistance);
 
   // geo name handling
-  fGeoH = new PndGeoHandling(gGeoManager);
+  fGeoH = new PndGeoHandling();
 
   SetCalculators();
 

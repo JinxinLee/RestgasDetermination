@@ -31,7 +31,7 @@ PndMvdHybridHitProducer::PndMvdHybridHitProducer() :
   fEventNr = 0;
   fOverwriteParams = kFALSE;
   fPersistance = kTRUE;
- // fGeoH = new PndGeoHandling(gGeoManager);
+ // fGeoH = new PndGeoHandling();
 //  fHitArray  = new TClonesArray("PndMvdHit");
 //	fPixelArray	= new TClonesArray("PndMvdPixelHit");
   if(fVerbose>0) std::cout << "MVD Hybrid Digi Producer created, Parameters will be taken from RTDB" << std::endl;
@@ -92,7 +92,7 @@ InitStatus PndMvdHybridHitProducer::Init()
 {
     FairRun* ana = FairRun::Instance();
   FairRootManager* ioman = FairRootManager::Instance();
-    fGeoH = new PndGeoHandling(gGeoManager);
+    fGeoH = new PndGeoHandling();
   if ( ! ioman )
     {
       std::cout << "-E- PndMvdHybridHitProducer::Init: "

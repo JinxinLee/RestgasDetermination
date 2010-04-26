@@ -2,7 +2,7 @@
 
 PndMvdPixelBackMapping::PndMvdPixelBackMapping()
 {
-  fGeoH = new PndGeoHandling(gGeoManager);
+  fGeoH = new PndGeoHandling();
   fVerbose = 0;
 }
       
@@ -10,7 +10,7 @@ PndMvdPixelBackMapping::PndMvdPixelBackMapping(std::vector<PndMvdDigiPixel> digi
 {
   fDigiArray = digiArray;
   fParams    = params;
-  fGeoH = new PndGeoHandling(gGeoManager);
+  fGeoH = new PndGeoHandling();
   fVerbose = 0;
   if (fParams.size() > 4) ChargeReco = new PndMvdRecoCharge(fParams[4],fParams[5],fParams[6]);
   else ChargeReco = new PndMvdRecoCharge();
