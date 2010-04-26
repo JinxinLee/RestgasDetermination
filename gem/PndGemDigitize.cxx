@@ -133,6 +133,11 @@ void PndGemDigitize::Exec(Option_t* opt) {
     nodeName.Remove(nodeName.Length()-2,2);
 
     sensor = (PndGemSensor*)fDigiPar->GetSensorByName(nodeName.Data());
+    if ( !sensor ) {
+      cout << " -E- " << GetName() << ":Exec() There is no sensor: \"" 
+	   << currentPndGemMCPoint->GetDetName() << "\"." << endl;
+      continue;
+    }
     Double_t locPosIn[4];
 
     curNode->MasterToLocal(posIn,locPosIn);
@@ -211,7 +216,7 @@ void PndGemDigitize::SetParContainers() {
 
   // Get GEM digitisation parameter container
   fDigiPar = (PndGemDigiPar*)(db->getContainer("PndGemDetectors"));
-
+  cout << "-I- PndGemDigitize::SetParContainers(). There are " << fDigiPar->GetNStations() << " GEM stations." << endl;
 }
 // -------------------------------------------------------------------------
 
@@ -235,6 +240,8 @@ InitStatus PndGemDigitize::Init() {
   fDigis = new TClonesArray("PndGemDigi",1000);
   ioman->Register("GEMDigi", "Digital response in GEM", fDigis, kTRUE);
 
+  cout << "-I- PndGemDigitize::Init(). There are " << fDigiPar->GetNStations() << " GEM stations." << endl;
+  cout << "-I- PndGemDigitize::Init(). Initialization succesfull." << endl;
   return kSUCCESS;
 
 }
